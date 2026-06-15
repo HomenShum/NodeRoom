@@ -721,7 +721,7 @@ export function Chat({ roomId, me, channel, variant, agentName, style, onOpenArt
       )}
 
       <div className="r-chat" ref={feedRef} onScroll={onScroll} aria-live="polite" data-testid="chat-feed">
-        {messages.length === 0 && failedSends.length === 0 && <div className="tiny faint" style={{ margin: "auto" }}>No messages yet. Say hello.</div>}
+        {messages.length === 0 && failedSends.length === 0 && <div className="tiny faint" style={{ margin: "auto", textAlign: "center", maxWidth: 260, lineHeight: 1.5 }}>{isPrivate ? "Ask your NodeAgent privately, or press / for commands." : "No messages yet. Ask the room agent, or press / for commands."}</div>}
         {agentErr && <div className="r-msg" role="alert" data-testid="agent-error" data-state="failed"><div className="body tiny" style={{ color: "var(--danger-ink)" }}>{agentErr}</div></div>}
         {messages.map((m) => <Bubble key={m.clientMsgId || m.id} m={m} roomId={roomId} variant={variant} me={me} onPromote={promote} onOpenArtifact={onOpenArtifact} />)}
         {failedSends.map((f) => (

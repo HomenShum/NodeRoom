@@ -101,7 +101,7 @@ input { font-family: inherit; }
 .r-pill-auto { display: inline-flex; align-items: center; gap: 8px; padding: 5px 6px 5px 11px; border-radius: 9px; border: 1px solid var(--line); background: var(--bg-secondary); font-size: 12px; font-weight: 600; color: var(--text-secondary); white-space: nowrap; flex-shrink: 0; }
 .r-switch { width: 32px; height: 18px; border-radius: 999px; background: var(--bg-hover); position: relative; transition: background .18s; flex: none; border: none; padding: 0; }
 .r-switch::after { content: ''; position: absolute; top: 2px; left: 2px; width: 14px; height: 14px; border-radius: 50%; background: #fff; transition: transform .18s var(--ease-spring); box-shadow: 0 1px 2px rgba(0,0,0,.3); }
-.r-switch[data-on="true"] { background: var(--accent-primary); }
+.r-switch[data-on="true"] { background: var(--success); } /* enabled = functional green; terracotta reserved for agent focus */
 .r-switch[data-on="true"]::after { transform: translateX(14px); }
 .r-switch:disabled { opacity: .55; cursor: not-allowed; }
 .r-modal-backdrop { position: fixed; inset: 0; z-index: 90; display: grid; place-items: center; padding: 20px; background: rgba(0,0,0,.46); backdrop-filter: blur(8px); }
@@ -160,7 +160,7 @@ input { font-family: inherit; }
 /* left rail */
 .r-rail { flex: 1; overflow-y: auto; padding: 10px 8px; }
 .r-rail-section { padding: 4px 8px 6px; }
-.r-file { display: flex; align-items: center; gap: 9px; width: 100%; text-align: left; padding: 9px 9px; min-height: 44px; border-radius: 9px; border: 1px solid transparent; background: transparent; color: var(--text-secondary); transition: background .12s, border-color .12s; }
+.r-file { display: flex; align-items: center; gap: 10px; width: 100%; text-align: left; padding: 8px 12px; min-height: 44px; border-radius: 9px; border: 1px solid transparent; background: transparent; color: var(--text-secondary); transition: background .12s, border-color .12s; }
 .r-file:hover { background: var(--bg-hover); }
 /* Inert rows must not borrow the clickable affordance ("if it looks clickable, it needs
    behavior" — accessibility-states). */
@@ -168,7 +168,7 @@ input { font-family: inherit; }
 .r-file-static:hover { background: transparent; }
 .r-file[draggable="true"] { cursor: grab; }
 .r-file[draggable="true"]:active { cursor: grabbing; }
-.r-file[data-active="true"] { background: var(--accent-tint); border-color: var(--accent-border); }
+.r-file[data-active="true"] { background: var(--bg-secondary); border-color: transparent; box-shadow: inset 3px 0 0 var(--accent-primary); } /* focus = thin terracotta bar, not a full tinted block */
 .r-file .fi { width: 26px; height: 26px; border-radius: 7px; display: grid; place-items: center; flex: none; background: var(--bg-secondary); color: var(--text-muted); }
 .r-file[data-active="true"] .fi { background: rgba(217,119,87,.18); color: var(--accent-ink); }
 .r-file .fn { font-size: 13px; font-weight: 650; color: var(--text-primary); line-height: 1.25; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -890,5 +890,5 @@ input { font-family: inherit; }
 /* Selected file row used an accent BORDER around the whole row — the data-grid selection grammar
    is a background TINT + a left accent bar + weight, never a full colored border (Linear/shadcn:
    "selected = bg tint, hierarchy via weight not a hue ring"). */
-.r-file[data-active="true"] { background: var(--accent-tint); border-color: transparent; box-shadow: inset 2px 0 0 var(--accent-primary); }
+.r-file[data-active="true"] { background: var(--bg-secondary); border-color: transparent; box-shadow: inset 3px 0 0 var(--accent-primary); } /* dedup of line 171: neutral bg + terracotta focus bar (no tint block) */
 .r-file[data-active="true"] .fn { font-weight: 700; }
