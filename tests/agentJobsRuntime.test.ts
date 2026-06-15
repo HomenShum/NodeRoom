@@ -51,6 +51,24 @@ describe("agentJobs runtime contract", () => {
     expect(traces.some((trace) => trace.type === "plan_blocked")).toBe(true);
   });
 
+  it("keeps PlanPreview-blocked jobs fail-closed on retry", async () => {
+    const { t, proof, roomId, artifactId } = await setupRoom();
+    const blocked = await t.mutation(api.agentJobs.createOrReuse, {
+      ...jobArgs({ roomId, artifactId, proof, idempotencyKey: "job-runtime-plan-blocked-retry" }),
+      initialStatus: "blocked" as const,
+      planPreview: { scheduling: "needs_human_approval", conflicts: [{ kind: "pending_proposal_overlap", detail: "C2 already has a pending proposal." }] },
+      error: "PlanPreview blocked this run (needs_human_approval): C2 already has a pending proposal.",
+    });
+
+    const retried = await t.mutation(api.agentJobs.retry, { jobId: blocked.jobId, requester: proof });
+    const detail = await t.query(api.agentJobs.detail, { jobId: blocked.jobId, requester: proof });
+
+    expect(retried).toEqual({ ok: false, reason: "blocked_requires_fresh_plan" });
+    expect(detail?.job.status).toBe("blocked");
+    expect(detail?.job.workflowId).toBeUndefined();
+    expect(detail?.operations.map((event) => event.name)).not.toContain("agentWorkflows.freeAutoWorkflow");
+  });
+
   it("finishInteractive writes attempts, operation events, and materialized counters", async () => {
     const { t, proof, roomId, artifactId } = await setupRoom();
     const { jobId } = await t.mutation(api.agentJobs.createOrReuse, jobArgs({ roomId, artifactId, proof, idempotencyKey: "job-runtime-finish" }));
@@ -179,6 +197,24 @@ describe("agentJobs runtime contract", () => {
     expect(detail?.job.leaseId).toBe("");
   });
 
+  it("cancel finalizes the job, releases active leases, and records a checkpoint", async () => {
+    const { t, proof, roomId, artifactId } = await setupRoom();
+    const { jobId } = await t.mutation(api.agentJobs.createOrReuse, jobArgs({ roomId, artifactId, proof, idempotencyKey: "job-runtime-cancel-lease" }));
+    const claimed = await t.mutation(internal.agentJobs.claimSlice, { jobId, leaseId: "lease-cancel", leaseMs: 60_000 });
+    expect(claimed?.attempt).toBe(1);
+
+    const cancelled = await t.mutation(api.agentJobs.cancel, { jobId, requester: proof });
+    const detail = await t.query(api.agentJobs.detail, { jobId, requester: proof });
+
+    expect(cancelled).toEqual({ ok: true });
+    expect(detail?.job.status).toBe("cancelled");
+    expect(detail?.job.completedAt).toEqual(expect.any(Number));
+    expect(detail?.job.leaseId).toBe("");
+    expect(detail?.leases.some((lease) => lease.status === "active")).toBe(false);
+    expect(detail?.leases.map((lease) => lease.status)).toContain("released");
+    expect(detail?.operations.map((event) => event.name)).toContain("agentJobs.cancel");
+  });
+
   it("sweeps expired running-job leases into a fenced failed state", async () => {
     const { t, proof, roomId, artifactId } = await setupRoom();
     const { jobId } = await t.mutation(api.agentJobs.createOrReuse, jobArgs({ roomId, artifactId, proof, idempotencyKey: "job-runtime-stale-lease" }));
@@ -301,6 +337,42 @@ describe("agentJobs runtime contract", () => {
     expect(deniedCancel).toEqual({ ok: false, reason: "forbidden" });
     expect(deniedRetry).toEqual({ ok: false, reason: "forbidden" });
     expect(allowedCancel).toEqual({ ok: true });
+  });
+
+  it("redacts private user jobs from other room members and host-level job detail queries", async () => {
+    const { t, proof: hostProof, memberProof, roomId, artifactId } = await setupRoom({ extraMember: true });
+    const { jobId } = await t.mutation(api.agentJobs.createOrReuse, {
+      ...jobArgs({ roomId, artifactId, proof: memberProof, idempotencyKey: "job-runtime-private-user" }),
+      entrypoint: "private_agent" as const,
+      scope: "private_user" as const,
+      evidencePolicy: "private_allowed" as const,
+    });
+
+    await t.mutation(internal.agentJobs.finishInteractive, {
+      jobId,
+      status: "completed",
+      finalText: "private diligence notes",
+      resolvedModel: "test-model",
+      stopReason: "done",
+      ms: 50,
+      inputTokens: 10,
+      outputTokens: 5,
+      costUsd: 0.001,
+      modelCalls: 1,
+      toolCalls: 1,
+    });
+
+    const ownerList = await t.query(api.agentJobs.list, { roomId, requester: memberProof });
+    const hostList = await t.query(api.agentJobs.list, { roomId, requester: hostProof });
+    const ownerDetail = await t.query(api.agentJobs.detail, { jobId, requester: memberProof });
+    const hostDetail = await t.query(api.agentJobs.detail, { jobId, requester: hostProof });
+    const hostAttempts = await t.query(api.agentJobs.attempts, { jobId, requester: hostProof });
+
+    expect(ownerList.map((job) => String(job._id))).toContain(String(jobId));
+    expect(hostList.map((job) => String(job._id))).not.toContain(String(jobId));
+    expect(ownerDetail?.job.finalText).toBe("private diligence notes");
+    expect(hostDetail).toBeNull();
+    expect(hostAttempts).toEqual([]);
   });
 });
 
