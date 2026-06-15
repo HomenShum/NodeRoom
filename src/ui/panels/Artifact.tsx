@@ -781,11 +781,11 @@ function GenericSheet({ art }: { art: Art }) {
       <div className="r-art-body">
         <div className="r-sheet-wrap">
           <table className="r-sheet r-generic-sheet">
-            <thead><tr><th style={{ width: 72 }}>row</th>{columns.map((c) => <th key={c.id}>{c.label}</th>)}</tr></thead>
+            <thead><tr><th className="r-corner" aria-label="row number" />{columns.map((c) => <th key={c.id}>{c.label}</th>)}</tr></thead>
             <tbody>
-              {visibleRows.map((rid) => (
+              {visibleRows.map((rid, i) => (
                 <tr key={rid}>
-                  <td className="rid">{rid}</td>
+                  <td className="r-rownum" title={rid}>{i + 1}</td>
                   {cols.map((col) => {
                     const raw = art.elements[`${rid}__${col}`]?.value;
                     const payload = asCellPayload(raw);
@@ -1248,9 +1248,9 @@ function Sheet({ roomId, me, art, onError }: { roomId: string; me: Actor; art: A
       <div className="r-art-body">
         <div className="r-sheet-wrap">
           <table className="r-sheet">
-            <thead><tr><th style={{ width: 70 }}>row</th><th>Account</th><th className="num">Q2</th><th className="num">Q3</th><th className="num">Variance</th><th>Note</th></tr></thead>
+            <thead><tr><th className="r-corner" aria-label="row number" /><th>Account</th><th className="num">Q2</th><th className="num">Q3</th><th className="num">Variance</th><th>Note</th></tr></thead>
             <tbody>
-              {rows.map((rid) => {
+              {rows.map((rid, i) => {
                 const vId = `${rid}__variance`, nId = `${rid}__note`;
                 const vEl = art.elements[vId], nEl = art.elements[nId];
                 const lk = lockedByOther(store, art.id, vId, me);
@@ -1262,7 +1262,7 @@ function Sheet({ roomId, me, art, onError }: { roomId: string; me: Actor; art: A
                 const vCls = "r-cell num" + (lk ? " locked" : "") + (drafting ? " draft" : "") + (committed ? " committed" : "") + (vProposal ? " proposed" : "");
                 return (
                   <tr key={rid}>
-                    <td className="rid">{rid}</td>
+                    <td className="r-rownum" title={rid}>{i + 1}</td>
                     <td className="label">{cellVal(art, rid, "label")}</td>
                     <td className="num"><span className="r-val-num">{cellVal(art, rid, "q2")}</span></td>
                     <td className="num"><span className="r-val-num">{cellVal(art, rid, "q3")}</span></td>

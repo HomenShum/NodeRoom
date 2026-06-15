@@ -485,7 +485,7 @@ input { font-family: inherit; }
 .r-art-error { display: flex; align-items: center; gap: 7px; padding: 8px 14px; background: var(--danger-tint); border-bottom: 1px solid var(--danger-border); color: var(--danger-ink); font-size: 12px; font-weight: 600; animation: msgIn .2s var(--ease-out-expo) both; }
 .r-beat-desc { font-size: 12px; color: var(--text-secondary); line-height: 1.4; }
 
-.r-sheet-wrap { padding: 14px; }
+.r-sheet-wrap { padding: 0; }
 .r-sheet { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 12.5px; }
 .r-generic-sheet { min-width: max-content; }
 .r-excel-grid { table-layout: fixed; }
@@ -585,10 +585,17 @@ input { font-family: inherit; }
   .xl-mode-copy { justify-content: space-between; }
   .xl-ftext { max-width: 44%; }
 }
-.r-sheet th { text-align: left; font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--text-tertiary); padding: 7px 10px; border-bottom: 1px solid var(--line); }
+/* Quadratic-grounded grid: sticky gray column headers + thin gridlines + a row-number gutter,
+   so the dark sheet reads as a real spreadsheet instead of a borderless data table. */
+.r-sheet th { position: sticky; top: 0; z-index: 2; text-align: left; font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--text-tertiary); padding: 6px 10px; background: var(--bg-secondary); border-bottom: 1px solid var(--line-strong); border-right: 1px solid var(--line); }
 .r-sheet th.num, .r-sheet td.num { text-align: right; font-variant-numeric: tabular-nums; }
-.r-sheet td { padding: 9px 10px; border-bottom: 1px solid var(--line); color: var(--text-secondary); }
-.r-sheet td.rid { font-family: var(--font-mono); font-size: 10.5px; color: var(--text-tertiary); }
+.r-sheet td { padding: 6px 10px; border-bottom: 1px solid var(--line); border-right: 1px solid var(--line); color: var(--text-secondary); }
+.r-sheet th:last-child, .r-sheet td:last-child { border-right: none; }
+/* row-number gutter (replaces the leaked internal id column): narrow, centered, sticky-left */
+.r-sheet th.r-corner { width: 44px; min-width: 44px; position: sticky; left: 0; z-index: 3; }
+.r-sheet td.r-rownum { width: 44px; min-width: 44px; position: sticky; left: 0; z-index: 1; padding: 6px; text-align: center; font-variant-numeric: tabular-nums; font-size: 11px; color: var(--text-tertiary); background: var(--bg-secondary); border-right: 1px solid var(--line-strong); user-select: none; cursor: default; }
+.r-sheet tbody tr:hover td { background: var(--bg-hover); }
+.r-sheet tbody tr:hover td.r-rownum { background: var(--bg-secondary); color: var(--text-secondary); }
 .r-sheet td.label { font-weight: 600; color: var(--text-primary); }
 .r-sheet td .nullcell { color: var(--text-tertiary); font-family: var(--font-mono); font-size: 11px; }
 .r-cell-meta { display: inline-flex; margin-left: 6px; padding: 1px 5px; border-radius: 5px; border: 1px solid var(--line); background: var(--bg-secondary); color: var(--text-tertiary); font-family: var(--font-mono); font-size: 9px; vertical-align: middle; white-space: nowrap; }
