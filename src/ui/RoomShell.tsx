@@ -367,7 +367,7 @@ function CopilotPanel({
   privChannel: Channel;
   active: "public" | "private";
   onActive: (tab: "public" | "private") => void;
-  onOpenArtifact: (id: string) => void;
+  onOpenArtifact: (id: string, options?: { split?: boolean; elementId?: string }) => boolean | void;
   style?: CSSProperties;
 }) {
   return (

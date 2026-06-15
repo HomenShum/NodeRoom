@@ -50,6 +50,11 @@ function defaultJobIdempotencyKey(args: { roomId: unknown; artifactId: unknown; 
 }
 
 type ArtifactAccess = { visibility?: "private" | "room" | "public"; createdBy?: ActorValue };
+type JobAccess = {
+  requester: ActorValue;
+  scope?: "public_room" | "private_user" | "team";
+  entrypoint?: "public_ask" | "private_agent" | "free" | "system" | "automation" | "provider_parser";
+};
 
 function actorOwnsArtifact(artifact: ArtifactAccess, actor: ActorValue): boolean {
   if (!artifact.createdBy) return false;
@@ -61,6 +66,16 @@ function requireJobArtifactAccess(artifact: ArtifactAccess, actor: ActorValue, o
   if ((artifact.visibility ?? "room") !== "private") return;
   if (!actorOwnsArtifact(artifact, actor)) throw new Error("artifact_not_visible");
   if (!opts?.allowPrivate) throw new Error("private_artifact_requires_private_job");
+}
+
+function actorOwnsJob(job: JobAccess, actor: ActorValue): boolean {
+  if (job.requester.kind === actor.kind && job.requester.id === actor.id) return true;
+  return actor.kind === "agent" && !!actor.ownerId && job.requester.kind === "user" && job.requester.id === actor.ownerId;
+}
+
+function canReadJob(job: JobAccess, actor: ActorValue): boolean {
+  if (job.scope === "private_user" || job.entrypoint === "private_agent") return actorOwnsJob(job, actor);
+  return true;
 }
 
 async function recordOperationEvent(ctx: any, args: {
@@ -526,8 +541,9 @@ export const startBulkDiligence = mutation({
 export const list = query({
   args: { roomId: v.id("rooms"), requester: actorProofV },
   handler: async (ctx, { roomId, requester }) => {
-    await requireActorProof(ctx, roomId, requester);
-    return ctx.db.query("agentJobs").withIndex("by_room", (q) => q.eq("roomId", roomId)).order("desc").take(20);
+    const actor = await requireActorProof(ctx, roomId, requester);
+    const jobs = await ctx.db.query("agentJobs").withIndex("by_room", (q) => q.eq("roomId", roomId)).order("desc").take(40);
+    return jobs.filter((job) => canReadJob(job, actor)).slice(0, 20);
   },
 });
 
@@ -536,7 +552,8 @@ export const attempts = query({
   handler: async (ctx, { jobId, requester }) => {
     const job = await ctx.db.get(jobId);
     if (!job) return [];
-    await requireActorProof(ctx, job.roomId, requester);
+    const actor = await requireActorProof(ctx, job.roomId, requester);
+    if (!canReadJob(job, actor)) return [];
     return ctx.db.query("agentJobAttempts").withIndex("by_job", (q) => q.eq("jobId", jobId)).collect();
   },
 });
@@ -546,7 +563,8 @@ export const detail = query({
   handler: async (ctx, { jobId, requester }) => {
     const job = await ctx.db.get(jobId);
     if (!job) return null;
-    await requireActorProof(ctx, job.roomId, requester);
+    const actor = await requireActorProof(ctx, job.roomId, requester);
+    if (!canReadJob(job, actor)) return null;
     const attempts = await ctx.db.query("agentJobAttempts").withIndex("by_job", (q) => q.eq("jobId", jobId)).collect();
     const operations = await ctx.db.query("agentOperationEvents").withIndex("by_job_sequence", (q) => q.eq("jobId", jobId)).take(100);
     const receipts = await ctx.db.query("agentMutationReceipts").withIndex("by_job", (q) => q.eq("jobId", jobId)).order("desc").take(50);
@@ -580,12 +598,29 @@ export const cancel = mutation({
     }
     const now = Date.now();
     if (job.workflowId) await cancelWorkflow(ctx, components.workflow, job.workflowId as never);
+    const activeLeases = await ctx.db.query("agentLeases").withIndex("by_job_status", (q) => q.eq("jobId", jobId).eq("status", "active")).collect();
+    for (const lease of activeLeases) await ctx.db.patch(lease._id, { status: "released", releasedAt: now });
+    await recordOperationEvent(ctx, {
+      jobId,
+      sequence: (job.actionSliceCount ?? 0) + (job.queryCount ?? 0) + (job.mutationCount ?? 0) + (job.modelCallCount ?? 0) + (job.toolCallCount ?? 0) + (job.schedulerHandoffCount ?? 0) + 3,
+      kind: "checkpoint",
+      name: "agentJobs.cancel",
+      targetKind: "artifact",
+      targetId: String(job.artifactId),
+      status: "completed",
+      countDelta: 1,
+      affectedIds: [String(jobId), String(job.artifactId)],
+      startedAt: now,
+      completedAt: now,
+    });
     await ctx.db.patch(jobId, {
       status: "cancelled",
       leaseId: "",
       leaseUntil: 0,
       error: "cancelled_by_user",
+      mutationCount: (job.mutationCount ?? 0) + 1,
       updatedAt: now,
+      completedAt: now,
     });
     return { ok: true as const };
   },
@@ -607,6 +642,9 @@ export const retry = mutation({
     }
     if (job.status === "completed" || job.status === "running") {
       return { ok: false as const, reason: "not_retryable" as const };
+    }
+    if (job.status === "blocked") {
+      return { ok: false as const, reason: "blocked_requires_fresh_plan" as const };
     }
     const now = Date.now();
     const extra = Math.max(1, Math.min(additionalAttempts ?? 10, 50));
