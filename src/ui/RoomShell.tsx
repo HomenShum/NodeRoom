@@ -51,7 +51,10 @@ export function RoomShell({ roomId, me, onLeave }: { roomId: string; me: Actor; 
   // layout. Caught by the walkthrough capturer's reload path; see FRICTION_LOG 2026-06-09.
   const [show, setShow] = useState({ left: false, stage: true, copilot: !isCompact });
   const [codeCopied, setCodeCopied] = useState(false);
-  const [layout, setLayout] = useState({ left: 248, stage: 1, right: 380 });
+  // Default the side panels lean (binder + Copilot) so the work surface gets the width budget --
+  // the contract makes it the focus, and an idle Copilot does not need 380px. Both stay inside the
+  // resize clamps (left 176-380, right 280-560), so the user can widen either by dragging.
+  const [layout, setLayout] = useState({ left: 232, stage: 1, right: 340 });
   const [copilotTab, setCopilotTab] = useState<"public" | "private">("public");
   const arts = store.listArtifacts(roomId);
   const [artId, setArtId] = useState(() => arts.find((a) => a.kind === "sheet")?.id ?? arts[0]?.id ?? "");

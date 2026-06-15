@@ -1502,6 +1502,7 @@ function TraceStrip({ roomId, me }: { roomId: string; me: Actor }) {
   const nearBottom = useRef(true);
   const [acceptingAll, setAcceptingAll] = useState(false);
   const [resolveMsg, setResolveMsg] = useState<string | null>(null);
+  const [openOverride, setOpenOverride] = useState<boolean | null>(null);
   const log = store.listTraces(roomId);
   const run = store.lastRun();
   const proposals = store.listProposals(roomId);
@@ -1525,23 +1526,37 @@ function TraceStrip({ roomId, me }: { roomId: string; me: Actor }) {
   useEffect(() => { const el = ref.current; if (el && nearBottom.current) el.scrollTop = el.scrollHeight; }, [log.length]);
   const onScroll = () => { const el = ref.current; if (el) nearBottom.current = el.scrollHeight - el.scrollTop - el.clientHeight < 60; };
   const shown = log.slice(-40);
+  // The trace is a LOG, not the work surface. Collapse it by default so the artifact (the spreadsheet)
+  // reclaims the ~300px this strip otherwise holds -- the contract says the work surface carries focus.
+  // Auto-expand only when proposals are pending, since that is actionable review the host must not miss.
+  const open = openOverride ?? proposals.length > 0;
   return (
-    <div className="r-trace" data-testid="room-trace">
+    <div className="r-trace" data-testid="room-trace" data-open={String(open)}>
       <div className="r-trace-head">
-        <History size={14} style={{ color: "var(--text-muted)" }} />
-        <span className="h-title" style={{ fontSize: 12.5 }}>Room trace</span>
+        <button
+          type="button"
+          className="r-trace-toggle"
+          aria-expanded={open}
+          aria-label={open ? "Collapse room trace" : "Expand room trace"}
+          onClick={() => setOpenOverride(!open)}
+        >
+          <ChevronRight size={13} className="r-trace-chev" style={{ transform: open ? "rotate(90deg)" : "none" }} />
+          <History size={14} style={{ color: "var(--text-muted)" }} />
+          <span className="h-title" style={{ fontSize: 12.5 }}>Room trace</span>
+          <span className="mono tiny faint">{log.length} events</span>
+          {!open && proposals.length > 0 && <span className="r-trace-badge">{proposals.length} to review</span>}
+        </button>
         <span className="grow" />
         {run && <span className="r-trace-tele" title={`${run.steps} steps · ${run.inputTokens.toLocaleString()} in + ${run.outputTokens.toLocaleString()} out tokens · ${run.ms}ms`}>{run.model} · {run.toolCalls} tools · ${run.costUsd.toFixed(3)}</span>}
         {host && proposals.length > 1 && <button className="r-mini-btn primary" disabled={acceptingAll} onClick={() => void acceptAll()}><Check size={12} /> Accept all</button>}
-        <span className="mono tiny faint">{log.length} events</span>
       </div>
-      <div className="r-trace-list" ref={ref} onScroll={onScroll} aria-live="polite" aria-label="Room activity log">
+      {open && <div className="r-trace-list" ref={ref} onScroll={onScroll} aria-live="polite" aria-label="Room activity log">
         {resolveMsg && <div className="r-wall-error" role="alert" data-testid="proposal-resolve-msg" style={{ margin: "2px 4px" }}>{resolveMsg} <button className="r-msg-act" onClick={() => setResolveMsg(null)}>Dismiss</button></div>}
         {proposals.slice(0, 20).map((p) => <ProposalRow key={p.id} roomId={roomId} me={me} proposal={p} onResolved={(fb) => setResolveMsg(fb.ok ? null : proposalErrMsg(fb.reason))} />)}
         {proposals.length > 20 && <div className="tiny faint" style={{ padding: "2px 4px" }}>+{proposals.length - 20} more pending — resolve these first (mirrors the 40-row trace cap)</div>}
         {shown.length === 0 && <div className="tiny faint" style={{ padding: "2px 4px" }}>Edit a cell, move a sticky, or run the collaboration — every change is recorded here.</div>}
         {shown.map((t) => <TraceRow key={t.id} t={t} />)}
-      </div>
+      </div>}
     </div>
   );
 }

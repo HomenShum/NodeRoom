@@ -117,7 +117,7 @@ input { font-family: inherit; }
 .r-workspace { flex: 1; min-height: 0; display: flex; position: relative; padding: 10px 10px 6px; gap: 10px; }
 .r-panel { min-width: 0; min-height: 0; background: var(--bg-primary); border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow-md); display: flex; flex-direction: column; overflow: hidden; animation: panelIn .34s var(--ease-out-expo) both; }
 @keyframes panelIn { from { opacity: 0; transform: translateY(8px) scale(.985); } to { opacity: 1; transform: none; } }
-.r-panel.left { width: 248px; flex: none; } .r-panel.center { flex: 1; } .r-panel.artifact { flex: 1; } .r-panel.right { width: 380px; flex: none; }
+.r-panel.left { width: 232px; flex: none; } .r-panel.center { flex: 1; } .r-panel.artifact { flex: 1; } .r-panel.right { width: 340px; flex: none; }
 .r-resize { flex: none; width: 7px; margin: 0 -5px; border: none; border-radius: 7px; background: transparent; cursor: col-resize; position: relative; z-index: 5; }
 .r-resize::after { content: ""; position: absolute; top: 42%; bottom: 42%; left: 3px; width: 1px; border-radius: 1px; background: var(--line-strong); opacity: 0; transition: opacity var(--motion-fast), top var(--motion-fast), bottom var(--motion-fast); }
 .r-resize:hover::after, .r-resize:focus-visible::after, .r-resizing .r-resize::after { opacity: 1; top: 24%; bottom: 24%; }
@@ -708,6 +708,12 @@ input { font-family: inherit; }
 /* trace strip */
 .r-trace { border-top: 1px solid var(--line); flex: none; max-height: 300px; display: flex; flex-direction: column; }
 .r-trace-head { padding: 10px 12px; min-height: 38px; display: flex; align-items: center; gap: 8px; }
+.r-trace-toggle { display: flex; align-items: center; gap: 8px; min-width: 0; padding: 4px 7px; margin: -4px -7px; border: none; border-radius: 7px; background: transparent; color: inherit; text-align: left; cursor: pointer; transition: background var(--motion-fast); }
+.r-trace-toggle:hover { background: var(--bg-hover); }
+.r-trace-toggle .h-title { color: var(--text-secondary); }
+.r-trace-toggle:hover .h-title { color: var(--text-primary); }
+.r-trace-toggle .r-trace-chev { margin-top: 0; }
+.r-trace-badge { font-size: 10.5px; font-weight: 700; color: var(--accent-ink); background: var(--accent-tint); border: 1px solid var(--accent-border); border-radius: 999px; padding: 1px 8px; white-space: nowrap; }
 .r-trace-tele { font-family: var(--font-mono); font-size: 12px; color: var(--success-ink); background: rgba(31,138,91,.12); border: 1px solid rgba(31,138,91,.24); padding: 1px 7px; border-radius: 6px; white-space: nowrap; }
 /* company-research surface (ParselyFi loop) */
 .r-research-bar { display: flex; align-items: center; gap: 8px; padding: 9px 14px; border-bottom: 1px solid var(--line); background: var(--bg-secondary); flex-wrap: wrap; }
