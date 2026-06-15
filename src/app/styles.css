@@ -585,7 +585,7 @@ input { font-family: inherit; }
 .r-research-import { flex: none; }
 .r-research-scroll { flex: 1; min-height: 0; overflow: auto; }
 .r-research { width: 100%; min-width: 800px; border-collapse: separate; border-spacing: 0; table-layout: fixed; font-size: 12.5px; }
-.r-research thead th { position: sticky; top: 0; z-index: 3; text-align: left; font-size: 10px; text-transform: uppercase; letter-spacing: .12em; color: var(--text-tertiary); padding: 7px 10px; border-bottom: 1px solid var(--line); font-weight: 600; background: var(--bg-secondary); }
+.r-research thead th { position: sticky; top: 0; z-index: 3; text-align: left; font-size: 10px; text-transform: uppercase; letter-spacing: .04em; color: var(--text-tertiary); padding: 7px 10px; border-bottom: 1px solid var(--line); font-weight: 600; background: var(--bg-secondary); }
 .r-research thead th.frozen { left: 0; z-index: 4; }
 .r-research td { padding: 7px 10px; vertical-align: middle; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.3; border-bottom: 1px solid var(--line); color: var(--text-secondary); font-variant-numeric: tabular-nums; }
 /* a status badge is a fixed pill -- never clip it to an ellipsis ("COMPLETE..." trailing dots). */
