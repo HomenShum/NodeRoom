@@ -1,5 +1,9 @@
 import { defineConfig, devices } from "@playwright/test";
 
+const playwrightPort = process.env.PLAYWRIGHT_PORT ?? "5173";
+const playwrightBaseUrl = process.env.PLAYWRIGHT_BASE_URL ?? `http://localhost:${playwrightPort}`;
+const reuseExistingServer = process.env.PLAYWRIGHT_REUSE_SERVER === "1";
+
 /**
  * E2E dogfood harness — the real-DOM layer NodeRoom was missing (see docs/audit/E2E_DOGFOOD_DESIGN.md).
  *
@@ -19,13 +23,13 @@ export default defineConfig({
   expect: { timeout: 7_000 },
   reporter: process.env.CI ? "line" : "list",
   use: {
-    baseURL: process.env.PLAYWRIGHT_BASE_URL ?? "http://localhost:5173",
+    baseURL: playwrightBaseUrl,
     trace: "on-first-retry",
   },
   webServer: {
-    command: `npm run dev -- --port ${process.env.PLAYWRIGHT_PORT ?? "5173"} --strictPort`,
-    url: process.env.PLAYWRIGHT_BASE_URL ?? `http://localhost:${process.env.PLAYWRIGHT_PORT ?? "5173"}`,
-    reuseExistingServer: !process.env.CI,
+    command: `npm run dev -- --port ${playwrightPort} --strictPort`,
+    url: playwrightBaseUrl,
+    reuseExistingServer,
     timeout: 120_000,
   },
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],

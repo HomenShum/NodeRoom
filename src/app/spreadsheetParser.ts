@@ -314,13 +314,16 @@ function parsedCell(value: unknown): ParsedCell {
 
 async function loadWorkbookCtor(): Promise<ExcelWorkbookCtor> {
   let lastError: unknown;
-  for (let attempt = 0; attempt < 2; attempt++) {
+  const delaysMs = [80, 160, 320, 640, 1_000, 1_000];
+  for (let attempt = 0; attempt <= delaysMs.length; attempt++) {
     try {
       const mod = await import("exceljs");
       return mod.Workbook ?? mod.default.Workbook;
     } catch (err) {
       lastError = err;
-      await new Promise((resolve) => setTimeout(resolve, 120));
+      const delay = delaysMs[attempt];
+      if (delay === undefined) break;
+      await new Promise((resolve) => setTimeout(resolve, delay));
     }
   }
   throw lastError;
