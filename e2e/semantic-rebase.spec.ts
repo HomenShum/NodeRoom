@@ -1,5 +1,16 @@
 import { enterDemoRoom, expect, test } from "./fixtures";
 
+async function openRoomTrace(page: Parameters<typeof enterDemoRoom>[0]) {
+  const trace = page.getByTestId("room-trace");
+  if ((await trace.getAttribute("data-open")) !== "true") {
+    const expandTrace = page.getByRole("button", { name: "Expand room trace" });
+    await expect(expandTrace).toHaveCount(1);
+    await expandTrace.click();
+    await expect(trace).toHaveAttribute("data-open", "true");
+  }
+  return trace;
+}
+
 test("semantic rebase conflict drill is visible, reviewable, and applies only after host approval", async ({ page }) => {
   await enterDemoRoom(page);
 
@@ -16,11 +27,13 @@ test("semantic rebase conflict drill is visible, reviewable, and applies only af
   const semanticCard = panel.locator('[data-testid="proposal-card"][data-semantic="true"]').first();
   await expect(semanticCard).toBeVisible();
   await expect(semanticCard.getByTestId("semantic-proposal-meta")).toContainText("Semantic rebase");
-  await expect(page.getByTestId("room-trace")).toContainText("Semantic rebase opened");
+  let trace = await openRoomTrace(page);
+  await expect(trace).toContainText("Semantic rebase opened");
 
   await semanticChip.getByTestId("proposal-inline-approve").click();
 
   await expect(revenueVariance.locator('[data-testid="proposal-inline"]')).toHaveCount(0);
   await expect(revenueVariance).toContainText("+19%");
-  await expect(page.getByTestId("room-trace")).toContainText("approved");
+  trace = await openRoomTrace(page);
+  await expect(trace).toContainText("approved");
 });

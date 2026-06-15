@@ -1,7 +1,7 @@
 import { defineConfig, devices } from "@playwright/test";
 
 const playwrightPort = process.env.PLAYWRIGHT_PORT ?? "5173";
-const playwrightBaseUrl = process.env.PLAYWRIGHT_BASE_URL ?? `http://localhost:${playwrightPort}`;
+const playwrightBaseUrl = process.env.PLAYWRIGHT_BASE_URL ?? `http://127.0.0.1:${playwrightPort}`;
 const reuseExistingServer = process.env.PLAYWRIGHT_REUSE_SERVER === "1";
 
 /**
@@ -27,7 +27,7 @@ export default defineConfig({
     trace: "on-first-retry",
   },
   webServer: {
-    command: `npm run dev -- --port ${playwrightPort} --strictPort`,
+    command: `npm run dev -- --host 127.0.0.1 --port ${playwrightPort} --strictPort`,
     url: playwrightBaseUrl,
     reuseExistingServer,
     timeout: 120_000,

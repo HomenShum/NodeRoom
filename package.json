@@ -22,7 +22,7 @@
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
-    "test:product:memory": "playwright test e2e/chat.spec.ts e2e/excel-grid.spec.ts e2e/semantic-rebase.spec.ts e2e/work-surface-split.spec.ts e2e/responsive-qa.spec.ts --workers=1",
+    "test:product:memory": "node scripts/run-product-memory-playwright.mjs",
     "test:product:live": "tsx scripts/live-product-gate.ts",
     "test:product:live:agent": "tsx scripts/live-product-gate.ts --agent --strict-review",
     "prod:gate": "npm audit --omit=dev --audit-level=moderate && npm run qa:matrix:check && npm run content:fluency:check && npm run proofs:staleness && npm run slo:gate && npm run typecheck -- --pretty false && npx tsc --noEmit --project convex/tsconfig.json --pretty false && npm test -- --run && npm run test:product:memory && npm run build",
