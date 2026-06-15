@@ -1,0 +1,55 @@
+# S7 of docs/design/DESIGN_QA_LADDER.md -- the design-QA gate is the loop's real terminal state.
+# Deterministic floor + approved-baseline diff are BLOCKING (objective); the rubric VLM panel is ADVISORY
+# (subjective -- stays non-blocking until calibrated on a human-labeled golden set).
+name: design-gate
+
+on:
+  pull_request:
+    paths:
+      - "src/ui/**"
+      - "src/app/styles.css"
+      - "scripts/design-qa/**"
+      - "e2e/design-baseline.spec.ts"
+
+jobs:
+  design-qa:
+    runs-on: ubuntu-latest
+    env:
+      QA_BASE_URL: http://localhost:5301
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      # App runs in memory mode here unless Convex secrets are provided as env.
+      - name: Start app
+        run: npm run dev -- --port 5301 --strictPort &
+      - name: Wait for app
+        run: npx wait-on http://localhost:5301 --timeout 60000
+
+      # --- BLOCKING: objective ground truth ---
+      - name: S2 deterministic floor (a11y / contrast / overflow / token / reduced-motion)
+        run: npx tsx scripts/design-qa/floor.ts
+      - name: S3 approved-baseline visual regression
+        run: npx playwright test design-baseline
+
+      # --- ADVISORY: subjective VLM panel (never blocks the merge) ---
+      - name: S4 rubric VLM panel (advisory)
+        continue-on-error: true
+        env:
+          GOOGLE_GENERATIVE_AI_API_KEY: ${{ secrets.GOOGLE_GENERATIVE_AI_API_KEY }}
+        run: |
+          [ -n "$GOOGLE_GENERATIVE_AI_API_KEY" ] || { echo "no VLM key -- skipping advisory panel"; exit 0; }
+          npx tsx scripts/design-qa/rubric-panel.ts \
+            --media=.tmp-qa/design-floor/demo-room-desktop.png \
+            --floor=.tmp-qa/design-floor.json
+
+      - name: Upload design-QA reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: design-qa-reports
+          path: .tmp-qa/**
