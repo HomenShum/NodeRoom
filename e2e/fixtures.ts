@@ -20,6 +20,14 @@ export async function enterDemoRoom(page: Page): Promise<void> {
   }
   // The Work Surface is the always-on anchor; Copilot may be closed on compact screens.
   await expect(artifactPanel).toBeVisible();
+  const width = page.viewportSize()?.width ?? 1280;
+  if (width > 1199) {
+    const leftRail = page.getByTestId("left-rail");
+    if (!(await leftRail.isVisible().catch(() => false))) {
+      await page.getByRole("button", { name: "Toggle Room Binder panel" }).click();
+    }
+    await expect(leftRail).toBeVisible();
+  }
 }
 
 /** The public chat lane in Copilot. Scopes selectors so the private agent lane never matches. */

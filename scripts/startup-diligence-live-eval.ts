@@ -8,6 +8,17 @@ import { convexTest } from "convex-test";
 import schema from "../convex/schema";
 import { api, internal } from "../convex/_generated/api";
 import type { Id } from "../convex/_generated/dataModel";
+import { buildDemoRoom } from "../src/engine/demoRoom";
+import { RoomEngine } from "../src/engine/roomEngine";
+import {
+  InMemoryRoomTools,
+  MANAGED_LOCK_SYSTEM_PROMPT,
+  PRODUCTION_ROOM_TOOLS,
+  lastVersions,
+  runAgent,
+  scriptedModel,
+  type AgentMessage,
+} from "../src/nodeagent/index";
 import { computeRunway, runwayChartSvg } from "../src/nodeagent/skills/finance/runwayForecaster";
 import { createDiligenceDownstreamDrafts } from "../src/nodeagent/skills/integration/downstreamPublish";
 
@@ -316,6 +327,9 @@ export async function runStartupDiligenceConvexContractEval(
     destinations: downstreamDrafts.map((draft) => ({ destination: draft.destination, status: draft.status, approvalRequired: draft.approvalRequired })),
   });
 
+  const coachHarness = await runBankerCoachHarnessProbe();
+  addCheck(checks, "banker_coach_harness_tools", coachHarness.committed && coachHarness.hasCoachCues && coachHarness.hasChartPatch && coachHarness.hasDownstreamDrafts, "harness-tool-loop-proven", "Banker coach, evidence, runway/chart, review update, and downstream draft tools ran through the actual runAgent/PRODUCTION_ROOM_TOOLS loop before a managed CAS write.", coachHarness);
+
   const runId = await t.mutation(internal.agentRuns.record, {
     jobId,
     roomId,
@@ -517,6 +531,84 @@ function rowIdsForCompany(elementsById: Record<string, { value: any }>, company:
 
 function normalize(value: string) {
   return value.toLowerCase().replace(/[^a-z0-9]+/g, "");
+}
+
+const COACH_PROBE_CELL = "r_rev__note";
+
+async function runBankerCoachHarnessProbe() {
+  const engine = new RoomEngine();
+  const room = buildDemoRoom(engine);
+  const rt = new InMemoryRoomTools(engine, room.roomId, room.sheetId, room.agents.room, room.sessions.room);
+  const result = await runAgent({
+    rt,
+    goal: "Prepare a CardioNova banker coach packet with runway, evidence, review update, and downstream drafts.",
+    model: scriptedModel(bankerCoachProbePlanner(), "startup-banker-coach-probe"),
+    tools: PRODUCTION_ROOM_TOOLS,
+    systemPrompt: MANAGED_LOCK_SYSTEM_PROMPT,
+    maxSteps: 14,
+  });
+  const value = engine.getArtifact(room.sheetId)?.elements[COACH_PROBE_CELL]?.value as { value?: unknown; evidence?: unknown[]; status?: string } | undefined;
+  const toolNames = result.trace.map((event) => event.tool);
+  return {
+    stopReason: result.stopReason,
+    exhausted: result.exhausted,
+    tools: toolNames,
+    committed: !result.exhausted && typeof value?.value === "string" && value.value.includes("coach packet ready") && value.status === "needs_review",
+    hasCoachCues: toolNames.includes("generate_banker_coach_cues"),
+    hasChartPatch: toolNames.includes("render_chart_artifact"),
+    hasDownstreamDrafts: toolNames.includes("export_downstream_draft"),
+    evidenceCount: value?.evidence?.length ?? 0,
+  };
+}
+
+function bankerCoachProbePlanner() {
+  return ({ messages }: { messages: AgentMessage[] }) => {
+    const versions = lastVersions(messages);
+    if (versions[COACH_PROBE_CELL] === undefined) {
+      return { toolCalls: [{ tool: "read_range", args: { elementIds: [COACH_PROBE_CELL] } }] };
+    }
+    if (!hasToolResult(messages, "compute_runway_milestones")) {
+      return { toolCalls: [{ tool: "compute_runway_milestones", args: { company: "CardioNova", cashUsd: 1_500_000, monthlyBurnUsd: 125_000, source: "cardionova-deck.pdf#page=12" } }] };
+    }
+    if (!hasToolResult(messages, "validate_chart_against_source_cells")) {
+      return { toolCalls: [{ tool: "validate_chart_against_source_cells", args: { sourceCells: { cardionova__runway: 12 }, series: [{ label: "CardioNova runway", value: 12, sourceRef: "cardionova__runway" }] } }] };
+    }
+    if (!hasToolResult(messages, "build_evidence_cards")) {
+      return { toolCalls: [{ tool: "build_evidence_cards", args: { evidence: [{ label: "CardioNova deck p.12", sourceRef: "cardionova-deck.pdf#page=12", quote: "Cash $1.5M; burn $125k/month", kind: "upload", confidence: 0.86, status: "verified" }] } }] };
+    }
+    const evidence = parsedToolResult<{ cards: Array<Record<string, unknown>> }>(messages, "build_evidence_cards");
+    if (!hasToolResult(messages, "generate_banker_coach_cues") && evidence) {
+      return { toolCalls: [{ tool: "generate_banker_coach_cues", args: { company: "CardioNova", claim: "AI triage workflow has 12.0 months runway from uploaded cash and burn assumptions.", evidenceCards: evidence.cards, runwayMonths: 12, status: "needs_review" } }] };
+    }
+    const runway = parsedToolResult<{ chartSvg: string; sourceRefs: string[] }>(messages, "compute_runway_milestones");
+    if (!hasToolResult(messages, "render_chart_artifact") && runway) {
+      return { toolCalls: [{ tool: "render_chart_artifact", args: { title: "CardioNova runway chart", chartSvg: runway.chartSvg, narrative: "12.0 months runway from uploaded cash and burn assumptions.", sourceRefs: runway.sourceRefs } }] };
+    }
+    if (!hasToolResult(messages, "create_review_round_update")) {
+      return { toolCalls: [{ tool: "create_review_round_update", args: { roomTitle: "Startup Banking Diligence War Room", company: "CardioNova", materialChanges: ["Runway computed at 12.0 months from uploaded deck assumptions."], openQuestions: ["Verify current cash balance and hospital deployment references."], nextActions: ["Route to host review before downstream handoff."], sourceRefs: ["cardionova-deck.pdf#page=12"] } }] };
+    }
+    if (!hasToolResult(messages, "export_downstream_draft")) {
+      return { toolCalls: [{ tool: "export_downstream_draft", args: { artifact: { id: "cardionova-runway", title: "CardioNova runway diligence", kind: "runway_chart", body: "CardioNova runway: 12.0 months; host review required.", sourceArtifactIds: ["research-sheet", "runway-chart"], sourceUrls: ["cardionova-deck.pdf#page=12"], createdAt: 1_780_000_000_000 }, destinations: ["gmail", "notion", "crm_csv"] } }] };
+    }
+    if (!hasToolResult(messages, "write_locked_cell_result")) {
+      return { toolCalls: [{ tool: "write_locked_cell_result", args: { elementId: COACH_PROBE_CELL, value: "CardioNova coach packet ready: runway, evidence, review update, and downstream drafts prepared.", baseVersion: versions[COACH_PROBE_CELL], status: "needs_review", confidence: 0.86, evidence: [{ kind: "upload", label: "CardioNova deck p.12", source: "cardionova-deck.pdf#page=12", snippet: "Cash $1.5M; burn $125k/month" }], reason: "banker coach packet" } }] };
+    }
+    return { say: "Banker coach packet prepared and filed for review.", done: true };
+  };
+}
+
+function hasToolResult(messages: AgentMessage[], toolName: string): boolean {
+  return messages.some((message) => message.role === "tool" && message.toolName === toolName);
+}
+
+function parsedToolResult<T>(messages: AgentMessage[], toolName: string): T | null {
+  const message = [...messages].reverse().find((item) => item.role === "tool" && item.toolName === toolName);
+  if (!message) return null;
+  try {
+    return JSON.parse(message.content) as T;
+  } catch {
+    return null;
+  }
 }
 
 function optionValue(name: string): string | undefined {

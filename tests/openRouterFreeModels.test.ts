@@ -6,6 +6,7 @@ import {
   discoverOpenRouterFreeModels,
   isFreeTextModel,
   rankOpenRouterFreeModels,
+  selectOpenRouterFreeModels,
   type OpenRouterModelInfo,
 } from "../src/nodeagent/models/openRouterFreeModels";
 
@@ -46,6 +47,30 @@ describe("OpenRouter free auto routing", () => {
     const ranked = rankOpenRouterFreeModels(models, "agent");
     expect(ranked.map((m) => m.id)).toEqual(["qwen/qwen3-coder:free", "openai/gpt-oss-120b:free"]);
     expect(ranked[0].reasons).toContain("coding/agent specialist");
+  });
+
+  it("skips operator-quarantined free-auto candidates before routing", async () => {
+    const fetchImpl: typeof fetch = async () => new Response(JSON.stringify({ data: models }), { status: 200 });
+
+    const selected = await selectOpenRouterFreeModels({
+      fetchImpl,
+      forceRefresh: true,
+      mode: "agent",
+      env: { NODEAGENT_QUARANTINED_MODELS: "qwen/qwen3-coder:free=rate_limited" },
+    });
+
+    expect(selected.map((m) => m.id)).toEqual(["openai/gpt-oss-120b:free"]);
+  });
+
+  it("fails explicitly when every free-auto candidate is quarantined", async () => {
+    const fetchImpl: typeof fetch = async () => new Response(JSON.stringify({ data: models }), { status: 200 });
+
+    await expect(selectOpenRouterFreeModels({
+      fetchImpl,
+      forceRefresh: true,
+      mode: "agent",
+      env: { NODEAGENT_QUARANTINED_PROVIDERS: "openrouter=incident" },
+    })).rejects.toThrow(/candidates quarantined/i);
   });
 
   it("keeps free-auto opt-in instead of hiding it behind generic aliases", () => {

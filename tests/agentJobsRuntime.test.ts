@@ -31,6 +31,26 @@ describe("agentJobs runtime contract", () => {
     expect(detail?.job.mutationCount).toBe(1);
   });
 
+  it("persists PlanPreview-blocked public asks without starting a run", async () => {
+    const { t, proof, roomId, artifactId } = await setupRoom();
+    const blocked = await t.mutation(api.agentJobs.createOrReuse, {
+      ...jobArgs({ roomId, artifactId, proof, idempotencyKey: "job-runtime-plan-blocked" }),
+      initialStatus: "blocked" as const,
+      planPreview: { scheduling: "wait_for_human", conflicts: [{ kind: "intent_wait", detail: "User asked to wait." }] },
+      error: "PlanPreview blocked this run (wait_for_human): User asked to wait.",
+    });
+
+    const detail = await t.query(api.agentJobs.detail, { jobId: blocked.jobId, requester: proof });
+    const traces = await t.run(async (ctx) => (await ctx.db.query("traces").collect()).filter((trace) => String(trace.roomId) === String(roomId)));
+
+    expect(blocked.status).toBe("blocked");
+    expect(detail?.job.status).toBe("blocked");
+    expect(detail?.job.latestRunId).toBeUndefined();
+    expect(detail?.job.planPreview?.scheduling).toBe("wait_for_human");
+    expect(detail?.job.error).toContain("PlanPreview blocked");
+    expect(traces.some((trace) => trace.type === "plan_blocked")).toBe(true);
+  });
+
   it("finishInteractive writes attempts, operation events, and materialized counters", async () => {
     const { t, proof, roomId, artifactId } = await setupRoom();
     const { jobId } = await t.mutation(api.agentJobs.createOrReuse, jobArgs({ roomId, artifactId, proof, idempotencyKey: "job-runtime-finish" }));
@@ -60,6 +80,45 @@ describe("agentJobs runtime contract", () => {
     expect(detail?.job.queryCount).toBe(3);
     expect(detail?.job.mutationCount).toBe(5);
     expect(detail?.job.receiptCount).toBe(1);
+  });
+
+  it("records live operation events before an interactive run reaches a terminal state", async () => {
+    const { t, proof, roomId, artifactId } = await setupRoom();
+    const { jobId } = await t.mutation(api.agentJobs.createOrReuse, jobArgs({ roomId, artifactId, proof, idempotencyKey: "job-runtime-live-ops" }));
+    const runId = await t.mutation(internal.agentRuns.claim, {
+      jobId,
+      roomId,
+      agentId: "agent_room",
+      model: "deepseek/deepseek-v4-flash",
+      goal: "stream progress",
+    });
+
+    const started = await t.mutation(internal.agentJobs.recordLiveOperation, {
+      jobId,
+      runId,
+      sequence: 1_000,
+      kind: "model_call",
+      name: "deepseek/deepseek-v4-flash",
+      status: "started",
+      countDelta: 1,
+    });
+    const read = await t.mutation(internal.agentJobs.recordLiveOperation, {
+      jobId,
+      runId,
+      sequence: 1_001,
+      kind: "query",
+      name: "read_range",
+      status: "completed",
+      countDelta: 1,
+      affectedIds: ["row1__variance"],
+    });
+
+    const detail = await t.query(api.agentJobs.detail, { jobId, requester: proof });
+    expect(started).toEqual({ ok: true });
+    expect(read).toEqual({ ok: true });
+    expect(detail?.job.status).toBe("running");
+    expect(detail?.operations.map((event) => event.name)).toEqual(expect.arrayContaining(["deepseek/deepseek-v4-flash", "read_range"]));
+    expect(detail?.operations.find((event) => event.name === "read_range")?.affectedIds).toEqual(["row1__variance"]);
   });
 
   it("records durable model-step journal rows and replays without overwriting", async () => {
@@ -120,6 +179,28 @@ describe("agentJobs runtime contract", () => {
     expect(detail?.job.leaseId).toBe("");
   });
 
+  it("sweeps expired running-job leases into a fenced failed state", async () => {
+    const { t, proof, roomId, artifactId } = await setupRoom();
+    const { jobId } = await t.mutation(api.agentJobs.createOrReuse, jobArgs({ roomId, artifactId, proof, idempotencyKey: "job-runtime-stale-lease" }));
+
+    const claimed = await t.mutation(internal.agentJobs.claimSlice, { jobId, leaseId: "lease-stale", leaseMs: 1_000 });
+    expect(claimed?.attempt).toBe(1);
+
+    const swept = await t.mutation(internal.agentJobs.sweepExpiredJobLeases, { now: Date.now() + 2_000, limit: 10 });
+    expect(swept.expired).toBe(1);
+
+    const staleFinish = await t.mutation(internal.agentJobs.finishSlice, finishSliceArgs({ jobId, leaseId: "lease-stale", attempt: 1 }));
+    expect(staleFinish).toEqual({ ok: false, reason: "lease_mismatch" });
+
+    const detail = await t.query(api.agentJobs.detail, { jobId, requester: proof });
+    expect(detail?.job.status).toBe("failed");
+    expect(detail?.job.error).toBe("job_lease_expired");
+    expect(detail?.job.leaseId).toBe("");
+    expect(detail?.leases.map((lease) => lease.status)).toContain("expired");
+    expect(detail?.attempts[0]).toMatchObject({ attempt: 1, status: "failed", stopReason: "lease_expired" });
+    expect(detail?.operations.map((event) => event.name)).toContain("agentJobs.sweepExpiredJobLeases");
+  });
+
   it("agent cell edits write mutation receipts and stale CAS conflicts do not", async () => {
     const { t, proof, actor, roomId, artifactId } = await setupRoom({ seedElement: true });
     const { jobId } = await t.mutation(api.agentJobs.createOrReuse, jobArgs({ roomId, artifactId, proof, idempotencyKey: "job-runtime-receipt" }));
@@ -153,6 +234,62 @@ describe("agentJobs runtime contract", () => {
     expect(detail?.job.receiptCount).toBe(1);
   });
 
+  it("requires evidence for agent enrichment columns and protects CRM columns", async () => {
+    const { t, proof, roomId, artifactId } = await setupRoom({ researchPolicy: true });
+    const agent = { kind: "agent" as const, id: "agent_room", name: "Room NodeAgent", scope: "public" as const };
+    await t.run((ctx) => ctx.db.insert("agentSessions", {
+      roomId,
+      agentId: agent.id,
+      agentName: agent.name,
+      scope: "public" as const,
+      status: "idle" as const,
+      lastAction: "started",
+      updatedAt: Date.now(),
+    }));
+    const { jobId } = await t.mutation(api.agentJobs.createOrReuse, jobArgs({ roomId, artifactId, proof, idempotencyKey: "job-runtime-evidence-policy" }));
+
+    const missingEvidence = await t.mutation(internal.artifacts.applyAgentCellEdit, {
+      roomId,
+      artifactId,
+      elementId: "row1__summary",
+      value: "CardioNova sells AI triage software.",
+      baseVersion: 1,
+      actor: agent,
+      jobId,
+    });
+    expect(missingEvidence).toMatchObject({ ok: false, reason: "evidence_required" });
+
+    const evidenced = await t.mutation(internal.artifacts.applyAgentCellEdit, {
+      roomId,
+      artifactId,
+      elementId: "row1__summary",
+      value: {
+        value: "CardioNova sells AI triage software.",
+        status: "complete",
+        evidence: [{ id: "source-1", kind: "source", label: "Company homepage", url: "https://cardionova.example" }],
+      },
+      baseVersion: 1,
+      actor: agent,
+      jobId,
+    });
+    expect(evidenced).toMatchObject({ ok: true });
+
+    const protectedColumn = await t.mutation(internal.artifacts.applyAgentCellEdit, {
+      roomId,
+      artifactId,
+      elementId: "row1__crm_status",
+      value: {
+        value: "Target",
+        status: "complete",
+        evidence: [{ id: "source-2", kind: "source", label: "CRM export" }],
+      },
+      baseVersion: 1,
+      actor: agent,
+      jobId,
+    });
+    expect(protectedColumn).toMatchObject({ ok: false, reason: "agent_write_forbidden_column" });
+  });
+
   it("restricts cancel and retry controls to the requester or room host", async () => {
     const { t, proof, memberProof, roomId, artifactId } = await setupRoom({ extraMember: true });
     const { jobId } = await t.mutation(api.agentJobs.createOrReuse, jobArgs({ roomId, artifactId, proof, idempotencyKey: "job-runtime-rbac" }));
@@ -167,7 +304,7 @@ describe("agentJobs runtime contract", () => {
   });
 });
 
-async function setupRoom(options: { seedElement?: boolean; extraMember?: boolean } = {}) {
+async function setupRoom(options: { seedElement?: boolean; extraMember?: boolean; researchPolicy?: boolean } = {}) {
   const t = convexTest(schema, modules);
   const now = Date.now();
   const authTokenHash = await hashToken(token);
@@ -211,7 +348,7 @@ async function setupRoom(options: { seedElement?: boolean; extraMember?: boolean
     );
     memberProof = { actor: { kind: "user" as const, id: String(memberId), name: "Member" }, token: memberToken };
   }
-  const order = options.seedElement ? ["row1__variance"] : [];
+  const order = options.researchPolicy ? ["row1__summary", "row1__crm_status"] : options.seedElement ? ["row1__variance"] : [];
   const artifactId = await t.run((ctx) =>
     ctx.db.insert("artifacts", {
       roomId,
@@ -220,18 +357,34 @@ async function setupRoom(options: { seedElement?: boolean; extraMember?: boolean
       version: 1,
       order,
       updatedAt: now,
+      ...(options.researchPolicy ? { meta: {
+        dataframe: {
+          columns: [
+            { id: "summary", label: "summary", order: 0, mode: "enrich", type: "text", agentWritable: true },
+            { id: "crm_status", label: "crm_status", order: 1, mode: "manual", type: "text", agentWritable: false },
+          ],
+          rowCount: 1,
+          parser: "test",
+        },
+      } } : {}),
     }),
   );
-  if (options.seedElement) {
+  if (options.seedElement || options.researchPolicy) {
+    const rows = options.researchPolicy
+      ? [
+        { elementId: "row1__summary", value: "" },
+        { elementId: "row1__crm_status", value: "New" },
+      ]
+      : [{ elementId: "row1__variance", value: "7%" }];
     await t.run((ctx) =>
-      ctx.db.insert("elements", {
+      Promise.all(rows.map((row) => ctx.db.insert("elements", {
         artifactId,
-        elementId: "row1__variance",
-        value: "7%",
+        elementId: row.elementId,
+        value: row.value,
         version: 1,
         updatedAt: now,
         updatedBy: actor,
-      }),
+      }))),
     );
   }
   return { t, proof, memberProof, actor, roomId, artifactId };

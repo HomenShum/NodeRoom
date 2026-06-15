@@ -1,4 +1,5 @@
 import { getProviderForModel, resolveModelAlias, type LlmProvider } from "../models/modelCatalog";
+import { providerHealthDecision } from "./providerHealth";
 
 type Env = Record<string, string | undefined>;
 
@@ -6,9 +7,11 @@ export type ProviderEgressArtifact = {
   title?: string;
   kind?: string;
   meta?: unknown;
+  visibility?: "private" | "room" | "public" | string;
+  source?: "upload" | "provider_parse" | "manual" | "generated" | string;
 };
 
-export type ProviderEgressEntrypoint = "public_ask" | "private_agent" | "free" | "system" | "automation";
+export type ProviderEgressEntrypoint = "public_ask" | "private_agent" | "free" | "system" | "automation" | "provider_parser";
 
 export type ProviderEgressDecision =
   | { ok: true; policy: "provider_egress_v1" }
@@ -67,6 +70,9 @@ export function providerEgressDecision(args: {
     if (freeRoute && risk.providerDerived && env.OPENROUTER_REQUIRE_NO_TRAINING !== "1") {
       return blocked("free_provider_parse_requires_OPENROUTER_REQUIRE_NO_TRAINING", artifact);
     }
+    if (args.entrypoint === "provider_parser" && risk.fileDerived && env.PROVIDER_PARSER_ALLOW_FILE_EGRESS !== "1") {
+      return blocked("provider_parser_file_egress_requires_PROVIDER_PARSER_ALLOW_FILE_EGRESS", artifact);
+    }
   }
 
   return { ok: true, policy: "provider_egress_v1" };
@@ -97,6 +103,7 @@ export function providerRouteDecision(args: {
   const external = isExternalProviderRoute(resolvedModel);
   const provider = external ? getProviderForModel(resolvedModel) : "local";
   const noTrainingRequired = env.OPENROUTER_REQUIRE_NO_TRAINING === "1";
+  const health = providerHealthDecision({ requestedModel, resolvedModel, provider, env });
   const basis = [
     `entrypoint:${args.entrypoint}`,
     `requested:${requestedModel}`,
@@ -104,6 +111,7 @@ export function providerRouteDecision(args: {
     `external:${String(external)}`,
     `allowlist:${allowedProviders.join(",")}`,
     `no_training_required:${String(noTrainingRequired)}`,
+    ...health.basis,
   ];
 
   if (!provider) {
@@ -133,6 +141,21 @@ export function providerRouteDecision(args: {
       allowedProviders,
       noTrainingRequired,
       basis,
+    };
+  }
+
+  if (!health.ok) {
+    return {
+      ok: false,
+      policy: "provider_route_v1",
+      reason: health.reason,
+      requestedModel,
+      resolvedModel,
+      provider,
+      entrypoint: args.entrypoint,
+      allowedProviders,
+      noTrainingRequired,
+      basis: [...basis, `quarantine_reason:${health.quarantineReason}`],
     };
   }
 
@@ -194,15 +217,17 @@ function classifyArtifactEgress(artifact: ProviderEgressArtifact): {
   const providerParse = objectRecord(meta?.providerParse);
   const egress = stringValue(privacy?.egress ?? meta?.egress ?? meta?.egressPolicy);
   const sensitivity = stringValue(privacy?.sensitivity ?? meta?.sensitivity ?? meta?.classification);
+  const visibility = stringValue(artifact.visibility ?? privacy?.visibility ?? meta?.visibility);
+  const source = stringValue(artifact.source ?? meta?.source ?? meta?.sourceKind);
   const parser = stringValue(document?.parser);
   const status = stringValue(document?.status);
   const requiredRuntime = Array.isArray(document?.requiredRuntime) ? document.requiredRuntime.map((v) => String(v).toLowerCase()) : [];
 
   return {
     explicitBlock: egress === "blocked" || egress === "local_only" || egress === "no_external_provider",
-    sensitive: sensitivity === "private" || sensitivity === "restricted" || sensitivity === "sensitive",
-    fileDerived: !!upload || !!providerParse || parser === "provider" || status === "server_parser_required" || requiredRuntime.includes("ocr"),
-    providerDerived: !!providerParse || parser === "provider",
+    sensitive: visibility === "private" || sensitivity === "private" || sensitivity === "restricted" || sensitivity === "sensitive",
+    fileDerived: source === "upload" || !!upload || !!providerParse || parser === "provider" || status === "server_parser_required" || requiredRuntime.includes("ocr"),
+    providerDerived: source === "provider_parse" || !!providerParse || parser === "provider",
   };
 }
 
@@ -212,8 +237,10 @@ function blocked(reason: string, artifact: ProviderEgressArtifact): ProviderEgre
 
 function providerAllowlist(env: Env): ProviderRouteProvider[] {
   const raw = env.NODEAGENT_ALLOWED_PROVIDERS ?? env.PROVIDER_EGRESS_ALLOWED_PROVIDERS;
+  if (!raw && (env.PROVIDER_EGRESS_REQUIRE_ALLOWLIST === "1" || env.NODEROOM_PRODUCTION === "1")) return ["local"];
   if (!raw) return DEFAULT_ALLOWED_PROVIDERS;
   const values = raw.split(",").map((part) => part.trim().toLowerCase()).filter(Boolean) as ProviderRouteProvider[];
+  if (!values.length && (env.PROVIDER_EGRESS_REQUIRE_ALLOWLIST === "1" || env.NODEROOM_PRODUCTION === "1")) return ["local"];
   return values.length ? values : DEFAULT_ALLOWED_PROVIDERS;
 }
 

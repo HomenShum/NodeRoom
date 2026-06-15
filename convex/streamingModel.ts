@@ -8,6 +8,7 @@
  */
 import { redactPII } from "../src/nodeagent/guardrails/gateway";
 import { assertProviderRouteAllowed } from "../src/nodeagent/guardrails/egressPolicy";
+import { openAiCompatibleTokenLimitParam } from "../src/nodeagent/models/openAiTokenLimit";
 
 export type StreamAppend = (text: string) => Promise<void>;
 
@@ -110,7 +111,7 @@ async function openAiCompatibleStream(
     body: JSON.stringify({
       model: modelId,
       stream: true,
-      max_tokens: MAX_OUTPUT_TOKENS,
+      ...openAiCompatibleTokenLimitParam(modelId, endpoint, MAX_OUTPUT_TOKENS),
       messages: [{ role: "system", content: system }, { role: "user", content: userMsg }],
     }),
   });

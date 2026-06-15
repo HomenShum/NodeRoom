@@ -16,6 +16,7 @@
 
 import type { ZodTypeAny } from "zod";
 import type { ProviderRouteReceipt } from "../guardrails/egressPolicy";
+import type { OkfRetrievalPort } from "../retrieval/types";
 
 /* ── conversation ── */
 export type Role = "user" | "assistant" | "tool";
@@ -129,6 +130,8 @@ export interface MergeView { draftId: string; verdict: string; note: string; app
 export type ArtifactRef = { id: string; title: string; kind: string };
 
 export interface RoomTools {
+  /** Optional portable knowledge layer. Present for OKF-aware rooms/evals; absent rooms keep working. */
+  okf?: OkfRetrievalPort;
   /** Whole-sheet snapshot for the agent's context. Defaults to the primary artifact; pass artifactId for another file. */
   snapshot(artifactId?: string): Promise<RoomSnapshot>;
   /** Who else holds locks, which agents are active, recent activity. */

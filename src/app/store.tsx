@@ -30,6 +30,7 @@ function paced(model: AgentModel, ms: number): AgentModel {
 }
 import { RESEARCH_PLAN } from "../engine/demoRoom";
 import type { Actor, Artifact, ArtifactMeta, Channel, Lock, Member, Message, Room, TraceEvent, AgentSession, Draft, ChangeOp, Proposal, ResearchRowInput } from "../engine/types";
+import type { UploadedArtifactInput, UploadedSourceFile } from "./uploadedArtifact";
 import type { ArtifactRef } from "../ui/artifactRefs";
 
 /** The canonical Q3 variance the Room Agent computes (used by the no-keys /ask + collab). */
@@ -77,18 +78,13 @@ export type AgentJobAttemptTelemetry = {
   scheduledNextAt?: number;
 };
 export type AgentJobDetailTelemetry = {
-  operations: Array<{ sequence: number; kind: string; name: string; status: string; countDelta?: number; targetKind?: string; targetId?: string }>;
+  operations: Array<{ sequence: number; kind: string; name: string; status: string; countDelta?: number; targetKind?: string; targetId?: string; affectedIds?: string[] }>;
   receipts: Array<{ id: string; mutationName: string; affectedIds: string[]; createdAt: number }>;
   leases: Array<{ targetKind: string; targetId: string; mode: string; status: string; expiresAt: number }>;
   draftOperations: Array<{ operationName: string; status: string; affectedIds: string[]; createdAt: number }>;
   latestSteps: Array<{ idx: number; tool: string; status: string; elementId?: string; mutationReceiptIds?: string[] }>;
 };
-export type UploadedArtifactInput = {
-  kind: "sheet" | "note";
-  title: string;
-  seed: Array<{ id: string; value: unknown }>;
-  meta?: ArtifactMeta;
-};
+export type { UploadedArtifactInput } from "./uploadedArtifact";
 export type AgentAskInput = { goal: string; references?: ArtifactRef[] };
 export type ActorProof = { actor: Actor; token: string };
 export type PrivateStreamAccess = { requester: ActorProof; driven: boolean };
@@ -248,6 +244,29 @@ function withAppliedVersion(entry: UndoEntry | null, version?: number): UndoEntr
 }
 
 /* ── in-memory (RoomEngine) ── */
+type StoredUploadRef = {
+  fileId: string;
+  storageId: string;
+  sha256?: string;
+  size: number;
+  mimeType: string;
+};
+
+function withStoredSourceMeta(meta: ArtifactMeta | undefined, sourceFile: UploadedSourceFile, stored: StoredUploadRef): ArtifactMeta {
+  return {
+    ...meta,
+    upload: {
+      fileName: meta?.upload?.fileName ?? sourceFile.fileName,
+      mimeType: meta?.upload?.mimeType ?? stored.mimeType ?? sourceFile.mimeType,
+      size: meta?.upload?.size ?? sourceFile.size,
+      parsedAt: meta?.upload?.parsedAt ?? Date.now(),
+      sourceStorageId: stored.storageId,
+      uploadedFileId: stored.fileId,
+      sha256: stored.sha256,
+    },
+  };
+}
+
 export function EngineStoreProvider({ roomId, children }: { roomId: string; me: Actor; children: ReactNode }) {
   const rev = useEngineRev();
   const undoStack = useRef(new Map<string, UndoEntry[]>());
@@ -485,6 +504,7 @@ function usableConvexString(value: string | undefined): value is string {
 
 export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: string; me: Actor; proof: ActorProof; children: ReactNode }) {
   const undoStack = useRef(new Map<string, UndoEntry[]>());
+  const fileUploadCache = useRef(new WeakMap<Blob, Promise<StoredUploadRef>>());
   const hasValidLiveSession = usableConvexString(roomId) && usableConvexString(me.id) && usableConvexString(proof.token);
   const rid = roomId as never;
   const roomQuery = hasValidLiveSession ? { roomId: rid, requester: proof } : "skip";
@@ -654,6 +674,8 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
     };
     local.setQuery(api.rooms.meta, metaQ, { ...curMeta, artifacts: [...arts, shell] } as unknown as typeof curMeta);
   });
+  const generateFileUploadUrlMutation = useMutation(api.artifacts.generateFileUploadUrl);
+  const registerUploadedFileMutation = useMutation(api.artifacts.registerUploadedFile);
   const runSemanticConflictDrillMutation = useMutation(api.drafts.runSemanticConflictDrill);
   const runAgent = useAction(api.agent.runRoomAgent);
   const runPrivateAgent = useAction(api.agent.runPrivateAgent);
@@ -678,6 +700,39 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
           ? { ...j, status: "queued", error: undefined, nextRunAt: Date.now(), updatedAt: Date.now() } : j));
     }
   });
+  const uploadSourceFile = useCallback((sourceFile: UploadedSourceFile): Promise<StoredUploadRef> => {
+    const cached = fileUploadCache.current.get(sourceFile.blob);
+    if (cached) return cached;
+    const upload = (async () => {
+      const uploadUrl = await generateFileUploadUrlMutation({ roomId: rid, requester: proof });
+      const response = await fetch(uploadUrl, {
+        method: "POST",
+        headers: { "Content-Type": sourceFile.mimeType || "application/octet-stream" },
+        body: sourceFile.blob,
+      });
+      if (!response.ok) throw new Error(`raw_file_upload_failed:${response.status}`);
+      const json = await response.json() as { storageId?: string };
+      if (!json.storageId) throw new Error("raw_file_upload_missing_storage_id");
+      const registered = await registerUploadedFileMutation({
+        roomId: rid,
+        requester: proof,
+        storageId: json.storageId as never,
+        fileName: sourceFile.fileName,
+        mimeType: sourceFile.mimeType || "application/octet-stream",
+        size: sourceFile.size,
+        visibility: "room",
+      });
+      return {
+        fileId: String(registered.fileId),
+        storageId: String(registered.storageId),
+        sha256: registered.sha256,
+        size: registered.size,
+        mimeType: registered.mimeType,
+      };
+    })();
+    fileUploadCache.current.set(sourceFile.blob, upload);
+    return upload;
+  }, [generateFileUploadUrlMutation, registerUploadedFileMutation, rid, proof]);
 
   const store = useMemo<RoomStore>(() => {
     const room = (data?.room ?? undefined) as unknown as Room | undefined;
@@ -749,7 +804,17 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
         return ids.length;
       },
       uploadArtifact: async ({ artifact }) => {
-        const id = await createArtifactMutation({ roomId: rid, kind: artifact.kind, title: artifact.title, seed: artifact.seed, meta: artifact.meta, proof });
+        const stored = artifact.sourceFile ? await uploadSourceFile(artifact.sourceFile) : null;
+        const meta = stored && artifact.sourceFile ? withStoredSourceMeta(artifact.meta, artifact.sourceFile, stored) : artifact.meta;
+        const id = await createArtifactMutation({
+          roomId: rid,
+          kind: artifact.kind,
+          title: artifact.title,
+          seed: artifact.seed,
+          meta,
+          proof,
+          ...(stored ? { sourceFileId: stored.fileId as never } : {}),
+        });
         return String(id);
       },
       canRunCollab: isHost,
@@ -897,14 +962,14 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
       lastLongFreeJobDetail: () => {
         if (!jobDetail) return null;
         const d = jobDetail as {
-          operations?: Array<{ sequence: number; kind: string; name: string; status: string; countDelta?: number; targetKind?: string; targetId?: string }>;
+          operations?: Array<{ sequence: number; kind: string; name: string; status: string; countDelta?: number; targetKind?: string; targetId?: string; affectedIds?: string[] }>;
           receipts?: Array<{ _id: string; mutationName: string; affectedIds: string[]; createdAt: number }>;
           leases?: Array<{ targetKind: string; targetId: string; mode: string; status: string; expiresAt: number }>;
           draftOperations?: Array<{ operationName: string; status: string; affectedIds: string[]; createdAt: number }>;
           latestSteps?: Array<{ idx: number; tool: string; status: string; elementId?: string; mutationReceiptIds?: string[] }>;
         };
         return {
-          operations: (d.operations ?? []).map((o) => ({ sequence: o.sequence, kind: o.kind, name: o.name, status: o.status, countDelta: o.countDelta, targetKind: o.targetKind, targetId: o.targetId })),
+          operations: (d.operations ?? []).map((o) => ({ sequence: o.sequence, kind: o.kind, name: o.name, status: o.status, countDelta: o.countDelta, targetKind: o.targetKind, targetId: o.targetId, affectedIds: o.affectedIds?.map(String) })),
           receipts: (d.receipts ?? []).map((r) => ({ id: String(r._id), mutationName: r.mutationName, affectedIds: r.affectedIds, createdAt: r.createdAt })),
           leases: (d.leases ?? []).map((l) => ({ targetKind: l.targetKind, targetId: l.targetId, mode: l.mode, status: l.status, expiresAt: l.expiresAt })),
           draftOperations: (d.draftOperations ?? []).map((op) => ({ operationName: op.operationName, status: op.status, affectedIds: op.affectedIds, createdAt: op.createdAt })),
@@ -920,7 +985,7 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
         catch (e) { return { ok: false, reason: e instanceof Error ? e.message : "retry_failed" }; }
       },
     };
-  }, [data, metaArtifacts, elementsByArtifact, pub, priv, traces, runs, jobs, jobAttempts, jobDetail, proposals, applyCellEdit, sendMsg, toggle, editMsg, resolveProposalMutation, addResearchRowsMutation, createArtifactMutation, runSemanticConflictDrillMutation, runAgent, runPrivateAgent, createPrivateReplyStream, startFreeAutoJob, cancelFreeAutoJob, retryFreeAutoJob, rid, roomId, proof, me.id, me.name]);
+  }, [data, metaArtifacts, elementsByArtifact, pub, priv, traces, runs, jobs, jobAttempts, jobDetail, proposals, applyCellEdit, sendMsg, toggle, editMsg, resolveProposalMutation, addResearchRowsMutation, createArtifactMutation, uploadSourceFile, runSemanticConflictDrillMutation, runAgent, runPrivateAgent, createPrivateReplyStream, startFreeAutoJob, cancelFreeAutoJob, retryFreeAutoJob, rid, roomId, proof, me.id, me.name]);
 
   return (
     <Ctx.Provider value={store}>

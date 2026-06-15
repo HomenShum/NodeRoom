@@ -40,6 +40,18 @@ async function editCell(p: Page, key: string, value: string) {
 async function cellText(p: Page, key: string) {
   return (await p.locator(`[data-cell-key="${key}"]`).innerText()).trim();
 }
+async function ensureBinderOpen(p: Page) {
+  const leftRail = p.getByTestId("left-rail");
+  if (!(await leftRail.isVisible().catch(() => false))) {
+    await p.getByRole("button", { name: "Toggle Room Binder panel" }).click();
+  }
+  await expect(leftRail).toBeVisible({ timeout: 10_000 });
+}
+async function openVarianceSheet(p: Page) {
+  await ensureBinderOpen(p);
+  await p.getByTestId("left-rail").getByRole("button", { name: /Q3 variance/ }).click();
+  await expect(p.locator('[data-cell-key="r_rev__variance"]')).toBeVisible({ timeout: 30_000 });
+}
 async function proposalCellKeys(p: Page) {
   const keys = await p.locator('[data-testid="proposal-inline"]').evaluateAll((els) =>
     els
@@ -77,13 +89,17 @@ test("three users chat, edit the same sheet concurrently, and run the public age
   const pages = { maya, dev, sam };
 
   // ── Act 1: Maya creates the new room (+ seeds the shared Q3 sheet); Dev & Sam join by code.
-  await maya.goto(`/?create=${CODE}&name=Maya`);
+  await maya.goto(`/?demo=${CODE}&name=Maya`);
   await expect(chat(maya).getByTestId("chat-composer")).toBeVisible({ timeout: 60_000 });
-  await expect(maya.locator('[data-cell-key="r_rev__variance"]')).toBeVisible({ timeout: 30_000 }); // sheet seeded
+  await openVarianceSheet(maya); // sheet seeded
   await dismissTour(maya);
   await dev.goto(`/?room=${CODE}&name=Dev`);
   await sam.goto(`/?room=${CODE}&name=Sam`);
-  for (const p of [dev, sam]) { await expect(chat(p).getByTestId("chat-composer")).toBeVisible({ timeout: 60_000 }); await dismissTour(p); }
+  for (const p of [dev, sam]) {
+    await expect(chat(p).getByTestId("chat-composer")).toBeVisible({ timeout: 60_000 });
+    await openVarianceSheet(p);
+    await dismissTour(p);
+  }
   // roster: every view sees all three people
   for (const p of all) for (const who of ["Maya", "Dev", "Sam"]) {
     await expect(p.getByTestId("left-rail").getByText(who, { exact: false }).first()).toBeVisible({ timeout: 25_000 });

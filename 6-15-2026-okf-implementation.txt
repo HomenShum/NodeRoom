@@ -1,0 +1,2144 @@
+New goal on flushing out our codebase dir structure: show full detailed implementation with https://cloud.google.com/blog/products/data-analytics/how-the-open-knowledge-format-can-improve-data-sharing
+
+with the open knowledge format integrated; our agent harness should have access to all these tools to also increase answer accuracy, we need our tools very flushed out:
+Cursor added semantic search and measured a 24% increase in answer accuracy on their composer model, a 2.6% gain in code retention in large codebases, and a 2.2% drop in dissatisfied user requests. Those numbers look small until you factor in that semantic search does not fire on every query. Meanwhile Google search volume for RAG hit a new inflection point in mid 2025 and went through the roof. The Twitter "RAG is dead" discourse and the actual usage curve are moving in opposite directions.
+
+Kuba Rogut's argument is that the problem was never retrieval, it was the narrow definition of it. RAG is not just a vector search call. It is vector search, full text search, glob, regex, and filters used iteratively by an agent that keeps searching until it has what it needs. He contrasts Claude Code (grep per session, no index, repeat cost every run) with Cursor (one time upfront indexing, lightweight tool calls at runtime). Claude Code's approach is not wrong, it is a deliberate tradeoff. The frame that clarifies it: embeddings are cached compute, and whether to cache depends on query volume. Jeff Dean's version: you do not need a trillion tokens at once, you need the right million.
+
+Thought for 10m 40s
+
+Yes. The right implementation is not just “add OKF export.” It is:
+
+Turn OKF into NodeRoom’s portable knowledge layer, then give NodeAgent a real retrieval toolbelt over that layer: semantic search, full-text search, metadata filters, glob, regex, graph traversal, literal source opening, spreadsheet search, trace search, and external Linkup search.
+
+That gives us the Cursor-style lesson without overfitting to the exact Cursor metrics. I could not verify the exact “24% / 2.6% / 2.2%” numbers from a public source in this session, so I would treat those as a directional anecdote unless we have the original source. But the architecture point is right: retrieval is cached compute, and strong agent retrieval is not one vector call. It is a search loop.
+
+OKF is a good substrate because Google defines it as a vendor-neutral, human- and agent-friendly format for metadata, context, and curated knowledge, represented as directories of Markdown files with YAML frontmatter. The blog emphasizes that OKF is “just markdown,” “just files,” and “just YAML frontmatter” with queryable fields like type, title, description, resource, tags, and timestamp. The OKF spec says a concept is one Markdown file, the file path is the concept identity, links express relationships, citations support claims, and type is the required frontmatter field consumers use for routing/filtering.
+
+1. Final thesis
+
+Use this as the design sentence:
+
+Convex is the live room ledger. OKF is the portable knowledge bundle. Hybrid retrieval is how NodeAgent finds the right evidence. Managed CAS/proposals are how the agent safely changes shared artifacts.
+
+Or even tighter:
+
+NodeAgent should not remember everything; it should know how to search the right indexed knowledge until it has enough evidence to act.
+
+This fits your existing harness direction: the model is the brain, but the harness owns tools, memory, state persistence, approval gates, rollback, and safety. Convex optimistic UI gives local speed, but durable truth still reconciles through the database.
+
+2. Full target codebase directory
+================================================================================
+        NODEROOM + NODEAGENT + OKF + HYBRID RETRIEVAL CODEBASE STRUCTURE
+================================================================================
+
+.agent/
+  AGENT.md
+    Global harness rules:
+      - LLM routes intent; harness schedules work; ledger commits truth
+      - never cite sources not opened or resolved
+      - never treat manual chat claims as verified
+      - never write shared artifacts outside managed CAS/proposal tools
+
+  skills.md
+    Shared domain skills and workflow rules.
+
+  okf.skill.md
+    Rules for reading/writing Open Knowledge Format bundles.
+
+  retrieval.skill.md
+    Search policy:
+      - local room first
+      - OKF next
+      - spreadsheet/source/trace lookup next
+      - external search only if local evidence is missing or stale
+      - stop only when evidence sufficiency is met
+
+  banker-coach.skill.md
+    Banker mental model:
+      - what changed
+      - where did it come from
+      - what is verified
+      - what needs review
+      - what can be said to a senior/client
+
+  startup-diligence.skill.md
+    Company diligence workflow:
+      product, buyer, pricing, competitors, funding, hiring, headwinds,
+      runway, milestones, open questions, source confidence.
+
+  routing_matrix.json
+    Task -> model policy:
+      extract
+      retrieval_planning
+      source_grounding
+      semantic_rebase
+      final_report
+      code_math
+      charting
+
+  rebase_rules.md
+    Semantic Rebase rules:
+      human input preserved by default
+      formula cells protected
+      source-backed facts outrank unsupported generated claims
+      high-risk finance assumptions become proposals
+
+
+convex/
+  schema.ts
+
+  rooms.ts
+  messages.ts
+  artifacts.ts
+  collab.ts
+  agent.ts
+  agentJobs.ts
+  agentRuns.ts
+  streaming.ts
+  semanticRebase.ts
+
+  okfBundles.ts
+    create bundle row
+    list bundles
+    mark export ready/failed
+    attach storage zip/html/markdown artifact
+
+  okfConcepts.ts
+    insert concepts
+    list by bundle
+    query by type/tag/status/visibility
+    read concept by conceptId
+    backlinks / link graph lookup
+
+  okfOutbox.ts
+    append events from live room:
+      artifact_updated
+      cell_payload_written
+      source_added
+      coach_cue_created
+      review_round_closed
+      agent_job_finished
+      eval_scored
+
+  okfIndex.ts
+    metadata index rows
+    full-text rows
+    chunk rows
+    graph edge rows
+
+  okfEmbeddings.ts
+    background embedding jobs
+    semantic chunk records
+    embedding version/hash tracking
+
+  retrieval.ts
+    server-side retrieval tool endpoints:
+      okf_list_concepts
+      okf_read_concept
+      okf_full_text_search
+      okf_semantic_search
+      okf_glob
+      okf_regex
+      okf_filter
+      okf_backlinks
+      okf_expand_neighbors
+      trace_search
+      source_open_literal
+
+  sourceRefs.ts
+    source artifact refs
+    source locator:
+      url
+      page
+      row
+      column
+      bbox
+      sheetName
+      providerFileId
+      storageId
+
+  warehouseOutbox.ts
+    async export to ClickHouse / analytics:
+      retrieval events
+      source coverage
+      answer accuracy
+      cost / latency
+      no-clobber pass
+
+
+src/
+  app/
+    store.tsx
+      existing UI/data seam:
+        memory store
+        Convex store
+        optimistic updates
+        artifact subscriptions
+      add:
+        okf bundle queries
+        okf artifact opening
+        retrieval/coach cue subscriptions
+
+  ui/
+    RoomShell.tsx
+      Binder / Work Surface / Copilot / Signal Tape / Status Strip
+
+    artifacts/
+      OKFBundleArtifact.tsx
+      OKFConceptViewer.tsx
+      OKFGraphArtifact.tsx
+      EvidenceCarouselArtifact.tsx
+      BankerCoachCueArtifact.tsx
+      ReviewRoundArtifact.tsx
+      TraceLensPanel.tsx
+      RetrievalInspector.tsx
+
+    copilot/
+      SuggestionDeck.tsx
+      RetrievalTraceCard.tsx
+      SourceSufficiencyCard.tsx
+
+  nodeagent/
+    index.ts
+
+    core/
+      runtime.ts
+        bounded model/tool loop
+        spend/time/step budgets
+        trace
+        handoff
+        compaction
+        journal replay
+
+      worldModel.ts
+        existing just-in-time context builder
+        add OKF context compiler and retrieval packet
+
+      contextCompactor.ts
+      plans.ts
+      idempotency.ts
+      journal.ts
+
+      retrievalPlanner.ts
+        turns user goal into search plan:
+          local room
+          OKF
+          spreadsheet
+          source
+          trace
+          web
+
+      retrievalLoop.ts
+        iterative retrieval:
+          search
+          read
+          expand
+          verify
+          decide if enough evidence
+
+      evidenceSufficiency.ts
+        enoughToAnswer
+        enoughToWrite
+        enoughForClientReady
+        missing evidence categories
+
+      answerComposer.ts
+        evidence-backed final responses
+        citations
+        caveats
+        needs_review language
+
+      traceLens.ts
+        selected UI element -> source/evidence/code/runtime context packet
+
+    okf/
+      types.ts
+      frontmatter.ts
+      concept.ts
+      markdown.ts
+      bundleWriter.ts
+      bundleReader.ts
+      validators.ts
+      redaction.ts
+      graph.ts
+
+      producers/
+        roomProducer.ts
+        artifactProducer.ts
+        companyProducer.ts
+        sourceProducer.ts
+        cellProducer.ts
+        metricProducer.ts
+        chartProducer.ts
+        coachCueProducer.ts
+        reviewRoundProducer.ts
+        traceProducer.ts
+        evalProducer.ts
+        algorithmProducer.ts
+
+      consumers/
+        okfContextCompiler.ts
+        okfCitationResolver.ts
+        okfGraphReader.ts
+        okfConceptSearch.ts
+
+    retrieval/
+      indexes/
+        metadataIndex.ts
+        fullTextIndex.ts
+        semanticIndex.ts
+        pathGlobIndex.ts
+        regexIndex.ts
+        graphIndex.ts
+        spreadsheetIndex.ts
+        sourceIndex.ts
+
+      ranking/
+        hybridRanker.ts
+        authorityScoring.ts
+        freshnessScoring.ts
+        privacyFilter.ts
+        reranker.ts
+
+      tools/
+        okfListConceptsTool.ts
+        okfReadConceptTool.ts
+        okfSemanticSearchTool.ts
+        okfFullTextSearchTool.ts
+        okfFilterTool.ts
+        okfGlobTool.ts
+        okfRegexTool.ts
+        okfBacklinksTool.ts
+        okfExpandNeighborsTool.ts
+
+        roomCurrentSurfaceTool.ts
+        roomRecentContextTool.ts
+        roomTraceSearchTool.ts
+        roomProposalSearchTool.ts
+
+        sheetSemanticSearchTool.ts
+        sheetFullTextSearchTool.ts
+        sheetFormulaSearchTool.ts
+        sheetDependencyExpandTool.ts
+        sheetReadRangeWithVersionsTool.ts
+
+        sourceOpenLiteralTool.ts
+        sourceResolveCitationTool.ts
+        sourceCompareClaimTool.ts
+
+        linkupSearchTool.ts
+
+      telemetry/
+        retrievalEvents.ts
+        retrievalEval.ts
+
+    skills/
+      spreadsheet/
+        cellMutator.ts
+        algorithmArtifacts.ts
+        semanticRebase.ts
+        formulaEngine.ts
+        versionControl.ts
+
+      diligence/
+        companyEntityExtractor.ts
+        bulkCompanyPlanner.ts
+        companyDiligence.ts
+        runwayMilestonePlanner.ts
+        competitorResearch.ts
+        sourceGapDetector.ts
+
+      bankerCoach/
+        buildEvidenceCards.ts
+        generateCoachCues.ts
+        generateTalkTrack.ts
+        generateReviewRoundUpdate.ts
+
+      okf/
+        exportOkfBundle.ts
+        importOkfBundle.ts
+        searchOkfConcepts.ts
+        draftOkfConcept.ts
+
+      integration/
+        noderoomAdapter.ts
+        downstreamPublish.ts
+
+    models/
+      adapter.ts
+      convexModel.ts
+      prompts/
+        systemPrompt.ts
+        retrievalPrompt.ts
+        okfPrompt.ts
+        bankerCoachPrompt.ts
+
+
+scripts/
+  okf-export.ts
+  okf-validate.ts
+  okf-visualize.ts
+  okf-index.ts
+  retrieval-eval.ts
+
+docs/
+  okf/
+    README.md
+    noderoom-okf-contract.md
+    examples/
+      startup-diligence-okf/
+      finance-model-okf/
+
+  eval/
+    retrieval/
+      retrieval-ablation.md
+      okf-vs-room-context.md
+
+tests/
+  okf/
+    okfSerialize.test.ts
+    okfValidate.test.ts
+    okfRedaction.test.ts
+    okfContextCompiler.test.ts
+
+  retrieval/
+    hybridRanker.test.ts
+    evidenceSufficiency.test.ts
+    okfTools.test.ts
+    sourceResolver.test.ts
+
+  workflow/
+    startupDiligenceWithOkf.test.ts
+    bankerCoachEvidenceCarousel.test.ts
+    semanticRebaseWithOkf.test.ts
+
+The main point: OKF and retrieval become first-class under src/nodeagent/, not random helpers. Your current repo already has the right seam: RoomStore isolates UI from memory/Convex, worldModel.ts assembles JIT context, cellMutator.ts exposes typed tools, and artifacts.ts enforces the no-clobber ledger path. We are adding a portable knowledge/search layer, not replacing the current harness.
+
+3. OKF concept types for NodeRoom
+
+OKF does not prescribe a fixed taxonomy, which is good. The spec requires only type; unknown types should be tolerated gracefully. For NodeRoom, define our domain types:
+
+export type NodeRoomOkfType =
+  | "Room"
+  | "Company"
+  | "Person"
+  | "Opportunity"
+  | "Interaction"
+  | "Source"
+  | "Spreadsheet"
+  | "Spreadsheet Cell"
+  | "Metric"
+  | "Formula"
+  | "Algorithm"
+  | "Chart"
+  | "Report"
+  | "Coach Cue"
+  | "Review Round"
+  | "Task"
+  | "Agent Trace"
+  | "Eval Result"
+  | "Downstream Draft"
+  | "Workflow"
+  | "Playbook";
+
+Example OKF files:
+
+companies/cardionova.md
+sources/cardionova_website.md
+sources/funding_article_cardionova.md
+sheets/company_research_sheet.md
+cells/cardionova_runway.md
+metrics/runway_months.md
+charts/runway_milestone_chart.md
+coach_cues/runway_assumption_needs_review.md
+traces/agent_job_cardionova_diligence.md
+evals/startup_diligence_eval.md
+workflows/startup_diligence_playbook.md
+
+Example concept frontmatter:
+
+---
+type: Spreadsheet Cell
+title: CardioNova runway estimate
+description: Runway estimate generated from available cash/burn assumptions.
+resource: noderoom://rooms/room_123/artifacts/art_company/elements/rc_cardionova__runway
+tags: [runway, finance, startup-diligence, needs-review]
+timestamp: 2026-06-15T18:34:00Z
+noderoom:
+  roomId: room_123
+  artifactId: art_company
+  elementId: rc_cardionova__runway
+  status: needs_review
+  confidence: 0.54
+  sourceKind: computed
+---
+4. Retrieval is a toolbelt, not one vector call
+
+The agent should have these retrieval tools available.
+
+OKF discovery tools
+okf_list_concepts({
+  type?: string;
+  tags?: string[];
+  pathPrefix?: string;
+  visibility?: "public" | "private" | "redacted";
+  limit?: number;
+})
+okf_read_concept({
+  conceptId: string;
+})
+
+Use these before deep search when the agent needs to understand what knowledge exists.
+
+OKF semantic tools
+okf_semantic_search({
+  query: string;
+  type?: string;
+  tags?: string[];
+  status?: string;
+  limit?: number;
+})
+
+Use for meaning-based questions:
+
+“Which source supports the runway assumption?”
+“Find the review cue about burn assumptions.”
+“Which companies have unresolved pricing evidence?”
+OKF lexical tools
+okf_full_text_search({
+  query: string;
+  fields?: Array<"title" | "description" | "body" | "citations">;
+  limit?: number;
+})
+
+Use for exact words, company names, metric labels, deal names.
+
+OKF metadata filters
+okf_filter({
+  type?: string;
+  tags?: string[];
+  status?: string;
+  confidenceMin?: number;
+  timestampAfter?: string;
+  visibility?: "public" | "private" | "redacted";
+  limit?: number;
+})
+
+Use to answer:
+
+“Show all needs_review company claims.”
+“Find high-confidence sources from the last review round.”
+Glob/path tools
+okf_glob({
+  pattern: string; // "companies/*.md", "sources/**/*.md", "coach_cues/*.md"
+})
+
+Use when the directory structure is the fastest route.
+
+Regex tools
+okf_regex({
+  pattern: string;
+  pathPrefix?: string;
+  caseSensitive?: boolean;
+})
+
+Use for exact identifiers:
+
+rc_cardionova__runway
+Q3
+Series B
+ARR
+EBITDA
+=SUM
+Graph tools
+okf_backlinks({
+  conceptId: string;
+  depth?: number;
+})
+okf_expand_neighbors({
+  conceptId: string;
+  linkDepth: number;
+  includeCitations: boolean;
+  includeBacklinks: boolean;
+})
+
+Use for:
+
+“What depends on this source?”
+“Which chart uses this metric?”
+“Which coach cues mention this company?”
+Room-state tools
+room_current_surface()
+room_recent_context({ channel: "public" | "private"; limit: number })
+room_trace_search({ query: string; artifactId?: string; limit?: number })
+room_proposal_search({ status?: string; targetRef?: string })
+Spreadsheet tools
+
+Your repo already has the right primitive: search_sheet_context searches header-prepended semantic cell summaries and structural sub-grid chunks so the agent does not dump the full grid into context. That should remain, but it becomes one retrieval tool among many. The professional eval notes already say large 9,000+ row sheets should use chunking, semantic search, compaction, checkpoints, and resolved-model audit, not one giant prompt.
+
+Add/standardize:
+
+sheet_semantic_search({
+  artifactId: string;
+  query: string;
+  limit?: number;
+})
+sheet_full_text_search({
+  artifactId: string;
+  query: string;
+  limit?: number;
+})
+sheet_formula_search({
+  artifactId: string;
+  pattern: string;
+})
+sheet_dependency_expand({
+  artifactId: string;
+  elementIds: string[];
+  direction: "parents" | "children" | "both";
+})
+sheet_read_range_with_versions({
+  artifactId: string;
+  elementIds: string[];
+})
+
+Critical rule:
+
+Search finds candidate context. read_range confirms current values and versions before writing.
+
+Literal source tools
+source_open_literal({
+  sourceArtifactId: string;
+  page?: number;
+  row?: number;
+  column?: string;
+  bbox?: { x: number; y: number; width: number; height: number; unit?: "px" | "pt" | "normalized" };
+})
+source_resolve_citation({
+  evidenceId: string;
+})
+source_compare_claim({
+  claim: string;
+  evidenceRefs: EvidenceRef[];
+})
+
+Use these for Banker Coach and evidence carousel. The agent should not claim a source supports something unless it can open or resolve the literal supporting source.
+
+External search
+linkup_search({
+  query: string;
+  depth: "standard" | "deep";
+  expectedSourceType?: "company_site" | "news" | "filing" | "market_research";
+})
+
+Policy:
+
+Use local room/OKF evidence first.
+Use external search when:
+  - user asks for fresh research
+  - OKF says source is stale
+  - source sufficiency is not met
+  - company/entity is missing locally
+5. Agent retrieval loop
+
+This is the real “RAG is not dead” implementation.
+
+================================================================================
+NODEAGENT ITERATIVE RETRIEVAL LOOP
+================================================================================
+
+User asks:
+  “Explain CardioNova runway and what source supports it.”
+
+1. Parse intent
+   entity = CardioNova
+   topic = runway
+   output = answer + evidence + review status
+
+2. Check current room surface
+   room_current_surface()
+   room_recent_context(public, 20)
+
+3. Search OKF
+   okf_semantic_search("CardioNova runway burn cash")
+   okf_filter(type = "Metric", tags = ["runway"])
+   okf_backlinks("companies/cardionova")
+
+4. Search spreadsheet
+   sheet_semantic_search("CardioNova runway burn cash")
+   sheet_read_range_with_versions(candidate cells)
+
+5. Resolve literal sources
+   source_resolve_citation(evidence ids)
+   source_open_literal(page/row/cell/bbox)
+
+6. Check sufficiency
+   Does evidence support:
+     current cash?
+     burn?
+     funding stage?
+     time period?
+     formula?
+     manual-vs-verified status?
+
+7. If insufficient:
+   linkup_search("CardioNova current cash monthly burn funding", "standard")
+   or create needs_review coach cue
+
+8. Compose answer
+   If enough:
+     answer with citations
+   If partial:
+     answer with caveat and needs_review
+   If writing:
+     produce CellPayload patch with evidence refs and base versions
+
+The stop condition is not “top 5 chunks returned.” The stop condition is:
+
+type EvidenceSufficiency = {
+  enoughToAnswer: boolean;
+  enoughToWrite: boolean;
+  enoughForClientReady: boolean;
+  missing: Array<
+    | "source_file"
+    | "literal_locator"
+    | "period"
+    | "definition"
+    | "formula"
+    | "human_review"
+    | "confidence"
+  >;
+};
+
+For finance/banking:
+
+enoughToAnswer:
+  maybe yes, with caveat
+
+enoughToWrite:
+  yes, if status = needs_review or estimate
+
+enoughForClientReady:
+  only if source, period, definition, formula, and review state all pass
+6. Indexing pipeline: embeddings as cached compute
+
+Do not compute embeddings during every answer. Compute them when knowledge changes.
+
+================================================================================
+OKF INDEXING PIPELINE
+================================================================================
+
+Convex mutation commits live truth
+  - source added
+  - CellPayload written
+  - coach cue created
+  - trace finished
+  - review round closed
+
+        │
+        ▼
+
+okfOutbox event
+  - target id
+  - event kind
+  - status = pending
+
+        │
+        ▼
+
+OKF export/index action
+  - read changed artifact/cell/source/trace
+  - produce/patch OKF concept
+  - create markdown
+  - validate frontmatter
+  - redact if needed
+  - update graph edges
+
+        │
+        ▼
+
+Index builder
+  - metadata index
+  - full-text index
+  - path/glob index
+  - regex corpus
+  - semantic chunks
+  - citation graph
+  - backlinks
+
+        │
+        ▼
+
+Embeddings
+  - embed concept cards
+  - embed section chunks
+  - embed evidence chunks
+  - embed table rows
+  - cache by contentHash + embeddingModel
+
+        │
+        ▼
+
+Runtime retrieval
+  - cheap semantic lookup
+  - cheap full-text lookup
+  - graph expansion
+  - literal source open
+
+This is the Cursor-style “upfront indexing vs per-session repeat grep” lesson in NodeRoom terms:
+
+At ingestion/export time:
+  pay once to index and embed.
+
+At answer time:
+  run lightweight search tools.
+
+At write time:
+  commit only validated patches.
+7. OKF chunking strategy
+
+Do not embed only entire files.
+
+type OKFSearchChunk = {
+  chunkId: string;
+  conceptId: string;
+  path: string;
+  type: string;
+  title: string;
+  sectionHeading?: string;
+  text: string;
+  tags: string[];
+  resource?: string;
+  targetRefs: string[];
+  citationRefs: string[];
+  tokenCount: number;
+  contentHash: string;
+  embeddingModel?: string;
+  embedding?: number[];
+};
+
+Chunk levels:
+
+L0 Concept card
+  frontmatter title + description + tags + resource
+
+L1 Section chunk
+  each markdown heading section
+
+L2 Evidence chunk
+  claim + citation + support level
+
+L3 Table row chunk
+  source coverage tables, metric tables, task tables
+
+L4 Graph neighborhood chunk
+  generated summary of links/backlinks around a concept
+
+Example retrieval:
+
+Question:
+  “What changed in CardioNova runway?”
+
+Search:
+  L0 company card
+  L1 runway metric section
+  L2 evidence chunk
+  L4 backlinks to chart + review cue + trace
+8. Hybrid ranking
+
+Use a blended ranker instead of blindly trusting semantic similarity.
+
+finalScore =
+  0.35 * semanticScore
++ 0.25 * fullTextScore
++ 0.15 * metadataScore
++ 0.10 * graphProximityScore
++ 0.10 * freshnessScore
++ 0.05 * authorityScore
+- privacyPenalty
+- stalePenalty
+- unsupportedClaimPenalty;
+
+Authority order for NodeRoom:
+
+Uploaded source file / official filing / company source document
+  > source artifact extracted from uploaded XLSX/PDF
+  > company website
+  > credible news / funding article
+  > Linkup/web snippet
+  > manual chat note
+  > generated summary
+
+Manual chat notes are useful, but must stay labeled as manual evidence.
+
+9. Convex schema additions
+okfBundles: defineTable({
+  roomId: v.id("rooms"),
+  title: v.string(),
+  status: v.union(
+    v.literal("draft"),
+    v.literal("indexing"),
+    v.literal("ready"),
+    v.literal("failed")
+  ),
+  visibility: v.union(v.literal("public"), v.literal("private"), v.literal("redacted")),
+  okfVersion: v.string(),
+  conceptCount: v.number(),
+  zipStorageId: v.optional(v.id("_storage")),
+  graphHtmlStorageId: v.optional(v.id("_storage")),
+  createdBy: actorV,
+  createdAt: v.number(),
+  updatedAt: v.number(),
+})
+.index("by_room", ["roomId"])
+.index("by_room_status", ["roomId", "status"]),
+
+okfConcepts: defineTable({
+  roomId: v.id("rooms"),
+  bundleId: v.id("okfBundles"),
+  conceptId: v.string(),
+  path: v.string(),
+  type: v.string(),
+  title: v.optional(v.string()),
+  description: v.optional(v.string()),
+  resource: v.optional(v.string()),
+  tags: v.array(v.string()),
+  timestamp: v.optional(v.string()),
+  markdown: v.string(),
+  frontmatter: v.any(),
+  contentHash: v.string(),
+  sourceArtifactIds: v.array(v.string()),
+  targetRefs: v.array(v.string()),
+  visibility: v.union(v.literal("public"), v.literal("private"), v.literal("redacted")),
+  createdAt: v.number(),
+  updatedAt: v.number(),
+})
+.index("by_bundle", ["bundleId"])
+.index("by_room_type", ["roomId", "type"])
+.index("by_room_concept", ["roomId", "conceptId"])
+.index("by_room_visibility", ["roomId", "visibility"]),
+
+okfChunks: defineTable({
+  roomId: v.id("rooms"),
+  bundleId: v.id("okfBundles"),
+  conceptId: v.string(),
+  chunkId: v.string(),
+  path: v.string(),
+  type: v.string(),
+  title: v.optional(v.string()),
+  sectionHeading: v.optional(v.string()),
+  text: v.string(),
+  tags: v.array(v.string()),
+  targetRefs: v.array(v.string()),
+  citationRefs: v.array(v.string()),
+  tokenCount: v.number(),
+  contentHash: v.string(),
+  embeddingStatus: v.union(
+    v.literal("none"),
+    v.literal("pending"),
+    v.literal("ready"),
+    v.literal("failed")
+  ),
+  createdAt: v.number(),
+})
+.index("by_room_type", ["roomId", "type"])
+.index("by_concept", ["roomId", "conceptId"])
+.index("by_embedding_status", ["roomId", "embeddingStatus"]),
+
+okfEdges: defineTable({
+  roomId: v.id("rooms"),
+  bundleId: v.id("okfBundles"),
+  fromConceptId: v.string(),
+  toConceptId: v.string(),
+  edgeKind: v.union(
+    v.literal("link"),
+    v.literal("citation"),
+    v.literal("supports"),
+    v.literal("depends_on"),
+    v.literal("generated_from"),
+    v.literal("reviews"),
+    v.literal("trace_of")
+  ),
+  createdAt: v.number(),
+})
+.index("by_from", ["roomId", "fromConceptId"])
+.index("by_to", ["roomId", "toConceptId"]),
+
+retrievalEvents: defineTable({
+  roomId: v.id("rooms"),
+  jobId: v.optional(v.id("agentJobs")),
+  runId: v.optional(v.id("agentRuns")),
+  query: v.string(),
+  toolName: v.string(),
+  resultCount: v.number(),
+  selectedCount: v.number(),
+  latencyMs: v.number(),
+  costUsd: v.optional(v.number()),
+  enoughToAnswer: v.optional(v.boolean()),
+  enoughToWrite: v.optional(v.boolean()),
+  enoughForClientReady: v.optional(v.boolean()),
+  createdAt: v.number(),
+})
+.index("by_room", ["roomId"])
+.index("by_job", ["jobId"]);
+
+If using a dedicated vector/search provider later, Convex can store metadata and route queries; the heavy vector index can live outside Convex. Convex remains the OLTP live state, while retrieval analytics and BI-style aggregate scans can go to ClickHouse.
+
+10. Tool registry integration
+
+Add OKF/retrieval tools to the production tool list, but keep write tools managed.
+
+export const OKF_RETRIEVAL_TOOLS: AgentTool[] = [
+  OKF_LIST_CONCEPTS_TOOL,
+  OKF_READ_CONCEPT_TOOL,
+  OKF_SEMANTIC_SEARCH_TOOL,
+  OKF_FULL_TEXT_SEARCH_TOOL,
+  OKF_FILTER_TOOL,
+  OKF_GLOB_TOOL,
+  OKF_REGEX_TOOL,
+  OKF_BACKLINKS_TOOL,
+  OKF_EXPAND_NEIGHBORS_TOOL,
+  SOURCE_OPEN_LITERAL_TOOL,
+  SOURCE_RESOLVE_CITATION_TOOL,
+  SOURCE_COMPARE_CLAIM_TOOL,
+  ROOM_TRACE_SEARCH_TOOL,
+  ROOM_PROPOSAL_SEARCH_TOOL,
+];
+
+export const PRODUCTION_NODEAGENT_TOOLS: AgentTool[] = [
+  ...RETRIEVAL_TOOLS,
+  ...OKF_RETRIEVAL_TOOLS,
+  ...PRODUCTION_ROOM_TOOLS, // managed CAS/write tools only
+];
+
+Policy:
+
+Retrieval tools:
+  read-only or draft-only.
+
+Write tools:
+  only managed lock/CAS/proposal tools.
+
+External tools:
+  budgeted and logged.
+
+Downstream tools:
+  approval-gated, dry-run unless authorized.
+
+Your current cellMutator.ts already has the correct concept: tools are typed, schema-validated, and call RoomTools; they do not touch the database directly. The critical contract is that conflicts are returned as normal tool data, turning a race into re-read/retry instead of clobbering.
+
+11. World model integration
+
+Update worldModel.ts so the context builder can use OKF retrieval when appropriate.
+
+Existing shape:
+
+buildContext()
+buildResearchContext()
+buildNoteContext()
+buildWallContext()
+
+New shape:
+
+export async function buildWorldModelContext(rt: RoomTools, goal: string) {
+  const surface = await rt.currentSurface();
+  const base = await buildSurfaceContext(rt, goal, surface);
+
+  const retrievalPlan = await planRetrieval({
+    goal,
+    surface,
+    recentTrace: base.recentTrace,
+    activeArtifact: base.artifactId,
+  });
+
+  const retrieved = await runRetrievalLoop({
+    plan: retrievalPlan,
+    tools: rt.retrievalTools,
+    maxSearches: 8,
+    maxChars: 12_000,
+  });
+
+  const sufficiency = scoreEvidenceSufficiency({
+    goal,
+    retrieved,
+    targetPolicy: surface.policy,
+  });
+
+  return [
+    base.contextMessage,
+    {
+      role: "user",
+      content: renderRetrievalContext({
+        retrieved,
+        sufficiency,
+      }),
+    },
+  ];
+}
+
+The retrieval context must preserve your existing trust boundary: room content, OKF content, source excerpts, and fetched web snippets are data, not instructions. Your existing worldModel.ts already fences room-authored content as untrusted data to prevent prompt injection. Keep that rule and extend it to OKF/search results.
+
+12. OKF export example for startup diligence
+
+Directory:
+
+noderoom-okf/
+  index.md
+  log.md
+
+  companies/
+    index.md
+    cardionova.md
+
+  sources/
+    index.md
+    cardionova_website.md
+    cardionova_call_note.md
+    cardionova_funding_article.md
+
+  sheets/
+    company_research_sheet.md
+
+  cells/
+    cardionova_summary.md
+    cardionova_runway.md
+    cardionova_pricing.md
+
+  metrics/
+    runway_months.md
+    source_coverage.md
+
+  charts/
+    runway_milestone_chart.md
+
+  coach_cues/
+    runway_assumption_needs_review.md
+
+  traces/
+    agent_job_cardionova_diligence.md
+
+  evals/
+    startup_diligence_eval.md
+
+Example source-backed cell concept:
+
+---
+type: Spreadsheet Cell
+title: CardioNova runway estimate
+description: Runway estimate generated from available cash and burn assumptions.
+resource: noderoom://rooms/room_123/artifacts/art_company/elements/rc_cardionova__runway
+tags: [runway, finance, estimate, needs-review]
+timestamp: 2026-06-15T18:34:00Z
+noderoom:
+  roomId: room_123
+  artifactId: art_company
+  elementId: rc_cardionova__runway
+  version: 7
+  status: needs_review
+  confidence: 0.54
+---
+
+# Value
+
+`15–20 months`
+
+# Status
+
+This is an estimate, not a verified fact.
+
+# Computation
+
+```text
+runway_months = current_cash / monthly_burn
+Evidence
+Evidence	Support level	Notes
+Funding article	partial	Supports funding stage, not current cash.
+Call note	manual only	Mentions burn direction but is not verified.
+Review action
+
+Ask management for current cash and monthly burn before sending this externally.
+
+Related
+CardioNova
+Runway chart
+Runway coach cue
+Citations
+
+[1] Funding article
+[2] Manual call note
+
+
+This is what makes Banker Coach, Evidence Carousel, future agents, and downstream systems all read the same knowledge package.
+
+---
+
+# 13. OKF + retrieval runtime diagram
+
+```text
+================================================================================
+NODEROOM OKF + HYBRID RETRIEVAL RUNTIME
+================================================================================
+
+[USER]
+  asks:
+  “Explain CardioNova runway and cite the source.”
+
+        │
+        ▼
+
+[React UI]
+  - optimistic message appears
+  - captures active artifact, selected row, visible source context
+  - sends mutation
+
+        │
+        ▼
+
+[Convex Mutation]
+  - persists message
+  - creates roomCommand / agentJob
+  - schedules NodeAgent action
+
+        │
+        ▼
+
+[NodeAgent Action]
+  - builds base world model:
+      room
+      artifact
+      selected range
+      active edits
+      proposals
+      traces
+      policy
+
+        │
+        ▼
+
+[Retrieval Planner]
+  decides:
+    Need company concept
+    Need runway metric
+    Need source support
+    Need current spreadsheet value
+    Need trace/review status
+
+        │
+        ▼
+
+[Hybrid Retrieval Loop]
+  1. okf_semantic_search("CardioNova runway burn")
+  2. okf_filter(type="Metric", tags=["runway"])
+  3. okf_backlinks("companies/cardionova")
+  4. sheet_semantic_search("CardioNova runway")
+  5. sheet_read_range_with_versions(candidate cells)
+  6. source_resolve_citation(evidence refs)
+  7. source_open_literal(page/row/cell/bbox)
+  8. linkup_search only if source missing/stale
+
+        │
+        ▼
+
+[Evidence Sufficiency]
+  - enoughToAnswer? yes, with caveat
+  - enoughToWrite? yes, as needs_review
+  - enoughForClientReady? no, missing current cash/burn source
+
+        │
+        ▼
+
+[LLM Answer / Patch]
+  - answer explains estimate
+  - cites source concepts
+  - creates CoachCue:
+      “Runway assumption needs review”
+  - optional patch bundle for sheet/report
+
+        │
+        ▼
+
+[Managed Write Layer]
+  - clean writes through write_locked_cell_results
+  - stale writes through CAS conflict / semantic rebase / proposal
+  - every write uses evidence-bearing CellPayload
+
+        │
+        ▼
+
+[Convex Ledger]
+  - commits cells/proposals/traces/coach cue
+  - updates live room queries
+
+        │
+        ▼
+
+[OKF Outbox]
+  - cell_payload_written
+  - coach_cue_created
+  - agent_job_finished
+
+        │
+        ▼
+
+[OKF Export / Index Action]
+  - updates OKF concepts
+  - updates full-text / semantic / graph indexes
+  - caches embeddings by content hash
+
+        │
+        ▼
+
+[UI]
+  - answer appears
+  - evidence carousel opens literal source
+  - coach cue appears
+  - OKF graph can show:
+      Company -> Cell -> Metric -> Source -> Coach Cue -> Trace
+14. Evaluation plan
+
+You should measure whether OKF + retrieval improves actual workflow outcomes.
+
+A/B arms
+A. Base room context only
+B. Room context + OKF full-text
+C. Room context + OKF full-text + semantic
+D. Room context + OKF hybrid retrieval + source literal open
+E. Room context + OKF hybrid retrieval + external Linkup fallback
+Metrics
+Answer accuracy:
+  Did the answer match the expected professional conclusion?
+
+Evidence accuracy:
+  Did cited sources actually support the claim?
+
+Retrieval recall:
+  Did the search find the key concept/source/cell?
+
+Retrieval precision:
+  Did the context avoid irrelevant files?
+
+Source sufficiency:
+  Did it correctly say needs_review when evidence was weak?
+
+Client-readiness:
+  Would a banker be able to defend the answer?
+
+No-clobber:
+  Did writes preserve human edits?
+
+Cost:
+  model calls, search calls, tokens, dollars
+
+Latency:
+  retrieval time and total answer time
+
+User behavior:
+  did users click evidence, accept coach cues, or dismiss them?
+
+Your professional eval plan already emphasizes evidence-bearing writes, privacy, no-clobber behavior, context chunking, checkpoints, and trajectory checks. OKF retrieval becomes the search substrate that makes those evals more robust.
+
+15. Implementation order
+P0 — codebase structure + minimal useful OKF
+1. Add src/nodeagent/okf/types.ts, markdown.ts, validators.ts.
+2. Add src/nodeagent/okf/producers for room/company/source/cell/trace.
+3. Add convex/okfBundles.ts and convex/okfConcepts.ts.
+4. Add OKF export action from current room.
+5. Render OKFBundleArtifact in Work Surface.
+6. Add okf_list_concepts, okf_read_concept, okf_full_text_search.
+7. Update worldModel to include a small OKF context block when available.
+P1 — hybrid retrieval
+1. Add okfChunks and chunker.
+2. Add full-text index.
+3. Add semantic chunk index.
+4. Add okf_semantic_search.
+5. Add okf_backlinks and okf_expand_neighbors.
+6. Add source_open_literal and source_resolve_citation.
+7. Add evidenceSufficiency.ts.
+P2 — production-grade retrieval
+1. Incremental reindexing outbox.
+2. Embeddings cached by content hash.
+3. External vector/search service if needed.
+4. Retrieval telemetry and ClickHouse export.
+5. Reranker.
+6. Retrieval eval dashboard.
+7. Banker Coach and Evidence Carousel backed by OKF concepts.
+P3 — ecosystem layer
+1. MCP resources:
+   noderoom://rooms/{roomId}/okf/index
+   noderoom://rooms/{roomId}/okf/concepts/{conceptId}
+
+2. Attio/CRM adapter:
+   Company, Person, Task, Interaction concepts.
+
+3. Quadratic adapter:
+   Spreadsheet, Cell, Metric, Algorithm concepts.
+
+4. BankerToolBench adapter:
+   Deliverable, Trace, Eval, Citation concepts.
+16. What not to do
+
+Avoid these:
+
+- Do not dump the whole OKF bundle into the prompt.
+- Do not use vector search alone.
+- Do not cite a concept unless the agent read it.
+- Do not treat chat claims as verified sources.
+- Do not recompute embeddings on every question.
+- Do not let retrieval tools mutate shared artifacts.
+- Do not put OLAP analytics scans inside Convex live queries.
+- Do not let external search outrank canonical uploaded/private sources by default.
+17. Final mental model
+
+The cleanest mental model is:
+
+Convex:
+  live operational truth
+
+OKF:
+  portable room knowledge
+
+Hybrid retrieval:
+  how agents find the right million tokens
+
+NodeAgent:
+  decides, searches, verifies, proposes, writes
+
+CellPayload:
+  how evidence lands inside artifacts
+
+Banker Coach:
+  how humans understand and own the work
+
+ClickHouse:
+  how we analyze retrieval quality, cost, and workflow performance later
+
+One final sentence for your notes:
+
+OKF turns NodeRoom’s live work into durable knowledge; hybrid retrieval turns that knowledge into agent accuracy; managed CAS turns agent output into safe shared artifact changes.
+
+Yes. This is the missing retrieval layer:
+
+OKF gives NodeRoom portable knowledge. Hybrid retrieval makes that knowledge usable by the agent.
+
+The right design is not “add vector search.” It is:
+
+Agentic retrieval over OKF + room state + source files using semantic search, full-text search, metadata filters, graph traversal, glob/path lookup, regex, spreadsheet search, and literal source opening — iteratively, until the agent has enough evidence.
+
+That is the Cursor lesson applied to NodeRoom.
+
+I could not verify the exact Cursor metric numbers from a public source in this session, so I would treat those as a directional product anecdote unless you have the original post. The broader technical point is still strongly supported: hybrid code/search systems outperform either pure keyword or pure semantic matching, and OKF is designed specifically to make knowledge readable by humans and parseable by agents. Google’s OKF post describes OKF as a vendor-neutral, human- and agent-friendly standard using Markdown files with YAML frontmatter, including queryable fields like type, title, description, resource, tags, and timestamp. The OKF spec also defines a concept as one Markdown file, with the file path as the concept identity, links as relationships, and citations as support for claims.
+
+The new NodeRoom principle
+
+Use this:
+
+NodeAgent should not retrieve once. It should investigate.
+
+That means:
+
+1. Search semantically.
+2. Search exact text.
+3. Filter by concept type, source, status, confidence, timestamp, privacy.
+4. Follow links and backlinks.
+5. Open literal source files.
+6. Search spreadsheet structure.
+7. Use regex/glob for exact identifiers.
+8. Stop only when evidence is sufficient.
+
+This is the correct interpretation of “RAG is not dead.” The weak version of RAG is:
+
+prompt -> vector search -> top 5 chunks -> answer
+
+The strong version is:
+
+prompt -> retrieval plan -> multiple retrieval tools -> evidence graph -> answer/proposal
+Why this matters for NodeRoom
+
+NodeRoom’s current harness already has the right foundation. Your uploaded architecture notes separate the model from the harness: the model reasons, but the harness owns tools, memory, state, persistence, approval gates, circuit breakers, and sanitization. The existing Convex design also already understands that optimistic UI is local and temporary while durable truth reconciles through the database.
+
+Now add the knowledge layer:
+
+Convex:
+  live operational state
+
+OKF:
+  portable room knowledge
+
+Retrieval toolbelt:
+  how the agent finds the right knowledge
+
+NodeAgent:
+  orchestrates search, reasoning, writing, and review
+
+CellPayload / evidence:
+  how findings become auditable artifact changes
+
+Without this retrieval layer, the agent is still partially blind. With it, the agent can answer like a good analyst:
+
+I found the company profile.
+I found the source page.
+I found the conflicting prior claim.
+I found the cell that uses it.
+I found the chart affected by it.
+I found the review note.
+Now I can answer or propose a safe update.
+The retrieval stack to add
+
+Think of this as Search-as-Tools, not a single database call.
+
+================================================================================
+        NODEAGENT RETRIEVAL TOOLBELT WITH OKF
+================================================================================
+
+Sources of knowledge:
+  - Convex live room state
+  - OKF bundle concepts
+  - source files / PDFs / CSV / XLSX
+  - spreadsheet cells / chunks / formulas
+  - traces / proposals / review rounds
+  - external search via Linkup
+  - future CRM/Attio/Quadratic-style integrations
+
+Retrieval modes:
+  - semantic vector search
+  - full-text / BM25 / inverted index
+  - metadata filters
+  - glob / path search
+  - regex
+  - graph links / backlinks
+  - spreadsheet structural search
+  - literal source open
+  - trace lookup
+
+Output:
+  - evidence packet
+  - world model context
+  - answer
+  - patch bundle
+  - coach cue
+  - review proposal
+
+Research in code search supports this hybrid framing. CodeMatcher combines IR-style indexed search with semantic/noise handling and iterative fuzzy search, and reports strong retrieval improvements over semantic-only baselines in code-search tasks. CSRS similarly combines lexical relevance matching and semantic matching, rather than relying on only one signal.
+
+New codebase layer
+
+Add this under your signature namespace:
+
+src/
+  nodeagent/
+    retrieval/
+      index.ts
+      retrievalPlanner.ts
+      retrievalLoop.ts
+      ranking.ts
+      evidencePacket.ts
+
+      okf/
+        okfIndexBuilder.ts
+        okfConceptStore.ts
+        okfSemanticSearch.ts
+        okfFullTextSearch.ts
+        okfPathGlob.ts
+        okfRegex.ts
+        okfGraph.ts
+        okfFilters.ts
+
+      room/
+        roomStateSearch.ts
+        artifactSearch.ts
+        spreadsheetSearch.ts
+        traceSearch.ts
+        proposalSearch.ts
+
+      source/
+        sourceOpen.ts
+        sourceCitationResolver.ts
+        literalFileLocator.ts
+
+      metrics/
+        retrievalTelemetry.ts
+        retrievalEval.ts
+
+Convex side:
+
+convex/
+  okfBundles.ts
+  okfConcepts.ts
+  okfSearchIndex.ts
+  okfEmbeddings.ts
+  retrievalEvents.ts
+  sourceRefs.ts
+The tools NodeAgent should have
+
+These are the exact tools I would expose to the harness.
+
+OKF tools
+okf_list_concepts({
+  type?: string;
+  tags?: string[];
+  pathPrefix?: string;
+  limit?: number;
+})
+
+Use when the agent needs to discover what knowledge exists.
+
+okf_read_concept({
+  conceptId: string;
+})
+
+Use when the agent knows the exact concept.
+
+okf_semantic_search({
+  query: string;
+  type?: string;
+  tags?: string[];
+  limit?: number;
+})
+
+Use for meaning-based questions:
+
+“Which source supports the runway assumption?”
+“Find the concept about management case growth.”
+okf_full_text_search({
+  query: string;
+  fields?: ["title", "description", "body", "citations"];
+  limit?: number;
+})
+
+Use for exact language and known terms.
+
+okf_filter({
+  type?: string;
+  tags?: string[];
+  status?: string;
+  confidenceMin?: number;
+  timestampAfter?: string;
+  visibility?: "public" | "private" | "redacted";
+})
+
+Use for structured narrowing.
+
+okf_glob({
+  pattern: string; // "companies/*.md", "sources/**/*.md"
+})
+
+Use for known bundle structure.
+
+okf_regex({
+  pattern: string;
+  pathPrefix?: string;
+})
+
+Use for exact identifiers, formula names, metric names, tickers, page labels, row IDs, company aliases.
+
+okf_backlinks({
+  conceptId: string;
+  depth?: number;
+})
+
+Use to answer:
+
+“What depends on this source?”
+“What claims cite this file?”
+“What chart uses this metric?”
+okf_expand_neighbors({
+  conceptId: string;
+  linkDepth: number;
+  includeCitations: boolean;
+})
+
+Use to build a compact world model.
+
+Room-state tools
+room_current_surface()
+
+Returns active artifact, selected range, channel, current user, current workplan.
+
+room_recent_context({
+  channel: "public" | "private";
+  limit: number;
+})
+
+Returns recent chat but keeps member-authored text fenced as untrusted.
+
+room_trace_search({
+  query: string;
+  artifactId?: string;
+  limit?: number;
+})
+
+Finds prior agent actions, CAS conflicts, proposals, and review decisions.
+
+room_proposal_search({
+  status?: "pending" | "approved" | "rejected";
+  targetRef?: string;
+})
+
+Lets the agent avoid duplicate proposals.
+
+Spreadsheet tools
+
+You already have an important version of this idea in the current repo: search_sheet_context searches header-prepended semantic cell summaries and structural sub-grid chunks so the agent does not dump a full grid into context. That is exactly the right direction. It should now become one tool in a broader retrieval suite.
+
+sheet_semantic_search({
+  artifactId: string;
+  query: string;
+  limit?: number;
+})
+sheet_full_text_search({
+  artifactId: string;
+  query: string;
+  limit?: number;
+})
+sheet_formula_search({
+  artifactId: string;
+  pattern: string; // e.g. "EBITDA", "runway", "=SUM"
+})
+sheet_dependency_expand({
+  artifactId: string;
+  elementIds: string[];
+  direction: "parents" | "children" | "both";
+})
+sheet_read_range_with_versions({
+  artifactId: string;
+  elementIds: string[];
+})
+
+The important rule:
+
+Search finds candidate context. Read-range confirms current values and versions.
+
+Search results should not be trusted as final write baselines.
+
+Literal source tools
+source_open_literal({
+  sourceArtifactId: string;
+  page?: number;
+  row?: number;
+  column?: string;
+  bbox?: { x: number; y: number; width: number; height: number };
+})
+
+This opens the actual source file location.
+
+source_resolve_citation({
+  evidenceId: string;
+})
+
+Maps a CellPayload.evidence[] item back to its literal source.
+
+source_compare_claim({
+  claim: string;
+  evidenceRefs: EvidenceRef[];
+})
+
+Determines whether evidence strongly supports, partially supports, contradicts, or fails to support a claim.
+
+External search tools
+linkup_search({
+  query: string;
+  depth: "standard" | "deep";
+  expectedSourceType?: "company_site" | "news" | "filing" | "market_research";
+})
+
+Use external search only after checking local room/OKF knowledge unless the user explicitly asks for fresh web research.
+
+How the retrieval loop should behave
+
+This is the key behavior change.
+
+================================================================================
+        NODEAGENT ITERATIVE RETRIEVAL LOOP
+================================================================================
+
+User asks:
+  "Can we explain CardioNova runway and what source supports it?"
+
+1. Parse intent
+   - entity = CardioNova
+   - target = runway
+   - required proof = source + calculation + review status
+
+2. Local OKF search
+   - okf_semantic_search("CardioNova runway")
+   - okf_filter(type = "Metric", tags include "runway")
+   - okf_backlinks(companies/cardionova)
+
+3. Spreadsheet search
+   - sheet_semantic_search("CardioNova runway burn cash")
+   - sheet_read_range_with_versions(candidate cells)
+
+4. Source lookup
+   - source_resolve_citation(evidence refs)
+   - source_open_literal(page/row/cell)
+
+5. Gap detection
+   - Does source support current cash?
+   - Does source support monthly burn?
+   - Are values manual or verified?
+
+6. Optional external search
+   - linkup_search("CardioNova funding current cash monthly burn", standard/deep)
+
+7. Compose evidence packet
+   - claim
+   - supporting sources
+   - unsupported assumptions
+   - affected cells/charts
+   - review state
+
+8. Answer / patch / coach cue
+   - if enough evidence: answer with citations
+   - if not: mark needs_review and create follow-up task
+
+The agent should not stop at the first search result. It should stop when the evidence condition is satisfied.
+
+Evidence sufficiency rules
+
+Add explicit rules so the model knows when to stop searching.
+
+type EvidenceSufficiency = {
+  enoughToAnswer: boolean;
+  enoughToCommit: boolean;
+  enoughForClientReady: boolean;
+  missing: Array<
+    | "source_file"
+    | "exact_row_or_page"
+    | "period"
+    | "definition"
+    | "formula"
+    | "human_review"
+    | "confidence"
+  >;
+};
+
+Example:
+
+Question:
+  "What is CardioNova runway?"
+
+Search found:
+  funding article supports funding stage
+  manual call note suggests burn
+  no source supports current cash
+
+Result:
+  enoughToAnswer = true, with caveat
+  enoughToCommit = true as estimate / needs_review
+  enoughForClientReady = false
+
+This is banker-native. It prevents the agent from presenting estimates as facts.
+
+OKF indexing model
+
+Every OKF concept should be indexed three ways.
+
+1. Metadata index
+conceptId
+path
+type
+title
+description
+tags
+timestamp
+resource
+visibility
+roomId
+artifactId
+targetRefs
+status
+confidence
+
+Used for filters and routing.
+
+2. Full-text index
+
+Index:
+
+title
+description
+body headings
+body text
+citations
+tables
+code blocks
+
+Used for exact wording, names, and known terms.
+
+3. Semantic index
+
+Embed chunks:
+
+frontmatter summary
+section chunks
+citation summaries
+table rows
+claim/evidence pairs
+
+Used for natural-language queries.
+
+Google’s OKF blog explicitly emphasizes that OKF is Markdown, files, and YAML frontmatter — readable by humans, renderable on GitHub, indexable by any search tool, and portable without a special SDK. That is why it is a good indexing substrate.
+
+Chunking strategy
+
+Do not embed whole files only. Use concept-level and section-level chunks.
+
+type OKFSearchChunk = {
+  chunkId: string;
+  conceptId: string;
+  path: string;
+  type: string;
+  title: string;
+  sectionHeading?: string;
+  text: string;
+  tags: string[];
+  resource?: string;
+  targetRefs: string[];
+  citationRefs: string[];
+  tokenCount: number;
+  embedding?: number[];
+};
+
+Chunk levels:
+
+L0: concept card
+  title + description + tags + resource
+
+L1: section chunk
+  each markdown heading section
+
+L2: evidence chunk
+  claim + citation + support status
+
+L3: table row chunk
+  for OKF tables such as source coverage or metrics
+
+L4: backlink neighborhood
+  generated summary of linked concepts
+
+Why this matters:
+
+Short question:
+  "CardioNova runway" -> L0/L1 is enough.
+
+Detailed diligence question:
+  "Why did runway change after burn update?" -> L2/L3 + trace backlinks.
+
+Cross-artifact question:
+  "Which charts depend on this assumption?" -> L4 graph neighborhood.
+Hybrid retrieval ranking
+
+Use a score that blends sources.
+
+finalScore =
+  0.35 * semanticScore
++ 0.25 * fullTextScore
++ 0.15 * metadataScore
++ 0.10 * graphProximityScore
++ 0.10 * freshnessScore
++ 0.05 * authorityScore
+- privacyPenalty
+- stalePenalty
+
+For banker/finance workflows, authority score matters:
+
+Source file / filing / uploaded workbook > company website > credible news > search snippet > manual chat note > generated summary
+
+Manual chat note is still useful, but it must remain labeled as manual evidence.
+
+How to use cached embeddings correctly
+
+Your quote is right: embeddings are cached compute.
+
+In NodeRoom terms:
+
+At write/import/export time:
+  compute embeddings once
+
+At answer time:
+  use cheap lookup tools
+
+At mutation time:
+  write only final evidence/patches
+
+Do not compute embeddings inside the critical live-edit path unless necessary.
+
+Use an outbox:
+
+Convex mutation commits source/cell/OKF concept
+  -> enqueue okfIndexOutbox event
+  -> background action computes:
+       full-text terms
+       embedding
+       backlinks
+       citation graph
+  -> store searchable index rows
+
+This keeps the live room fast.
+
+Where to store the indexes
+
+For MVP:
+
+Convex:
+  OKF concept metadata
+  simple text search / keyword search
+  concept graph
+  source refs
+
+For stronger search:
+
+Vector DB:
+  embeddings for OKF chunks and source chunks
+
+Full-text engine:
+  Meilisearch / Typesense / OpenSearch / Tantivy / SQLite FTS
+
+For local/demo:
+
+in-memory index
+MiniSearch / FlexSearch
+JSON embedding fixtures
+
+For analytics:
+
+ClickHouse:
+  retrieval events, hit/miss, clicked chips, source coverage,
+  answer correctness, cost/latency
+
+Do not turn Convex into a giant OLAP or full-text analytics engine. Convex remains live OLTP.
+
+Agent tool policy
+
+The model should not have unrestricted search chaos. Give it a retrieval policy:
+
+1. Check current room surface first.
+2. Check OKF concepts next.
+3. Search spreadsheet context next.
+4. Open literal source before making a strong claim.
+5. Use external Linkup search only if local evidence is missing or stale.
+6. Do not cite a source unless source_open_literal or source_resolve_citation confirms it.
+7. If enough evidence is not found, answer with needs_review/open_question instead of inventing.
+8. For writes, include evidence refs and base versions.
+
+This belongs in:
+
+.agent/skills.md
+.agent/okf.skill.md
+src/nodeagent/models/prompts/systemPrompt.ts
+Suggested OKF skill file
+# OKF Retrieval Skill
+
+You have access to an Open Knowledge Format bundle for the current room.
+
+Use OKF as portable room memory:
+- companies
+- sources
+- spreadsheet cells
+- metrics
+- charts
+- coach cues
+- review rounds
+- traces
+- evals
+- algorithms
+
+Retrieval policy:
+1. Start with `okf_list_concepts` or `okf_semantic_search`.
+2. Use `okf_filter` to narrow by type/status/visibility.
+3. Use `okf_backlinks` to find what depends on a concept.
+4. Use `source_open_literal` before treating evidence as verified.
+5. If a value is manual or weakly sourced, mark it `needs_review`.
+6. Never cite a concept unless you read it or resolved its source.
+7. Never use private OKF concepts in public output.
+8. For artifact writes, produce `CellPayload` with evidence refs.
+Sequence diagram in plain English
+User asks:
+  "Explain CardioNova runway."
+
+NodeAgent:
+  builds current room context
+  reads active artifact selection
+  searches OKF semantically
+  filters OKF metrics by company and status
+  follows backlinks from CardioNova to runway metric
+  opens literal source evidence
+  searches spreadsheet for supporting cells
+  detects missing current cash source
+  creates answer:
+    "This is an estimate, not verified."
+  optionally writes coach cue:
+    "Confirm current cash and monthly burn."
+  updates OKF bundle with new coach cue concept
+Implementation order
+P0 — minimal but high-value
+1. Export OKF bundle from room.
+2. Index OKF concepts by metadata and body text.
+3. Add `okf_list_concepts`, `okf_read_concept`, `okf_full_text_search`.
+4. Add `source_resolve_citation`.
+5. Update worldModel to include relevant OKF concepts.
+6. Add eval: answer with OKF vs without OKF.
+P1 — strong agentic retrieval
+1. Add embeddings for OKF chunks.
+2. Add `okf_semantic_search`.
+3. Add backlinks / graph expansion.
+4. Add regex/glob tools.
+5. Add retrieval telemetry.
+6. Add source sufficiency scoring.
+P2 — production-grade
+1. External vector DB or search engine.
+2. Incremental reindexing outbox.
+3. Retriever model / query planner.
+4. ClickHouse retrieval analytics.
+5. OKF graph visualizer.
+6. Trace Lens + Banker Coach uses OKF concepts directly.
+Evaluation plan
+
+Measure retrieval not only by “answer sounded good.”
+
+Answer accuracy:
+  Did it answer correctly?
+
+Evidence accuracy:
+  Did each cited source actually support the claim?
+
+Retrieval recall:
+  Did it find the key concept/source/cell?
+
+Retrieval precision:
+  Did it avoid irrelevant context?
+
+Source sufficiency:
+  Did it mark missing evidence as needs_review?
+
+Cost:
+  How many model/tool calls?
+
+Latency:
+  Did semantic search avoid extra external search?
+
+Write safety:
+  Did it attach evidence to CellPayload writes?
+
+User value:
+  Did user click/use the suggestion or coach cue?
+
+Run A/B:
+
+A: room context only
+B: room context + OKF full-text
+C: room context + OKF full-text + semantic
+D: room context + OKF hybrid retrieval + source literal open
+
+That is how you prove OKF + hybrid retrieval improves NodeRoom.
+
+Final architecture sentence
+
+Use this:
+
+OKF is NodeRoom’s portable memory; hybrid retrieval is the agent’s search strategy over that memory; Convex remains the live ledger; and NodeAgent turns retrieved evidence into safe, source-backed artifact changes.
+
+Or even shorter:
+
+The agent should not remember everything. It should know how to search the right indexed knowledge until it has enough evidence to act.

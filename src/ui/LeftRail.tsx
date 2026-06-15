@@ -1,32 +1,16 @@
 /** Room Binder (`.r-panel.left`): source files, room artifacts, people, and public agents. */
 import { useEffect, useRef, useState, type CSSProperties, type DragEvent } from "react";
-import { FolderOpen, Table2, FileText, StickyNote, Database, BookOpen, Upload, Loader2, ShieldCheck, Activity, type LucideIcon } from "lucide-react";
-import { useStore, type UploadedArtifactInput } from "../app/store";
+import { FolderOpen, Table2, FileText, StickyNote, Database, BookOpen, Upload, Loader2, ShieldCheck, Activity, MessageCircle, ArrowRight, type LucideIcon } from "lucide-react";
+import { useStore } from "../app/store";
 import type { Actor } from "../engine/types";
 import { ARTIFACT_REF_MIME, encodeArtifactRef } from "./artifactRefs";
 import { focusStage } from "./stageFocus";
-import { isExcelWorkbook, isSpreadsheetFile, parseSpreadsheetArtifacts } from "../app/spreadsheetParser";
-import { documentParsePlan, guessDocumentMimeType } from "../app/documentParserPlan";
+import { abortable, formatBytes, parseUploadedFiles, UPLOAD_TIMEOUT_MS } from "../app/uploadedArtifact";
 
 const WIKI_TITLE = "Agent wiki";
-const MAX_INLINE_PREVIEW_BYTES = 750_000;
-const MAX_SPREADSHEET_BYTES = 5_000_000;
-const UPLOAD_TIMEOUT_MS = 30_000; // a stuck file read / hung mutation must not spin the binder forever
 
 // C4: reject a promise as soon as `signal` aborts (timeout or unmount) even if the underlying
 // promise never settles — so the upload spinner always clears instead of hanging.
-function abortable<T>(p: Promise<T>, signal: AbortSignal): Promise<T> {
-  if (signal.aborted) return Promise.reject(signal.reason ?? new Error("Aborted"));
-  return new Promise<T>((resolve, reject) => {
-    const onAbort = () => reject(signal.reason ?? new Error("Aborted"));
-    signal.addEventListener("abort", onAbort, { once: true });
-    p.then(
-      (v) => { signal.removeEventListener("abort", onAbort); resolve(v); },
-      (e) => { signal.removeEventListener("abort", onAbort); reject(e); },
-    );
-  });
-}
-
 function initials(name: string): string {
   return name.replace(/[^A-Za-z· ]/g, "").split(/[ ·]/).filter(Boolean).map((s) => s[0]).slice(0, 2).join("").toUpperCase() || "?";
 }
@@ -46,19 +30,31 @@ function rangeLabel(elementIds: string[]): string {
 // looks-clickable-must-act. Reset to a bare row visually; .r-person provides the layout.
 const personFocusBtn: CSSProperties = { width: "100%", textAlign: "left", border: "none", background: "transparent", cursor: "pointer", font: "inherit", color: "inherit" };
 
-export function LeftRail({ roomId, me, artId, onPick, style }: { roomId: string; me: Actor; artId: string; onPick: (id: string) => void; style?: CSSProperties }) {
+export function LeftRail({ roomId, me, artId, onPick, onOpenChat, style }: { roomId: string; me: Actor; artId: string; onPick: (id: string) => void; onOpenChat?: () => void; style?: CSSProperties }) {
   const store = useStore();
   const inputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const aliveRef = useRef(true); // A4: don't setState after unmount when an upload resolves late
-  useEffect(() => () => { aliveRef.current = false; }, []);
+  useEffect(() => {
+    aliveRef.current = true;
+    return () => { aliveRef.current = false; };
+  }, []);
   const arts = store.listArtifacts(roomId);
   const members = store.listMembers(roomId);
   const sessions = store.listSessions(roomId);
   const proposals = store.listProposals(roomId);
   const traces = store.listTraces(roomId);
   const locks = store.awareness(roomId).activeLocks;
+  const allPublicMessages = store.listMessages(roomId, "public");
+  const publicMessages = allPublicMessages.slice(-2);
+  const hasQ3DemoSeed = arts.some((a) => a.kind === "sheet" && a.title === "Q3 variance");
+  const firstProposal = proposals[0] as { artifactId: string; op?: { elementId?: string } } | undefined;
+  const openProposal = () => {
+    if (!firstProposal) return;
+    onPick(firstProposal.artifactId);
+    requestAnimationFrame(() => focusStage({ artifactId: firstProposal.artifactId, elementId: firstProposal.op?.elementId }));
+  };
   const sub = (a: { kind: string; title: string; version: number; elements: Record<string, unknown>; order?: string[]; meta?: { excelGrid?: { rows: number; columns: number } } }) =>
     a.title === WIKI_TITLE ? `v${a.version} · live TOC` : uploadDocMeta(a) ?? (a.kind === "sheet" ? `v${a.version} · ${rowCount(a)} rows` : a.kind === "wall" ? `${a.order?.length ?? 0} notes` : "edited recently");
   const onUpload = async (files: FileList | null) => {
@@ -70,15 +66,7 @@ export function LeftRail({ roomId, me, artId, onPick, style }: { roomId: string;
     try {
       // Phase 1 — parse EVERY file before committing anything (B3). A single bad file (e.g. over the
       // 5MB cap) aborts the whole drop, so a failed upload can never leave a half-populated binder.
-      const parsed: UploadedArtifactInput[] = [];
-      for (const file of Array.from(files)) {
-        try {
-          parsed.push(...(await abortable(artifactsFromFile(file, controller.signal), controller.signal)));
-        } catch (e) {
-          if (controller.signal.aborted) throw controller.signal.reason ?? e;
-          throw new Error(`${file.name}: ${e instanceof Error ? e.message : "could not be read"}`);
-        }
-      }
+      const parsed = await parseUploadedFiles(files, controller.signal);
       // Phase 2 — commit. There is no server-side delete to roll back a partial batch, so if a commit
       // rejects mid-way we report honestly how many landed (C2) rather than leaving a silent partial.
       let lastId = "";
@@ -107,6 +95,35 @@ export function LeftRail({ roomId, me, artId, onPick, style }: { roomId: string;
       <div className="r-panel-head"><FolderOpen size={15} /><span className="h-title">Room Binder</span></div>
       <div className="r-rail">
         <div className="r-rail-section">
+          <div className="kicker" style={{ padding: "2px 9px 8px" }}>Live room chat</div>
+          <button
+            type="button"
+            className="r-sidebar-chat"
+            data-testid="sidebar-chat-peek"
+            onClick={onOpenChat}
+            disabled={!onOpenChat}
+            aria-label="Open sidebar chat"
+          >
+            <span className="r-sidebar-chat-ico"><MessageCircle size={14} /></span>
+            <span className="r-sidebar-chat-body">
+              <span className="r-sidebar-chat-title">
+                <span>Room conversation</span>
+                <em>{publicMessages.length ? `${allPublicMessages.length} messages` : "empty"}</em>
+              </span>
+              <span className="r-sidebar-chat-lines">
+                {publicMessages.length ? publicMessages.map((m) => (
+                  <span key={m.id}>
+                    <b>{m.author.kind === "agent" ? m.author.name : initials(m.author.name)}</b>
+                    {m.text}
+                  </span>
+                )) : <span><b>NR</b>No public messages yet.</span>}
+              </span>
+            </span>
+            <span className="r-sidebar-chat-open"><ArrowRight size={13} /></span>
+          </button>
+        </div>
+
+        <div className="r-rail-section">
           <div className="kicker" style={{ padding: "2px 9px 8px" }}>Workbooks & work products</div>
           {arts.map((a) => {
             const FI = fileIcon(a);
@@ -115,6 +132,9 @@ export function LeftRail({ roomId, me, artId, onPick, style }: { roomId: string;
                 key={a.id}
                 className="r-file"
                 data-active={String(a.id === artId)}
+                data-testid="binder-artifact"
+                data-artifact-id={a.id}
+                data-artifact-kind={a.kind}
                 draggable
                 title="Drag into chat to reference this file"
                 onClick={() => onPick(a.id)}
@@ -140,18 +160,25 @@ export function LeftRail({ roomId, me, artId, onPick, style }: { roomId: string;
           )}
           {/* Inert reference row — r-file-static strips the clickable hover affordance it was
               borrowing from the real artifact buttons above (looks-clickable-must-act rule). */}
-          <div className="r-file r-file-static">
+          {hasQ3DemoSeed && <div className="r-file r-file-static">
             <span className="fi"><Database size={14} /></span>
             <span><div className="fn">NetSuite export</div><div className="fm">source · read-only</div></span>
-          </div>
+          </div>}
         </div>
 
         <div className="r-rail-section">
           <div className="kicker" style={{ padding: "2px 9px 8px" }}>Review & proof</div>
-          <div className="r-file r-file-static">
+          {firstProposal ? (
+            <button type="button" className="r-file" data-testid="binder-review-queue" title="Open the first pending proposal" onClick={openProposal}>
             <span className="fi"><Activity size={14} /></span>
-            <span><div className="fn">Review queue</div><div className="fm">{proposals.length ? `${proposals.length} pending proposal${proposals.length === 1 ? "" : "s"}` : "no pending proposals"}</div></span>
-          </div>
+            <span><div className="fn">Review queue</div><div className="fm">{proposals.length} pending proposal{proposals.length === 1 ? "" : "s"}</div></span>
+            </button>
+          ) : (
+            <div className="r-file r-file-static">
+              <span className="fi"><Activity size={14} /></span>
+              <span><div className="fn">Review queue</div><div className="fm">no pending proposals</div></span>
+            </div>
+          )}
           <div className="r-file r-file-static">
             <span className="fi"><ShieldCheck size={14} /></span>
             <span><div className="fn">Permissions</div><div className="fm">host controls · {traces.length} trace events</div></span>
@@ -225,66 +252,13 @@ function uploadDocMeta(a: { kind: string; elements: Record<string, unknown> }) {
   return `${doc.mimeType || "file"} · ${formatBytes(doc.size)}`;
 }
 
-type UploadDoc = {
+function isUploadDoc(value: unknown): value is {
   upload: true;
   fileName: string;
   mimeType: string;
   size: number;
   text?: string;
   dataUrl?: string;
-  parse?: ReturnType<typeof documentParsePlan>;
-};
-
-function isUploadDoc(value: unknown): value is UploadDoc {
+} {
   return !!value && typeof value === "object" && (value as { upload?: unknown }).upload === true;
-}
-
-async function artifactsFromFile(file: File, signal?: AbortSignal): Promise<UploadedArtifactInput[]> {
-  const lower = file.name.toLowerCase();
-  const mimeType = file.type || guessMimeType(lower);
-  if (isSpreadsheetFile(file.name, mimeType)) {
-    if (file.size > MAX_SPREADSHEET_BYTES) throw new Error(`${file.name} is too large for browser spreadsheet parsing (${formatBytes(MAX_SPREADSHEET_BYTES)} max).`);
-    if (isExcelWorkbook(file.name, mimeType)) {
-      return parseSpreadsheetArtifacts({ fileName: file.name, mimeType, size: file.size, arrayBuffer: await file.arrayBuffer() });
-    }
-    const text = await file.text();
-    return parseSpreadsheetArtifacts({ fileName: file.name, mimeType, size: file.size, text, delimiter: lower.endsWith(".tsv") ? "\t" : "," });
-  }
-  if (file.size > MAX_INLINE_PREVIEW_BYTES) throw new Error(`${file.name} is too large for inline room preview (${formatBytes(MAX_INLINE_PREVIEW_BYTES)} max).`);
-  const textLike = mimeType.startsWith("text/") || /(\.md|\.json|\.log)$/i.test(file.name);
-  const parse = documentParsePlan(file.name, mimeType);
-  const doc: UploadDoc = { upload: true, fileName: file.name, mimeType, size: file.size, parse };
-  if (textLike) doc.text = await file.text();
-  else doc.dataUrl = await readAsDataUrl(file, signal);
-  return [{ kind: "note", title: file.name, seed: [{ id: "doc", value: doc }], meta: { upload: { fileName: file.name, mimeType, size: file.size, parsedAt: Date.now() }, document: parse } }];
-}
-
-function readAsDataUrl(file: File, signal?: AbortSignal): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(String(reader.result ?? ""));
-    reader.onerror = () => reject(reader.error ?? new Error("File read failed"));
-    if (signal) {
-      if (signal.aborted) { reject(signal.reason ?? new Error("Aborted")); return; }
-      signal.addEventListener("abort", () => { try { reader.abort(); } catch { /* already settled */ } reject(signal.reason ?? new Error("Aborted")); }, { once: true });
-    }
-    reader.readAsDataURL(file);
-  });
-}
-
-function guessMimeType(name: string) {
-  const documentMime = guessDocumentMimeType(name);
-  if (documentMime) return documentMime;
-  if (name.endsWith(".pdf")) return "application/pdf";
-  if (name.endsWith(".png")) return "image/png";
-  if (name.endsWith(".jpg") || name.endsWith(".jpeg")) return "image/jpeg";
-  if (name.endsWith(".gif")) return "image/gif";
-  if (name.endsWith(".json")) return "application/json";
-  return "application/octet-stream";
-}
-
-function formatBytes(bytes: number) {
-  if (bytes < 1024) return `${bytes} B`;
-  if (bytes < 1024 * 1024) return `${Math.round(bytes / 102.4) / 10} KB`;
-  return `${Math.round(bytes / 104_857.6) / 10} MB`;
 }

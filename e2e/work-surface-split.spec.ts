@@ -67,4 +67,26 @@ test.describe("center-stage split mode", () => {
       await expect(stage).toHaveAttribute("data-split", "false");
     });
   }
+
+  test("banker coach evidence opens its source beside the primary work surface", async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await enterDemoRoom(page);
+
+    const stage = page.getByTestId("work-surface");
+    const primary = page.getByTestId("artifact-panel");
+    const secondary = page.getByTestId("artifact-panel-secondary");
+    const coach = page.getByTestId("banker-coach-panel");
+
+    await expect(coach).toBeVisible();
+    await coach.getByRole("button", { name: "Open evidence source 1" }).click();
+
+    await expect(stage).toHaveAttribute("data-split", "true");
+    await expect(primary).toBeVisible();
+    await expect(secondary).toBeVisible();
+    const a = await primary.boundingBox();
+    const b = await secondary.boundingBox();
+    expect(a).not.toBeNull();
+    expect(b).not.toBeNull();
+    expect(b!.x).toBeGreaterThan(a!.x);
+  });
 });

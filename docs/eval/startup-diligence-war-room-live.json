@@ -75,56 +75,56 @@
       "id": "account_upsert",
       "status": "convex-contract-proven",
       "evidenceRequired": "Browser state plus trace row showing CardioNova/five-company re-import updates existing rows instead of duplicating.",
-      "lastVerifiedAt": "2026-06-15T03:52:02.597Z",
+      "lastVerifiedAt": "2026-06-15T07:42:04.120Z",
       "lastEvidenceRef": "docs/eval/startup-diligence-provider-results.json#account_upsert"
     },
     {
       "id": "cited_cellpayloads",
       "status": "provider-produced-convex-contract-proven",
       "evidenceRequired": "CellPayload objects include source refs, confidence/freshness, and reviewed/needs_review state.",
-      "lastVerifiedAt": "2026-06-15T03:52:02.597Z",
+      "lastVerifiedAt": "2026-06-15T07:42:04.120Z",
       "lastEvidenceRef": "docs/eval/startup-diligence-provider-results.json#cited_cellpayloads"
     },
     {
       "id": "human_edit_preserved",
       "status": "convex-contract-proven",
       "evidenceRequired": "A user edits an affected cell during agent work; stale write becomes proposal/draft instead of overwrite.",
-      "lastVerifiedAt": "2026-06-15T03:52:02.597Z",
+      "lastVerifiedAt": "2026-06-15T07:42:04.120Z",
       "lastEvidenceRef": "docs/eval/startup-diligence-provider-results.json#human_edit_preserved"
     },
     {
       "id": "concurrent_lanes",
       "status": "convex-contract-proven",
       "evidenceRequired": "Distinct lane ids, statuses, receipts, and final sealed handoff in agentJobs/agentOperationEvents.",
-      "lastVerifiedAt": "2026-06-15T03:52:02.597Z",
+      "lastVerifiedAt": "2026-06-15T07:42:04.120Z",
       "lastEvidenceRef": "docs/eval/startup-diligence-provider-results.json#concurrent_lanes"
     },
     {
       "id": "private_boundary",
       "status": "convex-contract-proven",
       "evidenceRequired": "Second user cannot read private banker concerns until explicit promotion.",
-      "lastVerifiedAt": "2026-06-15T03:52:02.597Z",
+      "lastVerifiedAt": "2026-06-15T07:42:04.120Z",
       "lastEvidenceRef": "docs/eval/startup-diligence-provider-results.json#private_boundary"
     },
     {
       "id": "runway_milestone_chart",
       "status": "deterministic-helper-and-artifact-proven",
       "evidenceRequired": "Runway chart artifact generated from deterministic math with sourced assumptions.",
-      "lastVerifiedAt": "2026-06-15T03:52:02.597Z",
+      "lastVerifiedAt": "2026-06-15T07:42:04.120Z",
       "lastEvidenceRef": "docs/eval/startup-diligence-provider-results.json#runway_milestone_chart"
     },
     {
       "id": "downstream_draft_only",
       "status": "helper-proven-no-side-effects",
       "evidenceRequired": "Gmail/Notion/Slack/Linear/LinkedIn/CRM actions produce approval-gated drafts only; no OAuth side effects.",
-      "lastVerifiedAt": "2026-06-15T03:52:02.597Z",
+      "lastVerifiedAt": "2026-06-15T07:42:04.120Z",
       "lastEvidenceRef": "docs/eval/startup-diligence-provider-results.json#downstream_draft_only"
     },
     {
       "id": "route_trace_cost_runtime",
       "status": "provider-produced-route-trace-proven",
       "evidenceRequired": "agent run/job rows record model/resolved model, route, latency, token/cost, and stop reason.",
-      "lastVerifiedAt": "2026-06-15T03:52:02.597Z",
+      "lastVerifiedAt": "2026-06-15T07:42:04.120Z",
       "lastEvidenceRef": "docs/eval/startup-diligence-provider-results.json#route_trace_cost_runtime"
     }
   ],
@@ -132,23 +132,23 @@
     "repeat the provider-produced startup diligence eval N=5 and promote only if p95 latency, path fingerprint drift, and pass rate meet the live collaboration SLO"
   ],
   "latestLiveEval": {
-    "generatedAt": "2026-06-15T03:52:02.597Z",
+    "generatedAt": "2026-06-15T07:42:04.120Z",
     "mode": "provider-produced-convex-contract",
     "command": "npm run eval:startup-diligence:provider",
     "resultPath": "docs/eval/startup-diligence-provider-results.json",
     "pass": true,
-    "checksPassed": 8,
+    "checksPassed": 9,
     "checksFailed": 0,
     "providerProducedContent": true,
     "note": "Provider-generated CellPayload/final copy flowed through the same Convex job/proposal/trace contract."
   },
   "latestProviderEval": {
-    "generatedAt": "2026-06-15T03:52:02.597Z",
+    "generatedAt": "2026-06-15T07:42:04.120Z",
     "mode": "provider-produced-convex-contract",
     "command": "npm run eval:startup-diligence:provider",
     "resultPath": "docs/eval/startup-diligence-provider-results.json",
     "pass": true,
-    "checksPassed": 8,
+    "checksPassed": 9,
     "checksFailed": 0,
     "providerProducedContent": true,
     "note": "Provider-generated CellPayload/final copy flowed through the same Convex job/proposal/trace contract."

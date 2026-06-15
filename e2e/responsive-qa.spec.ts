@@ -61,6 +61,7 @@ for (const vp of VIEWPORTS) {
 
     const artifact = page.getByTestId("artifact-panel");
     const leftRail = page.getByTestId("left-rail");
+    const sidebarChat = page.getByTestId("sidebar-chat-peek");
     const copilot = page.getByTestId("copilot-panel");
     const tabs = page.getByTestId("artifact-tabs");
     const toggles = page.locator(".r-toggle-group");
@@ -87,6 +88,7 @@ for (const vp of VIEWPORTS) {
     if (vp.width > 1199) {
       // Full desktop: binder + Copilot both in flow (the binder is a narrow rail at 1200-1439).
       await expect(leftRail, "Room Binder visible on full desktop").toBeVisible();
+      await expect(sidebarChat, "Room Binder includes sidebar chat preview").toBeVisible();
       await expect(copilot, "Copilot visible on desktop").toBeVisible();
       await expect(publicChat(page).getByTestId("chat-composer")).toBeVisible();
     } else if (vp.width > 980) {
@@ -97,6 +99,7 @@ for (const vp of VIEWPORTS) {
 
       await toggleButtons.nth(0).click();
       await expect(leftRail, "Room button opens the binder overlay").toBeVisible();
+      await expect(sidebarChat, "Room Binder overlay includes sidebar chat preview").toBeVisible();
       await expect(copilot, "Copilot remains usable while the binder overlays").toBeVisible();
       await toggleButtons.nth(0).click();
       await expect(leftRail).toBeHidden();
@@ -106,8 +109,14 @@ for (const vp of VIEWPORTS) {
 
       await toggleButtons.nth(0).click();
       await expect(leftRail, "Room Binder overlay opens").toBeVisible();
-      await toggleButtons.nth(0).click();
+      await expect(sidebarChat, "Room Binder overlay includes sidebar chat preview").toBeVisible();
+      await sidebarChat.click();
+      await expect(copilot, "Sidebar chat preview opens Chat").toBeVisible();
+      await expect(publicChat(page).getByTestId("chat-composer")).toBeVisible();
+      await expect(leftRail, "Sidebar chat preview closes Binder on compact screens").toBeHidden();
+      await toggleButtons.nth(1).click();
       await expect(leftRail).toBeHidden();
+      await expect(artifact, "Work Surface returns after sidebar chat").toBeVisible();
 
       await toggleButtons.nth(2).click();
       await expect(copilot, "Copilot overlay opens").toBeVisible();

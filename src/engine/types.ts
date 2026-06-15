@@ -53,6 +53,7 @@ export interface Member {
 /* ───────────────────────── artifacts + elements ───────────────────────── */
 
 export type ArtifactKind = "sheet" | "note" | "wall";
+export type ArtifactVisibility = "private" | "room" | "public";
 
 export type DataframeColumnMode = "manual" | "enrich" | "resolve" | "classify" | "compute";
 export type CellStatus = "empty" | "running" | "complete" | "needs_review" | "failed" | "gap";
@@ -185,6 +186,7 @@ export interface ProviderParseMeta {
   providerFileId?: string;
   extractedAt: number;
   warnings?: string[];
+  providerRoute?: unknown;
 }
 
 export interface ArtifactMeta {
@@ -197,6 +199,9 @@ export interface ArtifactMeta {
     mimeType: string;
     size: number;
     parsedAt: number;
+    sourceStorageId?: string;
+    uploadedFileId?: string;
+    sha256?: string;
   };
 }
 
@@ -220,8 +225,9 @@ export interface Artifact {
   /** Stable element order for rendering (sheet uses addresses, note/wall use this). */
   order: string[];
   updatedAt: number;
-  /** Private artifacts are visible only to their owner; undefined = shared/room (rendered "Shared"). */
-  visibility?: "public" | "private";
+  createdBy?: Actor;
+  /** Private artifacts are visible only to their owner; room/public are shared surfaces. */
+  visibility?: ArtifactVisibility;
   meta?: ArtifactMeta;
 }
 

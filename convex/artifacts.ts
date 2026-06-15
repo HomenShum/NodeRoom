@@ -22,6 +22,30 @@ const MAX_ARTIFACT_TITLE_CHARS = 180;
 const MAX_ARTIFACT_SEED_ELEMENTS = 20_000;
 const MAX_ARTIFACT_SEED_BYTES = 5_000_000;
 const MAX_ELEMENT_ID_CHARS = 160;
+const MAX_RAW_UPLOAD_BYTES = 25_000_000;
+const MAX_UPLOAD_FILE_NAME_CHARS = 240;
+const MAX_UPLOAD_MIME_CHARS = 200;
+const visibilityV = v.union(v.literal("private"), v.literal("room"), v.literal("public"));
+type Visibility = "private" | "room" | "public";
+type ArtifactAcl = { visibility?: Visibility; createdBy?: ActorValue };
+
+function artifactVisibility(a: ArtifactAcl): Visibility {
+  return a.visibility ?? "room";
+}
+
+function actorOwnsArtifact(a: ArtifactAcl, actor: ActorValue): boolean {
+  if (!a.createdBy) return false;
+  if (a.createdBy.kind === actor.kind && a.createdBy.id === actor.id) return true;
+  return actor.kind === "agent" && !!actor.ownerId && a.createdBy.kind === "user" && a.createdBy.id === actor.ownerId;
+}
+
+function canReadArtifact(a: ArtifactAcl, actor: ActorValue): boolean {
+  return artifactVisibility(a) !== "private" || actorOwnsArtifact(a, actor);
+}
+
+function assertInternalArtifactReadable(a: ArtifactAcl): void {
+  if (artifactVisibility(a) === "private") throw new Error("artifact_not_visible");
+}
 
 export function assertCreateArtifactLimits(a: { title: string; seed: Array<{ id: string; value: unknown }>; meta?: unknown }) {
   if (a.title.length > MAX_ARTIFACT_TITLE_CHARS) throw new Error("Artifact title is too long.");
@@ -87,11 +111,57 @@ function scoreText(text: string, terms: string[]): number {
   return terms.reduce((score, term) => score + (lower.includes(term) ? 1 : 0), 0);
 }
 
+type DataframeColumnMeta = { id?: unknown; label?: unknown; mode?: unknown; agentWritable?: unknown };
+type DataframeMetaLike = { columns?: unknown };
+
+function objectRecord(value: unknown): Record<string, unknown> {
+  return value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : {};
+}
+
+function dataframeColumnForElement(meta: unknown, elementId: string): DataframeColumnMeta | null {
+  const columnId = elementId.includes("__") ? elementId.split("__").slice(1).join("__") : elementId.replace(/\d+$/, "");
+  const dataframe = objectRecord(objectRecord(meta).dataframe) as DataframeMetaLike;
+  const columns = Array.isArray(dataframe.columns) ? dataframe.columns : [];
+  for (const column of columns) {
+    const c = objectRecord(column) as DataframeColumnMeta;
+    if (c.id === columnId || c.label === columnId) return c;
+  }
+  return null;
+}
+
+function hasCellPayloadEvidence(value: unknown): boolean {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return false;
+  const evidence = (value as { evidence?: unknown }).evidence;
+  return Array.isArray(evidence) && evidence.some((item) => {
+    const e = objectRecord(item);
+    return typeof e.id === "string" && typeof e.kind === "string" && typeof e.label === "string";
+  });
+}
+
+function agentWritePolicyViolation(
+  art: { meta?: unknown },
+  elementId: string,
+  value: unknown,
+  actor: ActorValue,
+  kind: "set" | "create" | "delete",
+): "agent_write_forbidden_column" | "evidence_required" | null {
+  if (actor.kind !== "agent") return null;
+  const column = dataframeColumnForElement(art.meta, elementId);
+  if (!column) return null;
+  if (column.agentWritable === false) return "agent_write_forbidden_column";
+  if (kind === "delete") return null;
+  if ((column.mode === "enrich" || column.mode === "resolve" || column.mode === "classify") && !hasCellPayloadEvidence(value)) {
+    return "evidence_required";
+  }
+  return null;
+}
+
 /** read_range tool — returns values + versions + lock flags. Works on locked cells. */
 export const readRange = internalQuery({
   args: { roomId: v.id("rooms"), artifactId: v.id("artifacts"), elementIds: v.array(v.string()) },
   handler: async (ctx, { roomId, artifactId, elementIds }) => {
-    await requireArtifactInRoom(ctx, roomId, artifactId);
+    const art = await requireArtifactInRoom(ctx, roomId, artifactId);
+    assertInternalArtifactReadable(art);
     const out = [];
     for (const id of elementIds) {
       const el = await getElement(ctx, artifactId, id);
@@ -110,7 +180,8 @@ export const searchSheetContext = internalQuery({
     limit: v.optional(v.number()),
   },
   handler: async (ctx, { roomId, artifactId, query, limit }) => {
-    await requireArtifactInRoom(ctx, roomId, artifactId);
+    const art = await requireArtifactInRoom(ctx, roomId, artifactId);
+    assertInternalArtifactReadable(art);
     const capped = Math.max(1, Math.min(limit ?? 8, 20));
     const terms = query.toLowerCase().split(/[^a-z0-9$%._-]+/).filter(Boolean);
     if (!terms.length) return [];
@@ -142,6 +213,7 @@ export const getSheet = internalQuery({
   args: { roomId: v.id("rooms"), artifactId: v.id("artifacts") },
   handler: async (ctx, { roomId, artifactId }) => {
     const art = await requireArtifactInRoom(ctx, roomId, artifactId);
+    assertInternalArtifactReadable(art);
     const els = await ctx.db.query("elements").withIndex("by_artifact", (q) => q.eq("artifactId", artifactId)).collect();
     const byId = new Map(els.map((e) => [e.elementId, e]));
     const lockedSet = new Set<string>();
@@ -208,6 +280,33 @@ function clean<T extends Record<string, unknown>>(value: T): T {
   return out as T;
 }
 
+function objectMeta(meta: unknown): Record<string, unknown> {
+  return meta && typeof meta === "object" && !Array.isArray(meta) ? { ...(meta as Record<string, unknown>) } : {};
+}
+
+function withSourceUploadMeta(meta: unknown, file: {
+  _id: unknown;
+  storageId: unknown;
+  fileName: string;
+  mimeType: string;
+  size: number;
+  sha256?: string;
+}): unknown {
+  const out = objectMeta(meta);
+  const upload = objectMeta(out.upload);
+  out.upload = clean({
+    ...upload,
+    fileName: typeof upload.fileName === "string" ? upload.fileName : file.fileName,
+    mimeType: typeof upload.mimeType === "string" ? upload.mimeType : file.mimeType,
+    size: typeof upload.size === "number" ? upload.size : file.size,
+    parsedAt: typeof upload.parsedAt === "number" ? upload.parsedAt : Date.now(),
+    sourceStorageId: String(file.storageId),
+    uploadedFileId: String(file._id),
+    sha256: file.sha256,
+  });
+  return out;
+}
+
 async function sha256hex(s: string): Promise<string> {
   const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s));
   return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, "0")).join("");
@@ -233,6 +332,8 @@ async function applyApprovedProposal(ctx: MutationCtx, roomId: Id<"rooms">, arti
   if (blocksFormulaScalar(el?.value, op.value, author, op.kind)) {
     return { ok: false as const, reason: "formula_protected" as const };
   }
+  const policyViolation = agentWritePolicyViolation(art, op.elementId, op.value, author, op.kind);
+  if (policyViolation) return { ok: false as const, reason: policyViolation };
   const now = Date.now();
   const nextOrder = op.kind === "create" && !el ? [...art.order, op.elementId] : op.kind === "delete" ? art.order.filter((id) => id !== op.elementId) : art.order;
   if (op.kind === "delete") {
@@ -252,6 +353,7 @@ async function applyApprovedProposal(ctx: MutationCtx, roomId: Id<"rooms">, arti
 async function applyCellEditCore(ctx: MutationCtx, a: ApplyCellEditArgs) {
     const art = await requireArtifactInRoom(ctx, a.roomId, a.artifactId);
     await requireActorInRoom(ctx, a.roomId, a.actor);
+    if (!canReadArtifact(art, a.actor)) throw new Error("artifact_not_visible");
     const job = a.jobId ? await ctx.db.get(a.jobId) : null;
     if (a.jobId && (!job || String(job.roomId) !== String(a.roomId))) throw new Error("job_room_mismatch");
     const kind = a.kind ?? "set";
@@ -319,6 +421,8 @@ async function applyCellEditCore(ctx: MutationCtx, a: ApplyCellEditArgs) {
     if (blocksFormulaScalar(el?.value, a.value, a.actor, kind)) {
       return { ok: false as const, reason: "formula_protected" as const };
     }
+    const policyViolation = agentWritePolicyViolation(art, a.elementId, a.value, a.actor, kind);
+    if (policyViolation) return { ok: false as const, reason: policyViolation };
     const room = await ctx.db.get(a.roomId);
     if (a.actor.kind === "agent" && room && !room.autoAllow) {
       const pending = await ctx.db.query("proposals").withIndex("by_room_status", (q) => q.eq("roomId", a.roomId).eq("status", "pending")).collect();
@@ -405,16 +509,23 @@ export const listForRoom = internalQuery({
   args: { roomId: v.id("rooms") },
   handler: async (ctx, { roomId }) => {
     const arts = await ctx.db.query("artifacts").withIndex("by_room", (q) => q.eq("roomId", roomId)).collect();
-    return arts.map((a) => ({ id: String(a._id), title: a.title, kind: a.kind }));
+    return arts
+      .filter((a) => artifactVisibility(a) !== "private")
+      .map((a) => ({ id: String(a._id), title: a.title, kind: a.kind, meta: a.meta, visibility: a.visibility ?? "room" }));
   },
 });
 
 export const listProposals = query({
   args: { roomId: v.id("rooms"), requester: actorProofV },
   handler: async (ctx, { roomId, requester }) => {
-    await requireActorProof(ctx, roomId, requester);
+    const actor = await requireActorProof(ctx, roomId, requester);
     const rows = await ctx.db.query("proposals").withIndex("by_room_status", (q) => q.eq("roomId", roomId).eq("status", "pending")).collect();
-    return rows.map((p) => ({
+    const visibleRows = [];
+    for (const row of rows) {
+      const art = await ctx.db.get(row.artifactId);
+      if (art && canReadArtifact(art, actor)) visibleRows.push(row);
+    }
+    return visibleRows.map((p) => ({
       id: String(p._id),
       roomId: String(p.roomId),
       artifactId: String(p.artifactId),
@@ -433,9 +544,10 @@ export const listProposals = query({
 export const elements = query({
   args: { roomId: v.id("rooms"), artifactId: v.id("artifacts"), requester: actorProofV },
   handler: async (ctx, { roomId, artifactId, requester }) => {
-    await requireActorProof(ctx, roomId, requester);
+    const actor = await requireActorProof(ctx, roomId, requester);
     const art = await ctx.db.get(artifactId);
     if (!art || art.roomId !== roomId) return {};
+    if (!canReadArtifact(art, actor)) throw new Error("artifact_not_visible");
     const els = await ctx.db.query("elements").withIndex("by_artifact", (q) => q.eq("artifactId", artifactId)).collect();
     const out: Record<string, { id: string; version: number; value: unknown; updatedAt: number; updatedBy: unknown }> = {};
     for (const e of els) out[e.elementId] = { id: e.elementId, version: e.version, value: e.value, updatedAt: e.updatedAt, updatedBy: e.updatedBy };
@@ -451,6 +563,8 @@ export const resolveProposal = mutation({
     const actor = await requireActorProof(ctx, proposal.roomId, requester);
     const member = await ctx.db.get(actor.id as Id<"members">);
     if (member?.role !== "host") throw new Error("host_required");
+    const art = await ctx.db.get(proposal.artifactId);
+    if (!art || !canReadArtifact(art, actor)) throw new Error("artifact_not_visible");
     if (proposal.status !== "pending") return { ok: false as const, reason: "not_pending" as const };
 
     const now = Date.now();
@@ -636,6 +750,71 @@ export const applyAgentCellEdit = internalMutation({
 });
 
 /** Seed an artifact + its elements (used once per room). */
+export const generateFileUploadUrl = mutation({
+  args: { roomId: v.id("rooms"), requester: actorProofV },
+  handler: async (ctx, { roomId, requester }) => {
+    await requireActorProof(ctx, roomId, requester);
+    return ctx.storage.generateUploadUrl();
+  },
+});
+
+export const registerUploadedFile = mutation({
+  args: {
+    roomId: v.id("rooms"),
+    requester: actorProofV,
+    storageId: v.id("_storage"),
+    fileName: v.string(),
+    mimeType: v.string(),
+    size: v.number(),
+    visibility: v.optional(visibilityV),
+  },
+  handler: async (ctx, a) => {
+    const actor = await requireActorProof(ctx, a.roomId, a.requester);
+    if (!a.fileName || a.fileName.length > MAX_UPLOAD_FILE_NAME_CHARS) throw new Error("invalid_file_name");
+    if (a.mimeType.length > MAX_UPLOAD_MIME_CHARS) throw new Error("invalid_mime_type");
+    if (!Number.isFinite(a.size) || a.size <= 0 || a.size > MAX_RAW_UPLOAD_BYTES) throw new Error("file_size_not_allowed");
+    const metadata = await ctx.storage.getMetadata(a.storageId);
+    if (!metadata) throw new Error("storage_file_not_found");
+    if (metadata.size !== a.size) throw new Error("storage_size_mismatch");
+    const existing = await ctx.db.query("uploadedFiles").withIndex("by_storage", (q) => q.eq("storageId", a.storageId)).first();
+    if (existing) {
+      if (String(existing.roomId) !== String(a.roomId)) throw new Error("storage_room_mismatch");
+      if (existing.visibility === "private" && !actorOwnsArtifact(existing, actor)) throw new Error("source_file_not_visible");
+      return {
+        fileId: existing._id,
+        storageId: existing.storageId,
+        sha256: existing.sha256,
+        size: existing.size,
+        mimeType: existing.mimeType,
+        reused: true as const,
+      };
+    }
+    const now = Date.now();
+    const mimeType = a.mimeType || metadata.contentType || "application/octet-stream";
+    const fileId = await ctx.db.insert("uploadedFiles", clean({
+      roomId: a.roomId,
+      storageId: a.storageId,
+      fileName: a.fileName,
+      mimeType,
+      size: a.size,
+      sha256: metadata.sha256,
+      createdBy: actor,
+      visibility: a.visibility ?? "room",
+      status: "uploaded",
+      createdAt: now,
+    }));
+    await ctx.db.insert("traces", {
+      roomId: a.roomId,
+      ts: now,
+      actor,
+      type: "file_uploaded",
+      summary: `${actor.name} uploaded ${a.fileName}`,
+      detail: `upload_file - storage=${String(a.storageId)} - bytes=${a.size}`,
+    });
+    return { fileId, storageId: a.storageId, sha256: metadata.sha256, size: a.size, mimeType, reused: false as const };
+  },
+});
+
 export const createArtifact = mutation({
   args: {
     roomId: v.id("rooms"),
@@ -643,15 +822,32 @@ export const createArtifact = mutation({
     title: v.string(),
     seed: v.array(v.object({ id: v.string(), value: v.any() })),
     meta: v.optional(v.any()),
+    sourceFileId: v.optional(v.id("uploadedFiles")),
     proof: actorProofV,
   },
   handler: async (ctx, a) => {
     const by = await requireActorProof(ctx, a.roomId, a.proof);
     assertCreateArtifactLimits(a);
     const now = Date.now();
-    const artifactId = await ctx.db.insert("artifacts", { roomId: a.roomId, kind: a.kind, title: a.title, version: 1, order: a.seed.map((s) => s.id), updatedAt: now, meta: a.meta });
+    const sourceFile = a.sourceFileId ? await ctx.db.get(a.sourceFileId) : null;
+    if (a.sourceFileId && !sourceFile) throw new Error("source_file_not_found");
+    if (sourceFile && String(sourceFile.roomId) !== String(a.roomId)) throw new Error("source_file_room_mismatch");
+    if (sourceFile && sourceFile.visibility === "private" && !actorOwnsArtifact(sourceFile, by)) throw new Error("source_file_not_visible");
+    const meta = sourceFile ? withSourceUploadMeta(a.meta, sourceFile) : a.meta;
+    const artifactId = await ctx.db.insert("artifacts", {
+      roomId: a.roomId,
+      kind: a.kind,
+      title: a.title,
+      version: 1,
+      order: a.seed.map((s) => s.id),
+      updatedAt: now,
+      createdBy: by,
+      visibility: sourceFile?.visibility ?? "room",
+      meta,
+    });
     for (const s of a.seed) await ctx.db.insert("elements", { artifactId, elementId: s.id, value: s.value, version: 1, updatedAt: now, updatedBy: by });
-    await syncSpreadsheetIndexFromSeed(ctx, { artifactId, title: a.title, kind: a.kind, meta: a.meta, seed: a.seed, now });
+    if (sourceFile && !sourceFile.artifactId) await ctx.db.patch(sourceFile._id, { artifactId, status: "linked", linkedAt: now });
+    await syncSpreadsheetIndexFromSeed(ctx, { artifactId, title: a.title, kind: a.kind, meta, seed: a.seed, now });
     await ctx.db.insert("traces", { roomId: a.roomId, ts: now, actor: by, type: "edit_applied", summary: `${by.name} added ${a.title}`, detail: `create_artifact · ${a.kind} · ${String(artifactId)}` });
     return artifactId;
   },

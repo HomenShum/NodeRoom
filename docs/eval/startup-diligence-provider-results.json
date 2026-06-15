@@ -1,18 +1,18 @@
 {
   "schema": 1,
-  "generatedAt": "2026-06-15T03:52:02.597Z",
+  "generatedAt": "2026-06-15T07:42:04.120Z",
   "mode": "provider-produced-convex-contract",
   "claim": "Startup diligence provider-produced proof for model-generated evidence cells and final copy flowing through the same Convex job/proposal/trace contract.",
   "pass": true,
   "summary": {
-    "checks": 8,
-    "passed": 8,
+    "checks": 9,
+    "passed": 9,
     "failed": 0,
     "providerProducedContent": true,
     "convexContractProven": true
   },
   "room": {
-    "code": "SD2DB78277",
+    "code": "SD1E7E357C",
     "roomId": "000000000000000000000010000rooms",
     "researchArtifactId": "00000000000000000010005artifacts",
     "runwayArtifactId": "00000000000000000010007artifacts",
@@ -44,32 +44,32 @@
           "reason": "pending_approval"
         },
         "committedPayload": {
-          "confidence": 0.72,
+          "confidence": 0.28,
           "evidence": [
             {
               "artifactId": "00000000000000000010005artifacts",
               "quote": "AI triage workflow for hospital intake",
-              "source": "CardioNova Intake Doc",
+              "source": "public_room_facts",
               "sourceRef": "cardionova-intake.pdf#page=1"
             },
             {
               "artifactId": "00000000000000000010005artifacts",
-              "quote": "$1.5M cash, $125k/month burn",
-              "source": "CardioNova Pitch Deck",
+              "quote": "Cash: $1.5M; Burn: $125k/month",
+              "source": "public_room_facts",
               "sourceRef": "cardionova-deck.pdf#page=12"
             }
           ],
           "kind": "CellPayload",
           "status": "needs_review",
-          "value": "CardioNova, located at https://cardionova.example, specializes in an AI triage workflow for hospital intake. The company has $1.5M in cash and a monthly burn rate of $125k."
+          "value": "CardioNova builds an AI triage workflow for hospital intake, with $1.5M cash and ~$125k monthly burn; provided evidence is limited to a stated cash/burn snapshot, so financial and product claims need host verification against the cited pages."
         },
         "providerProducedContent": true,
         "providerRoute": {
           "ok": true,
           "policy": "provider_route_v1",
-          "requestedModel": "gemini-2.5-flash",
-          "resolvedModel": "gemini-2.5-flash",
-          "provider": "gemini",
+          "requestedModel": "gpt-5.4-nano",
+          "resolvedModel": "gpt-5.4-nano",
+          "provider": "openai",
           "entrypoint": "public_ask",
           "allowedProviders": [
             "openai",
@@ -81,8 +81,8 @@
           "noTrainingRequired": false,
           "basis": [
             "entrypoint:public_ask",
-            "requested:gemini-2.5-flash",
-            "resolved:gemini-2.5-flash",
+            "requested:gpt-5.4-nano",
+            "resolved:gpt-5.4-nano",
             "external:true",
             "allowlist:openai,anthropic,gemini,openrouter,local",
             "no_training_required:false",
@@ -217,6 +217,32 @@
       }
     },
     {
+      "id": "banker_coach_harness_tools",
+      "status": "pass",
+      "manifestStatus": "harness-tool-loop-proven",
+      "summary": "Banker coach, evidence, runway/chart, review update, and downstream draft tools ran through the actual runAgent/PRODUCTION_ROOM_TOOLS loop before a managed CAS write.",
+      "evidence": {
+        "stopReason": "done",
+        "exhausted": false,
+        "tools": [
+          "read_range",
+          "compute_runway_milestones",
+          "validate_chart_against_source_cells",
+          "build_evidence_cards",
+          "generate_banker_coach_cues",
+          "render_chart_artifact",
+          "create_review_round_update",
+          "export_downstream_draft",
+          "write_locked_cell_result"
+        ],
+        "committed": true,
+        "hasCoachCues": true,
+        "hasChartPatch": true,
+        "hasDownstreamDrafts": true,
+        "evidenceCount": 1
+      }
+    },
+    {
       "id": "concurrent_lanes",
       "status": "pass",
       "manifestStatus": "convex-contract-proven",
@@ -239,10 +265,10 @@
       "evidence": {
         "attempts": [
           {
-            "resolvedModel": "gemini-2.5-flash",
+            "resolvedModel": "gpt-5.4-nano",
             "stopReason": "done",
-            "costUsd": 0.000834,
-            "ms": 4606
+            "costUsd": 0.00042775,
+            "ms": 2914
           }
         ],
         "operationKinds": [
@@ -253,12 +279,12 @@
           "checkpoint"
         ],
         "latestRun": {
-          "model": "gemini-2.5-flash",
+          "model": "gpt-5.4-nano",
           "stopReason": "done",
           "toolCalls": 8
         },
         "providerRouteJournal": {
-          "model": "gemini-2.5-flash",
+          "model": "gpt-5.4-nano",
           "providerRoute": {
             "allowedProviders": [
               "openai",
@@ -269,8 +295,8 @@
             ],
             "basis": [
               "entrypoint:public_ask",
-              "requested:gemini-2.5-flash",
-              "resolved:gemini-2.5-flash",
+              "requested:gpt-5.4-nano",
+              "resolved:gpt-5.4-nano",
               "external:true",
               "allowlist:openai,anthropic,gemini,openrouter,local",
               "no_training_required:false",
@@ -282,9 +308,9 @@
             "noTrainingRequired": false,
             "ok": true,
             "policy": "provider_route_v1",
-            "provider": "gemini",
-            "requestedModel": "gemini-2.5-flash",
-            "resolvedModel": "gemini-2.5-flash"
+            "provider": "openai",
+            "requestedModel": "gpt-5.4-nano",
+            "resolvedModel": "gpt-5.4-nano"
           }
         }
       }

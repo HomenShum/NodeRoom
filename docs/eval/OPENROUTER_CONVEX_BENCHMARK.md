@@ -1,6 +1,6 @@
 # OpenRouter Convex Benchmark
 
-Generated: 2026-06-13T21:48:42.572Z
+Generated: 2026-06-15T04:23:44.450Z
 
 This is NodeRoom's own benchmark contract for the product shape we actually ship: OpenRouter models running through Convex-owned jobs, leases, journals, mutation receipts, and artifact evidence. It is inspired by SpreadsheetBench, SpreadsheetBench 2, and BankerToolBench, but it is not an official score for those benchmarks.
 
@@ -138,13 +138,13 @@ This is NodeRoom's own benchmark contract for the product shape we actually ship
 | `xiaomi/mimo-v2.5-pro` | interactive_candidate | convexModel.openrouter_chat_completions | yes | none |
 | `google/gemini-3.5-flash` | interactive_candidate | convexModel.openrouter_chat_completions | yes | none |
 | `openai/gpt-5.5` | interactive_candidate | convexModel.openrouter_chat_completions | yes | none |
-| `openai/gpt-oss-120b` | interactive_candidate | convexModel.openrouter_chat_completions | yes | none |
-| `anthropic/claude-opus-4.6` | interactive_candidate | convexModel.openrouter_chat_completions | yes | none |
-| `moonshotai/kimi-k2.6` | interactive_candidate | convexModel.openrouter_chat_completions | yes | none |
 | `openai/gpt-4o-mini` | interactive_candidate | convexModel.openrouter_chat_completions | yes | none |
+| `openai/gpt-oss-120b` | interactive_candidate | convexModel.openrouter_chat_completions | yes | none |
+| `moonshotai/kimi-k2.6` | interactive_candidate | convexModel.openrouter_chat_completions | yes | none |
+| `anthropic/claude-opus-4.6` | interactive_candidate | convexModel.openrouter_chat_completions | yes | none |
 | `google/gemini-3.1-pro-preview` | interactive_candidate | convexModel.openrouter_chat_completions | yes | none |
-| `google/gemma-4-26b-a4b-it` | interactive_candidate | convexModel.openrouter_chat_completions | yes | none |
 | `openai/gpt-5.4` | interactive_candidate | convexModel.openrouter_chat_completions | yes | none |
+| `google/gemma-4-26b-a4b-it` | interactive_candidate | convexModel.openrouter_chat_completions | yes | none |
 | `minimax/minimax-m2.7` | interactive_candidate | convexModel.openrouter_chat_completions | yes | none |
 | `z-ai/glm-4.7` | interactive_candidate | convexModel.openrouter_chat_completions | yes | none |
 | `deepseek/deepseek-v3.2-speciale` | interactive_candidate | convexModel.openrouter_chat_completions | yes | none |

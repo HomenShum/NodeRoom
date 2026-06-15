@@ -26,6 +26,8 @@ import { makeConvexStepJournal } from "./agentStepJournalClient";
 const CONVEX_ACTION_LIMIT_MS = 10 * 60_000;
 const DEFAULT_SLICE_BUDGET_MS = 9 * 60_000;
 const DEFAULT_RESERVE_MS = 30_000;
+const MIN_ACTION_RESERVE_MS = 10_000;
+const ACTION_SAFETY_MARGIN_MS = 15_000;
 const DEFAULT_LEASE_EXTRA_MS = 60_000;
 const DEFAULT_RESUME_DELAY_MS = 5_000;
 const DEFAULT_CONTEXT_MAX_CHARS = 24_000;
@@ -34,6 +36,7 @@ const agentJobsClaimSliceRef = makeFunctionReference<"mutation">("agentJobs:clai
 const agentJobsFinishSliceRef = makeFunctionReference<"mutation">("agentJobs:finishSlice") as any;
 const agentRunsRecordRef = makeFunctionReference<"mutation">("agentRuns:record") as any;
 const agentStepsRecordRef = makeFunctionReference<"mutation">("agentSteps:record") as any;
+const artifactsListForRoomRef = makeFunctionReference<"query">("artifacts:listForRoom") as any;
 
 type ClaimedJob = {
   jobId: Id<"agentJobs">;
@@ -50,6 +53,7 @@ type ClaimedJob = {
   artifactTitle?: string;
   artifactKind?: string;
   artifactMeta?: unknown;
+  artifactVisibility?: string;
   sessionId: Id<"agentSessions">;
   agentId: string;
   agentName: string;
@@ -69,6 +73,11 @@ function envNumber(name: string, fallback: number, min: number, max: number): nu
   const raw = Number(process.env[name] ?? fallback);
   if (!Number.isFinite(raw)) return fallback;
   return Math.max(min, Math.min(max, raw));
+}
+
+function boundedActionBudgetMs(requestedBudgetMs: number, reserveMs: number, minimumBudgetMs: number): number {
+  const ceiling = Math.max(minimumBudgetMs, CONVEX_ACTION_LIMIT_MS - reserveMs - ACTION_SAFETY_MARGIN_MS);
+  return Math.max(minimumBudgetMs, Math.min(requestedBudgetMs, ceiling));
 }
 
 function cap(s: string): string {
@@ -154,8 +163,12 @@ export const runFreeAutoJobSlice = internalAction({
   args: { jobId: v.id("agentJobs") },
   handler: async (ctx, { jobId }) => {
     const t0 = Date.now();
-    const sliceBudgetMs = envNumber("FREE_AUTO_JOB_SLICE_BUDGET_MS", DEFAULT_SLICE_BUDGET_MS, 30_000, CONVEX_ACTION_LIMIT_MS);
-    const reserveMs = envNumber("FREE_AUTO_JOB_RESERVE_MS", DEFAULT_RESERVE_MS, 1_000, 120_000);
+    const reserveMs = Math.max(MIN_ACTION_RESERVE_MS, envNumber("FREE_AUTO_JOB_RESERVE_MS", DEFAULT_RESERVE_MS, 1_000, 120_000));
+    const sliceBudgetMs = boundedActionBudgetMs(
+      envNumber("FREE_AUTO_JOB_SLICE_BUDGET_MS", DEFAULT_SLICE_BUDGET_MS, 30_000, CONVEX_ACTION_LIMIT_MS),
+      reserveMs,
+      30_000,
+    );
     const leaseId = crypto.randomUUID();
     const claimed = await ctx.runMutation(agentJobsClaimSliceRef, {
       jobId,
@@ -241,10 +254,13 @@ export const runFreeAutoJobSlice = internalAction({
     };
 
     try {
+      const roomArtifacts = await ctx.runQuery(artifactsListForRoomRef, { roomId: claimed.roomId }) as Array<{ title: string; kind: string; meta?: unknown; visibility?: string }>;
       assertProviderEgressAllowed({
         model: model.name,
         entrypoint: "free",
-        artifacts: [{ title: claimed.artifactTitle, kind: claimed.artifactKind, meta: claimed.artifactMeta }],
+        artifacts: roomArtifacts.length
+          ? roomArtifacts.map((art) => ({ title: art.title, kind: art.kind, meta: art.meta, visibility: art.visibility }))
+          : [{ title: claimed.artifactTitle, kind: claimed.artifactKind, meta: claimed.artifactMeta, visibility: claimed.artifactVisibility }],
         env: process.env,
       });
       const initialMessages = messagesFromCursor(claimed.cursor);

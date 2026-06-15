@@ -12,14 +12,24 @@ async function dismissTour(page: Page) {
   await page.getByRole("button", { name: "Got it" }).click({ timeout: 2_000 }).catch(() => undefined);
 }
 
+async function ensureBinderOpen(page: Page) {
+  const leftRail = page.getByTestId("left-rail");
+  if (!(await leftRail.isVisible().catch(() => false))) {
+    await page.getByRole("button", { name: "Toggle Room Binder panel" }).click();
+  }
+  await expect(leftRail).toBeVisible({ timeout: 10_000 });
+}
+
 async function openLiveRoom(ctx: BrowserContext, code: string, name: string, create = false) {
   const page = await ctx.newPage();
   await page.addInitScript(() => {
     try { localStorage.setItem("noderoom:tour:v1", "done"); } catch { /* ignore */ }
   });
-  await page.goto(`/?${create ? "create" : "room"}=${code}&name=${encodeURIComponent(name)}`);
+  await page.goto(`/?${create ? "demo" : "room"}=${code}&name=${encodeURIComponent(name)}`);
   await dismissTour(page);
   await expect(page.getByTestId("public-chat-panel").getByTestId("chat-composer")).toBeVisible({ timeout: 20_000 });
+  await ensureBinderOpen(page);
+  await page.getByTestId("left-rail").getByRole("button", { name: /Q3 variance/ }).click();
   await expect(page.locator('[data-cell-key="r_rev__variance"]')).toBeVisible({ timeout: 20_000 });
   return page;
 }

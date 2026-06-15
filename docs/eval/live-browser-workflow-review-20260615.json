@@ -1,0 +1,124 @@
+{
+  "generatedAt": "2026-06-15T03:59:46.470Z",
+  "model": "gemini-3.5-flash",
+  "mediaPath": ".tmp-qa\\live-browser-review\\20260615-browser-review-960p3fps.mp4",
+  "mediaType": "video/mp4",
+  "mediaBytes": 163401,
+  "review": {
+    "overall": "partial",
+    "workflowSummary": "The user creates a new room named 'Spreadsheet Ledger'. Upon entering, the room is already pre-populated with data. The user issues a job command to the agent to program the library to 'Beta' test. The agent starts but pauses after reaching a 10-step budget. The user resumes the agent, which then successfully executes multiple database updates.",
+    "workflowGoal": "Create a collaborative room and have an AI agent update database records to 'Beta' test.",
+    "workflowCompleted": "yes",
+    "completionEvidence": "The agent successfully resumed after the budget pause and executed multiple database updates (e.g., setting gp_ratio, operating_expenses_ratio, net_income_ratio) as shown in the bottom log at 01:34-01:43.",
+    "timeline": [
+      {
+        "ts": "00:00",
+        "event": "User navigates to noderoom.co."
+      },
+      {
+        "ts": "00:07",
+        "event": "User enters room name 'Spreadsheet Ledger' and clicks 'Start a multi-agent room'."
+      },
+      {
+        "ts": "00:12",
+        "event": "Room loads with pre-populated database entries and multiple tabs."
+      },
+      {
+        "ts": "00:18",
+        "event": "User submits job command: 'Job: please program the library to 'Beta' test'."
+      },
+      {
+        "ts": "00:26",
+        "event": "NodeAgent acknowledges the task and begins execution."
+      },
+      {
+        "ts": "00:50",
+        "event": "NodeAgent pauses execution due to reaching the 10-step budget limit."
+      },
+      {
+        "ts": "01:05",
+        "event": "User inputs 'Job: resume' to continue the agent's task."
+      },
+      {
+        "ts": "01:08",
+        "event": "NodeAgent resumes work."
+      },
+      {
+        "ts": "01:20",
+        "event": "User navigates through Spreadsheet, Note, and Wall tabs to inspect the workspace."
+      },
+      {
+        "ts": "01:34",
+        "event": "NodeAgent begins executing database updates, visible in the bottom log."
+      }
+    ],
+    "issues": {
+      "freshRoomState": {
+        "observed": true,
+        "severity": "moderate",
+        "firstTimestamp": "00:12",
+        "detail": "When the new room 'Spreadsheet Ledger' is created, it is not blank; it already contains pre-populated database rows, tabs (Spreadsheet, Note, Wall), and files."
+      },
+      "agentStoppedAtBudget": {
+        "observed": true,
+        "severity": "moderate",
+        "firstTimestamp": "00:50",
+        "detail": "The agent stopped working and posted the message: 'Paused after reaching my 10 step budget.' The user had to manually type 'Job: resume' to make it continue."
+      },
+      "roomTooCrowded": {
+        "observed": true,
+        "severity": "minor",
+        "firstTimestamp": "00:12",
+        "detail": "The interface is highly dense with multiple sidebars, tabs, logs, and chat panels open simultaneously, which can be visually overwhelming."
+      },
+      "tooManyButtons": {
+        "observed": true,
+        "severity": "moderate",
+        "firstTimestamp": "00:12",
+        "detail": "There are over 20 distinct buttons, tabs, and controls visible by default, making the learning curve steep for new users."
+      }
+    },
+    "visibleButtons": [
+      "Room State",
+      "Database",
+      "Spreadsheet",
+      "Note",
+      "Wall",
+      "Upload file",
+      "Activity report",
+      "Room News",
+      "Import documents",
+      "Analyze companies",
+      "Create Landing",
+      "Prepare diligence",
+      "Public chat",
+      "RoomAgent",
+      "Invite",
+      "Settings",
+      "Feedback",
+      "Docs",
+      "Job",
+      "Email",
+      "Slack",
+      "Discord",
+      "Submit"
+    ],
+    "recommendations": [
+      {
+        "issue": "agent-completion-vs-budget",
+        "fix": "Provide a clear UI button to 'Resume Agent' or 'Increase Budget' instead of requiring the user to type a text command like 'Job: resume'.",
+        "priority": "P0"
+      },
+      {
+        "issue": "fresh-room-state",
+        "fix": "Offer an option during room creation to start with a completely blank template or select from pre-populated templates.",
+        "priority": "P1"
+      },
+      {
+        "issue": "too-many-buttons",
+        "fix": "Simplify the default view by collapsing advanced sidebars (like Room News or the right-hand utility panel) until needed.",
+        "priority": "P2"
+      }
+    ]
+  }
+}

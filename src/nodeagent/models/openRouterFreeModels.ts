@@ -1,4 +1,5 @@
 import type { ModelPricing } from "./modelCatalog";
+import { providerHealthDecision } from "../guardrails/providerHealth";
 
 export const OPENROUTER_FREE_AUTO_MODEL = "openrouter/free-auto";
 export const OPENROUTER_FREE_META_MODEL = "openrouter/free";
@@ -151,13 +152,30 @@ export async function selectOpenRouterFreeModels(options: {
   fetchImpl?: typeof fetch;
   forceRefresh?: boolean;
   signal?: AbortSignal;
+  env?: Record<string, string | undefined>;
 } = {}): Promise<RankedOpenRouterModel[]> {
   const models = await discoverOpenRouterFreeModels({
     fetchImpl: options.fetchImpl,
     forceRefresh: options.forceRefresh,
     signal: options.signal,
   });
-  return rankOpenRouterFreeModels(models, options.mode ?? "agent").slice(0, options.limit ?? 8);
+  const ranked = rankOpenRouterFreeModels(models, options.mode ?? "agent");
+  const skipped: string[] = [];
+  const allowed = ranked.filter((model) => {
+    const health = providerHealthDecision({
+      requestedModel: model.id,
+      resolvedModel: model.id,
+      provider: "openrouter",
+      env: options.env,
+    });
+    if (health.ok) return true;
+    skipped.push(`${model.id}:${health.quarantineReason}`);
+    return false;
+  });
+  if (ranked.length > 0 && allowed.length === 0) {
+    throw new Error(`openrouter/free-auto candidates quarantined: ${skipped.join(", ")}`);
+  }
+  return allowed.slice(0, options.limit ?? 8);
 }
 
 export function rankOpenRouterFreeModels(

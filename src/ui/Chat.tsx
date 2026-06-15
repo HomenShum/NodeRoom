@@ -3,6 +3,7 @@ import { useEffect, useMemo, useRef, useState, type CSSProperties, type ChangeEv
 import { Lock, MessageCircle, Globe, Send, Sparkles, Copy, Check, ArrowUpRight, Pencil, Paperclip, X, Timer, RefreshCw, ChevronDown, ChevronUp, ListChecks, GitBranch, ShieldCheck, Database } from "lucide-react";
 import { useQuery } from "convex/react";
 import { useStore, CONVEX_SITE_URL, type PrivateStreamAccess, type RoomStore } from "../app/store";
+import { abortable, parseUploadedFiles, UPLOAD_TIMEOUT_MS } from "../app/uploadedArtifact";
 import type { StreamId } from "@convex-dev/persistent-text-streaming";
 import { api } from "../../convex/_generated/api";
 import type { Actor, Channel, Message } from "../engine/types";
@@ -154,13 +155,19 @@ function StreamedBody({ streamId }: { streamId: string }) {
   );
 }
 const shortMs = (ms: number) => ms >= 60_000 ? `${Math.round(ms / 1000) / 60}m` : `${Math.round(ms / 100) / 10}s`;
+type OperationStreamRow = { sequence: number; kind: string; name: string; status: string; countDelta?: number; affectedIds?: string[] };
+function operationStreamText(op: OperationStreamRow): string {
+  const affected = op.affectedIds?.length ? ` - ${op.affectedIds.slice(0, 3).join(", ")}` : "";
+  const count = op.countDelta && op.countDelta > 1 ? ` x${op.countDelta}` : "";
+  return `${op.kind}: ${op.name}${count}${affected}`;
+}
 
 const SLASH_CMDS = [
   { label: "/ask", insert: "/ask ", hint: "ask the Room NodeAgent to act on the sheet" },
   { label: "/ask reconcile Q3 revenue", insert: "/ask reconcile Q3 revenue against the NetSuite export", hint: "recompute the variance column" },
   { label: "/ask flag variance > 15%", insert: "/ask flag any variance over 15%", hint: "footnote the outliers" },
   { label: "/free", insert: "/free ", hint: "force the resumable free-auto model policy" },
-  { label: "/demo multi-agent", insert: "/demo multi-agent ", hint: "show concurrent queue lanes" },
+  { label: "/demo multi-agent", insert: "/demo multi-agent startup diligence ", hint: "show startup-banking diligence queue lanes" },
 ];
 
 type DemoAgent = {
@@ -200,6 +207,7 @@ type DemoScenario = {
   eyebrow: string;
   title: string;
   lanes: string[];
+  proofBoardLabel: string;
   queue: DemoQueueItem[];
   agents: DemoAgent[];
   claims: string[];
@@ -213,6 +221,7 @@ const BENCHMARK_MULTI_AGENT_DEMO: DemoScenario = {
   eyebrow: "Public-gold work queue",
   title: "Three agents run public finance docs, exact gold checks, and no-clobber proof",
   lanes: ["child-job streams", "public source receipts", "CAS + eval gates"],
+  proofBoardLabel: "Public gold proof board",
   queue: [
   { label: "Load public-gold manifest", startTick: 0, doneTick: 1 },
   { label: "Fan out TAT-DQA, FinanceBench, SEC", startTick: 1, doneTick: 3 },
@@ -328,6 +337,7 @@ const STARTUP_DILIGENCE_DEMO: DemoScenario = {
   eyebrow: "Startup diligence work queue",
   title: "Three agents turn live banking asks into a cited diligence package",
   lanes: ["company intake stream", "source-backed CellPayloads", "review + handoff gates"],
+  proofBoardLabel: "Diligence proof board",
   queue: [
     { label: "Normalize CardioNova intake + five-company batch", startTick: 0, doneTick: 2 },
     { label: "Fan out research, finance runway, and source QA", startTick: 1, doneTick: 4 },
@@ -440,9 +450,9 @@ const STARTUP_DILIGENCE_DEMO: DemoScenario = {
 };
 
 function scenarioForDemoPrompt(prompt: string): DemoScenario {
-  return /startup|diligence|cardionova|runway|milestone|banking/i.test(prompt)
-    ? STARTUP_DILIGENCE_DEMO
-    : BENCHMARK_MULTI_AGENT_DEMO;
+  return /benchmark|public-gold|tat-dqa|financebench|sec\s+xbrl/i.test(prompt)
+    ? BENCHMARK_MULTI_AGENT_DEMO
+    : STARTUP_DILIGENCE_DEMO;
 }
 
 type ChatProps = {
@@ -452,7 +462,7 @@ type ChatProps = {
   variant: "public" | "private";
   agentName: string;
   style?: CSSProperties;
-  onOpenArtifact?: (id: string) => void;
+  onOpenArtifact?: (id: string, options?: { split?: boolean; elementId?: string }) => boolean | void;
   embedded?: boolean;
   testId?: string;
 };
@@ -464,14 +474,18 @@ export function Chat({ roomId, me, channel, variant, agentName, style, onOpenArt
   const [dropActive, setDropActive] = useState(false);
   const [thinking, setThinking] = useState(false);
   const [slashOpen, setSlashOpen] = useState(false);
+  const [slashIndex, setSlashIndex] = useState(0);
+  const [uploadingFiles, setUploadingFiles] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
   const [jobDetailsOpen, setJobDetailsOpen] = useState(false);
   const [failedSends, setFailedSends] = useState<Array<{ cid: string; text: string }>>([]);
   const [jobBusy, setJobBusy] = useState<null | "cancel" | "retry">(null);
   const [jobErr, setJobErr] = useState<string | null>(null);
   const [agentErr, setAgentErr] = useState<string | null>(null); // C7/C2: honest surface for failed agent dispatches
+  const [refOpenErr, setRefOpenErr] = useState<string | null>(null);
   const [roomLane, setRoomLane] = useState(false); // private panel: false = whisper to me, true = act in the room
   const [multiAgentDemoStarted, setMultiAgentDemoStarted] = useState(false);
-  const [multiAgentScenario, setMultiAgentScenario] = useState<DemoScenario>(BENCHMARK_MULTI_AGENT_DEMO);
+  const [multiAgentScenario, setMultiAgentScenario] = useState<DemoScenario>(STARTUP_DILIGENCE_DEMO);
   const [multiAgentTick, setMultiAgentTick] = useState(0);
   const feedRef = useRef<HTMLDivElement>(null);
   const taRef = useRef<HTMLTextAreaElement>(null);
@@ -483,21 +497,27 @@ export function Chat({ roomId, me, channel, variant, agentName, style, onOpenArt
   // aliveRef gates those; privTimerRef cancels the memory-mode reply timer on unmount.
   const aliveRef = useRef(true);
   const privTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  useEffect(() => () => { aliveRef.current = false; if (privTimerRef.current) clearTimeout(privTimerRef.current); }, []);
+  useEffect(() => {
+    aliveRef.current = true;
+    return () => { aliveRef.current = false; if (privTimerRef.current) clearTimeout(privTimerRef.current); };
+  }, []);
   const messages = store.listMessages(roomId, channel);
   const isPrivate = variant === "private";
   const longJob = isPrivate ? null : store.lastLongFreeJob();
   const longJobAttempts = isPrivate ? [] : store.lastLongFreeJobAttempts();
   const longJobDetail = isPrivate ? null : store.lastLongFreeJobDetail();
+  const liveOperationStream = (!isPrivate && thinking ? (longJobDetail?.operations ?? []).filter((op) => op.sequence >= 1_000).slice(-4) : []) as OperationStreamRow[];
+  const hasQ3DemoSeed = !isPrivate && store.listArtifacts(roomId).some((a) => a.kind === "sheet" && a.title === "Q3 variance");
+  const slashOptions = useMemo(() => SLASH_CMDS.filter((c) => store.mode === "memory" || c.label !== "/demo multi-agent"), [store.mode]);
   const latestAttempt = longJobAttempts.at(-1);
   const canCancelLongJob = !!longJob && !["completed", "failed", "cancelled"].includes(longJob.status);
   const canRetryLongJob = !!longJob && ["failed", "blocked", "cancelled", "paused", "retrying"].includes(longJob.status);
   const beginThinking = () => { thinkingStartCount.current = messages.length; setAgentErr(null); setThinking(true); };
 
-  useEffect(() => { const el = feedRef.current; if (el && nearBottom.current) el.scrollTop = el.scrollHeight; }, [messages.length, thinking, multiAgentDemoStarted, multiAgentTick]);
+  useEffect(() => { const el = feedRef.current; if (el && nearBottom.current) el.scrollTop = el.scrollHeight; }, [messages.length, thinking, liveOperationStream.length, multiAgentDemoStarted, multiAgentTick]);
   useEffect(() => {
     setMultiAgentDemoStarted(false);
-    setMultiAgentScenario(BENCHMARK_MULTI_AGENT_DEMO);
+    setMultiAgentScenario(STARTUP_DILIGENCE_DEMO);
     setMultiAgentTick(0);
   }, [roomId, channel]);
   useEffect(() => {
@@ -524,7 +544,7 @@ export function Chat({ roomId, me, channel, variant, agentName, style, onOpenArt
     const cid = crypto.randomUUID();
     void store.postMessage({ roomId, channel, author: me, text: messageText, clientMsgId: cid, kind: "chat" })
       .then((fb) => { if (fb && !fb.ok) setFailedSends((f) => { if (f.some((x) => x.cid === cid)) return f; const next = [...f, { cid, text: messageText }]; return next.length > MAX_FAILED_SENDS ? next.slice(-MAX_FAILED_SENDS) : next; }); });
-    setText(""); setRefs([]); setSlashOpen(false);
+    setText(""); setRefs([]); setSlashOpen(false); setSlashIndex(0);
     requestAnimationFrame(grow);
 
     if (!isPrivate && store.mode === "memory" && /^\/demo\s+multi-agent\b/i.test(t)) {
@@ -601,17 +621,58 @@ export function Chat({ roomId, me, channel, variant, agentName, style, onOpenArt
     void store.retryLongFreeJob(longJob.id).then((fb) => { if (!fb.ok) setJobErr(jobReason(fb.reason)); }).finally(() => setJobBusy(null));
   };
 
-  const applySlash = (insert: string) => { setText(insert); setSlashOpen(false); requestAnimationFrame(() => { grow(); taRef.current?.focus(); }); };
+  const applySlash = (insert: string) => { setText(insert); setSlashOpen(false); setSlashIndex(0); requestAnimationFrame(() => { grow(); taRef.current?.focus(); }); };
   const addRef = (ref: ArtifactRef) => {
     const art = store.listArtifacts(roomId).find((a) => a.id === ref.id);
     if (!art) return;
     const canonical = { id: art.id, title: art.title, kind: art.kind };
     setRefs((cur) => cur.some((r) => r.id === canonical.id) ? cur : [...cur, canonical]);
   };
+  const appendRefs = (nextRefs: ArtifactRef[]) => {
+    setRefs((cur) => {
+      const seen = new Set(cur.map((r) => r.id));
+      const additions = nextRefs.filter((r) => !seen.has(r.id));
+      return additions.length ? [...cur, ...additions] : cur;
+    });
+  };
   const removeRef = (id: string) => setRefs((cur) => cur.filter((r) => r.id !== id));
+  const openComposerRef = (ref: ArtifactRef) => {
+    const opened = onOpenArtifact?.(ref.id, { split: true });
+    if (opened === false) setRefOpenErr(`Couldn't open ${ref.title}. The artifact or proposal no longer exists.`);
+    else setRefOpenErr(null);
+  };
+  const uploadDroppedFiles = async (files: FileList) => {
+    if (!files.length || uploadingFiles) return;
+    setUploadingFiles(true);
+    setUploadError(null);
+    const controller = new AbortController();
+    const timer = window.setTimeout(() => controller.abort(new Error("Upload timed out - try fewer or smaller files.")), UPLOAD_TIMEOUT_MS);
+    try {
+      const parsed = await parseUploadedFiles(files, controller.signal);
+      const uploadedRefs: ArtifactRef[] = [];
+      let committed = 0;
+      try {
+        for (const artifact of parsed) {
+          const id = await abortable(store.uploadArtifact({ roomId, artifact, actor: me }), controller.signal);
+          uploadedRefs.push({ id, title: artifact.title, kind: artifact.kind });
+          committed += 1;
+        }
+      } catch (e) {
+        const reason = e instanceof Error ? e.message : "please try again";
+        throw new Error(committed > 0 ? `Uploaded ${committed} of ${parsed.length} item(s), then failed - ${reason}` : `Upload failed - ${reason}`);
+      }
+      if (aliveRef.current) appendRefs(uploadedRefs);
+      requestAnimationFrame(() => taRef.current?.focus());
+    } catch (e) {
+      if (aliveRef.current) setUploadError(e instanceof Error ? e.message : "Upload failed");
+    } finally {
+      window.clearTimeout(timer);
+      if (aliveRef.current) setUploadingFiles(false);
+    }
+  };
 
   const onDragOver = (e: DragEvent<HTMLDivElement>) => {
-    if (!hasDraggedArtifactRef(e.dataTransfer)) return;
+    if (!hasDraggedArtifactRef(e.dataTransfer) && !hasDraggedFiles(e.dataTransfer)) return;
     e.preventDefault();
     e.dataTransfer.dropEffect = "copy";
     setDropActive(true);
@@ -620,23 +681,46 @@ export function Chat({ roomId, me, channel, variant, agentName, style, onOpenArt
     if (!isNode(e.relatedTarget) || !e.currentTarget.contains(e.relatedTarget)) setDropActive(false);
   };
   const onDrop = (e: DragEvent<HTMLDivElement>) => {
-    if (!hasDraggedArtifactRef(e.dataTransfer)) return;
+    if (!hasDraggedArtifactRef(e.dataTransfer) && !hasDraggedFiles(e.dataTransfer)) return;
     e.preventDefault();
     setDropActive(false);
-    const ref = readDraggedArtifactRef(e.dataTransfer);
-    if (ref) addRef(ref);
+    if (hasDraggedArtifactRef(e.dataTransfer)) {
+      const ref = readDraggedArtifactRef(e.dataTransfer);
+      if (ref) addRef(ref);
+    } else if (e.dataTransfer.files.length) {
+      void uploadDroppedFiles(e.dataTransfer.files);
+    }
     requestAnimationFrame(() => taRef.current?.focus());
   };
 
   const onChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
     const v = e.target.value; setText(v); grow();
-    setSlashOpen(!isPrivate && v.trimStart() === "/");
+    const open = !isPrivate && v.trimStart() === "/";
+    setSlashOpen(open);
+    if (open) setSlashIndex(0);
   };
   const onKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
-    if (slashOpen && e.key === "Tab") { e.preventDefault(); applySlash(SLASH_CMDS[0].insert); return; }
+    if (slashOpen) {
+      if (e.key === "ArrowDown") {
+        e.preventDefault();
+        setSlashIndex((i) => (i + 1) % slashOptions.length);
+        return;
+      }
+      if (e.key === "ArrowUp") {
+        e.preventDefault();
+        setSlashIndex((i) => (i - 1 + slashOptions.length) % slashOptions.length);
+        return;
+      }
+      if (e.key === "Tab" || (e.key === "Enter" && !e.shiftKey)) {
+        e.preventDefault();
+        applySlash(slashOptions[slashIndex]?.insert ?? slashOptions[0].insert);
+        return;
+      }
+    }
     if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); }
     else if (e.key === "Escape") { if (slashOpen) setSlashOpen(false); else taRef.current?.blur(); }
   };
+  const canSend = text.trim().length > 0 || refs.length > 0;
   const rootClass = embedded ? `r-chat-embedded ${isPrivate ? "private" : "public"}` : `r-panel ${isPrivate ? "right" : "center"}`;
 
   return (
@@ -743,7 +827,17 @@ export function Chat({ roomId, me, channel, variant, agentName, style, onOpenArt
             <span className="r-avatar agent sm" style={{ background: "#d97757" }}>N</span>
             <div className="body">
               <div className="meta"><span className="who">{agentName}</span><span className="r-tag agent" style={{ padding: "1px 5px", fontSize: 9 }}>thinking</span></div>
-              <div className="r-typing"><i /><i /><i /></div>
+              {liveOperationStream.length ? (
+                <div className="r-agent-stream" data-testid="agent-operation-stream" aria-label="Live agent operation stream">
+                  {liveOperationStream.map((op) => (
+                    <span key={`live-${op.sequence}`} data-status={op.status}>
+                      <b>{op.status}</b>{operationStreamText(op)}
+                    </span>
+                  ))}
+                </div>
+              ) : (
+                <div className="r-typing"><i /><i /><i /></div>
+              )}
             </div>
           </div>
         )}
@@ -762,8 +856,8 @@ export function Chat({ roomId, me, channel, variant, agentName, style, onOpenArt
         )}
         {slashOpen && (
           <div className="r-slash" role="listbox" aria-label="Commands">
-            {SLASH_CMDS.filter((c) => store.mode === "memory" || c.label !== "/demo multi-agent").map((c) => (
-              <button key={c.label} className="r-slash-item" role="option" aria-selected="false" onMouseDown={(e) => { e.preventDefault(); applySlash(c.insert); }}>
+            {slashOptions.map((c, i) => (
+              <button key={c.label} className="r-slash-item" role="option" aria-selected={i === slashIndex} onMouseEnter={() => setSlashIndex(i)} onMouseDown={(e) => { e.preventDefault(); applySlash(c.insert); }}>
                 <span className="cmd">{c.label}</span><span className="hint">{c.hint}</span>
               </button>
             ))}
@@ -773,7 +867,7 @@ export function Chat({ roomId, me, channel, variant, agentName, style, onOpenArt
           <div className="r-ref-composer" aria-label="Message references">
             {refs.map((ref) => (
               <span key={ref.id} className="r-ref-chip">
-                <button className="r-ref-open" type="button" onClick={() => onOpenArtifact?.(ref.id)}>
+                <button className="r-ref-open" type="button" onClick={() => openComposerRef(ref)}>
                   <Paperclip size={12} /> {ref.title}
                 </button>
                 <button className="r-ref-remove" type="button" aria-label={`Remove ${ref.title}`} onClick={() => removeRef(ref.id)}><X size={11} /></button>
@@ -781,6 +875,9 @@ export function Chat({ roomId, me, channel, variant, agentName, style, onOpenArt
             ))}
           </div>
         )}
+        {refOpenErr && <div className="r-upload-error" role="alert" data-testid="artifact-ref-open-error">{refOpenErr}</div>}
+        {uploadingFiles && <div className="r-upload-error" role="status" data-testid="chat-upload-status">Uploading files...</div>}
+        {uploadError && <div className="r-upload-error" role="alert" data-testid="chat-upload-error">{uploadError}</div>}
         <div className="r-intake-preview-slot">
           {text.trim().length > 0 && <IntakePlanPreview roomId={roomId} text={text} targetArtifacts={refs.map((r) => r.id)} />}
         </div>
@@ -791,14 +888,18 @@ export function Chat({ roomId, me, channel, variant, agentName, style, onOpenArt
             aria-label={isPrivate ? "Ask privately" : "Message the room"} />
           {/* The send button reflects the composer state — muted + disabled on empty input,
               not a live accent button that does nothing (state-honesty). */}
-          <button className="r-send" onClick={() => send()} disabled={!text.trim()} data-testid="chat-send" aria-label="Send message"><Send size={15} /></button>
+          <button className="r-send" onClick={() => send()} disabled={!canSend} data-testid="chat-send" aria-label="Send message"><Send size={15} /></button>
         </div>
         {!isPrivate && !slashOpen && (
           <div className="r-composer-hint">
-            <button className="r-chip" onClick={() => applySlash(SLASH_CMDS[1].insert)}>/ask reconcile Q3 revenue</button>
-            <button className="r-chip" onClick={() => applySlash(SLASH_CMDS[2].insert)}>/ask flag variance &gt; 15%</button>
-            {store.mode === "memory" && <button className="r-chip" onClick={() => applySlash(SLASH_CMDS[4].insert)}>/demo multi-agent</button>}
-            <span className="r-composer-kbd" aria-hidden="true">Enter sends; Shift+Enter newline; / commands</span>
+            {hasQ3DemoSeed && (
+              <>
+                <button className="r-chip" onClick={() => applySlash(SLASH_CMDS[1].insert)}>/ask reconcile Q3 revenue</button>
+                <button className="r-chip" onClick={() => applySlash(SLASH_CMDS[2].insert)}>/ask flag variance &gt; 15%</button>
+                {store.mode === "memory" && <button className="r-chip" onClick={() => applySlash(SLASH_CMDS[4].insert)}>/demo multi-agent</button>}
+              </>
+            )}
+            <span className="r-composer-kbd" aria-hidden="true">{hasQ3DemoSeed ? "Enter sends; Shift+Enter newline; / commands" : "Type a request, drop files, or press / for commands"}</span>
           </div>
         )}
       </div>
@@ -904,7 +1005,7 @@ function MultiAgentWorkbenchDemo({ tick, scenario }: { tick: number; scenario: D
         })}
       </div>
 
-      <div className="r-gold-board" aria-label="Public gold proof board">
+      <div className="r-gold-board" aria-label={scenario.proofBoardLabel}>
         <div className="r-gold-board-head">
           <span>Source document</span>
           <span>NodeRoom output</span>
@@ -941,12 +1042,13 @@ function MultiAgentWorkbenchDemo({ tick, scenario }: { tick: number; scenario: D
   );
 }
 
-function Bubble({ m, roomId, variant, me, onPromote, onOpenArtifact }: { m: Message; roomId: string; variant: "public" | "private"; me: Actor; onPromote: (t: string) => void; onOpenArtifact?: (id: string) => void }) {
+function Bubble({ m, roomId, variant, me, onPromote, onOpenArtifact }: { m: Message; roomId: string; variant: "public" | "private"; me: Actor; onPromote: (t: string) => void; onOpenArtifact?: (id: string, options?: { split?: boolean; elementId?: string }) => boolean | void }) {
   const store = useStore();
   const [copied, setCopied] = useState(false);
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(m.text);
   const [editErr, setEditErr] = useState<string | null>(null);
+  const [openErr, setOpenErr] = useState<string | null>(null);
   const parsed = parseArtifactRefMessage(m.text);
   const agent = m.author.kind === "agent";
   const viaOwner = agent && m.author.ownerId ? store.listMembers(roomId).find((x) => x.id === m.author.ownerId)?.name : null;
@@ -963,6 +1065,11 @@ function Bubble({ m, roomId, variant, me, onPromote, onOpenArtifact }: { m: Mess
       setEditing(false); // optimistic update paints the new text instantly
       void store.editMessage(m.id, t, me).then((fb) => { setEditErr(fb.ok ? null : "Couldn't save your edit — it was reverted."); });
     } else setEditing(false);
+  };
+  const openRef = (ref: ArtifactRef) => {
+    const opened = onOpenArtifact?.(ref.id, { split: true });
+    if (opened === false) setOpenErr(`Couldn't open ${ref.title}. The artifact or proposal no longer exists.`);
+    else setOpenErr(null);
   };
 
   return (
@@ -987,7 +1094,7 @@ function Bubble({ m, roomId, variant, me, onPromote, onOpenArtifact }: { m: Mess
             {parsed.refs.length > 0 && (
               <div className="r-msg-refs">
                 {parsed.refs.map((ref) => (
-                  <button key={ref.id} className="r-msg-ref" type="button" onClick={() => onOpenArtifact?.(ref.id)}>
+                  <button key={ref.id} className="r-msg-ref" type="button" onClick={() => openRef(ref)}>
                     <Paperclip size={11} /> {ref.title}
                   </button>
                 ))}
@@ -1002,6 +1109,7 @@ function Bubble({ m, roomId, variant, me, onPromote, onOpenArtifact }: { m: Mess
         )}
 
         {editErr && <div className="tiny" role="alert" data-testid="chat-edit-error" style={{ color: "var(--danger-ink)", marginTop: 2 }}>{editErr}</div>}
+        {openErr && <div className="tiny" role="alert" data-testid="chat-ref-error" style={{ color: "var(--danger-ink)", marginTop: 2 }}>{openErr}</div>}
         {editing ? (
           <div className="r-msg-actions" style={{ opacity: 1 }}>
             <button className="r-msg-act promote" data-testid="chat-edit-save" onClick={saveEdit}>Save</button>
@@ -1021,4 +1129,8 @@ function Bubble({ m, roomId, variant, me, onPromote, onOpenArtifact }: { m: Mess
 
 function isNode(value: EventTarget | null): value is Node {
   return value instanceof Node;
+}
+
+function hasDraggedFiles(dataTransfer: DataTransfer): boolean {
+  return Array.from(dataTransfer.types).includes("Files") || dataTransfer.files.length > 0;
 }

@@ -10,6 +10,7 @@ import { internal } from "./_generated/api";
 const crons = cronJobs();
 
 crons.interval("sweep expired lock leases", { minutes: 1 }, internal.locks.sweepExpiredLocks, {});
+crons.interval("sweep expired agent job leases", { minutes: 1 }, internal.agentJobs.sweepExpiredJobLeases, {});
 
 // Production gate: bound telemetry growth. Prunes traces/agentSteps/agentOperationEvents older than
 // the retention window in bounded batches (convex/retention.ts) so a live deployment's storage can't

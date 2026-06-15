@@ -13,7 +13,12 @@ import {
   type ProviderUploadResult,
 } from "../../app/providerParserAdapter";
 import type { ProviderFileCacheMeta, ProviderParser } from "../../engine/types";
-import type { UploadedArtifactInput } from "../../app/store";
+import type { UploadedArtifactInput } from "../../app/uploadedArtifact";
+import {
+  assertProviderEgressAllowed,
+  assertProviderRouteAllowed,
+  type ProviderRouteReceipt,
+} from "../guardrails/egressPolicy";
 
 export type ProviderParserSource = {
   bytes?: Uint8Array;
@@ -28,6 +33,7 @@ export type LiveProviderParserOptions = {
   model?: string;
   loadSource?: ProviderParserSourceLoader;
   now?: () => number;
+  env?: NodeJS.ProcessEnv;
 };
 
 export type LiveProviderParserRunArgs = {
@@ -36,11 +42,13 @@ export type LiveProviderParserRunArgs = {
   model?: string;
   prompt?: string;
   source?: ProviderParserSource;
+  env?: NodeJS.ProcessEnv;
 };
 
 export type LiveProviderParserRunResult = {
   provider: ProviderParser;
   model: string;
+  providerRoute: ProviderRouteReceipt;
   providerFile: ProviderFileCacheMeta;
   extraction: ProviderExtraction;
   artifacts: UploadedArtifactInput[];
@@ -59,7 +67,17 @@ const providerExtractionSchema = z.object({
   evidence: z.array(z.object({
     label: z.string().min(1),
     snippet: z.string().optional(),
+    table: z.string().optional(),
+    row: z.number().int().positive().optional(),
+    column: z.string().optional(),
     page: z.number().int().positive().optional(),
+    bbox: z.object({
+      x: z.number(),
+      y: z.number(),
+      width: z.number(),
+      height: z.number(),
+      unit: z.enum(["px", "pt", "normalized"]).optional(),
+    }).optional(),
     url: z.string().optional(),
     confidence: z.number().min(0).max(1).optional(),
   })).default([]),
@@ -153,18 +171,26 @@ export function createLiveProviderParserAdapter(options: LiveProviderParserOptio
         file: args.file,
         prompt: args.prompt,
         source,
+        env: options.env,
       });
-      return result;
+      return result.extraction;
     },
   };
 }
 
 export async function runLiveProviderParser(args: LiveProviderParserRunArgs): Promise<LiveProviderParserRunResult> {
   const model = args.model ?? providerParserModelCandidates(args.provider)[0];
+  const providerRoute = assertProviderParserAllowed({
+    model,
+    file: args.file,
+    source: args.source,
+    env: args.env,
+  });
   const adapter = createLiveProviderParserAdapter({
     provider: args.provider,
     model,
     loadSource: async () => args.source,
+    env: args.env,
   });
   const upload = await adapter.uploadFile(args.file);
   const providerFile = providerFileCacheMeta(args.file, upload);
@@ -178,10 +204,11 @@ export async function runLiveProviderParser(args: LiveProviderParserRunArgs): Pr
     file: args.file,
     providerFile,
     provider: args.provider,
-    model,
+    model: providerRoute.resolvedModel,
     extraction,
+    providerRoute,
   });
-  return { provider: args.provider, model, providerFile, extraction, artifacts };
+  return { provider: args.provider, model: providerRoute.resolvedModel, providerRoute, providerFile, extraction, artifacts };
 }
 
 export function sanitizeProviderError(error: unknown, env: NodeJS.ProcessEnv = process.env): string {
@@ -217,12 +244,14 @@ async function extractWithLiveProvider(args: {
   file: CanonicalFileRef;
   prompt: string;
   source?: ProviderParserSource;
-}): Promise<ProviderExtraction> {
-  const model = providerLanguageModel(args.provider, args.model);
+  env?: NodeJS.ProcessEnv;
+}): Promise<{ extraction: ProviderExtraction; providerRoute: ProviderRouteReceipt }> {
+  const providerRoute = assertProviderParserAllowed(args);
+  const model = providerLanguageModel(args.provider, providerRoute.resolvedModel);
   const prompt = buildExtractionPrompt(args.prompt, args.file, args.source);
   const input = buildPromptInput(prompt, args.file, args.source);
 
-  return extractProviderExtractionWithFallback({
+  const extraction = await extractProviderExtractionWithFallback({
     structured: async () => {
       const res = "messages" in input
         ? await generateObject({ model, schema: providerExtractionSchema, messages: input.messages })
@@ -238,6 +267,7 @@ async function extractWithLiveProvider(args: {
       return res.text;
     },
   });
+  return { extraction, providerRoute };
 }
 
 function providerLanguageModel(provider: ProviderParser, modelId: string): LanguageModel {
@@ -334,9 +364,51 @@ function schemaHint(): string {
   return JSON.stringify({
     summary: "short optional string",
     tables: [{ title: "table title", columns: ["Column"], rows: [["value"]], confidence: 0.8 }],
-    evidence: [{ label: "source label", snippet: "short quote", page: 1, confidence: 0.8 }],
+    evidence: [{ label: "source label", snippet: "short quote", table: "table title", row: 1, column: "Column", page: 1, bbox: { x: 0, y: 0, width: 1, height: 1, unit: "normalized" }, confidence: 0.8 }],
     warnings: ["optional warning"],
   });
+}
+
+function assertProviderParserAllowed(args: {
+  model: string;
+  file: CanonicalFileRef;
+  source?: ProviderParserSource;
+  env?: NodeJS.ProcessEnv;
+}): ProviderRouteReceipt {
+  const providerRoute = assertProviderRouteAllowed({
+    model: args.model,
+    entrypoint: "provider_parser",
+    env: args.env ?? process.env,
+  });
+  assertProviderEgressAllowed({
+    model: providerRoute.resolvedModel,
+    entrypoint: "provider_parser",
+    artifacts: [providerParserEgressArtifact(args.file, args.source)],
+    env: args.env ?? process.env,
+  });
+  return providerRoute;
+}
+
+function providerParserEgressArtifact(file: CanonicalFileRef, source?: ProviderParserSource) {
+  return {
+    title: file.fileName,
+    kind: "file",
+    meta: {
+      upload: {
+        fileName: file.fileName,
+        mimeType: file.mimeType,
+        size: file.size,
+        parsedAt: Date.now(),
+      },
+      document: {
+        parser: "provider",
+        lane: "document_layout",
+        status: "server_parser_required",
+        outputs: [source?.text ? "text" : "pages", "bounding_boxes"],
+        requiredRuntime: source?.bytes ? ["node"] : [],
+      },
+    },
+  };
 }
 
 function uniqueStrings(values: Array<string | undefined>): string[] {

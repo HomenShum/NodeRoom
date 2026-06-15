@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "generatedAt": "2026-06-13T21:48:42.572Z",
+  "generatedAt": "2026-06-15T04:23:44.450Z",
   "summary": {
     "routeCount": 53,
     "openRouterRouteCount": 41,
@@ -302,7 +302,7 @@
       ],
       "evidence": [
         "docs/eval/results.json",
-        "src/agent/convexModel.ts",
+        "src/nodeagent/models/convexModel.ts",
         "convex/agentJobs.ts"
       ],
       "blockers": [
@@ -329,7 +329,7 @@
       ],
       "evidence": [
         "docs/eval/results.json",
-        "src/agent/convexModel.ts",
+        "src/nodeagent/models/convexModel.ts",
         "convex/agentJobs.ts"
       ],
       "blockers": []
@@ -354,7 +354,7 @@
       ],
       "evidence": [
         "docs/eval/results.json",
-        "src/agent/convexModel.ts",
+        "src/nodeagent/models/convexModel.ts",
         "convex/agentJobs.ts"
       ],
       "blockers": []
@@ -379,7 +379,7 @@
       ],
       "evidence": [
         "docs/eval/results.json",
-        "src/agent/convexModel.ts",
+        "src/nodeagent/models/convexModel.ts",
         "convex/agentJobs.ts"
       ],
       "blockers": []
@@ -404,7 +404,7 @@
       ],
       "evidence": [
         "docs/eval/results.json",
-        "src/agent/convexModel.ts",
+        "src/nodeagent/models/convexModel.ts",
         "convex/agentJobs.ts"
       ],
       "blockers": []
@@ -428,7 +428,7 @@
         "CAS conflicts return as data, not thrown errors, so OpenRouter models can re-read and recover"
       ],
       "evidence": [
-        "src/agent/convexModel.ts",
+        "src/nodeagent/models/convexModel.ts",
         "convex/agentJobs.ts"
       ],
       "blockers": []
@@ -453,7 +453,7 @@
       ],
       "evidence": [
         "docs/eval/results.json",
-        "src/agent/convexModel.ts",
+        "src/nodeagent/models/convexModel.ts",
         "convex/agentJobs.ts"
       ],
       "blockers": []
@@ -478,7 +478,7 @@
       ],
       "evidence": [
         "docs/eval/results.json",
-        "src/agent/convexModel.ts",
+        "src/nodeagent/models/convexModel.ts",
         "convex/agentJobs.ts"
       ],
       "blockers": []
@@ -503,7 +503,7 @@
       ],
       "evidence": [
         "docs/eval/results.json",
-        "src/agent/convexModel.ts",
+        "src/nodeagent/models/convexModel.ts",
         "convex/agentJobs.ts"
       ],
       "blockers": []
@@ -528,7 +528,7 @@
       ],
       "evidence": [
         "docs/eval/results.json",
-        "src/agent/convexModel.ts",
+        "src/nodeagent/models/convexModel.ts",
         "convex/agentJobs.ts"
       ],
       "blockers": [
@@ -554,7 +554,7 @@
         "CAS conflicts return as data, not thrown errors, so OpenRouter models can re-read and recover"
       ],
       "evidence": [
-        "src/agent/convexModel.ts",
+        "src/nodeagent/models/convexModel.ts",
         "convex/agentJobs.ts"
       ],
       "blockers": []
@@ -578,7 +578,7 @@
         "CAS conflicts return as data, not thrown errors, so OpenRouter models can re-read and recover"
       ],
       "evidence": [
-        "src/agent/convexModel.ts",
+        "src/nodeagent/models/convexModel.ts",
         "convex/agentJobs.ts"
       ],
       "blockers": []
@@ -603,7 +603,7 @@
       ],
       "evidence": [
         "docs/eval/results.json",
-        "src/agent/convexModel.ts",
+        "src/nodeagent/models/convexModel.ts",
         "convex/agentJobs.ts"
       ],
       "blockers": [
@@ -630,7 +630,7 @@
       ],
       "evidence": [
         "docs/eval/free-auto-router-ladder.json",
-        "src/agent/convexModel.ts",
+        "src/nodeagent/models/convexModel.ts",
         "convex/agentJobs.ts"
       ],
       "blockers": [
@@ -657,7 +657,7 @@
       ],
       "evidence": [
         "docs/eval/results.json",
-        "src/agent/convexModel.ts",
+        "src/nodeagent/models/convexModel.ts",
         "convex/agentJobs.ts"
       ],
       "blockers": [
@@ -684,7 +684,7 @@
       ],
       "evidence": [
         "docs/eval/results.json",
-        "src/agent/convexModel.ts",
+        "src/nodeagent/models/convexModel.ts",
         "convex/agentJobs.ts"
       ],
       "blockers": [
@@ -711,7 +711,7 @@
       ],
       "evidence": [
         "docs/eval/results.json",
-        "src/agent/convexModel.ts",
+        "src/nodeagent/models/convexModel.ts",
         "convex/agentJobs.ts"
       ],
       "blockers": [
@@ -738,7 +738,7 @@
       ],
       "evidence": [
         "docs/eval/results.json",
-        "src/agent/convexModel.ts",
+        "src/nodeagent/models/convexModel.ts",
         "convex/agentJobs.ts"
       ],
       "blockers": [
@@ -765,7 +765,7 @@
       ],
       "evidence": [
         "docs/eval/free-auto-router-ladder.json",
-        "src/agent/convexModel.ts",
+        "src/nodeagent/models/convexModel.ts",
         "convex/agentJobs.ts"
       ],
       "blockers": [
@@ -792,7 +792,7 @@
       ],
       "evidence": [
         "docs/eval/openrouter-top-paid-tools-snapshot.json",
-        "src/agent/convexModel.ts",
+        "src/nodeagent/models/convexModel.ts",
         "convex/agentJobs.ts"
       ],
       "blockers": []
@@ -817,7 +817,7 @@
       ],
       "evidence": [
         "docs/eval/openrouter-top-paid-tools-snapshot.json",
-        "src/agent/convexModel.ts",
+        "src/nodeagent/models/convexModel.ts",
         "convex/agentJobs.ts"
       ],
       "blockers": []
@@ -842,7 +842,7 @@
       ],
       "evidence": [
         "docs/eval/openrouter-top-paid-tools-snapshot.json",
-        "src/agent/convexModel.ts",
+        "src/nodeagent/models/convexModel.ts",
         "convex/agentJobs.ts"
       ],
       "blockers": []
@@ -867,7 +867,7 @@
       ],
       "evidence": [
         "docs/eval/openrouter-top-paid-tools-snapshot.json",
-        "src/agent/convexModel.ts",
+        "src/nodeagent/models/convexModel.ts",
         "convex/agentJobs.ts"
       ],
       "blockers": []
@@ -892,7 +892,7 @@
       ],
       "evidence": [
         "docs/eval/openrouter-top-paid-tools-snapshot.json",
-        "src/agent/convexModel.ts",
+        "src/nodeagent/models/convexModel.ts",
         "convex/agentJobs.ts"
       ],
       "blockers": []
@@ -917,7 +917,7 @@
       ],
       "evidence": [
         "docs/eval/openrouter-top-paid-tools-snapshot.json",
-        "src/agent/convexModel.ts",
+        "src/nodeagent/models/convexModel.ts",
         "convex/agentJobs.ts"
       ],
       "blockers": []
@@ -942,7 +942,7 @@
       ],
       "evidence": [
         "docs/eval/openrouter-top-paid-tools-snapshot.json",
-        "src/agent/convexModel.ts",
+        "src/nodeagent/models/convexModel.ts",
         "convex/agentJobs.ts"
       ],
       "blockers": []
@@ -967,7 +967,7 @@
       ],
       "evidence": [
         "docs/eval/openrouter-top-paid-tools-snapshot.json",
-        "src/agent/convexModel.ts",
+        "src/nodeagent/models/convexModel.ts",
         "convex/agentJobs.ts"
       ],
       "blockers": []
@@ -992,7 +992,7 @@
       ],
       "evidence": [
         "docs/eval/openrouter-top-paid-tools-snapshot.json",
-        "src/agent/convexModel.ts",
+        "src/nodeagent/models/convexModel.ts",
         "convex/agentJobs.ts"
       ],
       "blockers": []
@@ -1017,7 +1017,7 @@
       ],
       "evidence": [
         "docs/eval/openrouter-top-paid-tools-snapshot.json",
-        "src/agent/convexModel.ts",
+        "src/nodeagent/models/convexModel.ts",
         "convex/agentJobs.ts"
       ],
       "blockers": []
@@ -1042,7 +1042,7 @@
       ],
       "evidence": [
         "docs/eval/openrouter-top-paid-tools-snapshot.json",
-        "src/agent/convexModel.ts",
+        "src/nodeagent/models/convexModel.ts",
         "convex/agentJobs.ts"
       ],
       "blockers": []
@@ -1067,82 +1067,7 @@
       ],
       "evidence": [
         "docs/eval/openrouter-top-paid-tools-snapshot.json",
-        "src/agent/convexModel.ts",
-        "convex/agentJobs.ts"
-      ],
-      "blockers": []
-    },
-    {
-      "route": "openai/gpt-oss-120b",
-      "provider": "openrouter",
-      "label": "GPT OSS 120B via OpenRouter",
-      "role": "interactive_candidate",
-      "adapter": "convexModel.openrouter_chat_completions",
-      "eligibleForConvexHarness": true,
-      "mustRunThroughAgentJobs": true,
-      "requiredContract": [
-        "agentJobs is the durable root for every benchmark run, including /ask and /free",
-        "Convex actions call providers; browser/client_action never calls OpenRouter directly",
-        "agentStepJournal records model input/output hashes before replay can skip duplicate provider calls",
-        "agentOperationEvents counts query/action/mutation/model/tool/scheduler steps",
-        "agentLeases fence slices and prevent duplicate workers from committing the same job",
-        "mutationReceipts tie every canonical cell write to a job, tool call, baseVersion, and result",
-        "artifact ids remain the system of record; provider file/cache ids are adapter metadata only",
-        "CAS conflicts return as data, not thrown errors, so OpenRouter models can re-read and recover"
-      ],
-      "evidence": [
-        "docs/eval/openrouter-top-paid-tools-snapshot.json",
-        "src/agent/convexModel.ts",
-        "convex/agentJobs.ts"
-      ],
-      "blockers": []
-    },
-    {
-      "route": "anthropic/claude-opus-4.6",
-      "provider": "openrouter",
-      "label": "Claude Opus 4.6 via OpenRouter",
-      "role": "interactive_candidate",
-      "adapter": "convexModel.openrouter_chat_completions",
-      "eligibleForConvexHarness": true,
-      "mustRunThroughAgentJobs": true,
-      "requiredContract": [
-        "agentJobs is the durable root for every benchmark run, including /ask and /free",
-        "Convex actions call providers; browser/client_action never calls OpenRouter directly",
-        "agentStepJournal records model input/output hashes before replay can skip duplicate provider calls",
-        "agentOperationEvents counts query/action/mutation/model/tool/scheduler steps",
-        "agentLeases fence slices and prevent duplicate workers from committing the same job",
-        "mutationReceipts tie every canonical cell write to a job, tool call, baseVersion, and result",
-        "artifact ids remain the system of record; provider file/cache ids are adapter metadata only",
-        "CAS conflicts return as data, not thrown errors, so OpenRouter models can re-read and recover"
-      ],
-      "evidence": [
-        "docs/eval/openrouter-top-paid-tools-snapshot.json",
-        "src/agent/convexModel.ts",
-        "convex/agentJobs.ts"
-      ],
-      "blockers": []
-    },
-    {
-      "route": "moonshotai/kimi-k2.6",
-      "provider": "openrouter",
-      "label": "Kimi K2.6",
-      "role": "interactive_candidate",
-      "adapter": "convexModel.openrouter_chat_completions",
-      "eligibleForConvexHarness": true,
-      "mustRunThroughAgentJobs": true,
-      "requiredContract": [
-        "agentJobs is the durable root for every benchmark run, including /ask and /free",
-        "Convex actions call providers; browser/client_action never calls OpenRouter directly",
-        "agentStepJournal records model input/output hashes before replay can skip duplicate provider calls",
-        "agentOperationEvents counts query/action/mutation/model/tool/scheduler steps",
-        "agentLeases fence slices and prevent duplicate workers from committing the same job",
-        "mutationReceipts tie every canonical cell write to a job, tool call, baseVersion, and result",
-        "artifact ids remain the system of record; provider file/cache ids are adapter metadata only",
-        "CAS conflicts return as data, not thrown errors, so OpenRouter models can re-read and recover"
-      ],
-      "evidence": [
-        "docs/eval/openrouter-top-paid-tools-snapshot.json",
-        "src/agent/convexModel.ts",
+        "src/nodeagent/models/convexModel.ts",
         "convex/agentJobs.ts"
       ],
       "blockers": []
@@ -1167,7 +1092,82 @@
       ],
       "evidence": [
         "docs/eval/openrouter-top-paid-tools-snapshot.json",
-        "src/agent/convexModel.ts",
+        "src/nodeagent/models/convexModel.ts",
+        "convex/agentJobs.ts"
+      ],
+      "blockers": []
+    },
+    {
+      "route": "openai/gpt-oss-120b",
+      "provider": "openrouter",
+      "label": "GPT OSS 120B via OpenRouter",
+      "role": "interactive_candidate",
+      "adapter": "convexModel.openrouter_chat_completions",
+      "eligibleForConvexHarness": true,
+      "mustRunThroughAgentJobs": true,
+      "requiredContract": [
+        "agentJobs is the durable root for every benchmark run, including /ask and /free",
+        "Convex actions call providers; browser/client_action never calls OpenRouter directly",
+        "agentStepJournal records model input/output hashes before replay can skip duplicate provider calls",
+        "agentOperationEvents counts query/action/mutation/model/tool/scheduler steps",
+        "agentLeases fence slices and prevent duplicate workers from committing the same job",
+        "mutationReceipts tie every canonical cell write to a job, tool call, baseVersion, and result",
+        "artifact ids remain the system of record; provider file/cache ids are adapter metadata only",
+        "CAS conflicts return as data, not thrown errors, so OpenRouter models can re-read and recover"
+      ],
+      "evidence": [
+        "docs/eval/openrouter-top-paid-tools-snapshot.json",
+        "src/nodeagent/models/convexModel.ts",
+        "convex/agentJobs.ts"
+      ],
+      "blockers": []
+    },
+    {
+      "route": "moonshotai/kimi-k2.6",
+      "provider": "openrouter",
+      "label": "Kimi K2.6",
+      "role": "interactive_candidate",
+      "adapter": "convexModel.openrouter_chat_completions",
+      "eligibleForConvexHarness": true,
+      "mustRunThroughAgentJobs": true,
+      "requiredContract": [
+        "agentJobs is the durable root for every benchmark run, including /ask and /free",
+        "Convex actions call providers; browser/client_action never calls OpenRouter directly",
+        "agentStepJournal records model input/output hashes before replay can skip duplicate provider calls",
+        "agentOperationEvents counts query/action/mutation/model/tool/scheduler steps",
+        "agentLeases fence slices and prevent duplicate workers from committing the same job",
+        "mutationReceipts tie every canonical cell write to a job, tool call, baseVersion, and result",
+        "artifact ids remain the system of record; provider file/cache ids are adapter metadata only",
+        "CAS conflicts return as data, not thrown errors, so OpenRouter models can re-read and recover"
+      ],
+      "evidence": [
+        "docs/eval/openrouter-top-paid-tools-snapshot.json",
+        "src/nodeagent/models/convexModel.ts",
+        "convex/agentJobs.ts"
+      ],
+      "blockers": []
+    },
+    {
+      "route": "anthropic/claude-opus-4.6",
+      "provider": "openrouter",
+      "label": "Claude Opus 4.6 via OpenRouter",
+      "role": "interactive_candidate",
+      "adapter": "convexModel.openrouter_chat_completions",
+      "eligibleForConvexHarness": true,
+      "mustRunThroughAgentJobs": true,
+      "requiredContract": [
+        "agentJobs is the durable root for every benchmark run, including /ask and /free",
+        "Convex actions call providers; browser/client_action never calls OpenRouter directly",
+        "agentStepJournal records model input/output hashes before replay can skip duplicate provider calls",
+        "agentOperationEvents counts query/action/mutation/model/tool/scheduler steps",
+        "agentLeases fence slices and prevent duplicate workers from committing the same job",
+        "mutationReceipts tie every canonical cell write to a job, tool call, baseVersion, and result",
+        "artifact ids remain the system of record; provider file/cache ids are adapter metadata only",
+        "CAS conflicts return as data, not thrown errors, so OpenRouter models can re-read and recover"
+      ],
+      "evidence": [
+        "docs/eval/openrouter-top-paid-tools-snapshot.json",
+        "src/nodeagent/models/convexModel.ts",
         "convex/agentJobs.ts"
       ],
       "blockers": []
@@ -1192,32 +1192,7 @@
       ],
       "evidence": [
         "docs/eval/openrouter-top-paid-tools-snapshot.json",
-        "src/agent/convexModel.ts",
-        "convex/agentJobs.ts"
-      ],
-      "blockers": []
-    },
-    {
-      "route": "google/gemma-4-26b-a4b-it",
-      "provider": "openrouter",
-      "label": "Gemma 4 26B A4B",
-      "role": "interactive_candidate",
-      "adapter": "convexModel.openrouter_chat_completions",
-      "eligibleForConvexHarness": true,
-      "mustRunThroughAgentJobs": true,
-      "requiredContract": [
-        "agentJobs is the durable root for every benchmark run, including /ask and /free",
-        "Convex actions call providers; browser/client_action never calls OpenRouter directly",
-        "agentStepJournal records model input/output hashes before replay can skip duplicate provider calls",
-        "agentOperationEvents counts query/action/mutation/model/tool/scheduler steps",
-        "agentLeases fence slices and prevent duplicate workers from committing the same job",
-        "mutationReceipts tie every canonical cell write to a job, tool call, baseVersion, and result",
-        "artifact ids remain the system of record; provider file/cache ids are adapter metadata only",
-        "CAS conflicts return as data, not thrown errors, so OpenRouter models can re-read and recover"
-      ],
-      "evidence": [
-        "docs/eval/openrouter-top-paid-tools-snapshot.json",
-        "src/agent/convexModel.ts",
+        "src/nodeagent/models/convexModel.ts",
         "convex/agentJobs.ts"
       ],
       "blockers": []
@@ -1242,7 +1217,32 @@
       ],
       "evidence": [
         "docs/eval/openrouter-top-paid-tools-snapshot.json",
-        "src/agent/convexModel.ts",
+        "src/nodeagent/models/convexModel.ts",
+        "convex/agentJobs.ts"
+      ],
+      "blockers": []
+    },
+    {
+      "route": "google/gemma-4-26b-a4b-it",
+      "provider": "openrouter",
+      "label": "Gemma 4 26B A4B",
+      "role": "interactive_candidate",
+      "adapter": "convexModel.openrouter_chat_completions",
+      "eligibleForConvexHarness": true,
+      "mustRunThroughAgentJobs": true,
+      "requiredContract": [
+        "agentJobs is the durable root for every benchmark run, including /ask and /free",
+        "Convex actions call providers; browser/client_action never calls OpenRouter directly",
+        "agentStepJournal records model input/output hashes before replay can skip duplicate provider calls",
+        "agentOperationEvents counts query/action/mutation/model/tool/scheduler steps",
+        "agentLeases fence slices and prevent duplicate workers from committing the same job",
+        "mutationReceipts tie every canonical cell write to a job, tool call, baseVersion, and result",
+        "artifact ids remain the system of record; provider file/cache ids are adapter metadata only",
+        "CAS conflicts return as data, not thrown errors, so OpenRouter models can re-read and recover"
+      ],
+      "evidence": [
+        "docs/eval/openrouter-top-paid-tools-snapshot.json",
+        "src/nodeagent/models/convexModel.ts",
         "convex/agentJobs.ts"
       ],
       "blockers": []
@@ -1266,7 +1266,7 @@
         "CAS conflicts return as data, not thrown errors, so OpenRouter models can re-read and recover"
       ],
       "evidence": [
-        "src/agent/convexModel.ts",
+        "src/nodeagent/models/convexModel.ts",
         "convex/agentJobs.ts"
       ],
       "blockers": []
@@ -1290,7 +1290,7 @@
         "CAS conflicts return as data, not thrown errors, so OpenRouter models can re-read and recover"
       ],
       "evidence": [
-        "src/agent/convexModel.ts",
+        "src/nodeagent/models/convexModel.ts",
         "convex/agentJobs.ts"
       ],
       "blockers": []
@@ -1314,7 +1314,7 @@
         "CAS conflicts return as data, not thrown errors, so OpenRouter models can re-read and recover"
       ],
       "evidence": [
-        "src/agent/convexModel.ts",
+        "src/nodeagent/models/convexModel.ts",
         "convex/agentJobs.ts"
       ],
       "blockers": []

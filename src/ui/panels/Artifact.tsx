@@ -179,12 +179,17 @@ function makeBlankRoomCode(): string {
  * first-time user exactly THREE obvious starts (chat / add a surface / load the sample) rather
  * than an empty technical shell. Each CTA is a real one-click action.
  */
-function BlankRoomState({ roomId, me, style }: { roomId: string; me: Actor; style?: CSSProperties }) {
+function BlankRoomState({ roomId, me, style, onOpenChat }: { roomId: string; me: Actor; style?: CSSProperties; onOpenChat?: () => void }) {
   const store = useStore();
   const [busy, setBusy] = useState(false);
   const focusChat = () => {
-    const ta = document.querySelector<HTMLTextAreaElement>('textarea[data-testid="chat-composer"]');
-    if (ta) { ta.focus(); ta.scrollIntoView({ block: "center", behavior: "smooth" }); }
+    onOpenChat?.();
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        const ta = document.querySelector<HTMLTextAreaElement>('textarea[data-testid="chat-composer"]');
+        if (ta) { ta.focus(); ta.scrollIntoView({ block: "center", behavior: "smooth" }); }
+      });
+    });
   };
   const addSheet = async () => {
     if (busy) return;
@@ -224,13 +229,18 @@ function BlankRoomState({ roomId, me, style }: { roomId: string; me: Actor; styl
 
 export function Artifact(props: {
   roomId: string; me: Actor; artId: string; onArt: (id: string) => void;
+  sideArtId?: string | null;
+  onSideArtChange?: (id: string | null) => void;
+  onOpenChat?: () => void;
   collab?: CollabControls;
   style?: CSSProperties;
 }) {
-  const { roomId, me, artId, onArt, collab, style } = props;
+  const { roomId, me, artId, onArt, sideArtId, onSideArtChange, onOpenChat, collab, style } = props;
   const store = useStore();
   const arts = store.listArtifacts(roomId);
-  const [splitId, setSplitId] = useState<string | null>(null);
+  const [localSplitId, setLocalSplitId] = useState<string | null>(null);
+  const splitId = sideArtId === undefined ? localSplitId : sideArtId;
+  const setSplitId = onSideArtChange ?? setLocalSplitId;
   // Split is a desktop affordance: below ~1200px the stage is too narrow for two usable panes,
   // and on compact the side panels are overlays — so the control hides and any open split
   // auto-collapses. Mirrors the canonical "<900 = single primary surface" responsive band.
@@ -246,7 +256,7 @@ export function Artifact(props: {
     return () => mq.removeEventListener?.("change", onChange);
   }, []);
   // A blank room (0 artifacts) is intentional (Loop 1) — show the onboarding starts, not a void.
-  if (arts.length === 0) return <BlankRoomState roomId={roomId} me={me} style={style} />;
+  if (arts.length === 0) return <BlankRoomState roomId={roomId} me={me} style={style} onOpenChat={onOpenChat} />;
   const canSplit = wideEnough && arts.length >= 4;
   // Keep the split target valid: collapse if it vanished, folded back onto the primary, or the
   // viewport became too narrow.
@@ -442,7 +452,7 @@ function Research({ roomId, me, art }: { roomId: string; me: Actor; art: Art }) 
   const [busy, setBusy] = useState(false);
   const [pasteError, setPasteError] = useState<string | null>(null);
   const [requeueError, setRequeueError] = useState<string | null>(null); // C7/C2: honest surface for failed requeue commits
-  const [moreOpen, setMoreOpen] = useState(false); // cleanliness pass: secondary research actions live behind one "⋯" overflow
+  const [moreOpen, setMoreOpen] = useState(false);
   const [expanded, setExpanded] = useState<string | null>(null);
   const [pages, setPages] = useState(1); // QA P1: page the grid like GenericSheet — no unbounded DOM
   const RESEARCH_PAGE_SIZE = 50;
@@ -515,10 +525,8 @@ function Research({ roomId, me, art }: { roomId: string; me: Actor; art: Art }) 
       <div className="r-research-bar">
         <span className="tiny faint">{rowIds.length} accounts · {pending} pending · {complete} complete · multi-source research</span>
         <span className="grow" />
-        {/* Room-level setup (add companies) stays visible -- it is how the bulk workflow starts. */}
         <button className="r-btn ghost" disabled={busy} onClick={() => setPasteOpen((v) => !v)}><Plus size={13} /> Import accounts</button>
-        {/* Secondary room/batch actions behind one in-context overflow (not per-row). */}
-        <button className="r-btn ghost" aria-label="More research actions" aria-expanded={moreOpen} title="Requeue, export CSV" onClick={() => setMoreOpen((v) => !v)}><MoreHorizontal size={14} /></button>
+        <button className="r-btn ghost" aria-label="More research actions" aria-expanded={moreOpen} title="Requeue complete, export CRM CSV" onClick={() => setMoreOpen((v) => !v)}><MoreHorizontal size={14} /></button>
         {moreOpen && (
           <>
             <button className="r-btn ghost" disabled={busy || complete === 0} onClick={() => void refreshComplete()}><RotateCcw size={13} /> Requeue complete</button>

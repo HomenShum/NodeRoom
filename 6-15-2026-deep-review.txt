@@ -1,0 +1,1597 @@
+VISION AND DISCUSSIONS:
+Thought for 19m 14s
+
+Prepared the PDF with rendered sequence diagrams and Mermaid source appendix, based on the uploaded design/runtime notes.
+
+Download it here:
+
+NodeRoom / NodeAgent Sequence Diagrams PDF
+
+It includes:
+
+Rendered diagrams for the full NodeRoom / NodeAgent runtime, optimistic UI, world-model context building, persistent text streaming, C2 vs A1:C5 collaboration conflict, semantic rebase, speculative suggestion chips, old MewAgent vs new NodeAgent, Convex/WebRTC/ClickHouse separation, startup diligence, SpreadsheetBench, and finance model Solve/Guide/Collaborate.
+
+I also included the Mermaid sequenceDiagram source for every diagram in the appendix.
+
+Thought for 4m 16s
+
+Yes — but I would not frame it as “Cluely for bankers” in the product. I would frame it as:
+
+A transparent deal-room coach that helps analysts and seniors see what to pull, what to verify, what changed, and what still cannot be sent.
+
+Cluely’s pattern is useful mechanically: an always-on overlay that reads the current context and suggests what to say/do next. But the banking version must be auditable, permissioned, and team-visible, not stealthy or “cheating.” Reporting on Cluely describes real-time screen/audio assistance, but also flags privacy, latency, hallucination, and personalization problems — exactly the risks that would make bankers distrust it if used invisibly in a high-stakes workflow.
+
+For NodeRoom, the better category is:
+
+Banker Coach Mode: an always-on review assistant for live diligence rooms.
+
+It does not secretly answer for the banker. It makes the banker more prepared, more source-aware, and more review-capable.
+
+The key mental shift
+
+Bankers do not want:
+
+AI answer appears.
+Trust me.
+
+They want:
+
+Here is the exact file.
+Here is the exact page / row / cell / chart.
+Here is the claim it supports.
+Here is the model cell or deck exhibit affected.
+Here is what your VP/MD will probably challenge.
+Here is the answer you can defend.
+
+So the “coach” should not be a chatbot. It should be a live evidence-and-review overlay.
+
+The LlamaIndex pattern you mentioned is directionally right: their CitationQueryEngine returns citation-marked answers and exposes source_nodes, letting the user inspect the actual source text behind a cited answer. Their docs also show citation chunk sizing so sources can be more or less granular.
+
+NodeRoom needs the banker-grade version of that:
+
+Citation node
+  -> source file
+  -> exact page / sheet / row / bbox / cell
+  -> claim supported
+  -> confidence
+  -> target artifact
+  -> review status
+
+Not just “[1]”.
+
+The banker mental model: different angles of consideration
+1. Analyst Coach: “what do I need to pull?”
+
+This is for the junior banker doing the work.
+
+It should surface:
+
+- What source files are needed?
+- What market data is missing?
+- Which rows need source support?
+- Which model cells are assumptions vs facts?
+- What common banker checks apply here?
+- What will the associate ask me before this is ready?
+
+Example coach card:
+
+Next pull:
+Management case support for FY26 revenue growth.
+
+Why:
+The model uses 14% growth, but the current source only supports “continued growth.”
+This cannot be treated as verified yet.
+
+Open source target:
+Source Deck p.14 or latest management call notes.
+
+This helps juniors learn the workflow, not just finish the task.
+
+2. Associate / Senior Reviewer: “what changed and what is risky?”
+
+This is for the person reviewing the junior’s work.
+
+It should surface:
+
+- What changed since last version?
+- Which changes are high-impact?
+- Which changes affect valuation, EBITDA, runway, or margins?
+- Which cells were touched by agents?
+- Which human edits were preserved?
+- Which claims are unsupported?
+- What should I review first?
+
+Example card:
+
+High-impact change:
+Runway changed from 11.2 months to 8.7 months.
+
+Cause:
+Monthly burn assumption increased from $850k to $1.1M.
+
+Source:
+Manual chat claim from User A.
+No uploaded source yet.
+
+Review action:
+Confirm burn with management or mark as estimate.
+
+This is how NodeRoom becomes useful to seniors, not just analysts.
+
+3. MD / Client-Readiness Coach: “can I send this?”
+
+This is the highest bar.
+
+It should answer:
+
+- Is the conclusion too strong?
+- Are caveats visible?
+- Are unsupported claims labeled?
+- Do model, memo, and chart agree?
+- Is the tone commercially appropriate?
+- Can I defend this in a live meeting?
+
+Example card:
+
+Client-readiness warning:
+The memo says “strong enterprise traction,” but the source only confirms “early pilots.”
+
+Suggested rewrite:
+“Early enterprise pilots indicate potential traction, though conversion evidence remains limited.”
+
+Reason:
+Avoids overstating commercial proof.
+
+This directly addresses why BankerToolBench outputs were not client-ready: the benchmark involved end-to-end banking workflows with Excel models, decks, reports, market-data tools, SEC filings, and 100+ banker-defined rubric criteria, and even the best tested model failed nearly half the rubric items with 0% of outputs rated client-ready.
+
+4. Evidence Coach: “show me the literal source”
+
+This is the most important UI surface.
+
+Every claim should have an evidence carousel:
+
+[Source PDF p.14]
+[Spreadsheet row 42]
+[Company website snippet]
+[Prior memo paragraph]
+[Manual call note]
+[Agent trace]
+
+Clicking a card opens a split-screen artifact view:
+
+Left:
+  final model / memo / chart / company row
+
+Right:
+  literal source file at exact page, row, cell, or highlighted region
+
+Bottom:
+  explanation:
+    “This source supports the claim that CardioNova sells to hospitals,
+     but it does not verify current ARR or burn.”
+
+This is much more banker-native than a generic citation list.
+
+The current NodeRoom target already says sources, proofs, traces, and gold comparisons should open on the center stage or as a center split, not as a bottom drawer. It also says the work surface must preserve spreadsheet muscle memory while adding evidence overlays, source/proof panes, and no-clobber conflict feedback.
+
+5. Modeling Coach: “what formula or tie-out should I check?”
+
+For BankerToolBench-style finance workflows, the coach should understand model hygiene:
+
+- Does the formula preserve the pattern?
+- Was a formula overwritten with a hardcode?
+- Does the balance sheet tie?
+- Do chart numbers tie to the model?
+- Do deck numbers tie to the workbook?
+- Did a human override a forecast assumption?
+
+Example:
+
+Formula check:
+D17 was changed from formula to scalar.
+
+Risk:
+This breaks downstream dynamic correctness.
+
+Recommended action:
+Restore formula pattern from D16/D18 or create a reviewed hardcode note.
+
+The repo’s own target explicitly states formula cells must not be overwritten with scalar text unless the operation is explicitly a formula replacement, and calculation agents should emit patch bundles that still commit only through managed lock/CAS writes.
+
+6. Review-Round Coach: “what did the senior/client ask for?”
+
+Banking work happens in rounds.
+
+The coach should track:
+
+Round 1:
+  initial analyst draft
+
+Round 2:
+  associate comments
+
+Round 3:
+  VP / MD comments
+
+Round 4:
+  client update
+
+Round 5:
+  final send
+
+For each round:
+
+- requested changes
+- completed changes
+- unresolved questions
+- source gaps
+- changed artifacts
+- draft response email
+
+Example:
+
+Round 3 — VP comments
+
+Requested:
+1. Add downside case.
+2. Recheck burn assumptions.
+3. Clean competitor chart.
+
+Status:
+- downside case: done
+- burn assumptions: needs source
+- competitor chart: ready for review
+
+Suggested update:
+“Downside case is built; burn still requires management confirmation.”
+
+This is exactly the human-readable layer we have been describing: trace proves what happened, but review rounds explain what matters.
+
+7. Live Interview / Training Coach: “how should I explain this?”
+
+This is the safe, professional version of the Cluely pattern.
+
+For juniors, it should produce a talk track:
+
+If the VP asks:
+“Why did runway drop?”
+
+Answer:
+“Runway dropped because the burn assumption increased from $850k to $1.1M. That number is currently based on a manual call note, not a sourced financial statement, so I marked it as needs_review before client send.”
+
+For seniors, it should produce:
+
+What to ask the analyst:
+- What source supports the burn increase?
+- Does this affect the milestone chart?
+- Does the downside case reflect the same burn assumption?
+
+This is not “cheating.” This is learning and review support inside the workroom.
+
+The UI pattern: Banker Coach Mode
+
+I would design it as a mode with four visible regions.
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ NodeRoom · Startup Diligence · Coach Mode                                    │
+├───────────────┬──────────────────────────────────────────────┬───────────────┤
+│ Deal Binder   │ Work Surface                                 │ Banker Coach  │
+│               │                                              │               │
+│ Companies     │ Q3 Model / Diligence Sheet / Memo / Chart    │ Next pulls    │
+│ Sources       │                                              │ Review risks  │
+│ People        │ Split-screen source proof when opened        │ Talk track    │
+│ Agents        │                                              │ Evidence      │
+│ Review Rounds │                                              │               │
+├───────────────┴──────────────────────────────────────────────┴───────────────┤
+│ Signal Tape: Source gap · formula warning · runway chart ready               │
+├──────────────────────────────────────────────────────────────────────────────┤
+│ Status: 12 cells committed · 2 proposals · 0 clobbers · evidence PASS        │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+The coach panel should not be a dumping ground. It should be organized into tabs:
+
+Coach
+Evidence
+Review
+Talk Track
+Rubric
+Evidence carousel design
+
+A banker-native evidence carousel should look like this:
+
+Evidence for: “CardioNova sells AI triage software to hospitals”
+
+[1] Company website
+    Type: public source
+    Support: strong
+    Opens: website/source snapshot
+    Claim supported: product + buyer
+
+[2] User call note
+    Type: manual evidence
+    Support: useful but unverified
+    Opens: room chat message
+    Claim supported: hospital focus
+
+[3] Funding article
+    Type: public source
+    Support: partial
+    Opens: article/source artifact
+    Claim supported: funding stage, not product claims
+
+Each evidence card needs:
+
+type EvidenceCard = {
+  claimId: string;
+  sourceArtifactId: string;
+  sourceKind: "pdf" | "xlsx" | "csv" | "web" | "chat" | "image" | "trace";
+  locator: {
+    page?: number;
+    row?: number;
+    cell?: string;
+    bbox?: [number, number, number, number];
+    lineStart?: number;
+    lineEnd?: number;
+    url?: string;
+  };
+  supportLevel: "strong" | "partial" | "weak" | "contradicts" | "manual_only";
+  reviewerNote: string;
+  opensIn: "split_screen" | "stage_tab" | "hover_popover";
+};
+
+The key is literal source display. The banker should never wonder where the quote came from.
+
+LlamaIndex-style source tracing, but banker-grade
+
+The basic LlamaIndex citation pattern is:
+
+Answer contains citations.
+Response has source_nodes.
+User can inspect source text.
+
+NodeRoom’s banker-grade version should be:
+
+Claim contains citation.
+Citation points to source artifact.
+Source artifact opens in split screen.
+Highlighted page/row/cell is visible.
+Coach explains whether the source fully supports the claim.
+Review state says verified / partial / needs_review.
+
+The LlamaIndex docs show that CitationQueryEngine can create granular citation sources and expose response.source_nodes; that validates the general pattern of inspectable citation nodes, but NodeRoom needs to extend it to PDFs, spreadsheets, screenshots, tables, charts, and banker review states.
+
+Coach cue data model
+
+Add a first-class CoachCue object.
+
+type CoachCue = {
+  id: string;
+  roomId: string;
+  audience: "analyst" | "associate" | "vp_md" | "client_ready" | "all";
+  severity: "info" | "review" | "warning" | "blocker";
+
+  title: string;
+  plainEnglish: string;
+
+  targetRefs: Array<{
+    kind: "cell" | "range" | "memo_block" | "chart" | "source_doc" | "task" | "review_round";
+    ref: string;
+  }>;
+
+  evidenceRefs: EvidenceCard[];
+
+  suggestedActions: Array<{
+    label: string;
+    action:
+      | "open_source"
+      | "open_split_view"
+      | "create_task"
+      | "ask_agent"
+      | "create_proposal"
+      | "draft_talk_track"
+      | "mark_needs_review";
+  }>;
+
+  status: "new" | "seen" | "accepted" | "dismissed" | "resolved";
+};
+
+This is more useful than raw agent traces.
+
+What the coach should proactively highlight
+For company diligence
+- Missing website source
+- Product claim only supported by chat note
+- Funding stage found, amount not verified
+- Competitor list has no source
+- Pricing claim is inferred, not sourced
+- Hiring signal is old
+- Industry headwind lacks citation
+- Company duplicate candidate exists
+For finance model / BankerToolBench
+- Formula overwritten by scalar
+- Source period mismatch
+- Chart does not tie to model cell
+- Memo number does not match model
+- Assumption changed but no reviewer note
+- Balance sheet tie-out failed
+- Private source referenced in public output
+- Open review task blocks client-ready status
+For senior review
+- High-impact change since last version
+- Unsupported conclusion
+- Aggressive wording
+- Missing caveat
+- Source contradiction
+- Review round incomplete
+The “BankerToolBench Coach” mode
+
+For BankerToolBench-style workflows, the coach should behave like a rubric-aware staffer.
+
+It should show:
+
+Deliverable checklist
+  - Excel model
+  - deck exhibit
+  - report/memo
+  - source support
+  - cross-artifact consistency
+
+Current readiness
+  - model: 78%
+  - chart: 65%
+  - memo: 55%
+  - source support: 61%
+  - client-ready: no
+
+Top blockers
+  1. chart revenue does not tie to model
+  2. memo overstates source claim
+  3. forecast assumption has no source
+
+But be careful: in official benchmark mode, the agent cannot see hidden gold/rubric materials unless the benchmark permits it. The repo target already says official benchmark readiness must prove hidden-gold isolation, runner adapters, trajectory/cost capture, workbook export/reopen fidelity, and benchmark-native scoring before claiming readiness.
+
+So use two modes:
+
+NodeRoomBench Coach:
+  allowed to use your own public/internal rubric.
+
+Official Benchmark Mode:
+  agent cannot see evaluator-only rubric/gold.
+  coach can show generic process checklist only.
+“Walkthrough guidance” as slideshow / GIF / voiceover
+
+Yes — this is a very good idea.
+
+Each coach cue can be turned into a micro-walkthrough:
+
+Slide 1:
+  What changed?
+
+Slide 2:
+  Which source supports it?
+
+Slide 3:
+  What does it affect?
+
+Slide 4:
+  What should the banker say?
+
+Slide 5:
+  What action remains?
+
+For example:
+
+Runway change walkthrough
+
+1. Burn assumption increased.
+2. Source is currently manual call note, not verified.
+3. Runway chart changed from 11.2 to 8.7 months.
+4. Mention this as “estimate pending management confirmation.”
+5. Open question created for CFO follow-up.
+
+This can be exported as:
+
+- animated GIF for demo
+- voiced-over MP4
+- review-round slide
+- email-style update
+- proof artifact
+
+This makes the evidence layer teach the human, not just record the machine.
+
+Psychological angles better suited for bankers
+1. “Help me not look stupid in front of my VP”
+
+This is real.
+
+The coach should surface:
+
+likely VP questions
+source gaps
+inconsistencies
+numbers that changed
+assumptions without comments
+2. “Help me defend every number”
+
+Every number needs:
+
+value
+source
+formula
+assumption status
+last edited by
+review status
+3. “Help me preserve senior/client preferences”
+
+The coach should remember:
+
+VP prefers conservative base case
+MD wants caveats visible
+client dislikes aggressive risk wording
+last round asked for a downside case
+4. “Help me learn the workflow”
+
+For juniors:
+
+why this source matters
+what to check next
+why this formula is risky
+how to phrase uncertainty
+what “client-ready” means
+5. “Do not hide judgment”
+
+Any judgment call should be surfaced:
+
+Agent chose this comp set.
+Agent excluded this company.
+Agent treated this as estimate.
+Agent downgraded source confidence.
+Agent created proposal instead of commit.
+
+Bankers distrust invisible judgment more than visible uncertainty.
+
+The product principle
+
+Use this:
+
+NodeRoom’s coach should not replace banker judgment. It should make banker judgment faster, safer, and easier to defend.
+
+Or:
+
+The coach turns hidden agent work into evidence, review prompts, and talk tracks the banker can own.
+
+That is the banker-native framing.
+
+Final architecture addition
+
+Add this layer:
+
+NodeAgent output
+  -> trace event
+  -> evidence refs
+  -> artifact patch
+  -> coach cue
+  -> review task
+  -> talk track
+
+Not just:
+
+NodeAgent output
+  -> cell update
+
+ASCII:
+
+┌─────────────────────┐
+│ Agent/tool result   │
+└──────────┬──────────┘
+           ▼
+┌─────────────────────┐
+│ Evidence extraction │
+└──────────┬──────────┘
+           ▼
+┌─────────────────────┐
+│ Cell/report patch   │
+└──────────┬──────────┘
+           ▼
+┌─────────────────────┐
+│ CoachCue generation │
+└──────────┬──────────┘
+           ▼
+┌──────────────────────────────┐
+│ Split-screen proof + talktrack│
+└──────────────────────────────┘
+
+This is probably the missing layer between “agent trace” and “banker trust.”
+
+Maybe we can learn it from the aws hackathon repo 
+Thought for 3m 30s
+
+Yes — the AWS-Hackathon repo is actually a very useful teacher for NodeRoom, not because the domain is the same, but because the product pattern is the same:
+
+A live agent production line where prompts, artifacts, analytics, citations, downstream actions, and demo evidence all become visible product surfaces.
+
+For VisualLabs, the workflow was:
+
+source / transcript
+  → remix workspace
+  → generated prompt artifact
+  → image/video render
+  → analytics
+  → publish dry-run
+  → ClickHouse training export
+
+For NodeRoom / Banker Coach, the analogous workflow should be:
+
+company note / source file / spreadsheet
+  → diligence workspace
+  → evidence-backed company row
+  → source carousel / split-screen proof
+  → runway / milestone chart
+  → review task / talk track
+  → downstream dry-run
+  → ClickHouse eval + coach-feedback export
+
+The repo’s dependency stack already shows the relevant reusable pieces: ClickHouse, Composio, OpenAI Agents, OpenUI, Fal, Cloudinary, AI SDK, OpenAI, Next, React, and Zod.
+
+What we should learn from AWS-Hackathon
+1. Treat agent output as artifacts, not just chat
+
+VisualLabs did not leave everything as plain chat. It used OpenUI-style artifacts and panels to make generated prompts, analytics, and training updates inspectable. The repo imports OpenUI headless/lang/UI components and artifact portal primitives in the main studio component.
+
+For NodeRoom, copy the pattern, but change the artifact types.
+
+VisualLabs artifacts:
+  RemixPromptArtifact
+  InstagramAnalyticsArtifact
+  TrainingPipelineArtifact
+  PublishDraft
+
+NodeRoom artifacts:
+  EvidenceCarouselArtifact
+  CompanyDiligenceBrief
+  RunwayMilestoneChart
+  BankerCoachCue
+  NoClobberProofCard
+  ReviewRoundUpdate
+  DownstreamHandoffDraft
+
+The key product lesson:
+
+If the agent produces something important, render it as a reviewable artifact with state, source, and action buttons — not as buried chat text.
+
+2. Use cited.md-style citation discipline
+
+The AWS repo’s cited.md file is very valuable as a design pattern. It explicitly says to cite published URLs for public claims, treat drafts as review-only until published, treat the repo as implementation evidence, avoid claims about production publishing/customer outcomes/compliance unless linked code or citeables support them, and prefer concrete status labels like live, mocked, external, or planned.
+
+That is exactly the discipline NodeRoom needs.
+
+NodeRoom should add:
+
+docs/cited.md
+app/cited.md/route.ts or docs/public-citations.md
+
+But with banker/diligence semantics:
+
+Citation Policy:
+- Public demo claims must link to public sources or repo evidence.
+- Private client data must never be published as citeables.
+- Manual chat claims remain manual evidence until verified.
+- Agent-generated claims are review-only until source-backed.
+- Status labels must be explicit: live, fixture, mocked, planned, private-gold.
+
+This also maps to your NodeRoom design notes: the harness should separate the AI brain from the environment that owns tools, memory, state persistence, approval gates, and rollback.
+
+3. Copy the ClickHouse pattern for OLAP, evals, and cost
+
+The AWS repo already has a clean ClickHouse implementation pattern. logEvent writes generation events with phase, model, provider, draft id, shot id, latency, cost, and success; if ClickHouse keys are missing, it logs to console and never throws, so telemetry cannot take down the demo path.
+
+That exact principle should transfer:
+
+NodeRoom live room should never fail because analytics failed.
+
+For NodeRoom, ClickHouse events should be:
+
+agent_job_started
+plan_preview_created
+source_found
+cell_payload_written
+coach_cue_created
+proposal_created
+semantic_conflict_detected
+chart_generated
+downstream_draft_prepared
+eval_scored
+
+The AWS schema also cleanly separates append-only analytics from transactional product state. Its chat_events table is explicitly described as append-only history for prompt analytics/training export, not a transactional app database with users/auth/mutable state.
+
+So for NodeRoom:
+
+Convex:
+  live room truth
+
+ClickHouse:
+  historical analytics, evals, model cost, coach-cue feedback, source coverage
+
+Do not mix them.
+
+4. Copy the redaction + fallback analytics pattern
+
+The AWS repo’s chat history logger has a memory fallback when ClickHouse is unavailable and redacts secrets/tokens from prompts/responses/metadata before storage.
+
+For NodeRoom, this becomes:
+
+recordAgentRunEvent()
+recordCoachCueEvent()
+recordEvidenceReviewEvent()
+recordDownstreamDryRunEvent()
+
+With redaction rules for:
+
+client names if private
+emails
+phone numbers
+account IDs
+API keys
+bearer tokens
+deal names
+private source excerpts
+
+This matters a lot because banker workflows contain sensitive client context.
+
+5. Use Composio-style dry-runs for downstream actions
+
+AWS-Hackathon already uses a good downstream pattern: preparePublishDryRun creates a publish draft, records it as an analytics event, and marks it as mocked/dry-run rather than pretending it was truly published.
+
+For NodeRoom, copy this exactly in spirit.
+
+prepareGmailDraftDryRun()
+prepareSlackSummaryDryRun()
+prepareLinearIssueDryRun()
+prepareNotionPageDryRun()
+prepareAttioRecordDryRun()
+
+In the UI:
+
+Downstream-ready
+  [Draft Gmail update]
+  [Create Linear task]
+  [Create Notion page]
+  [Sync to CRM]
+
+If the integration is not actually wired, label it:
+
+dry-run
+prepared
+not sent
+not synced
+
+This avoids overclaiming while still showing the end-to-end workflow shape.
+
+6. Use render-core’s “submit → poll → mirror” idea for media, but not as the core product
+
+AWS-Hackathon’s render core is disciplined: generated media is submitted, polled, mirrored to Cloudinary, and returned as a stable CDN URL; it explicitly says provider URLs expire, so the app should store the permanent Cloudinary URL.
+
+For NodeRoom, this is useful for:
+
+animated evidence walkthroughs
+coach cue mini-videos
+runway chart snapshots
+demo GIF / MP4 assets
+
+But it should not become tomorrow’s core implementation.
+
+For Banker Coach:
+
+Source evidence carousel
+  → optional “Export walkthrough”
+  → generated visual slides/GIF
+  → permanent artifact URL
+
+Do not make live image/video generation part of the core diligence workflow unless it is already stable.
+
+The exact translation: VisualLabs → NodeRoom Banker Coach
+AWS-Hackathon / VisualLabs pattern	NodeRoom / Banker Coach equivalent
+Import source link / transcript	Upload company list, pitch deck, financial workbook, call note
+Remix chat	Copilot / Banker Coach
+Prompt artifact	Evidence-backed diligence artifact
+OpenUI panel	Split-screen proof / evidence carousel
+Render image/video	Optional chart/report/walkthrough render
+Composio publish dry-run	Gmail/Slack/Linear/Notion/CRM dry-run handoff
+Instagram analytics	Diligence/eval analytics
+ClickHouse training export	ClickHouse benchmark/eval/coach-feedback export
+cited.md public claim policy	NodeRoom public demo/source-claim policy
+TrueFoundry gateway	Model routing / cost governance
+Langfuse planned	LLM trace/eval cockpit
+Banker Coach design copied from AWS pattern
+
+The Banker Coach should feel like the OpenUI artifact side of VisualLabs, but for finance/diligence.
+
+Artifact 1: Evidence Carousel
+Evidence for:
+“CardioNova sells AI triage software to hospitals”
+
+Cards:
+[Company website]     strong support
+[Call note]           manual evidence
+[Funding article]     partial support
+[Trace]               agent extraction path
+
+Clicking a card opens split-screen:
+
+Left:
+  final company row / memo claim / chart
+
+Right:
+  literal source file at exact page, row, cell, URL, or snippet
+
+Bottom:
+  support explanation:
+  “This source supports the product and buyer claim,
+   but does not verify ARR or burn.”
+Artifact 2: Coach Cue
+Coach Cue:
+Runway assumption is not source-backed.
+
+Why it matters:
+The chart implies 8.7 months of runway, but burn is based on a manual call note.
+
+Suggested action:
+Ask management for current cash and monthly burn.
+Artifact 3: Review-Round Update
+Round 2 — Senior review
+
+Completed:
+- enriched 5 companies
+- generated competitor view
+- produced runway/milestone chart
+
+Needs review:
+- CardioNova burn assumption
+- Luma Health pricing source
+- Cedar Bio hiring signal is stale
+
+Draft update:
+“Initial diligence is complete; two assumptions remain source-pending.”
+
+This is the banker-grade equivalent of VisualLabs’ generated prompt/analytics/training artifacts.
+
+The codebase pattern to borrow
+
+Your uploaded AWS design notes already had the right src/nodeagent signature architecture and the later Convex/Pi/Linkup architecture shape. For the current NodeRoom repo, I would not reorganize everything in one day. Instead, add a thin “coach artifact” layer:
+
+src/
+  ui/
+    artifacts/
+      EvidenceCarouselArtifact.tsx
+      BankerCoachCueArtifact.tsx
+      ReviewRoundUpdateArtifact.tsx
+      DownstreamHandoffCards.tsx
+
+  nodeagent/
+    skills/
+      bankerCoach/
+        generateCoachCues.ts
+        buildEvidenceCards.ts
+        generateTalkTrack.ts
+        prepareReviewRoundUpdate.ts
+
+    analytics/
+      recordCoachEvent.ts
+      clickhouseClient.ts
+
+convex/
+  coachCues.ts
+  evidenceCards.ts
+  reviewRounds.ts
+  warehouseOutbox.ts
+
+If you keep it minimal, this is a very strong demo upgrade.
+
+What to build now vs. later
+P0 — build now
+1. EvidenceCarouselArtifact
+   - hardwired to real NodeRoom evidence/source refs if available
+   - fallback fixture cards allowed for demo
+
+2. BankerCoachCueArtifact
+   - shows what to pull, what is risky, and what to say
+
+3. ReviewRoundUpdateArtifact
+   - email-style summary from trace + workplan
+
+4. Downstream dry-run cards
+   - Gmail / Slack / Linear / Notion / CRM
+   - clearly labeled dry-run if not wired
+
+5. ClickHouse-style event logger
+   - memory/console fallback if no env
+   - never blocks room flow
+P1 — build after demo
+1. Real split-screen source viewer with PDF/XLSX row/page highlighting
+2. Langfuse trace cross-link
+3. Actual Composio integrations
+4. Senso/Cited.md source publishing for public product claims
+5. Media export: coach cue → animated GIF / voiced walkthrough
+How this changes tomorrow’s demo
+
+The final demo should not just show “agent fills rows.”
+
+It should show:
+
+1. Multiple users ask for startup diligence.
+2. Agent streams research and fills source-backed artifacts.
+3. Banker Coach highlights what matters:
+   - source gap
+   - formula/chart issue
+   - review task
+   - talk track
+4. Evidence carousel opens literal source.
+5. Downstream dry-run cards organize the output.
+6. ClickHouse/eval panel shows cost, latency, no-clobber, source coverage.
+
+That is much stronger.
+
+One very important warning
+
+Do not expose private client data through a cited.md-style public manifest.
+
+For NodeRoom:
+
+Public cited.md:
+  product claims, demo claims, public sources, architecture evidence
+
+Private evidence carousel:
+  actual diligence sources inside the room, permissioned and not public
+
+The AWS repo’s citation policy is useful because it explicitly separates live/mocked/external/planned status and warns against unsupported claims. NodeRoom needs that same discipline even more because banking data is sensitive.
+
+The distilled lesson
+
+The AWS-Hackathon repo teaches the exact thing NodeRoom needs now:
+
+Do not just build an agent. Build a visible production line around the agent.
+
+For VisualLabs, that production line was:
+
+prompt → media → analytics → publish → training export
+
+For NodeRoom, it should be:
+
+prompt → diligence artifact → evidence carousel → coach cue → review round → downstream handoff → eval analytics
+
+That is the right pattern.
+
+This is like pretty useful; also doesn’t open-design GitHub repo also do something similar where like we can click on part of the component to comment and edit or to view what frontend / backend code directory files are responsible for the part of the selected components for comments / editing 
+Called tool
+Thought for 8m 7s
+
+Yes — and that is exactly the right analogy.
+
+I could not verify the exact GitHub repo you mean from the name “open-design” alone, but the pattern you’re describing is real and very relevant:
+
+Click a rendered UI/component → anchor a comment or edit request → reveal which frontend component, backend query/mutation/action, data table, and agent/tool path produced it.
+
+This is basically source-backed UI inspection.
+
+React DevTools already proves the low-level version of this pattern: it lets developers inspect React components, edit props/state, and identify performance issues. Chrome DevTools source maps prove the code-mapping side: they let you debug original source code instead of only deployed/bundled code.
+
+For NodeRoom, we should turn that into a product feature:
+
+Click any artifact, cell, chart, coach cue, or UI panel and see both its business evidence and its implementation provenance.
+
+The deeper pattern: “click-to-context”
+
+There are two versions of this.
+
+1. Banker / user-facing click-to-evidence
+
+The banker clicks a cell, chart, or memo sentence and sees:
+
+What claim is this?
+Where did it come from?
+Which file/page/row/cell supports it?
+Who edited it?
+Was it human, agent, or imported?
+Is it verified, estimated, manual, or needs_review?
+What changed since last round?
+
+Example:
+
+Click: Runway = 8.7 months
+
+Right split:
+- Source: Company model.xlsx, Cash tab, C12
+- Source: Call note, “monthly burn approx. $1.1M”
+- Status: needs_review
+- Reason: burn value is manual, not source-verified
+- Coach: “Ask management for current cash and monthly burn.”
+
+This is the banker mental model.
+
+2. Builder / developer-facing click-to-code
+
+The developer or AI coding agent clicks the same surface and sees:
+
+Which React component rendered this?
+Which Convex query loaded the data?
+Which mutation/action wrote the value?
+Which schema tables are involved?
+Which NodeAgent skill/tool produced it?
+Which test/eval covers it?
+Which file should be edited?
+
+Example:
+
+Click: Runway chart
+
+Implementation panel:
+- Frontend:
+  src/ui/artifacts/RunwayMilestoneChart.tsx
+  src/ui/RoomShell.tsx
+
+- Data:
+  convex/artifacts.ts: artifact.chartData
+  convex/evidence.ts: sourceRefs
+
+- Agent:
+  src/nodeagent/skills/finance/runwayForecaster.ts
+  src/nodeagent/skills/search/linkupTools.ts
+
+- Eval:
+  docs/eval/startup-diligence-war-room-live.json
+  tests/workflowEvals.test.ts
+
+This is the engineering mental model.
+
+NodeRoom should support both.
+
+Why this matters for NodeRoom
+
+You have been circling one very important product principle:
+
+Every visible thing should be explainable.
+
+For bankers, “explainable” means:
+
+source file
+page / row / cell
+claim
+assumption
+review state
+
+For developers, “explainable” means:
+
+component
+query
+mutation
+schema
+agent tool
+test
+trace
+
+Same pattern. Different audience.
+
+That means NodeRoom can have two modes:
+
+Review Mode:
+  source/evidence/proof overlay for bankers
+
+Builder Mode:
+  component/code/backend/tool overlay for developers and AI coding agents
+What this would look like in NodeRoom
+
+Imagine a Command/Ctrl + click mode.
+
+User clicks a rendered thing:
+  company row
+  evidence badge
+  chart
+  coach cue
+  Copilot job card
+  status strip event
+  source citation
+
+A right-side inspector opens:
+
+┌────────────────────────────────────────────┐
+│ Inspector                                  │
+├────────────────────────────────────────────┤
+│ Business Proof                             │
+│ - Claim: CardioNova sells AI triage        │
+│ - Source: company website                  │
+│ - Confidence: partial                      │
+│ - Status: needs_review                     │
+│                                            │
+│ Runtime Trace                              │
+│ - Agent job: startup_diligence_42          │
+│ - Tool: linkup_search                      │
+│ - Commit: write_locked_cell_results        │
+│ - CAS: passed                              │
+│                                            │
+│ Code Ownership                             │
+│ - Component: CompanyResearchSheet.tsx      │
+│ - Query: artifacts.elements                │
+│ - Mutation: writeLockedCellResults         │
+│ - Skill: startup-diligence.skill.md        │
+│ - Test: workflowEvals.test.ts              │
+│                                            │
+│ Actions                                    │
+│ [Comment] [Ask agent to fix] [Open file]   │
+└────────────────────────────────────────────┘
+
+This makes NodeRoom feel inspectable, not magical.
+
+What to call it
+
+I would not call this “open-design” inside the product.
+
+Better names:
+
+Proof Inspector
+Artifact Inspector
+Builder Inspector
+Trace Lens
+Source Lens
+Component Provenance
+Click-to-Proof
+Click-to-Code
+
+My favorite for NodeRoom:
+
+Trace Lens
+
+Because it works for both bankers and developers.
+
+Trace Lens: click any visible artifact to see source, ownership, code path, and agent trace.
+How to implement it
+1. Add traceable surface IDs to UI components
+
+Every important rendered surface gets a stable ID.
+
+<TraceableSurface
+  surfaceId="workSurface.companySheet"
+  component="CompanyResearchSheet"
+  codeRefs={[
+    "src/ui/artifacts/CompanyResearchSheet.tsx",
+    "convex/artifacts.ts",
+    "src/nodeagent/skills/startupDiligence.ts",
+  ]}
+  dataRefs={[
+    "artifacts",
+    "elements",
+    "cellPayloads",
+    "evidenceRefs",
+  ]}
+>
+  <CompanyResearchSheet />
+</TraceableSurface>
+
+Rendered DOM becomes:
+
+<div
+  data-noderoom-surface="workSurface.companySheet"
+  data-component="CompanyResearchSheet"
+>
+2. Add an inspector registry
+type SurfaceRegistryEntry = {
+  surfaceId: string;
+  label: string;
+  componentName: string;
+
+  frontendFiles: string[];
+  backendFiles: string[];
+  schemaTables: string[];
+  convexQueries: string[];
+  convexMutations: string[];
+  convexActions: string[];
+
+  agentSkills: string[];
+  evals: string[];
+  docs: string[];
+};
+
+Example:
+
+{
+  surfaceId: "copilot.agentJobCard",
+  label: "Agent Job Card",
+  componentName: "AgentJobCard",
+  frontendFiles: [
+    "src/ui/copilot/AgentJobCard.tsx"
+  ],
+  backendFiles: [
+    "convex/agentJobs.ts",
+    "convex/streaming.ts"
+  ],
+  schemaTables: [
+    "agentJobs",
+    "agentRuns",
+    "agentOperationEvents"
+  ],
+  convexQueries: [
+    "agentJobs.list",
+    "agentJobs.detail"
+  ],
+  convexMutations: [
+    "agentJobs.cancel",
+    "agentJobs.retry"
+  ],
+  convexActions: [
+    "agentActions.run"
+  ],
+  agentSkills: [
+    ".agent/skills.md",
+    "src/nodeagent/skills/startupDiligence.ts"
+  ],
+  evals: [
+    "tests/agentJobsRuntime.test.ts"
+  ],
+}
+3. Add click-to-comment anchors
+
+A comment should not just say:
+
+"The chart looks wrong."
+
+It should anchor to:
+
+type SurfaceComment = {
+  roomId: string;
+  surfaceId: string;
+  artifactId?: string;
+  targetRef?: string; // e.g. "CompanyResearch!G12" or "chart:runway"
+  screenshotRef?: string;
+
+  commentText: string;
+  createdBy: string;
+
+  codeRefs: string[];
+  dataRefs: string[];
+  traceRefs: string[];
+  evidenceRefs: string[];
+
+  status: "open" | "resolved" | "converted_to_task";
+};
+
+Now a human can comment:
+
+“This runway chart should show source confidence.”
+
+And the system knows:
+
+Frontend:
+  RunwayMilestoneChart.tsx
+
+Backend:
+  convex/artifacts.ts
+
+Data:
+  chartData.sourceConfidence
+
+Agent:
+  runwayForecaster.ts
+
+Eval:
+  chart source-coverage check
+
+That is powerful.
+
+Why this helps AI coding agents
+
+This is also excellent for Codex / Claude Code / Cursor.
+
+Today, if you ask:
+
+“Fix the chart evidence display.”
+
+The coding agent has to search the repo.
+
+With Trace Lens, the app can generate a structured edit prompt:
+
+User clicked:
+  RunwayMilestoneChart
+
+Issue:
+  "Show source confidence beside each milestone."
+
+Relevant files:
+  src/ui/artifacts/RunwayMilestoneChart.tsx
+  convex/artifacts.ts
+  src/nodeagent/skills/finance/runwayForecaster.ts
+
+Relevant data:
+  artifact.chartData.milestones[].sourceConfidence
+
+Acceptance test:
+  chart displays confidence badge
+  no private source text leaks
+  screenshot test passes
+
+This turns visual feedback into a much better code-editing task.
+
+Your own notes already define NodeAgent as a harnessed architecture where the AI brain is separated from tools, memory, state, guardrails, and skills. This Trace Lens idea is the same philosophy applied to the UI-to-code boundary: do not let the coding agent guess where to edit; give it a precise context packet.
+
+How this maps to Banker Coach
+
+This is the beautiful part: the exact same system powers both.
+
+Banker clicks a claim
+Show evidence:
+  source file
+  page/row/cell
+  confidence
+  status
+  review task
+Developer clicks a UI artifact
+Show implementation:
+  component file
+  query
+  mutation
+  schema table
+  agent tool
+  test
+Agent clicks / receives task
+Build context:
+  user complaint
+  screenshot
+  surface id
+  code refs
+  data refs
+  trace refs
+  acceptance criteria
+
+This creates one universal primitive:
+
+Selected thing → context packet → human comment or agent action.
+
+That is the same mental model as evidence-backed finance work.
+
+The architecture
+================================================================================
+                    NODEROOM TRACE LENS / OPEN-DESIGN STYLE INSPECTOR
+================================================================================
+
+User clicks rendered UI surface
+  │
+  ▼
+DOM target
+  - data-noderoom-surface
+  - data-artifact-id
+  - data-target-ref
+  - data-trace-ref
+  │
+  ▼
+Inspector Registry
+  - frontend files
+  - backend files
+  - schema tables
+  - Convex queries/mutations/actions
+  - NodeAgent skills/tools
+  - evals/tests/docs
+  │
+  ▼
+Context Packet
+  ├── Business Proof
+  │     source files, evidence refs, confidence, review state
+  │
+  ├── Runtime Trace
+  │     agent job, stream, tool calls, CAS result, proposal status
+  │
+  ├── Code Provenance
+  │     React component, Convex function, schema, tests
+  │
+  └── Suggested Actions
+        comment, create task, ask agent, open source, open code
+  │
+  ▼
+Human or Agent Action
+  - comment
+  - review task
+  - code patch prompt
+  - evidence correction
+  - UI bug report
+What to build first
+
+Do not build a full visual-code editor right now. Build the thin version.
+
+P0: static registry + click inspector
+- add data-surface-id to major UI surfaces
+- create SurfaceRegistry.ts
+- create TraceLensPanel.tsx
+- on Alt/Cmd-click, open inspector
+
+Surfaces:
+
+RoomShell
+DealBinder
+WorkSurface
+CompanyResearchSheet
+CopilotPanel
+AgentJobCard
+SignalTape
+StatusStrip
+EvidenceBadge
+RunwayMilestoneChart
+BankerCoachCue
+P1: attach runtime trace
+- selected cell -> latest mutation receipt
+- selected agent card -> agentJob detail
+- selected evidence badge -> source refs
+- selected chart -> source cell range
+P2: comment/task creation
+- create comment anchored to surfaceId + artifactRef
+- convert comment to Workplan task
+- generate code-edit prompt for Codex/Claude Code
+P3: source-map / editor integration
+- local dev only
+- open VS Code deep link
+- link to GitHub file/line
+- use sourcemap / registry metadata
+
+Chrome’s source-map tooling is the general mechanism that maps deployed/bundled code back to original source; React DevTools gives component-level inspection. NodeRoom’s registry should be a product-aware version of both.
+
+Important security rule
+
+Do not expose code paths, local file names, or backend implementation details to normal external users.
+
+Use modes:
+
+Customer / banker mode:
+  evidence, sources, review, trace summary
+
+Internal builder mode:
+  component files, Convex functions, tests, code refs
+
+Local dev mode:
+  source maps, editor deep links, raw stack/code paths
+
+This matters because file paths and backend function names can leak architecture. In production, show business proof; in dev/admin, show code provenance.
+
+Final product insight
+
+Yes, the “open-design” style component-clicking idea is directly relevant.
+
+But NodeRoom should extend it:
+
+Open-design style:
+  rendered UI -> component/code/comment
+
+NodeRoom Trace Lens:
+  rendered artifact -> source evidence + runtime trace + code provenance + agent-edit context
+
+That gives you one unified inspection model for:
+
+banker review
+agent debugging
+UI feedback
+code editing
+demo proof
+benchmark traceability
+
+This is a very strong addition because it solves a recurring problem across everything we’ve discussed:
+
+People trust systems they can inspect.
+
+So how should we concisely walkthrough the project in interview tomorrow: I am going to jot this down tonight as notes on notebook, make sure to also point out scene 1 demo scene 2 codebase (show me which file paths and which functions to point at while walking through) and scene 3 Q&A. write it in a condense one pager
+Called tool
+Thought for 4m 46s
+NodeRoom Interview One-Pager
+30-second opener
+
+NodeRoom is a live collaboration room where humans and AI agents work on the same shared artifacts without silent overwrites. The key design is: the LLM routes intent, the harness schedules work, and the Convex ledger commits truth. I built the product around a clear separation of concerns: the UI gives instant optimistic feedback, NodeAgent builds just-in-time context and executes bounded tool loops, and Convex mutations enforce managed locks, CAS, proposals, traces, and evidence-bearing writes. This follows the harness principle we discussed: the model is the brain, but the harness owns tools, memory, state, approval, rollback, and safety.
+
+Scene 1 — Demo walkthrough: what to show
+
+Goal: Prove human + agent collaboration in under 90 seconds.
+
+Open the room. Point out the four product zones: Room Binder, Work Surface, Copilot, Signal Tape / Status Strip. In code, RoomShell says it renders those June 2026 shell roles and calls store.runCollab() for the demo/live Convex action path.
+Show the live room mental model. Copy room code, show public/private Copilot tabs, avatars, shared artifact stage, and handoff cards for Gmail/Notion/Slack/Linear/LinkedIn/CRM drafts. The CopilotPanel renders public/private lanes and the DownstreamHandoffPanel shows approval-gated downstream draft buttons.
+Run the core proof. Click Run collaboration or run a public /ask. Say: “The agent is not a raw database writer. It reads current versions, proposes tool calls, and the runtime manages lock/CAS/proposal behavior.” runCollab() calls store.runCollab(), and the live store routes that into runRoomAgent.
+Show no-clobber / review. Click the semantic conflict drill if needed. It creates a stale agent proposal over r_rev__variance, which lets you explain “CAS catches the stale write, Semantic Rebase creates a reviewable resolution path.”
+Close with proof. Show Status Strip / Signal Tape: sources, review, agents, eval, cost, latest trace. It opens referenced artifacts or proposal targets on the stage.
+
+Demo sentence:
+“Notice the UX: humans can keep working, agents act through the harness, and every committed or proposed change is visible in the room trace.”
+
+Scene 2 — Codebase walkthrough: exact files to point at
+1. UI shell and product contract
+
+File: src/ui/RoomShell.tsx
+Point at: RoomShell, CopilotPanel, SignalStatusStrip, DownstreamHandoffPanel.
+
+Say: “This is the visual contract: Binder tells what exists, Work Surface shows the artifact, Copilot drives the work, and Status proves what happened.” The shell mounts LeftRail, Artifact, CopilotPanel, and SignalStatusStrip.
+
+2. UI/data seam and optimistic updates
+
+File: src/app/store.tsx
+Point at: RoomStore, EngineStoreProvider, ConvexStoreProvider, applyCellEdit, sendMsg.
+
+Say: “The UI never talks directly to Convex or the in-memory engine; it calls the same RoomStore interface. That lets memory-mode demos and live Convex share the same UI.”
+
+Then point at the optimistic-update notes: the live store split avoids rooms.full, uses rooms.meta plus per-artifact artifacts.elements, and reduces per-edit re-ship from whole-room scale to artifact-scale.
+
+3. Convex production agent entrypoint
+
+File: convex/agent.ts
+Point at: runRoomAgent.
+
+Say: “This is the production action. It builds ConvexRoomTools, picks the model route, runs the exact same runAgent loop used in tests/demo, and writes live effects through mutations so every client sees the same room state.”
+
+Also point at model routing / spend gates: research uses deepseek/deepseek-v4-flash; interactive collaboration uses the configured collaboration model; daily/monthly caps prevent runaway public /ask cost.
+
+4. NodeAgent harness loop
+
+File: src/nodeagent/core/runtime.ts
+Point at: runAgent.
+
+Say: “This is the harness. It builds context, runs bounded model/tool loops, records trace, supports handoff on time/step/spend budget, compacts context, journals model steps for replay, and treats conflicts as normal tool data.”
+
+Point at the important guard: if a run does only reads and no writes, the harness nudges the model to stop wandering and complete the requested write/proposal path.
+
+5. Context engineering / world model
+
+File: src/nodeagent/core/worldModel.ts
+Point at: buildContext, buildResearchContext, fenceUntrusted.
+
+Say: “This is the context-engineering layer. We do not dump the whole room into the prompt. We assemble a live, compact, model-legible context: table values, versions, lock flags, active agents, recent trace, and policy.”
+
+Also point out the prompt-injection boundary: room data is fenced as untrusted so a hostile cell cannot become an instruction.
+
+For startup/company research, point at buildResearchContext: it tells the agent which cells are editable, which rows are pending/stale, how to fetch sources, and that agent-filled cells must store value, evidence, confidence, and status.
+
+6. Tooling and managed writes
+
+File: src/nodeagent/skills/spreadsheet/cellMutator.ts
+Point at: writeWithManagedLock, writeBatchWithManagedLock, write_locked_cell_results, PRODUCTION_ROOM_TOOLS.
+
+Say: “The model supplies business intent, target cells, values/formulas/evidence, and base versions. It does not own locking, release sequencing, CAS, or draft mechanics.” The file explicitly says tools call RoomTools and do not touch the DB directly.
+
+Point at cellPayload: professional outputs carry value, status, confidence, formula, and evidence refs.
+
+Point at write_locked_cell_results: it batch-writes evidence-bearing CellPayloads through one runtime-managed lock/CAS path.
+
+7. The ledger: CAS, formula guard, proposals, semantic rebase
+
+File: convex/artifacts.ts
+Point at: applyCellEditCore, resolveProposal.
+
+Say: “This is the most important no-clobber function. Convex OCC alone can retry a transaction, but app-level baseVersion CAS prevents stale-baseline clobber.”
+
+Show the CAS gate and semantic rebase hook: stale agent writes call planAndRecordRebase; human stale writes remain plain conflicts. Formula scalar overwrite is blocked.
+
+Show review mode: if auto-allow is off, agent writes become pending proposals instead of direct edits.
+
+Show trace/receipts: every applied edit writes traces and mutation receipts with before/after versions.
+
+8. Evals and proof discipline
+
+File: docs/eval/PROFESSIONAL_WORKFLOW_EVALS.md
+Point at: proof tiers, cases, harness lessons.
+
+Say: “I turned real spreadsheet workflow shapes into eval contracts. The catalog covers GTM/company research, finance reconciliation, timesheets, transaction summaries, private 3-statement modeling, analytics dashboards, and UI/action execution maps.”
+
+The strongest credibility line: the suite has 21/21 professional runtime smoke cases through production-managed room tools, but the docs still separate catalog proof, runtime proof, and full product claims.
+
+Scene 3 — Q&A cheat sheet
+
+Q: Why Convex?
+A: “Because this is live collaborative OLTP state: messages, artifacts, cells, agent jobs, proposals, traces. Convex gives reactive subscriptions, actions for external provider work, and mutations/internal mutations for durable truth. I still would not use Convex for BI-scale historical scans; that belongs in ClickHouse/OLAP later.”
+
+Q: Why not just WebRTC?
+A: “WebRTC is great for ephemeral cursor/presence/voice/video. It is not an audit ledger. For a finance-style room, the committed artifact needs permissions, source evidence, versioning, CAS, and trace.”
+
+Q: Optimistic UI vs truth?
+A: “Optimistic UI is just the client-side feel. It shows the message/edit immediately. The server still owns truth through Convex mutations and app-level baseVersion CAS.”
+
+Q: What happens if human edits C2 while the agent edits A1:C5?
+A: “The agent sees versions, locks/active edits, and context. Clean cells commit. Stale or overlapping writes become conflict/proposal/semantic-rebase packets. The human edit is preserved.”
+
+Q: What is your core engineering contribution?
+A: “The harness: just-in-time context, bounded model/tool loop, production tool contracts, managed lock/CAS writes, proposal/review mode, trace/eval discipline.”
+
+Q: What would you build next?
+A: “Banker Coach / Trace Lens: click any cell/chart/claim to see literal evidence, source file, trace, review task, and eventually the frontend/backend code path responsible for it.”
+
+Final close:
+“NodeRoom is not claiming autonomous client-ready banking output. It proves the safer primitive: humans and agents can share a live artifact, keep context and evidence, avoid silent clobbering, and leave behind a reviewable trace.”
+

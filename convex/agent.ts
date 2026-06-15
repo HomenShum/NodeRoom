@@ -28,9 +28,10 @@ type RunResult = {
   finalText: string; jobId: Id<"agentJobs">; roomId: Id<"rooms">; agentId: string; model: string; goal: string;
   steps: number; toolCalls: number; conflictsSurvived: number; inputTokens: number; outputTokens: number;
   costUsd: number; ms: number; exhausted: boolean; stopReason: string; remainingMs: number | null; deadlineAt: number;
-  modelCalls: number; runId: Id<"agentRuns">; handoff: unknown | null;
+  modelCalls: number; runId: Id<"agentRuns"> | null; handoff: unknown | null;
 };
 import { AgentRunError, runAgent } from "../src/nodeagent/core/runtime";
+import type { AgentTraceEvent } from "../src/nodeagent/core/types";
 import { PRODUCTION_ROOM_TOOLS } from "../src/nodeagent/skills/spreadsheet/cellMutator";
 import { MANAGED_LOCK_SYSTEM_PROMPT } from "../src/nodeagent/models/prompts/systemPrompt";
 import { convexModel as agentModel, convexPriceRun as priceRun } from "../src/nodeagent/models/convexModel";
@@ -39,20 +40,25 @@ import { runIdempotencyKey } from "../src/nodeagent/core/idempotency";
 import { compactMessages } from "../src/nodeagent/core/contextCompactor";
 import { journalSliceKey } from "../src/nodeagent/core/journal";
 import { assertProviderEgressAllowed } from "../src/nodeagent/guardrails/egressPolicy";
+import { buildPlanPreview, classifyIntakeMessage } from "../src/nodeagent/core/intakePreflight";
 import { makeConvexStepJournal } from "./agentStepJournalClient";
 
 const CONVEX_ACTION_LIMIT_MS = 10 * 60_000;
 const DEFAULT_ACTION_RESERVE_MS = 30_000;
+const MIN_ACTION_RESERVE_MS = 10_000;
+const ACTION_SAFETY_MARGIN_MS = 15_000;
 const DEFAULT_CONTEXT_MAX_CHARS = 24_000;
 const DEFAULT_CONTEXT_KEEP_RECENT = 10;
 const roomsFullRef = makeFunctionReference<"query">("rooms:full");
 const agentJobsCreateOrReuseRef = makeFunctionReference<"mutation">("agentJobs:createOrReuse") as any;
 const agentJobsFinishInteractiveRef = makeFunctionReference<"mutation">("agentJobs:finishInteractive") as any;
+const agentJobsRecordLiveOperationRef = makeFunctionReference<"mutation">("agentJobs:recordLiveOperation") as any;
 const agentRunsClaimOrReuseRef = makeFunctionReference<"mutation">("agentRuns:claimOrReuse") as any;
 const agentRunsFinishRef = makeFunctionReference<"mutation">("agentRuns:finish") as any;
 const agentStepsRecordRef = makeFunctionReference<"mutation">("agentSteps:record") as any;
 const roomSpendSinceRef = makeFunctionReference<"query">("agentRuns:roomSpendSince") as any;
 const globalSpendSinceRef = makeFunctionReference<"query">("agentRuns:globalSpendSince") as any;
+const artifactsListProposalsRef = makeFunctionReference<"query">("artifacts:listProposals") as any;
 const postPrivateReplyRef = makeFunctionReference<"mutation">("messages:postPrivateAgentReply") as any;
 const messagesSendAgentRef = makeFunctionReference<"mutation">("messages:sendAgent") as any;
 const ensurePersonalPublicSessionRef = makeFunctionReference<"mutation">("collab:ensurePersonalPublicSession") as any;
@@ -61,6 +67,42 @@ function envNumber(name: string, fallback: number, min: number, max: number): nu
   const raw = Number(process.env[name] ?? fallback);
   if (!Number.isFinite(raw)) return fallback;
   return Math.max(min, Math.min(max, raw));
+}
+
+function boundedActionBudgetMs(requestedBudgetMs: number, reserveMs: number, minimumBudgetMs: number): number {
+  const ceiling = Math.max(minimumBudgetMs, CONVEX_ACTION_LIMIT_MS - reserveMs - ACTION_SAFETY_MARGIN_MS);
+  return Math.max(minimumBudgetMs, Math.min(requestedBudgetMs, ceiling));
+}
+
+type LiveOperationKind = "action" | "query" | "mutation" | "model_call" | "tool_call" | "scheduler" | "lease" | "checkpoint";
+
+const QUERY_TOOLS = new Set(["snapshot", "list_artifacts", "awareness", "read_range", "search_sheet_context", "fetch_source"]);
+const MUTATION_TOOLS = new Set(["propose_lock", "release_lock", "edit_cell", "create_draft", "say", "update_wiki", "write_cell_result", "write_locked_cell", "write_locked_cell_result", "write_locked_cells", "write_locked_cell_results"]);
+
+function liveOperationKind(event: AgentTraceEvent): LiveOperationKind {
+  if (event.tool === "handoff" || event.tool === "compaction") return "checkpoint";
+  if (QUERY_TOOLS.has(event.tool)) return "query";
+  if (MUTATION_TOOLS.has(event.tool)) return "mutation";
+  return "tool_call";
+}
+
+function liveOperationName(event: AgentTraceEvent): string {
+  const result = event.result as { error?: unknown; conflict?: unknown; locked?: unknown; pendingApproval?: unknown } | null;
+  const suffix = result?.error ? " failed" : result?.conflict ? " conflict" : result?.locked ? " blocked" : result?.pendingApproval ? " needs review" : "";
+  return `${event.tool}${suffix}`;
+}
+
+function liveOperationAffectedIds(event: AgentTraceEvent): string[] | undefined {
+  const out = new Set<string>();
+  const visit = (value: unknown) => {
+    if (typeof value === "string" && value.length <= 120) out.add(value);
+    else if (Array.isArray(value)) for (const item of value) visit(item);
+  };
+  const args = event.args as { elementId?: unknown; elementIds?: unknown; artifactId?: unknown } | null;
+  visit(args?.artifactId);
+  visit(args?.elementId);
+  visit(args?.elementIds);
+  return out.size ? [...out].slice(0, 20) : undefined;
 }
 
 export const runRoomAgent = action({
@@ -81,7 +123,7 @@ export const runRoomAgent = action({
     if (!roomState) throw new Error("room_not_found");
     const requester = roomState.members.find((m: { id: unknown; name?: string }) => String(m.id) === a.requester.actor.id);
     if (!requester) throw new Error("member_required");
-    const targetArtifact = roomState.artifacts.find((art: { id: unknown }) => String(art.id) === String(a.artifactId)) as { id: unknown; version?: number; kind?: string; title?: string; meta?: unknown } | undefined;
+    const targetArtifact = roomState.artifacts.find((art: { id: unknown }) => String(art.id) === String(a.artifactId)) as { id: unknown; version?: number; kind?: string; title?: string; order?: string[]; meta?: unknown } | undefined;
     if (!targetArtifact) throw new Error("artifact_room_mismatch");
     let actor: Actor;
     let sessionId: string;
@@ -115,6 +157,89 @@ export const runRoomAgent = action({
     if (monthly.truncated || monthly.totalUsd >= monthlyCapUsd) {
       throw new Error(`global_monthly_spend_cap:spentUsd=${monthly.totalUsd.toFixed(2)}:rooms=${monthly.distinctRooms}:runs=${monthly.runCount}`);
     }
+    // MVP demo posture: the old 10-step interactive default visibly paused mid-workflow in
+    // live browser verification. Keep a hard bound, but bias the public `/ask` lane toward
+    // completion so a normal demo does not require the user to know a manual "resume" command.
+    const requestedSteps = a.maxSteps ?? (a.mode === "research" ? 80 : 40);
+    const maxSteps = Math.max(1, Math.min(requestedSteps, a.mode === "research" ? 96 : 64));
+    const idempotencyKey = runIdempotencyKey({ roomId: String(a.roomId), artifactId: String(a.artifactId), actorId: String(a.requester.actor.id), goal: a.goal });
+    const intake = classifyIntakeMessage(a.goal);
+    const pendingProposals = await ctx.runQuery(artifactsListProposalsRef, { roomId: a.roomId, requester: a.requester }) as Array<{ artifactId?: unknown; op?: unknown }>;
+    const pendingProposalRefs = pendingProposals
+      .filter((p) => String(p.artifactId) === String(a.artifactId))
+      .map((p) => (p.op as { elementId?: unknown } | null)?.elementId)
+      .filter((id): id is string => typeof id === "string");
+    const planPreview = buildPlanPreview({
+      decision: intake,
+      targetArtifacts: [String(a.artifactId)],
+      intendedWriteSet: targetArtifact.order ?? [],
+      pendingProposals: pendingProposalRefs,
+    });
+    if (planPreview.scheduling !== "run_now") {
+      const finalText = `PlanPreview blocked this run (${planPreview.scheduling}): ${planPreview.conflicts[0]?.detail ?? intake.reason}`;
+      const jobClaim = await ctx.runMutation(agentJobsCreateOrReuseRef, {
+        roomId: a.roomId,
+        artifactId: a.artifactId,
+        requester: a.requester,
+        goal: a.goal,
+        entrypoint: "public_ask",
+        scope: "public_room",
+        modelPolicy: "not_started",
+        idempotencyKey,
+        mode: a.mode,
+        maxAttempts: 1,
+        approvalPolicy: "auto_commit_safe",
+        evidencePolicy: "public_only",
+        autoAllow: true,
+        traceLevel: "full_operation_ledger",
+        initialStatus: "blocked",
+        planPreview,
+        error: finalText,
+        request: {
+          roomId: String(a.roomId),
+          targetArtifactId: String(a.artifactId),
+          commandText: a.goal,
+          entrypoint: "public_ask",
+          scope: "public_room",
+          approvalPolicy: "auto_commit_safe",
+          evidencePolicy: "public_only",
+          maxSteps,
+          traceLevel: "full_operation_ledger",
+          idempotencyKey,
+        },
+      }) as { jobId: Id<"agentJobs">; reused: boolean; status: string };
+      const ms = Date.now() - t0;
+      await ctx.runMutation(messagesSendAgentRef, {
+        roomId: a.roomId,
+        channel: "public",
+        author: actor,
+        text: finalText.slice(0, 4_000),
+        clientMsgId: `plan-blocked-${String(jobClaim.jobId)}`,
+        kind: "agent",
+      });
+      return {
+        finalText,
+        jobId: jobClaim.jobId,
+        roomId: a.roomId,
+        agentId: actor.id,
+        model: "not_started",
+        goal: a.goal,
+        steps: 0,
+        toolCalls: 0,
+        conflictsSurvived: 0,
+        inputTokens: 0,
+        outputTokens: 0,
+        costUsd: 0,
+        ms,
+        exhausted: false,
+        stopReason: "plan_blocked",
+        remainingMs: null,
+        deadlineAt: t0,
+        modelCalls: 0,
+        runId: null,
+        handoff: { reason: "plan_blocked", planPreview },
+      };
+    }
     // Route promotion is per-LANE, by evidence (never price alone):
     //  - research (background synthesis): deepseek-v4-flash — first route to clear the v3 composite-
     //    synthesis benchmark 9/9 at $0.0034/run (docs/eval/results.json; ~300x cheaper than gemini-3.5-flash's
@@ -130,13 +255,20 @@ export const runRoomAgent = action({
     assertProviderEgressAllowed({
       model: model.name,
       entrypoint: "public_ask",
-      artifacts: [targetArtifact],
+      artifacts: roomState.artifacts.map((art: { title: string; kind: string; meta?: unknown; visibility?: string }) => ({
+        title: art.title,
+        kind: art.kind,
+        meta: art.meta,
+        visibility: art.visibility,
+      })),
       env: process.env,
     });
-    const requestedSteps = a.maxSteps ?? (a.mode === "research" ? 60 : 10);
-    const maxSteps = Math.max(1, Math.min(requestedSteps, a.mode === "research" ? 80 : 24));
-    const actionBudgetMs = envNumber("AGENT_ACTION_BUDGET_MS", CONVEX_ACTION_LIMIT_MS, 60_000, CONVEX_ACTION_LIMIT_MS);
-    const actionReserveMs = envNumber("AGENT_ACTION_RESERVE_MS", DEFAULT_ACTION_RESERVE_MS, 1_000, 120_000);
+    const actionReserveMs = Math.max(MIN_ACTION_RESERVE_MS, envNumber("AGENT_ACTION_RESERVE_MS", DEFAULT_ACTION_RESERVE_MS, 1_000, 120_000));
+    const actionBudgetMs = boundedActionBudgetMs(
+      envNumber("AGENT_ACTION_BUDGET_MS", CONVEX_ACTION_LIMIT_MS, 60_000, CONVEX_ACTION_LIMIT_MS),
+      actionReserveMs,
+      60_000,
+    );
     const deadlineAt = t0 + actionBudgetMs;
     const compaction = {
       maxChars: envNumber("AGENT_CONTEXT_MAX_CHARS", DEFAULT_CONTEXT_MAX_CHARS, 4_000, 120_000),
@@ -197,7 +329,6 @@ export const runRoomAgent = action({
     // Idempotency (async_reliability layer 1): a double-submit / client retry must not launch a second
     // concurrent run racing the same locks/CAS. ATOMIC claim-or-reuse (one serializable mutation) — no
     // TOCTOU window between the dedup check and the claim. Runtime-proven in tests/idempotencyRuntime.test.ts.
-    const idempotencyKey = runIdempotencyKey({ roomId: String(a.roomId), artifactId: String(a.artifactId), actorId: String(a.requester.actor.id), goal: a.goal });
     const jobClaim = await ctx.runMutation(agentJobsCreateOrReuseRef, {
       roomId: a.roomId,
       artifactId: a.artifactId,
@@ -264,6 +395,39 @@ export const runRoomAgent = action({
       };
     }
     const runId = claim.runId;
+    let liveSequence = 1_000;
+    const liveWrites: Array<Promise<unknown>> = [];
+    const recordLiveOperation = (args: {
+      kind: LiveOperationKind;
+      name: string;
+      status?: "started" | "completed" | "failed" | "skipped";
+      countDelta?: number;
+      affectedIds?: string[];
+      startedAt?: number;
+      completedAt?: number;
+    }) => {
+      const write = ctx.runMutation(agentJobsRecordLiveOperationRef, {
+        jobId,
+        runId,
+        sequence: liveSequence++,
+        ...args,
+      }).catch(() => null);
+      liveWrites.push(write);
+      return write;
+    };
+    await recordLiveOperation({
+      kind: "action",
+      name: "agent.runRoomAgent",
+      status: "started",
+      countDelta: 1,
+      startedAt: t0,
+    });
+    await recordLiveOperation({
+      kind: "model_call",
+      name: model.name,
+      status: "started",
+      startedAt: Date.now(),
+    });
 
     const persistFailure = async (error: unknown) => {
       const partial = error instanceof AgentRunError ? error.partial : undefined;
@@ -283,6 +447,14 @@ export const runRoomAgent = action({
         handoff: partial?.handoff,
       };
       await ctx.runMutation(agentRunsFinishRef, { runId, model: model.name, steps: telemetry.steps, toolCalls: telemetry.toolCalls, conflictsSurvived, inputTokens, outputTokens, costUsd, ms, exhausted: telemetry.exhausted, stopReason: telemetry.stopReason, remainingMs: telemetry.remainingMs, deadlineAt, handoff: telemetry.handoff });
+      await recordLiveOperation({
+        kind: "checkpoint",
+        name: "agent.runRoomAgent failed",
+        status: "failed",
+        countDelta: 1,
+        completedAt: Date.now(),
+      });
+      await Promise.allSettled(liveWrites);
       await ctx.runMutation(agentJobsFinishInteractiveRef, {
         jobId,
         runId,
@@ -335,6 +507,16 @@ export const runRoomAgent = action({
           maxCostUsd: envNumber("AGENT_MAX_USD_PER_RUN", 2, 0.01, 100),
         },
         priceStep: (modelName, inputTokens, outputTokens) => priceRun(modelName, inputTokens, outputTokens),
+        onTrace: (event) => {
+          void recordLiveOperation({
+            kind: liveOperationKind(event),
+            name: liveOperationName(event),
+            status: (event.result && typeof event.result === "object" && "error" in (event.result as Record<string, unknown>)) ? "failed" : "completed",
+            countDelta: 1,
+            affectedIds: liveOperationAffectedIds(event),
+            completedAt: Date.now(),
+          });
+        },
       });
     } catch (error) {
       await persistFailure(error);
@@ -358,6 +540,21 @@ export const runRoomAgent = action({
     const done = result.stopReason === "done" && !result.exhausted;
     const scheduledNextAt = done ? undefined : Date.now() + 5_000;
     const cursor = done ? undefined : await checkpointCursor(result);
+    await recordLiveOperation({
+      kind: "model_call",
+      name: model.name,
+      status: "completed",
+      countDelta: result.usage.modelCalls,
+      completedAt: Date.now(),
+    });
+    await recordLiveOperation({
+      kind: "checkpoint",
+      name: done ? "agent.runRoomAgent completed" : "agent.runRoomAgent paused",
+      status: done ? "completed" : "skipped",
+      countDelta: 1,
+      completedAt: Date.now(),
+    });
+    await Promise.allSettled(liveWrites);
     await ctx.runMutation(agentJobsFinishInteractiveRef, {
       jobId,
       runId,
@@ -472,10 +669,11 @@ export const runPrivateAgent = action({
     assertProviderEgressAllowed({
       model: model.name,
       entrypoint: "private_agent",
-      artifacts: roomState.artifacts.map((art: { title: string; kind: string; meta?: unknown }) => ({
+      artifacts: roomState.artifacts.map((art: { title: string; kind: string; meta?: unknown; visibility?: string }) => ({
         title: art.title,
         kind: art.kind,
         meta: art.meta,
+        visibility: art.visibility,
       })),
       env: process.env,
     });

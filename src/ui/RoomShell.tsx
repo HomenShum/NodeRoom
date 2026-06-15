@@ -7,7 +7,7 @@
  */
 
 import { useEffect, useRef, useState, type CSSProperties } from "react";
-import { PanelLeft, Table2, PanelRight, Moon, Sun, LogOut, Link2, ShieldCheck, X, HelpCircle, Copy, Check, Activity, MessageCircle, Send, Mail, FileText, MessageSquare, ClipboardList, Database, Linkedin } from "lucide-react";
+import { PanelLeft, Table2, PanelRight, Moon, Sun, LogOut, Link2, ShieldCheck, X, HelpCircle, Copy, Check, Activity, MessageCircle, Send, Mail, FileText, MessageSquare, ClipboardList, Database, Linkedin, type LucideIcon } from "lucide-react";
 import { useStore } from "../app/store";
 import { Chat } from "./Chat";
 import { Artifact } from "./panels/Artifact";
@@ -15,6 +15,9 @@ import { LeftRail } from "./LeftRail";
 import { GuidedTour, type TourStep } from "./GuidedTour";
 import { selectPublicSignalTraces, statusText as publicStatusText } from "./signalStatus";
 import { focusStage } from "./stageFocus";
+import { buildDownstreamHandoffDraft, type DownstreamHandoffTarget } from "./downstreamHandoff";
+import { BankerCoachPanel } from "./artifacts/BankerCoachPanel";
+import { resolveRoomOpenTarget } from "./openRoomReference";
 import type { Actor, Channel } from "../engine/types";
 
 const AUTO_ACCEPT_PREF_KEY = "noderoom:autoAcceptConsent:v1";
@@ -22,6 +25,14 @@ const TOUR_KEY = "noderoom:tour:v1";
 
 function initials(name: string): string {
   return name.replace(/[^A-Za-z· ]/g, "").split(/[ ·]/).filter(Boolean).map((s) => s[0]).slice(0, 2).join("").toUpperCase() || "?";
+}
+
+export function inviteHrefForRoom(code: string, href = typeof window !== "undefined" ? window.location.href : "http://localhost/"): string {
+  const url = new URL(href);
+  url.hash = "";
+  url.search = "";
+  url.searchParams.set("room", code.toUpperCase());
+  return url.toString();
 }
 
 export function RoomShell({ roomId, me, onLeave }: { roomId: string; me: Actor; onLeave: () => void }) {
@@ -38,19 +49,23 @@ export function RoomShell({ roomId, me, onLeave }: { roomId: string; me: Actor; 
   // `live` (= isHost via canRunCollab) at mount — still false on a RELOAD while Convex queries load —
   // so every returning visitor (tour already seen, nothing to force panels open) landed in a chat-only
   // layout. Caught by the walkthrough capturer's reload path; see FRICTION_LOG 2026-06-09.
-  const [show, setShow] = useState({ left: !isCompact && !isMid, stage: true, copilot: !isCompact });
+  const [show, setShow] = useState({ left: false, stage: true, copilot: !isCompact });
   const [codeCopied, setCodeCopied] = useState(false);
   const [layout, setLayout] = useState({ left: 248, stage: 1, right: 380 });
   const [copilotTab, setCopilotTab] = useState<"public" | "private">("public");
   const arts = store.listArtifacts(roomId);
   const [artId, setArtId] = useState(() => arts.find((a) => a.kind === "sheet")?.id ?? arts[0]?.id ?? "");
+  const [sideArtId, setSideArtId] = useState<string | null>(null);
   const [collab, setCollab] = useState<{ running: boolean; done: boolean; error?: string }>({ running: false, done: false });
   const [autoAcceptModal, setAutoAcceptModal] = useState(false);
   const [rememberAutoAccept, setRememberAutoAccept] = useState(false);
   const [tourOpen, setTourOpen] = useState(false);
   const tourAutoStarted = useRef(false);
   const collabAlive = useRef(true);
-  useEffect(() => () => { collabAlive.current = false; }, []);
+  useEffect(() => {
+    collabAlive.current = true;
+    return () => { collabAlive.current = false; };
+  }, []);
   // First-run: auto-start the walkthrough only in the deterministic in-memory demo. Live Convex
   // rooms now include fresh room-create and teammate-join flows; an auto-modal there blocks the
   // actual collaboration proof. The header "?" button still replays the tour everywhere.
@@ -67,13 +82,30 @@ export function RoomShell({ roomId, me, onLeave }: { roomId: string; me: Actor; 
   if (!room) return <div className="r-app"><div className="r-screen"><div style={{ margin: "auto" }} className="muted">Loading room…</div></div></div>;
 
   const members = store.listMembers(roomId);
+  const inviteHref = inviteHrefForRoom(room.code);
   const isHost = members.some((m) => m.id === me.id && m.role === "host");
   const privChannel: Channel = { private: me.id };
   const curArt = arts.find((a) => a.id === artId) ?? arts.find((a) => a.kind === "sheet");
-  const openArtifact = (id: string) => {
-    if (!store.listArtifacts(roomId).some((a) => a.id === id)) return;
-    setArtId(id);
+  useEffect(() => {
+    if (sideArtId && !arts.some((a) => a.id === sideArtId)) setSideArtId(null);
+  }, [sideArtId, arts]);
+  const openArtifact = (id: string, opts?: { split?: boolean; elementId?: string }): boolean => {
+    const target = resolveRoomOpenTarget({
+      id,
+      artifacts: store.listArtifacts(roomId),
+      proposals: store.listProposals(roomId),
+    });
+    if (!target) return false;
     setShow((s) => ({ ...s, stage: true }));
+    const canSplitNow = typeof window !== "undefined" && typeof window.matchMedia === "function" && window.matchMedia("(min-width: 1200px)").matches;
+    if (opts?.split && canSplitNow && target.artifactId !== artId) {
+      setSideArtId(target.artifactId);
+    } else {
+      setArtId(target.artifactId);
+    }
+    const elementId = opts?.elementId ?? target.elementId;
+    if (elementId) requestAnimationFrame(() => focusStage({ artifactId: target.artifactId, elementId }));
+    return true;
   };
 
   const varianceArt = arts.find((a) => a.title === "Q3 variance") ?? arts.find((a) => a.kind === "sheet");
@@ -182,7 +214,10 @@ export function RoomShell({ roomId, me, onLeave }: { roomId: string; me: Actor; 
     setShow((s) => {
       // Mobile: the binder replaces the chat pane. Desktop + Room-button band (981-1199): just toggle
       // the binder — at 981-1199 it floats as an overlay (styles.css), so Copilot is never displaced.
-      if (isCompact) return { left: !s.left, stage: true, copilot: false };
+      if (isCompact) {
+        const nextLeft = !s.left;
+        return { left: nextLeft, stage: !nextLeft, copilot: false };
+      }
       return { ...s, left: !s.left, stage: true };
     });
   };
@@ -197,6 +232,13 @@ export function RoomShell({ roomId, me, onLeave }: { roomId: string; me: Actor; 
       if (!isCompact) return { ...s, stage: true, copilot: !s.copilot };
       const nextCopilot = !s.copilot;
       return { left: false, stage: !nextCopilot, copilot: nextCopilot };
+    });
+  };
+  const openSidebarChat = () => {
+    setCopilotTab("public");
+    setShow((s) => {
+      if (isCompact) return { left: false, stage: false, copilot: true };
+      return { ...s, stage: true, copilot: true };
     });
   };
   const startResize = (target: "left" | "right", startX: number) => {
@@ -237,22 +279,22 @@ export function RoomShell({ roomId, me, onLeave }: { roomId: string; me: Actor; 
         <div className="r-brand">NodeRoom <span>· {room.title}</span></div>
         {/* The code chip LOOKS like a button, so it must be one — sharing the code is the core
             multiplayer flow (Meet/Figma mental model: click the code -> copy invite). */}
-        <button className="r-roomcode" type="button" title="Copy room code" aria-label={codeCopied ? "Room code copied" : `Copy room code ${room.code}`} aria-live="polite"
+        <button className="r-roomcode" type="button" title="Copy invite link" aria-label={codeCopied ? "Invite link copied" : `Copy invite link for room ${room.code}`} aria-live="polite"
           onClick={() => {
             // Robust copy feedback: confirm regardless of whether the async clipboard write
             // resolves (it is unavailable in some contexts) so the user always sees acknowledgement.
-            try { void navigator.clipboard?.writeText(room.code); } catch { /* clipboard unavailable */ }
+            try { void navigator.clipboard?.writeText(inviteHref); } catch { /* clipboard unavailable */ }
             setCodeCopied(true); setTimeout(() => setCodeCopied(false), 1200);
           }}>
-          <Link2 size={12} /> code <b>{room.code}</b> {codeCopied ? <Check size={11} /> : <Copy size={11} />}
+          <Link2 size={12} /> invite <b>{room.code}</b> {codeCopied ? <Check size={11} /> : <Copy size={11} />}
         </button>
         {store.mode === "convex" && <span className="r-tag" style={{ background: "var(--bg-secondary)", color: "var(--text-muted)" }}>● live convex</span>}
         {store.mode === "memory" && <span className="r-tag r-demo-badge" title="Scripted demo — no backend or API keys needed; everything runs locally and offline.">● demo</span>}
         <span className="r-spacer" />
         <div className="r-toggle-group">
-          <button className="r-iconbtn" data-on={String(show.left)} title="Room Binder" aria-label="Toggle Room Binder panel" aria-pressed={show.left} onClick={toggleBinder}><PanelLeft size={16} /></button>
-          <button className="r-iconbtn" data-on={String(!isCompact || show.stage)} title="Work Surface" aria-label={isCompact ? "Show Work Surface panel" : "Focus Work Surface"} aria-pressed={!isCompact || show.stage} onClick={showWorkSurface}><Table2 size={16} /></button>
-          <button className="r-iconbtn" data-on={String(show.copilot)} title="Copilot" aria-label="Toggle Copilot panel" aria-pressed={show.copilot} onClick={toggleCopilot}><PanelRight size={16} /></button>
+          <button className="r-iconbtn" data-mobile-label="Room" data-on={String(show.left)} title="Room Binder" aria-label="Toggle Room Binder panel" aria-pressed={show.left} onClick={toggleBinder}><PanelLeft size={16} /></button>
+          <button className="r-iconbtn" data-mobile-label="Work" data-on={String(!isCompact || show.stage)} title="Work Surface" aria-label={isCompact ? "Show Work Surface panel" : "Focus Work Surface"} aria-pressed={!isCompact || show.stage} onClick={showWorkSurface}><Table2 size={16} /></button>
+          <button className="r-iconbtn" data-mobile-label="Chat" data-on={String(show.copilot)} title="Copilot" aria-label="Toggle Copilot panel" aria-pressed={show.copilot} onClick={toggleCopilot}><PanelRight size={16} /></button>
         </div>
         <div className="r-pill-auto">
           Auto-allow
@@ -264,15 +306,16 @@ export function RoomShell({ roomId, me, onLeave }: { roomId: string; me: Actor; 
           {members.slice(0, 4).map((m) => (<span key={m.id} className="r-av" style={{ background: m.color }}>{initials(m.name)}<span className="pulse" /></span>))}
           <span className="r-av agent" style={{ background: "#d97757" }}>◆</span>
         </div>
+        <span className="r-live-count" title={`${members.length} live room member${members.length === 1 ? "" : "s"}`}>{members.length} live</span>
         <button className="r-iconbtn" title="Take the guided tour" aria-label="Take the guided tour" data-testid="tour-button" onClick={startTour}><HelpCircle size={16} /></button>
         <ThemeToggle />
         <button className="r-iconbtn" title="Leave room" aria-label="Leave room" onClick={onLeave}><LogOut size={16} /></button>
       </div>
 
       <div className="r-workspace" data-shell="june-2026">
-        {show.left && <LeftRail roomId={roomId} me={me} artId={curArt?.id ?? artId} style={{ width: layout.left }} onPick={openArtifact} />}
+        {show.left && <LeftRail roomId={roomId} me={me} artId={curArt?.id ?? artId} style={{ width: layout.left }} onPick={openArtifact} onOpenChat={openSidebarChat} />}
         {show.left && <ResizeHandle label="Resize files panel" onPointerDown={(x) => startResize("left", x)} />}
-        {(!isCompact || show.stage) && <Artifact roomId={roomId} me={me} artId={curArt?.id ?? artId} onArt={setArtId} style={{ flex: layout.stage }} collab={store.canRunCollab ? { ...collab, onRun: runCollab, onConflict: store.runSemanticConflictDrill ? runSemanticConflictDrill : undefined } : undefined} />}
+        {(!isCompact || show.stage) && <Artifact roomId={roomId} me={me} artId={curArt?.id ?? artId} onArt={setArtId} sideArtId={sideArtId} onSideArtChange={setSideArtId} onOpenChat={openSidebarChat} style={{ flex: layout.stage }} collab={store.canRunCollab ? { ...collab, onRun: runCollab, onConflict: store.runSemanticConflictDrill ? runSemanticConflictDrill : undefined } : undefined} />}
         {show.copilot && <ResizeHandle label="Resize Copilot panel" onPointerDown={(x) => startResize("right", x)} />}
         {show.copilot && (
           <CopilotPanel
@@ -350,13 +393,14 @@ function CopilotPanel({
             <Chat roomId={roomId} me={me} channel={privChannel} variant="private" agentName="Your NodeAgent" embedded testId="private-chat-panel" onOpenArtifact={onOpenArtifact} />
           )}
         </div>
+        <BankerCoachPanel roomId={roomId} onOpenArtifact={onOpenArtifact} />
         <DownstreamHandoffPanel roomId={roomId} />
       </div>
     </div>
   );
 }
 
-const HANDOFF_ACTIONS = [
+const HANDOFF_ACTIONS: ReadonlyArray<{ key: DownstreamHandoffTarget; label: string; icon: LucideIcon; title: string }> = [
   { key: "gmail", label: "Gmail", icon: Mail, title: "Draft Gmail update" },
   { key: "notion", label: "Notion", icon: FileText, title: "Create Notion page" },
   { key: "slack", label: "Slack", icon: MessageSquare, title: "Draft Slack recap" },
@@ -367,6 +411,10 @@ const HANDOFF_ACTIONS = [
 
 function DownstreamHandoffPanel({ roomId }: { roomId: string }) {
   const store = useStore();
+  const [open, setOpen] = useState(false);
+  const [active, setActive] = useState<DownstreamHandoffTarget | null>(null);
+  const [copied, setCopied] = useState(false);
+  const room = store.getRoom(roomId);
   const artifacts = store.listArtifacts(roomId);
   const proposals = store.listProposals(roomId);
   const hasContent = artifacts.some((a) =>
@@ -375,32 +423,62 @@ function DownstreamHandoffPanel({ roomId }: { roomId: string }) {
       return v != null && v !== "";
     }),
   );
-  // Contract: never surface downstream destinations before there is something to send AND it is
-  // review-clear. Hidden during intake / draft / pending-review; appears only once content exists and
-  // no proposal is awaiting review -- matching the spine's Export stage.
   if (!(hasContent && proposals.length === 0)) return null;
+  const draft = active ? buildDownstreamHandoffDraft(active, { roomTitle: room?.title ?? "NodeRoom", artifacts }) : null;
+  const copyDraft = () => {
+    if (!draft) return;
+    const text = `${draft.title}\n\n${draft.body}`;
+    try { void navigator.clipboard?.writeText(text); } catch { /* clipboard unavailable */ }
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1200);
+  };
   return (
     <section className="r-handoff" data-testid="downstream-handoff-card" aria-label="Approval-gated downstream handoff drafts">
       <div className="r-handoff-head">
         <Send size={13} />
         <span>Hand off</span>
         <em>review-clear &middot; draft only</em>
+        <span className="grow" />
+        <button
+          type="button"
+          className="r-handoff-toggle"
+          aria-expanded={open}
+          onClick={() => {
+            setOpen((value) => {
+              if (value) setActive(null);
+              return !value;
+            });
+          }}
+        >
+          {open ? "Hide" : "Open"}
+        </button>
       </div>
-      <div className="r-handoff-grid">
-        {HANDOFF_ACTIONS.map(({ key, label, icon: Icon, title }) => (
-          <button key={key} type="button" className="r-handoff-btn" title={title} aria-label={title} data-testid={`downstream-${key}`}>
-            <Icon size={13} />
-            <span>{label}</span>
-          </button>
-        ))}
-      </div>
+      {open && (
+        <div className="r-handoff-grid">
+          {HANDOFF_ACTIONS.map(({ key, label, icon: Icon, title }) => (
+            <button key={key} type="button" className="r-handoff-btn" data-on={String(active === key)} title={title} aria-label={title} data-testid={`downstream-${key}`} onClick={() => { setActive(key); setCopied(false); }}>
+              <Icon size={13} />
+              <span>{label}</span>
+            </button>
+          ))}
+        </div>
+      )}
+      {open && draft && (
+        <div className="r-handoff-preview" data-testid="downstream-preview" aria-label={`${draft.title} preview`}>
+          <div className="r-handoff-preview-head">
+            <strong>{draft.title}</strong>
+            <span>{draft.approvalRequired ? "approval required" : "ready export"}</span>
+            <button type="button" className="r-handoff-copy" data-testid="downstream-copy" onClick={copyDraft}>{copied ? <Check size={12} /> : <Copy size={12} />} {copied ? "Copied" : "Copy"}</button>
+            <button type="button" className="r-handoff-close" aria-label="Close handoff preview" onClick={() => setActive(null)}><X size={12} /></button>
+          </div>
+          <pre>{draft.body}</pre>
+          <small>{draft.sourceArtifactIds.length} source artifact{draft.sourceArtifactIds.length === 1 ? "" : "s"} referenced. Draft-only; no external write has run.</small>
+        </div>
+      )}
     </section>
   );
 }
 
-// Progression spine (Duolingo restraint, not gamification): one calm "where are we" line that REPLACES
-// scattered status, derived ONLY from real room state -- we never light a stage we cannot detect.
-// Export stays "next" until a real downstream-ready signal exists (not visible at room scope yet).
 function ProgressSpine({ roomId }: { roomId: string }) {
   const store = useStore();
   const artifacts = store.listArtifacts(roomId);
@@ -412,16 +490,17 @@ function ProgressSpine({ roomId }: { roomId: string }) {
       return v != null && v !== "";
     }),
   );
-  let stage = 0;                                                 // Intake (blank room)
-  if (artifacts.length > 0) stage = 1;                           // Evidence: surfaces exist to gather into
-  if (hasContent) stage = 2;                                     // Draft: content written
-  if (proposals.length > 0 || drafts.length > 0) stage = 3;      // Review: pending review/approval
-  const SPINE = ["Intake", "Evidence", "Draft", "Review", "Export"];
+  let stage = 0;
+  if (artifacts.length > 0) stage = 1;
+  if (hasContent) stage = 2;
+  if (proposals.length > 0 || drafts.length > 0) stage = 3;
+  const spine = ["Intake", "Evidence", "Draft", "Review", "Export"];
   return (
     <div className="r-spine" data-testid="progress-spine" aria-label="Workflow progress">
-      {SPINE.map((label, i) => (
+      {spine.map((label, i) => (
         <span key={label} className="r-spine-step" data-state={i < stage ? "done" : i === stage ? "now" : "next"}>
-          {i < stage ? <Check size={11} /> : <span className="r-spine-dot" />}{label}
+          {i < stage ? <Check size={11} /> : <span className="r-spine-dot" />}
+          {label}
         </span>
       ))}
     </div>
@@ -438,13 +517,6 @@ function SignalStatusStrip({ roomId, onOpenArtifact }: { roomId: string; onOpenA
   const job = store.lastLongFreeJob();
   const latest = traces.at(-1);
   const status = publicStatusText(latest, proposals.length, job?.status);
-  // Cleanliness-by-subtraction (docs/design/DESIGN_BENCHMARK.md): at rest the strip shows only what
-  // is useful *right now* — the artifact count, plus Review when there is actually something to
-  // review. Agents/Eval/Cost are run telemetry, so they appear only once a run exists or a job is
-  // live, instead of four idle chips ("clear", "ready", "$0.000") that read as four equal alerts.
-  // Keep ACTIONABLE risk visible at rest (Needs review; run failed/paused). Hide only IDLE telemetry
-  // (Agents/Eval/Cost) -- those show solely while a job is live, not after every run. In diligence,
-  // trust state matters after the run too. (docs/design/DESIGN_BENCHMARK.md)
   const jobStatus = job?.status ?? "";
   const jobRisk = ["failed", "blocked", "cancelled", "paused"].includes(jobStatus);
   const jobLive = !!job && !["completed", "failed", "cancelled", "blocked", "paused"].includes(jobStatus);

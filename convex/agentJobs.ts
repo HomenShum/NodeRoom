@@ -2,7 +2,7 @@ import { v } from "convex/values";
 import { cancel as cancelWorkflow, start } from "@convex-dev/workflow";
 import { internalMutation, mutation, query } from "./_generated/server";
 import { components, internal } from "./_generated/api";
-import { actorProofV, requireActorProof, requireArtifactInRoom } from "./lib";
+import { actorProofV, requireActorProof, requireArtifactInRoom, type ActorValue } from "./lib";
 import { classifyIntakeMessage, buildPlanPreview } from "../src/nodeagent/core/intakePreflight";
 import { parseBulkCompanyIngest } from "../src/nodeagent/skills/finance/bulkIngest";
 
@@ -26,6 +26,17 @@ const agentScopeV = v.union(v.literal("public_room"), v.literal("private_user"),
 const approvalPolicyV = v.union(v.literal("read_only"), v.literal("draft_first"), v.literal("auto_commit_safe"), v.literal("host_review"));
 const evidencePolicyV = v.union(v.literal("public_only"), v.literal("private_allowed"), v.literal("mixed_requires_redaction"));
 const traceLevelV = v.union(v.literal("summary"), v.literal("standard"), v.literal("full_operation_ledger"));
+const operationEventKindV = v.union(
+  v.literal("action"),
+  v.literal("query"),
+  v.literal("mutation"),
+  v.literal("model_call"),
+  v.literal("tool_call"),
+  v.literal("scheduler"),
+  v.literal("lease"),
+  v.literal("checkpoint"),
+);
+const operationStatusV = v.union(v.literal("started"), v.literal("completed"), v.literal("failed"), v.literal("skipped"));
 
 function clean<T extends Record<string, unknown>>(value: T): T {
   const out: Record<string, unknown> = {};
@@ -36,6 +47,20 @@ function clean<T extends Record<string, unknown>>(value: T): T {
 function defaultJobIdempotencyKey(args: { roomId: unknown; artifactId: unknown; actorId: string; goal: string; entrypoint: string }) {
   const normalizedGoal = args.goal.trim().replace(/\s+/g, " ").toLowerCase();
   return `${args.entrypoint}:${String(args.roomId)}:${String(args.artifactId)}:${args.actorId}:${normalizedGoal}`;
+}
+
+type ArtifactAccess = { visibility?: "private" | "room" | "public"; createdBy?: ActorValue };
+
+function actorOwnsArtifact(artifact: ArtifactAccess, actor: ActorValue): boolean {
+  if (!artifact.createdBy) return false;
+  if (artifact.createdBy.kind === actor.kind && artifact.createdBy.id === actor.id) return true;
+  return actor.kind === "agent" && !!actor.ownerId && artifact.createdBy.kind === "user" && artifact.createdBy.id === actor.ownerId;
+}
+
+function requireJobArtifactAccess(artifact: ArtifactAccess, actor: ActorValue, opts?: { allowPrivate?: boolean }) {
+  if ((artifact.visibility ?? "room") !== "private") return;
+  if (!actorOwnsArtifact(artifact, actor)) throw new Error("artifact_not_visible");
+  if (!opts?.allowPrivate) throw new Error("private_artifact_requires_private_job");
 }
 
 async function recordOperationEvent(ctx: any, args: {
@@ -86,15 +111,20 @@ export const createOrReuse = mutation({
     traceLevel: v.optional(traceLevelV),
     request: v.optional(v.any()),
     maxAttempts: v.optional(v.number()),
+    initialStatus: v.optional(v.union(v.literal("running"), v.literal("blocked"))),
+    planPreview: v.optional(v.any()),
+    error: v.optional(v.string()),
   },
   handler: async (ctx, a) => {
     if (a.goal.length > 2_000) throw new Error("goal_too_long");
     const actor = await requireActorProof(ctx, a.roomId, a.requester);
-    await requireArtifactInRoom(ctx, a.roomId, a.artifactId);
+    const artifact = await requireArtifactInRoom(ctx, a.roomId, a.artifactId);
+    requireJobArtifactAccess(artifact, actor, { allowPrivate: a.scope === "private_user" || a.entrypoint === "private_agent" || a.evidencePolicy === "private_allowed" });
     const prior = await ctx.db.query("agentJobs").withIndex("by_idempotency", (q) => q.eq("idempotencyKey", a.idempotencyKey)).order("desc").take(5);
     const reusable = prior.find((job) => String(job.roomId) === String(a.roomId) && String(job.artifactId) === String(a.artifactId));
     if (reusable) return { jobId: reusable._id, reused: true as const, status: reusable.status, latestRunId: reusable.latestRunId };
     const now = Date.now();
+    const initialStatus = a.initialStatus ?? "running";
     const jobId = await ctx.db.insert("agentJobs", clean({
       roomId: a.roomId,
       artifactId: a.artifactId,
@@ -111,7 +141,9 @@ export const createOrReuse = mutation({
       traceLevel: a.traceLevel ?? "standard",
       idempotencyKey: a.idempotencyKey,
       mode: a.mode,
-      status: "running",
+      planPreview: a.planPreview,
+      status: initialStatus,
+      error: a.error,
       modelPolicy: a.modelPolicy,
       runtime: "inline",
       attempts: 0,
@@ -126,6 +158,7 @@ export const createOrReuse = mutation({
       nextRunAt: now,
       createdAt: now,
       updatedAt: now,
+      completedAt: initialStatus === "blocked" ? now : undefined,
     }));
     await recordOperationEvent(ctx, {
       jobId,
@@ -139,7 +172,17 @@ export const createOrReuse = mutation({
       startedAt: now,
       completedAt: now,
     });
-    return { jobId, reused: false as const, status: "running" as const };
+    if (initialStatus === "blocked") {
+      await ctx.db.insert("traces", {
+        roomId: a.roomId,
+        ts: now,
+        actor,
+        type: "plan_blocked",
+        summary: `PlanPreview blocked this run (${(a.planPreview as { scheduling?: string } | undefined)?.scheduling ?? "blocked"}) on ${String(a.artifactId)}`,
+        detail: `plan_preview - ${(a.planPreview as { scheduling?: string; conflicts?: Array<{ kind?: string; detail?: string }> } | undefined)?.scheduling ?? "blocked"} - conflicts=${((a.planPreview as { conflicts?: Array<{ kind?: string }> } | undefined)?.conflicts ?? []).map((c) => c.kind).join(",") || "none"} - ${a.error ?? ""}`.slice(0, 480),
+      });
+    }
+    return { jobId, reused: false as const, status: initialStatus };
   },
 });
 
@@ -228,6 +271,40 @@ export const finishInteractive = internalMutation({
   },
 });
 
+export const recordLiveOperation = internalMutation({
+  args: {
+    jobId: v.id("agentJobs"),
+    runId: v.optional(v.id("agentRuns")),
+    sequence: v.number(),
+    kind: operationEventKindV,
+    name: v.string(),
+    status: v.optional(operationStatusV),
+    countDelta: v.optional(v.number()),
+    affectedIds: v.optional(v.array(v.string())),
+    startedAt: v.optional(v.number()),
+    completedAt: v.optional(v.number()),
+  },
+  handler: async (ctx, a) => {
+    const job = await ctx.db.get(a.jobId);
+    if (!job) return { ok: false as const, reason: "job_not_found" as const };
+    if (terminalStatuses.has(job.status)) return { ok: false as const, reason: "job_terminal" as const };
+    await recordOperationEvent(ctx, {
+      jobId: a.jobId,
+      runId: a.runId,
+      sequence: a.sequence,
+      kind: a.kind,
+      name: a.name,
+      status: a.status ?? "completed",
+      countDelta: a.countDelta,
+      affectedIds: a.affectedIds,
+      startedAt: a.startedAt,
+      completedAt: a.completedAt,
+    });
+    await ctx.db.patch(a.jobId, { updatedAt: Date.now() });
+    return { ok: true as const };
+  },
+});
+
 export const startFreeAuto = mutation({
   args: {
     roomId: v.id("rooms"),
@@ -241,7 +318,8 @@ export const startFreeAuto = mutation({
   handler: async (ctx, a) => {
     if (a.goal.length > 2_000) throw new Error("goal_too_long");
     const actor = await requireActorProof(ctx, a.roomId, a.requester);
-    await requireArtifactInRoom(ctx, a.roomId, a.artifactId);
+    const artifact = await requireArtifactInRoom(ctx, a.roomId, a.artifactId);
+    requireJobArtifactAccess(artifact, actor);
     const now = Date.now();
     const maxAttempts = Math.max(1, Math.min(a.maxAttempts ?? 20, 100));
     const idempotencyKey = a.idempotencyKey ?? defaultJobIdempotencyKey({ roomId: a.roomId, artifactId: a.artifactId, actorId: actor.id, goal: a.goal, entrypoint: "free" });
@@ -367,7 +445,8 @@ export const startBulkDiligence = mutation({
   handler: async (ctx, a) => {
     if (a.companies.length > 20_000) throw new Error("companies_too_long");
     const actor = await requireActorProof(ctx, a.roomId, a.requester);
-    await requireArtifactInRoom(ctx, a.roomId, a.artifactId);
+    const artifact = await requireArtifactInRoom(ctx, a.roomId, a.artifactId);
+    requireJobArtifactAccess(artifact, actor);
     const rows = parseBulkCompanyIngest(a.companies);
     if (!rows.length) throw new Error("no_companies_parsed");
     if (rows.length > MAX_BULK_COMPANIES) throw new Error(`too_many_companies:${rows.length}>${MAX_BULK_COMPANIES}`);
@@ -586,6 +665,83 @@ export const markWorkflowExceeded = internalMutation({
   },
 });
 
+export const sweepExpiredJobLeases = internalMutation({
+  args: {
+    now: v.optional(v.number()),
+    limit: v.optional(v.number()),
+  },
+  handler: async (ctx, { now: nowArg, limit }) => {
+    const now = nowArg ?? Date.now();
+    const batchSize = Math.max(1, Math.min(limit ?? 50, 200));
+    const running = await ctx.db
+      .query("agentJobs")
+      .withIndex("by_status_nextRunAt", (q) => q.eq("status", "running"))
+      .take(batchSize);
+    let expired = 0;
+
+    for (const job of running) {
+      if (!job.leaseUntil || job.leaseUntil > now) continue;
+      expired += 1;
+      const activeLeases = await ctx.db
+        .query("agentLeases")
+        .withIndex("by_job_status", (q) => q.eq("jobId", job._id).eq("status", "active"))
+        .collect();
+      for (const lease of activeLeases) {
+        await ctx.db.patch(lease._id, { status: "expired", releasedAt: now });
+      }
+
+      const attempt = Math.max(1, job.attempts);
+      const priorAttempt = await ctx.db
+        .query("agentJobAttempts")
+        .withIndex("by_job", (q) => q.eq("jobId", job._id).eq("attempt", attempt))
+        .first();
+      if (!priorAttempt) {
+        const startedAt = Math.min(job.updatedAt ?? now, now);
+        await ctx.db.insert("agentJobAttempts", {
+          jobId: job._id,
+          attempt,
+          status: "failed",
+          resolvedModel: job.modelPolicy,
+          stopReason: "lease_expired",
+          ms: Math.max(0, now - startedAt),
+          inputTokens: 0,
+          outputTokens: 0,
+          costUsd: 0,
+          error: "job_lease_expired",
+          startedAt,
+          endedAt: now,
+        });
+      }
+
+      await recordOperationEvent(ctx, {
+        jobId: job._id,
+        sequence: (job.actionSliceCount ?? 0) + (job.queryCount ?? 0) + (job.mutationCount ?? 0) + (job.modelCallCount ?? 0) + (job.toolCallCount ?? 0) + (job.schedulerHandoffCount ?? 0) + 4,
+        kind: "lease",
+        name: "agentJobs.sweepExpiredJobLeases",
+        targetKind: "artifact",
+        targetId: String(job.artifactId),
+        status: "failed",
+        countDelta: 1,
+        affectedIds: [String(job._id), String(job.artifactId), ...activeLeases.map((lease) => String(lease._id))],
+        startedAt: now,
+        completedAt: now,
+      });
+
+      await ctx.db.patch(job._id, {
+        status: "failed",
+        leaseId: "",
+        leaseUntil: 0,
+        error: "job_lease_expired",
+        mutationCount: (job.mutationCount ?? 0) + 1,
+        updatedAt: now,
+        completedAt: now,
+      });
+    }
+
+    return { ok: true as const, scanned: running.length, expired };
+  },
+});
+
 export const recordWorkflowComplete = internalMutation({
   args: {
     jobId: v.id("agentJobs"),
@@ -686,6 +842,7 @@ export const claimSlice = internalMutation({
       artifactTitle: art.title,
       artifactKind: art.kind,
       artifactMeta: art.meta,
+      artifactVisibility: art.visibility ?? "room",
       requester: job.requester,
       goal: job.goal,
       mode: job.mode,

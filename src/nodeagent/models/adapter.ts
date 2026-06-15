@@ -20,6 +20,8 @@ import { openai, createOpenAI } from "@ai-sdk/openai";
 import type { AgentModel, AgentMessage, ToolCall } from "../core/types";
 import { getProviderForModel, getModelPricing, resolveModelAlias } from "./modelCatalog";
 import { isOpenRouterFreeAutoModel, selectOpenRouterFreeModels } from "./openRouterFreeModels";
+import { redactPII } from "../guardrails/gateway";
+import { assertProviderEgressAllowed, assertProviderRouteAllowed, type ProviderEgressArtifact, type ProviderRouteEntrypoint } from "../guardrails/egressPolicy";
 
 // OpenRouter = OpenAI-compatible endpoint; this is how the cheap/free models are reached.
 // Built lazily (per call) so process.env.OPENROUTER_API_KEY is read AFTER .env.local loads —
@@ -42,16 +44,21 @@ function providerFor(modelId: string): LanguageModel {
 }
 
 /** Any catalog model behind the SAME seam — swap freely in the benchmark + the action. */
-export function model(modelId: string): AgentModel {
+export function model(modelId: string, options: { entrypoint?: ProviderRouteEntrypoint; artifacts?: ProviderEgressArtifact[] } = {}): AgentModel {
   const aliasModelId = resolveModelAlias(modelId);
+  const entrypoint = options.entrypoint ?? "system";
+  const artifacts = options.artifacts ?? [];
   // free-auto resolves a concrete free model per call; record the actual one used so the
   // agentRuns audit captures which model produced the cells, not just the "openrouter/free-auto" alias.
   let resolvedModelId = aliasModelId;
   return {
     get name() { return resolvedModelId; },
     async next({ system, messages, tools, signal }) {
+      assertProviderEgressAllowed({ model: aliasModelId, entrypoint, artifacts, env: process.env });
+      const safeSystem = redactPII(system).text;
+      const safeMessages = messages.map((m) => (m.role === "user" && m.content ? { ...m, content: redactPII(m.content).text } : m));
       const sdkTools = Object.fromEntries(tools.map((t) => [t.name, tool({ description: t.description, inputSchema: t.schema })]));
-      const { res, resolvedModel } = await generateAgentText(aliasModelId, system, toSdkMessages(messages), sdkTools, signal);
+      const { res, resolvedModel } = await generateAgentText(aliasModelId, safeSystem, toSdkMessages(safeMessages), sdkTools, signal, entrypoint, artifacts);
       resolvedModelId = resolvedModel;
       const toolCalls: ToolCall[] = (res.toolCalls ?? []).map((tc: { toolCallId: string; toolName: string; input?: Record<string, unknown>; providerMetadata?: Record<string, unknown> }) => ({ id: tc.toolCallId, tool: tc.toolName, args: tc.input ?? {}, providerMetadata: tc.providerMetadata }));
       return {
@@ -69,7 +76,8 @@ export const anthropicModel = (modelId = "claude-haiku-4-5"): AgentModel => mode
 
 /** A plain text/JSON completion (no tools) — used by the eval's LLM-judge. */
 export async function judge(modelId: string, prompt: string): Promise<string> {
-  const res = await generatePromptText(resolveModelAlias(modelId), prompt);
+  const safePrompt = redactPII(prompt).text;
+  const res = await generatePromptText(resolveModelAlias(modelId), safePrompt);
   return res.text ?? "";
 }
 
@@ -127,9 +135,15 @@ async function generateAgentText(
   messages: ModelMessage[],
   sdkTools: SdkToolSet,
   signal?: AbortSignal,
+  entrypoint: ProviderRouteEntrypoint = "system",
+  artifacts: ProviderEgressArtifact[] = [],
 ): Promise<{ res: GenerateTextResultAny; resolvedModel: string }> {
   if (!isOpenRouterFreeAutoModel(modelId)) {
-    const call = (id: string) => withRetry(() => generateText({ model: providerFor(id), system, messages, tools: sdkTools, abortSignal: signal }), signal);
+    const call = (id: string) => {
+      assertProviderRouteAllowed({ model: id, entrypoint, env: process.env });
+      assertProviderEgressAllowed({ model: id, entrypoint, artifacts, env: process.env });
+      return withRetry(() => generateText({ model: providerFor(id), system, messages, tools: sdkTools, abortSignal: signal }), signal);
+    };
     try {
       return { res: await call(modelId), resolvedModel: modelId };
     } catch (error) {
@@ -148,6 +162,8 @@ async function generateAgentText(
   for (const candidate of candidates) {
     attempted.push(candidate.id);
     try {
+      assertProviderRouteAllowed({ model: candidate.id, entrypoint, env: process.env });
+      assertProviderEgressAllowed({ model: candidate.id, entrypoint, artifacts, env: process.env });
       return { res: await withRetry(() => generateText({ model: openrouter().chat(candidate.id), system, messages, tools: sdkTools, abortSignal: signal }), signal), resolvedModel: candidate.id };
     } catch (error) {
       if (signal?.aborted) throw error;
@@ -159,6 +175,7 @@ async function generateAgentText(
 
 async function generatePromptText(modelId: string, prompt: string): Promise<GenerateTextResultAny> {
   if (!isOpenRouterFreeAutoModel(modelId)) {
+    assertProviderRouteAllowed({ model: modelId, entrypoint: "system", env: process.env });
     return generateText({ model: providerFor(modelId), prompt });
   }
   const candidates = await selectOpenRouterFreeModels({ mode: "chat", limit: openRouterFreeAutoLimit() });
@@ -167,6 +184,7 @@ async function generatePromptText(modelId: string, prompt: string): Promise<Gene
   for (const candidate of candidates) {
     attempted.push(candidate.id);
     try {
+      assertProviderRouteAllowed({ model: candidate.id, entrypoint: "system", env: process.env });
       return await generateText({ model: openrouter().chat(candidate.id), prompt });
     } catch (error) {
       lastError = error;

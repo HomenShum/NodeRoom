@@ -9,7 +9,7 @@
  * phantom room with partial/missing artifacts, and a retry hit the "Room … already exists" dead-end.
  *
  * The fix moves seeding server-side into ONE mutation, `rooms.createStarterRoom`, which inserts the
- * room + host member + all four starter artifacts inside a single Convex transaction (atomic: it all
+ * room + host member + all starter artifacts inside a single Convex transaction (atomic: it all
  * commits or none of it does). These scenarios run against the REAL Convex functions (convex-test,
  * in-memory deployment, no deploy) and assert that a create can never leave an orphan room behind.
  */
@@ -25,7 +25,7 @@ for (const m of ["../convex/agent.ts", "../convex/agentJobRunner.ts", "../convex
 }
 
 const HOST_TOKEN = "atomic-create-host-token-0123456789";
-const STARTER_TITLES = ["Company research", "Diligence memo", "Q3 variance", "Risk / opportunity wall"];
+const STARTER_TITLES = ["Company research", "Diligence memo", "Open questions / workplan", "Q3 variance", "Risk / opportunity wall", "Runway / milestones"];
 
 type T = ReturnType<typeof convexTest>;
 const allRooms = (t: T) => t.run(async (ctx) => await ctx.db.query("rooms").collect());
@@ -37,7 +37,7 @@ const membersIn = (t: T, roomId: unknown) =>
   t.run(async (ctx) => (await ctx.db.query("members").collect()).filter((m) => String(m.roomId) === String(roomId)));
 
 describe("atomic room create — no orphaned rooms", () => {
-  it("createStarterRoom seeds a complete room (room + host + 4 non-empty artifacts) in one transaction", async () => {
+  it("createStarterRoom seeds a complete room (room + host + starter artifacts) in one transaction", async () => {
     const t = convexTest(schema, modules);
     const res = await t.mutation(api.rooms.createStarterRoom, {
       code: "ATOMA1", title: "Startup Banking Diligence War Room", hostName: "Maya", authToken: HOST_TOKEN, autoAllow: true,
@@ -72,7 +72,7 @@ describe("atomic room create — no orphaned rooms", () => {
       }),
     ).rejects.toThrow(/duplicate element id/);
 
-    // BUG: the room is committed but holds only 1 of the 4 intended artifacts — an orphan/phantom room.
+    // BUG: the room is committed but holds only 1 of the intended artifacts — an orphan/phantom room.
     expect((await allRooms(t)).some((r) => String(r._id) === String(created.roomId))).toBe(true);
     expect(await artifactsIn(t, created.roomId)).toHaveLength(1);
 
@@ -80,7 +80,7 @@ describe("atomic room create — no orphaned rooms", () => {
     const fixed = await t.mutation(api.rooms.createStarterRoom, {
       code: "ATOMOK1", title: "War Room", hostName: "Sam", authToken: HOST_TOKEN, autoAllow: true,
     });
-    expect(await artifactsIn(t, fixed.roomId)).toHaveLength(4);
+    expect(await artifactsIn(t, fixed.roomId)).toHaveLength(STARTER_TITLES.length);
   });
 
   it("createStarterRoom validates before any write — failed creates leave ZERO rooms", async () => {
@@ -111,7 +111,7 @@ describe("atomic room create — no orphaned rooms", () => {
     ).rejects.toThrow(/room_code_taken/);
     // Still exactly one, still-complete room — the rejected attempt added nothing.
     expect(await allRooms(t)).toHaveLength(1);
-    expect(await artifactsIn(t, first.roomId)).toHaveLength(4);
+    expect(await artifactsIn(t, first.roomId)).toHaveLength(STARTER_TITLES.length);
   });
 
   it("create with seedArtifacts seeds a custom artifact (+ meta) atomically in one transaction", async () => {

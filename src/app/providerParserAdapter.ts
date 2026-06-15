@@ -6,7 +6,7 @@ import type {
   ProviderParseMeta,
   ProviderParser,
 } from "../engine/types";
-import type { UploadedArtifactInput } from "./store";
+import type { UploadedArtifactInput } from "./uploadedArtifact";
 import { buildSpreadsheetSemanticIndex } from "./spreadsheetIndex";
 
 export type CanonicalFileRef = {
@@ -48,6 +48,9 @@ export type ProviderExtraction = {
   evidence?: Array<{
     label: string;
     snippet?: string;
+    table?: string;
+    row?: number;
+    column?: string;
     page?: number;
     bbox?: { x: number; y: number; width: number; height: number; unit?: "px" | "pt" | "normalized" };
     url?: string;
@@ -76,6 +79,7 @@ export function artifactsFromProviderExtraction(args: {
   provider: ProviderParser;
   model: string;
   extraction: ProviderExtraction;
+  providerRoute?: unknown;
   now?: number;
 }): UploadedArtifactInput[] {
   const extractedAt = args.now ?? Date.now();
@@ -88,6 +92,7 @@ export function artifactsFromProviderExtraction(args: {
     providerFileId: args.providerFile.providerFileId,
     extractedAt,
     warnings: args.extraction.warnings,
+    providerRoute: args.providerRoute,
   };
   const artifacts: UploadedArtifactInput[] = [];
   for (const table of args.extraction.tables ?? []) {
@@ -175,7 +180,7 @@ function providerCellPayload(args: {
   extraction: ProviderExtraction;
 }): CellPayload {
   const evidence: CellEvidence[] = args.extraction.evidence?.length
-    ? args.extraction.evidence.map((e, idx): CellEvidence => ({
+    ? scopedEvidence(args.extraction.evidence, args.table, args.row, args.column).map((e, idx): CellEvidence => ({
       id: `provider:${args.providerFile.provider}:${args.providerFile.providerFileId}:${args.row}:${args.column.id}:${idx + 1}`,
       kind: "source",
       label: e.label,
@@ -183,8 +188,8 @@ function providerCellPayload(args: {
       sourceStorageId: args.file.storageId,
       sourceArtifactId: args.file.artifactId,
       providerFileId: args.providerFile.providerFileId,
-      row: args.row,
-      column: args.column.label,
+      row: e.row ?? args.row,
+      column: e.column ?? args.column.label,
       page: e.page,
       bbox: e.bbox,
       snippet: e.snippet,
@@ -210,6 +215,21 @@ function providerCellPayload(args: {
     confidence: args.table.confidence,
     evidence,
   };
+}
+
+function scopedEvidence(
+  evidence: NonNullable<ProviderExtraction["evidence"]>,
+  table: ProviderExtractionTable,
+  row: number,
+  column: DataframeColumn,
+) {
+  const scoped = evidence.filter((e) => {
+    if (e.table && e.table !== table.title) return false;
+    if (e.row != null && e.row !== row) return false;
+    if (e.column && e.column !== column.label && e.column !== column.id) return false;
+    return e.table != null || e.row != null || e.column != null;
+  });
+  return scoped.length ? scoped : evidence;
 }
 
 function uniqueProviderColumns(labels: string[]): DataframeColumn[] {

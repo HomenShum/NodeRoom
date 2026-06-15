@@ -1,18 +1,18 @@
 {
   "schema": 1,
-  "generatedAt": "2026-06-14T23:57:33.741Z",
+  "generatedAt": "2026-06-15T07:38:51.852Z",
   "mode": "convex-test-contract",
   "claim": "Startup diligence Convex contract proof for account intake, evidence cells, no-clobber, private lane, route trace, runway chart, and draft-only handoff.",
   "pass": true,
   "summary": {
-    "checks": 8,
-    "passed": 8,
+    "checks": 9,
+    "passed": 9,
     "failed": 0,
     "providerProducedContent": false,
     "convexContractProven": true
   },
   "room": {
-    "code": "SD629D3348",
+    "code": "SD3B57BDAF",
     "roomId": "000000000000000000000010000rooms",
     "researchArtifactId": "00000000000000000010005artifacts",
     "runwayArtifactId": "00000000000000000010007artifacts",
@@ -56,7 +56,8 @@
           "kind": "CellPayload",
           "status": "needs_review",
           "value": "CardioNova: AI triage workflow for hospital intake."
-        }
+        },
+        "providerProducedContent": false
       }
     },
     {
@@ -183,6 +184,32 @@
       }
     },
     {
+      "id": "banker_coach_harness_tools",
+      "status": "pass",
+      "manifestStatus": "harness-tool-loop-proven",
+      "summary": "Banker coach, evidence, runway/chart, review update, and downstream draft tools ran through the actual runAgent/PRODUCTION_ROOM_TOOLS loop before a managed CAS write.",
+      "evidence": {
+        "stopReason": "done",
+        "exhausted": false,
+        "tools": [
+          "read_range",
+          "compute_runway_milestones",
+          "validate_chart_against_source_cells",
+          "build_evidence_cards",
+          "generate_banker_coach_cues",
+          "render_chart_artifact",
+          "create_review_round_update",
+          "export_downstream_draft",
+          "write_locked_cell_result"
+        ],
+        "committed": true,
+        "hasCoachCues": true,
+        "hasChartPatch": true,
+        "hasDownstreamDrafts": true,
+        "evidenceCount": 1
+      }
+    },
+    {
       "id": "concurrent_lanes",
       "status": "pass",
       "manifestStatus": "convex-contract-proven",
@@ -222,7 +249,8 @@
           "model": "startup-contract-eval",
           "stopReason": "done",
           "toolCalls": 8
-        }
+        },
+        "providerRouteJournal": null
       }
     }
   ]

@@ -10,6 +10,7 @@ const requiredChecks = [
   "private_boundary",
   "runway_milestone_chart",
   "downstream_draft_only",
+  "banker_coach_harness_tools",
   "route_trace_cost_runtime",
 ];
 
@@ -31,6 +32,9 @@ describe("startup diligence live eval contract", () => {
 
     const route = report.checks.find((check) => check.id === "route_trace_cost_runtime");
     expect(JSON.stringify(route?.evidence ?? {})).toContain("startup-contract-eval");
+
+    const coach = report.checks.find((check) => check.id === "banker_coach_harness_tools");
+    expect(JSON.stringify(coach?.evidence ?? {})).toContain("generate_banker_coach_cues");
   });
 
   it("can prove provider-produced CellPayload and route receipts through the same contract", async () => {

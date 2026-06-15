@@ -90,10 +90,30 @@ export default defineSchema({
     version: v.number(),
     order: v.array(v.string()),
     updatedAt: v.number(),
+    createdBy: v.optional(actor),
+    visibility: v.optional(visibilityV),
     meta: v.optional(v.any()),
   }).index("by_room", ["roomId"]),
 
   /** One row per element (cell / block / sticky) — the CAS unit. */
+  uploadedFiles: defineTable({
+    roomId: v.id("rooms"),
+    artifactId: v.optional(v.id("artifacts")),
+    storageId: v.string(),
+    fileName: v.string(),
+    mimeType: v.string(),
+    size: v.number(),
+    sha256: v.optional(v.string()),
+    createdBy: actor,
+    visibility: visibilityV,
+    status: v.union(v.literal("uploaded"), v.literal("linked"), v.literal("deleted")),
+    createdAt: v.number(),
+    linkedAt: v.optional(v.number()),
+  })
+    .index("by_room", ["roomId", "createdAt"])
+    .index("by_artifact", ["artifactId"])
+    .index("by_storage", ["storageId"]),
+
   elements: defineTable({
     artifactId: v.id("artifacts"),
     elementId: v.string(),

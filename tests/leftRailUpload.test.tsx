@@ -17,6 +17,7 @@ vi.mock("../src/app/store", () => ({
     listSessions: () => [],
     listProposals: () => [],
     listTraces: () => [],
+    listMessages: () => [],
     awareness: () => ({ activeLocks: [] }),
     uploadArtifact: uploadSpy,
   }),

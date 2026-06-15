@@ -31,6 +31,9 @@ playwright/.cache/
 # local scratch
 .tmp/
 .tmp-qa/
+.playwright-mcp/
+noderoom-*.png
+opendesign-*.png
 docs/eval/finance-model-runs/
 docs/eval/halo-runs/.active-run.json
 

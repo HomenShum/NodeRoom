@@ -1,0 +1,27 @@
+{
+  "generatedAt": "2026-06-15T20:08:13.748Z",
+  "task": "Explain CardioNova runway and identify supporting source evidence.",
+  "variants": {
+    "roomContextOnly": {
+      "answerAccuracy": false,
+      "evidenceAccuracy": false,
+      "retrievalRecall": false,
+      "note": "Room context names CardioNova but lacks the literal cash source and computed runway concept."
+    },
+    "okfHybrid": {
+      "answerAccuracy": true,
+      "evidenceAccuracy": true,
+      "retrievalRecall": true,
+      "retrievalPrecision": true,
+      "sufficiency": {
+        "enoughToAnswer": true,
+        "enoughToCommit": true,
+        "enoughForClientReady": false,
+        "missing": [
+          "human_review"
+        ]
+      },
+      "caveat": "Needs review: missing human_review."
+    }
+  }
+}

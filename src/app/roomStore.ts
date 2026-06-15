@@ -9,8 +9,8 @@
 
 import { useSyncExternalStore } from "react";
 import { RoomEngine } from "../engine/roomEngine";
-import { buildDemoRoom, playCollab, WIKI_DOC, type DemoRoom } from "../engine/demoRoom";
-import type { Actor } from "../engine/types";
+import { buildDemoRoom, playCollab, type DemoRoom } from "../engine/demoRoom";
+import type { Actor, ArtifactMeta, DataframeColumn } from "../engine/types";
 
 export const engine = new RoomEngine({ now: () => Date.now() });
 export const demo: DemoRoom = buildDemoRoom(engine);
@@ -30,15 +30,24 @@ export function useEngineRev(): number {
 export function createFreshRoom(title: string, hostName: string): { roomId: string; me: Actor } {
   const { room, host } = engine.createRoom({ title: title || "Untitled room", hostName: hostName || "Host", autoAllow: true });
   const me: Actor = { kind: "user", id: host.id, name: host.name };
-  const seed: Array<{ id: string; value: unknown }> = [];
-  for (const r of [{ id: "r1", label: "Line item" }, { id: "r2", label: "Line item" }]) {
-    seed.push({ id: `${r.id}__label`, value: r.label }, { id: `${r.id}__q2`, value: "" }, { id: `${r.id}__q3`, value: "" }, { id: `${r.id}__variance`, value: "" }, { id: `${r.id}__note`, value: "" });
-  }
-  engine.createArtifact({ roomId: room.id, kind: "note", title: "Agent wiki", by: me, seed: [{ id: "doc", value: WIKI_DOC }] });
-  engine.createArtifact({ roomId: room.id, kind: "sheet", title: "Sheet", by: me, seed });
+  const seed = blankSheetSeed();
+  const meta: ArtifactMeta = { dataframe: { columns: blankSheetColumns(), rowCount: 8, sourceFile: "blank-room", parser: "blank_seed", truncated: false, warnings: [] } };
+  engine.createArtifact({ roomId: room.id, kind: "sheet", title: "Blank sheet", by: me, seed, meta });
   engine.createArtifact({ roomId: room.id, kind: "note", title: "Note", by: me, seed: [{ id: "doc", value: "<h1>Notes</h1><p></p>" }] });
   engine.createArtifact({ roomId: room.id, kind: "wall", title: "Wall", by: me, seed: [] });
   return { roomId: room.id, me };
+}
+
+function blankSheetSeed(): Array<{ id: string; value: unknown }> {
+  const seed: Array<{ id: string; value: unknown }> = [];
+  for (let row = 1; row <= 8; row++) {
+    for (const col of ["A", "B", "C"]) seed.push({ id: `r${row}__${col}`, value: "" });
+  }
+  return seed;
+}
+
+function blankSheetColumns(): DataframeColumn[] {
+  return ["A", "B", "C"].map((label, order): DataframeColumn => ({ id: label, label, order, mode: "manual", type: "text", agentWritable: true }));
 }
 
 export function enterDemoRoomAsHost(_hostName?: string): { roomId: string; me: Actor } {

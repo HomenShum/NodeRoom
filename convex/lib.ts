@@ -35,6 +35,7 @@ type ActorProofValue = {
   actor: ActorValue;
   token?: string;
 };
+type Env = Record<string, string | undefined>;
 
 export function requireStrongAuthToken(token: string): void {
   if (token.length < 32 || token.length > 512 || /\s/.test(token) || new Set(token).size < 12) {
@@ -95,6 +96,7 @@ export async function requireActorInRoom(ctx: DbCtx, roomId: Id<"rooms">, actor:
     const members = await ctx.db.query("members").withIndex("by_room", (q) => q.eq("roomId", roomId)).collect();
     const member = members.find((m) => String(m._id) === actor.id);
     if (!member || member.name !== actor.name) throw new Error("actor_not_in_room");
+    if (member.revokedAt != null) throw new Error("actor_revoked");
     return;
   }
 
@@ -116,6 +118,7 @@ export async function requireActorProof(ctx: DbCtx, roomId: Id<"rooms">, proof: 
   if (!member || String(member.roomId) !== String(roomId) || member.name !== actor.name) {
     throw new Error("actor_not_in_room");
   }
+  if (member.revokedAt != null) throw new Error("actor_revoked");
   const identity = await ctx.auth.getUserIdentity();
   if (identity && member.authSubject && member.authSubject === identity.subject) {
     return { kind: "user" as const, id: String(member._id), name: member.name };
@@ -132,7 +135,21 @@ export async function requireActorProof(ctx: DbCtx, roomId: Id<"rooms">, proof: 
 }
 
 export async function getRequiredProductionIdentity(ctx: DbCtx) {
-  return ctx.auth.getUserIdentity();
+  const identity = await ctx.auth.getUserIdentity();
+  if (productionIdentityRequired() && !identity) throw new Error("production_identity_required");
+  return identity;
+}
+
+export function productionIdentityRequired(env: Env = runtimeEnv()): boolean {
+  return env.NODEROOM_REQUIRE_CONVEX_IDENTITY === "1" || env.REQUIRE_PRODUCTION_IDENTITY === "1";
+}
+
+function runtimeEnv(): Env {
+  try {
+    return typeof process !== "undefined" && process.env ? process.env : {};
+  } catch {
+    return {};
+  }
 }
 
 export async function requireAgentSession(ctx: DbCtx, roomId: Id<"rooms">, sessionId: string, actor: ActorValue) {

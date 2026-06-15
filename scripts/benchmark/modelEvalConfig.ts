@@ -287,12 +287,12 @@ export const SUPPORTED_MODEL_ROUTES: SupportedModelRoute[] = [
 ];
 
 const OPENROUTER_TOP_PAID_SOURCE =
-  "OpenRouter Models API, 2026-06-13, sort=top-weekly&supported_parameters=tools, paid routes only";
+  "OpenRouter Models API, 2026-06-15, sort=top-weekly&supported_parameters=tools, paid routes only";
 
 export const OPENROUTER_TOP_PAID_AGENT_ROUTES: SupportedModelRoute[] = [
   ["deepseek/deepseek-v4-flash", "DeepSeek V4 Flash"],
-  ["tencent/hy3-preview", "Tencent Hy3 Preview"],
   ["minimax/minimax-m3", "MiniMax M3"],
+  ["tencent/hy3-preview", "Tencent Hy3 Preview"],
   ["xiaomi/mimo-v2.5", "Xiaomi MiMo V2.5"],
   ["anthropic/claude-opus-4.7", "Claude Opus 4.7 via OpenRouter"],
   ["anthropic/claude-sonnet-4.6", "Claude Sonnet 4.6 via OpenRouter"],
@@ -307,14 +307,14 @@ export const OPENROUTER_TOP_PAID_AGENT_ROUTES: SupportedModelRoute[] = [
   ["xiaomi/mimo-v2.5-pro", "Xiaomi MiMo V2.5 Pro"],
   ["google/gemini-3.5-flash", "Gemini 3.5 Flash via OpenRouter"],
   ["openai/gpt-5.5", "GPT-5.5 via OpenRouter"],
+  ["openai/gpt-4o-mini", "GPT-4o mini via OpenRouter"],
   ["openai/gpt-oss-120b", "GPT OSS 120B via OpenRouter"],
+  ["moonshotai/kimi-k2.6", "Kimi K2.6"],
   ["google/gemini-3.1-flash-lite", "Gemini 3.1 Flash Lite via OpenRouter"],
   ["anthropic/claude-opus-4.6", "Claude Opus 4.6 via OpenRouter"],
-  ["moonshotai/kimi-k2.6", "Kimi K2.6"],
-  ["openai/gpt-4o-mini", "GPT-4o mini via OpenRouter"],
   ["google/gemini-3.1-pro-preview", "Gemini 3.1 Pro Preview via OpenRouter"],
-  ["google/gemma-4-26b-a4b-it", "Gemma 4 26B A4B"],
   ["openai/gpt-5.4", "GPT-5.4 via OpenRouter"],
+  ["google/gemma-4-26b-a4b-it", "Gemma 4 26B A4B"],
 ].map(([route, label]) => ({
   route,
   provider: "openrouter" as const,

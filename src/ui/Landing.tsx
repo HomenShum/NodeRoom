@@ -1,6 +1,6 @@
 /** Landing (`.r-landing`) - design hero + create/join, recreated from room.css. */
 import { useState } from "react";
-import { Sparkles, Table2, Lock, History, PlayCircle } from "lucide-react";
+import { Sparkles, Table2, Lock, History, PlayCircle, Plus } from "lucide-react";
 import { engine, demo, createFreshRoom, enterDemoRoomAsHost, joinRoomByCode } from "../app/roomStore";
 import type { Session } from "./App";
 
@@ -71,7 +71,7 @@ export function Landing({
           </label>
           <div className="r-cta-row">
             <button data-testid="start-demo-room" className="r-btn primary" disabled={busy} onClick={enterDemo}>
-              {live ? "Start a fresh diligence room ->" : "Enter the diligence room ->"}
+              {live ? "Run startup diligence demo ->" : "Enter the diligence room ->"}
             </button>
             <div className="r-join-inline">
               <input
@@ -85,7 +85,9 @@ export function Landing({
               />
               <button data-testid="join-room" className="r-btn" disabled={busy} onClick={tryJoin}>Join</button>
             </div>
-            <button data-testid="create-room" className="r-btn ghost" disabled={busy} onClick={createRoom}>Create room</button>
+            <button data-testid="create-room" className="r-btn secondary" disabled={busy} onClick={createRoom}>
+              <Plus size={14} /> Create blank room
+            </button>
           </div>
           {shownError && <div className="r-join-error" role="alert">{shownError}</div>}
 

@@ -10,6 +10,7 @@
 import type { AgentMessage, AgentModel, AgentStep, AgentTool, ToolCall } from "../core/types";
 import { getModelPricing, getProviderForModel, resolveModelAlias } from "./modelCatalog";
 import { isOpenRouterFreeAutoModel, selectOpenRouterFreeModels } from "./openRouterFreeModels";
+import { openAiCompatibleTokenLimitParam } from "./openAiTokenLimit";
 import { redactPII } from "../guardrails/gateway";
 import { assertProviderRouteAllowed, type ProviderRouteEntrypoint, type ProviderRouteReceipt } from "../guardrails/egressPolicy";
 
@@ -211,7 +212,7 @@ async function openAiCompatibleStep(args: {
     messages: [{ role: "system", content: args.system }, ...toOpenAiMessages(args.messages)],
     tools: args.tools.length ? args.tools.map(openAiTool) : undefined,
     tool_choice: args.tools.length ? "auto" : undefined,
-    max_tokens: DEFAULT_MAX_TOKENS,
+    ...openAiCompatibleTokenLimitParam(args.modelId, args.endpoint, DEFAULT_MAX_TOKENS),
   }, {
     ...args.headers,
     ...(args.apiKey ? { Authorization: `Bearer ${args.apiKey}` } : {}),

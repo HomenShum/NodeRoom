@@ -25,21 +25,86 @@ export const RESEARCH_COLS = [
   "company", "website", "status", "tier", "intent", "owner", "crm_status",
   "summary", "funding", "headcount", "recent_signal", "source", "source2", "last_researched",
 ] as const;
+const RESEARCH_EVIDENCE_COLS = new Set(["summary", "funding", "headcount", "recent_signal"]);
+const RESEARCH_AGENT_READONLY_COLS = new Set(["company", "website", "tier", "intent", "owner", "crm_status"]);
 
 export const RESEARCH_COMPANIES = [
-  { id: "rc_anthropic", company: "Anthropic", url: "https://www.anthropic.com", source2Url: "https://en.wikipedia.org/wiki/Anthropic", tier: "A", intent: "AI safety + enterprise API", owner: "Homen", crmStatus: "Target" },
-  { id: "rc_ramp", company: "Ramp", url: "https://ramp.com", source2Url: "https://en.wikipedia.org/wiki/Ramp_(company)", tier: "A", intent: "Finance automation", owner: "Priya", crmStatus: "Working" },
-  { id: "rc_mercury", company: "Mercury", url: "https://mercury.com", source2Url: "https://www.forbes.com/companies/mercury/", tier: "B", intent: "Startup banking", owner: "Homen", crmStatus: "Research" },
-  { id: "rc_brex", company: "Brex", url: "https://www.brex.com", source2Url: "https://en.wikipedia.org/wiki/Brex", tier: "A", intent: "Spend management", owner: "Priya", crmStatus: "Target" },
+  { id: "rc_cardionova", company: "CardioNova", url: "https://cardionova.example", source2Url: "https://cardionova.example/security", tier: "A", intent: "AI triage for hospitals", owner: "Maya", crmStatus: "New" },
+  { id: "rc_mercury", company: "Mercury", url: "https://mercury.com", source2Url: "https://www.linkedin.com/company/mercurybank/", tier: "A", intent: "Startup banking diligence", owner: "Maya", crmStatus: "Watch" },
+  { id: "rc_ramp", company: "Ramp", url: "https://ramp.com", source2Url: "https://www.linkedin.com/company/ramp/", tier: "A", intent: "Middle market card + spend controls", owner: "Sam", crmStatus: "Target" },
+  { id: "rc_brex", company: "Brex", url: "https://www.brex.com", source2Url: "https://www.linkedin.com/company/brexhq/", tier: "A", intent: "Startup banking and expense workflow", owner: "Maya", crmStatus: "Warm" },
+  { id: "rc_pulley", company: "Pulley", url: "https://pulley.com", source2Url: "https://www.linkedin.com/company/pulley/", tier: "B", intent: "Cap table and equity ops", owner: "Sam", crmStatus: "Research" },
 ];
 /** Scripted enrichment targets for the no-keys path (the live LLM researches for real instead). */
 export const RESEARCH_PLAN = [
-  { rowId: "rc_anthropic", summary: "AI safety lab; Claude model family; enterprise API + apps.", funding: "Backed by major cloud and venture investors.", headcount: "Large AI lab; exact count requires source review.", recentSignal: "Enterprise AI adoption and model updates.", sourceUrl: "https://www.anthropic.com", source2Url: "https://en.wikipedia.org/wiki/Anthropic" },
-  { rowId: "rc_ramp", summary: "Corporate cards + spend management; finance automation.", funding: "Late-stage fintech with multiple growth rounds.", headcount: "Scaled finance automation team.", recentSignal: "Expansion across procurement and AP workflows.", sourceUrl: "https://ramp.com", source2Url: "https://en.wikipedia.org/wiki/Ramp_(company)" },
-  { rowId: "rc_mercury", summary: "Banking + treasury for startups; business accounts.", funding: "Venture-backed startup banking platform.", headcount: "Mid-size startup-focused financial platform.", recentSignal: "Treasury and business banking product growth.", sourceUrl: "https://mercury.com", source2Url: "https://www.forbes.com/companies/mercury/" },
-  { rowId: "rc_brex", summary: "Corporate cards + expense management for scaled startups.", funding: "Late-stage fintech with major venture backing.", headcount: "Scaled global fintech team.", recentSignal: "Spend management and travel platform expansion.", sourceUrl: "https://www.brex.com", source2Url: "https://en.wikipedia.org/wiki/Brex" },
+  { rowId: "rc_cardionova", summary: "AI triage workflow for hospital intake; verify buyer, deployment references, and HIPAA/security claims before IC use.", funding: "Series B profile is claimed in call notes; requires sourced confirmation.", headcount: "Unknown; agent should use provider research or leave a gap reason.", recentSignal: "Banker call flagged hospital intake automation as the key diligence angle.", sourceUrl: "https://cardionova.example", source2Url: "https://cardionova.example/security" },
+  { rowId: "rc_mercury", summary: "Startup banking and treasury platform relevant to founder-led operating accounts.", funding: "Late-stage startup banking profile; refresh from primary sources before partner use.", headcount: "Scaled fintech team; update with provider/API data.", recentSignal: "Startup treasury and operating-account workflow remains the main bank adjacency.", sourceUrl: "https://mercury.com", source2Url: "https://www.linkedin.com/company/mercurybank/" },
+  { rowId: "rc_ramp", summary: "Spend management, cards, procurement, and AP platform for finance teams.", funding: "Late-stage fintech profile; refresh current round and valuation from sources.", headcount: "Scaled finance automation team.", recentSignal: "Procurement and card controls are relevant to middle-market banking conversations.", sourceUrl: "https://ramp.com", source2Url: "https://www.linkedin.com/company/ramp/" },
+  { rowId: "rc_brex", summary: "Corporate cards, banking-adjacent cash workflow, and expense automation for startups.", funding: "Late-stage fintech with major venture backing; verify latest financing.", headcount: "Scaled global fintech team.", recentSignal: "Startup banking and expense workflow overlaps the diligence reference workflow.", sourceUrl: "https://www.brex.com", source2Url: "https://www.linkedin.com/company/brexhq/" },
+  { rowId: "rc_pulley", summary: "Cap table and equity operations platform for startup finance and legal teams.", funding: "Venture-backed SaaS profile; refresh latest funding and hiring signals.", headcount: "Mid-market startup ops team; verify current headcount.", recentSignal: "Equity ops connects to startup banking onboarding and founder services.", sourceUrl: "https://pulley.com", source2Url: "https://www.linkedin.com/company/pulley/" },
 ];
 export const WIKI_DOC = "Living wiki for room state, file inventory, agent sessions, workflows, backend map, and recent trace evidence. It updates from artifacts, sessions, runs, and traces.";
+
+function researchMeta() {
+  return {
+    dataframe: {
+      columns: RESEARCH_COLS.map((col, order) => ({
+        id: col,
+        label: col.replace(/_/g, " "),
+        order,
+        mode: RESEARCH_EVIDENCE_COLS.has(col) ? "enrich" as const : "manual" as const,
+        type: "text" as const,
+        agentWritable: !RESEARCH_AGENT_READONLY_COLS.has(col),
+      })),
+      rowCount: RESEARCH_COMPANIES.length,
+      sourceFile: "starter-room",
+      sheetName: "Company research",
+      sheetNames: ["Company research"],
+      parser: "starter_seed",
+      truncated: false,
+      warnings: [],
+    },
+  };
+}
+
+function runwaySeed() {
+  const rows = [
+    { id: "rw_cardionova", company: "CardioNova", cash: "Unknown", burn: "Unknown", runway: "Gap: needs sourced cash and burn", status: "needs_evidence", milestones: "HIPAA/security review; hospital reference checks; pricing proof" },
+    { id: "rw_pulley", company: "Pulley", cash: "Unknown", burn: "Unknown", runway: "Gap: refresh financing and hiring signals", status: "needs_evidence", milestones: "Cap-table workflow proof; founder-services fit; competitor map" },
+  ];
+  const cols = ["company", "cash", "burn", "runway", "status", "milestones"] as const;
+  const seed: Array<{ id: string; value: unknown }> = [];
+  for (const row of rows) for (const col of cols) seed.push({ id: `${row.id}__${col}`, value: row[col] });
+  return seed;
+}
+
+function runwayMeta() {
+  const cols = ["company", "cash", "burn", "runway", "status", "milestones"] as const;
+  return {
+    dataframe: {
+      columns: cols.map((col, order) => ({ id: col, label: col, order, mode: col === "runway" || col === "milestones" ? "compute" as const : "manual" as const, type: "text" as const, agentWritable: col !== "company" })),
+      rowCount: 2,
+      sourceFile: "starter-room",
+      sheetName: "Runway / milestones",
+      sheetNames: ["Runway / milestones"],
+      parser: "starter_seed",
+      truncated: false,
+      warnings: [],
+    },
+  };
+}
+
+function workplanDoc() {
+  return [
+    "<h1>Open diligence questions / workplan</h1>",
+    "<ul>",
+    "<li>CardioNova: verify product claims, hospital buyer, funding history, deployment references, and HIPAA/security posture.</li>",
+    "<li>Bulk batch: enrich Mercury, Ramp, Brex, and Pulley with product, hiring, pricing, competitors, and market headwinds.</li>",
+    "<li>Runway: compute only from sourced cash and burn assumptions; leave blank with reason when inputs are missing.</li>",
+    "<li>Handoff: prepare Gmail, Notion, Slack, Linear, LinkedIn, and CRM CSV drafts after human review.</li>",
+    "</ul>",
+  ].join("");
+}
 
 export interface DemoRoom {
   roomId: string;
@@ -81,29 +146,31 @@ export function buildDemoRoom(engine: RoomEngine): DemoRoom {
     };
     for (const col of RESEARCH_COLS) researchSeed.push({ id: `${c.id}__${col}`, value: vals[col] });
   }
-  const researchId = engine.createArtifact({ roomId: room.id, kind: "sheet", title: "Company research", by: me, seed: researchSeed }).id;
+  const researchId = engine.createArtifact({ roomId: room.id, kind: "sheet", title: "Company research", by: me, seed: researchSeed, meta: researchMeta() }).id;
+  engine.createArtifact({ roomId: room.id, kind: "sheet", title: "Runway / milestones", by: me, seed: runwaySeed(), meta: runwayMeta() });
 
   const noteId = engine.createArtifact({
-    roomId: room.id, kind: "note", title: "Sync reliability", by: me,
-    seed: [{ id: "doc", value: "<h1>Sync reliability — diligence note</h1><p>Null cells are a real blank value in the sheet, not an instruction to delete the row. The sync tool preserves them so a retried delta can't silently drop data.</p><p>Open question: should null cells survive the sync instead of being treated as deletes?</p>" }],
+    roomId: room.id, kind: "note", title: "Diligence memo", by: me,
+    seed: [{ id: "doc", value: "<h1>Startup banking diligence memo</h1><p>Use the Company research sheet for sourced company-level findings, then convert runway and milestone gaps into banker-ready follow-ups. Null cells are real missing inputs, not delete instructions; the agent should leave a clear gap reason when cash, burn, pricing, hiring, or funding proof is unavailable.</p>" }],
   }).id;
+  engine.createArtifact({ roomId: room.id, kind: "note", title: "Open questions / workplan", by: me, seed: [{ id: "doc", value: workplanDoc() }] });
 
   const wallId = engine.createArtifact({
-    roomId: room.id, kind: "wall", title: "Diligence wall", by: me,
+    roomId: room.id, kind: "wall", title: "Risk / opportunity wall", by: me,
     seed: [
-      { id: "s1", value: { text: "Variance > 15% needs a footnote", x: 28, y: 26, color: "#E8C9B8" } },
-      { id: "s2", value: { text: "Reconcile against the NetSuite export", x: 232, y: 70, color: "#CBD2F0" } },
-      { id: "s3", value: { text: "Stable row ids — null is preserved", x: 116, y: 196, color: "#C5DBCB" } },
+      { id: "s1", value: { text: "CardioNova: verify HIPAA/security and hospital references before IC.", x: 28, y: 26, color: "#E8C9B8" } },
+      { id: "s2", value: { text: "Bulk batch: refresh product, pricing, hiring, competitors, and market headwinds.", x: 232, y: 70, color: "#CBD2F0" } },
+      { id: "s3", value: { text: "Runway chart needs sourced cash and burn assumptions.", x: 116, y: 196, color: "#C5DBCB" } },
     ],
   }).id;
 
   const room_ = engine.startSession({ roomId: room.id, agentId: "agent_room", agentName: "Room NodeAgent", scope: "public" });
   const privA = engine.startSession({ roomId: room.id, agentId: "agent_priv", agentName: "Your NodeAgent", scope: "private", ownerId: me.id });
 
-  engine.postMessage({ roomId: room.id, channel: "public", author: priya, text: "Pulling the NetSuite Q3 numbers into the variance sheet — revenue looks off vs the close.", clientMsgId: "seed1", kind: "chat" });
-  engine.postMessage({ roomId: room.id, channel: "public", author: quokka, text: "joined as a guest. read-only on the sheet for now?", clientMsgId: "seed2", kind: "chat" });
-  engine.postMessage({ roomId: room.id, channel: { private: me.id }, author: me, text: "Private: why should null cells survive the sync instead of being treated as deletes?", clientMsgId: "seed3", kind: "chat" });
-  engine.postMessage({ roomId: room.id, channel: { private: me.id }, author: { kind: "agent", id: "agent_priv", name: "Your NodeAgent", scope: "private", ownerId: me.id }, text: "null is a real blank value in the sheet, not an instruction to delete the row. The sync tool preserves it so a retried delta can't silently drop data. This note stays private unless you promote it.", clientMsgId: "seed4", kind: "agent" });
+  engine.postMessage({ roomId: room.id, channel: "public", author: priya, text: "Starting the startup-banking diligence room - CardioNova first, then the bulk batch.", clientMsgId: "seed1", kind: "chat" });
+  engine.postMessage({ roomId: room.id, channel: "public", author: quokka, text: "joined as a guest. can watch the artifacts and handoff drafts live?", clientMsgId: "seed2", kind: "chat" });
+  engine.postMessage({ roomId: room.id, channel: { private: me.id }, author: me, text: "Private: flag any missing runway assumptions before we publish to the room.", clientMsgId: "seed3", kind: "chat" });
+  engine.postMessage({ roomId: room.id, channel: { private: me.id }, author: { kind: "agent", id: "agent_priv", name: "Your NodeAgent", scope: "private", ownerId: me.id }, text: "I will keep unknown cash, burn, pricing, hiring, and funding inputs as explicit gaps until a source supports them. This stays private until you promote it.", clientMsgId: "seed4", kind: "agent" });
 
   return {
     roomId: room.id, me, members: { homen: me, priya, quokka },

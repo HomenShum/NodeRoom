@@ -1,5 +1,5 @@
 import type { CellPayload, DataframeColumn } from "../engine/types";
-import type { UploadedArtifactInput } from "./store";
+import type { UploadedArtifactInput } from "./uploadedArtifact";
 import { buildSpreadsheetSemanticIndex, columnLetters } from "./spreadsheetIndex";
 
 type ExcelCell = import("exceljs").Cell;

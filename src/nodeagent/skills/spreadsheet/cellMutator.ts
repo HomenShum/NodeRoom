@@ -14,6 +14,8 @@ import { z } from "zod";
 import type { AgentTool, EditOutcome, RoomTools } from "../../core/types";
 import type { CellEvidence, CellPayload, CellStatus } from "../../../engine/types";
 import { runAlgorithmArtifactFromRoomTools, type AlgorithmArtifact } from "./algorithmArtifacts";
+import { BANKER_COACH_TOOLS } from "../bankerCoach/tools";
+import { OKF_RETRIEVAL_TOOLS } from "../../retrieval/tools";
 
 const opSchema = z.object({ elementId: z.string(), value: z.any(), baseVersion: z.number().int() });
 const cellStatusSchema = z.enum(["empty", "running", "complete", "needs_review", "failed", "gap"]);
@@ -506,5 +508,7 @@ export const MANAGED_LOCK_TOOLS: AgentTool[] = [
 export const PRODUCTION_ROOM_TOOLS: AgentTool[] = [
   ...ROOM_TOOLS.filter((toolDef) => !new Set(["propose_lock", "release_lock", "edit_cell", "write_cell_result", "create_draft"]).has(toolDef.name)),
   ...MANAGED_LOCK_TOOLS,
+  ...OKF_RETRIEVAL_TOOLS,
+  ...BANKER_COACH_TOOLS,
 ];
 export const PRODUCTION_TOOL_NAMES = PRODUCTION_ROOM_TOOLS.map((t) => t.name);

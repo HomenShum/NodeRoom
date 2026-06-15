@@ -11,8 +11,18 @@ async function dismissTour(page: Page) {
   await page.getByTestId("tour-skip").click({ timeout: 5_000 }).catch(() => {});
 }
 
+async function ensureBinderOpen(page: Page) {
+  const leftRail = page.getByTestId("left-rail");
+  if (!(await leftRail.isVisible().catch(() => false))) {
+    await page.getByRole("button", { name: "Toggle Room Binder panel" }).click();
+  }
+  await expect(leftRail).toBeVisible({ timeout: 10_000 });
+}
+
 async function waitForRoom(page: Page) {
   await expect(page.getByTestId("public-chat-panel").getByTestId("chat-composer")).toBeVisible({ timeout: 60_000 });
+  await ensureBinderOpen(page);
+  await page.getByTestId("left-rail").getByRole("button", { name: /Q3 variance/ }).click();
   await expect(page.locator('[data-cell-key="r_rev__variance"]')).toBeVisible({ timeout: 30_000 });
   await dismissTour(page);
 }
@@ -34,7 +44,7 @@ test("live Convex semantic rebase drill fans out and applies only after host app
   const member = await memberContext.newPage();
 
   try {
-    await host.goto(`/?create=${code}&name=Maya`);
+    await host.goto(`/?demo=${code}&name=Maya`);
     await waitForRoom(host);
     await member.goto(`/?room=${code}&name=Dev`);
     await waitForRoom(member);

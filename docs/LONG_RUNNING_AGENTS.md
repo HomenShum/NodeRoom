@@ -144,6 +144,14 @@ finishSlice(...)
   - releases lease
   - stores nextRunAt for workflow-runtime jobs
   - only schedules a next slice directly for legacy scheduler-runtime jobs
+
+sweepExpiredJobLeases()
+  - runs from cron
+  - finds running jobs whose leaseUntil is in the past
+  - marks active agentLeases as expired
+  - records a failed attempt with stopReason=lease_expired
+  - clears the job lease token and moves the job to failed
+  - fences any late old slice because finishSlice requires the matching leaseId
 ```
 
 The cursor stores compacted `AgentMessage[]` plus any `remainingToolCalls` from a mid-turn handoff. On the next slice, `runAgent` resumes from those messages instead of rebuilding the task from scratch.

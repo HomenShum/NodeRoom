@@ -20,6 +20,12 @@ const MAX_JOINS_PER_MINUTE = 10;
 const MAX_NAME_LEN = 40;
 const MAX_TITLE_LEN = 80;
 const MAX_SEED_ARTIFACTS_PER_ROOM = 8; // bound the atomic create payload (per-artifact size is capped by assertCreateArtifactLimits)
+type Visibility = "private" | "room" | "public";
+type ArtifactAcl = { visibility?: Visibility; createdBy?: ActorValue };
+
+function canReadArtifact(a: ArtifactAcl, actor: ActorValue): boolean {
+  return (a.visibility ?? "room") !== "private" || (a.createdBy?.kind === actor.kind && a.createdBy.id === actor.id);
+}
 
 const STARTER_VARIANCE_ROWS = [
   { id: "r_rev", label: "Revenue", q2: "$10,000", q3: "$12,400" },
@@ -33,10 +39,51 @@ const STARTUP_RESEARCH_COLS = [
   "company", "website", "status", "tier", "intent", "owner", "crm_status", "summary",
   "funding", "headcount", "recent_signal", "source", "source2", "last_researched",
 ] as const;
+const STARTUP_RESEARCH_EVIDENCE_COLS = new Set(["summary", "funding", "headcount", "recent_signal"]);
+const STARTUP_RESEARCH_AGENT_READONLY_COLS = new Set(["company", "website", "tier", "intent", "owner", "crm_status"]);
 
 type StartupResearchRow = { rowId: string } & Record<(typeof STARTUP_RESEARCH_COLS)[number], string>;
 
+function startupResearchMeta() {
+  return {
+    dataframe: {
+      columns: STARTUP_RESEARCH_COLS.map((col, order) => ({
+        id: col,
+        label: col.replace(/_/g, " "),
+        order,
+        mode: STARTUP_RESEARCH_EVIDENCE_COLS.has(col) ? "enrich" : "manual",
+        type: "text",
+        agentWritable: !STARTUP_RESEARCH_AGENT_READONLY_COLS.has(col),
+      })),
+      rowCount: STARTUP_RESEARCH_ROWS.length,
+      sourceFile: "starter-room",
+      sheetName: "Company research",
+      sheetNames: ["Company research"],
+      parser: "starter_seed",
+      truncated: false,
+      warnings: [],
+    },
+  };
+}
+
 const STARTUP_RESEARCH_ROWS: StartupResearchRow[] = [
+  {
+    rowId: "rc_cardionova",
+    company: "CardioNova",
+    website: "https://cardionova.example",
+    status: "pending",
+    tier: "A",
+    intent: "AI triage for hospitals",
+    owner: "Maya",
+    crm_status: "New",
+    summary: "Intake from banker call: AI triage workflow for hospital patient intake. Agent should verify product, buyer, competitors, funding, and evidence before partner use.",
+    funding: "Unknown - verify from source",
+    headcount: "Unknown - verify from source",
+    recent_signal: "Call note says Series B profile; verify before memo",
+    source: "banker call note",
+    source2: "pending provider research",
+    last_researched: "never",
+  },
   {
     rowId: "rc_mercury",
     company: "Mercury",
@@ -88,6 +135,23 @@ const STARTUP_RESEARCH_ROWS: StartupResearchRow[] = [
     source2: "https://www.linkedin.com/company/brexhq/",
     last_researched: "never",
   },
+  {
+    rowId: "rc_pulley",
+    company: "Pulley",
+    website: "https://pulley.com",
+    status: "pending",
+    tier: "B",
+    intent: "Cap table and equity workflow diligence",
+    owner: "Maya",
+    crm_status: "Research",
+    summary: "Cap table management platform. Agent should gather product, pricing, hiring, competitor, and customer signals.",
+    funding: "Refresh from provider data",
+    headcount: "Refresh from provider data",
+    recent_signal: "Evaluate as startup finance workflow adjacency",
+    source: "https://pulley.com",
+    source2: "pending provider research",
+    last_researched: "never",
+  },
 ];
 
 function startupResearchSeed(): Array<{ id: string; value: unknown }> {
@@ -117,7 +181,7 @@ const starterNoteSeed = () => [
     id: "doc",
     value: [
       "<h1>Startup banking diligence memo</h1>",
-      "<p>Use this room to coordinate JPM Middle Market Banking / Startup Banking diligence: company profile, product, pricing, hiring signals, market headwinds, competitors, runway, milestones, and downstream stakeholder drafts.</p>",
+      "<p>Use this room to coordinate startup-banking diligence: company profile, product, pricing, hiring signals, market headwinds, competitors, runway, milestones, and downstream stakeholder drafts.</p>",
       "<p>Ask the room agent to enrich pending accounts, build sourced findings, and prepare approval-gated handoffs.</p>",
     ].join(""),
   },
@@ -127,6 +191,36 @@ const starterWallSeed = () => [
   { id: "s_workflow", value: { text: "Traditional diligence: analyst gathers company facts, enriches CRM/spreadsheet rows, drafts memo, then manually posts updates.", x: 54, y: 56, color: "#FDE68A" } },
   { id: "s_agent", value: { text: "NodeAgent can enrich accounts, cite sources, draft runway/milestone findings, and keep every edit traced in the room.", x: 324, y: 136, color: "#BBF7D0" } },
   { id: "s_handoff", value: { text: "Export drafts: Gmail, Notion, Slack, Linear, LinkedIn, and CRM CSV after human approval.", x: 170, y: 292, color: "#BFDBFE" } },
+];
+
+const starterRunwaySeed = () => [
+  { id: "cardionova__company", value: "CardioNova" },
+  { id: "cardionova__cash", value: "$1.5M" },
+  { id: "cardionova__burn", value: "$125k/mo" },
+  { id: "cardionova__runway", value: "12.0 months" },
+  { id: "cardionova__status", value: "watch" },
+  { id: "cardionova__milestones", value: "Verify hospital deployments; fundraise window; treasury IC pack" },
+  { id: "mercury__company", value: "Mercury" },
+  { id: "mercury__cash", value: "" },
+  { id: "mercury__burn", value: "" },
+  { id: "mercury__runway", value: "" },
+  { id: "mercury__status", value: "needs source" },
+  { id: "mercury__milestones", value: "Confirm current treasury/account products and growth signals" },
+];
+
+const starterWorkplanSeed = () => [
+  {
+    id: "doc",
+    value: [
+      "<h1>Open diligence questions / workplan</h1>",
+      "<ul>",
+      "<li>CardioNova: verify product claims, hospital buyer, funding history, deployment references, and HIPAA/security posture.</li>",
+      "<li>Bulk batch: enrich Mercury, Ramp, Brex, and Pulley with product, hiring, pricing, competitors, and market headwinds.</li>",
+      "<li>Runway: compute only from sourced cash and burn assumptions; leave blank with reason when inputs are missing.</li>",
+      "<li>Handoff: prepare Gmail, Notion, Slack, Linear, LinkedIn, and CRM CSV drafts after human review.</li>",
+      "</ul>",
+    ].join(""),
+  },
 ];
 
 async function insertStarterArtifact(
@@ -148,6 +242,8 @@ async function insertStarterArtifact(
     version: 1,
     order: args.seed.map((s) => s.id),
     updatedAt: args.now,
+    createdBy: args.actor,
+    visibility: "room",
     meta: args.meta,
   });
   for (const s of args.seed) {
@@ -233,9 +329,11 @@ export const createStarterRoom = mutation({
     await ctx.db.insert("agentSessions", { roomId, agentId: "agent_priv", agentName: "Your NodeAgent", scope: "private", ownerId: memberId, status: "idle", lastAction: "started", updatedAt: now });
     const actor = { kind: "user" as const, id: String(memberId), name: a.hostName };
     await ctx.db.insert("traces", { roomId, ts: now, actor, type: "room_created", summary: `${a.hostName} created the room` });
-    await insertStarterArtifact(ctx, { roomId, kind: "sheet", title: "Company research", seed: startupResearchSeed(), actor, now });
+    await insertStarterArtifact(ctx, { roomId, kind: "sheet", title: "Company research", seed: startupResearchSeed(), actor, now, meta: startupResearchMeta() });
     await insertStarterArtifact(ctx, { roomId, kind: "note", title: "Diligence memo", seed: starterNoteSeed(), actor, now });
     await insertStarterArtifact(ctx, { roomId, kind: "wall", title: "Risk / opportunity wall", seed: starterWallSeed(), actor, now });
+    await insertStarterArtifact(ctx, { roomId, kind: "sheet", title: "Runway / milestones", seed: starterRunwaySeed(), actor, now, meta: { dataframe: { columns: ["company", "cash", "burn", "runway", "status", "milestones"], rowCount: 2, sourceFile: "starter-room", parser: "starter_seed", truncated: false, warnings: [] } } });
+    await insertStarterArtifact(ctx, { roomId, kind: "note", title: "Open questions / workplan", seed: starterWorkplanSeed(), actor, now });
     await insertStarterArtifact(ctx, { roomId, kind: "sheet", title: "Q3 variance", seed: starterSheetSeed(), actor, now });
     return { roomId, memberId };
   },
@@ -251,11 +349,12 @@ export const joinAnonymous = mutation({
     const anon = a.anon ?? true;
     if (a.name.length > MAX_NAME_LEN) throw new Error("field_too_long");
     const existing = await ctx.db.query("members").withIndex("by_room", (q) => q.eq("roomId", room._id)).collect();
+    const activeMembers = existing.filter((m) => m.revokedAt == null);
     // Abuse gates: room capacity + join-rate window (joins are members created in the last 60s).
-    if (existing.length >= MAX_MEMBERS_PER_ROOM) return { error: "room_full" as const };
+    if (activeMembers.length >= MAX_MEMBERS_PER_ROOM) return { error: "room_full" as const };
     const recentJoins = existing.filter((m) => m._creationTime > now - 60_000).length;
     if (recentJoins >= MAX_JOINS_PER_MINUTE) return { error: "join_rate_limited" as const };
-    const count = existing.length;
+    const count = activeMembers.length;
     const memberId = await ctx.db.insert("members", { roomId: room._id, name: a.name, role: "member", anon, color: palette[count % palette.length], authTokenHash: await hashToken(a.authToken), authSubject: identity?.subject, lastSeenAt: now });
     await ctx.db.insert("traces", { roomId: room._id, ts: now, actor: { kind: "user", id: memberId, name: a.name }, type: "member_joined", summary: `${a.name} joined${anon ? " (anon)" : ""}` });
     return { roomId: room._id, memberId };
@@ -269,7 +368,7 @@ export const leave = mutation({
     const member = await ctx.db.get(actor.id as Id<"members">);
     if (!member || String(member.roomId) !== String(roomId)) throw new Error("actor_not_in_room");
     const now = Date.now();
-    await ctx.db.patch(member._id, { lastSeenAt: now });
+    await ctx.db.patch(member._id, { lastSeenAt: now, revokedAt: now });
     await ctx.db.insert("traces", {
       roomId,
       ts: now,
@@ -293,6 +392,7 @@ export const members = query({
   handler: async (ctx, { roomId, requester }) => {
     await requireActorProof(ctx, roomId, requester);
     return (await ctx.db.query("members").withIndex("by_room", (q) => q.eq("roomId", roomId)).collect())
+      .filter((m) => m.revokedAt == null)
       .map((m) => ({ id: m._id, roomId: m.roomId, name: m.name, role: m.role, anon: m.anon, color: m.color, lastSeenAt: m.lastSeenAt }));
   },
 });
@@ -312,16 +412,30 @@ export const full = query({
   handler: async (ctx, { roomId, requester }) => {
     const room = await ctx.db.get(roomId);
     if (!room) return null;
-    await requireActorProof(ctx, roomId, requester);
+    const actor = await requireActorProof(ctx, roomId, requester);
     const members = (await ctx.db.query("members").withIndex("by_room", (q) => q.eq("roomId", roomId)).collect())
+      .filter((m) => m.revokedAt == null)
       .map((m) => ({ id: m._id, roomId: m.roomId, name: m.name, role: m.role, anon: m.anon, color: m.color, lastSeenAt: m.lastSeenAt }));
-    const arts = await ctx.db.query("artifacts").withIndex("by_room", (q) => q.eq("roomId", roomId)).collect();
+    const arts = (await ctx.db.query("artifacts").withIndex("by_room", (q) => q.eq("roomId", roomId)).collect())
+      .filter((a) => canReadArtifact(a, actor));
     const artifacts = [];
     for (const a of arts) {
       const els = await ctx.db.query("elements").withIndex("by_artifact", (q) => q.eq("artifactId", a._id)).collect();
       const elements: Record<string, unknown> = {};
       for (const e of els) elements[e.elementId] = { id: e.elementId, version: e.version, value: e.value, updatedAt: e.updatedAt, updatedBy: e.updatedBy };
-      artifacts.push({ id: a._id, roomId: a.roomId, kind: a.kind, title: a.title, version: a.version, order: a.order, elements, updatedAt: a.updatedAt, meta: a.meta });
+      artifacts.push({
+        id: a._id,
+        roomId: a.roomId,
+        kind: a.kind,
+        title: a.title,
+        version: a.version,
+        order: a.order,
+        elements,
+        updatedAt: a.updatedAt,
+        createdBy: a.createdBy,
+        visibility: a.visibility ?? "room",
+        meta: a.meta,
+      });
     }
     const locks = (await ctx.db.query("locks").withIndex("by_room_status", (q) => q.eq("roomId", roomId).eq("status", "active")).collect())
       .map((l) => ({ id: l._id, roomId: l.roomId, artifactId: l.artifactId, elementIds: l.elementIds, holder: l.holder, sessionId: l.sessionId, reason: l.reason, status: l.status, createdAt: l._creationTime }));
@@ -332,7 +446,7 @@ export const full = query({
     // The draft's owner still sees their own ops; everyone else gets [] + an opsRedacted count.
     const drafts = (await ctx.db.query("drafts").withIndex("by_room_status", (q) => q.eq("roomId", roomId).eq("status", "pending")).collect())
       .map((d) => {
-        const redact = d.author.scope === "private" && !(d.author.ownerId !== undefined && d.author.ownerId === requester.actor.id);
+        const redact = d.author.scope === "private" && !(d.author.ownerId !== undefined && d.author.ownerId === actor.id);
         return {
           id: d._id, roomId: d.roomId, artifactId: d.artifactId, author: d.author,
           ops: redact ? [] : d.ops,
@@ -358,18 +472,31 @@ export const meta = query({
   handler: async (ctx, { roomId, requester }) => {
     const room = await ctx.db.get(roomId);
     if (!room) return null;
-    await requireActorProof(ctx, roomId, requester);
+    const actor = await requireActorProof(ctx, roomId, requester);
     const members = (await ctx.db.query("members").withIndex("by_room", (q) => q.eq("roomId", roomId)).collect())
+      .filter((m) => m.revokedAt == null)
       .map((m) => ({ id: m._id, roomId: m.roomId, name: m.name, role: m.role, anon: m.anon, color: m.color, lastSeenAt: m.lastSeenAt }));
-    const arts = await ctx.db.query("artifacts").withIndex("by_room", (q) => q.eq("roomId", roomId)).collect();
-    const artifacts = arts.map((a) => ({ id: a._id, roomId: a.roomId, kind: a.kind, title: a.title, version: a.version, order: a.order, updatedAt: a.updatedAt, meta: a.meta }));
+    const arts = (await ctx.db.query("artifacts").withIndex("by_room", (q) => q.eq("roomId", roomId)).collect())
+      .filter((a) => canReadArtifact(a, actor));
+    const artifacts = arts.map((a) => ({
+      id: a._id,
+      roomId: a.roomId,
+      kind: a.kind,
+      title: a.title,
+      version: a.version,
+      order: a.order,
+      updatedAt: a.updatedAt,
+      createdBy: a.createdBy,
+      visibility: a.visibility ?? "room",
+      meta: a.meta,
+    }));
     const locks = (await ctx.db.query("locks").withIndex("by_room_status", (q) => q.eq("roomId", roomId).eq("status", "active")).collect())
       .map((l) => ({ id: l._id, roomId: l.roomId, artifactId: l.artifactId, elementIds: l.elementIds, holder: l.holder, sessionId: l.sessionId, reason: l.reason, status: l.status, createdAt: l._creationTime }));
     const sessions = (await ctx.db.query("agentSessions").withIndex("by_room", (q) => q.eq("roomId", roomId)).collect())
       .map((s) => ({ id: s._id, roomId: s.roomId, agentId: s.agentId, agentName: s.agentName, scope: s.scope, ownerId: s.ownerId, status: s.status, heldLockId: s.heldLockId, lastAction: s.lastAction, updatedAt: s.updatedAt }));
     const drafts = (await ctx.db.query("drafts").withIndex("by_room_status", (q) => q.eq("roomId", roomId).eq("status", "pending")).collect())
       .map((d) => {
-        const redact = d.author.scope === "private" && !(d.author.ownerId !== undefined && d.author.ownerId === requester.actor.id);
+        const redact = d.author.scope === "private" && !(d.author.ownerId !== undefined && d.author.ownerId === actor.id);
         return {
           id: d._id, roomId: d.roomId, artifactId: d.artifactId, author: d.author,
           ops: redact ? [] : d.ops,

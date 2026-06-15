@@ -87,11 +87,54 @@ describe("long-running agent job source invariants", () => {
     expect(streamingModel).toContain("private_stream_provider_unsupported");
   });
 
+  it("preflights every readable room artifact before provider-backed public/free runs", () => {
+    const agent = readFileSync("convex/agent.ts", "utf8");
+    const runner = readFileSync("convex/agentJobRunner.ts", "utf8");
+    const artifacts = readFileSync("convex/artifacts.ts", "utf8");
+
+    expect(agent).toContain("artifacts: roomState.artifacts.map");
+    expect(runner).toContain('makeFunctionReference<"query">("artifacts:listForRoom")');
+    expect(runner).toContain("roomArtifacts.map");
+    expect(artifacts).toContain("meta: a.meta");
+  });
+
+  it("applies the server-side PlanPreview admission gate to public /ask before provider work", () => {
+    const agent = readFileSync("convex/agent.ts", "utf8");
+    const jobs = readFileSync("convex/agentJobs.ts", "utf8");
+
+    expect(agent).toContain("classifyIntakeMessage");
+    expect(agent).toContain("buildPlanPreview");
+    expect(agent).toContain("artifacts:listProposals");
+    expect(agent).toContain('initialStatus: "blocked"');
+    expect(agent).toContain('modelPolicy: "not_started"');
+    expect(agent).toContain('stopReason: "plan_blocked"');
+    expect(jobs).toContain("initialStatus: v.optional");
+    expect(jobs).toContain("planPreview: v.optional(v.any())");
+    expect(jobs).toContain('type: "plan_blocked"');
+  });
+
   it("restricts long-running job controls to the requester or host", () => {
     const jobs = readFileSync("convex/agentJobs.ts", "utf8");
 
     expect(jobs).toContain("actor.id !== job.requester.id && actor.id !== room.hostId");
     expect(jobs).toContain('reason: "forbidden"');
+  });
+
+  it("clamps action budgets below the Convex ceiling with reserve and safety margin", () => {
+    const agent = readFileSync("convex/agent.ts", "utf8");
+    const runner = readFileSync("convex/agentJobRunner.ts", "utf8");
+
+    for (const source of [agent, runner]) {
+      expect(source).toContain("const MIN_ACTION_RESERVE_MS = 10_000");
+      expect(source).toContain("const ACTION_SAFETY_MARGIN_MS = 15_000");
+      expect(source).toContain("function boundedActionBudgetMs");
+      expect(source).toContain("CONVEX_ACTION_LIMIT_MS - reserveMs - ACTION_SAFETY_MARGIN_MS");
+      expect(source).toContain("Math.max(MIN_ACTION_RESERVE_MS");
+    }
+    expect(agent).toContain("boundedActionBudgetMs(");
+    expect(agent).toContain('"AGENT_ACTION_BUDGET_MS"');
+    expect(runner).toContain("boundedActionBudgetMs(");
+    expect(runner).toContain('"FREE_AUTO_JOB_SLICE_BUDGET_MS"');
   });
 
   it("round-trips Gemini tool-call thought signatures for resumed jobs", () => {
