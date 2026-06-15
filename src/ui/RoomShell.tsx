@@ -82,6 +82,12 @@ export function RoomShell({ roomId, me, onLeave }: { roomId: string; me: Actor; 
     // the tour is pointing at, so the tour starts from the chat-only default there.
     if (!seen) { if (!isCompact) setShow({ left: true, stage: true, copilot: true }); setTourOpen(true); }
   }, [shouldAutoStartTour, isCompact]);
+  // Drop a stale split-view pin if its artifact vanished. MUST run before the `!room` early return:
+  // a LIVE room mounts with room=undefined and resolves a tick later, so a hook placed AFTER the
+  // return changes the hook count between those two renders ("rendered more hooks than previous").
+  useEffect(() => {
+    if (sideArtId && !arts.some((a) => a.id === sideArtId)) setSideArtId(null);
+  }, [sideArtId, arts]);
   if (!room) return <div className="r-app"><div className="r-screen"><div style={{ margin: "auto" }} className="muted">Loading room…</div></div></div>;
 
   const members = store.listMembers(roomId);
@@ -89,9 +95,6 @@ export function RoomShell({ roomId, me, onLeave }: { roomId: string; me: Actor; 
   const isHost = members.some((m) => m.id === me.id && m.role === "host");
   const privChannel: Channel = { private: me.id };
   const curArt = arts.find((a) => a.id === artId) ?? arts.find((a) => a.kind === "sheet");
-  useEffect(() => {
-    if (sideArtId && !arts.some((a) => a.id === sideArtId)) setSideArtId(null);
-  }, [sideArtId, arts]);
   const openArtifact = (id: string, opts?: { split?: boolean; elementId?: string }): boolean => {
     const target = resolveRoomOpenTarget({
       id,
