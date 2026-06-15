@@ -109,6 +109,36 @@ test.describe("chat — optimistic send + edit (memory mode)", () => {
     await expect(page.getByTestId("artifact-panel-secondary")).toBeVisible();
   });
 
+  test("mobile chat artifact references switch back to the work surface", async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 812 });
+    await enterDemoRoom(page);
+
+    await page.getByRole("button", { name: "Toggle Room Binder panel" }).click();
+    const source = page.getByTestId("left-rail").getByTestId("binder-artifact").filter({ hasText: "Diligence memo" }).first();
+    const id = await source.getAttribute("data-artifact-id");
+    const kind = await source.getAttribute("data-artifact-kind");
+    expect(id).toBeTruthy();
+    expect(kind).toBeTruthy();
+
+    await page.getByRole("button", { name: "Toggle Copilot panel" }).click();
+    const chat = publicChat(page);
+    await expect(chat).toBeVisible();
+    await chat.evaluate((node, { mime, ref }) => {
+      const dt = new DataTransfer();
+      dt.setData(mime, JSON.stringify(ref));
+      node.dispatchEvent(new DragEvent("dragover", { bubbles: true, cancelable: true, dataTransfer: dt }));
+      node.dispatchEvent(new DragEvent("drop", { bubbles: true, cancelable: true, dataTransfer: dt }));
+    }, { mime: ARTIFACT_REF_MIME, ref: { id: id!, kind: kind!, title: "Diligence memo" } });
+    await chat.getByTestId("chat-send").click();
+
+    const ref = chat.getByTestId("chat-message").filter({ hasText: "Diligence memo" }).locator(".r-msg-ref").first();
+    await expect(ref).toBeVisible();
+    await ref.click();
+
+    await expect(page.getByTestId("work-surface")).toBeVisible();
+    await expect(page.getByTestId("copilot-panel")).toHaveCount(0);
+  });
+
   test("dropping a file into chat uploads it and attaches a reference", async ({ page }) => {
     const chat = publicChat(page);
 
@@ -134,6 +164,6 @@ test.describe("chat — optimistic send + edit (memory mode)", () => {
     await expect(chat.getByRole("option").nth(1)).toHaveAttribute("aria-selected", "true");
     await chat.getByTestId("chat-composer").press("Enter");
 
-    await expect(chat.getByTestId("chat-composer")).toHaveValue("/ask reconcile Q3 revenue against the NetSuite export");
+    await expect(chat.getByTestId("chat-composer")).toHaveValue("/ask diligence CardioNova with source-backed product, buyer, funding, hiring, and HIPAA/security gaps");
   });
 });

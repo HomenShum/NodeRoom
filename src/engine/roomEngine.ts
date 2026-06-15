@@ -153,7 +153,7 @@ export class RoomEngine {
   listMembers(roomId: string): Member[] { return this.membersByRoom.get(roomId) ?? []; }
 
   /* ───────── artifacts (point 5) ───────── */
-  createArtifact(args: { roomId: string; kind: ArtifactKind; title: string; seed?: Array<{ id: string; value: unknown }>; meta?: Artifact["meta"]; by: Actor }): Artifact {
+  createArtifact(args: { roomId: string; kind: ArtifactKind; title: string; seed?: Array<{ id: string; value: unknown }>; meta?: Artifact["meta"]; by: Actor; visibility?: Artifact["visibility"] }): Artifact {
     const now = this.now();
     const id = this.id("art");
     const elements: Record<string, Element> = {};
@@ -162,7 +162,7 @@ export class RoomEngine {
       elements[s.id] = { id: s.id, version: 1, value: s.value, updatedAt: now, updatedBy: args.by };
       order.push(s.id);
     }
-    const art: Artifact = { id, roomId: args.roomId, kind: args.kind, title: args.title, version: 1, elements, order, updatedAt: now, meta: args.meta };
+    const art: Artifact = { id, roomId: args.roomId, kind: args.kind, title: args.title, version: 1, elements, order, updatedAt: now, createdBy: args.by, visibility: args.visibility ?? "room", meta: args.meta };
     this.artifacts.set(id, art);
     this.emit();
     return art;

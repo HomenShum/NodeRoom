@@ -102,8 +102,10 @@ export function RoomShell({ roomId, me, onLeave }: { roomId: string; me: Actor; 
       proposals: store.listProposals(roomId),
     });
     if (!target) return false;
-    setShow((s) => ({ ...s, stage: true }));
-    const canSplitNow = typeof window !== "undefined" && typeof window.matchMedia === "function" && window.matchMedia("(min-width: 1200px)").matches;
+    const hasMatchMedia = typeof window !== "undefined" && typeof window.matchMedia === "function";
+    const compactNow = hasMatchMedia && window.matchMedia("(max-width: 980px)").matches;
+    setShow((s) => compactNow ? { ...s, left: false, stage: true, copilot: false } : { ...s, stage: true });
+    const canSplitNow = hasMatchMedia && window.matchMedia("(min-width: 1200px)").matches;
     if (opts?.split && canSplitNow && target.artifactId !== artId) {
       setSideArtId(target.artifactId);
     } else {
@@ -115,7 +117,7 @@ export function RoomShell({ roomId, me, onLeave }: { roomId: string; me: Actor; 
   };
 
   const varianceArt = arts.find((a) => a.title === "Q3 variance") ?? arts.find((a) => a.kind === "sheet");
-  // Open the tour from a clean, known layout: all panels shown + the variance sheet selected, ONCE.
+  // Open the tour from a clean, known layout: all panels shown + the financial grid selected, ONCE.
   // Steps then anchor only to always-visible elements, so there are no per-step side-effects to thrash.
   const startTour = () => {
     if (varianceArt) openArtifact(varianceArt.id);
@@ -126,48 +128,48 @@ export function RoomShell({ roomId, me, onLeave }: { roomId: string; me: Actor; 
   const tourSteps: TourStep[] = [
     {
       title: "Welcome to NodeRoom",
-      body: "A live room where you and AI NodeAgents edit a shared spreadsheet, notes, and a post-it wall together — without ever clobbering each other. Here's the 60-second tour. You're in a safe demo: nothing is sent anywhere.",
+      body: "A live diligence room where bankers, guests, and NodeAgents gather company facts, enrich shared grids, and prepare runway, milestone, and handoff artifacts without clobbering each other. This memory demo is safe: nothing is sent anywhere.",
       placement: "center",
     },
     {
       selector: '[data-testid="left-rail"]',
       title: "Room Binder",
-      body: "Files, uploads, people, and public agents live here. Use it to open work on the main stage or drag files into chat; detailed agent steering belongs in Copilot.",
+      body: "The Binder holds company research, runway work, memos, open questions, source uploads, live people, agents, and the review queue. Open artifacts here or drag them into chat as references.",
       placement: "right",
     },
     {
       selector: '[data-testid="copilot-panel"]',
       title: "Ask Copilot",
-      body: "Talk in plain language. Public chat, private agent work, job controls, and steering now live in Copilot.",
+      body: "Use public chat for room-visible work and the private lane for your own banker coach. Chat can attach artifacts, drop files, stream agent operations, and open referenced work beside the stage.",
       placement: "top",
     },
     {
       selector: '[data-testid="collab-run"]',
       title: "Human + agent, no clobbering",
-      body: "Click Run collaboration to watch the agent lock a range, draft around your edits, and smart-merge on unlock — a strict compare-and-swap, no-clobber model. Cells update instantly, no spinner.",
+      body: "Click Run collaboration to watch the agent lock a range, draft around human edits, and merge through compare-and-swap. This is the trust primitive behind evidence-bearing diligence cells.",
       placement: "left",
     },
     {
       selector: '[data-testid="room-trace"]',
       title: "Everything is auditable",
-      body: "Every change — by hand or by agent — is recorded. The bottom strip shows what just happened; the full trace remains inspectable.",
+      body: "Every hand edit, agent write, proposal, lock, receipt, and trace event remains inspectable, so a banker can explain how a number or claim entered the room.",
       placement: "left",
     },
     {
       selector: '[data-testid="artifact-tabs"]',
-      title: "Spreadsheet, notes & a post-it wall",
-      body: "Switch tabs to the research sheet, the shared note, or the drag-and-drop post-it wall — every surface is live and conflict-safe.",
+      title: "Diligence artifacts",
+      body: "Switch between the financial grid, company research, diligence memo, open questions, and risk wall. Each surface is live, source-aware, and conflict-safe.",
       placement: "bottom",
     },
     {
       selector: '[data-testid="copilot-panel"]',
       title: "Public and private lanes",
-      body: "Switch Copilot between the public room lane and your private NodeAgent. Private output stays yours until you promote it.",
+      body: "Switch Copilot between the public room lane and your private NodeAgent. Private findings stay yours until you promote them into the shared review flow.",
       placement: "left",
     },
     {
       title: "Now you try",
-      body: "Type /ask reconcile Q3 revenue in the public chat and watch the agent work — or hit Run collaboration. Replay this tour anytime from the ? button up top.",
+      body: "Type /ask diligence CardioNova or run /demo multi-agent startup diligence to show the room moving from intake to evidence, review, runway gaps, and downstream drafts.",
       placement: "center",
     },
   ];

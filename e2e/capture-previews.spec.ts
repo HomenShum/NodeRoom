@@ -151,7 +151,7 @@ test("real-app preview — /ask reconcile drives the sheet through chat (chat + 
 
   await shoot(1500);                        // before: composer empty, variance cells empty
   const composer = chatPanel.getByTestId("chat-composer");
-  await composer.fill("/ask reconcile Q3 revenue against the NetSuite export");
+  await composer.fill("/ask diligence CardioNova with source-backed product, buyer, funding, hiring, and HIPAA/security gaps");
   await shoot(1200);                        // the typed /ask command visible
   await composer.press("Enter");            // the real agent runtime picks it up
   for (let i = 0; i < 26; i++) { await page.waitForTimeout(130); frames.push({ buf: await page.screenshot({ type: "png", clip }), delay: 130 }); }

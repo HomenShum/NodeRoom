@@ -162,7 +162,7 @@ export function LeftRail({ roomId, me, artId, onPick, onOpenChat, style }: { roo
               borrowing from the real artifact buttons above (looks-clickable-must-act rule). */}
           {hasQ3DemoSeed && <div className="r-file r-file-static">
             <span className="fi"><Database size={14} /></span>
-            <span><div className="fn">NetSuite export</div><div className="fm">source · read-only</div></span>
+            <span><div className="fn">Data room exports</div><div className="fm">source · read-only</div></span>
           </div>}
         </div>
 

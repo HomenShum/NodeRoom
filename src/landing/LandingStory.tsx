@@ -119,7 +119,7 @@ export function LandingStory({ onEnter, onBack }: { onEnter: (s: Session) => voi
             <button className="r-btn primary lg" onClick={enterDemo}>Open the live room <ArrowRight size={15} /></button>
             <button className="r-btn lg" onClick={onBack}>Back to start</button>
           </div>
-          <p className="rs-cta-foot">Q3 diligence room · 3 humans · 2 agents · seeded demo data</p>
+          <p className="rs-cta-foot">Startup diligence room - 3 humans - 2 agents - seeded demo data</p>
         </section>
       </div>
     </div>

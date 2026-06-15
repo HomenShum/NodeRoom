@@ -1,5 +1,5 @@
 /**
- * Demo room — "Q3 diligence" (matches the Claude Design handoff).
+ * Demo room - startup banking diligence.
  *
  * The spreadsheet is a financial model: rows (Revenue, COGS, Gross profit, OpEx,
  * Net income) with read-only label/Q2/Q3 and editable Variance/Note cells, stored
@@ -120,7 +120,7 @@ export interface DemoRoom {
 }
 
 export function buildDemoRoom(engine: RoomEngine): DemoRoom {
-  const { room, host } = engine.createRoom({ title: "Q3 diligence", hostName: "Homen", autoAllow: true });
+  const { room, host } = engine.createRoom({ title: "Startup diligence", hostName: "Homen", autoAllow: true });
   const me: Actor = { kind: "user", id: host.id, name: "Homen" };
   const priyaM = engine.joinRoom({ code: room.code, name: "Priya", anon: false })!.member;
   const quokkaM = engine.joinRoom({ code: room.code, name: "anon · quokka" })!.member;

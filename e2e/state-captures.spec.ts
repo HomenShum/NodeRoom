@@ -106,12 +106,12 @@ test("capture — LeftRail states", async ({ page }) => {
   await enterDemoRoom(page);
   await setTheme(page, "dark");
   const rail = page.getByTestId("left-rail");
-  await shoot(rail, "leftrail", "default", "dark", 1860, "File rows (the OPEN artifact carries a persistent selected background — selection, not hover); the upload button; the inert 'NetSuite export' source row is muted and must NOT look like the clickable artifact rows.");
+  await shoot(rail, "leftrail", "default", "dark", 1860, "File rows (the OPEN artifact carries a persistent selected background - selection, not hover); the upload button; the inert 'Data room exports' source row is muted and must NOT look like the clickable artifact rows.");
   // Hover a NON-selected row (nth 0 = Agent wiki; nth 1 = Q3 variance is the OPEN/selected one).
   await page.locator(".r-file").nth(0).hover();
-  await shoot(rail, "leftrail", "file-hover", "dark", 1860, "A non-selected file row (Agent wiki) shows a hover-fill — distinct from both the default rows and the accent-tinted SELECTED row (Q3 variance).");
-  await page.locator(".r-file-static").filter({ hasText: /NetSuite export/i }).hover();
-  await shoot(rail, "leftrail", "static-hover", "dark", 1860, "The inert NetSuite row does NOT highlight on hover — it stays muted. (The 'Agent wiki' row carries a persistent SELECTED background because it is the open artifact — that is selection, not hover.)");
+  await shoot(rail, "leftrail", "file-hover", "dark", 1860, "A non-selected file row (Agent wiki) shows a hover-fill - distinct from both the default rows and the accent-tinted SELECTED row (Q3 variance).");
+  await page.locator(".r-file-static").filter({ hasText: /Data room exports/i }).hover();
+  await shoot(rail, "leftrail", "static-hover", "dark", 1860, "The inert data-room source row does NOT highlight on hover - it stays muted. (The 'Agent wiki' row carries a persistent SELECTED background because it is the open artifact - that is selection, not hover.)");
   flushManifest();
 });
 
@@ -121,13 +121,13 @@ test("capture — Chat states", async ({ page }) => {
   const chat = publicChat(page);
   const composer = chat.getByTestId("chat-composer");
   await shoot(chat, "chat", "composer-empty", "dark", 1860, "Empty composer with placeholder + send affordance; the send control state reflects empty input.");
-  await composer.fill("/ask reconcile Q3 revenue");
+  await composer.fill("/ask diligence CardioNova");
   await shoot(chat, "chat", "composer-typed", "dark", 1860, "A typed slash-command; the send button now looks actionable.");
   await composer.fill("");
   await composer.focus();
   await shoot(chat, "chat", "composer-focus", "dark", 1860, "Focused EMPTY composer shows a visible focus ring (distinct from the typed state) AND a muted/disabled send button reflecting the empty input.");
   // Send a message so we can hover OUR OWN message (which has edit/promote rights), not an agent one.
-  await composer.fill("Pulling the NetSuite Q3 numbers now.");
+  await composer.fill("Checking CardioNova product, funding, hiring, and HIPAA gaps now.");
   await composer.press("Enter");
   await page.waitForTimeout(300);
   const mine = chat.getByTestId("chat-message").last();

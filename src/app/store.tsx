@@ -29,7 +29,7 @@ function paced(model: AgentModel, ms: number): AgentModel {
   return { ...model, next: async (args) => { await new Promise((r) => setTimeout(r, ms)); return model.next(args); } };
 }
 import { RESEARCH_PLAN } from "../engine/demoRoom";
-import type { Actor, Artifact, ArtifactMeta, Channel, Lock, Member, Message, Room, TraceEvent, AgentSession, Draft, ChangeOp, Proposal, ResearchRowInput } from "../engine/types";
+import type { Actor, Artifact, ArtifactMeta, ArtifactVisibility, Channel, Lock, Member, Message, Room, TraceEvent, AgentSession, Draft, ChangeOp, Proposal, ResearchRowInput } from "../engine/types";
 import type { UploadedArtifactInput, UploadedSourceFile } from "./uploadedArtifact";
 import type { ArtifactRef } from "../ui/artifactRefs";
 
@@ -115,7 +115,7 @@ export interface RoomStore {
   /** Approve/reject a proposal. Returns feedback so an approve that loses a CAS race surfaces the conflict instead of a false "applied". */
   resolveProposal(proposalId: string, approve: boolean, actor: Actor): Promise<EditFeedback>;
   addResearchRows(args: { roomId: string; artifactId: string; rows: ResearchRowInput[]; actor: Actor }): Promise<number>;
-  uploadArtifact(args: { roomId: string; artifact: UploadedArtifactInput; actor: Actor }): Promise<string>;
+  uploadArtifact(args: { roomId: string; artifact: UploadedArtifactInput; actor: Actor; visibility?: ArtifactVisibility }): Promise<string>;
   canRunCollab: boolean;
   runCollab(): Promise<void>;
   /** Memory-mode product drill: creates a stale agent draft and routes it through CRS review. */
@@ -125,7 +125,7 @@ export interface RoomStore {
   /** Drive the per-user PRIVATE NodeAgent. Default: reads the room, replies in the user's own private
    * channel. With `{ publish: true }`: the agent acts in the shared room (edits the sheet + posts public
    * chat) as the user's personal agent, attributed to them. */
-  askPrivateAgent(goal: string, opts?: { publish?: boolean }): Promise<void>;
+  askPrivateAgent(input: AgentAskInput, opts?: { publish?: boolean }): Promise<void>;
   startLongFreeAgent(input: AgentAskInput): Promise<void>;
   /** Enrich every PENDING company on the research sheet (ParselyFi loop) — status-gated, sourced. */
   askResearch(): Promise<void>;
@@ -310,7 +310,7 @@ export function EngineStoreProvider({ roomId, children }: { roomId: string; me: 
       return r ? (r.ok ? { ok: true, version: r.toVersion } : { ok: false, reason: r.reason }) : { ok: false, reason: "not_found" };
     },
     addResearchRows: async ({ roomId, artifactId, rows, actor }) => engine.addResearchRows({ roomId, artifactId, rows, by: actor }).length,
-    uploadArtifact: async ({ roomId, artifact, actor }) => engine.createArtifact({ roomId, kind: artifact.kind, title: artifact.title, seed: artifact.seed, meta: artifact.meta, by: actor }).id,
+    uploadArtifact: async ({ roomId, artifact, actor, visibility }) => engine.createArtifact({ roomId, kind: artifact.kind, title: artifact.title, seed: artifact.seed, meta: artifact.meta, by: actor, visibility }).id,
     canRunCollab: roomId === demo.roomId,
     runCollab: () => runDemo(false),
     runSemanticConflictDrill: () => runDemo(true),
@@ -700,7 +700,7 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
           ? { ...j, status: "queued", error: undefined, nextRunAt: Date.now(), updatedAt: Date.now() } : j));
     }
   });
-  const uploadSourceFile = useCallback((sourceFile: UploadedSourceFile): Promise<StoredUploadRef> => {
+  const uploadSourceFile = useCallback((sourceFile: UploadedSourceFile, visibility: ArtifactVisibility = "room"): Promise<StoredUploadRef> => {
     const cached = fileUploadCache.current.get(sourceFile.blob);
     if (cached) return cached;
     const upload = (async () => {
@@ -720,7 +720,7 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
         fileName: sourceFile.fileName,
         mimeType: sourceFile.mimeType || "application/octet-stream",
         size: sourceFile.size,
-        visibility: "room",
+        visibility,
       });
       return {
         fileId: String(registered.fileId),
@@ -803,8 +803,8 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
         const ids = await addResearchRowsMutation({ roomId: rid, artifactId: artifactId as never, rows, requester: proof });
         return ids.length;
       },
-      uploadArtifact: async ({ artifact }) => {
-        const stored = artifact.sourceFile ? await uploadSourceFile(artifact.sourceFile) : null;
+      uploadArtifact: async ({ artifact, visibility = "room" }) => {
+        const stored = artifact.sourceFile ? await uploadSourceFile(artifact.sourceFile, visibility) : null;
         const meta = stored && artifact.sourceFile ? withStoredSourceMeta(artifact.meta, artifact.sourceFile, stored) : artifact.meta;
         const id = await createArtifactMutation({
           roomId: rid,
@@ -853,9 +853,11 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
           goal: withReferenceContext(input.goal, references),
         });
       },
-      askPrivateAgent: async (goal, opts) => {
+      askPrivateAgent: async (input, opts) => {
+        const references = canonicalRefs(artifacts, input.references);
+        const goal = withReferenceContext(input.goal, references);
         if (opts?.publish) {
-          const target = targetArtifact(artifacts);
+          const target = targetArtifact(artifacts, references);
           if (target) {
             await runAgent({ roomId: rid, artifactId: target.id as never, requester: proof, mode: target.title === "Company research" ? "research" : undefined, goal, asOwner: { id: me.id, name: me.name } });
             return;

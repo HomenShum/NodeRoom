@@ -1,6 +1,6 @@
 /** Landing (`.r-landing`) - design hero + create/join, recreated from room.css. */
 import { useState } from "react";
-import { Sparkles, Table2, Lock, History, PlayCircle, Plus } from "lucide-react";
+import { Sparkles, PlayCircle, Plus, Building2, LineChart, FileCheck2 } from "lucide-react";
 import { engine, demo, createFreshRoom, enterDemoRoomAsHost, joinRoomByCode } from "../app/roomStore";
 import type { Session } from "./App";
 
@@ -56,11 +56,12 @@ export function Landing({
     <div className="r-app">
       <div className="r-screen">
         <div className="r-landing">
-          <span className="r-eyebrow"><Sparkles size={13} /> NodeRoom - live collaborative room</span>
-          <h1 className="r-h1">A room where you and <span className="accent">NodeAgents</span> edit together.</h1>
+          <span className="r-eyebrow"><Sparkles size={13} /> NodeRoom - startup banking diligence room</span>
+          <h1 className="r-h1">A live room for <span className="accent">banker-led diligence</span>.</h1>
           <p className="r-lede">
-            Public chat, a private NodeAgent, and a shared spreadsheet / note / post-it wall - with a
-            <b> lock {"->"} draft {"->"} smart-merge</b> model so a human and an agent never clobber each other.
+            Multiple users and NodeAgents gather company information, enrich source-backed grids,
+            build runway and milestone artifacts, and keep every AI edit behind a
+            <b> lock {"->"} proposal {"->"} review</b> path.
           </p>
           <button className="r-btn" style={{ marginBottom: 4 }} disabled={busy} onClick={() => { window.location.hash = "story"; }}>
             <PlayCircle size={15} /> See how it works - the 7-layer walkthrough
@@ -92,9 +93,9 @@ export function Landing({
           {shownError && <div className="r-join-error" role="alert">{shownError}</div>}
 
           <div className="r-feature-grid">
-            <div className="r-feature"><div className="fi"><Table2 size={16} /></div><h3>Shared artifacts</h3><p>A spreadsheet, note, and post-it wall every member and agent edits live.</p></div>
-            <div className="r-feature"><div className="fi"><Lock size={16} /></div><h3>Lock {"->"} draft {"->"} merge</h3><p>An agent claims a range, others draft around it, and it smart-merges on unlock - no clobbering.</p></div>
-            <div className="r-feature"><div className="fi"><History size={16} /></div><h3>Per-room trace</h3><p>Every change, by hand or agent, is recorded as a versioned delta you can audit.</p></div>
+            <div className="r-feature"><div className="fi"><Building2 size={16} /></div><h3>Company diligence</h3><p>Single-company or batch research lands in shared grids with owner, status, source, and freshness states.</p></div>
+            <div className="r-feature"><div className="fi"><LineChart size={16} /></div><h3>Runway & milestones</h3><p>Agents turn cash, burn, hiring, pricing, and market headwinds into reviewable banker artifacts.</p></div>
+            <div className="r-feature"><div className="fi"><FileCheck2 size={16} /></div><h3>Evidence & review</h3><p>Cells, charts, handoff drafts, and coach cues stay traceable before anything is shared downstream.</p></div>
           </div>
         </div>
       </div>

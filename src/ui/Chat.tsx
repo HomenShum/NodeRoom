@@ -163,9 +163,9 @@ function operationStreamText(op: OperationStreamRow): string {
 }
 
 const SLASH_CMDS = [
-  { label: "/ask", insert: "/ask ", hint: "ask the Room NodeAgent to act on the sheet" },
-  { label: "/ask reconcile Q3 revenue", insert: "/ask reconcile Q3 revenue against the NetSuite export", hint: "recompute the variance column" },
-  { label: "/ask flag variance > 15%", insert: "/ask flag any variance over 15%", hint: "footnote the outliers" },
+  { label: "/ask", insert: "/ask ", hint: "ask the Room NodeAgent to act on the diligence artifacts" },
+  { label: "/ask diligence CardioNova", insert: "/ask diligence CardioNova with source-backed product, buyer, funding, hiring, and HIPAA/security gaps", hint: "enrich the lead company" },
+  { label: "/ask runway gaps", insert: "/ask prepare runway and milestone gaps for CardioNova and the batch watchlist", hint: "build banker follow-ups" },
   { label: "/free", insert: "/free ", hint: "force the resumable free-auto model policy" },
   { label: "/demo multi-agent", insert: "/demo multi-agent startup diligence ", hint: "show startup-banking diligence queue lanes" },
 ];
@@ -555,14 +555,14 @@ export function Chat({ roomId, me, channel, variant, agentName, style, onOpenArt
     }
 
     if (!isPrivate && /^\/ask\b/i.test(t)) {
-      const goal = t.replace(/^\/ask\s*/i, "").trim() || "Recompute the Q3 variance from the audited NetSuite numbers.";
+      const goal = t.replace(/^\/ask\s*/i, "").trim() || "Diligence CardioNova with source-backed product, buyer, funding, hiring, and HIPAA/security gaps.";
       beginThinking();
       void store.askAgent({ goal, references: messageRefs }).catch((e) => { if (aliveRef.current) setAgentErr(agentErrorText(e)); }).finally(() => { if (aliveRef.current) setThinking(false); });
       return;
     }
 
     if (!isPrivate && /^\/free\b/i.test(t)) {
-      const goal = t.replace(/^\/free\s*/i, "").trim() || "Recompute the Q3 variance from the audited NetSuite numbers.";
+      const goal = t.replace(/^\/free\s*/i, "").trim() || "Diligence CardioNova with source-backed product, buyer, funding, hiring, and HIPAA/security gaps.";
       beginThinking();
       void store.startLongFreeAgent({ goal, references: messageRefs }).catch((e) => { if (aliveRef.current) setAgentErr(agentErrorText(e)); }).finally(() => { if (aliveRef.current) setThinking(false); });
       return;
@@ -593,7 +593,7 @@ export function Chat({ roomId, me, channel, variant, agentName, style, onOpenArt
       // Live private NodeAgent. Private lane → replies only to you. Room lane → acts in the shared room
       // (edits the sheet + posts public chat) as your personal agent, attributed to you.
       beginThinking();
-      void store.askPrivateAgent(t, { publish: roomLane }).catch((e) => { if (aliveRef.current) setAgentErr(agentErrorText(e)); }).finally(() => { if (aliveRef.current) setThinking(false); });
+      void store.askPrivateAgent({ goal: t, references: messageRefs }, { publish: roomLane }).catch((e) => { if (aliveRef.current) setAgentErr(agentErrorText(e)); }).finally(() => { if (aliveRef.current) setThinking(false); });
     }
   };
 
@@ -653,7 +653,7 @@ export function Chat({ roomId, me, channel, variant, agentName, style, onOpenArt
       let committed = 0;
       try {
         for (const artifact of parsed) {
-          const id = await abortable(store.uploadArtifact({ roomId, artifact, actor: me }), controller.signal);
+          const id = await abortable(store.uploadArtifact({ roomId, artifact, actor: me, visibility: isPrivate ? "private" : "room" }), controller.signal);
           uploadedRefs.push({ id, title: artifact.title, kind: artifact.kind });
           committed += 1;
         }
@@ -720,7 +720,7 @@ export function Chat({ roomId, me, channel, variant, agentName, style, onOpenArt
     if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); }
     else if (e.key === "Escape") { if (slashOpen) setSlashOpen(false); else taRef.current?.blur(); }
   };
-  const canSend = text.trim().length > 0 || refs.length > 0;
+  const canSend = !uploadingFiles && (text.trim().length > 0 || refs.length > 0);
   const rootClass = embedded ? `r-chat-embedded ${isPrivate ? "private" : "public"}` : `r-panel ${isPrivate ? "right" : "center"}`;
 
   return (
@@ -894,8 +894,8 @@ export function Chat({ roomId, me, channel, variant, agentName, style, onOpenArt
           <div className="r-composer-hint">
             {hasQ3DemoSeed && (
               <>
-                <button className="r-chip" onClick={() => applySlash(SLASH_CMDS[1].insert)}>/ask reconcile Q3 revenue</button>
-                <button className="r-chip" onClick={() => applySlash(SLASH_CMDS[2].insert)}>/ask flag variance &gt; 15%</button>
+                <button className="r-chip" onClick={() => applySlash(SLASH_CMDS[1].insert)}>/ask diligence CardioNova</button>
+                <button className="r-chip" onClick={() => applySlash(SLASH_CMDS[2].insert)}>/ask runway gaps</button>
                 {store.mode === "memory" && <button className="r-chip" onClick={() => applySlash(SLASH_CMDS[4].insert)}>/demo multi-agent</button>}
               </>
             )}
