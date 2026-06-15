@@ -77,6 +77,10 @@ for (const vp of VIEWPORTS) {
     expect(tabBox!.x + tabBox!.width, "tab bar ends inside viewport").toBeLessThanOrEqual(vp.width + 1);
 
     await expect(toggles, "panel toggles stay available").toBeVisible();
+    const toggleBox = await toggles.boundingBox();
+    expect(toggleBox, "panel toggle group must have a bounding box").not.toBeNull();
+    expect(toggleBox!.x, "panel toggle group starts inside viewport").toBeGreaterThanOrEqual(0);
+    expect(toggleBox!.x + toggleBox!.width, "panel toggle group ends inside viewport").toBeLessThanOrEqual(vp.width + 1);
     const toggleButtons = toggles.locator("button");
     await expect(toggleButtons, "Room Binder, Work Surface, and Copilot toggles exist").toHaveCount(3);
     for (let i = 0; i < 3; i++) {

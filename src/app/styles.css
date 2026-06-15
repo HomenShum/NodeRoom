@@ -893,13 +893,13 @@ input { font-family: inherit; }
   .r-toggle-group { flex: none; gap: 3px; padding: 3px; }
   .r-toggle-group .r-iconbtn {
     width: auto;
-    min-width: 58px;
+    min-width: 54px;
     height: 38px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 5px;
-    padding: 0 8px;
+    padding: 0 6px;
   }
   .r-toggle-group .r-iconbtn[data-on="true"] {
     background: var(--accent-tint);
@@ -912,6 +912,10 @@ input { font-family: inherit; }
     font-weight: 800;
     line-height: 1;
   }
+  /* On narrow phones the panel switcher is the primary navigation. Keep Room/Work/Chat
+     fully in-frame and let secondary utilities move out of the first viewport. */
+  .r-top .r-iconbtn[data-testid="tour-button"],
+  .r-top .r-iconbtn[title="Toggle light / dark"] { display: none; }
   .r-workspace { padding: 8px 8px 6px; gap: 8px; }
   .r-shell-bottom { padding: 0 8px 8px; }
   .r-signal-chip { max-width: 128px; overflow: hidden; text-overflow: ellipsis; }
