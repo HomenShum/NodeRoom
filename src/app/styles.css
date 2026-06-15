@@ -596,6 +596,9 @@ input { font-family: inherit; }
 .r-sheet td.r-rownum { width: 44px; min-width: 44px; position: sticky; left: 0; z-index: 1; padding: 6px; text-align: center; font-variant-numeric: tabular-nums; font-size: 11px; color: var(--text-tertiary); background: var(--bg-secondary); border-right: 1px solid var(--line-strong); user-select: none; cursor: default; }
 .r-sheet tbody tr:hover td { background: var(--bg-hover); }
 .r-sheet tbody tr:hover td.r-rownum { background: var(--bg-secondary); color: var(--text-secondary); }
+/* quiet empty filler rows so the grid fills the canvas like a real spreadsheet */
+.r-sheet .r-row-empty td { height: 27px; }
+.r-sheet .r-row-empty td.r-rownum { font-weight: 400; opacity: .55; }
 .r-sheet td.label { font-weight: 600; color: var(--text-primary); }
 .r-sheet td .nullcell { color: var(--text-tertiary); font-family: var(--font-mono); font-size: 11px; }
 .r-cell-meta { display: inline-flex; margin-left: 6px; padding: 1px 5px; border-radius: 5px; border: 1px solid var(--line); background: var(--bg-secondary); color: var(--text-tertiary); font-family: var(--font-mono); font-size: 9px; vertical-align: middle; white-space: nowrap; }

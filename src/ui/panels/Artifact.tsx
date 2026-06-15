@@ -799,6 +799,12 @@ function GenericSheet({ art }: { art: Art }) {
                   })}
                 </tr>
               ))}
+              {Array.from({ length: Math.max(0, 24 - visibleRows.length) }, (_, k) => (
+                <tr key={`fill${k}`} className="r-row-empty" aria-hidden="true">
+                  <td className="r-rownum">{visibleRows.length + k + 1}</td>
+                  {cols.map((c) => <td key={c} />)}
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>
@@ -1280,6 +1286,12 @@ function Sheet({ roomId, me, art, onError }: { roomId: string; me: Actor; art: A
                   </tr>
                 );
               })}
+              {Array.from({ length: Math.max(0, 24 - rows.length) }, (_, k) => (
+                <tr key={`fill${k}`} className="r-row-empty" aria-hidden="true">
+                  <td className="r-rownum">{rows.length + k + 1}</td>
+                  {Array.from({ length: 5 }, (_, c) => <td key={c} />)}
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>
