@@ -100,6 +100,7 @@ function pageChecks(spacingScale: number[], tokenColors: string[]) {
     for (const el of Array.from(document.querySelectorAll(sel)).slice(0, 600)) {
       const r = (el as HTMLElement).getBoundingClientRect();
       if (r.width < 4 || r.height < 4) continue;
+      if (el.closest(".r-av, .r-avatar, .r-mark")) continue; // decorative identity/brand marks: AA text-contrast n/a
       const cs = getComputedStyle(el);
       if (!(el.textContent ?? "").trim()) {
         // non-text: still collect bg for token drift

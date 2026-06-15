@@ -30,7 +30,7 @@
 }
 [data-theme="dark"] {
   --bg-app: #09090b; --bg-primary: #111418; --bg-secondary: #171b20; --bg-tertiary: #1b2027; --bg-hover: #20262d;
-  --text-primary: #f2f4f7; --text-secondary: #c6ccd4; --text-muted: #99a3ae; --text-tertiary: #66717c;
+  --text-primary: #f2f4f7; --text-secondary: #c6ccd4; --text-muted: #99a3ae; --text-tertiary: #8a94a0; /* tertiary raised to WCAG AA (was #66717c ~3.5:1); still the lightest tier, now >=4.5:1 */
   --border-color: rgba(255,255,255,.10); --border-strong: rgba(255,255,255,.14);
   --accent-tint: rgba(217,119,87,.16); --accent-ink: #E59579;
   --danger-ink: #f87171; --danger-tint: rgba(248,113,113,.10); --danger-border: rgba(248,113,113,.28);
@@ -93,7 +93,7 @@ input { font-family: inherit; }
 /* Flat fill, no glow: a form submit is attached, not floating (Linear/Vercel primary spec —
    "no shadow, color shift on hover"). The old 22px-blur glow scaled with the box and turned any
    stretched button into an orange slab. */
-.r-btn.primary { background: var(--accent-primary); color: #fff; border-color: transparent; }
+.r-btn.primary { background: #b0562f; color: #fff; border-color: transparent; } /* AA: white on #D97757 is ~3.1:1; this darker terracotta hits >=4.5:1 (focus bars/tints keep --accent-primary) */
 .r-btn.primary:hover { background: var(--accent-hover); }
 .r-btn.ghost { background: transparent; border-color: transparent; color: var(--text-muted); }
 .r-btn.ghost:hover { background: var(--bg-hover); color: var(--text-primary); }
@@ -139,7 +139,7 @@ input { font-family: inherit; }
 .r-spine-step:not(:last-child)::after { content: ""; width: 14px; height: 1px; background: var(--line); margin: 0 4px; }
 .r-spine-step[data-state="done"] { color: var(--text-secondary); }
 .r-spine-step[data-state="now"] { color: var(--accent-ink); font-weight: 600; }
-.r-spine-step[data-state="next"] { color: var(--text-tertiary); opacity: .6; }
+.r-spine-step[data-state="next"] { color: var(--text-tertiary); } /* muting via the AA tertiary token, not opacity (which dropped it below AA) */
 .r-spine-dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; opacity: .5; }
 .r-signal-tape, .r-status-strip { min-height: 28px; display: flex; align-items: center; gap: 8px; border: 1px solid var(--line); background: color-mix(in srgb, var(--bg-primary) 86%, transparent); backdrop-filter: blur(14px); overflow: hidden; }
 .r-signal-tape { border-radius: 10px 10px 0 0; padding: 4px 9px; color: var(--text-muted); }
