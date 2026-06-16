@@ -45,6 +45,12 @@ export function parseArtifactRefMessage(text: string): { refs: ArtifactRef[]; bo
   return { refs, body: rest.join("\n").trimStart() };
 }
 
+export function displayArtifactRefMessage(text: string): string {
+  const parsed = parseArtifactRefMessage(text);
+  if (parsed.refs.length === 0) return text;
+  return parsed.body || parsed.refs.map((ref) => ref.title).join(", ");
+}
+
 export function readDraggedArtifactRef(dataTransfer: DataTransfer): ArtifactRef | null {
   const raw = dataTransfer.getData(ARTIFACT_REF_MIME);
   if (!raw) return null;

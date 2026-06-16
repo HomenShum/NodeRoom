@@ -80,9 +80,23 @@ test.describe("chat — optimistic send + edit (memory mode)", () => {
     await expect(chat.getByTestId("chat-send")).toBeEnabled();
     await chat.getByTestId("chat-send").click();
 
-    const bubble = chat.getByTestId("chat-message").filter({ hasText: "Q3 variance" });
+    const bubble = chat.getByTestId("chat-message").filter({ hasText: "Q3 variance" }).last();
     await expect(bubble).toBeVisible();
     await expect(bubble.locator(".r-msg-ref")).toContainText("Q3 variance");
+    const clientMsgId = await bubble.getAttribute("data-clientmsgid");
+    expect(clientMsgId).toBeTruthy();
+    const stableBubble = chat.locator(`[data-testid="chat-message"][data-clientmsgid="${clientMsgId}"]`);
+
+    await stableBubble.hover();
+    await stableBubble.getByTestId("chat-edit").click();
+    const editBox = stableBubble.getByLabel("Edit message");
+    await expect(editBox).toHaveValue("");
+    await editBox.fill("Use this artifact for source-backed diligence.");
+    await stableBubble.getByTestId("chat-edit-save").click();
+
+    await expect(stableBubble.locator(".r-msg-ref")).toContainText("Q3 variance");
+    await expect(stableBubble).toContainText("Use this artifact for source-backed diligence.");
+    await expect(stableBubble).not.toContainText("References:");
   });
 
   test("chat artifact references open beside the primary work surface on desktop", async ({ page }) => {
@@ -151,6 +165,43 @@ test.describe("chat — optimistic send + edit (memory mode)", () => {
     });
 
     await expect(chat.locator(".r-ref-chip").filter({ hasText: "drop.csv" })).toBeVisible();
+    await expect(chat.getByTestId("chat-upload-error")).toHaveCount(0);
+    await expect(chat.getByTestId("chat-send")).toBeEnabled();
+  });
+
+  test("paperclip upload attaches a file reference from the composer", async ({ page }) => {
+    const chat = publicChat(page);
+
+    await expect(chat.getByTestId("chat-attach")).toBeVisible();
+    const chooserPromise = page.waitForEvent("filechooser");
+    await chat.getByTestId("chat-attach").click();
+    const chooser = await chooserPromise;
+    await chooser.setFiles({
+      name: "paperclip.csv",
+      mimeType: "text/csv",
+      buffer: Buffer.from("Company,ARR\nCardioNova,1200000\n"),
+    });
+
+    await expect(chat.locator(".r-ref-chip").filter({ hasText: "paperclip.csv" })).toBeVisible();
+    await expect(chat.getByTestId("chat-upload-error")).toHaveCount(0);
+    await expect(chat.getByTestId("chat-send")).toBeEnabled();
+  });
+
+  test("pasting a file into the composer uploads it as a reference", async ({ page }) => {
+    const chat = publicChat(page);
+    const composer = chat.getByTestId("chat-composer");
+    await composer.focus();
+
+    await composer.evaluate((node) => {
+      const file = new File(["Company,ARR\nCardioNova,1200000\n"], "pasted.csv", { type: "text/csv" });
+      const dt = new DataTransfer();
+      dt.items.add(file);
+      const event = new Event("paste", { bubbles: true, cancelable: true });
+      Object.defineProperty(event, "clipboardData", { value: dt });
+      node.dispatchEvent(event);
+    });
+
+    await expect(chat.locator(".r-ref-chip").filter({ hasText: "pasted.csv" })).toBeVisible();
     await expect(chat.getByTestId("chat-upload-error")).toHaveCount(0);
     await expect(chat.getByTestId("chat-send")).toBeEnabled();
   });

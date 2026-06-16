@@ -75,10 +75,12 @@ test.describe("center-stage split mode", () => {
     const stage = page.getByTestId("work-surface");
     const primary = page.getByTestId("artifact-panel");
     const secondary = page.getByTestId("artifact-panel-secondary");
-    const coach = page.getByTestId("banker-coach-panel");
+    const coach = page.getByTestId("coach-cards");
+    const cards = coach.getByTestId("coach-card");
 
     await expect(coach).toBeVisible();
-    await coach.getByRole("button", { name: "Open evidence source 1" }).click();
+    await expect(cards.first()).toBeVisible();
+    await cards.first().click();
 
     await expect(stage).toHaveAttribute("data-split", "true");
     await expect(primary).toBeVisible();

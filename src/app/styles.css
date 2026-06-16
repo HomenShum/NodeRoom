@@ -173,6 +173,7 @@ input { font-family: inherit; }
 .r-file.r-upload { margin-top: 6px; border-style: dashed; }
 .r-file.r-upload:disabled { opacity: .6; cursor: default; }
 .r-upload-error { margin: 5px 9px 0; color: var(--danger-ink); font-size: 10.5px; line-height: 1.35; }
+.r-upload-status { margin: 5px 9px 0; color: var(--text-tertiary); font-size: 10.5px; line-height: 1.35; }
 .r-sidebar-chat {
   width: 100%;
   min-width: 0;
@@ -377,6 +378,11 @@ input { font-family: inherit; }
 .r-input-wrap:focus-within { border-color: var(--accent-border); box-shadow: 0 0 0 3px var(--accent-tint); }
 .r-input-wrap input, .r-input-wrap textarea { flex: 1; min-width: 0; background: transparent; border: none; outline: none; color: var(--text-primary); font-size: 13.5px; font-family: inherit; resize: none; line-height: 1.45; max-height: 120px; padding: 0; }
 .r-input-wrap input::placeholder, .r-input-wrap textarea::placeholder { color: var(--text-tertiary); }
+.r-ref-open .r-ref-title, .r-msg-ref .r-ref-title { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.r-input-wrap .r-chat-file-input { display: none; }
+.r-attach { width: 30px; height: 30px; flex: none; display: grid; place-items: center; border: 1px solid var(--line); border-radius: 8px; background: var(--bg-primary); color: var(--text-tertiary); transition: color var(--motion-fast), background var(--motion-fast), border-color var(--motion-fast); }
+.r-attach:hover:not(:disabled), .r-attach:focus-visible { color: var(--accent-ink); border-color: var(--accent-border); background: var(--accent-tint); }
+.r-attach:disabled { cursor: not-allowed; opacity: .55; }
 .r-composer { position: relative; }
 .r-composer-kbd { font-size: 10px; color: var(--text-tertiary); margin-left: auto; align-self: center; }
 /* slash-command popover (assistant-ui trigger menu) */
@@ -1042,7 +1048,7 @@ input { font-family: inherit; }
 .r-tag.danger { background: var(--danger-tint); border: 1px solid var(--danger-border); color: var(--danger-ink); }
 
 /* P0 — upload error gains a recovery path (Retry), per the empty-states error convention. */
-.r-upload-error { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.r-upload-error, .r-upload-status { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .r-upload-retry { font-size: 10.5px; font-weight: 700; color: var(--accent-ink); background: transparent; border: 1px solid var(--accent-border); border-radius: 6px; padding: 1px 7px; cursor: pointer; transition: background var(--motion-fast); }
 .r-upload-retry:hover { background: var(--accent-tint); }
 

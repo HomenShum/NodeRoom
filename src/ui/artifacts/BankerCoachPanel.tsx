@@ -54,6 +54,7 @@ export function CoachCards({ roomId, onOpenArtifact }: {
             key={cue.id}
             type="button"
             className="r-coachcard"
+            data-testid="coach-card"
             data-sev={cue.severity}
             disabled={!clickable}
             onClick={() => { if (card?.targetArtifactId) onOpenArtifact(card.targetArtifactId, { split: true, elementId: card.targetElementId }); }}

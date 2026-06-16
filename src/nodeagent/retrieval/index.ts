@@ -31,5 +31,6 @@ export * from "./okf/okfRegex";
 export * from "./okf/okfSemanticSearch";
 export * from "./evidenceSufficiency";
 export * from "./evidencePacket";
+export * from "./candidateSlate";
 export * from "./retrievalPlanner";
 export * from "./retrievalLoop";

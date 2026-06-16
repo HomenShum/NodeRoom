@@ -136,7 +136,7 @@ export const createOrReuse = mutation({
     const artifact = await requireArtifactInRoom(ctx, a.roomId, a.artifactId);
     requireJobArtifactAccess(artifact, actor, { allowPrivate: a.scope === "private_user" || a.entrypoint === "private_agent" || a.evidencePolicy === "private_allowed" });
     const prior = await ctx.db.query("agentJobs").withIndex("by_idempotency", (q) => q.eq("idempotencyKey", a.idempotencyKey)).order("desc").take(5);
-    const reusable = prior.find((job) => String(job.roomId) === String(a.roomId) && String(job.artifactId) === String(a.artifactId));
+    const reusable = prior.find((job) => String(job.roomId) === String(a.roomId) && String(job.artifactId) === String(a.artifactId) && !terminalStatuses.has(job.status));
     if (reusable) return { jobId: reusable._id, reused: true as const, status: reusable.status, latestRunId: reusable.latestRunId };
     const now = Date.now();
     const initialStatus = a.initialStatus ?? "running";

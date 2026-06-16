@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updatedAt": "2026-06-14",
+  "updatedAt": "2026-06-15",
   "sourceOfTruth": "Append new product or runtime guarantees to features[] and rerun npm run qa:matrix.",
   "releaseRule": "A feature is production-ready only when deterministic tests, live/backend smoke where applicable, traceability, privacy boundaries, and documented failure behavior are all present.",
   "features": [
@@ -575,6 +575,33 @@
         { "type": "test", "ref": "tests/gatewayAndJournal.test.ts" }
       ],
       "nextReview": "Replace source-only graph/embedding checks with Convex runtime tests, add browser assertion for the job detail drilldown, and add stale-receipt replay tests."
+    },
+    {
+      "id": "okf_retrieval_evidence_memos",
+      "area": "OKF retrieval + evidence memos",
+      "claim": "NodeAgent retrieval uses Convex/OKF-native candidates first, diversifies into an inspectable slate, and emits evidence memos before answer/write decisions; external vector DBs and ClickHouse remain measured later adapters.",
+      "status": "yellow",
+      "productionGate": "OKF parser/retrieval tests prove candidate slates, literal source resolution, evidence sufficiency, and memo actions; Convex embedding/outbox plumbing exists, but provider embeddings, Convex vector indexes, graph visualizer, and retrieval analytics must pass evals before green.",
+      "deterministicChecks": [
+        "tests/okfRetrieval.test.ts",
+        "tests/agentJobsSource.test.ts",
+        "npm run eval:retrieval",
+        "npm run qa:matrix:check"
+      ],
+      "liveChecks": [
+        "missing: live Convex OKF table runtime test",
+        "missing: provider embedding runner smoke",
+        "missing: retrieval analytics export smoke"
+      ],
+      "evidence": [
+        { "type": "doc", "ref": "docs/okf/README.md" },
+        { "type": "code", "ref": "src/nodeagent/retrieval/candidateSlate.ts" },
+        { "type": "code", "ref": "src/nodeagent/retrieval/retrievalLoop.ts" },
+        { "type": "test", "ref": "tests/okfRetrieval.test.ts" },
+        { "type": "convex", "ref": "convex/embeddings.ts" },
+        { "type": "convex", "ref": "convex/embeddingRunner.ts" }
+      ],
+      "nextReview": "Promote only after persistent Convex OKF tables/vector indexes, Gemini Embedding 2 or equivalent provider embeddings, Trace Lens/Banker Coach retrieval consumers, and retrieval-event analytics are live-tested."
     },
     {
       "id": "agent_improvement_loop",

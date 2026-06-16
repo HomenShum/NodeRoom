@@ -3,7 +3,7 @@ import { useEffect, useRef, useState, type CSSProperties, type DragEvent } from 
 import { FolderOpen, Table2, FileText, StickyNote, Database, BookOpen, Upload, Loader2, ShieldCheck, Activity, MessageCircle, ArrowRight, type LucideIcon } from "lucide-react";
 import { useStore } from "../app/store";
 import type { Actor } from "../engine/types";
-import { ARTIFACT_REF_MIME, encodeArtifactRef } from "./artifactRefs";
+import { ARTIFACT_REF_MIME, displayArtifactRefMessage, encodeArtifactRef } from "./artifactRefs";
 import { focusStage } from "./stageFocus";
 import { abortable, formatBytes, parseUploadedFiles, UPLOAD_TIMEOUT_MS } from "../app/uploadedArtifact";
 
@@ -114,7 +114,7 @@ export function LeftRail({ roomId, me, artId, onPick, onOpenChat, style }: { roo
                 {publicMessages.length ? publicMessages.map((m) => (
                   <span key={m.id}>
                     <b>{m.author.kind === "agent" ? m.author.name : initials(m.author.name)}</b>
-                    {m.text}
+                    {displayArtifactRefMessage(m.text)}
                   </span>
                 )) : <span><b>NR</b>No public messages yet.</span>}
               </span>

@@ -1,9 +1,11 @@
 import type { EvidenceSufficiency } from "./evidenceSufficiency";
-import type { LiteralSourceResult, RetrievalHit } from "./types";
+import type { CandidateSlate, EvidenceMemo, LiteralSourceResult, RetrievalHit } from "./types";
 
 export interface EvidencePacket {
   claim: string;
   hits: RetrievalHit[];
+  candidateSlate: CandidateSlate;
+  evidenceMemos: EvidenceMemo[];
   literalSources: LiteralSourceResult[];
   sufficiency: EvidenceSufficiency;
   caveat?: string;
@@ -17,4 +19,3 @@ export function composeEvidencePacket(args: EvidencePacket): EvidencePacket {
       : `Needs review: missing ${args.sufficiency.missing.join(", ") || "client-ready support"}.`,
   };
 }
-

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-15T20:08:13.748Z",
+  "generatedAt": "2026-06-16T00:36:14.731Z",
   "task": "Explain CardioNova runway and identify supporting source evidence.",
   "variants": {
     "roomContextOnly": {
@@ -17,11 +17,9 @@
         "enoughToAnswer": true,
         "enoughToCommit": true,
         "enoughForClientReady": false,
-        "missing": [
-          "human_review"
-        ]
+        "missing": []
       },
-      "caveat": "Needs review: missing human_review."
+      "caveat": "Needs review: missing client-ready support."
     }
   }
 }

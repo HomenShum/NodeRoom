@@ -962,7 +962,7 @@ Professional proof state:
 
 This section is generated from `docs/qa/production-matrix.json`. When the system grows, append or update a matrix row, then run `npm run qa:matrix`; CI can run `npm run qa:matrix:check` to catch stale docs.
 
-<sub>24 feature guarantees tracked | 5 green | 17 yellow | 2 red | 1 live model route(s) cleared L1-L4 in the latest recorded ladder.</sub>
+<sub>25 feature guarantees tracked | 5 green | 18 yellow | 2 red | 1 live model route(s) cleared L1-L4 in the latest recorded ladder.</sub>
 
 ![QA coverage graph](docs/eval/qa-coverage.svg)
 
@@ -991,9 +991,9 @@ This section is generated from `docs/qa/production-matrix.json`. When the system
 | NodeRoomBench + eval trust | Yellow | Eval store records required metadata; eval:diff catches regressions, removed cases, model swaps, and check redefinitions; external benchmark adapters run benchmark-faithful mode without hidden gold access, evaluator edits, public answer lookup, or hardcoded cases. |
 | Official benchmark readiness | Red | Readiness report exists; strict mode passes only when BankerToolBench and SpreadsheetBench adapters/runs are implemented without hidden-gold access, answer lookup, benchmark hardcoding, or evaluator mutation. |
 | Unified NodeAgent jobs | Yellow | Interactive /ask and /free both create or reuse agentJobs, artifact writes emit receipts, job details are browser-visible, notebook graph mutations enqueue embeddings, and live browser/backend smoke proves linked runs/steps. |
+| OKF retrieval + evidence memos | Yellow | OKF parser/retrieval tests prove candidate slates, literal source resolution, evidence sufficiency, and memo actions; Convex embedding/outbox plumbing exists, but provider embeddings, Convex vector indexes, graph visualizer, and retrieval analytics must pass evals before green. |
 | Agent improvement loop | Yellow | Deterministic loop passes, live provider/Convex/UI media lanes run when keys are present, and failures generate a handoff before chart promotion. |
 | Demo/media evidence quality | Yellow | Gemini 3.5 Flash batch-judges every GIF/MP4 after capture/render refresh; P0 defects block publishing and P1 defects stay visible until fixed. |
-| Audience fluency content | Yellow | Audience context YAML, scenario brief, trust-signal checklist, deterministic content-fluency gate, rendered audience-specific episode, and video/content judge evidence with current media defects tracked. |
 
 | Live route | Provider | L1 | L2 | L3 | L4 | Promotion call |
 |---|---|---:|---:|---:|---:|---|

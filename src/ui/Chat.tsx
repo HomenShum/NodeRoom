@@ -1,5 +1,5 @@
 /** Public/private Copilot chat surfaces. Reads via useStore(). */
-import { useEffect, useMemo, useRef, useState, type CSSProperties, type ChangeEvent, type DragEvent, type KeyboardEvent, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type CSSProperties, type ChangeEvent, type ClipboardEvent, type DragEvent, type KeyboardEvent, type ReactNode } from "react";
 import { Lock, MessageCircle, Globe, Send, Sparkles, Copy, Check, ArrowUpRight, Pencil, Paperclip, X, Timer, RefreshCw, ChevronDown, ChevronUp, ListChecks, GitBranch, ShieldCheck, Database } from "lucide-react";
 import { useQuery } from "convex/react";
 import { useStore, CONVEX_SITE_URL, type PrivateStreamAccess, type RoomStore } from "../app/store";
@@ -8,6 +8,7 @@ import type { StreamId } from "@convex-dev/persistent-text-streaming";
 import { api } from "../../convex/_generated/api";
 import type { Actor, Channel, Message } from "../engine/types";
 import {
+  displayArtifactRefMessage,
   encodeArtifactRefLine,
   hasDraggedArtifactRef,
   parseArtifactRefMessage,
@@ -490,6 +491,8 @@ export function Chat({ roomId, me, channel, variant, agentName, style, onOpenArt
   const [multiAgentTick, setMultiAgentTick] = useState(0);
   const feedRef = useRef<HTMLDivElement>(null);
   const taRef = useRef<HTMLTextAreaElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const uploadBusyRef = useRef(false);
   const nearBottom = useRef(true);
   const thinkingStartCount = useRef(0);
   // Room-switch safety: an /ask or private-agent call is fire-and-forget. If the user leaves this room
@@ -642,14 +645,16 @@ export function Chat({ roomId, me, channel, variant, agentName, style, onOpenArt
     if (opened === false) setRefOpenErr(`Couldn't open ${ref.title}. The artifact or proposal no longer exists.`);
     else setRefOpenErr(null);
   };
-  const uploadDroppedFiles = async (files: FileList) => {
-    if (!files.length || uploadingFiles) return;
+  const uploadFiles = async (files: Iterable<File>) => {
+    const fileList = Array.from(files);
+    if (!fileList.length || uploadBusyRef.current) return;
+    uploadBusyRef.current = true;
     setUploadingFiles(true);
     setUploadError(null);
     const controller = new AbortController();
     const timer = window.setTimeout(() => controller.abort(new Error("Upload timed out - try fewer or smaller files.")), UPLOAD_TIMEOUT_MS);
     try {
-      const parsed = await parseUploadedFiles(files, controller.signal);
+      const parsed = await parseUploadedFiles(fileList, controller.signal);
       const uploadedRefs: ArtifactRef[] = [];
       let committed = 0;
       try {
@@ -659,6 +664,7 @@ export function Chat({ roomId, me, channel, variant, agentName, style, onOpenArt
           committed += 1;
         }
       } catch (e) {
+        if (aliveRef.current && uploadedRefs.length) appendRefs(uploadedRefs);
         const reason = e instanceof Error ? e.message : "please try again";
         throw new Error(committed > 0 ? `Uploaded ${committed} of ${parsed.length} item(s), then failed - ${reason}` : `Upload failed - ${reason}`);
       }
@@ -668,8 +674,19 @@ export function Chat({ roomId, me, channel, variant, agentName, style, onOpenArt
       if (aliveRef.current) setUploadError(e instanceof Error ? e.message : "Upload failed");
     } finally {
       window.clearTimeout(timer);
+      uploadBusyRef.current = false;
       if (aliveRef.current) setUploadingFiles(false);
     }
+  };
+  const uploadDroppedFiles = (files: FileList) => uploadFiles(files);
+  const openFilePicker = () => {
+    if (uploadBusyRef.current) return;
+    fileInputRef.current?.click();
+  };
+  const onAttachFiles = (e: ChangeEvent<HTMLInputElement>) => {
+    const files = e.currentTarget.files;
+    if (files?.length) void uploadFiles(files);
+    e.currentTarget.value = "";
   };
 
   const onDragOver = (e: DragEvent<HTMLDivElement>) => {
@@ -699,6 +716,12 @@ export function Chat({ roomId, me, channel, variant, agentName, style, onOpenArt
     const open = !isPrivate && v.trimStart() === "/";
     setSlashOpen(open);
     if (open) setSlashIndex(0);
+  };
+  const onPaste = (e: ClipboardEvent<HTMLTextAreaElement>) => {
+    const files = e.clipboardData.files;
+    if (!files.length) return;
+    e.preventDefault();
+    void uploadFiles(files);
   };
   const onKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
     if (slashOpen) {
@@ -814,7 +837,7 @@ export function Chat({ roomId, me, channel, variant, agentName, style, onOpenArt
             <span className="r-avatar sm" style={{ background: colorFor(store, roomId, me) }}>{initials(me.name)}</span>
             <div className="body">
               <div className="meta"><span className="who">{me.name}</span><span className="r-tag" style={{ color: "var(--danger-ink)", padding: "1px 5px", fontSize: 9 }}>failed to send</span></div>
-              <div className="text" style={{ opacity: 0.75 }}>{parseArtifactRefMessage(f.text).body || f.text}</div>
+              <div className="text" style={{ opacity: 0.75 }}>{displayArtifactRefMessage(f.text)}</div>
               <div className="r-msg-actions" style={{ opacity: 1 }}>
                 <button className="r-msg-act promote" data-testid="chat-retry" onClick={() => retrySend(f.cid, f.text)}><RefreshCw size={12} /> Retry</button>
                 <button className="r-msg-act" onClick={() => dismissFailed(f.cid)}>Dismiss</button>
@@ -870,7 +893,7 @@ export function Chat({ roomId, me, channel, variant, agentName, style, onOpenArt
             {refs.map((ref) => (
               <span key={ref.id} className="r-ref-chip">
                 <button className="r-ref-open" type="button" onClick={() => openComposerRef(ref)}>
-                  <Paperclip size={12} /> {ref.title}
+                  <Paperclip size={12} /> <span className="r-ref-title">{ref.title}</span>
                 </button>
                 <button className="r-ref-remove" type="button" aria-label={`Remove ${ref.title}`} onClick={() => removeRef(ref.id)}><X size={11} /></button>
               </span>
@@ -878,13 +901,35 @@ export function Chat({ roomId, me, channel, variant, agentName, style, onOpenArt
           </div>
         )}
         {refOpenErr && <div className="r-upload-error" role="alert" data-testid="artifact-ref-open-error">{refOpenErr}</div>}
-        {uploadingFiles && <div className="r-upload-error" role="status" data-testid="chat-upload-status">Uploading files...</div>}
+        {uploadingFiles && <div className="r-upload-status" role="status" data-testid="chat-upload-status">Uploading files...</div>}
         {uploadError && <div className="r-upload-error" role="alert" data-testid="chat-upload-error">{uploadError}</div>}
         <div className="r-intake-preview-slot">
           {text.trim().length > 0 && <IntakePlanPreview roomId={roomId} text={text} targetArtifacts={refs.map((r) => r.id)} />}
         </div>
         <div className="r-input-wrap">
-          <textarea ref={taRef} rows={1} value={text} onChange={onChange} onKeyDown={onKeyDown}
+          <input
+            ref={fileInputRef}
+            className="r-chat-file-input"
+            type="file"
+            multiple
+            accept=".csv,.tsv,.xlsx,.xls,.txt,.md,.json,.log,.pdf,image/*"
+            onChange={onAttachFiles}
+            data-testid="chat-file-input"
+            aria-label="Attach files"
+            tabIndex={-1}
+          />
+          <button
+            className="r-attach"
+            type="button"
+            onClick={openFilePicker}
+            disabled={uploadingFiles}
+            data-testid="chat-attach"
+            aria-label="Attach files"
+            title="Attach files"
+          >
+            <Paperclip size={15} />
+          </button>
+          <textarea ref={taRef} rows={1} value={text} onChange={onChange} onKeyDown={onKeyDown} onPaste={onPaste}
             placeholder={isPrivate ? (roomLane ? "Tell your agent to act in the room…" : "Ask privately…") : "Message the room... type / for commands"}
             data-testid="chat-composer"
             aria-label={isPrivate ? "Ask privately" : "Message the room"} />
@@ -901,7 +946,7 @@ export function Chat({ roomId, me, channel, variant, agentName, style, onOpenArt
                 {store.mode === "memory" && <button className="r-chip" onClick={() => applySlash(SLASH_CMDS[4].insert)}>/demo multi-agent</button>}
               </>
             )}
-            <span className="r-composer-kbd" aria-hidden="true">{hasQ3DemoSeed ? "Enter sends; Shift+Enter newline; / commands" : "Type a request, drop files, or press / for commands"}</span>
+            <span className="r-composer-kbd" aria-hidden="true">{hasQ3DemoSeed ? "Enter sends; Shift+Enter newline; / commands" : "Attach, paste, drop files, or press /"}</span>
           </div>
         )}
       </div>
@@ -1046,12 +1091,13 @@ function MultiAgentWorkbenchDemo({ tick, scenario }: { tick: number; scenario: D
 
 function Bubble({ m, roomId, variant, me, onPromote, onOpenArtifact }: { m: Message; roomId: string; variant: "public" | "private"; me: Actor; onPromote: (t: string) => void; onOpenArtifact?: (id: string, options?: { split?: boolean; elementId?: string }) => boolean | void }) {
   const store = useStore();
+  const parsed = parseArtifactRefMessage(m.text);
+  const visibleText = displayArtifactRefMessage(m.text);
   const [copied, setCopied] = useState(false);
   const [editing, setEditing] = useState(false);
-  const [draft, setDraft] = useState(m.text);
+  const [draft, setDraft] = useState(parsed.body);
   const [editErr, setEditErr] = useState<string | null>(null);
   const [openErr, setOpenErr] = useState<string | null>(null);
-  const parsed = parseArtifactRefMessage(m.text);
   const agent = m.author.kind === "agent";
   const viaOwner = agent && m.author.ownerId ? store.listMembers(roomId).find((x) => x.id === m.author.ownerId)?.name : null;
   const ask = !agent && parsed.body.trim().startsWith("/ask");
@@ -1060,12 +1106,16 @@ function Bubble({ m, roomId, variant, me, onPromote, onOpenArtifact }: { m: Mess
   const pending = String(m.id).startsWith("opt-"); // optimistic, not yet confirmed by the server
   // QA P2 perf: the avatar style depends only on the author's color — don't rebuild per feed render.
   const avatarStyle = useMemo(() => ({ background: colorFor(store, roomId, m.author) }), [store, roomId, m.author]);
-  const copy = () => { void navigator.clipboard?.writeText(m.text).then(() => { setCopied(true); setTimeout(() => setCopied(false), 1200); }); };
+  useEffect(() => {
+    if (!editing) setDraft(parsed.body);
+  }, [editing, parsed.body]);
+  const copy = () => { void navigator.clipboard?.writeText(visibleText).then(() => { setCopied(true); setTimeout(() => setCopied(false), 1200); }); };
   const saveEdit = () => {
     const t = draft.trim();
-    if (t && t !== m.text) {
+    const nextText = parsed.refs.length ? `${encodeArtifactRefLine(parsed.refs)}\n\n${t}` : t;
+    if (t && nextText !== m.text) {
       setEditing(false); // optimistic update paints the new text instantly
-      void store.editMessage(m.id, t, me).then((fb) => { setEditErr(fb.ok ? null : "Couldn't save your edit — it was reverted."); });
+      void store.editMessage(m.id, nextText, me).then((fb) => { setEditErr(fb.ok ? null : "Couldn't save your edit — it was reverted."); });
     } else setEditing(false);
   };
   const openRef = (ref: ArtifactRef) => {
@@ -1088,7 +1138,7 @@ function Bubble({ m, roomId, variant, me, onPromote, onOpenArtifact }: { m: Mess
         {editing ? (
           <div className="r-input-wrap" style={{ marginTop: 4 }}>
             <textarea autoFocus rows={1} value={draft} onChange={(e) => setDraft(e.target.value)}
-              onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); saveEdit(); } else if (e.key === "Escape") { setDraft(m.text); setEditing(false); } }}
+              onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); saveEdit(); } else if (e.key === "Escape") { setDraft(parsed.body); setEditing(false); } }}
               aria-label="Edit message" />
           </div>
         ) : (
@@ -1097,7 +1147,7 @@ function Bubble({ m, roomId, variant, me, onPromote, onOpenArtifact }: { m: Mess
               <div className="r-msg-refs">
                 {parsed.refs.map((ref) => (
                   <button key={ref.id} className="r-msg-ref" type="button" onClick={() => openRef(ref)}>
-                    <Paperclip size={11} /> {ref.title}
+                    <Paperclip size={11} /> <span className="r-ref-title">{ref.title}</span>
                   </button>
                 ))}
               </div>
@@ -1115,13 +1165,13 @@ function Bubble({ m, roomId, variant, me, onPromote, onOpenArtifact }: { m: Mess
         {editing ? (
           <div className="r-msg-actions" style={{ opacity: 1 }}>
             <button className="r-msg-act promote" data-testid="chat-edit-save" onClick={saveEdit}>Save</button>
-            <button className="r-msg-act" onClick={() => { setDraft(m.text); setEditErr(null); setEditing(false); }}>Cancel</button>
+            <button className="r-msg-act" onClick={() => { setDraft(parsed.body); setEditErr(null); setEditing(false); }}>Cancel</button>
           </div>
         ) : (
           <div className="r-msg-actions">
             <button className="r-msg-act" onClick={copy} aria-label="Copy message">{copied ? <Check size={12} /> : <Copy size={12} />} {copied ? "Copied" : "Copy"}</button>
-            {mine && <button className="r-msg-act" data-testid="chat-edit" onClick={() => { setDraft(m.text); setEditErr(null); setEditing(true); }} aria-label="Edit message"><Pencil size={12} /> Edit</button>}
-            {canPromote && <button className="r-msg-act promote" onClick={() => onPromote(m.text)} aria-label="Promote to the public chat"><ArrowUpRight size={12} /> Promote to public</button>}
+            {mine && <button className="r-msg-act" data-testid="chat-edit" onClick={() => { setDraft(parsed.body); setEditErr(null); setEditing(true); }} aria-label="Edit message"><Pencil size={12} /> Edit</button>}
+            {canPromote && <button className="r-msg-act promote" onClick={() => onPromote(visibleText)} aria-label="Promote to the public chat"><ArrowUpRight size={12} /> Promote to public</button>}
           </div>
         )}
       </div>

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { encodeArtifactRefLine, parseArtifactRefMessage, type ArtifactRef } from "../src/ui/artifactRefs";
+import { displayArtifactRefMessage, encodeArtifactRefLine, parseArtifactRefMessage, type ArtifactRef } from "../src/ui/artifactRefs";
 
 describe("artifact refs", () => {
   it("round-trips id, title, and kind from persisted reference links", () => {
@@ -21,5 +21,12 @@ describe("artifact refs", () => {
     const text = `${encodeArtifactRefLine(refs)} see the deck\nFollow up tomorrow.`;
 
     expect(parseArtifactRefMessage(text)).toEqual({ refs: [], body: text });
+  });
+
+  it("displays artifact reference messages without exposing the hidden marker", () => {
+    const refs: ArtifactRef[] = [{ id: "memo:1", title: "Diligence memo", kind: "note" }];
+
+    expect(displayArtifactRefMessage(`${encodeArtifactRefLine(refs)}\n\nPlease review this.`)).toBe("Please review this.");
+    expect(displayArtifactRefMessage(encodeArtifactRefLine(refs))).toBe("Diligence memo");
   });
 });

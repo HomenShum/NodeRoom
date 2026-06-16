@@ -186,7 +186,7 @@ export const markFailed = internalMutation({
     if (!job) return { ok: false as const };
     const now = Date.now();
     await ctx.db.patch(jobId, {
-      status: "failed",
+      status: "queued",
       error,
       nextRunAt: now + Math.min(5 * 60_000, 2 ** Math.min(job.attempts, 8) * 1_000),
       updatedAt: now,

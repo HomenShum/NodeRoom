@@ -31,6 +31,84 @@ describe("agentJobs runtime contract", () => {
     expect(detail?.job.mutationCount).toBe(1);
   });
 
+  it("does not reuse terminal public ask jobs for later reruns with the same idempotency key", async () => {
+    const { t, proof, roomId, artifactId } = await setupRoom();
+    const args = jobArgs({ roomId, artifactId, proof, idempotencyKey: "job-runtime-terminal-rerun" });
+    const first = await t.mutation(api.agentJobs.createOrReuse, args);
+
+    await t.mutation(internal.agentJobs.finishInteractive, {
+      jobId: first.jobId,
+      status: "completed",
+      finalText: "first run done",
+      resolvedModel: "test-model",
+      stopReason: "done",
+      ms: 100,
+      inputTokens: 10,
+      outputTokens: 5,
+      costUsd: 0.001,
+      modelCalls: 1,
+      toolCalls: 1,
+    });
+    const second = await t.mutation(api.agentJobs.createOrReuse, args);
+
+    expect(second.reused).toBe(false);
+    expect(String(second.jobId)).not.toBe(String(first.jobId));
+    const firstDetail = await t.query(api.agentJobs.detail, { jobId: first.jobId, requester: proof });
+    const secondDetail = await t.query(api.agentJobs.detail, { jobId: second.jobId, requester: proof });
+    expect(firstDetail?.job.status).toBe("completed");
+    expect(secondDetail?.job.status).toBe("running");
+  });
+
+  it("requeues failed embedding jobs so backoff retries can claim them again", async () => {
+    const { t, proof, actor, roomId } = await setupRoom();
+    const now = Date.now();
+    const notebookId = await t.run((ctx) =>
+      ctx.db.insert("notebooks", {
+        roomId,
+        title: "Retry notebook",
+        visibility: "room" as const,
+        version: 1,
+        createdAt: now,
+        updatedAt: now,
+      }),
+    );
+    const nodeId = await t.run((ctx) =>
+      ctx.db.insert("nodes", {
+        roomId,
+        notebookId,
+        authorId: actor.id,
+        kind: "note" as const,
+        title: "Retry source",
+        content: "Backoff retry source content",
+        contentFormat: "plain" as const,
+        visibility: "room" as const,
+        version: 1,
+        isDeleted: false,
+        createdAt: now,
+        updatedAt: now,
+      }),
+    );
+    const content = "Retry source\nBackoff retry source content";
+    const jobId = await t.mutation(api.embeddings.enqueueForSource, {
+      roomId,
+      sourceKind: "node" as const,
+      sourceId: String(nodeId),
+      content,
+      requester: proof,
+    });
+
+    const firstClaim = await t.mutation(internal.embeddings.claimNext, {});
+    expect(String(firstClaim?.jobId)).toBe(String(jobId));
+    await t.mutation(internal.embeddings.markFailed, { jobId, error: "provider_rate_limited" });
+    const notDue = await t.mutation(internal.embeddings.claimNext, {});
+    expect(notDue).toBeNull();
+
+    await t.run((ctx) => ctx.db.patch(jobId, { nextRunAt: Date.now() - 1 }));
+    const retryClaim = await t.mutation(internal.embeddings.claimNext, {});
+    expect(String(retryClaim?.jobId)).toBe(String(jobId));
+    expect(retryClaim?.content).toBe(content);
+  });
+
   it("persists PlanPreview-blocked public asks without starting a run", async () => {
     const { t, proof, roomId, artifactId } = await setupRoom();
     const blocked = await t.mutation(api.agentJobs.createOrReuse, {

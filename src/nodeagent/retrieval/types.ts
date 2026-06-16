@@ -6,6 +6,45 @@ export interface RetrievalHit {
   reasons: string[];
 }
 
+export type RetrievalSource =
+  | "okf_semantic"
+  | "okf_full_text"
+  | "okf_filter"
+  | "okf_backlink"
+  | "sheet_search"
+  | "trace_search"
+  | "literal_source"
+  | "linkup";
+
+export interface RetrievalCandidate {
+  id: string;
+  retrievalSource: RetrievalSource;
+  conceptId?: string;
+  path?: string;
+  artifactId?: string;
+  elementId?: string;
+  sourceRef?: EvidenceRef;
+  snippet: string;
+  matchedBecause: string[];
+  score?: number;
+  metadata: {
+    type?: string;
+    tags?: string[];
+    status?: string;
+    confidence?: number;
+    timestamp?: string;
+    visibility?: OkfVisibility;
+    title?: string;
+  };
+}
+
+export interface CandidateSlate {
+  query: string;
+  selectionPolicy: "diverse_candidate_slate_v1";
+  candidates: RetrievalCandidate[];
+  discardedDuplicateCount: number;
+}
+
 export interface OkfConceptFilter {
   type?: string;
   tags?: string[];
@@ -46,6 +85,19 @@ export interface ClaimSupportResult {
   missing: string[];
 }
 
+export interface EvidenceMemo {
+  question: string;
+  candidateIds: string[];
+  claimsSupported: Array<{
+    claim: string;
+    support: "strong" | "partial" | "weak" | "contradicts" | "not_found";
+    sourceRefs: EvidenceRef[];
+    explanation: string;
+  }>;
+  missingEvidence: string[];
+  recommendedAction: "answer" | "write_needs_review" | "ask_clarifying_question" | "search_more";
+}
+
 export interface OkfRetrievalPort {
   listConcepts(args: OkfConceptFilter): Promise<OkfConcept[]>;
   readConcept(args: { conceptId: string }): Promise<OkfConcept | null>;
@@ -66,4 +118,3 @@ export interface OkfRetrievalPort {
   }): Promise<LiteralSourceResult>;
   compareClaim(args: { claim: string; evidenceRefs: EvidenceRef[] }): Promise<ClaimSupportResult>;
 }
-

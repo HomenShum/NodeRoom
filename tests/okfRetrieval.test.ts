@@ -106,8 +106,18 @@ describe("OKF concept and retrieval layer", () => {
       claim: "CardioNova runway is 12 months.",
       clientReadyRequired: true,
     });
-    expect(packet.hits[0]?.concept.id).toBe("cells/cardionova_runway");
+    expect(packet.hits.map((hit) => hit.concept.id)).toContain("cells/cardionova_runway");
+    expect(packet.candidateSlate.selectionPolicy).toBe("diverse_candidate_slate_v1");
+    expect(packet.candidateSlate.candidates.map((candidate) => candidate.metadata.type)).toEqual(
+      expect.arrayContaining(["Source", "Spreadsheet Cell", "Company"]),
+    );
+    expect(packet.candidateSlate.discardedDuplicateCount).toBeGreaterThan(0);
     expect(packet.literalSources[0]?.ok).toBe(true);
+    expect(packet.evidenceMemos[0]).toMatchObject({
+      question: "CardioNova runway cash burn source",
+      recommendedAction: "write_needs_review",
+    });
+    expect(packet.evidenceMemos[0].candidateIds.length).toBeGreaterThan(1);
     expect(packet.sufficiency.enoughToAnswer).toBe(true);
     expect(packet.sufficiency.enoughForClientReady).toBe(false);
     expect(packet.caveat).toContain("Needs review");
