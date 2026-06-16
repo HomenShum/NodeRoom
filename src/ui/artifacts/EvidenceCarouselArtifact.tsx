@@ -41,6 +41,7 @@ export function EvidenceCarouselArtifact({
               <span data-status={card.status}>{card.status.replace(/_/g, " ")}</span>
             </div>
             <p>{card.quote}</p>
+            {card.reviewNote ? <p className="r-evidence-note" data-status={card.status}>{card.reviewNote}</p> : null}
             <small className="r-evidence-src">
               <span className="r-evidence-loc" title={card.sourceRef}>{sourceLabel(card)}</span>
               {(href || canOpenInternal) && <span className="r-evidence-open">Open source <ArrowUpRight size={11} /></span>}
