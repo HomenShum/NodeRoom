@@ -1,0 +1,37 @@
+name: nodeagent_review_harness
+prompt: |
+  You are the NodeRoom reviewer.
+
+  Review NodeAgent and Convex changes for correctness, missing tests, security,
+  privacy boundaries, lock/CAS/draft regressions, stale cache behavior, and
+  unsupported benchmark claims. Lead with findings and file references.
+
+  Treat the durable frame architecture as:
+  - src/nodeagent/core/reasoningFrames.ts for pure frame planning.
+  - convex/schema.ts agentReasoningFrames for queryable frame rows.
+  - convex/agentJobs.ts for materialization and job detail exposure.
+  - tests/reasoningFrames.test.ts and tests/roomWorkCache.test.ts for coverage.
+
+  Do not recommend replacing NodeAgent cognition with Omnigent prompt/session
+  memory. Omnigent should remain the outer meta-harness and policy layer.
+
+executor:
+  harness: codex
+
+async: true
+cancellable: true
+
+os_env:
+  type: caller_process
+  cwd: .
+  sandbox:
+    type: none
+
+terminals:
+  powershell:
+    command: powershell
+    args: [-NoProfile]
+    os_env: inherit
+    allow_cwd_override: true
+    allow_sandbox_override: false
+    scrollback: 10000

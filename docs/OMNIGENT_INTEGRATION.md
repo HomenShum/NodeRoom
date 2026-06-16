@@ -1,0 +1,89 @@
+# Omnigent Integration
+
+This repo treats Omnigent as an outer meta-harness and NodeAgent as the
+room-native reasoning kernel.
+
+Current Omnigent public docs describe a YAML agent spec with `executor`,
+`tools`, `policies`, `os_env`, and `terminals`; they also position Omnigent as a
+common layer over harnesses such as Claude Code, Codex, Pi, Cursor, OpenAI
+Agents, and custom agents:
+
+- https://github.com/omnigent-ai/omnigent/blob/main/docs/AGENT_YAML_SPEC.md
+- https://github.com/omnigent-ai/omnigent
+
+## Ownership Boundary
+
+| Layer | Owns | NodeRoom implementation |
+|---|---|---|
+| Omnigent | harness/model choice, session sharing, OS sandbox, terminal orchestration, policy gates, cross-agent review | `examples/omnigent/*.yaml` |
+| NodeAgent | room context packs, reasoning frames, cache/freshness, evidence state, lock/CAS/draft writes, durable job ledger | `src/nodeagent`, `convex/agentJobs.ts`, `convex/schema.ts` |
+| Convex | transactional source of truth, job status, receipts, cache rows, reasoning-frame rows, trace queries | `convex/*` |
+
+Do not push NodeAgent memory into Omnigent YAML prompts. The YAML can choose who
+runs and what OS access/policies apply; `agentJobs`, `agentReasoningFrames`,
+`entityWorkItems`, and `entityResearchCache` remain the durable cognition layer.
+
+## Repo State
+
+The pasted "Fable-like harness" plan maps to the current repo this way:
+
+- Frame plan and context packs: `src/nodeagent/core/reasoningFrames.ts`
+- Durable frame rows: `convex/schema.ts` table `agentReasoningFrames`
+- Room-work frame materialization: `convex/agentJobs.ts`
+- Entity/facet cache and freshness: `entityResearchCache`
+- Child work items: `entityWorkItems`
+- Job detail frame visibility: `agentJobs.detail().reasoningFrames`
+- Tests: `tests/reasoningFrames.test.ts`, `tests/roomWorkCache.test.ts`
+
+## Example Runs
+
+From the repo root, after installing Omnigent:
+
+```bash
+omnigent run examples/omnigent/nodeagent-room.yaml
+omnigent run examples/omnigent/nodeagent-reviewer.yaml
+```
+
+The examples are deliberately local. They rely on the existing repo commands
+instead of inventing a second agent API:
+
+```bash
+npm test -- --run tests/reasoningFrames.test.ts tests/roomWorkCache.test.ts
+npm run build
+npx tsc --noEmit --project convex/tsconfig.json --pretty false
+```
+
+For live provider smoke with a key stored in Convex env:
+
+```powershell
+$env:NODEROOM_PRESERVE_PROCESS_ENV = "1"
+$env:PROVIDER_PARSER_ALLOW_FILE_EGRESS = "1"
+$env:OPENROUTER_API_KEY = (npx convex env get OPENROUTER_API_KEY).Trim()
+npm run provider-parser:smoke -- --providers=openrouter
+```
+
+## Policy Guidance
+
+Use Omnigent policies for governance, not memory:
+
+- Require approval before shell writes outside the repo.
+- Cap provider spend for exploratory runs.
+- Restrict network access unless running live provider smoke.
+- Route code-writing and review to different harnesses when useful.
+- Keep credentials in Convex env or Omnigent provider config, not in YAML.
+
+Use NodeAgent/Convex for durable state:
+
+- `agentReasoningFrames` stores frame lineage and phase/child status.
+- `entityResearchCache` stores room-local entity/facet results with freshness.
+- `agentOperationEvents` and receipts store what actually happened.
+- OKF remains the portable evidence graph.
+
+## What Not To Do
+
+- Do not create a permanent agent per company/person/facet.
+- Do not represent cache/freshness/evidence only in the Omnigent transcript.
+- Do not let a meta-harness policy replace CAS, locks, draft review, or Convex
+  auth checks.
+- Do not claim official Omnigent compatibility beyond the checked YAML shape
+  until the examples are run against the installed Omnigent version in CI.

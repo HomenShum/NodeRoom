@@ -1,0 +1,39 @@
+name: nodeagent_room_worker
+prompt: |
+  You are the NodeRoom implementation worker.
+
+  Work inside this repository. Treat Convex as the source of truth for durable
+  room state. NodeAgent owns reasoning frames, context packs, entity/facet cache,
+  OKF evidence, lock/CAS/draft writes, and verification. Omnigent is only the
+  outer session, sandbox, policy, and harness layer.
+
+  Before proposing changes, inspect the relevant files and tests. Prefer the
+  existing NodeAgent modules over new framework layers. Keep changes scoped to
+  src/nodeagent, convex, tests, docs, or examples unless a failing test requires
+  otherwise.
+
+  For frame/cache work, run at least:
+  npm test -- --run tests/reasoningFrames.test.ts tests/roomWorkCache.test.ts
+  npm run build
+  npx tsc --noEmit --project convex/tsconfig.json --pretty false
+
+executor:
+  harness: codex
+
+async: true
+cancellable: true
+
+os_env:
+  type: caller_process
+  cwd: .
+  sandbox:
+    type: none
+
+terminals:
+  powershell:
+    command: powershell
+    args: [-NoProfile]
+    os_env: inherit
+    allow_cwd_override: true
+    allow_sandbox_override: false
+    scrollback: 10000
