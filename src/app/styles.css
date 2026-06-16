@@ -333,6 +333,12 @@ input { font-family: inherit; }
 /* Banker Coach mounted as the Copilot's Coach TAB fills the rail (vs. the old stacked mini-panel) */
 .r-copilot-body > .r-coach-panel { flex: 1; min-height: 0; margin: 0; border: none; border-radius: 0; box-shadow: none; background: transparent; display: flex; flex-direction: column; }
 .r-copilot-body > .r-coach-panel .r-coach-body { max-height: none; flex: 1; min-height: 0; }
+/* Evidence card source line: literal locator (domain / sheet·cell / p.N) + "Open source" affordance */
+.r-evidence-src { display: flex; align-items: center; gap: 8px; }
+.r-evidence-loc { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text-tertiary); }
+.r-evidence-open { display: inline-flex; align-items: center; gap: 2px; flex: none; color: var(--accent-ink); font-weight: 600; opacity: 0; transition: opacity var(--motion-fast); }
+.r-coach-card-button:hover .r-evidence-open, .r-coach-card-button:focus-visible .r-evidence-open { opacity: 1; }
+.r-evidence-conf { margin-left: auto; flex: none; font-variant-numeric: tabular-nums; color: var(--text-tertiary); }
 .r-coach-evidence, .r-coach-cues, .r-coach-runway, .r-coach-handoff { display: grid; gap: 6px; }
 .r-coach-card, .r-coach-cue, .r-coach-review, .r-coach-runway-row, .r-coach-handoff article { min-width: 0; position: relative; border: 1px solid var(--line); border-radius: 8px; background: var(--bg-primary); padding: 8px; box-shadow: var(--shadow-sm); }
 .r-coach-card-button { width: 100%; text-align: left; color: inherit; cursor: pointer; }

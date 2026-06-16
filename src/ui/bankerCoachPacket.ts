@@ -14,6 +14,11 @@ import type { DownstreamHandoffTarget } from "./downstreamHandoff";
 export type EvidenceCardArtifact = EvidenceCard & {
   targetArtifactId?: string;
   targetElementId?: string;
+  // The LITERAL source the evidence came from (not the claim cell): forwarded from CellEvidence so
+  // the carousel can open the real file/page/row -- 6-15 deep-review's "literal source" requirement.
+  sourceUrl?: string;
+  sourceArtifactId?: string;
+  sourceLocator?: { sheetName?: string; page?: number; row?: number; column?: string };
 };
 
 export interface RunwayMilestonePreview {
@@ -123,7 +128,7 @@ export function buildBankerCoachPacket(input: {
 
 function buildCoachEvidenceCards(artifacts: Artifact[]): EvidenceCardArtifact[] {
   const inputs: EvidenceCardInput[] = [];
-  const targets: Array<Pick<EvidenceCardArtifact, "targetArtifactId" | "targetElementId">> = [];
+  const targets: Array<Pick<EvidenceCardArtifact, "targetArtifactId" | "targetElementId" | "sourceUrl" | "sourceArtifactId" | "sourceLocator">> = [];
 
   for (const artifact of artifacts) {
     for (const elementId of artifact.order) {
@@ -135,6 +140,11 @@ function buildCoachEvidenceCards(artifacts: Artifact[]): EvidenceCardArtifact[] 
         targets.push({
           targetArtifactId: evidence.sourceArtifactId ?? artifact.id,
           targetElementId: elementId,
+          sourceUrl: evidence.url,
+          sourceArtifactId: evidence.sourceArtifactId,
+          sourceLocator: (evidence.sheetName || evidence.page != null || evidence.row != null || evidence.column)
+            ? { sheetName: evidence.sheetName, page: evidence.page, row: evidence.row, column: evidence.column }
+            : undefined,
         });
         if (inputs.length >= 10) break;
       }
