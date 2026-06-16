@@ -42,15 +42,15 @@ handoff
 
 The handoff is also written as a trace event (`tool: "handoff"`), so it participates in the same append-only, hash-chained `agentSteps` audit path as normal tool calls.
 
-Current direction: `/ask` is no longer a separate persistence path. Every
+Current direction: the visible public `@nodeagent` request is no longer a separate persistence path. Every
 durable public or Room-lane request creates or reuses an `agentJobs` row first,
 then runs the first slice immediately. Private read-only advise is still a
 one-call private reply path and does not create a job. If a durable slice
 exhausts its step/time budget, it checkpoints cursor state and starts the same
 Workflow/Workpool continuation path. The current ledger records bounded
 job-level and aggregate slice events; per-query and per-mutation operation rows
-remain the target contract. `/free` remains only the explicit slow/free model
-policy.
+remain the target contract. The Free route in the composer is only a model
+policy; `/free` remains a hidden compatibility alias for that policy.
 See
 [`docs/NODEAGENT_ARCHITECTURE.md`](NODEAGENT_ARCHITECTURE.md).
 
@@ -64,11 +64,12 @@ cancel, retry, or expire.
 
 ## Free-Auto Model Policy
 
-NodeRoom also has an explicit free-auto command for demos and low-cost
-background work:
+NodeRoom also has an explicit Free route for demos and low-cost background
+work. Users select **Free** in the public composer and mention `@nodeagent`;
+legacy `/free` input is accepted only as a compatibility alias:
 
 ```text
-/free <goal>
+@nodeagent <goal> + modelSelection=free
   -> agentJobs.start(routePolicy=free_auto, runtimePolicy=workflow_sliced)
   -> durable agentJobs row
   -> @convex-dev/workflow freeAutoWorkflow
@@ -80,7 +81,7 @@ background work:
 
 This is not a second agent architecture. It is the same durable job route with
 `entrypoint=free`, `routePolicy=free_auto`, and
-`modelPolicy=openrouter/free-auto`. Normal `/ask`, research, collaboration, and
+`modelPolicy=openrouter/free-auto`. Normal `@nodeagent`, research, collaboration, and
 top-model jobs use the same `agentJobs.start` route with different policies.
 
 Durable tables:
@@ -88,7 +89,7 @@ Durable tables:
 ```text
 agentJobs
   roomId, artifactId, goal, status
-  modelPolicy = AGENT_MODEL for /ask, openrouter/free-auto for /free
+  modelPolicy = selected route for @nodeagent, openrouter/free-auto for Free route
   runtime = workflow
   workflowId, workId
   cursor, handoff
@@ -126,7 +127,7 @@ FREE_AUTO_JOB_CONTEXT_KEEP_RECENT=10
 ```
 
 `FREE_AUTO_JOB_MODEL` only overrides jobs whose saved policy is
-`openrouter/free-auto`. A handed-off `/ask` job keeps the model policy selected
+`openrouter/free-auto`. A handed-off `@nodeagent` job keeps the model policy selected
 for the interactive slice, so Workflow continuation does not silently switch a
 Gemini/OpenAI/Claude run into the free-auto lane.
 
@@ -263,7 +264,7 @@ demo-compatible background path into a production worker:
 | Provider idempotency keys | The durable journal replays after a response is recorded, but cannot replay a response that never committed. | Add provider request idempotency keys where supported and store provider request ids on journal rows. |
 | Model health and quarantine | Static free-model ranking plus fallback is not the same as production routing. | Track latency, timeouts, failures, rate limits, fallback count, and quarantine windows. |
 | Failure-path model provenance | A successful call records the concrete resolved model, but an all-candidates-failed path can still report the alias. | Store attempted models and final attempted model on each attempt. |
-| Real job-runner tests | Current deterministic coverage proves the shape, and live smoke covers `/ask` handoff; deeper crash injection still needs dedicated fixtures. | Add forced multi-slice Convex tests for resume, stale leases, crash-after-provider-call replay, retry backoff, and duplicate enqueue. |
+| Real job-runner tests | Current deterministic coverage proves the shape, and live smoke covers `@nodeagent` handoff; deeper crash injection still needs dedicated fixtures. | Add forced multi-slice Convex tests for resume, stale leases, crash-after-provider-call replay, retry backoff, and duplicate enqueue. |
 
 ## Context Management
 

@@ -70,9 +70,9 @@ It runs in **two modes from the same code**:
 
 A change in one client appears in the other **with no refresh**, and a **server-led agent**'s work reaches **every** client. Captured **multi-pane** — one browser context per client — with the [`feature-walkthrough-gif`](https://github.com/HomenShum/feature-walkthrough-gif#live-collaboration-multi-pane) skill (a single cursor can't show cross-client sync; this can). Two angles:
 
-**The busy shared room.** In the live `Q3DEMO` room (with dozens of real guests already present): a human chat message syncs A→B, then `/ask reconcile Q3 revenue` runs and its result broadcasts to all — authentic, amid real concurrent activity. The older fresh-room side-by-side clip is retired from the README until it is re-captured at a more legible zoom; Gemini 3.5 Flash marked it `fix-then-publish` for small text.
+**The busy shared room.** In the live `Q3DEMO` room (with dozens of real guests already present): a human chat message syncs A→B, then `@nodeagent reconcile Q3 revenue` runs and its result broadcasts to all — authentic, amid real concurrent activity. The older fresh-room side-by-side clip is retired from the README until it is re-captured at a more legible zoom; Gemini 3.5 Flash marked it `fix-then-publish` for small text.
 
-![Busy shared room, two clients side by side: a chat message syncs from Client A to Client B, then a /ask agent run reconciles the sheet and broadcasts to both](docs/walkthroughs/two-client-live-sync.gif)
+![Busy shared room, two clients side by side: a chat message syncs from Client A to Client B, then an @nodeagent run reconciles the sheet and broadcasts to both](docs/walkthroughs/two-client-live-sync.gif)
 
 <sub>Both: <b>independent</b> browser clients (separate Convex sessions) side by side; sync is Convex reactive <code>useQuery</code>, the agent is server-led (<code>internalMutation</code> + scheduler) so its writes land on every client at once. A single-cursor screen capture can show neither — multi-pane is the only honest way to film a collaborative app.</sub>
 
@@ -104,9 +104,9 @@ join rate-limits + caps, cumulative daily spend cap, telemetry retention) are **
 OpenRouter's live data policy, rate-limiting + lock fencing under real concurrency, and cron SLA are
 **honestly marked "needs a live audit,"** which is what keeps "beta" on
 ([`docs/GAPS_NOT_DONE.md`](docs/GAPS_NOT_DONE.md) has the narrative).
-One privacy note before you bring real data: `/free` routes work through community free-tier
-models whose providers may log prompts — keep sensitive GTM/finance figures out of `/free` runs
-(the paid interactive lane does not use those routes).
+One privacy note before you bring real data: the **Free** route in the model picker uses community
+free-tier models whose providers may log prompts — keep sensitive GTM/finance figures out of Free
+runs (the paid/adaptive lanes do not use those routes by default).
 
 Every clip below is a **captured walkthrough of the real running app UI** - not a staged hero
 shot. Live-provider clips use noderoom.live + Convex; deterministic clips are explicitly marked
@@ -129,8 +129,8 @@ result, with step captions and a progress bar. Regenerate any time with `npm run
 ### Edit the sheet — and take it back (Undo / Ctrl+Z)
 ![Spreadsheet edit and undo — walkthrough](docs/walkthroughs/sheet-undo.gif)
 
-### Ask the Room agent to do the work (`/ask`)
-![/ask reconcile drives the sheet through chat](docs/eval/workflow-previews/app-ask-reconcile.gif)
+### Mention the Room NodeAgent to do the work (`@nodeagent`)
+![@nodeagent reconcile drives the sheet through chat](docs/eval/workflow-previews/app-ask-reconcile.gif)
 
 ### Multi-agent work queue (`/demo multi-agent`)
 ![Multi-agent work queue: one prompt splits into concurrent agent lanes with claims, streams, batched commits, and final proof](docs/walkthroughs/multi-agent-workbench.gif)
@@ -211,11 +211,11 @@ honesty defects (frames from different sessions, reversed narratives); the repla
 recorded from the REAL app UI driven by the real agent runtime in memory mode
 (`e2e/capture-previews.spec.ts`).
 
-### Public `/ask` Spreadsheet Reconciliation
+### Public `@nodeagent` Spreadsheet Reconciliation
 
-![/ask reconcile drives the sheet through chat](docs/eval/workflow-previews/app-ask-reconcile.gif)
+![@nodeagent reconcile drives the sheet through chat](docs/eval/workflow-previews/app-ask-reconcile.gif)
 
-User types `/ask reconcile Q3 revenue`; the public chat composer can pin that
+User types `@nodeagent reconcile Q3 revenue`; the public chat composer can pin that
 request to the adaptive lane, free-auto, top-paid, or a specific model policy.
 The Room NodeAgent creates/reuses an `agentJobs` root, locks exact cells, reads
 versions, writes with CAS, releases, and leaves visible room trace receipts.
@@ -268,11 +268,12 @@ native grounded-update flow before it is README-ready.)*
 With Auto-allow off, agent writes become host-reviewed proposals. Wall edits and
 approvals stay versioned artifact mutations with conflicts surfaced in the UI.
 
-### Long-Running `/free` Job And HALO Handoff
+### Long-Running Free Route Job And HALO Handoff
 
-User starts slow free-auto work through `/free`; the same `agentJobs` contract
-shows status, attempts, details, traces, receipts, and the HALO regression
-handoff evidence. *(Preview retired pending a judged real-app recording; the
+User selects **Free** in the model picker and mentions `@nodeagent`; the same
+`agentJobs` contract shows status, attempts, details, traces, receipts, and the
+HALO regression handoff evidence. `/free` remains a hidden compatibility alias,
+not the taught UX. *(Preview retired pending a judged real-app recording; the
 contract is tested in `tests/agentJobsRuntime.test.ts` and the L7 RESUME rung.)*
 
 ### Finance Model Solve
@@ -565,12 +566,12 @@ and [`evals/professionalWorkflows.ts`](evals/professionalWorkflows.ts).
 7. **Single action -> durable sliced workflow.** Mutating or long-running agent
    commands create or reuse a durable `agentJobs` row; private read-only advise
    can stay a one-call private reply until it needs continuation or mutation.
-   `/ask` runs the first slice immediately for responsive UX; if it exhausts
+   public `@nodeagent` runs the first slice immediately for responsive UX; if it exhausts
    step or time budget, it checkpoints cursor state and resumes through the same
    Workflow/Workpool slice runner. The continuation function is still named
    `freeAutoWorkflow` from its first use case, but it preserves the job's model
-   policy, so `/ask` and `/free` share the durable contract. `/free` is a
-   model-policy shortcut that forces
+   policy, so `@nodeagent`, `/ask`, and `/free` share the durable contract. `/free` is a
+   hidden compatibility model-policy shortcut that forces
    `openrouter/free-auto`, not a second agent architecture. The remaining
    production hardening is stricter deadline/tool abort behavior, provider
    request idempotency where available, and model health/quarantine. See
@@ -639,7 +640,7 @@ provider billing for completed steps.
 
 ```mermaid
 flowchart LR
-  A["Client command<br/>/ask or /free"] --> B["agentJobs row<br/>intent + model policy"]
+  A["Client request<br/>@nodeagent + model picker"] --> B["agentJobs row<br/>intent + model policy"]
   B --> C0["Optional room-work plan<br/>agentReasoningFrames + entityWorkItems + entityResearchCache"]
   C0 --> C["Slice runner<br/>inline action or Workflow/Workpool"]
   C --> D["Derive sliceKey<br/>job + cursor or artifact version + goal + model"]
@@ -877,7 +878,7 @@ sequenceDiagram
     Host->>Mutation: draft or proposal path, no silent overwrite
   end
 
-  Host->>Mutation: send public "/ask" command
+  Host->>Mutation: send public "@nodeagent" request
   Mutation->>DB: append message and create/reuse agentJobs row
   Host->>Agent: runRoomAgent(goal, artifact, requester proof)
   Agent->>DB: hydrate context from room state
@@ -951,8 +952,8 @@ designs, lives in
 
 ## The agent — runtime, context, eval
 
-The agent is the centerpiece, built to be *explained* and *trusted*. **Type `/ask <goal>`
-in the public chat to drive the Room NodeAgent end-to-end** - it reads current versions, calls managed write tools, and lets the runtime expand lock/CAS/draft/release internally (the real `runRoomAgent` action when on Convex; the real in-memory harness with no keys).
+The agent is the centerpiece, built to be *explained* and *trusted*. **Mention `@nodeagent <goal>`
+in the public chat to drive the Room NodeAgent end-to-end** - it reads current versions, calls managed write tools, and lets the runtime expand lock/CAS/draft/release internally (the real `runRoomAgent` action when on Convex; the real in-memory harness with no keys). The composer model picker decides whether the same request uses Adaptive, Free, Top paid, or a specific model route.
 
 - **Runtime + context engineering + tool backend** → [`docs/AGENT_RUNTIME.md`](docs/AGENT_RUNTIME.md).
   Three seams (model · tools · RoomTools), the loop, the system-prompt protocol + JIT context, and

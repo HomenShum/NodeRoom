@@ -130,13 +130,13 @@ test("real-app preview — GTM research enrichment (source-backed CellPayload)",
   console.log(`captured ${kept} deduped real-app frames -> ${OUT}/app-research-enrich.gif`);
 });
 
-test("real-app preview — /ask reconcile drives the sheet through chat (chat + sheet framing)", async ({ page }) => {
+test("real-app preview — @nodeagent reconcile drives the sheet through chat (chat + sheet framing)", async ({ page }) => {
   await enterDemoRoom(page);
   const chatPanel = page.getByTestId("public-chat-panel");
   const artifact = page.getByTestId("artifact-panel");
   await expect(artifact).toBeVisible();
 
-  // Frame the union of the chat and artifact panels — the /ask story lives in BOTH.
+  // Frame the union of the chat and artifact panels — the @nodeagent story lives in BOTH.
   const a = await chatPanel.boundingBox();
   const b = await artifact.boundingBox();
   if (!a || !b) throw new Error("panel bounding boxes unavailable");
@@ -151,8 +151,8 @@ test("real-app preview — /ask reconcile drives the sheet through chat (chat + 
 
   await shoot(1500);                        // before: composer empty, variance cells empty
   const composer = chatPanel.getByTestId("chat-composer");
-  await composer.fill("/ask diligence CardioNova with source-backed product, buyer, funding, hiring, and HIPAA/security gaps");
-  await shoot(1200);                        // the typed /ask command visible
+  await composer.fill("@nodeagent diligence CardioNova with source-backed product, buyer, funding, hiring, and HIPAA/security gaps");
+  await shoot(1200);                        // the typed @nodeagent request visible
   await composer.press("Enter");            // the real agent runtime picks it up
   for (let i = 0; i < 26; i++) { await page.waitForTimeout(130); frames.push({ buf: await page.screenshot({ type: "png", clip }), delay: 130 }); }
   await page.waitForTimeout(800);

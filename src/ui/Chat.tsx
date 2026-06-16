@@ -177,11 +177,12 @@ function frameSecondaryText(frame: ReasoningFrameRow): string {
   return bits.join(" - ");
 }
 
+const DEFAULT_NODEAGENT_GOAL = "Diligence CardioNova with source-backed product, buyer, funding, hiring, and HIPAA/security gaps.";
+const NODEAGENT_PROMPTS = [
+  { label: "@nodeagent diligence CardioNova", insert: "@nodeagent diligence CardioNova with source-backed product, buyer, funding, hiring, and HIPAA/security gaps" },
+  { label: "@nodeagent runway gaps", insert: "@nodeagent prepare runway and milestone gaps for CardioNova and the batch watchlist" },
+];
 const SLASH_CMDS = [
-  { label: "/ask", insert: "/ask ", hint: "ask the Room NodeAgent to act on the diligence artifacts" },
-  { label: "/ask diligence CardioNova", insert: "/ask diligence CardioNova with source-backed product, buyer, funding, hiring, and HIPAA/security gaps", hint: "enrich the lead company" },
-  { label: "/ask runway gaps", insert: "/ask prepare runway and milestone gaps for CardioNova and the batch watchlist", hint: "build banker follow-ups" },
-  { label: "/free", insert: "/free ", hint: "force the resumable free-auto model policy" },
   { label: "/demo multi-agent", insert: "/demo multi-agent startup diligence ", hint: "show startup-banking diligence queue lanes" },
 ];
 const AGENT_MODEL_PROVIDER_ORDER: LlmProvider[] = ["openrouter", "anthropic", "openai", "gemini", "xai"];
@@ -201,11 +202,30 @@ const AGENT_MODEL_PRESETS: Array<{ value: AgentModelSelection["mode"]; label: st
 
 function hintForModelSelection(mode: AgentModelSelection["mode"]): string {
   switch (mode) {
-    case "free": return "Uses the free-auto lane for /ask.";
-    case "top_paid": return "Pins /ask to the top paid route.";
-    case "specific": return "Pins /ask to an exact model policy.";
-    default: return "Uses the default adaptive lane for the task.";
+    case "free": return "Routes NodeAgent through free-auto.";
+    case "top_paid": return "Pins NodeAgent to the top paid route.";
+    case "specific": return "Pins NodeAgent to an exact model policy.";
+    default: return "Uses the adaptive NodeAgent route.";
   }
+}
+
+function parsePublicNodeAgentRequest(text: string): { goal: string; forceFree?: boolean } | null {
+  const trimmed = text.trim();
+  const mentionMatch = trimmed.match(/^@nodeagent(?:\s+|[:,-]\s*|$)/i);
+  if (mentionMatch) {
+    return { goal: trimmed.slice(mentionMatch[0].length).trim() || DEFAULT_NODEAGENT_GOAL };
+  }
+  if (/^\/ask\b/i.test(trimmed)) {
+    return { goal: trimmed.replace(/^\/ask\s*/i, "").trim() || DEFAULT_NODEAGENT_GOAL };
+  }
+  if (/^\/free\b/i.test(trimmed)) {
+    return { goal: trimmed.replace(/^\/free\s*/i, "").trim() || DEFAULT_NODEAGENT_GOAL, forceFree: true };
+  }
+  return null;
+}
+
+function isPublicNodeAgentDirective(text: string): boolean {
+  return parsePublicNodeAgentRequest(text) !== null;
 }
 
 type DemoAgent = {
@@ -534,7 +554,7 @@ export function Chat({ roomId, me, channel, variant, agentName, style, onOpenArt
   const uploadBusyRef = useRef(false);
   const nearBottom = useRef(true);
   const thinkingStartCount = useRef(0);
-  // Room-switch safety: an /ask or private-agent call is fire-and-forget. If the user leaves this room
+  // Room-switch safety: a public @nodeagent or private-agent call is fire-and-forget. If the user leaves this room
   // before it resolves, the server action still finishes on its OWN room (every mutation is roomId-scoped,
   // so no cross-room bleed) — but the client must NOT setState or post into an unmounted/stale channel.
   // aliveRef gates those; privTimerRef cancels the memory-mode reply timer on unmount.
@@ -609,20 +629,15 @@ export function Chat({ roomId, me, channel, variant, agentName, style, onOpenArt
       return;
     }
 
-    if (!isPrivate && /^\/ask\b/i.test(t)) {
-      const goal = t.replace(/^\/ask\s*/i, "").trim() || "Diligence CardioNova with source-backed product, buyer, funding, hiring, and HIPAA/security gaps.";
-      const modelSelection: AgentModelSelection = modelSelectionMode === "specific"
+    const publicNodeAgentRequest = !isPrivate ? parsePublicNodeAgentRequest(t) : null;
+    if (publicNodeAgentRequest) {
+      const modelSelection: AgentModelSelection = publicNodeAgentRequest.forceFree
+        ? { mode: "free" }
+        : modelSelectionMode === "specific"
         ? { mode: "specific", modelPolicy: specificModelPolicy || defaultSpecificModel || "gemini-3.5-flash" }
         : { mode: modelSelectionMode };
       beginThinking();
-      void store.askAgent({ goal, references: messageRefs, modelSelection }).catch((e) => { if (aliveRef.current) setAgentErr(agentErrorText(e)); }).finally(() => { if (aliveRef.current) setThinking(false); });
-      return;
-    }
-
-    if (!isPrivate && /^\/free\b/i.test(t)) {
-      const goal = t.replace(/^\/free\s*/i, "").trim() || "Diligence CardioNova with source-backed product, buyer, funding, hiring, and HIPAA/security gaps.";
-      beginThinking();
-      void store.startLongFreeAgent({ goal, references: messageRefs }).catch((e) => { if (aliveRef.current) setAgentErr(agentErrorText(e)); }).finally(() => { if (aliveRef.current) setThinking(false); });
+      void store.askAgent({ goal: publicNodeAgentRequest.goal, references: messageRefs, modelSelection }).catch((e) => { if (aliveRef.current) setAgentErr(agentErrorText(e)); }).finally(() => { if (aliveRef.current) setThinking(false); });
       return;
     }
 
@@ -767,7 +782,7 @@ export function Chat({ roomId, me, channel, variant, agentName, style, onOpenArt
 
   const onChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
     const v = e.target.value; setText(v); grow();
-    const open = !isPrivate && v.trimStart() === "/";
+    const open = !isPrivate && v.trimStart() === "/" && slashOptions.length > 0;
     setSlashOpen(open);
     if (open) setSlashIndex(0);
   };
@@ -778,7 +793,7 @@ export function Chat({ roomId, me, channel, variant, agentName, style, onOpenArt
     void uploadFiles(files);
   };
   const onKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
-    if (slashOpen) {
+    if (slashOpen && slashOptions.length > 0) {
       if (e.key === "ArrowDown") {
         e.preventDefault();
         setSlashIndex((i) => (i + 1) % slashOptions.length);
@@ -906,7 +921,7 @@ export function Chat({ roomId, me, channel, variant, agentName, style, onOpenArt
       )}
 
       <div className="r-chat" ref={feedRef} onScroll={onScroll} aria-live="polite" data-testid="chat-feed">
-        {messages.length === 0 && failedSends.length === 0 && <div className="tiny faint" style={{ margin: "auto", textAlign: "center", maxWidth: 260, lineHeight: 1.5 }}>{isPrivate ? "Ask your NodeAgent privately, or press / for commands." : "No messages yet. Ask the room agent, or press / for commands."}</div>}
+        {messages.length === 0 && failedSends.length === 0 && <div className="tiny faint" style={{ margin: "auto", textAlign: "center", maxWidth: 260, lineHeight: 1.5 }}>{isPrivate ? "Ask your NodeAgent privately, or switch it to Room mode." : "No messages yet. Mention @nodeagent to start a room action."}</div>}
         {agentErr && <div className="r-msg" role="alert" data-testid="agent-error" data-state="failed"><div className="body tiny" style={{ color: "var(--danger-ink)" }}>{agentErr}</div></div>}
         {messages.map((m) => <Bubble key={m.clientMsgId || m.id} m={m} roomId={roomId} variant={variant} me={me} onPromote={promote} onOpenArtifact={onOpenArtifact} />)}
         {failedSends.map((f) => (
@@ -956,7 +971,7 @@ export function Chat({ roomId, me, channel, variant, agentName, style, onOpenArt
             </button>
           </div>
         )}
-        {slashOpen && (
+        {slashOpen && slashOptions.length > 0 && (
           <div className="r-slash" role="listbox" aria-label="Commands">
             {slashOptions.map((c, i) => (
               <button key={c.label} className="r-slash-item" role="option" aria-selected={i === slashIndex} onMouseEnter={() => setSlashIndex(i)} onMouseDown={(e) => { e.preventDefault(); applySlash(c.insert); }}>
@@ -996,7 +1011,7 @@ export function Chat({ roomId, me, channel, variant, agentName, style, onOpenArt
             tabIndex={-1}
           />
           <textarea ref={taRef} rows={1} value={text} onChange={onChange} onKeyDown={onKeyDown} onPaste={onPaste}
-            placeholder={isPrivate ? (roomLane ? "Tell your agent to act in the room…" : "Ask privately…") : "Message the room... type / for commands"}
+            placeholder={isPrivate ? (roomLane ? "Tell your agent to act in the room…" : "Ask privately…") : "Message the room or @nodeagent..."}
             data-testid="chat-composer"
             aria-label={isPrivate ? "Ask privately" : "Message the room"} />
           {/* One calm toolbar row (assistant-ui/shadcn): attach + an unobtrusive model chip on the
@@ -1061,9 +1076,9 @@ export function Chat({ roomId, me, channel, variant, agentName, style, onOpenArt
             (discoverable behavior doesn't need permanent screen real estate). */}
         {!isPrivate && !slashOpen && hasQ3DemoSeed && (
           <div className="r-composer-hint">
-            <button className="r-chip" onClick={() => applySlash(SLASH_CMDS[1].insert)}>/ask diligence CardioNova</button>
-            <button className="r-chip" onClick={() => applySlash(SLASH_CMDS[2].insert)}>/ask runway gaps</button>
-            {store.mode === "memory" && <button className="r-chip" onClick={() => applySlash(SLASH_CMDS[4].insert)}>/demo multi-agent</button>}
+            {NODEAGENT_PROMPTS.map((prompt) => <button key={prompt.insert} className="r-chip" onClick={() => applySlash(prompt.insert)}>{prompt.label}</button>)}
+            {store.mode === "memory" && <button className="r-chip" onClick={() => applySlash(SLASH_CMDS[0].insert)}>/demo multi-agent</button>}
+            <span className="r-composer-kbd" aria-hidden="true">{hasQ3DemoSeed ? "Enter sends; Shift+Enter newline; @nodeagent acts" : "Attach, paste, drop files, or mention @nodeagent"}</span>
           </div>
         )}
       </div>
@@ -1217,7 +1232,7 @@ function Bubble({ m, roomId, variant, me, onPromote, onOpenArtifact }: { m: Mess
   const [openErr, setOpenErr] = useState<string | null>(null);
   const agent = m.author.kind === "agent";
   const viaOwner = agent && m.author.ownerId ? store.listMembers(roomId).find((x) => x.id === m.author.ownerId)?.name : null;
-  const ask = !agent && parsed.body.trim().startsWith("/ask");
+  const ask = !agent && isPublicNodeAgentDirective(parsed.body);
   const mine = !agent && m.author.id === me.id;
   const canPromote = agent && variant === "private";
   const pending = String(m.id).startsWith("opt-"); // optimistic, not yet confirmed by the server

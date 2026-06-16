@@ -6,7 +6,7 @@ import { test, expect, type Page } from "@playwright/test";
  * the public AI agent, and private-channel isolation — verified in the DOM and via per-view screenshots.
  *
  * Run:  E2E_LIVE=1 npx playwright test three-user-collab.spec.ts
- * Needs .env.local with VITE_CONVEX_URL (live Convex) + provider keys (for the /ask step).
+ * Needs .env.local with VITE_CONVEX_URL (live Convex) + provider keys (for the @nodeagent step).
  */
 test.skip(!process.env.E2E_LIVE, "set E2E_LIVE=1 (live Convex backend + keys) to run the multi-user collab eval");
 
@@ -138,7 +138,7 @@ test("three users chat, edit the same sheet concurrently, and run the public age
   const publicAgentValue = `public-room proof ${CODE}`;
   await say(
     maya,
-    `/ask In the Q3 variance spreadsheet, call read_range for ${publicAgentKey}, then call write_locked_cell to set ${publicAgentKey} exactly to "${publicAgentValue}" using the baseVersion you read. Do not edit any other cells. Then say "public room proof complete".`,
+    `@nodeagent In the Q3 variance spreadsheet, call read_range for ${publicAgentKey}, then call write_locked_cell to set ${publicAgentKey} exactly to "${publicAgentValue}" using the baseVersion you read. Do not edit any other cells. Then say "public room proof complete".`,
   );
   await expect.poll(async () => {
     const values = await Promise.all(all.map((p) => cellText(p, publicAgentKey)));
@@ -217,7 +217,7 @@ test("three users chat, edit the same sheet concurrently, and run the public age
     await setAutoAllow(maya, false);
     const reviewKey = "r_rev__note";
     const reviewValue = `review-mode proof ${CODE}`;
-    await say(maya, `/ask In the Q3 variance spreadsheet, use the edit_cell tool to set ${reviewKey} exactly to "${reviewValue}". Do not edit any other cells.`);
+    await say(maya, `@nodeagent In the Q3 variance spreadsheet, use the edit_cell tool to set ${reviewKey} exactly to "${reviewValue}". Do not edit any other cells.`);
     // Chips must converge in EVERY browser, not just render locally in the host view.
     await expect.poll(async () => {
       const [mayaKeys, devKeys, samKeys] = await Promise.all(all.map(proposalCellKeys));

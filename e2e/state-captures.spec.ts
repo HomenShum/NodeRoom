@@ -121,7 +121,7 @@ test("capture — Chat states", async ({ page }) => {
   const chat = publicChat(page);
   const composer = chat.getByTestId("chat-composer");
   await shoot(chat, "chat", "composer-empty", "dark", 1860, "Empty composer with placeholder + send affordance; the send control state reflects empty input.");
-  await composer.fill("/ask diligence CardioNova");
+  await composer.fill("@nodeagent diligence CardioNova");
   await shoot(chat, "chat", "composer-typed", "dark", 1860, "A typed slash-command; the send button now looks actionable.");
   await composer.fill("");
   await composer.focus();

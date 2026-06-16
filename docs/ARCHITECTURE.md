@@ -1,6 +1,6 @@
 # NodeRoom — architecture
 
-> **Architecture boundaries / scaling rule:** see [architecture/CONVEX_AS_LEDGER.md](architecture/CONVEX_AS_LEDGER.md) — *Convex is the durable collaboration ledger, not the keystroke pipe, the agent scratchpad, or the OLAP warehouse.* It carries the per-bottleneck prescription (B1 split `rooms.full`, B2 paginate history, B3 narrow queries, B4 `/ask` admission control, B5 intent-claim + short commit-lease + CAS + proposals, B6 patch-bundles vs a snapshot baseVersion), the canonical C2/A1:C5 runtime, the streaming policy, and the implementation order.
+> **Architecture boundaries / scaling rule:** see [architecture/CONVEX_AS_LEDGER.md](architecture/CONVEX_AS_LEDGER.md) — *Convex is the durable collaboration ledger, not the keystroke pipe, the agent scratchpad, or the OLAP warehouse.* It carries the per-bottleneck prescription (B1 split `rooms.full`, B2 paginate history, B3 narrow queries, B4 `@nodeagent` admission control, B5 intent-claim + short commit-lease + CAS + proposals, B6 patch-bundles vs a snapshot baseVersion), the canonical C2/A1:C5 runtime, the streaming policy, and the implementation order.
 
 ## The one idea everything rests on: the uniform element model
 
@@ -102,7 +102,7 @@ range by artifact id, visibility, version, row range, and column range.
 ## Long-running job lifecycle
 
 Long-running execution is a policy on `agentJobs`, not a separate agent
-implementation. Durable public room requests (`/ask`, `/free`, research,
+implementation. Durable public room requests (`@nodeagent`, hidden `/ask` and `/free` aliases, research,
 collaboration buttons, and top-model jobs) enter through `agentJobs.start`.
 The row carries `entrypoint`, `routePolicy`, `runtimePolicy`, `modelPolicy`,
 `approvalPolicy`, `evidencePolicy`, and `traceLevel`. Private read-only advise
@@ -146,7 +146,7 @@ Important production distinction:
 
 ## NodeAgent job contract
 
-The `/ask` and `/free` split has converged on one durable NodeAgent contract:
+The visible `@nodeagent` route plus hidden `/ask` and `/free` aliases have converged on one durable NodeAgent contract:
 every durable public or Room-lane request first creates or reuses an
 `agentJobs` row, then the first action slice either completes quickly or
 checkpoints into the same Workflow/Workpool continuation path. The detailed target
@@ -226,7 +226,7 @@ fast and reliable enough for interactive writes.
   work is live/Convex shell proof, center source/proof split mode, and richer status drilldowns.
   Canonical target: [`docs/TARGET_2026_06.md`](TARGET_2026_06.md).
 - **Chats:** the **public room feed is custom** (assistant-ui's thread model is 1:1 user↔assistant, so
-  a multi-author room is off-label). The **private `/ask` thread** is where `@assistant-ui/react`'s
+  a multi-author room is off-label). The **private NodeAgent thread** is where `@assistant-ui/react`'s
   `ExternalStoreRuntime` + tool UIs fit — already built in the sibling **NodeAgent** repo.
 
 ## Latency posture (mechanism verified; numbers unmeasured)
@@ -243,7 +243,7 @@ For the live (Convex-wired) version, grounded in current sources:
     [docs/audit/QA_FINDINGS.md](audit/QA_FINDINGS.md) (P1-8) for the measurement + refactor trigger.
 - **Collaboration echo** (your edit visible to others) → **~30–150ms** same-region (estimate, not a
   Convex-published number) — "live", not "instant".
-- **Agent `/ask`** → first token **~0.7–1.5s** (non-reasoning models; *never* a reasoning/thinking SKU,
+- **Agent `@nodeagent`** → first token **~0.7–1.5s** (non-reasoning models; *never* a reasoning/thinking SKU,
   which blows TTFT to 14–108s) — LLM-category latency made legible by `isRunning` + streaming, not by
   being fast.
 

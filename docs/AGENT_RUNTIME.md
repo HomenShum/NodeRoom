@@ -250,7 +250,7 @@ Current production model wiring is provider-agnostic: `model(modelId)` routes th
 AI SDK adapters for OpenAI, Gemini, Anthropic, and OpenRouter, while `convexModel(modelId)` provides
 the Convex action variant. Provider SDK tools are still declared without `execute`; the model returns
 tool calls and NodeRoom runs them against `RoomTools`. `openrouter/free-auto` is explicit for the
-long-running `/free` lane and records the concrete resolved model for audit.
+Free route in the public composer and records the concrete resolved model for audit.
 
 **Provider adapters** are route-based, not Anthropic-only. `model(modelId)` uses the catalog-backed local/provider adapter path, while `convexModel(modelId)` is the Convex-safe action adapter. The critical detail is unchanged: provider tools are declared without local side effects. The provider returns tool calls; NodeRoom validates and executes them against `RoomTools`. The division of labor: the provider adapter owns model plumbing, while the harness owns the loop, context, tool validation, backend writes, conflict recovery, compaction, budgets, and traceability.
 
@@ -299,7 +299,7 @@ only the model and backend implementations differ.
 
 The action returns a summary — `{ finalText, steps, exhausted, toolCalls, conflictsSurvived }` (`agent.ts:42-49`), where `conflictsSurvived` counts the `edit_cell` trace results that came back with `conflict: true`. The live effects — locks, edits, traces, chat — are written through the mutations and stream to every client via reactive `useQuery` subscriptions. That's how "multiple users and agents see updates while editing concurrently" actually becomes true on the screen.
 
-**The user entry point.** Typing `/ask <goal>` in the public chat calls `store.askAgent({ goal, references })` (`src/app/store.tsx`): the chat composer keeps dragged file chips as structured artifact references, and the store converts those references into scoped artifact context before invoking the agent. On Convex that invokes this `runRoomAgent` action with the user's goal; with no keys it runs the *same* `runAgent` loop in the browser against the in-memory engine (scripted model). Same loop, same tools, same contract — only the brain and the backend differ.
+**The user entry point.** Mentioning `@nodeagent <goal>` in the public chat calls `store.askAgent({ goal, references, modelSelection })` (`src/app/store.tsx`): the chat composer keeps dragged file chips as structured artifact references, and the store converts those references into scoped artifact context before invoking the agent. The route picker chooses Adaptive, Free, Top paid, or a specific model policy; `/ask` and `/free` remain hidden compatibility aliases that pass through the same durable route. On Convex the store creates/reuses an `agentJobs` row and invokes the shared action/slice path with the user's goal; with no keys it runs the *same* `runAgent` loop in the browser against the in-memory engine (scripted model). Same loop, same tools, same contract — only the brain and the backend differ.
 
 `ConvexRoomTools` (`convex/convexRoomTools.ts:20-73`) is the only thing that differs between the spike and production. It implements the same `RoomTools` interface, each method running an internal Convex query or mutation: `snapshot → internal.artifacts.getSheet`, `readRange → internal.artifacts.readRange`, `proposeLock → internal.locks.proposeLock`, `editCell → internal.artifacts.applyAgentCellEdit`, `createDraft → internal.drafts.createDraft`, `say → internal.messages.sendAgent`, and so on.
 

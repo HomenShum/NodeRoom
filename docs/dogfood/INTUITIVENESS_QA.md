@@ -43,7 +43,7 @@ Budget = benchmark steps + 1. Counted as user-visible interactions (clicks, keys
 | G3 | Fix a typo in what you just said | Slack: **↑** → edit → Enter | 3 | hover → pencil → edit → Enter | 4 | At budget, convention miss (↑) |
 | G4 | Add 10 target accounts to research | CRM: paste → preview → import | 3 | Research tab → paste → Add accounts | 3 | Parity ✓ (no preview step — see F7) |
 | G5 | Approve a teammate's/agent's proposed edit | Docs: click Accept **next to the change** | 1 | scan bottom activity strip → find proposal → Approve | 3 | **Over budget + out of context** |
-| G6 | Get the agent to do the work | Slack-style: type `/ask …` → Enter | 2 | same | 2 | Parity ✓ |
+| G6 | Get the agent to do the work | Slack-style mention: type `@nodeagent …` → Enter | 2 | same | 2 | Parity ✓ |
 | G7 | Take back a mistake | Sheets: Ctrl+Z | 1 | re-edit the cell by hand (no undo) | 4+ | **Over budget** |
 
 ## 3. The three instruments (how a run actually works)

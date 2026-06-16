@@ -1,0 +1,493 @@
+{
+  "schema": 1,
+  "updatedAt": "2026-06-16",
+  "primaryPublicAgentInvocation": "@nodeagent",
+  "legacyAliases": ["/ask", "/free"],
+  "policy": {
+    "releaseFloorDefinition": "Small Playwright gate that must stay stable enough for PRs.",
+    "nightlyDefinition": "Full product and failure-state gate, including multi-user and live-backend runs.",
+    "visibleAgentUx": "Teach @nodeagent in public chat. Keep slash aliases only for compatibility and tests."
+  },
+  "flows": [
+    {
+      "id": "room-entry-shell",
+      "name": "Room entry, join, and shell",
+      "owner": "product",
+      "currentCoverage": ["e2e/design-baseline.spec.ts", "e2e/responsive-qa.spec.ts", "e2e/work-surface-split.spec.ts"],
+      "scenarios": [
+        {
+          "id": "room-entry-shell.create-demo-room",
+          "priority": "release_floor",
+          "status": "partial",
+          "suggestedSpec": "e2e/room-entry.spec.ts",
+          "steps": ["Open the app in memory mode.", "Enter a display name.", "Join the demo room.", "Wait for the room shell."],
+          "assertions": ["Left binder is visible.", "Center work surface is visible.", "Public chat is visible.", "No blocking error or blank panel appears."]
+        },
+        {
+          "id": "room-entry-shell.join-existing-room",
+          "priority": "nightly",
+          "status": "missing",
+          "suggestedSpec": "e2e/room-entry.spec.ts",
+          "steps": ["Context A creates or opens a room.", "Capture the room code.", "Context B joins by code."],
+          "assertions": ["Both contexts see the same room.", "Both see the same starter artifacts.", "Both members appear in presence."]
+        },
+        {
+          "id": "room-entry-shell.panel-toggles",
+          "priority": "release_floor",
+          "status": "covered",
+          "suggestedSpec": "e2e/responsive-qa.spec.ts",
+          "steps": ["Toggle binder.", "Toggle copilot.", "Open an artifact.", "Use desktop and compact widths."],
+          "assertions": ["Panels do not overlap.", "Spreadsheet remains usable.", "Compact overlays can be opened and dismissed."]
+        }
+      ]
+    },
+    {
+      "id": "public-chat",
+      "name": "Public chat",
+      "owner": "product",
+      "currentCoverage": ["e2e/chat.spec.ts"],
+      "scenarios": [
+        {
+          "id": "public-chat.send-message",
+          "priority": "release_floor",
+          "status": "covered",
+          "suggestedSpec": "e2e/chat.spec.ts",
+          "steps": ["Type a unique public message.", "Click send."],
+          "assertions": ["Message appears immediately.", "Message is confirmed once.", "Author and stable client message id are present."]
+        },
+        {
+          "id": "public-chat.edit-message",
+          "priority": "release_floor",
+          "status": "covered",
+          "suggestedSpec": "e2e/chat.spec.ts",
+          "steps": ["Send a message.", "Open edit controls.", "Change the text.", "Save."],
+          "assertions": ["Edited text appears in place.", "No duplicate bubble is created.", "Save errors are visible if rejected."]
+        },
+        {
+          "id": "public-chat.failure-retry",
+          "priority": "nightly",
+          "status": "missing",
+          "suggestedSpec": "e2e/public-chat-failure.spec.ts",
+          "steps": ["Force one message mutation failure.", "Send a message.", "Click retry."],
+          "assertions": ["Failed state is visible.", "Retry control appears.", "Successful retry replaces failed state without duplication."]
+        }
+      ]
+    },
+    {
+      "id": "public-nodeagent",
+      "name": "Public @nodeagent route",
+      "owner": "agent-runtime",
+      "currentCoverage": ["e2e/chat.spec.ts", "tests/chatReasoningFrames.test.tsx", "scripts/free-job-smoke.ts"],
+      "scenarios": [
+        {
+          "id": "public-nodeagent.mention-adaptive",
+          "priority": "release_floor",
+          "status": "partial",
+          "suggestedSpec": "e2e/nodeagent-public.spec.ts",
+          "steps": ["Select Adaptive.", "Type @nodeagent reconcile Q3 revenue.", "Send."],
+          "assertions": ["User bubble appears.", "Job or thinking state appears.", "Result lands in the room.", "Trace or job metadata can be opened."]
+        },
+        {
+          "id": "public-nodeagent.model-picker",
+          "priority": "release_floor",
+          "status": "partial",
+          "suggestedSpec": "tests/chatReasoningFrames.test.tsx",
+          "steps": ["Open public Convex chat.", "Switch Adaptive, Free, Top paid, Specific model.", "Choose an exact model.", "Send @nodeagent."],
+          "assertions": ["Specific model input appears only for Specific model.", "Selected model is passed to the durable route.", "Free policy routes through the same public path."]
+        },
+        {
+          "id": "public-nodeagent.hidden-slash-aliases",
+          "priority": "release_floor",
+          "status": "covered",
+          "suggestedSpec": "tests/chatReasoningFrames.test.tsx",
+          "steps": ["Send /free as a compatibility alias.", "Do not expose /free as a visible quick action."],
+          "assertions": ["/free maps to modelSelection mode free.", "The old startLongFreeAgent UI path is not used.", "Visible chips teach @nodeagent."]
+        },
+        {
+          "id": "public-nodeagent.trace-detail",
+          "priority": "nightly",
+          "status": "partial",
+          "suggestedSpec": "e2e/nodeagent-public.spec.ts",
+          "steps": ["Run @nodeagent with a mutating task.", "Open details.", "Open trace lens or job detail."],
+          "assertions": ["Operations are visible.", "Reasoning frames are visible when present.", "Resolved model and route policy are visible."]
+        }
+      ]
+    },
+    {
+      "id": "private-agent",
+      "name": "Private agent lane",
+      "owner": "agent-runtime",
+      "currentCoverage": ["e2e/three-user-collab.spec.ts", "tests/privateArtifactVisibility.test.ts"],
+      "scenarios": [
+        {
+          "id": "private-agent.private-reply",
+          "priority": "release_floor",
+          "status": "partial",
+          "suggestedSpec": "e2e/private-agent.spec.ts",
+          "steps": ["Open the private lane.", "Ask a private question.", "Wait for the reply."],
+          "assertions": ["Reply appears only in the private panel.", "Public chat stays clean.", "Lane labeling is clear."]
+        },
+        {
+          "id": "private-agent.promote",
+          "priority": "nightly",
+          "status": "partial",
+          "suggestedSpec": "e2e/private-agent.spec.ts",
+          "steps": ["Ask private agent.", "Use promote/share.", "Inspect public chat."],
+          "assertions": ["Promoted content appears publicly.", "Original private reply remains private.", "Attribution is correct."]
+        },
+        {
+          "id": "private-agent.room-mode",
+          "priority": "nightly",
+          "status": "missing",
+          "suggestedSpec": "e2e/private-agent.spec.ts",
+          "steps": ["Switch private lane to Room mode.", "Ask the private agent to act in the shared room."],
+          "assertions": ["Shared mutation path is used.", "Public attribution shows the owning user.", "Private-only context does not leak."]
+        }
+      ]
+    },
+    {
+      "id": "durable-job-controls",
+      "name": "Durable job controls and resume",
+      "owner": "agent-runtime",
+      "currentCoverage": ["scripts/free-job-smoke.ts", "tests/agentJobsRuntime.test.ts"],
+      "scenarios": [
+        {
+          "id": "durable-job-controls.start-free-route",
+          "priority": "release_floor",
+          "status": "partial",
+          "suggestedSpec": "e2e/job-controls.spec.ts",
+          "steps": ["Select Free in the model picker.", "Send @nodeagent long-running task."],
+          "assertions": ["Job strip appears.", "Status shows queued or running.", "Model policy indicates free-auto.", "User gets immediate feedback."]
+        },
+        {
+          "id": "durable-job-controls.cancel-retry",
+          "priority": "nightly",
+          "status": "partial",
+          "suggestedSpec": "e2e/job-controls.spec.ts",
+          "steps": ["Start a long job.", "Cancel while running.", "Retry after terminal or retryable state."],
+          "assertions": ["Cancel only appears while legal.", "Retry only appears while legal.", "New attempt is recorded.", "No stale busy indicator remains."]
+        },
+        {
+          "id": "durable-job-controls.reload-resume",
+          "priority": "nightly",
+          "status": "missing",
+          "suggestedSpec": "e2e/job-controls.spec.ts",
+          "steps": ["Start a job.", "Reload mid-job.", "Return to the room."],
+          "assertions": ["Job strip rehydrates.", "Attempt metadata persists.", "No duplicate jobs are displayed."]
+        }
+      ]
+    },
+    {
+      "id": "spreadsheet-editing",
+      "name": "Spreadsheet and manual editing",
+      "owner": "work-surface",
+      "currentCoverage": ["e2e/excel-grid.spec.ts", "e2e/semantic-rebase.spec.ts"],
+      "scenarios": [
+        {
+          "id": "spreadsheet-editing.manual-cell",
+          "priority": "release_floor",
+          "status": "covered",
+          "suggestedSpec": "e2e/excel-grid.spec.ts",
+          "steps": ["Click an editable cell.", "Type a value.", "Commit with Enter or Tab."],
+          "assertions": ["Value updates.", "Exactly one commit occurs.", "Selection moves by spreadsheet convention."]
+        },
+        {
+          "id": "spreadsheet-editing.undo",
+          "priority": "release_floor",
+          "status": "partial",
+          "suggestedSpec": "e2e/excel-grid.spec.ts",
+          "steps": ["Edit a cell.", "Use Undo."],
+          "assertions": ["Previous value is restored.", "Peers see the restored value.", "History state is honest."]
+        },
+        {
+          "id": "spreadsheet-editing.locked-cell-rejection",
+          "priority": "nightly",
+          "status": "partial",
+          "suggestedSpec": "e2e/semantic-rebase.spec.ts",
+          "steps": ["Lock a cell or range for another actor.", "Try a stale manual edit."],
+          "assertions": ["Edit is blocked.", "Clear conflict feedback is visible.", "Value is not silently overwritten."]
+        }
+      ]
+    },
+    {
+      "id": "review-proposals",
+      "name": "Review proposals and auto-allow",
+      "owner": "collaboration",
+      "currentCoverage": ["e2e/semantic-rebase.spec.ts", "e2e/three-user-collab.spec.ts", "tests/durableSemanticRebase.test.ts"],
+      "scenarios": [
+        {
+          "id": "review-proposals.propose-approve",
+          "priority": "release_floor",
+          "status": "partial",
+          "suggestedSpec": "e2e/proposals-review.spec.ts",
+          "steps": ["Turn auto-allow off.", "Run @nodeagent that mutates a cell.", "Approve the proposal at the target cell."],
+          "assertions": ["Direct write does not silently commit.", "Proposal appears near the change.", "Approval applies the edit and updates trace."]
+        },
+        {
+          "id": "review-proposals.reject",
+          "priority": "nightly",
+          "status": "partial",
+          "suggestedSpec": "e2e/proposals-review.spec.ts",
+          "steps": ["Seed a proposal.", "Reject it."],
+          "assertions": ["Artifact remains unchanged.", "Proposal becomes rejected or disappears from pending.", "Trace shows rejection."]
+        },
+        {
+          "id": "review-proposals.accept-all",
+          "priority": "nightly",
+          "status": "missing",
+          "suggestedSpec": "e2e/proposals-review.spec.ts",
+          "steps": ["Seed multiple proposals.", "Click Accept all."],
+          "assertions": ["All eligible proposals resolve.", "Artifact values update.", "Partial failures are visible."]
+        },
+        {
+          "id": "review-proposals.host-only",
+          "priority": "nightly",
+          "status": "partial",
+          "suggestedSpec": "e2e/privacy-boundaries.spec.ts",
+          "steps": ["Open host and non-host contexts.", "Inspect proposal controls."],
+          "assertions": ["Host can approve or reject.", "Non-host can read but cannot apply controls.", "Server rejects unauthorized attempts."]
+        }
+      ]
+    },
+    {
+      "id": "research-workflows",
+      "name": "GTM and finance research workflows",
+      "owner": "professional-workflows",
+      "currentCoverage": ["tests/researchHarness.test.ts", "evals/professionalRuntimeLive.ts"],
+      "scenarios": [
+        {
+          "id": "research-workflows.company-enrichment",
+          "priority": "release_floor",
+          "status": "partial",
+          "suggestedSpec": "e2e/research-flow.spec.ts",
+          "steps": ["Open company research artifact.", "Seed pending rows.", "Run @nodeagent enrichment."],
+          "assertions": ["Only pending or stale rows change.", "Evidence-bearing fields appear.", "Completed rows are not clobbered."]
+        },
+        {
+          "id": "research-workflows.upsert-not-duplicate",
+          "priority": "release_floor",
+          "status": "partial",
+          "suggestedSpec": "e2e/research-flow.spec.ts",
+          "steps": ["Import a company.", "Add notes.", "Import the same company again."],
+          "assertions": ["Existing row updates in place.", "Notes survive.", "No duplicate identity row is created."]
+        },
+        {
+          "id": "research-workflows.artifact-reference-targeting",
+          "priority": "nightly",
+          "status": "partial",
+          "suggestedSpec": "e2e/research-flow.spec.ts",
+          "steps": ["Drag a research artifact into chat.", "Run @nodeagent using that reference."],
+          "assertions": ["The referenced artifact is targeted.", "A random sheet is not mutated.", "Trace links to the referenced artifact."]
+        }
+      ]
+    },
+    {
+      "id": "files-artifact-refs",
+      "name": "Files, artifact references, and navigation",
+      "owner": "work-surface",
+      "currentCoverage": ["e2e/chat.spec.ts"],
+      "scenarios": [
+        {
+          "id": "files-artifact-refs.upload-paperclip",
+          "priority": "release_floor",
+          "status": "covered",
+          "suggestedSpec": "e2e/chat.spec.ts",
+          "steps": ["Click paperclip.", "Upload CSV or XLSX.", "Inspect composer."],
+          "assertions": ["Upload status appears.", "Reference chip appears.", "Send remains available."]
+        },
+        {
+          "id": "files-artifact-refs.drag-artifact",
+          "priority": "release_floor",
+          "status": "covered",
+          "suggestedSpec": "e2e/chat.spec.ts",
+          "steps": ["Drag an artifact from binder into chat.", "Send without extra text."],
+          "assertions": ["Reference chip is added.", "Message renders a clickable reference.", "Duplicate ref text is not shown."]
+        },
+        {
+          "id": "files-artifact-refs.open-split",
+          "priority": "release_floor",
+          "status": "covered",
+          "suggestedSpec": "e2e/chat.spec.ts",
+          "steps": ["Send a message with an artifact reference.", "Click the message artifact reference on desktop."],
+          "assertions": ["Correct artifact opens.", "Secondary split panel appears.", "Missing artifact errors are honest."]
+        },
+        {
+          "id": "files-artifact-refs.reload-access",
+          "priority": "nightly",
+          "status": "missing",
+          "suggestedSpec": "e2e/artifact-refs.spec.ts",
+          "steps": ["Upload an artifact.", "Reload.", "Open it again."],
+          "assertions": ["Artifact remains accessible.", "Title and metadata persist.", "Reference still points to the same durable id."]
+        }
+      ]
+    },
+    {
+      "id": "notes-wiki-wall",
+      "name": "Notes, wiki, and wall",
+      "owner": "work-surface",
+      "currentCoverage": ["e2e/state-captures.spec.ts", "tests/wikiSkill.test.ts"],
+      "scenarios": [
+        {
+          "id": "notes-wiki-wall.note-persist",
+          "priority": "release_floor",
+          "status": "partial",
+          "suggestedSpec": "e2e/note-wall.spec.ts",
+          "steps": ["Open a note.", "Edit text.", "Blur or save.", "Reload."],
+          "assertions": ["Note content persists.", "No duplicate blocks appear.", "No text is lost."]
+        },
+        {
+          "id": "notes-wiki-wall.wiki-grounded-update",
+          "priority": "nightly",
+          "status": "partial",
+          "suggestedSpec": "e2e/wiki-flow.spec.ts",
+          "steps": ["Trigger room summary/wiki update.", "Open wiki artifact."],
+          "assertions": ["Stable table of contents exists.", "Clickable artifact refs exist.", "Private-only content is not leaked."]
+        },
+        {
+          "id": "notes-wiki-wall.postit-crud",
+          "priority": "release_floor",
+          "status": "partial",
+          "suggestedSpec": "e2e/note-wall.spec.ts",
+          "steps": ["Create a post-it.", "Edit its text.", "Move it.", "Delete it.", "Reload."],
+          "assertions": ["Create, edit, move, and delete persist.", "No ghost post-its remain."]
+        }
+      ]
+    },
+    {
+      "id": "multi-user-reactivity",
+      "name": "Multi-user reactivity and no-clobber",
+      "owner": "collaboration",
+      "currentCoverage": ["e2e/three-user-collab.spec.ts", "evals/multiUserCoordinationProof.ts"],
+      "scenarios": [
+        {
+          "id": "multi-user-reactivity.public-chat",
+          "priority": "release_floor",
+          "status": "partial",
+          "suggestedSpec": "e2e/multiuser-reactivity.spec.ts",
+          "steps": ["Context A sends a public message.", "Context B watches without refresh."],
+          "assertions": ["B sees the message.", "Ordering is consistent.", "No duplicate appears."]
+        },
+        {
+          "id": "multi-user-reactivity.same-cell-conflict",
+          "priority": "release_floor",
+          "status": "partial",
+          "suggestedSpec": "e2e/multiuser-reactivity.spec.ts",
+          "steps": ["A and B focus the same cell.", "B commits first.", "A commits stale version."],
+          "assertions": ["One write wins.", "The stale writer gets conflict feedback.", "No silent overwrite occurs."]
+        },
+        {
+          "id": "multi-user-reactivity.agent-vs-human",
+          "priority": "nightly",
+          "status": "partial",
+          "suggestedSpec": "e2e/three-user-collab.spec.ts",
+          "steps": ["Agent starts targeted update.", "Human edits target during run."],
+          "assertions": ["Human edit survives when policy requires it.", "Agent creates proposal/draft/conflict instead of clobbering."]
+        },
+        {
+          "id": "multi-user-reactivity.three-user-smoke",
+          "priority": "nightly",
+          "status": "partial",
+          "suggestedSpec": "e2e/three-user-collab.spec.ts",
+          "steps": ["Host, user A, and user B join.", "Mix public chat, private panel, agent flow, and review flow."],
+          "assertions": ["Public/private visibility is correct.", "Proposal and trace updates reach correct actors.", "No dropped reactivity."]
+        }
+      ]
+    },
+    {
+      "id": "privacy-authz-boundaries",
+      "name": "Privacy, authorization, and boundaries",
+      "owner": "security",
+      "currentCoverage": ["tests/convexBoundaryPolicy.test.ts", "e2e/three-user-collab.spec.ts"],
+      "scenarios": [
+        {
+          "id": "privacy-authz-boundaries.private-leak",
+          "priority": "release_floor",
+          "status": "partial",
+          "suggestedSpec": "e2e/privacy-boundaries.spec.ts",
+          "steps": ["User A sends private content.", "User B watches public and private lanes."],
+          "assertions": ["B never sees A private content.", "Public feed remains clean.", "Server query path enforces isolation."]
+        },
+        {
+          "id": "privacy-authz-boundaries.host-only-controls",
+          "priority": "release_floor",
+          "status": "partial",
+          "suggestedSpec": "e2e/privacy-boundaries.spec.ts",
+          "steps": ["Compare host and member views.", "Try host-only controls."],
+          "assertions": ["Host controls are visible only when appropriate.", "Unauthorized action is rejected by server.", "UI shows honest failure if invoked."]
+        },
+        {
+          "id": "privacy-authz-boundaries.private-artifact-ref",
+          "priority": "nightly",
+          "status": "missing",
+          "suggestedSpec": "e2e/privacy-boundaries.spec.ts",
+          "steps": ["Create or reference a private artifact.", "Open as another user."],
+          "assertions": ["Unauthorized user cannot open or use it.", "Error is visible, not silent."]
+        }
+      ]
+    },
+    {
+      "id": "responsive-shell",
+      "name": "Responsive shell quality gates",
+      "owner": "design-qa",
+      "currentCoverage": ["e2e/responsive-qa.spec.ts", "e2e/work-surface-split.spec.ts"],
+      "scenarios": [
+        {
+          "id": "responsive-shell.desktop",
+          "priority": "release_floor",
+          "status": "covered",
+          "suggestedSpec": "e2e/responsive-qa.spec.ts",
+          "steps": ["Open desktop viewport.", "Inspect binder, work surface, and copilot."],
+          "assertions": ["Three-column shell is usable.", "No major overflow.", "Spreadsheet remains reachable."]
+        },
+        {
+          "id": "responsive-shell.tablet-compact",
+          "priority": "release_floor",
+          "status": "covered",
+          "suggestedSpec": "e2e/responsive-qa.spec.ts",
+          "steps": ["Open tablet and phone widths.", "Toggle each panel."],
+          "assertions": ["Panels collapse into usable overlays.", "Tab bar stays in viewport.", "Closing returns to chat or work surface."]
+        },
+        {
+          "id": "responsive-shell.mobile-core-flow",
+          "priority": "nightly",
+          "status": "partial",
+          "suggestedSpec": "e2e/responsive-qa.spec.ts",
+          "steps": ["Join room on mobile.", "Send chat.", "Open artifact ref.", "Return to chat."],
+          "assertions": ["Composer remains visible.", "Artifact is reachable.", "No impossible-to-dismiss overlay appears."]
+        }
+      ]
+    },
+    {
+      "id": "failure-states",
+      "name": "Failure-state browser tests",
+      "owner": "quality",
+      "currentCoverage": ["e2e/chat.spec.ts", "tests/agentReliability.test.ts"],
+      "scenarios": [
+        {
+          "id": "failure-states.optimistic-rollback",
+          "priority": "nightly",
+          "status": "missing",
+          "suggestedSpec": "e2e/failure-states.spec.ts",
+          "steps": ["Force one mutation failure.", "Edit a cell or send a message."],
+          "assertions": ["Optimistic UI reverts or marks failure honestly.", "Peer never sees rejected state.", "Retry path works if available."]
+        },
+        {
+          "id": "failure-states.agent-dispatch-error",
+          "priority": "release_floor",
+          "status": "partial",
+          "suggestedSpec": "e2e/failure-states.spec.ts",
+          "steps": ["Force @nodeagent backend error.", "Send a public request."],
+          "assertions": ["Error banner appears.", "Thinking state clears.", "No stuck busy indicator remains."]
+        },
+        {
+          "id": "failure-states.file-partial-failure",
+          "priority": "nightly",
+          "status": "missing",
+          "suggestedSpec": "e2e/failure-states.spec.ts",
+          "steps": ["Start a multi-file upload.", "Force one file upload to fail."],
+          "assertions": ["Partial success is reported.", "Successful refs remain attached.", "Failed item has an error."]
+        }
+      ]
+    }
+  ]
+}

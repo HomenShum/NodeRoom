@@ -92,6 +92,7 @@ function baseStore() {
     retryLongFreeJob: vi.fn(),
     postMessage: vi.fn(async () => ({ ok: true })),
     askAgent: vi.fn(async () => undefined),
+    startLongFreeAgent: vi.fn(async () => undefined),
     runAgent: vi.fn(),
     startPrivateAgent: vi.fn(),
     uploadSourceFile: vi.fn(),
@@ -116,7 +117,7 @@ describe("Chat reasoning-frame job detail", () => {
     expect(screen.getByText(/missing_research_now/)).toBeTruthy();
   });
 
-  it("passes the selected specific model through the public /ask composer", async () => {
+  it("passes the selected specific model through the public @nodeagent composer", async () => {
     const store = baseStore();
     mockStore.current = store;
 
@@ -124,7 +125,7 @@ describe("Chat reasoning-frame job detail", () => {
 
     fireEvent.change(screen.getByTestId("chat-model-preset"), { target: { value: "specific" } });
     fireEvent.change(screen.getByTestId("chat-model-specific"), { target: { value: "claude-sonnet-4.6" } });
-    fireEvent.change(screen.getByTestId("chat-composer"), { target: { value: "/ask review the latest CardioNova diligence notes" } });
+    fireEvent.change(screen.getByTestId("chat-composer"), { target: { value: "@nodeagent review the latest CardioNova diligence notes" } });
     fireEvent.click(screen.getByTestId("chat-send"));
 
     await waitFor(() => {
@@ -133,5 +134,23 @@ describe("Chat reasoning-frame job detail", () => {
         modelSelection: { mode: "specific", modelPolicy: "claude-sonnet-4.6" },
       }));
     });
+  });
+
+  it("keeps /free as a hidden compatibility alias for the central free route", async () => {
+    const store = baseStore();
+    mockStore.current = store;
+
+    render(<Chat roomId="r1" me={me} channel="public" variant="public" agentName="Room NodeAgent" />);
+
+    fireEvent.change(screen.getByTestId("chat-composer"), { target: { value: "/free review the latest CardioNova diligence notes" } });
+    fireEvent.click(screen.getByTestId("chat-send"));
+
+    await waitFor(() => {
+      expect(store.askAgent).toHaveBeenCalledWith(expect.objectContaining({
+        goal: "review the latest CardioNova diligence notes",
+        modelSelection: { mode: "free" },
+      }));
+    });
+    expect(store.startLongFreeAgent).not.toHaveBeenCalled();
   });
 });

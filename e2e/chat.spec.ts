@@ -206,15 +206,27 @@ test.describe("chat — optimistic send + edit (memory mode)", () => {
     await expect(chat.getByTestId("chat-send")).toBeEnabled();
   });
 
-  test("slash command menu supports keyboard selection", async ({ page }) => {
+  test("slash command menu only exposes the demo compatibility command", async ({ page }) => {
     const chat = publicChat(page);
 
     await chat.getByTestId("chat-composer").fill("/");
     await expect(chat.getByRole("listbox", { name: "Commands" })).toBeVisible();
-    await chat.getByTestId("chat-composer").press("ArrowDown");
-    await expect(chat.getByRole("option").nth(1)).toHaveAttribute("aria-selected", "true");
+    await expect(chat.getByRole("option")).toHaveCount(1);
+    await expect(chat.getByRole("option").first()).toContainText("/demo multi-agent");
     await chat.getByTestId("chat-composer").press("Enter");
 
-    await expect(chat.getByTestId("chat-composer")).toHaveValue("/ask diligence CardioNova with source-backed product, buyer, funding, hiring, and HIPAA/security gaps");
+    await expect(chat.getByTestId("chat-composer")).toHaveValue("/demo multi-agent startup diligence ");
+  });
+
+  test("@nodeagent quick chips replace /ask and /free as the taught public agent UX", async ({ page }) => {
+    const chat = publicChat(page);
+
+    await expect(chat.getByRole("button", { name: "@nodeagent diligence CardioNova" })).toBeVisible();
+    await expect(chat.getByRole("button", { name: "@nodeagent runway gaps" })).toBeVisible();
+    await expect(chat.getByRole("button", { name: "/ask diligence CardioNova" })).toHaveCount(0);
+    await expect(chat.getByRole("button", { name: "/free" })).toHaveCount(0);
+
+    await chat.getByRole("button", { name: "@nodeagent diligence CardioNova" }).click();
+    await expect(chat.getByTestId("chat-composer")).toHaveValue("@nodeagent diligence CardioNova with source-backed product, buyer, funding, hiring, and HIPAA/security gaps");
   });
 });

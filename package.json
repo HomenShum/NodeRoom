@@ -93,6 +93,8 @@
     "slo:gate:write": "tsx scripts/slo-gate.ts --json-out docs/eval/slo-gate.json",
     "qa:matrix": "tsx scripts/qa-matrix.ts",
     "qa:matrix:check": "tsx scripts/qa-matrix.ts --check",
+    "qa:e2e:inventory": "tsx scripts/browser-e2e-inventory.ts",
+    "qa:e2e:inventory:check": "tsx scripts/browser-e2e-inventory.ts --check",
     "content:fluency:check": "tsx scripts/content-fluency-check.ts",
     "commit:summary": "tsx scripts/commit-message.ts",
     "commit:check": "tsx scripts/commit-message.ts --check-last",
