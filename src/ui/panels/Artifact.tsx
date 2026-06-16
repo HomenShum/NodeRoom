@@ -557,7 +557,7 @@ function Research({ roomId, me, art }: { roomId: string; me: Actor; art: Art }) 
         </div>
       )}
       <div className="r-research-scroll">
-        <table className="r-research">
+        <table className="r-research" data-noderoom-surface="workSurface.research" data-artifact-id={art.id}>
           <colgroup>
             <col style={{ width: 148 }} /><col style={{ width: 92 }} /><col style={{ width: 150 }} />
             <col style={{ width: 248 }} /><col style={{ width: 188 }} /><col style={{ width: 150 }} /><col style={{ width: 96 }} />
@@ -1253,7 +1253,7 @@ function Sheet({ roomId, me, art, onError }: { roomId: string; me: Actor; art: A
     <>
       <div className="r-art-body">
         <div className="r-sheet-wrap">
-          <table className="r-sheet">
+          <table className="r-sheet" data-noderoom-surface="workSurface.sheet" data-artifact-id={art.id}>
             <thead><tr><th className="r-corner" aria-label="row number" /><th>Account</th><th className="num">Q2</th><th className="num">Q3</th><th className="num">Variance</th><th>Note</th></tr></thead>
             <tbody>
               {rows.map((rid, i) => {
@@ -1272,14 +1272,14 @@ function Sheet({ roomId, me, art, onError }: { roomId: string; me: Actor; art: A
                     <td className="label">{cellVal(art, rid, "label")}</td>
                     <td className="num"><span className="r-val-num">{cellVal(art, rid, "q2")}</span></td>
                     <td className="num"><span className="r-val-num">{cellVal(art, rid, "q3")}</span></td>
-                    <td className={vCls} data-cell-key={vId} data-testid="sheet-cell">
+                    <td className={vCls} data-cell-key={vId} data-element-id={vId} data-testid="sheet-cell">
                       <EditableCell key={vId + ":" + (vEl?.version ?? 0)} value={String(vEl?.value ?? "")} disabled={!!lk || drafting || !!vProposal} align="right" onCommit={(s) => doCommit(vId, s)} />
                       {lk && <span className="lockbadge"><Lock size={9} /> NA</span>}
                       {drafting && <span className="lockbadge"><Pencil size={9} /> draft</span>}
                       {vProposal && <InlineProposal roomId={roomId} me={me} proposal={vProposal} onResolved={(f) => { if (!f.ok) onError(f); }} />}
                       {personalEditor && <span className="r-prov-dot" style={{ background: personalEditor.color }} title={`edited by ${personalEditor.name}'s agent`} />}
                     </td>
-                    <td className={"r-cell" + (nProposal ? " proposed" : "")} data-cell-key={nId} data-testid="sheet-cell">
+                    <td className={"r-cell" + (nProposal ? " proposed" : "")} data-cell-key={nId} data-element-id={nId} data-testid="sheet-cell">
                       <EditableCell key={nId + ":" + (nEl?.version ?? 0)} value={String(nEl?.value ?? "")} disabled={!!lk || !!nProposal} addLabel="note" onCommit={(s) => doCommit(nId, s)} />
                       {nProposal && <InlineProposal roomId={roomId} me={me} proposal={nProposal} onResolved={(f) => { if (!f.ok) onError(f); }} />}
                     </td>
@@ -1543,7 +1543,7 @@ function TraceStrip({ roomId, me }: { roomId: string; me: Actor }) {
   // Auto-expand only when proposals are pending, since that is actionable review the host must not miss.
   const open = openOverride ?? proposals.length > 0;
   return (
-    <div className="r-trace" data-testid="room-trace" data-open={String(open)}>
+    <div className="r-trace" data-testid="room-trace" data-open={String(open)} data-noderoom-surface="workSurface.traceStrip">
       <div className="r-trace-head">
         <button
           type="button"

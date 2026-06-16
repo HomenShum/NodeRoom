@@ -17,6 +17,8 @@ import { selectPublicSignalTraces, statusText as publicStatusText } from "./sign
 import { focusStage } from "./stageFocus";
 import { buildDownstreamHandoffDraft, type DownstreamHandoffTarget } from "./downstreamHandoff";
 import { BankerCoachPanel } from "./artifacts/BankerCoachPanel";
+import { TraceLensProvider } from "./traceLens/useTraceLens";
+import { TraceLensPanel } from "./traceLens/TraceLensPanel";
 import { resolveRoomOpenTarget } from "./openRoomReference";
 import type { Actor, Channel } from "../engine/types";
 
@@ -281,8 +283,9 @@ export function RoomShell({ roomId, me, onLeave }: { roomId: string; me: Actor; 
   };
 
   return (
+    <TraceLensProvider>
     <div className="r-app">
-      <div className="r-top">
+      <div className="r-top" data-noderoom-surface="shell.topbar">
         <div className="r-mark">N</div>
         <div className="r-brand">NodeRoom <span>· {room.title}</span></div>
         {/* The code chip LOOKS like a button, so it must be one — sharing the code is the core
@@ -357,7 +360,9 @@ export function RoomShell({ roomId, me, onLeave }: { roomId: string; me: Actor; 
         </div>
       )}
       <GuidedTour steps={tourSteps} open={tourOpen} onClose={() => setTourOpen(false)} storageKey={TOUR_KEY} />
+      <TraceLensPanel roomId={roomId} onOpenArtifact={openArtifact} />
     </div>
+    </TraceLensProvider>
   );
 }
 
@@ -515,7 +520,7 @@ function ProgressSpine({ roomId }: { roomId: string }) {
   if (proposals.length > 0 || drafts.length > 0) stage = 3;
   const spine = ["Intake", "Evidence", "Draft", "Review", "Export"];
   return (
-    <div className="r-spine" data-testid="progress-spine" aria-label="Workflow progress">
+    <div className="r-spine" data-testid="progress-spine" aria-label="Workflow progress" data-noderoom-surface="shell.progressSpine">
       {spine.map((label, i) => (
         <span key={label} className="r-spine-step" data-state={i < stage ? "done" : i === stage ? "now" : "next"}>
           {i < stage ? <Check size={11} /> : <span className="r-spine-dot" />}
@@ -567,9 +572,9 @@ function SignalStatusStrip({ roomId, onOpenArtifact }: { roomId: string; onOpenA
   };
 
   return (
-    <div className="r-shell-bottom" data-testid="shell-bottom">
+    <div className="r-shell-bottom" data-testid="shell-bottom" data-noderoom-surface="shell.statusStrip">
       <ProgressSpine roomId={roomId} />
-      <div className="r-signal-tape" data-testid="signal-tape" aria-label="Signal Tape">
+      <div className="r-signal-tape" data-testid="signal-tape" aria-label="Signal Tape" data-noderoom-surface="shell.signalTape">
         <Activity size={13} />
         {signals.map((s) =>
           s.k === "Review" && proposals.length > 0 ? (

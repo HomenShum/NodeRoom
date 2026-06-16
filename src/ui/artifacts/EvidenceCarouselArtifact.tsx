@@ -26,7 +26,7 @@ export function EvidenceCarouselArtifact({
   onOpenArtifact?: (artifactId: string, elementId?: string) => void;
 }) {
   return (
-    <div className="r-coach-evidence" data-testid="coach-evidence-artifact">
+    <div className="r-coach-evidence" data-testid="coach-evidence-artifact" data-noderoom-surface="copilot.coachEvidence">
       {cards.map((card) => {
         // Open the LITERAL source: a real web page for url-backed evidence, else the source artifact
         // (opened split-screen at its cell by the caller). Falls back to the claim cell.
@@ -51,20 +51,20 @@ export function EvidenceCarouselArtifact({
         );
         if (href) {
           return (
-            <a key={card.id} className="r-coach-card r-coach-card-button" data-testid="coach-evidence-card" href={href} target="_blank" rel="noopener noreferrer" aria-label={`Open source ${sourceLabel(card)} for ${card.label}`}>
+            <a key={card.id} className="r-coach-card r-coach-card-button" data-testid="coach-evidence-card" data-element-id={card.targetElementId} data-artifact-id={card.targetArtifactId} href={href} target="_blank" rel="noopener noreferrer" aria-label={`Open source ${sourceLabel(card)} for ${card.label}`}>
               {body}
             </a>
           );
         }
         if (canOpenInternal) {
           return (
-            <button key={card.id} type="button" className="r-coach-card r-coach-card-button" data-testid="coach-evidence-card" aria-label={`Open source for ${card.label}`} onClick={() => onOpenArtifact?.(openId!, card.targetElementId)}>
+            <button key={card.id} type="button" className="r-coach-card r-coach-card-button" data-testid="coach-evidence-card" data-element-id={card.targetElementId} data-artifact-id={card.targetArtifactId} aria-label={`Open source for ${card.label}`} onClick={() => onOpenArtifact?.(openId!, card.targetElementId)}>
               {body}
             </button>
           );
         }
         return (
-          <article key={card.id} className="r-coach-card" data-testid="coach-evidence-card">
+          <article key={card.id} className="r-coach-card" data-testid="coach-evidence-card" data-element-id={card.targetElementId} data-artifact-id={card.targetArtifactId}>
             {body}
           </article>
         );

@@ -132,7 +132,7 @@ export function BankerCoachPanel({
   };
 
   return (
-    <section className="r-coach-panel" data-testid="banker-coach-panel" aria-label="Banker coach artifacts">
+    <section className="r-coach-panel" data-testid="banker-coach-panel" aria-label="Banker coach artifacts" data-noderoom-surface="copilot.coachTab">
       <div className="r-coach-head">
         <div>
           <span className="kicker">Banker coach</span>
