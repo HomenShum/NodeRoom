@@ -54,6 +54,13 @@ policy.
 See
 [`docs/NODEAGENT_ARCHITECTURE.md`](NODEAGENT_ARCHITECTURE.md).
 
+For room-work/entity-facet flows, job creation also materializes the selected
+recursive-reasoning state: `agentReasoningFrames` for phase/child lineage,
+`entityWorkItems` for bounded child work, and `entityResearchCache` for
+cache-first speed-to-fill. The current runner updates frame statuses when slices
+start, finish, cancel, retry, or expire; the next hardening step is to make every
+runnable slice claim one frame and execute with its `ContextPack`.
+
 ## Free-Auto Model Policy
 
 NodeRoom also has an explicit free-auto command for demos and low-cost
@@ -94,6 +101,17 @@ agentJobAttempts
   resolvedModel, stopReason
   ms, tokens, cost
   error, scheduledNextAt
+
+agentReasoningFrames
+  jobId, framePlanId, frameId, parentFrameId, phase, status
+  contextPack, toolAllowlist, evidenceState, stateDelta
+
+entityWorkItems
+  jobId, entityType, entityKey, facet, cachePolicy, status, cacheId
+
+entityResearchCache
+  roomId, visibility, entityType, entityKey, facet
+  resultHash, evidenceRefs, status, validUntil, staleAfter
 ```
 
 Runtime knobs:

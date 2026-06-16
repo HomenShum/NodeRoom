@@ -546,6 +546,23 @@ input { font-family: inherit; }
 .r-job-list { display: grid; gap: 3px; min-width: 0; }
 .r-job-list span { overflow-wrap: anywhere; }
 .r-job-list-title { color: var(--text-secondary); font-weight: 700; text-transform: uppercase; letter-spacing: .04em; font-size: 10px; }
+.r-frame-tree { display: grid; gap: 6px; min-width: 0; }
+.r-frame-tree .r-job-list-title { display: inline-flex; align-items: center; gap: 5px; }
+.r-frame-phases { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 4px; }
+.r-frame-phases span, .r-frame-children span { min-width: 0; border: 1px solid var(--line); border-radius: 7px; background: var(--bg-primary); color: var(--text-secondary); overflow: hidden; }
+.r-frame-phases span { display: grid; gap: 1px; padding: 5px 6px; }
+.r-frame-phases b, .r-frame-children b { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text-primary); font-weight: 700; }
+.r-frame-phases em, .r-frame-children em { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text-tertiary); font-style: normal; font-family: var(--font-mono); font-size: 9.5px; }
+.r-frame-phases span[data-status="completed"], .r-frame-children span[data-status="completed"] { border-color: rgba(31,138,91,.24); background: rgba(31,138,91,.07); }
+.r-frame-phases span[data-status="blocked"], .r-frame-children span[data-status="blocked"] { border-color: var(--warning-border); background: var(--warning-tint); }
+.r-frame-phases span[data-status="failed"], .r-frame-children span[data-status="failed"] { border-color: rgba(198,64,64,.34); background: rgba(198,64,64,.1); }
+.r-frame-phases span[data-status="pending"], .r-frame-children span[data-status="pending"], .r-frame-phases span[data-status="running"], .r-frame-children span[data-status="running"] { border-color: var(--accent-border); background: var(--accent-tint); }
+.r-frame-children { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 4px; }
+.r-frame-children span { display: grid; gap: 1px; padding: 6px 7px; }
+@media (max-width: 720px) {
+  .r-frame-phases { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .r-frame-children { grid-template-columns: 1fr; }
+}
 /* typing / thinking indicator (assistant-ui honest in-flight status) */
 .r-typing { display: inline-flex; gap: var(--space-1); align-items: center; padding: 2px 0; }
 .r-typing i { width: 6px; height: 6px; border-radius: 50%; background: var(--text-tertiary); animation: typing 1.1s var(--ease-smooth) infinite; }

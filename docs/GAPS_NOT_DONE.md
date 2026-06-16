@@ -1,11 +1,12 @@
 # Gaps Not Yet Done
 
-Last updated: 2026-06-14
+Last updated: 2026-06-16
 
 NodeRoom is production-shaped, but it is not yet fully production-proven. The
 core harness exists: versioned room artifacts, bounded agent tools, lock/CAS
-mutation, draft recovery, long-running `/free` job state, provider adapters,
-artifact traces, a QA matrix, and professional workflow eval fixtures. The gaps
+mutation, draft recovery, unified durable `agentJobs`, room-work reasoning
+frames/cache rows, provider adapters, artifact traces, a QA matrix, and
+professional workflow eval fixtures. The gaps
 below are the remaining work needed before claiming full production scale for
 GTM sales, finance, banker, and multi-file research workflows.
 
@@ -31,7 +32,7 @@ Do not claim a feature is production-complete until it has:
 | CI | `.github/workflows/ci.yml` now runs `npm run prod:gate` plus deterministic ladder eval on push/PR. | Add secret scanning and optional live-smoke gates with protected secrets. | CI passes from a clean clone and blocks stale QA docs, moderate-or-higher audit failures, stale proofs, broken SLO gate, type/test/browser-memory regressions, or build failures. |
 | Dependency audit | `npm audit --omit=dev --audit-level=moderate` now passes. High/moderate Convex/esbuild and ExcelJS/uuid advisories are mitigated with npm overrides plus compatibility tests; 6 low AI SDK provider-utils advisories remain. | Decide whether low advisories should become blocking, or upgrade the AI SDK major line when app compatibility is proven. | Moderate-or-higher `npm audit` remains green in `prod:gate`; low advisories are either accepted with controls or removed. |
 
-## P0: Long-Running `/free` Reliability
+## P0: Long-Running Agent Job Reliability
 
 | Gap | Current state | Needed proof | Acceptance gate |
 |---|---|---|---|
@@ -40,6 +41,7 @@ Do not claim a feature is production-complete until it has:
 | Stale lease handling | Job slice leases are checked before `finishSlice`, and `agentJobs.sweepExpiredJobLeases` now moves abandoned `running` jobs to a fenced failed state with unit coverage. | Live duplicate-worker simulation at the workflow boundary plus deployed cron monitoring. | Duplicate scheduled slice with stale lease exits without writes, and abandoned running jobs cannot remain wedged indefinitely. |
 | Slice budget clamps | Per-run/per-slice token and USD clamps exist with reserve time for checkpointing. | Live tiny-budget multi-slice smoke through Workflow/Workpool. | Multi-slice test with tiny budgets completes through resume, not timeout. |
 | Provider-step journal | `agentModelStepJournal` records and replays completed model steps. | Adapter-level idempotency keys where providers support them, plus crash-before-record behavior documented as retryable. | Crash-after-provider-call recovery does not call the provider again when a completed response was journaled. |
+| Frame-claimed slices | Room-work admission materializes `agentReasoningFrames`, `entityWorkItems`, and `entityResearchCache`; slice start/finish/cancel/expiry updates frame status. | Make the runnable slice explicitly claim one frame, build `ContextPack` messages, reduce into `FrameDelta`, and verify before synthesis/finish. | A multi-slice room-work job can resume from a frame id, not just from raw cursor messages. |
 | Model health/quarantine | Free-auto discovery and fallback exist. | Track latency, rate limits, failures, fallback count, and quarantine unhealthy free models. | Router avoids unhealthy free models and records why. |
 | Live `/free` eval | Manual live ladder evidence exists. | Add a polling evaluator that starts a real `/free` job, polls attempts, and asserts terminal state plus trace evidence. | Live `openrouter/free-auto` smoke records resolved model, attempts, final artifact state, and no clobber. |
 
@@ -138,7 +140,7 @@ official chart tasks.
 
 | Gap | Current state | Needed proof | Acceptance gate |
 |---|---|---|---|
-| Job controls | Status chips exist. | Add cancel, manual retry, attempt details, latest resolved model, stop reason, next run time, duration, tokens/cost, and linked agent run. | A host can operate a long-running job without reading logs. |
+| Job controls | Status chips, cancel/retry, attempts, job detail, reasoning-frame tree, receipts, latest steps, and operation rows are browser-visible for the latest job. | Add deeper drilldown, filter/search, frame-level retry/cancel when frame-claimed runner lands, and live browser coverage. | A host can operate a long-running job without reading logs. |
 | Auto-accept UX | Accept/reject proposal flow exists. | Host opt-in modal for auto-accept/accept-all, scoped to safe proposal classes, with remember-my-preference. | Auto-accept never applies blocked, stale, or policy-failed proposals. |
 | Spreadsheet/agent interaction | Spreadsheet, trace, notes, and chat are wired. | Browser E2E for spreadsheet row selection -> ask agent -> proposed cells -> accept -> trace -> note/wiki reference. | Agent and spreadsheet remain synchronized under concurrent human edits. |
 | June 2026 workroom shell | Binder -> Work Surface -> Copilot -> Signal Tape/Status Strip is implemented in the MVP shell; center-stage split mode now has memory-mode browser proof. Remaining work: richer binder click-throughs, live/Convex shell proof, Gemini UI judge proof, and status drilldown tests. | Add live browser specs, media judge walkthrough, richer binder source/proof/policy click-throughs, and status drilldown tests. | Browser specs prove binder navigation, center split source/proof mode, right-side Copilot steering, thin bottom status, no overflow, and no private-data leakage in ambient events. |
@@ -147,15 +149,15 @@ official chart tasks.
 
 ## P1: Workflow/Workpool Productionization
 
-The scheduler path is acceptable as an MVP because it proves the state-machine
-shape, but production should use a durable workflow/workpool layer once
-deployment is clean.
+Workflow/Workpool is wired for the durable job path. The remaining work is no
+longer "add Workflow"; it is production hardening around frame-claimed slices,
+backpressure, retries, crash recovery, and deployed monitoring.
 
 | Gap | Current state | Needed proof | Acceptance gate |
 |---|---|---|---|
-| Workflow adapter | `@convex-dev/workflow` and `@convex-dev/workpool` are dependencies. | Wire a production adapter while keeping `agentJobs` as the user-facing system of record. | Workflow ids are runtime metadata; NodeRoom artifact/job ids remain durable. |
+| Workflow adapter | `@convex-dev/workflow` and `@convex-dev/workpool` are wired while `agentJobs` remains the user-facing system of record. | Deployed crash/retry/backpressure proof, plus docs that keep Workflow ids as runtime metadata. | Workflow ids are runtime metadata; NodeRoom artifact/job ids remain durable. |
 | Retry/backoff/concurrency | Basic attempts exist. | Centralize retry policy, concurrency limits, and crash recovery. | Backpressure protects providers and Convex while jobs still make progress. |
-| Step journal | Attempts are persisted. | Durable per-step journal for model calls, tool calls, parser calls, and artifact commits. | Replays are explainable and exactly-once where side effects matter. |
+| Step journal | `agentModelStepJournal` records provider steps; mutation receipts and operation rows record commits. | Extend journal/idempotency coverage where provider/parser adapters expose safe request ids. | Replays are explainable and exactly-once where side effects matter. |
 
 ## P1: Algorithm Artifacts And Calculation Promotion
 

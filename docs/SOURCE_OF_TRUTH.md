@@ -10,6 +10,12 @@ NodeRoom is the live room where humans and AI agents do startup-banking diligenc
 
 `src/nodeagent/**` is the canonical source tree. The old `src/agent/**` tree was removed after the repo import graph moved to NodeAgent, and the previous shared formula/rebase entrypoints were folded into nodeagent-owned modules.
 
+The selected recursive-reasoning architecture is: **Omnigent outside, NodeAgent
+inside, Convex underneath**. NodeAgent owns reasoning frames, context packs,
+entity/facet cache, OKF evidence, verification, and managed writes. Omnigent is
+an optional outer meta-harness for model/harness choice, policies, sessions, and
+sandboxing; it is not the durable memory layer.
+
 ## Vocabulary Reconciliation
 
 Design-intent names now live in `src/nodeagent/**`. Convex remains the durable backend, but frontend code, tests, scripts, and evals should import nodeagent modules directly.
@@ -23,6 +29,7 @@ Design-intent names now live in `src/nodeagent/**`. Convex remains the durable b
 | MCP server exposing `nodeagent_*` tools | None. Tools are guarded by Convex permissions and schemas. | absent; do not build until there is a consumer |
 | `.agent/` rules directory | Truth lives in `src/nodeagent/models/prompts/systemPrompt.ts`, `src/nodeagent/skills/spreadsheet/cellMutator.ts`, and `docs/NODEAGENT_ARCHITECTURE.md`. | absent; avoid duplicate drift |
 | Convex Workflow + Workpool durable jobs | `@convex-dev/workflow` and `@convex-dev/workpool` are wired through Convex config/job files. | built |
+| "Fable-like" recursive context / multi-frame reasoning | Harness-native frames in `src/nodeagent/core/reasoningFrames.ts`, context utilities in `contextPack.ts`, durable `agentReasoningFrames`, entity/facet `entityWorkItems`, and room-local `entityResearchCache`. | built for room-work admission/detail; frame-claimed runner remains next hardening |
 | Formula engine | `src/nodeagent/core/formulaEngine.ts`, imported by UI/engine and test-covered. | built and tested |
 | Semantic Rebase | `SmartResolver` plus deterministic draft merge path. LLM resolver packet tables remain target-state. | partially built |
 | Downstream connectors | `downstreamPublish` prepares Gmail, Notion, Slack, Linear, LinkedIn, and CRM draft artifacts only. | draft handoff; live OAuth is roadmap |
@@ -36,12 +43,16 @@ Design-intent names now live in `src/nodeagent/**`. Convex remains the durable b
 - Multi-agent workbench: visible memory-mode demo and judged media exist. Startup diligence now has a two-clip evidence path: live create/join plus scripted synthesis/private/downstream.
 - Fresh startup room: live mode now starts a new "Startup Banking Diligence War Room" by default. The `startup-diligence-live-join` walkthrough proves teammate join-by-code; `startup-diligence-war-room` proves the broader diligence workflow.
 - OKF production path: the public Room NodeAgent has a Convex-backed OKF retrieval port, actor-aware public/private partitioning, literal source opening, retrieval telemetry, and an evidence write gate that can downgrade weak source-backed writes to `needs_review`.
+- Harness-native recursive reasoning: room-work/entity-facet flows materialize
+  durable phase/child frames, cache-first work items, and job-detail frame trees.
+  Safe claim: this is the chosen harness capability layer; do not claim every
+  `/ask` slice is already frame-claimed until the runner claims frames directly.
 - Trace Lens and Banker Coach: review surfaces expose proof, trace, OKF telemetry, and gated builder context. Do not claim a full graph explorer or durable banker workflow object lifecycle yet.
 
 ## Authority Docs
 
 1. [ARCHITECTURE.md](ARCHITECTURE.md) - layer map and managed-write contract.
-2. [NODEAGENT_ARCHITECTURE.md](NODEAGENT_ARCHITECTURE.md) and [AGENT_RUNTIME.md](AGENT_RUNTIME.md) - the real agent harness.
+2. [NODEAGENT_ARCHITECTURE.md](NODEAGENT_ARCHITECTURE.md), [AGENT_RUNTIME.md](AGENT_RUNTIME.md), and [HARNESS_RECURSIVE_REASONING.md](HARNESS_RECURSIVE_REASONING.md) - the real agent harness and selected frame/cache/verifier upgrade.
 3. [architecture/CONVEX_AS_LEDGER.md](architecture/CONVEX_AS_LEDGER.md) - Convex-as-ledger boundaries and scaling rules.
 4. [AGENT_EVAL.md](AGENT_EVAL.md) - agent evaluation method.
 5. [demo/STARTUP_DILIGENCE_DEMO_PLAN.md](demo/STARTUP_DILIGENCE_DEMO_PLAN.md) - the next public demo script.
@@ -59,6 +70,8 @@ Design-intent names now live in `src/nodeagent/**`. Convex remains the durable b
 - Do not claim live OAuth connectors until user-authorized adapters exist and pass live tests.
 - Do not claim official SpreadsheetBench or BankerToolBench scores until official fixtures, adapters, runs, and scorer outputs are recorded.
 - Do not claim full production LiteParse/OCR worker coverage beyond the installed adapter/smoke lane.
+- Do not describe recursive reasoning as a provider-specific "Fable mode" or as
+  Omnigent YAML memory. It is a NodeAgent/Convex harness capability.
 - Do not claim private consults use the full OKF tool graph by default; default private consults are read-only streamed replies unless promoted into room action.
 - Do not claim Trace Lens is a full OKF graph explorer or full code-provenance system.
 - Do not claim every Banker Coach cue/review round is automatically persisted as a first-class workflow object.

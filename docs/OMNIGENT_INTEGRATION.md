@@ -5,8 +5,7 @@ room-native reasoning kernel.
 
 Current Omnigent public docs describe a YAML agent spec with `executor`,
 `tools`, `policies`, `os_env`, and `terminals`; they also position Omnigent as a
-common layer over harnesses such as Claude Code, Codex, Pi, Cursor, OpenAI
-Agents, and custom agents:
+common layer over multiple harnesses and custom agents:
 
 - https://github.com/omnigent-ai/omnigent/blob/main/docs/AGENT_YAML_SPEC.md
 - https://github.com/omnigent-ai/omnigent
@@ -22,18 +21,26 @@ Agents, and custom agents:
 Do not push NodeAgent memory into Omnigent YAML prompts. The YAML can choose who
 runs and what OS access/policies apply; `agentJobs`, `agentReasoningFrames`,
 `entityWorkItems`, and `entityResearchCache` remain the durable cognition layer.
+The detailed NodeAgent-side decision record is
+[`HARNESS_RECURSIVE_REASONING.md`](HARNESS_RECURSIVE_REASONING.md).
 
 ## Repo State
 
 The pasted "Fable-like harness" plan maps to the current repo this way:
 
 - Frame plan and context packs: `src/nodeagent/core/reasoningFrames.ts`
+- Frame runtime above `runAgent`: `src/nodeagent/core/frameRunner.ts`
+- Frame context/reducer/verifier: `src/nodeagent/core/contextPack.ts`,
+  `src/nodeagent/core/frameReducer.ts`, `src/nodeagent/core/frameVerifier.ts`
 - Durable frame rows: `convex/schema.ts` table `agentReasoningFrames`
 - Room-work frame materialization: `convex/agentJobs.ts`
 - Entity/facet cache and freshness: `entityResearchCache`
 - Child work items: `entityWorkItems`
 - Job detail frame visibility: `agentJobs.detail().reasoningFrames`
-- Tests: `tests/reasoningFrames.test.ts`, `tests/roomWorkCache.test.ts`
+- Source-shape tests: `tests/agentJobsSource.test.ts`
+- Job/runtime tests: `tests/agentJobsRuntime.test.ts`
+- Frame-runner and UI tests: `tests/frameRunner.test.ts`,
+  `tests/chatReasoningFrames.test.tsx`
 
 ## Example Runs
 
@@ -48,19 +55,14 @@ The examples are deliberately local. They rely on the existing repo commands
 instead of inventing a second agent API:
 
 ```bash
-npm test -- --run tests/reasoningFrames.test.ts tests/roomWorkCache.test.ts
+npm test -- --run tests/agentJobsSource.test.ts tests/agentJobsRuntime.test.ts tests/frameRunner.test.ts tests/chatReasoningFrames.test.tsx
 npm run build
 npx tsc --noEmit --project convex/tsconfig.json --pretty false
 ```
 
-For live provider smoke with a key stored in Convex env:
-
-```powershell
-$env:NODEROOM_PRESERVE_PROCESS_ENV = "1"
-$env:PROVIDER_PARSER_ALLOW_FILE_EGRESS = "1"
-$env:OPENROUTER_API_KEY = (npx convex env get OPENROUTER_API_KEY).Trim()
-npm run provider-parser:smoke -- --providers=openrouter
-```
+For live provider smoke, configure provider credentials through the existing
+protected environment path before running smoke commands. Do not paste provider
+keys into YAML, shell history, PR comments, or documentation.
 
 ## Policy Guidance
 
@@ -75,6 +77,9 @@ Use Omnigent policies for governance, not memory:
 Use NodeAgent/Convex for durable state:
 
 - `agentReasoningFrames` stores frame lineage and phase/child status.
+- `runReasoningFrame` narrows work to a frame context pack and tool allowlist,
+  executes the existing NodeAgent loop, then returns a delta and verifier
+  receipt for persistence/orchestration.
 - `entityResearchCache` stores room-local entity/facet results with freshness.
 - `agentOperationEvents` and receipts store what actually happened.
 - OKF remains the portable evidence graph.
@@ -87,3 +92,5 @@ Use NodeAgent/Convex for durable state:
   auth checks.
 - Do not claim official Omnigent compatibility beyond the checked YAML shape
   until the examples are run against the installed Omnigent version in CI.
+- Do not claim Omnigent owns recursive memory; it starts/governs NodeAgent, while
+  NodeAgent/Convex persist the frame/cache/evidence state.

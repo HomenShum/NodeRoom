@@ -2,7 +2,7 @@
 import { useEffect, useMemo, useRef, useState, type CSSProperties, type ChangeEvent, type ClipboardEvent, type DragEvent, type KeyboardEvent, type ReactNode } from "react";
 import { Lock, MessageCircle, Globe, Send, Sparkles, Copy, Check, ArrowUpRight, Pencil, Paperclip, X, Timer, RefreshCw, ChevronDown, ChevronUp, ListChecks, GitBranch, ShieldCheck, Database } from "lucide-react";
 import { useQuery } from "convex/react";
-import { useStore, CONVEX_SITE_URL, type PrivateStreamAccess, type RoomStore } from "../app/store";
+import { useStore, CONVEX_SITE_URL, type AgentJobDetailTelemetry, type PrivateStreamAccess, type RoomStore } from "../app/store";
 import { abortable, parseUploadedFiles, UPLOAD_TIMEOUT_MS } from "../app/uploadedArtifact";
 import type { StreamId } from "@convex-dev/persistent-text-streaming";
 import { api } from "../../convex/_generated/api";
@@ -161,6 +161,19 @@ function operationStreamText(op: OperationStreamRow): string {
   const affected = op.affectedIds?.length ? ` - ${op.affectedIds.slice(0, 3).join(", ")}` : "";
   const count = op.countDelta && op.countDelta > 1 ? ` x${op.countDelta}` : "";
   return `${op.kind}: ${op.name}${count}${affected}`;
+}
+type ReasoningFrameRow = AgentJobDetailTelemetry["reasoningFrames"][number];
+function framePrimaryText(frame: ReasoningFrameRow): string {
+  if (frame.frameKind === "child") return `${frame.displayName ?? frame.phase}${frame.facet ? ` / ${frame.facet}` : ""}`;
+  return frame.phase;
+}
+function frameSecondaryText(frame: ReasoningFrameRow): string {
+  const bits = [
+    frame.frameKind === "child" ? frame.cachePolicy : undefined,
+    frame.toolAllowlist.length ? `${frame.toolAllowlist.length} tools` : undefined,
+    frame.cacheKey,
+  ].filter(Boolean);
+  return bits.join(" - ");
 }
 
 const SLASH_CMDS = [
@@ -809,6 +822,29 @@ export function Chat({ roomId, me, channel, variant, agentName, style, onOpenArt
               {longJobAttempts.slice(-4).map((attempt) => (
                 <span key={`${attempt.attempt}-${attempt.status}`}>{attempt.attempt}. {attempt.status} - {attempt.resolvedModel} - {shortMs(attempt.ms)}</span>
               ))}
+            </div>
+          )}
+          {!!longJobDetail?.reasoningFrames.length && (
+            <div className="r-frame-tree" data-testid="reasoning-frame-tree" aria-label="Reasoning frame tree">
+              <span className="r-job-list-title"><GitBranch size={11} /> Reasoning frames</span>
+              <div className="r-frame-phases">
+                {longJobDetail.reasoningFrames.filter((frame) => frame.frameKind === "phase").slice(0, 5).map((frame) => (
+                  <span key={frame.frameId} data-status={frame.status} title={frame.goal}>
+                    <b>{frame.phase}</b>
+                    <em>{frame.status}</em>
+                  </span>
+                ))}
+              </div>
+              {longJobDetail.reasoningFrames.some((frame) => frame.frameKind === "child") && (
+                <div className="r-frame-children">
+                  {longJobDetail.reasoningFrames.filter((frame) => frame.frameKind === "child").slice(0, 6).map((frame) => (
+                    <span key={frame.frameId} data-status={frame.status} title={frame.goal}>
+                      <b>{framePrimaryText(frame)}</b>
+                      <em>{frameSecondaryText(frame) || frame.status}</em>
+                    </span>
+                  ))}
+                </div>
+              )}
             </div>
           )}
           {longJobDetail && (

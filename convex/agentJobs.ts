@@ -466,6 +466,51 @@ async function materializeReasoningFrames(ctx: any, args: {
   return rows;
 }
 
+type DurableReasoningFrameStatus = "pending" | "running" | "completed" | "blocked" | "skipped" | "failed";
+
+async function setReasoningFramesForSliceStart(ctx: any, args: { jobId: unknown; now: number }) {
+  const frames = await ctx.db.query("agentReasoningFrames").withIndex("by_job_sequence", (q: any) => q.eq("jobId", args.jobId)).collect();
+  const affectedIds: string[] = [];
+  for (const frame of frames) {
+    const shouldRun = frame.status === "pending" && (frame.phase === "execute" || frame.frameKind === "child");
+    if (!shouldRun) continue;
+    affectedIds.push(frame.frameId);
+    await ctx.db.patch(frame._id, { status: "running", updatedAt: args.now });
+  }
+  return affectedIds;
+}
+
+async function setReasoningFramesForSliceFinish(ctx: any, args: {
+  jobId: unknown;
+  status: "completed" | "handoff" | "retrying" | "failed" | "cancelled" | "lease_expired";
+  now: number;
+  error?: string;
+}) {
+  const frames = await ctx.db.query("agentReasoningFrames").withIndex("by_job_sequence", (q: any) => q.eq("jobId", args.jobId)).collect();
+  const affectedIds: string[] = [];
+  for (const frame of frames) {
+    let status: DurableReasoningFrameStatus | undefined;
+    if (args.status === "completed") {
+      status = frame.status === "completed" ? undefined : "completed";
+    } else if (args.status === "handoff" || args.status === "retrying") {
+      status = frame.status === "running" ? "pending" : undefined;
+    } else if (args.status === "cancelled") {
+      status = frame.status === "completed" ? undefined : "skipped";
+    } else {
+      status = frame.status === "completed" ? undefined : "failed";
+    }
+    if (!status) continue;
+    affectedIds.push(frame.frameId);
+    await ctx.db.patch(frame._id, clean({
+      status,
+      updatedAt: args.now,
+      completedAt: status === "completed" || status === "skipped" || status === "failed" ? args.now : undefined,
+      error: status === "failed" ? args.error ?? args.status : undefined,
+    }));
+  }
+  return affectedIds;
+}
+
 function summarizeEntityWorkPlans(plans: Array<{ cachePolicy: string; status: string }>) {
   const out = { fresh: 0, stale: 0, missing: 0, manual: 0, queued: 0, cached: 0, refreshing: 0, completed: 0 };
   for (const plan of plans) {
@@ -1497,6 +1542,7 @@ export const cancel = mutation({
     if (job.workflowId) await cancelWorkflow(ctx, components.workflow, job.workflowId as never);
     const activeLeases = await ctx.db.query("agentLeases").withIndex("by_job_status", (q) => q.eq("jobId", jobId).eq("status", "active")).collect();
     for (const lease of activeLeases) await ctx.db.patch(lease._id, { status: "released", releasedAt: now });
+    const reasoningFrameIds = await setReasoningFramesForSliceFinish(ctx, { jobId, status: "cancelled", now });
     await recordOperationEvent(ctx, {
       jobId,
       sequence: (job.actionSliceCount ?? 0) + (job.queryCount ?? 0) + (job.mutationCount ?? 0) + (job.modelCallCount ?? 0) + (job.toolCallCount ?? 0) + (job.schedulerHandoffCount ?? 0) + 3,
@@ -1506,7 +1552,7 @@ export const cancel = mutation({
       targetId: String(job.artifactId),
       status: "completed",
       countDelta: 1,
-      affectedIds: [String(jobId), String(job.artifactId)],
+      affectedIds: [String(jobId), String(job.artifactId), ...reasoningFrameIds],
       startedAt: now,
       completedAt: now,
     });
@@ -1648,6 +1694,12 @@ export const sweepExpiredJobLeases = internalMutation({
         });
       }
 
+      const reasoningFrameIds = await setReasoningFramesForSliceFinish(ctx, {
+        jobId: job._id,
+        status: "lease_expired",
+        now,
+        error: "job_lease_expired",
+      });
       await recordOperationEvent(ctx, {
         jobId: job._id,
         sequence: (job.actionSliceCount ?? 0) + (job.queryCount ?? 0) + (job.mutationCount ?? 0) + (job.modelCallCount ?? 0) + (job.toolCallCount ?? 0) + (job.schedulerHandoffCount ?? 0) + 4,
@@ -1657,7 +1709,7 @@ export const sweepExpiredJobLeases = internalMutation({
         targetId: String(job.artifactId),
         status: "failed",
         countDelta: 1,
-        affectedIds: [String(job._id), String(job.artifactId), ...activeLeases.map((lease) => String(lease._id))],
+        affectedIds: [String(job._id), String(job.artifactId), ...activeLeases.map((lease) => String(lease._id)), ...reasoningFrameIds],
         startedAt: now,
         completedAt: now,
       });
@@ -1757,6 +1809,7 @@ export const claimSlice = internalMutation({
       expiresAt: leaseUntil,
       createdAt: now,
     });
+    const reasoningFrameIds = await setReasoningFramesForSliceStart(ctx, { jobId, now });
     await recordOperationEvent(ctx, {
       jobId,
       sequence: (job.actionSliceCount ?? 0) + (job.queryCount ?? 0) + (job.mutationCount ?? 0) + (job.modelCallCount ?? 0) + (job.toolCallCount ?? 0) + (job.schedulerHandoffCount ?? 0) + 2,
@@ -1765,7 +1818,7 @@ export const claimSlice = internalMutation({
       targetKind: "artifact",
       targetId: String(job.artifactId),
       countDelta: 1,
-      affectedIds: [String(jobId), String(job.artifactId)],
+      affectedIds: [String(jobId), String(job.artifactId), ...reasoningFrameIds],
       startedAt: now,
       completedAt: now,
     });
@@ -1858,6 +1911,12 @@ export const finishSlice = internalMutation({
     if (nextStatus === "completed") patch.completedAt = now;
     const activeLeases = await ctx.db.query("agentLeases").withIndex("by_job_status", (q) => q.eq("jobId", a.jobId).eq("status", "active")).collect();
     for (const lease of activeLeases) await ctx.db.patch(lease._id, { status: "released", releasedAt: now });
+    const reasoningFrameIds = await setReasoningFramesForSliceFinish(ctx, {
+      jobId: a.jobId,
+      status: a.status,
+      now,
+      error: a.error,
+    });
     await recordOperationEvent(ctx, {
       jobId: a.jobId,
       runId: a.runId,
@@ -1868,7 +1927,7 @@ export const finishSlice = internalMutation({
       targetId: String(job.artifactId),
       status: nextStatus === "failed" ? "failed" : "completed",
       countDelta: 1,
-      affectedIds: [String(a.jobId), String(job.artifactId)],
+      affectedIds: [String(a.jobId), String(job.artifactId), ...reasoningFrameIds],
       startedAt: now,
       completedAt: now,
     });

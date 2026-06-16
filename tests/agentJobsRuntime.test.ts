@@ -260,9 +260,13 @@ describe("agentJobs runtime contract", () => {
   it("claimSlice creates an active lease and finishSlice releases it only for the matching lease", async () => {
     const { t, proof, roomId, artifactId } = await setupRoom();
     const { jobId } = await t.mutation(api.agentJobs.createOrReuse, jobArgs({ roomId, artifactId, proof, idempotencyKey: "job-runtime-lease" }));
+    await seedRuntimeReasoningFrames(t, { roomId, artifactId, jobId });
 
     const claimed = await t.mutation(internal.agentJobs.claimSlice, { jobId, leaseId: "lease-ok", leaseMs: 60_000 });
     expect(claimed?.attempt).toBe(1);
+    let detail = await t.query(api.agentJobs.detail, { jobId, requester: proof });
+    expect(detail?.reasoningFrames.find((frame) => frame.frameId === "rf_execute")?.status).toBe("running");
+    expect(detail?.reasoningFrames.find((frame) => frame.frameId === "rf_child")?.status).toBe("running");
 
     const mismatch = await t.mutation(internal.agentJobs.finishSlice, finishSliceArgs({ jobId, leaseId: "lease-wrong", attempt: 1 }));
     expect(mismatch).toEqual({ ok: false, reason: "lease_mismatch" });
@@ -270,9 +274,12 @@ describe("agentJobs runtime contract", () => {
     const finished = await t.mutation(internal.agentJobs.finishSlice, finishSliceArgs({ jobId, leaseId: "lease-ok", attempt: 1 }));
     expect(finished).toEqual({ ok: true });
 
-    const detail = await t.query(api.agentJobs.detail, { jobId, requester: proof });
+    detail = await t.query(api.agentJobs.detail, { jobId, requester: proof });
     expect(detail?.leases.map((lease) => lease.status)).toContain("released");
     expect(detail?.job.leaseId).toBe("");
+    expect(detail?.reasoningFrames.map((frame) => frame.status)).toEqual(["completed", "completed", "completed"]);
+    expect(detail?.operations.find((event) => event.name === "agentJobs.claimSlice")?.affectedIds).toEqual(expect.arrayContaining(["rf_execute", "rf_child"]));
+    expect(detail?.operations.find((event) => event.name === "agentJobs.finishSlice")?.affectedIds).toEqual(expect.arrayContaining(["rf_execute", "rf_child"]));
   });
 
   it("cancel finalizes the job, releases active leases, and records a checkpoint", async () => {
@@ -538,6 +545,73 @@ async function setupRoom(options: { seedElement?: boolean; extraMember?: boolean
     );
   }
   return { t, proof, memberProof, actor, roomId, artifactId };
+}
+
+async function seedRuntimeReasoningFrames(
+  t: ReturnType<typeof convexTest>,
+  args: { roomId: Id<"rooms">; artifactId: Id<"artifacts">; jobId: Id<"agentJobs"> },
+) {
+  const now = Date.now();
+  await t.run((ctx) => Promise.all([
+    ctx.db.insert("agentReasoningFrames", {
+      roomId: args.roomId,
+      artifactId: args.artifactId,
+      jobId: args.jobId,
+      framePlanId: "runtime-test-plan",
+      frameId: "rf_intake",
+      sequence: 1,
+      frameKind: "phase" as const,
+      phase: "intake" as const,
+      status: "completed" as const,
+      goal: "Parse the request.",
+      contextPack: { globalGoal: "runtime test", currentArtifactDigest: "artifact:test", relevantOkfConceptIds: [], relevantCacheKeys: [], openQuestions: [], constraints: [] },
+      toolAllowlist: ["normalize_room_intake"],
+      createdAt: now,
+      updatedAt: now,
+      completedAt: now,
+    }),
+    ctx.db.insert("agentReasoningFrames", {
+      roomId: args.roomId,
+      artifactId: args.artifactId,
+      jobId: args.jobId,
+      framePlanId: "runtime-test-plan",
+      frameId: "rf_execute",
+      parentFrameId: "rf_intake",
+      sequence: 2,
+      frameKind: "phase" as const,
+      phase: "execute" as const,
+      status: "pending" as const,
+      goal: "Execute the slice.",
+      contextPack: { globalGoal: "runtime test", currentArtifactDigest: "artifact:test", relevantOkfConceptIds: [], relevantCacheKeys: [], openQuestions: ["Run slice"], constraints: [] },
+      toolAllowlist: ["read_range"],
+      createdAt: now,
+      updatedAt: now,
+    }),
+    ctx.db.insert("agentReasoningFrames", {
+      roomId: args.roomId,
+      artifactId: args.artifactId,
+      jobId: args.jobId,
+      framePlanId: "runtime-test-plan",
+      frameId: "rf_child",
+      parentFrameId: "rf_execute",
+      sequence: 3,
+      frameKind: "child" as const,
+      phase: "execute" as const,
+      status: "pending" as const,
+      goal: "Resolve one child facet.",
+      contextPack: { globalGoal: "runtime test", currentArtifactDigest: "artifact:test", relevantOkfConceptIds: [], relevantCacheKeys: ["cache:test"], openQuestions: ["Resolve child"], constraints: [] },
+      toolAllowlist: ["fetch_source"],
+      cacheKey: "cache:test",
+      entityType: "company" as const,
+      entityKey: "cardionova",
+      displayName: "CardioNova",
+      facet: "company_profile",
+      cachePolicy: "missing_research_now",
+      expectedOutputSchema: "entity_facet_result_with_evidence_v1",
+      createdAt: now,
+      updatedAt: now,
+    }),
+  ]));
 }
 
 function jobArgs(args: {

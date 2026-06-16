@@ -238,18 +238,22 @@ describe("long-running agent job source invariants", () => {
     expect(coach).toContain("Trace Lens");
   });
 
-  it("exposes a browser-readable job detail query linked to attempts, operations, receipts, leases, and steps", () => {
+  it("exposes a browser-readable job detail query linked to attempts, operations, reasoning frames, receipts, leases, and steps", () => {
     const jobs = readFileSync("convex/agentJobs.ts", "utf8");
     const store = readFileSync("src/app/store.tsx", "utf8");
     const chat = readFileSync("src/ui/Chat.tsx", "utf8");
 
     expect(jobs).toContain("export const detail");
     expect(jobs).toContain("agentOperationEvents");
+    expect(jobs).toContain("agentReasoningFrames");
     expect(jobs).toContain("agentMutationReceipts");
     expect(jobs).toContain("agentSteps");
     expect(store).toContain("lastLongFreeJobDetail");
     expect(store).toContain("api.agentJobs.detail");
+    expect(store).toContain("reasoningFrames:");
     expect(chat).toContain("r-job-detail");
+    expect(chat).toContain("reasoning-frame-tree");
+    expect(chat).toContain("Reasoning frames");
     expect(chat).toContain("Receipts");
   });
 

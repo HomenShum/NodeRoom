@@ -10,7 +10,7 @@
 export const REASONING_FRAME_PLAN_SCHEMA = "noderoom.reasoning_frame_plan.v1" as const;
 
 export type ReasoningFramePhase = "intake" | "plan" | "execute" | "verify" | "synthesize";
-export type ReasoningFrameStatus = "pending" | "running" | "completed" | "blocked" | "skipped";
+export type ReasoningFrameStatus = "pending" | "running" | "completed" | "blocked" | "skipped" | "failed";
 export type FrameDecisionNext = "continue" | "spawn_children" | "finish" | "block";
 
 export interface ContextPack {

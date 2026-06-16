@@ -83,7 +83,7 @@ architecture separates the system by access pattern:
 |---|---|---|
 | Realtime DB / Convex | canonical room state, messages, artifacts, elements, versions, locks, drafts, proposals, traces, permissions | large raw file bytes, public CDN caching, ephemeral presence-only state |
 | Object storage | uploaded XLSX/CSV/PDF/image files, generated exports, screenshots, trace bundles, benchmark artifacts | live spreadsheet cell state, locks, version counters, private chat state |
-| Hot cache / KV | presence, room tail, recent version-keyed sheet ranges, semantic answer cache, idempotency windows, rate-limit counters | canonical finance data or private notes without version and visibility keys |
+| Hot cache / KV | presence, room tail, recent version-keyed sheet ranges, semantic answer cache, idempotency windows, rate-limit counters | canonical finance data or private notes without version and visibility keys; durable entity/facet cache is `entityResearchCache` in Convex |
 | Serverless actions / workers | parsing, OCR/layout extraction, retrieval, model calls, embeddings, eval runs, export generation | long-lived truth without database checkpoints |
 | CDN / edge | static assets, public docs, public screenshots, explicitly published read-only artifacts | active private rooms, authenticated spreadsheet data, private agent chats |
 
@@ -154,6 +154,12 @@ receipts, and embedding sync, lives in
 import/source map for the review-requested `src/nodeagent/**` tree lives in
 [`docs/NODEAGENT_SOURCE_MAP.md`](NODEAGENT_SOURCE_MAP.md); that tree is now the
 canonical agent source tree while Convex remains the durable runtime.
+
+The recursive-reasoning add-on keeps the same boundary: `reasoningFrames.ts`
+builds the phase/child plan, `agentReasoningFrames` persists it,
+`entityWorkItems` records selective child work, and `entityResearchCache` stores
+room-local entity/facet freshness. OKF remains the portable evidence graph;
+Omnigent remains an optional outer meta-harness, not the state store.
 
 ## OpenRouter-on-Convex benchmark contract
 

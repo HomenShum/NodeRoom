@@ -36,6 +36,12 @@ existing agent runtime/tools/context, Convex job/tool adapters, and eval
 fixtures. New tables, services, UI surfaces, graph/wiki/embedding expansion, or
 weakened CAS/lock/draft/auth/eval gates require human approval.
 
+The selected recursive-reasoning layer passes that gate only when it stays tied
+to the existing job contract: `agentReasoningFrames`, `entityWorkItems`, and
+`entityResearchCache` are durable job/cache/evidence rows under one harnessed
+Room Agent. They are not a permanent agent swarm and not a model-specific prompt
+mode. See [`HARNESS_RECURSIVE_REASONING.md`](HARNESS_RECURSIVE_REASONING.md).
+
 ## Unified Runtime Shape
 
 Current NodeRoom has one agent persistence shape with different entrypoints:
@@ -84,6 +90,7 @@ not overstate what is enforced today.
 | Artifact conflicts | `locks` plus CAS are the write-enforcement path | coordinate leases/locks are checked by every write mutation |
 | `agentLeases` | job-slice/execution lease plus target design docs | target-level leases for notebook/wiki/range writes, reconciled with `locks` |
 | Operation ledger | bounded job-level and aggregate slice events plus `agentSteps`, receipts, and room trace | every action/query/mutation/model/tool/scheduler boundary records a bounded event |
+| Recursive reasoning | room-work admission materializes phase/child `agentReasoningFrames`, entity/facet `entityWorkItems`, and `entityResearchCache` freshness rows; job detail exposes the frame tree | every runnable durable slice claims a specific frame, builds a `ContextPack`, reduces the result to `FrameDelta`, verifies it, and then continues/spawns/finishes |
 | Wiki | currently also represented as artifact/note elements in live tools | `wikiPages`/`wikiRevisions` become the canonical revision surface |
 | Notebook graph | schema/mutations and some receipts/embedding enqueue exist | agent tools, endpoint validation, private visibility, leases, soft delete, and draft structural ops |
 | Tool registry | static Zod tools exist | versioned registry with permission, scope, risk, lease, idempotency, and composite-tool policy |
@@ -94,6 +101,7 @@ not overstate what is enforced today.
 ```text
 Client command
   -> agentJobs.create mutation
+  -> optional cache-first reasoning plan: agentReasoningFrames + entityWorkItems + entityResearchCache
   -> agentJobs.enqueue mutation / workflow start
   -> agentJobRunner.runSlice action
   -> internal queries read room, graph, artifacts, wiki, traces

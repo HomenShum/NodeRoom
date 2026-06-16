@@ -10,7 +10,7 @@ through the same versioned concurrency control.**
 
 `multi-panel room` · `public + private agents` · `affected-range lock` · `draft-for-merge` · `per-room traces` · `live Convex + real LLM`
 
-[Why Convex](#why-convex-and-why-not) · [Audience fluency](#audience-world-proof-artifacts) · [Lessons](#lessons-from-building-noderoom) · [Managed locks](#managed-locks-what-to-give-the-agent) · [Multi-user proof](docs/eval/MULTI_USER_COORDINATION_PROOF.md) · [June 2026 target](docs/TARGET_2026_06.md) · [Sequences](#live-collaboration-sequence) · [Why & HALO](docs/WHY_NODEAGENT_AND_HALO.md) · [Quickstart](#quickstart) · [Agent runtime](docs/AGENT_RUNTIME.md) · [NodeAgent source map](docs/NODEAGENT_SOURCE_MAP.md) · [Agent eval](docs/AGENT_EVAL.md) · [Model eval matrix](docs/eval/MODEL_EVAL_MATRIX.md) · [Feature eval backlog](docs/eval/FEATURE_EVAL_BACKLOG.md) · [Agent wiki](docs/AGENT_WIKI.md) · [Design](docs/DESIGN.md) · [Stack](docs/STACK.md) · [Walkthrough](docs/WALKTHROUGH.md) · [Architecture](docs/ARCHITECTURE.md) · [Diagrams](docs/diagrams/README.md) · [Open gaps](docs/GAPS_NOT_DONE.md)
+[Why Convex](#why-convex-and-why-not) · [Audience fluency](#audience-world-proof-artifacts) · [Lessons](#lessons-from-building-noderoom) · [Managed locks](#managed-locks-what-to-give-the-agent) · [Multi-user proof](docs/eval/MULTI_USER_COORDINATION_PROOF.md) · [June 2026 target](docs/TARGET_2026_06.md) · [Sequences](#live-collaboration-sequence) · [Harness reasoning](docs/HARNESS_RECURSIVE_REASONING.md) · [Why & HALO](docs/WHY_NODEAGENT_AND_HALO.md) · [Quickstart](#quickstart) · [Agent runtime](docs/AGENT_RUNTIME.md) · [NodeAgent source map](docs/NODEAGENT_SOURCE_MAP.md) · [Agent eval](docs/AGENT_EVAL.md) · [Model eval matrix](docs/eval/MODEL_EVAL_MATRIX.md) · [Feature eval backlog](docs/eval/FEATURE_EVAL_BACKLOG.md) · [Agent wiki](docs/AGENT_WIKI.md) · [Design](docs/DESIGN.md) · [Stack](docs/STACK.md) · [Walkthrough](docs/WALKTHROUGH.md) · [Architecture](docs/ARCHITECTURE.md) · [Diagrams](docs/diagrams/README.md) · [Open gaps](docs/GAPS_NOT_DONE.md)
 
 [Interview notes](docs/INTERVIEW_NOTES.md) · [Over-engineering audit](docs/OVERENGINEERING_AUDIT.md) · [Improvement roadmap](docs/IMPROVEMENT_ROADMAP.md) · [Next priorities](docs/NEXT_STEPS_PRIORITY.md) · [Operating budget](docs/OPERATING_BUDGET.md) · [Audience workloads](docs/AUDIENCE_WORKLOADS.md)
 
@@ -26,6 +26,12 @@ point — is that **an agent and a human never silently overwrite each other**: 
 per-element version (CAS), an agent claims an *affected range* with a lock that makes it read-only
 (but still readable as context), a blocked agent **drafts** changes around the lock, and on unlock
 the draft **smart-merges** and can never clobber committed work.
+
+The current reasoning direction is also explicit: "Fable-like" recursive context
+and multi-frame reasoning are harness capabilities, not provider dependencies.
+NodeAgent owns durable frames, context packs, entity/facet cache, OKF evidence,
+verification, and managed writes; Omnigent, when used, stays the optional outer
+meta-harness for policies, sessions, sandboxing, and model/harness selection.
 
 It runs in **two modes from the same code**:
 
@@ -556,7 +562,15 @@ and [`evals/professionalWorkflows.ts`](evals/professionalWorkflows.ts).
    request idempotency where available, and model health/quarantine. See
    [`docs/LONG_RUNNING_AGENTS.md`](docs/LONG_RUNNING_AGENTS.md).
 
-8. **Model benchmark -> model routing gate.** The cheapest model that passes a
+8. **Transcript memory -> harness-native reasoning frames.** Room-work/entity
+   flows now materialize `agentReasoningFrames`, `entityWorkItems`, and
+   `entityResearchCache` rows so recursive context is explicit, queryable, and
+   cache-first. The plan shape is `intake -> plan -> execute -> verify ->
+   synthesize`, with child frames only for stale or missing entity/facet work.
+   See [`docs/HARNESS_RECURSIVE_REASONING.md`](docs/HARNESS_RECURSIVE_REASONING.md)
+   and [`docs/OMNIGENT_INTEGRATION.md`](docs/OMNIGENT_INTEGRATION.md).
+
+9. **Model benchmark -> model routing gate.** The cheapest model that passes a
    flat research benchmark is not automatically safe for collaboration. Live
    provider results are recorded in
    [`docs/eval/live-provider-agent-ladder-2026-06-08.md`](docs/eval/live-provider-agent-ladder-2026-06-08.md):
@@ -612,7 +626,8 @@ provider billing for completed steps.
 ```mermaid
 flowchart LR
   A["Client command<br/>/ask or /free"] --> B["agentJobs row<br/>intent + model policy"]
-  B --> C["Slice runner<br/>inline action or Workflow/Workpool"]
+  B --> C0["Optional room-work plan<br/>agentReasoningFrames + entityWorkItems + entityResearchCache"]
+  C0 --> C["Slice runner<br/>inline action or Workflow/Workpool"]
   C --> D["Derive sliceKey<br/>job + cursor or artifact version + goal + model"]
   D --> E{"Journal row?<br/>jobId + sliceKey + step"}
   E -- "yes" --> F["Replay stored AgentStep<br/>0 provider calls<br/>0 new tokens"]
@@ -707,7 +722,8 @@ flowchart LR
 
   subgraph AgentRuntime["Agent runtime (src/nodeagent)"]
     Loop["runAgent loop"]
-    Context["JIT context + compaction"]
+    Context["JIT context + context packs + compaction"]
+    Frames["reasoningFrames + frame utilities"]
     Tools["RoomTools port"]
     Models["modelCatalog + providers"]
   end
@@ -927,6 +943,9 @@ in the public chat to drive the Room NodeAgent end-to-end** - it reads current v
 - **Runtime + context engineering + tool backend** → [`docs/AGENT_RUNTIME.md`](docs/AGENT_RUNTIME.md).
   Three seams (model · tools · RoomTools), the loop, the system-prompt protocol + JIT context, and
   the CAS mutation that makes "no silent clobber" true.
+- **Harness-native recursive reasoning** → [`docs/HARNESS_RECURSIVE_REASONING.md`](docs/HARNESS_RECURSIVE_REASONING.md).
+  Durable frames, context packs, entity/facet cache, OKF evidence, child work,
+  verification, and the Omnigent boundary.
 - **Evaluation framework** → [`docs/AGENT_EVAL.md`](docs/AGENT_EVAL.md). Who the users are, their use
   cases, the golden-case schema, single/multi/long-running references, and 10 metrics led by
   **no-silent-clobber rate**. Runnable: `npm run eval` (deterministic) / `npm run eval:real`.
@@ -945,7 +964,7 @@ NodeAgent to work**. The full per-case inventory (with file refs and recorded re
 | **2 · Do it with us** (live collaboration) | ladder **L1–L7 scripted** + **L1–L4 live** across 11 routes (full passes: `gemini-3.5-flash`, `nemotron-3-ultra` — the research champion fails L1/L4, proving lanes promote separately) · multi-turn provenance · sustained concurrent room · lease fencing/takeover | L5–L7 live · modeling test (Collaborate: split IS/BS/CF under locks) · L8 roles/redaction · L9 entity resolution · L10 cross-artifact · live adversarial-source rung |
 | **3 · Work under review** (proposals) | review-mode inline proposals + room-policy briefing regression | contractor-time professional approval fixture · L8 formalizes role-gated approve/promote/redact |
 | **4 · Advise me privately** (read-only consult) | private no-tools reply path · private-draft redaction · prompt-injection fencing 4/4 | sensitive-query guardrail (decline with stated reason) |
-| **5 · Work in the background** (resumable jobs) | durable `agentJobs` + exactly-once journal · L7 RESUME scripted · spend caps (slice/day/month) with breach attribution | L7 live across routes · 100-row checkpointed batch with partial-success reporting |
+| **5 · Work in the background** (resumable jobs) | durable `agentJobs` + exactly-once journal · room-work reasoning frames/cache rows · L7 RESUME scripted · spend caps (slice/day/month) with breach attribution | frame-claimed slice runner across all durable `/ask` paths · L7 live across routes · 100-row checkpointed batch with partial-success reporting |
 | **6 · Teach me** (guided solve) | — | modeling test (Guide): **zero writes to answer cells**, hint quality, student convergence — restraint as a first-class eval axis |
 
 Cross-cutting and always on: the eval store + `eval:diff` regression gate, the supported-route
@@ -964,6 +983,9 @@ Professional proof state:
 - `npm run benchmark:openrouter-convex -- --strict` is the OpenRouter-on-Convex benchmark contract: **6/6** harness cases pass across durable `agentJobs`, model-step journaling, L1-L7 collaboration/resume, multi-user coordination, SpreadsheetBench route selection, rendered chart visual proof, and Docker workspace isolation. It now emits a closer official-style suite scorecard across **53 configured agent LLM routes** (**41** OpenRouter/internal-alias routes), including **25 current top-paid OpenRouter tool-capable candidates** from the `top-weekly` Models API snapshot. SpreadsheetBench-like N=5, BankerToolBench-like package/verifier, multi-user conflict, and provider-route N=5/p95 are scored separately. Current state is **3/4** official-style suites passing; provider-route N=5/p95 remains blocked for routes without repeated live evidence. Official promotion stays separate: BankerToolBench still needs Harbor/MCP/Gandalf before any official-score claim.
 - **Context compaction** (`src/nodeagent/core/contextCompactor.ts`) — elides stale `read_range` results (Claude
   "context editing" pattern), preserves the turn structure (Hermes), keeps the latest state + recent turns.
+- **Reasoning frames** (`src/nodeagent/core/reasoningFrames.ts`, `contextPack.ts`, `frameReducer.ts`,
+  `frameVerifier.ts`) — make recursive context and multi-frame work a harness
+  capability above swappable models.
 - **Library stack** (TipTap, dnd-kit, lucide, assistant-ui, the `@convex-dev/*` components) → [`docs/STACK.md`](docs/STACK.md).
 
 <!-- QA_COCKPIT_START -->

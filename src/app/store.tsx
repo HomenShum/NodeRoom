@@ -79,6 +79,20 @@ export type AgentJobAttemptTelemetry = {
 };
 export type AgentJobDetailTelemetry = {
   operations: Array<{ sequence: number; kind: string; name: string; status: string; countDelta?: number; targetKind?: string; targetId?: string; affectedIds?: string[] }>;
+  reasoningFrames: Array<{
+    frameId: string;
+    parentFrameId?: string;
+    sequence: number;
+    frameKind: "phase" | "child";
+    phase: string;
+    status: string;
+    goal: string;
+    cacheKey?: string;
+    displayName?: string;
+    facet?: string;
+    cachePolicy?: string;
+    toolAllowlist: string[];
+  }>;
   receipts: Array<{ id: string; mutationName: string; affectedIds: string[]; createdAt: number }>;
   leases: Array<{ targetKind: string; targetId: string; mode: string; status: string; expiresAt: number }>;
   draftOperations: Array<{ operationName: string; status: string; affectedIds: string[]; createdAt: number }>;
@@ -999,6 +1013,20 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
         if (!jobDetail) return null;
         const d = jobDetail as {
           operations?: Array<{ sequence: number; kind: string; name: string; status: string; countDelta?: number; targetKind?: string; targetId?: string; affectedIds?: string[] }>;
+          reasoningFrames?: Array<{
+            frameId: string;
+            parentFrameId?: string;
+            sequence: number;
+            frameKind: "phase" | "child";
+            phase: string;
+            status: string;
+            goal: string;
+            cacheKey?: string;
+            displayName?: string;
+            facet?: string;
+            cachePolicy?: string;
+            toolAllowlist?: string[];
+          }>;
           receipts?: Array<{ _id: string; mutationName: string; affectedIds: string[]; createdAt: number }>;
           leases?: Array<{ targetKind: string; targetId: string; mode: string; status: string; expiresAt: number }>;
           draftOperations?: Array<{ operationName: string; status: string; affectedIds: string[]; createdAt: number }>;
@@ -1006,6 +1034,20 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
         };
         return {
           operations: (d.operations ?? []).map((o) => ({ sequence: o.sequence, kind: o.kind, name: o.name, status: o.status, countDelta: o.countDelta, targetKind: o.targetKind, targetId: o.targetId, affectedIds: o.affectedIds?.map(String) })),
+          reasoningFrames: (d.reasoningFrames ?? []).map((f) => ({
+            frameId: String(f.frameId),
+            parentFrameId: f.parentFrameId ? String(f.parentFrameId) : undefined,
+            sequence: f.sequence,
+            frameKind: f.frameKind,
+            phase: f.phase,
+            status: f.status,
+            goal: f.goal,
+            cacheKey: f.cacheKey,
+            displayName: f.displayName,
+            facet: f.facet,
+            cachePolicy: f.cachePolicy,
+            toolAllowlist: f.toolAllowlist ?? [],
+          })),
           receipts: (d.receipts ?? []).map((r) => ({ id: String(r._id), mutationName: r.mutationName, affectedIds: r.affectedIds, createdAt: r.createdAt })),
           leases: (d.leases ?? []).map((l) => ({ targetKind: l.targetKind, targetId: l.targetId, mode: l.mode, status: l.status, expiresAt: l.expiresAt })),
           draftOperations: (d.draftOperations ?? []).map((op) => ({ operationName: op.operationName, status: op.status, affectedIds: op.affectedIds, createdAt: op.createdAt })),

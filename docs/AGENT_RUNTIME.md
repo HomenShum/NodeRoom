@@ -18,6 +18,11 @@ npm test                    # 17 scenarios incl. the agent runtime
 
 An agent is just a loop. You give a model some context, it asks to call a tool, you run the tool, you hand back the result, and you do it again until the model says it's done. That's it. If you can explain that loop, you can explain this system.
 
+The current architecture keeps that loop small on purpose. Recursive context and
+multi-frame reasoning live above it as a harness layer: durable frames,
+`ContextPack`s, cache policy, verification, and job status are explicit
+NodeAgent/Convex state, not hidden model memory.
+
 NodeRoom's harness lives in `src/nodeagent/` and is deliberately tiny. The only thing that makes it interesting is that it has **three swappable seams** — three places where you can yank out the implementation and plug in a different one without touching anything else. That's what makes it both testable (swap in fakes) and shippable (swap in the real thing).
 
 ```
@@ -306,6 +311,9 @@ The action returns a summary — `{ finalText, steps, exhausted, toolCalls, conf
 |---|---|
 | The seams (types + the `RoomTools` port) | `src/nodeagent/core/types.ts` |
 | The loop (harness) | `src/nodeagent/core/runtime.ts` |
+| Reasoning frame plan/types | `src/nodeagent/core/reasoningFrames.ts` |
+| Frame context envelopes | `src/nodeagent/core/contextPack.ts` |
+| Frame result reduction/verification | `src/nodeagent/core/frameReducer.ts`, `src/nodeagent/core/frameVerifier.ts` |
 | Context — the protocol (system prompt) | `src/nodeagent/models/prompts/systemPrompt.ts` |
 | Context — the live JIT table | `src/nodeagent/core/worldModel.ts` |
 | Current tools | `src/nodeagent/skills/spreadsheet/cellMutator.ts` |

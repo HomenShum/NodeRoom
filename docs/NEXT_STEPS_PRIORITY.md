@@ -1,6 +1,6 @@
 # Next Steps Priority
 
-Last updated: 2026-06-13
+Last updated: 2026-06-16
 
 This is the working priority order after the June 2026 benchmark and Semantic
 Rebase review. The principle is simple: prove deterministic benchmark and safety
@@ -17,6 +17,8 @@ high-risk and testable:
 3. Semantic no-clobber behavior above CAS.
 4. Provider-route promotion using N=5 and p95, not single lucky runs.
 5. UI/workplan surfaces that make the ledger legible to target users.
+6. Frame-claimed execution so recursive context is a durable harness capability,
+   not transcript memory.
 
 ## P0 Sequence
 
@@ -47,8 +49,9 @@ high-risk and testable:
 ## P1 Sequence
 
 1. **Deal workplan UI.**
-   Make `agentJobs`, traces, sources, review rounds, and deliverables readable
-   to a banker/GTM user without opening logs.
+   Make `agentJobs`, reasoning frames, entity/facet work items, traces, sources,
+   review rounds, and deliverables readable to a banker/GTM user without opening
+   logs.
 
 2. **Top paid OpenRouter calibration.**
    Run N=5/p95 promotion for a short list of eligible routes first, then widen
@@ -63,10 +66,16 @@ high-risk and testable:
    Local/OCR parsing is still needed for private and reproducible workflows
    even if Gemini/OpenAI/Claude can read files.
 
+5. **Frame-claimed runner hardening.**
+   Room-work admission already materializes durable frames/cache/work items.
+   Next, claim one runnable frame per slice, build `ContextPack` messages, reduce
+   output into `FrameDelta`, verify evidence/freshness, and resume by frame id.
+
 ## What Not To Claim Yet
 
 - Full official BankerToolBench or SpreadsheetBench readiness.
 - Full Semantic Rebase runtime.
+- Every `/ask` path running through frame-claimed execution.
 - Atomic multi-cell semantic commit.
 - Provider route superiority from N=1 runs.
 - Private-file-safe provider parsing for all document types.

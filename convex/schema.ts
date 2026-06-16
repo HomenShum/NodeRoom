@@ -63,7 +63,7 @@ const graphObjectKindV = v.union(
 const visibilityV = v.union(v.literal("private"), v.literal("room"), v.literal("public"));
 const okfVisibilityV = v.union(v.literal("public"), v.literal("private"), v.literal("redacted"));
 const reasoningFramePhaseV = v.union(v.literal("intake"), v.literal("plan"), v.literal("execute"), v.literal("verify"), v.literal("synthesize"));
-const reasoningFrameStatusV = v.union(v.literal("pending"), v.literal("running"), v.literal("completed"), v.literal("blocked"), v.literal("skipped"));
+const reasoningFrameStatusV = v.union(v.literal("pending"), v.literal("running"), v.literal("completed"), v.literal("blocked"), v.literal("skipped"), v.literal("failed"));
 const entityTypeV = v.union(
   v.literal("company"),
   v.literal("person"),

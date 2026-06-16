@@ -13,7 +13,7 @@ prompt: |
   otherwise.
 
   For frame/cache work, run at least:
-  npm test -- --run tests/reasoningFrames.test.ts tests/roomWorkCache.test.ts
+  npm test -- --run tests/reasoningFrames.test.ts tests/frameRunner.test.ts tests/roomWorkCache.test.ts
   npm run build
   npx tsc --noEmit --project convex/tsconfig.json --pretty false
 

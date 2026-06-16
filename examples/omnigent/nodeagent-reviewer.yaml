@@ -8,9 +8,13 @@ prompt: |
 
   Treat the durable frame architecture as:
   - src/nodeagent/core/reasoningFrames.ts for pure frame planning.
+  - src/nodeagent/core/frameRunner.ts for executing one frame through runAgent.
+  - src/nodeagent/core/contextPack.ts, frameReducer.ts, and frameVerifier.ts
+    for frame context, delta reduction, and verification.
   - convex/schema.ts agentReasoningFrames for queryable frame rows.
   - convex/agentJobs.ts for materialization and job detail exposure.
-  - tests/reasoningFrames.test.ts and tests/roomWorkCache.test.ts for coverage.
+  - tests/reasoningFrames.test.ts, tests/frameRunner.test.ts, and
+    tests/roomWorkCache.test.ts for coverage.
 
   Do not recommend replacing NodeAgent cognition with Omnigent prompt/session
   memory. Omnigent should remain the outer meta-harness and policy layer.
