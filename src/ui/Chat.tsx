@@ -1,5 +1,5 @@
 /** Public/private Copilot chat surfaces. Reads via useStore(). */
-import { useEffect, useMemo, useRef, useState, type CSSProperties, type ChangeEvent, type DragEvent, type KeyboardEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type CSSProperties, type ChangeEvent, type DragEvent, type KeyboardEvent, type ReactNode } from "react";
 import { Lock, MessageCircle, Globe, Send, Sparkles, Copy, Check, ArrowUpRight, Pencil, Paperclip, X, Timer, RefreshCw, ChevronDown, ChevronUp, ListChecks, GitBranch, ShieldCheck, Database } from "lucide-react";
 import { useQuery } from "convex/react";
 import { useStore, CONVEX_SITE_URL, type PrivateStreamAccess, type RoomStore } from "../app/store";
@@ -463,11 +463,12 @@ type ChatProps = {
   agentName: string;
   style?: CSSProperties;
   onOpenArtifact?: (id: string, options?: { split?: boolean; elementId?: string }) => boolean | void;
+  coach?: ReactNode;
   embedded?: boolean;
   testId?: string;
 };
 
-export function Chat({ roomId, me, channel, variant, agentName, style, onOpenArtifact, embedded = false, testId }: ChatProps) {
+export function Chat({ roomId, me, channel, variant, agentName, style, onOpenArtifact, coach, embedded = false, testId }: ChatProps) {
   const store = useStore();
   const [text, setText] = useState("");
   const [refs, setRefs] = useState<ArtifactRef[]>([]);
@@ -841,6 +842,7 @@ export function Chat({ roomId, me, channel, variant, agentName, style, onOpenArt
             </div>
           </div>
         )}
+        {!isPrivate && coach}
       </div>
 
       <div className="r-composer">

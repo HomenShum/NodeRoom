@@ -16,7 +16,7 @@ import { GuidedTour, type TourStep } from "./GuidedTour";
 import { selectPublicSignalTraces, statusText as publicStatusText } from "./signalStatus";
 import { focusStage } from "./stageFocus";
 import { buildDownstreamHandoffDraft, type DownstreamHandoffTarget } from "./downstreamHandoff";
-import { BankerCoachPanel } from "./artifacts/BankerCoachPanel";
+import { CoachCards } from "./artifacts/BankerCoachPanel";
 import { resolveRoomOpenTarget } from "./openRoomReference";
 import type { Actor, Channel } from "../engine/types";
 
@@ -396,12 +396,11 @@ function CopilotPanel({
       <div className="r-copilot-body">
         <div className="r-copilot-chatframe">
           {active === "public" ? (
-            <Chat roomId={roomId} me={me} channel="public" variant="public" agentName="Room NodeAgent" embedded testId="public-chat-panel" onOpenArtifact={onOpenArtifact} />
+            <Chat roomId={roomId} me={me} channel="public" variant="public" agentName="Room NodeAgent" embedded testId="public-chat-panel" onOpenArtifact={onOpenArtifact} coach={<CoachCards roomId={roomId} onOpenArtifact={onOpenArtifact} />} />
           ) : (
             <Chat roomId={roomId} me={me} channel={privChannel} variant="private" agentName="Your NodeAgent" embedded testId="private-chat-panel" onOpenArtifact={onOpenArtifact} />
           )}
         </div>
-        <BankerCoachPanel roomId={roomId} onOpenArtifact={onOpenArtifact} />
         <DownstreamHandoffPanel roomId={roomId} />
       </div>
     </div>

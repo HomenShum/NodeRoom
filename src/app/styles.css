@@ -303,6 +303,25 @@ input { font-family: inherit; }
 .r-coach-head strong { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text-primary); font-size: 12px; line-height: 1.2; }
 .r-coach-head > span { flex: none; border: 1px solid var(--warning-border); border-radius: 999px; background: var(--warning-tint); color: var(--warning-ink); padding: 2px 7px; font-size: 10px; font-weight: 800; white-space: nowrap; }
 .r-coach-head > span[data-ready="true"] { border-color: rgba(31,138,91,.28); background: rgba(31,138,91,.10); color: var(--success-ink); }
+/* Coach surfaced as quiet trace-cards INSIDE the chat stream (replaces the stacked panel) */
+.r-coachcards { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; padding-top: 11px; border-top: 1px solid var(--line); }
+.r-coachcards-head { display: flex; align-items: center; gap: 6px; font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--text-tertiary); }
+.r-coachcards-head svg { color: var(--text-muted); }
+.r-coachcards-head .r-coachcards-title { color: var(--text-secondary); }
+.r-coachcards-meta { font-family: var(--font-mono); font-size: 10px; font-weight: 700; text-transform: none; letter-spacing: 0; color: var(--accent-ink); background: var(--accent-tint); border: 1px solid var(--accent-border); border-radius: 999px; padding: 1px 8px; }
+.r-coachcards-meta[data-ready="true"] { color: var(--success-ink); background: rgba(31,138,91,.10); border-color: rgba(31,138,91,.24); }
+.r-coachcard { display: flex; align-items: flex-start; gap: 9px; width: 100%; text-align: left; padding: 9px 11px; border: 1px solid var(--line); border-radius: 10px; background: var(--bg-secondary); color: var(--text-secondary); cursor: pointer; transition: background var(--motion-fast), border-color var(--motion-fast); }
+.r-coachcard:hover:not(:disabled) { background: var(--bg-hover); border-color: var(--line-strong); }
+.r-coachcard:disabled { cursor: default; }
+.r-coachcard-dot { width: 7px; height: 7px; border-radius: 50%; margin-top: 5px; flex: none; background: var(--text-tertiary); }
+.r-coachcard[data-sev="watch"] .r-coachcard-dot { background: var(--warning-ink); }
+.r-coachcard[data-sev="risk"] .r-coachcard-dot { background: var(--accent-primary); }
+.r-coachcard-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1; }
+.r-coachcard-title { font-size: 12.5px; font-weight: 600; color: var(--text-primary); }
+.r-coachcard-body { font-size: 11.5px; line-height: 1.4; color: var(--text-tertiary); }
+.r-coachcard-act { display: inline-flex; align-items: center; gap: 3px; flex: none; margin-top: 1px; font-size: 11px; font-weight: 600; color: var(--accent-ink); white-space: nowrap; }
+.r-coachcards-more { align-self: flex-start; background: transparent; border: none; color: var(--text-tertiary); font-size: 11px; cursor: pointer; padding: 2px 0; }
+.r-coachcards-more:hover { color: var(--text-secondary); }
 .r-coach-tabs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 2px; padding: 5px; border-bottom: 1px solid var(--line); background: color-mix(in srgb, var(--bg-primary) 64%, transparent); }
 .r-coach-tabs button { min-width: 0; min-height: 26px; display: inline-flex; align-items: center; justify-content: center; gap: 4px; border: 0; border-radius: 7px; background: transparent; color: var(--text-muted); font-size: 10.5px; font-weight: 800; white-space: nowrap; }
 .r-coach-tabs button[data-on="true"] { background: var(--accent-tint); color: var(--accent-ink); }
