@@ -1,5 +1,5 @@
 import { useMemo, useState, type ReactNode } from "react";
-import { FileCheck2, MessageSquareWarning, Send, TrendingUp, Sparkles, ArrowUpRight } from "lucide-react";
+import { FileCheck2, MessageSquareWarning, Send, TrendingUp, Sparkles, ArrowUpRight, ChevronRight } from "lucide-react";
 import { useStore } from "../../app/store";
 import { buildBankerCoachPacket } from "../bankerCoachPacket";
 import { focusStage } from "../stageFocus";
@@ -28,25 +28,25 @@ export function CoachCards({ roomId, onOpenArtifact }: {
     () => buildBankerCoachPacket({ roomTitle: room?.title ?? "NodeRoom", artifacts, traces }),
     [room?.title, artifacts, traces],
   );
-  const [expanded, setExpanded] = useState(false);
+  const [open, setOpen] = useState(false);
   const cues = packet.cues;
   if (cues.length === 0) return null;
   const cardById = new Map(packet.evidenceCards.map((c) => [c.id, c]));
   const targetFor = (cue: typeof cues[number]) =>
     cue.evidenceIds.map((id) => cardById.get(id)).find((c) => c?.targetArtifactId);
   const needsReview = packet.readiness.needsReview + packet.readiness.manual + packet.readiness.estimated;
-  const shown = expanded ? cues : cues.slice(0, 2);
   return (
-    <div className="r-coachcards" data-testid="coach-cards">
-      <div className="r-coachcards-head">
+    <div className="r-coachcards" data-testid="coach-cards" data-open={String(open)}>
+      <button type="button" className="r-coachcards-head" aria-expanded={open} aria-label={open ? "Collapse coach" : "Expand coach"} onClick={() => setOpen((v) => !v)}>
+        <ChevronRight size={13} className="r-coachcards-chev" style={{ transform: open ? "rotate(90deg)" : "none" }} />
         <Sparkles size={12} />
         <span className="r-coachcards-title">Coach</span>
         <span className="grow" />
         <span className="r-coachcards-meta" data-ready={String(packet.readiness.readyForClientUse)}>
           {packet.readiness.readyForClientUse ? "verified" : `${needsReview} to review`}
         </span>
-      </div>
-      {shown.map((cue) => {
+      </button>
+      {open && cues.map((cue) => {
         const card = targetFor(cue);
         const clickable = !!card?.targetArtifactId;
         return (
@@ -68,11 +68,6 @@ export function CoachCards({ roomId, onOpenArtifact }: {
           </button>
         );
       })}
-      {cues.length > 2 && (
-        <button type="button" className="r-coachcards-more" onClick={() => setExpanded((v) => !v)}>
-          {expanded ? "Show less" : `Show ${cues.length - 2} more`}
-        </button>
-      )}
     </div>
   );
 }

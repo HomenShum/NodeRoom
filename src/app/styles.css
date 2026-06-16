@@ -306,7 +306,10 @@ input { font-family: inherit; }
 .r-coach-head > span[data-ready="true"] { border-color: rgba(31,138,91,.28); background: rgba(31,138,91,.10); color: var(--success-ink); }
 /* Coach surfaced as quiet trace-cards INSIDE the chat stream (replaces the stacked panel) */
 .r-coachcards { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; padding-top: 11px; border-top: 1px solid var(--line); }
-.r-coachcards-head { display: flex; align-items: center; gap: 6px; font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--text-tertiary); }
+.r-coachcards-head { display: flex; align-items: center; gap: 6px; width: 100%; padding: 3px 5px; margin: -3px -5px; border: none; border-radius: 7px; background: transparent; cursor: pointer; font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--text-tertiary); transition: background var(--motion-fast); }
+.r-coachcards-head:hover { background: var(--bg-hover); }
+.r-coachcards-chev { color: var(--text-muted); transition: transform var(--motion-fast); flex: none; }
+.r-coachcards[data-open="false"] { gap: 0; }
 .r-coachcards-head svg { color: var(--text-muted); }
 .r-coachcards-head .r-coachcards-title { color: var(--text-secondary); }
 .r-coachcards-meta { font-family: var(--font-mono); font-size: 10px; font-weight: 700; text-transform: none; letter-spacing: 0; color: var(--accent-ink); background: var(--accent-tint); border: 1px solid var(--accent-border); border-radius: 999px; padding: 1px 8px; }
