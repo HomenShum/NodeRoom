@@ -17,8 +17,8 @@ high-risk and testable:
 3. Semantic no-clobber behavior above CAS.
 4. Provider-route promotion using N=5 and p95, not single lucky runs.
 5. UI/workplan surfaces that make the ledger legible to target users.
-6. Frame-claimed execution so recursive context is a durable harness capability,
-   not transcript memory.
+6. Live frame-claimed multi-slice evidence so recursive context is proven under
+   deployed provider/runtime conditions, not only deterministic tests.
 
 ## P0 Sequence
 
@@ -66,16 +66,17 @@ high-risk and testable:
    Local/OCR parsing is still needed for private and reproducible workflows
    even if Gemini/OpenAI/Claude can read files.
 
-5. **Frame-claimed runner hardening.**
-   Room-work admission already materializes durable frames/cache/work items.
-   Next, claim one runnable frame per slice, build `ContextPack` messages, reduce
-   output into `FrameDelta`, verify evidence/freshness, and resume by frame id.
+5. **Frame-level operations hardening.**
+   Room-work admission materializes durable frames/cache/work items and the
+   durable runner claims one runnable frame per slice. Next, add frame-level
+   retry/cancel controls, live tiny-budget resume proof, and route/provider
+   evidence.
 
 ## What Not To Claim Yet
 
 - Full official BankerToolBench or SpreadsheetBench readiness.
 - Full Semantic Rebase runtime.
-- Every `/ask` path running through frame-claimed execution.
+- Every fast inline/private `/ask` path running through frame-claimed execution.
 - Atomic multi-cell semantic commit.
 - Provider route superiority from N=1 runs.
 - Private-file-safe provider parsing for all document types.

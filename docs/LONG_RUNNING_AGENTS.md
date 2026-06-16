@@ -57,9 +57,10 @@ See
 For room-work/entity-facet flows, job creation also materializes the selected
 recursive-reasoning state: `agentReasoningFrames` for phase/child lineage,
 `entityWorkItems` for bounded child work, and `entityResearchCache` for
-cache-first speed-to-fill. The current runner updates frame statuses when slices
-start, finish, cancel, retry, or expire; the next hardening step is to make every
-runnable slice claim one frame and execute with its `ContextPack`.
+cache-first speed-to-fill. The durable runner claims one runnable frame at a
+time, executes it with its `ContextPack` through `runReasoningFrame`, records the
+attempt `frameId`, and updates frame status/delta/evidence when slices finish,
+cancel, retry, or expire.
 
 ## Free-Auto Model Policy
 

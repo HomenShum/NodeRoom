@@ -14,7 +14,7 @@ function companyKeyOf(name: string): string {
   return name.trim().toLowerCase().replace(/\s+/g, "_").replace(/[^a-z0-9_]/g, "");
 }
 
-const attemptStatusV = v.union(v.literal("completed"), v.literal("handoff"), v.literal("retrying"), v.literal("failed"));
+const attemptStatusV = v.union(v.literal("completed"), v.literal("handoff"), v.literal("retrying"), v.literal("blocked"), v.literal("failed"));
 const terminalStatuses = new Set(["completed", "failed", "blocked", "cancelled"]);
 const entrypointV = v.union(
   v.literal("public_ask"),
@@ -468,26 +468,133 @@ async function materializeReasoningFrames(ctx: any, args: {
 
 type DurableReasoningFrameStatus = "pending" | "running" | "completed" | "blocked" | "skipped" | "failed";
 
-async function setReasoningFramesForSliceStart(ctx: any, args: { jobId: unknown; now: number }) {
+type DurableReasoningFrameRow = {
+  _id: unknown;
+  framePlanId: string;
+  frameId: string;
+  parentFrameId?: string;
+  sequence: number;
+  frameKind: "phase" | "child";
+  phase: "intake" | "plan" | "execute" | "verify" | "synthesize";
+  status: DurableReasoningFrameStatus;
+  goal: string;
+  contextPack: unknown;
+  toolAllowlist: string[];
+  stateDelta?: unknown;
+  evidenceState?: unknown;
+  cacheKey?: string;
+  entityType?: EntityType;
+  entityKey?: string;
+  displayName?: string;
+  facet?: string;
+  cachePolicy?: string;
+  expectedOutputSchema?: string;
+  resultRef?: unknown;
+  error?: string;
+};
+
+function durableFrameIsOpen(frame: { status: DurableReasoningFrameStatus }) {
+  return frame.status === "pending" || frame.status === "running";
+}
+
+function framePayload(frame: DurableReasoningFrameRow) {
+  return clean({
+    rowId: frame._id,
+    framePlanId: frame.framePlanId,
+    frameId: frame.frameId,
+    parentFrameId: frame.parentFrameId,
+    sequence: frame.sequence,
+    frameKind: frame.frameKind,
+    phase: frame.phase,
+    status: frame.status,
+    goal: frame.goal,
+    contextPack: frame.contextPack,
+    toolAllowlist: frame.toolAllowlist,
+    stateDelta: frame.stateDelta,
+    evidenceState: frame.evidenceState,
+    cacheKey: frame.cacheKey,
+    entityType: frame.entityType,
+    entityKey: frame.entityKey,
+    displayName: frame.displayName,
+    facet: frame.facet,
+    cachePolicy: frame.cachePolicy,
+    expectedOutputSchema: frame.expectedOutputSchema,
+    resultRef: frame.resultRef,
+    error: frame.error,
+  });
+}
+
+function chooseRunnableReasoningFrame(frames: DurableReasoningFrameRow[]) {
+  const pending = frames.filter((frame) => frame.status === "pending");
+  return pending.find((frame) => frame.frameKind === "child")
+    ?? pending.find((frame) => frame.phase === "execute")
+    ?? pending.find((frame) => frame.phase === "verify")
+    ?? pending.find((frame) => frame.phase === "synthesize")
+    ?? pending[0];
+}
+
+async function claimReasoningFrameForSlice(ctx: any, args: { jobId: unknown; now: number }) {
   const frames = await ctx.db.query("agentReasoningFrames").withIndex("by_job_sequence", (q: any) => q.eq("jobId", args.jobId)).collect();
-  const affectedIds: string[] = [];
-  for (const frame of frames) {
-    const shouldRun = frame.status === "pending" && (frame.phase === "execute" || frame.frameKind === "child");
-    if (!shouldRun) continue;
-    affectedIds.push(frame.frameId);
-    await ctx.db.patch(frame._id, { status: "running", updatedAt: args.now });
-  }
-  return affectedIds;
+  const frame = chooseRunnableReasoningFrame(frames as DurableReasoningFrameRow[]);
+  if (!frame) return { affectedIds: [] as string[], frame: undefined };
+  await ctx.db.patch(frame._id, { status: "running", updatedAt: args.now });
+  return {
+    affectedIds: [frame.frameId],
+    frame: framePayload({ ...frame, status: "running" }),
+  };
 }
 
 async function setReasoningFramesForSliceFinish(ctx: any, args: {
   jobId: unknown;
-  status: "completed" | "handoff" | "retrying" | "failed" | "cancelled" | "lease_expired";
+  status: "completed" | "handoff" | "retrying" | "blocked" | "failed" | "cancelled" | "lease_expired";
   now: number;
+  frameId?: string;
+  frameStatus?: DurableReasoningFrameStatus;
+  frameDelta?: unknown;
+  frameEvidenceState?: unknown;
+  frameResultRef?: unknown;
   error?: string;
 }) {
-  const frames = await ctx.db.query("agentReasoningFrames").withIndex("by_job_sequence", (q: any) => q.eq("jobId", args.jobId)).collect();
+  const job = await ctx.db.get(args.jobId);
+  const frames = await ctx.db.query("agentReasoningFrames").withIndex("by_job_sequence", (q: any) => q.eq("jobId", args.jobId)).collect() as DurableReasoningFrameRow[];
   const affectedIds: string[] = [];
+  const activeFrameId = args.frameId ?? job?.activeFrameId;
+
+  if (activeFrameId && args.status !== "cancelled" && args.status !== "lease_expired") {
+    const frame = frames.find((candidate) => candidate.frameId === activeFrameId);
+    let appliedStatus: DurableReasoningFrameStatus | undefined;
+    if (frame) {
+      appliedStatus = args.frameStatus
+        ?? (args.status === "completed" ? "completed"
+          : args.status === "blocked" ? "blocked"
+          : args.status === "handoff" || args.status === "retrying" ? "pending"
+          : "failed");
+      affectedIds.push(frame.frameId);
+      await ctx.db.patch(frame._id, clean({
+        status: appliedStatus,
+        updatedAt: args.now,
+        completedAt: appliedStatus === "completed" || appliedStatus === "blocked" || appliedStatus === "skipped" || appliedStatus === "failed" ? args.now : undefined,
+        stateDelta: args.frameDelta,
+        evidenceState: args.frameEvidenceState,
+        resultRef: args.frameResultRef,
+        error: appliedStatus === "failed" || appliedStatus === "blocked" ? args.error ?? args.status : undefined,
+      }));
+    }
+    const openFrameIds = frames
+      .map((candidate) => candidate.frameId === activeFrameId && appliedStatus ? { ...candidate, status: appliedStatus } : candidate)
+      .filter(durableFrameIsOpen)
+      .map((candidate) => candidate.frameId);
+    return {
+      affectedIds,
+      activeFrameId,
+      frameStatus: appliedStatus,
+      openFrameIds,
+      hasOpenFrames: openFrameIds.length > 0,
+      allFramesTerminal: frames.length > 0 && openFrameIds.length === 0,
+    };
+  }
+
+  const resultingFrames: DurableReasoningFrameRow[] = [];
   for (const frame of frames) {
     let status: DurableReasoningFrameStatus | undefined;
     if (args.status === "completed") {
@@ -499,6 +606,7 @@ async function setReasoningFramesForSliceFinish(ctx: any, args: {
     } else {
       status = frame.status === "completed" ? undefined : "failed";
     }
+    resultingFrames.push(status ? { ...frame, status } : frame);
     if (!status) continue;
     affectedIds.push(frame.frameId);
     await ctx.db.patch(frame._id, clean({
@@ -508,7 +616,8 @@ async function setReasoningFramesForSliceFinish(ctx: any, args: {
       error: status === "failed" ? args.error ?? args.status : undefined,
     }));
   }
-  return affectedIds;
+  const openFrameIds = resultingFrames.filter(durableFrameIsOpen).map((frame) => frame.frameId);
+  return { affectedIds, openFrameIds, hasOpenFrames: openFrameIds.length > 0, allFramesTerminal: frames.length > 0 && openFrameIds.length === 0 };
 }
 
 function summarizeEntityWorkPlans(plans: Array<{ cachePolicy: string; status: string }>) {
@@ -1542,7 +1651,7 @@ export const cancel = mutation({
     if (job.workflowId) await cancelWorkflow(ctx, components.workflow, job.workflowId as never);
     const activeLeases = await ctx.db.query("agentLeases").withIndex("by_job_status", (q) => q.eq("jobId", jobId).eq("status", "active")).collect();
     for (const lease of activeLeases) await ctx.db.patch(lease._id, { status: "released", releasedAt: now });
-    const reasoningFrameIds = await setReasoningFramesForSliceFinish(ctx, { jobId, status: "cancelled", now });
+    const frameFinish = await setReasoningFramesForSliceFinish(ctx, { jobId, status: "cancelled", now });
     await recordOperationEvent(ctx, {
       jobId,
       sequence: (job.actionSliceCount ?? 0) + (job.queryCount ?? 0) + (job.mutationCount ?? 0) + (job.modelCallCount ?? 0) + (job.toolCallCount ?? 0) + (job.schedulerHandoffCount ?? 0) + 3,
@@ -1552,7 +1661,7 @@ export const cancel = mutation({
       targetId: String(job.artifactId),
       status: "completed",
       countDelta: 1,
-      affectedIds: [String(jobId), String(job.artifactId), ...reasoningFrameIds],
+      affectedIds: [String(jobId), String(job.artifactId), ...frameFinish.affectedIds],
       startedAt: now,
       completedAt: now,
     });
@@ -1694,7 +1803,7 @@ export const sweepExpiredJobLeases = internalMutation({
         });
       }
 
-      const reasoningFrameIds = await setReasoningFramesForSliceFinish(ctx, {
+      const frameFinish = await setReasoningFramesForSliceFinish(ctx, {
         jobId: job._id,
         status: "lease_expired",
         now,
@@ -1709,7 +1818,7 @@ export const sweepExpiredJobLeases = internalMutation({
         targetId: String(job.artifactId),
         status: "failed",
         countDelta: 1,
-        affectedIds: [String(job._id), String(job.artifactId), ...activeLeases.map((lease) => String(lease._id)), ...reasoningFrameIds],
+        affectedIds: [String(job._id), String(job.artifactId), ...activeLeases.map((lease) => String(lease._id)), ...frameFinish.affectedIds],
         startedAt: now,
         completedAt: now,
       });
@@ -1791,11 +1900,13 @@ export const claimSlice = internalMutation({
 
     const attempt = job.attempts + 1;
     const leaseUntil = now + Math.max(1_000, leaseMs);
+    const frameClaim = await claimReasoningFrameForSlice(ctx, { jobId, now });
     await ctx.db.patch(jobId, {
       status: "running",
       attempts: attempt,
       leaseId,
       leaseUntil,
+      activeFrameId: frameClaim.frame?.frameId ?? "",
       actionSliceCount: (job.actionSliceCount ?? 0) + 1,
       updatedAt: now,
     });
@@ -1809,7 +1920,6 @@ export const claimSlice = internalMutation({
       expiresAt: leaseUntil,
       createdAt: now,
     });
-    const reasoningFrameIds = await setReasoningFramesForSliceStart(ctx, { jobId, now });
     await recordOperationEvent(ctx, {
       jobId,
       sequence: (job.actionSliceCount ?? 0) + (job.queryCount ?? 0) + (job.mutationCount ?? 0) + (job.modelCallCount ?? 0) + (job.toolCallCount ?? 0) + (job.schedulerHandoffCount ?? 0) + 2,
@@ -1818,7 +1928,7 @@ export const claimSlice = internalMutation({
       targetKind: "artifact",
       targetId: String(job.artifactId),
       countDelta: 1,
-      affectedIds: [String(jobId), String(job.artifactId), ...reasoningFrameIds],
+      affectedIds: [String(jobId), String(job.artifactId), ...frameClaim.affectedIds],
       startedAt: now,
       completedAt: now,
     });
@@ -1842,6 +1952,7 @@ export const claimSlice = internalMutation({
       sessionId: session._id,
       agentId: session.agentId,
       agentName: session.agentName,
+      activeReasoningFrame: frameClaim.frame,
     };
   },
 });
@@ -1864,6 +1975,11 @@ export const finishSlice = internalMutation({
     cursor: v.optional(v.any()),
     finalText: v.optional(v.string()),
     scheduledNextAt: v.optional(v.number()),
+    frameId: v.optional(v.string()),
+    frameStatus: v.optional(v.union(v.literal("pending"), v.literal("running"), v.literal("completed"), v.literal("blocked"), v.literal("skipped"), v.literal("failed"))),
+    frameDelta: v.optional(v.any()),
+    frameEvidenceState: v.optional(v.any()),
+    frameResultRef: v.optional(v.any()),
   },
   handler: async (ctx, a) => {
     const job = await ctx.db.get(a.jobId);
@@ -1873,6 +1989,7 @@ export const finishSlice = internalMutation({
     await ctx.db.insert("agentJobAttempts", clean({
       jobId: a.jobId,
       runId: a.runId,
+      frameId: a.frameId ?? job.activeFrameId,
       attempt: a.attempt,
       status: a.status,
       resolvedModel: a.resolvedModel,
@@ -1889,6 +2006,7 @@ export const finishSlice = internalMutation({
 
     const nextStatus =
       a.status === "completed" ? "completed" :
+      a.status === "blocked" ? "blocked" :
       a.status === "failed" ? "failed" :
       a.status === "retrying" ? "retrying" :
       "paused";
@@ -1907,16 +2025,30 @@ export const finishSlice = internalMutation({
     if (a.cursor !== undefined) patch.cursor = a.cursor;
     if (a.finalText !== undefined) patch.finalText = a.finalText;
     if (a.error !== undefined) patch.error = a.error;
-    if (a.scheduledNextAt !== undefined) patch.nextRunAt = a.scheduledNextAt;
-    if (nextStatus === "completed") patch.completedAt = now;
+    if (a.scheduledNextAt !== undefined && nextStatus !== "completed") patch.nextRunAt = a.scheduledNextAt;
     const activeLeases = await ctx.db.query("agentLeases").withIndex("by_job_status", (q) => q.eq("jobId", a.jobId).eq("status", "active")).collect();
     for (const lease of activeLeases) await ctx.db.patch(lease._id, { status: "released", releasedAt: now });
-    const reasoningFrameIds = await setReasoningFramesForSliceFinish(ctx, {
+    const frameFinish = await setReasoningFramesForSliceFinish(ctx, {
       jobId: a.jobId,
       status: a.status,
       now,
+      frameId: a.frameId,
+      frameStatus: a.frameStatus,
+      frameDelta: a.frameDelta,
+      frameEvidenceState: a.frameEvidenceState,
+      frameResultRef: a.frameResultRef,
       error: a.error,
     });
+    let effectiveNextStatus = nextStatus;
+    if (frameFinish.activeFrameId && a.status === "completed" && frameFinish.hasOpenFrames) {
+      effectiveNextStatus = "paused";
+      patch.nextRunAt = a.scheduledNextAt ?? now + 5_000;
+    }
+    if (frameFinish.frameStatus === "blocked") effectiveNextStatus = "blocked";
+    if (effectiveNextStatus === "completed" || effectiveNextStatus === "failed" || effectiveNextStatus === "blocked") patch.nextRunAt = 0;
+    patch.status = effectiveNextStatus;
+    patch.activeFrameId = "";
+    if (effectiveNextStatus === "completed") patch.completedAt = now;
     await recordOperationEvent(ctx, {
       jobId: a.jobId,
       runId: a.runId,
@@ -1925,15 +2057,15 @@ export const finishSlice = internalMutation({
       name: "agentJobs.finishSlice",
       targetKind: "artifact",
       targetId: String(job.artifactId),
-      status: nextStatus === "failed" ? "failed" : "completed",
+      status: effectiveNextStatus === "failed" || effectiveNextStatus === "blocked" ? "failed" : "completed",
       countDelta: 1,
-      affectedIds: [String(a.jobId), String(job.artifactId), ...reasoningFrameIds],
+      affectedIds: [String(a.jobId), String(job.artifactId), ...frameFinish.affectedIds],
       startedAt: now,
       completedAt: now,
     });
     await ctx.db.patch(a.jobId, patch as any);
-    if (a.scheduledNextAt !== undefined && nextStatus !== "failed" && job.runtime !== "workflow") {
-      await ctx.scheduler.runAfter(Math.max(0, a.scheduledNextAt - now), internal.agentJobRunner.runFreeAutoJobSlice, { jobId: a.jobId });
+    if (patch.nextRunAt !== undefined && (effectiveNextStatus === "paused" || effectiveNextStatus === "retrying") && job.runtime !== "workflow") {
+      await ctx.scheduler.runAfter(Math.max(0, Number(patch.nextRunAt) - now), internal.agentJobRunner.runFreeAutoJobSlice, { jobId: a.jobId });
     }
     return { ok: true as const };
   },

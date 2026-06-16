@@ -12,12 +12,14 @@ import { internalAction } from "./_generated/server";
 import type { Id } from "./_generated/dataModel";
 import { ConvexRoomTools } from "./convexRoomTools";
 import { AgentRunError, runAgent } from "../src/nodeagent/core/runtime";
+import { runReasoningFrame, type ReasoningFrameRunReceipt } from "../src/nodeagent/core/frameRunner";
 import { PRODUCTION_ROOM_TOOLS } from "../src/nodeagent/skills/spreadsheet/cellMutator";
 import { MANAGED_LOCK_SYSTEM_PROMPT } from "../src/nodeagent/models/prompts/systemPrompt";
 import { convexModel as agentModel, convexPriceRun as priceRun } from "../src/nodeagent/models/convexModel";
 import { buildResearchContext } from "../src/nodeagent/core/worldModel";
 import { compactMessages } from "../src/nodeagent/core/contextCompactor";
 import type { AgentMessage, AgentResult, AgentTraceEvent, ToolCall } from "../src/nodeagent/core/types";
+import type { EvidenceState, FrameDelta, ReasoningFrame, ReasoningFrameStatus } from "../src/nodeagent/core/reasoningFrames";
 import type { Actor } from "../src/engine/types";
 import { journalSliceKey } from "../src/nodeagent/core/journal";
 import { assertProviderEgressAllowed } from "../src/nodeagent/guardrails/egressPolicy";
@@ -57,6 +59,20 @@ type ClaimedJob = {
   sessionId: Id<"agentSessions">;
   agentId: string;
   agentName: string;
+  activeReasoningFrame?: ClaimedReasoningFrame;
+};
+
+type ClaimedReasoningFrame = {
+  frameId: string;
+  parentFrameId?: string;
+  jobId?: string;
+  goal: string;
+  phase: ReasoningFrame["phase"];
+  status: ReasoningFrameStatus;
+  contextPack: ReasoningFrame["contextPack"];
+  toolAllowlist: string[];
+  stateDelta?: FrameDelta;
+  evidenceState?: EvidenceState;
 };
 
 type RunTelemetry = {
@@ -127,13 +143,20 @@ function traceStep(e: AgentTraceEvent, i: number) {
   };
 }
 
-function messagesFromCursor(cursor: unknown): AgentMessage[] | undefined {
+function cursorFrameId(cursor: unknown): string | undefined {
+  const value = cursor as { frameId?: unknown } | undefined;
+  return typeof value?.frameId === "string" ? value.frameId : undefined;
+}
+
+function messagesFromCursor(cursor: unknown, frameId?: string): AgentMessage[] | undefined {
   const value = cursor as { messages?: unknown } | undefined;
+  if (frameId && cursorFrameId(cursor) && cursorFrameId(cursor) !== frameId) return undefined;
   return Array.isArray(value?.messages) ? value.messages as AgentMessage[] : undefined;
 }
 
-function remainingToolCallsFromCursor(cursor: unknown): ToolCall[] | undefined {
+function remainingToolCallsFromCursor(cursor: unknown, frameId?: string): ToolCall[] | undefined {
   const value = cursor as { remainingToolCalls?: unknown } | undefined;
+  if (frameId && cursorFrameId(cursor) && cursorFrameId(cursor) !== frameId) return undefined;
   return Array.isArray(value?.remainingToolCalls) ? value.remainingToolCalls as ToolCall[] : undefined;
 }
 
@@ -147,9 +170,10 @@ function clean<T extends Record<string, unknown>>(value: T): T {
   return out as T;
 }
 
-async function checkpoint(result: AgentResult, maxChars: number, keepRecent: number) {
+async function checkpoint(result: AgentResult, maxChars: number, keepRecent: number, frameId?: string) {
   const compacted = await compactMessages(result.messages, { maxChars, keepRecent });
   return {
+    frameId,
     messages: compacted.messages,
     remainingToolCalls: result.handoff?.remainingToolCalls ?? [],
     stopReason: result.stopReason,
@@ -157,6 +181,27 @@ async function checkpoint(result: AgentResult, maxChars: number, keepRecent: num
     elided: compacted.elided,
     updatedAt: Date.now(),
   };
+}
+
+function normalizeClaimedFrame(frame: ClaimedReasoningFrame, jobId: string): ReasoningFrame {
+  return {
+    frameId: frame.frameId,
+    parentFrameId: frame.parentFrameId,
+    jobId,
+    goal: frame.goal,
+    phase: frame.phase,
+    status: frame.status,
+    contextPack: frame.contextPack,
+    toolAllowlist: frame.toolAllowlist,
+    stateDelta: frame.stateDelta,
+    evidenceState: frame.evidenceState,
+  };
+}
+
+function frameStatusForFinish(receipt: ReasoningFrameRunReceipt | undefined, result: AgentResult, canContinue: boolean): ReasoningFrameStatus | undefined {
+  if (!receipt) return undefined;
+  if (result.stopReason !== "done" || result.exhausted) return canContinue ? "pending" : "failed";
+  return receipt.status;
 }
 
 export const runFreeAutoJobSlice = internalAction({
@@ -188,6 +233,9 @@ export const runFreeAutoJobSlice = internalAction({
     const contextKeepRecent = envNumber("FREE_AUTO_JOB_CONTEXT_KEEP_RECENT", DEFAULT_CONTEXT_KEEP_RECENT, 2, 40);
     const maxSteps = envNumber("FREE_AUTO_JOB_MAX_STEPS_PER_SLICE", 3, 1, 12);
     const deadlineAt = t0 + sliceBudgetMs;
+    const activeFrame = claimed.activeReasoningFrame
+      ? normalizeClaimedFrame(claimed.activeReasoningFrame, String(claimed.jobId))
+      : undefined;
     const modelJournal = makeConvexStepJournal({
       ctx,
       jobId: claimed.jobId,
@@ -195,6 +243,7 @@ export const runFreeAutoJobSlice = internalAction({
         entrypoint: claimed.modelPolicy === "openrouter/free-auto" ? "free" : "workflow_continuation",
         jobId: String(claimed.jobId),
         artifactId: String(claimed.artifactId),
+        frameId: activeFrame?.frameId,
         goal: claimed.goal,
         mode: claimed.mode ?? "variance",
         modelPolicy: resolvedModelPolicy,
@@ -263,9 +312,33 @@ export const runFreeAutoJobSlice = internalAction({
           : [{ title: claimed.artifactTitle, kind: claimed.artifactKind, meta: claimed.artifactMeta, visibility: claimed.artifactVisibility }],
         env: process.env,
       });
-      const initialMessages = messagesFromCursor(claimed.cursor);
-      const resumeToolCalls = remainingToolCallsFromCursor(claimed.cursor);
-      const result = await runAgent({
+      const activeFrameId = activeFrame?.frameId;
+      const initialMessages = messagesFromCursor(claimed.cursor, activeFrameId);
+      const resumeToolCalls = remainingToolCallsFromCursor(claimed.cursor, activeFrameId);
+      let frameReceipt: ReasoningFrameRunReceipt | undefined;
+      const result = activeFrame
+        ? (frameReceipt = await runReasoningFrame({
+          rt,
+          frame: activeFrame,
+          model,
+          tools: PRODUCTION_ROOM_TOOLS,
+          systemPrompt: MANAGED_LOCK_SYSTEM_PROMPT,
+          maxSteps,
+          initialMessages,
+          resumeToolCalls,
+          includeRoomContext: !initialMessages,
+          roomContextBuilder: claimed.mode === "research" ? buildResearchContext : undefined,
+          compaction: { maxChars: contextMaxChars, keepRecent: contextKeepRecent },
+          journal: modelJournal,
+          deadlineAt,
+          reserveMs,
+          spendLimits: {
+            maxTokens: envNumber("AGENT_MAX_TOKENS_PER_SLICE", 250_000, 1_000, 4_000_000),
+            maxCostUsd: envNumber("AGENT_MAX_USD_PER_SLICE", 2, 0.01, 100),
+          },
+          priceStep: (modelName: string, inputTokens: number, outputTokens: number) => priceRun(modelName, inputTokens, outputTokens),
+        })).agentResult
+        : await runAgent({
         rt,
         goal: claimed.goal,
         model,
@@ -286,19 +359,21 @@ export const runFreeAutoJobSlice = internalAction({
           maxTokens: envNumber("AGENT_MAX_TOKENS_PER_SLICE", 250_000, 1_000, 4_000_000),
           maxCostUsd: envNumber("AGENT_MAX_USD_PER_SLICE", 2, 0.01, 100),
         },
-        priceStep: (modelName, inputTokens, outputTokens) => priceRun(modelName, inputTokens, outputTokens),
+        priceStep: (modelName: string, inputTokens: number, outputTokens: number) => priceRun(modelName, inputTokens, outputTokens),
       });
       const { runId, telemetry } = await recordRun(result);
       const done = result.stopReason === "done" && !result.exhausted;
       const canContinue = !done && claimed.attempt < claimed.maxAttempts;
-      const scheduledNextAt = canContinue ? Date.now() + DEFAULT_RESUME_DELAY_MS : undefined;
-      const cursor = done ? undefined : await checkpoint(result, contextMaxChars, contextKeepRecent);
+      const frameStatus = frameStatusForFinish(frameReceipt, result, canContinue);
+      const frameBlocked = frameStatus === "blocked";
+      const scheduledNextAt = canContinue || (frameReceipt && done && !frameBlocked) ? Date.now() + DEFAULT_RESUME_DELAY_MS : undefined;
+      const cursor = done ? undefined : await checkpoint(result, contextMaxChars, contextKeepRecent, activeFrameId);
 
       await ctx.runMutation(agentJobsFinishSliceRef, clean({
         jobId: claimed.jobId,
         leaseId,
         attempt: claimed.attempt,
-        status: done ? "completed" : canContinue ? "handoff" : "failed",
+        status: frameBlocked ? "blocked" : done ? "completed" : canContinue ? "handoff" : "failed",
         resolvedModel: model.name,
         stopReason: result.stopReason,
         ms: telemetry.ms,
@@ -309,8 +384,18 @@ export const runFreeAutoJobSlice = internalAction({
         handoff: result.handoff,
         cursor,
         finalText: result.finalText,
-        error: done || canContinue ? undefined : "max_attempts_exceeded",
+        error: frameBlocked ? frameReceipt?.verification.blockedReason ?? frameReceipt?.verification.reason : done || canContinue ? undefined : "max_attempts_exceeded",
         scheduledNextAt,
+        frameId: activeFrameId,
+        frameStatus,
+        frameDelta: frameReceipt?.stateDelta,
+        frameEvidenceState: frameReceipt?.verification.evidenceState,
+        frameResultRef: frameReceipt ? {
+          verification: frameReceipt.verification,
+          allowedToolNames: frameReceipt.allowedToolNames,
+          missingToolNames: frameReceipt.missingToolNames,
+          runtimeError: frameReceipt.runtimeError,
+        } : undefined,
       }));
 
       return { ok: true as const, done, stopReason: result.stopReason, runId };
@@ -341,7 +426,8 @@ export const runFreeAutoJobSlice = internalAction({
       const canRetry = claimed.attempt < claimed.maxAttempts;
       const delayMs = canRetry ? backoffMs(claimed.attempt) : undefined;
       const scheduledNextAt = delayMs ? Date.now() + delayMs : undefined;
-      const cursor = fallback.messages.length ? await checkpoint(fallback, contextMaxChars, contextKeepRecent) : undefined;
+      const activeFrameId = claimed.activeReasoningFrame?.frameId;
+      const cursor = fallback.messages.length ? await checkpoint(fallback, contextMaxChars, contextKeepRecent, activeFrameId) : undefined;
 
       await ctx.runMutation(agentJobsFinishSliceRef, clean({
         jobId: claimed.jobId,
@@ -359,6 +445,8 @@ export const runFreeAutoJobSlice = internalAction({
         handoff: fallback.handoff,
         cursor,
         scheduledNextAt,
+        frameId: activeFrameId,
+        frameStatus: canRetry ? "pending" : "failed",
       }));
 
       return { ok: false as const, retrying: canRetry, error: errorText(rootError), runId };

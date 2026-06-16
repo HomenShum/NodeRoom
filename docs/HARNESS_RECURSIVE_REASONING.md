@@ -83,14 +83,14 @@ harnessed Room Agent, usually for one stale or missing entity/facet.
 The landed contract materializes frames during room-work admission, exposes them
 through job detail, updates frame status as slices start, finish, cancel, or
 expire, and provides `runReasoningFrame(...)` for executing one explicit frame
-through the existing `runAgent` loop. The runner builds frame context messages,
-filters tools through the frame allowlist, reduces the result into a
-`FrameDelta`, and returns a verifier receipt.
+through the existing `runAgent` loop. The durable job runner now claims one
+runnable frame at a time, records the attempt `frameId`, checkpoints cursors with
+the frame id, invokes `runReasoningFrame`, and persists the frame delta/evidence
+receipt through `finishSlice`.
 
-Do not overclaim that every `/ask` path is already frame-claimed. The current
-durable frame path is strongest for room-work/entity-facet flows, the job detail
-UI, and the frame-runner API. The remaining hardening step is wiring the Convex
-durable slice runner to claim/resume by frame id for every runnable frame.
+Do not overclaim that every fast inline/private `/ask` path is forced through
+frames. The frame-claimed runner is for durable jobs that have materialized
+reasoning frames, strongest today in room-work/entity-facet flows.
 
 ## Relationship To OKF
 

@@ -41,7 +41,7 @@ Do not claim a feature is production-complete until it has:
 | Stale lease handling | Job slice leases are checked before `finishSlice`, and `agentJobs.sweepExpiredJobLeases` now moves abandoned `running` jobs to a fenced failed state with unit coverage. | Live duplicate-worker simulation at the workflow boundary plus deployed cron monitoring. | Duplicate scheduled slice with stale lease exits without writes, and abandoned running jobs cannot remain wedged indefinitely. |
 | Slice budget clamps | Per-run/per-slice token and USD clamps exist with reserve time for checkpointing. | Live tiny-budget multi-slice smoke through Workflow/Workpool. | Multi-slice test with tiny budgets completes through resume, not timeout. |
 | Provider-step journal | `agentModelStepJournal` records and replays completed model steps. | Adapter-level idempotency keys where providers support them, plus crash-before-record behavior documented as retryable. | Crash-after-provider-call recovery does not call the provider again when a completed response was journaled. |
-| Frame-claimed slices | Room-work admission materializes `agentReasoningFrames`, `entityWorkItems`, and `entityResearchCache`; slice start/finish/cancel/expiry updates frame status. | Make the runnable slice explicitly claim one frame, build `ContextPack` messages, reduce into `FrameDelta`, and verify before synthesis/finish. | A multi-slice room-work job can resume from a frame id, not just from raw cursor messages. |
+| Frame-claimed slices | Durable jobs with materialized reasoning frames now claim one frame at a time, run through `runReasoningFrame`, record attempt `frameId`, checkpoint by frame id, and persist frame delta/evidence/status on finish. | Live multi-slice proof with forced tiny budgets plus route/provider evidence. | A deployed multi-slice room-work job resumes from a frame id, not just from raw cursor messages. |
 | Model health/quarantine | Free-auto discovery and fallback exist. | Track latency, rate limits, failures, fallback count, and quarantine unhealthy free models. | Router avoids unhealthy free models and records why. |
 | Live `/free` eval | Manual live ladder evidence exists. | Add a polling evaluator that starts a real `/free` job, polls attempts, and asserts terminal state plus trace evidence. | Live `openrouter/free-auto` smoke records resolved model, attempts, final artifact state, and no clobber. |
 
@@ -140,7 +140,7 @@ official chart tasks.
 
 | Gap | Current state | Needed proof | Acceptance gate |
 |---|---|---|---|
-| Job controls | Status chips, cancel/retry, attempts, job detail, reasoning-frame tree, receipts, latest steps, and operation rows are browser-visible for the latest job. | Add deeper drilldown, filter/search, frame-level retry/cancel when frame-claimed runner lands, and live browser coverage. | A host can operate a long-running job without reading logs. |
+| Job controls | Status chips, cancel/retry, attempts, job detail, reasoning-frame tree, receipts, latest steps, and operation rows are browser-visible for the latest job. | Add deeper drilldown, filter/search, frame-level retry/cancel controls, and live browser coverage. | A host can operate a long-running job without reading logs. |
 | Auto-accept UX | Accept/reject proposal flow exists. | Host opt-in modal for auto-accept/accept-all, scoped to safe proposal classes, with remember-my-preference. | Auto-accept never applies blocked, stale, or policy-failed proposals. |
 | Spreadsheet/agent interaction | Spreadsheet, trace, notes, and chat are wired. | Browser E2E for spreadsheet row selection -> ask agent -> proposed cells -> accept -> trace -> note/wiki reference. | Agent and spreadsheet remain synchronized under concurrent human edits. |
 | June 2026 workroom shell | Binder -> Work Surface -> Copilot -> Signal Tape/Status Strip is implemented in the MVP shell; center-stage split mode now has memory-mode browser proof. Remaining work: richer binder click-throughs, live/Convex shell proof, Gemini UI judge proof, and status drilldown tests. | Add live browser specs, media judge walkthrough, richer binder source/proof/policy click-throughs, and status drilldown tests. | Browser specs prove binder navigation, center split source/proof mode, right-side Copilot steering, thin bottom status, no overflow, and no private-data leakage in ambient events. |
@@ -150,8 +150,9 @@ official chart tasks.
 ## P1: Workflow/Workpool Productionization
 
 Workflow/Workpool is wired for the durable job path. The remaining work is no
-longer "add Workflow"; it is production hardening around frame-claimed slices,
-backpressure, retries, crash recovery, and deployed monitoring.
+longer "add Workflow"; it is production hardening around live frame-claimed
+multi-slice evidence, backpressure, retries, crash recovery, and deployed
+monitoring.
 
 | Gap | Current state | Needed proof | Acceptance gate |
 |---|---|---|---|

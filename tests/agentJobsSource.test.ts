@@ -7,7 +7,7 @@ describe("long-running agent job source invariants", () => {
     const runner = readFileSync("convex/agentJobRunner.ts", "utf8");
 
     expect(jobs).toContain("export const finishSlice");
-    expect(jobs).toContain("ctx.scheduler.runAfter(Math.max(0, a.scheduledNextAt - now)");
+    expect(jobs).toContain("ctx.scheduler.runAfter(Math.max(0, Number(patch.nextRunAt) - now)");
     expect(runner).not.toContain("ctx.scheduler.runAfter(DEFAULT_RESUME_DELAY_MS");
     expect(runner).not.toContain("ctx.scheduler.runAfter(delayMs");
   });

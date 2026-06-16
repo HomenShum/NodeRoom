@@ -29,7 +29,7 @@ Design-intent names now live in `src/nodeagent/**`. Convex remains the durable b
 | MCP server exposing `nodeagent_*` tools | None. Tools are guarded by Convex permissions and schemas. | absent; do not build until there is a consumer |
 | `.agent/` rules directory | Truth lives in `src/nodeagent/models/prompts/systemPrompt.ts`, `src/nodeagent/skills/spreadsheet/cellMutator.ts`, and `docs/NODEAGENT_ARCHITECTURE.md`. | absent; avoid duplicate drift |
 | Convex Workflow + Workpool durable jobs | `@convex-dev/workflow` and `@convex-dev/workpool` are wired through Convex config/job files. | built |
-| "Fable-like" recursive context / multi-frame reasoning | Harness-native frames in `src/nodeagent/core/reasoningFrames.ts`, context utilities in `contextPack.ts`, durable `agentReasoningFrames`, entity/facet `entityWorkItems`, and room-local `entityResearchCache`. | built for room-work admission/detail; frame-claimed runner remains next hardening |
+| "Fable-like" recursive context / multi-frame reasoning | Harness-native frames in `src/nodeagent/core/reasoningFrames.ts`, context utilities in `contextPack.ts`, durable `agentReasoningFrames`, entity/facet `entityWorkItems`, room-local `entityResearchCache`, and a frame-claimed durable runner through `runReasoningFrame`. | built for durable room-work/entity-facet jobs; live multi-slice route proof remains hardening |
 | Formula engine | `src/nodeagent/core/formulaEngine.ts`, imported by UI/engine and test-covered. | built and tested |
 | Semantic Rebase | `SmartResolver` plus deterministic draft merge path. LLM resolver packet tables remain target-state. | partially built |
 | Downstream connectors | `downstreamPublish` prepares Gmail, Notion, Slack, Linear, LinkedIn, and CRM draft artifacts only. | draft handoff; live OAuth is roadmap |
@@ -44,9 +44,10 @@ Design-intent names now live in `src/nodeagent/**`. Convex remains the durable b
 - Fresh startup room: live mode now starts a new "Startup Banking Diligence War Room" by default. The `startup-diligence-live-join` walkthrough proves teammate join-by-code; `startup-diligence-war-room` proves the broader diligence workflow.
 - OKF production path: the public Room NodeAgent has a Convex-backed OKF retrieval port, actor-aware public/private partitioning, literal source opening, retrieval telemetry, and an evidence write gate that can downgrade weak source-backed writes to `needs_review`.
 - Harness-native recursive reasoning: room-work/entity-facet flows materialize
-  durable phase/child frames, cache-first work items, and job-detail frame trees.
-  Safe claim: this is the chosen harness capability layer; do not claim every
-  `/ask` slice is already frame-claimed until the runner claims frames directly.
+  durable phase/child frames, cache-first work items, job-detail frame trees, and
+  frame-claimed durable slices that execute through `runReasoningFrame`. Safe
+  claim: durable jobs with reasoning frames use this layer; fast inline/private
+  consults are not forced through frames by default.
 - Trace Lens and Banker Coach: review surfaces expose proof, trace, OKF telemetry, and gated builder context. Do not claim a full graph explorer or durable banker workflow object lifecycle yet.
 
 ## Authority Docs

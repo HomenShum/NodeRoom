@@ -264,8 +264,10 @@ describe("agentJobs runtime contract", () => {
 
     const claimed = await t.mutation(internal.agentJobs.claimSlice, { jobId, leaseId: "lease-ok", leaseMs: 60_000 });
     expect(claimed?.attempt).toBe(1);
+    expect(claimed?.activeReasoningFrame).toMatchObject({ frameId: "rf_child", status: "running", frameKind: "child" });
     let detail = await t.query(api.agentJobs.detail, { jobId, requester: proof });
-    expect(detail?.reasoningFrames.find((frame) => frame.frameId === "rf_execute")?.status).toBe("running");
+    expect(detail?.job.activeFrameId).toBe("rf_child");
+    expect(detail?.reasoningFrames.find((frame) => frame.frameId === "rf_execute")?.status).toBe("pending");
     expect(detail?.reasoningFrames.find((frame) => frame.frameId === "rf_child")?.status).toBe("running");
 
     const mismatch = await t.mutation(internal.agentJobs.finishSlice, finishSliceArgs({ jobId, leaseId: "lease-wrong", attempt: 1 }));
@@ -277,9 +279,30 @@ describe("agentJobs runtime contract", () => {
     detail = await t.query(api.agentJobs.detail, { jobId, requester: proof });
     expect(detail?.leases.map((lease) => lease.status)).toContain("released");
     expect(detail?.job.leaseId).toBe("");
+    expect(detail?.job.status).toBe("paused");
+    expect(detail?.job.nextRunAt).toEqual(expect.any(Number));
+    expect(detail?.job.activeFrameId).toBe("");
+    expect(detail?.attempts[0]).toMatchObject({ attempt: 1, frameId: "rf_child", status: "completed" });
+    expect(detail?.reasoningFrames.map((frame) => [frame.frameId, frame.status])).toEqual([
+      ["rf_intake", "completed"],
+      ["rf_execute", "pending"],
+      ["rf_child", "completed"],
+    ]);
+    expect(detail?.operations.find((event) => event.name === "agentJobs.claimSlice")?.affectedIds).toEqual(expect.arrayContaining(["rf_child"]));
+    expect(detail?.operations.find((event) => event.name === "agentJobs.finishSlice")?.affectedIds).toEqual(expect.arrayContaining(["rf_child"]));
+
+    const claimedSecond = await t.mutation(internal.agentJobs.claimSlice, { jobId, leaseId: "lease-ok-2", leaseMs: 60_000 });
+    expect(claimedSecond?.attempt).toBe(2);
+    expect(claimedSecond?.activeReasoningFrame).toMatchObject({ frameId: "rf_execute", status: "running", frameKind: "phase" });
+    const finishedSecond = await t.mutation(internal.agentJobs.finishSlice, finishSliceArgs({ jobId, leaseId: "lease-ok-2", attempt: 2 }));
+    expect(finishedSecond).toEqual({ ok: true });
+
+    detail = await t.query(api.agentJobs.detail, { jobId, requester: proof });
+    expect(detail?.job.status).toBe("completed");
+    expect(detail?.job.completedAt).toEqual(expect.any(Number));
+    expect(detail?.job.nextRunAt ?? 0).toBe(0);
+    expect(detail?.attempts.map((attempt) => attempt.frameId)).toEqual(["rf_child", "rf_execute"]);
     expect(detail?.reasoningFrames.map((frame) => frame.status)).toEqual(["completed", "completed", "completed"]);
-    expect(detail?.operations.find((event) => event.name === "agentJobs.claimSlice")?.affectedIds).toEqual(expect.arrayContaining(["rf_execute", "rf_child"]));
-    expect(detail?.operations.find((event) => event.name === "agentJobs.finishSlice")?.affectedIds).toEqual(expect.arrayContaining(["rf_execute", "rf_child"]));
   });
 
   it("cancel finalizes the job, releases active leases, and records a checkpoint", async () => {

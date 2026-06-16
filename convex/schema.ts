@@ -327,6 +327,7 @@ export default defineSchema({
     runtime: v.optional(v.union(v.literal("inline"), v.literal("scheduler"), v.literal("workflow"))),
     workflowId: v.optional(v.string()),
     workId: v.optional(v.string()),
+    activeFrameId: v.optional(v.string()),
     cursor: v.optional(v.any()),
     handoff: v.optional(v.any()),
     attempts: v.number(),
@@ -355,8 +356,9 @@ export default defineSchema({
   agentJobAttempts: defineTable({
     jobId: v.id("agentJobs"),
     runId: v.optional(v.id("agentRuns")),
+    frameId: v.optional(v.string()),
     attempt: v.number(),
-    status: v.union(v.literal("completed"), v.literal("handoff"), v.literal("retrying"), v.literal("failed")),
+    status: v.union(v.literal("completed"), v.literal("handoff"), v.literal("retrying"), v.literal("blocked"), v.literal("failed")),
     resolvedModel: v.string(),
     stopReason: v.string(),
     ms: v.number(),
