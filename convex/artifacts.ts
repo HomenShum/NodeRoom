@@ -526,6 +526,35 @@ export const setArtifactVisibility = mutation({
   },
 });
 
+/** Owner-gated topic + metadata edit (rename + summary + tags). The agent-managed metadata that feeds
+ * the OKF/RAG embedding lives here; a user can rename their own file, the agent authors richer meta. */
+export const setArtifactMeta = mutation({
+  args: {
+    roomId: v.id("rooms"),
+    artifactId: v.id("artifacts"),
+    title: v.optional(v.string()),
+    summary: v.optional(v.string()),
+    tags: v.optional(v.array(v.string())),
+    requester: actorProofV,
+  },
+  handler: async (ctx, a) => {
+    const actor = await requireActorProof(ctx, a.roomId, a.requester);
+    const art = await requireArtifactInRoom(ctx, a.roomId, a.artifactId);
+    if (!actorOwnsArtifact(art, actor)) throw new Error("artifact_meta_forbidden");
+    const patch: Record<string, unknown> = {};
+    if (a.title !== undefined && a.title.trim()) patch.title = a.title.trim().slice(0, 120);
+    if (a.summary !== undefined || a.tags !== undefined) {
+      patch.meta = {
+        ...((art.meta as Record<string, unknown> | undefined) ?? {}),
+        ...(a.summary !== undefined ? { summary: a.summary.slice(0, 400) } : {}),
+        ...(a.tags !== undefined ? { tags: a.tags.slice(0, 12) } : {}),
+      };
+    }
+    if (Object.keys(patch).length) await ctx.db.patch(a.artifactId, patch);
+    return { ok: true as const };
+  },
+});
+
 /** Agent tool path — callable only from Convex actions through `internal`. */
 /** List the room's artifacts (id/title/kind) — the multi-artifact tool layer's cross-file reach.
  *  internalQuery: called server-side by ConvexRoomTools inside an already-authorized agent action. */

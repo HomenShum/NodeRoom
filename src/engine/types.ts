@@ -199,6 +199,9 @@ export interface ArtifactMeta {
   excelGrid?: ExcelGridMeta;
   document?: DocumentParseMeta;
   providerParse?: ProviderParseMeta;
+  /** Agent-managed metadata derived from content; feeds the OKF/RAG embedding (concept frontmatter). */
+  summary?: string;
+  tags?: string[];
   upload?: {
     fileName: string;
     mimeType: string;

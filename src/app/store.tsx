@@ -125,6 +125,8 @@ export interface RoomStore {
   uploadArtifact(args: { roomId: string; artifact: UploadedArtifactInput; actor: Actor; visibility?: ArtifactVisibility }): Promise<string>;
   /** Owner-gated: share your own sheet to the room, or pull it back to private (two-way). */
   setArtifactVisibility(args: { roomId: string; artifactId: string; visibility: "private" | "room"; actor: Actor }): Promise<{ ok: boolean; error?: string }>;
+  /** Owner-gated topic + metadata edit (rename + agent-managed summary/tags). */
+  setArtifactMeta(args: { roomId: string; artifactId: string; title?: string; summary?: string; tags?: string[]; actor: Actor }): Promise<{ ok: boolean; error?: string }>;
   canRunCollab: boolean;
   runCollab(): Promise<void>;
   /** Memory-mode product drill: creates a stale agent draft and routes it through CRS review. */
@@ -322,6 +324,7 @@ export function EngineStoreProvider({ roomId, children }: { roomId: string; me: 
     addResearchRows: async ({ roomId, artifactId, rows, actor }) => engine.addResearchRows({ roomId, artifactId, rows, by: actor }).length,
     uploadArtifact: async ({ roomId, artifact, actor, visibility }) => engine.createArtifact({ roomId, kind: artifact.kind, title: artifact.title, seed: artifact.seed, meta: artifact.meta, by: actor, visibility }).id,
     setArtifactVisibility: async ({ roomId, artifactId, visibility, actor }) => engine.setArtifactVisibility({ roomId, artifactId, visibility, by: actor }),
+    setArtifactMeta: async ({ roomId, artifactId, title, summary, tags, actor }) => engine.setArtifactMeta({ roomId, artifactId, title, summary, tags, by: actor }),
     canRunCollab: roomId === demo.roomId,
     runCollab: () => runDemo(false),
     runSemanticConflictDrill: () => runDemo(true),
@@ -690,6 +693,7 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
   const generateFileUploadUrlMutation = useMutation(api.artifacts.generateFileUploadUrl);
   const registerUploadedFileMutation = useMutation(api.artifacts.registerUploadedFile);
   const setArtifactVisibilityMutation = useMutation(api.artifacts.setArtifactVisibility);
+  const setArtifactMetaMutation = useMutation(api.artifacts.setArtifactMeta);
   const runSemanticConflictDrillMutation = useMutation(api.drafts.runSemanticConflictDrill);
   const runAgent = useAction(api.agent.runRoomAgent);
   const runPrivateAgent = useAction(api.agent.runPrivateAgent);
@@ -820,6 +824,14 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
       setArtifactVisibility: async ({ artifactId, visibility }) => {
         try {
           await setArtifactVisibilityMutation({ roomId: rid, artifactId: artifactId as never, visibility, requester: proof });
+          return { ok: true };
+        } catch (e) {
+          return { ok: false, error: e instanceof Error ? e.message : "failed" };
+        }
+      },
+      setArtifactMeta: async ({ artifactId, title, summary, tags }) => {
+        try {
+          await setArtifactMetaMutation({ roomId: rid, artifactId: artifactId as never, title, summary, tags, requester: proof });
           return { ok: true };
         } catch (e) {
           return { ok: false, error: e instanceof Error ? e.message : "failed" };

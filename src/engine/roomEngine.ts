@@ -21,6 +21,7 @@
  */
 
 import { deterministicResolver } from "./merge";
+import { deriveArtifactMeta } from "./artifactMeta";
 import {
   buildSemanticConflictPacket,
   formulaOf,
@@ -163,6 +164,10 @@ export class RoomEngine {
       order.push(s.id);
     }
     const art: Artifact = { id, roomId: args.roomId, kind: args.kind, title: args.title, version: 1, elements, order, updatedAt: now, createdBy: args.by, visibility: args.visibility ?? "room", meta: args.meta };
+    // Agent-managed topic + metadata from content (feeds the OKF/RAG embedding); never leaves a raw filename.
+    const derived = deriveArtifactMeta(art);
+    if (derived.title) art.title = derived.title;
+    if (derived.summary || derived.tags) art.meta = { ...art.meta, ...(derived.summary ? { summary: derived.summary } : {}), ...(derived.tags ? { tags: derived.tags } : {}) };
     this.artifacts.set(id, art);
     this.emit();
     return art;
@@ -174,6 +179,20 @@ export class RoomEngine {
     const owns = !!art.createdBy && (art.createdBy.id === args.by.id || art.createdBy.ownerId === args.by.id);
     if (!owns || art.visibility === "public") return { ok: false, error: "forbidden" };
     art.visibility = args.visibility;
+    art.updatedAt = this.now();
+    this.emit();
+    return { ok: true };
+  }
+  /** Owner-gated topic/metadata edit. Mirrors convex/artifacts.setArtifactMeta. */
+  setArtifactMeta(args: { roomId: string; artifactId: string; title?: string; summary?: string; tags?: string[]; by: Actor }): { ok: boolean; error?: string } {
+    const art = this.artifacts.get(args.artifactId);
+    if (!art || art.roomId !== args.roomId) return { ok: false, error: "not_found" };
+    const owns = !!art.createdBy && (art.createdBy.id === args.by.id || art.createdBy.ownerId === args.by.id);
+    if (!owns) return { ok: false, error: "forbidden" };
+    if (args.title && args.title.trim()) art.title = args.title.trim().slice(0, 120);
+    if (args.summary !== undefined || args.tags !== undefined) {
+      art.meta = { ...art.meta, ...(args.summary !== undefined ? { summary: args.summary } : {}), ...(args.tags !== undefined ? { tags: args.tags } : {}) };
+    }
     art.updatedAt = this.now();
     this.emit();
     return { ok: true };

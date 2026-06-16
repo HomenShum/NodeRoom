@@ -130,6 +130,11 @@ function ArtifactSurface({ roomId, me, artId, onArt, collab, style, surfaceKey =
     return <I size={13} />;
   };
   const openTabArts = (openIds ?? []).map((id) => arts.find((a) => a.id === id)).filter((a): a is Art => !!a);
+  const renameArtifact = (a: Art) => {
+    if (typeof window === "undefined") return;
+    const next = window.prompt("Rename this file", a.title);
+    if (next && next.trim() && next.trim() !== a.title) void store.setArtifactMeta({ roomId, artifactId: a.id, title: next.trim(), actor: me });
+  };
   const pick = (t: TabId) => { const a = artFor(t); if (a) { onArt(a.id); setTab(t); } };
   const openArtifact = (a: Art) => { onArt(a.id); setTab(tabForArt(a.id)); };
   const visibility = selected?.visibility ?? "room";
@@ -149,7 +154,7 @@ function ArtifactSurface({ roomId, me, artId, onArt, collab, style, surfaceKey =
         <div className="r-tabs" data-testid={surfaceKey === "secondary" ? "artifact-tabs-secondary" : "artifact-tabs"}>
           {openIds
             ? openTabArts.map((a) => (
-                <button key={a.id} className="r-tab r-filetab" data-active={String(a.id === artId)} onClick={() => onArt(a.id)} title={a.title} data-testid="artifact-filetab">
+                <button key={a.id} className="r-tab r-filetab" data-active={String(a.id === artId)} onClick={() => onArt(a.id)} onDoubleClick={() => renameArtifact(a)} title={a.meta?.summary ? `${a.title} — ${a.meta.summary}` : `${a.title} (double-click to rename)`} data-testid="artifact-filetab">
                   {tabIcon(a)}
                   <span className="r-filetab-name">{a.title}</span>
                   {onCloseArtifact && openTabArts.length > 1 && (
