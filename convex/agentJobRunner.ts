@@ -113,6 +113,12 @@ function stepStatus(e: { tool: string; result: unknown }): "ok" | "conflict" | "
   return "ok";
 }
 
+function batchElementIds(args: unknown) {
+  const ops = (args as { ops?: unknown } | null)?.ops;
+  if (!Array.isArray(ops)) return [];
+  return ops.map((op) => String((op as { elementId?: unknown } | null)?.elementId ?? "")).filter(Boolean);
+}
+
 function traceStep(e: AgentTraceEvent, i: number) {
   const elementId = e.tool === "edit_cell" || e.tool === "write_locked_cell" || e.tool === "write_locked_cell_result"
     ? (String((e.args as { elementId?: string }).elementId ?? "") || undefined)
@@ -120,7 +126,7 @@ function traceStep(e: AgentTraceEvent, i: number) {
   const affectedObjectIds = elementId
     ? [elementId]
     : e.tool === "write_locked_cells" || e.tool === "write_locked_cell_results"
-      ? ((e.args as { ops?: Array<{ elementId?: string }> }).ops ?? []).map((op) => String(op.elementId ?? "")).filter(Boolean)
+      ? batchElementIds(e.args)
       : undefined;
   const mutationReceiptId = typeof (e.result as { mutationReceiptId?: unknown } | null)?.mutationReceiptId === "string"
     ? (e.result as { mutationReceiptId: Id<"agentMutationReceipts"> }).mutationReceiptId

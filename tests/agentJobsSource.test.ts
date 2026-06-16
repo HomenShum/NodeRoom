@@ -98,6 +98,17 @@ describe("long-running agent job source invariants", () => {
     expect(artifacts).toContain("meta: a.meta");
   });
 
+  it("does not assume provider-produced batch tool args always carry an ops array", () => {
+    const agent = readFileSync("convex/agent.ts", "utf8");
+    const runner = readFileSync("convex/agentJobRunner.ts", "utf8");
+
+    for (const source of [agent, runner]) {
+      expect(source).toContain("const ops = (args as { ops?: unknown } | null)?.ops");
+      expect(source).toContain("if (!Array.isArray(ops)) return []");
+      expect(source).not.toContain(".ops ?? []).map");
+    }
+  });
+
   it("applies the server-side PlanPreview admission gate to public /ask before provider work", () => {
     const agent = readFileSync("convex/agent.ts", "utf8");
     const jobs = readFileSync("convex/agentJobs.ts", "utf8");
