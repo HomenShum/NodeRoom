@@ -534,6 +534,9 @@ export function Chat({ roomId, me, channel, variant, agentName, style, onOpenArt
   const [thinking, setThinking] = useState(false);
   const [slashOpen, setSlashOpen] = useState(false);
   const [slashIndex, setSlashIndex] = useState(0);
+  // @-mention typeahead (matches Cursor/Notion): type @ to attach a room artifact as a reference.
+  const [mention, setMention] = useState<{ q: string; start: number } | null>(null);
+  const [mentionIndex, setMentionIndex] = useState(0);
   const [uploadingFiles, setUploadingFiles] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [jobDetailsOpen, setJobDetailsOpen] = useState(false);
@@ -581,6 +584,26 @@ export function Chat({ roomId, me, channel, variant, agentName, style, onOpenArt
     .filter((group) => group.models.length > 0), []);
   const defaultSpecificModel = specificModelGroups[0]?.models[0] ?? "";
   const slashOptions = useMemo(() => SLASH_CMDS.filter((c) => store.mode === "memory" || c.label !== "/demo multi-agent"), [store.mode]);
+  type MentionItem =
+    | { kind: "agent"; key: string; label: string; hint: string }
+    | { kind: "artifact"; key: string; label: string; hint: string; ref: ArtifactRef };
+  const mentionMatches = useMemo<MentionItem[]>(() => {
+    if (!mention) return [];
+    const q = mention.q.toLowerCase();
+    const items: MentionItem[] = [];
+    // The room agent is addressable only as a LEADING "@nodeagent …" directive (parsePublicNodeAgentRequest),
+    // so surface it only when the @ opens the message — unifying it with the artifact picker on one @ menu.
+    if (!isPrivate && mention.start === 0 && "nodeagent".includes(q)) {
+      items.push({ kind: "agent", key: "__nodeagent__", label: "nodeagent", hint: "Ask the room agent" });
+    }
+    const already = new Set(refs.map((r) => r.id));
+    for (const a of store.listArtifacts(roomId)) {
+      if (already.has(a.id) || (q !== "" && !a.title.toLowerCase().includes(q))) continue;
+      items.push({ kind: "artifact", key: a.id, label: a.title, hint: a.kind, ref: { id: a.id, title: a.title, kind: a.kind } });
+      if (items.length >= 7) break;
+    }
+    return items;
+  }, [mention, refs, roomId, store, isPrivate]);
   const latestAttempt = longJobAttempts.at(-1);
   const canCancelLongJob = !!longJob && !["completed", "failed", "cancelled"].includes(longJob.status);
   const canRetryLongJob = !!longJob && ["failed", "blocked", "cancelled", "paused", "retrying"].includes(longJob.status);
@@ -619,7 +642,7 @@ export function Chat({ roomId, me, channel, variant, agentName, style, onOpenArt
     const cid = crypto.randomUUID();
     void store.postMessage({ roomId, channel, author: me, text: messageText, clientMsgId: cid, kind: "chat" })
       .then((fb) => { if (fb && !fb.ok) setFailedSends((f) => { if (f.some((x) => x.cid === cid)) return f; const next = [...f, { cid, text: messageText }]; return next.length > MAX_FAILED_SENDS ? next.slice(-MAX_FAILED_SENDS) : next; }); });
-    setText(""); setRefs([]); setSlashOpen(false); setSlashIndex(0);
+    setText(""); setRefs([]); setSlashOpen(false); setSlashIndex(0); setMention(null); setMentionIndex(0);
     requestAnimationFrame(grow);
 
     if (!isPrivate && store.mode === "memory" && /^\/demo\s+multi-agent\b/i.test(t)) {
@@ -695,6 +718,15 @@ export function Chat({ roomId, me, channel, variant, agentName, style, onOpenArt
   };
 
   const applySlash = (insert: string) => { setText(insert); setSlashOpen(false); setSlashIndex(0); requestAnimationFrame(() => { grow(); taRef.current?.focus(); }); };
+  const applyMention = (item: MentionItem) => {
+    if (!mention) return;
+    const head = (v: string) => v.slice(0, mention.start);
+    const tail = (v: string) => v.slice(mention.start + 1 + mention.q.length);
+    if (item.kind === "agent") setText((v) => `${head(v)}@nodeagent ${tail(v)}`);
+    else { setText((v) => head(v) + tail(v)); addRef(item.ref); }
+    setMention(null); setMentionIndex(0);
+    requestAnimationFrame(() => { grow(); taRef.current?.focus(); });
+  };
   const addRef = (ref: ArtifactRef) => {
     const art = store.listArtifacts(roomId).find((a) => a.id === ref.id);
     if (!art) return;
@@ -785,6 +817,11 @@ export function Chat({ roomId, me, channel, variant, agentName, style, onOpenArt
     const open = !isPrivate && v.trimStart() === "/" && slashOptions.length > 0;
     setSlashOpen(open);
     if (open) setSlashIndex(0);
+    // @-mention: an @ at the caret (start or after whitespace) opens the artifact picker.
+    const caret = e.target.selectionStart ?? v.length;
+    const m = open ? null : /(?:^|\s)@(\S*)$/.exec(v.slice(0, caret));
+    if (m) { setMention({ q: m[1], start: caret - m[1].length - 1 }); setMentionIndex(0); }
+    else setMention(null);
   };
   const onPaste = (e: ClipboardEvent<HTMLTextAreaElement>) => {
     const files = e.clipboardData.files;
@@ -793,6 +830,12 @@ export function Chat({ roomId, me, channel, variant, agentName, style, onOpenArt
     void uploadFiles(files);
   };
   const onKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
+    if (mention && mentionMatches.length > 0) {
+      if (e.key === "ArrowDown") { e.preventDefault(); setMentionIndex((i) => (i + 1) % mentionMatches.length); return; }
+      if (e.key === "ArrowUp") { e.preventDefault(); setMentionIndex((i) => (i - 1 + mentionMatches.length) % mentionMatches.length); return; }
+      if (e.key === "Tab" || (e.key === "Enter" && !e.shiftKey)) { e.preventDefault(); applyMention(mentionMatches[mentionIndex] ?? mentionMatches[0]); return; }
+      if (e.key === "Escape") { e.preventDefault(); setMention(null); return; }
+    }
     if (slashOpen && slashOptions.length > 0) {
       if (e.key === "ArrowDown") {
         e.preventDefault();
@@ -976,6 +1019,15 @@ export function Chat({ roomId, me, channel, variant, agentName, style, onOpenArt
             {slashOptions.map((c, i) => (
               <button key={c.label} className="r-slash-item" role="option" aria-selected={i === slashIndex} onMouseEnter={() => setSlashIndex(i)} onMouseDown={(e) => { e.preventDefault(); applySlash(c.insert); }}>
                 <span className="cmd">{c.label}</span><span className="hint">{c.hint}</span>
+              </button>
+            ))}
+          </div>
+        )}
+        {mention && mentionMatches.length > 0 && (
+          <div className="r-slash" role="listbox" aria-label="Mention" data-testid="mention-menu">
+            {mentionMatches.map((item, i) => (
+              <button key={item.key} className="r-slash-item" role="option" aria-selected={i === mentionIndex} data-testid={item.kind === "agent" ? "mention-agent" : "mention-item"} onMouseEnter={() => setMentionIndex(i)} onMouseDown={(e) => { e.preventDefault(); applyMention(item); }}>
+                <span className="cmd">@{item.label}</span><span className="hint">{item.hint}</span>
               </button>
             ))}
           </div>
