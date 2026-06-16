@@ -478,9 +478,12 @@ export async function enqueueArtifactSnapshotForOkf(ctx: MutationCtx, args: {
     frontmatter: {
       type: artifact.kind === "sheet" ? "Spreadsheet" : artifact.kind === "note" ? "Report" : "Workflow",
       title: artifact.title,
+      // Agent-managed metadata (deriveArtifactMeta / set_artifact_meta) feeds the embedding via the
+      // concept frontmatter: summary -> description, content tags merged ahead of the structural ones.
+      description: (artifact.meta as { summary?: string } | undefined)?.summary,
       timestamp: new Date(artifact.updatedAt).toISOString(),
       visibility,
-      tags: [artifact.kind, "convex", "artifact"],
+      tags: [...(((artifact.meta as { tags?: string[] } | undefined)?.tags) ?? []), artifact.kind, "convex", "artifact"],
       noderoom: {
         roomId: String(args.roomId),
         artifactId: String(args.artifactId),

@@ -550,7 +550,11 @@ export const setArtifactMeta = mutation({
         ...(a.tags !== undefined ? { tags: a.tags.slice(0, 12) } : {}),
       };
     }
-    if (Object.keys(patch).length) await ctx.db.patch(a.artifactId, patch);
+    if (Object.keys(patch).length) {
+      await ctx.db.patch(a.artifactId, patch);
+      // Re-index so the new title/summary/tags reach the OKF/RAG embedding (concept frontmatter).
+      await enqueueArtifactSnapshotForOkf(ctx, { roomId: a.roomId, artifactId: a.artifactId });
+    }
     return { ok: true as const };
   },
 });
