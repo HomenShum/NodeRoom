@@ -60,6 +60,7 @@ Agent writes land as evidence-bearing cells or host-review proposals. The host a
 ## Current Capture Inputs
 
 - `docs/walkthroughs/startup-diligence-live-join.mp4` and `docs/walkthroughs/startup-diligence-war-room.mp4` are the flagship media assets for this story.
+- `docs/demo/STARTUP_DILIGENCE_LATEST_REVIEW.md` is the current safe-claims boundary for narration, README copy, and interview notes after OKF production hardening.
 - `docs/walkthroughs/startup-diligence-live-join.mp4` and `.gif` now show the live room create/code/join path with Maya, Priya, and Alex.
 - `docs/eval/MEDIA_JUDGE.md` is the latest stable media judge report; run `20260614T233419Z` rates both startup MP4s publishable (`10.9/16` live join, `11.7/16` war room), with three P2 presentation-polish notes: rapid user-perspective transition, dense trace text, and a subtle Public-to-Private switch.
 - `scripts/walkthroughs/specs.ts` has two startup clips: `startup-diligence-live-join` for live join, and `startup-diligence-war-room` for the broader scripted synthesis story.

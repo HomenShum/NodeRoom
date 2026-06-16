@@ -35,6 +35,8 @@ Design-intent names now live in `src/nodeagent/**`. Convex remains the durable b
 - Private streaming agent: private replies stream to the requester's lane and persist. Do not claim generalized public token streaming.
 - Multi-agent workbench: visible memory-mode demo and judged media exist. Startup diligence now has a two-clip evidence path: live create/join plus scripted synthesis/private/downstream.
 - Fresh startup room: live mode now starts a new "Startup Banking Diligence War Room" by default. The `startup-diligence-live-join` walkthrough proves teammate join-by-code; `startup-diligence-war-room` proves the broader diligence workflow.
+- OKF production path: the public Room NodeAgent has a Convex-backed OKF retrieval port, actor-aware public/private partitioning, literal source opening, retrieval telemetry, and an evidence write gate that can downgrade weak source-backed writes to `needs_review`.
+- Trace Lens and Banker Coach: review surfaces expose proof, trace, OKF telemetry, and gated builder context. Do not claim a full graph explorer or durable banker workflow object lifecycle yet.
 
 ## Authority Docs
 
@@ -44,9 +46,10 @@ Design-intent names now live in `src/nodeagent/**`. Convex remains the durable b
 4. [AGENT_EVAL.md](AGENT_EVAL.md) - agent evaluation method.
 5. [demo/STARTUP_DILIGENCE_DEMO_PLAN.md](demo/STARTUP_DILIGENCE_DEMO_PLAN.md) - the next public demo script.
 6. [demo/STARTUP_DILIGENCE_PROOF_LEDGER.md](demo/STARTUP_DILIGENCE_PROOF_LEDGER.md) - claim-by-claim proof ledger.
-7. [demo/NEXT_PRODUCT_DEMO_PUSH_REVIEW.md](demo/NEXT_PRODUCT_DEMO_PUSH_REVIEW.md) - latest repo/browser review for the next push.
-8. [PRODUCTION_READINESS.md](PRODUCTION_READINESS.md), [GAPS_NOT_DONE.md](GAPS_NOT_DONE.md), and [WEDGE.md](WEDGE.md) - readiness, gaps, and the frozen wedge.
-9. [showcase/noderoom-diligence-deck.html](showcase/noderoom-diligence-deck.html) - lightweight deck scaffold.
+7. [demo/STARTUP_DILIGENCE_LATEST_REVIEW.md](demo/STARTUP_DILIGENCE_LATEST_REVIEW.md) - current safe demo/interview claim boundary after OKF production hardening.
+8. [demo/NEXT_PRODUCT_DEMO_PUSH_REVIEW.md](demo/NEXT_PRODUCT_DEMO_PUSH_REVIEW.md) - repo/browser review for the next push.
+9. [PRODUCTION_READINESS.md](PRODUCTION_READINESS.md), [GAPS_NOT_DONE.md](GAPS_NOT_DONE.md), and [WEDGE.md](WEDGE.md) - readiness, gaps, and the frozen wedge.
+10. [showcase/noderoom-diligence-deck.html](showcase/noderoom-diligence-deck.html) - lightweight deck scaffold.
 
 ## Do Not
 
@@ -56,16 +59,25 @@ Design-intent names now live in `src/nodeagent/**`. Convex remains the durable b
 - Do not claim live OAuth connectors until user-authorized adapters exist and pass live tests.
 - Do not claim official SpreadsheetBench or BankerToolBench scores until official fixtures, adapters, runs, and scorer outputs are recorded.
 - Do not claim full production LiteParse/OCR worker coverage beyond the installed adapter/smoke lane.
+- Do not claim private consults use the full OKF tool graph by default; default private consults are read-only streamed replies unless promoted into room action.
+- Do not claim Trace Lens is a full OKF graph explorer or full code-provenance system.
+- Do not claim every Banker Coach cue/review round is automatically persisted as a first-class workflow object.
 
 ## Current Verification Snapshot
 
-2026-06-14, local repo:
+2026-06-16, `main` / `origin/main` at `2e2bfbf`:
 
 - `npm run typecheck -- --pretty false`: pass.
 - `npx tsc --noEmit --project convex\tsconfig.json --pretty false`: pass.
 - `npm run build`: pass.
-- `npm test -- --run`: 88 files, 500 tests pass.
-- `npm run content:fluency:check`: pass.
+- `npm test -- --run`: 111 files, 579 tests pass.
+- Focused OKF/provider/evidence gate: 4 files, 18 tests pass.
+- `npm run qa:matrix:check`, `npm run security:gate`, `npm run slo:gate`, and `npm run content:fluency:check`: pass.
+- `npm run test:product:live`: 17 Playwright/backend specs pass against the deployed backend.
+- Convex production deployment: `aromatic-bass-102`, schema validation complete.
+- Vercel production deployment: `noderoom.live` / `nodeagent.live` ready.
+- Production OKF privacy smoke: owner-private concept/event visible to owner, hidden from peer search and Trace Lens.
+- Live browser smoke: `https://noderoom.live` returns 200, renders expected app shell/title, and reports no console errors.
 
 Browser/media evidence:
 

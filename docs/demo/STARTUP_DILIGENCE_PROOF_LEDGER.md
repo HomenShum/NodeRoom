@@ -15,6 +15,10 @@ Status: source-of-truth ledger for the public startup-diligence demo.
 | LiteParse/local parser fallback | Dependency and smoke lane present | `package.json`, `src/app/liteparseAdapter.ts`, `scripts/liteparse-smoke.ts`, `tests/documentParserPlan.test.ts` | "Provider-first parsing with local LiteParse fallback under Node." |
 | Dedicated startup diligence walkthrough | Recaptured/rendered/media-judged | `startup-diligence-live-join` scripts a three-user CardioNova/runway join flow; `startup-diligence-war-room` scripts CardioNova intake, five-company batch diligence, runway/milestone work, no-clobber proof, private banker lane, and draft-only downstream handoff; Gemini judge run `20260614T233419Z` rated both MP4s `publish` (`10.9/16` live join, `11.7/16` war room) | "Startup diligence walkthrough is aligned to the latest product target, with live shell proof plus deterministic agent-package proof." |
 | Startup live-eval proof manifest | Contract eval and provider-produced eval green; N=5/p95 pending | `npm run eval:startup-diligence:live`, `npm run eval:startup-diligence:provider`, `scripts/startup-diligence-live-eval.ts`, `scripts/startup-diligence-provider-eval.ts`, `tests/startupDiligenceLiveEval.test.ts`, `docs/eval/startup-diligence-war-room-live.json`, `docs/eval/startup-diligence-war-room-live-results.json`, `docs/eval/startup-diligence-provider-results.json`, `docs/eval/startup-diligence-war-room-live.md` | "The repo distinguishes live shell proof, deterministic UI proof, Convex contract proof, provider-produced proof, and the remaining N=5/p95 promotion gate." |
+| OKF-backed room agent retrieval | Built, privacy-hardened, deployed | `convex/convexRoomTools.ts`, `convex/okf.ts`, `src/nodeagent/retrieval/tools/okfTools.ts`, `tests/convexOkfRuntime.test.ts`, `tests/okfRetrieval.test.ts` | "The room agent can search shared OKF evidence through the live Convex RoomTools port." |
+| OKF privacy partitioning | Built, tested, live-smoked | `convex/okf.ts`, `tests/convexOkfRuntime.test.ts`, production smoke on 2026-06-16 proved owner-private concept/event visibility did not leak to a peer | "OKF retrieval is partitioned by room, visibility, and owner." |
+| Evidence write gate | Built and tested | `src/nodeagent/skills/spreadsheet/cellMutator.ts`, `tests/okfEvidenceWriteGate.test.ts` | "Weak or unsupported source-backed claims become needs-review, not complete." |
+| Trace Lens review surface | Built and browser-smoked | `src/ui/traceLens/TraceLensPanel.tsx`, `src/ui/traceLens/useTraceLens.tsx`, `src/ui/artifacts/CoachCards.tsx`, `api.okf.traceLens`, `docs/demo/STARTUP_DILIGENCE_LATEST_REVIEW.md` | "Reviewers can inspect proof, trace, OKF context, and gated builder context from the surface." |
 | Runway/milestone package | Helper and room artifact proven by contract eval | `src/nodeagent/skills/finance/runwayForecaster.ts`, `src/nodeagent/components/RunwayChart.tsx`, `tests/nodeagentAlignment.test.ts`, `scripts/startup-diligence-live-eval.ts`, `docs/eval/startup-diligence-war-room-live-results.json` | "Runway math and chart artifact generation are proven in the contract eval; provider-produced assumptions still gate production proof." |
 | Live OAuth connector publishing | Roadmap | No user OAuth adapters wired or live-tested | Do not claim. |
 | ClickHouse feedback analytics | Roadmap | No ClickHouse dependency or service | Do not claim. |
@@ -23,10 +27,17 @@ Status: source-of-truth ledger for the public startup-diligence demo.
 
 ## Latest Local Verification
 
-- `npm run typecheck -- --pretty false`: pass on 2026-06-14.
-- `npx tsc --noEmit --project convex\tsconfig.json --pretty false`: pass on 2026-06-14.
-- `npm run build`: pass on 2026-06-14; Vite reports only existing chunk-size warnings.
-- `npm test -- --run`: 89 files, 501 tests pass on 2026-06-14.
+- `npm run typecheck -- --pretty false`: pass on 2026-06-16.
+- `npx tsc --noEmit --project convex\tsconfig.json --pretty false`: pass on 2026-06-16.
+- `npm run build`: pass on 2026-06-16; Vite reports only existing chunk-size warnings.
+- `npm test -- --run`: 111 files, 579 tests pass on 2026-06-16.
+- `npx vitest run tests/convexOkfRuntime.test.ts tests/okfEmbeddingProvider.test.ts tests/providerEgressPolicy.test.ts tests/okfEvidenceWriteGate.test.ts --reporter=dot`: 4 files, 18 tests pass on 2026-06-16.
+- `npm run qa:matrix:check`, `npm run security:gate`, `npm run slo:gate`, and `npm run content:fluency:check`: pass on 2026-06-16.
+- `npm run test:product:live`: 17 Playwright/backend specs pass against the deployed backend on 2026-06-16.
+- Convex production deploy to `aromatic-bass-102`: pass on 2026-06-16.
+- Vercel production deployment for `noderoom.live` / `nodeagent.live`: ready on 2026-06-16.
+- Production OKF privacy smoke: pass on 2026-06-16; owner-private concept and retrieval event were visible to the owner, hidden from peer search and Trace Lens.
+- Live browser smoke: `https://noderoom.live` returned 200, rendered the expected app shell/title, and reported no console errors on 2026-06-16.
 - `npx convex dev --once`: synced Convex functions on 2026-06-14 after `FunctionPathNotFound` blocked live create.
 - `npm run walkthroughs -- startup-diligence-war-room` and `npm run walkthroughs -- startup-diligence-live-join`: pass, 19 war-room segments and 13 live-join segments captured on 2026-06-14 against `http://127.0.0.1:5178`.
 - `npm run walkthroughs:render -- startup-diligence-live-join` and `npm run walkthroughs:render -- startup-diligence-war-room`: pass, wrote MP4 and GIF for both startup clips on 2026-06-14; Remotion emitted a nonfatal zod version warning.
