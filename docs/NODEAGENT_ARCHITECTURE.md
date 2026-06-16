@@ -447,6 +447,34 @@ agentOperationEvents
   startedAt
   completedAt
 
+agentReasoningFrames
+  roomId
+  artifactId
+  jobId
+  framePlanId
+  frameId
+  parentFrameId?
+  sequence
+  frameKind: phase | child
+  phase: intake | plan | execute | verify | synthesize
+  status: pending | running | completed | blocked | skipped
+  goal
+  contextPack
+  toolAllowlist
+  stateDelta?
+  evidenceState?
+  cacheKey?
+  entityType?
+  entityKey?
+  facet?
+  cachePolicy?
+  expectedOutputSchema?
+  resultRef?
+  error?
+  createdAt
+  updatedAt
+  completedAt?
+
 agentMutationReceipts
   jobId
   runId?
@@ -498,6 +526,13 @@ slice events for create/start, scheduler, leases, checkpoints, and aggregate
 action/model/tool counts. Per-query and per-mutation operation rows remain the
 target contract so the system can answer "how many action/query/mutation pings
 did this job use?" without parsing prose logs.
+
+`agentReasoningFrames` is the durable frame ledger for room-work and future
+recursive harness flows. A job may still keep the compact reasoning plan in
+`request.roomWork.reasoning` for fast reads, but the frame rows are the queryable
+source for lineage, child-frame status, cache/evidence state, and Trace Lens.
+This keeps the "Fable-like" behavior explicit in infrastructure instead of
+depending on model session memory.
 
 ### Operation Ledger Bounds
 

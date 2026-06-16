@@ -150,6 +150,10 @@ describe("room-work entity/facet cache", () => {
     expect(workItems[0]).toMatchObject({ entityKey: "cardionova", facet: "company_profile", status: "cached", cachePolicy: "fresh_use_cache" });
     expect(workItems[0].plan?.reasoningFrameId).toContain("execute");
     expect(detail?.operations.map((event) => event.name)).toContain("reasoningFrames.plan");
+    expect(detail?.reasoningFrames).toHaveLength(5);
+    expect(detail?.reasoningFrames.map((frame) => frame.phase)).toEqual(["intake", "plan", "execute", "verify", "synthesize"]);
+    expect(detail?.reasoningFrames.every((frame) => frame.frameKind === "phase")).toBe(true);
+    expect(detail?.reasoningFrames.find((frame) => frame.phase === "execute")?.status).toBe("completed");
   });
 
   it("creates a blocked durable room-work record for stale or missing facets without starting a workflow", async () => {
@@ -187,6 +191,10 @@ describe("room-work entity/facet cache", () => {
     expect(workItems).toHaveLength(2);
     expect(workItems.map((item) => item.cachePolicy)).toEqual(["missing_research_now", "missing_research_now"]);
     expect(workItems.map((item) => item.plan?.reasoningFrameId).every((id) => typeof id === "string" && id.includes("execute"))).toBe(true);
+    expect(detail?.reasoningFrames).toHaveLength(7);
+    expect(detail?.reasoningFrames.filter((frame) => frame.frameKind === "child")).toHaveLength(2);
+    expect(detail?.reasoningFrames.filter((frame) => frame.frameKind === "child").map((frame) => frame.facet).sort()).toEqual(["company_profile", "funding"]);
+    expect(detail?.reasoningFrames.find((frame) => frame.phase === "plan")?.status).toBe("blocked");
   });
 
   it("reuses an existing live room-work job for the same entity/facet signature", async () => {

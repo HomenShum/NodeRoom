@@ -13,6 +13,7 @@ export * from "./core/journal";
 export * from "./core/idempotency";
 export * from "./core/intakePreflight";
 export * from "./core/plans";
+export * from "./core/reasoningFrames";
 export * from "./okf";
 export * from "./retrieval";
 export * from "./retrieval/tools";

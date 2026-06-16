@@ -5,7 +5,7 @@ import { components, internal } from "./_generated/api";
 import type { Id } from "./_generated/dataModel";
 import { actorProofV, requireActorProof, requireArtifactInRoom, type ActorValue } from "./lib";
 import { classifyIntakeMessage, buildPlanPreview } from "../src/nodeagent/core/intakePreflight";
-import { buildRoomWorkReasoningPlan, roomWorkFacetFrameId, roomWorkPhaseFrameId } from "../src/nodeagent/core/reasoningFrames";
+import { buildRoomWorkReasoningPlan, roomWorkFacetFrameId, roomWorkPhaseFrameId, type ReasoningFramePlan } from "../src/nodeagent/core/reasoningFrames";
 import { parseBulkCompanyIngest } from "../src/nodeagent/skills/finance/bulkIngest";
 
 // BOUND: cap a single bulk-diligence fan-out so one command can't enqueue unbounded jobs.
@@ -386,6 +386,86 @@ async function insertEntityWorkItems(ctx: any, args: {
   return out;
 }
 
+async function materializeReasoningFrames(ctx: any, args: {
+  roomId: unknown;
+  artifactId: unknown;
+  jobId: unknown;
+  plan: ReasoningFramePlan;
+  now: number;
+}) {
+  const rows: Array<{ _id: unknown; frameId: string; frameKind: "phase" | "child"; sequence: number }> = [];
+  let sequence = 1;
+  for (const frame of args.plan.frames) {
+    const frameRowId = await ctx.db.insert("agentReasoningFrames", clean({
+      roomId: args.roomId,
+      artifactId: args.artifactId,
+      jobId: args.jobId,
+      framePlanId: args.plan.framePlanId,
+      frameId: frame.frameId,
+      parentFrameId: frame.parentFrameId,
+      sequence,
+      frameKind: "phase",
+      phase: frame.phase,
+      status: frame.status,
+      goal: frame.goal,
+      contextPack: frame.contextPack,
+      toolAllowlist: frame.toolAllowlist,
+      stateDelta: frame.stateDelta,
+      evidenceState: frame.evidenceState,
+      createdAt: args.now,
+      updatedAt: args.now,
+      completedAt: frame.status === "completed" || frame.status === "blocked" || frame.status === "skipped" ? args.now : undefined,
+    }));
+    rows.push({ _id: frameRowId, frameId: frame.frameId, frameKind: "phase", sequence });
+    sequence += 1;
+  }
+  for (const child of args.plan.childFrames) {
+    const contextPack = {
+      globalGoal: args.plan.globalGoal,
+      parentSummary: `Child frame of ${child.parentFrameId}`,
+      currentArtifactDigest: `artifact:${String(args.artifactId)}; entity:${child.entityType}:${child.entityKey}; facet:${child.facet}`,
+      relevantOkfConceptIds: [],
+      relevantCacheKeys: [child.cacheKey],
+      openQuestions: child.status === "completed" ? [] : [`Resolve ${child.facet} for ${child.displayName}`],
+      constraints: [
+        "Child frames inherit only compact parent context, never the full transcript.",
+        "Use the cache key before provider calls.",
+        "Return evidence-bearing results that match the expected schema.",
+        "Do not write outside the granted entity/facet target.",
+      ],
+      expectedOutputSchema: child.expectedOutputSchema,
+    };
+    const frameRowId = await ctx.db.insert("agentReasoningFrames", clean({
+      roomId: args.roomId,
+      artifactId: args.artifactId,
+      jobId: args.jobId,
+      framePlanId: args.plan.framePlanId,
+      frameId: child.frameId,
+      parentFrameId: child.parentFrameId,
+      sequence,
+      frameKind: "child",
+      phase: "execute",
+      status: child.status,
+      goal: child.goal,
+      contextPack,
+      toolAllowlist: child.toolAllowlist,
+      cacheKey: child.cacheKey,
+      entityType: child.entityType,
+      entityKey: child.entityKey,
+      displayName: child.displayName,
+      facet: child.facet,
+      cachePolicy: child.cachePolicy,
+      expectedOutputSchema: child.expectedOutputSchema,
+      createdAt: args.now,
+      updatedAt: args.now,
+      completedAt: child.status === "completed" || child.status === "blocked" || child.status === "skipped" ? args.now : undefined,
+    }));
+    rows.push({ _id: frameRowId, frameId: child.frameId, frameKind: "child", sequence });
+    sequence += 1;
+  }
+  return rows;
+}
+
 function summarizeEntityWorkPlans(plans: Array<{ cachePolicy: string; status: string }>) {
   const out = { fresh: 0, stale: 0, missing: 0, manual: 0, queued: 0, cached: 0, refreshing: 0, completed: 0 };
   for (const plan of plans) {
@@ -433,7 +513,7 @@ async function recordOperationEvent(ctx: any, args: {
   sequence: number;
   kind: "action" | "query" | "mutation" | "model_call" | "tool_call" | "scheduler" | "lease" | "checkpoint";
   name: string;
-  targetKind?: "notebook" | "node" | "relation" | "artifact" | "element" | "range" | "wiki_page" | "wiki_block";
+  targetKind?: "notebook" | "node" | "relation" | "artifact" | "element" | "range" | "wiki_page" | "wiki_block" | "reasoning_frame";
   targetId?: string;
   status?: "started" | "completed" | "failed" | "skipped";
   countDelta?: number;
@@ -970,6 +1050,7 @@ export const startOrReuseRoomWork = mutation({
         completedAt: now,
       }));
       const workItems = await insertEntityWorkItems(ctx, { roomId: a.roomId, artifactId: a.artifactId, jobId, actor, mode, idempotencyKey, plans: facetPlans, now });
+      const reasoningFrames = await materializeReasoningFrames(ctx, { roomId: a.roomId, artifactId: a.artifactId, jobId, plan: reasoning, now });
       await recordOperationEvent(ctx, {
         jobId,
         sequence: 1,
@@ -999,8 +1080,9 @@ export const startOrReuseRoomWork = mutation({
         sequence: 3,
         kind: "checkpoint",
         name: "reasoningFrames.plan",
-        countDelta: reasoning.frames.length,
-        affectedIds: reasoning.frames.map((frame) => frame.frameId),
+        targetKind: "reasoning_frame",
+        countDelta: reasoningFrames.length,
+        affectedIds: reasoningFrames.map((frame) => frame.frameId),
         startedAt: now,
         completedAt: now,
       });
@@ -1068,6 +1150,7 @@ export const startOrReuseRoomWork = mutation({
       completedAt: planBlocked ? now : undefined,
     }));
     const workItems = await insertEntityWorkItems(ctx, { roomId: a.roomId, artifactId: a.artifactId, jobId, actor, mode, idempotencyKey, plans: facetPlans, now });
+    const reasoningFrames = await materializeReasoningFrames(ctx, { roomId: a.roomId, artifactId: a.artifactId, jobId, plan: reasoning, now });
     await recordOperationEvent(ctx, {
       jobId,
       sequence: 1,
@@ -1097,8 +1180,9 @@ export const startOrReuseRoomWork = mutation({
       sequence: 3,
       kind: "checkpoint",
       name: "reasoningFrames.plan",
-      countDelta: reasoning.frames.length,
-      affectedIds: reasoning.frames.map((frame) => frame.frameId),
+      targetKind: "reasoning_frame",
+      countDelta: reasoningFrames.length,
+      affectedIds: reasoningFrames.map((frame) => frame.frameId),
       startedAt: now,
       completedAt: now,
     });
@@ -1379,6 +1463,7 @@ export const detail = query({
     if (!canReadJob(job, actor)) return null;
     const attempts = await ctx.db.query("agentJobAttempts").withIndex("by_job", (q) => q.eq("jobId", jobId)).collect();
     const operations = await ctx.db.query("agentOperationEvents").withIndex("by_job_sequence", (q) => q.eq("jobId", jobId)).take(100);
+    const reasoningFrames = await ctx.db.query("agentReasoningFrames").withIndex("by_job_sequence", (q) => q.eq("jobId", jobId)).take(200);
     const receipts = await ctx.db.query("agentMutationReceipts").withIndex("by_job", (q) => q.eq("jobId", jobId)).order("desc").take(50);
     const modelJournal = await ctx.db.query("agentModelStepJournal").withIndex("by_job", (q) => q.eq("jobId", jobId)).order("desc").take(50);
     const leases = (await Promise.all((["active", "released", "expired", "stolen"] as const).map((status) =>
@@ -1391,7 +1476,7 @@ export const detail = query({
     const latestSteps = job.latestRunId
       ? await ctx.db.query("agentSteps").withIndex("by_run", (q) => q.eq("runId", job.latestRunId!)).take(80)
       : [];
-    return { job, attempts, operations, receipts, modelJournal, leases, draftOperations, latestRun, latestSteps };
+    return { job, attempts, operations, reasoningFrames, receipts, modelJournal, leases, draftOperations, latestRun, latestSteps };
   },
 });
 

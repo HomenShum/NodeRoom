@@ -58,9 +58,12 @@ const graphObjectKindV = v.union(
   v.literal("range"),
   v.literal("wiki_page"),
   v.literal("wiki_block"),
+  v.literal("reasoning_frame"),
 );
 const visibilityV = v.union(v.literal("private"), v.literal("room"), v.literal("public"));
 const okfVisibilityV = v.union(v.literal("public"), v.literal("private"), v.literal("redacted"));
+const reasoningFramePhaseV = v.union(v.literal("intake"), v.literal("plan"), v.literal("execute"), v.literal("verify"), v.literal("synthesize"));
+const reasoningFrameStatusV = v.union(v.literal("pending"), v.literal("running"), v.literal("completed"), v.literal("blocked"), v.literal("skipped"));
 const entityTypeV = v.union(
   v.literal("company"),
   v.literal("person"),
@@ -399,6 +402,43 @@ export default defineSchema({
   })
     .index("by_job_sequence", ["jobId", "sequence"])
     .index("by_run", ["runId", "sequence"]),
+
+  /** Durable reasoning-frame rows for harness-native recursive reasoning.
+   * The model is not trusted to "remember everything"; frames are explicit,
+   * queryable units with compact context packs, parent links, evidence state,
+   * and child-work metadata for Trace Lens and future workflow execution. */
+  agentReasoningFrames: defineTable({
+    roomId: v.id("rooms"),
+    artifactId: v.id("artifacts"),
+    jobId: v.id("agentJobs"),
+    framePlanId: v.string(),
+    frameId: v.string(),
+    parentFrameId: v.optional(v.string()),
+    sequence: v.number(),
+    frameKind: v.union(v.literal("phase"), v.literal("child")),
+    phase: reasoningFramePhaseV,
+    status: reasoningFrameStatusV,
+    goal: v.string(),
+    contextPack: v.any(),
+    toolAllowlist: v.array(v.string()),
+    stateDelta: v.optional(v.any()),
+    evidenceState: v.optional(v.any()),
+    cacheKey: v.optional(v.string()),
+    entityType: v.optional(entityTypeV),
+    entityKey: v.optional(v.string()),
+    displayName: v.optional(v.string()),
+    facet: v.optional(v.string()),
+    cachePolicy: v.optional(v.string()),
+    expectedOutputSchema: v.optional(v.string()),
+    resultRef: v.optional(v.any()),
+    error: v.optional(v.string()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+    completedAt: v.optional(v.number()),
+  })
+    .index("by_job_sequence", ["jobId", "sequence"])
+    .index("by_job_frame", ["jobId", "frameId"])
+    .index("by_room_status", ["roomId", "status", "updatedAt"]),
 
   /** Per entity/facet work items under an agentJobs parent. This is the durable child-work shape for
    * one harnessed Room Agent plus selective subwork, not a permanent-agent-per-company design. */
