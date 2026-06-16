@@ -167,6 +167,17 @@ export class RoomEngine {
     this.emit();
     return art;
   }
+  /** Owner-gated visibility toggle (private <-> room). Mirrors convex/artifacts.setArtifactVisibility. */
+  setArtifactVisibility(args: { roomId: string; artifactId: string; visibility: "private" | "room"; by: Actor }): { ok: boolean; error?: string } {
+    const art = this.artifacts.get(args.artifactId);
+    if (!art || art.roomId !== args.roomId) return { ok: false, error: "not_found" };
+    const owns = !!art.createdBy && (art.createdBy.id === args.by.id || art.createdBy.ownerId === args.by.id);
+    if (!owns || art.visibility === "public") return { ok: false, error: "forbidden" };
+    art.visibility = args.visibility;
+    art.updatedAt = this.now();
+    this.emit();
+    return { ok: true };
+  }
   getArtifact(id: string) { return this.artifacts.get(id); }
   listArtifacts(roomId: string): Artifact[] { return [...this.artifacts.values()].filter((a) => a.roomId === roomId); }
 

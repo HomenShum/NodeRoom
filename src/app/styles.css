@@ -129,6 +129,9 @@ input { font-family: inherit; }
 .r-tag.public { background: var(--bg-secondary); color: var(--text-muted); }
 .r-tag.private { background: var(--accent-tint); color: var(--accent-ink); }
 .r-tag.agent { background: rgba(124,135,148,.16); color: var(--text-secondary); }
+.r-tag-toggle { border: 1px solid transparent; cursor: pointer; transition: border-color var(--motion-fast), background var(--motion-fast); }
+.r-tag-toggle:hover { border-color: var(--accent-border); }
+.r-tag-toggle.public:hover { color: var(--text-secondary); }
 
 /* shell-level Signal Tape + Status Strip */
 .r-shell-bottom { flex: none; display: grid; grid-template-columns: minmax(0, 1fr); gap: 0; padding: 0 10px 10px; }

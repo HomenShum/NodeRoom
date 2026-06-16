@@ -505,6 +505,27 @@ export const applyCellEdit = mutation({
   handler: async (ctx, a) => applyCellEditCore(ctx, { ...a, actor: await requireActorProof(ctx, a.roomId, a.proof) }),
 });
 
+/** Owner-gated visibility toggle: share your OWN sheet to the room, or pull it back to private.
+ * Two-way (private <-> room) per product decision; only the artifact's owner may change it, and the
+ * legacy "public" tier is not reachable from here. Uniform error (no enumeration oracle). */
+export const setArtifactVisibility = mutation({
+  args: {
+    roomId: v.id("rooms"),
+    artifactId: v.id("artifacts"),
+    visibility: v.union(v.literal("private"), v.literal("room")),
+    requester: actorProofV,
+  },
+  handler: async (ctx, a) => {
+    const actor = await requireActorProof(ctx, a.roomId, a.requester);
+    const art = await requireArtifactInRoom(ctx, a.roomId, a.artifactId);
+    if (!actorOwnsArtifact(art, actor) || (art.visibility ?? "room") === "public") {
+      throw new Error("artifact_visibility_forbidden");
+    }
+    await ctx.db.patch(a.artifactId, { visibility: a.visibility });
+    return { ok: true as const };
+  },
+});
+
 /** Agent tool path — callable only from Convex actions through `internal`. */
 /** List the room's artifacts (id/title/kind) — the multi-artifact tool layer's cross-file reach.
  *  internalQuery: called server-side by ConvexRoomTools inside an already-authorized agent action. */

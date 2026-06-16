@@ -126,6 +126,15 @@ function ArtifactSurface({ roomId, me, artId, onArt, collab, style, surfaceKey =
   const pick = (t: TabId) => { const a = artFor(t); if (a) { onArt(a.id); setTab(t); } };
   const openArtifact = (a: Art) => { onArt(a.id); setTab(tabForArt(a.id)); };
   const visibility = selected?.visibility ?? "room";
+  // Two-way owner-gated visibility: you can share YOUR sheet to the room or pull it back to private.
+  const ownsSelected = !!selected?.createdBy && ((selected.createdBy as Actor).id === me.id || (selected.createdBy as Actor).ownerId === me.id);
+  const canToggleVis = ownsSelected && (visibility === "private" || visibility === "room");
+  const toggleVisibility = () => {
+    if (!selected) return;
+    const next = visibility === "private" ? "room" : "private";
+    if (next === "private" && typeof window !== "undefined" && !window.confirm("Make this sheet private to you? Teammates will no longer see it in the room.")) return;
+    void store.setArtifactVisibility({ roomId, artifactId: selected.id, visibility: next, actor: me });
+  };
 
   return (
     <div className="r-panel artifact" ref={surfaceRef} style={style} data-testid={surfaceKey === "secondary" ? "artifact-panel-secondary" : "artifact-panel"}>
@@ -139,10 +148,23 @@ function ArtifactSurface({ roomId, me, artId, onArt, collab, style, surfaceKey =
         </div>
         <span className="grow" />
         {headerExtra}
-        <span className={`r-tag ${visibility === "private" ? "private" : "public"}`}>
-          {visibility === "private" ? <Lock size={11} /> : <Users size={11} />}
-          {visibility === "private" ? "Private" : visibility === "public" ? "Public" : "Shared"}
-        </span>
+        {canToggleVis ? (
+          <button
+            type="button"
+            className={`r-tag r-tag-toggle ${visibility === "private" ? "private" : "public"}`}
+            onClick={toggleVisibility}
+            title={visibility === "private" ? "Share this sheet with the room" : "Make this sheet private to you"}
+            data-testid="artifact-visibility-toggle"
+          >
+            {visibility === "private" ? <Lock size={11} /> : <Users size={11} />}
+            {visibility === "private" ? "Private" : "Shared"}
+          </button>
+        ) : (
+          <span className={`r-tag ${visibility === "private" ? "private" : "public"}`}>
+            {visibility === "private" ? <Lock size={11} /> : <Users size={11} />}
+            {visibility === "private" ? "Private" : visibility === "public" ? "Public" : "Shared"}
+          </span>
+        )}
       </div>
 
       {collab && activeTab === "sheet" && sheet?.title === "Q3 variance" && <CollabBar collab={collab} />}
