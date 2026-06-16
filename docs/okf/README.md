@@ -25,15 +25,19 @@ Current P0:
 - Diverse candidate slates plus `EvidenceMemo` output, so weighted search scores generate inspection candidates instead of deciding truth.
 - AgentTool exposure for `okf_*` and `source_*` tools.
 - Convex-side embedding job/outbox primitives for notebook/wiki/artifact sources; the current runner uses local deterministic `hashing-v1` vectors for testable plumbing before provider embeddings are promoted.
+- Persistent Convex OKF tables: `okfConcepts`, `okfChunks`, `okfEdges`, `okfOutbox`, and `retrievalEvents`.
+- Convex-native OKF chunk vector index (`okfChunks.by_embedding`, 64-dim compacted vectors) plus full-text/search indexes on concept/chunk text.
+- Live `ConvexRoomTools.okf` wiring, so production NodeAgent OKF tools use the room ledger instead of returning `okf_retrieval_unavailable`.
+- Provider embedding adapter for OpenAI (`text-embedding-3-small` with dimensions) and Gemini (`gemini-embedding-2`) with deterministic local fallback.
+- Retrieval analytics and graph evidence surfaced through the browser Trace Lens card (`api.okf.traceLens` -> `CoachCards`).
 
-Not yet production-grade:
+Remaining production checks:
 
-- Persistent Convex OKF tables.
-- Gemini Embedding 2 / provider embedding runner for multimodal PDF/image/audio/video-derived chunks.
-- Native Convex vector indexes over OKF chunks; the existing embedding table is a plumbing step, not the final OKF chunk index.
+- Live provider embedding smoke with deployed keys for OpenAI/Gemini route health and latency baselines.
+- Multimodal PDF/image/audio/video chunk extraction still depends on the provider parser/local parser lanes; OKF now stores and retrieves chunks, but it does not itself OCR files.
 - External vector/full-text engine. This is not P0; add it only if Convex-native vector/full-text retrieval misses scale, latency, faceting, or cross-tenant requirements.
-- ClickHouse retrieval analytics.
-- OKF graph visualizer artifact.
+- ClickHouse or warehouse export for long-retention retrieval analytics. The live app now records retrieval events in Convex; export is a later adapter.
+- Rich graph visualizer artifact. The Trace Lens card is the production-debug minimum: concepts, outbox, recent retrieval event, and graph chips.
 
 ## Retrieval Policy
 

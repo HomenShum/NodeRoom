@@ -75,8 +75,9 @@ test.describe("center-stage split mode", () => {
     const stage = page.getByTestId("work-surface");
     const primary = page.getByTestId("artifact-panel");
     const secondary = page.getByTestId("artifact-panel-secondary");
-    const coach = page.getByTestId("coach-cards");
-    const cards = coach.getByTestId("coach-card");
+    await page.getByTestId("copilot-tab-coach").click();
+    const coach = page.getByTestId("banker-coach-panel");
+    const cards = coach.getByTestId("coach-evidence-card");
 
     await expect(coach).toBeVisible();
     await expect(cards.first()).toBeVisible();

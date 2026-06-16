@@ -59,6 +59,7 @@ const graphObjectKindV = v.union(
   v.literal("wiki_block"),
 );
 const visibilityV = v.union(v.literal("private"), v.literal("room"), v.literal("public"));
+const okfVisibilityV = v.union(v.literal("public"), v.literal("private"), v.literal("redacted"));
 
 export default defineSchema({
   rooms: defineTable({
@@ -532,6 +533,107 @@ export default defineSchema({
     .index("by_from", ["fromObjectKind", "fromId"])
     .index("by_to", ["toObjectKind", "toId"])
     .index("by_relation_type", ["relationTypeId"]),
+
+  okfConcepts: defineTable({
+    roomId: v.id("rooms"),
+    conceptId: v.string(),
+    path: v.string(),
+    type: v.string(),
+    title: v.optional(v.string()),
+    description: v.optional(v.string()),
+    body: v.string(),
+    searchText: v.string(),
+    resource: v.optional(v.string()),
+    tags: v.array(v.string()),
+    status: v.optional(v.string()),
+    confidence: v.optional(v.number()),
+    visibility: okfVisibilityV,
+    frontmatter: v.any(),
+    links: v.array(v.object({ label: v.string(), target: v.string(), conceptId: v.optional(v.string()) })),
+    citations: v.array(v.object({ id: v.string(), label: v.string(), target: v.string(), conceptId: v.optional(v.string()) })),
+    sourceKind: v.optional(v.string()),
+    sourceId: v.optional(v.string()),
+    sourceVersion: v.optional(v.number()),
+    contentHash: v.string(),
+    provider: v.optional(v.string()),
+    model: v.optional(v.string()),
+    createdByJobId: v.optional(v.id("agentJobs")),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_room", ["roomId", "updatedAt"])
+    .index("by_room_concept", ["roomId", "conceptId"])
+    .index("by_room_path", ["roomId", "path"])
+    .index("by_room_type", ["roomId", "type"])
+    .index("by_room_status", ["roomId", "status"])
+    .searchIndex("by_search_text", { searchField: "searchText", filterFields: ["roomId"] }),
+
+  okfChunks: defineTable({
+    roomId: v.id("rooms"),
+    conceptId: v.string(),
+    chunkId: v.string(),
+    chunkIndex: v.number(),
+    text: v.string(),
+    searchText: v.string(),
+    embedding: v.array(v.float64()),
+    embeddingProvider: v.string(),
+    embeddingModel: v.string(),
+    embeddingDimension: v.number(),
+    contentHash: v.string(),
+    visibility: okfVisibilityV,
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_room_concept", ["roomId", "conceptId"])
+    .index("by_room_chunk", ["roomId", "chunkId"])
+    .searchIndex("by_chunk_text", { searchField: "searchText", filterFields: ["roomId"] })
+    .vectorIndex("by_embedding", { vectorField: "embedding", dimensions: 64, filterFields: ["roomId"] }),
+
+  okfEdges: defineTable({
+    roomId: v.id("rooms"),
+    fromConceptId: v.string(),
+    toConceptId: v.string(),
+    label: v.string(),
+    kind: v.string(),
+    createdAt: v.number(),
+  })
+    .index("by_room", ["roomId"])
+    .index("by_from", ["roomId", "fromConceptId"])
+    .index("by_to", ["roomId", "toConceptId"]),
+
+  okfOutbox: defineTable({
+    roomId: v.id("rooms"),
+    conceptId: v.string(),
+    contentHash: v.string(),
+    status: v.union(v.literal("queued"), v.literal("running"), v.literal("completed"), v.literal("failed")),
+    attempts: v.number(),
+    nextRunAt: v.optional(v.number()),
+    leaseId: v.optional(v.string()),
+    leaseUntil: v.optional(v.number()),
+    error: v.optional(v.string()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_status_nextRunAt", ["status", "nextRunAt"])
+    .index("by_room_concept", ["roomId", "conceptId"]),
+
+  retrievalEvents: defineTable({
+    roomId: v.id("rooms"),
+    jobId: v.optional(v.id("agentJobs")),
+    runId: v.optional(v.id("agentRuns")),
+    query: v.string(),
+    tool: v.string(),
+    status: v.union(v.literal("completed"), v.literal("failed")),
+    candidateIds: v.array(v.string()),
+    hitConceptIds: v.array(v.string()),
+    latencyMs: v.number(),
+    provider: v.optional(v.string()),
+    model: v.optional(v.string()),
+    error: v.optional(v.string()),
+    createdAt: v.number(),
+  })
+    .index("by_room", ["roomId", "createdAt"])
+    .index("by_job", ["jobId", "createdAt"]),
 
   embeddingJobs: defineTable({
     roomId: v.id("rooms"),

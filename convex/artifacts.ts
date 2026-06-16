@@ -17,6 +17,7 @@ import type { Id } from "./_generated/dataModel";
 import { actorProofV, actorV, getElement, activeLockOn, lockCoveringElement, LOCK_TTL_MS, requireActorInRoom, requireActorProof, requireArtifactInRoom, type ActorValue } from "./lib";
 import { syncSpreadsheetIndexFromDb, syncSpreadsheetIndexFromSeed } from "./spreadsheetIndexLib";
 import { planAndRecordRebase } from "./semanticRebase";
+import { enqueueArtifactSnapshotForOkf } from "./okf";
 
 const MAX_ARTIFACT_TITLE_CHARS = 180;
 const MAX_ARTIFACT_SEED_ELEMENTS = 20_000;
@@ -347,6 +348,7 @@ async function applyApprovedProposal(ctx: MutationCtx, roomId: Id<"rooms">, arti
   const nextVersion = op.kind === "delete" ? actual : actual + 1;
   const summary = op.kind === "delete" ? `${author.name} deleted ${op.elementId}` : `${author.name} set ${op.elementId} = ${formatCellForTrace(op.value)}`;
   await ctx.db.insert("traces", { roomId, ts: now, actor: author, type: "edit_applied", summary, detail: `edit_cell - ${op.elementId} = ${formatCellForTrace(op.value)} - v${actual} -> v${nextVersion}` });
+  await enqueueArtifactSnapshotForOkf(ctx, { roomId, artifactId });
   return { ok: true as const, version: nextVersion };
 }
 
@@ -450,6 +452,7 @@ async function applyCellEditCore(ctx: MutationCtx, a: ApplyCellEditArgs) {
     }
     await ctx.db.patch(a.artifactId, { version: art.version + 1, updatedAt: now, order: nextOrder });
     await syncSpreadsheetIndexFromDb(ctx, art);
+    await enqueueArtifactSnapshotForOkf(ctx, { roomId: a.roomId, artifactId: a.artifactId, createdByJobId: a.jobId });
     // P0-5 renewal: a successful write under my valid lease extends it — a healthy long job
     // (9-min slices) keeps its lock alive by working, instead of structurally outliving the 5-min TTL.
     if (coveringLock && heldByMe && leaseValid && coveringLock.expiresAt !== undefined) {
@@ -727,6 +730,7 @@ export const addResearchRows = mutation({
     if (touched.length && changed) {
       await ctx.db.patch(artifactId, { order: nextOrder, version: art.version + 1, updatedAt: now });
       await ctx.db.insert("traces", { roomId, ts: now, actor, type: "edit_applied", summary: `${actor.name} imported ${touched.length} research row(s)`, detail: `add_research_rows added=${addedCount} updated=${updatedCount} rows=${touched.join(", ")}` });
+      await enqueueArtifactSnapshotForOkf(ctx, { roomId, artifactId });
     }
     return touched;
   },
@@ -849,6 +853,7 @@ export const createArtifact = mutation({
     if (sourceFile && !sourceFile.artifactId) await ctx.db.patch(sourceFile._id, { artifactId, status: "linked", linkedAt: now });
     await syncSpreadsheetIndexFromSeed(ctx, { artifactId, title: a.title, kind: a.kind, meta, seed: a.seed, now });
     await ctx.db.insert("traces", { roomId: a.roomId, ts: now, actor: by, type: "edit_applied", summary: `${by.name} added ${a.title}`, detail: `create_artifact · ${a.kind} · ${String(artifactId)}` });
+    await enqueueArtifactSnapshotForOkf(ctx, { roomId: a.roomId, artifactId });
     return artifactId;
   },
 });

@@ -1,6 +1,6 @@
 import { useMemo, useState, type ReactNode } from "react";
 import { FileCheck2, MessageSquareWarning, Send, TrendingUp, Sparkles, ArrowUpRight, ChevronRight } from "lucide-react";
-import { useStore } from "../../app/store";
+import { useStore, type OkfTraceLensTelemetry } from "../../app/store";
 import { buildBankerCoachPacket } from "../bankerCoachPacket";
 import { focusStage } from "../stageFocus";
 import { BankerCoachCueArtifact } from "./BankerCoachCueArtifact";
@@ -30,7 +30,8 @@ export function CoachCards({ roomId, onOpenArtifact }: {
   );
   const [open, setOpen] = useState(true);
   const cues = packet.cues;
-  if (cues.length === 0) return null;
+  const lens = store.okfTraceLens(roomId);
+  if (cues.length === 0 && !lens) return null;
   const cardById = new Map(packet.evidenceCards.map((c) => [c.id, c]));
   const targetFor = (cue: typeof cues[number]) =>
     cue.evidenceIds.map((id) => cardById.get(id)).find((c) => c?.targetArtifactId);
@@ -43,9 +44,10 @@ export function CoachCards({ roomId, onOpenArtifact }: {
         <span className="r-coachcards-title">Coach</span>
         <span className="grow" />
         <span className="r-coachcards-meta" data-ready={String(packet.readiness.readyForClientUse)}>
-          {packet.readiness.readyForClientUse ? "verified" : `${needsReview} to review`}
+          {lens ? `${lens.concepts.length} OKF refs` : packet.readiness.readyForClientUse ? "verified" : `${needsReview} to review`}
         </span>
       </button>
+      {open && lens && <TraceLensCard lens={lens} />}
       {open && cues.map((cue) => {
         const card = targetFor(cue);
         const clickable = !!card?.targetArtifactId;
@@ -72,6 +74,39 @@ export function CoachCards({ roomId, onOpenArtifact }: {
   );
 }
 
+function TraceLensCard({ lens }: { lens: OkfTraceLensTelemetry }) {
+  const latest = lens.events[0];
+  const hotConcepts = lens.concepts.slice(0, 4);
+  return (
+    <section className="r-tracelens" data-testid="trace-lens" aria-label="OKF trace lens">
+      <div className="r-tracelens-head">
+        <span>Trace Lens</span>
+        <strong>{lens.chunkCount} vectors</strong>
+      </div>
+      <div className="r-tracelens-metrics">
+        <span>queued {lens.outbox.queued}</span>
+        <span>running {lens.outbox.running}</span>
+        <span>done {lens.outbox.completed}</span>
+        <span>failed {lens.outbox.failed}</span>
+      </div>
+      {latest && (
+        <div className="r-tracelens-event">
+          <small>{latest.tool}</small>
+          <span>{latest.query}</span>
+          <em>{latest.latencyMs}ms{latest.model ? ` · ${latest.model}` : ""}</em>
+        </div>
+      )}
+      {hotConcepts.length > 0 && (
+        <div className="r-tracelens-graph">
+          {hotConcepts.map((concept) => (
+            <span key={concept.conceptId} title={concept.path}>{concept.title ?? concept.type}</span>
+          ))}
+        </div>
+      )}
+    </section>
+  );
+}
+
 export function BankerCoachPanel({
   roomId,
   onOpenArtifact,
@@ -88,6 +123,7 @@ export function BankerCoachPanel({
     [room?.title, artifacts, traces],
   );
   const [tab, setTab] = useState<CoachTab>("evidence");
+  const lens = store.okfTraceLens(roomId);
   const needsReview = packet.readiness.needsReview + packet.readiness.manual + packet.readiness.estimated;
 
   const openEvidenceArtifact = (artifactId: string, elementId?: string) => {
@@ -113,6 +149,7 @@ export function BankerCoachPanel({
         <CoachTabButton tab="handoff" active={tab} onClick={setTab} icon={<Send size={12} />} label="Handoff" />
       </div>
       <div className="r-coach-body">
+        {lens && <TraceLensCard lens={lens} />}
         {tab === "evidence" && <EvidenceCarouselArtifact cards={packet.evidenceCards} onOpenArtifact={openEvidenceArtifact} />}
         {tab === "coach" && <BankerCoachCueArtifact cues={packet.cues} />}
         {tab === "review" && (

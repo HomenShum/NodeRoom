@@ -84,6 +84,13 @@ export type AgentJobDetailTelemetry = {
   draftOperations: Array<{ operationName: string; status: string; affectedIds: string[]; createdAt: number }>;
   latestSteps: Array<{ idx: number; tool: string; status: string; elementId?: string; mutationReceiptIds?: string[] }>;
 };
+export type OkfTraceLensTelemetry = {
+  concepts: Array<{ conceptId: string; path: string; type: string; title?: string; status?: string; visibility: string; updatedAt: number }>;
+  edges: Array<{ fromConceptId: string; toConceptId: string; label: string; kind: string }>;
+  events: Array<{ tool: string; query: string; status: string; hitConceptIds: string[]; latencyMs: number; provider?: string; model?: string; createdAt: number }>;
+  outbox: { queued: number; running: number; completed: number; failed: number };
+  chunkCount: number;
+};
 export type { UploadedArtifactInput } from "./uploadedArtifact";
 export type AgentAskInput = { goal: string; references?: ArtifactRef[] };
 export type ActorProof = { actor: Actor; token: string };
@@ -134,6 +141,7 @@ export interface RoomStore {
   lastLongFreeJob(): AgentJobTelemetry | null;
   lastLongFreeJobAttempts(): AgentJobAttemptTelemetry[];
   lastLongFreeJobDetail(): AgentJobDetailTelemetry | null;
+  okfTraceLens(roomId: string): OkfTraceLensTelemetry | null;
   cancelLongFreeJob(jobId: string): Promise<EditFeedback>;
   retryLongFreeJob(jobId: string): Promise<EditFeedback>;
 }
@@ -391,6 +399,7 @@ export function EngineStoreProvider({ roomId, children }: { roomId: string; me: 
     lastLongFreeJob: () => null,
     lastLongFreeJobAttempts: () => [],
     lastLongFreeJobDetail: () => null,
+    okfTraceLens: () => null,
     cancelLongFreeJob: async () => ({ ok: true }),
     retryLongFreeJob: async () => ({ ok: true }),
   }), [rev, roomId]);
@@ -523,6 +532,7 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
   const pub = useQuery(api.messages.list, pubQuery) ?? [];
   const priv = useQuery(api.messages.list, privQuery) ?? [];
   const traces = useQuery(api.collab.traces, roomQuery) ?? [];
+  const okfLens = useQuery(api.okf.traceLens, roomQuery) ?? null;
   const runs = useQuery(api.agentRuns.list, roomQuery) ?? [];
   const jobs = useQuery(api.agentJobs.list, roomQuery) ?? [];
   const latestJobId = (jobs as Array<{ _id: string }>)[0]?._id;
@@ -978,6 +988,7 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
           latestSteps: (d.latestSteps ?? []).map((s) => ({ idx: s.idx, tool: s.tool, status: s.status, elementId: s.elementId, mutationReceiptIds: s.mutationReceiptIds?.map(String) })),
         };
       },
+      okfTraceLens: () => okfLens as OkfTraceLensTelemetry | null,
       cancelLongFreeJob: async (jobId) => {
         try { const r = await cancelFreeAutoJob({ jobId: jobId as never, requester: proof }); return r.ok ? { ok: true } : { ok: false, reason: r.reason }; }
         catch (e) { return { ok: false, reason: e instanceof Error ? e.message : "cancel_failed" }; }
@@ -987,7 +998,7 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
         catch (e) { return { ok: false, reason: e instanceof Error ? e.message : "retry_failed" }; }
       },
     };
-  }, [data, metaArtifacts, elementsByArtifact, pub, priv, traces, runs, jobs, jobAttempts, jobDetail, proposals, applyCellEdit, sendMsg, toggle, editMsg, resolveProposalMutation, addResearchRowsMutation, createArtifactMutation, uploadSourceFile, runSemanticConflictDrillMutation, runAgent, runPrivateAgent, createPrivateReplyStream, startFreeAutoJob, cancelFreeAutoJob, retryFreeAutoJob, rid, roomId, proof, me.id, me.name]);
+  }, [data, metaArtifacts, elementsByArtifact, pub, priv, traces, okfLens, runs, jobs, jobAttempts, jobDetail, proposals, applyCellEdit, sendMsg, toggle, editMsg, resolveProposalMutation, addResearchRowsMutation, createArtifactMutation, uploadSourceFile, runSemanticConflictDrillMutation, runAgent, runPrivateAgent, createPrivateReplyStream, startFreeAutoJob, cancelFreeAutoJob, retryFreeAutoJob, rid, roomId, proof, me.id, me.name]);
 
   return (
     <Ctx.Provider value={store}>

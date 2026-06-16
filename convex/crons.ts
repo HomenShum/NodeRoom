@@ -4,13 +4,17 @@
  * of reads: a filtered-but-active expired lock strands its blocked drafts in "pending" forever and
  * renders locked-forever in any UI that filters on status alone.
  */
-import { cronJobs } from "convex/server";
+import { cronJobs, makeFunctionReference } from "convex/server";
 import { internal } from "./_generated/api";
 
 const crons = cronJobs();
+const sweepOkfOutboxLeasesRef = makeFunctionReference<"mutation">("okf:sweepOutboxLeases") as any;
+const drainOkfOutboxRef = makeFunctionReference<"action">("okfIndexer:drainBatch") as any;
 
 crons.interval("sweep expired lock leases", { minutes: 1 }, internal.locks.sweepExpiredLocks, {});
 crons.interval("sweep expired agent job leases", { minutes: 1 }, internal.agentJobs.sweepExpiredJobLeases, {});
+crons.interval("sweep expired OKF outbox leases", { minutes: 1 }, sweepOkfOutboxLeasesRef, {});
+crons.interval("drain OKF embedding outbox", { minutes: 1 }, drainOkfOutboxRef, { limit: 8 });
 
 // Production gate: bound telemetry growth. Prunes traces/agentSteps/agentOperationEvents older than
 // the retention window in bounded batches (convex/retention.ts) so a live deployment's storage can't

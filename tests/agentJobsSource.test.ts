@@ -216,6 +216,28 @@ describe("long-running agent job source invariants", () => {
     expect(runner).toContain('provider: "local"');
   });
 
+  it("persists OKF retrieval through Convex tables, outbox, vector index, live room tool port, and Trace Lens UI", () => {
+    const schema = readFileSync("convex/schema.ts", "utf8");
+    const okf = readFileSync("convex/okf.ts", "utf8");
+    const indexer = readFileSync("convex/okfIndexer.ts", "utf8");
+    const roomTools = readFileSync("convex/convexRoomTools.ts", "utf8");
+    const store = readFileSync("src/app/store.tsx", "utf8");
+    const coach = readFileSync("src/ui/artifacts/BankerCoachPanel.tsx", "utf8");
+
+    for (const table of ["okfConcepts", "okfChunks", "okfEdges", "okfOutbox", "retrievalEvents"]) {
+      expect(schema).toContain(`${table}: defineTable`);
+    }
+    expect(schema).toContain('.vectorIndex("by_embedding"');
+    expect(okf).toContain("export const reindexRoom");
+    expect(okf).toContain("export const traceLens");
+    expect(okf).toContain("recordRetrievalEvent");
+    expect(indexer).toContain("embedOkfText");
+    expect(roomTools).toContain("this.okf = new ConvexOkfRetrievalPort");
+    expect(roomTools).toContain("vectorSearch");
+    expect(store).toContain("api.okf.traceLens");
+    expect(coach).toContain("Trace Lens");
+  });
+
   it("exposes a browser-readable job detail query linked to attempts, operations, receipts, leases, and steps", () => {
     const jobs = readFileSync("convex/agentJobs.ts", "utf8");
     const store = readFileSync("src/app/store.tsx", "utf8");

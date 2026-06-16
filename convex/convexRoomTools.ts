@@ -15,6 +15,9 @@ import type { ActionCtx } from "./_generated/server";
 import type { Id } from "./_generated/dataModel";
 import type { RoomTools, RoomSnapshot, AwarenessView, CellView, EditOutcome, MergeView, SourceResult, ArtifactRef, SpreadsheetContextHit } from "../src/nodeagent/core/types";
 import type { Actor } from "../src/engine/types";
+import type { ClaimSupportResult, EvidenceRef, LiteralSourceResult, OkfConceptFilter, OkfRetrievalPort, RetrievalHit } from "../src/nodeagent/retrieval/types";
+import type { OkfConcept } from "../src/nodeagent/okf/types";
+import { embedOkfText } from "./okfEmbeddingProvider";
 
 const artifactsGetSheetRef = makeFunctionReference<"query">("artifacts:getSheet") as any;
 const collabAwarenessRef = makeFunctionReference<"query">("collab:awareness") as any;
@@ -26,8 +29,24 @@ const artifactsApplyAgentCellEditRef = makeFunctionReference<"mutation">("artifa
 const draftsCreateDraftRef = makeFunctionReference<"mutation">("drafts:createDraft") as any;
 const messagesSendAgentRef = makeFunctionReference<"mutation">("messages:sendAgent") as any;
 const artifactsListForRoomRef = makeFunctionReference<"query">("artifacts:listForRoom") as any;
+const okfListConceptsRef = makeFunctionReference<"query">("okf:listConcepts") as any;
+const okfReadConceptRef = makeFunctionReference<"query">("okf:readConcept") as any;
+const okfFullTextSearchRef = makeFunctionReference<"query">("okf:fullTextSearch") as any;
+const okfSemanticSearchScanRef = makeFunctionReference<"query">("okf:semanticSearchScan") as any;
+const okfConceptsForChunkScoresRef = makeFunctionReference<"query">("okf:conceptsForChunkScores") as any;
+const okfFilterRef = makeFunctionReference<"query">("okf:filter") as any;
+const okfGlobRef = makeFunctionReference<"query">("okf:glob") as any;
+const okfRegexRef = makeFunctionReference<"query">("okf:regex") as any;
+const okfBacklinksRef = makeFunctionReference<"query">("okf:backlinks") as any;
+const okfExpandNeighborsRef = makeFunctionReference<"query">("okf:expandNeighbors") as any;
+const okfResolveCitationRef = makeFunctionReference<"query">("okf:resolveCitation") as any;
+const okfOpenLiteralRef = makeFunctionReference<"query">("okf:openLiteral") as any;
+const okfCompareClaimRef = makeFunctionReference<"query">("okf:compareClaim") as any;
+const okfRecordRetrievalEventRef = makeFunctionReference<"mutation">("okf:recordRetrievalEvent") as any;
 
 export class ConvexRoomTools implements RoomTools {
+  public readonly okf: OkfRetrievalPort;
+
   constructor(
     private ctx: ActionCtx,
     private roomId: Id<"rooms">,
@@ -35,7 +54,9 @@ export class ConvexRoomTools implements RoomTools {
     private actor: Actor,
     private sessionId: string,
     private jobId?: Id<"agentJobs">,
-  ) {}
+  ) {
+    this.okf = new ConvexOkfRetrievalPort(ctx, roomId, jobId);
+  }
 
   async snapshot(artifactId: string = this.artifactId): Promise<RoomSnapshot> {
     const s = await this.ctx.runQuery(artifactsGetSheetRef, { roomId: this.roomId, artifactId });
@@ -94,6 +115,145 @@ export class ConvexRoomTools implements RoomTools {
 
   /** Convex-standard-runtime source fetch: HTTPS-only, target-guarded, timeout-bound, and size-capped. */
   fetchSource(url: string): Promise<SourceResult> { return fetchSourceForConvex(url); }
+}
+
+class ConvexOkfRetrievalPort implements OkfRetrievalPort {
+  constructor(
+    private ctx: ActionCtx,
+    private roomId: Id<"rooms">,
+    private jobId?: Id<"agentJobs">,
+  ) {}
+
+  async listConcepts(args: OkfConceptFilter): Promise<OkfConcept[]> {
+    const startedAt = Date.now();
+    try {
+      const concepts = await this.ctx.runQuery(okfListConceptsRef, { roomId: this.roomId, ...args });
+      await this.record("okf.listConcepts", JSON.stringify(args), "completed", concepts.map((c: OkfConcept) => c.id), Date.now() - startedAt);
+      return concepts;
+    } catch (error) {
+      await this.record("okf.listConcepts", JSON.stringify(args), "failed", [], Date.now() - startedAt, undefined, undefined, error);
+      throw error;
+    }
+  }
+
+  readConcept(args: { conceptId: string }): Promise<OkfConcept | null> {
+    return this.ctx.runQuery(okfReadConceptRef, { roomId: this.roomId, ...args });
+  }
+
+  async fullTextSearch(args: { query: string; fields?: Array<"title" | "description" | "body" | "citations">; limit?: number } & OkfConceptFilter): Promise<RetrievalHit[]> {
+    return this.hitQuery("okf.fullTextSearch", args.query, okfFullTextSearchRef, args as unknown as Record<string, unknown>);
+  }
+
+  async semanticSearch(args: { query: string; limit?: number } & OkfConceptFilter): Promise<RetrievalHit[]> {
+    const startedAt = Date.now();
+    let provider: string | undefined;
+    let model: string | undefined;
+    try {
+      const embedded = await embedOkfText(args.query, "RETRIEVAL_QUERY");
+      provider = embedded.provider;
+      model = embedded.model;
+      try {
+        const vectorHits = await (this.ctx as any).vectorSearch("okfChunks", "by_embedding", {
+          vector: embedded.vector,
+          limit: Math.max(1, Math.min(args.limit ?? 8, 50)),
+          filter: (q: any) => q.eq("roomId", this.roomId),
+        });
+        if (Array.isArray(vectorHits) && vectorHits.length > 0) {
+          const hits = await this.ctx.runQuery(okfConceptsForChunkScoresRef, {
+            roomId: this.roomId,
+            scores: vectorHits.map((hit: { _id: Id<"okfChunks">; _score?: number }) => ({ chunkId: hit._id, score: hit._score ?? 0 })),
+            limit: args.limit,
+          });
+          await this.record("okf.semanticSearch", args.query, "completed", hits.map((hit: RetrievalHit) => hit.concept.id), Date.now() - startedAt, provider, model);
+          return hits;
+        }
+      } catch {
+        // Local convex-test does not expose vectorSearch; scan fallback below keeps the port usable.
+      }
+      const hits = await this.ctx.runQuery(okfSemanticSearchScanRef, { roomId: this.roomId, ...args });
+      await this.record("okf.semanticSearch.scan", args.query, "completed", hits.map((hit: RetrievalHit) => hit.concept.id), Date.now() - startedAt, provider, model);
+      return hits;
+    } catch (error) {
+      const hits = await this.ctx.runQuery(okfSemanticSearchScanRef, { roomId: this.roomId, ...args });
+      await this.record("okf.semanticSearch.fallback", args.query, "completed", hits.map((hit: RetrievalHit) => hit.concept.id), Date.now() - startedAt, provider, model, error);
+      return hits;
+    }
+  }
+
+  filter(args: OkfConceptFilter): Promise<OkfConcept[]> {
+    return this.ctx.runQuery(okfFilterRef, { roomId: this.roomId, ...args });
+  }
+
+  glob(args: { pattern: string; limit?: number }): Promise<OkfConcept[]> {
+    return this.ctx.runQuery(okfGlobRef, { roomId: this.roomId, ...args });
+  }
+
+  async regex(args: { pattern: string; pathPrefix?: string; caseSensitive?: boolean; limit?: number }): Promise<RetrievalHit[]> {
+    return this.hitQuery("okf.regex", args.pattern, okfRegexRef, args);
+  }
+
+  backlinks(args: { conceptId: string; depth?: number; limit?: number }): Promise<OkfConcept[]> {
+    return this.ctx.runQuery(okfBacklinksRef, { roomId: this.roomId, ...args });
+  }
+
+  expandNeighbors(args: { conceptId: string; linkDepth: number; includeCitations?: boolean; includeBacklinks?: boolean; limit?: number }): Promise<OkfConcept[]> {
+    return this.ctx.runQuery(okfExpandNeighborsRef, { roomId: this.roomId, ...args });
+  }
+
+  resolveCitation(args: { evidenceId: string }): Promise<LiteralSourceResult> {
+    return this.ctx.runQuery(okfResolveCitationRef, { roomId: this.roomId, ...args });
+  }
+
+  openLiteral(args: {
+    sourceArtifactId: string;
+    page?: number;
+    row?: number;
+    column?: string;
+    bbox?: { x: number; y: number; width: number; height: number; unit?: "px" | "pt" | "normalized" };
+  }): Promise<LiteralSourceResult> {
+    return this.ctx.runQuery(okfOpenLiteralRef, { roomId: this.roomId, ...args });
+  }
+
+  compareClaim(args: { claim: string; evidenceRefs: EvidenceRef[] }): Promise<ClaimSupportResult> {
+    return this.ctx.runQuery(okfCompareClaimRef, { roomId: this.roomId, ...args });
+  }
+
+  private async hitQuery(tool: string, query: string, ref: unknown, args: Record<string, unknown>): Promise<RetrievalHit[]> {
+    const startedAt = Date.now();
+    try {
+      const hits = await this.ctx.runQuery(ref as any, { roomId: this.roomId, ...args });
+      await this.record(tool, query, "completed", hits.map((hit: RetrievalHit) => hit.concept.id), Date.now() - startedAt);
+      return hits;
+    } catch (error) {
+      await this.record(tool, query, "failed", [], Date.now() - startedAt, undefined, undefined, error);
+      throw error;
+    }
+  }
+
+  private async record(
+    tool: string,
+    query: string,
+    status: "completed" | "failed",
+    hitConceptIds: string[],
+    latencyMs: number,
+    provider?: string,
+    model?: string,
+    error?: unknown,
+  ) {
+    await this.ctx.runMutation(okfRecordRetrievalEventRef, {
+      roomId: this.roomId,
+      jobId: this.jobId,
+      query: query.slice(0, 500),
+      tool,
+      status,
+      candidateIds: hitConceptIds,
+      hitConceptIds,
+      latencyMs,
+      provider,
+      model,
+      error: error ? (error instanceof Error ? error.message : String(error)).slice(0, 500) : undefined,
+    });
+  }
 }
 
 export async function fetchSourceForConvex(url: string): Promise<SourceResult> {

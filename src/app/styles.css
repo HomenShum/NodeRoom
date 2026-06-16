@@ -326,6 +326,17 @@ input { font-family: inherit; }
 .r-coachcard-act { display: inline-flex; align-items: center; gap: 3px; flex: none; margin-top: 1px; font-size: 11px; font-weight: 600; color: var(--accent-ink); white-space: nowrap; }
 .r-coachcards-more { align-self: flex-start; background: transparent; border: none; color: var(--text-tertiary); font-size: 11px; cursor: pointer; padding: 2px 0; }
 .r-coachcards-more:hover { color: var(--text-secondary); }
+.r-tracelens { display: flex; flex-direction: column; gap: 7px; padding: 9px 10px; border: 1px solid var(--line); border-radius: 8px; background: color-mix(in srgb, var(--bg-secondary) 72%, var(--bg-primary)); }
+.r-tracelens-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 11.5px; font-weight: 700; color: var(--text-primary); }
+.r-tracelens-head strong { font-family: var(--font-mono); font-size: 10px; color: var(--text-tertiary); }
+.r-tracelens-metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; }
+.r-tracelens-metrics span { min-width: 0; padding: 3px 5px; border: 1px solid var(--line); border-radius: 6px; background: var(--bg-primary); font-family: var(--font-mono); font-size: 9.5px; color: var(--text-tertiary); text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.r-tracelens-event { display: grid; gap: 2px; min-width: 0; padding: 7px 8px; border-left: 2px solid var(--accent-primary); background: color-mix(in srgb, var(--accent-tint) 38%, transparent); }
+.r-tracelens-event small { font-family: var(--font-mono); font-size: 9.5px; color: var(--text-tertiary); }
+.r-tracelens-event span { min-width: 0; font-size: 11px; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.r-tracelens-event em { font-style: normal; font-family: var(--font-mono); font-size: 9.5px; color: var(--text-muted); }
+.r-tracelens-graph { display: flex; flex-wrap: wrap; gap: 5px; min-width: 0; }
+.r-tracelens-graph span { max-width: 100%; padding: 3px 7px; border: 1px solid var(--line); border-radius: 999px; background: var(--bg-primary); font-size: 10.5px; color: var(--text-tertiary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .r-coach-tabs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 2px; padding: 5px; border-bottom: 1px solid var(--line); background: color-mix(in srgb, var(--bg-primary) 64%, transparent); }
 .r-coach-tabs button { min-width: 0; min-height: 26px; display: inline-flex; align-items: center; justify-content: center; gap: 4px; border: 0; border-radius: 7px; background: transparent; color: var(--text-muted); font-size: 10.5px; font-weight: 800; white-space: nowrap; }
 .r-coach-tabs button[data-on="true"] { background: var(--accent-tint); color: var(--accent-ink); }
