@@ -444,6 +444,21 @@ function artifactWikiMeta(art: Art): string {
 }
 
 /* ── company-research surface (ParselyFi loop): status-gated, sourced enrichment ── */
+// Attio/Clay-style record identity: a deterministic colored initials avatar per company
+// (offline-safe -- no live logo fetch). Color is hashed from the name so it's stable across renders.
+const CO_COLORS = ["#5b9bf5", "#7bd089", "#a78bfa", "#e4c567", "#e8845f", "#5fc5c5", "#d97757", "#c77dff"];
+function coColor(name: string): string {
+  let h = 0;
+  for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) >>> 0;
+  return CO_COLORS[h % CO_COLORS.length];
+}
+function coInitials(name: string): string {
+  const parts = name.replace(/[^A-Za-z0-9 ]/g, "").split(/\s+/).filter(Boolean);
+  if (!parts.length) return "?";
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return (parts[0][0] + parts[1][0]).toUpperCase();
+}
+
 function Research({ roomId, me, art }: { roomId: string; me: Actor; art: Art }) {
   const store = useStore();
   const [running, setRunning] = useState(false);
@@ -497,9 +512,10 @@ function Research({ roomId, me, art }: { roomId: string; me: Actor; art: Art }) 
     const u = src.match(/https?:\/\/[^\s]+/)?.[0];
     let host = src.slice(0, 16);
     if (u) { try { host = new URL(u).hostname.replace(/^www\./, ""); } catch { /* keep slice */ } }
+    const inner = <><span className="r-srcchip-dot" aria-hidden="true" style={{ background: coColor(host) }} />{host}</>;
     return u
-      ? <a key={u} className="r-srcchip" href={u} target="_blank" rel="noreferrer" title={src}>{host}</a>
-      : <span key={src} className="r-srcchip" title={src}>{host}</span>;
+      ? <a key={u} className="r-srcchip" href={u} target="_blank" rel="noreferrer" title={src}>{inner}</a>
+      : <span key={src} className="r-srcchip" title={src}>{inner}</span>;
   };
   const saveDownstreamDraft = (draft: PreparedDownstreamDraft) => {
     const blob = new Blob([`# ${draft.title}\n\n${draft.body}\n`], { type: "text/markdown;charset=utf-8" });
@@ -589,7 +605,12 @@ function Research({ roomId, me, art }: { roomId: string; me: Actor; art: Art }) 
                   <tr className="r-research-row" data-open={String(open)} aria-selected={open} aria-expanded={open} tabIndex={0}
                     onClick={() => setExpanded(open ? null : rid)}
                     onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setExpanded(open ? null : rid); } }}>
-                    <td className="r-research-co frozen" title={cell(rid, "company")}>{cell(rid, "company") || rid}</td>
+                    <td className="r-research-co frozen" title={cell(rid, "company")}>
+                      <span className="r-co">
+                        <span className="r-co-av" aria-hidden="true" style={{ background: coColor(cell(rid, "company") || rid) }}>{coInitials(cell(rid, "company") || rid)}</span>
+                        <span className="r-co-name">{cell(rid, "company") || rid}</span>
+                      </span>
+                    </td>
                     <td><span className={"r-status r-status-" + status}>{status}</span></td>
                     <td className="r-research-gtm" title={gtmFull}>{gtm}</td>
                     <td className="r-research-sum" title={cell(rid, "summary")}>{cell(rid, "summary") || <span className="nullcell">—</span>}</td>
