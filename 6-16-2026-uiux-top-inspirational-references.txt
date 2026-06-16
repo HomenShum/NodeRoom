@@ -1,0 +1,197 @@
+Below is the external-inspiration map we have built around NodeRoom. The through-line is:
+
+> **NodeRoom = Attio-like context + Quadratic-like spreadsheet/artifact surface + BankerToolBench-grade evaluation + Convex live ledger + OKF portable knowledge + hybrid retrieval + banker-readable coach/review layer.**
+
+Your own design notes framed the core agent-harness principle clearly: the model is the “brain,” while the harness owns tools, memory, state persistence, approval gates, circuit breakers, rollback, and safety.  Your professional workflow notes then grounded the target surface in spreadsheet-first company-research and finance/ops workflows with evidence-bearing writes, privacy boundaries, no-clobber mutation, and eval traces. 
+
+---
+
+# 1. Product-category inspirations
+
+| Reference                        | What we extracted                                                                                                                                                                                                                | NodeRoom version                                                                                                                                                                                                                       |
+| -------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **LiveFlow / Flow**              | Agentic accounting ERP for physical businesses: close, reconciliation, AR, journal entries, multi-entity operations, FP&A reporting, and AI accounting specialists coordinated by an orchestrator. ([LiveFlow][1])               | **Agentic diligence workroom**, not ERP. Our agents research companies, enrich evidence-backed sheets, generate runway/milestone artifacts, create review tasks, and preserve human edits.                                             |
+| **Attio AI CRM**                 | AI-native CRM, “Universal Context,” custom objects, workflows, call intelligence, reports, developer platform, MCP/API/SDK. Attio’s core idea is one shared live customer/revenue context for humans and agents. ([Attio][2])    | **Universal Diligence Context**: Company, Person, Source, Cell, Metric, Chart, Task, Review Round, Trace, EvidenceRef.                                                                                                                 |
+| **Quadratic AI**                 | AI-native spreadsheet with CSV/Excel/PDF/live database inputs, formulas, Python, SQL, JavaScript, charts, MCP, API, auditable/editable AI work. ([Quadratic][3]) ([Quadratic][4])                                                | We should **not clone Quadratic**. We use its bar for spreadsheet-native computation, inspectable methods, API/MCP seriousness, and artifact-first UX. NodeRoom’s wedge is the human-agent harness around high-trust spreadsheet work. |
+| **BankerToolBench**              | End-to-end investment-banking benchmark with data rooms, market-data tools, SEC filings, Excel models, PowerPoint decks, reports, 502 bankers, 100+ rubric criteria, and 0% client-ready outputs for tested models. ([arXiv][5]) | Our quality bar: source-backed cells, cross-artifact consistency, chart/model/memo tie-outs, client-readiness review, human ownership, and banker-readable coach cues.                                                                 |
+| **LiveFlow interviewer context** | Balazs’s post pushed the “speed, reliability, usability, cognitive load, dimensions, drilldown” lens.                                                                                                                            | For the interview, position NodeRoom as **agentic workroom for financial diligence**, while LiveFlow is **agentic ERP for accounting/FP&A operations**.                                                                                |
+
+---
+
+# 2. Spreadsheet, collaboration, and live-artifact inspirations
+
+| Reference                                                    | What we extracted                                                                                                                             | NodeRoom version                                                                                                                                                       |
+| ------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Google Sheets / Excel**                                    | Spreadsheet muscle memory matters: instant typing, familiar grid, formulas, tabs, comments, source notes, exportability.                      | Work Surface should feel spreadsheet-native. Humans get local immediacy; durable truth commits through CAS.                                                            |
+| **Quadratic again**                                          | Spreadsheet as the main app, not a table widget. AI output should be inspectable as formula/code/chart, not black-box prose. ([Quadratic][3]) | NodeRoom needs a stronger workbook/runtime direction long-term, but for now focuses on the harness: source-backed CellPayloads, managed writes, review/proposal state. |
+| **Univer spreadsheet**                                       | Open-source spreadsheet-runtime lessons: formulas, collaborative workbook UX, plugin-like architecture, spreadsheet primitives.               | Possible future runtime reference; not the core one-day demo.                                                                                                          |
+| **Figma multiplayer**                                        | Property-level updates, server-authoritative multiplayer, collaboration with minimal visible friction.                                        | Per-cell/per-artifact edits rather than giant room snapshots; status/proof layer instead of noisy logs.                                                                |
+| **Google Docs/Sheets OT and CRDT tools like Yjs/Automerge**  | Real-time collaboration usually needs deltas, local feel, conflict handling, and compact updates.                                             | We use the idea, but finance work cannot silently auto-merge everything. We prefer **CAS + proposal + semantic rebase** for high-stakes cells.                         |
+| **Liveblocks, Phoenix Presence, Durable Objects / PartyKit** | Presence and ephemeral editing state should be separate from durable content.                                                                 | “User is editing C2” is soft intent/presence, not necessarily a permanent workbook mutation.                                                                           |
+| **Replicache / Zero / ElectricSQL / PowerSync / LiveStore**  | Sync engines ship deltas or logs instead of full snapshots.                                                                                   | On Convex, we approximate deltas by shrinking read sets: `rooms.meta` + per-artifact elements + paginated traces/messages.                                             |
+| **Linear**                                                   | Task ownership, status, workflows, accountable human owner.                                                                                   | Deal Workplan / Review Round: who owns the source gap, what changed, what remains blocked.                                                                             |
+| **Codex / Cursor / Claude Code steering**                    | Queued prompts, steering, parallel tasks, agent state visibility, avoiding prompt pollution.                                                  | Copilot queue + steering: classify new prompts as queue, parallel subagent, wait, or immediate action.                                                                 |
+
+---
+
+# 3. Agent-harness and tool-system inspirations
+
+| Reference                                                 | What we extracted                                                                                                                                                             | NodeRoom version                                                                                                                                                                                                                    |
+| --------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **General agent harness architecture**                    | Model ≠ harness. Harness owns state, tools, memory, approvals, retries, logging, guardrails.                                                                                  | `src/nodeagent/` is the signature engine: runtime, world model, tools, guardrails, OKF, retrieval, banker coach.                                                                                                                    |
+| **Pi Agent Core / pi-ai**                                 | Lightweight ReAct loop, provider abstraction, dynamic tool validation, state subscriptions.                                                                                   | Early architecture reference for a minimal agent loop. In the current repo, we implemented our own `runAgent` harness spine.                                                                                                        |
+| **MCP**                                                   | Standardized tool/resource/prompt exposure for agents.                                                                                                                        | NodeAgent can later expose safer tools: `plan_change`, `create_patch_bundle`, `review_conflict`, `commit_approved_patch`, `export_okf_bundle`; avoid raw write-first MCP.                                                           |
+| **OpenRouter / adaptive model routing**                   | Route cheap tasks to cheap models and reserve strong models for semantic rebase / final reports.                                                                              | Research lane, collaboration lane, semantic rebase lane, formula/math deterministic lane; model/cost telemetry shown in Status Strip / analytics.                                                                                   |
+| **Linkup**                                                | AI search API with standard/deep research modes for grounded company/market research.                                                                                         | Search tool for company product, pricing, funding, hiring, competitors, headwinds, source refs.                                                                                                                                     |
+| **Gemini Embedding 2 / File Search**                      | Gemini Embedding 2 supports multimodal embeddings across text, images, video, audio, and documents; File Search offers managed RAG workflows. ([Google AI for Developers][6]) | Use Convex-native vector search first; optionally embed OKF/source chunks with Gemini. File Search is a possible managed retrieval adapter, not the source of truth.                                                                |
+| **Cursor semantic search / Kuba Rogut retrieval framing** | Retrieval is not one vector call; it is semantic search, full-text search, glob, regex, filters, and iterative agent search.                                                  | NodeAgent retrieval loop: OKF semantic + full-text + metadata filters + graph/backlinks + spreadsheet search + literal source open + external fallback. Treat the Cursor metrics as directional unless original source is provided. |
+| **Jeff Dean “right million tokens” framing**              | The goal is not to stuff everything into context; it is to retrieve the right subset.                                                                                         | OKF + Convex full-text/vector + evidence sufficiency + subagent evidence memos.                                                                                                                                                     |
+
+---
+
+# 4. Knowledge, retrieval, and source-evidence inspirations
+
+| Reference                                   | What we extracted                                                                                                                                                                                                                                | NodeRoom version                                                                                                                                                  |
+| ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Google Open Knowledge Format**            | OKF is a vendor-neutral, human- and agent-friendly format: directories of Markdown files with YAML frontmatter; concepts link to each other as a graph; required `type` field; fields like title, resource, tags, timestamp. ([Google Cloud][7]) | **OKF is NodeRoom’s portable knowledge layer**: companies, sources, cells, metrics, charts, coach cues, traces, evals, review rounds, algorithms.                 |
+| **LlamaIndex CitationQueryEngine**          | Citation-marked responses and source nodes that can be inspected. ([Developer Documentation][8])                                                                                                                                                 | Evidence Carousel: click a claim → literal source file/page/row/bbox + explanation of support strength.                                                           |
+| **Convex vector search / full-text search** | Convex supports vector indexes and full-text search, so we may not need an external vector DB at first. ([Convex Developer Hub][9])                                                                                                              | Start with Convex-native `okfChunks`, full-text search, vector search, graph edges. Add external vector DB only after scale/features demand it.                   |
+| **RAG discourse**                           | “RAG is dead” is too narrow if RAG means only top-k vector chunks.                                                                                                                                                                               | NodeRoom’s version is **agentic investigation**: generate candidate evidence, inspect top results, open literal files, produce evidence memos, then answer/write. |
+| **OKF graph visualizer**                    | OKF includes reference graph-visualizer ideas for portable concept browsing. ([Google Cloud][7])                                                                                                                                                 | OKF Graph Artifact: Company → Source → Cell → Metric → Chart → Coach Cue → Trace → Eval.                                                                          |
+
+---
+
+# 5. Database, sync, streaming, and analytics inspirations
+
+| Reference                                           | What we extracted                                                                                                                                                                                | NodeRoom version                                                                                                                                        |
+| --------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Convex optimistic updates**                       | Optimistic updates are temporary local client-cache edits that run when a mutation starts and reconcile with authoritative server data when the mutation completes. ([Convex Developer Hub][10]) | Chat bubbles, cell edits, queue toggles paint instantly; durable truth still commits through Convex mutation and app-level CAS.                         |
+| **Convex Actions / Mutations / internal mutations** | Long external work belongs in Actions; durable writes belong in mutations/internal mutations.                                                                                                    | Agent LLM/search/provider work runs in actions; `write_locked_cell_results` / `applyCellEditCore` commit truth.                                         |
+| **Convex persistent text streaming**                | Streams text to a client over HTTP while persisting on the server for reload/share. ([GitHub][11])                                                                                               | Agent narration streams live; spreadsheet truth commits as validated patches, not token-by-token cell updates.                                          |
+| **Convex as OLTP vs ClickHouse as OLAP**            | Convex for live operational truth; ClickHouse for large analytical scans. ClickHouse is a column-oriented OLAP DB. ([ClickHouse][12])                                                            | Convex: rooms/messages/artifacts/cells/proposals/traces. ClickHouse: cost, latency, model route, retrieval analytics, no-clobber rate, source coverage. |
+| **Supabase Realtime / WebRTC comparison**           | Raw row/WAL streams or peer streams are not enough for auditable collaborative artifacts.                                                                                                        | Use Convex for durable reactive ledger; optionally use ephemeral presence/soft-intent separately for cursor/active edit state.                          |
+| **ClickHouse from AWS-Hackathon**                   | Non-blocking analytics event sink; telemetry must not take down the demo path.                                                                                                                   | `warehouseOutbox` → ClickHouse for agent cost, source coverage, retrieval hit/miss, no-clobber analytics.                                               |
+| **Langfuse**                                        | Prompt/version/tool trace observability.                                                                                                                                                         | Future trace cockpit linked to Convex run IDs and ClickHouse analytics.                                                                                 |
+
+---
+
+# 6. Demo, slides, and media inspirations
+
+| Reference                                     | What we extracted                                                                                         | NodeRoom version                                                                                                                                    |
+| --------------------------------------------- | --------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **frontend-slides**                           | Single-file HTML decks, visual style discovery, agent-created polished slides. ([GitHub][13])             | Build NodeRoom presentation as a web slide deck: traditional workflow → NodeRoom loop → stack → live proof → eval.                                  |
+| **feature-walkthrough-gif**                   | Playwright → Remotion → ffmpeg walkthrough GIF/MP4 with cursor, captions, zoom, UI states. ([GitHub][14]) | Record live end-to-end demo: fresh room, multiple prompts, streaming, sheet enrichment, human edit preserved, evidence carousel, final proof panel. |
+| **AWS-Hackathon repo / Harness4Visuals**      | Production-line pattern: prompt → artifact → analytics → publish dry-run → training/export.               | NodeRoom pattern: prompt → diligence artifact → evidence carousel → coach cue → review round → downstream handoff → eval analytics.                 |
+| **Fal + Cloudinary**                          | Optional generated media and stable CDN mirroring.                                                        | Optional chart/report/media export, not core diligence truth.                                                                                       |
+| **Render**                                    | Public demo deployment.                                                                                   | Host demo and walkthrough capture endpoint.                                                                                                         |
+| **Cited.md / Senso-like citation discipline** | Public claims need published citeables; distinguish live, mocked, planned.                                | NodeRoom should label demo states honestly: live provider, deterministic fixture, dry-run downstream, planned integration.                          |
+
+---
+
+# 7. UI / UX and component-design inspirations
+
+| Reference                                                    | What we extracted                                                                                  | NodeRoom version                                                                                                               |
+| ------------------------------------------------------------ | -------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| **OpenUI**                                                   | AI-generated UI artifacts with dedicated renderers; reusable generated UI can be saved/rerendered. | Artifact renderer for diligence cards, proof panels, runway charts, OKF graph, downstream cards.                               |
+| **assistant-ui artifacts examples**                          | Chat + artifact split UX; agent results become work products, not just messages.                   | Copilot right panel + Work Surface center stage.                                                                               |
+| **Claude / ChatGPT Canvas / Cursor conventions**             | Chat persists while work surface changes.                                                          | Artifact opens on stage, not bottom drawer; chat remains right.                                                                |
+| **Cluely-like always-on coach**                              | Always-on contextual guidance, but with transparency and consent.                                  | **Banker Coach Mode**: what to pull, what’s weak, what the VP will ask, talk track, source carousel. Not stealthy, not hidden. |
+| **Open-design / click-to-component/code provenance pattern** | Click UI component → comment/edit/view code paths.                                                 | **Trace Lens**: click any cell/chart/cue → business proof + source evidence + runtime trace + builder-mode code provenance.    |
+| **LlamaIndex citation UI pattern**                           | Cited answers should expose actual retrieved source nodes.                                         | Evidence Carousel opens literal source file/row/page/bbox alongside the claim.                                                 |
+
+---
+
+# 8. Benchmark and research inspirations
+
+| Reference                                           | What we extracted                                                                                                                          | NodeRoom version                                                                                             |
+| --------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------ |
+| **BankerToolBench**                                 | End-to-end banker workflows, multi-file deliverables, client-readiness bar, cross-artifact consistency. ([arXiv][5])                       | NodeRoomBench: startup diligence package, source-backed sheet, chart, brief, review tasks, no-clobber proof. |
+| **WorkstreamBench**                                 | Finance spreadsheet deliverables need Accuracy, Formula, and Format; readability/modifiability matter. ([arXiv][15])                       | Evaluation must grade formulas, values, formatting, reviewability, not just final answer.                    |
+| **BlueFin**                                         | Professional finance spreadsheet tasks: synthesis, manipulation, comprehension; dynamic correctness remains weak. ([arXiv][16])            | Algorithm artifacts and deterministic reruns for formulas/runway.                                            |
+| **SpreadsheetBench**                                | 912 real-world Excel manipulation tasks from forums; robust solutions tested across multiple files. ([arXiv][17])                          | Low-level sheet manipulation tests: clean, filter, formula, layout, exact cells changed.                     |
+| **DV-World**                                        | Real-world data visualization tasks: spreadsheet chart/dashboard creation, chart repair, adapting visuals, ambiguous intent. ([arXiv][18]) | Runway/milestone chart and chart-proof eval: values tie to cells, assumptions visible.                       |
+| **Finch**                                           | Messy enterprise finance/accounting workflows across spreadsheets, PDFs, formulas, charts, emails, reports. ([arXiv][19])                  | Long-horizon multi-artifact room: sheet + PDF + note + prior report + chart + review.                        |
+| **BigFinanceBench**                                 | Financial research must be auditable: source choice, period, definition, assumptions, calculation. ([arXiv][20])                           | Evidence sufficiency: enoughToAnswer, enoughToWrite, enoughForClientReady.                                   |
+| **FinSheet-Bench**                                  | Complex financial spreadsheets break LLMs; need layout understanding + deterministic computation. ([arXiv][21])                            | Preserve coordinates, merged cells, multi-line headers, fund dividers, true data regions.                    |
+| **FinRAGBench-V**                                   | Multimodal finance RAG with visual citation. ([arXiv][22])                                                                                 | Source evidence should support PDF/image/page/bbox citations, not just text snippets.                        |
+| **Pista / active-participation spreadsheet agents** | Users need visibility/control during spreadsheet-agent work, not just post-hoc review.                                                     | Banker Coach and Review Round: preserve co-ownership.                                                        |
+| **TabClaw / spreadsheet planning agents**           | Editable execution plans, streamed analysis, specialist agents, reusable skills.                                                           | PlanPreview + editable queue + subagents + skills.md.                                                        |
+
+---
+
+# 9. Finance/professional workflow inspirations
+
+| Reference                                           | What we extracted                                                                                          | NodeRoom version                                                                                                                          |
+| --------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| **JPM Middle Market / Startup Banking workflow**    | Company-information gathering, diligence, runway/milestones, source-backed analysis, senior/client review. | Startup Diligence War Room: multiple users request multiple agents to research companies and organize findings.                           |
+| **ParselyFi-style project**                         | Bulk company research / enrichment.                                                                        | Company Research sheet, singular or bulk batches, status-gated enrichment, source-backed cells.                                           |
+| **Fractional CFO / FP&A workflows**                 | Monthly variance review, reporting packs, source-backed explanations, review rounds.                       | Alternate ICP: Source-backed variance review room.                                                                                        |
+| **RareLiquid / Ben Chon 3-statement modeling pack** | Private finance modeling gold pack.                                                                        | Solve / Guide / Collaborate modes with formula oracle and private-gold isolation.                                                         |
+| **Banker psychology / client-readiness**            | Client-ready means a human can defend every number, source, assumption, and tone.                          | NodeRoom does not claim “autonomous client-ready output”; it makes AI work reviewable enough for a banker to turn into client-ready work. |
+
+---
+
+# 10. AWS-Hackathon sponsor / provider inspirations
+
+These came from your AWS-Hackathon repo discussion and became a provider map for NodeRoom:
+
+| Provider / pattern   | What it taught us                                     | NodeRoom version                                                           |
+| -------------------- | ----------------------------------------------------- | -------------------------------------------------------------------------- |
+| **ClickHouse**       | Append-only analytics/cost/event warehouse.           | Retrieval/eval/cost/no-clobber/source-coverage dashboards.                 |
+| **TrueFoundry**      | Model gateway / governed routing / budget / fallback. | Optional model-gateway layer; NodeRoom already has adaptive routing ideas. |
+| **Composio**         | Downstream tool actions and dry-run pattern.          | Gmail, Slack, Linear, Notion, CRM handoff cards; approval-gated.           |
+| **OpenUI**           | Generated artifact panels.                            | Diligence cards, proof panels, OKF graph, coach cues.                      |
+| **Langfuse**         | LLM trace/eval cockpit.                               | Link agent run trace → prompt/model/tool/eval metadata.                    |
+| **Senso / Cited.md** | Public citation discipline and claim-status labeling. | Public product/demo claims labeled live / mocked / planned / private-gold. |
+| **Fal / Cloudinary** | Optional rendered visual media and stable storage.    | Optional chart/report/walkthrough export, not core truth.                  |
+| **Render**           | Public hosting.                                       | Demo deployment and walkthrough capture target.                            |
+| **Apify**            | Web extraction reference.                             | Possible future ingestion path; not core if Linkup/source tools suffice.   |
+
+---
+
+# 11. Final synthesis: how all references collapsed into the current design
+
+```text
+LiveFlow          -> finance users need fast, reliable agentic workflows
+Attio            -> objects + Universal Context + workflow agents
+Quadratic        -> spreadsheet-native, code-based, auditable analysis
+BankerToolBench  -> client-readiness and multi-file professional eval bar
+Convex           -> live OLTP ledger + optimistic UI + actions/mutations
+OKF              -> portable knowledge bundle for humans and agents
+Gemini Embedding -> multimodal search substrate over OKF/source artifacts
+LlamaIndex       -> citation/source-node inspection pattern
+ClickHouse       -> analytics warehouse for cost/eval/retrieval/no-clobber
+OpenUI           -> artifact rendering, proof cards, charts, UI panels
+Linear           -> task ownership and review state
+Cluely pattern   -> always-on coach, but transparent and auditable
+frontend-slides  -> polished HTML deck
+feature-walkthrough-gif -> live demo recording proof
+```
+
+The shortest final framing:
+
+> **NodeRoom is a live AI diligence workroom: Attio-like context, Quadratic-like artifact work, BankerToolBench-grade proof, Convex-backed collaboration, OKF-packaged knowledge, and a banker coach that turns hidden agent work into evidence, review, and explanation.**
+
+[1]: https://www.liveflow.com/ "LiveFlow | The Agentic Accounting Platform"
+[2]: https://attio.com/ "Attio: Ask more from CRM"
+[3]: https://www.quadratichq.com/ "Quadratic: The AI Spreadsheet"
+[4]: https://www.quadratichq.com/spreadsheet-api "Quadratic Spreadsheet API for Agents and Developers"
+[5]: https://arxiv.org/abs/2604.11304?utm_source=chatgpt.com "BankerToolBench: Evaluating AI Agents in End-to-End Investment Banking Workflows"
+[6]: https://ai.google.dev/gemini-api/docs/embeddings "Embeddings  |  Gemini API  |  Google AI for Developers"
+[7]: https://cloud.google.com/blog/products/data-analytics/how-the-open-knowledge-format-can-improve-data-sharing "How the Open Knowledge Format can improve data sharing | Google Cloud Blog"
+[8]: https://docs.llamaindex.ai/en/stable/examples/query_engine/citation_query_engine/ "CitationQueryEngine
+ \| Developer Documentation"
+[9]: https://docs.convex.dev/vector-search "Vector Search | Convex Developer Hub"
+[10]: https://docs.convex.dev/client/react/optimistic-updates "Optimistic Updates | Convex Developer Hub"
+[11]: https://github.com/get-convex/persistent-text-streaming "GitHub - get-convex/persistent-text-streaming: Stream text back to a client over HTTP while persisting it on the server for reloading/sharing · GitHub"
+[12]: https://clickhouse.com/docs/en/intro "What is ClickHouse? | ClickHouse Docs"
+[13]: https://github.com/zarazhangrui/frontend-slides "GitHub - zarazhangrui/frontend-slides: Create beautiful slides on the web using a coding agent's frontend skills · GitHub"
+[14]: https://github.com/HomenShum/feature-walkthrough-gif "GitHub - HomenShum/feature-walkthrough-gif: Turn any web feature into a polished, annotated walkthrough GIF — every UI state, an animated cursor that glides to each click, a zoom-to-focus camera, step captions. Playwright → Remotion → ffmpeg. · GitHub"
+[15]: https://arxiv.org/abs/2605.22664?utm_source=chatgpt.com "WorkstreamBench: Evaluating LLM Agents on End-to-End Spreadsheet Tasks in Finance"
+[16]: https://arxiv.org/abs/2605.30907?utm_source=chatgpt.com "BlueFin: Benchmarking LLM Agents on Financial Spreadsheets"
+[17]: https://arxiv.org/abs/2406.14991?utm_source=chatgpt.com "SpreadsheetBench: Towards Challenging Real World Spreadsheet Manipulation"
+[18]: https://arxiv.org/abs/2604.25914?utm_source=chatgpt.com "DV-World: Benchmarking Data Visualization Agents in Real-World Scenarios"
+[19]: https://arxiv.org/abs/2512.13168?utm_source=chatgpt.com "Finch: Benchmarking Finance & Accounting across Spreadsheet-Centric Enterprise Workflows"
+[20]: https://arxiv.org/abs/2606.03829?utm_source=chatgpt.com "BigFinanceBench: A Workflow-Grounded Benchmark for Financial-Research Agents"
+[21]: https://arxiv.org/abs/2603.07316?utm_source=chatgpt.com "FinSheet-Bench: From Simple Lookups to Complex Reasoning, Where LLMs Break on Financial Spreadsheets"
+[22]: https://arxiv.org/abs/2505.17471?utm_source=chatgpt.com "FinRAGBench-V: A Benchmark for Multimodal RAG with Visual Citation in the Financial Domain"

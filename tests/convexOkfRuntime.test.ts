@@ -23,7 +23,7 @@ describe("persistent OKF runtime", () => {
     const indexed = await t.mutation(api.okf.reindexRoom, { roomId, requester: proof });
     expect(indexed.indexed).toBeGreaterThanOrEqual(1);
 
-    const concepts = await t.query(api.okf.listConcepts, { roomId, type: "Spreadsheet" });
+    const concepts = await t.query(api.okf.listConcepts, { roomId, requester: proof, type: "Spreadsheet" });
     expect(concepts).toHaveLength(1);
     expect(concepts[0].body).toContain("Acme");
 
@@ -48,7 +48,7 @@ describe("persistent OKF runtime", () => {
       }],
     });
 
-    const fullText = await t.query(api.okf.fullTextSearch, { roomId, query: "Acme ARR risk", limit: 3 });
+    const fullText = await t.query(api.okf.fullTextSearch, { roomId, requester: proof, query: "Acme ARR risk", limit: 3 });
     expect(fullText[0]?.concept.id).toBe(concepts[0].id);
 
     await t.mutation(api.okf.recordRetrievalEvent, {
@@ -61,6 +61,7 @@ describe("persistent OKF runtime", () => {
       latencyMs: 12,
       provider: "local",
       model: "test",
+      visibility: "public",
     });
     const lens = await t.query(api.okf.traceLens, { roomId, requester: proof });
     expect(lens.chunkCount).toBe(1);
@@ -168,8 +169,24 @@ describe("persistent OKF runtime", () => {
       }),
     });
 
-    const publicSearch = await t.query(api.okf.fullTextSearch, { roomId, query: "confidential concentration concern", limit: 5 });
-    expect(publicSearch.some((hit) => hit.concept.id === "private/homen/thesis")).toBe(false);
+    await expect(t.query(api.okf.fullTextSearch, { roomId, query: "confidential concentration concern", limit: 5 } as never)).rejects.toThrow();
+    await expect(t.query(api.okf.listConcepts, { roomId, type: "Metric" } as never)).rejects.toThrow();
+    await expect(t.query(api.okf.readConcept, { roomId, conceptId: "private/homen/thesis" } as never)).rejects.toThrow();
+
+    await expect(t.mutation(api.okf.upsertConcept, {
+      roomId,
+      requester: proof,
+      concept: createOkfConcept({
+        path: "private/spoofed.md",
+        frontmatter: {
+          type: "Coach Cue",
+          title: "Spoofed private owner",
+          visibility: "private",
+          noderoom: { ownerId: otherProof.actor.id },
+        },
+        body: "This should not enter another member private overlay.",
+      }),
+    })).rejects.toThrow(/private_concept_owner_mismatch/);
 
     const ownerSearch = await t.query(api.okf.fullTextSearch, { roomId, requester: proof, query: "confidential concentration concern", limit: 5 });
     expect(ownerSearch[0]?.concept.id).toBe("private/homen/thesis");
@@ -177,14 +194,55 @@ describe("persistent OKF runtime", () => {
     const otherSearch = await t.query(api.okf.fullTextSearch, { roomId, requester: otherProof, query: "confidential concentration concern", limit: 5 });
     expect(otherSearch.some((hit) => hit.concept.id === "private/homen/thesis")).toBe(false);
 
-    const publicRead = await t.query(api.okf.readConcept, { roomId, conceptId: "private/homen/thesis" });
-    expect(publicRead).toBeNull();
+    const otherRead = await t.query(api.okf.readConcept, { roomId, requester: otherProof, conceptId: "private/homen/thesis" });
+    expect(otherRead).toBeNull();
 
     const ownerRead = await t.query(api.okf.readConcept, { roomId, requester: proof, conceptId: "private/homen/thesis" });
     expect(ownerRead?.frontmatter.noderoom?.ownerId).toBe(proof.actor.id);
 
+    await t.mutation(api.okf.upsertConcept, {
+      roomId,
+      requester: proof,
+      concept: createOkfConcept({
+        path: "public/linked-review.md",
+        frontmatter: {
+          type: "Review Round",
+          title: "Room review with hidden source",
+          visibility: "public",
+        },
+        body: "Public review links to [hidden thesis](private/homen/thesis.md) for the owner only.",
+      }),
+    });
+    await t.mutation(api.okf.recordRetrievalEvent, {
+      roomId,
+      query: "confidential concentration concern",
+      tool: "okf.fullTextSearch",
+      status: "completed",
+      candidateIds: ["private/homen/thesis"],
+      hitConceptIds: ["private/homen/thesis"],
+      latencyMs: 5,
+      visibility: "private",
+      ownerId: proof.actor.id,
+    });
+    await t.mutation(api.okf.recordRetrievalEvent, {
+      roomId,
+      query: "malicious public event should not expose hidden ids",
+      tool: "okf.fullTextSearch",
+      status: "completed",
+      candidateIds: ["private/homen/thesis"],
+      hitConceptIds: ["private/homen/thesis"],
+      latencyMs: 5,
+      visibility: "public",
+    });
+
     const lens = await t.query(api.okf.traceLens, { roomId, requester: otherProof });
     expect(lens.concepts.some((concept: { conceptId: string }) => concept.conceptId === "private/homen/thesis")).toBe(false);
+    expect(lens.events.some((event: { query: string }) => event.query.includes("confidential concentration concern"))).toBe(false);
+    expect(lens.events.flatMap((event: { hitConceptIds: string[] }) => event.hitConceptIds)).not.toContain("private/homen/thesis");
+    expect(lens.edges.some((edge: { fromConceptId: string; toConceptId: string }) => edge.fromConceptId === "public/linked-review" && edge.toConceptId === "private/homen/thesis")).toBe(false);
+
+    const ownerLens = await t.query(api.okf.traceLens, { roomId, requester: proof });
+    expect(ownerLens.events.some((event: { query: string }) => event.query.includes("confidential concentration concern"))).toBe(true);
 
     await expect(t.mutation(api.okf.promoteConcept, {
       roomId,
@@ -205,15 +263,15 @@ describe("persistent OKF runtime", () => {
     });
     expect(promoted.conceptId).toContain("promoted/private/homen/thesis-redacted");
 
-    const promotedRead = await t.query(api.okf.readConcept, { roomId, conceptId: promoted.conceptId });
+    const promotedRead = await t.query(api.okf.readConcept, { roomId, requester: otherProof, conceptId: promoted.conceptId });
     expect(promotedRead?.frontmatter.visibility).toBe("redacted");
     expect(promotedRead?.frontmatter.noderoom?.promotedFromConceptId).toBe("private/homen/thesis");
     expect(promotedRead?.body).not.toContain("confidential concentration concern");
 
-    const publicPromotedSearch = await t.query(api.okf.fullTextSearch, { roomId, query: "updated concentration evidence", limit: 5 });
+    const publicPromotedSearch = await t.query(api.okf.fullTextSearch, { roomId, requester: otherProof, query: "updated concentration evidence", limit: 5 });
     expect(publicPromotedSearch.some((hit) => hit.concept.id === promoted.conceptId)).toBe(true);
 
-    const publicPrivatePhraseSearch = await t.query(api.okf.fullTextSearch, { roomId, query: "confidential concentration concern", limit: 5 });
+    const publicPrivatePhraseSearch = await t.query(api.okf.fullTextSearch, { roomId, requester: otherProof, query: "confidential concentration concern", limit: 5 });
     expect(publicPrivatePhraseSearch.some((hit) => hit.concept.id === "private/homen/thesis")).toBe(false);
     for (const hit of publicPrivatePhraseSearch) expect(hit.concept.body).not.toContain("confidential concentration concern");
   });

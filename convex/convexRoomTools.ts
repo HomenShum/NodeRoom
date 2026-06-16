@@ -254,6 +254,8 @@ class ConvexOkfRetrievalPort implements OkfRetrievalPort {
       status,
       candidateIds: hitConceptIds,
       hitConceptIds,
+      visibility: this.actor.scope === "private" && this.actor.ownerId ? "private" : "public",
+      ownerId: this.actor.scope === "private" && this.actor.ownerId ? this.actor.ownerId : undefined,
       latencyMs,
       provider,
       model,

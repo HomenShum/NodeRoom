@@ -28,12 +28,12 @@ const evidenceRefV = v.object({
   citationId: v.optional(v.string()),
   sourceArtifactId: v.optional(v.string()),
 });
-const requesterArgsV = { requester: v.optional(actorProofV) };
+const requesterArgsV = { requester: actorProofV };
 const agentAccessArgsV = { actor: actorV };
 
 type OkfAccess = { privateOwnerId?: string };
 type ActorLike = { kind: "user" | "agent"; id: string; name: string; ownerId?: string; scope?: "public" | "private" };
-type VisibleRow = { visibility: OkfVisibility; ownerId?: string };
+type VisibleRow = { visibility?: OkfVisibility; ownerId?: string };
 type ArtifactAcl = { visibility?: "private" | "room" | "public"; createdBy?: ActorLike };
 type SourceLocatorArgs = {
   page?: number;
@@ -105,7 +105,7 @@ function accessForActor(actor: ActorLike): OkfAccess {
 }
 
 async function accessForRequester(ctx: QueryCtx, roomId: Id<"rooms">, requester?: { actor: ActorLike; token?: string }): Promise<OkfAccess> {
-  if (!requester) return {};
+  if (!requester) throw new Error("okf_room_membership_required");
   const actor = await requireActorProof(ctx, roomId, requester);
   return accessForActor(actor);
 }
@@ -116,8 +116,23 @@ async function accessForAgent(ctx: QueryCtx, roomId: Id<"rooms">, actor: ActorLi
 }
 
 function canReadVisible(row: VisibleRow, access: OkfAccess): boolean {
-  if (row.visibility === "public" || row.visibility === "redacted") return true;
+  const visibility = normalizeVisibility(row.visibility);
+  if (visibility === "public" || visibility === "redacted") return true;
   return !!access.privateOwnerId && row.ownerId === access.privateOwnerId;
+}
+
+async function visibleConceptIdSet(ctx: QueryCtx, roomId: Id<"rooms">, ids: string[], access: OkfAccess): Promise<Set<string>> {
+  const visible = new Set<string>();
+  for (const conceptId of distinct(ids)) {
+    const row = await ctx.db.query("okfConcepts").withIndex("by_room_concept", (q) => q.eq("roomId", roomId).eq("conceptId", conceptId)).unique();
+    if (row && canReadVisible(row, access)) visible.add(conceptId);
+  }
+  return visible;
+}
+
+async function readableConceptRow(ctx: QueryCtx, roomId: Id<"rooms">, conceptId: string, access: OkfAccess) {
+  const row = await ctx.db.query("okfConcepts").withIndex("by_room_concept", (q) => q.eq("roomId", roomId).eq("conceptId", conceptId)).unique();
+  return row && canReadVisible(row, access) ? row : null;
 }
 
 function canOpenArtifact(artifact: ArtifactAcl, access: OkfAccess): boolean {
@@ -499,7 +514,9 @@ export const upsertConcept = mutation({
     const actor = await requireActorProof(ctx, a.roomId, a.requester);
     const concept = a.concept as OkfConcept;
     const visibility = normalizeVisibility(concept.frontmatter.visibility ?? concept.frontmatter.noderoom?.visibility);
-    if (visibility === "private" && !ownerIdFromConcept(concept)) {
+    if (visibility === "private") {
+      const requestedOwnerId = ownerIdFromConcept(concept);
+      if (requestedOwnerId && requestedOwnerId !== actor.id) throw new Error("private_concept_owner_mismatch");
       concept.frontmatter.ownerId = actor.id;
       concept.frontmatter.noderoom = { ...(concept.frontmatter.noderoom ?? {}), ownerId: actor.id, visibility };
     }
@@ -575,15 +592,17 @@ export const reindexRoom = mutation({
     }
     const traces = await ctx.db.query("traces").withIndex("by_room", (q) => q.eq("roomId", a.roomId)).order("desc").take(30);
     for (const trace of traces) {
+      const traceOwnerId = ownerIdFromActor(trace.actor);
+      const traceVisibility: OkfVisibility = trace.actor.kind === "agent" && trace.actor.scope === "private" && traceOwnerId ? "private" : "public";
       const concept = createOkfConcept({
         path: `rooms/${String(a.roomId)}/traces/${String(trace._id)}.md`,
         frontmatter: {
           type: "Agent Trace",
           title: `${trace.type} trace ${String(trace._id).slice(-6)}`,
           timestamp: new Date(trace.ts).toISOString(),
-          visibility: "public",
+          visibility: traceVisibility,
           tags: ["trace", trace.type],
-          noderoom: { roomId: String(a.roomId), status: "complete", confidence: 0.75, sourceKind: "computed", visibility: "public" },
+          noderoom: clean({ roomId: String(a.roomId), ownerId: traceOwnerId, status: "complete", confidence: 0.75, sourceKind: "computed", visibility: traceVisibility }),
         },
         body: `${trace.summary}\n\n${trace.detail ?? ""}`.slice(0, 8_000),
       });
@@ -690,6 +709,7 @@ export const backlinks = query({
   args: { roomId: v.id("rooms"), conceptId: v.string(), depth: v.optional(v.number()), limit: v.optional(v.number()), ...requesterArgsV },
   handler: async (ctx, a) => {
     const access = await accessForRequester(ctx, a.roomId, a.requester);
+    if (!await readableConceptRow(ctx, a.roomId, a.conceptId, access)) return [];
     const edges = await ctx.db.query("okfEdges").withIndex("by_to", (q) => q.eq("roomId", a.roomId).eq("toConceptId", a.conceptId)).take(cap(a.limit, 25, 100));
     const out: OkfConcept[] = [];
     for (const edge of edges) {
@@ -704,6 +724,7 @@ export const expandNeighbors = query({
   args: { roomId: v.id("rooms"), conceptId: v.string(), linkDepth: v.number(), includeCitations: v.optional(v.boolean()), includeBacklinks: v.optional(v.boolean()), limit: v.optional(v.number()), ...requesterArgsV },
   handler: async (ctx, a) => {
     const access = await accessForRequester(ctx, a.roomId, a.requester);
+    if (!await readableConceptRow(ctx, a.roomId, a.conceptId, access)) return [];
     const out = new Map<string, OkfConcept>();
     const forward = await ctx.db.query("okfEdges").withIndex("by_from", (q) => q.eq("roomId", a.roomId).eq("fromConceptId", a.conceptId)).take(cap(a.limit, 25, 100));
     const backward = a.includeBacklinks ? await ctx.db.query("okfEdges").withIndex("by_to", (q) => q.eq("roomId", a.roomId).eq("toConceptId", a.conceptId)).take(cap(a.limit, 25, 100)) : [];
@@ -869,6 +890,7 @@ export const backlinksForAgent = internalQuery({
   args: { roomId: v.id("rooms"), ...agentAccessArgsV, conceptId: v.string(), depth: v.optional(v.number()), limit: v.optional(v.number()) },
   handler: async (ctx, a) => {
     const access = await accessForAgent(ctx, a.roomId, a.actor);
+    if (!await readableConceptRow(ctx, a.roomId, a.conceptId, access)) return [];
     const edges = await ctx.db.query("okfEdges").withIndex("by_to", (q) => q.eq("roomId", a.roomId).eq("toConceptId", a.conceptId)).take(cap(a.limit, 25, 100));
     const out: OkfConcept[] = [];
     for (const edge of edges) {
@@ -883,6 +905,7 @@ export const expandNeighborsForAgent = internalQuery({
   args: { roomId: v.id("rooms"), ...agentAccessArgsV, conceptId: v.string(), linkDepth: v.number(), includeCitations: v.optional(v.boolean()), includeBacklinks: v.optional(v.boolean()), limit: v.optional(v.number()) },
   handler: async (ctx, a) => {
     const access = await accessForAgent(ctx, a.roomId, a.actor);
+    if (!await readableConceptRow(ctx, a.roomId, a.conceptId, access)) return [];
     const out = new Map<string, OkfConcept>();
     const forward = await ctx.db.query("okfEdges").withIndex("by_from", (q) => q.eq("roomId", a.roomId).eq("fromConceptId", a.conceptId)).take(cap(a.limit, 25, 100));
     const backward = a.includeBacklinks ? await ctx.db.query("okfEdges").withIndex("by_to", (q) => q.eq("roomId", a.roomId).eq("toConceptId", a.conceptId)).take(cap(a.limit, 25, 100)) : [];
@@ -961,12 +984,18 @@ export const recordRetrievalEvent = mutation({
     status: v.union(v.literal("completed"), v.literal("failed")),
     candidateIds: v.array(v.string()),
     hitConceptIds: v.array(v.string()),
+    visibility: v.optional(okfVisibilityV),
+    ownerId: v.optional(v.string()),
     latencyMs: v.number(),
     provider: v.optional(v.string()),
     model: v.optional(v.string()),
     error: v.optional(v.string()),
   },
-  handler: async (ctx, a) => ctx.db.insert("retrievalEvents", { ...a, createdAt: Date.now() }),
+  handler: async (ctx, a) => {
+    const visibility = normalizeVisibility(a.visibility);
+    if (visibility === "private" && !a.ownerId) throw new Error("private_retrieval_event_owner_required");
+    return ctx.db.insert("retrievalEvents", { ...a, visibility, createdAt: Date.now() });
+  },
 });
 
 export const traceLens = query({
@@ -975,17 +1004,21 @@ export const traceLens = query({
     const access = await accessForRequester(ctx, a.roomId, a.requester);
     const concepts = (await ctx.db.query("okfConcepts").withIndex("by_room", (q) => q.eq("roomId", a.roomId)).order("desc").take(24)).filter((row) => canReadVisible(row, access)).slice(0, 12);
     const edges = await ctx.db.query("okfEdges").withIndex("by_room", (q) => q.eq("roomId", a.roomId)).take(24);
-    const events = await ctx.db.query("retrievalEvents").withIndex("by_room", (q) => q.eq("roomId", a.roomId)).order("desc").take(12);
+    const events = (await ctx.db.query("retrievalEvents").withIndex("by_room", (q) => q.eq("roomId", a.roomId)).order("desc").take(24))
+      .filter((event) => canReadVisible({ visibility: normalizeVisibility(event.visibility), ownerId: event.ownerId }, access))
+      .slice(0, 12);
     const outboxRows = await ctx.db.query("okfOutbox").withIndex("by_room_concept", (q) => q.eq("roomId", a.roomId)).collect();
     const chunks = (await ctx.db.query("okfChunks").withIndex("by_room_concept", (q) => q.eq("roomId", a.roomId)).take(500)).filter((chunk) => canReadVisible(chunk, access));
+    const visibleEventConceptIds = await visibleConceptIdSet(ctx, a.roomId, events.flatMap((event) => event.hitConceptIds), access);
+    const visibleConceptIds = new Set(concepts.map((concept) => concept.conceptId));
     const outbox = outboxRows.reduce((acc, row) => {
       acc[row.status] = (acc[row.status] ?? 0) + 1;
       return acc;
     }, {} as Record<string, number>);
     return {
       concepts: concepts.map((row) => ({ conceptId: row.conceptId, path: row.path, type: row.type, title: row.title, status: row.status, visibility: row.visibility, updatedAt: row.updatedAt })),
-      edges: edges.filter((edge) => concepts.some((concept) => concept.conceptId === edge.fromConceptId || concept.conceptId === edge.toConceptId)).map((edge) => ({ fromConceptId: edge.fromConceptId, toConceptId: edge.toConceptId, label: edge.label, kind: edge.kind })),
-      events: events.map((event) => ({ tool: event.tool, query: event.query, status: event.status, hitConceptIds: event.hitConceptIds, latencyMs: event.latencyMs, provider: event.provider, model: event.model, createdAt: event.createdAt })),
+      edges: edges.filter((edge) => visibleConceptIds.has(edge.fromConceptId) && visibleConceptIds.has(edge.toConceptId)).map((edge) => ({ fromConceptId: edge.fromConceptId, toConceptId: edge.toConceptId, label: edge.label, kind: edge.kind })),
+      events: events.map((event) => ({ tool: event.tool, query: event.query, status: event.status, hitConceptIds: event.hitConceptIds.filter((id) => visibleEventConceptIds.has(id)), latencyMs: event.latencyMs, provider: event.provider, model: event.model, createdAt: event.createdAt })),
       outbox: { queued: outbox.queued ?? 0, running: outbox.running ?? 0, completed: outbox.completed ?? 0, failed: outbox.failed ?? 0 },
       chunkCount: chunks.length,
     };
