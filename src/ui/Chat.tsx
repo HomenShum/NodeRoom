@@ -956,44 +956,6 @@ export function Chat({ roomId, me, channel, variant, agentName, style, onOpenArt
             </button>
           </div>
         )}
-        {showModelSelection && (
-          <div className="r-agent-route-row" data-testid="chat-agent-route">
-            <label className="r-agent-route-field">
-              <span>Agent route</span>
-              <select
-                value={modelSelectionMode}
-                onChange={(e: ChangeEvent<HTMLSelectElement>) => {
-                  const next = e.target.value as AgentModelSelection["mode"];
-                  setModelSelectionMode(next);
-                  if (next === "specific" && !specificModelPolicy && defaultSpecificModel) setSpecificModelPolicy(defaultSpecificModel);
-                }}
-                data-testid="chat-model-preset"
-                aria-label="Agent route"
-              >
-                {AGENT_MODEL_PRESETS.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
-              </select>
-            </label>
-            {modelSelectionMode === "specific" && (
-              <label className="r-agent-route-field" data-wide="true">
-                <span>Specific model</span>
-                <input
-                  value={specificModelPolicy || defaultSpecificModel || ""}
-                  onChange={(e: ChangeEvent<HTMLInputElement>) => setSpecificModelPolicy(e.target.value)}
-                  list="agent-model-options"
-                  placeholder="openrouter/provider-model"
-                  data-testid="chat-model-specific"
-                  aria-label="Specific agent model"
-                />
-                <datalist id="agent-model-options">
-                  {specificModelGroups.map((group) => (
-                    group.models.map((model) => <option key={`${group.provider}-${model}`} value={model}>{`${group.label} - ${model}`}</option>)
-                  ))}
-                </datalist>
-              </label>
-            )}
-            <span className="r-agent-route-hint" data-testid="chat-model-hint">{hintForModelSelection(modelSelectionMode)}</span>
-          </div>
-        )}
         {slashOpen && (
           <div className="r-slash" role="listbox" aria-label="Commands">
             {slashOptions.map((c, i) => (
@@ -1021,7 +983,7 @@ export function Chat({ roomId, me, channel, variant, agentName, style, onOpenArt
         <div className="r-intake-preview-slot">
           {text.trim().length > 0 && <IntakePlanPreview roomId={roomId} text={text} targetArtifacts={refs.map((r) => r.id)} />}
         </div>
-        <div className="r-input-wrap">
+        <div className="r-input-wrap r-input-stack">
           <input
             ref={fileInputRef}
             className="r-chat-file-input"
@@ -1033,35 +995,75 @@ export function Chat({ roomId, me, channel, variant, agentName, style, onOpenArt
             aria-label="Attach files"
             tabIndex={-1}
           />
-          <button
-            className="r-attach"
-            type="button"
-            onClick={openFilePicker}
-            disabled={uploadingFiles}
-            data-testid="chat-attach"
-            aria-label="Attach files"
-            title="Attach files"
-          >
-            <Paperclip size={15} />
-          </button>
           <textarea ref={taRef} rows={1} value={text} onChange={onChange} onKeyDown={onKeyDown} onPaste={onPaste}
             placeholder={isPrivate ? (roomLane ? "Tell your agent to act in the room…" : "Ask privately…") : "Message the room... type / for commands"}
             data-testid="chat-composer"
             aria-label={isPrivate ? "Ask privately" : "Message the room"} />
-          {/* The send button reflects the composer state — muted + disabled on empty input,
-              not a live accent button that does nothing (state-honesty). */}
-          <button className="r-send" onClick={() => send()} disabled={!canSend} data-testid="chat-send" aria-label="Send message"><Send size={15} /></button>
-        </div>
-        {!isPrivate && !slashOpen && (
-          <div className="r-composer-hint">
-            {hasQ3DemoSeed && (
+          {/* One calm toolbar row (assistant-ui/shadcn): attach + an unobtrusive model chip on the
+              left, send on the right. The route picker lives here as a ghost <select> — no labels,
+              no helper sentence (moved to title=), revealed-on-relevance instead of always-stacked. */}
+          <div className="r-composer-bar">
+            <button
+              className="r-attach"
+              type="button"
+              onClick={openFilePicker}
+              disabled={uploadingFiles}
+              data-testid="chat-attach"
+              aria-label="Attach files"
+              title="Attach files"
+            >
+              <Paperclip size={15} />
+            </button>
+            {showModelSelection && (
+              <select
+                className="r-model-select"
+                value={modelSelectionMode}
+                onChange={(e: ChangeEvent<HTMLSelectElement>) => {
+                  const next = e.target.value as AgentModelSelection["mode"];
+                  setModelSelectionMode(next);
+                  if (next === "specific" && !specificModelPolicy && defaultSpecificModel) setSpecificModelPolicy(defaultSpecificModel);
+                }}
+                data-testid="chat-model-preset"
+                aria-label="Agent route"
+                title={hintForModelSelection(modelSelectionMode)}
+              >
+                {AGENT_MODEL_PRESETS.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+              </select>
+            )}
+            {showModelSelection && modelSelectionMode === "specific" && (
               <>
-                <button className="r-chip" onClick={() => applySlash(SLASH_CMDS[1].insert)}>/ask diligence CardioNova</button>
-                <button className="r-chip" onClick={() => applySlash(SLASH_CMDS[2].insert)}>/ask runway gaps</button>
-                {store.mode === "memory" && <button className="r-chip" onClick={() => applySlash(SLASH_CMDS[4].insert)}>/demo multi-agent</button>}
+                {/* Free-text combobox (preserves the central-routing capability to pin any
+                    provider-model, not just catalog presets) — kept compact in the toolbar. */}
+                <input
+                  className="r-model-select r-model-select-wide"
+                  value={specificModelPolicy || defaultSpecificModel || ""}
+                  onChange={(e: ChangeEvent<HTMLInputElement>) => setSpecificModelPolicy(e.target.value)}
+                  list="agent-model-options"
+                  placeholder="provider-model"
+                  data-testid="chat-model-specific"
+                  aria-label="Specific agent model"
+                  title="Pinned model — type any provider-model"
+                />
+                <datalist id="agent-model-options">
+                  {specificModelGroups.map((group) => (
+                    group.models.map((model) => <option key={`${group.provider}-${model}`} value={model}>{`${group.label} - ${model}`}</option>)
+                  ))}
+                </datalist>
               </>
             )}
-            <span className="r-composer-kbd" aria-hidden="true">{hasQ3DemoSeed ? "Enter sends; Shift+Enter newline; / commands" : "Attach, paste, drop files, or press /"}</span>
+            <span className="r-composer-spacer" aria-hidden="true" />
+            {/* The send button reflects the composer state — muted + disabled on empty input,
+                not a live accent button that does nothing (state-honesty). */}
+            <button className="r-send" onClick={() => send()} disabled={!canSend} data-testid="chat-send" aria-label="Send message"><Send size={15} /></button>
+          </div>
+        </div>
+        {/* Suggestion chips only when the demo is seeded — no always-on keyboard sentence
+            (discoverable behavior doesn't need permanent screen real estate). */}
+        {!isPrivate && !slashOpen && hasQ3DemoSeed && (
+          <div className="r-composer-hint">
+            <button className="r-chip" onClick={() => applySlash(SLASH_CMDS[1].insert)}>/ask diligence CardioNova</button>
+            <button className="r-chip" onClick={() => applySlash(SLASH_CMDS[2].insert)}>/ask runway gaps</button>
+            {store.mode === "memory" && <button className="r-chip" onClick={() => applySlash(SLASH_CMDS[4].insert)}>/demo multi-agent</button>}
           </div>
         )}
       </div>

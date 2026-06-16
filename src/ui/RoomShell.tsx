@@ -7,7 +7,7 @@
  */
 
 import { useEffect, useRef, useState, type CSSProperties } from "react";
-import { PanelLeft, Table2, PanelRight, Moon, Sun, LogOut, Link2, ShieldCheck, X, HelpCircle, Copy, Check, Activity, MessageCircle, Send, Mail, FileText, MessageSquare, ClipboardList, Database, Linkedin, Sparkles, type LucideIcon } from "lucide-react";
+import { PanelLeft, Table2, PanelRight, Moon, Sun, LogOut, Link2, ShieldCheck, X, HelpCircle, Copy, Check, MessageCircle, Send, Mail, FileText, MessageSquare, ClipboardList, Database, Linkedin, Sparkles, type LucideIcon } from "lucide-react";
 import { useStore } from "../app/store";
 import { Chat } from "./Chat";
 import { Artifact } from "./panels/Artifact";
@@ -535,7 +535,6 @@ function SignalStatusStrip({ roomId, onOpenArtifact }: { roomId: string; onOpenA
   const store = useStore();
   const traces = selectPublicSignalTraces(store.listTraces(roomId));
   const proposals = store.listProposals(roomId);
-  const artifacts = store.listArtifacts(roomId);
   const sessions = store.listSessions(roomId);
   const run = store.lastRun();
   const job = store.lastLongFreeJob();
@@ -545,7 +544,6 @@ function SignalStatusStrip({ roomId, onOpenArtifact }: { roomId: string; onOpenA
   const jobRisk = ["failed", "blocked", "cancelled", "paused"].includes(jobStatus);
   const jobLive = !!job && !["completed", "failed", "cancelled", "blocked", "paused"].includes(jobStatus);
   const signals = [
-    { k: "Sources", v: `${artifacts.length} artifacts` },
     ...(proposals.length ? [{ k: "Review", v: `${proposals.length} pending` }] : []),
     ...(jobRisk ? [{ k: "Run", v: jobStatus }] : []),
     ...(jobLive
@@ -574,18 +572,6 @@ function SignalStatusStrip({ roomId, onOpenArtifact }: { roomId: string; onOpenA
   return (
     <div className="r-shell-bottom" data-testid="shell-bottom" data-noderoom-surface="shell.statusStrip">
       <ProgressSpine roomId={roomId} />
-      <div className="r-signal-tape" data-testid="signal-tape" aria-label="Signal Tape" data-noderoom-surface="shell.signalTape">
-        <Activity size={13} />
-        {signals.map((s) =>
-          s.k === "Review" && proposals.length > 0 ? (
-            <button key={s.k} className="r-signal-chip" data-testid="signal-review" style={{ border: "none", cursor: "pointer" }} title="Open the pending proposal on the stage" onClick={openProposal}>
-              <b>{s.k}</b>{s.v}
-            </button>
-          ) : (
-            <span key={s.k} className="r-signal-chip"><b>{s.k}</b>{s.v}</span>
-          ),
-        )}
-      </div>
       <div className="r-status-strip" data-testid="status-strip" role="status" aria-live="polite">
         <span className="r-status-dot" data-kind={status.kind} />
         {latestArt ? (
@@ -597,6 +583,19 @@ function SignalStatusStrip({ roomId, onOpenArtifact }: { roomId: string; onOpenA
         )}
         {latest && <span className="r-status-meta">{latest.actor.name} · {latest.type}</span>}
       </div>
+      {signals.length > 0 && (
+        <div className="r-signal-tape" data-testid="signal-tape" aria-label="Signal Tape" data-noderoom-surface="shell.signalTape">
+          {signals.map((s) =>
+            s.k === "Review" && proposals.length > 0 ? (
+              <button key={s.k} className="r-signal-chip" data-testid="signal-review" style={{ border: "none", cursor: "pointer" }} title="Open the pending proposal on the stage" onClick={openProposal}>
+                <b>{s.k}</b>{s.v}
+              </button>
+            ) : (
+              <span key={s.k} className="r-signal-chip"><b>{s.k}</b>{s.v}</span>
+            ),
+          )}
+        </div>
+      )}
     </div>
   );
 }

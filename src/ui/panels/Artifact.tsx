@@ -11,7 +11,7 @@ import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import {
   Table2, FileText, StickyNote, Users, GitMerge, Play, RotateCcw, History, Search, BookOpen,
-  Lock, Unlock, Ban, Pencil, Plus, Check, AlertTriangle, Eye, Circle, ChevronRight, Download, Trash2, Undo2, X, Columns2, MoreHorizontal, type LucideIcon,
+  Lock, Unlock, Ban, Pencil, Plus, Check, AlertTriangle, Eye, Circle, ChevronRight, Download, Trash2, Undo2, X, Columns2, MoreHorizontal, Mail, Hash, Layers, Linkedin, type LucideIcon,
 } from "lucide-react";
 import { useStore, type RoomStore, type EditFeedback } from "../../app/store";
 import { formatExcelNumber } from "../../app/numberFormat";
@@ -21,6 +21,10 @@ import { rangeBox, boxSize, cellsInBox, rangeLabel, rewriteFormulaRefs, buildTSV
 import { onStageFocus, type StageFocusTarget } from "../stageFocus";
 import type { Actor, Artifact as Art, CellPayload, DataframeColumn, DocumentParseMeta, Proposal, TraceEvent, ResearchRowInput } from "../../engine/types";
 import { prepareDownstreamDrafts, type PreparedDownstreamDraft } from "../../nodeagent/skills/integration/downstreamPublish";
+
+/** Downstream handoff destinations → compact icon + short label (replaces 5 wide ghost buttons). */
+const HANDOFF_ICONS: Record<string, LucideIcon> = { gmail: Mail, notion: FileText, slack: Hash, linear: Layers, linkedin: Linkedin };
+const HANDOFF_SHORT: Record<string, string> = { gmail: "Gmail", notion: "Notion", slack: "Slack", linear: "Linear", linkedin: "LinkedIn" };
 
 const WIKI_TITLE = "Agent wiki";
 const RESEARCH_TITLE = "Company research";
@@ -624,14 +628,19 @@ function Research({ roomId, me, art }: { roomId: string; me: Actor; art: Art }) 
         {requeueError && <span className="r-wall-error" role="alert" data-testid="research-requeue-error">{requeueError}</span>}
       </div>
       {downstreamDrafts.length > 0 && (
-        <div className="r-research-import" style={{ alignItems: "center", gap: 8 }}>
-          <span className="tiny faint">Ready-to-export draft for {activeDraftCompany}</span>
+        <div className="r-handoff-bar" data-testid="research-handoff">
+          <span className="r-handoff-label">Export <b>{activeDraftCompany}</b> draft</span>
           <span className="grow" />
-          {downstreamDrafts.map((draft) => (
-            <button key={draft.target} className="r-btn ghost" onClick={() => saveDownstreamDraft(draft)}>
-              <Download size={13} /> {draft.ctaLabel}
-            </button>
-          ))}
+          <div className="r-handoff-targets">
+            {downstreamDrafts.map((draft) => {
+              const Icon = HANDOFF_ICONS[draft.target] ?? Download;
+              return (
+                <button key={draft.target} className="r-handoff-chip" onClick={() => saveDownstreamDraft(draft)} title={draft.ctaLabel}>
+                  <Icon size={13} /> <span>{HANDOFF_SHORT[draft.target] ?? draft.target}</span>
+                </button>
+              );
+            })}
+          </div>
         </div>
       )}
       {pasteOpen && (

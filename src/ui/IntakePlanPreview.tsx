@@ -85,6 +85,11 @@ export function IntakePlanPreview({
   const { decision, plan } = result;
   const sched = SCHED[plan.scheduling];
 
+  // Reveal-on-relevance: a plain command that just runs now needs no card — that was the crowding.
+  // Stay silent only for that calm path; still surface anything the user must weigh (steering, wait,
+  // cancel, clarification, parallel work, or a non-run-now/conflict verdict).
+  if (decision.kind === "command" && sched.tone === "ok" && plan.conflicts.length === 0) return null;
+
   return (
     <div
       style={{ ...wrap, borderLeft: `3px solid ${TONE_COLOR[sched.tone]}` }}

@@ -12,17 +12,14 @@ test.describe("intake plan preview", () => {
 
     const composer = page.getByTestId("chat-composer");
     const preview = page.getByTestId("intake-plan-preview");
-    const sched = page.getByTestId("intake-scheduling");
 
     // Empty draft -> no preview (no noise).
     await expect(preview).toHaveCount(0);
 
-    // A plain directive routes as a new command that can run now.
+    // Reveal-on-relevance: a plain command that just runs now needs no card (that was the composer
+    // crowding). The classifier still runs; it just stays silent on the calm path.
     await composer.fill("reconcile Q3 revenue");
-    await expect(preview).toBeVisible();
-    await expect(preview).toHaveAttribute("data-kind", "command");
-    await expect(preview).toHaveAttribute("data-scheduling", "run_now");
-    await expect(sched).toHaveText(/run now/i);
+    await expect(preview).toHaveCount(0);
 
     // "wait ..." is held for the human.
     await composer.fill("wait for the final close numbers");

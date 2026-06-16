@@ -3,7 +3,7 @@ import { useEffect, useRef, useState, type CSSProperties, type DragEvent } from 
 import { FolderOpen, Table2, FileText, StickyNote, Database, BookOpen, Upload, Loader2, ShieldCheck, Activity, MessageCircle, ArrowRight, type LucideIcon } from "lucide-react";
 import { useStore } from "../app/store";
 import type { Actor } from "../engine/types";
-import { ARTIFACT_REF_MIME, displayArtifactRefMessage, encodeArtifactRef } from "./artifactRefs";
+import { ARTIFACT_REF_MIME, encodeArtifactRef } from "./artifactRefs";
 import { focusStage } from "./stageFocus";
 import { abortable, formatBytes, parseUploadedFiles, UPLOAD_TIMEOUT_MS } from "../app/uploadedArtifact";
 
@@ -47,7 +47,6 @@ export function LeftRail({ roomId, me, artId, onPick, onOpenChat, style }: { roo
   const traces = store.listTraces(roomId);
   const locks = store.awareness(roomId).activeLocks;
   const allPublicMessages = store.listMessages(roomId, "public");
-  const publicMessages = allPublicMessages.slice(-2);
   const hasQ3DemoSeed = arts.some((a) => a.kind === "sheet" && a.title === "Q3 variance");
   const firstProposal = proposals[0] as { artifactId: string; op?: { elementId?: string } } | undefined;
   const openProposal = () => {
@@ -99,7 +98,7 @@ export function LeftRail({ roomId, me, artId, onPick, onOpenChat, style }: { roo
       <div className="r-panel-head"><FolderOpen size={15} /><span className="h-title">Room Binder</span></div>
       <div className="r-rail">
         <div className="r-rail-section">
-          <div className="kicker" style={{ padding: "2px 9px 8px" }}>Live room chat</div>
+          <div className="kicker r-rail-kicker">Live room chat</div>
           <button
             type="button"
             className="r-sidebar-chat"
@@ -109,26 +108,16 @@ export function LeftRail({ roomId, me, artId, onPick, onOpenChat, style }: { roo
             aria-label="Open sidebar chat"
           >
             <span className="r-sidebar-chat-ico"><MessageCircle size={14} /></span>
-            <span className="r-sidebar-chat-body">
-              <span className="r-sidebar-chat-title">
-                <span>Room conversation</span>
-                <em>{publicMessages.length ? `${allPublicMessages.length} messages` : "empty"}</em>
-              </span>
-              <span className="r-sidebar-chat-lines">
-                {publicMessages.length ? publicMessages.map((m) => (
-                  <span key={m.id}>
-                    <b>{m.author.kind === "agent" ? m.author.name : initials(m.author.name)}</b>
-                    {displayArtifactRefMessage(m.text)}
-                  </span>
-                )) : <span><b>NR</b>No public messages yet.</span>}
-              </span>
+            <span className="r-sidebar-chat-title">
+              <span>Room conversation</span>
+              <em>{allPublicMessages.length ? `${allPublicMessages.length} messages` : "empty"}</em>
             </span>
             <span className="r-sidebar-chat-open"><ArrowRight size={13} /></span>
           </button>
         </div>
 
         <div className="r-rail-section">
-          <div className="kicker" style={{ padding: "2px 9px 8px" }}>Workbooks & work products</div>
+          <div className="kicker r-rail-kicker">Workbooks & work products</div>
           {arts.map((a) => {
             const FI = fileIcon(a);
             return (
@@ -171,7 +160,7 @@ export function LeftRail({ roomId, me, artId, onPick, onOpenChat, style }: { roo
         </div>
 
         <div className="r-rail-section">
-          <div className="kicker" style={{ padding: "2px 9px 8px" }}>Review & proof</div>
+          <div className="kicker r-rail-kicker">Review & proof</div>
           {firstProposal ? (
             <button type="button" className="r-file" data-testid="binder-review-queue" title="Open the first pending proposal" onClick={openProposal}>
             <span className="fi"><Activity size={14} /></span>
@@ -190,7 +179,7 @@ export function LeftRail({ roomId, me, artId, onPick, onOpenChat, style }: { roo
         </div>
 
         <div className="r-rail-section">
-          <div className="kicker" style={{ padding: "2px 9px 8px" }}>People & agents · {members.length} live</div>
+          <div className="kicker r-rail-kicker">People & agents · {members.length} live</div>
           {members.map((m) => {
             const lock = locks.find((l) => l.holder.id === m.id);
             const range = lock ? rangeLabel(lock.elementIds) : "";
