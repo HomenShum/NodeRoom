@@ -15,5 +15,5 @@ export default defineConfig({
   },
   server: { port: 5260, open: false },
   optimizeDeps: { include: ["exceljs"] },
-  build: { outDir: "dist", sourcemap: true },
+  build: { outDir: "dist", sourcemap: process.env.VITE_BUILD_SOURCEMAP === "1" },
 });

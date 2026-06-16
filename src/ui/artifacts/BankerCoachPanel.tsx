@@ -28,7 +28,7 @@ export function CoachCards({ roomId, onOpenArtifact }: {
     () => buildBankerCoachPacket({ roomTitle: room?.title ?? "NodeRoom", artifacts, traces }),
     [room?.title, artifacts, traces],
   );
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(true);
   const cues = packet.cues;
   if (cues.length === 0) return null;
   const cardById = new Map(packet.evidenceCards.map((c) => [c.id, c]));
