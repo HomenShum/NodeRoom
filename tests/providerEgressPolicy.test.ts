@@ -59,6 +59,28 @@ describe("provider route policy", () => {
     expect(decision.basis.join(" ")).toContain("no_training_required:true");
   });
 
+  it("routes OKF embedding models through the same provider allowlist", () => {
+    expect(providerRouteDecision({
+      model: "text-embedding-3-small",
+      entrypoint: "okf_embedding",
+      env: { NODEAGENT_ALLOWED_PROVIDERS: "openai" },
+    })).toMatchObject({
+      ok: true,
+      provider: "openai",
+      entrypoint: "okf_embedding",
+    });
+
+    expect(providerRouteDecision({
+      model: "text-embedding-3-small",
+      entrypoint: "okf_embedding",
+      env: { NODEAGENT_ALLOWED_PROVIDERS: "gemini" },
+    })).toMatchObject({
+      ok: false,
+      reason: "provider_not_allowed",
+      provider: "openai",
+    });
+  });
+
   it("fails closed in production mode when no external provider allowlist is configured", () => {
     const blocked = providerRouteDecision({
       model: "gemini-3.5-flash",

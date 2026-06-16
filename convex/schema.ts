@@ -548,6 +548,7 @@ export default defineSchema({
     status: v.optional(v.string()),
     confidence: v.optional(v.number()),
     visibility: okfVisibilityV,
+    ownerId: v.optional(v.string()),
     frontmatter: v.any(),
     links: v.array(v.object({ label: v.string(), target: v.string(), conceptId: v.optional(v.string()) })),
     citations: v.array(v.object({ id: v.string(), label: v.string(), target: v.string(), conceptId: v.optional(v.string()) })),
@@ -566,6 +567,7 @@ export default defineSchema({
     .index("by_room_path", ["roomId", "path"])
     .index("by_room_type", ["roomId", "type"])
     .index("by_room_status", ["roomId", "status"])
+    .index("by_room_visibility_owner", ["roomId", "visibility", "ownerId"])
     .searchIndex("by_search_text", { searchField: "searchText", filterFields: ["roomId"] }),
 
   okfChunks: defineTable({
@@ -581,6 +583,7 @@ export default defineSchema({
     embeddingDimension: v.number(),
     contentHash: v.string(),
     visibility: okfVisibilityV,
+    ownerId: v.optional(v.string()),
     createdAt: v.number(),
     updatedAt: v.number(),
   })

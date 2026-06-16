@@ -1,4 +1,5 @@
 import { embeddingVector } from "./embeddings";
+import { assertProviderEgressAllowed, assertProviderRouteAllowed, type ProviderEgressArtifact } from "../src/nodeagent/guardrails/egressPolicy";
 
 export const OKF_EMBEDDING_DIMENSION = 64;
 
@@ -8,14 +9,23 @@ export interface OkfEmbeddingResult {
   model: string;
 }
 
-export async function embedOkfText(text: string, taskType: "RETRIEVAL_DOCUMENT" | "RETRIEVAL_QUERY" = "RETRIEVAL_DOCUMENT"): Promise<OkfEmbeddingResult> {
-  const preferred = (process.env.OKF_EMBED_PROVIDER ?? "").toLowerCase();
-  if ((preferred === "openai" || preferred === "") && process.env.OPENAI_API_KEY) {
-    const model = process.env.OKF_OPENAI_EMBED_MODEL ?? "text-embedding-3-small";
+type Env = Record<string, string | undefined>;
+export interface OkfEmbeddingOptions {
+  artifacts?: ProviderEgressArtifact[];
+  env?: Env;
+}
+
+export async function embedOkfText(text: string, taskType: "RETRIEVAL_DOCUMENT" | "RETRIEVAL_QUERY" = "RETRIEVAL_DOCUMENT", options: OkfEmbeddingOptions = {}): Promise<OkfEmbeddingResult> {
+  const env = options.env ?? process.env;
+  const artifacts = options.artifacts ?? [];
+  const preferred = (env.OKF_EMBED_PROVIDER ?? "").toLowerCase();
+  if ((preferred === "openai" || preferred === "") && env.OPENAI_API_KEY) {
+    const model = env.OKF_OPENAI_EMBED_MODEL ?? "text-embedding-3-small";
+    if (!canUseExternalEmbedding(model, artifacts, env)) return localEmbedding(text);
     const res = await fetch("https://api.openai.com/v1/embeddings", {
       method: "POST",
       headers: {
-        authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+        authorization: `Bearer ${env.OPENAI_API_KEY}`,
         "content-type": "application/json",
       },
       body: JSON.stringify({ model, input: text, dimensions: OKF_EMBEDDING_DIMENSION }),
@@ -27,9 +37,10 @@ export async function embedOkfText(text: string, taskType: "RETRIEVAL_DOCUMENT" 
     return { provider: "openai", model, vector: normalizeDimension(values) };
   }
 
-  const geminiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY ?? process.env.GEMINI_API_KEY;
+  const geminiKey = env.GOOGLE_GENERATIVE_AI_API_KEY ?? env.GEMINI_API_KEY;
   if ((preferred === "gemini" || preferred === "") && geminiKey) {
-    const model = process.env.OKF_GEMINI_EMBED_MODEL ?? "gemini-embedding-2";
+    const model = env.OKF_GEMINI_EMBED_MODEL ?? "gemini-embedding-2";
+    if (!canUseExternalEmbedding(model, artifacts, env)) return localEmbedding(text);
     const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:embedContent?key=${encodeURIComponent(geminiKey)}`, {
       method: "POST",
       headers: { "content-type": "application/json" },
@@ -46,6 +57,20 @@ export async function embedOkfText(text: string, taskType: "RETRIEVAL_DOCUMENT" 
     return { provider: "gemini", model, vector: normalizeDimension(values) };
   }
 
+  return localEmbedding(text);
+}
+
+function canUseExternalEmbedding(model: string, artifacts: ProviderEgressArtifact[], env: Env): boolean {
+  try {
+    assertProviderRouteAllowed({ model, entrypoint: "okf_embedding", env });
+    assertProviderEgressAllowed({ model, entrypoint: "okf_embedding", artifacts, env });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function localEmbedding(text: string): OkfEmbeddingResult {
   return { provider: "local", model: "hashing-v1", vector: embeddingVector(text, OKF_EMBEDDING_DIMENSION) };
 }
 

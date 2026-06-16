@@ -14,12 +14,14 @@ export const drainBatch = internalAction({
     const jobs = await ctx.runMutation(claimOutboxRef, { leaseId, leaseMs: 2 * 60_000, limit: Math.max(1, Math.min(a.limit ?? 5, 20)) });
     let completed = 0;
     let failed = 0;
-    for (const job of jobs as Array<{ jobId: string; roomId: string; conceptId: string; contentHash: string; text: string; visibility: "public" | "private" | "redacted" }>) {
+    for (const job of jobs as Array<{ jobId: string; roomId: string; conceptId: string; contentHash: string; text: string; visibility: "public" | "private" | "redacted"; ownerId?: string }>) {
       try {
         const parts = splitChunks(job.text);
         const chunks = [];
         for (let i = 0; i < parts.length; i++) {
-          const embedded = await embedOkfText(parts[i], "RETRIEVAL_DOCUMENT");
+          const embedded = await embedOkfText(parts[i], "RETRIEVAL_DOCUMENT", {
+            artifacts: [{ title: job.conceptId, visibility: job.visibility, source: "generated" }],
+          });
           chunks.push({
             chunkId: `${job.conceptId}#${i}`,
             chunkIndex: i,
@@ -29,6 +31,7 @@ export const drainBatch = internalAction({
             embeddingModel: embedded.model,
             embeddingDimension: OKF_EMBEDDING_DIMENSION,
             visibility: job.visibility,
+            ownerId: job.ownerId,
           });
         }
         await ctx.runMutation(completeOutboxRef, { jobId: job.jobId, roomId: job.roomId, conceptId: job.conceptId, contentHash: job.contentHash, chunks });

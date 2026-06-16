@@ -29,11 +29,16 @@ export interface OkfNodeRoomExtension {
   roomId?: string;
   artifactId?: string;
   elementId?: string;
+  /** Owner member id for private OKF concepts. Public/redacted concepts omit this. */
+  ownerId?: string;
   status?: "empty" | "running" | "complete" | "needs_review" | "failed" | "gap" | string;
   confidence?: number;
   sourceKind?: "upload" | "source" | "computed" | "manual" | string;
   visibility?: OkfVisibility;
   targetRefs?: string[];
+  promotedFromConceptId?: string;
+  promotedBy?: string;
+  promotedAt?: string;
 }
 
 export interface OkfFrontmatter {
@@ -75,4 +80,3 @@ export interface OkfBundleFile {
   path: string;
   content: string;
 }
-

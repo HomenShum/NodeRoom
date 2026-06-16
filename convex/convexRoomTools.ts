@@ -29,19 +29,19 @@ const artifactsApplyAgentCellEditRef = makeFunctionReference<"mutation">("artifa
 const draftsCreateDraftRef = makeFunctionReference<"mutation">("drafts:createDraft") as any;
 const messagesSendAgentRef = makeFunctionReference<"mutation">("messages:sendAgent") as any;
 const artifactsListForRoomRef = makeFunctionReference<"query">("artifacts:listForRoom") as any;
-const okfListConceptsRef = makeFunctionReference<"query">("okf:listConcepts") as any;
-const okfReadConceptRef = makeFunctionReference<"query">("okf:readConcept") as any;
-const okfFullTextSearchRef = makeFunctionReference<"query">("okf:fullTextSearch") as any;
-const okfSemanticSearchScanRef = makeFunctionReference<"query">("okf:semanticSearchScan") as any;
-const okfConceptsForChunkScoresRef = makeFunctionReference<"query">("okf:conceptsForChunkScores") as any;
-const okfFilterRef = makeFunctionReference<"query">("okf:filter") as any;
-const okfGlobRef = makeFunctionReference<"query">("okf:glob") as any;
-const okfRegexRef = makeFunctionReference<"query">("okf:regex") as any;
-const okfBacklinksRef = makeFunctionReference<"query">("okf:backlinks") as any;
-const okfExpandNeighborsRef = makeFunctionReference<"query">("okf:expandNeighbors") as any;
-const okfResolveCitationRef = makeFunctionReference<"query">("okf:resolveCitation") as any;
-const okfOpenLiteralRef = makeFunctionReference<"query">("okf:openLiteral") as any;
-const okfCompareClaimRef = makeFunctionReference<"query">("okf:compareClaim") as any;
+const okfListConceptsRef = makeFunctionReference<"query">("okf:listConceptsForAgent") as any;
+const okfReadConceptRef = makeFunctionReference<"query">("okf:readConceptForAgent") as any;
+const okfFullTextSearchRef = makeFunctionReference<"query">("okf:fullTextSearchForAgent") as any;
+const okfSemanticSearchScanRef = makeFunctionReference<"query">("okf:semanticSearchScanForAgent") as any;
+const okfConceptsForChunkScoresRef = makeFunctionReference<"query">("okf:conceptsForChunkScoresForAgent") as any;
+const okfFilterRef = makeFunctionReference<"query">("okf:filterForAgent") as any;
+const okfGlobRef = makeFunctionReference<"query">("okf:globForAgent") as any;
+const okfRegexRef = makeFunctionReference<"query">("okf:regexForAgent") as any;
+const okfBacklinksRef = makeFunctionReference<"query">("okf:backlinksForAgent") as any;
+const okfExpandNeighborsRef = makeFunctionReference<"query">("okf:expandNeighborsForAgent") as any;
+const okfResolveCitationRef = makeFunctionReference<"query">("okf:resolveCitationForAgent") as any;
+const okfOpenLiteralRef = makeFunctionReference<"query">("okf:openLiteralForAgent") as any;
+const okfCompareClaimRef = makeFunctionReference<"query">("okf:compareClaimForAgent") as any;
 const okfRecordRetrievalEventRef = makeFunctionReference<"mutation">("okf:recordRetrievalEvent") as any;
 
 export class ConvexRoomTools implements RoomTools {
@@ -55,7 +55,7 @@ export class ConvexRoomTools implements RoomTools {
     private sessionId: string,
     private jobId?: Id<"agentJobs">,
   ) {
-    this.okf = new ConvexOkfRetrievalPort(ctx, roomId, jobId);
+    this.okf = new ConvexOkfRetrievalPort(ctx, roomId, actor, jobId);
   }
 
   async snapshot(artifactId: string = this.artifactId): Promise<RoomSnapshot> {
@@ -121,13 +121,14 @@ class ConvexOkfRetrievalPort implements OkfRetrievalPort {
   constructor(
     private ctx: ActionCtx,
     private roomId: Id<"rooms">,
+    private actor: Actor,
     private jobId?: Id<"agentJobs">,
   ) {}
 
   async listConcepts(args: OkfConceptFilter): Promise<OkfConcept[]> {
     const startedAt = Date.now();
     try {
-      const concepts = await this.ctx.runQuery(okfListConceptsRef, { roomId: this.roomId, ...args });
+      const concepts = await this.ctx.runQuery(okfListConceptsRef, { roomId: this.roomId, actor: this.actor, ...args });
       await this.record("okf.listConcepts", JSON.stringify(args), "completed", concepts.map((c: OkfConcept) => c.id), Date.now() - startedAt);
       return concepts;
     } catch (error) {
@@ -137,7 +138,7 @@ class ConvexOkfRetrievalPort implements OkfRetrievalPort {
   }
 
   readConcept(args: { conceptId: string }): Promise<OkfConcept | null> {
-    return this.ctx.runQuery(okfReadConceptRef, { roomId: this.roomId, ...args });
+    return this.ctx.runQuery(okfReadConceptRef, { roomId: this.roomId, actor: this.actor, ...args });
   }
 
   async fullTextSearch(args: { query: string; fields?: Array<"title" | "description" | "body" | "citations">; limit?: number } & OkfConceptFilter): Promise<RetrievalHit[]> {
@@ -149,7 +150,9 @@ class ConvexOkfRetrievalPort implements OkfRetrievalPort {
     let provider: string | undefined;
     let model: string | undefined;
     try {
-      const embedded = await embedOkfText(args.query, "RETRIEVAL_QUERY");
+      const embedded = await embedOkfText(args.query, "RETRIEVAL_QUERY", {
+        artifacts: this.actor.scope === "private" ? [{ title: "Private OKF retrieval query", visibility: "private", source: "manual" }] : [],
+      });
       provider = embedded.provider;
       model = embedded.model;
       try {
@@ -161,31 +164,34 @@ class ConvexOkfRetrievalPort implements OkfRetrievalPort {
         if (Array.isArray(vectorHits) && vectorHits.length > 0) {
           const hits = await this.ctx.runQuery(okfConceptsForChunkScoresRef, {
             roomId: this.roomId,
+            actor: this.actor,
             scores: vectorHits.map((hit: { _id: Id<"okfChunks">; _score?: number }) => ({ chunkId: hit._id, score: hit._score ?? 0 })),
             limit: args.limit,
           });
-          await this.record("okf.semanticSearch", args.query, "completed", hits.map((hit: RetrievalHit) => hit.concept.id), Date.now() - startedAt, provider, model);
-          return hits;
+          if (hits.length > 0) {
+            await this.record("okf.semanticSearch", args.query, "completed", hits.map((hit: RetrievalHit) => hit.concept.id), Date.now() - startedAt, provider, model);
+            return hits;
+          }
         }
       } catch {
         // Local convex-test does not expose vectorSearch; scan fallback below keeps the port usable.
       }
-      const hits = await this.ctx.runQuery(okfSemanticSearchScanRef, { roomId: this.roomId, ...args });
+      const hits = await this.ctx.runQuery(okfSemanticSearchScanRef, { roomId: this.roomId, actor: this.actor, ...args });
       await this.record("okf.semanticSearch.scan", args.query, "completed", hits.map((hit: RetrievalHit) => hit.concept.id), Date.now() - startedAt, provider, model);
       return hits;
     } catch (error) {
-      const hits = await this.ctx.runQuery(okfSemanticSearchScanRef, { roomId: this.roomId, ...args });
+      const hits = await this.ctx.runQuery(okfSemanticSearchScanRef, { roomId: this.roomId, actor: this.actor, ...args });
       await this.record("okf.semanticSearch.fallback", args.query, "completed", hits.map((hit: RetrievalHit) => hit.concept.id), Date.now() - startedAt, provider, model, error);
       return hits;
     }
   }
 
   filter(args: OkfConceptFilter): Promise<OkfConcept[]> {
-    return this.ctx.runQuery(okfFilterRef, { roomId: this.roomId, ...args });
+    return this.ctx.runQuery(okfFilterRef, { roomId: this.roomId, actor: this.actor, ...args });
   }
 
   glob(args: { pattern: string; limit?: number }): Promise<OkfConcept[]> {
-    return this.ctx.runQuery(okfGlobRef, { roomId: this.roomId, ...args });
+    return this.ctx.runQuery(okfGlobRef, { roomId: this.roomId, actor: this.actor, ...args });
   }
 
   async regex(args: { pattern: string; pathPrefix?: string; caseSensitive?: boolean; limit?: number }): Promise<RetrievalHit[]> {
@@ -193,15 +199,15 @@ class ConvexOkfRetrievalPort implements OkfRetrievalPort {
   }
 
   backlinks(args: { conceptId: string; depth?: number; limit?: number }): Promise<OkfConcept[]> {
-    return this.ctx.runQuery(okfBacklinksRef, { roomId: this.roomId, ...args });
+    return this.ctx.runQuery(okfBacklinksRef, { roomId: this.roomId, actor: this.actor, ...args });
   }
 
   expandNeighbors(args: { conceptId: string; linkDepth: number; includeCitations?: boolean; includeBacklinks?: boolean; limit?: number }): Promise<OkfConcept[]> {
-    return this.ctx.runQuery(okfExpandNeighborsRef, { roomId: this.roomId, ...args });
+    return this.ctx.runQuery(okfExpandNeighborsRef, { roomId: this.roomId, actor: this.actor, ...args });
   }
 
   resolveCitation(args: { evidenceId: string }): Promise<LiteralSourceResult> {
-    return this.ctx.runQuery(okfResolveCitationRef, { roomId: this.roomId, ...args });
+    return this.ctx.runQuery(okfResolveCitationRef, { roomId: this.roomId, actor: this.actor, ...args });
   }
 
   openLiteral(args: {
@@ -211,17 +217,17 @@ class ConvexOkfRetrievalPort implements OkfRetrievalPort {
     column?: string;
     bbox?: { x: number; y: number; width: number; height: number; unit?: "px" | "pt" | "normalized" };
   }): Promise<LiteralSourceResult> {
-    return this.ctx.runQuery(okfOpenLiteralRef, { roomId: this.roomId, ...args });
+    return this.ctx.runQuery(okfOpenLiteralRef, { roomId: this.roomId, actor: this.actor, ...args });
   }
 
   compareClaim(args: { claim: string; evidenceRefs: EvidenceRef[] }): Promise<ClaimSupportResult> {
-    return this.ctx.runQuery(okfCompareClaimRef, { roomId: this.roomId, ...args });
+    return this.ctx.runQuery(okfCompareClaimRef, { roomId: this.roomId, actor: this.actor, ...args });
   }
 
   private async hitQuery(tool: string, query: string, ref: unknown, args: Record<string, unknown>): Promise<RetrievalHit[]> {
     const startedAt = Date.now();
     try {
-      const hits = await this.ctx.runQuery(ref as any, { roomId: this.roomId, ...args });
+      const hits = await this.ctx.runQuery(ref as any, { roomId: this.roomId, actor: this.actor, ...args });
       await this.record(tool, query, "completed", hits.map((hit: RetrievalHit) => hit.concept.id), Date.now() - startedAt);
       return hits;
     } catch (error) {
