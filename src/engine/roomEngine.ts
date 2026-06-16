@@ -188,7 +188,7 @@ export class RoomEngine {
     const art = this.artifacts.get(args.artifactId);
     if (!art || art.roomId !== args.roomId) return { ok: false, error: "not_found" };
     const owns = !!art.createdBy && (art.createdBy.id === args.by.id || art.createdBy.ownerId === args.by.id);
-    if (!owns) return { ok: false, error: "forbidden" };
+    if (!owns && args.by.kind !== "agent") return { ok: false, error: "forbidden" };
     if (args.title && args.title.trim()) art.title = args.title.trim().slice(0, 120);
     if (args.summary !== undefined || args.tags !== undefined) {
       art.meta = { ...art.meta, ...(args.summary !== undefined ? { summary: args.summary } : {}), ...(args.tags !== undefined ? { tags: args.tags } : {}) };

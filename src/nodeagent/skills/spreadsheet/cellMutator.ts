@@ -644,6 +644,19 @@ export const ROOM_TOOLS: AgentTool[] = [
 ];
 
 export const TOOL_NAMES = ROOM_TOOLS.map((t) => t.name);
+const SET_ARTIFACT_META_TOOL: AgentTool = {
+  name: "set_artifact_meta",
+  description: "Title, summarize, and tag a file from its CONTENT so it is findable and never a raw filename. Sets the artifact's topic (title), a one-line summary, and tags. This metadata feeds retrieval (the OKF/RAG embedding), so write a precise human topic (e.g. \"CardioNova Series-C diligence model\") and tags a banker would search. Get artifactId from list_artifacts.",
+  schema: z.object({
+    artifactId: z.string(),
+    title: z.string().optional(),
+    summary: z.string().optional(),
+    tags: z.array(z.string()).optional(),
+  }),
+  execute: async (a: { artifactId: string; title?: string; summary?: string; tags?: string[] }, rt) =>
+    (await rt.setArtifactMeta?.(a)) ?? { ok: false, error: "set_artifact_meta is unsupported in this room" },
+};
+
 export const MANAGED_LOCK_TOOLS: AgentTool[] = [
   WRITE_LOCKED_CELL_TOOL,
   WRITE_LOCKED_CELLS_TOOL,
@@ -655,5 +668,6 @@ export const PRODUCTION_ROOM_TOOLS: AgentTool[] = [
   ...MANAGED_LOCK_TOOLS,
   ...OKF_RETRIEVAL_TOOLS,
   ...BANKER_COACH_TOOLS,
+  SET_ARTIFACT_META_TOOL,
 ];
 export const PRODUCTION_TOOL_NAMES = PRODUCTION_ROOM_TOOLS.map((t) => t.name);

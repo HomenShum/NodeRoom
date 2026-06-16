@@ -559,6 +559,38 @@ export const setArtifactMeta = mutation({
   },
 });
 
+/** Agent path for set_artifact_meta: the NodeAgent authors a file's topic/summary/tags from content.
+ * Authed by room membership (requireActorInRoom), NOT owner-gated — the agent manages room artifacts
+ * it did not create. Re-indexes into OKF so the agent-authored metadata feeds the embedding. */
+export const setArtifactMetaByAgent = internalMutation({
+  args: {
+    roomId: v.id("rooms"),
+    artifactId: v.id("artifacts"),
+    title: v.optional(v.string()),
+    summary: v.optional(v.string()),
+    tags: v.optional(v.array(v.string())),
+    actor: actorV,
+  },
+  handler: async (ctx, a) => {
+    await requireActorInRoom(ctx, a.roomId, a.actor);
+    const art = await requireArtifactInRoom(ctx, a.roomId, a.artifactId);
+    const patch: Record<string, unknown> = {};
+    if (a.title !== undefined && a.title.trim()) patch.title = a.title.trim().slice(0, 120);
+    if (a.summary !== undefined || a.tags !== undefined) {
+      patch.meta = {
+        ...((art.meta as Record<string, unknown> | undefined) ?? {}),
+        ...(a.summary !== undefined ? { summary: a.summary.slice(0, 400) } : {}),
+        ...(a.tags !== undefined ? { tags: a.tags.slice(0, 12) } : {}),
+      };
+    }
+    if (Object.keys(patch).length) {
+      await ctx.db.patch(a.artifactId, patch);
+      await enqueueArtifactSnapshotForOkf(ctx, { roomId: a.roomId, artifactId: a.artifactId });
+    }
+    return { ok: true as const };
+  },
+});
+
 /** Agent tool path — callable only from Convex actions through `internal`. */
 /** List the room's artifacts (id/title/kind) — the multi-artifact tool layer's cross-file reach.
  *  internalQuery: called server-side by ConvexRoomTools inside an already-authorized agent action. */

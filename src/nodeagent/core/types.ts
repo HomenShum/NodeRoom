@@ -138,6 +138,8 @@ export interface RoomTools {
   awareness(): Promise<AwarenessView>;
   /** Discover the room's other files (sheet/note/wiki/wall) — so one run can read one file and write another. */
   listArtifacts(): Promise<ArtifactRef[]>;
+  /** Agent-author a file's topic + metadata from its content (title/summary/tags). Re-indexes into OKF. */
+  setArtifactMeta?(args: { artifactId: string; title?: string; summary?: string; tags?: string[] }): Promise<{ ok: boolean; error?: string }>;
   /** Read specific cells — WORKS on locked cells (locked != invisible). Defaults to the primary artifact; pass artifactId for another file. */
   readRange(elementIds: string[], artifactId?: string): Promise<CellView[]>;
   /** Search header-prepended cell summaries and structural sub-grid chunks for large sheets. */

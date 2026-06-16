@@ -26,6 +26,7 @@ const artifactsSearchSheetContextRef = makeFunctionReference<"query">("artifacts
 const locksProposeLockRef = makeFunctionReference<"mutation">("locks:proposeLock") as any;
 const locksReleaseLockRef = makeFunctionReference<"mutation">("locks:releaseLock") as any;
 const artifactsApplyAgentCellEditRef = makeFunctionReference<"mutation">("artifacts:applyAgentCellEdit") as any;
+const artifactsSetArtifactMetaByAgentRef = makeFunctionReference<"mutation">("artifacts:setArtifactMetaByAgent") as any;
 const draftsCreateDraftRef = makeFunctionReference<"mutation">("drafts:createDraft") as any;
 const messagesSendAgentRef = makeFunctionReference<"mutation">("messages:sendAgent") as any;
 const artifactsListForRoomRef = makeFunctionReference<"query">("artifacts:listForRoom") as any;
@@ -65,6 +66,15 @@ export class ConvexRoomTools implements RoomTools {
 
   async listArtifacts(): Promise<ArtifactRef[]> {
     return this.ctx.runQuery(artifactsListForRoomRef, { roomId: this.roomId });
+  }
+
+  async setArtifactMeta(args: { artifactId: string; title?: string; summary?: string; tags?: string[] }): Promise<{ ok: boolean; error?: string }> {
+    try {
+      await this.ctx.runMutation(artifactsSetArtifactMetaByAgentRef, { roomId: this.roomId, artifactId: args.artifactId, title: args.title, summary: args.summary, tags: args.tags, actor: this.actor });
+      return { ok: true };
+    } catch (e) {
+      return { ok: false, error: e instanceof Error ? e.message : "failed" };
+    }
   }
 
   awareness(): Promise<AwarenessView> {

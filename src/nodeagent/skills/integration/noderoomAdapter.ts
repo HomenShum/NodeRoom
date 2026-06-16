@@ -65,6 +65,10 @@ export class InMemoryRoomTools implements RoomTools {
     return this.engine.listArtifacts(this.roomId).map((a) => ({ id: a.id, title: a.title, kind: a.kind }));
   }
 
+  async setArtifactMeta(args: { artifactId: string; title?: string; summary?: string; tags?: string[] }): Promise<{ ok: boolean; error?: string }> {
+    return this.engine.setArtifactMeta({ roomId: this.roomId, artifactId: args.artifactId, title: args.title, summary: args.summary, tags: args.tags, by: this.actor });
+  }
+
   async awareness(): Promise<AwarenessView> {
     const a = this.engine.awareness(this.roomId, this.actor.id);
     return {
