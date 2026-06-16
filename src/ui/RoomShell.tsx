@@ -7,7 +7,7 @@
  */
 
 import { useEffect, useRef, useState, type CSSProperties } from "react";
-import { PanelLeft, Table2, PanelRight, Moon, Sun, LogOut, Link2, ShieldCheck, X, HelpCircle, Copy, Check, MessageCircle, Send, Mail, FileText, MessageSquare, ClipboardList, Database, Linkedin, Sparkles, type LucideIcon } from "lucide-react";
+import { PanelLeft, Table2, PanelRight, Moon, Sun, LogOut, Link2, ShieldCheck, X, HelpCircle, Copy, Check, MessageCircle, Sparkles } from "lucide-react";
 import { useStore } from "../app/store";
 import { Chat } from "./Chat";
 import { Artifact } from "./panels/Artifact";
@@ -15,7 +15,6 @@ import { LeftRail } from "./LeftRail";
 import { GuidedTour, type TourStep } from "./GuidedTour";
 import { selectPublicSignalTraces, statusText as publicStatusText } from "./signalStatus";
 import { focusStage } from "./stageFocus";
-import { buildDownstreamHandoffDraft, type DownstreamHandoffTarget } from "./downstreamHandoff";
 import { BankerCoachPanel } from "./artifacts/BankerCoachPanel";
 import { TraceLensProvider } from "./traceLens/useTraceLens";
 import { TraceLensPanel } from "./traceLens/TraceLensPanel";
@@ -386,7 +385,6 @@ function CopilotPanel({
   // The chat lanes (Room/Private) and the Banker Coach are peer tabs. The coach is its OWN tab so it
   // never crowds the conversation; on a chat lane the rail is pure chat. Per 6-15 deep-review: the
   // coach is "organized into tabs (Coach/Evidence/Review/...)", not stacked under the chat.
-  const onChat = active === "public" || active === "private";
   return (
     <div className="r-panel right r-copilot" style={style} data-testid="copilot-panel">
       <div className="r-panel-head r-copilot-head">
@@ -408,98 +406,16 @@ function CopilotPanel({
         {active === "coach" ? (
           <BankerCoachPanel roomId={roomId} onOpenArtifact={onOpenArtifact} />
         ) : (
-          <>
-            <div className="r-copilot-chatframe">
-              {active === "public" ? (
-                <Chat roomId={roomId} me={me} channel="public" variant="public" agentName="Room NodeAgent" embedded testId="public-chat-panel" onOpenArtifact={onOpenArtifact} />
-              ) : (
-                <Chat roomId={roomId} me={me} channel={privChannel} variant="private" agentName="Your NodeAgent" embedded testId="private-chat-panel" onOpenArtifact={onOpenArtifact} />
-              )}
-            </div>
-            {onChat && <DownstreamHandoffPanel roomId={roomId} />}
-          </>
+          <div className="r-copilot-chatframe">
+            {active === "public" ? (
+              <Chat roomId={roomId} me={me} channel="public" variant="public" agentName="Room NodeAgent" embedded testId="public-chat-panel" onOpenArtifact={onOpenArtifact} />
+            ) : (
+              <Chat roomId={roomId} me={me} channel={privChannel} variant="private" agentName="Your NodeAgent" embedded testId="private-chat-panel" onOpenArtifact={onOpenArtifact} />
+            )}
+          </div>
         )}
       </div>
     </div>
-  );
-}
-
-const HANDOFF_ACTIONS: ReadonlyArray<{ key: DownstreamHandoffTarget; label: string; icon: LucideIcon; title: string }> = [
-  { key: "gmail", label: "Gmail", icon: Mail, title: "Draft Gmail update" },
-  { key: "notion", label: "Notion", icon: FileText, title: "Create Notion page" },
-  { key: "slack", label: "Slack", icon: MessageSquare, title: "Draft Slack recap" },
-  { key: "linear", label: "Linear", icon: ClipboardList, title: "Create Linear follow-up" },
-  { key: "linkedin", label: "LinkedIn", icon: Linkedin, title: "Draft LinkedIn research note" },
-  { key: "crm", label: "CRM CSV", icon: Database, title: "Export CRM CSV" },
-] as const;
-
-function DownstreamHandoffPanel({ roomId }: { roomId: string }) {
-  const store = useStore();
-  const [open, setOpen] = useState(false);
-  const [active, setActive] = useState<DownstreamHandoffTarget | null>(null);
-  const [copied, setCopied] = useState(false);
-  const room = store.getRoom(roomId);
-  const artifacts = store.listArtifacts(roomId);
-  const proposals = store.listProposals(roomId);
-  const hasContent = artifacts.some((a) =>
-    Object.values(a.elements ?? {}).some((el) => {
-      const v = (el as { value?: unknown }).value;
-      return v != null && v !== "";
-    }),
-  );
-  if (!(hasContent && proposals.length === 0)) return null;
-  const draft = active ? buildDownstreamHandoffDraft(active, { roomTitle: room?.title ?? "NodeRoom", artifacts }) : null;
-  const copyDraft = () => {
-    if (!draft) return;
-    const text = `${draft.title}\n\n${draft.body}`;
-    try { void navigator.clipboard?.writeText(text); } catch { /* clipboard unavailable */ }
-    setCopied(true);
-    setTimeout(() => setCopied(false), 1200);
-  };
-  return (
-    <section className="r-handoff" data-testid="downstream-handoff-card" aria-label="Approval-gated downstream handoff drafts">
-      <div className="r-handoff-head">
-        <Send size={13} />
-        <span>Hand off</span>
-        <em>review-clear &middot; draft only</em>
-        <span className="grow" />
-        <button
-          type="button"
-          className="r-handoff-toggle"
-          aria-expanded={open}
-          onClick={() => {
-            setOpen((value) => {
-              if (value) setActive(null);
-              return !value;
-            });
-          }}
-        >
-          {open ? "Hide" : "Open"}
-        </button>
-      </div>
-      {open && (
-        <div className="r-handoff-grid">
-          {HANDOFF_ACTIONS.map(({ key, label, icon: Icon, title }) => (
-            <button key={key} type="button" className="r-handoff-btn" data-on={String(active === key)} title={title} aria-label={title} data-testid={`downstream-${key}`} onClick={() => { setActive(key); setCopied(false); }}>
-              <Icon size={13} />
-              <span>{label}</span>
-            </button>
-          ))}
-        </div>
-      )}
-      {open && draft && (
-        <div className="r-handoff-preview" data-testid="downstream-preview" aria-label={`${draft.title} preview`}>
-          <div className="r-handoff-preview-head">
-            <strong>{draft.title}</strong>
-            <span>{draft.approvalRequired ? "approval required" : "ready export"}</span>
-            <button type="button" className="r-handoff-copy" data-testid="downstream-copy" onClick={copyDraft}>{copied ? <Check size={12} /> : <Copy size={12} />} {copied ? "Copied" : "Copy"}</button>
-            <button type="button" className="r-handoff-close" aria-label="Close handoff preview" onClick={() => setActive(null)}><X size={12} /></button>
-          </div>
-          <pre>{draft.body}</pre>
-          <small>{draft.sourceArtifactIds.length} source artifact{draft.sourceArtifactIds.length === 1 ? "" : "s"} referenced. Draft-only; no external write has run.</small>
-        </div>
-      )}
-    </section>
   );
 }
 

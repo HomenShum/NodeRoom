@@ -629,7 +629,7 @@ function Research({ roomId, me, art }: { roomId: string; me: Actor; art: Art }) 
       </div>
       {downstreamDrafts.length > 0 && (
         <div className="r-handoff-bar" data-testid="research-handoff">
-          <span className="r-handoff-label">Export <b>{activeDraftCompany}</b> draft</span>
+          <span className="r-handoff-label" title="Draft only — downloads a draft for you to review and send yourself. Nothing is sent automatically.">Export <b>{activeDraftCompany}</b> draft</span>
           <span className="grow" />
           <div className="r-handoff-targets">
             {downstreamDrafts.map((draft) => {
