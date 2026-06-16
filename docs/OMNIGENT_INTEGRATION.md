@@ -23,6 +23,9 @@ runs and what OS access/policies apply; `agentJobs`, `agentReasoningFrames`,
 `entityWorkItems`, and `entityResearchCache` remain the durable cognition layer.
 The detailed NodeAgent-side decision record is
 [`HARNESS_RECURSIVE_REASONING.md`](HARNESS_RECURSIVE_REASONING.md).
+The minimal local adoption proof is
+[`examples/nodeagent-frame-runner/minimal.ts`](../examples/nodeagent-frame-runner/minimal.ts)
+and runs with `npm run nodeagent:frame:smoke`.
 
 ## Repo State
 
@@ -56,6 +59,7 @@ instead of inventing a second agent API:
 
 ```bash
 npm test -- --run tests/agentJobsSource.test.ts tests/agentJobsRuntime.test.ts tests/frameRunner.test.ts tests/chatReasoningFrames.test.tsx
+npm run nodeagent:frame:smoke
 npm run build
 npx tsc --noEmit --project convex/tsconfig.json --pretty false
 ```

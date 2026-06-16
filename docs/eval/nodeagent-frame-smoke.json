@@ -1,0 +1,26 @@
+{
+  "ok": true,
+  "frameId": "rf_adopt_minimal_write_note",
+  "status": "completed",
+  "stopReason": "done",
+  "steps": 5,
+  "allowedToolNames": [
+    "read_range",
+    "propose_lock",
+    "edit_cell",
+    "release_lock",
+    "say"
+  ],
+  "missingToolNames": [],
+  "traceTools": [
+    "read_range",
+    "propose_lock",
+    "edit_cell",
+    "release_lock"
+  ],
+  "changedArtifacts": [
+    "primary_artifact"
+  ],
+  "verificationReason": "Frame completed.",
+  "finalCellValue": "Frame smoke proof: managed by NodeAgent."
+}

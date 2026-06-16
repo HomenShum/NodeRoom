@@ -63,6 +63,7 @@ The speed-to-fill rule is cache-first:
 | Browser-visible job detail | `convex/agentJobs.ts` query `detail` |
 | UI frame tree | `src/ui/Chat.tsx` (`reasoning-frame-tree`) |
 | Store detail shape | `src/app/store.tsx` (`lastLongFreeJobDetail`) |
+| Minimal adoption smoke | `examples/nodeagent-frame-runner/minimal.ts` |
 
 ## Frame Model
 
@@ -119,6 +120,10 @@ NodeAgent run; Convex rows store the cognition state.
 
 ## Verification Pointers
 
+- Runnable adoption proof: `npm run nodeagent:frame:smoke` executes a complete
+  read/lock/CAS/release frame and fails if the frame receipt or artifact state is
+  wrong. The current proof artifact is
+  `docs/eval/nodeagent-frame-smoke.json`.
 - Source-shape coverage: `tests/agentJobsSource.test.ts` checks job detail,
   reasoning-frame UI markers, and server-side execution boundaries.
 - Frame-runner coverage: `tests/frameRunner.test.ts` checks context envelopes,

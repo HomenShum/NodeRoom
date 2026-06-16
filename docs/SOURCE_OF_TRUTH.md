@@ -52,7 +52,7 @@ Design-intent names now live in `src/nodeagent/**`. Convex remains the durable b
 ## Authority Docs
 
 1. [ARCHITECTURE.md](ARCHITECTURE.md) - layer map and managed-write contract.
-2. [NODEAGENT_ARCHITECTURE.md](NODEAGENT_ARCHITECTURE.md), [AGENT_RUNTIME.md](AGENT_RUNTIME.md), and [HARNESS_RECURSIVE_REASONING.md](HARNESS_RECURSIVE_REASONING.md) - the real agent harness and selected frame/cache/verifier upgrade.
+2. [NODEAGENT_ARCHITECTURE.md](NODEAGENT_ARCHITECTURE.md), [AGENT_RUNTIME.md](AGENT_RUNTIME.md), [HARNESS_RECURSIVE_REASONING.md](HARNESS_RECURSIVE_REASONING.md), and [NODEAGENT_ADOPTION.md](NODEAGENT_ADOPTION.md) - the real agent harness, selected frame/cache/verifier upgrade, and runnable adoption path.
 3. [architecture/CONVEX_AS_LEDGER.md](architecture/CONVEX_AS_LEDGER.md) - Convex-as-ledger boundaries and scaling rules.
 4. [AGENT_EVAL.md](AGENT_EVAL.md) - agent evaluation method.
 5. [demo/STARTUP_DILIGENCE_DEMO_PLAN.md](demo/STARTUP_DILIGENCE_DEMO_PLAN.md) - the next public demo script.
