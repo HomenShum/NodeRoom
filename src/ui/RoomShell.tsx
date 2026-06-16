@@ -7,7 +7,7 @@
  */
 
 import { useEffect, useRef, useState, type CSSProperties } from "react";
-import { PanelLeft, Table2, PanelRight, Moon, Sun, LogOut, Link2, ShieldCheck, X, HelpCircle, Copy, Check, Activity, MessageCircle, Send, Mail, FileText, MessageSquare, ClipboardList, Database, Linkedin, type LucideIcon } from "lucide-react";
+import { PanelLeft, Table2, PanelRight, Moon, Sun, LogOut, Link2, ShieldCheck, X, HelpCircle, Copy, Check, Activity, MessageCircle, Send, Mail, FileText, MessageSquare, ClipboardList, Database, Linkedin, Sparkles, type LucideIcon } from "lucide-react";
 import { useStore } from "../app/store";
 import { Chat } from "./Chat";
 import { Artifact } from "./panels/Artifact";
@@ -16,7 +16,7 @@ import { GuidedTour, type TourStep } from "./GuidedTour";
 import { selectPublicSignalTraces, statusText as publicStatusText } from "./signalStatus";
 import { focusStage } from "./stageFocus";
 import { buildDownstreamHandoffDraft, type DownstreamHandoffTarget } from "./downstreamHandoff";
-import { CoachCards } from "./artifacts/BankerCoachPanel";
+import { BankerCoachPanel } from "./artifacts/BankerCoachPanel";
 import { resolveRoomOpenTarget } from "./openRoomReference";
 import type { Actor, Channel } from "../engine/types";
 
@@ -55,7 +55,7 @@ export function RoomShell({ roomId, me, onLeave }: { roomId: string; me: Actor; 
   // the contract makes it the focus, and an idle Copilot does not need 380px. Both stay inside the
   // resize clamps (left 176-380, right 280-560), so the user can widen either by dragging.
   const [layout, setLayout] = useState({ left: 232, stage: 1, right: 340 });
-  const [copilotTab, setCopilotTab] = useState<"public" | "private">("public");
+  const [copilotTab, setCopilotTab] = useState<"public" | "private" | "coach">("public");
   const arts = store.listArtifacts(roomId);
   const [artId, setArtId] = useState(() => arts.find((a) => a.kind === "sheet")?.id ?? arts[0]?.id ?? "");
   const [sideArtId, setSideArtId] = useState<string | null>(null);
@@ -373,35 +373,47 @@ function CopilotPanel({
   roomId: string;
   me: Actor;
   privChannel: Channel;
-  active: "public" | "private";
-  onActive: (tab: "public" | "private") => void;
+  active: "public" | "private" | "coach";
+  onActive: (tab: "public" | "private" | "coach") => void;
   onOpenArtifact: (id: string, options?: { split?: boolean; elementId?: string }) => boolean | void;
   style?: CSSProperties;
 }) {
+  // The chat lanes (Room/Private) and the Banker Coach are peer tabs. The coach is its OWN tab so it
+  // never crowds the conversation; on a chat lane the rail is pure chat. Per 6-15 deep-review: the
+  // coach is "organized into tabs (Coach/Evidence/Review/...)", not stacked under the chat.
+  const onChat = active === "public" || active === "private";
   return (
     <div className="r-panel right r-copilot" style={style} data-testid="copilot-panel">
       <div className="r-panel-head r-copilot-head">
         <PanelRight size={14} />
-        <span className="h-title">Copilot</span>
         <span className="grow" />
-        <div className="r-copilot-tabs" role="tablist" aria-label="Copilot lanes">
+        <div className="r-copilot-tabs" role="tablist" aria-label="Copilot tabs">
           <button type="button" role="tab" aria-selected={active === "public"} data-on={String(active === "public")} data-testid="copilot-tab-public" onClick={() => onActive("public")}>
             <MessageCircle size={12} /> Room
           </button>
           <button type="button" role="tab" aria-selected={active === "private"} data-on={String(active === "private")} data-testid="copilot-tab-private" onClick={() => onActive("private")}>
             <ShieldCheck size={12} /> Private
           </button>
+          <button type="button" role="tab" aria-selected={active === "coach"} data-on={String(active === "coach")} data-testid="copilot-tab-coach" onClick={() => onActive("coach")}>
+            <Sparkles size={12} /> Coach
+          </button>
         </div>
       </div>
       <div className="r-copilot-body">
-        <div className="r-copilot-chatframe">
-          {active === "public" ? (
-            <Chat roomId={roomId} me={me} channel="public" variant="public" agentName="Room NodeAgent" embedded testId="public-chat-panel" onOpenArtifact={onOpenArtifact} coach={<CoachCards roomId={roomId} onOpenArtifact={onOpenArtifact} />} />
-          ) : (
-            <Chat roomId={roomId} me={me} channel={privChannel} variant="private" agentName="Your NodeAgent" embedded testId="private-chat-panel" onOpenArtifact={onOpenArtifact} />
-          )}
-        </div>
-        <DownstreamHandoffPanel roomId={roomId} />
+        {active === "coach" ? (
+          <BankerCoachPanel roomId={roomId} onOpenArtifact={onOpenArtifact} />
+        ) : (
+          <>
+            <div className="r-copilot-chatframe">
+              {active === "public" ? (
+                <Chat roomId={roomId} me={me} channel="public" variant="public" agentName="Room NodeAgent" embedded testId="public-chat-panel" onOpenArtifact={onOpenArtifact} />
+              ) : (
+                <Chat roomId={roomId} me={me} channel={privChannel} variant="private" agentName="Your NodeAgent" embedded testId="private-chat-panel" onOpenArtifact={onOpenArtifact} />
+              )}
+            </div>
+            {onChat && <DownstreamHandoffPanel roomId={roomId} />}
+          </>
+        )}
       </div>
     </div>
   );
