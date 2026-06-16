@@ -50,12 +50,16 @@ async function styledWorkbookFile(): Promise<string> {
   return path;
 }
 
+async function uploadAndOpenWorkbook(page: import("@playwright/test").Page): Promise<void> {
+  const path = await styledWorkbookFile();
+  await page.locator(".r-file-input").setInputFiles(path);
+  await page.getByTestId("binder-artifact").filter({ hasText: "model.xlsx" }).first().click();
+}
+
 test("uploaded workbook renders as Excel paper with file formats, formula bar, and CAS edits", async ({ page }) => {
   await enterDemoRoom(page);
 
-  const path = await styledWorkbookFile();
-  await page.locator(".r-file-input").setInputFiles(path);
-  await page.getByRole("button", { name: /model\.xlsx/ }).click();
+  await uploadAndOpenWorkbook(page);
 
   // 1. The paper surface + Excel chrome render.
   const paper = page.getByTestId("excel-paper");
@@ -104,9 +108,7 @@ test("uploaded workbook renders as Excel paper with file formats, formula bar, a
 
 test("spreadsheet keyboard model — arrows, type-to-replace, Enter/Tab moves, Escape, Delete", async ({ page }) => {
   await enterDemoRoom(page);
-  const path = await styledWorkbookFile();
-  await page.locator(".r-file-input").setInputFiles(path);
-  await page.getByRole("button", { name: /model\.xlsx/ }).click();
+  await uploadAndOpenWorkbook(page);
   const paper = page.getByTestId("excel-paper");
   const namebox = page.getByTestId("excel-namebox");
 
@@ -161,9 +163,7 @@ test("spreadsheet keyboard model — arrows, type-to-replace, Enter/Tab moves, E
 
 test("spreadsheet range selection and fill-down rewrite values and formulas", async ({ page }) => {
   await enterDemoRoom(page);
-  const path = await styledWorkbookFile();
-  await page.locator(".r-file-input").setInputFiles(path);
-  await page.getByRole("button", { name: /model\.xlsx/ }).click();
+  await uploadAndOpenWorkbook(page);
   const paper = page.getByTestId("excel-paper");
   const namebox = page.getByTestId("excel-namebox");
 
@@ -186,9 +186,7 @@ test("spreadsheet range selection and fill-down rewrite values and formulas", as
 
 test("uploaded workbook formulas display computed values, preserve formulas in edit mode, and recalc after driver edits", async ({ page }) => {
   await enterDemoRoom(page);
-  const path = await styledWorkbookFile();
-  await page.locator(".r-file-input").setInputFiles(path);
-  await page.getByRole("button", { name: /model\.xlsx/ }).click();
+  await uploadAndOpenWorkbook(page);
 
   const paper = page.getByTestId("excel-paper");
   const driver = paper.locator('[data-cell-key="C6"]');

@@ -140,8 +140,16 @@ describe("room-work entity/facet cache", () => {
     expect(job?.status).toBe("completed");
     expect(job?.workflowId).toBeUndefined();
     expect(job?.modelCallCount).toBe(0);
+    expect(job?.request?.roomWork?.reasoning).toMatchObject({
+      schema: "noderoom.reasoning_frame_plan.v1",
+      capability: "harness_recursive_reasoning",
+      decision: { next: "finish", childFrameCount: 0 },
+      summary: { phases: ["intake", "plan", "execute", "verify", "synthesize"] },
+    });
     expect(workItems).toHaveLength(1);
     expect(workItems[0]).toMatchObject({ entityKey: "cardionova", facet: "company_profile", status: "cached", cachePolicy: "fresh_use_cache" });
+    expect(workItems[0].plan?.reasoningFrameId).toContain("execute");
+    expect(detail?.operations.map((event) => event.name)).toContain("reasoningFrames.plan");
   });
 
   it("creates a blocked durable room-work record for stale or missing facets without starting a workflow", async () => {
@@ -171,9 +179,14 @@ describe("room-work entity/facet cache", () => {
     expect(job?.schedulerHandoffCount).toBe(0);
     expect(job?.entrypoint).toBe("room_work");
     expect(job?.request?.roomWork?.staleFacets).toHaveLength(2);
+    expect(job?.request?.roomWork?.reasoning).toMatchObject({
+      capability: "harness_recursive_reasoning",
+      decision: { next: "block", childFrameCount: 2 },
+    });
     const workItems = await s.t.run((ctx) => ctx.db.query("entityWorkItems").withIndex("by_job", (q) => q.eq("jobId", jobId)).collect());
     expect(workItems).toHaveLength(2);
     expect(workItems.map((item) => item.cachePolicy)).toEqual(["missing_research_now", "missing_research_now"]);
+    expect(workItems.map((item) => item.plan?.reasoningFrameId).every((id) => typeof id === "string" && id.includes("execute"))).toBe(true);
   });
 
   it("reuses an existing live room-work job for the same entity/facet signature", async () => {

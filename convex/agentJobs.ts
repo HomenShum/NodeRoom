@@ -5,6 +5,7 @@ import { components, internal } from "./_generated/api";
 import type { Id } from "./_generated/dataModel";
 import { actorProofV, requireActorProof, requireArtifactInRoom, type ActorValue } from "./lib";
 import { classifyIntakeMessage, buildPlanPreview } from "../src/nodeagent/core/intakePreflight";
+import { buildRoomWorkReasoningPlan, roomWorkFacetFrameId, roomWorkPhaseFrameId } from "../src/nodeagent/core/reasoningFrames";
 import { parseBulkCompanyIngest } from "../src/nodeagent/skills/finance/bulkIngest";
 
 // BOUND: cap a single bulk-diligence fan-out so one command can't enqueue unbounded jobs.
@@ -335,6 +336,7 @@ async function insertEntityWorkItems(ctx: any, args: {
   artifactId: unknown;
   jobId: unknown;
   actor: ActorValue;
+  mode: RoomWorkMode;
   idempotencyKey: string;
   plans: RoomWorkFacetPlan[];
   now: number;
@@ -358,6 +360,9 @@ async function insertEntityWorkItems(ctx: any, args: {
       idempotencyKey: `roomworkitem:${args.idempotencyKey}:${plan.entityType}:${plan.entityKey}:${plan.facet}`,
       plan: {
         source: "room_work_intake",
+        reasoningFrameId: plan.cachePolicy === "fresh_use_cache" || plan.cachePolicy === "manual_only_do_not_research"
+          ? roomWorkPhaseFrameId({ framePlanId: args.idempotencyKey, phase: "execute", mode: args.mode })
+          : roomWorkFacetFrameId({ framePlanId: args.idempotencyKey, entityType: plan.entityType, entityKey: plan.entityKey, facet: plan.facet }),
         cacheFresh: plan.cacheHit?.fresh ?? false,
         validUntil: plan.cacheHit?.validUntil,
         staleAfter: plan.cacheHit?.staleAfter,
@@ -871,6 +876,20 @@ export const startOrReuseRoomWork = mutation({
     const baseGoal = text || (staleFacets.length ? `Fill ${facetList} for ${entityList}.` : `Reuse cached ${facetList} for ${entityList}.`);
     const goal = `Room work ${mode}: ${baseGoal}`.slice(0, 2_000);
     const idempotencyKey = roomWorkIdempotencyKey({ roomId: a.roomId, artifactId: a.artifactId, actorId: actor.id, mode, entities, facets });
+    const cacheSummary = summarizeEntityWorkPlans(facetPlans);
+    const buildReasoning = (blockedReason?: string) => buildRoomWorkReasoningPlan({
+      framePlanId: idempotencyKey,
+      globalGoal: goal,
+      mode,
+      artifactId: String(a.artifactId),
+      inputKind: a.input.kind,
+      entities,
+      facets,
+      facetPlans,
+      cacheHitCount: cacheHits.length,
+      freshHitCount: cacheHits.filter((hit) => hit.fresh).length,
+      blockedReason,
+    });
     const prior = await ctx.db.query("agentJobs").withIndex("by_idempotency", (q) => q.eq("idempotencyKey", idempotencyKey)).order("desc").take(5);
     const reusable = prior.find((job) => {
       if (String(job.roomId) !== String(a.roomId) || String(job.artifactId) !== String(a.artifactId)) return false;
@@ -896,6 +915,7 @@ export const startOrReuseRoomWork = mutation({
     }
 
     if (!staleFacets.length) {
+      const reasoning = buildReasoning();
       const jobId = await ctx.db.insert("agentJobs", clean({
         roomId: a.roomId,
         artifactId: a.artifactId,
@@ -913,7 +933,17 @@ export const startOrReuseRoomWork = mutation({
           approvalPolicy: "draft_first",
           evidencePolicy: "public_only",
           traceLevel: "full_operation_ledger",
-          roomWork: { mode, entities, facets, staleFacets, cacheHitCount: cacheHits.length, freshHitCount: cacheHits.filter((hit) => hit.fresh).length, inputKind: a.input.kind },
+          roomWork: {
+            mode,
+            entities,
+            facets,
+            staleFacets,
+            cacheHitCount: cacheHits.length,
+            freshHitCount: cacheHits.filter((hit) => hit.fresh).length,
+            inputKind: a.input.kind,
+            cacheSummary,
+            reasoning,
+          },
         },
         priority: 0,
         approvalPolicy: "draft_first",
@@ -939,7 +969,7 @@ export const startOrReuseRoomWork = mutation({
         updatedAt: now,
         completedAt: now,
       }));
-      const workItems = await insertEntityWorkItems(ctx, { roomId: a.roomId, artifactId: a.artifactId, jobId, actor, idempotencyKey, plans: facetPlans, now });
+      const workItems = await insertEntityWorkItems(ctx, { roomId: a.roomId, artifactId: a.artifactId, jobId, actor, mode, idempotencyKey, plans: facetPlans, now });
       await recordOperationEvent(ctx, {
         jobId,
         sequence: 1,
@@ -964,12 +994,24 @@ export const startOrReuseRoomWork = mutation({
         startedAt: now,
         completedAt: now,
       });
+      await recordOperationEvent(ctx, {
+        jobId,
+        sequence: 3,
+        kind: "checkpoint",
+        name: "reasoningFrames.plan",
+        countDelta: reasoning.frames.length,
+        affectedIds: reasoning.frames.map((frame) => frame.frameId),
+        startedAt: now,
+        completedAt: now,
+      });
       return { ok: true as const, cacheOnly: true as const, reused: false as const, jobId, status: "completed" as const, normalizedEntities: entities, facets, cacheHits, staleFacets, workItems, cacheSummary: summarizeEntityWorkPlans(workItems) };
     }
 
     const maxAttempts = Math.max(1, Math.min(a.maxAttempts ?? 20, 100));
     const planPreview = await artifactPlanPreview(ctx, { roomId: a.roomId, artifactId: a.artifactId, goal });
     const planBlocked = planPreview.scheduling !== "run_now";
+    const blockedReason = planBlocked ? `plan_${planPreview.scheduling}: ${planPreview.conflicts[0]?.detail ?? "Room work blocked by PlanPreview."}` : undefined;
+    const reasoning = buildReasoning(blockedReason);
     const jobId = await ctx.db.insert("agentJobs", clean({
       roomId: a.roomId,
       artifactId: a.artifactId,
@@ -995,7 +1037,8 @@ export const startOrReuseRoomWork = mutation({
           cacheHitCount: cacheHits.length,
           freshHitCount: cacheHits.filter((hit) => hit.fresh).length,
           inputKind: a.input.kind,
-          cacheSummary: summarizeEntityWorkPlans(facetPlans),
+          cacheSummary,
+          reasoning,
         },
       },
       priority: 0,
@@ -1007,7 +1050,7 @@ export const startOrReuseRoomWork = mutation({
       mode: "research",
       planPreview,
       status: planBlocked ? ("blocked" as const) : ("queued" as const),
-      error: planBlocked ? `plan_${planPreview.scheduling}: ${planPreview.conflicts[0]?.detail ?? "Room work blocked by PlanPreview."}` : undefined,
+      error: blockedReason,
       modelPolicy: "openrouter/free-auto",
       runtime: "workflow",
       attempts: 0,
@@ -1024,7 +1067,7 @@ export const startOrReuseRoomWork = mutation({
       updatedAt: now,
       completedAt: planBlocked ? now : undefined,
     }));
-    const workItems = await insertEntityWorkItems(ctx, { roomId: a.roomId, artifactId: a.artifactId, jobId, actor, idempotencyKey, plans: facetPlans, now });
+    const workItems = await insertEntityWorkItems(ctx, { roomId: a.roomId, artifactId: a.artifactId, jobId, actor, mode, idempotencyKey, plans: facetPlans, now });
     await recordOperationEvent(ctx, {
       jobId,
       sequence: 1,
@@ -1049,6 +1092,16 @@ export const startOrReuseRoomWork = mutation({
       startedAt: now,
       completedAt: now,
     });
+    await recordOperationEvent(ctx, {
+      jobId,
+      sequence: 3,
+      kind: "checkpoint",
+      name: "reasoningFrames.plan",
+      countDelta: reasoning.frames.length,
+      affectedIds: reasoning.frames.map((frame) => frame.frameId),
+      startedAt: now,
+      completedAt: now,
+    });
     if (planBlocked) {
       await ctx.db.insert("traces", {
         roomId: a.roomId,
@@ -1062,7 +1115,7 @@ export const startOrReuseRoomWork = mutation({
     }
     await recordOperationEvent(ctx, {
       jobId,
-      sequence: 3,
+      sequence: 4,
       kind: "scheduler",
       name: "agentWorkflows.freeAutoWorkflow",
       countDelta: 1,
