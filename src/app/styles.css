@@ -439,8 +439,10 @@ input { font-family: inherit; }
 .r-agent-route-field { display: flex; flex-direction: column; gap: 4px; min-width: 160px; }
 .r-agent-route-field[data-wide="true"] { flex: 1 1 280px; min-width: 240px; }
 .r-agent-route-field > span { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--text-muted); }
-.r-agent-route-field select { min-height: 32px; border: 1px solid var(--line-strong); border-radius: 8px; background: var(--bg-secondary); color: var(--text-primary); font: inherit; font-size: 12px; padding: 6px 10px; }
-.r-agent-route-field select:focus-visible { outline: none; border-color: var(--accent-border); box-shadow: var(--focus-ring); }
+.r-agent-route-field select,
+.r-agent-route-field input { min-height: 32px; border: 1px solid var(--line-strong); border-radius: 8px; background: var(--bg-secondary); color: var(--text-primary); font: inherit; font-size: 12px; padding: 6px 10px; }
+.r-agent-route-field select:focus-visible,
+.r-agent-route-field input:focus-visible { outline: none; border-color: var(--accent-border); box-shadow: var(--focus-ring); }
 .r-agent-route-hint { align-self: center; font-size: 11px; color: var(--text-tertiary); }
 .r-ref-composer { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; }
 .r-ref-chip { display: inline-flex; align-items: center; min-width: 0; max-width: 100%; border: 1px solid var(--accent-border); border-radius: 8px; overflow: hidden; background: var(--accent-tint); color: var(--accent-ink); }

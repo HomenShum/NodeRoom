@@ -976,19 +976,19 @@ export function Chat({ roomId, me, channel, variant, agentName, style, onOpenArt
             {modelSelectionMode === "specific" && (
               <label className="r-agent-route-field" data-wide="true">
                 <span>Specific model</span>
-                <select
+                <input
                   value={specificModelPolicy || defaultSpecificModel || ""}
-                  onChange={(e: ChangeEvent<HTMLSelectElement>) => setSpecificModelPolicy(e.target.value)}
+                  onChange={(e: ChangeEvent<HTMLInputElement>) => setSpecificModelPolicy(e.target.value)}
+                  list="agent-model-options"
+                  placeholder="openrouter/provider-model"
                   data-testid="chat-model-specific"
                   aria-label="Specific agent model"
-                >
-                  {!defaultSpecificModel && <option value="">Select a model</option>}
+                />
+                <datalist id="agent-model-options">
                   {specificModelGroups.map((group) => (
-                    <optgroup key={group.provider} label={group.label}>
-                      {group.models.map((model) => <option key={`${group.provider}-${model}`} value={model}>{model}</option>)}
-                    </optgroup>
+                    group.models.map((model) => <option key={`${group.provider}-${model}`} value={model}>{`${group.label} - ${model}`}</option>)
                   ))}
-                </select>
+                </datalist>
               </label>
             )}
             <span className="r-agent-route-hint" data-testid="chat-model-hint">{hintForModelSelection(modelSelectionMode)}</span>

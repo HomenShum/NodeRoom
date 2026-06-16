@@ -43,11 +43,18 @@ async function main() {
   const timeoutMs = Number(process.env.FREE_JOB_TIMEOUT_MS ?? 15 * 60_000);
   const pollMs = Number(process.env.FREE_JOB_POLL_MS ?? 5_000);
 
-  const jobId = await client.mutation(api.agentJobs.startFreeAuto, {
+  const jobId = await client.mutation(api.agentJobs.start, {
     roomId,
     artifactId,
     requester: proof,
     goal,
+    entrypoint: "free",
+    routePolicy: "free_auto",
+    runtimePolicy: "workflow_sliced",
+    approvalPolicy: "draft_first",
+    evidencePolicy: "public_only",
+    autoAllow: false,
+    traceLevel: "full",
     maxAttempts: Number(process.env.FREE_JOB_MAX_ATTEMPTS ?? 8),
   });
   console.log(`queued ${String(jobId)}`);
