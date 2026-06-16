@@ -31,6 +31,59 @@ describe("agentJobs runtime contract", () => {
     expect(detail?.job.mutationCount).toBe(1);
   });
 
+  it("central durable start helper preserves workflow and inline job contracts", async () => {
+    const { t, proof, roomId, artifactId } = await setupRoom({ seedElement: true });
+
+    const blockedStart = await t.mutation(api.agentJobs.start, {
+      roomId,
+      artifactId,
+      requester: proof,
+      goal: "Wait for human approval before changing anything.",
+      entrypoint: "public_ask" as const,
+      scope: "public_room" as const,
+      routePolicy: "explicit" as const,
+      runtimePolicy: "workflow_sliced" as const,
+      modelPolicy: "test-model",
+      idempotencyKey: "job-runtime-central-start",
+      approvalPolicy: "auto_commit_safe" as const,
+      evidencePolicy: "public_only" as const,
+      traceLevel: "full_operation_ledger" as const,
+      autoAllow: true,
+      mode: "variance" as const,
+    });
+
+    expect(blockedStart).toMatchObject({
+      reused: false,
+      status: "blocked",
+      modelPolicy: "test-model",
+      routePolicy: "explicit",
+      runtimePolicy: "workflow_sliced",
+    });
+
+    const blockedDetail = await t.query(api.agentJobs.detail, { jobId: blockedStart.jobId, requester: proof });
+    expect(blockedDetail?.job).toMatchObject({
+      entrypoint: "public_ask",
+      scope: "public_room",
+      routePolicy: "explicit",
+      runtimePolicy: "workflow_sliced",
+      modelPolicy: "test-model",
+      runtime: "workflow",
+    });
+    expect(blockedDetail?.job.workflowId).toBeUndefined();
+    expect(blockedDetail?.operations.map((event) => event.name)).toContain("agentJobs.start");
+
+    const inline = await t.mutation(api.agentJobs.createOrReuse, jobArgs({ roomId, artifactId, proof, idempotencyKey: "job-runtime-central-inline" }));
+    const claimed = await t.mutation(internal.agentJobs.claimSlice, { jobId: inline.jobId, leaseId: "lease-central-start", leaseMs: 60_000 });
+    expect(claimed).toMatchObject({
+      entrypoint: "public_ask",
+      scope: "public_room",
+      routePolicy: "explicit",
+      runtimePolicy: "workflow_sliced",
+      modelPolicy: "test-model",
+      traceLevel: "standard",
+    });
+  });
+
   it("does not reuse terminal public ask jobs for later reruns with the same idempotency key", async () => {
     const { t, proof, roomId, artifactId } = await setupRoom();
     const args = jobArgs({ roomId, artifactId, proof, idempotencyKey: "job-runtime-terminal-rerun" });

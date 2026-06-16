@@ -101,21 +101,23 @@ range by artifact id, visibility, version, row range, and column range.
 
 ## Long-running job lifecycle
 
-Long-running execution is a property of `agentJobs`, not a separate agent
-runtime. Durable public and Room-lane requests (`/ask`, `/free`, private
-Room-lane actions) use the same job root; private read-only advise is still a
-one-call private reply path. `/ask` runs an immediate first slice for
-interactive UX, then checkpoints into Workflow if the slice exhausts budget.
-`/free` only starts the job with the free-auto model policy.
+Long-running execution is a policy on `agentJobs`, not a separate agent
+implementation. Durable public room requests (`/ask`, `/free`, research,
+collaboration buttons, and top-model jobs) enter through `agentJobs.start`.
+The row carries `entrypoint`, `routePolicy`, `runtimePolicy`, `modelPolicy`,
+`approvalPolicy`, `evidencePolicy`, and `traceLevel`. Private read-only advise
+is still a one-call private reply path until it needs mutation, resumability, or
+room-visible trace accounting.
 
 ```text
-agentJobs create/handoff mutation
+agentJobs.start mutation
   -> insert agentJobs row
-  -> run first slice inline or start freeAutoWorkflow
+  -> choose model/approval/evidence behavior from route policy
+  -> start freeAutoWorkflow (historical name for the shared slice workflow)
   -> workflow sleeps until nextRunAt
   -> Workpool runs one runFreeAutoJobSlice action
   -> claimSlice(jobId, leaseId)
-  -> runAgent with the job modelPolicy
+  -> runAgent with the job entrypoint + modelPolicy
   -> finishSlice records agentJobAttempts + cursor/handoff + nextRunAt
   -> workflow polls state and resumes, or terminal status stops it
 ```
@@ -128,7 +130,8 @@ Built guarantees:
   job state; legacy scheduler continuation is only used for old
   `runtime="scheduler"` jobs.
 - A lease prevents two workers from running the same job at the same time.
-- `createOrReuse` and `startFreeAuto` dedupe by idempotency key.
+- `agentJobs.start` dedupes by idempotency key; `startFreeAuto` is only a
+  compatibility wrapper that calls it with `routePolicy="free_auto"`.
 - The provider-step journal replays completed model steps after
   crash-after-response/before-checkpoint failures.
 

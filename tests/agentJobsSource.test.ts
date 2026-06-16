@@ -30,7 +30,7 @@ describe("long-running agent job source invariants", () => {
     expect(config).toContain("@convex-dev/workflow");
     expect(config).toContain("@convex-dev/workpool");
     expect(jobs).toContain('runtime: "workflow"');
-    expect(jobs).toContain("start(ctx, internal.agentWorkflows.freeAutoWorkflow");
+    expect(jobs).toContain("startWorkflow(ctx, internal.agentWorkflows.freeAutoWorkflow");
     expect(jobs).toContain('job.runtime !== "workflow"');
     expect(workflows).toContain("new WorkflowManager(components.workflow");
     expect(workflows).toContain("MAX_WORKFLOW_SLICES");
@@ -51,15 +51,27 @@ describe("long-running agent job source invariants", () => {
     const runs = readFileSync("convex/agentRuns.ts", "utf8");
     const jobs = readFileSync("convex/agentJobs.ts", "utf8");
     const schema = readFileSync("convex/schema.ts", "utf8");
+    const store = readFileSync("src/app/store.tsx", "utf8");
 
     expect(agent).toContain('makeFunctionReference<"mutation">("agentJobs:createOrReuse")');
     expect(agent).toContain('makeFunctionReference<"mutation">("agentJobs:finishInteractive")');
     expect(agent).toContain("jobId, roomId");
     expect(runs).toContain('jobId: v.optional(v.id("agentJobs"))');
+    expect(jobs).toContain("export const start = mutation");
+    expect(jobs).toContain("startDurableAgentJob");
+    expect(jobs).toContain("routePolicyV");
+    expect(jobs).toContain("runtimePolicyV");
+    expect(jobs).toContain('execution === "inline" ? "agentJobs.createOrReuse" : "agentJobs.start"');
+    expect(store).toContain("useMutation(api.agentJobs.start)");
+    expect(store).not.toContain("useMutation(api.agentJobs.startFreeAuto)");
+    expect(store).toContain('routePolicy: "fast_default"');
+    expect(store).toContain('routePolicy: "free_auto"');
     expect(jobs).toContain("export const createOrReuse");
     expect(jobs).toContain("idempotencyKey");
     expect(schema).toContain('entrypoint: v.optional(entrypointV)');
     expect(schema).toContain('scope: v.optional(agentScopeV)');
+    expect(schema).toContain('routePolicy: v.optional(routePolicyV)');
+    expect(schema).toContain('runtimePolicy: v.optional(runtimePolicyV)');
   });
 
   it("keeps /ask model policy during workflow handoff while allowing /free overrides", () => {
@@ -68,7 +80,9 @@ describe("long-running agent job source invariants", () => {
 
     expect(runner).toContain('modelPolicy === "openrouter/free-auto"');
     expect(runner).toContain("process.env.FREE_AUTO_JOB_MODEL ?? modelPolicy");
-    expect(runner).toContain('const model = agentModel(resolvedModelPolicy, { entrypoint: "free" })');
+    expect(runner).toContain("const model = agentModel(resolvedModelPolicy, { entrypoint })");
+    expect(runner).toContain("function runnerEntrypoint");
+    expect(runner).toContain("defaultMaxStepsForEntrypoint(entrypoint)");
     expect(jobs).toContain("artifactMeta: art.meta");
   });
 

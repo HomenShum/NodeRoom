@@ -1,5 +1,5 @@
 import { v } from "convex/values";
-import { cancel as cancelWorkflow, start } from "@convex-dev/workflow";
+import { cancel as cancelWorkflow, start as startWorkflow } from "@convex-dev/workflow";
 import { internalMutation, mutation, query } from "./_generated/server";
 import { components, internal } from "./_generated/api";
 import type { Id } from "./_generated/dataModel";
@@ -29,6 +29,8 @@ const agentScopeV = v.union(v.literal("public_room"), v.literal("private_user"),
 const approvalPolicyV = v.union(v.literal("read_only"), v.literal("draft_first"), v.literal("auto_commit_safe"), v.literal("host_review"));
 const evidencePolicyV = v.union(v.literal("public_only"), v.literal("private_allowed"), v.literal("mixed_requires_redaction"));
 const traceLevelV = v.union(v.literal("summary"), v.literal("standard"), v.literal("full_operation_ledger"));
+const routePolicyV = v.union(v.literal("fast_default"), v.literal("free_auto"), v.literal("top_paid"), v.literal("explicit"));
+const runtimePolicyV = v.union(v.literal("workflow_sliced"));
 const operationEventKindV = v.union(
   v.literal("action"),
   v.literal("query"),
@@ -714,73 +716,31 @@ export const createOrReuse = mutation({
     error: v.optional(v.string()),
   },
   handler: async (ctx, a) => {
-    if (a.goal.length > 2_000) throw new Error("goal_too_long");
-    const actor = await requireActorProof(ctx, a.roomId, a.requester);
-    const artifact = await requireArtifactInRoom(ctx, a.roomId, a.artifactId);
-    requireJobArtifactAccess(artifact, actor, { allowPrivate: a.scope === "private_user" || a.entrypoint === "private_agent" || a.evidencePolicy === "private_allowed" });
-    const prior = await ctx.db.query("agentJobs").withIndex("by_idempotency", (q) => q.eq("idempotencyKey", a.idempotencyKey)).order("desc").take(5);
-    const reusable = prior.find((job) => String(job.roomId) === String(a.roomId) && String(job.artifactId) === String(a.artifactId) && !terminalStatuses.has(job.status));
-    if (reusable) return { jobId: reusable._id, reused: true as const, status: reusable.status, latestRunId: reusable.latestRunId };
-    const now = Date.now();
-    const initialStatus = a.initialStatus ?? "running";
-    const jobId = await ctx.db.insert("agentJobs", clean({
+    const central = await startDurableAgentJob(ctx, {
       roomId: a.roomId,
       artifactId: a.artifactId,
-      requester: actor,
+      requester: a.requester,
       goal: a.goal,
+      execution: "inline",
       entrypoint: a.entrypoint,
       scope: a.scope,
-      commandText: a.goal,
-      request: a.request,
-      priority: 0,
+      routePolicy: "explicit",
+      runtimePolicy: "workflow_sliced",
+      modelPolicy: a.modelPolicy,
+      mode: a.mode,
+      maxAttempts: a.maxAttempts,
+      idempotencyKey: a.idempotencyKey,
       approvalPolicy: a.approvalPolicy ?? "host_review",
       evidencePolicy: a.evidencePolicy ?? "public_only",
       autoAllow: a.autoAllow ?? false,
       traceLevel: a.traceLevel ?? "standard",
-      idempotencyKey: a.idempotencyKey,
-      mode: a.mode,
+      request: a.request,
+      initialStatus: a.initialStatus,
       planPreview: a.planPreview,
-      status: initialStatus,
       error: a.error,
-      modelPolicy: a.modelPolicy,
-      runtime: "inline",
-      attempts: 0,
-      maxAttempts: Math.max(1, Math.min(a.maxAttempts ?? 1, 20)),
-      actionSliceCount: 0,
-      queryCount: 0,
-      mutationCount: 1,
-      modelCallCount: 0,
-      toolCallCount: 0,
-      schedulerHandoffCount: 0,
-      receiptCount: 0,
-      nextRunAt: now,
-      createdAt: now,
-      updatedAt: now,
-      completedAt: initialStatus === "blocked" ? now : undefined,
-    }));
-    await recordOperationEvent(ctx, {
-      jobId,
-      sequence: 1,
-      kind: "mutation",
-      name: "agentJobs.createOrReuse",
-      targetKind: "artifact",
-      targetId: String(a.artifactId),
-      countDelta: 1,
-      affectedIds: [String(jobId), String(a.artifactId)],
-      startedAt: now,
-      completedAt: now,
+      operationName: "agentJobs.createOrReuse",
     });
-    if (initialStatus === "blocked") {
-      await ctx.db.insert("traces", {
-        roomId: a.roomId,
-        ts: now,
-        actor,
-        type: "plan_blocked",
-        summary: `PlanPreview blocked this run (${(a.planPreview as { scheduling?: string } | undefined)?.scheduling ?? "blocked"}) on ${String(a.artifactId)}`,
-        detail: `plan_preview - ${(a.planPreview as { scheduling?: string; conflicts?: Array<{ kind?: string; detail?: string }> } | undefined)?.scheduling ?? "blocked"} - conflicts=${((a.planPreview as { conflicts?: Array<{ kind?: string }> } | undefined)?.conflicts ?? []).map((c) => c.kind).join(",") || "none"} - ${a.error ?? ""}`.slice(0, 480),
-      });
-    }
-    return { jobId, reused: false as const, status: initialStatus };
+    return { jobId: central.jobId, reused: central.reused, status: central.status, latestRunId: central.latestRunId };
   },
 });
 
@@ -836,7 +796,7 @@ export const finishInteractive = internalMutation({
     await recordOperationEvent(ctx, { jobId: a.jobId, runId: a.runId, sequence: baseSequence + 3, kind: "checkpoint", name: "agentJobs.finishInteractive", countDelta: 1, status: "completed", startedAt: now, completedAt: now });
     let workflowId: string | undefined;
     if (a.status === "paused" && a.scheduleWorkflow) {
-      workflowId = String(await start(ctx, internal.agentWorkflows.freeAutoWorkflow, { jobId: a.jobId }, {
+      workflowId = String(await startWorkflow(ctx, internal.agentWorkflows.freeAutoWorkflow, { jobId: a.jobId }, {
         onComplete: internal.agentWorkflows.freeAutoWorkflowComplete,
         context: { jobId: a.jobId },
       }));
@@ -1361,13 +1321,218 @@ export const startOrReuseRoomWork = mutation({
       startedAt: now,
       completedAt: now,
     });
-    const workflowId: string = String(await start(ctx, internal.agentWorkflows.freeAutoWorkflow, { jobId }, {
+    const workflowId: string = String(await startWorkflow(ctx, internal.agentWorkflows.freeAutoWorkflow, { jobId }, {
       onComplete: internal.agentWorkflows.freeAutoWorkflowComplete,
       context: { jobId },
     }));
     await ctx.db.patch(jobId, { workflowId, updatedAt: now });
     return { ok: true as const, cacheOnly: false as const, reused: false as const, jobId, workflowId, status: "queued" as const, normalizedEntities: entities, facets, cacheHits, staleFacets, workItems, cacheSummary: summarizeEntityWorkPlans(workItems) };
   },
+});
+
+type DurableStartEntrypoint = "public_ask" | "private_agent" | "free" | "system" | "automation" | "provider_parser" | "room_work";
+type RoutePolicy = "fast_default" | "free_auto" | "top_paid" | "explicit";
+type RuntimePolicy = "workflow_sliced";
+type DurableStartAgentJobArgs = {
+  roomId: Id<"rooms">;
+  artifactId: Id<"artifacts">;
+  requester: unknown;
+  goal: string;
+  execution?: "inline" | "workflow";
+  entrypoint?: DurableStartEntrypoint;
+  scope?: "public_room" | "private_user" | "team";
+  routePolicy?: RoutePolicy;
+  runtimePolicy?: RuntimePolicy;
+  modelPolicy?: string;
+  mode?: "variance" | "research";
+  maxAttempts?: number;
+  idempotencyKey?: string;
+  approvalPolicy?: "read_only" | "draft_first" | "auto_commit_safe" | "host_review";
+  evidencePolicy?: "public_only" | "private_allowed" | "mixed_requires_redaction";
+  autoAllow?: boolean;
+  traceLevel?: "summary" | "standard" | "full_operation_ledger";
+  request?: unknown;
+  initialStatus?: "running" | "blocked";
+  planPreview?: unknown;
+  error?: string;
+  operationName?: string;
+};
+type DurableStartAgentJobResult = {
+  jobId: Id<"agentJobs">;
+  reused: boolean;
+  status: string;
+  workflowId?: string;
+  latestRunId?: Id<"agentRuns">;
+  modelPolicy: string;
+  routePolicy: RoutePolicy;
+  runtimePolicy: RuntimePolicy;
+};
+
+function defaultEntrypointForRoute(routePolicy: RoutePolicy): DurableStartEntrypoint {
+  return routePolicy === "free_auto" ? "free" : "public_ask";
+}
+
+function defaultModelPolicyForRoute(args: { routePolicy: RoutePolicy; entrypoint: DurableStartEntrypoint; mode?: "variance" | "research"; modelPolicy?: string }) {
+  if (args.modelPolicy) return args.modelPolicy;
+  if (args.routePolicy === "explicit") throw new Error("explicit_route_requires_modelPolicy");
+  if (args.routePolicy === "free_auto" || args.entrypoint === "free") return "openrouter/free-auto";
+  if (args.routePolicy === "top_paid") return process.env.AGENT_TOP_PAID_MODEL ?? process.env.AGENT_MODEL ?? "anthropic/claude-sonnet-4";
+  if (args.mode === "research") return process.env.AGENT_RESEARCH_MODEL ?? "deepseek/deepseek-v4-flash";
+  return process.env.AGENT_MODEL ?? "gemini-3.5-flash";
+}
+
+function defaultApprovalPolicyForEntrypoint(entrypoint: DurableStartEntrypoint) {
+  return entrypoint === "free" ? "draft_first" : "auto_commit_safe";
+}
+
+async function startDurableAgentJob(ctx: any, a: DurableStartAgentJobArgs): Promise<DurableStartAgentJobResult> {
+  if (a.goal.length > 2_000) throw new Error("goal_too_long");
+  const execution = a.execution ?? "workflow";
+  const routePolicy = a.routePolicy ?? (a.modelPolicy ? "explicit" : "fast_default");
+  const runtimePolicy = a.runtimePolicy ?? "workflow_sliced";
+  const entrypoint = a.entrypoint ?? defaultEntrypointForRoute(routePolicy);
+  const scope = a.scope ?? "public_room";
+  const actor = await requireActorProof(ctx, a.roomId, a.requester as any);
+  const artifact = await requireArtifactInRoom(ctx, a.roomId, a.artifactId);
+  requireJobArtifactAccess(artifact, actor, { allowPrivate: scope === "private_user" || entrypoint === "private_agent" || a.evidencePolicy === "private_allowed" });
+  const now = Date.now();
+  const maxAttempts = Math.max(1, Math.min(a.maxAttempts ?? (entrypoint === "free" ? 20 : 20), 100));
+  const modelPolicy = defaultModelPolicyForRoute({ routePolicy, entrypoint, mode: a.mode, modelPolicy: a.modelPolicy });
+  const idempotencyKey = a.idempotencyKey ?? defaultJobIdempotencyKey({ roomId: a.roomId, artifactId: a.artifactId, actorId: actor.id, goal: a.goal, entrypoint });
+  const prior = await ctx.db.query("agentJobs").withIndex("by_idempotency", (q: any) => q.eq("idempotencyKey", idempotencyKey)).order("desc").take(5);
+  const reusable = prior.find((job: any) => String(job.roomId) === String(a.roomId) && String(job.artifactId) === String(a.artifactId) && !terminalStatuses.has(job.status));
+  if (reusable) {
+    return { jobId: reusable._id as Id<"agentJobs">, reused: true as const, status: reusable.status as string, workflowId: reusable.workflowId as string | undefined, latestRunId: reusable.latestRunId as Id<"agentRuns"> | undefined, modelPolicy: reusable.modelPolicy as string, routePolicy, runtimePolicy };
+  }
+
+  let planPreview = a.planPreview as { scheduling?: string; conflicts?: Array<{ kind?: string; detail?: string }> } | undefined;
+  let planBlocked = a.initialStatus === "blocked";
+  let blockedReason = a.error;
+  if (execution === "workflow") {
+    // Central admission gate: every workflow-backed durable route gets the same intent classification,
+    // affected-set check, blocked-job trace, and no-provider-spend fail-closed behavior.
+    const intake = classifyIntakeMessage(a.goal);
+    const elementIds = (await ctx.db.query("elements").withIndex("by_artifact", (q: any) => q.eq("artifactId", a.artifactId)).collect()).map((e: any) => e.elementId);
+    const pendingProposalRefs = (await ctx.db.query("proposals").withIndex("by_room_status", (q: any) => q.eq("roomId", a.roomId).eq("status", "pending")).collect())
+      .filter((p: any) => String(p.artifactId) === String(a.artifactId))
+      .map((p: any) => (p.op as { elementId?: string } | null)?.elementId)
+      .filter((id: unknown): id is string => typeof id === "string");
+    planPreview = buildPlanPreview({ decision: intake, targetArtifacts: [String(a.artifactId)], intendedWriteSet: elementIds, pendingProposals: pendingProposalRefs });
+    planBlocked = planPreview.scheduling !== "run_now";
+    blockedReason = planBlocked ? `plan_${planPreview.scheduling}: ${planPreview.conflicts?.[0]?.detail ?? intake.reason}` : undefined;
+  }
+  const approvalPolicy = a.approvalPolicy ?? defaultApprovalPolicyForEntrypoint(entrypoint);
+  const evidencePolicy = a.evidencePolicy ?? "public_only";
+  const traceLevel = a.traceLevel ?? (execution === "inline" ? "standard" : "full_operation_ledger");
+  const status = execution === "inline" ? (a.initialStatus ?? "running") : planBlocked ? "blocked" : "queued";
+  const runtime = execution === "inline" ? "inline" : "workflow";
+  const operationName = a.operationName ?? (execution === "inline" ? "agentJobs.createOrReuse" : "agentJobs.start");
+  const request = a.request ?? {
+    roomId: String(a.roomId),
+    targetArtifactId: String(a.artifactId),
+    commandText: a.goal,
+    entrypoint,
+    scope,
+    routePolicy,
+    runtimePolicy,
+    modelPolicy,
+    approvalPolicy,
+    evidencePolicy,
+    traceLevel,
+  };
+  const jobId = await ctx.db.insert("agentJobs", clean({
+    roomId: a.roomId,
+    artifactId: a.artifactId,
+    requester: actor,
+    goal: a.goal,
+    entrypoint,
+    scope,
+    commandText: a.goal,
+    request,
+    priority: 0,
+    approvalPolicy,
+    evidencePolicy,
+    autoAllow: a.autoAllow ?? (execution === "inline" ? false : entrypoint !== "free"),
+    traceLevel,
+    routePolicy,
+    runtimePolicy,
+    idempotencyKey,
+    mode: a.mode,
+    planPreview,
+    status,
+    error: blockedReason,
+    modelPolicy,
+    runtime,
+    attempts: 0,
+    maxAttempts: execution === "inline" ? Math.max(1, Math.min(a.maxAttempts ?? 1, 20)) : maxAttempts,
+    actionSliceCount: 0,
+    queryCount: 0,
+    mutationCount: 1,
+    modelCallCount: 0,
+    toolCallCount: 0,
+    schedulerHandoffCount: execution === "workflow" && !planBlocked ? 1 : 0,
+    receiptCount: 0,
+    nextRunAt: now,
+    createdAt: now,
+    updatedAt: now,
+    completedAt: status === "blocked" ? now : undefined,
+  }));
+  await recordOperationEvent(ctx, {
+    jobId,
+    sequence: 1,
+    kind: "mutation",
+    name: operationName,
+    targetKind: "artifact",
+    targetId: String(a.artifactId),
+    countDelta: 1,
+    affectedIds: [String(jobId), String(a.artifactId)],
+    startedAt: now,
+    completedAt: now,
+  });
+  if (status === "blocked") {
+    await ctx.db.insert("traces", { roomId: a.roomId, ts: now, actor, type: "plan_blocked", summary: `PlanPreview blocked this run (${planPreview?.scheduling ?? "blocked"}) on ${String(a.artifactId)}`, detail: `plan_preview - ${planPreview?.scheduling ?? "blocked"} - conflicts=${(planPreview?.conflicts ?? []).map((c) => c.kind).join(",") || "none"} - ${blockedReason ?? ""}`.slice(0, 480) });
+    return { jobId, reused: false as const, status, modelPolicy, routePolicy, runtimePolicy };
+  }
+  if (execution === "inline") return { jobId, reused: false as const, status, modelPolicy, routePolicy, runtimePolicy };
+  await recordOperationEvent(ctx, {
+    jobId,
+    sequence: 2,
+    kind: "scheduler",
+    name: "agentWorkflows.freeAutoWorkflow",
+    countDelta: 1,
+    affectedIds: [String(jobId)],
+    startedAt: now,
+    completedAt: now,
+  });
+  const workflowId: string = String(await startWorkflow(ctx, internal.agentWorkflows.freeAutoWorkflow, { jobId }, {
+    onComplete: internal.agentWorkflows.freeAutoWorkflowComplete,
+    context: { jobId },
+  }));
+  await ctx.db.patch(jobId, { workflowId, updatedAt: now });
+  return { jobId, reused: false as const, status: "queued" as const, workflowId, modelPolicy, routePolicy, runtimePolicy };
+}
+
+export const start = mutation({
+  args: {
+    roomId: v.id("rooms"),
+    artifactId: v.id("artifacts"),
+    requester: actorProofV,
+    goal: v.string(),
+    entrypoint: v.optional(entrypointV),
+    scope: v.optional(agentScopeV),
+    routePolicy: v.optional(routePolicyV),
+    runtimePolicy: v.optional(runtimePolicyV),
+    modelPolicy: v.optional(v.string()),
+    mode: v.optional(v.union(v.literal("variance"), v.literal("research"))),
+    maxAttempts: v.optional(v.number()),
+    idempotencyKey: v.optional(v.string()),
+    approvalPolicy: v.optional(approvalPolicyV),
+    evidencePolicy: v.optional(evidencePolicyV),
+    autoAllow: v.optional(v.boolean()),
+    traceLevel: v.optional(traceLevelV),
+    request: v.optional(v.any()),
+  },
+  handler: async (ctx, a): Promise<DurableStartAgentJobResult> => startDurableAgentJob(ctx, a),
 });
 
 export const startFreeAuto = mutation({
@@ -1380,114 +1545,25 @@ export const startFreeAuto = mutation({
     maxAttempts: v.optional(v.number()),
     idempotencyKey: v.optional(v.string()),
   },
-  handler: async (ctx, a) => {
-    if (a.goal.length > 2_000) throw new Error("goal_too_long");
-    const actor = await requireActorProof(ctx, a.roomId, a.requester);
-    const artifact = await requireArtifactInRoom(ctx, a.roomId, a.artifactId);
-    requireJobArtifactAccess(artifact, actor);
-    const now = Date.now();
-    const maxAttempts = Math.max(1, Math.min(a.maxAttempts ?? 20, 100));
-    const idempotencyKey = a.idempotencyKey ?? defaultJobIdempotencyKey({ roomId: a.roomId, artifactId: a.artifactId, actorId: actor.id, goal: a.goal, entrypoint: "free" });
-    const prior = await ctx.db.query("agentJobs").withIndex("by_idempotency", (q) => q.eq("idempotencyKey", idempotencyKey)).order("desc").take(5);
-    const reusable = prior.find((job) => String(job.roomId) === String(a.roomId) && String(job.artifactId) === String(a.artifactId) && !terminalStatuses.has(job.status));
-    if (reusable) return reusable._id;
-
-    // PlanPreview admission gate (server-side, fail-closed): the structured intake classification +
-    // affected-set/conflict computation that was client-advisory now runs in the BACKEND before any
-    // durable work is queued. cancel/wait/privacy/formula/budget intents, and work that overlaps an
-    // unresolved pending proposal, are refused (recorded as a blocked job, no tool loop started).
-    const intake = classifyIntakeMessage(a.goal);
-    const elementIds = (await ctx.db.query("elements").withIndex("by_artifact", (q) => q.eq("artifactId", a.artifactId)).collect()).map((e) => e.elementId);
-    const pendingProposalRefs = (await ctx.db.query("proposals").withIndex("by_room_status", (q) => q.eq("roomId", a.roomId).eq("status", "pending")).collect())
-      .filter((p) => String(p.artifactId) === String(a.artifactId))
-      .map((p) => (p.op as { elementId?: string } | null)?.elementId)
-      .filter((id): id is string => typeof id === "string");
-    const planPreview = buildPlanPreview({
-      decision: intake,
-      targetArtifacts: [String(a.artifactId)],
-      intendedWriteSet: elementIds, // a free-auto enrich may touch any row in the artifact
-      pendingProposals: pendingProposalRefs,
-    });
-    const planBlocked = planPreview.scheduling !== "run_now";
-
-    const jobId = await ctx.db.insert("agentJobs", clean({
+  handler: async (ctx, a): Promise<Id<"agentJobs">> => {
+    const central = await startDurableAgentJob(ctx, {
       roomId: a.roomId,
       artifactId: a.artifactId,
-      requester: actor,
+      requester: a.requester,
       goal: a.goal,
       entrypoint: "free",
       scope: "public_room",
-      commandText: a.goal,
-      request: {
-        roomId: String(a.roomId),
-        targetArtifactId: String(a.artifactId),
-        commandText: a.goal,
-        entrypoint: "free",
-        scope: "public_room",
-        approvalPolicy: "draft_first",
-        evidencePolicy: "public_only",
-        traceLevel: "full_operation_ledger",
-      },
-      priority: 0,
+      routePolicy: "free_auto",
+      runtimePolicy: "workflow_sliced",
+      mode: a.mode,
+      maxAttempts: a.maxAttempts,
+      idempotencyKey: a.idempotencyKey,
       approvalPolicy: "draft_first",
       evidencePolicy: "public_only",
       autoAllow: false,
       traceLevel: "full_operation_ledger",
-      idempotencyKey,
-      mode: a.mode,
-      planPreview,
-      status: planBlocked ? ("blocked" as const) : ("queued" as const),
-      error: planBlocked ? `plan_${planPreview.scheduling}: ${planPreview.conflicts[0]?.detail ?? intake.reason}` : undefined,
-      modelPolicy: "openrouter/free-auto",
-      runtime: "workflow",
-      attempts: 0,
-      maxAttempts,
-      actionSliceCount: 0,
-      queryCount: 0,
-      mutationCount: 1,
-      modelCallCount: 0,
-      toolCallCount: 0,
-      schedulerHandoffCount: 1,
-      receiptCount: 0,
-      nextRunAt: now,
-      createdAt: now,
-      updatedAt: now,
-    }));
-    if (planBlocked) {
-      // Fail-closed: record the blocked admission decision in the trace ledger and do NOT start the
-      // tool loop. The job is a terminal "blocked" record; resolving the conflict + re-running creates
-      // a fresh job that re-evaluates the plan.
-      await ctx.db.insert("traces", { roomId: a.roomId, ts: now, actor, type: "plan_blocked", summary: `PlanPreview blocked this run (${planPreview.scheduling}) on ${String(a.artifactId)}`, detail: `plan_preview · ${planPreview.scheduling} · conflicts=${planPreview.conflicts.map((c) => c.kind).join(",") || "none"} · ${planPreview.conflicts[0]?.detail ?? intake.reason}`.slice(0, 480) });
-      return jobId;
-    }
-    await recordOperationEvent(ctx, {
-      jobId,
-      sequence: 1,
-      kind: "mutation",
-      name: "agentJobs.startFreeAuto",
-      targetKind: "artifact",
-      targetId: String(a.artifactId),
-      countDelta: 1,
-      affectedIds: [String(jobId), String(a.artifactId)],
-      startedAt: now,
-      completedAt: now,
     });
-    await recordOperationEvent(ctx, {
-      jobId,
-      sequence: 2,
-      kind: "scheduler",
-      name: "agentWorkflows.freeAutoWorkflow",
-      countDelta: 1,
-      affectedIds: [String(jobId)],
-      startedAt: now,
-      completedAt: now,
-    });
-    const workflowId = await start(ctx, internal.agentWorkflows.freeAutoWorkflow, { jobId }, {
-      onComplete: internal.agentWorkflows.freeAutoWorkflowComplete,
-      context: { jobId },
-    });
-    await ctx.db.patch(jobId, { workflowId: String(workflowId), updatedAt: now });
-    return jobId;
+    return central.jobId;
   },
 });
 
@@ -1580,7 +1656,7 @@ export const startBulkDiligence = mutation({
         jobs.push({ company: row.company, companyKey, jobId: String(jobId), status: "blocked", reused: false });
         continue;
       }
-      const workflowId = await start(ctx, internal.agentWorkflows.freeAutoWorkflow, { jobId }, { onComplete: internal.agentWorkflows.freeAutoWorkflowComplete, context: { jobId } });
+      const workflowId = await startWorkflow(ctx, internal.agentWorkflows.freeAutoWorkflow, { jobId }, { onComplete: internal.agentWorkflows.freeAutoWorkflowComplete, context: { jobId } });
       await ctx.db.patch(jobId, { workflowId: String(workflowId), updatedAt: now });
       jobs.push({ company: row.company, companyKey, jobId: String(jobId), status: "queued", reused: false });
     }
@@ -1701,7 +1777,7 @@ export const retry = mutation({
     const now = Date.now();
     const extra = Math.max(1, Math.min(additionalAttempts ?? 10, 50));
     const maxAttempts = Math.max(job.maxAttempts, job.attempts + extra);
-    const workflowId = await start(ctx, internal.agentWorkflows.freeAutoWorkflow, { jobId }, {
+    const workflowId = await startWorkflow(ctx, internal.agentWorkflows.freeAutoWorkflow, { jobId }, {
       onComplete: internal.agentWorkflows.freeAutoWorkflowComplete,
       context: { jobId },
     });
@@ -1943,6 +2019,13 @@ export const claimSlice = internalMutation({
       artifactVisibility: art.visibility ?? "room",
       requester: job.requester,
       goal: job.goal,
+      entrypoint: job.entrypoint,
+      scope: job.scope,
+      approvalPolicy: job.approvalPolicy,
+      evidencePolicy: job.evidencePolicy,
+      traceLevel: job.traceLevel,
+      routePolicy: job.routePolicy,
+      runtimePolicy: job.runtimePolicy,
       mode: job.mode,
       modelPolicy: job.modelPolicy,
       cursor: job.cursor,

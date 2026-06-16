@@ -38,6 +38,8 @@ const agentScopeV = v.union(v.literal("public_room"), v.literal("private_user"),
 const approvalPolicyV = v.union(v.literal("read_only"), v.literal("draft_first"), v.literal("auto_commit_safe"), v.literal("host_review"));
 const evidencePolicyV = v.union(v.literal("public_only"), v.literal("private_allowed"), v.literal("mixed_requires_redaction"));
 const traceLevelV = v.union(v.literal("summary"), v.literal("standard"), v.literal("full_operation_ledger"));
+const routePolicyV = v.union(v.literal("fast_default"), v.literal("free_auto"), v.literal("top_paid"), v.literal("explicit"));
+const runtimePolicyV = v.union(v.literal("workflow_sliced"));
 const operationEventKindV = v.union(
   v.literal("action"),
   v.literal("query"),
@@ -310,6 +312,8 @@ export default defineSchema({
     evidencePolicy: v.optional(evidencePolicyV),
     autoAllow: v.optional(v.boolean()),
     traceLevel: v.optional(traceLevelV),
+    routePolicy: v.optional(routePolicyV),
+    runtimePolicy: v.optional(runtimePolicyV),
     idempotencyKey: v.optional(v.string()),
     mode: v.optional(v.union(v.literal("variance"), v.literal("research"))),
     planPreview: v.optional(v.any()),

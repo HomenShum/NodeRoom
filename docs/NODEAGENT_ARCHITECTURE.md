@@ -47,19 +47,17 @@ mode. See [`HARNESS_RECURSIVE_REASONING.md`](HARNESS_RECURSIVE_REASONING.md).
 Current NodeRoom has one agent persistence shape with different entrypoints:
 
 ```text
-Interactive /ask
-  -> create/reuse agentJobs row
-  -> runRoomAgent action
-  -> agentRuns row
-  -> agentSteps rows
-  -> direct mutations through ConvexRoomTools
-  -> Workflow / Workpool continuation if the first slice checkpoints
-
-Free-auto /free
-  -> create/reuse agentJobs row with modelPolicy=openrouter/free-auto
+Any room-mutating agent request
+  -> agentJobs.start(entrypoint, routePolicy, runtimePolicy, modelPolicy)
+  -> one durable agentJobs row
   -> agentJobAttempts rows
   -> agentRuns / agentSteps per slice
-  -> Workflow / Workpool continuation
+  -> direct mutations through ConvexRoomTools
+  -> Workflow / Workpool continuation until completed, blocked, cancelled, or failed
+
+Free-auto /free
+  -> same route with entrypoint=free and routePolicy=free_auto
+  -> modelPolicy=openrouter/free-auto
 ```
 
 This matters because any job can become long-running:
@@ -84,8 +82,8 @@ not overstate what is enforced today.
 
 | Area | Current implementation | Target contract |
 |---|---|---|
-| Interactive agent | public `/ask` and private Room-lane actions create/reuse an `agentJobs` row, run `runRoomAgent` with `ConvexRoomTools`, and auto-hand off to Workflow when budget is exhausted; private advise is still a read-only one-call private reply | private/system/automation entrypoints share the same job root and result view when they mutate or need durable continuation |
-| Background jobs | `/free` uses the same `agentJobs`, attempts, workflow slices, and job lease with `modelPolicy=openrouter/free-auto` | every entrypoint can checkpoint through the same slice runner |
+| Interactive agent | public `/ask`, research, collaboration buttons, free-auto, and explicit top-model jobs start through `agentJobs.start` and differ by route/model/approval/evidence policy; private advise is still a read-only one-call private reply | private/system/automation entrypoints share the same job root and result view when they mutate or need durable continuation |
+| Background jobs | `/free` is the same `agentJobs.start` route with `routePolicy=free_auto`, Workflow slices, and job leases | every entrypoint can checkpoint through the same slice runner |
 | Job schema | `agentJobs` is still artifact-scoped in places | jobs target artifacts, notebooks, wiki pages, spreadsheet ranges, or no surface |
 | Artifact conflicts | `locks` plus CAS are the write-enforcement path | coordinate leases/locks are checked by every write mutation |
 | `agentLeases` | job-slice/execution lease plus target design docs | target-level leases for notebook/wiki/range writes, reconciled with `locks` |
@@ -521,11 +519,11 @@ agentLeases
   releasedAt
 ```
 
-The minimum implementation change is to make `runRoomAgent` create or claim an
-`agentJobs` row first, then execute the first slice immediately. The fast path
-still feels interactive; it just has the same durable root as `/free`. Current
-private read-only advise remains outside this root until it needs mutation,
-approval, resumability, or cost/trace accounting.
+The implemented production target is one durable start route:
+`agentJobs.start`. Route policy, not a second agent implementation, chooses
+fast-default, free-auto, top-paid, or explicit model behavior. Current private
+read-only advise remains outside this root until it needs mutation, approval,
+resumability, or cost/trace accounting.
 
 `agentSteps` is the human and eval trajectory: what the model tried, which
 tools it used, and what work product resulted. `agentOperationEvents` is the

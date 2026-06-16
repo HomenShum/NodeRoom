@@ -435,6 +435,13 @@ input { font-family: inherit; }
 .r-msg-ref:hover { border-color: var(--accent-border); color: var(--accent-ink); background: var(--accent-tint); }
 .r-bubble-ask { display: inline-block; font-family: var(--font-mono); font-size: 12.5px; background: var(--accent-tint); color: var(--accent-ink); border: 1px solid var(--accent-border); border-radius: 8px; padding: 6px 10px; line-height: 1.45; }
 .r-composer { flex: none; padding: 10px 12px 12px; border-top: 1px solid var(--line); }
+.r-agent-route-row { display: flex; flex-wrap: wrap; align-items: end; gap: 8px; margin-bottom: 8px; }
+.r-agent-route-field { display: flex; flex-direction: column; gap: 4px; min-width: 160px; }
+.r-agent-route-field[data-wide="true"] { flex: 1 1 280px; min-width: 240px; }
+.r-agent-route-field > span { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--text-muted); }
+.r-agent-route-field select { min-height: 32px; border: 1px solid var(--line-strong); border-radius: 8px; background: var(--bg-secondary); color: var(--text-primary); font: inherit; font-size: 12px; padding: 6px 10px; }
+.r-agent-route-field select:focus-visible { outline: none; border-color: var(--accent-border); box-shadow: var(--focus-ring); }
+.r-agent-route-hint { align-self: center; font-size: 11px; color: var(--text-tertiary); }
 .r-ref-composer { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; }
 .r-ref-chip { display: inline-flex; align-items: center; min-width: 0; max-width: 100%; border: 1px solid var(--accent-border); border-radius: 8px; overflow: hidden; background: var(--accent-tint); color: var(--accent-ink); }
 .r-ref-open { min-width: 0; max-width: 210px; display: inline-flex; align-items: center; gap: 5px; padding: 4px 7px; border: 0; background: transparent; color: inherit; font-size: 11px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

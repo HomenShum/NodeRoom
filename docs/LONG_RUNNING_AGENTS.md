@@ -69,7 +69,7 @@ background work:
 
 ```text
 /free <goal>
-  -> agentJobs.startFreeAuto mutation
+  -> agentJobs.start(routePolicy=free_auto, runtimePolicy=workflow_sliced)
   -> durable agentJobs row
   -> @convex-dev/workflow freeAutoWorkflow
   -> Workpool-limited internal action agentJobRunner.runFreeAutoJobSlice
@@ -78,11 +78,10 @@ background work:
   -> workflow sleep/resume when work remains
 ```
 
-This is not a second agent architecture. It is a command that starts the same
-durable job contract with `modelPolicy=openrouter/free-auto`. Normal `/ask`
-also can continue beyond 10 minutes now: if the first action slice cannot
-finish, it writes a checkpoint and starts Workflow continuation with the job's
-selected model policy.
+This is not a second agent architecture. It is the same durable job route with
+`entrypoint=free`, `routePolicy=free_auto`, and
+`modelPolicy=openrouter/free-auto`. Normal `/ask`, research, collaboration, and
+top-model jobs use the same `agentJobs.start` route with different policies.
 
 Durable tables:
 
@@ -191,7 +190,7 @@ retry(jobId)
 Workflow/Workpool behavior:
 
 ```text
-freeAutoWorkflow
+freeAutoWorkflow (historical name for the shared durable slice workflow)
   - polls agentJobs.workflowState
   - sleeps until nextRunAt without consuming action runtime
   - runs one bounded action slice per workflow step
@@ -230,9 +229,10 @@ The durable table is `agentModelStepJournal`, indexed by
 number. Attempts increment on retries; the slice key is derived from the
 semantic slice input:
 
-- `/ask`: job id, artifact id/version, goal, mode, model policy, and step cap.
-- Workflow continuation: job id, artifact id, goal, mode, model policy, cursor,
-  handoff, and step cap.
+- Initial slice: entrypoint, job id, artifact id/version, goal, mode, model
+  policy, and step cap.
+- Continuation slice: entrypoint, job id, artifact id, goal, mode, model policy,
+  cursor, handoff, and step cap.
 
 That means a retry before checkpoint sees the same key and replays the model
 step, while a successful checkpoint writes a new cursor and naturally starts a
@@ -249,7 +249,8 @@ double-bill case.
 ## Remaining Hardening
 
 The durable shape is built: `agentJobs`, `agentJobAttempts`,
-idempotent `createOrReuse` / `startFreeAuto`, `freeAutoWorkflow`,
+idempotent `agentJobs.start` (with `startFreeAuto` as a compatibility wrapper),
+`freeAutoWorkflow`,
 Workpool-limited slices, leases, cursor/handoff resume, cancel/retry,
 resolved-model attempt telemetry, and durable provider-step journaling. What
 remains is the reliability layer that turns it from a

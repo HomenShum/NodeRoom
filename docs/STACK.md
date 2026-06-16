@@ -28,10 +28,10 @@ semantic/dependency index.
 
 - `@convex-dev/workflow` and `@convex-dev/workpool` are installed and configured in `convex/convex.config.ts`.
 - `@convex-dev/persistent-text-streaming` is installed and configured in `convex/convex.config.ts`; message history stores the final text while stream ids remain runtime metadata.
-- `/free` creates an `agentJobs` row, starts `freeAutoWorkflow`, and runs bounded `runFreeAutoJobSlice` action steps.
+- `/ask`, `/free`, research, collaboration, and top-model jobs start through `agentJobs.start`; route/model/approval/evidence policies choose behavior while the shared workflow runs bounded `runFreeAutoJobSlice` action steps.
 - `agentJobs` remains the user-facing durable system of record. Workflow ids are runtime metadata.
 - Scheduler continuation remains only for legacy `runtime="scheduler"` jobs.
-- Interactive and `/free` requests both route through durable `agentJobs`; production code does not depend on `client_action` as the write primitive.
+- Public room agent requests route through durable `agentJobs`; production code does not depend on `client_action` as the write primitive.
 - Agent steps write operation events, mutation receipts, draft operations, leases, and exact-once model journals.
 - Notebook/wiki graph tables and mutations are wired: create notebook, create child node, update node content, create/reorder relations, and write receipts.
 - Node and wiki updates enqueue embedding jobs asynchronously; the local embedding runner writes durable vectors and exposes `searchVisible`.

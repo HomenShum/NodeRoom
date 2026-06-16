@@ -2,11 +2,12 @@
 import { useEffect, useMemo, useRef, useState, type CSSProperties, type ChangeEvent, type ClipboardEvent, type DragEvent, type KeyboardEvent, type ReactNode } from "react";
 import { Lock, MessageCircle, Globe, Send, Sparkles, Copy, Check, ArrowUpRight, Pencil, Paperclip, X, Timer, RefreshCw, ChevronDown, ChevronUp, ListChecks, GitBranch, ShieldCheck, Database } from "lucide-react";
 import { useQuery } from "convex/react";
-import { useStore, CONVEX_SITE_URL, type AgentJobDetailTelemetry, type PrivateStreamAccess, type RoomStore } from "../app/store";
+import { useStore, CONVEX_SITE_URL, type AgentJobDetailTelemetry, type AgentModelSelection, type PrivateStreamAccess, type RoomStore } from "../app/store";
 import { abortable, parseUploadedFiles, UPLOAD_TIMEOUT_MS } from "../app/uploadedArtifact";
 import type { StreamId } from "@convex-dev/persistent-text-streaming";
 import { api } from "../../convex/_generated/api";
 import type { Actor, Channel, Message } from "../engine/types";
+import { llmModelCatalog, resolveModelAlias, type LlmProvider } from "../nodeagent/models/modelCatalog";
 import {
   displayArtifactRefMessage,
   encodeArtifactRefLine,
@@ -183,6 +184,29 @@ const SLASH_CMDS = [
   { label: "/free", insert: "/free ", hint: "force the resumable free-auto model policy" },
   { label: "/demo multi-agent", insert: "/demo multi-agent startup diligence ", hint: "show startup-banking diligence queue lanes" },
 ];
+const AGENT_MODEL_PROVIDER_ORDER: LlmProvider[] = ["openrouter", "anthropic", "openai", "gemini", "xai"];
+const AGENT_MODEL_PROVIDER_LABELS: Record<LlmProvider, string> = {
+  openrouter: "OpenRouter",
+  anthropic: "Anthropic",
+  openai: "OpenAI",
+  gemini: "Google Gemini",
+  xai: "xAI",
+};
+const AGENT_MODEL_PRESETS: Array<{ value: AgentModelSelection["mode"]; label: string }> = [
+  { value: "adaptive", label: "Adaptive" },
+  { value: "free", label: "Free" },
+  { value: "top_paid", label: "Top paid" },
+  { value: "specific", label: "Specific model" },
+];
+
+function hintForModelSelection(mode: AgentModelSelection["mode"]): string {
+  switch (mode) {
+    case "free": return "Uses the free-auto lane for /ask.";
+    case "top_paid": return "Pins /ask to the top paid route.";
+    case "specific": return "Pins /ask to an exact model policy.";
+    default: return "Uses the default adaptive lane for the task.";
+  }
+}
 
 type DemoAgent = {
   id: string;
@@ -499,6 +523,8 @@ export function Chat({ roomId, me, channel, variant, agentName, style, onOpenArt
   const [agentErr, setAgentErr] = useState<string | null>(null); // C7/C2: honest surface for failed agent dispatches
   const [refOpenErr, setRefOpenErr] = useState<string | null>(null);
   const [roomLane, setRoomLane] = useState(false); // private panel: false = whisper to me, true = act in the room
+  const [modelSelectionMode, setModelSelectionMode] = useState<AgentModelSelection["mode"]>("adaptive");
+  const [specificModelPolicy, setSpecificModelPolicy] = useState("");
   const [multiAgentDemoStarted, setMultiAgentDemoStarted] = useState(false);
   const [multiAgentScenario, setMultiAgentScenario] = useState<DemoScenario>(STARTUP_DILIGENCE_DEMO);
   const [multiAgentTick, setMultiAgentTick] = useState(0);
@@ -525,6 +551,15 @@ export function Chat({ roomId, me, channel, variant, agentName, style, onOpenArt
   const longJobDetail = isPrivate ? null : store.lastLongFreeJobDetail();
   const liveOperationStream = (!isPrivate && thinking ? (longJobDetail?.operations ?? []).filter((op) => op.sequence >= 1_000).slice(-4) : []) as OperationStreamRow[];
   const hasQ3DemoSeed = !isPrivate && store.listArtifacts(roomId).some((a) => a.kind === "sheet" && a.title === "Q3 variance");
+  const showModelSelection = !isPrivate && store.mode === "convex";
+  const specificModelGroups = useMemo(() => AGENT_MODEL_PROVIDER_ORDER
+    .map((provider) => ({
+      provider,
+      label: AGENT_MODEL_PROVIDER_LABELS[provider],
+      models: Array.from(new Set((llmModelCatalog[provider]?.agent ?? []).map((model) => resolveModelAlias(model.trim())))),
+    }))
+    .filter((group) => group.models.length > 0), []);
+  const defaultSpecificModel = specificModelGroups[0]?.models[0] ?? "";
   const slashOptions = useMemo(() => SLASH_CMDS.filter((c) => store.mode === "memory" || c.label !== "/demo multi-agent"), [store.mode]);
   const latestAttempt = longJobAttempts.at(-1);
   const canCancelLongJob = !!longJob && !["completed", "failed", "cancelled"].includes(longJob.status);
@@ -549,6 +584,9 @@ export function Chat({ roomId, me, channel, variant, agentName, style, onOpenArt
     if (!thinking) return;
     if (messages.slice(thinkingStartCount.current).some((m) => m.author.kind === "agent")) setThinking(false);
   }, [messages, thinking]);
+  useEffect(() => {
+    if (!specificModelPolicy && defaultSpecificModel) setSpecificModelPolicy(defaultSpecificModel);
+  }, [defaultSpecificModel, specificModelPolicy]);
   const onScroll = () => { const el = feedRef.current; if (el) nearBottom.current = el.scrollHeight - el.scrollTop - el.clientHeight < 80; };
 
   const grow = () => { const el = taRef.current; if (el) { el.style.height = "auto"; el.style.height = Math.min(el.scrollHeight, 120) + "px"; } };
@@ -573,8 +611,11 @@ export function Chat({ roomId, me, channel, variant, agentName, style, onOpenArt
 
     if (!isPrivate && /^\/ask\b/i.test(t)) {
       const goal = t.replace(/^\/ask\s*/i, "").trim() || "Diligence CardioNova with source-backed product, buyer, funding, hiring, and HIPAA/security gaps.";
+      const modelSelection: AgentModelSelection = modelSelectionMode === "specific"
+        ? { mode: "specific", modelPolicy: specificModelPolicy || defaultSpecificModel || "gemini-3.5-flash" }
+        : { mode: modelSelectionMode };
       beginThinking();
-      void store.askAgent({ goal, references: messageRefs }).catch((e) => { if (aliveRef.current) setAgentErr(agentErrorText(e)); }).finally(() => { if (aliveRef.current) setThinking(false); });
+      void store.askAgent({ goal, references: messageRefs, modelSelection }).catch((e) => { if (aliveRef.current) setAgentErr(agentErrorText(e)); }).finally(() => { if (aliveRef.current) setThinking(false); });
       return;
     }
 
@@ -913,6 +954,44 @@ export function Chat({ roomId, me, channel, variant, agentName, style, onOpenArt
             <button type="button" className="r-lane-btn" data-on={String(roomLane)} data-testid="lane-room" onClick={() => setRoomLane(true)} title="Room: your agent acts in the shared room — edits the sheet + posts to public chat, attributed to you">
               <Globe size={11} /> Room
             </button>
+          </div>
+        )}
+        {showModelSelection && (
+          <div className="r-agent-route-row" data-testid="chat-agent-route">
+            <label className="r-agent-route-field">
+              <span>Agent route</span>
+              <select
+                value={modelSelectionMode}
+                onChange={(e: ChangeEvent<HTMLSelectElement>) => {
+                  const next = e.target.value as AgentModelSelection["mode"];
+                  setModelSelectionMode(next);
+                  if (next === "specific" && !specificModelPolicy && defaultSpecificModel) setSpecificModelPolicy(defaultSpecificModel);
+                }}
+                data-testid="chat-model-preset"
+                aria-label="Agent route"
+              >
+                {AGENT_MODEL_PRESETS.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+              </select>
+            </label>
+            {modelSelectionMode === "specific" && (
+              <label className="r-agent-route-field" data-wide="true">
+                <span>Specific model</span>
+                <select
+                  value={specificModelPolicy || defaultSpecificModel || ""}
+                  onChange={(e: ChangeEvent<HTMLSelectElement>) => setSpecificModelPolicy(e.target.value)}
+                  data-testid="chat-model-specific"
+                  aria-label="Specific agent model"
+                >
+                  {!defaultSpecificModel && <option value="">Select a model</option>}
+                  {specificModelGroups.map((group) => (
+                    <optgroup key={group.provider} label={group.label}>
+                      {group.models.map((model) => <option key={`${group.provider}-${model}`} value={model}>{model}</option>)}
+                    </optgroup>
+                  ))}
+                </select>
+              </label>
+            )}
+            <span className="r-agent-route-hint" data-testid="chat-model-hint">{hintForModelSelection(modelSelectionMode)}</span>
           </div>
         )}
         {slashOpen && (

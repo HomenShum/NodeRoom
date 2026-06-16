@@ -44,9 +44,11 @@ sequenceDiagram
 
   Host->>Mutations: messages.send("/ask reconcile Q3 revenue")
   Mutations->>DB: append public message
-  Host->>Action: runRoomAgent(roomId, artifactId, goal)
-  Action->>Mutations: agentJobs.createOrReuse(idempotencyKey)
-  Mutations->>DB: create durable job root and operation event
+  Host->>Mutations: agentJobs.start(entrypoint=public_ask, routePolicy=fast_default)
+  Mutations->>DB: create durable job root, policy fields, operation event
+  Mutations->>Workflow: start shared sliced workflow
+  Workflow->>Action: run bounded job slice
+  Action->>DB: claimSlice(jobId, leaseId)
   Action->>DB: query room context through Convex
   Action->>Action: fence untrusted room data, compact context
   Action->>DB: check agentModelStepJournal(sliceKey, step)
@@ -69,21 +71,21 @@ sequenceDiagram
   Queries-->>Host: inline chips, trace, status
   Queries-->>Peer: same public evidence, private data redacted
 
-  alt action finishes inside budget
-    Action->>Mutations: agentJobs.finishInteractive(completed)
-    Mutations->>DB: final run, steps, counters, cost
+  alt slice finishes the job
+    Action->>Mutations: agentJobs.finishSlice(completed)
+    Mutations->>DB: final run, steps, counters, cost, release lease
   else time or step budget hit
-    Action->>Mutations: agentJobs.finishInteractive(paused, cursor, handoff)
-    Mutations->>Workflow: start continuation workflow
-    Workflow->>Action: run bounded slice later
+    Action->>Mutations: agentJobs.finishSlice(handoff, cursor, nextRunAt)
+    Mutations->>DB: checkpoint cursor and release lease
+    Workflow->>Action: run next bounded slice later
     Action->>DB: hydrate cursor and continue from journaled state
   end
 ```
 
 The continuation workflow is historically named `freeAutoWorkflow`, because it
-started as the `/free` runner. In current code it preserves the job's model
-policy, so it can continue an interactive `/ask` job as well as a free-auto job.
-The durable user-facing contract remains `agentJobs`; workflow ids are runtime
+started as the `/free` runner. In current code it is the shared durable workflow
+for `/ask`, `/free`, research, collaboration, and top-model jobs. The job row's
+route/model/approval/evidence policies decide behavior; workflow ids are runtime
 metadata.
 
 ## Provider File And Evidence Flow

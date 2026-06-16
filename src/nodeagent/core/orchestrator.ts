@@ -19,8 +19,10 @@ export type NodeAgentLifecycleStatus =
   | "cancelled";
 
 export interface NodeAgentJobRoute {
-  lane: "fast_interactive" | "workflow_slice" | "benchmark";
+  lane: "durable_job" | "benchmark";
   convexEntrypoint: string;
+  routePolicy: "fast_default" | "free_auto" | "top_paid" | "explicit";
+  runtimePolicy: "workflow_sliced";
   maxSliceMs: number;
   durableJobTable: "agentJobs";
 }
@@ -38,6 +40,7 @@ export interface NodeAgentRunReceipt {
 }
 
 export const NODEAGENT_CONVEX_FUNCTIONS = {
+  startJob: "agentJobs.start",
   startOrReuseJob: "agentJobs.createOrReuse",
   runRoomAgent: "agent.runRoomAgent",
   runPrivateAgent: "agent.runPrivateAgent",
@@ -47,25 +50,31 @@ export const NODEAGENT_CONVEX_FUNCTIONS = {
 } as const;
 
 export function routeForTask(kind: NodeAgentTaskKind): NodeAgentJobRoute {
-  if (kind === "interactive_chat") {
-    return {
-      lane: "fast_interactive",
-      convexEntrypoint: NODEAGENT_CONVEX_FUNCTIONS.runRoomAgent,
-      maxSliceMs: 90_000,
-      durableJobTable: "agentJobs",
-    };
-  }
   if (kind === "benchmark_eval") {
     return {
       lane: "benchmark",
-      convexEntrypoint: NODEAGENT_CONVEX_FUNCTIONS.startOrReuseJob,
+      convexEntrypoint: NODEAGENT_CONVEX_FUNCTIONS.startJob,
+      routePolicy: "explicit",
+      runtimePolicy: "workflow_sliced",
       maxSliceMs: 180_000,
       durableJobTable: "agentJobs",
     };
   }
+  if (kind === "free_auto_long_running") {
+    return {
+      lane: "durable_job",
+      convexEntrypoint: NODEAGENT_CONVEX_FUNCTIONS.startJob,
+      routePolicy: "free_auto",
+      runtimePolicy: "workflow_sliced",
+      maxSliceMs: 540_000,
+      durableJobTable: "agentJobs",
+    };
+  }
   return {
-    lane: "workflow_slice",
-    convexEntrypoint: NODEAGENT_CONVEX_FUNCTIONS.runFreeAutoSlice,
+    lane: "durable_job",
+    convexEntrypoint: NODEAGENT_CONVEX_FUNCTIONS.startJob,
+    routePolicy: "fast_default",
+    runtimePolicy: "workflow_sliced",
     maxSliceMs: 540_000,
     durableJobTable: "agentJobs",
   };
@@ -85,10 +94,9 @@ export function splitBulkCompanyBatches<T>(items: readonly T[], batchSize = 8): 
 }
 
 export function shouldUseDurableWorkflow(kind: NodeAgentTaskKind): boolean {
-  return routeForTask(kind).lane !== "fast_interactive";
+  return routeForTask(kind).runtimePolicy === "workflow_sliced";
 }
 
 export function splitBulkDiligence<T>(items: readonly T[], options: { batchSize?: number } = {}) {
   return splitBulkCompanyBatches(items, options.batchSize ?? 8);
 }
-

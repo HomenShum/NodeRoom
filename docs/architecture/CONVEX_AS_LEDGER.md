@@ -133,6 +133,14 @@ For each: what to **KEEP**, what to **CHANGE**, and **already-exists (cite) vs n
   is on the workflow component (`agentWorkflows.ts:9`); there is **no** running-job counter gating
   the action. Add a **token-budget preflight** (estimate prompt+context tokens, reject before the
   model call). **[NET-NEW]** — dollar caps exist; a token preflight does not.
+- **June 16 implementation update**: public room agent starts now go through
+  `agentJobs.start`, not separate `/ask` and `/free` implementations. The job
+  row carries `entrypoint`, `routePolicy`, `runtimePolicy`, `modelPolicy`,
+  approval/evidence policy, idempotency, and an operation event. `/free` is the
+  same route with `routePolicy=free_auto`; `/ask` is the same route with
+  `routePolicy=fast_default`; paid benchmark jobs can use `routePolicy=top_paid`
+  or `explicit`. Remaining capacity work is per-room/global queued/running caps
+  plus token preflight before provider calls.
 - Nuance **[REFINED]**: `agentJobs.by_status_nextRunAt` exists (`schema.ts:281`) but is **dormant
   for dispatch** — no `agentJobs` query reads it; `/free` concurrency is enforced by the workpool,
   not by polling that index. Making it the admission queue would require a net-new poller/claimer.

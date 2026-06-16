@@ -106,9 +106,42 @@ export type OkfTraceLensTelemetry = {
   chunkCount: number;
 };
 export type { UploadedArtifactInput } from "./uploadedArtifact";
-export type AgentAskInput = { goal: string; references?: ArtifactRef[] };
+export type AgentModelSelection =
+  | { mode: "adaptive" }
+  | { mode: "free" }
+  | { mode: "top_paid" }
+  | { mode: "specific"; modelPolicy: string };
+export type AgentAskInput = { goal: string; references?: ArtifactRef[]; modelSelection?: AgentModelSelection };
 export type ActorProof = { actor: Actor; token: string };
 export type PrivateStreamAccess = { requester: ActorProof; driven: boolean };
+
+type DurableAgentRoute = {
+  entrypoint: "public_ask" | "free";
+  routePolicy: "fast_default" | "free_auto" | "top_paid" | "explicit";
+  modelPolicy?: string;
+  approvalPolicy: "draft_first" | "auto_commit_safe";
+  autoAllow: boolean;
+};
+
+function durableRouteForModelSelection(selection?: AgentModelSelection, forced?: "free"): DurableAgentRoute {
+  if (forced === "free" || selection?.mode === "free") {
+    return { entrypoint: "free", routePolicy: "free_auto", approvalPolicy: "draft_first", autoAllow: false };
+  }
+  if (selection?.mode === "top_paid") {
+    return { entrypoint: "public_ask", routePolicy: "top_paid", approvalPolicy: "auto_commit_safe", autoAllow: true };
+  }
+  if (selection?.mode === "specific") {
+    const modelPolicy = selection.modelPolicy.trim();
+    return {
+      entrypoint: "public_ask",
+      routePolicy: modelPolicy ? "explicit" : "fast_default",
+      modelPolicy: modelPolicy || undefined,
+      approvalPolicy: "auto_commit_safe",
+      autoAllow: true,
+    };
+  }
+  return { entrypoint: "public_ask", routePolicy: "fast_default", approvalPolicy: "auto_commit_safe", autoAllow: true };
+}
 
 export interface RoomStore {
   mode: "memory" | "convex";
@@ -712,7 +745,7 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
   const runAgent = useAction(api.agent.runRoomAgent);
   const runPrivateAgent = useAction(api.agent.runPrivateAgent);
   const createPrivateReplyStream = useMutation(api.streaming.createPrivateReplyStream);
-  const startFreeAutoJob = useMutation(api.agentJobs.startFreeAuto);
+  const startAgentJob = useMutation(api.agentJobs.start);
   // Job-strip controls flip instantly. Mirrors the server's transition + ITS guards (cancel: no-op
   // on terminal; retry: no-op on completed/running) so an ok:false result reconciles honestly via
   // rollback + the returned feedback. Args carry only jobId — patch whichever loaded list holds it.
@@ -871,7 +904,21 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
         const sheet = artifacts.find((a) => a.kind === "sheet" && a.title === "Q3 variance") ?? artifacts.find((a) => a.kind === "sheet");
         const sess = sessions.find((s) => s.scope === "public");
         if (!sheet || !sess) return;
-        await runAgent({ roomId: rid, artifactId: sheet.id as never, requester: proof, goal: "Fill the remaining Q3 variance cells: Gross profit (r_gp__variance)=+21.7% and Net income (r_ni__variance)=+22.4%. Lock them, edit with CAS, then release." });
+        await startAgentJob({
+          roomId: rid,
+          artifactId: sheet.id as never,
+          requester: proof,
+          entrypoint: "public_ask",
+          scope: "public_room",
+          routePolicy: "fast_default",
+          runtimePolicy: "workflow_sliced",
+          approvalPolicy: "auto_commit_safe",
+          evidencePolicy: "public_only",
+          traceLevel: "full_operation_ledger",
+          autoAllow: true,
+          mode: "variance",
+          goal: "Fill the remaining Q3 variance cells: Gross profit (r_gp__variance)=+21.7% and Net income (r_ni__variance)=+22.4%. Lock them, edit with CAS, then release.",
+        });
       },
       runSemanticConflictDrill: async () => {
         if (!isHost) return;
@@ -893,10 +940,20 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
         const target = targetArtifact(artifacts, references);
         const sess = sessions.find((s) => s.scope === "public");
         if (!target || !sess) return;
-        await runAgent({
+        const route = durableRouteForModelSelection(input.modelSelection);
+        await startAgentJob({
           roomId: rid,
           artifactId: target.id as never,
           requester: proof,
+          entrypoint: route.entrypoint,
+          scope: "public_room",
+          routePolicy: route.routePolicy,
+          runtimePolicy: "workflow_sliced",
+          ...(route.modelPolicy ? { modelPolicy: route.modelPolicy } : {}),
+          approvalPolicy: route.approvalPolicy,
+          evidencePolicy: "public_only",
+          traceLevel: "full_operation_ledger",
+          autoAllow: route.autoAllow,
           mode: target.title === "Company research" ? "research" : undefined,
           goal: withReferenceContext(input.goal, references),
         });
@@ -934,10 +991,20 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
           text: `Queued long-running free-auto job for ${referenceNames(references)}. It will checkpoint and resume across Convex action slices.`,
           clientMsgId: crypto.randomUUID(),
         });
-        await startFreeAutoJob({
+        const route = durableRouteForModelSelection(input.modelSelection, "free");
+        await startAgentJob({
           roomId: rid,
           artifactId: sheet.id as never,
           requester: proof,
+          entrypoint: route.entrypoint,
+          scope: "public_room",
+          routePolicy: route.routePolicy,
+          runtimePolicy: "workflow_sliced",
+          ...(route.modelPolicy ? { modelPolicy: route.modelPolicy } : {}),
+          approvalPolicy: route.approvalPolicy,
+          evidencePolicy: "public_only",
+          traceLevel: "full_operation_ledger",
+          autoAllow: route.autoAllow,
           goal: withReferenceContext(input.goal, references),
           mode: sheet.title === "Company research" ? "research" : "variance",
         });
@@ -946,7 +1013,21 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
         const research = artifacts.find((a) => a.title === "Company research");
         const sess = sessions.find((s) => s.scope === "public");
         if (!research || !sess) return;
-        await runAgent({ roomId: rid, artifactId: research.id as never, requester: proof, mode: "research", goal: "Research every pending or stale company: claim its editable research cells, set status to running, fetch the website plus a corroborating source when available, write summary/funding/headcount/recent_signal, write citations into __source and __source2, set last_researched to today's ISO date, set status to complete, then release. Cite only sources you fetched." });
+        await startAgentJob({
+          roomId: rid,
+          artifactId: research.id as never,
+          requester: proof,
+          entrypoint: "public_ask",
+          scope: "public_room",
+          routePolicy: "fast_default",
+          runtimePolicy: "workflow_sliced",
+          approvalPolicy: "auto_commit_safe",
+          evidencePolicy: "public_only",
+          traceLevel: "full_operation_ledger",
+          autoAllow: true,
+          mode: "research",
+          goal: "Research every pending or stale company: claim its editable research cells, set status to running, fetch the website plus a corroborating source when available, write summary/funding/headcount/recent_signal, write citations into __source and __source2, set last_researched to today's ISO date, set status to complete, then release. Cite only sources you fetched.",
+        });
       },
       lastRun: () => {
         const r = (runs as unknown as AgentRunTelemetry[])[0];
@@ -1064,7 +1145,7 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
         catch (e) { return { ok: false, reason: e instanceof Error ? e.message : "retry_failed" }; }
       },
     };
-  }, [data, metaArtifacts, elementsByArtifact, pub, priv, traces, okfLens, runs, jobs, jobAttempts, jobDetail, proposals, applyCellEdit, sendMsg, toggle, editMsg, resolveProposalMutation, addResearchRowsMutation, createArtifactMutation, uploadSourceFile, runSemanticConflictDrillMutation, runAgent, runPrivateAgent, createPrivateReplyStream, startFreeAutoJob, cancelFreeAutoJob, retryFreeAutoJob, rid, roomId, proof, me.id, me.name]);
+  }, [data, metaArtifacts, elementsByArtifact, pub, priv, traces, okfLens, runs, jobs, jobAttempts, jobDetail, proposals, applyCellEdit, sendMsg, toggle, editMsg, resolveProposalMutation, addResearchRowsMutation, createArtifactMutation, uploadSourceFile, runSemanticConflictDrillMutation, runAgent, runPrivateAgent, createPrivateReplyStream, startAgentJob, cancelFreeAutoJob, retryFreeAutoJob, rid, roomId, proof, me.id, me.name]);
 
   return (
     <Ctx.Provider value={store}>

@@ -8,7 +8,7 @@
 with a `lock → draft → smart-merge` model so a human and an AI agent edit the same cells
 through the same versioned concurrency control.**
 
-`multi-panel room` · `public + private agents` · `affected-range lock` · `draft-for-merge` · `per-room traces` · `live Convex + real LLM`
+`multi-panel room` · `public + private agents` · `composer model picker` · `affected-range lock` · `draft-for-merge` · `per-room traces` · `live Convex + real LLM`
 
 [Why Convex](#why-convex-and-why-not) · [Audience fluency](#audience-world-proof-artifacts) · [Lessons](#lessons-from-building-noderoom) · [Managed locks](#managed-locks-what-to-give-the-agent) · [Multi-user proof](docs/eval/MULTI_USER_COORDINATION_PROOF.md) · [June 2026 target](docs/TARGET_2026_06.md) · [Sequences](#live-collaboration-sequence) · [Harness reasoning](docs/HARNESS_RECURSIVE_REASONING.md) · [Adoption](docs/NODEAGENT_ADOPTION.md) · [Why & HALO](docs/WHY_NODEAGENT_AND_HALO.md) · [Quickstart](#quickstart) · [Agent runtime](docs/AGENT_RUNTIME.md) · [NodeAgent source map](docs/NODEAGENT_SOURCE_MAP.md) · [Agent eval](docs/AGENT_EVAL.md) · [Model eval matrix](docs/eval/MODEL_EVAL_MATRIX.md) · [Feature eval backlog](docs/eval/FEATURE_EVAL_BACKLOG.md) · [Agent wiki](docs/AGENT_WIKI.md) · [Design](docs/DESIGN.md) · [Stack](docs/STACK.md) · [Walkthrough](docs/WALKTHROUGH.md) · [Architecture](docs/ARCHITECTURE.md) · [Diagrams](docs/diagrams/README.md) · [Open gaps](docs/GAPS_NOT_DONE.md)
 
@@ -215,9 +215,10 @@ recorded from the REAL app UI driven by the real agent runtime in memory mode
 
 ![/ask reconcile drives the sheet through chat](docs/eval/workflow-previews/app-ask-reconcile.gif)
 
-User types `/ask reconcile Q3 revenue`; the Room NodeAgent creates/reuses an
-`agentJobs` root, locks exact cells, reads versions, writes with CAS, releases,
-and leaves visible room trace receipts.
+User types `/ask reconcile Q3 revenue`; the public chat composer can pin that
+request to the adaptive lane, free-auto, top-paid, or a specific model policy.
+The Room NodeAgent creates/reuses an `agentJobs` root, locks exact cells, reads
+versions, writes with CAS, releases, and leaves visible room trace receipts.
 
 ### GTM Research Enrichment
 

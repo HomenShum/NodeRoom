@@ -22,7 +22,7 @@ import type { AgentMessage, AgentResult, AgentTraceEvent, ToolCall } from "../sr
 import type { EvidenceState, FrameDelta, ReasoningFrame, ReasoningFrameStatus } from "../src/nodeagent/core/reasoningFrames";
 import type { Actor } from "../src/engine/types";
 import { journalSliceKey } from "../src/nodeagent/core/journal";
-import { assertProviderEgressAllowed } from "../src/nodeagent/guardrails/egressPolicy";
+import { assertProviderEgressAllowed, type ProviderEgressEntrypoint } from "../src/nodeagent/guardrails/egressPolicy";
 import { makeConvexStepJournal } from "./agentStepJournalClient";
 
 const CONVEX_ACTION_LIMIT_MS = 10 * 60_000;
@@ -46,6 +46,13 @@ type ClaimedJob = {
   artifactId: Id<"artifacts">;
   requester: Actor;
   goal: string;
+  entrypoint?: ProviderEgressEntrypoint;
+  scope?: "public_room" | "private_user" | "team";
+  approvalPolicy?: "read_only" | "draft_first" | "auto_commit_safe" | "host_review";
+  evidencePolicy?: "public_only" | "private_allowed" | "mixed_requires_redaction";
+  traceLevel?: "summary" | "standard" | "full_operation_ledger";
+  routePolicy?: "fast_default" | "free_auto" | "top_paid" | "explicit";
+  runtimePolicy?: "workflow_sliced";
   mode?: "variance" | "research";
   modelPolicy: string;
   cursor?: unknown;
@@ -170,6 +177,15 @@ function backoffMs(attempt: number): number {
   return Math.min(5 * 60_000, Math.max(5_000, 2 ** Math.min(attempt, 8) * 1_000));
 }
 
+function runnerEntrypoint(job: Pick<ClaimedJob, "entrypoint" | "modelPolicy">): ProviderEgressEntrypoint {
+  if (job.entrypoint) return job.entrypoint;
+  return job.modelPolicy === "openrouter/free-auto" ? "free" : "public_ask";
+}
+
+function defaultMaxStepsForEntrypoint(entrypoint: ProviderEgressEntrypoint): number {
+  return entrypoint === "free" ? 3 : 8;
+}
+
 function clean<T extends Record<string, unknown>>(value: T): T {
   const out: Record<string, unknown> = {};
   for (const [key, val] of Object.entries(value)) if (val !== undefined) out[key] = val;
@@ -230,14 +246,15 @@ export const runFreeAutoJobSlice = internalAction({
 
     const actor: Actor = { kind: "agent", id: claimed.agentId, name: claimed.agentName, scope: "public" };
     const rt = new ConvexRoomTools(ctx, claimed.roomId, claimed.artifactId, actor, String(claimed.sessionId), claimed.jobId);
-    const modelPolicy = claimed.modelPolicy || "openrouter/free-auto";
+    const entrypoint = runnerEntrypoint(claimed);
+    const modelPolicy = claimed.modelPolicy || (entrypoint === "free" ? "openrouter/free-auto" : process.env.AGENT_MODEL ?? "gemini-3.5-flash");
     const resolvedModelPolicy = modelPolicy === "openrouter/free-auto"
       ? process.env.FREE_AUTO_JOB_MODEL ?? modelPolicy
       : modelPolicy;
-    const model = agentModel(resolvedModelPolicy, { entrypoint: "free" });
+    const model = agentModel(resolvedModelPolicy, { entrypoint });
     const contextMaxChars = envNumber("FREE_AUTO_JOB_CONTEXT_MAX_CHARS", DEFAULT_CONTEXT_MAX_CHARS, 4_000, 120_000);
     const contextKeepRecent = envNumber("FREE_AUTO_JOB_CONTEXT_KEEP_RECENT", DEFAULT_CONTEXT_KEEP_RECENT, 2, 40);
-    const maxSteps = envNumber("FREE_AUTO_JOB_MAX_STEPS_PER_SLICE", 3, 1, 12);
+    const maxSteps = envNumber("FREE_AUTO_JOB_MAX_STEPS_PER_SLICE", defaultMaxStepsForEntrypoint(entrypoint), 1, 12);
     const deadlineAt = t0 + sliceBudgetMs;
     const activeFrame = claimed.activeReasoningFrame
       ? normalizeClaimedFrame(claimed.activeReasoningFrame, String(claimed.jobId))
@@ -246,7 +263,7 @@ export const runFreeAutoJobSlice = internalAction({
       ctx,
       jobId: claimed.jobId,
       sliceKey: journalSliceKey({
-        entrypoint: claimed.modelPolicy === "openrouter/free-auto" ? "free" : "workflow_continuation",
+        entrypoint,
         jobId: String(claimed.jobId),
         artifactId: String(claimed.artifactId),
         frameId: activeFrame?.frameId,
@@ -312,7 +329,7 @@ export const runFreeAutoJobSlice = internalAction({
       const roomArtifacts = await ctx.runQuery(artifactsListForRoomRef, { roomId: claimed.roomId }) as Array<{ title: string; kind: string; meta?: unknown; visibility?: string }>;
       assertProviderEgressAllowed({
         model: model.name,
-        entrypoint: "free",
+        entrypoint,
         artifacts: roomArtifacts.length
           ? roomArtifacts.map((art) => ({ title: art.title, kind: art.kind, meta: art.meta, visibility: art.visibility }))
           : [{ title: claimed.artifactTitle, kind: claimed.artifactKind, meta: claimed.artifactMeta, visibility: claimed.artifactVisibility }],

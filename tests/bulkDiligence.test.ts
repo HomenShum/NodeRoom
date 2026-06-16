@@ -6,8 +6,8 @@
  * companies sequentially inside one job.
  *
  * Tested via the BLOCKED path (seed a pending proposal so every child plan-blocks) so the fan-out +
- * per-company keys are observable without starting N workflows (the run path shares startFreeAuto's
- * already-tested workflow start).
+ * per-company keys are observable without starting N workflows (the run path shares the same
+ * workflow-backed `agentJobs.start` contract).
  */
 import { convexTest } from "convex-test";
 import { describe, expect, it } from "vitest";

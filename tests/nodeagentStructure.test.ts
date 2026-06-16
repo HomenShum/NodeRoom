@@ -49,8 +49,16 @@ describe("src/nodeagent architecture surface", () => {
   });
 
   it("routes to the existing Convex-owned job runtime instead of a second runtime", () => {
-    expect(routeForTask("interactive_chat").convexEntrypoint).toBe("agent.runRoomAgent");
-    expect(routeForTask("free_auto_long_running").convexEntrypoint).toBe("agentJobRunner.runFreeAutoJobSlice");
+    expect(routeForTask("interactive_chat")).toMatchObject({
+      convexEntrypoint: "agentJobs.start",
+      routePolicy: "fast_default",
+      runtimePolicy: "workflow_sliced",
+    });
+    expect(routeForTask("free_auto_long_running")).toMatchObject({
+      convexEntrypoint: "agentJobs.start",
+      routePolicy: "free_auto",
+      runtimePolicy: "workflow_sliced",
+    });
     expect(splitBulkCompanyBatches(["a", "b", "c"], 2).map((b) => b.items)).toEqual([["a", "b"], ["c"]]);
   });
 

@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { Actor } from "../src/engine/types";
 
@@ -25,6 +25,8 @@ function baseStore() {
     privateStreamAccess: () => null,
     listMembers: () => [{ id: "u1", roomId: "r1", name: "Maya", role: "host", anon: false, color: "#111111", lastSeenAt: 1 }],
     listArtifacts: () => [],
+    listProposals: () => [],
+    lastRun: () => null,
     lastLongFreeJob: () => ({
       id: "job1",
       status: "queued",
@@ -89,6 +91,7 @@ function baseStore() {
     cancelLongFreeJob: vi.fn(),
     retryLongFreeJob: vi.fn(),
     postMessage: vi.fn(async () => ({ ok: true })),
+    askAgent: vi.fn(async () => undefined),
     runAgent: vi.fn(),
     startPrivateAgent: vi.fn(),
     uploadSourceFile: vi.fn(),
@@ -111,5 +114,24 @@ describe("Chat reasoning-frame job detail", () => {
     expect(screen.getByText("execute")).toBeTruthy();
     expect(screen.getByText("CardioNova / funding")).toBeTruthy();
     expect(screen.getByText(/missing_research_now/)).toBeTruthy();
+  });
+
+  it("passes the selected specific model through the public /ask composer", async () => {
+    const store = baseStore();
+    mockStore.current = store;
+
+    render(<Chat roomId="r1" me={me} channel="public" variant="public" agentName="Room NodeAgent" />);
+
+    fireEvent.change(screen.getByTestId("chat-model-preset"), { target: { value: "specific" } });
+    fireEvent.change(screen.getByTestId("chat-model-specific"), { target: { value: "claude-sonnet-4.6" } });
+    fireEvent.change(screen.getByTestId("chat-composer"), { target: { value: "/ask review the latest CardioNova diligence notes" } });
+    fireEvent.click(screen.getByTestId("chat-send"));
+
+    await waitFor(() => {
+      expect(store.askAgent).toHaveBeenCalledWith(expect.objectContaining({
+        goal: "review the latest CardioNova diligence notes",
+        modelSelection: { mode: "specific", modelPolicy: "claude-sonnet-4.6" },
+      }));
+    });
   });
 });

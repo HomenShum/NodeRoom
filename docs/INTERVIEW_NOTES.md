@@ -479,13 +479,21 @@ Say:
 
 > We do not beat the Convex 10-minute limit. Each `/free` slice voluntarily hands off around 8.5 minutes, checkpoints by roughly 9 minutes, and leaves margin for trace and attempt persistence. Workflow then sleeps and resumes the next slice.
 
-Featured free-auto path:
+Featured durable route:
 
 ```text
-/free goal -> agentJobs.startFreeAuto -> freeAutoWorkflow
+/ask, /free, research, collaboration, top-model job
+-> agentJobs.start(entrypoint, routePolicy, runtimePolicy, modelPolicy)
+-> freeAutoWorkflow (historical name for the shared sliced workflow)
 -> Workpool-limited runFreeAutoJobSlice
--> openrouter/free-auto slice -> checkpoint/handoff -> workflow sleep/resume
+-> provider slice -> checkpoint/handoff -> workflow sleep/resume
 ```
+
+`/free` is just `routePolicy=free_auto` and
+`modelPolicy=openrouter/free-auto`; `/ask` is `routePolicy=fast_default`;
+paid benchmarking can use `routePolicy=top_paid` or `explicit`. The durable job
+route, leases, journal, operation ledger, attempts, and UI job strip stay the
+same.
 
 Deployment proof detail:
 
