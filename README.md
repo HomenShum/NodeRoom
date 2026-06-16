@@ -662,6 +662,15 @@ npm run test:product:live        # live Convex backend gate: entry/create/join, 
 npm run test:product:live:agent  # live Convex + provider gate: three-user public/private agent and review-mode flow
 ```
 
+To run a local live smoke with a provider key read from the Convex deployment
+instead of `.env.local`, preserve the injected process environment:
+
+```powershell
+$env:NODEROOM_PRESERVE_PROCESS_ENV = "1"
+$env:OPENROUTER_API_KEY = (npx convex env get OPENROUTER_API_KEY).Trim()
+npm run provider-parser:smoke -- --providers=openrouter
+```
+
 The product gates are intentionally broader than the benchmark harness, but each
 gate owns a different claim. `test:product:memory` proves the local browser UX:
 entry/story navigation, chat, uploaded-workbook formulas, range fill-down,
