@@ -55,8 +55,12 @@ export function LeftRail({ roomId, me, artId, onPick, onOpenChat, style }: { roo
     onPick(firstProposal.artifactId);
     requestAnimationFrame(() => focusStage({ artifactId: firstProposal.artifactId, elementId: firstProposal.op?.elementId }));
   };
-  const sub = (a: { kind: string; title: string; version: number; elements: Record<string, unknown>; order?: string[]; meta?: { excelGrid?: { rows: number; columns: number } } }) =>
-    a.title === WIKI_TITLE ? `v${a.version} · live TOC` : uploadDocMeta(a) ?? (a.kind === "sheet" ? `v${a.version} · ${rowCount(a)} rows` : a.kind === "wall" ? `${a.order?.length ?? 0} notes` : "edited recently");
+  const sub = (a: { kind: string; title: string; version: number; elements: Record<string, unknown>; order?: string[]; meta?: { excelGrid?: { rows: number; columns: number }; upload?: { fileName: string } } }) => {
+    if (a.title === WIKI_TITLE) return `v${a.version} · live TOC`;
+    const sourceName = sourceFileLabel(a);
+    const base = uploadDocMeta(a) ?? (a.kind === "sheet" ? `v${a.version} · ${rowCount(a)} rows` : a.kind === "wall" ? `${a.order?.length ?? 0} notes` : "edited recently");
+    return sourceName && sourceName !== a.title && !base.includes(sourceName) ? `${sourceName} · ${base}` : base;
+  };
   const onUpload = async (files: FileList | null) => {
     if (!files?.length) return;
     setUploading(true);
@@ -250,6 +254,12 @@ function uploadDocMeta(a: { kind: string; elements: Record<string, unknown> }) {
   const doc = (a.elements.doc as { value?: unknown } | undefined)?.value;
   if (!isUploadDoc(doc)) return null;
   return `${doc.mimeType || "file"} · ${formatBytes(doc.size)}`;
+}
+
+function sourceFileLabel(a: { elements: Record<string, unknown>; meta?: { upload?: { fileName: string } } }) {
+  if (a.meta?.upload?.fileName) return a.meta.upload.fileName;
+  const doc = (a.elements.doc as { value?: unknown } | undefined)?.value;
+  return isUploadDoc(doc) ? doc.fileName : "";
 }
 
 function isUploadDoc(value: unknown): value is {
