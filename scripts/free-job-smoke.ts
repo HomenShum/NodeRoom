@@ -43,7 +43,7 @@ async function main() {
   const timeoutMs = Number(process.env.FREE_JOB_TIMEOUT_MS ?? 15 * 60_000);
   const pollMs = Number(process.env.FREE_JOB_POLL_MS ?? 5_000);
 
-  const jobId = await client.mutation(api.agentJobs.start, {
+  const started = await client.mutation(api.agentJobs.start, {
     roomId,
     artifactId,
     requester: proof,
@@ -54,15 +54,26 @@ async function main() {
     approvalPolicy: "draft_first",
     evidencePolicy: "public_only",
     autoAllow: false,
-    traceLevel: "full",
+    traceLevel: "full_operation_ledger",
     maxAttempts: Number(process.env.FREE_JOB_MAX_ATTEMPTS ?? 8),
   });
+  const jobId = typeof started === "object" && started && "jobId" in started ? started.jobId : started;
   console.log(`queued ${String(jobId)}`);
 
   const deadline = Date.now() + timeoutMs;
   let latest: JobRow | undefined;
+  let pollErrors = 0;
   while (Date.now() < deadline) {
-    const jobs = await client.query(api.agentJobs.list, { roomId, requester: proof }) as JobRow[];
+    let jobs: JobRow[];
+    try {
+      jobs = await client.query(api.agentJobs.list, { roomId, requester: proof }) as JobRow[];
+    } catch (error) {
+      pollErrors++;
+      const message = error instanceof Error ? error.message : String(error);
+      console.log(`poll_error ${pollErrors}: ${message}`);
+      await sleep(pollMs);
+      continue;
+    }
     latest = jobs.find((j) => String(j._id) === String(jobId));
     if (latest) {
       console.log(`${latest.status} attempts=${latest.attempts}/${latest.maxAttempts}${latest.error ? ` error=${latest.error}` : ""}`);
@@ -72,14 +83,26 @@ async function main() {
   }
 
   if (!latest) throw new Error("job was not visible in agentJobs.list");
-  const attempts = await client.query(api.agentJobs.attempts, { jobId, requester: proof }) as Array<{
+  let attempts: Array<{
     attempt: number;
     status: string;
     resolvedModel: string;
     stopReason: string;
     ms: number;
     error?: string;
-  }>;
+  }> = [];
+  let lastAttemptError: unknown;
+  for (let i = 0; i < 3; i++) {
+    try {
+      attempts = await client.query(api.agentJobs.attempts, { jobId, requester: proof }) as typeof attempts;
+      lastAttemptError = undefined;
+      break;
+    } catch (error) {
+      lastAttemptError = error;
+      await sleep(Math.min(pollMs, 2_000));
+    }
+  }
+  if (lastAttemptError) throw lastAttemptError;
   for (const attempt of attempts) {
     console.log(`attempt ${attempt.attempt}: ${attempt.status} ${attempt.resolvedModel} ${attempt.stopReason} ${attempt.ms}ms${attempt.error ? ` error=${attempt.error}` : ""}`);
   }

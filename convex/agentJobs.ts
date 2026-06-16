@@ -1504,10 +1504,44 @@ async function startDurableAgentJob(ctx: any, a: DurableStartAgentJobArgs): Prom
     startedAt: now,
     completedAt: now,
   });
-  const workflowId: string = String(await startWorkflow(ctx, internal.agentWorkflows.freeAutoWorkflow, { jobId }, {
-    onComplete: internal.agentWorkflows.freeAutoWorkflowComplete,
-    context: { jobId },
-  }));
+  let workflowId: string;
+  try {
+    workflowId = String(await startWorkflow(ctx, internal.agentWorkflows.freeAutoWorkflow, { jobId }, {
+      onComplete: internal.agentWorkflows.freeAutoWorkflowComplete,
+      context: { jobId },
+    }));
+  } catch (error) {
+    const failedAt = Date.now();
+    const message = error instanceof Error ? error.message : String(error);
+    const safeMessage = `workflow_start_failed: ${message || "unknown"}`.slice(0, 1_000);
+    await ctx.db.patch(jobId, {
+      status: "failed",
+      error: safeMessage,
+      schedulerHandoffCount: 0,
+      completedAt: failedAt,
+      updatedAt: failedAt,
+    });
+    await recordOperationEvent(ctx, {
+      jobId,
+      sequence: 3,
+      kind: "scheduler",
+      name: "agentWorkflows.freeAutoWorkflow start failed",
+      status: "failed",
+      countDelta: 0,
+      affectedIds: [String(jobId)],
+      startedAt: now,
+      completedAt: failedAt,
+    });
+    await ctx.db.insert("traces", {
+      roomId: a.roomId,
+      ts: failedAt,
+      actor,
+      type: "agent_error",
+      summary: "Workflow admission failed",
+      detail: safeMessage,
+    });
+    return { jobId, reused: false as const, status: "failed" as const, modelPolicy, routePolicy, runtimePolicy };
+  }
   await ctx.db.patch(jobId, { workflowId, updatedAt: now });
   return { jobId, reused: false as const, status: "queued" as const, workflowId, modelPolicy, routePolicy, runtimePolicy };
 }

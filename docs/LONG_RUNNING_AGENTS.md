@@ -308,16 +308,19 @@ FREE_JOB_ACTOR_ID
 FREE_JOB_ACTOR_TOKEN
 ```
 
-Live deployment smoke (2026-06-08):
+Production deployment smoke (2026-06-16):
 
 ```text
-dev deployment: zealous-goshawk-766
+production deployment: aromatic-bass-102
+entrypoint: agentJobs.start
+routePolicy: free_auto
+runtimePolicy: workflow_sliced
 goal: say "free job smoke complete" and stop
 result: completed
-attempts: 1/1
+attempts: 1/8
 resolvedModel: nvidia/nemotron-3-super-120b-a12b:free
 stopReason: done
-latency: 10055ms
+latency: 78944ms
 ```
 
 This proves the deployed Workflow/Workpool path can run with a real provider.
@@ -325,8 +328,10 @@ It does not prove live multi-slice resume because this smoke completed in one
 attempt. The next live proof should force tiny slice budgets and assert resume,
 lease, attempt, resolved-model, and final artifact state across multiple slices.
 
-The first run failed with a provider 401 because `OPENROUTER_API_KEY` was not set in
-the Convex dev environment. After setting that env var, the same live path completed.
+The June 16 run also closed two operational smoke gaps: production Convex now has
+`OPENROUTER_API_KEY`, and the smoke calls `agentJobs.start` directly instead of
+the `startFreeAuto` compatibility wrapper. The poller tolerates transient query
+fetch failures so the job, not the monitoring client, determines terminal status.
 
 The regression test `resumes a long-running job across multiple step-budget slices` in `tests/agentRuntime.test.ts` forces a read -> checkpoint -> edit -> checkpoint -> final answer sequence with a fresh model instance per slice.
 

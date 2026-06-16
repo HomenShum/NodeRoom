@@ -31,6 +31,7 @@ describe("long-running agent job source invariants", () => {
     expect(config).toContain("@convex-dev/workpool");
     expect(jobs).toContain('runtime: "workflow"');
     expect(jobs).toContain("startWorkflow(ctx, internal.agentWorkflows.freeAutoWorkflow");
+    expect(jobs).toContain("workflow_start_failed");
     expect(jobs).toContain('job.runtime !== "workflow"');
     expect(workflows).toContain("new WorkflowManager(components.workflow");
     expect(workflows).toContain("MAX_WORKFLOW_SLICES");
