@@ -2,6 +2,7 @@ import { v } from "convex/values";
 import { cancel as cancelWorkflow, start } from "@convex-dev/workflow";
 import { internalMutation, mutation, query } from "./_generated/server";
 import { components, internal } from "./_generated/api";
+import type { Id } from "./_generated/dataModel";
 import { actorProofV, requireActorProof, requireArtifactInRoom, type ActorValue } from "./lib";
 import { classifyIntakeMessage, buildPlanPreview } from "../src/nodeagent/core/intakePreflight";
 import { parseBulkCompanyIngest } from "../src/nodeagent/skills/finance/bulkIngest";
@@ -21,6 +22,7 @@ const entrypointV = v.union(
   v.literal("system"),
   v.literal("automation"),
   v.literal("provider_parser"),
+  v.literal("room_work"),
 );
 const agentScopeV = v.union(v.literal("public_room"), v.literal("private_user"), v.literal("team"));
 const approvalPolicyV = v.union(v.literal("read_only"), v.literal("draft_first"), v.literal("auto_commit_safe"), v.literal("host_review"));
@@ -37,6 +39,75 @@ const operationEventKindV = v.union(
   v.literal("checkpoint"),
 );
 const operationStatusV = v.union(v.literal("started"), v.literal("completed"), v.literal("failed"), v.literal("skipped"));
+const roomWorkModeV = v.union(
+  v.literal("manual_capture"),
+  v.literal("agent_fill"),
+  v.literal("bulk_diligence"),
+  v.literal("banker_workflow"),
+  v.literal("spreadsheet_fill"),
+);
+const entityTypeV = v.union(
+  v.literal("company"),
+  v.literal("person"),
+  v.literal("product"),
+  v.literal("source"),
+  v.literal("metric"),
+  v.literal("unknown"),
+);
+const cacheVisibilityV = v.union(v.literal("public"), v.literal("private"), v.literal("redacted"));
+const entityCacheStatusV = v.union(v.literal("fresh"), v.literal("stale"), v.literal("refreshing"), v.literal("needs_review"), v.literal("gap"));
+const deltaStatusV = v.union(v.literal("none"), v.literal("minor"), v.literal("material"), v.literal("contradiction"));
+
+type EntityType = "company" | "person" | "product" | "source" | "metric" | "unknown";
+type CacheVisibility = "public" | "private" | "redacted";
+type RoomWorkMode = "manual_capture" | "agent_fill" | "bulk_diligence" | "banker_workflow" | "spreadsheet_fill";
+type NormalizedRoomWorkEntity = { entityType: EntityType; entityKey: string; displayName: string; website?: string };
+type EntityFacetCacheHit = {
+  cacheId: Id<"entityResearchCache">;
+  entityType: EntityType;
+  entityKey: string;
+  displayName: string;
+  facet: string;
+  status: string;
+  fresh: boolean;
+  visibility: CacheVisibility;
+  ownerId?: string;
+  validUntil?: number;
+  staleAfter?: number;
+  updatedAt: number;
+  result: unknown;
+};
+type RoomWorkStaleFacet = { entityType: EntityType; entityKey: string; displayName: string; facet: string };
+type RoomWorkCacheSummary = { fresh: number; stale: number; missing: number; manual: number; queued: number; cached: number; refreshing: number; completed: number };
+type RoomWorkStartResult = {
+  ok: true;
+  cacheOnly: boolean;
+  reused: boolean;
+  status: string;
+  jobId?: Id<"agentJobs">;
+  workflowId?: string;
+  normalizedEntities: NormalizedRoomWorkEntity[];
+  facets: string[];
+  cacheHits: EntityFacetCacheHit[];
+  staleFacets: RoomWorkStaleFacet[];
+  workItems?: Array<Record<string, unknown>>;
+  cacheSummary?: RoomWorkCacheSummary;
+};
+type RoomWorkFacetPlan = {
+  entityType: EntityType;
+  entityKey: string;
+  displayName: string;
+  facet: string;
+  cacheHit?: EntityFacetCacheHit | null;
+  cachePolicy: "fresh_use_cache" | "stale_use_cache_and_refresh" | "missing_research_now" | "manual_only_do_not_research";
+  status: "queued" | "cached" | "refreshing" | "completed";
+};
+
+const MAX_ROOM_WORK_TEXT_CHARS = 20_000;
+const MAX_ROOM_WORK_ENTITIES = 50;
+const MAX_ROOM_WORK_FACETS = 16;
+const DEFAULT_MANUAL_CAPTURE_FACETS = ["company_profile", "person_profile", "recent_signal"] as const;
+const DEFAULT_DILIGENCE_FACETS = ["company_profile", "funding", "headcount", "recent_signal", "product_news", "runway_inputs"] as const;
 
 function clean<T extends Record<string, unknown>>(value: T): T {
   const out: Record<string, unknown> = {};
@@ -49,11 +120,284 @@ function defaultJobIdempotencyKey(args: { roomId: unknown; artifactId: unknown; 
   return `${args.entrypoint}:${String(args.roomId)}:${String(args.artifactId)}:${args.actorId}:${normalizedGoal}`;
 }
 
+function stableJson(value: unknown): string {
+  if (value === undefined) return "null";
+  if (value === null || typeof value !== "object") return JSON.stringify(value);
+  if (Array.isArray(value)) return `[${value.map(stableJson).join(",")}]`;
+  const record = value as Record<string, unknown>;
+  return `{${Object.keys(record).sort().filter((key) => record[key] !== undefined).map((key) => `${JSON.stringify(key)}:${stableJson(record[key])}`).join(",")}}`;
+}
+
+function hashString(input: string): string {
+  let hash = 2166136261;
+  for (let i = 0; i < input.length; i++) {
+    hash ^= input.charCodeAt(i);
+    hash = Math.imul(hash, 16777619);
+  }
+  return (hash >>> 0).toString(16).padStart(8, "0");
+}
+
+function normalizeFacet(facet: string): string {
+  return facet.trim().toLowerCase().replace(/\s+/g, "_").replace(/[^a-z0-9_:-]/g, "").slice(0, 80);
+}
+
+function displayNameKey(name: string): string {
+  return name.trim().toLowerCase().replace(/\s+/g, "_").replace(/[^a-z0-9_]/g, "").replace(/^_+|_+$/g, "");
+}
+
+function entityKeyOf(entityType: EntityType, name: string): string {
+  return entityType === "company" ? companyKeyOf(name) : displayNameKey(name);
+}
+
+function cleanEntityDisplayName(value: string): string {
+  return value
+    .replace(/[()[\]{}"']/g, "")
+    .replace(/\b(and|or|for|with|about|from|then|next|first|bulk|batch)\b.*$/i, "")
+    .replace(/[.,;:|/\\]+$/g, "")
+    .trim()
+    .slice(0, 120);
+}
+
+function defaultRoomWorkFacets(mode: RoomWorkMode): string[] {
+  return [...(mode === "manual_capture" ? DEFAULT_MANUAL_CAPTURE_FACETS : DEFAULT_DILIGENCE_FACETS)];
+}
+
+function freshnessMsForFacet(facet: string): number {
+  if (facet.includes("recent") || facet.includes("news") || facet.includes("signal")) return 12 * 60 * 60 * 1000;
+  if (facet.includes("funding") || facet.includes("headcount") || facet.includes("hiring")) return 24 * 60 * 60 * 1000;
+  if (facet.includes("runway") || facet.includes("cash") || facet.includes("burn")) return 7 * 24 * 60 * 60 * 1000;
+  if (facet.includes("profile") || facet.includes("identity")) return 30 * 24 * 60 * 60 * 1000;
+  return 7 * 24 * 60 * 60 * 1000;
+}
+
+function normalizeRequestedFacets(inputFacets: string[] | undefined, mode: RoomWorkMode): string[] {
+  const source = inputFacets?.length ? inputFacets : defaultRoomWorkFacets(mode);
+  const out: string[] = [];
+  for (const raw of source) {
+    const facet = normalizeFacet(raw);
+    if (!facet || out.includes(facet)) continue;
+    out.push(facet);
+    if (out.length >= MAX_ROOM_WORK_FACETS) break;
+  }
+  return out.length ? out : defaultRoomWorkFacets(mode);
+}
+
+function normalizeRoomWorkEntities(input: {
+  kind?: string;
+  text?: string;
+  companies?: Array<{ name: string; website?: string }>;
+  entityHints?: Array<{ entityType?: EntityType; name: string; website?: string }>;
+}, mode: RoomWorkMode): NormalizedRoomWorkEntity[] {
+  const entities: NormalizedRoomWorkEntity[] = [];
+  const seen = new Set<string>();
+  const add = (entityType: EntityType, rawName: string, website?: string) => {
+    const displayName = cleanEntityDisplayName(rawName);
+    if (!displayName) return;
+    const entityKey = entityKeyOf(entityType, displayName);
+    if (!entityKey) return;
+    const key = `${entityType}:${entityKey}`;
+    if (seen.has(key)) return;
+    seen.add(key);
+    entities.push(clean({ entityType, entityKey, displayName, website }) as NormalizedRoomWorkEntity);
+  };
+
+  for (const hint of input.entityHints ?? []) add(hint.entityType ?? "company", hint.name, hint.website);
+  for (const company of input.companies ?? []) add("company", company.name, company.website);
+
+  const text = input.text?.trim() ?? "";
+  if (text && (mode === "bulk_diligence" || input.kind === "bulk_companies" || input.kind === "company_list" || /\r?\n/.test(text))) {
+    for (const row of parseBulkCompanyIngest(text)) add("company", row.company, row.website);
+  }
+
+  if (text && entities.length === 0) {
+    const patterns = [
+      /\bat\s+([A-Z][A-Za-z0-9&.\-]*(?:\s+[A-Z][A-Za-z0-9&.\-]*){0,4})/g,
+      /\bcompany\s+([A-Z][A-Za-z0-9&.\-]*(?:\s+[A-Z][A-Za-z0-9&.\-]*){0,4})/g,
+      /\baccount\s+([A-Z][A-Za-z0-9&.\-]*(?:\s+[A-Z][A-Za-z0-9&.\-]*){0,4})/g,
+    ];
+    for (const pattern of patterns) {
+      for (const match of text.matchAll(pattern)) add("company", match[1] ?? "");
+    }
+  }
+
+  if (text && entities.length === 0) {
+    add("unknown", `manual-intake-${hashString(text).slice(0, 10)}`);
+  }
+  return entities.slice(0, MAX_ROOM_WORK_ENTITIES);
+}
+
+function cacheOwnerForVisibility(visibility: CacheVisibility, actor: ActorValue, ownerId?: string): string | undefined {
+  if (visibility !== "private") return undefined;
+  if (ownerId && ownerId !== actor.id) throw new Error("private_cache_owner_mismatch");
+  return actor.id;
+}
+
+function canReadEntityCache(row: { visibility: CacheVisibility; ownerId?: string }, actor: ActorValue): boolean {
+  return row.visibility !== "private" || row.ownerId === actor.id;
+}
+
+function entityCacheIsFresh(row: { status: string; validUntil?: number; staleAfter?: number; deltaStatus?: string }, now: number): boolean {
+  if (row.status !== "fresh") return false;
+  if (row.deltaStatus === "material" || row.deltaStatus === "contradiction") return false;
+  return (row.validUntil ?? row.staleAfter ?? 0) > now;
+}
+
+function cacheHitKey(entity: NormalizedRoomWorkEntity, facet: string): string {
+  return `${entity.entityType}:${entity.entityKey}:${facet}`;
+}
+
+async function findEntityFacetCacheRows(ctx: any, args: {
+  roomId: unknown;
+  actor: ActorValue;
+  entityType: EntityType;
+  entityKey: string;
+  facet: string;
+}) {
+  const rows = [];
+  for (const visibility of ["public", "redacted", "private"] as const) {
+    const found = await ctx.db.query("entityResearchCache")
+      .withIndex("by_room_entity_facet", (q: any) => q
+        .eq("roomId", args.roomId)
+        .eq("visibility", visibility)
+        .eq("entityType", args.entityType)
+        .eq("entityKey", args.entityKey)
+        .eq("facet", args.facet))
+      .collect();
+    rows.push(...found.filter((row: { visibility: CacheVisibility; ownerId?: string }) => canReadEntityCache(row, args.actor)));
+  }
+  return rows.sort((a: { updatedAt: number }, b: { updatedAt: number }) => b.updatedAt - a.updatedAt);
+}
+
+async function lookupEntityFacetCache(ctx: any, args: {
+  roomId: unknown;
+  actor: ActorValue;
+  entity: NormalizedRoomWorkEntity;
+  facet: string;
+  now: number;
+  markUsed?: boolean;
+}): Promise<EntityFacetCacheHit | null> {
+  const [row] = await findEntityFacetCacheRows(ctx, {
+    roomId: args.roomId,
+    actor: args.actor,
+    entityType: args.entity.entityType,
+    entityKey: args.entity.entityKey,
+    facet: args.facet,
+  });
+  if (!row) return null;
+  if (args.markUsed) await ctx.db.patch(row._id, { lastUsedAt: args.now, updatedAt: row.updatedAt });
+  return {
+    cacheId: row._id,
+    entityType: row.entityType,
+    entityKey: row.entityKey,
+    displayName: row.displayName,
+    facet: row.facet,
+    status: row.status,
+    fresh: entityCacheIsFresh(row, args.now),
+    visibility: row.visibility,
+    ownerId: row.ownerId,
+    validUntil: row.validUntil,
+    staleAfter: row.staleAfter,
+    updatedAt: row.updatedAt,
+    result: row.result,
+  };
+}
+
+async function artifactPlanPreview(ctx: any, args: { roomId: unknown; artifactId: unknown; goal: string }) {
+  const intake = classifyIntakeMessage(args.goal);
+  const elementIds = (await ctx.db.query("elements").withIndex("by_artifact", (q: any) => q.eq("artifactId", args.artifactId)).collect()).map((e: { elementId: string }) => e.elementId);
+  const pendingProposalRefs = (await ctx.db.query("proposals").withIndex("by_room_status", (q: any) => q.eq("roomId", args.roomId).eq("status", "pending")).collect())
+    .filter((p: { artifactId: unknown }) => String(p.artifactId) === String(args.artifactId))
+    .map((p: { op: { elementId?: string } | null }) => p.op?.elementId)
+    .filter((id: unknown): id is string => typeof id === "string");
+  return buildPlanPreview({
+    decision: intake,
+    targetArtifacts: [String(args.artifactId)],
+    intendedWriteSet: elementIds,
+    pendingProposals: pendingProposalRefs,
+  });
+}
+
+function roomWorkIdempotencyKey(args: {
+  roomId: unknown;
+  artifactId: unknown;
+  actorId: string;
+  mode: RoomWorkMode;
+  entities: NormalizedRoomWorkEntity[];
+  facets: string[];
+}) {
+  const entitySignature = args.entities.map((e) => `${e.entityType}:${e.entityKey}`).sort().join(",");
+  const facetSignature = args.facets.slice().sort().join(",");
+  return `roomwork:${String(args.roomId)}:${String(args.artifactId)}:${args.actorId}:${args.mode}:${entitySignature}:${facetSignature}`;
+}
+
+async function insertEntityWorkItems(ctx: any, args: {
+  roomId: unknown;
+  artifactId: unknown;
+  jobId: unknown;
+  actor: ActorValue;
+  idempotencyKey: string;
+  plans: RoomWorkFacetPlan[];
+  now: number;
+}) {
+  const out = [];
+  for (const plan of args.plans) {
+    const workItemId = await ctx.db.insert("entityWorkItems", clean({
+      roomId: args.roomId,
+      artifactId: args.artifactId,
+      jobId: args.jobId,
+      requester: args.actor,
+      visibility: plan.cacheHit?.visibility ?? "public",
+      ownerId: plan.cacheHit?.ownerId,
+      entityType: plan.entityType,
+      entityKey: plan.entityKey,
+      displayName: plan.displayName,
+      facet: plan.facet,
+      cacheId: plan.cacheHit?.cacheId,
+      status: plan.status,
+      cachePolicy: plan.cachePolicy,
+      idempotencyKey: `roomworkitem:${args.idempotencyKey}:${plan.entityType}:${plan.entityKey}:${plan.facet}`,
+      plan: {
+        source: "room_work_intake",
+        cacheFresh: plan.cacheHit?.fresh ?? false,
+        validUntil: plan.cacheHit?.validUntil,
+        staleAfter: plan.cacheHit?.staleAfter,
+      },
+      resultRef: plan.cacheHit ? { cacheId: String(plan.cacheHit.cacheId), status: plan.cacheHit.status } : undefined,
+      createdAt: args.now,
+      updatedAt: args.now,
+      completedAt: plan.status === "cached" || plan.status === "completed" ? args.now : undefined,
+    }));
+    out.push({
+      _id: workItemId,
+      entityType: plan.entityType,
+      entityKey: plan.entityKey,
+      displayName: plan.displayName,
+      facet: plan.facet,
+      cachePolicy: plan.cachePolicy,
+      status: plan.status,
+      cacheId: plan.cacheHit?.cacheId,
+    });
+  }
+  return out;
+}
+
+function summarizeEntityWorkPlans(plans: Array<{ cachePolicy: string; status: string }>) {
+  const out = { fresh: 0, stale: 0, missing: 0, manual: 0, queued: 0, cached: 0, refreshing: 0, completed: 0 };
+  for (const plan of plans) {
+    if (plan.cachePolicy === "fresh_use_cache") out.fresh += 1;
+    else if (plan.cachePolicy === "stale_use_cache_and_refresh") out.stale += 1;
+    else if (plan.cachePolicy === "missing_research_now") out.missing += 1;
+    else if (plan.cachePolicy === "manual_only_do_not_research") out.manual += 1;
+    if (plan.status in out) out[plan.status as keyof typeof out] += 1;
+  }
+  return out;
+}
+
 type ArtifactAccess = { visibility?: "private" | "room" | "public"; createdBy?: ActorValue };
 type JobAccess = {
   requester: ActorValue;
   scope?: "public_room" | "private_user" | "team";
-  entrypoint?: "public_ask" | "private_agent" | "free" | "system" | "automation" | "provider_parser";
+  entrypoint?: "public_ask" | "private_agent" | "free" | "system" | "automation" | "provider_parser" | "room_work";
 };
 
 function actorOwnsArtifact(artifact: ArtifactAccess, actor: ActorValue): boolean {
@@ -317,6 +661,421 @@ export const recordLiveOperation = internalMutation({
     });
     await ctx.db.patch(a.jobId, { updatedAt: Date.now() });
     return { ok: true as const };
+  },
+});
+
+export const upsertEntityResearchCache = mutation({
+  args: {
+    roomId: v.id("rooms"),
+    artifactId: v.optional(v.id("artifacts")),
+    requester: actorProofV,
+    visibility: v.optional(cacheVisibilityV),
+    ownerId: v.optional(v.string()),
+    entityType: entityTypeV,
+    entityName: v.string(),
+    entityKey: v.optional(v.string()),
+    facet: v.string(),
+    queryHash: v.optional(v.string()),
+    sourceSetHash: v.optional(v.string()),
+    result: v.any(),
+    evidenceRefs: v.optional(v.array(v.any())),
+    status: v.optional(entityCacheStatusV),
+    confidence: v.optional(v.number()),
+    retrievedAt: v.optional(v.number()),
+    observedAt: v.optional(v.number()),
+    validUntil: v.optional(v.number()),
+    staleAfter: v.optional(v.number()),
+    deltaStatus: v.optional(deltaStatusV),
+  },
+  handler: async (ctx, a) => {
+    const actor = await requireActorProof(ctx, a.roomId, a.requester);
+    const visibility = a.visibility ?? "public";
+    const ownerId = cacheOwnerForVisibility(visibility, actor, a.ownerId);
+    if (a.artifactId) {
+      const artifact = await requireArtifactInRoom(ctx, a.roomId, a.artifactId);
+      requireJobArtifactAccess(artifact, actor, { allowPrivate: true });
+      if ((artifact.visibility ?? "room") === "private" && visibility !== "private") {
+        throw new Error("private_artifact_cache_must_be_private");
+      }
+    }
+    const now = Date.now();
+    const entityKey = (a.entityKey?.trim() || entityKeyOf(a.entityType, a.entityName)).slice(0, 160);
+    const displayName = cleanEntityDisplayName(a.entityName);
+    const facet = normalizeFacet(a.facet);
+    if (!entityKey || !displayName || !facet) throw new Error("invalid_entity_cache_key");
+    const status = a.status ?? "fresh";
+    const retrievedAt = a.retrievedAt ?? now;
+    const freshnessMs = freshnessMsForFacet(facet);
+    const validUntil = a.validUntil ?? (status === "fresh" ? retrievedAt + freshnessMs : undefined);
+    const staleAfter = a.staleAfter ?? validUntil;
+    const queryHash = a.queryHash ?? hashString(stableJson({ entityType: a.entityType, entityKey, facet }));
+    const resultHash = hashString(stableJson(a.result));
+    const candidates = await ctx.db.query("entityResearchCache")
+      .withIndex("by_room_entity_facet", (q) => q
+        .eq("roomId", a.roomId)
+        .eq("visibility", visibility)
+        .eq("entityType", a.entityType)
+        .eq("entityKey", entityKey)
+        .eq("facet", facet))
+      .collect();
+    const existing = candidates.find((row) =>
+      (row.ownerId ?? "") === (ownerId ?? "") &&
+      String(row.artifactId ?? "") === String(a.artifactId ?? "")
+    );
+    const patch = clean({
+      roomId: a.roomId,
+      artifactId: a.artifactId,
+      visibility,
+      ownerId,
+      entityType: a.entityType,
+      entityKey,
+      displayName,
+      facet,
+      queryHash,
+      sourceSetHash: a.sourceSetHash,
+      resultHash,
+      result: a.result,
+      evidenceRefs: a.evidenceRefs ?? [],
+      status,
+      confidence: a.confidence,
+      retrievedAt,
+      observedAt: a.observedAt,
+      validUntil,
+      staleAfter,
+      deltaStatus: a.deltaStatus ?? "none",
+      updatedAt: now,
+      lastUsedAt: now,
+    });
+    if (existing) {
+      await ctx.db.patch(existing._id, patch);
+      return { ok: true as const, cacheId: existing._id, created: false as const, entityKey, facet, status, validUntil };
+    }
+    const cacheId = await ctx.db.insert("entityResearchCache", {
+      ...patch,
+      createdAt: now,
+    });
+    return { ok: true as const, cacheId, created: true as const, entityKey, facet, status, validUntil };
+  },
+});
+
+export const lookupEntityResearchCache = query({
+  args: {
+    roomId: v.id("rooms"),
+    requester: actorProofV,
+    entityType: entityTypeV,
+    entityName: v.string(),
+    entityKey: v.optional(v.string()),
+    facets: v.optional(v.array(v.string())),
+    includeStale: v.optional(v.boolean()),
+  },
+  handler: async (ctx, a) => {
+    const actor = await requireActorProof(ctx, a.roomId, a.requester);
+    const entity: NormalizedRoomWorkEntity = {
+      entityType: a.entityType,
+      entityKey: (a.entityKey?.trim() || entityKeyOf(a.entityType, a.entityName)).slice(0, 160),
+      displayName: cleanEntityDisplayName(a.entityName),
+    };
+    const facets = normalizeRequestedFacets(a.facets, "agent_fill");
+    const now = Date.now();
+    const hits: EntityFacetCacheHit[] = [];
+    for (const facet of facets) {
+      const hit = await lookupEntityFacetCache(ctx, { roomId: a.roomId, actor, entity, facet, now });
+      if (!hit) continue;
+      if (hit.fresh || a.includeStale) hits.push(hit);
+    }
+    return hits;
+  },
+});
+
+export const startOrReuseRoomWork = mutation({
+  args: {
+    roomId: v.id("rooms"),
+    artifactId: v.id("artifacts"),
+    requester: actorProofV,
+    mode: v.optional(roomWorkModeV),
+    input: v.object({
+      kind: v.optional(v.union(
+        v.literal("manual_capture"),
+        v.literal("manual_note"),
+        v.literal("agent_request"),
+        v.literal("bulk_companies"),
+        v.literal("company_list"),
+        v.literal("company_row"),
+        v.literal("spreadsheet_row"),
+        v.literal("file_reference"),
+      )),
+      text: v.optional(v.string()),
+      facets: v.optional(v.array(v.string())),
+      companies: v.optional(v.array(v.object({
+        name: v.string(),
+        website: v.optional(v.string()),
+        tier: v.optional(v.string()),
+        intent: v.optional(v.string()),
+        owner: v.optional(v.string()),
+        crmStatus: v.optional(v.string()),
+      }))),
+      entityHints: v.optional(v.array(v.object({ entityType: v.optional(entityTypeV), name: v.string(), website: v.optional(v.string()) }))),
+      references: v.optional(v.array(v.object({
+        artifactId: v.optional(v.string()),
+        elementId: v.optional(v.string()),
+        fileId: v.optional(v.string()),
+        label: v.optional(v.string()),
+      }))),
+      payload: v.optional(v.any()),
+    }),
+    maxAttempts: v.optional(v.number()),
+  },
+  handler: async (ctx, a): Promise<RoomWorkStartResult> => {
+    const text = a.input.text?.trim() ?? "";
+    if (text.length > MAX_ROOM_WORK_TEXT_CHARS) throw new Error("room_work_text_too_long");
+    const actor = await requireActorProof(ctx, a.roomId, a.requester);
+    const artifact = await requireArtifactInRoom(ctx, a.roomId, a.artifactId);
+    requireJobArtifactAccess(artifact, actor);
+    const mode = a.mode ?? (a.input.kind === "manual_capture" || a.input.kind === "manual_note" ? "manual_capture" : a.input.kind === "bulk_companies" || a.input.kind === "company_list" ? "bulk_diligence" : "agent_fill");
+    const entities = normalizeRoomWorkEntities(a.input, mode);
+    if (!entities.length) throw new Error("no_room_work_entities");
+    const facets = normalizeRequestedFacets(a.input.facets, mode);
+    const now = Date.now();
+    const cacheHits: EntityFacetCacheHit[] = [];
+    for (const entity of entities) {
+      for (const facet of facets) {
+        const hit = await lookupEntityFacetCache(ctx, { roomId: a.roomId, actor, entity, facet, now, markUsed: true });
+        if (hit) cacheHits.push(hit);
+      }
+    }
+    const hitByKey = new Map(cacheHits.map((hit) => [`${hit.entityType}:${hit.entityKey}:${hit.facet}`, hit]));
+    const manualOnly = mode === "manual_capture";
+    const facetPlans: RoomWorkFacetPlan[] = entities.flatMap((entity) => facets.map((facet) => {
+      const hit = hitByKey.get(cacheHitKey(entity, facet));
+      const cachePolicy = manualOnly
+        ? "manual_only_do_not_research"
+        : hit?.fresh
+          ? "fresh_use_cache"
+          : hit
+            ? "stale_use_cache_and_refresh"
+            : "missing_research_now";
+      const status = cachePolicy === "manual_only_do_not_research"
+        ? "completed"
+        : cachePolicy === "fresh_use_cache"
+          ? "cached"
+          : cachePolicy === "stale_use_cache_and_refresh"
+            ? "refreshing"
+            : "queued";
+      return { entityType: entity.entityType, entityKey: entity.entityKey, displayName: entity.displayName, facet, cacheHit: hit, cachePolicy, status };
+    }));
+    const staleFacets: RoomWorkStaleFacet[] = facetPlans
+      .filter((plan) => plan.cachePolicy === "stale_use_cache_and_refresh" || plan.cachePolicy === "missing_research_now")
+      .map((plan) => ({ entityType: plan.entityType, entityKey: plan.entityKey, displayName: plan.displayName, facet: plan.facet }));
+    const entityList = entities.map((entity) => entity.displayName).join(", ");
+    const facetList = Array.from(new Set((staleFacets.length ? staleFacets : facetPlans).map((facet) => facet.facet))).join(", ");
+    const baseGoal = text || (staleFacets.length ? `Fill ${facetList} for ${entityList}.` : `Reuse cached ${facetList} for ${entityList}.`);
+    const goal = `Room work ${mode}: ${baseGoal}`.slice(0, 2_000);
+    const idempotencyKey = roomWorkIdempotencyKey({ roomId: a.roomId, artifactId: a.artifactId, actorId: actor.id, mode, entities, facets });
+    const prior = await ctx.db.query("agentJobs").withIndex("by_idempotency", (q) => q.eq("idempotencyKey", idempotencyKey)).order("desc").take(5);
+    const reusable = prior.find((job) => {
+      if (String(job.roomId) !== String(a.roomId) || String(job.artifactId) !== String(a.artifactId)) return false;
+      if (!terminalStatuses.has(job.status)) return true;
+      return job.entrypoint === "room_work" && job.status === "completed" && now - (job.updatedAt ?? 0) < 2 * 60 * 1000;
+    });
+    if (reusable) {
+      const workItems = await ctx.db.query("entityWorkItems").withIndex("by_job", (q) => q.eq("jobId", reusable._id)).collect();
+      return {
+        ok: true as const,
+        cacheOnly: staleFacets.length === 0,
+        reused: true as const,
+        jobId: reusable._id,
+        workflowId: reusable.workflowId,
+        status: reusable.status,
+        normalizedEntities: entities,
+        facets,
+        cacheHits,
+        staleFacets,
+        workItems,
+        cacheSummary: summarizeEntityWorkPlans(workItems),
+      };
+    }
+
+    if (!staleFacets.length) {
+      const jobId = await ctx.db.insert("agentJobs", clean({
+        roomId: a.roomId,
+        artifactId: a.artifactId,
+        requester: actor,
+        goal,
+        entrypoint: "room_work",
+        scope: "public_room",
+        commandText: goal,
+        request: {
+          roomId: String(a.roomId),
+          targetArtifactId: String(a.artifactId),
+          commandText: goal,
+          entrypoint: "room_work",
+          scope: "public_room",
+          approvalPolicy: "draft_first",
+          evidencePolicy: "public_only",
+          traceLevel: "full_operation_ledger",
+          roomWork: { mode, entities, facets, staleFacets, cacheHitCount: cacheHits.length, freshHitCount: cacheHits.filter((hit) => hit.fresh).length, inputKind: a.input.kind },
+        },
+        priority: 0,
+        approvalPolicy: "draft_first",
+        evidencePolicy: "public_only",
+        autoAllow: false,
+        traceLevel: "full_operation_ledger",
+        idempotencyKey,
+        mode: "research",
+        status: "completed",
+        finalText: `Room work completed from ${facetPlans.length} cached/manual ${facetPlans.length === 1 ? "facet" : "facets"}; no model call needed.`,
+        modelPolicy: "openrouter/free-auto",
+        runtime: "inline",
+        attempts: 0,
+        maxAttempts: 1,
+        actionSliceCount: 0,
+        queryCount: facetPlans.length,
+        mutationCount: 1 + facetPlans.length,
+        modelCallCount: 0,
+        toolCallCount: 0,
+        schedulerHandoffCount: 0,
+        receiptCount: 0,
+        createdAt: now,
+        updatedAt: now,
+        completedAt: now,
+      }));
+      const workItems = await insertEntityWorkItems(ctx, { roomId: a.roomId, artifactId: a.artifactId, jobId, actor, idempotencyKey, plans: facetPlans, now });
+      await recordOperationEvent(ctx, {
+        jobId,
+        sequence: 1,
+        kind: "mutation",
+        name: "agentJobs.startOrReuseRoomWork",
+        targetKind: "artifact",
+        targetId: String(a.artifactId),
+        countDelta: 1,
+        affectedIds: [String(jobId), String(a.artifactId), ...workItems.map((item) => String(item._id))],
+        startedAt: now,
+        completedAt: now,
+      });
+      await recordOperationEvent(ctx, {
+        jobId,
+        sequence: 2,
+        kind: "query",
+        name: "entityResearchCache.lookup",
+        targetKind: "artifact",
+        targetId: String(a.artifactId),
+        countDelta: facetPlans.length,
+        affectedIds: facetPlans.map((plan) => `${plan.entityKey}:${plan.facet}`),
+        startedAt: now,
+        completedAt: now,
+      });
+      return { ok: true as const, cacheOnly: true as const, reused: false as const, jobId, status: "completed" as const, normalizedEntities: entities, facets, cacheHits, staleFacets, workItems, cacheSummary: summarizeEntityWorkPlans(workItems) };
+    }
+
+    const maxAttempts = Math.max(1, Math.min(a.maxAttempts ?? 20, 100));
+    const planPreview = await artifactPlanPreview(ctx, { roomId: a.roomId, artifactId: a.artifactId, goal });
+    const planBlocked = planPreview.scheduling !== "run_now";
+    const jobId = await ctx.db.insert("agentJobs", clean({
+      roomId: a.roomId,
+      artifactId: a.artifactId,
+      requester: actor,
+      goal,
+      entrypoint: "room_work",
+      scope: "public_room",
+      commandText: goal,
+      request: {
+        roomId: String(a.roomId),
+        targetArtifactId: String(a.artifactId),
+        commandText: goal,
+        entrypoint: "room_work",
+        scope: "public_room",
+        approvalPolicy: "draft_first",
+        evidencePolicy: "public_only",
+        traceLevel: "full_operation_ledger",
+        roomWork: {
+          mode,
+          entities,
+          facets,
+          staleFacets,
+          cacheHitCount: cacheHits.length,
+          freshHitCount: cacheHits.filter((hit) => hit.fresh).length,
+          inputKind: a.input.kind,
+          cacheSummary: summarizeEntityWorkPlans(facetPlans),
+        },
+      },
+      priority: 0,
+      approvalPolicy: "draft_first",
+      evidencePolicy: "public_only",
+      autoAllow: false,
+      traceLevel: "full_operation_ledger",
+      idempotencyKey,
+      mode: "research",
+      planPreview,
+      status: planBlocked ? ("blocked" as const) : ("queued" as const),
+      error: planBlocked ? `plan_${planPreview.scheduling}: ${planPreview.conflicts[0]?.detail ?? "Room work blocked by PlanPreview."}` : undefined,
+      modelPolicy: "openrouter/free-auto",
+      runtime: "workflow",
+      attempts: 0,
+      maxAttempts,
+      actionSliceCount: 0,
+      queryCount: facetPlans.length,
+      mutationCount: 1 + facetPlans.length,
+      modelCallCount: 0,
+      toolCallCount: 0,
+      schedulerHandoffCount: planBlocked ? 0 : 1,
+      receiptCount: 0,
+      nextRunAt: now,
+      createdAt: now,
+      updatedAt: now,
+      completedAt: planBlocked ? now : undefined,
+    }));
+    const workItems = await insertEntityWorkItems(ctx, { roomId: a.roomId, artifactId: a.artifactId, jobId, actor, idempotencyKey, plans: facetPlans, now });
+    await recordOperationEvent(ctx, {
+      jobId,
+      sequence: 1,
+      kind: "mutation",
+      name: "agentJobs.startOrReuseRoomWork",
+      targetKind: "artifact",
+      targetId: String(a.artifactId),
+      countDelta: 1,
+      affectedIds: [String(jobId), String(a.artifactId), ...workItems.map((item) => String(item._id))],
+      startedAt: now,
+      completedAt: now,
+    });
+    await recordOperationEvent(ctx, {
+      jobId,
+      sequence: 2,
+      kind: "query",
+      name: "entityResearchCache.lookup",
+      targetKind: "artifact",
+      targetId: String(a.artifactId),
+      countDelta: facetPlans.length,
+      affectedIds: facetPlans.map((plan) => `${plan.entityKey}:${plan.facet}`),
+      startedAt: now,
+      completedAt: now,
+    });
+    if (planBlocked) {
+      await ctx.db.insert("traces", {
+        roomId: a.roomId,
+        ts: now,
+        actor,
+        type: "plan_blocked",
+        summary: `PlanPreview blocked room work (${planPreview.scheduling}) on ${String(a.artifactId)}`,
+        detail: `room_work ${mode} - stale=${staleFacets.length} - conflicts=${planPreview.conflicts.map((c) => c.kind).join(",") || "none"}`.slice(0, 480),
+      });
+      return { ok: true as const, cacheOnly: false as const, reused: false as const, jobId, status: "blocked" as const, normalizedEntities: entities, facets, cacheHits, staleFacets, workItems, cacheSummary: summarizeEntityWorkPlans(workItems) };
+    }
+    await recordOperationEvent(ctx, {
+      jobId,
+      sequence: 3,
+      kind: "scheduler",
+      name: "agentWorkflows.freeAutoWorkflow",
+      countDelta: 1,
+      affectedIds: [String(jobId)],
+      startedAt: now,
+      completedAt: now,
+    });
+    const workflowId: string = String(await start(ctx, internal.agentWorkflows.freeAutoWorkflow, { jobId }, {
+      onComplete: internal.agentWorkflows.freeAutoWorkflowComplete,
+      context: { jobId },
+    }));
+    await ctx.db.patch(jobId, { workflowId, updatedAt: now });
+    return { ok: true as const, cacheOnly: false as const, reused: false as const, jobId, workflowId, status: "queued" as const, normalizedEntities: entities, facets, cacheHits, staleFacets, workItems, cacheSummary: summarizeEntityWorkPlans(workItems) };
   },
 });
 

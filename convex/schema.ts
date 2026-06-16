@@ -32,6 +32,7 @@ const entrypointV = v.union(
   v.literal("system"),
   v.literal("automation"),
   v.literal("provider_parser"),
+  v.literal("room_work"),
 );
 const agentScopeV = v.union(v.literal("public_room"), v.literal("private_user"), v.literal("team"));
 const approvalPolicyV = v.union(v.literal("read_only"), v.literal("draft_first"), v.literal("auto_commit_safe"), v.literal("host_review"));
@@ -60,6 +61,25 @@ const graphObjectKindV = v.union(
 );
 const visibilityV = v.union(v.literal("private"), v.literal("room"), v.literal("public"));
 const okfVisibilityV = v.union(v.literal("public"), v.literal("private"), v.literal("redacted"));
+const entityTypeV = v.union(
+  v.literal("company"),
+  v.literal("person"),
+  v.literal("product"),
+  v.literal("source"),
+  v.literal("metric"),
+  v.literal("unknown"),
+);
+const entityWorkStatusV = v.union(
+  v.literal("queued"),
+  v.literal("running"),
+  v.literal("cached"),
+  v.literal("refreshing"),
+  v.literal("completed"),
+  v.literal("needs_review"),
+  v.literal("gap"),
+  v.literal("failed"),
+  v.literal("cancelled"),
+);
 
 export default defineSchema({
   rooms: defineTable({
@@ -380,6 +400,41 @@ export default defineSchema({
     .index("by_job_sequence", ["jobId", "sequence"])
     .index("by_run", ["runId", "sequence"]),
 
+  /** Per entity/facet work items under an agentJobs parent. This is the durable child-work shape for
+   * one harnessed Room Agent plus selective subwork, not a permanent-agent-per-company design. */
+  entityWorkItems: defineTable({
+    roomId: v.id("rooms"),
+    artifactId: v.id("artifacts"),
+    jobId: v.id("agentJobs"),
+    parentJobId: v.optional(v.id("agentJobs")),
+    requester: actor,
+    visibility: okfVisibilityV,
+    ownerId: v.optional(v.string()),
+    entityType: entityTypeV,
+    entityKey: v.string(),
+    displayName: v.string(),
+    facet: v.string(),
+    cacheId: v.optional(v.id("entityResearchCache")),
+    status: entityWorkStatusV,
+    cachePolicy: v.union(
+      v.literal("fresh_use_cache"),
+      v.literal("stale_use_cache_and_refresh"),
+      v.literal("missing_research_now"),
+      v.literal("manual_only_do_not_research"),
+      v.literal("contradiction_needs_review"),
+    ),
+    idempotencyKey: v.string(),
+    plan: v.optional(v.any()),
+    resultRef: v.optional(v.any()),
+    error: v.optional(v.string()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+    completedAt: v.optional(v.number()),
+  })
+    .index("by_job", ["jobId", "createdAt"])
+    .index("by_room_entity_status", ["roomId", "entityType", "entityKey", "status"])
+    .index("by_idempotency", ["idempotencyKey", "createdAt"]),
+
   agentMutationReceipts: defineTable({
     jobId: v.id("agentJobs"),
     runId: v.optional(v.id("agentRuns")),
@@ -639,6 +694,51 @@ export default defineSchema({
   })
     .index("by_room", ["roomId", "createdAt"])
     .index("by_job", ["jobId", "createdAt"]),
+
+  /** Operational entity/facet cache for fast diligence fills. OKF remains the portable evidence
+   * layer; this table is the room-local lookup index that lets a repeated company/person/facet
+   * request return immediately or schedule only stale/missing work. */
+  entityResearchCache: defineTable({
+    roomId: v.id("rooms"),
+    artifactId: v.optional(v.id("artifacts")),
+    visibility: okfVisibilityV,
+    ownerId: v.optional(v.string()),
+    entityType: v.union(
+      v.literal("company"),
+      v.literal("person"),
+      v.literal("product"),
+      v.literal("source"),
+      v.literal("metric"),
+      v.literal("unknown"),
+    ),
+    entityKey: v.string(),
+    displayName: v.string(),
+    facet: v.string(),
+    queryHash: v.string(),
+    sourceSetHash: v.optional(v.string()),
+    resultHash: v.string(),
+    result: v.any(),
+    evidenceRefs: v.array(v.any()),
+    status: v.union(
+      v.literal("fresh"),
+      v.literal("stale"),
+      v.literal("refreshing"),
+      v.literal("needs_review"),
+      v.literal("gap"),
+    ),
+    confidence: v.optional(v.number()),
+    retrievedAt: v.number(),
+    observedAt: v.optional(v.number()),
+    validUntil: v.optional(v.number()),
+    staleAfter: v.optional(v.number()),
+    deltaStatus: v.optional(v.union(v.literal("none"), v.literal("minor"), v.literal("material"), v.literal("contradiction"))),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+    lastUsedAt: v.number(),
+  })
+    .index("by_room_entity_facet", ["roomId", "visibility", "entityType", "entityKey", "facet"])
+    .index("by_room_owner", ["roomId", "ownerId", "updatedAt"])
+    .index("by_room_updated", ["roomId", "updatedAt"]),
 
   embeddingJobs: defineTable({
     roomId: v.id("rooms"),

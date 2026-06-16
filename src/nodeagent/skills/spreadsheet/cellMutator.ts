@@ -133,6 +133,46 @@ async function reviewedCellPayload(args: {
   }
 }
 
+type SkippedEditOutcome = { ok: true; skipped: true; reason: "unchanged"; version: number };
+type ManagedSingleWriteOutcome =
+  | (EditOutcome & { coordination: Record<string, unknown>; drafted?: boolean; draftId?: string })
+  | (SkippedEditOutcome & { coordination: Record<string, unknown> });
+
+function stablePayloadKey(value: unknown): string {
+  if (value === undefined) return "null";
+  if (value === null || typeof value !== "object") return JSON.stringify(value);
+  if (Array.isArray(value)) return `[${value.map(stablePayloadKey).join(",")}]`;
+  const record = value as Record<string, unknown>;
+  return `{${Object.keys(record).sort().filter((key) => record[key] !== undefined).map((key) => `${JSON.stringify(key)}:${stablePayloadKey(record[key])}`).join(",")}}`;
+}
+
+function payloadsEquivalent(current: unknown, proposed: unknown): boolean {
+  return stablePayloadKey(current) === stablePayloadKey(proposed);
+}
+
+async function unchangedSetOps(args: {
+  ops: Array<{ elementId: string; value: unknown; baseVersion: number; kind?: "set" | "create" | "delete" }>;
+  artifactId?: string;
+}, rt: RoomTools): Promise<{
+  activeOps: Array<{ elementId: string; value: unknown; baseVersion: number; kind?: "set" | "create" | "delete" }>;
+  skipped: Array<SkippedEditOutcome & { elementId: string; baseVersion: number }>;
+}> {
+  if (typeof rt.readRange !== "function") return { activeOps: args.ops, skipped: [] };
+  const comparable = args.ops.filter((op) => (op.kind ?? "set") === "set");
+  if (!comparable.length) return { activeOps: args.ops, skipped: [] };
+  const cells = await rt.readRange(comparable.map((op) => op.elementId), args.artifactId);
+  const byId = new Map(cells.map((cell) => [cell.id, cell]));
+  const skipped: Array<SkippedEditOutcome & { elementId: string; baseVersion: number }> = [];
+  const activeOps = args.ops.filter((op) => {
+    if ((op.kind ?? "set") !== "set") return true;
+    const current = byId.get(op.elementId);
+    if (!current || !payloadsEquivalent(current.value, op.value)) return true;
+    skipped.push({ ok: true, skipped: true, reason: "unchanged", version: current.version, elementId: op.elementId, baseVersion: op.baseVersion });
+    return false;
+  });
+  return { activeOps, skipped };
+}
+
 async function writeWithManagedLock(args: {
   elementId: string;
   value: unknown;
@@ -140,8 +180,27 @@ async function writeWithManagedLock(args: {
   reason?: string;
   kind?: "set" | "create" | "delete";
   artifactId?: string;
-}, rt: RoomTools): Promise<EditOutcome & { coordination: Record<string, unknown>; drafted?: boolean; draftId?: string }> {
+}, rt: RoomTools): Promise<ManagedSingleWriteOutcome> {
   const reason = args.reason?.trim() || `write ${args.elementId}`;
+  if ((args.kind ?? "set") === "set" && typeof rt.readRange === "function") {
+    const [current] = await rt.readRange([args.elementId], args.artifactId);
+    if (current && payloadsEquivalent(current.value, args.value)) {
+      return {
+        ok: true,
+        skipped: true,
+        reason: "unchanged",
+        version: current.version,
+        coordination: {
+          mode: "managed_lock",
+          targetIds: [args.elementId],
+          acquired: false,
+          skipped: true,
+          baseVersion: args.baseVersion,
+          currentVersion: current.version,
+        },
+      };
+    }
+  }
   const lock = await rt.proposeLock([args.elementId], reason, args.artifactId);
   if (!lock.ok) {
     if (args.kind !== "create" && args.kind !== "delete" && lock.lockId) {
@@ -206,14 +265,31 @@ async function writeBatchWithManagedLock(args: {
   reason?: string;
   artifactId?: string;
 }, rt: RoomTools): Promise<Record<string, unknown>> {
-  const elementIds = args.ops.map((op) => op.elementId);
+  const preflight = await unchangedSetOps(args, rt);
+  if (!preflight.activeOps.length) {
+    const targetIds = args.ops.map((op) => op.elementId);
+    return {
+      ok: true,
+      skipped: true,
+      reason: "unchanged",
+      results: preflight.skipped,
+      coordination: {
+        mode: "managed_lock_batch",
+        targetIds,
+        acquired: false,
+        skipped: true,
+        skippedCount: preflight.skipped.length,
+      },
+    };
+  }
+  const elementIds = preflight.activeOps.map((op) => op.elementId);
   const reason = args.reason?.trim() || `write ${elementIds.length} cell(s)`;
   const lock = await rt.proposeLock(elementIds, reason, args.artifactId);
   if (!lock.ok) {
-    const canDraft = args.ops.every((op) => op.kind !== "create" && op.kind !== "delete") && !!lock.lockId;
+    const canDraft = preflight.activeOps.every((op) => op.kind !== "create" && op.kind !== "delete") && !!lock.lockId;
     if (canDraft && lock.lockId) {
       const draft = await rt.createDraft(
-        args.ops.map((op) => ({ elementId: op.elementId, value: op.value, baseVersion: op.baseVersion })),
+        preflight.activeOps.map((op) => ({ elementId: op.elementId, value: op.value, baseVersion: op.baseVersion })),
         lock.lockId,
         `Managed-lock batch draft: ${reason}`,
         args.artifactId,
@@ -227,10 +303,11 @@ async function writeBatchWithManagedLock(args: {
         results: [],
         coordination: {
           mode: "managed_lock_batch",
-          targetIds: elementIds,
+          targetIds: args.ops.map((op) => op.elementId),
           acquired: false,
           blockingLockId: lock.lockId,
           drafted: true,
+          skippedCount: preflight.skipped.length,
         },
       };
     }
@@ -242,18 +319,19 @@ async function writeBatchWithManagedLock(args: {
       results: [],
       coordination: {
         mode: "managed_lock_batch",
-        targetIds: elementIds,
+        targetIds: args.ops.map((op) => op.elementId),
         acquired: false,
         blockingLockId: lock.lockId,
         drafted: false,
+        skippedCount: preflight.skipped.length,
       },
     };
   }
 
-  const results: Array<EditOutcome & { elementId: string }> = [];
+  const results: Array<(EditOutcome | SkippedEditOutcome) & { elementId: string }> = [...preflight.skipped];
   let release: Awaited<ReturnType<RoomTools["releaseLock"]>> | undefined;
   try {
-    for (const op of args.ops) {
+    for (const op of preflight.activeOps) {
       const edit = await rt.editCell(op.elementId, op.value, op.baseVersion, args.artifactId, op.kind);
       results.push({ ...edit, elementId: op.elementId });
       if (!edit.ok && !("pendingApproval" in edit && edit.pendingApproval)) break;
@@ -267,12 +345,13 @@ async function writeBatchWithManagedLock(args: {
     results,
     coordination: {
       mode: "managed_lock_batch",
-      targetIds: elementIds,
+      targetIds: args.ops.map((op) => op.elementId),
       acquired: true,
       lockId: lock.lockId,
       released: release?.ok !== false,
       mergedDrafts: release?.merged?.length ?? 0,
       releaseReason: release?.reason,
+      skippedCount: preflight.skipped.length,
     },
   };
 }

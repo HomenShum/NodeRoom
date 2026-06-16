@@ -159,4 +159,74 @@ describe("managed lock production tools", () => {
     if (held.ok) engine.releaseLock(held.lock.id, d.agents.room);
     expect(engine.getArtifact(d.sheetId)!.elements.r_rev__variance.value).toBe("+24%");
   });
+
+  it("skips unchanged scalar writes before acquiring a managed lock", async () => {
+    const { rt } = setup();
+    const [cell] = await rt.readRange(["r_rev__variance"]);
+    const writeLocked = PRODUCTION_ROOM_TOOLS.find((tool) => tool.name === "write_locked_cell")!;
+    const originalPropose = rt.proposeLock.bind(rt);
+    let lockCalls = 0;
+    rt.proposeLock = async (...args) => {
+      lockCalls++;
+      return originalPropose(...args);
+    };
+
+    const result = await writeLocked.execute({
+      elementId: "r_rev__variance",
+      value: cell.value,
+      baseVersion: 999,
+      reason: "repeat unchanged write",
+    }, rt) as { ok?: boolean; skipped?: boolean; reason?: string; version?: number };
+
+    expect(result).toMatchObject({ ok: true, skipped: true, reason: "unchanged", version: cell.version });
+    expect(lockCalls).toBe(0);
+  });
+
+  it("skips unchanged evidence-bearing batch writes before acquiring a managed lock", async () => {
+    const { engine, d, rt } = setup();
+    const payload = {
+      value: "11 months",
+      status: "complete",
+      confidence: 0.82,
+      evidence: [{ id: "manual:r_rev__variance:1", kind: "manual", label: "Existing diligence note" }],
+    };
+    const art = engine.getArtifact(d.sheetId)!;
+    const seeded = engine.applyEdit({
+      roomId: d.roomId,
+      op: {
+        opId: "seed-evidence-payload",
+        artifactId: d.sheetId,
+        elementId: "r_rev__variance",
+        kind: "set",
+        value: payload,
+        baseVersion: art.elements.r_rev__variance.version,
+      },
+      actor: d.members.homen,
+    });
+    expect(seeded.ok).toBe(true);
+    const [cell] = await rt.readRange(["r_rev__variance"]);
+    const writeLocked = PRODUCTION_ROOM_TOOLS.find((tool) => tool.name === "write_locked_cell_results")!;
+    const originalPropose = rt.proposeLock.bind(rt);
+    let lockCalls = 0;
+    rt.proposeLock = async (...args) => {
+      lockCalls++;
+      return originalPropose(...args);
+    };
+
+    const result = await writeLocked.execute({
+      reason: "repeat unchanged evidence write",
+      ops: [{
+        elementId: "r_rev__variance",
+        value: "11 months",
+        baseVersion: cell.version,
+        status: "complete",
+        confidence: 0.82,
+        evidence: [{ kind: "manual", label: "Existing diligence note" }],
+      }],
+    }, rt) as { ok?: boolean; skipped?: boolean; reason?: string; results?: Array<{ skipped?: boolean; version?: number }> };
+
+    expect(result).toMatchObject({ ok: true, skipped: true, reason: "unchanged" });
+    expect(result.results?.[0]).toMatchObject({ skipped: true, version: cell.version });
+    expect(lockCalls).toBe(0);
+  });
 });
