@@ -11,7 +11,7 @@ export type ProviderEgressArtifact = {
   source?: "upload" | "provider_parse" | "manual" | "generated" | string;
 };
 
-export type ProviderEgressEntrypoint = "public_ask" | "private_agent" | "free" | "system" | "automation" | "provider_parser";
+export type ProviderEgressEntrypoint = "public_ask" | "private_agent" | "free" | "system" | "automation" | "provider_parser" | "okf_embedding";
 
 export type ProviderEgressDecision =
   | { ok: true; policy: "provider_egress_v1" }

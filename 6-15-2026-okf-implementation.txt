@@ -2142,3 +2142,696 @@ OKF is NodeRoom’s portable memory; hybrid retrieval is the agent’s search st
 Or even shorter:
 
 The agent should not remember everything. It should know how to search the right indexed knowledge until it has enough evidence to act.
+
+## Quick grounding step
+
+I'll ground the OKF recommendation in the current repo structure first, then answer at two levels: **repo-level OKF** and **per-room-session OKF** for **public** and **private** agents.
+
+I found one important contradiction in the available context: an earlier file view showed `ConvexRoomTools` without OKF, while retrieval now shows an OKF-backed version. I'm going to verify the file directly from disk before making the recommendation.
+
+## Direct answer
+
+OKF should be treated as **two related but separate knowledge layers**:
+
+1. **Repo-level OKF**
+   A portable, engineer-facing knowledge bundle for the NodeRoom codebase itself:
+   - architecture
+   - source maps
+   - claim boundaries
+   - eval receipts
+   - demo receipts
+   - file-level proof cards
+   - production-readiness status
+
+2. **Room-session OKF**
+   A live, room-scoped knowledge graph for each NodeRoom session:
+   - public room knowledge shared by all connected clients
+   - private per-user overlays for private agents
+   - evidence/source concepts
+   - cell/result concepts
+   - agent trace concepts
+   - downstream draft concepts
+   - review/coach concepts
+
+The rule should be:
+
+> **Convex is the live operational ledger. OKF is the portable, queryable, evidence-preserving knowledge layer over that ledger.**
+
+And then:
+
+> **Public agents search and write room-visible OKF. Private agents search room-visible OKF plus the owner's private overlay, but may only promote redacted/approved concepts into the shared room.**
+
+---
+
+## The model I recommend
+
+### Layer 1 — Repo-level OKF
+
+This is for the **codebase itself**.
+
+Use OKF to make the repository self-describing, reviewable, and demo-safe.
+
+#### What repo-level OKF should contain
+
+Create a repo OKF bundle that turns important files and claims into concepts:
+
+| OKF concept type | What it represents | Example |
+|---|---|---|
+| `Code Module` | Important source file or subsystem | `convex/artifacts.ts`, `src/ui/RoomShell.tsx` |
+| `Runtime Contract` | Tool/runtime interface guarantee | `RoomTools.okf`, managed lock writes |
+| `Product Claim` | Public-facing claim with proof status | "No silent clobbering" |
+| `Eval Result` | Test/eval evidence | `chat-intake-live-managed.json` |
+| `Demo Scene` | Video/storyboard section | Scene 2 engineer walkthrough |
+| `Receipt Card` | Claim → file → snippet → proof | CAS gate proof card |
+| `Claim Boundary` | What not to overclaim | "Not autonomous client-ready banking" |
+| `Architecture Decision` | Source-of-truth decision | `src/nodeagent/**` canonical runtime |
+| `Roadmap Gap` | Known incomplete layer | Trace Lens, public streaming, durable coach persistence |
+
+Your existing OKF taxonomy accepts unknown types, so adding repo-specific types like `Code Module`, `Product Claim`, and `Receipt Card` is safe.
+
+Current native types already include useful ones like:
+
+- `Room`
+- `Source`
+- `Spreadsheet Cell`
+- `Metric`
+- `Algorithm`
+- `Chart`
+- `Coach Cue`
+- `Review Round`
+- `Agent Trace`
+- `Eval Result`
+- `Downstream Draft`
+- `Workflow`
+- `Playbook`
+
+For repo-level OKF, I would extend, not replace, that list.
+
+---
+
+### Repo-level OKF directory shape
+
+I would add a repo knowledge bundle like this:
+
+````text mode=EXCERPT
+docs/okf/repo/
+  README.md
+  bundle.json
+  concepts/
+    architecture/
+      roomtools-runtime.md
+      convex-live-ledger.md
+      okf-portable-knowledge.md
+    code-modules/
+      convex-artifacts.md
+      convex-room-tools.md
+      room-shell.md
+      cell-mutator.md
+      runway-forecaster.md
+    claims/
+      no-silent-clobber.md
+      private-persistent-streaming.md
+      evidence-bearing-cells.md
+      not-autonomous-client-ready-banking.md
+    evals/
+      chat-intake-live-managed.md
+      startup-diligence-war-room-live.md
+    demo/
+      startup-diligence-engineer-receipts.md
+      startup-diligence-video-storyboard.md
+````
+
+This gives the codebase a **machine-readable proof index**.
+
+The repo OKF should answer questions like:
+
+- "Where is the no-clobber guarantee implemented?"
+- "Which claims are safe for README?"
+- "Which claims are branch/tree only?"
+- "Which files prove private streaming?"
+- "Which demo scenes cite which source files?"
+- "What is aspirational vs shipped?"
+
+---
+
+## Layer 2 — Room-session OKF
+
+This is for each **live NodeRoom room**.
+
+Each room should have a room-scoped OKF bundle/index:
+
+> `roomId → OKF concepts → retrieval tools → agent context → audited writes`
+
+The live room ledger remains Convex. OKF is the structured knowledge view over it.
+
+### What a room session should produce as OKF
+
+For each room, generate concepts for:
+
+| Room object | OKF type | Example |
+|---|---|---|
+| Room metadata | `Room` | Startup Diligence War Room |
+| Uploaded file/source | `Source` | Founder deck, website, CSV |
+| Sheet | `Spreadsheet` | Company research sheet |
+| Cell payload | `Spreadsheet Cell` | CardioNova runway cell |
+| Derived number | `Metric` | Runway months |
+| Formula/math helper | `Algorithm` | Deterministic runway math |
+| Visualization | `Chart` | Runway milestone chart |
+| Agent action | `Agent Trace` | Agent read/wrote/rebased |
+| Review packet | `Review Round` | IC-ready review packet |
+| Coach cue | `Coach Cue` | Financing timing risk |
+| Draft handoff | `Downstream Draft` | Gmail/Slack/Notion draft |
+| Eval/check | `Eval Result` | No-clobber eval result |
+| Reusable process | `Workflow` / `Playbook` | Startup diligence playbook |
+
+The important part is that **every concept carries visibility**:
+
+- `public`
+- `private`
+- `redacted`
+
+Your current `OkfVisibility` type already supports this.
+
+---
+
+## Public agent in a room session
+
+The public room agent should use OKF as the **shared room memory and evidence graph**.
+
+### Public agent can read
+
+The public agent should read only:
+
+- `visibility: public`
+- room-visible artifacts
+- public messages
+- public traces
+- public evidence
+- approved/promoted private outputs
+- redacted concepts explicitly marked safe
+
+It should not read:
+
+- private lane messages
+- private scratch concepts
+- owner-only drafts
+- unpromoted private agent reasoning
+- hidden source material not visible to the requester
+
+### Public agent retrieval flow
+
+For public agent questions, use this order:
+
+1. `okf_list_concepts`
+   Discover what room knowledge exists.
+
+2. `okf_semantic_search` / `okf_full_text_search`
+   Find relevant evidence, metrics, cells, sources, traces.
+
+3. `okf_read_concept`
+   Open specific concepts before citing them.
+
+4. `okf_backlinks` / `okf_expand_neighbors`
+   Follow relationships:
+   - source → cell
+   - cell → metric
+   - metric → chart
+   - chart → coach cue
+   - cue → review round
+
+5. `source_resolve_citation` / `source_open_literal`
+   Open original source evidence before making a strong claim.
+
+6. `source_compare_claim`
+   Validate whether the evidence supports, partially supports, contradicts, or fails to support the claim.
+
+7. `read_range`
+   Re-read current cell values and versions before any write.
+
+8. `write_locked_cell_results`
+   Write evidence-bearing outputs through managed lock/CAS.
+
+### Public agent write rule
+
+The public agent should never write loose claims.
+
+It should write:
+
+- evidence-bearing cell payloads
+- review proposals
+- trace events
+- public OKF concepts
+- draft handoff artifacts
+
+And it should always use:
+
+- managed lock
+- CAS
+- proposal/draft fallback
+- trace logging
+
+So the public agent's mental model becomes:
+
+> "Search shared OKF, verify source evidence, re-read current room state, then write through managed CAS."
+
+---
+
+## Connected clients
+
+Connected browser clients should treat OKF as a **live explainability/index layer**, not as the source of truth.
+
+### Convex remains source of truth
+
+Convex tables remain authoritative for:
+
+- rooms
+- members
+- messages
+- artifacts
+- elements
+- locks
+- proposals
+- drafts
+- traces
+- jobs
+
+### OKF should be derived/indexed from Convex
+
+OKF concepts should be generated from Convex events like:
+
+- artifact created/updated
+- cell payload written
+- source uploaded
+- trace inserted
+- proposal created/resolved
+- coach cue created
+- review round closed
+- downstream draft created
+- eval scored
+
+That means the room UI can show:
+
+- "Why does this cell say this?"
+- "Which source supports this claim?"
+- "What changed since last review?"
+- "Which private output was promoted?"
+- "Which claims are weak / needs review?"
+
+### Client UX enabled by room OKF
+
+Once OKF is live per room, connected clients can get:
+
+1. **Evidence inspector**
+   - click cell → see source concepts, citations, confidence, trace
+
+2. **Trace Lens**
+   - click agent output → see exact concepts used
+
+3. **Review packet**
+   - generate an IC/review packet from high-confidence public concepts
+
+4. **Search room memory**
+   - semantic + exact search over room artifacts, evidence, traces, drafts
+
+5. **Claim status**
+   - strong / partial / weak / contradicts / not found
+
+This is where OKF becomes product-visible, not just backend plumbing.
+
+---
+
+## Private agent in a room session
+
+The private agent should use OKF as a **private overlay on top of the shared room graph**.
+
+### Private agent can read
+
+A private agent for user `U` can read:
+
+1. public room OKF
+2. redacted room OKF
+3. `visibility: private` concepts where `ownerId = U`
+4. private lane messages owned by `U`
+5. private scratch drafts owned by `U`
+
+It should not read:
+
+- another user's private OKF
+- another user's private messages
+- unredacted private source concepts owned by someone else
+
+### Private OKF overlay
+
+Each user should effectively get:
+
+> `effectivePrivateContext = publicRoomOKF + ownerPrivateOKF`
+
+So private agent retrieval becomes:
+
+- search shared public room knowledge
+- search private owner-only notes/messages/drafts
+- reason privately
+- produce private response
+- optionally create a private draft concept
+- only promote to public if user explicitly chooses room/publish mode
+
+### Private agent write modes
+
+The private agent should have two modes.
+
+#### Mode 1 — Private consult
+
+Default behavior.
+
+Writes only to:
+
+- private channel message
+- private OKF concept
+- private draft
+- private trace if needed
+
+Visibility:
+
+- `private`
+
+Use cases:
+
+- "What should I ask the founder?"
+- "Is this company risky?"
+- "Draft a banker-facing note, but don't publish it yet."
+- "Compare this privately against my thesis."
+
+#### Mode 2 — Promote / act in room
+
+Explicit user action.
+
+The private agent can publish to the shared room only after:
+
+1. user selects "Room" lane or "Promote"
+2. private concepts are redacted/converted to public-safe form
+3. source evidence is resolved
+4. current room state is re-read
+5. shared artifact writes go through managed lock/CAS
+
+Visibility transition:
+
+- `private` → `redacted` → `public`
+
+This gives you a clean story:
+
+> "Private agents can think with you. They do not leak into the room unless you promote the result."
+
+---
+
+## The most important privacy boundary
+
+Do **not** use one flat room vector index for everything.
+
+Use partitioned retrieval.
+
+At minimum, every OKF concept/chunk should be scoped by:
+
+- `roomId`
+- `visibility`
+- `ownerId` when private
+- `artifactId`
+- `sourceArtifactId`
+- `createdBy`
+- `createdAt`
+- `confidence/status`
+
+The public agent query filter should be:
+
+- `roomId = currentRoom`
+- `visibility in ["public", "redacted"]`
+
+The private agent query filter should be:
+
+- `roomId = currentRoom`
+- and either:
+  - `visibility in ["public", "redacted"]`
+  - or `visibility = "private" AND ownerId = currentUser`
+
+That prevents accidental cross-user leakage.
+
+---
+
+## How this maps to the current codebase
+
+The current repo already has the right skeleton.
+
+### Already present
+
+I verified these pieces:
+
+- `src/nodeagent/okf/types.ts`
+  - `OkfConcept`
+  - `OkfVisibility`
+  - native NodeRoom OKF types
+
+- `src/nodeagent/retrieval/types.ts`
+  - `OkfRetrievalPort`
+  - list/read/full-text/semantic/filter/glob/regex/backlinks/source/claim APIs
+
+- `src/nodeagent/retrieval/tools/okfTools.ts`
+  - agent tools:
+    - `okf_list_concepts`
+    - `okf_read_concept`
+    - `okf_full_text_search`
+    - `okf_semantic_search`
+    - `source_open_literal`
+    - `source_compare_claim`
+    - etc.
+
+- `convex/convexRoomTools.ts`
+  - current disk version now includes `public readonly okf: OkfRetrievalPort`
+  - constructs `new ConvexOkfRetrievalPort(ctx, roomId, jobId)`
+  - supports semantic search with vector search and scan fallback
+
+- `docs/okf/noderoom-okf-contract.md`
+  - defines retrieval policy:
+    - search concepts
+    - filter metadata
+    - follow links
+    - open literal source evidence
+    - re-read current cell values before writes
+    - mark weak evidence as `needs_review`
+
+This means my earlier caution needs an update:
+
+> The OKF port is now wired into `ConvexRoomTools` in the current tree. The remaining question is not "does the port exist?" but "are concepts consistently produced, permissioned, indexed, and used by the public/private agent flows?"
+
+That is a much better place to be.
+
+---
+
+## What still needs to be true before claiming full OKF-native runtime
+
+Even with the current `ConvexOkfRetrievalPort`, I would not yet overclaim until these are proven end-to-end:
+
+### 1. Producers are complete
+
+Every important room event should create/update OKF concepts:
+
+- source uploaded
+- spreadsheet cell written
+- evidence payload written
+- coach cue created
+- review round created
+- trace inserted
+- downstream draft created
+- eval result attached
+
+### 2. Indexing is complete
+
+Each concept should produce:
+
+- metadata row
+- full-text index row
+- graph edge rows
+- optional embedding chunks
+- source locator rows
+
+### 3. Visibility is enforced everywhere
+
+Public/private/redacted filters must be enforced in:
+
+- list concepts
+- read concept
+- full-text search
+- semantic search
+- backlinks
+- expand neighbors
+- source open
+- claim compare
+
+### 4. Agent prompts use the retrieval policy
+
+The public/private system prompts should explicitly say:
+
+- use OKF before broad source fetch
+- read concepts before citing
+- open literal sources before strong claims
+- re-read cells before writes
+- use `needs_review` when evidence is weak
+- never expose private OKF to public room
+
+### 5. UI exposes the value
+
+OKF should power visible product surfaces:
+
+- evidence inspector
+- source drawer
+- trace lens
+- review packet
+- confidence/status badges
+- private-to-public promotion review
+
+---
+
+## Recommended architecture
+
+### Repo OKF
+
+Use repo-level OKF as the "knowledge spine" for engineering/demo truth.
+
+Flow:
+
+1. scan docs + key source files
+2. generate OKF concepts
+3. link claims to files/snippets/evals
+4. use it to generate:
+   - engineer receipt doc
+   - demo storyboard
+   - README claim matrix
+   - production readiness summary
+
+Repo-level OKF is mostly **read-only** and updated by scripts.
+
+---
+
+### Room OKF
+
+Use room-level OKF as the live room knowledge layer.
+
+Flow:
+
+1. room event occurs in Convex
+2. outbox event records it
+3. OKF producer creates/updates concept
+4. indexer updates metadata/full-text/graph/vector indexes
+5. public/private agents retrieve through `RoomTools.okf`
+6. UI reads OKF-backed explanations and evidence
+
+Room-level OKF is **live, permissioned, and queryable**.
+
+---
+
+## Public vs private summary
+
+| Dimension | Public room agent | Private agent |
+|---|---|---|
+| Reads public OKF | Yes | Yes |
+| Reads redacted OKF | Yes | Yes |
+| Reads private owner OKF | No | Yes, only owner's |
+| Reads other users' private OKF | No | No |
+| Writes public concepts | Yes, through shared room policy | Only after promote/Room mode |
+| Writes private concepts | No | Yes |
+| Can edit shared artifacts | Yes, through managed lock/CAS | Only in Room/publish mode |
+| Can respond privately | No | Yes |
+| Must cite evidence | Yes | Yes for strong claims |
+| Must re-read cells before writes | Yes | Yes when acting in room |
+
+---
+
+## Best product framing
+
+The clean version is:
+
+> **OKF makes NodeRoom memory portable, searchable, and evidence-preserving. Convex keeps the live room authoritative. Public agents operate over the shared OKF graph. Private agents get a private overlay and can promote redacted, user-approved knowledge into the room.**
+
+For the demo:
+
+> "The room is live in Convex. The knowledge is portable in OKF. The agent uses OKF to find evidence, then uses managed locks and CAS to safely update the room."
+
+---
+
+## Alternatives and trade-offs
+
+### Alternative A — OKF as export only
+
+Use OKF only when exporting a room.
+
+**Pros**
+- simpler
+- lower privacy risk
+- easier to ship
+
+**Cons**
+- agents do not benefit from OKF during the session
+- no live evidence inspector
+- less impressive product story
+
+### Alternative B — OKF as live retrieval layer
+
+Use OKF during the room session.
+
+**Pros**
+- better agent context
+- stronger evidence model
+- enables Trace Lens and review packets
+- differentiates NodeRoom from chat apps
+
+**Cons**
+- must enforce permissions carefully
+- indexing/outbox complexity
+- needs evals for retrieval correctness
+
+### Alternative C — best path
+
+Use both:
+
+- **live OKF for active room retrieval**
+- **exportable OKF bundle for portability/audit**
+
+That is the strongest architecture.
+
+---
+
+## Action plan
+
+### Immediate
+
+1. Treat OKF as two products:
+   - repo OKF
+   - room-session OKF
+
+2. Update docs to say:
+   - Convex = live ledger
+   - OKF = portable/evidence knowledge layer
+   - public agent = shared OKF only
+   - private agent = shared OKF + owner private overlay
+
+3. Add a claim boundary:
+   - "OKF-backed retrieval is implemented in the current tree, but full product proof requires producer/index/visibility/eval coverage."
+
+### Next implementation checks
+
+1. Verify `convex/okf.ts` / related OKF Convex functions enforce visibility consistently.
+2. Verify public and private agent prompts include OKF retrieval policy.
+3. Add end-to-end eval:
+   - public agent cannot retrieve private concept
+   - private agent can retrieve owner concept
+   - private agent cannot retrieve another owner's concept
+   - promoted concept becomes public/redacted
+   - public agent can cite promoted concept
+4. Add UI proof:
+   - cell → source concept → literal evidence
+   - private draft → promote → public room concept
+   - trace → concepts used
+
+### Demo language
+
+Use this:
+
+> "OKF is the room's evidence graph. The public agent searches the shared graph. Your private agent gets a private overlay. Nothing private becomes room knowledge until you promote it."

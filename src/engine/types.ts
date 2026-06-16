@@ -86,6 +86,11 @@ export interface CellPayload {
   normalizedValue?: unknown;
   attempts?: number;
   updatedByRunId?: string;
+  review?: {
+    evidenceMemo?: import("../nodeagent/retrieval/types").EvidenceMemo;
+    caveat?: string;
+    source?: "okf_evidence_memo";
+  };
 }
 
 export interface DataframeColumn {

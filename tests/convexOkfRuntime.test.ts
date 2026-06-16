@@ -5,6 +5,7 @@ import schema from "../convex/schema";
 import { api, internal } from "../convex/_generated/api";
 import { hashToken } from "../convex/lib";
 import type { Id } from "../convex/_generated/dataModel";
+import { createOkfConcept } from "../src/nodeagent/okf/concept";
 
 const modules = import.meta.glob("../convex/**/*.ts");
 delete (modules as Record<string, unknown>)["../convex/agent.ts"];
@@ -22,7 +23,7 @@ describe("persistent OKF runtime", () => {
     const indexed = await t.mutation(api.okf.reindexRoom, { roomId, requester: proof });
     expect(indexed.indexed).toBeGreaterThanOrEqual(1);
 
-    const concepts = await t.query(api.okf.listConcepts, { roomId, type: "Spreadsheet" });
+    const concepts = await t.query(api.okf.listConcepts, { roomId, requester: proof, type: "Spreadsheet" });
     expect(concepts).toHaveLength(1);
     expect(concepts[0].body).toContain("Acme");
 
@@ -47,7 +48,7 @@ describe("persistent OKF runtime", () => {
       }],
     });
 
-    const fullText = await t.query(api.okf.fullTextSearch, { roomId, query: "Acme ARR risk", limit: 3 });
+    const fullText = await t.query(api.okf.fullTextSearch, { roomId, requester: proof, query: "Acme ARR risk", limit: 3 });
     expect(fullText[0]?.concept.id).toBe(concepts[0].id);
 
     await t.mutation(api.okf.recordRetrievalEvent, {
@@ -60,6 +61,7 @@ describe("persistent OKF runtime", () => {
       latencyMs: 12,
       provider: "local",
       model: "test",
+      visibility: "public",
     });
     const lens = await t.query(api.okf.traceLens, { roomId, requester: proof });
     expect(lens.chunkCount).toBe(1);
@@ -80,6 +82,224 @@ describe("persistent OKF runtime", () => {
 
     const reclaimed = await t.mutation(internal.okf.claimOutbox, { leaseId: "fresh", leaseMs: 60_000, limit: 1 });
     expect(reclaimed[0].conceptId).toBe(claimed[0].conceptId);
+  });
+
+  it("opens literal source rows and exact cells from artifacts", async () => {
+    const { t, proof, roomId, artifactId } = await setupOkfRoom();
+
+    const exactCell = await t.query(api.okf.openLiteral, { roomId, requester: proof, sourceArtifactId: String(artifactId), row: 1, column: "arr" });
+    expect(exactCell.ok).toBe(true);
+    expect(exactCell.snippet).toContain("r1__arr: $12M ARR");
+    expect(exactCell.snippet).not.toBe("{}");
+
+    const fullRow = await t.query(api.okf.openLiteral, { roomId, requester: proof, sourceArtifactId: String(artifactId), row: 1 });
+    expect(fullRow.snippet).toContain("r1__company: Acme");
+    expect(fullRow.snippet).toContain("r1__risk: Customer concentration risk");
+
+    const parsedSource = await t.run(async (ctx) => {
+      const now = Date.now();
+      const sourceId = await ctx.db.insert("artifacts", {
+        roomId,
+        kind: "sheet" as const,
+        title: "Source workbook",
+        version: 1,
+        order: ["ARR7"],
+        updatedAt: now,
+        createdBy: proof.actor,
+        visibility: "room" as const,
+      });
+      await insertElement(ctx, sourceId, "ARR7", "ARR source says $15M ARR");
+      const id = await ctx.db.insert("artifacts", {
+        roomId,
+        kind: "sheet" as const,
+        title: "Uploaded operating model",
+        version: 1,
+        order: ["u1__company", "u1__arr"],
+        updatedAt: now,
+        createdBy: proof.actor,
+        visibility: "room" as const,
+        meta: { dataframe: { columns: [{ id: "company", label: "Company" }, { id: "arr", label: "ARR" }] } },
+      });
+      await insertElement(ctx, id, "u1__company", { value: "CardioNova", status: "complete", evidence: [{ id: "ev-company", kind: "upload", label: "model.xlsx Sheet1!Company7", row: 7, column: "Company" }] });
+      await insertElement(ctx, id, "u1__arr", { value: "$15M ARR", status: "complete", evidence: [{ id: "ev-arr", kind: "upload", label: "model.xlsx Sheet1!ARR7", sourceArtifactId: String(sourceId), row: 7, column: "ARR" }] });
+      return { parsedArtifactId: id, sourceId };
+    });
+
+    const sourceCell = await t.query(api.okf.openLiteral, { roomId, requester: proof, sourceArtifactId: String(parsedSource.parsedArtifactId), row: 7, column: "ARR" });
+    expect(sourceCell.ok).toBe(true);
+    expect(sourceCell.snippet).toContain("u1__arr: $15M ARR");
+
+    const resolvedEvidence = await t.query(api.okf.resolveCitation, { roomId, requester: proof, evidenceId: "ev-arr" });
+    expect(resolvedEvidence.ok).toBe(true);
+    expect(resolvedEvidence.resource).toBe(String(parsedSource.sourceId));
+    expect(resolvedEvidence.snippet).toContain("ARR7: ARR source says $15M ARR");
+  });
+
+  it("partitions public OKF from owner-private overlays", async () => {
+    const { t, proof, roomId } = await setupOkfRoom();
+    const otherProof = await addMember(t, roomId, "Reviewer");
+
+    await t.mutation(api.okf.upsertConcept, {
+      roomId,
+      requester: proof,
+      concept: createOkfConcept({
+        path: "private/homen/thesis.md",
+        frontmatter: {
+          type: "Coach Cue",
+          title: "Private founder risk thesis",
+          visibility: "private",
+          tags: ["private", "thesis"],
+        },
+        body: "Private thesis: founder reference call raised a confidential concentration concern.",
+      }),
+    });
+
+    await t.mutation(api.okf.upsertConcept, {
+      roomId,
+      requester: proof,
+      concept: createOkfConcept({
+        path: "public/cardionova/runway.md",
+        frontmatter: {
+          type: "Metric",
+          title: "Public runway summary",
+          visibility: "public",
+          tags: ["runway"],
+        },
+        body: "Public runway summary: CardioNova has 11 months of runway pending updated burn evidence.",
+      }),
+    });
+
+    await expect(t.query(api.okf.fullTextSearch, { roomId, query: "confidential concentration concern", limit: 5 } as never)).rejects.toThrow();
+    await expect(t.query(api.okf.listConcepts, { roomId, type: "Metric" } as never)).rejects.toThrow();
+    await expect(t.query(api.okf.readConcept, { roomId, conceptId: "private/homen/thesis" } as never)).rejects.toThrow();
+
+    await expect(t.mutation(api.okf.upsertConcept, {
+      roomId,
+      requester: proof,
+      concept: createOkfConcept({
+        path: "private/spoofed.md",
+        frontmatter: {
+          type: "Coach Cue",
+          title: "Spoofed private owner",
+          visibility: "private",
+          noderoom: { ownerId: otherProof.actor.id },
+        },
+        body: "This should not enter another member private overlay.",
+      }),
+    })).rejects.toThrow(/private_concept_owner_mismatch/);
+
+    const ownerSearch = await t.query(api.okf.fullTextSearch, { roomId, requester: proof, query: "confidential concentration concern", limit: 5 });
+    expect(ownerSearch[0]?.concept.id).toBe("private/homen/thesis");
+
+    const otherSearch = await t.query(api.okf.fullTextSearch, { roomId, requester: otherProof, query: "confidential concentration concern", limit: 5 });
+    expect(otherSearch.some((hit) => hit.concept.id === "private/homen/thesis")).toBe(false);
+
+    const otherRead = await t.query(api.okf.readConcept, { roomId, requester: otherProof, conceptId: "private/homen/thesis" });
+    expect(otherRead).toBeNull();
+
+    const ownerRead = await t.query(api.okf.readConcept, { roomId, requester: proof, conceptId: "private/homen/thesis" });
+    expect(ownerRead?.frontmatter.noderoom?.ownerId).toBe(proof.actor.id);
+
+    await t.mutation(api.okf.upsertConcept, {
+      roomId,
+      requester: proof,
+      concept: createOkfConcept({
+        path: "public/linked-review.md",
+        frontmatter: {
+          type: "Review Round",
+          title: "Room review with hidden source",
+          visibility: "public",
+        },
+        body: "Public review links to [hidden thesis](private/homen/thesis.md) for the owner only.",
+      }),
+    });
+    await t.mutation(api.okf.recordRetrievalEvent, {
+      roomId,
+      query: "confidential concentration concern",
+      tool: "okf.fullTextSearch",
+      status: "completed",
+      candidateIds: ["private/homen/thesis"],
+      hitConceptIds: ["private/homen/thesis"],
+      latencyMs: 5,
+      visibility: "private",
+      ownerId: proof.actor.id,
+    });
+    await t.mutation(api.okf.recordRetrievalEvent, {
+      roomId,
+      query: "malicious public event should not expose hidden ids",
+      tool: "okf.fullTextSearch",
+      status: "completed",
+      candidateIds: ["private/homen/thesis"],
+      hitConceptIds: ["private/homen/thesis"],
+      latencyMs: 5,
+      visibility: "public",
+    });
+
+    const lens = await t.query(api.okf.traceLens, { roomId, requester: otherProof });
+    expect(lens.concepts.some((concept: { conceptId: string }) => concept.conceptId === "private/homen/thesis")).toBe(false);
+    expect(lens.events.some((event: { query: string }) => event.query.includes("confidential concentration concern"))).toBe(false);
+    expect(lens.events.flatMap((event: { hitConceptIds: string[] }) => event.hitConceptIds)).not.toContain("private/homen/thesis");
+    expect(lens.edges.some((edge: { fromConceptId: string; toConceptId: string }) => edge.fromConceptId === "public/linked-review" && edge.toConceptId === "private/homen/thesis")).toBe(false);
+
+    const ownerLens = await t.query(api.okf.traceLens, { roomId, requester: proof });
+    expect(ownerLens.events.some((event: { query: string }) => event.query.includes("confidential concentration concern"))).toBe(true);
+
+    await expect(t.mutation(api.okf.promoteConcept, {
+      roomId,
+      requester: otherProof,
+      conceptId: "private/homen/thesis",
+      targetVisibility: "redacted",
+      redactedBody: "Public-safe founder risk cue: request updated concentration evidence before IC.",
+    })).rejects.toThrow(/private_concept_owner_required/);
+
+    const promoted = await t.mutation(api.okf.promoteConcept, {
+      roomId,
+      requester: proof,
+      conceptId: "private/homen/thesis",
+      targetVisibility: "redacted",
+      redactedTitle: "Founder risk cue for room review",
+      redactedBody: "Public-safe founder risk cue: request updated concentration evidence before IC.",
+      tags: ["review"],
+    });
+    expect(promoted.conceptId).toContain("promoted/private/homen/thesis-redacted");
+
+    const promotedRead = await t.query(api.okf.readConcept, { roomId, requester: otherProof, conceptId: promoted.conceptId });
+    expect(promotedRead?.frontmatter.visibility).toBe("redacted");
+    expect(promotedRead?.frontmatter.noderoom?.promotedFromConceptId).toBe("private/homen/thesis");
+    expect(promotedRead?.body).not.toContain("confidential concentration concern");
+
+    const publicPromotedSearch = await t.query(api.okf.fullTextSearch, { roomId, requester: otherProof, query: "updated concentration evidence", limit: 5 });
+    expect(publicPromotedSearch.some((hit) => hit.concept.id === promoted.conceptId)).toBe(true);
+
+    const publicPrivatePhraseSearch = await t.query(api.okf.fullTextSearch, { roomId, requester: otherProof, query: "confidential concentration concern", limit: 5 });
+    expect(publicPrivatePhraseSearch.some((hit) => hit.concept.id === "private/homen/thesis")).toBe(false);
+    for (const hit of publicPrivatePhraseSearch) expect(hit.concept.body).not.toContain("confidential concentration concern");
+  });
+
+  it("keeps private artifact literals owner-only", async () => {
+    const { t, proof, roomId } = await setupOkfRoom();
+    const otherProof = await addMember(t, roomId, "Reviewer");
+    const privateArtifactId = await t.run(async (ctx) => {
+      const now = Date.now();
+      const artifactId = await ctx.db.insert("artifacts", {
+        roomId,
+        kind: "sheet" as const,
+        title: "Owner-only thesis scratch",
+        version: 1,
+        order: ["r1__note"],
+        updatedAt: now,
+        createdBy: proof.actor,
+        visibility: "private" as const,
+      });
+      await insertElement(ctx, artifactId, "r1__note", "Private M&A concern");
+      return artifactId;
+    });
+
+    const ownerLiteral = await t.query(api.okf.openLiteral, { roomId, requester: proof, sourceArtifactId: String(privateArtifactId), row: 1, column: "note" });
+    expect(ownerLiteral.snippet).toContain("Private M&A concern");
+
+    const otherLiteral = await t.query(api.okf.openLiteral, { roomId, requester: otherProof, sourceArtifactId: String(privateArtifactId), row: 1, column: "note" });
+    expect(otherLiteral).toMatchObject({ ok: false, error: "artifact_not_found" });
   });
 });
 
@@ -129,7 +349,25 @@ async function setupOkfRoom() {
   return { t, proof, roomId, artifactId };
 }
 
-function insertElement(ctx: { db: { insert: (...args: any[]) => Promise<unknown> } }, artifactId: Id<"artifacts">, elementId: string, value: string) {
+async function addMember(t: Awaited<ReturnType<typeof setupOkfRoom>>["t"], roomId: Id<"rooms">, name: string) {
+  const tokenValue = `${name}-0123456789abcdefghijklmnopqrstuvwxyzOKF`;
+  const authTokenHash = await hashToken(tokenValue);
+  const now = Date.now();
+  const memberId = await t.run((ctx) =>
+    ctx.db.insert("members", {
+      roomId,
+      name,
+      role: "member" as const,
+      anon: false,
+      color: "#555555",
+      authTokenHash,
+      lastSeenAt: now,
+    }),
+  );
+  return { actor: { kind: "user" as const, id: String(memberId), name }, token: tokenValue };
+}
+
+function insertElement(ctx: { db: { insert: (...args: any[]) => Promise<unknown> } }, artifactId: Id<"artifacts">, elementId: string, value: unknown) {
   const now = Date.now();
   return ctx.db.insert("elements", {
     artifactId,

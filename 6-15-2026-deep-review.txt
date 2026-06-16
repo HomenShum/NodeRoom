@@ -603,7 +603,7 @@ ASCII:
 
 This is probably the missing layer between “agent trace” and “banker trust.”
 
-Maybe we can learn it from the aws hackathon repo 
+Maybe we can learn it from the aws hackathon repo
 Thought for 3m 30s
 
 Yes — the AWS-Hackathon repo is actually a very useful teacher for NodeRoom, not because the domain is the same, but because the product pattern is the same:
@@ -961,7 +961,7 @@ prompt → diligence artifact → evidence carousel → coach cue → review rou
 
 That is the right pattern.
 
-This is like pretty useful; also doesn’t open-design GitHub repo also do something similar where like we can click on part of the component to comment and edit or to view what frontend / backend code directory files are responsible for the part of the selected components for comments / editing 
+This is like pretty useful; also doesn’t open-design GitHub repo also do something similar where like we can click on part of the component to comment and edit or to view what frontend / backend code directory files are responsible for the part of the selected components for comments / editing
 Called tool
 Thought for 8m 7s
 
@@ -1595,3 +1595,1314 @@ A: “Banker Coach / Trace Lens: click any cell/chart/claim to see literal evide
 Final close:
 “NodeRoom is not claiming autonomous client-ready banking output. It proves the safer primitive: humans and agents can share a live artifact, keep context and evidence, avoid silent clobbering, and leave behind a reviewable trace.”
 
+1. External vector DB or search engine.
+2. Incremental reindexing outbox.
+3. Retriever model / query planner.
+4. ClickHouse retrieval analytics.
+5. OKF graph visualizer.
+6. Trace Lens + Banker Coach uses OKF concepts directly.
+
+
+On your previous mention, do we need external vector DB if the convex document suggested they can help store vector embedding? And also, the latest Google gemini embedding model seems to be able to support multiple file formats for embedding
+
+
+Hybrid retrieval ranking
+
+Use a score that blends sources.
+
+
+Additionally, your previous mention on score is flawed, score weights are hardcoded and arbitrary, the top retrieved results would better off be ingested by the agent itself (or subagents if contexts are large enough) and then we keep only the top results
+Thought for 9m 21s
+
+Yes — your correction is right on both points.
+
+First: we do not necessarily need an external vector DB immediately, because Convex now has native vector search and full-text search. Convex vector search lets you define a vector index in schema with a vector field, fixed dimensions, and filter fields; searches run from Convex actions, return relevant document IDs and scores, and Convex says vector search is consistent and fully up to date. Convex also supports full-text search indexes that are reactive, transactional, paginated, and built on Tantivy/BM25-style relevance.
+
+Second: you are right that hardcoded hybrid-ranking weights are not the final solution. Fixed weights like 0.35 semantic + 0.25 full-text are okay as an early retrieval heuristic, but they should not decide truth. The better architecture is:
+
+Retriever tools generate candidate evidence. A retriever agent or subagents inspect the top candidates, open literal sources, compare evidence, and produce evidence memos. The final agent uses those memos to answer, write, or mark needs_review.
+
+That is much more aligned with how a banker or analyst actually researches.
+
+1. Revised answer: Do we need an external vector DB?
+P0 answer: no, not yet
+
+For NodeRoom’s next implementation, I would start with:
+
+Convex native vector search
++ Convex full-text search
++ OKF concept graph
++ spreadsheet/search_sheet_context
++ literal source opening
++ Linkup external search fallback
+
+This is enough for the product and demo.
+
+Convex vector search supports embedding vectors as v.array(v.float64()), dimensions between 2 and 4096, up to 16 filter fields, up to 4 vector indexes per table, and up to 256 requested results per vector search. It also recommends storing vectors in a separate table when vectors are large and not needed during normal reads — exactly what we want for OKF chunks.
+
+Convex full-text search is also directly useful for OKF. It supports a searchIndex with one string search field and optional filter fields, and searches are normal Convex database reads, so they are reactive and can paginate. Convex’s full-text search uses Tantivy and ranks with BM25-like relevance plus other criteria.
+
+So the default should be:
+
+Use Convex for room-scale and workspace-scale search.
+Add external vector/search only after scale or feature pressure proves we need it.
+2. When an external vector DB/search engine becomes justified
+
+External vector/search becomes useful if we hit one of these thresholds:
+
+Need	Use Convex first?	Use external DB/search when…
+Room-level OKF search	Yes	Not needed initially
+Company diligence bundle search	Yes	Not needed initially
+Search across many rooms/customers	Maybe	We need large global indexes, tenant partitions, and advanced search tuning
+Heavy multimodal retrieval	Maybe	We want image/PDF/table/chart retrieval at scale with specialized multimodal indexing
+Advanced hybrid retrieval	Maybe	We need production-grade BM25 + vector + reranker + faceting + query analytics in one engine
+Huge corpus	Maybe	Corpus grows beyond comfortable Convex vector/search limits or retrieval latency/cost rises
+Vendor-managed RAG	Maybe	We want Gemini File Search to handle file storage/chunking/indexing for us
+Offline analytics	No	Use ClickHouse/warehouse, not Convex
+
+So the corrected plan:
+
+P0:
+  Convex vector + Convex full-text + OKF graph.
+
+P1:
+  Add Gemini Embedding 2 for multimodal embeddings.
+
+P2:
+  Add optional adapter:
+    Gemini File Search, Qdrant, Weaviate, Pinecone, Chroma, OpenSearch, Typesense, etc.
+
+P3:
+  Promote external search only if measured retrieval evals prove Convex-native search is insufficient.
+3. Gemini Embedding 2 changes the design
+
+Your point about Gemini embeddings is important.
+
+Google’s Gemini Embedding 2 supports multimodal input: text, images, video, audio, and PDF, all mapped into the same embedding space for cross-modal search and comparison. The docs list limits such as up to 8,192 text tokens, up to 6 images, audio up to 180 seconds, video up to 120 seconds, and PDF up to 6 pages per request; the model outputs text embeddings with flexible dimensions from 128 to 3072.
+
+That means we can use one embedding model for:
+
+OKF concept text
+source snippets
+PDF pages
+screenshots
+chart images
+deck pages
+audio snippets / transcripts
+video walkthrough frames
+
+But note the distinction:
+
+Gemini Embedding 2:
+  supports text, image, video, audio, PDF inputs.
+
+Gemini File Search Tool:
+  supports RAG-style file importing/chunking/indexing, but its docs currently note that audio and video formats are not supported there.
+
+The File Search docs say File Search imports, chunks, and indexes data; it can use gemini-embedding-001 for text embeddings and gemini-embedding-2 for image/multimodal embeddings, but also says audio/video formats are not currently supported by File Search.
+
+So our architecture should support both:
+
+A. Convex-native index:
+   We generate embeddings ourselves with Gemini Embedding 2 and store/search vectors in Convex.
+
+B. Gemini File Search:
+   We optionally let Google manage chunking/indexing for certain files and store File Search store/document IDs in Convex.
+
+C. OKF remains portable:
+   Even if Gemini File Search indexes the files, NodeRoom still exports OKF concepts so knowledge is not trapped in one provider.
+4. Revised retrieval architecture
+
+The better version is:
+
+================================================================================
+        NODEAGENT RETRIEVAL ARCHITECTURE WITH OKF + CONVEX SEARCH
+================================================================================
+
+Live operational truth:
+  Convex
+    rooms
+    messages
+    artifacts
+    elements
+    CellPayloads
+    traces
+    proposals
+    streams
+    agentJobs
+
+Portable knowledge:
+  OKF bundle
+    companies/*.md
+    sources/*.md
+    cells/*.md
+    metrics/*.md
+    charts/*.md
+    coach_cues/*.md
+    traces/*.md
+    evals/*.md
+
+Native retrieval indexes:
+  Convex full-text search
+    exact names
+    source terms
+    company aliases
+    formula labels
+    review status text
+
+  Convex vector search
+    OKF chunks
+    source snippets
+    PDF page summaries
+    chart captions
+    coach cues
+    trace summaries
+
+  Convex graph edges
+    concept links
+    citations
+    backlinks
+    supports
+    depends_on
+    generated_from
+
+Specialized retrieval:
+  sheet semantic search
+  sheet formula search
+  sheet dependency expansion
+  regex / glob / filters
+  literal source open
+  Linkup search fallback
+  optional Gemini File Search
+  optional external vector DB later
+
+This keeps Convex as the main retrieval store until proven otherwise.
+
+5. Revised codebase directory
+src/
+  nodeagent/
+    retrieval/
+      retrievalPlanner.ts
+      retrievalLoop.ts
+      candidateGenerator.ts
+      candidateNormalizer.ts
+      evidenceSufficiency.ts
+      evidenceMemo.ts
+      sourceAuthority.ts
+      retrievalTelemetry.ts
+
+      tools/
+        okfListConceptsTool.ts
+        okfReadConceptTool.ts
+        okfVectorSearchTool.ts
+        okfFullTextSearchTool.ts
+        okfFilterTool.ts
+        okfGlobTool.ts
+        okfRegexTool.ts
+        okfBacklinksTool.ts
+        okfExpandNeighborsTool.ts
+
+        sheetSemanticSearchTool.ts
+        sheetFullTextSearchTool.ts
+        sheetFormulaSearchTool.ts
+        sheetDependencyExpandTool.ts
+        sheetReadRangeWithVersionsTool.ts
+
+        sourceOpenLiteralTool.ts
+        sourceResolveCitationTool.ts
+        sourceCompareClaimTool.ts
+
+        linkupSearchTool.ts
+        geminiFileSearchTool.ts
+
+      rerank/
+        retrievalJudge.ts
+        subagentEvidenceReviewer.ts
+        diversitySelector.ts
+        sourceCoverageSelector.ts
+
+    okf/
+      types.ts
+      concept.ts
+      markdown.ts
+      bundleWriter.ts
+      validators.ts
+      redaction.ts
+      graph.ts
+
+      producers/
+        roomProducer.ts
+        companyProducer.ts
+        sourceProducer.ts
+        cellProducer.ts
+        metricProducer.ts
+        chartProducer.ts
+        coachCueProducer.ts
+        traceProducer.ts
+        evalProducer.ts
+
+      indexing/
+        chunkOkfConcept.ts
+        embedOkfChunks.ts
+        buildFullTextDocs.ts
+        buildGraphEdges.ts
+        reindexOutbox.ts
+
+convex/
+  okfBundles.ts
+  okfConcepts.ts
+  okfChunks.ts
+  okfEdges.ts
+  okfEmbeddings.ts
+  okfSearch.ts
+  retrievalEvents.ts
+  sourceRefs.ts
+  okfOutbox.ts
+
+This fits the harness shape we already discussed: the agent harness should separate orchestration, memory/context, tools, state, guardrails, and evaluation, with NodeAgent as the named engine boundary.
+
+6. Convex schema shape
+OKF concepts
+okfConcepts: defineTable({
+  roomId: v.id("rooms"),
+  bundleId: v.id("okfBundles"),
+
+  conceptId: v.string(),  // "companies/cardionova"
+  path: v.string(),       // "companies/cardionova.md"
+  type: v.string(),       // "Company", "Source", "Spreadsheet Cell"
+  title: v.optional(v.string()),
+  description: v.optional(v.string()),
+  resource: v.optional(v.string()),
+  tags: v.array(v.string()),
+  timestamp: v.optional(v.string()),
+
+  markdown: v.string(),
+  frontmatter: v.any(),
+
+  status: v.optional(v.string()),
+  confidence: v.optional(v.number()),
+  visibility: v.union(v.literal("public"), v.literal("private"), v.literal("redacted")),
+
+  contentHash: v.string(),
+  createdAt: v.number(),
+  updatedAt: v.number(),
+})
+.index("by_bundle", ["bundleId"])
+.index("by_room_type", ["roomId", "type"])
+.index("by_room_concept", ["roomId", "conceptId"])
+.searchIndex("search_markdown", {
+  searchField: "markdown",
+  filterFields: ["roomId", "type", "visibility"],
+});
+OKF chunks
+okfChunks: defineTable({
+  roomId: v.id("rooms"),
+  bundleId: v.id("okfBundles"),
+
+  conceptId: v.string(),
+  chunkId: v.string(),
+  path: v.string(),
+  type: v.string(),
+  title: v.optional(v.string()),
+  sectionHeading: v.optional(v.string()),
+
+  text: v.string(),
+  tags: v.array(v.string()),
+  targetRefs: v.array(v.string()),
+  citationRefs: v.array(v.string()),
+
+  contentHash: v.string(),
+  tokenCount: v.number(),
+
+  visibility: v.union(v.literal("public"), v.literal("private"), v.literal("redacted")),
+  createdAt: v.number(),
+})
+.index("by_concept", ["roomId", "conceptId"])
+.index("by_room_type", ["roomId", "type"])
+.searchIndex("search_text", {
+  searchField: "text",
+  filterFields: ["roomId", "type", "visibility"],
+});
+Separate embedding table
+
+Because Convex’s own advanced-pattern docs recommend storing vectors separately when vectors are large and not needed for normal reads, I would use a separate embedding table.
+
+okfChunkEmbeddings: defineTable({
+  roomId: v.id("rooms"),
+  bundleId: v.id("okfBundles"),
+
+  chunkId: v.string(),
+  conceptId: v.string(),
+
+  embeddingModel: v.string(), // "gemini-embedding-2"
+  embeddingDim: v.number(),   // 768 / 1536 / 3072
+  embedding: v.array(v.float64()),
+
+  contentHash: v.string(),
+  modality: v.union(
+    v.literal("text"),
+    v.literal("image"),
+    v.literal("pdf"),
+    v.literal("audio"),
+    v.literal("video")
+  ),
+
+  type: v.string(),
+  visibility: v.union(v.literal("public"), v.literal("private"), v.literal("redacted")),
+  createdAt: v.number(),
+})
+.index("by_chunk", ["roomId", "chunkId"])
+.vectorIndex("by_embedding", {
+  vectorField: "embedding",
+  dimensions: 768,
+  filterFields: ["roomId", "type", "visibility", "embeddingModel"],
+});
+
+For Gemini Embedding 2, I would start with 768 dimensions because Google recommends 768, 1536, or 3072 as common output sizes, and Convex supports dimensions up to 4096.
+
+7. The revised retrieval flow
+
+The agent should not trust the top vector result. It should investigate.
+
+================================================================================
+        NODEAGENT RETRIEVAL LOOP — REVISED
+================================================================================
+
+User asks:
+  "Can we explain CardioNova runway and cite the source?"
+
+1. Plan retrieval
+   - entity: CardioNova
+   - topic: runway
+   - required proof:
+       source
+       metric
+       calculation
+       current spreadsheet value
+       review status
+
+2. Candidate generation
+   - okf_full_text_search("CardioNova runway")
+   - okf_vector_search("CardioNova runway burn cash")
+   - okf_filter(type="Metric", tags=["runway"])
+   - okf_backlinks("companies/cardionova")
+   - sheet_semantic_search("CardioNova runway burn")
+   - room_trace_search("CardioNova runway")
+   - regex/glob if exact IDs are known
+
+3. Candidate normalization
+   Convert every result into:
+   {
+     candidateId,
+     sourceKind,
+     conceptId,
+     path,
+     snippet,
+     locator,
+     whyMatched,
+     authority,
+     freshness,
+     visibility,
+     relationToQuestion
+   }
+
+4. Candidate slate selection
+   - not hardcoded final ranking
+   - choose diverse top candidates:
+       one company concept
+       one runway metric
+       one source concept
+       one spreadsheet cell
+       one trace/review cue
+       one external source if needed
+
+5. Retriever agent / subagents inspect
+   - open top candidates
+   - open literal sources
+   - compare claims
+   - produce EvidenceMemo objects
+
+6. Evidence sufficiency check
+   - enoughToAnswer?
+   - enoughToWrite?
+   - enoughForClientReady?
+   - what is missing?
+
+7. Final answer / write / review
+   - answer with citations
+   - write CellPayload if safe
+   - mark needs_review if evidence is weak
+   - create Banker Coach cue if useful
+8. Replace hardcoded weights with candidate slates + agent adjudication
+
+Your critique is correct. Hardcoded weights are arbitrary.
+
+Use this instead:
+
+Stage 1:
+  deterministic retrieval tools produce a broad candidate set.
+
+Stage 2:
+  cheap deterministic filters remove obvious junk:
+    wrong room
+    wrong company
+    wrong visibility
+    stale source
+    unsupported private/public boundary
+
+Stage 3:
+  diversity selector builds a candidate slate.
+
+Stage 4:
+  retriever agent or subagents inspect the candidate slate.
+
+Stage 5:
+  final agent receives evidence memos, not raw top-100 chunks.
+
+Candidate slate, not final rank:
+
+type RetrievalCandidate = {
+  id: string;
+  retrievalSource:
+    | "okf_vector"
+    | "okf_full_text"
+    | "okf_filter"
+    | "okf_backlink"
+    | "sheet_search"
+    | "trace_search"
+    | "literal_source"
+    | "linkup";
+
+  conceptId?: string;
+  artifactId?: string;
+  elementId?: string;
+  sourceRef?: EvidenceRef;
+
+  snippet: string;
+  matchedBecause: string[];
+
+  metadata: {
+    type?: string;
+    tags?: string[];
+    status?: string;
+    confidence?: number;
+    timestamp?: string;
+    visibility?: string;
+  };
+};
+
+Evidence memo:
+
+type EvidenceMemo = {
+  question: string;
+  candidateIds: string[];
+
+  claimsSupported: Array<{
+    claim: string;
+    support: "strong" | "partial" | "weak" | "contradicts" | "not_found";
+    sourceRefs: EvidenceRef[];
+    explanation: string;
+  }>;
+
+  missingEvidence: string[];
+  recommendedAction: "answer" | "write_needs_review" | "ask_clarifying_question" | "search_more";
+};
+
+This makes the retrieval process inspectable and less brittle.
+
+9. When to use subagents
+
+Use subagents only when context is large enough to justify the overhead.
+
+Use one retriever agent when:
+  - fewer than ~20 candidate concepts
+  - one company
+  - one question
+  - sources are small
+
+Use subagents when:
+  - bulk company diligence
+  - multiple companies
+  - multiple file types
+  - many source candidates
+  - chart + spreadsheet + report consistency checks
+
+Subagent partitioning:
+
+Company subagent:
+  CardioNova evidence memo
+
+Source subagent:
+  Validate literal support from PDFs/web pages
+
+Spreadsheet subagent:
+  Find cells/formulas/dependencies
+
+Trace subagent:
+  Find prior changes, proposals, conflicts
+
+Coach subagent:
+  Convert gaps into banker-readable cues
+
+Parent agent receives:
+
+EvidenceMemo[]
+SourceSufficiency
+Recommended patch bundle
+CoachCue draft
+
+This is the right way to “ingest top results” without blowing the context window.
+
+10. How Gemini Embedding 2 fits
+
+Use Gemini Embedding 2 at index time, not on every prompt.
+
+When source/OKF concept changes:
+  1. chunk concept/source
+  2. embed with Gemini Embedding 2
+  3. store vector in Convex okfChunkEmbeddings
+  4. update contentHash + embeddingModel + embeddingDim
+
+For supported modalities:
+
+Text:
+  OKF concepts, source snippets, trace summaries
+
+PDF:
+  PDF pages or page ranges
+
+Image:
+  chart screenshots, deck pages, source images
+
+Video/audio:
+  possible through Gemini Embedding 2 directly,
+  but not currently through Gemini File Search
+
+For XLSX/CSV:
+
+Do not embed raw workbook binary directly.
+Parse into:
+  - OKF cell concepts
+  - row/column semantic summaries
+  - table chunks
+  - formula/dependency chunks
+  - optional rendered table image embeddings
+
+This fits NodeRoom better anyway because spreadsheet knowledge needs coordinates, versions, formulas, and source refs.
+
+11. Gemini File Search: use as optional managed retrieval
+
+Gemini File Search can be useful when we want Google to manage chunking, embeddings, and retrieval for selected files. The docs say File Search imports, chunks, embeds, and indexes files, then uses retrieved chunks as context for generateContent; embeddings in the File Search store persist until manually deleted, while raw files uploaded through the Files API are deleted after 48 hours.
+
+Use it for:
+
+quick prototype RAG over PDFs
+large source documents
+multimodal files that Gemini handles well
+when we do not want to build our own chunking yet
+
+Do not use it as the only source of truth because:
+
+OKF is portable.
+Convex owns live room state.
+NodeRoom needs citation locators and review status.
+Bankers need split-screen literal evidence.
+
+So store Gemini File Search metadata in Convex:
+
+sourceRefs: {
+  sourceArtifactId,
+  googleFileSearchStoreName,
+  googleFileSearchDocumentName,
+  displayName,
+  originalStorageId,
+  okfConceptId,
+}
+12. Updated implementation order
+P0 — Convex-native, no external vector DB
+1. Create OKF concepts from room/company/source/cell/trace.
+2. Add Convex full-text search on okfConcepts.markdown and okfChunks.text.
+3. Add okf_full_text_search tool.
+4. Add okf_read_concept tool.
+5. Add okf_filter and okf_backlinks tools.
+6. Add source_resolve_citation and source_open_literal tools.
+7. Update worldModel to retrieve OKF context.
+P1 — Convex vector search
+1. Add okfChunks and okfChunkEmbeddings.
+2. Generate Gemini Embedding 2 vectors for text/PDF/image-derived chunks.
+3. Store vectors in Convex separate embedding table.
+4. Add okf_vector_search action.
+5. Add retrievalEvents telemetry.
+6. Run eval: room context only vs OKF full-text vs OKF vector.
+P2 — agent adjudication, not hardcoded ranking
+1. Add candidateNormalizer.ts.
+2. Add retrievalJudge.ts.
+3. Add subagentEvidenceReviewer.ts.
+4. Add evidenceSufficiency.ts.
+5. Force final answers/writes to cite opened concepts/sources.
+P3 — optional managed/external search
+1. Add Gemini File Search adapter for selected files.
+2. Add external vector DB adapter only if Convex search proves insufficient.
+3. Add ClickHouse retrieval analytics.
+4. Add OKF graph visualizer.
+5. Use Trace Lens + Banker Coach directly from OKF concepts.
+13. Revised architecture diagram
+================================================================================
+          NODEROOM RETRIEVAL ARCHITECTURE — CONVEX FIRST, EXTERNAL OPTIONAL
+================================================================================
+
+                         ┌────────────────────────────┐
+                         │       NodeRoom UI           │
+                         │  Room / Sheet / Coach       │
+                         └──────────────┬─────────────┘
+                                        │
+                                        ▼
+                         ┌────────────────────────────┐
+                         │      Convex Live Ledger     │
+                         │ rooms messages artifacts    │
+                         │ elements proposals traces   │
+                         └──────────────┬─────────────┘
+                                        │
+                                        ▼
+                         ┌────────────────────────────┐
+                         │      OKF Producer           │
+                         │ concepts from live room     │
+                         │ Company Source Cell Trace   │
+                         └──────────────┬─────────────┘
+                                        │
+              ┌─────────────────────────┼─────────────────────────┐
+              ▼                         ▼                         ▼
+┌────────────────────────┐ ┌────────────────────────┐ ┌────────────────────────┐
+│ Convex Full-Text Index │ │ Convex Vector Index    │ │ OKF Graph / Backlinks  │
+│ exact names, formulas  │ │ Gemini Embedding 2     │ │ citations, depends_on  │
+│ BM25-style relevance   │ │ OKF/source chunks      │ │ source -> claim graph  │
+└────────────┬───────────┘ └────────────┬───────────┘ └────────────┬───────────┘
+             │                          │                          │
+             └──────────────┬───────────┴──────────────┬───────────┘
+                            ▼                          ▼
+              ┌────────────────────────┐    ┌────────────────────────────┐
+              │ Retrieval Candidate Set│    │ Literal Source Open Tools  │
+              │ vector/text/filter/etc │    │ PDF row bbox URL cell page │
+              └────────────┬───────────┘    └────────────┬───────────────┘
+                           │                             │
+                           ▼                             ▼
+              ┌─────────────────────────────────────────────────────┐
+              │ Retriever Agent / Subagents                         │
+              │ inspect top candidates, open sources, create memos   │
+              └─────────────────────┬───────────────────────────────┘
+                                    │
+                                    ▼
+              ┌─────────────────────────────────────────────────────┐
+              │ Evidence Sufficiency                                │
+              │ enoughToAnswer / enoughToWrite / enoughForClient    │
+              └─────────────────────┬───────────────────────────────┘
+                                    │
+                                    ▼
+              ┌─────────────────────────────────────────────────────┐
+              │ NodeAgent Final Action                              │
+              │ answer / CellPayload / proposal / coach cue          │
+              └─────────────────────┬───────────────────────────────┘
+                                    │
+                                    ▼
+              ┌─────────────────────────────────────────────────────┐
+              │ Managed CAS / Semantic Rebase / Proposal             │
+              └─────────────────────────────────────────────────────┘
+
+External optional:
+  - Linkup for fresh web diligence
+  - Gemini File Search for managed RAG over selected files
+  - Qdrant/Weaviate/Pinecone/OpenSearch only after measured need
+  - ClickHouse for retrieval/eval analytics, not live room truth
+14. How to explain this in interview
+
+Use this:
+
+“I originally thought we might need an external vector database, but Convex now supports both vector search and full-text search. For NodeRoom’s room-scale OKF knowledge, I’d start Convex-native: OKF concepts and chunks live in Convex, full-text search handles exact terms, vector search handles semantic lookup, and the OKF graph handles citations/backlinks. External vector search becomes an adapter only when scale or feature requirements prove Convex-native search is insufficient.”
+
+Then add the important correction:
+
+“I would not let arbitrary hardcoded ranking weights decide truth. Retrieval should generate a candidate slate. Then a retriever agent or subagents inspect the top concepts, open literal sources, compare claims, and produce evidence memos. The final agent answers or writes only after an evidence sufficiency check.”
+
+And close with:
+
+“The goal is not RAG as top-5 vector chunks. The goal is agentic investigation over a portable OKF knowledge graph.”
+
+Could you map everything including UI UX design, feature and component design, agent design, Analytics viewing OpenUI design, spreadsheet look feel usage design, evidence trace view design, one to one to how a banker or analyst actually researches and walk through the docs
+Thought for 6m 1s
+
+Yes. The clean way to map this is:
+
+A banker researches by moving from messy conversation → structured watchlist → source-backed facts → spreadsheet/model/chart → review memo → senior/client-ready explanation. NodeRoom should map each of those human moves into one visible UI surface, one agent capability, one evidence object, and one trace/eval artifact.
+
+The product should not feel like “AI chat attached to a spreadsheet.” It should feel like:
+
+a live diligence room where every banker action has a corresponding artifact, source, coach cue, trace, and downstream handoff.
+
+The current repo already supports the core spine: Room Binder / Work Surface / Copilot / Signal Tape / Status Strip; a store seam that supports memory and live Convex; NodeAgent runtime; JIT world-model context; evidence-bearing CellPayload tools; managed lock/CAS writes; proposal/review mode; and professional workflow evals.
+
+1. The actual banker / analyst research loop
+
+A junior banker or analyst usually does this:
+
+1. Intake
+   Hear about a company from a call, CRM note, email, list, deck, conference, or senior comment.
+
+2. Entity resolution
+   Figure out which company this is, avoid duplicates, identify website, sector, owner, and status.
+
+3. Source gathering
+   Pull company site, funding/news, filings, deck pages, market reports, CRM notes, prior models.
+
+4. Fact extraction
+   Product, buyer, pricing, funding, headcount, hiring signal, competitors, market headwinds.
+
+5. Spreadsheet structuring
+   Put facts into rows/columns, preserve existing CRM fields, mark missing/ambiguous fields.
+
+6. Financial / diligence reasoning
+   Build runway, milestone, burn, financing need, risks, next-step questions.
+
+7. Exhibit / chart creation
+   Create market map, runway/milestone chart, risk table, competitor matrix.
+
+8. Review and explanation
+   Ask: What changed? What supports it? What is weak? What can I tell the VP/MD/client?
+
+9. Handoff
+   Draft email, Slack recap, Linear task, Notion page, CRM update, exportable spreadsheet/report.
+
+10. Audit / learning
+   Later ask: which agent route worked, what sources were weak, what cost money, what got corrected?
+
+NodeRoom should map exactly to this loop.
+
+2. One-to-one product map
+Banker workflow step	NodeRoom UI / UX	Feature / component design	Agent design	Evidence / trace / analytics
+1. Intake	Public Copilot and private NodeAgent lanes. User can type “Just spoke with CardioNova…” or upload a list.	CopilotPanel, Chat, public/private tabs, upload artifact entry.	Intake parser turns chat/file/selected artifact into RoomCommand / AgentJob.	Message trace stores who asked, channel, artifact refs, and command.
+2. Entity resolution	Company Research sheet opens on Work Surface; duplicates show as review badges.	Company row component, duplicate warning, owner/status/tier cells.	buildResearchContext tells the agent to process pending/stale rows, preserve tier/owner/CRM fields, and use evidence-bearing writes.	Eval checks duplicate-row prevention and manual-vs-fetched evidence.
+3. Source gathering	Binder shows source docs; evidence badges appear on cells; source overlay opens literal file or URL.	EvidenceCarouselArtifact, LinkupSourceOverlay, source cards, split-screen proof.	Retrieval toolbelt: OKF full-text, vector, filters, regex, glob, backlinks, sheet search, source-open, Linkup fallback.	Source refs stored in CellPayload.evidence[]; OKF concept created for each source.
+4. Fact extraction	Sheet cells show product, buyer, funding, headcount, recent signal, source, source2, status.	Spreadsheet-like grid with status, confidence, source, needs_review badges.	write_locked_cell_results writes value + evidence + status + confidence as a batch.	Evidence-bearing CellPayload is the audit primitive.
+5. Spreadsheet structuring	Looks like Excel/Sheets, but hover reveals version, source, trace, confidence.	Work Surface / Artifact grid, source badges, hover proof, optimistic edit state.	Agent uses read_range, search_sheet_context, formula/dependency tools, managed write tools.	applyCellEditCore enforces CAS and formula protection.
+6. Runway / milestone reasoning	Chart + assumptions table + open questions artifact.	RunwayMilestoneChart, MetricCard, CoachCue, ReviewTask.	Agent retrieves facts, labels assumptions, runs deterministic calculation where possible, marks weak fields needs_review.	Trace records tool calls, source gaps, formula/calculation path, cost.
+7. Chart / exhibit	Chart opens on Work Surface, not a bottom drawer. Source cells highlight when hovered.	Chart artifact, source-cell link, chart proof card, chart-to-sheet binding.	Chart agent generates chart spec from verified cells or estimated assumptions.	Eval checks chart values tie to source cells and assumptions are visible.
+8. Senior review	Banker Coach panel: “what changed,” “what to pull,” “likely VP question,” “talk track.”	BankerCoachCueArtifact, ReviewRoundArtifact, evidence carousel, talk-track card.	Coach agent converts traces/evidence gaps into review cues and senior/client language.	Trace proves what happened; coach explains what matters.
+9. Downstream handoff	Handoff panel shows Gmail, Notion, Slack, Linear, LinkedIn, CRM CSV draft buttons.	DownstreamHandoffPanel with approval-gated cards.	Handoff agent prepares drafts only; no external send without approval.	Downstream action logged as dry-run or sent, with source refs and review status.
+10. Audit / analytics	Signal Tape / Status Strip show run summary; analytics/OpenUI view shows route, cost, evidence coverage, no-clobber.	Status strip, OKF graph, OpenUI eval cards, ClickHouse dashboard later.	Agent/run telemetry includes model route, steps, tool calls, cost, conflicts survived.	OKF packages the room knowledge; ClickHouse analyzes aggregate retrieval/eval/cost later.
+3. UI / UX design mapped to banker mental model
+A. Room Binder = “deal folder”
+
+Bankers think in folders:
+
+Company list
+Source docs
+Call notes
+Model
+Charts
+Memo
+Review comments
+
+NodeRoom’s Room Binder should show:
+
+Companies
+Sources
+Sheets
+Briefs
+Charts
+Review Rounds
+Tasks
+Traces
+OKF Bundle
+
+Current code: RoomShell mounts LeftRail, Artifact, CopilotPanel, and SignalStatusStrip, which is the right shell architecture for this.
+
+B. Work Surface = “the actual work product”
+
+Bankers do not want the proof in a tiny bottom drawer. The spreadsheet, proof, source PDF, chart, memo, and OKF graph should all open on the center stage.
+
+Work Surface modes:
+
+Company Research sheet
+Source PDF / source web snapshot
+Company brief
+Runway chart
+Evidence proof
+OKF graph
+Review round update
+C. Copilot = “analyst / agent desk”
+
+Copilot should not be just chat. It should show:
+
+Public room chat
+Private personal agent
+Agent job queue
+Suggestion chips
+Review proposals
+Downstream handoff drafts
+
+Current code has public/private Copilot lanes already.
+
+D. Signal Tape = “what changed around me”
+
+This is the Bloomberg-tape mental model:
+
+5 companies enriched
+2 source gaps
+1 proposal pending
+runway chart ready
+agent route deepseek-v4-flash
+$0.006 cost
+
+The current SignalStatusStrip already summarizes sources, review, agents, eval, and cost after run activity.
+
+E. Status Strip = “authoritative last event”
+
+This should show the latest truth event:
+
+C2 preserved · 3 cells committed · 1 proposal · 0 clobbers
+
+The code already lets status/proposal chips open referenced artifacts on stage.
+
+4. Spreadsheet look / feel mapped to analyst usage
+
+A banker expects Excel-like muscle memory:
+
+click cell
+type immediately
+tab/enter around the sheet
+copy/paste
+formula bar
+source notes
+comments
+filters
+freeze headers
+status badges without clutter
+
+NodeRoom’s version:
+
+Banker expectation	NodeRoom behavior
+Typing should feel instant	Client applies optimistic UI first, then Convex mutation reconciles. The repo’s store seam supports optimistic cell and message updates.
+Human edits should not be blocked by the agent	Human edit uses same CAS path as agent; active edits should become soft-intent signals; overlapping agent writes become proposal/rebase.
+Cells should explain themselves on hover	Hover should show source, status, confidence, version, actor, trace, and OKF concept link.
+Formula cells must not be broken	artifacts.ts blocks agent scalar overwrites of formula cells.
+Agent-filled cells should not look like magic	Agent writes use CellPayload: value, status, evidence, confidence, formula, normalizedValue.
+Same-cell conflict should not silently overwrite	applyCellEditCore rejects stale base versions and records semantic rebase/proposal path for agent writes.
+
+The important product sentence:
+
+The sheet should feel free like Excel, but every non-human value should be inspectable like an audit workpaper.
+
+5. Agent design mapped to how a banker researches
+
+The agent should not be “one giant autonomous brain.” It should behave like a disciplined analyst team.
+
+Agent roles
+Intake Agent
+  parses chat notes, uploads, selected artifact context
+
+Entity Agent
+  dedupes companies, normalizes websites, preserves CRM fields
+
+Source Agent
+  gathers and validates company website, funding, filings, docs, search results
+
+Research Agent
+  fills product, buyer, pricing, competitors, headwinds, hiring/funding signals
+
+Finance Agent
+  builds runway/milestone assumptions and calculations
+
+Chart Agent
+  creates market map / runway / milestone visuals
+
+Banker Coach
+  explains what to review, what source is weak, what a senior will challenge
+
+Handoff Agent
+  drafts Gmail/Slack/Linear/Notion/CRM outputs, approval-gated
+Harness files to show
+
+src/nodeagent/core/runtime.ts
+This is the model/tool loop: context in, bounded model/tool loop, trace out. It tracks time, step, spend, tool calls, compaction, journal replay, and handoff.
+
+src/nodeagent/core/worldModel.ts
+This is the context-engineering layer. It builds compact, model-legible context from live room state instead of dumping raw JSON. It also fences room-authored data as untrusted to reduce prompt-injection risk.
+
+src/nodeagent/skills/spreadsheet/cellMutator.ts
+This is the tool layer. Tools are schema-validated, portable, and call RoomTools; they do not directly mutate the DB.
+
+convex/agent.ts
+This is the production entrypoint. It builds Convex-backed tools, selects the model route, and calls the same runAgent loop used in tests/demo.
+
+6. OKF design mapped to banker knowledge packaging
+
+A banker’s room produces reusable knowledge:
+
+company profile
+source file
+metric definition
+spreadsheet cell
+chart
+review note
+task
+agent trace
+eval result
+
+OKF is the exportable format for that.
+
+Google’s OKF blog says OKF is a vendor-neutral, human- and agent-friendly format for metadata, context, and curated knowledge, represented as markdown files with YAML frontmatter. It is “just markdown,” “just files,” and “just YAML frontmatter,” with queryable fields like type, title, description, resource, tags, and timestamp.
+
+NodeRoom OKF concepts:
+
+companies/cardionova.md
+sources/cardionova_website.md
+cells/cardionova_runway.md
+metrics/runway_months.md
+charts/runway_milestone_chart.md
+coach_cues/runway_assumption_needs_review.md
+traces/agent_job_cardionova_diligence.md
+evals/startup_diligence_eval.md
+
+OKF’s concept identity maps naturally to banker review:
+
+Company concept:
+  what we know about the company
+
+Source concept:
+  where the fact came from
+
+Cell concept:
+  the exact model/sheet value
+
+Metric concept:
+  calculation and definition
+
+Chart concept:
+  exhibit and source linkage
+
+Coach Cue:
+  what the banker should review
+
+Trace:
+  how the agent produced it
+
+Eval:
+  whether it passed
+
+OKF also supports graph-like relationships through normal markdown links between concept files.
+
+7. Hybrid retrieval mapped to analyst search behavior
+
+A banker does not retrieve once. They investigate.
+
+Human version:
+
+search company name
+check website
+check funding article
+open pitch deck
+find the source row
+compare with prior report
+ask if the number ties
+make a note
+
+NodeAgent version:
+
+okf_semantic_search
+okf_full_text_search
+okf_filter
+okf_backlinks
+sheet_semantic_search
+sheet_read_range_with_versions
+source_open_literal
+trace_search
+Linkup fallback
+
+The agent should produce an Evidence Memo, not just a top-k chunk list:
+
+Claim:
+  CardioNova has 15–20 months runway.
+
+Evidence:
+  funding article supports funding stage
+  call note suggests burn but is manual-only
+  no source verifies current cash
+
+Conclusion:
+  enoughToAnswer = yes, with caveat
+  enoughToWrite = yes, as needs_review
+  enoughForClientReady = no
+
+This directly maps to the professional eval docs: chat-only facts are manual evidence until fetched or artifact-backed; professional writes need source artifact, row/column/page evidence, confidence, and status.
+
+8. Evidence / trace view mapped to review behavior
+
+Banker review question:
+
+Where did this come from?
+What did the agent do?
+What changed?
+Can I defend it?
+
+NodeRoom should answer with a split-screen proof view:
+
+Left:
+  final artifact
+  - sheet cell
+  - chart
+  - memo sentence
+  - company brief
+
+Right:
+  literal evidence
+  - PDF page
+  - XLSX row
+  - source URL
+  - chat note
+  - trace step
+
+Bottom:
+  banker explanation
+  - support level
+  - confidence
+  - review status
+  - suggested talk track
+
+Evidence card fields:
+
+EvidenceCard = {
+  claim,
+  sourceKind,
+  sourceArtifactId,
+  locator: { page, row, column, bbox, url },
+  supportLevel: "strong" | "partial" | "weak" | "manual_only" | "contradicts",
+  status: "verified" | "needs_review" | "blocked",
+  opensIn: "split_screen"
+}
+
+Trace Lens should show two modes:
+
+Banker mode:
+  source, support, confidence, review state, talk track
+
+Builder mode:
+  React component, Convex query, mutation/action, schema table, agent skill, test
+
+That gives the same click-to-context pattern for both business users and developers.
+
+9. Analytics / OpenUI design mapped to senior review
+
+There are two analytics views.
+
+A. Live room analytics
+
+Shown in Status Strip / Signal Tape:
+
+5 companies processed
+18 cells written
+3 needs_review
+2 sources missing
+1 proposal pending
+0 clobbers
+$0.006 cost
+route: deepseek-v4-flash
+
+This is immediate operational analytics.
+
+B. Review / eval analytics
+
+Shown as OpenUI-style artifact cards:
+
+Source Coverage Card
+  verified claims
+  manual-only claims
+  weak sources
+  missing sources
+
+No-Clobber Card
+  human edits preserved
+  agent proposals
+  conflicts resolved
+
+Model Route Card
+  model
+  tokens
+  cost
+  latency
+  tool calls
+
+Client-Readiness Card
+  numbers tie?
+  sources clickable?
+  assumptions labeled?
+  open questions?
+
+OKF can power a static graph visualizer too. Google’s OKF announcement describes a reference static HTML visualizer that turns an OKF bundle into an interactive graph view in a single self-contained file.
+
+This should be the “Analytics/OpenUI view”:
+
+Company → Source → Cell → Metric → Chart → Coach Cue → Trace → Eval
+10. Feature/component design checklist
+Current / built spine
+RoomShell
+  Room Binder
+  Work Surface
+  Copilot
+  Signal Tape
+  Status Strip
+
+Store seam
+  EngineStoreProvider
+  ConvexStoreProvider
+  optimistic updates
+  per-artifact element subscriptions
+
+NodeAgent runtime
+  bounded model/tool loop
+  traces
+  budgets
+  context compaction
+  handoff
+
+World model
+  spreadsheet context
+  research context
+  note context
+  wall context
+  untrusted-data fence
+
+Cell tools
+  read_range
+  search_sheet_context
+  write_locked_cell_results
+  update_wiki
+  run_algorithm_artifact
+  fetch_source
+
+Ledger
+  applyCellEditCore
+  CAS
+  proposal mode
+  formula guard
+  semantic rebase hook
+  traces/receipts
+Target / design additions
+OKFBundleArtifact
+OKFGraphArtifact
+EvidenceCarouselArtifact
+BankerCoachCueArtifact
+ReviewRoundArtifact
+TraceLensPanel
+RetrievalInspector
+SourceOpenLiteralPane
+ChartProofCard
+ClientReadinessCard
+ClickHouseAnalyticsCard
+
+Mark this clearly in interviews:
+
+Built:
+  live room, shell, store seam, agent harness, managed CAS/proposals, CellPayload tools, professional eval suite.
+
+Target:
+  full OKF bundle export/indexing, Trace Lens, Banker Coach, OpenUI analytics cards, source split-screen.
+11. How to walk through the docs
+
+Use this exact order.
+
+1. Start with the harness architecture note
+
+Say:
+
+“This project started from a harness principle: the model is the brain, but the harness owns tools, memory, state, approval, rollback, and safety.”
+
+Cite the harness structure note.
+
+2. Open docs/eval/PROFESSIONAL_WORKFLOW_EVALS.md
+
+Say:
+
+“I took real spreadsheet workflow shapes and converted them into eval cases: GTM/company research, finance/ops, private finance gold packs, analytics, and UI/action mappings.”
+
+The docs explicitly say the dominant corpus is company research and finance/ops, and that NodeRoom is meant for spreadsheet-first professional workflows with evidence, review, and safe mutation.
+
+3. Open src/ui/RoomShell.tsx
+
+Say:
+
+“This file shows the product shell: Binder, Work Surface, Copilot, Signal Tape, Status Strip.”
+
+Point to shell roles and store.runCollab().
+
+4. Open src/app/store.tsx
+
+Say:
+
+“This is the seam between UI and data. The same components work in memory demo or live Convex. The live version uses optimistic mutations and per-artifact subscriptions.”
+
+Cite store seam and query split.
+
+5. Open src/nodeagent/core/worldModel.ts
+
+Say:
+
+“This is context engineering. The agent sees a compact, live, versioned, lock-aware table, not a raw dump. Room-authored content is fenced as untrusted data.”
+
+Cite JIT context and fence.
+
+6. Open src/nodeagent/skills/spreadsheet/cellMutator.ts
+
+Say:
+
+“This is the tool contract. The LLM chooses tools, but the tool layer shapes evidence-bearing writes and routes them through runtime-managed lock/CAS.”
+
+Cite tool contract and CellPayload.
+
+7. Open convex/artifacts.ts
+
+Say:
+
+“This is the ledger. applyCellEdit is the no-clobber spine. It enforces baseVersion CAS, formula protection, semantic rebase/proposal behavior, and traces.”
+
+Cite no-clobber comment and CAS/rebase path.
+
+8. Open OKF docs / design
+
+Say:
+
+“Next, I want to package the room as OKF: every company, source, cell, metric, chart, coach cue, trace, and eval becomes portable markdown with YAML frontmatter and cross-links.”
+
+Cite OKF blog.
+
+12. Final map in one ASCII diagram
+================================================================================
+                 BANKER RESEARCH LOOP -> NODEROOM DESIGN MAP
+================================================================================
+
+BANKER DOES                          NODEROOM SURFACE                 NODEAGENT LAYER
+--------------------------------------------------------------------------------
+hears company on call        ->       Copilot intake              ->    Intake parser
+adds to watchlist            ->       Company Research sheet      ->    Entity / dedupe agent
+searches sources             ->       Binder + Source cards       ->    OKF + Linkup retrieval
+fills facts into sheet        ->       Evidence-bearing cells      ->    write_locked_cell_results
+checks formulas / model       ->       Spreadsheet + formula proof ->    algorithm artifact / formula guard
+builds chart/exhibit          ->       Runway chart artifact       ->    chart spec + validator
+asks "can I defend this?"      ->       Banker Coach cues          ->    evidence sufficiency agent
+answers VP/client question     ->       Talk-track / review round  ->    review update generator
+hands off work                ->       Gmail/Slack/Linear cards    ->    approval-gated handoff
+audits after the fact          ->       Trace / OKF graph / eval    ->    traces + OKF + ClickHouse
+--------------------------------------------------------------------------------
+
+CORE INVARIANTS
+- Humans type with local immediacy.
+- Agents work through harness tools.
+- Search is iterative, not one vector call.
+- Non-manual claims need literal evidence.
+- Writes carry evidence, confidence, and status.
+- CAS prevents silent clobber.
+- Semantic rebase turns stale conflicts into proposals.
+- OKF packages room knowledge for future humans and agents.
+13. The one-sentence walkthrough
+
+Use this in the interview:
+
+NodeRoom maps the real banker workflow — intake, research, source proof, spreadsheet work, charting, review, and handoff — into a live room where Copilot drives the work, the Work Surface shows artifacts, NodeAgent searches OKF/source/spreadsheet context, managed CAS writes evidence-bearing cells, and Trace Lens / Banker Coach explain every number before it becomes client-ready.

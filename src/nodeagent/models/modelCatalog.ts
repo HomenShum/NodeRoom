@@ -391,7 +391,7 @@ export function getProviderForModel(modelName: string): LlmProvider | null {
   if (resolved === OPENROUTER_FREE_AUTO_MODEL || resolved === OPENROUTER_FREE_META_MODEL || resolved.includes("/")) {
     return "openrouter";
   }
-  if (resolved.startsWith("gpt-") || resolved.startsWith("o1-") || resolved.startsWith("o3-") || resolved.startsWith("o4-")) {
+  if (resolved.startsWith("gpt-") || resolved.startsWith("o1-") || resolved.startsWith("o3-") || resolved.startsWith("o4-") || resolved.startsWith("text-embedding-")) {
     return "openai";
   }
   if (resolved.startsWith("claude-")) {

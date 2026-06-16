@@ -547,7 +547,8 @@ export default defineSchema({
     tags: v.array(v.string()),
     status: v.optional(v.string()),
     confidence: v.optional(v.number()),
-    visibility: okfVisibilityV,
+    visibility: v.optional(okfVisibilityV),
+    ownerId: v.optional(v.string()),
     frontmatter: v.any(),
     links: v.array(v.object({ label: v.string(), target: v.string(), conceptId: v.optional(v.string()) })),
     citations: v.array(v.object({ id: v.string(), label: v.string(), target: v.string(), conceptId: v.optional(v.string()) })),
@@ -566,6 +567,7 @@ export default defineSchema({
     .index("by_room_path", ["roomId", "path"])
     .index("by_room_type", ["roomId", "type"])
     .index("by_room_status", ["roomId", "status"])
+    .index("by_room_visibility_owner", ["roomId", "visibility", "ownerId"])
     .searchIndex("by_search_text", { searchField: "searchText", filterFields: ["roomId"] }),
 
   okfChunks: defineTable({
@@ -580,7 +582,8 @@ export default defineSchema({
     embeddingModel: v.string(),
     embeddingDimension: v.number(),
     contentHash: v.string(),
-    visibility: okfVisibilityV,
+    visibility: v.optional(okfVisibilityV),
+    ownerId: v.optional(v.string()),
     createdAt: v.number(),
     updatedAt: v.number(),
   })
@@ -626,6 +629,8 @@ export default defineSchema({
     status: v.union(v.literal("completed"), v.literal("failed")),
     candidateIds: v.array(v.string()),
     hitConceptIds: v.array(v.string()),
+    visibility: v.optional(okfVisibilityV),
+    ownerId: v.optional(v.string()),
     latencyMs: v.number(),
     provider: v.optional(v.string()),
     model: v.optional(v.string()),

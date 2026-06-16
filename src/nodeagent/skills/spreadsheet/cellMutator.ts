@@ -16,6 +16,7 @@ import type { CellEvidence, CellPayload, CellStatus } from "../../../engine/type
 import { runAlgorithmArtifactFromRoomTools, type AlgorithmArtifact } from "./algorithmArtifacts";
 import { BANKER_COACH_TOOLS } from "../bankerCoach/tools";
 import { OKF_RETRIEVAL_TOOLS } from "../../retrieval/tools";
+import { retrieveUntilSufficient } from "../../retrieval/retrievalLoop";
 
 const opSchema = z.object({ elementId: z.string(), value: z.any(), baseVersion: z.number().int() });
 const cellStatusSchema = z.enum(["empty", "running", "complete", "needs_review", "failed", "gap"]);
@@ -52,6 +53,7 @@ function cellPayload(args: {
   error?: string;
   normalizedValue?: unknown;
   formula?: string;
+  review?: CellPayload["review"];
 }): CellPayload {
   return {
     value: args.value,
@@ -60,11 +62,75 @@ function cellPayload(args: {
     error: args.error,
     normalizedValue: args.normalizedValue,
     formula: args.formula,
+    review: args.review,
     evidence: args.evidence.map((e, idx) => ({
       ...e,
       id: e.id || `${e.kind}:${args.elementId}:${idx + 1}`,
     })),
   };
+}
+
+function compactClaimValue(value: unknown): string {
+  if (value == null) return "";
+  if (typeof value === "string") return value.slice(0, 500);
+  if (typeof value === "number" || typeof value === "boolean") return String(value);
+  try {
+    return JSON.stringify(value).slice(0, 500);
+  } catch {
+    return String(value).slice(0, 500);
+  }
+}
+
+function shouldCheckOkfEvidence(args: { status: CellStatus; evidence: CellEvidence[] }): boolean {
+  if (args.status !== "complete") return false;
+  return args.evidence.some((e) => e.kind === "source" || e.kind === "upload");
+}
+
+async function reviewedCellPayload(args: {
+  elementId: string;
+  value: unknown;
+  status: CellStatus;
+  evidence: CellEvidence[];
+  confidence?: number;
+  error?: string;
+  normalizedValue?: unknown;
+  formula?: string;
+}, rt: RoomTools): Promise<CellPayload> {
+  if (!rt.okf || !shouldCheckOkfEvidence(args)) return cellPayload(args);
+  const claim = `${args.elementId}: ${compactClaimValue(args.value)}`;
+  const query = [
+    args.elementId,
+    compactClaimValue(args.value),
+    ...args.evidence.flatMap((e) => [e.label, e.source, e.url, e.sourceArtifactId, e.snippet]).filter((v): v is string => !!v),
+  ].join(" ").slice(0, 900);
+  try {
+    const packet = await retrieveUntilSufficient({
+      retrieval: rt.okf,
+      claim,
+      query: query || claim,
+      clientReadyRequired: true,
+    });
+    const memo = packet.evidenceMemos[0];
+    const status = memo?.recommendedAction === "answer" ? args.status : "needs_review";
+    return cellPayload({
+      ...args,
+      status,
+      review: {
+        evidenceMemo: memo,
+        caveat: packet.caveat,
+        source: "okf_evidence_memo",
+      },
+    });
+  } catch (error) {
+    return cellPayload({
+      ...args,
+      status: "needs_review",
+      review: {
+        caveat: `OKF evidence check unavailable: ${error instanceof Error ? error.message : String(error)}`,
+        source: "okf_evidence_memo",
+      },
+    });
+  }
 }
 
 async function writeWithManagedLock(args: {
@@ -273,7 +339,7 @@ const WRITE_LOCKED_CELL_RESULT_TOOL: AgentTool = {
     reason?: string;
     kind?: "set" | "create";
     artifactId?: string;
-  }, rt) => writeWithManagedLock({ ...a, value: cellPayload(a) }, rt),
+  }, rt) => reviewedCellPayload(a, rt).then((value) => writeWithManagedLock({ ...a, value }, rt)),
 };
 
 const WRITE_LOCKED_CELL_RESULTS_TOOL: AgentTool = {
@@ -295,7 +361,7 @@ const WRITE_LOCKED_CELL_RESULTS_TOOL: AgentTool = {
       kind: z.enum(["set", "create"]).optional(),
     })).min(1),
   }),
-  execute: (a: {
+  execute: async (a: {
     reason?: string;
     artifactId?: string;
     ops: Array<{
@@ -313,7 +379,7 @@ const WRITE_LOCKED_CELL_RESULTS_TOOL: AgentTool = {
   }, rt) => writeBatchWithManagedLock({
     reason: a.reason,
     artifactId: a.artifactId,
-    ops: a.ops.map((op) => ({ ...op, value: cellPayload(op) })),
+    ops: await Promise.all(a.ops.map(async (op) => ({ ...op, value: await reviewedCellPayload(op, rt) }))),
   }, rt),
 };
 
@@ -375,7 +441,7 @@ export const ROOM_TOOLS: AgentTool[] = [
       evidence: CellEvidence[];
       kind?: "set" | "create";
       artifactId?: string;
-    }, rt) => rt.editCell(a.elementId, cellPayload(a), a.baseVersion, a.artifactId, a.kind),
+    }, rt) => reviewedCellPayload(a, rt).then((value) => rt.editCell(a.elementId, value, a.baseVersion, a.artifactId, a.kind)),
   },
   {
     name: "list_artifacts",
