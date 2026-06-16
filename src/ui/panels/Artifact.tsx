@@ -42,22 +42,24 @@ const WORKBOOK_VIEW_STYLES: { id: WorkbookViewStyle; label: string; hint: string
 ];
 const WORKBOOK_VIEW_STORAGE_KEY = "noderoom:workbook-view-style";
 
-function ArtifactSurface({ roomId, me, artId, onArt, collab, style, surfaceKey = "primary", headerExtra }: {
+function ArtifactSurface({ roomId, me, artId, onArt, collab, style, surfaceKey = "primary", headerExtra, openIds, onCloseArtifact }: {
   roomId: string; me: Actor; artId: string; onArt: (id: string) => void;
   collab?: CollabControls;
   style?: CSSProperties;
   surfaceKey?: "primary" | "secondary";
   headerExtra?: ReactNode;
+  openIds?: string[];
+  onCloseArtifact?: (id: string) => void;
 }) {
   const store = useStore();
   const arts = store.listArtifacts(roomId);
   const selected = arts.find((a) => a.id === artId);
-  const wiki = arts.find((a) => a.title === WIKI_TITLE);
-  const research = arts.find((a) => a.title === RESEARCH_TITLE);
+  const wiki = selected?.kind === "note" && selected.title === WIKI_TITLE ? selected : arts.find((a) => a.title === WIKI_TITLE);
+  const research = selected?.title === RESEARCH_TITLE ? selected : arts.find((a) => a.title === RESEARCH_TITLE);
   const varianceSheet = arts.find((a) => a.kind === "sheet" && a.title === "Q3 variance") ?? arts.find((a) => a.kind === "sheet" && a.title !== RESEARCH_TITLE);
   const sheet = selected?.kind === "sheet" && selected.title !== RESEARCH_TITLE ? selected : varianceSheet;
   const note = selected?.kind === "note" && selected.title !== WIKI_TITLE ? selected : arts.find((a) => a.kind === "note" && a.title !== WIKI_TITLE);
-  const wall = arts.find((a) => a.kind === "wall");
+  const wall = selected?.kind === "wall" ? selected : arts.find((a) => a.kind === "wall");
   const artFor = (t: TabId) => (t === "wiki" ? wiki : t === "sheet" ? sheet : t === "research" ? research : t === "note" ? note : wall);
   const fallbackTab: TabId = sheet ? "sheet" : wiki ? "wiki" : research ? "research" : note ? "note" : wall ? "wall" : "sheet";
   const tabForArt = (id: string): TabId => {
@@ -122,7 +124,12 @@ function ArtifactSurface({ roomId, me, artId, onArt, collab, style, surfaceKey =
   // Fall back to the SELECTED artifact's tab (artId is the source of truth), never the generic
   // 'sheet'/variance default — otherwise the array-identity churn on an edit can momentarily snap a
   // non-default sheet (e.g. an uploaded .xlsx) back to the variance tab.
-  const activeTab: TabId = artFor(tab) ? tab : tabForArt(artId);
+  const activeTab: TabId = tabForArt(artId);
+  const tabIcon = (a: Art) => {
+    const I = a.title === WIKI_TITLE ? BookOpen : a.title === RESEARCH_TITLE ? Search : a.kind === "sheet" ? Table2 : a.kind === "note" ? FileText : StickyNote;
+    return <I size={13} />;
+  };
+  const openTabArts = (openIds ?? []).map((id) => arts.find((a) => a.id === id)).filter((a): a is Art => !!a);
   const pick = (t: TabId) => { const a = artFor(t); if (a) { onArt(a.id); setTab(t); } };
   const openArtifact = (a: Art) => { onArt(a.id); setTab(tabForArt(a.id)); };
   const visibility = selected?.visibility ?? "room";
@@ -140,11 +147,21 @@ function ArtifactSurface({ roomId, me, artId, onArt, collab, style, surfaceKey =
     <div className="r-panel artifact" ref={surfaceRef} style={style} data-testid={surfaceKey === "secondary" ? "artifact-panel-secondary" : "artifact-panel"}>
       <div className="r-panel-head">
         <div className="r-tabs" data-testid={surfaceKey === "secondary" ? "artifact-tabs-secondary" : "artifact-tabs"}>
-          {TABS.filter((t) => artFor(t.id)).map((t) => (
-            <button key={t.id} className="r-tab" data-active={String(activeTab === t.id)} onClick={() => pick(t.id)}>
-              <t.Icon size={13} /> {t.label}
-            </button>
-          ))}
+          {openIds
+            ? openTabArts.map((a) => (
+                <button key={a.id} className="r-tab r-filetab" data-active={String(a.id === artId)} onClick={() => onArt(a.id)} title={a.title} data-testid="artifact-filetab">
+                  {tabIcon(a)}
+                  <span className="r-filetab-name">{a.title}</span>
+                  {onCloseArtifact && openTabArts.length > 1 && (
+                    <span className="r-filetab-x" role="button" aria-label={`Close ${a.title}`} onClick={(e) => { e.stopPropagation(); onCloseArtifact(a.id); }}><X size={12} /></span>
+                  )}
+                </button>
+              ))
+            : TABS.filter((t) => artFor(t.id)).map((t) => (
+                <button key={t.id} className="r-tab" data-active={String(activeTab === t.id)} onClick={() => pick(t.id)}>
+                  <t.Icon size={13} /> {t.label}
+                </button>
+              ))}
         </div>
         <span className="grow" />
         {headerExtra}
@@ -263,6 +280,31 @@ export function Artifact(props: {
   const [localSplitId, setLocalSplitId] = useState<string | null>(null);
   const splitId = sideArtId === undefined ? localSplitId : sideArtId;
   const setSplitId = onSideArtChange ?? setLocalSplitId;
+  // Browser-style open files: the work surface holds a tab per OPEN artifact (multiple sheets each get
+  // their own tab), not one slot per kind. Activating an artifact opens its tab; closing removes it.
+  const defaultOpenIds = ((): string[] => {
+    const ids: string[] = [];
+    const push = (a?: Art) => { if (a && !ids.includes(a.id)) ids.push(a.id); };
+    push(arts.find((a) => a.kind === "sheet" && a.title !== RESEARCH_TITLE));
+    push(arts.find((a) => a.title === RESEARCH_TITLE));
+    push(arts.find((a) => a.kind === "note" && a.title !== WIKI_TITLE));
+    push(arts.find((a) => a.kind === "wall"));
+    push(arts.find((a) => a.title === WIKI_TITLE));
+    return ids;
+  })();
+  const [openIds, setOpenIds] = useState<string[]>(() => (artId && !defaultOpenIds.includes(artId) ? [artId, ...defaultOpenIds] : defaultOpenIds));
+  useEffect(() => { if (artId) setOpenIds((prev) => (prev.includes(artId) ? prev : [...prev, artId])); }, [artId]);
+  // Always include the active artifact (a freshly created/uploaded file is active before the effect
+  // appends it), then keep only artifacts that still exist. Guarantees the active file owns a tab.
+  const liveOpenIds = [...new Set([...openIds, artId].filter(Boolean))].filter((id) => arts.some((a) => a.id === id));
+  const closeArtifact = (id: string) => {
+    setOpenIds((prev) => {
+      const next = prev.filter((x) => x !== id);
+      if (id === artId && next.length) { const idx = prev.indexOf(id); onArt(next[Math.min(idx, next.length - 1)]); }
+      return next;
+    });
+    if (id === splitId) setSplitId(null);
+  };
   // Split is a desktop affordance: below ~1200px the stage is too narrow for two usable panes,
   // and on compact the side panels are overlays — so the control hides and any open split
   // auto-collapses. Mirrors the canonical "<900 = single primary surface" responsive band.
@@ -330,6 +372,8 @@ export function Artifact(props: {
         collab={collab}
         surfaceKey="primary"
         headerExtra={canSplit ? splitToggle : undefined}
+        openIds={liveOpenIds}
+        onCloseArtifact={closeArtifact}
         style={{ flex: 1, minWidth: 0 }}
       />
       {splitting && splitId && (
