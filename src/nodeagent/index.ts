@@ -50,6 +50,7 @@ export * from "./skills/spreadsheet/semanticRebase";
 export * from "./skills/spreadsheet/versionControl";
 export * from "./skills/integration/noderoomAdapter";
 export * from "./skills/integration/downstreamPublish";
+export * from "./skills/integration/omnigentAdapter";
 export * from "./skills/mcp";
 
 export * from "./components/CellEditor";

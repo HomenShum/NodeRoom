@@ -36,7 +36,15 @@ The smallest adoption proof is runnable with:
 
 ```bash
 npm run nodeagent:frame:smoke
+npm run omnigent:nodeagent:smoke
 ```
+
+The first command proves the NodeAgent frame runner itself. The second validates
+the Omnigent YAML specs, checks that an Omnigent-launched worker is pointed at
+the right NodeAgent proof commands, runs the frame smoke, and writes
+`docs/eval/omnigent-nodeagent-smoke.json`. If the Omnigent CLI is installed,
+use `omni run examples/omnigent/nodeagent-room.yaml` for the outer harness live
+check.
 
 It runs in **two modes from the same code**:
 
@@ -951,6 +959,9 @@ in the public chat to drive the Room NodeAgent end-to-end** - it reads current v
 - **Harness-native recursive reasoning** → [`docs/HARNESS_RECURSIVE_REASONING.md`](docs/HARNESS_RECURSIVE_REASONING.md).
   Durable frames, context packs, entity/facet cache, OKF evidence, child work,
   verification, and the Omnigent boundary.
+- **Omnigent / Omniagent bridge** -> [`docs/OMNIGENT_INTEGRATION.md`](docs/OMNIGENT_INTEGRATION.md).
+  Runnable: `npm run omnigent:nodeagent:smoke`; optional outer harness:
+  `omni run examples/omnigent/nodeagent-room.yaml`.
 - **Evaluation framework** → [`docs/AGENT_EVAL.md`](docs/AGENT_EVAL.md). Who the users are, their use
   cases, the golden-case schema, single/multi/long-running references, and 10 metrics led by
   **no-silent-clobber rate**. Runnable: `npm run eval` (deterministic) / `npm run eval:real`.

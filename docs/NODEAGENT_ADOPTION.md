@@ -12,6 +12,7 @@ From this repo:
 
 ```bash
 npm run nodeagent:frame:smoke
+npm run omnigent:nodeagent:smoke
 ```
 
 This uses `examples/nodeagent-frame-runner/minimal.ts` to run a complete
@@ -24,6 +25,9 @@ ReasoningFrame -> ContextPack -> runReasoningFrame -> runAgent -> RoomTools -> F
 It writes one demo-room cell through the normal read/lock/CAS/release path and
 fails the process if the final artifact state or frame receipt is wrong.
 The checked-in proof artifact is `docs/eval/nodeagent-frame-smoke.json`.
+The Omnigent bridge smoke validates `examples/omnigent/*.yaml`, confirms the
+worker spec points back to the NodeAgent proof commands, runs the same frame
+smoke, and writes `docs/eval/omnigent-nodeagent-smoke.json`.
 
 ## Minimum Files To Understand
 
@@ -37,8 +41,10 @@ The checked-in proof artifact is `docs/eval/nodeagent-frame-smoke.json`.
 | Frame verifier | `src/nodeagent/core/frameVerifier.ts` |
 | Backend port | `src/nodeagent/core/types.ts` (`RoomTools`) |
 | In-memory adapter | `src/nodeagent/skills/integration/noderoomAdapter.ts` |
+| Omnigent adapter | `src/nodeagent/skills/integration/omnigentAdapter.ts` |
 | Tool definitions | `src/nodeagent/skills/spreadsheet/cellMutator.ts` |
 | Runnable minimal example | `examples/nodeagent-frame-runner/minimal.ts` |
+| Omnigent worker spec | `examples/omnigent/nodeagent-room.yaml` |
 
 ## Porting Contract
 
@@ -57,6 +63,8 @@ context packs, reducers, verifiers, and durable state.
 ## Coding-Agent Rules
 
 - First run `npm run nodeagent:frame:smoke`; do not start from a blank prompt.
+- Run `npm run omnigent:nodeagent:smoke` when using Omnigent/Omniagent as the
+  outer harness.
 - Make the smallest failing test or smoke before changing the harness.
 - Preserve the model/tool/backend separation in `src/nodeagent/core/types.ts`.
 - Do not bypass `RoomTools` for writes in tests or examples.
@@ -71,6 +79,7 @@ Use this order while adapting:
 
 ```bash
 npm run nodeagent:frame:smoke
+npm run omnigent:nodeagent:smoke
 npm test -- --run tests/frameRunner.test.ts
 npm test -- --run tests/reasoningFrames.test.ts tests/roomWorkCache.test.ts
 npm run typecheck -- --pretty false

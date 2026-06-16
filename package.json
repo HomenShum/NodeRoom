@@ -65,6 +65,8 @@
     "algorithm-artifact:smoke": "tsx scripts/algorithm-artifact-smoke.ts",
     "agent:improve": "tsx scripts/agent-improvement-loop.ts",
     "nodeagent:frame:smoke": "tsx scripts/nodeagent-frame-smoke.ts",
+    "omnigent:nodeagent:smoke": "tsx scripts/omnigent-nodeagent-smoke.ts --json-out docs/eval/omnigent-nodeagent-smoke.json",
+    "omniagent:nodeagent:smoke": "tsx scripts/omnigent-nodeagent-smoke.ts --json-out docs/eval/omnigent-nodeagent-smoke.json",
     "halo:self-improve:smoke": "tsx scripts/halo-self-improvement-smoke.ts --strict",
     "halo:variant:select": "tsx scripts/halo-variant-selection.ts --strict",
     "halo:convex-context:smoke": "tsx scripts/halo-convex-context-smoke.ts --strict",

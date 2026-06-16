@@ -4,6 +4,7 @@ NodeAgent is the canonical agent harness in this repo. Before changing it, run:
 
 ```bash
 npm run nodeagent:frame:smoke
+npm run omnigent:nodeagent:smoke
 ```
 
 Use these files as the map:
@@ -15,7 +16,10 @@ Use these files as the map:
 - `src/nodeagent/core/frameVerifier.ts` - frame status/evidence receipt.
 - `src/nodeagent/core/types.ts` - `AgentModel`, `AgentTool`, `RoomTools`.
 - `examples/nodeagent-frame-runner/minimal.ts` - smallest runnable adoption proof.
+- `examples/omnigent/nodeagent-room.yaml` - Omnigent outer-harness worker.
+- `src/nodeagent/skills/integration/omnigentAdapter.ts` - Omnigent YAML compatibility checks.
 - `docs/NODEAGENT_ADOPTION.md` - porting checklist.
+- `docs/OMNIGENT_INTEGRATION.md` - Omnigent boundary and smoke command.
 
 Rules:
 

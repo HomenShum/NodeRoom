@@ -4,8 +4,10 @@ This repo treats Omnigent as an outer meta-harness and NodeAgent as the
 room-native reasoning kernel.
 
 Current Omnigent public docs describe a YAML agent spec with `executor`,
-`tools`, `policies`, `os_env`, and `terminals`; they also position Omnigent as a
-common layer over multiple harnesses and custom agents:
+`tools`, `policies`, `os_env`, and `terminals`; the current CLI examples use
+`omni run path/to/agent.yaml` for custom agents, while the GitHub spec still
+shows the older `omnigent run` form. This repo supports the current `omni run`
+path and keeps the legacy command in docs only as a fallback.
 
 - https://github.com/omnigent-ai/omnigent/blob/main/docs/AGENT_YAML_SPEC.md
 - https://github.com/omnigent-ai/omnigent
@@ -14,7 +16,7 @@ common layer over multiple harnesses and custom agents:
 
 | Layer | Owns | NodeRoom implementation |
 |---|---|---|
-| Omnigent | harness/model choice, session sharing, OS sandbox, terminal orchestration, policy gates, cross-agent review | `examples/omnigent/*.yaml` |
+| Omnigent | harness/model choice, session sharing, OS sandbox, terminal orchestration, policy gates, cross-agent review | `examples/omnigent/*.yaml`, `npm run omnigent:nodeagent:smoke` |
 | NodeAgent | room context packs, reasoning frames, cache/freshness, evidence state, lock/CAS/draft writes, durable job ledger | `src/nodeagent`, `convex/agentJobs.ts`, `convex/schema.ts` |
 | Convex | transactional source of truth, job status, receipts, cache rows, reasoning-frame rows, trace queries | `convex/*` |
 
@@ -26,6 +28,23 @@ The detailed NodeAgent-side decision record is
 The minimal local adoption proof is
 [`examples/nodeagent-frame-runner/minimal.ts`](../examples/nodeagent-frame-runner/minimal.ts)
 and runs with `npm run nodeagent:frame:smoke`.
+
+The Omnigent/NodeAgent compatibility smoke is:
+
+```bash
+npm run omnigent:nodeagent:smoke
+```
+
+It validates the Omnigent YAML specs, checks that the room worker points at the
+required NodeAgent proof commands, runs the minimal NodeAgent frame smoke, and
+writes [`docs/eval/omnigent-nodeagent-smoke.json`](eval/omnigent-nodeagent-smoke.json).
+It does not require the Omnigent CLI. When `omni` is installed, the outer
+harness live check is:
+
+```bash
+omni run examples/omnigent/nodeagent-room.yaml
+omni run examples/omnigent/nodeagent-reviewer.yaml
+```
 
 ## Repo State
 
@@ -50,16 +69,17 @@ The pasted "Fable-like harness" plan maps to the current repo this way:
 From the repo root, after installing Omnigent:
 
 ```bash
-omnigent run examples/omnigent/nodeagent-room.yaml
-omnigent run examples/omnigent/nodeagent-reviewer.yaml
+omni run examples/omnigent/nodeagent-room.yaml
+omni run examples/omnigent/nodeagent-reviewer.yaml
 ```
 
 The examples are deliberately local. They rely on the existing repo commands
 instead of inventing a second agent API:
 
 ```bash
-npm test -- --run tests/agentJobsSource.test.ts tests/agentJobsRuntime.test.ts tests/frameRunner.test.ts tests/chatReasoningFrames.test.tsx
 npm run nodeagent:frame:smoke
+npm test -- --run tests/agentJobsSource.test.ts tests/agentJobsRuntime.test.ts tests/frameRunner.test.ts tests/nodeagentFrameSmoke.test.ts
+npm run omnigent:nodeagent:smoke
 npm run build
 npx tsc --noEmit --project convex/tsconfig.json --pretty false
 ```
@@ -94,7 +114,8 @@ Use NodeAgent/Convex for durable state:
 - Do not represent cache/freshness/evidence only in the Omnigent transcript.
 - Do not let a meta-harness policy replace CAS, locks, draft review, or Convex
   auth checks.
-- Do not claim official Omnigent compatibility beyond the checked YAML shape
-  until the examples are run against the installed Omnigent version in CI.
+- Do not claim the outer Omnigent CLI path has run unless `omni run ...` was
+  actually executed in that environment. The repo-level compatibility proof is
+  `npm run omnigent:nodeagent:smoke`.
 - Do not claim Omnigent owns recursive memory; it starts/governs NodeAgent, while
   NodeAgent/Convex persist the frame/cache/evidence state.

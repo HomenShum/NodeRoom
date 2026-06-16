@@ -1,0 +1,102 @@
+{
+  "ok": true,
+  "omnigent": {
+    "cli": {
+      "checked": true,
+      "installed": false
+    },
+    "runCommands": [
+      {
+        "path": "examples/omnigent/nodeagent-room.yaml",
+        "preferred": "omni run examples/omnigent/nodeagent-room.yaml",
+        "legacy": "omnigent run examples/omnigent/nodeagent-room.yaml"
+      },
+      {
+        "path": "examples/omnigent/nodeagent-reviewer.yaml",
+        "preferred": "omni run examples/omnigent/nodeagent-reviewer.yaml",
+        "legacy": "omnigent run examples/omnigent/nodeagent-reviewer.yaml"
+      }
+    ]
+  },
+  "specs": [
+    {
+      "ok": true,
+      "path": "examples/omnigent/nodeagent-room.yaml",
+      "profile": "room-worker",
+      "name": "nodeagent_room_worker",
+      "executorHarness": "codex",
+      "osEnvType": "caller_process",
+      "cwd": ".",
+      "terminalNames": [
+        "powershell"
+      ],
+      "hasPromptOrInstructions": true,
+      "hasNodeAgentBoundary": true,
+      "hasConvexBoundary": true,
+      "hasSecretLiteral": false,
+      "requiredCommands": [
+        {
+          "command": "npm run nodeagent:frame:smoke",
+          "reason": "proves the adoptable NodeAgent frame bridge without provider keys",
+          "present": true
+        },
+        {
+          "command": "npm test -- --run tests/agentJobsSource.test.ts tests/agentJobsRuntime.test.ts tests/frameRunner.test.ts tests/nodeagentFrameSmoke.test.ts",
+          "reason": "proves durable job frames, frame runtime, and adoption smoke together",
+          "present": true
+        },
+        {
+          "command": "npm run omnigent:nodeagent:smoke",
+          "reason": "proves Omnigent YAML and NodeAgent adapter compatibility",
+          "present": true
+        },
+        {
+          "command": "npm run build",
+          "reason": "proves the application still builds after NodeAgent changes",
+          "present": true
+        },
+        {
+          "command": "npx tsc --noEmit --project convex/tsconfig.json --pretty false",
+          "reason": "proves Convex functions still typecheck",
+          "present": true
+        }
+      ],
+      "runCommand": "omni run examples/omnigent/nodeagent-room.yaml",
+      "legacyRunCommand": "omnigent run examples/omnigent/nodeagent-room.yaml",
+      "issues": []
+    },
+    {
+      "ok": true,
+      "path": "examples/omnigent/nodeagent-reviewer.yaml",
+      "profile": "reviewer",
+      "name": "nodeagent_review_harness",
+      "executorHarness": "codex",
+      "osEnvType": "caller_process",
+      "cwd": ".",
+      "terminalNames": [
+        "powershell"
+      ],
+      "hasPromptOrInstructions": true,
+      "hasNodeAgentBoundary": true,
+      "hasConvexBoundary": true,
+      "hasSecretLiteral": false,
+      "requiredCommands": [],
+      "runCommand": "omni run examples/omnigent/nodeagent-reviewer.yaml",
+      "legacyRunCommand": "omnigent run examples/omnigent/nodeagent-reviewer.yaml",
+      "issues": []
+    }
+  ],
+  "nodeagentFrameSmoke": {
+    "ok": true,
+    "frameId": "rf_adopt_minimal_write_note",
+    "status": "completed",
+    "stopReason": "done",
+    "traceTools": [
+      "read_range",
+      "propose_lock",
+      "edit_cell",
+      "release_lock"
+    ],
+    "finalCellValue": "Frame smoke proof: managed by NodeAgent."
+  }
+}

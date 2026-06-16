@@ -32,6 +32,7 @@ const requiredFiles = [
   "skills/spreadsheet/versionControl.ts",
   "skills/integration/noderoomAdapter.ts",
   "skills/integration/downstreamPublish.ts",
+  "skills/integration/omnigentAdapter.ts",
   "components/StreamingTerminal.tsx",
   "components/SmartGrid.tsx",
   "components/CellEditor.tsx",
