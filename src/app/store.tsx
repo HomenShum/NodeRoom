@@ -155,6 +155,8 @@ export interface RoomStore {
   listTraces(roomId: string): TraceEvent[];
   /** Live web/SEC source captures (screenshot + box) as Trace records — [] in memory mode. */
   listCaptureRecords(roomId: string): TraceRecord[];
+  /** Trigger a live source capture (Convex action) → persists + reactively appears in listCaptureRecords. */
+  captureSource(roomId: string, url: string, goal: string): Promise<{ ok: boolean; error?: string }>;
   listSessions(roomId: string): AgentSession[];
   listDrafts(roomId: string): Draft[];
   listProposals(roomId: string): Proposal[];
@@ -342,6 +344,7 @@ export function EngineStoreProvider({ roomId, children }: { roomId: string; me: 
     privateStreamAccess: () => null,
     listTraces: (id) => engine.listTraces(id),
     listCaptureRecords: () => [], // in-memory engine doesn't capture live sources
+    captureSource: async () => ({ ok: false, error: "live capture needs the Convex backend" }),
 
     listSessions: (id) => engine.listSessions(id),
     listDrafts: (id) => engine.listDrafts(id),
@@ -750,6 +753,7 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
   const runSemanticConflictDrillMutation = useMutation(api.drafts.runSemanticConflictDrill);
   const runAgent = useAction(api.agent.runRoomAgent);
   const runPrivateAgent = useAction(api.agent.runPrivateAgent);
+  const runCaptureAction = useAction(api.capturesNode.capture);
   const createPrivateReplyStream = useMutation(api.streaming.createPrivateReplyStream);
   const startAgentJob = useMutation(api.agentJobs.start);
   // Job-strip controls flip instantly. Mirrors the server's transition + ITS guards (cancel: no-op
@@ -826,6 +830,10 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
       privateStreamAccess: (streamId) => ({ requester: proof, driven: locallyCreatedPrivateStreams.has(streamId) }),
       listTraces: () => allTraces,
       listCaptureRecords: () => captures as unknown as TraceRecord[],
+      captureSource: async (_roomId, url, goal) => {
+        const r = await runCaptureAction({ roomId: rid as never, requester: proof, url, goal });
+        return { ok: r.ok, error: r.error };
+      },
       listSessions: () => sessions,
       listDrafts: () => drafts,
       listProposals: () => proposals as unknown as Proposal[],

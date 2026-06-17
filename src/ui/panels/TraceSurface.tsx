@@ -14,6 +14,43 @@ import { TraceFlow } from "./TraceFlow";
 
 type DetailTab = "overview" | "steps" | "flow" | "evidence" | "raw";
 
+/** Trigger a live source capture (Convex action). The persisted record reactively joins the list. */
+function CaptureForm({ roomId, onCapture }: {
+  roomId: string;
+  onCapture: (roomId: string, url: string, goal: string) => Promise<{ ok: boolean; error?: string }>;
+}) {
+  const [url, setUrl] = useState("");
+  const [goal, setGoal] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
+  return (
+    <form
+      className="r-tracevu-capture"
+      data-testid="trace-capture-form"
+      onSubmit={async (e) => {
+        e.preventDefault();
+        if (!url.trim() || busy) return;
+        setBusy(true); setErr(null);
+        try {
+          const r = await onCapture(roomId, url.trim(), goal.trim() || "extract the key figures");
+          if (!r.ok) setErr(r.error ?? "capture failed");
+          else { setUrl(""); setGoal(""); }
+        } catch (e2) {
+          setErr(e2 instanceof Error ? e2.message : String(e2));
+        } finally {
+          setBusy(false);
+        }
+      }}
+    >
+      <span className="r-tracevu-capture-title">Capture a source</span>
+      <input className="r-tracevu-capture-in" placeholder="https://… source URL" value={url} onChange={(e) => setUrl(e.target.value)} data-testid="trace-capture-url" />
+      <input className="r-tracevu-capture-in" placeholder="what to extract" value={goal} onChange={(e) => setGoal(e.target.value)} data-testid="trace-capture-goal" />
+      <button type="submit" className="r-tracevu-capture-btn" disabled={busy || !url.trim()} data-testid="trace-capture-go">{busy ? "Capturing…" : "Capture"}</button>
+      {err && <span className="r-tracevu-capture-err" data-testid="trace-capture-err">{err}</span>}
+    </form>
+  );
+}
+
 export function TraceSurface({ roomId, onOpenSource }: {
   roomId: string;
   onOpenSource: (artifactId: string, elementId?: string) => void;
@@ -48,6 +85,7 @@ export function TraceSurface({ roomId, onOpenSource }: {
   return (
     <div className="r-art-body r-tracevu" data-testid="trace-surface" data-noderoom-surface="workSurface.trace">
       <aside className="r-tracevu-list" aria-label="Trace records">
+        {store.mode === "convex" && <CaptureForm roomId={roomId} onCapture={store.captureSource} />}
         {records.map((r) => (
           <button key={r.id} type="button" className="r-tracevu-rec" data-on={String(r.id === record.id)} data-testid="trace-record"
             onClick={() => { setSelectedId(r.id); setTab("overview"); }}>

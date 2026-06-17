@@ -949,6 +949,13 @@ button.r-tracevu-step:hover, button.r-tracevu-step:focus-visible { border-color:
 .r-tracevu-shotframe { position: relative; display: inline-block; line-height: 0; }
 .r-tracevu-box { position: absolute; border: 2px solid var(--accent-primary); border-radius: 3px; background: color-mix(in srgb, var(--accent-primary) 16%, transparent); box-shadow: 0 0 0 1px var(--bg-primary); pointer-events: none; }
 /* Trace · Flow — reactflow graph of the workflow progression (needs an explicit height). */
+.r-tracevu-capture { display: flex; flex-direction: column; gap: 6px; padding: 10px; margin-bottom: 8px; border: 1px solid var(--line); border-radius: 10px; background: var(--bg-secondary); }
+.r-tracevu-capture-title { font-size: 11px; font-weight: 600; color: var(--text-secondary); }
+.r-tracevu-capture-in { width: 100%; padding: 6px 8px; border: 1px solid var(--line); border-radius: 7px; background: var(--bg-primary); color: var(--text-primary); font-size: 11.5px; }
+.r-tracevu-capture-in::placeholder { color: var(--text-tertiary); }
+.r-tracevu-capture-btn { align-self: flex-start; padding: 5px 12px; border-radius: 7px; border: 1px solid var(--accent-border); background: var(--accent-tint); color: var(--accent-ink); font-size: 11.5px; font-weight: 600; cursor: pointer; transition: opacity var(--motion-fast); }
+.r-tracevu-capture-btn:disabled { opacity: .5; cursor: default; }
+.r-tracevu-capture-err { font-size: 11px; color: var(--danger-ink); }
 .r-tracevu-flow { display: flex; flex-direction: column; gap: 10px; }
 .r-tracevu-flowgraph { position: relative; height: 440px; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; background: var(--bg-primary); }
 .r-tracevu-flowcount { position: absolute; top: 8px; left: 10px; z-index: 5; padding: 3px 8px; border-radius: 999px; background: color-mix(in srgb, var(--bg-secondary) 88%, transparent); border: 1px solid var(--line); font-size: 11px; font-variant-numeric: tabular-nums; color: var(--text-secondary); pointer-events: none; }
