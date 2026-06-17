@@ -1,0 +1,49 @@
+{
+  "id": "web-source-retrieval",
+  "kind": "qa",
+  "title": "Web retrieval · source screenshot + box",
+  "subtitle": "Live fetch of en.wikipedia.org — the page is screenshotted and the retrieved value is boxed (the SEC/EDGAR mechanism)",
+  "ts": "Jun 17, 2:12 AM",
+  "source": {
+    "tool": "Playwright fetchSource",
+    "version": "qa-trace/capture-web-source.ts",
+    "env": "chromium · declared UA"
+  },
+  "verdict": {
+    "label": "value located + boxed",
+    "tone": "ok"
+  },
+  "steps": [
+    {
+      "idx": 1,
+      "label": "Retrieve \"Revenue\" from en.wikipedia.org",
+      "detail": "Revenue US$416 billion (2025)",
+      "status": "ok",
+      "group": "Web retrieval",
+      "attachments": [
+        {
+          "kind": "screenshot",
+          "url": "/qa-trace/web-source/source.png",
+          "box": {
+            "x": 0.5571,
+            "y": 0.475,
+            "w": 0.2313,
+            "h": 0.05
+          }
+        }
+      ]
+    }
+  ],
+  "raw": {
+    "url": "https://en.wikipedia.org/wiki/Apple_Inc.",
+    "find": "Revenue",
+    "box": {
+      "x": 0.5571,
+      "y": 0.475,
+      "w": 0.2313,
+      "h": 0.05
+    },
+    "snippet": "Revenue US$416 billion (2025)",
+    "note": "sec.gov 403s undeclared automation; production uses a declared UA from a server IP or SEC's data API. Same bundle shape."
+  }
+}

@@ -1,0 +1,106 @@
+{
+  "id": "agent-run-variance",
+  "kind": "agent",
+  "title": "Agent run · recompute Q3 variance",
+  "subtitle": "Every tool call from a real harness run — read → claim locks → CAS write → release, no-clobber under concurrency",
+  "ts": "Jun 17, 2:10 AM",
+  "source": {
+    "tool": "NodeAgent",
+    "version": "runtime.ts · scripted plan",
+    "env": "in-memory room"
+  },
+  "verdict": {
+    "label": "7 steps · 6 tool calls · done",
+    "tone": "ok"
+  },
+  "steps": [
+    {
+      "idx": 1,
+      "label": "propose_lock",
+      "detail": "{\"elementIds\":[\"r_rev__variance\",\"r_cogs__variance\"],\"reason\":\"recompute variance\"}  →  {\"ok\":true,\"lockId\":\"lock_23\"}",
+      "status": "ok",
+      "group": "Claim locks",
+      "attachments": [
+        {
+          "kind": "log",
+          "text": "{\n  \"args\": {\n    \"elementIds\": [\n      \"r_rev__variance\",\n      \"r_cogs__variance\"\n    ],\n    \"reason\": \"recompute variance\"\n  },\n  \"result\": {\n    \"ok\": true,\n    \"lockId\": \"lock_23\"\n  },\n  \"ms\": 2\n}"
+        }
+      ]
+    },
+    {
+      "idx": 2,
+      "label": "read_range",
+      "detail": "{\"elementIds\":[\"r_rev__variance\"]}  →  [{\"id\":\"r_rev__variance\",\"value\":\"\",\"version\":1,\"locked\":{\"by\":\"Room NodeAgent\",\"reason\":\"recompute variance\"}}]",
+      "status": "ok",
+      "group": "Read & context",
+      "attachments": [
+        {
+          "kind": "log",
+          "text": "{\n  \"args\": {\n    \"elementIds\": [\n      \"r_rev__variance\"\n    ]\n  },\n  \"result\": [\n    {\n      \"id\": \"r_rev__variance\",\n      \"value\": \"\",\n      \"version\": 1,\n      \"locked\": {\n        \"by\": \"Room NodeAgent\",\n        \"reason\": \"recompute variance\"\n      }\n    }\n  ],\n  \"ms\": 0\n}"
+        }
+      ]
+    },
+    {
+      "idx": 3,
+      "label": "edit_cell",
+      "detail": "{\"elementId\":\"r_rev__variance\",\"value\":\"+24%\",\"baseVersion\":1}  →  {\"ok\":true,\"version\":2}",
+      "status": "ok",
+      "group": "Write (CAS)",
+      "attachments": [
+        {
+          "kind": "log",
+          "text": "{\n  \"args\": {\n    \"elementId\": \"r_rev__variance\",\n    \"value\": \"+24%\",\n    \"baseVersion\": 1\n  },\n  \"result\": {\n    \"ok\": true,\n    \"version\": 2\n  },\n  \"ms\": 1\n}"
+        }
+      ]
+    },
+    {
+      "idx": 4,
+      "label": "read_range",
+      "detail": "{\"elementIds\":[\"r_cogs__variance\"]}  →  [{\"id\":\"r_cogs__variance\",\"value\":\"\",\"version\":1,\"locked\":{\"by\":\"Room NodeAgent\",\"reason\":\"recompute variance\"}}]",
+      "status": "ok",
+      "group": "Read & context",
+      "attachments": [
+        {
+          "kind": "log",
+          "text": "{\n  \"args\": {\n    \"elementIds\": [\n      \"r_cogs__variance\"\n    ]\n  },\n  \"result\": [\n    {\n      \"id\": \"r_cogs__variance\",\n      \"value\": \"\",\n      \"version\": 1,\n      \"locked\": {\n        \"by\": \"Room NodeAgent\",\n        \"reason\": \"recompute variance\"\n      }\n    }\n  ],\n  \"ms\": 1\n}"
+        }
+      ]
+    },
+    {
+      "idx": 5,
+      "label": "edit_cell",
+      "detail": "{\"elementId\":\"r_cogs__variance\",\"value\":\"+27.5%\",\"baseVersion\":1}  →  {\"ok\":true,\"version\":2}",
+      "status": "ok",
+      "group": "Write (CAS)",
+      "attachments": [
+        {
+          "kind": "log",
+          "text": "{\n  \"args\": {\n    \"elementId\": \"r_cogs__variance\",\n    \"value\": \"+27.5%\",\n    \"baseVersion\": 1\n  },\n  \"result\": {\n    \"ok\": true,\n    \"version\": 2\n  },\n  \"ms\": 0\n}"
+        }
+      ]
+    },
+    {
+      "idx": 6,
+      "label": "release_lock",
+      "detail": "{\"lockId\":\"lock_23\"}  →  {\"merged\":[]}",
+      "status": "ok",
+      "group": "Claim locks",
+      "attachments": [
+        {
+          "kind": "log",
+          "text": "{\n  \"args\": {\n    \"lockId\": \"lock_23\"\n  },\n  \"result\": {\n    \"merged\": []\n  },\n  \"ms\": 0\n}"
+        }
+      ]
+    }
+  ],
+  "raw": {
+    "stopReason": "done",
+    "exhausted": false,
+    "usage": {
+      "inputTokens": 0,
+      "outputTokens": 0,
+      "modelCalls": 7
+    },
+    "traceCount": 6
+  }
+}

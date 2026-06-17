@@ -52,4 +52,22 @@ test.describe("trace work-surface tab", () => {
     await expect(page.getByTestId("trace-filmstrip")).toBeVisible();
     await expect(page.locator(".r-tracevu-box").first()).toBeVisible();
   });
+
+  test("captured bundles: a live web source is screenshotted + boxed, and an agent run shows every tool call", async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await enterDemoRoom(page);
+
+    await page.getByTestId("trace-tab").click();
+    expect(await page.getByTestId("trace-record").count()).toBeGreaterThanOrEqual(5);
+
+    // (a) web-source retrieval: the live page is screenshotted with a highlight box on the retrieved value.
+    await page.getByTestId("trace-record").filter({ hasText: "Web retrieval" }).first().click();
+    await page.getByTestId("trace-tab-steps").click();
+    await expect(page.locator(".r-tracevu-box").first()).toBeVisible();
+
+    // (b) agent run: every tool call is a step (read_range / edit_cell / locks), grouped by phase.
+    await page.getByTestId("trace-record").filter({ hasText: "Agent run" }).first().click();
+    await page.getByTestId("trace-tab-steps").click();
+    await expect(page.getByTestId("trace-step").filter({ hasText: "read_range" }).first()).toBeVisible();
+  });
 });
