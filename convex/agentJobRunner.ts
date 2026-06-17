@@ -13,7 +13,7 @@ import type { Id } from "./_generated/dataModel";
 import { ConvexRoomTools } from "./convexRoomTools";
 import { AgentRunError, runAgent } from "../src/nodeagent/core/runtime";
 import { runReasoningFrame, type ReasoningFrameRunReceipt } from "../src/nodeagent/core/frameRunner";
-import { PRODUCTION_ROOM_TOOLS } from "../src/nodeagent/skills/spreadsheet/cellMutator";
+import { SERVER_PRODUCTION_ROOM_TOOLS as PRODUCTION_ROOM_TOOLS } from "../src/nodeagent/skills/server/productionTools";
 import { MANAGED_LOCK_SYSTEM_PROMPT } from "../src/nodeagent/models/prompts/systemPrompt";
 import { convexModel as agentModel, convexPriceRun as priceRun } from "../src/nodeagent/models/convexModel";
 import { buildResearchContext } from "../src/nodeagent/core/worldModel";

@@ -11,6 +11,8 @@ import { runCapture } from "../src/nodeagent/capture/pipeline";
 import { assertCapturableUrl, CaptureUrlError, CAPTURE_LIMITS } from "../src/nodeagent/capture/guards";
 import type { BrowserSubstrate, PageHandle, ReasoningModel } from "../src/nodeagent/capture/types";
 import { captureSource } from "../src/nodeagent/capture/captureSource";
+import { PRODUCTION_TOOL_NAMES } from "../src/nodeagent/skills/spreadsheet/cellMutator";
+import { SERVER_PRODUCTION_TOOL_NAMES } from "../src/nodeagent/skills/server/productionTools";
 
 const PNG = new Uint8Array([0x89, 0x50, 0x4e, 0x47]); // PNG magic — stand-in bytes
 
@@ -110,6 +112,13 @@ describe("runCapture — observe/act/extract loop", () => {
     expect(sub.acts.length).toBe(0); // no actions on a non-interactive substrate
     expect(res.steps.every((s) => s.phase !== "Act")).toBe(true);
     expect(res.data).toEqual({ "FY revenue": "$391.0B" });
+  });
+});
+
+describe("capture_source production registry", () => {
+  it("is server-only: not in browser-safe tools, present in Convex/worker tools", () => {
+    expect(PRODUCTION_TOOL_NAMES).not.toContain("capture_source");
+    expect(SERVER_PRODUCTION_TOOL_NAMES).toContain("capture_source");
   });
 });
 

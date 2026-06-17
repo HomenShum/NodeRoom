@@ -56,6 +56,16 @@ element acted on / extracted from — which is exactly `TraceAttachment.box` in 
 `pickSubstrate()` prefers Browserbase when its keys are set, else Firecrawl, else `null` → the caller
 returns `ok:false` with remediation (never a fake success).
 
+Production runner wiring is intentionally split:
+
+- `PRODUCTION_ROOM_TOOLS` stays browser-safe for memory-mode demos and does **not** include
+  `capture_source`.
+- `SERVER_PRODUCTION_ROOM_TOOLS` is imported by `convex/agent.ts` and `convex/agentJobRunner.ts`; it adds
+  a Convex-safe `capture_source` tool that imports `runCapture + firecrawlSubstrate + aiSdkReasoner`
+  directly and never imports Browserbase/Playwright.
+- Browserbase remains the exact-box worker substrate for producer jobs and walkthrough capture, not the
+  default Convex action path.
+
 ## Where it runs
 
 - **Firecrawl path → Convex action.** Pure `fetch`, so a Convex `internalAction` can run it and persist

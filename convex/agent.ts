@@ -32,7 +32,7 @@ type RunResult = {
 };
 import { AgentRunError, runAgent } from "../src/nodeagent/core/runtime";
 import type { AgentTraceEvent } from "../src/nodeagent/core/types";
-import { PRODUCTION_ROOM_TOOLS } from "../src/nodeagent/skills/spreadsheet/cellMutator";
+import { SERVER_PRODUCTION_ROOM_TOOLS as PRODUCTION_ROOM_TOOLS } from "../src/nodeagent/skills/server/productionTools";
 import { MANAGED_LOCK_SYSTEM_PROMPT } from "../src/nodeagent/models/prompts/systemPrompt";
 import { convexModel as agentModel, convexPriceRun as priceRun } from "../src/nodeagent/models/convexModel";
 import { buildResearchContext, buildNoteContext, buildWallContext } from "../src/nodeagent/core/worldModel";
