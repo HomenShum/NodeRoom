@@ -11,14 +11,15 @@ import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import {
   Table2, FileText, StickyNote, Users, GitMerge, Play, RotateCcw, History, Search, BookOpen,
-  Lock, Unlock, Ban, Pencil, Plus, Check, AlertTriangle, Eye, Circle, ChevronRight, Download, Trash2, Undo2, X, Columns2, MoreHorizontal, Mail, Hash, Layers, Linkedin, type LucideIcon,
+  Lock, Unlock, Ban, Pencil, Plus, Check, AlertTriangle, Eye, Circle, ChevronRight, Download, Trash2, Undo2, X, Columns2, MoreHorizontal, Mail, Hash, Layers, Linkedin, Activity, type LucideIcon,
 } from "lucide-react";
 import { useStore, type RoomStore, type EditFeedback } from "../../app/store";
 import { formatExcelNumber } from "../../app/numberFormat";
 import { columnLetters } from "../../app/spreadsheetIndex";
 import { evaluateFormula, FormulaEvalError, type CellResolver, type CellValue, type FormulaResult } from "../../nodeagent/core/formulaEngine";
 import { rangeBox, boxSize, cellsInBox, rangeLabel, rewriteFormulaRefs, buildTSV, parseTSV, toA1, parseA1 } from "../../shared/gridOps";
-import { onStageFocus, type StageFocusTarget } from "../stageFocus";
+import { onStageFocus, focusStage, type StageFocusTarget } from "../stageFocus";
+import { TraceSurface } from "./TraceSurface";
 import type { Actor, Artifact as Art, CellPayload, DataframeColumn, DocumentParseMeta, Proposal, TraceEvent, ResearchRowInput } from "../../engine/types";
 import { prepareDownstreamDrafts, type PreparedDownstreamDraft } from "../../nodeagent/skills/integration/downstreamPublish";
 
@@ -75,6 +76,7 @@ function ArtifactSurface({ roomId, me, artId, onArt, collab, style, surfaceKey =
     return fallbackTab;
   };
   const [tab, setTab] = useState<TabId>(() => tabForArt(artId));
+  const [traceOpen, setTraceOpen] = useState(false);
   const [editErr, setEditErr] = useState<string | null>(null);
   useEffect(() => { if (!editErr) return; const t = setTimeout(() => setEditErr(null), 4000); return () => clearTimeout(t); }, [editErr]);
   useEffect(() => { setTab(tabForArt(artId)); }, [artId, wiki?.id, sheet?.id, research?.id, note?.id, wall?.id, arts.length]);
@@ -141,6 +143,8 @@ function ArtifactSurface({ roomId, me, artId, onArt, collab, style, surfaceKey =
   };
   const pick = (t: TabId) => { const a = artFor(t); if (a) { onArt(a.id); setTab(t); } };
   const openArtifact = (a: Art) => { onArt(a.id); setTab(tabForArt(a.id)); };
+  // A Trace step / evidence card opens its literal source on the work surface (switch + pulse the cell).
+  const openTraceSource = (artifactId: string, elementId?: string) => { onArt(artifactId); focusStage({ artifactId, elementId }); setTraceOpen(false); };
   const visibility = selected?.visibility ?? "room";
   // Two-way owner-gated visibility: you can share YOUR sheet to the room or pull it back to private.
   const ownsSelected = !!selected?.createdBy && ((selected.createdBy as Actor).id === me.id || (selected.createdBy as Actor).ownerId === me.id);
@@ -158,7 +162,7 @@ function ArtifactSurface({ roomId, me, artId, onArt, collab, style, surfaceKey =
         <div className="r-tabs" data-testid={surfaceKey === "secondary" ? "artifact-tabs-secondary" : "artifact-tabs"}>
           {openIds
             ? openTabArts.map((a) => (
-                <button key={a.id} className="r-tab r-filetab" data-active={String(a.id === artId)} onClick={() => onArt(a.id)} onDoubleClick={() => renameArtifact(a)} title={a.meta?.summary ? `${a.title} — ${a.meta.summary}` : `${a.title} (double-click to rename)`} data-testid="artifact-filetab">
+                <button key={a.id} className="r-tab r-filetab" data-active={String(!traceOpen && a.id === artId)} onClick={() => { onArt(a.id); setTraceOpen(false); }} onDoubleClick={() => renameArtifact(a)} title={a.meta?.summary ? `${a.title} — ${a.meta.summary}` : `${a.title} (double-click to rename)`} data-testid="artifact-filetab">
                   {tabIcon(a)}
                   <span className="r-filetab-name">{a.title}</span>
                   {onCloseArtifact && openTabArts.length > 1 && (
@@ -167,10 +171,16 @@ function ArtifactSurface({ roomId, me, artId, onArt, collab, style, surfaceKey =
                 </button>
               ))
             : TABS.filter((t) => artFor(t.id)).map((t) => (
-                <button key={t.id} className="r-tab" data-active={String(activeTab === t.id)} onClick={() => pick(t.id)}>
+                <button key={t.id} className="r-tab" data-active={String(!traceOpen && activeTab === t.id)} onClick={() => { pick(t.id); setTraceOpen(false); }}>
                   <t.Icon size={13} /> {t.label}
                 </button>
               ))}
+          {/* Trace is a pinned work-surface tab alongside the artifacts (agent + QA provenance). */}
+          {surfaceKey !== "secondary" && (
+            <button type="button" className="r-tab r-tracetab" data-active={String(traceOpen)} data-testid="trace-tab" title="Agent + QA trace records" onClick={() => setTraceOpen(true)}>
+              <Activity size={13} /> Trace
+            </button>
+          )}
         </div>
         <span className="grow" />
         {headerExtra}
@@ -193,15 +203,21 @@ function ArtifactSurface({ roomId, me, artId, onArt, collab, style, surfaceKey =
         )}
       </div>
 
-      {collab && activeTab === "sheet" && sheet?.title === "Q3 variance" && <CollabBar collab={collab} />}
-      {editErr && <div className="r-art-error" role="alert"><AlertTriangle size={13} /> {editErr}</div>}
-      {activeTab === "wiki" && wiki && <Wiki roomId={roomId} art={wiki} onOpenArtifact={openArtifact} />}
-      {activeTab === "sheet" && sheet && (sheet.title === "Q3 variance"
-        ? <Sheet roomId={roomId} me={me} art={sheet} onError={(f) => setEditErr(editErrorMsg(f))} />
-        : sheet.meta?.excelGrid ? <ExcelGridSheet roomId={roomId} me={me} art={sheet} onError={(f) => setEditErr(editErrorMsg(f))} /> : <GenericSheet art={sheet} />)}
-      {activeTab === "research" && research && <Research roomId={roomId} me={me} art={research} />}
-      {activeTab === "note" && note && <Note roomId={roomId} me={me} art={note} />}
-      {activeTab === "wall" && wall && <Wall roomId={roomId} me={me} art={wall} />}
+      {traceOpen ? (
+        <TraceSurface roomId={roomId} onOpenSource={openTraceSource} />
+      ) : (
+        <>
+          {collab && activeTab === "sheet" && sheet?.title === "Q3 variance" && <CollabBar collab={collab} />}
+          {editErr && <div className="r-art-error" role="alert"><AlertTriangle size={13} /> {editErr}</div>}
+          {activeTab === "wiki" && wiki && <Wiki roomId={roomId} art={wiki} onOpenArtifact={openArtifact} />}
+          {activeTab === "sheet" && sheet && (sheet.title === "Q3 variance"
+            ? <Sheet roomId={roomId} me={me} art={sheet} onError={(f) => setEditErr(editErrorMsg(f))} />
+            : sheet.meta?.excelGrid ? <ExcelGridSheet roomId={roomId} me={me} art={sheet} onError={(f) => setEditErr(editErrorMsg(f))} /> : <GenericSheet art={sheet} />)}
+          {activeTab === "research" && research && <Research roomId={roomId} me={me} art={research} />}
+          {activeTab === "note" && note && <Note roomId={roomId} me={me} art={note} />}
+          {activeTab === "wall" && wall && <Wall roomId={roomId} me={me} art={wall} />}
+        </>
+      )}
 
       <TraceStrip roomId={roomId} me={me} />
     </div>
