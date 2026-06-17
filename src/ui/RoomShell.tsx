@@ -18,6 +18,7 @@ import { focusStage } from "./stageFocus";
 import { BankerCoachPanel } from "./artifacts/BankerCoachPanel";
 import { TraceLensProvider } from "./traceLens/useTraceLens";
 import { TraceLensPanel } from "./traceLens/TraceLensPanel";
+import { PassiveAgentChip } from "./insights/PassiveAgentChip";
 import { resolveRoomOpenTarget } from "./openRoomReference";
 import type { Actor, Channel } from "../engine/types";
 
@@ -520,7 +521,11 @@ function SignalStatusStrip({ roomId, onOpenArtifact }: { roomId: string; onOpenA
               <span key={s.k} className="r-signal-chip"><b>{s.k}</b>{s.v}</span>
             ),
           )}
+          <PassiveAgentChip roomId={roomId} onOpenArtifact={onOpenArtifact} />
         </div>
+      )}
+      {signals.length === 0 && (
+        <PassiveAgentChip roomId={roomId} onOpenArtifact={onOpenArtifact} />
       )}
     </div>
   );

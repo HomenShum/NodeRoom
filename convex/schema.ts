@@ -286,7 +286,7 @@ export default defineSchema({
       label: v.string(),
       status: v.string(),
       detail: v.optional(v.string()),
-      box: v.optional(v.object({ x: v.number(), y: v.number(), w: v.number(), h: v.number() })),
+      box: v.optional(v.object({ x: v.number(), y: v.number(), w: v.number(), h: v.number(), page: v.optional(v.number()) })),
       screenshotId: v.optional(v.id("_storage")),
     })),
     data: v.optional(v.any()),
@@ -351,7 +351,12 @@ export default defineSchema({
     .index("by_room_status", ["roomId", "status", "updatedAt"])
     .index("by_room_source", ["roomId", "sourceKind", "sourceId"])
     .index("by_dedupe", ["dedupeKey", "updatedAt"])
-    .index("by_source", ["sourceKind", "sourceId", "updatedAt"]),
+    .index("by_source", ["sourceKind", "sourceId", "updatedAt"])
+    // Visibility-scoped indexes for the passive feed: shared rows (room/public) never fetch
+    // private rows; own-private rows are fetched by ownerId so other members' private rows
+    // never occupy take slots (closes a metadata side-channel about private activity volume).
+    .index("by_room_visibility_updated", ["roomId", "visibility", "updatedAt"])
+    .index("by_room_owner_visibility_updated", ["roomId", "ownerId", "visibility", "updatedAt"]),
 
   /** Evidence Accountant capture row. This is distinct from older captureRecords: one capture can
    * fan out to many extracted facts and CellPayload evidence refs. */

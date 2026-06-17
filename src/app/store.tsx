@@ -12,6 +12,7 @@
 import { createContext, useContext, useMemo, useRef, useState, useEffect, useLayoutEffect, useCallback, type ReactNode } from "react";
 import { useQuery, useMutation, useAction } from "convex/react";
 import { api } from "../../convex/_generated/api";
+import type { FeedItem } from "../../convex/roomActivity";
 import type { TraceRecord } from "../ui/panels/traceData";
 import { engine, demo, useEngineRev, runDemo } from "./roomStore";
 // Specific imports (NOT the nodeagent barrel) so Node-only model adapters never reach the client bundle.
@@ -116,6 +117,11 @@ export type AgentAskInput = { goal: string; references?: ArtifactRef[]; modelSel
 export type ActorProof = { actor: Actor; token: string };
 export type PrivateStreamAccess = { requester: ActorProof; driven: boolean };
 
+/** One row of the passive room-intelligence feed. Mirrors the backend `FeedItem` contract
+ *  exported from convex/roomActivity.ts — imported directly so backend/client drift is a
+ *  compile error, not a silent runtime mismatch. */
+export type PassiveActivityItem = FeedItem;
+
 type DurableAgentRoute = {
   entrypoint: "public_ask" | "free";
   routePolicy: "fast_default" | "free_auto" | "top_paid" | "explicit";
@@ -202,6 +208,9 @@ export interface RoomStore {
   okfTraceLens(roomId: string): OkfTraceLensTelemetry | null;
   cancelLongFreeJob(jobId: string): Promise<EditFeedback>;
   retryLongFreeJob(jobId: string): Promise<EditFeedback>;
+  /** Passive room-intelligence feed: noteworthy detections, queued/running scans, and failed work.
+   *  [] in memory mode (the demo has no passive backend); reactive in convex mode. */
+  listPassiveActivity(roomId: string): PassiveActivityItem[];
 }
 
 const Ctx = createContext<RoomStore | null>(null);
@@ -466,6 +475,7 @@ export function EngineStoreProvider({ roomId, children }: { roomId: string; me: 
     okfTraceLens: () => null,
     cancelLongFreeJob: async () => ({ ok: true }),
     retryLongFreeJob: async () => ({ ok: true }),
+    listPassiveActivity: () => [], // memory demo has no passive backend
   }), [rev, roomId]);
   return <Ctx.Provider value={store}>{children}</Ctx.Provider>;
 }
@@ -600,6 +610,7 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
   const okfLens = useQuery(api.okf.traceLens, roomQuery) ?? null;
   const runs = useQuery(api.agentRuns.list, roomQuery) ?? [];
   const jobs = useQuery(api.agentJobs.list, roomQuery) ?? [];
+  const passiveActivity = useQuery(api.roomActivity.feed, roomQuery) ?? [];
   const latestJobId = (jobs as Array<{ _id: string }>)[0]?._id;
   const jobAttempts = useQuery(api.agentJobs.attempts, latestJobId ? { jobId: latestJobId as never, requester: proof } : "skip") ?? [];
   const jobDetail = useQuery(api.agentJobs.detail, latestJobId ? { jobId: latestJobId as never, requester: proof } : "skip");
@@ -1159,6 +1170,7 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
         };
       },
       okfTraceLens: () => okfLens as OkfTraceLensTelemetry | null,
+      listPassiveActivity: () => passiveActivity as PassiveActivityItem[],
       cancelLongFreeJob: async (jobId) => {
         try { const r = await cancelFreeAutoJob({ jobId: jobId as never, requester: proof }); return r.ok ? { ok: true } : { ok: false, reason: r.reason }; }
         catch (e) { return { ok: false, reason: e instanceof Error ? e.message : "cancel_failed" }; }
@@ -1168,7 +1180,7 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
         catch (e) { return { ok: false, reason: e instanceof Error ? e.message : "retry_failed" }; }
       },
     };
-  }, [data, metaArtifacts, elementsByArtifact, pub, priv, traces, okfLens, runs, jobs, jobAttempts, jobDetail, proposals, applyCellEdit, sendMsg, toggle, editMsg, resolveProposalMutation, addResearchRowsMutation, createArtifactMutation, uploadSourceFile, runSemanticConflictDrillMutation, runAgent, runPrivateAgent, createPrivateReplyStream, startAgentJob, cancelFreeAutoJob, retryFreeAutoJob, rid, roomId, proof, me.id, me.name]);
+  }, [data, metaArtifacts, elementsByArtifact, pub, priv, traces, okfLens, runs, jobs, jobAttempts, jobDetail, proposals, passiveActivity, applyCellEdit, sendMsg, toggle, editMsg, resolveProposalMutation, addResearchRowsMutation, createArtifactMutation, uploadSourceFile, runSemanticConflictDrillMutation, runAgent, runPrivateAgent, createPrivateReplyStream, startAgentJob, cancelFreeAutoJob, retryFreeAutoJob, rid, roomId, proof, me.id, me.name]);
 
   return (
     <Ctx.Provider value={store}>

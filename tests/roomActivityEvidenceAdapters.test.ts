@@ -306,4 +306,255 @@ describe("passive room activity and evidence adapters", () => {
     expect(facts[0]).toMatchObject({ factId: "example-heading", label: "page_heading", value: "Example Domain" });
     expect(String(facts[0].captureId)).toBe(String(captureId));
   });
+
+  it("surfaces the passive-intelligence feed as a slim client contract across statuses", async () => {
+    const s = await seedRoom();
+    // Low-signal cell → not_noteworthy (settled, quiet).
+    const lowEl = "feed_low__notes";
+    await s.t.run((ctx) =>
+      ctx.db.insert("elements", {
+        artifactId: s.artifactId,
+        elementId: lowEl,
+        version: 1,
+        value: { value: "formatting cleanup only" },
+        updatedAt: Date.now(),
+        updatedBy: s.actor,
+      }),
+    );
+    const low = await s.t.mutation(api.roomActivity.enqueueManual, {
+      roomId: s.roomId, requester: s.proof, sourceKind: "element",
+      sourceId: `${String(s.artifactId)}:${lowEl}`, sourceVersion: 1, sourceHash: "feed-low",
+      eventKind: "cell_committed", quietMs: 1_000,
+    });
+    await s.t.run((ctx) => ctx.db.patch(low.outboxId, { quietUntil: Date.now() - 1 }));
+    await s.t.mutation(internal.roomActivity.scanDueActivity, { roomId: s.roomId, limit: 5 });
+
+    // High-signal cell → job_created attempt (workflow start fails in-test → status failed).
+    const highEl = "feed_high__notes";
+    await s.t.run((ctx) =>
+      ctx.db.insert("elements", {
+        artifactId: s.artifactId,
+        elementId: highEl,
+        version: 1,
+        value: { value: "Acme Health Inc announced Series A funding, product launch, hospital customer pilot, verify source https://example.com" },
+        updatedAt: Date.now(),
+        updatedBy: s.actor,
+      }),
+    );
+    const high = await s.t.mutation(api.roomActivity.enqueueManual, {
+      roomId: s.roomId, requester: s.proof, sourceKind: "element",
+      sourceId: `${String(s.artifactId)}:${highEl}`, sourceVersion: 1, sourceHash: "feed-high",
+      eventKind: "cell_committed", quietMs: 1_000,
+    });
+    await s.t.run((ctx) => ctx.db.patch(high.outboxId, { quietUntil: Date.now() - 1 }));
+    await s.t.mutation(internal.roomActivity.scanDueActivity, { roomId: s.roomId, limit: 5 });
+
+    const feed = await s.t.query(api.roomActivity.feed, { roomId: s.roomId, requester: s.proof });
+    expect(feed.length).toBeGreaterThanOrEqual(2);
+
+    const lowRow = feed.find((r) => r.textPreview === "formatting cleanup only");
+    const highRow = feed.find((r) => r.entityNames.includes("Acme Health Inc"));
+
+    expect(lowRow).toMatchObject({ status: "not_noteworthy", action: "ignore", entityNames: [] });
+    expect(lowRow?.score).toBeLessThan(0.35); // below the research threshold
+    // The slim contract must NOT leak raw finding/decision blobs.
+    expect(lowRow).not.toHaveProperty("finding");
+    expect(lowRow).not.toHaveProperty("decision");
+
+    expect(highRow).toMatchObject({ status: "failed", action: "start_research_job", sourceKind: "element" });
+    expect(highRow?.entityNames).toContain("Acme Health Inc");
+    expect(highRow?.score).toBeGreaterThanOrEqual(0.75);
+    expect(highRow?.latestJobId).toBeTruthy();
+    expect(highRow?.textPreview).toContain("Acme Health Inc");
+  });
+
+  it("rejects the passive feed for a requester without room proof", async () => {
+    const s = await seedRoom();
+    await expect(
+      s.t.query(api.roomActivity.feed, { roomId: s.roomId, requester: { actor: s.actor, token: "wrong-token" } }),
+    ).rejects.toThrow();
+  });
+
+  it("hides another member's private passive activity from the room feed", async () => {
+    const s = await seedRoom();
+    // Seed a second room member (the "owner" of the private note).
+    const guestToken = "guestTokenTOKEN0123456789abcdefXYZ";
+    const guestId = await s.t.run(async (ctx) =>
+      ctx.db.insert("members", {
+        roomId: s.roomId,
+        name: "Guest",
+        role: "member" as const,
+        anon: false,
+        color: "#222222",
+        authTokenHash: await hashToken(guestToken),
+        lastSeenAt: Date.now(),
+      }),
+    );
+    const guestActor = { kind: "user" as const, id: String(guestId), name: "Guest" };
+    const guestProof = { actor: guestActor, token: guestToken };
+
+    // Guest enqueues a PRIVATE noteworthy cell directly into the outbox (bypass the scanner so
+    // the row stays visible with full content to test the feed's visibility filter).
+    const now = Date.now();
+    const privateRowId = await s.t.run((ctx) =>
+      ctx.db.insert("roomActivityOutbox", {
+        roomId: s.roomId,
+        sourceKind: "element",
+        sourceId: `${String(s.artifactId)}:private_cell`,
+        sourceVersion: 1,
+        sourceHash: "private-hash",
+        eventKind: "cell_committed",
+        status: "noteworthy",
+        actor: guestActor,
+        visibility: "private",
+        ownerId: String(guestId),
+        dedupeKey: "activity:private:1",
+        quietUntil: now,
+        attempts: 0,
+        decision: { action: "create_coach_cue", text: "Top secret guest diligence note about CardioNova." },
+        finding: { score: 0.6, action: "create_coach_cue", reasons: ["company_mention"], facets: [], entities: [{ displayName: "CardioNova" }] },
+        createdAt: now,
+        updatedAt: now,
+      }),
+    );
+    // A room-visible row the host SHOULD see.
+    await s.t.run((ctx) =>
+      ctx.db.insert("roomActivityOutbox", {
+        roomId: s.roomId,
+        sourceKind: "element",
+        sourceId: `${String(s.artifactId)}:public_cell`,
+        sourceVersion: 1,
+        sourceHash: "public-hash",
+        eventKind: "cell_committed",
+        status: "noteworthy",
+        actor: s.actor,
+        visibility: "room",
+        dedupeKey: "activity:room:1",
+        quietUntil: now,
+        attempts: 0,
+        decision: { action: "create_coach_cue", text: "Room-visible CardioNova note." },
+        finding: { score: 0.6, action: "create_coach_cue", reasons: ["company_mention"], facets: [], entities: [{ displayName: "CardioNova" }] },
+        createdAt: now,
+        updatedAt: now,
+      }),
+    );
+
+    // Host's feed: sees the room row, must NOT see the guest's private row or its content.
+    const hostFeed = await s.t.query(api.roomActivity.feed, { roomId: s.roomId, requester: s.proof });
+    expect(hostFeed.some((r) => r.id === String(privateRowId))).toBe(false);
+    expect(hostFeed.some((r) => r.textPreview.includes("Top secret guest"))).toBe(false);
+    expect(hostFeed.some((r) => r.visibility === "room")).toBe(true);
+
+    // Guest's own feed: sees their private row WITH content.
+    const guestFeed = await s.t.query(api.roomActivity.feed, { roomId: s.roomId, requester: guestProof });
+    const ownPrivate = guestFeed.find((r) => r.id === String(privateRowId));
+    expect(ownPrivate).toBeTruthy();
+    expect(ownPrivate?.textPreview).toContain("Top secret guest");
+    expect(ownPrivate?.visibility).toBe("private");
+  });
+
+  it("excludes outbox rows older than the 2-day staleness cutoff from the feed", async () => {
+    const s = await seedRoom();
+    const now = Date.now();
+    const stale = now - 3 * 24 * 60 * 60 * 1000; // 3 days ago — outside the window
+    await s.t.run((ctx) =>
+      ctx.db.insert("roomActivityOutbox", {
+        roomId: s.roomId,
+        sourceKind: "element",
+        sourceId: `${String(s.artifactId)}:stale_cell`,
+        sourceVersion: 1,
+        sourceHash: "stale-hash",
+        eventKind: "cell_committed",
+        status: "failed",
+        actor: s.actor,
+        visibility: "room",
+        dedupeKey: "activity:stale:1",
+        quietUntil: stale,
+        attempts: 1,
+        error: "old_failure",
+        decision: { action: "start_research_job", text: "Old stale failure that should not resurface." },
+        finding: { score: 0.8, action: "start_research_job", reasons: ["company_mention"], facets: [], entities: [{ displayName: "OldCo" }] },
+        createdAt: stale,
+        updatedAt: stale,
+      }),
+    );
+    const fresh = now - 60_000; // 1 minute ago — inside the window
+    await s.t.run((ctx) =>
+      ctx.db.insert("roomActivityOutbox", {
+        roomId: s.roomId,
+        sourceKind: "element",
+        sourceId: `${String(s.artifactId)}:fresh_cell`,
+        sourceVersion: 1,
+        sourceHash: "fresh-hash",
+        eventKind: "cell_committed",
+        status: "noteworthy",
+        actor: s.actor,
+        visibility: "room",
+        dedupeKey: "activity:fresh:1",
+        quietUntil: fresh,
+        attempts: 0,
+        decision: { action: "create_coach_cue", text: "Fresh noteworthy activity." },
+        finding: { score: 0.6, action: "create_coach_cue", reasons: ["company_mention"], facets: [], entities: [{ displayName: "FreshCo" }] },
+        createdAt: fresh,
+        updatedAt: fresh,
+      }),
+    );
+
+    const feed = await s.t.query(api.roomActivity.feed, { roomId: s.roomId, requester: s.proof });
+    expect(feed.some((r) => r.entityNames.includes("OldCo"))).toBe(false); // stale dropped
+    expect(feed.some((r) => r.entityNames.includes("FreshCo"))).toBe(true); // fresh kept
+  });
+
+  it("does not let other members' private rows crowd out shared rows in the feed", async () => {
+    const s = await seedRoom();
+    const guestToken = "guestTokenTOKEN0123456789abcdefXYZ";
+    const guestId = await s.t.run(async (ctx) =>
+      ctx.db.insert("members", {
+        roomId: s.roomId,
+        name: "Guest",
+        role: "member" as const,
+        anon: false,
+        color: "#222222",
+        authTokenHash: await hashToken(guestToken),
+        lastSeenAt: Date.now(),
+      }),
+    );
+    const guestActor = { kind: "user" as const, id: String(guestId), name: "Guest" };
+    const now = Date.now();
+
+    // Guest creates 10 private rows (newer than the shared row so they'd crowd take slots
+    // if the query fetched all visibilities before filtering).
+    for (let i = 0; i < 10; i++) {
+      await s.t.run((ctx) =>
+        ctx.db.insert("roomActivityOutbox", {
+          roomId: s.roomId, sourceKind: "element", sourceId: `art:priv${i}`, sourceVersion: 1,
+          sourceHash: `priv-hash-${i}`, eventKind: "cell_committed", status: "noteworthy",
+          actor: guestActor, visibility: "private", ownerId: String(guestId),
+          dedupeKey: `activity:priv:${i}`, quietUntil: now, attempts: 0,
+          decision: { action: "create_coach_cue", text: `Guest private ${i}` },
+          finding: { score: 0.6, action: "create_coach_cue", reasons: ["company_mention"], facets: [], entities: [{ displayName: "GuestPrivate" }] },
+          createdAt: now - i * 1000, updatedAt: now - i * 1000,
+        }),
+      );
+    }
+    // Host's shared row — older than the guest's private rows but must still appear.
+    await s.t.run((ctx) =>
+      ctx.db.insert("roomActivityOutbox", {
+        roomId: s.roomId, sourceKind: "element", sourceId: "art:shared", sourceVersion: 1,
+        sourceHash: "shared-hash", eventKind: "cell_committed", status: "noteworthy",
+        actor: s.actor, visibility: "room",
+        dedupeKey: "activity:shared:1", quietUntil: now, attempts: 0,
+        decision: { action: "create_coach_cue", text: "Host shared note." },
+        finding: { score: 0.6, action: "create_coach_cue", reasons: ["company_mention"], facets: [], entities: [{ displayName: "HostShared" }] },
+        createdAt: now - 20_000, updatedAt: now - 20_000,
+      }),
+    );
+
+    const hostFeed = await s.t.query(api.roomActivity.feed, { roomId: s.roomId, requester: s.proof });
+    // The shared row must still be present despite 10 newer private rows from another member.
+    expect(hostFeed.some((r) => r.entityNames.includes("HostShared"))).toBe(true);
+    // No private content from the guest leaks.
+    expect(hostFeed.some((r) => r.textPreview.includes("Guest private"))).toBe(false);
+    expect(hostFeed.every((r) => r.visibility !== "private")).toBe(true);
+  });
 });

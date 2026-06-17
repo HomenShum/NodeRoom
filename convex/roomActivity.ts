@@ -10,6 +10,9 @@ import { actorProofV, requireActorProof, type ActorValue } from "./lib";
 
 const DEFAULT_QUIET_MS = 12_000;
 const MAX_QUIET_MS = 60_000;
+/** Deploy-safety: the passive feed only surfaces activity from the last 2 days so stale
+ *  historical failed/noteworthy rows don't light up the chip indefinitely after deploy. */
+const FEED_STALENESS_MS = 2 * 24 * 60 * 60 * 1000;
 const terminalJobStatuses = new Set(["completed", "failed", "blocked", "cancelled"]);
 type ActivityStatus = "completed" | "ignored" | "not_noteworthy" | "noteworthy" | "job_created" | "failed";
 type ActivityDecision = {
@@ -163,6 +166,115 @@ export const listRecent = query({
       .take(Math.max(1, Math.min(limit ?? 20, 50)));
   },
 });
+
+/**
+ * Passive-intelligence feed for the room's return-state UI. Returns recent outbox
+ * rows across ALL statuses (newest first), shaped into a slim client contract so the
+ * raw `finding`/`decision` blobs never cross the wire. The inbox filters to actionable
+ * rows client-side; this query stays broad so the chip can also surface "indexing…"
+ * and "failed" states reactively without a second subscription.
+ *
+ * Privacy: a room member only sees room/public activity plus their OWN private rows.
+ * The query uses visibility-scoped indexes so other members' private rows are never
+ * fetched — closing a metadata side-channel that would leak private-activity volume.
+ */
+export const feed = query({
+  args: { roomId: v.id("rooms"), requester: actorProofV, limit: v.optional(v.number()) },
+  handler: async (ctx, { roomId, requester, limit }) => {
+    const actor = await requireActorProof(ctx, roomId, requester);
+    const cutoff = Date.now() - FEED_STALENESS_MS;
+    const cap = Math.max(1, Math.min(limit ?? 30, 60));
+
+    // Shared rows (room + public) — visibility-scoped index fetches ONLY shared rows;
+    // private rows are never touched, so their count/timing can't leak.
+    const roomRows = await ctx.db
+      .query("roomActivityOutbox")
+      .withIndex("by_room_visibility_updated", (q) => q.eq("roomId", roomId).eq("visibility", "room").gte("updatedAt", cutoff))
+      .order("desc")
+      .take(cap);
+    const publicRows = await ctx.db
+      .query("roomActivityOutbox")
+      .withIndex("by_room_visibility_updated", (q) => q.eq("roomId", roomId).eq("visibility", "public").gte("updatedAt", cutoff))
+      .order("desc")
+      .take(cap);
+    // Own private rows — indexed by ownerId so only the requester's rows are fetched.
+    // A private row with no ownerId is excluded from this index (Convex drops undefined
+    // optional fields from index entries), which is correct: an ownerless private row
+    // should never be shown.
+    const ownPrivateRows = await ctx.db
+      .query("roomActivityOutbox")
+      .withIndex("by_room_owner_visibility_updated", (q) => q.eq("roomId", roomId).eq("ownerId", actor.id).eq("visibility", "private").gte("updatedAt", cutoff))
+      .order("desc")
+      .take(cap);
+
+    const merged = [...roomRows, ...publicRows, ...ownPrivateRows]
+      .sort((a, b) => b.updatedAt - a.updatedAt)
+      .slice(0, cap);
+    return merged.map((r) => toFeedItem(r, r.visibility === "private"));
+  },
+});
+
+export type FeedItem = {
+  id: string;
+  sourceKind: string;
+  sourceId: string;
+  eventKind: string;
+  status: string;
+  visibility: string;
+  createdAt: number;
+  updatedAt: number;
+  lastScannedAt?: number;
+  latestJobId?: string;
+  error?: string;
+  entityNames: string[];
+  facets: string[];
+  reasons: string[];
+  score: number;
+  action: string;
+  textPreview: string;
+};
+
+function toFeedItem(row: {
+  _id: Id<"roomActivityOutbox">;
+  sourceKind: string;
+  sourceId: string;
+  eventKind: string;
+  status: string;
+  visibility: "private" | "room" | "public";
+  latestJobId?: Id<"agentJobs">;
+  error?: string;
+  decision?: { action?: string; text?: string };
+  finding?: { score?: number; action?: string; reasons?: string[]; facets?: string[]; entities?: Array<{ displayName?: string }> };
+  createdAt: number;
+  updatedAt: number;
+  lastScannedAt?: number;
+}, isOwner: boolean): FeedItem {
+  const finding = row.finding ?? {};
+  const decision = row.decision ?? {};
+  const entities = Array.isArray(finding.entities) ? finding.entities : [];
+  return {
+    id: String(row._id),
+    sourceKind: row.sourceKind,
+    sourceId: row.sourceId,
+    eventKind: row.eventKind,
+    status: row.status,
+    visibility: row.visibility,
+    createdAt: row.createdAt,
+    updatedAt: row.updatedAt,
+    lastScannedAt: row.lastScannedAt,
+    latestJobId: row.latestJobId ? String(row.latestJobId) : undefined,
+    error: row.error,
+    entityNames: entities.map((e) => String(e.displayName ?? "")).filter(Boolean),
+    facets: Array.isArray(finding.facets) ? finding.facets.map(String) : [],
+    reasons: Array.isArray(finding.reasons) ? finding.reasons.map(String) : [],
+    score: typeof finding.score === "number" ? finding.score : 0,
+    action: String(decision.action ?? finding.action ?? ""),
+    // Only the owner sees the private note's source text in the preview. Room/public rows
+    // still preview (their content is already room-visible), but a non-owner never gets a
+    // private row here — the filter above drops them — so this guard is defense-in-depth.
+    textPreview: (isOwner || row.visibility !== "private") ? String(decision.text ?? "").slice(0, 240) : "",
+  };
+}
 
 export async function scanActivityRow(ctx: MutationCtx, row: {
   _id: Id<"roomActivityOutbox">;
