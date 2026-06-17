@@ -118,12 +118,12 @@ export async function discoverOpenRouterFreeModels(options: {
   signal?: AbortSignal;
 } = {}): Promise<OpenRouterModelInfo[]> {
   const now = options.now ?? Date.now();
-  const ttlMs = options.ttlMs ?? Number(process.env.OPENROUTER_FREE_MODEL_CACHE_MS || 10 * 60 * 1000);
+  const ttlMs = options.ttlMs ?? Number(envValue("OPENROUTER_FREE_MODEL_CACHE_MS") || 10 * 60 * 1000);
   if (!options.forceRefresh && cachedModels && now - cachedModels.fetchedAt < ttlMs) return cachedModels.models;
 
   try {
     const fetchImpl = options.fetchImpl ?? fetch;
-    const res = await fetchImpl(`${process.env.OPENROUTER_BASE_URL ?? "https://openrouter.ai/api/v1"}/models?output_modalities=text`, {
+    const res = await fetchImpl(`${envValue("OPENROUTER_BASE_URL") ?? "https://openrouter.ai/api/v1"}/models?output_modalities=text`, {
       headers: openRouterHeaders(),
       signal: options.signal,
     });
@@ -268,6 +268,12 @@ function openRouterHeaders(): Record<string, string> {
     "HTTP-Referer": "https://noderoom.local",
     "X-Title": "NodeRoom free model discovery",
   };
-  if (process.env.OPENROUTER_API_KEY) headers.Authorization = `Bearer ${process.env.OPENROUTER_API_KEY}`;
+  const apiKey = envValue("OPENROUTER_API_KEY");
+  if (apiKey) headers.Authorization = `Bearer ${apiKey}`;
   return headers;
+}
+
+function envValue(name: string): string | undefined {
+  const value = process.env[name]?.trim();
+  return value || undefined;
 }

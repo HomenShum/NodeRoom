@@ -18,14 +18,15 @@ export interface OkfEmbeddingOptions {
 export async function embedOkfText(text: string, taskType: "RETRIEVAL_DOCUMENT" | "RETRIEVAL_QUERY" = "RETRIEVAL_DOCUMENT", options: OkfEmbeddingOptions = {}): Promise<OkfEmbeddingResult> {
   const env = options.env ?? process.env;
   const artifacts = options.artifacts ?? [];
-  const preferred = (env.OKF_EMBED_PROVIDER ?? "").toLowerCase();
-  if ((preferred === "openai" || preferred === "") && env.OPENAI_API_KEY) {
-    const model = env.OKF_OPENAI_EMBED_MODEL ?? "text-embedding-3-small";
+  const preferred = (envValue(env, "OKF_EMBED_PROVIDER") ?? "").toLowerCase();
+  const openaiKey = envValue(env, "OPENAI_API_KEY");
+  if ((preferred === "openai" || preferred === "") && openaiKey) {
+    const model = envValue(env, "OKF_OPENAI_EMBED_MODEL") ?? "text-embedding-3-small";
     if (!canUseExternalEmbedding(model, artifacts, env)) return localEmbedding(text);
     const res = await fetch("https://api.openai.com/v1/embeddings", {
       method: "POST",
       headers: {
-        authorization: `Bearer ${env.OPENAI_API_KEY}`,
+        authorization: `Bearer ${openaiKey}`,
         "content-type": "application/json",
       },
       body: JSON.stringify({ model, input: text, dimensions: OKF_EMBEDDING_DIMENSION }),
@@ -37,9 +38,9 @@ export async function embedOkfText(text: string, taskType: "RETRIEVAL_DOCUMENT" 
     return { provider: "openai", model, vector: normalizeDimension(values) };
   }
 
-  const geminiKey = env.GOOGLE_GENERATIVE_AI_API_KEY ?? env.GEMINI_API_KEY;
+  const geminiKey = envValue(env, "GOOGLE_GENERATIVE_AI_API_KEY") ?? envValue(env, "GEMINI_API_KEY");
   if ((preferred === "gemini" || preferred === "") && geminiKey) {
-    const model = env.OKF_GEMINI_EMBED_MODEL ?? "gemini-embedding-2";
+    const model = envValue(env, "OKF_GEMINI_EMBED_MODEL") ?? "gemini-embedding-2";
     if (!canUseExternalEmbedding(model, artifacts, env)) return localEmbedding(text);
     const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:embedContent?key=${encodeURIComponent(geminiKey)}`, {
       method: "POST",
@@ -58,6 +59,11 @@ export async function embedOkfText(text: string, taskType: "RETRIEVAL_DOCUMENT" 
   }
 
   return localEmbedding(text);
+}
+
+function envValue(env: Env, name: string): string | undefined {
+  const value = env[name]?.trim();
+  return value || undefined;
 }
 
 function canUseExternalEmbedding(model: string, artifacts: ProviderEgressArtifact[], env: Env): boolean {

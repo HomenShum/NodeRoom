@@ -15,9 +15,14 @@ export type StreamAppend = (text: string) => Promise<void>;
 const MAX_OUTPUT_TOKENS = 1024;
 
 function requireEnv(name: string): string {
-  const value = process.env[name];
+  const value = process.env[name]?.trim();
   if (!value) throw new Error(`missing env ${name}`);
   return value;
+}
+
+function optionalEnv(name: string): string | undefined {
+  const value = process.env[name]?.trim();
+  return value || undefined;
 }
 
 /** Stream the reply token-by-token into `append`; resolves with the full accumulated text. */
@@ -39,8 +44,9 @@ export async function streamPrivateReplyText(
   }
   // vendor/model ids (deepseek/…, anthropic/…, z-ai/…) ride OpenRouter's OpenAI-compatible SSE.
   if (route.provider !== "openrouter") throw new Error(`private_stream_provider_unsupported:${route.provider}`);
+  const openRouterBaseUrl = optionalEnv("OPENROUTER_BASE_URL") ?? "https://openrouter.ai/api/v1";
   return openAiCompatibleStream(
-    process.env.OPENROUTER_BASE_URL ? `${process.env.OPENROUTER_BASE_URL}/chat/completions` : "https://openrouter.ai/api/v1/chat/completions",
+    `${openRouterBaseUrl}/chat/completions`,
     requireEnv("OPENROUTER_API_KEY"),
     { "HTTP-Referer": "https://noderoom.live", "X-Title": "NodeRoom" },
     route.resolvedModel, safeSystem, safeUser, append,

@@ -280,13 +280,18 @@ function providerLanguageModel(provider: ProviderParser, modelId: string): Langu
       return anthropic(modelId);
     case "openrouter":
       return createOpenAI({
-        apiKey: process.env.OPENROUTER_API_KEY,
-        baseURL: process.env.OPENROUTER_BASE_URL ?? "https://openrouter.ai/api/v1",
+        apiKey: envValue("OPENROUTER_API_KEY"),
+        baseURL: envValue("OPENROUTER_BASE_URL") ?? "https://openrouter.ai/api/v1",
         headers: { "HTTP-Referer": "https://noderoom.local", "X-Title": "NodeRoom provider parser" },
       }).chat(modelId);
     default:
       return assertNever(provider);
   }
+}
+
+function envValue(name: string): string | undefined {
+  const value = process.env[name]?.trim();
+  return value || undefined;
 }
 
 function buildExtractionPrompt(prompt: string, file: CanonicalFileRef, source?: ProviderParserSource): string {

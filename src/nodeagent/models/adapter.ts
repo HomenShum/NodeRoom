@@ -27,8 +27,8 @@ import { assertProviderEgressAllowed, assertProviderRouteAllowed, type ProviderE
 // Built lazily (per call) so process.env.OPENROUTER_API_KEY is read AFTER .env.local loads —
 // the direct providers already read their key lazily; this matches them.
 const openrouter = () => createOpenAI({
-  apiKey: process.env.OPENROUTER_API_KEY,
-  baseURL: process.env.OPENROUTER_BASE_URL ?? "https://openrouter.ai/api/v1",
+  apiKey: envValue("OPENROUTER_API_KEY"),
+  baseURL: envValue("OPENROUTER_BASE_URL") ?? "https://openrouter.ai/api/v1",
   headers: { "HTTP-Referer": "https://noderoom.local", "X-Title": "NodeRoom benchmark" },
 });
 
@@ -194,16 +194,23 @@ async function generatePromptText(modelId: string, prompt: string): Promise<Gene
 }
 
 function openRouterFreeAutoLimit(): number {
-  const raw = Number(process.env.OPENROUTER_FREE_AUTO_LIMIT ?? 8);
+  const raw = Number(envValue("OPENROUTER_FREE_AUTO_LIMIT") ?? 8);
   return Number.isFinite(raw) ? Math.max(1, Math.min(20, raw)) : 8;
 }
 
 function shortProviderError(error: unknown): string {
   let message = error instanceof Error ? error.message : String(error);
   for (const value of Object.values(process.env)) {
+    const trimmed = value?.trim();
+    if (trimmed && trimmed.length > 12) message = message.replaceAll(trimmed, "[redacted]");
     if (value && value.length > 12) message = message.replaceAll(value, "[redacted]");
   }
   return message.replace(/\s+/g, " ").slice(0, 240);
+}
+
+function envValue(name: string): string | undefined {
+  const value = process.env[name]?.trim();
+  return value || undefined;
 }
 
 function toSdkMessages(messages: AgentMessage[]): ModelMessage[] {

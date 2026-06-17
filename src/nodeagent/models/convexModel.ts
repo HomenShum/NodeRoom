@@ -125,7 +125,7 @@ async function generateConvexAgentStep(
         return {
           step: withProviderRoute(await withRetry(() => openAiCompatibleStep({
             endpoint: `${openRouterBaseUrl()}/chat/completions`,
-            apiKey: process.env.OPENROUTER_API_KEY,
+            apiKey: envValue("OPENROUTER_API_KEY"),
             headers: openRouterHeaders(),
             modelId: candidate.id,
             system,
@@ -171,7 +171,7 @@ async function providerStep(
   if (provider === "openai") {
     return openAiCompatibleStep({
       endpoint: "https://api.openai.com/v1/chat/completions",
-      apiKey: process.env.OPENAI_API_KEY,
+      apiKey: requireEnv("OPENAI_API_KEY"),
       headers: {},
       modelId,
       system,
@@ -183,7 +183,7 @@ async function providerStep(
   if (provider === "openrouter") {
     return openAiCompatibleStep({
       endpoint: `${openRouterBaseUrl()}/chat/completions`,
-      apiKey: process.env.OPENROUTER_API_KEY,
+      apiKey: envValue("OPENROUTER_API_KEY"),
       headers: openRouterHeaders(),
       modelId,
       system,
@@ -515,13 +515,13 @@ function parseJsonObject(text: string, fallback: JsonObject = {}): JsonObject {
 }
 
 function requireEnv(name: string): string {
-  const value = process.env[name];
+  const value = envValue(name);
   if (!value) throw new Error(`${name} is required for convexModel provider calls`);
   return value;
 }
 
 function openRouterBaseUrl(): string {
-  return process.env.OPENROUTER_BASE_URL ?? "https://openrouter.ai/api/v1";
+  return envValue("OPENROUTER_BASE_URL") ?? "https://openrouter.ai/api/v1";
 }
 
 function openRouterHeaders(): Record<string, string> {
@@ -537,8 +537,13 @@ function fallbackModelFor(modelId: string): string | undefined {
 }
 
 function openRouterFreeAutoLimit(): number {
-  const raw = Number(process.env.OPENROUTER_FREE_AUTO_LIMIT ?? 8);
+  const raw = Number(envValue("OPENROUTER_FREE_AUTO_LIMIT") ?? 8);
   return Number.isFinite(raw) ? Math.max(1, Math.min(20, raw)) : 8;
+}
+
+function envValue(name: string): string | undefined {
+  const value = process.env[name]?.trim();
+  return value || undefined;
 }
 
 function withProviderRoute<T extends AgentStep>(step: T, providerRoute: ProviderRouteReceipt): T & { providerRoute: ProviderRouteReceipt } {
