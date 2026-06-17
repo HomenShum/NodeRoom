@@ -70,4 +70,17 @@ test.describe("trace work-surface tab", () => {
     await page.getByTestId("trace-tab-steps").click();
     await expect(page.getByTestId("trace-step").filter({ hasText: "read_range" }).first()).toBeVisible();
   });
+
+  test("3-entity ledger consolidation fails golden-reference verify (67%) → not shippable, queues fixes", async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await enterDemoRoom(page);
+
+    await page.getByTestId("trace-tab").click();
+    await page.getByTestId("trace-record").filter({ hasText: "ledger consolidation" }).first().click();
+    await expect(page.getByText("Shippable without review? NO", { exact: false }).first()).toBeVisible();
+
+    await page.getByTestId("trace-tab-steps").click();
+    await expect(page.getByTestId("trace-step").filter({ hasText: "mis-keyed entry" }).first()).toBeVisible();
+    await expect(page.getByTestId("trace-step").filter({ hasText: "COGS variance" }).first()).toBeVisible();
+  });
 });
