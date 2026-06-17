@@ -7,6 +7,27 @@ export type GitChange = {
   oldPath?: string;
 };
 
+export type ChangedArea = {
+  area: string;
+  paths: string[];
+  aliases: string[];
+};
+
+const AREA_ALIASES: Record<string, string[]> = {
+  ".github": ["ci", "workflow", "workflows", "github actions", ".github"],
+  convex: ["convex", "backend", "schema", "database"],
+  docs: ["docs", "documentation", "readme"],
+  e2e: ["e2e", "playwright", "browser", "browser tests"],
+  evals: ["eval", "evals", "ladder"],
+  package: ["package", "npm", "dependencies", "scripts"],
+  README: ["readme", "docs", "documentation"],
+  scripts: ["scripts", "script", "tooling", "cli"],
+  src: ["src", "app", "frontend", "ui", "runtime"],
+  tests: ["tests", "test", "vitest"],
+};
+
+const PACKAGE_FILES = new Set(["package.json", "package-lock.json", "pnpm-lock.yaml", "yarn.lock"]);
+
 export function parseNameStatus(input: string): GitChange[] {
   return input
     .split(/\r?\n/)
@@ -25,12 +46,58 @@ export function parseNameStatus(input: string): GitChange[] {
 
 export function renderChangeList(changes: GitChange[]): string {
   if (changes.length === 0) return "Change list:\n- No staged changes.";
-  const lines = ["Change list:"];
+  const lines = ["Changed areas:"];
+  for (const area of changedAreas(changes)) {
+    lines.push(`- ${area.area} - `);
+  }
+  lines.push("", "Changed files (reference):");
   for (const change of changes) {
     const prefix = change.oldPath ? `${change.status} ${change.oldPath} -> ${change.path}` : `${change.status} ${change.path}`;
-    lines.push(`- ${prefix} — `);
+    lines.push(`- ${prefix} - `);
   }
   return lines.join("\n");
+}
+
+export function areaForPath(path: string): string {
+  const normalized = path.replace(/\\/g, "/");
+  const [head] = normalized.split("/");
+  if (!head) return normalized;
+  if (normalized.includes("/")) return head;
+  if (/^readme(\..+)?$/i.test(head)) return "README";
+  if (PACKAGE_FILES.has(head)) return "package";
+  const withoutExtension = head.replace(/\.[^.]+$/, "");
+  return withoutExtension || head;
+}
+
+export function changedAreas(changes: GitChange[]): ChangedArea[] {
+  const byArea = new Map<string, Set<string>>();
+  for (const change of changes) {
+    for (const path of [change.oldPath, change.path].filter(Boolean) as string[]) {
+      const area = areaForPath(path);
+      const paths = byArea.get(area) ?? new Set<string>();
+      paths.add(path);
+      byArea.set(area, paths);
+    }
+  }
+  return Array.from(byArea.entries())
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([area, paths]) => ({
+      area,
+      paths: Array.from(paths).sort(),
+      aliases: Array.from(new Set([area, ...(AREA_ALIASES[area] ?? [])])),
+    }));
+}
+
+function messageMentionsAlias(message: string, alias: string): boolean {
+  const haystack = message.toLowerCase();
+  const needle = alias.toLowerCase();
+  if (needle.startsWith(".") || needle.includes(" ") || needle.includes(".")) return haystack.includes(needle);
+  const escaped = needle.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return new RegExp(`(^|[^a-z0-9_-])${escaped}($|[^a-z0-9_-])`, "i").test(message);
+}
+
+export function missingMentionedAreas(message: string, changes: GitChange[]): ChangedArea[] {
+  return changedAreas(changes).filter((area) => !area.aliases.some((alias) => messageMentionsAlias(message, alias)));
 }
 
 export function missingMentionedPaths(message: string, changes: GitChange[]): GitChange[] {
@@ -75,19 +142,19 @@ function printSummary(): void {
 
 function checkCommit(ref: string): boolean {
   if (isMergeCommit(ref)) {
-    console.log(`${ref}: merge commit detected; skipping file-list commit message check`);
+    console.log(`${ref}: merge commit detected; skipping changed-area commit message check`);
     return true;
   }
   const changes = commitChanges(ref);
   const message = commitMessage(ref);
-  const missing = missingMentionedPaths(message, changes);
+  const missing = missingMentionedAreas(message, changes);
   if (missing.length === 0) {
-    console.log(`${ref}: commit message covers ${changes.length} changed file path(s)`);
+    console.log(`${ref}: commit message covers ${changedAreas(changes).length} changed area(s)`);
     return true;
   }
-  console.error(`${ref}: commit message is missing changed file path(s):`);
-  for (const change of missing) {
-    console.error(`- ${change.path}`);
+  console.error(`${ref}: commit message is missing changed area(s):`);
+  for (const area of missing) {
+    console.error(`- ${area.area} (${area.paths.join(", ")})`);
   }
   return false;
 }
