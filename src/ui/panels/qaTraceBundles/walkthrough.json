@@ -1,0 +1,148 @@
+{
+  "id": "qa-walkthrough",
+  "kind": "qa",
+  "title": "QA · Room walkthrough capture",
+  "subtitle": "Per-step screenshots + frame-Δ (flicker signal) from a Playwright drive of the live app",
+  "ts": "Jun 17, 12:55 AM",
+  "source": {
+    "tool": "Playwright",
+    "version": "qa-trace/capture-flow.ts",
+    "env": "chromium · 1280×800"
+  },
+  "verdict": {
+    "label": "8 steps captured",
+    "tone": "ok"
+  },
+  "steps": [
+    {
+      "idx": 1,
+      "label": "Land in the diligence room",
+      "status": "ok",
+      "group": "Navigate",
+      "attachments": [
+        {
+          "kind": "screenshot",
+          "url": "/qa-trace/walkthrough/step-1.png"
+        }
+      ]
+    },
+    {
+      "idx": 2,
+      "label": "Open Company research",
+      "status": "ok",
+      "group": "Navigate",
+      "attachments": [
+        {
+          "kind": "screenshot",
+          "url": "/qa-trace/walkthrough/step-2.png"
+        },
+        {
+          "kind": "ssim",
+          "diffRatio": 0
+        }
+      ]
+    },
+    {
+      "idx": 3,
+      "label": "Open Diligence memo",
+      "status": "ok",
+      "group": "Navigate",
+      "attachments": [
+        {
+          "kind": "screenshot",
+          "url": "/qa-trace/walkthrough/step-3.png"
+        },
+        {
+          "kind": "ssim",
+          "diffRatio": 0.0493
+        }
+      ]
+    },
+    {
+      "idx": 4,
+      "label": "Open the Trace tab",
+      "status": "ok",
+      "group": "Trace",
+      "attachments": [
+        {
+          "kind": "screenshot",
+          "url": "/qa-trace/walkthrough/step-4.png"
+        },
+        {
+          "kind": "ssim",
+          "diffRatio": 0.0581
+        }
+      ]
+    },
+    {
+      "idx": 5,
+      "label": "Select the QA record",
+      "status": "ok",
+      "group": "Trace",
+      "attachments": [
+        {
+          "kind": "screenshot",
+          "url": "/qa-trace/walkthrough/step-5.png"
+        },
+        {
+          "kind": "ssim",
+          "diffRatio": 0.0639
+        }
+      ]
+    },
+    {
+      "idx": 6,
+      "label": "Open Steps",
+      "status": "ok",
+      "group": "Trace",
+      "attachments": [
+        {
+          "kind": "screenshot",
+          "url": "/qa-trace/walkthrough/step-6.png"
+        },
+        {
+          "kind": "ssim",
+          "diffRatio": 0.03
+        }
+      ]
+    },
+    {
+      "idx": 7,
+      "label": "Private lane",
+      "status": "ok",
+      "group": "Copilot",
+      "attachments": [
+        {
+          "kind": "screenshot",
+          "url": "/qa-trace/walkthrough/step-7.png"
+        },
+        {
+          "kind": "ssim",
+          "diffRatio": 0.0383
+        }
+      ]
+    },
+    {
+      "idx": 8,
+      "label": "Coach mode",
+      "status": "ok",
+      "group": "Copilot",
+      "attachments": [
+        {
+          "kind": "screenshot",
+          "url": "/qa-trace/walkthrough/step-8.png"
+        },
+        {
+          "kind": "ssim",
+          "diffRatio": 0.0478
+        }
+      ]
+    }
+  ],
+  "raw": {
+    "base": "http://localhost:5301",
+    "viewport": "1280x800",
+    "stepCount": 8,
+    "note": "frame-Δ = changed-pixel ratio vs the previous frame"
+  }
+}

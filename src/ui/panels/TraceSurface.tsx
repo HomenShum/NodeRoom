@@ -8,7 +8,7 @@ import { Activity, Wrench, FileCheck2, Camera, ArrowUpRight } from "lucide-react
 import { useStore } from "../../app/store";
 import { buildBankerCoachPacket } from "../bankerCoachPacket";
 import { EvidenceCarouselArtifact } from "../artifacts/EvidenceCarouselArtifact";
-import { QA_TRACE_RECORD, buildAgentTraceRecords, type TraceRecord } from "./traceData";
+import { QA_TRACE_RECORD, QA_BUNDLES, buildAgentTraceRecords, type TraceRecord, type TraceStep, type TraceAttachment } from "./traceData";
 
 type DetailTab = "overview" | "steps" | "evidence" | "raw";
 
@@ -29,6 +29,7 @@ export function TraceSurface({ roomId, onOpenSource }: {
     () => [
       ...buildAgentTraceRecords({ company: packet.company, claim: packet.claim, packet, traces, run }),
       QA_TRACE_RECORD,
+      ...QA_BUNDLES,
     ],
     [packet, traces, run],
   );
@@ -74,7 +75,7 @@ export function TraceSurface({ roomId, onOpenSource }: {
           {tab === "overview" && <TraceOverview record={record} />}
           {tab === "steps" && <TraceSteps record={record} onOpenSource={onOpenSource} />}
           {tab === "evidence" && <EvidenceCarouselArtifact cards={record.evidenceCards ?? []} onOpenArtifact={onOpenSource} />}
-          {tab === "raw" && <pre className="r-tracevu-raw" data-testid="trace-raw">{JSON.stringify(record.raw, null, 2)}</pre>}
+          {tab === "raw" && <TraceRaw record={record} />}
         </div>
       </div>
     </div>
@@ -121,37 +122,85 @@ function TraceOverview({ record }: { record: TraceRecord }) {
   );
 }
 
+/** Group consecutive steps by their `group` label (phase/status/spec). Keeps hundreds navigable. */
+function groupSteps(steps: TraceStep[]): { name: string | null; steps: TraceStep[] }[] {
+  if (!steps.some((s) => s.group)) return [{ name: null, steps }];
+  const out: { name: string | null; steps: TraceStep[] }[] = [];
+  for (const s of steps) {
+    const name = s.group ?? "Other";
+    const last = out[out.length - 1];
+    if (last && last.name === name) last.steps.push(s);
+    else out.push({ name, steps: [s] });
+  }
+  return out;
+}
+
+function StepRow({ s, onOpenSource }: { s: TraceStep; onOpenSource: (artifactId: string, elementId?: string) => void }) {
+  const att = s.attachments ?? [];
+  const shots = att.filter((a): a is Extract<TraceAttachment, { kind: "screenshot" }> => a.kind === "screenshot");
+  const ssims = att.filter((a): a is Extract<TraceAttachment, { kind: "ssim" }> => a.kind === "ssim");
+  const logs = att.filter((a): a is Extract<TraceAttachment, { kind: "log" }> => a.kind === "log");
+  const inner = (
+    <>
+      <span className="r-tracevu-step-idx">{s.idx}</span>
+      <span className="r-tracevu-step-body">
+        <span className="r-tracevu-step-label">
+          {s.label}
+          {ssims.map((a, i) => <span key={i} className="r-tracevu-ssim" data-flicker={String(a.diffRatio > 0.02)}>Δ {(a.diffRatio * 100).toFixed(1)}%</span>)}
+          {s.targetArtifactId && <ArrowUpRight size={11} />}
+        </span>
+        {s.detail && <span className="r-tracevu-step-detail">{s.detail}</span>}
+        {s.screenshotUrl && <a className="r-tracevu-shotlink" href={s.screenshotUrl} target="_blank" rel="noopener noreferrer"><img className="r-tracevu-shot" src={s.screenshotUrl} alt={s.label} loading="lazy" /></a>}
+        {shots.map((a, i) => <a key={i} className="r-tracevu-shotlink" href={a.url} target="_blank" rel="noopener noreferrer"><img className="r-tracevu-shot" src={a.url} alt={a.label ?? s.label} loading="lazy" /></a>)}
+        {logs.map((a, i) => <pre key={i} className="r-tracevu-log">{a.text}</pre>)}
+        {s.metrics && (
+          <span className="r-tracevu-metrics">
+            {s.metrics.map((m) => <span key={m.label}><b>{m.value}</b> {m.label}</span>)}
+          </span>
+        )}
+      </span>
+    </>
+  );
+  return s.targetArtifactId ? (
+    <button type="button" className="r-tracevu-step" data-testid="trace-step" data-tone={s.status} onClick={() => onOpenSource(s.targetArtifactId!, s.targetElementId)}>{inner}</button>
+  ) : (
+    <div className="r-tracevu-step" data-testid="trace-step" data-tone={s.status}>{inner}</div>
+  );
+}
+
 function TraceSteps({ record, onOpenSource }: { record: TraceRecord; onOpenSource: (artifactId: string, elementId?: string) => void }) {
+  const groups = groupSteps(record.steps);
+  // Collapse big runs by default (the hundreds-of-steps case); expand small ones for quick reads.
+  const defaultOpen = record.steps.length <= 40;
+  if (groups.length === 1 && groups[0].name === null) {
+    return (
+      <ol className="r-tracevu-steps">
+        {groups[0].steps.map((s) => <li key={s.idx}><StepRow s={s} onOpenSource={onOpenSource} /></li>)}
+      </ol>
+    );
+  }
   return (
-    <ol className="r-tracevu-steps">
-      {record.steps.map((s) => {
-        const inner = (
-          <>
-            <span className="r-tracevu-step-idx">{s.idx}</span>
-            <span className="r-tracevu-step-body">
-              <span className="r-tracevu-step-label">{s.label}{s.targetArtifactId && <ArrowUpRight size={11} />}</span>
-              {s.detail && <span className="r-tracevu-step-detail">{s.detail}</span>}
-              {s.screenshotUrl && <img className="r-tracevu-shot" src={s.screenshotUrl} alt={s.label} loading="lazy" />}
-              {s.metrics && (
-                <span className="r-tracevu-metrics">
-                  {s.metrics.map((m) => <span key={m.label}><b>{m.value}</b> {m.label}</span>)}
-                </span>
-              )}
-            </span>
-          </>
-        );
-        return (
-          <li key={s.idx}>
-            {s.targetArtifactId ? (
-              <button type="button" className="r-tracevu-step" data-testid="trace-step" data-tone={s.status} onClick={() => onOpenSource(s.targetArtifactId!, s.targetElementId)}>
-                {inner}
-              </button>
-            ) : (
-              <div className="r-tracevu-step" data-testid="trace-step" data-tone={s.status}>{inner}</div>
-            )}
-          </li>
-        );
-      })}
-    </ol>
+    <div className="r-tracevu-groups">
+      {groups.map((g) => (
+        <details key={g.name} className="r-tracevu-group" open={defaultOpen} data-testid="trace-group">
+          <summary><span className="r-tracevu-group-name">{g.name}</span><span className="r-tracevu-group-count">{g.steps.length}</span></summary>
+          <ol className="r-tracevu-steps">
+            {g.steps.map((s) => <li key={s.idx}><StepRow s={s} onOpenSource={onOpenSource} /></li>)}
+          </ol>
+        </details>
+      ))}
+    </div>
+  );
+}
+
+function TraceRaw({ record }: { record: TraceRecord }) {
+  const json = useMemo(() => JSON.stringify(record.raw, null, 2), [record.raw]);
+  const big = json.length > 20000;
+  const href = `data:application/json;charset=utf-8,${encodeURIComponent(json)}`;
+  return (
+    <div className="r-tracevu-rawwrap">
+      {big && <a className="r-tracevu-download" href={href} download={`${record.id}.json`}>Download full JSON ({Math.round(json.length / 1024)} KB)</a>}
+      <pre className="r-tracevu-raw" data-testid="trace-raw">{big ? `${json.slice(0, 20000)}\n… (truncated — download for full)` : json}</pre>
+    </div>
   );
 }

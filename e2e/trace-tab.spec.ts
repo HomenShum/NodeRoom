@@ -37,4 +37,16 @@ test.describe("trace work-surface tab", () => {
     await expect(page.getByTestId("trace-surface")).toHaveCount(0);
     await expect(page.getByTestId("artifact-panel")).toBeVisible();
   });
+
+  test("a producer QA bundle renders grouped steps with per-step frame-Δ (flicker) badges", async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await enterDemoRoom(page);
+
+    await page.getByTestId("trace-tab").click();
+    await page.getByTestId("trace-record").filter({ hasText: "walkthrough" }).first().click();
+    await page.getByTestId("trace-tab-steps").click();
+    // Steps are grouped (collapsible) and carry a frame-Δ flicker signal — the QA-automation pipeline.
+    await expect(page.getByTestId("trace-group").first()).toBeVisible();
+    await expect(page.locator(".r-tracevu-ssim").first()).toBeVisible();
+  });
 });

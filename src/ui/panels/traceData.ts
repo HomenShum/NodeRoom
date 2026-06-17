@@ -11,18 +11,31 @@ import type { AgentRunTelemetry } from "../../app/store";
 
 export type TraceTone = "ok" | "warn" | "risk" | "info";
 
+/** Per-step artifact a QA-automation run attaches (screenshot / log / SSIM-flicker diff). */
+export type TraceAttachment =
+  | { kind: "screenshot"; url: string; label?: string }
+  | { kind: "ssim"; url?: string; diffRatio: number; label?: string }
+  | { kind: "log"; text: string; label?: string };
+
 export interface TraceStep {
   idx: number;
   label: string;
   detail?: string;
   status: TraceTone;
+  /** Collapsible section (phase / spec / status) — keeps hundreds of steps navigable. */
+  group?: string;
   /** When present, the step opens this cell on the work surface (split + pulse). */
   targetArtifactId?: string;
   targetElementId?: string;
   /** QA steps carry a captured screenshot (served from /public/qa-trace) + metrics. */
   screenshotUrl?: string;
   metrics?: { label: string; value: string }[];
+  /** Pipeline-fed evidence: screenshots, logs, SSIM flicker diffs. */
+  attachments?: TraceAttachment[];
 }
+
+/** Client-side cap on rendered steps (BOUND rule). Beyond this, paginate/lazy-load from the server. */
+export const MAX_TRACE_STEPS = 500;
 
 export interface TraceRecord {
   id: string;
@@ -80,6 +93,10 @@ export const QA_TRACE_RECORD: TraceRecord = {
   },
 };
 
+/** Producer-generated trace bundles (scripts/qa-trace/capture-flow.ts) auto-load here — drop a JSON, it appears. */
+const bundleModules = import.meta.glob<{ default: TraceRecord }>("./qaTraceBundles/*.json", { eager: true });
+export const QA_BUNDLES: TraceRecord[] = Object.values(bundleModules).map((m) => m.default);
+
 /** Build the live agent trace record from the room's source-backed claims (coach evidence). */
 export function buildAgentTraceRecords(input: {
   company: string;
@@ -90,11 +107,12 @@ export function buildAgentTraceRecords(input: {
 }): TraceRecord[] {
   const { company, claim, packet, traces, run } = input;
   if (!packet.evidenceCards.length) return [];
-  const steps: TraceStep[] = packet.evidenceCards.slice(0, 12).map((c, i) => ({
+  const steps: TraceStep[] = packet.evidenceCards.slice(0, MAX_TRACE_STEPS).map((c, i) => ({
     idx: i + 1,
     label: c.label,
     detail: c.quote,
     status: c.status === "verified" ? "ok" : c.status === "needs_review" ? "warn" : "info",
+    group: c.status === "verified" ? "Verified" : c.status === "needs_review" ? "Needs review" : "Manual / estimated",
     targetArtifactId: c.targetArtifactId,
     targetElementId: c.targetElementId,
   }));
