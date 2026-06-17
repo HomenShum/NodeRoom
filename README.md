@@ -16,6 +16,8 @@ through the same versioned concurrency control.**
 
 [Deal workplan](#deal-workplan-human-readable-ownership) | [Semantic rebase](#semantic-rebase-compare-reason-swap) | [Research map](#research-backed-design-map)
 
+[Latest Firecrawl capture change](#latest-change-firecrawl-capture-in-convex) | [Convex components](#convex-components-we-reuse) | [Changelog](docs/CHANGELOG.md)
+
 </div>
 
 ---
@@ -79,6 +81,32 @@ It runs in **two modes from the same code**:
   agent selected by `AGENT_MODEL`. Routes are promoted by ladder evidence, not provider brand.
   Verified end-to-end: the agent locks → CAS-edits → releases on real infra and the UI
   syncs reactively.
+
+## Latest Change: Firecrawl Capture In Convex
+
+The latest server-agent update makes source capture work where it belongs:
+inside Convex actions, through a server-only NodeAgent tool registry.
+
+Plain version: NodeRoom now has two capture lanes instead of one overloaded
+path. **Firecrawl** is the default Convex action lane for public web evidence:
+the agent asks to capture a source, Firecrawl fetches it over HTTP, the
+reasoning step extracts structured evidence, and Convex records the result in
+the room trace. **Browserbase** stays available for exact-browser workflows,
+walkthrough recording, and pixel/box evidence, but it is not imported by the
+browser-safe tool registry.
+
+Why this matters:
+
+| If we do not split the lanes | With the Firecrawl adaptation |
+|---|---|
+| Browserbase/Playwright-style dependencies can leak into browser or Convex bundles that should stay simple. | The browser-safe tools stay small; Convex runners import a server-only registry. |
+| A server agent may fail before it can capture the source it needs for a finance or GTM claim. | A Convex action can call `capture_source` through Firecrawl and persist source-backed evidence. |
+| The architecture is hard to explain: one capture path tries to be browser UI, server action, and worker automation all at once. | The rule is clear: Firecrawl for Convex HTTP capture; Browserbase for external exact-browser capture. |
+| Trace evidence is inconsistent because capture is optional or text-only. | Captures record URL, title, extracted data, and step metadata back through the NodeAgent room port. |
+
+Tracked in [`docs/CHANGELOG.md`](docs/CHANGELOG.md) and implemented by
+`SERVER_PRODUCTION_ROOM_TOOLS` plus
+`src/nodeagent/skills/search/captureSourceFirecrawlTool.ts`.
 
 <div align="center">
 
@@ -521,6 +549,26 @@ The same loop powers the adjacent categories — self-healing QA sandboxes where
 stuck agent mid-run, and multi-agent operational simulations watched by many operators — without
 an enterprise-sized DevOps budget. Full stack rationale: [docs/STACK.md](docs/STACK.md).
 Workbook MVP rationale: [docs/architecture/MVP_WORKBOOK_STACK.md](docs/architecture/MVP_WORKBOOK_STACK.md).
+
+## Convex Components We Reuse
+
+NodeRoom uses Convex components authored outside this repo as durable
+infrastructure, not as a replacement for the NodeAgent collaboration harness.
+The official component model is useful here because each component is an
+isolated mini-backend: it cannot read NodeRoom tables or call NodeRoom functions
+unless we explicitly wire that access.
+
+| Component | What it gives us | How NodeRoom adapts it |
+|---|---|---|
+| [`@convex-dev/workflow`](https://www.convex.dev/components/workflow) | Durable multi-step functions with persisted state, delays, retries, cancellation, and reactive status. | Long agent jobs run as slices, but `agentJobs` stays the user-facing source of truth. Workflow ids are runtime metadata. |
+| [`@convex-dev/workpool`](https://www.convex.dev/components/workpool) | Queues for actions/mutations with parallelism limits, backoff, jitter, and completion callbacks. | Background agent slices go through the named `agentWorkpool` so slow routes do not become unbounded server fan-out. |
+| [`@convex-dev/persistent-text-streaming`](https://www.convex.dev/components/persistent-text-streaming) | Streaming text chunks that are also persisted to Convex for recovery and later reads. | Private text replies can stream; spreadsheet/note/wall writes still go through CAS, proposals, and evidence-bearing tools. |
+| [`@convex-dev/agent`](https://www.convex.dev/components/agent) | Agent threads, vector search, and long-running workflows for Convex-native agents. | Researched as an adjacent reference, but not the canonical runtime. NodeAgent keeps custom locks, CellPayload evidence, trace receipts, model routing, and spreadsheet-safe mutation policy. |
+
+In plain language: the Convex components give NodeRoom durable plumbing. They
+do not decide what an agent is allowed to edit. That decision stays in
+NodeAgent, where the app can enforce no-clobber locks, versioned cell writes,
+budget policy, evidence rules, and review-mode proposals.
 
 ## Lessons From Building NodeRoom
 
