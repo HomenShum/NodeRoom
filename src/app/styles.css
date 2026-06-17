@@ -935,6 +935,19 @@ button.r-tracevu-step:hover, button.r-tracevu-step:focus-visible { border-color:
 .r-tracevu-rawwrap { display: flex; flex-direction: column; gap: 8px; }
 .r-tracevu-download { align-self: flex-start; padding: 5px 10px; border-radius: 7px; border: 1px solid var(--line); background: var(--bg-secondary); color: var(--text-secondary); font-size: 11px; font-weight: 600; text-decoration: none; }
 .r-tracevu-download:hover { border-color: var(--accent-border); color: var(--accent-ink); background: var(--accent-tint); }
+.r-tracevu-stepswrap { display: flex; flex-direction: column; gap: 12px; }
+/* Filmstrip: a horizontal preview scroll of step frames — scrub the run, spot a flicker, click to jump. */
+.r-tracevu-film { display: flex; gap: 8px; overflow-x: auto; padding: 2px 2px 10px; border-bottom: 1px solid var(--line); scroll-snap-type: x proximity; }
+.r-tracevu-frame { position: relative; flex: none; width: 132px; padding: 0; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; background: var(--bg-secondary); cursor: pointer; scroll-snap-align: start; transition: border-color var(--motion-fast); }
+.r-tracevu-frame:hover, .r-tracevu-frame:focus-visible { border-color: var(--accent-border); outline: none; }
+.r-tracevu-frame[data-flicker="true"] { border-color: var(--warning-border); }
+.r-tracevu-frame img { display: block; width: 100%; height: 76px; object-fit: cover; object-position: top; }
+.r-tracevu-frame-idx { position: absolute; top: 3px; left: 3px; min-width: 16px; height: 16px; padding: 0 4px; display: grid; place-items: center; border-radius: 5px; background: color-mix(in srgb, var(--bg-primary) 80%, transparent); color: var(--text-secondary); font-size: 9.5px; font-weight: 800; font-family: var(--font-mono); }
+.r-tracevu-frame-d { position: absolute; bottom: 3px; right: 3px; padding: 0 5px; border-radius: 999px; background: color-mix(in srgb, var(--success) 22%, transparent); color: var(--success-ink); font-size: 9px; font-weight: 800; font-family: var(--font-mono); }
+.r-tracevu-frame[data-flicker="true"] .r-tracevu-frame-d { background: var(--warning-tint); color: var(--warning-ink); }
+/* Screenshot highlight box — the region acted on (where it clicked / the extracted SEC cell). */
+.r-tracevu-shotframe { position: relative; display: inline-block; line-height: 0; }
+.r-tracevu-box { position: absolute; border: 2px solid var(--accent-primary); border-radius: 3px; background: color-mix(in srgb, var(--accent-primary) 16%, transparent); box-shadow: 0 0 0 1px var(--bg-primary); pointer-events: none; }
 .r-research td .nullcell { color: var(--text-tertiary); font-family: var(--font-mono); font-size: 11px; }
 .r-research-detail-row td { padding: 0; white-space: normal; background: var(--bg-secondary); border-bottom: 2px solid var(--accent-border); }
 .r-research-detail { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 8px 18px; padding: 12px 14px; position: sticky; left: 0; }

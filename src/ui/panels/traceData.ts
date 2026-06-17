@@ -11,9 +11,11 @@ import type { AgentRunTelemetry } from "../../app/store";
 
 export type TraceTone = "ok" | "warn" | "risk" | "info";
 
-/** Per-step artifact a QA-automation run attaches (screenshot / log / SSIM-flicker diff). */
+/** Per-step artifact a QA-automation run attaches (screenshot / log / SSIM-flicker diff).
+ *  `box` is the normalized (0..1) region acted on — e.g. the element clicked, or the SEC/EDGAR
+ *  cell the value was extracted from — drawn as a highlight over the screenshot (LlamaIndex bbox). */
 export type TraceAttachment =
-  | { kind: "screenshot"; url: string; label?: string }
+  | { kind: "screenshot"; url: string; label?: string; box?: { x: number; y: number; w: number; h: number } }
   | { kind: "ssim"; url?: string; diffRatio: number; label?: string }
   | { kind: "log"; text: string; label?: string };
 

@@ -150,8 +150,19 @@ function StepRow({ s, onOpenSource }: { s: TraceStep; onOpenSource: (artifactId:
           {s.targetArtifactId && <ArrowUpRight size={11} />}
         </span>
         {s.detail && <span className="r-tracevu-step-detail">{s.detail}</span>}
-        {s.screenshotUrl && <a className="r-tracevu-shotlink" href={s.screenshotUrl} target="_blank" rel="noopener noreferrer"><img className="r-tracevu-shot" src={s.screenshotUrl} alt={s.label} loading="lazy" /></a>}
-        {shots.map((a, i) => <a key={i} className="r-tracevu-shotlink" href={a.url} target="_blank" rel="noopener noreferrer"><img className="r-tracevu-shot" src={a.url} alt={a.label ?? s.label} loading="lazy" /></a>)}
+        {s.screenshotUrl && (
+          <a className="r-tracevu-shotlink" href={s.screenshotUrl} target="_blank" rel="noopener noreferrer">
+            <span className="r-tracevu-shotframe"><img className="r-tracevu-shot" src={s.screenshotUrl} alt={s.label} loading="lazy" /></span>
+          </a>
+        )}
+        {shots.map((a, i) => (
+          <a key={i} className="r-tracevu-shotlink" href={a.url} target="_blank" rel="noopener noreferrer">
+            <span className="r-tracevu-shotframe">
+              <img className="r-tracevu-shot" src={a.url} alt={a.label ?? s.label} loading="lazy" />
+              {a.box && <span className="r-tracevu-box" style={{ left: `${a.box.x * 100}%`, top: `${a.box.y * 100}%`, width: `${a.box.w * 100}%`, height: `${a.box.h * 100}%` }} aria-hidden="true" />}
+            </span>
+          </a>
+        ))}
         {logs.map((a, i) => <pre key={i} className="r-tracevu-log">{a.text}</pre>)}
         {s.metrics && (
           <span className="r-tracevu-metrics">
@@ -168,27 +179,57 @@ function StepRow({ s, onOpenSource }: { s: TraceStep; onOpenSource: (artifactId:
   );
 }
 
+function shotUrl(s: TraceStep): string | undefined {
+  return s.screenshotUrl ?? s.attachments?.find((a): a is Extract<TraceAttachment, { kind: "screenshot" }> => a.kind === "screenshot")?.url;
+}
+function stepDelta(s: TraceStep): number | undefined {
+  return s.attachments?.find((a): a is Extract<TraceAttachment, { kind: "ssim" }> => a.kind === "ssim")?.diffRatio;
+}
+
+/** Horizontal preview scroll of step frames — scrub the run, spot a flicker (Δ badge), click to jump. */
+function Filmstrip({ steps }: { steps: TraceStep[] }) {
+  const frames = steps.filter((s) => shotUrl(s));
+  if (frames.length < 2) return null;
+  return (
+    <div className="r-tracevu-film" data-testid="trace-filmstrip" aria-label="Step preview filmstrip">
+      {frames.map((s) => {
+        const d = stepDelta(s);
+        return (
+          <button key={s.idx} type="button" className="r-tracevu-frame" data-flicker={String((d ?? 0) > 0.02)} title={`${s.idx}. ${s.label}`}
+            onClick={() => document.getElementById(`tracestep-${s.idx}`)?.scrollIntoView({ behavior: "smooth", block: "center" })}>
+            <span className="r-tracevu-frame-idx">{s.idx}</span>
+            <img src={shotUrl(s)} alt="" loading="lazy" />
+            {d != null && <span className="r-tracevu-frame-d">{(d * 100).toFixed(0)}%</span>}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
 function TraceSteps({ record, onOpenSource }: { record: TraceRecord; onOpenSource: (artifactId: string, elementId?: string) => void }) {
   const groups = groupSteps(record.steps);
   // Collapse big runs by default (the hundreds-of-steps case); expand small ones for quick reads.
   const defaultOpen = record.steps.length <= 40;
-  if (groups.length === 1 && groups[0].name === null) {
-    return (
-      <ol className="r-tracevu-steps">
-        {groups[0].steps.map((s) => <li key={s.idx}><StepRow s={s} onOpenSource={onOpenSource} /></li>)}
-      </ol>
-    );
-  }
   return (
-    <div className="r-tracevu-groups">
-      {groups.map((g) => (
-        <details key={g.name} className="r-tracevu-group" open={defaultOpen} data-testid="trace-group">
-          <summary><span className="r-tracevu-group-name">{g.name}</span><span className="r-tracevu-group-count">{g.steps.length}</span></summary>
-          <ol className="r-tracevu-steps">
-            {g.steps.map((s) => <li key={s.idx}><StepRow s={s} onOpenSource={onOpenSource} /></li>)}
-          </ol>
-        </details>
-      ))}
+    <div className="r-tracevu-stepswrap">
+      <Filmstrip steps={record.steps} />
+      {groups.length === 1 && groups[0].name === null ? (
+        <ol className="r-tracevu-steps">
+          {groups[0].steps.map((s) => <li key={s.idx} id={`tracestep-${s.idx}`}><StepRow s={s} onOpenSource={onOpenSource} /></li>)}
+        </ol>
+      ) : (
+        <div className="r-tracevu-groups">
+          {groups.map((g) => (
+            <details key={g.name} className="r-tracevu-group" open={defaultOpen} data-testid="trace-group">
+              <summary><span className="r-tracevu-group-name">{g.name}</span><span className="r-tracevu-group-count">{g.steps.length}</span></summary>
+              <ol className="r-tracevu-steps">
+                {g.steps.map((s) => <li key={s.idx} id={`tracestep-${s.idx}`}><StepRow s={s} onOpenSource={onOpenSource} /></li>)}
+              </ol>
+            </details>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

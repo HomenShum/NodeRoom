@@ -48,5 +48,8 @@ test.describe("trace work-surface tab", () => {
     // Steps are grouped (collapsible) and carry a frame-Δ flicker signal — the QA-automation pipeline.
     await expect(page.getByTestId("trace-group").first()).toBeVisible();
     await expect(page.locator(".r-tracevu-ssim").first()).toBeVisible();
+    // A filmstrip previews every frame; screenshots carry a highlight box on the acted-on region.
+    await expect(page.getByTestId("trace-filmstrip")).toBeVisible();
+    await expect(page.locator(".r-tracevu-box").first()).toBeVisible();
   });
 });

@@ -3,7 +3,7 @@
   "kind": "qa",
   "title": "QA · Room walkthrough capture",
   "subtitle": "Per-step screenshots + frame-Δ (flicker signal) from a Playwright drive of the live app",
-  "ts": "Jun 17, 12:55 AM",
+  "ts": "Jun 17, 1:30 AM",
   "source": {
     "tool": "Playwright",
     "version": "qa-trace/capture-flow.ts",
@@ -34,7 +34,13 @@
       "attachments": [
         {
           "kind": "screenshot",
-          "url": "/qa-trace/walkthrough/step-2.png"
+          "url": "/qa-trace/walkthrough/step-2.png",
+          "box": {
+            "x": 0.1611,
+            "y": 0.0844,
+            "w": 0.1327,
+            "h": 0.035
+          }
         },
         {
           "kind": "ssim",
@@ -50,7 +56,13 @@
       "attachments": [
         {
           "kind": "screenshot",
-          "url": "/qa-trace/walkthrough/step-3.png"
+          "url": "/qa-trace/walkthrough/step-3.png",
+          "box": {
+            "x": 0.2961,
+            "y": 0.0844,
+            "w": 0.1197,
+            "h": 0.035
+          }
         },
         {
           "kind": "ssim",
@@ -66,11 +78,17 @@
       "attachments": [
         {
           "kind": "screenshot",
-          "url": "/qa-trace/walkthrough/step-4.png"
+          "url": "/qa-trace/walkthrough/step-4.png",
+          "box": {
+            "x": 0.5478,
+            "y": 0.0844,
+            "w": 0.0577,
+            "h": 0.035
+          }
         },
         {
           "kind": "ssim",
-          "diffRatio": 0.0581
+          "diffRatio": 0.0618
         }
       ]
     },
@@ -82,7 +100,13 @@
       "attachments": [
         {
           "kind": "screenshot",
-          "url": "/qa-trace/walkthrough/step-5.png"
+          "url": "/qa-trace/walkthrough/step-5.png",
+          "box": {
+            "x": 0.0148,
+            "y": 0.2671,
+            "w": 0.1867,
+            "h": 0.1234
+          }
         },
         {
           "kind": "ssim",
@@ -98,11 +122,17 @@
       "attachments": [
         {
           "kind": "screenshot",
-          "url": "/qa-trace/walkthrough/step-6.png"
+          "url": "/qa-trace/walkthrough/step-6.png",
+          "box": {
+            "x": 0.283,
+            "y": 0.206,
+            "w": 0.0431,
+            "h": 0.0362
+          }
         },
         {
           "kind": "ssim",
-          "diffRatio": 0.03
+          "diffRatio": 0.0254
         }
       ]
     },
@@ -114,7 +144,13 @@
       "attachments": [
         {
           "kind": "screenshot",
-          "url": "/qa-trace/walkthrough/step-7.png"
+          "url": "/qa-trace/walkthrough/step-7.png",
+          "box": {
+            "x": 0.9234,
+            "y": 0.0881,
+            "w": 0.0555,
+            "h": 0.0325
+          }
         },
         {
           "kind": "ssim",
@@ -130,7 +166,13 @@
       "attachments": [
         {
           "kind": "screenshot",
-          "url": "/qa-trace/walkthrough/step-8.png"
+          "url": "/qa-trace/walkthrough/step-8.png",
+          "box": {
+            "x": 0.7863,
+            "y": 0.1462,
+            "w": 0.0537,
+            "h": 0.03
+          }
         },
         {
           "kind": "ssim",
