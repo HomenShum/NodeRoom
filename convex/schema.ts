@@ -271,6 +271,27 @@ export default defineSchema({
     detail: v.optional(v.string()),
   }).index("by_room", ["roomId", "ts"]),
 
+  /** Live web/SEC source captures — a screenshot + extracted values WITH the on-screen box each came
+   *  from (visual provenance). Written by the capture action; rendered as a Trace record. */
+  captureRecords: defineTable({
+    roomId: v.id("rooms"),
+    url: v.string(),
+    goal: v.string(),
+    title: v.optional(v.string()),
+    ok: v.boolean(),
+    error: v.optional(v.string()),
+    ts: v.number(),
+    steps: v.array(v.object({
+      phase: v.string(),
+      label: v.string(),
+      status: v.string(),
+      detail: v.optional(v.string()),
+      box: v.optional(v.object({ x: v.number(), y: v.number(), w: v.number(), h: v.number() })),
+      screenshotId: v.optional(v.id("_storage")),
+    })),
+    data: v.optional(v.any()),
+  }).index("by_room", ["roomId", "ts"]),
+
   /** Per-agent-run telemetry — model, steps, tool calls, tokens, cost, latency. */
   agentRuns: defineTable({
     jobId: v.optional(v.id("agentJobs")),

@@ -12,6 +12,7 @@
 import { createContext, useContext, useMemo, useRef, useState, useEffect, useLayoutEffect, useCallback, type ReactNode } from "react";
 import { useQuery, useMutation, useAction } from "convex/react";
 import { api } from "../../convex/_generated/api";
+import type { TraceRecord } from "../ui/panels/traceData";
 import { engine, demo, useEngineRev, runDemo } from "./roomStore";
 // Specific imports (NOT the nodeagent barrel) so Node-only model adapters never reach the client bundle.
 import { runAgent as runHarness } from "../nodeagent/core/runtime";
@@ -152,6 +153,8 @@ export interface RoomStore {
   listMessages(roomId: string, channel: Channel): Message[];
   privateStreamAccess(streamId: string): PrivateStreamAccess | null;
   listTraces(roomId: string): TraceEvent[];
+  /** Live web/SEC source captures (screenshot + box) as Trace records — [] in memory mode. */
+  listCaptureRecords(roomId: string): TraceRecord[];
   listSessions(roomId: string): AgentSession[];
   listDrafts(roomId: string): Draft[];
   listProposals(roomId: string): Proposal[];
@@ -338,6 +341,8 @@ export function EngineStoreProvider({ roomId, children }: { roomId: string; me: 
     listMessages: (id, ch) => engine.listMessages(id, ch),
     privateStreamAccess: () => null,
     listTraces: (id) => engine.listTraces(id),
+    listCaptureRecords: () => [], // in-memory engine doesn't capture live sources
+
     listSessions: (id) => engine.listSessions(id),
     listDrafts: (id) => engine.listDrafts(id),
     listProposals: (id) => engine.listProposals(id),
@@ -585,6 +590,7 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
   const pub = useQuery(api.messages.list, pubQuery) ?? [];
   const priv = useQuery(api.messages.list, privQuery) ?? [];
   const traces = useQuery(api.collab.traces, roomQuery) ?? [];
+  const captures = useQuery(api.captures.byRoom, roomQuery) ?? [];
   const okfLens = useQuery(api.okf.traceLens, roomQuery) ?? null;
   const runs = useQuery(api.agentRuns.list, roomQuery) ?? [];
   const jobs = useQuery(api.agentJobs.list, roomQuery) ?? [];
@@ -819,6 +825,7 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
       listMessages: (_id, ch) => (ch === "public" ? reshapeMsgs(pub) : reshapeMsgs(priv)),
       privateStreamAccess: (streamId) => ({ requester: proof, driven: locallyCreatedPrivateStreams.has(streamId) }),
       listTraces: () => allTraces,
+      listCaptureRecords: () => captures as unknown as TraceRecord[],
       listSessions: () => sessions,
       listDrafts: () => drafts,
       listProposals: () => proposals as unknown as Proposal[],

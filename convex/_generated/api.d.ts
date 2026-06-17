@@ -17,6 +17,8 @@ import type * as agentStepJournalClient from "../agentStepJournalClient.js";
 import type * as agentSteps from "../agentSteps.js";
 import type * as agentWorkflows from "../agentWorkflows.js";
 import type * as artifacts from "../artifacts.js";
+import type * as captures from "../captures.js";
+import type * as capturesNode from "../capturesNode.js";
 import type * as collab from "../collab.js";
 import type * as convexRoomTools from "../convexRoomTools.js";
 import type * as crons from "../crons.js";
@@ -55,6 +57,8 @@ declare const fullApi: ApiFromModules<{
   agentSteps: typeof agentSteps;
   agentWorkflows: typeof agentWorkflows;
   artifacts: typeof artifacts;
+  captures: typeof captures;
+  capturesNode: typeof capturesNode;
   collab: typeof collab;
   convexRoomTools: typeof convexRoomTools;
   crons: typeof crons;

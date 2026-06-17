@@ -23,6 +23,7 @@ export function TraceSurface({ roomId, onOpenSource }: {
   const artifacts = store.listArtifacts(roomId);
   const traces = store.listTraces(roomId);
   const run = store.lastRun();
+  const captureRecords = store.listCaptureRecords(roomId); // live web/SEC captures (Convex); [] in memory mode
   const packet = useMemo(
     () => buildBankerCoachPacket({ roomTitle: room?.title ?? "NodeRoom", artifacts, traces }),
     [room?.title, artifacts, traces],
@@ -30,10 +31,11 @@ export function TraceSurface({ roomId, onOpenSource }: {
   const records = useMemo<TraceRecord[]>(
     () => [
       ...buildAgentTraceRecords({ company: packet.company, claim: packet.claim, packet, traces, run }),
+      ...captureRecords,
       QA_TRACE_RECORD,
       ...QA_BUNDLES,
     ],
-    [packet, traces, run],
+    [packet, traces, run, captureRecords],
   );
   const [selectedId, setSelectedId] = useState<string>(records[0]?.id ?? QA_TRACE_RECORD.id);
   const [tab, setTab] = useState<DetailTab>("overview");
