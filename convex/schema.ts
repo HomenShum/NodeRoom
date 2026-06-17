@@ -293,6 +293,143 @@ export default defineSchema({
   }).index("by_room", ["roomId", "ts"]),
 
   /** Per-agent-run telemetry — model, steps, tool calls, tokens, cost, latency. */
+  /** Passive room activity queue. Mutations enqueue cheap facts here; a quiet-window scanner
+   * decides whether to ignore, index, backlink, or start a durable room-work job. */
+  roomActivityOutbox: defineTable({
+    roomId: v.id("rooms"),
+    sourceKind: v.union(
+      v.literal("node"),
+      v.literal("element"),
+      v.literal("artifact_element"),
+      v.literal("artifact"),
+      v.literal("upload"),
+      v.literal("message"),
+      v.literal("wiki_revision"),
+    ),
+    sourceId: v.string(),
+    sourceVersion: v.optional(v.number()),
+    sourceHash: v.string(),
+    eventKind: v.union(
+      v.literal("idle_after_typing"),
+      v.literal("cell_committed"),
+      v.literal("file_uploaded"),
+      v.literal("manual_enqueue"),
+      v.literal("content_committed"),
+      v.literal("page_hidden"),
+      v.literal("manual_save"),
+      v.literal("artifact_imported"),
+    ),
+    status: v.union(
+      v.literal("queued"),
+      v.literal("running"),
+      v.literal("scanning"),
+      v.literal("completed"),
+      v.literal("ignored"),
+      v.literal("not_noteworthy"),
+      v.literal("noteworthy"),
+      v.literal("job_created"),
+      v.literal("failed"),
+    ),
+    actor: v.optional(actor),
+    visibility: visibilityV,
+    ownerId: v.optional(v.string()),
+    dedupeKey: v.string(),
+    quietUntil: v.number(),
+    nextRunAt: v.optional(v.number()),
+    scheduledFunctionId: v.optional(v.id("_scheduled_functions")),
+    attempts: v.number(),
+    latestJobId: v.optional(v.id("agentJobs")),
+    decision: v.optional(v.any()),
+    finding: v.optional(v.any()),
+    error: v.optional(v.string()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+    lastScannedAt: v.optional(v.number()),
+  })
+    .index("by_status_quietUntil", ["status", "quietUntil"])
+    .index("by_room", ["roomId", "updatedAt"])
+    .index("by_room_status", ["roomId", "status", "updatedAt"])
+    .index("by_room_source", ["roomId", "sourceKind", "sourceId"])
+    .index("by_dedupe", ["dedupeKey", "updatedAt"])
+    .index("by_source", ["sourceKind", "sourceId", "updatedAt"]),
+
+  /** Evidence Accountant capture row. This is distinct from older captureRecords: one capture can
+   * fan out to many extracted facts and CellPayload evidence refs. */
+  sourceCaptures: defineTable({
+    roomId: v.id("rooms"),
+    sourceUrl: v.string(),
+    sourceTitle: v.optional(v.string()),
+    sourceKind: v.union(
+      v.literal("web"),
+      v.literal("pdf"),
+      v.literal("spreadsheet"),
+      v.literal("sec"),
+      v.literal("market_data"),
+      v.literal("dataroom"),
+      v.literal("app"),
+    ),
+    contentHash: v.string(),
+    markdownStorageId: v.optional(v.id("_storage")),
+    htmlStorageId: v.optional(v.id("_storage")),
+    screenshotStorageId: v.optional(v.id("_storage")),
+    viewport: v.optional(v.any()),
+    provider: v.optional(v.string()),
+    capturedByJobId: v.optional(v.id("agentJobs")),
+    visibility: visibilityV,
+    ownerId: v.optional(v.string()),
+    createdAt: v.number(),
+  })
+    .index("by_room_hash", ["roomId", "contentHash"])
+    .index("by_url", ["sourceUrl"])
+    .index("by_job", ["capturedByJobId", "createdAt"]),
+
+  evidenceFacts: defineTable({
+    roomId: v.id("rooms"),
+    captureId: v.optional(v.id("sourceCaptures")),
+    factId: v.string(),
+    label: v.string(),
+    value: v.any(),
+    unit: v.optional(v.string()),
+    period: v.optional(v.string()),
+    quote: v.optional(v.string()),
+    selector: v.optional(v.string()),
+    bboxNorm: v.optional(v.any()),
+    confidence: v.union(v.literal("high"), v.literal("medium"), v.literal("low")),
+    checks: v.any(),
+    usedBy: v.array(v.any()),
+    createdByJobId: v.optional(v.id("agentJobs")),
+    createdAt: v.number(),
+  })
+    .index("by_room_fact", ["roomId", "factId"])
+    .index("by_capture", ["captureId"])
+    .index("by_job", ["createdByJobId", "createdAt"]),
+
+  /** Optional processing adapter ledger. Convex storage ids remain canonical; external ids
+   * (Transloadit assemblies, ConvexFS paths/CDN ids, provider file ids) are cache/runtime metadata. */
+  fileProcessingJobs: defineTable({
+    roomId: v.id("rooms"),
+    uploadedFileId: v.optional(v.id("uploadedFiles")),
+    storageId: v.optional(v.string()),
+    provider: v.union(v.literal("convex_storage"), v.literal("convex_fs"), v.literal("transloadit")),
+    externalId: v.optional(v.string()),
+    purpose: v.union(v.literal("upload"), v.literal("parse"), v.literal("transcode"), v.literal("thumbnail"), v.literal("ocr"), v.literal("normalize")),
+    status: v.union(v.literal("queued"), v.literal("running"), v.literal("waiting"), v.literal("completed"), v.literal("failed"), v.literal("cancelled")),
+    inputMeta: v.optional(v.any()),
+    outputMeta: v.optional(v.any()),
+    resultUrls: v.optional(v.array(v.string())),
+    error: v.optional(v.string()),
+    createdBy: actor,
+    visibility: visibilityV,
+    ownerId: v.optional(v.string()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+    completedAt: v.optional(v.number()),
+  })
+    .index("by_room", ["roomId", "updatedAt"])
+    .index("by_uploaded", ["uploadedFileId", "updatedAt"])
+    .index("by_provider_external", ["provider", "externalId"])
+    .index("by_status", ["status", "updatedAt"]),
+
   agentRuns: defineTable({
     jobId: v.optional(v.id("agentJobs")),
     roomId: v.id("rooms"),

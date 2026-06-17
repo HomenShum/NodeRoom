@@ -1,7 +1,9 @@
 import { v } from "convex/values";
+import { makeFunctionReference } from "convex/server";
 import { internalMutation, internalQuery, mutation } from "./_generated/server";
-import { internal } from "./_generated/api";
 import { actorProofV, requireActorProof } from "./lib";
+
+const noteworthyScanActivityRef = makeFunctionReference<"mutation">("noteworthy:scanActivity") as any;
 
 const sourceKindV = v.union(
   v.literal("node"),
@@ -56,13 +58,14 @@ export const debounceActivityScan = mutation({
     }
 
     const runAt = now + waitMs;
-    const scheduledFunctionId = await ctx.scheduler.runAt(runAt, internal.noteworthy.scanActivity, {
+    const scheduledFunctionId = await ctx.scheduler.runAt(runAt, noteworthyScanActivityRef, {
       roomId: a.roomId,
       sourceKind: a.sourceKind,
       sourceId: a.sourceId,
       expectedVersion: a.sourceVersion,
       expectedHash: a.sourceHash,
     });
+    const dedupeKey = `noteworthy:${String(a.roomId)}:${a.sourceKind}:${a.sourceId}`;
 
     const patch = {
       sourceVersion: a.sourceVersion,
@@ -74,7 +77,9 @@ export const debounceActivityScan = mutation({
       status: "queued" as const,
       attempts: existing ? existing.attempts : 0,
       nextRunAt: runAt,
+      quietUntil: runAt,
       scheduledFunctionId,
+      dedupeKey,
       error: undefined,
       updatedAt: now,
     };
@@ -130,8 +135,40 @@ export const scanActivity = internalMutation({
 
     await ctx.db.patch(row._id, { status: "noteworthy", finding, updatedAt: Date.now() });
 
-    // P0: create durable entity work items only; higher-cost research jobs can attach to these.
-    // This keeps passive intelligence cheap and lets a workflow/workpool process stale/missing facets later.
+    // P0: create a durable job ledger parent plus entity work items only; higher-cost research
+    // can attach to this job later. Child work never floats without an agentJobs source of truth.
+    const artifactId = finding.entities.length ? await firstArtifactId(ctx, a.roomId) : undefined;
+    const requester = row.actor ?? { kind: "agent" as const, id: "passive-room-intelligence", name: "Passive Room Intelligence", scope: "public" as const };
+    const jobId = artifactId ? await ctx.db.insert("agentJobs", {
+      roomId: a.roomId,
+      artifactId,
+      requester,
+      goal: `Passive room intelligence from ${a.sourceKind}:${a.sourceId}`,
+      entrypoint: "room_work" as const,
+      scope: row.visibility === "private" ? "private_user" as const : "public_room" as const,
+      request: { passiveActivity: { sourceKind: a.sourceKind, sourceId: a.sourceId, expectedHash: a.expectedHash, finding } },
+      approvalPolicy: row.visibility === "private" ? "draft_first" as const : "host_review" as const,
+      evidencePolicy: row.visibility === "private" ? "private_allowed" as const : "public_only" as const,
+      traceLevel: "standard" as const,
+      routePolicy: "fast_default" as const,
+      runtimePolicy: "workflow_sliced" as const,
+      idempotencyKey: `passive-job:${a.roomId}:${a.sourceKind}:${a.sourceId}:${a.expectedHash}`,
+      mode: "research" as const,
+      status: "queued" as const,
+      modelPolicy: "passive-cache-first",
+      runtime: "workflow" as const,
+      attempts: 0,
+      maxAttempts: 1,
+      schedulerHandoffCount: 0,
+      modelCallCount: 0,
+      toolCallCount: 0,
+      queryCount: 0,
+      mutationCount: 0,
+      actionSliceCount: 0,
+      receiptCount: 0,
+      createdAt: now,
+      updatedAt: now,
+    }) : undefined;
     for (const entity of finding.entities) {
       for (const facet of finding.facets.length ? finding.facets : ["profile"]) {
         const idempotencyKey = `passive:${a.roomId}:${a.sourceKind}:${a.sourceId}:${entity.entityKey}:${facet}:${a.expectedHash}`;
@@ -143,12 +180,12 @@ export const scanActivity = internalMutation({
 
         await ctx.db.insert("entityWorkItems", {
           roomId: a.roomId,
-          artifactId: await firstArtifactId(ctx, a.roomId),
-          jobId: undefined as any,
-          requester: row.actor,
+          artifactId: artifactId!,
+          jobId: jobId!,
+          requester,
           visibility: row.visibility === "private" ? "private" : "public",
           ownerId: row.ownerId,
-          entityType: entity.type,
+          entityType: asEntityType(entity.type),
           entityKey: entity.entityKey,
           displayName: entity.displayName,
           facet,
@@ -162,7 +199,7 @@ export const scanActivity = internalMutation({
       }
     }
 
-    await ctx.db.patch(row._id, { status: "job_created", updatedAt: Date.now() });
+    await ctx.db.patch(row._id, { status: "job_created", latestJobId: jobId, updatedAt: Date.now() });
     return { ok: true, noteworthy: true, finding };
   },
 });
@@ -240,4 +277,8 @@ function classifyNoteworthy(text: string) {
 
 function normalizeEntityKey(name: string) {
   return name.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "unknown";
+}
+
+function asEntityType(value: string): "company" | "person" | "product" | "source" | "metric" | "unknown" {
+  return value === "company" || value === "person" || value === "product" || value === "source" || value === "metric" ? value : "unknown";
 }

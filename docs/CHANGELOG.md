@@ -1,5 +1,63 @@
 # Changelog
 
+## 2026-06-17 - Passive room intelligence and file-processing adapters
+
+### What changed
+
+- Installed and registered
+  [`@ikhrustalev/convex-debouncer`](https://www.convex.dev/components/ikhrustalev/convex-debouncer)
+  in `convex/convex.config.ts`.
+- Added `roomActivityOutbox` as the quiet-window queue for passive note,
+  spreadsheet, file, artifact, and message activity.
+- Added `convex/roomActivity.ts` with a shared enqueue helper, manual enqueue
+  mutation, debounced scheduler call, and deterministic scan/classification
+  mutation.
+- Hooked successful cell edits into the passive activity outbox without changing
+  the CAS/no-clobber result path.
+- Added `fileProcessingJobs` and `convex/fileProcessing.ts` so Convex storage,
+  Transloadit, and future ConvexFS processing ids are tracked as adapter
+  metadata.
+- Hooked file registration into `fileProcessingJobs` and the passive activity
+  outbox.
+- Added `sourceCaptures`, `evidenceFacts`, and `convex/evidence.ts` for the
+  Evidence Accountant lane.
+- Extended the Firecrawl `recordCapture` port so source captures can also write
+  source/evidence rows, not only trace-facing capture rows.
+- Added `tests/roomActivityEvidenceAdapters.test.ts` covering dedupe/scan,
+  Transloadit external id separation, and source/evidence rows.
+
+### Why it matters in plain language
+
+The core product flow is now represented in durable state:
+
+1. A user types a note, edits a row, or uploads a file.
+2. The fast user mutation saves the work and returns immediately.
+3. Passive activity is debounced so rapid edits do not trigger expensive work.
+4. A later scanner decides whether to ignore, index, create backlinks, or start
+   a durable agent job.
+5. File and source processing ids are attached to the room without replacing
+   the canonical Convex storage id.
+
+### Side-by-side
+
+| Question | Without this change | With this change |
+|---|---|---|
+| What happens when a user types quickly? | Every edit can become a possible scan/job trigger. | Repeated edits collapse into one debounced `roomActivityOutbox` row. |
+| What happens when a file is uploaded? | The raw storage id exists, but processing status and external ids are ad hoc. | `uploadedFiles.storageId` stays canonical; `fileProcessingJobs` tracks Convex/Transloadit/ConvexFS processing metadata. |
+| What happens when Firecrawl extracts a fact? | The trace can show a capture, but downstream cells need a stronger evidence target. | `sourceCaptures` and `evidenceFacts` give CellPayloads and OKF concepts stable evidence refs. |
+| What happens if Transloadit or ConvexFS is introduced later? | They risk becoming a second source of truth for files. | They fit behind the adapter ledger; external ids remain cache/runtime metadata. |
+| What happens if Durable Agents is adopted too early? | A new runtime competes with NodeAgent's lock/CAS/evidence contract and adds a Zod 4 peer conflict. | It remains a researched reference until stable; NodeRoom's durable path stays `agentJobs` + Workflow/Workpool. |
+
+### Component decisions
+
+| Component | Decision |
+|---|---|
+| Convex Debouncer | Adopted now. Compatible and useful for quiet-window passive scans. |
+| Convex File Storage | Already canonical for raw files; keep it as the durable file source of truth. |
+| Transloadit Convex component | Wrap first through `fileProcessingJobs`; direct install waits for credentials/runtime confirmation. |
+| ConvexFS | Future CDN/path adapter; direct install waits because the component is alpha and requires Bunny.net envs. |
+| Durable Agents | Reference only for now; its docs mark it early/not production-ready and it peers on Zod 4. |
+
 ## 2026-06-17 - Firecrawl capture_source adaptation for Convex
 
 ### What changed

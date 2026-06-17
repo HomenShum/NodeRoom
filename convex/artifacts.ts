@@ -18,6 +18,8 @@ import { actorProofV, actorV, getElement, activeLockOn, lockCoveringElement, LOC
 import { syncSpreadsheetIndexFromDb, syncSpreadsheetIndexFromSeed } from "./spreadsheetIndexLib";
 import { planAndRecordRebase } from "./semanticRebase";
 import { enqueueArtifactSnapshotForOkf } from "./okf";
+import { enqueueRoomActivity } from "./roomActivity";
+import { enqueueFileProcessingJob } from "./fileProcessing";
 
 const MAX_ARTIFACT_TITLE_CHARS = 180;
 const MAX_ARTIFACT_SEED_ELEMENTS = 20_000;
@@ -38,6 +40,10 @@ function actorOwnsArtifact(a: ArtifactAcl, actor: ActorValue): boolean {
   if (!a.createdBy) return false;
   if (a.createdBy.kind === actor.kind && a.createdBy.id === actor.id) return true;
   return actor.kind === "agent" && !!actor.ownerId && a.createdBy.kind === "user" && a.createdBy.id === actor.ownerId;
+}
+
+function actorOwnerId(actor: ActorValue): string {
+  return actor.kind === "agent" && actor.ownerId ? actor.ownerId : actor.id;
 }
 
 function canReadArtifact(a: ArtifactAcl, actor: ActorValue): boolean {
@@ -453,6 +459,28 @@ async function applyCellEditCore(ctx: MutationCtx, a: ApplyCellEditArgs) {
     await ctx.db.patch(a.artifactId, { version: art.version + 1, updatedAt: now, order: nextOrder });
     await syncSpreadsheetIndexFromDb(ctx, art);
     await enqueueArtifactSnapshotForOkf(ctx, { roomId: a.roomId, artifactId: a.artifactId, createdByJobId: a.jobId });
+    try {
+      await enqueueRoomActivity(ctx, {
+        roomId: a.roomId,
+        sourceKind: "element",
+        sourceId: `${String(a.artifactId)}:${a.elementId}`,
+        sourceVersion: actual + 1,
+        sourceHash: await sha256hex(JSON.stringify(canonical(a.value))),
+        eventKind: "cell_committed",
+        actor: a.actor,
+        visibility: artifactVisibility(art),
+        ownerId: artifactVisibility(art) === "private" ? actorOwnerId(a.actor) : undefined,
+      });
+    } catch (err) {
+      await ctx.db.insert("traces", {
+        roomId: a.roomId,
+        ts: now,
+        actor: a.actor,
+        type: "room_activity_enqueue_failed",
+        summary: `Passive activity enqueue failed for ${a.elementId}`,
+        detail: String(err).slice(0, 480),
+      });
+    }
     // P0-5 renewal: a successful write under my valid lease extends it — a healthy long job
     // (9-min slices) keeps its lock alive by working, instead of structurally outliving the 5-min TTL.
     if (coveringLock && heldByMe && leaseValid && coveringLock.expiresAt !== undefined) {
@@ -901,6 +929,40 @@ export const registerUploadedFile = mutation({
       summary: `${actor.name} uploaded ${a.fileName}`,
       detail: `upload_file - storage=${String(a.storageId)} - bytes=${a.size}`,
     });
+    try {
+      await enqueueFileProcessingJob(ctx, {
+        roomId: a.roomId,
+        uploadedFileId: fileId,
+        storageId: String(a.storageId),
+        provider: "convex_storage",
+        purpose: "normalize",
+        status: "queued",
+        inputMeta: { fileName: a.fileName, mimeType, size: a.size, sha256: metadata.sha256 },
+        createdBy: actor,
+        visibility: a.visibility ?? "room",
+        ownerId: (a.visibility ?? "room") === "private" ? actorOwnerId(actor) : undefined,
+      });
+      await enqueueRoomActivity(ctx, {
+        roomId: a.roomId,
+        sourceKind: "upload",
+        sourceId: String(fileId),
+        sourceHash: metadata.sha256 ?? await sha256hex(`${a.fileName}:${mimeType}:${a.size}:${String(a.storageId)}`),
+        eventKind: "file_uploaded",
+        actor,
+        visibility: a.visibility ?? "room",
+        ownerId: (a.visibility ?? "room") === "private" ? actorOwnerId(actor) : undefined,
+        quietMs: 1_500,
+      });
+    } catch (err) {
+      await ctx.db.insert("traces", {
+        roomId: a.roomId,
+        ts: now,
+        actor,
+        type: "file_processing_enqueue_failed",
+        summary: `File processing enqueue failed for ${a.fileName}`,
+        detail: String(err).slice(0, 480),
+      });
+    }
     return { fileId, storageId: a.storageId, sha256: metadata.sha256, size: a.size, mimeType, reused: false as const };
   },
 });

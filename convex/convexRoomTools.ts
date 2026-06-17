@@ -45,6 +45,13 @@ const okfOpenLiteralRef = makeFunctionReference<"query">("okf:openLiteralForAgen
 const okfCompareClaimRef = makeFunctionReference<"query">("okf:compareClaimForAgent") as any;
 const okfRecordRetrievalEventRef = makeFunctionReference<"mutation">("okf:recordRetrievalEvent") as any;
 const capturesRecordRef = makeFunctionReference<"mutation">("captures:record") as any;
+const evidenceRecordSourceCaptureRef = makeFunctionReference<"mutation">("evidence:recordSourceCapture") as any;
+const evidenceRecordEvidenceFactRef = makeFunctionReference<"mutation">("evidence:recordEvidenceFact") as any;
+
+async function sha256hex(s: string): Promise<string> {
+  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s));
+  return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, "0")).join("");
+}
 
 export class ConvexRoomTools implements RoomTools {
   public readonly okf: OkfRetrievalPort;
@@ -150,6 +157,38 @@ export class ConvexRoomTools implements RoomTools {
       roomId: this.roomId, url: input.url, goal: input.goal, title: input.title,
       ok: input.ok, error: input.error, ts: Date.now(), steps, data: input.data,
     });
+    try {
+      const contentHash = await sha256hex(JSON.stringify({ url: input.url, title: input.title, data: input.data, steps }));
+      const firstScreenshotId = steps.map((s) => s.screenshotId).find((id): id is string => typeof id === "string");
+      const visibility = this.actor.scope === "private" ? "private" : "room";
+      const captureId = await this.ctx.runMutation(evidenceRecordSourceCaptureRef, {
+        roomId: this.roomId,
+        sourceUrl: input.url,
+        sourceTitle: input.title,
+        sourceKind: "web",
+        contentHash,
+        screenshotStorageId: firstScreenshotId,
+        provider: "firecrawl",
+        capturedByJobId: this.jobId,
+        visibility,
+        ownerId: visibility === "private" ? this.actor.ownerId : undefined,
+      });
+      for (const [key, value] of Object.entries(input.data ?? {})) {
+        await this.ctx.runMutation(evidenceRecordEvidenceFactRef, {
+          roomId: this.roomId,
+          captureId,
+          factId: `${contentHash}:${key}`,
+          label: key,
+          value,
+          confidence: input.ok ? "medium" : "low",
+          checks: { captureOk: input.ok, sourceUrl: input.url },
+          usedBy: this.jobId ? [{ kind: "agentJob", id: String(this.jobId) }] : [],
+          createdByJobId: this.jobId,
+        });
+      }
+    } catch {
+      // Evidence Accountant is additive. The older trace-facing capture record above remains durable.
+    }
   }
 }
 

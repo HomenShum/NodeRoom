@@ -108,6 +108,22 @@ Tracked in [`docs/CHANGELOG.md`](docs/CHANGELOG.md) and implemented by
 `SERVER_PRODUCTION_ROOM_TOOLS` plus
 `src/nodeagent/skills/search/captureSourceFirecrawlTool.ts`.
 
+The same update also adds the passive-room substrate for the singular core
+workflow: "user joins a room, captures a note/file/spreadsheet row, and either
+fills it manually or lets NodeAgent enrich it later." Successful cell edits and
+file uploads now enqueue `roomActivityOutbox` rows; the Convex Debouncer
+component collapses rapid edits into one quiet-window scan; `fileProcessingJobs`
+tracks Convex storage, Transloadit, and future ConvexFS processing ids without
+making those external ids canonical; `sourceCaptures` and `evidenceFacts` give
+Firecrawl captures a banker-grade evidence ledger.
+
+| If we do not add this substrate | With the passive-room adapters |
+|---|---|
+| Every keystroke or pasted row can become an expensive LLM/search call. | Rapid edits debounce into one scanner pass after the user stops typing. |
+| The agent re-searches the same company/person/file because it cannot see pending or cached work. | Outbox rows, file-processing jobs, and entity/facet cache keys give the harness a place to dedupe and reuse. |
+| Upload processing ids, provider file ids, and storage ids get mixed together. | Raw Convex storage ids remain canonical; Transloadit/ConvexFS/provider ids are adapter metadata. |
+| A source-backed cell cites a screenshot or URL loosely. | `sourceCaptures` and `evidenceFacts` can point CellPayload evidence at exact extracted facts. |
+
 <div align="center">
 
 ![NodeRoom — the live 4-panel room after the real agent filled the variance column](docs/screenshots/live-room-after-agent.png)
@@ -563,7 +579,12 @@ unless we explicitly wire that access.
 | [`@convex-dev/workflow`](https://www.convex.dev/components/workflow) | Durable multi-step functions with persisted state, delays, retries, cancellation, and reactive status. | Long agent jobs run as slices, but `agentJobs` stays the user-facing source of truth. Workflow ids are runtime metadata. |
 | [`@convex-dev/workpool`](https://www.convex.dev/components/workpool) | Queues for actions/mutations with parallelism limits, backoff, jitter, and completion callbacks. | Background agent slices go through the named `agentWorkpool` so slow routes do not become unbounded server fan-out. |
 | [`@convex-dev/persistent-text-streaming`](https://www.convex.dev/components/persistent-text-streaming) | Streaming text chunks that are also persisted to Convex for recovery and later reads. | Private text replies can stream; spreadsheet/note/wall writes still go through CAS, proposals, and evidence-bearing tools. |
+| [`@ikhrustalev/convex-debouncer`](https://www.convex.dev/components/ikhrustalev/convex-debouncer) | Server-side quiet-window debouncing for expensive operations. | Installed and registered. `roomActivityOutbox` uses it to run passive scans after edits/uploads settle instead of on every keystroke. |
+| [Convex File Storage](https://docs.convex.dev/file-storage/upload-files) | Built-in upload URLs, storage ids, metadata, and storage APIs. | Canonical raw file store. `uploadedFiles.storageId` remains the durable source of truth for room files. |
+| [`@transloadit/convex`](https://github.com/transloadit/convex) | Signed Uppy/Transloadit assemblies, webhook ingestion, and persisted processing results. | Wrapped through `fileProcessingJobs` first. Direct component install waits for Transloadit keys and Node/runtime confirmation; assembly ids stay adapter metadata. |
+| [ConvexFS](https://www.convex.dev/components/convex-fs) | Path-based files, signed CDN URLs, reference-counted blobs, and Bunny.net-backed global delivery. | Researched as a future CDN/file-path lane. `fileProcessingJobs.provider = "convex_fs"` reserves the adapter shape, but raw Convex storage stays canonical until Bunny envs and alpha risk are accepted. |
 | [`@convex-dev/agent`](https://www.convex.dev/components/agent) | Agent threads, vector search, and long-running workflows for Convex-native agents. | Researched as an adjacent reference, but not the canonical runtime. NodeAgent keeps custom locks, CellPayload evidence, trace receipts, model routing, and spreadsheet-safe mutation policy. |
+| [`convex-durable-agents`](https://www.convex.dev/components/durable-agents) | Async durable tool loops, persistent streaming, crash recovery, and optional Workpool routing. | Researched, not adopted directly yet: its own docs mark it early/not production-ready and it currently peers on Zod 4 while NodeRoom is Zod 3. NodeRoom's production durable agent remains `agentJobs` + Workflow/Workpool + NodeAgent frames. |
 
 In plain language: the Convex components give NodeRoom durable plumbing. They
 do not decide what an agent is allowed to edit. That decision stays in
