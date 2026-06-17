@@ -75,7 +75,8 @@ test.describe("center-stage split mode", () => {
     const stage = page.getByTestId("work-surface");
     const primary = page.getByTestId("artifact-panel");
     const secondary = page.getByTestId("artifact-panel-secondary");
-    await page.getByTestId("copilot-tab-coach").click();
+    await page.getByTestId("copilot-tab-private").click();
+    await page.getByTestId("private-mode-coach").click();
     const coach = page.getByTestId("banker-coach-panel");
     const cards = coach.getByTestId("coach-evidence-card");
 

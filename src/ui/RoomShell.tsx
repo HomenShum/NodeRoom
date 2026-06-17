@@ -56,7 +56,7 @@ export function RoomShell({ roomId, me, onLeave }: { roomId: string; me: Actor; 
   // the contract makes it the focus, and an idle Copilot does not need 380px. Both stay inside the
   // resize clamps (left 176-380, right 280-560), so the user can widen either by dragging.
   const [layout, setLayout] = useState({ left: 232, stage: 1, right: 340 });
-  const [copilotTab, setCopilotTab] = useState<"public" | "private" | "coach">("public");
+  const [copilotTab, setCopilotTab] = useState<"public" | "private">("public");
   const arts = store.listArtifacts(roomId);
   const [artId, setArtId] = useState(() => arts.find((a) => a.kind === "sheet")?.id ?? arts[0]?.id ?? "");
   const [sideArtId, setSideArtId] = useState<string | null>(null);
@@ -377,14 +377,14 @@ function CopilotPanel({
   roomId: string;
   me: Actor;
   privChannel: Channel;
-  active: "public" | "private" | "coach";
-  onActive: (tab: "public" | "private" | "coach") => void;
+  active: "public" | "private";
+  onActive: (tab: "public" | "private") => void;
   onOpenArtifact: (id: string, options?: { split?: boolean; elementId?: string }) => boolean | void;
   style?: CSSProperties;
 }) {
-  // The chat lanes (Room/Private) and the Banker Coach are peer tabs. The coach is its OWN tab so it
-  // never crowds the conversation; on a chat lane the rail is pure chat. Per 6-15 deep-review: the
-  // coach is "organized into tabs (Coach/Evidence/Review/...)", not stacked under the chat.
+  // The chat lanes are peer tabs (Room/Private). The Banker Coach is a MODE inside Private (Chat|Coach),
+  // not a third top-level tab — so a chat lane stays pure chat and the coach never crowds the rail.
+  const [privateMode, setPrivateMode] = useState<"chat" | "coach">("chat");
   return (
     <div className="r-panel right r-copilot" style={style} data-testid="copilot-panel">
       <div className="r-panel-head r-copilot-head">
@@ -397,22 +397,32 @@ function CopilotPanel({
           <button type="button" role="tab" aria-selected={active === "private"} data-on={String(active === "private")} data-testid="copilot-tab-private" onClick={() => onActive("private")}>
             <ShieldCheck size={12} /> Private
           </button>
-          <button type="button" role="tab" aria-selected={active === "coach"} data-on={String(active === "coach")} data-testid="copilot-tab-coach" onClick={() => onActive("coach")}>
-            <Sparkles size={12} /> Coach
-          </button>
         </div>
       </div>
       <div className="r-copilot-body">
-        {active === "coach" ? (
-          <BankerCoachPanel roomId={roomId} onOpenArtifact={onOpenArtifact} />
-        ) : (
+        {active === "public" ? (
           <div className="r-copilot-chatframe">
-            {active === "public" ? (
-              <Chat roomId={roomId} me={me} channel="public" variant="public" agentName="Room NodeAgent" embedded testId="public-chat-panel" onOpenArtifact={onOpenArtifact} />
-            ) : (
-              <Chat roomId={roomId} me={me} channel={privChannel} variant="private" agentName="Your NodeAgent" embedded testId="private-chat-panel" onOpenArtifact={onOpenArtifact} />
-            )}
+            <Chat roomId={roomId} me={me} channel="public" variant="public" agentName="Room NodeAgent" embedded testId="public-chat-panel" onOpenArtifact={onOpenArtifact} />
           </div>
+        ) : (
+          <>
+            {/* Coach is a MODE inside Private (Cluely-style, non-stealthy), not a top-level tab. */}
+            <div className="r-private-modes" role="tablist" aria-label="Private modes">
+              <button type="button" role="tab" aria-selected={privateMode === "chat"} data-on={String(privateMode === "chat")} data-testid="private-mode-chat" onClick={() => setPrivateMode("chat")}>
+                <MessageCircle size={11} /> Chat
+              </button>
+              <button type="button" role="tab" aria-selected={privateMode === "coach"} data-on={String(privateMode === "coach")} data-testid="private-mode-coach" onClick={() => setPrivateMode("coach")}>
+                <Sparkles size={11} /> Coach
+              </button>
+            </div>
+            {privateMode === "coach" ? (
+              <BankerCoachPanel roomId={roomId} onOpenArtifact={onOpenArtifact} />
+            ) : (
+              <div className="r-copilot-chatframe">
+                <Chat roomId={roomId} me={me} channel={privChannel} variant="private" agentName="Your NodeAgent" embedded testId="private-chat-panel" onOpenArtifact={onOpenArtifact} />
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>

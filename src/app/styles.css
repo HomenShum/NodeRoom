@@ -263,6 +263,11 @@ input { font-family: inherit; }
 .r-copilot-tabs button[data-on="true"] { background: var(--accent-tint); color: var(--accent-ink); }
 .r-copilot-body { flex: 1; min-height: 0; display: flex; flex-direction: column; overflow: hidden; }
 .r-copilot-chatframe { flex: 1; min-height: 0; min-width: 0; display: flex; }
+/* Coach is a sub-mode of Private (Chat|Coach), a compact segment mirroring the copilot tabs. */
+.r-private-modes { flex: none; display: inline-flex; gap: 2px; margin: 8px 10px 4px; padding: 3px; width: fit-content; border-radius: 9px; border: 1px solid var(--line); background: var(--bg-secondary); }
+.r-private-modes button { display: inline-flex; align-items: center; gap: 5px; min-height: 24px; padding: 0 9px; border: 0; border-radius: 7px; background: transparent; color: var(--text-muted); font-size: 11px; font-weight: 700; cursor: pointer; transition: background var(--motion-fast), color var(--motion-fast); }
+.r-private-modes button[data-on="true"] { background: var(--accent-tint); color: var(--accent-ink); }
+.r-private-modes button:not([data-on="true"]):hover { background: var(--bg-hover); color: var(--text-secondary); }
 .r-coach-panel { flex: none; margin: 8px 10px 0; border: 1px solid var(--line); border-radius: 8px; background: color-mix(in srgb, var(--bg-secondary) 70%, transparent); box-shadow: var(--shadow-sm); overflow: hidden; }
 .r-coach-head { min-height: 36px; display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 9px; border-bottom: 1px solid var(--line); }
 .r-coach-head > div { min-width: 0; display: flex; flex-direction: column; gap: 1px; }
