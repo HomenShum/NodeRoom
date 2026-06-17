@@ -5,6 +5,7 @@ import type { MutationCtx } from "./_generated/server";
 import type { Id } from "./_generated/dataModel";
 import { actorProofV, requireActorProof } from "./lib";
 import { enqueueEmbeddingJob, sha256hex } from "./embeddings";
+import { enqueueRoomActivity } from "./roomActivity";
 
 const visibilityV = v.union(v.literal("private"), v.literal("room"), v.literal("public"));
 const nodeKindV = v.union(
@@ -242,6 +243,17 @@ export const createChildNode = mutation({
       afterVersions: { parent: parent.version + 1, child: 1, relation: 1, notebook: notebook.version + 1 },
     });
     await enqueueNodeEmbedding(ctx, notebook.roomId, nodeId, { title: a.title, content: a.content }, a.jobId);
+    await enqueueRoomActivity(ctx, {
+      roomId: notebook.roomId,
+      sourceKind: "node",
+      sourceId: String(nodeId),
+      sourceVersion: 1,
+      sourceHash: await sha256hex(nodeText({ title: a.title, content: a.content })),
+      eventKind: "content_committed",
+      actor,
+      visibility,
+      ownerId: visibility === "private" ? actor.id : undefined,
+    });
     return { nodeId, relationId };
   },
 });
@@ -259,7 +271,7 @@ export const updateNodeContent = mutation({
   handler: async (ctx, a) => {
     const node = await ctx.db.get(a.nodeId);
     if (!node || node.isDeleted) throw new Error("node_not_found");
-    await requireActorProof(ctx, node.roomId, a.requester);
+    const actor = await requireActorProof(ctx, node.roomId, a.requester);
     await requireJobInRoom(ctx, node.roomId, a.jobId);
     if (node.version !== a.expectedVersion) throw new Error("node_version_conflict");
     const now = Date.now();
@@ -283,6 +295,17 @@ export const updateNodeContent = mutation({
       afterVersions: { node: nextVersion },
     });
     await enqueueNodeEmbedding(ctx, node.roomId, a.nodeId, { title: a.title ?? node.title, content: a.content }, a.jobId);
+    await enqueueRoomActivity(ctx, {
+      roomId: node.roomId,
+      sourceKind: "node",
+      sourceId: String(a.nodeId),
+      sourceVersion: nextVersion,
+      sourceHash: await sha256hex(nodeText({ title: a.title ?? node.title, content: a.content })),
+      eventKind: "idle_after_typing",
+      actor,
+      visibility: node.visibility,
+      ownerId: node.visibility === "private" ? actor.id : undefined,
+    });
     return { ok: true as const, version: nextVersion };
   },
 });
