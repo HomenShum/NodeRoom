@@ -12,8 +12,9 @@
  */
 import type { ZodType } from "zod";
 
-/** Normalized (0..1) region of the page — same convention as TraceAttachment.box. */
-export interface NormBox { x: number; y: number; w: number; h: number }
+/** Normalized (0..1) region of the page — same convention as TraceAttachment.box. `page` is set for
+ *  PDF citations (which page the box lives on); absent for screenshot-space boxes. Top-left, y-down. */
+export interface NormBox { x: number; y: number; w: number; h: number; page?: number }
 
 export type CaptureStatus = "ok" | "warn" | "risk";
 

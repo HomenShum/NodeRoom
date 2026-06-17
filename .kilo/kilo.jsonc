@@ -1,0 +1,9 @@
+{
+  "$schema": "https://app.kilo.ai/config.json",
+  "indexing": {
+    "model": "mistralai/codestral-embed-2505"
+  },
+  "experimental": {
+    "mcp_timeout": 60000
+  }
+}

@@ -1,0 +1,2335 @@
+REVIEW STATUS OVERLAY — 2026-06-17 latest repo pass
+
+This note is now split into five decision sections. The original transcript/design note remains below for provenance.
+
+Legend:
+✅ Current implementation = present in the repo now.
+🟡 Partially implemented = foundation exists, but product loop is incomplete.
+🔴 Roadmap = valuable direction, but not current repo code.
+
+Evidence checked:
+- convex/agentJobs.ts: startDurableAgentJob(...), createOrReuse inline mode, start/startFreeAuto shared durable path, routePolicy/runtimePolicy/modelPolicy persistence.
+- src/ui/Chat.tsx: @nodeagent trigger, hidden /ask and /free compatibility aliases, Adaptive / Free / Top paid / Specific model picker.
+- src/app/store.tsx: AgentModelSelection and durableRouteForModelSelection(...) into api.agentJobs.start.
+- convex/roomActivity.ts: roomActivityOutbox enqueue, @ikhrustalev/convex-debouncer sliding debounce, scanDueActivity, deterministic classifier, passive job/work-item creation, workflow handoff.
+- convex/noteworthy.ts: debounceActivityScan is now a compatibility wrapper over roomActivity.
+- convex/schema.ts: roomActivityOutbox, sourceCaptures, evidenceFacts, fileProcessingJobs, entityWorkItems, OKF tables, entityResearchCache.
+- convex/evidence.ts: source capture / evidence fact adapters.
+- convex/agentWorkflows.ts: @convex-dev/workflow + workpool-backed freeAutoWorkflow.
+- src/ui/motion/NodeReveal.tsx, NodeCount.tsx, NodeTextReveal.tsx: local lightweight motion wrappers now exist.
+- src/ui/Landing.tsx: motion wrappers are already integrated into the hero, proof metrics, and feature-card reveals.
+- src/ui/insights/NoteworthyInbox.tsx: passive inbox items already reveal through NodeReveal.
+- src/ui/insights/PassiveAgentChip.tsx: passive chip exists, but count animation / new-item affordance are not wired yet.
+- src/app/styles.css: motion tokens and global prefers-reduced-motion guard already exist; dedicated reactBits.css is not present.
+- package.json: workflow, workpool, persistent streaming, and @ikhrustalev/convex-debouncer are installed; Composio, Pushover, Transloadit, Stripe, Polar, Dodo, Lemon Squeezy, and ConvexFS are not installed.
+- tests/roomActivityEvidenceAdapters.test.ts: passive room activity enqueue, dedupe, scan, job/work-item promotion, notebook routing, and noteworthy compatibility wrapper coverage.
+- tests/chatReasoningFrames.test.tsx: @nodeagent + model-selection composer behavior.
+
+================================================================================
+1. CURRENT IMPLEMENTATION
+================================================================================
+
+✅ Public agent UX
+- @nodeagent is the public room-agent invocation surface.
+- /ask and /free remain compatibility aliases, not product-facing commands.
+- The composer exposes Adaptive / Free / Top paid / Specific model route choice.
+- The frontend maps model selection into durable route policy through src/app/store.tsx.
+
+✅ Durable job spine
+- startDurableAgentJob(...) centralizes durable agent job creation.
+- createOrReuse preserves the old inline contract.
+- start and startFreeAuto share the workflow-backed durable path.
+- agentJobs persists routePolicy, runtimePolicy, modelPolicy, approvalPolicy, evidencePolicy, idempotency, workflow handoff, counters, and trace-level data.
+
+✅ Passive room activity backend
+- Backend passive activity is not future anymore.
+- roomActivityOutbox exists and is used.
+- Notebook edits and artifact/spreadsheet element commits enqueue room activity.
+- Sliding debounce exists through @ikhrustalev/convex-debouncer.
+- scanDueActivity re-reads committed source text, classifies noteworthiness, and can create passive agentJobs plus entityWorkItems.
+- convex/noteworthy.ts remains as a wrapper over this unified roomActivity path.
+- Tests cover dedupe, scan, notebook routing, job/work-item promotion, and wrapper compatibility.
+
+✅ Evidence/accounting foundation
+- sourceCaptures and evidenceFacts exist in schema.
+- convex/evidence.ts has adapters for recording captures and evidence facts.
+- Firecrawl capture exists through the live capture path and Convex storage-backed screenshot persistence.
+
+✅ OKF/retrieval foundation
+- okfConcepts, okfChunks, okfEdges, okfOutbox, retrievalEvents, embeddings, and entityResearchCache exist.
+- OKF tools already cover concept read/list, full-text search, semantic search, backlinks/neighbors, citation resolution, literal source open, and claim comparison.
+
+================================================================================
+2. PARTIALLY IMPLEMENTED
+================================================================================
+
+🟡 Passive intelligence product loop
+- Backend enqueue/debounce/scan/job creation is real.
+- PassiveAgentChip and NoteworthyInbox now exist, so the user-facing loop has started.
+- The product still needs the fuller return-state UX: richer indexed/queued/suggested states, clearer source-gap explanations, and broader passive review surfaces beyond the first chip/inbox pass.
+
+🟡 Cache-aware passive planning
+- entityResearchCache and entityWorkItems have the right schema shape.
+- The scanner currently promotes high-signal work mostly as missing_research_now.
+- The next layer should decide fresh_use_cache vs stale_use_cache_and_refresh vs missing_research_now vs manual_only_do_not_research vs contradiction_needs_review before creating expensive work.
+
+🟡 Evidence outputs into UX
+- Evidence capture/fact tables exist.
+- EvidenceCarouselArtifact exists.
+- The full loop from Firecrawl/source capture -> evidenceFacts -> cell payloads / OKF source concepts / visible evidence cards still needs product wiring.
+
+🟡 OKF producers
+- OKF table/tool foundation exists.
+- The named producer files from the original note are proposed, not current files.
+- Notebook/source/evidence/entity/cache producers should be added only where they reduce duplicate manual glue.
+
+🟡 File processing
+- fileProcessingJobs anticipates convex_storage, convex_fs, and transloadit providers.
+- Convex built-in storage is real.
+- ConvexFS/CDN and Transloadit are not installed or wired.
+
+================================================================================
+3. ROADMAP
+================================================================================
+
+🔴 Composio / Pushover / phone notifications
+- Valuable, but not current code.
+- No Composio/Pushover package or notification schema is present.
+- Treat this as a controlled notification/approval sink later, not as a default next step.
+- If chosen, it should emit policy receipts and notify only on material events: approval needed, job complete, source gap, failure, or budget threshold.
+
+🔴 Payments / billing / usage metering
+- Valuable, but not current code.
+- No billingCustomers, billingSubscriptions, billingEntitlements, usageEvents, usageRollups, budgetPolicies, or provider integration exists.
+- Do not put payments in “Now” unless monetization/cost control is explicitly chosen as the next product priority.
+- The architecture should be: provider webhooks update entitlements; agents can explain or draft support actions but cannot mutate billing truth.
+
+🔴 Transloadit
+- fileProcessingJobs anticipates a transloadit provider, but @transloadit/convex is not installed.
+- Keep it behind fileProcessingJobs for large upload/media/OCR/transcode needs later.
+
+🔴 ConvexFS / Bunny CDN
+- Useful for CDN delivery, signed URLs, path-like file organization, and larger evidence/export workflows.
+- Not installed now; keep Convex built-in storage first until CDN/file-scale pain is concrete.
+
+🔴 Nano Banana / generated visuals / walkthrough media
+- Presentation/demo layer only.
+- Never evidence, source proof, financial data, or client-ready exhibit truth.
+
+================================================================================
+4. CONVEX COST MODEL
+================================================================================
+
+The core rule:
+- Query = live reads.
+- Mutation = durable truth, authz, intent capture, no-clobber gates, and scheduled handoff.
+- Action = expensive outside work only.
+- Workflow / scheduled functions = durable background orchestration.
+
+Query
+- Best for app reads.
+- Reactive, cached, consistent, and cheap relative to actions.
+- Cannot call external APIs.
+- Still consumes function calls and database I/O.
+
+Mutation
+- Best for writes, idempotency, admission control, and invariant enforcement.
+- Transactional and deterministic.
+- Correct place to record user intent and schedule later work atomically.
+- Still consumes function calls, write throughput, and database I/O.
+
+Action
+- Best only for external APIs, model calls, fetch, Node libraries, and long-running side effects.
+- Not atomic and not reactive/cached like queries.
+- Action compute is the costlier lane; Node actions are more expensive than Convex-runtime functions.
+- Actions that call many ctx.runQuery / ctx.runMutation calls also create more function calls, DB I/O, and separate transactions.
+
+NodeRoom pattern
+- Do not run an action for every keystroke.
+- Save edits through mutations.
+- Enqueue/debounce passive activity server-side.
+- Use queries for live UI/status.
+- Use workflows/actions only after the saved content is noteworthy and cache/local evidence is insufficient.
+
+================================================================================
+5. NEXT PRIORITY ORDER
+================================================================================
+
+Now — finish the current passive-intelligence loop
+1. Complete and polish the passive activity UI: extend the current inbox/chip into a fuller calm return-state showing what was detected, what was indexed, what was queued, and what needs review.
+2. Add richer cache-aware planning before expensive work: fresh cache, stale refresh, missing research, manual-only, contradiction review.
+3. Wire evidence outputs visibly: sourceCaptures/evidenceFacts -> evidence cards -> cell/OKF references.
+4. Tighten policy guardrails for private notes, room-visible writes, auto-allow, and proposal-first behavior.
+5. Expand targeted tests/evals for passive note, passive spreadsheet, cache hit, stale refresh, private boundary, and source capture.
+
+Next — strengthen evidence and knowledge packaging
+6. Add OKF producers for notebook nodes, source captures, evidence facts, entity cache entries, tasks, and coach cues where needed.
+7. Improve Firecrawl/source capture reuse and dedupe around URL + contentHash + visibility + policy.
+8. Add budget/cost preflight UI for expensive research jobs before payment-provider work.
+
+Later — external integrations only when product priority demands them
+9. Composio/Pushover notification gateway if mobile approval/alerts become the chosen next priority.
+10. Billing/usage/payment provider proof-of-concept if monetization or cost controls become the chosen next priority.
+11. ConvexFS/CDN if file delivery/export scale requires it.
+12. Transloadit if large media/document workflows require resumable uploads, OCR, transcode, or thumbnails.
+13. Generated walkthrough/presentation assets after evidence-critical workflows are solid.
+14. Enterprise MCP gateway/tool marketplace after policy receipts and human approval loops are mature.
+
+================================================================================
+6. REACT BITS UI ENHANCEMENT SPEC
+================================================================================
+
+Review source:
+- React Bits repo: https://github.com/DavidHDev/react-bits
+- Docs: https://reactbits.dev
+- Context7 library: /davidhdev/react-bits
+
+Validated React Bits facts:
+- React Bits is a copy/install-per-component animated React component collection.
+- It has four variants per component: JS-CSS, JS-TW, TS-CSS, TS-TW.
+- NodeRoom should use TS-CSS variants because this repo uses React + TypeScript + plain CSS tokens, not Tailwind.
+- Example install shape, if we choose to use CLI later:
+  npx shadcn@latest add @react-bits/BlurText-TS-CSS
+  npx jsrepo@latest add https://reactbits.dev/r/AnimatedContent-TS-CSS
+- Do not install anything until we choose the first component set and review generated files.
+
+Latest repo delta since this spec was first written:
+- No React Bits package dependency is installed in package.json.
+- NodeReveal, NodeCount, and NodeTextReveal already exist locally in src/ui/motion/ as lightweight adaptations.
+- src/ui/Landing.tsx already uses NodeTextReveal, NodeReveal, and NodeCount.
+- src/ui/insights/NoteworthyInbox.tsx already uses NodeReveal.
+- src/ui/insights/PassiveAgentChip.tsx, src/ui/artifacts/EvidenceCarouselArtifact.tsx, and src/ui/traceLens/TraceLensPanel.tsx are not using the motion wrappers yet.
+- A dedicated src/ui/motion/reactBits.css file does not exist; the current implementation leans on existing tokenized styles plus inline wrapper transitions.
+- docs/DESIGN.md has not been updated yet to describe this adoption.
+
+Adoption principle:
+
+React Bits should make NodeRoom feel alive because real work is happening, not because animation is available.
+
+Use React Bits for:
+- state transitions
+- onboarding / landing clarity
+- passive room-intelligence reveal
+- evidence and trace comprehension
+- count/status changes
+
+Do not use React Bits for:
+- animated spreadsheet cells
+- cursor trails in the work room
+- heavy WebGL backgrounds in the room shell
+- permanent glow loops
+- anything that competes with banker review, cell editing, or source verification
+
+Chosen first components:
+
+1. AnimatedContent or FadeContent
+- Purpose: calm reveal wrapper.
+- Use in NodeRoom as NodeReveal.
+- Best surfaces:
+  - src/ui/insights/NoteworthyInbox.tsx item reveal
+  - src/ui/artifacts/EvidenceCarouselArtifact.tsx source-card reveal
+  - src/ui/traceLens/TraceLensPanel.tsx panel/section reveal
+  - src/ui/Landing.tsx feature-card reveal
+
+2. CountUp
+- Purpose: animate meaningful counters only.
+- Use in NodeRoom as NodeCount.
+- Best surfaces:
+  - passive chip item count
+  - evidence confidence percent
+  - source gap count
+  - query/mutation/action/model-call counters in job detail or trace panels
+  - landing proof metrics
+
+3. BlurText
+- Purpose: restrained text reveal.
+- Use in NodeRoom as NodeTextReveal.
+- Best surfaces:
+  - landing headline
+  - public chat empty state
+  - optional guided-tour headline
+- Do not use inside live chat messages or spreadsheet cells.
+
+4. BorderGlow, optional P1
+- Purpose: one-time emphasis on active review/evidence cards.
+- Use only for:
+  - newly noteworthy passive inbox item
+  - active evidence card
+  - current trace/evidence focus
+- Disable loop by default. If the source component loops, adapt it to a one-shot or hover/focus-only state.
+
+Motion wrapper files:
+
+src/ui/motion/NodeReveal.tsx
+- Wrapper around AnimatedContent/FadeContent.
+- Props:
+  - children
+  - delayMs?
+  - as? optional semantic element if needed
+  - disabled? for tests/reduced motion
+- Responsibilities:
+  - respect prefers-reduced-motion
+  - avoid layout shift
+  - expose no animation when disabled
+  - use NodeRoom CSS variables for duration/easing
+
+src/ui/motion/NodeCount.tsx
+- Wrapper around CountUp or a tiny local count-up adaptation.
+- Props:
+  - value
+  - suffix?
+  - durationMs?
+  - ariaLabel?
+- Responsibilities:
+  - render final value immediately under reduced motion
+  - never hide the numeric value from screen readers
+  - avoid animation for rapidly updating counters
+
+src/ui/motion/NodeTextReveal.tsx
+- Wrapper around BlurText.
+- Props:
+  - text
+  - className?
+  - animateBy?: "words" | "letters"
+  - delayMs?
+- Responsibilities:
+  - words mode by default
+  - static text fallback under reduced motion
+  - no animation in live editable surfaces
+
+src/ui/motion/reactBits.css
+- Optional follow-up if we want a dedicated shared motion stylesheet; not present in the repo right now.
+- Use:
+  - --motion-fast
+  - --motion-base
+  - --motion-slow
+  - --ease-out-expo
+  - --accent-primary
+  - --accent-tint
+  - --accent-border
+  - --bg-primary
+  - --text-primary
+- Must be covered by the global prefers-reduced-motion rule in src/app/styles.css.
+
+Files to touch first:
+
+src/ui/Landing.tsx
+- Already integrated with NodeTextReveal in the headline, NodeReveal around supporting content, and a NodeCount proof row.
+
+src/ui/insights/PassiveAgentChip.tsx
+- Replace static item count with NodeCount.
+- Add one-shot "new item" affordance only when count increases.
+- Keep aria-label exact and stable.
+
+src/ui/insights/NoteworthyInbox.tsx
+- Already wraps list items with NodeReveal.
+- Add data-state/data-tone discipline stays as source of truth.
+- Do not animate if item is failed/error beyond a simple reveal; errors need clarity.
+
+src/ui/artifacts/EvidenceCarouselArtifact.tsx
+- Wrap cards with NodeReveal.
+- Consider NodeCount for confidence percent.
+- Do not animate quote text itself; quote must feel literal and stable.
+
+src/ui/traceLens/TraceLensPanel.tsx
+- Add NodeReveal for the side panel or sections.
+- Add NodeCount for confidence percent if reused from evidence card logic.
+- Runtime trace rows can reveal in order, but only once per open.
+
+src/app/styles.css
+- Existing motion tokens and reduced-motion handling are already in place.
+- Import or append reactBits.css only if we decide the wrappers need a dedicated shared stylesheet.
+- Add any NodeRoom-specific motion classes near current passive inbox / status strip styles.
+- Ensure global reduced-motion rule disables all new motion.
+
+docs/DESIGN.md
+- Add a short "React Bits adoption" note under Motion or UI audit:
+  - TS-CSS variants only
+  - wrappers only, no direct app imports
+  - animation must communicate state
+  - no cursor trails/heavy backgrounds in the work room
+
+PR-sized rollout plan:
+
+PR 1 — Motion wrappers + landing proof
+- Status: mostly complete.
+- NodeReveal, NodeTextReveal, and NodeCount exist locally.
+- Landing.tsx is already integrated.
+- Remaining question is whether to keep the lightweight local adaptation as-is or normalize shared styling further.
+- Verification:
+  - npm run build
+  - browser: landing load, light/dark theme, reduced motion if practical, mobile width
+
+PR 2 — Passive intelligence reveal
+- Status: partially complete.
+- NoteworthyInbox already uses NodeReveal.
+- PassiveAgentChip still needs NodeCount and any one-shot new-item emphasis.
+- Goal: make the backend passive room activity visible without feeling haunted.
+- Verification:
+  - existing passive room activity tests
+  - browser: trigger/list passive items, open/close inbox, keyboard Escape/outside click, mobile width
+
+PR 3 — Evidence and trace comprehension
+- Integrate NodeReveal in EvidenceCarouselArtifact and TraceLensPanel.
+- Use NodeCount for confidence/counter values if it stays calm.
+- Goal: make evidence and runtime state easier to scan.
+- Verification:
+  - browser: evidence cards open source correctly, trace lens opens/closes, no focus trap regressions
+
+PR 4 — Optional active-card emphasis
+- Evaluate BorderGlow or a local derivative.
+- Only apply to active evidence/passive-review card.
+- Must be one-shot, hover/focus-only, or very subtle.
+- Do not ship if it reads as decorative noise.
+
+Implementation guardrails:
+
+- No direct React Bits usage in product files; import NodeRoom wrappers instead.
+- Prefer source-copy/adaptation over pulling broad dependencies.
+- Use TS-CSS, not TS-TW.
+- Do not add Tailwind.
+- Do not animate editable text, spreadsheet cells, or literal evidence quotes.
+- Do not animate every render; use stable keys and one-time reveal where possible.
+- Keep aria-live regions honest; animation should not duplicate announcements.
+- Reduced motion must render the final static state immediately.
+- All colors, borders, shadows, and timings must map to NodeRoom tokens.
+
+Acceptance checklist:
+
+- Build passes.
+- No new console errors.
+- No layout shift in Landing, PassiveAgentChip, NoteworthyInbox, EvidenceCarouselArtifact, or TraceLensPanel.
+- Keyboard focus remains visible.
+- Escape and outside-click still close the passive inbox.
+- Evidence cards still open the correct source.
+- Trace Lens still gates builder mode.
+- Mobile room shell remains usable under 980px and 640px.
+- Reduced motion disables or simplifies all new animation.
+- Visual tone remains banker-grade: calm, legible, evidence-first.
+
+================================================================================
+ORIGINAL NOTE BELOW
+================================================================================
+
+how should we integrate these into noderoom . First do a deep review to onboard to latest noderoom commits and changes. Second read the whole pasted text. Third, bonus, what if users just type something directly into either our convex native tip tap prosemirror notebook or our spreadsheet, and that’s all they touched. Then they just either stop typing and or just put the phone away. How can our agent work on them if it finds it as “noteworthy”. What will make it noteworthy is if the agent reads it and then see that it is a note regarding the person or company or topic or entity or research or news that is worth compiling a research and kicking off a job for (the job may use linkup, firecrawl, or internal world contexts). it could be also adding backlinks, references, etc, like our historical chats regarding the mewagent
+Called tool
+Thought for 9m 37s
+
+According to the 2026-06-17 pasted design text and the latest main files I reviewed, the integration should not be another separate “agent feature.” It should become a Room Activity → Noteworthiness → Entity/OKF/Evidence → Durable Job pipeline layered on top of the current NodeRoom spine.
+
+I reviewed the current repo structure and the pasted text. I did not run the repo locally, so this is a design/codebase review, not a green-test claim.
+
+1. What latest NodeRoom already has
+
+The latest main is much further along than the older diagrams. The repo already has the right core primitives:
+
+Existing live ledger and no-clobber substrate
+
+convex/schema.ts explicitly says the production schema mirrors the in-memory shapes, with per-element versions for CAS, idempotent clientMsgIds for optimistic message reconciliation, locks over element ranges, and the important warning that Convex OCC alone does not prevent stale-baseline clobber — app-level per-element version CAS does.
+
+You already store artifacts as sheet | note | wall, and each artifact has elements; the elements table is explicitly the per-cell/block/sticky CAS unit.
+
+Existing agent/job/runtime spine
+
+agentJobs already includes commandText, request, approvalPolicy, evidencePolicy, routePolicy, runtimePolicy, idempotencyKey, planPreview, workflowId, cursor, handoff, attempts, model/tool/mutation counters, lease fields, and final text. That is exactly the right table for durable fire-and-forget jobs.
+
+Latest repo reality check: the durable start path is now already centralized in convex/agentJobs.ts via startDurableAgentJob(...). createOrReuse uses execution = "inline" to preserve the old single-call contract, while start and startFreeAuto route through the same shared helper with workflow-backed behavior. On the product side, the public chat composer in src/ui/Chat.tsx now treats leading @nodeagent as the primary room-agent invocation, while /ask and /free are hidden compatibility aliases. The same composer exposes route choice directly as Adaptive, Free, Top paid, or Specific model, and src/app/store.tsx maps that through durableRouteForModelSelection into entrypoint, routePolicy, approvalPolicy, autoAllow, and optional modelPolicy.
+
+agentReasoningFrames and entityWorkItems already exist. The schema comments say reasoning frames are explicit queryable units with compact context packs, parent links, evidence state, and child-work metadata; entityWorkItems is already described as durable child work for selective subwork, not “permanent-agent-per-company.”
+
+Existing notebook / graph substrate
+
+The schema already has notebooks, nodes, relationTypes, and relations. nodes support note/folder/wiki_ref/artifact_ref/source/claim/task/agent_summary, have content formats including plain, markdown, lexical, and json, and can link back to artifacts/elements. relations supports graph edges between objects and has indexes by source, target, and relation type.
+
+This is extremely relevant to the “user just typed a note and walked away” case: we already have the graph substrate for backlinks, tasks, source nodes, and claims.
+
+Existing OKF / retrieval substrate
+
+Latest schema.ts already includes okfConcepts, okfChunks, okfEdges, okfOutbox, retrievalEvents, entityResearchCache, embeddingJobs, embeddings, spreadsheet search tables, and spreadsheet dependency tables. OKF concepts have full-text search; chunks have both text search and a vector index; edges represent links/citations/backlinks; entityResearchCache already stores entity/facet cache with freshness/staleness/delta status.
+
+convex/okf.ts is not just a sketch. It already upserts OKF concepts, computes content hashes, writes edges for links/citations, enqueues changed concepts into okfOutbox, and supports artifact snapshot export into OKF concepts.
+
+You also already have OKF retrieval tools: list/read concept, full-text search, semantic search, filters, glob, regex, backlinks, neighbor expansion, source citation resolution, literal source open, and claim comparison.
+
+The Convex RoomTools port already wires those OKF tools into the agent runtime via ConvexOkfRetrievalPort, including vector search with a scan fallback and retrieval-event logging.
+
+Existing Evidence Accountant direction
+
+The pasted text is also aligned: it says NodeAgent should own runtime state, frames, evidence, spreadsheet deltas, and verification receipts, while external harnesses can sit outside. It also says the Evidence Accountant should include raw source content, screenshot/HTML/markdown refs, bbox, extracted value, quote, confidence checks, and downstream artifact links — not just screenshots.
+
+So the correct integration is:
+
+Use the current schema and OKF/retrieval tools as the backbone. Add a passive noteworthiness/outbox pipeline that turns user edits into entity work only when the edit deserves it.
+
+2. The integration target
+
+The one core flow should become:
+
+User types or edits something
+  -> Convex saves the note/cell/block
+  -> edit event enters Noteworthiness Outbox
+  -> cheap scanner decides whether it matters
+  -> if meaningful: entity/facet work item is created
+  -> cache/OKF/retrieval checks prevent duplicate work
+  -> Linkup/Firecrawl/internal context runs only if needed
+  -> agent writes evidence-backed outputs through managed tools
+  -> OKF/backlinks/coach cues update the room
+
+This directly extends the professional workflow contract in the pasted eval text: chat note / file upload / selected artifact / mixed room state should flow into intent + entity extraction, evidence plan, artifact refs, evidence-bearing CellPayload/wiki writes, lock/CAS/draft/no-clobber, and trace/eval result.
+
+3. New layer to add: Room Activity Outbox
+
+Do not call the agent on every keystroke. Add a generic outbox that records committed semantic edit events, not raw typing.
+
+New table
+roomActivityOutbox: defineTable({
+  roomId: v.id("rooms"),
+
+  sourceKind: v.union(
+    v.literal("node"),
+    v.literal("artifact_element"),
+    v.literal("message"),
+    v.literal("wiki_revision")
+  ),
+
+  sourceId: v.string(),
+  sourceVersion: v.number(),
+  sourceHash: v.string(),
+
+  actor: actorV,
+  visibility: visibilityV,
+  ownerId: v.optional(v.string()),
+
+  eventKind: v.union(
+    v.literal("content_committed"),
+    v.literal("idle_after_typing"),
+    v.literal("page_hidden"),
+    v.literal("manual_save"),
+    v.literal("artifact_imported")
+  ),
+
+  status: v.union(
+    v.literal("queued"),
+    v.literal("scanning"),
+    v.literal("not_noteworthy"),
+    v.literal("noteworthy"),
+    v.literal("job_created"),
+    v.literal("failed")
+  ),
+
+  attempts: v.number(),
+  nextRunAt: v.optional(v.number()),
+  error: v.optional(v.string()),
+  createdAt: v.number(),
+  updatedAt: v.number(),
+})
+.index("by_status_nextRunAt", ["status", "nextRunAt"])
+.index("by_room_source", ["roomId", "sourceKind", "sourceId"]);
+
+Why this table matters:
+
+- It decouples typing from agent work.
+- It lets the user put the phone away.
+- It lets the system retry safely.
+- It gives a durable audit path.
+- It lets us batch/skip duplicate scans.
+
+This is the same fire-and-forget shape you want: mutation persists user work, action/workflow handles slow intelligence later.
+
+4. New layer: Noteworthiness Scanner
+
+Add:
+
+convex/noteworthy.ts
+src/nodeagent/core/noteworthiness.ts
+src/nodeagent/skills/diligence/companyEntityExtractor.ts
+src/nodeagent/skills/diligence/noteworthyClassifier.ts
+src/nodeagent/skills/diligence/entityFacetPlanner.ts
+Noteworthiness should not mean “interesting to the model.”
+
+It should mean:
+
+This edit can produce useful structured room knowledge or a useful follow-up action.
+
+Noteworthy signals
+type NoteworthySignal =
+  | "company_mention"
+  | "person_mention"
+  | "product_mention"
+  | "source_url"
+  | "funding_event"
+  | "product_announcement"
+  | "customer_or_buyer_signal"
+  | "hiring_or_headcount_signal"
+  | "pricing_signal"
+  | "competitor_signal"
+  | "runway_or_burn_signal"
+  | "open_question"
+  | "follow_up_task"
+  | "risk_or_headwind"
+  | "metric_or_financial_value"
+  | "news_or_fresh_research_trigger"
+  | "contradiction_with_existing_okf"
+  | "manual_claim_needs_source";
+Noteworthiness score
+type NoteworthyFinding = {
+  score: number; // 0-1
+  action:
+    | "ignore"
+    | "index_only"
+    | "create_backlinks"
+    | "create_coach_cue"
+    | "create_entity_work"
+    | "ask_user"
+    | "start_research_job";
+
+  reasons: NoteworthySignal[];
+
+  entities: Array<{
+    type: "company" | "person" | "product" | "source" | "metric" | "unknown";
+    displayName: string;
+    entityKey: string;
+    confidence: number;
+  }>;
+
+  facets: Array<
+    | "profile"
+    | "funding"
+    | "headcount"
+    | "product"
+    | "competitors"
+    | "pricing"
+    | "hiring"
+    | "runway"
+    | "milestones"
+    | "news"
+    | "source_validation"
+  >;
+
+  privacy: {
+    visibility: "private" | "room" | "public";
+    canUseExternalSearch: boolean;
+    canWriteSharedArtifact: boolean;
+  };
+};
+Thresholds
+score < 0.35:
+  Ignore for agent work.
+  Still index later if part of normal notebook search.
+
+0.35–0.55:
+  Create OKF concept/backlinks only.
+  No external search.
+
+0.55–0.75:
+  Create a suggestion chip / coach cue.
+  Ask before external calls if user preferences require.
+
+> 0.75:
+  Fire-and-forget durable job, if policy allows.
+
+This keeps the feature helpful instead of creepy or expensive.
+
+5. What happens when user types in the notebook and walks away?
+Runtime
+================================================================================
+PASSIVE NOTEBOOK -> NOTEWORTHY AGENT WORKFLOW
+================================================================================
+
+[User]
+  types into Tiptap/ProseMirror notebook:
+  "Met Maya from CardioNova. AI triage for hospitals.
+   They may be raising Series B. Need follow-up on burn and hospital pilots."
+
+        │
+        ▼
+
+[Client editor]
+  - updates local editor instantly
+  - debounce 700–1500ms
+  - on blur / idle / pagehide: flush latest JSON + plain text
+
+        │
+        ▼
+
+[Convex mutation: updateNodeContent]
+  - validate actor
+  - patch node.content
+  - bump node.version
+  - compute contentHash
+  - insert roomActivityOutbox row:
+      sourceKind = "node"
+      sourceId = nodeId
+      sourceVersion = new version
+      sourceHash = contentHash
+      eventKind = "idle_after_typing"
+      status = "queued"
+
+        │
+        ▼
+
+[Noteworthiness action]
+  - waits quiet window, e.g. 8–20s after last edit
+  - re-reads latest node version
+  - if contentHash changed, reschedule
+  - extracts entities:
+      Maya = person
+      CardioNova = company
+      AI triage = product/topic
+      Series B = funding signal
+      burn/pilots = diligence questions
+  - checks OKF, existing entities, entityResearchCache
+  - decides:
+      score = high
+      action = start_research_job
+
+        │
+        ▼
+
+[Convex mutation: create entity work]
+  - upsert OKF concept for note/claim
+  - create relations:
+      note -> CardioNova
+      note -> Maya
+      note -> "Series B"
+      note -> follow-up task
+  - create entityWorkItems:
+      CardioNova/profile
+      CardioNova/funding
+      CardioNova/runway_questions
+      CardioNova/customer_pilots
+  - create/reuse agentJob with idempotency key
+
+        │
+        ▼
+
+[NodeAgent durable workflow]
+  - use local OKF + entityResearchCache first
+  - if missing/stale: use Linkup or Firecrawl
+  - if source URL present: capture_source
+  - produce EvidenceFacts / CellPayloads / CoachCues
+  - write through managed CAS/proposal tools
+
+        │
+        ▼
+
+[UI when user returns]
+  - notebook now has backlinks
+  - company row exists or is suggested
+  - coach cue says:
+      "CardioNova note looked research-worthy. I found funding context, but burn remains manual-only."
+  - evidence carousel shows literal sources
+
+The important product detail:
+
+The agent should not edit the user’s original note unless explicitly allowed. It should add backlinks, side cards, OKF concepts, tasks, and suggested enriched rows.
+
+This respects the user’s notebook as their own writing.
+
+6. What happens when user types directly into spreadsheet and walks away?
+
+Spreadsheet direct edits are even more powerful because the column header tells us intent.
+
+Runtime
+================================================================================
+PASSIVE SPREADSHEET EDIT -> NOTEWORTHY AGENT WORKFLOW
+================================================================================
+
+[User]
+  creates a row:
+    company = CardioNova
+    contact = Maya
+    notes = "AI triage for hospitals; raising Series B; ask about burn"
+
+        │
+        ▼
+
+[Client sheet]
+  - optimistic local row appears
+  - mutation applies cell edits with baseVersion CAS
+  - cells commit as manual evidence
+
+        │
+        ▼
+
+[Convex mutation: applyCellEditCore]
+  - validates room/artifact
+  - checks lock/CAS/formula guard
+  - writes element value
+  - bumps version
+  - trace/receipt written if agent path
+  - enqueue roomActivityOutbox for watched columns:
+      company
+      contact
+      notes
+      source
+      website
+      status
+
+        │
+        ▼
+
+[Noteworthiness action]
+  - reads row context using artifact order + elements
+  - recognizes new company row / material note
+  - searches existing OKF concepts:
+      companies/cardionova?
+      people/maya?
+      prior source refs?
+  - searches entityResearchCache:
+      CardioNova/profile fresh?
+      CardioNova/funding stale?
+      CardioNova/runway missing?
+
+        │
+        ▼
+
+[Cache-aware planner]
+  if fresh:
+    fill from cache, no model/search calls
+
+  if stale:
+    refresh only stale facets
+
+  if missing:
+    create entityWorkItems and agentJob
+
+        │
+        ▼
+
+[Agent outputs]
+  - batch write source-backed cells with write_locked_cell_results
+  - preserve user-owned fields like owner/tier/crm_status
+  - mark weak fields needs_review
+  - create backlinks:
+      row -> company concept
+      row -> source concepts
+      row -> coach cue
+  - update OKF and embeddings
+
+The current schema already supports this because entityResearchCache stores entity type/key/facet, result hash, evidence refs, freshness, valid/stale timestamps, delta status, and last-used time.
+
+7. What makes something “noteworthy”?
+
+Here is the exact rule I would implement.
+
+Not noteworthy
+- spelling/formatting only
+- tiny wording change with no new entity/claim/task
+- same entity/facet already fresh
+- private note that policy says should never trigger automation
+- unsupported random thought with no known workflow mapping
+Index only
+- meaningful but not actionable
+- useful as future search context
+- weak entity mention but no enough confidence
+
+Output:
+
+OKF concept / node index / relation maybe
+No external API call
+No agent job
+Create backlinks / coach cue
+- mentions existing company/person/topic
+- adds a new manual claim
+- references a source or data point
+- asks an open question
+
+Output:
+
+relation edges
+OKF concept update
+possible CoachCue
+no external research unless policy allows
+Start research job
+- new company/person/product
+- new funding/news/product announcement
+- fresh research request implied
+- source gap blocks client-ready status
+- note says “follow up,” “research,” “verify,” “find,” “source”
+- spreadsheet row status is pending/stale
+
+Output:
+
+agentJob + entityWorkItems
+Linkup/Firecrawl/internal context
+OKF + evidence outputs
+8. How this uses Linkup, Firecrawl, and internal world context
+Use internal world context first
+- existing OKF concepts
+- current room artifacts
+- spreadsheet rows
+- notebook nodes
+- relations/backlinks
+- prior traces
+- entityResearchCache
+
+This avoids unnecessary LLM/search/API calls.
+
+Use Linkup when
+- user explicitly asks for fresh research
+- source sufficiency fails
+- company/entity not known locally
+- existing cache is stale/material-delta
+- topic is news/headwinds/competitors/funding/hiring
+Use Firecrawl when
+- we need durable source capture
+- a URL is typed or found
+- a source must be turned into markdown/screenshot/html
+- we need contentHash for future staleness checks
+
+The pasted design text says Firecrawl should be the first capture path for markdown/screenshot/content hash, and Stagehand/Browserbase should be reserved for exact interaction or element bbox fidelity.
+
+Use Stagehand/Browserbase only when
+- source requires browser interaction
+- button/menu/form navigation is needed
+- we need exact bbox for screenshot overlay
+- BankerToolBench-style evidence requires visual proof
+
+Do not make Stagehand default. It is slower and more expensive.
+
+9. The critical cache/dedupe path
+
+Every passive scan should check the cache before creating work.
+
+================================================================================
+NOTEWORTHY CACHE / DEDUPE PATH
+================================================================================
+
+source edit detected
+  │
+  ▼
+normalize entities
+  │
+  ▼
+compute entityKey + facets
+  │
+  ▼
+check active entityWorkItems by idempotencyKey
+  │
+  ├─ running exists
+  │    attach this note/cell as subscriber/context
+  │    do not start duplicate job
+  │
+  └─ no active job
+       │
+       ▼
+check entityResearchCache
+  │
+  ├─ fresh_use_cache
+  │    fill/relink from cache
+  │    no external calls
+  │
+  ├─ stale_use_cache_and_refresh
+  │    show cached result immediately
+  │    schedule low-priority refresh
+  │
+  ├─ missing_research_now
+  │    create durable job
+  │
+  ├─ manual_only_do_not_research
+  │    create manual evidence only
+  │
+  └─ contradiction_needs_review
+       create CoachCue/proposal, not auto-write
+
+The schema already has entityWorkItems.cachePolicy values that almost exactly match this: fresh_use_cache, stale_use_cache_and_refresh, missing_research_now, manual_only_do_not_research, and contradiction_needs_review.
+
+10. Add Evidence Accountant tables
+
+The pasted text is right: screenshots are not enough. Add:
+
+sourceCaptures: defineTable({
+  roomId: v.id("rooms"),
+  sourceUrl: v.string(),
+  sourceTitle: v.optional(v.string()),
+  sourceKind: v.union(
+    v.literal("web"),
+    v.literal("pdf"),
+    v.literal("spreadsheet"),
+    v.literal("sec"),
+    v.literal("market_data"),
+    v.literal("dataroom"),
+    v.literal("app")
+  ),
+  contentHash: v.string(),
+  markdownStorageId: v.optional(v.string()),
+  htmlStorageId: v.optional(v.string()),
+  screenshotStorageId: v.optional(v.string()),
+  viewport: v.optional(v.any()),
+  provider: v.optional(v.string()), // firecrawl | stagehand | browserbase | local_playwright
+  capturedByJobId: v.optional(v.id("agentJobs")),
+  visibility: visibilityV,
+  ownerId: v.optional(v.string()),
+  createdAt: v.number(),
+})
+.index("by_room_hash", ["roomId", "contentHash"])
+.index("by_url", ["sourceUrl"]),
+
+evidenceFacts: defineTable({
+  roomId: v.id("rooms"),
+  captureId: v.id("sourceCaptures"),
+  factId: v.string(),
+  label: v.string(),
+  value: v.any(),
+  unit: v.optional(v.string()),
+  period: v.optional(v.string()),
+  quote: v.optional(v.string()),
+  selector: v.optional(v.string()),
+  bboxNorm: v.optional(v.any()),
+  confidence: v.union(v.literal("high"), v.literal("medium"), v.literal("low")),
+  checks: v.any(),
+  usedBy: v.array(v.any()),
+  createdByJobId: v.optional(v.id("agentJobs")),
+  createdAt: v.number(),
+})
+.index("by_room_fact", ["roomId", "factId"])
+.index("by_capture", ["captureId"]);
+
+Then every source-backed CellPayload.evidence[] can point to an evidenceFact.factId, and OKF can package it into sources/*.md and cells/*.md.
+
+11. How to integrate with current OKF
+
+You already have enqueueArtifactSnapshotForOkf, which turns artifacts into OKF concepts and enqueues outbox work.
+
+Extend it with these producers:
+
+src/nodeagent/okf/producers/
+  nodeProducer.ts
+  relationProducer.ts
+  sourceCaptureProducer.ts
+  evidenceFactProducer.ts
+  entityResearchProducer.ts
+  coachCueProducer.ts
+  taskProducer.ts
+When a note is noteworthy
+
+Create concepts:
+
+nodes/{nodeId}.md
+companies/{companyKey}.md
+people/{personKey}.md
+claims/{claimId}.md
+tasks/{taskId}.md
+coach_cues/{cueId}.md
+
+Create edges:
+
+node -> company
+node -> person
+node -> claim
+claim -> source/evidence
+coach_cue -> claim
+task -> company
+
+Use relations for live room graph and okfEdges for portable knowledge graph.
+
+12. How to integrate with the current agent harness
+
+The current ConvexRoomTools already exposes OKF retrieval to the agent and maps Convex mutations into stable RoomTools contracts.
+
+Add tools:
+
+ROOM ACTIVITY / NOTEWORTHY TOOLS
+- read_current_surface
+- extract_entities_from_note
+- plan_entity_work
+- create_relation
+- create_coach_cue
+- create_task_from_note
+
+EVIDENCE TOOLS
+- capture_source
+- extract_evidence
+- verify_evidence
+- source_resolve_citation
+- source_open_literal
+
+CACHE TOOLS
+- check_entity_cache
+- mark_entity_cache_stale
+- upsert_entity_cache_result
+
+Do not let these tools write arbitrary shared content. The current tool design is correct: tools call RoomTools, not the database directly, and conflicts are returned as data so the model re-reads or files a proposal instead of clobbering.
+
+13. UI design for passive agent work
+
+Do not let the product feel like a haunted notebook where the agent randomly changes things.
+
+Use this UI:
+
+When user returns:
+
+[Noteworthy] CardioNova note detected
+  I found: company, person, funding signal, runway question.
+
+  Actions:
+  [Open research]
+  [Add to watchlist]
+  [Verify sources]
+  [Dismiss]
+  [Always do this for similar notes]
+
+Status:
+  cached profile used · funding refreshed · burn still needs source
+
+If auto-policy is enabled:
+
+Signal Tape:
+  CardioNova note indexed · 3 backlinks · 2 source gaps · 1 research job running
+
+Work Surface:
+  company row appears, but manual fields are preserved
+
+Coach:
+  “This note is useful but not client-ready. Burn/current cash remain manual-only.”
+
+Write policy:
+
+Private notebook:
+  agent creates private suggestions and private OKF concepts by default.
+
+Room-visible notebook:
+  agent can create room-visible backlinks/tasks/coach cues.
+
+Shared spreadsheet:
+  agent can fill agent-owned enrichment columns;
+  human-owned fields require proposal if changed.
+14. Exact runtime diagram for passive typing
+================================================================================
+PASSIVE NOTE / SPREADSHEET NOTEWORTHINESS FLOW
+================================================================================
+
+[User Browser]
+  types in notebook or spreadsheet
+  local editor updates instantly
+  debounce / blur / pagehide flushes content
+
+        │
+        ▼
+
+[Convex Mutation]
+  update node.content OR artifact element
+  bump version
+  compute contentHash
+  insert roomActivityOutbox row
+  return immediately
+
+        │
+        ▼
+
+[Noteworthiness Scheduler]
+  waits quiet window
+  re-reads latest version
+  if sourceHash changed again -> reschedule
+  builds context:
+    source text
+    surrounding notebook nodes / row cells
+    selected artifact
+    existing relations
+    OKF concepts
+    entityResearchCache
+    recent traces
+    privacy policy
+
+        │
+        ▼
+
+[Cheap Scanner]
+  deterministic entity extraction
+  regex/source URL detection
+  topic/facet classifier
+  cache/freshness check
+  optional cheap LLM if ambiguous
+
+        │
+        ▼
+
+[Decision]
+  ignore
+  index only
+  add backlinks
+  create coach cue
+  create entityWorkItems
+  start durable research job
+
+        │
+        ▼
+
+[Durable NodeAgent Job]
+  uses OKF/retrieval/internal context first
+  uses Linkup if local evidence insufficient
+  uses Firecrawl if source capture needed
+  uses Stagehand only for exact bbox/interactive source
+  produces EvidenceFacts and CellPayloads
+
+        │
+        ▼
+
+[Managed Write]
+  write_locked_cell_results / proposal / draft
+  no raw writes
+  no source-less verified claims
+  no private-to-public leak
+
+        │
+        ▼
+
+[Room Updates]
+  sheet fills
+  notebook backlinks appear
+  source cards appear
+  coach cue appears
+  OKF graph updates
+  retrieval/cache indexes update
+15. Key guardrails
+
+This feature needs strict guardrails.
+
+No LLM on every keystroke
+
+Only scan after:
+
+- blur
+- save
+- idle quiet window
+- pagehide/phone put-away
+- row marked pending/stale
+No external search by default for private notes
+
+Private note behavior:
+
+index privately
+extract private entities
+ask before external search unless user enabled auto-research
+No silent shared edits from private context
+
+If a private note triggers research:
+
+private output first
+user can promote to room
+public artifacts only get redacted/approved data
+No duplicate jobs
+
+Use:
+
+entityKey + facet + sourceHash + visibility + ownerId
+
+as the idempotency/dedupe basis.
+
+No stale source overtrust
+
+Use sourceSetHash, contentHash, retrievedAt, validUntil, staleAfter, and deltaStatus, which your latest schema already anticipates in entityResearchCache.
+
+16. What to build next
+P0: Passive edit outbox
+convex/roomActivity.ts
+  enqueueAfterNodeEdit
+  enqueueAfterElementEdit
+  listDueActivity
+
+convex/noteworthy.ts
+  scanDueActivity
+  markNoteworthy
+  createEntityWorkItems
+P0: Noteworthiness scanner
+src/nodeagent/core/noteworthiness.ts
+src/nodeagent/skills/diligence/entityExtractor.ts
+src/nodeagent/skills/diligence/noteworthyClassifier.ts
+
+Start deterministic:
+
+company suffixes
+URLs
+capitalized entity patterns
+funding terms
+people names after "met/spoke with"
+task words: follow up, verify, source, ask, research
+finance words: runway, burn, ARR, EBITDA, margin, funding
+
+Add cheap LLM only for ambiguous cases.
+
+P0: UI
+src/ui/insights/NoteworthyInbox.tsx
+src/ui/insights/PassiveAgentChip.tsx
+src/ui/artifacts/EvidenceCarouselArtifact.tsx
+P1: Evidence Accountant
+convex/evidence.ts
+src/nodeagent/skills/evidence/captureSource.ts
+src/nodeagent/skills/evidence/extractEvidence.ts
+src/nodeagent/skills/evidence/verifyEvidence.ts
+
+Use Firecrawl first; Stagehand/Browserbase later for bbox-perfect source proof.
+
+P1: OKF producers for notebook and evidence
+src/nodeagent/okf/producers/nodeProducer.ts
+src/nodeagent/okf/producers/evidenceFactProducer.ts
+src/nodeagent/okf/producers/relationProducer.ts
+P1: Eval
+
+Add cases:
+
+passive-note-company-detected
+passive-note-private-boundary
+passive-spreadsheet-row-watchlist
+passive-note-cache-hit-no-api-call
+passive-note-stale-refresh
+passive-note-linkup-source-gap
+passive-note-firecrawl-capture
+
+The pasted professional eval text already lists gtm-chat-lead-capture-enrich and gtm-chat-to-background-diligence-job, which are basically the active-prompt versions of this passive feature; the same assertions should be reused: chat entity extraction, manual-vs-fetched evidence, duplicate-row prevention, idempotency, artifact creation, source fusion, and resume without duplicate writes.
+
+17. Final recommendation
+
+Build it as:
+
+Passive Room Intelligence
+
+Not:
+
+agent watches everything and edits behind your back
+
+But:
+
+your room notices useful notes, indexes them, creates backlinks, and offers or starts source-backed follow-up work based on policy
+
+The product sentence:
+
+If a banker writes “Met Maya from CardioNova — AI triage, likely Series B, ask about burn,” NodeRoom should quietly turn that into a company/person/claim graph, check whether the company is already known, reuse fresh cached research, create source gaps and follow-up tasks, and only run Linkup/Firecrawl when the note is both noteworthy and insufficiently grounded.
+
+That is the integration. It uses the latest NodeRoom spine instead of replacing it:
+
+Convex = live truth
+Nodes/Relations = notebook graph
+OKF = portable knowledge
+Retrieval = find evidence
+Entity cache = speed/dedupe/staleness
+AgentJobs/Frames/WorkItems = durable background work
+CellPayload/EvidenceFact = banker-grade proof
+CAS/Proposals = safe shared mutation
+Banker Coach = human-readable ownership
+deep research the convex components authored by others. we just applied firecrawl scrape in latest update, explain 'why' in easy plain language with side by side comparison for what happens if not.  
+
+also implement the following where ever applies, but research first: 
+durable agent
+convex debouncer 
+convex FS
+transloadit
+
+
+Called tool
+Thought for 28m 12s
+
+I did three passes: researched the Convex component ecosystem, reviewed the latest NodeRoom files, and added a first implementation slice for the server-side debounced passive-noteworthiness pipeline.
+
+I did not run the repo locally, so treat the implementation as a code commit that still needs npx convex dev, npm run typecheck, and targeted tests.
+
+What I implemented
+
+I added a research/design doc:
+
+docs/component-research/CONVEX_COMPONENTS_AND_EVIDENCE_PIPELINE.md
+
+And added the first passive noteworthiness / server-side debounce module:
+
+convex/noteworthy.ts
+
+The new module exposes debounceActivityScan, which is the important primitive: after a note/cell/wiki/message is durably saved, the client can call this once; the server cancels any previous scheduled scan for the same object, schedules a new scan after the quiet window, and only then runs the cheap noteworthiness classifier. The function is keyed by roomId + sourceKind + sourceId, stores quietUntil, dedupeKey, and a scheduled function id, and uses Convex scheduled functions as the durable debounce mechanism.
+
+The scanner then re-reads the latest source text, classifies whether it is noteworthy, and, if it is, creates a passive agentJob plus entityWorkItems so the expensive research can be processed later through the normal durable agent path rather than inside the scan mutation.
+
+The current schema already has the backing tables this feature needs: roomActivityOutbox with quietUntil, scheduledFunctionId, dedupe keys, findings, and latest job linkage; sourceCaptures / evidenceFacts for the Evidence Accountant; and fileProcessingJobs for Convex storage / ConvexFS / Transloadit-style processing jobs.
+
+Why Firecrawl scrape belongs in NodeRoom
+
+Firecrawl is useful because NodeRoom’s agent does not only need “a web answer.” It needs evidence artifacts a banker can inspect later:
+
+source URL
+clean markdown
+HTML snapshot
+screenshot
+content hash
+extracted facts
+evidence locators
+downstream cell/report/chart references
+
+Your uploaded design text already framed this correctly: Firecrawl should be the first capture path for fast “screenshot + clean markdown/HTML,” while Stagehand/Browserbase is reserved for exact click-box fidelity when the UI needs the precise element bbox.
+
+Firecrawl side-by-side
+If we do not use Firecrawl scrape	If we do use Firecrawl scrape
+The agent often receives raw HTML noise: nav menus, scripts, footer links, cookie banners, invisible JS content.	The agent gets clean Markdown/HTML/screenshot that is easier to summarize, cite, hash, and review.
+A source URL is stored, but the banker cannot easily see what the agent actually saw.	Evidence Carousel can open a source snapshot next to the claim.
+Staleness is mostly time-based: “it has been 7 days, maybe refresh.”	Staleness can be content-based: compare source contentHash, sourceSetHash, and delta status.
+The same source may get scraped repeatedly by different agents, wasting API calls.	Captures can be deduped by URL + content hash + visibility + policy.
+BankerToolBench-style claims are weak because we may only have a snippet.	Claims can point to an EvidenceFact tied to raw source content, screenshot, and downstream artifact usage.
+If a web page changes, we may not know whether the change was meaningful.	Firecrawl capture gives us a material-delta path: no change, minor copy change, new source, contradiction, or stale source.
+
+The plain-language reason:
+
+Firecrawl turns the web into a reusable evidence file, not just a one-time search result.
+
+That matters because our core product is not “agent found something.” It is:
+
+agent found something, showed where it came from, stored it, reused it, checked if it got stale, and attached it to a CellPayload / OKF concept / coach cue.
+
+Component research: what we should use and why
+
+Convex Components are sandboxed mini-backends with their own tables and functions. They cannot read app tables or call app functions unless explicitly wired, which makes them safe to add as infrastructure modules rather than letting them own NodeRoom’s business logic.
+
+1. Durable agent / Agent component
+
+Convex’s Agent component manages agents, threads, messages, tools, and multi-agent workflows; it is designed to separate long-running agent workflows from the UI while preserving live reactivity and persisted message history.
+
+Our version: do not replace NodeRoom’s current harness with @convex-dev/agent yet.
+
+Why: NodeRoom already has a stronger domain-specific ledger:
+
+agentJobs
+agentRuns
+agentReasoningFrames
+entityWorkItems
+agentOperationEvents
+agentMutationReceipts
+agentDraftOperations
+agentLeases
+OKF concepts/chunks/edges
+entityResearchCache
+managed CAS/proposals
+
+The schema already describes agentReasoningFrames as durable, queryable units with context packs, parent links, evidence state, and child-work metadata; and entityWorkItems as selective subwork under a parent agent job, not permanent-agent-per-company.
+
+Recommendation: use the Agent component later only if we want standardized agent thread/message storage or multiple reusable chat-style agents. Keep NodeAgent’s current domain-specific harness as the source of truth.
+
+That also means the product contract should be thought of as one public invocation surface plus route policy, not as separate user-facing slash-command products. In practice: @nodeagent is the public UX, the composer picker decides adaptive vs free vs top-paid vs specific-model routing, and the backend records that choice onto agentJobs instead of forking the whole product surface.
+
+2. Durable workflows / Workpool / Action Retrier
+
+Convex’s Workflow component is the closest match for your “fire-and-forget” requirement. It provides durable functions that survive restarts, checkpoint step results, retry failed steps, pause/sleep, and resume from the last incomplete step.
+
+Workpool is useful when we need concurrency limits for bursty work such as many Linkup, Firecrawl, Transloadit, parser, or embedding jobs. Convex’s workflow docs position Workpool as the concurrency/load-balancing layer and Workflow as the durable multi-step execution layer.
+
+Action Retrier is good for one unreliable idempotent action, but Workflow/Workpool is better for NodeRoom’s longer diligence DAG.
+
+Our version:
+
+Passive note/cell edit
+  -> debounceActivityScan
+  -> entityWorkItems
+  -> durable workflow
+  -> Workpool-limited external calls
+  -> managed CAS/proposals
+  -> OKF/evidence updates
+
+2.5 Convex query vs mutation vs action, in plain language and cost terms
+
+This matters because a lot of the with-vs-without tradeoff is really a Convex function-shape tradeoff.
+
+Query
+- Best default for almost every app read.
+- Reactive, cached, and logically consistent at one timestamp.
+- Cannot call third-party APIs.
+- On serverless deployments, query/mutation compute is not separately billed, but queries still consume function calls and database I/O.
+- In practice this is usually the cheapest and fastest way to keep UI and jobs in sync, because the Convex sync engine and cache do the heavy lifting.
+
+Mutation
+- Best default for authoritative writes, intent capture, auth checks, and invariant enforcement.
+- Transactional and deterministic.
+- React clients execute mutations in a single ordered queue, which is exactly what you want for room edits, proposals, job creation, and durable intent capture.
+- Like queries, mutation compute is not separately billed on serverless, but mutations still consume function calls, write throughput, and database I/O.
+- The key pattern for NodeRoom is: use one mutation to durably record the user intent and schedule later work atomically.
+
+Action
+- Use only when you need third-party APIs, long-running work, fetch, Node-only libraries, or other side effects.
+- Actions are not atomic, have fewer guarantees, and Convex explicitly describes them as slower and more expensive than queries/mutations.
+- Action compute is billed separately; Node actions cost more than Convex-runtime actions.
+- Actions also do not get the same reactive/cached semantics, and if you make lots of ctx.runQuery / ctx.runMutation calls inside them you create more function calls, more database I/O, and more separate transactions.
+- So the right role for actions in NodeRoom is external work: model calls, Linkup, Firecrawl, parsers, or long-running slice execution. They should read/write Convex through focused internal queries/mutations, not become the main app data plane.
+
+Scheduled functions / workflow
+- Scheduling from a mutation is atomic with the mutation commit; scheduling from an action is not.
+- This is why the clean Convex-native pattern is: mutation saves intent -> scheduled function or workflow performs slow work -> mutation records progress/results.
+- Workflow adds durability, sleeps, retries, step checkpoints, and resumption. That is the right “fire-and-forget” shape for long-running NodeAgent jobs.
+
+The practical product rule is simple:
+- query = live reads
+- mutation = durable truth / intent / authz / no-clobber gates
+- action = expensive outside work only
+- workflow / scheduled functions = durable background orchestration
+
+3. Convex debouncer
+
+I did not find a canonical maintained @convex-dev/debouncer component in the official component docs/search. The right Convex-native implementation is a keyed scheduled-function debounce using ctx.scheduler.runAt and ctx.scheduler.cancel.
+
+Convex scheduled functions are stored durably in the database, can be scheduled dynamically, and can be canceled before they run. Mutations can schedule future functions transactionally, meaning the scheduled work exists only if the mutation commits.
+
+Our implementation: convex/noteworthy.ts.
+
+This is exactly what the feature needs:
+
+user keeps typing
+  -> each durable save calls debounceActivityScan
+  -> previous scheduled scan is canceled
+  -> only final quiet-window scan runs
+
+That prevents “agent on every keystroke.”
+
+4. Convex File Storage / Convex FS
+
+Convex File Storage supports all file types, uploading, storing files generated or fetched from third-party APIs, serving files by URL, deleting files, and accessing metadata.
+
+Our version:
+
+Convex File Storage = canonical raw artifact storage
+
+Use it for:
+
+uploaded PDFs/XLSX/CSV
+Firecrawl markdown/html/screenshot
+source snapshots
+generated chart images
+walkthrough GIF/MP4
+Transloadit output references
+
+The schema now supports this direction: sourceCaptures has markdownStorageId, htmlStorageId, and screenshotStorageId; fileProcessingJobs has providers including convex_storage, convex_fs, and transloadit.
+
+5. Transloadit
+
+@transloadit/convex is a Convex component that signs upload options server-side, verifies webhooks, and stores Transloadit results in Convex so the UI can update in real time. Their docs show installing @transloadit/convex, adding it in convex.config.ts, setting TRANSLOADIT_KEY / TRANSLOADIT_SECRET, and using Uppy with server-signed assembly options.
+
+Our version: do not force it into the core flow yet.
+
+Use Transloadit when:
+
+large/resumable upload UX matters
+video/audio/image transformation matters
+thumbnail generation matters
+file transcoding matters
+very large files exceed simple upload comfort
+
+For the core banker workflow, Convex File Storage + Firecrawl source capture is enough. Transloadit should plug into fileProcessingJobs later when the file-processing need is concrete.
+
+What happens if we skip each piece?
+Piece	If we skip it	What we get by adding it
+Firecrawl scrape	Search/source evidence is one-off, noisy, hard to replay, and hard to visually verify.	Reusable source captures with markdown/html/screenshot/hash.
+Durable workflow	Long agent jobs can crash halfway, duplicate API calls, or lose progress.	Step-level durability, retries, resumption, and cleaner “fire-and-forget.”
+Server-side debounce	Every idle save/keystroke can trigger duplicate scans or expensive agent starts.	Only the final quiet-window edit is scanned.
+Workpool	Burst of companies/files can overwhelm Linkup/Firecrawl/Transloadit/model providers.	Concurrency limits and queue discipline.
+Convex File Storage	Source files and screenshots are scattered across provider URLs or transient IDs.	Canonical room-owned raw files and generated artifacts.
+Transloadit	Large upload / media processing must be hand-rolled.	Mature resumable upload + media/document processing pipeline.
+Agent component	We may maintain custom thread/message logic ourselves.	Optional standard agent thread/message abstraction — but only if it does not bypass NodeRoom’s CAS/evidence rules.
+Centralized durable start helper	Job creation logic forks across inline and workflow paths, route/runtime fields drift, and product behavior becomes harder to reason about.	One shared durable-start helper writes the same routePolicy/runtimePolicy/modelPolicy fields and keeps admission/idempotency behavior aligned.
+@nodeagent + route picker	Users have to learn internal slash-command vocabulary like /ask and /free.	One natural public invocation surface, with cost/model route selected by the composer instead of by memorizing command variants.
+Query -> mutation -> action separation	Actions become the default path for reads/writes, which increases cost, weakens guarantees, and bypasses reactivity/caching.	Reads stay cheap/reactive, writes stay transactional, and only the genuinely slow external work pays the action/workflow cost.
+How the passive “noteworthy” pipeline now fits
+
+Current repo reality: the latest code already reflects this direction. Public room-agent messages are primarily @nodeagent in src/ui/Chat.tsx, route/model choice comes from the composer picker, src/app/store.tsx mainly calls api.agentJobs.start, and convex/agentJobs.ts centralizes durable starts through startDurableAgentJob(...).
+
+The new pipeline is:
+
+User types into notebook / spreadsheet / wiki
+  -> client saves durable node/cell/wiki/message
+  -> client calls debounceActivityScan once per saved object
+  -> Convex cancels previous scheduled scan for same source
+  -> quiet window passes
+  -> scanActivity re-reads latest committed content
+  -> cheap classifier decides whether it is noteworthy
+  -> creates passive agentJob + entityWorkItems
+  -> later workflow handles research / cache / evidence / OKF
+
+In plain language:
+
+We let the user type freely. We do not bother the agent until the user pauses. We do not call external APIs inside the scanner. We only create durable work items if the saved content looks like a person, company, product, topic, task, source, or research lead.
+
+This is the right extension of the MewAgent history: user writes notes, the system creates backlinks, claims, tasks, and research work around those notes, but the user’s original note remains theirs.
+
+The uploaded file also matches this architecture: it distinguishes a clean NodeAgent harness from raw model behavior, argues that evidence capture should feed BankerToolBench-style tasks, and recommends Firecrawl first, Stagehand/Browserbase only when exact box fidelity is required.
+
+Why this matters for BankerToolBench-style evidence
+
+BankerToolBench-level work fails if the agent says:
+
+“Revenue is $X.”
+
+without being able to show:
+
+source file
+source page / row / bbox
+quote or extracted value
+confidence
+period
+unit
+downstream model cell
+downstream chart/memo use
+verification checks
+
+Your uploaded notes explicitly identify this as the Evidence Accountant layer: screenshots alone are not enough; the useful artifact is raw source + screenshot + DOM/PDF/markdown text + normalized bbox + extracted fact + verifier receipt + downstream artifact links.
+
+The current schema now has sourceCaptures and evidenceFacts, which is the correct foundation for that Evidence Accountant.
+
+What I would do next
+Immediate validation
+
+Run:
+
+npx convex dev
+npm run typecheck -- --pretty false
+npm test
+
+I did not run these, so the new convex/noteworthy.ts needs verification.
+
+Next code step
+
+Wire the UI save points to debounceActivityScan:
+
+Notebook editor save
+Spreadsheet cell commit
+Wiki revision save
+Message send
+File upload/import
+
+Then add one workflow/worker that processes queued entityWorkItems:
+
+entityWorkItems queued
+  -> check entityResearchCache
+  -> use cached result if fresh
+  -> Firecrawl/Linkup only if missing/stale
+  -> create sourceCaptures/evidenceFacts
+  -> write CellPayload/proposal
+  -> update OKF
+Transloadit follow-up
+
+Do not add Transloadit to the hot path yet. Add it behind fileProcessingJobs when we need large upload/transcode/thumbnail jobs.
+
+Final design sentence
+
+Firecrawl captures the source, Convex File Storage keeps it, the debouncer waits until the user is actually done, durable workflows process the research safely, Workpool limits expensive fanout, OKF packages the knowledge, and managed CAS/proposals decide what can touch the shared spreadsheet.
+
+Composio also has a bunch of stuff we can utilize like pushover MCP to help send notifications to user phone, which fits pretty well for our users if they want to see updates via phone messages from the shared room. What else do you think can be added for high value features consideration?
+
+Additionally, what’s your thoughts on payments handling 
+
+What else??
+[01:45] Firecrawl scraping component demo and features
+[03:00] Durable agents component overview
+[04:00] Convex debouncer component and debounce strategies
+[05:43] Nano Banana text-to-image component
+[06:18] Convex FS and CDN-backed file storage with Bunny.net
+[08:55] Transloadit media processing component
+[09:32] Loops email sending component
+[10:36] Payments components overview (Stripe, Polar, Dodo, Lemon Squeezy)
+Thought for 5m 40s
+
+Yes — Pushover via Composio fits NodeRoom extremely well, but it should be treated as a notification/approval channel, not as another free-form agent tool.
+
+The product principle should be:
+
+NodeRoom should notify humans only when their judgment, approval, or attention changes the outcome.
+
+Not:
+
+“Agent sends a push for every step.”
+
+That would be noisy, expensive, and eventually ignored.
+
+1. Where Composio fits in NodeRoom
+
+Composio is valuable because it gives us a managed MCP/tool gateway for external services instead of manually maintaining every API integration. Their docs describe managed auth, OAuth/API key handling, 500+ toolkits, hosted MCP servers, triggers, tool routing, and permissions across integrations.
+
+For NodeRoom, Composio should sit behind our Downstream / Notification Gateway:
+
+NodeRoom event
+  -> notification policy
+  -> approval / delivery preference
+  -> Composio tool call
+  -> Pushover / Gmail / Slack / Linear / Notion / CRM
+  -> action receipt back into Convex
+
+Composio’s MCP Gateway page is especially relevant because it supports team-scoped MCP endpoints, tool allow/deny lists, blocking destructive actions, and metadata logs for who used which tool and outcome.
+
+That maps directly to NodeRoom’s safety rule:
+
+The agent may prepare actions, but the harness decides what can actually be sent, posted, updated, or billed.
+
+2. Pushover: high-value phone notification layer
+
+Composio’s Pushover toolkit supports Pushover MCP/direct API, secure auth handling, sending device alerts, checking receipts, emergency-priority retry handling, delivery groups, app limits, and team/user management.
+
+That gives NodeRoom a strong mobile use case:
+
+“I’m away from my laptop. Tell me only when something important happens in the room.”
+The useful NodeRoom notifications
+
+Do not notify for every stream chunk, source found, or agent thought. Notify for these:
+
+Notification	Why it matters
+Approval needed	Agent found a conflict or wants to apply a proposal.
+Source gap blocks send	Banker Coach says a claim cannot be client-ready without source verification.
+Research job completed	Long-running diligence finished and is ready to review.
+Agent failed / needs retry	User should know a background job stopped.
+Budget threshold hit	Workflow is about to spend more model/search credits.
+Human mentioned you	Someone assigned a review/task/comment to you.
+High-priority room event	“VP review required,” “client send blocker,” “new material source found.”
+Daily / end-of-room digest	Summarize what changed without spamming during the session.
+Pushover notification policy
+
+Add a policy layer:
+
+type NotificationPolicy = {
+  userId: string;
+  roomId: string;
+
+  channels: {
+    pushover?: boolean;
+    email?: boolean;
+    slack?: boolean;
+    inApp?: boolean;
+  };
+
+  notifyOn: {
+    approvalRequired: boolean;
+    jobCompleted: boolean;
+    sourceGap: boolean;
+    agentFailed: boolean;
+    budgetThreshold: boolean;
+    mention: boolean;
+    digest: boolean;
+  };
+
+  quietHours?: {
+    timezone: string;
+    start: string;
+    end: string;
+  };
+
+  priority: "low" | "normal" | "urgent";
+};
+Schema layer
+notificationPreferences
+notificationEvents
+notificationDeliveries
+toolActionReceipts
+Runtime
+Agent/event finishes
+  -> Convex mutation records event
+  -> notification policy evaluates
+  -> if material: schedule/send via Composio Pushover
+  -> delivery status/receipt recorded
+  -> user can open NodeRoom deep link
+
+This should hook into the roomActivityOutbox, agentJobs, entityWorkItems, semanticConflicts, proposals, sourceCaptures, and evidenceFacts surfaces already present in the latest NodeRoom schema. The repo already has the activity outbox and passive noteworthiness flow, including server-side debounce and job creation after the quiet window.
+
+3. How this fits the latest NodeRoom architecture
+
+The good news: the latest NodeRoom already has the right foundation.
+
+You now have:
+
+roomActivityOutbox
+sourceCaptures
+evidenceFacts
+fileProcessingJobs
+okfConcepts / okfChunks / okfEdges
+retrievalEvents
+entityResearchCache
+agentJobs / agentRuns / reasoning frames / entityWorkItems
+
+sourceCaptures and evidenceFacts are already shaped for the Evidence Accountant: source URL/title/kind, content hash, markdown/html/screenshot storage IDs, provider, visibility, extracted value/quote/bbox/confidence/checks, and downstream usage.
+
+fileProcessingJobs already anticipates Convex storage, ConvexFS, and Transloadit as processing providers.
+
+The latest OKF/retrieval tools already include list/read concepts, full-text search, semantic search, filters, glob, regex, backlinks, neighbor expansion, citation resolution, literal source open, and claim comparison.
+
+So Composio/Pushover should be another controlled sink, not a parallel data system.
+
+4. Feature map from your component list
+4.1 Firecrawl scraping component
+
+NodeRoom use: source capture.
+
+Company website
+funding article
+SEC/filing page
+pricing page
+market report
+blog/product announcement
+
+Firecrawl produces the capture packet:
+
+markdown
+html
+screenshot
+contentHash
+source URL
+capture metadata
+
+Then NodeRoom turns that into:
+
+EvidenceFact
+CellPayload.evidence[]
+OKF Source concept
+Evidence Carousel card
+Banker Coach cue
+
+The uploaded Evidence Accountant notes already say Firecrawl should be first for fast screenshot + clean Markdown/HTML, while Stagehand/Browserbase should be reserved for exact UI interaction or bbox fidelity.
+
+4.2 Durable agents / durable workflows
+
+NodeRoom use: fire-and-forget diligence.
+
+Convex Workflow is a strong match because it supports durable functions, checkpointed steps, sleeps/waits without consuming resources, dynamic branching, sequential/parallel steps, and cancellation/restart from a step.
+
+Use it for:
+
+passive note -> noteworthiness -> research job
+bulk company diligence
+large source capture
+BankerToolBench-lite package
+long-running evidence verification
+4.3 Convex debouncer
+
+I would keep our current server-side keyed debounce design.
+
+Convex scheduled functions are transactional when scheduled from a mutation, can run later, and can be used to build job queues/retry abstractions.
+
+Our version:
+
+user types
+  -> durable save
+  -> debounceActivityScan cancels prior scheduled scan
+  -> scan runs after quiet window
+  -> only then does passive intelligence evaluate noteworthiness
+
+This avoids agent work on every keystroke.
+
+4.4 Nano Banana text-to-image component
+
+Use this only for visual communication, never evidence.
+
+Good uses:
+
+marketing walkthrough visuals
+explainer graphics
+room summary illustration
+generated thumbnails for demo artifacts
+slide deck hero images
+animated storyboard frames
+
+Bad uses:
+
+source proof
+financial evidence
+chart data
+client-ready exhibit
+document screenshot replacement
+
+The reason is simple:
+
+Generated images are presentation artifacts, not audit artifacts.
+
+Evidence must come from Firecrawl/Stagehand/uploaded files/source captures, not generative imagery.
+
+4.5 ConvexFS + Bunny CDN
+
+ConvexFS looks useful for the source/evidence artifact layer. It supports Bunny.net Edge Storage, signed CDN URLs, URL TTLs, garbage collection windows, multiple filesystems, route mounting, and auth callbacks.
+
+Important ConvexFS detail: serving a file returns a 302 redirect to a signed Bunny.net CDN URL, so large files are delivered from the CDN rather than Convex itself; auth can still be fine-grained while the blob remains CDN-cached.
+
+NodeRoom use:
+
+/source-captures
+  firecrawl markdown/html/screenshots
+
+/uploads
+  PDFs/XLSX/CSVs/decks
+
+/exports
+  OKF bundles
+  evidence packs
+  walkthrough GIF/MP4
+  report PDFs
+
+Use Convex built-in storage first if simple. Use ConvexFS when CDN delivery, path-like organization, signed URLs, and larger media/file workflows become important.
+
+4.6 Transloadit
+
+Transloadit’s Convex component signs upload options server-side, verifies webhooks, stores results in Convex, and works with Uppy so browser uploads do not expose secrets.
+
+Their component/blog describes fast/resumable uploads, video encoding, AI recognition, and real-time UI updates; Transloadit also says its platform has 94 “Robots” for file processing tasks like import, encode, resize, watermark, store, etc.
+
+NodeRoom use:
+
+large pitch deck upload
+video/audio meeting recording upload
+PDF normalization
+thumbnail generation
+image resizing
+OCR/transcription pipeline
+walkthrough GIF/MP4 processing
+
+Do not put Transloadit in the core source-citation path at first. Use it when files are large or media-heavy.
+
+4.7 Loops email sending
+
+I could not verify the exact Loops Convex component from public search in this pass. Treat it as verify-before-wire.
+
+If it exists and works like expected, use it for:
+
+invitation emails
+room digest
+job completed email
+review reminder
+billing receipt-ish product emails
+
+But for transactional billing emails, let the payment provider handle receipts/invoices. Do not duplicate compliance-critical billing notices.
+
+4.8 Payments components: Stripe, Polar, Dodo, Lemon Squeezy
+
+This is high-value because NodeRoom has real variable cost:
+
+LLM tokens
+Linkup searches
+Firecrawl captures
+Transloadit processing
+file storage/CDN
+long-running workflows
+embedding jobs
+
+So billing must be designed early, even if monetization launches later.
+
+5. Payment handling: my recommendation
+
+NodeRoom needs two ledgers:
+
+1. Billing ledger
+   provider customers, subscriptions, invoices, checkout sessions, webhooks
+
+2. Usage ledger
+   model tokens, search calls, source captures, file GB, transcode minutes,
+   workflow runtime, agent jobs, OKF exports
+
+Do not let the agent mutate entitlements directly.
+
+Payment provider webhooks update entitlements. Agents can explain billing or draft a support note, but the backend billing webhook is the source of truth.
+
+Provider choice
+Provider	Best for NodeRoom	Tradeoff
+Stripe	Enterprise/B2B control, invoices, procurement, custom pricing, serious SaaS billing. Convex has a Stripe starter showing checkout + webhook fulfillment.	You own tax/compliance complexity unless using Stripe Tax and proper setup.
+Polar	Usage-based billing and developer-friendly metering. Polar docs support event-ingested usage meters and metered billing, including token/file/video-style meters.	Younger ecosystem; verify fit for enterprise procurement.
+Dodo Payments	Merchant-of-record route with Convex component, checkout, customer portal, webhooks, subscriptions, and on-demand charges.	Less standard than Stripe for large enterprise finance teams.
+Lemon Squeezy	Simple MoR for SaaS/digital goods; handles payments, taxes/VAT/compliance/fraud, and supports many currencies.	May be less flexible for complex enterprise usage-based billing.
+Practical recommendation
+
+For tomorrow / early product:
+
+Use Stripe-style internal schema design,
+but consider Polar or Dodo for early usage-based/MoR if tax/admin burden matters.
+
+For enterprise finance customers:
+
+Stripe first.
+
+For solo/SMB launch speed:
+
+Polar or Dodo if MoR/usage-based simplicity is more important than enterprise procurement.
+Pricing model
+
+NodeRoom should not price only by seat. Seat-only pricing ignores the cost driver.
+
+Use hybrid:
+
+Base plan:
+  seats + rooms + storage + standard jobs
+
+Usage meters:
+  LLM token credits
+  deep research jobs
+  Firecrawl captures
+  Linkup deep searches
+  Transloadit processing minutes/GB
+  OKF exports
+  evidence pack exports
+Usage events
+type UsageEvent =
+  | { name: "agent_model_tokens"; inputTokens: number; outputTokens: number; model: string }
+  | { name: "linkup_search"; depth: "standard" | "deep"; count: number }
+  | { name: "firecrawl_capture"; pages: number; screenshot: boolean }
+  | { name: "source_capture_storage"; bytes: number }
+  | { name: "transloadit_processing"; bytes: number; robot: string }
+  | { name: "workflow_runtime"; ms: number }
+  | { name: "okf_export"; conceptCount: number };
+Billing guardrails in the UI
+
+Every expensive workflow should show:
+
+Estimated cost
+Budget cap
+Model route
+External tools
+Cache hit/miss
+Approval required if over threshold
+
+This aligns with your earlier agent harness requirements: the harness, not the model, owns approval gates, state persistence, retries, and tool execution.
+
+6. High-value features to add
+P0 — immediately valuable
+1. Pushover “waiting-on-you” alerts
+“CardioNova research finished. 2 fields need review.”
+“Agent wants approval to update 14 cells.”
+“Source gap blocks client-ready status.”
+
+This is high value because finance professionals often step away but still need to approve or unblock workflows.
+
+2. Mobile approval deep links
+
+A push notification should open:
+
+/room/{roomId}/review/{proposalId}
+
+The user can:
+
+Approve
+Reject
+Open evidence
+Snooze
+Assign to teammate
+
+For high-risk writes, phone approval should not blindly apply the change. It should open the proposal/evidence first.
+
+3. Notification digest
+
+Daily or room-end digest:
+
+Companies added
+Sources verified
+Open review blockers
+Agent cost
+Pending approvals
+New tasks
+4. Evidence pack export
+
+One click:
+
+Export OKF bundle
+Export source captures
+Export review summary
+Export chart/report artifacts
+
+This gives users a reason to come back beyond the live session.
+
+5. Budget and usage panel
+Today:
+  12 agent jobs
+  4 deep searches
+  9 Firecrawl captures
+  $0.84 estimated cost
+  2 failed / 1 retried / 8 cache hits
+
+This becomes important before payments launch.
+
+P1 — strongest product unlocks
+6. Banker Coach mobile alerts
+
+Examples:
+
+“Runway estimate is manual-only. Ask for current cash and monthly burn.”
+“Memo says ‘strong traction,’ but source only supports ‘early pilots.’”
+
+This is not generic notification. It is a professional judgment cue.
+
+7. Room health score
+Source coverage: 72%
+Needs review: 4 fields
+No-clobber: pass
+Client-ready: no
+Cost: under budget
+8. Composio downstream action cards
+
+Use Composio for:
+
+Gmail draft
+Slack recap
+Linear task
+Notion page
+CRM/Attio update
+Google Calendar follow-up
+Google Drive source archive
+
+Composio’s Gmail toolkit alone exposes many read/write/search/label capabilities and includes managed OAuth, token rotation, execution logs, RBAC, scoped access, and audit trails.
+
+But again: draft first, send/update later after approval.
+
+9. Tool permission profiles
+Research Agent:
+  Linkup, Firecrawl, source read, OKF read/write
+
+Handoff Agent:
+  Gmail draft, Slack draft, Notion draft, Linear draft
+
+Billing Agent:
+  read usage only, no entitlement mutation
+
+Admin Agent:
+  billing/customer support actions only with human approval
+10. Agent notification subscriptions
+
+Users can subscribe to:
+
+company
+person
+room
+source gap
+proposal
+task
+agent job
+
+Example:
+
+“Notify me only when CardioNova has new funding/headcount/source updates.”
+P2 — demo / wow features
+11. AI-generated walkthrough clips
+
+Use Nano Banana-style image generation or video tooling only for demo/presentation:
+
+“Create a 5-slide evidence walkthrough.”
+“Generate a short visual room summary.”
+“Create a cover image for this diligence pack.”
+
+Never evidence.
+
+12. Transloadit media pipeline
+
+For:
+
+meeting recording upload
+voice memo transcription
+large pitch-deck processing
+evidence walkthrough video export
+thumbnail generation
+13. OKF graph visualizer + share link
+Company
+  -> Source
+  -> Cell
+  -> Chart
+  -> Coach Cue
+  -> Trace
+  -> Eval
+
+This is the “show me how everything connects” view.
+
+14. “Phone-away mode”
+
+When user stops typing / closes laptop / puts phone away:
+
+passive noteworthiness scans
+entity cache checks
+background jobs run
+push only material outcomes
+
+This builds on the latest noteworthiness/debounce design and the roomActivityOutbox schema.
+
+7. Payment architecture in NodeRoom
+Tables
+billingCustomers
+billingSubscriptions
+billingEntitlements
+billingEvents
+usageEvents
+usageRollups
+invoiceCredits
+budgetPolicies
+paymentProviderAccounts
+Runtime
+User starts workflow
+  -> preflight estimates usage/cost
+  -> checks entitlement + budget cap
+  -> if allowed, job starts
+  -> usageEvents record model/search/file/tool usage
+  -> usageRollups aggregate per room/workspace/month
+  -> payment provider meter/invoice sync
+  -> webhook updates entitlement
+Important rule
+Agent can suggest billing action.
+Agent cannot grant entitlement.
+Agent cannot modify subscription.
+Agent cannot bypass budget.
+Payment handling decision tree
+Need enterprise invoices, sales-led B2B, procurement?
+  -> Stripe
+
+Need fastest MoR / tax-handled indie launch?
+  -> Polar / Dodo / Lemon Squeezy
+
+Need usage-based AI credits and simple developer metering?
+  -> Polar looks especially aligned because meters are event-based.
+
+Need Convex-native checkout/customer portal/webhooks?
+  -> Dodo has an actual Convex component documented.
+
+Need full control and custom contracts?
+  -> Stripe + your own entitlement ledger.
+
+Polar’s usage-based billing works by ingesting events, defining meters, and adding metered prices to products; examples include AI token consumption, video minutes, and file uploads — exactly the categories NodeRoom needs to meter.
+
+Dodo’s Convex component is compelling because it directly documents checkout, customer portal, webhooks, and secure Convex configuration.
+
+8. What else?
+
+Here is the highest-value “what else” list, ranked by product leverage.
+
+1. Policy receipts for external actions
+
+Every Composio/Pushover/Gmail/Slack/Linear/Notion action should create a receipt:
+
+who triggered it
+agent/job id
+tool
+target
+risk level
+approval state
+payload hash
+result
+timestamp
+
+This protects you from “mystery agent action” risk.
+
+2. Human-readable “why was I notified?”
+
+Every notification should include:
+
+Triggered because:
+  Source gap blocks client-ready status.
+Evidence:
+  CardioNova runway cell uses manual-only burn assumption.
+Action:
+  Review or assign follow-up.
+3. Notification throttling and quiet hours
+
+Without this, Pushover becomes spam.
+
+max urgent pushes/hour
+digest mode
+quiet hours
+room-level mute
+priority escalation only after deadline
+4. “Escalate after no response”
+If no one reviews a blocker within 2 hours:
+  notify owner
+  then notify host
+  then move to review board
+5. “Approve from phone” with evidence preview
+
+Do not allow blind approvals for risky finance cells. The approval screen should show:
+
+old value
+new value
+source
+confidence
+affected chart/report
+reason
+6. Agent cost insurance
+
+Before expensive jobs:
+
+This will run:
+  3 Linkup deep searches
+  4 Firecrawl captures
+  1 reasoning model pass
+Estimated: $0.42
+[Approve up to $1.00]
+7. Usage anomaly alerts
+“Room spent 3x normal search credits.”
+“Agent retried the same Firecrawl source 5 times.”
+“Transloadit job processing unusually large file.”
+8. Customer-facing trust dashboard
+No-clobber pass rate
+Evidence coverage
+Cache hit rate
+Average cost per company
+Open review blockers
+9. Integration marketplace inside NodeRoom
+
+Users can enable:
+
+Phone alerts
+Email digests
+Slack recap
+Gmail drafts
+Linear tasks
+Notion page export
+CRM/Attio sync
+Google Drive archive
+
+Composio’s Tool Router/Gateway is a natural backing layer for this.
+
+9. Recommended implementation order — updated after latest repo review
+
+Current reality: backend passive activity is no longer future work. The repo already has roomActivityOutbox, debounce, scanDueActivity, passive job/work-item promotion, evidence tables, and tests. The next priority should finish the product loop around that backend, not jump straight to Composio or payments.
+
+Now — finish the current passive-intelligence loop
+1. Surface passive activity in the UI:
+   detected note/cell, indexed entities, source gaps, queued job, review action.
+2. Add richer cache-aware planning before expensive work:
+   fresh cache, stale refresh, missing research, manual-only, contradiction review.
+3. Wire evidence outputs visibly:
+   sourceCaptures/evidenceFacts -> evidence cards -> cell/OKF references.
+4. Tighten private/room policy guardrails:
+   private notes stay private by default, shared writes use proposal-first where needed.
+5. Expand targeted tests/evals:
+   passive note, passive spreadsheet, cache hit, stale refresh, private boundary, source capture.
+
+Next — strengthen evidence and knowledge packaging
+6. Add OKF producers where they reduce glue:
+   notebook nodes, source captures, evidence facts, entity cache entries, tasks, coach cues.
+7. Improve Firecrawl/source capture reuse and dedupe:
+   URL + contentHash + visibility + policy.
+8. Add cost/budget preflight UI for expensive research jobs before payment-provider work.
+
+Later — external integrations only when chosen as product priorities
+9. Composio/Pushover notification gateway if mobile approval/alerts become the chosen next priority.
+10. Billing/usage/payment provider proof-of-concept if monetization or hard cost controls become the chosen next priority.
+11. ConvexFS/CDN if file delivery/export scale requires it.
+12. Transloadit if large media/document workflows require resumable uploads, OCR, transcode, or thumbnails.
+13. Generated walkthrough/presentation assets after evidence-critical workflows are solid.
+14. Enterprise MCP gateway/tool marketplace after policy receipts and human approval loops are mature.
+10. Clean final architecture
+================================================================================
+                NODEROOM HIGH-VALUE COMPONENT + PAYMENT ARCHITECTURE
+================================================================================
+
+User / Agent event
+  │
+  ▼
+Convex live ledger
+  - message
+  - note/cell edit
+  - agent job
+  - source capture
+  - proposal
+  - coach cue
+  │
+  ├── Passive intelligence
+  │     debounce -> noteworthy scan -> entityWorkItems
+  │
+  ├── Evidence pipeline
+  │     Firecrawl -> sourceCaptures -> evidenceFacts -> OKF
+  │
+  ├── File pipeline
+  │     Convex Storage / ConvexFS -> CDN URLs
+  │     Transloadit for large media/file transforms
+  │
+  ├── Notification pipeline
+  │     material event -> policy -> Composio Pushover / email / Slack
+  │
+  ├── Downstream pipeline
+  │     draft-first Gmail / Notion / Linear / CRM actions
+  │
+  ├── Billing pipeline
+  │     usageEvents -> rollups -> Stripe / Polar / Dodo / Lemon
+  │
+  └── Analytics pipeline
+        retrievalEvents / usageEvents / no-clobber / source coverage
+        -> ClickHouse later
+
+The clean product sentence:
+
+NodeRoom should not just run agents in a room. It should close the loop: capture evidence, notify the right human, ask for approval when needed, downstream the artifact safely, and meter the real cost of the workflow.

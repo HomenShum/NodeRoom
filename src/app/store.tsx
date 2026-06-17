@@ -161,10 +161,19 @@ export interface RoomStore {
   listTraces(roomId: string): TraceEvent[];
   /** Live web/SEC source captures (screenshot + box) as Trace records — [] in memory mode. */
   listCaptureRecords(roomId: string): TraceRecord[];
+  /** Signal the Trace tab is active so the store subscribes to trace-only Convex queries (captures,
+   *  OKF lens) — zero reactive cost when the tab is closed (no getUrl resolutions, no DB reads). */
+  setTraceActive(active: boolean): void;
+  /** Tell the store which capture record is selected so it can lazy-resolve screenshot/PDF URLs
+   *  for that one record only (via `captureDetail`) — pass null when a non-capture record is selected. */
+  setSelectedCapture(captureId: string | null): void;
   /** Trigger a live source capture (Convex action) → persists + reactively appears in listCaptureRecords. */
   captureSource(roomId: string, url: string, goal: string): Promise<{ ok: boolean; error?: string }>;
   /** Authoritative SEC EDGAR facts (data API) → persists + appears in listCaptureRecords. */
   secFacts(roomId: string, company: string, concept: string): Promise<{ ok: boolean; error?: string }>;
+  /** Write a PDF citation directly from the client (1 mutation, 0 actions, 0 storage writes).
+   *  The PDF is already in storage; the citation references it by storage ID + page + normalized box. */
+  recordCitation(args: { roomId: string; pdfStorageId: string; page: number; box: { x: number; y: number; w: number; h: number }; label: string; source?: string }): Promise<{ ok: boolean; error?: string }>;
   listSessions(roomId: string): AgentSession[];
   listDrafts(roomId: string): Draft[];
   listProposals(roomId: string): Proposal[];
@@ -355,8 +364,11 @@ export function EngineStoreProvider({ roomId, children }: { roomId: string; me: 
     privateStreamAccess: () => null,
     listTraces: (id) => engine.listTraces(id),
     listCaptureRecords: () => [], // in-memory engine doesn't capture live sources
+    setTraceActive: () => {}, // no-op — in-memory mode has no reactive queries to gate
+    setSelectedCapture: () => {}, // no-op — in-memory mode has no capture records
     captureSource: async () => ({ ok: false, error: "live capture needs the Convex backend" }),
     secFacts: async () => ({ ok: false, error: "SEC lookup needs the Convex backend" }),
+    recordCitation: async () => ({ ok: false, error: "PDF citation needs the Convex backend" }),
 
     listSessions: (id) => engine.listSessions(id),
     listDrafts: (id) => engine.listDrafts(id),
@@ -591,6 +603,10 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
   const hasValidLiveSession = usableConvexString(roomId) && usableConvexString(me.id) && usableConvexString(proof.token);
   const rid = roomId as never;
   const roomQuery = hasValidLiveSession ? { roomId: rid, requester: proof } : "skip";
+  const [traceActive, setTraceActive] = useState(false);
+  // Gate trace-only queries (captures has per-step getUrl cost; OKF lens is heavy) on the Trace tab
+  // actually being open — zero reactive cost when the user is on another surface.
+  const traceQuery = hasValidLiveSession && traceActive ? { roomId: rid, requester: proof } : "skip";
   const data = useQuery(api.rooms.meta, roomQuery);
   const metaArtifacts = useMemo(() => (data?.artifacts ?? []) as unknown as MetaArtifact[], [data]);
   // B1: per-artifact cell maps, lifted from the <ArtifactElementsSubscriber> children rendered below.
@@ -606,8 +622,12 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
   const pub = useQuery(api.messages.list, pubQuery) ?? [];
   const priv = useQuery(api.messages.list, privQuery) ?? [];
   const traces = useQuery(api.collab.traces, roomQuery) ?? [];
-  const captures = useQuery(api.captures.byRoom, roomQuery) ?? [];
-  const okfLens = useQuery(api.okf.traceLens, roomQuery) ?? null;
+  const captures = useQuery(api.captures.byRoom, traceQuery) ?? [];
+  // Lazy-resolve screenshot/PDF URLs for the SELECTED capture record only — avoids N×M `getUrl`
+  // calls in the reactive `byRoom` list. `selectedCaptureId` is set by the Trace surface.
+  const [selectedCaptureId, setSelectedCaptureId] = useState<string | null>(null);
+  const captureDetail = useQuery(api.captures.captureDetail, selectedCaptureId && traceActive ? { roomId: rid, captureId: selectedCaptureId as never, requester: proof } : "skip");
+  const okfLens = useQuery(api.okf.traceLens, traceQuery) ?? null;
   const runs = useQuery(api.agentRuns.list, roomQuery) ?? [];
   const jobs = useQuery(api.agentJobs.list, roomQuery) ?? [];
   const passiveActivity = useQuery(api.roomActivity.feed, roomQuery) ?? [];
@@ -769,6 +789,7 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
   const runPrivateAgent = useAction(api.agent.runPrivateAgent);
   const runCaptureAction = useAction(api.capturesNode.capture);
   const runSecFacts = useAction(api.sec.facts);
+  const recordCitationMut = useMutation(api.captures.recordCitation);
   const createPrivateReplyStream = useMutation(api.streaming.createPrivateReplyStream);
   const startAgentJob = useMutation(api.agentJobs.start);
   // Job-strip controls flip instantly. Mirrors the server's transition + ITS guards (cancel: no-op
@@ -824,6 +845,14 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
     return upload;
   }, [generateFileUploadUrlMutation, registerUploadedFileMutation, rid, proof]);
 
+  // Memoized merge: replace the lightweight record with the URL-resolved detail for the selected
+  // capture. Stable ref so TraceSurface's `records` useMemo doesn't bust on every render.
+  const mergedCaptures = useMemo(() => {
+    const list = captures as unknown as TraceRecord[];
+    if (!captureDetail) return list;
+    return list.map((r) => r.id === (captureDetail as { id: string }).id ? captureDetail as unknown as TraceRecord : r);
+  }, [captures, captureDetail]);
+
   const store = useMemo<RoomStore>(() => {
     const room = (data?.room ?? undefined) as unknown as Room | undefined;
     const members = (data?.members ?? []) as unknown as Member[];
@@ -844,7 +873,9 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
       listMessages: (_id, ch) => (ch === "public" ? reshapeMsgs(pub) : reshapeMsgs(priv)),
       privateStreamAccess: (streamId) => ({ requester: proof, driven: locallyCreatedPrivateStreams.has(streamId) }),
       listTraces: () => allTraces,
-      listCaptureRecords: () => captures as unknown as TraceRecord[],
+      listCaptureRecords: () => mergedCaptures,
+      setTraceActive,
+      setSelectedCapture: (id: string | null) => setSelectedCaptureId(id?.startsWith("capture-") ? id.slice("capture-".length) : id),
       captureSource: async (_roomId, url, goal) => {
         const r = await runCaptureAction({ roomId: rid as never, requester: proof, url, goal });
         return { ok: r.ok, error: r.error };
@@ -852,6 +883,14 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
       secFacts: async (_roomId, company, concept) => {
         const r = await runSecFacts({ roomId: rid as never, requester: proof, company, concept });
         return { ok: r.ok, error: r.error };
+      },
+      recordCitation: async (args) => {
+        try {
+          await recordCitationMut({ roomId: rid as never, requester: proof, pdfStorageId: args.pdfStorageId as never, page: args.page, box: args.box, label: args.label, source: args.source });
+          return { ok: true };
+        } catch (e) {
+          return { ok: false, error: e instanceof Error ? e.message : String(e) };
+        }
       },
       listSessions: () => sessions,
       listDrafts: () => drafts,
@@ -1180,7 +1219,7 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
         catch (e) { return { ok: false, reason: e instanceof Error ? e.message : "retry_failed" }; }
       },
     };
-  }, [data, metaArtifacts, elementsByArtifact, pub, priv, traces, okfLens, runs, jobs, jobAttempts, jobDetail, proposals, passiveActivity, applyCellEdit, sendMsg, toggle, editMsg, resolveProposalMutation, addResearchRowsMutation, createArtifactMutation, uploadSourceFile, runSemanticConflictDrillMutation, runAgent, runPrivateAgent, createPrivateReplyStream, startAgentJob, cancelFreeAutoJob, retryFreeAutoJob, rid, roomId, proof, me.id, me.name]);
+  }, [data, metaArtifacts, elementsByArtifact, pub, priv, traces, okfLens, runs, jobs, jobAttempts, jobDetail, proposals, passiveActivity, mergedCaptures, applyCellEdit, sendMsg, toggle, editMsg, resolveProposalMutation, addResearchRowsMutation, createArtifactMutation, uploadSourceFile, runSemanticConflictDrillMutation, runAgent, runPrivateAgent, createPrivateReplyStream, startAgentJob, cancelFreeAutoJob, retryFreeAutoJob, rid, roomId, proof, me.id, me.name]);
 
   return (
     <Ctx.Provider value={store}>

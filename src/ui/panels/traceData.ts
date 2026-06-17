@@ -8,16 +8,23 @@
 import type { BankerCoachPacket, EvidenceCardArtifact } from "../bankerCoachPacket";
 import type { TraceEvent } from "../../engine/types";
 import type { AgentRunTelemetry } from "../../app/store";
+import type { NormBox } from "../../nodeagent/capture/types";
+export type { NormBox };
 
 export type TraceTone = "ok" | "warn" | "risk" | "info";
 
-/** Per-step artifact a QA-automation run attaches (screenshot / log / SSIM-flicker diff).
+/** Per-step artifact a QA-automation run attaches (screenshot / log / SSIM-flicker diff / PDF citation).
  *  `box` is the normalized (0..1) region acted on — e.g. the element clicked, or the SEC/EDGAR
- *  cell the value was extracted from — drawn as a highlight over the screenshot (LlamaIndex bbox). */
+ *  cell the value was extracted from — drawn as a highlight over the screenshot (LlamaIndex bbox).
+ *
+ *  Screenshot/PDF attachments carry a storage id for lazy URL resolution: the lightweight `byRoom`
+ *  list returns `screenshotId`/`pdfStorageId` (no `getUrl`); `captureDetail` resolves `url` for the
+ *  selected record only. `url` is absent until the detail is fetched — renderers must handle that. */
 export type TraceAttachment =
-  | { kind: "screenshot"; url: string; label?: string; box?: { x: number; y: number; w: number; h: number } }
+  | { kind: "screenshot"; url?: string; label?: string; box?: NormBox }
   | { kind: "ssim"; url?: string; diffRatio: number; label?: string }
-  | { kind: "log"; text: string; label?: string };
+  | { kind: "log"; text: string; label?: string }
+  | { kind: "pdf"; url?: string; page: number; boxes: NormBox[]; label?: string };
 
 export interface TraceStep {
   idx: number;

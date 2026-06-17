@@ -288,6 +288,7 @@ export default defineSchema({
       detail: v.optional(v.string()),
       box: v.optional(v.object({ x: v.number(), y: v.number(), w: v.number(), h: v.number(), page: v.optional(v.number()) })),
       screenshotId: v.optional(v.id("_storage")),
+      pdfStorageId: v.optional(v.id("_storage")),
     })),
     data: v.optional(v.any()),
   }).index("by_room", ["roomId", "ts"]),

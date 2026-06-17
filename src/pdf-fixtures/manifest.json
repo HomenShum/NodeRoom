@@ -1,0 +1,70 @@
+[
+  {
+    "name": "normal",
+    "desc": "MediaBox 400x200, TARGET top-left third",
+    "url": "/pdf-fixtures/normal.pdf",
+    "page": 1,
+    "boxes": [
+      {
+        "x": 0.1,
+        "y": 0.40950000762939454,
+        "w": 0.20280000686645508,
+        "h": 0.1115999984741211,
+        "page": 1
+      }
+    ],
+    "note": "plain divide, top-left",
+    "targetPhrase": "TARGET"
+  },
+  {
+    "name": "rotated90",
+    "desc": "/Rotate 90 -> renders 200x400; LiteParse pre-rotated + split TARGET",
+    "url": "/pdf-fixtures/rotated90.pdf",
+    "page": 1,
+    "boxes": [
+      {
+        "x": 0.47889999389648436,
+        "y": 0.1,
+        "w": 0.1115999984741211,
+        "h": 0.1,
+        "page": 1
+      }
+    ],
+    "note": "LiteParse pre-rotated; union TA+RGET; NO re-rotation",
+    "targetPhrase": "TARGET"
+  },
+  {
+    "name": "cropbox-offset",
+    "desc": "CropBox [80 60 360 170] -> 280x110; LiteParse pre-shifted to crop space",
+    "url": "/pdf-fixtures/cropbox-offset.pdf",
+    "page": 1,
+    "boxes": [
+      {
+        "x": 0.14285714285714285,
+        "y": 0.38090903542258525,
+        "w": 0.28971426827566965,
+        "h": 0.20290915749289773,
+        "page": 1
+      }
+    ],
+    "note": "LiteParse pre-applied crop offset; NO re-subtract",
+    "targetPhrase": "TARGET"
+  },
+  {
+    "name": "multipage",
+    "desc": "page2 300x150 'PAGE2 TARGET' (diff dims from page1)",
+    "url": "/pdf-fixtures/multipage.pdf",
+    "page": 2,
+    "boxes": [
+      {
+        "x": 0.1,
+        "y": 0.35806666056315106,
+        "w": 0.46013997395833334,
+        "h": 0.13391998291015625,
+        "page": 2
+      }
+    ],
+    "note": "per-page dims; box on page 2",
+    "targetPhrase": "PAGE2 TARGET"
+  }
+]

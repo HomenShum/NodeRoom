@@ -3,7 +3,7 @@
  * Left: trace records (the live agent's source-backed work + a real QA run of our own app).
  * Right: Overview · Steps (each → the exact source cell / a captured screenshot) · Evidence · Raw JSON.
  */
-import { useMemo, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { Activity, Wrench, FileCheck2, Camera } from "lucide-react";
 import { useStore } from "../../app/store";
 import { buildBankerCoachPacket } from "../bankerCoachPacket";
@@ -74,6 +74,9 @@ export function TraceSurface({ roomId, onOpenSource }: {
   onOpenSource: (artifactId: string, elementId?: string) => void;
 }) {
   const store = useStore();
+  // Gate trace-only Convex queries (captures, OKF lens) on this surface being mounted — zero
+  // reactive cost (no per-step getUrl resolutions) when the user is on another tab.
+  useEffect(() => { store.setTraceActive(true); return () => store.setTraceActive(false); }, [store]);
   const room = store.getRoom(roomId);
   const artifacts = store.listArtifacts(roomId);
   const traces = store.listTraces(roomId);
@@ -93,6 +96,8 @@ export function TraceSurface({ roomId, onOpenSource }: {
     [packet, traces, run, captureRecords],
   );
   const [selectedId, setSelectedId] = useState<string>(records[0]?.id ?? QA_TRACE_RECORD.id);
+  // Lazy-resolve: tell the store which capture record is selected so it fetches URLs for that one.
+  useEffect(() => { store.setSelectedCapture(selectedId.startsWith("capture-") ? selectedId : null); }, [store, selectedId]);
   const [tab, setTab] = useState<DetailTab>("overview");
   const record = records.find((r) => r.id === selectedId) ?? records[0];
   if (!record) return <div className="r-art-body r-tracevu" data-testid="trace-surface" />;
