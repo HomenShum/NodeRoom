@@ -1,12 +1,15 @@
 /**
  * Trace · Flow — the workflow's progression as a directed graph (reactflow), alongside the linear
  * Steps list under the same Trace record. Nodes are laid out by phase (column) in step order; edges
- * animate the flow; clicking a node shows that step + opens its source. Pan/zoom/minimap scale it.
+ * animate the flow; clicking a node pops the SAME full step preview the Steps list shows (screenshot
+ * + highlight box + logs + metrics, via the shared StepRow) and opens its source. Pan/zoom/minimap +
+ * onlyRenderVisibleElements keep it usable at hundreds of steps.
  */
 import { useMemo, useState } from "react";
 import { ReactFlow, Background, Controls, MiniMap, Position, type Node, type Edge } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
-import { ArrowUpRight } from "lucide-react";
+import { X } from "lucide-react";
+import { StepRow } from "./TraceStepRow";
 import type { TraceRecord, TraceStep, TraceTone } from "./traceData";
 
 const TONE: Record<TraceTone, string> = {
@@ -65,30 +68,36 @@ export function TraceFlow({ record, onOpenSource }: {
   return (
     <div className="r-tracevu-flow" data-testid="trace-flow">
       <div className="r-tracevu-flowgraph">
+        <div className="r-tracevu-flowcount">{record.steps.length} steps · {phases.length} phase{phases.length === 1 ? "" : "s"}</div>
         <ReactFlow
           nodes={nodes}
           edges={edges}
           fitView
+          fitViewOptions={{ padding: 0.2, maxZoom: 1 }}
+          minZoom={0.05}
+          maxZoom={1.75}
           nodesDraggable={false}
           nodesConnectable={false}
+          onlyRenderVisibleElements
           colorMode="dark"
           proOptions={{ hideAttribution: true }}
           onNodeClick={(_, n) => setSel(record.steps.find((s) => String(s.idx) === n.id) ?? null)}
         >
           <Background gap={16} />
           <Controls showInteractive={false} />
-          <MiniMap pannable zoomable />
+          <MiniMap pannable zoomable nodeColor={(n) => {
+            const s = record.steps.find((st) => String(st.idx) === n.id);
+            return s ? TONE[s.status] : "var(--text-muted)";
+          }} />
         </ReactFlow>
       </div>
       {sel && (
         <div className="r-tracevu-flowdetail" data-testid="trace-flow-detail" data-tone={sel.status}>
-          <strong>{sel.idx}. {sel.label}</strong>
-          {sel.detail && <p>{sel.detail}</p>}
-          {sel.targetArtifactId && (
-            <button type="button" className="r-tracevu-download" onClick={() => onOpenSource(sel.targetArtifactId!, sel.targetElementId)}>
-              Open source cell <ArrowUpRight size={12} />
-            </button>
-          )}
+          <div className="r-tracevu-flowdetail-head">
+            <span className="r-tracevu-flowdetail-phase">{sel.group ?? "Step"} · step {sel.idx} of {record.steps.length}</span>
+            <button type="button" className="r-tracevu-flowdetail-x" onClick={() => setSel(null)} aria-label="Close step detail"><X size={13} /></button>
+          </div>
+          <StepRow s={sel} onOpenSource={onOpenSource} />
         </div>
       )}
     </div>

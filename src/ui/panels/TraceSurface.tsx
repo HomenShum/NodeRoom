@@ -4,11 +4,12 @@
  * Right: Overview · Steps (each → the exact source cell / a captured screenshot) · Evidence · Raw JSON.
  */
 import { useMemo, useState } from "react";
-import { Activity, Wrench, FileCheck2, Camera, ArrowUpRight } from "lucide-react";
+import { Activity, Wrench, FileCheck2, Camera } from "lucide-react";
 import { useStore } from "../../app/store";
 import { buildBankerCoachPacket } from "../bankerCoachPacket";
 import { EvidenceCarouselArtifact } from "../artifacts/EvidenceCarouselArtifact";
 import { QA_TRACE_RECORD, QA_BUNDLES, buildAgentTraceRecords, type TraceRecord, type TraceStep, type TraceAttachment } from "./traceData";
+import { StepRow } from "./TraceStepRow";
 import { TraceFlow } from "./TraceFlow";
 
 type DetailTab = "overview" | "steps" | "flow" | "evidence" | "raw";
@@ -135,50 +136,6 @@ function groupSteps(steps: TraceStep[]): { name: string | null; steps: TraceStep
     else out.push({ name, steps: [s] });
   }
   return out;
-}
-
-function StepRow({ s, onOpenSource }: { s: TraceStep; onOpenSource: (artifactId: string, elementId?: string) => void }) {
-  const att = s.attachments ?? [];
-  const shots = att.filter((a): a is Extract<TraceAttachment, { kind: "screenshot" }> => a.kind === "screenshot");
-  const ssims = att.filter((a): a is Extract<TraceAttachment, { kind: "ssim" }> => a.kind === "ssim");
-  const logs = att.filter((a): a is Extract<TraceAttachment, { kind: "log" }> => a.kind === "log");
-  const inner = (
-    <>
-      <span className="r-tracevu-step-idx">{s.idx}</span>
-      <span className="r-tracevu-step-body">
-        <span className="r-tracevu-step-label">
-          {s.label}
-          {ssims.map((a, i) => <span key={i} className="r-tracevu-ssim" data-flicker={String(a.diffRatio > 0.02)}>Δ {(a.diffRatio * 100).toFixed(1)}%</span>)}
-          {s.targetArtifactId && <ArrowUpRight size={11} />}
-        </span>
-        {s.detail && <span className="r-tracevu-step-detail">{s.detail}</span>}
-        {s.screenshotUrl && (
-          <a className="r-tracevu-shotlink" href={s.screenshotUrl} target="_blank" rel="noopener noreferrer">
-            <span className="r-tracevu-shotframe"><img className="r-tracevu-shot" src={s.screenshotUrl} alt={s.label} loading="lazy" /></span>
-          </a>
-        )}
-        {shots.map((a, i) => (
-          <a key={i} className="r-tracevu-shotlink" href={a.url} target="_blank" rel="noopener noreferrer">
-            <span className="r-tracevu-shotframe">
-              <img className="r-tracevu-shot" src={a.url} alt={a.label ?? s.label} loading="lazy" />
-              {a.box && <span className="r-tracevu-box" style={{ left: `${a.box.x * 100}%`, top: `${a.box.y * 100}%`, width: `${a.box.w * 100}%`, height: `${a.box.h * 100}%` }} aria-hidden="true" />}
-            </span>
-          </a>
-        ))}
-        {logs.map((a, i) => <pre key={i} className="r-tracevu-log">{a.text}</pre>)}
-        {s.metrics && (
-          <span className="r-tracevu-metrics">
-            {s.metrics.map((m) => <span key={m.label}><b>{m.value}</b> {m.label}</span>)}
-          </span>
-        )}
-      </span>
-    </>
-  );
-  return s.targetArtifactId ? (
-    <button type="button" className="r-tracevu-step" data-testid="trace-step" data-tone={s.status} onClick={() => onOpenSource(s.targetArtifactId!, s.targetElementId)}>{inner}</button>
-  ) : (
-    <div className="r-tracevu-step" data-testid="trace-step" data-tone={s.status}>{inner}</div>
-  );
 }
 
 function shotUrl(s: TraceStep): string | undefined {

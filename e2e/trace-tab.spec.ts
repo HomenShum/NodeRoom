@@ -18,8 +18,12 @@ test.describe("trace work-surface tab", () => {
     await page.getByTestId("trace-record").filter({ hasText: "QA" }).first().click();
     await page.getByTestId("trace-tab-steps").click();
     const shot = page.locator(".r-tracevu-shot").first();
+    await shot.scrollIntoViewIfNeeded();
     await expect(shot).toBeVisible();
-    expect(await shot.evaluate((el) => (el as HTMLImageElement).naturalWidth > 0)).toBe(true);
+    // Real PNG (not a broken/empty src). Poll: the img is loading="lazy", so it can be laid out
+    // (visible) before its bytes decode — under full-suite load that decode lags. The guarantee is
+    // "it actually loads", not "loaded synchronously".
+    await expect.poll(async () => shot.evaluate((el) => (el as HTMLImageElement).naturalWidth), { timeout: 10_000 }).toBeGreaterThan(0);
   });
 
   test("an agent step opens its source cell on the work surface", async ({ page }) => {
@@ -95,8 +99,17 @@ test.describe("trace work-surface tab", () => {
     await expect(page.getByTestId("trace-flow")).toBeVisible();
     expect(await page.locator(".react-flow__node").count()).toBeGreaterThan(3);
     expect(await page.locator(".react-flow__edge").count()).toBeGreaterThan(0);
-    // clicking a graph node opens that step's detail alongside the graph
+    // the count badge advertises scale (steps · phases) and the minimap/zoom controls are present
+    await expect(page.locator(".r-tracevu-flowcount")).toBeVisible();
+    await expect(page.locator(".react-flow__minimap")).toBeVisible();
+    // clicking a graph node pops the SAME full step preview the Steps list renders (rich StepRow),
+    // not just a label — proves "click → full view of that step's details".
     await page.locator(".react-flow__node").first().click();
-    await expect(page.getByTestId("trace-flow-detail")).toBeVisible();
+    const detail = page.getByTestId("trace-flow-detail");
+    await expect(detail).toBeVisible();
+    await expect(detail.getByTestId("trace-step")).toBeVisible();
+    // and it can be dismissed
+    await detail.getByRole("button", { name: "Close step detail" }).click();
+    await expect(detail).toHaveCount(0);
   });
 });
