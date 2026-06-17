@@ -1,3 +1,5 @@
+"use node";
+
 /**
  * The agent runtime on Convex.
  *

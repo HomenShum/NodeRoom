@@ -1,3 +1,5 @@
+"use node";
+
 /**
  * Durable free-auto job runner.
  *
