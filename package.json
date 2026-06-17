@@ -136,6 +136,7 @@
     "@llamaindex/liteparse": "^2.0.5",
     "@tiptap/react": "^3.26.0",
     "@tiptap/starter-kit": "^3.26.0",
+    "@xyflow/react": "^12.11.0",
     "ai": "^6.0.206",
     "convex": "^1.41.0",
     "exceljs": "^4.4.0",

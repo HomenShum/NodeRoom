@@ -948,6 +948,18 @@ button.r-tracevu-step:hover, button.r-tracevu-step:focus-visible { border-color:
 /* Screenshot highlight box — the region acted on (where it clicked / the extracted SEC cell). */
 .r-tracevu-shotframe { position: relative; display: inline-block; line-height: 0; }
 .r-tracevu-box { position: absolute; border: 2px solid var(--accent-primary); border-radius: 3px; background: color-mix(in srgb, var(--accent-primary) 16%, transparent); box-shadow: 0 0 0 1px var(--bg-primary); pointer-events: none; }
+/* Trace · Flow — reactflow graph of the workflow progression (needs an explicit height). */
+.r-tracevu-flow { display: flex; flex-direction: column; gap: 10px; }
+.r-tracevu-flowgraph { height: 440px; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; background: var(--bg-primary); }
+.r-tracevu-flowdetail { border: 1px solid var(--line); border-left: 3px solid var(--text-muted); border-radius: 10px; padding: 11px 13px; }
+.r-tracevu-flowdetail[data-tone="ok"] { border-left-color: var(--success-ink); }
+.r-tracevu-flowdetail[data-tone="warn"] { border-left-color: var(--warning-ink); }
+.r-tracevu-flowdetail[data-tone="risk"] { border-left-color: var(--danger-ink); }
+.r-tracevu-flowdetail strong { font-size: 12.5px; color: var(--text-primary); }
+.r-tracevu-flowdetail p { margin: 4px 0 8px; font-size: 11.5px; line-height: 1.45; color: var(--text-muted); }
+.r-tracevu-flowgraph .react-flow__attribution { display: none; }
+.r-tracevu-flowgraph .react-flow__controls-button { background: var(--bg-secondary); border-bottom: 1px solid var(--line); }
+.r-tracevu-flowgraph .react-flow__controls-button svg { fill: var(--text-secondary); }
 .r-research td .nullcell { color: var(--text-tertiary); font-family: var(--font-mono); font-size: 11px; }
 .r-research-detail-row td { padding: 0; white-space: normal; background: var(--bg-secondary); border-bottom: 2px solid var(--accent-border); }
 .r-research-detail { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 8px 18px; padding: 12px 14px; position: sticky; left: 0; }

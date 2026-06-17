@@ -83,4 +83,20 @@ test.describe("trace work-surface tab", () => {
     await expect(page.getByTestId("trace-step").filter({ hasText: "mis-keyed entry" }).first()).toBeVisible();
     await expect(page.getByTestId("trace-step").filter({ hasText: "COGS variance" }).first()).toBeVisible();
   });
+
+  test("Flow tab renders the workflow progression as a graph (nodes + edges), node → step detail", async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await enterDemoRoom(page);
+
+    await page.getByTestId("trace-tab").click();
+    await page.getByTestId("trace-record").filter({ hasText: "ledger consolidation" }).first().click();
+    await page.getByTestId("trace-tab-flow").click();
+
+    await expect(page.getByTestId("trace-flow")).toBeVisible();
+    expect(await page.locator(".react-flow__node").count()).toBeGreaterThan(3);
+    expect(await page.locator(".react-flow__edge").count()).toBeGreaterThan(0);
+    // clicking a graph node opens that step's detail alongside the graph
+    await page.locator(".react-flow__node").first().click();
+    await expect(page.getByTestId("trace-flow-detail")).toBeVisible();
+  });
 });

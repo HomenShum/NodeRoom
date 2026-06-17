@@ -9,8 +9,9 @@ import { useStore } from "../../app/store";
 import { buildBankerCoachPacket } from "../bankerCoachPacket";
 import { EvidenceCarouselArtifact } from "../artifacts/EvidenceCarouselArtifact";
 import { QA_TRACE_RECORD, QA_BUNDLES, buildAgentTraceRecords, type TraceRecord, type TraceStep, type TraceAttachment } from "./traceData";
+import { TraceFlow } from "./TraceFlow";
 
-type DetailTab = "overview" | "steps" | "evidence" | "raw";
+type DetailTab = "overview" | "steps" | "flow" | "evidence" | "raw";
 
 export function TraceSurface({ roomId, onOpenSource }: {
   roomId: string;
@@ -38,7 +39,7 @@ export function TraceSurface({ roomId, onOpenSource }: {
   const record = records.find((r) => r.id === selectedId) ?? records[0];
   if (!record) return <div className="r-art-body r-tracevu" data-testid="trace-surface" />;
 
-  const detailTabs = (["overview", "steps", "evidence", "raw"] as DetailTab[])
+  const detailTabs = (["overview", "steps", "flow", "evidence", "raw"] as DetailTab[])
     .filter((t) => t !== "evidence" || (record.evidenceCards?.length ?? 0) > 0);
 
   return (
@@ -65,7 +66,7 @@ export function TraceSurface({ roomId, onOpenSource }: {
           <div className="r-tracevu-tabs" role="tablist" aria-label="Trace detail">
             {detailTabs.map((t) => (
               <button key={t} type="button" role="tab" aria-selected={tab === t} data-on={String(tab === t)} data-testid={`trace-tab-${t}`} onClick={() => setTab(t)}>
-                {t === "overview" ? "Overview" : t === "steps" ? "Steps" : t === "evidence" ? "Evidence" : "Raw JSON"}
+                {t === "overview" ? "Overview" : t === "steps" ? "Steps" : t === "flow" ? "Flow" : t === "evidence" ? "Evidence" : "Raw JSON"}
               </button>
             ))}
           </div>
@@ -74,6 +75,7 @@ export function TraceSurface({ roomId, onOpenSource }: {
         <div className="r-tracevu-detail-body">
           {tab === "overview" && <TraceOverview record={record} />}
           {tab === "steps" && <TraceSteps record={record} onOpenSource={onOpenSource} />}
+          {tab === "flow" && <TraceFlow record={record} onOpenSource={onOpenSource} />}
           {tab === "evidence" && <EvidenceCarouselArtifact cards={record.evidenceCards ?? []} onOpenArtifact={onOpenSource} />}
           {tab === "raw" && <TraceRaw record={record} />}
         </div>

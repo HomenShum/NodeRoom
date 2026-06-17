@@ -5,6 +5,8 @@ import { fileURLToPath, URL } from "node:url";
 export default defineConfig({
   plugins: [react()],
   resolve: {
+    // Single React instance — @xyflow/react can pull a nested copy, which triggers "Invalid hook call".
+    dedupe: ["react", "react-dom"],
     alias: {
       "@": fileURLToPath(new URL("./src", import.meta.url)),
       "@engine": fileURLToPath(new URL("./src/engine", import.meta.url)),
@@ -14,6 +16,6 @@ export default defineConfig({
     },
   },
   server: { port: 5260, open: false },
-  optimizeDeps: { include: ["exceljs"] },
+  optimizeDeps: { include: ["exceljs", "@xyflow/react"] },
   build: { outDir: "dist", sourcemap: process.env.VITE_BUILD_SOURCEMAP === "1" },
 });
