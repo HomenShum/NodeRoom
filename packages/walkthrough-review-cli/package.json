@@ -1,0 +1,12 @@
+{
+  "name": "@noderoom/walkthrough-review-cli",
+  "version": "0.1.0",
+  "type": "module",
+  "private": false,
+  "description": "Config-driven browser walkthrough capture, render, and model-assisted UX review runner for coding agents.",
+  "license": "MIT",
+  "bin": {
+    "walkthrough-review": "./bin/walkthrough-review.mjs",
+    "walkthrough-review-mcp": "./bin/walkthrough-review-mcp.mjs"
+  }
+}

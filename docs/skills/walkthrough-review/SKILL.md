@@ -29,10 +29,16 @@ information, low step count, and no ambiguous mode changes.
 
 ## Primary Command
 
-Run the bundled wrapper:
+Run the NodeRoom-compatible wrapper:
 
 ```bash
 npm run walkthroughs:review -- startup-diligence-war-room --ui-review
+```
+
+The wrapper delegates to the reusable CLI package:
+
+```bash
+npm run walkthrough-review -- startup-diligence-war-room --ui-review
 ```
 
 Useful variants:
@@ -63,6 +69,39 @@ and the media judge writes:
 ```text
 docs/eval/gemini-media-judges/<run-id>/summary.md
 ```
+
+## Reusable CLI And MCP
+
+The reusable package lives at:
+
+```text
+packages/walkthrough-review-cli/
+```
+
+Project-specific wiring is in:
+
+```text
+walkthrough-review.config.json
+```
+
+The config owns the actual capture/render/review commands; the package owns
+argument parsing, command templating, optional local env loading, capture-manifest
+validation, media picking, and JSON/Markdown report generation.
+
+CLI form:
+
+```bash
+npm run walkthrough-review -- startup-diligence-war-room --ui-review
+```
+
+MCP form for coding agents:
+
+```bash
+npm run walkthrough-review:mcp
+```
+
+The MCP server exposes `walkthrough_review_run` and calls the same runner as the
+CLI. Do not maintain separate browser-capture or review logic in MCP.
 
 ## Capture Rules
 
@@ -113,6 +152,8 @@ typecheck, browser E2E, provider ladder, privacy, load, or cost gates.
 - Gemini media judge: `scripts/gemini-demo-media-judge.ts`
 - Gemini production UI rubric: `scripts/gemini-ui-review.ts`
 - README proof section: `README.md`
+- Reusable CLI/MCP runner: `packages/walkthrough-review-cli/`
+- Project CLI config: `walkthrough-review.config.json`
 
 ## Commit Checklist
 

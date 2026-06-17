@@ -1,8 +1,8 @@
 # Gemini Media Judge
 
-Generated: 2026-06-17T18:54:58.389Z
+Generated: 2026-06-17T19:10:18.405Z
 Model: `gemini-3.5-flash`
-Run id: `20260617T2015Z`
+Run id: `cli-package-gemini-smoke`
 
 > This judges README/demo media quality only. It does not replace live Convex, browser E2E, provider ladder, parser, privacy, or load-test gates.
 
@@ -12,20 +12,20 @@ Run id: `20260617T2015Z`
 - Judged: 1
 - Errors: 0
 - Verdicts: publish=1
-- Defects: none
+- Defects: P2=1
 
 ## Asset Results
 
 | Asset | Class | Verdict | Score | P0/P1/P2 | Main finding |
 |---|---|---:|---:|---:|---|
-| `docs/walkthroughs/startup-diligence-war-room.mp4` | readme_walkthrough | publish | 10.4/16 | 0/0/0 | Excellent walkthrough demonstrating multi-agent startup diligence with clear public/private lanes, live data enrichment, and structured outputs. |
+| `docs/walkthroughs/startup-diligence-war-room.mp4` | readme_walkthrough | publish | 11.9/16 | 0/0/1 | A highly complete and professional walkthrough of the Startup Diligence War Room, demonstrating multi-agent research, public/private lanes, and downstream draft generation with clear UI states. |
 
 ## Open Defects
 
-(none reported)
+- **P2** `docs/walkthroughs/startup-diligence-war-room.mp4` @ 00:26: The text in the private agent chat pane is quite dense and small, making it slightly hard to read quickly. -> Slightly increase the font size or line height of the agent chat bubbles for better readability.
 
 ## Re-run
 
 ```bash
-npm run media:gemini-judge -- --only startup-diligence-war-room --include-ignored --run-id 20260617T2015Z --model gemini-3.5-flash
+npm run media:gemini-judge -- --only startup-diligence-war-room --include-ignored --run-id cli-package-gemini-smoke --model gemini-3.5-flash
 ```

@@ -183,8 +183,9 @@ shot. Live-provider clips use noderoom.live + Convex; deterministic clips are ex
 and use the same browser UI in memory mode so the walkthrough is stable enough to teach. You see
 the empty state, the cursor glide to each click (with a ripple), the loading state, and the
 result, with step captions and a progress bar. Regenerate and judge any time with
-`npm run walkthroughs:review -- <feature-id> --ui-review`; lower-level capture/render commands
-remain `npm run walkthroughs` + `npm run walkthroughs:render`.
+`npm run walkthroughs:review -- <feature-id> --ui-review` or call the extracted reusable CLI
+directly with `npm run walkthrough-review -- <feature-id> --ui-review`; lower-level
+capture/render commands remain `npm run walkthroughs` + `npm run walkthroughs:render`.
 
 ### Flagship: Startup diligence war room
 ![Startup diligence war room: agents research, chart runway, preserve human edits, and prepare handoff drafts](docs/walkthroughs/startup-diligence-war-room.gif)
@@ -220,7 +221,9 @@ evidence for the workbench interaction, not a live-provider parser proof.</sub>
 <sub>Method: Playwright drives the live app through a versioned spec
 ([`scripts/walkthroughs/specs.ts`](scripts/walkthroughs/specs.ts)), captures clean per-state frames +
 cursor targets into `remotion/walkthrough.data.js`, and a Remotion composition overlays the animated
-cursor, captions, and progress bar. The full capture + render + Gemini review loop is packaged as a reusable skill:
+cursor, captions, and progress bar. The full capture + render + Gemini review loop is packaged as a reusable
+CLI/MCP-compatible bundle:
+[`packages/walkthrough-review-cli`](packages/walkthrough-review-cli/README.md),
 [`docs/skills/walkthrough-review`](docs/skills/walkthrough-review/SKILL.md) and
 [`.claude/skills/walkthrough-review`](.claude/skills/walkthrough-review/SKILL.md).</sub>
 
@@ -280,8 +283,28 @@ Reusable bundle:
 
 - Skill: [`docs/skills/walkthrough-review/SKILL.md`](docs/skills/walkthrough-review/SKILL.md)
 - Claude-compatible copy: [`.claude/skills/walkthrough-review/SKILL.md`](.claude/skills/walkthrough-review/SKILL.md)
-- Wrapper: [`scripts/walkthroughs/review.ts`](scripts/walkthroughs/review.ts)
+- CLI package: [`packages/walkthrough-review-cli`](packages/walkthrough-review-cli/README.md)
+- Project config: [`walkthrough-review.config.json`](walkthrough-review.config.json)
+- MCP tool server: `npm run walkthrough-review:mcp`
+- Backward-compatible wrapper: [`scripts/walkthroughs/review.ts`](scripts/walkthroughs/review.ts)
 - Existing lower-level capture/render: [`scripts/walkthroughs/`](scripts/walkthroughs/)
+
+The architecture is intentionally CLI-first and MCP-second:
+
+```text
+coding agent / CI / local dev
+  -> walkthrough-review run
+  -> project config
+  -> browser capture + render + model judge
+  -> JSON/Markdown evidence
+
+MCP client
+  -> walkthrough_review_run
+  -> the same CLI runner
+```
+
+That keeps one maintained path while still making the workflow discoverable to coding agents that
+prefer MCP tools.
 
 ## Workflow Skill Previews
 

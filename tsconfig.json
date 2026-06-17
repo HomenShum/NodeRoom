@@ -30,5 +30,5 @@
       "@nodeagent/components/*": ["./src/nodeagent/components/*"]
     }
   },
-  "include": ["src", "demo", "tests", "vite.config.ts", "vitest.config.ts"]
+  "include": ["src", "demo", "tests", "packages", "vite.config.ts", "vitest.config.ts"]
 }

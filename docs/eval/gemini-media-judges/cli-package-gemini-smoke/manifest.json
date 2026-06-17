@@ -1,0 +1,20 @@
+{
+  "runId": "cli-package-gemini-smoke",
+  "generatedAt": "2026-06-17T19:09:25.686Z",
+  "model": "gemini-3.5-flash",
+  "primaryOnly": true,
+  "all": false,
+  "includeIgnored": true,
+  "only": "startup-diligence-war-room",
+  "assets": [
+    {
+      "id": "docs-walkthroughs-startup-diligence-war-room",
+      "class": "readme_walkthrough",
+      "title": "Startup Diligence War Room",
+      "path": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\docs\\walkthroughs\\startup-diligence-war-room.mp4",
+      "relPath": "docs/walkthroughs/startup-diligence-war-room.mp4",
+      "purpose": "README live walkthrough clip. Judge whether the feature is obvious, visually consistent, and credible as evidence.",
+      "duplicateGroup": "walkthrough:startup-diligence-war-room"
+    }
+  ]
+}

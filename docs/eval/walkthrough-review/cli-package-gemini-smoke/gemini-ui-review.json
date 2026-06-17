@@ -1,0 +1,42 @@
+{
+  "generatedAt": "2026-06-17T19:11:53.947Z",
+  "model": "gemini-3.5-flash",
+  "mediaPath": "docs/walkthroughs/startup-diligence-war-room.mp4",
+  "mediaType": "video/mp4",
+  "scoreScale": "0-5; model 0-10 outputs are normalized",
+  "review": {
+    "overall": "partial",
+    "summary": "The UI demonstrates a highly polished multi-agent collaboration environment featuring unified public/private agent chats, live state updates via a research queue, and a tabular spreadsheet-style workspace with citations. The spatial post-it wall workspace is missing from this view.",
+    "scores": {
+      "filesAndSpreadsheet": 4,
+      "publicPrivateChatAgent": 5,
+      "convexLiveState": 5,
+      "traceAcceptAllAutoAccept": 4,
+      "notesWikiSpreadsheet": 4,
+      "wallPostIts": 0,
+      "multiUserSignals": 4,
+      "evidenceCitations": 4
+    },
+    "observedEvidence": [
+      "Switching between public room chat and private NodeAgent chat lane shows proper agent separation.",
+      "Live-updating research queue displaying 'Enrich 5 pending' transition to 'All complete'.",
+      "Multi-user presence indicators showing Priya, anon-quokka, and NodeAgent active in the room.",
+      "Auto-allow toggle switch clearly visible in the top header next to Room/Private mode switcher.",
+      "Evidence indicator showing '18 cited cells' in the footer trace."
+    ],
+    "missingEvidence": [
+      "Visual workspace showing canvas post-it notes creation, editing, or deletion."
+    ],
+    "workflowPainPoints": [
+      {
+        "user": "finance_banking",
+        "painPoint": "Manually drafting diligence memos and copying data across multiple communication channels.",
+        "observed": true,
+        "note": "The UI provides direct 'Export' integrations for Gmail, Notion, Slack, and Linear to automate handoffs safely with human review."
+      }
+    ],
+    "recommendedEvalAdditions": [
+      "Add a dedicated test case for spatial canvas interaction to verify post-it creation/deletion."
+    ]
+  }
+}

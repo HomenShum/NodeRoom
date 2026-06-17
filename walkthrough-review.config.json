@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "defaultModel": "gemini-3.5-flash",
+  "defaultBase": "https://noderoom.live",
+  "envFile": ".env.local",
+  "outputRoot": "docs/eval/walkthrough-review",
+  "dryRunOutputRoot": ".tmp-qa/walkthrough-review",
+  "mediaRoot": "docs/walkthroughs",
+  "captureManifest": "remotion/walkthrough.data.js",
+  "mediaJudgeSummary": "docs/eval/gemini-media-judges/{{runId}}/summary.md",
+  "requiredReviewEnv": "GOOGLE_GENERATIVE_AI_API_KEY",
+  "env": {
+    "model": "GEMINI_MEDIA_JUDGE_MODEL",
+    "base": "WALKTHROUGH_BASE"
+  },
+  "commands": {
+    "capture": ["npx", "tsx", "scripts/walkthroughs/capture.ts", "{{features}}"],
+    "render": ["npm", "run", "walkthroughs:render", "--", "{{features}}"],
+    "mediaJudge": ["npm", "run", "media:gemini-judge", "--", "--only", "{{judgeSelector}}", "--include-ignored", "--run-id", "{{runId}}", "--model", "{{model}}"],
+    "uiReview": ["npm", "run", "ui:gemini-review", "--", "--media={{media}}", "--out={{uiReviewOut}}", "--model={{model}}"]
+  }
+}

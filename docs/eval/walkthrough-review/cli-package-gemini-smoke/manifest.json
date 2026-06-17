@@ -1,0 +1,20 @@
+{
+  "ok": true,
+  "generatedAt": "2026-06-17T19:09:20.259Z",
+  "runId": "cli-package-gemini-smoke",
+  "model": "gemini-3.5-flash",
+  "base": "https://noderoom.live",
+  "features": [
+    "startup-diligence-war-room"
+  ],
+  "media": "docs/walkthroughs/startup-diligence-war-room.mp4",
+  "outDir": "docs/eval/walkthrough-review/cli-package-gemini-smoke",
+  "manifestPath": "docs/eval/walkthrough-review/cli-package-gemini-smoke/manifest.json",
+  "readmePath": "docs/eval/walkthrough-review/cli-package-gemini-smoke/README.md",
+  "commands": [
+    "npm.cmd run media:gemini-judge -- --only startup-diligence-war-room --include-ignored --run-id cli-package-gemini-smoke --model gemini-3.5-flash",
+    "npm.cmd run ui:gemini-review -- --media=docs/walkthroughs/startup-diligence-war-room.mp4 --out=docs/eval/walkthrough-review/cli-package-gemini-smoke/gemini-ui-review.json --model=gemini-3.5-flash"
+  ],
+  "mediaJudge": "docs/eval/gemini-media-judges/cli-package-gemini-smoke/summary.md",
+  "uiReview": "docs/eval/walkthrough-review/cli-package-gemini-smoke/gemini-ui-review.json"
+}

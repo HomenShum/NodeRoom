@@ -1,0 +1,72 @@
+{
+  "asset": {
+    "id": "docs-walkthroughs-startup-diligence-war-room",
+    "class": "readme_walkthrough",
+    "title": "Startup Diligence War Room",
+    "path": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\docs\\walkthroughs\\startup-diligence-war-room.mp4",
+    "relPath": "docs/walkthroughs/startup-diligence-war-room.mp4",
+    "purpose": "README live walkthrough clip. Judge whether the feature is obvious, visually consistent, and credible as evidence.",
+    "duplicateGroup": "walkthrough:startup-diligence-war-room"
+  },
+  "model": "gemini-3.5-flash",
+  "status": "judged",
+  "mediaPath": "docs/walkthroughs/startup-diligence-war-room.mp4",
+  "mediaType": "video/mp4",
+  "bytes": 19271704,
+  "judge": {
+    "verdict": "publish",
+    "summary": "A highly complete and professional walkthrough of the Startup Diligence War Room, demonstrating multi-agent research, public/private lanes, and downstream draft generation with clear UI states.",
+    "scores": {
+      "featureClarity": {
+        "score": 1.5,
+        "evidence": "The video clearly demonstrates spreadsheet enrichment, multi-agent prompting, and public/private agent interactions."
+      },
+      "workflowCompleteness": {
+        "score": 1.6,
+        "evidence": "Shows the entire flow from pending accounts to enrichment, multi-agent analysis, and final draft preparation."
+      },
+      "visualDesign": {
+        "score": 1.4,
+        "evidence": "High-density dark UI with a clean layout, clear active states, and well-structured panels."
+      },
+      "consistency": {
+        "score": 1.5,
+        "evidence": "Perfectly aligns with NodeRoom's core concept of combining files, spreadsheets, and collaborative agents."
+      },
+      "evidenceQuality": {
+        "score": 1.5,
+        "evidence": "Authentic product capture showing real-time UI updates, loading states, and realistic data."
+      },
+      "legibility": {
+        "score": 1.3,
+        "evidence": "Most text is highly legible, though some smaller chat messages and table cells require close attention."
+      },
+      "professionalRelevance": {
+        "score": 1.6,
+        "evidence": "Directly addresses financial and startup diligence use cases with realistic workflows."
+      },
+      "productionHonesty": {
+        "score": 1.5,
+        "evidence": "Accurately represents integration limits by showing 'draft prepared' rather than claiming direct automated delivery."
+      }
+    },
+    "observedEvidence": [
+      "Interactive spreadsheet showing transition from pending to complete states",
+      "Multi-agent prompt execution returning a structured proof board",
+      "Switching between public and private agent lanes with distinct queries",
+      "Downstream integration triggers showing draft preparation"
+    ],
+    "missingEvidence": [],
+    "defects": [
+      {
+        "ts": "00:26",
+        "severity": "P2",
+        "observed": "The text in the private agent chat pane is quite dense and small, making it slightly hard to read quickly.",
+        "fix": "Slightly increase the font size or line height of the agent chat bubbles for better readability."
+      }
+    ],
+    "suggestedReadmeCaption": "Run multi-agent startup diligence workflows directly inside NodeRoom, combining public research, private banker analysis, and automated draft generation."
+  },
+  "score": 11.9,
+  "maxScore": 16
+}
