@@ -32,8 +32,8 @@ function locatorFor(page: Page, target: ObserveTarget) {
 }
 
 export function browserbaseSubstrate(opts: { apiKey?: string; projectId?: string } = {}): BrowserSubstrate {
-  const apiKey = opts.apiKey ?? process.env.BROWSERBASE_API_KEY;
-  const projectId = opts.projectId ?? process.env.BROWSERBASE_PROJECT_ID;
+  const apiKey = (opts.apiKey ?? process.env.BROWSERBASE_API_KEY)?.trim(); // trim stray \r from env
+  const projectId = (opts.projectId ?? process.env.BROWSERBASE_PROJECT_ID)?.trim();
   return {
     name: "browserbase",
     capabilities: { interactive: true },

@@ -6,9 +6,14 @@
  * pipeline. Vision models additionally get the screenshot, so observe/extract can reason over pixels.
  */
 import { generateObject, type LanguageModel } from "ai";
-import { anthropic } from "@ai-sdk/anthropic";
-import { openai } from "@ai-sdk/openai";
+import { createAnthropic } from "@ai-sdk/anthropic";
+import { createOpenAI } from "@ai-sdk/openai";
 import type { ReasoningModel } from "./types";
+
+// Trim env keys: a stray trailing \r (Windows copy/pipe artifact in `convex env set`) would otherwise
+// produce a malformed "Authorization: Bearer …\r" header and break the provider call.
+const anthropic = createAnthropic({ apiKey: process.env.ANTHROPIC_API_KEY?.trim() });
+const openai = createOpenAI({ apiKey: process.env.OPENAI_API_KEY?.trim() });
 
 function providerFor(modelId: string): LanguageModel {
   if (modelId.startsWith("gpt") || modelId.startsWith("o1") || modelId.startsWith("o3") || modelId.startsWith("o4")) return openai(modelId);

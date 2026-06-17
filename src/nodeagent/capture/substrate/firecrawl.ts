@@ -16,7 +16,7 @@ interface FirecrawlResponse {
 }
 
 export function firecrawlSubstrate(opts: { apiKey?: string } = {}): BrowserSubstrate {
-  const apiKey = opts.apiKey ?? process.env.FIRECRAWL_API_KEY;
+  const apiKey = (opts.apiKey ?? process.env.FIRECRAWL_API_KEY)?.trim(); // trim stray \r from env
   return {
     name: "firecrawl",
     capabilities: { interactive: false },

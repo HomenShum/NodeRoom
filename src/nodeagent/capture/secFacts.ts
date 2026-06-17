@@ -8,7 +8,7 @@
  *
  * Set SEC_USER_AGENT to a real contact (SEC asks for one); a default is used otherwise.
  */
-const SEC_UA = process.env.SEC_USER_AGENT ?? "NodeRoom Diligence (contact: research@noderoom.app)";
+const SEC_UA = (process.env.SEC_USER_AGENT ?? "NodeRoom Diligence (contact: research@noderoom.app)").trim();
 
 /** Friendly term → ordered candidate us-gaap tags (first that returns annual data wins). */
 const CONCEPT_ALIASES: Record<string, string[]> = {
