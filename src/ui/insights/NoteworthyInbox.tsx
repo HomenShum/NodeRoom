@@ -1,5 +1,6 @@
 import { X, FileText, Table2, MessageSquare, Upload, GitBranch, Sparkles, AlertTriangle, CircleDot } from "lucide-react";
 import type { PassiveActivityItem } from "../../app/store";
+import { NodeReveal } from "../motion/NodeReveal";
 
 /** Calm return-state inbox for passive room intelligence. Lists what the room noticed,
  *  indexed, queued, or failed — never auto-edits the user's note. Click-through opens the
@@ -75,36 +76,38 @@ export function NoteworthyInbox({
         <div className="r-inbox-empty">Nothing needs attention right now.</div>
       ) : (
         <ul className="r-inbox-list">
-          {items.map((item) => {
+          {items.map((item, idx) => {
             const Icon = sourceIcon(item.sourceKind);
             const pill = statusPill(item.status, item.action);
             const target = openTarget(item);
             const title = item.entityNames[0] ?? sourceLabel(item.sourceKind);
             return (
-              <li key={item.id} className="r-inbox-item" data-testid="noteworthy-item" data-tone={pill.tone}>
-                <div className="r-inbox-item-head">
-                  <Icon size={13} />
-                  <span className="r-inbox-item-title" title={title}>{title}</span>
-                  <span className="r-inbox-pill" data-tone={pill.tone}>{pill.label}</span>
-                </div>
-                {item.textPreview && <p className="r-inbox-preview">{item.textPreview}</p>}
-                <div className="r-inbox-meta">
-                  <span className="r-inbox-kind">{sourceLabel(item.sourceKind)}</span>
-                  {item.reasons.length > 0 && (
-                    <span className="r-inbox-reasons">{item.reasons.slice(0, 3).join(" · ")}</span>
+              <NodeReveal key={item.id} delay={idx * 60} distance={8} threshold={0}>
+                <li className="r-inbox-item" data-testid="noteworthy-item" data-tone={pill.tone}>
+                  <div className="r-inbox-item-head">
+                    <Icon size={13} />
+                    <span className="r-inbox-item-title" title={title}>{title}</span>
+                    <span className="r-inbox-pill" data-tone={pill.tone}>{pill.label}</span>
+                  </div>
+                  {item.textPreview && <p className="r-inbox-preview">{item.textPreview}</p>}
+                  <div className="r-inbox-meta">
+                    <span className="r-inbox-kind">{sourceLabel(item.sourceKind)}</span>
+                    {item.reasons.length > 0 && (
+                      <span className="r-inbox-reasons">{item.reasons.slice(0, 3).join(" · ")}</span>
+                    )}
+                    {item.error && <span className="r-inbox-error" title={item.error}><AlertTriangle size={11} /> failed</span>}
+                  </div>
+                  {target && (
+                    <button
+                      className="r-inbox-open"
+                      data-testid="noteworthy-open"
+                      onClick={() => onOpenArtifact(target.artifactId, { elementId: target.elementId })}
+                    >
+                      Open {sourceLabel(item.sourceKind).toLowerCase()}
+                    </button>
                   )}
-                  {item.error && <span className="r-inbox-error" title={item.error}><AlertTriangle size={11} /> failed</span>}
-                </div>
-                {target && (
-                  <button
-                    className="r-inbox-open"
-                    data-testid="noteworthy-open"
-                    onClick={() => onOpenArtifact(target.artifactId, { elementId: target.elementId })}
-                  >
-                    Open {sourceLabel(item.sourceKind).toLowerCase()}
-                  </button>
-                )}
-              </li>
+                </li>
+              </NodeReveal>
             );
           })}
         </ul>

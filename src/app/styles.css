@@ -976,6 +976,14 @@ button.r-tracevu-step:hover, button.r-tracevu-step:focus-visible { border-color:
 /* Screenshot highlight box — the region acted on (where it clicked / the extracted SEC cell). */
 .r-tracevu-shotframe { position: relative; display: inline-block; line-height: 0; }
 .r-tracevu-box { position: absolute; border: 2px solid var(--accent-primary); border-radius: 3px; background: color-mix(in srgb, var(--accent-primary) 16%, transparent); box-shadow: 0 0 0 1px var(--bg-primary); pointer-events: none; }
+/* PDF citation — react-pdf <Page> render + the same % box overlay. The wrap pins to the canvas so
+   the absolute fractions map 1:1 onto the rendered page (no react-pdf chrome padding). */
+.r-tracevu-pdfframe { display: inline-flex; flex-direction: column; gap: 4px; }
+.r-tracevu-pdf-label { font-size: 10.5px; color: var(--text-tertiary); font-family: var(--font-mono); line-height: 1.2; }
+.r-tracevu-pdf-page-wrap { position: relative; display: inline-block; line-height: 0; }
+.r-tracevu-pdf-page-wrap .react-pdf__Page { margin: 0; }
+.r-tracevu-pdf-page-wrap .react-pdf__Page__canvas { display: block; border-radius: 8px; border: 1px solid var(--line); }
+.r-tracevu-pdf-loading, .r-tracevu-pdf-err { display: inline-block; padding: 14px 18px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg-secondary); color: var(--text-tertiary); font-size: 11px; line-height: 1.4; }
 /* Trace · Flow — reactflow graph of the workflow progression (needs an explicit height). */
 .r-tracevu-capture { display: flex; flex-direction: column; gap: 6px; padding: 10px; margin-bottom: 8px; border: 1px solid var(--line); border-radius: 10px; background: var(--bg-secondary); }
 .r-tracevu-capture-title { font-size: 11px; font-weight: 600; color: var(--text-secondary); }
@@ -1065,6 +1073,12 @@ button.r-tracevu-step:hover, button.r-tracevu-step:focus-visible { border-color:
 .r-join-inline input { width: 116px; background: transparent; border: none; outline: none; font-family: var(--font-mono); font-size: 14px; font-weight: 600; letter-spacing: .08em; color: var(--text-primary); text-transform: uppercase; }
 .r-join-inline input::placeholder { color: var(--text-tertiary); letter-spacing: .04em; }
 .r-feature-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 48px; }
+
+/* Proof metrics — credibility counters on the landing (CountUp-driven). */
+.r-proof-grid { display: flex; flex-wrap: wrap; gap: 28px; margin-top: 36px; padding: 18px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.r-proof { display: flex; flex-direction: column; gap: 2px; }
+.r-proof > span:first-child { font-size: 26px; font-weight: 800; color: var(--text-primary); font-variant-numeric: tabular-nums; line-height: 1; }
+.r-proof-label { font-size: 11px; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: .06em; }
 .r-feature { padding: 18px; border-radius: 14px; border: 1px solid var(--line); background: color-mix(in srgb, var(--bg-primary) 70%, transparent); }
 .r-feature .fi { width: 34px; height: 34px; border-radius: 9px; display: grid; place-items: center; background: var(--accent-tint); color: var(--accent-ink); margin-bottom: 12px; font-size: 16px; }
 .r-feature h3 { font-size: 14px; font-weight: 700; margin: 0 0 5px; letter-spacing: -.01em; }

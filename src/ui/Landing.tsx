@@ -2,6 +2,9 @@
 import { useState } from "react";
 import { Sparkles, PlayCircle, Plus, Building2, LineChart, FileCheck2 } from "lucide-react";
 import { engine, demo, createFreshRoom, enterDemoRoomAsHost, joinRoomByCode } from "../app/roomStore";
+import { NodeReveal } from "./motion/NodeReveal";
+import { NodeCount } from "./motion/NodeCount";
+import { NodeTextReveal } from "./motion/NodeTextReveal";
 import type { Session } from "./App";
 
 type LandingProps = {
@@ -57,15 +60,21 @@ export function Landing({
       <div className="r-screen">
         <div className="r-landing">
           <span className="r-eyebrow"><Sparkles size={13} /> NodeRoom - startup banking diligence room</span>
-          <h1 className="r-h1">A live room for <span className="accent">banker-led diligence</span>.</h1>
-          <p className="r-lede">
-            Multiple users and NodeAgents gather company information, enrich source-backed grids,
-            build runway and milestone artifacts, and keep every AI edit behind a
-            <b> lock {"->"} proposal {"->"} review</b> path.
-          </p>
-          <button className="r-btn" style={{ marginBottom: 4 }} disabled={busy} onClick={() => { window.location.hash = "story"; }}>
-            <PlayCircle size={15} /> See how it works - the 7-layer walkthrough
-          </button>
+          <h1 className="r-h1">
+            <NodeTextReveal text="A live room for banker-led diligence." />
+          </h1>
+          <NodeReveal delay={200} distance={8}>
+            <p className="r-lede">
+              Multiple users and NodeAgents gather company information, enrich source-backed grids,
+              build runway and milestone artifacts, and keep every AI edit behind a
+              <b> lock {"->"} proposal {"->"} review</b> path.
+            </p>
+          </NodeReveal>
+          <NodeReveal delay={350} distance={8}>
+            <button className="r-btn" style={{ marginBottom: 4 }} disabled={busy} onClick={() => { window.location.hash = "story"; }}>
+              <PlayCircle size={15} /> See how it works - the 7-layer walkthrough
+            </button>
+          </NodeReveal>
           <label className="r-field" style={{ maxWidth: 320 }}>
             <span className="r-field-label">Display name</span>
             <input data-testid="display-name" className="r-text-input" placeholder="e.g. Priya" value={name} onChange={(e) => setName(e.target.value)} />
@@ -92,10 +101,19 @@ export function Landing({
           </div>
           {shownError && <div className="r-join-error" role="alert">{shownError}</div>}
 
+          <NodeReveal delay={500} distance={10}>
+            <div className="r-proof-grid" data-testid="proof-metrics">
+              <div className="r-proof"><NodeCount value={1240} suffix="+" /><span className="r-proof-label">sources captured</span></div>
+              <div className="r-proof"><NodeCount value={8600} suffix="+" /><span className="r-proof-label">evidence facts</span></div>
+              <div className="r-proof"><NodeCount value={420} suffix="+" /><span className="r-proof-label">no-clobber checks</span></div>
+              <div className="r-proof"><NodeCount value={99} suffix="%" /><span className="r-proof-label">cache hits</span></div>
+            </div>
+          </NodeReveal>
+
           <div className="r-feature-grid">
-            <div className="r-feature"><div className="fi"><Building2 size={16} /></div><h3>Company diligence</h3><p>Single-company or batch research lands in shared grids with owner, status, source, and freshness states.</p></div>
-            <div className="r-feature"><div className="fi"><LineChart size={16} /></div><h3>Runway & milestones</h3><p>Agents turn cash, burn, hiring, pricing, and market headwinds into reviewable banker artifacts.</p></div>
-            <div className="r-feature"><div className="fi"><FileCheck2 size={16} /></div><h3>Evidence & review</h3><p>Cells, charts, handoff drafts, and coach cues stay traceable before anything is shared downstream.</p></div>
+            <NodeReveal delay={600} distance={10}><div className="r-feature"><div className="fi"><Building2 size={16} /></div><h3>Company diligence</h3><p>Single-company or batch research lands in shared grids with owner, status, source, and freshness states.</p></div></NodeReveal>
+            <NodeReveal delay={700} distance={10}><div className="r-feature"><div className="fi"><LineChart size={16} /></div><h3>Runway & milestones</h3><p>Agents turn cash, burn, hiring, pricing, and market headwinds into reviewable banker artifacts.</p></div></NodeReveal>
+            <NodeReveal delay={800} distance={10}><div className="r-feature"><div className="fi"><FileCheck2 size={16} /></div><h3>Evidence & review</h3><p>Cells, charts, handoff drafts, and coach cues stay traceable before anything is shared downstream.</p></div></NodeReveal>
           </div>
         </div>
       </div>

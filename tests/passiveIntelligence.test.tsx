@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { render, screen, fireEvent, cleanup } from "@testing-library/react";
-import { beforeEach, afterEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 
 const mockStore = vi.hoisted(() => ({ current: {} as any }));
 
@@ -9,6 +9,18 @@ vi.mock("convex/react", () => ({ useQuery: () => null }));
 vi.mock("../src/app/store", () => ({
   useStore: () => mockStore.current,
 }));
+
+// NodeReveal/NodeCount use IntersectionObserver — jsdom doesn't provide it.
+// Stub it to immediately call the callback with isIntersecting=true so content renders.
+beforeAll(() => {
+  (globalThis as any).IntersectionObserver = class {
+    constructor(private cb: (entries: any[]) => void) {}
+    observe() { this.cb([{ isIntersecting: true }]); }
+    disconnect() {}
+    unobserve() {}
+  };
+  (globalThis as any).matchMedia = (globalThis as any).matchMedia ?? ((q: string) => ({ matches: false, media: q, addEventListener() {}, removeEventListener() {} }));
+});
 
 import { PassiveAgentChip } from "../src/ui/insights/PassiveAgentChip";
 import type { PassiveActivityItem } from "../src/app/store";
