@@ -46,6 +46,32 @@ the right NodeAgent proof commands, runs the frame smoke, and writes
 use `omni run examples/omnigent/nodeagent-room.yaml` for the outer harness live
 check.
 
+## NodeRoom, NodeAgent, And NodeTrace
+
+NodeRoom is the live reference app. It proves the end-to-end product behavior:
+shared room state, managed locks, draft/review flows, Convex-backed durable
+agent jobs, source-backed evidence, and the Trace Lens UI used by real room
+surfaces.
+
+Two public repos are extracted from this app so other teams can adopt the pieces
+without copying the whole room:
+
+- [NodeAgent](https://github.com/HomenShum/NodeAgent): the canonical agent
+  harness and durable runtime contract. Use it when another app wants the
+  frame runner, context packs, verifier receipts, SQLite/Convex adapter shape,
+  Omnigent compatibility, and the no-key local dashboard scaffold.
+- [NodeTrace](https://github.com/HomenShum/nodetrace): the portable Trace Lens
+  UI and SQLite setup. Use it when another app already has an agent runtime and
+  only needs Review/Builder trace surfaces, business proof cards, bounded
+  runtime rows, and server-gated code ownership.
+
+Update flow is intentional: NodeRoom gets the newest product Trace Lens behavior
+first; NodeTrace should mirror the portable subset. The current portable Builder
+ownership shape is component, query, mutation, skill, and test ownership behind
+a privileged route. `nodetrace` now proves a 125-step QA-agent trace fixture, so
+an external team can prompt their coding agent to inject Trace Lens into a demo
+without adopting NodeAgent.
+
 It runs in **two modes from the same code**:
 
 - **No keys** — a deterministic in-memory engine + scripted agents. `npm run demo` / `npm run dev`.
