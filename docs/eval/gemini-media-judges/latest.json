@@ -1,98 +1,23 @@
 {
-  "runId": "20260614T233419Z",
-  "generatedAt": "2026-06-14T23:35:48.788Z",
+  "runId": "20260617T2015Z",
+  "generatedAt": "2026-06-17T18:54:58.389Z",
   "model": "gemini-3.5-flash",
-  "command": "npm run media:gemini-judge -- --only startup-diligence --include-ignored",
+  "command": "npm run media:gemini-judge -- --only startup-diligence-war-room --include-ignored --run-id 20260617T2015Z --model gemini-3.5-flash",
   "notes": [
     "GIF assets are converted to temporary MP4 with ffmpeg before upload.",
     "This media judge is evidence-quality QA; it does not replace backend/browser production gates."
   ],
   "counts": {
-    "total": 2,
-    "judged": 2,
+    "total": 1,
+    "judged": 1,
     "errors": 0,
     "dryRun": 0,
     "verdicts": {
-      "publish": 2
+      "publish": 1
     },
-    "defects": {
-      "P2": 3
-    }
+    "defects": {}
   },
   "results": [
-    {
-      "asset": {
-        "id": "docs-walkthroughs-startup-diligence-live-join",
-        "class": "readme_walkthrough",
-        "title": "Startup Diligence Live Join",
-        "path": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\docs\\walkthroughs\\startup-diligence-live-join.mp4",
-        "relPath": "docs/walkthroughs/startup-diligence-live-join.mp4",
-        "purpose": "README live walkthrough clip. Judge whether the feature is obvious, visually consistent, and credible as evidence.",
-        "duplicateGroup": "walkthrough:startup-diligence-live-join"
-      },
-      "model": "gemini-3.5-flash",
-      "status": "judged",
-      "mediaPath": "docs/walkthroughs/startup-diligence-live-join.mp4",
-      "mediaType": "video/mp4",
-      "bytes": 11204199,
-      "judge": {
-        "verdict": "publish",
-        "summary": "This walkthrough clearly demonstrates multiple users joining a shared startup diligence room using a unique room code, showing real-time collaboration and state synchronization.",
-        "scores": {
-          "featureClarity": {
-            "score": 1.4,
-            "evidence": "The process of copying the room code and joining from different user sessions is clearly shown."
-          },
-          "workflowCompleteness": {
-            "score": 1.5,
-            "evidence": "Shows the complete flow from room creation to multiple users joining and interacting."
-          },
-          "visualDesign": {
-            "score": 1.3,
-            "evidence": "The dark mode interface is modern and clean, though the layout is somewhat dense."
-          },
-          "consistency": {
-            "score": 1.4,
-            "evidence": "Aligns well with the product's core concept of collaborative workspaces and agent integration."
-          },
-          "evidenceQuality": {
-            "score": 1.4,
-            "evidence": "Authentic screen recording showing actual multi-browser interactions."
-          },
-          "legibility": {
-            "score": 1.2,
-            "evidence": "Most text is readable, but smaller UI elements and logs can be hard to read at standard sizes."
-          },
-          "professionalRelevance": {
-            "score": 1.3,
-            "evidence": "Highly relevant for demonstrating secure, multi-user financial diligence workflows."
-          },
-          "productionHonesty": {
-            "score": 1.4,
-            "evidence": "Accurately depicts the step-by-step user actions required to join a session."
-          }
-        },
-        "observedEvidence": [
-          "Room creation and code generation",
-          "Multi-user joining flow via code input",
-          "Synchronized room trace updating as users join"
-        ],
-        "missingEvidence": [
-          "Direct real-time co-editing of a specific document or spreadsheet cell."
-        ],
-        "defects": [
-          {
-            "ts": "00:10",
-            "severity": "P2",
-            "observed": "The transition between different user perspectives is rapid, which may briefly disorient the viewer.",
-            "fix": "Add a subtle visual transition or a slightly longer pause when switching between user browser windows."
-          }
-        ],
-        "suggestedReadmeCaption": "See how team members instantly join a live startup diligence room using a secure share code to collaborate with shared agents."
-      },
-      "score": 10.9,
-      "maxScore": 16
-    },
     {
       "asset": {
         "id": "docs-walkthroughs-startup-diligence-war-room",
@@ -107,69 +32,55 @@
       "status": "judged",
       "mediaPath": "docs/walkthroughs/startup-diligence-war-room.mp4",
       "mediaType": "video/mp4",
-      "bytes": 18775645,
+      "bytes": 19271704,
       "judge": {
         "verdict": "publish",
-        "summary": "The walkthrough effectively demonstrates NodeRoom's multi-agent collaboration and data enrichment capabilities within a realistic startup diligence scenario. The UI is highly functional and consistent with the product's core value proposition.",
+        "summary": "Excellent walkthrough demonstrating multi-agent startup diligence with clear public/private lanes, live data enrichment, and structured outputs.",
         "scores": {
           "featureClarity": {
-            "score": 1.5,
-            "evidence": "Shows clear transition from spreadsheet to research tab and agent execution."
+            "score": 1.4,
+            "evidence": "Demonstrates company enrichment, multi-agent prompt execution, and private agent interaction clearly."
           },
           "workflowCompleteness": {
-            "score": 1.6,
-            "evidence": "Demonstrates the full flow from pending enrichment to execution and handoff options."
+            "score": 1.3,
+            "evidence": "Shows the full flow from pending enrichment to completed data, multi-agent execution, and private drafting."
           },
           "visualDesign": {
-            "score": 1.3,
-            "evidence": "Clean dark mode layout, though the interface is highly dense with multiple panels."
+            "score": 1.2,
+            "evidence": "High-density, polished dark UI with clear active states and clean side panels."
           },
           "consistency": {
-            "score": 1.6,
-            "evidence": "Perfect alignment with NodeRoom's multi-agent, spreadsheet, and trace-based architecture."
+            "score": 1.4,
+            "evidence": "Perfectly aligns with the NodeRoom paradigm of files, spreadsheets, and public/private agent lanes."
           },
           "evidenceQuality": {
-            "score": 1.6,
-            "evidence": "Authentic UI capture showing real-time trace updates and agent responses."
+            "score": 1.3,
+            "evidence": "Authentic product interaction showing real-time updates, agent logs, and UI state changes."
           },
           "legibility": {
-            "score": 1.2,
-            "evidence": "Small font sizes in the trace log and chat sidebar can be hard to read on smaller screens."
+            "score": 1.1,
+            "evidence": "UI text is dense and small at standard resolution, but readable; bottom captions assist comprehension."
           },
           "professionalRelevance": {
-            "score": 1.5,
-            "evidence": "Directly addresses startup diligence workflows, highly relevant to finance and operations."
+            "score": 1.4,
+            "evidence": "Highly applicable to financial analysts, venture capital, and startup diligence workflows."
           },
           "productionHonesty": {
-            "score": 1.4,
-            "evidence": "Clearly shows simulated agent steps and realistic execution logs."
+            "score": 1.3,
+            "evidence": "Explicitly highlights that downstream integrations are draft-only and require human approval."
           }
         },
         "observedEvidence": [
-          "Spreadsheet view with financial data",
-          "Research tab with enrichment status",
-          "Room trace log updating dynamically",
-          "Copilot panel with public and private tabs",
-          "Handoff integration buttons"
+          "Interactive spreadsheet with pending and completed enrichment states",
+          "Multi-agent prompt execution in public chat with real-time trace",
+          "Private agent lane toggle and private query execution",
+          "Draft export options (Gmail, Notion, Slack) with approval gates"
         ],
         "missingEvidence": [],
-        "defects": [
-          {
-            "ts": "00:07",
-            "severity": "P2",
-            "observed": "The Room Trace log text is extremely dense and wraps tightly, reducing legibility.",
-            "fix": "Increase line height or add subtle spacing between trace events."
-          },
-          {
-            "ts": "00:23",
-            "severity": "P2",
-            "observed": "The switch from Public to Private copilot is subtle and easy to miss without the overlay text.",
-            "fix": "Add a stronger visual indicator or transition effect when switching privacy states."
-          }
-        ],
-        "suggestedReadmeCaption": "Collaborate with public and private AI agents to enrich startup data, run diligence checks, and hand off drafts directly from your war room."
+        "defects": [],
+        "suggestedReadmeCaption": "Run multi-agent startup diligence workflows with source-backed enrichment, collaborative spreadsheets, and secure private agent lanes."
       },
-      "score": 11.7,
+      "score": 10.4,
       "maxScore": 16
     }
   ]

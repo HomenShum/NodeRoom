@@ -77,6 +77,7 @@
     "halo:supervise": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/halo-supervise-until.ps1",
     "walkthroughs": "tsx scripts/walkthroughs/capture.ts",
     "walkthroughs:render": "tsx scripts/walkthroughs/render.ts",
+    "walkthroughs:review": "tsx scripts/walkthroughs/review.ts",
     "walkthroughs:studio": "remotion studio remotion/index.ts",
     "media:gemini-judge": "tsx scripts/gemini-demo-media-judge.ts",
     "workflow:trace-previews": "tsx scripts/render-workflow-preview.ts",

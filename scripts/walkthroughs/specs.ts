@@ -208,14 +208,15 @@ export const FEATURES: FeatureSpec[] = [
       {
         kind: "state",
         caption: "Pause on the proof board: cited cells, chart assumptions, human edit preservation, and draft-only handoff are visible",
-        holdMs: 3400,
+        holdMs: 5000,
       },
       {
         kind: "click",
         sel: '[data-testid="copilot-tab-private"]',
         caption: "Switch to the private NodeAgent lane",
-        afterCaption: "Private work is scoped to the owner until promoted",
+        afterCaption: "The active Private tab is highlighted: work stays owner-scoped until promoted",
         after: { sel: PRIVATE, timeoutMs: 10_000 },
+        afterHoldMs: 2600,
       },
       {
         kind: "type",

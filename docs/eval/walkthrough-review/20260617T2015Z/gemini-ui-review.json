@@ -1,0 +1,42 @@
+{
+  "generatedAt": "2026-06-17T18:55:51.289Z",
+  "model": "gemini-3.5-flash",
+  "mediaPath": "docs/walkthroughs/startup-diligence-war-room.mp4",
+  "mediaType": "video/mp4",
+  "scoreScale": "0-5; model 0-10 outputs are normalized",
+  "review": {
+    "overall": "partial",
+    "summary": "Highly polished startup diligence war-room interface featuring dense spreadsheet collaboration, live agent enrichment via Convex, seamless public and private agent chat lanes, and robust multi-user presence. Wall post-its were not observed in this specific workspace layout.",
+    "scores": {
+      "filesAndSpreadsheet": 5,
+      "publicPrivateChatAgent": 5,
+      "convexLiveState": 5,
+      "traceAcceptAllAutoAccept": 4,
+      "notesWikiSpreadsheet": 4,
+      "wallPostIts": 0,
+      "multiUserSignals": 4,
+      "evidenceCitations": 4
+    },
+    "observedEvidence": [
+      "Tabbed Room Binder showing spreadsheets (Q3 variance, Company research) alongside text-based Diligence memos.",
+      "Live background enrichment of company rows upon clicking 'Enrich 5 pending' showing real-time state changes.",
+      "Public chat pane with @nodeagent integration and a separate 'Private' tab for private agent interactions.",
+      "Auto-allow toggle in the header and Room Trace counter indicating active state updates.",
+      "User presence indicators (green online status dots) and invitation/room sharing links."
+    ],
+    "missingEvidence": [
+      "Interactive spatial wall with post-it creation and deletion capabilities."
+    ],
+    "workflowPainPoints": [
+      {
+        "user": "finance_banking",
+        "painPoint": "Hard to verify automated research sources and private partner notes before publishing to the main room.",
+        "observed": true,
+        "note": "Directly addressed through the dedicated 'Private' agent lane where the banker can draft concerns and review assumptions privately before promoting to the room."
+      }
+    ],
+    "recommendedEvalAdditions": [
+      "Add a dedicated test for spatial/wall view layouts if post-its are a key requirement."
+    ]
+  }
+}

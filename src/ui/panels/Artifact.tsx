@@ -561,6 +561,7 @@ function Research({ roomId, me, art }: { roomId: string; me: Actor; art: Art }) 
   const [moreOpen, setMoreOpen] = useState(false);
   const [expanded, setExpanded] = useState<string | null>(null);
   const [pages, setPages] = useState(1); // QA P1: page the grid like GenericSheet — no unbounded DOM
+  const [handoffStatus, setHandoffStatus] = useState<string | null>(null);
   const RESEARCH_PAGE_SIZE = 50;
   const rowIds = [...new Set(art.order.map((e) => e.split("__")[0]))];
   const visibleRowIds = rowIds.slice(0, RESEARCH_PAGE_SIZE * pages);
@@ -616,6 +617,7 @@ function Research({ roomId, me, art }: { roomId: string; me: Actor; art: Art }) 
     a.download = `${draft.target}-${draft.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "draft"}.md`;
     a.click();
     URL.revokeObjectURL(url);
+    setHandoffStatus(`${HANDOFF_SHORT[draft.target] ?? draft.target} draft prepared for review`);
   };
   const activeDraftRowId = expanded ?? rowIds.find((rid) => cell(rid, "status") === "complete") ?? null;
   const activeDraftCompany = activeDraftRowId ? cell(activeDraftRowId, "company") || activeDraftRowId : null;
@@ -651,12 +653,13 @@ function Research({ roomId, me, art }: { roomId: string; me: Actor; art: Art }) 
             {downstreamDrafts.map((draft) => {
               const Icon = HANDOFF_ICONS[draft.target] ?? Download;
               return (
-                <button key={draft.target} className="r-handoff-chip" onClick={() => saveDownstreamDraft(draft)} title={draft.ctaLabel}>
+                <button key={draft.target} className="r-handoff-chip" data-testid={`downstream-${draft.target}`} onClick={() => saveDownstreamDraft(draft)} title={draft.ctaLabel}>
                   <Icon size={13} /> <span>{HANDOFF_SHORT[draft.target] ?? draft.target}</span>
                 </button>
               );
             })}
           </div>
+          {handoffStatus && <span className="r-handoff-status" data-testid="downstream-status">{handoffStatus}</span>}
         </div>
       )}
       {pasteOpen && (

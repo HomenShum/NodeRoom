@@ -23,6 +23,21 @@ const VIEW = { width: 1280, height: 800 };
 const ROOT = process.cwd();
 const PUB = join(ROOT, "remotion", "public");
 const onlyIds = process.argv.slice(2);
+const DEMO_CHROME = [
+  "*::-webkit-scrollbar{display:none!important}",
+  ".r-tour{display:none!important}",
+  "body{zoom:1.15}",
+  ".r-file .fn{font-size:14px!important}",
+  ".r-file .fm{font-size:12.5px!important}",
+  ".r-trace{max-height:380px!important}",
+  ".r-trace-list{gap:14px!important;padding-bottom:18px!important}",
+  ".r-trace-row{padding:7px 8px!important;gap:11px!important}",
+  ".r-trace-item .tt{font-size:18px!important;line-height:1.55!important}",
+  ".r-trace-item .td{font-size:14.5px!important;line-height:1.5!important}",
+  ".r-trace-detail{font-size:14.5px!important;line-height:1.75!important;gap:6px!important}",
+  ".r-copilot-tabs button[data-on=\"true\"]{box-shadow:0 0 0 2px var(--accent-primary),0 0 0 6px var(--accent-tint)!important}",
+  ".r-copilot-tabs button[data-on=\"true\"]::after{content:\"active\";margin-left:4px;font-size:9px;text-transform:uppercase;color:var(--accent-ink)}",
+].join(" ");
 
 type Segment = { frame: string; caption: string; cursor: { x: number; y: number } | null; click: boolean; kind: "state" | "action" | "typed" | "loading" | "result"; holdMs: number };
 type FeatureOut = { id: string; title: string; skipped: boolean; error?: string; segments: Segment[] };
@@ -76,7 +91,7 @@ async function waitAfter(page: Page, a: After | undefined) {
 async function createRoom(ctx: BrowserContext, code: string): Promise<Page> {
   const roomCode = normalizeCaptureCode(code);
   const page = await ctx.newPage();
-  await page.goto(`${BASE}/?create=${roomCode}&name=Maya`, { waitUntil: "domcontentloaded" });
+  await page.goto(`${BASE}/?create=${roomCode}&name=Maya`, { waitUntil: "domcontentloaded", timeout: 60_000 });
   await page.locator('[data-testid="public-chat-panel"] [data-testid="chat-composer"]').waitFor({ timeout: 60_000 });
   await page.getByTestId("tour-skip").click({ timeout: 8000 }).catch(() => {});
   await page.locator('[data-testid="artifact-tabs"] button', { hasText: /Q3 variance/i }).first().click({ timeout: 15_000 }).catch(() => {});
@@ -151,6 +166,15 @@ async function seedResearch(page: Page, code: string, companies = DEFAULT_SEED_C
   await settle(page, 800);
 }
 
+async function ensureSampleDiligenceWorkspace(page: Page) {
+  const blank = page.getByTestId("blank-room-state");
+  if (await blank.isVisible({ timeout: 3_000 }).catch(() => false)) {
+    const load = page.getByTestId("blank-cta-demo");
+    await load.click({ timeout: 10_000 });
+  }
+  await page.locator(".r-research").waitFor({ timeout: 30_000 });
+}
+
 async function captureStartupJoinRoom(
   ctx: BrowserContext,
   code: string,
@@ -159,9 +183,9 @@ async function captureStartupJoinRoom(
   nextFrame: () => number,
 ) {
   const roomCode = normalizeCaptureCode(code);
-  const chrome = "*::-webkit-scrollbar{display:none!important} .r-tour{display:none!important} body{zoom:1.15} .r-file .fn{font-size:14px!important}.r-file .fm{font-size:12.5px!important}.r-trace{max-height:360px!important}.r-trace-item .tt{font-size:18px!important}.r-trace-item .td{font-size:14px!important}.r-trace-detail{font-size:14.5px!important}";
+  const chrome = DEMO_CHROME;
   const host = await ctx.newPage();
-  await host.goto(BASE, { waitUntil: "domcontentloaded" });
+  await host.goto(BASE, { waitUntil: "domcontentloaded", timeout: 60_000 });
   await host.evaluate(() => { try { localStorage.setItem("noderoom:tour:v1", "done"); } catch { /* ignore */ } });
   await host.addStyleTag({ content: chrome });
   await setInputByTestId(host, "display-name", "Maya");
@@ -183,10 +207,10 @@ async function captureStartupJoinRoom(
     kind: "action",
     holdMs: 950,
   });
-  await host.goto(`${BASE}/?create=${roomCode}&name=Maya`, { waitUntil: "domcontentloaded" });
+  await host.goto(`${BASE}/?create=${roomCode}&name=Maya`, { waitUntil: "domcontentloaded", timeout: 60_000 });
   await host.locator('[data-testid="public-chat-panel"] [data-testid="chat-composer"]').waitFor({ timeout: 60_000 });
   await host.getByTestId("tour-skip").click({ timeout: 8000 }).catch(() => {});
-  await host.locator(".r-research").waitFor({ timeout: 30_000 });
+  await ensureSampleDiligenceWorkspace(host);
   await host.addStyleTag({ content: chrome }).catch(() => {});
   await settle(host, 900);
   segments.push({
@@ -218,7 +242,7 @@ async function captureStartupJoinRoom(
   });
 
   const joiner = await ctx.newPage();
-  await joiner.goto(BASE, { waitUntil: "domcontentloaded" });
+  await joiner.goto(BASE, { waitUntil: "domcontentloaded", timeout: 60_000 });
   await joiner.evaluate(() => { try { localStorage.setItem("noderoom:tour:v1", "done"); } catch { /* ignore */ } });
   await joiner.addStyleTag({ content: chrome });
   await setInputByTestId(joiner, "display-name", "Priya");
@@ -230,7 +254,7 @@ async function captureStartupJoinRoom(
     cursor: null,
     click: false,
     kind: "state",
-    holdMs: 1900,
+    holdMs: 2600,
   });
   const joinCur = await center(joiner, '[data-testid="join-room"]');
   segments.push({
@@ -244,10 +268,10 @@ async function captureStartupJoinRoom(
   await joiner.evaluate((code) => {
     try { localStorage.removeItem(`noderoom:live:${code}`); } catch { /* ignore */ }
   }, roomCode);
-  await joiner.goto(`${BASE}/?room=${roomCode}&name=Priya`, { waitUntil: "domcontentloaded" });
+  await joiner.goto(`${BASE}/?room=${roomCode}&name=Priya`, { waitUntil: "domcontentloaded", timeout: 60_000 });
   await joiner.locator('[data-testid="public-chat-panel"] [data-testid="chat-composer"]').waitFor({ timeout: 60_000 });
   await joiner.getByTestId("tour-skip").click({ timeout: 8000 }).catch(() => {});
-  await joiner.locator(".r-research").waitFor({ timeout: 30_000 });
+  await ensureSampleDiligenceWorkspace(joiner);
   await joiner.addStyleTag({ content: chrome }).catch(() => {});
   await settle(joiner, 900);
   segments.push({
@@ -282,7 +306,7 @@ async function captureStartupJoinRoom(
   });
 
   const banker = await ctx.newPage();
-  await banker.goto(BASE, { waitUntil: "domcontentloaded" });
+  await banker.goto(BASE, { waitUntil: "domcontentloaded", timeout: 60_000 });
   await banker.evaluate(() => { try { localStorage.setItem("noderoom:tour:v1", "done"); } catch { /* ignore */ } });
   await banker.addStyleTag({ content: chrome });
   await setInputByTestId(banker, "display-name", "Alex");
@@ -294,7 +318,7 @@ async function captureStartupJoinRoom(
     cursor: null,
     click: false,
     kind: "state",
-    holdMs: 2400,
+    holdMs: 2800,
   });
   const bankerJoinCur = await center(banker, '[data-testid="join-room"]');
   segments.push({
@@ -308,10 +332,10 @@ async function captureStartupJoinRoom(
   await banker.evaluate((code) => {
     try { localStorage.removeItem(`noderoom:live:${code}`); } catch { /* ignore */ }
   }, roomCode);
-  await banker.goto(`${BASE}/?room=${roomCode}&name=Alex`, { waitUntil: "domcontentloaded" });
+  await banker.goto(`${BASE}/?room=${roomCode}&name=Alex`, { waitUntil: "domcontentloaded", timeout: 60_000 });
   await banker.locator('[data-testid="public-chat-panel"] [data-testid="chat-composer"]').waitFor({ timeout: 60_000 });
   await banker.getByTestId("tour-skip").click({ timeout: 8000 }).catch(() => {});
-  await banker.locator(".r-research").waitFor({ timeout: 30_000 });
+  await ensureSampleDiligenceWorkspace(banker);
   await banker.addStyleTag({ content: chrome }).catch(() => {});
   await settle(banker, 900);
   const bankerComposer = banker.locator('[data-testid="public-chat-panel"] [data-testid="chat-composer"]').first();
@@ -332,12 +356,12 @@ async function captureStartupJoinRoom(
 /** Deterministic in-browser demo engine at the SAME prod URL — same UI, scripted agent. */
 async function memoryDemo(ctx: BrowserContext): Promise<Page> {
   const page = await ctx.newPage();
-  await page.goto(`${BASE}/?mode=memory`, { waitUntil: "domcontentloaded" });
+  await page.goto(`${BASE}/?mode=memory`, { waitUntil: "domcontentloaded", timeout: 60_000 });
   await page.evaluate(() => { try { localStorage.setItem("noderoom:tour:v1", "done"); } catch { /* ignore */ } });
   await page.getByTestId("start-demo-room").click({ timeout: 30_000 });
   await page.locator('[data-testid="public-chat-panel"] [data-testid="chat-composer"]').waitFor({ timeout: 30_000 });
   await page.getByTestId("tour-skip").click({ timeout: 5000 }).catch(() => {});
-  await page.addStyleTag({ content: "*::-webkit-scrollbar{display:none!important} .r-tour{display:none!important} body{zoom:1.15} .r-file .fn{font-size:14px!important}.r-file .fm{font-size:12.5px!important}.r-trace{max-height:360px!important}.r-trace-item .tt{font-size:18px!important}.r-trace-item .td{font-size:14px!important}.r-trace-detail{font-size:14.5px!important}" });
+  await page.addStyleTag({ content: DEMO_CHROME });
   await settle(page, 800);
   return page;
 }
@@ -388,7 +412,17 @@ async function runFeature(spec: FeatureSpec, attempt: number): Promise<FeatureOu
         segments.push({ frame: await shoot(page, dir, ++n), caption: step.caption, cursor: cur, click: false, kind: "action", holdMs: 800 });
         const loc = page.locator(step.sel).first();
         await loc.click();
-        await loc.fill(step.text);
+        await loc.fill("");
+        const typeDelay = step.text.length > 80 ? 4 : 10;
+        const splitAt = step.text.length > 60 ? Math.min(72, Math.floor(step.text.length * 0.55)) : 0;
+        if (splitAt) {
+          await loc.pressSequentially(step.text.slice(0, splitAt), { delay: typeDelay });
+          await settle(page, 140);
+          segments.push({ frame: await shoot(page, dir, ++n), caption: step.caption, cursor: null, click: false, kind: "typed", holdMs: 520 });
+          await loc.pressSequentially(step.text.slice(splitAt), { delay: typeDelay });
+        } else {
+          await loc.pressSequentially(step.text, { delay: typeDelay });
+        }
         await settle(page, 250);
         segments.push({ frame: await shoot(page, dir, ++n), caption: step.caption, cursor: null, click: false, kind: "typed", holdMs: 1300 });
         if (step.pressEnter) {

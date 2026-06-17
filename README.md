@@ -10,7 +10,7 @@ through the same versioned concurrency control.**
 
 `multi-panel room` · `public + private agents` · `composer model picker` · `affected-range lock` · `draft-for-merge` · `per-room traces` · `live Convex + real LLM`
 
-[Why Convex](#why-convex-and-why-not) · [Audience fluency](#audience-world-proof-artifacts) · [Lessons](#lessons-from-building-noderoom) · [Managed locks](#managed-locks-what-to-give-the-agent) · [Multi-user proof](docs/eval/MULTI_USER_COORDINATION_PROOF.md) · [June 2026 target](docs/TARGET_2026_06.md) · [Sequences](#live-collaboration-sequence) · [Harness reasoning](docs/HARNESS_RECURSIVE_REASONING.md) · [Adoption](docs/NODEAGENT_ADOPTION.md) · [Why & HALO](docs/WHY_NODEAGENT_AND_HALO.md) · [Quickstart](#quickstart) · [Agent runtime](docs/AGENT_RUNTIME.md) · [NodeAgent source map](docs/NODEAGENT_SOURCE_MAP.md) · [Agent eval](docs/AGENT_EVAL.md) · [Model eval matrix](docs/eval/MODEL_EVAL_MATRIX.md) · [Feature eval backlog](docs/eval/FEATURE_EVAL_BACKLOG.md) · [Agent wiki](docs/AGENT_WIKI.md) · [Design](docs/DESIGN.md) · [Stack](docs/STACK.md) · [Walkthrough](docs/WALKTHROUGH.md) · [Architecture](docs/ARCHITECTURE.md) · [Diagrams](docs/diagrams/README.md) · [Open gaps](docs/GAPS_NOT_DONE.md)
+[Why Convex](#why-convex-and-why-not) · [Audience fluency](#audience-world-proof-artifacts) · [Solo automation](#how-i-automated-the-process-as-a-single-person) · [Lessons](#lessons-from-building-noderoom) · [Managed locks](#managed-locks-what-to-give-the-agent) · [Multi-user proof](docs/eval/MULTI_USER_COORDINATION_PROOF.md) · [June 2026 target](docs/TARGET_2026_06.md) · [Sequences](#live-collaboration-sequence) · [Harness reasoning](docs/HARNESS_RECURSIVE_REASONING.md) · [Adoption](docs/NODEAGENT_ADOPTION.md) · [Why & HALO](docs/WHY_NODEAGENT_AND_HALO.md) · [Quickstart](#quickstart) · [Agent runtime](docs/AGENT_RUNTIME.md) · [NodeAgent source map](docs/NODEAGENT_SOURCE_MAP.md) · [Agent eval](docs/AGENT_EVAL.md) · [Model eval matrix](docs/eval/MODEL_EVAL_MATRIX.md) · [Feature eval backlog](docs/eval/FEATURE_EVAL_BACKLOG.md) · [Agent wiki](docs/AGENT_WIKI.md) · [Design](docs/DESIGN.md) · [Stack](docs/STACK.md) · [Walkthrough](docs/WALKTHROUGH.md) · [Architecture](docs/ARCHITECTURE.md) · [Diagrams](docs/diagrams/README.md) · [Open gaps](docs/GAPS_NOT_DONE.md)
 
 [Interview notes](docs/INTERVIEW_NOTES.md) · [Over-engineering audit](docs/OVERENGINEERING_AUDIT.md) · [Improvement roadmap](docs/IMPROVEMENT_ROADMAP.md) · [Next priorities](docs/NEXT_STEPS_PRIORITY.md) · [Operating budget](docs/OPERATING_BUDGET.md) · [Audience workloads](docs/AUDIENCE_WORKLOADS.md)
 
@@ -182,8 +182,9 @@ Every clip below is a **captured walkthrough of the real running app UI** - not 
 shot. Live-provider clips use noderoom.live + Convex; deterministic clips are explicitly marked
 and use the same browser UI in memory mode so the walkthrough is stable enough to teach. You see
 the empty state, the cursor glide to each click (with a ripple), the loading state, and the
-result, with step captions and a progress bar. Regenerate any time with `npm run walkthroughs`
-(capture) + `npm run walkthroughs:render`.
+result, with step captions and a progress bar. Regenerate and judge any time with
+`npm run walkthroughs:review -- <feature-id> --ui-review`; lower-level capture/render commands
+remain `npm run walkthroughs` + `npm run walkthroughs:render`.
 
 ### Flagship: Startup diligence war room
 ![Startup diligence war room: agents research, chart runway, preserve human edits, and prepare handoff drafts](docs/walkthroughs/startup-diligence-war-room.gif)
@@ -219,8 +220,9 @@ evidence for the workbench interaction, not a live-provider parser proof.</sub>
 <sub>Method: Playwright drives the live app through a versioned spec
 ([`scripts/walkthroughs/specs.ts`](scripts/walkthroughs/specs.ts)), captures clean per-state frames +
 cursor targets into `remotion/walkthrough.data.js`, and a Remotion composition overlays the animated
-cursor, captions, and progress bar. Packaged as a reusable skill:
-[`.claude/skills/readme-walkthroughs`](.claude/skills/readme-walkthroughs/SKILL.md).</sub>
+cursor, captions, and progress bar. The full capture + render + Gemini review loop is packaged as a reusable skill:
+[`docs/skills/walkthrough-review`](docs/skills/walkthrough-review/SKILL.md) and
+[`.claude/skills/walkthrough-review`](.claude/skills/walkthrough-review/SKILL.md).</sub>
 
 ### Watch the narrated episodes (click a poster — plays in your browser, with sound)
 
@@ -246,6 +248,40 @@ evidence quality, legibility, and professional-workflow relevance. Use
 `--include-ignored` only when intentionally judging local capture intermediates.
 Latest aggregate:
 [`docs/eval/MEDIA_JUDGE.md`](docs/eval/MEDIA_JUDGE.md).
+
+### How I automated the process as a single person
+
+The walkthroughs are not manually edited marketing clips. I turned the process into a small
+agent-friendly production line so one person can keep demo evidence current while the product
+changes:
+
+```text
+versioned feature tape -> Playwright browser capture -> Remotion GIF/MP4 render -> Gemini video judge -> defect fixes -> README proof
+```
+
+The one-command path is:
+
+```bash
+npm run walkthroughs:review -- startup-diligence-war-room --ui-review
+```
+
+That command records the app from the browser, renders the guided walkthrough, asks Gemini
+3.5 Flash to judge the video against visible evidence, and writes a run manifest under
+`docs/eval/walkthrough-review/`. The judge is instructed to use the same product bar I use
+when comparing NodeRoom to polished professional tools like Notion and Linear: calm hierarchy,
+clear active state, readable dense data, low step count, and no ambiguous mode switches.
+
+This is useful because it catches the problems I miss when I already know the app. Recent media
+reviews found small but real issues: trace text was too dense, persona switches were too fast,
+and the public/private Copilot mode change was too subtle. Those are exactly the kinds of
+problems a correctness test will never catch.
+
+Reusable bundle:
+
+- Skill: [`docs/skills/walkthrough-review/SKILL.md`](docs/skills/walkthrough-review/SKILL.md)
+- Claude-compatible copy: [`.claude/skills/walkthrough-review/SKILL.md`](.claude/skills/walkthrough-review/SKILL.md)
+- Wrapper: [`scripts/walkthroughs/review.ts`](scripts/walkthroughs/review.ts)
+- Existing lower-level capture/render: [`scripts/walkthroughs/`](scripts/walkthroughs/)
 
 ## Workflow Skill Previews
 

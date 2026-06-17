@@ -291,7 +291,7 @@ function buildPrompt(asset: Asset): string {
     "Dimensions:",
     "- featureClarity: viewer can tell what feature is being demonstrated.",
     "- workflowCompleteness: shows before/action/result rather than a static end state.",
-    "- visualDesign: layout, spacing, focus, polish, and absence of distracting inconsistencies.",
+    "- visualDesign: layout, spacing, focus, polish, and absence of distracting inconsistencies. Compare the bar to polished professional tools such as Notion's focused document blocks and Linear's quiet, high-density issue surfaces: calm hierarchy, obvious active state, strong keyboard/workflow affordances, and no decorative noise.",
     "- consistency: matches NodeRoom's story of files + spreadsheet/note/wall + public/private agents + trace.",
     "- evidenceQuality: feels like real product evidence, not a vague marketing shot.",
     "- legibility: readable at README/browser size, including captions/chips/cells.",

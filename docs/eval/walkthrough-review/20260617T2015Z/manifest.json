@@ -1,0 +1,18 @@
+{
+  "generatedAt": "2026-06-17T18:55:51.418Z",
+  "runId": "20260617T2015Z",
+  "model": "gemini-3.5-flash",
+  "base": "http://127.0.0.1:5180",
+  "features": [
+    "startup-diligence-war-room"
+  ],
+  "media": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\docs\\walkthroughs\\startup-diligence-war-room.mp4",
+  "commands": [
+    "npx.cmd tsx scripts/walkthroughs/capture.ts startup-diligence-war-room",
+    "npm.cmd run walkthroughs:render -- startup-diligence-war-room",
+    "npm.cmd run media:gemini-judge -- --only startup-diligence-war-room --include-ignored --run-id 20260617T2015Z --model gemini-3.5-flash",
+    "npm.cmd run ui:gemini-review -- --media=docs/walkthroughs/startup-diligence-war-room.mp4 --out=docs/eval/walkthrough-review/20260617T2015Z/gemini-ui-review.json --model=gemini-3.5-flash"
+  ],
+  "mediaJudge": "docs\\eval\\gemini-media-judges\\20260617T2015Z\\summary.md",
+  "uiReview": "docs\\eval\\walkthrough-review\\20260617T2015Z\\gemini-ui-review.json"
+}

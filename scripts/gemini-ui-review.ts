@@ -43,6 +43,7 @@ const reviewSchema = z.object({
 const prompt = [
   "You are reviewing a NodeRoom UI recording or screenshot for production workflow evidence.",
   "Score only what is visible. Do not infer success from claims in text unless the UI shows the state, trace, artifact, or result.",
+  "Judge the interaction quality against polished professional collaboration tools such as Notion and Linear: restrained hierarchy, obvious active state, low step count, readable dense data, clear collaboration presence, and no ambiguous mode switches.",
   "",
   "Check these NodeRoom production scenarios:",
   "Scores must be on a 0-5 scale. If you naturally score on a 0-10 scale, divide by 2 before returning JSON.",
