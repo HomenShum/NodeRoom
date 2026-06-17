@@ -35,6 +35,7 @@ import type * as okfEmbeddingProvider from "../okfEmbeddingProvider.js";
 import type * as okfIndexer from "../okfIndexer.js";
 import type * as retention from "../retention.js";
 import type * as rooms from "../rooms.js";
+import type * as sec from "../sec.js";
 import type * as seed from "../seed.js";
 import type * as semanticRebase from "../semanticRebase.js";
 import type * as spreadsheetIndexLib from "../spreadsheetIndexLib.js";
@@ -75,6 +76,7 @@ declare const fullApi: ApiFromModules<{
   okfIndexer: typeof okfIndexer;
   retention: typeof retention;
   rooms: typeof rooms;
+  sec: typeof sec;
   seed: typeof seed;
   semanticRebase: typeof semanticRebase;
   spreadsheetIndexLib: typeof spreadsheetIndexLib;

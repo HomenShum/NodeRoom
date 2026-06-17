@@ -5,14 +5,8 @@
  * them with no extra mapping. Reads/writes are gated to room members (requireActorProof).
  */
 import { v } from "convex/values";
-import { internalMutation, internalQuery, mutation, query } from "./_generated/server";
+import { internalMutation, internalQuery, query } from "./_generated/server";
 import { actorProofV, requireActorProof } from "./lib";
-
-/** Off-box worker auth (Browserbase exact-box path runs in a Node worker, not a room session). */
-function assertWorkerToken(token: string): void {
-  const expected = process.env.CAPTURE_WORKER_TOKEN;
-  if (!expected || token !== expected) throw new Error("unauthorized: bad or missing CAPTURE_WORKER_TOKEN");
-}
 
 const MAX_CAPTURE_RECORDS = 20;
 
@@ -50,35 +44,6 @@ export const record = internalMutation({
   handler: async (ctx, a) => ctx.db.insert("captureRecords", a),
 });
 
-/** Off-box worker (Browserbase, exact boxes) gets an upload URL for each screenshot. Token-gated. */
-export const workerUploadUrl = mutation({
-  args: { token: v.string() },
-  handler: async (ctx, { token }) => {
-    assertWorkerToken(token);
-    return ctx.storage.generateUploadUrl();
-  },
-});
-
-/** Off-box worker persists a finished capture (boxes + uploaded screenshot ids). Token-gated. */
-export const ingest = mutation({
-  args: {
-    token: v.string(),
-    roomId: v.id("rooms"),
-    url: v.string(),
-    goal: v.string(),
-    title: v.optional(v.string()),
-    ok: v.boolean(),
-    error: v.optional(v.string()),
-    ts: v.number(),
-    steps: v.array(captureStepV),
-    data: v.optional(v.any()),
-  },
-  handler: async (ctx, { token, ...rest }) => {
-    assertWorkerToken(token);
-    return ctx.db.insert("captureRecords", rest);
-  },
-});
-
 /** Room captures as Trace records, newest first. Screenshot ids resolved to URLs. Members only. */
 export const byRoom = query({
   args: { roomId: v.id("rooms"), requester: actorProofV },
@@ -91,7 +56,7 @@ export const byRoom = query({
       title: r.title ?? `Live capture · ${safeHost(r.url)}`,
       subtitle: r.goal,
       ts: new Date(r.ts).toISOString(),
-      source: { tool: "capture_source" },
+      source: { tool: /sec\.gov/i.test(r.url) ? "sec_facts" : "capture_source" },
       verdict: r.ok ? undefined : { label: "capture failed", tone: "risk" as const },
       steps: await Promise.all(r.steps.map(async (s, i) => {
         const url = s.screenshotId ? await ctx.storage.getUrl(s.screenshotId) : null;

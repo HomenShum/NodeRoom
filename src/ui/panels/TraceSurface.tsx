@@ -3,7 +3,7 @@
  * Left: trace records (the live agent's source-backed work + a real QA run of our own app).
  * Right: Overview · Steps (each → the exact source cell / a captured screenshot) · Evidence · Raw JSON.
  */
-import { useMemo, useState } from "react";
+import { useMemo, useState, type FormEvent } from "react";
 import { Activity, Wrench, FileCheck2, Camera } from "lucide-react";
 import { useStore } from "../../app/store";
 import { buildBankerCoachPacket } from "../bankerCoachPacket";
@@ -14,38 +14,56 @@ import { TraceFlow } from "./TraceFlow";
 
 type DetailTab = "overview" | "steps" | "flow" | "evidence" | "raw";
 
-/** Trigger a live source capture (Convex action). The persisted record reactively joins the list. */
-function CaptureForm({ roomId, onCapture }: {
+/** Capture a source into the Trace tab. Two lanes: Web (Firecrawl screenshot + extract) and SEC
+ *  (EDGAR data API — authoritative facts by ticker/concept). The persisted record joins the list. */
+function CaptureForm({ roomId, onCapture, onSec }: {
   roomId: string;
   onCapture: (roomId: string, url: string, goal: string) => Promise<{ ok: boolean; error?: string }>;
+  onSec: (roomId: string, company: string, concept: string) => Promise<{ ok: boolean; error?: string }>;
 }) {
+  const [mode, setMode] = useState<"web" | "sec">("web");
   const [url, setUrl] = useState("");
   const [goal, setGoal] = useState("");
+  const [company, setCompany] = useState("");
+  const [concept, setConcept] = useState("");
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
+  const submit = async (e: FormEvent) => {
+    e.preventDefault();
+    if (busy) return;
+    const ready = mode === "web" ? url.trim() : company.trim();
+    if (!ready) { setErr("enter a " + (mode === "web" ? "URL" : "ticker")); return; }
+    setBusy(true); setErr(null);
+    try {
+      const r = mode === "web"
+        ? await onCapture(roomId, url.trim(), goal.trim() || "extract the key figures")
+        : await onSec(roomId, company.trim(), concept.trim() || "revenue");
+      if (!r.ok) setErr(r.error ?? "failed");
+      else { setUrl(""); setGoal(""); setCompany(""); setConcept(""); }
+    } catch (e2) {
+      setErr(e2 instanceof Error ? e2.message : String(e2));
+    } finally {
+      setBusy(false);
+    }
+  };
   return (
-    <form
-      className="r-tracevu-capture"
-      data-testid="trace-capture-form"
-      onSubmit={async (e) => {
-        e.preventDefault();
-        if (!url.trim() || busy) return;
-        setBusy(true); setErr(null);
-        try {
-          const r = await onCapture(roomId, url.trim(), goal.trim() || "extract the key figures");
-          if (!r.ok) setErr(r.error ?? "capture failed");
-          else { setUrl(""); setGoal(""); }
-        } catch (e2) {
-          setErr(e2 instanceof Error ? e2.message : String(e2));
-        } finally {
-          setBusy(false);
-        }
-      }}
-    >
-      <span className="r-tracevu-capture-title">Capture a source</span>
-      <input className="r-tracevu-capture-in" placeholder="https://… source URL" value={url} onChange={(e) => setUrl(e.target.value)} data-testid="trace-capture-url" />
-      <input className="r-tracevu-capture-in" placeholder="what to extract" value={goal} onChange={(e) => setGoal(e.target.value)} data-testid="trace-capture-goal" />
-      <button type="submit" className="r-tracevu-capture-btn" disabled={busy || !url.trim()} data-testid="trace-capture-go">{busy ? "Capturing…" : "Capture"}</button>
+    <form className="r-tracevu-capture" data-testid="trace-capture-form" onSubmit={submit}>
+      <div className="r-tracevu-capture-modes" role="tablist">
+        <button type="button" className="r-tracevu-capture-mode" data-on={String(mode === "web")} onClick={() => { setMode("web"); setErr(null); }} data-testid="trace-capture-mode-web">Web</button>
+        <button type="button" className="r-tracevu-capture-mode" data-on={String(mode === "sec")} onClick={() => { setMode("sec"); setErr(null); }} data-testid="trace-capture-mode-sec">SEC</button>
+      </div>
+      {mode === "web" ? (
+        <>
+          <input className="r-tracevu-capture-in" placeholder="https://… source URL" value={url} onChange={(e) => setUrl(e.target.value)} data-testid="trace-capture-url" />
+          <input className="r-tracevu-capture-in" placeholder="what to extract" value={goal} onChange={(e) => setGoal(e.target.value)} data-testid="trace-capture-goal" />
+        </>
+      ) : (
+        <>
+          <input className="r-tracevu-capture-in" placeholder="ticker or CIK (e.g. AAPL)" value={company} onChange={(e) => setCompany(e.target.value)} data-testid="trace-capture-company" />
+          <input className="r-tracevu-capture-in" placeholder="concept (revenue, net income…)" value={concept} onChange={(e) => setConcept(e.target.value)} data-testid="trace-capture-concept" />
+        </>
+      )}
+      <button type="submit" className="r-tracevu-capture-btn" disabled={busy} data-testid="trace-capture-go">{busy ? (mode === "web" ? "Capturing…" : "Looking up…") : (mode === "web" ? "Capture" : "Get SEC facts")}</button>
       {err && <span className="r-tracevu-capture-err" data-testid="trace-capture-err">{err}</span>}
     </form>
   );
@@ -85,7 +103,7 @@ export function TraceSurface({ roomId, onOpenSource }: {
   return (
     <div className="r-art-body r-tracevu" data-testid="trace-surface" data-noderoom-surface="workSurface.trace">
       <aside className="r-tracevu-list" aria-label="Trace records">
-        {store.mode === "convex" && <CaptureForm roomId={roomId} onCapture={store.captureSource} />}
+        {store.mode === "convex" && <CaptureForm roomId={roomId} onCapture={store.captureSource} onSec={store.secFacts} />}
         {records.map((r) => (
           <button key={r.id} type="button" className="r-tracevu-rec" data-on={String(r.id === record.id)} data-testid="trace-record"
             onClick={() => { setSelectedId(r.id); setTab("overview"); }}>
