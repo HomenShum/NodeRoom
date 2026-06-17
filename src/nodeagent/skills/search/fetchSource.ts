@@ -45,7 +45,7 @@ function firstHextet(ip: string): number | null {
   const match = ip.match(/^([0-9a-f]{1,4})(?::|$)/i);
   return match ? parseInt(match[1], 16) : null;
 }
-function isPrivateIp(host: string): boolean {
+export function isPrivateIp(host: string): boolean {
   const h = host.toLowerCase().replace(/^\[|\]$/g, "");
   const v4 = mappedV4(h);
   if (v4) return isPrivateV4(v4);
