@@ -22,13 +22,15 @@ export const captureSourceFirecrawlTool: AgentTool = {
     "Capture a public source page with Firecrawl, screenshot it, and extract structured values with evidence. " +
     "Use when a finance/GTM claim needs source-of-truth web evidence; use fetch_source for cheaper text-only snippets.",
   schema,
-  async execute(args: z.infer<typeof schema>, _rt: RoomTools) {
+  async execute(args: z.infer<typeof schema>, rt: RoomTools) {
     const r = await runCapture({
       url: args.url,
       goal: args.goal,
       reasoner: aiSdkReasoner(process.env.CAPTURE_REASONING_MODEL),
       substrate: firecrawlSubstrate(),
     });
+    // Persist (screenshots + boxes) so this agent capture renders in the Trace tab. Server port only; no-op elsewhere.
+    await rt.recordCapture?.({ url: r.url, goal: args.goal, ok: r.ok, title: r.title, error: r.error, data: r.data, steps: r.steps });
     return {
       ok: r.ok,
       url: r.url,

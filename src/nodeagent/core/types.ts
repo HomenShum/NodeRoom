@@ -157,4 +157,15 @@ export interface RoomTools {
   say(text: string): Promise<void>;
   /** Fetch a source URL for sourced enrichment — bounded (SSRF-guarded, timeout, size cap). */
   fetchSource(url: string): Promise<SourceResult>;
+  /** Persist a finished live capture (screenshots + boxes) so it renders in the Trace tab.
+   *  Optional: only the server (Convex) port implements it; in-memory/browser ports omit it. */
+  recordCapture?(input: {
+    url: string;
+    goal: string;
+    ok: boolean;
+    title?: string;
+    error?: string;
+    data?: Record<string, unknown>;
+    steps: Array<{ phase: string; label: string; status: string; detail?: string; box?: { x: number; y: number; w: number; h: number }; screenshotPng?: Uint8Array }>;
+  }): Promise<void>;
 }

@@ -44,6 +44,7 @@ const okfResolveCitationRef = makeFunctionReference<"query">("okf:resolveCitatio
 const okfOpenLiteralRef = makeFunctionReference<"query">("okf:openLiteralForAgent") as any;
 const okfCompareClaimRef = makeFunctionReference<"query">("okf:compareClaimForAgent") as any;
 const okfRecordRetrievalEventRef = makeFunctionReference<"mutation">("okf:recordRetrievalEvent") as any;
+const capturesRecordRef = makeFunctionReference<"mutation">("captures:record") as any;
 
 export class ConvexRoomTools implements RoomTools {
   public readonly okf: OkfRetrievalPort;
@@ -125,6 +126,31 @@ export class ConvexRoomTools implements RoomTools {
 
   /** Convex-standard-runtime source fetch: HTTPS-only, target-guarded, timeout-bound, and size-capped. */
   fetchSource(url: string): Promise<SourceResult> { return fetchSourceForConvex(url); }
+
+  /** Persist an agent's live capture (screenshots → Convex storage, boxes kept) → renders in the Trace tab. */
+  async recordCapture(input: {
+    url: string; goal: string; ok: boolean; title?: string; error?: string;
+    data?: Record<string, unknown>;
+    steps: Array<{ phase: string; label: string; status: string; detail?: string; box?: { x: number; y: number; w: number; h: number }; screenshotPng?: Uint8Array }>;
+  }): Promise<void> {
+    const steps: Array<Record<string, unknown>> = [];
+    for (const s of input.steps) {
+      let screenshotId: string | undefined;
+      if (s.screenshotPng && s.screenshotPng.byteLength) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Uint8Array is a valid BlobPart at runtime; the DOM type isn't in Convex's Node tsconfig.
+        screenshotId = (await this.ctx.storage.store(new Blob([s.screenshotPng as any], { type: "image/png" }))) as string;
+      }
+      const step: Record<string, unknown> = { phase: s.phase, label: s.label, status: s.status };
+      if (s.detail !== undefined) step.detail = s.detail;
+      if (s.box) step.box = s.box;
+      if (screenshotId) step.screenshotId = screenshotId;
+      steps.push(step);
+    }
+    await this.ctx.runMutation(capturesRecordRef, {
+      roomId: this.roomId, url: input.url, goal: input.goal, title: input.title,
+      ok: input.ok, error: input.error, ts: Date.now(), steps, data: input.data,
+    });
+  }
 }
 
 class ConvexOkfRetrievalPort implements OkfRetrievalPort {
