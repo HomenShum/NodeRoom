@@ -1,0 +1,7 @@
+{
+  "period": "Q3-2025",
+  "reference": "FY24 reviewed close + Q3 board plan",
+  "targets": { "Revenue": 4200000, "COGS": 1550000, "OpEx": 1100000 },
+  "shipBarPct": 95,
+  "tolerance": 1000
+}

@@ -1,12 +1,12 @@
 {
   "id": "ledger-consolidation",
   "kind": "agent",
-  "title": "Agent run · Q3 ledger consolidation (3 entities)",
-  "subtitle": "QuickBooks · Xero · NetSuite → golden-reference verify (illustrative figures; reconcile + verdict computed)",
-  "ts": "Jun 17, 3:05 AM",
+  "title": "Agent run · Q3-2025 ledger consolidation (3 entities)",
+  "subtitle": "NetSuite · QuickBooks · Xero → golden-reference verify (liveflow skill; reconcile + verdict computed)",
+  "ts": "Jun 17, 3:30 AM",
   "source": {
-    "tool": "NodeAgent · reconcile skill",
-    "version": "qa-trace/capture-ledger-consolidation.ts",
+    "tool": "liveflow skill",
+    "version": "skills/liveflow/scripts/reconcile.mjs",
     "env": "deterministic"
   },
   "verdict": {
@@ -17,46 +17,46 @@
     {
       "idx": 1,
       "group": "Ingest sources",
-      "label": "Pull QuickBooks Q3 ledger",
+      "label": "Pull NetSuite Q3-2025 ledger",
       "status": "ok",
-      "detail": "3 entries · $2.27M",
+      "detail": "4 entries · $2.25M",
       "attachments": [
         {
           "kind": "log",
-          "text": "[\n  {\n    \"id\": \"QB-REV\",\n    \"source\": \"QuickBooks\",\n    \"desc\": \"Q3 product revenue\",\n    \"category\": \"Revenue\",\n    \"amount\": 1400000\n  },\n  {\n    \"id\": \"QB-COGS\",\n    \"source\": \"QuickBooks\",\n    \"desc\": \"Q3 cost of goods sold\",\n    \"category\": \"COGS\",\n    \"amount\": 500000\n  },\n  {\n    \"id\": \"QB-OPX\",\n    \"source\": \"QuickBooks\",\n    \"desc\": \"Q3 operating expense\",\n    \"category\": \"OpEx\",\n    \"amount\": 370000\n  }\n]"
+          "text": "[\n  {\n    \"id\": \"NS-REV\",\n    \"desc\": \"Q3 product revenue\",\n    \"category\": \"Revenue\",\n    \"amount\": 1400000\n  },\n  {\n    \"id\": \"NS-COGS\",\n    \"desc\": \"Q3 cost of goods sold\",\n    \"category\": \"COGS\",\n    \"amount\": 480000\n  },\n  {\n    \"id\": \"NS-114\",\n    \"desc\": \"Q3 brand marketing campaign\",\n    \"category\": \"COGS\",\n    \"amount\": 90000\n  },\n  {\n    \"id\": \"NS-OPX\",\n    \"desc\": \"Q3 operating expense (payroll, rent)\",\n    \"category\": \"OpEx\",\n    \"amount\": 280000\n  }\n]"
         }
       ]
     },
     {
       "idx": 2,
       "group": "Ingest sources",
-      "label": "Pull Xero Q3 ledger",
+      "label": "Pull QuickBooks Q3-2025 ledger",
       "status": "ok",
-      "detail": "3 entries · $2.28M",
+      "detail": "3 entries · $2.27M",
       "attachments": [
         {
           "kind": "log",
-          "text": "[\n  {\n    \"id\": \"XE-REV\",\n    \"source\": \"Xero\",\n    \"desc\": \"Q3 product revenue\",\n    \"category\": \"Revenue\",\n    \"amount\": 1400000\n  },\n  {\n    \"id\": \"XE-COGS\",\n    \"source\": \"Xero\",\n    \"desc\": \"Q3 cost of goods sold\",\n    \"category\": \"COGS\",\n    \"amount\": 520000\n  },\n  {\n    \"id\": \"XE-OPX\",\n    \"source\": \"Xero\",\n    \"desc\": \"Q3 operating expense\",\n    \"category\": \"OpEx\",\n    \"amount\": 360000\n  }\n]"
+          "text": "[\n  {\n    \"id\": \"QB-REV\",\n    \"desc\": \"Q3 product revenue\",\n    \"category\": \"Revenue\",\n    \"amount\": 1400000\n  },\n  {\n    \"id\": \"QB-COGS\",\n    \"desc\": \"Q3 cost of goods sold\",\n    \"category\": \"COGS\",\n    \"amount\": 500000\n  },\n  {\n    \"id\": \"QB-OPX\",\n    \"desc\": \"Q3 operating expense (payroll, rent)\",\n    \"category\": \"OpEx\",\n    \"amount\": 370000\n  }\n]"
         }
       ]
     },
     {
       "idx": 3,
       "group": "Ingest sources",
-      "label": "Pull NetSuite Q3 ledger",
+      "label": "Pull Xero Q3-2025 ledger",
       "status": "ok",
-      "detail": "4 entries · $2.25M",
+      "detail": "3 entries · $2.28M",
       "attachments": [
         {
           "kind": "log",
-          "text": "[\n  {\n    \"id\": \"NS-REV\",\n    \"source\": \"NetSuite\",\n    \"desc\": \"Q3 product revenue\",\n    \"category\": \"Revenue\",\n    \"amount\": 1400000\n  },\n  {\n    \"id\": \"NS-COGS\",\n    \"source\": \"NetSuite\",\n    \"desc\": \"Q3 cost of goods sold\",\n    \"category\": \"COGS\",\n    \"amount\": 480000\n  },\n  {\n    \"id\": \"NS-114\",\n    \"source\": \"NetSuite\",\n    \"desc\": \"Q3 brand marketing campaign\",\n    \"category\": \"COGS\",\n    \"amount\": 90000\n  },\n  {\n    \"id\": \"NS-OPX\",\n    \"source\": \"NetSuite\",\n    \"desc\": \"Q3 operating expense\",\n    \"category\": \"OpEx\",\n    \"amount\": 280000\n  }\n]"
+          "text": "[\n  {\n    \"id\": \"XE-REV\",\n    \"desc\": \"Q3 product revenue\",\n    \"category\": \"Revenue\",\n    \"amount\": 1400000\n  },\n  {\n    \"id\": \"XE-COGS\",\n    \"desc\": \"Q3 cost of goods sold\",\n    \"category\": \"COGS\",\n    \"amount\": 520000\n  },\n  {\n    \"id\": \"XE-OPX\",\n    \"desc\": \"Q3 operating expense (payroll, software)\",\n    \"category\": \"OpEx\",\n    \"amount\": 360000\n  }\n]"
         }
       ]
     },
     {
       "idx": 4,
       "group": "Consolidate",
-      "label": "Consolidate 3 entities",
+      "label": "Consolidate entities",
       "status": "ok",
       "detail": "Revenue $4.20M · COGS $1.59M · OpEx $1.01M",
       "attachments": [
@@ -71,11 +71,11 @@
       "group": "Golden-reference verify",
       "label": "Reconcile vs golden reference",
       "status": "risk",
-      "detail": "4/6 checks pass · 67% reconcile",
+      "detail": "4/6 checks · 67% reconcile",
       "attachments": [
         {
           "kind": "log",
-          "text": "[\n  {\n    \"name\": \"Revenue vs golden\",\n    \"pass\": true,\n    \"note\": \"$4.20M vs $4.20M (+$0K)\"\n  },\n  {\n    \"name\": \"COGS vs golden\",\n    \"pass\": false,\n    \"note\": \"$1.59M vs $1.55M (+$40K)\"\n  },\n  {\n    \"name\": \"OpEx vs golden\",\n    \"pass\": false,\n    \"note\": \"$1.01M vs $1.10M ($-90K)\"\n  },\n  {\n    \"name\": \"QuickBooks foots\",\n    \"pass\": true,\n    \"note\": \"entries sum to reported total $2.27M\"\n  },\n  {\n    \"name\": \"Xero foots\",\n    \"pass\": true,\n    \"note\": \"entries sum to reported total $2.28M\"\n  },\n  {\n    \"name\": \"NetSuite foots\",\n    \"pass\": true,\n    \"note\": \"entries sum to reported total $2.25M\"\n  }\n]"
+          "text": "[\n  {\n    \"name\": \"Revenue vs golden\",\n    \"pass\": true,\n    \"delta\": 0\n  },\n  {\n    \"name\": \"COGS vs golden\",\n    \"pass\": false,\n    \"delta\": 40000\n  },\n  {\n    \"name\": \"OpEx vs golden\",\n    \"pass\": false,\n    \"delta\": -90000\n  },\n  {\n    \"name\": \"NetSuite foots\",\n    \"pass\": true\n  },\n  {\n    \"name\": \"QuickBooks foots\",\n    \"pass\": true\n  },\n  {\n    \"name\": \"Xero foots\",\n    \"pass\": true\n  }\n]"
         }
       ]
     },
@@ -84,11 +84,11 @@
       "group": "Golden-reference verify",
       "label": "Catch mis-keyed entry",
       "status": "warn",
-      "detail": "NetSuite NS-114 \"Q3 brand marketing campaign\" $90K booked COGS — expected OpEx (cross-foots clean; only golden-ref catches it)",
+      "detail": "NetSuite NS-114 \"Q3 brand marketing campaign\" booked COGS — expected OpEx (cross-foots clean; only golden-ref catches it)",
       "attachments": [
         {
           "kind": "log",
-          "text": "{\n  \"id\": \"NS-114\",\n  \"source\": \"NetSuite\",\n  \"desc\": \"Q3 brand marketing campaign\",\n  \"category\": \"COGS\",\n  \"amount\": 90000\n}"
+          "text": "{\n  \"id\": \"NS-114\",\n  \"desc\": \"Q3 brand marketing campaign\",\n  \"category\": \"COGS\",\n  \"amount\": 90000,\n  \"entity\": \"NetSuite\",\n  \"expected\": \"OpEx\"\n}"
         }
       ]
     },
@@ -97,160 +97,87 @@
       "group": "Triage",
       "label": "Shippable without review? NO",
       "status": "risk",
-      "detail": "67% reconcile is below the 95% bar — needs human review before any downstream use."
+      "detail": "67% reconcile is below the 95% bar."
     },
     {
       "idx": 8,
       "group": "Triage",
       "label": "Queue · reconcile",
       "status": "info",
-      "detail": "Re-key NetSuite NS-114 $90K COGS→OpEx → OpEx reconciles to $1.10M (golden $1.10M)."
+      "detail": "\"Q3 brand marketing campaign\" → OpEx reconciles to $1.10M"
     },
     {
       "idx": 9,
       "group": "Triage",
       "label": "Queue · COGS variance",
       "status": "info",
-      "detail": "After the re-key, COGS = $1.50M vs golden $1.55M → residual $-50K variance to investigate."
+      "detail": "After re-keys, COGS = $1.50M vs golden $1.55M → residual −$50K to investigate"
     }
   ],
   "raw": {
-    "sources": {
-      "QuickBooks": [
-        {
-          "id": "QB-REV",
-          "source": "QuickBooks",
-          "desc": "Q3 product revenue",
-          "category": "Revenue",
-          "amount": 1400000
-        },
-        {
-          "id": "QB-COGS",
-          "source": "QuickBooks",
-          "desc": "Q3 cost of goods sold",
-          "category": "COGS",
-          "amount": 500000
-        },
-        {
-          "id": "QB-OPX",
-          "source": "QuickBooks",
-          "desc": "Q3 operating expense",
-          "category": "OpEx",
-          "amount": 370000
-        }
-      ],
-      "Xero": [
-        {
-          "id": "XE-REV",
-          "source": "Xero",
-          "desc": "Q3 product revenue",
-          "category": "Revenue",
-          "amount": 1400000
-        },
-        {
-          "id": "XE-COGS",
-          "source": "Xero",
-          "desc": "Q3 cost of goods sold",
-          "category": "COGS",
-          "amount": 520000
-        },
-        {
-          "id": "XE-OPX",
-          "source": "Xero",
-          "desc": "Q3 operating expense",
-          "category": "OpEx",
-          "amount": 360000
-        }
-      ],
-      "NetSuite": [
-        {
-          "id": "NS-REV",
-          "source": "NetSuite",
-          "desc": "Q3 product revenue",
-          "category": "Revenue",
-          "amount": 1400000
-        },
-        {
-          "id": "NS-COGS",
-          "source": "NetSuite",
-          "desc": "Q3 cost of goods sold",
-          "category": "COGS",
-          "amount": 480000
-        },
-        {
-          "id": "NS-114",
-          "source": "NetSuite",
-          "desc": "Q3 brand marketing campaign",
-          "category": "COGS",
-          "amount": 90000
-        },
-        {
-          "id": "NS-OPX",
-          "source": "NetSuite",
-          "desc": "Q3 operating expense",
-          "category": "OpEx",
-          "amount": 280000
-        }
-      ]
+    "consolidated": {
+      "Revenue": 4200000,
+      "COGS": 1590000,
+      "OpEx": 1010000
     },
     "golden": {
       "Revenue": 4200000,
       "COGS": 1550000,
       "OpEx": 1100000
     },
-    "consolidated": {
-      "Revenue": 4200000,
-      "COGS": 1590000,
-      "OpEx": 1010000
-    },
     "checks": [
       {
         "name": "Revenue vs golden",
         "pass": true,
-        "note": "$4.20M vs $4.20M (+$0K)"
+        "delta": 0
       },
       {
         "name": "COGS vs golden",
         "pass": false,
-        "note": "$1.59M vs $1.55M (+$40K)"
+        "delta": 40000
       },
       {
         "name": "OpEx vs golden",
         "pass": false,
-        "note": "$1.01M vs $1.10M ($-90K)"
-      },
-      {
-        "name": "QuickBooks foots",
-        "pass": true,
-        "note": "entries sum to reported total $2.27M"
-      },
-      {
-        "name": "Xero foots",
-        "pass": true,
-        "note": "entries sum to reported total $2.28M"
+        "delta": -90000
       },
       {
         "name": "NetSuite foots",
-        "pass": true,
-        "note": "entries sum to reported total $2.25M"
+        "pass": true
+      },
+      {
+        "name": "QuickBooks foots",
+        "pass": true
+      },
+      {
+        "name": "Xero foots",
+        "pass": true
       }
     ],
     "pct": 67,
     "shipBar": 95,
     "shippable": false,
-    "misKey": {
-      "id": "NS-114",
-      "source": "NetSuite",
-      "desc": "Q3 brand marketing campaign",
-      "category": "COGS",
-      "amount": 90000
-    },
-    "fixedCOGS": 1500000,
-    "fixedOpEx": 1100000,
-    "cogsResidual": -50000,
-    "queued": [
-      "reconcile mis-key",
-      "COGS variance"
+    "misKeys": [
+      {
+        "id": "NS-114",
+        "desc": "Q3 brand marketing campaign",
+        "category": "COGS",
+        "amount": 90000,
+        "entity": "NetSuite",
+        "expected": "OpEx"
+      }
+    ],
+    "queue": [
+      {
+        "kind": "reconcile",
+        "title": "Re-key NetSuite NS-114 $90K COGS→OpEx",
+        "detail": "\"Q3 brand marketing campaign\" → OpEx reconciles to $1.10M"
+      },
+      {
+        "kind": "variance",
+        "title": "COGS variance",
+        "detail": "After re-keys, COGS = $1.50M vs golden $1.55M → residual −$50K to investigate"
+      }
     ]
   }
 }

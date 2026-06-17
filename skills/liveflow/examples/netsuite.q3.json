@@ -1,0 +1,11 @@
+{
+  "entity": "NetSuite",
+  "period": "Q3-2025",
+  "reportedTotal": 2250000,
+  "entries": [
+    { "id": "NS-REV", "desc": "Q3 product revenue", "category": "Revenue", "amount": 1400000 },
+    { "id": "NS-COGS", "desc": "Q3 cost of goods sold", "category": "COGS", "amount": 480000 },
+    { "id": "NS-114", "desc": "Q3 brand marketing campaign", "category": "COGS", "amount": 90000 },
+    { "id": "NS-OPX", "desc": "Q3 operating expense (payroll, rent)", "category": "OpEx", "amount": 280000 }
+  ]
+}

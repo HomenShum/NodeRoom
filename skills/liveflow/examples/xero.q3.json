@@ -1,0 +1,10 @@
+{
+  "entity": "Xero",
+  "period": "Q3-2025",
+  "reportedTotal": 2280000,
+  "entries": [
+    { "id": "XE-REV", "desc": "Q3 product revenue", "category": "Revenue", "amount": 1400000 },
+    { "id": "XE-COGS", "desc": "Q3 cost of goods sold", "category": "COGS", "amount": 520000 },
+    { "id": "XE-OPX", "desc": "Q3 operating expense (payroll, software)", "category": "OpEx", "amount": 360000 }
+  ]
+}

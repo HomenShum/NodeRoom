@@ -1,0 +1,10 @@
+{
+  "entity": "QuickBooks",
+  "period": "Q3-2025",
+  "reportedTotal": 2270000,
+  "entries": [
+    { "id": "QB-REV", "desc": "Q3 product revenue", "category": "Revenue", "amount": 1400000 },
+    { "id": "QB-COGS", "desc": "Q3 cost of goods sold", "category": "COGS", "amount": 500000 },
+    { "id": "QB-OPX", "desc": "Q3 operating expense (payroll, rent)", "category": "OpEx", "amount": 370000 }
+  ]
+}
