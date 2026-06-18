@@ -8,10 +8,33 @@
  */
 import { v } from "convex/values";
 import { internalMutation, internalQuery, mutation, query } from "./_generated/server";
+import type { Id } from "./_generated/dataModel";
 import { actorProofV, requireActorProof } from "./lib";
 
 const MAX_CAPTURE_RECORDS = 20;
 const MAX_CITATIONS_PER_ROOM = 100;
+
+type CaptureStepRecord = {
+  phase: string;
+  label: string;
+  status: string;
+  detail?: string;
+  box?: { x: number; y: number; w: number; h: number; page?: number };
+  screenshotId?: Id<"_storage">;
+  pdfStorageId?: Id<"_storage">;
+};
+
+type CaptureRecordInput = {
+  _id: Id<"captureRecords">;
+  url: string;
+  title?: string;
+  goal: string;
+  ok: boolean;
+  ts: number;
+  steps: CaptureStepRecord[];
+  data?: unknown;
+  error?: string;
+};
 
 const captureStepV = v.object({
   phase: v.string(),
@@ -50,7 +73,7 @@ export const record = internalMutation({
 
 /** Shared TraceRecord builder — one shape for both byRoom (lightweight) and captureDetail (resolved).
  *  `resolveAttachment` returns id-only attachments for byRoom, URL-resolved for captureDetail. */
-function buildCaptureRecord(r: { _id: string; url: string; title?: string; goal: string; ok: boolean; ts: number; steps: Array<{ phase: string; label: string; status: string; detail?: string; box?: { x: number; y: number; w: number; h: number; page?: number }; screenshotId?: string; pdfStorageId?: string }>; data?: unknown; error?: string }, resolveAttachment: (s: r["steps"][number], i: number) => unknown[] | undefined) {
+function buildCaptureRecord(r: CaptureRecordInput, resolveAttachment: (s: CaptureStepRecord, i: number) => unknown[] | undefined) {
   return {
     id: `capture-${r._id}`,
     kind: "agent" as const,
