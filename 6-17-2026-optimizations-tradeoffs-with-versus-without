@@ -19,8 +19,11 @@ Evidence checked:
 - src/ui/motion/NodeReveal.tsx, NodeCount.tsx, NodeTextReveal.tsx: local lightweight motion wrappers now exist.
 - src/ui/Landing.tsx: motion wrappers are already integrated into the hero, proof metrics, and feature-card reveals.
 - src/ui/insights/NoteworthyInbox.tsx: passive inbox items already reveal through NodeReveal.
-- src/ui/insights/PassiveAgentChip.tsx: passive chip exists, but count animation / new-item affordance are not wired yet.
-- src/app/styles.css: motion tokens and global prefers-reduced-motion guard already exist; dedicated reactBits.css is not present.
+- src/ui/insights/PassiveAgentChip.tsx: passive chip uses NodeCount and a reduced-motion-safe one-shot new-item pulse.
+- src/ui/artifacts/EvidenceCarouselArtifact.tsx: evidence cards now reveal through NodeReveal and confidence uses NodeCount.
+- src/ui/traceLens/TraceLensPanel.tsx: Trace Lens proof/runtime/code regions and trace rows now reveal through NodeReveal; confidence uses NodeCount.
+- src/app/styles.css: motion tokens, passive-chip pulse, and global prefers-reduced-motion guard already exist; dedicated reactBits.css is not present.
+- docs/DESIGN.md: public @nodeagent UX and local React Bits-style wrapper policy are documented.
 - package.json: workflow, workpool, persistent streaming, and @ikhrustalev/convex-debouncer are installed; Composio, Pushover, Transloadit, Stripe, Polar, Dodo, Lemon Squeezy, and ConvexFS are not installed.
 - tests/roomActivityEvidenceAdapters.test.ts: passive room activity enqueue, dedupe, scan, job/work-item promotion, notebook routing, and noteworthy compatibility wrapper coverage.
 - tests/chatReasoningFrames.test.tsx: @nodeagent + model-selection composer behavior.
@@ -65,7 +68,7 @@ Evidence checked:
 
 🟡 Passive intelligence product loop
 - Backend enqueue/debounce/scan/job creation is real.
-- PassiveAgentChip and NoteworthyInbox now exist, so the user-facing loop has started.
+- PassiveAgentChip and NoteworthyInbox now exist, with count/reveal motion for the first calm return-state pass.
 - The product still needs the fuller return-state UX: richer indexed/queued/suggested states, clearer source-gap explanations, and broader passive review surfaces beyond the first chip/inbox pass.
 
 🟡 Cache-aware passive planning
@@ -198,9 +201,10 @@ Latest repo delta since this spec was first written:
 - NodeReveal, NodeCount, and NodeTextReveal already exist locally in src/ui/motion/ as lightweight adaptations.
 - src/ui/Landing.tsx already uses NodeTextReveal, NodeReveal, and NodeCount.
 - src/ui/insights/NoteworthyInbox.tsx already uses NodeReveal.
-- src/ui/insights/PassiveAgentChip.tsx, src/ui/artifacts/EvidenceCarouselArtifact.tsx, and src/ui/traceLens/TraceLensPanel.tsx are not using the motion wrappers yet.
+- src/ui/insights/PassiveAgentChip.tsx now uses NodeCount plus a one-shot new-item pulse.
+- src/ui/artifacts/EvidenceCarouselArtifact.tsx and src/ui/traceLens/TraceLensPanel.tsx now use NodeReveal/NodeCount.
 - A dedicated src/ui/motion/reactBits.css file does not exist; the current implementation leans on existing tokenized styles plus inline wrapper transitions.
-- docs/DESIGN.md has not been updated yet to describe this adoption.
+- docs/DESIGN.md now describes public @nodeagent UX and the wrapper-only motion adoption policy.
 
 Adoption principle:
 
@@ -317,9 +321,9 @@ src/ui/Landing.tsx
 - Already integrated with NodeTextReveal in the headline, NodeReveal around supporting content, and a NodeCount proof row.
 
 src/ui/insights/PassiveAgentChip.tsx
-- Replace static item count with NodeCount.
-- Add one-shot "new item" affordance only when count increases.
-- Keep aria-label exact and stable.
+- Done: static item count replaced with NodeCount.
+- Done: one-shot "new item" pulse only when count increases.
+- Done: aria-label remains explicit and stable.
 
 src/ui/insights/NoteworthyInbox.tsx
 - Already wraps list items with NodeReveal.
@@ -327,14 +331,14 @@ src/ui/insights/NoteworthyInbox.tsx
 - Do not animate if item is failed/error beyond a simple reveal; errors need clarity.
 
 src/ui/artifacts/EvidenceCarouselArtifact.tsx
-- Wrap cards with NodeReveal.
-- Consider NodeCount for confidence percent.
+- Done: cards are wrapped with NodeReveal.
+- Done: confidence percent uses NodeCount.
 - Do not animate quote text itself; quote must feel literal and stable.
 
 src/ui/traceLens/TraceLensPanel.tsx
-- Add NodeReveal for the side panel or sections.
-- Add NodeCount for confidence percent if reused from evidence card logic.
-- Runtime trace rows can reveal in order, but only once per open.
+- Done: sections and runtime trace rows use NodeReveal.
+- Done: confidence percent uses NodeCount.
+- Runtime trace rows reveal in order per open.
 
 src/app/styles.css
 - Existing motion tokens and reduced-motion handling are already in place.
@@ -343,7 +347,7 @@ src/app/styles.css
 - Ensure global reduced-motion rule disables all new motion.
 
 docs/DESIGN.md
-- Add a short "React Bits adoption" note under Motion or UI audit:
+- Done: added a short "React Bits adoption" note under Motion and refreshed the @nodeagent composer contract:
   - TS-CSS variants only
   - wrappers only, no direct app imports
   - animation must communicate state
@@ -361,17 +365,18 @@ PR 1 — Motion wrappers + landing proof
   - browser: landing load, light/dark theme, reduced motion if practical, mobile width
 
 PR 2 — Passive intelligence reveal
-- Status: partially complete.
-- NoteworthyInbox already uses NodeReveal.
-- PassiveAgentChip still needs NodeCount and any one-shot new-item emphasis.
+- Status: implemented for the current chip/inbox surface.
+- NoteworthyInbox uses NodeReveal.
+- PassiveAgentChip uses NodeCount and one-shot new-item emphasis.
 - Goal: make the backend passive room activity visible without feeling haunted.
 - Verification:
   - existing passive room activity tests
   - browser: trigger/list passive items, open/close inbox, keyboard Escape/outside click, mobile width
 
 PR 3 — Evidence and trace comprehension
-- Integrate NodeReveal in EvidenceCarouselArtifact and TraceLensPanel.
-- Use NodeCount for confidence/counter values if it stays calm.
+- Status: implemented for EvidenceCarouselArtifact and TraceLensPanel.
+- NodeReveal is integrated in evidence cards, Trace Lens sections, and runtime trace rows.
+- NodeCount is used for confidence values.
 - Goal: make evidence and runtime state easier to scan.
 - Verification:
   - browser: evidence cards open source correctly, trace lens opens/closes, no focus trap regressions
