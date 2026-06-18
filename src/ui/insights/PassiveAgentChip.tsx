@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { Sparkles } from "lucide-react";
 import { useStore } from "../../app/store";
 import { NoteworthyInbox } from "./NoteworthyInbox";
+import { NodeCount } from "../motion/NodeCount";
 import type { PassiveActivityItem } from "../../app/store";
 
 /** Statuses that are settled and quiet — never surfaced as needing attention. */
@@ -26,7 +27,9 @@ export function PassiveAgentChip({
   const feed = store.listPassiveActivity?.(roomId) ?? [];
   const items = actionable(feed);
   const [open, setOpen] = useState(false);
+  const [pulse, setPulse] = useState(false);
   const wrapRef = useRef<HTMLDivElement>(null);
+  const previousCountRef = useRef(items.length);
 
   // Dismiss on outside click / Escape so the popover doesn't linger over the work surface.
   useEffect(() => {
@@ -40,6 +43,15 @@ export function PassiveAgentChip({
     return () => { document.removeEventListener("pointerdown", onDown); document.removeEventListener("keydown", onKey); };
   }, [open]);
 
+  useEffect(() => {
+    const previous = previousCountRef.current;
+    previousCountRef.current = items.length;
+    if (items.length <= previous || previous === 0) { setPulse(false); return; }
+    setPulse(true);
+    const timeout = window.setTimeout(() => setPulse(false), 900);
+    return () => window.clearTimeout(timeout);
+  }, [items.length]);
+
   if (items.length === 0) return null;
 
   return (
@@ -47,12 +59,13 @@ export function PassiveAgentChip({
       <button
         className="r-signal-chip r-passive-chip"
         data-testid="passive-agent-chip"
+        data-new={pulse ? "true" : "false"}
         aria-haspopup="dialog"
         aria-expanded={open}
         aria-label={`Room noticed ${items.length} item${items.length === 1 ? "" : "s"}. Open passive intelligence inbox.`}
         onClick={() => setOpen((v) => !v)}
       >
-        <Sparkles size={12} /> <b>Room</b> noticed {items.length}
+        <Sparkles size={12} /> <b>Room</b> noticed <NodeCount value={items.length} from={items.length} duration={520} className="r-passive-chip-count" /> item{items.length === 1 ? "" : "s"}
       </button>
       {open && (
         <NoteworthyInbox

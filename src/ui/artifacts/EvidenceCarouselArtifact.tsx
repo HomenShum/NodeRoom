@@ -1,5 +1,7 @@
 import { ArrowUpRight, FileCheck2 } from "lucide-react";
 import type { EvidenceCardArtifact } from "../bankerCoachPacket";
+import { NodeCount } from "../motion/NodeCount";
+import { NodeReveal } from "../motion/NodeReveal";
 
 /** Human locator for a card's literal source: web domain, or sheet/page/cell coordinates. */
 function sourceLabel(card: EvidenceCardArtifact): string {
@@ -33,6 +35,7 @@ export function EvidenceCarouselArtifact({
         const href = card.sourceUrl && /^https?:\/\//i.test(card.sourceUrl) ? card.sourceUrl : null;
         const openId = card.sourceArtifactId ?? card.targetArtifactId;
         const canOpenInternal = !href && !!openId && !!onOpenArtifact;
+        const confidence = Math.round(card.confidence * 100);
         const body = (
           <>
             <div className="r-coach-card-head">
@@ -45,28 +48,34 @@ export function EvidenceCarouselArtifact({
             <small className="r-evidence-src">
               <span className="r-evidence-loc" title={card.sourceRef}>{sourceLabel(card)}</span>
               {(href || canOpenInternal) && <span className="r-evidence-open">Open source <ArrowUpRight size={11} /></span>}
-              <span className="r-evidence-conf">{Math.round(card.confidence * 100)}%</span>
+              <span className="r-evidence-conf"><NodeCount value={confidence} duration={650} suffix="%" ariaLabel={`${confidence}% confidence`} /></span>
             </small>
           </>
         );
         if (href) {
           return (
-            <a key={card.id} className="r-coach-card r-coach-card-button" data-testid="coach-evidence-card" data-element-id={card.targetElementId} data-artifact-id={card.targetArtifactId} href={href} target="_blank" rel="noopener noreferrer" aria-label={`Open source ${sourceLabel(card)} for ${card.label}`}>
-              {body}
-            </a>
+            <NodeReveal key={card.id} delay={60} distance={8} threshold={0}>
+              <a className="r-coach-card r-coach-card-button" data-testid="coach-evidence-card" data-element-id={card.targetElementId} data-artifact-id={card.targetArtifactId} href={href} target="_blank" rel="noopener noreferrer" aria-label={`Open source ${sourceLabel(card)} for ${card.label}`}>
+                {body}
+              </a>
+            </NodeReveal>
           );
         }
         if (canOpenInternal) {
           return (
-            <button key={card.id} type="button" className="r-coach-card r-coach-card-button" data-testid="coach-evidence-card" data-element-id={card.targetElementId} data-artifact-id={card.targetArtifactId} aria-label={`Open source for ${card.label}`} onClick={() => onOpenArtifact?.(openId!, card.targetElementId)}>
-              {body}
-            </button>
+            <NodeReveal key={card.id} delay={60} distance={8} threshold={0}>
+              <button type="button" className="r-coach-card r-coach-card-button" data-testid="coach-evidence-card" data-element-id={card.targetElementId} data-artifact-id={card.targetArtifactId} aria-label={`Open source for ${card.label}`} onClick={() => onOpenArtifact?.(openId!, card.targetElementId)}>
+                {body}
+              </button>
+            </NodeReveal>
           );
         }
         return (
-          <article key={card.id} className="r-coach-card" data-testid="coach-evidence-card" data-element-id={card.targetElementId} data-artifact-id={card.targetArtifactId}>
-            {body}
-          </article>
+          <NodeReveal key={card.id} delay={60} distance={8} threshold={0}>
+            <article className="r-coach-card" data-testid="coach-evidence-card" data-element-id={card.targetElementId} data-artifact-id={card.targetArtifactId}>
+              {body}
+            </article>
+          </NodeReveal>
         );
       })}
     </div>

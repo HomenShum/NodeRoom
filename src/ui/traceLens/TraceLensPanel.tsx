@@ -2,6 +2,8 @@ import { useMemo } from "react";
 import { X, FileSearch, Activity, Lock, ArrowUpRight, ShieldCheck } from "lucide-react";
 import { useStore } from "../../app/store";
 import { buildBankerCoachPacket, type EvidenceCardArtifact } from "../bankerCoachPacket";
+import { NodeCount } from "../motion/NodeCount";
+import { NodeReveal } from "../motion/NodeReveal";
 import { surfaceMeta } from "./surfaces";
 import { useTraceLens } from "./useTraceLens";
 
@@ -79,48 +81,48 @@ export function TraceLensPanel({
         <div className="tl-body">
           <p className="tl-about">{meta.about}</p>
 
-          <section className="tl-region">
+          <NodeReveal as="section" className="tl-region" delay={40} distance={8} threshold={0}>
             <div className="tl-region-head"><ShieldCheck size={12} /> Business proof</div>
             {proofCards.length ? proofCards.map((card) => (
-              <div key={card.id} className="tl-proof" data-status={card.status}>
+              <NodeReveal key={card.id} className="tl-proof" data-status={card.status} delay={70} distance={6} threshold={0}>
                 <div className="tl-proof-head"><strong>{card.label}</strong><span className="tl-status" data-status={card.status}>{card.status.replace(/_/g, " ")}</span></div>
                 {card.quote && <p className="tl-quote">{card.quote}</p>}
                 {card.reviewNote && <p className="tl-note">{card.reviewNote}</p>}
                 <div className="tl-proof-foot">
-                  <span className="tl-loc">{sourceLabel(card)} · {Math.round(card.confidence * 100)}%</span>
+                  <span className="tl-loc">{sourceLabel(card)} · <NodeCount value={Math.round(card.confidence * 100)} duration={650} suffix="%" ariaLabel={`${Math.round(card.confidence * 100)}% confidence`} /></span>
                   {(card.sourceUrl || card.sourceArtifactId || card.targetArtifactId) && (
                     card.sourceUrl && /^https?:\/\//i.test(card.sourceUrl)
                       ? <a className="tl-open" href={card.sourceUrl} target="_blank" rel="noopener noreferrer">Open source <ArrowUpRight size={11} /></a>
                       : <button type="button" className="tl-open" onClick={() => { const id = card.sourceArtifactId ?? card.targetArtifactId; if (id) { onOpenArtifact(id, { split: true, elementId: card.targetElementId }); close(); } }}>Open source <ArrowUpRight size={11} /></button>
                   )}
                 </div>
-              </div>
+              </NodeReveal>
             )) : (
               <p className="tl-empty">{meta.proofAvailable ? "No source-backed claim on the exact spot you clicked. Cmd/Ctrl-click a filled cell or evidence card." : "This surface has no business proof to inspect."}</p>
             )}
-          </section>
+          </NodeReveal>
 
-          <section className="tl-region">
+          <NodeReveal as="section" className="tl-region" delay={100} distance={8} threshold={0}>
             <div className="tl-region-head"><Activity size={12} /> Runtime trace</div>
             {relevantTraces.length ? (
               <ul className="tl-trace">
-                {relevantTraces.map((t) => (
-                  <li key={t.id} className="tl-trace-row">
+                {relevantTraces.map((t, idx) => (
+                  <NodeReveal key={t.id} as="li" className="tl-trace-row" delay={idx * 35} distance={5} threshold={0}>
                     <span className="tl-trace-type">{t.type}</span>
                     <span className="tl-trace-summary" title={t.detail ?? t.summary}>{t.summary}</span>
                     <span className="tl-trace-who">{t.actor?.name ?? "system"}</span>
-                  </li>
+                  </NodeReveal>
                 ))}
               </ul>
             ) : <p className="tl-empty">No recent runtime trace for this surface.</p>}
-          </section>
+          </NodeReveal>
 
-          <section className="tl-region tl-region-code">
+          <NodeReveal as="section" className="tl-region tl-region-code" delay={140} distance={8} threshold={0}>
             <div className="tl-region-head"><Lock size={12} /> Code ownership</div>
             {builderCapable && mode === "builder"
               ? <p className="tl-empty">Code provenance loads from the server (convex/traceLens) for verified builders.</p>
               : <p className="tl-empty tl-locked">Builder access only. Component, query, mutation, skill, and test for this surface are visible to NodeRoom builders, never to room guests.</p>}
-          </section>
+          </NodeReveal>
         </div>
       </aside>
     </>

@@ -35,7 +35,7 @@ The room is a 4-panel `.r-workspace` (12px gap, 12px pad). Panel widths: rail `2
 |---|---|---|
 | Panel card | `.r-panel` (`.left/.center/.artifact/.right`) | staggered `panelIn` reveal |
 | Top bar | `.r-top` | logo · room code · segmented panel toggle · auto-allow · avatar stack · theme |
-| Chat | `.r-chat` / `.r-msg` / `.r-bubble-ask` / `.r-composer` | avatars, agent tag, `/ask` chips, **typing indicator** (`.r-typing`) |
+| Chat | `.r-chat` / `.r-msg` / `.r-bubble-ask` / `.r-composer` | avatars, agent tag, public `@nodeagent` mention, hidden `/ask`/`/free` compatibility aliases, route/model picker, **typing indicator** (`.r-typing`) |
 | Spreadsheet | `.r-sheet` | CAS cells: `.locked` (NA badge) · `.draft` · `.committed` (wet-ink); `.r-val-pos` green; version pill |
 | Trace | `.r-trace` | typed color-coded icons (lock/read/draft/commit/merge) |
 | Switch / button / tag | `.r-switch` / `.r-btn` / `.r-tag` | one focus ring: `--focus-ring` |
@@ -44,6 +44,8 @@ The room is a 4-panel `.r-workspace` (12px gap, 12px pad). Panel widths: rail `2
 
 - Curves — `--ease-out-expo` (reveals), `--ease-spring` (switch), `--ease-smooth`. Durations — `--motion-fast .12s / -base .18s / -slow .34s`.
 - **Reduced motion** — a global `@media (prefers-reduced-motion: reduce)` disables all animation/transition. New animations must degrade to a static state under it (the typing dots become static).
+- **React Bits adoption** — use only local wrappers in `src/ui/motion/*` (`NodeReveal`, `NodeCount`, `NodeTextReveal`) rather than direct app imports. The wrapper shape follows React Bits TS-CSS components but stays tokenized, dependency-light, and reduced-motion-safe.
+- **Motion guardrails** — animate state comprehension only: landing proof, passive intelligence reveal, evidence/trace scanning. Do not animate spreadsheet cells, live editable text, literal evidence quotes, cursor trails, or heavy backgrounds inside the work room.
 
 ## 7. Voice
 
@@ -68,6 +70,7 @@ Checked against [assistant-ui examples](https://www.assistant-ui.com/examples) a
 
 **Adopted now (P1):**
 - **Slash-command menu** (assistant-ui trigger popover) — type `/` in the public composer for a discoverable command list (`.r-slash`, `Chat.tsx`).
+- **Room-agent mention menu** — type leading `@nodeagent` or choose it from the leading `@` menu to start a public room action; `/ask` and `/free` are compatibility shims, not primary UI.
 - **Message action bar** — hover any message for **Copy**; private agent messages get the **"Promote to public"** button the copy promised (`.r-msg-actions`, `Chat.tsx`).
 - **Composer contract** — the input is a `<textarea>`: **Enter** sends, **Shift+Enter** newlines (auto-grows), **Esc** closes/blurs (`Chat.tsx`).
 - **Mobile** — the top bar condenses and side panels collapse below 980/640px (no horizontal overflow at 375px; QA-verified).

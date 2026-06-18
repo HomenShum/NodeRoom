@@ -1,4 +1,15 @@
-import { useEffect, useRef, useState, type ReactNode, type ElementType } from "react";
+import { useEffect, useRef, useState, type CSSProperties, type ElementType, type HTMLAttributes, type ReactNode } from "react";
+
+type NodeRevealProps = HTMLAttributes<HTMLElement> & {
+  children: ReactNode;
+  as?: ElementType;
+  delay?: number;
+  distance?: number;
+  className?: string;
+  threshold?: number;
+  once?: boolean;
+  style?: CSSProperties;
+};
 
 /** NodeReveal — React Bits AnimatedContent/FadeContent adapted to NodeRoom tokens.
  *  Fades + slides children in when they enter the viewport. Under prefers-reduced-motion
@@ -11,15 +22,9 @@ export function NodeReveal({
   className,
   threshold = 0.15,
   once = true,
-}: {
-  children: ReactNode;
-  as?: ElementType;
-  delay?: number;
-  distance?: number;
-  className?: string;
-  threshold?: number;
-  once?: boolean;
-}) {
+  style,
+  ...rest
+}: NodeRevealProps) {
   const ref = useRef<HTMLElement>(null);
   const [visible, setVisible] = useState(false);
 
@@ -48,7 +53,9 @@ export function NodeReveal({
     <Tag
       ref={ref}
       className={className}
+      {...rest}
       style={{
+        ...style,
         opacity: visible ? 1 : 0,
         transform: visible ? "none" : `translateY(${distance}px)`,
         transition: `opacity var(--motion-slow) var(--ease-out-expo) ${delay}ms, transform var(--motion-slow) var(--ease-out-expo) ${delay}ms`,

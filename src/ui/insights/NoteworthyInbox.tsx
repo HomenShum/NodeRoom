@@ -82,8 +82,7 @@ export function NoteworthyInbox({
             const target = openTarget(item);
             const title = item.entityNames[0] ?? sourceLabel(item.sourceKind);
             return (
-              <NodeReveal key={item.id} delay={idx * 60} distance={8} threshold={0}>
-                <li className="r-inbox-item" data-testid="noteworthy-item" data-tone={pill.tone}>
+              <NodeReveal key={item.id} as="li" className="r-inbox-item" data-testid="noteworthy-item" data-tone={pill.tone} delay={idx * 60} distance={8} threshold={0}>
                   <div className="r-inbox-item-head">
                     <Icon size={13} />
                     <span className="r-inbox-item-title" title={title}>{title}</span>
@@ -106,7 +105,6 @@ export function NoteworthyInbox({
                       Open {sourceLabel(item.sourceKind).toLowerCase()}
                     </button>
                   )}
-                </li>
               </NodeReveal>
             );
           })}
