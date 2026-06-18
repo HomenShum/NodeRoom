@@ -31,6 +31,7 @@ function paced(model: AgentModel, ms: number): AgentModel {
   return { ...model, next: async (args) => { await new Promise((r) => setTimeout(r, ms)); return model.next(args); } };
 }
 import { RESEARCH_PLAN } from "../engine/demoRoom";
+import { CAPTURE_NOTEBOOK_DOC } from "../engine/demoRoom";
 import type { Actor, Artifact, ArtifactMeta, ArtifactVisibility, Channel, Lock, Member, Message, Room, TraceEvent, AgentSession, Draft, ChangeOp, Proposal, ResearchRowInput } from "../engine/types";
 import type { UploadedArtifactInput, UploadedSourceFile } from "./uploadedArtifact";
 import type { ArtifactRef } from "../ui/artifactRefs";
@@ -121,6 +122,7 @@ export type PrivateStreamAccess = { requester: ActorProof; driven: boolean };
  *  exported from convex/roomActivity.ts — imported directly so backend/client drift is a
  *  compile error, not a silent runtime mismatch. */
 export type PassiveActivityItem = FeedItem;
+export type PassiveSheetOpenResult = { artifactId: string; rowId: string; created: boolean };
 
 type DurableAgentRoute = {
   entrypoint: "public_ask" | "free";
@@ -228,7 +230,7 @@ export interface RoomStore {
   researchActivity(item: PassiveActivityItem, actor: Actor): Promise<void>;
   /** Propose adding the item's entity as a row on the company research sheet. MUST go through
    *  draft/proposal path — never a silent clobber. Memory mode is a no-op (no sheet to target). */
-  addActivityToSheet(item: PassiveActivityItem, actor: Actor): Promise<void>;
+  addActivityToSheet(item: PassiveActivityItem, actor: Actor): Promise<PassiveSheetOpenResult | void>;
 }
 
 const Ctx = createContext<RoomStore | null>(null);
@@ -361,8 +363,8 @@ function withStoredSourceMeta(meta: ArtifactMeta | undefined, sourceFile: Upload
 }
 
 /** Scripted passive-intelligence seed for the memory-demo room. Deterministic and
- *  reproducible: the same CardioNova item fires every time so the walkthrough clip is honest
- *  (labeled "memory-mode demo") without relying on live LLM timing. */
+ *  reproducible: the same CardioNova item appears after the first saved capture note so the
+ *  walkthrough clip stays honest (labeled "memory-mode demo") without relying on live LLM timing. */
 const DEMO_PASSIVE_SEED: PassiveActivityItem[] = [
   {
     id: "mem-passive-cardionova-1",
@@ -382,13 +384,29 @@ const DEMO_PASSIVE_SEED: PassiveActivityItem[] = [
   },
 ];
 
+function plainTextFromHtml(value: string): string {
+  return value.replace(/<[^>]+>/g, " ").replace(/&nbsp;/gi, " ").replace(/\s+/g, " ").trim();
+}
+
+const CAPTURE_NOTEBOOK_SEED_TEXT = plainTextFromHtml(CAPTURE_NOTEBOOK_DOC);
+
 export function EngineStoreProvider({ roomId, children }: { roomId: string; me: Actor; children: ReactNode }) {
   const rev = useEngineRev();
   const undoStack = useRef(new Map<string, UndoEntry[]>());
   // Reactive passive list for the memory demo. A useRef holds the mutable snapshot;
   // a useState counter forces re-renders when actions (Dismiss/Research) mutate the list.
-  const memPassiveRef = useRef<PassiveActivityItem[]>(roomId === demo.roomId ? DEMO_PASSIVE_SEED.map((i) => ({ ...i })) : []);
+  const memPassiveRef = useRef<PassiveActivityItem[]>([]);
+  const memPassiveHydratedRef = useRef(false);
   const [memPassiveRev, setMemPassiveRev] = useState(0);
+  useEffect(() => {
+    if (roomId !== demo.roomId || memPassiveHydratedRef.current) return;
+    const notebook = engine.listArtifacts(roomId).find((a) => a.kind === "note" && a.title === "Capture Notebook");
+    const doc = plainTextFromHtml(String(notebook?.elements["doc"]?.value ?? ""));
+    if (!doc || doc === CAPTURE_NOTEBOOK_SEED_TEXT) return;
+    memPassiveHydratedRef.current = true;
+    memPassiveRef.current = DEMO_PASSIVE_SEED.map((item) => ({ ...item, createdAt: Date.now(), updatedAt: Date.now() }));
+    setMemPassiveRev((v) => v + 1);
+  }, [rev, roomId]);
   const store = useMemo<RoomStore>(() => ({
     mode: "memory",
     // memPassiveRev is included in deps (below) to force re-compute after Dismiss/Research.
@@ -536,8 +554,15 @@ export function EngineStoreProvider({ roomId, children }: { roomId: string; me: 
       );
       setMemPassiveRev((v) => v + 1);
     },
-    addActivityToSheet: async () => {
-      // Memory mode has no persistent research sheet to target — no-op with honest label.
+    addActivityToSheet: async (item, actor) => {
+      const entity = item.entityNames[0];
+      if (!entity) return;
+      const targetArt = engine.listArtifacts(roomId).find((a) => a.kind === "sheet" && a.title === "Company research") ?? engine.listArtifacts(roomId).find((a) => a.kind === "sheet");
+      if (!targetArt) return;
+      const existing = findExistingResearchRowClient(targetArt, { company: entity });
+      if (existing) return { artifactId: targetArt.id, rowId: existing, created: false as const };
+      const [rowId] = engine.addResearchRows({ roomId, artifactId: targetArt.id, rows: [{ company: entity }], by: actor });
+      return rowId ? { artifactId: targetArt.id, rowId, created: true as const } : undefined;
     },
   }), [rev, memPassiveRev, roomId]);
   return <Ctx.Provider value={store}>{children}</Ctx.Provider>;
@@ -812,6 +837,7 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
       local.setQuery(api.rooms.meta, metaQ, { ...curMeta, artifacts: curMeta.artifacts.map((a) => String(a.id) === artifactId ? { ...a, order: nextOrder, version: a.version + 1, updatedAt: now } : a) } as typeof curMeta);
     }
   });
+  const ensurePassiveResearchRowMutation = useMutation(api.artifacts.ensurePassiveResearchRow);
   // Upload/new-artifact paints instantly under a placeholder id; the authoritative id swaps in
   // atomically at completion (tab is labeled by title, selection happens post-await with the real
   // id — no visible jump). Echo guard: skip if this mutation's artifact already streamed in.
@@ -1286,15 +1312,18 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
         if (!entity) return;
         const targetArt = researchSheet ?? metaArtifacts.find((a) => (a as { kind?: string }).kind === "sheet");
         if (!targetArt) return;
-        await addResearchRowsMutation({
+        const existing = findExistingResearchRowClient({ ...targetArt, elements: elementsByArtifact[targetArt.id] ?? {} } as Artifact, { company: entity });
+        if (existing) return { artifactId: targetArt.id as string, rowId: existing, created: false as const };
+        const result = await ensurePassiveResearchRowMutation({
           roomId: rid,
           artifactId: targetArt.id as never,
           requester: proof,
-          rows: [{ company: entity }],
+          company: entity,
         });
+        return result.rowId ? { artifactId: targetArt.id as string, rowId: result.rowId as string, created: result.created } : undefined;
       },
     };
-  }, [data, metaArtifacts, elementsByArtifact, pub, priv, traces, okfLens, runs, jobs, jobAttempts, jobDetail, proposals, passiveActivity, mergedCaptures, applyCellEdit, sendMsg, toggle, editMsg, resolveProposalMutation, addResearchRowsMutation, createArtifactMutation, uploadSourceFile, runSemanticConflictDrillMutation, runAgent, runPrivateAgent, createPrivateReplyStream, startAgentJob, cancelFreeAutoJob, retryFreeAutoJob, dismissActivityMutation, researchActivityMutation, rid, roomId, proof, me.id, me.name]);
+  }, [data, metaArtifacts, elementsByArtifact, pub, priv, traces, okfLens, runs, jobs, jobAttempts, jobDetail, proposals, passiveActivity, mergedCaptures, applyCellEdit, sendMsg, toggle, editMsg, resolveProposalMutation, addResearchRowsMutation, ensurePassiveResearchRowMutation, createArtifactMutation, uploadSourceFile, runSemanticConflictDrillMutation, runAgent, runPrivateAgent, createPrivateReplyStream, startAgentJob, cancelFreeAutoJob, retryFreeAutoJob, dismissActivityMutation, researchActivityMutation, rid, roomId, proof, me.id, me.name]);
 
   return (
     <Ctx.Provider value={store}>

@@ -850,6 +850,61 @@ export const addResearchRows = mutation({
   },
 });
 
+export const ensurePassiveResearchRow = mutation({
+  args: { roomId: v.id("rooms"), artifactId: v.id("artifacts"), company: v.string(), requester: actorProofV },
+  handler: async (ctx, { roomId, artifactId, company, requester }) => {
+    const actor = await requireActorProof(ctx, roomId, requester);
+    const art = await requireArtifactInRoom(ctx, roomId, artifactId);
+    const name = company.trim();
+    if (!name) return { rowId: null, created: false as const };
+    const now = Date.now();
+    const nextOrder = [...art.order];
+    const existingElements = await ctx.db.query("elements").withIndex("by_artifact", (q) => q.eq("artifactId", artifactId)).collect();
+    const byElementId = new Map(existingElements.map((e) => [e.elementId, e]));
+    const existing = findExistingResearchRow(nextOrder, byElementId, { company: name });
+    if (existing) return { rowId: existing, created: false as const };
+
+    const base = slugResearchRow(name);
+    let rowId = base;
+    let suffix = 1;
+    while (nextOrder.some((id) => id.startsWith(`${rowId}__`))) rowId = `${base}_${suffix++}`;
+    const vals: Record<(typeof researchCols)[number], string> = {
+      company: name,
+      website: defaultWebsite(name),
+      status: "pending",
+      tier: "B",
+      intent: "",
+      owner: actor.name,
+      crm_status: "Research",
+      summary: "",
+      funding: "",
+      headcount: "",
+      recent_signal: "",
+      source: "",
+      source2: "",
+      last_researched: "",
+    };
+    for (const col of researchCols) {
+      const elementId = `${rowId}__${col}`;
+      const inserted = await ctx.db.insert("elements", { artifactId, elementId, value: vals[col], version: 1, updatedAt: now, updatedBy: actor });
+      const row = await ctx.db.get(inserted);
+      if (row) byElementId.set(elementId, row);
+      nextOrder.push(elementId);
+    }
+    await ctx.db.patch(artifactId, { order: nextOrder, version: art.version + 1, updatedAt: now });
+    await ctx.db.insert("traces", {
+      roomId,
+      ts: now,
+      actor,
+      type: "edit_applied",
+      summary: `${actor.name} added ${name} to the research sheet`,
+      detail: `ensure_passive_research_row row=${rowId}`,
+    });
+    await enqueueArtifactSnapshotForOkf(ctx, { roomId, artifactId });
+    return { rowId, created: true as const };
+  },
+});
+
 export const applyAgentCellEdit = internalMutation({
   args: {
     roomId: v.id("rooms"),

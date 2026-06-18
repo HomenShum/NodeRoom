@@ -1,5 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 
+function prefersReducedMotion(): boolean {
+  return typeof window !== "undefined" && typeof window.matchMedia === "function"
+    ? window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    : false;
+}
+
 /** NodeTextReveal — React Bits BlurText adapted to NodeRoom tokens.
  *  Reveals text with a per-word blur-to-sharp fade when it enters the viewport. Under
  *  prefers-reduced-motion, renders the full text immediately with no blur. */
@@ -23,8 +29,9 @@ export function NodeTextReveal({
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-    const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const prefersReduced = prefersReducedMotion();
     if (prefersReduced) { setVisible(true); return; }
+    if (typeof IntersectionObserver !== "function") { setVisible(true); return; }
 
     const observer = new IntersectionObserver(
       ([entry]) => {

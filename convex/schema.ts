@@ -352,6 +352,7 @@ export default defineSchema({
     .index("by_status_quietUntil", ["status", "quietUntil"])
     .index("by_room", ["roomId", "updatedAt"])
     .index("by_room_status", ["roomId", "status", "updatedAt"])
+    .index("by_room_status_quietUntil", ["roomId", "status", "quietUntil"])
     .index("by_room_source", ["roomId", "sourceKind", "sourceId"])
     .index("by_dedupe", ["dedupeKey", "updatedAt"])
     .index("by_source", ["sourceKind", "sourceId", "updatedAt"])

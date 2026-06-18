@@ -76,7 +76,13 @@ export function PassiveAgentChip({
           onClose={() => setOpen(false)}
           onDismiss={(item) => { void store.dismissActivity?.(item.id, me); }}
           onResearch={(item) => { void store.researchActivity?.(item, me); }}
-          onAddToSheet={(item) => { void store.addActivityToSheet?.(item, me); }}
+          onAddToSheet={(item) => {
+            void store.addActivityToSheet?.(item, me).then((result) => {
+              if (!result?.artifactId || !result.rowId) return;
+              onOpenArtifact(result.artifactId, { elementId: `${result.rowId}__company` });
+              setOpen(false);
+            });
+          }}
         />
       )}
     </div>

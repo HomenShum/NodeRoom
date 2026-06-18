@@ -344,8 +344,15 @@ export const FEATURES: FeatureSpec[] = [
         sel: '[data-testid="note-editor"] .ProseMirror',
         text: "Met Maya from CardioNova. AI triage for hospitals. Possible Series B. Need to ask about burn and hospital pilots.",
         caption: "Jot what you heard — no structure needed yet",
-        afterCaption: "Raw notes captured. Put the phone down.",
-        afterHoldMs: 1800,
+        afterCaption: "Raw notes drafted. Click away to save the notebook edit.",
+        afterHoldMs: 1400,
+      },
+      {
+        kind: "click",
+        sel: '[data-testid="artifact-tabs"] button:has-text("Capture Notebook")',
+        caption: "Save the note — the notebook commits on blur",
+        afterCaption: "Saved. Now pause and let the room notice what's worth returning to.",
+        afterHoldMs: 1500,
       },
       // Step 3: pause — "the room is watching"
       {
@@ -354,7 +361,7 @@ export const FEATURES: FeatureSpec[] = [
         settleMs: 600,
         holdMs: 3200,
       },
-      // Step 4: wait for the passive-agent chip (deterministic in memory mode — always present from seed).
+      // Step 4: wait for the passive-agent chip (deterministic in memory mode — appears after the saved note).
       {
         kind: "loading",
         sel: '[data-testid="passive-agent-chip"]',

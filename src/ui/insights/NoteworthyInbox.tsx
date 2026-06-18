@@ -117,7 +117,7 @@ export function NoteworthyInbox({
                       <button
                         className="r-inbox-action"
                         data-testid="noteworthy-add"
-                        title="Add entity to research sheet as a draft row"
+                        title="Add or open this entity on the research sheet without overwriting existing fields"
                         onClick={() => onAddToSheet(item)}
                       >
                         <TableProperties size={11} /> Add to sheet

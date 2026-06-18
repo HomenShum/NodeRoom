@@ -43,6 +43,7 @@ export const RESEARCH_PLAN = [
   { rowId: "rc_brex", summary: "Corporate cards, banking-adjacent cash workflow, and expense automation for startups.", funding: "Late-stage fintech with major venture backing; verify latest financing.", headcount: "Scaled global fintech team.", recentSignal: "Startup banking and expense workflow overlaps the diligence reference workflow.", sourceUrl: "https://www.brex.com", source2Url: "https://www.linkedin.com/company/brexhq/" },
   { rowId: "rc_pulley", summary: "Cap table and equity operations platform for startup finance and legal teams.", funding: "Venture-backed SaaS profile; refresh latest funding and hiring signals.", headcount: "Mid-market startup ops team; verify current headcount.", recentSignal: "Equity ops connects to startup banking onboarding and founder services.", sourceUrl: "https://pulley.com", source2Url: "https://www.linkedin.com/company/pulley/" },
 ];
+export const CAPTURE_NOTEBOOK_DOC = "<h1>Capture Notebook</h1><p>Who did you talk to? What changed? What should we verify next? Drop messy notes here, then pause — NodeRoom will notice the signals worth returning to.</p>";
 export const WIKI_DOC = "Living wiki for room state, file inventory, agent sessions, workflows, backend map, and recent trace evidence. It updates from artifacts, sessions, runs, and traces.";
 
 function researchMeta() {
@@ -135,6 +136,7 @@ export function buildDemoRoom(engine: RoomEngine): DemoRoom {
     seed.push({ id: `${r.id}__variance`, value: "" });
     seed.push({ id: `${r.id}__note`, value: "" });
   }
+  engine.createArtifact({ roomId: room.id, kind: "note", title: "Capture Notebook", by: me, seed: [{ id: "doc", value: CAPTURE_NOTEBOOK_DOC }] });
   const wikiId = engine.createArtifact({ roomId: room.id, kind: "note", title: "Agent wiki", by: me, seed: [{ id: "doc", value: WIKI_DOC }] }).id;
   const sheetId = engine.createArtifact({ roomId: room.id, kind: "sheet", title: "Q3 variance", by: me, seed }).id;
 

@@ -24,6 +24,15 @@ import type { Actor, Channel } from "../engine/types";
 
 const AUTO_ACCEPT_PREF_KEY = "noderoom:autoAcceptConsent:v1";
 const TOUR_KEY = "noderoom:tour:v1";
+const NOTE_PRIORITY = ["Capture Notebook", "Note", "Diligence memo", "Open questions / workplan", "Agent wiki"];
+
+export function preferredRoomArtifact<T extends { id: string; kind?: string; title?: string }>(arts: T[]): T | undefined {
+  for (const title of NOTE_PRIORITY) {
+    const hit = arts.find((a) => a.kind === "note" && a.title === title);
+    if (hit) return hit;
+  }
+  return arts.find((a) => a.kind === "note") ?? arts.find((a) => a.kind === "sheet") ?? arts[0];
+}
 
 function initials(name: string): string {
   return name.replace(/[^A-Za-z· ]/g, "").split(/[ ·]/).filter(Boolean).map((s) => s[0]).slice(0, 2).join("").toUpperCase() || "?";
@@ -62,7 +71,7 @@ export function RoomShell({ roomId, me, onLeave }: { roomId: string; me: Actor; 
   // Notebook-first: every room lands on the note surface — bankers start by jotting.
   // Falls back to sheet if no note exists (e.g. older rooms seeded before this change),
   // then arts[0], then "" for async-load ticks where arts is still empty.
-  const [artId, setArtId] = useState(() => arts.find((a) => a.kind === "note")?.id ?? arts.find((a) => a.kind === "sheet")?.id ?? arts[0]?.id ?? "");
+  const [artId, setArtId] = useState(() => preferredRoomArtifact(arts)?.id ?? "");
   const [sideArtId, setSideArtId] = useState<string | null>(null);
   const [collab, setCollab] = useState<{ running: boolean; done: boolean; error?: string }>({ running: false, done: false });
   const [autoAcceptModal, setAutoAcceptModal] = useState(false);
@@ -99,7 +108,7 @@ export function RoomShell({ roomId, me, onLeave }: { roomId: string; me: Actor; 
   const inviteHref = inviteHrefForRoom(room.code);
   const isHost = members.some((m) => m.id === me.id && m.role === "host");
   const privChannel: Channel = { private: me.id };
-  const curArt = arts.find((a) => a.id === artId) ?? arts.find((a) => a.kind === "note") ?? arts.find((a) => a.kind === "sheet");
+  const curArt = arts.find((a) => a.id === artId) ?? preferredRoomArtifact(arts);
   const openArtifact = (id: string, opts?: { split?: boolean; elementId?: string }): boolean => {
     const target = resolveRoomOpenTarget({
       id,

@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { render, screen, fireEvent, cleanup } from "@testing-library/react";
+import { render, screen, fireEvent, cleanup, waitFor } from "@testing-library/react";
 import { beforeEach, afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 
 const mockStore = vi.hoisted(() => ({ current: {} as any }));
@@ -24,6 +24,7 @@ beforeAll(() => {
 
 import { PassiveAgentChip } from "../src/ui/insights/PassiveAgentChip";
 import type { PassiveActivityItem } from "../src/app/store";
+import { preferredRoomArtifact } from "../src/ui/RoomShell";
 
 function item(over: Partial<PassiveActivityItem>): PassiveActivityItem {
   return {
@@ -138,16 +139,20 @@ describe("PassiveAgentChip + NoteworthyInbox", () => {
     expect(research).toHaveBeenCalledWith("research-1");
   });
 
-  it("Add to sheet calls addActivityToSheet", () => {
+  it("Add to sheet opens the research row returned by addActivityToSheet", () => {
     const add = vi.fn();
     const target = item({ id: "add-1", status: "noteworthy", action: "create_coach_cue", entityNames: ["CardioNova"] });
-    withFeed([target], { addActivityToSheet: (i: PassiveActivityItem) => { add(i.id); return Promise.resolve(); } });
-    render(<PassiveAgentChip roomId="r1" me={ME} onOpenArtifact={vi.fn()} />);
+    const onOpen = vi.fn();
+    withFeed([target], { addActivityToSheet: (i: PassiveActivityItem) => { add(i.id); return Promise.resolve({ artifactId: "research-art", rowId: "rc_cardionova", created: false }); } });
+    render(<PassiveAgentChip roomId="r1" me={ME} onOpenArtifact={onOpen} />);
     fireEvent.click(screen.getByTestId("passive-agent-chip"));
     const addBtn = screen.getByTestId("noteworthy-add");
     expect(addBtn).toBeTruthy();
     fireEvent.click(addBtn);
     expect(add).toHaveBeenCalledWith("add-1");
+    return waitFor(() => {
+      expect(onOpen).toHaveBeenCalledWith("research-art", { elementId: "rc_cardionova__company" });
+    });
   });
 
   it("Research button is hidden when item is already Researching", () => {
@@ -157,5 +162,24 @@ describe("PassiveAgentChip + NoteworthyInbox", () => {
     fireEvent.click(screen.getByTestId("passive-agent-chip"));
     // research button hidden when tone === "researching"
     expect(screen.queryByTestId("noteworthy-research")).toBeNull();
+  });
+});
+
+describe("preferredRoomArtifact", () => {
+  it("prefers the dedicated Capture Notebook over the Agent wiki", () => {
+    const chosen = preferredRoomArtifact([
+      { id: "wiki", kind: "note", title: "Agent wiki" },
+      { id: "capture", kind: "note", title: "Capture Notebook" },
+      { id: "sheet", kind: "sheet", title: "Q3 variance" },
+    ]);
+    expect(chosen?.id).toBe("capture");
+  });
+
+  it("falls back to a generic note before any sheet", () => {
+    const chosen = preferredRoomArtifact([
+      { id: "sheet", kind: "sheet", title: "Blank sheet" },
+      { id: "note", kind: "note", title: "Note" },
+    ]);
+    expect(chosen?.id).toBe("note");
   });
 });

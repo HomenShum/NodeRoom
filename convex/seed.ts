@@ -6,6 +6,7 @@ import type { MutationCtx } from "./_generated/server";
 import { hashToken, timingSafeEqualSecret } from "./lib";
 
 const DEMO_CODE = "Q3DEMO";
+const CAPTURE_NOTEBOOK_DOC = "<h1>Capture Notebook</h1><p>Who did you talk to? What changed? What should we verify next? Drop messy notes here, then pause — NodeRoom will notice the signals worth returning to.</p>";
 const WIKI_DOC = "Living wiki for room state, file inventory, agent sessions, workflows, backend map, and recent trace evidence. It updates from artifacts, sessions, runs, and traces.";
 
 const SHEET_ROWS = [
@@ -115,6 +116,17 @@ async function ensureDemoWiki(ctx: MutationCtx, roomId: Id<"rooms">, homen: Id<"
   return wikiId;
 }
 
+async function ensureDemoCaptureNotebook(ctx: MutationCtx, roomId: Id<"rooms">, homen: Id<"members">, now: number) {
+  const existing = (await ctx.db.query("artifacts").withIndex("by_room", (q) => q.eq("roomId", roomId)).collect())
+    .find((a) => a.kind === "note" && a.title === "Capture Notebook");
+  if (existing) return existing._id;
+
+  const by = { kind: "user" as const, id: String(homen), name: "Homen" };
+  const notebookId = await ctx.db.insert("artifacts", { roomId, kind: "note", title: "Capture Notebook", version: 1, order: ["doc"], updatedAt: now });
+  await ctx.db.insert("elements", { artifactId: notebookId, elementId: "doc", value: CAPTURE_NOTEBOOK_DOC, version: 1, updatedAt: now, updatedBy: by });
+  return notebookId;
+}
+
 async function ensureDemoSessions(ctx: MutationCtx, roomId: Id<"rooms">, homen: Id<"members">, now: number) {
   const sessions = await ctx.db.query("agentSessions").withIndex("by_room", (q) => q.eq("roomId", roomId)).collect();
   const publicSession = sessions.find((s) => s.agentId === "agent_room" && s.scope === "public");
@@ -132,6 +144,7 @@ async function ensureDemoRoom(ctx: MutationCtx, roomId: Id<"rooms">, now: number
   const room = await ctx.db.get(roomId);
   if (options?.patchHost && room && String(room.hostId) !== String(homen)) await ctx.db.patch(roomId, { hostId: homen });
 
+  await ensureDemoCaptureNotebook(ctx, roomId, homen, now);
   const wikiId = await ensureDemoWiki(ctx, roomId, homen, now);
   const sheetId = await ensureDemoSheet(ctx, roomId, homen, now);
   const sessionId = await ensureDemoSessions(ctx, roomId, homen, now);

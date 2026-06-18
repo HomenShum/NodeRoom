@@ -2,7 +2,7 @@ import { v } from "convex/values";
 import { start as startWorkflow } from "@convex-dev/workflow";
 import { Debouncer } from "@ikhrustalev/convex-debouncer";
 import type { DebouncerComponentApi } from "@ikhrustalev/convex-debouncer";
-import { components, internal, api } from "./_generated/api";
+import { components, internal } from "./_generated/api";
 import { internalMutation, mutation, query } from "./_generated/server";
 import type { MutationCtx } from "./_generated/server";
 import type { Id } from "./_generated/dataModel";
@@ -165,10 +165,10 @@ export const scanDueActivity = internalMutation({
     const now = Date.now();
     const rows = await ctx.db
       .query("roomActivityOutbox")
-      .withIndex("by_status_quietUntil", (q) => q.eq("status", "queued").lte("quietUntil", now))
+      .withIndex("by_room_status_quietUntil", (q) => q.eq("roomId", roomId).eq("status", "queued").lte("quietUntil", now))
       .take(Math.max(1, Math.min(limit ?? 20, 50)));
     let scanned = 0;
-    for (const row of rows.filter((r) => String(r.roomId) === String(roomId))) {
+    for (const row of rows) {
       scanned++;
       await scanActivityRow(ctx, row, now);
     }
@@ -312,7 +312,7 @@ export const dismissActivity = mutation({
       return { ok: false as const, reason: "not_found" };
     }
     // Only the row owner (private) or any room member (room/public) may dismiss.
-    if (row.visibility === "private" && row.ownerId && row.ownerId !== actor.id) {
+    if (row.visibility === "private" && row.ownerId !== actor.id) {
       return { ok: false as const, reason: "not_owner" };
     }
     await ctx.db.patch(args.activityId, { status: "ignored", dismissedBy: actor.id, updatedAt: Date.now() });
@@ -335,31 +335,34 @@ export const researchActivity = mutation({
     if (!row || String(row.roomId) !== String(args.roomId)) {
       return { ok: false as const, reason: "not_found" };
     }
-    if (row.visibility === "private" && row.ownerId && row.ownerId !== actor.id) {
+    if (row.visibility === "private" && row.ownerId !== actor.id) {
       return { ok: false as const, reason: "not_owner" };
     }
-    // Derive scope from the stored row — server-authoritative, not client-supplied.
-    const scope = row.visibility === "private" ? "private_user" : "public_room";
-
-    // Find the target research sheet artifact.
-    const artifacts = await ctx.db.query("artifacts").withIndex("by_room", (q) => q.eq("roomId", args.roomId)).collect();
-    const targetArt = artifacts.find((a) => a.kind === "sheet" && a.title === "Company research") ?? artifacts.find((a) => a.kind === "sheet");
-    if (!targetArt) return { ok: false as const, reason: "no_research_sheet" };
-
-    const entity = (row.finding?.entities ?? [])[0]?.displayName ?? "unknown";
-    const goal = `Passive research: ${entity} — funding, product, and runway signals noticed by the room.`;
-
-    await ctx.runMutation(api.agentJobs.start, {
-      roomId: args.roomId,
-      artifactId: targetArt._id,
-      requester: args.requester,
-      goal: goal.slice(0, 2_000),
-      entrypoint: "room_work",
-      scope,
-      mode: "research",
+    const now = Date.now();
+    const text = row.decision?.text ?? await readSourceText(ctx, row.roomId, row.sourceKind, row.sourceId) ?? "";
+    const baseFinding = row.finding?.entities?.length ? row.finding : classifyNoteworthy(text);
+    if (!baseFinding.entities.length) {
+      return { ok: false as const, reason: "no_entity_detected" };
+    }
+    const finding = { ...baseFinding, action: "start_research_job" as const };
+    const job = await createPassiveRoomWorkJob(ctx, row, finding, text, now);
+    await ctx.db.patch(args.activityId, {
+      status: job.ok ? "job_created" : "failed",
+      latestJobId: job.jobId,
+      decision: {
+        ...(row.decision ?? { status: "noteworthy" as const, action: "start_research_job" as const }),
+        status: job.ok ? "job_created" : "failed",
+        action: "start_research_job",
+        next: "agentJobs.workflow",
+        text,
+        job,
+        error: job.ok ? undefined : job.error,
+      },
+      finding,
+      error: job.ok ? undefined : job.error,
+      updatedAt: now,
+      lastScannedAt: now,
     });
-
-    await ctx.db.patch(args.activityId, { status: "job_created", updatedAt: Date.now() });
     return { ok: true as const };
   },
 });

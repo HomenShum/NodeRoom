@@ -1,5 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 
+function prefersReducedMotion(): boolean {
+  return typeof window !== "undefined" && typeof window.matchMedia === "function"
+    ? window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    : false;
+}
+
 /** NodeCount — React Bits CountUp adapted to NodeRoom tokens.
  *  Animates from 0 to `value` when the element enters the viewport. Uses requestAnimationFrame
  *  with ease-out-expo for smooth deceleration. Under prefers-reduced-motion, renders the final
@@ -38,8 +44,9 @@ export function NodeCount({
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-    const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const prefersReduced = prefersReducedMotion();
     if (prefersReduced) { setVisible(true); setDisplayValue(value); return; }
+    if (typeof IntersectionObserver !== "function") { setVisible(true); return; }
 
     const observer = new IntersectionObserver(
       ([entry]) => {
@@ -56,7 +63,7 @@ export function NodeCount({
 
   useEffect(() => {
     if (!visible) return;
-    const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const prefersReduced = prefersReducedMotion();
     if (prefersReduced || duration <= 0 || displayRef.current === value) {
       setDisplayValue(value);
       return;

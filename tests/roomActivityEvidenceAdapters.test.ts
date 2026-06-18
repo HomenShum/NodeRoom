@@ -101,6 +101,101 @@ describe("passive room activity and evidence adapters", () => {
     expect(row?.sourceHash).toBe("hash-b");
   });
 
+  it("scans due activity by room so another room cannot starve it", async () => {
+    const s = await seedRoom();
+    const now = Date.now();
+    const otherRoomId = await s.t.run((ctx) =>
+      ctx.db.insert("rooms", {
+        code: "ACT002",
+        title: "Other room",
+        hostId: "",
+        autoAllow: true,
+        status: "live" as const,
+        createdAt: now,
+      }),
+    );
+    const otherMemberId = await s.t.run(async (ctx) =>
+      ctx.db.insert("members", {
+        roomId: otherRoomId,
+        name: "Other Host",
+        role: "host" as const,
+        anon: false,
+        color: "#333333",
+        authTokenHash: await hashToken("otherStrongTOKEN0123456789abcdefXYZqqq"),
+        lastSeenAt: now,
+      }),
+    );
+    const otherActor = { kind: "user" as const, id: String(otherMemberId), name: "Other Host" };
+    const otherArtifactId = await s.t.run((ctx) =>
+      ctx.db.insert("artifacts", {
+        roomId: otherRoomId,
+        kind: "sheet" as const,
+        title: "Other sheet",
+        version: 1,
+        order: ["other__notes"],
+        updatedAt: now,
+        createdBy: otherActor,
+        visibility: "room" as const,
+      }),
+    );
+    await s.t.run((ctx) => ctx.db.insert("elements", {
+      artifactId: otherArtifactId,
+      elementId: "other__notes",
+      version: 1,
+      value: { value: "formatting cleanup only" },
+      updatedAt: now,
+      updatedBy: otherActor,
+    }));
+    await s.t.run((ctx) => ctx.db.insert("roomActivityOutbox", {
+      roomId: otherRoomId,
+      sourceKind: "element",
+      sourceId: `${String(otherArtifactId)}:other__notes`,
+      sourceVersion: 1,
+      sourceHash: "other-hash",
+      eventKind: "cell_committed",
+      status: "queued",
+      actor: otherActor,
+      visibility: "room",
+      dedupeKey: "activity:other:1",
+      quietUntil: now - 10_000,
+      maxWaitAt: now + 10_000,
+      attempts: 0,
+      createdAt: now,
+      updatedAt: now,
+    }));
+
+    const hostRowId = await s.t.run((ctx) => ctx.db.insert("roomActivityOutbox", {
+      roomId: s.roomId,
+      sourceKind: "element",
+      sourceId: `${String(s.artifactId)}:room__notes`,
+      sourceVersion: 1,
+      sourceHash: "room-hash",
+      eventKind: "cell_committed",
+      status: "queued",
+      actor: s.actor,
+      visibility: "room",
+      dedupeKey: "activity:room:1",
+      quietUntil: now - 5_000,
+      maxWaitAt: now + 10_000,
+      attempts: 0,
+      createdAt: now,
+      updatedAt: now,
+    }));
+    await s.t.run((ctx) => ctx.db.insert("elements", {
+      artifactId: s.artifactId,
+      elementId: "room__notes",
+      version: 1,
+      value: { value: "formatting cleanup only" },
+      updatedAt: now,
+      updatedBy: s.actor,
+    }));
+
+    const scan = await s.t.mutation(internal.roomActivity.scanDueActivity, { roomId: s.roomId, limit: 1 });
+    expect(scan.scanned).toBe(1);
+    const row = await s.t.run((ctx) => ctx.db.get(hostRowId));
+    expect(row?.status).toBe("not_noteworthy");
+  });
+
   it("promotes high-signal passive cells into durable agent jobs and work items", async () => {
     const s = await seedRoom();
     const elementId = "row2__notes";
@@ -670,5 +765,137 @@ describe("passive room activity and evidence adapters", () => {
 
     const row = await s.t.run((ctx) => ctx.db.get(rowId));
     expect(row?.status).toBe("ignored");
+  });
+
+  it("rejects dismiss and research on ownerless private rows", async () => {
+    const s = await seedRoom();
+    const now = Date.now();
+    const rowId = await s.t.run((ctx) =>
+      ctx.db.insert("roomActivityOutbox", {
+        roomId: s.roomId,
+        sourceKind: "element",
+        sourceId: `${String(s.artifactId)}:private_ownerless`,
+        sourceVersion: 1,
+        sourceHash: "ownerless-hash",
+        eventKind: "cell_committed",
+        status: "noteworthy",
+        actor: s.actor,
+        visibility: "private",
+        dedupeKey: "activity:ownerless:1",
+        quietUntil: now,
+        attempts: 0,
+        decision: { action: "start_research_job", text: "Private CardioNova note." },
+        finding: { score: 0.8, action: "start_research_job", reasons: ["company_mention"], facets: ["funding"], entities: [{ type: "company", displayName: "CardioNova", entityKey: "cardionova", confidence: 0.9 }] },
+        createdAt: now,
+        updatedAt: now,
+      }),
+    );
+
+    const dismiss = await s.t.mutation(api.roomActivity.dismissActivity, {
+      activityId: rowId,
+      roomId: s.roomId,
+      requester: s.proof,
+    });
+    expect(dismiss).toMatchObject({ ok: false, reason: "not_owner" });
+
+    const research = await s.t.mutation(api.roomActivity.researchActivity, {
+      activityId: rowId,
+      roomId: s.roomId,
+      requester: s.proof,
+    });
+    expect(research).toMatchObject({ ok: false, reason: "not_owner" });
+  });
+
+  it("manual research action reuses passive room-work admission and links latestJobId", async () => {
+    const s = await seedRoom();
+    const now = Date.now();
+    const rowId = await s.t.run((ctx) =>
+      ctx.db.insert("roomActivityOutbox", {
+        roomId: s.roomId,
+        sourceKind: "element",
+        sourceId: `${String(s.artifactId)}:manual_research`,
+        sourceVersion: 1,
+        sourceHash: "manual-research-hash",
+        eventKind: "cell_committed",
+        status: "noteworthy",
+        actor: s.actor,
+        visibility: "room",
+        dedupeKey: "activity:manual_research:1",
+        quietUntil: now,
+        attempts: 0,
+        decision: { status: "noteworthy", action: "start_research_job", text: "CardioNova raised funding and needs runway diligence." },
+        finding: { score: 0.82, action: "start_research_job", reasons: ["company_mention", "finance_signal"], facets: ["funding", "runway_inputs"], entities: [{ type: "company", displayName: "CardioNova", entityKey: "cardionova", confidence: 0.92 }] },
+        createdAt: now,
+        updatedAt: now,
+      }),
+    );
+
+    const result = await s.t.mutation(api.roomActivity.researchActivity, {
+      activityId: rowId,
+      roomId: s.roomId,
+      requester: s.proof,
+    });
+    expect(result.ok).toBe(true);
+
+    const { row, job, workItems } = await s.t.run(async (ctx) => {
+      const row = await ctx.db.get(rowId);
+      const job = row?.latestJobId ? await ctx.db.get(row.latestJobId) : null;
+      const workItems = row?.latestJobId ? await ctx.db.query("entityWorkItems").withIndex("by_job", (q) => q.eq("jobId", row.latestJobId!)).collect() : [];
+      return { row, job, workItems };
+    });
+
+    expect(row?.latestJobId).toBeTruthy();
+    expect(row?.decision?.job?.jobId).toBe(row?.latestJobId);
+    expect(row?.status).toBe("failed");
+    expect(job?.entrypoint).toBe("room_work");
+    expect(job?.request?.passiveActivity?.finding?.action).toBe("start_research_job");
+    expect(workItems.length).toBeGreaterThan(0);
+  });
+
+  it("adds passive sheet rows without clobbering an existing research row", async () => {
+    const s = await seedRoom();
+    const now = Date.now();
+    await s.t.run(async (ctx) => {
+      const insert = async (elementId: string, value: string) => {
+        await ctx.db.insert("elements", { artifactId: s.artifactId, elementId, value, version: 1, updatedAt: now, updatedBy: s.actor });
+      };
+      await insert("rc_cardionova__company", "CardioNova");
+      await insert("rc_cardionova__website", "https://cardionova.example");
+      await insert("rc_cardionova__tier", "A");
+      await insert("rc_cardionova__summary", "Existing sourced summary.");
+      await ctx.db.patch(s.artifactId, {
+        order: ["rc_cardionova__company", "rc_cardionova__website", "rc_cardionova__tier", "rc_cardionova__summary"],
+        updatedAt: now,
+      });
+    });
+
+    const existing = await s.t.mutation(api.artifacts.ensurePassiveResearchRow, {
+      roomId: s.roomId,
+      artifactId: s.artifactId,
+      requester: s.proof,
+      company: "CardioNova",
+    });
+    expect(existing).toEqual({ rowId: "rc_cardionova", created: false });
+
+    const created = await s.t.mutation(api.artifacts.ensurePassiveResearchRow, {
+      roomId: s.roomId,
+      artifactId: s.artifactId,
+      requester: s.proof,
+      company: "NewCo",
+    });
+    expect(created.created).toBe(true);
+    expect(created.rowId).toMatch(/^rc_newco/);
+
+    const values = await s.t.run(async (ctx) => {
+      const summary = await ctx.db.query("elements").withIndex("by_artifact", (q) => q.eq("artifactId", s.artifactId).eq("elementId", "rc_cardionova__summary")).unique();
+      const tier = await ctx.db.query("elements").withIndex("by_artifact", (q) => q.eq("artifactId", s.artifactId).eq("elementId", "rc_cardionova__tier")).unique();
+      const newCompany = created.rowId
+        ? await ctx.db.query("elements").withIndex("by_artifact", (q) => q.eq("artifactId", s.artifactId).eq("elementId", `${created.rowId}__company`)).unique()
+        : null;
+      return { summary, tier, newCompany };
+    });
+    expect(values.summary?.value).toBe("Existing sourced summary.");
+    expect(values.tier?.value).toBe("A");
+    expect(values.newCompany?.value).toBe("NewCo");
   });
 });

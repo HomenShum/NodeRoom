@@ -1,5 +1,11 @@
 import { useEffect, useRef, useState, type CSSProperties, type ElementType, type HTMLAttributes, type ReactNode } from "react";
 
+function prefersReducedMotion(): boolean {
+  return typeof window !== "undefined" && typeof window.matchMedia === "function"
+    ? window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    : false;
+}
+
 type NodeRevealProps = HTMLAttributes<HTMLElement> & {
   children: ReactNode;
   as?: ElementType;
@@ -31,8 +37,9 @@ export function NodeReveal({
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-    const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const prefersReduced = prefersReducedMotion();
     if (prefersReduced) { setVisible(true); return; }
+    if (typeof IntersectionObserver !== "function") { setVisible(true); return; }
 
     const observer = new IntersectionObserver(
       ([entry]) => {
