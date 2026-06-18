@@ -45,7 +45,9 @@ export function requireStrongAuthToken(token: string): void {
 
 const hex = (bytes: Uint8Array) => Array.from(bytes).map((b) => b.toString(16).padStart(2, "0")).join("");
 
-async function sha256Hex(input: string): Promise<string> {
+/** SHA-256 → lowercase hex. Shared by token hashing and content-hash dedupe so
+ *  there is one canonical implementation (no drift between prosemirror.ts and lib). */
+export async function sha256Hex(input: string): Promise<string> {
   const bytes = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(input));
   return hex(new Uint8Array(bytes));
 }

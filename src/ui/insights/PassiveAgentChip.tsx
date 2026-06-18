@@ -83,6 +83,7 @@ export function PassiveAgentChip({
               setOpen(false);
             });
           }}
+          onPractice={(item, userAnswer) => { void store.practiceActivity?.(item, me, userAnswer); }}
         />
       )}
     </div>

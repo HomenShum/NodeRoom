@@ -39,7 +39,7 @@ function item(over: Partial<PassiveActivityItem>): PassiveActivityItem {
     latestJobId: "job1",
     entityNames: ["CardioNova"],
     facets: ["funding"],
-    reasons: ["company_mention"],
+    reasons: ["organization_candidate"],
     score: 0.8,
     action: "start_research_job",
     textPreview: "Met Maya from CardioNova, raising Series B.",
@@ -162,6 +162,51 @@ describe("PassiveAgentChip + NoteworthyInbox", () => {
     fireEvent.click(screen.getByTestId("passive-agent-chip"));
     // research button hidden when tone === "researching"
     expect(screen.queryByTestId("noteworthy-research")).toBeNull();
+  });
+
+  it("Coach cue shows a Practice button that opens the explain-and-defend form", () => {
+    const target = item({ id: "practice-1", status: "noteworthy", action: "create_coach_cue", entityNames: ["CardioNova"] });
+    withFeed([target], { practiceActivity: vi.fn().mockResolvedValue(undefined) });
+    render(<PassiveAgentChip roomId="r1" me={ME} onOpenArtifact={vi.fn()} />);
+    fireEvent.click(screen.getByTestId("passive-agent-chip"));
+    const practiceBtn = screen.getByTestId("noteworthy-practice");
+    expect(practiceBtn).toBeTruthy();
+    fireEvent.click(practiceBtn);
+    expect(screen.getByTestId("noteworthy-practice-form")).toBeTruthy();
+    expect(screen.getByTestId("noteworthy-practice-answer")).toBeTruthy();
+  });
+
+  it("Practice submit calls practiceActivity (Coach Mode wiring end-to-end)", async () => {
+    const practice = vi.fn().mockResolvedValue(undefined);
+    const target = item({ id: "practice-2", status: "noteworthy", action: "create_coach_cue", entityNames: ["CardioNova"] });
+    withFeed([target], { practiceActivity: (i: PassiveActivityItem, _actor: typeof ME, _answer: string) => { practice(i.id); return Promise.resolve(); } });
+    render(<PassiveAgentChip roomId="r1" me={ME} onOpenArtifact={vi.fn()} />);
+    fireEvent.click(screen.getByTestId("passive-agent-chip"));
+    fireEvent.click(screen.getByTestId("noteworthy-practice"));
+    // React 19 controlled textarea: set the native value via the prototype setter
+    // (jsdom's fireEvent.change target shape doesn't reliably update React state),
+    // then dispatch an input event so onChange fires and the submit button enables.
+    const ta = screen.getByTestId("noteworthy-practice-answer") as HTMLTextAreaElement;
+    const setter = Object.getOwnPropertyDescriptor(window.HTMLTextAreaElement.prototype, "value")?.set;
+    setter?.call(ta, "Runway is needs_review because burn sources conflict.");
+    ta.dispatchEvent(new Event("input", { bubbles: true }));
+    fireEvent.click(screen.getByTestId("noteworthy-practice-submit"));
+    await waitFor(() => {
+      expect(practice).toHaveBeenCalledWith("practice-2");
+    });
+    await waitFor(() => {
+      expect(screen.queryByTestId("noteworthy-practice-form")).toBeNull();
+    });
+  });
+
+  it("Practice submit is disabled when the answer is empty", () => {
+    const target = item({ id: "practice-3", status: "noteworthy", action: "create_coach_cue", entityNames: ["CardioNova"] });
+    withFeed([target], { practiceActivity: vi.fn().mockResolvedValue(undefined) });
+    render(<PassiveAgentChip roomId="r1" me={ME} onOpenArtifact={vi.fn()} />);
+    fireEvent.click(screen.getByTestId("passive-agent-chip"));
+    fireEvent.click(screen.getByTestId("noteworthy-practice"));
+    const submit = screen.getByTestId("noteworthy-practice-submit") as HTMLButtonElement;
+    expect(submit.disabled).toBe(true);
   });
 });
 

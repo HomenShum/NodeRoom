@@ -36,7 +36,7 @@ test("landing motion + room + passive inbox video", async ({ page }) => {
     const mockItems = [
       { id: "m1", sourceKind: "element", sourceId: "art1:cell1", eventKind: "cell_committed",
         status: "job_created", visibility: "room", createdAt: 1, updatedAt: 1, latestJobId: "j1",
-        entityNames: ["CardioNova"], facets: ["funding"], reasons: ["company_mention", "funding_signal"],
+        entityNames: ["CardioNova"], facets: ["funding"], reasons: ["organization_candidate", "finance_signal"],
         score: 0.8, action: "start_research_job",
         textPreview: "Acme Health Inc announced Series A funding, product launch, hospital customer pilot." },
       { id: "m2", sourceKind: "node", sourceId: "node42", eventKind: "idle_after_typing",
@@ -45,7 +45,7 @@ test("landing motion + room + passive inbox video", async ({ page }) => {
         score: 0.6, action: "create_coach_cue", textPreview: "Refresh from provider data recommended." },
       { id: "m3", sourceKind: "element", sourceId: "art2:cell3", eventKind: "cell_committed",
         status: "failed", visibility: "room", createdAt: 1, updatedAt: 1,
-        entityNames: ["Brex"], facets: [], reasons: ["company_mention"],
+        entityNames: ["Brex"], facets: [], reasons: ["organization_candidate"],
         score: 0.75, action: "start_research_job", error: "model_timeout",
         textPreview: "Research job failed: model timeout." },
     ];

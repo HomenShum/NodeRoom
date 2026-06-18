@@ -1363,3 +1363,20 @@ button.r-tracevu-step:hover, button.r-tracevu-step:focus-visible { border-color:
    "selected = bg tint, hierarchy via weight not a hue ring"). */
 .r-file[data-active="true"] { background: var(--accent-tint); border-color: transparent; box-shadow: inset 2px 0 0 var(--accent-primary); }
 .r-file[data-active="true"] .fn { font-weight: 700; }
+
+/* Native notebook — labeled agent-owned append block. Sits below the human editor,
+   clearly badged so agent text never reads as the user's own writing. Never editable. */
+.r-agent-notes { margin-top: 12px; border: 1px solid var(--border-subtle, rgba(127,127,127,0.22)); border-radius: 10px; background: var(--surface-2, rgba(127,127,127,0.06)); padding: 8px 10px; }
+.r-agent-notes-head { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+.r-agent-notes-badge { font-size: 10px; font-weight: 800; letter-spacing: 0.04em; color: var(--accent-ink); background: var(--accent-tint); border: 1px solid var(--accent-border); border-radius: 5px; padding: 1px 6px; text-transform: uppercase; }
+.r-agent-notes-body { font-size: 13px; line-height: 1.5; color: var(--text-secondary); overflow-wrap: anywhere; }
+.r-agent-notes-body p { margin: 0 0 6px; }
+.r-agent-notes-body p:last-child { margin-bottom: 0; }
+
+/* Coach Mode — inline explain-and-defend practice form inside the Noteworthy Inbox. */
+.r-inbox-practice { margin-top: 8px; padding: 8px; border: 1px dashed var(--accent-border); border-radius: 8px; background: var(--accent-tint); }
+.r-inbox-practice-prompt { display: flex; flex-direction: column; gap: 2px; margin-bottom: 6px; }
+.r-inbox-practice-prompt strong { font-size: 11.5px; }
+.r-inbox-practice-input { width: 100%; font: inherit; font-size: 12px; line-height: 1.45; color: var(--text-primary); background: var(--surface-1, rgba(0,0,0,0.18)); border: 1px solid var(--border-subtle, rgba(127,127,127,0.3)); border-radius: 6px; padding: 6px 8px; resize: vertical; box-sizing: border-box; }
+.r-inbox-practice-input:focus { outline: none; border-color: var(--accent-border); box-shadow: 0 0 0 2px var(--accent-tint); }
+.r-inbox-practice-actions { display: flex; align-items: center; gap: 6px; margin-top: 6px; }

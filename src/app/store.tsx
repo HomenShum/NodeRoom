@@ -228,6 +228,11 @@ export interface RoomStore {
   /** Flip a passive-activity item to `job_created` / Researching. Memory mode updates the seeded list;
    *  live mode starts a research agent job scoped to the item's entity. */
   researchActivity(item: PassiveActivityItem, actor: Actor): Promise<void>;
+  /** Coach Mode: turn a `create_coach_cue` item into an explain-and-defend evaluation.
+   *  Live mode starts a coach_eval agentJob scoped to the item's visibility and stores the
+   *  user's answer + expected outline on the roomActivityOutbox row's finding. Memory mode is
+   *  a no-op (the demo has no coach evaluator). */
+  practiceActivity(item: PassiveActivityItem, actor: Actor, userAnswer: string, expectedOutline?: string): Promise<void>;
   /** Propose adding the item's entity as a row on the company research sheet. MUST go through
    *  draft/proposal path — never a silent clobber. Memory mode is a no-op (no sheet to target). */
   addActivityToSheet(item: PassiveActivityItem, actor: Actor): Promise<PassiveSheetOpenResult | void>;
@@ -377,7 +382,7 @@ const DEMO_PASSIVE_SEED: PassiveActivityItem[] = [
     updatedAt: Date.now(),
     entityNames: ["CardioNova"],
     facets: ["funding", "runway_inputs"],
-    reasons: ["company_mention", "finance_signal", "research_signal"],
+    reasons: ["organization_candidate", "finance_signal", "research_signal"],
     score: 0.82,
     action: "start_research_job",
     textPreview: "Met Maya from CardioNova. AI triage for hospitals. Possible Series B. Need to ask about burn and hospital pilots.",
@@ -553,6 +558,9 @@ export function EngineStoreProvider({ roomId, children }: { roomId: string; me: 
         i.id === item.id ? { ...i, status: "job_created", action: "start_research_job" } : i,
       );
       setMemPassiveRev((v) => v + 1);
+    },
+    practiceActivity: async (_item, _actor, _userAnswer, _expectedOutline) => {
+      // No coach evaluator in the in-memory demo; coach cues are advisory only here.
     },
     addActivityToSheet: async (item, actor) => {
       const entity = item.entityNames[0];
@@ -871,6 +879,7 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
   const startAgentJob = useMutation(api.agentJobs.start);
   const dismissActivityMutation = useMutation(api.roomActivity.dismissActivity);
   const researchActivityMutation = useMutation(api.roomActivity.researchActivity);
+  const practiceActivityMutation = useMutation(api.roomActivity.practiceActivity);
   // Job-strip controls flip instantly. Mirrors the server's transition + ITS guards (cancel: no-op
   // on terminal; retry: no-op on completed/running) so an ok:false result reconciles honestly via
   // rollback + the returned feedback. Args carry only jobId — patch whichever loaded list holds it.
@@ -1307,6 +1316,15 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
         // never from client-supplied item.visibility (avoids scope manipulation).
         await researchActivityMutation({ activityId: item.id as never, roomId: rid, requester: proof });
       },
+      practiceActivity: async (item, actor, userAnswer, expectedOutline) => {
+        await practiceActivityMutation({
+          activityId: item.id as never,
+          roomId: rid,
+          requester: { actor: { kind: "user", id: actor.id, name: actor.name }, token: undefined },
+          userAnswer,
+          expectedOutline,
+        });
+      },
       addActivityToSheet: async (item) => {
         const entity = item.entityNames[0];
         if (!entity) return;
@@ -1323,7 +1341,7 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
         return result.rowId ? { artifactId: targetArt.id as string, rowId: result.rowId as string, created: result.created } : undefined;
       },
     };
-  }, [data, metaArtifacts, elementsByArtifact, pub, priv, traces, okfLens, runs, jobs, jobAttempts, jobDetail, proposals, passiveActivity, mergedCaptures, applyCellEdit, sendMsg, toggle, editMsg, resolveProposalMutation, addResearchRowsMutation, ensurePassiveResearchRowMutation, createArtifactMutation, uploadSourceFile, runSemanticConflictDrillMutation, runAgent, runPrivateAgent, createPrivateReplyStream, startAgentJob, cancelFreeAutoJob, retryFreeAutoJob, dismissActivityMutation, researchActivityMutation, rid, roomId, proof, me.id, me.name]);
+  }, [data, metaArtifacts, elementsByArtifact, pub, priv, traces, okfLens, runs, jobs, jobAttempts, jobDetail, proposals, passiveActivity, mergedCaptures, applyCellEdit, sendMsg, toggle, editMsg, resolveProposalMutation, addResearchRowsMutation, ensurePassiveResearchRowMutation, createArtifactMutation, uploadSourceFile, runSemanticConflictDrillMutation, runAgent, runPrivateAgent, createPrivateReplyStream, startAgentJob, cancelFreeAutoJob, retryFreeAutoJob, dismissActivityMutation, researchActivityMutation, practiceActivityMutation, rid, roomId, proof, me.id, me.name]);
 
   return (
     <Ctx.Provider value={store}>

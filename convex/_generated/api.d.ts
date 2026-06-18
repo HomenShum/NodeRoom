@@ -36,6 +36,7 @@ import type * as noteworthy from "../noteworthy.js";
 import type * as okf from "../okf.js";
 import type * as okfEmbeddingProvider from "../okfEmbeddingProvider.js";
 import type * as okfIndexer from "../okfIndexer.js";
+import type * as prosemirror from "../prosemirror.js";
 import type * as retention from "../retention.js";
 import type * as roomActivity from "../roomActivity.js";
 import type * as rooms from "../rooms.js";
@@ -81,6 +82,7 @@ declare const fullApi: ApiFromModules<{
   okf: typeof okf;
   okfEmbeddingProvider: typeof okfEmbeddingProvider;
   okfIndexer: typeof okfIndexer;
+  prosemirror: typeof prosemirror;
   retention: typeof retention;
   roomActivity: typeof roomActivity;
   rooms: typeof rooms;
@@ -123,4 +125,5 @@ export declare const components: {
   agentWorkpool: import("@convex-dev/workpool/_generated/component.js").ComponentApi<"agentWorkpool">;
   persistentTextStreaming: import("@convex-dev/persistent-text-streaming/_generated/component.js").ComponentApi<"persistentTextStreaming">;
   debouncer: import("@ikhrustalev/convex-debouncer/_generated/component.js").ComponentApi<"debouncer">;
+  prosemirrorSync: import("@convex-dev/prosemirror-sync/_generated/component.js").ComponentApi<"prosemirrorSync">;
 };

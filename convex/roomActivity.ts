@@ -286,7 +286,11 @@ function toFeedItem(row: {
     error: row.error,
     entityNames: entities.map((e) => String(e.displayName ?? "")).filter(Boolean),
     facets: Array.isArray(finding.facets) ? finding.facets.map(String) : [],
-    reasons: Array.isArray(finding.reasons) ? finding.reasons.map(String) : [],
+    // Prefer the canonical stable `signals` enum array; fall back to legacy `reasons`
+    // for rows written before the signals/reasons split.
+    reasons: Array.isArray((finding as { signals?: unknown[] }).signals)
+      ? (finding as { signals: unknown[] }).signals.map(String)
+      : Array.isArray(finding.reasons) ? finding.reasons.map(String) : [],
     score: typeof finding.score === "number" ? finding.score : 0,
     action: String(decision.action ?? finding.action ?? ""),
     // Only the owner sees the private note's source text in the preview. Room/public rows
@@ -366,6 +370,239 @@ export const researchActivity = mutation({
     return { ok: true as const };
   },
 });
+
+/** Coach Mode: turn a `create_coach_cue` item into an explain-and-defend evaluation.
+ *  Creates a coach_eval agentJob (entrypoint room_work) scoped to the item's
+ *  visibility, and stores the user's answer + expected outline on the
+ *  roomActivityOutbox row's finding as a pending coachEval. The NodeAgent harness
+ *  runs the evaluation (grounded: every feedback item must cite a source/cell/
+ *  trace/evidenceFact/OKF concept or it is dropped) and the completion path writes
+ *  the scored outcome (score, masteryTags, missedEvidenceRefs, reviewReadinessDelta)
+ *  back onto the row's finding. No new table. */
+export const practiceActivity = mutation({
+  args: {
+    activityId: v.id("roomActivityOutbox"),
+    roomId: v.id("rooms"),
+    requester: actorProofV,
+    userAnswer: v.string(),
+    expectedOutline: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const actor = await requireActorProof(ctx, args.roomId, args.requester);
+    const row = await ctx.db.get(args.activityId);
+    if (!row || String(row.roomId) !== String(args.roomId)) {
+      return { ok: false as const, reason: "not_found" };
+    }
+    if (row.visibility === "private" && row.ownerId !== actor.id) {
+      return { ok: false as const, reason: "not_owner" };
+    }
+    const now = Date.now();
+    const artifact = await ctx.db.query("artifacts").withIndex("by_room", (q) => q.eq("roomId", row.roomId)).first();
+    if (!artifact) return { ok: false as const, reason: "room_has_no_artifact_for_eval" };
+    const scope = row.visibility === "private" ? "private_user" as const : "public_room" as const;
+    const requester = { kind: "agent" as const, id: "coach-eval", name: "Coach Eval", scope: "public" as const, ownerId: actor.id };
+    const idempotencyKey = `coach-eval:${String(row._id)}:${String(row.sourceHash)}`;
+    const prior = await ctx.db.query("agentJobs").withIndex("by_idempotency", (q) => q.eq("idempotencyKey", idempotencyKey)).order("desc").take(5);
+    const reusable = prior.find((job) => String(job.roomId) === String(row.roomId) && !terminalJobStatuses.has(job.status));
+    const artifactRef = row.sourceKind === "artifact_element" || row.sourceKind === "element" ? row.sourceId : `${String(artifact._id)}:doc`;
+    const coachEvalPending = {
+      activityId: String(row._id),
+      artifactRef,
+      userAnswer: args.userAnswer.slice(0, 4_000),
+      expectedOutline: (args.expectedOutline ?? "").slice(0, 2_000),
+      status: "pending" as const,
+    };
+    if (reusable) {
+      await ctx.db.patch(args.activityId, {
+        status: "job_created",
+        latestJobId: reusable._id as Id<"agentJobs">,
+        finding: { ...(row.finding ?? {}), coachEval: coachEvalPending },
+        updatedAt: now,
+        lastScannedAt: now,
+      });
+      return { ok: true as const, jobId: String(reusable._id), reused: true as const };
+    }
+    const goal = `Coach evaluation: can the user explain/defend ${artifactRef}? Answer: ${args.userAnswer.slice(0, 400)}`;
+    const jobId = await ctx.db.insert("agentJobs", {
+      roomId: row.roomId,
+      artifactId: artifact._id,
+      requester,
+      goal: goal.slice(0, 2_000),
+      entrypoint: "room_work",
+      scope,
+      commandText: goal.slice(0, 2_000),
+      request: {
+        roomId: String(row.roomId),
+        targetArtifactId: String(artifact._id),
+        commandText: goal.slice(0, 2_000),
+        entrypoint: "room_work",
+        scope,
+        routePolicy: "free_auto",
+        runtimePolicy: "workflow_sliced",
+        modelPolicy: "openrouter/free-auto",
+        approvalPolicy: row.visibility === "private" ? "draft_first" : "host_review",
+        evidencePolicy: row.visibility === "private" ? "private_allowed" : "public_only",
+        traceLevel: "full_operation_ledger",
+        coachEval: coachEvalPending,
+      },
+      priority: 0,
+      approvalPolicy: row.visibility === "private" ? "draft_first" : "host_review",
+      evidencePolicy: row.visibility === "private" ? "private_allowed" : "public_only",
+      autoAllow: false,
+      traceLevel: "full_operation_ledger",
+      routePolicy: "free_auto",
+      runtimePolicy: "workflow_sliced",
+      idempotencyKey,
+      mode: "coach_eval",
+      status: "queued",
+      modelPolicy: "openrouter/free-auto",
+      runtime: "workflow",
+      attempts: 0,
+      maxAttempts: 20,
+      actionSliceCount: 0,
+      queryCount: 0,
+      mutationCount: 1,
+      modelCallCount: 0,
+      toolCallCount: 0,
+      schedulerHandoffCount: 1,
+      receiptCount: 0,
+      nextRunAt: now,
+      createdAt: now,
+      updatedAt: now,
+    });
+    await ctx.db.patch(args.activityId, {
+      status: "job_created",
+      latestJobId: jobId,
+      finding: { ...(row.finding ?? {}), coachEval: coachEvalPending },
+      updatedAt: now,
+      lastScannedAt: now,
+    });
+    return { ok: true as const, jobId: String(jobId), reused: false as const };
+  },
+});
+
+/** Coach Mode: record the scored evaluation outcome on the originating
+ *  roomActivityOutbox row. Called by the coach_eval workflow completion path.
+ *
+ *  GROUNDING RULE (deterministic, enforced HERE — not trusted to the LLM): every
+ *  `missedEvidenceRefs` entry is validated against real rows in this room
+ *  (sourceCaptures / evidenceFacts / okfConcepts / cell elements) before it is
+ *  persisted. Ungrounded refs proposed by the evaluator are dropped and counted,
+ *  never stored as audit evidence. reviewReadinessDelta feeds
+ *  buildBankerCoachPacket readiness. */
+export const recordCoachEvalOutcome = internalMutation({
+  args: {
+    activityId: v.id("roomActivityOutbox"),
+    score: v.number(),
+    masteryTags: v.array(v.string()),
+    missedEvidenceRefs: v.array(v.string()),
+    reviewReadinessDelta: v.number(),
+    feedback: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const row = await ctx.db.get(args.activityId);
+    if (!row) return { ok: false as const, reason: "not_found" };
+    const finding = (row.finding ?? {}) as Record<string, unknown>;
+    const now = Date.now();
+    // Cap + dedupe the LLM-supplied refs before validating, so untrusted model
+    // output can't drive an unbounded N-query fan-out (each ref can issue up to
+    // ~6 indexed gets). Max 25 refs is generous for any real evaluation and
+    // bounds the worst case to ~150 sequential reads, well under Convex limits.
+    const MAX_EVIDENCE_REFS = 25;
+    const requestedRefs = [...new Set(args.missedEvidenceRefs)].slice(0, MAX_EVIDENCE_REFS);
+    const cappedCount = args.missedEvidenceRefs.length - requestedRefs.length;
+    // Validate each evidence ref resolves to a real row in this room before
+    // persisting — the LLM proposes, the deterministic boundary disposes.
+    const validatedRefs: string[] = [];
+    for (const ref of requestedRefs) {
+      if (await resolveEvidenceRef(ctx, row.roomId, ref)) validatedRefs.push(ref);
+    }
+    const droppedUngroundedCount = requestedRefs.length - validatedRefs.length;
+    await ctx.db.patch(args.activityId, {
+      finding: {
+        ...finding,
+        coachEval: {
+          ...(finding.coachEval as Record<string, unknown> | undefined),
+          status: "scored" as const,
+          score: args.score,
+          masteryTags: args.masteryTags,
+          missedEvidenceRefs: validatedRefs,
+          reviewReadinessDelta: args.reviewReadinessDelta,
+          feedback: args.feedback,
+          droppedUngroundedCount,
+          groundingWarning: droppedUngroundedCount > 0 || cappedCount > 0
+            ? `${droppedUngroundedCount} ungrounded ref(s) dropped${cappedCount > 0 ? `; ${cappedCount} ref(s) capped at ${MAX_EVIDENCE_REFS}` : ""}`
+            : undefined,
+        },
+      },
+      updatedAt: now,
+    });
+    await ctx.db.insert("traces", {
+      roomId: row.roomId,
+      ts: now,
+      actor: { kind: "agent", id: "coach-eval", name: "Coach Eval" },
+      type: "coach_eval_scored",
+      summary: `Coach eval scored ${args.score.toFixed(2)} (${args.masteryTags.join(", ") || "no tags"}; readiness Δ${args.reviewReadinessDelta > 0 ? "+" : ""}${args.reviewReadinessDelta}${droppedUngroundedCount > 0 ? `; ${droppedUngroundedCount} ungrounded dropped` : ""})`,
+      detail: args.feedback?.slice(0, 480) ?? "",
+    });
+    return { ok: true as const, droppedUngroundedCount };
+  },
+});
+
+/** Deterministically resolve a coach-eval evidence ref to a real row in the room.
+ *  Accepts: evidenceFacts.factId, okfConcepts.conceptId, okfConcepts.path,
+ *  sourceCaptures/_id, evidenceFacts/_id, okfConcepts/_id, or a cell
+ *  "artifactId:elementId". Returns true only if a matching row exists in this room.
+ *  The three document-id fallbacks share one room-scoping helper (no per-table
+ *  drift); the id-format guard avoids wasted `db.get` calls for string factIds. */
+async function resolveEvidenceRef(ctx: MutationCtx, roomId: Id<"rooms">, ref: string): Promise<boolean> {
+  if (!ref) return false;
+  // String-field lookups (cheapest, most common for LLM-proposed refs).
+  const fact = await ctx.db.query("evidenceFacts").withIndex("by_room_fact", (q) => q.eq("roomId", roomId).eq("factId", ref)).first();
+  if (fact) return true;
+  const conceptByConceptId = await ctx.db.query("okfConcepts").withIndex("by_room_concept", (q) => q.eq("roomId", roomId).eq("conceptId", ref)).first();
+  if (conceptByConceptId) return true;
+  const conceptByPath = await ctx.db.query("okfConcepts").withIndex("by_room_path", (q => q.eq("roomId", roomId).eq("path", ref))).first();
+  if (conceptByPath) return true;
+  // Cell ref "artifactId:elementId".
+  if (ref.includes(":")) {
+    const [artifactId, elementId] = ref.split(":");
+    if (artifactId && elementId) {
+      try {
+        const art = await ctx.db.get(artifactId as Id<"artifacts">);
+        if (art && String(art.roomId) === String(roomId)) {
+          const el = await ctx.db.query("elements").withIndex("by_artifact", (q) => q.eq("artifactId", artifactId as Id<"artifacts">).eq("elementId", elementId)).first();
+          if (el) return true;
+        }
+      } catch { /* ref is not a valid artifact id — fall through */ }
+    }
+  }
+  // Convex document ids for the evidence tables. Only attempt `db.get` when the
+  // ref looks like a Convex id (32-char alphanumeric), and share one room-scope
+  // helper across the three tables so they can't drift.
+  if (looksLikeConvexId(ref)) {
+    if (await refInRoom(ctx, roomId, ref, "sourceCaptures")) return true;
+    if (await refInRoom(ctx, roomId, ref, "evidenceFacts")) return true;
+    if (await refInRoom(ctx, roomId, ref, "okfConcepts")) return true;
+  }
+  return false;
+}
+
+/** Convex document ids are ~32 lowercase alphanumeric chars. Skip the expensive
+ *  `db.get` (which throws on table-type mismatch) for plain string factIds. */
+function looksLikeConvexId(ref: string): boolean {
+  return /^[a-z0-9]{20,40}$/i.test(ref);
+}
+
+/** Resolve a ref as a document id on a specific evidence table and confirm it
+ *  belongs to this room. Shared by the three evidence-table fallbacks so the
+ *  room-scoping predicate can't drift between them. */
+async function refInRoom(ctx: MutationCtx, roomId: Id<"rooms">, ref: string, table: "sourceCaptures" | "evidenceFacts" | "okfConcepts"): Promise<boolean> {
+  try {
+    const r = await ctx.db.get(ref as Id<typeof table>);
+    return !!r && String(r.roomId) === String(roomId);
+  } catch { /* ref is not a valid id for this table — fall through */ return false; }
+}
 
 export async function scanActivityRow(ctx: MutationCtx, row: {
   _id: Id<"roomActivityOutbox">;
@@ -554,7 +791,10 @@ async function createPassiveRoomWorkJob(
           source: "passive_room_activity",
           sourceKind: row.sourceKind,
           sourceId: row.sourceId,
-          reasons: finding.reasons,
+          // Back-compat `reasons`: the agent routes on `finding.signals` (passed
+          // via request.passiveActivity.finding), not this plan copy. `signals`
+          // was removed from the plan as write-only dead code.
+          reasons: Array.isArray(finding.signals) ? finding.signals : finding.reasons,
           textPreview: text.slice(0, 500),
         },
         createdAt: now,
@@ -625,7 +865,7 @@ async function readSourceText(ctx: MutationCtx, roomId: Id<"rooms">, sourceKind:
     const artifact = await ctx.db.get(artifactId as Id<"artifacts">);
     if (!artifact || String(artifact.roomId) !== String(roomId)) return null;
     const element = await ctx.db.query("elements").withIndex("by_artifact", (q) => q.eq("artifactId", artifact._id).eq("elementId", elementId)).unique();
-    return element ? stringifyValue(element.value) : null;
+    return element ? stripHtml(stringifyValue(element.value)) : null;
   }
   if (sourceKind === "message") {
     const message = await ctx.db.get(sourceId as Id<"messages">);
@@ -638,6 +878,23 @@ async function readSourceText(ctx: MutationCtx, roomId: Id<"rooms">, sourceKind:
   return null;
 }
 
+/** Strip HTML tags from a note's "doc" value so the noteworthiness classifier
+ *  sees plain text (the synced and legacy editors both persist HTML). Leaves
+ *  block boundaries so company/finance regexes match naturally. */
+function stripHtml(html: string): string {
+  if (!html.includes("<")) return html;
+  return html
+    .replace(/<\/(p|div|h[1-6]|li|br|tr)>/gi, "\n")
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<[^>]+>/g, "")
+    .replace(/&nbsp;/g, " ")
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
+
 function stringifyValue(value: unknown): string {
   if (typeof value === "string") return value;
   if (value && typeof value === "object" && "value" in (value as Record<string, unknown>)) return stringifyValue((value as Record<string, unknown>).value);
@@ -647,31 +904,101 @@ function stringifyValue(value: unknown): string {
 
 type NoteworthyFinding = ReturnType<typeof classifyNoteworthy>;
 
+/** Classifier version — pinned so a taxonomy tweak is detectable and tests/fixtures
+ *  can assert against a known version. Bump when signal enums or scoring change. */
+const CLASSIFIER_VERSION = "noteworthy-v1";
+
+/** Stable signal enums — the canonical routing surface. `reasons` (emitted as an
+ *  alias of `signals`) is kept for legacy UI/tests, but routing should read
+ *  `signals`. Free-form strings are never emitted by the classifier. */
+const SIGNAL = {
+  ORG_CANDIDATE: "organization_candidate",
+  FINANCE_SIGNAL: "finance_signal",
+  PERSON_INTERACTION: "person_or_interaction",
+  RESEARCH_SIGNAL: "research_signal",
+  OPEN_QUESTION_OR_TASK: "open_question_or_task",
+  SOURCE_URL: "source_url",
+} as const;
+type Signal = (typeof SIGNAL)[keyof typeof SIGNAL];
+/** Deterministic sort order so classifier output is stable regardless of detection order. */
+const SIGNAL_ORDER: Record<Signal, number> = {
+  organization_candidate: 0,
+  finance_signal: 1,
+  person_or_interaction: 2,
+  research_signal: 3,
+  open_question_or_task: 4,
+  source_url: 5,
+};
+
+/** First regex match's full text, or null — used to capture evidence spans per signal. */
+function firstMatch(text: string, re: RegExp): string | null {
+  const m = text.match(re);
+  return m ? m[0] : null;
+}
+
 function classifyNoteworthy(text: string) {
   const lower = text.toLowerCase();
-  const reasons: string[] = [];
+  const signals = new Set<Signal>();
+  const evidenceSpans: Array<{ signal: Signal; text: string; confidence: number }> = [];
   const facets = new Set<string>();
 
-  if (/\b(inc|corp|labs|health|bio|ai|technologies|systems|capital|ventures|bank|medical|therapeutics)\b/i.test(text)) reasons.push("company_mention");
-  if (/\b(met|spoke|talked|call|founder|ceo|cfo|contact|intro|emailed)\b/i.test(text)) reasons.push("person_or_interaction");
-  if (/\b(series\s+[a-z]|seed|funding|raise|runway|burn|arr|revenue|ebitda|margin|cash)\b/i.test(text)) { reasons.push("finance_signal"); facets.add("funding"); facets.add("runway_inputs"); }
-  if (/\b(product|launch|announced|customer|pilot|hospital|pricing|competitor|headwind|market|news)\b/i.test(text)) { reasons.push("research_signal"); facets.add("product_news"); facets.add("recent_signal"); }
-  if (/\b(verify|source|follow\s*up|ask|research|find|confirm|todo|next step|backlink|reference)\b/i.test(text)) { reasons.push("open_question_or_task"); facets.add("source_validation"); }
-  if (/https:\/\//.test(text)) reasons.push("source_url");
+  const add = (signal: Signal, span: string, confidence: number) => {
+    if (!signals.has(signal)) {
+      signals.add(signal);
+      evidenceSpans.push({ signal, text: span.slice(0, 200), confidence });
+    }
+  };
 
+  // Organization candidate — broader than the old suffix-bound `company_mention`, so
+  // "CardioNova"/"Stripe"/"Ramp"/"Brex" fire without "Inc"/"Labs". A suffix match
+  // raises confidence but emits the SAME stable signal; a later LLM/entity resolver
+  // confirms to `company_verified`. This replaces the brittle company_mention rule.
+  const suffixSpan = firstMatch(text, /\b\w+\s+(inc|corp|labs|llc|ltd|health|bio|ai|technologies|systems|capital|ventures|bank|medical|therapeutics)\b/i);
+  if (suffixSpan) add(SIGNAL.ORG_CANDIDATE, suffixSpan, 0.9);
   const candidates = [...text.matchAll(/\b([A-Z][A-Za-z0-9&.-]{2,}(?:\s+[A-Z][A-Za-z0-9&.-]{2,}){0,3})\b/g)]
     .map((m) => m[1])
     .filter((name) => !["Series", "Next", "The", "This", "Convex", "NodeRoom", "Need", "Follow"].includes(name));
+  if (candidates.length && !signals.has(SIGNAL.ORG_CANDIDATE)) add(SIGNAL.ORG_CANDIDATE, candidates[0], 0.7);
+
+  const personSpan = firstMatch(text, /\b(met|spoke|talked|call|founder|ceo|cfo|contact|intro|emailed)\b/i);
+  if (personSpan) add(SIGNAL.PERSON_INTERACTION, personSpan, 0.8);
+
+  const financeSpan = firstMatch(text, /\b(series\s+[a-z]|seed|funding|raise|runway|burn|arr|revenue|ebitda|margin|cash)\b/i);
+  if (financeSpan) { add(SIGNAL.FINANCE_SIGNAL, financeSpan, 0.85); facets.add("funding"); facets.add("runway_inputs"); }
+
+  const researchSpan = firstMatch(text, /\b(product|launch|announced|customer|pilot|hospital|pricing|competitor|headwind|market|news)\b/i);
+  if (researchSpan) { add(SIGNAL.RESEARCH_SIGNAL, researchSpan, 0.8); facets.add("product_news"); facets.add("recent_signal"); }
+
+  const taskSpan = firstMatch(text, /\b(verify|source|follow\s*up|ask|research|find|confirm|todo|next step|backlink|reference)\b/i);
+  if (taskSpan) { add(SIGNAL.OPEN_QUESTION_OR_TASK, taskSpan, 0.75); facets.add("source_validation"); }
+
+  const urlSpan = firstMatch(text, /https:\/\/\S+/i);
+  if (urlSpan) add(SIGNAL.SOURCE_URL, urlSpan, 0.9);
+
+  const sortedSignals = [...signals].sort((a, b) => SIGNAL_ORDER[a] - SIGNAL_ORDER[b]);
   const displayName = candidates[0] ?? "unknown";
   const entityType = lower.includes("founder") || lower.includes("ceo") || lower.includes("cfo") ? "person" : "company";
-  const score = Math.min(1, 0.18 + reasons.length * 0.18 + (candidates.length ? 0.18 : 0));
+  // Candidate counts ONCE: as the organization_candidate signal (always emitted
+  // when a candidate exists). The old `(candidates.length ? 0.18 : 0)` bonus is
+  // dropped because organization_candidate is already in sortedSignals — keeping
+  // it double-counted the candidate and inflated scores across every threshold.
+  const score = Math.min(1, 0.18 + sortedSignals.length * 0.18);
 
+  // Rebaselined thresholds (lowered to match the single-count score): candidate+
+  // finance = 2 signals = 0.54 -> create_coach_cue (was 0.55 with double-count,
+  // which pushed it to 0.72 / start_research_job). candidate only = 0.36 ->
+  // index_only. 4+ signals -> start_research_job.
   return {
     score,
-    action: score >= 0.75 ? "start_research_job" as const : score >= 0.55 ? "create_coach_cue" as const : score >= 0.35 ? "index_only" as const : "ignore" as const,
-    reasons,
+    action: score >= 0.70 ? "start_research_job" as const : score >= 0.50 ? "create_coach_cue" as const : score >= 0.35 ? "index_only" as const : "ignore" as const,
+    signals: sortedSignals,
+    // Back-compat alias: legacy UI/tests read `reasons`. Same sorted stable-enum
+    // array as `signals`; new routing should read `signals` directly.
+    reasons: sortedSignals,
+    evidenceSpans,
+    classifierVersion: CLASSIFIER_VERSION,
     facets: [...facets],
-    entities: candidates.length ? [{ type: entityType, displayName, entityKey: normalizeEntityKey(displayName), confidence: Math.min(0.95, 0.55 + reasons.length * 0.1) }] : [],
+    entities: candidates.length ? [{ type: entityType, displayName, entityKey: normalizeEntityKey(displayName), confidence: Math.min(0.95, 0.55 + sortedSignals.length * 0.1) }] : [],
   };
 }
 

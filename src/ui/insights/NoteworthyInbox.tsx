@@ -1,4 +1,5 @@
-import { X, FileText, Table2, MessageSquare, Upload, GitBranch, Sparkles, AlertTriangle, CircleDot, Search, TableProperties, MinusCircle } from "lucide-react";
+import { useState } from "react";
+import { X, FileText, Table2, MessageSquare, Upload, GitBranch, Sparkles, AlertTriangle, CircleDot, Search, TableProperties, MinusCircle, GraduationCap, Send } from "lucide-react";
 import type { PassiveActivityItem } from "../../app/store";
 import { NodeReveal } from "../motion/NodeReveal";
 
@@ -64,6 +65,7 @@ export function NoteworthyInbox({
   onDismiss,
   onResearch,
   onAddToSheet,
+  onPractice,
 }: {
   items: PassiveActivityItem[];
   onOpenArtifact: (id: string, options?: { split?: boolean; elementId?: string }) => boolean | void;
@@ -71,7 +73,14 @@ export function NoteworthyInbox({
   onDismiss?: (item: PassiveActivityItem) => void;
   onResearch?: (item: PassiveActivityItem) => void;
   onAddToSheet?: (item: PassiveActivityItem) => void;
+  /** Coach Mode: turn a `create_coach_cue` item into an explain-and-defend prompt.
+   *  Evaluation runs as an agentJob; outcome (score, mastery tags, missed evidence
+   *  refs, readiness delta) lands on the activity row's finding. */
+  onPractice?: (item: PassiveActivityItem, userAnswer: string) => Promise<void> | void;
 }) {
+  const [practiceId, setPracticeId] = useState<string | null>(null);
+  const [answer, setAnswer] = useState("");
+  const [submitting, setSubmitting] = useState(false);
   return (
     <div className="r-inbox" role="dialog" aria-label="Passive room intelligence" data-testid="noteworthy-inbox">
       <div className="r-inbox-head">
@@ -87,6 +96,8 @@ export function NoteworthyInbox({
             const pill = statusPill(item.status, item.action);
             const target = openTarget(item);
             const title = item.entityNames[0] ?? sourceLabel(item.sourceKind);
+            const isCoachCue = pill.tone === "suggested" && item.action === "create_coach_cue";
+            const practicing = practiceId === item.id;
             return (
               <NodeReveal key={item.id} as="li" className="r-inbox-item" data-testid="noteworthy-item" data-tone={pill.tone} delay={idx * 60} distance={8} threshold={0}>
                   <div className="r-inbox-item-head">
@@ -123,6 +134,16 @@ export function NoteworthyInbox({
                         <TableProperties size={11} /> Add to sheet
                       </button>
                     )}
+                    {onPractice && isCoachCue && !practicing && (
+                      <button
+                        className="r-inbox-action"
+                        data-testid="noteworthy-practice"
+                        title="Coach Mode: practice explaining and defending this work"
+                        onClick={() => { setPracticeId(item.id); setAnswer(""); }}
+                      >
+                        <GraduationCap size={11} /> Practice
+                      </button>
+                    )}
                     {onDismiss && (
                       <button
                         className="r-inbox-action r-inbox-action--dismiss"
@@ -143,6 +164,46 @@ export function NoteworthyInbox({
                       </button>
                     )}
                   </div>
+                  {practicing && (
+                    <div className="r-inbox-practice" data-testid="noteworthy-practice-form">
+                      <div className="r-inbox-practice-prompt">
+                        <strong>Explain and defend this work.</strong>
+                        <span className="muted tiny">Your answer is scored against the room's evidence, OKF concepts, and source captures. Ungrounded claims are dropped.</span>
+                      </div>
+                      <textarea
+                        className="r-inbox-practice-input"
+                        data-testid="noteworthy-practice-answer"
+                        rows={3}
+                        placeholder="Explain why this is right (or what's missing)…"
+                        value={answer}
+                        onChange={(e) => setAnswer(e.target.value)}
+                        disabled={submitting}
+                      />
+                      <div className="r-inbox-practice-actions">
+                        <button
+                          className="r-inbox-action"
+                          data-testid="noteworthy-practice-submit"
+                          disabled={submitting || answer.trim().length === 0}
+                          onClick={() => {
+                            setSubmitting(true);
+                            Promise.resolve(onPractice?.(item, answer.trim())).finally(() => {
+                              setSubmitting(false);
+                              setPracticeId(null);
+                              setAnswer("");
+                            });
+                          }}
+                        >
+                          <Send size={11} /> {submitting ? "Submitting…" : "Submit"}
+                        </button>
+                        <button
+                          className="r-inbox-action r-inbox-action--dismiss"
+                          onClick={() => { setPracticeId(null); setAnswer(""); }}
+                        >
+                          <X size={11} /> Cancel
+                        </button>
+                      </div>
+                    </div>
+                  )}
               </NodeReveal>
             );
           })}

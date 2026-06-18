@@ -7,8 +7,10 @@
 import { Fragment, useEffect, useMemo, useRef, useState, type CSSProperties, type KeyboardEvent as ReactKeyboardEvent, type ReactNode } from "react";
 import { DndContext, useDraggable, type DragEndEvent } from "@dnd-kit/core";
 import { restrictToParentElement } from "@dnd-kit/modifiers";
-import { useEditor, EditorContent } from "@tiptap/react";
+import { useEditor, EditorContent, EditorProvider } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
+import { useQuery, useMutation } from "convex/react";
+import { api } from "../../../convex/_generated/api";
 import {
   Table2, FileText, StickyNote, Users, GitMerge, Play, RotateCcw, History, Search, BookOpen,
   Lock, Unlock, Ban, Pencil, Plus, Check, AlertTriangle, Eye, Circle, ChevronRight, Download, Trash2, Undo2, X, Columns2, MoreHorizontal, Mail, Hash, Layers, Linkedin, Activity, type LucideIcon,
@@ -214,7 +216,7 @@ function ArtifactSurface({ roomId, me, artId, onArt, collab, style, surfaceKey =
             ? <Sheet roomId={roomId} me={me} art={sheet} onError={(f) => setEditErr(editErrorMsg(f))} />
             : sheet.meta?.excelGrid ? <ExcelGridSheet roomId={roomId} me={me} art={sheet} onError={(f) => setEditErr(editErrorMsg(f))} /> : <GenericSheet art={sheet} />)}
           {activeTab === "research" && research && <Research roomId={roomId} me={me} art={research} />}
-          {activeTab === "note" && note && <Note roomId={roomId} me={me} art={note} />}
+          {activeTab === "note" && note && (NOTEBOOK_SYNC_ENABLED ? <SyncedNote roomId={roomId} me={me} art={note} /> : <Note roomId={roomId} me={me} art={note} />)}
           {activeTab === "wall" && wall && <Wall roomId={roomId} me={me} art={wall} />}
         </>
       )}
@@ -1467,6 +1469,160 @@ function InlineProposal({ roomId, me, proposal, onResolved }: { roomId: string; 
   );
 }
 
+/** Native notebook editor mode. When `VITE_NOTEBOOK_SYNC=prosemirror` (and a live
+ *  Convex URL is configured), the Note component renders the collaborative
+ *  ProseMirror Sync editor; otherwise the legacy Tiptap HTML-on-blur editor. */
+const NOTEBOOK_SYNC_ENABLED = import.meta.env.VITE_NOTEBOOK_SYNC === "prosemirror";
+
+/** Collaborative notebook editor backed by Convex ProseMirror Sync. Lazily
+ *  migrates a legacy `note` artifact's "doc" element to a synced doc on first
+ *  open. The component owns live multiplayer text; the client blur commit is the
+ *  single activity source (-> applyCellEdit -> enqueueRoomActivity), identical to
+ *  the legacy Note path. Proposal-first: agents never write here.
+ *
+ *  Two-phase render so `useTiptapSync` only subscribes once the real (random
+ *  capability-secret) doc id is known via the membership-gated getNotebookDoc —
+ *  never a guessed/placeholder id. */
+function SyncedNote({ roomId, me, art }: { roomId: string; me: Actor; art: Art }) {
+  const docValue = art.elements["doc"]?.value;
+  if (isUploadedFileDoc(docValue)) return <FileViewer doc={docValue} />;
+  const store = useStore();
+  const [noteErr, setNoteErr] = useState<string | null>(null);
+  const existing = useQuery(api.prosemirror.getNotebookDoc, { roomId: roomId as never, artifactId: art.id as never });
+  const ensureDoc = useMutation(api.prosemirror.ensureNotebookDoc);
+  const ensuredRef = useRef(false);
+
+  // Lazy migration: if the registry row is absent, create the synced doc once.
+  // existing === null means "loaded, no row yet"; undefined means still loading.
+  useEffect(() => {
+    if (ensuredRef.current || existing === undefined || existing !== null) return;
+    ensuredRef.current = true;
+    void ensureDoc({
+      roomId: roomId as never,
+      artifactId: art.id as never,
+      requester: { actor: { kind: "user", id: me.id, name: me.name }, token: undefined },
+    }).catch((e: unknown) => setNoteErr(`Notebook setup failed: ${String(e).slice(0, 120)}`));
+  }, [existing, ensureDoc, roomId, art.id, me.id, me.name]);
+
+  // Phase 1: registry not yet resolved (loading) or not yet created -> loading.
+  // Once existing is a row, its prosemirrorDocId is the random capability secret.
+  if (existing === undefined || existing === null) {
+    return (
+      <div className="r-art-body">
+        {noteErr && <div className="r-wall-error" role="alert" data-testid="note-error">{noteErr}</div>}
+        <div data-testid="note-editor-loading">Loading notebook…</div>
+        <AgentNotesBlock art={art} />
+      </div>
+    );
+  }
+  // Phase 2: the real doc id is known — render the collaborative editor.
+  return (
+    <div className="r-art-body">
+      {noteErr && <div className="r-wall-error" role="alert" data-testid="note-error">{noteErr}</div>}
+      <SyncedEditorInner docId={existing.prosemirrorDocId} roomId={roomId} me={me} art={art} store={store} setNoteErr={setNoteErr} />
+      <AgentNotesBlock art={art} />
+    </div>
+  );
+}
+
+/** Inner collaborative editor — only mounted once the real doc id is known, so
+ *  the `useTiptapSync` hook subscribes to a valid (registered) doc and never a
+ *  guessed/placeholder id. */
+function SyncedEditorInner({
+  docId, roomId, me, art, store, setNoteErr,
+}: {
+  docId: string; roomId: string; me: Actor; art: Art; store: RoomStore; setNoteErr: (e: string | null) => void;
+}) {
+  const locked = !!lockedByOther(store, art.id, "doc", me);
+  const sync = useTiptapSyncLazy(api.prosemirror, docId);
+  if (sync === undefined || sync.isLoading || sync.initialContent === null) {
+    return <div data-testid="note-editor-loading">Loading notebook…</div>;
+  }
+  return (
+    <div className="r-note" data-testid="note-editor">
+      <EditorProvider
+        editable={!locked}
+        immediatelyRender={false}
+        content={sync.initialContent}
+        extensions={[StarterKit, sync.extension]}
+        onBlur={({ editor }) => {
+          const html = editor.getHTML();
+          // Write the HTML snapshot into elements["doc"] via the existing
+          // commit()/CAS path so locks/proposals/OKF keep working unchanged.
+          void commit(store, roomId, me, art.id, "doc", html).then((f) => setNoteErr(f && !f.ok ? editErrorMsg(f) : null));
+        }}
+      >
+        <EditorContent editor={null} />
+      </EditorProvider>
+    </div>
+  );
+}
+
+/** Lazy wrapper around useTiptapSync so the ProseMirror Sync client only loads in
+ *  native-notebook mode. Returns undefined while the hook module is loading; once
+ *  loaded, returns the sync state (which is never null per the hook's type). */
+function useTiptapSyncLazy(syncApi: typeof api.prosemirror, id: string) {
+  const [mod, setMod] = useState<typeof import("@convex-dev/prosemirror-sync/tiptap") | null>(null);
+  useEffect(() => {
+    if (!NOTEBOOK_SYNC_ENABLED) return;
+    void import("@convex-dev/prosemirror-sync/tiptap").then(setMod).catch((e: unknown) => {
+      console.error("Failed to load prosemirror-sync", e);
+    });
+  }, []);
+  // Call the hook unconditionally when the module is loaded so React rules of hooks hold.
+  return mod ? mod.useTiptapSync(syncApi, id) : undefined;
+}
+
+/** Labeled, append-only agent-owned notes block. Agents write to the `doc:agent`
+ *  element via applyAgentCellEdit with approvalPolicy "draft_first" (proposal-first);
+ *  accepted content renders here, below the human-owned editor, with a "NodeRoom"
+ *  provenance badge. This is the ONE place agents may surface notebook text — never
+ *  the live "doc" element. Never editable inline; provenance is immutable.
+ *
+ *  Security: agent HTML is untrusted (LLM-authored, prompt-injection-reachable), so
+ *  it is rendered through a read-only Tiptap editor whose ProseMirror StarterKit
+ *  schema strips everything not in the allowed set — no <script>, no event-handler
+ *  attributes, no <img onerror>. This is the same sanitizer the legacy note editor
+ *  uses, with zero new dependencies. */
+function AgentNotesBlock({ art }: { art: Art }) {
+  const value = art.elements["doc:agent"]?.value;
+  const html = typeof value === "string" ? value : "";
+  const author = art.elements["doc:agent"]?.updatedBy;
+  if (!html.trim()) return null;
+  return (
+    <div className="r-agent-notes" data-testid="agent-notes-block" data-noderoom-surface="workSurface.agentNotes">
+      <div className="r-agent-notes-head">
+        <span className="r-agent-notes-badge">NodeRoom</span>
+        <span className="muted tiny">agent-owned · append-only · approved</span>
+        {author && <span className="muted tiny">by {author.name}</span>}
+      </div>
+      <SanitizedHtml html={html} className="r-agent-notes-body" />
+    </div>
+  );
+}
+
+/** Renders untrusted HTML safely by parsing it through a read-only Tiptap editor.
+ *  ProseMirror's StarterKit schema discards any node/attribute/mark not in the
+ *  allowed set (so <script>, <img onerror=…>, onclick=, javascript: URIs are
+ *  dropped). Reuses the existing dependency; no DOMPurify needed. */
+function SanitizedHtml({ html, className }: { html: string; className?: string }) {
+  const editor = useEditor({
+    extensions: [StarterKit],
+    content: html,
+    editable: false,
+    immediatelyRender: false,
+  });
+  useEffect(() => {
+    if (editor && editor.getHTML() !== html) editor.commands.setContent(html);
+  }, [editor, html]);
+  if (!editor) return <div className={className} />;
+  return (
+    <div className={className} data-testid="sanitized-html">
+      <EditorContent editor={editor} />
+    </div>
+  );
+}
+
 function Note({ roomId, me, art }: { roomId: string; me: Actor; art: Art }) {
   const store = useStore();
   const docValue = art.elements["doc"]?.value;
@@ -1494,6 +1650,7 @@ function Note({ roomId, me, art }: { roomId: string; me: Actor; art: Art }) {
     <div className="r-art-body">
       {noteErr && <div className="r-wall-error" role="alert" data-testid="note-error">{noteErr}</div>}
       <div className="r-note" data-testid="note-editor"><EditorContent editor={editor} /></div>
+      <AgentNotesBlock art={art} />
     </div>
   );
 }

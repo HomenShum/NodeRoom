@@ -507,7 +507,7 @@ describe("passive room activity and evidence adapters", () => {
         quietUntil: now,
         attempts: 0,
         decision: { action: "create_coach_cue", text: "Top secret guest diligence note about CardioNova." },
-        finding: { score: 0.6, action: "create_coach_cue", reasons: ["company_mention"], facets: [], entities: [{ displayName: "CardioNova" }] },
+        finding: { score: 0.6, action: "create_coach_cue", reasons: ["organization_candidate"], facets: [], entities: [{ displayName: "CardioNova" }] },
         createdAt: now,
         updatedAt: now,
       }),
@@ -528,7 +528,7 @@ describe("passive room activity and evidence adapters", () => {
         quietUntil: now,
         attempts: 0,
         decision: { action: "create_coach_cue", text: "Room-visible CardioNova note." },
-        finding: { score: 0.6, action: "create_coach_cue", reasons: ["company_mention"], facets: [], entities: [{ displayName: "CardioNova" }] },
+        finding: { score: 0.6, action: "create_coach_cue", reasons: ["organization_candidate"], facets: [], entities: [{ displayName: "CardioNova" }] },
         createdAt: now,
         updatedAt: now,
       }),
@@ -568,7 +568,7 @@ describe("passive room activity and evidence adapters", () => {
         attempts: 1,
         error: "old_failure",
         decision: { action: "start_research_job", text: "Old stale failure that should not resurface." },
-        finding: { score: 0.8, action: "start_research_job", reasons: ["company_mention"], facets: [], entities: [{ displayName: "OldCo" }] },
+        finding: { score: 0.8, action: "start_research_job", reasons: ["organization_candidate"], facets: [], entities: [{ displayName: "OldCo" }] },
         createdAt: stale,
         updatedAt: stale,
       }),
@@ -589,7 +589,7 @@ describe("passive room activity and evidence adapters", () => {
         quietUntil: fresh,
         attempts: 0,
         decision: { action: "create_coach_cue", text: "Fresh noteworthy activity." },
-        finding: { score: 0.6, action: "create_coach_cue", reasons: ["company_mention"], facets: [], entities: [{ displayName: "FreshCo" }] },
+        finding: { score: 0.6, action: "create_coach_cue", reasons: ["organization_candidate"], facets: [], entities: [{ displayName: "FreshCo" }] },
         createdAt: fresh,
         updatedAt: fresh,
       }),
@@ -627,7 +627,7 @@ describe("passive room activity and evidence adapters", () => {
           actor: guestActor, visibility: "private", ownerId: String(guestId),
           dedupeKey: `activity:priv:${i}`, quietUntil: now, attempts: 0,
           decision: { action: "create_coach_cue", text: `Guest private ${i}` },
-          finding: { score: 0.6, action: "create_coach_cue", reasons: ["company_mention"], facets: [], entities: [{ displayName: "GuestPrivate" }] },
+          finding: { score: 0.6, action: "create_coach_cue", reasons: ["organization_candidate"], facets: [], entities: [{ displayName: "GuestPrivate" }] },
           createdAt: now - i * 1000, updatedAt: now - i * 1000,
         }),
       );
@@ -640,7 +640,7 @@ describe("passive room activity and evidence adapters", () => {
         actor: s.actor, visibility: "room",
         dedupeKey: "activity:shared:1", quietUntil: now, attempts: 0,
         decision: { action: "create_coach_cue", text: "Host shared note." },
-        finding: { score: 0.6, action: "create_coach_cue", reasons: ["company_mention"], facets: [], entities: [{ displayName: "HostShared" }] },
+        finding: { score: 0.6, action: "create_coach_cue", reasons: ["organization_candidate"], facets: [], entities: [{ displayName: "HostShared" }] },
         createdAt: now - 20_000, updatedAt: now - 20_000,
       }),
     );
@@ -751,7 +751,7 @@ describe("passive room activity and evidence adapters", () => {
         actor: s.actor, visibility: "room",
         dedupeKey: "activity:dismiss:test:1", quietUntil: Date.now(), attempts: 0,
         decision: { action: "create_coach_cue", text: "CardioNova funding signal." },
-        finding: { score: 0.6, action: "create_coach_cue", reasons: ["company_mention"], facets: [], entities: [] },
+        finding: { score: 0.6, action: "create_coach_cue", reasons: ["organization_candidate"], facets: [], entities: [] },
         createdAt: Date.now(), updatedAt: Date.now(),
       }),
     );
@@ -785,7 +785,7 @@ describe("passive room activity and evidence adapters", () => {
         quietUntil: now,
         attempts: 0,
         decision: { action: "start_research_job", text: "Private CardioNova note." },
-        finding: { score: 0.8, action: "start_research_job", reasons: ["company_mention"], facets: ["funding"], entities: [{ type: "company", displayName: "CardioNova", entityKey: "cardionova", confidence: 0.9 }] },
+        finding: { score: 0.8, action: "start_research_job", reasons: ["organization_candidate"], facets: ["funding"], entities: [{ type: "company", displayName: "CardioNova", entityKey: "cardionova", confidence: 0.9 }] },
         createdAt: now,
         updatedAt: now,
       }),
@@ -824,7 +824,7 @@ describe("passive room activity and evidence adapters", () => {
         quietUntil: now,
         attempts: 0,
         decision: { status: "noteworthy", action: "start_research_job", text: "CardioNova raised funding and needs runway diligence." },
-        finding: { score: 0.82, action: "start_research_job", reasons: ["company_mention", "finance_signal"], facets: ["funding", "runway_inputs"], entities: [{ type: "company", displayName: "CardioNova", entityKey: "cardionova", confidence: 0.92 }] },
+        finding: { score: 0.82, action: "start_research_job", reasons: ["organization_candidate", "finance_signal"], facets: ["funding", "runway_inputs"], entities: [{ type: "company", displayName: "CardioNova", entityKey: "cardionova", confidence: 0.92 }] },
         createdAt: now,
         updatedAt: now,
       }),
@@ -897,5 +897,140 @@ describe("passive room activity and evidence adapters", () => {
     expect(values.summary?.value).toBe("Existing sourced summary.");
     expect(values.tier?.value).toBe("A");
     expect(values.newCompany?.value).toBe("NewCo");
+  });
+
+  it("strips HTML from a note's doc value so the noteworthiness classifier sees clean text", async () => {
+    const s = await seedRoom();
+    // A note artifact with an HTML "doc" element (how the legacy + synced editors persist).
+    const noteArtifactId = await s.t.run((ctx) =>
+      ctx.db.insert("artifacts", {
+        roomId: s.roomId,
+        kind: "note" as const,
+        title: "Capture Notebook",
+        version: 1,
+        order: ["doc"],
+        updatedAt: Date.now(),
+        createdBy: s.actor,
+        visibility: "room" as const,
+      }),
+    );
+    await s.t.run((ctx) =>
+      ctx.db.insert("elements", {
+        artifactId: noteArtifactId,
+        elementId: "doc",
+        version: 1,
+        // HTML with company + funding/runway signals wrapped in tags. Without
+        // stripping, the classifier would still see the words, but this locks in
+        // that HTML never breaks classification and the plain-text path is used.
+        value: "<h1>CardioNova notes</h1><p>Met Maya. Possible Series B. Need to verify burn and runway.</p>",
+        updatedAt: Date.now(),
+        updatedBy: s.actor,
+      }),
+    );
+    const sourceId = `${String(noteArtifactId)}:doc`;
+    const enqueued = await s.t.mutation(api.roomActivity.enqueueManual, {
+      roomId: s.roomId,
+      requester: s.proof,
+      sourceKind: "artifact_element",
+      sourceId,
+      sourceVersion: 1,
+      sourceHash: "html-doc-a",
+      eventKind: "content_committed",
+      quietMs: 1_000,
+    });
+    await s.t.run(async (ctx) => ctx.db.patch(enqueued.outboxId, { quietUntil: Date.now() - 1 }));
+    await s.t.mutation(internal.roomActivity.scanDueActivity, { roomId: s.roomId, limit: 5 });
+    const row = await s.t.run((ctx) => ctx.db.get(enqueued.outboxId));
+    // Finance signals (Series B, burn, runway) survived HTML stripping and cleared
+    // the not_noteworthy threshold — proving the HTML was stripped to readable text.
+    expect(row?.status).not.toBe("not_noteworthy");
+    expect(row?.finding?.reasons).toEqual(expect.arrayContaining(["finance_signal"]));
+    // The classifier text should NOT contain raw HTML tags.
+    expect(row?.decision?.text).not.toContain("<");
+  });
+
+  it("detects an organization_candidate without a company suffix (CardioNova/Stripe/Ramp)", async () => {
+    const s = await seedRoom();
+    const noteArtifactId = await s.t.run((ctx) =>
+      ctx.db.insert("artifacts", { roomId: s.roomId, kind: "note" as const, title: "Capture Notebook", version: 1, order: ["doc"], updatedAt: Date.now(), createdBy: s.actor, visibility: "room" as const }),
+    );
+    await s.t.run((ctx) => ctx.db.insert("elements", { artifactId: noteArtifactId, elementId: "doc", version: 1, value: "<p>Met Maya from CardioNova.</p>", updatedAt: Date.now(), updatedBy: s.actor }));
+    const sourceId = `${String(noteArtifactId)}:doc`;
+    const enqueued = await s.t.mutation(api.roomActivity.enqueueManual, {
+      roomId: s.roomId, requester: s.proof, sourceKind: "artifact_element", sourceId,
+      sourceVersion: 1, sourceHash: "org-candidate-a", eventKind: "content_committed", quietMs: 1_000,
+    });
+    await s.t.run(async (ctx) => ctx.db.patch(enqueued.outboxId, { quietUntil: Date.now() - 1 }));
+    await s.t.mutation(internal.roomActivity.scanDueActivity, { roomId: s.roomId, limit: 5 });
+    const row = await s.t.run((ctx) => ctx.db.get(enqueued.outboxId));
+    // Gap 1 fix: the old suffix-bound `company_mention` never fired for "CardioNova".
+    // The broader `organization_candidate` signal now does.
+    expect(row?.finding?.signals).toEqual(expect.arrayContaining(["organization_candidate"]));
+    expect(row?.finding?.signals).not.toContain("company_mention");
+    // Gap 2: stable, sorted, versioned, evidenced output.
+    expect(row?.finding?.classifierVersion).toBe("noteworthy-v1");
+    expect(row?.finding?.evidenceSpans?.some((e: { signal: string }) => e.signal === "organization_candidate")).toBe(true);
+    // Deterministic ordering: organization_candidate sorts before person_or_interaction.
+    const signals = row?.finding?.signals as string[] | undefined;
+    expect(signals?.indexOf("organization_candidate")).toBeLessThan(signals?.indexOf("person_or_interaction") ?? Infinity);
+  });
+
+  it("does not double-count a candidate: candidate+finance routes to create_coach_cue, not start_research_job", async () => {
+    const s = await seedRoom();
+    const noteArtifactId = await s.t.run((ctx) =>
+      ctx.db.insert("artifacts", { roomId: s.roomId, kind: "note" as const, title: "Capture Notebook", version: 1, order: ["doc"], updatedAt: Date.now(), createdBy: s.actor, visibility: "room" as const }),
+    );
+    // "CardioNova" (candidate) + "Series B" (finance) = 2 signals = 0.54.
+    // With the old double-count that was 0.72 (start_research_job); rebaselined
+    // thresholds (0.35/0.50/0.70) route 0.54 to create_coach_cue.
+    await s.t.run((ctx) => ctx.db.insert("elements", { artifactId: noteArtifactId, elementId: "doc", version: 1, value: "<p>CardioNova Series B</p>", updatedAt: Date.now(), updatedBy: s.actor }));
+    const sourceId = `${String(noteArtifactId)}:doc`;
+    const enqueued = await s.t.mutation(api.roomActivity.enqueueManual, {
+      roomId: s.roomId, requester: s.proof, sourceKind: "artifact_element", sourceId,
+      sourceVersion: 1, sourceHash: "score-baseline-a", eventKind: "content_committed", quietMs: 1_000,
+    });
+    await s.t.run(async (ctx) => ctx.db.patch(enqueued.outboxId, { quietUntil: Date.now() - 1 }));
+    await s.t.mutation(internal.roomActivity.scanDueActivity, { roomId: s.roomId, limit: 5 });
+    const row = await s.t.run((ctx) => ctx.db.get(enqueued.outboxId));
+    expect(row?.finding?.signals).toEqual(expect.arrayContaining(["organization_candidate", "finance_signal"]));
+    // Candidate counts once: 2 signals -> 0.18 + 0.36 = 0.54 (not 0.72).
+    expect(row?.finding?.score).toBeCloseTo(0.54, 2);
+    // 0.54 is below the 0.70 research threshold and at/above the 0.50 coach threshold.
+    expect(row?.finding?.action).toBe("create_coach_cue");
+  });
+
+  it("drops ungrounded coach-eval evidence refs at the persistence boundary (Gap 3)", async () => {
+    const s = await seedRoom();
+    // A real evidence fact the evaluator could legitimately cite.
+    const factId = "fact-burn-2024q3";
+    await s.t.run((ctx) =>
+      ctx.db.insert("evidenceFacts", {
+        roomId: s.roomId, factId, label: "Burn Q3", value: 1_200_000, unit: "USD",
+        confidence: "high" as const, checks: [], usedBy: [], createdAt: Date.now(),
+      }),
+    );
+    // A roomActivityOutbox row with a pending coachEval (as practiceActivity would create).
+    const outboxId = await s.t.run((ctx) =>
+      ctx.db.insert("roomActivityOutbox", {
+        roomId: s.roomId, sourceKind: "artifact_element" as const, sourceId: `${String(s.artifactId)}:doc`,
+        sourceVersion: 1, sourceHash: "coach-eval-source-a", eventKind: "content_committed" as const,
+        status: "job_created" as const, visibility: "room" as const, dedupeKey: "coach-eval-dedupe-a",
+        quietUntil: Date.now(), attempts: 0, createdAt: Date.now(), updatedAt: Date.now(),
+        finding: { coachEval: { status: "pending" as const, artifactRef: `${String(s.artifactId)}:doc`, userAnswer: "answer", expectedOutline: "" } },
+      }),
+    );
+    // Evaluator proposes one grounded ref (real factId) + one ungrounded (bogus).
+    const result = await s.t.mutation(internal.roomActivity.recordCoachEvalOutcome, {
+      activityId: outboxId, score: 0.62, masteryTags: ["weak_on_burn"],
+      missedEvidenceRefs: [factId, "totally-bogus-ref-that-resolves-to-nothing"],
+      reviewReadinessDelta: -0.15, feedback: "Cite the burn source.",
+    });
+    expect(result.ok).toBe(true);
+    expect(result.droppedUngroundedCount).toBe(1);
+    const row = await s.t.run((ctx) => ctx.db.get(outboxId));
+    // Only the grounded ref is persisted; the bogus one was deterministically dropped.
+    expect(row?.finding?.coachEval?.missedEvidenceRefs).toEqual([factId]);
+    expect(row?.finding?.coachEval?.droppedUngroundedCount).toBe(1);
+    expect(row?.finding?.coachEval?.groundingWarning).toContain("1 ungrounded");
   });
 });

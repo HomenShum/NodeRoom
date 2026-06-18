@@ -362,6 +362,27 @@ export default defineSchema({
     .index("by_room_visibility_updated", ["roomId", "visibility", "updatedAt"])
     .index("by_room_owner_visibility_updated", ["roomId", "ownerId", "visibility", "updatedAt"]),
 
+  /** Native notebook wrapper registry. Maps a `note` artifact's "doc" element to the
+   *  ProseMirror Sync component document id, so NodeRoom business semantics (room/artifact/
+   *  visibility/owner) stay outside the collaborative-text component. The snapshot adapter
+   *  looks up rows here to translate `onSnapshot(id, ...)` into a `roomActivityOutbox` enqueue.
+   *  Only created behind VITE_NOTEBOOK_SYNC=prosemirror; legacy notes never get a row. */
+  notebookDocuments: defineTable({
+    roomId: v.id("rooms"),
+    artifactId: v.id("artifacts"),
+    elementId: v.string(),
+    prosemirrorDocId: v.string(),
+    visibility: v.optional(visibilityV),
+    ownerId: v.optional(v.string()),
+    latestSnapshotHash: v.optional(v.string()),
+    latestIndexedVersion: v.optional(v.number()),
+    latestProcessedAt: v.optional(v.number()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_room_artifact_element", ["roomId", "artifactId", "elementId"])
+    .index("by_prosemirror_doc", ["prosemirrorDocId"]),
+
   /** Evidence Accountant capture row. This is distinct from older captureRecords: one capture can
    * fan out to many extracted facts and CellPayload evidence refs. */
   sourceCaptures: defineTable({
@@ -482,7 +503,7 @@ export default defineSchema({
     routePolicy: v.optional(routePolicyV),
     runtimePolicy: v.optional(runtimePolicyV),
     idempotencyKey: v.optional(v.string()),
-    mode: v.optional(v.union(v.literal("variance"), v.literal("research"))),
+    mode: v.optional(v.union(v.literal("variance"), v.literal("research"), v.literal("coach_eval"))),
     planPreview: v.optional(v.any()),
     status: v.union(
       v.literal("queued"),
