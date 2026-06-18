@@ -336,6 +336,8 @@ export default defineSchema({
     ownerId: v.optional(v.string()),
     dedupeKey: v.string(),
     quietUntil: v.number(),
+    maxWaitAt: v.optional(v.number()),
+    dismissedBy: v.optional(v.string()),
     nextRunAt: v.optional(v.number()),
     scheduledFunctionId: v.optional(v.id("_scheduled_functions")),
     attempts: v.number(),

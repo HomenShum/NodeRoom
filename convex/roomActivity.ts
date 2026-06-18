@@ -2,7 +2,7 @@ import { v } from "convex/values";
 import { start as startWorkflow } from "@convex-dev/workflow";
 import { Debouncer } from "@ikhrustalev/convex-debouncer";
 import type { DebouncerComponentApi } from "@ikhrustalev/convex-debouncer";
-import { components, internal } from "./_generated/api";
+import { components, internal, api } from "./_generated/api";
 import { internalMutation, mutation, query } from "./_generated/server";
 import type { MutationCtx } from "./_generated/server";
 import type { Id } from "./_generated/dataModel";
@@ -58,6 +58,10 @@ export function activityDedupeKey(args: {
   sourceKind: "node" | "element" | "artifact_element" | "artifact" | "upload" | "message" | "wiki_revision";
   sourceId: string;
   eventKind: "idle_after_typing" | "cell_committed" | "file_uploaded" | "manual_enqueue" | "content_committed" | "page_hidden" | "manual_save" | "artifact_imported";
+  /** Per-actor scope: each author gets their own quiet window so shared-note multi-user
+   *  activity never starves one actor's debounce. Derived from actor.id when available,
+   *  falls back to ownerId (private-visibility marker), then "room" for unattributed activity. */
+  actorId?: string;
   ownerId?: string;
 }) {
   return [
@@ -66,7 +70,7 @@ export function activityDedupeKey(args: {
     args.sourceKind,
     args.sourceId,
     args.eventKind,
-    args.ownerId ?? "room",
+    args.actorId ?? args.ownerId ?? "room",
   ].join(":");
 }
 
@@ -84,8 +88,19 @@ export async function enqueueRoomActivity(ctx: MutationCtx, args: {
 }) {
   const now = Date.now();
   const quietMs = clampQuietMs(args.quietMs);
-  const dedupeKey = activityDedupeKey(args);
+  const dedupeKey = activityDedupeKey({ ...args, actorId: args.actor?.id });
   const existing = await ctx.db.query("roomActivityOutbox").withIndex("by_dedupe", (q) => q.eq("dedupeKey", dedupeKey)).order("desc").first();
+
+  // maxWaitAt is set once at row creation and never bumped — it is the hard deadline
+  // beyond which the debounce sliding window is capped so a single actor typing past
+  // MAX_QUIET_MS still fires exactly one scan.
+  const maxWaitAt = (existing && (existing.status === "queued" || existing.status === "running"))
+    ? (existing.maxWaitAt ?? now + MAX_QUIET_MS)
+    : now + MAX_QUIET_MS;
+
+  // Effective delay: slide the window unless we would push past the hard deadline.
+  const effectiveDelay = Math.max(1, Math.min(quietMs, maxWaitAt - now));
+
   const patch = {
     roomId: args.roomId,
     sourceKind: args.sourceKind,
@@ -98,13 +113,18 @@ export async function enqueueRoomActivity(ctx: MutationCtx, args: {
     visibility: args.visibility ?? "room" as const,
     ownerId: args.ownerId,
     dedupeKey,
-    quietUntil: now + quietMs,
+    quietUntil: now + effectiveDelay,
     updatedAt: now,
+    // Persist maxWaitAt on patch when the existing row predates this field (pre-deploy rows
+    // have undefined maxWaitAt — without this, the fallback recalculates fresh every enqueue
+    // and the hard deadline never anchors).
+    ...(existing && existing.maxWaitAt === undefined ? { maxWaitAt } : {}),
   };
   const rowId = existing && (existing.status === "queued" || existing.status === "running")
     ? (await ctx.db.patch(existing._id, patch), existing._id)
     : await ctx.db.insert("roomActivityOutbox", {
         ...patch,
+        maxWaitAt,
         attempts: 0,
         createdAt: now,
       });
@@ -115,9 +135,9 @@ export async function enqueueRoomActivity(ctx: MutationCtx, args: {
     dedupeKey,
     internal.roomActivity.scanDueActivity,
     { roomId: args.roomId, limit: 20 },
-    { delay: quietMs, mode: "sliding" },
+    { delay: effectiveDelay, mode: "sliding" },
   );
-  return { outboxId: rowId, dedupeKey, quietUntil: now + quietMs };
+  return { outboxId: rowId, dedupeKey, quietUntil: now + effectiveDelay };
 }
 
 export const enqueueManual = mutation({
@@ -275,6 +295,74 @@ function toFeedItem(row: {
     textPreview: (isOwner || row.visibility !== "private") ? String(decision.text ?? "").slice(0, 240) : "",
   };
 }
+
+/** Dismiss a passive-activity item — sets status to `ignored` so it leaves the chip count.
+ *  Validates actor proof and records who dismissed for audit. Any room member may dismiss
+ *  shared (room/public) rows; only the owner may dismiss private rows. */
+export const dismissActivity = mutation({
+  args: {
+    activityId: v.id("roomActivityOutbox"),
+    roomId: v.id("rooms"),
+    requester: actorProofV,
+  },
+  handler: async (ctx, args) => {
+    const actor = await requireActorProof(ctx, args.roomId, args.requester);
+    const row = await ctx.db.get(args.activityId);
+    if (!row || String(row.roomId) !== String(args.roomId)) {
+      return { ok: false as const, reason: "not_found" };
+    }
+    // Only the row owner (private) or any room member (room/public) may dismiss.
+    if (row.visibility === "private" && row.ownerId && row.ownerId !== actor.id) {
+      return { ok: false as const, reason: "not_owner" };
+    }
+    await ctx.db.patch(args.activityId, { status: "ignored", dismissedBy: actor.id, updatedAt: Date.now() });
+    return { ok: true as const };
+  },
+});
+
+/** Start a research agent job for a passive-activity item. Derives the job scope from the
+ *  STORED outbox row's visibility — never from client-supplied data — so the approval/evidence
+ *  policies can't be weakened by a tampered client request. */
+export const researchActivity = mutation({
+  args: {
+    activityId: v.id("roomActivityOutbox"),
+    roomId: v.id("rooms"),
+    requester: actorProofV,
+  },
+  handler: async (ctx, args) => {
+    const actor = await requireActorProof(ctx, args.roomId, args.requester);
+    const row = await ctx.db.get(args.activityId);
+    if (!row || String(row.roomId) !== String(args.roomId)) {
+      return { ok: false as const, reason: "not_found" };
+    }
+    if (row.visibility === "private" && row.ownerId && row.ownerId !== actor.id) {
+      return { ok: false as const, reason: "not_owner" };
+    }
+    // Derive scope from the stored row — server-authoritative, not client-supplied.
+    const scope = row.visibility === "private" ? "private_user" : "public_room";
+
+    // Find the target research sheet artifact.
+    const artifacts = await ctx.db.query("artifacts").withIndex("by_room", (q) => q.eq("roomId", args.roomId)).collect();
+    const targetArt = artifacts.find((a) => a.kind === "sheet" && a.title === "Company research") ?? artifacts.find((a) => a.kind === "sheet");
+    if (!targetArt) return { ok: false as const, reason: "no_research_sheet" };
+
+    const entity = (row.finding?.entities ?? [])[0]?.displayName ?? "unknown";
+    const goal = `Passive research: ${entity} — funding, product, and runway signals noticed by the room.`;
+
+    await ctx.runMutation(api.agentJobs.start, {
+      roomId: args.roomId,
+      artifactId: targetArt._id,
+      requester: args.requester,
+      goal: goal.slice(0, 2_000),
+      entrypoint: "room_work",
+      scope,
+      mode: "research",
+    });
+
+    await ctx.db.patch(args.activityId, { status: "job_created", updatedAt: Date.now() });
+    return { ok: true as const };
+  },
+});
 
 export async function scanActivityRow(ctx: MutationCtx, row: {
   _id: Id<"roomActivityOutbox">;

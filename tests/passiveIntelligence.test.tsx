@@ -46,9 +46,11 @@ function item(over: Partial<PassiveActivityItem>): PassiveActivityItem {
   };
 }
 
-function withFeed(items: PassiveActivityItem[]) {
-  mockStore.current = { listPassiveActivity: () => items };
+function withFeed(items: PassiveActivityItem[], extra?: Partial<typeof mockStore.current>) {
+  mockStore.current = { listPassiveActivity: () => items, ...extra };
 }
+
+const ME = { kind: "user" as const, id: "me-1", name: "Maya" };
 
 describe("PassiveAgentChip + NoteworthyInbox", () => {
   beforeEach(() => { mockStore.current = {}; });
@@ -56,7 +58,7 @@ describe("PassiveAgentChip + NoteworthyInbox", () => {
 
   it("renders nothing when there is no actionable activity (calm by default)", () => {
     withFeed([]);
-    const { container } = render(<PassiveAgentChip roomId="r1" onOpenArtifact={vi.fn()} />);
+    const { container } = render(<PassiveAgentChip roomId="r1" me={ME} onOpenArtifact={vi.fn()} />);
     expect(container.firstChild).toBeNull();
     expect(screen.queryByTestId("passive-agent-chip")).toBeNull();
   });
@@ -68,7 +70,7 @@ describe("PassiveAgentChip + NoteworthyInbox", () => {
       item({ status: "not_noteworthy", action: "ignore", id: "c3" }), // filtered
       item({ status: "completed", action: "index_file", id: "c4" }),  // filtered
     ]);
-    render(<PassiveAgentChip roomId="r1" onOpenArtifact={vi.fn()} />);
+    render(<PassiveAgentChip roomId="r1" me={ME} onOpenArtifact={vi.fn()} />);
     expect(screen.getByTestId("passive-agent-chip").textContent).toContain("noticed 2");
   });
 
@@ -78,7 +80,7 @@ describe("PassiveAgentChip + NoteworthyInbox", () => {
       item({ status: "job_created", sourceKind: "element", sourceId: "sheetArt:r_gp__variance", entityNames: ["CardioNova"], id: "c1" }),
       item({ status: "noteworthy", action: "create_coach_cue", sourceKind: "node", sourceId: "node42", entityNames: ["Acme"], textPreview: "Acme note", id: "c2" }),
     ]);
-    render(<PassiveAgentChip roomId="r1" onOpenArtifact={onOpen} />);
+    render(<PassiveAgentChip roomId="r1" me={ME} onOpenArtifact={onOpen} />);
 
     fireEvent.click(screen.getByTestId("passive-agent-chip"));
     const cards = screen.getAllByTestId("noteworthy-item");
@@ -93,7 +95,7 @@ describe("PassiveAgentChip + NoteworthyInbox", () => {
 
   it("renders informational cards without an open button for sources we can't navigate to yet", () => {
     withFeed([item({ status: "noteworthy", action: "create_coach_cue", sourceKind: "node", sourceId: "node42", entityNames: ["Acme"], id: "c2" })]);
-    render(<PassiveAgentChip roomId="r1" onOpenArtifact={vi.fn()} />);
+    render(<PassiveAgentChip roomId="r1" me={ME} onOpenArtifact={vi.fn()} />);
     fireEvent.click(screen.getByTestId("passive-agent-chip"));
     expect(screen.getByText("Coach cue")).toBeTruthy();
     expect(screen.queryByTestId("noteworthy-open")).toBeNull();
@@ -101,10 +103,59 @@ describe("PassiveAgentChip + NoteworthyInbox", () => {
 
   it("dismisses the inbox on Escape", () => {
     withFeed([item({ id: "c1" })]);
-    render(<PassiveAgentChip roomId="r1" onOpenArtifact={vi.fn()} />);
+    render(<PassiveAgentChip roomId="r1" me={ME} onOpenArtifact={vi.fn()} />);
     fireEvent.click(screen.getByTestId("passive-agent-chip"));
     expect(screen.getByTestId("noteworthy-inbox")).toBeTruthy();
     fireEvent.keyDown(document, { key: "Escape" });
     expect(screen.queryByTestId("noteworthy-inbox")).toBeNull();
+  });
+
+  it("Dismiss calls dismissActivity and removes the item from the actionable feed", () => {
+    const dismiss = vi.fn();
+    const target = item({ id: "dismiss-1", status: "noteworthy", action: "create_coach_cue" });
+    let feed = [target];
+    mockStore.current = {
+      listPassiveActivity: () => feed,
+      dismissActivity: (activityId: string) => { feed = feed.filter((i) => i.id !== activityId); dismiss(activityId); return Promise.resolve(); },
+    };
+    render(<PassiveAgentChip roomId="r1" me={ME} onOpenArtifact={vi.fn()} />);
+    fireEvent.click(screen.getByTestId("passive-agent-chip"));
+    const dismissBtn = screen.getByTestId("noteworthy-dismiss");
+    expect(dismissBtn).toBeTruthy();
+    fireEvent.click(dismissBtn);
+    expect(dismiss).toHaveBeenCalledWith("dismiss-1");
+  });
+
+  it("Research calls researchActivity and the pill reflects Researching state", () => {
+    const research = vi.fn();
+    const target = item({ id: "research-1", status: "noteworthy", action: "start_research_job", entityNames: ["CardioNova"] });
+    withFeed([target], { researchActivity: (i: PassiveActivityItem) => { research(i.id); return Promise.resolve(); } });
+    render(<PassiveAgentChip roomId="r1" me={ME} onOpenArtifact={vi.fn()} />);
+    fireEvent.click(screen.getByTestId("passive-agent-chip"));
+    const researchBtn = screen.getByTestId("noteworthy-research");
+    expect(researchBtn).toBeTruthy();
+    fireEvent.click(researchBtn);
+    expect(research).toHaveBeenCalledWith("research-1");
+  });
+
+  it("Add to sheet calls addActivityToSheet", () => {
+    const add = vi.fn();
+    const target = item({ id: "add-1", status: "noteworthy", action: "create_coach_cue", entityNames: ["CardioNova"] });
+    withFeed([target], { addActivityToSheet: (i: PassiveActivityItem) => { add(i.id); return Promise.resolve(); } });
+    render(<PassiveAgentChip roomId="r1" me={ME} onOpenArtifact={vi.fn()} />);
+    fireEvent.click(screen.getByTestId("passive-agent-chip"));
+    const addBtn = screen.getByTestId("noteworthy-add");
+    expect(addBtn).toBeTruthy();
+    fireEvent.click(addBtn);
+    expect(add).toHaveBeenCalledWith("add-1");
+  });
+
+  it("Research button is hidden when item is already Researching", () => {
+    const target = item({ id: "r1", status: "job_created", action: "start_research_job", entityNames: ["CardioNova"] });
+    withFeed([target], { researchActivity: vi.fn().mockResolvedValue(undefined) });
+    render(<PassiveAgentChip roomId="r1" me={ME} onOpenArtifact={vi.fn()} />);
+    fireEvent.click(screen.getByTestId("passive-agent-chip"));
+    // research button hidden when tone === "researching"
+    expect(screen.queryByTestId("noteworthy-research")).toBeNull();
   });
 });

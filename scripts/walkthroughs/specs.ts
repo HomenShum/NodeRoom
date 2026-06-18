@@ -307,6 +307,8 @@ export const FEATURES: FeatureSpec[] = [
     optIn: true,
     steps: [
       { kind: "state", caption: "The NAIVE build (demo/v0-naive-agent) — same room, agent guards removed", holdMs: 2000 },
+      // Notebook is now the default surface; open Q3 variance explicitly before clicking cells.
+      { kind: "click", sel: '[data-testid="artifact-tabs"] button:has-text("Q3 variance")', caption: "Open the Q3 variance sheet", after: { sel: '[data-cell-key="r_gp__variance"]', timeoutMs: 15_000 }, afterHoldMs: 600 },
       { kind: "click", sel: '[data-cell-key="r_gp__variance"] .r-cell-edit', caption: "Maya checked Gross profit by hand…" },
       {
         kind: "type", sel: '[data-cell-key="r_gp__variance"] input.r-cell-input', text: "+30.0% — Maya's manual calc",
@@ -320,6 +322,68 @@ export const FEATURES: FeatureSpec[] = [
         caption: "Maya's figure is GONE — no lock shown, no proposal, no trace. Silent overwrite.", timeoutMs: 30_000,
       },
       { kind: "state", caption: "This is why the room needed locks, versions, drafts, and review", holdMs: 2400 },
+    ],
+  },
+  {
+    id: "first-time-banker-capture",
+    title: "First-time banker happy path — join, note, notice, choose",
+    /** memoryDemo ensures deterministic passive feed (scripted CardioNova seed) — no live LLM timing.
+     *  Honest label: frames include "memory-mode demo" so viewers know timing is scripted. */
+    setup: "memoryDemo",
+    closePanels: ["left"],
+    steps: [
+      // Step 1: land on the Capture Notebook (default surface after notebook-first change).
+      {
+        kind: "state",
+        caption: "Join the room — land on the Notebook. Placeholder says what to jot.",
+        holdMs: 2200,
+      },
+      // Step 2: type messy notes into the note editor.
+      {
+        kind: "type",
+        sel: '[data-testid="note-editor"] .ProseMirror',
+        text: "Met Maya from CardioNova. AI triage for hospitals. Possible Series B. Need to ask about burn and hospital pilots.",
+        caption: "Jot what you heard — no structure needed yet",
+        afterCaption: "Raw notes captured. Put the phone down.",
+        afterHoldMs: 1800,
+      },
+      // Step 3: pause — "the room is watching"
+      {
+        kind: "state",
+        caption: "The room is watching. NodeRoom noticed signals in your notes.",
+        settleMs: 600,
+        holdMs: 3200,
+      },
+      // Step 4: wait for the passive-agent chip (deterministic in memory mode — always present from seed).
+      {
+        kind: "loading",
+        sel: '[data-testid="passive-agent-chip"]',
+        caption: "NodeRoom noticed — chip surfaces when there is something worth returning to",
+        timeoutMs: 8_000,
+      },
+      // Step 5: click the chip to open the inbox.
+      {
+        kind: "click",
+        sel: '[data-testid="passive-agent-chip"]',
+        caption: "Click to open the room intelligence inbox",
+        afterCaption: "CardioNova flagged: funding, runway, and hospital signals",
+        after: { sel: '[data-testid="noteworthy-inbox"]', timeoutMs: 6_000 },
+        afterHoldMs: 2000,
+      },
+      // Step 6: click Research — pill flips to Researching.
+      {
+        kind: "click",
+        sel: '[data-testid="noteworthy-research"]',
+        caption: "Click Research — you chose what to do with it",
+        afterCaption: "Researching. Suggest, don't automate: you're still in control.",
+        afterHoldMs: 2400,
+      },
+      // Step 7: final state — honest summary.
+      {
+        kind: "state",
+        caption: "30 seconds: note → notice → choose. The room captured your intent.",
+        holdMs: 3000,
+      },
     ],
   },
   {

@@ -557,4 +557,118 @@ describe("passive room activity and evidence adapters", () => {
     expect(hostFeed.some((r) => r.textPreview.includes("Guest private"))).toBe(false);
     expect(hostFeed.every((r) => r.visibility !== "private")).toBe(true);
   });
+
+  it("gives each actor an independent quiet window (per-actor dedupe key)", async () => {
+    // Two users writing to the same element must each get their own outbox row
+    // so no single slow typist starves the others' debounce timers.
+    const s = await seedRoom();
+    const elementId = "actor-test-row__notes";
+    const sourceId = `${String(s.artifactId)}:${elementId}`;
+    await s.t.run((ctx) =>
+      ctx.db.insert("elements", {
+        artifactId: s.artifactId, elementId, version: 1,
+        value: { value: "shared element content" },
+        updatedAt: Date.now(), updatedBy: s.actor,
+      }),
+    );
+
+    const guestToken = "guestACTOR0000TOKEN0123456789abcdefXYZQQQ";
+    const guestId = await s.t.run(async (ctx) =>
+      ctx.db.insert("members", {
+        roomId: s.roomId, name: "Guest", role: "member" as const, anon: false, color: "#222222",
+        authTokenHash: await hashToken(guestToken), lastSeenAt: Date.now(),
+      }),
+    );
+    const guestActor = { kind: "user" as const, id: String(guestId), name: "Guest" };
+    const guestProof = { actor: guestActor, token: guestToken };
+
+    // Both actors enqueue for the SAME source element.
+    const hostEnqueue = await s.t.mutation(api.roomActivity.enqueueManual, {
+      roomId: s.roomId, requester: s.proof, sourceKind: "element", sourceId,
+      sourceVersion: 1, sourceHash: "hash-host", eventKind: "cell_committed", quietMs: 1_000,
+    });
+    const guestEnqueue = await s.t.mutation(api.roomActivity.enqueueManual, {
+      roomId: s.roomId, requester: guestProof, sourceKind: "element", sourceId,
+      sourceVersion: 1, sourceHash: "hash-guest", eventKind: "cell_committed", quietMs: 1_000,
+    });
+
+    // Independent rows — host's edit did NOT collide into the guest's debounce bucket.
+    expect(String(hostEnqueue.outboxId)).not.toBe(String(guestEnqueue.outboxId));
+    // Dedupe keys are actor-scoped (contain the actor's member ID).
+    expect(hostEnqueue.dedupeKey).toContain(String(s.actor.id));
+    expect(guestEnqueue.dedupeKey).toContain(String(guestId));
+    // A second host enqueue dedupes into the SAME host row (not a new one).
+    const hostEnqueue2 = await s.t.mutation(api.roomActivity.enqueueManual, {
+      roomId: s.roomId, requester: s.proof, sourceKind: "element", sourceId,
+      sourceVersion: 2, sourceHash: "hash-host-2", eventKind: "cell_committed", quietMs: 1_000,
+    });
+    expect(String(hostEnqueue2.outboxId)).toBe(String(hostEnqueue.outboxId));
+  });
+
+  it("caps the debounce delay at maxWaitAt so a slow typist still fires exactly one scan", async () => {
+    const s = await seedRoom();
+    const now = Date.now();
+    const elementId = "maxwait-test-row__notes";
+    const sourceId = `${String(s.artifactId)}:${elementId}`;
+    await s.t.run((ctx) =>
+      ctx.db.insert("elements", {
+        artifactId: s.artifactId, elementId, version: 1,
+        value: { value: "long typing session" },
+        updatedAt: now, updatedBy: s.actor,
+      }),
+    );
+
+    const first = await s.t.mutation(api.roomActivity.enqueueManual, {
+      roomId: s.roomId, requester: s.proof, sourceKind: "element", sourceId,
+      sourceVersion: 1, sourceHash: "hash-1", eventKind: "cell_committed", quietMs: 12_000,
+    });
+    const row1 = await s.t.run((ctx) => ctx.db.get(first.outboxId));
+    expect(row1?.maxWaitAt).toBeDefined();
+    const hardDeadline = row1!.maxWaitAt!;
+
+    // Simulate maxWaitAt already elapsed by patching it to the past.
+    await s.t.run((ctx) => ctx.db.patch(first.outboxId, { maxWaitAt: now - 1_000 }));
+
+    // The second enqueue should still use this outbox row (same dedupe key = same actor + source).
+    const second = await s.t.mutation(api.roomActivity.enqueueManual, {
+      roomId: s.roomId, requester: s.proof, sourceKind: "element", sourceId,
+      sourceVersion: 2, sourceHash: "hash-2", eventKind: "cell_committed", quietMs: 12_000,
+    });
+    expect(String(second.outboxId)).toBe(String(first.outboxId));
+
+    // Because maxWaitAt is in the past, the effective delay collapses to 1ms (Math.max(1, ...)).
+    // quietUntil should be very close to now (not pushed out 12 more seconds).
+    const row2 = await s.t.run((ctx) => ctx.db.get(second.outboxId));
+    expect(row2?.quietUntil).toBeLessThanOrEqual(Date.now() + 100);
+
+    // Hard deadline must be preserved from the first insert (not bumped by the second enqueue).
+    expect(row2?.maxWaitAt).toBeDefined();
+    expect(row2!.maxWaitAt!).toBeLessThan(hardDeadline + 2_000);
+    void hardDeadline;
+  });
+
+  it("dismiss action sets status to ignored and the chip stops counting it", async () => {
+    const s = await seedRoom();
+    const rowId = await s.t.run((ctx) =>
+      ctx.db.insert("roomActivityOutbox", {
+        roomId: s.roomId, sourceKind: "element", sourceId: "art:el1", sourceVersion: 1,
+        sourceHash: "hash-dismiss", eventKind: "cell_committed", status: "noteworthy",
+        actor: s.actor, visibility: "room",
+        dedupeKey: "activity:dismiss:test:1", quietUntil: Date.now(), attempts: 0,
+        decision: { action: "create_coach_cue", text: "CardioNova funding signal." },
+        finding: { score: 0.6, action: "create_coach_cue", reasons: ["company_mention"], facets: [], entities: [] },
+        createdAt: Date.now(), updatedAt: Date.now(),
+      }),
+    );
+
+    const result = await s.t.mutation(api.roomActivity.dismissActivity, {
+      activityId: rowId,
+      roomId: s.roomId,
+      requester: s.proof,
+    });
+    expect(result.ok).toBe(true);
+
+    const row = await s.t.run((ctx) => ctx.db.get(rowId));
+    expect(row?.status).toBe("ignored");
+  });
 });

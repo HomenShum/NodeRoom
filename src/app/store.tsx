@@ -220,6 +220,15 @@ export interface RoomStore {
   /** Passive room-intelligence feed: noteworthy detections, queued/running scans, and failed work.
    *  [] in memory mode (the demo has no passive backend); reactive in convex mode. */
   listPassiveActivity(roomId: string): PassiveActivityItem[];
+  /** Dismiss a passive-activity item — sets it to `ignored` so it leaves the chip count.
+   *  Memory mode drops it from the seeded list immediately; live mode calls the Convex mutation. */
+  dismissActivity(activityId: string, actor: Actor): Promise<void>;
+  /** Flip a passive-activity item to `job_created` / Researching. Memory mode updates the seeded list;
+   *  live mode starts a research agent job scoped to the item's entity. */
+  researchActivity(item: PassiveActivityItem, actor: Actor): Promise<void>;
+  /** Propose adding the item's entity as a row on the company research sheet. MUST go through
+   *  draft/proposal path — never a silent clobber. Memory mode is a no-op (no sheet to target). */
+  addActivityToSheet(item: PassiveActivityItem, actor: Actor): Promise<void>;
 }
 
 const Ctx = createContext<RoomStore | null>(null);
@@ -351,11 +360,38 @@ function withStoredSourceMeta(meta: ArtifactMeta | undefined, sourceFile: Upload
   };
 }
 
+/** Scripted passive-intelligence seed for the memory-demo room. Deterministic and
+ *  reproducible: the same CardioNova item fires every time so the walkthrough clip is honest
+ *  (labeled "memory-mode demo") without relying on live LLM timing. */
+const DEMO_PASSIVE_SEED: PassiveActivityItem[] = [
+  {
+    id: "mem-passive-cardionova-1",
+    sourceKind: "node",
+    sourceId: "mem-node-1",
+    eventKind: "content_committed",
+    status: "noteworthy",
+    visibility: "room",
+    createdAt: Date.now(),
+    updatedAt: Date.now(),
+    entityNames: ["CardioNova"],
+    facets: ["funding", "runway_inputs"],
+    reasons: ["company_mention", "finance_signal", "research_signal"],
+    score: 0.82,
+    action: "start_research_job",
+    textPreview: "Met Maya from CardioNova. AI triage for hospitals. Possible Series B. Need to ask about burn and hospital pilots.",
+  },
+];
+
 export function EngineStoreProvider({ roomId, children }: { roomId: string; me: Actor; children: ReactNode }) {
   const rev = useEngineRev();
   const undoStack = useRef(new Map<string, UndoEntry[]>());
+  // Reactive passive list for the memory demo. A useRef holds the mutable snapshot;
+  // a useState counter forces re-renders when actions (Dismiss/Research) mutate the list.
+  const memPassiveRef = useRef<PassiveActivityItem[]>(roomId === demo.roomId ? DEMO_PASSIVE_SEED.map((i) => ({ ...i })) : []);
+  const [memPassiveRev, setMemPassiveRev] = useState(0);
   const store = useMemo<RoomStore>(() => ({
     mode: "memory",
+    // memPassiveRev is included in deps (below) to force re-compute after Dismiss/Research.
     getRoom: (id) => engine.getRoom(id),
     listMembers: (id) => engine.listMembers(id),
     listArtifacts: (id) => engine.listArtifacts(id),
@@ -487,8 +523,23 @@ export function EngineStoreProvider({ roomId, children }: { roomId: string; me: 
     okfTraceLens: () => null,
     cancelLongFreeJob: async () => ({ ok: true }),
     retryLongFreeJob: async () => ({ ok: true }),
-    listPassiveActivity: () => [], // memory demo has no passive backend
-  }), [rev, roomId]);
+    // Memory mode passive feed: returns the scripted seed (demo room) or [] (other rooms).
+    // The ref is mutated by the action handlers below; setMemPassiveRev triggers re-render.
+    listPassiveActivity: () => memPassiveRef.current,
+    dismissActivity: async (activityId) => {
+      memPassiveRef.current = memPassiveRef.current.filter((i) => i.id !== activityId);
+      setMemPassiveRev((v) => v + 1);
+    },
+    researchActivity: async (item) => {
+      memPassiveRef.current = memPassiveRef.current.map((i) =>
+        i.id === item.id ? { ...i, status: "job_created", action: "start_research_job" } : i,
+      );
+      setMemPassiveRev((v) => v + 1);
+    },
+    addActivityToSheet: async () => {
+      // Memory mode has no persistent research sheet to target — no-op with honest label.
+    },
+  }), [rev, memPassiveRev, roomId]);
   return <Ctx.Provider value={store}>{children}</Ctx.Provider>;
 }
 
@@ -792,6 +843,8 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
   const recordCitationMut = useMutation(api.captures.recordCitation);
   const createPrivateReplyStream = useMutation(api.streaming.createPrivateReplyStream);
   const startAgentJob = useMutation(api.agentJobs.start);
+  const dismissActivityMutation = useMutation(api.roomActivity.dismissActivity);
+  const researchActivityMutation = useMutation(api.roomActivity.researchActivity);
   // Job-strip controls flip instantly. Mirrors the server's transition + ITS guards (cancel: no-op
   // on terminal; retry: no-op on completed/running) so an ok:false result reconciles honestly via
   // rollback + the returned feedback. Args carry only jobId — patch whichever loaded list holds it.
@@ -863,6 +916,8 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
     const isHost = members.some((m) => m.id === me.id && m.role === "host");
     const reshapeMsgs = (rows: typeof pub): Message[] => rows.map((m: { _id: string; roomId: string; channel: string; author: Actor; text: string; clientMsgId: string; kind: Message["kind"]; createdAt: number; streamId?: string }) => ({ id: m._id as string, roomId: m.roomId as string, channel: m.channel === "public" ? "public" : { private: m.channel }, author: m.author as Actor, text: m.text, clientMsgId: m.clientMsgId, kind: m.kind, createdAt: m.createdAt, streamId: m.streamId }));
     const allTraces = (traces as { _id: string; roomId: string; ts: number; actor: Actor; type: string; summary: string; detail?: string }[]).map((t) => ({ id: t._id, roomId: t.roomId, ts: t.ts, actor: t.actor, type: t.type as TraceEvent["type"], summary: t.summary, detail: t.detail }));
+    // Hoisted sheet resolution — shared by addActivityToSheet (researchActivity resolves server-side).
+    const researchSheet = metaArtifacts.find((a) => (a as { kind?: string }).kind === "sheet" && (a as { title?: string }).title === "Company research");
 
     return {
       mode: "convex",
@@ -1218,8 +1273,28 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
         try { const r = await retryFreeAutoJob({ jobId: jobId as never, requester: proof }); return r.ok ? { ok: true } : { ok: false, reason: r.reason }; }
         catch (e) { return { ok: false, reason: e instanceof Error ? e.message : "retry_failed" }; }
       },
+      dismissActivity: async (activityId) => {
+        await dismissActivityMutation({ activityId: activityId as never, roomId: rid, requester: proof });
+      },
+      researchActivity: async (item) => {
+        // Scope is derived server-side from the stored outbox row's visibility —
+        // never from client-supplied item.visibility (avoids scope manipulation).
+        await researchActivityMutation({ activityId: item.id as never, roomId: rid, requester: proof });
+      },
+      addActivityToSheet: async (item) => {
+        const entity = item.entityNames[0];
+        if (!entity) return;
+        const targetArt = researchSheet ?? metaArtifacts.find((a) => (a as { kind?: string }).kind === "sheet");
+        if (!targetArt) return;
+        await addResearchRowsMutation({
+          roomId: rid,
+          artifactId: targetArt.id as never,
+          requester: proof,
+          rows: [{ company: entity }],
+        });
+      },
     };
-  }, [data, metaArtifacts, elementsByArtifact, pub, priv, traces, okfLens, runs, jobs, jobAttempts, jobDetail, proposals, passiveActivity, mergedCaptures, applyCellEdit, sendMsg, toggle, editMsg, resolveProposalMutation, addResearchRowsMutation, createArtifactMutation, uploadSourceFile, runSemanticConflictDrillMutation, runAgent, runPrivateAgent, createPrivateReplyStream, startAgentJob, cancelFreeAutoJob, retryFreeAutoJob, rid, roomId, proof, me.id, me.name]);
+  }, [data, metaArtifacts, elementsByArtifact, pub, priv, traces, okfLens, runs, jobs, jobAttempts, jobDetail, proposals, passiveActivity, mergedCaptures, applyCellEdit, sendMsg, toggle, editMsg, resolveProposalMutation, addResearchRowsMutation, createArtifactMutation, uploadSourceFile, runSemanticConflictDrillMutation, runAgent, runPrivateAgent, createPrivateReplyStream, startAgentJob, cancelFreeAutoJob, retryFreeAutoJob, dismissActivityMutation, researchActivityMutation, rid, roomId, proof, me.id, me.name]);
 
   return (
     <Ctx.Provider value={store}>

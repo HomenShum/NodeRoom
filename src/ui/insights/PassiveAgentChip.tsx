@@ -18,9 +18,11 @@ function actionable(items: PassiveActivityItem[]): PassiveActivityItem[] {
  *  the NoteworthyInbox popover anchored above the strip; never auto-edits anything. */
 export function PassiveAgentChip({
   roomId,
+  me,
   onOpenArtifact,
 }: {
   roomId: string;
+  me: import("../../engine/types").Actor;
   onOpenArtifact: (id: string, options?: { split?: boolean; elementId?: string }) => boolean | void;
 }) {
   const store = useStore();
@@ -72,6 +74,9 @@ export function PassiveAgentChip({
           items={items}
           onOpenArtifact={(id, opts) => { onOpenArtifact(id, opts); setOpen(false); }}
           onClose={() => setOpen(false)}
+          onDismiss={(item) => { void store.dismissActivity?.(item.id, me); }}
+          onResearch={(item) => { void store.researchActivity?.(item, me); }}
+          onAddToSheet={(item) => { void store.addActivityToSheet?.(item, me); }}
         />
       )}
     </div>

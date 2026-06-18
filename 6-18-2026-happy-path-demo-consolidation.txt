@@ -1,0 +1,957 @@
+Could you pull up the latest updates from NodeRoom GitHub and summarize in a one-pager on what has changed, why were they changed, what is the pro and con with or without the changes, and what are the trade-offs and alternatives? What's even better is if you can help me understand the details of the implementation along with using the convex mutation action queries, so this way I can have an easier time visualizing how the new changes affect our operations, and what exactly, who exactly are the workflows targeting for these changes, are they truly meaningful, especially for our core happy path. Finally conclude with how exactly we can manually dog food or ask another person to test it out as a new user.
+Thought for 7m 0s
+NodeRoom latest update one-pager
+
+I pulled the latest main files and reviewed the new NodeRoom direction around passive room intelligence, Firecrawl/source capture, OKF retrieval, entity caching, and durable agent work items. I did not run the repo locally, so this is a GitHub/code review, not a verified green-test report.
+
+What changed
+
+The biggest change is that NodeRoom is no longer just “user explicitly asks agent → agent runs.” It now has the beginnings of a passive intelligence loop:
+
+user types in note / spreadsheet / wiki / message
+  -> Convex saves the committed content
+  -> server-side debounce waits for quiet time
+  -> scanner decides if the content is noteworthy
+  -> if meaningful, creates agentJob + entityWorkItems
+  -> later workflow can research/cache/fill/source/OKF-index it
+
+The new roomActivityOutbox schema tracks saved content events, quiet windows, scheduled scans, dedupe keys, findings, and the latest linked agent job. That is the backend foundation for “user typed something, put the phone away, and NodeRoom noticed it was worth following up.”
+
+The new convex/noteworthy.ts implements a keyed server-side debounce. When a node/cell/wiki/message is saved, debounceActivityScan cancels the prior scheduled scan for that same object and schedules a new scan after the quiet window. This prevents agent work on every keystroke.
+
+When the quiet-window scan fires, scanActivity re-reads the latest committed content, runs a cheap noteworthiness classifier, and, if the content is meaningful, creates a durable agentJob plus entityWorkItems. The current implementation is a P0 scaffold: it creates the work ledger, but the expensive downstream research workflow still needs to process those work items.
+
+The repo also added an Evidence Accountant layer. sourceCaptures stores captured source URL/title/kind, content hash, Markdown/HTML/screenshot storage IDs, provider, visibility, and owning job; evidenceFacts stores extracted facts, values, units, period, quote, selector/bbox, confidence, checks, and downstream usage. This matches the earlier design: screenshots alone are not enough; banker-grade evidence needs raw source, screenshot, text, bbox, extracted fact, verifier receipt, and downstream artifact links.
+
+The OKF layer is now real in schema: okfConcepts, okfChunks, okfEdges, and okfOutbox support portable room knowledge, full-text search, vector search, links/citations/backlinks, and reindexing jobs. entityResearchCache stores entity/facet-level cached results with source-set hashes, result hashes, freshness windows, and delta status — exactly what we need to avoid duplicate Linkup/Firecrawl/LLM calls.
+
+Finally, ConvexRoomTools now wires OKF retrieval into the agent harness. The same RoomTools contract works over memory mode or Convex; in production, it maps OKF list/read/search/filter/glob/regex/backlinks/open-literal/compare-claim operations through Convex queries and records retrieval events.
+
+Why these changes were made
+
+The product reason is simple:
+
+The core happy path is relationship capture → source-backed diligence fill.
+
+A banker, analyst, founder, or conference attendee may not always click “run agent.” They may just type:
+
+Met Maya from CardioNova. AI triage for hospitals. Possible Series B. Ask about burn and pilots.
+
+or they may add a row in the spreadsheet and walk away.
+
+Before these changes, NodeRoom depended more heavily on explicit prompts. After these changes, the room can begin to behave like a background analyst assistant:
+
+notice useful note
+identify company/person/topic/funding/runway/task signals
+reuse cached research if fresh
+create entity work only if missing/stale
+capture evidence
+backlink the note
+fill or propose spreadsheet updates
+
+The infrastructure also supports lower cost. Entity/facet caching lets the room avoid repeating paid search, scraping, embedding, and LLM synthesis when a company/product/person has already been researched and the source set is still fresh.
+
+With vs. without the changes
+Area	Without these changes	With these changes
+User typing notes	Notes are passive text until the user explicitly asks the agent.	Saved notes can be scanned after idle time and turned into entity work, backlinks, tasks, or research jobs.
+Spreadsheet row capture	User must manually ask the agent to enrich a new row.	A committed row/cell can trigger passive noteworthiness and queued entity work.
+Cost	Same company/topic can be researched repeatedly.	entityResearchCache allows cache hit, stale refresh, or missing-work decisions.
+Evidence	A URL or snippet may be enough for chat, but not for banker review.	sourceCaptures + evidenceFacts can support screenshot, source hash, quote, bbox, and downstream usage.
+Agent context	Agent has to reconstruct history from live room state.	OKF concepts/chunks/edges package portable room knowledge for retrieval and reuse.
+UI trust	Agent output can feel magical or hidden.	Evidence/OKF/trace layers make claims inspectable.
+Risk	Background automation can become noisy or expensive if uncontrolled.	Debounce + noteworthiness + cache policy reduce unnecessary jobs.
+Trade-offs and alternatives
+
+The main trade-off is complexity. We now have more moving pieces:
+
+roomActivityOutbox
+noteworthy scanner
+agentJobs
+entityWorkItems
+entityResearchCache
+sourceCaptures
+evidenceFacts
+okfConcepts
+okfChunks
+okfEdges
+okfOutbox
+retrievalEvents
+
+That is more to test and maintain. The upside is that the architecture now matches the actual product vision: passive capture, background research, source-backed output, and reusable room memory.
+
+A simpler alternative is a pure manual model:
+
+user writes note
+user clicks “Research”
+agent runs only then
+
+That is easier, cheaper, and safer. The downside is weaker magic and weaker “phone-away” utility.
+
+Another alternative is to use a full external workflow engine or queue system. But since NodeRoom already uses Convex for live state, the current design keeps workflow intent, activity, source evidence, and room state in one operational ledger. The broader harness idea remains: the LLM is not the system of record; the harness owns tools, state, approval, rollback, and safety.
+
+The biggest technical caution: the new passive scanner should stay cheap. It should not call Linkup, Firecrawl, or an LLM directly during every scan. It should classify cheaply, create durable work, and let a workflow/workpool process expensive research under budget/caching rules.
+
+How Convex mutations, actions, and queries fit together
+
+The operational flow should be visualized like this:
+
+1. User commits content
+   - notebook node edit
+   - spreadsheet cell edit
+   - wiki revision
+   - chat message
+
+2. Convex mutation saves the content
+   - updates node/element/message/wiki row
+   - bumps version/hash
+   - calls or is followed by debounceActivityScan
+
+3. debounceActivityScan mutation
+   - authenticates user
+   - cancels previous scheduled scan for this source
+   - schedules scanActivity after quiet window
+   - writes/updates roomActivityOutbox
+
+4. scanActivity internal mutation
+   - re-reads latest saved content
+   - skips if superseded
+   - classifies noteworthiness
+   - creates agentJob + entityWorkItems if useful
+
+5. later action/workflow
+   - checks entityResearchCache
+   - searches OKF concepts/chunks/edges
+   - calls Linkup/Firecrawl/LLM only if missing or stale
+   - creates sourceCaptures/evidenceFacts
+
+6. managed mutation
+   - writes CellPayloads
+   - creates proposals if risky
+   - updates OKF concepts/outbox
+   - records traces/retrieval events
+
+Queries serve the UI and agent retrieval. For example, OKF exposes full-text search, semantic search, filters, glob, regex, backlinks, neighbor expansion, citation resolution, literal source opening, and claim comparison. In the Convex adapter, the agent uses these through ConvexOkfRetrievalPort, and semantic search first tries Convex vector search before falling back to a scan path for local/test environments.
+
+This is the key idea:
+
+Mutations commit truth. Actions/workflows do slow external work. Queries retrieve current state and knowledge. The agent never gets to directly bypass managed writes.
+
+Who these workflows target
+
+The changes are meaningful for three target workflows:
+
+1. Core happy path: relationship capture
+
+Target user:
+
+analyst / banker / founder / conference attendee
+
+Workflow:
+
+join room
+take notes on people/companies/products
+or fill a spreadsheet row
+stop typing / put phone away
+NodeRoom notices useful signals
+NodeRoom creates research work
+NodeRoom fills source-backed fields or creates review cues
+
+This is the most important path. It is now directly supported at the scaffold level.
+
+2. Diligence workspace
+
+Target user:
+
+banking / startup banking / GTM research / venture / corp dev
+
+Workflow:
+
+bulk or singular company research
+source capture
+product/funding/headcount/competitor/runway facts
+spreadsheet fill
+evidence carousel
+review tasks
+OKF export
+
+This maps to the professional eval plan: chat/file/artifact intake → entity extraction → evidence plan → evidence-bearing CellPayload/wiki writes → lock/CAS/draft/no-clobber → trace/eval result.
+
+3. BankerToolBench-style extension
+
+Target user:
+
+finance professional doing multi-file diligence/model/report work
+
+Workflow:
+
+data room / source captures
+spreadsheet model
+chart/report/memo
+cross-artifact consistency
+client-readiness review
+
+The new Evidence Accountant layer is especially relevant here because BankerToolBench-level outputs need source proof, not just fluent summaries.
+
+Are these changes truly meaningful?
+
+Yes, if we keep them aligned to the core happy path.
+
+The most meaningful parts are:
+
+server-side debounce
+entity/facet cache
+OKF retrieval
+source capture / evidence facts
+passive agent job creation
+
+These directly improve:
+
+speed to fill
+lower cost
+less duplicated research
+better evidence
+better user experience when the user walks away
+
+The risk is that passive intelligence can become too noisy. If every note creates tasks, the product becomes annoying. The scanner needs strict thresholds, user controls, quiet hours, and obvious UX:
+
+“NodeRoom found this noteworthy. Research now / dismiss / always do this / never do this.”
+Manual dogfood plan for a new user
+Test 1 — first-time room, passive note
+Join a fresh room as a new user.
+Open the notebook.
+Type:
+Met Maya from CardioNova. AI triage for hospitals. Possible Series B. Need to ask about burn and hospital pilots.
+Stop typing and wait 15–30 seconds.
+Expected result:
+a roomActivityOutbox row is queued/scanned/job-created
+an agentJob is created with passive-room intelligence goal
+entityWorkItems are created for CardioNova-related facets such as funding/runway/product/source validation
+no external API should be called yet unless the worker is wired and policy allows it
+
+If UI is not wired yet, verify through the Convex dashboard.
+
+Test 2 — spreadsheet row capture
+In the Company Research sheet, add a row:
+Company: CardioNova
+Contact: Maya
+Notes: AI triage for hospitals; possible Series B; ask about burn.
+Stop editing.
+Expected:
+cell commit succeeds normally
+passive scan runs after debounce
+entity work is created
+future worker can fill cached/source-backed fields without clobbering the user’s typed fields
+Test 3 — duplicate/cache behavior
+Repeat the same CardioNova note.
+Expected:
+dedupe key prevents duplicate work for the same source/hash
+if research cache is fresh, future worker should reuse it instead of calling Linkup/Firecrawl/LLM again
+Test 4 — source/evidence path
+Paste a real company URL in a note or source field.
+Expected after worker integration:
+Firecrawl capture creates sourceCaptures
+extracted facts create evidenceFacts
+OKF source concepts update
+evidence can be opened from the source/evidence view
+Test 5 — no-clobber collaboration
+User A edits C2.
+Agent or User B triggers a range job over A1:C5.
+Expected:
+C2 remains human-owned
+agent writes clean cells or creates proposals
+any conflict is recorded as proposal/semantic conflict, not silent overwrite
+Final takeaway
+
+The latest updates make NodeRoom much closer to the real product:
+
+A user can simply write notes or touch the spreadsheet, and NodeRoom can decide whether that activity is worth turning into structured, source-backed diligence work.
+
+The implementation is not fully complete yet — the passive scanner currently creates the work ledger; the next missing piece is the worker that processes entityWorkItems through cache → OKF retrieval → Linkup/Firecrawl → evidence facts → managed writes. But the architectural direction is strong and directly meaningful for the core happy path.
+
+How can we make sure the user can be directly guided to start typing and see the magic right away (like the early version of notion), or should we make notebook open the first thing and have place holder texts to seed the notebook served as guides.
+
+How can we ensure that the debouncing between user typing to saving to convex to streaming to other clients versus the debouncing to invoke the agent is not going to run into edge cases: one example is like a public room notebook that constantly gets updated by another user so the passive intelligence agent job never kicks off, we would want to account for debouncing per user id but would that also increase the amount of convex action mutation query operations too much? Any other angles of product design or inspirational references from existing successful apps that we can learn and remix from?
+
+Once we solve layer one issue like getting rid of the debouncing never kicks off problem within shared notebooks or spreadsheets, the layer two problem would be the agent job action or workflow kickoff, would that cause too much disruptions to the other users? for example if the agent came back with informational updates and start populating, will it incur too much network bandwidth costs from streaming updates from the database onto the other clients? I guess persistent text streaming technically solves this with the sentence by sentence rendering into the other connected users interface. I just don’t know how well it performs under many users under load, how can we stress test this accurately?
+
+Finally, how can we batch these jobs so that we are not kicking off many individual actions one at a time for like hundreds of updates per room per minute, instead, we utilize structured output and context engineering with our harnessed agent so that it can utilize the right tools to construct the right responses without having to go into havoc to rerun new searches even if some searches are likely similar (multiple user in one conference hearing the same topic) or already populated by people before so we have cached or stored results that can be shared (global cross room cache or storage to retrieve from in case a topic is big enough that it is being repeated multiple times across the week)
+Thought for 6m 7s
+
+Yes. The product should make the first 30 seconds feel like:
+
+Join room → cursor already focused in a notebook → type anything about who you met / what you heard → NodeRoom quietly detects people, companies, topics, sources, and follow-ups → useful structured work starts without the user learning a workflow.
+
+The hard part is not the UI alone. It is separating typing/saving, passive agent triggering, agent result streaming, and durable artifact mutation so each layer has the right latency and cost profile.
+
+1. First-screen UX: make the notebook the default “magic surface”
+
+I would make the notebook open first, not the spreadsheet.
+
+Reason: the user’s lowest-friction action is not filling a perfect table. It is typing messy notes:
+
+Met Maya from CardioNova. AI triage for hospitals. Possible Series B.
+Need to ask about burn and hospital pilots.
+
+That is exactly the raw material NodeRoom can turn into:
+
+Company → Person → Interaction → Claims → Source gaps → Research job → Spreadsheet row
+
+Notion is the right inspiration here: Notion’s help docs describe every new page as a blank canvas, and its slash command opens a menu of block types; this lowers the cost of starting because the user does not have to choose a rigid structure first.
+
+Recommended first screen
+┌──────────────────────────────────────────────────────────────────────┐
+│ NodeRoom · Startup Diligence Room                                    │
+├───────────────┬────────────────────────────────────┬─────────────────┤
+│ Room Binder   │ Capture Notebook                   │ Copilot         │
+│               │                                    │                 │
+│ People        │  Today’s notes                     │  Watching for:  │
+│ Companies     │  ─────────────                     │  companies      │
+│ Sources       │  Start typing who you met,         │  people         │
+│ Tasks         │  what they said, or paste a link…  │  funding        │
+│ Sheet         │                                    │  source gaps    │
+│ OKF Graph     │  Try:                              │                 │
+│               │  “Met Maya from CardioNova…”       │  [Research]     │
+│               │  “Saw a funding article…”          │  [Add row]      │
+│               │  “Need to verify burn…”            │  [Summarize]    │
+├───────────────┴────────────────────────────────────┴─────────────────┤
+│ Status: Type freely. NodeRoom will suggest work after you pause.      │
+└──────────────────────────────────────────────────────────────────────┘
+
+The placeholder should not look like a form. It should feel like a notebook with gentle prompts:
+
+Who did you talk to?
+What company/product/topic came up?
+Any funding, pricing, customer, hiring, or runway signal?
+Paste links here.
+Write messy notes — NodeRoom will organize them.
+
+Then, after the first noteworthy detection:
+
+NodeRoom noticed:
+  Company: CardioNova
+  Person: Maya
+  Signals: Series B, burn, hospital pilots
+
+[Add to sheet] [Research sources] [Create follow-up task] [Dismiss]
+
+This should be the core “magic moment.”
+
+2. Separate the two debounces: save debounce vs. agent debounce
+
+These are different systems and should never be conflated.
+
+Typing debounce:
+  protects UX and database write volume.
+
+Agent debounce:
+  protects model/search/API cost and avoids noisy automation.
+Layer A — save debounce
+
+This is short.
+
+Goal:
+  keep the user’s text saved and shared.
+
+Typical timing:
+  300–1000ms after typing pause
+  immediate on blur
+  immediate on pagehide / phone lock
+  immediate on manual save
+
+This mutation should only save content. It should not call an LLM or Firecrawl.
+
+Layer B — passive agent debounce
+
+This is longer.
+
+Goal:
+  wait until the note/cell is stable enough to inspect.
+
+Typical timing:
+  8–20 seconds after quiet period
+  maxWait 30–90 seconds from first meaningful edit
+  batch window for busy rooms
+
+The current implementation is already moving in the right direction. debounceActivityScan persists the latest source hash/version, cancels a prior scheduled scan for the same source, and schedules scanActivity after the quiet window. Convex scheduled functions are stored durably and can be canceled before they run, which is exactly the right primitive for server-side debouncing.
+
+3. Fix the “shared notebook never kicks off” problem
+
+Your edge case is real:
+
+Public notebook constantly updated by User A, User B, User C.
+If debounce key = notebookId,
+the quiet window may never arrive.
+
+The fix is: never debounce at whole-notebook granularity.
+
+Use scoped debounce keys.
+
+Good debounce keys
+Notebook block:
+  roomId + nodeId + authorId + editingSessionId
+
+Spreadsheet cell:
+  roomId + artifactId + elementId + authorId
+
+Spreadsheet row note:
+  roomId + artifactId + rowId + columnGroup + authorId
+
+Message:
+  roomId + messageId
+
+Wiki paragraph:
+  roomId + wikiPageId + blockId + authorId
+
+So if three users type in the same public notebook, each user/block gets its own quiet window.
+
+Add maxWait
+
+Even per-user debouncing can be delayed if one user keeps typing forever. Add a maxWait:
+
+quietUntil = lastEditAt + 12_000;
+forceScanAt = firstEditAt + 60_000;
+
+scan when:
+  now >= quietUntil OR now >= forceScanAt
+
+That gives you:
+
+Trailing debounce:
+  wait for the user to pause.
+
+Max wait:
+  eventually scan a snapshot even if the user keeps typing.
+Does per-user debouncing create too many Convex operations?
+
+It can, if you call it on every keystroke.
+
+The rule should be:
+
+Client keystrokes:
+  local only
+
+Client save:
+  debounced content mutation
+
+Server agent debounce:
+  one scheduled function per source key, cancel/reschedule
+
+So the operation count is approximately:
+
+not keystrokes × users
+but saved blocks/cells × active editing sessions
+
+The current schema already supports this: roomActivityOutbox stores source kind/id/version/hash, event kind, status, actor, visibility, dedupe key, quiet window, scheduled function id, attempts, finding, and latest job id.
+
+4. Product pattern: “Noteworthy Inbox,” not invisible automation
+
+Borrow from Linear’s Triage concept. Linear describes Triage as a special inbox where issues created by integrations or other teams can be reviewed, updated, and prioritized before entering the team workflow.
+
+NodeRoom should have:
+
+Noteworthy Inbox
+  - “CardioNova note detected”
+  - “Funding signal found”
+  - “Burn question needs source”
+  - “Possible duplicate company”
+  - “Pricing source gap”
+
+This avoids the haunted-product feeling.
+
+Instead of silently doing everything, NodeRoom says:
+
+I noticed this might matter.
+Here is why.
+Here is what I can do.
+
+User controls:
+
+[Research now]
+[Add row]
+[Create task]
+[Ignore]
+[Always auto-research companies]
+[Never auto-research private notes]
+5. Layer two: agent jobs should not disrupt other users
+
+The agent should not blast every user with every update.
+
+Use four output levels:
+
+Level 0: private scratch
+  Only agent/harness sees it.
+
+Level 1: quiet room status
+  “Researching CardioNova…”
+
+Level 2: proposal / insight card
+  Reviewable by humans.
+
+Level 3: durable artifact update
+  Batched CellPayload / note / chart changes.
+
+For text, use persistent text streaming for narration, not spreadsheet truth. The Convex persistent text streaming component streams text over HTTP to the active client while persisting it in the database; its example notes that the live HTTP stream can send tokens immediately while the database updates at sentence boundaries for other subscribers.
+
+So:
+
+Owner/private user:
+  can see token-level stream.
+
+Other room users:
+  see sentence-level chunks or job summary.
+
+Spreadsheet:
+  receives final/batched evidence-backed patches only.
+
+This aligns with the Convex optimistic UI model we discussed: optimistic updates are local temporary cache overlays; authoritative state still comes from the server after mutation reconciliation.
+
+6. Avoid bandwidth blowups from agent-populated results
+
+Do not let agents write one cell at a time if the job produces many outputs.
+
+Bad:
+
+50 facts found
+  -> 50 mutations
+  -> 50 query invalidations
+  -> 50 UI flashes
+  -> 50 websocket updates per subscribed client
+
+Good:
+
+50 facts found
+  -> one patch bundle
+  -> compare payload hashes
+  -> skip unchanged cells
+  -> one managed batch write
+  -> one UI diff
+
+For NodeRoom, the agent output path should be:
+
+Agent workflow
+  -> EvidenceMemo[]
+  -> CellPayload[]
+  -> payloadHash comparison
+  -> write_locked_cell_results batch
+  -> OKF concept update
+  -> one status event
+
+Only users viewing that specific artifact/range should receive the cell patch. Users elsewhere see a small Signal Tape update:
+
+“CardioNova enriched · 7 fields · 2 review”
+
+Figma is a useful reference for graceful multiplayer degradation. Its help docs state that Figma has multiplayer limits and adjusts the experience for performance: up to 200 cursors shown, 200 editors, and 500 total participants before view-only/static behavior changes. NodeRoom should copy the principle:
+
+In small rooms:
+  rich presence and live updates.
+
+In large rooms:
+  fewer cursors, fewer live details, more summaries, view-only/deferred updates.
+7. Stress testing: how to measure this accurately
+
+You cannot reason this out only on paper. You need a load harness.
+
+Test dimensions
+Users:
+  1, 5, 20, 50, 100
+
+Editors:
+  public notebook
+  private notebook
+  spreadsheet rows
+  mixed notebook + spreadsheet
+
+Agents:
+  0, 1, 5, 20
+
+Observers:
+  users subscribed to same artifact
+  users elsewhere in room
+  users on mobile/background tabs
+
+Workload:
+  typing
+  paste large note
+  spreadsheet row capture
+  repeated same company
+  many different companies
+  long agent streaming
+  large batch cell patch
+Must-have scenarios
+Scenario A — shared notebook never-kickoff test
+20 users type in same public notebook for 5 minutes.
+Expected:
+  per-user/per-block scans still fire.
+  no whole-notebook debounce starvation.
+Scenario B — conference repeated topic test
+50 users mention CardioNova in separate notes.
+Expected:
+  one entity/facet research job.
+  many subscribers.
+  cache hit after first result.
+Scenario C — persistent streaming load
+5 agents stream 500-token responses.
+30 observers connected.
+Expected:
+  owner gets fast stream.
+  observers receive sentence-level persisted chunks.
+  no spreadsheet token writes.
+Scenario D — batch artifact update
+Agent fills 200 cells.
+Expected:
+  one or few batch mutations.
+  unchanged cells skipped by payload hash.
+  visible artifact subscribers update.
+  other users receive only summary.
+Scenario E — human C2 vs agent A1:C5
+Human edits C2 continuously.
+Agent processes A1:C5.
+Expected:
+  C2 preserved.
+  overlapping agent output becomes proposal/needs_review.
+  no retry storm.
+Metrics to capture
+UX:
+  local keystroke latency
+  save latency p50/p95
+  time to first noteworthy chip
+  time to first cached fill
+  time to final artifact update
+
+Convex:
+  mutation count/min
+  query count/min
+  action count/min
+  scheduled functions created/canceled/run
+  agentJobs created
+  entityWorkItems created
+  retrievalEvents
+  sourceCaptures
+  evidenceFacts
+
+Network:
+  bytes/client/min
+  messages/client/min
+  observer update count
+  stream chunk count
+
+React:
+  render count
+  long tasks
+  dropped frames
+  memory growth
+
+Agent/cost:
+  LLM calls
+  Linkup calls
+  Firecrawl calls
+  cache hit rate
+  duplicate job prevention rate
+  cost per entity
+Pass criteria
+- No notebook starvation.
+- No agent on every keystroke.
+- No more than one active research job per entity/facet/freshness window.
+- Observers do not receive token-level noise.
+- Spreadsheet patches are batched.
+- Local typing remains instant.
+- No user-owned cell is silently overwritten.
+8. Batching hundreds of updates per room per minute
+
+The current scanActivity design creates work from one source. That is a good P0. For high traffic, add a Room Activity Aggregator.
+
+Aggregator pattern
+roomActivityOutbox rows
+  -> batchScanRoomActivity(roomId, window=10s, max=100 events)
+  -> group by entity/facet/source/privacy
+  -> one parent agentJob
+  -> many entityWorkItems
+  -> single-flight cache checks
+
+Instead of:
+
+100 notes
+  -> 100 agent jobs
+
+Do:
+
+100 notes
+  -> 1 batch intake job
+  -> 8 unique entities
+  -> 14 entity/facet work items
+  -> 3 external searches because 11 facets are fresh/cached
+Structured output from the intake compiler
+
+Use one cheap model or deterministic extractor for a batch:
+
+{
+  "entities": [
+    {
+      "type": "company",
+      "displayName": "CardioNova",
+      "entityKey": "company:cardionova",
+      "mentions": ["node_1", "node_7", "cell_C2"],
+      "facets": ["profile", "funding", "runway", "product"],
+      "noteworthiness": 0.91
+    }
+  ],
+  "tasks": [
+    {
+      "label": "Ask about burn and hospital pilots",
+      "linkedEntity": "company:cardionova"
+    }
+  ],
+  "sourceGaps": [
+    {
+      "claim": "Possible Series B",
+      "needs": "funding source"
+    }
+  ]
+}
+
+Then the harness does:
+
+entity/facet cache check
+  -> if fresh: reuse
+  -> if stale: refresh only affected facet
+  -> if missing: schedule research
+
+The latest schema already anticipates this with entityResearchCache, which stores entity type/key/facet, result hash, evidence refs, freshness windows, stale timestamps, and delta status.
+
+9. Shared cache strategy: room, workspace, global
+
+You are right that repeated topics across a conference or week should not keep burning search credits.
+
+Use three cache scopes.
+
+Room cache
+Scope:
+  current room
+
+Use:
+  same conference room mentions same company many times
+
+Safe:
+  can include room-private notes
+Workspace/org cache
+Scope:
+  customer workspace
+
+Use:
+  same team researches same company over multiple rooms
+
+Safe:
+  can include private org sources, subject to ACL
+Global public cache
+Scope:
+  all customers
+
+Use:
+  public web facts and source captures only
+
+Never include:
+  private notes
+  private uploaded documents
+  user-specific interpretation
+  client names if private
+
+Cache keys:
+
+entityKey = canonical domain/name/id
+facet = profile | funding | competitors | pricing | hiring | runway | news
+sourceSetHash = hash(sorted source URLs + content hashes)
+resultHash = hash(normalized output + evidence ids)
+freshnessBucket = date/week + field volatility
+visibility = public | workspace | room | private
+
+The cache should store EvidenceMemo, not only final prose. Final prose is room-specific. Evidence can be reused.
+
+10. Staleness: delta-aware, not just TTL
+
+For repeated conference topics:
+
+If same public source set and content hashes:
+  reuse.
+
+If new source appears:
+  refresh affected facet.
+
+If source content changes but claim unchanged:
+  update source capture, skip synthesis.
+
+If source contradicts prior fact:
+  create review cue, do not auto-overwrite.
+
+Use field volatility:
+
+Company description:
+  medium staleness
+
+Funding/news:
+  high volatility
+
+Hiring:
+  high volatility
+
+Pricing:
+  medium/high uncertainty
+
+Runway:
+  high risk, usually needs source verification
+
+Manual note:
+  never verified by time alone
+11. Product controls to prevent user distrust
+
+Passive agents can feel creepy. Add clear controls.
+
+Room-level settings
+Passive intelligence:
+  Off
+  Suggest only
+  Auto-index
+  Auto-research public notes
+  Auto-research all room-visible notes
+Per-source settings
+Private notebook:
+  never auto-research
+  ask first
+  private suggestions only
+
+Public notebook:
+  auto-index
+  research only if source/link/company detected
+
+Spreadsheet:
+  auto-fill only agent-owned columns
+  human-owned fields require proposal
+Notification style
+Subtle:
+  “3 notes indexed”
+
+Actionable:
+  “CardioNova research ready”
+
+Blocking:
+  “Client-ready blocked: burn is manual-only”
+12. Existing-app lessons to remix
+Notion
+
+Lesson:
+
+Blank canvas + placeholder + slash commands + templates.
+
+NodeRoom version:
+
+Start in notebook.
+Guide with placeholder examples.
+Use `/company`, `/source`, `/task`, `/research`, `/sheet`.
+
+Notion’s docs explicitly describe blank pages and slash commands as the way to add content quickly.
+
+Linear
+
+Lesson:
+
+Triage inbox for items from integrations or outside the team workflow.
+
+NodeRoom version:
+
+Noteworthy Inbox before passive findings become official tasks or artifact writes.
+
+Linear’s Triage is specifically a review area for issues created by integrations or other teams before they enter the team’s workflow.
+
+Figma
+
+Lesson:
+
+Great live collaboration also needs performance degradation rules.
+
+NodeRoom version:
+
+Hide excessive cursors.
+Summarize agent updates.
+Make large rooms view-first.
+Only detailed updates for focused artifact/range.
+
+Figma’s multiplayer limits show this principle: once files get large in terms of editors/cursors/participants, the product changes the collaboration experience to preserve performance.
+
+Google Sheets / Excel
+
+Lesson:
+
+The grid must feel free.
+
+NodeRoom version:
+
+Humans type instantly.
+Agent writes are batched/proposed.
+No token-to-cell writes.
+No silent clobber.
+13. Concrete implementation plan
+P0 — fix first-use and debounce starvation
+1. Open Capture Notebook by default.
+2. Add placeholder guide text and three quick actions.
+3. Debounce save per block/cell, not whole notebook.
+4. Debounce agent scan per actor/source/session.
+5. Add maxWait so long typing still creates a snapshot scan.
+6. Add Noteworthy Inbox for “suggest first” behavior.
+P1 — reduce disruption and bandwidth
+1. Agent writes to scratch/proposals first.
+2. Batch CellPayload writes.
+3. Skip unchanged payload hashes.
+4. Stream text only through persistent text streaming.
+5. Observers get sentence chunks or summaries, not token-level updates.
+6. Only subscribed artifact/range users receive detailed patch updates.
+P2 — batch high-volume rooms
+1. Add batchScanRoomActivity(roomId).
+2. Group by entity/facet/privacy.
+3. Use one parent agentJob per window.
+4. Use entityWorkItems for child work.
+5. Add single-flight active job dedupe.
+6. Use room/workspace/global public cache.
+P3 — stress test
+1. Build synthetic room load generator.
+2. Run notebook starvation scenario.
+3. Run conference repeated-topic scenario.
+4. Run persistent text streaming observer load.
+5. Run 200-cell batch patch scenario.
+6. Record cost, latency, bandwidth, render counts, and dedupe rates.
+14. Final architecture
+User types
+  │
+  ├─ local editor update
+  │    instant, no server wait
+  │
+  ├─ short save debounce
+  │    Convex mutation saves block/cell
+  │
+  ├─ server-side agent debounce
+  │    keyed by room + source + author/session
+  │    quiet window + maxWait
+  │
+  ├─ noteworthiness scan
+  │    cheap classifier, no external APIs
+  │
+  ├─ batch aggregator
+  │    group many edits into entity/facet work
+  │
+  ├─ cache / OKF / retrieval
+  │    reuse fresh knowledge first
+  │
+  ├─ durable agent workflow
+  │    Linkup/Firecrawl only if missing or stale
+  │
+  ├─ staged output
+  │    scratch -> proposal -> batched CellPayloads
+  │
+  └─ UI update
+       notebook backlinks
+       spreadsheet patches
+       evidence cards
+       coach cues
+       status summary
+
+The final rule:
+
+Type fast, save quietly, scan patiently, research in batches, stream summaries, and mutate shared artifacts only with evidence-backed batches.

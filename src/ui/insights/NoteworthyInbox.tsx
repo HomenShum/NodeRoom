@@ -1,4 +1,4 @@
-import { X, FileText, Table2, MessageSquare, Upload, GitBranch, Sparkles, AlertTriangle, CircleDot } from "lucide-react";
+import { X, FileText, Table2, MessageSquare, Upload, GitBranch, Sparkles, AlertTriangle, CircleDot, Search, TableProperties, MinusCircle } from "lucide-react";
 import type { PassiveActivityItem } from "../../app/store";
 import { NodeReveal } from "../motion/NodeReveal";
 
@@ -61,10 +61,16 @@ export function NoteworthyInbox({
   items,
   onOpenArtifact,
   onClose,
+  onDismiss,
+  onResearch,
+  onAddToSheet,
 }: {
   items: PassiveActivityItem[];
   onOpenArtifact: (id: string, options?: { split?: boolean; elementId?: string }) => boolean | void;
   onClose: () => void;
+  onDismiss?: (item: PassiveActivityItem) => void;
+  onResearch?: (item: PassiveActivityItem) => void;
+  onAddToSheet?: (item: PassiveActivityItem) => void;
 }) {
   return (
     <div className="r-inbox" role="dialog" aria-label="Passive room intelligence" data-testid="noteworthy-inbox">
@@ -96,15 +102,47 @@ export function NoteworthyInbox({
                     )}
                     {item.error && <span className="r-inbox-error" title={item.error}><AlertTriangle size={11} /> failed</span>}
                   </div>
-                  {target && (
-                    <button
-                      className="r-inbox-open"
-                      data-testid="noteworthy-open"
-                      onClick={() => onOpenArtifact(target.artifactId, { elementId: target.elementId })}
-                    >
-                      Open {sourceLabel(item.sourceKind).toLowerCase()}
-                    </button>
-                  )}
+                  <div className="r-inbox-actions">
+                    {onResearch && pill.tone !== "researching" && (
+                      <button
+                        className="r-inbox-action"
+                        data-testid="noteworthy-research"
+                        title="Start research on this entity"
+                        onClick={() => onResearch(item)}
+                      >
+                        <Search size={11} /> Research
+                      </button>
+                    )}
+                    {onAddToSheet && (
+                      <button
+                        className="r-inbox-action"
+                        data-testid="noteworthy-add"
+                        title="Add entity to research sheet as a draft row"
+                        onClick={() => onAddToSheet(item)}
+                      >
+                        <TableProperties size={11} /> Add to sheet
+                      </button>
+                    )}
+                    {onDismiss && (
+                      <button
+                        className="r-inbox-action r-inbox-action--dismiss"
+                        data-testid="noteworthy-dismiss"
+                        title="Dismiss — remove from active feed"
+                        onClick={() => onDismiss(item)}
+                      >
+                        <MinusCircle size={11} /> Dismiss
+                      </button>
+                    )}
+                    {target && (
+                      <button
+                        className="r-inbox-open"
+                        data-testid="noteworthy-open"
+                        onClick={() => onOpenArtifact(target.artifactId, { elementId: target.elementId })}
+                      >
+                        Open {sourceLabel(item.sourceKind).toLowerCase()}
+                      </button>
+                    )}
+                  </div>
               </NodeReveal>
             );
           })}

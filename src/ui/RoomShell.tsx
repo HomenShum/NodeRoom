@@ -59,7 +59,10 @@ export function RoomShell({ roomId, me, onLeave }: { roomId: string; me: Actor; 
   const [layout, setLayout] = useState({ left: 232, stage: 1, right: 340 });
   const [copilotTab, setCopilotTab] = useState<"public" | "private">("public");
   const arts = store.listArtifacts(roomId);
-  const [artId, setArtId] = useState(() => arts.find((a) => a.kind === "sheet")?.id ?? arts[0]?.id ?? "");
+  // Notebook-first: every room lands on the note surface — bankers start by jotting.
+  // Falls back to sheet if no note exists (e.g. older rooms seeded before this change),
+  // then arts[0], then "" for async-load ticks where arts is still empty.
+  const [artId, setArtId] = useState(() => arts.find((a) => a.kind === "note")?.id ?? arts.find((a) => a.kind === "sheet")?.id ?? arts[0]?.id ?? "");
   const [sideArtId, setSideArtId] = useState<string | null>(null);
   const [collab, setCollab] = useState<{ running: boolean; done: boolean; error?: string }>({ running: false, done: false });
   const [autoAcceptModal, setAutoAcceptModal] = useState(false);
@@ -96,7 +99,7 @@ export function RoomShell({ roomId, me, onLeave }: { roomId: string; me: Actor; 
   const inviteHref = inviteHrefForRoom(room.code);
   const isHost = members.some((m) => m.id === me.id && m.role === "host");
   const privChannel: Channel = { private: me.id };
-  const curArt = arts.find((a) => a.id === artId) ?? arts.find((a) => a.kind === "sheet");
+  const curArt = arts.find((a) => a.id === artId) ?? arts.find((a) => a.kind === "note") ?? arts.find((a) => a.kind === "sheet");
   const openArtifact = (id: string, opts?: { split?: boolean; elementId?: string }): boolean => {
     const target = resolveRoomOpenTarget({
       id,
@@ -340,7 +343,7 @@ export function RoomShell({ roomId, me, onLeave }: { roomId: string; me: Actor; 
           />
         )}
       </div>
-      <SignalStatusStrip roomId={roomId} onOpenArtifact={openArtifact} />
+      <SignalStatusStrip roomId={roomId} me={me} onOpenArtifact={openArtifact} />
       {autoAcceptModal && (
         <div className="r-modal-backdrop" role="presentation">
           <div className="r-modal" role="dialog" aria-modal="true" aria-labelledby="auto-accept-title">
@@ -458,7 +461,7 @@ function ProgressSpine({ roomId }: { roomId: string }) {
   );
 }
 
-function SignalStatusStrip({ roomId, onOpenArtifact }: { roomId: string; onOpenArtifact: (id: string) => void }) {
+function SignalStatusStrip({ roomId, me, onOpenArtifact }: { roomId: string; me: Actor; onOpenArtifact: (id: string) => void }) {
   const store = useStore();
   const traces = selectPublicSignalTraces(store.listTraces(roomId));
   const proposals = store.listProposals(roomId);
@@ -521,11 +524,11 @@ function SignalStatusStrip({ roomId, onOpenArtifact }: { roomId: string; onOpenA
               <span key={s.k} className="r-signal-chip"><b>{s.k}</b>{s.v}</span>
             ),
           )}
-          <PassiveAgentChip roomId={roomId} onOpenArtifact={onOpenArtifact} />
+          <PassiveAgentChip roomId={roomId} me={me} onOpenArtifact={onOpenArtifact} />
         </div>
       )}
       {signals.length === 0 && (
-        <PassiveAgentChip roomId={roomId} onOpenArtifact={onOpenArtifact} />
+        <PassiveAgentChip roomId={roomId} me={me} onOpenArtifact={onOpenArtifact} />
       )}
     </div>
   );
