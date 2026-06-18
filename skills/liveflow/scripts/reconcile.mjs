@@ -119,4 +119,6 @@ if (traceOut) {
   if (!asJson) console.log(`trace bundle → ${traceOut}`);
 }
 
-process.exit(shippable ? 0 : 1); // non-zero when it needs review — usable as a CI/close gate
+// Keep the non-zero gate, but let stdout/stderr flush before Node exits. A direct
+// process.exit(1) can truncate the human report when the script is piped by CI.
+process.exitCode = shippable ? 0 : 1; // non-zero when it needs review — usable as a CI/close gate
