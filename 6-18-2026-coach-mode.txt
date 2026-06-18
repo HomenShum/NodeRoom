@@ -1,0 +1,619 @@
+Yes. This should become a **core Coach Mode loop** in NodeRoom.
+
+The screenshots show a very useful pattern:
+
+```text
+Prompt / challenge
+  -> How to answer
+  -> User’s answer
+  -> Feedback
+      - what went well
+      - what needs improvement
+      - minor suggestions
+      - score/progress bar
+```
+
+For NodeRoom, the equivalent is:
+
+```text
+Artifact / evidence / model output
+  -> how a banker should explain it
+  -> user’s explanation / talk track
+  -> evidence-grounded feedback
+      - what they understood
+      - what they missed
+      - what source they failed to cite
+      - what would block senior/client readiness
+```
+
+This is exactly the missing bridge between **agent work** and **human ownership**.
+
+---
+
+# 1. The product principle
+
+> **Coach Mode should not only tell the user what the agent did. It should test whether the user can explain and defend it.**
+
+That matters because in banking, finance, and diligence work, the output is not truly useful until the human can answer:
+
+```text
+Where did this number come from?
+Why did it change?
+What evidence supports it?
+What is still manual or estimated?
+What would my VP/MD/client challenge?
+What should I say if asked live?
+```
+
+So the goal is not “AI generated report.”
+The goal is:
+
+> **AI helped the user understand the report well enough to own it.**
+
+This also matches our professional workflow eval philosophy: real workflows require source-backed artifacts, safe mutation, trace behavior, and reviewable output — not just fluent text.
+
+---
+
+# 2. NodeRoom Coach Mode UI
+
+I would make this a right-side or center-stage artifact called:
+
+```text
+Coach Mode
+```
+
+or, for a more professional banker-facing name:
+
+```text
+Review Readiness
+```
+
+The junior-friendly version can say “Coach Mode.”
+The senior/VP version should say “Review Readiness” or “Explainability Check.”
+
+## UI layout
+
+```text
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ NodeRoom · Coach Mode                                                        │
+├───────────────────────────────┬──────────────────────────────────────────────┤
+│ Work Surface                  │ Coach Panel                                  │
+│                               │                                              │
+│ Company Research Sheet        │ Question                                     │
+│ Runway Chart                  │ “Your VP asks why CardioNova runway is       │
+│ Source PDF / Evidence         │ marked needs_review. Explain it.”           │
+│                               │                                              │
+│ Highlighted cells:            │ Tabs:                                        │
+│ - Runway estimate             │ [How to Answer] [Your Answer] [Feedback]     │
+│ - Burn assumption             │                                              │
+│ - Funding source              │ How to Answer                                │
+│                               │ - mention current value                      │
+│                               │ - cite source                                │
+│                               │ - explain missing evidence                   │
+│                               │ - state next action                          │
+│                               │                                              │
+│                               │ Your Answer                                  │
+│                               │ [typed / voice / pasted response]            │
+│                               │                                              │
+│                               │ Feedback                                     │
+│                               │ ████████░░  Good                             │
+│                               │ ✅ You identified the burn assumption         │
+│                               │ ⚠️ You did not cite the source gap            │
+│                               │ 💡 Say “manual-only until verified”           │
+└───────────────────────────────┴──────────────────────────────────────────────┘
+```
+
+The important interaction is: **feedback should be anchored to the artifact**, not detached like a generic tutor.
+
+---
+
+# 3. What Coach Mode should evaluate
+
+For each answer, the evaluator should grade against a banker-readable rubric.
+
+```text
+1. Factual accuracy
+   Did the user describe the value correctly?
+
+2. Source grounding
+   Did they cite the actual source / cell / page / note?
+
+3. Uncertainty handling
+   Did they distinguish verified, estimated, manual-only, and needs_review?
+
+4. Calculation understanding
+   Did they explain the formula or calculation path?
+
+5. Cross-artifact consistency
+   Did they understand how the cell affects the chart, memo, or report?
+
+6. Business judgment
+   Did they explain why this matters?
+
+7. Senior/client talk track
+   Could this explanation survive a VP/MD/client question?
+
+8. Next action
+   Did they know what to do next?
+```
+
+This is where NodeRoom becomes more than a collaboration app. It becomes a **learning and review system**.
+
+---
+
+# 4. The feedback card format
+
+Use the screenshot’s feedback style directly, but adapt the labels.
+
+```text
+🔥 Good answer. Almost banker-ready.
+
+What went well
+✅ You correctly explained that runway depends on cash and monthly burn.
+✅ You mentioned that the current burn value is not fully verified.
+✅ You connected the runway estimate to the milestone chart.
+
+What needs improvement
+⚠️ You did not explicitly cite the source artifact.
+⚠️ You said “management confirmed burn,” but the current evidence is only a manual call note.
+⚠️ You did not mention the follow-up question needed before client send.
+
+Minor suggestion
+💡 Use the phrase “manual-only until verified” instead of “confirmed.”
+💡 End with the next action: “Ask management for current cash and monthly burn.”
+```
+
+This structure is very teachable. It also tells the team exactly where the analyst’s understanding is weak.
+
+---
+
+# 5. Evidence-grounded, not vibes-based
+
+The Coach evaluator should **not** judge from memory or vibes.
+
+It should evaluate against:
+
+```text
+OKF concepts
+EvidenceFacts
+CellPayload evidence
+source captures
+agent traces
+proposal history
+review tasks
+spreadsheet formulas
+chart source ranges
+```
+
+The repo now has the right proof substrate: `sourceCaptures` stores source URL/title/kind, content hash, markdown/html/screenshot storage IDs, provider, visibility, and capture job; `evidenceFacts` stores extracted value, unit, period, quote, selector/bbox, confidence, checks, and downstream usage.
+
+The OKF retrieval layer is also already shaped correctly: list/read concepts, full-text search, semantic search, filters, glob, regex, backlinks, neighbor expansion, citation resolution, literal source opening, and claim comparison.
+
+So Coach Mode’s internal rule should be:
+
+> **No feedback claim unless the evaluator can point to the source, trace, cell, or OKF concept.**
+
+That matches the Evidence Accountant direction you already described: screenshots alone are not enough; the useful artifact is raw source + screenshot + text + bbox + extracted fact + verifier receipt + downstream links.
+
+---
+
+# 6. Runtime sequence
+
+```text
+================================================================================
+NODEROOM COACH MODE RUNTIME
+================================================================================
+
+[User opens Coach Mode]
+  │
+  ▼
+[Convex query]
+  load active artifact
+  load selected cells / chart / report
+  load source refs
+  load OKF concepts
+  load trace/eval state
+
+  │
+  ▼
+[Coach Question Generator action]
+  reads:
+    - selected artifact
+    - source/evidence
+    - open review blockers
+    - recent agent trace
+    - banker readiness rubric
+
+  outputs:
+    - question
+    - expected answer outline
+    - rubric
+    - evidence refs
+
+  │
+  ▼
+[UI]
+  displays:
+    [How to Answer]
+    [Your Answer]
+    [Feedback]
+
+  │
+  ▼
+[User types answer]
+  mutation stores answer
+  no evaluator on every keystroke
+
+  │
+  ▼
+[Coach Evaluator action]
+  retrieves:
+    - user answer
+    - expected answer outline
+    - OKF concepts
+    - evidence facts
+    - source captures
+    - chart/cell dependencies
+    - trace events
+
+  runs:
+    - claim extraction
+    - source comparison
+    - missing evidence check
+    - rubric scoring
+    - talk-track quality check
+
+  │
+  ▼
+[Internal mutation]
+  stores:
+    - score
+    - what went well
+    - what needs improvement
+    - minor suggestions
+    - missed evidence refs
+    - mastery tags
+    - suggested follow-up tasks
+
+  │
+  ▼
+[UI]
+  shows feedback
+  highlights missed cells/sources
+  offers:
+    [Open source]
+    [Practice again]
+    [Create follow-up task]
+    [Mark understood]
+```
+
+---
+
+# 7. Suggested schema
+
+```ts
+coachSessions: {
+  roomId,
+  artifactId,
+  targetRefs,        // cells, chart, memo block, source refs
+  mode: "analyst_practice" | "review_readiness" | "client_ready",
+  status: "active" | "completed",
+  createdBy,
+  createdAt,
+  updatedAt,
+}
+
+coachQuestions: {
+  sessionId,
+  question,
+  howToAnswer,
+  expectedAnswerOutline,
+  rubric,
+  evidenceRefs,
+  difficulty: "basic" | "associate" | "vp_md" | "client_ready",
+  createdAt,
+}
+
+coachAnswers: {
+  sessionId,
+  questionId,
+  authorId,
+  answerText,
+  answerFormat: "text" | "voice_transcript" | "markdown",
+  createdAt,
+}
+
+coachFeedback: {
+  sessionId,
+  questionId,
+  answerId,
+
+  score: number,
+  scoreLabel: "weak" | "partial" | "good" | "banker_ready",
+
+  wentWell: Array<{
+    text: string,
+    evidenceRef?: string,
+  }>,
+
+  needsImprovement: Array<{
+    text: string,
+    missedConceptId?: string,
+    missedEvidenceId?: string,
+    severity: "minor" | "material" | "client_blocker",
+  }>,
+
+  suggestions: string[],
+
+  masteryTags: Array<{
+    tag: string, // "runway", "source-citation", "manual-evidence"
+    status: "understood" | "partial" | "missed",
+  }>,
+
+  createdByJobId,
+  createdAt,
+}
+```
+
+The key is `masteryTags`. That lets NodeRoom track:
+
+```text
+User understands source citation: yes
+User understands runway calculation: partial
+User understands manual-vs-verified evidence: missed
+User understands client-ready caveat: missed
+```
+
+That is what makes it a learning system.
+
+---
+
+# 8. Component design
+
+```text
+src/ui/coach/
+  CoachModePanel.tsx
+  CoachQuestionCard.tsx
+  HowToAnswerTab.tsx
+  YourAnswerEditor.tsx
+  CoachFeedbackCard.tsx
+  FeedbackScoreBar.tsx
+  MasteryTagPills.tsx
+  MissedEvidenceList.tsx
+  PracticeAgainButton.tsx
+
+src/ui/artifacts/
+  EvidenceCarouselArtifact.tsx
+  TraceLensPanel.tsx
+  SourceSplitView.tsx
+
+convex/
+  coach.ts
+  coachEvaluator.ts
+```
+
+The Coach UI should reuse the same proof objects as Evidence Carousel and Trace Lens, not create a separate truth system.
+
+---
+
+# 9. Coach prompts by workflow
+
+## Company diligence
+
+```text
+Question:
+“Explain why CardioNova was classified as healthtech infrastructure instead of provider services.”
+
+Expected:
+- mention product
+- mention buyer/user
+- cite source
+- mention ambiguity if weak
+- state next verification step
+```
+
+## Runway / milestone
+
+```text
+Question:
+“Your VP asks why runway is marked needs_review. Explain.”
+
+Expected:
+- runway = cash / monthly burn
+- current cash or burn is not verified
+- source is manual or partial
+- chart should be treated as estimate
+- next action is to ask management
+```
+
+## Source gap
+
+```text
+Question:
+“The memo says ‘strong enterprise traction.’ Is that client-ready?”
+
+Expected:
+- no, source only supports early pilots
+- rewrite with caveat
+- mark claim partial / needs_review
+```
+
+## No-clobber / human-agent collaboration
+
+```text
+Question:
+“Human edited C2 while the agent updated A1:C5. Explain what happened.”
+
+Expected:
+- C2 was preserved
+- non-overlapping cells committed
+- overlapping agent suggestion became proposal
+- CAS/proposal prevented clobber
+```
+
+## BankerToolBench-style task
+
+```text
+Question:
+“Can this output be sent to a client? Defend your answer.”
+
+Expected:
+- evaluate model ties
+- source coverage
+- chart/memo consistency
+- open review blockers
+- tone/caveat quality
+```
+
+---
+
+# 10. Analyst vs. senior UX
+
+Be careful with naming.
+
+For junior analysts:
+
+```text
+Coach Mode
+Practice Answer
+What went well
+What to improve
+Try again
+```
+
+For seniors/VP/MD:
+
+```text
+Review Readiness
+Explanation Check
+Source Coverage
+Client-Ready Blockers
+Team Knowledge Gaps
+```
+
+Same engine, different language.
+
+A VP may not want to be “coached,” but they do want to know:
+
+```text
+Can my analyst defend this?
+What did they miss?
+What review blockers remain?
+```
+
+---
+
+# 11. How this fits passive intelligence
+
+When the passive noteworthiness pipeline detects a useful note, Coach Mode can create a tiny comprehension check.
+
+Example:
+
+```text
+User note:
+“Met Maya from CardioNova. Possible Series B. Ask about burn.”
+
+NodeRoom detects:
+- company
+- person
+- funding signal
+- runway follow-up
+
+Coach cue:
+“Do you want to practice the follow-up explanation?”
+
+Question:
+“What would you ask Maya next to verify runway?”
+```
+
+This turns passive intelligence into learning instead of silent automation.
+
+---
+
+# 12. How to keep cost low
+
+Do not run the evaluator constantly.
+
+```text
+No evaluation while typing.
+No LLM on every answer draft.
+Only evaluate after user clicks Submit / Check Answer.
+```
+
+Use a tiered evaluator:
+
+```text
+Deterministic checks first:
+  Did answer mention required source?
+  Did answer mention key cell?
+  Did answer mention needs_review?
+
+Cheap model:
+  clarity, coverage, tone
+
+Stronger model:
+  client-ready language / complex financial reasoning
+```
+
+And cache feedback when the same question/answer/evidence graph is unchanged.
+
+---
+
+# 13. What makes this genuinely valuable
+
+This feature solves a deep human problem:
+
+```text
+Agent made the artifact.
+But did the human understand it?
+```
+
+Coach Mode turns NodeRoom from:
+
+```text
+AI work generator
+```
+
+into:
+
+```text
+AI workroom + human learning + review-readiness system
+```
+
+That is very aligned with banking and finance, because a banker does not get paid merely to produce a file. They get paid to understand, defend, and communicate the work.
+
+---
+
+# 14. P0 implementation
+
+I would build this in the following order:
+
+```text
+1. Add Coach Mode panel with static rubric cards.
+2. Generate one question from selected cell/chart/report.
+3. Let user type an answer.
+4. Store answer in Convex.
+5. Evaluate with deterministic checks + one model call.
+6. Show feedback:
+   - What went well
+   - What needs improvement
+   - Minor suggestions
+7. Link every critique to evidence/source/cell where possible.
+8. Add “Practice again” and “Create follow-up task.”
+```
+
+Do this first for the core demo case:
+
+```text
+CardioNova runway estimate / source gap / needs_review
+```
+
+That will immediately show the magic.
+
+---
+
+# 15. Final design sentence
+
+> **Coach Mode should turn every NodeRoom artifact into a review drill: the system asks the user to explain the work, compares the answer against evidence and rubric, shows what was understood or missed, and links every gap back to the exact source, cell, trace, or coach cue.**
+
+This is the missing learning layer. It makes NodeRoom not only collaborative, but educational, auditable, and much more credible for finance professionals.

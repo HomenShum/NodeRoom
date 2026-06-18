@@ -1,0 +1,87 @@
+# Visual Plan: Agent Privacy and Security Architecture
+
+## Decision
+
+NodeRoom uses one shared NodeAgent runtime with many durable jobs. Privacy is enforced by scope, ownerId, visibility, channels, evidence policy, query filters, mutation checks, context builders, model egress policy, and redacted display surfaces.
+
+## Architecture Diagram
+
+```mermaid
+flowchart TD
+  User[User / Member] --> Proof[requireActorProof]
+  Proof --> Job[agentJobs row]
+  Job --> Policy{scope + evidencePolicy}
+  Policy -->|public_room + public_only| PublicCtx[Room-visible context only]
+  Policy -->|private_user + private_allowed| PrivateCtx[Room-visible + own-private context]
+  PublicCtx --> Model[Model / Tools]
+  PrivateCtx --> Egress{Provider egress policy}
+  Egress --> Model
+  Model --> OutputClass[derive output visibility]
+  OutputClass --> PublicOut[Room-visible proposals/traces]
+  OutputClass --> PrivateOut[Private proposals/traces]
+  PrivateOut --> Promote{Explicit promote?}
+  Promote -->|yes| Redact[Redact + audit receipt]
+  Redact --> PublicOut
+```
+
+## File Map
+
+| Area | Files |
+|---|---|
+| Actor proof / channel auth | `convex/lib.ts`, `convex/messages.ts` |
+| Artifact visibility | `convex/artifacts.ts`, `convex/rooms.ts` |
+| Agent jobs / policies | `convex/agentJobs.ts`, `convex/agentJobRunner.ts`, `convex/agentWorkflows.ts` |
+| Passive private feed | `convex/roomActivity.ts`, `convex/schema.ts` |
+| Private streaming | `convex/streaming.ts`, `convex/http.ts` |
+| OKF / retrieval | `convex/okf.ts`, `convex/embeddings.ts` |
+| Tests to expand | `tests/privateArtifactVisibility.test.ts`, `tests/convexBoundaryPolicy.test.ts` |
+
+## Data Boundary Map
+
+```mermaid
+flowchart LR
+  Room[room/public data] --> PublicJob[public_room job]
+  Room --> PrivateJob[private_user job]
+  PrivateA[private owner A data] --> PrivateJob
+  PrivateB[private owner B data] -. blocked .-> PrivateJob
+  PrivateA -. blocked .-> PublicJob
+  PublicJob --> RoomOut[room/public output]
+  PrivateJob --> PrivateOut[private output]
+  PrivateOut --> Approval[owner approval + redaction]
+  Approval --> RoomOut
+```
+
+## Policy Contract
+
+- Public jobs cannot read private rows.
+- Private jobs can read room-visible plus own-private rows only.
+- Private-derived output remains private by default.
+- Cross-boundary promotion requires explicit approval and audit receipt.
+- Traces inherit the max sensitivity of inputs.
+- Model egress follows data classification.
+- Retrieval must filter by `roomId`, `visibility`, and `ownerId`.
+
+## Implementation Plan
+
+1. Add/centralize `convex/authz.ts` helpers.
+2. Add visibility/ownerId to remaining content-bearing trace/retrieval rows.
+3. Make model context building policy-driven.
+4. Add output classification inheritance.
+5. Add public/private trace redaction.
+6. Add privacy regression tests per shared surface.
+
+## Verification Plan
+
+- Owner can read private row.
+- Other member cannot read private row.
+- Public agent cannot read private row.
+- Other user's private agent cannot read private row.
+- Public feed counts do not reveal private row volume.
+- Public job + private data is blocked before model egress.
+- Private-derived output remains private until promoted.
+
+## Open Questions
+
+- Should enterprise introduce `orgId`/`workspaceId` above `roomId`?
+- Which providers are approved for private enterprise data?
+- Should private traces be visible to org admins, room hosts, or owner only?

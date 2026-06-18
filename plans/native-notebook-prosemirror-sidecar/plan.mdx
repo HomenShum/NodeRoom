@@ -1,0 +1,103 @@
+# Visual Plan: Native Notebook ProseMirror Sidecar
+
+## Decision
+
+Use Convex ProseMirror Sync for the human-owned collaborative notebook. Keep NodeRoom's intelligence, permissions, evidence, and agent outputs in sidecar/read-model tables outside the live editor.
+
+## Target Architecture
+
+```mermaid
+flowchart TD
+  Editor[User-facing Tiptap / BlockNote editor] --> PMSync[Convex ProseMirror Sync]
+  PMSync --> Registry[notebookDocuments wrapper]
+  Registry --> Snapshot[Snapshot adapter]
+  Snapshot --> Blocks[Notebook blocks + text + spans]
+  Blocks --> ReadModel[NodeRoom read model]
+  ReadModel --> Agent[NodeAgent jobs]
+  Agent --> Sidecar[Suggestions / scratchpad / evidence / coach cues]
+  Sidecar --> Approval{Human approval}
+  Approval -->|Insert| Editor
+  Approval -->|Add| Sheet[Spreadsheet / research rows]
+```
+
+## File Map
+
+| Area | Files |
+|---|---|
+| Convex component mount | `convex/convex.config.ts` |
+| ProseMirror wrapper | `convex/prosemirror.ts`, `convex/schema.ts` |
+| Current note editor | `src/ui/panels/Artifact.tsx` |
+| Room/artifact shell | `src/ui/RoomShell.tsx`, `src/app/store.tsx` |
+| Passive pipeline | `convex/roomActivity.ts`, `tests/roomActivityEvidenceAdapters.test.ts` |
+| Notebook graph/read model | `convex/notebookGraph.ts`, `convex/okf.ts` |
+| Target docs | `docs/NATIVE_NOTEBOOK_PROSEMIRROR_SIDECAR.md` |
+
+## Data Contract
+
+`notebookDocuments` maps component docs to NodeRoom business semantics:
+
+```text
+roomId
+artifactId
+elementId
+prosemirrorDocId
+visibility
+ownerId
+latestSnapshotHash
+latestIndexedVersion
+latestProcessedAt
+```
+
+## User Flow
+
+```mermaid
+sequenceDiagram
+  participant U as User
+  participant PM as ProseMirror Sync
+  participant A as Snapshot Adapter
+  participant P as Passive Pipeline
+  participant I as Inbox
+  U->>PM: type messy diligence notes
+  PM->>A: synced snapshot after quiet window
+  A->>P: normalized text/blocks/entities
+  P->>I: noteworthy suggestion
+  I-->>U: Research / Add to sheet / Dismiss / Insert
+```
+
+## Agent Boundary
+
+Agents read processed snapshots. Agents write sidecars by default:
+
+- passive inbox items
+- agent scratchpad
+- entity work items
+- evidence cards
+- coach cues
+- proposed notebook insertions
+
+Agents should not freely co-edit the live document.
+
+## Implementation Plan
+
+1. Keep current note editor as fallback.
+2. Feature-flag ProseMirror Sync.
+3. Add wrapper registry and access checks.
+4. Build snapshot-to-block adapter.
+5. Feed passive intelligence from processed snapshots.
+6. Add user-approved insertion path.
+7. Verify with two tabs and private/public notebook cases.
+
+## Verification Plan
+
+- Two tabs sync the same notebook.
+- Private notebook is invisible to other members.
+- Public job cannot read private notebook snapshot.
+- Passive chip appears after pause.
+- Add-to-sheet and insert actions require user approval.
+- Build/typecheck and Playwright happy path pass.
+
+## Open Questions
+
+- Tiptap or BlockNote as first UI wrapper?
+- Store snapshot adapter output as blocks, OKF concepts, or both?
+- How much direct server-side ProseMirror insertion is needed for approved inserts?

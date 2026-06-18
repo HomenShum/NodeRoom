@@ -1,0 +1,131 @@
+# 6-18-2026 Notebook UI Inspiration and Motion
+
+## Thesis
+
+Use React Bits and inspirational UI references as the experience layer, not the editor architecture.
+
+The core stack should be:
+
+```text
+Tiptap / ProseMirror editor substrate
+Convex ProseMirror Sync for collaboration
+NodeRoom read model and agent workflows
+React Bits-style motion for taste and feedback
+```
+
+## React Bits usage
+
+Use React Bits-style components for:
+
+```text
+passive chip entrance
+inbox card reveal
+empty-state delight
+light shimmer while analysis warms up
+action confirmation
+subtle background depth
+```
+
+Do not use it for:
+
+```text
+editor mechanics
+cursor behavior
+collaboration semantics
+persistence
+CRDT/conflict logic
+agent memory
+```
+
+The tone should be calm, professional, and banker-readable — not a landing-page animation demo.
+
+## Inspiration references
+
+### Notion
+
+Use for:
+
+```text
+blank canvas
+low-friction writing
+slash-command direction later
+blocks that can become structured artifacts
+```
+
+### Granola
+
+Use for:
+
+```text
+capture now, structure later
+AI waits until user pauses
+notes become summaries and follow-ups
+```
+
+### Linear
+
+Use for:
+
+```text
+triage model
+actionable inbox
+clear statuses
+accept / dismiss / route
+```
+
+### Coda / Airtable
+
+Use for:
+
+```text
+notes becoming structured rows
+tables as destinations
+lightweight structured blocks
+```
+
+### Perplexity / Elicit
+
+Use for:
+
+```text
+evidence-backed findings
+citations
+source cards
+confidence/freshness
+```
+
+### Apple Notes / Craft
+
+Use for:
+
+```text
+calm typography
+fast writing feel
+minimal toolbar
+focused reading experience
+```
+
+## First-time notebook experience
+
+The notebook should say:
+
+```text
+Paste meeting notes, company names, diligence questions, or rough follow-ups.
+NodeRoom will notice what matters after you pause.
+```
+
+Flow:
+
+```text
+join room
+open Capture Notebook
+type messy notes
+pause
+passive chip appears
+open inbox
+choose Research / Add to sheet / Dismiss
+```
+
+## Product rule
+
+The notebook should feel like the user's workspace. Motion should explain state transitions and build trust, not distract from the work.

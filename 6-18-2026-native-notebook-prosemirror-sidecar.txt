@@ -1,0 +1,121 @@
+# 6-18-2026 Native Notebook ProseMirror Sidecar
+
+## Thesis
+
+Use Convex ProseMirror Sync for the human-owned collaborative notebook, but keep NodeRoom's agent intelligence outside the live editor as a processed read model and sidecar proposal layer.
+
+The notebook is the user's canvas. It is not the agent's working memory.
+
+## Target architecture
+
+```text
+Convex ProseMirror Sync + Tiptap / BlockNote
+  -> live collaborative notebook
+  -> NodeRoom notebookDocuments registry
+  -> snapshot / block adapter
+  -> NodeRoom read model
+  -> NodeAgent sidecar work
+  -> human approval bridge
+```
+
+## Ownership split
+
+Convex ProseMirror Sync owns:
+
+```text
+collaborative document sync
+ProseMirror steps/snapshots
+multiplayer editing mechanics
+```
+
+NodeRoom owns:
+
+```text
+room identity
+artifact mapping
+visibility and ownerId
+processed blocks
+entities, claims, questions
+OKF concepts
+evidence facts
+agent jobs
+coach cues
+review tasks
+proposals
+```
+
+## Wrapper registry
+
+Use a NodeRoom-owned wrapper table:
+
+```text
+notebookDocuments:
+  roomId
+  artifactId
+  elementId
+  prosemirrorDocId
+  visibility
+  ownerId
+  latestSnapshotHash
+  latestIndexedVersion
+  latestProcessedAt
+```
+
+This prevents the editor component from becoming the business-logic authority.
+
+## Processing adapter
+
+Process snapshots after a quiet window, not every editor step.
+
+```text
+ProseMirror JSON
+  -> plain text
+  -> markdown-ish text
+  -> block list
+  -> headings
+  -> mentions/entities
+  -> source spans
+  -> content hash
+  -> roomActivityOutbox
+  -> OKF / evidence / coach cues
+```
+
+## Agent write policy
+
+Default agent output goes to sidecars:
+
+```text
+passive inbox
+agent scratchpad
+entityWorkItems
+evidence cards
+coach cues
+proposed sheet rows
+proposed notebook insertions
+```
+
+Only user-approved outputs should be inserted into the live notebook by default.
+
+Exception: clearly labeled agent-owned blocks such as Agent Summary or Source-Backed Findings.
+
+## Why this matters
+
+This avoids reinventing collaborative rich-text infrastructure while keeping NodeRoom focused on the unique product value:
+
+```text
+agent workflow
+evidence-backed research
+safe mutation
+review readiness
+human ownership
+```
+
+## Implementation order
+
+1. Keep current notebook as fallback.
+2. Install ProseMirror Sync behind a feature flag.
+3. Add notebookDocuments wrapper registry.
+4. Build snapshot-to-read-model adapter.
+5. Feed passive intelligence from processed snapshots.
+6. Add sidecar proposals and user-approved insertion.
+7. Use Coach Mode as the first proof consumer.

@@ -1,0 +1,139 @@
+# 6-18-2026 Visual Plan Review Surface
+
+## Thesis
+
+Standard terminal-based Markdown plans are often too linear for architecture-heavy AI work. They create cognitive overload, bury important decisions, and make it easy for reviewers and agents to miss details.
+
+NodeRoom should adopt a "Visual Plan" layer for important implementation plans: a human-optimized, scannable, commentable review surface that turns dense chat plans into visual MDX documents before code changes begin.
+
+## Reference
+
+BuilderIO visual-plan skill:
+
+https://github.com/BuilderIO/skills/blob/main/skills/visual-plan/README.md
+
+The skill turns an ordinary implementation plan into an MDX review document with visual components: architecture diagrams, wireframes, prototypes, file maps, annotated code, API specs, schema maps, open questions, and comments.
+
+## Why this matters for NodeRoom
+
+NodeRoom planning is often:
+
+```text
+multi-file
+architecture-heavy
+data-heavy
+UI-heavy
+security-sensitive
+agent-runtime-sensitive
+privacy-sensitive
+human-review-dependent
+```
+
+These plans should not live only as long chat messages.
+
+## When to use a visual plan
+
+Use a visual plan for:
+
+```text
+native notebook / ProseMirror migration
+agent privacy/security architecture
+public vs private data boundary
+Coach Mode / Review Readiness
+passive classifier redesign
+OKF / evidence pipeline changes
+agent runtime / Workflow / Workpool changes
+multi-surface UI changes
+schema or permission changes
+```
+
+Skip it for:
+
+```text
+single-line fixes
+small copy changes
+obvious test updates
+changes where the diff is easier to review than a plan
+```
+
+## What reviewers should see
+
+A visual plan should include:
+
+```text
+1. Decision summary
+2. Architecture diagram
+3. Data-flow diagram
+4. File map
+5. Schema / table map
+6. API / mutation/query contract
+7. UI wireframe or state map
+8. Privacy/security boundary
+9. Test and verification plan
+10. Open questions requiring approval
+```
+
+## NodeRoom-specific visual plan sections
+
+For agent/security work:
+
+```text
+agent job lifecycle
+scope/evidence/approval policies
+public/private data boundary
+model egress boundary
+trace/redaction map
+privacy regression tests
+```
+
+For notebook work:
+
+```text
+ProseMirror sync boundary
+notebookDocuments wrapper
+snapshot adapter
+read model
+agent sidecar
+approval bridge
+```
+
+For Coach Mode:
+
+```text
+artifact selection
+question generation
+answer capture
+rubric evaluation
+evidence links
+feedback UI states
+mastery tags
+```
+
+## Recommended storage
+
+Use local source-controlled plans for sensitive architecture:
+
+```text
+plans/<slug>/plan.mdx
+```
+
+Use hosted/shareable visual plans only when the content is safe to share and comments are useful.
+
+For enterprise/security/private-data plans, default to local-files mode.
+
+## Approval rule
+
+For risky work, the visual plan should be the approval gate:
+
+```text
+Visual Plan drafted
+  -> human reviews diagrams/contracts/questions
+  -> plan approved
+  -> implementation begins
+```
+
+The plan should be grounded in actual repo files, schemas, actions, and symbols — not a generic aspirational diagram.
+
+## Final recommendation
+
+Add Visual Plans as a standard planning artifact for NodeRoom's highest-risk changes. Keep normal Markdown for lightweight notes, but use Visual Plans when humans need to understand architecture, UI flow, data boundaries, schema shape, and unresolved decisions before the agent writes code.

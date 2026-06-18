@@ -1,0 +1,126 @@
+# 6-18-2026 Human-Agent Approval Boundary
+
+## Thesis
+
+The human owns source surfaces. The agent owns sidecar work. Mutation across that boundary requires approval unless the surface is explicitly agent-owned.
+
+This avoids the haunted-document problem and keeps finance work auditable.
+
+## Source surfaces
+
+Human-owned or imported inputs:
+
+```text
+collaborative notebook
+spreadsheet
+uploaded PDFs
+source captures
+research table
+wall/sticky notes
+messages
+```
+
+These are the sources users expect to control and defend.
+
+## Agent sidecars
+
+Agent-owned/default outputs:
+
+```text
+passive inbox suggestions
+agent scratchpad
+entityWorkItems
+evidence cards
+coach cues
+review tasks
+proposed sheet rows
+proposed notebook insertions
+OKF concepts
+trace records
+```
+
+Agents should work here first.
+
+## Approval bridge
+
+Default actions:
+
+```text
+[Research]
+[Add to sheet]
+[Insert into notebook]
+[Create task]
+[Append as Agent Summary]
+[Dismiss]
+```
+
+The bridge is where trust is created. The agent notices and proposes; the user decides what becomes source-of-truth work.
+
+## Why not direct agent co-editing
+
+Direct agent edits to human-owned surfaces can create:
+
+```text
+cursor jumps
+unexpected text
+confusing undo
+unclear provenance
+private data leaks
+senior/client review risk
+loss of human ownership
+```
+
+For banking and diligence, the user must be able to explain and defend every artifact.
+
+## Default mutation rule
+
+```text
+agent reads processed snapshot
+agent writes sidecar proposal
+human approves mutation
+system records receipt
+```
+
+## Allowed exceptions
+
+Direct agent writes are allowed only when:
+
+```text
+user explicitly commands it
+operation is reversible and scoped
+block/surface is visibly agent-owned
+policy permits the target and evidence class
+trace/receipt records the change
+```
+
+Examples:
+
+```text
+Agent Summary block
+Source-Backed Findings section
+private scratchpad owned by the user
+```
+
+## Privacy boundary
+
+If private data influenced an output, the output stays private by default.
+
+```text
+private input -> private proposal
+private proposal -> public output only after explicit promotion/redaction
+```
+
+## Product principle
+
+The default user experience should be:
+
+```text
+NodeRoom noticed this may matter.
+Do you want to act on it?
+```
+
+not:
+
+```text
+NodeRoom edited your work.
+```

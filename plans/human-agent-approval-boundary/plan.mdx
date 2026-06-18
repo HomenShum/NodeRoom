@@ -1,0 +1,97 @@
+# Visual Plan: Human-Agent Approval Boundary
+
+## Decision
+
+Human-owned source surfaces and agent-owned sidecars must stay separate. Agents propose; humans approve source-of-truth mutations.
+
+## Boundary Diagram
+
+```mermaid
+flowchart LR
+  subgraph Human[Human-owned source surfaces]
+    Notebook[Notebook]
+    Sheet[Spreadsheet]
+    Sources[Uploaded sources]
+    Messages[Messages]
+  end
+
+  subgraph Agent[Agent-owned sidecars]
+    Inbox[Passive inbox]
+    Scratch[Agent scratchpad]
+    Evidence[Evidence cards]
+    Coach[Coach cues]
+    Proposals[Proposed inserts/rows]
+  end
+
+  Human --> Snapshot[Processed snapshots]
+  Snapshot --> Agent
+  Agent --> Bridge{Approval bridge}
+  Bridge -->|approved| Human
+  Bridge -->|dismissed| Archive[Dismiss / archive]
+```
+
+## File Map
+
+| Area | Files |
+|---|---|
+| Inbox UI | `src/ui/insights/NoteworthyInbox.tsx`, `PassiveAgentChip.tsx` |
+| Store actions | `src/app/store.tsx` |
+| Passive backend | `convex/roomActivity.ts` |
+| Draft/proposal path | `convex/drafts.ts`, `convex/artifacts.ts`, `convex/agentJobs.ts` |
+| Trace/receipts | `convex/agentSteps.ts`, `convex/agentJobs.ts`, `convex/schema.ts` |
+| Formal doc | `docs/HUMAN_AGENT_APPROVAL_BOUNDARY.md` |
+
+## Approval Actions
+
+- Research
+- Add to sheet
+- Insert into notebook
+- Create task
+- Append as Agent Summary
+- Dismiss
+
+## Mutation Rule
+
+```mermaid
+sequenceDiagram
+  participant A as Agent
+  participant S as Sidecar Proposal
+  participant U as User
+  participant M as Checked Mutation
+  participant R as Receipt
+  A->>S: write proposal
+  S-->>U: show action card
+  U->>M: approve action
+  M->>R: record mutation receipt
+  M-->>U: update source surface
+```
+
+## Privacy Rule
+
+Private-derived proposal remains private until the owner approves promotion.
+
+```text
+private input -> private proposal -> redaction/approval -> room/public output
+```
+
+## Implementation Plan
+
+1. Make every agent output land in a classified sidecar first.
+2. Add explicit `proposed_insert` / `proposed_sheet_row` types.
+3. Add UI actions for approval bridge.
+4. Record receipts for promoted changes.
+5. Redact private proposal metadata for non-owners.
+
+## Verification Plan
+
+- Public user sees room proposals only.
+- Private proposal is owner-only.
+- Approval creates a receipt.
+- Dismiss does not mutate source surface.
+- Insert into notebook/sheet is explicit and reversible where possible.
+
+## Open Questions
+
+- Which operations can be auto-commit safe?
+- Should host review be required for public room outputs?
+- How should undo work for approved agent insertions?

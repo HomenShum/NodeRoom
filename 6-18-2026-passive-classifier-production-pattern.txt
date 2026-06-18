@@ -1,0 +1,153 @@
+# 6-18-2026 Passive Classifier Production Pattern
+
+## Thesis
+
+Do not make passive intelligence end-to-end agent-managed. Use deterministic orchestration, stable signal taxonomy, optional typed LLM extraction, and human approval for mutations.
+
+The pipeline should call the LLM as a semantic extractor, not let the LLM own scheduling, permissions, writes, retries, or privacy.
+
+## Problem
+
+Brittle tests and behavior happen when a loose `reasons` array does too many jobs:
+
+```text
+UX explanation
+test assertion target
+routing signal
+downstream workflow trigger
+audit reason code
+```
+
+Example issue:
+
+```text
+CardioNova does not match a company suffix regex
+classifier returns finance_signal + person_or_interaction + open_question_or_task
+assertion expected company_mention
+```
+
+The important contract is usually:
+
+```text
+HTML stripped
+status is noteworthy
+finance_signal detected
+source evidence is preserved
+```
+
+not the exact incidental reason array.
+
+## Production pattern
+
+```text
+Raw input
+  -> deterministic normalization
+  -> cheap deterministic signal detector
+  -> typed LLM extractor if useful/ambiguous
+  -> schema validation
+  -> deterministic router
+  -> sidecar proposal/read model
+  -> human approval for mutation
+```
+
+## Stable output shape
+
+Prefer:
+
+```text
+status:
+  noteworthy | not_noteworthy | needs_model_review
+
+signals:
+  stable enum values for routing
+
+entities:
+  extracted people / organizations / metrics / topics
+
+evidenceSpans:
+  exact source text that triggered each signal
+
+confidence:
+  per signal/entity
+
+classifierVersion:
+  deterministic version
+
+modelVersion/promptVersion:
+  if LLM participated
+```
+
+## Signal taxonomy
+
+Use stable, broad enums:
+
+```text
+finance_signal
+open_question_or_task
+person_or_interaction
+organization_candidate
+company_verified
+source_gap
+diligence_risk
+follow_up_needed
+```
+
+Do not force weak regexes to decide truth. Use `organization_candidate`, then let a resolver or LLM classify later.
+
+## Testing approach
+
+Use three test levels.
+
+1. Contract tests:
+
+```text
+HTML is stripped
+status is not not_noteworthy
+signals include finance_signal
+evidence span has no raw tags
+```
+
+2. Taxonomy tests:
+
+```text
+Series B -> finance_signal
+Ask about burn -> open_question_or_task
+Met Maya -> person_or_interaction
+```
+
+3. Golden semantic evals:
+
+```text
+expected at least: finance_signal, organization_candidate, follow_up_needed
+allowed extras: person_or_interaction, source_gap
+```
+
+## LLM usage
+
+Use LLMs for:
+
+```text
+entity extraction
+claim extraction
+source-gap detection
+organization/person resolution
+coach cue generation
+proposed sheet rows
+```
+
+Do not use LLMs for:
+
+```text
+permission checks
+scheduling
+idempotency
+privacy routing
+state transitions
+source-of-truth writes
+retry behavior
+cache invalidation
+```
+
+## Final rule
+
+Agents produce structured proposals. Deterministic systems route, validate, persist, authorize, and require approval.

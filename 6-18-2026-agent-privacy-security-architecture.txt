@@ -1,0 +1,448 @@
+# 6-18-2026 Agent Privacy and Security Architecture
+
+## Direct answer
+
+NodeRoom should be structured as one shared NodeAgent runtime/harness with durable jobs, not as a permanently separate agent process for every user.
+
+The current model is closest to:
+
+```text
+One NodeAgent runtime/harness
+  -> many agentJobs
+  -> each job has requester, roomId, artifactId, scope, policies
+  -> jobs may run in workflow/workpool slices
+  -> jobs may create runs, steps, receipts, drafts, traces, work items
+```
+
+So it is not mainly:
+
+```text
+one independent agent per user forever
+```
+
+It is more like:
+
+```text
+agent job assigned to a room + requester + scope
+```
+
+With session rows representing visible lanes:
+
+```text
+public room agent session
+private user agent session
+```
+
+Public/private is not supposed to be just a UI flag. It must be enforced as a data boundary across queries, mutations, model context, tool calls, traces, caches, embeddings, channels, and exports.
+
+---
+
+## Core model
+
+### Durable work unit
+
+`agentJobs` is the durable unit of work.
+
+Important fields:
+
+```text
+roomId
+artifactId
+requester
+entrypoint
+scope
+approvalPolicy
+evidencePolicy
+routePolicy
+runtimePolicy
+modelPolicy
+status
+workflowId
+latestRunId
+```
+
+Important policy fields:
+
+```text
+scope:
+  public_room | private_user | team
+
+entrypoint:
+  public_ask | private_agent | free | system | automation | provider_parser | room_work
+
+evidencePolicy:
+  public_only | private_allowed | mixed_requires_redaction
+
+approvalPolicy:
+  read_only | draft_first | auto_commit_safe | host_review
+```
+
+### Runtime shape
+
+```text
+client command
+  -> agentJobs row
+  -> agentJobAttempts
+  -> agentRuns / agentSteps
+  -> ConvexRoomTools mutations
+  -> Workflow / Workpool continuation
+  -> receipts / traces / reactive UI
+```
+
+`agentSessions` are lane/presence/state. `agentJobs` are the real execution primitive.
+
+---
+
+## Public room lane
+
+Public room agent:
+
+```text
+scope: public_room
+channel: public
+visibility: room/public
+evidencePolicy: public_only
+```
+
+Reads:
+
+```text
+room-visible artifacts
+public/room OKF concepts
+public evidence
+public source captures
+public/room spreadsheet data
+```
+
+Writes:
+
+```text
+shared proposals
+shared drafts
+room-visible research rows
+public traces
+public evidence
+room-visible coach cues
+```
+
+Subject to approval, lock, CAS, and draft policies.
+
+---
+
+## Private user lane
+
+Private user agent:
+
+```text
+scope: private_user
+channel: owner member id
+agent scope: private
+ownerId: member id
+visibility: private
+evidencePolicy: private_allowed
+```
+
+Reads:
+
+```text
+public/room context
+that user's private channel
+that user's private artifacts
+that user's private OKF/evidence/cache rows
+```
+
+Writes by default:
+
+```text
+private replies
+private scratchpad
+private proposals
+private evidence
+private OKF rows
+private coach cues
+```
+
+Private-derived output should remain private unless explicitly promoted or redacted.
+
+---
+
+## Public/private is not just a flag
+
+A flag alone is not security. Enterprise-grade privacy requires enforcement at every boundary.
+
+NodeRoom's privacy model should combine:
+
+```text
+identity proof
+room/org membership
+visibility
+ownerId
+channel
+scope
+entrypoint
+evidencePolicy
+query filtering
+mutation authorization
+agent context restrictions
+model egress policy
+output classification inheritance
+redacted traces
+approval receipts
+```
+
+The principle:
+
+> Data classification travels with the data. Agents do not decide privacy; the platform enforces it before read, before model egress, before write, and before display.
+
+---
+
+## Enterprise-grade rulebook
+
+### Rule 1 — no public job can read private data
+
+```text
+if job.evidencePolicy === public_only:
+  allowed visibility = room/public/redacted only
+```
+
+No exceptions.
+
+### Rule 2 — private jobs can read public + own-private only
+
+```text
+if job.scope === private_user:
+  allowed:
+    room/public data
+    private data where ownerId === requester.id
+```
+
+Never another user's private data.
+
+### Rule 3 — private-derived output stays private by default
+
+```text
+if any input is private:
+  output visibility = private
+  ownerId = requester.id
+```
+
+Unless explicitly redacted/promoted.
+
+### Rule 4 — cross-boundary promotion requires approval
+
+```text
+private -> room/public
+```
+
+requires explicit owner action and an audit receipt.
+
+### Rule 5 — traces inherit max sensitivity of inputs
+
+If a job reads private data:
+
+```text
+trace visibility = private
+ownerId = requester.id
+```
+
+Shared trace views may show only redacted metadata.
+
+### Rule 6 — model egress follows data classification
+
+```text
+public data:
+  approved public/low-cost models may be allowed
+
+private enterprise data:
+  approved zero-retention / enterprise provider only
+
+restricted data:
+  local/VPC/approved isolated model only, or no model egress
+```
+
+### Rule 7 — retrieval filters must include privacy
+
+Bad:
+
+```text
+vector search filter: roomId only
+```
+
+Good:
+
+```text
+vector search filter:
+  roomId
+  allowed visibility set
+  ownerId if private
+```
+
+### Rule 8 — shared channels must never include private payloads
+
+`messages.channel = "public"` must never contain private text, source names, facts, trace previews, model outputs, or private-derived summaries.
+
+Private content goes to:
+
+```text
+messages.channel = ownerId
+```
+
+and only the owner/private agent can read it.
+
+---
+
+## Components that need the same boundary
+
+Every shared component needs the same classification and enforcement model:
+
+```text
+messages
+agentJobs
+agentOperationEvents
+agentSteps
+agentModelStepJournal
+agentMutationReceipts
+traces
+sourceCaptures
+evidenceFacts
+OKF concepts/chunks
+embeddings/vector indexes
+entityResearchCache
+roomActivityOutbox
+ProseMirror component documents
+persistent streaming chunks
+file processing jobs
+coach cues / coach feedback
+exports/downloads
+analytics/logs
+```
+
+---
+
+## ProseMirror notebook rule
+
+If NodeRoom uses Convex ProseMirror Sync:
+
+```text
+ProseMirror Sync owns live collaborative document sync.
+NodeRoom owns room metadata, artifact mapping, visibility, ownerId, processing, and agent authorization.
+```
+
+The wrapper table should map:
+
+```text
+prosemirrorDocId -> roomId, artifactId, elementId, visibility, ownerId
+```
+
+Public notebook:
+
+```text
+visibility = room/public
+processed snapshot may feed public jobs
+```
+
+Private notebook:
+
+```text
+visibility = private
+ownerId = user id
+processed snapshot may feed only that user's private jobs
+```
+
+Agents should write sidecar proposals by default. Insertion into the live notebook should be user-approved unless the block is explicitly agent-owned and visually labeled.
+
+---
+
+## Hardening plan
+
+1. Centralize authorization in a shared `authz` layer:
+
+```text
+canReadResource(actor, resource)
+canWriteResource(actor, resource)
+canRunAgentOnResource(actor, target, evidencePolicy)
+canPromoteResource(actor, resource)
+deriveOutputVisibility(inputs)
+```
+
+2. Add visibility and ownerId to every content-bearing or metadata-sensitive row.
+
+3. Make context building policy-driven:
+
+```text
+buildContext(job)
+  -> determine allowed resources
+  -> retrieve only allowed rows
+  -> redact previews
+  -> record context manifest
+```
+
+4. Add privacy regression tests for every shared surface:
+
+```text
+owner can read private row
+other member cannot read private row
+public agent cannot read private row
+other user's private agent cannot read private row
+public job cannot consume private resource
+private-derived output remains private
+public feed counts do not reveal private activity volume
+```
+
+5. Add model egress tests:
+
+```text
+public job + public data -> allowed
+public job + private data -> blocked
+private job + private data + unapproved provider -> blocked
+private job + approved provider -> allowed
+```
+
+6. Add redaction tests for traces, receipts, journals, and exports.
+
+---
+
+## Final recommendation
+
+NodeRoom should use:
+
+```text
+One harnessed NodeAgent runtime
+  many durable jobs
+  each job has scope/evidence/approval policy
+
+Public jobs:
+  room-visible context only
+  public/room outputs only
+  public traces only
+
+Private jobs:
+  room-visible + own-private context
+  private outputs by default
+  private traces by default
+
+Cross-boundary sharing:
+  explicit user approval
+  redaction/promotion receipt
+```
+
+Enterprise-grade privacy is achieved through defense in depth:
+
+```text
+identity proof
+membership checks
+resource classification
+ownerId enforcement
+centralized authorization
+scoped retrieval
+scoped model egress
+output classification inheritance
+approval before promotion
+redacted shared traces
+append-only audit receipts
+privacy regression tests
+```
+
+The product promise should be:
+
+> Agents may help users work faster, but they never get to decide who can see private data. The platform enforces privacy before every read, every model call, every write, and every display.
