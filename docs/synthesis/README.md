@@ -11,6 +11,15 @@ Copilot with a shell-level Signal Tape/Status Strip, and the typed intake/prefli
 `src/nodeagent/core/intakePreflight.ts`; center-stage split mode, richer binder click-through, live provider
 PlanPreview gating, and workbook-runtime adapter work remain tracked gaps.
 
+2026-06-18 docs cleanup note: this folder is historical design synthesis, not
+current implementation authority. For the current notebook/passive-intelligence
+and agent-review architecture, read:
+
+- [`../PASSIVE_NOTEBOOK_SINGLE_SOURCE_FIX.md`](../PASSIVE_NOTEBOOK_SINGLE_SOURCE_FIX.md)
+- [`../NATIVE_NOTEBOOK_ARCHITECTURE.md`](../NATIVE_NOTEBOOK_ARCHITECTURE.md)
+- [`../AGENT_ARTIFACTS.md`](../AGENT_ARTIFACTS.md)
+- [`../SOURCE_OF_TRUTH.md`](../SOURCE_OF_TRUTH.md)
+
 ## The one-line verdict
 
 > ~80% of all four proposals restate doctrine or code that **already exists** in this repo.
@@ -27,6 +36,7 @@ PlanPreview gating, and workbook-runtime adapter work remain tracked gaps.
    - [specs/B_INTAKE_SCHEDULER.md](specs/B_INTAKE_SCHEDULER.md) — classifier → preflight → scheduler front door, reusing existing lock/closure code.
    - [specs/C_UNIVER_RUNTIME.md](specs/C_UNIVER_RUNTIME.md) — extend-vs-adopt verdict + the runtime-independent wins worth building now.
    - [specs/D_NODEROOMBENCH.md](specs/D_NODEROOMBENCH.md) — 4-layer naming + thin packaging + the two genuinely-missing graders.
+   - [specs/E_FIRST_TIME_BANKER_HAPPY_PATH.md](specs/E_FIRST_TIME_BANKER_HAPPY_PATH.md) — historical first-time banker notebook/passive-inbox slice; passive trigger details are superseded by the native notebook single-source docs above.
 
 ## Scaling, cost & architecture boundaries (added 2026-06-13)
 

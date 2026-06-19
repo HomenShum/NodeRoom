@@ -1,6 +1,6 @@
 # Model Eval Matrix
 
-Last updated: 2026-06-11.
+Last updated: 2026-06-18.
 
 NodeRoom now treats model evaluation as a two-axis matrix:
 
@@ -12,10 +12,17 @@ NodeRoom now treats model evaluation as a two-axis matrix:
 A route is not promoted by one axis alone. A cheap research winner can still be
 blocked from shared-room editing until it clears the collaboration ladder.
 
-## Supported Route Set
+## Curated Matrix Route Set
 
-The source of truth is `scripts/benchmark/modelEvalConfig.ts`. It separates
-canonical OpenRouter route IDs from NodeRoom internal aliases:
+The source of truth is `scripts/benchmark/modelEvalConfig.ts`. This section is
+the curated matrix route set, not the full OpenRouter Convex scorecard universe.
+The same config also defines OpenRouter top-paid routes, and
+`allAgentLlmRoutes()` expands the broader agent route set used by the Convex
+benchmark docs. See `docs/eval/OPENROUTER_CONVEX_BENCHMARK.md` for that larger
+scorecard.
+
+The curated matrix separates canonical OpenRouter route IDs from NodeRoom
+internal aliases:
 
 | Route | Role | Suites |
 |---|---|---|

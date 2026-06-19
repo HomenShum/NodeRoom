@@ -5,6 +5,8 @@ Model: `gemini-3.5-flash`
 Run id: `20260610T190900Z`
 
 > This judges README/demo media quality only. It does not replace live Convex, browser E2E, provider ladder, parser, privacy, or load-test gates.
+> Historical snapshot: some media paths in this summary were later regenerated,
+> renamed, or pruned. Do not use this run as current shipped-media evidence.
 
 ## Summary
 

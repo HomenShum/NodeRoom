@@ -8,7 +8,7 @@ Use deterministic orchestration plus typed model-assisted extraction. Do not let
 
 ```mermaid
 flowchart TD
-  Input[Notebook / sheet / source text] --> Normalize[Normalize: strip HTML, text, hash]
+  Input[Processed notebook blocks / sheet / source text] --> Normalize[Normalize: text, spans, hash]
   Normalize --> Rules[Cheap deterministic signal detector]
   Rules --> Gate{Useful or ambiguous?}
   Gate -->|no| Ignore[not_noteworthy]
@@ -29,7 +29,8 @@ flowchart TD
 | Classifier | `convex/noteworthy.ts`, `convex/roomActivity.ts` |
 | Passive queue | `convex/schema.ts`, `convex/roomActivity.ts` |
 | Agent job creation | `convex/agentJobs.ts` |
-| Tests | `tests/passiveIntelligence.test.tsx`, `tests/roomActivityEvidenceAdapters.test.ts` |
+| Native notebook target | `convex/notebookProcessing.ts`, `notebookDirtyEvents`, `notebookProcessingJobs`, processed notebook read model |
+| Tests | `tests/passiveIntelligence.test.tsx`, `tests/roomActivityEvidenceAdapters.test.ts`, `tests/notebookProcessingTarget.test.ts` |
 | Formal doc | `docs/PASSIVE_CLASSIFIER_PRODUCTION_PATTERN.md` |
 
 ## Stable Result Shape
@@ -83,6 +84,7 @@ LLM cannot do:
 - privacy routing
 - retries
 - source-of-truth writes
+- permission or dirty-event attribution
 
 ## Implementation Plan
 
@@ -91,6 +93,8 @@ LLM cannot do:
 3. Add `organization_candidate` before `company_verified`.
 4. Add typed extractor for ambiguous cases.
 5. Update tests to assert contracts, not incidental full arrays.
+6. For native notebooks, consume processed read-model rows, not raw
+   ProseMirror snapshots or hot `elements["doc"]` mirrors.
 
 ## Open Questions
 

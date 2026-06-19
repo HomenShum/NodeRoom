@@ -1,11 +1,13 @@
 /**
- * Render every captured (non-skipped) walkthrough to docs/walkthroughs/<id>.gif.
+ * Render every captured (non-skipped) walkthrough to docs/walkthroughs/<id>.mp4
+ * and docs/walkthroughs/<id>.gif.
  *
  * Two-stage encode (ported from HomenShum/feature-walkthrough-gif): Remotion renders lossless-ish
- * H.264 at full comp res/30fps, then ffmpeg (Remotion's bundled binary) does a two-pass palette
- * GIF — fps=15, lanczos scale to 896w, palettegen stats_mode=diff + paletteuse bayer dither with
+ * H.264 at full comp res, then ffmpeg (system binary when available) does a two-pass palette
+ * GIF — fps=12, lanczos scale to 896w, palettegen stats_mode=diff + paletteuse bayer dither with
  * diff_mode=rectangle (static panels don't re-dither → dramatically smaller files than direct
- * --codec=gif). Target 1–6MB per GIF, 10MB hard ceiling.
+ * --codec=gif). Target small GIFs, but large walkthroughs may exceed 10MB; the MP4 is the
+ * preferred compact asset.
  *
  * Run:  npx tsx scripts/walkthroughs/render.ts [featureIds…]
  */

@@ -74,15 +74,25 @@ No feedback claim should be shown unless it can point to a source, cell, trace, 
 
 ## Runtime Sequence
 
+Current shipped practice path: the passive inbox can submit practice from a
+noteworthy activity row in live mode, and the result is recorded as `coachEval`
+on activity/job state. Memory mode is deliberately no-op for practice. A
+first-class durable `CoachFeedbackArtifact` remains product/backend work.
+
 ```text
 User opens Coach Mode
   -> load artifact, evidence, OKF, trace state
   -> generate question and expected answer outline
   -> user writes answer
   -> evaluator checks claims and rubric
-  -> store feedback and mastery tags
+  -> store coachEval on the activity/job path
   -> show gaps with source links
 ```
+
+Target state: Coach feedback becomes an Agent Artifact. The rendered feedback
+card is a review surface; the structured payload stores question, expected
+outline, user answer, score, missed evidence refs, mastery tags, and follow-up
+task refs.
 
 ## Cost Control
 

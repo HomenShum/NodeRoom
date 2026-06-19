@@ -4,12 +4,30 @@ This is the doc you read before you explain NodeRoom's agent out loud — in an 
 
 The hard problem NodeRoom solves: an LLM agent and a human are editing the same spreadsheet cell at the same time, and neither one is allowed to silently clobber the other. Everything below builds up to how that's guaranteed, and where the guarantee actually lives in the code.
 
+In the battlefield flow, the user is not asking for a chatbot opinion. They are
+asking for work in a live room: recompute a spreadsheet, research a company,
+draft a note, review a private file, or coach a teammate. The happy path is:
+
+```text
+user intent
+  -> optional Agent Work Plan artifact with planned reads/writes/evidence
+  -> approval by structured plan hash, not by the pretty rendering
+  -> NodeAgent bounded model/tool loop
+  -> RoomTools checked reads, locks, CAS edits, drafts, and evidence writes
+  -> traces and receipts now; planned-vs-actual review as the target follow-up
+```
+
+That is why the runtime is intentionally boring. The model may improvise inside
+a bounded turn, but the room state changes only through typed tools and checked
+backend functions.
+
 Everything here is real, typechecked code you can run:
 
 ```
 npm run demo:agent          # the harness, scripted model (no keys), two scenarios
 npm run demo:agent -- --real  # the same harness on the configured real provider route
-npm test                    # 17 scenarios incl. the agent runtime
+npm test                    # full Vitest suite
+npm test -- --run tests/agentRuntime.test.ts tests/frameRunner.test.ts
 ```
 
 ---
@@ -44,7 +62,7 @@ Here are the three seams, defined in the header of `src/nodeagent/core/types.ts`
 
 - **Seam 1 — the model** (`AgentModel`, `src/nodeagent/core/types.ts:43-46`). The brain. Current implementations include `scriptedModel` (deterministic, no network), `model(modelId)` for local/provider runs, and `convexModel(modelId)` for Convex actions. The loop doesn't care which it's holding.
 - **Seam 2 — the tool backend** (`RoomTools`, `src/nodeagent/core/types.ts:75-92`). The thing the tools actually call. Two implementations: `InMemoryRoomTools` over the in-process engine (`src/nodeagent/skills/integration/noderoomAdapter.ts`) and `ConvexRoomTools` over Convex (`convex/convexRoomTools.ts`). Same interface, so the agent code is identical between the spike and production.
-- **Seam 3 — the tools** (`AgentTool[]`, `src/nodeagent/core/types.ts:49-54`). The concrete array the model is allowed to call: `ROOM_TOOLS` in `src/nodeagent/skills/spreadsheet/cellMutator.ts`.
+- **Seam 3 — the tools** (`AgentTool[]`, `src/nodeagent/core/types.ts:49-54`). The selected registry the model is allowed to call: base `ROOM_TOOLS`, browser-safe `PRODUCTION_ROOM_TOOLS`, or server-only `SERVER_PRODUCTION_ROOM_TOOLS`.
 
 The point to hammer: **the harness code — `worldModel.ts`, `cellMutator.ts`, `runtime.ts` — is identical across both backends.** Only the `RoomTools` implementation swaps. So when you say "we tested this end-to-end with no API keys," you mean the *real* runtime and the *real* tool layer ran; only the brain and the database were fakes.
 
@@ -52,13 +70,24 @@ The point to hammer: **the harness code — `worldModel.ts`, `cellMutator.ts`, `
 
 ## 2. The runtime loop (`src/nodeagent/core/runtime.ts`)
 
-`runAgent` (`runtime.ts:25-75`) is about thirty lines. Walk it as five steps.
+`runAgent` is the bounded runtime loop. Walk it as five responsibilities.
 
-1. **Assemble the context once.** `buildContext` (`runtime.ts:38`) builds the opening message from live room state. We do this once, up front — not per iteration.
-2. **Loop, bounded by a step budget.** `maxSteps` defaults to 8 (`runtime.ts:35`). The production action bumps it to 10. The budget is the safety rail that stops a confused agent from looping forever.
-3. **Each iteration, ask the model for one step.** `model.next({ system, messages, tools })` (`runtime.ts:43`) returns prose plus zero or more tool calls. If the model is done or asked for no tools, push its final text and return `exhausted: false` (`runtime.ts:47-50`).
-4. **Record the assistant turn carrying its tool calls** (`runtime.ts:53`). This keeps the message history well-formed — the real model needs to see its own prior tool calls to stay coherent.
-5. **Run each tool call, feed each result back as a `role: "tool"` message.** Find the tool, zod-`safeParse` the args (`runtime.ts:62`), run `execute` against `RoomTools`, or return an error object if the tool is unknown or the args are invalid (`runtime.ts:59-65`). Each result is pushed back via `JSON.stringify(result)` (`runtime.ts:70`), and a trace event with millisecond timing is recorded (`runtime.ts:67-69`).
+1. **Assemble scoped context.** `buildContext` and the surface-specific builders
+   render live room facts, versions, locks, review policy, and untrusted-room-data
+   fences before the model sees the task.
+2. **Loop under budgets.** The loop is bounded by step count, deadlines, reserve
+   time, spend ceilings, and compaction policy.
+3. **Ask the model for one step.** The provider returns prose plus zero or more
+   tool calls. Provider tools are declarations only; NodeRoom executes effects.
+4. **Journal and replay safely.** Tool calls and results can be journaled for
+   durable slices so retries do not re-run already-recorded provider/tool turns.
+5. **Validate and execute tools.** Tool args are schema-validated; tool results,
+   including conflicts, are returned as JSON context for the next step.
+
+The current loop also handles resumable tool calls, handoff events,
+read-loop/done-without-writes steering, and bounded trace output. The simple
+mental model is still correct, but the production loop has the guardrails needed
+for durable workflow slices.
 
 Here's the loop, lightly trimmed:
 
@@ -126,17 +155,29 @@ Two reasons we render it ourselves instead of dumping JSON. First, the model rea
 
 That version tag is load-bearing. **The versions in this table are what make CAS possible** — without them the model has no `baseVersion` to pass to `edit_cell`. The whole anti-clobber mechanism in section 5 is impossible if this table doesn't surface versions. The prompt tells the model to use the version it read; the context is where it reads it.
 
+Current context builders also fence untrusted room content, inject review-mode
+policy, and switch shape for spreadsheet, note, wall, and research tasks. The
+teaching example above is the compact spreadsheet view, not the only context
+shape.
+
 > **Talking point.** Context engineering here is two decisions: what rules to state once (the prompt) and what live facts to surface per call (versions + lock flags). The versions are the hook CAS hangs on.
 
 ---
 
 ## 4. The tools (`src/nodeagent/skills/spreadsheet/cellMutator.ts`)
 
-Each tool is `{ name, description, schema (zod), execute }` — the shape from `src/nodeagent/core/types.ts:49-54`. `ROOM_TOOLS` now includes the core lock/CAS/draft/chat tools plus workflow helpers:
+Each tool is `{ name, description, schema (zod), execute }` — the shape from `src/nodeagent/core/types.ts:49-54`. NodeRoom now has three registries:
 
-`read_range`, `search_sheet_context`, `propose_lock`, `edit_cell`, `write_cell_result`,
-`list_artifacts`, `update_wiki`, `reconcile_cell`, `create_draft`, `release_lock`,
-`say`, and `fetch_source`.
+- `ROOM_TOOLS` is the base/test registry: `read_range`,
+  `search_sheet_context`, `propose_lock`, `edit_cell`, `write_cell_result`,
+  `list_artifacts`, `update_wiki`, `reconcile_cell`,
+  `run_algorithm_artifact`, `create_draft`, `release_lock`, `say`, and
+  `fetch_source`.
+- `PRODUCTION_ROOM_TOOLS` swaps raw lock/edit/draft tools for managed write
+  tools, then adds OKF retrieval, Banker Coach tools, and `set_artifact_meta`.
+- `SERVER_PRODUCTION_ROOM_TOOLS` adds Convex/worker-only tools such as
+  `capture_source` and SEC facts. This registry is server-only so browser-safe
+  bundles never import Firecrawl, SEC, Playwright, or Browserbase paths.
 
 Three things matter about how these are built:
 
@@ -244,7 +285,7 @@ The key insight: the agent **saw Priya's value before overwriting it.** That's t
 
 ## 7. The injectable model: scripted vs real providers (seam 1)
 
-Both implementations live in `src/nodeagent/models/adapter.ts`, behind the same `AgentModel` interface.
+Model implementations sit behind the same `AgentModel` interface.
 
 Current production model wiring is provider-agnostic: `model(modelId)` routes through the catalog and
 AI SDK adapters for OpenAI, Gemini, Anthropic, and OpenRouter, while `convexModel(modelId)` provides
@@ -254,23 +295,29 @@ Free route in the public composer and records the concrete resolved model for au
 
 **Provider adapters** are route-based, not Anthropic-only. `model(modelId)` uses the catalog-backed local/provider adapter path, while `convexModel(modelId)` is the Convex-safe action adapter. The critical detail is unchanged: provider tools are declared without local side effects. The provider returns tool calls; NodeRoom validates and executes them against `RoomTools`. The division of labor: the provider adapter owns model plumbing, while the harness owns the loop, context, tool validation, backend writes, conflict recovery, compaction, budgets, and traceability.
 
-**`scriptedModel`** (`adapter.ts`) is a deterministic model for demos and tests. It takes a `Planner` that reads the running message history — so it can see prior tool results, including versions and conflicts — and returns the next step. No network, no keys. The `lastVersions` helper (`adapter.ts`) lets planners pull versions out of prior `read_range` results.
+**`scriptedModel`** (`src/nodeagent/models/scripted.ts`) is a deterministic
+model for demos and tests. It takes a `Planner` that reads the running message
+history — so it can see prior tool results, including versions and conflicts —
+and returns the next step. No network, no keys. The `lastVersions` helper also
+lives in `scripted.ts`. Provider routing lives in
+`src/nodeagent/models/adapter.ts`; Convex action routing lives in
+`src/nodeagent/models/convexModel.ts`.
 
 Why this seam earns its keep: the demo and tests use the scripted model so they exercise the **real runtime, the real tool backend, and the real engine** — only the brain is fixed. When the tests pass, you've verified the loop, the gates, the conflict-as-data contract, and the smart-merge. You've just held the LLM constant so the test is deterministic.
 
 ---
 
-## 8. Production wiring: `convex/agent.ts` runs the same loop
+## 8. Production wiring: inline action and workflow slice runner
 
 Current production wiring uses `convexModel(process.env.AGENT_MODEL ?? "gemini-3.5-flash")`, so
 provider keys depend on the selected model route rather than being Anthropic-only.
 
-`convex/agent.ts` is the production entry point. It is a Convex action because
-model calls and external services belong outside deterministic mutations.
-Provider keys depend on the selected `AGENT_MODEL` route, not on Anthropic
-alone. `runRoomAgent` now claims or creates an `agentJobs` row, applies spend
-and time budgets, enables compaction, uses the provider-step journal, and hands
-off to Workflow/Workpool when the first slice cannot finish:
+`convex/agent.ts` is the inline/publish/fallback action path. It is a Convex
+action because model calls and external services belong outside deterministic
+mutations. Provider keys depend on the selected model route, not on Anthropic
+alone. `runRoomAgent` claims or creates an inline-compatible `agentJobs` row,
+applies spend and time budgets, enables compaction, uses the provider-step
+journal, and hands off when that slice cannot finish:
 
 ```ts
 const job = await createOrReuseAgentJob(...);
@@ -280,7 +327,7 @@ const result = await runAgent({
   rt,
   goal,
   model,
-  tools: ROOM_TOOLS,
+  tools: PRODUCTION_ROOM_TOOLS,
   journal: makeConvexStepJournal(...),
   deadlineAt,
   compaction: ...
@@ -288,20 +335,35 @@ const result = await runAgent({
 await finishInteractiveOrCheckpoint(job, result);
 ```
 
-It first verifies the caller's member proof through `rooms.full`, derives the
-public room agent/session on the server, constructs `ConvexRoomTools`, picks the
-resolved model route, and calls the **identical `runAgent`** from
-`src/nodeagent/core/runtime.ts` with `ROOM_TOOLS`. That's the seam paying off: the loop
-is shared between deterministic tests, local provider runs, and Convex actions;
-only the model and backend implementations differ.
+The public chat route starts a durable job through `agentJobs.start`; it does
+not rely on an immediate inline first slice. `convex/agentJobRunner.ts` then
+claims workflow slices and runs the same `runAgent` loop with
+`SERVER_PRODUCTION_ROOM_TOOLS`. That's the seam paying off: the loop is shared
+between deterministic tests, local provider runs, inline Convex actions, and
+workflow-backed production slices; only the model, tool registry, and backend
+implementation differ.
 
-> **Step budgets, for precision.** Three different defaults in play: the runtime's own default is 8 (`src/nodeagent/core/runtime.ts:35`), the production action uses 10 (`agent.ts:41`), and the demo uses 16 (`demo/runAgent.ts:48`). Same loop, different rails for different contexts.
+> **Step budgets, for precision.** Three different rails are in play: the
+> runtime's own default is 8, the production action defaults to 40 steps for
+> normal runs and 80 for research runs (clamped to 64/96), and the local demo
+> uses 16. Same loop, different limits for different contexts.
 
-The action returns a summary — `{ finalText, steps, exhausted, toolCalls, conflictsSurvived }` (`agent.ts:42-49`), where `conflictsSurvived` counts the `edit_cell` trace results that came back with `conflict: true`. The live effects — locks, edits, traces, chat — are written through the mutations and stream to every client via reactive `useQuery` subscriptions. That's how "multiple users and agents see updates while editing concurrently" actually becomes true on the screen.
+The action returns a summary `{ finalText, steps, exhausted, toolCalls,
+conflictsSurvived }`, where `conflictsSurvived` counts the `edit_cell` trace
+results that came back with `conflict: true`. The live effects - locks, edits,
+traces, chat - are written through the mutations and stream to every client via
+reactive `useQuery` subscriptions. That's how "multiple users and agents see
+updates while editing concurrently" actually becomes true on the screen.
 
-**The user entry point.** Mentioning `@nodeagent <goal>` in the public chat calls `store.askAgent({ goal, references, modelSelection })` (`src/app/store.tsx`): the chat composer keeps dragged file chips as structured artifact references, and the store converts those references into scoped artifact context before invoking the agent. The route picker chooses Adaptive, Free, Top paid, or a specific model policy; `/ask` and `/free` remain hidden compatibility aliases that pass through the same durable route. On Convex the store creates/reuses an `agentJobs` row and invokes the shared action/slice path with the user's goal; with no keys it runs the *same* `runAgent` loop in the browser against the in-memory engine (scripted model). Same loop, same tools, same contract — only the brain and the backend differ.
+**The user entry point.** Mentioning `@nodeagent <goal>` in the public chat calls `store.askAgent({ goal, references, modelSelection })` (`src/app/store.tsx`): the chat composer keeps dragged file chips as structured artifact references, and the store converts those references into scoped artifact context before invoking the agent. The route picker chooses Adaptive, Free, Top paid, or a specific model policy; `/ask` and `/free` remain hidden compatibility aliases that pass through the same durable route. On Convex the store calls `agentJobs.start`, then the workflow runner claims slices for the user's goal; with no keys it runs the *same* `runAgent` loop in the browser against the in-memory engine (scripted model). Same loop, same contract — only the brain, registry, and backend differ.
 
-`ConvexRoomTools` (`convex/convexRoomTools.ts:20-73`) is the only thing that differs between the spike and production. It implements the same `RoomTools` interface, each method running an internal Convex query or mutation: `snapshot → internal.artifacts.getSheet`, `readRange → internal.artifacts.readRange`, `proposeLock → internal.locks.proposeLock`, `editCell → internal.artifacts.applyAgentCellEdit`, `createDraft → internal.drafts.createDraft`, `say → internal.messages.sendAgent`, and so on.
+`ConvexRoomTools` is the only thing that differs between the spike and
+production. It implements the same `RoomTools` interface, each method running
+an internal Convex query or mutation: `snapshot -> internal.artifacts.getSheet`,
+`readRange -> internal.artifacts.readRange`, `proposeLock ->
+internal.locks.proposeLock`, `editCell ->
+internal.artifacts.applyAgentCellEdit`, `createDraft ->
+internal.drafts.createDraft`, `say -> internal.messages.sendAgent`, and so on.
 
 ---
 
@@ -316,14 +378,16 @@ The action returns a summary — `{ finalText, steps, exhausted, toolCalls, conf
 | Frame result reduction/verification | `src/nodeagent/core/frameReducer.ts`, `src/nodeagent/core/frameVerifier.ts` |
 | Context — the protocol (system prompt) | `src/nodeagent/models/prompts/systemPrompt.ts` |
 | Context — the live JIT table | `src/nodeagent/core/worldModel.ts` |
-| Current tools | `src/nodeagent/skills/spreadsheet/cellMutator.ts` |
-| Seam 1 — model adapters (scripted + provider routes) | `src/nodeagent/models/adapter.ts`, `src/nodeagent/models/convexModel.ts` |
+| Base and browser-safe tools | `src/nodeagent/skills/spreadsheet/cellMutator.ts` |
+| Server-only production tools | `src/nodeagent/skills/server/productionTools.ts` |
+| Seam 1 — model adapters (scripted + provider routes) | `src/nodeagent/models/scripted.ts`, `src/nodeagent/models/adapter.ts`, `src/nodeagent/models/convexModel.ts` |
 | Scripted planners (drive the demo/tests) | `src/nodeagent/core/plans.ts` |
 | Seam 2 — in-memory backend | `src/nodeagent/skills/integration/noderoomAdapter.ts` (over `src/engine/roomEngine.ts`) |
 | Seam 2 — Convex backend | `convex/convexRoomTools.ts` |
 | The CAS write — `applyCellEdit` | `convex/artifacts.ts` |
 | Lock gate backend | `convex/locks.ts` |
 | Draft + smart-merge backend | `convex/drafts.ts` |
-| Production action (same loop) | `convex/agent.ts` |
+| Inline production action | `convex/agent.ts` |
+| Workflow slice runner | `convex/agentJobRunner.ts` |
 | Runnable demo (both scenarios) | `demo/runAgent.ts` |
 | Scenario tests | `tests/agentRuntime.test.ts`, `tests/roomEngine.test.ts` |

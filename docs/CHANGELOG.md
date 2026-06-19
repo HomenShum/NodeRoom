@@ -1,5 +1,37 @@
 # Changelog
 
+## 2026-06-18 - Native notebook processing and Agent Work Plan approval
+
+### What changed
+
+- Added the native notebook processing backend slice:
+  `notebookDirtyEvents`, `notebookProcessingJobs`, `notebookBlocks`,
+  `notebookClaims`, and `notebookMentions`.
+- Added `convex/notebookProcessing.ts` with `markNotebookDirty`,
+  `processNotebookDirtyEvent`, read-model commit logic, and owner-filtered
+  read-model queries.
+- Reused the passive classifier path from `convex/roomActivity.ts` so native
+  notebook read models and legacy passive activity use one noteworthy
+  classifier contract.
+- Added `agentArtifacts` and `convex/agentArtifacts.ts` for the first shipped
+  Agent Artifact kind: `agent_work_plan`.
+- Made approval hash-based: `approveAgentWorkPlan` re-hashes the stored
+  structured payload and only starts/reuses a job when the submitted `planHash`
+  exactly matches.
+- Copied the approved hash to `agentJobs.request.approvedPlanHash` so execution
+  can be tied back to the reviewed structured plan.
+- Added `tests/notebookProcessingTarget.test.ts` covering dirty-event dedupe,
+  ACL/revocation, read-model rows, private isolation, passive classifier reuse,
+  and approved-plan job creation.
+
+### Why it matters in plain language
+
+Native notebook sync can move quickly without turning every editor snapshot into
+agent work. The durable trigger is now actor-authenticated dirty metadata; the
+processor rechecks ACL before reading the latest snapshot; passive intelligence
+comes from a processed read model; and the first agent action is an approvable
+structured plan, not an invisible write.
+
 ## 2026-06-17 - Passive room intelligence and file-processing adapters
 
 ### What changed

@@ -19,12 +19,14 @@ flowchart LR
     Inbox[Passive inbox]
     Scratch[Agent scratchpad]
     Evidence[Evidence cards]
+    Plans[Agent Work Plans]
+    Diffs[Diff previews]
     Coach[Coach cues]
     Proposals[Proposed inserts/rows]
   end
 
-  Human --> Snapshot[Processed snapshots]
-  Snapshot --> Agent
+  Human --> Model[Processed read model]
+  Model --> Agent
   Agent --> Bridge{Approval bridge}
   Bridge -->|approved| Human
   Bridge -->|dismissed| Archive[Dismiss / archive]
@@ -38,6 +40,7 @@ flowchart LR
 | Store actions | `src/app/store.tsx` |
 | Passive backend | `convex/roomActivity.ts` |
 | Draft/proposal path | `convex/drafts.ts`, `convex/artifacts.ts`, `convex/agentJobs.ts` |
+| Agent Artifacts | `docs/AGENT_ARTIFACTS.md`, target `convex/agentArtifacts.ts` |
 | Trace/receipts | `convex/agentSteps.ts`, `convex/agentJobs.ts`, `convex/schema.ts` |
 | Formal doc | `docs/HUMAN_AGENT_APPROVAL_BOUNDARY.md` |
 
@@ -55,13 +58,13 @@ flowchart LR
 ```mermaid
 sequenceDiagram
   participant A as Agent
-  participant S as Sidecar Proposal
+  participant S as Agent Artifact / Proposal
   participant U as User
   participant M as Checked Mutation
   participant R as Receipt
-  A->>S: write proposal
+  A->>S: write structured payload + rendering
   S-->>U: show action card
-  U->>M: approve action
+  U->>M: approve payload hash / action
   M->>R: record mutation receipt
   M-->>U: update source surface
 ```
@@ -78,15 +81,18 @@ private input -> private proposal -> redaction/approval -> room/public output
 
 1. Make every agent output land in a classified sidecar first.
 2. Add explicit `proposed_insert` / `proposed_sheet_row` types.
-3. Add UI actions for approval bridge.
-4. Record receipts for promoted changes.
-5. Redact private proposal metadata for non-owners.
+3. Shipped backend: `agent_work_plan` approval by canonical `planHash` exists.
+4. Add planned-vs-actual artifact type.
+5. Add UI actions for approval bridge.
+6. Record receipts for promoted changes.
+7. Redact private proposal metadata for non-owners.
 
 ## Verification Plan
 
 - Public user sees room proposals only.
 - Private proposal is owner-only.
 - Approval creates a receipt.
+- Agent Work Plan approval checks canonical `planHash`.
 - Dismiss does not mutate source surface.
 - Insert into notebook/sheet is explicit and reversible where possible.
 

@@ -10,5 +10,4 @@ visibility: public
 # Cue
 The runway estimate is useful for internal diligence, but not client-ready until current cash, monthly burn, and period are confirmed.
 
-See [CardioNova runway estimate](/cells/cardionova_runway.md).
-
+See [CardioNova runway estimate](../cells/cardionova_runway.md).

@@ -1,6 +1,9 @@
 # Public-Gold Multi-Agent Demo
 
-This demo turns `/demo multi-agent` into a deterministic public-source proof board.
+This demo turns `/demo multi-agent public-gold ...` style prompts into a
+deterministic public-source proof board. The current rendered walkthrough asset
+is `multi-agent-workbench`; plain `/demo multi-agent` launches the startup
+diligence prompt path.
 It is still a memory-mode walkthrough of the UI contract, but the cases are no
 longer vague synthetic tasks. Each row cites a public dataset or official source,
 an expected answer, and the validators the production eval must run.

@@ -1,0 +1,22 @@
+{
+  "ok": true,
+  "generatedAt": "2026-06-18T22:10:18.440Z",
+  "runId": "native-notebook-single-source",
+  "model": "gemini-3.5-flash",
+  "base": "http://127.0.0.1:5275",
+  "features": [
+    "first-time-banker-capture"
+  ],
+  "media": "docs/walkthroughs/first-time-banker-capture.mp4",
+  "outDir": "docs/eval/walkthrough-review/native-notebook-single-source",
+  "manifestPath": "docs/eval/walkthrough-review/native-notebook-single-source/manifest.json",
+  "readmePath": "docs/eval/walkthrough-review/native-notebook-single-source/README.md",
+  "commands": [
+    "npx.cmd tsx scripts/walkthroughs/capture.ts first-time-banker-capture",
+    "npm.cmd run walkthroughs:render -- first-time-banker-capture",
+    "npm.cmd run media:gemini-judge -- --only first-time-banker-capture --include-ignored --run-id native-notebook-single-source --model gemini-3.5-flash",
+    "npm.cmd run ui:gemini-review -- --media=docs/walkthroughs/first-time-banker-capture.mp4 --out=docs/eval/walkthrough-review/native-notebook-single-source/gemini-ui-review.json --model=gemini-3.5-flash"
+  ],
+  "mediaJudge": "docs/eval/gemini-media-judges/native-notebook-single-source/summary.md",
+  "uiReview": "docs/eval/walkthrough-review/native-notebook-single-source/gemini-ui-review.json"
+}

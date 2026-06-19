@@ -44,7 +44,9 @@ Two honesty rules attached to the proof:
   are labeled, not silently trusted.
 - **Single passes are labeled as such.** Until a lane has the N-run
   aggregate, its docs must say "single live pass, reliability rate not yet
-  measured" — the current finance full-solve champion is exactly this.
+  measured". The finance full-solve lane is no longer the example: its current
+  committed proof is a 5/5 model-owned DeepSeek v4 Flash batch in
+  `docs/eval/finance-model-live.json`.
 
 Enforcement is planned as code, not prose: a `docs/eval/features.json`
 manifest (featureId → gold source hash, contract case ids, reliability proof

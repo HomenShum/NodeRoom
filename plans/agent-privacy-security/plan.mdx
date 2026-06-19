@@ -17,8 +17,8 @@ flowchart TD
   PrivateCtx --> Egress{Provider egress policy}
   Egress --> Model
   Model --> OutputClass[derive output visibility]
-  OutputClass --> PublicOut[Room-visible proposals/traces]
-  OutputClass --> PrivateOut[Private proposals/traces]
+  OutputClass --> PublicOut[Room-visible proposals/traces/artifacts]
+  OutputClass --> PrivateOut[Private proposals/traces/artifacts]
   PrivateOut --> Promote{Explicit promote?}
   Promote -->|yes| Redact[Redact + audit receipt]
   Redact --> PublicOut
@@ -34,6 +34,7 @@ flowchart TD
 | Passive private feed | `convex/roomActivity.ts`, `convex/schema.ts` |
 | Private streaming | `convex/streaming.ts`, `convex/http.ts` |
 | OKF / retrieval | `convex/okf.ts`, `convex/embeddings.ts` |
+| Agent Artifact backend | `docs/AGENT_ARTIFACTS.md`, `convex/agentArtifacts.ts` |
 | Tests to expand | `tests/privateArtifactVisibility.test.ts`, `tests/convexBoundaryPolicy.test.ts` |
 
 ## Data Boundary Map
@@ -56,6 +57,9 @@ flowchart LR
 - Public jobs cannot read private rows.
 - Private jobs can read room-visible plus own-private rows only.
 - Private-derived output remains private by default.
+- Agent Artifacts inherit the maximum sensitivity of their inputs.
+- Rendered MDX/HTML/React artifact views are permission-filtered renderings, not
+  raw payload dumps.
 - Cross-boundary promotion requires explicit approval and audit receipt.
 - Traces inherit the max sensitivity of inputs.
 - Model egress follows data classification.
@@ -68,7 +72,9 @@ flowchart LR
 3. Make model context building policy-driven.
 4. Add output classification inheritance.
 5. Add public/private trace redaction.
-6. Add privacy regression tests per shared surface.
+6. Shipped backend: Agent Artifact `planHash` approval checks exist.
+7. Add Agent Artifact rendering redaction.
+8. Add privacy regression tests per shared surface.
 
 ## Verification Plan
 
@@ -79,6 +85,7 @@ flowchart LR
 - Public feed counts do not reveal private row volume.
 - Public job + private data is blocked before model egress.
 - Private-derived output remains private until promoted.
+- Agent Artifact rendering hides private refs from non-owners.
 
 ## Open Questions
 

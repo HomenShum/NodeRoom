@@ -4,6 +4,10 @@
 
 Visual Plans turn implementation plans into interactive, human-optimized review surfaces. They are intended for plans too important to bury in chat or terminal Markdown.
 
+Visual Plans are renderings, not authority. For executable agent work, the
+source of truth must be a structured plan object with a canonical hash. The MDX
+or HTML view is the review surface for that object.
+
 This document defines when NodeRoom should use a Visual Plan and what a NodeRoom Visual Plan should contain.
 
 ## Source Reference
@@ -43,6 +47,7 @@ Use a Visual Plan for work that is:
 Examples:
 
 - Convex ProseMirror notebook migration
+- Agent Artifact / Agent Work Plan approval flows
 - public/private agent boundary changes
 - passive classifier redesign
 - Coach Mode / Review Readiness
@@ -68,6 +73,9 @@ A NodeRoom Visual Plan should include:
 10. Test and verification plan
 11. Rollout and feature-flag plan
 12. Open questions requiring human approval
+13. Structured source object or schema when the visual plan represents work that
+    can be approved or executed
+14. Planned-vs-actual review path for executable plans
 
 ## NodeRoom-Specific Components
 
@@ -135,10 +143,14 @@ For risky work, implementation should not begin until the Visual Plan is reviewe
 ```text
 Draft Visual Plan
   -> review diagrams/contracts/questions
-  -> approve direction
+  -> approve direction or structured plan hash
   -> implement code
   -> verify with tests/build/Playwright
 ```
+
+For in-app Agent Work Plans, approval means approving the canonical structured
+payload hash. It does not mean approving arbitrary MDX/HTML. Buttons rendered in
+visual plans must call checked Convex mutations.
 
 ## Relationship to Existing Docs
 

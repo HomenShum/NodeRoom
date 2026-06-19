@@ -2,11 +2,13 @@
 
 This is the contract for NodeRoom's unified NodeAgent job architecture. Every
 mutating or durable agent command (`/ask`, `/free`, and private Room-lane
-actions) creates or reuses an `agentJobs` row; `/ask` runs an immediate first
-slice for responsive UX, and any slice that exhausts budget checkpoints into
-the Workflow/Workpool runner. Private read-only advise is currently a one-call
-private reply path and does not create an `agentJobs` row. `/free` is only a
-model-policy shortcut for `openrouter/free-auto`, not a separate runtime. The
+actions) starts or reuses an `agentJobs` row. Public chat `/ask` enters through
+`agentJobs.start` and is durable-first; workflow slices are claimed by
+`convex/agentJobRunner.ts`. `convex/agent.ts` remains the inline/publish/fallback
+action path, not the main public-chat route. Private read-only advise is
+currently a one-call private reply path and does not create an `agentJobs` row.
+`/free` is only a model-policy shortcut for `openrouter/free-auto`, not a
+separate runtime. The
 historical client-side GraphStore design is useful as a domain reference, but
 not as a runtime model.
 
@@ -91,6 +93,7 @@ not overstate what is enforced today.
 | Recursive reasoning | room-work admission materializes phase/child `agentReasoningFrames`, entity/facet `entityWorkItems`, and `entityResearchCache` freshness rows; job detail exposes the frame tree | every runnable durable slice claims a specific frame, builds a `ContextPack`, reduces the result to `FrameDelta`, verifies it, and then continues/spawns/finishes |
 | Wiki | currently also represented as artifact/note elements in live tools | `wikiPages`/`wikiRevisions` become the canonical revision surface |
 | Notebook graph | schema/mutations and some receipts/embedding enqueue exist | agent tools, endpoint validation, private visibility, leases, soft delete, and draft structural ops |
+| Agent Artifacts | first backend slice ships structured `agent_work_plan` creation and exact `planHash` approval into `agentJobs.request.approvedPlanHash` | diff previews, evidence cards, coach feedback, and planned-vs-actual reports become rendered approved job inputs/outputs |
 | Tool registry | static Zod tools exist | versioned registry with permission, scope, risk, lease, idempotency, and composite-tool policy |
 | Improvement loop | `npm run agent:improve` exists for deterministic/live lanes | production traces feed feedback, eval generation, HALO diagnosis, and handoff rows |
 
@@ -98,7 +101,8 @@ not overstate what is enforced today.
 
 ```text
 Client command
-  -> agentJobs.create mutation
+  -> agentJobs.start mutation
+  -> optional approved Agent Artifact planHash / scope
   -> optional cache-first reasoning plan: agentReasoningFrames + entityWorkItems + entityResearchCache
   -> agentJobs.enqueue mutation / workflow start
   -> agentJobRunner.runSlice action
@@ -114,7 +118,9 @@ Client command
 
 The action can return a quick summary to the caller, but that return value is
 not the source of truth. The source of truth is the job row, the durable steps,
-the mutation receipts, and the canonical domain rows.
+the approved structured Agent Artifact payload when present, the mutation
+receipts, and the canonical domain rows. Rendered MDX/HTML is review UI, not an
+execution contract.
 
 ## Live Multi-User / Multi-Agent Sequence Diagrams
 
@@ -150,9 +156,10 @@ sequenceDiagram
     Mutations-->>BrowserA: conflict/locked result
   end
 
-  BrowserA->>Agent: /ask or private-agent command
-  Agent->>Mutations: agentJobs.createOrReuse(idempotencyKey)
+  BrowserA->>Mutations: /ask or /free durable command
+  Mutations->>DB: agentJobs.start(idempotencyKey)
   Mutations->>DB: durable job root + operation event
+  Workflow->>Agent: claim next bounded slice
   Agent->>DB: hydrate context and prior cursor
   Agent->>DB: replay model-step journal if present
   alt journal miss
@@ -210,7 +217,14 @@ type NodeAgentRequest = {
   actorProofId?: string;
 
   commandText: string;
-  entrypoint: "public_ask" | "private_agent" | "free" | "system" | "automation";
+  entrypoint:
+    | "public_ask"
+    | "private_agent"
+    | "free"
+    | "system"
+    | "automation"
+    | "provider_parser"
+    | "room_work";
   scope: "public_room" | "private_user" | "team";
 
   // Target surfaces. At least one should normally be present.
@@ -277,9 +291,10 @@ type NodeAgentResult = {
   status:
     | "queued"
     | "running"
-    | "awaiting_approval"
     | "paused"
+    | "retrying"
     | "completed"
+    | "blocked"
     | "failed"
     | "cancelled";
 
@@ -569,8 +584,7 @@ created
   -> reading_context
   -> planning
   -> executing_tools
-  -> drafting_operations
-  -> awaiting_approval
+  -> drafting_operations_or_proposals
   -> committing
   -> scheduling_followups
   -> summarizing
@@ -585,6 +599,8 @@ failed
 cancelled
 blocked
 ```
+
+`paused` and `retrying` are active/recoverable states, not terminal states.
 
 State transitions are mutations. Actions can request a transition, but they do
 not directly rewrite arbitrary job state.
@@ -628,7 +644,7 @@ Target contract: every ping-pong boundary should write an
 
 ```text
 mutation createJob
-  -> operation kind=mutation name=agentJobs.create
+  -> operation kind=mutation name=agentJobs.start
 
 action runJobSlice
   -> operation kind=action name=agentJobRunner.runSlice
@@ -941,8 +957,10 @@ Some tools should never mutate immediately:
 - replacing relation endpoints in a shared room;
 - batch edits above the job's safety threshold.
 
-Those tools write `agentDraftOperations` rows and move the job to
-`awaiting_approval`. A host or owner approves the draft, and a mutation applies
+Those tools write `agentDraftOperations` or Agent Artifact rows with their own
+approval state. The `agentJobs.status` remains in the schema's job-status set
+(`queued`, `running`, `paused`, `retrying`, `completed`, `blocked`, `cancelled`,
+or `failed`). A host or owner approves the draft/artifact, and a mutation applies
 the operation against the current versions. If the baseline diverged, the draft
 becomes `needs_rebase`, not a blind write.
 
@@ -1045,7 +1063,7 @@ internal query, mutation, model call, and scheduler continuation as
 `agentStep` visible to the user and eval harness. Current implementation is
 coarser: it records aggregate job/slice/tool events and mutation receipts, then
 should expand toward per-boundary operation events as composites move into
-production `ROOM_TOOLS`.
+`PRODUCTION_ROOM_TOOLS` or `SERVER_PRODUCTION_ROOM_TOOLS`.
 
 Current implementation note: the v3 benchmark in `scripts/benchmark/run.ts`
 uses a two-call composite shape. `fetch_row_sources` owns row lock, source
@@ -1464,7 +1482,9 @@ Labels:
   needs it.
 
 1. `[active | owner: nodeagent-jobs | evidence: tests/agentJobsRuntime.test.ts]`
-   Add a universal `agentJobs.createOrReuse` mutation with idempotency.
+   Keep `agentJobs.start` as the general durable route with idempotency.
+   `createOrReuse` remains an inline/legacy-compatible helper and still carries
+   artifact-scoped assumptions.
 2. `[target-only | owner: nodeagent-jobs | evidence: non-artifact job eval]`
    Remove artifact-only assumptions from `agentJobs` so a job can target a
    notebook, wiki page, range, artifact, automation, or no surface.
@@ -1478,8 +1498,9 @@ Labels:
    Rename `/free`-specific fields to general job fields while preserving the
    current workflow implementation.
 6. `[active | owner: nodeagent-jobs | evidence: tests/agentJobsRuntime.test.ts]`
-   Expand `agentMutationReceipts` beyond successful artifact edits to locks,
-   drafts, approvals, graph writes, failed conflicts, and wiki revisions.
+   Mutation receipts cover successful artifact writes and notebook graph
+   mutations today. Broader receipts for locks, drafts, approvals, failed
+   conflicts, graph writes, and wiki revisions remain target work.
 7. `[target-only | owner: artifact-collab-core | evidence: contention eval]`
    Reconcile `locks` and `agentLeases`: either keep locks canonical for artifact
    writes or migrate write mutations to target-level leases.

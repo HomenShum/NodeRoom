@@ -1,0 +1,44 @@
+{
+  "generatedAt": "2026-06-18T22:12:40.027Z",
+  "model": "gemini-3.5-flash",
+  "mediaPath": "docs/walkthroughs/first-time-banker-capture.mp4",
+  "mediaType": "video/mp4",
+  "scoreScale": "0-5; model 0-10 outputs are normalized",
+  "review": {
+    "overall": "partial",
+    "summary": "The interaction demonstrates real-time note-taking, automatic signal extraction via 'Room Intelligence', and agent dispatching for diligence. Multi-user presence is shown in the chat window, but advanced features like spreadsheet integration, wall post-its, and citation details are not demonstrated in this clip.",
+    "scores": {
+      "filesAndSpreadsheet": 2,
+      "publicPrivateChatAgent": 4,
+      "convexLiveState": 4,
+      "traceAcceptAllAutoAccept": 2,
+      "notesWikiSpreadsheet": 1,
+      "wallPostIts": 0,
+      "multiUserSignals": 4,
+      "evidenceCitations": 2
+    },
+    "observedEvidence": [
+      "Capture Notebook reactive editing and signal detection on blur",
+      "Room Intelligence suggestions panel popping up with extracted terms like CardioNova, funding, runway, and hospital signals",
+      "Active multi-user list in the sidebar showing 'Priya' as active and 'anon - quokka' as guest",
+      "Agent research dispatching button ('Research')"
+    ],
+    "missingEvidence": [
+      "Spreadsheet editing interface",
+      "Wall view containing post-it creation/deletion",
+      "Detailed hover or links for evidence citations",
+      "Accept-all or auto-accept trace proposals toggle"
+    ],
+    "workflowPainPoints": [
+      {
+        "user": "finance_banking",
+        "painPoint": "Manual data extraction from initial startup meetings into diligence folders.",
+        "observed": true,
+        "note": "The automated Room Intelligence panel accurately extracts entities and prompts for research, reducing manual data-gathering steps."
+      }
+    ],
+    "recommendedEvalAdditions": [
+      "Include a workflow segment where the user transitions from the extracted notes to a structured spreadsheet with auto-filled cells based on agent research."
+    ]
+  }
+}

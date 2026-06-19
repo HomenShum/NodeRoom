@@ -4,15 +4,25 @@
 
 ## The one idea everything rests on: the uniform element model
 
-Every artifact — spreadsheet, note, post-it wall — is a **bag of elements**, and an element is just:
+For committed source surfaces — spreadsheets, legacy note blocks, sticky walls,
+locks, drafts, proposals, and checked source mutations — NodeRoom uses the
+uniform element model. Native ProseMirror notebooks add a sidecar path:
+`notebookDocuments` maps note artifacts to ProseMirror documents, dirty events
+trigger ACL-gated processing, and read-model rows feed passive intelligence.
+
+In the committed source-surface layer, every artifact is a **bag of elements**,
+and an element is just:
 
 ```ts
 interface Element { id: string; version: number; value: unknown; updatedAt: number; updatedBy: Actor }
 ```
 
-A spreadsheet cell (`B2`), a note block (`n1`), and a sticky (`s1`) are all elements. That uniformity
-is the whole architecture: **locks, optimistic-concurrency (CAS), drafts, and smart-merge are ONE
-generic mechanism over elements**, not three per-artifact implementations.
+A spreadsheet cell (`B2`), a legacy note block (`n1`), and a sticky (`s1`) are
+all elements. That uniformity is the collaboration backbone: **locks,
+optimistic-concurrency (CAS), drafts, and smart-merge are ONE generic mechanism
+over elements**, not three per-artifact implementations. The native notebook
+sidecar still returns accepted source mutations, fallback/export mirrors, and
+agent-owned proposals to this checked element layer.
 
 ## The collaboration lifecycle (point 8)
 

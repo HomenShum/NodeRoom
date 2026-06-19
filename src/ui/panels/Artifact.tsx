@@ -15,7 +15,7 @@ import {
   Table2, FileText, StickyNote, Users, GitMerge, Play, RotateCcw, History, Search, BookOpen,
   Lock, Unlock, Ban, Pencil, Plus, Check, AlertTriangle, Eye, Circle, ChevronRight, Download, Trash2, Undo2, X, Columns2, MoreHorizontal, Mail, Hash, Layers, Linkedin, Activity, type LucideIcon,
 } from "lucide-react";
-import { useStore, type RoomStore, type EditFeedback } from "../../app/store";
+import { useStore, type ActorProof, type RoomStore, type EditFeedback } from "../../app/store";
 import { formatExcelNumber } from "../../app/numberFormat";
 import { columnLetters } from "../../app/spreadsheetIndex";
 import { evaluateFormula, FormulaEvalError, type CellResolver, type CellValue, type FormulaResult } from "../../nodeagent/core/formulaEngine";
@@ -49,8 +49,9 @@ const WORKBOOK_VIEW_STYLES: { id: WorkbookViewStyle; label: string; hint: string
 ];
 const WORKBOOK_VIEW_STORAGE_KEY = "noderoom:workbook-view-style";
 
-function ArtifactSurface({ roomId, me, artId, onArt, collab, style, surfaceKey = "primary", headerExtra, openIds, onCloseArtifact }: {
+function ArtifactSurface({ roomId, me, proof, artId, onArt, collab, style, surfaceKey = "primary", headerExtra, openIds, onCloseArtifact }: {
   roomId: string; me: Actor; artId: string; onArt: (id: string) => void;
+  proof?: ActorProof;
   collab?: CollabControls;
   style?: CSSProperties;
   surfaceKey?: "primary" | "secondary";
@@ -216,7 +217,7 @@ function ArtifactSurface({ roomId, me, artId, onArt, collab, style, surfaceKey =
             ? <Sheet roomId={roomId} me={me} art={sheet} onError={(f) => setEditErr(editErrorMsg(f))} />
             : sheet.meta?.excelGrid ? <ExcelGridSheet roomId={roomId} me={me} art={sheet} onError={(f) => setEditErr(editErrorMsg(f))} /> : <GenericSheet art={sheet} />)}
           {activeTab === "research" && research && <Research roomId={roomId} me={me} art={research} />}
-          {activeTab === "note" && note && (NOTEBOOK_SYNC_ENABLED ? <SyncedNote roomId={roomId} me={me} art={note} /> : <Note roomId={roomId} me={me} art={note} />)}
+          {activeTab === "note" && note && (NOTEBOOK_SYNC_ENABLED && proof ? <SyncedNote roomId={roomId} me={me} proof={proof} art={note} /> : <Note roomId={roomId} me={me} art={note} />)}
           {activeTab === "wall" && wall && <Wall roomId={roomId} me={me} art={wall} />}
         </>
       )}
@@ -294,14 +295,14 @@ function BlankRoomState({ roomId, me, style, onOpenChat }: { roomId: string; me:
 }
 
 export function Artifact(props: {
-  roomId: string; me: Actor; artId: string; onArt: (id: string) => void;
+  roomId: string; me: Actor; proof?: ActorProof; artId: string; onArt: (id: string) => void;
   sideArtId?: string | null;
   onSideArtChange?: (id: string | null) => void;
   onOpenChat?: () => void;
   collab?: CollabControls;
   style?: CSSProperties;
 }) {
-  const { roomId, me, artId, onArt, sideArtId, onSideArtChange, onOpenChat, collab, style } = props;
+  const { roomId, me, proof, artId, onArt, sideArtId, onSideArtChange, onOpenChat, collab, style } = props;
   const store = useStore();
   const arts = store.listArtifacts(roomId);
   const [localSplitId, setLocalSplitId] = useState<string | null>(null);
@@ -394,6 +395,7 @@ export function Artifact(props: {
       <ArtifactSurface
         roomId={roomId}
         me={me}
+        proof={proof}
         artId={artId}
         onArt={onArt}
         collab={collab}
@@ -407,6 +409,7 @@ export function Artifact(props: {
         <ArtifactSurface
           roomId={roomId}
           me={me}
+          proof={proof}
           artId={splitId}
           onArt={(id) => setSplitId(id)}
           surfaceKey="secondary"
@@ -1481,14 +1484,14 @@ const NOTEBOOK_SYNC_ENABLED = import.meta.env.VITE_NOTEBOOK_SYNC === "prosemirro
  *  the legacy Note path. Proposal-first: agents never write here.
  *
  *  Two-phase render so `useTiptapSync` only subscribes once the real (random
- *  capability-secret) doc id is known via the membership-gated getNotebookDoc —
+ *  capability-secret) doc id is known via the requester-gated getNotebookDoc —
  *  never a guessed/placeholder id. */
-function SyncedNote({ roomId, me, art }: { roomId: string; me: Actor; art: Art }) {
+function SyncedNote({ roomId, me, proof, art }: { roomId: string; me: Actor; proof: ActorProof; art: Art }) {
   const docValue = art.elements["doc"]?.value;
   if (isUploadedFileDoc(docValue)) return <FileViewer doc={docValue} />;
   const store = useStore();
   const [noteErr, setNoteErr] = useState<string | null>(null);
-  const existing = useQuery(api.prosemirror.getNotebookDoc, { roomId: roomId as never, artifactId: art.id as never });
+  const existing = useQuery(api.prosemirror.getNotebookDoc, { roomId: roomId as never, artifactId: art.id as never, requester: proof });
   const ensureDoc = useMutation(api.prosemirror.ensureNotebookDoc);
   const ensuredRef = useRef(false);
 
@@ -1500,9 +1503,9 @@ function SyncedNote({ roomId, me, art }: { roomId: string; me: Actor; art: Art }
     void ensureDoc({
       roomId: roomId as never,
       artifactId: art.id as never,
-      requester: { actor: { kind: "user", id: me.id, name: me.name }, token: undefined },
+      requester: proof,
     }).catch((e: unknown) => setNoteErr(`Notebook setup failed: ${String(e).slice(0, 120)}`));
-  }, [existing, ensureDoc, roomId, art.id, me.id, me.name]);
+  }, [existing, ensureDoc, roomId, art.id, proof]);
 
   // Phase 1: registry not yet resolved (loading) or not yet created -> loading.
   // Once existing is a row, its prosemirrorDocId is the random capability secret.

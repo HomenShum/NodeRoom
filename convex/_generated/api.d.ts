@@ -9,6 +9,7 @@
  */
 
 import type * as agent from "../agent.js";
+import type * as agentArtifacts from "../agentArtifacts.js";
 import type * as agentJobRunner from "../agentJobRunner.js";
 import type * as agentJobs from "../agentJobs.js";
 import type * as agentRuns from "../agentRuns.js";
@@ -17,6 +18,7 @@ import type * as agentStepJournalClient from "../agentStepJournalClient.js";
 import type * as agentSteps from "../agentSteps.js";
 import type * as agentWorkflows from "../agentWorkflows.js";
 import type * as artifacts from "../artifacts.js";
+import type * as auditLog from "../auditLog.js";
 import type * as captures from "../captures.js";
 import type * as capturesNode from "../capturesNode.js";
 import type * as collab from "../collab.js";
@@ -26,12 +28,14 @@ import type * as drafts from "../drafts.js";
 import type * as embeddingRunner from "../embeddingRunner.js";
 import type * as embeddings from "../embeddings.js";
 import type * as evidence from "../evidence.js";
+import type * as exportDelete from "../exportDelete.js";
 import type * as fileProcessing from "../fileProcessing.js";
 import type * as http from "../http.js";
 import type * as lib from "../lib.js";
 import type * as locks from "../locks.js";
 import type * as messages from "../messages.js";
 import type * as notebookGraph from "../notebookGraph.js";
+import type * as notebookProcessing from "../notebookProcessing.js";
 import type * as noteworthy from "../noteworthy.js";
 import type * as okf from "../okf.js";
 import type * as okfEmbeddingProvider from "../okfEmbeddingProvider.js";
@@ -41,11 +45,13 @@ import type * as retention from "../retention.js";
 import type * as roomActivity from "../roomActivity.js";
 import type * as rooms from "../rooms.js";
 import type * as sec from "../sec.js";
+import type * as securityEvents from "../securityEvents.js";
 import type * as seed from "../seed.js";
 import type * as semanticRebase from "../semanticRebase.js";
 import type * as spreadsheetIndexLib from "../spreadsheetIndexLib.js";
 import type * as streaming from "../streaming.js";
 import type * as streamingModel from "../streamingModel.js";
+import type * as usageLimits from "../usageLimits.js";
 
 import type {
   ApiFromModules,
@@ -55,6 +61,7 @@ import type {
 
 declare const fullApi: ApiFromModules<{
   agent: typeof agent;
+  agentArtifacts: typeof agentArtifacts;
   agentJobRunner: typeof agentJobRunner;
   agentJobs: typeof agentJobs;
   agentRuns: typeof agentRuns;
@@ -63,6 +70,7 @@ declare const fullApi: ApiFromModules<{
   agentSteps: typeof agentSteps;
   agentWorkflows: typeof agentWorkflows;
   artifacts: typeof artifacts;
+  auditLog: typeof auditLog;
   captures: typeof captures;
   capturesNode: typeof capturesNode;
   collab: typeof collab;
@@ -72,12 +80,14 @@ declare const fullApi: ApiFromModules<{
   embeddingRunner: typeof embeddingRunner;
   embeddings: typeof embeddings;
   evidence: typeof evidence;
+  exportDelete: typeof exportDelete;
   fileProcessing: typeof fileProcessing;
   http: typeof http;
   lib: typeof lib;
   locks: typeof locks;
   messages: typeof messages;
   notebookGraph: typeof notebookGraph;
+  notebookProcessing: typeof notebookProcessing;
   noteworthy: typeof noteworthy;
   okf: typeof okf;
   okfEmbeddingProvider: typeof okfEmbeddingProvider;
@@ -87,11 +97,13 @@ declare const fullApi: ApiFromModules<{
   roomActivity: typeof roomActivity;
   rooms: typeof rooms;
   sec: typeof sec;
+  securityEvents: typeof securityEvents;
   seed: typeof seed;
   semanticRebase: typeof semanticRebase;
   spreadsheetIndexLib: typeof spreadsheetIndexLib;
   streaming: typeof streaming;
   streamingModel: typeof streamingModel;
+  usageLimits: typeof usageLimits;
 }>;
 
 /**

@@ -70,6 +70,7 @@ The privacy model applies to:
 - embeddings and vector indexes
 - entity research cache
 - room activity outbox
+- agent artifacts and rendered artifact exports
 - ProseMirror documents
 - streaming chunks
 - file processing jobs
@@ -92,6 +93,19 @@ ownerId
 
 No raw component document should be exposed without this wrapper policy.
 
+## Agent Artifact Boundary
+
+Agent Artifacts inherit the maximum sensitivity of their inputs. A rendered
+React/MDX/HTML view must be permission-filtered before display or export.
+
+```text
+private input -> private Agent Artifact -> redacted rendering -> approved promotion
+```
+
+Public jobs and room-visible renderings may see only room/public refs. Private
+source refs, private notebook snippets, and private evidence cards remain
+owner-only unless explicitly redacted and promoted.
+
 ## Hardening Plan
 
 - Centralize authorization in an `authz` layer.
@@ -101,7 +115,14 @@ No raw component document should be exposed without this wrapper policy.
 - Add privacy regression tests for every shared surface.
 - Add egress tests for model/provider policy.
 - Add redaction tests for traces, receipts, journals, and exports.
+- Add Agent Artifact rendering tests for private ref redaction and planHash
+  approval.
 
 ## Product Promise
 
-Agents may help users work faster, but they never decide who can see private data. The platform enforces privacy before every read, every model call, every write, and every display.
+Agents may help users work faster, but they never decide who can see private
+data. The shipped backend subset already enforces this on private feed indexes,
+notebook dirty-event processing, read-model queries, and Agent Artifact
+visibility. The target requirement is broader: every read, model call, write,
+rendered artifact, trace, receipt, journal, and export must pass through the
+same privacy/redaction boundary before it reaches another user or provider.

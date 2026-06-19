@@ -101,7 +101,16 @@ const browserSurfaceFiles = sourceFiles.filter((file) =>
   file.startsWith("src/ui/") ||
   file.startsWith("src/landing/")
 );
-const frontendEnvAllowlist = new Set(["BASE_URL", "DEV", "MODE", "PROD", "SSR", "VITE_CONVEX_URL", "VITE_CONVEX_SITE_URL"]);
+const frontendEnvAllowlist = new Set([
+  "BASE_URL",
+  "DEV",
+  "MODE",
+  "PROD",
+  "SSR",
+  "VITE_CONVEX_URL",
+  "VITE_CONVEX_SITE_URL",
+  "VITE_NOTEBOOK_SYNC",
+]);
 
 const frontendProviderPatterns = [
   /https:\/\/api\.openai\.com/i,

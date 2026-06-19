@@ -206,8 +206,10 @@ the committed `docs/eval/finance-model-live.json` summary contains only
 redacted booleans, labels, route, cost, and timing.
 
 Current live promotion: `deepseek/deepseek-v4-flash` clears the full 16-cell
-Solve lane (174.8s, $0.0792). `nex-agi/nex-n2-pro:free` clears the income rung
-but is not promoted for full solve until it clears without provider failure.
+Solve lane across the committed N=5 aggregate: 5/5 passed, median 105007ms,
+p95 cost `$0.106829`, total cost `$0.442385`. `nex-agi/nex-n2-pro:free`
+clears the income rung but is not promoted for full solve until it clears
+without provider failure.
 
 Or set:
 

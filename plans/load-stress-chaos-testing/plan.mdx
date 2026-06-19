@@ -1,0 +1,51 @@
+# Visual Plan: Load, Stress, and Chaos Testing
+
+## Decision
+
+NodeRoom's local deterministic tests prove core invariants. Production readiness
+also needs staging load and chaos evidence for live concurrency, provider
+failure, cron SLA, and cost-abuse behavior.
+
+## Battlefield Scenarios
+
+```text
+many users join the same room
+  -> notes sync live
+  -> agent jobs queue instead of stampede
+  -> costs stay bounded
+  -> locks/CAS preserve human edits
+  -> failed providers degrade to cache/proposal/retry
+```
+
+## Test Matrix
+
+| Scenario | What it proves |
+|---|---|
+| 100 concurrent joins | Actor proof, join caps, and room query stability. |
+| Many notebook dirty events | Debounce, dirty-event dedupe, ACL-gated processor. |
+| Agent cost injection | Per-run, per-room-day, and global monthly caps trip honestly. |
+| Lock race at TTL boundary | CAS/lease fencing returns conflict data, not silent overwrite. |
+| Provider outage | Job records honest failure and keeps source state intact. |
+| Cron delay | Retention and lease janitors alert on missed runs. |
+
+## Implementation Surfaces
+
+| Area | Files |
+|---|---|
+| Deterministic SLO gate | `scripts/slo-gate.ts`, `docs/eval/slo-gate.json` |
+| Usage limits | `convex/usageLimits.ts`, `convex/agentRuns.ts` |
+| Job leases | `convex/agentJobs.ts`, `convex/agentJobRunner.ts` |
+| Lock/CAS | `convex/artifacts.ts`, `convex/locks.ts` |
+| Security events | `convex/securityEvents.ts` |
+
+## Verification Plan
+
+- Keep `npm run slo:gate` as the deterministic local floor.
+- Add deployed staging load for joins, dirty events, and agent queues.
+- Add chaos tests for provider timeout, duplicate retry, stale lease, and interrupted stream.
+- Record live results under `docs/eval/` before promoting README claims.
+
+## Open Caveat
+
+No amount of local deterministic testing proves provider behavior, real network
+latency, production cron SLA, or high-concurrency database behavior by itself.

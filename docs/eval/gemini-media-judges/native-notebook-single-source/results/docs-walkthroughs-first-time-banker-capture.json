@@ -1,0 +1,71 @@
+{
+  "asset": {
+    "id": "docs-walkthroughs-first-time-banker-capture",
+    "class": "readme_walkthrough",
+    "title": "First Time Banker Capture",
+    "path": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\docs\\walkthroughs\\first-time-banker-capture.mp4",
+    "relPath": "docs/walkthroughs/first-time-banker-capture.mp4",
+    "purpose": "README live walkthrough clip. Judge whether the feature is obvious, visually consistent, and credible as evidence.",
+    "duplicateGroup": "walkthrough:first-time-banker-capture"
+  },
+  "model": "gemini-3.5-flash",
+  "status": "judged",
+  "mediaPath": "docs/walkthroughs/first-time-banker-capture.mp4",
+  "mediaType": "video/mp4",
+  "bytes": 8983964,
+  "judge": {
+    "verdict": "publish",
+    "summary": "A clear, well-paced walkthrough demonstrating raw note capture and subsequent automated signal extraction in the intelligence panel.",
+    "scores": {
+      "featureClarity": {
+        "score": 1,
+        "evidence": "Demonstrates entering unstructured notes and extracting actionable intelligence signals."
+      },
+      "workflowCompleteness": {
+        "score": 1,
+        "evidence": "Shows the complete sequence from empty note input to signal detection and research trigger."
+      },
+      "visualDesign": {
+        "score": 1,
+        "evidence": "Clean dark-mode interface with clear focus states and structured sidebars."
+      },
+      "consistency": {
+        "score": 1,
+        "evidence": "Fits the core product narrative of note-taking integrated with agentic intelligence."
+      },
+      "evidenceQuality": {
+        "score": 1,
+        "evidence": "Unedited screen capture showing realistic typing, cursor movement, and UI transitions."
+      },
+      "legibility": {
+        "score": 1,
+        "evidence": "All typed text, labels, and status chips are readable at standard resolutions."
+      },
+      "professionalRelevance": {
+        "score": 1,
+        "evidence": "Highly relevant for investment bankers and analysts capturing startup diligence notes."
+      },
+      "productionHonesty": {
+        "score": 1,
+        "evidence": "Accurately depicts the system pause and manual confirmation step for intelligence actions."
+      }
+    },
+    "observedEvidence": [
+      "Raw text entry in Capture Notebook",
+      "Automatic signal detection in Room Intelligence",
+      "Interactive Research action trigger"
+    ],
+    "missingEvidence": [],
+    "defects": [
+      {
+        "ts": "00:04",
+        "severity": "P2",
+        "observed": "Typo in typed text: 'pilots.Capture Notebook' lacks a space after the period.",
+        "fix": "Re-record or accept as a minor realistic input typo."
+      }
+    ],
+    "suggestedReadmeCaption": "Capture unstructured meeting notes and let NodeRoom automatically extract key diligence signals for follow-up research."
+  },
+  "score": 8,
+  "maxScore": 16
+}

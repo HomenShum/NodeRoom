@@ -37,7 +37,11 @@ The host asks: "Research these accounts, cite sources, update the sheet, and dra
 
 ### Act 3: Review And Handoff
 
-Agent writes land as evidence-bearing cells or host-review proposals. The host approves in context. Downstream cards prepare Gmail, Notion, Slack, Linear, LinkedIn, and CRM CSV drafts, with no live external side effects.
+Agent writes land as evidence-bearing cells or host-review proposals. The host
+approves in context. The research handoff bar prepares Gmail, Notion, Slack,
+Linear, and LinkedIn markdown drafts; CRM CSV is a separate export/menu path.
+Banker Coach packet generation can cover all six targets, still with no live
+external side effects.
 
 ## Required Proof Shots
 
@@ -62,8 +66,15 @@ Agent writes land as evidence-bearing cells or host-review proposals. The host a
 - `docs/walkthroughs/startup-diligence-live-join.mp4` and `docs/walkthroughs/startup-diligence-war-room.mp4` are the flagship media assets for this story.
 - `docs/demo/STARTUP_DILIGENCE_LATEST_REVIEW.md` is the current safe-claims boundary for narration, README copy, and interview notes after OKF production hardening.
 - `docs/walkthroughs/startup-diligence-live-join.mp4` and `.gif` now show the live room create/code/join path with Maya, Priya, and Alex.
-- `docs/eval/MEDIA_JUDGE.md` is the latest stable media judge report; run `20260614T233419Z` rates both startup MP4s publishable (`10.9/16` live join, `11.7/16` war room), with three P2 presentation-polish notes: rapid user-perspective transition, dense trace text, and a subtle Public-to-Private switch.
-- `scripts/walkthroughs/specs.ts` has two startup clips: `startup-diligence-live-join` for live join, and `startup-diligence-war-room` for the broader scripted synthesis story.
+- Media evidence is split by asset: live-join remains covered by run
+  `20260614T233419Z` (`publish`, `10.9/16`, one P2 transition note), while the
+  current war-room asset is covered by run `20260617T2015Z` (`publish`,
+  `10.4/16`, no defects reported).
+- `scripts/walkthroughs/specs.ts` has two startup specs:
+  `startup-diligence-live-join` for live join and
+  `startup-diligence-war-room` for the broader scripted synthesis story.
+  Current Remotion generated data includes the war-room asset; regenerate
+  Remotion data before claiming the live-join clip is in the active render set.
 - 2026-06-14 target alignment update: the scripts and regenerated MP4/GIF files now follow the CardioNova/bulk diligence/runway/no-clobber/private-handoff sequence from the deep review.
 - The proof boundary is explicit in `docs/eval/startup-diligence-war-room-live.json`: live shell proof, deterministic UI proof, Convex contract proof, and one provider-produced CellPayload/final-copy proof are in hand; repeated N=5/p95 provider stability remains the next promotion gate.
 - Remaining demo polish: combine the join beat with the synthesis/private/downstream story, add a stronger public/private lane transition, or add walkthrough-specific zoom/callouts for dense trace panels.

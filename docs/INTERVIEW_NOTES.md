@@ -164,7 +164,7 @@ Say:
 Reference format:
 
 ```text
-References: [Q3 variance](noderoom-artifact:<artifact-id>)
+References: Q3 variance -> noderoom-artifact:<artifact-id>
 ```
 
 Code anchors:

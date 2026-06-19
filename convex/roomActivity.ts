@@ -936,7 +936,7 @@ function firstMatch(text: string, re: RegExp): string | null {
   return m ? m[0] : null;
 }
 
-function classifyNoteworthy(text: string) {
+export function classifyNoteworthy(text: string) {
   const lower = text.toLowerCase();
   const signals = new Set<Signal>();
   const evidenceSpans: Array<{ signal: Signal; text: string; confidence: number }> = [];

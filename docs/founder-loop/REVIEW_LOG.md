@@ -74,7 +74,7 @@ is now an empty black void with no guidance → that's exactly Loop 2.
 **Angle:** issues #1 + #4 — Loop 1's blank room was a black void. The deep-review spec
 (L5284-5300) prescribes a blank-state with exactly **three obvious starts**, not an empty technical shell.
 
-**Root cause:** [src/ui/panels/Artifact.tsx:121](../../src/ui/panels/Artifact.tsx:121) returned
+**Root cause:** [src/ui/panels/Artifact.tsx:121](../../src/ui/panels/Artifact.tsx#L121) returned
 `<div className="r-art-body" />` (literally nothing) for a 0-artifact room — no guidance.
 
 **Fix:** added a `BlankRoomState` component rendered when `arts.length === 0`, with 3 real one-click CTAs:
@@ -100,7 +100,7 @@ on this branch 2s after I created it). Per the founder's call, I'm **keeping edi
 **verify-don't-duplicate** discipline. Loop 3 was already solved by that lane, so I verified rather than
 re-authored (and did NOT re-edit `agent.ts`, to avoid a collision).
 
-**The fix in the tree** ([convex/agent.ts:160-164](../../convex/agent.ts:163)):
+**The fix in the tree** ([convex/agent.ts:160-164](../../convex/agent.ts#L163)):
 ```
 // MVP demo posture: the old 10-step interactive default visibly paused mid-workflow…
 const requestedSteps = a.maxSteps ?? (a.mode === "research" ? 80 : 40);   // was 60 : 10

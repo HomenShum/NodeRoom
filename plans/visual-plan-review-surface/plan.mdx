@@ -2,7 +2,7 @@
 
 ## Decision
 
-Use Visual Plans for NodeRoom work that is too risky, visual, or architecture-heavy to review as terminal Markdown.
+Use Visual Plans for NodeRoom work that is too risky, visual, or architecture-heavy to review as terminal Markdown. For executable agent work, the visual plan is a rendering of a structured plan object, not the authority itself.
 
 ## Planning Flow
 
@@ -11,9 +11,11 @@ flowchart TD
   Idea[Architecture / feature idea] --> Gather[Ground in repo files + docs]
   Gather --> VP[Create MDX visual plan]
   VP --> Review[Human review]
-  Review -->|approved| Build[Implement code]
+  Review -->|direction approved| Build[Implement code]
+  Review -->|plan hash approved| Execute[Execute checked workflow]
   Review -->|questions| Revise[Revise plan]
   Build --> Verify[Tests / build / Playwright]
+  Execute --> Actual[Planned-vs-actual report]
   Verify --> Ship[Commit / push only with permission]
 ```
 
@@ -28,6 +30,7 @@ flowchart TD
 | Runtime-heavy work | Sequence diagram |
 | Security work | Boundary/redaction map |
 | Reviewer alignment | Open questions and approval checklist |
+| Executable work | Structured plan object + canonical hash + planned-vs-actual report |
 
 ## NodeRoom Use Cases
 
@@ -38,6 +41,7 @@ flowchart TD
 - Coach Mode / Review Readiness
 - OKF/evidence pipeline changes
 - Agent runtime / Workflow / Workpool changes
+- Agent Artifact / Agent Work Plan approval flows
 
 ## Required Sections
 
@@ -54,6 +58,8 @@ Privacy/security boundary
 Test and verification plan
 Rollout / feature flag plan
 Open questions requiring approval
+Structured source object when executable
+Plan hash and planned-vs-actual path
 ```
 
 ## Storage Policy
@@ -75,6 +81,8 @@ Use hosted/shareable links only when the plan is safe to share and collaboration
 - Are tests and verification clear?
 - Are open questions separated from decisions?
 - Is implementation blocked until approval?
+- If executable, is the MDX/HTML clearly a rendering of structured data?
+- Is approval tied to a canonical payload hash?
 
 ## Output of This Pass
 

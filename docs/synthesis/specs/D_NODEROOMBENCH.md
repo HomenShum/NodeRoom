@@ -10,8 +10,9 @@ This workstream is **naming + thin packaging + two genuinely-missing graders**, 
 
 Ship four net-new things, in order: (1) a `validators/` library that makes the names already
 written in `docs/demo/public-gold-demo-manifest.json` (`formula_ast_match`, `numeric_exact_match`,
-`scale_match`, `source_text_match`, `bbox_or_page_match`, `no_clobber`, `privacy_boundary`,
-`cellpayload_evidence_present`) into importable, deterministic functions; (2) **Layer 3** as two
+`scale_match`, `source_text_match`, `bbox_or_page_match`, `answer_exact_or_normalized_match`,
+`no_clobber`, `privacy_boundary`, `cellpayload_evidence_present`) into importable,
+deterministic functions; (2) **Layer 3** as two
 distinct checks — a deterministic format/usability rubric over `src/app/numberFormat.ts`, and a
 **dynamic-correctness perturbation** check that mutates one assumption and asserts downstream cells
 recalc (the defensible differentiator, currently absent); (3) a **benchmark-faithful adapter** that

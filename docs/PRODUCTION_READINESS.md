@@ -18,6 +18,15 @@ workflow gaps such as upload/view E2E, parser/OCR routing policy, resizable
 panels, full browser privacy specs, professional spreadsheet eval expansion,
 and SLO dashboards remain tracked in [`GAPS_NOT_DONE.md`](GAPS_NOT_DONE.md).
 
+Security, accessibility, privacy, incident-response, retention/deletion, and
+load/chaos readiness now have a dedicated teachable layer in
+[`SECURITY_PRODUCTION_READINESS.md`](SECURITY_PRODUCTION_READINESS.md) plus local
+Visual Plans under `plans/`. That layer is deliberately phrased as architecture
+and regression primitives, not as a compliance claim: NIST CSF, OWASP ASVS,
+WCAG 2.2, GDPR, and HIPAA-adjacent obligations require deployment evidence,
+policies, access reviews, monitoring, restore drills, and vendor/legal work
+before they can be represented as complete.
+
 ## Release gate status
 
 `npm run prod:gate` is wired as a strict local release gate. It runs the

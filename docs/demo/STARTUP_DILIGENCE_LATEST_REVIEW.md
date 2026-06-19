@@ -24,8 +24,8 @@ The hard boundary remains:
 | OKF permissions | OKF concepts, chunks, retrieval events, graph edges, and Trace Lens output are filtered by room, visibility, and owner | `convex/okf.ts`, `tests/convexOkfRuntime.test.ts` |
 | Evidence-bearing writes | Unsupported source-backed cell writes are downgraded to `needs_review` instead of being marked complete | `src/nodeagent/skills/spreadsheet/cellMutator.ts`, `tests/okfEvidenceWriteGate.test.ts` |
 | Managed no-clobber write path | Agent writes use lock/CAS/proposal/review paths rather than overwriting human work | `convex/artifacts.ts`, `convex/locks.ts`, `tests/noClobberWedge.test.ts`, `tests/multiUserCoordinationProof.test.ts` |
-| Trace Lens review surface | Cmd/Ctrl-click review mode exposes proof, trace, OKF concepts/events, and gated builder/code context | `src/ui/traceLens/TraceLensPanel.tsx`, `src/ui/traceLens/useTraceLens.tsx`, `api.okf.traceLens` |
-| Banker Coach review surface | Coach cards summarize evidence, review state, handoff readiness, and Trace Lens/OKF context | `src/ui/artifacts/BankerCoachPanel.tsx`, `src/ui/artifacts/CoachCards.tsx` |
+| Trace Lens review surface | Cmd/Ctrl-click review mode exposes proof, runtime trace, and gated builder/code context | `src/ui/traceLens/TraceLensPanel.tsx`, `src/ui/traceLens/useTraceLens.tsx` |
+| Banker Coach review surface | Coach cards summarize evidence, review state, handoff readiness, and OKF context | `src/ui/artifacts/BankerCoachPanel.tsx`, `src/ui/bankerCoachPacket.ts` |
 | Startup demo media | Latest startup join and war-room clips are rendered and media-judged as publishable with P2 polish notes | `docs/walkthroughs/startup-diligence-live-join.mp4`, `docs/walkthroughs/startup-diligence-war-room.mp4`, `docs/eval/MEDIA_JUDGE.md` |
 
 ## OKF Architecture
@@ -115,7 +115,8 @@ Avoid these until new proof exists:
 | Privacy partition | `convex/okf.ts`, `tests/convexOkfRuntime.test.ts` | Public/redacted/private OKF rows are filtered by requester and owner. |
 | Evidence write gate | `src/nodeagent/skills/spreadsheet/cellMutator.ts`, `tests/okfEvidenceWriteGate.test.ts` | Weak evidence cannot silently become a complete source-backed cell. |
 | No-clobber | `convex/artifacts.ts`, `convex/locks.ts`, `tests/noClobberWedge.test.ts` | Agent writes cannot silently overwrite live human intent. |
-| Trace Lens | `src/ui/traceLens/TraceLensPanel.tsx`, `src/ui/traceLens/useTraceLens.tsx`, `src/ui/artifacts/CoachCards.tsx` | Review surfaces can expose proof, trace, and gated builder context. |
+| Trace Lens | `src/ui/traceLens/TraceLensPanel.tsx`, `src/ui/traceLens/useTraceLens.tsx` | Review surfaces can expose proof, trace, and gated builder context. |
+| Banker Coach | `src/ui/artifacts/BankerCoachPanel.tsx`, `src/ui/bankerCoachPacket.ts` | Coach surfaces can expose OKF/evidence context for readiness and handoff review. |
 | Private consult boundary | `convex/streaming.ts`, `convex/streamingModel.ts`, `convex/agent.ts` | Default private consults are read-only streamed replies. |
 
 ## Three-Minute Video Implications

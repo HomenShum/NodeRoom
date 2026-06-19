@@ -18,5 +18,4 @@ noderoom:
 Runway = $4.8M cash / $400k monthly burn = 12 months.
 
 # Citations
-[1] [Cash schedule](/sources/cardionova_cash.md)
-
+[1] [Cash schedule](../sources/cardionova_cash.md)

@@ -5,6 +5,10 @@ Model: `gemini-3.5-flash`
 Run id: `20260614T233419Z`
 
 > This judges README/demo media quality only. It does not replace live Convex, browser E2E, provider ladder, parser, privacy, or load-test gates.
+> Historical note: the live-join result remains the current live-join media
+> evidence. The war-room row in this run was superseded by
+> `docs/eval/gemini-media-judges/20260617T2015Z/summary.md`, which judged the
+> current war-room asset as `publish`, `10.4/16`, with no defects reported.
 
 ## Summary
 

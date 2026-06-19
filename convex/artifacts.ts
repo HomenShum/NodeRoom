@@ -50,6 +50,67 @@ function canReadArtifact(a: ArtifactAcl, actor: ActorValue): boolean {
   return artifactVisibility(a) !== "private" || actorOwnsArtifact(a, actor);
 }
 
+async function syncArtifactVisibilitySidecars(ctx: MutationCtx, args: {
+  roomId: Id<"rooms">;
+  artifactId: Id<"artifacts">;
+  visibility: "private" | "room";
+  ownerId?: string;
+}) {
+  const now = Date.now();
+  const patch = { visibility: args.visibility, ownerId: args.ownerId };
+  const doc = await ctx.db
+    .query("notebookDocuments")
+    .withIndex("by_room_artifact_element", (q) =>
+      q.eq("roomId", args.roomId).eq("artifactId", args.artifactId).eq("elementId", "doc"))
+    .unique();
+  if (doc) await ctx.db.patch(doc._id, { ...patch, updatedAt: now });
+
+  const dirtyStates = ["pending", "processing"] as const;
+  for (const state of dirtyStates) {
+    const rows = await ctx.db
+      .query("notebookDirtyEvents")
+      .withIndex("by_room_state", (q) => q.eq("roomId", args.roomId).eq("state", state))
+      .collect();
+    for (const row of rows) {
+      if (String(row.artifactId) === String(args.artifactId)) {
+        await ctx.db.patch(row._id, { ...patch, updatedAt: now });
+      }
+    }
+  }
+
+  const [blocks, claims, mentions] = await Promise.all([
+    ctx.db.query("notebookBlocks").withIndex("by_artifact", (q) => q.eq("artifactId", args.artifactId)).collect(),
+    ctx.db.query("notebookClaims").withIndex("by_artifact", (q) => q.eq("artifactId", args.artifactId)).collect(),
+    ctx.db.query("notebookMentions").withIndex("by_artifact", (q) => q.eq("artifactId", args.artifactId)).collect(),
+  ]);
+  for (const row of blocks) await ctx.db.patch(row._id, { ...patch, updatedAt: now });
+  for (const row of claims) await ctx.db.patch(row._id, patch);
+  for (const row of mentions) await ctx.db.patch(row._id, patch);
+
+  const sourceIds = [`${String(args.artifactId)}:doc`, String(args.artifactId)];
+  for (const sourceId of sourceIds) {
+    for (const sourceKind of ["element", "artifact_element", "artifact"] as const) {
+      const rows = await ctx.db
+        .query("roomActivityOutbox")
+        .withIndex("by_room_source", (q) => q.eq("roomId", args.roomId).eq("sourceKind", sourceKind).eq("sourceId", sourceId))
+        .collect();
+      for (const row of rows) await ctx.db.patch(row._id, { ...patch, updatedAt: now });
+    }
+  }
+
+  const agentArtifactRows = await Promise.all((["private", "room", "public"] as const).map((visibility) =>
+    ctx.db
+      .query("agentArtifacts")
+      .withIndex("by_room_visibility_updated", (q) => q.eq("roomId", args.roomId).eq("visibility", visibility))
+      .collect()
+  ));
+  for (const row of agentArtifactRows.flat()) {
+    if (String(row.artifactId) === String(args.artifactId)) {
+      await ctx.db.patch(row._id, { ...patch, updatedAt: now });
+    }
+  }
+}
+
 function assertInternalArtifactReadable(a: ArtifactAcl): void {
   if (artifactVisibility(a) === "private") throw new Error("artifact_not_visible");
 }
@@ -549,7 +610,14 @@ export const setArtifactVisibility = mutation({
     if (!actorOwnsArtifact(art, actor) || (art.visibility ?? "room") === "public") {
       throw new Error("artifact_visibility_forbidden");
     }
+    const ownerId = a.visibility === "private" ? actorOwnerId(actor) : undefined;
     await ctx.db.patch(a.artifactId, { visibility: a.visibility });
+    await syncArtifactVisibilitySidecars(ctx, {
+      roomId: a.roomId,
+      artifactId: a.artifactId,
+      visibility: a.visibility,
+      ownerId,
+    });
     return { ok: true as const };
   },
 });

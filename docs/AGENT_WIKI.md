@@ -14,7 +14,7 @@ The reusable skill contract is checked in at
 Use only room-visible state:
 
 - Artifacts and elements: spreadsheets, research rows, notes, wall cards, uploads.
-- Chat artifact references encoded as `References: [Title](noderoom-artifact:<id>)`.
+- Chat artifact references encoded as `References: Title -> noderoom-artifact:<id>`.
 - Room trace entries: locks, edits, drafts, merges, approvals, uploads, agent status.
 - Agent sessions and latest run telemetry.
 - Public chat messages and promoted private insights.

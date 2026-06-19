@@ -349,7 +349,7 @@ export const FEATURES: FeatureSpec[] = [
       },
       {
         kind: "click",
-        sel: '[data-testid="artifact-tabs"] button:has-text("Capture Notebook")',
+        sel: COMPOSER,
         caption: "Save the note — the notebook commits on blur",
         afterCaption: "Saved. Now pause and let the room notice what's worth returning to.",
         afterHoldMs: 1500,

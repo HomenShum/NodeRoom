@@ -1,5 +1,11 @@
 # Workbook runtime: adopt Univer vs extend the home-grown engine
 
+Status note after implementation drift cleanup: partial range selection,
+copy/paste, fill-down, and main-thread formula recompute exist in the current
+grid. Drag-select, Ctrl+Arrow/Ctrl+A, multi-cell Delete, and worker-backed calc
+are still backlog. Treat this file as a decision/spec archive, not a complete
+current implementation inventory.
+
 ## Decision
 
 **Extend the home-grown engine. Do NOT adopt Univer as the workbook runtime now, and never as the collaboration authority.** The three load-bearing lessons a Univer adoption would buy — "spreadsheet is a runtime not a React table" (interaction state machine), command/mutation/operation separation, and mutation-layer collaboration with base-version + actor — are already implemented (`src/ui/panels/Artifact.tsx` `ExcelGridSheet`, `convex/artifacts.ts` `applyCellEditCore`, `src/engine/types.ts` `ChangeOp`). The features Univer OSS gives "for free" (real-time collab, import/export, history) are exactly what it Pro-locks or what NodeRoom already owns; adoption pays an MB-scale bundle + inverted-ownership cost (you sync INTO Univer's workbook model) for little net gain. Adoption also forks the kind-agnostic element contract — sheet/note/wall share ONE lock/CAS/draft mechanism (`types.ts` L1-12) and Univer models a workbook, not an element bag. The strategic decision is already documented with a measured revisit trigger (`docs/UI_EXCEL_PAPER.md` L59-81: >100ms latency / scroll jank at the 20k-cell cap). This spec therefore scopes (1) a strictly-bounded de-risking POC behind the existing adapter type, and (2) the genuinely-missing, runtime-independent work: range selection, a Web Worker calc engine, a numeric golden tie-out, and per-cell human presence. If the perf trigger ever fires for a *rendering* failure, prefer Glide Data Grid + HyperFormula; reserve Univer only for the narrow case where you specifically want its formula engine AND can absorb inverted ownership.

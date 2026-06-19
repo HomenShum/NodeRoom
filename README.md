@@ -16,7 +16,7 @@ through the same versioned concurrency control.**
 
 [Deal workplan](#deal-workplan-human-readable-ownership) | [Semantic rebase](#semantic-rebase-compare-reason-swap) | [Research map](#research-backed-design-map)
 
-[Latest Firecrawl capture change](#latest-change-firecrawl-capture-in-convex) | [Convex components](#convex-components-we-reuse) | [Changelog](docs/CHANGELOG.md)
+[Latest Firecrawl capture change](#latest-change-firecrawl-capture-in-convex) | [Native notebook single-source fix](#native-notebook-single-source-fix) | [Visual plans](#learnable-architecture-visual-plans) | [Convex components](#convex-components-we-reuse) | [Changelog](docs/CHANGELOG.md)
 
 </div>
 
@@ -82,7 +82,7 @@ It runs in **two modes from the same code**:
   Verified end-to-end: the agent locks → CAS-edits → releases on real infra and the UI
   syncs reactively.
 
-## Latest Change: Firecrawl Capture In Convex
+## Recent Change: Firecrawl Capture In Convex
 
 The latest server-agent update makes source capture work where it belongs:
 inside Convex actions, through a server-only NodeAgent tool registry.
@@ -123,6 +123,95 @@ Firecrawl captures a banker-grade evidence ledger.
 | The agent re-searches the same company/person/file because it cannot see pending or cached work. | Outbox rows, file-processing jobs, and entity/facet cache keys give the harness a place to dedupe and reuse. |
 | Upload processing ids, provider file ids, and storage ids get mixed together. | Raw Convex storage ids remain canonical; Transloadit/ConvexFS/provider ids are adapter metadata. |
 | A source-backed cell cites a screenshot or URL loosely. | `sourceCaptures` and `evidenceFacts` can point CellPayload evidence at exact extracted facts. |
+
+## Native Notebook Single-Source Fix
+
+The native notebook / ProseMirror sidecar now has a dedicated documented fix
+because it is the smallest version of the whole NodeRoom promise: **capture
+human intent, notice it once, and keep the agent behind an approval boundary.**
+
+The failure mode was subtle. ProseMirror Sync could emit a snapshot while the
+regular NodeRoom note commit also flowed through `applyCellEdit`. If both paths
+called `enqueueRoomActivity`, one messy banker note could create duplicate
+passive-intelligence work with different dedupe keys. In the live room, that
+looks like duplicate Research prompts and wasted model/search cost.
+
+The bridge rule is:
+
+```text
+ProseMirror onSnapshot -> notebookDocuments hash/version only
+transitional applyCellEdit commit -> one roomActivityOutbox enqueue
+```
+
+The target rule is sharper:
+
+```text
+ProseMirror Sync owns live notebook text
+actor-authenticated dirty metadata owns processing triggers
+ACL-gated processor reads latest ProseMirror snapshot
+processed read model feeds passive intelligence; OKF links are adapter work
+Agent Artifacts hold plans, diffs, evidence, coach feedback, and reviews
+user approval owns source-surface mutation
+```
+
+The full explainer is
+[`docs/PASSIVE_NOTEBOOK_SINGLE_SOURCE_FIX.md`](docs/PASSIVE_NOTEBOOK_SINGLE_SOURCE_FIX.md).
+The before/bridge/target code panels are generated with Shiki and checked in at
+[`docs/visuals/passive-notebook-single-source-code.html`](docs/visuals/passive-notebook-single-source-code.html).
+Regenerate them with `npm run docs:code-visuals`.
+The local MDX visual plan is
+[`plans/passive-notebook-single-source-fix/plan.mdx`](plans/passive-notebook-single-source-fix/plan.mdx).
+
+The first target backend slice is also shipped:
+
+- `convex/schema.ts`: `notebookDirtyEvents`, `notebookProcessingJobs`,
+  `notebookBlocks`, `notebookClaims`, `notebookMentions`, `agentArtifacts`.
+- `convex/notebookProcessing.ts`: `markNotebookDirty` mutation,
+  `processNotebookDirtyEvent` action, read-model commit mutation, and
+  owner-filtered read-model query.
+- `convex/agentArtifacts.ts`: `agent_work_plan` creation and approval by exact
+  `planHash`, with the approved hash copied to the queued `agentJobs` request.
+- `tests/notebookProcessingTarget.test.ts`: end-to-end backend regression for
+  dedupe, ACL/revocation, private isolation, passive classifier reuse, and
+  approved-plan job creation.
+
+In Convex terms: `query` functions reveal notebook capability secrets only after
+requester proof; `mutation` functions own durable source changes and dirty
+metadata; `action` functions do outside model/capture work and return to
+mutations for writes. If this moved to Postgres, Firestore, Supabase, DynamoDB,
+or Rails, the same invariant would hold: do not attach business-event enqueue
+to low-level editor snapshots; create actor/policy-aware dirty events and
+process them through the checked source/read-model pipeline.
+
+## Learnable Architecture Visual Plans
+
+NodeRoom's docs are organized around battlefield pain points: a user is moving
+fast in a real room, with sensitive data, collaborators, agent help, and source
+evidence. Each major feature has a formal doc plus a local
+`plans/<slug>/plan.mdx` visual plan so the code, product story, and review
+surface stay connected.
+
+| Battlefield pain | Feature | Formal doc | Local visual plan |
+|---|---|---|---|
+| "I typed a messy note; please notice it once, not twice." | Native notebook single-source fix | [`PASSIVE_NOTEBOOK_SINGLE_SOURCE_FIX.md`](docs/PASSIVE_NOTEBOOK_SINGLE_SOURCE_FIX.md) | [`passive-notebook-single-source-fix`](plans/passive-notebook-single-source-fix/plan.mdx) |
+| "My private material cannot leak into a public agent run." | Agent privacy/security architecture | [`AGENT_PRIVACY_SECURITY_ARCHITECTURE.md`](docs/AGENT_PRIVACY_SECURITY_ARCHITECTURE.md) | [`agent-privacy-security`](plans/agent-privacy-security/plan.mdx) |
+| "The notebook should sync live, but intelligence should live outside the editor." | Native notebook / ProseMirror sidecar | [`NATIVE_NOTEBOOK_PROSEMIRROR_SIDECAR.md`](docs/NATIVE_NOTEBOOK_PROSEMIRROR_SIDECAR.md) | [`native-notebook-prosemirror-sidecar`](plans/native-notebook-prosemirror-sidecar/plan.mdx) |
+| "The capture notebook should feel calm, fast, and intentional." | Notebook UI inspiration/motion | [`NOTEBOOK_UI_INSPIRATION_MOTION.md`](docs/NOTEBOOK_UI_INSPIRATION_MOTION.md) | [`notebook-ui-inspiration-motion`](plans/notebook-ui-inspiration-motion/plan.mdx) |
+| "Do not approve a pretty rendering; approve a structured plan." | Agent Artifacts | [`AGENT_ARTIFACTS.md`](docs/AGENT_ARTIFACTS.md) | [`agent-artifacts-structured-review`](plans/agent-artifacts-structured-review/plan.mdx) |
+| "Do not turn every keystroke into a model call." | Passive classifier production pattern | [`PASSIVE_CLASSIFIER_PRODUCTION_PATTERN.md`](docs/PASSIVE_CLASSIFIER_PRODUCTION_PATTERN.md) | [`passive-classifier-production-pattern`](plans/passive-classifier-production-pattern/plan.mdx) |
+| "The agent can suggest, but I approve source-of-truth changes." | Human-agent approval boundary | [`HUMAN_AGENT_APPROVAL_BOUNDARY.md`](docs/HUMAN_AGENT_APPROVAL_BOUNDARY.md) | [`human-agent-approval-boundary`](plans/human-agent-approval-boundary/plan.mdx) |
+| "I need to explain the work to a VP or client." | Coach Mode / Review Readiness | [`COACH_MODE_REVIEW_READINESS.md`](docs/COACH_MODE_REVIEW_READINESS.md) | [`coach-mode-review-readiness`](plans/coach-mode-review-readiness/plan.mdx) |
+| "A spreadsheet agent must preserve formulas, versions, and evidence." | Professional spreadsheet workflows | [`PROFESSIONAL_SPREADSHEET_WORKFLOWS.md`](docs/PROFESSIONAL_SPREADSHEET_WORKFLOWS.md) | [`professional-spreadsheet-workflows`](plans/professional-spreadsheet-workflows/plan.mdx) |
+| "A model route can change, but the runtime contract cannot." | NodeAgent runtime | [`AGENT_RUNTIME.md`](docs/AGENT_RUNTIME.md) | [`nodeagent-runtime`](plans/nodeagent-runtime/plan.mdx) |
+| "Long work needs durable frames, not hidden transcript memory." | Harness inside NodeAgent | [`HARNESS_RECURSIVE_REASONING.md`](docs/HARNESS_RECURSIVE_REASONING.md) | [`nodeagent-harness-frame-runner`](plans/nodeagent-harness-frame-runner/plan.mdx) |
+| "What tools shipped, and what backend rules do they enforce?" | Shipped tools / RoomTools | [`SHIPPED_TOOLS_AND_ROOMTOOLS.md`](docs/SHIPPED_TOOLS_AND_ROOMTOOLS.md) | [`shipped-tools-and-roomtools`](plans/shipped-tools-and-roomtools/plan.mdx) |
+| "Architecture-heavy work should be reviewable before code changes." | Visual Plan review surfaces | [`VISUAL_PLAN_REVIEW_SURFACE.md`](docs/VISUAL_PLAN_REVIEW_SURFACE.md) | [`visual-plan-review-surface`](plans/visual-plan-review-surface/plan.mdx) |
+| "A buyer asks if this is enterprise-ready." | Security / production readiness | [`SECURITY_PRODUCTION_READINESS.md`](docs/SECURITY_PRODUCTION_READINESS.md) | [`security-production-readiness`](plans/security-production-readiness/plan.mdx) |
+| "Keyboard-only and reduced-motion users need the same room." | Accessibility WCAG 2.2 | [`SECURITY_PRODUCTION_READINESS.md`](docs/SECURITY_PRODUCTION_READINESS.md) | [`accessibility-wcag22`](plans/accessibility-wcag22/plan.mdx) |
+| "Something failed in the battlefield; prove what happened and recover." | Incident response / DR | [`SECURITY_PRODUCTION_READINESS.md`](docs/SECURITY_PRODUCTION_READINESS.md) | [`incident-response-disaster-recovery`](plans/incident-response-disaster-recovery/plan.mdx) |
+| "One tenant's private context cannot become another tenant's context." | Multi-tenancy data isolation | [`AGENT_PRIVACY_SECURITY_ARCHITECTURE.md`](docs/AGENT_PRIVACY_SECURITY_ARCHITECTURE.md) | [`multi-tenancy-data-isolation`](plans/multi-tenancy-data-isolation/plan.mdx) |
+| "Export and deletion must be honest about what is actually purged." | Privacy / retention / deletion | [`SECURITY_PRODUCTION_READINESS.md`](docs/SECURITY_PRODUCTION_READINESS.md) | [`privacy-retention-deletion`](plans/privacy-retention-deletion/plan.mdx) |
+| "The demo works locally; now prove it under pressure." | Load / stress / chaos testing | [`PRODUCTION_READINESS.md`](docs/PRODUCTION_READINESS.md) | [`load-stress-chaos-testing`](plans/load-stress-chaos-testing/plan.mdx) |
 
 <div align="center">
 
@@ -174,6 +263,10 @@ join rate-limits + caps, cumulative daily spend cap, telemetry retention) are **
 OpenRouter's live data policy, rate-limiting + lock fencing under real concurrency, and cron SLA are
 **honestly marked "needs a live audit,"** which is what keeps "beta" on
 ([`docs/GAPS_NOT_DONE.md`](docs/GAPS_NOT_DONE.md) has the narrative).
+The security/accessibility production-readiness story lives in
+[`docs/SECURITY_PRODUCTION_READINESS.md`](docs/SECURITY_PRODUCTION_READINESS.md): NodeRoom maps the
+architecture to NIST CSF, OWASP ASVS, WCAG 2.2, GDPR, and HIPAA-adjacent obligations without
+claiming those obligations are fully proven before audit evidence exists.
 One privacy note before you bring real data: the **Free** route in the model picker uses community
 free-tier models whose providers may log prompts — keep sensitive GTM/finance figures out of Free
 runs (the paid/adaptive lanes do not use those routes by default).
@@ -1360,7 +1453,7 @@ feedback, reusable evals, a validation gate, and a Codex handoff — then it rep
 | 4 | **Record** | append-only store keyed by `(commit + worktree, case, ts)` with per-check booleans + trace ref | `evals/evalStore.ts` → `docs/eval/eval-runs.jsonl` |
 | 5 | **Gate** | cross-version diff names the degraded case **and the exact check that broke** | `npm run eval:diff` (exit 1 on regression) |
 | 6 | **Handoff** | the failing trace + ranked recommendations become a Codex / Claude Code packet | [`docs/WHY_NODEAGENT_AND_HALO.md`](docs/WHY_NODEAGENT_AND_HALO.md) handoff contract |
-| 7 | **Fix** | the smallest necessary workflow/harness change lands; previews refresh if user interaction changed; the loop re-gates | `npm run workflow:previews:all` Â· back to stage 1 |
+| 7 | **Fix** | the smallest necessary workflow/harness change lands; previews refresh if user interaction changed; the loop re-gates | `npm run workflow:previews:all` · back to stage 1 |
 
 The repo-owned runner is:
 

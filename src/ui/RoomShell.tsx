@@ -8,7 +8,7 @@
 
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { PanelLeft, Table2, PanelRight, Moon, Sun, LogOut, Link2, ShieldCheck, X, HelpCircle, Copy, Check, MessageCircle, Sparkles } from "lucide-react";
-import { useStore } from "../app/store";
+import { useStore, type ActorProof } from "../app/store";
 import { Chat } from "./Chat";
 import { Artifact } from "./panels/Artifact";
 import { LeftRail } from "./LeftRail";
@@ -46,7 +46,7 @@ export function inviteHrefForRoom(code: string, href = typeof window !== "undefi
   return url.toString();
 }
 
-export function RoomShell({ roomId, me, onLeave }: { roomId: string; me: Actor; onLeave: () => void }) {
+export function RoomShell({ roomId, me, onLeave, proof }: { roomId: string; me: Actor; onLeave: () => void; proof?: ActorProof }) {
   const store = useStore();
   const room = store.getRoom(roomId);
   // QA P0: below 981px the side panels render as fixed overlays over chat (styles.css), so they
@@ -338,7 +338,7 @@ export function RoomShell({ roomId, me, onLeave }: { roomId: string; me: Actor; 
       <div className="r-workspace" data-shell="june-2026">
         {show.left && <LeftRail roomId={roomId} me={me} artId={curArt?.id ?? artId} style={{ width: layout.left }} onPick={openArtifact} onOpenChat={openSidebarChat} />}
         {show.left && <ResizeHandle label="Resize files panel" onPointerDown={(x) => startResize("left", x)} />}
-        {(!isCompact || show.stage) && <Artifact roomId={roomId} me={me} artId={curArt?.id ?? artId} onArt={setArtId} sideArtId={sideArtId} onSideArtChange={setSideArtId} onOpenChat={openSidebarChat} style={{ flex: layout.stage }} collab={store.canRunCollab ? { ...collab, onRun: runCollab, onConflict: store.runSemanticConflictDrill ? runSemanticConflictDrill : undefined } : undefined} />}
+        {(!isCompact || show.stage) && <Artifact roomId={roomId} me={me} proof={proof} artId={curArt?.id ?? artId} onArt={setArtId} sideArtId={sideArtId} onSideArtChange={setSideArtId} onOpenChat={openSidebarChat} style={{ flex: layout.stage }} collab={store.canRunCollab ? { ...collab, onRun: runCollab, onConflict: store.runSemanticConflictDrill ? runSemanticConflictDrill : undefined } : undefined} />}
         {show.copilot && <ResizeHandle label="Resize Copilot panel" onPointerDown={(x) => startResize("right", x)} />}
         {show.copilot && (
           <CopilotPanel

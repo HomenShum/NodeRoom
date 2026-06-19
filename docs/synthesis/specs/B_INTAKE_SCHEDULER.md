@@ -1,10 +1,12 @@
 # Intake classifier + preflight planner + scheduler (queue vs parallel subagent vs steering)
 
-Status note after the target implementation pass: the typed deterministic layer landed as
-`src/nodeagent/core/intakePreflight.ts` with unit coverage in `tests/intakePreflightScheduler.test.ts`.
-It classifies command-like messages, expands affected sets, and blocks privacy/formula/budget unsafe
-plans before provider spend. The live `/ask` and `/free` entrypoints do not yet render or enforce a
-first-class PlanPreview artifact; that remains the production wiring backlog.
+Status note after the target implementation pass: the typed deterministic layer
+landed as `src/nodeagent/core/intakePreflight.ts` with unit coverage in
+`tests/intakePreflightScheduler.test.ts`. It classifies command-like messages,
+expands affected sets, and blocks privacy/formula/budget unsafe plans before
+provider spend. The UI now renders a deterministic, non-actionable
+`IntakePlanPreview`; a first-class Agent Artifact with Authorize / Guide me /
+Queue actions and any cheap-LLM scheduler path remain production backlog.
 
 ## Decision
 

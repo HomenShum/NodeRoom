@@ -11,7 +11,7 @@ touched. **Tools: the change is ADDITIVE and concentrated in the OUTPUT/EVIDENCE
 tools already exist and are wired, but their **outputs are ephemeral** (not persisted, not telemetered). The
 one genuinely net-new primitive 6-15 asks for is **Trace Lens** (a click-to-context inspector), which is absent.
 
-This matches 6-15's own instruction ([L860](../../6-15-2026-deep-review.txt:860)): *"I would **not** reorganize
+This matches 6-15's own instruction ([L860](../../6-15-2026-deep-review.txt#L860)): *"I would **not** reorganize
 everything… add a thin coach-artifact layer."*
 
 ### "pi-agent-core" — clarified

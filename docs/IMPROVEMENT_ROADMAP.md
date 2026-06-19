@@ -17,6 +17,12 @@
 
 # NodeRoom + HALO — Final Ranked Improvement Roadmap
 
+> Historical status, 2026-06-18: retained for rationale, failure modes, and the
+> do-not-build list. Do not use this as the current implementation queue.
+> Current authority is [SOURCE_OF_TRUTH.md](SOURCE_OF_TRUTH.md),
+> [NEXT_STEPS_PRIORITY.md](NEXT_STEPS_PRIORITY.md), and
+> [GAPS_NOT_DONE.md](GAPS_NOT_DONE.md).
+
 Date: 2026-06-09 · Repo: `D:/VSCode Projects/cafecorner_nodebench/nodebench_ai4/noderoom` · Status: synthesis of skeptic-tested candidates, refutations, subsystem audits, completeness gaps, and production-pattern research. All P0 evidence anchors were re-verified against source in this session (grep/read), including one previously-unverified leak (P1-1). The repo currently has ~80 dirty in-flight files from a parallel agent and a running overnight eval loop — nothing in this doc was edited into the repo; it is a plan, not a change.
 
 ## Executive summary

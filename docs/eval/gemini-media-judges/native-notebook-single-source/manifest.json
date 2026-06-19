@@ -1,0 +1,20 @@
+{
+  "runId": "native-notebook-single-source",
+  "generatedAt": "2026-06-18T22:12:07.624Z",
+  "model": "gemini-3.5-flash",
+  "primaryOnly": true,
+  "all": false,
+  "includeIgnored": true,
+  "only": "first-time-banker-capture",
+  "assets": [
+    {
+      "id": "docs-walkthroughs-first-time-banker-capture",
+      "class": "readme_walkthrough",
+      "title": "First Time Banker Capture",
+      "path": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\docs\\walkthroughs\\first-time-banker-capture.mp4",
+      "relPath": "docs/walkthroughs/first-time-banker-capture.mp4",
+      "purpose": "README live walkthrough clip. Judge whether the feature is obvious, visually consistent, and credible as evidence.",
+      "duplicateGroup": "walkthrough:first-time-banker-capture"
+    }
+  ]
+}

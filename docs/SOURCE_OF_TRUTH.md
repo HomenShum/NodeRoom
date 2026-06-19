@@ -44,6 +44,16 @@ Design-intent names now live in `src/nodeagent/**`. Convex remains the durable b
 - Multi-agent workbench: visible memory-mode demo and judged media exist. Startup diligence now has a two-clip evidence path: live create/join plus scripted synthesis/private/downstream.
 - Fresh startup room: live mode now starts a new "Startup Banking Diligence War Room" by default. The `startup-diligence-live-join` walkthrough proves teammate join-by-code; `startup-diligence-war-room` proves the broader diligence workflow.
 - OKF production path: the public Room NodeAgent has a Convex-backed OKF retrieval port, actor-aware public/private partitioning, literal source opening, retrieval telemetry, and an evidence write gate that can downgrade weak source-backed writes to `needs_review`.
+- Native notebook: ProseMirror `onSnapshot` updates registry hash/version
+  metadata only. The legacy UI bridge still enqueues passive intelligence from
+  the checked NodeRoom commit path, while the shipped backend slice now supports
+  actor-authenticated dirty metadata -> ACL-gated processor -> notebook read
+  model -> passive intelligence / Agent Artifacts.
+- Agent Artifacts: the first backend slice ships `agent_work_plan` creation and
+  approval by canonical `planHash`, with approved jobs carrying
+  `request.approvedPlanHash`. Diff previews, evidence cards, coach feedback,
+  planned-vs-actual reports, and rendered React/MDX/HTML surfaces remain product
+  review work.
 - Harness-native recursive reasoning: room-work/entity-facet flows materialize
   durable phase/child frames, cache-first work items, job-detail frame trees, and
   frame-claimed durable slices that execute through `runReasoningFrame`. Safe
@@ -56,13 +66,29 @@ Design-intent names now live in `src/nodeagent/**`. Convex remains the durable b
 1. [ARCHITECTURE.md](ARCHITECTURE.md) - layer map and managed-write contract.
 2. [NODEAGENT_ARCHITECTURE.md](NODEAGENT_ARCHITECTURE.md), [AGENT_RUNTIME.md](AGENT_RUNTIME.md), [HARNESS_RECURSIVE_REASONING.md](HARNESS_RECURSIVE_REASONING.md), and [NODEAGENT_ADOPTION.md](NODEAGENT_ADOPTION.md) - the real agent harness, selected frame/cache/verifier upgrade, and runnable adoption path.
 3. [architecture/CONVEX_AS_LEDGER.md](architecture/CONVEX_AS_LEDGER.md) - Convex-as-ledger boundaries and scaling rules.
-4. [AGENT_EVAL.md](AGENT_EVAL.md) - agent evaluation method.
-5. [demo/STARTUP_DILIGENCE_DEMO_PLAN.md](demo/STARTUP_DILIGENCE_DEMO_PLAN.md) - the next public demo script.
-6. [demo/STARTUP_DILIGENCE_PROOF_LEDGER.md](demo/STARTUP_DILIGENCE_PROOF_LEDGER.md) - claim-by-claim proof ledger.
-7. [demo/STARTUP_DILIGENCE_LATEST_REVIEW.md](demo/STARTUP_DILIGENCE_LATEST_REVIEW.md) - current safe demo/interview claim boundary after OKF production hardening.
-8. [demo/NEXT_PRODUCT_DEMO_PUSH_REVIEW.md](demo/NEXT_PRODUCT_DEMO_PUSH_REVIEW.md) - repo/browser review for the next push.
-9. [PRODUCTION_READINESS.md](PRODUCTION_READINESS.md), [GAPS_NOT_DONE.md](GAPS_NOT_DONE.md), and [WEDGE.md](WEDGE.md) - readiness, gaps, and the frozen wedge.
-10. [showcase/noderoom-diligence-deck.html](showcase/noderoom-diligence-deck.html) - lightweight deck scaffold.
+4. [PASSIVE_NOTEBOOK_SINGLE_SOURCE_FIX.md](PASSIVE_NOTEBOOK_SINGLE_SOURCE_FIX.md), [NATIVE_NOTEBOOK_ARCHITECTURE.md](NATIVE_NOTEBOOK_ARCHITECTURE.md), and [NATIVE_NOTEBOOK_PROSEMIRROR_SIDECAR.md](NATIVE_NOTEBOOK_PROSEMIRROR_SIDECAR.md) - notebook bridge plus shipped dirty-event/read-model backend architecture.
+5. [AGENT_ARTIFACTS.md](AGENT_ARTIFACTS.md), [HUMAN_AGENT_APPROVAL_BOUNDARY.md](HUMAN_AGENT_APPROVAL_BOUNDARY.md), and [VISUAL_PLAN_REVIEW_SURFACE.md](VISUAL_PLAN_REVIEW_SURFACE.md) - structured artifact approval, first `agent_work_plan` plan hash gate, and review surfaces.
+6. [AGENT_EVAL.md](AGENT_EVAL.md) - agent evaluation method.
+7. [demo/STARTUP_DILIGENCE_DEMO_PLAN.md](demo/STARTUP_DILIGENCE_DEMO_PLAN.md) - the next public demo script.
+8. [demo/STARTUP_DILIGENCE_PROOF_LEDGER.md](demo/STARTUP_DILIGENCE_PROOF_LEDGER.md) - claim-by-claim proof ledger.
+9. [demo/STARTUP_DILIGENCE_LATEST_REVIEW.md](demo/STARTUP_DILIGENCE_LATEST_REVIEW.md) - current safe demo/interview claim boundary after OKF production hardening.
+10. [demo/NEXT_PRODUCT_DEMO_PUSH_REVIEW.md](demo/NEXT_PRODUCT_DEMO_PUSH_REVIEW.md) - repo/browser review for the next push.
+11. [PRODUCTION_READINESS.md](PRODUCTION_READINESS.md), [GAPS_NOT_DONE.md](GAPS_NOT_DONE.md), and [WEDGE.md](WEDGE.md) - readiness, gaps, and the frozen wedge.
+12. [showcase/noderoom-diligence-deck.html](showcase/noderoom-diligence-deck.html) - lightweight deck scaffold.
+
+## Historical Docs Policy
+
+Historical synthesis, audit, founder-loop, and session-note files remain in the
+repo for provenance. They are not implementation authority when they conflict
+with the authority docs above. In particular:
+
+- `docs/synthesis/**` is the June 2026 design corpus and ticket synthesis.
+- `docs/COMPLETENESS_REGISTER.md` is the June 9 audit snapshot, not the current
+  gap register.
+- `docs/IMPROVEMENT_ROADMAP.md` is retained for rationale and anti-patterns;
+  current priority order lives in `docs/NEXT_STEPS_PRIORITY.md` plus this page.
+- Founder-loop notes describe the state of the room at that session and should
+  not override current source or tests.
 
 ## Do Not
 
@@ -77,8 +103,29 @@ Design-intent names now live in `src/nodeagent/**`. Convex remains the durable b
 - Do not claim private consults use the full OKF tool graph by default; default private consults are read-only streamed replies unless promoted into room action.
 - Do not claim Trace Lens is a full OKF graph explorer or full code-provenance system.
 - Do not claim every Banker Coach cue/review round is automatically persisted as a first-class workflow object.
+- Do not treat rendered visual plans, MDX, HTML, or old audit packets as the
+  executable authority for agent work. Structured payloads, Convex rows, and
+  checked mutations own execution.
 
-## Current Verification Snapshot
+## Verification Snapshots
+
+### Documentation Cleanup Snapshot
+
+2026-06-18, local workspace:
+
+- `npm run docs:code-visuals`: pass.
+- `git diff --check`: pass.
+- `npm run typecheck -- --pretty false`: pass.
+- `npx tsc --noEmit --project convex\tsconfig.json --pretty false`: pass.
+- Focused native-notebook/security/frame tests: 5 files, 8 tests pass.
+- `npm run build`: pass with the existing large-chunk warning.
+- `npm audit --omit=dev --audit-level=moderate`: pass, 0 production vulnerabilities.
+- `npm run nodeagent:frame:smoke`: pass.
+- `npm run omnigent:nodeagent:smoke`: YAML and embedded frame smoke pass; local
+  Omnigent CLI is not installed for the live outer-harness run.
+- `npm test -- --run tests/frameRunner.test.ts`: pass.
+
+### Last Full Production Snapshot
 
 2026-06-16, `main` / `origin/main` at `2e2bfbf`:
 

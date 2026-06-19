@@ -12,7 +12,7 @@ flowchart TD
   Question --> Outline[How to answer + expected outline]
   Outline --> Answer[User answer]
   Answer --> Eval[Evidence-grounded evaluator]
-  Eval --> Feedback[Feedback card]
+  Eval --> Feedback[CoachFeedbackArtifact]
   Feedback --> Actions[Open source / Practice again / Create task / Mark understood]
 ```
 
@@ -34,16 +34,17 @@ flowchart TD
 
 | Area | Files |
 |---|---|
-| Planned UI | `src/ui/coach/*` |
+| Planned dedicated UI | `src/ui/coach/*` (not yet present) |
 | Evidence UI | `src/ui/artifacts/EvidenceCarouselArtifact.tsx`, `src/ui/panels/TraceSurface.tsx` |
-| Backend | `convex/coach.ts`, `convex/coachEvaluator.ts` |
+| Planned backend | `convex/coach.ts`, `convex/coachEvaluator.ts` (not yet present) |
 | Existing evidence | `convex/evidence.ts`, `convex/captures.ts`, `convex/okf.ts` |
+| Agent Artifact backend | `docs/AGENT_ARTIFACTS.md`, `convex/agentArtifacts.ts` |
 | Formal doc | `docs/COACH_MODE_REVIEW_READINESS.md` |
 
 ## Schema Map
 
 ```text
-coachSessions -> coachQuestions -> coachAnswers -> coachFeedback
+coachSessions -> coachQuestions -> coachAnswers -> CoachFeedbackArtifact
                                      -> masteryTags
                                      -> missedEvidenceRefs
                                      -> followUpTasks
@@ -95,7 +96,7 @@ Expected answer:
 - Store user answer.
 - Run deterministic checks first.
 - Run one model evaluator only after submit.
-- Feedback links to evidence/source/cell.
+- CoachFeedbackArtifact links to evidence/source/cell.
 - Create follow-up task from missed item.
 
 ## Open Questions

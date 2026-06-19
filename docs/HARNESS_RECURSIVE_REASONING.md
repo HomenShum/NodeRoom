@@ -21,6 +21,12 @@ Convex -> durable source of truth for jobs, frames, cache rows, receipts, traces
 locks, and artifact state.
 ```
 
+The user-facing story is a high-pressure room, not a lab benchmark. A banker,
+operator, or teammate needs progress on many rows, sources, or claims while the
+room stays collaborative and auditable. The harness turns that request into
+visible frames so the user can see what is being planned, executed, verified,
+and synthesized.
+
 Do not describe this as a model feature. The harness owns memory, continuation,
 verification, and budget control. Models remain swappable workers behind
 `runAgent`.
@@ -29,6 +35,7 @@ verification, and budget control. Models remain swappable workers behind
 
 ```text
 user command (/ask, /free, or room-work intake)
+  -> optional Agent Work Plan approval by canonical planHash
   -> agentJobs create/reuse with idempotency key
   -> normalize entities, facets, artifact target, and visibility
   -> lookup entityResearchCache and OKF where available
@@ -37,7 +44,8 @@ user command (/ask, /free, or room-work intake)
   -> run immediate slice or Workflow/Workpool continuation
   -> runAgent executes bounded model/tool turns through RoomTools
   -> managed writes enforce lock/CAS/proposal/evidence gates
-  -> finish/checkpoint updates job, frame statuses, receipts, trace, and UI detail
+  -> finish/checkpoint updates job, frame statuses, receipts, trace, UI detail
+  -> planned-vs-actual report shows what matched or diverged from the plan
 ```
 
 The speed-to-fill rule is cache-first:

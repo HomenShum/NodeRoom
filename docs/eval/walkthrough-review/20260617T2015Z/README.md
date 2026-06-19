@@ -18,7 +18,7 @@ npm.cmd run ui:gemini-review -- --media=docs/walkthroughs/startup-diligence-war-
 
 ## Evidence
 
-- Media judge: [summary](../gemini-media-judges/20260617T2015Z/summary.md)
+- Media judge: [summary](../../gemini-media-judges/20260617T2015Z/summary.md)
 - UI production rubric: [json](gemini-ui-review.json)
 
 > This is a demo-media and UX-review artifact. It does not replace Convex typecheck, browser E2E, provider ladder, privacy, or load-test gates.

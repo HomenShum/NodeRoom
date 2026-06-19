@@ -1,8 +1,8 @@
 # Gemini Media Judge
 
-Generated: 2026-06-17T19:10:18.405Z
+Generated: 2026-06-18T22:12:29.528Z
 Model: `gemini-3.5-flash`
-Run id: `cli-package-gemini-smoke`
+Run id: `native-notebook-single-source`
 
 > This judges README/demo media quality only. It does not replace live Convex, browser E2E, provider ladder, parser, privacy, or load-test gates.
 
@@ -18,14 +18,14 @@ Run id: `cli-package-gemini-smoke`
 
 | Asset | Class | Verdict | Score | P0/P1/P2 | Main finding |
 |---|---|---:|---:|---:|---|
-| `docs/walkthroughs/startup-diligence-war-room.mp4` | readme_walkthrough | publish | 11.9/16 | 0/0/1 | A highly complete and professional walkthrough of the Startup Diligence War Room, demonstrating multi-agent research, public/private lanes, and downstream draft generation with clear UI states. |
+| `docs/walkthroughs/first-time-banker-capture.mp4` | readme_walkthrough | publish | 8/16 | 0/0/1 | A clear, well-paced walkthrough demonstrating raw note capture and subsequent automated signal extraction in the intelligence panel. |
 
 ## Open Defects
 
-- **P2** `docs/walkthroughs/startup-diligence-war-room.mp4` @ 00:26: The text in the private agent chat pane is quite dense and small, making it slightly hard to read quickly. -> Slightly increase the font size or line height of the agent chat bubbles for better readability.
+- **P2** `docs/walkthroughs/first-time-banker-capture.mp4` @ 00:04: Typo in typed text: 'pilots.Capture Notebook' lacks a space after the period. -> Re-record or accept as a minor realistic input typo.
 
 ## Re-run
 
 ```bash
-npm run media:gemini-judge -- --only startup-diligence-war-room --include-ignored --run-id cli-package-gemini-smoke --model gemini-3.5-flash
+npm run media:gemini-judge -- --only first-time-banker-capture --include-ignored --run-id native-notebook-single-source --model gemini-3.5-flash
 ```

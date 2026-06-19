@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updatedAt": "2026-06-14",
+  "updatedAt": "2026-06-17",
   "demoTarget": "Startup Diligence War Room",
   "sourceReview": "D:/VSCode Projects/noderoom/6-14-2026-deep-review.txt",
   "currentEvidenceLevel": "provider-produced-convex-contract-proven-plus-deterministic-media",
@@ -11,29 +11,30 @@
     "liveJoinSegments": 13,
     "warRoomSegments": 19,
     "rendered": true,
-    "mediaJudgeRunId": "20260614T233419Z",
+    "mediaJudgeRunId": "live-join:20260614T233419Z;war-room:20260617T2015Z",
     "mediaJudgeModel": "gemini-3.5-flash",
     "verdict": "publish",
     "scores": {
       "startup-diligence-live-join": "10.9/16",
-      "startup-diligence-war-room": "11.7/16"
+      "startup-diligence-war-room": "10.4/16"
     },
     "remainingDefects": [
       {
         "severity": "P2",
         "asset": "docs/walkthroughs/startup-diligence-live-join.mp4",
         "finding": "The transition between user perspectives is rapid; acceptable for publish, but next polish should add a subtle transition or longer pause."
-      },
-      {
-        "severity": "P2",
-        "asset": "docs/walkthroughs/startup-diligence-war-room.mp4",
-        "finding": "Room Trace is still dense during rapid scanning; acceptable for publish, but next polish should add more separation between trace events."
-      },
-      {
-        "severity": "P2",
-        "asset": "docs/walkthroughs/startup-diligence-war-room.mp4",
-        "finding": "The Public-to-Private copilot switch is subtle; acceptable for publish, but next polish should add a stronger privacy-state transition."
       }
+    ]
+  },
+  "latestWarRoomMediaJudge": {
+    "judgedAt": "2026-06-17T18:54:58.389Z",
+    "mediaJudgeRunId": "20260617T2015Z",
+    "mediaJudgeModel": "gemini-3.5-flash",
+    "asset": "docs/walkthroughs/startup-diligence-war-room.mp4",
+    "verdict": "publish",
+    "score": "10.4/16",
+    "remainingDefects": [
+      "none reported"
     ]
   },
   "media": [

@@ -3,7 +3,7 @@
  * browser chrome frame · animated cursor that GLIDES to each recorded click target with a
  * Material-spec click ripple · per-step captions · progress bar · subtle zoom toward the click.
  *
- * Motion params are research-grounded (docs/dogfood/WALKTHROUGH_GIFS.md):
+ * Motion params are research-grounded by the walkthrough/eval docs:
  *  - cursor spring {stiffness:400, damping:45, mass:1} + overshoot clamping (MagicUI SmoothCursor /
  *    Remotion spring docs — confident glide, no wobble)
  *  - ripple: circle scales 0→4x over 600ms, linear fade to 0 (Material ripple spec)

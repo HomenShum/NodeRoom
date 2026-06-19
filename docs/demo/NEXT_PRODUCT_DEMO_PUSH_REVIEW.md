@@ -52,7 +52,11 @@ Follow-up: the latest live-join frame shows the handoff card contained in the Co
 
 ### P2: War-room media still has presentation-only density polish
 
-`npm run media:gemini-judge -- --only startup-diligence --include-ignored` rates both startup MP4s publishable in run `20260614T233419Z` (`10.9/16` live-join, `11.7/16` war-room). The trace font/spacing and walkthrough holds have been increased. Remaining defects are P2 presentation notes: rapid perspective switches, dense trace text at README scale, and subtle public/private lane transition.
+Startup media is split by asset. Live-join remains publishable in run
+`20260614T233419Z` (`10.9/16`, one P2 transition note). The current war-room
+asset is publishable in run `20260617T2015Z` (`10.4/16`, no defects reported).
+The trace font/spacing and walkthrough holds have been increased since the
+older combined review.
 
 ### P2: Live-join media still benefits from an explicit transition
 
@@ -69,7 +73,9 @@ The combined media judge rates the live-join clip publishable, and the script no
 - `npm run build`: pass, with only existing Vite chunk-size warnings.
 - `npm test -- --run`: 89 files, 501 tests pass.
 - `npm run test:product:memory`: 17 browser tests pass.
-- `npm run media:gemini-judge -- --only startup-diligence --include-ignored`: run `20260614T233419Z`, both startup MP4s publish.
+- `npm run media:gemini-judge -- --only startup-diligence --include-ignored`:
+  live-join publish evidence is run `20260614T233419Z`; current war-room publish
+  evidence is run `20260617T2015Z`.
 
 ## Next Product Push
 
@@ -83,4 +89,6 @@ The combined media judge rates the live-join clip publishable, and the script no
 - `startup-diligence-war-room` now invokes a startup-specific `/demo multi-agent` scenario: CardioNova intake, five-company bulk diligence, runway/milestone chart work, no-clobber proof, private banker lane, and draft-only handoff.
 - `startup-diligence-live-join` now scripts Maya, Priya, and Alex in the same live room with CardioNova/bulk diligence and runway/milestone ownership.
 - `docs/eval/startup-diligence-war-room-live.json` now records the proof boundary so deterministic UI evidence, Convex contract evidence, and one provider-produced proof are distinguishable from repeated N=5/p95 route-stability evidence.
-- Both startup clips were recaptured, rendered, and judged with Gemini run `20260614T233419Z`: live-join `publish 10.9/16`, war-room `publish 11.7/16`, with three P2 presentation-polish notes remaining: rapid user-perspective transition, dense trace text, and a subtle Public-to-Private switch.
+- Startup media evidence is split: live-join `publish 10.9/16` in Gemini run
+  `20260614T233419Z`, and current war-room `publish 10.4/16` in run
+  `20260617T2015Z` with no defects reported.

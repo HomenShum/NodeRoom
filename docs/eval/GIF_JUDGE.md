@@ -1,16 +1,19 @@
 # How demo GIFs are judged — methodology, score guide, and evidence
 
-Every demo GIF in this repo must pass a **gemini-3.5-flash vision judge** before it can be called
-demo-ready. This page explains exactly what the scores mean, why a demo fails, and shows the
-frames behind the verdicts — a number you can't interpret is a number you can't trust.
+Workflow-preview GIFs under `docs/eval/workflow-previews` must pass a
+**gemini-3.5-flash vision judge** before they can be called demo-ready. This
+page explains exactly what the scores mean, why a demo fails, and shows the
+frames behind the verdicts — a number you can't interpret is a number you can't
+trust. Walkthrough GIFs in `docs/walkthroughs` use the separate media judge
+pipeline.
 
 ```bash
-npm run qa:gif                       # judge every shipped GIF
+npm run qa:gif                       # judge workflow-preview GIFs
 npm run qa:gif -- finance-model-solve  # judge one
 ```
 
-Verdicts persist to `docs/eval/gif-judge/<id>.json`. A FAIL exits 1 and blocks the
-"demo ready" claim.
+Verdicts persist to `docs/eval/gif-judge/<id>.json`. A FAIL exits 1 and blocks
+the workflow-preview "demo ready" claim.
 
 ## What the judge actually sees (and why)
 
@@ -75,7 +78,7 @@ the judged midpoints. It now passes at 7.6:
 |---|---|
 | ![human edit arrives](gif-judge/evidence/l3-human-edit-arrives.png) | ![CAS rejects stale write](gif-judge/evidence/l3-cas-rejects-stale-write.png) |
 
-## Current scoreboard (2026-06-11, regenerate with `npm run qa:gif`)
+## Historical Workflow-Preview Scoreboard (2026-06-11, regenerate with `npm run qa:gif`)
 
 | Demo | Avg | Read | Pace | Narrative | Polish | Honesty | Verdict |
 |---|---|---|---|---|---|---|---|

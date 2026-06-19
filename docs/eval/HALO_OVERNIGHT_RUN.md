@@ -24,9 +24,13 @@ It launched active deterministic runner PID `149656` / run id
 `20260609T183814Z`. `halo:status --strict --require-supervisor --record` passes
 using `docs/eval/halo-runs/supervisor-state.json` as the supervisor heartbeat.
 
-## Current Active Run
+## Historical Active Run
 
-Authoritative loop:
+No active run lock is present in the current repo. The section below is the
+historical June 2026 continuation record for run `20260609T183814Z`; later HALO
+artifacts exist under `docs/eval/halo-runs/20260613T085854Z`.
+
+Historical authoritative loop:
 
 ```bash
 tsx scripts/halo-overnight.ts --until=2026-06-10T17:00:00Z --sleep-minutes=30 --skip-e2e --skip-live

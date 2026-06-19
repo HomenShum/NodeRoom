@@ -1,6 +1,6 @@
 # Gaps Not Yet Done
 
-Last updated: 2026-06-16
+Last updated: 2026-06-18
 
 NodeRoom is production-shaped, but it is not yet fully production-proven. The
 core harness exists: versioned room artifacts, bounded agent tools, lock/CAS
@@ -9,6 +9,13 @@ frames/cache rows, provider adapters, artifact traces, a QA matrix, and
 professional workflow eval fixtures. The gaps
 below are the remaining work needed before claiming full production scale for
 GTM sales, finance, banker, and multi-file research workflows.
+
+2026-06-18 implementation note: the first native-notebook target slice now
+exists in Convex: `notebookDirtyEvents`, `notebookProcessingJobs`,
+`notebookBlocks`, `notebookClaims`, `notebookMentions`, `markNotebookDirty`,
+ACL-gated processing, and the first `agent_work_plan` Agent Artifact approval
+by canonical `planHash`. Remaining gaps below are UI/live-proof and broader
+production hardening, not absence of the backend contract.
 
 ## Operating Principle
 
@@ -44,6 +51,13 @@ Do not claim a feature is production-complete until it has:
 | Frame-claimed slices | Durable jobs with materialized reasoning frames now claim one frame at a time, run through `runReasoningFrame`, record attempt `frameId`, checkpoint by frame id, and persist frame delta/evidence/status on finish. | Live multi-slice proof with forced tiny budgets plus route/provider evidence. | A deployed multi-slice room-work job resumes from a frame id, not just from raw cursor messages. |
 | Model health/quarantine | Free-auto discovery and fallback exist. | Track latency, rate limits, failures, fallback count, and quarantine unhealthy free models. | Router avoids unhealthy free models and records why. |
 | Live `/free` eval | Manual live ladder evidence exists. | Add a polling evaluator that starts a real `/free` job, polls attempts, and asserts terminal state plus trace evidence. | Live `openrouter/free-auto` smoke records resolved model, attempts, final artifact state, and no clobber. |
+
+## P0: Native Notebook And Agent Artifact Readiness
+
+| Gap | Current state | Needed proof | Acceptance gate |
+|---|---|---|---|
+| Native notebook target processing | Backend slice is implemented and covered by `tests/notebookProcessingTarget.test.ts`: `onSnapshot` remains registry-only; dirty events store metadata only; processor rechecks membership/visibility before reading the latest ProseMirror snapshot; read-model rows feed one passive item. | Wire the UI save/idle path to `markNotebookDirty`, add deployed smoke evidence, and expose read-model/processing receipts in review surfaces. | One ProseMirror edit creates one dirty event per actor/lane, one read-model update, and one passive item; `elements["doc"]` is not hot-written; private read model never feeds public jobs. |
+| Agent Work Plan artifact | First backend slice is implemented in `convex/agentArtifacts.ts`: structured `agent_work_plan` rows store `payloadHash`/`planHash`, approval requires an exact hash, and approved plans create/reuse a queued `agentJobs` row carrying `approvedPlanHash`. | Build the allowlisted renderer/action buttons and planned-vs-actual artifact from receipts/traces/costs. | The user approves a canonical plan hash, execution receives that hash, rendered MDX/HTML cannot change the approved payload, and a planned-vs-actual artifact shows divergences. |
 
 ## P0: Files, Parser, OCR, And Evidence
 

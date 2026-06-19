@@ -1,8 +1,8 @@
 {
-  "runId": "cli-package-gemini-smoke",
-  "generatedAt": "2026-06-17T19:10:18.405Z",
+  "runId": "native-notebook-single-source",
+  "generatedAt": "2026-06-18T22:12:29.528Z",
   "model": "gemini-3.5-flash",
-  "command": "npm run media:gemini-judge -- --only startup-diligence-war-room --include-ignored --run-id cli-package-gemini-smoke --model gemini-3.5-flash",
+  "command": "npm run media:gemini-judge -- --only first-time-banker-capture --include-ignored --run-id native-notebook-single-source --model gemini-3.5-flash",
   "notes": [
     "GIF assets are converted to temporary MP4 with ffmpeg before upload.",
     "This media judge is evidence-quality QA; it does not replace backend/browser production gates."
@@ -22,74 +22,73 @@
   "results": [
     {
       "asset": {
-        "id": "docs-walkthroughs-startup-diligence-war-room",
+        "id": "docs-walkthroughs-first-time-banker-capture",
         "class": "readme_walkthrough",
-        "title": "Startup Diligence War Room",
-        "path": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\docs\\walkthroughs\\startup-diligence-war-room.mp4",
-        "relPath": "docs/walkthroughs/startup-diligence-war-room.mp4",
+        "title": "First Time Banker Capture",
+        "path": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\docs\\walkthroughs\\first-time-banker-capture.mp4",
+        "relPath": "docs/walkthroughs/first-time-banker-capture.mp4",
         "purpose": "README live walkthrough clip. Judge whether the feature is obvious, visually consistent, and credible as evidence.",
-        "duplicateGroup": "walkthrough:startup-diligence-war-room"
+        "duplicateGroup": "walkthrough:first-time-banker-capture"
       },
       "model": "gemini-3.5-flash",
       "status": "judged",
-      "mediaPath": "docs/walkthroughs/startup-diligence-war-room.mp4",
+      "mediaPath": "docs/walkthroughs/first-time-banker-capture.mp4",
       "mediaType": "video/mp4",
-      "bytes": 19271704,
+      "bytes": 8983964,
       "judge": {
         "verdict": "publish",
-        "summary": "A highly complete and professional walkthrough of the Startup Diligence War Room, demonstrating multi-agent research, public/private lanes, and downstream draft generation with clear UI states.",
+        "summary": "A clear, well-paced walkthrough demonstrating raw note capture and subsequent automated signal extraction in the intelligence panel.",
         "scores": {
           "featureClarity": {
-            "score": 1.5,
-            "evidence": "The video clearly demonstrates spreadsheet enrichment, multi-agent prompting, and public/private agent interactions."
+            "score": 1,
+            "evidence": "Demonstrates entering unstructured notes and extracting actionable intelligence signals."
           },
           "workflowCompleteness": {
-            "score": 1.6,
-            "evidence": "Shows the entire flow from pending accounts to enrichment, multi-agent analysis, and final draft preparation."
+            "score": 1,
+            "evidence": "Shows the complete sequence from empty note input to signal detection and research trigger."
           },
           "visualDesign": {
-            "score": 1.4,
-            "evidence": "High-density dark UI with a clean layout, clear active states, and well-structured panels."
+            "score": 1,
+            "evidence": "Clean dark-mode interface with clear focus states and structured sidebars."
           },
           "consistency": {
-            "score": 1.5,
-            "evidence": "Perfectly aligns with NodeRoom's core concept of combining files, spreadsheets, and collaborative agents."
+            "score": 1,
+            "evidence": "Fits the core product narrative of note-taking integrated with agentic intelligence."
           },
           "evidenceQuality": {
-            "score": 1.5,
-            "evidence": "Authentic product capture showing real-time UI updates, loading states, and realistic data."
+            "score": 1,
+            "evidence": "Unedited screen capture showing realistic typing, cursor movement, and UI transitions."
           },
           "legibility": {
-            "score": 1.3,
-            "evidence": "Most text is highly legible, though some smaller chat messages and table cells require close attention."
+            "score": 1,
+            "evidence": "All typed text, labels, and status chips are readable at standard resolutions."
           },
           "professionalRelevance": {
-            "score": 1.6,
-            "evidence": "Directly addresses financial and startup diligence use cases with realistic workflows."
+            "score": 1,
+            "evidence": "Highly relevant for investment bankers and analysts capturing startup diligence notes."
           },
           "productionHonesty": {
-            "score": 1.5,
-            "evidence": "Accurately represents integration limits by showing 'draft prepared' rather than claiming direct automated delivery."
+            "score": 1,
+            "evidence": "Accurately depicts the system pause and manual confirmation step for intelligence actions."
           }
         },
         "observedEvidence": [
-          "Interactive spreadsheet showing transition from pending to complete states",
-          "Multi-agent prompt execution returning a structured proof board",
-          "Switching between public and private agent lanes with distinct queries",
-          "Downstream integration triggers showing draft preparation"
+          "Raw text entry in Capture Notebook",
+          "Automatic signal detection in Room Intelligence",
+          "Interactive Research action trigger"
         ],
         "missingEvidence": [],
         "defects": [
           {
-            "ts": "00:26",
+            "ts": "00:04",
             "severity": "P2",
-            "observed": "The text in the private agent chat pane is quite dense and small, making it slightly hard to read quickly.",
-            "fix": "Slightly increase the font size or line height of the agent chat bubbles for better readability."
+            "observed": "Typo in typed text: 'pilots.Capture Notebook' lacks a space after the period.",
+            "fix": "Re-record or accept as a minor realistic input typo."
           }
         ],
-        "suggestedReadmeCaption": "Run multi-agent startup diligence workflows directly inside NodeRoom, combining public research, private banker analysis, and automated draft generation."
+        "suggestedReadmeCaption": "Capture unstructured meeting notes and let NodeRoom automatically extract key diligence signals for follow-up research."
       },
-      "score": 11.9,
+      "score": 8,
       "maxScore": 16
     }
   ]

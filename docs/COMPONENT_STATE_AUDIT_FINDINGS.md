@@ -1,8 +1,29 @@
-# Component State Audit — first-run findings (8 components)
+# Component State Audit - first-run findings (8 components)
+
+> Historical packet. Last cleaned: 2026-06-18. This file preserves the original
+> first-run audit language, but several rows below are now resolved or partially
+> guarded. Do not read every "Confirmed defects" row as still open.
 
 Run: `component-state-audit` workflow, 54 agents. Audited 8 stateful components, raised **38 candidate findings, confirmed 21** after adversarial refute panels (17 rejected — the verify layer killed ~45%). **0 P0** (no infinite-loop/crash class beyond the App.tsx join loop already fixed) · **11 P1** · **9 P2**.
 
-> Test-layer prerequisite: this repo has **no `@testing-library/react` + jsdom**, so the A/B render-class fixes can't be locked with a component-render test today. Add both to devDeps to enable stage-4 verification at the layer that catches these; until then, verify via Playwright E2E / live-product-gate.
+> Test-layer status: `@testing-library/react`, `jsdom`, and Vitest jsdom routing
+> now exist in this repo. `tests/leftRailUpload.test.tsx` is the first RTL-style
+> component guard. Remaining component findings should get focused regression
+> tests when they are fixed.
+
+## Current Status After Fixes
+
+Resolved or guarded since the first-run audit:
+
+- App atomic room creation now uses `rooms.createStarterRoom`; guarded by
+  `tests/createRoomAtomicity.test.ts`.
+- Chat bounded/error behavior has focused coverage in `tests/chatBounds.test.ts`.
+- LeftRail upload behavior has RTL coverage in `tests/leftRailUpload.test.tsx`.
+- The component-render test prerequisite is no longer blocked by missing
+  dependencies.
+
+Still use the ranked table below as backlog context for any row not explicitly
+marked fixed.
 
 ## Confirmed defects (ranked)
 
@@ -33,7 +54,7 @@ Run: `component-state-audit` workflow, 54 agents. Audited 8 stateful components,
 ## Top-priority fixes (with exact patches the audit produced)
 
 ### Chat F4 — bound `privateStreamDrivers` (C1, your BOUND non-negotiable)
-Module-level `Map` survives unmount + navigation; each private agent reply mints a fresh `streamId` added to the map, never evicted. Add `const MAX_DRIVERS = 64;` and an LRU evict at the single insertion chokepoint `driverFor` ([Chat.tsx:38](src/ui/Chat.tsx:38)) — evict the oldest entry whose `status` is terminal (`done`/`error`/`timeout`) with no listeners. **Test:** 200 private asks over a session → assert map size stays ≤ 64.
+Module-level `Map` survives unmount + navigation; each private agent reply mints a fresh `streamId` added to the map, never evicted. Add `const MAX_DRIVERS = 64;` and an LRU evict at the single insertion chokepoint `driverFor` ([Chat.tsx:38](../src/ui/Chat.tsx#L38)) — evict the oldest entry whose `status` is terminal (`done`/`error`/`timeout`) with no listeners. **Test:** 200 private asks over a session → assert map size stays ≤ 64.
 
 ### Chat F1 / RoomShell RS-01 — `.catch` the agent dispatches (C7 + C2)
 Both surfaces have `.finally(clear-busy)` but no `.catch`, so a rejected Convex action silently clears `thinking`/`done:true` as if it succeeded. Add an `agentErr`/`error` state, `.catch` that sets it, keep the `aliveRef`/finally. **Test:** mock store to reject → assert an error banner renders and busy clears (no fake "done").
@@ -42,10 +63,10 @@ Both surfaces have `.finally(clear-busy)` but no `.catch`, so a rejected Convex 
 `commit()` returns `{ok:false,reason:'locked'|'conflict'}` as **data** (engine never throws), so the `await` succeeds and the failed rows silently stay `complete`. Every other commit caller in the file routes feedback to an error surface; `refreshComplete` is the lone exception. Count failures, surface via a `editErr` banner reusing `editErrorMsg`. **Test:** agent holds a lock on 1 of 3 complete rows → assert banner names the failed count and "Enrich N pending" reflects the true count.
 
 ### App F1 — atomic create (B3) — *fix already in repo*
-Swap the create branch ([App.tsx](src/ui/App.tsx) `createRoom` + 4×`createArtifact`) for `useMutation(api.rooms.createStarterRoom)` ([rooms.ts:184](convex/rooms.ts:184)), which inserts room + 4 artifacts in **one** transaction (rolls back atomically). Eliminates the phantom-room dead-end. (Corroborates spawned task `f07ebfe6`.)
+Swap the create branch ([App.tsx](../src/ui/App.tsx) `createRoom` + 4×`createArtifact`) for `useMutation(api.rooms.createStarterRoom)` ([rooms.ts:184](../convex/rooms.ts#L184)), which inserts room + 4 artifacts in **one** transaction (rolls back atomically). Eliminates the phantom-room dead-end. (Corroborates spawned task `f07ebfe6`.)
 
 ### GuidedTour GT-1 — clamp the step index (B2)
-Guard gates `length===0` but not `i >= length`; when the steps array shrinks (mobile-gated) without closing, `steps[i]` is `undefined` → render crash. Clamp: `const safeI = Math.min(i, steps.length - 1)` at [GuidedTour.tsx:115](src/ui/GuidedTour.tsx:115).
+Guard gates `length===0` but not `i >= length`; when the steps array shrinks (mobile-gated) without closing, `steps[i]` is `undefined` → render crash. Clamp: `const safeI = Math.min(i, steps.length - 1)` at [GuidedTour.tsx:115](../src/ui/GuidedTour.tsx#L115).
 
 ### LeftRail LR-1 — transactional upload (B3)
 Buffer committed ids, roll back on throw (keep the multi-file loop). Prevents a half-uploaded binder on mid-batch failure.

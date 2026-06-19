@@ -185,7 +185,7 @@ function ConvexApp() {
 
   return (
     <ConvexStoreProvider roomId={session.roomId} me={me} proof={proof}>
-      <RoomShell roomId={session.roomId} me={me} onLeave={leave} />
+      <RoomShell roomId={session.roomId} me={me} onLeave={leave} proof={proof} />
     </ConvexStoreProvider>
   );
 }

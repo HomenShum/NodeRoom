@@ -10,12 +10,17 @@ Use Convex ProseMirror Sync for the human-owned collaborative notebook. Keep Nod
 flowchart TD
   Editor[User-facing Tiptap / BlockNote editor] --> PMSync[Convex ProseMirror Sync]
   PMSync --> Registry[notebookDocuments wrapper]
-  Registry --> Snapshot[Snapshot adapter]
-  Snapshot --> Blocks[Notebook blocks + text + spans]
+  PMSync --> Snapshot[Snapshot metadata]
+  Snapshot --> Registry
+  Editor --> Dirty[Actor-auth dirty signal]
+  Dirty --> Jobs[notebookProcessingJobs]
+  Jobs --> Processor[ACL-gated snapshot processor]
+  Processor --> Blocks[Notebook blocks + text + spans]
   Blocks --> ReadModel[NodeRoom read model]
-  ReadModel --> Agent[NodeAgent jobs]
+  ReadModel --> AgentArtifacts[Agent Artifacts]
+  AgentArtifacts --> Approval{Human approval}
+  Approval --> Agent[NodeAgent jobs]
   Agent --> Sidecar[Suggestions / scratchpad / evidence / coach cues]
-  Sidecar --> Approval{Human approval}
   Approval -->|Insert| Editor
   Approval -->|Add| Sheet[Spreadsheet / research rows]
 ```
@@ -26,10 +31,13 @@ flowchart TD
 |---|---|
 | Convex component mount | `convex/convex.config.ts` |
 | ProseMirror wrapper | `convex/prosemirror.ts`, `convex/schema.ts` |
+| Dirty-event processor | `convex/notebookProcessing.ts` |
+| Agent Artifact approval | `convex/agentArtifacts.ts` |
 | Current note editor | `src/ui/panels/Artifact.tsx` |
 | Room/artifact shell | `src/ui/RoomShell.tsx`, `src/app/store.tsx` |
 | Passive pipeline | `convex/roomActivity.ts`, `tests/roomActivityEvidenceAdapters.test.ts` |
 | Notebook graph/read model | `convex/notebookGraph.ts`, `convex/okf.ts` |
+| Target regression | `tests/notebookProcessingTarget.test.ts` |
 | Target docs | `docs/NATIVE_NOTEBOOK_PROSEMIRROR_SIDECAR.md` |
 
 ## Data Contract
@@ -48,25 +56,47 @@ latestIndexedVersion
 latestProcessedAt
 ```
 
+Target processing metadata:
+
+```text
+notebookDirtyEvents:
+  docId + actorId + processingLane + observedSnapshotVersion/hash
+
+notebookProcessingJobs:
+  dirtyEventId + processorVersion + schemaVersion + status
+
+notebookBlocks / notebookClaims / notebookMentions:
+  source snapshot version/hash + extracted blocks, claims, and mentions
+```
+
+Source spans, evidence refs, and OKF links are future adapter fields. The
+shipped backend writes the three read-model tables above and feeds passive
+classification from their extracted text.
+
 ## User Flow
 
 ```mermaid
 sequenceDiagram
   participant U as User
   participant PM as ProseMirror Sync
-  participant A as Snapshot Adapter
-  participant P as Passive Pipeline
-  participant I as Inbox
+  participant R as notebookDocuments
+  participant D as notebookDirtyEvents
+  participant P as Snapshot Processor
+  participant A as Agent Artifacts
+  participant I as Approval UI
   U->>PM: type messy diligence notes
-  PM->>A: synced snapshot after quiet window
-  A->>P: normalized text/blocks/entities
-  P->>I: noteworthy suggestion
-  I-->>U: Research / Add to sheet / Dismiss / Insert
+  PM->>R: update hash/version metadata
+  U->>D: actor-authenticated dirty metadata
+  D->>P: debounced doc + actor + lane work
+  P->>PM: read latest snapshot through ACL
+  P->>A: create work plan / evidence / coach artifact
+  A-->>I: Research / Add to sheet / Dismiss / Practice
 ```
 
 ## Agent Boundary
 
-Agents read processed snapshots. Agents write sidecars by default:
+Agents read the processed notebook read model. Agents write sidecars and Agent
+Artifacts by default:
 
 - passive inbox items
 - agent scratchpad
@@ -77,22 +107,38 @@ Agents read processed snapshots. Agents write sidecars by default:
 
 Agents should not freely co-edit the live document.
 
-## Implementation Plan
+## Implementation Status
+
+Shipped backend slice:
 
 1. Keep current note editor as fallback.
 2. Feature-flag ProseMirror Sync.
 3. Add wrapper registry and access checks.
-4. Build snapshot-to-block adapter.
-5. Feed passive intelligence from processed snapshots.
-6. Add user-approved insertion path.
-7. Verify with two tabs and private/public notebook cases.
+4. Keep snapshots registry-only as the bridge fix.
+5. Add actor-authenticated dirty metadata mutation.
+6. Add `notebookProcessingJobs`.
+7. Build ACL-gated snapshot-to-read-model processor.
+8. Feed passive intelligence from the processed read model.
+9. Create the first Agent Artifact kind: `agent_work_plan` approval by `planHash`.
+
+Remaining product/UI work:
+
+1. Wire synced notebook idle/save to `markNotebookDirty`.
+2. Render Agent Work Plans in the passive inbox / work surface.
+3. Add user-approved insertion and Add-to-sheet paths.
+4. Verify with two tabs, browser UI, and deployed private/public notebook cases.
 
 ## Verification Plan
 
 - Two tabs sync the same notebook.
 - Private notebook is invisible to other members.
 - Public job cannot read private notebook snapshot.
-- Passive chip appears after pause.
+- Passive chip appears once from the processed read model.
+- ProseMirror snapshots do not create `roomActivityOutbox` rows.
+- `elements["doc"]` is not hot-written on every native notebook edit.
+- Non-owner editor attribution is preserved in dirty metadata.
+- `tests/notebookProcessingTarget.test.ts` covers backend dedupe,
+  ACL/revocation, read-model rows, private feed isolation, and planHash approval.
 - Add-to-sheet and insert actions require user approval.
 - Build/typecheck and Playwright happy path pass.
 

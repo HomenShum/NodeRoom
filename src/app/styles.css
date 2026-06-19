@@ -136,7 +136,7 @@ input { font-family: inherit; }
 /* shell-level Signal Tape + Status Strip */
 /* One calm status bar (was three stacked cards: a stepper pill + a counts tape + a status line).
    Single border, single surface; spine left · live status (grows) · actionable signals right. */
-.r-shell-bottom { flex: none; display: flex; align-items: center; gap: 12px; margin: 0 10px 10px; padding: 5px 12px; min-height: 34px; border: 1px solid var(--line); border-radius: 10px; background: color-mix(in srgb, var(--bg-primary) 86%, transparent); backdrop-filter: blur(14px); overflow: hidden; }
+.r-shell-bottom { position: relative; z-index: 45; flex: none; display: flex; align-items: center; gap: 12px; margin: 0 10px 10px; padding: 5px 12px; min-height: 34px; border: 1px solid var(--line); border-radius: 10px; background: color-mix(in srgb, var(--bg-primary) 86%, transparent); backdrop-filter: blur(14px); overflow: visible; }
 .r-spine { display: flex; align-items: center; gap: 4px; flex: none; min-height: 22px; font-size: 10.5px; color: var(--text-tertiary); }
 .r-spine-step { display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; }
 .r-spine-step:not(:last-child)::after { content: ""; width: 14px; height: 1px; background: var(--line); margin: 0 4px; }

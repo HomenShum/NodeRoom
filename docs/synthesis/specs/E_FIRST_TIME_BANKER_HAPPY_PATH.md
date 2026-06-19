@@ -1,7 +1,25 @@
 # First-time banker happy path — notebook default, passive inbox actions, debounce keys, walkthrough
 
-Status: **implemented** (Tasks 1–4 and 6 shipped in this pass; P1/P2 sections below are explicitly
+Status: **implemented** (Tasks 1-4 and 6 shipped in this pass; P1/P2 sections below are explicitly
 deferred and not built).
+
+2026-06-18 status correction: this spec is a historical implementation slice.
+Keep it for the first-time banker product story, but do not use its passive
+trigger details as current architecture authority. The current rule is:
+
+```text
+bridge: ProseMirror onSnapshot -> registry metadata only;
+        applyCellEdit bridge commit -> one passive enqueue
+
+target: ProseMirror text -> actor-authenticated dirty metadata
+        -> ACL-gated processor -> notebook read model
+        -> passive intelligence / Agent Artifacts
+```
+
+Canonical docs:
+[`../../PASSIVE_NOTEBOOK_SINGLE_SOURCE_FIX.md`](../../PASSIVE_NOTEBOOK_SINGLE_SOURCE_FIX.md),
+[`../../NATIVE_NOTEBOOK_ARCHITECTURE.md`](../../NATIVE_NOTEBOOK_ARCHITECTURE.md),
+and [`../../AGENT_ARTIFACTS.md`](../../AGENT_ARTIFACTS.md).
 
 ## Decision
 
@@ -14,10 +32,13 @@ funding signal, runway reference), it surfaces a chip + inbox — never auto-edi
 sheet. The banker chooses: Research, Add to sheet, or Dismiss. This is the Notion blank-canvas
 principle applied to triage: context-sensitive suggestions, never ambient overwrite.
 
-**Two separate debounce timers (save vs. agent).** Client keystrokes stay local; only SAVED blocks
-enqueue an outbox row. The debounce is per-actor/per-block so three bankers typing in the same shared
-notebook each get an independent quiet window (no whole-notebook starvation). A `maxWait` hard
-deadline prevents a single slow typist from deferring their scan indefinitely.
+**Two separate debounce timers (save vs. agent).** Client keystrokes stay local.
+The historical bridge used saved blocks and the checked `applyCellEdit` path to
+enqueue an outbox row. Native ProseMirror processing should move to dirty
+metadata and read-model jobs so editor snapshots never become business events.
+The debounce remains per actor/lane so three bankers typing in the same shared
+notebook each get an independent quiet window. A `maxWait` hard deadline
+prevents a single slow typist from deferring their scan indefinitely.
 
 **Deterministic capture via memory seed.** The walkthrough (`first-time-banker-capture`) uses
 `setup: "memoryDemo"` with a scripted CardioNova seed so the clip is reproducible across runs
@@ -93,7 +114,9 @@ without live LLM timing. The clip is labeled "memory-mode demo" — honesty is n
   - Live Convex: Dismiss calls `api.roomActivity.dismissActivity`; Research calls
     `api.agentJobs.start` with a passive-research goal; Add calls `api.artifacts.addResearchRows`.
   - Research button hidden when `pill.tone === "researching"` (item already in progress).
-- **DoD (met):** Dismiss removes item from chip count; Research flips pill; Add proposes a row;
+- **DoD (met):** Dismiss removes item from chip count; Research flips pill; Add
+  ensures/opens a passive research row directly in the current implementation;
+  proposal-gated Add-to-sheet remains future policy work;
   five new test cases in `passiveIntelligence.test.tsx` cover all three actions + the Research
   button hiding rule; live mutations validate actor proof.
 

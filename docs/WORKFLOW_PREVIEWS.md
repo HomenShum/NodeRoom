@@ -15,7 +15,10 @@ npm run workflow:previews:all
 
 The GIFs have explicit evidence levels:
 
-- `e2e/capture-previews.spec.ts` records the REAL app UI (memory mode) into GIFs; every shipped GIF is gated by the gemini-3.5-flash judge (`npm run qa:gif`). The old screenshot-slideshow generator was retired for honesty defects.
+- `e2e/capture-previews.spec.ts` records the REAL app UI (memory mode) into
+  workflow-preview GIFs; those previews are gated by the gemini-3.5-flash judge
+  (`npm run qa:gif`). Walkthrough GIFs use the separate media judge pipeline.
+  The old screenshot-slideshow generator was retired for honesty defects.
 - `render-workflow-preview.ts` builds trace replays from recorded ladder JSON.
 - `workflow:app-previews` captures the real NodeRoom DOM in memory mode.
 

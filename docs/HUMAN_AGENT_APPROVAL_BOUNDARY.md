@@ -4,7 +4,8 @@
 
 NodeRoom should preserve a clear boundary between human-owned source surfaces and agent-owned sidecars.
 
-The agent should usually read processed snapshots and write proposals. The human decides what becomes source-of-truth workspace state.
+The agent should usually read a processed read model and write Agent Artifacts
+or proposals. The human decides what becomes source-of-truth workspace state.
 
 ## Human-Owned Source Surfaces
 
@@ -22,6 +23,9 @@ The agent should usually read processed snapshots and write proposals. The human
 - scratchpads
 - entity work items
 - evidence cards
+- agent work plans
+- spreadsheet diff previews
+- planned-vs-actual reports
 - coach cues
 - review tasks
 - proposed sheet rows
@@ -43,9 +47,10 @@ Common actions:
 ## Default Rule
 
 ```text
-agent reads processed snapshot
-agent writes sidecar proposal
-human approves mutation
+agent reads processed read model
+agent writes structured Agent Artifact or sidecar proposal
+human approves structured payload hash or explicit action
+checked mutation applies the approved change
 system records receipt
 ```
 
@@ -73,6 +78,15 @@ Direct writes can be allowed when:
 ## Privacy Rule
 
 Private-derived output remains private by default. Promotion to room/public requires explicit approval and redaction when needed.
+
+## Rendering Rule
+
+Rendered React/MDX/HTML is a review surface. It is not the authority. For Agent
+Work Plans, the backend approves a canonical structured payload hash, starts a
+job with that hash, and records the approved hash on the queued job request.
+The planned-vs-actual artifact is remaining product/backend work: it should
+compare the approved plan hash, receipts, traces, cost, evidence, and final
+writes after execution.
 
 ## Product Principle
 

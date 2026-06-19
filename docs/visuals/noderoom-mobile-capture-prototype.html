@@ -1,0 +1,1480 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>NodeRoom Mobile Capture Prototype</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #07080a;
+      --phone: #0a0b0e;
+      --panel: #151a20;
+      --panel-2: #1a2027;
+      --panel-3: #101419;
+      --line: rgba(255, 255, 255, 0.11);
+      --line-strong: rgba(255, 255, 255, 0.18);
+      --ink: #f4f0ea;
+      --ink-2: #d7d1c8;
+      --muted: #9da7b4;
+      --soft: #687381;
+      --orange: #df7a56;
+      --orange-2: #ffb28e;
+      --orange-soft: rgba(223, 122, 86, 0.18);
+      --green: #3ec78d;
+      --green-soft: rgba(62, 199, 141, 0.16);
+      --amber: #f5a524;
+      --amber-soft: rgba(245, 165, 36, 0.14);
+      --font: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", system-ui, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; margin: 0; }
+    body {
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+      background: #08090b;
+      color: var(--ink);
+      font-family: var(--font);
+    }
+
+    button, textarea { font: inherit; }
+    button { cursor: pointer; }
+    :focus-visible {
+      outline: 2px solid var(--orange-2);
+      outline-offset: 2px;
+    }
+
+    .stage {
+      width: min(100vw, 640px);
+      height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+    }
+
+    .phone {
+      position: relative;
+      width: min(390px, calc(100vw - 32px));
+      height: min(852px, calc(100vh - 32px));
+      min-height: 680px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 40px;
+      background: var(--phone);
+      box-shadow: 0 40px 100px rgba(0, 0, 0, 0.65);
+    }
+
+    .phone::before {
+      content: "";
+      position: absolute;
+      left: 50%;
+      top: 11px;
+      z-index: 30;
+      width: 126px;
+      height: 36px;
+      border-radius: 22px;
+      background: #000;
+      transform: translateX(-50%);
+    }
+
+    .app {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      background: var(--phone);
+    }
+
+    .top {
+      padding: 24px 16px 9px;
+    }
+
+    .status {
+      height: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 42px;
+      color: #fff;
+      font-size: 13px;
+      font-weight: 850;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .status-icons {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .signal {
+      display: inline-grid;
+      grid-template-columns: repeat(4, 3px);
+      gap: 2px;
+      align-items: end;
+      height: 12px;
+    }
+
+    .signal span {
+      width: 3px;
+      border-radius: 2px;
+      background: currentColor;
+    }
+
+    .signal span:nth-child(1) { height: 5px; }
+    .signal span:nth-child(2) { height: 7px; }
+    .signal span:nth-child(3) { height: 9px; }
+    .signal span:nth-child(4) { height: 12px; }
+
+    .wifi {
+      width: 12px;
+      height: 9px;
+      border: 2px solid currentColor;
+      border-bottom: 0;
+      border-left-color: transparent;
+      border-right-color: transparent;
+      border-radius: 12px 12px 0 0;
+    }
+
+    .battery {
+      position: relative;
+      width: 22px;
+      height: 11px;
+      border: 1.4px solid currentColor;
+      border-radius: 4px;
+    }
+
+    .battery::before {
+      content: "";
+      position: absolute;
+      inset: 2px 5px 2px 2px;
+      border-radius: 2px;
+      background: currentColor;
+    }
+
+    .battery::after {
+      content: "";
+      position: absolute;
+      right: -4px;
+      top: 3px;
+      width: 2px;
+      height: 5px;
+      border-radius: 1px;
+      background: currentColor;
+    }
+
+    .roombar {
+      display: grid;
+      grid-template-columns: 31px minmax(0, 1fr) 35px;
+      gap: 9px;
+      align-items: center;
+      margin-top: 13px;
+    }
+
+    .avatar {
+      width: 31px;
+      height: 31px;
+      display: grid;
+      place-items: center;
+      border: 0;
+      border-radius: 8px;
+      background: var(--orange);
+      color: #fff;
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .room-name {
+      min-width: 0;
+    }
+
+    .room-name strong {
+      display: block;
+      overflow: hidden;
+      color: #fff;
+      font-size: 13px;
+      line-height: 1.15;
+      font-weight: 900;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .room-name span {
+      display: block;
+      margin-top: 2px;
+      overflow: hidden;
+      color: var(--muted);
+      font-size: 10px;
+      line-height: 1.2;
+      font-weight: 650;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .dot {
+      width: 6px;
+      height: 6px;
+      display: inline-block;
+      margin: 0 5px 1px;
+      border-radius: 50%;
+      background: var(--green);
+    }
+
+    .icon-button {
+      width: 35px;
+      height: 35px;
+      position: relative;
+      border: 1px solid var(--line-strong);
+      border-radius: 10px;
+      background: var(--panel-2);
+      color: var(--muted);
+    }
+
+    .bell::before {
+      content: "";
+      position: absolute;
+      left: 11px;
+      top: 9px;
+      width: 11px;
+      height: 12px;
+      border: 1.7px solid currentColor;
+      border-bottom: 0;
+      border-radius: 9px 9px 3px 3px;
+    }
+
+    .bell::after {
+      content: "";
+      position: absolute;
+      left: 15px;
+      top: 23px;
+      width: 5px;
+      height: 2px;
+      border-radius: 2px;
+      background: currentColor;
+    }
+
+    .mode {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      min-height: 26px;
+      margin-top: 11px;
+      border: 1px solid var(--line-strong);
+      border-radius: 13px;
+      background: var(--panel-2);
+      color: var(--ink-2);
+      padding: 0 10px;
+      font-size: 11px;
+      font-weight: 850;
+    }
+
+    .mode::before {
+      content: "";
+      width: 11px;
+      height: 7px;
+      border: 1.5px solid var(--orange);
+      border-radius: 50%;
+    }
+
+    .surface {
+      position: relative;
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    .screen {
+      position: absolute;
+      inset: 0;
+      display: none;
+      overflow-y: auto;
+      padding: 0 16px 104px;
+      scrollbar-width: none;
+      overscroll-behavior: contain;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .screen::-webkit-scrollbar { display: none; }
+    .screen[data-active="true"] { display: block; }
+
+    .capture-screen {
+      padding-top: 2px;
+    }
+
+    .screen-title {
+      margin: 4px 0 13px;
+    }
+
+    .screen-title strong {
+      display: block;
+      color: #fff;
+      font-size: 17px;
+      line-height: 1.15;
+      font-weight: 900;
+    }
+
+    .screen-title span {
+      display: block;
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.3;
+    }
+
+    .focus-card {
+      transition:
+        border-color 160ms ease,
+        box-shadow 160ms ease,
+        opacity 160ms ease,
+        transform 160ms ease,
+        background-color 160ms ease;
+      will-change: transform, opacity;
+    }
+
+    .screen[data-focus="true"] .focus-card:not([data-selected="true"]) {
+      opacity: 0.42;
+      transform: scale(0.992);
+    }
+
+    .focus-card:hover,
+    .focus-card:focus-within,
+    .focus-card[data-selected="true"] {
+      opacity: 1;
+      border-color: rgba(255, 178, 142, 0.62);
+      box-shadow:
+        0 0 0 1px rgba(255, 178, 142, 0.16),
+        0 0 32px rgba(223, 122, 86, 0.18),
+        0 18px 40px rgba(0, 0, 0, 0.38);
+      transform: translateY(-1px);
+    }
+
+    .note-card {
+      overflow: hidden;
+      border: 1px solid var(--line-strong);
+      border-left-color: var(--orange);
+      border-radius: 10px;
+      background: var(--panel);
+    }
+
+    .note-input {
+      width: 100%;
+      min-height: 134px;
+      resize: none;
+      border: 0;
+      outline: 0;
+      background: transparent;
+      color: var(--ink);
+      padding: 16px 17px 12px;
+      font-size: 18px;
+      line-height: 1.42;
+      font-weight: 760;
+      caret-color: var(--orange-2);
+    }
+
+    .note-input::placeholder {
+      color: #697381;
+    }
+
+    .note-foot {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 36px;
+      border-top: 1px solid var(--line);
+      padding: 0 17px;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 650;
+    }
+
+    .saved {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .saved::before {
+      content: "";
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--green);
+    }
+
+    .cursor-dot {
+      width: 9px;
+      height: 9px;
+      position: absolute;
+      right: 29px;
+      top: 124px;
+      border: 1.5px solid #fff;
+      border-radius: 50%;
+      background: var(--amber);
+      box-shadow: 0 0 0 5px rgba(245, 165, 36, 0.08);
+      pointer-events: none;
+    }
+
+    .note-wrap {
+      position: relative;
+    }
+
+    .label {
+      margin: 18px 0 10px;
+      color: var(--muted);
+      font-size: 10px;
+      line-height: 1;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+
+    .chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      min-height: 25px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border: 1px solid var(--line-strong);
+      border-radius: 13px;
+      background: var(--panel-2);
+      color: var(--ink-2);
+      padding: 0 10px;
+      font-size: 10px;
+      font-weight: 850;
+      white-space: nowrap;
+    }
+
+    .chip span {
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+
+    .chip::before {
+      content: "";
+      width: 9px;
+      height: 9px;
+      border: 1.5px solid var(--orange);
+      border-radius: 3px;
+    }
+
+    .chip.person::before { border-radius: 50%; }
+    .chip.signal::before {
+      border: 0;
+      border-left: 2px solid var(--orange);
+      border-bottom: 2px solid var(--orange);
+      transform: skewY(-18deg);
+    }
+
+    .chip.gap::before {
+      border-radius: 50%;
+      border-style: dotted;
+    }
+
+    .insight {
+      min-height: 72px;
+      display: grid;
+      grid-template-columns: 44px minmax(0, 1fr) 34px;
+      gap: 10px;
+      align-items: center;
+      margin-top: 13px;
+      border: 1px solid rgba(223, 122, 86, 0.48);
+      border-radius: 10px;
+      background: #1a1412;
+      padding: 10px 11px;
+    }
+
+    .spark {
+      width: 34px;
+      height: 34px;
+      position: relative;
+      border: 0;
+      border-radius: 9px;
+      background: var(--orange);
+    }
+
+    .spark::before,
+    .spark::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 13px;
+      height: 2px;
+      border-radius: 2px;
+      background: #fff;
+      transform: translate(-50%, -50%) rotate(45deg);
+    }
+
+    .spark::after {
+      transform: translate(-50%, -50%) rotate(-45deg);
+    }
+
+    .insight strong {
+      display: block;
+      overflow: hidden;
+      color: var(--ink);
+      font-size: 12px;
+      line-height: 1.2;
+      font-weight: 900;
+      text-align: center;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .insight span {
+      display: block;
+      margin-top: 2px;
+      color: var(--ink-2);
+      font-size: 11px;
+      line-height: 1.25;
+      text-align: center;
+    }
+
+    .arrow {
+      width: 27px;
+      height: 27px;
+      display: grid;
+      place-items: center;
+      border: 0;
+      border-radius: 50%;
+      background: var(--orange);
+      color: #fff;
+      font-size: 17px;
+      font-weight: 900;
+    }
+
+    .privacy {
+      margin: 16px 1px 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.42;
+      font-weight: 650;
+    }
+
+    .stack {
+      display: grid;
+      gap: 10px;
+    }
+
+    .feed-card,
+    .room-card,
+    .coach-card {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: var(--panel-3);
+      padding: 13px;
+    }
+
+    .feed-card.hot {
+      border-color: rgba(223, 122, 86, 0.42);
+      background: #15110f;
+    }
+
+    .feed-card.done {
+      border-color: rgba(62, 199, 141, 0.35);
+    }
+
+    .feed-card[data-hidden="true"] { display: none; }
+
+    .card-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .card-top strong,
+    .feed-title,
+    .room-card strong,
+    .coach-card strong {
+      display: block;
+      color: #fff;
+      font-size: 15px;
+      line-height: 1.2;
+      font-weight: 900;
+    }
+
+    .feed-title {
+      font-size: 17px;
+    }
+
+    .card-top span,
+    .feed-card p,
+    .room-card p,
+    .coach-card p {
+      margin: 5px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .pill {
+      min-height: 25px;
+      display: inline-flex;
+      align-items: center;
+      border: 1px solid var(--line-strong);
+      border-radius: 13px;
+      background: var(--panel-2);
+      color: var(--muted);
+      padding: 0 9px;
+      font-size: 10px;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .pill.hot {
+      border-color: rgba(223, 122, 86, 0.46);
+      background: var(--orange-soft);
+      color: var(--orange-2);
+    }
+
+    .pill.ready {
+      border-color: rgba(62, 199, 141, 0.34);
+      background: var(--green-soft);
+      color: var(--green);
+    }
+
+    .mini-actions {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .btn {
+      min-height: 39px;
+      border: 1px solid var(--line-strong);
+      border-radius: 10px;
+      background: var(--panel-2);
+      color: var(--ink);
+      padding: 0 12px;
+      font-size: 12px;
+      font-weight: 900;
+      touch-action: manipulation;
+    }
+
+    .btn.primary {
+      border-color: var(--orange);
+      background: var(--orange);
+      color: #160c08;
+    }
+
+    .btn.icon {
+      width: 39px;
+      padding: 0;
+      border-radius: 50%;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .stat {
+      min-height: 86px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: var(--panel-3);
+      padding: 12px;
+    }
+
+    .stat span {
+      display: block;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.2;
+      font-weight: 850;
+    }
+
+    .stat strong {
+      display: block;
+      margin-top: 10px;
+      color: var(--ink);
+      font-size: 22px;
+      line-height: 1;
+      font-weight: 950;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .coach-input {
+      width: 100%;
+      min-height: 106px;
+      resize: none;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      outline: 0;
+      background: var(--panel-3);
+      color: var(--ink);
+      padding: 12px;
+      font-size: 14px;
+      line-height: 1.45;
+    }
+
+    .bottom {
+      position: absolute;
+      left: 13px;
+      right: 13px;
+      bottom: 14px;
+      z-index: 15;
+    }
+
+    .tabs {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 4px;
+      min-height: 68px;
+      border: 1px solid var(--line-strong);
+      border-radius: 18px;
+      background: #14181e;
+      padding: 6px;
+      box-shadow: 0 18px 50px rgba(0, 0, 0, 0.48);
+    }
+
+    .tab {
+      position: relative;
+      border: 0;
+      border-radius: 13px;
+      background: transparent;
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 850;
+    }
+
+    .tab::before {
+      content: "";
+      display: block;
+      width: 18px;
+      height: 18px;
+      margin: 0 auto 4px;
+      border: 1.7px solid currentColor;
+      border-radius: 5px;
+    }
+
+    .tab.capture::before {
+      width: 17px;
+      height: 17px;
+      border: 0;
+      border-left: 2px solid currentColor;
+      border-bottom: 2px solid currentColor;
+      border-radius: 0;
+      transform: rotate(-45deg);
+    }
+
+    .tab.inbox::before {
+      border-top: 0;
+      border-radius: 3px 3px 6px 6px;
+    }
+
+    .tab.room::before {
+      border-radius: 2px;
+      box-shadow: inset 6px 0 0 transparent;
+    }
+
+    .tab.coach::before {
+      height: 14px;
+      border-radius: 50% 50% 4px 4px;
+    }
+
+    .tab[data-active="true"] {
+      background: var(--orange-soft);
+      color: var(--orange-2);
+    }
+
+    .badge {
+      position: absolute;
+      left: 50%;
+      top: 22px;
+      min-width: 15px;
+      height: 15px;
+      display: none;
+      place-items: center;
+      border: 1px solid #fff;
+      border-radius: 9px;
+      background: var(--orange);
+      color: #fff;
+      font-size: 9px;
+      font-weight: 900;
+    }
+
+    .badge[data-show="true"] { display: grid; }
+
+    .home {
+      width: 138px;
+      height: 4px;
+      margin: 10px auto 0;
+      border-radius: 4px;
+      background: rgba(255, 255, 255, 0.72);
+    }
+
+    .overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 20;
+      display: none;
+      background: rgba(0, 0, 0, 0.58);
+    }
+
+    .overlay[data-open="true"] { display: block; }
+
+    .sheet {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 21;
+      display: none;
+      max-height: 76%;
+      min-height: 44%;
+      overflow: hidden;
+      border: 1px solid var(--line-strong);
+      border-radius: 22px 22px 0 0;
+      background: #11161b;
+      box-shadow: 0 -24px 70px rgba(0, 0, 0, 0.58);
+    }
+
+    .sheet[data-open="true"] {
+      display: grid;
+      grid-template-rows: auto 1fr;
+    }
+
+    .handle {
+      width: 42px;
+      height: 4px;
+      margin: 9px auto 8px;
+      border-radius: 4px;
+      background: #56606d;
+    }
+
+    .sheet-head {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 40px;
+      align-items: center;
+      gap: 10px;
+      padding: 0 16px 12px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .sheet-head strong {
+      display: block;
+      color: #fff;
+      font-size: 18px;
+      line-height: 1.2;
+      font-weight: 950;
+    }
+
+    .sheet-head span {
+      display: block;
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.3;
+    }
+
+    .close {
+      width: 40px;
+      height: 40px;
+      border: 1px solid var(--line-strong);
+      border-radius: 12px;
+      background: var(--panel-2);
+      color: var(--ink);
+      font-size: 20px;
+      line-height: 1;
+    }
+
+    .sheet-body {
+      min-height: 0;
+      overflow-y: auto;
+      padding: 14px 16px 16px;
+    }
+
+    .sheet-list {
+      display: grid;
+      gap: 9px;
+    }
+
+    .sheet-item {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: var(--panel-3);
+      padding: 12px;
+    }
+
+    .sheet-item strong {
+      display: block;
+      color: #fff;
+      font-size: 13px;
+      line-height: 1.25;
+      font-weight: 900;
+    }
+
+    .sheet-item span,
+    .sheet-item p {
+      display: block;
+      margin: 5px 0 0;
+      color: var(--ink-2);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .sheet-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 9px;
+      margin-top: 12px;
+    }
+
+    .notification {
+      position: absolute;
+      left: 16px;
+      right: 16px;
+      top: 112px;
+      z-index: 24;
+      display: none;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 10px;
+      align-items: center;
+      border: 1px solid rgba(223, 122, 86, 0.46);
+      border-radius: 14px;
+      background: #1a1412;
+      padding: 11px;
+      box-shadow: 0 18px 50px rgba(0, 0, 0, 0.48);
+    }
+
+    .notification[data-show="true"] { display: grid; }
+
+    .notification strong {
+      display: block;
+      color: #fff;
+      font-size: 13px;
+      line-height: 1.2;
+      font-weight: 900;
+    }
+
+    .notification span {
+      display: block;
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.3;
+    }
+
+    .toast {
+      position: absolute;
+      left: 28px;
+      right: 28px;
+      bottom: 98px;
+      z-index: 25;
+      display: none;
+      min-height: 38px;
+      align-items: center;
+      justify-content: center;
+      border-radius: 12px;
+      background: var(--ink);
+      color: #11161b;
+      padding: 0 12px;
+      font-size: 12px;
+      font-weight: 900;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.42);
+    }
+
+    .toast[data-show="true"] { display: flex; }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation: none !important;
+        transition: none !important;
+        scroll-behavior: auto !important;
+      }
+    }
+
+    @media (max-width: 430px) {
+      body { display: block; }
+      .stage {
+        width: 100vw;
+        height: 100vh;
+        padding: 0;
+      }
+      .phone {
+        width: 100%;
+        height: 100%;
+        min-height: 0;
+        border: 0;
+        border-radius: 0;
+        box-shadow: none;
+      }
+      .phone::before { top: 10px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="stage">
+    <section class="phone" aria-label="NodeRoom mobile capture prototype">
+      <div class="app">
+        <header class="top">
+          <div class="status" aria-hidden="true">
+            <span>9:41</span>
+            <span class="status-icons">
+              <span class="signal"><span></span><span></span><span></span><span></span></span>
+              <span class="wifi"></span>
+              <span class="battery"></span>
+            </span>
+          </div>
+          <div class="roombar">
+            <div class="avatar">N</div>
+            <div class="room-name">
+              <strong>Q3 Diligence</strong>
+              <span>NR7K9 <span class="dot"></span> 6 live - private capture</span>
+            </div>
+            <button class="icon-button bell" type="button" id="bell" aria-label="Notifications"></button>
+          </div>
+          <button class="mode" type="button" id="mode">Mode - Suggest only</button>
+        </header>
+
+        <section class="surface">
+          <section class="screen capture-screen" data-screen="capture" data-active="true" aria-label="Capture">
+            <div class="note-wrap">
+              <article class="note-card focus-card" id="note-card" data-selected="true">
+                <textarea class="note-input" id="note-input" aria-label="Capture note">Met Maya from CardioNova at the healthtech mixer. Possible Series B. Ask about monthly burn and whether the hospital pilots are paid.</textarea>
+                <div class="note-foot">
+                  <span class="saved" id="save-state">Saved - scanning after pause</span>
+                  <span id="word-count">22 words - private</span>
+                </div>
+              </article>
+              <span class="cursor-dot" aria-hidden="true"></span>
+            </div>
+
+            <div class="label">Detected in this note</div>
+            <div class="chip-row" id="detected">
+              <span class="chip"><span>Company</span> CardioNova</span>
+              <span class="chip person"><span>Person</span> Maya Chen</span>
+              <span class="chip signal"><span>Signal</span> Series B</span>
+              <span class="chip gap"><span>Gap</span> paid pilots</span>
+            </div>
+
+            <article class="insight focus-card" id="insight-card">
+              <span class="spark" aria-hidden="true"></span>
+              <div>
+                <strong>NodeRoom noticed CardioNova</strong>
+                <span>Company, person, funding signal, and a source gap.</span>
+              </div>
+              <button class="arrow" type="button" id="open-plan" aria-label="Review work plan">-&gt;</button>
+            </article>
+
+            <p class="privacy">Raw notes stay private. NodeRoom only surfaces structured signals - it never edits your note or researches without approval.</p>
+          </section>
+
+          <section class="screen" data-screen="inbox" aria-label="Inbox">
+            <div class="screen-title">
+              <strong>Inbox</strong>
+              <span>Only things that need a decision.</span>
+            </div>
+            <div class="stack">
+              <article class="feed-card hot focus-card" id="plan-card">
+                <div class="card-top">
+                  <div>
+                    <strong>Approval needed</strong>
+                    <span>CardioNova work plan</span>
+                  </div>
+                  <span class="pill hot" id="plan-state">ready</span>
+                </div>
+                <span class="feed-title" id="plan-title">Research paid pilot signal?</span>
+                <p id="plan-copy">Read-only agent can check room context, approved sources, and the OKF cache. No writes until you accept a proposal.</p>
+                <div class="mini-actions">
+                  <button class="btn primary" type="button" data-open-plan>Review plan</button>
+                  <button class="btn icon" type="button" id="dismiss-card" aria-label="Dismiss">x</button>
+                </div>
+              </article>
+
+              <article class="feed-card done focus-card" id="evidence-card" data-hidden="true">
+                <div class="card-top">
+                  <div>
+                    <strong>Evidence ready</strong>
+                    <span>Phone notification deep link</span>
+                  </div>
+                  <span class="pill ready">ready</span>
+                </div>
+                <span class="feed-title">CardioNova evidence ready</span>
+                <p>Deck page 12 supports paid pilots. Funding signal still needs confirmation.</p>
+                <div class="mini-actions">
+                  <button class="btn primary" type="button" id="open-evidence">Open evidence</button>
+                  <button class="btn icon" type="button" data-nav="coach" aria-label="Coach">-&gt;</button>
+                </div>
+              </article>
+            </div>
+          </section>
+
+          <section class="screen" data-screen="room" aria-label="Room">
+            <div class="screen-title">
+              <strong>Room</strong>
+              <span>High-signal status, not desktop chrome.</span>
+            </div>
+            <div class="stats">
+              <div class="stat"><span>Approvals</span><strong id="approval-count">1</strong></div>
+              <div class="stat"><span>Agents running</span><strong id="agent-count">0</strong></div>
+              <div class="stat"><span>Source gaps</span><strong>1</strong></div>
+              <div class="stat"><span>Private notes</span><strong>1</strong></div>
+            </div>
+            <div class="stack">
+              <article class="room-card focus-card">
+                <strong>Agent boundary</strong>
+                <p>Mobile approvals create proposals, evidence receipts, and follow-ups. The room state changes only after explicit accept.</p>
+              </article>
+              <article class="room-card focus-card">
+                <strong>Latest receipt</strong>
+                <p id="receipt-copy">No agent run yet.</p>
+              </article>
+            </div>
+          </section>
+
+          <section class="screen" data-screen="coach" aria-label="Coach">
+            <div class="screen-title">
+              <strong>Coach</strong>
+              <span>Review readiness from the same evidence.</span>
+            </div>
+            <div class="stack">
+              <article class="coach-card focus-card">
+                <strong>Partner asks: why CardioNova?</strong>
+                <p id="coach-feedback">Mention the possible Series B, identify the paid pilot source gap, and ask for burn before making a claim.</p>
+              </article>
+              <textarea class="coach-input focus-card" aria-label="Practice answer" placeholder="Draft a 20 second answer..."></textarea>
+            </div>
+          </section>
+        </section>
+
+        <nav class="bottom" aria-label="Primary">
+          <div class="tabs">
+            <button class="tab capture" type="button" data-nav="capture" data-active="true">Capture</button>
+            <button class="tab inbox" type="button" data-nav="inbox">Inbox<span class="badge" id="inbox-badge" data-show="true">1</span></button>
+            <button class="tab room" type="button" data-nav="room">Room</button>
+            <button class="tab coach" type="button" data-nav="coach">Coach</button>
+          </div>
+          <div class="home" aria-hidden="true"></div>
+        </nav>
+      </div>
+
+      <div class="overlay" id="overlay"></div>
+
+      <section class="sheet" id="mode-sheet" aria-label="Passive intelligence mode">
+        <div>
+          <div class="handle"></div>
+          <header class="sheet-head">
+            <div>
+              <strong>Suggest only</strong>
+              <span>NodeRoom can detect signals, but it cannot research or write without approval.</span>
+            </div>
+            <button class="close" type="button" data-close aria-label="Close">x</button>
+          </header>
+        </div>
+        <div class="sheet-body">
+          <div class="sheet-list">
+            <div class="sheet-item">
+              <strong>Private capture first</strong>
+              <span>The raw note remains user-owned text.</span>
+            </div>
+            <div class="sheet-item">
+              <strong>Structured sidecars only</strong>
+              <span>Detected company, person, signal, and source gap sit beside the note.</span>
+            </div>
+            <div class="sheet-item">
+              <strong>No silent mutation</strong>
+              <span>Agents create plans and evidence. They do not edit the live notebook.</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="sheet" id="plan-sheet" aria-label="Agent work plan">
+        <div>
+          <div class="handle"></div>
+          <header class="sheet-head">
+            <div>
+              <strong>Work plan</strong>
+              <span>Read-only research for CardioNova.</span>
+            </div>
+            <button class="close" type="button" data-close aria-label="Close">x</button>
+          </header>
+        </div>
+        <div class="sheet-body">
+          <div class="sheet-list">
+            <div class="sheet-item">
+              <strong>Inputs</strong>
+              <span>Private note sidecar, OKF cache, room-approved sources.</span>
+            </div>
+            <div class="sheet-item">
+              <strong>Plan</strong>
+              <span>Check paid pilots, confirm funding signal, leave burn as needs_review.</span>
+            </div>
+            <div class="sheet-item">
+              <strong>Output</strong>
+              <span>Evidence receipt and optional row proposal. Zero writes until accepted.</span>
+            </div>
+          </div>
+          <div class="sheet-actions">
+            <button class="btn primary" type="button" id="run-research">Run research</button>
+            <button class="btn" type="button" data-close>Later</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="sheet" id="evidence-sheet" aria-label="Evidence preview">
+        <div>
+          <div class="handle"></div>
+          <header class="sheet-head">
+            <div>
+              <strong>Evidence</strong>
+              <span>Proposal requires acceptance.</span>
+            </div>
+            <button class="close" type="button" data-close aria-label="Close">x</button>
+          </header>
+        </div>
+        <div class="sheet-body">
+          <div class="sheet-list">
+            <div class="sheet-item">
+              <strong>Verified with caveat</strong>
+              <span>Deck page 12 supports paid pilots. Funding signal still needs confirmation.</span>
+            </div>
+            <div class="sheet-item">
+              <strong>Recommended row</strong>
+              <span>CardioNova - paid pilot evidence found - burn remains needs_review.</span>
+            </div>
+            <div class="sheet-item">
+              <strong>Trace</strong>
+              <span id="trace-copy">Receipt r_mob19: 4 planned reads, 4 actual reads, 0 writes.</span>
+            </div>
+          </div>
+          <div class="sheet-actions">
+            <button class="btn primary" type="button" id="accept-proposal">Accept</button>
+            <button class="btn" type="button" id="create-followup">Follow-up</button>
+          </div>
+        </div>
+      </section>
+
+      <div class="notification" id="notification">
+        <div>
+          <strong>Evidence ready</strong>
+          <span>CardioNova receipt available.</span>
+        </div>
+        <button class="btn icon primary" type="button" id="open-notification" aria-label="Open evidence">-&gt;</button>
+      </div>
+
+      <div class="toast" id="toast" role="status" aria-live="polite">Ready.</div>
+    </section>
+  </main>
+
+  <script>
+    const screens = Array.from(document.querySelectorAll(".screen"));
+    const tabs = Array.from(document.querySelectorAll(".tab"));
+    const navButtons = Array.from(document.querySelectorAll("[data-nav]"));
+    const focusCards = Array.from(document.querySelectorAll(".focus-card"));
+    const overlay = document.querySelector("#overlay");
+    const modeSheet = document.querySelector("#mode-sheet");
+    const planSheet = document.querySelector("#plan-sheet");
+    const evidenceSheet = document.querySelector("#evidence-sheet");
+    const noteInput = document.querySelector("#note-input");
+    const noteCard = document.querySelector("#note-card");
+    const insightCard = document.querySelector("#insight-card");
+    const saveState = document.querySelector("#save-state");
+    const wordCount = document.querySelector("#word-count");
+    const inboxBadge = document.querySelector("#inbox-badge");
+    const evidenceCard = document.querySelector("#evidence-card");
+    const notification = document.querySelector("#notification");
+    const toast = document.querySelector("#toast");
+    const approvalCount = document.querySelector("#approval-count");
+    const agentCount = document.querySelector("#agent-count");
+    const receiptCopy = document.querySelector("#receipt-copy");
+    const planState = document.querySelector("#plan-state");
+    const planTitle = document.querySelector("#plan-title");
+    const planCopy = document.querySelector("#plan-copy");
+    const coachFeedback = document.querySelector("#coach-feedback");
+    let saveTimer;
+    let scanTimer;
+    let toastTimer;
+    let researchTimer;
+    let researchDone = false;
+
+    function currentScreen() {
+      return screens.find((screen) => screen.dataset.active === "true");
+    }
+
+    function setFocusCard(card) {
+      screens.forEach((screen) => {
+        screen.dataset.focus = "false";
+      });
+      focusCards.forEach((item) => {
+        item.dataset.selected = "false";
+      });
+      const screen = card.closest(".screen");
+      if (!screen || screen.dataset.active !== "true") return;
+      screen.dataset.focus = "true";
+      card.dataset.selected = "true";
+    }
+
+    function clearFocus() {
+      screens.forEach((screen) => {
+        screen.dataset.focus = "false";
+      });
+      focusCards.forEach((item) => {
+        item.dataset.selected = "false";
+      });
+    }
+
+    function showToast(message) {
+      toast.textContent = message;
+      toast.dataset.show = "true";
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => {
+        toast.dataset.show = "false";
+      }, 1400);
+    }
+
+    function showScreen(name) {
+      clearFocus();
+      screens.forEach((screen) => {
+        screen.dataset.active = String(screen.dataset.screen === name);
+      });
+      tabs.forEach((tab) => {
+        tab.dataset.active = String(tab.dataset.nav === name);
+      });
+      if (name === "capture") {
+        setTimeout(() => {
+          noteInput.focus();
+          setFocusCard(noteCard);
+        }, 30);
+      }
+    }
+
+    function openSheet(sheet) {
+      overlay.dataset.open = "true";
+      sheet.dataset.open = "true";
+    }
+
+    function closeSheets() {
+      overlay.dataset.open = "false";
+      modeSheet.dataset.open = "false";
+      planSheet.dataset.open = "false";
+      evidenceSheet.dataset.open = "false";
+    }
+
+    function countWords(value) {
+      const words = value.trim().split(/\s+/).filter(Boolean);
+      return words.length;
+    }
+
+    function markDetected() {
+      saveState.textContent = "Saved - scanning after pause";
+      inboxBadge.dataset.show = "true";
+      approvalCount.textContent = "1";
+      setFocusCard(insightCard);
+    }
+
+    function updateNoteMeta() {
+      const count = countWords(noteInput.value);
+      wordCount.textContent = `${count} words - private`;
+      saveState.textContent = "Saving locally";
+      clearTimeout(saveTimer);
+      clearTimeout(scanTimer);
+      saveTimer = setTimeout(() => {
+        saveState.textContent = "Saved - scanning after pause";
+      }, 260);
+      scanTimer = setTimeout(markDetected, 760);
+    }
+
+    function finishResearch() {
+      researchDone = true;
+      agentCount.textContent = "0";
+      approvalCount.textContent = "1";
+      planState.textContent = "evidence";
+      planTitle.textContent = "Evidence ready";
+      planCopy.textContent = "Paid pilot support found. Review the receipt before accepting the row proposal.";
+      evidenceCard.dataset.hidden = "false";
+      notification.dataset.show = "true";
+      receiptCopy.textContent = "Receipt r_mob19: 4 reads, 0 writes, evidence preview ready.";
+      coachFeedback.textContent = "Strong answer: cite deck page 12 for paid pilots, say Series B is unconfirmed, and ask for burn before recommending.";
+      showToast("Evidence ready.");
+    }
+
+    function runResearch() {
+      closeSheets();
+      agentCount.textContent = "1";
+      planState.textContent = "running";
+      planTitle.textContent = "Research running";
+      planCopy.textContent = "Read-only agent is checking room context, approved sources, and OKF cache.";
+      showScreen("inbox");
+      showToast("Read-only research started.");
+      clearTimeout(researchTimer);
+      researchTimer = setTimeout(finishResearch, 900);
+    }
+
+    function acceptProposal() {
+      if (!researchDone) {
+        showToast("Evidence is not ready.");
+        return;
+      }
+      closeSheets();
+      approvalCount.textContent = "0";
+      inboxBadge.dataset.show = "false";
+      planState.textContent = "accepted";
+      planTitle.textContent = "Proposal accepted";
+      planCopy.textContent = "CardioNova row proposal accepted with receipt r_mob19. Undo remains available from desktop history.";
+      receiptCopy.textContent = "Receipt r_mob19 accepted: row proposal applied, 0 direct notebook writes.";
+      showToast("Accepted with trace.");
+    }
+
+    focusCards.forEach((card) => {
+      card.addEventListener("pointerenter", () => setFocusCard(card));
+      card.addEventListener("pointerdown", () => setFocusCard(card));
+      card.addEventListener("focusin", () => setFocusCard(card));
+    });
+
+    navButtons.forEach((button) => {
+      button.addEventListener("click", () => showScreen(button.dataset.nav));
+    });
+
+    noteInput.addEventListener("input", updateNoteMeta);
+    document.querySelector("#mode").addEventListener("click", () => openSheet(modeSheet));
+    document.querySelector("#bell").addEventListener("click", () => {
+      if (researchDone) {
+        showScreen("inbox");
+        openSheet(evidenceSheet);
+      } else {
+        showToast("No new notifications.");
+      }
+    });
+    document.querySelector("#open-plan").addEventListener("click", () => openSheet(planSheet));
+    document.querySelectorAll("[data-open-plan]").forEach((button) => {
+      button.addEventListener("click", () => openSheet(planSheet));
+    });
+    document.querySelector("#run-research").addEventListener("click", runResearch);
+    document.querySelector("#open-evidence").addEventListener("click", () => openSheet(evidenceSheet));
+    document.querySelector("#open-notification").addEventListener("click", () => {
+      notification.dataset.show = "false";
+      showScreen("inbox");
+      openSheet(evidenceSheet);
+    });
+    document.querySelector("#accept-proposal").addEventListener("click", acceptProposal);
+    document.querySelector("#create-followup").addEventListener("click", () => showToast("Follow-up created."));
+    document.querySelector("#dismiss-card").addEventListener("click", () => {
+      approvalCount.textContent = "0";
+      inboxBadge.dataset.show = "false";
+      planState.textContent = "dismissed";
+      planTitle.textContent = "Card dismissed";
+      planCopy.textContent = "No agent work will run. The capture remains private.";
+      showToast("Dismissed.");
+    });
+    document.querySelectorAll("[data-close]").forEach((button) => {
+      button.addEventListener("click", closeSheets);
+    });
+    overlay.addEventListener("click", closeSheets);
+
+    wordCount.textContent = `${countWords(noteInput.value)} words - private`;
+    saveState.textContent = "Saved - scanning after pause";
+  </script>
+</body>
+</html>

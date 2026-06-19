@@ -85,6 +85,38 @@ const entityWorkStatusV = v.union(
   v.literal("failed"),
   v.literal("cancelled"),
 );
+const notebookDirtyStateV = v.union(
+  v.literal("pending"),
+  v.literal("processing"),
+  v.literal("processed"),
+  v.literal("superseded"),
+  v.literal("failed"),
+);
+const notebookProcessingLaneV = v.union(
+  v.literal("passive"),
+  v.literal("coach"),
+  v.literal("index"),
+);
+const notebookProcessingStatusV = v.union(
+  v.literal("running"),
+  v.literal("completed"),
+  v.literal("failed"),
+);
+const agentArtifactKindV = v.union(
+  v.literal("agent_work_plan"),
+  v.literal("spreadsheet_diff_preview"),
+  v.literal("evidence_card"),
+  v.literal("coach_feedback"),
+  v.literal("planned_vs_actual"),
+);
+const agentArtifactStatusV = v.union(
+  v.literal("draft"),
+  v.literal("proposed"),
+  v.literal("approved"),
+  v.literal("executed"),
+  v.literal("rejected"),
+  v.literal("superseded"),
+);
 
 export default defineSchema({
   rooms: defineTable({
@@ -364,9 +396,10 @@ export default defineSchema({
 
   /** Native notebook wrapper registry. Maps a `note` artifact's "doc" element to the
    *  ProseMirror Sync component document id, so NodeRoom business semantics (room/artifact/
-   *  visibility/owner) stay outside the collaborative-text component. The snapshot adapter
-   *  looks up rows here to translate `onSnapshot(id, ...)` into a `roomActivityOutbox` enqueue.
-   *  Only created behind VITE_NOTEBOOK_SYNC=prosemirror; legacy notes never get a row. */
+   *  visibility/owner) stay outside the collaborative-text component. `onSnapshot(id, ...)`
+   *  uses this row for registry hash/version tracking only; passive intelligence is enqueued
+   *  by the canonical `applyCellEdit` commit path. Only created behind
+   *  VITE_NOTEBOOK_SYNC=prosemirror; legacy notes never get a row. */
   notebookDocuments: defineTable({
     roomId: v.id("rooms"),
     artifactId: v.id("artifacts"),
@@ -382,6 +415,149 @@ export default defineSchema({
   })
     .index("by_room_artifact_element", ["roomId", "artifactId", "elementId"])
     .index("by_prosemirror_doc", ["prosemirrorDocId"]),
+
+  /** Target native-notebook processing trigger. A dirty event contains actor,
+   * policy, version/hash, range, and lane metadata only. It never stores the
+   * notebook body; the processor reads the latest ProseMirror snapshot through
+   * notebookDocuments ACL before writing the read model. */
+  notebookDirtyEvents: defineTable({
+    roomId: v.id("rooms"),
+    artifactId: v.id("artifacts"),
+    notebookDocumentId: v.id("notebookDocuments"),
+    prosemirrorDocId: v.string(),
+    actor,
+    actorId: v.string(),
+    visibility: visibilityV,
+    ownerId: v.optional(v.string()),
+    observedSnapshotVersion: v.optional(v.number()),
+    observedSnapshotHash: v.optional(v.string()),
+    changedRangeHint: v.optional(v.string()),
+    processingLane: notebookProcessingLaneV,
+    state: notebookDirtyStateV,
+    dirtyAt: v.number(),
+    quietUntil: v.optional(v.number()),
+    maxWaitAt: v.number(),
+    latestProcessingJobId: v.optional(v.id("notebookProcessingJobs")),
+    error: v.optional(v.string()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+    processedAt: v.optional(v.number()),
+  })
+    .index("by_doc_actor_lane_state", ["prosemirrorDocId", "actorId", "processingLane", "state"])
+    .index("by_room_state", ["roomId", "state", "updatedAt"])
+    .index("by_state_maxWaitAt", ["state", "maxWaitAt"]),
+
+  /** One processor receipt per claimed dirty event. The action owns external or
+   * component reads; this mutation-owned row records what snapshot version/hash
+   * was processed and what read-model rows were produced. */
+  notebookProcessingJobs: defineTable({
+    dirtyEventId: v.id("notebookDirtyEvents"),
+    roomId: v.id("rooms"),
+    artifactId: v.id("artifacts"),
+    prosemirrorDocId: v.string(),
+    actorId: v.string(),
+    visibility: visibilityV,
+    ownerId: v.optional(v.string()),
+    docVersion: v.optional(v.number()),
+    docHash: v.optional(v.string()),
+    processorVersion: v.string(),
+    schemaVersion: v.string(),
+    status: notebookProcessingStatusV,
+    resultSummary: v.optional(v.any()),
+    error: v.optional(v.string()),
+    startedAt: v.number(),
+    completedAt: v.optional(v.number()),
+  })
+    .index("by_dirty_event", ["dirtyEventId"])
+    .index("by_room", ["roomId", "startedAt"]),
+
+  notebookBlocks: defineTable({
+    roomId: v.id("rooms"),
+    artifactId: v.id("artifacts"),
+    dirtyEventId: v.id("notebookDirtyEvents"),
+    processingJobId: v.id("notebookProcessingJobs"),
+    prosemirrorDocId: v.string(),
+    blockId: v.string(),
+    blockIndex: v.number(),
+    blockType: v.string(),
+    text: v.string(),
+    textHash: v.string(),
+    sourceSnapshotVersion: v.number(),
+    sourceSnapshotHash: v.string(),
+    visibility: visibilityV,
+    ownerId: v.optional(v.string()),
+    actorId: v.string(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_artifact", ["artifactId", "blockIndex"])
+    .index("by_dirty_event", ["dirtyEventId", "blockIndex"])
+    .index("by_room_visibility_owner", ["roomId", "visibility", "ownerId", "updatedAt"]),
+
+  notebookClaims: defineTable({
+    roomId: v.id("rooms"),
+    artifactId: v.id("artifacts"),
+    dirtyEventId: v.id("notebookDirtyEvents"),
+    processingJobId: v.id("notebookProcessingJobs"),
+    claimId: v.string(),
+    blockId: v.string(),
+    text: v.string(),
+    confidence: v.union(v.literal("high"), v.literal("medium"), v.literal("low")),
+    sourceSnapshotVersion: v.number(),
+    sourceSnapshotHash: v.string(),
+    visibility: visibilityV,
+    ownerId: v.optional(v.string()),
+    actorId: v.string(),
+    createdAt: v.number(),
+  })
+    .index("by_artifact", ["artifactId", "createdAt"])
+    .index("by_dirty_event", ["dirtyEventId", "createdAt"]),
+
+  notebookMentions: defineTable({
+    roomId: v.id("rooms"),
+    artifactId: v.id("artifacts"),
+    dirtyEventId: v.id("notebookDirtyEvents"),
+    processingJobId: v.id("notebookProcessingJobs"),
+    mentionId: v.string(),
+    blockId: v.string(),
+    entityType: entityTypeV,
+    displayName: v.string(),
+    entityKey: v.string(),
+    sourceSnapshotVersion: v.number(),
+    sourceSnapshotHash: v.string(),
+    visibility: visibilityV,
+    ownerId: v.optional(v.string()),
+    actorId: v.string(),
+    createdAt: v.number(),
+  })
+    .index("by_artifact", ["artifactId", "createdAt"])
+    .index("by_dirty_event", ["dirtyEventId", "createdAt"])
+    .index("by_room_entity", ["roomId", "entityType", "entityKey"]),
+
+  agentArtifacts: defineTable({
+    roomId: v.id("rooms"),
+    artifactId: v.optional(v.id("artifacts")),
+    jobId: v.optional(v.id("agentJobs")),
+    kind: agentArtifactKindV,
+    status: agentArtifactStatusV,
+    title: v.string(),
+    createdBy: actor,
+    visibility: visibilityV,
+    ownerId: v.optional(v.string()),
+    payload: v.any(),
+    payloadHash: v.string(),
+    planHash: v.optional(v.string()),
+    approvedBy: v.optional(actor),
+    approvedAt: v.optional(v.number()),
+    rejectedAt: v.optional(v.number()),
+    executedJobId: v.optional(v.id("agentJobs")),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_room_kind_status", ["roomId", "kind", "status", "updatedAt"])
+    .index("by_plan_hash", ["planHash", "updatedAt"])
+    .index("by_room_visibility_updated", ["roomId", "visibility", "updatedAt"])
+    .index("by_room_visibility_owner", ["roomId", "visibility", "ownerId", "updatedAt"]),
 
   /** Evidence Accountant capture row. This is distinct from older captureRecords: one capture can
    * fan out to many extracted facts and CellPayload evidence refs. */

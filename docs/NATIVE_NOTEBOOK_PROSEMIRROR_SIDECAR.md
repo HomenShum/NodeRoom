@@ -12,15 +12,20 @@ Human-owned collaborative notebook
 
 NodeRoom wrapper
   notebookDocuments registry
+  actor-authenticated dirty signals
 
 Processing adapter
-  snapshot -> text / markdown / blocks / entities / spans
+  bridge: snapshot -> registry hash / version tracking
+  target: dirty event -> ACL-gated snapshot processor
 
 NodeRoom read model
-  nodes / relations / OKF / evidence / roomActivityOutbox
+  notebook blocks / claims / mentions
+  future adapters may add OKF links / evidence refs
+  bridge passive events come from canonical NodeRoom commits, not snapshots
+  target passive events come from the processed read model
 
 Agent sidecar
-  suggestions / scratchpad / work items / proposals / coach cues
+  Agent Artifacts / suggestions / scratchpad / work items / proposals / coach cues
 
 Human approval bridge
   insert / add to sheet / create task / dismiss
@@ -57,7 +62,30 @@ NodeRoom owns:
 
 ## Processing Policy
 
-Do not process every ProseMirror step. Process snapshots after a quiet window using content hashes and version checks.
+Do not process every ProseMirror step as a business event. ProseMirror snapshots
+may update registry hashes and versions. The current bridge uses the canonical
+NodeRoom commit path for passive enqueue because that path knows the actor and
+artifact policy. The target native path uses an actor-authenticated dirty
+metadata mutation, then a debounced processor reads the latest snapshot through
+the `notebookDocuments` ACL and writes a processed read model.
+
+The target dirty signal is metadata only:
+
+```text
+roomId
+artifactId
+prosemirrorDocId
+actorId
+visibility
+ownerId
+observedSnapshotVersion
+observedSnapshotHash
+changedRangeHint
+dirtyAt / maxWaitAt
+processingLane
+```
+
+It must not write the full notebook HTML into `elements["doc"]`.
 
 Outputs should include:
 
@@ -68,7 +96,7 @@ Outputs should include:
 - mentions/entities
 - source spans
 - content hash
-- passive activity events
+- registry hash/version markers
 
 ## Agent Mutation Policy
 
@@ -81,12 +109,33 @@ Allowed direct insertions require:
 - policy/visibility validation, and
 - mutation receipt.
 
-## Implementation Plan
+## Implementation Status
 
-1. Keep current note editor as fallback.
-2. Install ProseMirror Sync behind a feature flag.
-3. Add `notebookDocuments` wrapper table.
-4. Build snapshot adapter.
-5. Feed processed snapshots into passive intelligence.
-6. Add sidecar proposals and user-approved insertion.
-7. Use Coach Mode as the first end-to-end proof.
+Shipped backend:
+
+1. Current note editor remains the fallback.
+2. ProseMirror Sync is available behind a feature flag.
+3. `notebookDocuments` wraps ProseMirror doc ids in NodeRoom room/artifact policy.
+4. Snapshots are registry-only as the safety bridge.
+5. `notebookDirtyEvents` and `notebookProcessingJobs` exist for native processing.
+6. The ACL-gated snapshot processor writes notebook read-model rows.
+7. Passive intelligence can run from the processed read model.
+8. The first Agent Artifact kind, `agent_work_plan`, is approved by exact
+   `planHash`.
+
+Remaining product proof:
+
+1. Render Agent Artifacts for work plans, diff previews, evidence, coach
+   feedback, and planned-vs-actual reports.
+2. Add sidecar proposals and user-approved insertion.
+3. Use Coach Mode as the first end-to-end proof.
+
+## Source-of-truth policy
+
+```text
+ProseMirror Sync = live notebook text source of truth
+notebookDocuments = metadata, visibility, artifact mapping, processing status
+processed read model = agent-readable notebook semantics
+Agent Artifacts = structured plans/diffs/evidence/reviews
+elements["doc"] = legacy/export/checkpoint mirror only
+```

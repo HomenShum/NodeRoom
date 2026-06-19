@@ -9,6 +9,7 @@ Use inspirational references and React Bits-style motion as an experience layer,
 - Editor substrate: Tiptap / ProseMirror
 - Collaboration: Convex ProseMirror Sync
 - Intelligence: NodeRoom read model and agent workflows
+- Agent outputs: structured Agent Artifacts rendered as review surfaces
 - Motion/delight: React Bits-style components and custom lightweight animations
 
 ## React Bits Usage
@@ -66,9 +67,13 @@ type messy notes
 pause
 passive chip appears
 open inbox
-Research / Add to sheet / Dismiss
+Research / Add to sheet / Dismiss / Open / Practice when Coach Mode is available
 ```
 
 ## Principle
 
 Motion should explain state and build trust. It should not distract from banker-readable work.
+
+The notebook is the capture surface. Substantial agent outputs should become
+Agent Artifacts: work plans, diff previews, evidence cards, notebook insert
+proposals, coach feedback, and planned-vs-actual reports.

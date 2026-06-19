@@ -19,6 +19,7 @@ NodeRoom support pattern:
 ```text
 upload files -> open artifacts -> drag refs into chat
   -> search_sheet_context narrows relevant rows
+  -> SpreadsheetDiffPreview artifact shows planned changes
   -> agent writes CellPayloads for match, classification, reason, and source
   -> wiki/note summarizes cited results
 ```
@@ -45,6 +46,7 @@ NodeRoom support pattern:
 upload source + template -> parse schema/layout/formulas
   -> reconcile or populate bounded cells
   -> lock formula dependencies
+  -> preview formula/value changes as an Agent Artifact
   -> write variance/exception notes with evidence
   -> review before final output
 ```
@@ -121,6 +123,8 @@ Built:
 - Provider parser adapter plus LiteParse fallback smoke.
 - Workflow/Workpool-backed `/free` jobs with checkpoints and resolved-model
   attempt audit.
+- First Agent Artifact backend slice for `agent_work_plan` approval by
+  canonical `planHash`.
 
 Still production work:
 
@@ -130,6 +134,7 @@ Still production work:
 - PII classifier/redaction policy with retention and provider-egress controls.
 - Exact-once side-effect journal for provider file uploads and row-level bulk
   jobs.
+- Spreadsheet diff preview and planned-vs-actual Agent Artifact renderers.
 - Redacted fixture packs converted from the reviewed workflow shapes.
 
 ## Interview Explanation
@@ -149,4 +154,3 @@ Then connect it to users:
 > reconciliation. Both users need the same guarantees: files are clickable,
 > sources are cited, private values are protected, and the agent cannot silently
 > clobber a spreadsheet.
-

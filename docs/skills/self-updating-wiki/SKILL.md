@@ -36,7 +36,7 @@ Render the wiki with a stable table of contents:
 Each section must be scannable. The Files section must expose links or buttons that reopen the underlying artifact. A file reference in chat is encoded as:
 
 ```text
-References: [File title](noderoom-artifact:<artifact-id>)
+References: File title -> noderoom-artifact:<artifact-id>
 ```
 
 Treat this as a pointer to source material, not a copy of the file content.

@@ -1,0 +1,379 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Passive notebook single-source fix</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #111315;
+      --panel: #181b20;
+      --line: #30363d;
+      --text: #f0f3f6;
+      --muted: #aeb7c2;
+      --accent: #7dd3fc;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font: 15px/1.6 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    main {
+      width: min(1180px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 42px 0 56px;
+    }
+    header {
+      margin-bottom: 28px;
+    }
+    h1, h2, p { margin: 0; }
+    h1 {
+      max-width: 860px;
+      font-size: clamp(30px, 5vw, 56px);
+      line-height: 1;
+      letter-spacing: 0;
+    }
+    header p {
+      max-width: 820px;
+      margin-top: 14px;
+      color: var(--muted);
+      font-size: 17px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+    }
+    .panel {
+      min-width: 0;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      overflow: hidden;
+    }
+    .panel-meta {
+      display: grid;
+      grid-template-columns: 34px 1fr;
+      gap: 12px;
+      padding: 16px 16px 12px;
+      border-bottom: 1px solid var(--line);
+    }
+    .step {
+      width: 30px;
+      height: 30px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: rgba(125, 211, 252, .14);
+      color: var(--accent);
+      font-weight: 700;
+    }
+    h2 {
+      font-size: 16px;
+      line-height: 1.25;
+      letter-spacing: 0;
+    }
+    .panel p {
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+    pre.shiki {
+      margin: 0;
+      padding: 18px;
+      overflow: auto;
+      border-radius: 0;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+    code {
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+    }
+    @media (max-width: 900px) {
+      .grid { grid-template-columns: 1fr; }
+      main { width: min(100vw - 24px, 720px); padding-top: 28px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>Passive notebook single-source fix</h1>
+      <p>Before, bridge, and target code panels for the ProseMirror duplicate-enqueue bug and the Agent Artifact approval model. Generated with Shiki so the teachable code view stays readable without shipping a docs runtime.</p>
+    </header>
+    <div class="grid">
+      <section class="panel">
+  <div class="panel-meta">
+    <div class="step">1</div>
+    <div>
+      <h2>Before: snapshot sync also enqueued passive work</h2>
+      <p>The collaborative document transport accidentally became a business event source. A notebook pause could create a passive row here and another row when the note committed through the normal artifact mutation.</p>
+    </div>
+  </div>
+  <pre class="shiki github-dark-default" style="background-color:#0d1117;color:#e6edf3" tabindex="0"><code><span class="line"><span style="color:#FFA657">onSnapshot</span><span style="color:#E6EDF3">: </span><span style="color:#FF7B72">async</span><span style="color:#E6EDF3"> (</span><span style="color:#FFA657">ctx</span><span style="color:#E6EDF3">, </span><span style="color:#FFA657">id</span><span style="color:#E6EDF3">, </span><span style="color:#FFA657">snapshot</span><span style="color:#E6EDF3">, </span><span style="color:#FFA657">version</span><span style="color:#E6EDF3">) </span><span style="color:#FF7B72">=></span><span style="color:#E6EDF3"> {</span></span>
+<span class="line"><span style="color:#FF7B72">  const</span><span style="color:#79C0FF"> row</span><span style="color:#FF7B72"> =</span><span style="color:#FF7B72"> await</span><span style="color:#E6EDF3"> ctx.db</span></span>
+<span class="line"><span style="color:#E6EDF3">    .</span><span style="color:#D2A8FF">query</span><span style="color:#E6EDF3">(</span><span style="color:#A5D6FF">"notebookDocuments"</span><span style="color:#E6EDF3">)</span></span>
+<span class="line"><span style="color:#E6EDF3">    .</span><span style="color:#D2A8FF">withIndex</span><span style="color:#E6EDF3">(</span><span style="color:#A5D6FF">"by_prosemirror_doc"</span><span style="color:#E6EDF3">, (</span><span style="color:#FFA657">q</span><span style="color:#E6EDF3">) </span><span style="color:#FF7B72">=></span><span style="color:#E6EDF3"> q.</span><span style="color:#D2A8FF">eq</span><span style="color:#E6EDF3">(</span><span style="color:#A5D6FF">"prosemirrorDocId"</span><span style="color:#E6EDF3">, id))</span></span>
+<span class="line"><span style="color:#E6EDF3">    .</span><span style="color:#D2A8FF">first</span><span style="color:#E6EDF3">();</span></span>
+<span class="line"><span style="color:#FF7B72">  if</span><span style="color:#E6EDF3"> (</span><span style="color:#FF7B72">!</span><span style="color:#E6EDF3">row) </span><span style="color:#FF7B72">return</span><span style="color:#E6EDF3">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#FF7B72">  const</span><span style="color:#79C0FF"> text</span><span style="color:#FF7B72"> =</span><span style="color:#D2A8FF"> stripHtml</span><span style="color:#E6EDF3">(</span><span style="color:#D2A8FF">prosemirrorJsonToHtml</span><span style="color:#E6EDF3">(snapshot));</span></span>
+<span class="line"><span style="color:#FF7B72">  const</span><span style="color:#79C0FF"> hash</span><span style="color:#FF7B72"> =</span><span style="color:#FF7B72"> await</span><span style="color:#D2A8FF"> sha256</span><span style="color:#E6EDF3">(text);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#FF7B72">  await</span><span style="color:#E6EDF3"> ctx.db.</span><span style="color:#D2A8FF">patch</span><span style="color:#E6EDF3">(row._id, {</span></span>
+<span class="line"><span style="color:#E6EDF3">    latestSnapshotHash: hash,</span></span>
+<span class="line"><span style="color:#E6EDF3">    latestIndexedVersion: version,</span></span>
+<span class="line"><span style="color:#E6EDF3">    latestProcessedAt: Date.</span><span style="color:#D2A8FF">now</span><span style="color:#E6EDF3">(),</span></span>
+<span class="line"><span style="color:#E6EDF3">  });</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#FF7B72">  await</span><span style="color:#D2A8FF"> enqueueRoomActivity</span><span style="color:#E6EDF3">(ctx, {</span></span>
+<span class="line"><span style="color:#E6EDF3">    roomId: row.roomId,</span></span>
+<span class="line"><span style="color:#E6EDF3">    artifactId: row.artifactId,</span></span>
+<span class="line"><span style="color:#E6EDF3">    elementId: row.elementId,</span></span>
+<span class="line"><span style="color:#E6EDF3">    eventKind: </span><span style="color:#A5D6FF">"notebook_snapshot"</span><span style="color:#E6EDF3">,</span></span>
+<span class="line"><span style="color:#E6EDF3">    content: text,</span></span>
+<span class="line"><span style="color:#E6EDF3">    dedupeKey: </span><span style="color:#A5D6FF">`${</span><span style="color:#E6EDF3">row</span><span style="color:#A5D6FF">.</span><span style="color:#E6EDF3">roomId</span><span style="color:#A5D6FF">}:${</span><span style="color:#E6EDF3">row</span><span style="color:#A5D6FF">.</span><span style="color:#E6EDF3">artifactId</span><span style="color:#A5D6FF">}:${</span><span style="color:#E6EDF3">hash</span><span style="color:#A5D6FF">}`</span><span style="color:#E6EDF3">,</span></span>
+<span class="line"><span style="color:#E6EDF3">  });</span></span>
+<span class="line"><span style="color:#E6EDF3">};</span></span></code></pre>
+</section>
+<section class="panel">
+  <div class="panel-meta">
+    <div class="step">2</div>
+    <div>
+      <h2>After: snapshot sync is registry-only</h2>
+      <p>ProseMirror Sync records document facts only. It can update the wrapper row with hash/version metadata, but it cannot route passive intelligence.</p>
+    </div>
+  </div>
+  <pre class="shiki github-dark-default" style="background-color:#0d1117;color:#e6edf3" tabindex="0"><code><span class="line"><span style="color:#FFA657">onSnapshot</span><span style="color:#E6EDF3">: </span><span style="color:#FF7B72">async</span><span style="color:#E6EDF3"> (</span><span style="color:#FFA657">ctx</span><span style="color:#E6EDF3">, </span><span style="color:#FFA657">id</span><span style="color:#E6EDF3">, </span><span style="color:#FFA657">snapshot</span><span style="color:#E6EDF3">, </span><span style="color:#FFA657">version</span><span style="color:#E6EDF3">) </span><span style="color:#FF7B72">=></span><span style="color:#E6EDF3"> {</span></span>
+<span class="line"><span style="color:#FF7B72">  const</span><span style="color:#79C0FF"> row</span><span style="color:#FF7B72"> =</span><span style="color:#FF7B72"> await</span><span style="color:#E6EDF3"> ctx.db</span></span>
+<span class="line"><span style="color:#E6EDF3">    .</span><span style="color:#D2A8FF">query</span><span style="color:#E6EDF3">(</span><span style="color:#A5D6FF">"notebookDocuments"</span><span style="color:#E6EDF3">)</span></span>
+<span class="line"><span style="color:#E6EDF3">    .</span><span style="color:#D2A8FF">withIndex</span><span style="color:#E6EDF3">(</span><span style="color:#A5D6FF">"by_prosemirror_doc"</span><span style="color:#E6EDF3">, (</span><span style="color:#FFA657">q</span><span style="color:#E6EDF3">) </span><span style="color:#FF7B72">=></span><span style="color:#E6EDF3"> q.</span><span style="color:#D2A8FF">eq</span><span style="color:#E6EDF3">(</span><span style="color:#A5D6FF">"prosemirrorDocId"</span><span style="color:#E6EDF3">, id))</span></span>
+<span class="line"><span style="color:#E6EDF3">    .</span><span style="color:#D2A8FF">first</span><span style="color:#E6EDF3">();</span></span>
+<span class="line"><span style="color:#FF7B72">  if</span><span style="color:#E6EDF3"> (</span><span style="color:#FF7B72">!</span><span style="color:#E6EDF3">row) </span><span style="color:#FF7B72">return</span><span style="color:#E6EDF3">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#FF7B72">  const</span><span style="color:#79C0FF"> hash</span><span style="color:#FF7B72"> =</span><span style="color:#FF7B72"> await</span><span style="color:#D2A8FF"> sha256</span><span style="color:#E6EDF3">(</span><span style="color:#79C0FF">JSON</span><span style="color:#E6EDF3">.</span><span style="color:#D2A8FF">stringify</span><span style="color:#E6EDF3">(snapshot));</span></span>
+<span class="line"><span style="color:#FF7B72">  await</span><span style="color:#E6EDF3"> ctx.db.</span><span style="color:#D2A8FF">patch</span><span style="color:#E6EDF3">(row._id, {</span></span>
+<span class="line"><span style="color:#E6EDF3">    latestSnapshotHash: hash,</span></span>
+<span class="line"><span style="color:#E6EDF3">    latestIndexedVersion: version,</span></span>
+<span class="line"><span style="color:#E6EDF3">    latestProcessedAt: Date.</span><span style="color:#D2A8FF">now</span><span style="color:#E6EDF3">(),</span></span>
+<span class="line"><span style="color:#E6EDF3">  });</span></span>
+<span class="line"><span style="color:#E6EDF3">};</span></span></code></pre>
+</section>
+<section class="panel">
+  <div class="panel-meta">
+    <div class="step">3</div>
+    <div>
+      <h2>Bridge: checked artifact mutation enqueues once</h2>
+      <p>This is the safe bridge fix: the business event stays on the canonical NodeRoom write path, where actor proof, artifact visibility, base versions, locks, and dedupe policy are all available.</p>
+    </div>
+  </div>
+  <pre class="shiki github-dark-default" style="background-color:#0d1117;color:#e6edf3" tabindex="0"><code><span class="line"><span style="color:#FF7B72">export</span><span style="color:#FF7B72"> const</span><span style="color:#79C0FF"> applyCellEdit</span><span style="color:#FF7B72"> =</span><span style="color:#D2A8FF"> mutation</span><span style="color:#E6EDF3">({</span></span>
+<span class="line"><span style="color:#E6EDF3">  args: {</span></span>
+<span class="line"><span style="color:#E6EDF3">    roomId: v.</span><span style="color:#D2A8FF">id</span><span style="color:#E6EDF3">(</span><span style="color:#A5D6FF">"rooms"</span><span style="color:#E6EDF3">),</span></span>
+<span class="line"><span style="color:#E6EDF3">    artifactId: v.</span><span style="color:#D2A8FF">id</span><span style="color:#E6EDF3">(</span><span style="color:#A5D6FF">"artifacts"</span><span style="color:#E6EDF3">),</span></span>
+<span class="line"><span style="color:#E6EDF3">    elementId: v.</span><span style="color:#D2A8FF">string</span><span style="color:#E6EDF3">(),</span></span>
+<span class="line"><span style="color:#E6EDF3">    value: cellValue,</span></span>
+<span class="line"><span style="color:#E6EDF3">    baseVersion: v.</span><span style="color:#D2A8FF">number</span><span style="color:#E6EDF3">(),</span></span>
+<span class="line"><span style="color:#E6EDF3">    proof: actorProofV,</span></span>
+<span class="line"><span style="color:#E6EDF3">  },</span></span>
+<span class="line"><span style="color:#D2A8FF">  handler</span><span style="color:#E6EDF3">: </span><span style="color:#FF7B72">async</span><span style="color:#E6EDF3"> (</span><span style="color:#FFA657">ctx</span><span style="color:#E6EDF3">, </span><span style="color:#FFA657">args</span><span style="color:#E6EDF3">) </span><span style="color:#FF7B72">=></span><span style="color:#E6EDF3"> {</span></span>
+<span class="line"><span style="color:#FF7B72">    const</span><span style="color:#79C0FF"> actor</span><span style="color:#FF7B72"> =</span><span style="color:#FF7B72"> await</span><span style="color:#D2A8FF"> requireActorProof</span><span style="color:#E6EDF3">(ctx, args.roomId, args.proof);</span></span>
+<span class="line"><span style="color:#FF7B72">    const</span><span style="color:#79C0FF"> result</span><span style="color:#FF7B72"> =</span><span style="color:#FF7B72"> await</span><span style="color:#D2A8FF"> applyCellEditCore</span><span style="color:#E6EDF3">(ctx, { </span><span style="color:#FF7B72">...</span><span style="color:#E6EDF3">args, actor });</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#FF7B72">    await</span><span style="color:#D2A8FF"> enqueueRoomActivity</span><span style="color:#E6EDF3">(ctx, {</span></span>
+<span class="line"><span style="color:#E6EDF3">      roomId: args.roomId,</span></span>
+<span class="line"><span style="color:#E6EDF3">      artifactId: args.artifactId,</span></span>
+<span class="line"><span style="color:#E6EDF3">      elementId: args.elementId,</span></span>
+<span class="line"><span style="color:#E6EDF3">      actor,</span></span>
+<span class="line"><span style="color:#E6EDF3">      eventKind: </span><span style="color:#A5D6FF">"cell_edit"</span><span style="color:#E6EDF3">,</span></span>
+<span class="line"><span style="color:#E6EDF3">      content: </span><span style="color:#D2A8FF">String</span><span style="color:#E6EDF3">(args.value),</span></span>
+<span class="line"><span style="color:#E6EDF3">    });</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#FF7B72">    return</span><span style="color:#E6EDF3"> result;</span></span>
+<span class="line"><span style="color:#E6EDF3">  },</span></span>
+<span class="line"><span style="color:#E6EDF3">});</span></span></code></pre>
+</section>
+<section class="panel">
+  <div class="panel-meta">
+    <div class="step">4</div>
+    <div>
+      <h2>Target: dirty metadata replaces blur HTML commits</h2>
+      <p>The native target keeps ProseMirror as the text source of truth. NodeRoom writes actor-authenticated metadata only, then a debounced processor reads the latest snapshot through ACL.</p>
+    </div>
+  </div>
+  <pre class="shiki github-dark-default" style="background-color:#0d1117;color:#e6edf3" tabindex="0"><code><span class="line"><span style="color:#FF7B72">export</span><span style="color:#FF7B72"> const</span><span style="color:#79C0FF"> markNotebookDirty</span><span style="color:#FF7B72"> =</span><span style="color:#D2A8FF"> mutation</span><span style="color:#E6EDF3">({</span></span>
+<span class="line"><span style="color:#E6EDF3">  args: {</span></span>
+<span class="line"><span style="color:#E6EDF3">    roomId: v.</span><span style="color:#D2A8FF">id</span><span style="color:#E6EDF3">(</span><span style="color:#A5D6FF">"rooms"</span><span style="color:#E6EDF3">),</span></span>
+<span class="line"><span style="color:#E6EDF3">    artifactId: v.</span><span style="color:#D2A8FF">id</span><span style="color:#E6EDF3">(</span><span style="color:#A5D6FF">"artifacts"</span><span style="color:#E6EDF3">),</span></span>
+<span class="line"><span style="color:#E6EDF3">    requester: actorProofV,</span></span>
+<span class="line"><span style="color:#E6EDF3">    observedSnapshotVersion: v.</span><span style="color:#D2A8FF">optional</span><span style="color:#E6EDF3">(v.</span><span style="color:#D2A8FF">number</span><span style="color:#E6EDF3">()),</span></span>
+<span class="line"><span style="color:#E6EDF3">    observedSnapshotHash: v.</span><span style="color:#D2A8FF">optional</span><span style="color:#E6EDF3">(v.</span><span style="color:#D2A8FF">string</span><span style="color:#E6EDF3">()),</span></span>
+<span class="line"><span style="color:#E6EDF3">    changedRangeHint: v.</span><span style="color:#D2A8FF">optional</span><span style="color:#E6EDF3">(v.</span><span style="color:#D2A8FF">string</span><span style="color:#E6EDF3">()),</span></span>
+<span class="line"><span style="color:#E6EDF3">    processingLane: v.</span><span style="color:#D2A8FF">optional</span><span style="color:#E6EDF3">(v.</span><span style="color:#D2A8FF">union</span><span style="color:#E6EDF3">(</span></span>
+<span class="line"><span style="color:#E6EDF3">      v.</span><span style="color:#D2A8FF">literal</span><span style="color:#E6EDF3">(</span><span style="color:#A5D6FF">"passive"</span><span style="color:#E6EDF3">),</span></span>
+<span class="line"><span style="color:#E6EDF3">      v.</span><span style="color:#D2A8FF">literal</span><span style="color:#E6EDF3">(</span><span style="color:#A5D6FF">"index"</span><span style="color:#E6EDF3">),</span></span>
+<span class="line"><span style="color:#E6EDF3">      v.</span><span style="color:#D2A8FF">literal</span><span style="color:#E6EDF3">(</span><span style="color:#A5D6FF">"coach"</span><span style="color:#E6EDF3">),</span></span>
+<span class="line"><span style="color:#E6EDF3">    )),</span></span>
+<span class="line"><span style="color:#E6EDF3">    quietMs: v.</span><span style="color:#D2A8FF">optional</span><span style="color:#E6EDF3">(v.</span><span style="color:#D2A8FF">number</span><span style="color:#E6EDF3">()),</span></span>
+<span class="line"><span style="color:#E6EDF3">  },</span></span>
+<span class="line"><span style="color:#D2A8FF">  handler</span><span style="color:#E6EDF3">: </span><span style="color:#FF7B72">async</span><span style="color:#E6EDF3"> (</span><span style="color:#FFA657">ctx</span><span style="color:#E6EDF3">, </span><span style="color:#FFA657">args</span><span style="color:#E6EDF3">) </span><span style="color:#FF7B72">=></span><span style="color:#E6EDF3"> {</span></span>
+<span class="line"><span style="color:#FF7B72">    const</span><span style="color:#79C0FF"> actor</span><span style="color:#FF7B72"> =</span><span style="color:#FF7B72"> await</span><span style="color:#D2A8FF"> requireActorProof</span><span style="color:#E6EDF3">(ctx, args.roomId, args.requester);</span></span>
+<span class="line"><span style="color:#FF7B72">    const</span><span style="color:#79C0FF"> artifact</span><span style="color:#FF7B72"> =</span><span style="color:#FF7B72"> await</span><span style="color:#D2A8FF"> requireArtifactInRoom</span><span style="color:#E6EDF3">(ctx, args.roomId, args.artifactId);</span></span>
+<span class="line"><span style="color:#FF7B72">    if</span><span style="color:#E6EDF3"> (artifact.kind </span><span style="color:#FF7B72">!==</span><span style="color:#A5D6FF"> "note"</span><span style="color:#E6EDF3">) </span><span style="color:#FF7B72">throw</span><span style="color:#FF7B72"> new</span><span style="color:#D2A8FF"> Error</span><span style="color:#E6EDF3">(</span><span style="color:#A5D6FF">"artifact_not_notebook"</span><span style="color:#E6EDF3">);</span></span>
+<span class="line"><span style="color:#FF7B72">    if</span><span style="color:#E6EDF3"> (</span><span style="color:#FF7B72">!</span><span style="color:#D2A8FF">canReadArtifact</span><span style="color:#E6EDF3">(artifact, actor)) </span><span style="color:#FF7B72">throw</span><span style="color:#FF7B72"> new</span><span style="color:#D2A8FF"> Error</span><span style="color:#E6EDF3">(</span><span style="color:#A5D6FF">"artifact_not_visible"</span><span style="color:#E6EDF3">);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#FF7B72">    const</span><span style="color:#79C0FF"> doc</span><span style="color:#FF7B72"> =</span><span style="color:#FF7B72"> await</span><span style="color:#D2A8FF"> notebookDocumentForArtifact</span><span style="color:#E6EDF3">(ctx, args.roomId, args.artifactId);</span></span>
+<span class="line"><span style="color:#FF7B72">    const</span><span style="color:#79C0FF"> now</span><span style="color:#FF7B72"> =</span><span style="color:#E6EDF3"> Date.</span><span style="color:#D2A8FF">now</span><span style="color:#E6EDF3">();</span></span>
+<span class="line"><span style="color:#FF7B72">    const</span><span style="color:#79C0FF"> lane</span><span style="color:#FF7B72"> =</span><span style="color:#E6EDF3"> args.processingLane </span><span style="color:#FF7B72">??</span><span style="color:#A5D6FF"> "passive"</span><span style="color:#E6EDF3">;</span></span>
+<span class="line"><span style="color:#FF7B72">    const</span><span style="color:#79C0FF"> visibility</span><span style="color:#FF7B72"> =</span><span style="color:#E6EDF3"> artifact.visibility </span><span style="color:#FF7B72">??</span><span style="color:#E6EDF3"> doc.visibility </span><span style="color:#FF7B72">??</span><span style="color:#A5D6FF"> "room"</span><span style="color:#E6EDF3">;</span></span>
+<span class="line"><span style="color:#FF7B72">    const</span><span style="color:#79C0FF"> ownerId</span><span style="color:#FF7B72"> =</span><span style="color:#E6EDF3"> visibility </span><span style="color:#FF7B72">===</span><span style="color:#A5D6FF"> "private"</span><span style="color:#FF7B72"> ?</span><span style="color:#D2A8FF"> ownerIdForArtifact</span><span style="color:#E6EDF3">(artifact, actor) </span><span style="color:#FF7B72">:</span><span style="color:#79C0FF"> undefined</span><span style="color:#E6EDF3">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#FF7B72">    const</span><span style="color:#79C0FF"> existing</span><span style="color:#FF7B72"> =</span><span style="color:#FF7B72"> await</span><span style="color:#E6EDF3"> ctx.db</span></span>
+<span class="line"><span style="color:#E6EDF3">      .</span><span style="color:#D2A8FF">query</span><span style="color:#E6EDF3">(</span><span style="color:#A5D6FF">"notebookDirtyEvents"</span><span style="color:#E6EDF3">)</span></span>
+<span class="line"><span style="color:#E6EDF3">      .</span><span style="color:#D2A8FF">withIndex</span><span style="color:#E6EDF3">(</span><span style="color:#A5D6FF">"by_doc_actor_lane_state"</span><span style="color:#E6EDF3">, (</span><span style="color:#FFA657">q</span><span style="color:#E6EDF3">) </span><span style="color:#FF7B72">=></span></span>
+<span class="line"><span style="color:#E6EDF3">        q.</span><span style="color:#D2A8FF">eq</span><span style="color:#E6EDF3">(</span><span style="color:#A5D6FF">"prosemirrorDocId"</span><span style="color:#E6EDF3">, doc.prosemirrorDocId)</span></span>
+<span class="line"><span style="color:#E6EDF3">          .</span><span style="color:#D2A8FF">eq</span><span style="color:#E6EDF3">(</span><span style="color:#A5D6FF">"actorId"</span><span style="color:#E6EDF3">, actor.id)</span></span>
+<span class="line"><span style="color:#E6EDF3">          .</span><span style="color:#D2A8FF">eq</span><span style="color:#E6EDF3">(</span><span style="color:#A5D6FF">"processingLane"</span><span style="color:#E6EDF3">, lane)</span></span>
+<span class="line"><span style="color:#E6EDF3">          .</span><span style="color:#D2A8FF">eq</span><span style="color:#E6EDF3">(</span><span style="color:#A5D6FF">"state"</span><span style="color:#E6EDF3">, </span><span style="color:#A5D6FF">"pending"</span><span style="color:#E6EDF3">))</span></span>
+<span class="line"><span style="color:#E6EDF3">      .</span><span style="color:#D2A8FF">order</span><span style="color:#E6EDF3">(</span><span style="color:#A5D6FF">"desc"</span><span style="color:#E6EDF3">)</span></span>
+<span class="line"><span style="color:#E6EDF3">      .</span><span style="color:#D2A8FF">first</span><span style="color:#E6EDF3">();</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#FF7B72">    const</span><span style="color:#79C0FF"> maxWaitAt</span><span style="color:#FF7B72"> =</span><span style="color:#E6EDF3"> existing?.maxWaitAt </span><span style="color:#FF7B72">??</span><span style="color:#E6EDF3"> now </span><span style="color:#FF7B72">+</span><span style="color:#79C0FF"> MAX_DIRTY_WAIT_MS</span><span style="color:#E6EDF3">;</span></span>
+<span class="line"><span style="color:#FF7B72">    const</span><span style="color:#79C0FF"> delay</span><span style="color:#FF7B72"> =</span><span style="color:#E6EDF3"> Math.</span><span style="color:#D2A8FF">max</span><span style="color:#E6EDF3">(</span><span style="color:#79C0FF">0</span><span style="color:#E6EDF3">, Math.</span><span style="color:#D2A8FF">min</span><span style="color:#E6EDF3">(</span><span style="color:#D2A8FF">clampQuietMs</span><span style="color:#E6EDF3">(args.quietMs), maxWaitAt </span><span style="color:#FF7B72">-</span><span style="color:#E6EDF3"> now));</span></span>
+<span class="line"><span style="color:#FF7B72">    const</span><span style="color:#79C0FF"> quietUntil</span><span style="color:#FF7B72"> =</span><span style="color:#E6EDF3"> now </span><span style="color:#FF7B72">+</span><span style="color:#E6EDF3"> delay;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#FF7B72">    const</span><span style="color:#79C0FF"> dirtyEventId</span><span style="color:#FF7B72"> =</span><span style="color:#E6EDF3"> existing</span></span>
+<span class="line"><span style="color:#FF7B72">      ?</span><span style="color:#E6EDF3"> (</span><span style="color:#FF7B72">await</span><span style="color:#E6EDF3"> ctx.db.</span><span style="color:#D2A8FF">patch</span><span style="color:#E6EDF3">(existing._id, {</span></span>
+<span class="line"><span style="color:#E6EDF3">          observedSnapshotVersion: args.observedSnapshotVersion </span><span style="color:#FF7B72">??</span><span style="color:#E6EDF3"> doc.latestIndexedVersion,</span></span>
+<span class="line"><span style="color:#E6EDF3">          observedSnapshotHash: args.observedSnapshotHash </span><span style="color:#FF7B72">??</span><span style="color:#E6EDF3"> doc.latestSnapshotHash,</span></span>
+<span class="line"><span style="color:#E6EDF3">          changedRangeHint: args.changedRangeHint,</span></span>
+<span class="line"><span style="color:#E6EDF3">          visibility,</span></span>
+<span class="line"><span style="color:#E6EDF3">          ownerId,</span></span>
+<span class="line"><span style="color:#E6EDF3">          quietUntil,</span></span>
+<span class="line"><span style="color:#E6EDF3">          maxWaitAt,</span></span>
+<span class="line"><span style="color:#E6EDF3">          updatedAt: now,</span></span>
+<span class="line"><span style="color:#E6EDF3">        }), existing._id)</span></span>
+<span class="line"><span style="color:#FF7B72">      :</span><span style="color:#FF7B72"> await</span><span style="color:#E6EDF3"> ctx.db.</span><span style="color:#D2A8FF">insert</span><span style="color:#E6EDF3">(</span><span style="color:#A5D6FF">"notebookDirtyEvents"</span><span style="color:#E6EDF3">, {</span></span>
+<span class="line"><span style="color:#E6EDF3">          roomId: args.roomId,</span></span>
+<span class="line"><span style="color:#E6EDF3">          artifactId: args.artifactId,</span></span>
+<span class="line"><span style="color:#E6EDF3">          notebookDocumentId: doc._id,</span></span>
+<span class="line"><span style="color:#E6EDF3">          prosemirrorDocId: doc.prosemirrorDocId,</span></span>
+<span class="line"><span style="color:#E6EDF3">          actor,</span></span>
+<span class="line"><span style="color:#E6EDF3">          actorId: actor.id,</span></span>
+<span class="line"><span style="color:#E6EDF3">          visibility,</span></span>
+<span class="line"><span style="color:#E6EDF3">          ownerId,</span></span>
+<span class="line"><span style="color:#E6EDF3">          observedSnapshotVersion: args.observedSnapshotVersion </span><span style="color:#FF7B72">??</span><span style="color:#E6EDF3"> doc.latestIndexedVersion,</span></span>
+<span class="line"><span style="color:#E6EDF3">          observedSnapshotHash: args.observedSnapshotHash </span><span style="color:#FF7B72">??</span><span style="color:#E6EDF3"> doc.latestSnapshotHash,</span></span>
+<span class="line"><span style="color:#E6EDF3">          changedRangeHint: args.changedRangeHint,</span></span>
+<span class="line"><span style="color:#E6EDF3">          processingLane: lane,</span></span>
+<span class="line"><span style="color:#E6EDF3">          state: </span><span style="color:#A5D6FF">"pending"</span><span style="color:#E6EDF3">,</span></span>
+<span class="line"><span style="color:#E6EDF3">          dirtyAt: now,</span></span>
+<span class="line"><span style="color:#E6EDF3">          quietUntil,</span></span>
+<span class="line"><span style="color:#E6EDF3">          maxWaitAt,</span></span>
+<span class="line"><span style="color:#E6EDF3">          createdAt: now,</span></span>
+<span class="line"><span style="color:#E6EDF3">          updatedAt: now,</span></span>
+<span class="line"><span style="color:#E6EDF3">        });</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#FF7B72">    await</span><span style="color:#E6EDF3"> ctx.scheduler.</span><span style="color:#D2A8FF">runAfter</span><span style="color:#E6EDF3">(delay, internal.notebookProcessing.processNotebookDirtyEvent, { dirtyEventId });</span></span>
+<span class="line"><span style="color:#FF7B72">    return</span><span style="color:#E6EDF3"> { dirtyEventId, reused: </span><span style="color:#FF7B72">!!</span><span style="color:#E6EDF3">existing, scheduledAfterMs: delay };</span></span>
+<span class="line"><span style="color:#E6EDF3">  },</span></span>
+<span class="line"><span style="color:#E6EDF3">});</span></span></code></pre>
+</section>
+<section class="panel">
+  <div class="panel-meta">
+    <div class="step">5</div>
+    <div>
+      <h2>Capability gate: queries reveal doc ids only to active actors</h2>
+      <p>The random ProseMirror document id is a capability secret. Queries and lazy-create mutations require requester proof before returning or creating it.</p>
+    </div>
+  </div>
+  <pre class="shiki github-dark-default" style="background-color:#0d1117;color:#e6edf3" tabindex="0"><code><span class="line"><span style="color:#FF7B72">export</span><span style="color:#FF7B72"> const</span><span style="color:#79C0FF"> getNotebookDoc</span><span style="color:#FF7B72"> =</span><span style="color:#D2A8FF"> query</span><span style="color:#E6EDF3">({</span></span>
+<span class="line"><span style="color:#E6EDF3">  args: { roomId: v.</span><span style="color:#D2A8FF">id</span><span style="color:#E6EDF3">(</span><span style="color:#A5D6FF">"rooms"</span><span style="color:#E6EDF3">), artifactId: v.</span><span style="color:#D2A8FF">id</span><span style="color:#E6EDF3">(</span><span style="color:#A5D6FF">"artifacts"</span><span style="color:#E6EDF3">), requester: actorProofV },</span></span>
+<span class="line"><span style="color:#D2A8FF">  handler</span><span style="color:#E6EDF3">: </span><span style="color:#FF7B72">async</span><span style="color:#E6EDF3"> (</span><span style="color:#FFA657">ctx</span><span style="color:#E6EDF3">, { </span><span style="color:#FFA657">roomId</span><span style="color:#E6EDF3">, </span><span style="color:#FFA657">artifactId</span><span style="color:#E6EDF3">, </span><span style="color:#FFA657">requester</span><span style="color:#E6EDF3"> }) </span><span style="color:#FF7B72">=></span><span style="color:#E6EDF3"> {</span></span>
+<span class="line"><span style="color:#FF7B72">    const</span><span style="color:#79C0FF"> actor</span><span style="color:#FF7B72"> =</span><span style="color:#FF7B72"> await</span><span style="color:#D2A8FF"> requireActorProof</span><span style="color:#E6EDF3">(ctx, roomId, requester);</span></span>
+<span class="line"><span style="color:#FF7B72">    const</span><span style="color:#79C0FF"> art</span><span style="color:#FF7B72"> =</span><span style="color:#FF7B72"> await</span><span style="color:#D2A8FF"> requireArtifactInRoom</span><span style="color:#E6EDF3">(ctx, roomId, artifactId);</span></span>
+<span class="line"><span style="color:#FF7B72">    if</span><span style="color:#E6EDF3"> (</span><span style="color:#FF7B72">!</span><span style="color:#D2A8FF">canReadArtifact</span><span style="color:#E6EDF3">(art, actor)) </span><span style="color:#FF7B72">throw</span><span style="color:#FF7B72"> new</span><span style="color:#D2A8FF"> Error</span><span style="color:#E6EDF3">(</span><span style="color:#A5D6FF">"artifact_not_visible"</span><span style="color:#E6EDF3">);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#FF7B72">    const</span><span style="color:#79C0FF"> row</span><span style="color:#FF7B72"> =</span><span style="color:#FF7B72"> await</span><span style="color:#E6EDF3"> ctx.db</span></span>
+<span class="line"><span style="color:#E6EDF3">      .</span><span style="color:#D2A8FF">query</span><span style="color:#E6EDF3">(</span><span style="color:#A5D6FF">"notebookDocuments"</span><span style="color:#E6EDF3">)</span></span>
+<span class="line"><span style="color:#E6EDF3">      .</span><span style="color:#D2A8FF">withIndex</span><span style="color:#E6EDF3">(</span><span style="color:#A5D6FF">"by_room_artifact_element"</span><span style="color:#E6EDF3">, (</span><span style="color:#FFA657">q</span><span style="color:#E6EDF3">) </span><span style="color:#FF7B72">=></span></span>
+<span class="line"><span style="color:#E6EDF3">        q.</span><span style="color:#D2A8FF">eq</span><span style="color:#E6EDF3">(</span><span style="color:#A5D6FF">"roomId"</span><span style="color:#E6EDF3">, roomId).</span><span style="color:#D2A8FF">eq</span><span style="color:#E6EDF3">(</span><span style="color:#A5D6FF">"artifactId"</span><span style="color:#E6EDF3">, artifactId).</span><span style="color:#D2A8FF">eq</span><span style="color:#E6EDF3">(</span><span style="color:#A5D6FF">"elementId"</span><span style="color:#E6EDF3">, </span><span style="color:#A5D6FF">"doc"</span><span style="color:#E6EDF3">))</span></span>
+<span class="line"><span style="color:#E6EDF3">      .</span><span style="color:#D2A8FF">unique</span><span style="color:#E6EDF3">();</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#FF7B72">    return</span><span style="color:#E6EDF3"> row</span></span>
+<span class="line"><span style="color:#FF7B72">      ?</span><span style="color:#E6EDF3"> { prosemirrorDocId: row.prosemirrorDocId, visibility: row.visibility, ownerId: row.ownerId }</span></span>
+<span class="line"><span style="color:#FF7B72">      :</span><span style="color:#79C0FF"> null</span><span style="color:#E6EDF3">;</span></span>
+<span class="line"><span style="color:#E6EDF3">  },</span></span>
+<span class="line"><span style="color:#E6EDF3">});</span></span></code></pre>
+</section>
+<section class="panel">
+  <div class="panel-meta">
+    <div class="step">6</div>
+    <div>
+      <h2>Agent Artifact: approve structured data, not the rendering</h2>
+      <p>React, MDX, HTML, and ASCII are review surfaces. The backend approves a canonical structured payload hash and later compares it to receipts and traces.</p>
+    </div>
+  </div>
+  <pre class="shiki github-dark-default" style="background-color:#0d1117;color:#e6edf3" tabindex="0"><code><span class="line"><span style="color:#FF7B72">type</span><span style="color:#FFA657"> AgentWorkPlan</span><span style="color:#FF7B72"> =</span><span style="color:#E6EDF3"> {</span></span>
+<span class="line"><span style="color:#FFA657">  kind</span><span style="color:#FF7B72">:</span><span style="color:#A5D6FF"> "agent_work_plan"</span><span style="color:#E6EDF3">;</span></span>
+<span class="line"><span style="color:#FFA657">  goal</span><span style="color:#FF7B72">:</span><span style="color:#79C0FF"> string</span><span style="color:#E6EDF3">;</span></span>
+<span class="line"><span style="color:#FFA657">  plannedReads</span><span style="color:#FF7B72">:</span><span style="color:#FFA657"> Array</span><span style="color:#E6EDF3">&#x3C;{ </span><span style="color:#FFA657">ref</span><span style="color:#FF7B72">:</span><span style="color:#79C0FF"> string</span><span style="color:#E6EDF3">; </span><span style="color:#FFA657">reason</span><span style="color:#FF7B72">:</span><span style="color:#79C0FF"> string</span><span style="color:#E6EDF3">; </span><span style="color:#FFA657">visibility</span><span style="color:#FF7B72">:</span><span style="color:#FFA657"> Visibility</span><span style="color:#E6EDF3"> }>;</span></span>
+<span class="line"><span style="color:#FFA657">  plannedWrites</span><span style="color:#FF7B72">:</span><span style="color:#FFA657"> Array</span><span style="color:#E6EDF3">&#x3C;{ </span><span style="color:#FFA657">ref</span><span style="color:#FF7B72">:</span><span style="color:#79C0FF"> string</span><span style="color:#E6EDF3">; </span><span style="color:#FFA657">writePolicy</span><span style="color:#FF7B72">:</span><span style="color:#FFA657"> WritePolicy</span><span style="color:#E6EDF3"> }>;</span></span>
+<span class="line"><span style="color:#FFA657">  previewPatches</span><span style="color:#FF7B72">:</span><span style="color:#FFA657"> Array</span><span style="color:#E6EDF3">&#x3C;{ </span><span style="color:#FFA657">targetRef</span><span style="color:#FF7B72">:</span><span style="color:#79C0FF"> string</span><span style="color:#E6EDF3">; </span><span style="color:#FFA657">proposedValue</span><span style="color:#FF7B72">:</span><span style="color:#79C0FF"> string</span><span style="color:#E6EDF3"> }>;</span></span>
+<span class="line"><span style="color:#FFA657">  evidenceRequirements</span><span style="color:#FF7B72">:</span><span style="color:#79C0FF"> string</span><span style="color:#E6EDF3">[];</span></span>
+<span class="line"><span style="color:#FFA657">  privacyBoundary</span><span style="color:#FF7B72">:</span><span style="color:#A5D6FF"> "public_only"</span><span style="color:#FF7B72"> |</span><span style="color:#A5D6FF"> "room_visible"</span><span style="color:#FF7B72"> |</span><span style="color:#A5D6FF"> "private_allowed"</span><span style="color:#E6EDF3">;</span></span>
+<span class="line"><span style="color:#FFA657">  risks</span><span style="color:#FF7B72">:</span><span style="color:#79C0FF"> string</span><span style="color:#E6EDF3">[];</span></span>
+<span class="line"><span style="color:#FFA657">  openQuestions</span><span style="color:#FF7B72">:</span><span style="color:#79C0FF"> string</span><span style="color:#E6EDF3">[];</span></span>
+<span class="line"><span style="color:#FFA657">  costEstimate</span><span style="color:#FF7B72">:</span><span style="color:#E6EDF3"> { </span><span style="color:#FFA657">modelCalls</span><span style="color:#FF7B72">:</span><span style="color:#79C0FF"> number</span><span style="color:#E6EDF3">; </span><span style="color:#FFA657">sourceCaptures</span><span style="color:#FF7B72">:</span><span style="color:#79C0FF"> number</span><span style="color:#E6EDF3">; </span><span style="color:#FFA657">estimatedUsd</span><span style="color:#FF7B72">:</span><span style="color:#79C0FF"> number</span><span style="color:#E6EDF3"> };</span></span>
+<span class="line"><span style="color:#E6EDF3">};</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#FF7B72">export</span><span style="color:#FF7B72"> const</span><span style="color:#79C0FF"> approveAgentWorkPlan</span><span style="color:#FF7B72"> =</span><span style="color:#D2A8FF"> mutation</span><span style="color:#E6EDF3">({</span></span>
+<span class="line"><span style="color:#E6EDF3">  args: {</span></span>
+<span class="line"><span style="color:#E6EDF3">    agentArtifactId: v.</span><span style="color:#D2A8FF">id</span><span style="color:#E6EDF3">(</span><span style="color:#A5D6FF">"agentArtifacts"</span><span style="color:#E6EDF3">),</span></span>
+<span class="line"><span style="color:#E6EDF3">    requester: actorProofV,</span></span>
+<span class="line"><span style="color:#E6EDF3">    planHash: v.</span><span style="color:#D2A8FF">string</span><span style="color:#E6EDF3">(),</span></span>
+<span class="line"><span style="color:#E6EDF3">    startJob: v.</span><span style="color:#D2A8FF">optional</span><span style="color:#E6EDF3">(v.</span><span style="color:#D2A8FF">boolean</span><span style="color:#E6EDF3">()),</span></span>
+<span class="line"><span style="color:#E6EDF3">  },</span></span>
+<span class="line"><span style="color:#D2A8FF">  handler</span><span style="color:#E6EDF3">: </span><span style="color:#FF7B72">async</span><span style="color:#E6EDF3"> (</span><span style="color:#FFA657">ctx</span><span style="color:#E6EDF3">, </span><span style="color:#FFA657">args</span><span style="color:#E6EDF3">) </span><span style="color:#FF7B72">=></span><span style="color:#E6EDF3"> {</span></span>
+<span class="line"><span style="color:#FF7B72">    const</span><span style="color:#79C0FF"> artifact</span><span style="color:#FF7B72"> =</span><span style="color:#FF7B72"> await</span><span style="color:#E6EDF3"> ctx.db.</span><span style="color:#D2A8FF">get</span><span style="color:#E6EDF3">(args.agentArtifactId);</span></span>
+<span class="line"><span style="color:#FF7B72">    if</span><span style="color:#E6EDF3"> (</span><span style="color:#FF7B72">!</span><span style="color:#E6EDF3">artifact) </span><span style="color:#FF7B72">throw</span><span style="color:#FF7B72"> new</span><span style="color:#D2A8FF"> Error</span><span style="color:#E6EDF3">(</span><span style="color:#A5D6FF">"agent_artifact_not_found"</span><span style="color:#E6EDF3">);</span></span>
+<span class="line"><span style="color:#FF7B72">    if</span><span style="color:#E6EDF3"> (artifact.kind </span><span style="color:#FF7B72">!==</span><span style="color:#A5D6FF"> "agent_work_plan"</span><span style="color:#E6EDF3">) </span><span style="color:#FF7B72">throw</span><span style="color:#FF7B72"> new</span><span style="color:#D2A8FF"> Error</span><span style="color:#E6EDF3">(</span><span style="color:#A5D6FF">"agent_artifact_not_work_plan"</span><span style="color:#E6EDF3">);</span></span>
+<span class="line"><span style="color:#FF7B72">    const</span><span style="color:#79C0FF"> actor</span><span style="color:#FF7B72"> =</span><span style="color:#FF7B72"> await</span><span style="color:#D2A8FF"> requireActorProof</span><span style="color:#E6EDF3">(ctx, artifact.roomId, args.requester);</span></span>
+<span class="line"><span style="color:#FF7B72">    if</span><span style="color:#E6EDF3"> (</span><span style="color:#FF7B72">!</span><span style="color:#D2A8FF">canReadAgentArtifact</span><span style="color:#E6EDF3">(artifact, actor)) </span><span style="color:#FF7B72">throw</span><span style="color:#FF7B72"> new</span><span style="color:#D2A8FF"> Error</span><span style="color:#E6EDF3">(</span><span style="color:#A5D6FF">"agent_artifact_not_visible"</span><span style="color:#E6EDF3">);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#FF7B72">    const</span><span style="color:#79C0FF"> actualHash</span><span style="color:#FF7B72"> =</span><span style="color:#FF7B72"> await</span><span style="color:#D2A8FF"> sha256Hex</span><span style="color:#E6EDF3">(</span><span style="color:#D2A8FF">stableJson</span><span style="color:#E6EDF3">(artifact.payload));</span></span>
+<span class="line"><span style="color:#FF7B72">    if</span><span style="color:#E6EDF3"> (actualHash </span><span style="color:#FF7B72">!==</span><span style="color:#E6EDF3"> args.planHash </span><span style="color:#FF7B72">||</span><span style="color:#E6EDF3"> artifact.planHash </span><span style="color:#FF7B72">!==</span><span style="color:#E6EDF3"> args.planHash) {</span></span>
+<span class="line"><span style="color:#FF7B72">      throw</span><span style="color:#FF7B72"> new</span><span style="color:#D2A8FF"> Error</span><span style="color:#E6EDF3">(</span><span style="color:#A5D6FF">"plan_hash_mismatch"</span><span style="color:#E6EDF3">);</span></span>
+<span class="line"><span style="color:#E6EDF3">    }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#FF7B72">    const</span><span style="color:#79C0FF"> jobId</span><span style="color:#FF7B72"> =</span><span style="color:#E6EDF3"> (args.startJob </span><span style="color:#FF7B72">??</span><span style="color:#79C0FF"> true</span><span style="color:#E6EDF3">)</span></span>
+<span class="line"><span style="color:#FF7B72">      ?</span><span style="color:#FF7B72"> await</span><span style="color:#D2A8FF"> createApprovedPlanJob</span><span style="color:#E6EDF3">(ctx, {</span></span>
+<span class="line"><span style="color:#E6EDF3">          agentArtifactId: args.agentArtifactId,</span></span>
+<span class="line"><span style="color:#E6EDF3">          roomId: artifact.roomId,</span></span>
+<span class="line"><span style="color:#E6EDF3">          targetArtifactId: artifact.artifactId,</span></span>
+<span class="line"><span style="color:#E6EDF3">          requester: actor,</span></span>
+<span class="line"><span style="color:#E6EDF3">          payload: artifact.payload,</span></span>
+<span class="line"><span style="color:#E6EDF3">          planHash: args.planHash,</span></span>
+<span class="line"><span style="color:#E6EDF3">          visibility: artifact.visibility,</span></span>
+<span class="line"><span style="color:#E6EDF3">        })</span></span>
+<span class="line"><span style="color:#FF7B72">      :</span><span style="color:#E6EDF3"> artifact.executedJobId;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#FF7B72">    await</span><span style="color:#E6EDF3"> ctx.db.</span><span style="color:#D2A8FF">patch</span><span style="color:#E6EDF3">(args.agentArtifactId, {</span></span>
+<span class="line"><span style="color:#E6EDF3">      status: </span><span style="color:#A5D6FF">"approved"</span><span style="color:#E6EDF3">,</span></span>
+<span class="line"><span style="color:#E6EDF3">      approvedBy: actor,</span></span>
+<span class="line"><span style="color:#E6EDF3">      approvedAt: Date.</span><span style="color:#D2A8FF">now</span><span style="color:#E6EDF3">(),</span></span>
+<span class="line"><span style="color:#E6EDF3">      executedJobId: jobId,</span></span>
+<span class="line"><span style="color:#E6EDF3">      updatedAt: Date.</span><span style="color:#D2A8FF">now</span><span style="color:#E6EDF3">(),</span></span>
+<span class="line"><span style="color:#E6EDF3">    });</span></span>
+<span class="line"><span style="color:#FF7B72">    return</span><span style="color:#E6EDF3"> { ok: </span><span style="color:#79C0FF">true</span><span style="color:#E6EDF3">, status: </span><span style="color:#A5D6FF">"approved"</span><span style="color:#E6EDF3">, jobId, planHash: args.planHash };</span></span>
+<span class="line"><span style="color:#E6EDF3">  },</span></span>
+<span class="line"><span style="color:#E6EDF3">});</span></span></code></pre>
+</section>
+    </div>
+  </main>
+</body>
+</html>
