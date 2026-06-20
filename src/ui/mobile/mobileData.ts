@@ -274,6 +274,9 @@ export interface RowField {
   v: string;
   status: string;
   tone: Tone;
+  /** Live cell address + CAS baseline — present only for live rows (enables in-place edit). */
+  elementId?: string;
+  version?: number;
 }
 export interface Row {
   entity: string;

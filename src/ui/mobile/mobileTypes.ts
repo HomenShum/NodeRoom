@@ -15,7 +15,10 @@ import type {
   RoomMsg,
   AgentMsg,
   Person,
+  Row,
 } from "./mobileData";
+
+export type RowEditResult = { ok: boolean; reason?: string; version?: number };
 
 export type SaveState = "saving" | "saved" | "idle";
 export type RunState = "plan" | "running" | "done";
@@ -82,6 +85,10 @@ export interface MobileCtx {
   runQuick: (q: QuickPrompt) => void;
   openRow: () => void;
   askAboutRow: () => void;
+  /** CardioNova row — live cells when bound to a room, else the sample row. */
+  row: Row;
+  /** In-place cell edit with CAS (baseVersion); resolves with the live edit result. */
+  editRowField: (elementId: string, value: string, baseVersion: number) => Promise<RowEditResult>;
 }
 
 /** Live room data injected into MobileApp by MobileAppLive (see MobileRoot). */
@@ -96,5 +103,7 @@ export interface MobileLive {
   agentRoom: AgentMsg[];
   askPrivateAgent: (goal: string) => void;
   askRoomAgent: (goal: string) => void;
+  row: Row;
+  editRowField: (elementId: string, value: string, baseVersion: number) => Promise<RowEditResult>;
   onLeave?: () => void;
 }

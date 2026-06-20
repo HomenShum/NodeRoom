@@ -121,3 +121,32 @@
   padding: 12px;
   font-size: 14px;
 }
+
+/* ── live ROW inline cell edit ─────────────────────────────────────────────── */
+.na-rowcard .na-roweditable {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  color: var(--text-primary);
+  text-align: right;
+  cursor: pointer;
+  border-bottom: 1px dashed var(--accent-border, var(--border-strong));
+}
+.na-rowcard .na-roweditable:hover {
+  color: var(--na-accent);
+}
+.na-rowedit {
+  width: 55%;
+  padding: 4px 8px;
+  border-radius: 7px;
+  border: 1px solid var(--na-accent);
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  font-family: var(--font-ui);
+  font-size: 13px;
+  text-align: right;
+}
+.na-rowedit:focus {
+  outline: none;
+}

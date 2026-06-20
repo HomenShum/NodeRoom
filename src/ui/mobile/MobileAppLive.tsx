@@ -7,8 +7,8 @@
    Other panels remain sample data until their live wiring lands.
    ============================================================================ */
 import { useStore } from "../../app/store";
-import type { Actor, Message, Member } from "../../engine/types";
-import type { RoomMsg, Person, AgentMsg } from "./mobileData";
+import type { Actor, Message, Member, CellStatus } from "../../engine/types";
+import type { RoomMsg, Person, AgentMsg, Row, Tone } from "./mobileData";
 import type { MobileLive } from "./mobileTypes";
 import { MobileApp } from "./MobileApp";
 
@@ -59,12 +59,58 @@ function reshapeAgentMsgs(messages: Message[]): AgentMsg[] {
     m.author.kind === "user" ? { id: m.id, role: "user", text: m.text } : { id: m.id, role: "agent", variant: "text", text: m.text });
 }
 
+// ── live CardioNova row (the Company research sheet) ────────────────────────
+const RESEARCH_ROW = "rc_cardionova";
+const ROW_FIELDS: { col: string; label: string }[] = [
+  { col: "intent", label: "Product" },
+  { col: "funding", label: "Funding" },
+  { col: "headcount", label: "Headcount" },
+  { col: "owner", label: "Contact" },
+];
+
+// A cell's value is either a raw seed string or an enriched CellPayload { value, status, evidence }.
+function cellPayload(value: unknown): { value: unknown; status?: CellStatus } {
+  if (value && typeof value === "object" && "value" in (value as Record<string, unknown>)) {
+    return value as { value: unknown; status?: CellStatus };
+  }
+  return { value };
+}
+function cellDisplay(value: unknown): string {
+  if (value === null || value === undefined || value === "") return "—";
+  return String(value);
+}
+function cellTone(s?: CellStatus): Tone {
+  if (s === "complete") return "ok";
+  if (s === "needs_review" || s === "running") return "warn";
+  if (s === "gap" || s === "failed") return "bad";
+  return "mute";
+}
+
 export function MobileAppLive({ roomId, me, onLeave }: { roomId: string; me: Actor; onLeave?: () => void }) {
   const store = useStore();
   const room = store.getRoom(roomId);
   const members = store.listMembers(roomId);
   const messages = store.listMessages(roomId, "public");
   const privateMsgs = store.listMessages(roomId, { private: me.id });
+
+  const researchSheet = store.listArtifacts(roomId).find((a) => a.kind === "sheet" && a.title === "Company research");
+  const researchArt = researchSheet ? store.getArtifact(researchSheet.id) : undefined;
+  const liveRow: Row = {
+    entity: "CardioNova",
+    sub: "healthtech · row in Company research",
+    fields: researchArt
+      ? ROW_FIELDS.map(({ col, label }) => {
+          const elementId = `${RESEARCH_ROW}__${col}`;
+          const el = researchArt.elements[elementId];
+          const p = cellPayload(el?.value);
+          return { k: label, v: cellDisplay(p.value), status: p.status ?? "live", tone: cellTone(p.status), elementId, version: el?.version ?? 0 };
+        })
+      : [],
+  };
+  const editRowField = async (elementId: string, value: string, baseVersion: number) => {
+    if (!researchSheet) return { ok: false, reason: "no_sheet" };
+    return store.applyEdit({ roomId, op: { opId: crypto.randomUUID(), artifactId: researchSheet.id, elementId, kind: "set", value, baseVersion }, actor: me });
+  };
 
   const live: MobileLive = {
     roomName: room?.title ?? "Room",
@@ -85,6 +131,8 @@ export function MobileAppLive({ roomId, me, onLeave }: { roomId: string; me: Act
       void store.postMessage({ roomId, channel: "public", author: me, text: goal, clientMsgId: crypto.randomUUID(), kind: "chat" });
       void store.askAgent({ goal });
     },
+    row: liveRow,
+    editRowField,
     onLeave,
   };
 

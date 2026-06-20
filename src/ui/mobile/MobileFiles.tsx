@@ -8,6 +8,7 @@ import { Ico } from "./MobileIcons";
 import { Pill, riStyle } from "./MobileScreens";
 import * as D from "./mobileData";
 import type { MobileCtx } from "./mobileTypes";
+import type { RowField } from "./mobileData";
 
 // ── FILES TAB ─────────────────────────────────────────────────────────────
 export function Files({ ctx }: { ctx: MobileCtx }) {
@@ -45,13 +46,13 @@ export function Files({ ctx }: { ctx: MobileCtx }) {
       React.createElement(
         "div",
         { className: "na-card-head accent" },
-        React.createElement("div", { className: "na-card-title" }, React.createElement("strong", null, D.ROW.entity), React.createElement("span", null, D.ROW.sub)),
+        React.createElement("div", { className: "na-card-title" }, React.createElement("strong", null, ctx.row.entity), React.createElement("span", null, ctx.row.sub)),
         React.createElement(Pill, { tone: "warn" }, "2 to review"),
       ),
       React.createElement(
         "div",
         { className: "na-card-body accent na-rowcard" },
-        D.ROW.fields.slice(0, 3).map((f, i) =>
+        ctx.row.fields.slice(0, 3).map((f, i) =>
           React.createElement(
             "div",
             { key: i, className: "field" },
@@ -78,13 +79,45 @@ export function Files({ ctx }: { ctx: MobileCtx }) {
 
 // ── ROW DETAIL SHEET ────────────────────────────────────────────────────
 export function RowSheet({ ctx }: { ctx: MobileCtx }) {
+  const row = ctx.row;
+  const [editing, setEditing] = React.useState<string | null>(null);
+  const [draft, setDraft] = React.useState("");
+  const saveEdit = (f: RowField) => {
+    if (!f.elementId) return;
+    void ctx.editRowField(f.elementId, draft, f.version ?? 0).then((r) => {
+      ctx.toast(r.ok ? "Saved" : r.reason === "conflict" ? "Changed on another device — reopened with the latest" : "Edit failed");
+      setEditing(null);
+    });
+  };
+  const fieldRow = (f: RowField, i: number) =>
+    React.createElement(
+      "div",
+      { key: i, className: "field" },
+      React.createElement("span", { className: "k" }, f.k),
+      ctx.isLive && f.elementId && editing === f.elementId
+        ? React.createElement("input", {
+            className: "na-rowedit",
+            autoFocus: true,
+            value: draft,
+            onChange: (e: React.ChangeEvent<HTMLInputElement>) => setDraft(e.target.value),
+            onKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) => {
+              if (e.key === "Enter") saveEdit(f);
+              if (e.key === "Escape") setEditing(null);
+            },
+            onBlur: () => saveEdit(f),
+          })
+        : ctx.isLive && f.elementId
+          ? React.createElement("button", { className: "v na-roweditable", onClick: () => { setEditing(f.elementId ?? null); setDraft(f.v === "—" ? "" : f.v); } }, f.v)
+          : React.createElement("span", { className: "v" }, f.v),
+      React.createElement(Pill, { tone: f.tone }, f.status),
+    );
   return React.createElement(
     React.Fragment,
     null,
     React.createElement(
       "div",
       { className: "na-sheet-head" },
-      React.createElement("div", { className: "st" }, React.createElement("strong", null, D.ROW.entity), React.createElement("span", null, D.ROW.sub)),
+      React.createElement("div", { className: "st" }, React.createElement("strong", null, row.entity), React.createElement("span", null, row.sub)),
       React.createElement("button", { className: "na-close", onClick: ctx.closeSheet, "aria-label": "Close" }, Ico("x")),
     ),
     React.createElement(
@@ -96,23 +129,15 @@ export function RowSheet({ ctx }: { ctx: MobileCtx }) {
         React.createElement(
           "div",
           { className: "na-card-body", style: { paddingTop: "var(--na-pad)" } },
-          D.ROW.fields.map((f, i) =>
-            React.createElement(
-              "div",
-              { key: i, className: "field" },
-              React.createElement("span", { className: "k" }, f.k),
-              React.createElement("span", { className: "v" }, f.v),
-              React.createElement(Pill, { tone: f.tone }, f.status),
-            ),
-          ),
+          row.fields.map(fieldRow),
         ),
       ),
       React.createElement(
         "p",
         { className: "na-prose", style: { margin: 0, fontSize: 13 } },
-        "Two fields are ",
-        React.createElement("b", null, "not source-backed yet"),
-        ". The agent can search inside the approved scope, or you can edit a field by hand.",
+        ctx.isLive
+          ? "Tap a value to edit it in place — changes sync to everyone, conflict-safe (CAS)."
+          : "Two fields are not source-backed yet. The agent can search inside the approved scope, or you can edit a field by hand.",
       ),
     ),
     React.createElement(
@@ -127,7 +152,7 @@ export function RowSheet({ ctx }: { ctx: MobileCtx }) {
       React.createElement(
         "div",
         { className: "na-btn-row" },
-        React.createElement("button", { className: "na-btn", onClick: () => ctx.toast("Edit one field — full row on desktop") }, Ico("pen"), "Edit row"),
+        React.createElement("button", { className: "na-btn", onClick: () => ctx.toast(ctx.isLive ? "Tap a value above to edit it" : "Edit one field — full row on desktop") }, Ico("pen"), "Edit row"),
         React.createElement("button", { className: "na-btn primary", onClick: () => { ctx.toast("Row proposal approved"); ctx.closeSheet(); } }, Ico("check"), "Approve"),
       ),
     ),

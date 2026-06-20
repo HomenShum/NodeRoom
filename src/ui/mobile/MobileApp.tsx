@@ -342,6 +342,8 @@ export function MobileApp({ live }: { live?: MobileLive } = {}) {
     runQuick,
     openRow,
     askAboutRow,
+    row: live?.row ?? D.ROW,
+    editRowField: live?.editRowField ?? (async () => ({ ok: false, reason: "offline" })),
   };
 
   const Screen = SCREENS[tab];
