@@ -250,6 +250,28 @@ export function Composer({ ctx }: { ctx: MobileCtx }) {
 
 // ── JOBS SHEET ────────────────────────────────────────────────────────────
 export function JobsSheet({ ctx }: { ctx: MobileCtx }) {
+  if (ctx.isLive)
+    return React.createElement(
+      React.Fragment,
+      null,
+      React.createElement(
+        "div",
+        { className: "na-sheet-head" },
+        React.createElement("div", { className: "st" }, React.createElement("strong", null, "Agent jobs"), React.createElement("span", null, "Live queue")),
+        React.createElement("button", { className: "na-close", onClick: ctx.closeSheet, "aria-label": "Close" }, Ico("x")),
+      ),
+      React.createElement(
+        "div",
+        { className: "na-sheet-body" },
+        React.createElement(
+          "div",
+          { className: "na-empty" },
+          React.createElement("div", { className: "eico" }, Ico("history")),
+          React.createElement("strong", null, "No agent jobs yet"),
+          React.createElement("span", null, "Runs you start in this room appear here with live cost and status."),
+        ),
+      ),
+    );
   const J = D.JOBS;
   const meta = (text: string) => React.createElement("span", { className: "m" }, text);
   const job = (j: Job, kind: "running" | "queued" | "completed") =>

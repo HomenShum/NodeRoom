@@ -15,8 +15,8 @@ export function Files({ ctx }: { ctx: MobileCtx }) {
   return React.createElement(
     React.Fragment,
     null,
-    React.createElement("div", { className: "na-kicker" }, "Open in this room"),
-    React.createElement(
+    !ctx.isLive && React.createElement("div", { className: "na-kicker" }, "Open in this room"),
+    !ctx.isLive && React.createElement(
       "div",
       { className: "na-card" },
       React.createElement(
@@ -58,7 +58,7 @@ export function Files({ ctx }: { ctx: MobileCtx }) {
             { key: i, className: "field" },
             React.createElement("span", { className: "k" }, f.k),
             React.createElement("span", { className: "v" }, f.v),
-            React.createElement(Pill, { tone: f.tone }, f.status),
+            f.status && React.createElement(Pill, { tone: f.tone }, f.status),
           ),
         ),
         React.createElement(
@@ -85,8 +85,15 @@ export function RowSheet({ ctx }: { ctx: MobileCtx }) {
   const saveEdit = (f: RowField) => {
     if (!f.elementId) return;
     void ctx.editRowField(f.elementId, draft, f.version ?? 0).then((r) => {
-      ctx.toast(r.ok ? "Saved" : r.reason === "conflict" ? "Changed on another device — reopened with the latest" : "Edit failed");
-      setEditing(null);
+      if (r.ok) {
+        ctx.toast("Saved");
+        setEditing(null);
+      } else if (r.reason === "conflict") {
+        ctx.toast("Changed on another device — showing the latest");
+        setDraft(f.v === "—" ? "" : f.v);
+      } else {
+        ctx.toast("Edit failed");
+      }
     });
   };
   const fieldRow = (f: RowField, i: number) =>
@@ -109,7 +116,7 @@ export function RowSheet({ ctx }: { ctx: MobileCtx }) {
         : ctx.isLive && f.elementId
           ? React.createElement("button", { className: "v na-roweditable", onClick: () => { setEditing(f.elementId ?? null); setDraft(f.v === "—" ? "" : f.v); } }, f.v)
           : React.createElement("span", { className: "v" }, f.v),
-      React.createElement(Pill, { tone: f.tone }, f.status),
+      f.status && React.createElement(Pill, { tone: f.tone }, f.status),
     );
   return React.createElement(
     React.Fragment,
@@ -149,12 +156,13 @@ export function RowSheet({ ctx }: { ctx: MobileCtx }) {
         React.createElement("button", { className: "na-btn", onClick: () => ctx.openSheet("evidence") }, Ico("file"), "Open evidence"),
         React.createElement("button", { className: "na-btn", onClick: () => ctx.askAboutRow() }, Ico("sparkles"), "Ask agent"),
       ),
-      React.createElement(
-        "div",
-        { className: "na-btn-row" },
-        React.createElement("button", { className: "na-btn", onClick: () => ctx.toast(ctx.isLive ? "Tap a value above to edit it" : "Edit one field — full row on desktop") }, Ico("pen"), "Edit row"),
-        React.createElement("button", { className: "na-btn primary", onClick: () => { ctx.toast("Row proposal approved"); ctx.closeSheet(); } }, Ico("check"), "Approve"),
-      ),
+      !ctx.isLive &&
+        React.createElement(
+          "div",
+          { className: "na-btn-row" },
+          React.createElement("button", { className: "na-btn", onClick: () => ctx.toast("Edit one field — full row on desktop") }, Ico("pen"), "Edit row"),
+          React.createElement("button", { className: "na-btn primary", onClick: () => { ctx.toast("Row proposal approved"); ctx.closeSheet(); } }, Ico("check"), "Approve"),
+        ),
     ),
   );
 }

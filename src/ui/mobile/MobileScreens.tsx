@@ -87,6 +87,7 @@ export function Capture({ ctx }: { ctx: MobileCtx }) {
     // detected entities
     detected &&
       t.passive !== "off" &&
+      !ctx.isLive &&
       React.createElement(
         React.Fragment,
         null,
@@ -109,6 +110,7 @@ export function Capture({ ctx }: { ctx: MobileCtx }) {
     // NodeRoom noticed → opens the work plan
     noticed &&
       t.passive !== "off" &&
+      !ctx.isLive &&
       React.createElement(
         "button",
         { className: "na-noticed", onClick: () => ctx.openSheet("plan") },
@@ -135,6 +137,8 @@ export function Capture({ ctx }: { ctx: MobileCtx }) {
 
 // ── INBOX ───────────────────────────────────────────────────────────────
 export function Inbox({ ctx }: { ctx: MobileCtx }) {
+  if (ctx.isLive)
+    return emptyState("inbox", "Inbox is up to date", "Approvals, gaps, and coach prompts will appear here as the room produces them.");
   const { resolved } = ctx;
   const open = D.INBOX.filter((i) => !resolved[i.id]);
   const done = D.INBOX.filter((i) => resolved[i.id]);

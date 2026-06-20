@@ -298,7 +298,7 @@ export function MobileApp({ live }: { live?: MobileLive } = {}) {
     closeSheet();
   };
 
-  const openCount = D.INBOX.filter((i) => !resolved[i.id] && i.statusTone !== "ok").length;
+  const openCount = live ? 0 : D.INBOX.filter((i) => !resolved[i.id] && i.statusTone !== "ok").length;
 
   const people = live?.people ?? D.PEOPLE;
   const roomMeta = live

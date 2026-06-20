@@ -103,7 +103,7 @@ export function MobileAppLive({ roomId, me, onLeave }: { roomId: string; me: Act
           const elementId = `${RESEARCH_ROW}__${col}`;
           const el = researchArt.elements[elementId];
           const p = cellPayload(el?.value);
-          return { k: label, v: cellDisplay(p.value), status: p.status ?? "live", tone: cellTone(p.status), elementId, version: el?.version ?? 0 };
+          return { k: label, v: cellDisplay(p.value), status: p.status ?? "", tone: cellTone(p.status), elementId, version: el?.version ?? 0 };
         })
       : [],
   };
