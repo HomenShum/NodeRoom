@@ -85,11 +85,12 @@ describe("production QA matrix", () => {
     }
   });
 
-  it("renders manual or missing live checks as graph gaps instead of coverage", () => {
+  it("renders manual or missing live checks as graph gaps instead of green coverage", () => {
     const script = readFileSync(join(root, "scripts/qa-matrix.ts"), "utf8");
     const browserE2E = matrix.features.find((feature) => feature.id === "browser_e2e_dogfood");
 
-    expect(browserE2E?.status).toBe("red");
+    expect(browserE2E?.status).toBe("yellow");
+    expect(browserE2E?.liveChecks).toContain("npm run test:product:memory");
     expect(browserE2E?.liveChecks.some((check) => /^missing:/i.test(check))).toBe(true);
     expect(script).toContain("executedLiveCheck");
     expect(script).toContain("manual browser");

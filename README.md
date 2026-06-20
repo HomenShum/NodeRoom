@@ -4,13 +4,14 @@
 
 ### A live room where humans and NodeAgents edit together — without clobbering each other.
 
-**Public room chat, a private NodeAgent, and a shared spreadsheet / note / post-it wall —
-with a `lock → draft → smart-merge` model so a human and an AI agent edit the same cells
-through the same versioned concurrency control.**
+**Public room chat, a private NodeAgent, and shared spreadsheet / native-notebook /
+post-it surfaces — with advisory presence, versioned CAS, drafts/proposals, and
+short publish leases so a human and an AI agent can work beside each other without
+silent overwrite.**
 
-`multi-panel room` · `public + private agents` · `composer model picker` · `affected-range lock` · `draft-for-merge` · `per-room traces` · `live Convex + real LLM`
+`multi-panel room` · `public + private agents` · `route preference` · `presence + intent claims` · `draft-for-merge` · `per-room traces` · `live Convex + real LLM`
 
-[Why Convex](#why-convex-and-why-not) · [Audience fluency](#audience-world-proof-artifacts) · [Solo automation](#how-i-automated-the-process-as-a-single-person) · [Lessons](#lessons-from-building-noderoom) · [Managed locks](#managed-locks-what-to-give-the-agent) · [Multi-user proof](docs/eval/MULTI_USER_COORDINATION_PROOF.md) · [June 2026 target](docs/TARGET_2026_06.md) · [Sequences](#live-collaboration-sequence) · [Harness reasoning](docs/HARNESS_RECURSIVE_REASONING.md) · [Adoption](docs/NODEAGENT_ADOPTION.md) · [Why & HALO](docs/WHY_NODEAGENT_AND_HALO.md) · [Quickstart](#quickstart) · [Agent runtime](docs/AGENT_RUNTIME.md) · [NodeAgent source map](docs/NODEAGENT_SOURCE_MAP.md) · [Agent eval](docs/AGENT_EVAL.md) · [Model eval matrix](docs/eval/MODEL_EVAL_MATRIX.md) · [Feature eval backlog](docs/eval/FEATURE_EVAL_BACKLOG.md) · [Agent wiki](docs/AGENT_WIKI.md) · [Design](docs/DESIGN.md) · [Stack](docs/STACK.md) · [Walkthrough](docs/WALKTHROUGH.md) · [Architecture](docs/ARCHITECTURE.md) · [Diagrams](docs/diagrams/README.md) · [Open gaps](docs/GAPS_NOT_DONE.md)
+[Why Convex](#why-convex-and-why-not) · [Architecture evolution](#collaboration-architecture-evolution) · [Audience fluency](#audience-world-proof-artifacts) · [Solo automation](#how-i-automated-the-process-as-a-single-person) · [Lessons](#lessons-from-building-noderoom) · [Managed writes](#managed-writes-legacy-lock-proof-and-next-lease-layer) · [Multi-user proof](docs/eval/MULTI_USER_COORDINATION_PROOF.md) · [June 2026 target](docs/TARGET_2026_06.md) · [Sequences](#live-collaboration-sequence) · [Harness reasoning](docs/HARNESS_RECURSIVE_REASONING.md) · [Adoption](docs/NODEAGENT_ADOPTION.md) · [Why & HALO](docs/WHY_NODEAGENT_AND_HALO.md) · [Quickstart](#quickstart) · [Agent runtime](docs/AGENT_RUNTIME.md) · [NodeAgent source map](docs/NODEAGENT_SOURCE_MAP.md) · [Agent eval](docs/AGENT_EVAL.md) · [Model eval matrix](docs/eval/MODEL_EVAL_MATRIX.md) · [Feature eval backlog](docs/eval/FEATURE_EVAL_BACKLOG.md) · [Agent wiki](docs/AGENT_WIKI.md) · [Design](docs/DESIGN.md) · [Stack](docs/STACK.md) · [Walkthrough](docs/WALKTHROUGH.md) · [Architecture](docs/ARCHITECTURE.md) · [Diagrams](docs/diagrams/README.md) · [Open gaps](docs/GAPS_NOT_DONE.md)
 
 [Interview notes](docs/INTERVIEW_NOTES.md) · [Over-engineering audit](docs/OVERENGINEERING_AUDIT.md) · [Improvement roadmap](docs/IMPROVEMENT_ROADMAP.md) · [Next priorities](docs/NEXT_STEPS_PRIORITY.md) · [Operating budget](docs/OPERATING_BUDGET.md) · [Audience workloads](docs/AUDIENCE_WORKLOADS.md)
 
@@ -23,11 +24,42 @@ through the same versioned concurrency control.**
 ---
 
 NodeRoom is a collaborative room where a **public room NodeAgent** and your **private NodeAgent**
-work alongside humans on a shared spreadsheet, note, and post-it wall. The hard part — and the
-point — is that **an agent and a human never silently overwrite each other**: every edit carries a
-per-element version (CAS), an agent claims an *affected range* with a lock that makes it read-only
-(but still readable as context), a blocked agent **drafts** changes around the lock, and on unlock
-the draft **smart-merges** and can never clobber committed work.
+work alongside humans on shared spreadsheet, notebook, and post-it surfaces. The hard part — and the
+point — is that **an agent and a human never silently overwrite each other**: committed edits carry
+per-element versions (CAS), presence/intent is advisory rather than a disabled overlay, agents draft
+or branch work from a committed snapshot, and publishing uses checked writes that either commit
+cleanly or become reviewable conflict proposals.
+
+## Collaboration Architecture Evolution
+
+The legacy choices were useful proofs, but they were not exactly the product
+shape we want for fast human+agent coediting:
+
+- **Affected-range locks** made no-clobber behavior easy to prove and easy to
+  inspect in evals. They are too heavy as the everyday UX: a visible blocked
+  region feels like a reservation system, not Google Sheets or Figma.
+- **Full HTML blur commits** were a practical checkpoint/export path for the
+  early note editor. They are too coarse for serious notebook sync: one small
+  text edit becomes a whole-document write, conflict feedback is poor, and the
+  user has to wait for blur/save semantics instead of seeing live collaboration.
+- **Hot, broad spreadsheet index refreshes** were safe for correctness while the
+  semantic layer was young. They are too expensive for the critical edit loop,
+  so indexing needs to be incremental, coalesced, and backgrounded.
+- **Client-side route/model policy knobs** helped product iteration. They are
+  not a security boundary: the client should submit intent and preferences, and
+  the server should derive model policy, approval policy, evidence policy,
+  allowlists, rate limits, and auto-allow behavior.
+
+The direction now is stable structure first, then low-friction collaboration:
+cells, notebook blocks, slide components, and deck-plan JSON carry durable ids;
+presence and intent claims show who or what is active without locking the work
+surface; agents build patch bundles against the last committed tick; publish is
+a short exact-target lease plus final CAS; and Compare-Reason-Swap proposals
+appear only when the meaning truly conflicts. The first spreadsheet slice of
+this direction is shipped through `presenceClaims` and coalesced index refresh;
+native notebooks move serious text sync to the ProseMirror sidecar; PowerPoint
+uses `deck-plan` JSON as the source of truth, with HTML/PPTX/PDF as derived
+preview/export surfaces.
 
 The current reasoning direction is also explicit: "Fable-like" recursive context
 and multi-frame reasoning are harness capabilities, not provider dependencies.
@@ -437,10 +469,12 @@ recorded from the REAL app UI driven by the real agent runtime in memory mode
 
 ![@nodeagent reconcile drives the sheet through chat](docs/eval/workflow-previews/app-ask-reconcile.gif)
 
-User types `@nodeagent reconcile Q3 revenue`; the public chat composer can pin that
-request to the adaptive lane, free-auto, top-paid, or a specific model policy.
-The Room NodeAgent creates/reuses an `agentJobs` root, locks exact cells, reads
-versions, writes with CAS, releases, and leaves visible room trace receipts.
+User types `@nodeagent reconcile Q3 revenue`; the public chat composer records a
+route preference, but the server derives the model, approval, evidence, allowlist,
+and rate-limit policy. The Room NodeAgent creates/reuses an `agentJobs` root,
+reads committed versions, writes through checked CAS/proposal paths, and leaves
+visible room trace receipts. The next fast-coedit layer replaces broad human-visible
+range locks with soft intent claims plus a short exact-target publish lease.
 
 ### GTM Research Enrichment
 
@@ -531,18 +565,27 @@ The HALO ladder also renders trace-replayed skill previews from real ladder JSON
 (`l1-read` through `l6-long-horizon`) in `docs/eval/workflow-previews/`, so a
 workflow change has a small visual proof, not only a text score.
 
-### Managed Locks: What To Give The Agent
+### Managed Writes: Legacy Lock Proof And Next Lease Layer
 
-The first lock/CAS evals intentionally made the model call `propose_lock -> edit_cell -> release_lock` so we could prove it understood the collaboration protocol. Production should not keep paying for that once the invariant is proven. The production bundle now exposes `write_locked_cells` / `write_locked_cell_results`: the model supplies target cells, values/formulas/evidence, and base versions; the runtime acquires the range lock, writes with CAS, drafts if blocked, releases in `finally`, and returns coordination evidence.
+The first lock/CAS evals intentionally made the model call `propose_lock -> edit_cell -> release_lock` so we could prove it understood the collaboration protocol. The managed-write bundle then hid most coordination calls behind `write_locked_cells` / `write_locked_cell_results`: the model supplies target cells, values/formulas/evidence, and base versions while the runtime performs checked writes and returns coordination evidence.
 
-| Lane | Evidence | Model calls | Agent tool calls | Model-visible lock calls | Tool trace |
+That remains useful as a legacy proof lane and debug ladder, but it is not the
+fast human-visible coediting model. It over-exposes coordination to the model,
+can make regions feel blocked while a long agent thinks, and encourages a
+"reserve first, work later" rhythm instead of live side-by-side editing. The
+desired runtime shape is the reverse: the agent declares intent softly, humans
+keep editing, the runtime computes the affected set, and only the final publish
+uses a short exact-target lease, final CAS, and CRS/proposals when meaning
+actually conflicts.
+
+| Legacy/proof lane | Evidence | Model calls | Agent tool calls | Model-visible lock calls | Tool trace |
 |---|---:|---:|---:|---:|---|
 | Explicit lock tools | deterministic runtime | 7 | 6 | 2 | `propose_lock -> read_range -> edit_cell -> read_range -> edit_cell -> release_lock` |
 | Runtime-managed lock | deterministic runtime | 3 | 2 | 0 | `read_range -> write_locked_cells` |
 | Explicit lock tools | live `deepseek/deepseek-v4-flash` | 5 | 5 | 2 | `read_range -> propose_lock -> edit_cell -> edit_cell -> release_lock` |
 | Runtime-managed lock | live `deepseek/deepseek-v4-flash` | 4 | 3 | 0 | `read_range -> write_locked_cells -> read_range` |
 
-The safety invariant did not move to the model: `tests/managedLockTools.test.ts` injects a human write during the managed write and proves it is blocked while the runtime-held lock is active. `npm run eval:multiuser-coordination` extends that to a multi-actor proof: human-vs-human same-cell edits converge with one winner and one CAS conflict, target writes are blocked, non-target peer writes continue, stale bases conflict, blocked second agents draft, and every path releases its lock. The eval artifacts are [`docs/eval/managed-lock-performance.json`](docs/eval/managed-lock-performance.json), [`docs/eval/managed-lock-performance-live.json`](docs/eval/managed-lock-performance-live.json), [`docs/eval/multi-user-coordination-proof.json`](docs/eval/multi-user-coordination-proof.json), [`docs/eval/MANAGED_LOCK_PERF.md`](docs/eval/MANAGED_LOCK_PERF.md), and [`docs/eval/MULTI_USER_COORDINATION_PROOF.md`](docs/eval/MULTI_USER_COORDINATION_PROOF.md).
+The safety invariant did not move to the model: `tests/managedLockTools.test.ts` injects a human write during the managed write and proves the legacy lock lane blocks target writes. `npm run eval:multiuser-coordination` extends that to a multi-actor proof: human-vs-human same-cell edits converge with one winner and one CAS conflict, target writes are blocked under the legacy lane, non-target peer writes continue, stale bases conflict, blocked second agents draft, and every path releases its lock. The eval artifacts are [`docs/eval/managed-lock-performance.json`](docs/eval/managed-lock-performance.json), [`docs/eval/managed-lock-performance-live.json`](docs/eval/managed-lock-performance-live.json), [`docs/eval/multi-user-coordination-proof.json`](docs/eval/multi-user-coordination-proof.json), [`docs/eval/MANAGED_LOCK_PERF.md`](docs/eval/MANAGED_LOCK_PERF.md), and [`docs/eval/MULTI_USER_COORDINATION_PROOF.md`](docs/eval/MULTI_USER_COORDINATION_PROOF.md).
 
 **Rule of thumb:** give the agent business intent, target cells, formulas/values/evidence, and base versions. Take away lock acquisition, unlock sequencing, range coordination, draft-on-blocked mechanics, and release cleanup. Deterministic coordination belongs in the harness.
 
@@ -585,8 +628,9 @@ earns a captured walkthrough, in this order:
 1. **Teach me (Guide mode)** — the agent coaches a student through the model
    with **zero writes to answer cells**; the clip shows hints landing while the
    sheet stays agent-untouched (restraint is the visual).
-2. **Modeling test · Collaborate** — agent + two humans split IS/BS/CF under
-   range locks; drafts smart-merge on release across shared linkage rows.
+2. **Modeling test · Collaborate** — agent + two humans split IS/BS/CF with
+   advisory presence/intent, CAS, and reviewable drafts/proposals across shared
+   linkage rows.
 3. **L7 RESUME live** — slice death mid-job, a human revises a cell while the
    agent is dead, the cold continuation finishes only what remains.
 4. **File-drop ingestion** — a 10-K PDF + XLSX dropped into the room becomes a
@@ -674,7 +718,7 @@ Target workflow expectations:
 | Finance / ops spreadsheets | Formula cells become hardcoded, correct cells churn versions, totals lack source rows, or payroll/account data leaks. | Preserve formulas/layout, reconcile bounded cells only, skip already-correct cells, cite source rows, and redact sensitive public output. |
 | Banker / finance modeling | Best-run demos overclaim, answer-key leakage contaminates results, formulas and export/reopen fidelity are unproven. | Report solve/guide/collaborate as harnessed proof tiers, keep private gold private, and include model plus harness plus budget plus evaluator. |
 | Family office / private wealth IC rooms | Unsourced allocation numbers and private working notes become trust failures, especially if sent to third-party models. | Chain of custody, review-before-mutation, private-draft redaction, evidence-bearing cells, and bounded principal-ready summaries. |
-| Founder / advisor collaboration | Counsel, banker, accountant, and agent silently overwrite each other; stuck locks block deadline work. | Affected-range lock, per-element CAS, host-reviewed proposals, host takeover, and trace/status evidence for what changed. |
+| Founder / advisor collaboration | Counsel, banker, accountant, and agent silently overwrite each other; stuck coordination blocks deadline work. | Advisory presence/intent, per-element CAS, short publish leases, host-reviewed proposals, host takeover, and trace/status evidence for what changed. |
 | Boutique M&A / deal teams | Comps and QoE adjustments lose provenance, working layers leak, concurrent edits corrupt live deal workbooks. | Deal-binder framing, source/proof panes, full operation ledger, no-silent-clobber, and redacted summaries for readouts. |
 | Multi-file research and grounded wiki | Agent cites chat instead of artifacts, leaks private files into public traces, or writes unstable wiki sections. | Artifact refs, cited wiki/note updates, public/private boundaries, stable sections, and no private-source leakage. |
 | Large-sheet / long-running workflows | A 9,000-row sheet turns into one giant prompt, resumes duplicate writes, or spend is unbounded. | Semantic chunks, checkpoints, resolved-model audit, `/free` as budgeted/experimental, and idempotent resume behavior. |
@@ -689,7 +733,7 @@ internal mutation → reactive query stream → every screen updates**. Convex i
 infrastructure in this repo because that loop is exactly what it sells natively: transactional
 mutations (serializable OCC), reactive subscriptions over WebSockets, and a scheduler — the
 pub/sub, cache-invalidation, and message-broker layers you'd otherwise hand-build. The no-clobber
-spine (per-element CAS + affected-range locks + draft-merge) rides *on top* of Convex's OCC; the
+spine (per-element CAS + advisory intent/short publish leases + draft/proposal merge, with legacy affected-range locks as a proof lane) rides *on top* of Convex's OCC; the
 database's own concurrency control protects transactions, and the app-level versions protect
 *intent* — both layers are needed, and [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) shows where each one catches what.
 
@@ -730,7 +774,7 @@ unless we explicitly wire that access.
 |---|---|---|
 | [`@convex-dev/workflow`](https://www.convex.dev/components/workflow) | Durable multi-step functions with persisted state, delays, retries, cancellation, and reactive status. | Long agent jobs run as slices, but `agentJobs` stays the user-facing source of truth. Workflow ids are runtime metadata. |
 | [`@convex-dev/workpool`](https://www.convex.dev/components/workpool) | Queues for actions/mutations with parallelism limits, backoff, jitter, and completion callbacks. | Background agent slices go through the named `agentWorkpool` so slow routes do not become unbounded server fan-out. |
-| [`@convex-dev/persistent-text-streaming`](https://www.convex.dev/components/persistent-text-streaming) | Streaming text chunks that are also persisted to Convex for recovery and later reads. | Private text replies can stream; spreadsheet/note/wall writes still go through CAS, proposals, and evidence-bearing tools. |
+| [`@convex-dev/persistent-text-streaming`](https://www.convex.dev/components/persistent-text-streaming) | Streaming text chunks that are also persisted to Convex for recovery and later reads. | Private text replies can stream; spreadsheet, legacy-note, and wall writes still go through CAS, proposals, and evidence-bearing tools. Native notebook text uses the ProseMirror sidecar path. |
 | [`@ikhrustalev/convex-debouncer`](https://www.convex.dev/components/ikhrustalev/convex-debouncer) | Server-side quiet-window debouncing for expensive operations. | Installed and registered. `roomActivityOutbox` uses it to run passive scans after edits/uploads settle instead of on every keystroke. |
 | [Convex File Storage](https://docs.convex.dev/file-storage/upload-files) | Built-in upload URLs, storage ids, metadata, and storage APIs. | Canonical raw file store. `uploadedFiles.storageId` remains the durable source of truth for room files. |
 | [`@transloadit/convex`](https://github.com/transloadit/convex) | Signed Uppy/Transloadit assemblies, webhook ingestion, and persisted processing results. | Wrapped through `fileProcessingJobs` first. Direct component install waits for Transloadit keys and Node/runtime confirmation; assembly ids stay adapter metadata. |
@@ -887,7 +931,7 @@ provider billing for completed steps.
 
 ```mermaid
 flowchart LR
-  A["Client request<br/>@nodeagent + model picker"] --> B["agentJobs row<br/>intent + model policy"]
+  A["Client request<br/>@nodeagent + route preference"] --> B["agentJobs row<br/>intent + server-derived policy"]
   B --> C0["Optional room-work plan<br/>agentReasoningFrames + entityWorkItems + entityResearchCache"]
   C0 --> C["Slice runner<br/>inline action or Workflow/Workpool"]
   C --> D["Derive sliceKey<br/>job + cursor or artifact version + goal + model"]
@@ -950,11 +994,13 @@ npm run provider-parser:smoke -- --providers=openrouter
 ```
 
 The product gates are intentionally broader than the benchmark harness, but each
-gate owns a different claim. `test:product:memory` proves the local browser UX:
-entry/story navigation, chat, uploaded-workbook formulas, range fill-down,
-semantic review, and responsive surfaces. `test:product:live` starts the app
-against live Convex and proves live entry/create/join, recoverable room errors,
-cross-browser reactivity, same-cell CAS convergence, and host-reviewed semantic
+gate owns a different claim only when it is green. Current local state
+2026-06-20: `test:product:memory` is failing/timeouting, so `prod:gate` is not
+push/merge evidence yet. When green, `test:product:memory` proves the local
+browser UX: entry/story navigation, chat, uploaded-workbook formulas, range
+fill-down, semantic review, and responsive surfaces. `test:product:live` starts
+the app against live Convex and proves live entry/create/join, recoverable room
+errors, cross-browser reactivity, same-cell CAS convergence, and host-reviewed semantic
 rebase. `test:product:live:agent` adds
 provider-backed three-user proof: public/private agent lanes, personal room-lane
 actions, all-artifact visibility, and in-cell review proposals. Latest evidence:
@@ -1023,9 +1069,10 @@ flowchart LR
   Agent (src/nodeagent)  ──RoomTools──▶  InMemoryRoomTools  |  ConvexRoomTools (convex/)
 ```
 
-1. **The collaboration engine** (`src/engine/`) — the truth. Every artifact is a bag of
-   **elements** (`{ id, version, value }`), so locks, CAS, drafts, and smart-merge are **one**
-   generic mechanism. Pure, deterministic, 12 scenario tests.
+1. **The collaboration engine** (`src/engine/`) — the checked element layer. Spreadsheets,
+   legacy notes, and walls are bags of **elements** (`{ id, version, value }`), so locks,
+   CAS, drafts, and smart-merge are **one** generic mechanism. Native notebooks add a
+   ProseMirror source sidecar plus dirty-event/read-model processing.
 2. **The agent harness** (`src/nodeagent/`) — context engineering + tool construction + a bounded loop
    with an **injectable model** (scripted or routed real provider) and a **swappable backend** (in-memory
    or Convex). Context **compaction** keeps long runs bounded. See [`docs/AGENT_RUNTIME.md`](docs/AGENT_RUNTIME.md).
@@ -1036,8 +1083,10 @@ flowchart LR
 
 - **CAS** — `applyCellEdit` checks the element `version`; a stale base returns `{conflict, expected, actual}`
   **as data, never a throw**. (Convex's OCC alone does *not* stop a stale-base clobber — the app-level version does.)
-- **Lock** — `proposeLock(elementIds)` makes an affected range read-only for non-holders; reads still
-  return it (**locked ≠ invisible**). The lock *prevents* races; CAS *catches* the ones with no lock.
+- **Coordination** — legacy `proposeLock(elementIds)` can make an affected range
+  read-only for proof/eval lanes, but the target coedit path uses advisory
+  presence/intent plus a short publish lease. CAS catches stale baselines either
+  way.
 - **Draft → smart-merge** — a blocked agent drafts around the lock; on release the draft applies on
   untouched elements, no-ops if already equal, and **flags-without-applying if diverged**. Committed work is never clobbered.
 - **Auto-allow** — when OFF, agent edits become proposals for host approve/reject; humans always apply directly.
@@ -1142,8 +1191,8 @@ sequenceDiagram
   else retry of completed step
     DB-->>Agent: replay model output, no provider call
   end
-  Agent->>Mutation: read_range / write_locked_cells / write_locked_cell_results
-  Mutation->>DB: permission, schema, managed range lock, CAS, evidence checks
+  Agent->>Mutation: read_range / checked patch ops
+  Mutation->>DB: permission, schema, short commit lease, CAS, evidence checks
   Mutation->>DB: commit safe write, create proposal, or create blocked draft
   DB-->>Host: inline chips, trace, job status
   DB-->>Peer: same public receipts
@@ -1156,10 +1205,12 @@ sequenceDiagram
   end
 ```
 
-Production uses managed write tools. The explicit `propose_lock -> edit_cell -> release_lock`
-sequence remains useful in ladder evals and debug traces, but the production bundle hides those
-coordination tools from the model. One visible `write_locked_cells` call expands inside the
-runtime/mutation layer like this:
+The explicit `propose_lock -> edit_cell -> release_lock` sequence remains useful
+in ladder evals and debug traces, and the current managed-write tools still prove
+the CAS/lock/draft invariant. They are not the target human-visible coediting
+feel. The target publish path is a patch bundle over a committed snapshot:
+presence/intent is soft while the agent works, then a short exact-target commit
+lease plus final CAS decides whether the change commits or becomes a proposal.
 
 ```mermaid
 sequenceDiagram
@@ -1169,11 +1220,11 @@ sequenceDiagram
   participant Peer as "Peer browser"
   participant DB as "Convex DB"
 
-  Agent->>Mutation: write_locked_cells(ops, baseVersions)
-  Mutation->>DB: acquire exact target-range lock
+  Agent->>Mutation: publish_patch_bundle(ops, baseVersions)
+  Mutation->>DB: acquire short exact-target commit lease
   par peer edits target cell
     Peer->>Mutation: applyCellEdit(target, peerBaseVersion)
-    Mutation-->>Peer: locked result as data
+    Mutation->>DB: human CAS commit allowed when it lands first
   and peer edits outside target range
     Peer->>Mutation: applyCellEdit(otherCell, currentVersion)
     Mutation->>DB: CAS commit allowed
@@ -1184,15 +1235,16 @@ sequenceDiagram
   else target base is stale
     Mutation-->>Agent: conflict result as data
   end
-  Mutation->>DB: release lock in finally
-  Mutation->>DB: merge blocked drafts or flag review conflicts
+  Mutation->>DB: release commit lease in finally
+  Mutation->>DB: CRS/rebase stale ops or create review proposal
   DB-->>Peer: reactive canonical state
 ```
 
-`npm run eval:multiuser-coordination` is the deterministic proof for that expansion: human-vs-human
-same-cell edits converge with one winner and one CAS conflict, target writes block, non-target writes
-continue, stale writes conflict, blocked agents draft, smart-merge runs on release, and all scenarios end
-with zero active locks. The generated artifact is
+`npm run eval:multiuser-coordination` is the deterministic proof for the legacy
+managed-lock invariant: human-vs-human same-cell edits converge with one winner
+and one CAS conflict, target writes block under the legacy lock lane, non-target
+writes continue, stale writes conflict, blocked agents draft, smart-merge runs on
+release, and all scenarios end with zero active locks. The generated artifact is
 [`docs/eval/multi-user-coordination-proof.json`](docs/eval/multi-user-coordination-proof.json),
 with the method documented in [`docs/eval/MULTI_USER_COORDINATION_PROOF.md`](docs/eval/MULTI_USER_COORDINATION_PROOF.md). The next promotion layer is the gated browser/live Convex spec: `E2E_LIVE=1 E2E_REQUIRE_REVIEW_MODE=1 npx playwright test e2e/three-user-collab.spec.ts --project=chromium`.
 
@@ -1204,7 +1256,7 @@ designs, lives in
 ## The agent — runtime, context, eval
 
 The agent is the centerpiece, built to be *explained* and *trusted*. **Mention `@nodeagent <goal>`
-in the public chat to drive the Room NodeAgent end-to-end** - it reads current versions, calls managed write tools, and lets the runtime expand lock/CAS/draft/release internally (the real `runRoomAgent` action when on Convex; the real in-memory harness with no keys). The composer model picker decides whether the same request uses Adaptive, Free, Top paid, or a specific model route.
+in the public chat to drive the Room NodeAgent end-to-end** - it reads current versions, calls checked write/proposal tools, and lets the runtime enforce CAS, policy, receipts, and review boundaries (the real `runRoomAgent` action when on Convex; the real in-memory harness with no keys). The composer model picker records a route preference; the server resolves the final model, approval, evidence, allowlist, and rate-limit policy.
 
 - **Runtime + context engineering + tool backend** → [`docs/AGENT_RUNTIME.md`](docs/AGENT_RUNTIME.md).
   Three seams (model · tools · RoomTools), the loop, the system-prompt protocol + JIT context, and
@@ -1262,7 +1314,7 @@ Professional proof state:
 
 This section is generated from `docs/qa/production-matrix.json`. When the system grows, append or update a matrix row, then run `npm run qa:matrix`; CI can run `npm run qa:matrix:check` to catch stale docs.
 
-<sub>25 feature guarantees tracked | 6 green | 17 yellow | 2 red | 1 live model route(s) cleared L1-L4 in the latest recorded ladder.</sub>
+<sub>25 feature guarantees tracked | 6 green | 18 yellow | 1 red | 1 live model route(s) cleared L1-L4 in the latest recorded ladder.</sub>
 
 ![QA coverage graph](docs/eval/qa-coverage.svg)
 
@@ -1281,7 +1333,7 @@ This section is generated from `docs/qa/production-matrix.json`. When the system
 | Long-running /free jobs | Yellow | Forced multi-slice test, crash-after-checkpoint resume, duplicate stale lease rejection, and live /free smoke. |
 | Provider parser | Green | Adapter separation tests, live provider smoke, redacted errors, and artifact evidence checks. |
 | QA system | Green | Matrix schema tests plus qa:matrix --check as a docs-sync drift gate, not a quality gate. |
-| Browser E2E dogfood | Red | Playwright or equivalent real-browser specs for two-context cell edits, optimistic chat failure/retry, public/private leak checks, wall CRUD, job controls, and proposal conflict feedback. |
+| Browser E2E dogfood | Yellow | Playwright or equivalent real-browser specs for two-context cell edits, optimistic chat failure/retry, public/private leak checks, wall CRUD, job controls, and proposal conflict feedback. |
 | Professional workroom shell | Yellow | Browser layout E2E proves wide desktop binder, center work surface, right Copilot, compact overlays, no overflow, no lost spreadsheet affordances, plus live/Convex and Gemini UI judge walkthrough evidence. |
 | Signal tape + status strip | Yellow | DOM/browser tests prove two distinct bottom rows, pause/reduced-motion/filter behavior, click-to-open related artifact, no unauthorized private data in the tape, and precise non-scrolling status events. |
 | Intake preflight scheduler | Yellow | Unit/runtime evals prove affected-set expansion, partial scheduling, intent claims, short commit leases, dedupe, cost authorization, privacy/formula checks, and that the LLM recommends while the harness schedules before live provider spend. |
@@ -1411,8 +1463,10 @@ the conflict-as-data / async-reliability pattern.
 
 ![Draft workflow](docs/eval/workflow-previews/l4-draft.gif)
 
-Another agent holds an affected-range lock. Instead of forcing, the agent **drafts** its change
-(`create_draft`) for smart-merge on unlock, and never writes directly through the lock.
+Legacy ladder scenario: another agent holds an affected-range lock. Instead of
+forcing, the agent **drafts** its change (`create_draft`) for smart-merge on
+unlock, and never writes directly through the lock. The target runtime replaces
+long human-visible locks with advisory intent plus short publish leases.
 **Research / repo:** propose/draft + smart-merge over force-write — proposal/draft tables in
 [`convex/schema.ts`](convex/schema.ts); the scratchpad-first pattern,
 Anthropic *Building Effective Agents*.

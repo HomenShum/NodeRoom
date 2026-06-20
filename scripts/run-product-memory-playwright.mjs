@@ -14,8 +14,13 @@ const specs = [
 const explicitPort = process.env.PLAYWRIGHT_PORT;
 const preferredPort = Number.parseInt(explicitPort ?? "5197", 10);
 const reuseExternalServer = process.env.PLAYWRIGHT_REUSE_SERVER === "1";
+const skipBuild = process.env.PRODUCT_MEMORY_SKIP_BUILD === "1";
+const serverMode = process.env.PRODUCT_MEMORY_SERVER ?? "preview";
 if (!Number.isInteger(preferredPort) || preferredPort < 1 || preferredPort > 65535) {
   throw new Error(`Invalid PLAYWRIGHT_PORT: ${explicitPort}`);
+}
+if (serverMode !== "preview" && serverMode !== "dev") {
+  throw new Error(`Invalid PRODUCT_MEMORY_SERVER: ${serverMode}`);
 }
 
 async function isPortFree(port) {
@@ -68,13 +73,44 @@ async function waitForHttp(url, timeoutMs, output) {
   throw new Error(`product_memory_server_not_ready:${url}:${lastError}`);
 }
 
-async function startDevServer(port, baseUrl) {
+function runChecked(command, args, label) {
+  console.log(`[product-memory] ${label}`);
+  const result = spawnSync(command, args, {
+    cwd: process.cwd(),
+    stdio: "inherit",
+    shell: false,
+    windowsHide: true,
+  });
+  if (result.status !== 0) {
+    throw new Error(`product_memory_${label.replace(/[^a-z0-9]+/gi, "_").toLowerCase()}_failed:${result.status ?? result.signal}`);
+  }
+}
+
+function buildServerCommand(port) {
+  if (serverMode === "dev") {
+    return process.platform === "win32"
+      ? {
+          command: "cmd.exe",
+          args: ["/d", "/s", "/c", `npm run dev -- --host 127.0.0.1 --port ${port} --strictPort`],
+        }
+      : {
+          command: "npm",
+          args: ["run", "dev", "--", "--host", "127.0.0.1", "--port", String(port), "--strictPort"],
+        };
+  }
+  return {
+    command: process.execPath,
+    args: [join("node_modules", "vite", "bin", "vite.js"), "preview", "--host", "127.0.0.1", "--port", String(port), "--strictPort"],
+  };
+}
+
+async function startProductServer(port, baseUrl) {
+  if (serverMode === "preview" && !skipBuild) {
+    runChecked(process.platform === "win32" ? "cmd.exe" : "npm", process.platform === "win32" ? ["/d", "/s", "/c", "npm run build"] : ["run", "build"], "building production bundle");
+  }
   const output = { value: "" };
-  const command = process.platform === "win32" ? "cmd.exe" : "npm";
-  const commandArgs = process.platform === "win32"
-    ? ["/d", "/s", "/c", `npm run dev -- --host 127.0.0.1 --port ${port} --strictPort`]
-    : ["run", "dev", "--", "--host", "127.0.0.1", "--port", String(port), "--strictPort"];
-  const server = spawn(command, commandArgs, {
+  const { command, args } = buildServerCommand(port);
+  const server = spawn(command, args, {
     cwd: process.cwd(),
     stdio: ["ignore", "pipe", "pipe"],
     windowsHide: true,
@@ -109,14 +145,15 @@ let server;
 let finishing = false;
 
 console.log(`[product-memory] using ${env.PLAYWRIGHT_BASE_URL}`);
+console.log(`[product-memory] server=${reuseExternalServer ? "external" : serverMode}${skipBuild ? " skip-build" : ""}`);
 
 if (!reuseExternalServer) {
-  server = await startDevServer(port, env.PLAYWRIGHT_BASE_URL);
+  server = await startProductServer(port, env.PLAYWRIGHT_BASE_URL);
 } else {
   await waitForHttp(env.PLAYWRIGHT_BASE_URL, 30_000, { value: "" });
 }
 
-const child = spawn(process.execPath, [playwrightCli, "test", ...specs, "--workers=1"], {
+const child = spawn(process.execPath, [playwrightCli, "test", ...specs, "--workers=1", "--timeout=60000"], {
   env,
   stdio: "inherit",
 });

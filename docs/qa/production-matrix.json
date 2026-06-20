@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updatedAt": "2026-06-15",
+  "updatedAt": "2026-06-20",
   "sourceOfTruth": "Append new product or runtime guarantees to features[] and rerun npm run qa:matrix.",
   "releaseRule": "A feature is production-ready only when deterministic tests, live/backend smoke where applicable, traceability, privacy boundaries, and documented failure behavior are all present.",
   "features": [
@@ -166,7 +166,7 @@
     {
       "id": "multi_user_online",
       "area": "Multi-user production paths",
-      "claim": "Multiple users can join, see reactive state, use public/private scopes, and avoid clobbering through locks/CAS/proposals/drafts.",
+      "claim": "Deterministic no-clobber and partial live presence are proven; the full multi-user production path remains yellow until broader product-memory/live browser gates, load proof, and conflict coverage are green.",
       "status": "yellow",
       "productionGate": "Room auth proof, Convex codegen/typecheck, duplicate-operation idempotency, load/concurrency smoke, and deployment observability.",
       "deterministicChecks": [
@@ -260,20 +260,30 @@
     {
       "id": "browser_e2e_dogfood",
       "area": "Browser E2E dogfood",
-      "claim": "The real React UI is verified against a live/local Convex backend for optimistic reactivity, rollback, cross-user visibility, and privacy boundaries.",
-      "status": "red",
+      "claim": "The real React UI is partially verified against production-preview memory mode plus a live/local Convex backend: product-memory flows and non-blocking spreadsheet presence now have browser proof, while broader privacy/job/wall/proposal coverage remains open.",
+      "status": "yellow",
       "productionGate": "Playwright or equivalent real-browser specs for two-context cell edits, optimistic chat failure/retry, public/private leak checks, wall CRUD, job controls, and proposal conflict feedback.",
       "deterministicChecks": [
-        "tests/qaMatrix.test.ts"
+        "tests/qaMatrix.test.ts",
+        "tests/presenceClaims.test.ts"
       ],
       "liveChecks": [
-        "missing: Playwright real-browser harness against local Convex backend"
+        "npm run test:product:memory",
+        "E2E_LIVE=1 PLAYWRIGHT_PORT=5198 npx playwright test e2e/realtime-presence.spec.ts --project=chromium",
+        "missing: public/private leak, wall CRUD, job controls, and proposal conflict browser coverage"
       ],
       "evidence": [
         { "type": "doc", "ref": "docs/audit/E2E_DOGFOOD_DESIGN.md" },
-        { "type": "doc", "ref": "docs/audit/QA_FINDINGS.md" }
+        { "type": "doc", "ref": "docs/audit/QA_FINDINGS.md" },
+        { "type": "test", "ref": "e2e/chat.spec.ts" },
+        { "type": "test", "ref": "e2e/excel-grid.spec.ts" },
+        { "type": "test", "ref": "e2e/responsive-qa.spec.ts" },
+        { "type": "test", "ref": "e2e/realtime-presence.spec.ts" },
+        { "type": "test", "ref": "tests/presenceClaims.test.ts" },
+        { "type": "media", "ref": "docs/walkthroughs/realtime-presence-coedit.webm" },
+        { "type": "doc", "ref": "docs/eval/MEDIA_JUDGE.md" }
       ],
-      "nextReview": "Install and wire the real-DOM harness, add data-testid hooks only for asserted surfaces, and promote the row after the first two-context specs pass in CI."
+      "nextReview": "Expand the live two-context harness from non-blocking spreadsheet presence to optimistic chat failure/retry, public/private leak checks, wall CRUD, job controls, proposal conflict feedback, and agent intent-claim conflicts before promoting to green."
     },
     {
       "id": "professional_workroom_shell",
