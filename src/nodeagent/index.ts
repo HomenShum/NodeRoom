@@ -21,6 +21,7 @@ export * from "./core/frameRunner";
 export * from "./okf";
 export * from "./retrieval";
 export * from "./retrieval/tools";
+export * from "./tools";
 
 export * from "./analytics/coachEvents";
 

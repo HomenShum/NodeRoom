@@ -22,6 +22,8 @@
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
+    "qa:story": "npm run build && node scripts/story-route-dogfood.mjs",
+    "qa:story:prod": "node scripts/story-route-dogfood.mjs --base-url https://noderoom.live",
     "test:product:memory": "node scripts/run-product-memory-playwright.mjs",
     "test:product:live": "tsx scripts/live-product-gate.ts",
     "test:product:live:agent": "tsx scripts/live-product-gate.ts --agent --strict-review",

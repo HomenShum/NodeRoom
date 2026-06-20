@@ -1,0 +1,49 @@
+/* ============================================================================
+   Route frame for the NodeAgent Mobile surface.
+   `.na-app` is position:absolute; inset:0, so it needs a positioned, sized
+   parent. On desktop we center a phone-sized device frame; at real phone
+   widths the surface goes full-bleed.
+   ============================================================================ */
+.na-frame-root {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  background:
+    radial-gradient(80% 50% at 50% 0%, rgba(217, 119, 87, 0.10), transparent 60%),
+    #0a0a0b;
+  overflow: auto;
+}
+
+.na-frame {
+  position: relative;
+  width: 402px;
+  height: 874px;
+  max-height: 100dvh;
+  flex: none;
+  border-radius: 44px;
+  border: 10px solid #18181b;
+  background: var(--bg-app, #09090b);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.04),
+    0 40px 90px -30px rgba(0, 0, 0, 0.75);
+  overflow: hidden;
+  /* keep the rounded corners clipping the absolutely-positioned .na-app */
+  isolation: isolate;
+}
+
+/* Real phone widths: drop the bezel, fill the viewport. */
+@media (max-width: 520px) {
+  .na-frame-root {
+    background: var(--bg-app, #09090b);
+  }
+  .na-frame {
+    width: 100vw;
+    height: 100dvh;
+    max-height: none;
+    border-radius: 0;
+    border: 0;
+    box-shadow: none;
+  }
+}

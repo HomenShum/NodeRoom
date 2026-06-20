@@ -138,7 +138,7 @@ function buildCoachEvidenceCards(artifacts: Artifact[]): EvidenceCardArtifact[] 
       for (const evidence of payload.evidence) {
         inputs.push(evidenceCardInputFor(artifact, elementId, payload, evidence));
         targets.push({
-          targetArtifactId: evidence.sourceArtifactId ?? artifact.id,
+          targetArtifactId: artifact.id,
           targetElementId: elementId,
           sourceUrl: evidence.url,
           sourceArtifactId: evidence.sourceArtifactId,

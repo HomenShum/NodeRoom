@@ -934,6 +934,7 @@ npm run dev             # now reads/writes live Convex (optimistic); the agent r
 
 # ── Verify ───────────────────────────────────────────────────────────────────
 npm run typecheck   &&   npm test   &&   npm run build      # tsc, full tests, vite build
+npm run qa:story                 # local #story browser gate: editable spreadsheet + local story-agent chat
 npm run test:product:memory      # local browser gate: entry/story, chat, workbook formulas, range fill-down, responsive UX
 npm run test:product:live        # live Convex backend gate: entry/create/join, reactivity, same-cell CAS, semantic rebase
 npm run test:product:live:agent  # live Convex + provider gate: three-user public/private agent and review-mode flow
@@ -958,6 +959,9 @@ rebase. `test:product:live:agent` adds
 provider-backed three-user proof: public/private agent lanes, personal room-lane
 actions, all-artifact visibility, and in-cell review proposals. Latest evidence:
 [`docs/eval/THREE_USER_COLLAB.md`](docs/eval/THREE_USER_COLLAB.md).
+
+The low-commitment `/#story` first-impression gate is repeatable locally and
+after production deploy; see [`docs/qa/STORY_ROUTE_DOGFOOD.md`](docs/qa/STORY_ROUTE_DOGFOOD.md).
 
 ## Architecture
 

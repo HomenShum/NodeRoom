@@ -4,6 +4,7 @@ import { api } from "../../convex/_generated/api";
 import { Landing } from "./Landing";
 import { RoomShell } from "./RoomShell";
 import { LandingStory } from "../landing/LandingStory";
+import { MobileApp } from "./mobile/MobileApp";
 import { EngineStoreProvider, ConvexStoreProvider, HAS_CONVEX } from "../app/store";
 import type { Actor } from "../engine/types";
 
@@ -38,6 +39,11 @@ export function App() {
     window.addEventListener("hashchange", onHash);
     return () => window.removeEventListener("hashchange", onHash);
   }, []);
+
+  // NodeAgent Mobile (Terracotta) — standalone mobile surface (mock-data demo).
+  if (hash === "#mobile" || hash === "#/mobile") {
+    return <MobileApp />;
+  }
 
   if (hash === "#story" || hash === "#/story") {
     const exit = () => { window.location.hash = ""; };

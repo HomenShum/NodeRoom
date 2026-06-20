@@ -3,14 +3,15 @@
  *
  * Teaches one idea in seven progressively deeper layers, grounded in the real
  * Q3 variance sheet, the real design tokens, and HONEST shipped/target labels.
- * Static by design (Milestone 1): no live Convex wiring — it renders the
- * declarative event tape in storyTape.ts.
+ * The top sandbox is local and interactive for quick product feel; the deeper
+ * scroll narrative renders the declarative event tape in storyTape.ts.
  */
 import { useRef, useState } from "react";
 import { ArrowRight, BookOpen, FileSpreadsheet, GitMerge, ShieldCheck, Sparkles } from "lucide-react";
 import { demo } from "../app/roomStore";
 import type { Session } from "../ui/App";
 import { StoryStage } from "./StoryStage";
+import { StoryQuickDemo } from "./StoryQuickDemo";
 import { ProofBoard } from "./ProofBoard";
 import "./landingStory.css";
 
@@ -102,6 +103,7 @@ export function LandingStory({ onEnter, onBack }: { onEnter: (s: Session) => voi
 
         {/* ── The seven layers ─────────────────────────────────────────── */}
         <div ref={stageRef}>
+          <StoryQuickDemo />
           <StoryStage />
         </div>
 

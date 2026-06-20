@@ -46,6 +46,18 @@ export const OKF_RETRIEVAL_TOOLS: AgentTool[] = [
     execute: (a, rt) => okf(rt)?.semanticSearch(a) ?? okfUnavailable(),
   },
   {
+    name: "okf_search_skills",
+    description: "Semantically search the Agent Skill catalog (OKF concepts of type 'Agent Skill') for a skill that already encodes a procedure (deck, spreadsheet, scrape, doc, format conversion). Returns the top-k matching skills by their description. Read trust + source before loading; prefer trust:local / trust:verified. Use skill_search/load_skill for the higher-level discover→load flow.",
+    schema: z.object({
+      query: z.string(),
+      skill_categories: z.array(z.string()).optional(),
+      skill_trust_min: z.enum(["untrusted", "community", "verified"]).optional(),
+      limit: z.number().int().min(1).max(50).optional(),
+    }),
+    execute: (a: { query: string; skill_categories?: string[]; skill_trust_min?: "untrusted" | "community" | "verified"; limit?: number }, rt) =>
+      okf(rt)?.semanticSearch({ ...a, type: "Agent Skill" }) ?? okfUnavailable(),
+  },
+  {
     name: "okf_filter",
     description: "Structured OKF narrowing by type, tags, status, confidence, timestamp, and visibility. Useful for needs_review claims and high-confidence recent sources.",
     schema: z.object(conceptFilterSchema),

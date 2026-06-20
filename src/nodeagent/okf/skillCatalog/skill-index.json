@@ -1,0 +1,208 @@
+[
+  {
+    "slug": "eval-gate",
+    "name": "eval-gate",
+    "description": "Run the full HALO eval floor (typecheck, tests, ladder, credit, regression diff) and report the cross-commit regression with its delta classes. Use before shipping anything that touches the agent runtime, evals/**, convex/**, or the eval store — or any time you want to know \"did I regress a workflow?\".",
+    "categories": [],
+    "trust": "local",
+    "source": {
+      "kind": "local",
+      "path": ".claude/skills/eval-gate/SKILL.md",
+      "url": null
+    },
+    "install": ".claude/skills/eval-gate",
+    "contentHash": "sha256:f986017a626d72ac76859e4534dcf727",
+    "license": null,
+    "indexedAt": null
+  },
+  {
+    "slug": "powerpoint",
+    "name": "powerpoint",
+    "description": "Turn messy notes, meeting recaps, research dumps, or a spreadsheet into a real .pptx slide deck WHERE EVERY CLAIM IS TAGGED for provenance (verified / manual / needs_review) and NOTHING is fabricated. Use this skill whenever someone wants to build a deck FROM their own material — 'make slides from my notes', 'turn this call recap into an investor update', 'I met three founders at a conference, build a pitch summary', 'draft a board deck from these numbers'. Especially use it for solo founders / one-person companies who need a presentable deck fast but cannot afford to walk into a meeting with a made-up number. Triggers on: pitch deck, investor update, board deck, sales deck, 'slides from notes', 'deck from research'. This is the honest deck builder: if a fact isn't in the source material, it gets flagged for review instead of invented.",
+    "categories": [],
+    "trust": "local",
+    "source": {
+      "kind": "local",
+      "path": ".claude/skills/powerpoint/SKILL.md",
+      "url": null
+    },
+    "install": ".claude/skills/powerpoint",
+    "contentHash": "sha256:eeff8dbedf90cebcb327f8345af7f6fc",
+    "license": "MIT",
+    "indexedAt": null
+  },
+  {
+    "slug": "produce-episode",
+    "name": "produce-episode",
+    "description": "Produce an evidence-backed software explainer episode from a storyboard — demo video, README GIF + MP4, code-diff story, before/after product narrative. Use when the user asks for a demo video, an explainer, an episode, social/YouTube cuts of a feature, or \"turn this change into content\". Builds on the readme-walkthroughs skill (capture layer) and the episodes/ manifest structure.",
+    "categories": [],
+    "trust": "local",
+    "source": {
+      "kind": "local",
+      "path": ".claude/skills/produce-episode/SKILL.md",
+      "url": null
+    },
+    "install": ".claude/skills/produce-episode",
+    "contentHash": "sha256:71eb90a03ef562b342edef67ddb4e9f9",
+    "license": null,
+    "indexedAt": null
+  },
+  {
+    "slug": "readme-walkthroughs",
+    "name": "readme-walkthroughs",
+    "description": "Produce animated WALKTHROUGH GIFs for the README — never static \"hero shot\" GIFs. Use this skill whenever the user asks for README demos, product GIFs, demo recordings, \"show the feature working\", marketing clips of the app, or to refresh/regenerate the walkthrough GIFs after a UI change. It drives the LIVE app with Playwright through a versioned spec, captures clean per-state frames + cursor click targets, and renders a Remotion composition with a gliding cursor, click ripple, step captions, and a progress bar. Also use it when adding a NEW feature that deserves a README demo (add a spec, capture, render, embed).",
+    "categories": [],
+    "trust": "local",
+    "source": {
+      "kind": "local",
+      "path": ".claude/skills/readme-walkthroughs/SKILL.md",
+      "url": null
+    },
+    "install": ".claude/skills/readme-walkthroughs",
+    "contentHash": "sha256:4297f60ec9b055c2fa5e81936335f41f",
+    "license": null,
+    "indexedAt": null
+  },
+  {
+    "slug": "ship",
+    "name": "ship",
+    "description": "Floor-check, scoped commit, rebase onto origin/main, push, and LIVE-VERIFY on GitHub. Encodes NodeRoom's verified-ship discipline so \"shipped\" never means \"pushed and hoped\". User-invoked only — it has side effects (commit, push).",
+    "categories": [],
+    "trust": "local",
+    "source": {
+      "kind": "local",
+      "path": ".claude/skills/ship/SKILL.md",
+      "url": null
+    },
+    "install": ".claude/skills/ship",
+    "contentHash": "sha256:ab125b3e2a544ab79422acebf3957b5d",
+    "license": null,
+    "indexedAt": null
+  },
+  {
+    "slug": "walkthrough-review",
+    "name": "walkthrough-review",
+    "description": "Record a live browser walkthrough, render a README-quality GIF/MP4, run Gemini video/UI review, fix defects, and update proof docs. Use when a feature needs demo evidence, README media, product walkthrough QA, or a reusable solo-founder verification loop.",
+    "categories": [],
+    "trust": "local",
+    "source": {
+      "kind": "local",
+      "path": ".claude/skills/walkthrough-review/SKILL.md",
+      "url": null
+    },
+    "install": ".claude/skills/walkthrough-review",
+    "contentHash": "sha256:e2f01c3863e82286673a8c0ad539a7f5",
+    "license": null,
+    "indexedAt": null
+  },
+  {
+    "slug": "brand-guidelines",
+    "name": "Brand Guidelines",
+    "description": "Applies Anthropic's official brand colors and typography to artifacts for consistent visual identity and professional design standards.",
+    "categories": [
+      "business-marketing"
+    ],
+    "trust": "community",
+    "source": {
+      "kind": "url",
+      "path": null,
+      "url": "https://raw.githubusercontent.com/ComposioHQ/awesome-claude-skills/master/brand-guidelines/SKILL.md"
+    },
+    "install": "https://raw.githubusercontent.com/ComposioHQ/awesome-claude-skills/master/brand-guidelines/SKILL.md",
+    "contentHash": "sha256:d3ec143d73bc3eaf8565005dbd30343d",
+    "license": null,
+    "indexedAt": null
+  },
+  {
+    "slug": "competitive-ads-extractor",
+    "name": "Competitive Ads Extractor",
+    "description": "Extracts and analyzes competitors' ads from ad libraries to understand messaging and creative approaches that resonate.",
+    "categories": [
+      "business-marketing"
+    ],
+    "trust": "community",
+    "source": {
+      "kind": "url",
+      "path": null,
+      "url": "https://raw.githubusercontent.com/ComposioHQ/awesome-claude-skills/master/competitive-ads-extractor/SKILL.md"
+    },
+    "install": "https://raw.githubusercontent.com/ComposioHQ/awesome-claude-skills/master/competitive-ads-extractor/SKILL.md",
+    "contentHash": "sha256:ddc93b1375e41b72f085f6a3f89ff673",
+    "license": null,
+    "indexedAt": null
+  },
+  {
+    "slug": "domain-name-brainstormer",
+    "name": "Domain Name Brainstormer",
+    "description": "Generates creative domain name ideas and checks availability across multiple TLDs including .com, .io, .dev, and .ai extensions.",
+    "categories": [
+      "business-marketing"
+    ],
+    "trust": "community",
+    "source": {
+      "kind": "url",
+      "path": null,
+      "url": "https://raw.githubusercontent.com/ComposioHQ/awesome-claude-skills/master/domain-name-brainstormer/SKILL.md"
+    },
+    "install": "https://raw.githubusercontent.com/ComposioHQ/awesome-claude-skills/master/domain-name-brainstormer/SKILL.md",
+    "contentHash": "sha256:b3b7fcec5ad0205d57bd9c0c29ec4a54",
+    "license": null,
+    "indexedAt": null
+  },
+  {
+    "slug": "internal-comms",
+    "name": "Internal Comms",
+    "description": "Helps write internal communications including 3P updates, company newsletters, FAQs, status reports, and project updates using company-specific formats.",
+    "categories": [
+      "business-marketing"
+    ],
+    "trust": "community",
+    "source": {
+      "kind": "url",
+      "path": null,
+      "url": "https://raw.githubusercontent.com/ComposioHQ/awesome-claude-skills/master/internal-comms/SKILL.md"
+    },
+    "install": "https://raw.githubusercontent.com/ComposioHQ/awesome-claude-skills/master/internal-comms/SKILL.md",
+    "contentHash": "sha256:a79d85b1a2443c70cd1092c6aa27dbf0",
+    "license": null,
+    "indexedAt": null
+  },
+  {
+    "slug": "linkedin-automation",
+    "name": "LinkedIn Automation",
+    "description": "Automate LinkedIn: posts, profiles, companies, images, and comments.",
+    "categories": [
+      "app-automation",
+      "social-media"
+    ],
+    "trust": "community",
+    "source": {
+      "kind": "url",
+      "path": null,
+      "url": "https://raw.githubusercontent.com/ComposioHQ/awesome-claude-skills/master/linkedin-automation/SKILL.md"
+    },
+    "install": "https://raw.githubusercontent.com/ComposioHQ/awesome-claude-skills/master/linkedin-automation/SKILL.md",
+    "contentHash": "sha256:6400dc9145d2a4b84ddccd6f52e14de9",
+    "license": null,
+    "indexedAt": null
+  },
+  {
+    "slug": "google-calendar-automation",
+    "name": "Google Calendar Automation",
+    "description": "Automate Google Calendar: events, attendees, free/busy, and recurring schedules.",
+    "categories": [
+      "app-automation",
+      "calendar"
+    ],
+    "trust": "community",
+    "source": {
+      "kind": "url",
+      "path": null,
+      "url": "https://raw.githubusercontent.com/ComposioHQ/awesome-claude-skills/master/google-calendar-automation/SKILL.md"
+    },
+    "install": "https://raw.githubusercontent.com/ComposioHQ/awesome-claude-skills/master/google-calendar-automation/SKILL.md",
+    "contentHash": "sha256:06c2f04ab948005d07492da3faf17a47",
+    "license": null,
+    "indexedAt": null
+  }
+]

@@ -23,6 +23,14 @@ describe("banker coach artifact packet", () => {
           snippet: "AI triage workflow for hospital intake.",
           confidence: 0.76,
         },
+        {
+          id: "cardionova-upload",
+          kind: "upload",
+          label: "CardioNova deck p.12",
+          sourceArtifactId: demo.noteId,
+          snippet: "Cash $1.5M; burn $125k/month.",
+          confidence: 0.84,
+        },
       ],
     };
 
@@ -49,6 +57,11 @@ describe("banker coach artifact packet", () => {
     expect(packet.evidenceCards[0]).toMatchObject({
       label: "CardioNova product page",
       status: "needs_review",
+      targetArtifactId: demo.researchId,
+      targetElementId: elementId,
+    });
+    expect(packet.evidenceCards.find((card) => card.label === "CardioNova deck p.12")).toMatchObject({
+      sourceArtifactId: demo.noteId,
       targetArtifactId: demo.researchId,
       targetElementId: elementId,
     });

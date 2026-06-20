@@ -1,0 +1,249 @@
+/* UI Delta 2026-05-02c — Reports rebuild
+   Flat, hairline, mono-accented Linear/Height tone.
+   Card grid is the hero. Slim composer bar + thin runs ribbon at top.
+   Quality + schedules collapsed at the bottom.
+*/
+
+.nb-reports2 { display: flex; flex-direction: column; gap: 18px; }
+
+/* ───────────── Header ───────────── */
+.nb-reports2-head {
+  display: flex; align-items: center; justify-content: space-between; gap: 24px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.nb-reports2-title-row { display: flex; align-items: baseline; gap: 10px; }
+.nb-reports2-title {
+  margin: 0; font-size: 22px; font-weight: 600; letter-spacing: -0.02em;
+  color: var(--text-primary);
+}
+.nb-reports2-count {
+  font-size: 12px; color: var(--text-faint);
+  padding: 2px 8px; border: 1px solid var(--border-subtle); border-radius: 999px;
+}
+.nb-reports2-filters { display: flex; gap: 2px; }
+.nb-reports2-filter {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 5px 10px; border-radius: 7px;
+  border: 1px solid transparent; background: transparent;
+  font: inherit; font-size: 12px; font-weight: 500; color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 120ms var(--ease-out-expo);
+}
+.nb-reports2-filter:hover { background: var(--bg-secondary); color: var(--text-primary); }
+.nb-reports2-filter[data-on="true"] {
+  background: var(--bg-secondary); color: var(--text-primary); font-weight: 600;
+  border-color: var(--border-subtle);
+}
+.nb-reports2-filter-count { font-size: 10px; color: var(--text-faint); }
+.nb-reports2-filter[data-on="true"] .nb-reports2-filter-count { color: var(--text-secondary); }
+
+/* ───────────── Composer bar (slim, top) ───────────── */
+.nb-composer2 {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 10px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: 10px;
+  transition: border-color 160ms var(--ease-out-expo), box-shadow 160ms var(--ease-out-expo);
+}
+.nb-composer2:focus-within {
+  border-color: var(--accent-primary-border);
+  box-shadow: 0 0 0 3px var(--accent-primary-tint);
+}
+.nb-composer2-prefix { color: var(--accent-primary); font-size: 14px; font-weight: 700; padding-left: 4px; }
+.nb-composer2-input {
+  flex: 1; min-width: 0;
+  border: 0; outline: 0; background: transparent;
+  font: inherit; font-size: 13.5px; color: var(--text-primary);
+  padding: 6px 4px;
+}
+.nb-composer2-input::placeholder { color: var(--text-faint); }
+
+.nb-composer2-depth {
+  display: inline-flex; gap: 0;
+  padding: 2px; background: var(--bg-secondary);
+  border: 1px solid var(--border-subtle); border-radius: 7px;
+}
+.nb-composer2-depth button {
+  font: inherit; font-size: 11px; font-weight: 500;
+  padding: 4px 9px; border-radius: 5px;
+  border: 1px solid transparent; background: transparent;
+  color: var(--text-secondary); cursor: pointer;
+  text-transform: capitalize;
+}
+.nb-composer2-depth button[data-on="true"] {
+  background: var(--bg-surface); color: var(--text-primary); font-weight: 600;
+  border-color: var(--border-subtle);
+}
+
+.nb-composer2-run {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 7px 14px; border-radius: 7px;
+  background: var(--text-primary); color: var(--bg-surface);
+  border: 0; font: inherit; font-size: 12px; font-weight: 600;
+  cursor: pointer;
+  transition: opacity 160ms var(--ease-out-expo);
+}
+.nb-composer2-run:disabled { opacity: 0.35; cursor: not-allowed; }
+.nb-composer2-run .mono { font-size: 11px; opacity: 0.7; }
+
+/* ───────────── Active runs ribbon (thin) ───────────── */
+.nb-runs2 {
+  display: grid; grid-template-columns: auto 1fr; gap: 16px; align-items: center;
+  padding: 8px 14px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-subtle); border-radius: 8px;
+}
+.nb-runs2-eye {
+  font-size: 10px; font-weight: 700; color: var(--accent-primary);
+  letter-spacing: 0.06em; text-transform: uppercase;
+  padding-right: 12px; border-right: 1px solid var(--border-subtle);
+}
+.nb-runs2-list { display: flex; flex-direction: column; gap: 4px; }
+.nb-runs2-row {
+  display: grid; grid-template-columns: 1.4fr minmax(80px, 1fr) auto auto auto;
+  gap: 12px; align-items: center;
+}
+.nb-runs2-label { font-size: 12px; color: var(--text-primary); font-weight: 500; }
+.nb-runs2-bar {
+  display: block; height: 3px; background: var(--bg-surface);
+  border-radius: 999px; overflow: hidden;
+}
+.nb-runs2-bar > span {
+  display: block; height: 100%;
+  background: var(--accent-primary);
+  border-radius: 999px;
+  transition: width 280ms var(--ease-out-expo);
+}
+.nb-runs2-pct  { font-size: 10.5px; color: var(--text-secondary); min-width: 30px; text-align: right; }
+.nb-runs2-eta  { font-size: 10.5px; color: var(--text-faint); }
+.nb-runs2-cost { font-size: 10.5px; color: var(--text-faint); }
+
+/* ───────────── Card grid (the hero) ───────────── */
+.nb-reports2-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;
+}
+@media (max-width: 1100px) { .nb-reports2-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 720px)  { .nb-reports2-grid { grid-template-columns: 1fr; } }
+
+.nb-rcard2 {
+  display: flex; flex-direction: column; gap: 0;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: 10px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: border-color 160ms var(--ease-out-expo), transform 160ms var(--ease-out-expo);
+}
+.nb-rcard2:hover {
+  border-color: var(--border-default);
+  transform: translateY(-1px);
+}
+.nb-rcard2-thumb {
+  height: 88px;
+  padding: 12px 16px;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-subtle);
+  color: var(--text-faint);
+  display: flex; align-items: center;
+}
+.nb-rcard2-thumb svg { width: 100%; height: 100%; display: block; }
+
+.nb-rcard2-body { padding: 14px 16px; display: flex; flex-direction: column; gap: 8px; }
+.nb-rcard2-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+.nb-rcard2-title {
+  font-size: 13.5px; font-weight: 600; letter-spacing: -0.005em;
+  color: var(--text-primary); line-height: 1.35;
+  text-wrap: balance;
+}
+.nb-rcard2-status {
+  font-size: 9.5px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--text-faint); padding: 2px 6px; border-radius: 4px;
+  background: transparent; border: 1px solid var(--border-subtle);
+  flex-shrink: 0;
+}
+.nb-rcard2-status[data-s="live"]  { color: var(--success); border-color: rgba(63,143,110,.3); }
+.nb-rcard2-status[data-s="draft"] { color: var(--text-faint); }
+
+.nb-rcard2-sub {
+  margin: 0;
+  font-size: 12px; line-height: 1.5; color: var(--text-secondary);
+  text-wrap: pretty;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.nb-rcard2-foot {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  margin-top: 2px;
+  padding-top: 8px;
+  border-top: 1px dashed var(--border-subtle);
+}
+.nb-rcard2-verdict {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 11px; font-weight: 500;
+}
+.nb-rcard2-verdict-mark {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 14px; height: 14px; border-radius: 999px;
+  font-size: 9px; font-weight: 700;
+}
+.nb-rcard2-verdict[data-tone="ok"]   { color: var(--success); }
+.nb-rcard2-verdict[data-tone="ok"]   .nb-rcard2-verdict-mark { background: rgba(63,143,110,.14); }
+.nb-rcard2-verdict[data-tone="warn"] { color: var(--warning); }
+.nb-rcard2-verdict[data-tone="warn"] .nb-rcard2-verdict-mark { background: rgba(224,163,60,.16); }
+.nb-rcard2-verdict[data-tone="bad"]  { color: var(--danger); }
+.nb-rcard2-verdict[data-tone="bad"]  .nb-rcard2-verdict-mark { background: rgba(196,68,79,.14); }
+
+.nb-rcard2-meta { font-size: 10.5px; color: var(--text-faint); }
+
+.nb-rcard2-root {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 10.5px; font-weight: 500;
+  padding: 2px 7px; border-radius: 999px;
+}
+
+.nb-rcard2-delta {
+  margin-left: auto;
+  font-size: 10px; font-weight: 600;
+  color: var(--accent-primary);
+  background: var(--accent-primary-tint);
+  padding: 2px 7px; border-radius: 999px;
+}
+
+.nb-reports2-empty {
+  padding: 32px; text-align: center; color: var(--text-faint); font-size: 13px;
+  border: 1px dashed var(--border-subtle); border-radius: 10px;
+}
+
+/* ───────────── Footer disclosures ───────────── */
+.nb-reports2-foot {
+  display: flex; flex-direction: column; gap: 8px;
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px solid var(--border-subtle);
+}
+.nb-disclosure {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 10px;
+  border: 1px solid var(--border-subtle); border-radius: 8px;
+  background: transparent;
+  font: inherit; font-size: 12.5px; color: var(--text-primary);
+  cursor: pointer; text-align: left;
+  transition: background 120ms var(--ease-out-expo);
+}
+.nb-disclosure:hover { background: var(--bg-secondary); }
+.nb-disclosure-chev {
+  display: inline-block; font-size: 12px; color: var(--text-faint);
+  transition: transform 160ms var(--ease-out-expo);
+}
+.nb-disclosure[data-open="true"] .nb-disclosure-chev { transform: rotate(90deg); }
+.nb-disclosure-label { font-weight: 500; }
+.nb-disclosure-hint { margin-left: auto; font-size: 11px; color: var(--text-faint); }
+
+.nb-disclosure-body {
+  padding: 14px;
+  border: 1px solid var(--border-subtle); border-radius: 10px;
+  background: var(--bg-secondary);
+}

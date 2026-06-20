@@ -20,6 +20,7 @@ export const NODE_ROOM_OKF_TYPES = [
   "Downstream Draft",
   "Workflow",
   "Playbook",
+  "Agent Skill",
 ] as const;
 
 export type NodeRoomOkfType = (typeof NODE_ROOM_OKF_TYPES)[number] | (string & {});
@@ -39,6 +40,18 @@ export interface OkfNodeRoomExtension {
   promotedFromConceptId?: string;
   promotedBy?: string;
   promotedAt?: string;
+  /* ── Agent Skill extension (type "Agent Skill") — all optional, used by skill RAG.
+   *  See docs/architecture/DYNAMIC_SKILL_RETRIEVAL.md + src/nodeagent/okf/skillCatalog/format.md. */
+  /** Where load_skill fetches the SKILL.md body from (local install dir or remote raw URL). */
+  skill_install?: string;
+  /** Trust tier — gates execution. Maps to confidence (local 1.0 / verified .95 / community .6 / untrusted .3). */
+  skill_trust?: "local" | "verified" | "community" | "untrusted";
+  /** Skill categories (also mirrored into frontmatter.tags). */
+  skill_categories?: string[];
+  /** SKILL.md version, if declared in its frontmatter. */
+  skill_version?: string;
+  /** The catalog this skill record came from (e.g. "awesome-claude-skills", "local"). */
+  skill_source_catalog?: string;
 }
 
 export interface OkfFrontmatter {

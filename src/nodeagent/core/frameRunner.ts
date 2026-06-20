@@ -60,10 +60,58 @@ export interface ReasoningFrameRunReceipt {
   runtimeError?: string;
 }
 
-export function selectFrameTools(frame: ReasoningFrame, tools: AgentTool[]): FrameToolSelection {
+/** Skill-class tools are dynamically discoverable and the RAG step may prune them by relevance.
+ *  Non-skill tools always pass through untouched (default behavior unchanged). */
+const SKILL_CLASS_TOOL_NAMES = new Set<string>(["skill_search", "load_skill", "okf_search_skills"]);
+/** Default top-k for skill RAG when a goal is provided. Bounded. */
+export const DEFAULT_SKILL_RAG_K = 5;
+
+function ragTokenize(text: string): string[] {
+  return text.toLowerCase().replace(/[^a-z0-9]+/g, " ").split(" ").filter((t) => t.length > 1);
+}
+
+/**
+ * Rank skill-class tools by lexical relevance to the goal and keep only the top-k.
+ * Cheap, deterministic keyword scorer over name+description — the clear hook to swap in
+ * OKF semantic search later (skill_search already prefers OKF at execute time).
+ *
+ * Only PRUNES skill-class tools; every non-skill tool is preserved. Tools already named in
+ * `keepNames` (e.g. the frame's allowlist) are never pruned, so allowlist semantics are intact.
+ */
+export function selectRelevantSkills(
+  goal: string,
+  tools: AgentTool[],
+  k: number = DEFAULT_SKILL_RAG_K,
+  keepNames: ReadonlySet<string> = new Set(),
+): AgentTool[] {
+  const topK = Math.max(1, Math.min(k, 50)); // BOUND
+  const skillTools = tools.filter((t) => SKILL_CLASS_TOOL_NAMES.has(t.name));
+  const nonSkillTools = tools.filter((t) => !SKILL_CLASS_TOOL_NAMES.has(t.name));
+  if (skillTools.length <= topK) return tools; // nothing to prune
+  const q = new Set(ragTokenize(goal));
+  const scored = skillTools.map((tool) => {
+    if (keepNames.has(tool.name)) return { tool, score: Number.POSITIVE_INFINITY }; // pinned by allowlist
+    if (q.size === 0) return { tool, score: 0 };
+    const hay = new Set(ragTokenize(`${tool.name} ${tool.description}`));
+    let hits = 0;
+    for (const term of q) if (hay.has(term)) hits += 1;
+    return { tool, score: hits / q.size };
+  });
+  scored.sort((a, b) => b.score - a.score);
+  const kept = new Set(scored.slice(0, topK).map((s) => s.tool.name));
+  return [...nonSkillTools, ...skillTools.filter((t) => kept.has(t.name))];
+}
+
+export function selectFrameTools(frame: ReasoningFrame, tools: AgentTool[], goal?: string): FrameToolSelection {
+  // `available`/`missingToolNames` are computed against the ORIGINAL tool set so RAG pruning of an
+  // irrelevant skill tool never produces a false "missing tool" for the allowlist.
   const available = new Set(tools.map((tool) => tool.name));
   const allowed = new Set(frame.toolAllowlist);
-  const allowedTools = tools.filter((tool) => allowed.has(tool.name));
+  // RAG select (only when a goal is provided): prune low-relevance skill-class tools BEFORE the
+  // name-filter. Allowlisted tools are pinned, so default (no goal) behavior is unchanged.
+  const candidateTools =
+    goal && goal.trim() ? selectRelevantSkills(goal, tools, DEFAULT_SKILL_RAG_K, allowed) : tools;
+  const allowedTools = candidateTools.filter((tool) => allowed.has(tool.name));
   return {
     allowedTools,
     allowedToolNames: allowedTools.map((tool) => tool.name),
@@ -103,8 +151,9 @@ function receipt(args: {
 }
 
 export async function runReasoningFrame(opts: RunReasoningFrameOptions): Promise<ReasoningFrameRunReceipt> {
-  const selection = selectFrameTools(opts.frame, opts.tools);
   const goal = opts.goal ?? frameRuntimeGoal(opts.frame);
+  // Pass the goal so skill-class tools are RAG-selected (top-k) before the allowlist filter.
+  const selection = selectFrameTools(opts.frame, opts.tools, goal);
   const includeRoomContext = opts.includeRoomContext ?? true;
   const roomContextBuilder = opts.roomContextBuilder ?? buildContext;
 
