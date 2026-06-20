@@ -1,0 +1,63 @@
+/* ============================================================================
+   NodeAgent Mobile — Settings sheet controls.
+   Segmented selectors, on-brand with the existing sheet/composer language.
+   ============================================================================ */
+.na-set-row {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 11px 2px;
+  border-bottom: 1px solid var(--border-color);
+}
+.na-set-row:last-child {
+  border-bottom: none;
+}
+.na-set-label {
+  font-size: var(--na-fs-sm);
+  font-weight: 600;
+  color: var(--text-secondary);
+  letter-spacing: -0.01em;
+}
+.na-set-label small {
+  display: block;
+  margin-top: 2px;
+  font-weight: 400;
+  font-size: 11.5px;
+  color: var(--text-tertiary);
+}
+
+.na-seg {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  gap: 4px;
+  padding: 3px;
+  border-radius: 10px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+}
+.na-seg button {
+  padding: 8px 6px;
+  border-radius: 7px;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-family: var(--font-ui);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background var(--duration-fast) var(--ease-out-expo), color var(--duration-fast);
+}
+.na-seg button[data-active="true"] {
+  background: var(--na-accent);
+  color: #fff;
+  box-shadow: var(--shadow-accent);
+}
+.na-seg button:not([data-active="true"]):hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+.na-seg button:not([data-active="true"]):active {
+  transform: scale(0.97);
+}

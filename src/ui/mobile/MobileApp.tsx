@@ -22,18 +22,12 @@ import { Capture, Inbox } from "./MobileScreens";
 import { RoomChat, AgentChat, Composer, JobsSheet } from "./MobileChat";
 import { PlanSheet, EvidenceSheet, CoachSheet } from "./MobileSheets";
 import { Files, RowSheet } from "./MobileFiles";
+import { SettingsSheet } from "./MobileSettings";
+import { loadTweaks, saveTweaks } from "./mobileTweaks";
 
-// Canonical terracotta defaults (the prototype's TWEAK_DEFAULTS).
-const TWEAKS: TweaksConfig = {
-  passive: "suggest",
-  navModel: "capture",
-  density: "comfortable",
-  accent: "terracotta",
-  navStyle: "tabs",
-  copyTone: "analyst",
-  motion: "expressive",
-  dark: true,
-};
+// Canonical terracotta defaults now live in mobileTweaks.ts (DEFAULT_TWEAKS); the surface
+// reads user-overridable settings from localStorage via loadTweaks() and edits them in the
+// Settings sheet — the designed variant matrix, shipped to users.
 
 const TABS: Record<TabId, { icon: IconName; label: string }> = {
   capture: { icon: "pen", label: "Capture" },
@@ -101,7 +95,15 @@ function agentReply(text: string): { delay: number; msg: AgentReplyPayload }[] {
 type DistributiveOmit<T, K extends keyof T> = T extends unknown ? Omit<T, K> : never;
 
 export function MobileApp() {
-  const t = TWEAKS;
+  const [tweaks, setTweaks] = React.useState<TweaksConfig>(() => loadTweaks());
+  const t = tweaks;
+  const setTweak = <K extends keyof TweaksConfig>(key: K, value: TweaksConfig[K]): void => {
+    setTweaks((prev) => {
+      const next = { ...prev, [key]: value } as TweaksConfig;
+      saveTweaks(next);
+      return next;
+    });
+  };
 
   const [tab, setTab] = React.useState<TabId>(t.navModel);
   const [note, setNote] = React.useState<string>(D.SEED_NOTE);
@@ -157,6 +159,18 @@ export function MobileApp() {
       timers.current.push(setTimeout(() => setNoticed(true), 1750));
     }
   }, [note, t.passive]);
+
+  // Apply the chosen theme at the document level so the standalone mobile route picks up the
+  // app's light/dark token sets; restore the previous theme on unmount.
+  React.useEffect(() => {
+    const html = document.documentElement;
+    const prev = html.getAttribute("data-theme");
+    html.setAttribute("data-theme", t.dark ? "dark" : "light");
+    return () => {
+      if (prev === null) html.removeAttribute("data-theme");
+      else html.setAttribute("data-theme", prev);
+    };
+  }, [t.dark]);
 
   React.useEffect(
     () => () => {
@@ -277,6 +291,7 @@ export function MobileApp() {
 
   const ctx: MobileCtx = {
     t,
+    setTweak,
     tab,
     note,
     setNote,
@@ -361,6 +376,11 @@ export function MobileApp() {
               },
               Ico(tab === "agent" || tab === "room" ? "history" : "bell"),
             ),
+            React.createElement(
+              "button",
+              { className: "na-icon-btn", "aria-label": "Settings", onClick: () => openSheet("settings") },
+              Ico("settings"),
+            ),
           ),
         ),
 
@@ -395,6 +415,7 @@ export function MobileApp() {
         React.createElement("div", { className: "na-sheet", "data-open": sheet === "coach" }, sheet === "coach" && React.createElement(CoachSheet, { ctx })),
         React.createElement("div", { className: "na-sheet", "data-open": sheet === "row" }, sheet === "row" && React.createElement(RowSheet, { ctx })),
         React.createElement("div", { className: "na-sheet", "data-open": sheet === "jobs" }, sheet === "jobs" && React.createElement(JobsSheet, { ctx })),
+        React.createElement("div", { className: "na-sheet", "data-open": sheet === "settings" }, sheet === "settings" && React.createElement(SettingsSheet, { ctx })),
 
         // toast
         React.createElement("div", { className: "na-toast", "data-show": !!toastMsg }, toastMsg && Ico("checkCircle"), toastMsg),

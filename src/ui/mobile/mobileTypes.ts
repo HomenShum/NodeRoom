@@ -44,6 +44,7 @@ export interface CopyCtx {
 
 export interface MobileCtx {
   t: TweaksConfig;
+  setTweak: <K extends keyof TweaksConfig>(key: K, value: TweaksConfig[K]) => void;
   tab: TabId;
   note: string;
   setNote: Dispatch<SetStateAction<string>>;

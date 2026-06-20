@@ -10,7 +10,7 @@ import type { IconName } from "./MobileIcons";
 // ── shared unions ───────────────────────────────────────────────────────────
 export type Tone = "accent" | "ok" | "warn" | "bad" | "priv" | "mute";
 export type TabId = "capture" | "room" | "agent" | "inbox" | "files";
-export type SheetId = "plan" | "evidence" | "coach" | "row" | "jobs";
+export type SheetId = "plan" | "evidence" | "coach" | "row" | "jobs" | "settings";
 export type ComposerMode = "note" | "room" | "agent";
 export type AgentLane = "private" | "room";
 export type PersonKey = "priya" | "quokka" | "homen" | "room_na";
