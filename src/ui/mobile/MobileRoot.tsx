@@ -55,7 +55,7 @@ function MobileLiveRoot() {
 
   const start = (kind: "join" | "demo", rawCode: string, rawName: string) => {
     const c = normalizeCode(rawCode);
-    if (kind === "join" && !c) {
+    if (kind === "join" && c.length < 6) {
       setError("Enter a 6–12 character room code.");
       return;
     }
@@ -92,6 +92,11 @@ function MobileLiveRoot() {
       const next: LiveSession = { roomId: joined.roomId, memberId: joined.memberId, name, token };
       try {
         localStorage.setItem(liveKey(reqCode), JSON.stringify(next));
+      } catch {
+        /* ignore */
+      }
+      try {
+        history.replaceState(null, "", `#mobile?room=${reqCode}` + (name ? `&name=${encodeURIComponent(name)}` : ""));
       } catch {
         /* ignore */
       }

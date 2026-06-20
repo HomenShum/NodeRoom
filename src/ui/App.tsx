@@ -44,7 +44,7 @@ export function App() {
 
   // NodeAgent Mobile (Terracotta) — standalone mobile surface (mock-data demo).
   if (hash === "#mobile" || hash === "#/mobile" || hash.startsWith("#mobile?") || hash.startsWith("#/mobile?")) {
-    return <MobileRoot />;
+    return <MobileRoot key={hash} />;
   }
 
   if (hash === "#story" || hash === "#/story") {

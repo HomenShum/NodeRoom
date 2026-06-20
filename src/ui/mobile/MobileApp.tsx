@@ -98,11 +98,7 @@ export function MobileApp({ live }: { live?: MobileLive } = {}) {
   const [tweaks, setTweaks] = React.useState<TweaksConfig>(() => loadTweaks());
   const t = tweaks;
   const setTweak = <K extends keyof TweaksConfig>(key: K, value: TweaksConfig[K]): void => {
-    setTweaks((prev) => {
-      const next = { ...prev, [key]: value } as TweaksConfig;
-      saveTweaks(next);
-      return next;
-    });
+    setTweaks((prev) => ({ ...prev, [key]: value }) as TweaksConfig);
   };
 
   const [tab, setTab] = React.useState<TabId>(t.navModel);
@@ -149,15 +145,17 @@ export function MobileApp({ live }: { live?: MobileLive } = {}) {
       firstRun.current = false;
       return;
     }
-    clearTimers();
+    // Scoped to THIS effect run — must not clear unrelated agent/run timers (timers.current).
+    const ids: ReturnType<typeof setTimeout>[] = [];
     setSaveState("saving");
     setDetected(false);
     setNoticed(false);
-    timers.current.push(setTimeout(() => setSaveState("saved"), 850));
+    ids.push(setTimeout(() => setSaveState("saved"), 850));
     if (t.passive !== "off") {
-      timers.current.push(setTimeout(() => setDetected(true), 1250));
-      timers.current.push(setTimeout(() => setNoticed(true), 1750));
+      ids.push(setTimeout(() => setDetected(true), 1250));
+      ids.push(setTimeout(() => setNoticed(true), 1750));
     }
+    return () => ids.forEach(clearTimeout);
   }, [note, t.passive]);
 
   // Apply the chosen theme at the document level so the standalone mobile route picks up the
@@ -171,6 +169,11 @@ export function MobileApp({ live }: { live?: MobileLive } = {}) {
       else html.setAttribute("data-theme", prev);
     };
   }, [t.dark]);
+
+  // Persist tweaks as a side effect (not inside the setState updater).
+  React.useEffect(() => {
+    saveTweaks(tweaks);
+  }, [tweaks]);
 
   React.useEffect(
     () => () => {
@@ -220,11 +223,11 @@ export function MobileApp({ live }: { live?: MobileLive } = {}) {
   const pushRoom = (msg: DistributiveOmit<RoomMsg, "id">) =>
     setRoomMsgs((prev) => [...prev, { id: "m" + mid.current++, ...msg } as RoomMsg]);
 
-  const sendAgent = (text: string, lane?: AgentLane) => {
+  const sendAgent = async (text: string, lane?: AgentLane) => {
     const ln = lane || agentLane;
     if (live) {
-      if (ln === "room") live.askRoomAgent(text);
-      else live.askPrivateAgent(text);
+      const r = ln === "room" ? await live.askRoomAgent(text) : await live.askPrivateAgent(text);
+      if (!r.ok) toast("Agent error — " + (r.reason ?? "try again"));
       return;
     }
     pushAgent(ln, { role: "user", text });
@@ -240,7 +243,7 @@ export function MobileApp({ live }: { live?: MobileLive } = {}) {
     agentReply(text).forEach(({ delay, msg }) => timers.current.push(setTimeout(() => pushAgent(ln, { role: "agent", ...msg }), delay)));
   };
 
-  const sendComposer = () => {
+  const sendComposer = async () => {
     const text = draft.trim();
     if (!text) return;
     if (composerMode === "note") {
@@ -249,17 +252,21 @@ export function MobileApp({ live }: { live?: MobileLive } = {}) {
       toast("Added to capture");
     } else if (composerMode === "room") {
       if (live) {
-        // Live room: post to Convex; the message returns via the public subscription.
-        live.postRoomMessage(text);
+        const r = await live.postRoomMessage(text);
+        if (!r.ok) {
+          toast("Message failed — " + (r.reason ?? "try again"));
+          return; // keep the draft so nothing typed is lost
+        }
+        setTab("room");
       } else {
         pushRoom({ who: "homen", kind: "msg", t: "now", text });
         if (/@agent|research|agent/i.test(text)) {
           timers.current.push(setTimeout(() => pushRoom({ who: "room_na", kind: "status", t: "now", text: "Picking that up — proposing a plan to the room." }), 700));
         }
+        setTab("room");
       }
-      setTab("room");
     } else {
-      sendAgent(text);
+      void sendAgent(text);
       setTab("agent");
     }
     setDraft("");

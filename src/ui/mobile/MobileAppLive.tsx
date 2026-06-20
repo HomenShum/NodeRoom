@@ -118,18 +118,28 @@ export function MobileAppLive({ roomId, me, onLeave }: { roomId: string; me: Act
     liveCount: members.length,
     roomMsgs: reshapeMessages(messages),
     people: buildPeople(members),
-    postRoomMessage: (text: string) => {
-      void store.postMessage({ roomId, channel: "public", author: me, text, clientMsgId: crypto.randomUUID(), kind: "chat" });
+    postRoomMessage: async (text: string) => {
+      return store.postMessage({ roomId, channel: "public", author: me, text, clientMsgId: crypto.randomUUID(), kind: "chat" });
     },
     agentPrivate: reshapeAgentMsgs(privateMsgs),
     agentRoom: reshapeAgentMsgs(messages.filter((m) => m.author.kind === "agent" || m.author.id === me.id)),
-    askPrivateAgent: (goal: string) => {
+    askPrivateAgent: async (goal: string) => {
       void store.postMessage({ roomId, channel: { private: me.id }, author: me, text: goal, clientMsgId: crypto.randomUUID(), kind: "chat" });
-      void store.askPrivateAgent({ goal });
+      try {
+        await store.askPrivateAgent({ goal });
+        return { ok: true };
+      } catch (e) {
+        return { ok: false, reason: e instanceof Error ? e.message : "agent_failed" };
+      }
     },
-    askRoomAgent: (goal: string) => {
+    askRoomAgent: async (goal: string) => {
       void store.postMessage({ roomId, channel: "public", author: me, text: goal, clientMsgId: crypto.randomUUID(), kind: "chat" });
-      void store.askAgent({ goal });
+      try {
+        await store.askAgent({ goal });
+        return { ok: true };
+      } catch (e) {
+        return { ok: false, reason: e instanceof Error ? e.message : "agent_failed" };
+      }
     },
     row: liveRow,
     editRowField,

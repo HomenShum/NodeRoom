@@ -98,11 +98,11 @@ export interface MobileLive {
   liveCount: number;
   roomMsgs: RoomMsg[];
   people: Record<string, Person>;
-  postRoomMessage: (text: string) => void;
+  postRoomMessage: (text: string) => Promise<RowEditResult>;
   agentPrivate: AgentMsg[];
   agentRoom: AgentMsg[];
-  askPrivateAgent: (goal: string) => void;
-  askRoomAgent: (goal: string) => void;
+  askPrivateAgent: (goal: string) => Promise<RowEditResult>;
+  askRoomAgent: (goal: string) => Promise<RowEditResult>;
   row: Row;
   editRowField: (elementId: string, value: string, baseVersion: number) => Promise<RowEditResult>;
   onLeave?: () => void;
