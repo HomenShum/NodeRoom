@@ -4,8 +4,9 @@ import { api } from "../../convex/_generated/api";
 import { Landing } from "./Landing";
 import { RoomShell } from "./RoomShell";
 import { LandingStory } from "../landing/LandingStory";
-import { MobileApp } from "./mobile/MobileApp";
+import { MobileRoot } from "./mobile/MobileRoot";
 import { EngineStoreProvider, ConvexStoreProvider, HAS_CONVEX } from "../app/store";
+import { enterBankerToolBenchRoomAsHost } from "../app/roomStore";
 import type { Actor } from "../engine/types";
 
 const liveSessionKey = (code: string) => `noderoom:live:${code.toUpperCase()}`;
@@ -34,6 +35,7 @@ type LiveRequest =
 export function App() {
   const [hash, setHash] = useState(() => (typeof window !== "undefined" ? window.location.hash : ""));
   const [memorySession, setMemorySession] = useState<Session | null>(null);
+  const btbSessionRef = useRef<Session | null>(null);
   useEffect(() => {
     const onHash = () => setHash(window.location.hash);
     window.addEventListener("hashchange", onHash);
@@ -41,8 +43,8 @@ export function App() {
   }, []);
 
   // NodeAgent Mobile (Terracotta) — standalone mobile surface (mock-data demo).
-  if (hash === "#mobile" || hash === "#/mobile") {
-    return <MobileApp />;
+  if (hash === "#mobile" || hash === "#/mobile" || hash.startsWith("#mobile?") || hash.startsWith("#/mobile?")) {
+    return <MobileRoot />;
   }
 
   if (hash === "#story" || hash === "#/story") {
@@ -62,6 +64,15 @@ export function App() {
       window.location.hash = "";
     };
     return <LandingStory onEnter={enter} onBack={exit} />;
+  }
+
+  if (hash === "#btb" || hash === "#/btb") {
+    btbSessionRef.current ??= enterBankerToolBenchRoomAsHost();
+    return (
+      <EngineStoreProvider roomId={btbSessionRef.current.roomId} me={btbSessionRef.current.me}>
+        <RoomShell roomId={btbSessionRef.current.roomId} me={btbSessionRef.current.me} onLeave={() => { window.location.hash = ""; }} />
+      </EngineStoreProvider>
+    );
   }
 
   return HAS_CONVEX ? <ConvexApp /> : <MemoryApp session={memorySession} onSession={setMemorySession} />;

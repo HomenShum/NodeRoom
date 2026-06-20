@@ -8,7 +8,7 @@ import * as React from "react";
 import { Ico } from "./MobileIcons";
 import { Pill } from "./MobileScreens";
 import * as D from "./mobileData";
-import type { PersonKey, Person, Job, ComposerMode } from "./mobileData";
+import type { Person, Job, ComposerMode } from "./mobileData";
 import type { MobileCtx } from "./mobileTypes";
 
 // highlight @mentions
@@ -18,17 +18,17 @@ function withMentions(text: string): React.ReactNode[] {
 
 // ── ROOM CHAT ─────────────────────────────────────────────────────────────
 export function RoomChat({ ctx }: { ctx: MobileCtx }) {
-  const P = D.PEOPLE;
+  const P = ctx.people;
   const msgs = ctx.roomMsgs;
 
   // Defensive fallbacks (parity with the design): an unrecognized author renders a
   // gray "?" chip / its own key instead of throwing.
-  const avatar = (who: PersonKey) => {
+  const avatar = (who: string) => {
     const p: Partial<Person> = P[who] ?? {};
     return React.createElement("span", { className: "na-av", style: { background: p.color || "var(--bg-hover)" } }, p.short || "?");
   };
 
-  const head = (who: PersonKey, t: string) => {
+  const head = (who: string, t: string) => {
     const p: Partial<Person> = P[who] ?? {};
     return React.createElement(
       "div",

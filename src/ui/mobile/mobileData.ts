@@ -181,10 +181,10 @@ export const PULSE: Pulse = {
 
 // ── room chat (public, Slack-style multi-party feed) ──────────────────────────
 export type RoomMsg =
-  | { id: string; who: PersonKey; kind: "msg"; t: string; text: string }
-  | { id: string; who: PersonKey; kind: "status"; t: string; text: string }
-  | { id: string; who: PersonKey; kind: "summary"; t: string; text: string; stats: Stat[] }
-  | { id: string; who: PersonKey; kind: "artifact"; t: string; title: string; meta: string };
+  | { id: string; who: string; kind: "msg"; t: string; text: string }
+  | { id: string; who: string; kind: "status"; t: string; text: string }
+  | { id: string; who: string; kind: "summary"; t: string; text: string; stats: Stat[] }
+  | { id: string; who: string; kind: "artifact"; t: string; title: string; meta: string };
 export const ROOM_CHAT: RoomMsg[] = [
   { id: "m1", who: "priya", kind: "msg", t: "8m", text: "Pulling the NetSuite Q3 numbers into the variance sheet — revenue looks off vs the close." },
   { id: "m2", who: "quokka", kind: "msg", t: "6m", text: "joined as a guest. read-only on the sheet for now?" },

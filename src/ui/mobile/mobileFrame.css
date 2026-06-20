@@ -47,3 +47,77 @@
     box-shadow: none;
   }
 }
+
+/* ── join form (live mode: enter a room code or start a demo) ──────────────── */
+.na-join {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 12px;
+  padding: 28px 24px;
+  background:
+    radial-gradient(120% 70% at 50% -10%, rgba(217, 119, 87, 0.12), transparent 55%),
+    var(--bg-app, #09090b);
+  color: var(--text-primary);
+  font-family: var(--font-ui);
+}
+.na-join-mark {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  font-weight: 800;
+  font-size: 20px;
+  color: #fff;
+  background: var(--accent-primary, #d97757);
+  box-shadow: var(--shadow-accent, 0 4px 16px -2px rgba(217, 119, 87, 0.4));
+  margin-bottom: 4px;
+}
+.na-join-title {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+.na-join-sub {
+  margin: 0 0 8px;
+  font-size: 13.5px;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+.na-join-error {
+  padding: 9px 12px;
+  border-radius: 9px;
+  background: rgba(229, 103, 94, 0.14);
+  color: #e5675e;
+  font-size: 12.5px;
+  font-weight: 500;
+}
+.na-join-input {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 11px;
+  border: 1px solid var(--border-strong, rgba(255, 255, 255, 0.14));
+  background: var(--bg-secondary, #171b20);
+  color: var(--text-primary);
+  font-family: var(--font-ui);
+  font-size: 15px;
+  transition: border-color var(--duration-fast, 0.12s);
+}
+.na-join-input.mono {
+  font-family: var(--font-mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.na-join-input:focus {
+  outline: none;
+  border-color: var(--accent-primary, #d97757);
+}
+.na-join .na-btn {
+  justify-content: center;
+  padding: 12px;
+  font-size: 14px;
+}

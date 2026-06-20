@@ -17,7 +17,7 @@ import { Ico } from "./MobileIcons";
 import type { IconName } from "./MobileIcons";
 import * as D from "./mobileData";
 import type { TabId, SheetId, ComposerMode, AgentLane, RoomMsg, AgentMsg, QuickPrompt, InboxItem, Stat } from "./mobileData";
-import type { MobileCtx, TweaksConfig, SaveState, RunState, CopyTone, CopyCtx } from "./mobileTypes";
+import type { MobileCtx, MobileLive, TweaksConfig, SaveState, RunState, CopyTone, CopyCtx } from "./mobileTypes";
 import { Capture, Inbox } from "./MobileScreens";
 import { RoomChat, AgentChat, Composer, JobsSheet } from "./MobileChat";
 import { PlanSheet, EvidenceSheet, CoachSheet } from "./MobileSheets";
@@ -94,7 +94,7 @@ function agentReply(text: string): { delay: number; msg: AgentReplyPayload }[] {
 
 type DistributiveOmit<T, K extends keyof T> = T extends unknown ? Omit<T, K> : never;
 
-export function MobileApp() {
+export function MobileApp({ live }: { live?: MobileLive } = {}) {
   const [tweaks, setTweaks] = React.useState<TweaksConfig>(() => loadTweaks());
   const t = tweaks;
   const setTweak = <K extends keyof TweaksConfig>(key: K, value: TweaksConfig[K]): void => {
@@ -243,9 +243,14 @@ export function MobileApp() {
       setTab("capture");
       toast("Added to capture");
     } else if (composerMode === "room") {
-      pushRoom({ who: "homen", kind: "msg", t: "now", text });
-      if (/@agent|research|agent/i.test(text)) {
-        timers.current.push(setTimeout(() => pushRoom({ who: "room_na", kind: "status", t: "now", text: "Picking that up — proposing a plan to the room." }), 700));
+      if (live) {
+        // Live room: post to Convex; the message returns via the public subscription.
+        live.postRoomMessage(text);
+      } else {
+        pushRoom({ who: "homen", kind: "msg", t: "now", text });
+        if (/@agent|research|agent/i.test(text)) {
+          timers.current.push(setTimeout(() => pushRoom({ who: "room_na", kind: "status", t: "now", text: "Picking that up — proposing a plan to the room." }), 700));
+        }
       }
       setTab("room");
     } else {
@@ -289,6 +294,11 @@ export function MobileApp() {
 
   const openCount = D.INBOX.filter((i) => !resolved[i.id] && i.statusTone !== "ok").length;
 
+  const people = live?.people ?? D.PEOPLE;
+  const roomMeta = live
+    ? { name: live.roomName, code: live.roomCode, live: live.liveCount }
+    : { name: D.ROOM.name, code: D.ROOM.code, live: D.ROOM.live };
+
   const ctx: MobileCtx = {
     t,
     setTweak,
@@ -319,8 +329,10 @@ export function MobileApp() {
     stopVoice,
     agentLane,
     setAgentLane,
-    roomMsgs,
+    roomMsgs: live ? live.roomMsgs : roomMsgs,
     agentMsgs,
+    people,
+    isLive: !!live,
     runQuick,
     openRow,
     askAboutRow,
@@ -356,13 +368,13 @@ export function MobileApp() {
             React.createElement(
               "div",
               { className: "na-room-copy" },
-              React.createElement("strong", null, D.ROOM.name),
+              React.createElement("strong", null, roomMeta.name),
               React.createElement(
                 "span",
                 null,
-                React.createElement("span", { className: "mono" }, D.ROOM.code),
+                React.createElement("span", { className: "mono" }, roomMeta.code),
                 React.createElement("span", { className: "na-dot" }),
-                React.createElement("span", { className: "na-live" }, D.ROOM.live + " live"),
+                React.createElement("span", { className: "na-live" }, roomMeta.live + " live"),
                 React.createElement("span", { className: "na-dot" }),
                 TABS[tab].label.toLowerCase(),
               ),

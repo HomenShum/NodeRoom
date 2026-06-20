@@ -14,6 +14,7 @@ import type {
   QuickPrompt,
   RoomMsg,
   AgentMsg,
+  Person,
 } from "./mobileData";
 
 export type SaveState = "saving" | "saved" | "idle";
@@ -74,7 +75,22 @@ export interface MobileCtx {
   setAgentLane: Dispatch<SetStateAction<AgentLane>>;
   roomMsgs: RoomMsg[];
   agentMsgs: { private: AgentMsg[]; room: AgentMsg[] };
+  /** Avatar/name lookup for the room feed — live members (keyed by member id) or the mock PEOPLE map. */
+  people: Record<string, Person>;
+  /** True when bound to a live Convex room (vs sample data). */
+  isLive: boolean;
   runQuick: (q: QuickPrompt) => void;
   openRow: () => void;
   askAboutRow: () => void;
+}
+
+/** Live room data injected into MobileApp by MobileAppLive (see MobileRoot). */
+export interface MobileLive {
+  roomName: string;
+  roomCode: string;
+  liveCount: number;
+  roomMsgs: RoomMsg[];
+  people: Record<string, Person>;
+  postRoomMessage: (text: string) => void;
+  onLeave?: () => void;
 }
