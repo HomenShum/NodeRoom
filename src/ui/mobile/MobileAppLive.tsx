@@ -8,7 +8,7 @@
    ============================================================================ */
 import { useStore } from "../../app/store";
 import type { Actor, Message, Member } from "../../engine/types";
-import type { RoomMsg, Person } from "./mobileData";
+import type { RoomMsg, Person, AgentMsg } from "./mobileData";
 import type { MobileLive } from "./mobileTypes";
 import { MobileApp } from "./MobileApp";
 
@@ -52,11 +52,19 @@ function reshapeMessages(messages: Message[]): RoomMsg[] {
   }));
 }
 
+// Live Message -> mobile AgentMsg (1:1 agent-convo style): user-authored -> user bubble,
+// agent-authored -> agent text bubble.
+function reshapeAgentMsgs(messages: Message[]): AgentMsg[] {
+  return messages.map((m): AgentMsg =>
+    m.author.kind === "user" ? { id: m.id, role: "user", text: m.text } : { id: m.id, role: "agent", variant: "text", text: m.text });
+}
+
 export function MobileAppLive({ roomId, me, onLeave }: { roomId: string; me: Actor; onLeave?: () => void }) {
   const store = useStore();
   const room = store.getRoom(roomId);
   const members = store.listMembers(roomId);
   const messages = store.listMessages(roomId, "public");
+  const privateMsgs = store.listMessages(roomId, { private: me.id });
 
   const live: MobileLive = {
     roomName: room?.title ?? "Room",
@@ -66,6 +74,16 @@ export function MobileAppLive({ roomId, me, onLeave }: { roomId: string; me: Act
     people: buildPeople(members),
     postRoomMessage: (text: string) => {
       void store.postMessage({ roomId, channel: "public", author: me, text, clientMsgId: crypto.randomUUID(), kind: "chat" });
+    },
+    agentPrivate: reshapeAgentMsgs(privateMsgs),
+    agentRoom: reshapeAgentMsgs(messages.filter((m) => m.author.kind === "agent" || m.author.id === me.id)),
+    askPrivateAgent: (goal: string) => {
+      void store.postMessage({ roomId, channel: { private: me.id }, author: me, text: goal, clientMsgId: crypto.randomUUID(), kind: "chat" });
+      void store.askPrivateAgent({ goal });
+    },
+    askRoomAgent: (goal: string) => {
+      void store.postMessage({ roomId, channel: "public", author: me, text: goal, clientMsgId: crypto.randomUUID(), kind: "chat" });
+      void store.askAgent({ goal });
     },
     onLeave,
   };

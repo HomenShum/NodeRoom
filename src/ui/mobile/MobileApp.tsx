@@ -222,6 +222,11 @@ export function MobileApp({ live }: { live?: MobileLive } = {}) {
 
   const sendAgent = (text: string, lane?: AgentLane) => {
     const ln = lane || agentLane;
+    if (live) {
+      if (ln === "room") live.askRoomAgent(text);
+      else live.askPrivateAgent(text);
+      return;
+    }
     pushAgent(ln, { role: "user", text });
     if (/runway|explain|prep|coach/i.test(text)) {
       timers.current.push(
@@ -277,10 +282,11 @@ export function MobileApp({ live }: { live?: MobileLive } = {}) {
     setTab("agent");
     setComposerMode("agent");
     if (q.kind === "coach") {
-      sendAgent("Prep me to explain runway");
+      openSheet("coach");
       return;
     }
-    sendAgent(q.text);
+    setAgentLane("room");
+    sendAgent(q.text, "room");
   };
 
   const openRow = () => openSheet("row");
@@ -330,7 +336,7 @@ export function MobileApp({ live }: { live?: MobileLive } = {}) {
     agentLane,
     setAgentLane,
     roomMsgs: live ? live.roomMsgs : roomMsgs,
-    agentMsgs,
+    agentMsgs: live ? { private: live.agentPrivate, room: live.agentRoom } : agentMsgs,
     people,
     isLive: !!live,
     runQuick,

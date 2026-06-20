@@ -92,5 +92,9 @@ export interface MobileLive {
   roomMsgs: RoomMsg[];
   people: Record<string, Person>;
   postRoomMessage: (text: string) => void;
+  agentPrivate: AgentMsg[];
+  agentRoom: AgentMsg[];
+  askPrivateAgent: (goal: string) => void;
+  askRoomAgent: (goal: string) => void;
   onLeave?: () => void;
 }
