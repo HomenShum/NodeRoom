@@ -8,7 +8,7 @@ import * as React from "react";
 import { Ico } from "./MobileIcons";
 import { Pill } from "./MobileScreens";
 import * as D from "./mobileData";
-import type { PersonKey, Job, ComposerMode } from "./mobileData";
+import type { PersonKey, Person, Job, ComposerMode } from "./mobileData";
 import type { MobileCtx } from "./mobileTypes";
 
 // highlight @mentions
@@ -21,15 +21,22 @@ export function RoomChat({ ctx }: { ctx: MobileCtx }) {
   const P = D.PEOPLE;
   const msgs = ctx.roomMsgs;
 
-  const avatar = (who: PersonKey) => React.createElement("span", { className: "na-av", style: { background: P[who].color } }, P[who].short);
+  // Defensive fallbacks (parity with the design): an unrecognized author renders a
+  // gray "?" chip / its own key instead of throwing.
+  const avatar = (who: PersonKey) => {
+    const p: Partial<Person> = P[who] ?? {};
+    return React.createElement("span", { className: "na-av", style: { background: p.color || "var(--bg-hover)" } }, p.short || "?");
+  };
 
-  const head = (who: PersonKey, t: string) =>
-    React.createElement(
+  const head = (who: PersonKey, t: string) => {
+    const p: Partial<Person> = P[who] ?? {};
+    return React.createElement(
       "div",
       { className: "na-rmsg-head" },
-      React.createElement("strong", { className: P[who].agent ? "who-agent" : "" }, P[who].name),
+      React.createElement("strong", { className: p.agent ? "who-agent" : "" }, p.name || who),
       React.createElement("time", null, t),
     );
+  };
 
   return React.createElement(
     "div",

@@ -13,6 +13,15 @@
   /* app styles.css names these --accent-hover / --accent-tint (the design kit shipped --accent-primary-*) */
   --shadow-accent:    0 4px 16px -2px rgba(217, 119, 87, 0.40);
 
+  /* Design-kit tokens the app shell never defined (kit assets/colors_and_type.css) — restored so
+     agent-message ink, micro-transition easing, and active-tab/lane elevation render as designed.
+     Dark-surface values, since .na-app is dark-first. */
+  --ink-agent:        #C3BFB5;
+  --duration-fast:    0.12s;
+  --duration-normal:  0.20s;
+  --duration-slow:    0.40s;
+  --shadow-xs:        0 0 0 1px rgba(255, 255, 255, 0.04);
+
   /* status palette tuned for dark surfaces */
   --na-ok:     #34B27B;
   --na-ok-bg:  rgba(52, 178, 123, 0.14);
