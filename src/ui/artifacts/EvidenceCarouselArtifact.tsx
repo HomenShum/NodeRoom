@@ -34,6 +34,7 @@ export function EvidenceCarouselArtifact({
         // (opened split-screen at its cell by the caller). Falls back to the claim cell.
         const href = card.sourceUrl && /^https?:\/\//i.test(card.sourceUrl) ? card.sourceUrl : null;
         const openId = card.sourceArtifactId ?? card.targetArtifactId;
+        const openElementId = card.sourceArtifactId && card.sourceArtifactId !== card.targetArtifactId ? undefined : card.targetElementId;
         const canOpenInternal = !href && !!openId && !!onOpenArtifact;
         const confidence = Math.round(card.confidence * 100);
         const body = (
@@ -55,7 +56,7 @@ export function EvidenceCarouselArtifact({
         if (href) {
           return (
             <NodeReveal key={card.id} delay={60} distance={8} threshold={0}>
-              <a className="r-coach-card r-coach-card-button" data-testid="coach-evidence-card" data-element-id={card.targetElementId} data-artifact-id={card.targetArtifactId} href={href} target="_blank" rel="noopener noreferrer" aria-label={`Open source ${sourceLabel(card)} for ${card.label}`}>
+              <a className="r-coach-card r-coach-card-button" data-testid="coach-evidence-card" data-element-id={card.targetElementId} data-artifact-id={card.targetArtifactId} data-source-artifact-id={card.sourceArtifactId} href={href} target="_blank" rel="noopener noreferrer" aria-label={`Open source ${sourceLabel(card)} for ${card.label}`}>
                 {body}
               </a>
             </NodeReveal>
@@ -64,7 +65,7 @@ export function EvidenceCarouselArtifact({
         if (canOpenInternal) {
           return (
             <NodeReveal key={card.id} delay={60} distance={8} threshold={0}>
-              <button type="button" className="r-coach-card r-coach-card-button" data-testid="coach-evidence-card" data-element-id={card.targetElementId} data-artifact-id={card.targetArtifactId} aria-label={`Open source for ${card.label}`} onClick={() => onOpenArtifact?.(openId!, card.targetElementId)}>
+              <button type="button" className="r-coach-card r-coach-card-button" data-testid="coach-evidence-card" data-element-id={card.targetElementId} data-artifact-id={card.targetArtifactId} data-source-artifact-id={card.sourceArtifactId} aria-label={`Open source for ${card.label}`} onClick={() => onOpenArtifact?.(openId!, openElementId)}>
                 {body}
               </button>
             </NodeReveal>
@@ -72,7 +73,7 @@ export function EvidenceCarouselArtifact({
         }
         return (
           <NodeReveal key={card.id} delay={60} distance={8} threshold={0}>
-            <article className="r-coach-card" data-testid="coach-evidence-card" data-element-id={card.targetElementId} data-artifact-id={card.targetArtifactId}>
+            <article className="r-coach-card" data-testid="coach-evidence-card" data-element-id={card.targetElementId} data-artifact-id={card.targetArtifactId} data-source-artifact-id={card.sourceArtifactId}>
               {body}
             </article>
           </NodeReveal>

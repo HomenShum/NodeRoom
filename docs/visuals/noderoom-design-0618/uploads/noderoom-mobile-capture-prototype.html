@@ -1,0 +1,2158 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>NodeRoom Mobile Capture Prototype</title>
+  <style>
+    :root {
+      --bg: #0b0d10;
+      --bg-2: #12161c;
+      --surface: #f8fafc;
+      --surface-2: #ffffff;
+      --surface-3: #eef2f6;
+      --canvas: #dfe6ee;
+      --card-border: #c4cfdb;
+      --card-shadow: 0 8px 20px rgba(18, 22, 29, 0.08);
+      --focus-border: rgba(47, 111, 237, 0.58);
+      --focus-glow: rgba(47, 111, 237, 0.16);
+      --ink: #12161d;
+      --ink-2: #3d4652;
+      --muted: #6c7684;
+      --line: #dfe5ec;
+      --line-dark: rgba(255, 255, 255, 0.14);
+      --agent: #b75d3f;
+      --agent-soft: #f4e4dd;
+      --blue: #2f6fed;
+      --blue-soft: #e8f0ff;
+      --green: #1f7a4d;
+      --green-soft: #e8f5ee;
+      --amber: #9b5a10;
+      --amber-soft: #fff0d7;
+      --red: #b3261e;
+      --red-soft: #fae8e6;
+      --slate: #44546a;
+      --slate-soft: #edf1f5;
+      --shadow: 0 22px 52px rgba(0, 0, 0, 0.36);
+      --font-ui: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", system-ui, sans-serif;
+      color-scheme: dark;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; margin: 0; }
+    body {
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+      background: #20242a;
+      color: #fff;
+      font-family: var(--font-ui);
+    }
+    button, textarea { font: inherit; }
+    button { cursor: pointer; }
+    :focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+
+    .prototype-shell {
+      width: min(100vw, 430px);
+      height: min(100vh, 920px);
+      padding: 18px;
+      display: grid;
+      place-items: center;
+    }
+
+    .phone {
+      position: relative;
+      width: min(390px, 100%);
+      height: min(852px, 100%);
+      min-height: 680px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 30px;
+      background: var(--bg);
+      box-shadow: var(--shadow);
+    }
+
+    .topbar {
+      flex: none;
+      z-index: 8;
+      padding: 12px 10px 8px;
+      border-bottom: 1px solid var(--line-dark);
+      background: #0c0f13;
+    }
+
+    .status {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 18px;
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 12px;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .status-icons {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .signal {
+      display: inline-grid;
+      grid-template-columns: repeat(4, 3px);
+      align-items: end;
+      gap: 2px;
+      height: 11px;
+    }
+
+    .signal span {
+      width: 3px;
+      border-radius: 2px;
+      background: currentColor;
+    }
+
+    .signal span:nth-child(1) { height: 4px; }
+    .signal span:nth-child(2) { height: 6px; }
+    .signal span:nth-child(3) { height: 8px; }
+    .signal span:nth-child(4) { height: 11px; }
+
+    .battery {
+      width: 23px;
+      height: 12px;
+      border: 1.5px solid currentColor;
+      border-radius: 4px;
+      position: relative;
+    }
+
+    .battery::before {
+      content: "";
+      position: absolute;
+      inset: 2px 6px 2px 2px;
+      border-radius: 2px;
+      background: currentColor;
+    }
+
+    .battery::after {
+      content: "";
+      position: absolute;
+      right: -4px;
+      top: 3px;
+      width: 2px;
+      height: 5px;
+      border-radius: 1px;
+      background: currentColor;
+    }
+
+    .brand-row {
+      display: grid;
+      grid-template-columns: 28px minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 8px;
+      margin-top: 9px;
+    }
+
+    .mark {
+      width: 28px;
+      height: 28px;
+      display: grid;
+      place-items: center;
+      border: 1px solid var(--line-dark);
+      border-radius: 7px;
+      background: rgba(255, 255, 255, 0.12);
+      color: #fff;
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .brand-copy {
+      min-width: 0;
+    }
+
+    .brand-copy strong {
+      display: block;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-size: 13px;
+      line-height: 1.2;
+    }
+
+    .brand-copy span {
+      display: block;
+      margin-top: 1px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      color: rgba(255, 255, 255, 0.62);
+      font-size: 10px;
+      line-height: 1.2;
+    }
+
+    .invite {
+      height: 28px;
+      padding: 0 9px;
+      border: 1px solid var(--line-dark);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .switcher {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 4px;
+      margin-top: 9px;
+      padding: 3px;
+      border: 1px solid var(--line-dark);
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .switcher button {
+      min-height: 34px;
+      border: 0;
+      border-radius: 8px;
+      background: transparent;
+      color: rgba(255, 255, 255, 0.68);
+      font-size: 11px;
+      font-weight: 850;
+    }
+
+    .switcher button[data-active="true"] {
+      background: rgba(255, 255, 255, 0.18);
+      color: #fff;
+    }
+
+    .work {
+      position: relative;
+      flex: 1;
+      min-height: 0;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .feed {
+      position: relative;
+      isolation: isolate;
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      scrollbar-width: none;
+      padding: 10px 10px 94px;
+      background: var(--canvas);
+      overscroll-behavior: contain;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .feed::-webkit-scrollbar { display: none; }
+
+    .feed::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+      background: rgba(11, 13, 16, 0.24);
+      opacity: 0;
+      transition: opacity 140ms ease;
+    }
+
+    .feed[data-focus="true"]::after {
+      opacity: 1;
+    }
+
+    .feed-summary {
+      position: relative;
+      z-index: 2;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 8px;
+      padding: 9px 10px;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-radius: 8px;
+      background: #12161d;
+      color: #fff;
+      box-shadow: 0 8px 18px rgba(18, 22, 29, 0.18);
+      transition:
+        border-color 180ms ease,
+        box-shadow 180ms ease,
+        opacity 180ms ease,
+        transform 180ms ease;
+      contain: layout paint style;
+      touch-action: manipulation;
+    }
+
+    .feed-summary strong {
+      display: block;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-size: 13px;
+      line-height: 1.2;
+    }
+
+    .feed-summary span {
+      display: block;
+      margin-top: 2px;
+      color: rgba(255, 255, 255, 0.66);
+      font-size: 11px;
+      line-height: 1.25;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .post {
+      position: relative;
+      z-index: 2;
+      overflow: hidden;
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      background: var(--surface-2);
+      color: var(--ink);
+      box-shadow: var(--card-shadow);
+      margin-bottom: 8px;
+      animation: feed-in 260ms ease both;
+      transition:
+        border-color 180ms ease,
+        box-shadow 180ms ease,
+        opacity 180ms ease,
+        transform 180ms ease;
+      contain: layout paint style;
+      touch-action: manipulation;
+      --card-accent: var(--blue);
+      --card-accent-soft: var(--blue-soft);
+      --card-focus-border: var(--focus-border);
+      --card-glow: var(--focus-glow);
+    }
+
+    .post::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      width: 3px;
+      background: var(--card-accent);
+      opacity: 0.84;
+    }
+
+    .post[data-tone="capture"] {
+      --card-accent: var(--green);
+      --card-accent-soft: var(--green-soft);
+      --card-focus-border: rgba(31, 122, 77, 0.58);
+      --card-glow: rgba(31, 122, 77, 0.16);
+    }
+
+    .post[data-tone="plan"] {
+      --card-accent: var(--agent);
+      --card-accent-soft: var(--agent-soft);
+      --card-focus-border: rgba(183, 93, 63, 0.58);
+      --card-glow: rgba(183, 93, 63, 0.16);
+    }
+
+    .post[data-tone="diff"] {
+      --card-accent: var(--amber);
+      --card-accent-soft: var(--amber-soft);
+      --card-focus-border: rgba(155, 90, 16, 0.58);
+      --card-glow: rgba(155, 90, 16, 0.16);
+    }
+
+    .post[data-tone="evidence"] {
+      --card-accent: var(--blue);
+      --card-accent-soft: var(--blue-soft);
+      --card-focus-border: rgba(47, 111, 237, 0.58);
+      --card-glow: rgba(47, 111, 237, 0.16);
+    }
+
+    .post[data-tone="pending"] {
+      --card-accent: var(--slate);
+      --card-accent-soft: var(--slate-soft);
+      --card-focus-border: rgba(68, 84, 106, 0.58);
+      --card-glow: rgba(68, 84, 106, 0.15);
+    }
+
+    .post[data-tone="low"] {
+      --card-accent: var(--green);
+      --card-accent-soft: var(--green-soft);
+      --card-focus-border: rgba(31, 122, 77, 0.5);
+      --card-glow: rgba(31, 122, 77, 0.12);
+    }
+
+    .post[data-tone="ambiguous"] {
+      --card-accent: var(--amber);
+      --card-accent-soft: var(--amber-soft);
+      --card-focus-border: rgba(155, 90, 16, 0.58);
+      --card-glow: rgba(155, 90, 16, 0.16);
+    }
+
+    .post[data-card-detail],
+    .post[data-card-agent],
+    .feed-summary[data-card-consent],
+    .status-strip[data-card-agent],
+    .quick-capture {
+      cursor: pointer;
+    }
+
+    .feed[data-focus="true"] .post,
+    .feed[data-focus="true"] .feed-summary,
+    .feed[data-focus="true"] .status-strip {
+      opacity: 0.46;
+    }
+
+    .post:hover,
+    .post:focus-within,
+    .post[data-selected="true"],
+    .feed-summary:hover,
+    .feed-summary:focus-visible,
+    .feed-summary[data-selected="true"],
+    .status-strip:hover,
+    .status-strip:focus-visible,
+    .status-strip[data-selected="true"] {
+      z-index: 4;
+      opacity: 1;
+      border-color: var(--card-focus-border, var(--focus-border));
+      transform: translateY(-2px) scale(1.01);
+      box-shadow:
+        0 0 0 1px var(--card-glow, var(--focus-glow)),
+        0 16px 34px var(--card-glow, var(--focus-glow)),
+        0 16px 32px rgba(18, 22, 29, 0.18);
+    }
+
+    .post:active,
+    .feed-summary:active,
+    .status-strip:active {
+      transform: translateY(-1px) scale(1.004);
+      box-shadow:
+        0 0 0 1px var(--card-glow, var(--focus-glow)),
+        0 10px 24px var(--card-glow, var(--focus-glow));
+    }
+
+    .post-head {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 8px;
+      min-height: 48px;
+      padding: 9px 10px 7px 12px;
+      border-bottom: 1px solid #d6dee8;
+      background: #f8fafc;
+    }
+
+    .post-title {
+      min-width: 0;
+    }
+
+    .post-title strong {
+      display: block;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-size: 13px;
+      line-height: 1.2;
+    }
+
+    .post-title span {
+      display: block;
+      margin-top: 2px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.2;
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 24px;
+      padding: 0 8px;
+      border: 1px solid #c9ded3;
+      border-radius: 8px;
+      background: var(--green-soft);
+      color: var(--green);
+      font-size: 10px;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .status-pill.agent {
+      border-color: #e7c6ba;
+      background: var(--agent-soft);
+      color: var(--agent);
+    }
+
+    .status-pill.warn {
+      border-color: #edcf9b;
+      background: var(--amber-soft);
+      color: var(--amber);
+    }
+
+    .post-body {
+      padding: 10px 10px 10px 12px;
+    }
+
+    .post.compact .post-head {
+      min-height: 42px;
+      padding-top: 7px;
+      padding-bottom: 6px;
+    }
+
+    .post.compact .post-body {
+      padding-top: 8px;
+      padding-bottom: 8px;
+    }
+
+    .post.compact .preview.small {
+      font-size: 14px;
+      line-height: 1.32;
+      font-weight: 700;
+    }
+
+    .capture-textarea {
+      width: 100%;
+      min-height: 96px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      outline: 0;
+      resize: none;
+      padding: 12px;
+      background: #f6f8fb;
+      color: var(--ink);
+      font-size: 18px;
+      line-height: 1.28;
+      font-weight: 680;
+    }
+
+    .preview {
+      color: var(--ink);
+      font-size: 16px;
+      line-height: 1.3;
+      font-weight: 780;
+    }
+
+    .preview.small {
+      font-size: 15px;
+      line-height: 1.35;
+      font-weight: 720;
+    }
+
+    .caption {
+      margin: 8px 0 0;
+      color: var(--ink-2);
+      font-size: 12px;
+      line-height: 1.38;
+    }
+
+    .caption b {
+      color: var(--ink);
+      font-weight: 850;
+    }
+
+    .meta-line {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 9px;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.2;
+      font-weight: 760;
+    }
+
+    .meta-line span {
+      display: inline-flex;
+      min-height: 24px;
+      align-items: center;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--card-accent-soft);
+      padding: 0 8px;
+      white-space: nowrap;
+    }
+
+    .source-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 10px;
+      align-items: center;
+      margin-top: 9px;
+      padding: 8px 9px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      background: #f7f9fc;
+    }
+
+    .source-row strong {
+      display: block;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-size: 12px;
+      line-height: 1.2;
+    }
+
+    .source-row span {
+      display: block;
+      margin-top: 2px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .mini-count {
+      min-width: 30px;
+      height: 30px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: var(--agent-soft);
+      color: var(--agent);
+      font-size: 12px;
+      font-weight: 900;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .state-line {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 10px;
+      align-items: center;
+      margin-top: 9px;
+    }
+
+    .state-copy {
+      min-width: 0;
+      color: var(--ink-2);
+      font-size: 12px;
+      line-height: 1.36;
+    }
+
+    .state-copy strong {
+      display: block;
+      color: var(--ink);
+      font-size: 13px;
+      line-height: 1.25;
+    }
+
+    .pulse-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--card-accent);
+      animation: pulse 900ms ease-in-out infinite;
+    }
+
+    .skeleton-stack {
+      display: grid;
+      gap: 7px;
+      margin-top: 10px;
+    }
+
+    .skeleton-line {
+      height: 8px;
+      border-radius: 8px;
+      background: #d7e0ea;
+      animation: pulse 980ms ease-in-out infinite;
+    }
+
+    .skeleton-line.short { width: 62%; }
+
+    .choice-strip {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 10px;
+    }
+
+    .choice-strip button {
+      min-height: 30px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      background: #fff;
+      color: var(--ink-2);
+      padding: 0 9px;
+      font-size: 11px;
+      font-weight: 850;
+      touch-action: manipulation;
+    }
+
+    .choice-strip button[data-selected="true"] {
+      border-color: var(--amber);
+      background: var(--amber-soft);
+      color: var(--amber);
+    }
+
+    .action-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .action-row button {
+      min-height: 38px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--ink-2);
+      padding: 0 10px;
+      font-size: 12px;
+      font-weight: 850;
+      touch-action: manipulation;
+    }
+
+    .action-row button.primary {
+      border-color: var(--ink);
+      background: var(--ink);
+      color: #fff;
+    }
+
+    .action-row button:disabled {
+      cursor: not-allowed;
+      opacity: 0.48;
+    }
+
+    @keyframes feed-in {
+      from {
+        opacity: 0;
+        transform: translateY(6px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 0.42; }
+      50% { opacity: 1; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .post {
+        animation: none;
+        transition: none;
+      }
+
+      .feed-summary,
+      .feed::after {
+        transition: none;
+      }
+
+      .pulse-dot,
+      .skeleton-line {
+        animation: none;
+      }
+    }
+
+    @media (hover: none), (pointer: coarse) {
+      .feed::after {
+        background: rgba(11, 13, 16, 0.08);
+      }
+
+      .feed[data-focus="true"] .post,
+      .feed[data-focus="true"] .feed-summary,
+      .feed[data-focus="true"] .status-strip {
+        opacity: 0.86;
+      }
+
+      .post:hover,
+      .feed-summary:hover,
+      .status-strip:hover {
+        transform: none;
+      }
+    }
+
+    .status-strip {
+      position: relative;
+      z-index: 2;
+      margin-bottom: 8px;
+      min-height: 34px;
+      display: flex;
+      align-items: center;
+      padding: 7px 9px;
+      border: 1px solid var(--line-dark);
+      border-radius: 10px;
+      background: #12161c;
+      color: #fff;
+      box-shadow: 0 10px 26px rgba(0, 0, 0, 0.24);
+      transition:
+        border-color 180ms ease,
+        box-shadow 180ms ease,
+        opacity 180ms ease,
+        transform 180ms ease;
+      contain: layout paint style;
+      touch-action: manipulation;
+    }
+
+    .status-strip span {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      color: rgba(255, 255, 255, 0.72);
+      font-size: 11px;
+      font-weight: 750;
+    }
+
+    .status-strip b {
+      color: #fff;
+    }
+
+    .quick-capture {
+      position: absolute;
+      left: 10px;
+      right: 10px;
+      bottom: 10px;
+      z-index: 8;
+      display: block;
+      padding: 8px;
+      border: 1px solid var(--line-dark);
+      border-radius: 10px;
+      background: #ffffff;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.22);
+    }
+
+    .undo-bar {
+      position: absolute;
+      left: 10px;
+      right: 10px;
+      bottom: 114px;
+      z-index: 9;
+      display: none;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 8px;
+      min-height: 40px;
+      padding: 7px 9px;
+      border: 1px solid rgba(31, 122, 77, 0.32);
+      border-radius: 10px;
+      background: #ecf7f1;
+      color: var(--green);
+      box-shadow: 0 12px 28px rgba(18, 22, 29, 0.18);
+    }
+
+    .undo-bar[data-show="true"] {
+      display: grid;
+    }
+
+    .undo-bar span {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .undo-bar button {
+      min-height: 28px;
+      border: 1px solid rgba(31, 122, 77, 0.36);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--green);
+      padding: 0 9px;
+      font-size: 11px;
+      font-weight: 900;
+    }
+
+    .quick-input {
+      min-width: 0;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      padding: 0 11px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #f3f5f8;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 650;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .drawer-primary {
+      min-height: 40px;
+      border: 1px solid var(--agent);
+      border-radius: 8px;
+      background: var(--agent);
+      color: #fff;
+      padding: 0 12px;
+      font-size: 12px;
+      font-weight: 850;
+    }
+
+    .overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 20;
+      display: none;
+      background: rgba(0, 0, 0, 0.48);
+    }
+
+    .overlay[data-open="true"] { display: block; }
+
+    .drawer,
+    .detail-sheet,
+    .consent-sheet {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 21;
+      display: none;
+      max-height: 84%;
+      min-height: 62%;
+      border-radius: 14px 14px 0 0;
+      background: var(--surface);
+      color: var(--ink);
+      box-shadow: 0 -20px 42px rgba(0, 0, 0, 0.34);
+      overflow: hidden;
+    }
+
+    .drawer[data-open="true"],
+    .detail-sheet[data-open="true"],
+    .consent-sheet[data-open="true"] {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .consent-sheet {
+      z-index: 22;
+      min-height: 50%;
+      max-height: 78%;
+      background: #f8fafc;
+    }
+
+    .consent-body {
+      min-height: 0;
+      flex: 1;
+      overflow-y: auto;
+      padding: 10px 12px 12px;
+    }
+
+    .boundary-card {
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+    }
+
+    .boundary-card + .boundary-card {
+      margin-top: 8px;
+    }
+
+    .boundary-card strong {
+      display: block;
+      font-size: 13px;
+      line-height: 1.25;
+    }
+
+    .boundary-card p {
+      margin: 6px 0 0;
+      color: var(--ink-2);
+      font-size: 12px;
+      line-height: 1.42;
+    }
+
+    .consent-actions {
+      display: grid;
+      gap: 8px;
+      padding: 0 12px 12px;
+    }
+
+    .consent-actions button {
+      min-height: 42px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--ink-2);
+      font-size: 12px;
+      font-weight: 850;
+    }
+
+    .consent-actions button.primary {
+      border-color: var(--ink);
+      background: var(--ink);
+      color: #fff;
+    }
+
+    .handle {
+      width: 38px;
+      height: 4px;
+      margin: 8px auto 6px;
+      border-radius: 4px;
+      background: #c8d0da;
+      flex: none;
+    }
+
+    .sheet-head {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 10px;
+      padding: 0 12px 10px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .sheet-head strong {
+      display: block;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-size: 14px;
+      line-height: 1.2;
+    }
+
+    .sheet-head span {
+      display: block;
+      margin-top: 2px;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.2;
+    }
+
+    .close {
+      width: 34px;
+      height: 34px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--surface-2);
+      color: var(--ink-2);
+      font-size: 18px;
+      line-height: 1;
+    }
+
+    .drawer-body,
+    .sheet-body {
+      min-height: 0;
+      flex: 1;
+      overflow-y: auto;
+      padding: 10px 12px 12px;
+    }
+
+    .drawer-section {
+      margin-bottom: 14px;
+    }
+
+    .section-kicker {
+      margin: 0 0 7px;
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+
+    .list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .list-item {
+      display: grid;
+      grid-template-columns: 34px minmax(0, 1fr) auto;
+      gap: 9px;
+      align-items: center;
+      min-height: 52px;
+      padding: 8px 9px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--surface-2);
+    }
+
+    .list-icon {
+      width: 34px;
+      height: 34px;
+      display: grid;
+      place-items: center;
+      border-radius: 8px;
+      background: var(--surface-3);
+      color: var(--ink-2);
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .list-main {
+      min-width: 0;
+    }
+
+    .list-main strong {
+      display: block;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-size: 13px;
+      line-height: 1.2;
+    }
+
+    .list-main span {
+      display: block;
+      margin-top: 2px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.2;
+    }
+
+    .item-badge {
+      min-width: 28px;
+      height: 28px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: var(--agent-soft);
+      color: var(--agent);
+      font-size: 11px;
+      font-weight: 900;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .agent-plan {
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--surface-2);
+    }
+
+    .agent-plan h3 {
+      margin: 0;
+      font-size: 15px;
+      line-height: 1.2;
+    }
+
+    .agent-plan p {
+      margin: 6px 0 0;
+      color: var(--ink-2);
+      font-size: 12px;
+      line-height: 1.42;
+    }
+
+    .plan-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .plan-cell {
+      padding: 8px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfcfd;
+    }
+
+    .plan-cell b {
+      display: block;
+      font-size: 15px;
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .plan-cell span {
+      display: block;
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 10px;
+      line-height: 1.2;
+    }
+
+    .tabs {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 4px;
+      padding: 8px 8px 0;
+      flex: none;
+    }
+
+    .tab {
+      min-height: 34px;
+      border: 1px solid transparent;
+      border-radius: 8px;
+      background: transparent;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 850;
+    }
+
+    .tab[data-active="true"] {
+      border-color: var(--line);
+      background: var(--surface-2);
+      color: var(--ink);
+    }
+
+    .panel { display: none; }
+    .panel[data-active="true"] { display: block; }
+
+    .full-note {
+      width: 100%;
+      min-height: 210px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      resize: vertical;
+      background: var(--surface-2);
+      color: var(--ink);
+      padding: 10px;
+      font-size: 15px;
+      line-height: 1.45;
+      font-weight: 600;
+      outline: 0;
+    }
+
+    .sheet-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .sheet-item {
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--surface-2);
+    }
+
+    .sheet-item strong {
+      display: block;
+      font-size: 13px;
+      line-height: 1.25;
+    }
+
+    .sheet-item span,
+    .sheet-item p {
+      display: block;
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
+    .drawer-secondary {
+      border-color: var(--line);
+      background: var(--surface-2);
+      color: var(--ink-2);
+    }
+
+    .toast {
+      position: absolute;
+      left: 24px;
+      right: 24px;
+      bottom: 68px;
+      z-index: 30;
+      display: none;
+      min-height: 38px;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      background: #fff;
+      color: var(--ink);
+      font-size: 12px;
+      font-weight: 850;
+      box-shadow: 0 14px 34px rgba(0, 0, 0, 0.26);
+    }
+
+    .toast[data-show="true"] { display: flex; }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation: none !important;
+        transition: none !important;
+        scroll-behavior: auto !important;
+      }
+    }
+
+    @media (max-width: 430px) {
+      body { display: block; background: var(--bg); }
+      .prototype-shell {
+        width: 100vw;
+        height: 100vh;
+        padding: 0;
+      }
+      .phone {
+        width: 100%;
+        height: 100%;
+        min-height: 0;
+        border: 0;
+        border-radius: 0;
+        box-shadow: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="prototype-shell">
+    <section class="phone" aria-label="NodeRoom mobile production shell with feed prototype">
+      <header class="topbar">
+        <div class="status" aria-hidden="true">
+          <span>2:30</span>
+          <span class="status-icons">
+            <span class="signal"><span></span><span></span><span></span><span></span></span>
+            <span>5G</span>
+            <span class="battery"></span>
+          </span>
+        </div>
+
+        <div class="brand-row">
+          <div class="mark">N</div>
+          <div class="brand-copy">
+            <strong>NodeRoom - Q3 Diligence</strong>
+            <span>Room NR7K9 - 6 live - auto-allow off</span>
+          </div>
+          <button class="invite" type="button" id="invite-button">Invite</button>
+        </div>
+
+        <div class="switcher" role="tablist" aria-label="Mobile room panels">
+          <button type="button" data-panel-trigger="room">Room</button>
+          <button type="button" data-panel-trigger="work" data-active="true">Work</button>
+          <button type="button" data-panel-trigger="agent">Chat</button>
+        </div>
+      </header>
+
+      <section class="work" aria-label="Work surface">
+        <div class="feed" id="feed">
+          <div class="feed-summary" aria-label="Room data boundary and feed status" data-card-consent="true" role="button" tabindex="0">
+            <div>
+              <strong id="boundary-title">Private capture mode</strong>
+              <span id="boundary-copy">Notes are captured first. Public research waits for explicit approval.</span>
+            </div>
+          </div>
+
+          <div class="status-strip" aria-label="Room re-entry status" data-card-agent="inbox" role="button" tabindex="0">
+            <span id="reentry-copy"><b>New since you left</b> CardioNova noticed - 2 proposals waiting</span>
+          </div>
+
+          <article class="post" data-tone="capture" data-card-detail="note" aria-label="Capture notebook, autosaved private note">
+            <header class="post-head">
+              <div class="post-title">
+                <strong>Capture Notebook</strong>
+                <span>Human-owned source note</span>
+              </div>
+              <span class="status-pill" id="sync-state" aria-live="polite">Auto</span>
+            </header>
+            <div class="post-body">
+              <textarea class="capture-textarea" id="note-input" aria-label="Capture note">Met Maya from CardioNova. Possible Series B. Need current cash and paid pilot source.</textarea>
+              <div class="meta-line" aria-label="Detected preview">
+                <span>private draft</span>
+                <span>company detected</span>
+                <span>source gap</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="post compact" id="detection-card" data-tone="pending" data-card-detail="sidecars" role="button" tabindex="0" aria-label="Detection is looking for entities and source gaps">
+            <header class="post-head">
+              <div class="post-title">
+                <strong>Looking for signals</strong>
+                <span>Quiet scan after pause</span>
+              </div>
+              <span class="status-pill warn">working</span>
+            </header>
+            <div class="post-body">
+              <div class="state-line">
+                <div class="state-copy">
+                  <strong>No blocking spinner.</strong>
+                  Keep writing while NodeRoom classifies the note and prepares any useful next step.
+                </div>
+                <span class="pulse-dot" aria-hidden="true"></span>
+              </div>
+              <div class="skeleton-stack" aria-hidden="true">
+                <div class="skeleton-line"></div>
+                <div class="skeleton-line short"></div>
+              </div>
+            </div>
+          </article>
+
+          <article class="post compact" id="low-signal-card" data-tone="low" data-card-detail="note" role="button" tabindex="0" aria-label="Low signal capture state">
+            <header class="post-head">
+              <div class="post-title">
+                <strong>Captured, nothing to research yet</strong>
+                <span>Low-signal note outcome</span>
+              </div>
+              <span class="status-pill">quiet</span>
+            </header>
+            <div class="post-body">
+              <div class="preview small">No company, task, or source gap yet. Captured without creating agent noise.</div>
+            </div>
+          </article>
+
+          <article class="post compact" id="ambiguity-card" data-tone="ambiguous" data-card-detail="sidecars" role="button" tabindex="0" aria-label="Ambiguous CardioNova entity resolution">
+            <header class="post-head">
+              <div class="post-title">
+                <strong>Which CardioNova?</strong>
+                <span>Entity match needs a human choice</span>
+              </div>
+              <span class="status-pill warn" id="ambiguity-state">choose</span>
+            </header>
+            <div class="post-body">
+              <div class="preview small">NodeRoom found more than one possible company. It will not merge or research until the entity is clear.</div>
+              <div class="choice-strip" aria-label="CardioNova entity choices">
+                <button type="button" data-disambiguate="CardioNova Health">Health</button>
+                <button type="button" data-disambiguate="CardioNova Inc">Inc</button>
+                <button type="button" data-disambiguate="Neither">Neither</button>
+              </div>
+            </div>
+          </article>
+
+          <article class="post" id="plan-card" data-tone="plan" data-card-agent="plan" role="button" tabindex="0" aria-label="Agent work plan ready for review">
+            <header class="post-head">
+              <div class="post-title">
+                <strong>Agent Work Plan</strong>
+                <span>Structured artifact</span>
+              </div>
+              <span class="status-pill agent" id="plan-state">draft</span>
+            </header>
+            <div class="post-body">
+              <div class="preview" id="plan-title">CardioNova diligence plan is ready for review.</div>
+              <p class="caption" id="plan-copy">Reads, writes, evidence needs, and cost are approved before the job runs.</p>
+              <div class="meta-line" aria-label="Plan preview">
+                <span>4 reads</span>
+                <span>3 proposed writes</span>
+                <span id="feed-plan-hash">p_8f21</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="post" id="diff-card" data-tone="diff" data-card-detail="actions" role="button" tabindex="0" aria-label="Spreadsheet diff proposal review">
+            <header class="post-head">
+              <div class="post-title">
+                <strong>Spreadsheet Diff Preview</strong>
+                <span id="diff-subtitle">Proposal-first sheet update</span>
+              </div>
+              <span class="status-pill warn" id="diff-state">review</span>
+            </header>
+            <div class="post-body">
+              <div class="preview small" id="diff-copy">Draft row staged for CardioNova. Paid pilot proof is still missing, so no sheet mutation happens yet.</div>
+              <div class="source-row">
+                <div>
+                  <strong id="diff-row-title">CardioNova - healthtech - possible Series B</strong>
+                  <span id="diff-row-copy">Needs source-backed funding and pilot verification</span>
+                </div>
+                <span class="mini-count" id="diff-count">!</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="post" id="evidence-card" data-tone="evidence" data-card-detail="evidence" role="button" tabindex="0" aria-label="Evidence coverage map">
+            <header class="post-head">
+              <div class="post-title">
+                <strong>Evidence Card</strong>
+                <span>Source coverage map</span>
+              </div>
+              <span class="status-pill warn" id="evidence-state">gap</span>
+            </header>
+            <div class="post-body">
+              <div class="preview small" id="evidence-copy">Hospital pilot proof is missing. Agent can search cached profile, public sources, and uploaded decks inside approved scope.</div>
+              <div class="source-row">
+                <div>
+                  <strong id="evidence-row-title">Missing source: paid pilots</strong>
+                  <span id="evidence-row-copy">Blocks source-backed sheet fill</span>
+                </div>
+                <span class="mini-count" id="evidence-count">2</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="post compact" id="trace-card" data-tone="evidence" data-card-detail="actions" role="button" tabindex="0" aria-label="Trace receipt and coach prompt" hidden>
+            <header class="post-head">
+              <div class="post-title">
+                <strong>Trace + Coach</strong>
+                <span>Planned vs actual receipt</span>
+              </div>
+              <span class="status-pill" id="trace-state">ready</span>
+            </header>
+            <div class="post-body">
+              <div class="preview small" id="trace-copy">Read-only job completed inside approved scope. Coach prompt is ready for review readiness.</div>
+              <div class="meta-line" aria-label="Trace summary">
+                <span>4 planned reads</span>
+                <span>4 actual reads</span>
+                <span>0 writes</span>
+              </div>
+            </div>
+          </article>
+        </div>
+
+        <div class="undo-bar" id="undo-bar" role="status" aria-live="polite">
+          <span id="undo-copy">Autosaved edit. Undo available.</span>
+          <button type="button" id="undo-action">Undo</button>
+        </div>
+
+        <form class="quick-capture" aria-label="Quick capture composer" id="quick-capture" role="button" tabindex="0">
+          <div class="quick-input">Dump a note...</div>
+        </form>
+      </section>
+
+      <div class="overlay" id="overlay" data-open="true"></div>
+
+      <section class="consent-sheet" id="consent-sheet" data-open="true" aria-label="First run data boundary">
+        <div class="handle" aria-hidden="true"></div>
+        <header class="sheet-head">
+          <div>
+            <strong>Set the data boundary</strong>
+            <span>Choose what NodeRoom can do before any research runs</span>
+          </div>
+        </header>
+        <div class="consent-body">
+          <div class="boundary-card">
+            <strong>NodeRoom can read notes to find companies, tasks, and source gaps.</strong>
+            <p>Private notes stay in the room capture surface. Public research, external source lookup, and model-backed work plans require approval.</p>
+          </div>
+          <div class="boundary-card">
+            <strong>Default first run is read-only.</strong>
+            <p>Agent work starts as a plan with scope, estimated cost, evidence needs, and a hash. Writes remain proposals until accepted.</p>
+          </div>
+        </div>
+        <div class="consent-actions">
+          <button class="primary" type="button" id="private-mode">Use private-only</button>
+          <button type="button" id="allow-research">Allow approved research</button>
+          <button type="button" id="learn-boundary">Learn more</button>
+        </div>
+      </section>
+
+      <section class="drawer" id="room-drawer" aria-label="Room Binder">
+        <div class="handle" aria-hidden="true"></div>
+        <header class="sheet-head">
+          <div>
+            <strong>Room Binder</strong>
+            <span>Artifacts, people, sources, review queue</span>
+          </div>
+          <button class="close" type="button" data-close aria-label="Close room drawer">x</button>
+        </header>
+        <div class="drawer-body">
+          <section class="drawer-section">
+            <h2 class="section-kicker">Work products</h2>
+            <div class="list">
+              <div class="list-item"><span class="list-icon">NB</span><span class="list-main"><strong>Capture Notebook</strong><span>private draft, promoted only by user action</span></span><span class="item-badge">1</span></div>
+              <div class="list-item"><span class="list-icon">WP</span><span class="list-main"><strong>Agent Work Plan</strong><span>room-visible approval artifact</span></span><span class="item-badge">2</span></div>
+              <div class="list-item"><span class="list-icon">DF</span><span class="list-main"><strong>Spreadsheet Diff Preview</strong><span>proposal, no silent overwrite</span></span><span class="item-badge">3</span></div>
+              <div class="list-item"><span class="list-icon">EV</span><span class="list-main"><strong>Evidence Cards</strong><span>source receipts and provenance</span></span><span class="item-badge">4</span></div>
+            </div>
+          </section>
+          <section class="drawer-section">
+            <h2 class="section-kicker">People and agents</h2>
+            <div class="list">
+              <div class="list-item"><span class="list-icon">HC</span><span class="list-main"><strong>Helena Chen</strong><span>Host, reviewing plan</span></span><span class="item-badge">live</span></div>
+              <div class="list-item"><span class="list-icon">AI</span><span class="list-main"><strong>Room NodeAgent</strong><span>idle, waiting approval</span></span><span class="item-badge">idle</span></div>
+            </div>
+          </section>
+          <section class="drawer-section">
+            <h2 class="section-kicker">Visibility</h2>
+            <div class="list">
+              <div class="list-item"><span class="list-icon">PV</span><span class="list-main"><strong>Private capture</strong><span>raw notes stay user-owned until promoted</span></span><span class="item-badge">me</span></div>
+              <div class="list-item"><span class="list-icon">RM</span><span class="list-main"><strong>Room artifacts</strong><span>plans, diffs, evidence, and traces are shared</span></span><span class="item-badge">room</span></div>
+              <div class="list-item"><span class="list-icon">AP</span><span class="list-main"><strong>Approval scope</strong><span>research and writes require room-level review</span></span><span class="item-badge">gate</span></div>
+            </div>
+          </section>
+          <section class="drawer-section">
+            <h2 class="section-kicker">Runtime safeguards</h2>
+            <div class="list">
+              <div class="list-item"><span class="list-icon">OF</span><span class="list-main"><strong>Offline queue</strong><span>autosaves locally, syncs when room reconnects</span></span><span class="item-badge">ok</span></div>
+              <div class="list-item"><span class="list-icon">CF</span><span class="list-main"><strong>Conflict guard</strong><span>sheet row version checked before mutation</span></span><span class="item-badge">v12</span></div>
+              <div class="list-item"><span class="list-icon">XS</span><span class="list-main"><strong>Artifact allowlist</strong><span>structured components only, no raw model HTML</span></span><span class="item-badge">safe</span></div>
+            </div>
+          </section>
+        </div>
+      </section>
+
+      <section class="drawer" id="agent-drawer" aria-label="Chat, agent usage, and approvals">
+        <div class="handle" aria-hidden="true"></div>
+        <header class="sheet-head">
+          <div>
+            <strong>Chat and Agent</strong>
+            <span>Passive inbox, jobs, traces, approvals</span>
+          </div>
+          <button class="close" type="button" data-close aria-label="Close agent drawer">x</button>
+        </header>
+        <div class="drawer-body">
+          <section class="drawer-section">
+            <h2 class="section-kicker">Current artifact</h2>
+            <div class="agent-plan">
+              <h3>Agent Work Plan - CardioNova</h3>
+              <p id="drawer-plan-copy">Review the structured plan before any agent reads sources or writes proposals. HTML is only the rendering.</p>
+              <div class="plan-grid">
+                <div class="plan-cell"><b>4</b><span>planned reads</span></div>
+                <div class="plan-cell"><b>3</b><span>planned writes</span></div>
+                <div class="plan-cell"><b>$0.01</b><span>estimated cost</span></div>
+                <div class="plan-cell"><b id="plan-hash">hash</b><span id="plan-hash-copy">p_8f21 ready</span></div>
+              </div>
+            </div>
+          </section>
+          <section class="drawer-section">
+            <h2 class="section-kicker">Agent usage</h2>
+            <div class="list">
+              <div class="list-item"><span class="list-icon">IN</span><span class="list-main"><strong>Passive inbox</strong><span>1 noteworthy CardioNova cue</span></span><span class="item-badge">1</span></div>
+              <div class="list-item"><span class="list-icon">JB</span><span class="list-main"><strong>Research jobs</strong><span id="job-status">none running until approved</span></span><span class="item-badge" id="job-count">0</span></div>
+              <div class="list-item"><span class="list-icon">TR</span><span class="list-main"><strong>Trace receipts</strong><span id="trace-status">planned vs actual appears after run</span></span><span class="item-badge" id="trace-count">18</span></div>
+              <div class="list-item"><span class="list-icon">LM</span><span class="list-main"><strong>Limits</strong><span id="limit-status">read-only first, $0.02 cap, 4-source max</span></span><span class="item-badge">cap</span></div>
+            </div>
+          </section>
+          <section class="drawer-section">
+            <h2 class="section-kicker">Approval</h2>
+            <div class="list">
+              <button class="drawer-primary" type="button" id="approve-plan">Approve research plan</button>
+              <button class="drawer-primary drawer-secondary" type="button" id="regenerate-plan">Regenerate plan</button>
+              <button class="drawer-primary drawer-secondary" type="button" data-close>Edit scope later</button>
+            </div>
+          </section>
+        </div>
+      </section>
+
+      <section class="detail-sheet" id="detail-sheet" aria-label="Full capture details">
+        <div class="handle" aria-hidden="true"></div>
+        <header class="sheet-head">
+          <div>
+            <strong>CardioNova capture</strong>
+            <span>Editable source, sidecar objects, evidence, actions</span>
+          </div>
+          <button class="close" type="button" data-close aria-label="Close detail sheet">x</button>
+        </header>
+        <nav class="tabs" aria-label="Detail tabs">
+          <button class="tab" type="button" data-tab="note" data-active="true">Note</button>
+          <button class="tab" type="button" data-tab="sidecars">Sidecars</button>
+          <button class="tab" type="button" data-tab="evidence">Evidence</button>
+          <button class="tab" type="button" data-tab="actions">Actions</button>
+        </nav>
+        <div class="sheet-body">
+          <section class="panel" data-panel="note" data-active="true">
+            <textarea class="full-note" aria-label="Full editable note">Met Maya from CardioNova. Possible Series B. Need current cash and paid pilot source.
+
+Call context:
+- AI triage workflow for hospitals
+- Founder contact: Maya Chen
+- Ask whether pilots are paid
+- Verify current cash, monthly burn, and runway before adding sheet values</textarea>
+          </section>
+          <section class="panel" data-panel="sidecars">
+            <div class="sheet-list">
+              <div class="sheet-item"><strong>Company: CardioNova</strong><span>Entity sidecar, room visible, confidence 0.82</span></div>
+              <div class="sheet-item"><strong>Person: Maya Chen</strong><span>Founder contact, follow-up owner pending</span></div>
+              <div class="sheet-item"><strong>Signal: Series B</strong><span>Funding signal, source gap, research eligible</span></div>
+              <div class="sheet-item"><strong>Agent artifact: Work Plan</strong><span>Structured payload is authoritative. Rendered UI is only a view.</span></div>
+              <div class="sheet-item"><strong>Visibility: private to room</strong><span>Raw note remains private; promoted sidecars are shared.</span></div>
+              <div class="sheet-item"><strong>Renderer: allowlisted components</strong><span>Artifact JSON maps to trusted React components, not raw HTML.</span></div>
+            </div>
+          </section>
+          <section class="panel" data-panel="evidence">
+            <div class="sheet-list">
+              <div class="sheet-item"><strong id="sheet-evidence-title">Missing source: paid pilots</strong><p id="sheet-evidence-copy">Required before agent fills the revenue-confidence column.</p></div>
+              <div class="sheet-item"><strong>Cache: company profile</strong><p>Use cached CardioNova profile if refreshed within 2 hours. Refresh funding and news only.</p></div>
+              <div class="sheet-item"><strong>Source coverage map</strong><p id="coverage-copy">Will list uploaded deck pages, public source URLs, OCR locators, and sheet-cell provenance.</p></div>
+            </div>
+          </section>
+          <section class="panel" data-panel="actions">
+            <div class="sheet-list">
+              <div class="sheet-item"><strong id="action-run-title">Run read-only</strong><span id="action-run-copy">Gather sources without writing proposals.</span></div>
+              <div class="sheet-item"><strong id="action-approval-title">Approve research</strong><span id="action-approval-copy">Start durable agent job with approved plan hash p_8f21.</span></div>
+              <div class="sheet-item"><strong id="action-diff-title">Add to sheet</strong><span id="action-diff-copy">Create draft spreadsheet diff preview. No direct mutation.</span></div>
+              <div class="action-row">
+                <button class="primary" type="button" id="accept-diff" disabled>Accept diff</button>
+                <button type="button" id="reject-diff" disabled>Reject</button>
+              </div>
+              <div class="sheet-item"><strong id="action-task-title">Coach prompt</strong><span id="action-task-copy">After review, practice explaining why CardioNova belongs in the diligence sheet.</span></div>
+              <div class="sheet-item"><strong id="activation-title">Activation</strong><span id="activation-copy">Not recorded yet. Target is one evidence-backed accepted proposal.</span></div>
+              <div class="action-row">
+                <button type="button" id="refine-plan">Refine scope</button>
+                <button type="button" id="open-trace">Trace receipt</button>
+              </div>
+            </div>
+          </section>
+        </div>
+      </section>
+
+      <div class="toast" id="toast" role="status" aria-live="polite">Ready.</div>
+    </section>
+  </main>
+
+  <script>
+    const noteInput = document.querySelector("#note-input");
+    const syncState = document.querySelector("#sync-state");
+    const toast = document.querySelector("#toast");
+    const overlay = document.querySelector("#overlay");
+    const roomDrawer = document.querySelector("#room-drawer");
+    const agentDrawer = document.querySelector("#agent-drawer");
+    const detailSheet = document.querySelector("#detail-sheet");
+    const consentSheet = document.querySelector("#consent-sheet");
+    const boundaryTitle = document.querySelector("#boundary-title");
+    const boundaryCopy = document.querySelector("#boundary-copy");
+    const reentryCopy = document.querySelector("#reentry-copy");
+    const undoBar = document.querySelector("#undo-bar");
+    const undoCopy = document.querySelector("#undo-copy");
+    const undoAction = document.querySelector("#undo-action");
+    const planCard = document.querySelector("#plan-card");
+    const planState = document.querySelector("#plan-state");
+    const planTitle = document.querySelector("#plan-title");
+    const planCopy = document.querySelector("#plan-copy");
+    const drawerPlanCopy = document.querySelector("#drawer-plan-copy");
+    const planHashCopy = document.querySelector("#plan-hash-copy");
+    const feedPlanHash = document.querySelector("#feed-plan-hash");
+    const ambiguityState = document.querySelector("#ambiguity-state");
+    const diffCard = document.querySelector("#diff-card");
+    const diffSubtitle = document.querySelector("#diff-subtitle");
+    const diffState = document.querySelector("#diff-state");
+    const diffCopy = document.querySelector("#diff-copy");
+    const diffRowTitle = document.querySelector("#diff-row-title");
+    const diffRowCopy = document.querySelector("#diff-row-copy");
+    const diffCount = document.querySelector("#diff-count");
+    const evidenceState = document.querySelector("#evidence-state");
+    const evidenceCopy = document.querySelector("#evidence-copy");
+    const evidenceRowTitle = document.querySelector("#evidence-row-title");
+    const evidenceRowCopy = document.querySelector("#evidence-row-copy");
+    const evidenceCount = document.querySelector("#evidence-count");
+    const traceCard = document.querySelector("#trace-card");
+    const traceCopy = document.querySelector("#trace-copy");
+    const jobStatus = document.querySelector("#job-status");
+    const jobCount = document.querySelector("#job-count");
+    const traceStatus = document.querySelector("#trace-status");
+    const traceCount = document.querySelector("#trace-count");
+    const sheetEvidenceTitle = document.querySelector("#sheet-evidence-title");
+    const sheetEvidenceCopy = document.querySelector("#sheet-evidence-copy");
+    const coverageCopy = document.querySelector("#coverage-copy");
+    const actionRunTitle = document.querySelector("#action-run-title");
+    const actionRunCopy = document.querySelector("#action-run-copy");
+    const actionApprovalCopy = document.querySelector("#action-approval-copy");
+    const actionDiffTitle = document.querySelector("#action-diff-title");
+    const actionDiffCopy = document.querySelector("#action-diff-copy");
+    const actionTaskCopy = document.querySelector("#action-task-copy");
+    const activationCopy = document.querySelector("#activation-copy");
+    const acceptDiff = document.querySelector("#accept-diff");
+    const rejectDiff = document.querySelector("#reject-diff");
+    const refinePlan = document.querySelector("#refine-plan");
+    const openTrace = document.querySelector("#open-trace");
+    const panelButtons = Array.from(document.querySelectorAll("[data-panel-trigger]"));
+    const detailButtons = Array.from(document.querySelectorAll("[data-open-detail]"));
+    const agentButtons = Array.from(document.querySelectorAll("[data-open-agent]"));
+    const cardTriggers = Array.from(document.querySelectorAll("[data-card-detail], [data-card-agent], [data-card-consent]"));
+    const feed = document.querySelector("#feed");
+    const feedCards = Array.from(feed.querySelectorAll("[data-card-detail], [data-card-agent], [data-card-consent]"));
+    const disambiguationButtons = Array.from(document.querySelectorAll("[data-disambiguate]"));
+    const closeButtons = Array.from(document.querySelectorAll("[data-close]"));
+    const tabs = Array.from(document.querySelectorAll(".tab"));
+    const panels = Array.from(document.querySelectorAll(".panel"));
+    let syncTimer;
+    let toastTimer;
+    let undoTimer;
+    let lastStableNoteValue = noteInput.value;
+    let pendingUndoValue = null;
+    let researchAllowed = false;
+    let planStale = false;
+    let currentPlanHash = "p_8f21";
+    let lastMutationState = "review";
+    let runTimer;
+
+    function showToast(message) {
+      toast.textContent = message;
+      toast.dataset.show = "true";
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => {
+        toast.dataset.show = "false";
+      }, 1500);
+    }
+
+    function activatePanel(name) {
+      panelButtons.forEach((button) => {
+        button.dataset.active = String(button.dataset.panelTrigger === name);
+      });
+    }
+
+    function closeAll() {
+      clearFeedFocus();
+      overlay.dataset.open = consentSheet.dataset.open === "true" ? "true" : "false";
+      roomDrawer.dataset.open = "false";
+      agentDrawer.dataset.open = "false";
+      detailSheet.dataset.open = "false";
+      activatePanel("work");
+    }
+
+    function openDrawer(which) {
+      closeAll();
+      overlay.dataset.open = "true";
+      if (which === "room") roomDrawer.dataset.open = "true";
+      if (which === "agent") agentDrawer.dataset.open = "true";
+      activatePanel(which);
+    }
+
+    function openConsent() {
+      closeAll();
+      overlay.dataset.open = "true";
+      consentSheet.dataset.open = "true";
+      activatePanel("work");
+    }
+
+    function closeConsent(mode) {
+      clearFeedFocus();
+      consentSheet.dataset.open = "false";
+      overlay.dataset.open = "false";
+      researchAllowed = mode === "research";
+      boundaryTitle.textContent = researchAllowed ? "Approved research allowed" : "Private-only capture";
+      boundaryCopy.textContent = researchAllowed
+        ? "Agent plans may query public sources after scope and cost approval."
+        : "Notes stay in the room. Public research remains blocked until you allow it.";
+      reentryCopy.innerHTML = researchAllowed
+        ? "<b>New since you left</b> CardioNova noticed - research plan waiting"
+        : "<b>Private mode</b> CardioNova noticed - research blocked";
+      showToast(researchAllowed ? "Research boundary set." : "Private-only mode set.");
+    }
+
+    function setTab(name) {
+      tabs.forEach((tab) => {
+        tab.dataset.active = String(tab.dataset.tab === name);
+      });
+      panels.forEach((panel) => {
+        panel.dataset.active = String(panel.dataset.panel === name);
+      });
+    }
+
+    function openDetail(tabName) {
+      closeAll();
+      setTab(tabName || "note");
+      overlay.dataset.open = "true";
+      detailSheet.dataset.open = "true";
+      activatePanel("work");
+    }
+
+    function isEditingTarget(target) {
+      return Boolean(target.closest("textarea, input, select, button, a"));
+    }
+
+    function showUndo(message) {
+      undoCopy.textContent = message;
+      undoBar.dataset.show = "true";
+      clearTimeout(undoTimer);
+      undoTimer = setTimeout(() => {
+        undoBar.dataset.show = "false";
+        pendingUndoValue = null;
+      }, 6200);
+    }
+
+    function setReviewReady() {
+      lastMutationState = "review";
+      undoBar.dataset.show = "false";
+      planState.textContent = "done";
+      planTitle.textContent = "Read-only research finished.";
+      planCopy.textContent = "Evidence is attached. Review the sheet diff before any write is accepted.";
+      drawerPlanCopy.textContent = "The read-only job finished inside approved scope. Review the proposed sheet mutation before accepting.";
+      jobStatus.textContent = "completed read-only run";
+      jobCount.textContent = "1";
+      traceStatus.textContent = "receipt ready: 4 planned reads, 4 actual reads";
+      traceCount.textContent = "19";
+      diffState.textContent = "ready";
+      diffSubtitle.textContent = "Review before mutation";
+      diffCopy.textContent = "Source-backed row is ready. Accepting writes one proposed row and keeps an undoable trace.";
+      diffRowTitle.textContent = "CardioNova - healthtech - Series B signal";
+      diffRowCopy.textContent = "Paid pilot evidence found in uploaded deck page 12 and public case study.";
+      diffCount.textContent = "3";
+      evidenceState.textContent = "ready";
+      evidenceCopy.textContent = "Paid pilot proof, funding signal, and founder context are attached to the proposal.";
+      evidenceRowTitle.textContent = "Coverage: paid pilots confirmed";
+      evidenceRowCopy.textContent = "Deck p12, hospital case study, cached profile refresh";
+      evidenceCount.textContent = "3";
+      sheetEvidenceTitle.textContent = "Paid pilot evidence found";
+      sheetEvidenceCopy.textContent = "Two source-backed references are attached before the sheet proposal can be accepted.";
+      coverageCopy.textContent = "Deck page 12, public case study URL, cached profile refresh, and sheet-cell provenance are available.";
+      actionRunTitle.textContent = "Read-only run complete";
+      actionRunCopy.textContent = "4 planned reads, 4 actual reads, 0 writes.";
+      actionApprovalCopy.textContent = `Approved plan ${currentPlanHash}. Cost stayed under estimate.`;
+      actionDiffTitle.textContent = "Review sheet proposal";
+      actionDiffCopy.textContent = "Accept writes a reversible row proposal with evidence receipts.";
+      actionTaskCopy.textContent = "Coach prompt ready: explain whether CardioNova deserves follow-up and cite evidence.";
+      activationCopy.textContent = "Waiting for accepted evidence-backed proposal.";
+      acceptDiff.disabled = false;
+      rejectDiff.disabled = false;
+      traceCard.hidden = false;
+      traceCopy.textContent = "Read-only job completed inside approved scope. Coach prompt is ready for review readiness.";
+      reentryCopy.innerHTML = "<b>Review ready</b> CardioNova diff has evidence attached";
+      showToast("Research complete. Diff ready to review.");
+    }
+
+    function startResearchRun() {
+      clearTimeout(runTimer);
+      planState.textContent = "running";
+      planTitle.textContent = "Research running read-only.";
+      planCopy.textContent = "NodeAgent is gathering approved evidence. The feed stays usable while the job runs.";
+      drawerPlanCopy.textContent = "Research is running read-only. No writes can occur until the proposed diff is reviewed and accepted.";
+      jobStatus.textContent = "running read-only within approved scope";
+      jobCount.textContent = "1";
+      traceStatus.textContent = "collecting planned-vs-actual receipt";
+      diffState.textContent = "waiting";
+      diffCopy.textContent = "Diff will unlock when evidence coverage is ready.";
+      evidenceState.textContent = "reading";
+      evidenceCopy.textContent = "Checking cached profile, uploaded deck pages, and public sources inside approved scope.";
+      actionRunTitle.textContent = "Research running";
+      actionRunCopy.textContent = "Approved read-only job is collecting sources.";
+      actionDiffTitle.textContent = "Diff locked";
+      actionDiffCopy.textContent = "Review opens after the read-only job completes.";
+      acceptDiff.disabled = true;
+      rejectDiff.disabled = true;
+      reentryCopy.innerHTML = "<b>Research running</b> read-only job in progress";
+      runTimer = setTimeout(setReviewReady, 900);
+    }
+
+    function acceptMutation() {
+      if (lastMutationState === "accepted") {
+        showToast("Diff is already accepted.");
+        return;
+      }
+      lastMutationState = "accepted";
+      diffState.textContent = "applied";
+      diffSubtitle.textContent = "Sheet row accepted";
+      diffCopy.textContent = "CardioNova row added with evidence receipts. Undo remains available from this session.";
+      diffCount.textContent = "ok";
+      actionDiffTitle.textContent = "Sheet row accepted";
+      actionDiffCopy.textContent = "Accepted mutation is reversible and linked to trace receipt r_193.";
+      traceCopy.textContent = "Accepted row has planned-vs-actual receipt r_193 and Coach prompt for review readiness.";
+      traceStatus.textContent = "receipt r_193 includes accepted row and evidence map";
+      activationCopy.textContent = "Recorded: accepted evidence-backed CardioNova proposal in first session.";
+      reentryCopy.innerHTML = "<b>Applied</b> CardioNova row added with trace r_193";
+      acceptDiff.disabled = true;
+      showUndo("Sheet row accepted. Undo available.");
+      showToast("Diff accepted with trace receipt.");
+    }
+
+    function rejectMutation() {
+      lastMutationState = "rejected";
+      diffState.textContent = "rejected";
+      diffSubtitle.textContent = "Proposal dismissed";
+      diffCopy.textContent = "No sheet mutation was applied. Evidence remains attached to the capture.";
+      actionDiffTitle.textContent = "Proposal rejected";
+      actionDiffCopy.textContent = "No write occurred. You can refine scope or keep the evidence card.";
+      activationCopy.textContent = "Not recorded. Proposal rejected without writing.";
+      reentryCopy.innerHTML = "<b>Rejected</b> no sheet row was written";
+      acceptDiff.disabled = true;
+      showUndo("Diff rejected. Undo available.");
+      showToast("Diff rejected. No write occurred.");
+    }
+
+    function undoMutation() {
+      if (lastMutationState === "accepted") {
+        lastMutationState = "review";
+        diffState.textContent = "ready";
+        diffSubtitle.textContent = "Review before mutation";
+        diffCopy.textContent = "Accepted row removed. Proposal is back in review with evidence attached.";
+        diffCount.textContent = "3";
+        actionDiffTitle.textContent = "Review sheet proposal";
+        actionDiffCopy.textContent = "Accept writes a reversible row proposal with evidence receipts.";
+        activationCopy.textContent = "Waiting for accepted evidence-backed proposal.";
+        reentryCopy.innerHTML = "<b>Review ready</b> accepted row was undone";
+        acceptDiff.disabled = false;
+        showToast("Accepted row undone.");
+        return true;
+      }
+      if (lastMutationState === "rejected") {
+        lastMutationState = "review";
+        diffState.textContent = "ready";
+        diffSubtitle.textContent = "Review before mutation";
+        diffCopy.textContent = "Proposal restored for review. Evidence remains attached.";
+        actionDiffTitle.textContent = "Review sheet proposal";
+        actionDiffCopy.textContent = "Accept writes a reversible row proposal with evidence receipts.";
+        activationCopy.textContent = "Waiting for accepted evidence-backed proposal.";
+        reentryCopy.innerHTML = "<b>Review ready</b> rejected proposal restored";
+        acceptDiff.disabled = false;
+        showToast("Proposal restored.");
+        return true;
+      }
+      return false;
+    }
+
+    function markPlanStale() {
+      if (planStale) return;
+      planStale = true;
+      planCard.dataset.stale = "true";
+      planState.textContent = "stale";
+      planTitle.textContent = "Plan needs refresh.";
+      planCopy.textContent = `The note changed after plan hash ${currentPlanHash}. Regenerate before approving any agent work.`;
+      drawerPlanCopy.textContent = "The capture note changed after this plan was prepared. Approval is blocked until the plan is regenerated.";
+      planHashCopy.textContent = `${currentPlanHash} stale`;
+    }
+
+    function refreshPlan() {
+      currentPlanHash = "p_91c4";
+      planStale = false;
+      planCard.dataset.stale = "false";
+      planState.textContent = "draft";
+      planTitle.textContent = "CardioNova diligence plan is ready for review.";
+      planCopy.textContent = "Reads, writes, evidence needs, and cost are approved before the job runs.";
+      drawerPlanCopy.textContent = "Review the structured plan before any agent reads sources or writes proposals. HTML is only the rendering.";
+      planHashCopy.textContent = `${currentPlanHash} ready`;
+      feedPlanHash.textContent = currentPlanHash;
+      showToast("Plan regenerated from latest note.");
+    }
+
+    function selectFeedCard(card) {
+      if (!feed.contains(card)) return;
+      feed.dataset.focus = "true";
+      feedCards.forEach((feedCard) => {
+        feedCard.dataset.selected = String(feedCard === card);
+      });
+    }
+
+    function clearFeedFocus() {
+      feed.dataset.focus = "false";
+      feedCards.forEach((feedCard) => {
+        feedCard.dataset.selected = "false";
+      });
+    }
+
+    function openCard(card) {
+      selectFeedCard(card);
+      if (card.dataset.cardConsent) openConsent();
+      if (card.dataset.cardDetail) openDetail(card.dataset.cardDetail);
+      if (card.dataset.cardAgent) openDrawer("agent");
+    }
+
+    noteInput.addEventListener("input", () => {
+      syncState.textContent = "Saving";
+      if (pendingUndoValue === null) pendingUndoValue = lastStableNoteValue;
+      showUndo("Autosaved edit. Undo available.");
+      markPlanStale();
+      clearTimeout(syncTimer);
+      syncTimer = setTimeout(() => {
+        syncState.textContent = "Auto";
+        lastStableNoteValue = noteInput.value;
+      }, 550);
+    });
+
+    document.querySelector("#quick-capture").addEventListener("click", () => {
+      openDetail("note");
+    });
+
+    document.querySelector("#quick-capture").addEventListener("keydown", (event) => {
+      if (event.key !== "Enter" && event.key !== " ") return;
+      event.preventDefault();
+      openDetail("note");
+    });
+
+    document.querySelector("#invite-button").addEventListener("click", () => {
+      showToast("Invite link copied.");
+    });
+
+    document.querySelector("#private-mode").addEventListener("click", () => {
+      closeConsent("private");
+    });
+
+    document.querySelector("#allow-research").addEventListener("click", () => {
+      closeConsent("research");
+    });
+
+    document.querySelector("#learn-boundary").addEventListener("click", () => {
+      showToast("Private capture first. Public research only after approval.");
+    });
+
+    document.querySelector("#approve-plan").addEventListener("click", () => {
+      if (!researchAllowed) {
+        openConsent();
+        showToast("Allow approved research before running this plan.");
+        return;
+      }
+      if (planStale) {
+        showToast("Plan is out of date. Regenerate first.");
+        return;
+      }
+      showToast(`Plan ${currentPlanHash} approved. Research running.`);
+      showUndo("Research queued. Undo available.");
+      startResearchRun();
+      closeAll();
+    });
+
+    document.querySelector("#regenerate-plan").addEventListener("click", refreshPlan);
+
+    undoAction.addEventListener("click", () => {
+      if (undoMutation()) {
+        undoBar.dataset.show = "false";
+        return;
+      }
+      if (pendingUndoValue !== null) {
+        noteInput.value = pendingUndoValue;
+        lastStableNoteValue = pendingUndoValue;
+        pendingUndoValue = null;
+        syncState.textContent = "Auto";
+        refreshPlan();
+        showToast("Edit restored.");
+      } else {
+        showToast("Last action undone.");
+      }
+      undoBar.dataset.show = "false";
+    });
+
+    acceptDiff.addEventListener("click", acceptMutation);
+    rejectDiff.addEventListener("click", rejectMutation);
+    refinePlan.addEventListener("click", () => {
+      openDrawer("agent");
+      showToast("Scope refinement opened.");
+    });
+    openTrace.addEventListener("click", () => {
+      traceCard.hidden = false;
+      showToast("Trace receipt visible in feed.");
+      closeAll();
+    });
+
+    panelButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        const target = button.dataset.panelTrigger;
+        if (target === "work") closeAll();
+        if (target === "room") openDrawer("room");
+        if (target === "agent") openDrawer("agent");
+      });
+    });
+
+    detailButtons.forEach((button) => {
+      button.addEventListener("click", () => openDetail(button.dataset.openDetail));
+    });
+
+    agentButtons.forEach((button) => {
+      button.addEventListener("click", () => openDrawer("agent"));
+    });
+
+    disambiguationButtons.forEach((button) => {
+      button.addEventListener("click", (event) => {
+        event.stopPropagation();
+        disambiguationButtons.forEach((choice) => {
+          choice.dataset.selected = String(choice === button);
+        });
+        ambiguityState.textContent = "set";
+        showToast(`${button.dataset.disambiguate} selected.`);
+      });
+    });
+
+    cardTriggers.forEach((card) => {
+      card.addEventListener("click", (event) => {
+        if (isEditingTarget(event.target)) return;
+        openCard(card);
+      });
+
+      card.addEventListener("keydown", (event) => {
+        if (event.key !== "Enter" && event.key !== " ") return;
+        event.preventDefault();
+        openCard(card);
+      });
+    });
+
+    feedCards.forEach((card) => {
+      card.addEventListener("pointerenter", () => selectFeedCard(card));
+      card.addEventListener("focusin", () => selectFeedCard(card));
+    });
+
+    feed.addEventListener("pointerleave", clearFeedFocus);
+    feed.addEventListener("focusout", (event) => {
+      if (!feed.contains(event.relatedTarget)) clearFeedFocus();
+    });
+
+    tabs.forEach((tab) => {
+      tab.addEventListener("click", () => setTab(tab.dataset.tab));
+    });
+
+    closeButtons.forEach((button) => button.addEventListener("click", closeAll));
+    overlay.addEventListener("click", closeAll);
+  </script>
+</body>
+</html>

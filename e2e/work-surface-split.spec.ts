@@ -78,11 +78,11 @@ test.describe("center-stage split mode", () => {
     await page.getByTestId("copilot-tab-private").click();
     await page.getByTestId("private-mode-coach").click();
     const coach = page.getByTestId("banker-coach-panel");
-    const cards = coach.getByTestId("coach-evidence-card");
+    const sourceCard = coach.getByTestId("coach-evidence-card").filter({ hasText: "Agent wiki" });
 
     await expect(coach).toBeVisible();
-    await expect(cards.first()).toBeVisible();
-    await cards.first().click();
+    await expect(sourceCard).toBeVisible();
+    await sourceCard.click();
 
     await expect(stage).toHaveAttribute("data-split", "true");
     await expect(primary).toBeVisible();

@@ -607,6 +607,13 @@ export function Chat({ roomId, me, channel, variant, agentName, style, onOpenArt
   const latestAttempt = longJobAttempts.at(-1);
   const canCancelLongJob = !!longJob && !["completed", "failed", "cancelled"].includes(longJob.status);
   const canRetryLongJob = !!longJob && ["failed", "blocked", "cancelled", "paused", "retrying"].includes(longJob.status);
+  const longJobTerminal = !!longJob && ["completed", "failed", "blocked", "cancelled"].includes(longJob.status);
+  const longJobResultText = !isPrivate && longJobTerminal
+    ? (longJob.finalText || (["failed", "blocked"].includes(longJob.status) && longJob.error ? `Agent job ${longJob.status}: ${longJob.error}` : ""))
+    : "";
+  const hasLongJobResultMessage = !!longJobResultText && messages.some((m) => m.author.kind === "agent" && m.text.trim() === longJobResultText.trim());
+  const showLongJobResult = !!longJobResultText && !hasLongJobResultMessage;
+  const showEmptyState = messages.length === 0 && failedSends.length === 0 && !showLongJobResult;
   const beginThinking = () => { thinkingStartCount.current = messages.length; setAgentErr(null); setThinking(true); };
 
   useEffect(() => { const el = feedRef.current; if (el && nearBottom.current) el.scrollTop = el.scrollHeight; }, [messages.length, thinking, liveOperationStream.length, multiAgentDemoStarted, multiAgentTick]);
@@ -964,9 +971,31 @@ export function Chat({ roomId, me, channel, variant, agentName, style, onOpenArt
       )}
 
       <div className="r-chat" ref={feedRef} onScroll={onScroll} aria-live="polite" data-testid="chat-feed">
-        {messages.length === 0 && failedSends.length === 0 && <div className="tiny faint" style={{ margin: "auto", textAlign: "center", maxWidth: 260, lineHeight: 1.5 }}>{isPrivate ? "Ask your NodeAgent privately, or switch it to Room mode." : "No messages yet. Mention @nodeagent to start a room action."}</div>}
+        {showEmptyState && (
+          <div className="r-chat-empty" data-testid={isPrivate ? "private-chat-empty" : "public-chat-empty"}>
+            <span>{isPrivate ? "Ask your NodeAgent privately, or switch it to Room mode." : "Ask the room agent to work on the seeded model."}</span>
+            {!isPrivate && hasQ3DemoSeed && (
+              <button className="r-mini-btn primary" type="button" data-testid="chat-empty-agent-cta" onClick={() => send(NODEAGENT_PROMPTS[0].insert)}>
+                <Sparkles size={12} /> Ask NodeAgent
+              </button>
+            )}
+          </div>
+        )}
         {agentErr && <div className="r-msg" role="alert" data-testid="agent-error" data-state="failed"><div className="body tiny" style={{ color: "var(--danger-ink)" }}>{agentErr}</div></div>}
         {messages.map((m) => <Bubble key={m.clientMsgId || m.id} m={m} roomId={roomId} variant={variant} me={me} onPromote={promote} onOpenArtifact={onOpenArtifact} />)}
+        {showLongJobResult && longJob && (
+          <div className="r-msg agent" data-testid="agent-job-result" data-state={longJob.status}>
+            <span className="r-avatar agent sm" style={{ background: "#d97757" }}>N</span>
+            <div className="body">
+              <div className="meta">
+                <span className="who">Room NodeAgent</span>
+                <span className={"r-tag agent" + (["failed", "blocked"].includes(longJob.status) ? " danger" : "")} style={{ padding: "1px 5px", fontSize: 9 }}>{longJob.status}</span>
+                <span className="time">{clock(longJob.updatedAt)}</span>
+              </div>
+              <div className="text">{longJobResultText}</div>
+            </div>
+          </div>
+        )}
         {failedSends.map((f) => (
           <div className="r-msg" key={"fail-" + f.cid} data-testid="chat-failed" data-state="failed">
             <span className="r-avatar sm" style={{ background: colorFor(store, roomId, me) }}>{initials(me.name)}</span>

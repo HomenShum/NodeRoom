@@ -1,0 +1,56 @@
+[
+  {
+    "slug": "brand-guidelines",
+    "name": "Brand Guidelines",
+    "description": "Applies Anthropic's official brand colors and typography to artifacts for consistent visual identity and professional design standards.",
+    "categories": ["business-marketing"],
+    "trust": "community",
+    "source": { "kind": "url", "path": null, "url": "https://raw.githubusercontent.com/ComposioHQ/awesome-claude-skills/master/brand-guidelines/SKILL.md" },
+    "install": "https://raw.githubusercontent.com/ComposioHQ/awesome-claude-skills/master/brand-guidelines/SKILL.md"
+  },
+  {
+    "slug": "competitive-ads-extractor",
+    "name": "Competitive Ads Extractor",
+    "description": "Extracts and analyzes competitors' ads from ad libraries to understand messaging and creative approaches that resonate.",
+    "categories": ["business-marketing"],
+    "trust": "community",
+    "source": { "kind": "url", "path": null, "url": "https://raw.githubusercontent.com/ComposioHQ/awesome-claude-skills/master/competitive-ads-extractor/SKILL.md" },
+    "install": "https://raw.githubusercontent.com/ComposioHQ/awesome-claude-skills/master/competitive-ads-extractor/SKILL.md"
+  },
+  {
+    "slug": "domain-name-brainstormer",
+    "name": "Domain Name Brainstormer",
+    "description": "Generates creative domain name ideas and checks availability across multiple TLDs including .com, .io, .dev, and .ai extensions.",
+    "categories": ["business-marketing"],
+    "trust": "community",
+    "source": { "kind": "url", "path": null, "url": "https://raw.githubusercontent.com/ComposioHQ/awesome-claude-skills/master/domain-name-brainstormer/SKILL.md" },
+    "install": "https://raw.githubusercontent.com/ComposioHQ/awesome-claude-skills/master/domain-name-brainstormer/SKILL.md"
+  },
+  {
+    "slug": "internal-comms",
+    "name": "Internal Comms",
+    "description": "Helps write internal communications including 3P updates, company newsletters, FAQs, status reports, and project updates using company-specific formats.",
+    "categories": ["business-marketing"],
+    "trust": "community",
+    "source": { "kind": "url", "path": null, "url": "https://raw.githubusercontent.com/ComposioHQ/awesome-claude-skills/master/internal-comms/SKILL.md" },
+    "install": "https://raw.githubusercontent.com/ComposioHQ/awesome-claude-skills/master/internal-comms/SKILL.md"
+  },
+  {
+    "slug": "linkedin-automation",
+    "name": "LinkedIn Automation",
+    "description": "Automate LinkedIn: posts, profiles, companies, images, and comments.",
+    "categories": ["app-automation", "social-media"],
+    "trust": "community",
+    "source": { "kind": "url", "path": null, "url": "https://raw.githubusercontent.com/ComposioHQ/awesome-claude-skills/master/linkedin-automation/SKILL.md" },
+    "install": "https://raw.githubusercontent.com/ComposioHQ/awesome-claude-skills/master/linkedin-automation/SKILL.md"
+  },
+  {
+    "slug": "google-calendar-automation",
+    "name": "Google Calendar Automation",
+    "description": "Automate Google Calendar: events, attendees, free/busy, and recurring schedules.",
+    "categories": ["app-automation", "calendar"],
+    "trust": "community",
+    "source": { "kind": "url", "path": null, "url": "https://raw.githubusercontent.com/ComposioHQ/awesome-claude-skills/master/google-calendar-automation/SKILL.md" },
+    "install": "https://raw.githubusercontent.com/ComposioHQ/awesome-claude-skills/master/google-calendar-automation/SKILL.md"
+  }
+]

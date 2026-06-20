@@ -7,6 +7,9 @@ import { test as base, expect, type Page } from "@playwright/test";
  * without breaking the harness.
  */
 export async function enterDemoRoom(page: Page): Promise<void> {
+  await page.addInitScript(() => {
+    try { localStorage.setItem("noderoom:tour:v1", "done"); } catch { /* ignore */ }
+  });
   await page.goto("/?mode=memory", { waitUntil: "domcontentloaded" });
   // Suppress the first-run guided tour for non-tour specs — its card would overlay the UI under test.
   // (The dedicated tour spec clears this flag to exercise auto-start.)
@@ -24,7 +27,9 @@ export async function enterDemoRoom(page: Page): Promise<void> {
   if (width > 1199) {
     const leftRail = page.getByTestId("left-rail");
     if (!(await leftRail.isVisible().catch(() => false))) {
-      await page.getByRole("button", { name: "Toggle Room Binder panel" }).click();
+      const toggle = page.getByRole("button", { name: "Toggle Room Binder panel" });
+      await expect(toggle).toBeVisible();
+      await toggle.click();
     }
     await expect(leftRail).toBeVisible();
   }

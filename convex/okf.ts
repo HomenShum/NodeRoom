@@ -21,6 +21,9 @@ const filterArgsV = {
   timestampAfter: v.optional(v.string()),
   visibility: v.optional(okfVisibilityV),
   limit: v.optional(v.number()),
+  // Skill RAG filters (additive; ignored by non-skill concepts). See DYNAMIC_SKILL_RETRIEVAL.md.
+  skill_categories: v.optional(v.array(v.string())),
+  skill_trust_min: v.optional(v.union(v.literal("untrusted"), v.literal("community"), v.literal("verified"))),
 };
 const evidenceRefV = v.object({
   evidenceId: v.string(),
@@ -524,6 +527,85 @@ export const upsertConcept = mutation({
       concept.frontmatter.noderoom = { ...(concept.frontmatter.noderoom ?? {}), ownerId: actor.id, visibility };
     }
     return upsertConceptRow(ctx, { ...a, concept });
+  },
+});
+
+/** Skill RAG: trust tier → OKF confidence. Mirrored in retrieval/okf/okfFilters.ts. */
+const SKILL_TRUST_CONFIDENCE: Record<"local" | "verified" | "community" | "untrusted", number> = {
+  local: 1,
+  verified: 0.95,
+  community: 0.6,
+  untrusted: 0.3,
+};
+
+const skillTrustV = v.union(v.literal("local"), v.literal("verified"), v.literal("community"), v.literal("untrusted"));
+
+/**
+ * Ingest one Agent Skill catalog record as an OKF concept (type "Agent Skill"), reusing the
+ * existing okfConcepts/okfChunks pipeline + embed outbox — no new table, no schema change.
+ *
+ * Convex boundary: a mutation CANNOT fetch, so the SKILL.md `body` is passed IN by the caller
+ * (build-skill-index / an admin script that read it from disk or via the SSRF-guarded loader).
+ * Keeping the fetch out of the mutation is the cleaner of the two spec options.
+ *
+ * Only name+description+meta are required up front; `body` is optional — load_skill pulls the
+ * full body on demand. When `body` is omitted the concept still indexes on its description (the
+ * load-bearing retrieval hook), so it remains discoverable.
+ */
+export const indexSkillFromCatalog = mutation({
+  args: {
+    roomId: v.id("rooms"),
+    requester: actorProofV,
+    slug: v.string(),
+    name: v.string(),
+    description: v.string(),
+    categories: v.optional(v.array(v.string())),
+    trust: skillTrustV,
+    install: v.optional(v.string()),
+    sourceUrl: v.optional(v.string()),
+    sourceCatalog: v.optional(v.string()),
+    version: v.optional(v.string()),
+    body: v.optional(v.string()),
+    contentHash: v.optional(v.string()),
+  },
+  handler: async (ctx, a) => {
+    await requireActorProof(ctx, a.roomId, a.requester);
+    if (!a.description.trim()) throw new Error("skill_description_required");
+    const categories = a.categories ?? [];
+    const concept = createOkfConcept({
+      // Skills live in a stable, per-room path namespace so re-ingestion patches the same row.
+      path: `rooms/${String(a.roomId)}/skills/${a.slug}.md`,
+      frontmatter: {
+        type: "Agent Skill",
+        title: a.name,
+        // description IS the semantic retrieval hook (feeds searchText + the embedding).
+        description: a.description,
+        resource: a.sourceUrl ?? a.install,
+        // categories → tags so the existing tag filter + skill_categories filter both work.
+        tags: [...categories, "agent-skill", `trust:${a.trust}`],
+        noderoom: {
+          roomId: String(a.roomId),
+          status: "complete",
+          confidence: SKILL_TRUST_CONFIDENCE[a.trust],
+          sourceKind: "external_skill",
+          visibility: "public",
+          skill_install: a.install,
+          skill_trust: a.trust,
+          skill_categories: categories,
+          skill_version: a.version,
+          skill_source_catalog: a.sourceCatalog,
+        },
+      },
+      // Body is the SKILL.md content when provided; otherwise a discoverable placeholder.
+      body: a.body && a.body.trim() ? a.body : `# ${a.name}\n\n${a.description}\n\n(Skill body not yet loaded — use load_skill to fetch it.)`,
+    });
+    await upsertConceptRow(ctx, {
+      roomId: a.roomId,
+      concept,
+      sourceKind: "external_skill",
+      sourceId: a.slug,
+    });
+    return { ok: true as const, conceptId: concept.id };
   },
 });
 

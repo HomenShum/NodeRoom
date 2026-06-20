@@ -1307,6 +1307,13 @@ button.r-tracevu-step:hover, button.r-tracevu-step:focus-visible { border-color:
    grey (HONEST_STATUS / semantic-color-by-state). Used by the long-job status chip. */
 .r-tag.danger { background: var(--danger-tint); border: 1px solid var(--danger-border); color: var(--danger-ink); }
 
+.r-chat-empty {
+  margin: auto; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 10px; max-width: 280px; text-align: center; line-height: 1.5; color: var(--text-muted);
+  font-size: 12.5px;
+}
+.r-chat-empty .r-mini-btn { min-height: 28px; }
+
 /* P0 — upload error gains a recovery path (Retry), per the empty-states error convention. */
 .r-upload-error, .r-upload-status { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .r-upload-retry { font-size: 10.5px; font-weight: 700; color: var(--accent-ink); background: transparent; border: 1px solid var(--accent-border); border-radius: 6px; padding: 1px 7px; cursor: pointer; transition: background var(--motion-fast); }

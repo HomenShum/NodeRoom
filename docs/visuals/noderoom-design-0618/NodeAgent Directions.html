@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>NodeAgent — Directions</title>
+<link rel="stylesheet" href="assets/colors_and_type.css" />
+<link rel="stylesheet" href="assets/frames.css" />
+<style>
+  html, body { margin: 0; height: 100%; background: #b8b2a7; }
+  /* dark token scope for injected frames */
+  .frame-host { width: 100%; height: 100%; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<script src="assets/frame_a.js"></script>
+<script src="assets/frame_b.js"></script>
+<script src="assets/frame_c.js"></script>
+<script type="text/babel" src="design-canvas.jsx"></script>
+
+<script type="text/babel">
+const { DesignCanvas, DCSection, DCArtboard } = window;
+
+// Each artboard hosts a dark NodeBench frame via injected HTML.
+function Frame({ html }) {
+  return (
+    <div
+      className="dark frame-host"
+      dangerouslySetInnerHTML={{ __html: html }}
+    />
+  );
+}
+
+const ART_BG = '#0c0e12';
+
+function App() {
+  return (
+    <DesignCanvas>
+      <DCSection
+        id="directions"
+        title="NodeAgent — three directions"
+        subtitle="Centerpiece: run a mission → context, synthesis, notebook, versioned spreadsheet sync. Pick one to build out fully interactive."
+      >
+        <DCArtboard id="a" label="A · Workspace Console" width={1320} height={860} style={{ background: ART_BG }}>
+          <Frame html={window.FRAME_A} />
+        </DCArtboard>
+        <DCArtboard id="b" label="B · Runtime Pipeline" width={1320} height={760} style={{ background: ART_BG }}>
+          <Frame html={window.FRAME_B} />
+        </DCArtboard>
+        <DCArtboard id="c" label="C · Proposes / Commits split" width={1320} height={780} style={{ background: ART_BG }}>
+          <Frame html={window.FRAME_C} />
+        </DCArtboard>
+      </DCSection>
+    </DesignCanvas>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>

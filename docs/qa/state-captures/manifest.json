@@ -2,6 +2,46 @@
   "generatedNote": "regenerate with `npm run qa:states`",
   "captures": [
     {
+      "surface": "sheet",
+      "state": "empty-cells",
+      "theme": "dark",
+      "width": 1860,
+      "file": "sheet/empty-cells--dark--1860.png",
+      "mustBeTrue": "Empty variance cells show a '+ add' affordance (not 'null'); existing values use neutral/sign-aware color, not all-green."
+    },
+    {
+      "surface": "sheet",
+      "state": "cell-editing",
+      "theme": "dark",
+      "width": 1860,
+      "file": "sheet/cell-editing--dark--1860.png",
+      "mustBeTrue": "An editing cell shows a clearly-bordered input; a negative value previews in the danger color (sign-aware)."
+    },
+    {
+      "surface": "sheet",
+      "state": "proposal-pending",
+      "theme": "dark",
+      "width": 1860,
+      "file": "sheet/proposal-pending--dark--1860.png",
+      "mustBeTrue": "Agent edits arrive as inline proposals: the suggested VALUE carries the accent; the ✓ accept / ✗ reject controls are neutral ghosts of equal weight (no ban-circle, no solid-accent button)."
+    },
+    {
+      "surface": "sheet",
+      "state": "proposal-accept-hover",
+      "theme": "dark",
+      "width": 1860,
+      "file": "sheet/proposal-accept-hover--dark--1860.png",
+      "mustBeTrue": "Hovering ✓ accept tints green (semantic confirm), not the brand accent."
+    },
+    {
+      "surface": "sheet",
+      "state": "proposal-reject-hover",
+      "theme": "dark",
+      "width": 1860,
+      "file": "sheet/proposal-reject-hover--dark--1860.png",
+      "mustBeTrue": "Hovering ✗ reject tints soft-red (semantic decline); the glyph is an X, never a ban-circle."
+    },
+    {
       "surface": "landing",
       "state": "default",
       "theme": "dark",
@@ -87,7 +127,7 @@
       "theme": "dark",
       "width": 1860,
       "file": "leftrail/default--dark--1860.png",
-      "mustBeTrue": "File rows (the OPEN artifact carries a persistent selected background — selection, not hover); the upload button; the inert 'NetSuite export' source row is muted and must NOT look like the clickable artifact rows."
+      "mustBeTrue": "File rows (the OPEN artifact carries a persistent selected background - selection, not hover); the upload button; the inert 'Data room exports' source row is muted and must NOT look like the clickable artifact rows."
     },
     {
       "surface": "leftrail",
@@ -95,7 +135,7 @@
       "theme": "dark",
       "width": 1860,
       "file": "leftrail/file-hover--dark--1860.png",
-      "mustBeTrue": "A non-selected file row (Agent wiki) shows a hover-fill — distinct from both the default rows and the accent-tinted SELECTED row (Q3 variance)."
+      "mustBeTrue": "A non-selected file row (Agent wiki) shows a hover-fill - distinct from both the default rows and the accent-tinted SELECTED row (Q3 variance)."
     },
     {
       "surface": "leftrail",
@@ -103,7 +143,7 @@
       "theme": "dark",
       "width": 1860,
       "file": "leftrail/static-hover--dark--1860.png",
-      "mustBeTrue": "The inert NetSuite row does NOT highlight on hover — it stays muted. (The 'Agent wiki' row carries a persistent SELECTED background because it is the open artifact — that is selection, not hover.)"
+      "mustBeTrue": "The inert data-room source row does NOT highlight on hover - it stays muted. (The 'Agent wiki' row carries a persistent SELECTED background because it is the open artifact - that is selection, not hover.)"
     },
     {
       "surface": "chat",
@@ -136,46 +176,6 @@
       "width": 1860,
       "file": "chat/message-hover--dark--1860.png",
       "mustBeTrue": "Hovering YOUR OWN message reveals its action controls (copy/edit/promote) at a legible size."
-    },
-    {
-      "surface": "sheet",
-      "state": "empty-cells",
-      "theme": "dark",
-      "width": 1860,
-      "file": "sheet/empty-cells--dark--1860.png",
-      "mustBeTrue": "Empty variance cells show a '+ add' affordance (not 'null'); existing values use neutral/sign-aware color, not all-green."
-    },
-    {
-      "surface": "sheet",
-      "state": "cell-editing",
-      "theme": "dark",
-      "width": 1860,
-      "file": "sheet/cell-editing--dark--1860.png",
-      "mustBeTrue": "An editing cell shows a clearly-bordered input; a negative value previews in the danger color (sign-aware)."
-    },
-    {
-      "surface": "sheet",
-      "state": "proposal-pending",
-      "theme": "dark",
-      "width": 1860,
-      "file": "sheet/proposal-pending--dark--1860.png",
-      "mustBeTrue": "Agent edits arrive as inline proposals: the suggested VALUE carries the accent; the ✓ accept / ✗ reject controls are neutral ghosts of equal weight (no ban-circle, no solid-accent button)."
-    },
-    {
-      "surface": "sheet",
-      "state": "proposal-accept-hover",
-      "theme": "dark",
-      "width": 1860,
-      "file": "sheet/proposal-accept-hover--dark--1860.png",
-      "mustBeTrue": "Hovering ✓ accept tints green (semantic confirm), not the brand accent."
-    },
-    {
-      "surface": "sheet",
-      "state": "proposal-reject-hover",
-      "theme": "dark",
-      "width": 1860,
-      "file": "sheet/proposal-reject-hover--dark--1860.png",
-      "mustBeTrue": "Hovering ✗ reject tints soft-red (semantic decline); the glyph is an X, never a ban-circle."
     },
     {
       "surface": "research",

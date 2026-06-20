@@ -109,6 +109,103 @@
   background: var(--bg-secondary); font-size: 12.5px; line-height: 1.6; color: var(--text-muted);
 }
 
+/* Quick interactive demo ---------------------------------------------------- */
+.rs-quick {
+  max-width: var(--rs-maxw); margin: 0 auto; padding: 54px 32px 72px;
+}
+.rs-quick-head { text-align: center; margin-bottom: 22px; }
+.rs-quick-head .r-eyebrow { margin: 0 auto; }
+.rs-quick-title {
+  font-size: clamp(24px, 3.4vw, 38px); line-height: 1.12; letter-spacing: 0;
+  font-weight: 800; margin: 18px auto 0; max-width: 24ch; color: var(--text-primary);
+}
+.rs-quick-grid {
+  display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(280px, .85fr);
+  gap: 18px; align-items: stretch;
+}
+.rs-demo-sheet, .rs-demo-chat {
+  border: 1px solid var(--line); border-radius: 14px; background: var(--bg-primary);
+  box-shadow: var(--shadow-md); overflow: hidden; min-width: 0;
+}
+.rs-demo-sheetbar {
+  display: flex; align-items: center; gap: 10px; padding: 10px 12px;
+  border-bottom: 1px solid var(--line); min-height: 42px;
+}
+.rs-demo-sheetbar b { font-size: 13px; }
+.rs-demo-grid {
+  width: 100%; table-layout: fixed; border-collapse: separate; border-spacing: 0;
+  font-size: 12.5px;
+}
+.rs-demo-grid th, .rs-demo-grid td {
+  border-right: 1px solid var(--line); border-bottom: 1px solid var(--line);
+  padding: 0 9px; height: 38px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+}
+.rs-demo-grid th {
+  color: var(--text-muted); background: var(--bg-secondary); font-weight: 700;
+  text-align: left;
+}
+.rs-demo-grid td { font-family: var(--font-mono); color: var(--text-secondary); text-align: right; }
+.rs-demo-grid td:last-child, .rs-demo-grid th:last-child { border-right: none; }
+.rs-demo-grid tr:last-child td, .rs-demo-grid tr:last-child th { border-bottom: none; }
+.rs-demo-edit {
+  background: color-mix(in srgb, var(--rs-human) 10%, var(--bg-primary));
+  box-shadow: inset 0 0 0 2px var(--rs-human);
+}
+.rs-demo-edit input {
+  width: 100%; min-width: 0; border: none; outline: none; background: transparent;
+  color: var(--text-primary); font: inherit; font-weight: 800; text-align: right;
+}
+.rs-demo-formula {
+  color: var(--success-ink) !important; background: rgba(31,138,91,.10);
+  box-shadow: inset 0 0 0 1px rgba(31,138,91,.24);
+}
+.rs-demo-note {
+  text-align: left !important; color: var(--accent-ink) !important;
+  font-size: 11px; white-space: normal !important; line-height: 1.25;
+}
+.rs-demo-trace {
+  display: flex; gap: 8px; flex-wrap: wrap; padding: 10px 12px;
+  background: var(--bg-secondary);
+}
+.rs-demo-trace span {
+  display: inline-flex; align-items: center; gap: 5px; color: var(--success-ink);
+  font-size: 11px; font-weight: 700; font-family: var(--font-mono);
+}
+.rs-demo-chat { display: flex; flex-direction: column; min-height: 100%; }
+.rs-demo-chat-head {
+  display: flex; align-items: center; gap: 9px; padding: 10px 12px;
+  border-bottom: 1px solid var(--line); min-height: 42px;
+}
+.rs-demo-chat-head b { font-size: 13px; }
+.rs-demo-feed {
+  flex: 1; min-height: 210px; max-height: 300px; overflow-y: auto; padding: 12px;
+  display: flex; flex-direction: column; gap: 10px;
+}
+.rs-demo-empty {
+  margin: auto; display: flex; align-items: center; gap: 8px; color: var(--text-muted);
+  font-size: 13px; text-align: center;
+}
+.rs-demo-turn { display: grid; gap: 8px; }
+.rs-demo-human {
+  justify-self: end; max-width: 86%; padding: 8px 10px; border-radius: 10px;
+  background: var(--accent-primary); color: #fff; font-size: 12px; line-height: 1.45;
+}
+.rs-demo-agent {
+  display: grid; gap: 6px; max-width: 92%; padding: 10px 12px; border-radius: 10px;
+  background: var(--bg-secondary); border: 1px solid var(--line); font-size: 12px; line-height: 1.45;
+  color: var(--text-secondary);
+}
+.rs-demo-agent span { font-family: var(--font-mono); color: var(--text-muted); }
+.rs-demo-agent b { color: var(--text-primary); }
+.rs-demo-composer {
+  display: grid; grid-template-columns: minmax(0, 1fr) 34px; gap: 8px;
+  padding: 10px 12px; border-top: 1px solid var(--line); background: var(--bg-secondary);
+}
+.rs-demo-composer input {
+  min-width: 0; height: 34px; border: 1px solid var(--line); border-radius: 9px;
+  padding: 0 10px; background: var(--bg-primary); color: var(--text-primary);
+}
+
 /* =============================================================================
    STAGE — sticky canvas + scrolling layer cards
    ============================================================================ */
@@ -372,6 +469,8 @@
    RESPONSIVE — single column; canvas becomes a sticky banner
    ============================================================================ */
 @media (max-width: 900px) {
+  .rs-quick-grid { grid-template-columns: 1fr; }
+  .rs-demo-feed { max-height: none; }
   .rs-stage { grid-template-columns: 1fr; gap: 0; }
   .rs-canvas { order: 0; position: sticky; top: 56px; height: auto; padding: 10px 0 6px; z-index: 20; background: color-mix(in srgb, var(--bg-app) 92%, transparent); backdrop-filter: blur(8px); }
   .rs-rail { order: 1; }

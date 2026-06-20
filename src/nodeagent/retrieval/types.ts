@@ -54,6 +54,10 @@ export interface OkfConceptFilter {
   timestampAfter?: string;
   visibility?: OkfVisibility;
   limit?: number;
+  /** Skill RAG: narrow "Agent Skill" concepts by category (matched against tags). */
+  skill_categories?: string[];
+  /** Skill RAG: minimum trust tier. Implemented as a confidence floor (community .6 / verified .95). */
+  skill_trust_min?: "untrusted" | "community" | "verified";
 }
 
 export interface EvidenceRef {

@@ -138,10 +138,10 @@ export interface BuildRoomWorkReasoningPlanArgs {
 
 const DEFAULT_CHILD_FRAME_SAMPLE_LIMIT = 50;
 
-const FRAME_TOOL_ALLOWLIST: Record<ReasoningFramePhase, string[]> = {
+export const FRAME_TOOL_ALLOWLIST: Record<ReasoningFramePhase, string[]> = {
   intake: ["normalize_room_intake", "compute_idempotency_key"],
-  plan: ["entityResearchCache.lookup", "okf_full_text_search", "okf_semantic_search", "search_sheet_context"],
-  execute: ["fetch_source", "capture_source", "linkup_search", "source_compare_claim", "write_locked_cell_results", "update_wiki"],
+  plan: ["entityResearchCache.lookup", "okf_full_text_search", "okf_semantic_search", "search_sheet_context", "skill_search", "okf_search_skills"],
+  execute: ["fetch_source", "capture_source", "linkup_search", "source_compare_claim", "write_locked_cell_results", "update_wiki", "skill_search", "load_skill"],
   verify: ["source_compare_claim", "okf_read_concept", "read_range", "reconcile_cell"],
   synthesize: ["say", "export_downstream_draft", "generate_banker_coach_cues"],
 };

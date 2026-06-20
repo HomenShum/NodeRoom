@@ -18,7 +18,7 @@ import { Chat } from "../src/ui/Chat";
 
 const me: Actor = { kind: "user", id: "u1", name: "Maya" };
 
-function baseStore() {
+function baseStore(): any {
   return {
     mode: "convex",
     listMessages: () => [],
@@ -152,5 +152,49 @@ describe("Chat reasoning-frame job detail", () => {
       }));
     });
     expect(store.startLongFreeAgent).not.toHaveBeenCalled();
+  });
+
+  it("starts the room agent from the empty public chat CTA when the demo sheet is seeded", async () => {
+    const store = baseStore();
+    store.lastLongFreeJob = () => null;
+    store.listArtifacts = () => [{ id: "sheet1", roomId: "r1", kind: "sheet", title: "Q3 variance", version: 1, order: [], updatedAt: 1, elements: {} }];
+    mockStore.current = store;
+
+    render(<Chat roomId="r1" me={me} channel="public" variant="public" agentName="Room NodeAgent" />);
+
+    fireEvent.click(screen.getByTestId("chat-empty-agent-cta"));
+
+    await waitFor(() => {
+      expect(store.askAgent).toHaveBeenCalledWith(expect.objectContaining({
+        goal: "diligence CardioNova with source-backed product, buyer, funding, hiring, and HIPAA/security gaps",
+      }));
+    });
+    expect(store.postMessage).toHaveBeenCalledWith(expect.objectContaining({
+      text: expect.stringContaining("@nodeagent diligence CardioNova"),
+    }));
+  });
+
+  it("renders durable agent job finalText in the chat when no agent message was posted", () => {
+    const store = baseStore();
+    store.lastLongFreeJob = () => ({
+      id: "job1",
+      status: "completed",
+      entrypoint: "public_ask",
+      runtime: "workflow",
+      attempts: 1,
+      maxAttempts: 20,
+      modelPolicy: "gemini-3.5-flash",
+      approvalPolicy: "auto_commit_safe",
+      evidencePolicy: "public_only",
+      finalText: "Done from the durable job row.",
+      updatedAt: 1,
+    });
+    mockStore.current = store;
+
+    render(<Chat roomId="r1" me={me} channel="public" variant="public" agentName="Room NodeAgent" />);
+
+    expect(screen.getByTestId("agent-job-result")).toBeTruthy();
+    expect(screen.getByText("Done from the durable job row.")).toBeTruthy();
+    expect(screen.queryByTestId("public-chat-empty")).toBeNull();
   });
 });

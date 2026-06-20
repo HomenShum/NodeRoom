@@ -8,11 +8,15 @@
 import { PRODUCTION_ROOM_TOOLS } from "../spreadsheet/cellMutator";
 import { captureSourceFirecrawlTool } from "../search/captureSourceFirecrawlTool";
 import { secFactsTool } from "../search/secFactsTool";
+import { SKILL_SEARCH_TOOLS, LOAD_SKILL_TOOLS } from "../../tools";
 
 export const SERVER_PRODUCTION_ROOM_TOOLS = [
   ...PRODUCTION_ROOM_TOOLS,
   captureSourceFirecrawlTool,
   secFactsTool,
+  // Skill RAG (server-only: local fs read + SSRF-guarded fetch). Discover skills, load one on demand.
+  ...SKILL_SEARCH_TOOLS,
+  ...LOAD_SKILL_TOOLS,
 ];
 
 export const SERVER_PRODUCTION_TOOL_NAMES = SERVER_PRODUCTION_ROOM_TOOLS.map((tool) => tool.name);
