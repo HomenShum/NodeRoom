@@ -237,7 +237,7 @@ export const LAYERS: LayerSpec[] = [
     title: "Conflicts become reviewable judgment.",
     copy: "CAS catches the conflict; semantic rebase explains it. Both edits can be useful — here's how they fit, and what still needs review.",
     status: "target",
-    truth: "Target: the conflict-packet contract is scaffolded, the merge today is deterministic (version + equality → flag for review). The LLM resolver is the next chapter.",
+    truth: "Target: the conflict-packet pipeline is shipped & durable — on a stale agent write it builds a packet, classifies it deterministically (version + equality + authorship), persists it to a ledger, and routes it to a host-review proposal. The LLM resolver — semantic judgment beyond those rules — is the next chapter.",
     diagram: ["base + current + proposed", "+ task intent + evidence", "→ safe resolution proposal"],
     cells: {
       C2: { proposed: true, presence: PRESENCE_COLOR, override: "12,400" },

@@ -11,6 +11,7 @@ import { ArrowRight, BookOpen, FileSpreadsheet, GitMerge, ShieldCheck, Sparkles 
 import { demo } from "../app/roomStore";
 import type { Session } from "../ui/App";
 import { StoryStage } from "./StoryStage";
+import { StoryLab } from "./StoryLab";
 import { StoryQuickDemo } from "./StoryQuickDemo";
 import { ProofBoard } from "./ProofBoard";
 import "./landingStory.css";
@@ -105,6 +106,7 @@ export function LandingStory({ onEnter, onBack }: { onEnter: (s: Session) => voi
         <div ref={stageRef}>
           <StoryQuickDemo />
           <StoryStage />
+          <StoryLab />
         </div>
 
         {/* ── Final proof board ────────────────────────────────────────── */}
