@@ -113,3 +113,14 @@ export const recentForPhase = query({
       .take(n);
   },
 });
+
+// Delete a single memory event by id (admin/agent only) — the SoloMemory `forget` tool.
+export const forget = internalMutation({
+  args: { memoryId: v.id("memoryEvents") },
+  handler: async (ctx, { memoryId }) => {
+    const m = await ctx.db.get(memoryId);
+    if (!m) return { deleted: false };
+    await ctx.db.delete(memoryId);
+    return { deleted: true };
+  },
+});

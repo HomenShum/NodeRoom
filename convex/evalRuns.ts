@@ -158,3 +158,19 @@ export const taskResultsForRun = query({
       .paginate(paginationOpts);
   },
 });
+
+// Cascade-delete an iteration and all its task results (admin/agent only).
+export const deleteRun = internalMutation({
+  args: { evalRunId: v.id("evalRuns") },
+  handler: async (ctx, { evalRunId }) => {
+    const run = await ctx.db.get(evalRunId);
+    if (!run) return { deleted: 0 };
+    const rows = await ctx.db
+      .query("taskResults")
+      .withIndex("by_run", (q) => q.eq("evalRunId", evalRunId))
+      .collect();
+    for (const r of rows) await ctx.db.delete(r._id);
+    await ctx.db.delete(evalRunId);
+    return { deleted: rows.length + 1 };
+  },
+});
