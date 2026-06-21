@@ -250,7 +250,28 @@ export function Composer({ ctx }: { ctx: MobileCtx }) {
 
 // ── JOBS SHEET ────────────────────────────────────────────────────────────
 export function JobsSheet({ ctx }: { ctx: MobileCtx }) {
-  if (ctx.isLive)
+  if (ctx.isLive) {
+    const LJ = ctx.jobs;
+    const total = LJ.running.length + LJ.queued.length + LJ.completed.length;
+    const ljob = (j: Job, kind: "running" | "queued" | "completed") =>
+      React.createElement(
+        "div",
+        { key: j.id, className: "na-job" },
+        React.createElement(
+          "div",
+          { className: "na-job-head" },
+          React.createElement("div", null, React.createElement("strong", null, j.title), React.createElement("span", null, j.sub)),
+          React.createElement(Pill, { tone: kind === "running" ? "accent" : kind === "queued" ? "warn" : "ok" }, kind),
+        ),
+        React.createElement("div", { className: "na-job-meta" }, j.route && React.createElement("span", { className: "m" }, j.route), j.trace && React.createElement("span", { className: "m" }, j.trace)),
+        kind !== "completed" &&
+          React.createElement(
+            "div",
+            { className: "na-btn-row", style: { marginTop: 10 } },
+            React.createElement("button", { className: "na-btn", onClick: () => void ctx.jobAct(j.id, "cancel").then((r) => ctx.toast(r.ok ? "Job cancelled" : "Cancel failed — " + (r.reason ?? ""))) }, Ico("x"), "Cancel"),
+            React.createElement("button", { className: "na-btn ghost", onClick: () => void ctx.jobAct(j.id, "retry").then((r) => ctx.toast(r.ok ? "Retrying" : "Retry failed — " + (r.reason ?? ""))) }, Ico("refresh"), "Retry"),
+          ),
+      );
     return React.createElement(
       React.Fragment,
       null,
@@ -263,15 +284,27 @@ export function JobsSheet({ ctx }: { ctx: MobileCtx }) {
       React.createElement(
         "div",
         { className: "na-sheet-body" },
-        React.createElement(
-          "div",
-          { className: "na-empty" },
-          React.createElement("div", { className: "eico" }, Ico("history")),
-          React.createElement("strong", null, "No agent jobs yet"),
-          React.createElement("span", null, "Runs you start in this room appear here with live cost and status."),
-        ),
+        total === 0
+          ? React.createElement(
+              "div",
+              { className: "na-empty" },
+              React.createElement("div", { className: "eico" }, Ico("history")),
+              React.createElement("strong", null, "No agent jobs yet"),
+              React.createElement("span", null, "Runs you start in this room appear here with live status."),
+            )
+          : React.createElement(
+              React.Fragment,
+              null,
+              LJ.running.length > 0 && React.createElement("div", { className: "na-kicker" }, "Running"),
+              LJ.running.map((j) => ljob(j, "running")),
+              LJ.queued.length > 0 && React.createElement("div", { className: "na-kicker" }, "Queued"),
+              LJ.queued.map((j) => ljob(j, "queued")),
+              LJ.completed.length > 0 && React.createElement("div", { className: "na-kicker" }, "Completed"),
+              LJ.completed.map((j) => ljob(j, "completed")),
+            ),
       ),
     );
+  }
   const J = D.JOBS;
   const meta = (text: string) => React.createElement("span", { className: "m" }, text);
   const job = (j: Job, kind: "running" | "queued" | "completed") =>

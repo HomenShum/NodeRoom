@@ -305,7 +305,7 @@ export function MobileApp({ live }: { live?: MobileLive } = {}) {
     closeSheet();
   };
 
-  const openCount = live ? 0 : D.INBOX.filter((i) => !resolved[i.id] && i.statusTone !== "ok").length;
+  const openCount = live ? live.inboxItems.length : D.INBOX.filter((i) => !resolved[i.id] && i.statusTone !== "ok").length;
 
   const people = live?.people ?? D.PEOPLE;
   const roomMeta = live
@@ -351,6 +351,11 @@ export function MobileApp({ live }: { live?: MobileLive } = {}) {
     askAboutRow,
     row: live?.row ?? D.ROW,
     editRowField: live?.editRowField ?? (async () => ({ ok: false, reason: "offline" })),
+    inboxItems: live ? live.inboxItems : [],
+    jobs: live ? live.jobs : { running: [], queued: [], completed: [] },
+    canApprove: live ? live.canApprove : false,
+    resolveProposalById: live ? live.resolveProposalById : async () => ({ ok: false, reason: "offline" }),
+    jobAct: live ? live.jobAct : async () => ({ ok: false, reason: "offline" }),
   };
 
   const Screen = SCREENS[tab];

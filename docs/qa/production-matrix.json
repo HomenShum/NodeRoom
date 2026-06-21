@@ -260,7 +260,7 @@
     {
       "id": "browser_e2e_dogfood",
       "area": "Browser E2E dogfood",
-      "claim": "The real React UI is partially verified against production-preview memory mode plus a live/local Convex backend: product-memory flows and non-blocking spreadsheet presence now have browser proof, while broader privacy/job/wall/proposal coverage remains open.",
+      "claim": "The real React UI is verified against production-preview memory mode for optimistic chat, spreadsheet, privacy leak, wall CRUD, job controls, proposal feedback, responsive, and split-surface flows, plus a live/local Convex backend for non-blocking spreadsheet presence.",
       "status": "yellow",
       "productionGate": "Playwright or equivalent real-browser specs for two-context cell edits, optimistic chat failure/retry, public/private leak checks, wall CRUD, job controls, and proposal conflict feedback.",
       "deterministicChecks": [
@@ -270,20 +270,22 @@
       "liveChecks": [
         "npm run test:product:memory",
         "E2E_LIVE=1 PLAYWRIGHT_PORT=5198 npx playwright test e2e/realtime-presence.spec.ts --project=chromium",
-        "missing: public/private leak, wall CRUD, job controls, and proposal conflict browser coverage"
+        "e2e/privacy-job-wall-proposal.spec.ts: public/private leak, wall CRUD, job controls, and proposal conflict feedback",
+        "missing: live multi-context privacy leak, wall CRUD, job controls, optimistic failure/retry, and agent intent-claim browser coverage"
       ],
       "evidence": [
         { "type": "doc", "ref": "docs/audit/E2E_DOGFOOD_DESIGN.md" },
         { "type": "doc", "ref": "docs/audit/QA_FINDINGS.md" },
         { "type": "test", "ref": "e2e/chat.spec.ts" },
         { "type": "test", "ref": "e2e/excel-grid.spec.ts" },
+        { "type": "test", "ref": "e2e/privacy-job-wall-proposal.spec.ts" },
         { "type": "test", "ref": "e2e/responsive-qa.spec.ts" },
         { "type": "test", "ref": "e2e/realtime-presence.spec.ts" },
         { "type": "test", "ref": "tests/presenceClaims.test.ts" },
         { "type": "media", "ref": "docs/walkthroughs/realtime-presence-coedit.webm" },
         { "type": "doc", "ref": "docs/eval/MEDIA_JUDGE.md" }
       ],
-      "nextReview": "Expand the live two-context harness from non-blocking spreadsheet presence to optimistic chat failure/retry, public/private leak checks, wall CRUD, job controls, proposal conflict feedback, and agent intent-claim conflicts before promoting to green."
+      "nextReview": "Expand the live two-context harness from non-blocking spreadsheet presence to optimistic chat failure/retry, live public/private leak checks, live wall CRUD, live job controls, and agent intent-claim conflicts before promoting to green."
     },
     {
       "id": "professional_workroom_shell",

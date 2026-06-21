@@ -137,8 +137,50 @@ export function Capture({ ctx }: { ctx: MobileCtx }) {
 
 // ── INBOX ───────────────────────────────────────────────────────────────
 export function Inbox({ ctx }: { ctx: MobileCtx }) {
-  if (ctx.isLive)
-    return emptyState("inbox", "Inbox is up to date", "Approvals, gaps, and coach prompts will appear here as the room produces them.");
+  if (ctx.isLive) {
+    const items = ctx.inboxItems;
+    if (items.length === 0)
+      return emptyState("inbox", "Inbox is up to date", "Agent proposals that need your approval will appear here.");
+    return React.createElement(
+      React.Fragment,
+      null,
+      React.createElement("div", { className: "na-kicker" }, "Needs you"),
+      items.map((item) =>
+        React.createElement(
+          "div",
+          { key: item.id, className: "na-card accent", "data-accent-rule": item.tone },
+          React.createElement(
+            "div",
+            { className: "na-card-head accent" },
+            React.createElement(
+              "div",
+              { className: "na-card-title", style: { display: "flex", gap: 10, alignItems: "center" } },
+              React.createElement("span", { className: "ri", style: riStyle(item.tone) }, Ico(item.icon)),
+              React.createElement(
+                "span",
+                { style: { minWidth: 0 } },
+                React.createElement("strong", null, item.title),
+                React.createElement("span", { style: { display: "block", marginTop: 2, fontSize: "var(--na-fs-sm)", color: "var(--text-muted)" } }, item.sub),
+              ),
+            ),
+            React.createElement(Pill, { tone: item.statusTone }, item.status),
+          ),
+          React.createElement(
+            "div",
+            { className: "na-card-body accent" },
+            ctx.canApprove
+              ? React.createElement(
+                  "div",
+                  { className: "na-btn-row" },
+                  React.createElement("button", { className: "na-btn primary", onClick: () => void ctx.resolveProposalById(item.id, true).then((r) => ctx.toast(r.ok ? "Approved · cell updated" : "Approve failed — " + (r.reason ?? ""))) }, Ico("check"), "Approve"),
+                  React.createElement("button", { className: "na-btn ghost", onClick: () => void ctx.resolveProposalById(item.id, false).then((r) => ctx.toast(r.ok ? "Rejected" : "Reject failed — " + (r.reason ?? ""))) }, Ico("x"), "Reject"),
+                )
+              : React.createElement(Pill, { tone: "mute" }, "Host approval required"),
+          ),
+        ),
+      ),
+    );
+  }
   const { resolved } = ctx;
   const open = D.INBOX.filter((i) => !resolved[i.id]);
   const done = D.INBOX.filter((i) => resolved[i.id]);

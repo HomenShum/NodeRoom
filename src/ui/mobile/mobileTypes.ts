@@ -16,6 +16,7 @@ import type {
   AgentMsg,
   Person,
   Row,
+  Job,
 } from "./mobileData";
 
 export type RowEditResult = { ok: boolean; reason?: string; version?: number };
@@ -89,6 +90,11 @@ export interface MobileCtx {
   row: Row;
   /** In-place cell edit with CAS (baseVersion); resolves with the live edit result. */
   editRowField: (elementId: string, value: string, baseVersion: number) => Promise<RowEditResult>;
+  inboxItems: InboxItem[];
+  jobs: { running: Job[]; queued: Job[]; completed: Job[] };
+  canApprove: boolean;
+  resolveProposalById: (id: string, approve: boolean) => Promise<RowEditResult>;
+  jobAct: (id: string, action: "cancel" | "retry") => Promise<RowEditResult>;
 }
 
 /** Live room data injected into MobileApp by MobileAppLive (see MobileRoot). */
@@ -105,5 +111,10 @@ export interface MobileLive {
   askRoomAgent: (goal: string) => Promise<RowEditResult>;
   row: Row;
   editRowField: (elementId: string, value: string, baseVersion: number) => Promise<RowEditResult>;
+  inboxItems: InboxItem[];
+  jobs: { running: Job[]; queued: Job[]; completed: Job[] };
+  canApprove: boolean;
+  resolveProposalById: (id: string, approve: boolean) => Promise<RowEditResult>;
+  jobAct: (id: string, action: "cancel" | "retry") => Promise<RowEditResult>;
   onLeave?: () => void;
 }

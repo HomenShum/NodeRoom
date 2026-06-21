@@ -6,6 +6,7 @@ import { join } from "node:path";
 const specs = [
   "e2e/chat.spec.ts",
   "e2e/excel-grid.spec.ts",
+  "e2e/privacy-job-wall-proposal.spec.ts",
   "e2e/semantic-rebase.spec.ts",
   "e2e/work-surface-split.spec.ts",
   "e2e/responsive-qa.spec.ts",

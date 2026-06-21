@@ -8,7 +8,7 @@
    ============================================================================ */
 import { useStore } from "../../app/store";
 import type { Actor, Message, Member, CellStatus } from "../../engine/types";
-import type { RoomMsg, Person, AgentMsg, Row, Tone } from "./mobileData";
+import type { RoomMsg, Person, AgentMsg, Row, Tone, InboxItem, Job } from "./mobileData";
 import type { MobileLive } from "./mobileTypes";
 import { MobileApp } from "./MobileApp";
 
@@ -112,6 +112,30 @@ export function MobileAppLive({ roomId, me, onLeave }: { roomId: string; me: Act
     return store.applyEdit({ roomId, op: { opId: crypto.randomUUID(), artifactId: researchSheet.id, elementId, kind: "set", value, baseVersion }, actor: me });
   };
 
+  const proposals = store.listProposals(roomId);
+  const job = store.lastLongFreeJob();
+  const isHost = members.some((m) => m.id === me.id && m.role === "host");
+  const inboxItems: InboxItem[] = proposals.map((p): InboxItem => ({
+    id: p.id,
+    icon: "sparkles",
+    tone: "accent",
+    title: "Agent edit proposed",
+    sub: "Cell " + p.op.elementId + " · approve before it lands",
+    status: "approve",
+    statusTone: "warn",
+    time: relTime(p.createdAt),
+    kind: "plan",
+  }));
+  const oneJob: Job | null = job
+    ? { id: job.id, title: job.entrypoint ?? "Agent job", sub: job.status + (job.error ? " · " + job.error : ""), cost: "", route: job.modelPolicy, trace: job.id }
+    : null;
+  const jobs: { running: Job[]; queued: Job[]; completed: Job[] } = { running: [], queued: [], completed: [] };
+  if (job && oneJob) {
+    const s = job.status;
+    const bucket = s === "running" ? "running" : s === "queued" || s === "paused" || s === "blocked" || s === "retrying" ? "queued" : "completed";
+    jobs[bucket].push(oneJob);
+  }
+
   const live: MobileLive = {
     roomName: room?.title ?? "Room",
     roomCode: room?.code ?? "",
@@ -143,6 +167,21 @@ export function MobileAppLive({ roomId, me, onLeave }: { roomId: string; me: Act
     },
     row: liveRow,
     editRowField,
+    inboxItems,
+    jobs,
+    canApprove: isHost,
+    resolveProposalById: async (id, approve) => {
+      try {
+        const r = await store.resolveProposal(id, approve, me);
+        return r.ok ? { ok: true } : { ok: false, reason: r.reason };
+      } catch (e) {
+        return { ok: false, reason: e instanceof Error ? e.message : "approve_failed" };
+      }
+    },
+    jobAct: async (id, action) => {
+      const r = action === "cancel" ? await store.cancelLongFreeJob(id) : await store.retryLongFreeJob(id);
+      return r.ok ? { ok: true } : { ok: false, reason: r.reason };
+    },
     onLeave,
   };
 

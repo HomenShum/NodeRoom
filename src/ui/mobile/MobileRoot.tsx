@@ -18,7 +18,7 @@ import { MobileAppLive } from "./MobileAppLive";
 import "./mobile.css";
 import "./mobileFrame.css";
 
-type Req = { kind: "idle" } | { kind: "join" | "demo"; code: string; name: string };
+type Req = { kind: "idle" } | { kind: "join" | "demo"; code: string; name: string; autoAllow?: boolean };
 interface LiveSession {
   roomId: string;
   memberId: string;
@@ -85,7 +85,7 @@ function MobileLiveRoot() {
         }
         joined = res ? { roomId: String(res.roomId), memberId: String(res.memberId) } : null;
       } else if (req.kind === "demo") {
-        const res = await createStarterRoom({ code: reqCode, title: "Startup Banking Diligence War Room", hostName: name, authToken: token, autoAllow: true });
+        const res = await createStarterRoom({ code: reqCode, title: "Startup Banking Diligence War Room", hostName: name, authToken: token, autoAllow: req.autoAllow ?? true });
         joined = { roomId: String(res.roomId), memberId: String(res.memberId) };
       }
       if (!joined) throw new Error(`Room ${reqCode} was not found. Check the code or start a demo room.`);
@@ -214,8 +214,8 @@ function initialReq(): Req {
     return c ? { kind: "join", code: c, name } : { kind: "idle" };
   }
   if (demo !== null) {
-    const c = normalizeCode(demo && demo !== "1" ? demo : makeCode());
-    return c ? { kind: "demo", code: c, name } : { kind: "idle" };
+    const c = normalizeCode(demo && demo !== "1" && demo !== "review" ? demo : makeCode());
+    return c ? { kind: "demo", code: c, name, autoAllow: demo !== "review" } : { kind: "idle" };
   }
   return { kind: "idle" };
 }

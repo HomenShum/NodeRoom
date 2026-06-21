@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updatedAt": "2026-06-16",
+  "updatedAt": "2026-06-20",
   "primaryPublicAgentInvocation": "@nodeagent",
   "legacyAliases": ["/ask", "/free"],
   "policy": {
@@ -117,13 +117,13 @@
       "id": "private-agent",
       "name": "Private agent lane",
       "owner": "agent-runtime",
-      "currentCoverage": ["e2e/three-user-collab.spec.ts", "tests/privateArtifactVisibility.test.ts"],
+      "currentCoverage": ["e2e/privacy-job-wall-proposal.spec.ts", "e2e/three-user-collab.spec.ts", "tests/privateArtifactVisibility.test.ts"],
       "scenarios": [
         {
           "id": "private-agent.private-reply",
           "priority": "release_floor",
-          "status": "partial",
-          "suggestedSpec": "e2e/private-agent.spec.ts",
+          "status": "covered",
+          "suggestedSpec": "e2e/privacy-job-wall-proposal.spec.ts",
           "steps": ["Open the private lane.", "Ask a private question.", "Wait for the reply."],
           "assertions": ["Reply appears only in the private panel.", "Public chat stays clean.", "Lane labeling is clear."]
         },
@@ -149,21 +149,21 @@
       "id": "durable-job-controls",
       "name": "Durable job controls and resume",
       "owner": "agent-runtime",
-      "currentCoverage": ["scripts/free-job-smoke.ts", "tests/agentJobsRuntime.test.ts"],
+      "currentCoverage": ["e2e/privacy-job-wall-proposal.spec.ts", "scripts/free-job-smoke.ts", "tests/agentJobsRuntime.test.ts"],
       "scenarios": [
         {
           "id": "durable-job-controls.start-free-route",
           "priority": "release_floor",
-          "status": "partial",
-          "suggestedSpec": "e2e/job-controls.spec.ts",
-          "steps": ["Select Free in the model picker.", "Send @nodeagent long-running task."],
+          "status": "covered",
+          "suggestedSpec": "e2e/privacy-job-wall-proposal.spec.ts",
+          "steps": ["Send a Free-route public agent task.", "Inspect the public chat job strip."],
           "assertions": ["Job strip appears.", "Status shows queued or running.", "Model policy indicates free-auto.", "User gets immediate feedback."]
         },
         {
           "id": "durable-job-controls.cancel-retry",
           "priority": "nightly",
-          "status": "partial",
-          "suggestedSpec": "e2e/job-controls.spec.ts",
+          "status": "covered",
+          "suggestedSpec": "e2e/privacy-job-wall-proposal.spec.ts",
           "steps": ["Start a long job.", "Cancel while running.", "Retry after terminal or retryable state."],
           "assertions": ["Cancel only appears while legal.", "Retry only appears while legal.", "New attempt is recorded.", "No stale busy indicator remains."]
         },
@@ -213,13 +213,13 @@
       "id": "review-proposals",
       "name": "Review proposals and auto-allow",
       "owner": "collaboration",
-      "currentCoverage": ["e2e/semantic-rebase.spec.ts", "e2e/three-user-collab.spec.ts", "tests/durableSemanticRebase.test.ts"],
+      "currentCoverage": ["e2e/privacy-job-wall-proposal.spec.ts", "e2e/semantic-rebase.spec.ts", "e2e/three-user-collab.spec.ts", "tests/durableSemanticRebase.test.ts"],
       "scenarios": [
         {
           "id": "review-proposals.propose-approve",
           "priority": "release_floor",
-          "status": "partial",
-          "suggestedSpec": "e2e/proposals-review.spec.ts",
+          "status": "covered",
+          "suggestedSpec": "e2e/privacy-job-wall-proposal.spec.ts",
           "steps": ["Turn auto-allow off.", "Run @nodeagent that mutates a cell.", "Approve the proposal at the target cell."],
           "assertions": ["Direct write does not silently commit.", "Proposal appears near the change.", "Approval applies the edit and updates trace."]
         },
@@ -325,7 +325,7 @@
       "id": "notes-wiki-wall",
       "name": "Notes, wiki, and wall",
       "owner": "work-surface",
-      "currentCoverage": ["e2e/state-captures.spec.ts", "tests/wikiSkill.test.ts"],
+      "currentCoverage": ["e2e/privacy-job-wall-proposal.spec.ts", "e2e/state-captures.spec.ts", "tests/wikiSkill.test.ts"],
       "scenarios": [
         {
           "id": "notes-wiki-wall.note-persist",
@@ -397,13 +397,13 @@
       "id": "privacy-authz-boundaries",
       "name": "Privacy, authorization, and boundaries",
       "owner": "security",
-      "currentCoverage": ["tests/convexBoundaryPolicy.test.ts", "e2e/three-user-collab.spec.ts"],
+      "currentCoverage": ["e2e/privacy-job-wall-proposal.spec.ts", "tests/convexBoundaryPolicy.test.ts", "e2e/three-user-collab.spec.ts"],
       "scenarios": [
         {
           "id": "privacy-authz-boundaries.private-leak",
           "priority": "release_floor",
           "status": "partial",
-          "suggestedSpec": "e2e/privacy-boundaries.spec.ts",
+          "suggestedSpec": "e2e/privacy-job-wall-proposal.spec.ts",
           "steps": ["User A sends private content.", "User B watches public and private lanes."],
           "assertions": ["B never sees A private content.", "Public feed remains clean.", "Server query path enforces isolation."]
         },

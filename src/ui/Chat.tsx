@@ -883,7 +883,7 @@ export function Chat({ roomId, me, channel, variant, agentName, style, onOpenArt
         <span className="grow" />
         {!isPrivate && <span className="r-tag agent" style={{ gap: 6 }}><span className="r-avatar agent sm" style={{ background: "#d97757", width: 18, height: 18, fontSize: 9 }}>N</span>Room NodeAgent</span>}
         {longJob && (() => { const bad = ["failed", "blocked"].includes(longJob.status); return (
-          <span className={"r-tag" + (bad ? " danger" : "")} role={bad ? "status" : undefined} title="Latest long-running free-auto job"><Timer size={10} /> {longJob.status} {longJob.attempts}/{longJob.maxAttempts}</span>
+          <span className={"r-tag" + (bad ? " danger" : "")} role={bad ? "status" : undefined} data-testid="job-status" title="Latest long-running free-auto job"><Timer size={10} /> {longJob.status} {longJob.attempts}/{longJob.maxAttempts}</span>
         ); })()}
         {canCancelLongJob && (
           <button className="r-iconbtn r-iconbtn-sm" title={jobBusy === "cancel" ? "Cancelling…" : "Cancel long-running job"} aria-label="Cancel long-running job" data-testid="job-cancel" disabled={jobBusy !== null} onClick={cancelJob}>
@@ -905,13 +905,13 @@ export function Chat({ roomId, me, channel, variant, agentName, style, onOpenArt
           {latestAttempt && <span>attempt {latestAttempt.attempt}: {latestAttempt.resolvedModel} · {latestAttempt.stopReason} · {shortMs(latestAttempt.ms)}</span>}
           {longJob.nextRunAt && longJob.status !== "completed" && <span>next {clock(longJob.nextRunAt)}</span>}
           {longJob.error && <span>{longJob.error}</span>}
-          <button className="r-job-detail-toggle" type="button" onClick={() => setJobDetailsOpen((open) => !open)} aria-expanded={jobDetailsOpen}>
+          <button className="r-job-detail-toggle" type="button" data-testid="job-detail-toggle" onClick={() => setJobDetailsOpen((open) => !open)} aria-expanded={jobDetailsOpen}>
             {jobDetailsOpen ? <ChevronUp size={12} /> : <ChevronDown size={12} />} Details
           </button>
         </div>
       )}
       {!isPrivate && longJob && jobDetailsOpen && (
-        <div className="r-job-detail" aria-label="Agent job details">
+        <div className="r-job-detail" data-testid="job-detail" aria-label="Agent job details">
           <div className="r-job-grid">
             <span>Runtime</span><b>{longJob.runtime ?? "inline"}</b>
             <span>Policy</span><b>{longJob.approvalPolicy ?? "n/a"}</b>
