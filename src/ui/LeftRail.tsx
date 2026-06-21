@@ -203,7 +203,7 @@ export function LeftRail({ roomId, me, artId, onPick, onOpenChat, style }: { roo
             const range = lock ? rangeLabel(lock.elementIds) : "";
             const body = (
               <>
-                <span className="r-avatar agent sm" style={{ background: "#d97757" }}>◆</span>
+                <span className="r-avatar agent sm" style={{ background: "#8F3F27" }}>◆</span>
                 <span className="grow"><div className="pn">{s.agentName}</div><div className="pr">Public agent · {s.status}{range ? ` · ${range}` : ""}</div></span>
                 {/* The agent is a live participant too — same presence dot as human members. */}
                 <span className="r-dot-live" />

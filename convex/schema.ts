@@ -1299,4 +1299,71 @@ export default defineSchema({
   })
     .index("by_run", ["runId", "idx"])
     .index("by_room_element", ["roomId", "elementId"]),
+
+  // ---- Solo Founder Agent Builder: honest-lane eval ledger + memory substrate ----
+  // Each row = one immutable ITERATION (e.g. a 100-task BankerToolBench sweep). Flip them like pages.
+  evalRuns: defineTable({
+    roomId: v.id("rooms"),
+    iterationLabel: v.string(),
+    benchmark: v.string(),
+    model: v.optional(v.string()),
+    materializerMode: v.string(), // "replay" | "general-only" | "generic-only"
+    status: v.union(v.literal("running"), v.literal("completed"), v.literal("failed")),
+    taskCount: v.number(),
+    // honest headline: mean reward over rows where cleanGeneralProbe && modelCalls > 0
+    headlineCleanProbeMean: v.optional(v.number()),
+    headlineN: v.optional(v.number()),
+    notes: v.optional(v.string()),
+    startedAt: v.number(),
+    completedAt: v.optional(v.number()),
+  })
+    .index("by_room", ["roomId"])
+    .index("by_room_started", ["roomId", "startedAt"]),
+
+  // ~100 rows per run; paginate via usePaginatedQuery. Carries the honest-lane classification.
+  taskResults: defineTable({
+    roomId: v.id("rooms"),
+    evalRunId: v.id("evalRuns"),
+    taskId: v.string(),
+    family: v.optional(v.string()),
+    reward: v.number(),
+    raw: v.optional(v.string()),
+    exceptions: v.number(),
+    firedWriter: v.string(), // "generic-quartet" | "general_teaser" | "replay:<family>" | ...
+    cleanGeneralProbe: v.boolean(), // generic-only writer AND model genuinely in the loop
+    modelCalls: v.number(),
+    tokensUsed: v.optional(v.number()),
+    plannerTransport: v.optional(v.string()), // "tool-call" | "source-skill" | "json-text" | "none"
+    countsTowardHeadline: v.boolean(), // cleanGeneralProbe && modelCalls > 0 — the only rows in the headline
+    trialId: v.optional(v.string()),
+    verdict: v.optional(v.string()),
+    createdAt: v.number(),
+  })
+    .index("by_run", ["evalRunId"])
+    .index("by_room_run", ["roomId", "evalRunId"])
+    .index("by_run_task", ["evalRunId", "taskId"]),
+
+  // SoloMemory L1-L3 on Convex. heldout_forbidden writes are REJECTED at the mutation (quarantine).
+  memoryEvents: defineTable({
+    roomId: v.id("rooms"),
+    projectId: v.string(),
+    userId: v.optional(v.string()),
+    phase: v.string(),
+    kind: v.string(),
+    summary: v.string(),
+    content: v.string(),
+    searchText: v.string(), // summary + content + tags joined, feeds the full-text index
+    tags: v.array(v.string()),
+    importance: v.number(),
+    visibility: v.string(), // "local" | "project" | "private_user" | "public_safe"
+    benchmarkSafety: v.string(), // "safe" | "tuned_only" | "aggregate_only" | "redacted"
+    evidenceRefs: v.array(v.object({ type: v.string(), ref: v.string(), note: v.optional(v.string()) })),
+    embedding: v.optional(v.array(v.float64())),
+    metadata: v.optional(v.any()),
+    createdAt: v.number(),
+  })
+    .index("by_room", ["roomId"])
+    .index("by_room_phase", ["roomId", "phase"])
+    .searchIndex("by_memory_text", { searchField: "searchText", filterFields: ["roomId", "phase", "benchmarkSafety"] })
+    .vectorIndex("by_memory_embedding", { vectorField: "embedding", dimensions: 64, filterFields: ["roomId"] }),
 });

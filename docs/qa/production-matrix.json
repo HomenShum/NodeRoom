@@ -334,7 +334,8 @@
         "npm run qa:ui:scorecard"
       ],
       "liveChecks": [
-        "missing: distinct Playwright capture/perf/a11y commands with fresh browser evidence",
+        "npm run qa:ui:capture: fresh Playwright screenshots, DOM snapshots, performance, deterministic accessibility, and source-tree freshness evidence recorded",
+        "npm run qa:ui:perf and npm run qa:ui:a11y: read current browser.latest.json only when source-tree hash, app target, and freshness validation pass; otherwise collect fresh browser evidence",
         "docs/eval/design-quality/latest.json: post-gate scorecard recorded after prod:gate and test:product:live on the same commit"
       ],
       "evidence": [
@@ -344,7 +345,7 @@
         { "type": "doc", "ref": "docs/eval/design-quality/README.md" },
         { "type": "data", "ref": "docs/eval/design-quality/reference-library.json" }
       ],
-      "nextReview": "Promote only after qa:ui:capture/perf/a11y write fresh evidence instead of scorecard labels, and after a clean run is recorded with functional/live gates passed."
+      "nextReview": "Promote only after a same-runtime-source run records functional gates passed, current browser capture attached, performance passed, accessibility passed, and Gemini/VLM output preserved as media evidence rather than product correctness."
     },
     {
       "id": "signal_tape_status_strip",

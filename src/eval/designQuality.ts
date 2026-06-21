@@ -22,6 +22,14 @@ export const uiUxWeights = {
   shareabilityViralityLoop: 8,
 } as const;
 
+export const designPerformanceBudgets = {
+  maxInteractionLatencyMs: 300,
+  timeToOptimisticBubbleMs: 100,
+  timeToEvidencePreviewMs: 300,
+  maxLongTasks: 0,
+  maxCls: 0.1,
+} as const;
+
 export type MediaDimension = (typeof mediaDimensions)[number];
 export type UiUxDimension = keyof typeof uiUxWeights;
 export type GateStatus = "passed" | "failed" | "not_run";
@@ -46,6 +54,7 @@ export type FunctionalGate = {
 
 export type PerformanceLayer = {
   status: GateStatus;
+  evidencePath?: string;
   inpP75?: number;
   lcp?: number;
   cls?: number;
@@ -58,7 +67,9 @@ export type PerformanceLayer = {
 
 export type AccessibilityLayer = {
   status: GateStatus;
+  evidencePath?: string;
   axeViolations?: number;
+  deterministicViolations?: number;
   keyboardPathPassed?: boolean;
   reducedMotionPassed?: boolean;
   screenReaderNotes: string[];
@@ -159,21 +170,30 @@ function viralityRatio(signals: ViralitySignals) {
 function performanceRatio(performance: PerformanceLayer) {
   if (performance.status === "failed") return 0;
   if (performance.status === "not_run") return 0;
-  const checks = [
-    typeof performance.maxInteractionLatencyMs === "number" && performance.maxInteractionLatencyMs <= 300,
-    typeof performance.timeToOptimisticBubbleMs === "number" && performance.timeToOptimisticBubbleMs <= 50,
-    typeof performance.timeToEvidencePreviewMs === "number" && performance.timeToEvidencePreviewMs <= 300,
-    performance.longTasks === 0,
-    typeof performance.cls === "number" && performance.cls <= 0.1,
-  ];
+  const checks = Object.values(designPerformanceChecks(performance));
   return checks.filter(Boolean).length / checks.length;
+}
+
+export function designPerformanceChecks(performance: PerformanceLayer) {
+  return {
+    maxInteractionLatencyMs: typeof performance.maxInteractionLatencyMs === "number" && performance.maxInteractionLatencyMs <= designPerformanceBudgets.maxInteractionLatencyMs,
+    timeToOptimisticBubbleMs: typeof performance.timeToOptimisticBubbleMs === "number" && performance.timeToOptimisticBubbleMs <= designPerformanceBudgets.timeToOptimisticBubbleMs,
+    timeToEvidencePreviewMs: typeof performance.timeToEvidencePreviewMs === "number" && performance.timeToEvidencePreviewMs <= designPerformanceBudgets.timeToEvidencePreviewMs,
+    longTasks: performance.longTasks <= designPerformanceBudgets.maxLongTasks,
+    cls: typeof performance.cls === "number" && performance.cls <= designPerformanceBudgets.maxCls,
+  };
+}
+
+export function designPerformancePasses(performance: PerformanceLayer) {
+  return Object.values(designPerformanceChecks(performance)).every(Boolean);
 }
 
 function accessibilityRatio(accessibility: AccessibilityLayer) {
   if (accessibility.status === "failed") return 0;
   if (accessibility.status === "not_run") return 0;
+  const automatedViolations = accessibility.axeViolations ?? accessibility.deterministicViolations;
   const checks = [
-    accessibility.axeViolations === 0,
+    automatedViolations === 0,
     accessibility.keyboardPathPassed === true,
     accessibility.reducedMotionPassed === true,
     accessibility.screenReaderNotes.length === 0,
@@ -218,6 +238,7 @@ function blockersFor(input: DesignQualityRunInput) {
   const blockers: string[] = [];
   if (input.functionalGate.status === "failed") blockers.push("functional gate failed");
   if (input.functionalGate.status === "not_run") blockers.push("functional gate not run in this design-quality pass");
+  if (input.performance.status === "failed") blockers.push("performance gate failed");
   if (input.accessibility.status === "failed") blockers.push("accessibility gate failed");
   for (const defect of input.mediaJudge?.defects ?? []) {
     if (defect.severity === "P0" || defect.severity === "P1") blockers.push(`${defect.severity} media/design defect: ${defect.title}`);
@@ -229,6 +250,7 @@ function verdictFor(input: DesignQualityRunInput, score: number, blockers: strin
   if (input.functionalGate.status === "failed") return "functional_blocker";
   if (input.functionalGate.status === "not_run") return "needs_functional_gate";
   if (input.accessibility.status === "failed") return "accessibility_blocker";
+  if (input.performance.status === "failed") return "design_blocker";
   if (blockers.some((blocker) => blocker.includes("P0") || blocker.includes("P1"))) return "design_blocker";
   if (score >= 82 && (input.mediaJudge?.defects ?? []).filter((defect) => defect.severity === "P2").length === 0) return "ship";
   return "ship_but_media_needs_polish";

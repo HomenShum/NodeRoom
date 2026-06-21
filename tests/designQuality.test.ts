@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { buildDesignQualityRun, type DesignQualityRunInput } from "../src/eval/designQuality";
+import { buildDesignQualityRun, designPerformanceChecks, designPerformancePasses, type DesignQualityRunInput } from "../src/eval/designQuality";
+import { validateBrowserEvidence, type BrowserEvidence } from "../src/eval/designQualityBrowserEvidence";
 
 function baseInput(overrides: Partial<DesignQualityRunInput> = {}): DesignQualityRunInput {
   return {
@@ -129,4 +130,108 @@ describe("design quality scorecard", () => {
 
     expect(run.verdict).toBe("accessibility_blocker");
   });
+
+  it("credits deterministic browser accessibility checks without pretending axe ran", () => {
+    const run = buildDesignQualityRun(baseInput({
+      accessibility: {
+        status: "passed",
+        deterministicViolations: 0,
+        keyboardPathPassed: true,
+        reducedMotionPassed: true,
+        screenReaderNotes: [],
+      },
+    }));
+
+    expect(run.uiUxScore.dimensions.accessibility).toBe(8);
+    expect(run.accessibility.axeViolations).toBeUndefined();
+  });
+
+  it("blocks shipping when browser performance evidence fails", () => {
+    const run = buildDesignQualityRun(baseInput({
+      performance: {
+        status: "failed",
+        longTasks: 1,
+        maxInteractionLatencyMs: 350,
+        timeToOptimisticBubbleMs: 90,
+        timeToEvidencePreviewMs: 220,
+        cls: 0,
+      },
+    }));
+
+    expect(run.blockers).toContain("performance gate failed");
+    expect(run.verdict).toBe("design_blocker");
+    expect(run.uiUxScore.dimensions.responsivenessInteraction).toBe(0);
+  });
+
+  it("uses one shared performance budget for pass/fail and scoring", () => {
+    const performance = baseInput().performance;
+
+    expect(designPerformanceChecks(performance)).toEqual({
+      maxInteractionLatencyMs: true,
+      timeToOptimisticBubbleMs: true,
+      timeToEvidencePreviewMs: true,
+      longTasks: true,
+      cls: true,
+    });
+    expect(designPerformancePasses(performance)).toBe(true);
+    expect(designPerformancePasses({ ...performance, timeToOptimisticBubbleMs: 101 })).toBe(false);
+  });
+
+  it("rejects stale browser evidence when the runtime source tree changed", () => {
+    const evidence = browserEvidence({ sourceTreeHash: "old-tree" });
+
+    expect(validateBrowserEvidence(evidence, {
+      currentSourceTreeHash: "new-tree",
+      requestedAppUrl: "local",
+      nowMs: Date.parse("2026-06-21T00:30:00.000Z"),
+    })).toEqual({ valid: false, reason: "source_tree_hash_mismatch" });
+  });
+
+  it("accepts current local browser evidence across dynamic preview ports", () => {
+    const evidence = browserEvidence({ appUrl: "http://127.0.0.1:5317" });
+
+    expect(validateBrowserEvidence(evidence, {
+      currentSourceTreeHash: "tree",
+      requestedAppUrl: "local",
+      nowMs: Date.parse("2026-06-21T00:30:00.000Z"),
+    }).valid).toBe(true);
+  });
+
+  it("rejects old or wrong-target browser evidence", () => {
+    const old = validateBrowserEvidence(browserEvidence(), {
+      currentSourceTreeHash: "tree",
+      requestedAppUrl: "local",
+      nowMs: Date.parse("2026-06-21T04:30:00.000Z"),
+    });
+    const wrongTarget = validateBrowserEvidence(browserEvidence({ appUrl: "https://old.example.test" }), {
+      currentSourceTreeHash: "tree",
+      requestedAppUrl: "https://new.example.test",
+      nowMs: Date.parse("2026-06-21T00:30:00.000Z"),
+    });
+
+    expect(old.reason).toBe("too_old");
+    expect(wrongTarget).toEqual({ valid: false, reason: "app_url_mismatch" });
+  });
 });
+
+function browserEvidence(overrides: Partial<BrowserEvidence> = {}): BrowserEvidence {
+  return {
+    schema: 1,
+    runId: "browser-test",
+    commitSha: "abc123+dirty",
+    sourceTreeHash: "tree",
+    generatedAt: "2026-06-21T00:00:00.000Z",
+    appUrl: "http://127.0.0.1:5317",
+    serverMode: "preview",
+    capture: {
+      status: "passed",
+      screenshots: ["docs/eval/design-quality/browser/browser-test/desktop.png"],
+      domSnapshots: ["docs/eval/design-quality/browser/browser-test/desktop.dom.json"],
+      viewports: [],
+      findings: [],
+    },
+    performance: baseInput().performance,
+    accessibility: baseInput().accessibility,
+    ...overrides,
+  };
+}

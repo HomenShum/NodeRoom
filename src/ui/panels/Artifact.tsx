@@ -542,7 +542,7 @@ function artifactWikiMeta(art: Art): string {
 /* ── company-research surface (ParselyFi loop): status-gated, sourced enrichment ── */
 // Attio/Clay-style record identity: a deterministic colored initials avatar per company
 // (offline-safe -- no live logo fetch). Color is hashed from the name so it's stable across renders.
-const CO_COLORS = ["#5b9bf5", "#7bd089", "#a78bfa", "#e4c567", "#e8845f", "#5fc5c5", "#d97757", "#c77dff"];
+const CO_COLORS = ["#315DA8", "#2F6B44", "#6D3FB2", "#80631F", "#A34B2E", "#1F6F78", "#8F3F27", "#7A3FA0"];
 function coColor(name: string): string {
   let h = 0;
   for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) >>> 0;

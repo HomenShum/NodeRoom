@@ -280,11 +280,18 @@ recaptured and judged at the current UI zoom. Captured **multi-pane** means one
 browser context per client; a single cursor cannot honestly show cross-client
 sync.
 
+The architecture moved for the same reason. The legacy MVP path used full-pane
+captures, blur-style commits, and broad shell proof to demonstrate that sync
+worked at all; that was useful scaffolding, but not the fast professional
+coediting feel we want. The current direction is granular: intent events,
+presence, affected sets, patch bundles, CAS, and proposals only when meaning
+conflicts, with browser evidence kept separate from product correctness.
+
 **The busy shared room.** In the live `Q3DEMO` room (with dozens of real guests already present), earlier captures showed a human chat message sync A->B and an `@nodeagent reconcile Q3 revenue` run broadcasting through Convex. Treat that clip as historical until the current UI is recaptured and re-judged. The older fresh-room side-by-side clip is retired from the README until it is re-captured at a more legible zoom; Gemini 3.5 Flash marked it `fix-then-publish` for small text.
 
-![Busy shared room, two clients side by side: a chat message syncs from Client A to Client B, then an @nodeagent run reconciles the sheet and broadcasts to both](docs/walkthroughs/two-client-live-sync.gif)
+![Historical busy shared room capture, two clients side by side: a chat message syncs from Client A to Client B, then an @nodeagent run reconciles the sheet and broadcasts to both](docs/walkthroughs/two-client-live-sync.gif)
 
-<sub>Both: <b>independent</b> browser clients (separate Convex sessions) side by side; sync is Convex reactive <code>useQuery</code>, the agent is server-led (<code>internalMutation</code> + scheduler) so its writes land on every client at once. A single-cursor screen capture can show neither — multi-pane is the only honest way to film a collaborative app.</sub>
+<sub>Historical UI/media proof only; current static browser capture lives in <code>docs/eval/design-quality/browser.latest.json</code>. Both panes are <b>independent</b> browser clients (separate Convex sessions) side by side; sync is Convex reactive <code>useQuery</code>, the agent is server-led (<code>internalMutation</code> + scheduler) so its writes land on every client at once. A single-cursor screen capture can show neither — multi-pane is the only honest way to film a collaborative app.</sub>
 
 ## Diagrams — how it fits together
 

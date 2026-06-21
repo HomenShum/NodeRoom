@@ -26,19 +26,26 @@ Generated outputs:
 Commands:
 
 ```bash
-npm run qa:ui:scorecard
-npm run qa:ui:scorecard -- --functional=passed --performance=passed --accessibility=passed
-npm run qa:ui:perf -- --use-design-floor
-npm run qa:ui:a11y -- --use-design-floor
+npm run qa:ui:capture
+npm run qa:ui:perf
+npm run qa:ui:a11y
+npm run qa:ui:judge
 npm run qa:ui:references
 npm run qa:ui:virality
+npm run qa:ui:scorecard -- --functional=passed
 ```
 
 The default command does not pretend functional gates ran in the current process.
 Pass `--functional=passed` only after `npm run prod:gate` and
 `npm run test:product:live` have actually passed for the same commit.
+Do not override `--performance` or `--accessibility` when current browser
+evidence is attached; the browser evidence wins.
 
 The `capture`, `perf`, `a11y`, `judge`, `references`, and `virality` commands
-write command-specific layer JSON next to the full scorecard. Today, `perf` and
-`a11y` are only attached when `--use-design-floor` is passed after a fresh
-`scripts/design-qa/floor.ts` run; otherwise they remain `not_run`.
+write command-specific layer JSON next to the full scorecard. `capture` writes
+fresh Playwright screenshots, DOM snapshots, performance, and deterministic
+accessibility evidence. `perf`, `a11y`, and `scorecard` reuse
+`browser.latest.json` only when its runtime source-tree hash, app target, and
+freshness window match the current run; otherwise they collect fresh browser
+evidence. `--use-design-floor` remains a legacy/manual fallback, not the normal
+proof path.

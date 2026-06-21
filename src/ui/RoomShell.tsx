@@ -327,7 +327,7 @@ export function RoomShell({ roomId, me, onLeave, proof }: { roomId: string; me: 
         </div>
         <div className="r-avatars">
           {members.slice(0, 4).map((m) => (<span key={m.id} className="r-av" style={{ background: m.color }}>{initials(m.name)}<span className="pulse" /></span>))}
-          <span className="r-av agent" style={{ background: "#d97757" }}>◆</span>
+          <span className="r-av agent" style={{ background: "#8F3F27" }}>◆</span>
         </div>
         <span className="r-live-count" title={`${members.length} live room member${members.length === 1 ? "" : "s"}`}>{members.length} live</span>
         <button className="r-iconbtn" title="Take the guided tour" aria-label="Take the guided tour" data-testid="tour-button" onClick={startTour}><HelpCircle size={16} /></button>

@@ -18,12 +18,13 @@ import {
 } from "./artifactRefs";
 import { IntakePlanPreview } from "./IntakePlanPreview";
 
-const COLORS = ["#d97757", "#5b9bf5", "#7bd089", "#a78bfa", "#e4c567", "#e8845f"];
+const AGENT_AVATAR_COLOR = "#8F3F27";
+const COLORS = ["#8F3F27", "#315DA8", "#2F6B44", "#6D3FB2", "#80631F", "#A34B2E"];
 function colorFor(store: RoomStore, roomId: string, a: Actor): string {
   if (a.kind === "agent") {
     // A personal agent (acting for a member) wears that member's color; the shared Room agent stays orange.
-    if (a.ownerId) return store.listMembers(roomId).find((m) => m.id === a.ownerId)?.color ?? "#d97757";
-    return "#d97757";
+    if (a.ownerId) return store.listMembers(roomId).find((m) => m.id === a.ownerId)?.color ?? AGENT_AVATAR_COLOR;
+    return AGENT_AVATAR_COLOR;
   }
   return store.listMembers(roomId).find((m) => m.id === a.id)?.color ?? COLORS[0];
 }
@@ -881,7 +882,7 @@ export function Chat({ roomId, me, channel, variant, agentName, style, onOpenArt
         <span className="h-title">{isPrivate ? "Your NodeAgent" : "Public chat"}</span>
         <span className={"r-tag " + (isPrivate ? "private" : "public")}>{isPrivate ? <><Lock size={10} /> Private</> : <><Globe size={10} /> Everyone</>}</span>
         <span className="grow" />
-        {!isPrivate && <span className="r-tag agent" style={{ gap: 6 }}><span className="r-avatar agent sm" style={{ background: "#d97757", width: 18, height: 18, fontSize: 9 }}>N</span>Room NodeAgent</span>}
+        {!isPrivate && <span className="r-tag agent" style={{ gap: 6 }}><span className="r-avatar agent sm" style={{ background: AGENT_AVATAR_COLOR, width: 18, height: 18, fontSize: 9 }}>N</span>Room NodeAgent</span>}
         {longJob && (() => { const bad = ["failed", "blocked"].includes(longJob.status); return (
           <span className={"r-tag" + (bad ? " danger" : "")} role={bad ? "status" : undefined} data-testid="job-status" title="Latest long-running free-auto job"><Timer size={10} /> {longJob.status} {longJob.attempts}/{longJob.maxAttempts}</span>
         ); })()}
@@ -985,7 +986,7 @@ export function Chat({ roomId, me, channel, variant, agentName, style, onOpenArt
         {messages.map((m) => <Bubble key={m.clientMsgId || m.id} m={m} roomId={roomId} variant={variant} me={me} onPromote={promote} onOpenArtifact={onOpenArtifact} />)}
         {showLongJobResult && longJob && (
           <div className="r-msg agent" data-testid="agent-job-result" data-state={longJob.status}>
-            <span className="r-avatar agent sm" style={{ background: "#d97757" }}>N</span>
+            <span className="r-avatar agent sm" style={{ background: AGENT_AVATAR_COLOR }}>N</span>
             <div className="body">
               <div className="meta">
                 <span className="who">Room NodeAgent</span>
@@ -1012,7 +1013,7 @@ export function Chat({ roomId, me, channel, variant, agentName, style, onOpenArt
         {!isPrivate && multiAgentDemoStarted && <MultiAgentWorkbenchDemo tick={multiAgentTick} scenario={multiAgentScenario} />}
         {thinking && (
           <div className="r-msg agent" aria-label={`${agentName} is thinking`}>
-            <span className="r-avatar agent sm" style={{ background: "#d97757" }}>N</span>
+            <span className="r-avatar agent sm" style={{ background: AGENT_AVATAR_COLOR }}>N</span>
             <div className="body">
               <div className="meta"><span className="who">{agentName}</span><span className="r-tag agent" style={{ padding: "1px 5px", fontSize: 9 }}>thinking</span></div>
               {liveOperationStream.length ? (

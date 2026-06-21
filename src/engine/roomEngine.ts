@@ -37,7 +37,7 @@ import type {
 
 const MAX_TRACES = 2000;
 const MAX_MESSAGES = 5000;
-const MEMBER_COLORS = ["#d97757", "#5b9bf5", "#7bd089", "#a78bfa", "#e4c567", "#e8845f"];
+const MEMBER_COLORS = ["#8F3F27", "#315DA8", "#2F6B44", "#6D3FB2", "#80631F", "#A34B2E"];
 const RESEARCH_ROW_COLS = [
   "company", "website", "status", "tier", "intent", "owner", "crm_status",
   "summary", "funding", "headcount", "recent_signal", "source", "source2", "last_researched",
