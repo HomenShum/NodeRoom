@@ -1,13 +1,26 @@
 # E2E Dogfood Harness — Design
 
-**Status:** proposed
+**Status:** historical design plus active gap register
 **Owner:** infra/test
-**Scope:** the end-to-end dogfood layer NodeRoom is missing today. There is `convex-test` for backend functions and `vitest run` for unit logic, but **nothing exercises the actual React UI against a running Convex backend** — which means the most important property of this product (optimistic reactivity over a shared room) is currently unverified by any automated test.
+**Current note:** The original scope sentence below is historical. There is now
+Playwright coverage for production-preview memory mode and a live two-context
+spreadsheet presence spec; the remaining gap is broad live Convex coverage for
+privacy, wall, job controls, optimistic failure/retry, proposals, and agent
+intent conflict flows.
+**Historical scope:** this doc originally specified the missing end-to-end dogfood layer. `convex-test` and `vitest run` still cover backend/unit logic, while Playwright now covers production-preview memory mode and a narrow live two-context presence path. The remaining high-value gap is broader React UI coverage against a running Convex backend for privacy, wall, job controls, optimistic failure/retry, proposals, and agent intent conflict flows.
 
 **2026-06-09 update:** later branch work added some Chat/job-control
 `data-testid` hooks. The design remains current because the missing layer is a
 committed real-browser harness and consuming assertions, not a total absence of
 test hooks.
+
+**2026-06-20 update:** the missing layer is no longer zero-state:
+`e2e/realtime-presence.spec.ts` now proves live two-context spreadsheet presence
+and one visible edit path. `npm run test:product:memory` covers production-preview
+memory-mode chat, workbook, privacy/job/wall/proposal, responsive, and split
+surface paths. Note-editor blur-commit specs below are legacy TipTap fallback
+coverage only; native notebook collaboration should be tested through
+ProseMirror Sync dirty metadata and read-model/proposal flows.
 
 ---
 
@@ -25,9 +38,9 @@ Today's stack proves none of that:
 |---|---|---|---|
 | `convex-test` | `0.0.53` | Pure function behavior, auth gates, channel-leak rules, CAS/idempotency math — **in an in-memory mock** | No browser, no React, no Convex client, **no optimistic update, no reactivity**. It calls handlers directly. |
 | `vitest` | `2.1.8` | Node-side unit/logic tests (`tests/*.test.ts`) | No DOM rendering — Browser Mode is not configured, and 2.1.8's Browser Mode is still experimental. |
-| Playwright | **not installed** | — | Everything above the function boundary. There is no `playwright.config.ts`. |
+| Playwright | `@playwright/test` installed; `playwright.config.ts` present | Production-preview memory-mode browser flows plus a narrow live two-context spreadsheet presence/edit path | Broad live Convex dogfood for privacy, wall, job controls, optimistic failure/retry, proposals, and agent intent conflict flows. |
 
-There are also **zero `data-testid` attributes in `src/`** (verified: `grep -r data-testid src/` returns nothing), so even if Playwright were installed, selectors would be brittle CSS-class lookups against a hand-tuned UI.
+The original `data-testid` inventory is stale: core chat, proposal, trace, presence, and work-surface paths now have browser selectors. Selector coverage still needs to stay scoped to production workflows rather than becoming a parallel test-only UI API.
 
 This design fills that gap with a three-layer pyramid, a concrete `data-testid` plan, five dogfood specs mapped to the **real** API surface, and the determinism scaffolding (seed/clear, anonymous identity, web-first waits, stubbed LLM) that makes the top layer reliable in CI.
 
@@ -97,15 +110,17 @@ Pre-state: room created with `autoAllow = false` (so agent edits become proposal
 | 4 | Host clicks Approve (`proposal-approve` testid) → `resolveProposal(id, true)` (`store.tsx:334`, `Artifact.tsx:768`) | `proposal-card` disappears; target `cell` shows the new value |
 | 5 | Reactive `collab.traces` (`store.tsx:304`) | a `trace-row` (`Artifact.tsx:784`) for the applied edit is visible; expand it and assert `tool`/`result` detail (`Artifact.tsx:792`) |
 
-### (b) `note-persist.spec.ts` — note edit persists across reload
-The note editor commits **on blur** (`Artifact.tsx:588` `onBlur: commit(... "doc", editor.getHTML())`), which is the optimistic `applyCellEdit` path.
+### (b) `note-persist.spec.ts` — legacy TipTap note edit persists across reload
+The legacy TipTap fallback commits **on blur** (`Artifact.tsx:588` `onBlur: commit(... "doc", editor.getHTML())`), which is the optimistic `applyCellEdit` path. This is not the serious native notebook sync contract.
 
 1. Focus the TipTap note (`note-editor` testid), type text, blur (Tab away) → optimistic `applyCellEdit`.
 2. Assert text is present (optimistic).
 3. **Reload the page** (`page.reload()`), re-join with the **same** `{ memberId, authToken }` (persisted in the fixture's storage state).
 4. Assert the note text is still present — proving it round-tripped to the backend and survives a cold subscription (`rooms.full` → `elements`).
 
-> Open design question this spec pins down: **blur-commit vs debounced live save.** The current contract is blur-commit; the spec asserts that contract. If we later move to debounced live save, this spec is the regression guard and must be updated deliberately.
+> Native notebook target: ProseMirror Sync owns live text, and actor-authenticated
+> dirty metadata drives the read-model processor. Keep this blur-commit spec only
+> for legacy/export/checkpoint fallback behavior.
 
 ### (c) `postit-crud.spec.ts` — post-it create / edit text / move / delete
 All four are the optimistic `applyCellEdit` path (`create` → `Artifact.tsx:648`, text → `:688`, drag → `:642`, `delete` → `:657`).

@@ -40,6 +40,7 @@ import type * as noteworthy from "../noteworthy.js";
 import type * as okf from "../okf.js";
 import type * as okfEmbeddingProvider from "../okfEmbeddingProvider.js";
 import type * as okfIndexer from "../okfIndexer.js";
+import type * as presence from "../presence.js";
 import type * as prosemirror from "../prosemirror.js";
 import type * as retention from "../retention.js";
 import type * as roomActivity from "../roomActivity.js";
@@ -92,6 +93,7 @@ declare const fullApi: ApiFromModules<{
   okf: typeof okf;
   okfEmbeddingProvider: typeof okfEmbeddingProvider;
   okfIndexer: typeof okfIndexer;
+  presence: typeof presence;
   prosemirror: typeof prosemirror;
   retention: typeof retention;
   roomActivity: typeof roomActivity;

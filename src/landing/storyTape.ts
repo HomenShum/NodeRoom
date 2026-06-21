@@ -15,10 +15,10 @@
  * CLAIM DISCIPLINE — every layer is tagged `shipped` or `target`:
  *   shipped  = there is production code behind it today (audited against the repo)
  *   target   = it is the June-2026 target architecture, not yet production
- * Layers 1 (optimistic UI), 5 (per-element CAS), 7 (commit lease / lock TTL) are
- * shipped. Layers 2 (presence), 3 (narration pane), 4 (agent scratchpad UI),
- * 6 (LLM semantic rebase) are target. We do not pretend otherwise — that honesty
- * is the product story, not a footnote.
+ * Layers 1 (optimistic UI), 2 (spreadsheet presence), 5 (per-element CAS), and
+ * 7 (commit lease / lock TTL) are shipped. Layers 3 (narration pane), 4 (agent
+ * scratchpad UI), and 6 (LLM semantic rebase) are target. We do not pretend
+ * otherwise — that honesty is the product story, not a footnote.
  */
 
 export type ActorKind = "human" | "agent";
@@ -173,8 +173,8 @@ export const LAYERS: LayerSpec[] = [
     kicker: "Layer 2 — Ephemeral presence",
     title: "The room knows where people are.",
     copy: "Before an agent writes, it sees human intent. Soft signal, not a database lock — you keep typing.",
-    status: "target",
-    truth: "Target: presence is a designed signal in the June shell, not yet a runtime feature. No-clobber today is enforced by CAS (Layer 5), not presence.",
+    status: "shipped",
+    truth: "Shipped: spreadsheet focus/edit presence is a bounded, advisory runtime signal. No-clobber is still enforced by CAS (Layer 5), not presence.",
     diagram: ["active-edit signal", "→ avoid / wait / draft / propose"],
     cells: {
       // Agent is analysing the A1:C5 block; C2 is the active human cell it must avoid.

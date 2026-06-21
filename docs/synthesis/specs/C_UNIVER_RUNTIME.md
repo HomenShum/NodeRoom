@@ -58,11 +58,11 @@ Order is by leverage-per-effort. Steps 1-3 remove most of the pro-Univer argumen
 - **Hard pass gates (all required):** (a) remote patch replay does not move the local user's selection/edit caret; (b) a CAS conflict surfaces as data through the SAME `onError` path, not a Univer-internal toast; (c) the note/wall element contract is provably unaffected (run the existing note/wall e2e green); (d) bundle delta is measured and recorded. Spike React-19 peer compatibility FIRST (per the Glide adoption protocol in `UI_EXCEL_PAPER.md` L70-72). If any gate fails, close the branch and the verdict stands as "extend."
 - **DoD:** a written POC report with the 4 gate results + measured bundle delta; the spike branch is deleted; `MVP_WORKBOOK_STACK.md` gets one line recording the outcome. No production dependency lands from this step.
 
-### Step 5 — Per-cell human presence (M) — runtime-independent, the one collab-feel gap
+### Step 5 — Per-cell human presence (M) — runtime-independent, initial slice shipped
 
-- **Files:** new Convex `cellPresence` ephemeral channel + table (`convex/schema.ts`, new `convex/presence.ts`); render `HumanActiveCell` border in `ExcelGridSheet`; `convex/collab.ts` for the broadcast hook.
-- **What:** live, non-lock selection broadcast (the "someone is looking at B7" border). Today only LOCK-based presence exists (`SPREADSHEET_PARITY_CHECKLIST.md` item 38, `AGENT_SCRATCHPAD_CELL_COLLAB.md` §5). Presence is ephemeral OPERATION-tier state — TTL-bounded, never CAS, never in `art.elements`.
-- **DoD:** two browsers in the same room show each other's active-cell border with the holder color + name flag, distinct from the lock outline; presence rows expire on disconnect (BOUND + TTL); zero new writes to the artifact ledger.
+- **Files:** shipped Convex `presenceClaims` table and `convex/presence.ts`; render `HumanActiveCell` border/name flag in `ExcelGridSheet`.
+- **What:** live, non-lock selection broadcast (the "someone is looking at B7" border). Spreadsheet human focus/edit presence is TTL-bounded, advisory, never CAS, and never in `art.elements`.
+- **DoD:** initial DoD is covered by `e2e/realtime-presence.spec.ts`; server-side agent intent heartbeat is covered by `tests/presenceClaims.test.ts`. Remaining DoD is disconnect expiry coverage, live browser proof for agent intent conflict/proposal behavior, and extending the same pattern to notebook blocks and deck components.
 
 ## Interfaces / types
 
@@ -123,7 +123,7 @@ export type CalcResponse =
 
 ## Risks & mitigations (8-point agentic-reliability checklist)
 
-- **BOUND** — `cellPresence` (Step 5) MUST have a per-room MAX + TTL eviction or an agent loop / flapping selection floods the channel. Range selection (Step 1): cap selected-cell count for batch Delete (reuse the `MAX_FORMULA_DEPENDENCIES`-style cap) so Ctrl+A on a 20k-cell sheet can't fan out into 20k CAS writes in one keystroke. Calc snapshot (Step 2) is bounded to the used range, not the full theoretical grid.
+- **BOUND** — `presenceClaims` (Step 5) MUST keep per-room caps + TTL eviction so an agent loop / flapping selection cannot flood the channel. Range selection (Step 1): cap selected-cell count for batch Delete (reuse the `MAX_FORMULA_DEPENDENCIES`-style cap) so Ctrl+A on a 20k-cell sheet can't fan out into 20k CAS writes in one keystroke. Calc snapshot (Step 2) is bounded to the used range, not the full theoretical grid.
 - **HONEST_STATUS** — calc worker failure (cycle/timeout) returns `{ ok: false, reason }` and the grid shows the cached file value, NOT a fabricated computed number. A failed Univer POC gate (Step 4) closes the branch — no "it mostly works" merge.
 - **HONEST_SCORES** — headless golden (Step 3): a formula that fails to evaluate scores 0, never a partial-credit floor; numeric tie-out uses an explicit tolerance, not a generous default that masks wrong math. Keep the structural ref/token gate so a hardcoded answer number can't buy a passing score.
 - **TIMEOUT** — calc worker gets a hard per-recompute budget (AbortController-equivalent: terminate + return `reason:"timeout"`); the dependency walk has a depth/iteration cap so a malicious or cyclic formula can't spin the worker forever.
@@ -138,5 +138,5 @@ export type CalcResponse =
 2. **Live recompute under typing burst (Step 2):** an analyst types a forecast formula into F7 then immediately tabs through F8…F20 entering more; the displayed values of all downstream dependents update within frame budget, the main thread never janks >16ms, and a deliberately cyclic formula returns `reason:"cycle"` and falls back to cached display instead of hanging.
 3. **Adversarial agent vs the numeric golden (Step 3):** an agent that hardcodes the Answer-Key number fails the formula-ref gate; an agent that writes `=E7*1.5` (right shape, wrong growth) passes the ref gate but fails the numeric gate; the report is byte-identical across two runs.
 4. **Univer POC gate (Step 4):** in a two-browser session on a sheet-kind artifact, User A is editing B7 while User B commits a remote edit to D2 — A's caret does NOT jump; a CAS conflict surfaces through the shared `onError`; the note and wall e2e specs stay green proving the element contract is unforked; bundle delta is recorded. If any gate fails, the spike branch is closed and `npm run build` is unchanged (no Univer in `package.json`).
-5. **Per-cell presence (Step 5):** two browsers show each other's active-cell borders (color + name), visually distinct from a lock outline; on disconnect the border disappears within the TTL window; the artifact ledger receives zero presence writes.
+5. **Per-cell presence (Step 5):** two browsers show active-cell borders (color + name), visually distinct from a lock outline; on disconnect the border disappears within the TTL window; the artifact ledger receives zero presence writes.
 6. **Regression floor:** `e2e/excel-grid.spec.ts` (styled-workbook upload, 33.7% render, merged header, formula bar, inline-edit v2) stays green through all steps; `tests/numberFormat.test.ts` and `tests/spreadsheetParser.test.ts` unchanged.

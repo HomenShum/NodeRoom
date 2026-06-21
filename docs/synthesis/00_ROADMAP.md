@@ -27,7 +27,7 @@
 | 3 | **Intake classifier** (`src/nodeagent/core/intakePreflight.ts`): cheap LLM emits ONE Zod-validated `IntakeDecision` union, never spawns/locks/writes; deterministic `scheduler.ts` acts | `[net-new]` | The genuinely missing router (queue vs parallel vs steer). Mirrors the proven "LLM proposes, harness executes" split (`MANAGED_LOCK_PERF.md`) — keeps it inside the architecture budget. |
 | 4 | **VERDICT: EXTEND the home-grown workbook engine — do NOT adopt Univer as runtime** | `[fix-conflict]` | The three "load-bearing lessons" Univer would teach (runtime state machine, COMMAND/MUTATION/OPERATION, mutation-layer collab) are *already* implemented. Univer's free wins are exactly what it Pro-locks or what NodeRoom already owns. Adopt only behind the existing adapter on a measured >100ms/20k-cell trigger. |
 | 5 | **Status Strip before Signal Tape** (`src/ui/StatusStrip.tsx`) | `[net-new]` | Smaller (M vs L), zero new backend — consolidates info that already exists (`store.listTraces` / `listProposals` / `lastRun()` telemetry); closes the L176 gap. Signal Tape is a larger ambient feed with a real privacy-leak risk. |
-| 6 | **Runtime-independent grid + eval wins**: range selection (Shift/Ctrl+Arrow/click-drag), Web Worker calc, headless numeric golden tie-out, per-cell presence (`cellPresence` table) | `[net-new]` | These remove most of the pro-Univer argument at a fraction of migration cost AND strengthen the eval suite — reusable whether Univer is ever adopted. |
+| 6 | **Runtime-independent grid + eval wins**: range selection (Shift/Ctrl+Arrow/click-drag), Web Worker calc, headless numeric golden tie-out, and agent intent-claim overlays | `[partial]` | Spreadsheet human presence plus server-side agent intent heartbeat shipped as `presenceClaims` on 2026-06-20; remaining work is browser proof for agent-intent conflict/proposal behavior, notebook/deck targets, and stronger eval coverage. |
 | 7 | **NodeRoomBench = thin `index.ts` re-export + reporting doc-lint** — NOT a parallel harness; spend net-new eval effort only on Layer 3 (format + dynamic-correctness perturbation) and a real fetch→cache→run public-source adapter | `[fix-conflict]` | Layers 1/2/4 and the honesty standard already exist and are solid. `architectureBudget.ts` forbids a new framework layer without a failing eval. The novel differentiator is the dynamic-correctness check, not re-speccing the suite. |
 | 8 | **Gate Signal Tape on a privacy-filtered, bounded selector** (`selectSignalFeed`: `channel==='public'` only, `MAX=60` + eviction, sorted by ts) | `[fix-conflict]` | A naive `store.listTraces` ticker leaks private-channel summaries the rest of the app carefully protects. Applies the agentic-reliability checklist (BOUND/HONEST_STATUS/SSRF). |
 
@@ -120,7 +120,7 @@ PHASE 1:                                                                        
   B3  Intake classifier + deterministic scheduler   ◀── needs B2 (affected set) │
   B-planHash  Normalized-target dedupe              ◀── needs B2 (persisted set)│
   A5  Status Strip                                  ◀── lands cleaner after A1 ──┘
-  C-presence  cellPresence table + ephemeral channel  (shared by A binder + B soft Intent-Claim + C HumanActiveCell)
+  C-presence  presenceClaims shipped for human spreadsheet focus/edit + server-side agent intent; extend browser proof + notebook/deck targets
 
 PHASE 2 (each independent; leverage order):
   C-range   Range selection (Shift/Ctrl+Arrow/click-drag)   ── removes most pro-Univer rationale
@@ -137,7 +137,14 @@ PHASE 3 (gated / largest):
   C-spike   Univer POC behind WorkbookRuntimeAdapter (de-risking SPIKE, not migration; only if measured trigger fires)
 ```
 
-**Critical shared dependency:** `cellPresence` (a new table + ephemeral channel) is requested by THREE workstreams — A's binder ("Homen, editing C2"), B's soft Intent-Claim level, and C's HumanActiveCell border. Build it ONCE in Phase 1 and have all three consume it. It is flagged as a gap in `SPREADSHEET_PARITY_CHECKLIST.md` item 38 and `AGENT_SCRATCHPAD_CELL_COLLAB.md §5`. **Before building it, resolve the reservation-model fork (Option A vs B, `NODEAGENT_ARCHITECTURE.md:786-797`)** or it becomes a third overlapping concept (locks + agentLeases + intentClaims).
+**Critical shared dependency:** spreadsheet human presence and server-side agent
+intent now exist as `presenceClaims`, and human cell presence is consumed by the
+grid. The remaining shared dependency is planner-owned affected-set semantics,
+browser proof for agent intent conflict/proposal behavior, and notebook/deck
+target presence. Resolve the reservation-model fork (Option A vs B,
+`NODEAGENT_ARCHITECTURE.md:786-797`) before letting scheduler policy depend on
+intent claims, or they become a third overlapping concept (locks + agentLeases +
+intentClaims).
 
 **Hard gate across all of B and D:** every part ships behind a scripted eval rung with a negative control BEFORE any live/UI claim — mirror `evals/chatIntakeRuntime.ts` (a plan that satisfies the contract + a wrong-route plan that MUST fail). This is the repo's required proof pattern.
 
@@ -201,7 +208,7 @@ The genuine forks. Each needs an owner decision before its dependent work starts
 
 3. **Build NodeRoomBench now vs after the demo.** *Recommendation: thin re-export now, real public-source adapter in Phase 3.* The fork: does the benchmark need to be externally shareable (requiring rights-cleared or fully-synthetic gold, since the RareLiquid/Ben Chon workbook is private-by-default), or does it stay private with only redacted summaries?
 
-4. **Reservation-model migration (blocks `cellPresence`).** Option A (keep locks canonical) vs Option B (generalize into `agentLeases`), `NODEAGENT_ARCHITECTURE.md:786-797`. The soft Intent-Claim should not be added until this is decided, or it becomes a third overlapping concept.
+4. **Reservation-model migration (blocks scheduler-owned intent policy, not human spreadsheet presence).** Option A (keep locks canonical) vs Option B (generalize into `agentLeases`), `NODEAGENT_ARCHITECTURE.md:786-797`. The low-level agent intent heartbeat exists; the scheduler must not treat it as a third write-control concept until this is decided.
 
 5. **Should the public chat survive as a distinct surface, or fully fold into Copilot?** `ARCHITECTURE.md` L157 flags the multi-author public feed as deliberately custom vs the 1:1 assistant-ui thread. Unifying under Copilot forces a room-wide-vs-agent-directed UX decision.
 

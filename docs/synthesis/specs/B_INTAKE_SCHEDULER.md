@@ -40,9 +40,13 @@ Build a three-stage front door for every `/ask` (and command-like chat message):
 - **DoD:** for each conflict-class, the scheduler emits the documented outcome and NEVER a weakened/parallel gate (`NODEAGENT_ARCHITECTURE.md:37`); negative-control plan (spawns parallel on overlap / writes a human-active cell / queues an independent job) MUST fail the rung.
 
 ### 4. Soft Intent-Claim presence level (effort: L) — ADVISORY ONLY
-- **Files:** new `cellPresence` table (`roomId`, `artifactId`, `elementIds`, `holder`, `expiresAt ≈ now+90s`), distinct from `locks`; render via existing lock-flag cell-outline grammar (`src/ui/panels/Artifact.tsx`).
+- **Files:** low-level `presenceClaims` now supports human focus/edit plus
+  internal-only agent `agent_intent`/`commit_lease` claims (`roomId`,
+  `artifactId`, `targetKind`, `targetId`, `actor`, `mode`, `expiresAt`),
+  distinct from `locks`; remaining scheduler work is planner-owned multi-target
+  affected sets and browser conflict/proposal proof.
 - **Do:** NEVER blocks a human keystroke (`AGENT_SCRATCHPAD_CELL_COLLAB.md:122`). Feeds `computeAffectedSet`. TTL-swept by the existing janitor pattern (BOUND).
-- **DoD:** a human edit to a cell with a live agent intent-claim succeeds with NO gate; presence row auto-expires; a test asserts presence is never read by the four write gates.
+- **DoD:** low-level non-blocking behavior is covered by `tests/presenceClaims.test.ts`; remaining DoD is a live browser flow where agent intent, human edit, patch-bundle publish, and proposal routing are all visible.
 
 ### 5. planHash dedupe extension (effort: M) — requires #1 persisted
 - **Files:** extend `src/nodeagent/core/idempotency.ts` with `planHash(intent, targetArtifacts, normalizedTargets, sourceRefs, policy)` + an overlap check against in-flight jobs' `expandedAffectedSet`.
@@ -118,7 +122,7 @@ export interface ScheduleDecision {
 
 ## Risks & mitigations (8-point checklist)
 
-- **BOUND** — `cellPresence` and any in-flight affected-set cache MUST have TTL + janitor eviction (reuse the `sweepExpiredLocks` pattern, `locks.ts:116-139`). No unbounded Map of pending classifications.
+- **BOUND** — `presenceClaims` and any in-flight affected-set cache MUST have TTL + janitor eviction (reuse the `sweepExpiredLocks` pattern, `locks.ts:116-139`). No unbounded Map of pending classifications.
 - **HONEST_STATUS** — classifier parse failure fails CLOSED (no fake `new_command`); PlanPreview never shows a 2xx-style "authorized" before the spend gate clears. Off-route classifier output is rejected by the scheduler, surfaced as a conflict, not silently corrected.
 - **HONEST_SCORES** — `confidence` and cost/runtime estimates come from recorded `agentRuns` telemetry with explicit `sampleSize`; NO hardcoded confidence floor. Low confidence → queue, not authorize.
 - **TIMEOUT** — the classifier model call uses an `AbortController` + a tight budget gate; on timeout, fall back to the deterministic prefilter result (treat as `new_command` queued), never hang the intake.
@@ -139,7 +143,7 @@ export interface ScheduleDecision {
 ## Open questions
 
 - Classifier on a PUBLIC anonymously-joinable room: deterministic prefilter on EVERY message, model call only on command-like ones? Confirm classifier spend counts against `roomSpendSince`/`globalSpendSince`.
-- Reservation-model migration (`NODEAGENT_ARCHITECTURE.md:786-797`, Option A keep locks canonical vs B generalize into `agentLeases`) must be decided before adding `cellPresence`, or it becomes a third overlapping concept.
+- Reservation-model migration (`NODEAGENT_ARCHITECTURE.md:786-797`, Option A keep locks canonical vs B generalize into `agentLeases`) still must be decided before wiring planner-owned affected-set claims into scheduling. The low-level server-side `presenceClaims` heartbeat exists; the unresolved question is how scheduler policy treats it relative to locks and agent leases.
 - `parallel_subagent` semantics: a second concurrent `agentJobs` row on the same artifact (relying on lock/CAS, two visible cursors) — or only allowed when affected sets are provably disjoint? (Requires #1 shipped first.)
 - Steering scope: may a `steering_patch` change the TARGET artifact/write-set (invalidates leases + slice `sliceKey`, `LONG_RUNNING_AGENTS.md:201-213`), or only refine goal text? Needs a re-keying rule.
 - Who authors the PlanPreview Authorize action on a multi-user room — requester or host? Align with existing host-review/`approvalPolicy`/Yoink surface to avoid a new permission concept.

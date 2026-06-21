@@ -68,7 +68,12 @@ The judges were instructed to **challenge**, not rubber-stamp. They **disagreed 
 | Decision | Minimal (under) | Maximal (over) | **Necessary** |
 |---|---|---|---|
 | **Proposal approve** | rely on card silently vanishing (hides conflict forever) | optimistically remove card before server confirm (turns a 300ms dim into a permanent false "applied") | keep card mounted (pending state already exists), thread `{ok,reason}`, branch on conflict, aggregate `acceptAll`. Zero `withOptimisticUpdate` added. |
-| **rooms.full** | keep the God-object (amplified by agent write-bursts) | per-visible-cell windowing | split **only** the high-churn `elements` table into per-artifact subscriptions; keep the 5 low-cardinality tables as shared `rooms.meta`. (`lastSeenAt` is never patched + commits are per-blur, so the "every keystroke re-renders everyone" amplifier is **absent** — lowering urgency.) |
+| **rooms.full** | keep the God-object (amplified by agent write-bursts) | per-visible-cell windowing | historical decision: split **only** the high-churn `elements` table into per-artifact subscriptions and keep the low-cardinality room tables as `rooms.meta`. Superseded by shipped split + separate `presenceClaims`; member `lastSeenAt` still has no heartbeat, but spreadsheet presence does. |
+
+> 2026-06-20 supersession: the `rooms.meta` + per-artifact `artifacts.elements`
+> split is shipped, and spreadsheet presence now uses separate `presenceClaims`.
+> The `lastSeenAt` statement remains true only for member rows; it should not be
+> read as "there is no presence heartbeat anywhere."
 | **No E2E** | zero E2E (differentiator unproven) | drive leak/job/proposal authZ through Playwright (duplicates backend coverage at ~100× flake) | ~2 two-context Playwright specs for the **irreducibly real-DOM** path (optimistic confirm-swap no-flicker + concurrent-CAS-loser revert), **plus** expand the cheap `convex-test` authZ matrix for everything server-authoritative. |
 
 ---

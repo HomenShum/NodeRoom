@@ -9,7 +9,7 @@
 Every production collaborative app converges on **two universal moves**, and NodeRoom's six bottlenecks are all special cases of failing to do them:
 
 1. **Send deltas, not snapshots.** Make the wire unit a *single mutation* (one cell, one row, one op) keyed to the client's last-seen position, so cost is **O(change)** not **O(dataset)**. Figma sends one changed `(object, property)` value; Linear ships deltas since a global `lastSyncId`; Slack/Convex paginate history by cursor; Yjs ships a binary diff against a state vector. NodeRoom's `rooms.full` re-serializing the **whole room on every cell edit** (O(E·U)) is the *textbook anti-pattern* these systems exist to kill — it is **not a novel problem**.
-2. **Separate ephemeral presence from the durable store.** Cursors / "which agent is editing" / typing indicators ride a *separate, rate-capped, never-persisted* channel (Liveblocks Presence vs Storage; Figma broadcasts cursors over WS but never journals them). NodeRoom's worst amplifier is that *durable cell data and would-be presence share one read-set* via `rooms.full`.
+2. **Separate ephemeral presence from the durable store.** Cursors / "which agent is editing" / typing indicators ride a *separate, rate-capped, never-persisted* channel (Liveblocks Presence vs Storage; Figma broadcasts cursors over WS but never journals them). NodeRoom now follows the cheap Convex version of that rule for spreadsheet cells: `presenceClaims` is a bounded side table/subscription, not part of `rooms.full` or `art.elements`.
 
 The honest, important framing for Homen: **none of B1–B6 are novel.** They are the canonical disease that OT (Google Docs), CRDTs (Yjs/Figma), and sync engines (Linear/Replicache/Zero) were built to cure. And because NodeRoom is **already on Convex** (a server-authoritative, serializable-OCC, reactive engine), the cheapest high-leverage path is *not* "rip-and-replace with a sync engine" — it is **apply Convex's own scaling patterns** (`usePaginatedQuery`, narrow `withIndex` read-sets, per-artifact/per-range subscriptions, lean on built-in OCC) and reserve the heavyweight options (Yjs/Liveblocks CRDT, Durable-Object actors, Replicache/Zero) for the *one or two* places they actually earn their cost.
 
@@ -138,11 +138,21 @@ The honest, important framing for Homen: **none of B1–B6 are novel.** They are
 
 ### B-presence (cross-cutting amplifier for B1/B3/B6) — split ephemeral presence from durable state
 
-Not one of the original six, but it's the multiplier: in NodeRoom, cursor/"who's editing" churn currently rides the *same durable read-set* as cell data, so presence amplifies B1.
+Not one of the original six, but it's the multiplier. The stale failure mode is
+cursor/"who's editing" churn riding the same durable read-set as cell data. The
+current spreadsheet implementation avoids that by isolating advisory presence
+in `presenceClaims`; keep notebook/deck presence on the same side-channel rule.
 
 **How production solves it:** two-channel architecture — ephemeral signals (cursor, selection, viewport, "which agent is editing") on a **separate, rate-capped, never-persisted** channel; durable state on a different write path. Liveblocks Presence-vs-Storage ([client API](https://liveblocks.io/docs/api-reference/liveblocks-client), high); Figma broadcasts cursors over WS but never journals them ([Figma](https://www.figma.com/blog/how-figmas-multiplayer-technology-works/), high); Phoenix.Tracker gossips join/leave **diffs** not full member lists ([Phoenix.Tracker](https://hexdocs.pm/phoenix_pubsub/Phoenix.Tracker.html), high). Throttle cursors to a fixed cadence — Liveblocks default 100ms/10Hz, tunable 16ms/60Hz ([client API](https://liveblocks.io/docs/api-reference/liveblocks-client), high); Cloudflare server-side batch every 50–100ms ([DO websockets](https://developers.cloudflare.com/durable-objects/best-practices/websockets/), high).
 
-**Convex-specific adoption:** Convex has **no native ephemeral channel** (reactive queries are durable-read-set driven). Two options: (a) **cheap** — isolate presence into its own **throttled, separately-subscribed, bounded** table so cursor writes never invalidate `rooms.full`/the cell read-sets; (b) **proper** — run a separate ephemeral transport (Durable Object / PartyKit / own WS) alongside Convex, Convex remaining source-of-truth for cells. Start with (a).
+**Convex-specific adoption:** Convex has **no native ephemeral channel**
+(reactive queries are durable-read-set driven). Two options: (a) **cheap** —
+isolate presence into its own **throttled, separately-subscribed, bounded** table
+so cursor writes never invalidate `rooms.full`/the cell read-sets; (b)
+**proper** — run a separate ephemeral transport (Durable Object / PartyKit / own
+WS) alongside Convex, Convex remaining source-of-truth for cells. Spreadsheet
+cells have started with (a) via `presenceClaims`; do the same for notebook
+blocks and deck components before considering a separate transport.
 **Effort: M (a) / XL (b)**
 
 ---
@@ -165,7 +175,7 @@ For a **finance-grade, auditable** workroom, the decision axis is not "best auto
 4. **B1 split `rooms.full` into per-artifact / per-range reactive queries + hot/cold segmentation** — L. *(the big bandwidth win)*
 5. **B5 drop the *broad* range lock + `O(active-locks)` scan; keep CAS + intent-claim + short commit-lease + proposals (NOT blanket LWW for finance cells — see [CONVEX_AS_LEDGER.md](../architecture/CONVEX_AS_LEDGER.md) §B5)** — L. *(kill the lock scan + the CAS-conflict-as-model-turn, not CAS itself)*
 6. **B6 agents emit `drafts` against a base version + working-set-windowed context + programmatic accept gate** — M.
-7. **B-presence: isolate presence into its own throttled bounded table** — M; graduate to a DO/PartyKit side-channel only if cursor churn is still binding.
+7. **B-presence: isolate presence into its own throttled bounded table** — initial spreadsheet slice shipped; extend to notebook/deck, and graduate to a DO/PartyKit side-channel only if cursor churn is still binding.
 
 Only graduate to Yjs/Liveblocks (intra-cell text) or Replicache/Zero (if Convex's re-ship is *still* binding after step 4) once steps 1–7 are measured. **Do not** rebuild Convex into a custom sync engine pre-emptively — that's perfectionism disguised as rigor; the B1 split + pagination is "surprisingly close" to what the heavy options buy.
 

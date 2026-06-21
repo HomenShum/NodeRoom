@@ -207,7 +207,43 @@ cache metadata only.
 
 ## Request Envelope
 
-`NodeAgentRequest` is the user intent captured before side effects.
+Client input is intent only. The browser may submit a goal, scoped targets,
+artifact references, route/model preference, review preference, and an
+idempotency key. The server derives execution policy before creating the durable
+job row:
+
+```ts
+type ClientAgentIntent = {
+  roomId: Id<"rooms">;
+  actorId: string;
+  commandText: string;
+  references?: AgentReference[];
+  selectedElementIds?: string[];
+  selectedRanges?: Array<{ artifactId: Id<"artifacts">; sheetId?: string; range: string }>;
+  routePreference?: "adaptive" | "free" | "top_paid" | "specific";
+  requestedModelId?: string;
+  reviewPreference?: "default" | "draft_first" | "host_review";
+  idempotencyKey: string;
+};
+
+type AgentJobPolicy = {
+  modelPolicy: string;
+  approvalPolicy: "read_only" | "draft_first" | "auto_commit_safe" | "host_review";
+  autoAllow: boolean;
+  evidencePolicy: "public_only" | "private_allowed" | "mixed_requires_redaction";
+  hostAllowlist: string[];
+  sourceAllowlist: string[];
+  rateLimitBucket: string;
+  maxSteps?: number;
+  maxRuntimeMs?: number;
+  maxMutationCount?: number;
+  maxAffectedNodes?: number;
+  traceLevel: "summary" | "standard" | "full_operation_ledger";
+};
+```
+
+`NodeAgentRequest` is the server-normalized job envelope after that policy
+resolver has run.
 
 ```ts
 type NodeAgentRequest = {
@@ -242,7 +278,7 @@ type NodeAgentRequest = {
   }>;
   sourceArtifactIds?: Id<"artifacts">[];
 
-  // Safety and execution policy.
+  // Server-derived safety and execution policy. These are not trusted client fields.
   autoAllow: boolean;
   approvalPolicy: "read_only" | "draft_first" | "auto_commit_safe" | "host_review";
   evidencePolicy: "public_only" | "private_allowed" | "mixed_requires_redaction";
@@ -262,6 +298,8 @@ Important rules:
 
 - `commandText` is not authorization. It is just intent.
 - `scope` selects what evidence the agent may read.
+- Route/model picker state is a request, not policy. The server derives
+  `modelPolicy`, approval, evidence, allowlists, and rate limits.
 - `evidencePolicy` selects what evidence the agent may cite or write back.
 - Target contract: `approvalPolicy` determines whether mutating tools commit or
   write drafts. Current artifact writes enforce the room `autoAllow` boundary:

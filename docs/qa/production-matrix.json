@@ -152,13 +152,15 @@
       "status": "green",
       "productionGate": "Create/delete operation tests and browser smoke for Wall tab.",
       "deterministicChecks": [
-        "tests/roomEngine.test.ts"
+        "tests/roomEngine.test.ts",
+        "tests/convexWallCrud.test.ts"
       ],
       "liveChecks": [
         "manual browser: Wall tab Post-it add/delete"
       ],
       "evidence": [
         { "type": "test", "ref": "tests/roomEngine.test.ts" },
+        { "type": "test", "ref": "tests/convexWallCrud.test.ts" },
         { "type": "code", "ref": "src/ui/panels/Artifact.tsx" }
       ],
       "nextReview": "Add multi-user wall edit conflict browser test."
@@ -245,7 +247,9 @@
       "status": "green",
       "productionGate": "Matrix schema tests plus qa:matrix --check as a docs-sync drift gate, not a quality gate.",
       "deterministicChecks": [
-        "tests/qaMatrix.test.ts"
+        "tests/qaMatrix.test.ts",
+        "tests/presenceClaims.test.ts",
+        "tests/convexWallCrud.test.ts"
       ],
       "liveChecks": [
         "npm run qa:matrix:check"
@@ -277,6 +281,8 @@
         { "type": "test", "ref": "e2e/chat.spec.ts" },
         { "type": "test", "ref": "e2e/excel-grid.spec.ts" },
         { "type": "test", "ref": "e2e/privacy-job-wall-proposal.spec.ts" },
+        { "type": "test", "ref": "tests/presenceClaims.test.ts" },
+        { "type": "test", "ref": "tests/convexWallCrud.test.ts" },
         { "type": "test", "ref": "e2e/responsive-qa.spec.ts" },
         { "type": "test", "ref": "e2e/work-surface-split.spec.ts" },
         { "type": "doc", "ref": "docs/eval/MEDIA_JUDGE.md" }
@@ -582,7 +588,7 @@
         { "type": "test", "ref": "tests/agentJobsRuntime.test.ts" },
         { "type": "test", "ref": "tests/gatewayAndJournal.test.ts" }
       ],
-      "nextReview": "Replace source-only graph/embedding checks with Convex runtime tests, add browser assertion for the job detail drilldown, and add stale-receipt replay tests."
+      "nextReview": "Add browser assertion for the job detail drilldown, live workflow retry/cancel smoke, and stale-receipt replay tests."
     },
     {
       "id": "okf_retrieval_evidence_memos",

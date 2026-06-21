@@ -62,7 +62,7 @@ until a dedicated scanner is added to the gate.
 | Gate | Evidence |
 |---|---|
 | Per-element CAS (no silent overwrite) | `convex/artifacts.ts` `applyCellEditCore`; ladder L2/L3 + `tests/lockFencing.test.ts` |
-| Affected-range locks, read-only for non-holders | `convex/locks.ts`; ladder L4 |
+| Legacy affected-range lock proof, read-only for non-holders | `convex/locks.ts`; ladder L4. The target coediting UX is advisory presence/intent plus short publish leases, final CAS, and proposals on conflict. |
 | Lease-epoch fencing (TTL < slice budget) + renewal | `convex/artifacts.ts`, `convex/lib.ts`; `tests/lockFencing.test.ts` (6/6) |
 | Lock TTL janitor (status + session + smart-merge) | `convex/crons.ts` → `locks.sweepExpiredLocks`; tested |
 | Host lock takeover (host-only) | `convex/locks.ts` `hostForceReleaseLock`; tested |
@@ -119,6 +119,9 @@ lease races, cron SLA, or public abuse behavior under real traffic.
 
 ## Bottom line
 
-Every gate that *can* be proven offline **is** proven (tests above). The remaining work to retire
-"beta" is a live security audit + load test of the five rows in the last section — not new
-features. When those clear, this file's header line is the only thing that changes.
+This file is a dated readiness ledger, not a permanent green light. A
+push/merge readiness claim requires a fresh clean-checkout `npm run prod:gate`:
+audit, security gates, QA/docs drift gates, SLO gate, TypeScript, Convex
+TypeScript, full Vitest, product-memory Playwright, build, and dist security
+scan. After the local product gate is green, the remaining beta-retirement work
+is the live security audit + load test of the five rows in the last section.

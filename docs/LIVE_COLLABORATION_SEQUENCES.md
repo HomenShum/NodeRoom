@@ -21,15 +21,19 @@ sequenceDiagram
   participant Provider as "LLM provider"
   participant DB as "Convex DB"
 
-  Host->>Queries: subscribe rooms.full, messages, agentJobs, attempts
+  Host->>Queries: subscribe rooms.meta, artifact elements, presence, messages, agentJobs, attempts
   Peer->>Queries: subscribe same room with member proof
-  Queries->>DB: read room, artifacts, elements, locks, proposals, traces
+  Queries->>DB: read room shell, artifacts, scoped elements, presence claims, locks, proposals, traces
   DB-->>Queries: initial snapshot
   Queries-->>Host: render shared files, sheet, note, wall, trace
   Queries-->>Peer: render same authorized state
 
   Host->>Store: edit cell locally
   Store-->>Host: optimistic paint
+  Store->>Mutations: presence.heartbeat(target cell, focus/edit)
+  Mutations->>DB: upsert advisory TTL-bound presence claim
+  DB-->>Queries: presence invalidation only
+  Queries-->>Peer: show colored cell/name flag without disabling edit
   Store->>Mutations: artifacts.applyCellEdit(elementId, baseVersion, value)
   Mutations->>DB: check member proof, lock, CAS version
   alt lock free and version current

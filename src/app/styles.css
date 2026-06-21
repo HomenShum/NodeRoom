@@ -674,10 +674,16 @@ input { font-family: inherit; }
 /* The grid wrapper is the keyboard surface — focus is shown by the SELECTED CELL ring, so the
    wrapper itself stays quiet (a second ring around the whole sheet would be noise). */
 .xl-scroll:focus-visible { outline: none; }
+.xl-cell.presence { box-shadow: inset 0 0 0 2px var(--presence-color, #5e6ad2); }
+.xl-cell.presence-edit { box-shadow: inset 0 0 0 2px var(--presence-color, #5e6ad2), inset 0 -3px 0 var(--presence-color, #5e6ad2); }
+.xl-cell.presence-agent_intent { box-shadow: inset 0 0 0 2px var(--presence-color, #5e6ad2), inset 0 -2px 0 rgba(94,106,210,.28); }
+.xl-cell.presence-commit_lease { box-shadow: inset 0 0 0 2px var(--accent-primary), inset 0 -3px 0 var(--accent-primary); }
 .xl-cell.locked { background: #fdf6f1; box-shadow: inset 0 0 0 2px var(--accent-primary); cursor: not-allowed; }
 .xl-cell.cell-error { color: #b42318; font-weight: 700; }
 .xl-cell .nullcell { color: transparent; }
 .xl-flag { position: absolute; top: 0; right: 0; background: var(--accent-primary); color: #fff; font-size: 9px; line-height: 1.4; padding: 0 5px; border-radius: 0 0 0 4px; font-family: var(--font-ui); max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
+.xl-presence-flag { position: absolute; top: 0; right: 0; background: var(--presence-color, #5e6ad2); color: #fff; font-size: 9px; line-height: 1.4; padding: 0 5px; border-radius: 0 0 0 4px; font-family: var(--font-ui); max-width: 100%; overflow: hidden; text-overflow: ellipsis; pointer-events: none; }
+.xl-flag + .xl-presence-flag { top: 14px; border-radius: 4px 0 0 4px; }
 .xl-input { width: 100%; height: 100%; border: none; outline: none; padding: 0; margin: 0; font: inherit; text-align: inherit; background: #fff; color: #202124; }
 .xl-paper--sheets { font-family: Arial, "Google Sans", "Segoe UI", system-ui, sans-serif; border-color: #dadce0; border-radius: 6px; }
 .xl-paper--sheets .xl-modebar { background: #fff; }
@@ -740,9 +746,15 @@ input { font-family: inherit; }
 .r-cell.committed { animation: wetink 1.4s var(--ease-out-expo); }
 @keyframes wetink { 0% { background: rgba(217,119,87,.28); } 100% { background: transparent; } }
 .r-cell .lockbadge { position: absolute; top: 50%; right: 6px; transform: translateY(-50%); display: inline-flex; align-items: center; gap: 3px; font-size: 9px; font-weight: 700; padding: 1px 5px; border-radius: 5px; }
+.r-cell.presence { box-shadow: inset 0 0 0 2px var(--presence-color, #5e6ad2); }
+.r-cell.presence-edit { box-shadow: inset 0 0 0 2px var(--presence-color, #5e6ad2), inset 0 -3px 0 var(--presence-color, #5e6ad2); }
+.r-cell.presence-agent_intent { box-shadow: inset 0 0 0 2px var(--presence-color, #5e6ad2); }
+.r-cell.presence-commit_lease { box-shadow: inset 0 0 0 2px var(--accent-primary), inset 0 -3px 0 var(--accent-primary); }
+.r-cell .presencebadge { position: absolute; top: 50%; right: 6px; transform: translateY(-50%); display: inline-flex; align-items: center; max-width: 72px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 9px; font-weight: 700; padding: 1px 5px; border-radius: 5px; background: var(--presence-color, #5e6ad2); color: #fff; pointer-events: none; }
 /* Reserve the badge's footprint: values are right-aligned, so without this the badge renders ON
    TOP of the cell text (caught by the gemini GIF judge on the real-app recordings). */
 .r-cell.locked, .r-cell.draft { padding-right: 56px; }
+.r-cell.presence { padding-right: 76px; }
 .r-cell.locked .lockbadge { background: rgba(217,119,87,.2); color: var(--accent-ink); }
 .r-cell.draft .lockbadge { background: rgba(31,138,91,.2); color: #2E9E6B; }
 .r-val-num { font-variant-numeric: tabular-nums; font-weight: 600; color: var(--text-primary); }

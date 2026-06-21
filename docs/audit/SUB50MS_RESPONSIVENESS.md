@@ -5,6 +5,11 @@
 > 3 audit agents traced NodeRoom's real interaction-to-paint paths in code (file:line), 1 judge
 > mapped every technique to have/partial/gap/n-a and sized it (necessary / right-sized /
 > over-engineering-for-our-scale). Key citations spot-verified by hand before publishing.
+>
+> 2026-06-20 supersession: this audit predates the `rooms.meta` /
+> `artifacts.elements` split and the separate `presenceClaims` spreadsheet
+> presence lane. Treat references to `rooms.full` as historical unless a current
+> section explicitly says the old monolith still applies.
 
 ## 1. The grounded correction: where "50ms" actually comes from
 

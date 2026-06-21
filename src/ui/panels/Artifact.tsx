@@ -15,7 +15,7 @@ import {
   Table2, FileText, StickyNote, Users, GitMerge, Play, RotateCcw, History, Search, BookOpen,
   Lock, Unlock, Ban, Pencil, Plus, Check, AlertTriangle, Eye, Circle, ChevronRight, Download, Trash2, Undo2, X, Columns2, MoreHorizontal, Mail, Hash, Layers, Linkedin, Activity, type LucideIcon,
 } from "lucide-react";
-import { useStore, type ActorProof, type RoomStore, type EditFeedback } from "../../app/store";
+import { useStore, type ActorProof, type RoomStore, type EditFeedback, type PresenceClaim } from "../../app/store";
 import { formatExcelNumber } from "../../app/numberFormat";
 import { columnLetters } from "../../app/spreadsheetIndex";
 import { evaluateFormula, FormulaEvalError, type CellResolver, type CellValue, type FormulaResult } from "../../nodeagent/core/formulaEngine";
@@ -846,6 +846,38 @@ function lockedByOther(store: RoomStore, artId: string, elementId: string, me: A
 function draftedFor(store: RoomStore, roomId: string, artId: string, elementId: string): boolean {
   return store.listDrafts(roomId).some((d) => d.status === "pending" && d.artifactId === artId && d.ops.some((o) => o.elementId === elementId));
 }
+function memberColor(store: RoomStore, roomId: string, actor: Actor): string | undefined {
+  if (actor.kind !== "user") return undefined;
+  return store.listMembers(roomId).find((member) => member.id === actor.id)?.color;
+}
+function touchPresence(store: RoomStore, roomId: string, artId: string, me: Actor, targetId: string, mode: "focus" | "edit", color?: string) {
+  store.updatePresence({
+    roomId,
+    artifactId: artId,
+    targetKind: "cell",
+    targetId,
+    mode,
+    actor: me,
+    label: mode === "edit" ? `${me.name} editing` : me.name,
+    color,
+    ttlMs: mode === "edit" ? 15_000 : 12_000,
+  });
+}
+function presenceForCell(rows: PresenceClaim[], elementId: string, me: Actor): PresenceClaim | null {
+  const rank: Record<PresenceClaim["mode"], number> = { commit_lease: 0, edit: 1, agent_intent: 2, focus: 3 };
+  return rows
+    .filter((row) => row.targetKind === "cell" && row.targetId === elementId && row.actor.id !== me.id && row.expiresAt > Date.now())
+    .sort((a, b) => rank[a.mode] - rank[b.mode] || b.updatedAt - a.updatedAt)[0] ?? null;
+}
+function presenceStyle(row: PresenceClaim | null): CSSProperties | undefined {
+  return row?.color ? ({ "--presence-color": row.color } as CSSProperties) : undefined;
+}
+function presenceLabel(row: PresenceClaim): string {
+  if (row.mode === "agent_intent") return row.label ?? `${row.actor.name} planning`;
+  if (row.mode === "commit_lease") return row.label ?? `${row.actor.name} publishing`;
+  if (row.mode === "edit") return row.label ?? `${row.actor.name} editing`;
+  return row.label ?? row.actor.name;
+}
 
 /** Finance mental model: green means POSITIVE, red means negative — not "cell has content".
  *  Unsigned values (notes, labels) render neutral so status colors keep their meaning. */
@@ -853,7 +885,7 @@ function valueClass(value: string): string {
   return /^[-(]/.test(value) ? "r-val-neg" : value.startsWith("+") ? "r-val-pos" : "r-val-num";
 }
 
-function EditableCell({ value, disabled, align, onCommit, addLabel }: { value: string; disabled?: boolean; align?: "right"; onCommit: (s: string) => void; addLabel?: string }) {
+function EditableCell({ value, disabled, align, onCommit, addLabel, onEditStart, onEditEnd }: { value: string; disabled?: boolean; align?: "right"; onCommit: (s: string) => void; addLabel?: string; onEditStart?: () => void; onEditEnd?: () => void }) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(value);
   useEffect(() => setDraft(value), [value]);
@@ -862,12 +894,12 @@ function EditableCell({ value, disabled, align, onCommit, addLabel }: { value: s
     return (
       <input className="r-cell-input" autoFocus value={draft} style={align === "right" ? { textAlign: "right" } : undefined}
         onChange={(e) => setDraft(e.target.value)}
-        onBlur={() => { setEditing(false); if (draft.trim() !== value) onCommit(draft.trim()); }}
-        onKeyDown={(e) => { if (e.key === "Enter") (e.target as HTMLInputElement).blur(); if (e.key === "Escape") { setDraft(value); setEditing(false); } }} />
+        onBlur={() => { setEditing(false); onEditEnd?.(); if (draft.trim() !== value) onCommit(draft.trim()); }}
+        onKeyDown={(e) => { if (e.key === "Enter") (e.target as HTMLInputElement).blur(); if (e.key === "Escape") { setDraft(value); setEditing(false); onEditEnd?.(); } }} />
     );
   }
   return (
-    <button className="r-cell-edit" onClick={() => setEditing(true)}>
+    <button className="r-cell-edit" onClick={() => { setEditing(true); onEditStart?.(); }}>
       {value ? <span className={valueClass(value)}>{value}</span> : <span className="add-hint"><Plus size={11} /> {addLabel ?? "add"}</span>}
     </button>
   );
@@ -1003,7 +1035,13 @@ function ExcelGridSheet({ roomId, me, art, onError }: { roomId: string; me: Acto
   const [editing, setEditing] = useState<{ id: string; seed: string | null } | null>(null);
   const gridRef = useRef<HTMLDivElement>(null);
   const pendingMove = useRef<{ dCol: number; dRow: number } | null>(null);
+  const presenceStoreRef = useRef(store);
+  const presenceActorRef = useRef(me);
+  presenceStoreRef.current = store;
+  presenceActorRef.current = me;
   const grid = art.meta?.excelGrid;
+  const presenceRows = store.listPresence(roomId, art.id);
+  const selfPresenceColor = memberColor(store, roomId, me);
   const { columns, visibleRows, pageSize } = useMemo(() => {
     const columnCount = Math.max(1, grid?.columns ?? 1);
     const rowCount = Math.max(1, grid?.rows ?? 1);
@@ -1053,6 +1091,14 @@ function ExcelGridSheet({ roomId, me, art, onError }: { roomId: string; me: Acto
     if (!sel) return;
     gridRef.current?.querySelector(`[data-cell-key="${sel}"]`)?.scrollIntoView({ block: "nearest", inline: "nearest" });
   }, [sel]);
+  useEffect(() => {
+    if (!sel) return;
+    const mode = editing?.id === sel ? "edit" : "focus";
+    const publish = () => touchPresence(presenceStoreRef.current, roomId, art.id, presenceActorRef.current, sel, mode, selfPresenceColor);
+    publish();
+    const interval = window.setInterval(publish, 5_000);
+    return () => window.clearInterval(interval);
+  }, [art.id, editing?.id, roomId, sel, selfPresenceColor]);
   if (!grid) return null;
   const cellStyles = grid.styles ?? {};
   const numFmts = grid.numFmts ?? [];
@@ -1094,6 +1140,7 @@ function ExcelGridSheet({ roomId, me, art, onError }: { roomId: string; me: Acto
   const cellLocked = (id: string) => !!lockedByOther(store, art.id, id, me);
   const startEdit = (id: string, seed: string | null) => {
     if (cellLocked(id)) { onError({ ok: false, reason: "locked" }); return; }
+    touchPresence(store, roomId, art.id, me, id, "edit", selfPresenceColor);
     setEditing({ id, seed });
   };
   const chooseViewStyle = (next: WorkbookViewStyle) => {
@@ -1124,6 +1171,7 @@ function ExcelGridSheet({ roomId, me, art, onError }: { roomId: string; me: Acto
   /** Enter/Tab/arrow commits route through ONE path (the input's blur) to guarantee exactly one
    *  CAS write: the key handler records the move + blurs; onBlur commits, then applies the move. */
   const finishEdit = (elementId: string, draft: string, current: string) => {
+    store.clearPresence({ roomId, artifactId: art.id, targetKind: "cell", targetId: elementId, mode: "edit", actor: me });
     setEditing(null);
     if (draft !== current) doCommit(elementId, draft);
     const mv = pendingMove.current;
@@ -1266,12 +1314,13 @@ function ExcelGridSheet({ roomId, me, art, onError }: { roomId: string; me: Acto
                         : cellFormula ? (effRaw == null ? "" : String(effRaw))
                         : displayCellValue(el?.value);
                       const lk = lockedByOther(store, art.id, elementId, me);
+                      const cellPresence = presenceForCell(presenceRows, elementId, me);
                       let lockFlag: string | null = null;
                       if (lk && !flaggedLocks.has(lk.id)) { flaggedLocks.add(lk.id); lockFlag = lk.holder.name; }
                       const alignRight = numCandidate !== undefined || st?.a === "r";
                       const isEditing = editing?.id === elementId;
                       const inRange = rangeCells?.has(elementId) ?? false;
-                      const cls = "xl-cell" + (alignRight ? " num" : "") + (st?.a === "c" ? " ctr" : "") + (lk ? " locked" : "") + (payload?.evidence?.length ? " evidence" : "") + (cellFormula ? " formula" : "") + (compError ? " cell-error" : "") + (inRange ? " range" : "") + (sel === elementId ? " sel" : "") + (isEditing ? " editing" : "");
+                      const cls = "xl-cell" + (alignRight ? " num" : "") + (st?.a === "c" ? " ctr" : "") + (lk ? " locked" : "") + (cellPresence ? ` presence presence-${cellPresence.mode}` : "") + (payload?.evidence?.length ? " evidence" : "") + (cellFormula ? " formula" : "") + (compError ? " cell-error" : "") + (inRange ? " range" : "") + (sel === elementId ? " sel" : "") + (isEditing ? " editing" : "");
                       const inline: Record<string, string | number> = {};
                       if (st?.bg) { inline.background = st.bg; if (!st?.fc && fillNeedsLightInk(st.bg)) inline.color = "#fff"; }
                       if (st?.fc) inline.color = st.fc; // the FILE's font color wins over the heuristic
@@ -1282,14 +1331,16 @@ function ExcelGridSheet({ roomId, me, art, onError }: { roomId: string; me: Acto
                       if (st?.bt) inline.borderTop = "1px solid #5f6368";
                       if (st?.bb) inline.borderBottom = "1px solid #5f6368";
                       const editText = cellFormula ?? (typeof rawVal === "string" || typeof rawVal === "number" ? String(rawVal) : "");
-                      const title = [elementId, cellFormula ? `Formula: ${cellFormula}` : undefined, lk ? `locked by ${lk.holder.name}` : undefined].filter(Boolean).join(" | ");
+                      const title = [elementId, cellFormula ? `Formula: ${cellFormula}` : undefined, lk ? `locked by ${lk.holder.name}` : undefined, cellPresence ? presenceLabel(cellPresence) : undefined].filter(Boolean).join(" | ");
                       return (
                         <td
                           key={col}
                           className={cls}
-                          style={inline}
+                          style={{ ...inline, ...presenceStyle(cellPresence) }}
                           title={title}
                           data-cell-key={elementId}
+                          data-presence-mode={cellPresence?.mode}
+                          data-presence-label={cellPresence ? presenceLabel(cellPresence) : undefined}
                           data-in-range={rangeCells?.has(elementId) ? "true" : undefined}
                           data-has-evidence={payload?.evidence?.length ? "true" : undefined}
                           data-has-formula={cellFormula ? "true" : undefined}
@@ -1322,6 +1373,7 @@ function ExcelGridSheet({ roomId, me, art, onError }: { roomId: string; me: Acto
                             />
                           ) : display ? <span>{display}</span> : <span className="nullcell">&nbsp;</span>}
                           {lockFlag && <span className="xl-flag" data-testid="lock-flag">{lockFlag}</span>}
+                          {cellPresence && <span className="xl-presence-flag" data-testid="presence-flag">{presenceLabel(cellPresence)}</span>}
                         </td>
                       );
                     })}
@@ -1372,6 +1424,8 @@ function Sheet({ roomId, me, art, onError }: { roomId: string; me: Actor; art: A
   const rows = rowIdsOf(art);
   const now = Date.now();
   const proposals = store.listProposals(roomId).filter((p) => p.artifactId === art.id);
+  const presenceRows = store.listPresence(roomId, art.id);
+  const selfPresenceColor = memberColor(store, roomId, me);
   const doCommit = (id: string, s: string) => { void commit(store, roomId, me, art.id, id, s).then((f) => { if (f && !f.ok) onError(f); }); };
   const doUndo = () => { void store.undoLastEdit(roomId, me).then((f) => { if (!f.ok) onError(f); }); };
   return (
@@ -1385,28 +1439,32 @@ function Sheet({ roomId, me, art, onError }: { roomId: string; me: Actor; art: A
                 const vId = `${rid}__variance`, nId = `${rid}__note`;
                 const vEl = art.elements[vId], nEl = art.elements[nId];
                 const lk = lockedByOther(store, art.id, vId, me);
+                const vPresence = presenceForCell(presenceRows, vId, me);
+                const nPresence = presenceForCell(presenceRows, nId, me);
                 const drafting = draftedFor(store, roomId, art.id, vId);
                 const vProposal = proposalFor(proposals, art.id, vId);
                 const nProposal = proposalFor(proposals, art.id, nId);
                 const committed = !lk && vEl && vEl.version > 1 && now - vEl.updatedAt < 1500;
                 const personalEditor = vEl?.updatedBy && (vEl.updatedBy as Actor).ownerId ? store.listMembers(roomId).find((mm) => mm.id === (vEl.updatedBy as Actor).ownerId) : undefined;
-                const vCls = "r-cell num" + (lk ? " locked" : "") + (drafting ? " draft" : "") + (committed ? " committed" : "") + (vProposal ? " proposed" : "");
+                const vCls = "r-cell num" + (lk ? " locked" : "") + (vPresence ? ` presence presence-${vPresence.mode}` : "") + (drafting ? " draft" : "") + (committed ? " committed" : "") + (vProposal ? " proposed" : "");
                 return (
                   <tr key={rid}>
                     <td className="r-rownum" title={rid}>{i + 1}</td>
                     <td className="label">{cellVal(art, rid, "label")}</td>
                     <td className="num"><span className="r-val-num">{cellVal(art, rid, "q2")}</span></td>
                     <td className="num"><span className="r-val-num">{cellVal(art, rid, "q3")}</span></td>
-                    <td className={vCls} data-cell-key={vId} data-element-id={vId} data-testid="sheet-cell">
-                      <EditableCell key={vId + ":" + (vEl?.version ?? 0)} value={String(vEl?.value ?? "")} disabled={!!lk || drafting || !!vProposal} align="right" onCommit={(s) => doCommit(vId, s)} />
+                    <td className={vCls} style={presenceStyle(vPresence)} data-cell-key={vId} data-element-id={vId} data-testid="sheet-cell" data-presence-mode={vPresence?.mode} onClick={() => touchPresence(store, roomId, art.id, me, vId, "focus", selfPresenceColor)}>
+                      <EditableCell key={vId + ":" + (vEl?.version ?? 0)} value={String(vEl?.value ?? "")} disabled={!!lk || drafting || !!vProposal} align="right" onEditStart={() => touchPresence(store, roomId, art.id, me, vId, "edit", selfPresenceColor)} onEditEnd={() => store.clearPresence({ roomId, artifactId: art.id, targetKind: "cell", targetId: vId, mode: "edit", actor: me })} onCommit={(s) => doCommit(vId, s)} />
                       {lk && <span className="lockbadge"><Lock size={9} /> NA</span>}
                       {drafting && <span className="lockbadge"><Pencil size={9} /> draft</span>}
                       {vProposal && <InlineProposal roomId={roomId} me={me} proposal={vProposal} onResolved={(f) => { if (!f.ok) onError(f); }} />}
                       {personalEditor && <span className="r-prov-dot" style={{ background: personalEditor.color }} title={`edited by ${personalEditor.name}'s agent`} />}
+                      {vPresence && <span className="presencebadge" data-testid="presence-flag">{presenceLabel(vPresence)}</span>}
                     </td>
-                    <td className={"r-cell" + (nProposal ? " proposed" : "")} data-cell-key={nId} data-element-id={nId} data-testid="sheet-cell">
-                      <EditableCell key={nId + ":" + (nEl?.version ?? 0)} value={String(nEl?.value ?? "")} disabled={!!lk || !!nProposal} addLabel="note" onCommit={(s) => doCommit(nId, s)} />
+                    <td className={"r-cell" + (nPresence ? ` presence presence-${nPresence.mode}` : "") + (nProposal ? " proposed" : "")} style={presenceStyle(nPresence)} data-cell-key={nId} data-element-id={nId} data-testid="sheet-cell" data-presence-mode={nPresence?.mode} onClick={() => touchPresence(store, roomId, art.id, me, nId, "focus", selfPresenceColor)}>
+                      <EditableCell key={nId + ":" + (nEl?.version ?? 0)} value={String(nEl?.value ?? "")} disabled={!!lk || !!nProposal} addLabel="note" onEditStart={() => touchPresence(store, roomId, art.id, me, nId, "edit", selfPresenceColor)} onEditEnd={() => store.clearPresence({ roomId, artifactId: art.id, targetKind: "cell", targetId: nId, mode: "edit", actor: me })} onCommit={(s) => doCommit(nId, s)} />
                       {nProposal && <InlineProposal roomId={roomId} me={me} proposal={nProposal} onResolved={(f) => { if (!f.ok) onError(f); }} />}
+                      {nPresence && <span className="presencebadge" data-testid="presence-flag">{presenceLabel(nPresence)}</span>}
                     </td>
                   </tr>
                 );

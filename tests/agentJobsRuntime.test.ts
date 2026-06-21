@@ -1,15 +1,18 @@
 // @vitest-environment edge-runtime
 import { convexTest } from "convex-test";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import schema from "../convex/schema";
 import { api, internal } from "../convex/_generated/api";
 import { hashToken } from "../convex/lib";
 import type { Id } from "../convex/_generated/dataModel";
+import workflowSchema from "../node_modules/@convex-dev/workflow/dist/component/schema.js";
+import workpoolSchema from "../node_modules/@convex-dev/workpool/dist/component/schema.js";
 
 const modules = import.meta.glob("../convex/**/*.ts");
+const workflowModules = import.meta.glob("../node_modules/@convex-dev/workflow/dist/component/**/*.js");
+const workpoolModules = import.meta.glob("../node_modules/@convex-dev/workpool/dist/component/**/*.js");
 delete (modules as Record<string, unknown>)["../convex/agent.ts"];
 delete (modules as Record<string, unknown>)["../convex/agentJobRunner.ts"];
-delete (modules as Record<string, unknown>)["../convex/agentWorkflows.ts"];
 delete (modules as Record<string, unknown>)["../convex/embeddingRunner.ts"];
 
 const token = "0123456789abcdefghijklmnopqrstuvwxyzTOKEN";
@@ -376,6 +379,33 @@ describe("agentJobs runtime contract", () => {
     expect(detail?.operations.map((event) => event.name)).toContain("agentJobs.cancel");
   });
 
+  it("retry requeues a cancelled job with a fresh workflow and fences the old lease", async () => {
+    vi.useFakeTimers();
+    try {
+      const { t, proof, roomId, artifactId } = await setupRoom();
+      const { jobId } = await t.mutation(api.agentJobs.createOrReuse, jobArgs({ roomId, artifactId, proof, idempotencyKey: "job-runtime-retry-after-cancel" }));
+      const claimed = await t.mutation(internal.agentJobs.claimSlice, { jobId, leaseId: "lease-before-retry", leaseMs: 60_000 });
+      expect(claimed?.attempt).toBe(1);
+      await t.mutation(api.agentJobs.cancel, { jobId, requester: proof });
+
+      const retried = await t.mutation(api.agentJobs.retry, { jobId, requester: proof, additionalAttempts: 3 });
+      const staleFinish = await t.mutation(internal.agentJobs.finishSlice, finishSliceArgs({ jobId, leaseId: "lease-before-retry", attempt: 1 }));
+      const detail = await t.query(api.agentJobs.detail, { jobId, requester: proof });
+
+      expect(retried).toMatchObject({ ok: true, maxAttempts: 4 });
+      expect(staleFinish).toEqual({ ok: false, reason: "lease_mismatch" });
+      expect(detail?.job.status).toBe("queued");
+      expect(detail?.job.runtime).toBe("workflow");
+      expect(detail?.job.workflowId).toBeTruthy();
+      expect(detail?.job.leaseId).toBe("");
+      expect(detail?.job.error).toBeUndefined();
+      expect(detail?.leases.some((lease) => lease.status === "active")).toBe(false);
+      expect(detail?.operations.map((event) => event.name)).toEqual(expect.arrayContaining(["agentJobs.cancel", "agentJobs.retry"]));
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it("sweeps expired running-job leases into a fenced failed state", async () => {
     const { t, proof, roomId, artifactId } = await setupRoom();
     const { jobId } = await t.mutation(api.agentJobs.createOrReuse, jobArgs({ roomId, artifactId, proof, idempotencyKey: "job-runtime-stale-lease" }));
@@ -539,6 +569,8 @@ describe("agentJobs runtime contract", () => {
 
 async function setupRoom(options: { seedElement?: boolean; extraMember?: boolean; researchPolicy?: boolean } = {}) {
   const t = convexTest(schema, modules);
+  t.registerComponent("workflow", workflowSchema, workflowModules);
+  t.registerComponent("workflow/workpool", workpoolSchema, workpoolModules);
   const now = Date.now();
   const authTokenHash = await hashToken(token);
   const roomId = await t.run((ctx) =>

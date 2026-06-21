@@ -5,7 +5,11 @@ reasoning over unaudited keystrokes, and without inventing architecture the repo
 This is the canonical design for the **scratchpad seam**: the boundary between browser-local
 uncommitted state and the versioned, auditable state agents may reason over.
 
-Every contract claim below was verified against the code on 2026-06-11 (file:line cited).
+Every original contract claim below was verified against the code on 2026-06-11
+(file:line cited). Update 2026-06-20: the per-cell spreadsheet presence slice
+and server-side agent intent heartbeat have since shipped as bounded advisory
+`presenceClaims`; the remaining target is plan-time affected sets plus
+patch-bundle publish, not human cell presence itself.
 
 ## Prior art
 
@@ -31,8 +35,8 @@ Every contract claim below was verified against the code on 2026-06-11 (file:lin
 
 **Explicitly NOT in this stack (and not to be invented in docs or interviews):** WebRTC data
 channels, Yjs/CRDT grids, custom `streamChunks` cell tables. Convex reactive `useQuery` +
-server-led mutations is the proven sync; a future ephemeral presence lane is an auxiliary,
-never the source of truth.
+server-led mutations is the proven sync; the bounded presence lane is auxiliary
+coordination metadata, never the source of truth.
 
 ## 2. The scratchpad contract — three classes of state
 
@@ -78,6 +82,7 @@ affectedSet = intendedReadSet
             ∪ formulaDependencyClosure(writeSet)     // spreadsheetDependencies, both directions
             ∪ evidence/wiki/report targets the job will update
             ∪ currently locked elements (lock holders + expiries)
+            ∪ active presence / intent claims
             ∪ elements with pending proposals/drafts
 ```
 
@@ -97,7 +102,7 @@ running the same expansion at PLAN time and persisting it on the job (§5).
    Planner computes the expanded affected set (dependency closure included).
 
 3. Agent only READS → reads committed values + versions + lock flags.
-   If per-cell presence exists (§5), C2 is annotated "human-active — possibly stale".
+   With the shipped presence lane (§5), C2 is annotated "human-active — possibly stale".
    The agent's scratchpad records that annotation as PROVENANCE, not as a value.
 
 4. Agent intends WRITES overlapping the affected set →
@@ -115,15 +120,16 @@ The human's eventual Enter on C2 is itself a CAS write: if the agent legitimatel
 first (no lock, no presence), the human gets the same honest conflict-as-data path — symmetric,
 no actor is privileged.
 
-## 5. Gaps to build (honest register — none of these exist today)
+## 5. Shipped slice and remaining gaps (honest register)
 
-| Gap | What it is | Notes |
+| Area | What it is | Status / notes |
 |---|---|---|
-| **Per-cell presence** | Ephemeral `cellPresence` (roomId, artifactId, elementId, memberId, expiresAt ~10s heartbeat) | TODAY only `member.lastSeenAt` exists (`schema.ts:81`) — there is NO per-cell signal. Presence is advisory metadata (Class C), never a lock. UI renders it as the editor's colored cell outline (the Sheets presence grammar already used for locks). |
+| **Per-cell presence** | Bounded `presenceClaims` rows keyed by room/artifact/target/actor with TTL and focus/edit modes | **SHIPPED 2026-06-20** for spreadsheet cells. Presence is advisory metadata (Class C), never a lock and never part of `art.elements`. |
+| **Server-side agent intent** | Internal-only `agent_intent` / `commit_lease` claims published by authenticated agent sessions | **SHIPPED 2026-06-20** at the low-level presence channel; live browser conflict/proposal proof is still next. |
 | **Plan-time affected-set** | `computeAffectedSet(job)` running the §3 algebra before the first tool call; persisted on `agentJobs` as `intendedReadSet/intendedWriteSet/expandedAffectedSet` | The closure code exists at lock-grant time; reuse it at plan time. Bounded (cap closure size; BOUND rule). |
 | **Explicit snapshot action** | "Share draft with agent" — promotes Class A→B via the normal proof-checked mutation, marked `status: needs_review` | The only sanctioned uncommitted-text path. |
-| **Presence-aware grid render** | Editing cell outlined in the editor's member color + name flag | Same grammar as lock flags in `ExcelGridSheet`. |
-| **Two-context browser E2E** | Real two-browser spec: concurrent C2-edit vs A1:C5 job — assert no clobber, conflict-as-data surfaced, presence rendered, drafts merge | The production-guarantee matrix marks this RED; it is the proof gate for any collaboration-parity claim. |
+| **Presence-aware grid render** | Editing cell outlined in the editor's member color + name flag | **SHIPPED** in the Q3 sheet and Excel grid renderers. |
+| **Two-context browser E2E** | Real two-browser spec: assert presence is visible and non-blocking while another user edits | **PARTIAL SHIPPED** in `e2e/realtime-presence.spec.ts`; broader agent-intent/conflict flows remain the proof gate before claiming full Sheets/Figma parity. |
 
 ## 6. Anti-patterns (each rejected for a verified reason)
 
@@ -132,11 +138,16 @@ no actor is privileged.
 - **Token-streaming authoritative cell values** — cells are evidence-bearing commits; streaming is for the message lane. A finance cell's job is citation + status, not typing animation.
 - **Geometric overlap planning** — formulas make the blast radius non-rectangular; use the closure.
 - **Agent reading the live keystroke buffer** — unaudited state in a reasoning record.
-- **"Google Sheets parity" claims** — until the two-context E2E gate is green, the claim is "live collaborative sync + no-clobber mechanics, demonstrated; parity unproven."
+- **"Google Sheets parity" claims** — spreadsheet presence plus one visible edit
+  propagation now has live two-context proof, but simultaneous two-sided
+  coediting, agent intent, patch-bundle publish, and conflict proposal flows need
+  the same browser/media proof before claiming full parity.
 
 ## 7. Eval gates before any new claim
 
 1. Scripted: affected-set planner unit tests (closure correctness, caps).
 2. Scripted ladder rung: human-active-C2 scenario (wait/draft/proposal each asserted).
-3. Live: two-context browser E2E (the RED matrix row).
-4. Walkthrough GIF of the C2/A1:C5 dance through the real UI, gated by the gemini judge.
+3. Live: two-context browser E2E for agent intent + conflict/proposal flows
+   beyond the shipped presence slice.
+4. Walkthrough GIF/video of the C2/A1:C5 dance through the real UI, gated by the
+   Gemini media judge.

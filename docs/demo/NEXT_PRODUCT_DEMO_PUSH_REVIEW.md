@@ -72,7 +72,9 @@ The combined media judge rates the live-join clip publishable, and the script no
 - `npx tsc --noEmit --project convex\tsconfig.json --pretty false`: pass.
 - `npm run build`: pass, with only existing Vite chunk-size warnings.
 - `npm test -- --run`: 89 files, 501 tests pass.
-- `npm run test:product:memory`: 27 browser tests pass.
+- `npm run test:product:memory`: 27 browser tests pass in this historical
+  2026-06-14 review. Do not cite this row as current push/merge evidence; use
+  the latest clean-checkout `npm run prod:gate` result instead.
 - `npm run media:gemini-judge -- --only startup-diligence --include-ignored`:
   live-join publish evidence is run `20260614T233419Z`; current war-room publish
   evidence is run `20260617T2015Z`.

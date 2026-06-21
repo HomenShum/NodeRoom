@@ -1,25 +1,32 @@
 # NodeRoom — codebase walkthrough (interview prep)
 
+> Historical lock-lane walkthrough. It is still useful for explaining CAS,
+> drafts, and smart-merge, but it should not be used as the current product
+> target for fast human+agent coediting. The current direction is advisory
+> presence/intent, branch or patch-bundle work, a short exact-target publish
+> lease, final CAS, and CRS/proposals only on meaningful conflict. See
+> [architecture/REALTIME_HUMAN_AGENT_COEDITING.md](architecture/REALTIME_HUMAN_AGENT_COEDITING.md).
+
 A guided tour of the most important entry points, mapped 1:1 to the 8 features you
 asked for. Use it to walk an interviewer through the code top-to-bottom. The
-headline is **point 8** (the lock → draft → smart-merge collaboration model); the
+headline is **point 8** (the CAS + draft/proposal collaboration model); the
 rest is the frame around it.
 
 > **One-liner:** *A live room where humans and two NodeAgents (a public room agent
-> and your private one) edit a shared spreadsheet/note/wall. Every edit carries a
-> per-element version (CAS); an agent claims an affected range with a lock tool that
-> makes it read-only — but still readable as context — for everyone else; a blocked
-> agent drafts changes around the lock; on unlock the draft smart-merges, and it can
-> never clobber committed work. All of it is in a per-room trace log.*
+> and your private one) edit shared spreadsheet/notebook/wall surfaces. Every committed
+> edit carries a version (CAS); presence and agent intent are advisory; blocked or
+> stale agent work becomes a draft or proposal; and committed work is never silently
+> clobbered. All of it is in a per-room trace log.*
 
 ## The fastest demo path (90 seconds)
 
 1. **Landing** → "Enter as Priya". You're in the room (1 panel: public chat).
 2. Top-right toggles: open **Artifact** (2 panels) → **Private Agent** (3) → **Files · People** (4).
-3. Hit **▶ Run demo**. Watch, in order: the Room Agent posts a `propose_lock` chip and
-   the runway cells **hatch out** (read-only); Priya's private agent (right) reads them
-   as context and posts a `create_draft` chip; the Room Agent edits + `release_lock`;
-   the **trace log** (bottom) shows `draft_merged` and a green draft card.
+3. Hit **▶ Run demo**. In this legacy proof lane, the Room Agent posts a
+   `propose_lock` chip and the runway cells hatch out; Priya's private agent
+   reads them as context and posts a `create_draft` chip; the Room Agent edits +
+   `release_lock`; the **trace log** shows `draft_merged`. For current product
+   coediting, teach the presence/intent + patch-bundle flow instead.
 4. Flip **Auto-allow OFF**, edit a cell as an agent → it becomes a **proposal** you
    approve/reject in the trace panel.
 
@@ -86,13 +93,13 @@ rest is the frame around it.
 - **Say:** "The panel layout is pure flex; the interesting part of the rail is the agent
   sessions — that's the UI of cross-agent awareness."
 
-### 8. The collaboration model — lock → draft → smart-merge (the headline)
+### 8. The collaboration model — CAS + advisory coordination + smart-merge (the headline)
 This is five mechanisms; here's each, with its entry point:
 
 | Mechanism | Entry point | What to say |
 |---|---|---|
 | **Per-element CAS** | `applyOpInternal` (version check → `{ok:false, conflict, expected, actual}` returned as **data**, never thrown) | "Convex's internal OCC alone does NOT stop a stale-base clobber — two writers on v1 both succeed (last-writer-wins). The app-level `version` + CAS is what does." |
-| **The lock tool** | `proposeLock` / `lockFor` / `releaseLock` | "An agent claims an affected range (a set of element ids). `applyEdit` makes those read-only for non-holders (`reason:"locked"`), but `readRange` still returns them — locked ≠ invisible." |
+| **Legacy lock tool** | `proposeLock` / `lockFor` / `releaseLock` | "The legacy proof lane can claim an affected range and make it read-only for non-holders; current coedit target keeps human editing open and uses advisory intent plus short publish leases." |
 | **Cross-agent awareness** | `awareness(roomId, excludeAgentId)` | "Before acting, an agent sees others' active locks + sessions + the recent trace tail — that's the input to its 'don't step on each other' reasoning." |
 | **Draft for merge** | `createDraft` (a blocked agent's proposed ops, tagged `blockedByLockId`) | "Blocked agent reads the locked range, reasons around it, and queues a draft instead of waiting." |
 | **Smart-merge on unlock** | `releaseLock` → `mergeDraft` → `resolver` in [`merge.ts`](../src/engine/merge.ts) | "On release, the draft resolves: ops on untouched elements apply cleanly; ops that diverged from committed work are flagged for review — committed work is **never** clobbered. The deterministic resolver ships here; a real LLM resolver implements the same `SmartResolver` signature." |

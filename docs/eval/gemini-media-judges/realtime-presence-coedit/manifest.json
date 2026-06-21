@@ -1,0 +1,20 @@
+{
+  "runId": "realtime-presence-coedit",
+  "generatedAt": "2026-06-21T02:21:08.807Z",
+  "model": "gemini-3.5-flash",
+  "primaryOnly": true,
+  "all": false,
+  "includeIgnored": true,
+  "only": "realtime-presence-coedit",
+  "assets": [
+    {
+      "id": "docs-walkthroughs-realtime-presence-coedit",
+      "class": "readme_walkthrough",
+      "title": "Realtime Presence Coedit",
+      "path": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\docs\\walkthroughs\\realtime-presence-coedit.webm",
+      "relPath": "docs/walkthroughs/realtime-presence-coedit.webm",
+      "purpose": "README live walkthrough clip. Judge whether the feature is obvious, visually consistent, and credible as evidence.",
+      "duplicateGroup": "walkthrough:realtime-presence-coedit"
+    }
+  ]
+}

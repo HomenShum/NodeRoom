@@ -198,6 +198,38 @@ export default defineSchema({
     .index("by_room_status", ["roomId", "status"])
     .index("by_artifact_status", ["artifactId", "status"]),
 
+  /** Advisory presence and intent. This is never a write gate; it paints who is
+   *  focused/editing/planning so humans and agents can work beside each other
+   *  without long visible locks. Rows are TTL-bounded and safe to ignore. */
+  presenceClaims: defineTable({
+    roomId: v.id("rooms"),
+    artifactId: v.optional(v.id("artifacts")),
+    targetKind: v.union(
+      v.literal("cell"),
+      v.literal("notebook_block"),
+      v.literal("deck_component"),
+      v.literal("slide"),
+    ),
+    targetId: v.string(),
+    mode: v.union(
+      v.literal("focus"),
+      v.literal("edit"),
+      v.literal("agent_intent"),
+      v.literal("commit_lease"),
+    ),
+    actorId: v.string(),
+    actor,
+    label: v.optional(v.string()),
+    color: v.optional(v.string()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+    expiresAt: v.number(),
+  })
+    .index("by_room_artifact", ["roomId", "artifactId", "expiresAt"])
+    .index("by_room_target", ["roomId", "targetKind", "targetId", "expiresAt"])
+    .index("by_actor", ["roomId", "artifactId", "actorId"])
+    .index("by_actor_mode", ["roomId", "artifactId", "actorId", "mode"]),
+
   drafts: defineTable({
     roomId: v.id("rooms"),
     artifactId: v.id("artifacts"),
@@ -1223,6 +1255,23 @@ export default defineSchema({
   })
     .index("by_parent", ["artifactId", "parentElementId"])
     .index("by_child", ["artifactId", "childElementId"]),
+
+  spreadsheetIndexRefreshes: defineTable({
+    artifactId: v.id("artifacts"),
+    status: v.union(
+      v.literal("queued"),
+      v.literal("running"),
+      v.literal("completed"),
+      v.literal("failed"),
+    ),
+    dueAt: v.number(),
+    error: v.optional(v.string()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+    completedAt: v.optional(v.number()),
+  })
+    .index("by_artifact_status", ["artifactId", "status", "updatedAt"])
+    .index("by_status_due", ["status", "dueAt"]),
 
   agentSteps: defineTable({
     jobId: v.optional(v.id("agentJobs")),

@@ -27,8 +27,11 @@ The leaderboard is won on **field notes (×20)**, not raw installs. So this doc 
 **Demo prep checklist**
 - [ ] `pip install python-pptx` on the demo machine beforehand.
 - [ ] Pre-open `assets/examples/cardionova_notes.md` and a terminal in the skill dir.
-- [ ] Have `deck.pptx` from a dry run ready as a fallback if live render is slow.
-- [ ] Open the rendered deck in PowerPoint/LibreOffice so the amber `⚠`/`[TK]` markers are visible on screen.
+- [ ] Have the gated `deck-plan.json` and rendered HTML preview from a dry run ready
+  as the primary fallback if live render is slow.
+- [ ] Have `deck.pptx` only as an optional export fallback.
+- [ ] Open the HTML preview first so comments/provenance are visible; open
+  PowerPoint/LibreOffice only to show the optional native export.
 
 ---
 
@@ -41,14 +44,14 @@ The ×20 weight means **one real user running it on their own notes** beats 20 c
 3. The Bay Area builder room at the event itself — get ≥1 install + run on the day (clears the "actually runs" eligibility gate immediately).
 
 **The share message (short, concrete, honest):**
-> Built an "honest deck builder" Agent Skill: paste your messy notes → real .pptx, but it flags every fact it can't source instead of inventing one. Curious what it catches in *your* notes — install on SkillHunt and run the eval prompt, takes 2 min.
+> Built an "honest deck builder" Agent Skill: paste your messy notes → gated deck-plan JSON → HTML preview/comment-edit → optional .pptx/PDF export. It flags every fact it can't source instead of inventing one. Curious what it catches in *your* notes — install on SkillHunt and run the eval prompt, takes 2 min.
 
 **The field-note prompt to hand them** (also in the skill README):
 ```
 Install and use the "powerpoint" skill on my real notes below. Draft a deck plan,
-run the evidence gate, render the .pptx, and then tell me: how many claims came out
-verified vs. manual vs. needs_review, and what specifically I need to verify before
-I present this. Notes:
+run the evidence gate, render the HTML preview, optionally export .pptx/PDF, and
+then tell me: how many claims came out verified vs. manual vs. needs_review, and
+what specifically I need to verify before I present this. Notes:
 <paste your messy notes here>
 ```
 
@@ -58,7 +61,8 @@ I present this. Notes:
 
 ## Eligibility checklist (do not get DQ'd)
 - [x] Targets a real OPC scenario (solo founder → investor/update deck).
-- [x] Actually runs — produces a real `.pptx` (verified end-to-end).
+- [x] Actually runs — produces gated deck-plan JSON + HTML preview, with optional
+  `.pptx` export verified end-to-end.
 - [x] Not a no-op — the evidence gate + provenance rendering change agent behavior measurably.
 - [x] Original — provenance governance on top of generation; not a copy of any GitHub/Clawhub skill.
 - [ ] Published on SkillHunt with README + scenario description. *(README ready in the skill dir.)*

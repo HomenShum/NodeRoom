@@ -83,7 +83,12 @@ LIVE mode is the **only** multi-user runtime (MEMORY is single-process - no WebS
 
 **The first thing to break:** not correctness (CAS holds - `MULTI_USER_COORDINATION_PROOF.md`; live N=3 converges in 1.0 min, `THREE_USER_COLLAB.md`, room EVAL-MQ7DB1BZ, *measured*) - it's the **`rooms.full` whole-room re-serialization fan-out**, the single biggest scaling defect. Combined with the single-`useMemo` store + zero `React.memo`, every subscriber pays `O(room)` CPU + the full payload per edit.
 
-**Presence note:** there is **no `cellPresence` table and no heartbeat**. `members.lastSeenAt` is written only at create/join (`rooms.ts:31,55`), never refreshed. Upside - no presence write-storm. Downside - no live "who's editing this cell" cursor; users discover contention only via a CAS conflict *after the fact*. If presence is ever added it MUST be a separate bounded ephemeral table with TTL + rate-limit, never folded into `rooms.full`.
+**Presence note (updated 2026-06-20):** the original audit found no per-cell
+presence and no heartbeat. The spreadsheet slice now has a separate bounded
+`presenceClaims` table/subscription with TTL-bound focus/edit claims, so live
+"who is on this cell" feedback exists without folding presence into
+`rooms.full` or `art.elements`. Keep it that way: presence is advisory,
+rate-limited coordination metadata, not durable finance state.
 
 **Realistic ceiling:** the 33rd join returns `{error:'room_full'}` (`rooms.ts:51`). The 32-cap is a deliberate blast-radius guard for the *unscaled* query path. To safely raise it toward ~300, the `rooms.full` split **and** message pagination must land first - otherwise per-edit cost is `N x room-size` and WebSocket egress dominates.
 

@@ -146,7 +146,8 @@ evidence, and write trace data back to Convex without bundling Playwright.
 - Live smoke verified Browserbase plus the reasoning model on `example.com`.
 - Live smoke verified the Firecrawl-backed `capture_source` tool on
   `example.com`.
-- GitHub CI passed after the deploy with `prod:gate` and ladder checks green.
+- GitHub CI passed after that 2026-06-17 deploy with `prod:gate` and ladder
+  checks green; this is historical evidence, not the current push/merge gate.
 
 ### Convex components reviewed
 

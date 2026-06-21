@@ -1815,6 +1815,21 @@ export const retry = mutation({
       onComplete: internal.agentWorkflows.freeAutoWorkflowComplete,
       context: { jobId },
     });
+    const activeLeases = await ctx.db.query("agentLeases").withIndex("by_job_status", (q) => q.eq("jobId", jobId).eq("status", "active")).collect();
+    for (const lease of activeLeases) await ctx.db.patch(lease._id, { status: "released", releasedAt: now });
+    await recordOperationEvent(ctx, {
+      jobId,
+      sequence: (job.actionSliceCount ?? 0) + (job.queryCount ?? 0) + (job.mutationCount ?? 0) + (job.modelCallCount ?? 0) + (job.toolCallCount ?? 0) + (job.schedulerHandoffCount ?? 0) + 4,
+      kind: "checkpoint",
+      name: "agentJobs.retry",
+      targetKind: "artifact",
+      targetId: String(job.artifactId),
+      status: "completed",
+      countDelta: 1,
+      affectedIds: [String(jobId), String(job.artifactId), String(workflowId)],
+      startedAt: now,
+      completedAt: now,
+    });
     await ctx.db.patch(jobId, {
       status: "queued",
       maxAttempts,
@@ -1824,6 +1839,9 @@ export const retry = mutation({
       runtime: "workflow",
       workflowId: String(workflowId),
       error: undefined,
+      completedAt: undefined,
+      mutationCount: (job.mutationCount ?? 0) + 1,
+      schedulerHandoffCount: (job.schedulerHandoffCount ?? 0) + 1,
       updatedAt: now,
     });
     return { ok: true as const, maxAttempts };

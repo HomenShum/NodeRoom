@@ -10,7 +10,7 @@ semantic/dependency index.
 | Concern | Use | Convex-native | Replaces |
 |---|---|---|---|
 | Reactivity + optimistic UI | Convex `useQuery` / mutations / optimistic updates | core | `RoomEngine` mirror when backend is live |
-| Collaborative note | TipTap now; future `@convex-dev/prosemirror-sync` for production prose CRDT/OT | official component | `contentEditable` blocks |
+| Collaborative notebook | ProseMirror Sync behind `VITE_NOTEBOOK_SYNC=prosemirror`; legacy TipTap HTML-on-blur remains fallback/export/checkpoint | official component | `contentEditable` blocks |
 | Public + private agent chat | `@assistant-ui/react` for 1:1 agent threads; custom room feed for multi-author chat; `@convex-dev/persistent-text-streaming` for durable streams | configured component + first-party fit | bespoke private assistant thread |
 | Agent run loop | Current custom bounded tool harness; future `@convex-dev/agent` where it fits | official component available | scripted-only agent |
 | Durable agent runs | `agentJobs` slices wrapped by `@convex-dev/workflow` with `@convex-dev/workpool` controls | wired official components | scheduler-only continuation loops |
@@ -59,6 +59,8 @@ semantic/dependency index.
 - Do not import AI SDK or native LiteParse modules into Convex function modules. Convex actions use the direct HTTP `convexModel` adapter; LiteParse stays in a Node worker/script lane.
 - Workflow action retries are disabled for `/free` slices because provider calls can double-bill. The slice runner owns attempt accounting and retry/backoff.
 - Provider file ids are cache metadata. Convex storage/artifact ids remain canonical.
-- CRDT/OT is right for prose notes, not spreadsheet cells. Spreadsheet writes use app-level version CAS plus affected-range locks.
+- CRDT/OT is right for prose notes, not spreadsheet cells. Spreadsheet writes use
+  app-level version CAS plus advisory presence/intent and short publish leases;
+  affected-range locks remain a legacy proof/debug lane.
 - Live-provider catalog proof is not runtime proof. It checks planning/comprehension only. The live-runtime smoke proves managed room-tool execution; richer domain claims still need their own gold runners.
 - `@convex-dev/*` components are still 0.x packages. Pin versions and treat upgrades as migrations.

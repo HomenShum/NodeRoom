@@ -117,6 +117,22 @@ export type AgentModelSelection =
 export type AgentAskInput = { goal: string; references?: ArtifactRef[]; modelSelection?: AgentModelSelection };
 export type ActorProof = { actor: Actor; token: string };
 export type PrivateStreamAccess = { requester: ActorProof; driven: boolean };
+export type PresenceTargetKind = "cell" | "notebook_block" | "deck_component" | "slide";
+export type PresenceMode = "focus" | "edit" | "agent_intent" | "commit_lease";
+export type PublicPresenceMode = "focus" | "edit";
+export type PresenceClaim = {
+  id: string;
+  roomId: string;
+  artifactId?: string;
+  targetKind: PresenceTargetKind;
+  targetId: string;
+  mode: PresenceMode;
+  actor: Actor;
+  label?: string;
+  color?: string;
+  updatedAt: number;
+  expiresAt: number;
+};
 
 /** One row of the passive room-intelligence feed. Mirrors the backend `FeedItem` contract
  *  exported from convex/roomActivity.ts — imported directly so backend/client drift is a
@@ -179,6 +195,9 @@ export interface RoomStore {
   listSessions(roomId: string): AgentSession[];
   listDrafts(roomId: string): Draft[];
   listProposals(roomId: string): Proposal[];
+  listPresence(roomId: string, artifactId: string): PresenceClaim[];
+  updatePresence(args: { roomId: string; artifactId: string; targetKind: PresenceTargetKind; targetId: string; mode: PublicPresenceMode; actor: Actor; label?: string; color?: string; ttlMs?: number }): void;
+  clearPresence(args: { roomId: string; artifactId: string; targetKind?: PresenceTargetKind; targetId?: string; mode?: PresenceMode; actor: Actor }): void;
   lockFor(artifactId: string, elementId: string): Lock | undefined;
   awareness(roomId: string, agentId?: string): { activeLocks: Lock[] };
   /** Apply a hand edit (CAS). Returns feedback so the UI can surface a conflict honestly. */
@@ -596,6 +615,9 @@ export function EngineStoreProvider({ roomId, children }: { roomId: string; me: 
     listSessions: (id) => engine.listSessions(id),
     listDrafts: (id) => engine.listDrafts(id),
     listProposals: (id) => engine.listProposals(id),
+    listPresence: () => [],
+    updatePresence: () => {},
+    clearPresence: () => {},
     lockFor: (aid, eid) => engine.lockFor(aid, eid),
     awareness: (id, aid) => engine.awareness(id, aid),
     applyEdit: async (args) => {
@@ -827,6 +849,17 @@ function ArtifactElementsSubscriber({ roomId, artifactId, proof, onElements, onU
   return null;
 }
 
+function ArtifactPresenceSubscriber({ roomId, artifactId, proof, onPresence, onUnmount }: {
+  roomId: string; artifactId: string; proof: ActorProof;
+  onPresence: (artifactId: string, presence: PresenceClaim[]) => void;
+  onUnmount: (artifactId: string) => void;
+}) {
+  const rows = useQuery(api.presence.listForArtifact, { roomId: roomId as never, artifactId: artifactId as never, requester: proof });
+  useLayoutEffect(() => { if (rows !== undefined) onPresence(artifactId, rows as unknown as PresenceClaim[]); }, [artifactId, rows, onPresence]);
+  useEffect(() => () => onUnmount(artifactId), [artifactId, onUnmount]);
+  return null;
+}
+
 /* Client mirrors of convex/artifacts.ts research-row helpers — MUST stay in lockstep
    (they make addResearchRows deterministic, which is what makes its optimistic insert
    parity-exact: same slugs, same suffix-dedup, same default column values). */
@@ -893,11 +926,18 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
   const metaArtifacts = useMemo(() => (data?.artifacts ?? []) as unknown as MetaArtifact[], [data]);
   // B1: per-artifact cell maps, lifted from the <ArtifactElementsSubscriber> children rendered below.
   const [elementsByArtifact, setElementsByArtifact] = useState<Record<string, ElementsMap>>({});
+  const [presenceByArtifact, setPresenceByArtifact] = useState<Record<string, PresenceClaim[]>>({});
   const onArtifactElements = useCallback((artifactId: string, els: ElementsMap) => {
     setElementsByArtifact((prev) => (prev[artifactId] === els ? prev : { ...prev, [artifactId]: els }));
   }, []);
   const onArtifactUnmount = useCallback((artifactId: string) => {
     setElementsByArtifact((prev) => { if (!(artifactId in prev)) return prev; const next = { ...prev }; delete next[artifactId]; return next; });
+  }, []);
+  const onArtifactPresence = useCallback((artifactId: string, presence: PresenceClaim[]) => {
+    setPresenceByArtifact((prev) => (prev[artifactId] === presence ? prev : { ...prev, [artifactId]: presence }));
+  }, []);
+  const onArtifactPresenceUnmount = useCallback((artifactId: string) => {
+    setPresenceByArtifact((prev) => { if (!(artifactId in prev)) return prev; const next = { ...prev }; delete next[artifactId]; return next; });
   }, []);
   const pubQuery = hasValidLiveSession ? { roomId: rid, channel: "public", requester: proof } : "skip";
   const privQuery = hasValidLiveSession ? { roomId: rid, channel: me.id, requester: proof } : "skip";
@@ -1075,6 +1115,8 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
   const recordCitationMut = useMutation(api.captures.recordCitation);
   const createPrivateReplyStream = useMutation(api.streaming.createPrivateReplyStream);
   const startAgentJob = useMutation(api.agentJobs.start);
+  const updatePresenceMutation = useMutation(api.presence.heartbeat);
+  const clearPresenceMutation = useMutation(api.presence.clear);
   const dismissActivityMutation = useMutation(api.roomActivity.dismissActivity);
   const researchActivityMutation = useMutation(api.roomActivity.researchActivity);
   const practiceActivityMutation = useMutation(api.roomActivity.practiceActivity);
@@ -1183,6 +1225,14 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
       listSessions: () => sessions,
       listDrafts: () => drafts,
       listProposals: () => proposals as unknown as Proposal[],
+      listPresence: (_id, artifactId) => presenceByArtifact[artifactId] ?? [],
+      updatePresence: ({ artifactId, targetKind, targetId, mode, label, color, ttlMs }) => {
+        if (!targetId) return;
+        void updatePresenceMutation({ roomId: rid, artifactId: artifactId as never, targetKind, targetId, mode, label, color, ttlMs, requester: proof });
+      },
+      clearPresence: ({ artifactId, targetKind, targetId, mode }) => {
+        void clearPresenceMutation({ roomId: rid, artifactId: artifactId as never, targetKind, targetId, mode, requester: proof });
+      },
       lockFor: (aid, eid) => locks.find((l) => l.artifactId === aid && l.elementIds.includes(eid)),
       awareness: (_id, aid) => ({ activeLocks: locks.filter((l) => l.holder.id !== aid) }),
       applyEdit: async ({ op }) => {
@@ -1539,7 +1589,7 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
         return result.rowId ? { artifactId: targetArt.id as string, rowId: result.rowId as string, created: result.created } : undefined;
       },
     };
-  }, [data, metaArtifacts, elementsByArtifact, pub, priv, traces, okfLens, runs, jobs, jobAttempts, jobDetail, proposals, passiveActivity, mergedCaptures, applyCellEdit, sendMsg, toggle, editMsg, resolveProposalMutation, addResearchRowsMutation, ensurePassiveResearchRowMutation, createArtifactMutation, uploadSourceFile, runSemanticConflictDrillMutation, runAgent, runPrivateAgent, createPrivateReplyStream, startAgentJob, cancelFreeAutoJob, retryFreeAutoJob, dismissActivityMutation, researchActivityMutation, practiceActivityMutation, rid, roomId, proof, me.id, me.name]);
+  }, [data, metaArtifacts, elementsByArtifact, presenceByArtifact, pub, priv, traces, okfLens, runs, jobs, jobAttempts, jobDetail, proposals, passiveActivity, mergedCaptures, applyCellEdit, sendMsg, toggle, editMsg, resolveProposalMutation, addResearchRowsMutation, ensurePassiveResearchRowMutation, createArtifactMutation, uploadSourceFile, runSemanticConflictDrillMutation, runAgent, runPrivateAgent, createPrivateReplyStream, startAgentJob, updatePresenceMutation, clearPresenceMutation, cancelFreeAutoJob, retryFreeAutoJob, dismissActivityMutation, researchActivityMutation, practiceActivityMutation, rid, roomId, proof, me.id, me.name]);
 
   return (
     <Ctx.Provider value={store}>
@@ -1547,6 +1597,9 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
           artifact's cells. opt- (optimistic) ids are skipped: they aren't valid Convex ids. */}
       {metaArtifacts.filter((a) => !String(a.id).startsWith("opt-")).map((a) => (
         <ArtifactElementsSubscriber key={a.id} roomId={roomId} artifactId={a.id} proof={proof} onElements={onArtifactElements} onUnmount={onArtifactUnmount} />
+      ))}
+      {metaArtifacts.filter((a) => !String(a.id).startsWith("opt-")).map((a) => (
+        <ArtifactPresenceSubscriber key={`presence-${a.id}`} roomId={roomId} artifactId={a.id} proof={proof} onPresence={onArtifactPresence} onUnmount={onArtifactPresenceUnmount} />
       ))}
       {children}
     </Ctx.Provider>

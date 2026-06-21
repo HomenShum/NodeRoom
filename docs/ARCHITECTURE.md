@@ -1,6 +1,8 @@
 # NodeRoom — architecture
 
 > **Architecture boundaries / scaling rule:** see [architecture/CONVEX_AS_LEDGER.md](architecture/CONVEX_AS_LEDGER.md) — *Convex is the durable collaboration ledger, not the keystroke pipe, the agent scratchpad, or the OLAP warehouse.* It carries the per-bottleneck prescription (B1 split `rooms.full`, B2 paginate history, B3 narrow queries, B4 `@nodeagent` admission control, B5 intent-claim + short commit-lease + CAS + proposals, B6 patch-bundles vs a snapshot baseVersion), the canonical C2/A1:C5 runtime, the streaming policy, and the implementation order.
+>
+> **Realtime UX rule:** see [architecture/REALTIME_HUMAN_AGENT_COEDITING.md](architecture/REALTIME_HUMAN_AGENT_COEDITING.md) — spreadsheet, notebook, and deck collaboration share the same non-blocking model: presence/intent first, branch/patch-bundle work in the background, short commit lease only at publish, and proposals only when CAS/CRS finds a real conflict.
 
 ## The one idea everything rests on: the uniform element model
 
@@ -247,10 +249,12 @@ For the live (Convex-wired) version, grounded in current sources:
   local patch — Linear-grade *felt* responsiveness (Linear publishes no numeric SLA; its goal is "a
   synchronous experience with asynchronous data", and its mechanism is local-first).
   - *Validity bound (unmeasured):* the ~0ms is a **mechanism** claim (no server round-trip on local
-    apply), not a measured number. It holds at small room size. Today the optimistic cell/note/post-it
-    edit `setQuery`s the whole `rooms.full` object (O(room) work per commit), so the felt latency
-    degrades as a room grows — revisit with the granular-subscription split. See
-    [docs/audit/QA_FINDINGS.md](audit/QA_FINDINGS.md) (P1-8) for the measurement + refactor trigger.
+    apply), not a measured number. It holds at small room size. The old `rooms.full`
+    coupling has been split for artifact elements, and spreadsheet presence now
+    rides its own bounded side subscription. The next measurement trigger is the
+    remaining artifact-shell bump plus broader product-memory browser coverage.
+    See [architecture/CONVEX_AS_LEDGER.md](architecture/CONVEX_AS_LEDGER.md) and
+    [architecture/REALTIME_HUMAN_AGENT_COEDITING.md](architecture/REALTIME_HUMAN_AGENT_COEDITING.md).
 - **Collaboration echo** (your edit visible to others) → **~30–150ms** same-region (estimate, not a
   Convex-published number) — "live", not "instant".
 - **Agent `@nodeagent`** → first token **~0.7–1.5s** (non-reasoning models; *never* a reasoning/thinking SKU,

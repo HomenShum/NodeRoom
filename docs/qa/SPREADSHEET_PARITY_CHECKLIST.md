@@ -73,7 +73,7 @@ The walkthrough target is `workbook-style-toggle`: upload a generated workbook, 
 | 35 | Copy marching-ants | ◻ |
 | 36 | Remote edit on a SELECTED cell updates in place, selection untouched | ✓ (reactive store) |
 | 37 | Remote edit on the cell you're EDITING: local draft wins until commit | ✓ (uncontrolled input; commit goes through CAS — a stale baseline surfaces conflict-as-data, stricter than Sheets' LWW) |
-| 38 | Presence: other editors' cells outlined in THEIR color + name flag | ✓ for LOCKS (holder flag) · ◻ for per-cell presence (no `cellPresence` table yet — see `docs/architecture/AGENT_SCRATCHPAD_CELL_COLLAB.md` §5) |
+| 38 | Presence: other editors' cells outlined in THEIR color + name flag | ✓ for LOCKS (holder flag) · ✓ for bounded per-cell spreadsheet presence via `presenceClaims` and `e2e/realtime-presence.spec.ts`; server-side agent intent claims exist, while browser conflict/proposal proof for those claims is still next |
 | 39 | Honest commit status (failed write reverts visibly) | ✓ (conflict toast + revert — the repo's core contract) |
 
 ## P2 — power-user (all ◻, ranked for later)

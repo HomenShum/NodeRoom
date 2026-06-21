@@ -52,7 +52,7 @@ Research (`docs/research/agent-skills-landscape.md`) showed `SKILL.md` is now a 
 ## Build order
 
 **Tonight (Jun 19)**
-1. ✅ Author **`powerpoint`** hero skill at `.claude/skills/powerpoint/`: `SKILL.md` + `references/deck-plan-schema.md` + `scripts/evidence_pass.py` (honesty gate) + `scripts/build_pptx.py` (**self-contained** python-pptx renderer — no dependency on the local `pptx` skill, so it runs standalone in a stranger's agent) + `assets/examples/`.
+1. ✅ Author **`powerpoint`** hero skill at `.claude/skills/powerpoint/`: `SKILL.md` + `references/deck-plan-schema.md` + `scripts/evidence_pass.py` (honesty gate) + `scripts/build_html.py` (primary preview/comment-edit renderer) + `scripts/build_pptx.py` (optional self-contained python-pptx export — no dependency on the local `pptx` skill, so it runs standalone in a stranger's agent) + `assets/examples/`.
 2. ✅ Self-test end-to-end: gate passes clean input (2 verified · 2 manual · 2 needs_review), **blocks** the fabrication fixture (exit 1), renders a 6-slide deck with source footers, `⚠ needs review` markers, `[TK]` placeholders, and an auto "To Verify" slide. Verified by extracting rendered slide text.
 3. ✅ SkillHunt-facing **README.md** (in skill dir) + **demo script & distribution plan** ([DEMO_AND_DISTRIBUTION.md](DEMO_AND_DISTRIBUTION.md)).
 

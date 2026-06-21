@@ -74,7 +74,7 @@ Design-intent names now live in `src/nodeagent/**`. Convex remains the durable b
 9. [demo/STARTUP_DILIGENCE_LATEST_REVIEW.md](demo/STARTUP_DILIGENCE_LATEST_REVIEW.md) - current safe demo/interview claim boundary after OKF production hardening.
 10. [demo/NEXT_PRODUCT_DEMO_PUSH_REVIEW.md](demo/NEXT_PRODUCT_DEMO_PUSH_REVIEW.md) - repo/browser review for the next push.
 11. [PRODUCTION_READINESS.md](PRODUCTION_READINESS.md), [GAPS_NOT_DONE.md](GAPS_NOT_DONE.md), and [WEDGE.md](WEDGE.md) - readiness, gaps, and the frozen wedge.
-12. [showcase/noderoom-diligence-deck.html](showcase/noderoom-diligence-deck.html) - lightweight deck scaffold.
+12. [showcase/noderoom-diligence-deck.html](showcase/noderoom-diligence-deck.html) - lightweight derived deck preview/demo scaffold, not the deck source of truth.
 
 ## Historical Docs Policy
 
@@ -128,6 +128,9 @@ with the authority docs above. In particular:
 ### Last Full Production Snapshot
 
 2026-06-16, `main` / `origin/main` at `2e2bfbf`:
+
+Historical snapshot only. Do not cite this row as current push/merge evidence;
+use the latest clean-checkout `npm run prod:gate` result instead.
 
 - `npm run typecheck -- --pretty false`: pass.
 - `npx tsc --noEmit --project convex\tsconfig.json --pretty false`: pass.

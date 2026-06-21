@@ -1,8 +1,8 @@
 {
-  "runId": "native-notebook-single-source",
-  "generatedAt": "2026-06-18T22:12:29.528Z",
+  "runId": "realtime-presence-coedit",
+  "generatedAt": "2026-06-21T02:21:18.428Z",
   "model": "gemini-3.5-flash",
-  "command": "npm run media:gemini-judge -- --only first-time-banker-capture --include-ignored --run-id native-notebook-single-source --model gemini-3.5-flash",
+  "command": "npm run media:gemini-judge -- --only realtime-presence-coedit --include-ignored --run-id realtime-presence-coedit --model gemini-3.5-flash",
   "notes": [
     "GIF assets are converted to temporary MP4 with ffmpeg before upload.",
     "This media judge is evidence-quality QA; it does not replace backend/browser production gates."
@@ -22,71 +22,71 @@
   "results": [
     {
       "asset": {
-        "id": "docs-walkthroughs-first-time-banker-capture",
+        "id": "docs-walkthroughs-realtime-presence-coedit",
         "class": "readme_walkthrough",
-        "title": "First Time Banker Capture",
-        "path": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\docs\\walkthroughs\\first-time-banker-capture.mp4",
-        "relPath": "docs/walkthroughs/first-time-banker-capture.mp4",
+        "title": "Realtime Presence Coedit",
+        "path": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\docs\\walkthroughs\\realtime-presence-coedit.webm",
+        "relPath": "docs/walkthroughs/realtime-presence-coedit.webm",
         "purpose": "README live walkthrough clip. Judge whether the feature is obvious, visually consistent, and credible as evidence.",
-        "duplicateGroup": "walkthrough:first-time-banker-capture"
+        "duplicateGroup": "walkthrough:realtime-presence-coedit"
       },
       "model": "gemini-3.5-flash",
       "status": "judged",
-      "mediaPath": "docs/walkthroughs/first-time-banker-capture.mp4",
-      "mediaType": "video/mp4",
-      "bytes": 8983964,
+      "mediaPath": "docs/walkthroughs/realtime-presence-coedit.webm",
+      "mediaType": "video/webm",
+      "bytes": 331322,
       "judge": {
         "verdict": "publish",
-        "summary": "A clear, well-paced walkthrough demonstrating raw note capture and subsequent automated signal extraction in the intelligence panel.",
+        "summary": "The video demonstrates real-time co-editing and presence in a financial spreadsheet workspace. A second user joins the room, and a cell note is added, showing immediate updates across the session.",
         "scores": {
           "featureClarity": {
             "score": 1,
-            "evidence": "Demonstrates entering unstructured notes and extracting actionable intelligence signals."
+            "evidence": "The presence indicator increments to '2 live' and a cell note is added, though the co-author's cursor is not explicitly highlighted in the cell."
           },
           "workflowCompleteness": {
             "score": 1,
-            "evidence": "Shows the complete sequence from empty note input to signal detection and research trigger."
+            "evidence": "Shows the initial state, the addition of a note, and the updated cell state with presence indicators."
           },
           "visualDesign": {
             "score": 1,
-            "evidence": "Clean dark-mode interface with clear focus states and structured sidebars."
+            "evidence": "High-density dark UI with clear layout, though some text elements and status chips are quite small."
           },
           "consistency": {
             "score": 1,
-            "evidence": "Fits the core product narrative of note-taking integrated with agentic intelligence."
+            "evidence": "Aligns with the NodeRoom workspace concept, featuring spreadsheets, rooms, and agent panels."
           },
           "evidenceQuality": {
             "score": 1,
-            "evidence": "Unedited screen capture showing realistic typing, cursor movement, and UI transitions."
+            "evidence": "Captured directly from a live browser session showing real UI interactions."
           },
           "legibility": {
             "score": 1,
-            "evidence": "All typed text, labels, and status chips are readable at standard resolutions."
+            "evidence": "The spreadsheet text and bottom status bar are readable, but require full-screen viewing due to high density."
           },
           "professionalRelevance": {
             "score": 1,
-            "evidence": "Highly relevant for investment bankers and analysts capturing startup diligence notes."
+            "evidence": "Highly relevant for collaborative financial modeling and deal room diligence workflows."
           },
           "productionHonesty": {
             "score": 1,
-            "evidence": "Accurately depicts the system pause and manual confirmation step for intelligence actions."
+            "evidence": "Shows actual UI latency and system logs at the bottom of the screen."
           }
         },
         "observedEvidence": [
-          "Raw text entry in Capture Notebook",
-          "Automatic signal detection in Room Intelligence",
-          "Interactive Research action trigger"
+          "Presence indicator updates to '2 live' at the top right",
+          "System log at the bottom shows 'Sam (joined room)'",
+          "Cell D3 is updated with a note 'Q3 growth came from renewals.'"
         ],
         "missingEvidence": [],
         "defects": [
           {
-            "ts": "00:04",
+            "ts": "00:03",
             "severity": "P2",
-            "observed": "Typo in typed text: 'pilots.Capture Notebook' lacks a space after the period.",
-            "fix": "Re-record or accept as a minor realistic input typo."
+            "observed": "The active cursor of the second user (Sam) is not visually distinct inside the spreadsheet grid during the edit.",
+            "fix": "Add a colored cell border or cursor flag to represent the remote user's active selection."
           }
         ],
-        "suggestedReadmeCaption": "Capture unstructured meeting notes and let NodeRoom automatically extract key diligence signals for follow-up research."
+        "suggestedReadmeCaption": "Real-time presence and collaborative cell editing in NodeRoom's secure financial workspace."
       },
       "score": 8,
       "maxScore": 16

@@ -87,9 +87,9 @@ isn't on this list, we don't claim coverage of it.
 
 ### Mode 1 — "Do it for me" (autonomous solve)
 
-- ✅ Recompute the variance column with lock → CAS → release (`evals/cases.ts` S1)
+- ✅ Recompute the variance column with the legacy lock → CAS → release proof lane (`evals/cases.ts` S1)
 - ✅ Selective footnote — touch only matching cells, argument correctness (S2)
-- ✅ Note resolution + wall sticky through the same CAS path (use cases 6–7)
+- ✅ Legacy note resolution + wall sticky through the same CAS path (use cases 6–7); native notebook sync/proposals are tracked separately.
 - ✅ GTM tabular research enrichment — pending rows, sourced, status-gated (`tests/researchHarness.test.ts` + the v3 cheap/free live smoke, 18/28 routes 9/9, source fetches + content floor + judge)
 - ✅ Executable professional workflow subset — GTM runtime enrichment, messy spreadsheet parsing, cross-file note write, grounded wiki update, and deterministic finance reconciliation (`tests/workflowEvals.test.ts`)
 - [live] Professional workflow runtime smoke - 21/21 cases in `evals/professionalWorkflows.ts` pass deterministic catalog proof, 21/21 pass the live-provider catalog planner, and 21/21 now execute through the live room runtime with `deepseek/deepseek-v4-flash`, `PRODUCTION_ROOM_TOOLS`, evidence payload writes, and runtime-managed locks. IBM Granite remains a catalog cross-check at 19/21; GLM Flash and Nex free remain narrow catalog smokes.
@@ -159,14 +159,17 @@ You can't write good evals until you name who's on the other side of the table. 
 
 ## 2. What they do (use cases)
 
-The agent's whole job is the lock → CAS → release / draft protocol on the three artifacts. The use cases are the protocol under different pressure:
+This historical eval set proves the legacy lock → CAS → release / draft
+protocol on the three original artifact types. It remains a no-clobber proof,
+not the final fast-coediting UX, which is advisory intent plus short publish
+leases and CRS/proposals.
 
 1. **Recompute the variance column** — lock the range → read → CAS-edit → release.
 2. **Selective footnote** — "footnote any variance over 15%" → edit only the matching `__note` cells (argument correctness).
 3. **CAS re-read under a live human edit** (no lock) — a colleague commits between your read and write; survive via re-read + retry.
 4. **Lock prevents the race** — claim the exact range first; the concurrent human write is *blocked*, so you see zero conflicts.
 5. **Locked range → draft → smart-merge** — the range is already held; draft around it instead of waiting; merge on release only if the baseline is unchanged.
-6. **Note artifact** — resolve the open question in the note (same protocol on a `kind:"note"` single `doc` element).
+6. **Legacy note artifact** — resolve the open question in the note (same protocol on a `kind:"note"` single `doc` element). Native notebook evals should instead cover ProseMirror dirty events, read-model processing, proposals, and approved/labeled append blocks.
 7. **Wall artifact** — add/reposition a sticky (structured `{text,x,y,color}` value through the same CAS write path).
 8. **Multi-turn refinement** — turn 1 recompute; turn 2 footnote — must re-read fresh versions, not reuse turn-1 baselines.
 9. **Sustained concurrent room** — agents + humans hammering the variance column; measure no-clobber across many interleavings.

@@ -123,7 +123,13 @@ The model only knows what you put in front of it. So "context engineering" here 
 
 ### Half 1 — the system prompt is the protocol, not the data
 
-`SYSTEM_PROMPT` in `src/nodeagent/models/prompts/systemPrompt.ts:8-23` is a static constant. It describes the concurrency protocol in order, and nothing else:
+`SYSTEM_PROMPT` in `src/nodeagent/models/prompts/systemPrompt.ts:8-23` is still
+the legacy lock/CAS protocol. It is useful for ladder evals and debugging, but
+the fast coediting target is stricter about ownership: the client/model submits
+intent or typed patch ops, while the runtime derives policy, affected set,
+publish lease, final CAS, and CRS/proposal behavior.
+
+The legacy prompt describes the protocol in order:
 
 1. **LOOK FIRST** — you're given a snapshot, never edit blind.
 2. **CLAIM before you commit** — call `propose_lock` on the exact cells you'll change.
@@ -131,7 +137,7 @@ The model only knows what you put in front of it. So "context engineering" here 
 4. **RELEASE when done.**
 5. **NARRATE** — one line when you start, one when you finish.
 
-Then a short list of hard rules: never edit without a `baseVersion` you actually read; never ignore a conflict; lock only the cells you need; locked cells are still readable.
+Then a short list of hard rules: never edit without a `baseVersion` you actually read; never ignore a conflict; lock only the cells you need; locked cells are still readable. The next prompt/tool contract should replace model-visible locks with server-owned affected-set planning, advisory intent claims, patch-bundle publish, and short exact-target commit leases.
 
 Notice what's *not* in here: any spreadsheet data. The prompt is deliberately pure protocol. It makes the model cooperate with the exact same invariant the engine enforces, instead of fighting it. The engine guarantees no-clobber whether or not the model behaves; the prompt just makes the model behave so it doesn't waste turns getting rejected.
 
@@ -258,7 +264,7 @@ These are two different safety mechanisms, and conflating them is the common mis
                                    the CAS CATCHES the race
 ```
 
-**Scenario A — with a lock.** The agent calls `propose_lock` to claim the range first. Now the concurrent human write hits step 1 of `applyCellEdit` and is rejected with `reason: 'locked'` before it can touch anything. The demo logs Priya's edit as `BLOCKED` (`demo/runAgent.ts:42-43`). Zero CAS conflicts occur — the lock prevented the race from ever happening.
+**Scenario A — legacy lock lane.** The agent calls `propose_lock` to claim the range first. Now the concurrent human write hits step 1 of `applyCellEdit` and is rejected with `reason: 'locked'` before it can touch anything. The demo logs Priya's edit as `BLOCKED` (`demo/runAgent.ts:42-43`). Zero CAS conflicts occur — the lock prevented the race from ever happening. This proves the invariant, but it is intentionally higher friction than the desired Google-Sheets/Figma-like coediting feel.
 
 **Scenario B — no lock, CAS only.** The agent does a plain read-then-edit. With no lock, the human's write lands in the gap between the agent's read and its write. The agent's now-stale write hits the CAS gate, gets rejected, the agent re-reads and retries. Here's the actual demo output (`npm run demo:agent`, scenario B):
 
@@ -355,7 +361,7 @@ traces, chat - are written through the mutations and stream to every client via
 reactive `useQuery` subscriptions. That's how "multiple users and agents see
 updates while editing concurrently" actually becomes true on the screen.
 
-**The user entry point.** Mentioning `@nodeagent <goal>` in the public chat calls `store.askAgent({ goal, references, modelSelection })` (`src/app/store.tsx`): the chat composer keeps dragged file chips as structured artifact references, and the store converts those references into scoped artifact context before invoking the agent. The route picker chooses Adaptive, Free, Top paid, or a specific model policy; `/ask` and `/free` remain hidden compatibility aliases that pass through the same durable route. On Convex the store calls `agentJobs.start`, then the workflow runner claims slices for the user's goal; with no keys it runs the *same* `runAgent` loop in the browser against the in-memory engine (scripted model). Same loop, same contract — only the brain, registry, and backend differ.
+**The user entry point.** Mentioning `@nodeagent <goal>` in the public chat calls `store.askAgent({ goal, references, modelSelection })` (`src/app/store.tsx`): the chat composer keeps dragged file chips as structured artifact references, and the store converts those references into scoped artifact context before invoking the agent. The route picker records a user preference; the server should derive the final `modelPolicy`, `approvalPolicy`, `autoAllow`, `evidencePolicy`, host/source allowlist, and rate-limit bucket before `agentJobs.start`. `/ask` and `/free` remain hidden compatibility aliases that pass through the same durable route. On Convex the store calls `agentJobs.start`, then the workflow runner claims slices for the user's goal; with no keys it runs the *same* `runAgent` loop in the browser against the in-memory engine (scripted model). Same loop, same contract — only the brain, registry, and backend differ.
 
 `ConvexRoomTools` is the only thing that differs between the spike and
 production. It implements the same `RoomTools` interface, each method running

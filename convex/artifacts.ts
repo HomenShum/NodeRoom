@@ -11,6 +11,7 @@
  */
 
 import { v } from "convex/values";
+import { internal } from "./_generated/api";
 import { internalMutation, internalQuery, mutation, query } from "./_generated/server";
 import type { MutationCtx } from "./_generated/server";
 import type { Id } from "./_generated/dataModel";
@@ -28,9 +29,11 @@ const MAX_ELEMENT_ID_CHARS = 160;
 const MAX_RAW_UPLOAD_BYTES = 25_000_000;
 const MAX_UPLOAD_FILE_NAME_CHARS = 240;
 const MAX_UPLOAD_MIME_CHARS = 200;
+const SPREADSHEET_INDEX_QUIET_MS = 1_500;
 const visibilityV = v.union(v.literal("private"), v.literal("room"), v.literal("public"));
 type Visibility = "private" | "room" | "public";
 type ArtifactAcl = { visibility?: Visibility; createdBy?: ActorValue };
+type ArtifactDocForIndex = { _id: Id<"artifacts">; kind: "sheet" | "note" | "wall"; title: string; meta?: unknown };
 
 function artifactVisibility(a: ArtifactAcl): Visibility {
   return a.visibility ?? "room";
@@ -49,6 +52,64 @@ function actorOwnerId(actor: ActorValue): string {
 function canReadArtifact(a: ArtifactAcl, actor: ActorValue): boolean {
   return artifactVisibility(a) !== "private" || actorOwnsArtifact(a, actor);
 }
+
+async function scheduleSpreadsheetIndexRefresh(ctx: MutationCtx, artifact: ArtifactDocForIndex) {
+  if (artifact.kind !== "sheet") return;
+  const now = Date.now();
+  const dueAt = now + SPREADSHEET_INDEX_QUIET_MS;
+  const existing = await ctx.db
+    .query("spreadsheetIndexRefreshes")
+    .withIndex("by_artifact_status", (q) => q.eq("artifactId", artifact._id).eq("status", "queued"))
+    .order("desc")
+    .first();
+  if (existing) {
+    await ctx.db.patch(existing._id, { dueAt, updatedAt: now });
+    return;
+  }
+  const refreshId = await ctx.db.insert("spreadsheetIndexRefreshes", {
+    artifactId: artifact._id,
+    status: "queued",
+    dueAt,
+    createdAt: now,
+    updatedAt: now,
+  });
+  await ctx.scheduler.runAfter(SPREADSHEET_INDEX_QUIET_MS, internal.artifacts.refreshSpreadsheetIndex, {
+    artifactId: artifact._id,
+    refreshId,
+  });
+}
+
+export const refreshSpreadsheetIndex = internalMutation({
+  args: { artifactId: v.id("artifacts"), refreshId: v.optional(v.id("spreadsheetIndexRefreshes")) },
+  handler: async (ctx, { artifactId, refreshId }) => {
+    const now = Date.now();
+    const queued = refreshId
+      ? await ctx.db.get(refreshId)
+      : await ctx.db.query("spreadsheetIndexRefreshes")
+        .withIndex("by_artifact_status", (q) => q.eq("artifactId", artifactId).eq("status", "queued"))
+        .order("desc")
+        .first();
+    if (!queued || queued.status !== "queued") return { ok: false as const, reason: "not_queued" as const };
+    if (queued.dueAt > now) {
+      await ctx.scheduler.runAfter(Math.max(1, queued.dueAt - now), internal.artifacts.refreshSpreadsheetIndex, { artifactId, refreshId: queued._id });
+      return { ok: true as const, deferred: true as const };
+    }
+    await ctx.db.patch(queued._id, { status: "running", updatedAt: now });
+    const artifact = await ctx.db.get(artifactId);
+    if (!artifact || artifact.kind !== "sheet") {
+      await ctx.db.patch(queued._id, { status: "completed", updatedAt: Date.now(), completedAt: Date.now() });
+      return { ok: false as const, reason: "not_sheet" as const };
+    }
+    try {
+      await syncSpreadsheetIndexFromDb(ctx, artifact);
+      await ctx.db.patch(queued._id, { status: "completed", updatedAt: Date.now(), completedAt: Date.now() });
+      return { ok: true as const };
+    } catch (err) {
+      await ctx.db.patch(queued._id, { status: "failed", error: String(err).slice(0, 480), updatedAt: Date.now() });
+      return { ok: false as const, reason: "refresh_failed" as const };
+    }
+  },
+});
 
 async function syncArtifactVisibilitySidecars(ctx: MutationCtx, args: {
   roomId: Id<"rooms">;
@@ -518,7 +579,7 @@ async function applyCellEditCore(ctx: MutationCtx, a: ApplyCellEditArgs) {
       await ctx.db.insert("elements", { artifactId: a.artifactId, elementId: a.elementId, value: a.value, version: 1, updatedAt: now, updatedBy: a.actor });
     }
     await ctx.db.patch(a.artifactId, { version: art.version + 1, updatedAt: now, order: nextOrder });
-    await syncSpreadsheetIndexFromDb(ctx, art);
+    await scheduleSpreadsheetIndexRefresh(ctx, art);
     await enqueueArtifactSnapshotForOkf(ctx, { roomId: a.roomId, artifactId: a.artifactId, createdByJobId: a.jobId });
     try {
       await enqueueRoomActivity(ctx, {

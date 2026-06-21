@@ -51,15 +51,17 @@ shape we want for fast human+agent coediting:
   allowlists, rate limits, and auto-allow behavior.
 
 The direction now is stable structure first, then low-friction collaboration:
-cells, notebook blocks, slide components, and deck-plan JSON carry durable ids;
-presence and intent claims show who or what is active without locking the work
-surface; agents build patch bundles against the last committed tick; publish is
-a short exact-target lease plus final CAS; and Compare-Reason-Swap proposals
+cells, notebook blocks, slide components, and deck-plan JSON should carry durable
+ids; presence and intent claims show who or what is active without locking the
+work surface; agents build patch bundles against the last committed tick; publish
+is a short exact-target lease plus final CAS; and Compare-Reason-Swap proposals
 appear only when the meaning truly conflicts. The first spreadsheet slice of
-this direction is shipped through `presenceClaims` and coalesced index refresh;
-native notebooks move serious text sync to the ProseMirror sidecar; PowerPoint
-uses `deck-plan` JSON as the source of truth, with HTML/PPTX/PDF as derived
-preview/export surfaces.
+this direction is shipped through `presenceClaims`, server-side agent intent
+claims, and coalesced index refresh. The ProseMirror notebook backend/feature
+flag exists, but the default bridge UI still uses the legacy Tiptap
+HTML-on-blur path until save/idle is wired to `markNotebookDirty`. PowerPoint is
+still target architecture: `deck-plan` JSON should become the source of truth,
+with HTML/PPTX/PDF as derived preview/export surfaces.
 
 The current reasoning direction is also explicit: "Fable-like" recursive context
 and multi-frame reasoning are harness capabilities, not provider dependencies.
@@ -259,9 +261,15 @@ surface stay connected.
 
 </div>
 
-A change in one client appears in the other **with no refresh**, and a **server-led agent**'s work reaches **every** client. Captured **multi-pane** — one browser context per client — with the [`feature-walkthrough-gif`](https://github.com/HomenShum/feature-walkthrough-gif#live-collaboration-multi-pane) skill (a single cursor can't show cross-client sync; this can). Two angles:
+Current judged media proof is narrower than the target coediting claim:
+`docs/walkthroughs/realtime-presence-coedit.webm` is publishable evidence of
+live presence plus one synced spreadsheet edit, not simultaneous two-sided
+coediting. Older multi-pane clips remain historical evidence until they are
+recaptured and judged at the current UI zoom. Captured **multi-pane** means one
+browser context per client; a single cursor cannot honestly show cross-client
+sync.
 
-**The busy shared room.** In the live `Q3DEMO` room (with dozens of real guests already present): a human chat message syncs A→B, then `@nodeagent reconcile Q3 revenue` runs and its result broadcasts to all — authentic, amid real concurrent activity. The older fresh-room side-by-side clip is retired from the README until it is re-captured at a more legible zoom; Gemini 3.5 Flash marked it `fix-then-publish` for small text.
+**The busy shared room.** In the live `Q3DEMO` room (with dozens of real guests already present), earlier captures showed a human chat message sync A->B and an `@nodeagent reconcile Q3 revenue` run broadcasting through Convex. Treat that clip as historical until the current UI is recaptured and re-judged. The older fresh-room side-by-side clip is retired from the README until it is re-captured at a more legible zoom; Gemini 3.5 Flash marked it `fix-then-publish` for small text.
 
 ![Busy shared room, two clients side by side: a chat message syncs from Client A to Client B, then an @nodeagent run reconciles the sheet and broadcasts to both](docs/walkthroughs/two-client-live-sync.gif)
 
@@ -291,7 +299,7 @@ Three views of the system — editable sources + SVG/PNG in [`docs/diagrams/`](d
 room; no account needed. **Status: live beta** on a dev Convex deployment. Production-readiness is
 tracked **gate by gate** in [`docs/PRODUCTION_READINESS.md`](docs/PRODUCTION_READINESS.md): the
 no-clobber spine, agent reliability, and the public-app abuse surface (prompt-injection fencing,
-join rate-limits + caps, cumulative daily spend cap, telemetry retention) are **proven by tests**;
+join rate-limits + caps, cumulative daily spend cap, telemetry retention) are covered by deterministic/local gates where listed;
 OpenRouter's live data policy, rate-limiting + lock fencing under real concurrency, and cron SLA are
 **honestly marked "needs a live audit,"** which is what keeps "beta" on
 ([`docs/GAPS_NOT_DONE.md`](docs/GAPS_NOT_DONE.md) has the narrative).
@@ -994,14 +1002,15 @@ npm run provider-parser:smoke -- --providers=openrouter
 ```
 
 The product gates are intentionally broader than the benchmark harness, but each
-gate owns a different claim only when it is green. Current local state
-2026-06-20: `test:product:memory` is failing/timeouting, so `prod:gate` is not
-push/merge evidence yet. When green, `test:product:memory` proves the local
-browser UX: entry/story navigation, chat, uploaded-workbook formulas, range
-fill-down, semantic review, and responsive surfaces. `test:product:live` starts
-the app against live Convex and proves live entry/create/join, recoverable room
-errors, cross-browser reactivity, same-cell CAS convergence, and host-reviewed semantic
-rebase. `test:product:live:agent` adds
+gate owns a different claim only when it is green. `npm run prod:gate` is the
+local push/merge proof: audit, security gates, QA/docs drift gates, SLO gate,
+TypeScript, Convex TypeScript, full Vitest, product-memory Playwright, build,
+and dist security scan. When green, `test:product:memory` covers the local browser UX:
+entry/story navigation, chat, uploaded-workbook formulas, range fill-down,
+semantic review, privacy/job/wall/proposal paths, and responsive surfaces.
+`test:product:live` starts the app against live Convex and proves live
+entry/create/join, recoverable room errors, cross-browser reactivity, same-cell
+CAS convergence, and host-reviewed semantic rebase. `test:product:live:agent` adds
 provider-backed three-user proof: public/private agent lanes, personal room-lane
 actions, all-artifact visibility, and in-cell review proposals. Latest evidence:
 [`docs/eval/THREE_USER_COLLAB.md`](docs/eval/THREE_USER_COLLAB.md).

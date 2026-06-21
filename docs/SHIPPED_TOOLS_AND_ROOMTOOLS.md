@@ -25,8 +25,8 @@ overwriting the human, leaking private data, or hiding the evidence trail.
 | Class | Examples | Backend language | Purpose |
 |---|---|---|---|
 | Read tools | `snapshot`, `list_artifacts`, `read_range`, `search_sheet_context`, `fetch_source` | Convex `query` / `internalQuery` | Give the model scoped context with versions and evidence references. |
-| Checked write tools | `write_locked_cells`, `write_locked_cell_results`, `edit_cell`, `update_wiki`, `create_draft` | Convex `mutation` / `internalMutation` | Apply bounded writes through auth, lock, CAS, proposal, draft, and receipt checks. |
-| Coordination tools | `propose_lock`, `release_lock` | Convex `mutation` / `internalMutation` | Reserve ranges and release them with trace evidence. Production composite tools hide most of this from the model. |
+| Checked write tools | current: `write_locked_cells`, `write_locked_cell_results`, `edit_cell`, `update_wiki`, `create_draft`; target: patch-bundle publish | Convex `mutation` / `internalMutation` | Apply bounded writes through auth, short commit lease or legacy lock, CAS, proposal, draft, and receipt checks. |
+| Coordination tools | current: `propose_lock`, `release_lock`; target: advisory intent claim + publish lease | Convex `mutation` / `internalMutation` | Reserve only narrow publish windows with trace evidence. Broad range locks are legacy/eval/debug machinery, not the target human-visible coediting model. |
 | Capture and external tools | `capture_source`, provider parser calls, model-router calls | Convex `action` | Perform outside-network or model work, then return durable writes through mutations. |
 | Review tools | proposal approve/dismiss, passive research, Coach Mode practice | Convex `mutation` plus optional `action` | Keep human approval as the bridge between agent sidecars and source surfaces. |
 | Agent Artifact tools | shipped: create/approve work plan; target: edit scope, run read-only, render planned-vs-actual | Convex `mutation` plus queries | Approve structured payload hashes now; compare execution receipts to the approved plan when planned-vs-actual lands. |
@@ -53,13 +53,13 @@ Early evals exposed explicit coordination tools:
 read_range -> propose_lock -> edit_cell -> release_lock
 ```
 
-Production uses composite write tools where possible:
+Current production uses composite managed-write tools where possible:
 
 ```text
 read_range -> write_locked_cells
 ```
 
-The runtime expands that one call into:
+The runtime expands that one call into the legacy lock lane:
 
 1. acquire the affected-range lock;
 2. verify the base versions;
@@ -68,7 +68,17 @@ The runtime expands that one call into:
 5. release in `finally`;
 6. return coordination evidence.
 
-This reduces model burden while preserving the no-clobber proof.
+This reduces model burden while preserving the no-clobber proof, but it is not
+the final low-friction coediting interface. The target write shape is:
+
+```text
+read_range -> submit_patch_bundle -> publish_patch_bundle
+```
+
+In that path the runtime computes the affected set, records advisory intent,
+keeps the sheet editable while the agent works, acquires only a short exact-target
+commit lease at publish, applies final CAS, and creates CRS/proposals only for
+meaningful stale conflicts.
 
 ## Security Rule
 

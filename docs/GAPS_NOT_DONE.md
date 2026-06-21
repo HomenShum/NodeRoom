@@ -226,7 +226,7 @@ checked artifacts are `docs/eval/halo-self-improvement-smoke.json`,
 | Gap | Current state | Needed proof | Acceptance gate |
 |---|---|---|---|
 | Secret hygiene | `.gitignore` excludes local env and logs. | Run secret scan before every public push. | No provider keys or local tokens are committed. |
-| Public/private boundaries | Product has public room and private agent lanes. | E2E tests for no private chat/file leakage into room trace, wiki, wall, or public artifacts. | Privacy boundary failures block release. |
+| Public/private boundaries | Product has public room and private agent lanes, and production-preview memory-mode Playwright now covers the main no-leak browser path. | Add live Convex browser coverage for no private chat/file leakage into room trace, wiki, wall, public artifacts, exports, and downstream handoffs. | Privacy boundary failures block release. |
 | Provider egress policy | Central provider route/artifact egress policy exists; public `/ask`, `/free`, blocking private agent, private streaming, and live provider-parser file egress all gate model/provider egress. Production can fail closed on missing provider allowlists. | Add live OpenRouter no-training audit and full public/private file visibility policy across exports and downstream handoffs. | Sensitive files cannot be sent to external providers accidentally. |
 | Upload abuse limits | Browser parsing has file-size caps and Convex registration rejects invalid names, MIME lengths, and raw files over 25MB. | Add count/rate limits, malware/content scanning policy, and live abuse tests. | Bad uploads fail safely and visibly. |
 

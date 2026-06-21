@@ -44,7 +44,7 @@ at `convex/locks.ts:104`) amplifies on every change.
 | **Local workbook runtime** (live: component-local edit buffer + Convex optimistic cache; memory mode: home-grown `RoomEngine`) | Keystrokes, selection, in-flight optimistic paint, undo/redo, (future) formula recalc + range selection | Authoritative truth; cross-tab durability; agent-readable state | Keystrokes **[CONFIRMED]** local (uncontrolled input, commit on blur, `Artifact.tsx:929-955`); undo/redo **[CONFIRMED]** (`store.tsx` `undoStack`); recalc + range selection **[NET-NEW]** |
 | **Convex OLTP ledger** | Per-element value+version (CAS), locks, drafts, proposals, agent jobs/leases, traces, proofs, messages | Per-keystroke state; per-token narration; OLAP rollups; uncommitted human buffer | **[CONFIRMED]** — `elements` (CAS), `locks`, `drafts`, `proposals`, `agentJobs`, `agentLeases`, `traces`, `messages` all exist |
 | **Persistent text streaming** (`@convex-dev/persistent-text-streaming`) | Agent narration text: owner token stream + persisted sentence-flushed chunks, finalized to the durable `messages` row | Cell values; structured patches; anything history/export/search reads as truth | **[CONFIRMED]** — fully wired (`convex/streaming.ts`, `convex/http.ts`, `convex/streamingModel.ts`) |
-| **Ephemeral relay** (cursors / live draft buffer) | Presence cursors, live keystroke buffer (browser-local only) | Agent context; durable state; anything committed | **[NET-NEW / out of scope]** — explicitly excluded today; no WebRTC, no Yjs/CRDT grid, no `streamChunks` cell table (`AGENT_SCRATCHPAD_CELL_COLLAB.md:32-35`) |
+| **Ephemeral relay / advisory presence** (cursors / live draft buffer) | Presence cursors, live keystroke buffer (browser-local only) | Agent context; durable state; anything committed | **[PARTIAL SHIPPED]** — spreadsheet cell presence and server-side agent intent use a bounded `presenceClaims` side table/subscription; no WebRTC, no Yjs/CRDT grid, no `streamChunks` cell table (`AGENT_SCRATCHPAD_CELL_COLLAB.md:32-35`) |
 | **OLAP warehouse** | Analytics, aggregations, history rollups | Live reactive reads; commit path | **[NET-NEW / later]** — deliberately deferred |
 
 ---
@@ -70,16 +70,15 @@ For each: what to **KEEP**, what to **CHANGE**, and **already-exists (cite) vs n
   (`artifacts.by_room`, `elements.by_artifact`, `locks.by_room_status`, `agentSessions.by_room`,
   `drafts.by_room_status`).
 - **Viewport range query** — **the one genuine schema gap.** The live `elements` table is
-  indexed only `by_artifact` on `[artifactId, elementId]` (`schema.ts:99`) with **no
+  indexed only `by_artifact` on `[artifactId, elementId]` (`schema.ts`) with **no
   rowIndex/colIndex**, so it cannot serve a row/col range. The `by_artifact_row_col` index
-  **does** exist (`schema.ts:537`) but **only on `spreadsheetCells`** — a sheet-only,
-  per-edit-rebuilt **semantic projection** (rawValue/semanticSummary) that lags live edits and
-  carries derived values, not the raw value+version CAS needs. It is also a **dead index**
-  (no reader; the only `spreadsheetCells` reader uses `by_artifact_element`). **[CONTRADICTED]**
-  — the rule's "viewport range query buildable today" is true only against the *wrong* table.
-  **[NET-NEW SCHEMA]**: add `rowIndex` + `colIndex` (numbers) to `elements`, add
-  `.index("by_artifact_row_col", ["artifactId","rowIndex","colIndex"])` on `elements`, and
-  populate on every write (`applyCellEdit` + create/delete reindex).
+  exists on `spreadsheetCells`, but that table is a sheet-only semantic/index projection, not
+  the raw value+version CAS ledger. **[PARTIAL UPDATE 2026-06-20]**: `applyCellEdit`
+  now schedules/coalesces `spreadsheetIndexRefreshes` instead of rebuilding the semantic
+  projection inline on every cell write. Viewport indexing is still separate net-new schema:
+  add `rowIndex` + `colIndex` to `elements`, add
+  `.index("by_artifact_row_col", ["artifactId","rowIndex","colIndex"])`, and update only
+  the structural row/column coordinates required by the live viewport path.
 
 ### B2 — Paginate FIRST (messages, traces, job attempts, op events)
 
@@ -159,12 +158,14 @@ For each: what to **KEEP**, what to **CHANGE**, and **already-exists (cite) vs n
   (`evals/financeModelLive.ts:399-402`). **[CONTRADICTED]** — this is the exact pattern the rule
   warns against. It is bounded only by TTL auto-expiry (`locks.ts:116-139`) + host "yoink" force-release
   (`locks.ts:147-171`) + CAS-absorbs-stale-writes; it is **not** a publish-only short lease.
-- **CHANGE**: introduce the two-tier model. Today there are exactly two lock-like things, **neither**
-  of which matches the rule: (1) the **hard, dependency-expanded, renewing range lock** (`locks` table)
-  and (2) the **per-slice runner write-lease** (`agentLeases`, `agentJobs.ts:512-618`, mode
-  read|write|structural, expires at slice budget). **[NET-NEW]**: a **soft/advisory intent claim**
-  ("I plan to touch this range") that does NOT block other actors during the long drafting phase, and a
-  separate **short commit lease** acquired **only at the publish step** on the exact targets.
+- **CHANGE**: introduce the two-tier model. Today there are exactly two legacy lock-like things:
+  (1) the **hard, dependency-expanded, renewing range lock** (`locks` table) and (2) the
+  **per-slice runner write-lease** (`agentLeases`, `agentJobs.ts:512-618`, mode
+  read|write|structural, expires at slice budget). **[PARTIAL SHIPPED 2026-06-20]**:
+  server-side agents can now publish a bounded `agent_intent`/`commit_lease` advisory
+  presence claim that does NOT block other actors. Still net-new: plan-time affected-set
+  derivation, patch-bundle publish integration, and live browser proof for the full
+  conflict/proposal flow.
 
 ### B6 — Agents emit patch-bundles / proposals vs a snapshot baseVersion
 
@@ -185,9 +186,10 @@ For each: what to **KEEP**, what to **CHANGE**, and **already-exists (cite) vs n
     verified the `needs_rebase` literal appears **only** in the schema enum (`schema.ts:358`) and a
     **read-only** diagnostic query (`agentJobs.ts:339`) plus docs prose (`NODEAGENT_ARCHITECTURE.md:906`).
     **Zero mutations write it.** The shape exists; the producer does not.
-  - Per-cell presence (the "mark C2-dependent outputs stale" annotation): **[NET-NEW]** — no
-    `cellPresence` table; only `member.lastSeenAt` exists. Staleness is inferred from CAS version
-    conflicts today, not a live human-active flag (`AGENT_SCRATCHPAD_CELL_COLLAB.md:122`).
+  - Per-cell presence (the "mark C2-dependent outputs stale" annotation):
+    **[PARTIAL SHIPPED]** for human spreadsheet focus/edit and server-side
+    agent intent via `presenceClaims`. Dependency-aware stale annotations and
+    plan-time affected-set persistence remain net-new.
 
 ---
 
@@ -202,14 +204,16 @@ This is the load-bearing scenario. Seven steps. Tags mark each step's current st
 2. **Agent takes a snapshot + advisory intent claim over A1:C5.** Snapshot = a read of the
    **last-committed** elements (`{value, version, locked}`), never the live C2 buffer.
    Read side **[CONFIRMED]** (`artifacts.ts:74-86`, `convexRoomTools.ts:40-55`). The **advisory,
-   non-blocking intent claim** is **[NET-NEW]** — today the only claim available is the hard
-   `proposeLock` range lock (B5).
+   non-blocking intent claim** is **[PARTIAL SHIPPED]** as server-only
+   `presence.heartbeatForAgent`; what remains net-new is computing and persisting the
+   plan-time affected set before the first tool call and proving the browser conflict path.
 
 3. **Agent works in a branch / scratchspace, streams narration, builds a patch bundle.** Narration
    goes through persistent-text-streaming (Section 5). The branch + patch-bundle accumulation is
-   **[NET-NEW]** (B6). The agent annotates C2 as human-active / possibly-stale — **[NET-NEW]**, needs
-   the `cellPresence` signal that does not exist yet (today staleness is only inferred from CAS
-   version on commit). **Do NOT hot-swap the uncommitted C2 buffer into authoritative agent
+   **[NET-NEW]** (B6). The agent can already observe spreadsheet human focus/edit
+   presence and publish server-side advisory intent through `presenceClaims`;
+   dependency-aware stale annotations and plan-time affected-set persistence remain
+   net-new. **Do NOT hot-swap the uncommitted C2 buffer into authoritative agent
    reasoning** — the agent reasons over committed values only. **[CONFIRMED]** by design.
 
 4. **Human commits C2 (CAS).** A per-element compare-and-set write lands the new value+version on
@@ -379,8 +383,8 @@ Sequenced by leverage and dependency. Size = S/M/L. Each tagged already-have vs 
 | Per-room/global concurrency cap on `/ask`; token preflight | **NET-NEW** | only `maxParallelism:3` on workflow (`agentWorkflows.ts:9`) |
 | Snapshot/branch/patch-bundle storage | **NET-NEW** — "snapshot" in code = a read | no such table/fn |
 | `agentDraftOperations` + `needs_rebase` job-level ledger | **NET-NEW / unwired** — enum + read-only diagnostic, zero producers | `schema.ts:358`, `agentJobs.ts:339` |
-| Soft advisory intent claim (distinct from hard lock) | **NET-NEW** | only hard `proposeLock` + per-slice `agentLeases` exist |
-| Per-cell presence (`cellPresence`) for stale annotation | **NET-NEW** | only `member.lastSeenAt` |
+| Soft advisory intent claim (distinct from hard lock) | **PARTIAL SHIPPED** | human spreadsheet focus/edit and server-side agent intent exist via `presenceClaims`; plan-time affected sets and browser/live agent-intent conflict flows still net-new |
+| Per-cell presence for stale annotation | **PARTIAL SHIPPED** | spreadsheet presence rows exist; formula/dependency stale annotation and notebook/deck presence still next |
 | Live formula recalc + range selection | **NET-NEW** | `roomEngine.ts` has zero recalc; single-cell `sel` only |
 | Cross-member shared narration stream | **NET-NEW** | private reply is owner-channel-scoped (`lib.ts:147`) |
 | Algorithm-artifact rerun over future rows/sheets | **NET-NEW** | runner reruns same cells on changed snapshot only |
