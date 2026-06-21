@@ -25,6 +25,7 @@ export default defineConfig({
   use: {
     baseURL: playwrightBaseUrl,
     trace: "on-first-retry",
+    video: process.env.PLAYWRIGHT_RECORD_VIDEO === "1" ? "on" : "off",
   },
   webServer: {
     command: `npm run dev -- --host 127.0.0.1 --port ${playwrightPort} --strictPort`,

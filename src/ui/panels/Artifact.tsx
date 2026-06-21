@@ -899,7 +899,7 @@ function EditableCell({ value, disabled, align, onCommit, addLabel, onEditStart,
     );
   }
   return (
-    <button className="r-cell-edit" onClick={() => { setEditing(true); onEditStart?.(); }}>
+    <button className="r-cell-edit" data-testid="cell-edit-control" data-cell-value={value} onClick={() => { setEditing(true); onEditStart?.(); }}>
       {value ? <span className={valueClass(value)}>{value}</span> : <span className="add-hint"><Plus size={11} /> {addLabel ?? "add"}</span>}
     </button>
   );
@@ -1826,22 +1826,19 @@ function Sticky({ roomId, me, artId, id, v, locked, author, rot, onDelete, onErr
 }
 
 function CollabBar({ collab }: { collab: CollabControls }) {
-  const desc = collab.done
-    ? "Both agents finished, aware of each other the whole time. The full run is preserved in the room trace."
-    : collab.running ? "Agent is locking the variance, committing, and releasing — drafting around any lock and smart-merging."
-      : "Run the collaboration: lock → read → draft → commit → smart-merge.";
+  const stateLabel = collab.done ? "Collaboration run complete" : collab.running ? "Collaboration running" : "Live collaboration";
+  const runLabel = collab.done ? "Replay collaboration" : collab.running ? "Collaboration running" : "Run collaboration";
   return (
-    <div className="r-collab-bar">
-      <span className="r-tag" style={{ background: "var(--accent-tint)", color: "var(--accent-ink)" }}><GitMerge size={12} /> Live collab</span>
-      <span className="r-beat-desc grow">{desc}</span>
+    <div className="r-collab-bar" aria-label={stateLabel}>
+      <span className="r-tag r-collab-state" title={stateLabel} aria-label={stateLabel} style={{ background: "var(--accent-tint)", color: "var(--accent-ink)" }}><GitMerge size={12} /></span>
       {collab.error && <span className="r-tag" role="alert" data-testid="collab-error" style={{ color: "var(--danger-ink)" }}>{collab.error}</span>}
       {collab.onConflict && (
-        <button className="r-mini-btn" data-testid="collab-conflict" disabled={collab.running} title="Create a stale agent draft and require host review instead of overwriting the cell" onClick={collab.onConflict}>
-          <AlertTriangle size={12} /> Conflict drill
+        <button className="r-iconbtn r-iconbtn-sm" data-testid="collab-conflict" disabled={collab.running} title="Create a stale agent draft" aria-label="Create stale agent draft" onClick={collab.onConflict}>
+          <AlertTriangle size={13} />
         </button>
       )}
-      <button className={"r-btn " + (collab.done ? "ghost" : "primary")} data-testid="collab-run" disabled={collab.running} onClick={collab.onRun} style={{ padding: "6px 12px", fontSize: 12 }}>
-        {collab.done ? <><RotateCcw size={14} /> Replay</> : collab.running ? "Running…" : <><Play size={14} /> Run collaboration</>}
+      <button className={"r-iconbtn r-iconbtn-sm " + (collab.done ? "" : "primary")} data-testid="collab-run" disabled={collab.running} title={runLabel} aria-label={runLabel} onClick={collab.onRun}>
+        {collab.done ? <RotateCcw size={13} /> : collab.running ? <Activity size={13} /> : <Play size={13} />}
       </button>
     </div>
   );

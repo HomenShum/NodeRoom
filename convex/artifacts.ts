@@ -30,6 +30,9 @@ const MAX_RAW_UPLOAD_BYTES = 25_000_000;
 const MAX_UPLOAD_FILE_NAME_CHARS = 240;
 const MAX_UPLOAD_MIME_CHARS = 200;
 const SPREADSHEET_INDEX_QUIET_MS = 1_500;
+const AGENT_INTENT_CONFLICT_DELAY_MS = 6_000;
+const AGENT_INTENT_TTL_MS = 45_000;
+const AGENT_COMMIT_LEASE_TTL_MS = 20_000;
 const visibilityV = v.union(v.literal("private"), v.literal("room"), v.literal("public"));
 type Visibility = "private" | "room" | "public";
 type ArtifactAcl = { visibility?: Visibility; createdBy?: ActorValue };
@@ -51,6 +54,90 @@ function actorOwnerId(actor: ActorValue): string {
 
 function canReadArtifact(a: ArtifactAcl, actor: ActorValue): boolean {
   return artifactVisibility(a) !== "private" || actorOwnsArtifact(a, actor);
+}
+
+function publicRoomAgent(): ActorValue {
+  return { kind: "agent", id: "agent_room", name: "Room NodeAgent", scope: "public" };
+}
+
+async function ensureAgentSession(ctx: MutationCtx, roomId: Id<"rooms">, actor: ActorValue, lastAction: string) {
+  if (actor.kind !== "agent") throw new Error("agent_actor_required");
+  const now = Date.now();
+  const sessions = await ctx.db.query("agentSessions").withIndex("by_room", (q) => q.eq("roomId", roomId)).collect();
+  const existing = sessions.find((s) =>
+    s.agentId === actor.id &&
+    s.agentName === actor.name &&
+    s.scope === (actor.scope ?? "public") &&
+    (actor.ownerId ? s.ownerId === actor.ownerId : true)
+  );
+  if (existing) {
+    await ctx.db.patch(existing._id, { status: "working", lastAction, updatedAt: now });
+    return existing._id;
+  }
+  return ctx.db.insert("agentSessions", {
+    roomId,
+    agentId: actor.id,
+    agentName: actor.name,
+    scope: actor.scope ?? "public",
+    ownerId: actor.ownerId,
+    status: "working",
+    lastAction,
+    updatedAt: now,
+  });
+}
+
+function cleanPresenceLabel(value: string | undefined): string | undefined {
+  const trimmed = value?.trim();
+  return trimmed ? trimmed.slice(0, 80) : undefined;
+}
+
+async function upsertAgentPresence(ctx: MutationCtx, args: {
+  roomId: Id<"rooms">;
+  artifactId: Id<"artifacts">;
+  elementId: string;
+  mode: "agent_intent" | "commit_lease";
+  actor: ActorValue;
+  label: string;
+  ttlMs: number;
+}) {
+  if (args.actor.kind !== "agent") throw new Error("agent_actor_required");
+  await requireActorInRoom(ctx, args.roomId, args.actor);
+  const now = Date.now();
+  const expiresAt = now + Math.max(2_000, Math.min(args.ttlMs, 180_000));
+  const existing = await ctx.db
+    .query("presenceClaims")
+    .withIndex("by_actor_mode", (q) =>
+      q.eq("roomId", args.roomId)
+        .eq("artifactId", args.artifactId)
+        .eq("actorId", args.actor.id)
+        .eq("mode", args.mode))
+    .take(50);
+  const same = existing.find((row) => row.targetKind === "cell" && row.targetId === args.elementId);
+  const patch = {
+    targetKind: "cell" as const,
+    targetId: args.elementId,
+    actorId: args.actor.id,
+    actor: args.actor,
+    label: cleanPresenceLabel(args.label),
+    color: "#5E6AD2",
+    updatedAt: now,
+    expiresAt,
+  };
+  if (same) {
+    await ctx.db.patch(same._id, patch);
+  } else {
+    await ctx.db.insert("presenceClaims", {
+      roomId: args.roomId,
+      artifactId: args.artifactId,
+      mode: args.mode,
+      createdAt: now,
+      ...patch,
+    });
+  }
+  for (const row of existing) {
+    if (same && String(row._id) === String(same._id)) continue;
+    await ctx.db.delete(row._id);
+  }
 }
 
 async function scheduleSpreadsheetIndexRefresh(ctx: MutationCtx, artifact: ArtifactDocForIndex) {
@@ -655,6 +742,65 @@ export const applyCellEdit = mutation({
   handler: async (ctx, a) => applyCellEditCore(ctx, { ...a, actor: await requireActorProof(ctx, a.roomId, a.proof) }),
 });
 
+export const startAgentIntentConflictProof = mutation({
+  args: {
+    roomId: v.id("rooms"),
+    artifactId: v.id("artifacts"),
+    elementId: v.optional(v.string()),
+    proposedValue: v.optional(v.any()),
+    requester: actorProofV,
+  },
+  handler: async (ctx, a) => {
+    const host = await requireActorProof(ctx, a.roomId, a.requester);
+    const member = await ctx.db.get(host.id as Id<"members">);
+    if (member?.role !== "host") throw new Error("host_required");
+    const art = await requireArtifactInRoom(ctx, a.roomId, a.artifactId);
+    if (!canReadArtifact(art, host)) throw new Error("artifact_not_visible");
+    if (art.kind !== "sheet") throw new Error("sheet_required");
+
+    const elementId = (a.elementId ?? "r_rev__variance").trim();
+    if (!elementId || elementId.length > MAX_ELEMENT_ID_CHARS) throw new Error("invalid_presence_target");
+    const current = await getElement(ctx, a.artifactId, elementId);
+    const baseVersion = current?.version ?? 0;
+    const proposedValue = a.proposedValue ?? "+19%";
+    const agent = publicRoomAgent();
+    await ensureAgentSession(ctx, a.roomId, agent, `planning patch for ${elementId}`);
+    await upsertAgentPresence(ctx, {
+      roomId: a.roomId,
+      artifactId: a.artifactId,
+      elementId,
+      mode: "agent_intent",
+      actor: agent,
+      label: "NodeAgent planning",
+      ttlMs: AGENT_INTENT_TTL_MS,
+    });
+    const now = Date.now();
+    await ctx.db.insert("traces", {
+      roomId: a.roomId,
+      ts: now,
+      actor: agent,
+      type: "agent_intent_started",
+      summary: `NodeAgent planned ${elementId} from v${baseVersion}`,
+      detail: `agent_intent - affected=${elementId} - baseVersion=${baseVersion}`,
+    });
+    await ctx.scheduler.runAfter(AGENT_INTENT_CONFLICT_DELAY_MS, internal.artifacts.commitAgentIntentConflictProof, {
+      roomId: a.roomId,
+      artifactId: a.artifactId,
+      elementId,
+      value: proposedValue,
+      baseVersion,
+      actor: agent,
+    });
+    return {
+      ok: true as const,
+      elementId,
+      baseVersion,
+      proposedValue,
+      delayMs: AGENT_INTENT_CONFLICT_DELAY_MS,
+    };
+  },
+});
+
 /** Owner-gated visibility toggle: share your OWN sheet to the room, or pull it back to private.
  * Two-way (private <-> room) per product decision; only the artifact's owner may change it, and the
  * legacy "public" tier is not reachable from here. Uniform error (no enumeration oracle). */
@@ -1049,6 +1195,41 @@ export const applyAgentCellEdit = internalMutation({
     runId: v.optional(v.id("agentRuns")),
   },
   handler: applyCellEditCore,
+});
+
+export const commitAgentIntentConflictProof = internalMutation({
+  args: {
+    roomId: v.id("rooms"),
+    artifactId: v.id("artifacts"),
+    elementId: v.string(),
+    value: v.any(),
+    baseVersion: v.number(),
+    actor: actorV,
+  },
+  handler: async (ctx, a) => {
+    await ensureAgentSession(ctx, a.roomId, a.actor, `publishing patch for ${a.elementId}`);
+    await upsertAgentPresence(ctx, {
+      roomId: a.roomId,
+      artifactId: a.artifactId,
+      elementId: a.elementId,
+      mode: "commit_lease",
+      actor: a.actor,
+      label: "NodeAgent checking CAS",
+      ttlMs: AGENT_COMMIT_LEASE_TTL_MS,
+    });
+    const result = await applyCellEditCore(ctx, { ...a, kind: "set" });
+    await ctx.db.insert("traces", {
+      roomId: a.roomId,
+      ts: Date.now(),
+      actor: a.actor,
+      type: result.ok ? "agent_intent_committed" : "agent_intent_conflict",
+      summary: result.ok
+        ? `NodeAgent committed ${a.elementId}`
+        : `NodeAgent did not overwrite ${a.elementId}; ${result.reason}`,
+      detail: `agent_intent_commit - baseVersion=${a.baseVersion} - result=${JSON.stringify(result).slice(0, 320)}`,
+    });
+    return result;
+  },
 });
 
 /** Seed an artifact + its elements (used once per room). */

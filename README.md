@@ -54,14 +54,25 @@ The direction now is stable structure first, then low-friction collaboration:
 cells, notebook blocks, slide components, and deck-plan JSON should carry durable
 ids; presence and intent claims show who or what is active without locking the
 work surface; agents build patch bundles against the last committed tick; publish
-is a short exact-target lease plus final CAS; and Compare-Reason-Swap proposals
+is an advisory short exact-target commit-lease signal plus final CAS; and Compare-Reason-Swap proposals
 appear only when the meaning truly conflicts. The first spreadsheet slice of
 this direction is shipped through `presenceClaims`, server-side agent intent
-claims, and coalesced index refresh. The ProseMirror notebook backend/feature
-flag exists, but the default bridge UI still uses the legacy Tiptap
+claims on the normal RoomTools write path, review-mode stale-agent CRS proposals,
+server-derived public job policy, and coalesced index refresh. The ProseMirror
+notebook backend/feature flag exists, but the default bridge UI still uses the legacy Tiptap
 HTML-on-blur path until save/idle is wired to `markNotebookDirty`. PowerPoint is
 still target architecture: `deck-plan` JSON should become the source of truth,
 with HTML/PPTX/PDF as derived preview/export surfaces.
+
+The defensible parity claim is scoped: NodeRoom has Google Sheets/Figma-style
+live coediting primitive parity for its room contract when the live gate is
+green. Multiple browser sessions observe the same Convex-backed state; per-cell
+human presence and server-owned agent intent/commit-lease indicators are
+advisory rather than blocking; durable writes carry base versions and pass final
+CAS; stale agent writes become CRS/review proposals instead of clobbering human
+edits. This is not literal Google Sheets or Figma product parity: it does not
+claim full Sheets formulas/charts/pivots/offline history/permissions parity or
+full Figma canvas/vector/branching parity.
 
 The current reasoning direction is also explicit: "Fable-like" recursive context
 and multi-frame reasoning are harness capabilities, not provider dependencies.
@@ -988,7 +999,7 @@ npm run dev             # now reads/writes live Convex (optimistic); the agent r
 npm run typecheck   &&   npm test   &&   npm run build      # tsc, full tests, vite build
 npm run qa:story                 # local #story browser gate: editable spreadsheet + local story-agent chat
 npm run test:product:memory      # local browser gate: entry/story, chat, workbook formulas, range fill-down, responsive UX
-npm run test:product:live        # live Convex backend gate: entry/create/join, reactivity, same-cell CAS, semantic rebase
+npm run test:product:live        # live Convex gate: reactivity, realtime presence, privacy/wall/job/proposal, agent-intent CRS proof
 npm run test:product:live:agent  # live Convex + provider gate: three-user public/private agent and review-mode flow
 ```
 
@@ -1008,9 +1019,10 @@ TypeScript, Convex TypeScript, full Vitest, product-memory Playwright, build,
 and dist security scan. When green, `test:product:memory` covers the local browser UX:
 entry/story navigation, chat, uploaded-workbook formulas, range fill-down,
 semantic review, privacy/job/wall/proposal paths, and responsive surfaces.
-`test:product:live` starts the app against live Convex and proves live
-entry/create/join, recoverable room errors, cross-browser reactivity, same-cell
-CAS convergence, and host-reviewed semantic rebase. `test:product:live:agent` adds
+`test:product:live` starts the app against live Convex, records Playwright video,
+and proves live cross-browser reactivity, same-cell CAS convergence, realtime
+presence, public/private chat isolation, wall CRUD fan-out, durable job controls,
+and a host-gated server-owned agent-intent conflict/proposal proof. `test:product:live:agent` adds
 provider-backed three-user proof: public/private agent lanes, personal room-lane
 actions, all-artifact visibility, and in-cell review proposals. Latest evidence:
 [`docs/eval/THREE_USER_COLLAB.md`](docs/eval/THREE_USER_COLLAB.md).
@@ -1094,8 +1106,8 @@ flowchart LR
   **as data, never a throw**. (Convex's OCC alone does *not* stop a stale-base clobber — the app-level version does.)
 - **Coordination** — legacy `proposeLock(elementIds)` can make an affected range
   read-only for proof/eval lanes, but the target coedit path uses advisory
-  presence/intent plus a short publish lease. CAS catches stale baselines either
-  way.
+  presence/intent plus a short commit-lease indicator. The indicator is UI
+  metadata, not a fencing lock; CAS and existing lock leases do the safety work.
 - **Draft → smart-merge** — a blocked agent drafts around the lock; on release the draft applies on
   untouched elements, no-ops if already equal, and **flags-without-applying if diverged**. Committed work is never clobbered.
 - **Auto-allow** — when OFF, agent edits become proposals for host approve/reject; humans always apply directly.

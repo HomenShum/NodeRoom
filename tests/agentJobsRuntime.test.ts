@@ -87,6 +87,51 @@ describe("agentJobs runtime contract", () => {
     });
   });
 
+  it("derives public job policy server-side instead of trusting client mutation fields", async () => {
+    const { t, proof, roomId, artifactId } = await setupRoom({ seedElement: true, autoAllow: false });
+
+    const started = await t.mutation(api.agentJobs.start, {
+      roomId,
+      artifactId,
+      requester: proof,
+      goal: "Wait for the host before changing any cells.",
+      entrypoint: "private_agent" as const,
+      scope: "private_user" as const,
+      routePolicy: "top_paid" as const,
+      runtimePolicy: "workflow_sliced" as const,
+      modelPolicy: "client-forced-model",
+      idempotencyKey: "job-runtime-server-derived-policy",
+      approvalPolicy: "auto_commit_safe" as const,
+      evidencePolicy: "private_allowed" as const,
+      traceLevel: "summary" as const,
+      autoAllow: true,
+      request: { forged: true, scope: "private_user", autoAllow: true },
+      mode: "variance" as const,
+    });
+
+    const detail = await t.query(api.agentJobs.detail, { jobId: started.jobId, requester: proof });
+    expect(detail?.job).toMatchObject({
+      entrypoint: "public_ask",
+      scope: "public_room",
+      routePolicy: "top_paid",
+      runtimePolicy: "workflow_sliced",
+      approvalPolicy: "host_review",
+      evidencePolicy: "public_only",
+      traceLevel: "full_operation_ledger",
+      autoAllow: false,
+    });
+    expect(detail?.job.modelPolicy).not.toBe("client-forced-model");
+    expect(detail?.job.request).toMatchObject({
+      entrypoint: "public_ask",
+      scope: "public_room",
+      routePolicy: "top_paid",
+      approvalPolicy: "host_review",
+      evidencePolicy: "public_only",
+      traceLevel: "full_operation_ledger",
+    });
+    expect(detail?.job.request).not.toMatchObject({ forged: true });
+  });
+
   it("does not reuse terminal public ask jobs for later reruns with the same idempotency key", async () => {
     const { t, proof, roomId, artifactId } = await setupRoom();
     const args = jobArgs({ roomId, artifactId, proof, idempotencyKey: "job-runtime-terminal-rerun" });
@@ -567,7 +612,7 @@ describe("agentJobs runtime contract", () => {
   });
 });
 
-async function setupRoom(options: { seedElement?: boolean; extraMember?: boolean; researchPolicy?: boolean } = {}) {
+async function setupRoom(options: { seedElement?: boolean; extraMember?: boolean; researchPolicy?: boolean; autoAllow?: boolean } = {}) {
   const t = convexTest(schema, modules);
   t.registerComponent("workflow", workflowSchema, workflowModules);
   t.registerComponent("workflow/workpool", workpoolSchema, workpoolModules);
@@ -578,7 +623,7 @@ async function setupRoom(options: { seedElement?: boolean; extraMember?: boolean
       code: `T${Math.random().toString(36).slice(2, 7).toUpperCase()}`,
       title: "Agent job runtime test",
       hostId: "",
-      autoAllow: true,
+      autoAllow: options.autoAllow ?? true,
       status: "live" as const,
       createdAt: now,
     }),

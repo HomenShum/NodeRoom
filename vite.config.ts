@@ -15,7 +15,18 @@ export default defineConfig({
       "@nodeagent": fileURLToPath(new URL("./src/nodeagent", import.meta.url)),
     },
   },
-  server: { port: 5260, open: false },
+  server: {
+    port: 5260,
+    open: false,
+    watch: {
+      ignored: [
+        "**/.tmp/**",
+        "**/test-results/**",
+        "**/playwright-report/**",
+        "**/nodetrace/.tmp/**",
+      ],
+    },
+  },
   optimizeDeps: { include: ["exceljs", "@xyflow/react"] },
   build: { outDir: "dist", sourcemap: process.env.VITE_BUILD_SOURCEMAP === "1" },
 });

@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updatedAt": "2026-06-20",
+  "updatedAt": "2026-06-21",
   "primaryPublicAgentInvocation": "@nodeagent",
   "legacyAliases": ["/ask", "/free"],
   "policy": {
@@ -117,7 +117,7 @@
       "id": "private-agent",
       "name": "Private agent lane",
       "owner": "agent-runtime",
-      "currentCoverage": ["e2e/privacy-job-wall-proposal.spec.ts", "e2e/three-user-collab.spec.ts", "tests/privateArtifactVisibility.test.ts"],
+      "currentCoverage": ["e2e/privacy-job-wall-proposal.spec.ts", "e2e/live-broad-convex.spec.ts", "e2e/three-user-collab.spec.ts", "tests/privateArtifactVisibility.test.ts"],
       "scenarios": [
         {
           "id": "private-agent.private-reply",
@@ -149,13 +149,13 @@
       "id": "durable-job-controls",
       "name": "Durable job controls and resume",
       "owner": "agent-runtime",
-      "currentCoverage": ["e2e/privacy-job-wall-proposal.spec.ts", "scripts/free-job-smoke.ts", "tests/agentJobsRuntime.test.ts"],
+      "currentCoverage": ["e2e/privacy-job-wall-proposal.spec.ts", "e2e/live-broad-convex.spec.ts", "scripts/free-job-smoke.ts", "tests/agentJobsRuntime.test.ts"],
       "scenarios": [
         {
           "id": "durable-job-controls.start-free-route",
           "priority": "release_floor",
           "status": "covered",
-          "suggestedSpec": "e2e/privacy-job-wall-proposal.spec.ts",
+          "suggestedSpec": "e2e/live-broad-convex.spec.ts",
           "steps": ["Send a Free-route public agent task.", "Inspect the public chat job strip."],
           "assertions": ["Job strip appears.", "Status shows queued or running.", "Model policy indicates free-auto.", "User gets immediate feedback."]
         },
@@ -181,7 +181,7 @@
       "id": "spreadsheet-editing",
       "name": "Spreadsheet and manual editing",
       "owner": "work-surface",
-      "currentCoverage": ["e2e/excel-grid.spec.ts", "e2e/semantic-rebase.spec.ts"],
+      "currentCoverage": ["e2e/excel-grid.spec.ts", "e2e/semantic-rebase.spec.ts", "e2e/reactivity.backend.spec.ts", "e2e/realtime-presence.spec.ts"],
       "scenarios": [
         {
           "id": "spreadsheet-editing.manual-cell",
@@ -213,7 +213,7 @@
       "id": "review-proposals",
       "name": "Review proposals and auto-allow",
       "owner": "collaboration",
-      "currentCoverage": ["e2e/privacy-job-wall-proposal.spec.ts", "e2e/semantic-rebase.spec.ts", "e2e/three-user-collab.spec.ts", "tests/durableSemanticRebase.test.ts"],
+      "currentCoverage": ["e2e/privacy-job-wall-proposal.spec.ts", "e2e/semantic-rebase.spec.ts", "e2e/semantic-rebase.backend.spec.ts", "e2e/live-broad-convex.spec.ts", "e2e/three-user-collab.spec.ts", "tests/durableSemanticRebase.test.ts", "tests/convexSemanticRebase.test.ts"],
       "scenarios": [
         {
           "id": "review-proposals.propose-approve",
@@ -226,8 +226,8 @@
         {
           "id": "review-proposals.reject",
           "priority": "nightly",
-          "status": "partial",
-          "suggestedSpec": "e2e/privacy-job-wall-proposal.spec.ts",
+          "status": "covered",
+          "suggestedSpec": "e2e/live-broad-convex.spec.ts",
           "steps": ["Seed a proposal.", "Reject it."],
           "assertions": ["Artifact remains unchanged.", "Proposal becomes rejected or disappears from pending.", "Trace shows rejection."]
         },
@@ -325,7 +325,7 @@
       "id": "notes-wiki-wall",
       "name": "Notes, wiki, and wall",
       "owner": "work-surface",
-      "currentCoverage": ["e2e/privacy-job-wall-proposal.spec.ts", "e2e/state-captures.spec.ts", "tests/wikiSkill.test.ts"],
+      "currentCoverage": ["e2e/privacy-job-wall-proposal.spec.ts", "e2e/live-broad-convex.spec.ts", "e2e/state-captures.spec.ts", "tests/wikiSkill.test.ts"],
       "scenarios": [
         {
           "id": "notes-wiki-wall.note-persist",
@@ -347,7 +347,7 @@
           "id": "notes-wiki-wall.postit-crud",
           "priority": "release_floor",
           "status": "partial",
-          "suggestedSpec": "e2e/note-wall.spec.ts",
+          "suggestedSpec": "e2e/live-broad-convex.spec.ts",
           "steps": ["Create a post-it.", "Edit its text.", "Move it.", "Delete it.", "Reload."],
           "assertions": ["Create, edit, move, and delete persist.", "No ghost post-its remain."]
         }
@@ -397,13 +397,13 @@
       "id": "privacy-authz-boundaries",
       "name": "Privacy, authorization, and boundaries",
       "owner": "security",
-      "currentCoverage": ["e2e/privacy-job-wall-proposal.spec.ts", "tests/convexBoundaryPolicy.test.ts", "e2e/three-user-collab.spec.ts"],
+      "currentCoverage": ["e2e/privacy-job-wall-proposal.spec.ts", "e2e/live-broad-convex.spec.ts", "tests/convexBoundaryPolicy.test.ts", "e2e/three-user-collab.spec.ts"],
       "scenarios": [
         {
           "id": "privacy-authz-boundaries.private-leak",
           "priority": "release_floor",
-          "status": "partial",
-          "suggestedSpec": "e2e/privacy-job-wall-proposal.spec.ts",
+          "status": "covered",
+          "suggestedSpec": "e2e/live-broad-convex.spec.ts",
           "steps": ["User A sends private content.", "User B watches public and private lanes."],
           "assertions": ["B never sees A private content.", "Public feed remains clean.", "Server query path enforces isolation."]
         },

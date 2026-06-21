@@ -3,10 +3,12 @@
 Status: target architecture with the first spreadsheet runtime slices shipped.
 This extends the existing Convex-ledger rule with the UX contract for fast
 human + agent collaboration across spreadsheet, notebook, and deck surfaces.
-As of 2026-06-20, spreadsheet presence, server-side agent intent claims, and
-deferred semantic-index refresh are implemented; plan-time affected sets,
-patch-bundle publish, ProseMirror idle-save, and deck-plan collaboration remain
-the next runtime layers.
+As of 2026-06-20, spreadsheet presence, server-side agent intent claims on the
+normal RoomTools write path, server-derived public job policy, stale-agent CRS
+proposal fallback, duplicate semantic-proposal suppression, and deferred
+semantic-index refresh are implemented. Plan-time affected-set claims,
+multi-op patch-bundle publish, ProseMirror idle-save, and deck-plan
+collaboration remain the next runtime layers.
 
 ## Product rule
 
@@ -31,10 +33,11 @@ managed writes. They are not the primary human-visible collaboration model.
 |---|---|---|---|
 | Spreadsheet | Local grid runtime for typing, selection, fill, formula bar | `elements` rows with per-cell `version` | Patch bundle of cell ops with base versions, final CAS, CRS only on meaningful conflict |
 | Notebook | ProseMirror Sync | ProseMirror document mapped by `notebookDocuments`; read model is derived | Comment-scoped proposal, sidecar cue, or labeled append block after approval |
-| PowerPoint / deck | HTML preview and comment layer | `deck-plan` JSON with stable slide/component ids | `DeckDelta` against `basePlanVersion`; HTML/PPTX/PDF are derived exports |
+| PowerPoint / deck | HTML preview and comment layer | Target: `deck-plan` JSON with stable slide/component ids | Target: `DeckDelta` against `basePlanVersion`; HTML/PPTX/PDF are derived exports |
 
 HTML is preview and comment-edit UI for decks. It is not the deck source of
-truth. PPTX/PDF are export formats, not collaborative state.
+truth. PPTX/PDF are export formats, not collaborative state. This is the deck
+target, not a shipped deck-runtime claim.
 
 ## Unified flow
 
@@ -118,7 +121,8 @@ Deck collaboration follows the Parity-style loop:
 
 `deck-plan JSON -> HTML preview + comment-edit -> optional PPTX/PDF export`
 
-The deck plan is the single source of truth:
+Deck target, not a shipped deck-runtime claim: the deck plan is the single
+source of truth.
 
 - `deckPlanVersion` is the CAS baseline.
 - Slides and components have stable ids/slugs.
@@ -128,9 +132,9 @@ The deck plan is the single source of truth:
 - HTML preview is regenerated from accepted plan state.
 - PPTX/PDF export is background work from accepted plan state.
 
-This gives PowerPoint the same collaboration ergonomics as the sheet: humans can
-select, comment, and edit the visible preview while the agent drafts scoped
-changes in a branch.
+That target gives PowerPoint the same collaboration ergonomics as the sheet:
+humans can select, comment, and edit the visible preview while the agent drafts
+scoped changes in a branch. The current runtime proof is spreadsheet-first.
 
 ## Server-derived policy
 
@@ -212,8 +216,20 @@ Current runtime proof:
   requests coalesce behind the cell edit path.
 - `tests/convexWallCrud.test.ts` proves wall post-it create/edit/delete flows
   through the same Convex versioned element mutation path.
+- `tests/convexRoomToolsPresence.test.ts` proves normal agent `editCell`
+  publishes server-owned `agent_intent` and `commit_lease` presence before the
+  checked CAS mutation.
+- `tests/convexSemanticRebase.test.ts` proves the host-gated server-owned
+  agent-intent proof routes a stale final patch into one deduped semantic review
+  proposal without overwriting the human value.
+- `tests/agentJobsRuntime.test.ts` proves public durable job start derives
+  approval/evidence/auto-allow policy server-side instead of trusting client
+  mutation fields.
 - `e2e/realtime-presence.spec.ts` proves two browser contexts can see presence
   while the second user keeps editing the same sheet.
+- `e2e/live-broad-convex.spec.ts` covers live public/private chat isolation,
+  wall CRUD fan-out, job cancel/retry controls, and server-owned agent-intent
+  conflict/proposal proof.
 - `docs/eval/MEDIA_JUDGE.md` records the current Gemini 3.5 Flash video judge:
   publish, score 8/16, with a remaining P2 that the clip should show more
   simultaneous two-sided coediting.

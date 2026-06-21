@@ -43,6 +43,14 @@ export interface RebasePlan {
   autoMergeOp: { elementId: string; kind: "set" | "create" | "delete"; value: unknown; baseVersion: number } | null;
 }
 
+function sameValue(a: unknown, b: unknown): boolean {
+  try {
+    return JSON.stringify(a) === JSON.stringify(b);
+  } catch {
+    return Object.is(a, b);
+  }
+}
+
 /**
  * Build + classify + resolve + persist a semantic conflict for a single stale agent write, and
  * decide its routing. Does NOT itself commit an auto-merge (mutations cannot import the CAS spine
@@ -126,7 +134,20 @@ export async function planAndRecordRebase(
     autoMergeOp = { elementId, kind: args.kind, value: args.proposedValue, baseVersion: args.currentVersion };
   } else if (!args.autoAllow) {
     // Review mode: rebase the stale patch into a host-approvable proposal on the CURRENT version.
-    const proposalId = await ctx.db.insert("proposals", {
+    const pending = await ctx.db
+      .query("proposals")
+      .withIndex("by_room_status", (q) => q.eq("roomId", args.roomId).eq("status", "pending"))
+      .collect();
+    const existing = pending.find((proposal) => {
+      const proposalOp = proposal.op as ChangeOp | undefined;
+      return String(proposal.artifactId) === String(args.artifactId) &&
+        proposal.review?.kind === "semantic_rebase" &&
+        proposalOp?.elementId === elementId &&
+        proposalOp?.kind === args.kind &&
+        proposalOp?.baseVersion === args.currentVersion &&
+        sameValue(proposalOp?.value, args.proposedValue);
+    });
+    const proposalId = existing?._id ?? await ctx.db.insert("proposals", {
       roomId: args.roomId,
       artifactId: args.artifactId,
       op: { opId: op.opId, artifactId: String(args.artifactId), elementId, kind: args.kind, value: args.proposedValue, baseVersion: args.currentVersion },

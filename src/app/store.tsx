@@ -1107,7 +1107,7 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
   const registerUploadedFileMutation = useMutation(api.artifacts.registerUploadedFile);
   const setArtifactVisibilityMutation = useMutation(api.artifacts.setArtifactVisibility);
   const setArtifactMetaMutation = useMutation(api.artifacts.setArtifactMeta);
-  const runSemanticConflictDrillMutation = useMutation(api.drafts.runSemanticConflictDrill);
+  const runSemanticConflictDrillMutation = useMutation(api.artifacts.startAgentIntentConflictProof);
   const runAgent = useAction(api.agent.runRoomAgent);
   const runPrivateAgent = useAction(api.agent.runPrivateAgent);
   const runCaptureAction = useAction(api.capturesNode.capture);
@@ -1340,7 +1340,6 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
           artifactId: sheet.id as never,
           requester: proof,
           elementId: "r_rev__variance",
-          currentValue: "+24%",
           proposedValue: "+19%",
         });
       },

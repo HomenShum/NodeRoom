@@ -1,6 +1,13 @@
 import { test, expect, type Page } from "@playwright/test";
 
 test.skip(!process.env.E2E_LIVE, "set E2E_LIVE=1 to run against the live Convex backend");
+const LIVE_VIDEO_DIR = "test-results/live-videos";
+
+function liveContextOptions(viewport: { width: number; height: number }) {
+  return process.env.PLAYWRIGHT_RECORD_VIDEO === "1"
+    ? { viewport, recordVideo: { dir: LIVE_VIDEO_DIR, size: viewport } }
+    : { viewport };
+}
 
 function chat(page: Page) {
   return page.getByTestId("public-chat-panel");
@@ -32,9 +39,7 @@ test("cell presence is visible but advisory: another user can still edit the sam
   const value = "Q3 growth came from renewals.";
 
   const contextFor = async () => {
-    const context = await browser.newContext({
-      viewport: { width: 1280, height: 900 },
-    });
+    const context = await browser.newContext(liveContextOptions({ width: 1280, height: 900 }));
     await context.addInitScript(() => {
       try {
         localStorage.setItem("noderoom:tour:v1", "done");
@@ -48,12 +53,12 @@ test("cell presence is visible but advisory: another user can still edit the sam
   const maya = await mayaContext.newPage();
   const sam = await samContext.newPage();
 
-  await maya.goto(`/?demo=${code}&name=Maya`);
+  await maya.goto(`/?demo=${code}&name=Maya`, { waitUntil: "domcontentloaded" });
   await expect(chat(maya).getByTestId("chat-composer")).toBeVisible({ timeout: 60_000 });
   await expect(maya.getByTestId("artifact-panel")).toBeVisible({ timeout: 60_000 });
   await openVarianceSheet(maya);
 
-  await sam.goto(`/?room=${code}&name=Sam`);
+  await sam.goto(`/?room=${code}&name=Sam`, { waitUntil: "domcontentloaded" });
   await expect(chat(sam).getByTestId("chat-composer")).toBeVisible({ timeout: 60_000 });
   await expect(sam.getByTestId("artifact-panel")).toBeVisible({ timeout: 60_000 });
   await openVarianceSheet(sam);

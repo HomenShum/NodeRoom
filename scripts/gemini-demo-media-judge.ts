@@ -10,7 +10,7 @@ import {
   statSync,
   writeFileSync,
 } from "node:fs";
-import { basename, extname, join, relative } from "node:path";
+import { basename, extname, isAbsolute, join, relative, resolve } from "node:path";
 import { generateObject, type ModelMessage } from "ai";
 import { google } from "@ai-sdk/google";
 import { z } from "zod";
@@ -21,6 +21,7 @@ const invokedCommand = ["npm", "run", "media:gemini-judge", "--", ...args].map(q
 const model = optionValue("--model") ?? process.env.GEMINI_MEDIA_JUDGE_MODEL ?? "gemini-3.5-flash";
 const runId = optionValue("--run-id") ?? timestampId(new Date());
 const only = optionValue("--only")?.toLowerCase();
+const inputPaths = optionValues("--input");
 const limit = numberOption("--limit");
 const all = hasFlag("--all");
 const primaryOnly = hasFlag("--primary-only") || !all;
@@ -71,7 +72,7 @@ const judgeSchema = z.object({
 
 type Judge = z.infer<typeof judgeSchema>;
 
-type AssetClass = "readme_walkthrough" | "workflow_preview" | "episode";
+type AssetClass = "readme_walkthrough" | "workflow_preview" | "episode" | "live_browser_proof";
 
 type Asset = {
   id: string;
@@ -138,6 +139,18 @@ if (writeStableDocs) {
 
 function discoverAssets(): Asset[] {
   const assets: Asset[] = [];
+  for (const input of inputPaths) {
+    const path = isAbsolute(input) ? input : resolve(ROOT, input);
+    if (!existsSync(path)) throw new Error(`--input media not found: ${input}`);
+    assets.push({
+      id: assetId(path),
+      class: "live_browser_proof",
+      title: titleize(basename(path, extname(path))),
+      path,
+      relPath: slash(relative(ROOT, path)),
+      purpose: "Live Playwright browser proof clip. Judge only visible product evidence: multi-client sync, advisory presence, no-clobber behavior, proposals, job/privacy/wall surfaces, and production honesty.",
+    });
+  }
   for (const path of listMedia(join(ROOT, "docs", "walkthroughs"))) {
     const name = basename(path, extname(path));
     assets.push({
@@ -181,7 +194,9 @@ function discoverAssets(): Asset[] {
 }
 
 function selectAssets(input: Asset[]): Asset[] {
-  let selected = includeIgnored ? input : input.filter((asset) => isTracked(asset.path) && !RETIRED_MEDIA.has(asset.relPath));
+  let selected = inputPaths.length > 0 && !all
+    ? input.filter((asset) => asset.class === "live_browser_proof")
+    : includeIgnored ? input : input.filter((asset) => asset.class === "live_browser_proof" || (isTracked(asset.path) && !RETIRED_MEDIA.has(asset.relPath)));
   if (only) selected = selected.filter((asset) => `${asset.relPath} ${asset.title} ${asset.class}`.toLowerCase().includes(only));
   if (primaryOnly) selected = preferPrimaryWalkthroughs(selected);
   if (limit !== undefined) selected = selected.slice(0, limit);
@@ -487,6 +502,26 @@ function optionValue(name: string): string | undefined {
   if (index === -1) return undefined;
   const value = args[index + 1];
   return value && !value.startsWith("--") ? value : undefined;
+}
+
+function optionValues(name: string): string[] {
+  const values: string[] = [];
+  const prefix = `${name}=`;
+  for (let i = 0; i < args.length; i++) {
+    const arg = args[i];
+    if (arg.startsWith(prefix)) {
+      values.push(arg.slice(prefix.length));
+      continue;
+    }
+    if (arg === name) {
+      const value = args[i + 1];
+      if (value && !value.startsWith("--")) {
+        values.push(value);
+        i++;
+      }
+    }
+  }
+  return values;
 }
 
 function numberOption(name: string): number | undefined {

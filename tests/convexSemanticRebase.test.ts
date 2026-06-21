@@ -150,6 +150,82 @@ describe("Convex semantic rebase write path", () => {
     expect(pending).toHaveLength(0);
   });
 
+  it("launches server-owned agent intent, then routes the stale final patch to review", async () => {
+    const t = convexTest(schema, modules);
+    const s = await seedRoom(t, { autoAllow: false });
+
+    const launched = await t.mutation(api.artifacts.startAgentIntentConflictProof, {
+      roomId: s.roomId,
+      artifactId: s.artifactId,
+      requester: s.hostProof,
+      elementId: CELL,
+      proposedValue: "+19% agent",
+    });
+    expect(launched).toMatchObject({ ok: true, elementId: CELL, baseVersion: 1 });
+
+    const presence = await t.query(api.presence.listForArtifact, {
+      roomId: s.roomId,
+      artifactId: s.artifactId,
+      requester: s.hostProof,
+    });
+    expect(presence).toContainEqual(expect.objectContaining({
+      targetKind: "cell",
+      targetId: CELL,
+      mode: "agent_intent",
+      label: "NodeAgent planning",
+    }));
+
+    const human = await t.mutation(api.artifacts.applyCellEdit, {
+      roomId: s.roomId,
+      artifactId: s.artifactId,
+      elementId: CELL,
+      value: "+24% human",
+      baseVersion: 1,
+      proof: s.hostProof,
+    });
+    expect(human).toMatchObject({ ok: true, version: 2 });
+
+    const committed = await t.mutation(internal.artifacts.commitAgentIntentConflictProof, {
+      roomId: s.roomId,
+      artifactId: s.artifactId,
+      elementId: CELL,
+      value: "+19% agent",
+      baseVersion: launched.baseVersion,
+      actor: AGENT,
+    });
+    expect(committed).toMatchObject({ ok: false, reason: "conflict", expected: 1, actual: 2 });
+
+    const retried = await t.mutation(internal.artifacts.commitAgentIntentConflictProof, {
+      roomId: s.roomId,
+      artifactId: s.artifactId,
+      elementId: CELL,
+      value: "+19% agent",
+      baseVersion: launched.baseVersion,
+      actor: AGENT,
+    });
+    expect(retried).toMatchObject({ ok: false, reason: "conflict", expected: 1, actual: 2 });
+
+    const proposals = await t.query(api.artifacts.listProposals, { roomId: s.roomId, requester: s.hostProof });
+    expect(proposals).toHaveLength(1);
+    expect(proposals[0]).toMatchObject({
+      review: expect.objectContaining({ kind: "semantic_rebase", currentVersion: 2 }),
+      op: expect.objectContaining({ elementId: CELL, value: "+19% agent", baseVersion: 2 }),
+    });
+    expect((await readElement(t, s.artifactId))?.value).toBe("+24% human");
+
+    const afterPresence = await t.query(api.presence.listForArtifact, {
+      roomId: s.roomId,
+      artifactId: s.artifactId,
+      requester: s.hostProof,
+    });
+    expect(afterPresence).toContainEqual(expect.objectContaining({
+      targetKind: "cell",
+      targetId: CELL,
+      mode: "commit_lease",
+      label: "NodeAgent checking CAS",
+    }));
+  });
+
   it("rejects non-host callers for the live semantic conflict drill", async () => {
     const t = convexTest(schema, modules);
     const s = await seedRoom(t);
@@ -166,6 +242,27 @@ describe("Convex semantic rebase write path", () => {
 
     expect((await t.query(api.artifacts.listProposals, { roomId: s.roomId, requester: s.hostProof }))).toHaveLength(0);
     expect((await readElement(t, s.artifactId))?.value).toBe("base");
+  });
+
+  it("rejects non-host callers for the server-owned agent intent proof", async () => {
+    const t = convexTest(schema, modules);
+    const s = await seedRoom(t);
+    const memberProof = await addMember(t, s.roomId);
+
+    await expect(t.mutation(api.artifacts.startAgentIntentConflictProof, {
+      roomId: s.roomId,
+      artifactId: s.artifactId,
+      requester: memberProof,
+      elementId: CELL,
+      proposedValue: "+19%",
+    })).rejects.toThrow("host_required");
+
+    const presence = await t.query(api.presence.listForArtifact, {
+      roomId: s.roomId,
+      artifactId: s.artifactId,
+      requester: s.hostProof,
+    });
+    expect(presence).toHaveLength(0);
   });
 
   it("applies approved create and delete proposals with artifact order intact", async () => {

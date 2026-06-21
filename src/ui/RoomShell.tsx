@@ -323,7 +323,7 @@ export function RoomShell({ roomId, me, onLeave, proof }: { roomId: string; me: 
           Auto-allow
           {/* The highest-blast-radius control (gates whether agent edits apply without review):
               a real ARIA switch, not a bare button, so assistive tech reads its on/off state. */}
-          <button className="r-switch" role="switch" aria-checked={room.autoAllow} aria-label="Auto-allow agent edits without host review" data-on={String(room.autoAllow)} disabled={!isHost} title={isHost ? "Auto-approve agent edits" : "Only the host can change auto-allow"} onClick={toggleAutoAccept} />
+          <button className="r-switch" role="switch" aria-checked={room.autoAllow} aria-label="Auto-allow agent edits without host review" data-testid="auto-allow-switch" data-on={String(room.autoAllow)} disabled={!isHost} title={isHost ? "Auto-approve agent edits" : "Only the host can change auto-allow"} onClick={toggleAutoAccept} />
         </div>
         <div className="r-avatars">
           {members.slice(0, 4).map((m) => (<span key={m.id} className="r-av" style={{ background: m.color }}>{initials(m.name)}<span className="pulse" /></span>))}

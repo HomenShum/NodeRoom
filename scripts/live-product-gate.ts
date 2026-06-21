@@ -53,8 +53,9 @@ const convexUrl = requireKey(env, ["E2E_CONVEX_URL", "VITE_CONVEX_URL", "CONVEX_
 env.VITE_CONVEX_URL = env.VITE_CONVEX_URL?.trim() || convexUrl;
 env.E2E_CONVEX_URL = env.E2E_CONVEX_URL?.trim() || env.VITE_CONVEX_URL;
 env.PLAYWRIGHT_PORT = env.PLAYWRIGHT_PORT?.trim() || (includeAgent ? "5221" : "5220");
-env.PLAYWRIGHT_BASE_URL = env.PLAYWRIGHT_BASE_URL?.trim() || `http://localhost:${env.PLAYWRIGHT_PORT}`;
-env.E2E_LIVE = includeAgent ? "1" : (env.E2E_LIVE || "");
+env.PLAYWRIGHT_BASE_URL = env.PLAYWRIGHT_BASE_URL?.trim() || `http://127.0.0.1:${env.PLAYWRIGHT_PORT}`;
+env.PLAYWRIGHT_RECORD_VIDEO = env.PLAYWRIGHT_RECORD_VIDEO?.trim() || "1";
+env.E2E_LIVE = "1";
 if (strictReview) env.E2E_REQUIRE_REVIEW_MODE = "1";
 
 if (includeAgent) {
@@ -62,17 +63,17 @@ if (includeAgent) {
 }
 
 const specs = [
-  "e2e/chat.spec.ts",
-  "e2e/excel-grid.spec.ts",
   "e2e/reactivity.backend.spec.ts",
   "e2e/semantic-rebase.backend.spec.ts",
+  "e2e/realtime-presence.spec.ts",
+  "e2e/live-broad-convex.spec.ts",
   ...(includeAgent ? ["e2e/three-user-collab.spec.ts"] : []),
 ];
 
 console.log(`live-product-gate: ${includeAgent ? "backend + agent" : "backend"} specs on ${env.PLAYWRIGHT_BASE_URL}`);
 console.log(`live-product-gate: ${specs.join(", ")}`);
 
-const result = spawnSync("npx", ["playwright", "test", ...specs, "--workers=1"], {
+const result = spawnSync("npx", ["playwright", "test", ...specs, "--workers=1", "--timeout=90000"], {
   cwd: ROOT,
   env,
   shell: process.platform === "win32",

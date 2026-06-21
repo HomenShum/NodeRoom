@@ -1,0 +1,18 @@
+{
+  "runId": "live-convex-broad-proof-fast-3s-final-20260620",
+  "generatedAt": "2026-06-21T05:54:30.444Z",
+  "model": "gemini-3.5-flash",
+  "primaryOnly": true,
+  "all": false,
+  "includeIgnored": false,
+  "assets": [
+    {
+      "id": "docs-eval-live-browser-proofs-live-convex-broad-proof-20260620",
+      "class": "live_browser_proof",
+      "title": "Live Convex Broad Proof 20260620",
+      "path": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\docs\\eval\\live-browser-proofs\\live-convex-broad-proof-20260620.webm",
+      "relPath": "docs/eval/live-browser-proofs/live-convex-broad-proof-20260620.webm",
+      "purpose": "Live Playwright browser proof clip. Judge only visible product evidence: multi-client sync, advisory presence, no-clobber behavior, proposals, job/privacy/wall surfaces, and production honesty."
+    }
+  ]
+}

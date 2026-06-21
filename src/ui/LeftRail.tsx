@@ -128,6 +128,7 @@ export function LeftRail({ roomId, me, artId, onPick, onOpenChat, style }: { roo
                 data-testid="binder-artifact"
                 data-artifact-id={a.id}
                 data-artifact-kind={a.kind}
+                data-artifact-title={a.title}
                 draggable
                 title="Drag into chat to reference this file"
                 onClick={() => onPick(a.id)}

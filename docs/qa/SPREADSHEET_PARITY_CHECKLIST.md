@@ -1,5 +1,10 @@
 # Spreadsheet interaction parity — checklist & status
 
+Scope: this checklist covers spreadsheet interaction muscle memory inside
+NodeRoom's grid. It is not a literal Google Sheets feature-parity claim, and it
+is not live collaboration proof by itself. Live coediting claims must cite the
+Convex browser gates separately.
+
 The rigorous "feels like Excel / Google Sheets" spec, researched 2026-06-11 from Microsoft's Excel
 keyboard/edit docs, Google's Sheets shortcut reference, Handsontable's per-shortcut Excel-vs-Sheets
 parity tables, fortune-sheet's implementation constants (the Sheets-look open-source grid), Glide

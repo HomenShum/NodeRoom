@@ -118,20 +118,22 @@ For each: what to **KEEP**, what to **CHANGE**, and **already-exists (cite) vs n
   `ctx.runMutation` from inside the action (`convexRoomTools.ts`). **Clients/LLM cannot call raw
   writes.** (Humans have their own separate *public* audited mutations — `applyCellEdit`,
   `resolveProposal`, `addResearchRows`, `createArtifact`.)
-- **KEEP**: `/ask` is already observable — it creates an `agentJobs` row (`runtime:'inline'`) and an
+- **Historical before June 16**: `/ask` was already observable — it created an `agentJobs` row (`runtime:'inline'`) and an
   `agentRuns` row, and has **dollar** admission control (daily `ROOM_MAX_USD_PER_DAY` `agent.ts:102-104`,
   monthly `GLOBAL_MAX_USD_PER_MONTH` `agent.ts:110-114`, in-run `spendLimits` ceiling `agent.ts:323-326`,
   fail-closed). It also has **deterministic idempotency** (`idempotency.ts:25-30`, FNV-1a over
   sorted/normalized keys; atomic claim-or-reuse via `by_idempotency`, `agentJobs.ts:79-81`) that
   dedupes the *same* goal. **[CONFIRMED]**
-- **CHANGE**: `/ask` runs **inline + uncapped on concurrency** (`store.tsx:603,708-722` →
+- **Historical before June 16**: `/ask` ran **inline + uncapped on concurrency** (`store.tsx:603,708-722` →
   `api.agent.runRoomAgent`), while `/free` enqueues a lease-guarded durable workflow
   (`store.tsx:754` → `startFreeAuto` → `freeAutoWorkflow`). **[CONFIRMED]** Add a per-room +
   global concurrency cap, OR re-route `/ask` onto the existing workflow/workpool lane so
   `maxParallelism: 3` applies. **[NET-NEW]** — verified: the **only** `maxParallelism` in the repo
   is on the workflow component (`agentWorkflows.ts:9`); there is **no** running-job counter gating
   the action. Add a **token-budget preflight** (estimate prompt+context tokens, reject before the
-  model call). **[NET-NEW]** — dollar caps exist; a token preflight does not.
+  model call). **[SUPERSEDED]** Public room-agent start now routes through the
+  durable `agentJobs.start` lane below; remaining capacity work is queued/running
+  caps and token preflight.
 - **June 16 implementation update**: public room agent starts now go through
   `agentJobs.start`, not separate `/ask` and `/free` implementations. The job
   row carries `entrypoint`, `routePolicy`, `runtimePolicy`, `modelPolicy`,

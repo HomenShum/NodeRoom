@@ -11,8 +11,15 @@ import { test, expect, type Page } from "@playwright/test";
 test.skip(!process.env.E2E_LIVE, "set E2E_LIVE=1 (live Convex backend + keys) to run the multi-user collab eval");
 
 const SHOTS = "docs/eval/three-user-shots";
+const LIVE_VIDEO_DIR = "test-results/live-videos";
 const REQUIRE_REVIEW_MODE = process.env.E2E_REQUIRE_REVIEW_MODE === "1";
 const v = (row: string) => `${row}__variance`;
+
+function liveContextOptions(viewport: { width: number; height: number }) {
+  return process.env.PLAYWRIGHT_RECORD_VIDEO === "1"
+    ? { viewport, recordVideo: { dir: LIVE_VIDEO_DIR, size: viewport } }
+    : { viewport };
+}
 
 async function dismissTour(p: Page) { await p.getByTestId("tour-skip").click({ timeout: 5000 }).catch(() => {}); }
 function chat(p: Page) { return p.getByTestId("public-chat-panel"); }
@@ -65,7 +72,7 @@ async function proposalText(p: Page, key: string) {
   return (await p.locator(`[data-cell-key="${key}"] [data-testid="proposal-inline"] .r-inline-proposal-text`).innerText()).trim();
 }
 async function setAutoAllow(p: Page, on: boolean) {
-  const sw = p.locator(".r-pill-auto .r-switch");
+  const sw = p.getByTestId("auto-allow-switch");
   await expect(sw).toBeVisible({ timeout: 10_000 });
   if ((await sw.getAttribute("data-on")) !== String(on)) await sw.click();
   await expect(sw).toHaveAttribute("data-on", String(on), { timeout: 10_000 });
@@ -78,7 +85,7 @@ test("three users chat, edit the same sheet concurrently, and run the public age
   test.setTimeout(600_000);
   const CODE = "EVAL" + Date.now().toString(36).toUpperCase();
   const mk = async () => {
-    const ctx = await browser.newContext({ viewport: { width: 1280, height: 900 } });
+    const ctx = await browser.newContext(liveContextOptions({ width: 1280, height: 900 }));
     await ctx.addInitScript(() => {
       try { localStorage.setItem("noderoom:tour:v1", "done"); } catch { /* ignore */ }
     });
@@ -89,12 +96,12 @@ test("three users chat, edit the same sheet concurrently, and run the public age
   const pages = { maya, dev, sam };
 
   // ── Act 1: Maya creates the new room (+ seeds the shared Q3 sheet); Dev & Sam join by code.
-  await maya.goto(`/?demo=${CODE}&name=Maya`);
+  await maya.goto(`/?demo=${CODE}&name=Maya`, { waitUntil: "domcontentloaded" });
   await expect(chat(maya).getByTestId("chat-composer")).toBeVisible({ timeout: 60_000 });
   await openVarianceSheet(maya); // sheet seeded
   await dismissTour(maya);
-  await dev.goto(`/?room=${CODE}&name=Dev`);
-  await sam.goto(`/?room=${CODE}&name=Sam`);
+  await dev.goto(`/?room=${CODE}&name=Dev`, { waitUntil: "domcontentloaded" });
+  await sam.goto(`/?room=${CODE}&name=Sam`, { waitUntil: "domcontentloaded" });
   for (const p of [dev, sam]) {
     await expect(chat(p).getByTestId("chat-composer")).toBeVisible({ timeout: 60_000 });
     await openVarianceSheet(p);

@@ -1,8 +1,8 @@
 {
-  "runId": "realtime-presence-coedit",
-  "generatedAt": "2026-06-21T02:21:18.428Z",
+  "runId": "live-convex-broad-proof-fast-3s-final-20260620",
+  "generatedAt": "2026-06-21T05:54:49.786Z",
   "model": "gemini-3.5-flash",
-  "command": "npm run media:gemini-judge -- --only realtime-presence-coedit --include-ignored --run-id realtime-presence-coedit --model gemini-3.5-flash",
+  "command": "npm run media:gemini-judge -- --input \"D:\\\\VSCode Projects\\\\cafecorner_nodebench\\\\nodebench_ai4\\\\noderoom\\\\docs\\\\eval\\\\live-browser-proofs\\\\live-convex-broad-proof-20260620.webm\" --run-id live-convex-broad-proof-fast-3s-final-20260620 --model gemini-3.5-flash --primary-only",
   "notes": [
     "GIF assets are converted to temporary MP4 with ffmpeg before upload.",
     "This media judge is evidence-quality QA; it does not replace backend/browser production gates."
@@ -16,79 +16,87 @@
       "publish": 1
     },
     "defects": {
-      "P2": 1
+      "P2": 2
     }
   },
   "results": [
     {
       "asset": {
-        "id": "docs-walkthroughs-realtime-presence-coedit",
-        "class": "readme_walkthrough",
-        "title": "Realtime Presence Coedit",
-        "path": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\docs\\walkthroughs\\realtime-presence-coedit.webm",
-        "relPath": "docs/walkthroughs/realtime-presence-coedit.webm",
-        "purpose": "README live walkthrough clip. Judge whether the feature is obvious, visually consistent, and credible as evidence.",
-        "duplicateGroup": "walkthrough:realtime-presence-coedit"
+        "id": "docs-eval-live-browser-proofs-live-convex-broad-proof-20260620",
+        "class": "live_browser_proof",
+        "title": "Live Convex Broad Proof 20260620",
+        "path": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\docs\\eval\\live-browser-proofs\\live-convex-broad-proof-20260620.webm",
+        "relPath": "docs/eval/live-browser-proofs/live-convex-broad-proof-20260620.webm",
+        "purpose": "Live Playwright browser proof clip. Judge only visible product evidence: multi-client sync, advisory presence, no-clobber behavior, proposals, job/privacy/wall surfaces, and production honesty."
       },
       "model": "gemini-3.5-flash",
       "status": "judged",
-      "mediaPath": "docs/walkthroughs/realtime-presence-coedit.webm",
+      "mediaPath": "docs/eval/live-browser-proofs/live-convex-broad-proof-20260620.webm",
       "mediaType": "video/webm",
-      "bytes": 331322,
+      "bytes": 3012096,
       "judge": {
         "verdict": "publish",
-        "summary": "The video demonstrates real-time co-editing and presence in a financial spreadsheet workspace. A second user joins the room, and a cell note is added, showing immediate updates across the session.",
+        "summary": "The video provides a comprehensive live browser demonstration of the NodeRoom diligence environment, showcasing multi-client sync, spreadsheet editing, agent interaction, and the room trace log.",
         "scores": {
           "featureClarity": {
-            "score": 1,
-            "evidence": "The presence indicator increments to '2 live' and a cell note is added, though the co-author's cursor is not explicitly highlighted in the cell."
+            "score": 1.4,
+            "evidence": "Demonstrates navigation across the room binder, sticky note wall, and Q3 variance spreadsheet."
           },
           "workflowCompleteness": {
-            "score": 1,
-            "evidence": "Shows the initial state, the addition of a note, and the updated cell state with presence indicators."
+            "score": 1.3,
+            "evidence": "Shows the full sequence from entering the room to editing cells and observing trace updates."
           },
           "visualDesign": {
-            "score": 1,
-            "evidence": "High-density dark UI with clear layout, though some text elements and status chips are quite small."
+            "score": 1.2,
+            "evidence": "High-density dark mode interface with clear active states, though slightly cluttered."
           },
           "consistency": {
-            "score": 1,
-            "evidence": "Aligns with the NodeRoom workspace concept, featuring spreadsheets, rooms, and agent panels."
+            "score": 1.4,
+            "evidence": "Perfectly aligns with the NodeRoom ecosystem of spreadsheets, walls, agents, and traces."
           },
           "evidenceQuality": {
-            "score": 1,
-            "evidence": "Captured directly from a live browser session showing real UI interactions."
+            "score": 1.5,
+            "evidence": "Authentic live browser capture showing real-time UI updates and state changes."
           },
           "legibility": {
-            "score": 1,
-            "evidence": "The spreadsheet text and bottom status bar are readable, but require full-screen viewing due to high density."
+            "score": 1.1,
+            "evidence": "Small font sizes in the trace log and chat panels make reading difficult at standard resolutions."
           },
           "professionalRelevance": {
-            "score": 1,
-            "evidence": "Highly relevant for collaborative financial modeling and deal room diligence workflows."
+            "score": 1.4,
+            "evidence": "Highly relevant to financial analysts and bankers managing diligence workflows."
           },
           "productionHonesty": {
-            "score": 1,
-            "evidence": "Shows actual UI latency and system logs at the bottom of the screen."
+            "score": 1.3,
+            "evidence": "Accurately reflects real-time system latency and agent proposal states."
           }
         },
         "observedEvidence": [
-          "Presence indicator updates to '2 live' at the top right",
-          "System log at the bottom shows 'Sam (joined room)'",
-          "Cell D3 is updated with a note 'Q3 growth came from renewals.'"
+          "Multi-client sync",
+          "Advisory presence",
+          "No-clobber behavior",
+          "Proposals",
+          "Job/privacy/wall surfaces",
+          "Room trace log"
         ],
         "missingEvidence": [],
         "defects": [
           {
-            "ts": "00:03",
+            "ts": "00:05",
             "severity": "P2",
-            "observed": "The active cursor of the second user (Sam) is not visually distinct inside the spreadsheet grid during the edit.",
-            "fix": "Add a colored cell border or cursor flag to represent the remote user's active selection."
+            "observed": "The text in the bottom room trace log is very small and has low contrast, making it hard to read.",
+            "fix": "Increase the font size or contrast of the trace log text."
+          },
+          {
+            "ts": "00:01",
+            "severity": "P2",
+            "observed": "The transition from the landing page to the room binder is extremely rapid.",
+            "fix": "Add a slight pause or smoother transition when entering the room."
           }
         ],
-        "suggestedReadmeCaption": "Real-time presence and collaborative cell editing in NodeRoom's secure financial workspace."
+        "suggestedReadmeCaption": "Live demonstration of the NodeRoom banking diligence war room, featuring real-time spreadsheet collaboration, agent proposals, and automated trace logging."
       },
-      "score": 8,
+      "score": 10.6,
       "maxScore": 16
     }
   ]

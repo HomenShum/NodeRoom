@@ -48,11 +48,15 @@ This is the concrete browser test inventory for NodeRoom's core workflows. The m
 4. `e2e/semantic-rebase.spec.ts` - proposal appears at changed cell; host approval applies it.
 5. `e2e/responsive-qa.spec.ts` - desktop and compact shell sanity.
 6. `e2e/work-surface-split.spec.ts` - center-stage split and source-open proof.
+7. `e2e/reactivity.backend.spec.ts` - live Convex two-context chat/cell reactivity and same-cell CAS convergence.
+8. `e2e/realtime-presence.spec.ts` - live Convex non-blocking spreadsheet presence.
+9. `e2e/semantic-rebase.backend.spec.ts` - live Convex server-owned agent-intent proposal approval.
+10. `e2e/live-broad-convex.spec.ts` - live Convex public/private chat isolation, wall CRUD fan-out, job cancel/retry, and agent-intent proposal rejection.
 
 Future release-floor specs tracked in the JSON inventory but not yet committed:
 `room-entry.spec.ts`, `nodeagent-public.spec.ts`, `job-controls.spec.ts`,
 `research-flow.spec.ts`, `privacy-boundaries.spec.ts`, `note-wall.spec.ts`,
-`multiuser-reactivity.spec.ts`, and `failure-states.spec.ts`.
+and `failure-states.spec.ts`.
 
 ## Nightly Specs To Expand
 

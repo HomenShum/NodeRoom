@@ -1385,6 +1385,38 @@ function defaultApprovalPolicyForEntrypoint(entrypoint: DurableStartEntrypoint) 
   return entrypoint === "free" ? "draft_first" : "auto_commit_safe";
 }
 
+async function derivePublicStartPolicy(ctx: any, a: DurableStartAgentJobArgs): Promise<DurableStartAgentJobArgs> {
+  const requestedRoute = a.routePolicy ?? (a.modelPolicy ? "explicit" : "fast_default");
+  const routePolicy: RoutePolicy = requestedRoute === "free_auto"
+    ? "free_auto"
+    : requestedRoute === "top_paid"
+      ? "top_paid"
+      : requestedRoute === "explicit"
+        ? "explicit"
+        : "fast_default";
+  const entrypoint = defaultEntrypointForRoute(routePolicy);
+  const room = await ctx.db.get(a.roomId);
+  const approvalPolicy = entrypoint === "free"
+    ? "draft_first"
+    : room?.autoAllow === false
+      ? "host_review"
+      : "auto_commit_safe";
+  const modelPolicy = routePolicy === "explicit" ? a.modelPolicy : undefined;
+  return {
+    ...a,
+    entrypoint,
+    scope: "public_room",
+    routePolicy,
+    runtimePolicy: "workflow_sliced",
+    modelPolicy,
+    approvalPolicy,
+    evidencePolicy: "public_only",
+    traceLevel: "full_operation_ledger",
+    autoAllow: entrypoint !== "free" && room?.autoAllow !== false,
+    request: undefined,
+  };
+}
+
 async function startDurableAgentJob(ctx: any, a: DurableStartAgentJobArgs): Promise<DurableStartAgentJobResult> {
   if (a.goal.length > 2_000) throw new Error("goal_too_long");
   const execution = a.execution ?? "workflow";
@@ -1566,7 +1598,7 @@ export const start = mutation({
     traceLevel: v.optional(traceLevelV),
     request: v.optional(v.any()),
   },
-  handler: async (ctx, a): Promise<DurableStartAgentJobResult> => startDurableAgentJob(ctx, a),
+  handler: async (ctx, a): Promise<DurableStartAgentJobResult> => startDurableAgentJob(ctx, await derivePublicStartPolicy(ctx, a)),
 });
 
 export const startFreeAuto = mutation({

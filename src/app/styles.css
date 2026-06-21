@@ -84,6 +84,8 @@ input { font-family: inherit; }
 .r-iconbtn-sm { width: 26px; height: 26px; }
 .r-iconbtn:hover { background: var(--bg-hover); color: var(--text-primary); }
 .r-iconbtn[data-on="true"] { background: var(--accent-tint); color: var(--accent-ink); border-color: var(--accent-border); }
+.r-iconbtn.primary { background: var(--accent-primary); color: #fff; border-color: var(--accent-primary); }
+.r-iconbtn.primary:hover { filter: brightness(1.04); }
 .r-toggle-group { display: flex; gap: 2px; padding: 3px; border-radius: 9px; background: var(--bg-secondary); border: 1px solid var(--line); }
 .r-btn { display: inline-flex; align-items: center; gap: 7px; padding: 7px 13px; border-radius: 9px; font-size: 13px; font-weight: 600; border: 1px solid var(--line); background: var(--bg-secondary); color: var(--text-primary); transition: background .15s, border-color .15s, transform .08s; }
 .r-btn:hover { background: var(--bg-hover); } .r-btn:active { transform: translateY(1px); }
@@ -609,7 +611,7 @@ input { font-family: inherit; }
 .r-filetab-x:hover { background: var(--bg-hover); color: var(--text-primary); }
 .r-art-body { flex: 1; overflow: auto; }
 .r-collab-bar { display: flex; align-items: center; gap: 10px; padding: 9px 14px; border-bottom: 1px solid var(--line); background: var(--bg-secondary); flex-wrap: wrap; }
-.r-collab-bar .r-mini-btn, .r-collab-bar .r-btn { flex: 0 0 auto; }
+.r-collab-bar .r-mini-btn, .r-collab-bar .r-btn, .r-collab-bar .r-iconbtn { flex: 0 0 auto; }
 /* honest error state — a hand edit that lost a CAS race */
 .r-art-error { display: flex; align-items: center; gap: 7px; padding: 8px 14px; background: var(--danger-tint); border-bottom: 1px solid var(--danger-border); color: var(--danger-ink); font-size: 12px; font-weight: 600; animation: msgIn .2s var(--ease-out-expo) both; }
 .r-beat-desc { font-size: 12px; color: var(--text-secondary); line-height: 1.4; }

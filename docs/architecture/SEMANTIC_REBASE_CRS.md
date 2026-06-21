@@ -1,6 +1,7 @@
 # Semantic Rebase: Compare-Reason-Swap
 
-Status: policy scaffold implemented; durable runtime wiring still open.
+Status: first durable spreadsheet stale-agent proposal path implemented; full
+CRS runtime still open.
 
 CAS protects the cell. Semantic Rebase protects the meaning.
 
@@ -60,19 +61,28 @@ sequenceDiagram
 
 `tests/semanticRebase.test.ts` covers the first policy surface.
 
+Durable spreadsheet wiring now exists for the stale agent-write path:
+
+- `convex/artifacts.ts` calls CRS when an agent write loses per-element CAS.
+- `convex/semanticRebase.ts` records a `semanticConflicts` packet and, in
+  review mode, creates one deduped rebased proposal for the current cell
+  version.
+- `resolveProposal` applies an approved proposal only through final CAS.
+- `tests/convexSemanticRebase.test.ts`, `tests/durableSemanticRebase.test.ts`,
+  and `tests/noClobberWedge.test.ts` cover the no-clobber and proposal paths.
+
 ## Still Open
 
 The current implementation is intentionally not a full CRS runtime. Remaining
 work:
 
-- Add durable Convex tables or rows for semantic conflict packets and
-  resolutions.
 - Trigger CRS from stale algorithm patch bundles, `draft_conflict`, and proposal
-  approval CAS conflicts.
+  approval CAS conflicts beyond the existing stale agent-write path.
 - Add an LLM resolver action with structured output only.
 - Add validators for formula preservation, evidence sufficiency, privacy
   boundary, review tier, and stale-again final CAS.
-- Extend the existing proposal UI to show semantic conflict cards.
+- Extend the existing proposal UI from inline semantic chips to full semantic
+  conflict cards.
 - Add all-or-none multi-op commits before claiming semantic multi-cell atomicity.
 
 ## Policy Tiers

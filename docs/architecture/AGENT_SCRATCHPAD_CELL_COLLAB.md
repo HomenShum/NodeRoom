@@ -125,11 +125,11 @@ no actor is privileged.
 | Area | What it is | Status / notes |
 |---|---|---|
 | **Per-cell presence** | Bounded `presenceClaims` rows keyed by room/artifact/target/actor with TTL and focus/edit modes | **SHIPPED 2026-06-20** for spreadsheet cells. Presence is advisory metadata (Class C), never a lock and never part of `art.elements`. |
-| **Server-side agent intent** | Internal-only `agent_intent` / `commit_lease` claims published by authenticated agent sessions | **SHIPPED 2026-06-20** at the low-level presence channel; live browser conflict/proposal proof is still next. |
+| **Server-side agent intent** | Internal-only `agent_intent` / `commit_lease` claims published by authenticated agent sessions | **SHIPPED 2026-06-20** on the normal RoomTools cell-write path and in the host-gated live conflict/proposal proof. `commit_lease` is advisory presence, not a fencing token. |
 | **Plan-time affected-set** | `computeAffectedSet(job)` running the §3 algebra before the first tool call; persisted on `agentJobs` as `intendedReadSet/intendedWriteSet/expandedAffectedSet` | The closure code exists at lock-grant time; reuse it at plan time. Bounded (cap closure size; BOUND rule). |
 | **Explicit snapshot action** | "Share draft with agent" — promotes Class A→B via the normal proof-checked mutation, marked `status: needs_review` | The only sanctioned uncommitted-text path. |
 | **Presence-aware grid render** | Editing cell outlined in the editor's member color + name flag | **SHIPPED** in the Q3 sheet and Excel grid renderers. |
-| **Two-context browser E2E** | Real two-browser spec: assert presence is visible and non-blocking while another user edits | **PARTIAL SHIPPED** in `e2e/realtime-presence.spec.ts`; broader agent-intent/conflict flows remain the proof gate before claiming full Sheets/Figma parity. |
+| **Two-context browser E2E** | Real two-browser spec: assert presence is visible and non-blocking while another user edits | **PARTIAL SHIPPED** in `e2e/realtime-presence.spec.ts` plus `e2e/live-broad-convex.spec.ts` for scripted server-owned agent-intent conflict/proposal proof. Normal real-provider agent intent remains covered by `test:product:live:agent --strict-review`. |
 
 ## 6. Anti-patterns (each rejected for a verified reason)
 
@@ -138,10 +138,12 @@ no actor is privileged.
 - **Token-streaming authoritative cell values** — cells are evidence-bearing commits; streaming is for the message lane. A finance cell's job is citation + status, not typing animation.
 - **Geometric overlap planning** — formulas make the blast radius non-rectangular; use the closure.
 - **Agent reading the live keystroke buffer** — unaudited state in a reasoning record.
-- **"Google Sheets parity" claims** — spreadsheet presence plus one visible edit
-  propagation now has live two-context proof, but simultaneous two-sided
-  coediting, agent intent, patch-bundle publish, and conflict proposal flows need
-  the same browser/media proof before claiming full parity.
+- **Literal "Google Sheets/Figma parity" claims**:
+  claim only scoped Google Sheets/Figma-style live coediting primitive parity
+  when live gates are green: multi-browser Convex state, non-blocking presence,
+  advisory server-owned agent intent/commit-lease indicators, final CAS, and
+  CRS/proposal fallback. Do not claim full Sheets formulas/charts, offline
+  history, permissions, or full Figma canvas/vector/branching parity.
 
 ## 7. Eval gates before any new claim
 

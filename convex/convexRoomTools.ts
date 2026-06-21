@@ -27,6 +27,7 @@ const locksProposeLockRef = makeFunctionReference<"mutation">("locks:proposeLock
 const locksReleaseLockRef = makeFunctionReference<"mutation">("locks:releaseLock") as any;
 const artifactsApplyAgentCellEditRef = makeFunctionReference<"mutation">("artifacts:applyAgentCellEdit") as any;
 const artifactsSetArtifactMetaByAgentRef = makeFunctionReference<"mutation">("artifacts:setArtifactMetaByAgent") as any;
+const presenceHeartbeatForAgentRef = makeFunctionReference<"mutation">("presence:heartbeatForAgent") as any;
 const draftsCreateDraftRef = makeFunctionReference<"mutation">("drafts:createDraft") as any;
 const messagesSendAgentRef = makeFunctionReference<"mutation">("messages:sendAgent") as any;
 const artifactsListForRoomRef = makeFunctionReference<"query">("artifacts:listForRoom") as any;
@@ -110,6 +111,28 @@ export class ConvexRoomTools implements RoomTools {
   }
 
   async editCell(elementId: string, value: unknown, baseVersion: number, artifactId: string = this.artifactId, kind?: "set" | "create" | "delete"): Promise<EditOutcome> {
+    if (this.actor.kind === "agent") {
+      await this.ctx.runMutation(presenceHeartbeatForAgentRef, {
+        roomId: this.roomId,
+        artifactId,
+        targetKind: "cell",
+        targetId: elementId,
+        mode: "agent_intent",
+        actor: this.actor,
+        label: `${this.actor.name} planning`,
+        ttlMs: 45_000,
+      });
+      await this.ctx.runMutation(presenceHeartbeatForAgentRef, {
+        roomId: this.roomId,
+        artifactId,
+        targetKind: "cell",
+        targetId: elementId,
+        mode: "commit_lease",
+        actor: this.actor,
+        label: `${this.actor.name} checking CAS`,
+        ttlMs: 20_000,
+      });
+    }
     const r = await this.ctx.runMutation(artifactsApplyAgentCellEditRef, { roomId: this.roomId, artifactId, elementId, value, baseVersion, kind, actor: this.actor, jobId: this.jobId });
     if (r.ok) return { ok: true, version: r.version, mutationReceiptId: r.mutationReceiptId ? String(r.mutationReceiptId) : undefined };
     if (r.reason === "conflict") return { ok: false, conflict: true, expected: r.expected, actual: r.actual };

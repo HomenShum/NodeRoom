@@ -264,7 +264,7 @@
     {
       "id": "browser_e2e_dogfood",
       "area": "Browser E2E dogfood",
-      "claim": "The real React UI is verified against production-preview memory mode for optimistic chat, spreadsheet, same-client privacy leak, wall CRUD, memory job controls, proposal feedback, responsive, and split-surface flows; live multi-context Convex coverage remains yellow.",
+      "claim": "The real React UI is verified against production-preview memory mode for local UX flows, and live Convex multi-context coverage now exists for public chat fan-out, private chat isolation, wall CRUD fan-out, durable job controls, realtime presence, same-cell CAS, semantic rebase, and server-owned agent-intent conflict/proposal proof. This supports scoped coediting primitive parity, not literal Google Sheets/Figma product parity.",
       "status": "yellow",
       "productionGate": "Playwright or equivalent real-browser specs for two-context cell edits, optimistic chat failure/retry, public/private leak checks, wall CRUD, job controls, and proposal conflict feedback.",
       "deterministicChecks": [
@@ -272,8 +272,12 @@
       ],
       "liveChecks": [
         "npm run test:product:memory",
+        "npm run test:product:live",
         "e2e/privacy-job-wall-proposal.spec.ts: same-client public/private leak, wall CRUD, memory job controls, and proposal conflict feedback",
-        "missing: live multi-context privacy leak, wall CRUD, job controls, optimistic failure/retry, spreadsheet presence, and agent intent-claim browser coverage"
+        "e2e/realtime-presence.spec.ts: live two-context spreadsheet presence remains non-blocking while another user edits",
+        "e2e/semantic-rebase.backend.spec.ts: live host-reviewed stale agent-intent proposal approval",
+        "e2e/live-broad-convex.spec.ts: live public/private chat isolation, wall CRUD fan-out, job cancel/retry controls, and agent-intent proposal rejection",
+        "missing: reload/retry/load edges, full private file/export leakage, and literal Sheets/Figma feature parity"
       ],
       "evidence": [
         { "type": "doc", "ref": "docs/audit/E2E_DOGFOOD_DESIGN.md" },
@@ -281,13 +285,18 @@
         { "type": "test", "ref": "e2e/chat.spec.ts" },
         { "type": "test", "ref": "e2e/excel-grid.spec.ts" },
         { "type": "test", "ref": "e2e/privacy-job-wall-proposal.spec.ts" },
+        { "type": "test", "ref": "e2e/realtime-presence.spec.ts" },
+        { "type": "test", "ref": "e2e/semantic-rebase.backend.spec.ts" },
+        { "type": "test", "ref": "e2e/live-broad-convex.spec.ts" },
         { "type": "test", "ref": "tests/presenceClaims.test.ts" },
+        { "type": "test", "ref": "tests/convexRoomToolsPresence.test.ts" },
+        { "type": "test", "ref": "tests/convexSemanticRebase.test.ts" },
         { "type": "test", "ref": "tests/convexWallCrud.test.ts" },
         { "type": "test", "ref": "e2e/responsive-qa.spec.ts" },
         { "type": "test", "ref": "e2e/work-surface-split.spec.ts" },
         { "type": "doc", "ref": "docs/eval/MEDIA_JUDGE.md" }
       ],
-      "nextReview": "Expand the live two-context harness to spreadsheet presence, optimistic chat failure/retry, live public/private leak checks, live wall CRUD, live job controls, and agent intent-claim conflicts before promoting to green."
+      "nextReview": "Keep yellow until reload/retry/load edges, private artifact/export leakage, provider-backed normal-agent intent in strict-review mode, and broader browser/device coverage are green."
     },
     {
       "id": "professional_workroom_shell",

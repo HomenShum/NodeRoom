@@ -7,6 +7,13 @@ import { test, expect, type BrowserContext, type Page } from "@playwright/test";
  */
 const HAS_BACKEND = !!process.env.E2E_CONVEX_URL;
 test.skip(!HAS_BACKEND, "set E2E_CONVEX_URL (+ start dev with that VITE_CONVEX_URL) to run real-backend reactivity specs");
+const LIVE_VIDEO_DIR = "test-results/live-videos";
+
+function liveContextOptions(viewport = { width: 1280, height: 900 }) {
+  return process.env.PLAYWRIGHT_RECORD_VIDEO === "1"
+    ? { viewport, recordVideo: { dir: LIVE_VIDEO_DIR, size: viewport } }
+    : { viewport };
+}
 
 async function dismissTour(page: Page) {
   await page.getByRole("button", { name: "Got it" }).click({ timeout: 2_000 }).catch(() => undefined);
@@ -25,7 +32,9 @@ async function openLiveRoom(ctx: BrowserContext, code: string, name: string, cre
   await page.addInitScript(() => {
     try { localStorage.setItem("noderoom:tour:v1", "done"); } catch { /* ignore */ }
   });
-  await page.goto(`/?${create ? "demo" : "room"}=${code}&name=${encodeURIComponent(name)}`);
+  await page.goto(`/?${create ? "demo" : "room"}=${code}&name=${encodeURIComponent(name)}`, {
+    waitUntil: "domcontentloaded",
+  });
   await dismissTour(page);
   await expect(page.getByTestId("public-chat-panel").getByTestId("chat-composer")).toBeVisible({ timeout: 20_000 });
   await ensureBinderOpen(page);
@@ -38,8 +47,21 @@ async function cellText(page: Page, key: string) {
   return (await page.locator(`[data-cell-key="${key}"]`).innerText()).trim();
 }
 
+async function cellValue(page: Page, key: string) {
+  return (await page.locator(`[data-cell-key="${key}"]`).getByTestId("cell-edit-control").getAttribute("data-cell-value")) ?? "";
+}
+
+async function stageCellEdit(page: Page, key: string, value: string) {
+  const target = page.locator(`[data-cell-key="${key}"]`);
+  await target.locator(".r-cell-edit").click({ timeout: 10_000 });
+  const input = target.locator("input.r-cell-input");
+  await input.fill(value);
+  return input;
+}
+
 test("Spec A - optimistic confirm-swap reconciles to one bubble", async ({ browser }) => {
-  const ctx = await browser.newContext();
+  test.setTimeout(90_000);
+  const ctx = await browser.newContext(liveContextOptions());
   const code = `RT${Date.now().toString(36).toUpperCase()}`;
   const page = await openLiveRoom(ctx, code, "Maya", true);
   const chat = page.getByTestId("public-chat-panel");
@@ -56,34 +78,35 @@ test("Spec A - optimistic confirm-swap reconciles to one bubble", async ({ brows
 });
 
 test("Spec B - concurrent CAS loser reverts without dropping the winner's intent", async ({ browser }) => {
-  const ctxA = await browser.newContext();
-  const ctxB = await browser.newContext();
+  test.setTimeout(150_000);
+  const ctxA = await browser.newContext(liveContextOptions());
+  const ctxB = await browser.newContext(liveContextOptions());
   const code = `RT${Date.now().toString(36).toUpperCase()}`;
-  const a = await openLiveRoom(ctxA, code, "Maya", true);
-  const b = await openLiveRoom(ctxB, code, "Dev");
+  try {
+    const a = await openLiveRoom(ctxA, code, "Maya", true);
+    const b = await openLiveRoom(ctxB, code, "Dev");
 
-  // Both target the same cell with different values from the same baseVersion. The server CAS lets
-  // exactly one win; both browsers must converge on the same canonical value.
-  const cell = "r_gp__variance";
-  const valueA = "+21.7%";
-  const valueB = "+99.9%";
-  const cellA = a.locator(`[data-cell-key="${cell}"]`);
-  const cellB = b.locator(`[data-cell-key="${cell}"]`);
-  await expect(cellA).toBeVisible();
-  await expect(cellB).toBeVisible();
+    // Both target the same cell with different values from the same baseVersion. The server CAS lets
+    // exactly one win; both browsers must converge on the same canonical value.
+    const cell = "r_gp__variance";
+    const valueA = "+21.7%";
+    const valueB = "+99.9%";
+    const cellA = a.locator(`[data-cell-key="${cell}"]`);
+    const cellB = b.locator(`[data-cell-key="${cell}"]`);
+    await expect(cellA).toBeVisible();
+    await expect(cellB).toBeVisible();
 
-  await cellA.dblclick();
-  await a.locator(".r-cell-input").fill(valueA);
-  await cellB.dblclick();
-  await b.locator(".r-cell-input").fill(valueB);
-  await a.keyboard.press("Enter");
-  await b.keyboard.press("Enter");
+    const inputA = await stageCellEdit(a, cell, valueA);
+    const inputB = await stageCellEdit(b, cell, valueB);
+    await Promise.all([inputA.press("Enter"), inputB.press("Enter")]);
 
-  await expect.poll(async () => {
-    const [aText, bText] = await Promise.all([cellText(a, cell), cellText(b, cell)]);
-    return aText && aText === bText ? aText : "";
-  }, { timeout: 30_000 }).not.toBe("");
-  expect([valueA, valueB]).toContain(await cellText(a, cell));
-  await ctxA.close();
-  await ctxB.close();
+    await expect.poll(async () => {
+      const [aText, bText] = await Promise.all([cellValue(a, cell), cellValue(b, cell)]);
+      return aText && aText === bText ? aText : "";
+    }, { timeout: 45_000 }).not.toBe("");
+    expect([valueA, valueB]).toContain(await cellValue(a, cell));
+  } finally {
+    await ctxA.close();
+    await ctxB.close();
+  }
 });
