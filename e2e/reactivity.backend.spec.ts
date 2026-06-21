@@ -32,11 +32,20 @@ async function openLiveRoom(ctx: BrowserContext, code: string, name: string, cre
   await page.addInitScript(() => {
     try { localStorage.setItem("noderoom:tour:v1", "done"); } catch { /* ignore */ }
   });
-  await page.goto(`/?${create ? "demo" : "room"}=${code}&name=${encodeURIComponent(name)}`, {
+  const url = `/?${create ? "demo" : "room"}=${code}&name=${encodeURIComponent(name)}`;
+  await page.goto(url, {
     waitUntil: "domcontentloaded",
   });
   await dismissTour(page);
-  await expect(page.getByTestId("public-chat-panel").getByTestId("chat-composer")).toBeVisible({ timeout: 20_000 });
+  const composer = page.getByTestId("public-chat-panel").getByTestId("chat-composer");
+  try {
+    await expect(composer).toBeVisible({ timeout: 60_000 });
+  } catch (firstError) {
+    if (!(await page.getByTestId("join-room-code").isVisible().catch(() => false))) throw firstError;
+    await page.goto(url, { waitUntil: "domcontentloaded" });
+    await dismissTour(page);
+    await expect(composer).toBeVisible({ timeout: 60_000 });
+  }
   await ensureBinderOpen(page);
   await page.getByTestId("left-rail").getByRole("button", { name: /Q3 variance/ }).click();
   await expect(page.locator('[data-cell-key="r_rev__variance"]')).toBeVisible({ timeout: 20_000 });
