@@ -1,0 +1,133 @@
+{
+  "runId": "20260621T084925Z",
+  "commitSha": "cde83160+dirty",
+  "appUrl": "local",
+  "createdAt": "2026-06-21T08:49:26.120Z",
+  "scenario": "prod_gate_and_live_product_gate_2026-06-21",
+  "artifacts": {
+    "videoPath": "docs/eval/live-browser-proofs/live-convex-broad-proof-20260620.webm",
+    "screenshots": [
+      "docs/qa/state-captures/sheet/proposal-pending--dark--1860.png",
+      "docs/qa/state-captures/chat/composer-empty--dark--1860.png"
+    ],
+    "domSnapshots": [
+      "docs/qa/state-captures/manifest.json"
+    ],
+    "tracePath": "docs/eval/MEDIA_JUDGE.md",
+    "convexRunIds": []
+  },
+  "functionalGate": {
+    "status": "passed",
+    "tests": [
+      {
+        "name": "npm run prod:gate",
+        "status": "passed",
+        "evidencePath": "docs/PRODUCTION_GUARANTEE_MATRIX.md"
+      },
+      {
+        "name": "npm run test:product:live",
+        "status": "passed",
+        "evidencePath": "e2e/live-broad-convex.spec.ts"
+      }
+    ]
+  },
+  "performance": {
+    "status": "not_run",
+    "longTasks": 0
+  },
+  "accessibility": {
+    "status": "not_run",
+    "screenReaderNotes": []
+  },
+  "mediaJudge": {
+    "model": "gemini-3.5-flash",
+    "total": 11.4,
+    "max": 16,
+    "dimensions": {
+      "featureClarity": 1.4,
+      "workflowCompleteness": 1.5,
+      "visualDesign": 1.3,
+      "consistency": 1.5,
+      "evidenceQuality": 1.6,
+      "legibility": 1.2,
+      "professionalRelevance": 1.5,
+      "productionHonesty": 1.4
+    },
+    "defects": [
+      {
+        "severity": "P2",
+        "title": "The text in the trace log and chat panels is quite small and may be difficult to read on standard README displays. -> Increase the default zoom level of the browser slightly during recording to improve text legibility.",
+        "evidenceFrame": "00:05"
+      }
+    ]
+  },
+  "referenceComparisons": [
+    {
+      "referenceApp": "Google Sheets",
+      "borrowedConvention": "Cell-level collaboration presence should show ownership without blocking nearby work.",
+      "nodeRoomScreen": "spreadsheet",
+      "score": 1.5,
+      "note": "Presence claims and short agent intent chips sit on cells as advisory state; final writes still use CAS."
+    },
+    {
+      "referenceApp": "Figma",
+      "borrowedConvention": "Multiplayer cursors and object-level activity are visible but do not freeze the canvas.",
+      "nodeRoomScreen": "artifact",
+      "score": 1.4,
+      "note": "Agent planning and commit leases are presence rows, while proposal cards appear only for meaning conflicts."
+    },
+    {
+      "referenceApp": "Linear",
+      "borrowedConvention": "Triage collects work that must be accepted, assigned, or dismissed.",
+      "nodeRoomScreen": "approval",
+      "score": 1.3,
+      "note": "Noteworthy inbox, proposal chips, trace rows, and job cards keep next actions explicit."
+    },
+    {
+      "referenceApp": "Notion",
+      "borrowedConvention": "Empty writing surfaces should invite capture without saving placeholder text.",
+      "nodeRoomScreen": "capture",
+      "score": 1.4,
+      "note": "Notebook ghost text appears only in the empty first paragraph and never persists to Convex."
+    },
+    {
+      "referenceApp": "Attio / Clay",
+      "borrowedConvention": "Records need identity, source chips, and dense relationship context.",
+      "nodeRoomScreen": "spreadsheet",
+      "score": 1.3,
+      "note": "Company rows use initials, source chips, status, and evidence-bearing fields."
+    },
+    {
+      "referenceApp": "Claude Artifacts / assistant-ui",
+      "borrowedConvention": "Chat and generated work product should be adjacent, with reviewable output state.",
+      "nodeRoomScreen": "chat",
+      "score": 1.3,
+      "note": "Copilot, Work Surface, Trace, and proposal chips keep chat, artifact, and proof connected."
+    }
+  ],
+  "viralitySignals": {
+    "roomInviteVisible": true,
+    "shareActionVisible": true,
+    "downstreamHandoffVisible": true,
+    "notificationDeepLinkVisible": true
+  },
+  "productCorrectnessScore": "pass_fail_only",
+  "uiUxScore": {
+    "total": 57.8,
+    "max": 100,
+    "dimensions": {
+      "workflowClarity": 8.7,
+      "firstThirtySecondMagic": 7.5,
+      "visualHierarchyDensity": 7,
+      "professionalRelevance": 7.2,
+      "responsivenessInteraction": 0,
+      "artifactLegibility": 6,
+      "evidenceTraceClarity": 9,
+      "accessibility": 0,
+      "agentCollaborationState": 6,
+      "shareabilityViralityLoop": 6.4
+    }
+  },
+  "verdict": "ship_but_media_needs_polish",
+  "blockers": []
+}

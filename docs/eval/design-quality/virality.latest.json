@@ -1,0 +1,14 @@
+{
+  "runId": "20260621T084925Z",
+  "commitSha": "cde83160+dirty",
+  "generatedAt": "2026-06-21T08:49:26.120Z",
+  "command": "scorecard",
+  "status": "heuristic",
+  "note": "Virality signals are currently static UI affordance checks; event analytics remain future work.",
+  "viralitySignals": {
+    "roomInviteVisible": true,
+    "shareActionVisible": true,
+    "downstreamHandoffVisible": true,
+    "notificationDeepLinkVisible": true
+  }
+}

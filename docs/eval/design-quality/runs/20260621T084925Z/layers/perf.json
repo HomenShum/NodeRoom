@@ -1,0 +1,12 @@
+{
+  "runId": "20260621T084925Z",
+  "commitSha": "cde83160+dirty",
+  "generatedAt": "2026-06-21T08:49:26.120Z",
+  "command": "scorecard",
+  "status": "not_run",
+  "note": "Not read from .tmp-qa/design-floor.json; pass --use-design-floor only after a fresh design floor run.",
+  "performance": {
+    "status": "not_run",
+    "longTasks": 0
+  }
+}

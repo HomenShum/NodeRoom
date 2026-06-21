@@ -1,0 +1,20 @@
+{
+  "runId": "20260621T084925Z",
+  "commitSha": "cde83160+dirty",
+  "generatedAt": "2026-06-21T08:49:26.120Z",
+  "command": "scorecard",
+  "status": "inventory_only",
+  "note": "Capture command records the evidence inventory currently attached to this scorecard. Fresh Playwright capture remains a separate implementation step.",
+  "artifacts": {
+    "videoPath": "docs/eval/live-browser-proofs/live-convex-broad-proof-20260620.webm",
+    "screenshots": [
+      "docs/qa/state-captures/sheet/proposal-pending--dark--1860.png",
+      "docs/qa/state-captures/chat/composer-empty--dark--1860.png"
+    ],
+    "domSnapshots": [
+      "docs/qa/state-captures/manifest.json"
+    ],
+    "tracePath": "docs/eval/MEDIA_JUDGE.md",
+    "convexRunIds": []
+  }
+}

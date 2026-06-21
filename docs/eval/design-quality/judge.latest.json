@@ -1,0 +1,30 @@
+{
+  "runId": "20260621T084925Z",
+  "commitSha": "cde83160+dirty",
+  "generatedAt": "2026-06-21T08:49:26.120Z",
+  "command": "scorecard",
+  "status": "loaded",
+  "note": "Gemini/VLM judge output is media/evidence quality, not product correctness.",
+  "mediaJudge": {
+    "model": "gemini-3.5-flash",
+    "total": 11.4,
+    "max": 16,
+    "dimensions": {
+      "featureClarity": 1.4,
+      "workflowCompleteness": 1.5,
+      "visualDesign": 1.3,
+      "consistency": 1.5,
+      "evidenceQuality": 1.6,
+      "legibility": 1.2,
+      "professionalRelevance": 1.5,
+      "productionHonesty": 1.4
+    },
+    "defects": [
+      {
+        "severity": "P2",
+        "title": "The text in the trace log and chat panels is quite small and may be difficult to read on standard README displays. -> Increase the default zoom level of the browser slightly during recording to improve text legibility.",
+        "evidenceFrame": "00:05"
+      }
+    ]
+  }
+}

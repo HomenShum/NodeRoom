@@ -1,8 +1,8 @@
 {
-  "runId": "live-convex-broad-proof-fast-3s-final-20260620",
-  "generatedAt": "2026-06-21T05:54:49.786Z",
+  "runId": "live-convex-broad-proof-20260621-post-gate",
+  "generatedAt": "2026-06-21T08:28:41.632Z",
   "model": "gemini-3.5-flash",
-  "command": "npm run media:gemini-judge -- --input \"D:\\\\VSCode Projects\\\\cafecorner_nodebench\\\\nodebench_ai4\\\\noderoom\\\\docs\\\\eval\\\\live-browser-proofs\\\\live-convex-broad-proof-20260620.webm\" --run-id live-convex-broad-proof-fast-3s-final-20260620 --model gemini-3.5-flash --primary-only",
+  "command": "npm run media:gemini-judge -- --input docs/eval/live-browser-proofs/live-convex-broad-proof-20260620.webm --run-id live-convex-broad-proof-20260621-post-gate --model gemini-3.5-flash --primary-only",
   "notes": [
     "GIF assets are converted to temporary MP4 with ffmpeg before upload.",
     "This media judge is evidence-quality QA; it does not replace backend/browser production gates."
@@ -16,7 +16,7 @@
       "publish": 1
     },
     "defects": {
-      "P2": 2
+      "P2": 1
     }
   },
   "results": [
@@ -36,67 +36,59 @@
       "bytes": 3012096,
       "judge": {
         "verdict": "publish",
-        "summary": "The video provides a comprehensive live browser demonstration of the NodeRoom diligence environment, showcasing multi-client sync, spreadsheet editing, agent interaction, and the room trace log.",
+        "summary": "The video provides a solid, end-to-end demonstration of NodeRoom's multi-surface workspace, showcasing the document memo, sticky note wall, and financial spreadsheet with live agent traces and conflict resolution.",
         "scores": {
           "featureClarity": {
             "score": 1.4,
-            "evidence": "Demonstrates navigation across the room binder, sticky note wall, and Q3 variance spreadsheet."
+            "evidence": "Clearly demonstrates navigating between the memo, risk wall, and spreadsheet, though the rapid transitions require close attention."
           },
           "workflowCompleteness": {
-            "score": 1.3,
-            "evidence": "Shows the full sequence from entering the room to editing cells and observing trace updates."
+            "score": 1.5,
+            "evidence": "Shows the complete flow from entering the room, switching views, editing a cell, and observing the resulting trace logs."
           },
           "visualDesign": {
-            "score": 1.2,
-            "evidence": "High-density dark mode interface with clear active states, though slightly cluttered."
+            "score": 1.3,
+            "evidence": "High-density dark UI with a clean layout reminiscent of modern developer tools, though the interface is somewhat crowded."
           },
           "consistency": {
-            "score": 1.4,
-            "evidence": "Perfectly aligns with the NodeRoom ecosystem of spreadsheets, walls, agents, and traces."
+            "score": 1.5,
+            "evidence": "Perfectly aligns with the product narrative, showing the integration of spreadsheets, notes, and agent traces."
           },
           "evidenceQuality": {
-            "score": 1.5,
-            "evidence": "Authentic live browser capture showing real-time UI updates and state changes."
+            "score": 1.6,
+            "evidence": "Authentic browser capture showing real-time UI updates, cursor movements, and trace logs."
           },
           "legibility": {
-            "score": 1.1,
-            "evidence": "Small font sizes in the trace log and chat panels make reading difficult at standard resolutions."
+            "score": 1.2,
+            "evidence": "Small text in the sidebar and trace logs is readable at full resolution but challenging on smaller screens."
           },
           "professionalRelevance": {
-            "score": 1.4,
-            "evidence": "Highly relevant to financial analysts and bankers managing diligence workflows."
+            "score": 1.5,
+            "evidence": "Highly relevant to financial and diligence workflows, demonstrating structured data management and auditability."
           },
           "productionHonesty": {
-            "score": 1.3,
-            "evidence": "Accurately reflects real-time system latency and agent proposal states."
+            "score": 1.4,
+            "evidence": "Explicitly displays conflict warnings and trace logs, showing the actual system behavior without embellishment."
           }
         },
         "observedEvidence": [
-          "Multi-client sync",
-          "Advisory presence",
-          "No-clobber behavior",
-          "Proposals",
-          "Job/privacy/wall surfaces",
-          "Room trace log"
+          "Multi-client sync and navigation across memo, wall, and spreadsheet views",
+          "Live agent chat interaction and private/public toggle",
+          "Spreadsheet cell editing with real-time variance calculation",
+          "Trace log updating with conflict resolution status ('did not overwrite')"
         ],
         "missingEvidence": [],
         "defects": [
           {
             "ts": "00:05",
             "severity": "P2",
-            "observed": "The text in the bottom room trace log is very small and has low contrast, making it hard to read.",
-            "fix": "Increase the font size or contrast of the trace log text."
-          },
-          {
-            "ts": "00:01",
-            "severity": "P2",
-            "observed": "The transition from the landing page to the room binder is extremely rapid.",
-            "fix": "Add a slight pause or smoother transition when entering the room."
+            "observed": "The text in the trace log and chat panels is quite small and may be difficult to read on standard README displays.",
+            "fix": "Increase the default zoom level of the browser slightly during recording to improve text legibility."
           }
         ],
-        "suggestedReadmeCaption": "Live demonstration of the NodeRoom banking diligence war room, featuring real-time spreadsheet collaboration, agent proposals, and automated trace logging."
+        "suggestedReadmeCaption": "Watch NodeRoom in action: a live, multi-surface diligence room featuring real-time spreadsheet collaboration, interactive risk walls, and automated agent trace logging."
       },
-      "score": 10.6,
+      "score": 11.4,
       "maxScore": 16
     }
   ]

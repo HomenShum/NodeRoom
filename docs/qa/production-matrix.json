@@ -277,7 +277,7 @@
         "e2e/realtime-presence.spec.ts: live two-context spreadsheet presence remains non-blocking while another user edits",
         "e2e/semantic-rebase.backend.spec.ts: live host-reviewed stale agent-intent proposal approval",
         "e2e/live-broad-convex.spec.ts: live public/private chat isolation, wall CRUD fan-out, job cancel/retry controls, and agent-intent proposal rejection",
-        "missing: reload/retry/load edges, full private file/export leakage, and literal Sheets/Figma feature parity"
+        "missing: reload/retry/load edges, private artifact/export leakage, provider-backed normal-agent intent in strict-review mode, broader browser/device coverage, and expanded scoped coediting primitive coverage"
       ],
       "evidence": [
         { "type": "doc", "ref": "docs/audit/E2E_DOGFOOD_DESIGN.md" },
@@ -303,14 +303,14 @@
       "area": "Professional workroom shell",
       "claim": "The desktop shell follows Room/Deal Binder -> Work Surface -> Copilot, with proofs, sources, and gold comparisons opening on the center stage instead of competing side or bottom panels.",
       "status": "yellow",
-      "productionGate": "Browser layout E2E proves wide desktop binder, center work surface, right Copilot, compact overlays, no overflow, no lost spreadsheet affordances, plus live/Convex and Gemini UI judge walkthrough evidence.",
+      "productionGate": "Browser layout E2E proves wide desktop binder, center work surface, right Copilot, compact overlays, no overflow, no lost spreadsheet affordances, plus live/Convex proof and UI scorecard evidence.",
       "deterministicChecks": [
         "e2e/responsive-qa.spec.ts",
         "e2e/work-surface-split.spec.ts"
       ],
       "liveChecks": [
         "missing: Playwright shell spec against local app and live Convex room",
-        "missing: Gemini UI judge walkthrough for the June 2026 target"
+        "missing: UI scorecard walkthrough evidence for the June 2026 target, with deterministic design lint and VLM/media review separated"
       ],
       "evidence": [
         { "type": "doc", "ref": "docs/TARGET_2026_06.md" },
@@ -321,7 +321,30 @@
         { "type": "code", "ref": "src/ui/LeftRail.tsx" },
         { "type": "code", "ref": "src/ui/panels/Artifact.tsx" }
       ],
-      "nextReview": "Add live/Convex shell smoke, richer binder proof/policy click-throughs, status drilldown tests, and Gemini UI judge before promoting the workroom shell to green."
+      "nextReview": "Add live/Convex shell smoke, richer binder proof/policy click-throughs, status drilldown tests, and UI scorecard evidence before promoting the workroom shell to green."
+    },
+    {
+      "id": "design_quality_substrate",
+      "area": "Design Quality substrate",
+      "claim": "NodeRoom separates product correctness from UI/UX quality by writing functional-gate, media-score, reference-comparison, accessibility, responsiveness, and virality evidence into a local-first design-quality scorecard and memory ledger.",
+      "status": "yellow",
+      "productionGate": "Scorecard generation must preserve pass/fail functional gates, label Gemini/VLM output as media evidence, write versioned JSON/Markdown/MDX outputs, and keep professional reference comparisons auditable.",
+      "deterministicChecks": [
+        "npm test -- --run tests/designQuality.test.ts",
+        "npm run qa:ui:scorecard"
+      ],
+      "liveChecks": [
+        "missing: distinct Playwright capture/perf/a11y commands with fresh browser evidence",
+        "docs/eval/design-quality/latest.json: post-gate scorecard recorded after prod:gate and test:product:live on the same commit"
+      ],
+      "evidence": [
+        { "type": "code", "ref": "src/eval/designQuality.ts" },
+        { "type": "script", "ref": "scripts/design-quality.ts" },
+        { "type": "test", "ref": "tests/designQuality.test.ts" },
+        { "type": "doc", "ref": "docs/eval/design-quality/README.md" },
+        { "type": "data", "ref": "docs/eval/design-quality/reference-library.json" }
+      ],
+      "nextReview": "Promote only after qa:ui:capture/perf/a11y write fresh evidence instead of scorecard labels, and after a clean run is recorded with functional/live gates passed."
     },
     {
       "id": "signal_tape_status_strip",
@@ -675,7 +698,7 @@
         { "type": "doc", "ref": "docs/eval/MEDIA_JUDGE.md" },
         { "type": "data", "ref": "docs/eval/gemini-media-judges/latest.json" }
       ],
-      "nextReview": "Fix every current P1 defect listed under Open Defects in docs/eval/MEDIA_JUDGE.md, then rerun the batch judge and promote only when no P1/P0 defects remain."
+      "nextReview": "P0 blockers and P1 defects block publishing; the current P2 media defects remain tracked polish. Rerun the batch judge after capture/render refresh and promote only when no P0/P1 defects remain."
     },
     {
       "id": "audience_fluency_content",
@@ -697,7 +720,7 @@
         { "type": "doc", "ref": "episodes/private-investment-room-v1/brief.md" },
         { "type": "doc", "ref": "episodes/noderoom-live-collab-v1/report.md" }
       ],
-      "nextReview": "Close the current media-judge P1 defects and run a content-fluency/trust-signal review before promoting this row to green."
+      "nextReview": "Keep P0 blockers and P1 defects blocking; track the current P2 polish separately, then run a content-fluency/trust-signal review before promoting this row to green."
     }
   ],
   "modelLadder": {

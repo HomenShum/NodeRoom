@@ -1,0 +1,86 @@
+[
+  {
+    "id": "google-sheets-presence",
+    "app": "Google Sheets",
+    "surface": "spreadsheet",
+    "convention": "Cell-level collaboration presence should show ownership without blocking nearby work.",
+    "whyItMatters": "NodeRoom's spreadsheet needs fast human plus agent coediting instead of visible reservation-style locks.",
+    "nodeRoomTranslation": "Presence claims and short agent intent chips sit on cells as advisory state; final writes still use CAS.",
+    "assets": {
+      "url": "docs/UI_EXCEL_PAPER.md"
+    },
+    "doCopy": ["cell coordinates", "name flags", "non-blocking presence"],
+    "doNotCopy": ["claiming full spreadsheet formula/chart/pivot parity"],
+    "score": 1.5
+  },
+  {
+    "id": "figma-multiplayer-presence",
+    "app": "Figma",
+    "surface": "artifact",
+    "convention": "Multiplayer cursors and object-level activity are visible but do not freeze the canvas.",
+    "whyItMatters": "Agent work should feel present and interruptible, not hidden behind a loading wall.",
+    "nodeRoomTranslation": "Agent planning and commit leases are presence rows, while proposal cards appear only for meaning conflicts.",
+    "assets": {
+      "url": "docs/synthesis/PRODUCTION_SCALING_PATTERNS.md"
+    },
+    "doCopy": ["object-scoped activity", "ambient collaborator awareness", "low-friction continuation"],
+    "doNotCopy": ["full vector canvas semantics", "branching claims NodeRoom does not implement"],
+    "score": 1.4
+  },
+  {
+    "id": "linear-triage-inbox",
+    "app": "Linear",
+    "surface": "approval",
+    "convention": "Triage collects work that must be accepted, assigned, or dismissed.",
+    "whyItMatters": "Passive findings and agent proposals must not silently mutate professional artifacts.",
+    "nodeRoomTranslation": "Noteworthy inbox, proposal chips, trace rows, and job cards keep next actions explicit.",
+    "assets": {
+      "url": "docs/qa/DESIGN_QA_HANDOFF_PLAN.md"
+    },
+    "doCopy": ["quiet cards", "clear status", "single primary action"],
+    "doNotCopy": ["developer-only issue tracker language for first-time finance users"],
+    "score": 1.3
+  },
+  {
+    "id": "notion-blank-page",
+    "app": "Notion",
+    "surface": "capture",
+    "convention": "Empty writing surfaces should invite capture without saving placeholder text.",
+    "whyItMatters": "Fast messy note capture is the first step before passive intelligence can help.",
+    "nodeRoomTranslation": "Notebook ghost text appears only in the empty first paragraph and never persists to Convex.",
+    "assets": {
+      "url": "src/app/styles.css"
+    },
+    "doCopy": ["calm blank page", "ghost prompt", "low chrome"],
+    "doNotCopy": ["generic personal-doc framing when the room is a finance war room"],
+    "score": 1.4
+  },
+  {
+    "id": "attio-clay-records",
+    "app": "Attio / Clay",
+    "surface": "spreadsheet",
+    "convention": "Records need identity, source chips, and dense relationship context.",
+    "whyItMatters": "Banking diligence rows are not anonymous cells; source-backed company identity drives trust.",
+    "nodeRoomTranslation": "Company rows use initials, source chips, status, and evidence-bearing fields.",
+    "assets": {
+      "url": "src/ui/panels/Artifact.tsx"
+    },
+    "doCopy": ["record identity", "source chips", "dense table hierarchy"],
+    "doNotCopy": ["CRM-only workflow assumptions that hide artifact provenance"],
+    "score": 1.3
+  },
+  {
+    "id": "claude-artifacts-split",
+    "app": "Claude Artifacts / assistant-ui",
+    "surface": "chat",
+    "convention": "Chat and generated work product should be adjacent, with reviewable output state.",
+    "whyItMatters": "The user needs to talk to the agent while inspecting the exact artifact being changed.",
+    "nodeRoomTranslation": "Copilot, Work Surface, Trace, and proposal chips keep chat, artifact, and proof connected.",
+    "assets": {
+      "url": "src/ui/Chat.tsx"
+    },
+    "doCopy": ["chat plus artifact split", "reviewable generated output", "attached references"],
+    "doNotCopy": ["treating chat transcript as durable memory or source of truth"],
+    "score": 1.3
+  }
+]

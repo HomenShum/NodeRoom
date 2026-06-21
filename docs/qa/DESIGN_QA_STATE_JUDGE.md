@@ -69,7 +69,7 @@ A vision judge over multi-image state-sets has **higher variance than the single
 - Spring transitions caught mid-flight read as broken states (the auto-allow knob screenshotted at
   150ms of a 180ms transition looked stuck mid-travel). Fixed: settle wait > transition duration.
 
-## Current scoreboard (2026-06-11, regenerate with `npm run qa:judge-states`)
+## Historical scoreboard seed (2026-06-11, regenerate with `npm run qa:judge-states`)
 
 | Surface | States | Avg | Legibility | Affordance | Consistency | Contrast | Polish |
 |---|---|---|---|---|---|---|---|
@@ -80,12 +80,15 @@ A vision judge over multi-image state-sets has **higher variance than the single
 | topbar | 7 | 6.0 | 7 | 6 | 6 | 5 | 6 |
 | sheet | 5 | 5.6 | 5 | 4 | 6 | 7 | 6 |
 
-The set climbed from a first-pass ~5.0 avg to ~6.0 after the cited fixes, then **plateaued in a
+This historical state-judge run seeded the design-quality work. The set climbed from a first-pass ~5.0 avg to ~6.0 after the cited fixes, then **plateaued in a
 5.6–6.2 band that oscillates ±1 run-to-run** — the documented stop point (per the GIF judge's
 plateau rule). The residual gap is dominated by judge variance and a few genuinely-hard
 **light-theme** contrast items (the app is dark-first; ghost-button text and placeholders sit near
 the AA line in light mode), not by unfixed P0/P1 defects. Honest call: ship the cited fixes,
 document the plateau, do not inflate the rubric to clear a noisy 7.0.
+
+Current UI/UX product-quality evidence now lives in
+`docs/eval/design-quality/latest.json` and `docs/eval/design-quality/latest.md`.
 
 ## Residuals (named, not hidden)
 

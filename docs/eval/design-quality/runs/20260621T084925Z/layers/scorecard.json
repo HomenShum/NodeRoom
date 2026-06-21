@@ -1,0 +1,25 @@
+{
+  "runId": "20260621T084925Z",
+  "commitSha": "cde83160+dirty",
+  "generatedAt": "2026-06-21T08:49:26.120Z",
+  "command": "scorecard",
+  "status": "written",
+  "note": "Full design-quality scorecard.",
+  "verdict": "ship_but_media_needs_polish",
+  "uiUxScore": {
+    "total": 57.8,
+    "max": 100,
+    "dimensions": {
+      "workflowClarity": 8.7,
+      "firstThirtySecondMagic": 7.5,
+      "visualHierarchyDensity": 7,
+      "professionalRelevance": 7.2,
+      "responsivenessInteraction": 0,
+      "artifactLegibility": 6,
+      "evidenceTraceClarity": 9,
+      "accessibility": 0,
+      "agentCollaborationState": 6,
+      "shareabilityViralityLoop": 6.4
+    }
+  }
+}

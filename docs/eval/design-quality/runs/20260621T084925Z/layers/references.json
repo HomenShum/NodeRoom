@@ -1,0 +1,52 @@
+{
+  "runId": "20260621T084925Z",
+  "commitSha": "cde83160+dirty",
+  "generatedAt": "2026-06-21T08:49:26.120Z",
+  "command": "scorecard",
+  "status": "loaded",
+  "note": "Reference comparisons document borrowed conventions and explicit non-goals.",
+  "references": [
+    {
+      "referenceApp": "Google Sheets",
+      "borrowedConvention": "Cell-level collaboration presence should show ownership without blocking nearby work.",
+      "nodeRoomScreen": "spreadsheet",
+      "score": 1.5,
+      "note": "Presence claims and short agent intent chips sit on cells as advisory state; final writes still use CAS."
+    },
+    {
+      "referenceApp": "Figma",
+      "borrowedConvention": "Multiplayer cursors and object-level activity are visible but do not freeze the canvas.",
+      "nodeRoomScreen": "artifact",
+      "score": 1.4,
+      "note": "Agent planning and commit leases are presence rows, while proposal cards appear only for meaning conflicts."
+    },
+    {
+      "referenceApp": "Linear",
+      "borrowedConvention": "Triage collects work that must be accepted, assigned, or dismissed.",
+      "nodeRoomScreen": "approval",
+      "score": 1.3,
+      "note": "Noteworthy inbox, proposal chips, trace rows, and job cards keep next actions explicit."
+    },
+    {
+      "referenceApp": "Notion",
+      "borrowedConvention": "Empty writing surfaces should invite capture without saving placeholder text.",
+      "nodeRoomScreen": "capture",
+      "score": 1.4,
+      "note": "Notebook ghost text appears only in the empty first paragraph and never persists to Convex."
+    },
+    {
+      "referenceApp": "Attio / Clay",
+      "borrowedConvention": "Records need identity, source chips, and dense relationship context.",
+      "nodeRoomScreen": "spreadsheet",
+      "score": 1.3,
+      "note": "Company rows use initials, source chips, status, and evidence-bearing fields."
+    },
+    {
+      "referenceApp": "Claude Artifacts / assistant-ui",
+      "borrowedConvention": "Chat and generated work product should be adjacent, with reviewable output state.",
+      "nodeRoomScreen": "chat",
+      "score": 1.3,
+      "note": "Copilot, Work Surface, Trace, and proposal chips keep chat, artifact, and proof connected."
+    }
+  ]
+}
