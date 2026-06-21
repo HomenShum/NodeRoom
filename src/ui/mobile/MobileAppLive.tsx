@@ -6,6 +6,7 @@
    Wired surfaces (this pass): room metadata + the public room chat (the wedge).
    Other panels remain sample data until their live wiring lands.
    ============================================================================ */
+import { useMemo, useRef } from "react";
 import { useStore } from "../../app/store";
 import type { Actor, Message, Member, CellStatus, Artifact } from "../../engine/types";
 import type { RoomMsg, Person, AgentMsg, Row, Tone, InboxItem, Job, RecentItem, RecentSig } from "./mobileData";
@@ -43,13 +44,19 @@ function buildPeople(members: Member[]): Record<string, Person> {
 // server shape (see the integration map's keepMock list); live messages render as
 // plain chat / agent text, with agent authorship driving the agent styling.
 function reshapeMessages(messages: Message[]): RoomMsg[] {
-  return messages.map((m): RoomMsg => ({
-    id: m.id,
-    who: m.author.kind === "agent" ? AGENT_KEY : m.author.id,
-    kind: "msg",
-    t: relTime(m.createdAt),
-    text: m.text,
-  }));
+  return messages.map((m): RoomMsg => {
+    // The store paints optimistic sends as "opt-<clientMsgId>" rows before the
+    // server confirms — surface them as pending so the bubble reads as "sending".
+    const optimistic = m.id.startsWith("opt-");
+    return {
+      id: m.id,
+      who: m.author.kind === "agent" ? AGENT_KEY : m.author.id,
+      kind: "msg",
+      t: optimistic ? "now" : relTime(m.createdAt),
+      text: m.text,
+      ...(optimistic ? { pending: true, clientId: m.id } : {}),
+    };
+  });
 }
 
 // Live Message -> mobile AgentMsg (1:1 agent-convo style): user-authored -> user bubble,
@@ -111,6 +118,16 @@ function buildRecents(artifacts: Artifact[]): RecentItem[] {
 export function MobileAppLive({ roomId, me, onLeave }: { roomId: string; me: Actor; onLeave?: () => void }) {
   const store = useStore();
   const room = store.getRoom(roomId);
+  // First-load signal: in the Convex store getRoom() is the ONLY accessor that
+  // returns undefined until the first server round-trip (every other accessor
+  // coalesces to []). Memory mode is synchronous so room is never undefined and
+  // loading stays false. Anti-blank guard: meta is reactive and can transiently
+  // flip back to undefined on re-subscribe (room switch / token refresh); hold
+  // the last non-undefined room in a ref and only report loading on the genuine
+  // first load (no cached data yet), never on a transient undefined mid-session.
+  const lastRoom = useRef(room);
+  if (room !== undefined) lastRoom.current = room;
+  const loading = lastRoom.current === undefined;
   const members = store.listMembers(roomId);
   const messages = store.listMessages(roomId, "public");
   const privateMsgs = store.listMessages(roomId, { private: me.id });
@@ -118,7 +135,7 @@ export function MobileAppLive({ roomId, me, onLeave }: { roomId: string; me: Act
   const artifacts = store.listArtifacts(roomId);
   const researchSheet = artifacts.find((a) => a.kind === "sheet" && a.title === "Company research");
   const researchArt = researchSheet ? store.getArtifact(researchSheet.id) : undefined;
-  const liveRow: Row = {
+  const liveRow: Row = useMemo(() => ({
     entity: "CardioNova",
     sub: "healthtech · row in Company research",
     fields: researchArt
@@ -129,7 +146,7 @@ export function MobileAppLive({ roomId, me, onLeave }: { roomId: string; me: Act
           return { k: label, v: cellDisplay(p.value), status: p.status ?? "", tone: cellTone(p.status), elementId, version: el?.version ?? 0 };
         })
       : [],
-  };
+  }), [researchArt]);
   const editRowField = async (elementId: string, value: string, baseVersion: number) => {
     if (!researchSheet) return { ok: false, reason: "no_sheet" };
     return store.applyEdit({ roomId, op: { opId: crypto.randomUUID(), artifactId: researchSheet.id, elementId, kind: "set", value, baseVersion }, actor: me });
@@ -138,7 +155,7 @@ export function MobileAppLive({ roomId, me, onLeave }: { roomId: string; me: Act
   const proposals = store.listProposals(roomId);
   const job = store.lastLongFreeJob();
   const isHost = members.some((m) => m.id === me.id && m.role === "host");
-  const inboxItems: InboxItem[] = proposals.map((p): InboxItem => ({
+  const inboxItems: InboxItem[] = useMemo(() => proposals.map((p): InboxItem => ({
     id: p.id,
     icon: "sparkles",
     tone: "accent",
@@ -149,29 +166,44 @@ export function MobileAppLive({ roomId, me, onLeave }: { roomId: string; me: Act
     time: relTime(p.createdAt),
     kind: "plan",
     preview: "doc",
-  }));
-  const oneJob: Job | null = job
-    ? { id: job.id, title: job.entrypoint ?? "Agent job", sub: job.status + (job.error ? " · " + job.error : ""), cost: "", route: job.modelPolicy as Job["route"], trace: job.id }
-    : null;
-  const jobs: { running: Job[]; queued: Job[]; completed: Job[] } = { running: [], queued: [], completed: [] };
-  if (job && oneJob) {
-    const s = job.status;
-    const bucket = s === "running" ? "running" : s === "queued" || s === "paused" || s === "blocked" || s === "retrying" ? "queued" : "completed";
-    jobs[bucket].push(oneJob);
-  }
+  })), [proposals]);
+  const jobs: { running: Job[]; queued: Job[]; completed: Job[] } = useMemo(() => {
+    const oneJob: Job | null = job
+      ? { id: job.id, title: job.entrypoint ?? "Agent job", sub: job.status + (job.error ? " · " + job.error : ""), cost: "", route: job.modelPolicy as Job["route"], trace: job.id }
+      : null;
+    const out: { running: Job[]; queued: Job[]; completed: Job[] } = { running: [], queued: [], completed: [] };
+    if (job && oneJob) {
+      const s = job.status;
+      const bucket = s === "running" ? "running" : s === "queued" || s === "paused" || s === "blocked" || s === "retrying" ? "queued" : "completed";
+      out[bucket].push(oneJob);
+    }
+    return out;
+  }, [job]);
+
+  // Per-render reshapes memoized so re-renders that don't change the underlying
+  // store data (e.g. a sibling state toggle) don't recompute identical arrays.
+  // Results are byte-identical to the inline calls; deps are the exact inputs.
+  const roomMsgs = useMemo(() => reshapeMessages(messages), [messages]);
+  const people = useMemo(() => buildPeople(members), [members]);
+  const recents = useMemo(() => buildRecents(artifacts), [artifacts]);
+  const agentPrivate = useMemo(() => reshapeAgentMsgs(privateMsgs), [privateMsgs]);
+  const agentRoom = useMemo(
+    () => reshapeAgentMsgs(messages.filter((m) => m.author.kind === "agent" || m.author.id === me.id)),
+    [messages, me.id],
+  );
 
   const live: MobileLive = {
     roomName: room?.title ?? "Room",
     roomCode: room?.code ?? "",
     liveCount: members.length,
-    roomMsgs: reshapeMessages(messages),
-    people: buildPeople(members),
-    recents: buildRecents(artifacts),
+    roomMsgs,
+    people,
+    recents,
     postRoomMessage: async (text: string) => {
       return store.postMessage({ roomId, channel: "public", author: me, text, clientMsgId: crypto.randomUUID(), kind: "chat" });
     },
-    agentPrivate: reshapeAgentMsgs(privateMsgs),
-    agentRoom: reshapeAgentMsgs(messages.filter((m) => m.author.kind === "agent" || m.author.id === me.id)),
+    agentPrivate,
+    agentRoom,
     askPrivateAgent: async (goal: string) => {
       void store.postMessage({ roomId, channel: { private: me.id }, author: me, text: goal, clientMsgId: crypto.randomUUID(), kind: "chat" });
       try {
@@ -208,6 +240,7 @@ export function MobileAppLive({ roomId, me, onLeave }: { roomId: string; me: Act
       return r.ok ? { ok: true } : { ok: false, reason: r.reason };
     },
     onLeave,
+    loading,
   };
 
   return <MobileApp live={live} />;

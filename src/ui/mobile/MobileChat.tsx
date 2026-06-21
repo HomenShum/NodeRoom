@@ -11,6 +11,8 @@ import { Pill } from "./MobileScreens";
 import * as D from "./mobileData";
 import type { Person, Job, ComposerMode } from "./mobileData";
 import type { MobileCtx } from "./mobileTypes";
+import { SkeletonChat } from "./MobileSkeleton";
+import { Tooltip } from "./MobileTooltip";
 
 // highlight @mentions
 function withMentions(text: string): React.ReactNode[] {
@@ -40,12 +42,17 @@ export function RoomChat({ ctx }: { ctx: MobileCtx }): React.ReactElement {
       : React.createElement("button", { className: "na-rmsg-name", onClick: () => ctx.mentionPerson && ctx.mentionPerson((P[who] || {}).name || who) }, (P[who] || {}).name || who),
     React.createElement("time", null, t));
 
+  // live first-load hydration only — ctx.loading is false offline, so the
+  // sample demo never shows a skeleton (renders byte-identical to before).
+  if (ctx.loading && ctx.isLive && msgs.length === 0) return React.createElement("div", { className: "na-feed" }, SkeletonChat());
+
   return React.createElement("div", { className: "na-feed" },
     msgs.map((m) => {
-      if (m.kind === "msg") return React.createElement("div", { key: m.id, className: "na-rmsg" },
+      if (m.kind === "msg") return React.createElement("div", { key: m.id, className: "na-rmsg" + (m.pending ? " pending" : "") + (m.failed ? " failed" : "") },
         avatar(m.who),
         React.createElement("div", { className: "na-rmsg-main" }, head(m.who, m.t),
-          React.createElement("div", { className: "na-rmsg-text" }, withMentions(m.text || ""))));
+          React.createElement("div", { className: "na-rmsg-text" }, withMentions(m.text || "")),
+          m.failed ? React.createElement("button", { className: "na-rmsg-retry", onClick: () => ctx.retryMessage(m.clientId ?? m.id), "aria-label": "Failed, retry", title: "Failed, retry" }, "Failed · Retry") : null));
 
       if (m.kind === "status") return React.createElement("div", { key: m.id, className: "na-rmsg agent" },
         avatar(m.who),
@@ -110,7 +117,10 @@ export function AgentChat({ ctx }: { ctx: MobileCtx }): React.ReactElement {
         ? "Private to you. Can read your notes if allowed; output stays yours until you promote it."
         : "Shared. Uses room-visible context only and proposes every change before it lands."),
 
-    React.createElement("div", { className: "na-conv" },
+    (ctx.loading && ctx.isLive && msgs.length === 0)
+      // live first-load hydration only — ctx.loading is false offline.
+      ? React.createElement("div", { className: "na-conv" }, SkeletonChat())
+      : React.createElement("div", { className: "na-conv" },
       msgs.map((m) => {
         if (m.role === "user") return React.createElement("div", { key: m.id, className: "na-bubble me" }, m.text);
         if (m.variant === "status") return React.createElement("div", { key: m.id, className: "na-agent-status" },
@@ -168,7 +178,7 @@ export function Composer({ ctx }: { ctx: MobileCtx }): React.ReactElement {
             React.createElement("span", { className: "na-wave" },
               React.createElement("i", null), React.createElement("i", null), React.createElement("i", null), React.createElement("i", null), React.createElement("i", null)),
             "Listening…"),
-          React.createElement("button", { className: "na-mic", "data-listening": "true", onClick: ctx.stopVoice, "aria-label": "Stop" }, Ico("mic")),
+          React.createElement(Tooltip, { label: "Stop", side: "top", children: React.createElement("button", { className: "na-mic", "data-listening": "true", onClick: ctx.stopVoice, "aria-label": "Stop", title: "Stop" }, Ico("mic")) }),
           React.createElement("button", { className: "na-send", disabled: true }, Ico("arrowRight")))
       : React.createElement("div", { className: "na-composer-row" },
           React.createElement("textarea", {
@@ -177,8 +187,8 @@ export function Composer({ ctx }: { ctx: MobileCtx }): React.ReactElement {
             onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => ctx.setDraft(e.target.value),
             onKeyDown: (e: React.KeyboardEvent<HTMLTextAreaElement>) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); ctx.sendComposer(); } },
           }),
-          React.createElement("button", { className: "na-mic", onClick: ctx.startVoice, "aria-label": "Voice to text" }, Ico("mic")),
-          React.createElement("button", { className: "na-send", disabled: !ctx.draft.trim(), onClick: ctx.sendComposer, "aria-label": "Send" }, Ico("arrowRight"))));
+          React.createElement(Tooltip, { label: "Voice to text", side: "top", children: React.createElement("button", { className: "na-mic", onClick: ctx.startVoice, "aria-label": "Voice to text", title: "Voice to text" }, Ico("mic")) }),
+          React.createElement(Tooltip, { label: "Send", side: "top", children: React.createElement("button", { className: "na-send", disabled: !ctx.draft.trim(), onClick: ctx.sendComposer, "aria-label": "Send", title: "Send" }, Ico("arrowRight")) })));
 }
 
 // ── JOBS SHEET ────────────────────────────────────────────────────────────
@@ -201,7 +211,7 @@ export function JobsSheet({ ctx }: { ctx: MobileCtx }): React.ReactElement {
       kind === "running" ? React.createElement("div", { className: "na-jprog" },
         React.createElement("i", { style: { width: (j.pct || 50) + "%" } })) : null),
     kind === "running"
-      ? React.createElement("button", { className: "na-jstop", onClick: (e: React.MouseEvent) => { e.stopPropagation(); ctx.toast("Job stopped"); }, "aria-label": "Stop job" }, Ico("x"))
+      ? React.createElement(Tooltip, { label: "Stop job", side: "left", children: React.createElement("button", { className: "na-jstop", onClick: (e: React.MouseEvent) => { e.stopPropagation(); ctx.toast("Job stopped"); }, "aria-label": "Stop job", title: "Stop job" }, Ico("x")) })
       : (j.trace && /^r_/.test(j.trace))
         ? React.createElement("span", { className: "na-jstop ghost", "aria-hidden": true }, Ico("chevR"))
         : React.createElement("span", { className: "na-jwait" }, Ico("clock")));
@@ -217,7 +227,7 @@ export function JobsSheet({ ctx }: { ctx: MobileCtx }): React.ReactElement {
       React.createElement("div", { className: "st" },
         React.createElement("strong", null, "Agent jobs"),
         React.createElement("span", null, "Every run is traceable")),
-      React.createElement("button", { className: "na-close", onClick: ctx.closeSheet, "aria-label": "Close" }, Ico("x"))),
+      React.createElement(Tooltip, { label: "Close", side: "bottom", children: React.createElement("button", { className: "na-close", onClick: ctx.closeSheet, "aria-label": "Close", title: "Close" }, Ico("x")) })),
     React.createElement("div", { className: "na-sheet-body" },
       group("Running", J.running, "running"),
       group("Queued", J.queued, "queued"),

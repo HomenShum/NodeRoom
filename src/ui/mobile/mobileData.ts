@@ -255,6 +255,11 @@ export interface RoomChatMessage {
   stats?: RoomChatStat[];
   title?: string;
   meta?: string;
+  // optimistic send (live mode): set on a locally-echoed message before the
+  // server confirms it. `clientId` correlates the echo with the server row.
+  pending?: boolean;
+  failed?: boolean;
+  clientId?: string;
 }
 
 export interface AgentChatMessage {
@@ -268,6 +273,11 @@ export interface AgentChatMessage {
   stats?: Stat[];
   open?: SheetId;
   openLabel?: string;
+  // optimistic send (live mode): mirrors RoomChatMessage — locally-echoed agent
+  // turn before the server confirms it. `clientId` correlates the echo.
+  pending?: boolean;
+  failed?: boolean;
+  clientId?: string;
 }
 
 export interface AgentChat {

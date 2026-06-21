@@ -55,6 +55,7 @@ import { TraceOverlay, SourceOverlay } from "./MobileOverlay";
 import { SettingsSheet } from "./MobileSettings";
 import { loadTweaks, saveTweaks } from "./mobileTweaks";
 import { IOSDevice, MobileStage } from "./MobileFrame";
+import { haptic } from "./mobileUtil";
 
 // ── static config (ported verbatim from na-app.jsx) ─────────────────────────
 const TABS: Record<TabId, { icon: IconName; label: string }> = {
@@ -615,6 +616,7 @@ export function MobileApp({ live }: { live?: MobileLive } = {}): React.ReactElem
   const sendComposer = (): void => {
     const text = draft.trim();
     if (!text) return;
+    haptic();
     if (composerMode === "note") {
       setNote((n) => (n ? n + "\n" + text : text));
       setTab("capture");
@@ -648,6 +650,17 @@ export function MobileApp({ live }: { live?: MobileLive } = {}): React.ReactElem
     const had = draft.trim();
     sendComposer();
     if (had) setAskOpen(false);
+  };
+
+  // Retry a failed optimistic send (re-posts the message text). Reachable only
+  // when a message carries failed=true; the live store auto-reverts optimistic
+  // rows on error today, so this is a forward-looking, side-effect-safe hook.
+  const retryMessage = (id: string): void => {
+    const list = live ? live.roomMsgs : roomMsgs;
+    const msg = list.find((m) => m.kind === "msg" && (m.clientId === id || m.id === id) && m.failed);
+    if (!msg || !msg.text) return;
+    if (live) void live.postRoomMessage(msg.text);
+    else pushRoom({ who: "homen", kind: "msg", t: "now", text: msg.text });
   };
 
   const startVoice = (): void => {
@@ -808,6 +821,8 @@ export function MobileApp({ live }: { live?: MobileLive } = {}): React.ReactElem
     canApprove: live ? live.canApprove : true,
     resolveProposalById: live ? live.resolveProposalById : async () => ({ ok: false, reason: "offline" }),
     jobAct: live ? live.jobAct : async () => ({ ok: false, reason: "offline" }),
+    loading: live ? live.loading : false,
+    retryMessage,
     setTab,
     scope,
     cycleScope,
@@ -868,7 +883,8 @@ export function MobileApp({ live }: { live?: MobileLive } = {}): React.ReactElem
           <div className="na-top">
             <div className="na-topbar">
               <button className="na-mark" title="Home" aria-label="Home" onClick={() => setTab("home")}>N</button>
-              <button className="na-roomsw" onClick={() => openSheet("rooms")} aria-label="Switch room">
+              <button className="na-roomsw" onClick={() => openSheet("rooms")} aria-label="Switch room" title="Switch room">
+
                 {room.live && <i className="na-live-dot" />}
                 <span className="nm">{room.name}</span>
                 {Ico("chevD")}
@@ -876,6 +892,7 @@ export function MobileApp({ live }: { live?: MobileLive } = {}): React.ReactElem
               <button
                 className="na-icon-btn"
                 aria-label="Agent jobs"
+                title={tab === "agent" || tab === "room" ? "Agent jobs" : openCount ? "Review inbox" : "Notifications"}
                 onClick={() => (tab === "agent" || tab === "room" ? openSheet("jobs") : openCount ? setTab("inbox") : toast("All caught up"))}
               >
                 {Ico(tab === "agent" || tab === "room" ? "history" : "bell")}
@@ -914,7 +931,7 @@ export function MobileApp({ live }: { live?: MobileLive } = {}): React.ReactElem
                       key={ac.label}
                       className={"na-fab-act" + (ac.tone ? " " + ac.tone : "") + (ac.muted ? " muted" : "") + (ac.active ? " active" : "")}
                       style={{ "--d": idx * 30 + "ms" } as React.CSSProperties}
-                      onClick={() => { if (!ac.keepOpen) setFabOpen(false); ac.run(); }}
+                      onClick={() => { haptic(); if (!ac.keepOpen) setFabOpen(false); ac.run(); }}
                     >
                       <span className="fa-ic">{Ico(ac.icon)}{ac.badge ? <span className="fa-badge">{ac.badge}</span> : null}</span>
                       <span className="fa-lbl">{ac.label}{ac.active ? <span className="fa-dot" /> : null}</span>
@@ -926,7 +943,8 @@ export function MobileApp({ live }: { live?: MobileLive } = {}): React.ReactElem
                 className={"na-fab-btn" + (fab.alert ? " alert" : "")}
                 aria-label={fabOpen ? "Close menu" : "Quick actions"}
                 aria-expanded={fabOpen ? "true" : "false"}
-                onClick={() => { setAddOpen(false); setFabOpen((v) => !v); }}
+                title={fabOpen ? "Close menu" : "Quick actions"}
+                onClick={() => { haptic(); setAddOpen(false); setFabOpen((v) => !v); }}
               >
                 <span className="fb-ic">{Ico(fabOpen ? "x" : fab.hero)}</span>
                 {!fabOpen && fab.badge ? <span className="na-fab-badge">{fab.badge}</span> : null}
@@ -1316,7 +1334,7 @@ export function MobileApp({ live }: { live?: MobileLive } = {}): React.ReactElem
           </div>
 
           {/* toast */}
-          <div className="na-toast" data-show={!!toastMsg}>{toastMsg && Ico("checkCircle")}{toastMsg}</div>
+          <div className="na-toast" data-show={!!toastMsg} role="status" aria-live="polite">{toastMsg && Ico("checkCircle")}{toastMsg}</div>
         </div>
       </IOSDevice>
     </MobileStage>

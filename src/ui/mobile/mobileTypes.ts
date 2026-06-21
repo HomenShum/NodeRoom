@@ -158,6 +158,12 @@ export interface MobileCtx {
   recents: RecentItem[];
   favorites: FavoriteItem[];
   briefings: Briefing[];
+
+  // ── polish: live hydration + optimistic send ──
+  /** True while a live room is still hydrating (skeletons render only when true). */
+  loading: boolean;
+  /** Retry a failed optimistic message by its clientId/id (no-op offline). */
+  retryMessage: (id: string) => void;
 }
 
 /** Live room data injected into MobileApp by MobileAppLive (see MobileRoot). */
@@ -182,4 +188,6 @@ export interface MobileLive {
   resolveProposalById: (id: string, approve: boolean) => Promise<RowEditResult>;
   jobAct: (id: string, action: "cancel" | "retry") => Promise<RowEditResult>;
   onLeave?: () => void;
+  /** True while the live room is still hydrating (drives loading skeletons). */
+  loading: boolean;
 }

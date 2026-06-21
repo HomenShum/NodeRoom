@@ -8,6 +8,9 @@ import { Ico } from "./MobileIcons";
 import type { IconName } from "./MobileIcons";
 import * as D from "./mobileData";
 import type { MobileCtx } from "./mobileTypes";
+import { SkeletonRecents, SkeletonRows } from "./MobileSkeleton";
+import { Tooltip } from "./MobileTooltip";
+import { haptic } from "./mobileUtil";
 
 // ── shared pill ──────────────────────────────────────────────────────────────────────────────────────────────
 export function Pill({
@@ -90,23 +93,33 @@ export function Capture({ ctx }: { ctx: MobileCtx }): React.ReactElement {
     React.createElement(
       "div",
       { className: "na-doctabs" },
-      React.createElement(
-        "button",
-        { className: "na-doctab", "data-active": cap === "note", onClick: () => setCap("note") },
-        "Note",
-      ),
-      React.createElement(
-        "button",
-        {
-          className: "na-doctab",
-          "data-active": cap === "detected",
-          onClick: () => setCap("detected"),
-        },
-        "Detected",
-        sigCount > 0 && t.passive !== "off"
-          ? React.createElement("span", { className: "tcount" }, sigCount)
-          : null,
-      ),
+      React.createElement(Tooltip, {
+        label: "Note",
+        side: "bottom",
+        children: React.createElement(
+          "button",
+          { className: "na-doctab", "data-active": cap === "note", onClick: () => setCap("note"), title: "Note", "aria-label": "Note tab" },
+          "Note",
+        ),
+      }),
+      React.createElement(Tooltip, {
+        label: "Detected",
+        side: "bottom",
+        children: React.createElement(
+          "button",
+          {
+            className: "na-doctab",
+            "data-active": cap === "detected",
+            onClick: () => setCap("detected"),
+            title: "Detected",
+            "aria-label": "Detected tab",
+          },
+          "Detected",
+          sigCount > 0 && t.passive !== "off"
+            ? React.createElement("span", { className: "tcount" }, sigCount)
+            : null,
+        ),
+      }),
     ),
 
     // ── NOTE TAB (Notion-like, append-as-you-go) ──
@@ -229,6 +242,7 @@ export function Capture({ ctx }: { ctx: MobileCtx }): React.ReactElement {
 export function Inbox({ ctx }: { ctx: MobileCtx }): React.ReactElement {
   const { resolved } = ctx;
   const [view, setView] = React.useState<"card" | "row">("card");
+  const [busy, setBusy] = React.useState<Record<string, boolean>>({});
   // Live items when bound to a room (live.inboxItems), else the sample inbox.
   const open = ctx.inboxItems.filter((i: D.InboxItem) => !resolved[i.id]);
   const done = ctx.inboxItems.filter((i: D.InboxItem) => resolved[i.id]);
@@ -264,8 +278,20 @@ export function Inbox({ ctx }: { ctx: MobileCtx }): React.ReactElement {
   };
 
   // Live: approve/reject a proposal through the store (host-gated).
+  // In-flight per item. Reject is optimistically removed by the store; approve
+  // is NOT optimistically hidden (the backend can legitimately keep a proposal
+  // pending if CAS/validation fails) — so we show a "Working…" state and let the
+  // live query drive removal honestly.
   const approve = (item: D.InboxItem, ok: boolean): void => {
+    if (busy[item.id]) return;
+    haptic();
+    setBusy((b) => ({ ...b, [item.id]: true }));
     void ctx.resolveProposalById(item.id, ok).then((r) => {
+      setBusy((b) => {
+        const n = { ...b };
+        delete n[item.id];
+        return n;
+      });
       ctx.toast(r.ok ? (ok ? "Approved · change applied" : "Proposal rejected") : "Failed — " + (r.reason || "try again"));
     });
   };
@@ -300,14 +326,16 @@ export function Inbox({ ctx }: { ctx: MobileCtx }): React.ReactElement {
         React.createElement(
           "div",
           { className: "na-task-foot" },
-          ctx.canApprove
-            ? React.createElement(
-                "div",
-                { className: "na-btn-row" },
-                React.createElement("button", { className: "na-btn", onClick: () => approve(item, false) }, Ico("x"), "Reject"),
-                React.createElement("button", { className: "na-btn primary", onClick: () => approve(item, true) }, Ico("check"), "Approve"),
-              )
-            : React.createElement("span", { className: "na-task-await" }, Ico("lock"), "Awaiting host approval"),
+          busy[item.id]
+            ? React.createElement("span", { className: "na-task-await" }, Ico("clock"), "Working…")
+            : ctx.canApprove
+              ? React.createElement(
+                  "div",
+                  { className: "na-btn-row" },
+                  React.createElement("button", { className: "na-btn", onClick: () => approve(item, false) }, Ico("x"), "Reject"),
+                  React.createElement("button", { className: "na-btn primary", onClick: () => approve(item, true) }, Ico("check"), "Approve"),
+                )
+              : React.createElement("span", { className: "na-task-await" }, Ico("lock"), "Awaiting host approval"),
         ),
       );
     }
@@ -341,6 +369,11 @@ export function Inbox({ ctx }: { ctx: MobileCtx }): React.ReactElement {
       React.createElement("span", { className: "t" }, item.time),
     );
 
+  // Live first-load: show skeleton rows while the room hydrates (never offline —
+  // the sample inbox is synchronous, so this only fires on the live path).
+  if (ctx.loading && ctx.isLive && open.length === 0 && done.length === 0)
+    return SkeletonRows({ n: 3 });
+
   if (open.length === 0 && done.length === 0)
     return emptyState(
       "inbox",
@@ -359,16 +392,24 @@ export function Inbox({ ctx }: { ctx: MobileCtx }): React.ReactElement {
       React.createElement(
         "div",
         { className: "na-viewtoggle" },
-        React.createElement(
-          "button",
-          { "data-active": view === "card", onClick: () => setView("card"), "aria-label": "Card view" },
-          Ico("layers"),
-        ),
-        React.createElement(
-          "button",
-          { "data-active": view === "row", onClick: () => setView("row"), "aria-label": "Row view" },
-          Ico("menu"),
-        ),
+        React.createElement(Tooltip, {
+          label: "Card view",
+          side: "bottom",
+          children: React.createElement(
+            "button",
+            { "data-active": view === "card", onClick: () => setView("card"), title: "Card view", "aria-label": "Card view" },
+            Ico("layers"),
+          ),
+        }),
+        React.createElement(Tooltip, {
+          label: "Row view",
+          side: "bottom",
+          children: React.createElement(
+            "button",
+            { "data-active": view === "row", onClick: () => setView("row"), title: "Row view", "aria-label": "Row view" },
+            Ico("menu"),
+          ),
+        }),
       ),
     ),
     React.createElement(
@@ -864,6 +905,17 @@ export function Home({ ctx }: { ctx: MobileCtx }): React.ReactElement {
   // Live: recents = real room artifacts; favorites/briefings are [] (no live
   // source). Each section hides when empty; all-empty → an honest empty state.
   const { recents, favorites, briefings } = ctx;
+  // Live first-load: while the room hydrates and no recents have arrived yet,
+  // show the recents skeleton under the kicker instead of the empty state.
+  // Live-only (gate on ctx.loading && ctx.isLive) — the offline sample is
+  // synchronous, so this never fires in the demo.
+  if (ctx.loading && ctx.isLive && recents.length === 0)
+    return React.createElement(
+      React.Fragment,
+      null,
+      React.createElement("div", { className: "na-kicker" }, "Recents"),
+      SkeletonRecents(),
+    );
   if (recents.length === 0 && favorites.length === 0 && briefings.length === 0)
     return emptyState("home", "Nothing here yet", "Artifacts, favorites, and briefings from this room appear here.");
   return React.createElement(
