@@ -29,7 +29,7 @@ export type FeatureSpec = {
    *  a Company research artifact with 3 seeded accounts via the room's own session token.
    *  memoryDemo = the deterministic in-browser demo engine at the SAME prod URL (?mode=memory) —
    *  same UI, scripted agent; used where a live-LLM step is too nondeterministic to walk through. */
-  setup: "createRoom" | "seedResearchRoom" | "startupJoinRoom" | "memoryDemo";
+  setup: "createRoom" | "seedResearchRoom" | "startupJoinRoom" | "memoryDemo" | "story";
   /** Real-LLM features get retries (fresh room per attempt); deterministic ones don't need them. */
   retries?: number;
   /** Opt-in specs are SKIPPED by default runs — they need a special server (e.g. the naive
@@ -51,6 +51,43 @@ const COMPOSER = `${CENTER} [data-testid="chat-composer"]`;
 const PRIVATE_COMPOSER = `${PRIVATE} [data-testid="chat-composer"]`;
 
 export const FEATURES: FeatureSpec[] = [
+  {
+    id: "story-seven-layers",
+    title: "The seven no-clobber layers — a real grid you can drive",
+    setup: "story",
+    steps: [
+      { kind: "state", caption: "The seven-layer story ends in a REAL grid on the in-browser engine", holdMs: 2200 },
+      {
+        kind: "click", sel: '[data-testid="story-lab-lease-run"]',
+        caption: "Layers 7 + 4 — take a 5-min lease on a cell; NodeAgent drafts around it",
+        afterCaption: "Lease blocks the agent's write; it drafts on a neighbor and smart-merges on release",
+        after: { sel: '[data-testid="story-lab-lease-ttl"]', state: "visible", timeoutMs: 12_000 },
+        afterHoldMs: 2800,
+      },
+      {
+        kind: "click", sel: '[data-testid="story-lab-rebase-run"]',
+        caption: "Layer 6 — a stale agent write becomes a reviewable semantic-rebase proposal",
+        afterCaption: "No silent merge, no clobber — it routes to human review",
+        after: { sel: '[data-testid="story-lab-rebase-proposal"]', state: "visible", timeoutMs: 12_000 },
+        afterHoldMs: 2600,
+      },
+      {
+        kind: "click", sel: '[data-testid="story-lab-rebase-approve"]',
+        caption: "Approve the proposal…",
+        afterCaption: "Re-applied at the CURRENT version (v3) — not the stale baseline",
+        after: { sel: '[data-testid="story-lab-rebase-approved"]', state: "visible", timeoutMs: 12_000 },
+        afterHoldMs: 2600,
+      },
+      {
+        kind: "click", sel: '[data-testid="story-lab"] .sl-gridcard button.sl-btn.primary',
+        caption: "Layer 5 — stage a stale edit, then run the no-clobber test",
+        afterCaption: "Rejected and returned as conflict-as-data — the cell keeps the agent's value",
+        after: { sel: '[data-testid="story-lab"] .sl-conflict', state: "visible", timeoutMs: 12_000 },
+        afterHoldMs: 2800,
+      },
+      { kind: "state", caption: "Every action hit the real engine — nothing scripted", holdMs: 2400 },
+    ],
+  },
   {
     id: "startup-diligence-live-join",
     title: "Fresh startup diligence room + teammate join",
