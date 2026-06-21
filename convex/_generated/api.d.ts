@@ -27,6 +27,7 @@ import type * as crons from "../crons.js";
 import type * as drafts from "../drafts.js";
 import type * as embeddingRunner from "../embeddingRunner.js";
 import type * as embeddings from "../embeddings.js";
+import type * as evalLedgerIngest from "../evalLedgerIngest.js";
 import type * as evalRuns from "../evalRuns.js";
 import type * as evidence from "../evidence.js";
 import type * as exportDelete from "../exportDelete.js";
@@ -82,6 +83,7 @@ declare const fullApi: ApiFromModules<{
   drafts: typeof drafts;
   embeddingRunner: typeof embeddingRunner;
   embeddings: typeof embeddings;
+  evalLedgerIngest: typeof evalLedgerIngest;
   evalRuns: typeof evalRuns;
   evidence: typeof evidence;
   exportDelete: typeof exportDelete;

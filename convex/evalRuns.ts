@@ -174,3 +174,118 @@ export const deleteRun = internalMutation({
     return { deleted: rows.length + 1 };
   },
 });
+
+// Idempotent dedicated room for the eval ledger (keeps eval data out of user/demo rooms).
+export const ensureLedgerRoom = internalMutation({
+  args: {},
+  handler: async (ctx) => {
+    const code = "BTB-EVAL-LEDGER";
+    const existing = await ctx.db
+      .query("rooms")
+      .withIndex("by_code", (q) => q.eq("code", code))
+      .first();
+    if (existing) return existing._id;
+    return ctx.db.insert("rooms", {
+      code,
+      title: "BankerToolBench — Eval Ledger",
+      hostId: "system-eval-ledger",
+      autoAllow: false,
+      status: "live",
+      createdAt: Date.now(),
+    });
+  },
+});
+
+// Batch-ingest one iteration + all its task rows in a single transaction (idempotent re-ingest by label).
+// Used to backfill the ledger from existing sweep data. countsTowardHeadline + the headline mean are
+// computed server-side from the honest-lane fields — exactly the same gate as the live recorders.
+export const ingestRun = internalMutation({
+  args: {
+    roomId: v.id("rooms"),
+    iterationLabel: v.string(),
+    benchmark: v.string(),
+    model: v.optional(v.string()),
+    materializerMode: v.string(),
+    notes: v.optional(v.string()),
+    startedAt: v.optional(v.number()),
+    results: v.array(
+      v.object({
+        taskId: v.string(),
+        family: v.optional(v.string()),
+        reward: v.number(),
+        raw: v.optional(v.string()),
+        exceptions: v.optional(v.number()),
+        firedWriter: v.string(),
+        cleanGeneralProbe: v.boolean(),
+        modelCalls: v.number(),
+        tokensUsed: v.optional(v.number()),
+        plannerTransport: v.optional(v.string()),
+        trialId: v.optional(v.string()),
+        verdict: v.optional(v.string()),
+      }),
+    ),
+  },
+  handler: async (ctx, a) => {
+    // Re-ingest cleanly: drop a prior run with this label + its rows.
+    const prior = await ctx.db
+      .query("evalRuns")
+      .withIndex("by_room", (q) => q.eq("roomId", a.roomId))
+      .filter((q) => q.eq(q.field("iterationLabel"), a.iterationLabel))
+      .first();
+    if (prior) {
+      const old = await ctx.db
+        .query("taskResults")
+        .withIndex("by_run", (q) => q.eq("evalRunId", prior._id))
+        .collect();
+      for (const r of old) await ctx.db.delete(r._id);
+      await ctx.db.delete(prior._id);
+    }
+    const now = a.startedAt ?? Date.now();
+    const evalRunId = await ctx.db.insert("evalRuns", {
+      roomId: a.roomId,
+      iterationLabel: a.iterationLabel,
+      benchmark: a.benchmark,
+      model: a.model,
+      materializerMode: a.materializerMode,
+      status: "running",
+      taskCount: a.results.length,
+      notes: a.notes,
+      startedAt: now,
+    });
+    let countedSum = 0;
+    let countedN = 0;
+    for (const r of a.results) {
+      const countsTowardHeadline = r.cleanGeneralProbe && r.modelCalls > 0;
+      if (countsTowardHeadline) {
+        countedSum += r.reward;
+        countedN += 1;
+      }
+      await ctx.db.insert("taskResults", {
+        roomId: a.roomId,
+        evalRunId,
+        taskId: r.taskId,
+        family: r.family,
+        reward: r.reward,
+        raw: r.raw,
+        exceptions: r.exceptions ?? 0,
+        firedWriter: r.firedWriter,
+        cleanGeneralProbe: r.cleanGeneralProbe,
+        modelCalls: r.modelCalls,
+        tokensUsed: r.tokensUsed,
+        plannerTransport: r.plannerTransport,
+        countsTowardHeadline,
+        trialId: r.trialId,
+        verdict: r.verdict,
+        createdAt: now,
+      });
+    }
+    const headlineCleanProbeMean = countedN ? countedSum / countedN : undefined;
+    await ctx.db.patch(evalRunId, {
+      status: "completed",
+      completedAt: Date.now(),
+      headlineCleanProbeMean,
+      headlineN: countedN,
+    });
+    return { evalRunId, headlineCleanProbeMean, headlineN: countedN, taskCount: a.results.length };
+  },
+});
