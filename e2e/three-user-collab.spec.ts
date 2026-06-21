@@ -45,7 +45,9 @@ async function editCell(p: Page, key: string, value: string) {
   await input.press("Enter");
 }
 async function cellText(p: Page, key: string) {
-  return (await p.locator(`[data-cell-key="${key}"]`).innerText()).trim();
+  const control = p.locator(`[data-cell-key="${key}"]`).getByTestId("cell-edit-control");
+  const value = await control.getAttribute("data-cell-value");
+  return (value ?? await control.innerText()).trim();
 }
 async function ensureBinderOpen(p: Page) {
   const leftRail = p.getByTestId("left-rail");
