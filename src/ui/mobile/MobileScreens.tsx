@@ -227,8 +227,9 @@ export function Capture({ ctx }: { ctx: MobileCtx }): React.ReactElement {
 export function Inbox({ ctx }: { ctx: MobileCtx }): React.ReactElement {
   const { resolved } = ctx;
   const [view, setView] = React.useState<"card" | "row">("card");
-  const open = D.INBOX.filter((i: D.InboxItem) => !resolved[i.id]);
-  const done = D.INBOX.filter((i: D.InboxItem) => resolved[i.id]);
+  // Live items when bound to a room (live.inboxItems), else the sample inbox.
+  const open = ctx.inboxItems.filter((i: D.InboxItem) => !resolved[i.id]);
+  const done = ctx.inboxItems.filter((i: D.InboxItem) => resolved[i.id]);
 
   const preview = (kind: string) => {
     if (kind === "deck")

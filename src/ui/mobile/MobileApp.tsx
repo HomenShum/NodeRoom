@@ -248,6 +248,26 @@ type AgentRowCtx = {
   openFromTrace: (job: { artifact?: string; artifactName?: string; trace?: string }) => void;
   toast: (m: string) => void;
 };
+// Honest stand-in for deep-artifact sheets in a LIVE room: those carry real
+// diligence data that isn't streamed to mobile, so rather than render the sample
+// narrative we say so (and terra's rule is "deep artifact work stays on desktop").
+function DesktopOnlySheet({ title, note, onClose }: { title: string; note: string; onClose: () => void }): React.ReactElement {
+  return (
+    <>
+      <div className="na-sheet-head">
+        <div className="st">
+          <strong>{title}</strong>
+          <span>Open on desktop</span>
+        </div>
+        <button className="na-close" onClick={onClose} aria-label="Close">{Ico("x")}</button>
+      </div>
+      <div className="na-sheet-body">
+        <p className="na-ask-note" style={{ textAlign: "left", padding: "10px 2px" }}>{note}</p>
+      </div>
+    </>
+  );
+}
+
 function AgentRow({ a, ctx }: { a: D.PulseAgent; ctx: AgentRowCtx }): React.ReactElement {
   const [open, setOpen] = React.useState(false);
   const did = a.did || [];
@@ -371,11 +391,22 @@ export function MobileApp({ live }: { live?: MobileLive } = {}): React.ReactElem
     toastTimer.current = setTimeout(() => setToastMsg(null), 1900);
   }, []);
 
-  // ── derived room descriptor: live room when bound, else the sample entry ──
+  // ── derived room descriptor + honest live rosters ──
+  // In a live room, presence / people / agents come from real members; cost and
+  // a multi-room list aren't wired, so those surfaces show real data or an
+  // honest "not available" state — never the sample narrative (HONEST_STATUS).
   const sampleRoom: RoomEntry = D.ROOMS.find((r) => r.id === roomId) || D.ROOMS[0];
+  const liveMembers = live ? Object.values(live.people) : [];
+  const liveHumans = liveMembers.filter((p) => !p.agent);
+  const liveAgents = liveMembers.filter((p) => p.agent);
   const room: RoomEntry = live
-    ? { id: "live", name: live.roomName, code: live.roomCode, role: "Member", people: live.liveCount, agents: sampleRoom.agents, live: true, pending: live.inboxItems.length }
+    ? { id: "live", name: live.roomName, code: live.roomCode, role: "Member", people: live.liveCount, agents: liveAgents.length, live: true, pending: live.inboxItems.length }
     : sampleRoom;
+  const rosterPeople: { short: string; name: string; role: string; color: string }[] = live
+    ? liveHumans.map((p) => ({ short: p.short, name: p.name, role: "In the room", color: p.color }))
+    : D.PULSE.people;
+  const roomList: RoomEntry[] = live ? [room] : D.ROOMS;
+  const jobCount = live ? live.jobs.running.length + live.jobs.queued.length + live.jobs.completed.length : 0;
 
   const closeSheet = React.useCallback((): void => {
     setSheet(null);
@@ -417,6 +448,11 @@ export function MobileApp({ live }: { live?: MobileLive } = {}): React.ReactElem
   const cycleScope = (): void => setScope((s) => SCOPES[(SCOPES.indexOf(s) + 1) % SCOPES.length]);
   const toggleScope = (): void => setScope((s) => (s === "Private" ? "Room" : "Private"));
   const switchRoom = (id: string): void => {
+    // Live mode is bound to exactly one room — tapping it just closes the sheet.
+    if (live) {
+      closeSheet();
+      return;
+    }
     setRoomId(id);
     closeSheet();
     toast("Switched to " + ((D.ROOMS.find((r) => r.id === id) || { name: "room" }).name));
@@ -850,7 +886,11 @@ export function MobileApp({ live }: { live?: MobileLive } = {}): React.ReactElem
                   <b>{room.agents}</b>agents
                   {openCount ? <span className="seg-warn">{openCount}</span> : null}
                 </button>
-                <button className="seg btn mono" onClick={() => openPulse("cost")}>{D.ROOM.costToday + " today"}</button>
+                {live ? (
+                  <button className="seg btn mono" onClick={() => openSheet("jobs")}>{jobCount + (jobCount === 1 ? " job" : " jobs")}</button>
+                ) : (
+                  <button className="seg btn mono" onClick={() => openPulse("cost")}>{D.ROOM.costToday + " today"}</button>
+                )}
               </div>
             )}
           </div>
@@ -954,21 +994,21 @@ export function MobileApp({ live }: { live?: MobileLive } = {}): React.ReactElem
                 <div className="na-sheet-head">
                   <div className="st">
                     <strong>Rooms</strong>
-                    <span>{"You’re in " + D.ROOMS.length + " rooms"}</span>
+                    <span>{live ? "Connected to this room" : "You’re in " + D.ROOMS.length + " rooms"}</span>
                   </div>
                   <button className="na-close" onClick={closeSheet} aria-label="Close">{Ico("x")}</button>
                 </div>
                 <div className="na-sheet-body">
                   <div className="na-rooms">
-                    {D.ROOMS.map((r) => (
-                      <button key={r.id} className="na-roomrow" data-active={r.id === roomId} onClick={() => switchRoom(r.id)}>
+                    {roomList.map((r) => (
+                      <button key={r.id} className="na-roomrow" data-active={live ? true : r.id === roomId} onClick={() => switchRoom(r.id)}>
                         <span className="rdot" data-live={r.live} />
                         <span className="rm">
                           <strong>{r.name}</strong>
                           <span className="meta">{r.role + " · " + r.people + " people · " + r.agents + " agents" + (r.live ? "" : " · idle")}</span>
                         </span>
                         {r.pending > 0 && <span className="na-pill warn">{r.pending}</span>}
-                        {r.id === roomId ? <span className="rcheck">{Ico("check")}</span> : <span className="chevR">{Ico("chevR")}</span>}
+                        {live || r.id === roomId ? <span className="rcheck">{Ico("check")}</span> : <span className="chevR">{Ico("chevR")}</span>}
                       </button>
                     ))}
                   </div>
@@ -988,7 +1028,7 @@ export function MobileApp({ live }: { live?: MobileLive } = {}): React.ReactElem
               const heads: Record<string, [string, string]> = {
                 people: ["People", room.people + " in " + room.name],
                 agents: ["Agents", room.agents + " agents · " + (openCount ? openCount + " to review" : "all caught up")],
-                cost: ["Spend today", D.ROOM.costToday + " · " + room.name],
+                cost: ["Spend today", (live ? "Metered server-side" : D.ROOM.costToday) + " · " + room.name],
               };
               const h = heads[pulseView];
               return (
@@ -1000,7 +1040,10 @@ export function MobileApp({ live }: { live?: MobileLive } = {}): React.ReactElem
                   <div className="na-sheet-body">
                     {pulseView === "people" && (
                       <div className="na-roster people">
-                        {D.PULSE.people
+                        {rosterPeople.length === 0 ? (
+                          <p className="na-ask-note" style={{ textAlign: "left", padding: "10px 2px" }}>Just you so far — share the room code to bring others in.</p>
+                        ) : null}
+                        {rosterPeople
                           .slice()
                           .sort((a, b) => (pinned.includes(b.name) ? 1 : 0) - (pinned.includes(a.name) ? 1 : 0))
                           .map((p) => (
@@ -1069,15 +1112,42 @@ export function MobileApp({ live }: { live?: MobileLive } = {}): React.ReactElem
                           </div>
                         ) : null}
                         <div className="na-kicker" style={{ marginTop: openCount ? 6 : 0 }}>Agents in this room</div>
-                        <div className="na-roster">
-                          {D.PULSE.agents.map((a) => (
-                            <AgentRow key={a.id || a.name} a={a} ctx={{ openFromTrace, openTrace, toast }} />
-                          ))}
-                        </div>
-                        <p className="na-ask-note" style={{ textAlign: "left", padding: "10px 2px 0" }}>Tap an agent to see what it did — every action carries a trace you can open.</p>
+                        {live ? (
+                          <>
+                            <div className="na-roster">
+                              {liveAgents.length ? (
+                                liveAgents.map((p) => (
+                                  <div key={p.name} className="na-roster-row">
+                                    <button className="na-roster-msg" onClick={() => openSheet("jobs")}>
+                                      <span className="av agent" style={{ background: p.color }}>{p.short}</span>
+                                      <span className="rm"><strong>{p.name}</strong><span>Room agent</span></span>
+                                      <span className="na-roster-cta">{Ico("history")}Jobs</span>
+                                    </button>
+                                  </div>
+                                ))
+                              ) : (
+                                <p className="na-ask-note" style={{ textAlign: "left", padding: "10px 2px 0" }}>No agents have joined this room yet.</p>
+                              )}
+                            </div>
+                            <p className="na-ask-note" style={{ textAlign: "left", padding: "10px 2px 0" }}>Open Jobs for live agent runs and their traces.</p>
+                          </>
+                        ) : (
+                          <>
+                            <div className="na-roster">
+                              {D.PULSE.agents.map((a) => (
+                                <AgentRow key={a.id || a.name} a={a} ctx={{ openFromTrace, openTrace, toast }} />
+                              ))}
+                            </div>
+                            <p className="na-ask-note" style={{ textAlign: "left", padding: "10px 2px 0" }}>Tap an agent to see what it did — every action carries a trace you can open.</p>
+                          </>
+                        )}
                       </>
                     )}
-                    {pulseView === "cost" && (
+                    {pulseView === "cost" && (live ? (
+                      <p className="na-ask-note" style={{ textAlign: "left", padding: "10px 2px" }}>
+                        Per-run cost isn’t surfaced to mobile for this live room yet. Agent actions are metered server-side, and approvals show an estimate before anything runs.
+                      </p>
+                    ) : (
                       <>
                         <div className="na-spend">
                           {[["Research runs", "2 runs", "$0.018"], ["Web searches", "3 searches", "$0.006"], ["Captures + enrich", "4 items", "$0.004"], ["Coach drills", "1 drill", "$0.002"]].map((r) => (
@@ -1090,7 +1160,7 @@ export function MobileApp({ live }: { live?: MobileLive } = {}): React.ReactElem
                         <div className="na-spend-total"><span>Total today</span><span className="mono">{D.ROOM.costToday}</span></div>
                         <p className="na-ask-note" style={{ textAlign: "left", padding: "8px 2px 0" }}>Every agent action is metered. Approvals show an estimate before anything runs.</p>
                       </>
-                    )}
+                    ))}
                   </div>
                 </>
               );
@@ -1098,9 +1168,9 @@ export function MobileApp({ live }: { live?: MobileLive } = {}): React.ReactElem
           </div>
 
           {/* ── leaf sheets ── */}
-          <div className="na-sheet" data-open={sheet === "plan"}><div className="na-handle" />{sheet === "plan" && <PlanSheet ctx={ctx} />}</div>
-          <div className="na-sheet" data-open={sheet === "evidence"} data-flash={flashSheet === "evidence"}><div className="na-handle" />{sheet === "evidence" && <EvidenceSheet ctx={ctx} />}</div>
-          <div className="na-sheet" data-open={sheet === "coach"}><div className="na-handle" />{sheet === "coach" && <CoachSheet ctx={ctx} />}</div>
+          <div className="na-sheet" data-open={sheet === "plan"}><div className="na-handle" />{sheet === "plan" && (live ? <DesktopOnlySheet title="Agent work plan" note="The agent’s read-only work plan for this live room opens on desktop. On mobile you approve, chat, and capture." onClose={closeSheet} /> : <PlanSheet ctx={ctx} />)}</div>
+          <div className="na-sheet" data-open={sheet === "evidence"} data-flash={flashSheet === "evidence"}><div className="na-handle" />{sheet === "evidence" && (live ? <DesktopOnlySheet title="Evidence" note="Source-backed evidence for this live room opens on desktop, where you can read each citation side-by-side." onClose={closeSheet} /> : <EvidenceSheet ctx={ctx} />)}</div>
+          <div className="na-sheet" data-open={sheet === "coach"}><div className="na-handle" />{sheet === "coach" && (live ? <DesktopOnlySheet title="Coach" note="Explain-and-defend coaching for this live room opens on desktop." onClose={closeSheet} /> : <CoachSheet ctx={ctx} />)}</div>
           <div className="na-sheet" data-open={sheet === "row"} data-flash={flashSheet === "row"}><div className="na-handle" />{sheet === "row" && <RowSheet ctx={ctx} />}</div>
           <div className="na-sheet" data-open={sheet === "jobs"}><div className="na-handle" />{sheet === "jobs" && <JobsSheet ctx={ctx} />}</div>
           <div className="na-sheet tall" data-open={sheet === "artifact"}><div className="na-handle" />{sheet === "artifact" && <ArtifactSheet ctx={ctx} />}</div>

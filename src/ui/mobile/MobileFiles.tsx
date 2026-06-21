@@ -10,7 +10,14 @@ import * as D from "./mobileData";
 import type { MobileCtx, SheetId } from "./mobileTypes";
 
 // ── FILES TAB ─────────────────────────────────────────────────────────────
+// Fields flagged needs_review (warn tone) — drives the "N to review" pill
+// honestly off the live (or sample) row. Matches the terra sample (2 warn rows).
+function reviewCount(ctx: MobileCtx): number {
+  return ctx.row.fields.filter((f) => f.tone === "warn").length;
+}
+
 export function Files({ ctx }: { ctx: MobileCtx }) {
+  const toReview = reviewCount(ctx);
   return React.createElement(
     React.Fragment,
     null,
@@ -62,15 +69,15 @@ export function Files({ ctx }: { ctx: MobileCtx }) {
         React.createElement(
           "div",
           { className: "na-card-title" },
-          React.createElement("strong", null, D.ROW.entity),
-          React.createElement("span", null, D.ROW.sub),
+          React.createElement("strong", null, ctx.row.entity),
+          React.createElement("span", null, ctx.row.sub),
         ),
-        React.createElement(Pill, { tone: "warn" }, "2 to review"),
+        React.createElement(Pill, { tone: toReview ? "warn" : "ok" }, toReview ? toReview + " to review" : "source-backed"),
       ),
       React.createElement(
         "div",
         { className: "na-card-body accent na-rowcard" },
-        D.ROW.fields.slice(0, 3).map((f, i) =>
+        ctx.row.fields.slice(0, 3).map((f, i) =>
           React.createElement(
             "div",
             { key: i, className: "field" },
@@ -97,6 +104,7 @@ export function Files({ ctx }: { ctx: MobileCtx }) {
 
 // ── ROW DETAIL SHEET ────────────────────────────────────────────────────
 export function RowSheet({ ctx }: { ctx: MobileCtx }) {
+  const gaps = reviewCount(ctx);
   return React.createElement(
     React.Fragment,
     null,
@@ -106,8 +114,8 @@ export function RowSheet({ ctx }: { ctx: MobileCtx }) {
       React.createElement(
         "div",
         { className: "st" },
-        React.createElement("strong", null, D.ROW.entity),
-        React.createElement("span", null, D.ROW.sub),
+        React.createElement("strong", null, ctx.row.entity),
+        React.createElement("span", null, ctx.row.sub),
       ),
       React.createElement("button", { className: "na-close", onClick: ctx.closeSheet, "aria-label": "Close" }, Ico("x")),
     ),
@@ -120,7 +128,7 @@ export function RowSheet({ ctx }: { ctx: MobileCtx }) {
         React.createElement(
           "div",
           { className: "na-card-body", style: { paddingTop: "var(--na-pad)" } },
-          D.ROW.fields.map((f, i) =>
+          ctx.row.fields.map((f, i) =>
             React.createElement(
               "div",
               { key: i, className: "field" },
@@ -134,7 +142,7 @@ export function RowSheet({ ctx }: { ctx: MobileCtx }) {
       React.createElement(
         "p",
         { className: "na-prose", style: { margin: 0, fontSize: 13 } },
-        "Two fields are ",
+        ctx.isLive ? (gaps === 1 ? "One field is " : gaps + " fields are ") : "Two fields are ",
         React.createElement("b", null, "not source-backed yet"),
         ". The agent can search inside the approved scope, or you can edit a field by hand.",
       ),
