@@ -178,3 +178,34 @@
 .na-rowedit:focus {
   outline: none;
 }
+
+/* ── live inbox: proposal approve/reject footer ────────────────────────────── */
+.na-task-tap {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+.na-task-foot {
+  padding: 0 14px 12px 16px;
+}
+.na-task-foot .na-btn-row {
+  display: flex;
+  gap: 8px;
+}
+.na-task-await {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-tertiary);
+}
+.na-task-await svg {
+  width: 14px;
+  height: 14px;
+}

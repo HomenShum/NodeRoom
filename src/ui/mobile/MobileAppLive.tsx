@@ -7,8 +7,8 @@
    Other panels remain sample data until their live wiring lands.
    ============================================================================ */
 import { useStore } from "../../app/store";
-import type { Actor, Message, Member, CellStatus } from "../../engine/types";
-import type { RoomMsg, Person, AgentMsg, Row, Tone, InboxItem, Job } from "./mobileData";
+import type { Actor, Message, Member, CellStatus, Artifact } from "../../engine/types";
+import type { RoomMsg, Person, AgentMsg, Row, Tone, InboxItem, Job, RecentItem, RecentSig } from "./mobileData";
 import type { MobileLive } from "./mobileTypes";
 import { MobileApp } from "./MobileApp";
 
@@ -86,6 +86,28 @@ function cellTone(s?: CellStatus): Tone {
   return "mute";
 }
 
+// Live room artifacts -> Home recents. Real titles/kinds/edit-times; the sheet
+// signature samples the first cells' tones (elements are already loaded).
+function buildRecents(artifacts: Artifact[]): RecentItem[] {
+  return artifacts.slice(0, 8).map((a): RecentItem => {
+    const icon = a.kind === "sheet" ? "table" : a.kind === "wall" ? "layers" : "note";
+    const count = a.order?.length ?? Object.keys(a.elements).length;
+    const sig: RecentSig =
+      a.kind === "sheet"
+        ? { type: "sheet", cells: Object.values(a.elements).slice(0, 12).map((e) => cellTone(cellPayload(e.value).status)) }
+        : { type: a.kind };
+    return {
+      id: a.id,
+      icon,
+      title: a.title,
+      meta: relTime(a.updatedAt) + " · " + count + (a.kind === "sheet" ? " cells" : " blocks"),
+      kind: a.kind,
+      peek: "Opens on desktop",
+      sig,
+    };
+  });
+}
+
 export function MobileAppLive({ roomId, me, onLeave }: { roomId: string; me: Actor; onLeave?: () => void }) {
   const store = useStore();
   const room = store.getRoom(roomId);
@@ -93,7 +115,8 @@ export function MobileAppLive({ roomId, me, onLeave }: { roomId: string; me: Act
   const messages = store.listMessages(roomId, "public");
   const privateMsgs = store.listMessages(roomId, { private: me.id });
 
-  const researchSheet = store.listArtifacts(roomId).find((a) => a.kind === "sheet" && a.title === "Company research");
+  const artifacts = store.listArtifacts(roomId);
+  const researchSheet = artifacts.find((a) => a.kind === "sheet" && a.title === "Company research");
   const researchArt = researchSheet ? store.getArtifact(researchSheet.id) : undefined;
   const liveRow: Row = {
     entity: "CardioNova",
@@ -143,6 +166,7 @@ export function MobileAppLive({ roomId, me, onLeave }: { roomId: string; me: Act
     liveCount: members.length,
     roomMsgs: reshapeMessages(messages),
     people: buildPeople(members),
+    recents: buildRecents(artifacts),
     postRoomMessage: async (text: string) => {
       return store.postMessage({ roomId, channel: "public", author: me, text, clientMsgId: crypto.randomUUID(), kind: "chat" });
     },

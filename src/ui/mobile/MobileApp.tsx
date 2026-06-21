@@ -821,6 +821,10 @@ export function MobileApp({ live }: { live?: MobileLive } = {}): React.ReactElem
     switchRoom,
     joinRoom,
     leaveRoom,
+    // Home: live artifacts as recents; favorites/briefings have no live source yet.
+    recents: live ? live.recents : D.RECENTS,
+    favorites: live ? [] : D.FAVORITES,
+    briefings: live ? [] : D.BRIEFINGS,
   };
 
   const SCREENS: Record<TabId, React.FC<{ ctx: MobileCtx }>> = {

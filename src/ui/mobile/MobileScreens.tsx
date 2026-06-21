@@ -47,7 +47,7 @@ export function Capture({ ctx }: { ctx: MobileCtx }): React.ReactElement {
       "div",
       { className: "na-doc" },
       React.createElement("div", { className: "na-doc-icon" }, Ico("note")),
-      React.createElement("h2", { className: "na-doc-title" }, D.ROOM.event),
+      React.createElement("h2", { className: "na-doc-title" }, ctx.isLive ? ctx.room.name : D.ROOM.event),
       React.createElement(
         "div",
         { className: "na-props" },
@@ -63,18 +63,20 @@ export function Capture({ ctx }: { ctx: MobileCtx }): React.ReactElement {
             React.createElement("span", { className: "na-prop-live" }, "live"),
           ),
         ),
-        React.createElement(
-          "div",
-          { className: "na-prop" },
-          React.createElement("span", { className: "na-prop-k" }, Ico("calendar"), "Date"),
-          React.createElement("span", { className: "na-prop-v" }, D.ROOM.date),
-        ),
-        React.createElement(
-          "div",
-          { className: "na-prop" },
-          React.createElement("span", { className: "na-prop-k" }, Ico("pin"), "Location"),
-          React.createElement("span", { className: "na-prop-v" }, D.ROOM.place),
-        ),
+        !ctx.isLive &&
+          React.createElement(
+            "div",
+            { className: "na-prop" },
+            React.createElement("span", { className: "na-prop-k" }, Ico("calendar"), "Date"),
+            React.createElement("span", { className: "na-prop-v" }, D.ROOM.date),
+          ),
+        !ctx.isLive &&
+          React.createElement(
+            "div",
+            { className: "na-prop" },
+            React.createElement("span", { className: "na-prop-k" }, Ico("pin"), "Location"),
+            React.createElement("span", { className: "na-prop-v" }, D.ROOM.place),
+          ),
         React.createElement(
           "div",
           { className: "na-prop" },
@@ -261,8 +263,55 @@ export function Inbox({ ctx }: { ctx: MobileCtx }): React.ReactElement {
     );
   };
 
-  const card = (item: D.InboxItem) =>
-    React.createElement(
+  // Live: approve/reject a proposal through the store (host-gated).
+  const approve = (item: D.InboxItem, ok: boolean): void => {
+    void ctx.resolveProposalById(item.id, ok).then((r) => {
+      ctx.toast(r.ok ? (ok ? "Approved · change applied" : "Proposal rejected") : "Failed — " + (r.reason || "try again"));
+    });
+  };
+
+  const card = (item: D.InboxItem) => {
+    const fg = React.createElement(
+      "div",
+      { className: "na-task-fg" },
+      React.createElement("span", { className: "ri", style: riStyle(item.tone) }, Ico(item.icon)),
+      React.createElement(
+        "div",
+        { className: "na-task-main" },
+        React.createElement("strong", null, item.title),
+        React.createElement("span", null, item.sub),
+      ),
+      React.createElement(
+        "div",
+        { className: "na-task-meta" },
+        React.createElement(Pill, { tone: item.statusTone }, item.status),
+        React.createElement("span", { className: "t" }, item.time),
+      ),
+    );
+    // In a live room, items are real proposals — give them a true approve/reject
+    // footer (host-gated) instead of routing to the desktop-only detail sheet.
+    if (ctx.isLive) {
+      return React.createElement(
+        "div",
+        { key: item.id, className: "na-task", "data-tone": item.tone },
+        preview(item.preview),
+        React.createElement("span", { className: "na-task-rail" }),
+        React.createElement("button", { className: "na-task-tap", onClick: () => ctx.openInbox(item) }, fg),
+        React.createElement(
+          "div",
+          { className: "na-task-foot" },
+          ctx.canApprove
+            ? React.createElement(
+                "div",
+                { className: "na-btn-row" },
+                React.createElement("button", { className: "na-btn", onClick: () => approve(item, false) }, Ico("x"), "Reject"),
+                React.createElement("button", { className: "na-btn primary", onClick: () => approve(item, true) }, Ico("check"), "Approve"),
+              )
+            : React.createElement("span", { className: "na-task-await" }, Ico("lock"), "Awaiting host approval"),
+        ),
+      );
+    }
+    return React.createElement(
       "button",
       {
         key: item.id,
@@ -272,24 +321,9 @@ export function Inbox({ ctx }: { ctx: MobileCtx }): React.ReactElement {
       },
       preview(item.preview),
       React.createElement("span", { className: "na-task-rail" }),
-      React.createElement(
-        "div",
-        { className: "na-task-fg" },
-        React.createElement("span", { className: "ri", style: riStyle(item.tone) }, Ico(item.icon)),
-        React.createElement(
-          "div",
-          { className: "na-task-main" },
-          React.createElement("strong", null, item.title),
-          React.createElement("span", null, item.sub),
-        ),
-        React.createElement(
-          "div",
-          { className: "na-task-meta" },
-          React.createElement(Pill, { tone: item.statusTone }, item.status),
-          React.createElement("span", { className: "t" }, item.time),
-        ),
-      ),
+      fg,
     );
+  };
 
   const row = (item: D.InboxItem) =>
     React.createElement(
@@ -827,98 +861,121 @@ export function Home({ ctx }: { ctx: MobileCtx }): React.ReactElement {
     else if (k === "inbox") ctx.setTab("inbox");
     else ctx.toast("Opening — best on desktop");
   };
+  // Live: recents = real room artifacts; favorites/briefings are [] (no live
+  // source). Each section hides when empty; all-empty → an honest empty state.
+  const { recents, favorites, briefings } = ctx;
+  if (recents.length === 0 && favorites.length === 0 && briefings.length === 0)
+    return emptyState("home", "Nothing here yet", "Artifacts, favorites, and briefings from this room appear here.");
   return React.createElement(
     React.Fragment,
     null,
     // recents — each artifact type carries its own signature preview
-    React.createElement("div", { className: "na-kicker" }, "Recents"),
-    React.createElement(
-      "div",
-      { className: "na-recents" },
-      D.RECENTS.map((r: D.RecentItem) =>
-        React.createElement(
-          "button",
-          { key: r.id, className: "na-rcard", "data-kind": r.kind, onClick: () => go(r.kind) },
+    recents.length
+      ? React.createElement(
+          React.Fragment,
+          null,
+          React.createElement("div", { className: "na-kicker" }, "Recents"),
           React.createElement(
-            "span",
-            { className: "rc-head" },
-            React.createElement("span", { className: "rc-ico" }, Ico(r.icon)),
-            React.createElement("span", { className: "rc-kind" }, r.kind),
-          ),
-          React.createElement("strong", { className: "rc-title" }, r.title),
-          recentSignature(r.sig),
-          (function () {
-            const o = openMeta(r.kind);
-            return React.createElement(
-              "span",
-              { className: "rc-foot" },
-              React.createElement("span", { className: "rc-meta" }, r.meta),
+            "div",
+            { className: "na-recents" },
+            recents.map((r: D.RecentItem) =>
               React.createElement(
-                "span",
-                { className: "na-openbtn", "data-kind": r.kind },
-                Ico(o.icon),
-                React.createElement("span", null, o.label),
+                "button",
+                { key: r.id, className: "na-rcard", "data-kind": r.kind, onClick: () => go(r.kind) },
+                React.createElement(
+                  "span",
+                  { className: "rc-head" },
+                  React.createElement("span", { className: "rc-ico" }, Ico(r.icon)),
+                  React.createElement("span", { className: "rc-kind" }, r.kind),
+                ),
+                React.createElement("strong", { className: "rc-title" }, r.title),
+                recentSignature(r.sig),
+                (function () {
+                  const o = openMeta(r.kind);
+                  return React.createElement(
+                    "span",
+                    { className: "rc-foot" },
+                    React.createElement("span", { className: "rc-meta" }, r.meta),
+                    React.createElement(
+                      "span",
+                      { className: "na-openbtn", "data-kind": r.kind },
+                      Ico(o.icon),
+                      React.createElement("span", null, o.label),
+                    ),
+                  );
+                })(),
               ),
-            );
-          })(),
-        ),
-      ),
-    ),
+            ),
+          ),
+        )
+      : null,
 
     // favorites — each row carries its type's color + a live type signal
-    React.createElement("div", { className: "na-kicker" }, "Favorites"),
-    React.createElement(
-      "div",
-      { className: "na-favs" },
-      D.FAVORITES.map((f: D.FavoriteItem) =>
-        React.createElement(
-          "button",
-          { key: f.id, className: "na-favrow", "data-kind": f.kind, onClick: () => go(f.kind) },
-          React.createElement("span", { className: "ri" }, Ico(f.icon)),
+    favorites.length
+      ? React.createElement(
+          React.Fragment,
+          null,
+          React.createElement("div", { className: "na-kicker" }, "Favorites"),
           React.createElement(
-            "span",
-            { className: "rm" },
-            React.createElement("strong", null, f.title),
-            React.createElement("span", null, f.meta),
+            "div",
+            { className: "na-favs" },
+            favorites.map((f: D.FavoriteItem) =>
+              React.createElement(
+                "button",
+                { key: f.id, className: "na-favrow", "data-kind": f.kind, onClick: () => go(f.kind) },
+                React.createElement("span", { className: "ri" }, Ico(f.icon)),
+                React.createElement(
+                  "span",
+                  { className: "rm" },
+                  React.createElement("strong", null, f.title),
+                  React.createElement("span", null, f.meta),
+                ),
+                (function () {
+                  const o = openMeta(f.kind);
+                  return React.createElement(
+                    "span",
+                    { className: "na-openbtn", "data-kind": f.kind },
+                    Ico(o.icon),
+                    React.createElement("span", null, o.label),
+                  );
+                })(),
+              ),
+            ),
           ),
-          (function () {
-            const o = openMeta(f.kind);
-            return React.createElement(
-              "span",
-              { className: "na-openbtn", "data-kind": f.kind },
-              Ico(o.icon),
-              React.createElement("span", null, o.label),
-            );
-          })(),
-        ),
-      ),
-    ),
+        )
+      : null,
 
     // briefings — top coachable explanations, approachably framed
-    React.createElement("div", { className: "na-kicker", style: { marginTop: 4 } }, "Briefings"),
-    React.createElement(
-      "div",
-      { className: "na-favs" },
-      D.BRIEFINGS.map((b: D.BriefingItem) =>
-        React.createElement(
-          "button",
-          { key: b.id, className: "na-favrow", onClick: () => ctx.openSheet("coach") },
-          React.createElement("span", { className: "ri", style: riStyle("priv") }, Ico(b.icon)),
+    briefings.length
+      ? React.createElement(
+          React.Fragment,
+          null,
+          React.createElement("div", { className: "na-kicker", style: { marginTop: 4 } }, "Briefings"),
           React.createElement(
-            "span",
-            { className: "rm" },
-            React.createElement("strong", null, b.title),
-            React.createElement("span", null, b.meta),
+            "div",
+            { className: "na-favs" },
+            briefings.map((b: D.BriefingItem) =>
+              React.createElement(
+                "button",
+                { key: b.id, className: "na-favrow", onClick: () => ctx.openSheet("coach") },
+                React.createElement("span", { className: "ri", style: riStyle("priv") }, Ico(b.icon)),
+                React.createElement(
+                  "span",
+                  { className: "rm" },
+                  React.createElement("strong", null, b.title),
+                  React.createElement("span", null, b.meta),
+                ),
+                React.createElement(
+                  "span",
+                  { className: "na-openbtn", "data-kind": "coach" },
+                  Ico("coach"),
+                  React.createElement("span", null, "Open coach"),
+                ),
+              ),
+            ),
           ),
-          React.createElement(
-            "span",
-            { className: "na-openbtn", "data-kind": "coach" },
-            Ico("coach"),
-            React.createElement("span", null, "Open coach"),
-          ),
-        ),
-      ),
-    ),
+        )
+      : null,
   );
 }
 

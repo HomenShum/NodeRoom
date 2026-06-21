@@ -20,6 +20,9 @@ import type {
   Extraction,
   RoomEntry,
   SourceRef,
+  RecentItem,
+  FavoriteItem,
+  Briefing,
 } from "./mobileData";
 
 // Re-export the UI-state unions so leaf modules can import them from here too.
@@ -149,6 +152,12 @@ export interface MobileCtx {
   switchRoom: (id: string) => void;
   joinRoom: () => void;
   leaveRoom: () => void;
+
+  // ── Home surfaces (live artifacts when bound; favorites/briefings have no
+  // live source yet, so they're [] in a live room). ──
+  recents: RecentItem[];
+  favorites: FavoriteItem[];
+  briefings: Briefing[];
 }
 
 /** Live room data injected into MobileApp by MobileAppLive (see MobileRoot). */
@@ -158,6 +167,8 @@ export interface MobileLive {
   liveCount: number;
   roomMsgs: RoomMsg[];
   people: Record<string, Person>;
+  /** Live room artifacts mapped to Home recents (favorites/briefings stay [] — no live source). */
+  recents: RecentItem[];
   postRoomMessage: (text: string) => Promise<RowEditResult>;
   agentPrivate: AgentMsg[];
   agentRoom: AgentMsg[];
