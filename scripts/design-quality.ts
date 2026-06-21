@@ -45,6 +45,7 @@ const forceFreshBrowser = hasFlag("--fresh-browser") || command === "capture";
 const browserServerMode = optionValue("--server") ?? process.env.DESIGN_QUALITY_SERVER ?? "preview";
 const browserSkipBuild = hasFlag("--skip-build");
 const sourceTreeHash = runtimeSourceTreeHash();
+const runtimeCommitSha = commitSha();
 
 const docsOut = join(ROOT, "docs", "eval", "design-quality");
 const localOut = join(ROOT, ".nodeagent", "design-quality");
@@ -64,7 +65,7 @@ const browserEvidence = browserEvidenceResolution?.evidence;
 
 const run = buildDesignQualityRun({
   runId,
-  commitSha: commitSha(),
+  commitSha: runtimeCommitSha,
   appUrl,
   createdAt: new Date().toISOString(),
   scenario,
@@ -442,7 +443,7 @@ async function collectBrowserEvidence(): Promise<BrowserEvidence> {
   const evidence: BrowserEvidence = {
     schema: 1,
     runId,
-    commitSha: commitSha(),
+    commitSha: runtimeCommitSha,
     sourceTreeHash,
     generatedAt: new Date().toISOString(),
     appUrl: server.baseUrl,
