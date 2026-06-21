@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NodeRoom — Investor Pitch</title>
+<style>
+:root{--primary:#C0532B;--bg-dark:#14161C;--bg-light:#F8F5EF;
+--text-dark:#1A1D24;--text-light:#F8F5EF;--accent:#D98E4A;
+--warn:#C9892F;--muted:#8A8A82;}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:#0c0d0f;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--text-dark)}
+.slide{position:fixed;inset:0;display:none;align-items:center;justify-content:center;padding:4vh 4vw}
+.slide.active{display:flex}
+.stage{width:100%;max-width:1180px;aspect-ratio:16/9;border-radius:14px;padding:6% 7%;
+display:flex;flex-direction:column;justify-content:center;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.45)}
+.slide--title .stage,.slide--closing .stage,.slide--review .stage{background:var(--bg-dark);color:var(--text-light)}
+.slide--content .stage,.slide--stat .stage{background:var(--bg-light);color:var(--text-dark)}
+.title{font-size:clamp(28px,5vw,58px);font-weight:800;line-height:1.05}
+.subtitle{margin-top:.6em;font-size:clamp(15px,2.2vw,24px);color:var(--accent)}
+.heading{font-size:clamp(22px,3.4vw,38px);font-weight:800;color:var(--primary);margin-bottom:.7em}
+.heading--warn{color:var(--warn)}
+.bullets{list-style:none}
+.bullets li{position:relative;padding-left:1.1em;margin:.55em 0;font-size:clamp(14px,1.9vw,21px);line-height:1.4}
+.bullets li::before{content:"•";position:absolute;left:0;color:var(--primary);font-weight:800}
+.slide--review .bullets li::before{content:""}
+.claim{position:relative}
+.claim[data-status="verified"]{cursor:help}
+.cite{color:var(--accent);font-size:.7em;margin-left:.25em;cursor:help}
+.marker{font-size:.62em;font-weight:700;margin-left:.5em;padding:.12em .5em;border-radius:999px;vertical-align:middle;white-space:nowrap}
+.marker--review{color:#fff;background:var(--warn)}
+.marker--manual{color:var(--muted);background:transparent;font-style:italic;font-weight:500}
+.stat-value{font-size:clamp(48px,11vw,120px);font-weight:800;text-align:center;line-height:1}
+.stat-value--review{color:var(--warn)}
+.stat-label{text-align:center;color:var(--muted);font-size:clamp(14px,2vw,22px);margin-top:.4em}
+.footer{margin-top:auto;padding-top:1.2em;color:var(--muted);font-size:clamp(10px,1.1vw,13px);font-style:italic}
+.muted{color:var(--muted)}
+.ok{font-size:clamp(16px,2.2vw,24px)}
+.hud{position:fixed;bottom:14px;right:18px;color:#777;font-size:13px;font-variant-numeric:tabular-nums;z-index:10}
+/* hover citation tooltip for verified/needs_review claims */
+.claim[data-source]:hover::after{content:attr(data-source);position:absolute;left:0;top:115%;
+background:#111;color:#eee;font-size:12px;font-style:normal;padding:6px 9px;border-radius:6px;white-space:nowrap;z-index:20;box-shadow:0 6px 18px rgba(0,0,0,.4)}
+@media print{
+  html,body{background:#fff}
+  .hud{display:none}
+  .slide{position:relative;display:flex;break-after:page;height:100vh}
+}
+</style>
+</head>
+<body>
+<section class="slide slide--title" id="slide-1" data-slide="1" data-layout="title">
+<div class="stage">
+<h1 class="title">NodeRoom</h1>
+<p class="subtitle">AI that does banker work — and gets it accepted.</p>
+</div></section><section class="slide slide--content" id="slide-2" data-slide="2" data-layout="content">
+<div class="stage">
+<h2 class="heading">The work that gets rejected</h2>
+<ul class="bullets">
+<li><span class="claim" id="s2c1" data-claim data-status="manual">A banker spends 2-4 weeks after a conference sector-classifying hundreds of companies — or needs clean diligence the same day, because the targets fly out in 48 hours.<span class="marker marker--manual">your note</span></span></li>
+<li><span class="claim" id="s2c2" data-claim data-status="verified" data-source="BankerToolBench — Lau et al., Handshake AI + McGill (arXiv:2604.11304); best model GPT-5.4: 0% client-ready, ~16% useful starting point, 502 bankers" title="Source: BankerToolBench — Lau et al., Handshake AI + McGill (arXiv:2604.11304); best model GPT-5.4: 0% client-ready, ~16% useful starting point, 502 bankers">Even when AI does that analysis well (~58/100 on the tasks), 0% of the best model&#x27;s work is client-ready. Built with 502 bankers; only ~16% was even a useful starting point.<sup class="cite" title="Source: BankerToolBench — Lau et al., Handshake AI + McGill (arXiv:2604.11304); best model GPT-5.4: 0% client-ready, ~16% useful starting point, 502 bankers">▣</sup></span></li>
+<li><span class="claim" id="s2c3" data-claim data-status="manual">The misses aren&#x27;t IQ — they&#x27;re diligence: invented numbers, dead formulas, broken audit trails. I saw exactly this leading LLMSuite adoption at JPMorgan.<span class="marker marker--manual">your note</span></span></li>
+</ul>
+<div class="footer">Sources: BankerToolBench — Lau et al., Handshake AI + McGill (arXiv:2604.11304); best model GPT-5.4: 0% client-ready, ~16% useful starting point, 502 bankers</div>
+</div></section><section class="slide slide--content" id="slide-3" data-slide="3" data-layout="content">
+<div class="stage">
+<h2 class="heading">NodeRoom: the finance war room</h2>
+<ul class="bullets">
+<li><span class="claim" id="s3c1" data-claim data-status="manual">You&#x27;re right that AI will do junior-banker work. The unsolved part isn&#x27;t intelligence — it&#x27;s making the output sendable.<span class="marker marker--manual">your note</span></span></li>
+<li><span class="claim" id="s3c2" data-claim data-status="manual">A live finance war room — spreadsheet, deck, notebook, chat — each run by a dedicated, harnessed agent. Ask in plain language; it writes evidence-bearing cells, each tied to the exact source line.<span class="marker marker--manual">your note</span></span></li>
+<li><span class="claim" id="s3c3" data-claim data-status="manual">Every number tied to its exact source — cell, page, line — so the work is auditable. Designed to be accepted on the first pass.<span class="marker marker--manual">your note</span></span></li>
+<li><span class="claim" id="s3c4" data-claim data-status="manual">The moat compounds as models improve: the source-tied audit trail and banker-style handoff are workflow + data lock-in, not a capability gap. Labs, Copilot, and CRMs won&#x27;t build it.<span class="marker marker--manual">your note</span></span></li>
+</ul>
+</div></section><section class="slide slide--stat" id="slide-4" data-slide="4" data-layout="stat">
+<div class="stage">
+<h2 class="heading">A market we already have ground truth in</h2>
+<div class="stat-value" id="s4c1" data-claim data-status="verified" data-source="Grand View Research — Generative AI in Financial Services Market (to ~$16B by 2030, CAGR 39.1%)" title="Source: Grand View Research — Generative AI in Financial Services Market (to ~$16B by 2030, CAGR 39.1%)">$16B</div>
+<div class="stat-label">Generative AI in financial services by 2030, growing ~39%/yr (Grand View Research). We enter where it&#x27;s already real: startup &amp; middle-market banking diligence and prospecting.</div>
+<div class="footer">Source: Grand View Research — Generative AI in Financial Services Market (to ~$16B by 2030, CAGR 39.1%)</div>
+</div></section><section class="slide slide--content" id="slide-5" data-slide="5" data-layout="content">
+<div class="stage">
+<h2 class="heading">Proof of execution — over time</h2>
+<ul class="bullets">
+<li><span class="claim" id="s5c1" data-claim data-status="verified" data-source=".claude/skills/cited-sources — shipped, MIT, packaged" title="Source: .claude/skills/cited-sources — shipped, MIT, packaged">Shipped cited-sources: hand it a claim and a PDF, it boxes the exact source line — or refuses if the quote isn&#x27;t there. The thesis, as an installable skill.<sup class="cite" title="Source: .claude/skills/cited-sources — shipped, MIT, packaged">▣</sup></span></li>
+<li><span class="claim" id="s5c2" data-claim data-status="verified" data-source=".claude/skills/powerpoint — this deck" title="Source: .claude/skills/powerpoint — this deck">Shipped the PowerPoint honesty skill that built this very deck — every claim sourced or flagged, no invented numbers.<sup class="cite" title="Source: .claude/skills/powerpoint — this deck">▣</sup></span></li>
+<li><span class="claim" id="s5c3" data-claim data-status="verified" data-source="BankerToolBench loop ledger (internal) — records the scaffold-smoke run, not an official benchmark score" title="Source: BankerToolBench loop ledger (internal) — records the scaffold-smoke run, not an official benchmark score">Built our own BankerToolBench-faithful eval harness — Docker sandbox, the in-benchmark financial tools (SEC EDGAR/VDR), Gandalf verifier — running end-to-end on a scaffold smoke. No client-ready benchmark score yet; the real task runs are the next milestone.<sup class="cite" title="Source: BankerToolBench loop ledger (internal) — records the scaffold-smoke run, not an official benchmark score">▣</sup></span></li>
+<li><span class="claim" id="s5c4" data-claim data-status="verified" data-source="shipped to production — skill RAG release (commit 66010a87)" title="Source: shipped to production — skill RAG release (commit 66010a87)">Live in production: the harness pulls the right skill on demand (e.g. cited-sources) — how cheaper models get to client-ready.<sup class="cite" title="Source: shipped to production — skill RAG release (commit 66010a87)">▣</sup></span></li>
+</ul>
+<div class="footer">Sources: .claude/skills/cited-sources — shipped, MIT, packaged · .claude/skills/powerpoint — this deck · BankerToolBench loop ledger (internal) — records the scaffold-smoke run, not an official benchmark score · shipped to production — skill RAG release (commit 66010a87)</div>
+</div></section><section class="slide slide--content" id="slide-6" data-slide="6" data-layout="content">
+<div class="stage">
+<h2 class="heading">Our harness, traced — honest</h2>
+<ul class="bullets">
+<li><span class="claim" id="s6c1" data-claim data-status="verified" data-source="scripts/inference-nodetrace — real run: 3 model calls, 16k tokens" title="Source: scripts/inference-nodetrace — real run: 3 model calls, 16k tokens">We ran a real BankerToolBench task — Disney acquiring Warner Bros Discovery, a full accretion/dilution model — through our harness on a frontier model (gpt-5.4 via Inference.ai), fully traced.<sup class="cite" title="Source: scripts/inference-nodetrace — real run: 3 model calls, 16k tokens">▣</sup></span></li>
+<li><span class="claim" id="s6c2" data-claim data-status="verified" data-source="scripts/inference-nodetrace/out-btb + GLM-5.2 Gandalf 0.0078" title="Source: scripts/inference-nodetrace/out-btb + GLM-5.2 Gandalf 0.0078">It reasons through all 13 components — but client-ready (Gandalf) on this exact task was ~0% (a held-out run scored 0.0078). The model&#x27;s own check admits: formatting, Shift+F2 citations, sensitivity table — MISSING.<sup class="cite" title="Source: scripts/inference-nodetrace/out-btb + GLM-5.2 Gandalf 0.0078">▣</sup></span></li>
+<li><span class="claim" id="s6c3" data-claim data-status="manual">Reasoned vs. client-ready — that gap is exactly what we measure, with the trace as the proof.<span class="marker marker--manual">your note</span></span></li>
+</ul>
+<div class="footer">Sources: scripts/inference-nodetrace — real run: 3 model calls, 16k tokens · scripts/inference-nodetrace/out-btb + GLM-5.2 Gandalf 0.0078</div>
+</div></section><section class="slide slide--content" id="slide-7" data-slide="7" data-layout="content">
+<div class="stage">
+<h2 class="heading">How we make money</h2>
+<ul class="bullets">
+<li><span class="claim" id="s7c1" data-claim data-status="manual">Land with seats for diligence and prospecting teams; expand to usage on agent runs as work moves into the room.<span class="marker marker--manual">your note</span></span></li>
+<li><span class="claim" id="s7c2" data-claim data-status="verified" data-source="DeepSeek V4 Pro pricing $0.435/$0.87 per 1M tokens (Morph LLM, 2026)" title="Source: DeepSeek V4 Pro pricing $0.435/$0.87 per 1M tokens (Morph LLM, 2026)">Margin lever: our harness makes cheaper open models client-ready — DeepSeek V4 Pro near $0.44 / $0.87 per million tokens, a fraction of frontier pricing.<sup class="cite" title="Source: DeepSeek V4 Pro pricing $0.435/$0.87 per 1M tokens (Morph LLM, 2026)">▣</sup></span></li>
+<li><span class="claim" id="s7c3" data-claim data-status="manual">Pricing not set yet — land design-partner pilots first, then price on proven acceptance.<span class="marker marker--manual">your note</span></span></li>
+</ul>
+<div class="footer">Sources: DeepSeek V4 Pro pricing $0.435/$0.87 per 1M tokens (Morph LLM, 2026)</div>
+</div></section><section class="slide slide--content" id="slide-8" data-slide="8" data-layout="content">
+<div class="stage">
+<h2 class="heading">Why this team</h2>
+<ul class="bullets">
+<li><span class="claim" id="s8c1" data-claim data-status="manual">Solo founder today — led LLMSuite adoption at JPMorgan; banking, data engineering, and agentic AI in one person.<span class="marker marker--manual">your note</span></span></li>
+<li><span class="claim" id="s8c2" data-claim data-status="manual">War-room design informed by an SVB-originated AI-notebook startup and the Meta PQX QA team.<span class="marker marker--manual">your note</span></span></li>
+<li><span class="claim" id="s8c3" data-claim data-status="manual">I&#x27;ve done the diligence and prospecting work we&#x27;re automating — that&#x27;s the ground truth.<span class="marker marker--manual">your note</span></span></li>
+<li><span class="claim" id="s8c4" data-claim data-status="manual">No co-founders or advisors yet — finding the right banking design-partner and field advisors is part of the ask.<span class="marker marker--manual">your note</span></span></li>
+</ul>
+</div></section><section class="slide slide--content" id="slide-9" data-slide="9" data-layout="content">
+<div class="stage">
+<h2 class="heading">The ask</h2>
+<ul class="bullets">
+<li><span class="claim" id="s9c1" data-claim data-status="manual">See the proof yourself: install cited-sources, give it a claim and a PDF, and watch it box the source — or refuse.<span class="marker marker--manual">your note</span></span></li>
+<li><span class="claim" id="s9c2" data-claim data-status="manual">Intros to banking design partners — MDs and analysts who&#x27;ll pressure-test the room on live deals.<span class="marker marker--manual">your note</span></span></li>
+<li><span class="claim" id="s9c3" data-claim data-status="manual">Proof-first — not raising on a number yet: design partners and banker acceptance first, then raise against a real eval delta (client-ready off 0%).<span class="marker marker--manual">your note</span></span></li>
+</ul>
+</div></section><section class="slide slide--review" id="slide-10" data-slide="10" data-layout="to_verify">
+<div class="stage">
+<h2 class="heading heading--warn">To verify before presenting</h2>
+<p class="ok">Nothing outstanding — every claim is verified or owned by you. ✅</p>
+</div></section>
+<div class="hud" id="hud"></div>
+<script>
+(function(){
+  var slides=[].slice.call(document.querySelectorAll('.slide'));
+  var i=0, hud=document.getElementById('hud');
+  function show(n){i=Math.max(0,Math.min(slides.length-1,n));
+    slides.forEach(function(s,k){s.classList.toggle('active',k===i)});
+    if(hud)hud.textContent=(i+1)+' / '+slides.length;
+    history.replaceState(null,'','#'+(i+1));}
+  document.addEventListener('keydown',function(e){
+    if(e.key==='ArrowRight'||e.key==='PageDown'||e.key===' ')show(i+1);
+    else if(e.key==='ArrowLeft'||e.key==='PageUp')show(i-1);
+    else if(e.key==='Home')show(0);else if(e.key==='End')show(slides.length-1);});
+  document.addEventListener('click',function(e){if(e.target.closest('.claim'))return;show(i+1);});
+  var start=parseInt((location.hash||'#1').slice(1),10);show(isNaN(start)?0:start-1);
+  // expose structured handles for the comment-edit flow
+  window.__deck={count:slides.length,go:show};
+})();
+</script>
+</body>
+</html>

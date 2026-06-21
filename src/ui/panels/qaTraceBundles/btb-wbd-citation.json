@@ -1,0 +1,35 @@
+{
+  "id": "btb-wbd-citation",
+  "kind": "agent",
+  "title": "Agent · WBD take-private — cited & boxed",
+  "subtitle": "NodeAgent extracted Total revenues from WBD's 10-K and boxed the exact source line",
+  "ts": "Jun 20 · BTB take-private (DIS/WBD)",
+  "source": { "tool": "NodeAgent · cited-sources", "version": "cite.py", "env": "WBD Form 10-K · SEC EDGAR CIK 0001437107", "model": "GLM-5.2" },
+  "verdict": { "label": "verified", "tone": "ok" },
+  "attribution": { "ai": 1, "mixed": 0, "human": 1 },
+  "steps": [
+    {
+      "idx": 1,
+      "label": "WBD FY2025 10-K · Total revenues = $41,321M",
+      "status": "ok",
+      "attachments": [
+        {
+          "kind": "screenshot",
+          "url": "/qa-trace/btb-source.png",
+          "label": "cited source line",
+          "box": { "x": 0.045, "y": 0.392, "w": 0.875, "h": 0.052 }
+        }
+      ],
+      "metrics": [
+        { "label": "source", "value": "WBD Form 10-K, p.42" },
+        { "label": "locator", "value": "Selected Financial Data · Total revenues" },
+        { "label": "match", "value": "verbatim" }
+      ]
+    }
+  ],
+  "raw": {
+    "task": "btb-take-private-DIS-WBD",
+    "source": "WBD-10K-2025.pdf (SEC EDGAR CIK 0001437107)",
+    "extracted": { "total_revenues_musd": 41321, "page": 42 }
+  }
+}

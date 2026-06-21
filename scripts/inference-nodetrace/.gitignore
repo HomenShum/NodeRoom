@@ -1,0 +1,7 @@
+# Regenerable render output — GIFs/MP4/HTML/webm intermediates produced by the capture
+# + render scripts. The canonical deliverables (deck + slides) live in docs/pitch/.
+out/
+out-btb/
+
+# transient diagnostic captures (regenerate via cap-box-diag.mjs)
+app-shots/diag-*.png

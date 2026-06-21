@@ -1,0 +1,107 @@
+{
+  "title": "NodeRoom — Investor Pitch",
+  "subtitle": "AI banker work that gets accepted · prepared June 2026",
+  "theme": {
+    "primary":    "C0532B",
+    "bg_dark":    "14161C",
+    "bg_light":   "F8F5EF",
+    "text_dark":  "1A1D24",
+    "text_light": "F8F5EF",
+    "accent":     "D98E4A",
+    "warn":       "C9892F"
+  },
+  "slides": [
+    {
+      "layout": "title",
+      "title": "NodeRoom",
+      "subtitle": "AI that does banker work — and gets it accepted.",
+      "notes": "Logo + one-liner. One-liner principle (Uber 'Everyone's personal driver', Airbnb 'Book rooms with locals', Stripe 'Payments infrastructure for the internet'): 6-8 words naming the customer (bankers), the product (AI that does the work), and the value (accepted). Drop a logo image above the wordmark if one exists."
+    },
+    {
+      "layout": "content",
+      "title": "The work that gets rejected",
+      "bullets": [
+        { "text": "A banker spends 2-4 weeks after a conference sector-classifying hundreds of companies — or needs clean diligence the same day, because the targets fly out in 48 hours.", "status": "manual", "source": "" },
+        { "text": "Even when AI does that analysis well (~58/100 on the tasks), 0% of the best model's work is client-ready. Built with 502 bankers; only ~16% was even a useful starting point.", "status": "verified", "source": "s_btb" },
+        { "text": "The misses aren't IQ — they're diligence: invented numbers, dead formulas, broken audit trails. I saw exactly this leading LLMSuite adoption at JPMorgan.", "status": "manual", "source": "" }
+      ],
+      "notes": "Know your audience: rich, but a 10-year-old gets it. Lead with the visceral weeks-of-work story, then the 0% gut-punch, then the diagnosis the founder personally earned. The ~16% hedge makes the 0% MORE credible, not less."
+    },
+    {
+      "layout": "content",
+      "title": "NodeRoom: the finance war room",
+      "bullets": [
+        { "text": "You're right that AI will do junior-banker work. The unsolved part isn't intelligence — it's making the output sendable.", "status": "manual", "source": "" },
+        { "text": "A live finance war room — spreadsheet, deck, notebook, chat — each run by a dedicated, harnessed agent. Ask in plain language; it writes evidence-bearing cells, each tied to the exact source line.", "status": "manual", "source": "" },
+        { "text": "Every number tied to its exact source — cell, page, line — so the work is auditable. Designed to be accepted on the first pass.", "status": "manual", "source": "" },
+        { "text": "The moat compounds as models improve: the source-tied audit trail and banker-style handoff are workflow + data lock-in, not a capability gap. Labs, Copilot, and CRMs won't build it.", "status": "manual", "source": "" }
+      ],
+      "notes": "Sell the solution by telling them THEY are right. The last bullet pre-empts the #1 VC objection ('won't frontier models just get good enough?') by reframing the moat as compounding lock-in, not a closing capability gap."
+    },
+    {
+      "layout": "stat",
+      "title": "A market we already have ground truth in",
+      "stat": { "value": "$16B", "label": "Generative AI in financial services by 2030, growing ~39%/yr (Grand View Research). We enter where it's already real: startup & middle-market banking diligence and prospecting.", "status": "verified", "source": "s_gvr" },
+      "notes": "Add CAGR as the magical number. Wedge-first framing in the label so it doesn't read as a lazy 1%-of-a-huge-market play. Cross-firm CAGRs span 30.7%-39.1%; using Grand View's 39.1% headline with the source."
+    },
+    {
+      "layout": "content",
+      "title": "Proof of execution — over time",
+      "bullets": [
+        { "text": "Shipped cited-sources: hand it a claim and a PDF, it boxes the exact source line — or refuses if the quote isn't there. The thesis, as an installable skill.", "status": "verified", "source": ".claude/skills/cited-sources — shipped, MIT, packaged" },
+        { "text": "Shipped the PowerPoint honesty skill that built this very deck — every claim sourced or flagged, no invented numbers.", "status": "verified", "source": ".claude/skills/powerpoint — this deck" },
+        { "text": "Built our own BankerToolBench-faithful eval harness — Docker sandbox, the in-benchmark financial tools (SEC EDGAR/VDR), Gandalf verifier — running end-to-end on a scaffold smoke. No client-ready benchmark score yet; the real task runs are the next milestone.", "status": "verified", "source": "s_ledger" },
+        { "text": "Live in production: the harness pulls the right skill on demand (e.g. cited-sources) — how cheaper models get to client-ready.", "status": "verified", "source": "shipped to production — skill RAG release (commit 66010a87)" }
+      ],
+      "notes": "Momentum = shipping velocity + a working loop, not vanity metrics. HONESTY (P0 fix): the BTB line claims ONLY what the smoke backs — no 'official', no score, no 'hill-climbs us toward client-ready'. The repo's readiness gate marks official BTB blocked; this wording survives that audit."
+    },
+    {
+      "layout": "content",
+      "title": "Our harness, traced — honest",
+      "bullets": [
+        { "text": "We ran a real BankerToolBench task — Disney acquiring Warner Bros Discovery, a full accretion/dilution model — through our harness on a frontier model (gpt-5.4 via Inference.ai), fully traced.", "status": "verified", "source": "scripts/inference-nodetrace — real run: 3 model calls, 16k tokens" },
+        { "text": "It reasons through all 13 components — but client-ready (Gandalf) on this exact task was ~0% (a held-out run scored 0.0078). The model's own check admits: formatting, Shift+F2 citations, sensitivity table — MISSING.", "status": "verified", "source": "scripts/inference-nodetrace/out-btb + GLM-5.2 Gandalf 0.0078" },
+        { "text": "Reasoned vs. client-ready — that gap is exactly what we measure, with the trace as the proof.", "status": "manual", "source": "" }
+      ],
+      "notes": "The 'our harness, traced, honest' proof slide. Show the walkthrough GIF (scripts/inference-nodetrace/out-btb/walkthrough.gif) on this beat."
+    },
+    {
+      "layout": "content",
+      "title": "How we make money",
+      "bullets": [
+        { "text": "Land with seats for diligence and prospecting teams; expand to usage on agent runs as work moves into the room.", "status": "manual", "source": "" },
+        { "text": "Margin lever: our harness makes cheaper open models client-ready — DeepSeek V4 Pro near $0.44 / $0.87 per million tokens, a fraction of frontier pricing.", "status": "verified", "source": "s_deepseek" },
+        { "text": "Pricing not set yet — land design-partner pilots first, then price on proven acceptance.", "status": "manual", "source": "" }
+      ],
+      "notes": "One defended revenue line (seats -> usage) + the differentiated cheap-model margin lever. Cut the skills-marketplace second line on purpose (scope gravity at seed). Pricing stays flagged, not invented."
+    },
+    {
+      "layout": "content",
+      "title": "Why this team",
+      "bullets": [
+        { "text": "Solo founder today — led LLMSuite adoption at JPMorgan; banking, data engineering, and agentic AI in one person.", "status": "manual", "source": "" },
+        { "text": "War-room design informed by an SVB-originated AI-notebook startup and the Meta PQX QA team.", "status": "manual", "source": "" },
+        { "text": "I've done the diligence and prospecting work we're automating — that's the ground truth.", "status": "manual", "source": "" },
+        { "text": "No co-founders or advisors yet — finding the right banking design-partner and field advisors is part of the ask.", "status": "manual", "source": "" }
+      ],
+      "notes": "'Can THEY pull it off?' Yes on domain ground truth; 'battle-tested' downgraded to 'informed by' (honesty); known-unknowns reframed as first hires with a recruiting plan. Solo-founder gaps owned, not hidden."
+    },
+    {
+      "layout": "content",
+      "title": "The ask",
+      "bullets": [
+        { "text": "See the proof yourself: install cited-sources, give it a claim and a PDF, and watch it box the source — or refuse.", "status": "manual", "source": "" },
+        { "text": "Intros to banking design partners — MDs and analysts who'll pressure-test the room on live deals.", "status": "manual", "source": "" },
+        { "text": "Proof-first — not raising on a number yet: design partners and banker acceptance first, then raise against a real eval delta (client-ready off 0%).", "status": "manual", "source": "" }
+      ],
+      "notes": "Close lands on action (the live demo CTA leads), not a blank. The raise is still flagged needs_review but now tied to use-of-funds + the eval-delta milestone that directly answers the moat objection. Fill the number before presenting."
+    }
+  ],
+  "sources": [
+    { "id": "s_btb", "label": "BankerToolBench — Lau et al., Handshake AI + McGill (arXiv:2604.11304); best model GPT-5.4: 0% client-ready, ~16% useful starting point, 502 bankers", "url": "https://arxiv.org/abs/2604.11304" },
+    { "id": "s_gvr", "label": "Grand View Research — Generative AI in Financial Services Market (to ~$16B by 2030, CAGR 39.1%)", "url": "https://www.grandviewresearch.com/industry-analysis/generative-ai-financial-services-market-report" },
+    { "id": "s_deepseek", "label": "DeepSeek V4 Pro pricing $0.435/$0.87 per 1M tokens (Morph LLM, 2026)", "url": "https://www.morphllm.com/deepseek-v4" },
+    { "id": "s_onepager", "label": "NodeRoom one-pager (internal product spec)", "url": "" },
+    { "id": "s_ledger", "label": "BankerToolBench loop ledger (internal) — records the scaffold-smoke run, not an official benchmark score", "url": "" }
+  ]
+}

@@ -304,6 +304,33 @@ Three views of the system — editable sources + SVG/PNG in [`docs/diagrams/`](d
 
 ---
 
+## The pitch — in slides
+
+A self-contained, **honesty-gated** investor deck (frontend-slides "Signal" editorial style). Every claim carries a provenance tag — `verified` / `manual` / `needs_review` — and nothing is invented. The proof slide shows the cited-source **red box rendered live inside NodeRoom's Trace Lens**, on a real BankerToolBench take-private task (DIS / WBD) — captured from the running app, not a mockup.
+
+**▶ [Open the interactive deck](docs/pitch/noderoom-deck/fs/index.html)** — self-contained HTML (clone & open in a browser, arrow keys to navigate). Built from [`deck_plan.json`](docs/pitch/noderoom-deck/deck_plan.json) through the honesty gate.
+
+The proof slide — cited & boxed, live in the Trace Lens:
+
+![Cited and boxed, live in NodeRoom's Trace Lens — the agent boxes the exact 10-K source line it cited](docs/pitch/noderoom-deck/fs/shots/slide-06.png)
+
+<details>
+<summary><b>All 11 slides</b></summary>
+
+![Slide 1 — NodeRoom](docs/pitch/noderoom-deck/fs/shots/slide-01.png)
+![Slide 2 — The work that gets rejected](docs/pitch/noderoom-deck/fs/shots/slide-02.png)
+![Slide 3 — The finance war room](docs/pitch/noderoom-deck/fs/shots/slide-03.png)
+![Slide 4 — A market we already have ground truth in](docs/pitch/noderoom-deck/fs/shots/slide-04.png)
+![Slide 5 — Proof of execution over time](docs/pitch/noderoom-deck/fs/shots/slide-05.png)
+![Slide 6 — Cited and boxed, live in the room](docs/pitch/noderoom-deck/fs/shots/slide-06.png)
+![Slide 7 — Our harness, traced honestly](docs/pitch/noderoom-deck/fs/shots/slide-07.png)
+![Slide 8 — How we make money](docs/pitch/noderoom-deck/fs/shots/slide-08.png)
+![Slide 9 — Why this team](docs/pitch/noderoom-deck/fs/shots/slide-09.png)
+![Slide 10 — The ask](docs/pitch/noderoom-deck/fs/shots/slide-10.png)
+![Slide 11 — Close](docs/pitch/noderoom-deck/fs/shots/slide-11.png)
+
+</details>
+
 ## Watch it work — live walkthroughs
 
 **Try it yourself → [noderoom.live](https://noderoom.live)** — join with a room code or start a
@@ -1335,7 +1362,7 @@ Professional proof state:
 
 This section is generated from `docs/qa/production-matrix.json`. When the system grows, append or update a matrix row, then run `npm run qa:matrix`; CI can run `npm run qa:matrix:check` to catch stale docs.
 
-<sub>25 feature guarantees tracked | 6 green | 18 yellow | 1 red | 1 live model route(s) cleared L1-L4 in the latest recorded ladder.</sub>
+<sub>26 feature guarantees tracked | 6 green | 19 yellow | 1 red | 1 live model route(s) cleared L1-L4 in the latest recorded ladder.</sub>
 
 ![QA coverage graph](docs/eval/qa-coverage.svg)
 
@@ -1355,7 +1382,8 @@ This section is generated from `docs/qa/production-matrix.json`. When the system
 | Provider parser | Green | Adapter separation tests, live provider smoke, redacted errors, and artifact evidence checks. |
 | QA system | Green | Matrix schema tests plus qa:matrix --check as a docs-sync drift gate, not a quality gate. |
 | Browser E2E dogfood | Yellow | Playwright or equivalent real-browser specs for two-context cell edits, optimistic chat failure/retry, public/private leak checks, wall CRUD, job controls, and proposal conflict feedback. |
-| Professional workroom shell | Yellow | Browser layout E2E proves wide desktop binder, center work surface, right Copilot, compact overlays, no overflow, no lost spreadsheet affordances, plus live/Convex and Gemini UI judge walkthrough evidence. |
+| Professional workroom shell | Yellow | Browser layout E2E proves wide desktop binder, center work surface, right Copilot, compact overlays, no overflow, no lost spreadsheet affordances, plus live/Convex proof and UI scorecard evidence. |
+| Design Quality substrate | Yellow | Scorecard generation must preserve pass/fail functional gates, label Gemini/VLM output as media evidence, write versioned JSON/Markdown/MDX outputs, and keep professional reference comparisons auditable. |
 | Signal tape + status strip | Yellow | DOM/browser tests prove two distinct bottom rows, pause/reduced-motion/filter behavior, click-to-open related artifact, no unauthorized private data in the tape, and precise non-scrolling status events. |
 | Intake preflight scheduler | Yellow | Unit/runtime evals prove affected-set expansion, partial scheduling, intent claims, short commit leases, dedupe, cost authorization, privacy/formula checks, and that the LLM recommends while the harness schedules before live provider spend. |
 | Workbook runtime adapter | Yellow | A POC loads the Q3 sheet into a candidate runtime, captures local mutations into Convex CAS ops, replays remote patches, preserves focus/selection, renders evidence/human/agent overlays, and runs headless formula/gold validation. |
@@ -1366,7 +1394,6 @@ This section is generated from `docs/qa/production-matrix.json`. When the system
 | Unified NodeAgent jobs | Yellow | Interactive /ask and /free both create or reuse agentJobs, artifact writes emit receipts, job details are browser-visible, notebook graph mutations enqueue embeddings, and live browser/backend smoke proves linked runs/steps. |
 | OKF retrieval + evidence memos | Green | OKF parser/retrieval tests prove candidate slates, literal source resolution, evidence sufficiency, and memo actions; persistent Convex OKF tables/outbox, provider-capable embeddings, vector indexes, live RoomTools port wiring, retrieval events, and Trace Lens UI are covered by runtime/source gates. |
 | Agent improvement loop | Yellow | Deterministic loop passes, live provider/Convex/UI media lanes run when keys are present, and failures generate a handoff before chart promotion. |
-| Demo/media evidence quality | Yellow | Gemini 3.5 Flash batch-judges every GIF/MP4 after capture/render refresh; P0 defects block publishing and P1 defects stay visible until fixed. |
 
 | Live route | Provider | L1 | L2 | L3 | L4 | Promotion call |
 |---|---|---:|---:|---:|---:|---|
