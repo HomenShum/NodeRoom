@@ -389,13 +389,19 @@ const DEMO_PASSIVE_SEED: PassiveActivityItem[] = [
   },
 ];
 
-function memoryFreeJobDetail(goal: string, status: "running" | "completed" | "cancelled"): AgentJobDetailTelemetry {
-  const terminalStatus = status === "completed" ? "done" : status === "cancelled" ? "cancelled" : "running";
+const MEMORY_FREE_JOB_DELAY_MS = 2_000;
+type MemoryFreeJobTask = { goal: string; references?: ArtifactRef[]; cancelledAttempts: Set<number> };
+type MemoryFreeJobDetailOptions = { affectedIds?: string[]; appliedIds?: string[] };
+
+function memoryFreeJobDetail(goal: string, status: "running" | "completed" | "cancelled", options: MemoryFreeJobDetailOptions = {}): AgentJobDetailTelemetry {
+  const affectedIds = options.affectedIds ?? ["r_gp__variance", "r_ni__variance"];
+  const appliedIds = options.appliedIds ?? [];
+  const patchStatus = status === "cancelled" ? "cancelled" : status === "completed" ? (appliedIds.length ? "done" : "skipped") : "running";
   return {
     operations: [
-      { sequence: 1, kind: "job", name: "derive_room_intent", status: "done", targetKind: "sheet", targetId: "Q3 variance", affectedIds: ["r_gp__variance", "r_ni__variance"] },
+      { sequence: 1, kind: "job", name: "derive_room_intent", status: "done", targetKind: "sheet", targetId: "Q3 variance", affectedIds },
       { sequence: 2, kind: "policy", name: "derive_free_auto_route", status: "done", countDelta: 1 },
-      { sequence: 3, kind: "mutation", name: "patch_bundle_cas", status: terminalStatus, countDelta: 2, targetKind: "cell", affectedIds: ["r_gp__variance", "r_ni__variance"] },
+      { sequence: 3, kind: "mutation", name: "patch_bundle_cas", status: patchStatus, countDelta: appliedIds.length, targetKind: "cell", affectedIds: appliedIds.length ? appliedIds : affectedIds },
     ],
     reasoningFrames: [
       {
@@ -417,14 +423,14 @@ function memoryFreeJobDetail(goal: string, status: "running" | "completed" | "ca
         toolAllowlist: ["patch_bundle_cas"],
       },
     ],
-    receipts: status === "completed"
-      ? [{ id: "memory-free-receipt", mutationName: "patch_bundle_cas", affectedIds: ["r_gp__variance", "r_ni__variance"], createdAt: Date.now() }]
+    receipts: appliedIds.length
+      ? [{ id: "memory-free-receipt", mutationName: "patch_bundle_cas", affectedIds: appliedIds, createdAt: Date.now() }]
       : [],
     leases: [],
     draftOperations: [],
     latestSteps: [
       { idx: 1, tool: "derive_affected_set", status: "completed" },
-      { idx: 2, tool: "patch_bundle_cas", status: terminalStatus, elementId: "r_gp__variance" },
+      { idx: 2, tool: "patch_bundle_cas", status: patchStatus, elementId: (appliedIds[0] ?? affectedIds[0]) },
     ],
   };
 }
@@ -445,10 +451,11 @@ export function EngineStoreProvider({ roomId, children }: { roomId: string; me: 
   const [memPassiveRev, setMemPassiveRev] = useState(0);
   const memLongJobRunRef = useRef(0);
   const memLongJobCurrentRef = useRef<AgentJobTelemetry | null>(null);
+  const memLongJobTasksRef = useRef(new Map<string, MemoryFreeJobTask>());
   const [memLongJob, setMemLongJob] = useState<AgentJobTelemetry | null>(null);
   const [memLongJobAttempts, setMemLongJobAttempts] = useState<AgentJobAttemptTelemetry[]>([]);
   const [memLongJobDetail, setMemLongJobDetail] = useState<AgentJobDetailTelemetry | null>(null);
-  const startMemoryFreeJob = useCallback((goal: string) => {
+  const startMemoryFreeJob = useCallback((goal: string, references?: ArtifactRef[]) => {
     const now = Date.now();
     const id = `memory-free-auto-${++memLongJobRunRef.current}`;
     const job: AgentJobTelemetry = {
@@ -473,23 +480,25 @@ export function EngineStoreProvider({ roomId, children }: { roomId: string; me: 
       updatedAt: now,
     };
     memLongJobCurrentRef.current = job;
+    memLongJobTasksRef.current.set(id, { goal, references, cancelledAttempts: new Set() });
     setMemLongJob(job);
     setMemLongJobAttempts([{ attempt: 1, status: "running", resolvedModel: "scripted/free-auto", stopReason: "in_progress", ms: 0, inputTokens: 0, outputTokens: 0, costUsd: 0 }]);
     setMemLongJobDetail(memoryFreeJobDetail(goal, "running"));
     return id;
   }, []);
-  const finishMemoryFreeJob = useCallback((jobId: string, attempt: number, finalText?: string) => {
+  const completeMemoryFreeJob = useCallback((jobId: string, attempt: number, finalText: string, appliedIds: string[] = []) => {
     const now = Date.now();
     const cur = memLongJobCurrentRef.current;
     if (!cur || cur.id !== jobId || cur.status !== "running" || cur.attempts !== attempt) return;
+    const task = memLongJobTasksRef.current.get(jobId);
     const completed: AgentJobTelemetry = {
       ...cur,
       status: "completed",
       finalText,
       actionSliceCount: 2,
-      mutationCount: 2,
-      toolCallCount: 2,
-      receiptCount: 1,
+      mutationCount: appliedIds.length,
+      toolCallCount: appliedIds.length ? 2 : 1,
+      receiptCount: appliedIds.length ? 1 : 0,
       updatedAt: now,
     };
     memLongJobCurrentRef.current = completed;
@@ -499,8 +508,65 @@ export function EngineStoreProvider({ roomId, children }: { roomId: string; me: 
         ? { ...attempt, status: "completed", stopReason: "done", ms: Math.max(attempt.ms, 420) }
         : attempt
     )));
-    setMemLongJobDetail((cur) => cur ? memoryFreeJobDetail(cur.reasoningFrames[0]?.goal ?? "Memory free-auto job", "completed") : cur);
+    setMemLongJobDetail(memoryFreeJobDetail(task?.goal ?? "Memory free-auto job", "completed", { appliedIds }));
   }, []);
+  const runMemoryFreeJob = useCallback(async (jobId: string, attempt: number) => {
+    await new Promise((resolve) => setTimeout(resolve, MEMORY_FREE_JOB_DELAY_MS));
+    const task = memLongJobTasksRef.current.get(jobId);
+    if (!task || task.cancelledAttempts.has(attempt)) return;
+    const current = memLongJobCurrentRef.current;
+    if (!current || current.id !== jobId || current.status !== "running" || current.attempts !== attempt) return;
+
+    const artifacts = engine.listArtifacts(roomId);
+    const references = canonicalRefs(artifacts, task.references);
+    const sheet = targetSheet(artifacts, references);
+    const sess = engine.listSessions(roomId).find((s) => s.scope === "public");
+    if (!sheet || !sess) {
+      completeMemoryFreeJob(jobId, attempt, "No public sheet was available for the memory free-auto job.");
+      return;
+    }
+
+    const actor: Actor = { kind: "agent", id: sess.agentId, name: sess.agentName, scope: "public" };
+    if (!isVarianceSheet(sheet)) {
+      const finalText = `Queued memory free-auto for ${referenceNames(references)}, but variance recompute only runs on Q3 variance.`;
+      engine.postMessage({ roomId, channel: "public", author: actor, text: finalText, clientMsgId: crypto.randomUUID(), kind: "agent" });
+      completeMemoryFreeJob(jobId, attempt, finalText);
+      return;
+    }
+
+    const latest = engine.getArtifact(sheet.id) ?? sheet;
+    const targets: Record<string, string> = {};
+    for (const rid of Object.keys(VARIANCE)) {
+      const elementId = `${rid}__variance`;
+      if (!latest.elements[elementId]?.value) targets[elementId] = VARIANCE[rid];
+    }
+    const affectedIds = Object.keys(targets);
+    if (affectedIds.length === 0) {
+      const finalText = "Every variance cell is already filled - nothing to recompute.";
+      engine.postMessage({ roomId, channel: "public", author: actor, text: finalText, clientMsgId: crypto.randomUUID(), kind: "agent" });
+      completeMemoryFreeJob(jobId, attempt, finalText);
+      return;
+    }
+
+    if (task.cancelledAttempts.has(attempt)) return;
+    const appliedIds: string[] = [];
+    for (const [elementId, value] of Object.entries(targets)) {
+      if (task.cancelledAttempts.has(attempt)) return;
+      const currentSheet = engine.getArtifact(sheet.id) ?? sheet;
+      const baseVersion = currentSheet.elements[elementId]?.version ?? 0;
+      const result = engine.applyEdit({
+        roomId,
+        op: { opId: `memory_free_${jobId}_${attempt}_${elementId}`, artifactId: sheet.id, elementId, kind: "set", value, baseVersion },
+        actor,
+      });
+      if (result.ok) appliedIds.push(elementId);
+    }
+    const finalText = appliedIds.length
+      ? `Memory free-auto applied ${appliedIds.length} variance update(s) through CAS.`
+      : "Memory free-auto found no variance updates it could apply.";
+    engine.postMessage({ roomId, channel: "public", author: actor, text: finalText, clientMsgId: crypto.randomUUID(), kind: "agent" });
+    completeMemoryFreeJob(jobId, attempt, finalText, appliedIds);
+  }, [completeMemoryFreeJob, roomId]);
   useEffect(() => {
     if (roomId !== demo.roomId || memPassiveHydratedRef.current) return;
     const notebook = engine.listArtifacts(roomId).find((a) => a.kind === "note" && a.title === "Capture Notebook");
@@ -568,13 +634,14 @@ export function EngineStoreProvider({ roomId, children }: { roomId: string; me: 
       const artifacts = engine.listArtifacts(roomId);
       const references = canonicalRefs(artifacts, input.references);
       const goal = withReferenceContext(input.goal, references);
-      const memoryJobId = input.modelSelection?.mode === "free" ? startMemoryFreeJob(goal) : null;
-      const sheet = targetSheet(artifacts, references);
-      const sess = engine.listSessions(roomId).find((s) => s.scope === "public");
-      if (!sheet || !sess) {
-        if (memoryJobId) finishMemoryFreeJob(memoryJobId, 1, "No public sheet was available for the memory free-auto job.");
+      if (input.modelSelection?.mode === "free") {
+        const jobId = startMemoryFreeJob(goal, references);
+        void runMemoryFreeJob(jobId, 1);
         return;
       }
+      const sheet = targetSheet(artifacts, references);
+      const sess = engine.listSessions(roomId).find((s) => s.scope === "public");
+      if (!sheet || !sess) return;
       const actor: Actor = { kind: "agent", id: sess.agentId, name: sess.agentName, scope: "public" };
       if (!isVarianceSheet(sheet)) {
         engine.postMessage({
@@ -585,14 +652,12 @@ export function EngineStoreProvider({ roomId, children }: { roomId: string; me: 
           clientMsgId: crypto.randomUUID(),
           kind: "agent",
         });
-        if (memoryJobId) finishMemoryFreeJob(memoryJobId, 1, `Queued memory free-auto for ${referenceNames(references)}, but variance recompute only runs on Q3 variance.`);
         return;
       }
       const targets: Record<string, string> = {};
       for (const rid of Object.keys(VARIANCE)) if (!sheet.elements[`${rid}__variance`]?.value) targets[`${rid}__variance`] = VARIANCE[rid];
       if (Object.keys(targets).length === 0) {
         engine.postMessage({ roomId, channel: "public", author: actor, text: "Every variance cell is already filled — nothing to recompute.", clientMsgId: crypto.randomUUID(), kind: "agent" });
-        if (memoryJobId) finishMemoryFreeJob(memoryJobId, 1, "Every variance cell is already filled - nothing to recompute.");
         return;
       }
       const rt = new InMemoryRoomTools(engine, roomId, sheet.id, actor, sess.id);
@@ -600,7 +665,6 @@ export function EngineStoreProvider({ roomId, children }: { roomId: string; me: 
       // The scripted plan narrates via the model's text, not the say tool — post that summary to the room
       // (the live path narrates through the real say tool inside the action).
       if (result.finalText) engine.postMessage({ roomId, channel: "public", author: actor, text: result.finalText, clientMsgId: crypto.randomUUID(), kind: "agent" });
-      if (memoryJobId) finishMemoryFreeJob(memoryJobId, 1, result.finalText);
     },
     askPrivateAgent: async () => { /* memory mode replies inline in Chat.tsx */ },
     startLongFreeAgent: async (input) => {
@@ -653,6 +717,7 @@ export function EngineStoreProvider({ roomId, children }: { roomId: string; me: 
       const now = Date.now();
       const cur = memLongJobCurrentRef.current;
       if (cur && cur.id === jobId && !["completed", "failed", "cancelled"].includes(cur.status)) {
+        memLongJobTasksRef.current.get(jobId)?.cancelledAttempts.add(cur.attempts);
         const cancelled: AgentJobTelemetry = { ...cur, status: "cancelled", updatedAt: now };
         memLongJobCurrentRef.current = cancelled;
         setMemLongJob(cancelled);
@@ -666,12 +731,15 @@ export function EngineStoreProvider({ roomId, children }: { roomId: string; me: 
     retryLongFreeJob: async (jobId) => {
       const now = Date.now();
       const cur = memLongJobCurrentRef.current;
-      const nextAttempt = cur && cur.id === jobId ? Math.min(cur.attempts + 1, cur.maxAttempts) : memLongJobAttempts.length + 1;
-      if (cur && cur.id === jobId) {
-        const retried: AgentJobTelemetry = { ...cur, status: "running", attempts: nextAttempt, error: undefined, finalText: undefined, updatedAt: now };
-        memLongJobCurrentRef.current = retried;
-        setMemLongJob(retried);
-      }
+      if (!cur || cur.id !== jobId) return { ok: false, reason: "not_found" };
+      if (cur.attempts >= cur.maxAttempts) return { ok: false, reason: "max_attempts_exhausted" };
+      const nextAttempt = cur.attempts + 1;
+      const task = memLongJobTasksRef.current.get(jobId);
+      const retried: AgentJobTelemetry = { ...cur, status: "running", attempts: nextAttempt, error: undefined, finalText: undefined, updatedAt: now };
+      memLongJobCurrentRef.current = retried;
+      setMemLongJob(retried);
+      if (task) task.cancelledAttempts.delete(nextAttempt);
+      void runMemoryFreeJob(jobId, nextAttempt);
       setMemLongJobAttempts((cur) => [...cur, { attempt: nextAttempt, status: "running", resolvedModel: "scripted/free-auto", stopReason: "retrying", ms: 0, inputTokens: 0, outputTokens: 0, costUsd: 0 }]);
       setMemLongJobDetail((cur) => cur ? memoryFreeJobDetail(cur.reasoningFrames[0]?.goal ?? "Memory free-auto job", "running") : cur);
       return { ok: true };
@@ -702,7 +770,7 @@ export function EngineStoreProvider({ roomId, children }: { roomId: string; me: 
       const [rowId] = engine.addResearchRows({ roomId, artifactId: targetArt.id, rows: [{ company: entity }], by: actor });
       return rowId ? { artifactId: targetArt.id, rowId, created: true as const } : undefined;
     },
-  }), [rev, memPassiveRev, memLongJob, memLongJobAttempts, memLongJobDetail, roomId, startMemoryFreeJob, finishMemoryFreeJob]);
+  }), [rev, memPassiveRev, memLongJob, memLongJobAttempts, memLongJobDetail, roomId, startMemoryFreeJob, runMemoryFreeJob]);
   return <Ctx.Provider value={store}>{children}</Ctx.Provider>;
 }
 

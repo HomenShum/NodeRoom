@@ -54,6 +54,51 @@ export function enterDemoRoomAsHost(_hostName?: string): { roomId: string; me: A
   return { roomId: demo.roomId, me: demo.members.homen };
 }
 
+let btbRoom: { roomId: string; me: Actor } | null = null;
+
+export function enterBankerToolBenchRoomAsHost(): { roomId: string; me: Actor } {
+  if (btbRoom) return btbRoom;
+
+  const { room, host } = engine.createRoom({ title: "BankerToolBench replay", hostName: "BTB Host", autoAllow: true });
+  const me: Actor = { kind: "user", id: host.id, name: host.name };
+  const agent: Actor = { kind: "agent", id: "agent_btb", name: "Room NodeAgent", scope: "public" };
+  const columns: DataframeColumn[] = [
+    { id: "metric", label: "Metric", order: 0, mode: "manual", type: "text", agentWritable: true },
+    { id: "status", label: "Status", order: 1, mode: "manual", type: "text", agentWritable: true },
+  ];
+
+  engine.createArtifact({
+    roomId: room.id,
+    kind: "note",
+    title: "BTB Replay Notes",
+    by: me,
+    seed: [{ id: "doc", value: "<h1>BankerToolBench replay</h1><p>Memory route for reviewing NodeAgent benchmark replay evidence. The full seed pack can replace this fallback without changing the App route.</p>" }],
+    meta: { summary: "Minimal local BankerToolBench room seed for the #btb memory route.", tags: ["bankertoolbench", "nodeagent"] },
+  });
+  engine.createArtifact({
+    roomId: room.id,
+    kind: "sheet",
+    title: "BTB Replay Status",
+    by: me,
+    seed: [
+      { id: "r_route__metric", value: "Route" },
+      { id: "r_route__status", value: "NodeAgent memory replay" },
+      { id: "r_scope__metric", value: "Scope" },
+      { id: "r_scope__status", value: "Candidate-visible artifacts only" },
+      { id: "r_gate__metric", value: "Gate" },
+      { id: "r_gate__status", value: "No evaluator gold in room context" },
+    ],
+    meta: { dataframe: { columns, rowCount: 3, sourceFile: "btb-memory-route", parser: "manual_seed", truncated: false, warnings: [] }, summary: "Status rows for the local BTB replay route.", tags: ["btb", "status"] },
+  });
+  const session = engine.startSession({ roomId: room.id, agentId: agent.id, agentName: agent.name, scope: "public" });
+  engine.updateSession(session.id, { status: "done", lastAction: "BTB replay room seeded" });
+  engine.postMessage({ roomId: room.id, channel: "public", author: agent, text: "Seeded the BankerToolBench replay room with candidate-visible status artifacts.", clientMsgId: "btb-fallback-agent-summary", kind: "agent" });
+  engine.trace(room.id, agent, "agent_status", "Seeded fallback BankerToolBench replay room.", { artifactId: "BTB Replay Status" }, "No evaluator gold, rubric, canary, or verifier logs are exposed by this memory route.");
+
+  btbRoom = { roomId: room.id, me };
+  return btbRoom;
+}
+
 export function joinRoomByCode(code: string, name: string): { roomId: string; me: Actor } | null {
   const res = engine.joinRoom({ code: code.trim(), name: name.trim() || "Guest" });
   if (!res) return null;

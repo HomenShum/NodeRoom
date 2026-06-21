@@ -1,7 +1,7 @@
 import { enterDemoRoom, expect, publicChat, test } from "./fixtures";
 
 test.describe("privacy, job, wall, and proposal browser coverage", () => {
-  test.setTimeout(60_000);
+  test.setTimeout(120_000);
 
   test.beforeEach(async ({ page }) => {
     await enterDemoRoom(page);
@@ -46,11 +46,28 @@ test.describe("privacy, job, wall, and proposal browser coverage", () => {
     await note.getByTestId("post-it-text").evaluate((node) => (node as HTMLElement).blur());
     await expect(note.getByTestId("post-it-text")).toHaveText(revised);
 
-    await note.getByTestId("post-it-delete").click();
-    await expect(wall.getByTestId("post-it")).toHaveCount(initialCount);
+    await page.getByTestId("left-rail").getByTestId("binder-artifact").filter({ hasText: "Q3 variance" }).first().click();
+    await page.getByTestId("left-rail").getByTestId("binder-artifact").filter({ hasText: "Risk / opportunity wall" }).first().click();
+    const persisted = panel.getByTestId("wall-canvas").getByTestId("post-it").filter({ hasText: revised });
+    await expect(persisted).toHaveCount(1);
+
+    await persisted.getByTestId("post-it-delete").click();
+    await expect(panel.getByTestId("wall-canvas").getByTestId("post-it")).toHaveCount(initialCount);
+    await page.getByTestId("left-rail").getByTestId("binder-artifact").filter({ hasText: "Q3 variance" }).first().click();
+    await page.getByTestId("left-rail").getByTestId("binder-artifact").filter({ hasText: "Risk / opportunity wall" }).first().click();
+    await expect(panel.getByTestId("wall-canvas").getByTestId("post-it").filter({ hasText: revised })).toHaveCount(0);
   });
 
   test("free-route job controls expose status, details, cancel, and retry in the browser", async ({ page }) => {
+    await page.getByTestId("left-rail").getByTestId("binder-artifact").filter({ hasText: "Q3 variance" }).first().click();
+    const panel = page.getByTestId("artifact-panel");
+    const gpVariance = panel.locator('[data-cell-key="r_gp__variance"]');
+    const niVariance = panel.locator('[data-cell-key="r_ni__variance"]');
+    await expect(gpVariance).toBeVisible();
+    await expect(niVariance).toBeVisible();
+    await expect(gpVariance).not.toContainText("+21.7%");
+    await expect(niVariance).not.toContainText("+22.4%");
+
     const chat = publicChat(page);
     await chat.getByTestId("chat-composer").fill("/free fill the remaining Q3 variance cells through the long job path");
     await chat.getByTestId("chat-send").click();
@@ -67,10 +84,16 @@ test.describe("privacy, job, wall, and proposal browser coverage", () => {
     await chat.getByTestId("job-cancel").click();
     await expect(chat.getByTestId("job-status")).toContainText("cancelled");
     await expect(chat.getByTestId("job-retry")).toBeVisible();
+    await expect(gpVariance).not.toContainText("+21.7%");
+    await expect(niVariance).not.toContainText("+22.4%");
 
     await chat.getByTestId("job-retry").click();
     await expect(chat.getByTestId("job-status")).toContainText("running 2/2");
-    await expect(chat.getByTestId("job-cancel")).toBeVisible();
+    await expect(chat.getByTestId("job-status")).toContainText("completed 2/2", { timeout: 10_000 });
+    await expect(chat.getByTestId("job-cancel")).toHaveCount(0);
+    await expect(chat.getByTestId("chat-message").filter({ hasText: "Memory free-auto applied" })).toBeVisible();
+    await expect(gpVariance).toContainText("+21.7%");
+    await expect(niVariance).toContainText("+22.4%");
     await expect(chat.getByTestId("job-error")).toHaveCount(0);
   });
 

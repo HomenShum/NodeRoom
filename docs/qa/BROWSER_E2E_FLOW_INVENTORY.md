@@ -7,7 +7,10 @@ This is the concrete browser test inventory for NodeRoom's core workflows. The m
 ## Product Rule
 
 - Public room agent invocation is `@nodeagent ...`.
-- The composer model picker controls route policy: Adaptive, Free, Top paid, or Specific model.
+- The composer model picker records route preference: Adaptive, Free, Top paid,
+  or Specific model. Browser specs should assert the server-resolved policy on
+  the job detail; the client does not own `modelPolicy`, approval, evidence,
+  allowlist, or rate-limit policy.
 - `/ask` and `/free` are compatibility aliases only. They should remain accepted by the runtime, but they are not the taught UX in chips, docs, or walkthroughs.
 - Private lane messages go to the user's private NodeAgent without requiring a mention.
 
@@ -39,16 +42,17 @@ This is the concrete browser test inventory for NodeRoom's core workflows. The m
 
 ## Release-Floor Specs To Keep Fast
 
-1. `e2e/room-entry.spec.ts` - create room, join shell, panel toggles.
-2. `e2e/chat.spec.ts` - public send/edit, file attach, artifact refs, `@nodeagent` taught UX.
-3. `e2e/nodeagent-public.spec.ts` - `@nodeagent` adaptive/free/top/specific route starts, job/trace affordance visible.
-4. `e2e/privacy-job-wall-proposal.spec.ts` - private reply stays private, memory free-route job controls, wall CRUD, CRS reject.
-5. `e2e/job-controls.spec.ts` - live Free route starts through the picker; detail strip survives reload.
-6. `e2e/excel-grid.spec.ts` - manual edit, keyboard commit, undo.
-7. `e2e/semantic-rebase.spec.ts` - proposal appears at changed cell; host approval applies it.
-8. `e2e/research-flow.spec.ts` - upsert without duplicate rows.
-9. `e2e/privacy-boundaries.spec.ts` - live public/private leak matrix and host-only controls.
-10. `e2e/responsive-qa.spec.ts` - desktop and compact shell sanity.
+1. `e2e/chat.spec.ts` - public send/edit, file attach, artifact refs, `@nodeagent` taught UX.
+2. `e2e/excel-grid.spec.ts` - manual edit, keyboard commit, workbook parity.
+3. `e2e/privacy-job-wall-proposal.spec.ts` - private reply stays private, memory free-route job controls, wall CRUD, CRS reject.
+4. `e2e/semantic-rebase.spec.ts` - proposal appears at changed cell; host approval applies it.
+5. `e2e/responsive-qa.spec.ts` - desktop and compact shell sanity.
+6. `e2e/work-surface-split.spec.ts` - center-stage split and source-open proof.
+
+Future release-floor specs tracked in the JSON inventory but not yet committed:
+`room-entry.spec.ts`, `nodeagent-public.spec.ts`, `job-controls.spec.ts`,
+`research-flow.spec.ts`, `privacy-boundaries.spec.ts`, `note-wall.spec.ts`,
+`multiuser-reactivity.spec.ts`, and `failure-states.spec.ts`.
 
 ## Nightly Specs To Expand
 

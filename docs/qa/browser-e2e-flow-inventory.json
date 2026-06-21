@@ -219,7 +219,7 @@
           "id": "review-proposals.propose-approve",
           "priority": "release_floor",
           "status": "covered",
-          "suggestedSpec": "e2e/privacy-job-wall-proposal.spec.ts",
+          "suggestedSpec": "e2e/semantic-rebase.spec.ts",
           "steps": ["Turn auto-allow off.", "Run @nodeagent that mutates a cell.", "Approve the proposal at the target cell."],
           "assertions": ["Direct write does not silently commit.", "Proposal appears near the change.", "Approval applies the edit and updates trace."]
         },
@@ -227,7 +227,7 @@
           "id": "review-proposals.reject",
           "priority": "nightly",
           "status": "partial",
-          "suggestedSpec": "e2e/proposals-review.spec.ts",
+          "suggestedSpec": "e2e/privacy-job-wall-proposal.spec.ts",
           "steps": ["Seed a proposal.", "Reject it."],
           "assertions": ["Artifact remains unchanged.", "Proposal becomes rejected or disappears from pending.", "Trace shows rejection."]
         },
