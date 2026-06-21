@@ -306,16 +306,21 @@ Three views of the system — editable sources + SVG/PNG in [`docs/diagrams/`](d
 
 ## The pitch — in slides
 
-A self-contained, **honesty-gated** investor deck (frontend-slides "Signal" editorial style). Every claim carries a provenance tag — `verified` / `manual` / `needs_review` — and nothing is invented. The proof slide shows the cited-source **red box rendered live inside NodeRoom's Trace Lens**, on a real BankerToolBench take-private task (DIS / WBD) — captured from the running app, not a mockup.
+A self-contained, **honesty-gated** investor deck (frontend-slides "Signal" editorial style). Every claim carries a provenance tag — `verified` / `manual` / `needs_review` — and nothing is invented.
+
+### The proof — the literal screenshot from the running app
+
+The cited-source **red box, rendered live inside NodeRoom's Trace Lens** on a real BankerToolBench take-private task (DIS / WBD). This is the raw capture from the running app (driven with Playwright), not a mockup or a styled slide:
+
+![The cited-source red box live in NodeRoom's Trace Lens — full app shell](docs/pitch/noderoom-deck/trace-lens-live-full.png)
+
+Zoomed to the Trace Lens detail — the agent boxes the exact 10-K line it cited (Total revenues = $41,321M), with source + locator shown in-trace:
+
+![Trace Lens detail — red box on the WBD 10-K Total revenues line](docs/pitch/noderoom-deck/trace-lens-live-detail.png)
 
 **▶ [Open the interactive deck](docs/pitch/noderoom-deck/fs/index.html)** — self-contained HTML (clone & open in a browser, arrow keys to navigate). Built from [`deck_plan.json`](docs/pitch/noderoom-deck/deck_plan.json) through the honesty gate.
 
-The proof slide — cited & boxed, live in the Trace Lens:
-
-![Cited and boxed, live in NodeRoom's Trace Lens — the agent boxes the exact 10-K source line it cited](docs/pitch/noderoom-deck/fs/shots/slide-06.png)
-
-<details>
-<summary><b>All 11 slides</b></summary>
+### The full deck
 
 ![Slide 1 — NodeRoom](docs/pitch/noderoom-deck/fs/shots/slide-01.png)
 ![Slide 2 — The work that gets rejected](docs/pitch/noderoom-deck/fs/shots/slide-02.png)
@@ -328,8 +333,6 @@ The proof slide — cited & boxed, live in the Trace Lens:
 ![Slide 9 — Why this team](docs/pitch/noderoom-deck/fs/shots/slide-09.png)
 ![Slide 10 — The ask](docs/pitch/noderoom-deck/fs/shots/slide-10.png)
 ![Slide 11 — Close](docs/pitch/noderoom-deck/fs/shots/slide-11.png)
-
-</details>
 
 ## Watch it work — live walkthroughs
 
