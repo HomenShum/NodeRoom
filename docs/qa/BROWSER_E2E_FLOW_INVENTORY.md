@@ -1,6 +1,6 @@
 # Browser E2E Flow Inventory
 
-Updated: 2026-06-16
+Updated: 2026-06-20
 
 This is the concrete browser test inventory for NodeRoom's core workflows. The machine-readable source is [`browser-e2e-flow-inventory.json`](browser-e2e-flow-inventory.json); run `npm run qa:e2e:inventory:check` before changing the release claims.
 
@@ -25,15 +25,15 @@ This is the concrete browser test inventory for NodeRoom's core workflows. The m
 | Room entry and shell | Create demo room; panel toggles; usable desktop/compact shell | Join by room code from a second context | Partial: shell and responsive specs exist; join-by-code needs a dedicated two-context spec |
 | Public chat | Send public message; edit own message | Forced failure and retry | Covered for send/edit; failure injection missing |
 | Public `@nodeagent` | Mention agent; switch route picker; hidden slash alias mapping | Trace detail and live resolved-model drilldown | Partial: unit coverage for model routing; browser route smoke still needs a dedicated spec |
-| Private agent | Private reply stays private | Promote private output; Room-mode shared action | Partial: privacy semantics exist, room-mode browser proof needs hardening |
-| Durable jobs | Start Free route through model picker | Cancel, retry, detail drawer, reload resume | Partial: live CLI smoke exists; browser controls need fuller coverage |
+| Private agent | Private reply stays private | Promote private output; Room-mode shared action | Covered for private/public browser leak in production-preview; promote and Room-mode browser proof still need hardening |
+| Durable jobs | Start Free route through model picker | Cancel, retry, detail drawer, reload resume | Covered in production-preview for free-route strip, details, cancel, and retry; live reload/resume remains open |
 | Spreadsheet editing | Manual edit, keyboard commit, undo | Locked-cell rejection and stale conflict feedback | Partial: keyboard model covered; peer-visible undo/conflict gates need expansion |
-| Proposals/review | Auto-allow off -> proposal -> approve | Reject, Accept all, non-host rejection | Partial: unit and some 3-user proof exist; Accept all needs browser proof |
+| Proposals/review | Auto-allow off -> proposal -> approve | Reject, Accept all, non-host rejection | Covered for semantic proposal approve/reject feedback in production-preview; Accept all and live non-host rejection need browser proof |
 | Research workflows | Company enrichment; upsert not duplicate | Artifact-targeted research with citations | Partial: deterministic harness exists; browser research flow is not complete |
 | Files/artifact refs | Upload, paste, drag binder ref, open split | Reload and reopen uploaded artifact | Covered for upload/ref/split; reload persistence missing |
-| Notes/wiki/wall | Note persistence; post-it CRUD | Wiki grounded update; multi-user wall collision | Partial: wall/wiki tests exist but browser coverage needs consolidation |
+| Notes/wiki/wall | Note persistence; post-it CRUD | Wiki grounded update; multi-user wall collision | Wall add/edit/delete is covered in production-preview; note reload, wiki update, and multi-user wall collisions remain partial |
 | Multi-user reactivity | Public chat across users; same-cell conflict | Agent-vs-human no-clobber; 3-user smoke | Partial: eval and 3-user specs exist; deterministic failure probes need expansion |
-| Privacy/authz | Private leak proof; host-only controls | Private artifact ref boundary | Partial: server tests exist; browser proof needs full matrix |
+| Privacy/authz | Private leak proof; host-only controls | Private artifact ref boundary | Covered for private/public browser leak in memory preview plus server tests; live multi-user boundary matrix remains partial |
 | Responsive shell | Desktop, tablet, mobile survival | Mobile full core flow | Mostly covered for layout; end-to-end mobile flow remains partial |
 | Failure states | Agent dispatch error clears thinking | Optimistic rollback, partial upload failure, illegal job action | Partial: error surfaces exist; forced browser failure injection is the gap |
 
@@ -42,12 +42,12 @@ This is the concrete browser test inventory for NodeRoom's core workflows. The m
 1. `e2e/room-entry.spec.ts` - create room, join shell, panel toggles.
 2. `e2e/chat.spec.ts` - public send/edit, file attach, artifact refs, `@nodeagent` taught UX.
 3. `e2e/nodeagent-public.spec.ts` - `@nodeagent` adaptive/free/top/specific route starts, job/trace affordance visible.
-4. `e2e/private-agent.spec.ts` - private reply stays private, promote explicit.
-5. `e2e/job-controls.spec.ts` - Free route starts through the picker; detail strip is visible.
+4. `e2e/privacy-job-wall-proposal.spec.ts` - private reply stays private, memory free-route job controls, wall CRUD, CRS reject.
+5. `e2e/job-controls.spec.ts` - live Free route starts through the picker; detail strip survives reload.
 6. `e2e/excel-grid.spec.ts` - manual edit, keyboard commit, undo.
-7. `e2e/proposals-review.spec.ts` - proposal appears at changed cell; host approval applies it.
+7. `e2e/semantic-rebase.spec.ts` - proposal appears at changed cell; host approval applies it.
 8. `e2e/research-flow.spec.ts` - upsert without duplicate rows.
-9. `e2e/privacy-boundaries.spec.ts` - public/private leak and host-only controls.
+9. `e2e/privacy-boundaries.spec.ts` - live public/private leak matrix and host-only controls.
 10. `e2e/responsive-qa.spec.ts` - desktop and compact shell sanity.
 
 ## Nightly Specs To Expand
@@ -56,7 +56,7 @@ This is the concrete browser test inventory for NodeRoom's core workflows. The m
 - `e2e/three-user-collab.spec.ts` for host + two members, agent proposals, and private boundaries.
 - `e2e/failure-states.spec.ts` for optimistic rollback, agent dispatch errors, upload partial failure, illegal job controls.
 - `e2e/wiki-flow.spec.ts` for agent-generated wiki table of contents and clickable artifact refs.
-- `e2e/note-wall.spec.ts` for note persistence and post-it CRUD/collision.
+- `e2e/note-wall.spec.ts` for note persistence and post-it move/reload/collision.
 
 ## Maintenance Rule
 

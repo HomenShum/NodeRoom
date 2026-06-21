@@ -52,7 +52,7 @@ until a dedicated scanner is added to the gate.
 | Area | Status |
 |---|---|
 | Files, parser, OCR, and provider file cache adapters | Convex-mode uploads now store the raw file in Convex File Storage first, register an `uploadedFiles` row, and link parsed artifacts back to `sourceStorageId`; provider extraction preserves page/bbox/source-storage evidence metadata and the live provider parser is gated by provider-route/file-egress policy. The full parser/OCR worker path is not yet audited across PDF, DOCX/PPTX, images, screenshots, and layout. |
-| Full browser E2E for every surface | Some browser specs exist; the red QA row stays until public/private chat, files, spreadsheet, wall, proposals, and job controls are covered together. |
+| Full browser E2E for every surface | The production-preview browser gate now covers public/private chat privacy, files/artifact refs, spreadsheet editing, wall add/edit/delete, proposal approve/reject feedback, and memory-mode job controls together. The row stays yellow until those paths are repeated against live multi-context Convex where relevant. |
 | Long-running job operations | Workflow/Workpool continuation exists; job cancel/retry is requester-or-host gated, stale running-job leases are swept by cron, and `/free` carries artifact metadata into egress checks. Live `/free` polling evals, model quarantine, and provider request-idempotency hardening still need expansion. |
 | Professional GTM/finance scale | Fixture catalog exists; more row-level evals and one live provider smoke per critical workflow are still needed. |
 | Production observability | Retention and deterministic `npm run slo:gate` now exist; dashboards, trace export, trace-size caps, live browser/load proof, and SLO alerting are not yet complete. |

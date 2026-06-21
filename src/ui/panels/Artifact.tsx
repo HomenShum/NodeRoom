@@ -1727,7 +1727,7 @@ function Wall({ roomId, me, art }: { roomId: string; me: Actor; art: Art }) {
   return (
     <div className="r-art-body">
       <div className="r-wall-toolbar">
-        <button className="r-mini-btn primary" onClick={() => void addSticky()}><Plus size={12} /> Post-it</button>
+        <button className="r-mini-btn primary" data-testid="postit-add" onClick={() => void addSticky()}><Plus size={12} /> Post-it</button>
         {err && <span className="r-wall-error" role="alert">{err}</span>}
       </div>
       <div className="r-wall-toolbar"><span className="muted tiny">drag to move · click text to edit</span></div>
@@ -1755,9 +1755,10 @@ function Sticky({ roomId, me, artId, id, v, locked, author, rot, onDelete, onErr
   }), [v.x, v.y, v.color, transform?.x, transform?.y, rot, isDragging]);
   return (
     <div ref={setNodeRef} className={"r-postit" + (locked ? " locked" : "")} {...attributes} {...listeners}
+      data-testid="post-it" data-postit-id={id}
       style={style}>
-      <button className="r-postit-delete" disabled={locked} aria-label="Delete post-it" onPointerDown={(e) => e.stopPropagation()} onClick={(e) => { e.stopPropagation(); onDelete(id); }}><Trash2 size={12} /></button>
-      <div className="pt-text" contentEditable={!locked} suppressContentEditableWarning role="textbox" aria-label="Edit post-it text"
+      <button className="r-postit-delete" data-testid="post-it-delete" disabled={locked} aria-label="Delete post-it" onPointerDown={(e) => e.stopPropagation()} onClick={(e) => { e.stopPropagation(); onDelete(id); }}><Trash2 size={12} /></button>
+      <div className="pt-text" data-testid="post-it-text" contentEditable={!locked} suppressContentEditableWarning role="textbox" aria-label="Edit post-it text"
         onPointerDown={(e) => e.stopPropagation()}
         onKeyDown={(e) => { if (e.key === "Escape") (e.currentTarget as HTMLElement).blur(); }}
         onBlur={(e) => { const t = e.currentTarget.textContent ?? ""; if (t && t !== v.text) void commit(store, roomId, me, artId, id, { ...v, text: t }).then((f) => { if (f && !f.ok) onError(editErrorMsg(f)); }); }}>{v.text}</div>
