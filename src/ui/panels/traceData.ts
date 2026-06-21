@@ -104,7 +104,32 @@ export const QA_TRACE_RECORD: TraceRecord = {
 
 /** Producer-generated trace bundles (scripts/qa-trace/capture-flow.ts) auto-load here — drop a JSON, it appears. */
 const bundleModules = import.meta.glob<{ default: TraceRecord }>("./qaTraceBundles/*.json", { eager: true });
-export const QA_BUNDLES: TraceRecord[] = Object.values(bundleModules).map((m) => m.default);
+
+/**
+ * Bundles arrive as untyped JSON via `import.meta.glob`, so the TraceRecord type is NOT enforced at
+ * build time. A single malformed drop-in must never be able to crash the whole Trace surface (the
+ * list/detail renderers read `source.tool` and `ts` unconditionally). Skip any bundle missing the
+ * minimal shape (id/title/steps[]) with a warning, and backfill the required `source`/`ts`/`subtitle`
+ * fields so downstream code can rely on the shape.
+ */
+function normalizeBundle(rec: unknown, path: string): TraceRecord | null {
+  const r = rec as Partial<TraceRecord> | undefined;
+  if (!r || typeof r.id !== "string" || typeof r.title !== "string" || !Array.isArray(r.steps)) {
+    console.warn(`[traceData] skipping malformed trace bundle "${path}": requires { id, title, steps[] }`);
+    return null;
+  }
+  return {
+    ...r,
+    subtitle: r.subtitle ?? "",
+    ts: r.ts ?? "",
+    source: r.source ?? { tool: "NodeAgent" },
+    raw: r.raw ?? {},
+  } as TraceRecord;
+}
+
+export const QA_BUNDLES: TraceRecord[] = Object.entries(bundleModules)
+  .map(([path, m]) => normalizeBundle(m?.default, path))
+  .filter((r): r is TraceRecord => r !== null);
 
 /** Build the live agent trace record from the room's source-backed claims (coach evidence). */
 export function buildAgentTraceRecords(input: {
@@ -121,7 +146,7 @@ export function buildAgentTraceRecords(input: {
     label: c.label,
     detail: c.quote,
     status: c.status === "verified" ? "ok" : c.status === "needs_review" ? "warn" : "info",
-    group: c.status === "verified" ? "Verified" : c.status === "needs_review" ? "Needs review" : "Manual / estimated",
+    group: c.status === "verified" ? "Verified" : c.status === "needs_review" ? "Needs review" : c.status === "manual" ? "Manual" : c.status === "estimated" ? "Estimated" : "Manual / estimated",
     targetArtifactId: c.targetArtifactId,
     targetElementId: c.targetElementId,
   }));

@@ -86,14 +86,21 @@ export function TraceSurface({ roomId, onOpenSource }: {
     () => buildBankerCoachPacket({ roomTitle: room?.title ?? "NodeRoom", artifacts, traces }),
     [room?.title, artifacts, traces],
   );
+  const isBankerToolBenchRoom = /BankerToolBench/i.test(room?.title ?? "");
   const records = useMemo<TraceRecord[]>(
-    () => [
-      ...buildAgentTraceRecords({ company: packet.company, claim: packet.claim, packet, traces, run }),
-      ...captureRecords,
-      QA_TRACE_RECORD,
-      ...QA_BUNDLES,
-    ],
-    [packet, traces, run, captureRecords],
+    () => {
+      const agentRecords = buildAgentTraceRecords({
+        company: isBankerToolBenchRoom ? "BankerToolBench NodeAgent" : packet.company,
+        claim: packet.claim,
+        packet,
+        traces,
+        run,
+      });
+      return isBankerToolBenchRoom
+        ? [...agentRecords, ...captureRecords]
+        : [...agentRecords, ...captureRecords, QA_TRACE_RECORD, ...QA_BUNDLES];
+    },
+    [isBankerToolBenchRoom, packet, traces, run, captureRecords],
   );
   const [selectedId, setSelectedId] = useState<string>(records[0]?.id ?? QA_TRACE_RECORD.id);
   // Lazy-resolve: tell the store which capture record is selected so it fetches URLs for that one.
@@ -118,7 +125,7 @@ export function TraceSurface({ roomId, onOpenSource }: {
               {r.verdict && <span className="r-tracevu-pill" data-tone={r.verdict.tone}>{r.verdict.tone === "ok" ? "pass" : r.verdict.tone}</span>}
             </span>
             <span className="r-tracevu-rec-sub">{r.subtitle}</span>
-            <span className="r-tracevu-rec-meta">{r.source.tool} · {r.steps.length} step{r.steps.length === 1 ? "" : "s"} · {r.ts}</span>
+            <span className="r-tracevu-rec-meta">{r.source?.tool ?? "—"} · {r.steps.length} step{r.steps.length === 1 ? "" : "s"} · {r.ts ?? ""}</span>
           </button>
         ))}
       </aside>
@@ -156,10 +163,10 @@ function TraceOverview({ record }: { record: TraceRecord }) {
         <section>
           <span className="kicker"><Wrench size={11} /> Tool</span>
           <dl>
-            <dt>Name</dt><dd>{record.source.tool}</dd>
-            {record.source.version && <><dt>Version</dt><dd>{record.source.version}</dd></>}
-            {record.source.env && <><dt>Environment</dt><dd>{record.source.env}</dd></>}
-            {record.source.model && <><dt>Model</dt><dd>{record.source.model}</dd></>}
+            <dt>Name</dt><dd>{record.source?.tool ?? "—"}</dd>
+            {record.source?.version && <><dt>Version</dt><dd>{record.source.version}</dd></>}
+            {record.source?.env && <><dt>Environment</dt><dd>{record.source.env}</dd></>}
+            {record.source?.model && <><dt>Model</dt><dd>{record.source.model}</dd></>}
           </dl>
         </section>
         {record.verdict && (
@@ -242,8 +249,8 @@ function TraceSteps({ record, onOpenSource }: { record: TraceRecord; onOpenSourc
         </ol>
       ) : (
         <div className="r-tracevu-groups">
-          {groups.map((g) => (
-            <details key={g.name} className="r-tracevu-group" open={defaultOpen} data-testid="trace-group">
+          {groups.map((g, groupIndex) => (
+            <details key={`${g.name ?? "ungrouped"}-${groupIndex}`} className="r-tracevu-group" open={defaultOpen} data-testid="trace-group">
               <summary><span className="r-tracevu-group-name">{g.name}</span><span className="r-tracevu-group-count">{g.steps.length}</span></summary>
               <ol className="r-tracevu-steps">
                 {g.steps.map((s) => <li key={s.idx} id={`tracestep-${s.idx}`}><StepRow s={s} onOpenSource={onOpenSource} /></li>)}
@@ -257,7 +264,7 @@ function TraceSteps({ record, onOpenSource }: { record: TraceRecord; onOpenSourc
 }
 
 function TraceRaw({ record }: { record: TraceRecord }) {
-  const json = useMemo(() => JSON.stringify(record.raw, null, 2), [record.raw]);
+  const json = useMemo(() => JSON.stringify(record.raw ?? {}, null, 2), [record.raw]);
   const big = json.length > 20000;
   const href = `data:application/json;charset=utf-8,${encodeURIComponent(json)}`;
   return (
