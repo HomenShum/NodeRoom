@@ -1,0 +1,64 @@
+{
+  "schema": 1,
+  "runId": "20260621T100533Z",
+  "commitSha": "2e10f080+dirty",
+  "sourceTreeHash": "052d4b243eba3c3766e50d55de026ea1008a000a5e7d968c1bdcd84ed20599b5",
+  "generatedAt": "2026-06-21T10:06:32.561Z",
+  "appUrl": "http://127.0.0.1:5317",
+  "serverMode": "preview",
+  "capture": {
+    "status": "passed",
+    "screenshots": [
+      "docs/eval/design-quality/browser/20260621T100533Z/desktop-1440.png",
+      "docs/eval/design-quality/browser/20260621T100533Z/mobile-375.png"
+    ],
+    "domSnapshots": [
+      "docs/eval/design-quality/browser/20260621T100533Z/desktop-1440.dom.json",
+      "docs/eval/design-quality/browser/20260621T100533Z/mobile-375.dom.json"
+    ],
+    "viewports": [
+      {
+        "name": "desktop-1440",
+        "width": 1440,
+        "height": 900,
+        "screenshot": "docs/eval/design-quality/browser/20260621T100533Z/desktop-1440.png",
+        "domSnapshot": "docs/eval/design-quality/browser/20260621T100533Z/desktop-1440.dom.json",
+        "textLength": 1822,
+        "scrollWidth": 1440,
+        "clientWidth": 1440,
+        "cls": 0,
+        "longTasks": 0
+      },
+      {
+        "name": "mobile-375",
+        "width": 375,
+        "height": 812,
+        "screenshot": "docs/eval/design-quality/browser/20260621T100533Z/mobile-375.png",
+        "domSnapshot": "docs/eval/design-quality/browser/20260621T100533Z/mobile-375.dom.json",
+        "textLength": 690,
+        "scrollWidth": 375,
+        "clientWidth": 375,
+        "cls": 0,
+        "longTasks": 0
+      }
+    ],
+    "findings": []
+  },
+  "performance": {
+    "status": "passed",
+    "evidencePath": "docs/eval/design-quality/browser/20260621T100533Z/browser.json",
+    "cls": 0,
+    "longTasks": 0,
+    "maxInteractionLatencyMs": 50,
+    "timeToOptimisticBubbleMs": 34,
+    "timeToEvidencePreviewMs": 50
+  },
+  "accessibility": {
+    "status": "passed",
+    "evidencePath": "docs/eval/design-quality/browser/20260621T100533Z/browser.json",
+    "deterministicViolations": 0,
+    "keyboardPathPassed": true,
+    "reducedMotionPassed": true,
+    "screenReaderNotes": []
+  }
+}
