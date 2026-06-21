@@ -1,8 +1,8 @@
 # Design Quality Scorecard
 
-Generated: 2026-06-21T10:06:32.730Z
-Run: `20260621T100533Z`
-Commit: `2e10f080+dirty`
+Generated: 2026-06-21T11:26:38.851Z
+Run: `20260621T112516Z`
+Commit: `ee1a8f60`
 Scenario: `live_room_collab`
 
 > Product correctness remains pass/fail. This scorecard does not turn functional gates, media review, accessibility, responsiveness, references, and virality into one hidden claim.
