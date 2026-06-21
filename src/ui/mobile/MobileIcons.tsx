@@ -44,6 +44,7 @@ const ICONS = {
     P("M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8Z"),
   ),
   arrowRight: make(P("M5 12h14"), P("M13 5l7 7-7 7")),
+  arrowUp: make(P("M12 19V5"), P("M5 12l7-7 7 7")),
   check: make(P("M20 6 9 17l-5-5")),
   checkCircle: make(React.createElement("circle", { cx: 12, cy: 12, r: 9 }), P("M8.5 12.5 11 15l4.5-5")),
   x: make(P("M18 6 6 18"), P("M6 6l12 12")),
@@ -79,6 +80,65 @@ const ICONS = {
   ),
   refresh: make(P("M21 12a9 9 0 1 1-3-6.7"), P("M21 3v5h-5")),
   chevR: make(P("M9 18l6-6-6-6")),
+  chevL: make(P("M15 18l-6-6 6-6")),
+  layers: make(P("M12 2 2 7l10 5 10-5-10-5Z"), P("M2 12l10 5 10-5"), P("M2 17l10 5 10-5")),
+  camera: make(
+    P("M3 8a2 2 0 0 1 2-2h2l1.5-2h7L19 6h0a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z"),
+    React.createElement("circle", { cx: 12, cy: 13, r: 3.5 }),
+  ),
+  image: make(
+    React.createElement("rect", { x: 3, y: 4, width: 18, height: 16, rx: 2 }),
+    React.createElement("circle", { cx: 8.5, cy: 9, r: 1.8 }),
+    P("M21 16l-5-5L5 20"),
+  ),
+  paperclip: make(P("M20 11.5 11.5 20a4.5 4.5 0 0 1-6.4-6.4l8.5-8.5a3 3 0 0 1 4.3 4.3l-8.5 8.5a1.5 1.5 0 0 1-2.1-2.1l7.8-7.8")),
+  at: make(React.createElement("circle", { cx: 12, cy: 12, r: 4 }), P("M16 8v5a3 3 0 0 0 6 0v-1a10 10 0 1 0-4 8")),
+  puzzle: make(P("M9 4a2 2 0 0 1 4 0c0 1 .8 1.5 1.5 1.5H17a1 1 0 0 1 1 1v2.5c0 .7.5 1.5 1.5 1.5a2 2 0 0 1 0 4c-1 0-1.5.8-1.5 1.5V19a1 1 0 0 1-1 1h-2.5c-.7 0-1.5-.5-1.5-1.5a2 2 0 0 0-4 0c0 1-.8 1.5-1.5 1.5H5a1 1 0 0 1-1-1v-2.5C4 15.8 3.5 15 2.5 15a2 2 0 0 1 0-4c1 0 1.5-.8 1.5-1.5V7a1 1 0 0 1 1-1h2.5C8.2 6 9 5.5 9 4.5Z")),
+  voice: make(P("M3 11v2"), P("M7 7v10"), P("M11 4v16"), P("M15 8v8"), P("M19 11v2"), P("M23 10v4")),
+  message: make(P("M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2Z")),
+  diff: make(P("M12 4v6"), P("M9 7h6"), P("M9 17h6")),
+  download: make(P("M12 3v12"), P("M7 10l5 5 5-5"), P("M5 21h14")),
+  gauge: make(P("M5 18a8 8 0 1 1 14 0"), P("M12 14l3.5-3.5")),
+  expand: make(
+    P("M8 3H5a2 2 0 0 0-2 2v3"),
+    P("M16 3h3a2 2 0 0 1 2 2v3"),
+    P("M8 21H5a2 2 0 0 1-2-2v-3"),
+    P("M16 21h3a2 2 0 0 0 2-2v-3"),
+  ),
+  chevD: make(P("M6 9l6 6 6-6")),
+  logout: make(P("M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"), P("M16 17l5-5-5-5"), P("M21 12H9")),
+  home: make(P("M3 10.5 12 3l9 7.5"), P("M5 9.5V21h14V9.5")),
+  calendar: make(
+    React.createElement("rect", { x: 3, y: 4.5, width: 18, height: 17, rx: 2 }),
+    P("M3 9h18"),
+    P("M8 2.5v4"),
+    P("M16 2.5v4"),
+  ),
+  hash: make(P("M4 9h16"), P("M4 15h16"), P("M10 3 8 21"), P("M16 3l-2 18")),
+  grip: make(
+    React.createElement("circle", { cx: 9, cy: 6, r: 1.2, fill: "currentColor", stroke: "none" }),
+    React.createElement("circle", { cx: 15, cy: 6, r: 1.2, fill: "currentColor", stroke: "none" }),
+    React.createElement("circle", { cx: 9, cy: 12, r: 1.2, fill: "currentColor", stroke: "none" }),
+    React.createElement("circle", { cx: 15, cy: 12, r: 1.2, fill: "currentColor", stroke: "none" }),
+    React.createElement("circle", { cx: 9, cy: 18, r: 1.2, fill: "currentColor", stroke: "none" }),
+    React.createElement("circle", { cx: 15, cy: 18, r: 1.2, fill: "currentColor", stroke: "none" }),
+  ),
+  menu: make(P("M3 6h18"), P("M3 12h18"), P("M3 18h18")),
+  compose: make(
+    P("M11 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-5"),
+    P("M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4Z"),
+  ),
+  sliders: make(
+    React.createElement("circle", { cx: 8, cy: 6, r: 2 }),
+    P("M10 6h10"),
+    P("M4 6h2"),
+    React.createElement("circle", { cx: 16, cy: 12, r: 2 }),
+    P("M18 12h2"),
+    P("M4 12h10"),
+    React.createElement("circle", { cx: 10, cy: 18, r: 2 }),
+    P("M12 18h8"),
+    P("M4 18h4"),
+  ),
   users: make(
     React.createElement("circle", { cx: 9, cy: 8, r: 3.5 }),
     P("M2 21a7 7 0 0 1 14 0"),
@@ -87,6 +147,12 @@ const ICONS = {
   ),
   mic: make(React.createElement("rect", { x: 9, y: 3, width: 6, height: 11, rx: 3 }), P("M5 11a7 7 0 0 0 14 0"), P("M12 18v3")),
   link: make(P("M10 14a5 5 0 0 0 7 0l2-2a5 5 0 0 0-7-7l-1 1"), P("M14 10a5 5 0 0 0-7 0l-2 2a5 5 0 0 0 7 7l1-1")),
+  pin: make(P("M12 17v5"), P("M9 10.8V4h6v6.8l2 2.2H7l2-2.2Z")),
+  extlink: make(
+    P("M15 3h6v6"),
+    P("M10 14 21 3"),
+    P("M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"),
+  ),
   settings: make(
     React.createElement("circle", { cx: 12, cy: 12, r: 3 }),
     P("M19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-2.7 1.1V21a2 2 0 0 1-4 0v-.1A1.6 1.6 0 0 0 7 19.4a1.6 1.6 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.6 1.6 0 0 0-1.1-2.7H1a2 2 0 0 1 0-4h.1A1.6 1.6 0 0 0 2.6 7a1.6 1.6 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1A1.6 1.6 0 0 0 7 2.6h.1A1.6 1.6 0 0 0 8.7 1.1V1a2 2 0 0 1 4 0v.1A1.6 1.6 0 0 0 17 2.6a1.6 1.6 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.6 1.6 0 0 0 1.1 2.7H23a2 2 0 0 1 0 4h-.1a1.6 1.6 0 0 0-1.5 1.1Z"),
@@ -95,11 +161,13 @@ const ICONS = {
 
 export type IconName = keyof typeof ICONS;
 
-export function NaIcon({ name, ...rest }: { name: IconName } & IconProps): React.ReactElement | null {
-  const C = ICONS[name];
+// Accept `IconName | (string & {})` so data-driven icon fields (typed `string`
+// in mobileData) can be passed directly; unknown names render as null.
+export function NaIcon({ name, ...rest }: { name: IconName | (string & {}) } & IconProps): React.ReactElement | null {
+  const C = ICONS[name as IconName];
   return C ? C(rest) : null;
 }
 
 /** Convenience helper mirroring the prototype's `Ico(name, props)`. */
-export const Ico = (name: IconName, props?: IconProps): React.ReactElement =>
+export const Ico = (name: IconName | (string & {}), props?: IconProps): React.ReactElement =>
   React.createElement(NaIcon, { ...props, name });

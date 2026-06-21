@@ -10,148 +10,189 @@ import * as D from "./mobileData";
 import type { Tone } from "./mobileData";
 import type { MobileCtx } from "./mobileTypes";
 
-function SheetHead({ title, sub, onClose }: { title: string; sub: string; onClose: () => void }) {
+const { useState } = React;
+
+/** SheetHead reads optional back/close affordances the controller may provide. */
+// MobileCtx already provides canBack / backSheet / openSource with their real
+// signatures, so SheetHead just takes the full ctx.
+type SheetHeadCtx = MobileCtx;
+
+function SheetHead({
+  title,
+  sub,
+  ctx,
+  onClose,
+}: {
+  title: string;
+  sub: string;
+  ctx?: SheetHeadCtx;
+  onClose?: () => void;
+}): React.ReactElement {
+  const close = onClose || (ctx && ctx.closeSheet);
+  const canBack = ctx && ctx.canBack;
   return React.createElement(
     "div",
     { className: "na-sheet-head" },
+    canBack
+      ? React.createElement(
+          "button",
+          { className: "na-headback", onClick: ctx && ctx.backSheet, "aria-label": "Back" },
+          Ico("chevL"),
+        )
+      : null,
     React.createElement("div", { className: "st" }, React.createElement("strong", null, title), React.createElement("span", null, sub)),
-    React.createElement("button", { className: "na-close", onClick: onClose, "aria-label": "Close" }, Ico("x")),
+    React.createElement("button", { className: "na-close", onClick: close, "aria-label": "Close" }, Ico("x")),
   );
 }
 
-function scopeBlock(variant: "will" | "wont" | "create", label: string, icon: IconName, items: string[]) {
+type ScopeLane = { variant: "will" | "wont" | "create"; label: string; icon: IconName; mark: IconName; items: string[] };
+
+function scopeTable(P: D.Plan): React.ReactElement {
+  const lanes: ScopeLane[] = [
+    { variant: "will", label: "Will read", icon: "eye", mark: "check", items: P.willRead },
+    { variant: "wont", label: "Will not read", icon: "lock", mark: "x", items: P.wontRead },
+    { variant: "create", label: "Will create", icon: "plus", mark: "check", items: P.willCreate },
+  ];
   return React.createElement(
     "div",
-    { className: "na-scope" },
-    React.createElement("div", { className: "na-scope-head " + variant }, Ico(icon), label),
-    React.createElement(
-      "ul",
-      null,
-      items.map((it, i) => React.createElement("li", { key: i }, Ico(variant === "wont" ? "x" : "check"), it)),
+    { className: "na-scope-table" },
+    lanes.map((ln) =>
+      React.createElement(
+        "div",
+        { key: ln.variant, className: "na-scope-group", "data-variant": ln.variant },
+        React.createElement(
+          "div",
+          { className: "na-scope-grouphead" },
+          React.createElement("span", { className: "lh-tag " + ln.variant }, Ico(ln.icon), ln.label),
+          React.createElement("span", { className: "lh-count" }, ln.items.length),
+        ),
+        React.createElement(
+          "ul",
+          { className: "na-scope-items" },
+          ln.items.map((it, i) =>
+            React.createElement(
+              "li",
+              { key: i },
+              React.createElement("span", { className: "sm " + ln.variant }, Ico(ln.mark)),
+              React.createElement("span", { className: "st" }, it),
+            ),
+          ),
+        ),
+      ),
     ),
   );
 }
 
-// ── WORK PLAN / APPROVAL ──────────────────────────────────────────────────
-export function PlanSheet({ ctx }: { ctx: MobileCtx }) {
+// ── WORK PLAN / APPROVAL (z.ai-style chat — actions via composer, no big buttons) ──
+export function PlanSheet({ ctx }: { ctx: MobileCtx }): React.ReactElement {
   const P = D.PLAN;
   const run = ctx.runState; // 'plan' | 'running' | 'done'
+  const [thread, setThread] = useState<Array<{ role: "user" | "agent"; text: string }>>([]);
+  const [draft, setDraft] = useState("");
+  const scope = [
+    ...P.willRead.map((t) => ({ st: run === "plan" ? "todo" : run === "running" ? "running" : "done", tx: t, kind: "read" })),
+    ...P.willCreate.map((t) => ({ st: run === "done" ? "done" : "todo", tx: t, kind: "create" })),
+  ];
+  const mark = (s: { st: string; tx: string; kind: string }) =>
+    s.kind === "create"
+      ? React.createElement(
+          "span",
+          { className: "na-todo-mark" + (s.st === "done" ? " done" : ""), "data-create": true },
+          s.st === "done" ? Ico("check") : Ico("plus"),
+        )
+      : s.st === "done"
+        ? React.createElement("span", { className: "na-todo-mark done" }, Ico("check"))
+        : s.st === "running"
+          ? React.createElement("span", { className: "na-todo-mark running" }, React.createElement("i", { className: "spin" }))
+          : React.createElement("span", { className: "na-todo-mark" });
+  const doneN = scope.filter((s) => s.st === "done").length;
+
+  const reply = (q: string): string => {
+    const s = q.toLowerCase();
+    if (/scope|edit|add|remove|change/.test(s)) return "Tell me what to add or drop and I’ll re-scope before locking the plan hash — e.g. “also read the pitch deck” or “don’t touch the sheet”.";
+    if (/cost|price|cheap|budget/.test(s)) return "Estimated at " + ((P.stats.find((x) => x.mono) || ({} as Partial<D.Stat>)).v) + ". I can route to a cheaper model if you want to trade depth for spend.";
+    if (/safe|write|overwrite|private/.test(s)) return "Read-only — I propose every change as a diff and never write a cell or note until you approve. Your private notes stay out of scope.";
+    return "I’ll keep this read-only and propose a diff. Tap Approve to run, or tell me how to adjust the scope.";
+  };
+  const ask = (q: string) => setThread((t) => [...t, { role: "user", text: q }, { role: "agent", text: reply(q) }]);
+  const send = () => {
+    const q = draft.trim();
+    if (!q) return;
+    ask(q);
+    setDraft("");
+  };
+
+  const chips: Array<{ label: string; icon: IconName; primary?: boolean; onClick: () => void }> =
+    run === "plan"
+      ? [
+          { label: "Approve research", icon: "bolt", primary: true, onClick: ctx.approveResearch },
+          { label: "Run read-only", icon: "eye", onClick: ctx.runReadOnly },
+          { label: "Edit scope", icon: "pen", onClick: () => ask("Edit scope") },
+        ]
+      : run === "done"
+        ? [{ label: "Review evidence", icon: "file", primary: true, onClick: () => ctx.openSheet("evidence") }]
+        : [];
 
   return React.createElement(
     React.Fragment,
     null,
-    React.createElement(SheetHead, { title: "Agent work plan", sub: P.entity + " · read-only first", onClose: ctx.closeSheet }),
+    <SheetHead title="Agent work plan" sub={"Chat · " + P.entity + " · read-only first"} ctx={ctx} />,
     React.createElement(
       "div",
       { className: "na-sheet-body" },
-      // status banner
       React.createElement(
         "div",
-        { className: "na-card accent", "data-accent-rule": run === "done" ? "ok" : null },
+        { className: "na-zchat" },
+        React.createElement("div", { className: "na-zmsg user" }, "Research " + P.entity + " and propose a row + evidence — don’t write anything yet."),
         React.createElement(
           "div",
-          { className: "na-card-head accent" },
+          { className: "na-zmsg agent" },
           React.createElement(
             "div",
-            { className: "na-card-title" },
-            React.createElement("strong", null, run === "plan" ? "Ready for review" : run === "running" ? "Research running" : "Read-only run complete"),
-            React.createElement("span", null, run === "plan" ? "Approve before any web read" : run === "running" ? "Gathering approved evidence" : "Evidence attached · review the diff"),
+            { className: "na-zhead" },
+            React.createElement("span", { className: "av" }, Ico("sparkles")),
+            "NodeAgent",
+            React.createElement(
+              "span",
+              { className: "na-zstatus", "data-run": run },
+              run === "plan" ? "ready for approval" : run === "running" ? "working…" : "read-only run complete",
+            ),
           ),
           React.createElement(
-            Pill,
-            { tone: run === "plan" ? "warn" : run === "running" ? "accent" : "ok", icon: run === "done" ? "check" : run === "running" ? undefined : "lock" },
-            run === "plan" ? "approval" : run === "running" ? "running" : "done",
+            "p",
+            { className: "na-ztext" },
+            run === "done"
+              ? "Done — I stayed read-only and attached evidence. Review the diff before anything is written."
+              : "Here’s the scope. I’ll only read these sources and propose changes as a diff — nothing is written until you approve.",
           ),
+          React.createElement(
+            "div",
+            { className: "na-todos" },
+            React.createElement("div", { className: "na-todos-head" }, Ico("check"), "Plan", React.createElement("span", { className: "c" }, doneN + " / " + scope.length)),
+            scope.map((s, i) => React.createElement("div", { key: i, className: "na-todo", "data-st": s.st }, mark(s), React.createElement("span", { className: "tx" }, s.tx))),
+          ),
+          run === "plan" &&
+            React.createElement(
+              "div",
+              { className: "na-zstats" },
+              P.stats.map((s, i) => React.createElement("span", { key: i, className: "na-zstat" + (s.mono ? " mono" : "") }, React.createElement("b", null, s.v), s.l)),
+            ),
+          React.createElement("div", { className: "na-guard" }, Ico("shield"), "Plan hash " + P.hash + " locks scope + cost before the job runs."),
         ),
         run === "running" &&
-          React.createElement("div", { className: "na-card-body accent" }, React.createElement("div", { className: "na-skel" }, React.createElement("i", null), React.createElement("i", { className: "s" }))),
-      ),
-
-      // scope
-      scopeBlock("will", "Will read", "eye", P.willRead),
-      scopeBlock("wont", "Will not read", "lock", P.wontRead),
-      scopeBlock("create", "Will create", "plus", P.willCreate),
-
-      // estimate
-      React.createElement(
-        "div",
-        { className: "na-stats" },
-        P.stats.map((s, i) => React.createElement("div", { key: i, className: "na-stat" }, React.createElement("b", { className: s.mono ? "mono" : "" }, s.v), React.createElement("span", null, s.l))),
-      ),
-
-      // plan hash
-      React.createElement(
-        "div",
-        { className: "na-row", style: { borderTop: "none" } },
-        React.createElement("span", { className: "ri" }, Ico("shield")),
-        React.createElement("span", { className: "rm" }, React.createElement("strong", null, "Approved plan hash"), React.createElement("span", null, "Locks scope + cost before the job runs")),
-        React.createElement("span", { className: "rt" }, P.hash),
-      ),
-    ),
-
-    // footer actions
-    React.createElement(
-      "div",
-      { className: "na-sheet-foot" },
-      run === "plan" &&
-        React.createElement(
-          React.Fragment,
-          null,
-          React.createElement("button", { className: "na-btn primary full", onClick: ctx.approveResearch }, Ico("bolt"), "Approve research"),
           React.createElement(
             "div",
-            { className: "na-btn-row" },
-            React.createElement("button", { className: "na-btn", onClick: () => ctx.runReadOnly() }, Ico("eye"), "Run read-only"),
-            React.createElement("button", { className: "na-btn ghost", onClick: ctx.closeSheet }, "Edit scope"),
+            { className: "na-zmsg agent" },
+            React.createElement("div", { className: "na-skel" }, React.createElement("i", null), React.createElement("i", { className: "s" })),
           ),
-        ),
-      run === "running" &&
-        React.createElement("button", { className: "na-btn full", disabled: true }, React.createElement("span", { className: "na-pulsedot" }), "Working inside approved scope…"),
-      run === "done" &&
-        React.createElement("button", { className: "na-btn primary full", onClick: () => ctx.openSheet("evidence") }, Ico("file"), "Review evidence"),
-    ),
-  );
-}
-
-// ── EVIDENCE PREVIEW ───────────────────────────────────────────────────────
-export function EvidenceSheet({ ctx }: { ctx: MobileCtx }) {
-  const E = D.EVIDENCE;
-  return React.createElement(
-    React.Fragment,
-    null,
-    React.createElement(SheetHead, { title: "Evidence", sub: "Coverage for a single claim", onClose: ctx.closeSheet }),
-    React.createElement(
-      "div",
-      { className: "na-sheet-body" },
-      React.createElement(
-        "div",
-        { className: "na-card accent", "data-accent-rule": "warn" },
-        React.createElement(
-          "div",
-          { className: "na-card-head accent" },
-          React.createElement("div", { className: "na-card-title" }, React.createElement("strong", null, "“" + E.claim + "”"), React.createElement("span", null, "Claim under review")),
-          React.createElement(Pill, { tone: "warn" }, React.createElement("span", { className: "mono" }, E.status)),
-        ),
-        React.createElement(
-          "div",
-          { className: "na-card-body accent" },
-          React.createElement("p", { className: "na-prose", style: { margin: 0 } }, "NodeRoom found ", React.createElement("b", null, "two supporting sources"), " but no primary confirmation of round size or lead investor."),
-        ),
-      ),
-
-      React.createElement("div", { className: "na-kicker" }, "Source support"),
-      React.createElement(
-        "div",
-        { style: { display: "flex", flexDirection: "column", gap: 8 } },
-        E.support.map((s, i) =>
-          s.kind === "gap"
-            ? React.createElement("div", { key: i, className: "na-cite gap" }, Ico("gap"), s.text)
+        thread.map((m, i) =>
+          m.role === "user"
+            ? React.createElement("div", { key: i, className: "na-zmsg user" }, m.text)
             : React.createElement(
                 "div",
-                { key: i, className: "na-cite" },
-                React.createElement("sup", null, s.n),
-                s.text,
-                React.createElement(Pill, { tone: s.verified ? "ok" : "mute" }, s.verified ? "verified" : "unverified"),
+                { key: i, className: "na-zmsg agent" },
+                React.createElement("div", { className: "na-zhead" }, React.createElement("span", { className: "av" }, Ico("sparkles")), "NodeAgent"),
+                React.createElement("p", { className: "na-ztext" }, m.text),
               ),
         ),
       ),
@@ -160,24 +201,214 @@ export function EvidenceSheet({ ctx }: { ctx: MobileCtx }) {
     React.createElement(
       "div",
       { className: "na-sheet-foot" },
+      chips.length
+        ? React.createElement(
+            "div",
+            { className: "na-quickchips" },
+            chips.map((c, i) => React.createElement("button", { key: i, className: "na-quickchip" + (c.primary ? " primary" : ""), onClick: c.onClick }, Ico(c.icon), c.label)),
+          )
+        : null,
       React.createElement(
         "div",
-        { className: "na-btn-row" },
-        React.createElement("button", { className: "na-btn primary", onClick: () => ctx.toast("Source search queued") }, Ico("search"), "Search sources"),
-        React.createElement("button", { className: "na-btn", onClick: () => ctx.toast("Follow-up created for Maya") }, Ico("plus"), "Follow-up"),
+        { className: "na-zcompose" },
+        React.createElement("span", { className: "mk" }, Ico("sparkles")),
+        React.createElement("input", {
+          className: "na-zinput",
+          value: draft,
+          type: "text",
+          placeholder: run === "running" ? "Working inside approved scope…" : "Adjust the plan or ask before approving…",
+          disabled: run === "running",
+          onChange: (e: React.ChangeEvent<HTMLInputElement>) => setDraft(e.target.value),
+          onKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              send();
+            }
+          },
+        }),
+        React.createElement("button", { className: "na-zsend", disabled: !draft.trim() || run === "running", onClick: send, "aria-label": "Send" }, Ico("arrowUp")),
+      ),
+    ),
+  );
+}
+
+// ── EVIDENCE PREVIEW (private chat — sourced answer + follow-up) ──────────
+type EvidenceCite = { kind: "cite"; n: string; text: string; host?: string; verified: boolean };
+type EvidenceGap = { kind: "gap"; text: string };
+type EvidenceFollowup = { match: string[]; text: string };
+
+export function EvidenceSheet({ ctx }: { ctx: MobileCtx }): React.ReactElement {
+  const E = D.EVIDENCE as D.Evidence & { followups?: EvidenceFollowup[]; fallback?: string };
+  const [draft, setDraft] = useState("");
+  const [thread, setThread] = useState<Array<{ role: "user" | "agent"; text: string }>>([]);
+  const cites = E.support.filter((s): s is EvidenceCite => s.kind === "cite") as EvidenceCite[];
+  const gaps = E.support.filter((s): s is EvidenceGap => s.kind === "gap") as EvidenceGap[];
+  const reply = (q: string): string => {
+    const s = q.toLowerCase();
+    const hit = (E.followups || []).find((f) => f.match.some((m) => s.includes(m)));
+    return hit ? hit.text : (E.fallback as string);
+  };
+  const send = () => {
+    const q = draft.trim();
+    if (!q) return;
+    setThread((t) => [...t, { role: "user", text: q }, { role: "agent", text: reply(q) }]);
+    setDraft("");
+  };
+  const quick = [
+    { label: "What’s the round size?", q: "round size" },
+    { label: "Who’s the lead?", q: "lead investor" },
+    { label: "How do I close the gap?", q: "close the gap" },
+  ];
+  const ask = (q: string) => setThread((t) => [...t, { role: "user", text: q }, { role: "agent", text: reply(q) }]);
+  return React.createElement(
+    React.Fragment,
+    null,
+    <SheetHead title="Evidence" sub={"Chat · " + E.claim} ctx={ctx} />,
+    React.createElement(
+      "div",
+      { className: "na-sheet-body" },
+      React.createElement(
+        "div",
+        { className: "na-zchat" },
+        // opening agent answer with sources
+        React.createElement(
+          "div",
+          { className: "na-zmsg agent" },
+          React.createElement(
+            "div",
+            { className: "na-zhead" },
+            React.createElement("span", { className: "av" }, Ico("sparkles")),
+            "NodeAgent",
+            React.createElement("span", { className: "na-zstatus", "data-run": "plan" }, "needs_review"),
+          ),
+          React.createElement(
+            "div",
+            { className: "na-srclist", style: { marginTop: 0, marginBottom: 12 } },
+            cites.map((s) =>
+              React.createElement(
+                "button",
+                { key: s.n, className: "na-srcrow", onClick: () => (ctx as SheetHeadCtx).openSource && (ctx as SheetHeadCtx).openSource!(s) },
+                React.createElement("span", { className: "n" }, s.n),
+                React.createElement(
+                  "span",
+                  { className: "na-srctext" },
+                  React.createElement("strong", null, s.text),
+                  React.createElement("span", { className: "h" }, s.host),
+                ),
+                React.createElement("span", { className: "na-srcv", "data-v": s.verified }, Ico(s.verified ? "checkCircle" : "clock")),
+                React.createElement("span", { className: "na-srcopen" }, Ico("extlink")),
+              ),
+            ),
+          ),
+          React.createElement(
+            "p",
+            { className: "na-ztext" },
+            "I found ",
+            React.createElement("b", null, cites.length + " supporting sources"),
+            " but no primary confirmation of round size or lead investor.",
+          ),
+          gaps.map((g, i) => React.createElement("div", { key: i, className: "na-srcgap", style: { marginTop: 10 } }, Ico("gap"), g.text)),
+        ),
+        thread.map((m, i) =>
+          m.role === "user"
+            ? React.createElement("div", { key: i, className: "na-zmsg user" }, m.text)
+            : React.createElement(
+                "div",
+                { key: i, className: "na-zmsg agent" },
+                React.createElement("div", { className: "na-zhead" }, React.createElement("span", { className: "av" }, Ico("sparkles")), "NodeAgent"),
+                React.createElement("p", { className: "na-ztext" }, m.text),
+              ),
+        ),
+      ),
+    ),
+
+    React.createElement(
+      "div",
+      { className: "na-sheet-foot" },
+      !thread.length &&
+        React.createElement(
+          "div",
+          { className: "na-quickchips" },
+          quick.map((q, i) => React.createElement("button", { key: i, className: "na-quickchip", onClick: () => ask(q.q) }, q.label)),
+        ),
+      React.createElement(
+        "div",
+        { className: "na-zcompose" },
+        React.createElement("span", { className: "mk" }, Ico("sparkles")),
+        React.createElement("input", {
+          className: "na-zinput",
+          value: draft,
+          type: "text",
+          placeholder: "Ask about this claim…",
+          onChange: (e: React.ChangeEvent<HTMLInputElement>) => setDraft(e.target.value),
+          onKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              send();
+            }
+          },
+        }),
+        React.createElement("button", { className: "na-zsend", disabled: !draft.trim(), onClick: send, "aria-label": "Send" }, Ico("arrowUp")),
       ),
     ),
   );
 }
 
 // ── COACH ──────────────────────────────────────────────────────────────────
-export function CoachSheet({ ctx }: { ctx: MobileCtx }) {
-  const C = D.COACH;
-  const [tab, setTab] = React.useState<"howto" | "answer" | "feedback">("howto");
-  const [answer, setAnswer] = React.useState("");
-  const [graded, setGraded] = React.useState(false);
+type CoachTopic = {
+  id: string;
+  label?: string;
+  gen?: boolean;
+  question: string;
+  howto: string[];
+  feedback: { well: string; missed: string; cite: string; wording: string };
+};
 
-  function fbRow(icon: IconName, tone: Tone, title: string, body: string) {
+export function CoachSheet({ ctx }: { ctx: MobileCtx }): React.ReactElement {
+  const [topics, setTopics] = useState<CoachTopic[]>((D.COACH as unknown as { topics: CoachTopic[] }).topics);
+  const [topicIdx, setTopicIdx] = useState(0);
+  const [newTopic, setNewTopic] = useState("");
+  const C = topics[topicIdx];
+  const [tab, setTab] = useState("howto");
+  const [answer, setAnswer] = useState("");
+  const [graded, setGraded] = useState(false);
+  const pickTopic = (i: number) => {
+    setTopicIdx(i);
+    setTab("howto");
+    setAnswer("");
+    setGraded(false);
+  };
+  const genTopic = () => {
+    const label = newTopic.trim();
+    if (!label) return;
+    const topic: CoachTopic = {
+      id: "gen_" + Date.now(),
+      label,
+      gen: true,
+      question: "Explain " + label + " — state the claim, the evidence you have, what’s missing, and the action that closes the gap.",
+      howto: [
+        "Name the claim and its current status.",
+        "Cite the strongest source you have.",
+        "State the missing primary source precisely.",
+        "Say what action would verify it.",
+      ],
+      feedback: {
+        well: "You framed " + label + " as a claim with a clear status.",
+        missed: "Tie it to a specific primary source, not a general reference.",
+        cite: "Attach the document that would move " + label + " to verified.",
+        wording: label + " is needs_review until a primary source is attached and the evidence check re-runs.",
+      },
+    };
+    setTopics((t) => [...t, topic]);
+    setTopicIdx(topics.length);
+    setTab("howto");
+    setAnswer("");
+    setGraded(false);
+    setNewTopic("");
+    ctx.toast("Coaching on “" + label + "”");
+  };
+
+  function fbRow(icon: IconName, tone: Tone, title: string, body: string): React.ReactElement {
     return React.createElement(
       "div",
       { className: "na-card" },
@@ -202,24 +433,57 @@ export function CoachSheet({ ctx }: { ctx: MobileCtx }) {
   return React.createElement(
     React.Fragment,
     null,
-    React.createElement(SheetHead, { title: "Coach", sub: "Review readiness · CardioNova", onClose: ctx.closeSheet }),
+    <SheetHead title="Coach" sub="Review readiness · CardioNova" ctx={ctx} />,
     React.createElement(
       "div",
       { className: "na-sheet-body" },
+      // topic switcher — pick or generate what to coach on
+      React.createElement(
+        "div",
+        { className: "na-coach-topics" },
+        topics.map((tp, i) =>
+          React.createElement(
+            "button",
+            { key: tp.id, className: "na-coach-topic", "data-active": i === topicIdx, onClick: () => pickTopic(i) },
+            Ico(tp.gen ? "sparkles" : "coach"),
+            tp.label,
+          ),
+        ),
+      ),
+      React.createElement(
+        "div",
+        { className: "na-coach-gen" },
+        React.createElement("span", { className: "mk" }, Ico("sparkles")),
+        React.createElement("input", {
+          className: "na-zinput",
+          value: newTopic,
+          type: "text",
+          placeholder: "Coach me on something else…  e.g. “paid pilot revenue”",
+          onChange: (e: React.ChangeEvent<HTMLInputElement>) => setNewTopic(e.target.value),
+          onKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              genTopic();
+            }
+          },
+        }),
+        React.createElement("button", { className: "na-zsend", disabled: !newTopic.trim(), onClick: genTopic, "aria-label": "Generate topic" }, Ico("arrowUp")),
+      ),
+
       React.createElement(
         "div",
         { className: "na-card", "data-accent-rule": "priv" },
-        React.createElement("div", { className: "na-card-body", style: { paddingTop: "var(--na-pad)" } }, React.createElement("p", { className: "na-prose", style: { margin: 0 } }, C.question)),
+        React.createElement(
+          "div",
+          { className: "na-card-body", style: { paddingTop: "var(--na-pad)" } },
+          React.createElement("p", { className: "na-prose", style: { margin: 0 } }, C.question),
+        ),
       ),
 
       React.createElement(
         "div",
         { className: "na-tabs" },
-        ([
-          ["howto", "How to answer"],
-          ["answer", "Your answer"],
-          ["feedback", "Feedback"],
-        ] as const).map(([id, lab]) =>
+        ([["howto", "How to answer"], ["answer", "Your answer"], ["feedback", "Feedback"]] as Array<[string, string]>).map(([id, lab]) =>
           React.createElement("button", { key: id, className: "na-tab", "data-active": tab === id, onClick: () => setTab(id) }, lab),
         ),
       ),
@@ -235,7 +499,11 @@ export function CoachSheet({ ctx }: { ctx: MobileCtx }) {
               React.createElement(
                 "div",
                 { key: i, className: "na-row" },
-                React.createElement("span", { className: "ri", style: { fontFamily: "var(--font-mono)", fontWeight: 700, color: "var(--na-accent)", background: "var(--na-accent-bg)" } }, i + 1),
+                React.createElement(
+                  "span",
+                  { className: "ri", style: { fontFamily: "var(--font-mono)", fontWeight: 700, color: "var(--na-accent)", background: "var(--na-accent-bg)" } },
+                  i + 1,
+                ),
                 React.createElement("span", { className: "rm" }, React.createElement("strong", { style: { whiteSpace: "normal" } }, h)),
                 React.createElement("span", null),
               ),
@@ -255,7 +523,14 @@ export function CoachSheet({ ctx }: { ctx: MobileCtx }) {
           }),
           React.createElement(
             "button",
-            { className: "na-btn primary full", disabled: !answer.trim(), onClick: () => { setGraded(true); setTab("feedback"); } },
+            {
+              className: "na-btn primary full",
+              disabled: !answer.trim(),
+              onClick: () => {
+                setGraded(true);
+                setTab("feedback");
+              },
+            },
             Ico("checkCircle"),
             "Get feedback",
           ),
@@ -295,3 +570,6 @@ export function CoachSheet({ ctx }: { ctx: MobileCtx }) {
     ),
   );
 }
+
+// Re-export the internal scope helper so the module surface mirrors the prototype.
+export { scopeTable };

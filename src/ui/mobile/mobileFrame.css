@@ -48,6 +48,34 @@
   }
 }
 
+/* ── terra stage: desk backdrop that centers the IOSDevice (MobileFrame.tsx) ── */
+.na-stage {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  overflow: auto;
+  background:
+    radial-gradient(95% 65% at 50% -5%, #f3e8d8, transparent 58%),
+    radial-gradient(80% 55% at 100% 100%, #3a2818, transparent 60%),
+    #241710;
+}
+.na-stage[data-dark="true"] {
+  background:
+    radial-gradient(95% 65% at 50% -5%, #2a1c12, transparent 58%),
+    #0a0a0b;
+}
+/* Real phone widths: drop the desk, fill the viewport. */
+.na-stage[data-compact="true"] {
+  display: block;
+  overflow: hidden;
+  background: #fbf4e7;
+}
+.na-stage[data-compact="true"][data-dark="true"] {
+  background: #000;
+}
+
 /* ── join form (live mode: enter a room code or start a demo) ──────────────── */
 .na-join {
   position: absolute;

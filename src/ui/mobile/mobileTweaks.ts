@@ -9,13 +9,13 @@ import type { TweaksConfig, PassiveMode, Density, AccentName, CopyTone, MotionNa
 
 export const DEFAULT_TWEAKS: TweaksConfig = {
   passive: "suggest",
-  navModel: "capture",
+  navModel: "home",
   density: "comfortable",
   accent: "terracotta",
   navStyle: "tabs",
   copyTone: "analyst",
   motion: "expressive",
-  dark: true,
+  dark: false,
 };
 
 const KEY = "noderoom:mobile:tweaks:v1";
@@ -31,9 +31,9 @@ export function loadTweaks(): TweaksConfig {
     const p = JSON.parse(raw) as Record<string, unknown>;
     return {
       passive: pickEnum<PassiveMode>(["off", "suggest", "index", "research"], p.passive, DEFAULT_TWEAKS.passive),
-      navModel: pickEnum<TabId>(["capture", "room", "agent", "inbox", "files"], p.navModel, DEFAULT_TWEAKS.navModel),
+      navModel: pickEnum<TabId>(["home", "capture", "room", "agent", "inbox", "files"], p.navModel, DEFAULT_TWEAKS.navModel),
       density: pickEnum<Density>(["compact", "comfortable"], p.density, DEFAULT_TWEAKS.density),
-      accent: pickEnum<AccentName>(["terracotta", "amber", "neutral"], p.accent, DEFAULT_TWEAKS.accent),
+      accent: pickEnum<AccentName>(["terracotta", "clay", "ochre"], p.accent, DEFAULT_TWEAKS.accent),
       navStyle: pickEnum<NavStyle>(["tabs", "dock"], p.navStyle, DEFAULT_TWEAKS.navStyle),
       copyTone: pickEnum<CopyTone>(["analyst", "calm", "command"], p.copyTone, DEFAULT_TWEAKS.copyTone),
       motion: pickEnum<MotionName>(["expressive", "minimal", "reduced"], p.motion, DEFAULT_TWEAKS.motion),

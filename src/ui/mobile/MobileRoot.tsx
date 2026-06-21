@@ -29,9 +29,20 @@ interface LiveSession {
 const liveKey = (code: string) => `noderoom:live:${code.toUpperCase()}`;
 
 export function MobileRoot() {
-  // Offline / memory mode: no live backend — render the sample-data surface.
-  if (!HAS_CONVEX) return <MobileApp />;
+  // Offline / memory mode: no live backend, or explicitly forced via
+  // `#mobile?mode=memory` (mirrors the desktop) — render the sample-data surface
+  // so the terra design can be previewed without joining a live room.
+  if (!HAS_CONVEX || wantsMemory()) return <MobileApp />;
   return <MobileLiveRoot />;
+}
+
+/** `#mobile?mode=memory` → force the offline sample surface. */
+function wantsMemory(): boolean {
+  if (typeof window === "undefined") return false;
+  const hash = window.location.hash;
+  const qi = hash.indexOf("?");
+  const params = new URLSearchParams(qi >= 0 ? hash.slice(qi + 1) : window.location.search);
+  return params.get("mode") === "memory";
 }
 
 function MobileLiveRoot() {

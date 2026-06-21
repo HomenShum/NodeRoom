@@ -125,9 +125,10 @@ export function MobileAppLive({ roomId, me, onLeave }: { roomId: string; me: Act
     statusTone: "warn",
     time: relTime(p.createdAt),
     kind: "plan",
+    preview: "doc",
   }));
   const oneJob: Job | null = job
-    ? { id: job.id, title: job.entrypoint ?? "Agent job", sub: job.status + (job.error ? " · " + job.error : ""), cost: "", route: job.modelPolicy, trace: job.id }
+    ? { id: job.id, title: job.entrypoint ?? "Agent job", sub: job.status + (job.error ? " · " + job.error : ""), cost: "", route: job.modelPolicy as Job["route"], trace: job.id }
     : null;
   const jobs: { running: Job[]; queued: Job[]; completed: Job[] } = { running: [], queued: [], completed: [] };
   if (job && oneJob) {

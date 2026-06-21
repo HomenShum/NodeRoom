@@ -17,7 +17,13 @@ import type {
   Person,
   Row,
   Job,
+  Extraction,
+  RoomEntry,
+  SourceRef,
 } from "./mobileData";
+
+// Re-export the UI-state unions so leaf modules can import them from here too.
+export type { TabId, SheetId, ComposerMode } from "./mobileData";
 
 export type RowEditResult = { ok: boolean; reason?: string; version?: number };
 
@@ -26,9 +32,16 @@ export type RunState = "plan" | "running" | "done";
 export type PassiveMode = "off" | "suggest" | "index" | "research";
 export type CopyTone = "analyst" | "calm" | "command";
 export type Density = "compact" | "comfortable";
-export type AccentName = "terracotta" | "amber" | "neutral";
+export type AccentName = "terracotta" | "clay" | "ochre";
 export type MotionName = "expressive" | "minimal" | "reduced";
 export type NavStyle = "tabs" | "dock";
+export type ScopeName = "Private" | "Room" | "Shared";
+
+/** Stacking overlay shown above any bottom sheet (trace receipt | source reader). */
+export type OverlayState =
+  | { type: "trace"; id: string }
+  | { type: "source"; src: SourceRef }
+  | null;
 
 export interface TweaksConfig {
   passive: PassiveMode;
@@ -95,6 +108,47 @@ export interface MobileCtx {
   canApprove: boolean;
   resolveProposalById: (id: string, approve: boolean) => Promise<RowEditResult>;
   jobAct: (id: string, action: "cancel" | "retry") => Promise<RowEditResult>;
+
+  // ── terra: passive extraction + flash-on-change ──
+  /** Live structured extraction derived from the note (Detected tab / Home). */
+  extract: Extraction;
+  /** Keys ("group.field") that changed on the last silent rescan — flashed briefly. */
+  flashKeys: string[];
+
+  // ── terra: sheet back-stack + stacking overlay ──
+  backSheet: () => void;
+  canBack: boolean;
+  /** Spin up a read-only "search sources" run in the room agent. */
+  startSearch: (item?: unknown) => void;
+  openTrace: (id: string) => void;
+  openSource: (src: SourceRef) => void;
+  closeOverlay: () => void;
+  /** Jump from a job's trace receipt to the finished artifact, then pulse it. */
+  openFromTrace: (job: { artifact?: string; artifactName?: string; trace?: string }) => void;
+  overlay: OverlayState;
+
+  // ── terra: people / mentions / pins ──
+  mentionPerson: (who: string) => void;
+  togglePin: (name: string) => void;
+  pinned: string[];
+
+  // ── terra: navigation + Ask-NodeAgent composer ──
+  setTab: (t: TabId) => void;
+  scope: ScopeName;
+  cycleScope: () => void;
+  toggleScope: () => void;
+  openAsk: (mode?: ComposerMode) => void;
+  closeAsk: () => void;
+  sendAsk: () => void;
+  askOpen: boolean;
+
+  // ── terra: room switcher ──
+  /** Current room descriptor (live room when bound, else the sample room entry). */
+  room: RoomEntry;
+  roomId: string;
+  switchRoom: (id: string) => void;
+  joinRoom: () => void;
+  leaveRoom: () => void;
 }
 
 /** Live room data injected into MobileApp by MobileAppLive (see MobileRoot). */
