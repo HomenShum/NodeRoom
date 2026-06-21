@@ -1,0 +1,18 @@
+{
+  "runId": "live-convex-agent-20260621T113838Z",
+  "generatedAt": "2026-06-21T11:42:19.171Z",
+  "model": "gemini-3.5-flash",
+  "primaryOnly": true,
+  "all": false,
+  "includeIgnored": false,
+  "assets": [
+    {
+      "id": "docs-eval-gemini-media-judges-live-convex-agent-20260621t113838z-live-proof",
+      "class": "live_browser_proof",
+      "title": "Live Proof",
+      "path": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom_clean_proof\\docs\\eval\\gemini-media-judges\\live-convex-agent-20260621T113838Z\\live-proof.webm",
+      "relPath": "docs/eval/gemini-media-judges/live-convex-agent-20260621T113838Z/live-proof.webm",
+      "purpose": "Live Playwright browser proof clip. Judge only visible product evidence: multi-client sync, advisory presence, no-clobber behavior, proposals, job/privacy/wall surfaces, and production honesty."
+    }
+  ]
+}
