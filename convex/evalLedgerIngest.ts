@@ -10,6 +10,27 @@ const finishRunRef = makeFunctionReference<"mutation">("evalRuns:finishRun") as 
 const ensureBtbLedgerRoomRef = makeFunctionReference<"mutation">("evalLedgerIngest:ensureBtbLedgerRoom") as any;
 const recordRefutationVerdictInternalRef = makeFunctionReference<"mutation">("evalRuns:recordRefutationVerdictInternal") as any;
 
+// BOUND: cap free-text string sizes BEFORE any runMutation call so a single payload
+// (up to 250 tasks) can't deliver multi-MB raw strings that blow past Convex's 1 MB
+// document limit mid-loop and corrupt a partial ingest. Validators can't express
+// length caps, so the handler enforces them at the trust boundary.
+const MAX_RAW_BYTES = 32_768;          // task.raw (largest free-text field per row)
+const MAX_NOTES_BYTES = 4_096;         // run-level notes
+const MAX_LABEL_BYTES = 256;           // iterationLabel
+const MAX_IDENT_BYTES = 128;           // taskId, firedWriter, model, materializerMode, plannerTransport, trialId
+const MAX_VERDICT_BYTES = 4_096;       // verdict free-text
+
+function clampString(value: string, maxBytes: number): string {
+  // JS string length is UTF-16 code units, which approximates byte count closely
+  // enough for the document-size guard. Exact byte accounting is unnecessary —
+  // the goal is to keep any single field well below the per-doc limit.
+  return value.length > maxBytes ? value.slice(0, maxBytes) : value;
+}
+
+function clampOptionalString(value: string | undefined, maxBytes: number): string | undefined {
+  return value === undefined ? undefined : clampString(value, maxBytes);
+}
+
 const taskPayloadV = v.object({
   taskId: v.string(),
   reward: v.number(),
@@ -125,28 +146,35 @@ export const ingestBankerToolBenchSummary = action({
 
     const evalRunId = await ctx.runMutation(startRunRef, {
       roomId,
-      iterationLabel: args.payload.iterationLabel,
+      iterationLabel: clampString(args.payload.iterationLabel, MAX_LABEL_BYTES),
       benchmark: args.payload.benchmark,
-      model: args.payload.model,
-      materializerMode: args.payload.materializerMode,
+      model: clampOptionalString(args.payload.model, MAX_IDENT_BYTES),
+      materializerMode: clampString(args.payload.materializerMode, MAX_IDENT_BYTES),
       taskCount: args.payload.taskCount,
-      notes: args.payload.notes,
+      notes: clampOptionalString(args.payload.notes, MAX_NOTES_BYTES),
     }) as Id<"evalRuns">;
 
     for (const task of args.payload.tasks) {
       // Refutations ride alongside the task result but live in their own table column;
       // strip them from the result write, then emit each verdict via the internal mutation.
       const { refutations, ...resultFields } = task;
+      const clampedTaskId = clampString(resultFields.taskId, MAX_IDENT_BYTES);
       await ctx.runMutation(recordTaskResultRef, {
         roomId,
         evalRunId,
         ...resultFields,
+        taskId: clampedTaskId,
+        firedWriter: clampString(resultFields.firedWriter, MAX_IDENT_BYTES),
+        raw: clampOptionalString(resultFields.raw, MAX_RAW_BYTES),
+        plannerTransport: clampOptionalString(resultFields.plannerTransport, MAX_IDENT_BYTES),
+        trialId: clampOptionalString(resultFields.trialId, MAX_IDENT_BYTES),
+        verdict: clampOptionalString(resultFields.verdict, MAX_VERDICT_BYTES),
       });
       if (refutations && refutations.length > 0) {
         for (const verdict of refutations) {
           await ctx.runMutation(recordRefutationVerdictInternalRef, {
             evalRunId,
-            taskId: task.taskId,
+            taskId: clampedTaskId,
             verdict,
           });
         }
