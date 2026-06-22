@@ -1,0 +1,6 @@
+{
+  "inv2_amount_diff": {"value": 50, "cite": {"file": "ledger.csv", "locator": "INV-2 vs bank.csv INV-2"}},
+  "inv3_missing_in_bank": {"value": 300, "cite": {"file": "ledger.csv", "locator": "INV-3"}},
+  "inv4_missing_in_ledger": {"value": 300, "cite": {"file": "bank.csv", "locator": "INV-4"}},
+  "num_discrepancies": {"value": 3, "cite": {"file": "ledger.csv", "locator": "compared to bank.csv"}}
+}

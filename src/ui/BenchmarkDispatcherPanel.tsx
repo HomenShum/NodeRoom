@@ -1,0 +1,249 @@
+/**
+ * BenchmarkDispatcherPanel — the #bench hash route surface.
+ *
+ * Mounts a self-contained scroll container (NOT .r-screen — that class is flex-row
+ * and would collapse this page; see the saved memory). Provides:
+ *   - a list of bundled benchmark task ids
+ *   - a "Run" button per task that calls dispatchBenchmarkTask against the live
+ *     in-memory RoomEngine (the same engine the memory lane uses)
+ *   - a results panel with the pass/fail grade per allowed_key
+ *
+ * Stamps `data-testid="benchmark-dispatcher"` + `data-bench-task=<slug>` so the
+ * Live-DOM verification step (per the global rule) can grep raw HTML at
+ * https://noderoom.live/#bench for the dispatcher signal without booting JS.
+ */
+
+import { useEffect, useMemo, useRef, useState } from "react";
+import { engine } from "../app/roomStore";
+import {
+  dispatchBenchmarkTask,
+  listBenchmarkTaskIds,
+  type BenchmarkResult,
+} from "../app/benchmarkDispatcher";
+import { hasBrowserOpenRouterKey, browserModelId } from "../nodeagent/models/openRouterBrowser";
+import type { Actor } from "../engine/types";
+
+// One bench room per browser session, lazily seeded on first run.
+let cachedBenchRoomId: string | null = null;
+
+function ensureBenchRoom(): { roomId: string; actor: Actor; sessionId: string } {
+  const actor: Actor = { kind: "agent", id: "bench-agent", name: "BenchAgent", scope: "public" };
+  if (cachedBenchRoomId) {
+    const sess = engine.listSessions(cachedBenchRoomId).find((s) => s.scope === "public");
+    if (sess) return { roomId: cachedBenchRoomId, actor, sessionId: sess.id };
+  }
+  // autoAllow: true so agent edits commit directly (not held as pending proposals).
+  // The bench room is a fresh isolated workspace — there are no human reviewers to gate writes,
+  // and the grading invariant is "did the agent actually write the rubric values" not "did a
+  // human approve them". Matches buildDemoRoom in src/engine/demoRoom.ts.
+  const { room } = engine.createRoom({ title: "Benchmark dispatcher", hostName: "BenchHost", autoAllow: true });
+  cachedBenchRoomId = room.id;
+  const sess = engine.startSession({ roomId: room.id, agentId: "bench-agent", agentName: "BenchAgent", scope: "public" });
+  return { roomId: room.id, actor, sessionId: sess.id };
+}
+
+type RunState =
+  | { kind: "idle" }
+  | { kind: "running"; taskId: string }
+  | { kind: "done"; taskId: string; result: BenchmarkResult };
+
+export function BenchmarkDispatcherPanel({ initialTaskId }: { initialTaskId?: string }) {
+  const taskIds = useMemo(() => listBenchmarkTaskIds(), []);
+  const [activeTask, setActiveTask] = useState(initialTaskId || taskIds[0] || "");
+  const [run, setRun] = useState<RunState>({ kind: "idle" });
+  const [chat, setChat] = useState<string[]>([]);
+  const seedRef = useRef<{ ok: boolean; error?: string } | null>(null);
+  if (!seedRef.current) {
+    try {
+      ensureBenchRoom();
+      seedRef.current = { ok: true };
+    } catch (e) {
+      seedRef.current = { ok: false, error: e instanceof Error ? e.message : String(e) };
+    }
+  }
+
+  // Sync the URL hash → activeTask so /#bench/nb-01-company-profile lands on the task.
+  useEffect(() => {
+    const fromHash = window.location.hash.match(/^#\/?bench\/([a-z0-9-]+)/i)?.[1];
+    if (fromHash && taskIds.includes(fromHash.toLowerCase())) {
+      setActiveTask(fromHash.toLowerCase());
+    }
+  }, [taskIds]);
+
+  const handleRun = async (taskId: string) => {
+    if (!seedRef.current?.ok) return;
+    setRun({ kind: "running", taskId });
+    setChat([`> @bench:${taskId}`]);
+    setActiveTask(taskId);
+    try {
+      const { roomId, actor, sessionId } = ensureBenchRoom();
+      const result = await dispatchBenchmarkTask({
+        engine,
+        roomId,
+        taskId,
+        actor,
+        sessionId,
+        postMessage: (text) => setChat((cur) => [...cur, text]),
+      });
+      setRun({ kind: "done", taskId, result });
+    } catch (e) {
+      setChat((cur) => [...cur, `ERROR ${e instanceof Error ? e.message : String(e)}`]);
+      setRun({ kind: "idle" });
+    }
+  };
+
+  return (
+    <section
+      data-testid="benchmark-dispatcher"
+      data-noderoom-surface="benchmark.dispatcher"
+      data-bench-task={activeTask || ""}
+      style={{
+        // Self-contained scroll container — do NOT inherit .r-screen (flex-row).
+        minHeight: "100vh",
+        padding: "32px 24px",
+        maxWidth: 960,
+        margin: "0 auto",
+        fontFamily: "system-ui, -apple-system, Segoe UI, sans-serif",
+        color: "#e8e8e8",
+        background: "#0d0d10",
+        overflowY: "auto",
+      }}
+    >
+      <header style={{ marginBottom: 24 }}>
+        <h1 style={{ fontSize: 22, margin: 0 }}>Benchmark dispatcher</h1>
+        <p style={{ color: "#9aa0a6", marginTop: 6, fontSize: 14 }}>
+          Type <code>@bench:&lt;task-id&gt;</code> in any chat (or click Run below) to route to the live nodeagent runtime against bundled rubrics. Results compare actuals to <code>rubric.expected ± tol</code>.
+        </p>
+        {/* Model route surface. Before a run lands we display the BUILD-TIME
+            resolution (live OpenRouter id when VITE_OPENROUTER_API_KEY was
+            baked in, else "scripted:<task>" indicating dry-run mode). After a
+            run lands we display the resolved route from the result so the
+            value reflects fallback (live→scripted) when it happened. The
+            data-testid="model-route" attribute is the live-DOM verification
+            handle required by the spec. */}
+        {(() => {
+          const liveAvailable = hasBrowserOpenRouterKey();
+          const initial = liveAvailable ? `openrouter:${browserModelId()}` : `scripted:bench:${activeTask || "(none)"}`;
+          const resolved = run.kind === "done" ? run.result.modelRoute : initial;
+          const live = run.kind === "done" ? run.result.liveModel : liveAvailable;
+          return (
+            <p
+              data-testid="model-route"
+              data-model-live={String(live)}
+              data-model-name={resolved}
+              style={{ color: "#9aa0a6", marginTop: 4, fontSize: 13 }}
+            >
+              model route: <code style={{ color: live ? "#7bd88f" : "#ffb84d" }}>{resolved}</code>{" "}
+              {live ? "(live OpenRouter)" : "(scripted — no model key configured; dispatcher is dry-run only)"}
+            </p>
+          );
+        })()}
+        {seedRef.current && !seedRef.current.ok ? (
+          <p data-testid="benchmark-dispatcher-seed-error" style={{ color: "#ff8a80" }}>
+            seed error: {seedRef.current.error}
+          </p>
+        ) : null}
+      </header>
+
+      <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "grid", gap: 8 }}>
+        {taskIds.length === 0 ? (
+          <li style={{ color: "#9aa0a6" }}>No benchmark tasks bundled.</li>
+        ) : null}
+        {taskIds.map((taskId) => {
+          const isActive = activeTask === taskId;
+          const isRunning = run.kind === "running" && run.taskId === taskId;
+          return (
+            <li
+              key={taskId}
+              data-bench-task-row={taskId}
+              style={{
+                padding: 12,
+                background: isActive ? "#1a1d24" : "#15171c",
+                border: `1px solid ${isActive ? "#3d4654" : "#222"}`,
+                borderRadius: 6,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+              }}
+            >
+              <code style={{ fontSize: 14 }}>{taskId}</code>
+              <button
+                type="button"
+                onClick={() => handleRun(taskId)}
+                disabled={isRunning || !seedRef.current?.ok}
+                data-testid={`benchmark-run-${taskId}`}
+                style={{
+                  background: isRunning ? "#3d4654" : "#1f5fff",
+                  color: "#fff",
+                  border: "none",
+                  borderRadius: 4,
+                  padding: "6px 12px",
+                  fontSize: 13,
+                  cursor: isRunning ? "default" : "pointer",
+                }}
+              >
+                {isRunning ? "Running…" : "Run"}
+              </button>
+            </li>
+          );
+        })}
+      </ul>
+
+      <div data-testid="public-chat-panel" data-noderoom-surface="benchmark.chat" style={{ marginTop: 24 }}>
+        <h2 style={{ fontSize: 16, color: "#bdbdbd" }}>Dispatcher chat</h2>
+        <pre
+          style={{
+            background: "#0a0a0c",
+            border: "1px solid #222",
+            borderRadius: 6,
+            padding: 12,
+            fontSize: 12,
+            maxHeight: 240,
+            overflowY: "auto",
+            color: "#cfd0d5",
+            whiteSpace: "pre-wrap",
+          }}
+        >
+          {chat.length === 0 ? "(no messages — click Run to dispatch a task)" : chat.join("\n")}
+        </pre>
+      </div>
+
+      {run.kind === "done" ? (
+        <div data-testid="benchmark-result" data-bench-result-ok={String(run.result.ok)} style={{ marginTop: 24 }}>
+          <h2 style={{ fontSize: 16, color: "#bdbdbd" }}>
+            Result: <span style={{ color: run.result.ok ? "#7bd88f" : "#ff8a80" }}>{run.result.ok ? "PASS" : "FAIL"}</span>
+            <span style={{ color: "#9aa0a6", marginLeft: 8, fontSize: 13 }}>
+              {run.result.grade.filter((g) => g.ok).length}/{run.result.grade.length} keys
+            </span>
+          </h2>
+          {run.result.error ? (
+            <p style={{ color: "#ff8a80" }}>{run.result.error}</p>
+          ) : (
+            <table style={{ width: "100%", fontSize: 13, borderCollapse: "collapse" }}>
+              <thead>
+                <tr style={{ background: "#15171c", color: "#9aa0a6" }}>
+                  <th style={{ padding: "6px 8px", textAlign: "left" }}>key</th>
+                  <th style={{ padding: "6px 8px", textAlign: "right" }}>expected</th>
+                  <th style={{ padding: "6px 8px", textAlign: "right" }}>actual</th>
+                  <th style={{ padding: "6px 8px", textAlign: "right" }}>tol</th>
+                  <th style={{ padding: "6px 8px", textAlign: "center" }}>ok</th>
+                </tr>
+              </thead>
+              <tbody>
+                {run.result.grade.map((g) => (
+                  <tr key={g.key} data-bench-grade-key={g.key} style={{ borderBottom: "1px solid #1f2128" }}>
+                    <td style={{ padding: "6px 8px" }}><code>{g.key}</code></td>
+                    <td style={{ padding: "6px 8px", textAlign: "right" }}>{g.expected}</td>
+                    <td style={{ padding: "6px 8px", textAlign: "right" }}>{g.actual ?? "—"}</td>
+                    <td style={{ padding: "6px 8px", textAlign: "right" }}>{g.tol}</td>
+                    <td style={{ padding: "6px 8px", textAlign: "center" }}>{g.ok ? "✓" : "✗"}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
+      ) : null}
+    </section>
+  );
+}
