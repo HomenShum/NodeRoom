@@ -10,6 +10,7 @@ const specs = [
   "e2e/semantic-rebase.spec.ts",
   "e2e/work-surface-split.spec.ts",
   "e2e/responsive-qa.spec.ts",
+  "e2e/full-modern-ux-bar.spec.ts",
 ];
 
 const explicitPort = process.env.PLAYWRIGHT_PORT;
