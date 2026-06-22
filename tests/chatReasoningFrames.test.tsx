@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { Actor } from "../src/engine/types";
 
@@ -209,6 +209,42 @@ describe("Chat reasoning-frame job detail", () => {
     expect(screen.getByText("Done from the durable job row.")).toBeTruthy();
     expect(screen.queryByTestId("job-status")).toBeNull();
     expect(screen.queryByTestId("public-chat-empty")).toBeNull();
+  });
+
+  it("renders agent markdown with lists and tables instead of raw syntax", () => {
+    const store = baseStore();
+    store.lastLongFreeJob = () => null;
+    store.listMessages = () => [{
+      id: "agent-md",
+      roomId: "r1",
+      channel: "public",
+      author: { kind: "agent", id: "agent_room", name: "Room NodeAgent", scope: "public" },
+      text: [
+        "Here's a quick rundown:",
+        "",
+        "**Spreadsheet work**",
+        "- Read, search, and edit cells in the shared spreadsheet.",
+        "- Compute and fill derived values.",
+        "",
+        "| Row | Q2 | Q3 | Variance % |",
+        "|---|---:|---:|---:|",
+        "| Revenue | $10,000 | $12,400 | +24% |",
+      ].join("\n"),
+      clientMsgId: "agent-md",
+      kind: "agent",
+      createdAt: 1000,
+    }];
+    mockStore.current = store;
+
+    render(<Chat roomId="r1" me={me} channel="public" variant="public" agentName="Room NodeAgent" />);
+
+    const bubble = screen.getByTestId("chat-message");
+    expect(within(bubble).getByText("Spreadsheet work").tagName).toBe("STRONG");
+    expect(within(bubble).getAllByRole("listitem")).toHaveLength(2);
+    expect(within(bubble).getByRole("table")).toBeTruthy();
+    expect(within(bubble).getByRole("columnheader", { name: "Variance %" })).toBeTruthy();
+    expect(within(bubble).getByRole("cell", { name: "+24%" })).toBeTruthy();
+    expect(bubble.textContent).not.toContain("**Spreadsheet work**");
   });
 
   it("sorts synthetic durable job results by timestamp instead of appending them below newer chat", () => {

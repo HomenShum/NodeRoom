@@ -436,6 +436,24 @@ input { font-family: inherit; }
 .r-msg .who { font-size: 12.5px; font-weight: 700; letter-spacing: -.01em; }
 .r-msg .time { font-size: 10.5px; color: var(--text-tertiary); }
 .r-msg .text { font-size: 13.5px; line-height: 1.5; color: var(--text-secondary); overflow-wrap: anywhere; }
+.r-md > :first-child { margin-top: 0; }
+.r-md > :last-child { margin-bottom: 0; }
+.r-md p { margin: 0 0 8px; }
+.r-md h1, .r-md h2, .r-md h3 { margin: 9px 0 5px; font-size: 13.5px; line-height: 1.35; font-weight: 800; color: var(--text-primary); letter-spacing: 0; }
+.r-md ul, .r-md ol { margin: 5px 0 9px; padding-left: 18px; }
+.r-md li { margin: 3px 0; padding-left: 1px; }
+.r-md strong { color: var(--text-primary); font-weight: 800; }
+.r-md em { color: var(--text-muted); }
+.r-md code { font-family: var(--font-mono); font-size: .92em; padding: 1px 4px; border: 1px solid var(--line); border-radius: 5px; background: var(--bg-secondary); color: var(--text-primary); }
+.r-md pre { margin: 7px 0 9px; padding: 8px 9px; overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; background: var(--bg-secondary); }
+.r-md pre code { display: block; padding: 0; border: 0; background: transparent; white-space: pre; }
+.r-md blockquote { margin: 7px 0 9px; padding: 2px 0 2px 10px; border-left: 2px solid var(--accent-border); color: var(--text-muted); }
+.r-md a { color: var(--accent-ink); text-decoration: underline; text-underline-offset: 2px; }
+.r-md-table-wrap { max-width: 100%; overflow-x: auto; margin: 7px 0 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg-primary); }
+.r-md table { width: 100%; min-width: 420px; border-collapse: collapse; table-layout: auto; font-size: 12px; }
+.r-md th, .r-md td { padding: 6px 8px; border-bottom: 1px solid var(--line); vertical-align: top; white-space: nowrap; overflow-wrap: normal; }
+.r-md th { color: var(--text-primary); font-weight: 800; background: var(--bg-secondary); }
+.r-md tr:last-child td { border-bottom: 0; }
 .r-msg-refs { display: flex; gap: 5px; flex-wrap: wrap; margin: 3px 0 6px; }
 .r-msg-ref { display: inline-flex; align-items: center; gap: 5px; max-width: 180px; padding: 3px 7px; border-radius: 7px; border: 1px solid var(--line); background: var(--bg-secondary); color: var(--text-secondary); font-size: 11px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .r-msg-ref:hover { border-color: var(--accent-border); color: var(--accent-ink); background: var(--accent-tint); }
