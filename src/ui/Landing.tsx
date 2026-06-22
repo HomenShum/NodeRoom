@@ -1,6 +1,6 @@
 /** Landing (`.r-landing`) - design hero + create/join, recreated from room.css. */
 import { useState } from "react";
-import { Sparkles, PlayCircle, Plus, Building2, LineChart, FileCheck2 } from "lucide-react";
+import { ArrowRight, Building2, Code2, FileCheck2, LineChart, PlayCircle, Plus, Sparkles, X } from "lucide-react";
 import { engine, demo, createFreshRoom, enterDemoRoomAsHost, joinRoomByCode } from "../app/roomStore";
 import { NodeReveal } from "./motion/NodeReveal";
 import { NodeCount } from "./motion/NodeCount";
@@ -32,14 +32,20 @@ export function Landing({
   const [join, setJoin] = useState(defaultCode ?? code);
   const [name, setName] = useState("");
   const [joinErr, setJoinErr] = useState<string | null>(null);
+  const [joinDialogCode, setJoinDialogCode] = useState<string | null>(null);
   const live = mode === "live";
   const shownError = joinError ?? joinErr;
-  const displayName = () => name.trim() || "Guest";
+  const displayName = (fallback = "Guest") => name.trim() || fallback;
 
   const tryJoin = () => {
     setJoinErr(null);
     if (live) {
-      onLiveJoin?.(join, displayName());
+      const roomCode = join.trim();
+      if (!roomCode) {
+        setJoinErr("Enter a 6-12 character room code.");
+        return;
+      }
+      setJoinDialogCode(roomCode);
       return;
     }
     const s = joinRoomByCode(join, displayName());
@@ -47,12 +53,17 @@ export function Landing({
     else setJoinErr(`No room found for "${join.toUpperCase()}".`);
   };
   const enterDemo = () => {
-    if (live) onLiveDemo?.(name.trim() || "Guest");
+    if (live) onLiveDemo?.(displayName("Host"));
     else onEnter?.(enterDemoRoomAsHost(name));
   };
   const createRoom = () => {
-    if (live) onLiveCreate?.(name.trim() || "Host");
+    if (live) onLiveCreate?.(displayName("Host"));
     else onEnter?.(createFreshRoom("My room", name || "Host"));
+  };
+  const confirmLiveJoin = () => {
+    if (!joinDialogCode) return;
+    onLiveJoin?.(joinDialogCode, displayName());
+    setJoinDialogCode(null);
   };
 
   return (
@@ -75,29 +86,46 @@ export function Landing({
               <PlayCircle size={15} /> See how it works - the 7-layer walkthrough
             </button>
           </NodeReveal>
-          <label className="r-field" style={{ maxWidth: 320 }}>
-            <span className="r-field-label">Display name</span>
-            <input data-testid="display-name" className="r-text-input" placeholder="e.g. Priya" value={name} onChange={(e) => setName(e.target.value)} />
-          </label>
-          <div className="r-cta-row">
-            <button data-testid="start-demo-room" className="r-btn primary" disabled={busy} onClick={enterDemo}>
-              {live ? "Run startup diligence demo ->" : "Enter the diligence room ->"}
-            </button>
+          {!live && (
+            <label className="r-field" style={{ maxWidth: 320 }}>
+              <span className="r-field-label">Display name</span>
+              <input data-testid="display-name" className="r-text-input" placeholder="e.g. Priya" value={name} onChange={(e) => setName(e.target.value)} />
+            </label>
+          )}
+          <div className="r-cta-row" data-live={String(live)}>
+            {live ? (
+              <button data-testid="create-room" className="r-btn primary" disabled={busy} onClick={createRoom}>
+                <Plus size={17} /> Create a room
+              </button>
+            ) : (
+              <button data-testid="start-demo-room" className="r-btn primary" disabled={busy} onClick={enterDemo}>
+                Enter the diligence room <ArrowRight size={15} />
+              </button>
+            )}
             <div className="r-join-inline">
               <input
-                placeholder="CODE"
+                placeholder={live ? "ENTER CODE" : "CODE"}
                 value={join}
                 disabled={busy}
-                onChange={(e) => { setJoin(e.target.value); setJoinErr(null); }}
+                maxLength={14}
+                onChange={(e) => { setJoin(live ? e.target.value.toUpperCase() : e.target.value); setJoinErr(null); }}
                 onKeyDown={(e) => { if (e.key === "Enter") tryJoin(); }}
                 aria-label="Room code"
                 data-testid="join-room-code"
               />
-              <button data-testid="join-room" className="r-btn" disabled={busy} onClick={tryJoin}>Join</button>
+              <button data-testid="join-room" className="r-btn" disabled={busy} onClick={tryJoin}>
+                Join <ArrowRight size={15} />
+              </button>
             </div>
-            <button data-testid="create-room" className="r-btn secondary" disabled={busy} onClick={createRoom}>
-              <Plus size={14} /> Create blank room
-            </button>
+            {live ? (
+              <button data-testid="start-demo-room" className="r-btn ghost r-demo-room" disabled={busy} onClick={enterDemo}>
+                <PlayCircle size={15} /> Run startup diligence demo <ArrowRight size={15} />
+              </button>
+            ) : (
+              <button data-testid="create-room" className="r-btn secondary" disabled={busy} onClick={createRoom}>
+                <Plus size={14} /> Create blank room
+              </button>
+            )}
           </div>
           {shownError && <div className="r-join-error" role="alert">{shownError}</div>}
 
@@ -116,6 +144,55 @@ export function Landing({
             <NodeReveal delay={800} distance={10}><div className="r-feature"><div className="fi"><FileCheck2 size={16} /></div><h3>Evidence & review</h3><p>Cells, charts, handoff drafts, and coach cues stay traceable before anything is shared downstream.</p></div></NodeReveal>
           </div>
         </div>
+        {live && joinDialogCode && (
+          <div
+            className="r-room-modal-scrim"
+            onMouseDown={(e) => { if (e.target === e.currentTarget) setJoinDialogCode(null); }}
+          >
+            <div className="r-room-modal" role="dialog" aria-modal="true" aria-labelledby="join-room-title">
+              <div className="r-room-modal-head">
+                <div className="row between">
+                  <span className="kicker">Join a room</span>
+                  <button className="r-iconbtn" type="button" aria-label="Close" onClick={() => setJoinDialogCode(null)}>
+                    <X size={16} />
+                  </button>
+                </div>
+                <h2 id="join-room-title">Join anonymously</h2>
+                <p className="sub">No account needed. Pick a display name - you will get an ephemeral guest identity scoped to this room.</p>
+              </div>
+              <div className="r-room-modal-body">
+                <label className="r-room-field">
+                  <span>Room code</span>
+                  <input className="r-text-input mono" value={joinDialogCode} readOnly />
+                </label>
+                <label className="r-room-field">
+                  <span>Display name</span>
+                  <input
+                    data-testid="display-name"
+                    className="r-text-input"
+                    placeholder="quokka"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    onKeyDown={(e) => { if (e.key === "Enter") confirmLiveJoin(); }}
+                    autoFocus
+                  />
+                </label>
+                <div className="r-room-codepeek">
+                  <div className="cp-head"><Code2 size={12} /> rooms - anonymous identity</div>
+                  <pre>
+                    <span className="cm">// guest gets an ephemeral, room-scoped identity{"\n"}</span>
+                    <span className="kw">const</span> me = {"{ "}<span className="pr">id</span>: <span className="str">'anon_'</span> + nanoid(),{"\n"}
+                    {"            "}<span className="pr">name</span>: <span className="str">"anon - {displayName()}"</span>, <span className="pr">anon</span>: <span className="kw">true</span> {"};\n"}
+                    <span className="kw">await</span> <span className="fn">joinRoom</span>({"{ code: "}<span className="str">"{joinDialogCode}"</span>{", identity: me });"}
+                  </pre>
+                </div>
+                <button className="r-btn primary r-room-modal-submit" disabled={busy} onClick={confirmLiveJoin}>
+                  Join as guest <ArrowRight size={16} />
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

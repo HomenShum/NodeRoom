@@ -1101,9 +1101,16 @@ button.r-tracevu-step:hover, button.r-tracevu-step:focus-visible { border-color:
 .r-h1 .accent { color: var(--accent-primary); }
 .r-lede { font-size: 17px; line-height: 1.6; color: var(--text-secondary); max-width: 56ch; margin: 0 0 30px; }
 .r-cta-row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+.r-cta-row[data-live="true"] { gap: 10px; align-items: stretch; }
+.r-cta-row[data-live="true"] > .r-btn { min-height: 44px; }
+.r-cta-row[data-live="true"] > .r-btn.primary { padding: 11px 18px; font-size: 14px; }
+.r-demo-room { color: var(--text-secondary); }
 .r-join-inline { display: flex; align-items: center; gap: 6px; background: var(--bg-secondary); border: 1px solid var(--line-strong); border-radius: 11px; padding: 6px 6px 6px 14px; }
+.r-cta-row[data-live="true"] .r-join-inline { min-height: 44px; padding: 4px 5px 4px 16px; }
 .r-join-inline input { width: 116px; background: transparent; border: none; outline: none; font-family: var(--font-mono); font-size: 14px; font-weight: 600; letter-spacing: .08em; color: var(--text-primary); text-transform: uppercase; }
+.r-cta-row[data-live="true"] .r-join-inline input { width: 122px; }
 .r-join-inline input::placeholder { color: var(--text-tertiary); letter-spacing: .04em; }
+.r-cta-row[data-live="true"] .r-join-inline .r-btn { min-height: 34px; padding: 7px 12px; }
 .r-feature-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 48px; }
 
 /* Proof metrics — credibility counters on the landing (CountUp-driven). */
@@ -1290,6 +1297,26 @@ button.r-tracevu-step:hover, button.r-tracevu-step:focus-visible { border-color:
 .r-text-input::placeholder { color: var(--text-tertiary); }
 .r-field { display: flex; flex-direction: column; gap: 5px; margin-top: 18px; }
 .r-field-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--text-muted); }
+.r-text-input.mono { font-family: var(--font-mono); font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
+
+.r-room-modal-scrim { position: fixed; inset: 0; z-index: 95; display: grid; place-items: center; padding: 24px; background: rgba(0,0,0,.5); }
+.r-room-modal { width: min(480px, 100%); background: var(--bg-primary); border: 1px solid var(--line-strong); border-radius: 18px; box-shadow: var(--shadow-lg); overflow: hidden; }
+.r-room-modal-head { padding: 20px 22px 0; }
+.r-room-modal-body { padding: 16px 22px 22px; }
+.r-room-modal h2 { margin: 10px 32px 6px 0; font-size: 20px; letter-spacing: 0; line-height: 1.15; color: var(--text-primary); }
+.r-room-modal .sub { margin: 0; font-size: 13.5px; line-height: 1.5; color: var(--text-muted); }
+.r-room-field { display: flex; flex-direction: column; gap: 7px; margin-top: 16px; }
+.r-room-field > span { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: var(--text-muted); }
+.r-room-field .r-text-input { width: 100%; padding: 11px 13px; border-radius: 10px; font-size: 14px; }
+.r-room-codepeek { margin-top: 14px; border-radius: 11px; border: 1px solid var(--line); background: var(--bg-app); overflow: hidden; }
+.r-room-codepeek .cp-head { display: flex; align-items: center; gap: 7px; padding: 7px 11px; border-bottom: 1px solid var(--line); font-family: var(--font-mono); font-size: 10.5px; color: var(--text-tertiary); }
+.r-room-codepeek pre { margin: 0; padding: 11px 13px; overflow-x: auto; font-family: var(--font-mono); font-size: 11px; line-height: 1.6; color: var(--text-secondary); }
+.r-room-codepeek .kw { color: #C792EA; }
+.r-room-codepeek .fn { color: var(--accent-ink); }
+.r-room-codepeek .str { color: #8FBF7F; }
+.r-room-codepeek .cm { color: var(--text-tertiary); }
+.r-room-codepeek .pr { color: #7AA2E3; }
+.r-room-modal-submit { width: 100%; justify-content: center; margin-top: 16px; padding: 11px; }
 
 /* P1 — inactive lane toggle had NO hover (only the active state was styled). */
 .r-lane-btn:not([data-on="true"]):hover { background: var(--bg-hover); color: var(--text-secondary); }
