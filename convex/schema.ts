@@ -1309,6 +1309,11 @@ export default defineSchema({
     benchmark: v.string(),
     model: v.optional(v.string()),
     materializerMode: v.string(), // "replay" | "general-only" | "generic-only"
+    // Discriminator for run shape. Optional for backwards-compat with pre-existing rows
+    // (which were all bankertoolbench sweeps before this field was added). New writers
+    // should set this explicitly: "sweep" = full BTB sweep, "model-frontier" = dev/replay
+    // frontier probe (e.g. 8-task observation), "baseline" = control/no-agent baseline.
+    kind: v.optional(v.union(v.literal("sweep"), v.literal("model-frontier"), v.literal("baseline"))),
     status: v.union(v.literal("running"), v.literal("completed"), v.literal("failed")),
     taskCount: v.number(),
     // honest headline: mean reward over rows where cleanGeneralProbe && modelCalls > 0

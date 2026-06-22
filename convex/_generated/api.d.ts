@@ -37,6 +37,7 @@ import type * as lib from "../lib.js";
 import type * as locks from "../locks.js";
 import type * as memory from "../memory.js";
 import type * as messages from "../messages.js";
+import type * as modelFrontier from "../modelFrontier.js";
 import type * as modelProxy from "../modelProxy.js";
 import type * as notebookGraph from "../notebookGraph.js";
 import type * as notebookProcessing from "../notebookProcessing.js";
@@ -94,6 +95,7 @@ declare const fullApi: ApiFromModules<{
   locks: typeof locks;
   memory: typeof memory;
   messages: typeof messages;
+  modelFrontier: typeof modelFrontier;
   modelProxy: typeof modelProxy;
   notebookGraph: typeof notebookGraph;
   notebookProcessing: typeof notebookProcessing;
