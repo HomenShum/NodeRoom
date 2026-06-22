@@ -10,6 +10,7 @@ import type { IconName } from "./MobileIcons";
 import { Pill } from "./MobileScreens";
 import * as D from "./mobileData";
 import type { Person, Job, ComposerMode } from "./mobileData";
+import { getModelLabel } from "../../landing/modelRegistry";
 import type { MobileCtx } from "./mobileTypes";
 import { SkeletonChat } from "./MobileSkeleton";
 import { Tooltip } from "./MobileTooltip";
@@ -94,7 +95,7 @@ function RunningInline({ ctx, job }: { ctx: MobileCtx; job: Job }): React.ReactE
   return React.createElement("button", { className: "na-running", onClick: () => ctx.openSheet("jobs"), title: job.title },
     React.createElement("span", { className: "spin" }),
     React.createElement("span", { className: "verb" }, RUN_VERBS[vi], "…"),
-    React.createElement("span", { className: "meta" }, (job.route || "haiku") + " · " + job.eta + " · " + job.cost),
+    React.createElement("span", { className: "meta" }, getModelLabel(job.route) + " · " + job.eta + " · " + job.cost),
     React.createElement("span", { className: "go" }, Ico("chevR")));
 }
 

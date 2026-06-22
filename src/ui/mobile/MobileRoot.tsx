@@ -8,11 +8,13 @@
    Mirrors the verified ConvexApp flow in src/ui/App.tsx (attemptedRef failure
    latch, randomToken, localStorage session persistence, join-failure shapes).
    ============================================================================ */
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import type { Actor } from "../../engine/types";
 import { ConvexStoreProvider, HAS_CONVEX } from "../../app/store";
+import { RoomJoinConsent, type ConsentChoice } from "./RoomJoinConsent";
+import { ErrorBoundary } from "../../app/ErrorBoundary";
 import { MobileApp } from "./MobileApp";
 import { MobileAppLive } from "./MobileAppLive";
 import "./mobile.css";
@@ -47,6 +49,19 @@ function wantsMemory(): boolean {
 
 function MobileLiveRoot() {
   const [req, setReq] = useState<Req>(() => initialReq());
+  // Consent is a per-session, explicit permission moment for HOST flows (create
+  // demo). Joiners (?room=) skip it — autoAllow lives on the room, not the
+  // joiner. Memory mode never reaches MobileLiveRoot at all (the parent gates
+  // on HAS_CONVEX + ?mode=memory). pendingDemo stores the staged Req while the
+  // consent modal is up; the join effect won't fire until setReq is called.
+  const [pendingDemo, setPendingDemo] = useState<{ code: string; name: string } | null>(null);
+  const consentInitial: ConsentChoice = useMemo(() => {
+    if (typeof window === "undefined") return "auto";
+    const hash = window.location.hash;
+    const qIndex = hash.indexOf("?");
+    const params = new URLSearchParams(qIndex >= 0 ? hash.slice(qIndex + 1) : window.location.search);
+    return params.get("demo") === "review" ? "review" : "auto";
+  }, []);
   const code = req.kind === "idle" ? "" : req.code;
   const byCode = useQuery(api.rooms.byCode, code ? { code } : "skip");
   const join = useMutation(api.rooms.joinAnonymous);
@@ -73,9 +88,27 @@ function MobileLiveRoot() {
     const name = cleanName(rawName, kind === "demo" ? "Host" : "Guest");
     const finalCode = c || makeCode();
     setError(null);
-    setSession(kind === "join" ? loadSession(liveKey(finalCode)) : null);
-    setReq({ kind, code: finalCode, name });
+    // Host flow (create a fresh demo room): show consent modal first. The user
+    // explicitly picks autoAllow before the room is minted. The join effect
+    // stays gated on `req` being non-idle, so it won't fire until accept.
+    if (kind === "demo") {
+      setPendingDemo({ code: finalCode, name });
+      return;
+    }
+    setSession(loadSession(liveKey(finalCode)));
+    setReq({ kind: "join", code: finalCode, name });
   };
+
+  // Consent accept: stage the real Req with the user's autoAllow pick. Cancel:
+  // drop pendingDemo so the JoinForm comes back; no mutation has fired yet.
+  const onConsentAccept = (autoAllow: boolean): void => {
+    if (!pendingDemo) return;
+    const { code, name } = pendingDemo;
+    setSession(null);
+    setReq({ kind: "demo", code, name, autoAllow });
+    setPendingDemo(null);
+  };
+  const onConsentCancel = (): void => { setPendingDemo(null); };
 
   // Failure-latched join/create effect (copied from ConvexApp): joinAnonymous returns
   // failures as DATA, so without keying on the exact request object a rejection busy-loops.
@@ -117,6 +150,19 @@ function MobileLiveRoot() {
       .finally(() => setBusy(false));
   }, [byCode, busy, join, createStarterRoom, req, session]);
 
+  // Consent modal sits above the JoinForm — the user explicitly grants the
+  // autoAllow choice before the room mints. Tab refresh re-prompts (no
+  // localStorage by design).
+  if (pendingDemo) {
+    return (
+      <RoomJoinConsent
+        initialChoice={consentInitial}
+        onAccept={onConsentAccept}
+        onCancel={onConsentCancel}
+      />
+    );
+  }
+
   if (!session) {
     return (
       <JoinForm
@@ -146,10 +192,14 @@ function MobileLiveRoot() {
     setError(null);
   };
 
+  // Live subtree: a thrown useQuery (revoked/rotated proof on rooms.meta) would otherwise blank the
+  // phone with no recovery. On catch, drop the stale session and fall back to the join form.
   return (
-    <ConvexStoreProvider roomId={session.roomId} me={me} proof={proof}>
-      <MobileAppLive roomId={session.roomId} me={me} onLeave={leave} />
-    </ConvexStoreProvider>
+    <ErrorBoundary onError={() => leave()} fallback={() => null}>
+      <ConvexStoreProvider roomId={session.roomId} me={me} proof={proof}>
+        <MobileAppLive roomId={session.roomId} me={me} onLeave={leave} />
+      </ConvexStoreProvider>
+    </ErrorBoundary>
   );
 }
 

@@ -56,6 +56,7 @@ import { SettingsSheet } from "./MobileSettings";
 import { loadTweaks, saveTweaks } from "./mobileTweaks";
 import { IOSDevice, MobileStage } from "./MobileFrame";
 import { haptic } from "./mobileUtil";
+import { MODEL_REGISTRY } from "../../landing/modelRegistry";
 
 // ── static config (ported verbatim from na-app.jsx) ─────────────────────────
 const TABS: Record<TabId, { icon: IconName; label: string }> = {
@@ -122,11 +123,12 @@ interface ModelOpt {
   desc: string;
   icon: IconName;
 }
+// Mobile composer chips — derived from the curated 2026 registry. "Auto-route"
+// stays at the top as a meta-option; the rest are real model ids the agent
+// runtime will honor (provider routing in convexModel.ts).
 const MODELS: ModelOpt[] = [
   { id: "auto", name: "Auto-route", desc: "Picks the cheapest model that can do the job", icon: "route" },
-  { id: "haiku", name: "Haiku", desc: "Fast · cheap · quick lookups", icon: "bolt" },
-  { id: "sonnet", name: "Sonnet", desc: "Balanced · most research runs", icon: "sparkles" },
-  { id: "opus", name: "Opus", desc: "Deep · multi-step diligence", icon: "gauge" },
+  ...MODEL_REGISTRY.map((m): ModelOpt => ({ id: m.id, name: m.displayName, desc: m.sub, icon: m.icon as IconName })),
 ];
 
 interface AttachOpt {

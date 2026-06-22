@@ -38,7 +38,11 @@ export type ArtifactKind =
   | "room"
   | "draft";
 export type PreviewKind = "deck" | "doc" | "sheet" | "chat";
-export type AgentRoute = "haiku" | "sonnet" | "opus";
+// Was "haiku" | "sonnet" | "opus" (terra prototype days); widened to string so
+// real provider model ids (e.g. "z-ai/glm-5.2") can ride through job.route +
+// summary cards without a hardcoded narrowing. UI display is handled by
+// `getModelLabel(id)` in src/landing/modelRegistry.ts.
+export type AgentRoute = string;
 export type SlideStatus = "draft" | "proposed" | "approved" | "needs_review";
 export type DeckStatus = "draft" | "proposed" | "approved" | "exported";
 export type ExportState = "not_started" | "ready" | "failed";
