@@ -1,10 +1,8 @@
 /** Landing (`.r-landing`) - design hero + create/join, recreated from room.css. */
 import { useState } from "react";
-import { ArrowRight, Building2, Code2, FileCheck2, LineChart, PlayCircle, Plus, Sparkles, X } from "lucide-react";
-import { engine, demo, createFreshRoom, enterDemoRoomAsHost, joinRoomByCode } from "../app/roomStore";
+import { ArrowLeft, ArrowRight, Code2, Globe2, LayoutGrid, Lock, Moon, Plus, Sparkles, X } from "lucide-react";
+import { createFreshRoom, enterDemoRoomAsHost, joinRoomByCode } from "../app/roomStore";
 import { NodeReveal } from "./motion/NodeReveal";
-import { NodeCount } from "./motion/NodeCount";
-import { NodeTextReveal } from "./motion/NodeTextReveal";
 import type { Session } from "./App";
 
 type LandingProps = {
@@ -28,14 +26,18 @@ export function Landing({
   onLiveJoin,
   onLiveCreate,
 }: LandingProps) {
-  const code = engine.getRoom(demo.roomId)?.code ?? "";
-  const [join, setJoin] = useState(defaultCode ?? code);
+  const [join, setJoin] = useState(defaultCode ?? "");
   const [name, setName] = useState("");
   const [joinErr, setJoinErr] = useState<string | null>(null);
   const [joinDialogCode, setJoinDialogCode] = useState<string | null>(null);
   const live = mode === "live";
   const shownError = joinError ?? joinErr;
   const displayName = (fallback = "Guest") => name.trim() || fallback;
+  const toggleTheme = () => {
+    if (typeof document === "undefined") return;
+    const root = document.documentElement;
+    root.dataset.theme = root.dataset.theme === "dark" ? "light" : "dark";
+  };
 
   const tryJoin = () => {
     setJoinErr(null);
@@ -69,79 +71,71 @@ export function Landing({
   return (
     <div className="r-app">
       <div className="r-screen">
-        <div className="r-landing">
-          <span className="r-eyebrow"><Sparkles size={13} /> NodeRoom - startup banking diligence room</span>
-          <h1 className="r-h1">
-            <NodeTextReveal text="A live room for banker-led diligence." />
-          </h1>
-          <NodeReveal delay={200} distance={8}>
-            <p className="r-lede">
-              Multiple users and NodeAgents gather company information, enrich source-backed grids,
-              build runway and milestone artifacts, and keep every AI edit behind a
-              <b> lock {"->"} proposal {"->"} review</b> path.
-            </p>
-          </NodeReveal>
-          <NodeReveal delay={350} distance={8}>
-            <button className="r-btn" style={{ marginBottom: 4 }} disabled={busy} onClick={() => { window.location.hash = "story"; }}>
-              <PlayCircle size={15} /> See how it works - the 7-layer walkthrough
+        <div className="r-landing-shell">
+          <header className="r-landing-top">
+            <button className="r-landing-brand" type="button" onClick={() => { window.location.hash = ""; }} aria-label="NodeAgent home">
+              <span className="r-mark">N</span>
+              <span>NodeAgent</span>
             </button>
-          </NodeReveal>
-          {!live && (
-            <label className="r-field" style={{ maxWidth: 320 }}>
-              <span className="r-field-label">Display name</span>
-              <input data-testid="display-name" className="r-text-input" placeholder="e.g. Priya" value={name} onChange={(e) => setName(e.target.value)} />
-            </label>
-          )}
-          <div className="r-cta-row" data-live={String(live)}>
-            {live ? (
-              <button data-testid="create-room" className="r-btn primary" disabled={busy} onClick={createRoom}>
+            <button className="r-iconbtn" type="button" aria-label="Toggle light / dark" title="Toggle light / dark" onClick={toggleTheme}>
+              <Moon size={16} />
+            </button>
+          </header>
+
+          <main className="r-landing">
+            <span className="r-eyebrow"><Sparkles size={13} /> NodeAgent · live collaborative rooms</span>
+            <h1 className="r-h1">
+              Bring people and <span className="accent">agents</span> into the same room.
+            </h1>
+            <NodeReveal delay={140} distance={8}>
+              <p className="r-lede">
+                Chat, a shared workspace, and NodeAgents that edit alongside you — public for the room,
+                private for you. The agent proposes; bounded tools commit.
+              </p>
+            </NodeReveal>
+            <div className="r-cta-row" data-live={String(live)}>
+              <button data-testid={live ? "create-room" : "start-demo-room"} className="r-btn primary" disabled={busy} onClick={live ? createRoom : enterDemo}>
                 <Plus size={17} /> Create a room
               </button>
-            ) : (
-              <button data-testid="start-demo-room" className="r-btn primary" disabled={busy} onClick={enterDemo}>
-                Enter the diligence room <ArrowRight size={15} />
+              <div className="r-join-inline">
+                <input
+                  placeholder="ENTER CODE"
+                  value={join}
+                  disabled={busy}
+                  maxLength={14}
+                  onChange={(e) => { setJoin(live ? e.target.value.toUpperCase() : e.target.value); setJoinErr(null); }}
+                  onKeyDown={(e) => { if (e.key === "Enter") tryJoin(); }}
+                  aria-label="Room code"
+                  data-testid="join-room-code"
+                />
+                <button data-testid="join-room" className="r-btn" disabled={busy} onClick={tryJoin}>
+                  Join <ArrowRight size={15} />
+                </button>
+              </div>
+            </div>
+            {shownError && <div className="r-join-error" role="alert">{shownError}</div>}
+
+            <div className="r-feature-grid">
+              <NodeReveal delay={280} distance={10}><div className="r-feature"><div className="fi"><Globe2 size={16} /></div><h3>Public by default</h3><p>One room URL. Share a 6-char code and anyone can join — no account, just a display name.</p></div></NodeReveal>
+              <NodeReveal delay={360} distance={10}><div className="r-feature"><div className="fi"><LayoutGrid size={16} /></div><h3>Up to four panels</h3><p>Files &amp; people · public chat + room agent · a live artifact · your own private agent. Open only what you need.</p></div></NodeReveal>
+              <NodeReveal delay={440} distance={10}><div className="r-feature"><div className="fi"><Lock size={16} /></div><h3>Locks, not collisions</h3><p>When an agent works a range it locks it — read-only for others, still readable. Drafts smart-merge on unlock.</p></div></NodeReveal>
+            </div>
+          </main>
+
+          <div className="r-story-tape" aria-label="Product story">
+            <div className="r-story-meta">
+              <span>01 · SURFACE</span>
+              <strong>The public surface</strong>
+            </div>
+            <div className="r-story-actions">
+              <button className="r-iconbtn" type="button" aria-label="Previous story step" title="Previous story step">
+                <ArrowLeft size={15} />
               </button>
-            )}
-            <div className="r-join-inline">
-              <input
-                placeholder={live ? "ENTER CODE" : "CODE"}
-                value={join}
-                disabled={busy}
-                maxLength={14}
-                onChange={(e) => { setJoin(live ? e.target.value.toUpperCase() : e.target.value); setJoinErr(null); }}
-                onKeyDown={(e) => { if (e.key === "Enter") tryJoin(); }}
-                aria-label="Room code"
-                data-testid="join-room-code"
-              />
-              <button data-testid="join-room" className="r-btn" disabled={busy} onClick={tryJoin}>
-                Join <ArrowRight size={15} />
+              <button className="r-iconbtn" type="button" aria-label="Open product story" title="Open product story" onClick={() => { window.location.hash = "story"; }}>
+                <ArrowRight size={15} />
               </button>
             </div>
-            {live ? (
-              <button data-testid="start-demo-room" className="r-btn ghost r-demo-room" disabled={busy} onClick={enterDemo}>
-                <PlayCircle size={15} /> Run startup diligence demo <ArrowRight size={15} />
-              </button>
-            ) : (
-              <button data-testid="create-room" className="r-btn secondary" disabled={busy} onClick={createRoom}>
-                <Plus size={14} /> Create blank room
-              </button>
-            )}
-          </div>
-          {shownError && <div className="r-join-error" role="alert">{shownError}</div>}
-
-          <NodeReveal delay={500} distance={10}>
-            <div className="r-proof-grid" data-testid="proof-metrics">
-              <div className="r-proof"><NodeCount value={1240} suffix="+" /><span className="r-proof-label">sources captured</span></div>
-              <div className="r-proof"><NodeCount value={8600} suffix="+" /><span className="r-proof-label">evidence facts</span></div>
-              <div className="r-proof"><NodeCount value={420} suffix="+" /><span className="r-proof-label">no-clobber checks</span></div>
-              <div className="r-proof"><NodeCount value={99} suffix="%" /><span className="r-proof-label">cache hits</span></div>
-            </div>
-          </NodeReveal>
-
-          <div className="r-feature-grid">
-            <NodeReveal delay={600} distance={10}><div className="r-feature"><div className="fi"><Building2 size={16} /></div><h3>Company diligence</h3><p>Single-company or batch research lands in shared grids with owner, status, source, and freshness states.</p></div></NodeReveal>
-            <NodeReveal delay={700} distance={10}><div className="r-feature"><div className="fi"><LineChart size={16} /></div><h3>Runway & milestones</h3><p>Agents turn cash, burn, hiring, pricing, and market headwinds into reviewable banker artifacts.</p></div></NodeReveal>
-            <NodeReveal delay={800} distance={10}><div className="r-feature"><div className="fi"><FileCheck2 size={16} /></div><h3>Evidence & review</h3><p>Cells, charts, handoff drafts, and coach cues stay traceable before anything is shared downstream.</p></div></NodeReveal>
+            <span className="r-story-command">apps/web · scratchnode.live shell</span>
           </div>
         </div>
         {live && joinDialogCode && (
