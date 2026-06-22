@@ -5,6 +5,7 @@ import {
   missingMentionedPaths,
   parseNameStatus,
   renderChangeList,
+  revListArgsForRange,
 } from "../scripts/commit-message";
 
 describe("commit message accuracy helpers", () => {
@@ -60,5 +61,9 @@ describe("commit message accuracy helpers", () => {
       { status: "M", path: "package.json" },
     ];
     expect(missingMentionedPaths("Updated docs/COMMIT_ACCURACY.md", changes)).toEqual([{ status: "M", path: "package.json" }]);
+  });
+
+  it("walks pushed ranges on the branch first-parent path", () => {
+    expect(revListArgsForRange("main..HEAD")).toEqual(["rev-list", "--reverse", "--first-parent", "main..HEAD"]);
   });
 });
