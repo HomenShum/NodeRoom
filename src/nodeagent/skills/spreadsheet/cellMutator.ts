@@ -18,6 +18,21 @@ import { BANKER_COACH_TOOLS } from "../bankerCoach/tools";
 import { OKF_RETRIEVAL_TOOLS } from "../../retrieval/tools";
 import { retrieveUntilSufficient } from "../../retrieval/retrievalLoop";
 
+/**
+ * Tolerant array for cheap/quantized models that emit a single object instead of a one-element
+ * array, or a JSON-encoded string, when calling a batch tool. Coerces both to a proper array
+ * before validation so a slightly-malformed batch call succeeds instead of looping. Batch stays
+ * first-class and the single-cell tools are unaffected — this only widens what a batch call accepts.
+ */
+function tolerantArray<T extends z.ZodTypeAny>(item: T, opts: { min?: number } = {}) {
+  const base = opts.min != null ? z.array(item).min(opts.min) : z.array(item);
+  return z.preprocess((v) => {
+    if (typeof v === "string") { try { v = JSON.parse(v); } catch { /* fall through to validation */ } }
+    if (v != null && !Array.isArray(v) && typeof v === "object") return [v];
+    return v;
+  }, base);
+}
+
 const opSchema = z.object({ elementId: z.string(), value: z.any(), baseVersion: z.coerce.number().int() });
 const cellStatusSchema = z.enum(["empty", "running", "complete", "needs_review", "failed", "gap"]);
 const evidenceSchema = z.object({
@@ -41,7 +56,7 @@ const evidenceSchema = z.object({
   }).optional(),
   url: z.string().optional(),
   snippet: z.string().optional(),
-  confidence: z.number().min(0).max(1).optional(),
+  confidence: z.coerce.number().min(0).max(1).optional(),
 });
 
 function cellPayload(args: {
@@ -377,12 +392,12 @@ const WRITE_LOCKED_CELLS_TOOL: AgentTool = {
   schema: z.object({
     reason: z.string().optional().describe("one short phrase shown in the room trace"),
     artifactId: z.string().optional(),
-    ops: z.array(z.object({
+    ops: tolerantArray(z.object({
       elementId: z.string(),
       value: z.any(),
       baseVersion: z.coerce.number().int(),
       kind: z.enum(["set", "create", "delete"]).optional(),
-    })).min(1),
+    }), { min: 1 }),
   }),
   execute: (a: { reason?: string; artifactId?: string; ops: Array<{ elementId: string; value: unknown; baseVersion: number; kind?: "set" | "create" | "delete" }> }, rt) =>
     writeBatchWithManagedLock(a, rt),
@@ -396,11 +411,11 @@ const WRITE_LOCKED_CELL_RESULT_TOOL: AgentTool = {
     value: z.any(),
     baseVersion: z.coerce.number().int(),
     status: cellStatusSchema.default("complete"),
-    confidence: z.number().min(0).max(1).optional(),
+    confidence: z.coerce.number().min(0).max(1).optional(),
     normalizedValue: z.any().optional(),
     formula: z.string().optional(),
     error: z.string().optional(),
-    evidence: z.array(evidenceSchema).min(1),
+    evidence: tolerantArray(evidenceSchema, { min: 1 }),
     reason: z.string().optional().describe("one short phrase shown in the room trace"),
     kind: z.enum(["set", "create"]).optional().describe("'set' updates an existing result cell; 'create' adds a new one"),
     artifactId: z.string().optional(),
@@ -427,18 +442,18 @@ const WRITE_LOCKED_CELL_RESULTS_TOOL: AgentTool = {
   schema: z.object({
     reason: z.string().optional().describe("one short phrase shown in the room trace"),
     artifactId: z.string().optional(),
-    ops: z.array(z.object({
+    ops: tolerantArray(z.object({
       elementId: z.string(),
       value: z.any(),
       baseVersion: z.coerce.number().int(),
       status: cellStatusSchema.default("complete"),
-      confidence: z.number().min(0).max(1).optional(),
+      confidence: z.coerce.number().min(0).max(1).optional(),
       normalizedValue: z.any().optional(),
       formula: z.string().optional(),
       error: z.string().optional(),
-      evidence: z.array(evidenceSchema).min(1),
+      evidence: tolerantArray(evidenceSchema, { min: 1 }),
       kind: z.enum(["set", "create"]).optional(),
-    })).min(1),
+    }), { min: 1 }),
   }),
   execute: async (a: {
     reason?: string;
@@ -500,11 +515,11 @@ export const ROOM_TOOLS: AgentTool[] = [
       value: z.any(),
       baseVersion: z.coerce.number().int(),
       status: cellStatusSchema.default("complete"),
-      confidence: z.number().min(0).max(1).optional(),
+      confidence: z.coerce.number().min(0).max(1).optional(),
       normalizedValue: z.any().optional(),
       formula: z.string().optional(),
       error: z.string().optional(),
-      evidence: z.array(evidenceSchema).min(1),
+      evidence: tolerantArray(evidenceSchema, { min: 1 }),
       kind: z.enum(["set", "create"]).optional().describe("'set' updates an existing result cell; 'create' adds a new one"),
       artifactId: z.string().optional().describe("another file's id from list_artifacts; omit for the primary file"),
     }),
@@ -620,7 +635,7 @@ export const ROOM_TOOLS: AgentTool[] = [
   {
     name: "create_draft",
     description: "When a range you need is locked by someone else, draft your intended changes here instead of waiting. They smart-merge automatically the moment the blocking lock releases, and can never clobber work committed in the meantime.",
-    schema: z.object({ ops: z.array(opSchema), blockedByLockId: z.string(), note: z.string(), artifactId: z.string().optional() }),
+    schema: z.object({ ops: tolerantArray(opSchema), blockedByLockId: z.string(), note: z.string(), artifactId: z.string().optional() }),
     execute: (a: { ops: { elementId: string; value: unknown; baseVersion: number }[]; blockedByLockId: string; note: string; artifactId?: string }, rt) => rt.createDraft(a.ops, a.blockedByLockId, a.note, a.artifactId),
   },
   {
