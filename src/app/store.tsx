@@ -23,7 +23,6 @@ import { buildResearchContext } from "../nodeagent/core/worldModel";
 import { scriptedModel } from "../nodeagent/models/scripted";
 import { InMemoryRoomTools } from "../nodeagent/skills/integration/noderoomAdapter";
 import { ROOM_TOOLS } from "../nodeagent/skills/spreadsheet/cellMutator";
-import { dispatchBenchmarkTask, parseBenchmarkInvocation } from "./benchmarkDispatcher";
 
 /** Demo-mode pacing: yield ~`ms` between scripted agent steps so the UI paints every CAS beat.
  *  The steps are real engine mutations — this only makes them watchable (a run that completes in
@@ -679,28 +678,6 @@ export function EngineStoreProvider({ roomId, children }: { roomId: string; me: 
     runCollab: () => runDemo(false),
     runSemanticConflictDrill: () => runDemo(true),
     askAgent: async (input) => {
-      // Benchmark dispatcher seam: `@bench:<task-id>` short-circuits the variance
-      // scripted path and routes to dispatchBenchmarkTask (additive — every other
-      // input falls through to the original behavior unchanged). The variance
-      // wedge stays intact because parseBenchmarkInvocation returns null for any
-      // text that doesn't match /^@bench:[a-z0-9-]+/i.
-      const benchTaskId = parseBenchmarkInvocation(input.goal);
-      if (benchTaskId) {
-        const sess = engine.listSessions(roomId).find((s) => s.scope === "public");
-        if (!sess) return;
-        const actor: Actor = { kind: "agent", id: sess.agentId, name: sess.agentName, scope: "public" };
-        await dispatchBenchmarkTask({
-          engine,
-          roomId,
-          taskId: benchTaskId,
-          actor,
-          sessionId: sess.id,
-          postMessage: (text) => {
-            engine.postMessage({ roomId, channel: "public", author: actor, text, clientMsgId: crypto.randomUUID(), kind: "agent" });
-          },
-        });
-        return;
-      }
       const artifacts = engine.listArtifacts(roomId);
       const references = canonicalRefs(artifacts, input.references);
       const goal = withReferenceContext(input.goal, references);

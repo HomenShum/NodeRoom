@@ -2,7 +2,7 @@
  * Golden grader — the Docker-free, UI-native verifier for the NodeRoom benchmark golden dataset.
  *
  * Faithful TypeScript port of docs/eval/nonbtb/grade.py so the SAME anti-cheat scoring runs in the
- * browser (BenchmarkDispatcherPanel), in vitest (the prod gate), and — when wired — in a Convex
+ * browser (the live room UI), in vitest (the prod gate), and — when wired — in a Convex
  * action. No Python, no openpyxl, no Docker/Harbor container required to verify a deliverable.
  *
  * Four scored dimensions per expected key (matching grade.py):

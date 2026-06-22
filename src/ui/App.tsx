@@ -7,7 +7,6 @@ import { BtbLiveLedgerPanel } from "./BtbLiveLedgerPanel";
 import { FrontierObservationsPanel } from "./FrontierObservationsPanel";
 import { LandingStory } from "../landing/LandingStory";
 import { MobileRoot } from "./mobile/MobileRoot";
-import { BenchmarkDispatcherPanel } from "./BenchmarkDispatcherPanel";
 // Lazy: the Tour bundle is ~50 KB of scripted demo content (panels, sheet,
 // note, wall, post-its) only needed at #room-tour — don't ship it on every
 // route's first paint.
@@ -79,14 +78,6 @@ export function App() {
       window.location.hash = "";
     };
     return <LandingStory onEnter={enter} onBack={exit} />;
-  }
-
-  // Benchmark dispatcher — additive #bench surface. Live-DOM verification grep:
-  // `data-testid="benchmark-dispatcher"` + the task slug `data-bench-task=<id>`.
-  // Routes #bench, #/bench, #bench/<task-id>, #/bench/<task-id>.
-  if (hash === "#bench" || hash === "#/bench" || hash.startsWith("#bench/") || hash.startsWith("#/bench/")) {
-    const m = hash.match(/^#\/?bench\/([a-z0-9-]+)/i);
-    return <BenchmarkDispatcherPanel initialTaskId={m ? m[1].toLowerCase() : undefined} />;
   }
 
   if (hash === "#btb" || hash === "#/btb") {
