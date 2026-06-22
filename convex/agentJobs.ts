@@ -31,6 +31,11 @@ const evidencePolicyV = v.union(v.literal("public_only"), v.literal("private_all
 const traceLevelV = v.union(v.literal("summary"), v.literal("standard"), v.literal("full_operation_ledger"));
 const routePolicyV = v.union(v.literal("fast_default"), v.literal("free_auto"), v.literal("top_paid"), v.literal("explicit"));
 const runtimePolicyV = v.union(v.literal("workflow_sliced"));
+const publicAskReferenceV = v.object({
+  id: v.string(),
+  title: v.optional(v.string()),
+  kind: v.optional(v.string()),
+});
 const operationEventKindV = v.union(
   v.literal("action"),
   v.literal("query"),
@@ -1385,6 +1390,61 @@ function defaultApprovalPolicyForEntrypoint(entrypoint: DurableStartEntrypoint) 
   return entrypoint === "free" ? "draft_first" : "auto_commit_safe";
 }
 
+function canUsePublicJobArtifact(artifact: ArtifactAccess, actor: ActorValue): boolean {
+  try {
+    requireJobArtifactAccess(artifact, actor, { allowPrivate: false });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function goalPrefersCompanyResearch(goal: string): boolean {
+  return /(diligence|research|enrich|profile|source-?backed|funding|hiring|hipaa|security|buyer|watchlist|compan)/i.test(goal);
+}
+
+function goalPrefersRunway(goal: string): boolean {
+  return /\b(runway|milestone|milestones|burn)\b/i.test(goal);
+}
+
+function goalPrefersVariance(goal: string): boolean {
+  return /\b(q3|variance|recompute)\b/i.test(goal);
+}
+
+async function resolvePublicAskArtifact(ctx: any, args: {
+  roomId: Id<"rooms">;
+  requester: unknown;
+  goal: string;
+  references?: Array<{ id: string; title?: string; kind?: string }>;
+  contextArtifactId?: string;
+}) {
+  const actor = await requireActorProof(ctx, args.roomId, args.requester as any);
+  const rows = await ctx.db.query("artifacts").withIndex("by_room", (q: any) => q.eq("roomId", args.roomId)).collect();
+  const visible = rows.filter((artifact: ArtifactAccess) => canUsePublicJobArtifact(artifact, actor));
+  if (!visible.length) throw new Error("no_public_artifact_available");
+
+  const byId = (id?: string) => visible.find((artifact: { _id: unknown }) => String(artifact._id) === String(id));
+  for (const ref of args.references ?? []) {
+    const referenced = byId(ref.id);
+    if (referenced) return referenced;
+  }
+
+  const title = (name: string) => visible.find((artifact: { title?: string }) => artifact.title === name);
+  if (goalPrefersRunway(args.goal)) return title("Runway / milestones") ?? title("Q3 variance") ?? visible.find((artifact: { kind?: string }) => artifact.kind === "sheet") ?? visible[0];
+  if (goalPrefersCompanyResearch(args.goal)) return title("Company research") ?? visible.find((artifact: { kind?: string }) => artifact.kind === "sheet") ?? visible[0];
+  if (goalPrefersVariance(args.goal)) return title("Q3 variance") ?? visible.find((artifact: { kind?: string }) => artifact.kind === "sheet") ?? visible[0];
+
+  const active = byId(args.contextArtifactId);
+  if (active) return active;
+  return title("Q3 variance") ?? visible.find((artifact: { kind?: string }) => artifact.kind === "sheet") ?? visible[0];
+}
+
+function modeForArtifact(artifact: { title?: string }): "variance" | "research" | undefined {
+  if (artifact.title === "Company research") return "research";
+  if (artifact.title === "Q3 variance") return "variance";
+  return undefined;
+}
+
 async function derivePublicStartPolicy(ctx: any, a: DurableStartAgentJobArgs): Promise<DurableStartAgentJobArgs> {
   const requestedRoute = a.routePolicy ?? (a.modelPolicy ? "explicit" : "fast_default");
   const routePolicy: RoutePolicy = requestedRoute === "free_auto"
@@ -1599,6 +1659,40 @@ export const start = mutation({
     request: v.optional(v.any()),
   },
   handler: async (ctx, a): Promise<DurableStartAgentJobResult> => startDurableAgentJob(ctx, await derivePublicStartPolicy(ctx, a)),
+});
+
+export const startPublicAsk = mutation({
+  args: {
+    roomId: v.id("rooms"),
+    requester: actorProofV,
+    goal: v.string(),
+    references: v.optional(v.array(publicAskReferenceV)),
+    contextArtifactId: v.optional(v.string()),
+    routePolicy: v.optional(routePolicyV),
+    modelPolicy: v.optional(v.string()),
+    maxAttempts: v.optional(v.number()),
+  },
+  handler: async (ctx, a): Promise<DurableStartAgentJobResult> => {
+    const artifact = await resolvePublicAskArtifact(ctx, a);
+    return startDurableAgentJob(ctx, await derivePublicStartPolicy(ctx, {
+      roomId: a.roomId,
+      artifactId: artifact._id as Id<"artifacts">,
+      requester: a.requester,
+      goal: a.goal,
+      routePolicy: a.routePolicy,
+      modelPolicy: a.modelPolicy,
+      maxAttempts: a.maxAttempts,
+      mode: modeForArtifact(artifact),
+      request: {
+        roomId: String(a.roomId),
+        targetArtifactId: String(artifact._id),
+        commandText: a.goal,
+        references: a.references,
+        contextArtifactId: a.contextArtifactId,
+        source: "public_chat",
+      },
+    }));
+  },
 });
 
 export const startFreeAuto = mutation({

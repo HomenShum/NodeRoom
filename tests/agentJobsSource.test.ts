@@ -324,11 +324,15 @@ describe("long-running agent job source invariants", () => {
     expect(streaming).toContain("components.persistentTextStreaming.lib.addChunk");
   });
 
-  it("surfaces public NodeAgent dispatch blockers instead of leaving the composer spinning", () => {
+  it("dispatches public NodeAgent asks through server-side target resolution", () => {
     const store = readFileSync("src/app/store.tsx", "utf8");
+    const jobs = readFileSync("convex/agentJobs.ts", "utf8");
 
-    expect(store).toContain('throw new Error("No room artifact is available for NodeAgent to work on.")');
-    expect(store).toContain('throw new Error("Room NodeAgent is not available in this room yet.")');
+    expect(store).toContain("useMutation(api.agentJobs.startPublicAsk)");
+    expect(store).toContain("contextArtifactId: input.contextArtifactId");
+    expect(jobs).toContain("export const startPublicAsk = mutation");
+    expect(jobs).toContain("resolvePublicAskArtifact");
+    expect(jobs).toContain('throw new Error("no_public_artifact_available")');
   });
 
   it("keeps NodeAgent execution server-side instead of relying on client_action as a production primitive", () => {

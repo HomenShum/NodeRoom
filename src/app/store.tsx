@@ -114,7 +114,7 @@ export type AgentModelSelection =
   | { mode: "free" }
   | { mode: "top_paid" }
   | { mode: "specific"; modelPolicy: string };
-export type AgentAskInput = { goal: string; references?: ArtifactRef[]; modelSelection?: AgentModelSelection };
+export type AgentAskInput = { goal: string; references?: ArtifactRef[]; modelSelection?: AgentModelSelection; contextArtifactId?: string };
 export type ActorProof = { actor: Actor; token: string };
 export type PrivateStreamAccess = { requester: ActorProof; driven: boolean };
 export type PresenceTargetKind = "cell" | "notebook_block" | "deck_component" | "slide";
@@ -1199,6 +1199,7 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
   const recordCitationMut = useMutation(api.captures.recordCitation);
   const createPrivateReplyStream = useMutation(api.streaming.createPrivateReplyStream);
   const startAgentJob = useMutation(api.agentJobs.start);
+  const startPublicAskJob = useMutation(api.agentJobs.startPublicAsk);
   const updatePresenceMutation = useMutation(api.presence.heartbeat);
   const clearPresenceMutation = useMutation(api.presence.clear);
   const dismissActivityMutation = useMutation(api.roomActivity.dismissActivity);
@@ -1431,27 +1432,14 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
       },
       askAgent: async (input) => {
         const references = canonicalRefs(artifacts, input.references);
-        // Kind-agnostic target: /ask + a referenced note/wall/sheet edits THAT artifact; the agent's
-        // context builder is routed by kind server-side. No more variance-only refusal.
-        const target = targetArtifact(artifacts, references);
-        const sess = sessions.find((s) => s.scope === "public");
-        if (!target) throw new Error("No room artifact is available for NodeAgent to work on.");
-        if (!sess) throw new Error("Room NodeAgent is not available in this room yet.");
         const route = durableRouteForModelSelection(input.modelSelection);
-        await startAgentJob({
+        await startPublicAskJob({
           roomId: rid,
-          artifactId: target.id as never,
           requester: proof,
-          entrypoint: route.entrypoint,
-          scope: "public_room",
           routePolicy: route.routePolicy,
-          runtimePolicy: "workflow_sliced",
           ...(route.modelPolicy ? { modelPolicy: route.modelPolicy } : {}),
-          approvalPolicy: route.approvalPolicy,
-          evidencePolicy: "public_only",
-          traceLevel: "full_operation_ledger",
-          autoAllow: route.autoAllow,
-          mode: target.title === "Company research" ? "research" : undefined,
+          references,
+          contextArtifactId: input.contextArtifactId,
           goal: withReferenceContext(input.goal, references),
         });
       },
@@ -1675,7 +1663,7 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
         return result.rowId ? { artifactId: targetArt.id as string, rowId: result.rowId as string, created: result.created } : undefined;
       },
     };
-  }, [data, metaArtifacts, elementsByArtifact, presenceByArtifact, pub, priv, traces, okfLens, runs, jobs, jobAttempts, jobDetail, proposals, passiveActivity, mergedCaptures, applyCellEdit, sendMsg, toggle, editMsg, resolveProposalMutation, addResearchRowsMutation, ensurePassiveResearchRowMutation, createArtifactMutation, uploadSourceFile, runSemanticConflictDrillMutation, runAgent, runPrivateAgent, createPrivateReplyStream, startAgentJob, updatePresenceMutation, clearPresenceMutation, cancelFreeAutoJob, retryFreeAutoJob, dismissActivityMutation, researchActivityMutation, practiceActivityMutation, rid, roomId, proof, me.id, me.name]);
+  }, [data, metaArtifacts, elementsByArtifact, presenceByArtifact, pub, priv, traces, okfLens, runs, jobs, jobAttempts, jobDetail, proposals, passiveActivity, mergedCaptures, applyCellEdit, sendMsg, toggle, editMsg, resolveProposalMutation, addResearchRowsMutation, ensurePassiveResearchRowMutation, createArtifactMutation, uploadSourceFile, runSemanticConflictDrillMutation, runAgent, runPrivateAgent, createPrivateReplyStream, startAgentJob, startPublicAskJob, updatePresenceMutation, clearPresenceMutation, cancelFreeAutoJob, retryFreeAutoJob, dismissActivityMutation, researchActivityMutation, practiceActivityMutation, rid, roomId, proof, me.id, me.name]);
 
   return (
     <Ctx.Provider value={store}>
