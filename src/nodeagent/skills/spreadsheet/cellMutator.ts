@@ -18,7 +18,7 @@ import { BANKER_COACH_TOOLS } from "../bankerCoach/tools";
 import { OKF_RETRIEVAL_TOOLS } from "../../retrieval/tools";
 import { retrieveUntilSufficient } from "../../retrieval/retrievalLoop";
 
-const opSchema = z.object({ elementId: z.string(), value: z.any(), baseVersion: z.number().int() });
+const opSchema = z.object({ elementId: z.string(), value: z.any(), baseVersion: z.coerce.number().int() });
 const cellStatusSchema = z.enum(["empty", "running", "complete", "needs_review", "failed", "gap"]);
 const evidenceSchema = z.object({
   id: z.string().optional(),
@@ -362,7 +362,7 @@ const WRITE_LOCKED_CELL_TOOL: AgentTool = {
   schema: z.object({
     elementId: z.string(),
     value: z.any(),
-    baseVersion: z.number().int(),
+    baseVersion: z.coerce.number().int(),
     reason: z.string().optional().describe("one short phrase shown in the room trace"),
     kind: z.enum(["set", "create", "delete"]).optional().describe("'set' updates an existing element; 'create' adds a new one; 'delete' removes one"),
     artifactId: z.string().optional(),
@@ -380,7 +380,7 @@ const WRITE_LOCKED_CELLS_TOOL: AgentTool = {
     ops: z.array(z.object({
       elementId: z.string(),
       value: z.any(),
-      baseVersion: z.number().int(),
+      baseVersion: z.coerce.number().int(),
       kind: z.enum(["set", "create", "delete"]).optional(),
     })).min(1),
   }),
@@ -394,7 +394,7 @@ const WRITE_LOCKED_CELL_RESULT_TOOL: AgentTool = {
   schema: z.object({
     elementId: z.string(),
     value: z.any(),
-    baseVersion: z.number().int(),
+    baseVersion: z.coerce.number().int(),
     status: cellStatusSchema.default("complete"),
     confidence: z.number().min(0).max(1).optional(),
     normalizedValue: z.any().optional(),
@@ -430,7 +430,7 @@ const WRITE_LOCKED_CELL_RESULTS_TOOL: AgentTool = {
     ops: z.array(z.object({
       elementId: z.string(),
       value: z.any(),
-      baseVersion: z.number().int(),
+      baseVersion: z.coerce.number().int(),
       status: cellStatusSchema.default("complete"),
       confidence: z.number().min(0).max(1).optional(),
       normalizedValue: z.any().optional(),
@@ -489,7 +489,7 @@ export const ROOM_TOOLS: AgentTool[] = [
   {
     name: "edit_cell",
     description: "Write an element value with optimistic concurrency control. Works on ANY artifact: a spreadsheet cell, a note's `doc` body, or a post-it on a wall. baseVersion MUST be the version you last read for that element. `kind` defaults to \"set\" (update an existing element); pass \"create\" to ADD a new element (e.g. a new post-it — use a fresh elementId and baseVersion 0), or \"delete\" to remove one. Returns { ok:true, version } on success, or { ok:false, conflict:true, actual:N } if it changed since you read it — read_range again and retry with version N. Never ignore a conflict. If the room is in REVIEW MODE, the result is { ok:false, pendingApproval:true, proposalId } — that is SUCCESS (your proposal is filed for the host to approve): do NOT retry that write, move on to the next cell.",
-    schema: z.object({ elementId: z.string(), value: z.any(), baseVersion: z.number().int(), kind: z.enum(["set", "create", "delete"]).optional().describe("'set' (default) updates an existing element; 'create' adds a new one; 'delete' removes one"), artifactId: z.string().optional() }),
+    schema: z.object({ elementId: z.string(), value: z.any(), baseVersion: z.coerce.number().int(), kind: z.enum(["set", "create", "delete"]).optional().describe("'set' (default) updates an existing element; 'create' adds a new one; 'delete' removes one"), artifactId: z.string().optional() }),
     execute: (a: { elementId: string; value: unknown; baseVersion: number; kind?: "set" | "create" | "delete"; artifactId?: string }, rt) => rt.editCell(a.elementId, a.value, a.baseVersion, a.artifactId, a.kind),
   },
   {
@@ -498,7 +498,7 @@ export const ROOM_TOOLS: AgentTool[] = [
     schema: z.object({
       elementId: z.string(),
       value: z.any(),
-      baseVersion: z.number().int(),
+      baseVersion: z.coerce.number().int(),
       status: cellStatusSchema.default("complete"),
       confidence: z.number().min(0).max(1).optional(),
       normalizedValue: z.any().optional(),
@@ -535,7 +535,7 @@ export const ROOM_TOOLS: AgentTool[] = [
       artifactId: z.string().describe("the wiki/note artifact id from list_artifacts"),
       content: z.string().describe("the markdown/HTML body of the update"),
       citesArtifactIds: z.array(z.string()).min(1).describe("artifact ids this summary is grounded in — REQUIRED, no ungrounded wiki writes"),
-      baseVersion: z.number().int().describe("the version you last read for the 'doc' element"),
+      baseVersion: z.coerce.number().int().describe("the version you last read for the 'doc' element"),
       elementId: z.string().optional().describe("the doc element to write; defaults to 'doc'"),
     }),
     execute: (a: { artifactId: string; content: string; citesArtifactIds: string[]; baseVersion: number; elementId?: string }, rt) =>
@@ -553,7 +553,7 @@ export const ROOM_TOOLS: AgentTool[] = [
     schema: z.object({
       elementId: z.string(),
       expectedValue: z.any(),
-      baseVersion: z.number().int().describe("the version you last read for this cell"),
+      baseVersion: z.coerce.number().int().describe("the version you last read for this cell"),
       artifactId: z.string().optional().describe("another file's id from list_artifacts; omit for the primary file"),
     }),
     execute: async (a: { elementId: string; expectedValue: unknown; baseVersion: number; artifactId?: string }, rt) => {
