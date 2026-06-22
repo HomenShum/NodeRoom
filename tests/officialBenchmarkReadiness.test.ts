@@ -23,6 +23,7 @@ describe("official benchmark readiness", () => {
       "docker_sandbox",
       "rubric_weighted_scoring",
       "xlsx_import_export",
+      "live_browser_fresh_room_e2e",
     ]));
     expect(btb?.ready).toBe(false);
   });
@@ -36,6 +37,7 @@ describe("official benchmark readiness", () => {
     const xlsx = btb?.capabilities.find((capability) => capability.capability === "xlsx_import_export");
     const documentOutputs = btb?.capabilities.find((capability) => capability.capability === "pptx_docx_pdf_outputs");
     const docker = btb?.capabilities.find((capability) => capability.capability === "docker_sandbox");
+    const liveBrowser = btb?.capabilities.find((capability) => capability.capability === "live_browser_fresh_room_e2e");
 
     expect(ingest).toMatchObject({
       state: "implemented",
@@ -82,6 +84,12 @@ describe("official benchmark readiness", () => {
       state: "implemented",
       evidence: "docs/eval/docker-sandbox-probe.json",
     });
+    expect(liveBrowser).toMatchObject({
+      state: "partial",
+      evidence: "docs/eval/official-benchmark-ui-coverage.json",
+    });
+    expect(liveBrowser?.blocker).toContain("fresh live room");
+    expect(liveBrowser?.blocker).toContain("downloads every required deliverable type");
     expect(rubric?.blocker).toContain("Gandalf score-import schema");
     expect(docker?.blocker).toBeUndefined();
     expect(btb?.ready).toBe(false);
@@ -100,6 +108,7 @@ describe("official benchmark readiness", () => {
         "official_gold_isolation",
         "official_runner_adapter",
         "xlsx_import_export",
+        "live_browser_fresh_room_e2e",
         "formula_recompute",
         "format_diff",
       ]));
@@ -198,6 +207,7 @@ describe("official benchmark readiness", () => {
     expect(summary.missingCapabilities).toEqual(expect.arrayContaining([
       "official_runner_adapter",
       "format_diff",
+      "live_browser_fresh_room_e2e",
     ]));
     expect(summary.missingCapabilities).not.toContain("official_task_ingest");
   });

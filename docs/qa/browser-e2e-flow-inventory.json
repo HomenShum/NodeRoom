@@ -322,6 +322,38 @@
       ]
     },
     {
+      "id": "official-benchmark-ui",
+      "name": "Official benchmark fresh-room UI runs",
+      "owner": "quality",
+      "currentCoverage": ["tests/ui-benchmark-drive.spec.ts", "src/eval/spreadsheetBenchRunner.ts", "src/eval/bankerToolBenchRunner.ts", "src/eval/officialBenchmarkUiCoverage.ts"],
+      "scenarios": [
+        {
+          "id": "official-benchmark-ui.spreadsheetbench-workbook",
+          "priority": "nightly",
+          "status": "missing",
+          "suggestedSpec": "e2e/benchmark-ui-spreadsheetbench.spec.ts",
+          "steps": ["Create a fresh live room.", "Upload an official SpreadsheetBench workbook through the UI.", "Send the official instruction through public @nodeagent.", "Download the edited workbook from the UI.", "Reopen and score the downloaded workbook."],
+          "assertions": ["The run never uses memory mode.", "Visible agent progress appears before completion.", "The exported workbook exists on disk.", "Workbook scoring uses the downloaded artifact, not UI cell text."]
+        },
+        {
+          "id": "official-benchmark-ui.bankertoolbench-all-deliverables",
+          "priority": "nightly",
+          "status": "missing",
+          "suggestedSpec": "e2e/benchmark-ui-bankertoolbench.spec.ts",
+          "steps": ["Create a fresh live room.", "Upload the official BankerToolBench task inputs through the UI.", "Send the official instruction through public @nodeagent.", "Download every expected deliverable type: XLSX/XLSM, PPTX, DOCX, and PDF.", "Pass the downloaded package to the benchmark verifier."],
+          "assertions": ["Excel, PowerPoint, Word, and PDF deliverables are all present when expected.", "Each artifact reopens from disk before scoring.", "The verifier package manifest references the downloaded files.", "No evaluator gold or rubric metadata is available before candidate emission."]
+        },
+        {
+          "id": "official-benchmark-ui.trace-video-ledger",
+          "priority": "nightly",
+          "status": "missing",
+          "suggestedSpec": "e2e/benchmark-ui-ledger.spec.ts",
+          "steps": ["Run a benchmark UI task from a fresh room.", "Persist Playwright trace, video, screenshot, run manifest, downloads manifest, and scorer JSON.", "Write the UI coverage ledger entry."],
+          "assertions": ["The ledger records room id, model, route, prompt, uploaded files, downloaded files, scorer result, trace path, video path, and failure reason if any.", "A failed export or scorer failure is visible in the report.", "Runner-only evidence is not promoted to live-browser coverage."]
+        }
+      ]
+    },
+    {
       "id": "notes-wiki-wall",
       "name": "Notes, wiki, and wall",
       "owner": "work-surface",

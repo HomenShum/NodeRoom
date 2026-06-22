@@ -1,0 +1,425 @@
+{
+  "schema": 1,
+  "generatedAt": "2026-06-22T20:57:13.310Z",
+  "summary": {
+    "tracks": 3,
+    "coveredTracks": 0,
+    "partialTracks": 0,
+    "missingTracks": 3,
+    "requiredDeliverableKinds": [
+      "document",
+      "pdf",
+      "presentation",
+      "workbook"
+    ],
+    "liveBrowserFreshRoomReady": false
+  },
+  "policy": [
+    "A screenshot or memory-mode run is not enough for benchmark UI proof.",
+    "Every benchmark UI run must start from a fresh live room and use the public @nodeagent lane.",
+    "Every expected deliverable type must be exported/downloaded from the browser, reopened from disk, and passed to the benchmark scorer or verifier.",
+    "SpreadsheetBench requires workbook export/reopen/scoring; BankerToolBench requires Excel, PowerPoint, Word, and PDF package handling.",
+    "Runner-only evidence is useful plumbing, but it does not satisfy live-browser fresh-room coverage."
+  ],
+  "deliverableTypes": [
+    {
+      "kind": "workbook",
+      "label": "Excel workbook",
+      "extensions": [
+        ".xlsx",
+        ".xlsm"
+      ],
+      "requiredFor": [
+        "bankertoolbench",
+        "spreadsheetbench-v1",
+        "spreadsheetbench-v2"
+      ],
+      "validation": [
+        "download candidate workbook from the room",
+        "reopen workbook from disk",
+        "run workbook scorer, formula recompute, and format diff where applicable"
+      ]
+    },
+    {
+      "kind": "presentation",
+      "label": "PowerPoint deck",
+      "extensions": [
+        ".pptx"
+      ],
+      "requiredFor": [
+        "bankertoolbench"
+      ],
+      "validation": [
+        "download candidate deck from the room",
+        "reopen deck package",
+        "hand candidate deck to the BankerToolBench verifier"
+      ]
+    },
+    {
+      "kind": "document",
+      "label": "Word document",
+      "extensions": [
+        ".docx"
+      ],
+      "requiredFor": [
+        "bankertoolbench"
+      ],
+      "validation": [
+        "download candidate memo from the room",
+        "reopen document package",
+        "hand candidate memo to the BankerToolBench verifier"
+      ]
+    },
+    {
+      "kind": "pdf",
+      "label": "PDF",
+      "extensions": [
+        ".pdf"
+      ],
+      "requiredFor": [
+        "bankertoolbench"
+      ],
+      "validation": [
+        "download candidate PDF from the room",
+        "render or parse the PDF",
+        "hand candidate PDF to the BankerToolBench verifier"
+      ]
+    },
+    {
+      "kind": "csv",
+      "label": "CSV/table export",
+      "extensions": [
+        ".csv"
+      ],
+      "requiredFor": [],
+      "validation": [
+        "download candidate CSV when a task requests table export",
+        "parse rows and columns",
+        "compare against task-specific scorer policy"
+      ]
+    },
+    {
+      "kind": "image",
+      "label": "Image/asset export",
+      "extensions": [
+        ".png",
+        ".jpg",
+        ".jpeg"
+      ],
+      "requiredFor": [],
+      "validation": [
+        "download or inspect image assets when a task produces them",
+        "verify non-empty dimensions",
+        "include assets in verifier package manifests"
+      ]
+    }
+  ],
+  "gates": [
+    {
+      "id": "fresh_room_join",
+      "label": "Create or join a fresh live room through the browser UI"
+    },
+    {
+      "id": "official_fixture_upload",
+      "label": "Upload official benchmark input files through the UI"
+    },
+    {
+      "id": "public_nodeagent_invocation",
+      "label": "Send the official instruction through public @nodeagent chat"
+    },
+    {
+      "id": "visible_streaming_progress",
+      "label": "Show visible agent progress or streamed text while work runs"
+    },
+    {
+      "id": "deliverable_export_download",
+      "label": "Export or download every expected deliverable type from the UI"
+    },
+    {
+      "id": "artifact_reopen_validation",
+      "label": "Reopen downloaded artifacts from disk before scoring"
+    },
+    {
+      "id": "official_scorer_handoff",
+      "label": "Hand artifacts to the official or benchmark-faithful scorer"
+    },
+    {
+      "id": "trace_video_artifacts",
+      "label": "Persist trace, screenshot, and video evidence for each run"
+    },
+    {
+      "id": "no_memory_mode_shortcut",
+      "label": "Do not use memory-mode demo seeds for benchmark claims"
+    }
+  ],
+  "tracks": [
+    {
+      "id": "bankertoolbench",
+      "title": "BankerToolBench live browser deliverable package",
+      "status": "missing",
+      "requiredDeliverables": [
+        "workbook",
+        "presentation",
+        "document",
+        "pdf"
+      ],
+      "supportedByNonUiRunner": [
+        "workbook",
+        "presentation",
+        "document",
+        "pdf",
+        "csv",
+        "image"
+      ],
+      "liveBrowserFreshRoomDeliverables": [],
+      "missingDeliverables": [
+        "workbook",
+        "presentation",
+        "document",
+        "pdf"
+      ],
+      "gates": [
+        {
+          "id": "fresh_room_join",
+          "label": "Create or join a fresh live room through the browser UI",
+          "status": "missing",
+          "blocker": "e2e/benchmark-ui-bankertoolbench.spec.ts is not implemented for bankertoolbench."
+        },
+        {
+          "id": "official_fixture_upload",
+          "label": "Upload official benchmark input files through the UI",
+          "status": "missing",
+          "blocker": "e2e/benchmark-ui-bankertoolbench.spec.ts is not implemented for bankertoolbench."
+        },
+        {
+          "id": "public_nodeagent_invocation",
+          "label": "Send the official instruction through public @nodeagent chat",
+          "status": "partial",
+          "evidence": "tests/ui-benchmark-drive.spec.ts",
+          "blocker": "Covered in memory mode only; fresh live room benchmark route is not wired."
+        },
+        {
+          "id": "visible_streaming_progress",
+          "label": "Show visible agent progress or streamed text while work runs",
+          "status": "missing",
+          "blocker": "e2e/benchmark-ui-bankertoolbench.spec.ts is not implemented for bankertoolbench."
+        },
+        {
+          "id": "deliverable_export_download",
+          "label": "Export or download every expected deliverable type from the UI",
+          "status": "missing",
+          "blocker": "e2e/benchmark-ui-bankertoolbench.spec.ts is not implemented for bankertoolbench."
+        },
+        {
+          "id": "artifact_reopen_validation",
+          "label": "Reopen downloaded artifacts from disk before scoring",
+          "status": "missing",
+          "blocker": "e2e/benchmark-ui-bankertoolbench.spec.ts is not implemented for bankertoolbench."
+        },
+        {
+          "id": "official_scorer_handoff",
+          "label": "Hand artifacts to the official or benchmark-faithful scorer",
+          "status": "missing",
+          "blocker": "e2e/benchmark-ui-bankertoolbench.spec.ts is not implemented for bankertoolbench."
+        },
+        {
+          "id": "trace_video_artifacts",
+          "label": "Persist trace, screenshot, and video evidence for each run",
+          "status": "partial",
+          "evidence": "playwright.config.ts",
+          "blocker": "Generic Playwright traces/videos exist, but no official benchmark UI run artifact package is produced."
+        },
+        {
+          "id": "no_memory_mode_shortcut",
+          "label": "Do not use memory-mode demo seeds for benchmark claims",
+          "status": "missing",
+          "blocker": "No fresh-room benchmark UI spec exists; current benchmark UI driver uses ?mode=memory."
+        }
+      ],
+      "currentEvidence": [
+        "src/eval/bankerToolBenchRunner.ts",
+        "src/eval/bankerToolBenchNodeAgentGeneral.ts",
+        "tests/bankerToolBenchRunner.test.ts",
+        "tests/bankerToolBenchNodeAgentGeneral.test.ts",
+        "docs/qa/browser-e2e-flow-inventory.json"
+      ],
+      "requiredSpec": "e2e/benchmark-ui-bankertoolbench.spec.ts",
+      "blockers": [
+        "No Playwright spec creates a fresh live room, uploads official BankerToolBench inputs, sends the official prompt, and downloads the full Excel/PPTX/DOCX/PDF package.",
+        "No browser-run package is handed to the official Gandalf verifier.",
+        "Missing live-browser fresh-room proof for deliverables: workbook, presentation, document, pdf."
+      ]
+    },
+    {
+      "id": "spreadsheetbench-v1",
+      "title": "SpreadsheetBench V1 live browser workbook run",
+      "status": "missing",
+      "requiredDeliverables": [
+        "workbook"
+      ],
+      "supportedByNonUiRunner": [
+        "workbook"
+      ],
+      "liveBrowserFreshRoomDeliverables": [],
+      "missingDeliverables": [
+        "workbook"
+      ],
+      "gates": [
+        {
+          "id": "fresh_room_join",
+          "label": "Create or join a fresh live room through the browser UI",
+          "status": "missing",
+          "blocker": "e2e/benchmark-ui-spreadsheetbench.spec.ts is not implemented for spreadsheetbench-v1."
+        },
+        {
+          "id": "official_fixture_upload",
+          "label": "Upload official benchmark input files through the UI",
+          "status": "missing",
+          "blocker": "e2e/benchmark-ui-spreadsheetbench.spec.ts is not implemented for spreadsheetbench-v1."
+        },
+        {
+          "id": "public_nodeagent_invocation",
+          "label": "Send the official instruction through public @nodeagent chat",
+          "status": "partial",
+          "evidence": "tests/ui-benchmark-drive.spec.ts",
+          "blocker": "Covered in memory mode only; fresh live room benchmark route is not wired."
+        },
+        {
+          "id": "visible_streaming_progress",
+          "label": "Show visible agent progress or streamed text while work runs",
+          "status": "missing",
+          "blocker": "e2e/benchmark-ui-spreadsheetbench.spec.ts is not implemented for spreadsheetbench-v1."
+        },
+        {
+          "id": "deliverable_export_download",
+          "label": "Export or download every expected deliverable type from the UI",
+          "status": "missing",
+          "blocker": "e2e/benchmark-ui-spreadsheetbench.spec.ts is not implemented for spreadsheetbench-v1."
+        },
+        {
+          "id": "artifact_reopen_validation",
+          "label": "Reopen downloaded artifacts from disk before scoring",
+          "status": "missing",
+          "blocker": "e2e/benchmark-ui-spreadsheetbench.spec.ts is not implemented for spreadsheetbench-v1."
+        },
+        {
+          "id": "official_scorer_handoff",
+          "label": "Hand artifacts to the official or benchmark-faithful scorer",
+          "status": "missing",
+          "blocker": "e2e/benchmark-ui-spreadsheetbench.spec.ts is not implemented for spreadsheetbench-v1."
+        },
+        {
+          "id": "trace_video_artifacts",
+          "label": "Persist trace, screenshot, and video evidence for each run",
+          "status": "partial",
+          "evidence": "playwright.config.ts",
+          "blocker": "Generic Playwright traces/videos exist, but no official benchmark UI run artifact package is produced."
+        },
+        {
+          "id": "no_memory_mode_shortcut",
+          "label": "Do not use memory-mode demo seeds for benchmark claims",
+          "status": "missing",
+          "blocker": "No fresh-room benchmark UI spec exists; current benchmark UI driver uses ?mode=memory."
+        }
+      ],
+      "currentEvidence": [
+        "tests/ui-benchmark-drive.spec.ts",
+        "src/eval/spreadsheetBenchRunner.ts",
+        "src/eval/spreadsheetBenchScorer.ts",
+        "docs/qa/browser-e2e-flow-inventory.json"
+      ],
+      "requiredSpec": "e2e/benchmark-ui-spreadsheetbench.spec.ts",
+      "blockers": [
+        "Current Playwright benchmark driver uses memory mode and demo sheet cells, not a fresh live room with official workbook upload/export.",
+        "No browser-run workbook is downloaded, reopened, and scored against the official V1 policy.",
+        "Missing live-browser fresh-room proof for deliverables: workbook."
+      ]
+    },
+    {
+      "id": "spreadsheetbench-v2",
+      "title": "SpreadsheetBench 2 live browser workbook and chart workflow",
+      "status": "missing",
+      "requiredDeliverables": [
+        "workbook"
+      ],
+      "supportedByNonUiRunner": [
+        "workbook",
+        "image"
+      ],
+      "liveBrowserFreshRoomDeliverables": [],
+      "missingDeliverables": [
+        "workbook"
+      ],
+      "gates": [
+        {
+          "id": "fresh_room_join",
+          "label": "Create or join a fresh live room through the browser UI",
+          "status": "missing",
+          "blocker": "e2e/benchmark-ui-spreadsheetbench.spec.ts is not implemented for spreadsheetbench-v2."
+        },
+        {
+          "id": "official_fixture_upload",
+          "label": "Upload official benchmark input files through the UI",
+          "status": "missing",
+          "blocker": "e2e/benchmark-ui-spreadsheetbench.spec.ts is not implemented for spreadsheetbench-v2."
+        },
+        {
+          "id": "public_nodeagent_invocation",
+          "label": "Send the official instruction through public @nodeagent chat",
+          "status": "partial",
+          "evidence": "tests/ui-benchmark-drive.spec.ts",
+          "blocker": "Covered in memory mode only; fresh live room benchmark route is not wired."
+        },
+        {
+          "id": "visible_streaming_progress",
+          "label": "Show visible agent progress or streamed text while work runs",
+          "status": "missing",
+          "blocker": "e2e/benchmark-ui-spreadsheetbench.spec.ts is not implemented for spreadsheetbench-v2."
+        },
+        {
+          "id": "deliverable_export_download",
+          "label": "Export or download every expected deliverable type from the UI",
+          "status": "missing",
+          "blocker": "e2e/benchmark-ui-spreadsheetbench.spec.ts is not implemented for spreadsheetbench-v2."
+        },
+        {
+          "id": "artifact_reopen_validation",
+          "label": "Reopen downloaded artifacts from disk before scoring",
+          "status": "missing",
+          "blocker": "e2e/benchmark-ui-spreadsheetbench.spec.ts is not implemented for spreadsheetbench-v2."
+        },
+        {
+          "id": "official_scorer_handoff",
+          "label": "Hand artifacts to the official or benchmark-faithful scorer",
+          "status": "missing",
+          "blocker": "e2e/benchmark-ui-spreadsheetbench.spec.ts is not implemented for spreadsheetbench-v2."
+        },
+        {
+          "id": "trace_video_artifacts",
+          "label": "Persist trace, screenshot, and video evidence for each run",
+          "status": "partial",
+          "evidence": "playwright.config.ts",
+          "blocker": "Generic Playwright traces/videos exist, but no official benchmark UI run artifact package is produced."
+        },
+        {
+          "id": "no_memory_mode_shortcut",
+          "label": "Do not use memory-mode demo seeds for benchmark claims",
+          "status": "missing",
+          "blocker": "No fresh-room benchmark UI spec exists; current benchmark UI driver uses ?mode=memory."
+        }
+      ],
+      "currentEvidence": [
+        "tests/ui-benchmark-drive.spec.ts",
+        "src/eval/spreadsheetBenchRunner.ts",
+        "src/eval/spreadsheetBenchChartVisualProbe.ts",
+        "docs/qa/browser-e2e-flow-inventory.json"
+      ],
+      "requiredSpec": "e2e/benchmark-ui-spreadsheetbench.spec.ts",
+      "blockers": [
+        "No fresh live room V2 workflow uploads official workbooks and exports the edited workbook package from the browser.",
+        "Rendered chart screenshots and VLM/chart grading are not attached to a browser-run artifact package.",
+        "Missing live-browser fresh-room proof for deliverables: workbook."
+      ]
+    }
+  ]
+}

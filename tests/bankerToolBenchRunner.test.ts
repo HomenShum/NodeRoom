@@ -139,6 +139,73 @@ describe("BankerToolBench staged runner", () => {
     });
   });
 
+  it("scores a complete Excel, PowerPoint, Word, and PDF deliverable package", async () => {
+    const source = tempRoot("source");
+    const stage = tempRoot("stage");
+    const out = tempRoot("out");
+    const taskId = "4cc7bc3c-a111-4222-8333-444455556666";
+    writeTask(source, taskId);
+    mkdirSync(join(source, "task-data", taskId, "Input"), { recursive: true });
+    await writeSemanticWorkbook(join(source, "task-data", taskId, "Input", "answer.xlsx"), "candidate");
+    mkdirSync(join(source, "golden-outputs", taskId), { recursive: true });
+    await writeSemanticWorkbook(join(source, "golden-outputs", taskId, "answer.xlsx"), "gold");
+    writeFileSync(join(source, "golden-outputs", taskId, "pitch.pptx"), "finished deck");
+    writeFileSync(join(source, "golden-outputs", taskId, "memo.docx"), "finished memo");
+    writeFileSync(join(source, "golden-outputs", taskId, "report.pdf"), "finished report");
+    stageBankerToolBenchBundle(source, {
+      outputRoot: stage,
+      limit: 1,
+      clean: true,
+      generatedAt: "2026-06-13T00:00:00.000Z",
+    });
+    writeJson(join(stage, "tasks", "btb-4cc7bc3c", "agent", "output-manifest.json"), {
+      schema: 1,
+      deliverables: [
+        { path: "answer.xlsx", sourceInput: "inputs/01-answer.xlsx" },
+        { path: "pitch.pptx", text: "finished deck" },
+        { path: "memo.docx", text: "finished memo" },
+        { path: "report.pdf", text: "finished report" },
+      ],
+    });
+
+    const report = await runStagedBankerToolBench({
+      stageRoot: stage,
+      outputRoot: out,
+      mode: "apply-agent-output",
+      clean: true,
+      generatedAt: "2026-06-13T00:00:00.000Z",
+    });
+
+    expect(report.passCount).toBe(1);
+    expect(report.results[0].score).toMatchObject({
+      pass: true,
+      weightedScore: 1,
+      totals: {
+        expectedDeliverables: 4,
+        candidateDeliverables: 4,
+        matchedExpectedDeliverables: 4,
+        missingExpectedDeliverables: 0,
+        extraCandidateDeliverables: 0,
+        unsupportedCandidateDeliverables: 0,
+        acceptedGoldenFiles: 4,
+        workbookComparedGoldenFiles: 1,
+        workbookSemanticMatches: 1,
+      },
+    });
+    expect(report.results[0].score?.expectedDeliverables.map((item) => item.extension).sort()).toEqual([
+      ".docx",
+      ".pdf",
+      ".pptx",
+      ".xlsx",
+    ]);
+    expect(report.results[0].score?.deliverables.map((item) => item.extension).sort()).toEqual([
+      ".docx",
+      ".pdf",
+      ".pptx",
+      ".xlsx",
+    ]);
+  });
+
   it("accepts semantically matching workbook deliverables even when package hashes differ", async () => {
     const source = tempRoot("source");
     const stage = tempRoot("stage");
