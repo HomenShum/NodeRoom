@@ -26,7 +26,11 @@ function mockSubstrate(opts: { interactive?: boolean; openThrows?: boolean; acts
   const page: PageHandle = {
     async representation() { return { url: "https://example.com/10-k", title: "FY23 10-K", a11y: "table row: Total revenue | 2023 | $391.0B" }; },
     async screenshot() { return { png: PNG, width: 1280, height: 720 }; },
-    async locate(t) { const b = t.text ? boxes[t.text] : undefined; return b ? { ...t, box: b, selector: `text=${t.text}` } : null; },
+    async locate(t) {
+      if (opts.interactive === false) return null;
+      const b = t.text ? boxes[t.text] : undefined;
+      return b ? { ...t, box: b, selector: `text=${t.text}` } : null;
+    },
     async act(a) { acts.push(`${a.kind}:${a.target?.text ?? a.target?.description ?? ""}`); return a.target?.text && boxes[a.target.text] ? { box: boxes[a.target.text] } : {}; },
     async close() { /* noop */ },
   };
@@ -111,6 +115,7 @@ describe("runCapture — observe/act/extract loop", () => {
     expect(res.ok).toBe(true);
     expect(sub.acts.length).toBe(0); // no actions on a non-interactive substrate
     expect(res.steps.every((s) => s.phase !== "Act")).toBe(true);
+    expect(res.steps.every((s) => !s.box)).toBe(true); // screenshot-only capture is not exact box proof
     expect(res.data).toEqual({ "FY revenue": "$391.0B" });
   });
 });
