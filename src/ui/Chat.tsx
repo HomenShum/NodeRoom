@@ -630,8 +630,8 @@ export function Chat({ roomId, me, channel, variant, agentName, style, onOpenArt
     return items;
   }, [mention, refs, roomId, store, isPrivate]);
   const latestAttempt = longJobAttempts.at(-1);
-  const canCancelLongJob = !!longJob && !["completed", "failed", "cancelled"].includes(longJob.status);
-  const canRetryLongJob = !!longJob && ["failed", "blocked", "cancelled", "paused", "retrying"].includes(longJob.status);
+  const canCancelLongJob = !!longJob && !["completed", "failed", "blocked", "cancelled"].includes(longJob.status);
+  const canRetryLongJob = !!longJob && ["failed", "blocked", "cancelled", "paused"].includes(longJob.status);
   const longJobTerminal = !!longJob && ["completed", "failed", "blocked", "cancelled"].includes(longJob.status);
   const longJobActive = !!longJob && !longJobTerminal;
   const agentWorking = thinking || (!isPrivate && longJobActive);
@@ -664,7 +664,7 @@ export function Chat({ roomId, me, channel, variant, agentName, style, onOpenArt
     }
     return items.sort((a, b) => a.createdAt - b.createdAt || a.key.localeCompare(b.key));
   }, [longJob, longJobResultText, messages, showLongJobResult]);
-  const showEmptyState = messages.length === 0 && failedSends.length === 0 && !showLongJobResult;
+  const showEmptyState = messages.length === 0 && failedSends.length === 0 && !showLongJobResult && !agentWorking;
   const beginThinking = () => { thinkingStartCount.current = messages.length; setAgentErr(null); setThinking(true); };
 
   useEffect(() => { const el = feedRef.current; if (el && nearBottom.current) el.scrollTop = el.scrollHeight; }, [messages.length, agentWorking, liveOperationStream.length, multiAgentDemoStarted, multiAgentTick]);
@@ -689,6 +689,15 @@ export function Chat({ roomId, me, channel, variant, agentName, style, onOpenArt
     if (!thinking || isPrivate || !longJobTerminal) return;
     setThinking(false);
   }, [isPrivate, longJobTerminal, thinking]);
+  useEffect(() => {
+    setJobDetailsOpen(false);
+    setJobErr(null);
+    setJobBusy(null);
+  }, [roomId, channel, longJob?.id]);
+  useEffect(() => {
+    if (!longJobTerminal || longJobNeedsAttention) return;
+    setJobDetailsOpen(false);
+  }, [longJobNeedsAttention, longJobTerminal]);
   useEffect(() => {
     if (!specificModelPolicy && defaultSpecificModel) setSpecificModelPolicy(defaultSpecificModel);
   }, [defaultSpecificModel, specificModelPolicy]);
