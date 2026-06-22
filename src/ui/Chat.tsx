@@ -590,7 +590,6 @@ export function Chat({ roomId, me, channel, variant, agentName, style, onOpenArt
   const longJob = isPrivate ? null : store.lastLongFreeJob();
   const longJobAttempts = isPrivate ? [] : store.lastLongFreeJobAttempts();
   const longJobDetail = isPrivate ? null : store.lastLongFreeJobDetail();
-  const liveOperationStream = (!isPrivate && thinking ? (longJobDetail?.operations ?? []).filter((op) => op.sequence >= 1_000).slice(-4) : []) as OperationStreamRow[];
   const hasQ3DemoSeed = !isPrivate && store.listArtifacts(roomId).some((a) => a.kind === "sheet" && a.title === "Q3 variance");
   const showModelSelection = !isPrivate && store.mode === "convex";
   const specificModelGroups = useMemo(() => AGENT_MODEL_PROVIDER_ORDER
@@ -626,6 +625,9 @@ export function Chat({ roomId, me, channel, variant, agentName, style, onOpenArt
   const canCancelLongJob = !!longJob && !["completed", "failed", "cancelled"].includes(longJob.status);
   const canRetryLongJob = !!longJob && ["failed", "blocked", "cancelled", "paused", "retrying"].includes(longJob.status);
   const longJobTerminal = !!longJob && ["completed", "failed", "blocked", "cancelled"].includes(longJob.status);
+  const longJobActive = !!longJob && !longJobTerminal;
+  const agentWorking = thinking || (!isPrivate && longJobActive);
+  const liveOperationStream = (!isPrivate && agentWorking ? (longJobDetail?.operations ?? []).filter((op) => op.sequence >= 1_000).slice(-4) : []) as OperationStreamRow[];
   const longJobResultText = !isPrivate && longJobTerminal
     ? (longJob.finalText || (["failed", "blocked"].includes(longJob.status) && longJob.error ? `Agent job ${longJob.status}: ${longJob.error}` : ""))
     : "";
@@ -634,7 +636,7 @@ export function Chat({ roomId, me, channel, variant, agentName, style, onOpenArt
   const showEmptyState = messages.length === 0 && failedSends.length === 0 && !showLongJobResult;
   const beginThinking = () => { thinkingStartCount.current = messages.length; setAgentErr(null); setThinking(true); };
 
-  useEffect(() => { const el = feedRef.current; if (el && nearBottom.current) el.scrollTop = el.scrollHeight; }, [messages.length, thinking, liveOperationStream.length, multiAgentDemoStarted, multiAgentTick]);
+  useEffect(() => { const el = feedRef.current; if (el && nearBottom.current) el.scrollTop = el.scrollHeight; }, [messages.length, agentWorking, liveOperationStream.length, multiAgentDemoStarted, multiAgentTick]);
   useEffect(() => {
     setMultiAgentDemoStarted(false);
     setMultiAgentScenario(STARTUP_DILIGENCE_DEMO);
@@ -1028,11 +1030,11 @@ export function Chat({ roomId, me, channel, variant, agentName, style, onOpenArt
           </div>
         ))}
         {!isPrivate && multiAgentDemoStarted && <MultiAgentWorkbenchDemo tick={multiAgentTick} scenario={multiAgentScenario} />}
-        {thinking && (
-          <div className="r-msg agent" aria-label={`${agentName} is thinking`}>
+        {agentWorking && (
+          <div className="r-msg agent" aria-label={`${agentName} is ${longJobActive && longJob ? longJob.status : "thinking"}`}>
             <span className="r-avatar agent sm" style={{ background: AGENT_AVATAR_COLOR }}>N</span>
             <div className="body">
-              <div className="meta"><span className="who">{agentName}</span><span className="r-tag agent" style={{ padding: "1px 5px", fontSize: 9 }}>thinking</span></div>
+              <div className="meta"><span className="who">{agentName}</span><span className="r-tag agent" style={{ padding: "1px 5px", fontSize: 9 }}>{longJobActive && longJob ? longJob.status : "thinking"}</span></div>
               {liveOperationStream.length ? (
                 <div className="r-agent-stream" data-testid="agent-operation-stream" aria-label="Live agent operation stream">
                   {liveOperationStream.map((op) => (

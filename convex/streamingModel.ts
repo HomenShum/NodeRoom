@@ -12,7 +12,7 @@ import { openAiCompatibleTokenLimitParam } from "../src/nodeagent/models/openAiT
 
 export type StreamAppend = (text: string) => Promise<void>;
 
-const MAX_OUTPUT_TOKENS = 1024;
+const DEFAULT_MAX_OUTPUT_TOKENS = 4_096;
 
 function requireEnv(name: string): string {
   const value = process.env[name]?.trim();
@@ -23,6 +23,29 @@ function requireEnv(name: string): string {
 function optionalEnv(name: string): string | undefined {
   const value = process.env[name]?.trim();
   return value || undefined;
+}
+
+function envNumber(name: string, fallback: number, min: number, max: number): number {
+  const raw = Number(optionalEnv(name) ?? fallback);
+  if (!Number.isFinite(raw)) return fallback;
+  return Math.max(min, Math.min(max, raw));
+}
+
+function maxOutputTokens(): number {
+  return envNumber("PRIVATE_AGENT_MAX_OUTPUT_TOKENS", DEFAULT_MAX_OUTPUT_TOKENS, 1_024, 16_000);
+}
+
+function openAiCompatibleProviderOptions(modelId: string, endpoint: string): Record<string, unknown> {
+  if (!isOpenRouterEndpoint(endpoint) || !/^z-ai\/glm-|^glm-/i.test(modelId)) return {};
+  return { chat_template_kwargs: { enable_thinking: false } };
+}
+
+function isOpenRouterEndpoint(endpoint: string): boolean {
+  try {
+    return new URL(endpoint).hostname.includes("openrouter.ai");
+  } catch {
+    return endpoint.includes("openrouter");
+  }
 }
 
 /** Stream the reply token-by-token into `append`; resolves with the full accumulated text. */
@@ -88,7 +111,7 @@ async function geminiStream(modelId: string, system: string, userMsg: string, ap
     body: JSON.stringify({
       systemInstruction: { parts: [{ text: system }] },
       contents: [{ role: "user", parts: [{ text: userMsg }] }],
-      generationConfig: { maxOutputTokens: MAX_OUTPUT_TOKENS },
+      generationConfig: { maxOutputTokens: maxOutputTokens() },
     }),
   });
   let full = "";
@@ -117,7 +140,8 @@ async function openAiCompatibleStream(
     body: JSON.stringify({
       model: modelId,
       stream: true,
-      ...openAiCompatibleTokenLimitParam(modelId, endpoint, MAX_OUTPUT_TOKENS),
+      ...openAiCompatibleTokenLimitParam(modelId, endpoint, maxOutputTokens()),
+      ...openAiCompatibleProviderOptions(modelId, endpoint),
       messages: [{ role: "system", content: system }, { role: "user", content: userMsg }],
     }),
   });
