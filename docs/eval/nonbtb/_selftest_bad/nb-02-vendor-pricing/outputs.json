@@ -1,0 +1,5 @@
+{
+  "acme_total": {"value": 9999, "formula": "12500", "cite": {"file": "quotes.csv", "locator": "Acme"}},
+  "bolt_total": {"value": 11800, "formula": "=B3*C3", "cite": {"file": "guess.csv", "locator": "Bolt"}},
+  "fabricated_total": {"value": 1, "formula": "=1", "cite": {"file": "nope.csv", "locator": "invented"}}
+}
