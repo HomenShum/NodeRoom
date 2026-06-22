@@ -44,11 +44,17 @@ type Surface = { name: string; width: number; height: number; ready: string; ope
 const SURFACES: Surface[] = [
   {
     name: "demo-room-desktop", width: 1440, height: 900, ready: "[data-testid='shell-bottom']",
-    open: async (p) => { await p.goto(`${BASE}/?demo=QA${Date.now() % 99999}&name=Founder`, { waitUntil: "domcontentloaded" }); },
+    open: async (p) => {
+      await p.goto(`${BASE}/?demo=QA${Date.now() % 99999}&name=Founder`, { waitUntil: "domcontentloaded" });
+      await startMemoryDemoIfNeeded(p);
+    },
   },
   {
     name: "demo-room-mobile", width: 375, height: 812, ready: "[data-testid='shell-bottom']",
-    open: async (p) => { await p.goto(`${BASE}/?demo=QM${Date.now() % 99999}&name=Founder`, { waitUntil: "domcontentloaded" }); },
+    open: async (p) => {
+      await p.goto(`${BASE}/?demo=QM${Date.now() % 99999}&name=Founder`, { waitUntil: "domcontentloaded" });
+      await startMemoryDemoIfNeeded(p);
+    },
   },
   {
     name: "blank-room", width: 1280, height: 860, ready: "[data-testid='blank-room-state'], [data-testid='shell-bottom']",
@@ -60,6 +66,13 @@ const SURFACES: Surface[] = [
     },
   },
 ];
+
+async function startMemoryDemoIfNeeded(page: Page): Promise<void> {
+  const startButton = page.locator("[data-testid='start-demo-room']").first();
+  if (!(await startButton.isVisible({ timeout: 5000 }).catch(() => false))) return;
+  await page.locator("[data-testid='display-name']").fill("Founder").catch(() => undefined);
+  await startButton.click();
+}
 
 // ---- S2: deterministic checks (run in-page) -------------------------------
 // returns raw signals; severity is assigned host-side (S5) so the VLM is never involved.
