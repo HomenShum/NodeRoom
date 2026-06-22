@@ -1,5 +1,32 @@
 # Changelog
 
+## 2026-06-21 - Native notebook live work-plan bridge
+
+### What changed
+
+- Replaced the native notebook UI's serious sync trigger with
+  ProseMirror-owned text plus idle/blur `markNotebookDirty` metadata. The legacy
+  full-HTML blur commit remains only the fallback path when native notebook sync
+  is off.
+- Added a visible notebook read-model sidecar that shows processed blocks beside
+  the editor instead of covering the editor with a loading state.
+- Added `createAgentWorkPlanFromNotebook`, which derives a structured
+  `agent_work_plan` from notebook blocks, claims, and mentions, records a trace
+  receipt, and prefers company mentions for the plan title.
+- Added plan proposal and approval trace receipts for Agent Work Plans.
+- Added a browser work-plan card with affected source text, mention chips,
+  evidence requirements, plan hash, and approve-by-hash action.
+- Added `e2e/notebook-workplan-live.spec.ts` and included it in
+  `npm run test:product:live`.
+
+### Why it matters in plain language
+
+The notebook now behaves like the coediting surface we wanted: the human keeps
+typing in the editor, NodeRoom indexes the note in the background, and the agent
+appears beside the human as a reviewable sidecar plan. The agent still cannot
+silently edit the human-owned note; approval is tied to the exact structured
+plan hash and leaves a room-trace receipt.
+
 ## 2026-06-18 - Native notebook processing and Agent Work Plan approval
 
 ### What changed

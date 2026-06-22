@@ -368,6 +368,14 @@ export const commitNotebookReadModel = internalMutation({
       processedAt: now,
       updatedAt: now,
     });
+    await ctx.db.insert("traces", {
+      roomId: event.roomId,
+      ts: now,
+      actor: event.actor,
+      type: "notebook_read_model",
+      summary: `Notebook read model updated: ${args.blocks.length} block${args.blocks.length === 1 ? "" : "s"}`,
+      detail: `mark_notebook_dirty -> process_notebook_dirty_event - snapshot=${args.sourceSnapshotVersion} - claims=${args.claims.length} - mentions=${args.mentions.length} - status=${passive.status}`,
+    });
     return resultSummary;
   },
 });
@@ -548,13 +556,16 @@ function extractMentions(text: string): Array<Omit<NotebookMentionInput, "mentio
   const seen = new Set<string>();
   const out: Array<Omit<NotebookMentionInput, "mentionId" | "blockId">> = [];
   for (const match of text.matchAll(/\b([A-Z][A-Za-z0-9&.-]{2,}(?:\s+[A-Z][A-Za-z0-9&.-]{2,}){0,3})\b/g)) {
-    const displayName = (match[1] ?? "").trim();
+    const displayName = (match[1] ?? "").trim().replace(/^(Ask|Met|Verify)\s+/, "");
     if (!displayName || ["Need", "Series", "The", "This", "NodeRoom", "Convex"].includes(displayName)) continue;
     const entityKey = displayName.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "unknown";
     if (seen.has(entityKey)) continue;
     seen.add(entityKey);
+    const entityType = /\b(health|labs|systems|software|capital|ventures|bank|biotech|pharma|ai|inc|corp|llc|ltd)\b/i.test(displayName)
+      ? "company"
+      : /\b(founder|ceo|cfo|vp|maya|priya)\b/i.test(displayName) ? "person" : "company";
     out.push({
-      entityType: /\b(founder|ceo|cfo|vp|maya|priya)\b/i.test(text) ? "person" : "company",
+      entityType,
       displayName,
       entityKey,
     });

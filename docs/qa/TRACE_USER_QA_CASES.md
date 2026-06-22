@@ -72,7 +72,7 @@ Run date: 2026-06-21
 |---|---|---:|---|
 | Trace browser UI | `npx playwright test e2e/trace-tab.spec.ts --workers=1` | 6/6 passed | Validates Trace tab records, screenshots, source-cell open, grouped steps, boxed web source, tool steps, non-shippable verdicts, and graph detail. The clean run used a manually managed local Vite server on port 4197 after the default Playwright-owned server teardown path hung once after all six tests had reported `ok`. |
 | Trace and notebook runtime | `npm test -- --run tests/nodeagentTraceSpine.test.ts tests/traceData.test.ts tests/agentJobsRuntime.test.ts tests/notebookProcessingTarget.test.ts tests/nativeNotebookProsemirror.test.ts tests/evalTrustPolicy.test.ts` | 35/35 passed | Validates Trace schema/receipts/redaction, Trace UI data, job policy/receipts, ProseMirror dirty processing, and eval trust policy. |
-| Broad live collaboration | `npm run test:product:memory` and `npm run test:product:live:agent` | See `LIVE_USER_QA_CASES.md` | Release-floor browser suite passed 31/31; live Convex strict agent browser suite passed 6/6 on 2026-06-21. |
+| Broad live collaboration | `npm run test:product:memory`, `npm run test:product:live`, and `npm run test:product:live:agent` | See `LIVE_USER_QA_CASES.md` | Release-floor browser suite passed 31/31; live Convex browser suite passed 6/6 on 2026-06-21; live Convex strict agent browser suite passed 6/6 on 2026-06-21. |
 
 ## Trace Proof Matrix
 
@@ -93,13 +93,13 @@ Run date: 2026-06-21
 
 | ID | Claim from notes | Current status | Proof | Gap before stronger claim |
 |---|---|---|---|---|
-| SW-01 | ProseMirror owns live notebook text; dirty metadata owns processing triggers. | Runtime proven for backend path; default bridge UI still has legacy fallback. | `tests/nativeNotebookProsemirror.test.ts`, `tests/notebookProcessingTarget.test.ts`, README "Collaboration Architecture Evolution" | Browser proof that idle/save creates `markNotebookDirty` without full HTML blur commits as the serious sync path. |
-| SW-02 | Dirty events are actor-authenticated, deduped, quiet-windowed, and ACL-gated. | Runtime proven. | `tests/notebookProcessingTarget.test.ts` | Browser-visible pending/processed notebook intelligence state remains a product gap. |
-| SW-03 | Passive intelligence writes read-model sidecars, not hidden notebook text edits. | Runtime proven for blocks, claims, mentions, activity outbox, and privacy pullback. | `tests/notebookProcessingTarget.test.ts` | Live browser should show the sidecar/proposal experience beside the notebook. |
-| SW-04 | Agent Work Plan approval uses canonical plan hash before queuing a job. | Runtime proven. | `tests/notebookProcessingTarget.test.ts` | UI needs a first-class review surface with planned-vs-actual proof. |
+| SW-01 | ProseMirror owns live notebook text; dirty metadata owns processing triggers. | Live-browser proven for the native notebook path; legacy Tiptap remains fallback only when the feature flag is off. | `e2e/notebook-workplan-live.spec.ts`, `tests/nativeNotebookProsemirror.test.ts`, `tests/notebookProcessingTarget.test.ts`, README "Collaboration Architecture Evolution" | Extend from document-level dirty metadata to per-block affected-set presence and patch-bundle proof. |
+| SW-02 | Dirty events are actor-authenticated, deduped, quiet-windowed, and ACL-gated. | Runtime proven and browser-visible for the processed read-model state. | `tests/notebookProcessingTarget.test.ts`, `e2e/notebook-workplan-live.spec.ts` | Add browser privacy/revocation coverage for private notebook dirty events. |
+| SW-03 | Passive intelligence writes read-model sidecars, not hidden notebook text edits. | Live-browser proven for read-model sidecar and work-plan review beside the notebook. | `tests/notebookProcessingTarget.test.ts`, `e2e/notebook-workplan-live.spec.ts` | Extend approved jobs to produce evidence/proposal output after the queued job. |
+| SW-04 | Agent Work Plan approval uses canonical plan hash before queuing a job. | Live-browser proven. | `tests/notebookProcessingTarget.test.ts`, `e2e/notebook-workplan-live.spec.ts` | Add planned-vs-actual receipt comparison after job execution, not only queued admission. |
 | SW-05 | Server derives public job policy instead of trusting client-sent model/approval/evidence fields. | Runtime proven. | `tests/agentJobsRuntime.test.ts` | Browser job detail should expose the server-resolved policy in every route picker path. |
 | SW-06 | Spreadsheet collaboration supports advisory presence, human/agent intent, CAS, and CRS proposals. | Live-browser proven for the shipped spreadsheet slice. | `docs/qa/LIVE_USER_QA_CASES.md`, `e2e/realtime-presence.spec.ts`, `e2e/semantic-rebase.backend.spec.ts`, `e2e/three-user-collab.spec.ts` | Do not call this full Google Sheets or Figma parity; it is collaboration primitive parity for the room contract. |
-| SW-07 | Agent feels real-time beside the human without inaccessible loading or blocked work areas. | Partially live-browser proven. | `e2e/realtime-presence.spec.ts`, `e2e/three-user-collab.spec.ts`, `docs/qa/LIVE_USER_QA_CASES.md` | More UX assertions should check no full-surface loading overlays during active coediting and proposal review. |
+| SW-07 | Agent feels real-time beside the human without inaccessible loading or blocked work areas. | Live-browser proven for spreadsheet advisory presence and notebook read-model/work-plan sidecar. | `e2e/realtime-presence.spec.ts`, `e2e/notebook-workplan-live.spec.ts`, `e2e/three-user-collab.spec.ts`, `docs/qa/LIVE_USER_QA_CASES.md` | More UX assertions should cover deck/slide objects and richer proposal review states. |
 | SW-08 | PowerPoint/deck source of truth is `deck-plan` JSON, with HTML/PPTX/PDF derived. | Documented target architecture only. | README "Collaboration Architecture Evolution" | Needs deck-plan schema, server intent policy derivation, slide/block presence, affected-set planning, and export proof. |
 | SW-09 | Spreadsheet index work is incremental and backgrounded. | Partially shipped for coalesced refresh direction; not full proof. | README "Collaboration Architecture Evolution" | Need dedicated tests for incremental/background index updates under rapid edits. |
 | SW-10 | Browser QA proves privacy, jobs, wall, and proposals broadly. | Live-browser proven for the listed cases. | `docs/qa/LIVE_USER_QA_CASES.md`, `e2e/privacy-job-wall-proposal.spec.ts`, `e2e/live-broad-convex.spec.ts` | Inventory gaps remain for reload persistence, job resume after reload, Accept all, richer failure injection, and multi-user wall collisions. |
@@ -115,22 +115,25 @@ What can be claimed now:
   browser coverage, and runtime tests.
 - Native notebook ProseMirror dirty-event processing is backend-proven, including
   actor checks, dedupe, privacy, visibility pullback, read-model sidecars, and
-  Agent Work Plan plan-hash approval.
+  Agent Work Plan plan-hash approval. The live browser now proves the default
+  native-notebook path from messy note to read-model sidecar, affected-source
+  work-plan card, approved queued job, and room-trace receipt.
 
 What should not be claimed yet:
 
 - Full Google Sheets or Figma product parity.
 - Full Trace L8 workpaper coverage for every durable memory, eval row, browser
   proof, approval, and mutation in one live run.
-- Notebook browser parity with the spreadsheet live path.
+- Full notebook block-level patch/proposal parity with the spreadsheet live
+  path; the shipped notebook proof currently stops at approved queued job
+  admission.
 - PowerPoint/deck live collaboration parity. The correct source-of-truth design
   is `deck-plan` JSON, but the runtime proof is still future work.
 
 ## Next Proof Loop
 
-1. Add a canonical live browser spec that drives one messy notebook note into a
-   sidecar Agent Work Plan, approval, queued job, evidence/proposal output, and
-   visible Trace record with one shared `traceId`.
+1. Extend the canonical notebook live browser spec from approved queued job to
+   evidence/proposal output and visible Trace record with one shared `traceId`.
 2. Add browser assertions that every job detail shows server-derived
    `modelPolicy`, `approvalPolicy`, `evidencePolicy`, `autoAllow`, allowlist,
    and rate-limit policy instead of client-owned policy fields.

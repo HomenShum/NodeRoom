@@ -164,13 +164,17 @@ function checkLast(): void {
 }
 
 function checkRange(range: string): void {
-  const refs = git(["rev-list", "--reverse", range]).trim().split(/\s+/).filter(Boolean);
+  const refs = git(revListArgsForRange(range)).trim().split(/\s+/).filter(Boolean);
   if (refs.length === 0) {
     console.log(`${range}: no commits to check`);
     return;
   }
   const ok = refs.map((ref) => checkCommit(ref)).every(Boolean);
   if (!ok) process.exit(1);
+}
+
+export function revListArgsForRange(range: string): string[] {
+  return ["rev-list", "--reverse", "--first-parent", range];
 }
 
 function main(): void {

@@ -58,11 +58,15 @@ is an advisory short exact-target commit-lease signal plus final CAS; and Compar
 appear only when the meaning truly conflicts. The first spreadsheet slice of
 this direction is shipped through `presenceClaims`, server-side agent intent
 claims on the normal RoomTools write path, review-mode stale-agent CRS proposals,
-server-derived public job policy, and coalesced index refresh. The ProseMirror
-notebook backend/feature flag exists, but the default bridge UI still uses the legacy Tiptap
-HTML-on-blur path until save/idle is wired to `markNotebookDirty`. PowerPoint is
-still target architecture: `deck-plan` JSON should become the source of truth,
-with HTML/PPTX/PDF as derived preview/export surfaces.
+server-derived public job policy, and coalesced index refresh. The native
+ProseMirror notebook path now owns live note text when
+`VITE_NOTEBOOK_SYNC=prosemirror`; idle/blur queues actor-authenticated
+`markNotebookDirty` metadata, the read model renders beside the editor, and an
+Agent Work Plan can be drafted and approved by exact `planHash` before any job is
+queued. The legacy Tiptap full-HTML blur path remains only the fallback when the
+native notebook flag is off. PowerPoint is still target architecture:
+`deck-plan` JSON should become the source of truth, with HTML/PPTX/PDF as
+derived preview/export surfaces.
 
 The defensible parity claim is scoped: NodeRoom has Google Sheets/Figma-style
 live coediting primitive parity for its room contract when the live gate is
@@ -225,9 +229,15 @@ The first target backend slice is also shipped:
   owner-filtered read-model query.
 - `convex/agentArtifacts.ts`: `agent_work_plan` creation and approval by exact
   `planHash`, with the approved hash copied to the queued `agentJobs` request.
+- `src/ui/panels/Artifact.tsx`: native notebook idle/blur dirty metadata,
+  visible read-model sidecar, affected-source work-plan card, and approve-by-hash
+  review surface.
 - `tests/notebookProcessingTarget.test.ts`: end-to-end backend regression for
   dedupe, ACL/revocation, private isolation, passive classifier reuse, and
   approved-plan job creation.
+- `e2e/notebook-workplan-live.spec.ts`: live browser proof that a messy notebook
+  note becomes a read model, sidecar Agent Work Plan, approved queued job, and
+  room-trace receipt without replacing the editor with a blocking loading state.
 
 In Convex terms: `query` functions reveal notebook capability secrets only after
 requester proof; `mutation` functions own durable source changes and dirty
@@ -1053,7 +1063,7 @@ npm run dev             # now reads/writes live Convex (optimistic); the agent r
 npm run typecheck   &&   npm test   &&   npm run build      # tsc, full tests, vite build
 npm run qa:story                 # local #story browser gate: editable spreadsheet + local story-agent chat
 npm run test:product:memory      # local browser gate: entry/story, chat, workbook formulas, range fill-down, responsive UX
-npm run test:product:live        # live Convex gate: reactivity, realtime presence, privacy/wall/job/proposal, agent-intent CRS proof
+npm run test:product:live        # live Convex gate: reactivity, presence, notebook work-plan, privacy/wall/job/proposal, CRS proof
 npm run test:product:live:agent  # live Convex + provider gate: three-user public/private agent and review-mode flow
 ```
 

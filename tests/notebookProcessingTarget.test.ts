@@ -126,6 +126,8 @@ describe("notebook target processing slice", () => {
     });
     expect(state.outbox?.decision?.source).toBe("notebook_read_model");
     expect(state.outbox?.finding?.classifierVersion).toBeDefined();
+    const traces = await t.run((ctx) => ctx.db.query("traces").withIndex("by_room", (q) => q.eq("roomId", roomId)).collect());
+    expect(traces.some((trace) => trace.type === "notebook_read_model" && trace.summary.includes("Notebook read model updated"))).toBe(true);
 
     await t.mutation(api.prosemirror.submitSnapshot, {
       id: ensured.prosemirrorDocId,
@@ -400,5 +402,55 @@ describe("notebook target processing slice", () => {
     expect(detail?.operations.map((event) => event.name)).toContain("agentArtifacts.approveAgentWorkPlan");
     expect(artifacts.map((artifact) => String(artifact._id))).toContain(String(created.agentArtifactId));
     expect(artifacts.find((artifact) => String(artifact._id) === String(created.agentArtifactId))?.status).toBe("approved");
+  });
+
+  it("derives an Agent Work Plan from the notebook read model and records plan trace receipts", async () => {
+    const { t, roomId, artifactId, proof } = await seedNotebookRoom();
+    const ensured = await t.mutation(api.prosemirror.ensureNotebookDoc, { roomId, artifactId, requester: proof });
+    await t.mutation(api.prosemirror.submitSnapshot, {
+      id: ensured.prosemirrorDocId,
+      version: 2,
+      content: diligenceSnapshot("CardioNova Health"),
+    });
+    const dirty = await t.mutation(api.notebookProcessing.markNotebookDirty, {
+      roomId,
+      artifactId,
+      requester: proof,
+      observedSnapshotVersion: 2,
+      quietMs: 1_000,
+    });
+    await makeDirtyDue(t, dirty.dirtyEventId);
+    await t.action(internal.notebookProcessing.processNotebookDirtyEvent, { dirtyEventId: dirty.dirtyEventId });
+
+    const created = await t.mutation(api.agentArtifacts.createAgentWorkPlanFromNotebook, {
+      roomId,
+      artifactId,
+      requester: proof,
+      goal: "Research CardioNova with evidence before updating the room.",
+    });
+    const artifacts = await t.query(api.agentArtifacts.listAgentArtifacts, { roomId, requester: proof, kind: "agent_work_plan" });
+    const plan = artifacts.find((artifact) => String(artifact._id) === String(created.agentArtifactId));
+    expect(plan).toBeDefined();
+    expect(plan?.planHash).toBe(created.planHash);
+    expect(plan?.payload).toMatchObject({
+      source: "notebook_read_model",
+      sourceArtifactId: String(artifactId),
+      goal: "Research CardioNova with evidence before updating the room.",
+    });
+    expect(JSON.stringify(plan?.payload)).toContain("CardioNova Health");
+
+    const approved = await t.mutation(api.agentArtifacts.approveAgentWorkPlan, {
+      agentArtifactId: created.agentArtifactId,
+      requester: proof,
+      planHash: created.planHash,
+    });
+    const detail = approved.jobId ? await t.query(api.agentJobs.detail, { jobId: approved.jobId, requester: proof }) : null;
+    const traces = await t.run((ctx) => ctx.db.query("traces").withIndex("by_room", (q) => q.eq("roomId", roomId)).collect());
+
+    expect(approved).toMatchObject({ ok: true, status: "approved", planHash: created.planHash });
+    expect(detail?.job.request?.approvedPlanHash).toBe(created.planHash);
+    expect(detail?.operations.map((event) => event.name)).toContain("agentArtifacts.approveAgentWorkPlan");
+    expect(traces.some((trace) => trace.type === "agent_work_plan_proposed" && trace.detail?.includes(created.planHash))).toBe(true);
+    expect(traces.some((trace) => trace.type === "agent_work_plan_approved" && trace.detail?.includes(created.planHash))).toBe(true);
   });
 });

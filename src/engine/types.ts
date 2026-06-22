@@ -368,7 +368,8 @@ export type TraceType =
   | "lock_acquired" | "lock_released" | "lock_denied"
   | "edit_applied" | "edit_blocked" | "edit_proposed" | "proposal_resolved" | "proposal_resolve_failed"
   | "draft_created" | "draft_merged" | "draft_conflict" | "semantic_conflict"
-  | "agent_session_started" | "agent_status" | "message";
+  | "agent_session_started" | "agent_status" | "message"
+  | "notebook_read_model" | "agent_work_plan_proposed" | "agent_work_plan_approved";
 
 export interface TraceEvent {
   id: string;

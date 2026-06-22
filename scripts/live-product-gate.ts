@@ -55,6 +55,7 @@ env.E2E_CONVEX_URL = env.E2E_CONVEX_URL?.trim() || env.VITE_CONVEX_URL;
 env.PLAYWRIGHT_PORT = env.PLAYWRIGHT_PORT?.trim() || (includeAgent ? "5221" : "5220");
 env.PLAYWRIGHT_BASE_URL = env.PLAYWRIGHT_BASE_URL?.trim() || `http://127.0.0.1:${env.PLAYWRIGHT_PORT}`;
 env.PLAYWRIGHT_RECORD_VIDEO = env.PLAYWRIGHT_RECORD_VIDEO?.trim() || "1";
+env.VITE_NOTEBOOK_SYNC = env.VITE_NOTEBOOK_SYNC?.trim() || "prosemirror";
 env.E2E_LIVE = "1";
 if (strictReview) env.E2E_REQUIRE_REVIEW_MODE = "1";
 
@@ -66,6 +67,7 @@ const specs = [
   "e2e/reactivity.backend.spec.ts",
   "e2e/semantic-rebase.backend.spec.ts",
   "e2e/realtime-presence.spec.ts",
+  "e2e/notebook-workplan-live.spec.ts",
   "e2e/live-broad-convex.spec.ts",
   ...(includeAgent ? ["e2e/three-user-collab.spec.ts"] : []),
 ];

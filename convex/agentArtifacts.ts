@@ -82,6 +82,103 @@ export const createAgentWorkPlan = mutation({
       createdAt: now,
       updatedAt: now,
     });
+    await ctx.db.insert("traces", {
+      roomId: args.roomId,
+      ts: now,
+      actor,
+      type: "agent_work_plan_proposed",
+      summary: `Agent Work Plan proposed: ${title}`,
+      detail: `create_agent_work_plan - planHash=${payloadHash} - target=${args.artifactId ? String(args.artifactId) : "room"}`,
+    });
+    return { agentArtifactId, planHash: payloadHash, status: "proposed" as const };
+  },
+});
+
+export const createAgentWorkPlanFromNotebook = mutation({
+  args: {
+    roomId: v.id("rooms"),
+    artifactId: v.id("artifacts"),
+    requester: actorProofV,
+    goal: v.optional(v.string()),
+    visibility: v.optional(visibilityV),
+  },
+  handler: async (ctx, args) => {
+    const actor = await requireActorProof(ctx, args.roomId, args.requester);
+    const target = await requireReadableTargetArtifact(ctx, args.roomId, args.artifactId, actor);
+    if (!target || target.kind !== "note") throw new Error("artifact_not_notebook");
+    const targetVisibility = (target.visibility ?? "room") as Visibility;
+    const visibility = args.visibility ?? targetVisibility;
+    if (targetVisibility === "private" && visibility !== "private") throw new Error("private_plan_requires_private_visibility");
+    const ownerId = visibility === "private" ? actor.id : undefined;
+    const blocks = await ctx.db.query("notebookBlocks").withIndex("by_artifact", (q) => q.eq("artifactId", args.artifactId)).take(12);
+    const claims = await ctx.db.query("notebookClaims").withIndex("by_artifact", (q) => q.eq("artifactId", args.artifactId)).order("desc").take(12);
+    const mentions = await ctx.db.query("notebookMentions").withIndex("by_artifact", (q) => q.eq("artifactId", args.artifactId)).order("desc").take(12);
+    const readableBlocks = blocks.filter((row) => row.visibility !== "private" || row.ownerId === actor.id);
+    if (!readableBlocks.length) throw new Error("notebook_read_model_empty");
+    const readableClaims = claims.filter((row) => row.visibility !== "private" || row.ownerId === actor.id);
+    const readableMentions = mentions.filter((row) => row.visibility !== "private" || row.ownerId === actor.id);
+    const primaryEntity = readableMentions.find((mention) => mention.entityType === "company")?.displayName ?? readableMentions[0]?.displayName ?? "notebook claims";
+    const sourceVersion = readableBlocks.reduce((max, row) => Math.max(max, row.sourceSnapshotVersion), 0);
+    const goal = (args.goal?.trim() || `Research ${primaryEntity} with source evidence before changing the room.`).slice(0, 2_000);
+    const payload = {
+      title: `Research plan for ${primaryEntity}`,
+      goal,
+      source: "notebook_read_model",
+      sourceArtifactId: String(args.artifactId),
+      sourceSnapshotVersion: sourceVersion,
+      sourceBlocks: readableBlocks.map((block) => ({
+        blockId: block.blockId,
+        blockIndex: block.blockIndex,
+        blockType: block.blockType,
+        text: block.text.slice(0, 500),
+        textHash: block.textHash,
+      })),
+      claims: readableClaims.map((claim) => ({
+        claimId: claim.claimId,
+        blockId: claim.blockId,
+        text: claim.text.slice(0, 500),
+        confidence: claim.confidence,
+      })),
+      mentions: readableMentions.map((mention) => ({
+        mentionId: mention.mentionId,
+        blockId: mention.blockId,
+        entityType: mention.entityType,
+        displayName: mention.displayName,
+        entityKey: mention.entityKey,
+      })),
+      plannedReads: [{ artifactId: String(args.artifactId), source: "prosemirror_snapshot", version: sourceVersion }],
+      plannedWrites: [{ artifactId: String(args.artifactId), mode: "sidecar_or_proposal_first", target: "agent_artifacts" }],
+      evidenceRequirements: [
+        "Source every funding, runway, revenue, customer, or product claim before writing to shared artifacts.",
+        "Use proposals or sidecar output; do not directly edit the human-owned notebook body.",
+      ],
+    };
+    const payloadHash = await sha256Hex(stableJson(payload));
+    const title = String(payload.title).slice(0, 200);
+    const now = Date.now();
+    const agentArtifactId = await ctx.db.insert("agentArtifacts", {
+      roomId: args.roomId,
+      artifactId: args.artifactId,
+      kind: "agent_work_plan",
+      status: "proposed",
+      title,
+      createdBy: actor,
+      visibility,
+      ownerId,
+      payload,
+      payloadHash,
+      planHash: payloadHash,
+      createdAt: now,
+      updatedAt: now,
+    });
+    await ctx.db.insert("traces", {
+      roomId: args.roomId,
+      ts: now,
+      actor,
+      type: "agent_work_plan_proposed",
+      summary: `${title} from notebook read model`,
+      detail: `create_agent_work_plan_from_notebook - planHash=${payloadHash} - blocks=${readableBlocks.length} - claims=${readableClaims.length} - mentions=${readableMentions.length}`,
+    });
     return { agentArtifactId, planHash: payloadHash, status: "proposed" as const };
   },
 });
@@ -120,6 +217,14 @@ export const approveAgentWorkPlan = mutation({
       approvedAt: now,
       executedJobId: jobId,
       updatedAt: now,
+    });
+    await ctx.db.insert("traces", {
+      roomId: artifact.roomId,
+      ts: now,
+      actor,
+      type: "agent_work_plan_approved",
+      summary: `Agent Work Plan approved: ${artifact.title}`,
+      detail: `approve_agent_work_plan - planHash=${args.planHash} - job=${jobId ? String(jobId) : "not_started"}`,
     });
     return { ok: true as const, status: "approved" as const, jobId, planHash: args.planHash };
   },
