@@ -28,7 +28,6 @@ import { runAgent as runHarness } from "../nodeagent/core/runtime";
 import { scriptedModel, type Planner } from "../nodeagent/models/scripted";
 import { InMemoryRoomTools } from "../nodeagent/skills/integration/noderoomAdapter";
 import { ROOM_TOOLS } from "../nodeagent/skills/spreadsheet/cellMutator";
-import { liveOpenRouterModel, hasBrowserOpenRouterKey, browserModelId } from "../nodeagent/models/openRouterBrowser";
 import type { AgentModel } from "../nodeagent/core/types";
 
 // ---------- Build-time bundle of rubrics / prompts / sources ----------
@@ -484,9 +483,9 @@ export async function dispatchBenchmarkTask(args: DispatchBenchmarkArgs): Promis
   //   1. callModelProxy wired (Convex action lane) — server holds OPENROUTER_API_KEY,
   //      browser sends prompt+sources only. Anti-cheat: rubric.expected NEVER leaves
   //      this function; it is read locally for grading AFTER the response.
-  //   2. Direct browser → OpenRouter (VITE_OPENROUTER_API_KEY baked in at build time).
-  //      Vercel CSP forbids this in prod, but it's still useful for local dev.
-  //   3. Deterministic scripted plan — honest dry-run when neither lane works.
+  //   2. Deterministic scripted plan — honest dry-run when the proxy is unwired.
+  // (The legacy direct-browser → OpenRouter lane was removed: Vercel CSP forbids
+  //  it in prod and the Convex action supersedes it everywhere.)
   const scriptedRoute = `scripted:bench:${taskId}`;
   const scriptedFallback = scriptedModel(benchmarkPlanner(rubric, outputs), scriptedRoute);
   let chosenModel: AgentModel = scriptedFallback;
@@ -558,17 +557,10 @@ export async function dispatchBenchmarkTask(args: DispatchBenchmarkArgs): Promis
         modelRoute = `proxied-dry-run:${proxyResult.model || proxyModelId}`;
       }
     }
-  } else if (hasBrowserOpenRouterKey()) {
-    const live = liveOpenRouterModel();
-    if (live) {
-      chosenModel = live;
-      modelRoute = live.name;
-      liveModel = true;
-    }
   } else {
     // Honest dry-run signal — caller-visible in the chat panel and result.
     postMessage?.(
-      `BENCHMARK_DISPATCHER_DRYRUN task=${taskId} reason=no_model_key note="no model key configured; dispatcher is dry-run only (scripted plan: ${browserModelId()} unbound)"`,
+      `BENCHMARK_DISPATCHER_DRYRUN task=${taskId} reason=no_model_key note="no model proxy configured; dispatcher is dry-run only (scripted plan: ${DEFAULT_PROXY_MODEL_ID} unbound)"`,
     );
   }
 

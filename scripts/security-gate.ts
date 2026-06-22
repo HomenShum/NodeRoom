@@ -131,11 +131,9 @@ const frontendSecretEnvPattern =
 // still apply unconditionally.
 //
 // Justification (matches the per-rule comment style elsewhere in this file):
-//   - src/app/benchmarkDispatcher.ts: comments + the build-time `hasBrowserOpenRouterKey()`
-//     gate that decides scripted-vs-live; will switch to Convex-action probe.
-//   - src/nodeagent/models/openRouterBrowser.ts: in-tree browser-side OpenRouter shim
-//     being replaced by a Convex-action-backed AgentModel; references the env name
-//     in jsdoc + readBuildEnv() until the proxy lands.
+//   - src/app/benchmarkDispatcher.ts: comments describing the proxy lane; the
+//     legacy browser-direct OpenRouter branch has been removed and the dispatcher
+//     now routes exclusively through `api.modelProxy.openRouterChat`.
 //   - src/ui/BenchmarkDispatcherPanel.tsx: panel surface that documents the route
 //     resolution behavior; the env name appears in a jsdoc comment block.
 //   - src/app/main.tsx: app entrypoint — only reads VITE_CONVEX_URL today, listed here
@@ -146,7 +144,6 @@ const frontendSecretEnvPattern =
 //     `browserSurfaceFiles` so it is not scanned here, but listed for traceability.
 const dispatcherProxyMigrationAllowlist = new Set([
   "src/app/benchmarkDispatcher.ts",
-  "src/nodeagent/models/openRouterBrowser.ts",
   "src/ui/BenchmarkDispatcherPanel.tsx",
   "src/app/main.tsx",
   "src/app/ErrorBoundary.tsx",

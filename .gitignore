@@ -45,3 +45,5 @@ docs/walkthroughs/*.mp4
 remotion/public/audio/
 remotion/public/video/
 public/episodes/
+
+.vercel

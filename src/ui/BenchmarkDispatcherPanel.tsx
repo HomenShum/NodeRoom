@@ -24,7 +24,6 @@ import {
   type BenchmarkResult,
   type ModelProxyCall,
 } from "../app/benchmarkDispatcher";
-import { hasBrowserOpenRouterKey, browserModelId } from "../nodeagent/models/openRouterBrowser";
 import type { Actor } from "../engine/types";
 
 // One bench room per browser session, lazily seeded on first run.
@@ -149,17 +148,15 @@ export function BenchmarkDispatcherPanel({ initialTaskId }: { initialTaskId?: st
         {(() => {
           // Pre-run preview — caller can see which lane WILL fire on click.
           //   1. Convex proxy wired (preferred prod lane, server holds key).
-          //   2. Browser-direct OpenRouter (local-dev only — VITE_OPENROUTER_API_KEY).
-          //   3. Scripted dry-run.
-          const liveAvailable = hasBrowserOpenRouterKey();
+          //   2. Scripted dry-run.
+          // (The legacy browser-direct OpenRouter lane was removed — Vercel CSP
+          //  forbade it in prod and the proxy supersedes it everywhere.)
           const proxyAvailable = !!callModelProxy;
           const initial = proxyAvailable
             ? `proxy:${DEFAULT_PROXY_MODEL_ID}`
-            : liveAvailable
-              ? `openrouter:${browserModelId()}`
-              : `scripted:bench:${activeTask || "(none)"}`;
+            : `scripted:bench:${activeTask || "(none)"}`;
           const resolved = run.kind === "done" ? run.result.modelRoute : initial;
-          const live = run.kind === "done" ? run.result.liveModel : (proxyAvailable || liveAvailable);
+          const live = run.kind === "done" ? run.result.liveModel : proxyAvailable;
           const isProxiedDryRun = resolved.startsWith("proxied-dry-run:");
           const label = live
             ? "(live)"
