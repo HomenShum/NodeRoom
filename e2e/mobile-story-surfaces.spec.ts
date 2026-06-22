@@ -54,6 +54,52 @@ test.describe("#story — seven layers are live-interactable (memory engine)", (
   });
 });
 
+test.describe("#room-tour — scripted desktop walkthrough (Room.html port)", () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto("/#room-tour");
+    await page.locator(".rt-app").waitFor({ timeout: 30_000 });
+  });
+
+  test("mounts dark, 8 step dots, landing H1, 3 feature cards", async ({ page }) => {
+    await expect(page.locator(".rt-app")).toHaveAttribute("data-theme", "dark");
+    await expect(page.locator(".rt-stepdot")).toHaveCount(8);
+    await expect(page.locator(".rt-h1")).toContainText(/bring people and/i);
+    await expect(page.locator(".rt-feature")).toHaveCount(3);
+  });
+
+  test("Create modal mints an XXX-XXX share code", async ({ page }) => {
+    await page.locator(".rt-stepdot").nth(1).click();
+    await expect(page.locator(".rt-modal h2")).toHaveText("Create a room");
+    await expect(page.locator(".rt-codecard .code")).toHaveText(/^[A-Z0-9]{3}-[A-Z0-9]{3}$/);
+  });
+
+  test("panel layouts grow 1 → 4 across the chat/artifact/private/navigator steps", async ({ page }) => {
+    await page.locator(".rt-stepdot").nth(3).click(); // chat
+    await expect(page.locator(".rt-workspace > .rt-panel")).toHaveCount(1);
+    await page.locator(".rt-stepdot").nth(4).click(); // + artifact
+    await expect(page.locator(".rt-workspace > .rt-panel")).toHaveCount(2);
+    await expect(page.locator(".rt-panel.artifact .rt-sheet tbody tr")).toHaveCount(5);
+    await page.locator(".rt-stepdot").nth(6).click(); // + navigator + private
+    await expect(page.locator(".rt-workspace > .rt-panel")).toHaveCount(4);
+    await expect(page.locator(".rt-panel.left .rt-file")).toHaveCount(4);
+  });
+
+  test("Step 08 collab drill: lock → draft → commit → merge advances v41 → v43", async ({ page }) => {
+    await page.locator(".rt-stepdot").nth(7).click();
+    await expect(page.locator(".rt-vpill.next")).toHaveText("v41");
+    await page.locator(".rt-collab-bar button", { hasText: /Run collaboration/i }).click();
+    // 6 beats * ~1.15s = ~7s; pad for CI slowness.
+    await expect(page.locator(".rt-vpill.next")).toHaveText("v43", { timeout: 20_000 });
+    await expect(page.locator(".rt-trace-item")).toHaveCount(6);
+    const trace = page.locator(".rt-trace-list");
+    await expect(trace).toContainText(/lock/i);
+    await expect(trace).toContainText(/draft/i);
+    await expect(trace).toContainText(/commit/i);
+    await expect(trace).toContainText(/merge/i);
+    await expect(page.locator(".rt-collab-bar button", { hasText: /Replay/i })).toBeVisible();
+  });
+});
+
 test.describe("#mobile — terra surface renders (memory mode)", () => {
   test("cream surface, live room name, Home sections, FAB, no skeleton leak", async ({ page }) => {
     await page.goto("/#mobile?mode=memory");

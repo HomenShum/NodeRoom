@@ -1,10 +1,15 @@
-import { useEffect, useRef, useState } from "react";
+import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { Landing } from "./Landing";
 import { RoomShell } from "./RoomShell";
+import { BtbLiveLedgerPanel } from "./BtbLiveLedgerPanel";
 import { LandingStory } from "../landing/LandingStory";
 import { MobileRoot } from "./mobile/MobileRoot";
+// Lazy: the Tour bundle is ~50 KB of scripted demo content (panels, sheet,
+// note, wall, post-its) only needed at #room-tour — don't ship it on every
+// route's first paint.
+const RoomTour = lazy(() => import("../landing/roomTour/RoomTour").then((m) => ({ default: m.RoomTour })));
 import { EngineStoreProvider, ConvexStoreProvider, HAS_CONVEX } from "../app/store";
 import { enterBankerToolBenchRoomAsHost } from "../app/roomStore";
 import type { Actor } from "../engine/types";
@@ -47,6 +52,14 @@ export function App() {
     return <MobileRoot key={hash} />;
   }
 
+  if (hash === "#room-tour" || hash === "#/room-tour") {
+    return (
+      <Suspense fallback={<div style={{ padding: 24, fontFamily: "system-ui", color: "#888" }}>Loading room tour…</div>}>
+        <RoomTour />
+      </Suspense>
+    );
+  }
+
   if (hash === "#story" || hash === "#/story") {
     const exit = () => { window.location.hash = ""; };
     const enter = (session: Session) => {
@@ -71,6 +84,7 @@ export function App() {
     return (
       <EngineStoreProvider roomId={btbSessionRef.current.roomId} me={btbSessionRef.current.me}>
         <RoomShell roomId={btbSessionRef.current.roomId} me={btbSessionRef.current.me} onLeave={() => { window.location.hash = ""; }} />
+        {HAS_CONVEX ? <BtbLiveLedgerPanel /> : null}
       </EngineStoreProvider>
     );
   }
