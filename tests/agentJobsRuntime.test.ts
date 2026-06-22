@@ -398,6 +398,45 @@ describe("agentJobs runtime contract", () => {
     expect(detail?.operations.find((event) => event.name === "read_range")?.affectedIds).toEqual(["row1__variance"]);
   });
 
+  it("records unified stream events on the job detail timeline", async () => {
+    const { t, proof, roomId, artifactId } = await setupRoom();
+    const { jobId } = await t.mutation(api.agentJobs.createOrReuse, jobArgs({ roomId, artifactId, proof, idempotencyKey: "job-runtime-stream-events" }));
+
+    const text = await t.mutation(internal.agentJobs.recordStreamEvent, {
+      jobId,
+      sequence: 1_000,
+      kind: "text_delta" as const,
+      status: "streaming" as const,
+      text: "Streaming answer",
+    });
+    const tool = await t.mutation(internal.agentJobs.recordStreamEvent, {
+      jobId,
+      sequence: 1_001,
+      kind: "tool_call_result" as const,
+      step: 0,
+      toolCallId: "call-1",
+      toolName: "read_range",
+      status: "completed" as const,
+      output: { rows: 1 },
+    });
+    const duplicate = await t.mutation(internal.agentJobs.recordStreamEvent, {
+      jobId,
+      sequence: 1_001,
+      kind: "tool_call_result" as const,
+      toolCallId: "call-1",
+      toolName: "read_range",
+      status: "completed" as const,
+    });
+
+    const detail = await t.query(api.agentJobs.detail, { jobId, requester: proof });
+
+    expect(text).toMatchObject({ ok: true });
+    expect(tool).toMatchObject({ ok: true });
+    expect(duplicate).toMatchObject({ ok: true, reused: true });
+    expect(detail?.streamEvents.map((event) => event.kind)).toEqual(["message_start", "text_delta", "tool_call_result"]);
+    expect(detail?.streamEvents.find((event) => event.kind === "tool_call_result")?.output).toEqual({ rows: 1 });
+  });
+
   it("records durable model-step journal rows and replays without overwriting", async () => {
     const { t, proof, roomId, artifactId } = await setupRoom();
     const { jobId } = await t.mutation(api.agentJobs.createOrReuse, jobArgs({ roomId, artifactId, proof, idempotencyKey: "job-runtime-journal" }));

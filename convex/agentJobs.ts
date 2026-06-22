@@ -47,6 +47,18 @@ const operationEventKindV = v.union(
   v.literal("checkpoint"),
 );
 const operationStatusV = v.union(v.literal("started"), v.literal("completed"), v.literal("failed"), v.literal("skipped"));
+const agentStreamEventKindV = v.union(
+  v.literal("message_start"),
+  v.literal("step_start"),
+  v.literal("text_delta"),
+  v.literal("tool_call_start"),
+  v.literal("tool_call_result"),
+  v.literal("artifact_update"),
+  v.literal("warning"),
+  v.literal("error"),
+  v.literal("message_done"),
+);
+const agentStreamEventStatusV = v.union(v.literal("started"), v.literal("streaming"), v.literal("completed"), v.literal("failed"), v.literal("skipped"));
 const roomWorkModeV = v.union(
   v.literal("manual_capture"),
   v.literal("agent_fill"),
@@ -121,6 +133,24 @@ function clean<T extends Record<string, unknown>>(value: T): T {
   const out: Record<string, unknown> = {};
   for (const [key, val] of Object.entries(value)) if (val !== undefined) out[key] = val;
   return out as T;
+}
+
+function capStreamText(value: string | undefined, limit = 12_000): string | undefined {
+  if (value === undefined) return undefined;
+  return value.length > limit ? `${value.slice(0, limit)}...[truncated ${value.length - limit} chars]` : value;
+}
+
+function compactStreamPayload(value: unknown, limit = 4_000): unknown {
+  if (value === undefined) return undefined;
+  if (value === null || typeof value === "boolean" || typeof value === "number") return value;
+  if (typeof value === "string") return capStreamText(value, limit);
+  let encoded = "";
+  try {
+    encoded = stableJson(value);
+  } catch {
+    encoded = String(value);
+  }
+  return encoded.length > limit ? `${encoded.slice(0, limit)}...[truncated ${encoded.length - limit} chars]` : value;
 }
 
 function defaultJobIdempotencyKey(args: { roomId: unknown; artifactId: unknown; actorId: string; goal: string; entrypoint: string }) {
@@ -699,6 +729,76 @@ async function recordOperationEvent(ctx: any, args: {
   }));
 }
 
+async function recordStreamEventRow(ctx: any, args: {
+  jobId: string;
+  runId?: string;
+  sequence: number;
+  kind: "message_start" | "step_start" | "text_delta" | "tool_call_start" | "tool_call_result" | "artifact_update" | "warning" | "error" | "message_done";
+  step?: number;
+  toolCallId?: string;
+  toolName?: string;
+  status?: "started" | "streaming" | "completed" | "failed" | "skipped";
+  text?: string;
+  title?: string;
+  input?: unknown;
+  output?: unknown;
+  error?: string;
+  metadata?: unknown;
+  createdAt?: number;
+}) {
+  const job = await ctx.db.get(args.jobId);
+  if (!job) return { ok: false as const, reason: "job_not_found" as const };
+  const existing = await ctx.db.query("agentStreamEvents").withIndex("by_job_sequence", (q: any) => q.eq("jobId", args.jobId).eq("sequence", args.sequence)).take(1);
+  if (existing.length) return { ok: true as const, reused: true as const };
+  const now = Date.now();
+  const eventId = await ctx.db.insert("agentStreamEvents", clean({
+    jobId: args.jobId,
+    roomId: job.roomId,
+    runId: args.runId,
+    sequence: args.sequence,
+    kind: args.kind,
+    step: args.step,
+    toolCallId: args.toolCallId,
+    toolName: args.toolName,
+    status: args.status,
+    text: capStreamText(args.text),
+    title: capStreamText(args.title, 500),
+    input: compactStreamPayload(args.input),
+    output: compactStreamPayload(args.output),
+    error: capStreamText(args.error, 2_000),
+    metadata: compactStreamPayload(args.metadata, 2_000),
+    createdAt: args.createdAt ?? now,
+  }));
+  await ctx.db.patch(args.jobId, { updatedAt: now });
+  return { ok: true as const, eventId };
+}
+
+async function nextStreamSequence(ctx: any, jobId: string, floor: number): Promise<number> {
+  const latest = await ctx.db.query("agentStreamEvents").withIndex("by_job_sequence", (q: any) => q.eq("jobId", jobId)).order("desc").take(1);
+  return Math.max(floor, (latest[0]?.sequence ?? 0) + 1);
+}
+
+export const recordStreamEvent = internalMutation({
+  args: {
+    jobId: v.id("agentJobs"),
+    runId: v.optional(v.id("agentRuns")),
+    sequence: v.number(),
+    kind: agentStreamEventKindV,
+    step: v.optional(v.number()),
+    toolCallId: v.optional(v.string()),
+    toolName: v.optional(v.string()),
+    status: v.optional(agentStreamEventStatusV),
+    text: v.optional(v.string()),
+    title: v.optional(v.string()),
+    input: v.optional(v.any()),
+    output: v.optional(v.any()),
+    error: v.optional(v.string()),
+    metadata: v.optional(v.any()),
+    createdAt: v.optional(v.number()),
+  },
+  handler: async (ctx, a) => recordStreamEventRow(ctx, a),
+});
+
 export const createOrReuse = mutation({
   args: {
     roomId: v.id("rooms"),
@@ -799,6 +899,18 @@ export const finishInteractive = internalMutation({
     await recordOperationEvent(ctx, { jobId: a.jobId, runId: a.runId, sequence: baseSequence + 1, kind: "model_call", name: a.resolvedModel, countDelta: a.modelCalls, status: eventStatus, startedAt: now - a.ms, completedAt: now });
     await recordOperationEvent(ctx, { jobId: a.jobId, runId: a.runId, sequence: baseSequence + 2, kind: "tool_call", name: "NodeAgent tools", countDelta: a.toolCalls, status: eventStatus, startedAt: now - a.ms, completedAt: now });
     await recordOperationEvent(ctx, { jobId: a.jobId, runId: a.runId, sequence: baseSequence + 3, kind: "checkpoint", name: "agentJobs.finishInteractive", countDelta: 1, status: "completed", startedAt: now, completedAt: now });
+    await recordStreamEventRow(ctx, {
+      jobId: a.jobId,
+      runId: a.runId,
+      sequence: await nextStreamSequence(ctx, a.jobId, 9_000),
+      kind: a.status === "completed" ? "message_done" : "error",
+      status: eventStatus,
+      text: a.finalText,
+      title: a.status === "completed" ? "Agent completed" : "Agent stopped",
+      error: a.error,
+      metadata: { stopReason: a.stopReason, model: a.resolvedModel },
+      createdAt: now,
+    });
     let workflowId: string | undefined;
     if (a.status === "paused" && a.scheduleWorkflow) {
       workflowId = String(await startWorkflow(ctx, internal.agentWorkflows.freeAutoWorkflow, { jobId: a.jobId }, {
@@ -1581,7 +1693,35 @@ async function startDurableAgentJob(ctx: any, a: DurableStartAgentJobArgs): Prom
     startedAt: now,
     completedAt: now,
   });
+  await recordStreamEventRow(ctx, {
+    jobId,
+    sequence: 1,
+    kind: "message_start",
+    status: "started",
+    title: "Room NodeAgent",
+    text: a.goal,
+    metadata: { entrypoint, scope, routePolicy, runtimePolicy, modelPolicy },
+    createdAt: now,
+  });
   if (status === "blocked") {
+    await recordStreamEventRow(ctx, {
+      jobId,
+      sequence: 2,
+      kind: "error",
+      status: "failed",
+      title: "Plan blocked",
+      error: blockedReason,
+      metadata: { scheduling: planPreview?.scheduling, conflicts: planPreview?.conflicts },
+      createdAt: now,
+    });
+    await recordStreamEventRow(ctx, {
+      jobId,
+      sequence: 3,
+      kind: "message_done",
+      status: "failed",
+      text: blockedReason,
+      createdAt: now,
+    });
     await ctx.db.insert("traces", { roomId: a.roomId, ts: now, actor, type: "plan_blocked", summary: `PlanPreview blocked this run (${planPreview?.scheduling ?? "blocked"}) on ${String(a.artifactId)}`, detail: `plan_preview - ${planPreview?.scheduling ?? "blocked"} - conflicts=${(planPreview?.conflicts ?? []).map((c) => c.kind).join(",") || "none"} - ${blockedReason ?? ""}`.slice(0, 480) });
     return { jobId, reused: false as const, status, modelPolicy, routePolicy, runtimePolicy };
   }
@@ -1853,6 +1993,7 @@ export const detail = query({
     if (!canReadJob(job, actor)) return null;
     const attempts = await ctx.db.query("agentJobAttempts").withIndex("by_job", (q) => q.eq("jobId", jobId)).collect();
     const operations = await ctx.db.query("agentOperationEvents").withIndex("by_job_sequence", (q) => q.eq("jobId", jobId)).take(100);
+    const streamEvents = await ctx.db.query("agentStreamEvents").withIndex("by_job_sequence", (q) => q.eq("jobId", jobId)).take(400);
     const reasoningFrames = await ctx.db.query("agentReasoningFrames").withIndex("by_job_sequence", (q) => q.eq("jobId", jobId)).take(200);
     const receipts = await ctx.db.query("agentMutationReceipts").withIndex("by_job", (q) => q.eq("jobId", jobId)).order("desc").take(50);
     const modelJournal = await ctx.db.query("agentModelStepJournal").withIndex("by_job", (q) => q.eq("jobId", jobId)).order("desc").take(50);
@@ -1866,7 +2007,7 @@ export const detail = query({
     const latestSteps = job.latestRunId
       ? await ctx.db.query("agentSteps").withIndex("by_run", (q) => q.eq("runId", job.latestRunId!)).take(80)
       : [];
-    return { job, attempts, operations, reasoningFrames, receipts, modelJournal, leases, draftOperations, latestRun, latestSteps };
+    return { job, attempts, operations, streamEvents, reasoningFrames, receipts, modelJournal, leases, draftOperations, latestRun, latestSteps };
   },
 });
 
