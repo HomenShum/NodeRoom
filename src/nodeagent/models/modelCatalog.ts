@@ -567,6 +567,10 @@ export const modelAliases: Record<string, string> = {
   "claude-sonnet": "claude-sonnet-4.6",
   "claude-opus": "claude-opus-4.7",
   "claude-haiku": "claude-haiku-4.5",
+  // Dotted display ids -> hyphenated direct-API ids (dotted Anthropic ids 404; opus display lags to 4-8).
+  "claude-sonnet-4.6": "claude-sonnet-4-6",
+  "claude-haiku-4.5": "claude-haiku-4-5",
+  "claude-opus-4.7": "claude-opus-4-8",
   "sonnet": "claude-sonnet-4.6",
   "opus": "claude-opus-4.7",
   "haiku": "claude-haiku-4.5",
@@ -627,7 +631,12 @@ export const modelAliases: Record<string, string> = {
  */
 export function resolveModelAlias(modelInput: string): string {
   const normalized = modelInput.toLowerCase().trim();
-  return modelAliases[normalized] ?? modelInput;
+  // Resolve up to two hops: a shortcut ("claude-sonnet") -> dotted display id ("claude-sonnet-4.6")
+  // -> hyphenated direct-API id ("claude-sonnet-4-6"). Dotted Anthropic ids 404.
+  const once = modelAliases[normalized] ?? modelInput;
+  const twice = modelAliases[once.toLowerCase().trim()] ?? once;
+  if (twice.startsWith("claude-") && twice.includes(".")) return twice.replace(/\./g, "-");
+  return twice;
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
