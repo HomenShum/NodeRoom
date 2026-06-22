@@ -12,8 +12,10 @@ import { runAgent, type AgentTool, type RoomTools } from "../src/nodeagent";
 import { model as routedModel } from "../src/nodeagent/models/adapter";
 
 const EVAL_ROOT = resolve("docs/eval/nonbtb");
-const OUT_ROOT = resolve(".tmp/sfn-noderoom-run-via-runtime");
-const MODEL_ID = "gpt-4.1-mini";
+const OUT_ROOT = resolve(process.env.SFN_OUT_ROOT ?? ".tmp/sfn-noderoom-run-via-runtime");
+// Honest-lane default: a current open-source model via OpenRouter — z-ai/glm-5.2 is the #1
+// agent-route entry in noderoom's modelCatalog (1M context, Apache-licensed weights).
+const MODEL_ID = process.env.SFN_MODEL_ID ?? "glm-5.2";
 
 function stubRoomTools(): RoomTools {
   return {
