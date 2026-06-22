@@ -52,4 +52,7 @@ tests/.artifacts/
 # Nested git repo reference (short-term fix; submodule would be the long-term fix)
 skills/solo-founder-nodes/
 
+# Local git worktree checkouts — see git worktree list
+.worktrees/
+
 .vercel
