@@ -17,20 +17,17 @@ type Surface = { name: string; w: number; h: number; ready: string; open: (p: Pa
 const SURFACES: Surface[] = [
   { name: "demo-room-desktop", w: 1440, h: 900, ready: "[data-testid='shell-bottom']",
     open: async (p) => {
-      await p.goto(`${BASE}/?demo=BASEDESK&name=Founder`, { waitUntil: "domcontentloaded" });
+      await p.goto(`${BASE}/?mode=memory&demo=BASEDESK&name=Founder`, { waitUntil: "domcontentloaded" });
       await startMemoryDemoIfNeeded(p);
     } },
   { name: "demo-room-mobile", w: 375, h: 812, ready: "[data-testid='shell-bottom']",
     open: async (p) => {
-      await p.goto(`${BASE}/?demo=BASEMOB&name=Founder`, { waitUntil: "domcontentloaded" });
+      await p.goto(`${BASE}/?mode=memory&demo=BASEMOB&name=Founder`, { waitUntil: "domcontentloaded" });
       await startMemoryDemoIfNeeded(p);
     } },
   { name: "blank-room", w: 1280, h: 860, ready: "[data-testid='blank-room-state'], [data-testid='shell-bottom']",
     open: async (p) => {
-      await p.goto(`${BASE}/`, { waitUntil: "domcontentloaded" });
-      await p.waitForTimeout(700);
-      await p.fill("input[placeholder='e.g. Priya']", "QA").catch(() => {});
-      await p.click("[data-testid='create-room']").catch(() => {});
+      await p.goto(`${BASE}/?mode=memory&create=BASEBLANK&name=QA`, { waitUntil: "domcontentloaded" });
     } },
 ];
 

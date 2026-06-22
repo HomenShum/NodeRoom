@@ -187,7 +187,10 @@ function showInAgentOperationStream(op: OperationStreamRow): boolean {
     || op.name === "agentJobs.createOrReuse"
     || op.name === "agentJobs.claimSlice"
     || op.name === "agentWorkflows.freeAutoWorkflow"
-    || op.name === "agentJobRunner.runFreeAutoJobSlice";
+    || op.name === "agentJobRunner.runFreeAutoJobSlice"
+    || op.name === "derive_room_intent"
+    || op.name === "derive_free_auto_route"
+    || op.name === "patch_bundle_cas";
 }
 type ReasoningFrameRow = AgentJobDetailTelemetry["reasoningFrames"][number];
 function framePrimaryText(frame: ReasoningFrameRow): string {

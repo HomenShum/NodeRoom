@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updatedAt": "2026-06-21",
+  "updatedAt": "2026-06-22",
   "primaryPublicAgentInvocation": "@nodeagent",
   "legacyAliases": ["/ask", "/free"],
   "policy": {
@@ -13,13 +13,13 @@
       "id": "room-entry-shell",
       "name": "Room entry, join, and shell",
       "owner": "product",
-      "currentCoverage": ["e2e/design-baseline.spec.ts", "e2e/responsive-qa.spec.ts", "e2e/work-surface-split.spec.ts"],
+      "currentCoverage": ["e2e/design-baseline.spec.ts", "e2e/responsive-qa.spec.ts", "e2e/work-surface-split.spec.ts", "e2e/full-modern-ux-bar.spec.ts"],
       "scenarios": [
         {
           "id": "room-entry-shell.create-demo-room",
           "priority": "release_floor",
-          "status": "partial",
-          "suggestedSpec": "e2e/room-entry.spec.ts",
+          "status": "covered",
+          "suggestedSpec": "e2e/full-modern-ux-bar.spec.ts",
           "steps": ["Open the app in memory mode.", "Enter a display name.", "Join the demo room.", "Wait for the room shell."],
           "assertions": ["Left binder is visible.", "Center work surface is visible.", "Public chat is visible.", "No blocking error or blank panel appears."]
         },
@@ -77,13 +77,13 @@
       "id": "public-nodeagent",
       "name": "Public @nodeagent route",
       "owner": "agent-runtime",
-      "currentCoverage": ["e2e/chat.spec.ts", "tests/chatReasoningFrames.test.tsx", "scripts/free-job-smoke.ts"],
+      "currentCoverage": ["e2e/chat.spec.ts", "e2e/full-modern-ux-bar.spec.ts", "tests/chatReasoningFrames.test.tsx", "scripts/free-job-smoke.ts"],
       "scenarios": [
         {
           "id": "public-nodeagent.mention-adaptive",
           "priority": "release_floor",
-          "status": "partial",
-          "suggestedSpec": "e2e/nodeagent-public.spec.ts",
+          "status": "covered",
+          "suggestedSpec": "e2e/full-modern-ux-bar.spec.ts",
           "steps": ["Select Adaptive.", "Type @nodeagent reconcile Q3 revenue.", "Send."],
           "assertions": ["User bubble appears.", "Job or thinking state appears.", "Result lands in the room.", "Trace or job metadata can be opened."]
         },
@@ -149,7 +149,7 @@
       "id": "durable-job-controls",
       "name": "Durable job controls and resume",
       "owner": "agent-runtime",
-      "currentCoverage": ["e2e/privacy-job-wall-proposal.spec.ts", "e2e/live-broad-convex.spec.ts", "scripts/free-job-smoke.ts", "tests/agentJobsRuntime.test.ts"],
+      "currentCoverage": ["e2e/privacy-job-wall-proposal.spec.ts", "e2e/full-modern-ux-bar.spec.ts", "e2e/live-broad-convex.spec.ts", "scripts/free-job-smoke.ts", "tests/agentJobsRuntime.test.ts"],
       "scenarios": [
         {
           "id": "durable-job-controls.start-free-route",
@@ -253,13 +253,13 @@
       "id": "research-workflows",
       "name": "GTM and finance research workflows",
       "owner": "professional-workflows",
-      "currentCoverage": ["tests/researchHarness.test.ts", "evals/professionalRuntimeLive.ts"],
+      "currentCoverage": ["e2e/full-modern-ux-bar.spec.ts", "tests/researchHarness.test.ts", "evals/professionalRuntimeLive.ts"],
       "scenarios": [
         {
           "id": "research-workflows.company-enrichment",
           "priority": "release_floor",
-          "status": "partial",
-          "suggestedSpec": "e2e/research-flow.spec.ts",
+          "status": "covered",
+          "suggestedSpec": "e2e/full-modern-ux-bar.spec.ts",
           "steps": ["Open company research artifact.", "Seed pending rows.", "Run @nodeagent enrichment."],
           "assertions": ["Only pending or stale rows change.", "Evidence-bearing fields appear.", "Completed rows are not clobbered."]
         },
@@ -429,7 +429,7 @@
       "id": "responsive-shell",
       "name": "Responsive shell quality gates",
       "owner": "design-qa",
-      "currentCoverage": ["e2e/responsive-qa.spec.ts", "e2e/work-surface-split.spec.ts"],
+      "currentCoverage": ["e2e/responsive-qa.spec.ts", "e2e/work-surface-split.spec.ts", "e2e/full-modern-ux-bar.spec.ts"],
       "scenarios": [
         {
           "id": "responsive-shell.desktop",

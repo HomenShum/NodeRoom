@@ -13,7 +13,7 @@ import { BenchmarkDispatcherPanel } from "./BenchmarkDispatcherPanel";
 // route's first paint.
 const RoomTour = lazy(() => import("../landing/roomTour/RoomTour").then((m) => ({ default: m.RoomTour })));
 import { EngineStoreProvider, ConvexStoreProvider, HAS_CONVEX } from "../app/store";
-import { enterBankerToolBenchRoomAsHost } from "../app/roomStore";
+import { createFreshRoom, enterBankerToolBenchRoomAsHost, enterDemoRoomAsHost } from "../app/roomStore";
 import type { Actor } from "../engine/types";
 
 const liveSessionKey = (code: string) => `noderoom:live:${code.toUpperCase()}`;
@@ -41,7 +41,7 @@ type LiveRequest =
 
 export function App() {
   const [hash, setHash] = useState(() => (typeof window !== "undefined" ? window.location.hash : ""));
-  const [memorySession, setMemorySession] = useState<Session | null>(null);
+  const [memorySession, setMemorySession] = useState<Session | null>(() => initialMemorySession());
   const btbSessionRef = useRef<Session | null>(null);
   useEffect(() => {
     const onHash = () => setHash(window.location.hash);
@@ -108,6 +108,14 @@ export function App() {
   }
 
   return HAS_CONVEX ? <ConvexApp /> : <MemoryApp session={memorySession} onSession={setMemorySession} />;
+}
+
+function initialMemorySession(): Session | null {
+  if (typeof window === "undefined" || HAS_CONVEX) return null;
+  const params = new URLSearchParams(window.location.search);
+  if (params.get("demo") !== null) return enterDemoRoomAsHost(cleanLiveName(params.get("name") ?? "", "Host"));
+  if (params.get("create") !== null) return createFreshRoom("Blank NodeRoom", cleanLiveName(params.get("name") ?? "", "Host"));
+  return null;
 }
 
 function MemoryApp({ session, onSession }: { session: Session | null; onSession: (session: Session | null) => void }) {
