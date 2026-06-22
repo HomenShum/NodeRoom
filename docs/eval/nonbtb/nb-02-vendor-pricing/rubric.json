@@ -1,0 +1,14 @@
+{
+  "task": "nb-02-vendor-pricing",
+  "deliverable": "pricing.xlsx",
+  "allowed_keys": ["acme_total", "bolt_total", "cobalt_total", "lowest_total"],
+  "expected": {
+    "acme_total": {"value": 12500, "tol": 0.5},
+    "bolt_total": {"value": 11800, "tol": 0.5},
+    "cobalt_total": {"value": 13200, "tol": 0.5},
+    "lowest_total": {"value": 11800, "tol": 0.5}
+  },
+  "formula_required": true,
+  "citations_required": true,
+  "sources": ["quotes.csv"]
+}

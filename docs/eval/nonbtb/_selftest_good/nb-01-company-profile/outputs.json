@@ -1,0 +1,7 @@
+{
+  "revenue_growth_pct": {"value": 25.0, "formula": "=(B3-B2)/B2*100", "cite": {"file": "source_financials.csv", "locator": "revenue 2024,2025"}},
+  "gross_margin_2024": {"value": 40.0, "formula": "=(B2-C2)/B2*100", "cite": {"file": "source_financials.csv", "locator": "row 2024"}},
+  "gross_margin_2025": {"value": 44.0, "formula": "=(B3-C3)/B3*100", "cite": {"file": "source_financials.csv", "locator": "row 2025"}},
+  "eps_2024": {"value": 2.40, "formula": "=D2/Shares", "cite": {"file": "source_shares.txt", "locator": "shares"}},
+  "eps_2025": {"value": 3.50, "formula": "=D3/Shares", "cite": {"file": "source_shares.txt", "locator": "shares"}}
+}
