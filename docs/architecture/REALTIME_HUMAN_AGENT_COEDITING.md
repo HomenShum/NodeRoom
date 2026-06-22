@@ -231,5 +231,6 @@ Current runtime proof:
   wall CRUD fan-out, job cancel/retry controls, and server-owned agent-intent
   conflict/proposal proof.
 - `docs/eval/MEDIA_JUDGE.md` records the current Gemini 3.5 Flash video judge:
-  publish, score 8/16, with a remaining P2 that the clip should show more
-  simultaneous two-sided coediting.
+  `fix-then-publish`, score 11.6/16, with a P1 blank-start defect. This media
+  score is presentation quality evidence only; it does not replace the
+  functional live-browser gates above.

@@ -6,6 +6,11 @@ This is the user-facing live browser QA matrix for NodeRoom. It is intentionally
 stricter than a demo checklist: every case names the user story, the observable
 browser assertion, and the automated proof file that currently covers it.
 
+For Trace-specific proof boundaries, use
+[`TRACE_USER_QA_CASES.md`](TRACE_USER_QA_CASES.md). Live browser QA proves the
+collaboration surface and selected Trace Lens behavior; the full Trace workpaper
+claim also depends on runtime, backend, eval, and provenance gates.
+
 ## Runbook
 
 Use the full browser verification flow when validating release claims:
