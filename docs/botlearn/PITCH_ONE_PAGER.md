@@ -1,5 +1,9 @@
 # Solo Founder Nodes — the anti-cheat IS the product
 
+![Live walkthrough on noderoom.live — captured against the actual prod URL, no mocks](./botlearn-walkthrough.gif)
+
+*Live walkthrough on https://noderoom.live (captured against the actual prod URL — no mocks). MP4: [`botlearn-walkthrough.mp4`](./botlearn-walkthrough.mp4).*
+
 **For one-person companies whose AI agent demos beautifully but collapses on real benchmark tasks, Solo Founder Nodes is the portable Agent Skill suite that turns the user's coding agent into a benchmark-driven engineer — built around an anti-cheat substrate (held-out splits, no answer keys in the harness, in-app transfer, live-DOM verification) that publishes a model's true ceiling instead of paint-by-numbers leaderboard scores, with NodeRoom on noderoom.live as the worked example.**
 
 ---
