@@ -1378,7 +1378,8 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
         // context builder is routed by kind server-side. No more variance-only refusal.
         const target = targetArtifact(artifacts, references);
         const sess = sessions.find((s) => s.scope === "public");
-        if (!target || !sess) return;
+        if (!target) throw new Error("No room artifact is available for NodeAgent to work on.");
+        if (!sess) throw new Error("Room NodeAgent is not available in this room yet.");
         const route = durableRouteForModelSelection(input.modelSelection);
         await startAgentJob({
           roomId: rid,

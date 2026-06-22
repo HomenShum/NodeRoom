@@ -126,6 +126,7 @@ describe("Chat reasoning-frame job detail", () => {
     expect(screen.getByTestId("agent-operation-stream")).toBeTruthy();
     expect(screen.getByText(/mutation: agentJobs.start/)).toBeTruthy();
     expect(screen.getByText(/scheduler: agentWorkflows.freeAutoWorkflow/)).toBeTruthy();
+    expect(screen.queryByTestId("public-chat-empty")).toBeNull();
   });
 
   it("passes the selected specific model through the public @nodeagent composer", async () => {
@@ -273,5 +274,58 @@ describe("Chat reasoning-frame job detail", () => {
 
     expect(screen.getByText(/2\.2m/)).toBeTruthy();
     expect(screen.queryByText(/2\.166/)).toBeNull();
+  });
+
+  it("does not show cancel for terminal blocked jobs and only offers retry", () => {
+    const store = baseStore();
+    store.lastLongFreeJob = () => ({
+      id: "job1",
+      status: "blocked",
+      entrypoint: "public_ask",
+      runtime: "workflow",
+      attempts: 1,
+      maxAttempts: 20,
+      modelPolicy: "gemini-3.5-flash",
+      approvalPolicy: "auto_commit_safe",
+      evidencePolicy: "public_only",
+      error: "needs host review",
+      updatedAt: 2000,
+    });
+    mockStore.current = store;
+
+    render(<Chat roomId="r1" me={me} channel="public" variant="public" agentName="Room NodeAgent" />);
+
+    expect(screen.queryByTestId("job-cancel")).toBeNull();
+    expect(screen.getByTestId("job-retry")).toBeTruthy();
+  });
+
+  it("collapses open successful job details once the job completes", async () => {
+    const store = baseStore();
+    let status = "running";
+    store.lastLongFreeJob = () => ({
+      id: "job1",
+      status,
+      entrypoint: "public_ask",
+      runtime: "workflow",
+      attempts: status === "running" ? 0 : 1,
+      maxAttempts: 20,
+      modelPolicy: "gemini-3.5-flash",
+      approvalPolicy: "auto_commit_safe",
+      evidencePolicy: "public_only",
+      finalText: status === "completed" ? "Completed result" : undefined,
+      updatedAt: status === "running" ? 1000 : 2000,
+    });
+    mockStore.current = store;
+    const view = render(<Chat roomId="r1" me={me} channel="public" variant="public" agentName="Room NodeAgent" />);
+
+    fireEvent.click(screen.getByTestId("job-detail-toggle"));
+    expect(screen.getByTestId("job-detail")).toBeTruthy();
+
+    status = "completed";
+    view.rerender(<Chat roomId="r1" me={me} channel="public" variant="public" agentName="Room NodeAgent" />);
+
+    await waitFor(() => expect(screen.queryByTestId("job-detail")).toBeNull());
+    expect(screen.queryByTestId("job-status")).toBeNull();
+    expect(screen.getByText("Completed result")).toBeTruthy();
   });
 });
