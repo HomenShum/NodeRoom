@@ -2112,6 +2112,7 @@ export const claimSlice = internalMutation({
       runtimePolicy: job.runtimePolicy,
       mode: job.mode,
       modelPolicy: job.modelPolicy,
+      createdAt: job.createdAt,
       cursor: job.cursor,
       handoff: job.handoff,
       attempt,

@@ -206,6 +206,72 @@ describe("Chat reasoning-frame job detail", () => {
 
     expect(screen.getByTestId("agent-job-result")).toBeTruthy();
     expect(screen.getByText("Done from the durable job row.")).toBeTruthy();
+    expect(screen.queryByTestId("job-status")).toBeNull();
     expect(screen.queryByTestId("public-chat-empty")).toBeNull();
+  });
+
+  it("sorts synthetic durable job results by timestamp instead of appending them below newer chat", () => {
+    const store = baseStore();
+    store.listMessages = () => [
+      {
+        id: "m1",
+        roomId: "r1",
+        channel: "public",
+        author: me,
+        text: "First user message",
+        clientMsgId: "c1",
+        kind: "chat",
+        createdAt: 1000,
+      },
+      {
+        id: "m2",
+        roomId: "r1",
+        channel: "public",
+        author: me,
+        text: "Later user message",
+        clientMsgId: "c2",
+        kind: "chat",
+        createdAt: 3000,
+      },
+    ];
+    store.lastLongFreeJob = () => ({
+      id: "job1",
+      status: "completed",
+      entrypoint: "public_ask",
+      runtime: "workflow",
+      attempts: 1,
+      maxAttempts: 20,
+      modelPolicy: "gemini-3.5-flash",
+      approvalPolicy: "auto_commit_safe",
+      evidencePolicy: "public_only",
+      finalText: "Durable result between messages",
+      updatedAt: 2000,
+    });
+    mockStore.current = store;
+
+    render(<Chat roomId="r1" me={me} channel="public" variant="public" agentName="Room NodeAgent" />);
+
+    const feedText = Array.from(screen.getByTestId("chat-feed").querySelectorAll(".text")).map((el) => el.textContent);
+    expect(feedText).toEqual(["First user message", "Durable result between messages", "Later user message"]);
+  });
+
+  it("formats multi-minute job attempt durations with one decimal place", () => {
+    const store = baseStore();
+    store.lastLongFreeJobAttempts = () => [{
+      attempt: 1,
+      status: "completed",
+      resolvedModel: "z-ai/glm-5.2",
+      stopReason: "done",
+      ms: 130000,
+      inputTokens: 1,
+      outputTokens: 1,
+      costUsd: 0,
+    }];
+    mockStore.current = store;
+
+    render(<Chat roomId="r1" me={me} channel="public" variant="public" agentName="Room NodeAgent" />);
+
+    expect(screen.getByText(/2\.2m/)).toBeTruthy();
+    expect(screen.queryByText(/2\.166/)).toBeNull();
   });
 });
