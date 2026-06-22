@@ -153,6 +153,7 @@ function MobileLiveRoot() {
   // Consent modal sits above the JoinForm — the user explicitly grants the
   // autoAllow choice before the room mints. Tab refresh re-prompts (no
   // localStorage by design).
+  // Vercel deploy-bust: 779bcde0-force-rebuild
   if (pendingDemo) {
     return (
       <RoomJoinConsent
