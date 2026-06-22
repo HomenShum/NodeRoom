@@ -107,11 +107,11 @@ export const createPrivateReplyStream = mutation({
 });
 
 export const ensurePublicAgentJobStream = internalMutation({
-  args: { roomId: v.id("rooms"), jobId: v.id("agentJobs"), author: actorV, goal: v.string() },
+  args: { roomId: v.id("rooms"), jobId: v.id("agentJobs"), author: actorV, goal: v.string(), createdAt: v.optional(v.number()) },
   handler: async (ctx, a): Promise<{ streamId: string; clientMsgId: string }> => {
     const clientMsgId = publicAgentJobStreamClientMsgId(String(a.jobId));
     const existingMessage = await ctx.db.query("messages").withIndex("by_clientMsgId", (q) => q.eq("roomId", a.roomId).eq("clientMsgId", clientMsgId)).unique();
-    if (existingMessage?.streamId) {
+    if (existingMessage?.streamId && !existingMessage.text) {
       await ensureStreamMetadata(ctx, {
         roomId: a.roomId,
         ownerId: PUBLIC_STREAM_OWNER_ID,
@@ -135,7 +135,7 @@ export const ensurePublicAgentJobStream = internalMutation({
         text: "",
         clientMsgId,
         kind: "agent",
-        createdAt: Date.now(),
+        createdAt: a.createdAt ?? Date.now(),
         streamId,
       });
     }

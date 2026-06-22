@@ -61,6 +61,7 @@ type ClaimedJob = {
   runtimePolicy?: "workflow_sliced";
   mode?: "variance" | "research";
   modelPolicy: string;
+  createdAt: number;
   cursor?: unknown;
   handoff?: unknown;
   attempt: number;
@@ -452,6 +453,7 @@ export const runFreeAutoJobSlice = internalAction({
           jobId: claimed.jobId,
           author: actor,
           goal: claimed.goal,
+          createdAt: claimed.createdAt,
         }) as PublicAgentJobStream;
         publicStreamLastFlushAt = Date.now();
       } catch {

@@ -315,6 +315,9 @@ describe("long-running agent job source invariants", () => {
     expect(runner).toContain("streaming:ensurePublicAgentJobStream");
     expect(runner).toContain("streaming:appendPublicAgentJobStreamChunk");
     expect(runner).toContain("onPublicTextDelta");
+    expect(runner).toContain("createdAt: claimed.createdAt");
+    expect(streaming).toContain("createdAt: v.optional(v.number())");
+    expect(streaming).toContain("existingMessage?.streamId && !existingMessage.text");
     expect(streaming).toContain("ensurePublicAgentJobStream");
     expect(streaming).toContain("appendPublicAgentJobStreamChunk");
     expect(streaming).toContain('ownerId: PUBLIC_STREAM_OWNER_ID');

@@ -174,7 +174,7 @@ function StreamedBody({ streamId }: { streamId: string }) {
     </div>
   );
 }
-const shortMs = (ms: number) => ms >= 60_000 ? `${Math.round(ms / 1000) / 60}m` : `${Math.round(ms / 100) / 10}s`;
+const shortMs = (ms: number) => ms >= 60_000 ? `${Math.round(ms / 6000) / 10}m` : `${Math.round(ms / 100) / 10}s`;
 type OperationStreamRow = { sequence: number; kind: string; name: string; status: string; countDelta?: number; affectedIds?: string[] };
 function operationStreamText(op: OperationStreamRow): string {
   const affected = op.affectedIds?.length ? ` - ${op.affectedIds.slice(0, 3).join(", ")}` : "";
@@ -641,6 +641,29 @@ export function Chat({ roomId, me, channel, variant, agentName, style, onOpenArt
     : "";
   const hasLongJobResultMessage = !!longJobResultText && messages.some((m) => m.author.kind === "agent" && m.text.trim() === longJobResultText.trim());
   const showLongJobResult = !!longJobResultText && !hasLongJobResultMessage;
+  const longJobNeedsAttention = !!longJob && ["failed", "blocked", "cancelled"].includes(longJob.status);
+  const showLongJobChrome = !!longJob && (!longJobTerminal || longJobNeedsAttention || jobDetailsOpen);
+  const feedItems = useMemo(() => {
+    const items: Array<
+      | { kind: "message"; key: string; createdAt: number; message: Message }
+      | { kind: "jobResult"; key: string; createdAt: number; status: string; text: string }
+    > = messages.map((message) => ({
+      kind: "message" as const,
+      key: `msg-${message.clientMsgId || message.id}`,
+      createdAt: message.createdAt,
+      message,
+    }));
+    if (showLongJobResult && longJob) {
+      items.push({
+        kind: "jobResult" as const,
+        key: `job-result-${longJob.id}`,
+        createdAt: longJob.updatedAt,
+        status: longJob.status,
+        text: longJobResultText,
+      });
+    }
+    return items.sort((a, b) => a.createdAt - b.createdAt || a.key.localeCompare(b.key));
+  }, [longJob, longJobResultText, messages, showLongJobResult]);
   const showEmptyState = messages.length === 0 && failedSends.length === 0 && !showLongJobResult;
   const beginThinking = () => { thinkingStartCount.current = messages.length; setAgentErr(null); setThinking(true); };
 
@@ -919,7 +942,7 @@ export function Chat({ roomId, me, channel, variant, agentName, style, onOpenArt
         <span className={"r-tag " + (isPrivate ? "private" : "public")}>{isPrivate ? <><Lock size={10} /> Private</> : <><Globe size={10} /> Everyone</>}</span>
         <span className="grow" />
         {!isPrivate && <span className="r-tag agent" style={{ gap: 6 }}><span className="r-avatar agent sm" style={{ background: AGENT_AVATAR_COLOR, width: 18, height: 18, fontSize: 9 }}>N</span>Room NodeAgent</span>}
-        {longJob && (() => { const bad = ["failed", "blocked"].includes(longJob.status); return (
+        {showLongJobChrome && longJob && (() => { const bad = ["failed", "blocked"].includes(longJob.status); return (
           <span className={"r-tag" + (bad ? " danger" : "")} role={bad ? "status" : undefined} data-testid="job-status" title="Latest long-running free-auto job"><Timer size={10} /> {longJob.status} {longJob.attempts}/{longJob.maxAttempts}</span>
         ); })()}
         {canCancelLongJob && (
@@ -935,7 +958,7 @@ export function Chat({ roomId, me, channel, variant, agentName, style, onOpenArt
         {jobErr && <span className="r-tag" role="alert" data-testid="job-error" style={{ color: "var(--danger-ink)" }}>{jobErr}</span>}
       </div>
       {isPrivate && <div className="r-private-banner"><Sparkles size={12} /> Reads room context; output stays yours until you promote it</div>}
-      {!isPrivate && longJob && (
+      {!isPrivate && showLongJobChrome && longJob && (
         <div className="r-job-strip">
           <Timer size={12} />
           <span>{longJob.modelPolicy}</span>
@@ -947,7 +970,7 @@ export function Chat({ roomId, me, channel, variant, agentName, style, onOpenArt
           </button>
         </div>
       )}
-      {!isPrivate && longJob && jobDetailsOpen && (
+      {!isPrivate && showLongJobChrome && longJob && jobDetailsOpen && (
         <div className="r-job-detail" data-testid="job-detail" aria-label="Agent job details">
           <div className="r-job-grid">
             <span>Runtime</span><b>{longJob.runtime ?? "inline"}</b>
@@ -1019,20 +1042,21 @@ export function Chat({ roomId, me, channel, variant, agentName, style, onOpenArt
           </div>
         )}
         {agentErr && <div className="r-msg" role="alert" data-testid="agent-error" data-state="failed"><div className="body tiny" style={{ color: "var(--danger-ink)" }}>{agentErr}</div></div>}
-        {messages.map((m) => <Bubble key={m.clientMsgId || m.id} m={m} roomId={roomId} variant={variant} me={me} onPromote={promote} onOpenArtifact={onOpenArtifact} />)}
-        {showLongJobResult && longJob && (
-          <div className="r-msg agent" data-testid="agent-job-result" data-state={longJob.status}>
+        {feedItems.map((item) => item.kind === "message" ? (
+          <Bubble key={item.key} m={item.message} roomId={roomId} variant={variant} me={me} onPromote={promote} onOpenArtifact={onOpenArtifact} />
+        ) : (
+          <div className="r-msg agent" key={item.key} data-testid="agent-job-result" data-state={item.status}>
             <span className="r-avatar agent sm" style={{ background: AGENT_AVATAR_COLOR }}>N</span>
             <div className="body">
               <div className="meta">
                 <span className="who">Room NodeAgent</span>
-                <span className={"r-tag agent" + (["failed", "blocked"].includes(longJob.status) ? " danger" : "")} style={{ padding: "1px 5px", fontSize: 9 }}>{longJob.status}</span>
-                <span className="time">{clock(longJob.updatedAt)}</span>
+                <span className={"r-tag agent" + (["failed", "blocked"].includes(item.status) ? " danger" : "")} style={{ padding: "1px 5px", fontSize: 9 }}>{item.status}</span>
+                <span className="time">{clock(item.createdAt)}</span>
               </div>
-              <div className="text">{longJobResultText}</div>
+              <div className="text">{item.text}</div>
             </div>
           </div>
-        )}
+        ))}
         {failedSends.map((f) => (
           <div className="r-msg" key={"fail-" + f.cid} data-testid="chat-failed" data-state="failed">
             <span className="r-avatar sm" style={{ background: colorFor(store, roomId, me) }}>{initials(me.name)}</span>
