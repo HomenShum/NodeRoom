@@ -61,6 +61,8 @@ export async function runAgent(opts: {
   /** Override the concurrency protocol prompt. Defaults to the explicit lock/CAS prompt. */
   systemPrompt?: string;
   onTrace?: (e: AgentTraceEvent) => void;
+  /** Optional provider text delta hook. Used by durable public jobs to stream actual LLM prose. */
+  onTextDelta?: (text: string, step: number) => void | Promise<void>;
   onHandoff?: (handoff: AgentHandoff) => void;
   now?: () => number;
 }): Promise<AgentResult> {
@@ -256,7 +258,13 @@ export async function runAgent(opts: {
         const signal = modelSignal();
         let fresh: AgentStep;
         try {
-          fresh = await model.next({ system: opts.systemPrompt ?? SYSTEM_PROMPT, messages: modelInput, tools, signal: signal.signal });
+          fresh = await model.next({
+            system: opts.systemPrompt ?? SYSTEM_PROMPT,
+            messages: modelInput,
+            tools,
+            signal: signal.signal,
+            onTextDelta: opts.onTextDelta ? (text) => opts.onTextDelta?.(text, step) : undefined,
+          });
         } catch (error) {
           if (signal.signal?.aborted || (shouldHandoffForTime() && isAbortLike(error))) {
             const handoff = emitHandoff(step, "time_budget", attemptedSteps);

@@ -42,6 +42,9 @@ const agentJobsRecordLiveOperationRef = makeFunctionReference<"mutation">("agent
 const agentRunsRecordRef = makeFunctionReference<"mutation">("agentRuns:record") as any;
 const agentStepsRecordRef = makeFunctionReference<"mutation">("agentSteps:record") as any;
 const artifactsListForRoomRef = makeFunctionReference<"query">("artifacts:listForRoom") as any;
+const streamingEnsurePublicAgentJobStreamRef = makeFunctionReference<"mutation">("streaming:ensurePublicAgentJobStream") as any;
+const streamingAppendPublicAgentJobStreamChunkRef = makeFunctionReference<"mutation">("streaming:appendPublicAgentJobStreamChunk") as any;
+const streamingFinalizePublicAgentJobStreamRef = makeFunctionReference<"mutation">("streaming:finalizePublicAgentJobStream") as any;
 
 type ClaimedJob = {
   jobId: Id<"agentJobs">;
@@ -93,6 +96,11 @@ type RunTelemetry = {
 type RunRecord = {
   runId: Id<"agentRuns">;
   telemetry: RunTelemetry;
+};
+
+type PublicAgentJobStream = {
+  streamId: string;
+  clientMsgId: string;
 };
 
 type LiveOperationKind = "action" | "query" | "mutation" | "model_call" | "tool_call" | "scheduler" | "lease" | "checkpoint";
@@ -329,6 +337,58 @@ export const runFreeAutoJobSlice = internalAction({
       }),
       modelName: () => model.name,
     });
+    let publicStream: PublicAgentJobStream | undefined;
+    let publicStreamText = "";
+    let publicStreamBuffer = "";
+    let publicStreamLastFlushAt = 0;
+    let publicStreamWrites: Promise<unknown> = Promise.resolve();
+
+    const enqueuePublicStreamAppend = (text: string) => {
+      if (!publicStream || !text) return Promise.resolve();
+      const stream = publicStream;
+      publicStreamWrites = publicStreamWrites
+        .catch(() => undefined)
+        .then(() => ctx.runMutation(streamingAppendPublicAgentJobStreamChunkRef, {
+          roomId: claimed.roomId,
+          jobId: claimed.jobId,
+          streamId: stream.streamId,
+          text,
+        }));
+      return publicStreamWrites.catch(() => undefined);
+    };
+    const flushPublicStreamBuffer = () => {
+      if (!publicStreamBuffer) return publicStreamWrites.catch(() => undefined);
+      const text = publicStreamBuffer;
+      publicStreamBuffer = "";
+      publicStreamLastFlushAt = Date.now();
+      return enqueuePublicStreamAppend(text);
+    };
+    const onPublicTextDelta = async (delta: string) => {
+      if (!publicStream || !delta) return;
+      publicStreamText += delta;
+      publicStreamBuffer += delta;
+      if (
+        publicStreamBuffer.length >= 160 ||
+        /[\n.!?]\s*$/.test(publicStreamBuffer) ||
+        Date.now() - publicStreamLastFlushAt >= 500
+      ) {
+        await flushPublicStreamBuffer();
+      }
+    };
+    const settlePublicStreamWrites = async () => {
+      await flushPublicStreamBuffer();
+      await publicStreamWrites.catch(() => undefined);
+    };
+    const finalizePublicStream = async (text: string) => {
+      if (!publicStream) return;
+      await settlePublicStreamWrites();
+      await ctx.runMutation(streamingFinalizePublicAgentJobStreamRef, {
+        roomId: claimed.roomId,
+        jobId: claimed.jobId,
+        streamId: publicStream.streamId,
+        text,
+      }).catch(() => undefined);
+    };
 
     const recordRun = async (result: AgentResult, extraStep?: { tool: string; result: string }): Promise<RunRecord> => {
       const ms = Date.now() - t0;
@@ -386,6 +446,17 @@ export const runFreeAutoJobSlice = internalAction({
         countDelta: 1,
         startedAt: t0,
       });
+      try {
+        publicStream = await ctx.runMutation(streamingEnsurePublicAgentJobStreamRef, {
+          roomId: claimed.roomId,
+          jobId: claimed.jobId,
+          author: actor,
+          goal: claimed.goal,
+        }) as PublicAgentJobStream;
+        publicStreamLastFlushAt = Date.now();
+      } catch {
+        publicStream = undefined;
+      }
       await recordLiveOperation({
         kind: "model_call",
         name: model.name,
@@ -427,6 +498,7 @@ export const runFreeAutoJobSlice = internalAction({
             maxCostUsd: envNumber("AGENT_MAX_USD_PER_SLICE", 2, 0.01, 100),
           },
           priceStep: (modelName: string, inputTokens: number, outputTokens: number) => priceRun(modelName, inputTokens, outputTokens),
+          onTextDelta: (delta) => onPublicTextDelta(delta),
           onTrace: (event) => {
             void recordLiveOperation({
               kind: liveOperationKind(event),
@@ -460,6 +532,7 @@ export const runFreeAutoJobSlice = internalAction({
           maxCostUsd: envNumber("AGENT_MAX_USD_PER_SLICE", 2, 0.01, 100),
         },
         priceStep: (modelName: string, inputTokens: number, outputTokens: number) => priceRun(modelName, inputTokens, outputTokens),
+        onTextDelta: (delta) => onPublicTextDelta(delta),
         onTrace: (event) => {
           void recordLiveOperation({
             kind: liveOperationKind(event),
@@ -478,6 +551,9 @@ export const runFreeAutoJobSlice = internalAction({
       const frameBlocked = frameStatus === "blocked";
       const scheduledNextAt = canContinue || (frameReceipt && done && !frameBlocked) ? Date.now() + DEFAULT_RESUME_DELAY_MS : undefined;
       const cursor = done ? undefined : await checkpoint(result, contextMaxChars, contextKeepRecent, activeFrameId);
+      const terminal = done || frameBlocked || !canContinue;
+      if (terminal) await finalizePublicStream(result.finalText || publicStreamText);
+      else await settlePublicStreamWrites();
       await recordLiveOperation({
         kind: "model_call",
         name: model.name,
@@ -553,6 +629,14 @@ export const runFreeAutoJobSlice = internalAction({
       const scheduledNextAt = delayMs ? Date.now() + delayMs : undefined;
       const activeFrameId = claimed.activeReasoningFrame?.frameId;
       const cursor = fallback.messages.length ? await checkpoint(fallback, contextMaxChars, contextKeepRecent, activeFrameId) : undefined;
+      if (canRetry) {
+        await settlePublicStreamWrites();
+      } else {
+        const failureText = fallback.finalText || publicStreamText
+          ? `${fallback.finalText || publicStreamText}\n\n[Agent job failed: ${errorText(rootError)}]`
+          : `[Agent job failed: ${errorText(rootError)}]`;
+        await finalizePublicStream(failureText);
+      }
       await recordLiveOperation({
         kind: "checkpoint",
         name: "agentJobRunner.runFreeAutoJobSlice failed",
