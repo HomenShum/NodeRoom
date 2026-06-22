@@ -1,12 +1,12 @@
 /* ============================================================================
    Curated 2026 model registry — the source of truth for the mobile composer's
    model chips + the chat job-meta label. The server-side router in
-   `src/nodeagent/models/convexModel.ts` already accepts every id below (via
+   the server-side provider router already accepts every id below (via
    prefix-based provider routing); the env var `AGENT_MODEL` on Convex prod
    picks the actual default. This file exists so the UI no longer displays
    "Haiku/Sonnet/Opus" when the agent is actually running on something else.
 
-   Provider routing recap (per convexModel.ts):
+   Provider routing recap:
      • gpt-* / o1-* / o4-*  → openai (direct)
      • claude-*             → anthropic (direct)
      • gemini-*             → gemini (direct)
