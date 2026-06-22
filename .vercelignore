@@ -2,6 +2,32 @@
 # never serves (docs gifs, capture frames, judge artifacts, episode masters). The site needs only
 # source + public/. Root-caused 2026-06-10; see docs/dogfood/FRICTION_LOG.md.
 docs
+!docs/eval/
+docs/eval/three-user-shots
+docs/eval/gemini-media-judges
+docs/eval/walkthrough-review
+docs/eval/workflow-previews
+docs/eval/halo-runs
+docs/eval/live-browser-proofs
+docs/eval/traces
+docs/eval/ui-recordings
+docs/eval/gif-judge
+docs/eval/spreadsheetbench-chart-visual
+docs/eval/retrieval
+docs/eval/agent-improvement-loop
+docs/eval/design-quality
+docs/eval/finance-model-runs
+# Belt-and-suspenders: never ship media under docs/ regardless of subdir re-includes
+docs/**/*.png
+docs/**/*.gif
+docs/**/*.mp4
+docs/**/*.mov
+docs/**/*.webm
+# Keep the nonbtb rubric tree shipping (37KB total) — benchmarkDispatcher.ts globs it
+# via import.meta.glob at build time. Without this, Vite resolves the glob to {} on Vercel
+# and the dispatcher silently ships zero tasks.
+!docs/eval/nonbtb
+!docs/eval/nonbtb/**
 episodes
 remotion
 e2e
