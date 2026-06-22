@@ -111,7 +111,7 @@ describe("OpenRouter-on-Convex benchmark contract", () => {
       "openai/gpt-5.5",
       "google/gemini-3.5-flash",
       "tencent/hy3-preview",
-      "z-ai/glm-5.1",
+      "z-ai/glm-5.2",
     ]));
     expect(resolveRouteSet("top-paid", "collaboration")).toContain("openai/gpt-5.5");
     expect(resolveRouteSet("supported", "collaboration")).not.toContain("openai/gpt-5.5");

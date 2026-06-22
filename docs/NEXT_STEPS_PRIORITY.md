@@ -1,6 +1,6 @@
 # Next Steps Priority
 
-Last updated: 2026-06-18
+Last updated: 2026-06-21
 
 This is the working priority order after the June 2026 benchmark and Semantic
 Rebase review. The principle is simple: prove deterministic benchmark and safety
@@ -17,8 +17,8 @@ high-risk and testable:
 3. Semantic no-clobber behavior above CAS.
 4. Provider-route promotion using N=5 and p95, not single lucky runs.
 5. UI/workplan surfaces that make the ledger legible to target users.
-6. UI/live proof for native notebook target processing and Agent Work Plan
-   artifacts now that the first Convex backend slice is implemented.
+6. Extend native notebook work-plan approval into executed evidence/proposal
+   output now that the live browser admission path is proven.
 7. Live frame-claimed multi-slice evidence so recursive context is proven under
    deployed provider/runtime conditions, not only deterministic tests.
 
@@ -43,16 +43,18 @@ high-risk and testable:
    bundles, draft conflicts, and proposal approval CAS conflicts. Final writes
    must still go through managed lock/CAS.
 
-5. **Wire native notebook dirty-event processing into the UI.**
-   The Convex backend slice now has `notebookDirtyEvents`,
-   `notebookProcessingJobs`, read-model tables, `markNotebookDirty`, and
-   ACL-gated processing. Next proof is a browser/deployed save-or-idle path that
-   creates the dirty event without hot-writing `elements["doc"]`.
+5. **Extend approved notebook work plans into executed output.**
+   Done: native ProseMirror notebook idle/blur now queues
+   `markNotebookDirty`, renders the read-model sidecar, creates an affected-source
+   Agent Work Plan, approves by exact `planHash`, queues a job, and records room
+   trace receipts in live browser QA. Next proof is job execution that returns
+   evidence/proposals tied to the same plan hash and trace id.
 
-6. **Render the first Agent Artifact: Agent Work Plan.**
+6. **Promote Agent Artifacts beyond the first work-plan surface.**
    `convex/agentArtifacts.ts` stores structured work plans, computes canonical
-   `planHash`, and launches queued jobs only from approved hashes. Next proof is
-   the allowlisted review surface plus planned-vs-actual artifact.
+   `planHash`, and queues jobs only from approved hashes. Next artifact kinds
+   should cover source coverage maps, notebook insert proposals, and planned-vs-
+   actual receipts.
 
 7. **Run chunked live evidence only after deterministic gates pass.**
    Expand model-run evidence from N=5 smoke to larger held-out chunks, starting

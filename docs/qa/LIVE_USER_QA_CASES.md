@@ -17,14 +17,17 @@ Use the full browser verification flow when validating release claims:
 
 ```bash
 npm run test:product:memory
+npm run test:product:live
 npm run test:product:live:agent
 ```
 
 `test:product:memory` is the fast release-floor browser suite against the
-production bundle in memory mode. `test:product:live:agent` runs the live Convex
-multi-browser suite with strict review mode and real provider keys. For full
-production gating, `npm run prod:gate:live:agent` wraps the same live gate after
-audit, security, typecheck, Vitest, memory-browser, build, and dist scans.
+production bundle in memory mode. `test:product:live` runs the live Convex
+multi-browser suite without provider calls, including the notebook work-plan
+vertical. `test:product:live:agent` adds strict review mode and real provider
+keys. For full production gating, `npm run prod:gate:live:agent` wraps the same
+live gate after audit, security, typecheck, Vitest, memory-browser, build, and
+dist scans.
 
 ## Latest Local Verification
 
@@ -33,6 +36,7 @@ Run date: 2026-06-21
 | Layer | Command | Result | Notes |
 |---|---|---:|---|
 | Release-floor browser | `npm run test:product:memory` | 31/31 passed | Production bundle, memory mode, Chromium. |
+| Live Convex browser | `npm run test:product:live` | 6/6 passed | Required unsandboxed network access. Covers backend reactivity, CAS loser convergence, advisory presence, notebook read-model/work-plan approval, private isolation, wall CRUD, job controls, and semantic proposals. |
 | Live Convex strict agent browser | `npm run test:product:live:agent` | 6/6 passed | Required unsandboxed network access. Covers live Convex backend specs plus three-user public/private agent flow. |
 
 The first live attempt inside the restricted sandbox timed out before the room
@@ -58,6 +62,7 @@ not a product assertion failure.
 | LV-12 | A user starts and controls a free-route job. | Job detail, cancel, retry, and resumed attempt controls are visible and mutate live backend state. | `e2e/live-broad-convex.spec.ts` |
 | LV-13 | A private agent acts in the room lane. | A personal/private agent can produce room-visible work attributed through the owner, without leaking private chat text. | `e2e/three-user-collab.spec.ts` |
 | LV-14 | Spreadsheet, note, and wall surfaces coexist in the room. | Browsers can open the core artifact surfaces; deeper all-artifact mutation coverage is deterministic rather than live-browser-only. | `e2e/three-user-collab.spec.ts`, `tests/allArtifactEdits.test.ts` |
+| LV-15 | A user types a messy notebook note and wants the agent beside them, not inside the text. | The ProseMirror editor remains visible/editable, idle/blur queues notebook dirty metadata, the read model appears beside the note, an affected-source Agent Work Plan is drafted, exact plan-hash approval queues a job, and room trace shows read-model plus approval receipts. | `e2e/notebook-workplan-live.spec.ts`, `tests/notebookProcessingTarget.test.ts`, `tests/nativeNotebookProsemirror.test.ts` |
 
 ## Release-Floor Browser Cases
 
@@ -89,7 +94,7 @@ not a product assertion failure.
 
 - We can claim broad live Convex browser coverage for privacy, wall CRUD, job
   controls, advisory presence, CAS no-clobber, agent intent, CRS proposals, and
-  three-user human-plus-agent coediting.
+  notebook-sidecar work-plan approval.
 - We should not claim literal Google Sheets or Figma parity. The current claim is
   Google-Sheets/Figma-inspired collaboration behavior with stronger CAS truth.
 - The current Gemini media judge result is `fix-then-publish`, not publish-grade

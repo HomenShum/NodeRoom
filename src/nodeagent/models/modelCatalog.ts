@@ -117,6 +117,12 @@ export const modelPricing: Record<string, ModelPricing> = {
   "deepseek/deepseek-v3.2-speciale": { inputPer1M: 0.27, outputPer1M: 0.41, contextWindow: 163840 },
   "deepseek-v3.2": { inputPer1M: 0.25, outputPer1M: 0.38, contextWindow: 163840 },
   "deepseek/deepseek-v3.2": { inputPer1M: 0.25, outputPer1M: 0.38, contextWindow: 163840 },
+  // deepseek-v4-pro: long-reasoning variant on OpenRouter. Already routes via the
+  // resolved.includes("/") branch in getProviderForModel (line 393); these entries
+  // make it first-class (pricing + bare-name alias) without touching routing logic.
+  // Pricing reflects OpenRouter's listed rates for deepseek/deepseek-v4-pro as of 2026-06.
+  "deepseek-v4-pro": { inputPer1M: 0.55, outputPer1M: 2.19, contextWindow: 163840 },
+  "deepseek/deepseek-v4-pro": { inputPer1M: 0.55, outputPer1M: 2.19, contextWindow: 163840 },
   "qwen3-235b": { inputPer1M: 0.18, outputPer1M: 0.54, contextWindow: 131072 },
   "minimax-m2.7": { inputPer1M: 0.30, outputPer1M: 1.20, contextWindow: 196608 },
   "minimax/minimax-m2.7": { inputPer1M: 0.30, outputPer1M: 1.20, contextWindow: 196608 },
@@ -125,6 +131,8 @@ export const modelPricing: Record<string, ModelPricing> = {
   "z-ai/glm-4.7-flash": { inputPer1M: 0.07, outputPer1M: 0.40, cachedInputPer1M: 0.01, contextWindow: 200000 },
   "glm-4.7": { inputPer1M: 0.40, outputPer1M: 1.50, contextWindow: 202752 },
   "z-ai/glm-4.7": { inputPer1M: 0.40, outputPer1M: 1.50, contextWindow: 202752 },
+  "glm-5.2": { inputPer1M: 1.20, outputPer1M: 4.10, contextWindow: 1048576 },
+  "z-ai/glm-5.2": { inputPer1M: 1.20, outputPer1M: 4.10, contextWindow: 1048576 },
   "kimi-k2.6": { inputPer1M: 0.75, outputPer1M: 3.50, contextWindow: 262144 },
   "moonshotai/kimi-k2.6": { inputPer1M: 0.75, outputPer1M: 3.50, contextWindow: 262144 },
 
@@ -265,12 +273,12 @@ export const llmModelCatalog: ModelCatalog = {
     coding: ["gemini-3.1-pro-preview", "gemini-3-flash-preview", "gemini-2.5-pro"],
   },
   openrouter: {
-    chat: ["kimi-k2.6", "minimax-m2.7", OPENROUTER_FREE_AUTO_MODEL, "glm-4.7-flash", "deepseek-v3.2-speciale", "glm-4.7"],
-    agent: ["kimi-k2.6", "minimax-m2.7", "glm-4.7", OPENROUTER_FREE_AUTO_MODEL, "deepseek-v3.2-speciale", "glm-4.7-flash"],
+    chat: ["glm-5.2", "kimi-k2.6", "minimax-m2.7", OPENROUTER_FREE_AUTO_MODEL, "glm-4.7-flash", "deepseek-v3.2-speciale", "glm-4.7"],
+    agent: ["glm-5.2", "kimi-k2.6", "minimax-m2.7", "glm-4.7", OPENROUTER_FREE_AUTO_MODEL, "deepseek-v3.2-speciale", "glm-4.7-flash"],
     router: ["kimi-k2.6", "minimax-m2.7", OPENROUTER_FREE_AUTO_MODEL, "glm-4.7-flash", "deepseek-v3.2-speciale"],
-    judge: ["kimi-k2.6", "deepseek-r1", "glm-4.7", "minimax-m2.7"],
-    analysis: ["kimi-k2.6", "deepseek-r1", "glm-4.7", "minimax-m2.7"],
-    deepResearch: ["kimi-k2.6", "deepseek-r1", "glm-4.7", "minimax-m2.7"],
+    judge: ["glm-5.2", "kimi-k2.6", "deepseek-r1", "glm-4.7", "minimax-m2.7"],
+    analysis: ["glm-5.2", "kimi-k2.6", "deepseek-r1", "glm-4.7", "minimax-m2.7"],
+    deepResearch: ["glm-5.2", "kimi-k2.6", "deepseek-r1", "glm-4.7", "minimax-m2.7"],
     vision: [],
     fileSearch: ["kimi-k2.6", "minimax-m2.7", OPENROUTER_FREE_AUTO_MODEL, "glm-4.7-flash", "deepseek-v3.2-speciale"],
     voice: [],
@@ -601,10 +609,16 @@ export const modelAliases: Record<string, string> = {
   "z-ai/glm-4.7-flash": "z-ai/glm-4.7-flash",
   "glm-4.7": "z-ai/glm-4.7",
   "z-ai/glm-4.7": "z-ai/glm-4.7",
+  "glm-5.2": "z-ai/glm-5.2",
+  "z-ai/glm-5.2": "z-ai/glm-5.2",
   "deepseek-v3.2-speciale": "deepseek/deepseek-v3.2-speciale",
   "deepseek/deepseek-v3.2-speciale": "deepseek/deepseek-v3.2-speciale",
   "deepseek-v3.2": "deepseek/deepseek-v3.2",
   "deepseek/deepseek-v3.2": "deepseek/deepseek-v3.2",
+  // Bare-name alias so getProviderForModel resolves deepseek-v4-pro (no slash)
+  // to the slash form that already hits the OpenRouter branch at line 393.
+  "deepseek-v4-pro": "deepseek/deepseek-v4-pro",
+  "deepseek/deepseek-v4-pro": "deepseek/deepseek-v4-pro",
 };
 
 /**
@@ -722,6 +736,8 @@ export const modelFallbackChains: Record<string, string[]> = {
   "deep-research-max-preview-04-2026": ["deep-research-preview-04-2026", "gemini-3.1-pro-preview", "gpt-5.4"],
   "deep-research-preview-04-2026": ["deep-research-max-preview-04-2026", "gemini-3.1-pro-preview", "gemini-2.5-pro"],
   "deep-research-pro-preview-12-2025": ["deep-research-preview-04-2026", "deep-research-max-preview-04-2026", "gemini-3.1-pro-preview"],
+  "glm-5.2": ["kimi-k2.6", "gemini-3.1-pro-preview", "gpt-5.4", "glm-4.7", "minimax-m2.7"],
+  "z-ai/glm-5.2": ["moonshotai/kimi-k2.6", "gemini-3.1-pro-preview", "gpt-5.4", "z-ai/glm-4.7", "minimax/minimax-m2.7"],
   "kimi-k2.6": ["gemini-3.1-pro-preview", "gpt-5.4", "gemini-3-flash-preview", "minimax-m2.7", "glm-4.7"],
   "minimax-m2.7": ["gemini-3.1-flash-lite-preview", "gpt-5.4-mini", "gemini-3-flash-preview", "kimi-k2.6"],
 };
@@ -824,6 +840,8 @@ export const modelEquivalents: Record<string, Record<LlmProvider, string>> = {
   "gemini-3.1-pro-preview": { openai: "gpt-5.4", anthropic: "claude-sonnet-4.6", gemini: "gemini-3.1-pro-preview", openrouter: "kimi-k2.6", xai: "grok-4-1-fast-reasoning" },
   "deep-research-preview-04-2026": { openai: "gpt-5.4", anthropic: "claude-sonnet-4.6", gemini: "deep-research-preview-04-2026", openrouter: "kimi-k2.6", xai: "grok-4-1-fast-reasoning" },
   "deep-research-max-preview-04-2026": { openai: "gpt-5.4", anthropic: "claude-opus-4.7", gemini: "deep-research-max-preview-04-2026", openrouter: "kimi-k2.6", xai: "grok-4-1-fast-reasoning" },
+  "glm-5.2": { openai: "gpt-5.4", anthropic: "claude-sonnet-4.6", gemini: "gemini-3.1-pro-preview", openrouter: "glm-5.2", xai: "grok-4-1-fast-reasoning" },
+  "z-ai/glm-5.2": { openai: "gpt-5.4", anthropic: "claude-sonnet-4.6", gemini: "gemini-3.1-pro-preview", openrouter: "z-ai/glm-5.2", xai: "grok-4-1-fast-reasoning" },
   "glm-4.7": { openai: "gpt-5.4", anthropic: "claude-sonnet-4.6", gemini: "gemini-3.1-pro-preview", openrouter: "glm-4.7", xai: "grok-4-1-fast-reasoning" },
   "kimi-k2.6": { openai: "gpt-5.4", anthropic: "claude-sonnet-4.6", gemini: "gemini-3.1-pro-preview", openrouter: "kimi-k2.6", xai: "grok-4-1-fast-reasoning" },
   "minimax-m2.7": { openai: "gpt-5.4-mini", anthropic: "claude-haiku-4.5", gemini: "gemini-3-flash-preview", openrouter: "minimax-m2.7", xai: "grok-3-mini" },
