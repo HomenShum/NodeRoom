@@ -47,6 +47,9 @@ export const cite = internalAction({
         file: { fileName: file.fileName, mimeType: "application/pdf" } as any,
         bytes,
         maxPages: 30,
+        // Text-layer extraction only — no Tesseract OCR (native/wasm, unreliable in Convex). Filings
+        // carry a text layer; image-only PDFs simply won't match (honest "not found"), never OCR-guess.
+        ocrEnabled: false,
       });
     } catch (e) {
       return { ok: false, error: `pdf parse failed: ${e instanceof Error ? e.message : String(e)}` };
