@@ -380,6 +380,7 @@ export function RoomShell({ roomId, me, onLeave, proof }: { roomId: string; me: 
             privChannel={privChannel}
             active={copilotTab}
             onActive={setCopilotTab}
+            activeArtifactId={curArt?.id ?? artId}
             onOpenArtifact={openArtifact}
             style={{ width: layout.right }}
           />
@@ -417,6 +418,7 @@ function CopilotPanel({
   privChannel,
   active,
   onActive,
+  activeArtifactId,
   onOpenArtifact,
   style,
 }: {
@@ -425,6 +427,7 @@ function CopilotPanel({
   privChannel: Channel;
   active: "public" | "private";
   onActive: (tab: "public" | "private") => void;
+  activeArtifactId?: string;
   onOpenArtifact: (id: string, options?: { split?: boolean; elementId?: string }) => boolean | void;
   style?: CSSProperties;
 }) {
@@ -448,7 +451,7 @@ function CopilotPanel({
       <div className="r-copilot-body">
         {active === "public" ? (
           <div className="r-copilot-chatframe">
-            <Chat roomId={roomId} me={me} channel="public" variant="public" agentName="Room NodeAgent" embedded testId="public-chat-panel" onOpenArtifact={onOpenArtifact} />
+            <Chat roomId={roomId} me={me} channel="public" variant="public" agentName="Room NodeAgent" activeArtifactId={activeArtifactId} embedded testId="public-chat-panel" onOpenArtifact={onOpenArtifact} />
           </div>
         ) : (
           <>

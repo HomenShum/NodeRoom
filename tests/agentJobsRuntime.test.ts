@@ -132,6 +132,86 @@ describe("agentJobs runtime contract", () => {
     expect(detail?.job.request).not.toMatchObject({ forged: true });
   });
 
+  it("starts public chat asks server-side against the active work-surface artifact", async () => {
+    const { t, proof, roomId, artifactId } = await setupRoom({ seedElement: true });
+
+    const started = await t.mutation(api.agentJobs.startPublicAsk, {
+      roomId,
+      requester: proof,
+      goal: "compute these 5 metrics and write the visible cells",
+      contextArtifactId: String(artifactId),
+      routePolicy: "fast_default" as const,
+    });
+
+    const detail = await t.query(api.agentJobs.detail, { jobId: started.jobId, requester: proof });
+    expect(detail?.job.entrypoint).toBe("public_ask");
+    expect(String(detail?.job.artifactId)).toBe(String(artifactId));
+    expect(detail?.operations.map((event) => event.name)).toContain("agentJobs.start");
+  });
+
+  it("routes diligence asks to the company research sheet before active-note context", async () => {
+    const { t, proof, roomId, actor } = await setupRoom({ seedElement: true });
+    const now = Date.now();
+    const noteId = await t.run((ctx) =>
+      ctx.db.insert("artifacts", {
+        roomId,
+        kind: "note" as const,
+        title: "Diligence memo",
+        version: 1,
+        order: ["doc"],
+        updatedAt: now,
+      }),
+    );
+    await t.run((ctx) => ctx.db.insert("elements", {
+      artifactId: noteId,
+      elementId: "doc",
+      value: "<p>Memo draft</p>",
+      version: 1,
+      updatedAt: now,
+      updatedBy: actor,
+    }));
+    const researchId = await t.run((ctx) =>
+      ctx.db.insert("artifacts", {
+        roomId,
+        kind: "sheet" as const,
+        title: "Company research",
+        version: 1,
+        order: ["rc_cardionova__company", "rc_cardionova__status"],
+        updatedAt: now,
+      }),
+    );
+    await t.run((ctx) => Promise.all([
+      ctx.db.insert("elements", {
+        artifactId: researchId,
+        elementId: "rc_cardionova__company",
+        value: "CardioNova",
+        version: 1,
+        updatedAt: now,
+        updatedBy: actor,
+      }),
+      ctx.db.insert("elements", {
+        artifactId: researchId,
+        elementId: "rc_cardionova__status",
+        value: "pending",
+        version: 1,
+        updatedAt: now,
+        updatedBy: actor,
+      }),
+    ]));
+
+    const started = await t.mutation(api.agentJobs.startPublicAsk, {
+      roomId,
+      requester: proof,
+      goal: "diligence CardioNova with source-backed product, buyer, funding, hiring, and HIPAA/security gaps",
+      contextArtifactId: String(noteId),
+      routePolicy: "fast_default" as const,
+    });
+
+    const detail = await t.query(api.agentJobs.detail, { jobId: started.jobId, requester: proof });
+    expect(String(detail?.job.artifactId)).toBe(String(researchId));
+    expect(detail?.job.mode).toBe("research");
+  });
+
   it("does not reuse terminal public ask jobs for later reruns with the same idempotency key", async () => {
     const { t, proof, roomId, artifactId } = await setupRoom();
     const args = jobArgs({ roomId, artifactId, proof, idempotencyKey: "job-runtime-terminal-rerun" });

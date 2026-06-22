@@ -552,6 +552,7 @@ type ChatProps = {
   channel: Channel;
   variant: "public" | "private";
   agentName: string;
+  activeArtifactId?: string;
   style?: CSSProperties;
   onOpenArtifact?: (id: string, options?: { split?: boolean; elementId?: string }) => boolean | void;
   coach?: ReactNode;
@@ -559,7 +560,7 @@ type ChatProps = {
   testId?: string;
 };
 
-export function Chat({ roomId, me, channel, variant, agentName, style, onOpenArtifact, coach, embedded = false, testId }: ChatProps) {
+export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId, style, onOpenArtifact, coach, embedded = false, testId }: ChatProps) {
   const store = useStore();
   const [text, setText] = useState("");
   const [refs, setRefs] = useState<ArtifactRef[]>([]);
@@ -738,7 +739,7 @@ export function Chat({ roomId, me, channel, variant, agentName, style, onOpenArt
         ? { mode: "specific", modelPolicy: specificModelPolicy || defaultSpecificModel || "gemini-3.5-flash" }
         : { mode: modelSelectionMode };
       beginThinking();
-      void store.askAgent({ goal: publicNodeAgentRequest.goal, references: messageRefs, modelSelection }).catch((e) => {
+      void store.askAgent({ goal: publicNodeAgentRequest.goal, references: messageRefs, modelSelection, contextArtifactId: activeArtifactId }).catch((e) => {
         if (aliveRef.current) {
           setAgentErr(agentErrorText(e));
           setThinking(false);
