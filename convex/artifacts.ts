@@ -930,6 +930,25 @@ export const listProposals = query({
   },
 });
 
+// B1 Phase 2: artifact-row bump-carriers (version + order + updatedAt) split out of `rooms.meta`.
+// `rooms.meta` now projects ONLY the stable artifact fields (id/roomId/kind/title/createdBy/visibility/meta),
+// so a cell edit no longer changes meta's result hash and meta stops re-shipping. This sibling query
+// carries the bumped fields — its result is a small per-artifact tuple, so an edit re-ships only the
+// ~tens of bytes the version/order/updatedAt fields actually changed. Clients merge the two on the
+// way into the engine `Artifact` shape; consumers (LeftRail label, status-bar v-pill, OKF source-version,
+// agent worldModel prompt, optimistic updates) keep reading `a.version` from the merged structure with
+// no call-site changes. Server bumps at applyCellEditCore/applyAgentCellEdit/addResearchRows/
+// ensurePassiveResearchRow/resolveProposal are untouched — the CAS spine + OKF invalidation still work.
+export const versions = query({
+  args: { roomId: v.id("rooms"), requester: actorProofV },
+  handler: async (ctx, { roomId, requester }) => {
+    const actor = await requireActorProof(ctx, roomId, requester);
+    const arts = (await ctx.db.query("artifacts").withIndex("by_room", (q) => q.eq("roomId", roomId)).collect())
+      .filter((a) => canReadArtifact(a, actor));
+    return arts.map((a) => ({ id: a._id, version: a.version, order: a.order, updatedAt: a.updatedAt }));
+  },
+});
+
 // B1: per-artifact cell elements — the companion to `rooms.meta`. A cell edit changes an `elements`
 // row for ONE artifact, so only this query (for that artifactId) re-runs/re-ships, not the whole room.
 // Guards the artifact is in the requester's room so a member can't read another room's cells.

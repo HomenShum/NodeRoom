@@ -1007,7 +1007,24 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
   // actually being open — zero reactive cost when the user is on another surface.
   const traceQuery = hasValidLiveSession && traceActive ? { roomId: rid, requester: proof } : "skip";
   const data = useQuery(api.rooms.meta, roomQuery);
-  const metaArtifacts = useMemo(() => (data?.artifacts ?? []) as unknown as MetaArtifact[], [data]);
+  // B1 Phase 2: bump-carriers (version/order/updatedAt) split into a sibling query so a cell edit
+  // re-ships only this small tuple-list, not the rooms.meta shell. Merged back into the engine
+  // Artifact shape here so every downstream consumer (LeftRail label, status-bar v-pill, agent
+  // worldModel snapshots, optimistic updates) keeps reading `a.version`/`a.order`/`a.updatedAt`
+  // with no call-site changes. Map by id; if `versions` hasn't streamed yet, fall back to defaults
+  // so the first frame still has stable shape — the authoritative row arrives within one tick.
+  const versionsList = useQuery(api.artifacts.versions, roomQuery);
+  const metaArtifacts = useMemo(() => {
+    const arts = (data?.artifacts ?? []) as unknown as Array<Omit<MetaArtifact, "version" | "order" | "updatedAt">>;
+    const verMap = new Map<string, { version: number; order: string[]; updatedAt: number }>();
+    for (const v of (versionsList ?? []) as Array<{ id: string; version: number; order: string[]; updatedAt: number }>) {
+      verMap.set(String(v.id), { version: v.version, order: v.order, updatedAt: v.updatedAt });
+    }
+    return arts.map((a) => {
+      const v = verMap.get(String(a.id));
+      return { ...a, version: v?.version ?? 1, order: v?.order ?? [], updatedAt: v?.updatedAt ?? 0 } as MetaArtifact;
+    });
+  }, [data, versionsList]);
   // B1: per-artifact cell maps, lifted from the <ArtifactElementsSubscriber> children rendered below.
   const [elementsByArtifact, setElementsByArtifact] = useState<Record<string, ElementsMap>>({});
   const [presenceByArtifact, setPresenceByArtifact] = useState<Record<string, PresenceClaim[]>>({});
@@ -1046,15 +1063,23 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
     const elementsQ = { roomId: args.roomId, artifactId: args.artifactId, requester: args.proof };
     const curEls = local.getQuery(api.artifacts.elements, elementsQ);
     if (curEls === undefined) return;
-    const metaQ = { roomId: args.roomId, requester: args.proof };
-    const curMeta = local.getQuery(api.rooms.meta, metaQ);
-    const rowMeta = curMeta?.artifacts.find((a) => String(a.id) === String(args.artifactId));
-    const { elements, order } = applyCellToElements(curEls as unknown as ElementsMap, (rowMeta?.order ?? []) as string[], args.elementId, args.kind ?? "set", args.value, args.proof.actor);
+    // B1 Phase 2: bump-carriers (version/order/updatedAt) moved off rooms.meta onto artifacts.versions.
+    // Read order from the versions cache; meta no longer carries it. Falls back to the elements map's
+    // own row order when versions hasn't streamed yet (early-frame race) — applyCellToElements only
+    // uses `order` for create/delete handling, set-edits are unaffected.
+    const versionsQ = { roomId: args.roomId, requester: args.proof };
+    const curVersions = local.getQuery(api.artifacts.versions, versionsQ);
+    const rowVer = curVersions?.find((a) => String(a.id) === String(args.artifactId));
+    const baseOrder = (rowVer?.order ?? Object.keys(curEls as Record<string, unknown>)) as string[];
+    const { elements, order } = applyCellToElements(curEls as unknown as ElementsMap, baseOrder, args.elementId, args.kind ?? "set", args.value, args.proof.actor);
     local.setQuery(api.artifacts.elements, elementsQ, elements as unknown as typeof curEls);
     // Mirror the server's artifact-row bump (applyCellEditCore: version+updatedAt always, order on
     // create/delete) so the optimistic→authoritative swap is shape-identical (no version flicker).
-    if (curMeta && rowMeta) {
-      local.setQuery(api.rooms.meta, metaQ, { ...curMeta, artifacts: curMeta.artifacts.map((a) => String(a.id) === String(args.artifactId) ? { ...a, order, version: a.version + 1, updatedAt: Date.now() } : a) } as typeof curMeta);
+    // Write to the versions query NOT to rooms.meta — the whole point of Phase 2 is to keep meta's
+    // hash stable on cell edits so it stops re-shipping. The version-pill still ticks because
+    // metaArtifacts merges versions back in.
+    if (curVersions && rowVer) {
+      local.setQuery(api.artifacts.versions, versionsQ, curVersions.map((a) => String(a.id) === String(args.artifactId) ? { ...a, order, version: a.version + 1, updatedAt: Date.now() } : a) as typeof curVersions);
     }
   });
   const sendMsg = useMutation(api.messages.send).withOptimisticUpdate((local, args) => {
@@ -1104,10 +1129,16 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
     const curMeta = local.getQuery(api.rooms.meta, metaQ);
     const rowMeta = curMeta?.artifacts.find((a) => String(a.id) === artifactId);
     if (!rowMeta) return;
+    // B1 Phase 2: order lives in artifacts.versions now; the synthetic Artifact below needs it for
+    // the deterministic row builder (suffix-dedup against existing rowIds).
+    const versionsQ = { roomId: args.roomId, requester: args.requester };
+    const curVersions = local.getQuery(api.artifacts.versions, versionsQ);
+    const rowVer = curVersions?.find((a) => String(a.id) === artifactId);
+    if (!rowVer) return;
     const now = Date.now();
     // Reconstruct a synthetic Artifact = {shell, cells} so the deterministic builder mirror stays
     // byte-identical to the server (same slugs, suffix-dedup, default columns).
-    const synthetic = { ...(rowMeta as unknown as Artifact), elements: curEls as unknown as ElementsMap };
+    const synthetic = { ...(rowMeta as unknown as Artifact), order: rowVer.order, version: rowVer.version, updatedAt: rowVer.updatedAt, elements: curEls as unknown as ElementsMap };
     const nextOrder = [...synthetic.order];
     const elements = { ...synthetic.elements };
     let changed = false;
@@ -1160,11 +1191,12 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
       changed = changed || rowChanged;
     }
     if (!changed) return;
-    // Write BOTH caches in this one callback so the row count (meta.order) and the cells
-    // (artifacts.elements) never momentarily disagree.
+    // Write BOTH caches in this one callback so the row count (versions.order) and the cells
+    // (artifacts.elements) never momentarily disagree. B1 Phase 2: the bump-carriers go to
+    // artifacts.versions, NOT rooms.meta (keeps meta's hash stable on cell-add writes too).
     local.setQuery(api.artifacts.elements, elementsQ, elements as unknown as typeof curEls);
-    if (curMeta) {
-      local.setQuery(api.rooms.meta, metaQ, { ...curMeta, artifacts: curMeta.artifacts.map((a) => String(a.id) === artifactId ? { ...a, order: nextOrder, version: a.version + 1, updatedAt: now } : a) } as typeof curMeta);
+    if (curVersions) {
+      local.setQuery(api.artifacts.versions, versionsQ, curVersions.map((a) => String(a.id) === artifactId ? { ...a, order: nextOrder, version: a.version + 1, updatedAt: now } : a) as typeof curVersions);
     }
   });
   const ensurePassiveResearchRowMutation = useMutation(api.artifacts.ensurePassiveResearchRow);
@@ -1175,17 +1207,33 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
     const metaQ = { roomId: args.roomId, requester: args.proof };
     const curMeta = local.getQuery(api.rooms.meta, metaQ);
     if (!curMeta) return;
+    // B1 Phase 2: dedupe against the versions cache because `order` no longer lives on meta artifacts.
+    const versionsQ = { roomId: args.roomId, requester: args.proof };
+    const curVersions = local.getQuery(api.artifacts.versions, versionsQ);
     const arts = curMeta.artifacts;
-    if (arts.some((a) => a.title === args.title && a.kind === args.kind && a.order.length === args.seed.length)) return;
+    if (arts.some((a) => {
+      if (a.title !== args.title || a.kind !== args.kind) return false;
+      const v = curVersions?.find((cv) => String(cv.id) === String(a.id));
+      return (v?.order?.length ?? 0) === args.seed.length;
+    })) return;
     const now = Date.now();
     // Append the elements-LESS shell to rooms.meta so the tab appears instantly. The cells fill in
     // when the server confirms with the real id — opt- ids aren't valid Convex ids, so no
     // ArtifactElementsSubscriber mounts for them (filtered in the provider's render).
+    // B1 Phase 2: meta carries the stable artifact fields; the version/order/updatedAt tuple goes
+    // to the versions cache. Write to BOTH so the merged metaArtifacts immediately shows the new
+    // artifact with the seeded order — otherwise the row would mount with empty order until the
+    // server-side versions query streams in.
+    const optId = `opt-art-${args.kind}-${args.title}`;
+    const seedOrder = (args.seed as Array<{ id: string }>).map((s) => s.id);
     const shell = {
-      id: `opt-art-${args.kind}-${args.title}`, roomId: args.roomId as unknown as string, kind: args.kind, title: args.title,
-      version: 1, order: (args.seed as Array<{ id: string }>).map((s) => s.id), updatedAt: now, meta: args.meta,
+      id: optId, roomId: args.roomId as unknown as string, kind: args.kind, title: args.title,
+      meta: args.meta,
     };
     local.setQuery(api.rooms.meta, metaQ, { ...curMeta, artifacts: [...arts, shell] } as unknown as typeof curMeta);
+    if (curVersions) {
+      local.setQuery(api.artifacts.versions, versionsQ, [...curVersions, { id: optId as unknown as typeof curVersions[number]["id"], version: 1, order: seedOrder, updatedAt: now }]);
+    }
   });
   const generateFileUploadUrlMutation = useMutation(api.artifacts.generateFileUploadUrl);
   const registerUploadedFileMutation = useMutation(api.artifacts.registerUploadedFile);

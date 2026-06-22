@@ -462,10 +462,13 @@ export const full = query({
   },
 });
 
-// B1: the narrow companion to `full` — the room shell WITHOUT cell elements. Its read-set is the
-// rooms/members/artifacts/locks/sessions/drafts rows, none of which change on a cell edit, so a
-// keystroke does NOT re-run/re-ship this query. Clients pair it with `artifacts.elements(openArtifactId)`
-// so one edit re-ships only the edited artifact's cells, not the whole room (O(E·U) -> O(edited-artifact)).
+// B1 Phase 2: the narrow companion to `full` — the room shell WITHOUT cell elements and WITHOUT the
+// per-edit bump-carrier fields (version/order/updatedAt). Convex re-runs a query whenever any row in
+// its read-set changes, but it only re-ships the RESULT when its hash changes; by projecting only the
+// stable artifact fields (id/roomId/kind/title/createdBy/visibility/meta) the result is identical
+// after a cell-edit bump → meta stops re-shipping per keystroke. Bump-carriers live in the sibling
+// `artifacts.versions(roomId)` query, which clients merge in. Reverting the win is a 3-line projection
+// edit (add `version`, `order`, `updatedAt` back) — fields are still patched server-side.
 // `full` is kept for back-compat until the client migrates.
 export const meta = query({
   args: { roomId: v.id("rooms"), requester: actorProofV },
@@ -483,9 +486,6 @@ export const meta = query({
       roomId: a.roomId,
       kind: a.kind,
       title: a.title,
-      version: a.version,
-      order: a.order,
-      updatedAt: a.updatedAt,
       createdBy: a.createdBy,
       visibility: a.visibility ?? "room",
       meta: a.meta,
