@@ -92,7 +92,7 @@ describe("OpenRouter-on-Convex benchmark contract", () => {
       "minimax/minimax-m2.7",
       "z-ai/glm-4.7",
       "gpt-5.4",
-      "claude-sonnet-4.6",
+      "claude-sonnet-4-6",
       "gemini-3.1-pro-preview",
       "grok-4-1-fast-reasoning",
       "openrouter/free-auto",
