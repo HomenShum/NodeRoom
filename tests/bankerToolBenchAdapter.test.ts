@@ -1,4 +1,4 @@
-import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
+import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { afterEach, describe, expect, it } from "vitest";
@@ -59,7 +59,177 @@ describe("BankerToolBench official bundle ingest", () => {
     expect(JSON.stringify(report.sampleAgentTasks)).not.toContain("rubric");
     expect(JSON.stringify(report.sampleAgentTasks)).not.toContain("CANARY");
   });
+
+  it("keeps NodeAgent source extraction from silently dropping ninth-peer comps sources", () => {
+    const adapterSource = readFileSync(join(process.cwd(), "btb_noderoom_agent", "harbor_adapter.py"), "utf8");
+
+    expect(adapterSource).toContain("BTB_NODEAGENT_MAX_SOURCE_TICKERS");
+    expect(adapterSource).not.toContain("tickers[:8]");
+  });
+
+  it("keeps the public-comps workbook as one descriptive Excel artifact", () => {
+    const adapterSource = readFileSync(join(process.cwd(), "btb_noderoom_agent", "harbor_adapter.py"), "utf8");
+    const genericWorkbook = sourceBetween(adapterSource, "def write_workbook():", "def write_presentation():");
+    const publicCompsWorkbook = sourceBetween(
+      adapterSource,
+      "def write_public_comps_workbook(comps_rows, asof_date):",
+      "def write_public_comps_presentation(comps_rows, asof_date):",
+    );
+
+    expect(genericWorkbook).toContain('workbook.save(OUT_DIR / "banker_model.xlsx")');
+    expect(genericWorkbook).not.toContain("Software_Comps_Analysis.xlsx");
+    expect(publicCompsWorkbook).toContain('workbook.save(OUT_DIR / "Software_Comps_Analysis.xlsx")');
+    expect(publicCompsWorkbook).not.toContain('workbook.save(OUT_DIR / "banker_model.xlsx")');
+  });
+
+  it("routes sources-and-uses through a source-driven general-only writer, not a replay detector", () => {
+    const adapterSource = readFileSync(join(process.cwd(), "btb_noderoom_agent", "harbor_adapter.py"), "utf8");
+    const generalSourcesUses = sourceBetween(
+      adapterSource,
+      "def write_general_sources_uses_package():",
+      "def is_meta_overview_pack_task(text):",
+    );
+    const generalOnlyRouting = sourceBetween(
+      adapterSource,
+      'if materializer_mode == "general-only":',
+      "elif is_meta_overview_pack_task(task_text_for_family):",
+    );
+
+    expect(generalSourcesUses).toContain("sources_uses_task_shape()");
+    expect(generalSourcesUses).toContain('source_root / ticker / "vdr"');
+    expect(generalSourcesUses).toContain("parse_plan_assumption");
+    expect(generalSourcesUses).toContain("ltm_label_period_value");
+    expect(generalSourcesUses).not.toContain("salesforce");
+    expect(generalSourcesUses).not.toContain("btb-06c284ef");
+    expect(generalOnlyRouting).toContain("write_general_sources_uses_package()");
+  });
+
+  it("routes take-private teasers through a source-driven general-only writer, not a replay detector", () => {
+    const adapterSource = readFileSync(join(process.cwd(), "btb_noderoom_agent", "harbor_adapter.py"), "utf8");
+    const generalTakePrivate = sourceBetween(
+      adapterSource,
+      "def take_private_teaser_task_shape():",
+      "def sources_uses_task_shape():",
+    );
+    const generalOnlyRouting = sourceBetween(
+      adapterSource,
+      'if materializer_mode == "general-only":',
+      "elif is_meta_overview_pack_task(task_text_for_family):",
+    );
+
+    expect(generalTakePrivate).toContain("take_private_teaser_task_shape()");
+    expect(generalTakePrivate).toContain('source_root / ticker / "vdr"');
+    expect(generalTakePrivate).toContain("Company Profile");
+    expect(generalTakePrivate).toContain("Price History");
+    expect(generalTakePrivate).toContain("Shares Outstanding");
+    expect(generalTakePrivate).toContain("Income Statement");
+    expect(generalTakePrivate).toContain("Cash Flow Statement");
+    expect(generalTakePrivate).toContain("Balance Sheet");
+    expect(generalTakePrivate).not.toContain("comcast");
+    expect(generalTakePrivate).not.toContain("CMCSA");
+    expect(generalTakePrivate).not.toContain("btb-067cb834");
+    expect(generalOnlyRouting).toContain("write_general_take_private_teaser_package()");
+  });
+
+  it("routes buyer-universe slides through a prompt/source-driven general-only writer, not a replay detector", () => {
+    const adapterSource = readFileSync(join(process.cwd(), "btb_noderoom_agent", "harbor_adapter.py"), "utf8");
+    const generalBuyerUniverse = sourceBetween(
+      adapterSource,
+      "def buyer_universe_task_shape():",
+      "def sources_uses_task_shape():",
+    );
+    const generalOnlyRouting = sourceBetween(
+      adapterSource,
+      'if materializer_mode == "general-only":',
+      "elif is_meta_overview_pack_task(task_text_for_family):",
+    );
+
+    expect(generalBuyerUniverse).toContain("buyer_universe_task_shape()");
+    expect(generalBuyerUniverse).toContain("candidate_buyer_universe");
+    expect(generalBuyerUniverse).toContain("instruction.txt");
+    expect(generalBuyerUniverse).toContain('source_root / ticker / "vdr"');
+    expect(generalBuyerUniverse).toContain("Company Profile");
+    expect(generalBuyerUniverse).toContain("buyer_universe_logo_assets");
+    expect(generalBuyerUniverse).not.toContain("thermosafe");
+    expect(generalBuyerUniverse).not.toContain("sonoco");
+    expect(generalBuyerUniverse).not.toContain("btb-096a6840");
+    expect(generalOnlyRouting).toContain("write_general_buyer_universe_package()");
+  });
+
+  it("keeps clean capability probes on generic writers only", () => {
+    const adapterSource = readFileSync(join(process.cwd(), "btb_noderoom_agent", "harbor_adapter.py"), "utf8");
+    const genericOnlyRouting = sourceBetween(
+      adapterSource,
+      'if materializer_mode == "generic-only":',
+      'elif materializer_mode == "general-only":',
+    );
+
+    expect(adapterSource).toContain("BTB_NODEAGENT_FORCE_MODEL_PLANNER");
+    expect(adapterSource).toContain('"generic-only"');
+    expect(genericOnlyRouting).toContain("write_workbook()");
+    expect(genericOnlyRouting).toContain("write_presentation()");
+    expect(genericOnlyRouting).toContain("write_memo()");
+    expect(genericOnlyRouting).toContain("write_pdf()");
+    expect(genericOnlyRouting).toContain("write_generic_alias_files()");
+    expect(genericOnlyRouting).not.toContain("write_general_");
+    expect(adapterSource).toContain('"generalFamilyMaterializersEnabled": materializer_mode == "general-only"');
+    expect(adapterSource).toContain('"genericWriterOnly": materializer_mode == "generic-only"');
+  });
+
+  it("adds descriptive alias files only in the generic-only clean lane", () => {
+    const adapterSource = readFileSync(join(process.cwd(), "btb_noderoom_agent", "harbor_adapter.py"), "utf8");
+    const aliasWriter = sourceBetween(
+      adapterSource,
+      "def write_generic_alias_files():",
+      "def write_workbook():",
+    );
+    const genericOnlyRouting = sourceBetween(
+      adapterSource,
+      'if materializer_mode == "generic-only":',
+      'elif materializer_mode == "general-only":',
+    );
+
+    expect(aliasWriter).toContain('copy_if_exists("banker_model.xlsx"');
+    expect(aliasWriter).toContain('copy_if_exists("banker_presentation.pptx"');
+    expect(aliasWriter).toContain('copy_if_exists("banker_memo.docx"');
+    expect(aliasWriter).toContain('copy_if_exists("banker_report.pdf"');
+    expect(genericOnlyRouting).toContain("write_generic_alias_files()");
+  });
+
+  it("honors exact generic slide counts without breaking one-slide-per prompts", () => {
+    const adapterSource = readFileSync(join(process.cwd(), "btb_noderoom_agent", "harbor_adapter.py"), "utf8");
+    const genericPresentation = sourceBetween(
+      adapterSource,
+      "def write_presentation():",
+      "def write_memo():",
+    );
+
+    expect(genericPresentation).toContain("requested_slide_count");
+    expect(genericPresentation).toContain("exact_planned_slide_count");
+    expect(genericPresentation).toContain("(?!\\s+per)");
+    expect(genericPresentation).not.toContain("single_slide_mode");
+  });
+
+  it("counts derived formula citations as supported boundary receipts", () => {
+    const adapterSource = readFileSync(join(process.cwd(), "btb_noderoom_agent", "harbor_adapter.py"), "utf8");
+    const receiptWriter = sourceBetween(
+      adapterSource,
+      "def write_receipts():",
+      "task_text_for_family =",
+    );
+
+    expect(receiptWriter).toContain('"derived"');
+    expect(receiptWriter).toContain('"supported": status in supported');
+  });
 });
+
+function sourceBetween(source: string, startMarker: string, endMarker: string): string {
+  const start = source.indexOf(startMarker);
+  const end = source.indexOf(endMarker, start);
+  expect(start).toBeGreaterThanOrEqual(0);
+  expect(end).toBeGreaterThan(start);
+  return source.slice(start, end);
+}
 
 function tempRoot(): string {
   const root = mkdtempSync(join(tmpdir(), "noderoom-bankertoolbench-"));

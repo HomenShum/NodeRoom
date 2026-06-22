@@ -1,0 +1,2435 @@
+{
+  "schema": "noderoom-btb-ledger-import-v1",
+  "generatedAt": "2026-06-22T05:47:32.572Z",
+  "runs": [
+    {
+      "iterationLabel": "btb-clean-capability-full100-parallel-v3-gpt41mini",
+      "benchmark": "bankertoolbench",
+      "model": "gpt-4.1-mini",
+      "materializerMode": "generic-only",
+      "taskCount": 100,
+      "notes": "source=docs/eval/btb-clean-capability-full100-parallel-v3-gpt41mini.json; generatedAt=2026-06-22T02:58:05.0325017Z; forceModelPlanner=true; allowFallbackPlan=false; summaryOnly=true; dryRun=false; reportedCleanAccepted=100; reportedCleanMean=0.251875",
+      "sourcePath": "docs/eval/btb-clean-capability-full100-parallel-v3-gpt41mini.json",
+      "generatedAt": "2026-06-22T02:58:05.0325017Z",
+      "summary": {
+        "selectedTasks": 100,
+        "completedTasks": 100,
+        "erroredTasks": 0,
+        "missingTasks": 0,
+        "meanReward": 0.251875,
+        "cleanAcceptedTasks": 100,
+        "cleanMeanReward": 0.251875,
+        "normalizedCleanAcceptedTasks": 100,
+        "normalizedCleanMeanReward": 0.251875
+      },
+      "tasks": [
+        {
+          "taskId": "btb-067cb834",
+          "reward": 0.3262,
+          "raw": "138 / 423",
+          "exceptions": 0,
+          "firedWriter": "generic-quartet",
+          "cleanGeneralProbe": true,
+          "modelCalls": 1,
+          "plannerTransport": "json-text",
+          "trialId": "btb-067cb834__JGwG8Pe",
+          "verdict": "accepted; status=finished; reasons=none; boundary=6/6; job=btb-clean-capability-full100-parallel-v3-gpt41mini-btb-067cb834",
+          "source": {
+            "status": "finished",
+            "jobName": "btb-clean-capability-full100-parallel-v3-gpt41mini-btb-067cb834",
+            "jobDir": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-067cb834",
+            "resultPath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-067cb834\\result.json"
+          },
+          "boundary": {
+            "supported": 6,
+            "total": 6,
+            "fullySupported": true
+          },
+          "rejectionReasons": []
+        },
+        {
+          "taskId": "btb-06c284ef",
+          "reward": 0.2983,
+          "raw": "247 / 828",
+          "exceptions": 0,
+          "firedWriter": "generic-quartet",
+          "cleanGeneralProbe": true,
+          "modelCalls": 1,
+          "plannerTransport": "json-text",
+          "trialId": "btb-06c284ef__PL2GhBH",
+          "verdict": "accepted; status=finished; reasons=none; boundary=8/8; job=btb-clean-capability-full100-parallel-v3-gpt41mini-btb-06c284ef",
+          "source": {
+            "status": "finished",
+            "jobName": "btb-clean-capability-full100-parallel-v3-gpt41mini-btb-06c284ef",
+            "jobDir": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-06c284ef",
+            "resultPath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-06c284ef\\result.json"
+          },
+          "boundary": {
+            "supported": 8,
+            "total": 8,
+            "fullySupported": true
+          },
+          "rejectionReasons": []
+        },
+        {
+          "taskId": "btb-07727295",
+          "reward": 0.2831,
+          "raw": "184 / 650",
+          "exceptions": 0,
+          "firedWriter": "generic-quartet",
+          "cleanGeneralProbe": true,
+          "modelCalls": 1,
+          "plannerTransport": "json-text",
+          "trialId": "btb-07727295__yYzpt29",
+          "verdict": "accepted; status=finished; reasons=none; boundary=10/10; job=btb-clean-capability-full100-parallel-v3-gpt41mini-btb-07727295",
+          "source": {
+            "status": "finished",
+            "jobName": "btb-clean-capability-full100-parallel-v3-gpt41mini-btb-07727295",
+            "jobDir": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-07727295",
+            "resultPath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-07727295\\result.json"
+          },
+          "boundary": {
+            "supported": 10,
+            "total": 10,
+            "fullySupported": true
+          },
+          "rejectionReasons": []
+        },
+        {
+          "taskId": "btb-096a6840",
+          "reward": 0.398,
+          "raw": "162 / 407",
+          "exceptions": 0,
+          "firedWriter": "generic-quartet",
+          "cleanGeneralProbe": true,
+          "modelCalls": 1,
+          "plannerTransport": "json-text",
+          "trialId": "btb-096a6840__nxFnwQq",
+          "verdict": "accepted; status=finished; reasons=none; boundary=4/4; job=btb-clean-capability-full100-parallel-v3-gpt41mini-btb-096a6840",
+          "source": {
+            "status": "finished",
+            "jobName": "btb-clean-capability-full100-parallel-v3-gpt41mini-btb-096a6840",
+            "jobDir": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-096a6840",
+            "resultPath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-096a6840\\result.json"
+          },
+          "boundary": {
+            "supported": 4,
+            "total": 4,
+            "fullySupported": true
+          },
+          "rejectionReasons": []
+        },
+        {
+          "taskId": "btb-0fc7bc3c",
+          "reward": 0.2771,
+          "raw": "115 / 415",
+          "exceptions": 0,
+          "firedWriter": "generic-quartet",
+          "cleanGeneralProbe": true,
+          "modelCalls": 1,
+          "plannerTransport": "json-text",
+          "trialId": "btb-0fc7bc3c__tt2Bvek",
+          "verdict": "accepted; status=finished; reasons=none; boundary=13/13; job=btb-clean-capability-full100-parallel-v3-gpt41mini-btb-0fc7bc3c",
+          "source": {
+            "status": "finished",
+            "jobName": "btb-clean-capability-full100-parallel-v3-gpt41mini-btb-0fc7bc3c",
+            "jobDir": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-0fc7bc3c",
+            "resultPath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-0fc7bc3c\\result.json"
+          },
+          "boundary": {
+            "supported": 13,
+            "total": 13,
+            "fullySupported": true
+          },
+          "rejectionReasons": []
+        },
+        {
+          "taskId": "btb-11e08646",
+          "reward": 0.1155,
+          "raw": "148 / 1281",
+          "exceptions": 0,
+          "firedWriter": "generic-quartet",
+          "cleanGeneralProbe": true,
+          "modelCalls": 1,
+          "plannerTransport": "json-text",
+          "trialId": "btb-11e08646__GR8aud7",
+          "verdict": "accepted; status=finished; reasons=none; boundary=17/17; job=btb-clean-capability-full100-parallel-v3-gpt41mini-btb-11e08646",
+          "source": {
+            "status": "finished",
+            "jobName": "btb-clean-capability-full100-parallel-v3-gpt41mini-btb-11e08646",
+            "jobDir": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-11e08646",
+            "resultPath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-11e08646\\result.json"
+          },
+          "boundary": {
+            "supported": 17,
+            "total": 17,
+            "fullySupported": true
+          },
+          "rejectionReasons": []
+        },
+        {
+          "taskId": "btb-129ab204",
+          "reward": 0.2909,
+          "raw": "137 / 471",
+          "exceptions": 0,
+          "firedWriter": "generic-quartet",
+          "cleanGeneralProbe": true,
+          "modelCalls": 1,
+          "plannerTransport": "json-text",
+          "trialId": "btb-129ab204__EQjPdoJ",
+          "verdict": "accepted; status=finished; reasons=none; boundary=10/10; job=btb-clean-capability-full100-parallel-v3-gpt41mini-btb-129ab204",
+          "source": {
+            "status": "finished",
+            "jobName": "btb-clean-capability-full100-parallel-v3-gpt41mini-btb-129ab204",
+            "jobDir": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-129ab204",
+            "resultPath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-129ab204\\result.json"
+          },
+          "boundary": {
+            "supported": 10,
+            "total": 10,
+            "fullySupported": true
+          },
+          "rejectionReasons": []
+        },
+        {
+          "taskId": "btb-1306dbd8",
+          "reward": 0.1435,
+          "raw": "96 / 669",
+          "exceptions": 0,
+          "firedWriter": "generic-quartet",
+          "cleanGeneralProbe": true,
+          "modelCalls": 1,
+          "plannerTransport": "json-text",
+          "trialId": "btb-1306dbd8__jGRBiZW",
+          "verdict": "accepted; status=finished; reasons=none; boundary=9/9; job=btb-clean-capability-full100-parallel-v3-gpt41mini-btb-1306dbd8",
+          "source": {
+            "status": "finished",
+            "jobName": "btb-clean-capability-full100-parallel-v3-gpt41mini-btb-1306dbd8",
+            "jobDir": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-1306dbd8",
+            "resultPath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-1306dbd8\\result.json"
+          },
+          "boundary": {
+            "supported": 9,
+            "total": 9,
+            "fullySupported": true
+          },
+          "rejectionReasons": []
+        },
+        {
+          "taskId": "btb-17d8c86f",
+          "reward": 0.5863,
+          "raw": "299 / 510",
+          "exceptions": 0,
+          "firedWriter": "generic-quartet",
+          "cleanGeneralProbe": true,
+          "modelCalls": 1,
+          "plannerTransport": "json-text",
+          "trialId": "btb-17d8c86f__8kDMbiy",
+          "verdict": "accepted; status=finished; reasons=none; boundary=8/8; job=btb-clean-capability-full100-parallel-v3-gpt41mini-btb-17d8c86f",
+          "source": {
+            "status": "finished",
+            "jobName": "btb-clean-capability-full100-parallel-v3-gpt41mini-btb-17d8c86f",
+            "jobDir": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-17d8c86f",
+            "resultPath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-17d8c86f\\result.json"
+          },
+          "boundary": {
+            "supported": 8,
+            "total": 8,
+            "fullySupported": true
+          },
+          "rejectionReasons": []
+        },
+        {
+          "taskId": "btb-19b3361c",
+          "reward": 0.4791,
+          "raw": "252 / 526",
+          "exceptions": 0,
+          "firedWriter": "generic-quartet",
+          "cleanGeneralProbe": true,
+          "modelCalls": 1,
+          "plannerTransport": "json-text",
+          "trialId": "btb-19b3361c__BBJXNFy",
+          "verdict": "accepted; status=finished; reasons=none; boundary=12/12; job=btb-clean-capability-full100-parallel-v3-gpt41mini-btb-19b3361c",
+          "source": {
+            "status": "finished",
+            "jobName": "btb-clean-capability-full100-parallel-v3-gpt41mini-btb-19b3361c",
+            "jobDir": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-19b3361c",
+            "resultPath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-19b3361c\\result.json"
+          },
+          "boundary": {
+            "supported": 12,
+            "total": 12,
+            "fullySupported": true
+          },
+          "rejectionReasons": []
+        },
+        {
+          "taskId": "btb-1b181d77",
+          "reward": 0.4386,
+          "raw": "325 / 741",
+          "exceptions": 0,
+          "firedWriter": "generic-quartet",
+          "cleanGeneralProbe": true,
+          "modelCalls": 1,
+          "plannerTransport": "json-text",
+          "trialId": "btb-1b181d77__uU45ww3",
+          "verdict": "accepted; status=finished; reasons=none; boundary=16/16; job=btb-clean-capability-full100-parallel-v3-gpt41mini-btb-1b181d77",
+          "source": {
+            "status": "finished",
+            "jobName": "btb-clean-capability-full100-parallel-v3-gpt41mini-btb-1b181d77",
+            "jobDir": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-1b181d77",
+            "resultPath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-1b181d77\\result.json"
+          },
+          "boundary": {
+            "supported": 16,
+            "total": 16,
+            "fullySupported": true
+          },
+          "rejectionReasons": []
+        },
+        {
+          "taskId": "btb-1b253d04",
+          "reward": 0.1935,
+          "raw": "18 / 93",
+          "exceptions": 0,
+          "firedWriter": "generic-quartet",
+          "cleanGeneralProbe": true,
+          "modelCalls": 1,
+          "plannerTransport": "json-text",
+          "trialId": "btb-1b253d04__XakdHd4",
+          "verdict": "accepted; status=finished; reasons=none; boundary=9/9; job=btb-clean-capability-full100-parallel-v3-gpt41mini-btb-1b253d04",
+          "source": {
+            "status": "finished",
+            "jobName": "btb-clean-capability-full100-parallel-v3-gpt41mini-btb-1b253d04",
+            "jobDir": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-1b253d04",
+            "resultPath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-1b253d04\\result.json"
+          },
+          "boundary": {
+            "supported": 9,
+            "total": 9,
+            "fullySupported": true
+          },
+          "rejectionReasons": []
+        },
+        {
+          "taskId": "btb-1d073c85",
+          "reward": 0.0582,
+          "raw": "47 / 808",
+          "exceptions": 0,
+          "firedWriter": "generic-quartet",
+          "cleanGeneralProbe": true,
+          "modelCalls": 1,
+          "plannerTransport": "json-text",
+          "trialId": "btb-1d073c85__itLpcve",
+          "verdict": "accepted; status=finished; reasons=none; boundary=13/13; job=btb-clean-capability-full100-parallel-v3-gpt41mini-btb-1d073c85",
+          "source": {
+            "status": "finished",
+            "jobName": "btb-clean-capability-full100-parallel-v3-gpt41mini-btb-1d073c85",
+            "jobDir": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-1d073c85",
+            "resultPath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-1d073c85\\result.json"
+          },
+          "boundary": {
+            "supported": 13,
+            "total": 13,
+            "fullySupported": true
+          },
+          "rejectionReasons": []
+        },
+        {
+          "taskId": "btb-2048736b",
+          "reward": 0.2482,
+          "raw": "173 / 697",
+          "exceptions": 0,
+          "firedWriter": "generic-quartet",
+          "cleanGeneralProbe": true,
+          "modelCalls": 1,
+          "plannerTransport": "json-text",
+          "trialId": "btb-2048736b__zpCRnC6",
+          "verdict": "accepted; status=finished; reasons=none; boundary=11/11; job=btb-clean-capability-full100-parallel-v3-gpt41mini-btb-2048736b",
+          "source": {
+            "status": "finished",
+            "jobName": "btb-clean-capability-full100-parallel-v3-gpt41mini-btb-2048736b",
+            "jobDir": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-2048736b",
+            "resultPath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-2048736b\\result.json"
+          },
+          "boundary": {
+            "supported": 11,
+            "total": 11,
+            "fullySupported": true
+          },
+          "rejectionReasons": []
+        },
+        {
+          "taskId": "btb-205a3cb3",
+          "reward": 0.429,
+          "raw": "302 / 704",
+          "exceptions": 0,
+          "firedWriter": "generic-quartet",
+          "cleanGeneralProbe": true,
+          "modelCalls": 1,
+          "plannerTransport": "json-text",
+          "trialId": "btb-205a3cb3__woV3X57",
+          "verdict": "accepted; status=finished; reasons=none; boundary=15/15; job=btb-clean-capability-full100-parallel-v3-gpt41mini-btb-205a3cb3",
+          "source": {
+            "status": "finished",
+            "jobName": "btb-clean-capability-full100-parallel-v3-gpt41mini-btb-205a3cb3",
+            "jobDir": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-205a3cb3",
+            "resultPath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-205a3cb3\\result.json"
+          },
+          "boundary": {
+            "supported": 15,
+            "total": 15,
+            "fullySupported": true
+          },
+          "rejectionReasons": []
+        },
+        {
+          "taskId": "btb-31f70ac1",
+          "reward": 0.555,
+          "raw": "212 / 382",
+          "exceptions": 0,
+          "firedWriter": "generic-quartet",
+          "cleanGeneralProbe": true,
+          "modelCalls": 1,
+          "plannerTransport": "json-text",
+          "trialId": "btb-31f70ac1__FXcfSw2",
+          "verdict": "accepted; status=finished; reasons=none; boundary=11/11; job=btb-clean-capability-full100-parallel-v3-gpt41mini-btb-31f70ac1",
+          "source": {
+            "status": "finished",
+            "jobName": "btb-clean-capability-full100-parallel-v3-gpt41mini-btb-31f70ac1",
+            "jobDir": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-31f70ac1",
+            "resultPath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-31f70ac1\\result.json"
+          },
+          "boundary": {
+            "supported": 11,
+            "total": 11,
+            "fullySupported": true
+          },
+          "rejectionReasons": []
+        },
+        {
+          "taskId": "btb-3c70cabb",
+          "reward": 0.0832,
+          "raw": "56 / 673",
+          "exceptions": 0,
+          "firedWriter": "generic-quartet",
+          "cleanGeneralProbe": true,
+          "modelCalls": 1,
+          "plannerTransport": "json-text",
+          "trialId": "btb-3c70cabb__oZhkwC4",
+          "verdict": "accepted; status=finished; reasons=none; boundary=13/13; job=btb-clean-capability-full100-parallel-v3-gpt41mini-btb-3c70cabb",
+          "source": {
+            "status": "finished",
+            "jobName": "btb-clean-capability-full100-parallel-v3-gpt41mini-btb-3c70cabb",
+            "jobDir": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-3c70cabb",
+            "resultPath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-3c70cabb\\result.json"
+          },
+          "boundary": {
+            "supported": 13,
+            "total": 13,
+            "fullySupported": true
+          },
+          "rejectionReasons": []
+        },
+        {
+          "taskId": "btb-40097508",
+          "reward": 0.3587,
+          "raw": "236 / 658",
+          "exceptions": 0,
+          "firedWriter": "generic-quartet",
+          "cleanGeneralProbe": true,
+          "modelCalls": 1,
+          "plannerTransport": "json-text",
+          "trialId": "btb-40097508__fzDv9Bc",
+          "verdict": "accepted; status=finished; reasons=none; boundary=16/16; job=btb-clean-capability-full100-parallel-v3-gpt41mini-btb-40097508",
+          "source": {
+            "status": "finished",
+            "jobName": "btb-clean-capability-full100-parallel-v3-gpt41mini-btb-40097508",
+            "jobDir": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-40097508",
+            "resultPath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-40097508\\result.json"
+          },
+          "boundary": {
+            "supported": 16,
+            "total": 16,
+            "fullySupported": true
+          },
+          "rejectionReasons": []
+        },
+        {
+          "taskId": "btb-4194bf8e",
+          "reward": 0.3023,
+          "raw": "211 / 698",
+          "exceptions": 0,
+          "firedWriter": "generic-quartet",
+          "cleanGeneralProbe": true,
+          "modelCalls": 1,
+          "plannerTransport": "json-text",
+          "trialId": "btb-4194bf8e__WpEQAHg",
+          "verdict": "accepted; status=finished; reasons=none; boundary=9/9; job=btb-clean-capability-full100-parallel-v3-gpt41mini-btb-4194bf8e",
+          "source": {
+            "status": "finished",
+            "jobName": "btb-clean-capability-full100-parallel-v3-gpt41mini-btb-4194bf8e",
+            "jobDir": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-4194bf8e",
+            "resultPath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-4194bf8e\\result.json"
+          },
+          "boundary": {
+            "supported": 9,
+            "total": 9,
+            "fullySupported": true
+          },
+          "rejectionReasons": []
+        },
+        {
+          "taskId": "btb-41e130fe",
+          "reward": 0.0755,
+          "raw": "46 / 609",
+          "exceptions": 0,
+          "firedWriter": "generic-quartet",
+          "cleanGeneralProbe": true,
+          "modelCalls": 1,
+          "plannerTransport": "json-text",
+          "trialId": "btb-41e130fe__mQSs3mz",
+          "verdict": "accepted; status=finished; reasons=none; boundary=16/16; job=btb-clean-capability-full100-parallel-v3-gpt41mini-btb-41e130fe",
+          "source": {
+            "status": "finished",
+            "jobName": "btb-clean-capability-full100-parallel-v3-gpt41mini-btb-41e130fe",
+            "jobDir": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-41e130fe",
+            "resultPath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-41e130fe\\result.json"
+          },
+          "boundary": {
+            "supported": 16,
+            "total": 16,
+            "fullySupported": true
+          },
+          "rejectionReasons": []
+        },
+        {
+          "taskId": "btb-42449f25",
+          "reward": 0.1744,
+          "raw": "169 / 969",
+          "exceptions": 0,
+          "firedWriter": "generic-quartet",
+          "cleanGeneralProbe": true,
+          "modelCalls": 1,
+          "plannerTransport": "json-text",
+          "trialId": "btb-42449f25__WVN49Yt",
+          "verdict": "accepted; status=finished; reasons=none; boundary=14/14; job=btb-clean-capability-full100-parallel-v3-gpt41mini-btb-42449f25",
+          "source": {
+            "status": "finished",
+            "jobName": "btb-clean-capability-full100-parallel-v3-gpt41mini-btb-42449f25",
+            "jobDir": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-42449f25",
+            "resultPath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-42449f25\\result.json"
+          },
+          "boundary": {
+            "supported": 14,
+            "total": 14,
+            "fullySupported": true
+          },
+          "rejectionReasons": []
+        },
+        {
+          "taskId": "btb-432c6197",
+          "reward": 0.1787,
+          "raw": "77 / 431",
+          "exceptions": 0,
+          "firedWriter": "generic-quartet",
+          "cleanGeneralProbe": true,
+          "modelCalls": 1,
+          "plannerTransport": "json-text",
+          "trialId": "btb-432c6197__oDbA68t",
+          "verdict": "accepted; status=finished; reasons=none; boundary=8/8; job=btb-clean-capability-full100-parallel-v3-gpt41mini-btb-432c6197",
+          "source": {
+            "status": "finished",
+            "jobName": "btb-clean-capability-full100-parallel-v3-gpt41mini-btb-432c6197",
+            "jobDir": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-432c6197",
+            "resultPath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-432c6197\\result.json"
+          },
+          "boundary": {
+            "supported": 8,
+            "total": 8,
+            "fullySupported": true
+          },
+          "rejectionReasons": []
+        },
+        {
+          "taskId": "btb-433c9e48",
+          "reward": 0.0526,
+          "raw": "39 / 741",
+          "exceptions": 0,
+          "firedWriter": "generic-quartet",
+          "cleanGeneralProbe": true,
+          "modelCalls": 1,
+          "plannerTransport": "json-text",
+          "trialId": "btb-433c9e48__evzgSFf",
+          "verdict": "accepted; status=finished; reasons=none; boundary=12/12; job=btb-clean-capability-full100-parallel-v3-gpt41mini-btb-433c9e48",
+          "source": {
+            "status": "finished",
+            "jobName": "btb-clean-capability-full100-parallel-v3-gpt41mini-btb-433c9e48",
+            "jobDir": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-433c9e48",
+            "resultPath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-433c9e48\\result.json"
+          },
+          "boundary": {
+            "supported": 12,
+            "total": 12,
+            "fullySupported": true
+          },
+          "rejectionReasons": []
+        },
+        {
+          "taskId": "btb-44bd7a6b",
+          "reward": 0.1836,
+          "raw": "105 / 572",
+          "exceptions": 0,
+          "firedWriter": "generic-quartet",
+          "cleanGeneralProbe": true,
+          "modelCalls": 1,
+          "plannerTransport": "json-text",
+          "trialId": "btb-44bd7a6b__HGZPkJs",
+          "verdict": "accepted; status=finished; reasons=none; boundary=8/8; job=btb-clean-capability-full100-parallel-v3-gpt41mini-btb-44bd7a6b",
+          "source": {
+            "status": "finished",
+            "jobName": "btb-clean-capability-full100-parallel-v3-gpt41mini-btb-44bd7a6b",
+            "jobDir": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-44bd7a6b",
+            "resultPath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-44bd7a6b\\result.json"
+          },
+          "boundary": {
+            "supported": 8,
+            "total": 8,
+            "fullySupported": true
+          },
+          "rejectionReasons": []
+        },
+        {
+          "taskId": "btb-44e44478",
+          "reward": 0.3818,
+          "raw": "244 / 639",
+          "exceptions": 0,
+          "firedWriter": "generic-quartet",
+          "cleanGeneralProbe": true,
+          "modelCalls": 1,
+          "plannerTransport": "json-text",
+          "trialId": "btb-44e44478__HztvVyt",
+          "verdict": "accepted; status=finished; reasons=none; boundary=16/16; job=btb-clean-capability-full100-parallel-v3-gpt41mini-btb-44e44478",
+          "source": {
+            "status": "finished",
+            "jobName": "btb-clean-capability-full100-parallel-v3-gpt41mini-btb-44e44478",
+            "jobDir": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-44e44478",
+            "resultPath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-44e44478\\result.json"
+          },
+          "boundary": {
+            "supported": 16,
+            "total": 16,
+            "fullySupported": true
+          },
+          "rejectionReasons": []
+        },
+        {
+          "taskId": "btb-4a3bf36b",
+          "reward": 0.1347,
+          "raw": "149 / 1106",
+          "exceptions": 0,
+          "firedWriter": "generic-quartet",
+          "cleanGeneralProbe": true,
+          "modelCalls": 1,
+          "plannerTransport": "json-text",
+          "trialId": "btb-4a3bf36b__45MVG8i",
+          "verdict": "accepted; status=finished; reasons=none; boundary=16/16; job=btb-clean-capability-full100-parallel-v3-gpt41mini-btb-4a3bf36b",
+          "source": {
+            "status": "finished",
+            "jobName": "btb-clean-capability-full100-parallel-v3-gpt41mini-btb-4a3bf36b",
+            "jobDir": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-4a3bf36b",
+            "resultPath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-4a3bf36b\\result.json"
+          },
+          "boundary": {
+            "supported": 16,
+            "total": 16,
+            "fullySupported": true
+          },
+          "rejectionReasons": []
+        },
+        {
+          "taskId": "btb-4e23ce4e",
+          "reward": 0.1387,
+          "raw": "115 / 829",
+          "exceptions": 0,
+          "firedWriter": "generic-quartet",
+          "cleanGeneralProbe": true,
+          "modelCalls": 1,
+          "plannerTransport": "json-text",
+          "trialId": "btb-4e23ce4e__8bv5yHi",
+          "verdict": "accepted; status=finished; reasons=none; boundary=8/8; job=btb-clean-capability-full100-parallel-v3-gpt41mini-btb-4e23ce4e",
+          "source": {
+            "status": "finished",
+            "jobName": "btb-clean-capability-full100-parallel-v3-gpt41mini-btb-4e23ce4e",
+            "jobDir": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-4e23ce4e",
+            "resultPath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-4e23ce4e\\result.json"
+          },
+          "boundary": {
+            "supported": 8,
+            "total": 8,
+            "fullySupported": true
+          },
+          "rejectionReasons": []
+        },
+        {
+          "taskId": "btb-4fb6232d",
+          "reward": 0.5325,
+          "raw": "164 / 308",
+          "exceptions": 0,
+          "firedWriter": "generic-quartet",
+          "cleanGeneralProbe": true,
+          "modelCalls": 1,
+          "plannerTransport": "json-text",
+          "trialId": "btb-4fb6232d__KTJ438d",
+          "verdict": "accepted; status=finished; reasons=none; boundary=7/7; job=btb-clean-capability-full100-parallel-v3-gpt41mini-btb-4fb6232d",
+          "source": {
+            "status": "finished",
+            "jobName": "btb-clean-capability-full100-parallel-v3-gpt41mini-btb-4fb6232d",
+            "jobDir": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-4fb6232d",
+            "resultPath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-4fb6232d\\result.json"
+          },
+          "boundary": {
+            "supported": 7,
+            "total": 7,
+            "fullySupported": true
+          },
+          "rejectionReasons": []
+        },
+        {
+          "taskId": "btb-4fedc1aa",
+          "reward": 0.3869,
+          "raw": "106 / 274",
+          "exceptions": 0,
+          "firedWriter": "generic-quartet",
+          "cleanGeneralProbe": true,
+          "modelCalls": 1,
+          "plannerTransport": "json-text",
+          "trialId": "btb-4fedc1aa__9CpZWAw",
+          "verdict": "accepted; status=finished; reasons=none; boundary=13/13; job=btb-clean-capability-full100-parallel-v3-gpt41mini-btb-4fedc1aa",
+          "source": {
+            "status": "finished",
+            "jobName": "btb-clean-capability-full100-parallel-v3-gpt41mini-btb-4fedc1aa",
+            "jobDir": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-4fedc1aa",
+            "resultPath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-4fedc1aa\\result.json"
+          },
+          "boundary": {
+            "supported": 13,
+            "total": 13,
+            "fullySupported": true
+          },
+          "rejectionReasons": []
+        },
+        {
+          "taskId": "btb-507a3d72",
+          "reward": 0.1026,
+          "raw": "95 / 926",
+          "exceptions": 0,
+          "firedWriter": "generic-quartet",
+          "cleanGeneralProbe": true,
+          "modelCalls": 1,
+          "plannerTransport": "json-text",
+          "trialId": "btb-507a3d72__WAshb2n",
+          "verdict": "accepted; status=finished; reasons=none; boundary=16/16; job=btb-clean-capability-full100-parallel-v3-gpt41mini-btb-507a3d72",
+          "source": {
+            "status": "finished",
+            "jobName": "btb-clean-capability-full100-parallel-v3-gpt41mini-btb-507a3d72",
+            "jobDir": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-507a3d72",
+            "resultPath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-507a3d72\\result.json"
+          },
+          "boundary": {
+            "supported": 16,
+            "total": 16,
+            "fullySupported": true
+          },
+          "rejectionReasons": []
+        },
+        {
+          "taskId": "btb-50f1b669",
+          "reward": 0.1815,
+          "raw": "98 / 540",
+          "exceptions": 0,
+          "firedWriter": "generic-quartet",
+          "cleanGeneralProbe": true,
+          "modelCalls": 1,
+          "plannerTransport": "json-text",
+          "trialId": "btb-50f1b669__2PMGJcH",
+          "verdict": "accepted; status=finished; reasons=none; boundary=8/8; job=btb-clean-capability-full100-parallel-v3-gpt41mini-btb-50f1b669",
+          "source": {
+            "status": "finished",
+            "jobName": "btb-clean-capability-full100-parallel-v3-gpt41mini-btb-50f1b669",
+            "jobDir": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-50f1b669",
+            "resultPath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-50f1b669\\result.json"
+          },
+          "boundary": {
+            "supported": 8,
+            "total": 8,
+            "fullySupported": true
+          },
+          "rejectionReasons": []
+        },
+        {
+          "taskId": "btb-515a104d",
+          "reward": 0.0665,
+          "raw": "67 / 1007",
+          "exceptions": 0,
+          "firedWriter": "generic-quartet",
+          "cleanGeneralProbe": true,
+          "modelCalls": 1,
+          "plannerTransport": "json-text",
+          "trialId": "btb-515a104d__Jpcvgp5",
+          "verdict": "accepted; status=finished; reasons=none; boundary=14/14; job=btb-clean-capability-full100-parallel-v3-gpt41mini-btb-515a104d",
+          "source": {
+            "status": "finished",
+            "jobName": "btb-clean-capability-full100-parallel-v3-gpt41mini-btb-515a104d",
+            "jobDir": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-515a104d",
+            "resultPath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-515a104d\\result.json"
+          },
+          "boundary": {
+            "supported": 14,
+            "total": 14,
+            "fullySupported": true
+          },
+          "rejectionReasons": []
+        },
+        {
+          "taskId": "btb-5495a5a9",
+          "reward": 0.189,
+          "raw": "89 / 471",
+          "exceptions": 0,
+          "firedWriter": "generic-quartet",
+          "cleanGeneralProbe": true,
+          "modelCalls": 1,
+          "plannerTransport": "json-text",
+          "trialId": "btb-5495a5a9__htPXj28",
+          "verdict": "accepted; status=finished; reasons=none; boundary=16/16; job=btb-clean-capability-full100-parallel-v3-gpt41mini-btb-5495a5a9",
+          "source": {
+            "status": "finished",
+            "jobName": "btb-clean-capability-full100-parallel-v3-gpt41mini-btb-5495a5a9",
+            "jobDir": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-5495a5a9",
+            "resultPath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-5495a5a9\\result.json"
+          },
+          "boundary": {
+            "supported": 16,
+            "total": 16,
+            "fullySupported": true
+          },
+          "rejectionReasons": []
+        },
+        {
+          "taskId": "btb-55fd995a",
+          "reward": 0.0886,
+          "raw": "48 / 542",
+          "exceptions": 0,
+          "firedWriter": "generic-quartet",
+          "cleanGeneralProbe": true,
+          "modelCalls": 1,
+          "plannerTransport": "json-text",
+          "trialId": "btb-55fd995a__xe3RQuL",
+          "verdict": "accepted; status=finished; reasons=none; boundary=16/16; job=btb-clean-capability-full100-parallel-v3-gpt41mini-btb-55fd995a",
+          "source": {
+            "status": "finished",
+            "jobName": "btb-clean-capability-full100-parallel-v3-gpt41mini-btb-55fd995a",
+            "jobDir": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-55fd995a",
+            "resultPath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-55fd995a\\result.json"
+          },
+          "boundary": {
+            "supported": 16,
+            "total": 16,
+            "fullySupported": true
+          },
+          "rejectionReasons": []
+        },
+        {
+          "taskId": "btb-5d72295c",
+          "reward": 0.2901,
+          "raw": "161 / 555",
+          "exceptions": 0,
+          "firedWriter": "generic-quartet",
+          "cleanGeneralProbe": true,
+          "modelCalls": 1,
+          "plannerTransport": "json-text",
+          "trialId": "btb-5d72295c__SFwkHPD",
+          "verdict": "accepted; status=finished; reasons=none; boundary=13/13; job=btb-clean-capability-full100-parallel-v3-gpt41mini-btb-5d72295c",
+          "source": {
+            "status": "finished",
+            "jobName": "btb-clean-capability-full100-parallel-v3-gpt41mini-btb-5d72295c",
+            "jobDir": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-5d72295c",
+            "resultPath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-5d72295c\\result.json"
+          },
+          "boundary": {
+            "supported": 13,
+            "total": 13,
+            "fullySupported": true
+          },
+          "rejectionReasons": []
+        },
+        {
+          "taskId": "btb-5f1e6f38",
+          "reward": 0.2111,
+          "raw": "118 / 559",
+          "exceptions": 0,
+          "firedWriter": "generic-quartet",
+          "cleanGeneralProbe": true,
+          "modelCalls": 1,
+          "plannerTransport": "json-text",
+          "trialId": "btb-5f1e6f38__uEZiBNN",
+          "verdict": "accepted; status=finished; reasons=none; boundary=10/10; job=btb-clean-capability-full100-parallel-v3-gpt41mini-btb-5f1e6f38",
+          "source": {
+            "status": "finished",
+            "jobName": "btb-clean-capability-full100-parallel-v3-gpt41mini-btb-5f1e6f38",
+            "jobDir": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-5f1e6f38",
+            "resultPath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-5f1e6f38\\result.json"
+          },
+          "boundary": {
+            "supported": 10,
+            "total": 10,
+            "fullySupported": true
+          },
+          "rejectionReasons": []
+        },
+        {
+          "taskId": "btb-60ed36b0",
+          "reward": 0.2684,
+          "raw": "131 / 488",
+          "exceptions": 0,
+          "firedWriter": "generic-quartet",
+          "cleanGeneralProbe": true,
+          "modelCalls": 1,
+          "plannerTransport": "json-text",
+          "trialId": "btb-60ed36b0__ZReo6di",
+          "verdict": "accepted; status=finished; reasons=none; boundary=16/16; job=btb-clean-capability-full100-parallel-v3-gpt41mini-btb-60ed36b0",
+          "source": {
+            "status": "finished",
+            "jobName": "btb-clean-capability-full100-parallel-v3-gpt41mini-btb-60ed36b0",
+            "jobDir": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-60ed36b0",
+            "resultPath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-60ed36b0\\result.json"
+          },
+          "boundary": {
+            "supported": 16,
+            "total": 16,
+            "fullySupported": true
+          },
+          "rejectionReasons": []
+        },
+        {
+          "taskId": "btb-6801c651",
+          "reward": 0.2217,
+          "raw": "180 / 812",
+          "exceptions": 0,
+          "firedWriter": "generic-quartet",
+          "cleanGeneralProbe": true,
+          "modelCalls": 1,
+          "plannerTransport": "json-text",
+          "trialId": "btb-6801c651__qaZwST4",
+          "verdict": "accepted; status=finished; reasons=none; boundary=8/8; job=btb-clean-capability-full100-parallel-v3-gpt41mini-btb-6801c651",
+          "source": {
+            "status": "finished",
+            "jobName": "btb-clean-capability-full100-parallel-v3-gpt41mini-btb-6801c651",
+            "jobDir": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-6801c651",
+            "resultPath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-6801c651\\result.json"
+          },
+          "boundary": {
+            "supported": 8,
+            "total": 8,
+            "fullySupported": true
+          },
+          "rejectionReasons": []
+        },
+        {
+          "taskId": "btb-68259d37",
+          "reward": 0.3361,
+          "raw": "123 / 366",
+          "exceptions": 0,
+          "firedWriter": "generic-quartet",
+          "cleanGeneralProbe": true,
+          "modelCalls": 1,
+          "plannerTransport": "json-text",
+          "trialId": "btb-68259d37__ZQHnM6j",
+          "verdict": "accepted; status=finished; reasons=none; boundary=9/9; job=btb-clean-capability-full100-parallel-v3-gpt41mini-btb-68259d37",
+          "source": {
+            "status": "finished",
+            "jobName": "btb-clean-capability-full100-parallel-v3-gpt41mini-btb-68259d37",
+            "jobDir": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-68259d37",
+            "resultPath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-68259d37\\result.json"
+          },
+          "boundary": {
+            "supported": 9,
+            "total": 9,
+            "fullySupported": true
+          },
+          "rejectionReasons": []
+        },
+        {
+          "taskId": "btb-69507fd6",
+          "reward": 0.3122,
+          "raw": "113 / 362",
+          "exceptions": 0,
+          "firedWriter": "generic-quartet",
+          "cleanGeneralProbe": true,
+          "modelCalls": 1,
+          "plannerTransport": "json-text",
+          "trialId": "btb-69507fd6__xQyQRWf",
+          "verdict": "accepted; status=finished; reasons=none; boundary=3/3; job=btb-clean-capability-full100-parallel-v3-gpt41mini-btb-69507fd6",
+          "source": {
+            "status": "finished",
+            "jobName": "btb-clean-capability-full100-parallel-v3-gpt41mini-btb-69507fd6",
+            "jobDir": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-69507fd6",
+            "resultPath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-69507fd6\\result.json"
+          },
+          "boundary": {
+            "supported": 3,
+            "total": 3,
+            "fullySupported": true
+          },
+          "rejectionReasons": []
+        },
+        {
+          "taskId": "btb-69fcdefe",
+          "reward": 0.1293,
+          "raw": "68 / 526",
+          "exceptions": 0,
+          "firedWriter": "generic-quartet",
+          "cleanGeneralProbe": true,
+          "modelCalls": 1,
+          "plannerTransport": "json-text",
+          "trialId": "btb-69fcdefe__437GroV",
+          "verdict": "accepted; status=finished; reasons=none; boundary=9/9; job=btb-clean-capability-full100-parallel-v3-gpt41mini-btb-69fcdefe",
+          "source": {
+            "status": "finished",
+            "jobName": "btb-clean-capability-full100-parallel-v3-gpt41mini-btb-69fcdefe",
+            "jobDir": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-69fcdefe",
+            "resultPath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-69fcdefe\\result.json"
+          },
+          "boundary": {
+            "supported": 9,
+            "total": 9,
+            "fullySupported": true
+          },
+          "rejectionReasons": []
+        },
+        {
+          "taskId": "btb-6a08ca87",
+          "reward": 0.3043,
+          "raw": "112 / 368",
+          "exceptions": 0,
+          "firedWriter": "generic-quartet",
+          "cleanGeneralProbe": true,
+          "modelCalls": 1,
+          "plannerTransport": "json-text",
+          "trialId": "btb-6a08ca87__dKvzGsV",
+          "verdict": "accepted; status=finished; reasons=none; boundary=8/8; job=btb-clean-capability-full100-parallel-v3-gpt41mini-btb-6a08ca87",
+          "source": {
+            "status": "finished",
+            "jobName": "btb-clean-capability-full100-parallel-v3-gpt41mini-btb-6a08ca87",
+            "jobDir": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-6a08ca87",
+            "resultPath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-6a08ca87\\result.json"
+          },
+          "boundary": {
+            "supported": 8,
+            "total": 8,
+            "fullySupported": true
+          },
+          "rejectionReasons": []
+        },
+        {
+          "taskId": "btb-6a2f5cf8",
+          "reward": 0.2417,
+          "raw": "116 / 480",
+          "exceptions": 0,
+          "firedWriter": "generic-quartet",
+          "cleanGeneralProbe": true,
+          "modelCalls": 1,
+          "plannerTransport": "json-text",
+          "trialId": "btb-6a2f5cf8__D9oc5AT",
+          "verdict": "accepted; status=finished; reasons=none; boundary=17/17; job=btb-clean-capability-full100-parallel-v3-gpt41mini-btb-6a2f5cf8",
+          "source": {
+            "status": "finished",
+            "jobName": "btb-clean-capability-full100-parallel-v3-gpt41mini-btb-6a2f5cf8",
+            "jobDir": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-6a2f5cf8",
+            "resultPath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-6a2f5cf8\\result.json"
+          },
+          "boundary": {
+            "supported": 17,
+            "total": 17,
+            "fullySupported": true
+          },
+          "rejectionReasons": []
+        },
+        {
+          "taskId": "btb-6b25d3dc",
+          "reward": 0.3349,
+          "raw": "72 / 215",
+          "exceptions": 0,
+          "firedWriter": "generic-quartet",
+          "cleanGeneralProbe": true,
+          "modelCalls": 1,
+          "plannerTransport": "json-text",
+          "trialId": "btb-6b25d3dc__7C6NRSQ",
+          "verdict": "accepted; status=finished; reasons=none; boundary=3/3; job=btb-clean-capability-full100-parallel-v3-gpt41mini-btb-6b25d3dc",
+          "source": {
+            "status": "finished",
+            "jobName": "btb-clean-capability-full100-parallel-v3-gpt41mini-btb-6b25d3dc",
+            "jobDir": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-6b25d3dc",
+            "resultPath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-6b25d3dc\\result.json"
+          },
+          "boundary": {
+            "supported": 3,
+            "total": 3,
+            "fullySupported": true
+          },
+          "rejectionReasons": []
+        },
+        {
+          "taskId": "btb-707cba99",
+          "reward": 0.4779,
+          "raw": "313 / 655",
+          "exceptions": 0,
+          "firedWriter": "generic-quartet",
+          "cleanGeneralProbe": true,
+          "modelCalls": 1,
+          "plannerTransport": "json-text",
+          "trialId": "btb-707cba99__9LwPfwy",
+          "verdict": "accepted; status=finished; reasons=none; boundary=13/13; job=btb-clean-capability-full100-parallel-v3-gpt41mini-btb-707cba99",
+          "source": {
+            "status": "finished",
+            "jobName": "btb-clean-capability-full100-parallel-v3-gpt41mini-btb-707cba99",
+            "jobDir": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-707cba99",
+            "resultPath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-707cba99\\result.json"
+          },
+          "boundary": {
+            "supported": 13,
+            "total": 13,
+            "fullySupported": true
+          },
+          "rejectionReasons": []
+        },
+        {
+          "taskId": "btb-73450a4d",
+          "reward": 0.2252,
+          "raw": "175 / 777",
+          "exceptions": 0,
+          "firedWriter": "generic-quartet",
+          "cleanGeneralProbe": true,
+          "modelCalls": 1,
+          "plannerTransport": "json-text",
+          "trialId": "btb-73450a4d__ZLv6nhY",
+          "verdict": "accepted; status=finished; reasons=none; boundary=13/13; job=btb-clean-capability-full100-parallel-v3-gpt41mini-btb-73450a4d",
+          "source": {
+            "status": "finished",
+            "jobName": "btb-clean-capability-full100-parallel-v3-gpt41mini-btb-73450a4d",
+            "jobDir": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-73450a4d",
+            "resultPath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-73450a4d\\result.json"
+          },
+          "boundary": {
+            "supported": 13,
+            "total": 13,
+            "fullySupported": true
+          },
+          "rejectionReasons": []
+        },
+        {
+          "taskId": "btb-73c10eda",
+          "reward": 0.513,
+          "raw": "256 / 499",
+          "exceptions": 0,
+          "firedWriter": "generic-quartet",
+          "cleanGeneralProbe": true,
+          "modelCalls": 1,
+          "plannerTransport": "json-text",
+          "trialId": "btb-73c10eda__UgNGqjY",
+          "verdict": "accepted; status=finished; reasons=none; boundary=13/13; job=btb-clean-capability-full100-parallel-v3-gpt41mini-btb-73c10eda",
+          "source": {
+            "status": "finished",
+            "jobName": "btb-clean-capability-full100-parallel-v3-gpt41mini-btb-73c10eda",
+            "jobDir": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-73c10eda",
+            "resultPath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-73c10eda\\result.json"
+          },
+          "boundary": {
+            "supported": 13,
+            "total": 13,
+            "fullySupported": true
+          },
+          "rejectionReasons": []
+        },
+        {
+          "taskId": "btb-7638f425",
+          "reward": 0.2301,
+          "raw": "136 / 591",
+          "exceptions": 0,
+          "firedWriter": "generic-quartet",
+          "cleanGeneralProbe": true,
+          "modelCalls": 1,
+          "plannerTransport": "json-text",
+          "trialId": "btb-7638f425__7LwXi5z",
+          "verdict": "accepted; status=finished; reasons=none; boundary=13/13; job=btb-clean-capability-full100-parallel-v3-gpt41mini-btb-7638f425",
+          "source": {
+            "status": "finished",
+            "jobName": "btb-clean-capability-full100-parallel-v3-gpt41mini-btb-7638f425",
+            "jobDir": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-7638f425",
+            "resultPath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-7638f425\\result.json"
+          },
+          "boundary": {
+            "supported": 13,
+            "total": 13,
+            "fullySupported": true
+          },
+          "rejectionReasons": []
+        },
+        {
+          "taskId": "btb-7b078eaa",
+          "reward": 0.1162,
+          "raw": "96 / 826",
+          "exceptions": 0,
+          "firedWriter": "generic-quartet",
+          "cleanGeneralProbe": true,
+          "modelCalls": 1,
+          "plannerTransport": "json-text",
+          "trialId": "btb-7b078eaa__CvJLAC4",
+          "verdict": "accepted; status=finished; reasons=none; boundary=17/17; job=btb-clean-capability-full100-parallel-v3-gpt41mini-btb-7b078eaa",
+          "source": {
+            "status": "finished",
+            "jobName": "btb-clean-capability-full100-parallel-v3-gpt41mini-btb-7b078eaa",
+            "jobDir": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-7b078eaa",
+            "resultPath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-7b078eaa\\result.json"
+          },
+          "boundary": {
+            "supported": 17,
+            "total": 17,
+            "fullySupported": true
+          },
+          "rejectionReasons": []
+        },
+        {
+          "taskId": "btb-7d11ce66",
+          "reward": 0.1317,
+          "raw": "81 / 615",
+          "exceptions": 0,
+          "firedWriter": "generic-quartet",
+          "cleanGeneralProbe": true,
+          "modelCalls": 1,
+          "plannerTransport": "json-text",
+          "trialId": "btb-7d11ce66__2dWLuXR",
+          "verdict": "accepted; status=finished; reasons=none; boundary=12/12; job=btb-clean-capability-full100-parallel-v3-gpt41mini-btb-7d11ce66",
+          "source": {
+            "status": "finished",
+            "jobName": "btb-clean-capability-full100-parallel-v3-gpt41mini-btb-7d11ce66",
+            "jobDir": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-7d11ce66",
+            "resultPath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-7d11ce66\\result.json"
+          },
+          "boundary": {
+            "supported": 12,
+            "total": 12,
+            "fullySupported": true
+          },
+          "rejectionReasons": []
+        },
+        {
+          "taskId": "btb-7f5b9960",
+          "reward": 0.2242,
+          "raw": "213 / 950",
+          "exceptions": 0,
+          "firedWriter": "generic-quartet",
+          "cleanGeneralProbe": true,
+          "modelCalls": 1,
+          "plannerTransport": "json-text",
+          "trialId": "btb-7f5b9960__AL7EWm5",
+          "verdict": "accepted; status=finished; reasons=none; boundary=9/9; job=btb-clean-capability-full100-parallel-v3-gpt41mini-btb-7f5b9960",
+          "source": {
+            "status": "finished",
+            "jobName": "btb-clean-capability-full100-parallel-v3-gpt41mini-btb-7f5b9960",
+            "jobDir": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-7f5b9960",
+            "resultPath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-7f5b9960\\result.json"
+          },
+          "boundary": {
+            "supported": 9,
+            "total": 9,
+            "fullySupported": true
+          },
+          "rejectionReasons": []
+        },
+        {
+          "taskId": "btb-8182334a",
+          "reward": 0.4885,
+          "raw": "255 / 522",
+          "exceptions": 0,
+          "firedWriter": "generic-quartet",
+          "cleanGeneralProbe": true,
+          "modelCalls": 1,
+          "plannerTransport": "json-text",
+          "trialId": "btb-8182334a__FxRHwx7",
+          "verdict": "accepted; status=finished; reasons=none; boundary=7/7; job=btb-clean-capability-full100-parallel-v3-gpt41mini-btb-8182334a",
+          "source": {
+            "status": "finished",
+            "jobName": "btb-clean-capability-full100-parallel-v3-gpt41mini-btb-8182334a",
+            "jobDir": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-8182334a",
+            "resultPath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-8182334a\\result.json"
+          },
+          "boundary": {
+            "supported": 7,
+            "total": 7,
+            "fullySupported": true
+          },
+          "rejectionReasons": []
+        },
+        {
+          "taskId": "btb-85670d9d",
+          "reward": 0.1348,
+          "raw": "105 / 779",
+          "exceptions": 0,
+          "firedWriter": "generic-quartet",
+          "cleanGeneralProbe": true,
+          "modelCalls": 1,
+          "plannerTransport": "json-text",
+          "trialId": "btb-85670d9d__uDvRrEG",
+          "verdict": "accepted; status=finished; reasons=none; boundary=9/9; job=btb-clean-capability-full100-parallel-v3-gpt41mini-btb-85670d9d",
+          "source": {
+            "status": "finished",
+            "jobName": "btb-clean-capability-full100-parallel-v3-gpt41mini-btb-85670d9d",
+            "jobDir": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-85670d9d",
+            "resultPath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-85670d9d\\result.json"
+          },
+          "boundary": {
+            "supported": 9,
+            "total": 9,
+            "fullySupported": true
+          },
+          "rejectionReasons": []
+        },
+        {
+          "taskId": "btb-8a19d926",
+          "reward": 0.1166,
+          "raw": "61 / 523",
+          "exceptions": 0,
+          "firedWriter": "generic-quartet",
+          "cleanGeneralProbe": true,
+          "modelCalls": 1,
+          "plannerTransport": "json-text",
+          "trialId": "btb-8a19d926__hRedn3m",
+          "verdict": "accepted; status=finished; reasons=none; boundary=10/10; job=btb-clean-capability-full100-parallel-v3-gpt41mini-btb-8a19d926",
+          "source": {
+            "status": "finished",
+            "jobName": "btb-clean-capability-full100-parallel-v3-gpt41mini-btb-8a19d926",
+            "jobDir": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-8a19d926",
+            "resultPath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-8a19d926\\result.json"
+          },
+          "boundary": {
+            "supported": 10,
+            "total": 10,
+            "fullySupported": true
+          },
+          "rejectionReasons": []
+        },
+        {
+          "taskId": "btb-8bdef554",
+          "reward": 0.043,
+          "raw": "33 / 767",
+          "exceptions": 0,
+          "firedWriter": "generic-quartet",
+          "cleanGeneralProbe": true,
+          "modelCalls": 1,
+          "plannerTransport": "json-text",
+          "trialId": "btb-8bdef554__txEWTig",
+          "verdict": "accepted; status=finished; reasons=none; boundary=14/14; job=btb-clean-capability-full100-parallel-v3-gpt41mini-btb-8bdef554",
+          "source": {
+            "status": "finished",
+            "jobName": "btb-clean-capability-full100-parallel-v3-gpt41mini-btb-8bdef554",
+            "jobDir": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-8bdef554",
+            "resultPath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-8bdef554\\result.json"
+          },
+          "boundary": {
+            "supported": 14,
+            "total": 14,
+            "fullySupported": true
+          },
+          "rejectionReasons": []
+        },
+        {
+          "taskId": "btb-8e61629c",
+          "reward": 0.1867,
+          "raw": "107 / 573",
+          "exceptions": 0,
+          "firedWriter": "generic-quartet",
+          "cleanGeneralProbe": true,
+          "modelCalls": 1,
+          "plannerTransport": "json-text",
+          "trialId": "btb-8e61629c__VHARcGs",
+          "verdict": "accepted; status=finished; reasons=none; boundary=11/11; job=btb-clean-capability-full100-parallel-v3-gpt41mini-btb-8e61629c",
+          "source": {
+            "status": "finished",
+            "jobName": "btb-clean-capability-full100-parallel-v3-gpt41mini-btb-8e61629c",
+            "jobDir": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-8e61629c",
+            "resultPath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-8e61629c\\result.json"
+          },
+          "boundary": {
+            "supported": 11,
+            "total": 11,
+            "fullySupported": true
+          },
+          "rejectionReasons": []
+        },
+        {
+          "taskId": "btb-8eb06eaf",
+          "reward": 0.0994,
+          "raw": "89 / 895",
+          "exceptions": 0,
+          "firedWriter": "generic-quartet",
+          "cleanGeneralProbe": true,
+          "modelCalls": 1,
+          "plannerTransport": "json-text",
+          "trialId": "btb-8eb06eaf__RTfFgNF",
+          "verdict": "accepted; status=finished; reasons=none; boundary=16/16; job=btb-clean-capability-full100-parallel-v3-gpt41mini-btb-8eb06eaf",
+          "source": {
+            "status": "finished",
+            "jobName": "btb-clean-capability-full100-parallel-v3-gpt41mini-btb-8eb06eaf",
+            "jobDir": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-8eb06eaf",
+            "resultPath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-8eb06eaf\\result.json"
+          },
+          "boundary": {
+            "supported": 16,
+            "total": 16,
+            "fullySupported": true
+          },
+          "rejectionReasons": []
+        },
+        {
+          "taskId": "btb-907e3e2e",
+          "reward": 0.0807,
+          "raw": "53 / 657",
+          "exceptions": 0,
+          "firedWriter": "generic-quartet",
+          "cleanGeneralProbe": true,
+          "modelCalls": 1,
+          "plannerTransport": "json-text",
+          "trialId": "btb-907e3e2e__yxBuMYz",
+          "verdict": "accepted; status=finished; reasons=none; boundary=13/13; job=btb-clean-capability-full100-parallel-v3-gpt41mini-btb-907e3e2e",
+          "source": {
+            "status": "finished",
+            "jobName": "btb-clean-capability-full100-parallel-v3-gpt41mini-btb-907e3e2e",
+            "jobDir": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-907e3e2e",
+            "resultPath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-907e3e2e\\result.json"
+          },
+          "boundary": {
+            "supported": 13,
+            "total": 13,
+            "fullySupported": true
+          },
+          "rejectionReasons": []
+        },
+        {
+          "taskId": "btb-92235649",
+          "reward": 0.0519,
+          "raw": "24 / 462",
+          "exceptions": 0,
+          "firedWriter": "generic-quartet",
+          "cleanGeneralProbe": true,
+          "modelCalls": 1,
+          "plannerTransport": "json-text",
+          "trialId": "btb-92235649__6AytPJZ",
+          "verdict": "accepted; status=finished; reasons=none; boundary=12/12; job=btb-clean-capability-full100-parallel-v3-gpt41mini-btb-92235649",
+          "source": {
+            "status": "finished",
+            "jobName": "btb-clean-capability-full100-parallel-v3-gpt41mini-btb-92235649",
+            "jobDir": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-92235649",
+            "resultPath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-92235649\\result.json"
+          },
+          "boundary": {
+            "supported": 12,
+            "total": 12,
+            "fullySupported": true
+          },
+          "rejectionReasons": []
+        },
+        {
+          "taskId": "btb-93c1e85c",
+          "reward": 0.1626,
+          "raw": "154 / 947",
+          "exceptions": 0,
+          "firedWriter": "generic-quartet",
+          "cleanGeneralProbe": true,
+          "modelCalls": 1,
+          "plannerTransport": "json-text",
+          "trialId": "btb-93c1e85c__U5fkTEX",
+          "verdict": "accepted; status=finished; reasons=none; boundary=16/16; job=btb-clean-capability-full100-parallel-v3-gpt41mini-btb-93c1e85c",
+          "source": {
+            "status": "finished",
+            "jobName": "btb-clean-capability-full100-parallel-v3-gpt41mini-btb-93c1e85c",
+            "jobDir": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-93c1e85c",
+            "resultPath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-93c1e85c\\result.json"
+          },
+          "boundary": {
+            "supported": 16,
+            "total": 16,
+            "fullySupported": true
+          },
+          "rejectionReasons": []
+        },
+        {
+          "taskId": "btb-960dc224",
+          "reward": 0.0747,
+          "raw": "38 / 509",
+          "exceptions": 0,
+          "firedWriter": "generic-quartet",
+          "cleanGeneralProbe": true,
+          "modelCalls": 1,
+          "plannerTransport": "json-text",
+          "trialId": "btb-960dc224__ZCJGn8p",
+          "verdict": "accepted; status=finished; reasons=none; boundary=16/16; job=btb-clean-capability-full100-parallel-v3-gpt41mini-btb-960dc224",
+          "source": {
+            "status": "finished",
+            "jobName": "btb-clean-capability-full100-parallel-v3-gpt41mini-btb-960dc224",
+            "jobDir": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-960dc224",
+            "resultPath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-960dc224\\result.json"
+          },
+          "boundary": {
+            "supported": 16,
+            "total": 16,
+            "fullySupported": true
+          },
+          "rejectionReasons": []
+        },
+        {
+          "taskId": "btb-963978db",
+          "reward": 0.3066,
+          "raw": "180 / 587",
+          "exceptions": 0,
+          "firedWriter": "generic-quartet",
+          "cleanGeneralProbe": true,
+          "modelCalls": 1,
+          "plannerTransport": "json-text",
+          "trialId": "btb-963978db__JRe55Xz",
+          "verdict": "accepted; status=finished; reasons=none; boundary=8/8; job=btb-clean-capability-full100-parallel-v3-gpt41mini-btb-963978db",
+          "source": {
+            "status": "finished",
+            "jobName": "btb-clean-capability-full100-parallel-v3-gpt41mini-btb-963978db",
+            "jobDir": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-963978db",
+            "resultPath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-963978db\\result.json"
+          },
+          "boundary": {
+            "supported": 8,
+            "total": 8,
+            "fullySupported": true
+          },
+          "rejectionReasons": []
+        },
+        {
+          "taskId": "btb-9781216f",
+          "reward": 0.0827,
+          "raw": "113 / 1367",
+          "exceptions": 0,
+          "firedWriter": "generic-quartet",
+          "cleanGeneralProbe": true,
+          "modelCalls": 1,
+          "plannerTransport": "json-text",
+          "trialId": "btb-9781216f__pha74dj",
+          "verdict": "accepted; status=finished; reasons=none; boundary=10/10; job=btb-clean-capability-full100-parallel-v3-gpt41mini-btb-9781216f",
+          "source": {
+            "status": "finished",
+            "jobName": "btb-clean-capability-full100-parallel-v3-gpt41mini-btb-9781216f",
+            "jobDir": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-9781216f",
+            "resultPath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-9781216f\\result.json"
+          },
+          "boundary": {
+            "supported": 10,
+            "total": 10,
+            "fullySupported": true
+          },
+          "rejectionReasons": []
+        },
+        {
+          "taskId": "btb-98bdf8f3",
+          "reward": 0.1432,
+          "raw": "127 / 887",
+          "exceptions": 0,
+          "firedWriter": "generic-quartet",
+          "cleanGeneralProbe": true,
+          "modelCalls": 1,
+          "plannerTransport": "json-text",
+          "trialId": "btb-98bdf8f3__rm7BnwY",
+          "verdict": "accepted; status=finished; reasons=none; boundary=7/7; job=btb-clean-capability-full100-parallel-v3-gpt41mini-btb-98bdf8f3",
+          "source": {
+            "status": "finished",
+            "jobName": "btb-clean-capability-full100-parallel-v3-gpt41mini-btb-98bdf8f3",
+            "jobDir": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-98bdf8f3",
+            "resultPath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-98bdf8f3\\result.json"
+          },
+          "boundary": {
+            "supported": 7,
+            "total": 7,
+            "fullySupported": true
+          },
+          "rejectionReasons": []
+        },
+        {
+          "taskId": "btb-990cf5d7",
+          "reward": 0.1263,
+          "raw": "126 / 998",
+          "exceptions": 0,
+          "firedWriter": "generic-quartet",
+          "cleanGeneralProbe": true,
+          "modelCalls": 1,
+          "plannerTransport": "json-text",
+          "trialId": "btb-990cf5d7__o64HUM4",
+          "verdict": "accepted; status=finished; reasons=none; boundary=13/13; job=btb-clean-capability-full100-parallel-v3-gpt41mini-btb-990cf5d7",
+          "source": {
+            "status": "finished",
+            "jobName": "btb-clean-capability-full100-parallel-v3-gpt41mini-btb-990cf5d7",
+            "jobDir": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-990cf5d7",
+            "resultPath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-990cf5d7\\result.json"
+          },
+          "boundary": {
+            "supported": 13,
+            "total": 13,
+            "fullySupported": true
+          },
+          "rejectionReasons": []
+        },
+        {
+          "taskId": "btb-9ed5fdf8",
+          "reward": 0.3546,
+          "raw": "200 / 564",
+          "exceptions": 0,
+          "firedWriter": "generic-quartet",
+          "cleanGeneralProbe": true,
+          "modelCalls": 5,
+          "plannerTransport": "tool-call",
+          "trialId": "btb-9ed5fdf8__BPwUGbk",
+          "verdict": "accepted; status=finished; reasons=none; boundary=5/5; job=btb-clean-capability-full100-parallel-v3-gpt41mini-btb-9ed5fdf8",
+          "source": {
+            "status": "finished",
+            "jobName": "btb-clean-capability-full100-parallel-v3-gpt41mini-btb-9ed5fdf8",
+            "jobDir": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-9ed5fdf8",
+            "resultPath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-9ed5fdf8\\result.json"
+          },
+          "boundary": {
+            "supported": 5,
+            "total": 5,
+            "fullySupported": true
+          },
+          "rejectionReasons": []
+        },
+        {
+          "taskId": "btb-a0b2858a",
+          "reward": 0.0834,
+          "raw": "67 / 803",
+          "exceptions": 0,
+          "firedWriter": "generic-quartet",
+          "cleanGeneralProbe": true,
+          "modelCalls": 1,
+          "plannerTransport": "json-text",
+          "trialId": "btb-a0b2858a__ozN9oWg",
+          "verdict": "accepted; status=finished; reasons=none; boundary=15/15; job=btb-clean-capability-full100-parallel-v3-gpt41mini-btb-a0b2858a",
+          "source": {
+            "status": "finished",
+            "jobName": "btb-clean-capability-full100-parallel-v3-gpt41mini-btb-a0b2858a",
+            "jobDir": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-a0b2858a",
+            "resultPath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-a0b2858a\\result.json"
+          },
+          "boundary": {
+            "supported": 15,
+            "total": 15,
+            "fullySupported": true
+          },
+          "rejectionReasons": []
+        },
+        {
+          "taskId": "btb-a31173e3",
+          "reward": 0.1234,
+          "raw": "115 / 932",
+          "exceptions": 0,
+          "firedWriter": "generic-quartet",
+          "cleanGeneralProbe": true,
+          "modelCalls": 1,
+          "plannerTransport": "json-text",
+          "trialId": "btb-a31173e3__gnvVZRa",
+          "verdict": "accepted; status=finished; reasons=none; boundary=15/15; job=btb-clean-capability-full100-parallel-v3-gpt41mini-btb-a31173e3",
+          "source": {
+            "status": "finished",
+            "jobName": "btb-clean-capability-full100-parallel-v3-gpt41mini-btb-a31173e3",
+            "jobDir": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-a31173e3",
+            "resultPath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-a31173e3\\result.json"
+          },
+          "boundary": {
+            "supported": 15,
+            "total": 15,
+            "fullySupported": true
+          },
+          "rejectionReasons": []
+        },
+        {
+          "taskId": "btb-aa3e4d0f",
+          "reward": 0.3283,
+          "raw": "218 / 664",
+          "exceptions": 0,
+          "firedWriter": "generic-quartet",
+          "cleanGeneralProbe": true,
+          "modelCalls": 1,
+          "plannerTransport": "json-text",
+          "trialId": "btb-aa3e4d0f__BCKNUuK",
+          "verdict": "accepted; status=finished; reasons=none; boundary=15/15; job=btb-clean-capability-full100-parallel-v3-gpt41mini-btb-aa3e4d0f",
+          "source": {
+            "status": "finished",
+            "jobName": "btb-clean-capability-full100-parallel-v3-gpt41mini-btb-aa3e4d0f",
+            "jobDir": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-aa3e4d0f",
+            "resultPath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-aa3e4d0f\\result.json"
+          },
+          "boundary": {
+            "supported": 15,
+            "total": 15,
+            "fullySupported": true
+          },
+          "rejectionReasons": []
+        },
+        {
+          "taskId": "btb-aa577c1d",
+          "reward": 0.065,
+          "raw": "48 / 739",
+          "exceptions": 0,
+          "firedWriter": "generic-quartet",
+          "cleanGeneralProbe": true,
+          "modelCalls": 1,
+          "plannerTransport": "json-text",
+          "trialId": "btb-aa577c1d__RmL2bZS",
+          "verdict": "accepted; status=finished; reasons=none; boundary=16/16; job=btb-clean-capability-full100-parallel-v3-gpt41mini-btb-aa577c1d",
+          "source": {
+            "status": "finished",
+            "jobName": "btb-clean-capability-full100-parallel-v3-gpt41mini-btb-aa577c1d",
+            "jobDir": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-aa577c1d",
+            "resultPath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-aa577c1d\\result.json"
+          },
+          "boundary": {
+            "supported": 16,
+            "total": 16,
+            "fullySupported": true
+          },
+          "rejectionReasons": []
+        },
+        {
+          "taskId": "btb-ac1a3956",
+          "reward": 0.2266,
+          "raw": "121 / 534",
+          "exceptions": 0,
+          "firedWriter": "generic-quartet",
+          "cleanGeneralProbe": true,
+          "modelCalls": 1,
+          "plannerTransport": "json-text",
+          "trialId": "btb-ac1a3956__opsYhE2",
+          "verdict": "accepted; status=finished; reasons=none; boundary=5/5; job=btb-clean-capability-full100-parallel-v3-gpt41mini-btb-ac1a3956",
+          "source": {
+            "status": "finished",
+            "jobName": "btb-clean-capability-full100-parallel-v3-gpt41mini-btb-ac1a3956",
+            "jobDir": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-ac1a3956",
+            "resultPath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-ac1a3956\\result.json"
+          },
+          "boundary": {
+            "supported": 5,
+            "total": 5,
+            "fullySupported": true
+          },
+          "rejectionReasons": []
+        },
+        {
+          "taskId": "btb-b1b4a2a3",
+          "reward": 0.1357,
+          "raw": "113 / 833",
+          "exceptions": 0,
+          "firedWriter": "generic-quartet",
+          "cleanGeneralProbe": true,
+          "modelCalls": 1,
+          "plannerTransport": "json-text",
+          "trialId": "btb-b1b4a2a3__yGJyVbS",
+          "verdict": "accepted; status=finished; reasons=none; boundary=16/16; job=btb-clean-capability-full100-parallel-v3-gpt41mini-btb-b1b4a2a3",
+          "source": {
+            "status": "finished",
+            "jobName": "btb-clean-capability-full100-parallel-v3-gpt41mini-btb-b1b4a2a3",
+            "jobDir": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-b1b4a2a3",
+            "resultPath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-b1b4a2a3\\result.json"
+          },
+          "boundary": {
+            "supported": 16,
+            "total": 16,
+            "fullySupported": true
+          },
+          "rejectionReasons": []
+        },
+        {
+          "taskId": "btb-b486dc21",
+          "reward": 0.631,
+          "raw": "277 / 439",
+          "exceptions": 0,
+          "firedWriter": "generic-quartet",
+          "cleanGeneralProbe": true,
+          "modelCalls": 1,
+          "plannerTransport": "json-text",
+          "trialId": "btb-b486dc21__Fkfei3j",
+          "verdict": "accepted; status=finished; reasons=none; boundary=11/11; job=btb-clean-capability-full100-parallel-v3-gpt41mini-btb-b486dc21",
+          "source": {
+            "status": "finished",
+            "jobName": "btb-clean-capability-full100-parallel-v3-gpt41mini-btb-b486dc21",
+            "jobDir": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-b486dc21",
+            "resultPath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-b486dc21\\result.json"
+          },
+          "boundary": {
+            "supported": 11,
+            "total": 11,
+            "fullySupported": true
+          },
+          "rejectionReasons": []
+        },
+        {
+          "taskId": "btb-b8be8b2f",
+          "reward": 0.1324,
+          "raw": "125 / 944",
+          "exceptions": 0,
+          "firedWriter": "generic-quartet",
+          "cleanGeneralProbe": true,
+          "modelCalls": 1,
+          "plannerTransport": "json-text",
+          "trialId": "btb-b8be8b2f__smoCGXi",
+          "verdict": "accepted; status=finished; reasons=none; boundary=12/12; job=btb-clean-capability-full100-parallel-v3-gpt41mini-btb-b8be8b2f",
+          "source": {
+            "status": "finished",
+            "jobName": "btb-clean-capability-full100-parallel-v3-gpt41mini-btb-b8be8b2f",
+            "jobDir": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-b8be8b2f",
+            "resultPath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-b8be8b2f\\result.json"
+          },
+          "boundary": {
+            "supported": 12,
+            "total": 12,
+            "fullySupported": true
+          },
+          "rejectionReasons": []
+        },
+        {
+          "taskId": "btb-b957a435",
+          "reward": 0.1881,
+          "raw": "164 / 872",
+          "exceptions": 0,
+          "firedWriter": "generic-quartet",
+          "cleanGeneralProbe": true,
+          "modelCalls": 1,
+          "plannerTransport": "json-text",
+          "trialId": "btb-b957a435__FJuPbvz",
+          "verdict": "accepted; status=finished; reasons=none; boundary=14/14; job=btb-clean-capability-full100-parallel-v3-gpt41mini-btb-b957a435",
+          "source": {
+            "status": "finished",
+            "jobName": "btb-clean-capability-full100-parallel-v3-gpt41mini-btb-b957a435",
+            "jobDir": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-b957a435",
+            "resultPath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-b957a435\\result.json"
+          },
+          "boundary": {
+            "supported": 14,
+            "total": 14,
+            "fullySupported": true
+          },
+          "rejectionReasons": []
+        },
+        {
+          "taskId": "btb-bc55d3e8",
+          "reward": 0.2076,
+          "raw": "147 / 708",
+          "exceptions": 0,
+          "firedWriter": "generic-quartet",
+          "cleanGeneralProbe": true,
+          "modelCalls": 1,
+          "plannerTransport": "json-text",
+          "trialId": "btb-bc55d3e8__RfDk2MG",
+          "verdict": "accepted; status=finished; reasons=none; boundary=12/12; job=btb-clean-capability-full100-parallel-v3-gpt41mini-btb-bc55d3e8",
+          "source": {
+            "status": "finished",
+            "jobName": "btb-clean-capability-full100-parallel-v3-gpt41mini-btb-bc55d3e8",
+            "jobDir": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-bc55d3e8",
+            "resultPath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-bc55d3e8\\result.json"
+          },
+          "boundary": {
+            "supported": 12,
+            "total": 12,
+            "fullySupported": true
+          },
+          "rejectionReasons": []
+        },
+        {
+          "taskId": "btb-bd2aa5d6",
+          "reward": 0.2015,
+          "raw": "137 / 680",
+          "exceptions": 0,
+          "firedWriter": "generic-quartet",
+          "cleanGeneralProbe": true,
+          "modelCalls": 1,
+          "plannerTransport": "json-text",
+          "trialId": "btb-bd2aa5d6__K946MAU",
+          "verdict": "accepted; status=finished; reasons=none; boundary=7/7; job=btb-clean-capability-full100-parallel-v3-gpt41mini-btb-bd2aa5d6",
+          "source": {
+            "status": "finished",
+            "jobName": "btb-clean-capability-full100-parallel-v3-gpt41mini-btb-bd2aa5d6",
+            "jobDir": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-bd2aa5d6",
+            "resultPath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-bd2aa5d6\\result.json"
+          },
+          "boundary": {
+            "supported": 7,
+            "total": 7,
+            "fullySupported": true
+          },
+          "rejectionReasons": []
+        },
+        {
+          "taskId": "btb-c032d3c9",
+          "reward": 0.3914,
+          "raw": "146 / 373",
+          "exceptions": 0,
+          "firedWriter": "generic-quartet",
+          "cleanGeneralProbe": true,
+          "modelCalls": 1,
+          "plannerTransport": "json-text",
+          "trialId": "btb-c032d3c9__5ZBrUQT",
+          "verdict": "accepted; status=finished; reasons=none; boundary=8/8; job=btb-clean-capability-full100-parallel-v3-gpt41mini-btb-c032d3c9",
+          "source": {
+            "status": "finished",
+            "jobName": "btb-clean-capability-full100-parallel-v3-gpt41mini-btb-c032d3c9",
+            "jobDir": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-c032d3c9",
+            "resultPath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-c032d3c9\\result.json"
+          },
+          "boundary": {
+            "supported": 8,
+            "total": 8,
+            "fullySupported": true
+          },
+          "rejectionReasons": []
+        },
+        {
+          "taskId": "btb-c0bf2e84",
+          "reward": 0.1216,
+          "raw": "102 / 839",
+          "exceptions": 0,
+          "firedWriter": "generic-quartet",
+          "cleanGeneralProbe": true,
+          "modelCalls": 1,
+          "plannerTransport": "json-text",
+          "trialId": "btb-c0bf2e84__8EsFxwK",
+          "verdict": "accepted; status=finished; reasons=none; boundary=8/8; job=btb-clean-capability-full100-parallel-v3-gpt41mini-btb-c0bf2e84",
+          "source": {
+            "status": "finished",
+            "jobName": "btb-clean-capability-full100-parallel-v3-gpt41mini-btb-c0bf2e84",
+            "jobDir": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-c0bf2e84",
+            "resultPath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-c0bf2e84\\result.json"
+          },
+          "boundary": {
+            "supported": 8,
+            "total": 8,
+            "fullySupported": true
+          },
+          "rejectionReasons": []
+        },
+        {
+          "taskId": "btb-c1c36cfd",
+          "reward": 0.2449,
+          "raw": "120 / 490",
+          "exceptions": 0,
+          "firedWriter": "generic-quartet",
+          "cleanGeneralProbe": true,
+          "modelCalls": 1,
+          "plannerTransport": "json-text",
+          "trialId": "btb-c1c36cfd__qynYm8L",
+          "verdict": "accepted; status=finished; reasons=none; boundary=16/16; job=btb-clean-capability-full100-parallel-v3-gpt41mini-btb-c1c36cfd",
+          "source": {
+            "status": "finished",
+            "jobName": "btb-clean-capability-full100-parallel-v3-gpt41mini-btb-c1c36cfd",
+            "jobDir": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-c1c36cfd",
+            "resultPath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-c1c36cfd\\result.json"
+          },
+          "boundary": {
+            "supported": 16,
+            "total": 16,
+            "fullySupported": true
+          },
+          "rejectionReasons": []
+        },
+        {
+          "taskId": "btb-c292330e",
+          "reward": 0.1192,
+          "raw": "85 / 713",
+          "exceptions": 0,
+          "firedWriter": "generic-quartet",
+          "cleanGeneralProbe": true,
+          "modelCalls": 1,
+          "plannerTransport": "json-text",
+          "trialId": "btb-c292330e__69T8HDz",
+          "verdict": "accepted; status=finished; reasons=none; boundary=15/15; job=btb-clean-capability-full100-parallel-v3-gpt41mini-btb-c292330e",
+          "source": {
+            "status": "finished",
+            "jobName": "btb-clean-capability-full100-parallel-v3-gpt41mini-btb-c292330e",
+            "jobDir": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-c292330e",
+            "resultPath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-c292330e\\result.json"
+          },
+          "boundary": {
+            "supported": 15,
+            "total": 15,
+            "fullySupported": true
+          },
+          "rejectionReasons": []
+        },
+        {
+          "taskId": "btb-c6926dfc",
+          "reward": 0.6041,
+          "raw": "470 / 778",
+          "exceptions": 0,
+          "firedWriter": "generic-quartet",
+          "cleanGeneralProbe": true,
+          "modelCalls": 1,
+          "plannerTransport": "json-text",
+          "trialId": "btb-c6926dfc__HmBaaqL",
+          "verdict": "accepted; status=finished; reasons=none; boundary=8/8; job=btb-clean-capability-full100-parallel-v3-gpt41mini-btb-c6926dfc",
+          "source": {
+            "status": "finished",
+            "jobName": "btb-clean-capability-full100-parallel-v3-gpt41mini-btb-c6926dfc",
+            "jobDir": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-c6926dfc",
+            "resultPath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-c6926dfc\\result.json"
+          },
+          "boundary": {
+            "supported": 8,
+            "total": 8,
+            "fullySupported": true
+          },
+          "rejectionReasons": []
+        },
+        {
+          "taskId": "btb-c7bbdb93",
+          "reward": 0.2058,
+          "raw": "127 / 617",
+          "exceptions": 0,
+          "firedWriter": "generic-quartet",
+          "cleanGeneralProbe": true,
+          "modelCalls": 1,
+          "plannerTransport": "json-text",
+          "trialId": "btb-c7bbdb93__9wGkF69",
+          "verdict": "accepted; status=finished; reasons=none; boundary=7/7; job=btb-clean-capability-full100-parallel-v3-gpt41mini-btb-c7bbdb93",
+          "source": {
+            "status": "finished",
+            "jobName": "btb-clean-capability-full100-parallel-v3-gpt41mini-btb-c7bbdb93",
+            "jobDir": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-c7bbdb93",
+            "resultPath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-c7bbdb93\\result.json"
+          },
+          "boundary": {
+            "supported": 7,
+            "total": 7,
+            "fullySupported": true
+          },
+          "rejectionReasons": []
+        },
+        {
+          "taskId": "btb-cc4c8473",
+          "reward": 0.0589,
+          "raw": "41 / 696",
+          "exceptions": 0,
+          "firedWriter": "generic-quartet",
+          "cleanGeneralProbe": true,
+          "modelCalls": 1,
+          "plannerTransport": "json-text",
+          "trialId": "btb-cc4c8473__sqeY2qy",
+          "verdict": "accepted; status=finished; reasons=none; boundary=10/10; job=btb-clean-capability-full100-parallel-v3-gpt41mini-btb-cc4c8473",
+          "source": {
+            "status": "finished",
+            "jobName": "btb-clean-capability-full100-parallel-v3-gpt41mini-btb-cc4c8473",
+            "jobDir": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-cc4c8473",
+            "resultPath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-cc4c8473\\result.json"
+          },
+          "boundary": {
+            "supported": 10,
+            "total": 10,
+            "fullySupported": true
+          },
+          "rejectionReasons": []
+        },
+        {
+          "taskId": "btb-ceba18d0",
+          "reward": 0.4701,
+          "raw": "401 / 853",
+          "exceptions": 0,
+          "firedWriter": "generic-quartet",
+          "cleanGeneralProbe": true,
+          "modelCalls": 1,
+          "plannerTransport": "json-text",
+          "trialId": "btb-ceba18d0__3sGmyBA",
+          "verdict": "accepted; status=finished; reasons=none; boundary=15/15; job=btb-clean-capability-full100-parallel-v3-gpt41mini-btb-ceba18d0",
+          "source": {
+            "status": "finished",
+            "jobName": "btb-clean-capability-full100-parallel-v3-gpt41mini-btb-ceba18d0",
+            "jobDir": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-ceba18d0",
+            "resultPath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-ceba18d0\\result.json"
+          },
+          "boundary": {
+            "supported": 15,
+            "total": 15,
+            "fullySupported": true
+          },
+          "rejectionReasons": []
+        },
+        {
+          "taskId": "btb-cf5884e8",
+          "reward": 0.2876,
+          "raw": "88 / 306",
+          "exceptions": 0,
+          "firedWriter": "generic-quartet",
+          "cleanGeneralProbe": true,
+          "modelCalls": 1,
+          "plannerTransport": "json-text",
+          "trialId": "btb-cf5884e8__xGWwg3T",
+          "verdict": "accepted; status=finished; reasons=none; boundary=8/8; job=btb-clean-capability-full100-parallel-v3-gpt41mini-btb-cf5884e8",
+          "source": {
+            "status": "finished",
+            "jobName": "btb-clean-capability-full100-parallel-v3-gpt41mini-btb-cf5884e8",
+            "jobDir": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-cf5884e8",
+            "resultPath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-cf5884e8\\result.json"
+          },
+          "boundary": {
+            "supported": 8,
+            "total": 8,
+            "fullySupported": true
+          },
+          "rejectionReasons": []
+        },
+        {
+          "taskId": "btb-d2c04408",
+          "reward": 0.521,
+          "raw": "260 / 499",
+          "exceptions": 0,
+          "firedWriter": "generic-quartet",
+          "cleanGeneralProbe": true,
+          "modelCalls": 1,
+          "plannerTransport": "json-text",
+          "trialId": "btb-d2c04408__DStbaz6",
+          "verdict": "accepted; status=finished; reasons=none; boundary=8/8; job=btb-clean-capability-full100-parallel-v3-gpt41mini-btb-d2c04408",
+          "source": {
+            "status": "finished",
+            "jobName": "btb-clean-capability-full100-parallel-v3-gpt41mini-btb-d2c04408",
+            "jobDir": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-d2c04408",
+            "resultPath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-d2c04408\\result.json"
+          },
+          "boundary": {
+            "supported": 8,
+            "total": 8,
+            "fullySupported": true
+          },
+          "rejectionReasons": []
+        },
+        {
+          "taskId": "btb-daa6b204",
+          "reward": 0.4133,
+          "raw": "193 / 467",
+          "exceptions": 0,
+          "firedWriter": "generic-quartet",
+          "cleanGeneralProbe": true,
+          "modelCalls": 1,
+          "plannerTransport": "json-text",
+          "trialId": "btb-daa6b204__kWZRkBc",
+          "verdict": "accepted; status=finished; reasons=none; boundary=4/4; job=btb-clean-capability-full100-parallel-v3-gpt41mini-btb-daa6b204",
+          "source": {
+            "status": "finished",
+            "jobName": "btb-clean-capability-full100-parallel-v3-gpt41mini-btb-daa6b204",
+            "jobDir": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-daa6b204",
+            "resultPath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-daa6b204\\result.json"
+          },
+          "boundary": {
+            "supported": 4,
+            "total": 4,
+            "fullySupported": true
+          },
+          "rejectionReasons": []
+        },
+        {
+          "taskId": "btb-df4c5a14",
+          "reward": 0.5267,
+          "raw": "217 / 412",
+          "exceptions": 0,
+          "firedWriter": "generic-quartet",
+          "cleanGeneralProbe": true,
+          "modelCalls": 1,
+          "plannerTransport": "json-text",
+          "trialId": "btb-df4c5a14__7RuTHTg",
+          "verdict": "accepted; status=finished; reasons=none; boundary=8/8; job=btb-clean-capability-full100-parallel-v3-gpt41mini-btb-df4c5a14",
+          "source": {
+            "status": "finished",
+            "jobName": "btb-clean-capability-full100-parallel-v3-gpt41mini-btb-df4c5a14",
+            "jobDir": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-df4c5a14",
+            "resultPath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-df4c5a14\\result.json"
+          },
+          "boundary": {
+            "supported": 8,
+            "total": 8,
+            "fullySupported": true
+          },
+          "rejectionReasons": []
+        },
+        {
+          "taskId": "btb-e3c47ea1",
+          "reward": 0.2237,
+          "raw": "134 / 599",
+          "exceptions": 0,
+          "firedWriter": "generic-quartet",
+          "cleanGeneralProbe": true,
+          "modelCalls": 1,
+          "plannerTransport": "json-text",
+          "trialId": "btb-e3c47ea1__p8TXuhu",
+          "verdict": "accepted; status=finished; reasons=none; boundary=8/8; job=btb-clean-capability-full100-parallel-v3-gpt41mini-btb-e3c47ea1",
+          "source": {
+            "status": "finished",
+            "jobName": "btb-clean-capability-full100-parallel-v3-gpt41mini-btb-e3c47ea1",
+            "jobDir": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-e3c47ea1",
+            "resultPath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-e3c47ea1\\result.json"
+          },
+          "boundary": {
+            "supported": 8,
+            "total": 8,
+            "fullySupported": true
+          },
+          "rejectionReasons": []
+        },
+        {
+          "taskId": "btb-eb2f7b9c",
+          "reward": 0.2784,
+          "raw": "189 / 679",
+          "exceptions": 0,
+          "firedWriter": "generic-quartet",
+          "cleanGeneralProbe": true,
+          "modelCalls": 1,
+          "plannerTransport": "json-text",
+          "trialId": "btb-eb2f7b9c__S3EqyCJ",
+          "verdict": "accepted; status=finished; reasons=none; boundary=13/13; job=btb-clean-capability-full100-parallel-v3-gpt41mini-btb-eb2f7b9c",
+          "source": {
+            "status": "finished",
+            "jobName": "btb-clean-capability-full100-parallel-v3-gpt41mini-btb-eb2f7b9c",
+            "jobDir": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-eb2f7b9c",
+            "resultPath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-eb2f7b9c\\result.json"
+          },
+          "boundary": {
+            "supported": 13,
+            "total": 13,
+            "fullySupported": true
+          },
+          "rejectionReasons": []
+        },
+        {
+          "taskId": "btb-eb58ec7c",
+          "reward": 0.3287,
+          "raw": "188 / 572",
+          "exceptions": 0,
+          "firedWriter": "generic-quartet",
+          "cleanGeneralProbe": true,
+          "modelCalls": 1,
+          "plannerTransport": "json-text",
+          "trialId": "btb-eb58ec7c__LCpT9FH",
+          "verdict": "accepted; status=finished; reasons=none; boundary=8/8; job=btb-clean-capability-full100-parallel-v3-gpt41mini-btb-eb58ec7c",
+          "source": {
+            "status": "finished",
+            "jobName": "btb-clean-capability-full100-parallel-v3-gpt41mini-btb-eb58ec7c",
+            "jobDir": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-eb58ec7c",
+            "resultPath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-eb58ec7c\\result.json"
+          },
+          "boundary": {
+            "supported": 8,
+            "total": 8,
+            "fullySupported": true
+          },
+          "rejectionReasons": []
+        },
+        {
+          "taskId": "btb-ed5ac3f0",
+          "reward": 0.3072,
+          "raw": "141 / 459",
+          "exceptions": 0,
+          "firedWriter": "generic-quartet",
+          "cleanGeneralProbe": true,
+          "modelCalls": 1,
+          "plannerTransport": "json-text",
+          "trialId": "btb-ed5ac3f0__vc7a9Je",
+          "verdict": "accepted; status=finished; reasons=none; boundary=18/18; job=btb-clean-capability-full100-parallel-v3-gpt41mini-btb-ed5ac3f0",
+          "source": {
+            "status": "finished",
+            "jobName": "btb-clean-capability-full100-parallel-v3-gpt41mini-btb-ed5ac3f0",
+            "jobDir": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-ed5ac3f0",
+            "resultPath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-ed5ac3f0\\result.json"
+          },
+          "boundary": {
+            "supported": 18,
+            "total": 18,
+            "fullySupported": true
+          },
+          "rejectionReasons": []
+        },
+        {
+          "taskId": "btb-eeba6325",
+          "reward": 0.1953,
+          "raw": "167 / 855",
+          "exceptions": 0,
+          "firedWriter": "generic-quartet",
+          "cleanGeneralProbe": true,
+          "modelCalls": 1,
+          "plannerTransport": "json-text",
+          "trialId": "btb-eeba6325__AKs5jXB",
+          "verdict": "accepted; status=finished; reasons=none; boundary=16/16; job=btb-clean-capability-full100-parallel-v3-gpt41mini-btb-eeba6325",
+          "source": {
+            "status": "finished",
+            "jobName": "btb-clean-capability-full100-parallel-v3-gpt41mini-btb-eeba6325",
+            "jobDir": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-eeba6325",
+            "resultPath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-eeba6325\\result.json"
+          },
+          "boundary": {
+            "supported": 16,
+            "total": 16,
+            "fullySupported": true
+          },
+          "rejectionReasons": []
+        },
+        {
+          "taskId": "btb-eefb52c1",
+          "reward": 0.1915,
+          "raw": "167 / 872",
+          "exceptions": 0,
+          "firedWriter": "generic-quartet",
+          "cleanGeneralProbe": true,
+          "modelCalls": 1,
+          "plannerTransport": "json-text",
+          "trialId": "btb-eefb52c1__wRqzwV4",
+          "verdict": "accepted; status=finished; reasons=none; boundary=8/8; job=btb-clean-capability-full100-parallel-v3-gpt41mini-btb-eefb52c1",
+          "source": {
+            "status": "finished",
+            "jobName": "btb-clean-capability-full100-parallel-v3-gpt41mini-btb-eefb52c1",
+            "jobDir": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-eefb52c1",
+            "resultPath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-eefb52c1\\result.json"
+          },
+          "boundary": {
+            "supported": 8,
+            "total": 8,
+            "fullySupported": true
+          },
+          "rejectionReasons": []
+        },
+        {
+          "taskId": "btb-f0bd3730",
+          "reward": 0.1298,
+          "raw": "99 / 763",
+          "exceptions": 0,
+          "firedWriter": "generic-quartet",
+          "cleanGeneralProbe": true,
+          "modelCalls": 1,
+          "plannerTransport": "json-text",
+          "trialId": "btb-f0bd3730__AY7EfPs",
+          "verdict": "accepted; status=finished; reasons=none; boundary=14/14; job=btb-clean-capability-full100-parallel-v3-gpt41mini-btb-f0bd3730",
+          "source": {
+            "status": "finished",
+            "jobName": "btb-clean-capability-full100-parallel-v3-gpt41mini-btb-f0bd3730",
+            "jobDir": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-f0bd3730",
+            "resultPath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-f0bd3730\\result.json"
+          },
+          "boundary": {
+            "supported": 14,
+            "total": 14,
+            "fullySupported": true
+          },
+          "rejectionReasons": []
+        },
+        {
+          "taskId": "btb-f1c210d9",
+          "reward": 0.413,
+          "raw": "304 / 736",
+          "exceptions": 0,
+          "firedWriter": "generic-quartet",
+          "cleanGeneralProbe": true,
+          "modelCalls": 1,
+          "plannerTransport": "json-text",
+          "trialId": "btb-f1c210d9__UEcDnTL",
+          "verdict": "accepted; status=finished; reasons=none; boundary=6/6; job=btb-clean-capability-full100-parallel-v3-gpt41mini-btb-f1c210d9",
+          "source": {
+            "status": "finished",
+            "jobName": "btb-clean-capability-full100-parallel-v3-gpt41mini-btb-f1c210d9",
+            "jobDir": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-f1c210d9",
+            "resultPath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-f1c210d9\\result.json"
+          },
+          "boundary": {
+            "supported": 6,
+            "total": 6,
+            "fullySupported": true
+          },
+          "rejectionReasons": []
+        },
+        {
+          "taskId": "btb-f205ac8c",
+          "reward": 0.5679,
+          "raw": "510 / 898",
+          "exceptions": 0,
+          "firedWriter": "generic-quartet",
+          "cleanGeneralProbe": true,
+          "modelCalls": 1,
+          "plannerTransport": "json-text",
+          "trialId": "btb-f205ac8c__TCxp73c",
+          "verdict": "accepted; status=finished; reasons=none; boundary=14/14; job=btb-clean-capability-full100-parallel-v3-gpt41mini-btb-f205ac8c",
+          "source": {
+            "status": "finished",
+            "jobName": "btb-clean-capability-full100-parallel-v3-gpt41mini-btb-f205ac8c",
+            "jobDir": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-f205ac8c",
+            "resultPath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-f205ac8c\\result.json"
+          },
+          "boundary": {
+            "supported": 14,
+            "total": 14,
+            "fullySupported": true
+          },
+          "rejectionReasons": []
+        },
+        {
+          "taskId": "btb-f8571fea",
+          "reward": 0.2577,
+          "raw": "175 / 679",
+          "exceptions": 0,
+          "firedWriter": "generic-quartet",
+          "cleanGeneralProbe": true,
+          "modelCalls": 1,
+          "plannerTransport": "json-text",
+          "trialId": "btb-f8571fea__UmZWkDW",
+          "verdict": "accepted; status=finished; reasons=none; boundary=15/15; job=btb-clean-capability-full100-parallel-v3-gpt41mini-btb-f8571fea",
+          "source": {
+            "status": "finished",
+            "jobName": "btb-clean-capability-full100-parallel-v3-gpt41mini-btb-f8571fea",
+            "jobDir": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-f8571fea",
+            "resultPath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-f8571fea\\result.json"
+          },
+          "boundary": {
+            "supported": 15,
+            "total": 15,
+            "fullySupported": true
+          },
+          "rejectionReasons": []
+        },
+        {
+          "taskId": "btb-fe996540",
+          "reward": 0.254,
+          "raw": "189 / 744",
+          "exceptions": 0,
+          "firedWriter": "generic-quartet",
+          "cleanGeneralProbe": true,
+          "modelCalls": 1,
+          "plannerTransport": "json-text",
+          "trialId": "btb-fe996540__6Vi97f4",
+          "verdict": "accepted; status=finished; reasons=none; boundary=11/11; job=btb-clean-capability-full100-parallel-v3-gpt41mini-btb-fe996540",
+          "source": {
+            "status": "finished",
+            "jobName": "btb-clean-capability-full100-parallel-v3-gpt41mini-btb-fe996540",
+            "jobDir": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-fe996540",
+            "resultPath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\btb-runs\\jobs\\btb-clean-capability-full100-parallel-v3-gpt41mini-btb-fe996540\\result.json"
+          },
+          "boundary": {
+            "supported": 11,
+            "total": 11,
+            "fullySupported": true
+          },
+          "rejectionReasons": []
+        }
+      ]
+    }
+  ],
+  "totals": {
+    "runs": 1,
+    "tasks": 100,
+    "cleanAcceptedTasks": 100,
+    "cleanMeanReward": 0.251875
+  }
+}
