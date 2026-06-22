@@ -78,26 +78,14 @@ test("real user: fresh room -> @nodeagent (cheap default) -> visible sheet match
   const preset = page.locator('[data-testid="chat-model-preset"]');
   await expect(preset).toHaveValue(/adaptive|free/, { timeout: 30_000 });
 
-  // Ask the agent to do the task. A fresh room's FIRST @nodeagent send sometimes posts the message
-  // without firing the agent (the public agent session is still being established), so send up to a
-  // few times until cells start appearing — the same-goal idempotency key dedups to one actual run.
+  // Ask the agent to do the task once. The public ask is admitted server-side, so the first real
+  // user send must create the durable job instead of relying on duplicate chat submissions.
   const ta = page.locator("textarea").first();
   const send = page.locator('[data-testid="chat-send"]');
-  const filledCount = async () => {
-    const live = await readSheet(page);
-    return KEYS.filter((k) => isFilled(live[k])).length;
-  };
-  for (let attempt = 1; attempt <= 4; attempt++) {
-    await ta.fill(PROMPT);
-    await send.click();
-    let progressed = false;
-    try {
-      await expect.poll(filledCount, { timeout: 50_000, message: "waiting for the cheap model to start filling cells" }).toBeGreaterThan(0);
-      progressed = true;
-    } catch { /* no agent activity yet — re-send */ }
-    if (progressed) break;
-    await page.waitForTimeout(1500);
-  }
+  await ta.fill(PROMPT);
+  await send.click();
+  await expect(page.locator('[data-testid="chat-message"]').filter({ hasText: PROMPT })).toBeVisible({ timeout: 15_000 });
+  await expect(page.locator('[data-testid="agent-error"]')).toHaveCount(0);
 
   // Poll the VISIBLE sheet until every metric row has a value (the cheap model filling cells live).
   await expect
