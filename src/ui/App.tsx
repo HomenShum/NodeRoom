@@ -4,6 +4,7 @@ import { api } from "../../convex/_generated/api";
 import { Landing } from "./Landing";
 import { RoomShell } from "./RoomShell";
 import { BtbLiveLedgerPanel } from "./BtbLiveLedgerPanel";
+import { FrontierObservationsPanel } from "./FrontierObservationsPanel";
 import { LandingStory } from "../landing/LandingStory";
 import { MobileRoot } from "./mobile/MobileRoot";
 import { BenchmarkDispatcherPanel } from "./BenchmarkDispatcherPanel";
@@ -96,6 +97,14 @@ export function App() {
         {HAS_CONVEX ? <BtbLiveLedgerPanel /> : null}
       </EngineStoreProvider>
     );
+  }
+
+  // #frontier — standalone read-only panel for the 8 model-frontier
+  // observations. NOT mounted inside #btb so it skips the engine-store
+  // bootstrap (it only needs the public Convex query). See
+  // src/ui/FrontierObservationsPanel.tsx for the honest-lane contract.
+  if (hash === "#frontier" || hash === "#/frontier" || hash.startsWith("#frontier?") || hash.startsWith("#/frontier?")) {
+    return <FrontierObservationsPanel />;
   }
 
   return HAS_CONVEX ? <ConvexApp /> : <MemoryApp session={memorySession} onSession={setMemorySession} />;

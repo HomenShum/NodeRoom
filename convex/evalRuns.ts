@@ -165,6 +165,9 @@ export const publicLedgerSnapshot = query({
   args: {
     roomCode: v.optional(v.string()),
     selectedEvalRunId: v.optional(v.id("evalRuns")),
+    selectedKind: v.optional(
+      v.union(v.literal("sweep"), v.literal("model-frontier"), v.literal("baseline")),
+    ),
     runLimit: v.optional(v.number()),
     taskLimit: v.optional(v.number()),
   },
@@ -184,9 +187,33 @@ export const publicLedgerSnapshot = query({
       .order("desc")
       .take(runLimit);
 
-    const selectedRun = args.selectedEvalRunId
-      ? runs.find((run) => run._id === args.selectedEvalRunId) ?? await ctx.db.get(args.selectedEvalRunId)
-      : runs.find((run) => run.taskCount >= 100) ?? runs[0];
+    // Selection precedence (first match wins):
+    //   1. selectedEvalRunId — explicit pin (fast path; also wins when selectedKind is set).
+    //   2. selectedKind — latest run in the room matching the requested kind. We query the
+    //      full kind-filtered history (not just the recent-runs slice) so a caller asking for
+    //      e.g. the latest "model-frontier" run still resolves it when more than `runLimit`
+    //      sweep rows are newer than the most recent frontier row.
+    //   3. default heuristic — first "full run" (taskCount >= 100) in the recent slice, else runs[0].
+    let selectedRun: typeof runs[number] | null | undefined;
+    if (args.selectedEvalRunId) {
+      selectedRun =
+        runs.find((run) => run._id === args.selectedEvalRunId) ??
+        (await ctx.db.get(args.selectedEvalRunId)) ??
+        undefined;
+    } else if (args.selectedKind) {
+      const kind = args.selectedKind;
+      selectedRun =
+        runs.find((run) => run.kind === kind) ??
+        (await ctx.db
+          .query("evalRuns")
+          .withIndex("by_room_started", (q) => q.eq("roomId", room._id))
+          .order("desc")
+          .filter((q) => q.eq(q.field("kind"), kind))
+          .first()) ??
+        undefined;
+    } else {
+      selectedRun = runs.find((run) => run.taskCount >= 100) ?? runs[0];
+    }
     if (selectedRun && selectedRun.roomId !== room._id) {
       throw new Error("eval_run_not_in_public_ledger_room");
     }
@@ -241,6 +268,7 @@ export const publicLedgerSnapshot = query({
       tasks: tasks.map((task) => ({
         id: task._id,
         taskId: task.taskId,
+        family: task.family,
         reward: task.reward,
         raw: task.raw,
         exceptions: task.exceptions,
