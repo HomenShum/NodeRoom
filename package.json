@@ -61,6 +61,7 @@
     "benchmark:docker-sandbox:probe": "tsx scripts/docker-sandbox-probe.ts --json-out docs/eval/docker-sandbox-probe.json",
     "benchmark:openrouter-convex": "tsx scripts/openrouter-convex-benchmark.ts",
     "benchmark:official:task-coverage": "tsx scripts/official-benchmark-task-coverage.ts",
+    "benchmark:official:ui-coverage": "tsx scripts/official-benchmark-ui-coverage.ts",
     "benchmark:free": "tsx scripts/benchmark/run.ts openrouter/free-auto --free-auto-top=5 --no-merge --model-timeout-ms=180000 --model-reserve-ms=15000 --row-hard-timeout-ms=210000",
     "benchmark:charts": "tsx scripts/benchmark/charts.ts",
     "eval:model-matrix": "tsx scripts/model-eval-matrix.ts",

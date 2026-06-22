@@ -83,6 +83,8 @@ for (const flow of inventory.flows) {
 
 if (releaseFloorCount < 18) errors.push("release floor needs at least 18 scenarios");
 if (!scenarioIds.has("public-nodeagent.hidden-slash-aliases")) errors.push("inventory must track hidden /ask and /free compatibility aliases");
+if (!scenarioIds.has("official-benchmark-ui.spreadsheetbench-workbook")) errors.push("inventory must track SpreadsheetBench fresh-room workbook UI coverage");
+if (!scenarioIds.has("official-benchmark-ui.bankertoolbench-all-deliverables")) errors.push("inventory must track BankerToolBench all-deliverable fresh-room UI coverage");
 
 const summary = {
   flows: inventory.flows.length,

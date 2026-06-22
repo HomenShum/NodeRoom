@@ -7,6 +7,7 @@ export type BenchmarkCapability =
   | "official_gold_isolation"
   | "official_runner_adapter"
   | "trajectory_capture"
+  | "live_browser_fresh_room_e2e"
   | "cost_latency_retries"
   | "xlsx_import_export"
   | "formula_recompute"
@@ -59,6 +60,7 @@ export const OFFICIAL_BENCHMARK_CONTRACTS: OfficialBenchmarkContract[] = [
       "official_gold_isolation",
       "official_runner_adapter",
       "trajectory_capture",
+      "live_browser_fresh_room_e2e",
       "cost_latency_retries",
       "xlsx_import_export",
       "formula_recompute",
@@ -85,6 +87,7 @@ export const OFFICIAL_BENCHMARK_CONTRACTS: OfficialBenchmarkContract[] = [
       "official_gold_isolation",
       "official_runner_adapter",
       "trajectory_capture",
+      "live_browser_fresh_room_e2e",
       "cost_latency_retries",
       "xlsx_import_export",
       "formula_recompute",
@@ -107,6 +110,7 @@ export const OFFICIAL_BENCHMARK_CONTRACTS: OfficialBenchmarkContract[] = [
       "official_gold_isolation",
       "official_runner_adapter",
       "trajectory_capture",
+      "live_browser_fresh_room_e2e",
       "cost_latency_retries",
       "xlsx_import_export",
       "formula_recompute",
@@ -137,6 +141,13 @@ const CAPABILITY_STATUS: Record<BenchmarkCapability, CapabilityReadiness> = {
     capability: "trajectory_capture",
     state: "implemented",
     evidence: "evals/evalStore.ts",
+  },
+  live_browser_fresh_room_e2e: {
+    capability: "live_browser_fresh_room_e2e",
+    state: "partial",
+    evidence: "docs/eval/official-benchmark-ui-coverage.json",
+    blocker:
+      "Current UI evidence includes memory-mode and generic browser checks, but no benchmark runner creates a fresh live room, uploads official fixtures, invokes public @nodeagent, downloads every required deliverable type, reopens artifacts, and hands them to the official scorer/verifier.",
   },
   cost_latency_retries: {
     capability: "cost_latency_retries",
