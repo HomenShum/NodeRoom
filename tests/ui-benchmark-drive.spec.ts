@@ -36,9 +36,16 @@
  * one-flag change once provider keys are available in CI.
  */
 import { test, expect, type Page, type Locator } from "@playwright/test";
-import { mkdirSync } from "node:fs";
+import { mkdirSync, readFileSync, existsSync } from "node:fs";
 import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
+import {
+  assertNotCheating,
+  expectedFromRubric,
+  SCRIPTED_VARIANCE_SEED,
+  type ExpectedMap,
+  type ExpectedSpec,
+} from "./playwright.benchmark.config";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -49,15 +56,38 @@ const MODEL_ID = process.env.MODEL_ID || "z-ai/glm-5.2";
 const DEFAULT_TASK_PROMPT = "@nodeagent recompute the Q3 variance row";
 const TASK_PROMPT = process.env.TASK_PROMPT || DEFAULT_TASK_PROMPT;
 
-type ExpectedSpec = { value: string | number; tol?: number };
-type ExpectedMap = Record<string, ExpectedSpec>;
-
+/**
+ * Q3 variance demo seed — re-exported through the anti-cheat helper. These are the EXACT
+ * values demoRoom.ts writes when the scripted recompute plan runs (so they double as the
+ * legitimate expected output for the variance test). Any OTHER task whose expected map
+ * equals this seed is a cheat — assertNotCheating enforces that.
+ */
 const DEFAULT_EXPECTED: ExpectedMap = {
-  r_rev__variance: { value: "+24%", tol: 0 },
-  r_cogs__variance: { value: "+27.5%", tol: 0 },
-  r_gp__variance: { value: "+21.7%", tol: 0 },
-  r_ni__variance: { value: "+22.4%", tol: 0 },
+  r_rev__variance: { value: SCRIPTED_VARIANCE_SEED.r_rev__variance, tol: 0 },
+  r_cogs__variance: { value: SCRIPTED_VARIANCE_SEED.r_cogs__variance, tol: 0 },
+  r_gp__variance: { value: SCRIPTED_VARIANCE_SEED.r_gp__variance, tol: 0 },
+  r_ni__variance: { value: SCRIPTED_VARIANCE_SEED.r_ni__variance, tol: 0 },
 };
+
+/** Locate a rubric.json on disk for a given task id under docs/eval/nonbtb/<task_id>. */
+function rubricPathForTask(taskId: string): string {
+  return resolve(__dirname, "..", "docs", "eval", "nonbtb", taskId, "rubric.json");
+}
+
+/** Load and project rubric.json into an ExpectedMap. Throws if missing/malformed. */
+function loadExpectedFromRubric(taskId: string): ExpectedMap {
+  const p = rubricPathForTask(taskId);
+  if (!existsSync(p)) {
+    throw new Error(`[ui-benchmark-drive] rubric.json not found at ${p} for task=${taskId}`);
+  }
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(readFileSync(p, "utf8"));
+  } catch (err) {
+    throw new Error(`[ui-benchmark-drive] rubric.json at ${p} is not valid JSON: ${(err as Error).message}`);
+  }
+  return expectedFromRubric(parsed);
+}
 
 function parseExpected(): ExpectedMap {
   const raw = process.env.EXPECTED_VALUES;
@@ -189,13 +219,25 @@ async function openVarianceSheet(page: Page): Promise<Locator> {
 test.describe(`ui-benchmark-drive [${MODEL_ID}]`, () => {
   test.setTimeout(120_000);
 
-  test("drives the live NodeRoom agent through the public @nodeagent lane and verifies cell outputs", async ({ page }) => {
+  // -------------------------------------------------------------------------------------------
+  // EXEMPT FROM assertNotCheating: this is the ONE test for which the scripted seed IS the
+  // expected output. demoRoom.ts seeds +24% / +27.5% / +21.7% / +22.4% on the Q3 variance
+  // sheet, and the in-app memory-mode agent re-emits those exact values via the scripted
+  // recompute plan (store.askAgent -> runHarness({ rt: InMemoryRoomTools, model:
+  // scriptedModel(recomputeVariancePlan...) })). So matching the seed here proves the
+  // orchestrator end-to-end CAS write path is live — it does NOT mean the test is reading
+  // pre-seeded data. The exemption is intentional and is the only place in this spec that
+  // is allowed to skip the anti-cheat check.
+  // -------------------------------------------------------------------------------------------
+  test("Q3 variance recompute (scripted seed exempt) — drives live agent through @nodeagent lane and verifies cell outputs", async ({ page }) => {
+    // Intentionally do NOT call assertNotCheating here — see comment above.
     const diagnostics: string[] = [];
     const push = (line: string) => { diagnostics.push(line); console.log(`[ui-benchmark-drive] ${line}`); };
 
     push(`MODEL_ID=${MODEL_ID}`);
     push(`TASK_PROMPT=${TASK_PROMPT}`);
     push(`EXPECTED_VALUES=${JSON.stringify(EXPECTED_VALUES)}`);
+    push(`anti-cheat: EXEMPT (scripted seed IS the expected output for this test)`);
 
     // (a) goto memory-mode landing + (b)/(c) wait for the canonical work surface.
     await enterDemoRoomMemoryMode(page);
@@ -277,6 +319,96 @@ test.describe(`ui-benchmark-drive [${MODEL_ID}]`, () => {
 
     // Hard-fail the Playwright run if any expected cell missed — the shell needs an
     // honest exit code, not a swallowed assertion.
+    expect(failed, summary.reason).toEqual([]);
+  });
+
+  // -------------------------------------------------------------------------------------------
+  // NB-01 — derived-from-rubric, anti-cheat enforced.
+  //
+  // This test drives the public @nodeagent lane against the NB-01 prompt and verifies the
+  // cell outputs against rubric.json. It is expected to honestly FAIL until BuildDispatcher's
+  // dispatcher is live — until then the in-app agent has no NB-01 plan and won't produce the
+  // rubric values. The PASS/FAIL exit code is the honest signal R6 demands.
+  //
+  // assertNotCheating runs FIRST so the test would refuse to run at all if the rubric ever
+  // got rewritten to equal the scripted variance seed.
+  // -------------------------------------------------------------------------------------------
+  test("NB-01 company profile — derives expected from rubric.json, anti-cheat enforced", async ({ page }) => {
+    const taskId = "nb-01-company-profile";
+    const expectedFromRubricJson = loadExpectedFromRubric(taskId);
+
+    // Run the R6 honest-FAIL guard. If the rubric ever ends up equal to the scripted
+    // variance seed, this throws and the test refuses to run.
+    assertNotCheating({ expected: expectedFromRubricJson, modelId: MODEL_ID });
+
+    const diagnostics: string[] = [];
+    const push = (line: string) => { diagnostics.push(line); console.log(`[ui-benchmark-drive][${taskId}] ${line}`); };
+
+    push(`MODEL_ID=${MODEL_ID}`);
+    push(`anti-cheat: PASSED (expected map differs from scripted variance seed)`);
+    push(`EXPECTED_VALUES (from rubric.json)=${JSON.stringify(expectedFromRubricJson)}`);
+
+    // Use a stable NB-01 prompt unless TASK_PROMPT is explicitly overridden by env.
+    const nb01Prompt = process.env.TASK_PROMPT
+      ?? "@nodeagent build the company profile deliverable per docs/eval/nonbtb/nb-01-company-profile/prompt.md";
+    push(`TASK_PROMPT=${nb01Prompt}`);
+
+    await enterDemoRoomMemoryMode(page);
+    push("entered demo room (memory mode)");
+
+    // We don't open the variance sheet here — NB-01 has no pre-seeded sheet. The dispatcher
+    // (once live) is expected to create the company_profile artifact and write the cells
+    // listed in rubric.allowed_keys. Until then, the cell waits below will time out and the
+    // test will honestly FAIL — which is the point.
+    const chat = page.getByTestId("public-chat-panel");
+    await expect(chat).toBeVisible({ timeout: 10_000 });
+    const composer = chat.getByTestId("chat-composer");
+    await expect(composer).toBeVisible();
+    await composer.fill(nb01Prompt);
+    push(`filled composer (len=${nb01Prompt.length})`);
+
+    const sendBtn = chat.getByTestId("chat-send");
+    await expect(sendBtn).toBeEnabled();
+    await sendBtn.click();
+    push("clicked chat-send");
+
+    const responseSurface = chat.getByTestId("chat-feed");
+    await expect(responseSurface).toBeVisible();
+
+    const cellResults: Array<{ key: string; ok: boolean; rendered: string; reason: string }> = [];
+    for (const [key, spec] of Object.entries(expectedFromRubricJson)) {
+      // 20s/cell is enough to fail fast pre-dispatcher; bump per-cell if the dispatcher
+      // becomes live but slow. The aggregate cap is enforced by test.setTimeout(120_000).
+      const out = await waitForCell(page, key, spec, 20_000);
+      cellResults.push({ key, ...out });
+      push(`cell ${key}: rendered="${out.rendered}" ok=${out.ok} (${out.reason})`);
+    }
+
+    const screenshotPath = resolve(SCREENSHOT_DIR, `ui-benchmark-drive-${taskId}-${screenshotSlug}.png`);
+    try {
+      await page.screenshot({ path: screenshotPath, fullPage: true });
+      push(`screenshot saved: ${screenshotPath}`);
+    } catch (err) {
+      push(`screenshot failed: ${(err as Error).message}`);
+    }
+
+    const failed = cellResults.filter((r) => !r.ok);
+    const summary = {
+      task: taskId,
+      model: MODEL_ID,
+      prompt: nb01Prompt,
+      expected: expectedFromRubricJson,
+      cells: cellResults,
+      screenshot: screenshotPath,
+      verdict: failed.length === 0 ? "PASS" : "FAIL",
+      reason:
+        failed.length === 0
+          ? `all ${cellResults.length} expected cells matched within tolerance`
+          : `${failed.length}/${cellResults.length} cells did not match: ${failed.map((f) => `${f.key}=${f.rendered}`).join("; ")}`,
+    };
+    console.log(`UI_BENCHMARK_DRIVE_RESULT ${JSON.stringify(summary)}`);
+
+    // Honest FAIL until BuildDispatcher is live.
     expect(failed, summary.reason).toEqual([]);
   });
 });

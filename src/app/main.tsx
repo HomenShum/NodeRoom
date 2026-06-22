@@ -2,6 +2,7 @@ import React from "react";
 import { createRoot } from "react-dom/client";
 import { ConvexProvider, ConvexReactClient } from "convex/react";
 import { App } from "../ui/App";
+import { ErrorBoundary } from "./ErrorBoundary";
 import "./styles.css";
 
 const url = import.meta.env.VITE_CONVEX_URL as string | undefined;
@@ -12,7 +13,9 @@ if (el) {
   const app = <App />;
   createRoot(el).render(
     <React.StrictMode>
-      {client ? <ConvexProvider client={client}>{app}</ConvexProvider> : app}
+      <ErrorBoundary clearSessionPrefix="noderoom:">
+        {client ? <ConvexProvider client={client}>{app}</ConvexProvider> : app}
+      </ErrorBoundary>
     </React.StrictMode>,
   );
 }

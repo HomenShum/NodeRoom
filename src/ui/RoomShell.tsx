@@ -102,7 +102,40 @@ export function RoomShell({ roomId, me, onLeave, proof }: { roomId: string; me: 
   useEffect(() => {
     if (sideArtId && !arts.some((a) => a.id === sideArtId)) setSideArtId(null);
   }, [sideArtId, arts]);
-  if (!room) return <div className="r-app"><div className="r-screen"><div style={{ margin: "auto" }} className="muted">Loading room…</div></div></div>;
+  // Slow-load affordance — only after a grace period so a normal fast load never sees it. Declared
+  // here (before the early return) so hook order stays stable across the undefined→room tick.
+  const [slowLoad, setSlowLoad] = useState(false);
+  useEffect(() => {
+    if (room) { setSlowLoad(false); return; }
+    const t = setTimeout(() => setSlowLoad(true), 8000);
+    return () => clearTimeout(t);
+  }, [room]);
+  if (!room) {
+    // Honest status: a resolved-null meta means the room is gone, not "still loading".
+    const notFound = store.roomState() === "notFound";
+    return (
+      <div className="r-app"><div className="r-screen">
+        <div style={{ margin: "auto", display: "flex", flexDirection: "column", alignItems: "center", gap: 12, textAlign: "center", maxWidth: 320 }} className="muted">
+          {notFound ? (
+            <>
+              <div>This room isn’t available — it may have been closed, or your access was revoked.</div>
+              <button className="r-iconbtn" title="Leave room" aria-label="Leave room" onClick={onLeave}><LogOut size={16} /> Leave</button>
+            </>
+          ) : (
+            <>
+              <div>Loading room…</div>
+              {slowLoad && (
+                <div style={{ display: "flex", gap: 8 }}>
+                  <button className="r-iconbtn" onClick={() => window.location.reload()}>Reload</button>
+                  <button className="r-iconbtn" title="Leave room" aria-label="Leave room" onClick={onLeave}><LogOut size={16} /> Leave</button>
+                </div>
+              )}
+            </>
+          )}
+        </div>
+      </div></div>
+    );
+  }
 
   const members = store.listMembers(roomId);
   const inviteHref = inviteHrefForRoom(room.code);

@@ -44,6 +44,7 @@ type PrivateStreamDriver = StreamBody & { started: boolean; listeners: Set<() =>
 // mounted reader are never touched. The Map iterates in insertion order, so this is FIFO over idle.
 const MAX_PRIVATE_STREAM_DRIVERS = 64;
 const MAX_FAILED_SENDS = 50; // bound the per-room failed-send backlog (FIFO); see setFailedSends below
+const STREAM_IDLE_MS = 60_000; // TIMEOUT gate: abort a private-reply stream that goes this long with no chunk
 export const privateStreamDrivers = new Map<string, PrivateStreamDriver>();
 
 function evictIdlePrivateStreamDrivers(): void {
@@ -83,11 +84,22 @@ function startPrivateStreamDriver(streamUrl: URL | null, streamId: string, acces
     return;
   }
   void (async () => {
+    // TIMEOUT gate: bound the spinner. An idle watchdog aborts the fetch if no chunk arrives within
+    // STREAM_IDLE_MS (a stalled stream that never returns), surfacing the existing "timeout" status
+    // instead of spinning forever. Re-armed on every read so an actively-streaming reply is never killed.
+    const controller = new AbortController();
+    let watchdog: ReturnType<typeof setTimeout> | null = null;
+    const armWatchdog = () => {
+      if (watchdog) clearTimeout(watchdog);
+      watchdog = setTimeout(() => controller.abort(), STREAM_IDLE_MS);
+    };
     try {
+      armWatchdog();
       const response = await fetch(streamUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ streamId, requester: access.requester }),
+        signal: controller.signal,
       });
       if (response.status === 205) {
         notifyDriver(driver, { status: "error" });
@@ -101,6 +113,7 @@ function startPrivateStreamDriver(streamUrl: URL | null, streamId: string, acces
       const decoder = new TextDecoder();
       for (;;) {
         const { done, value } = await reader.read();
+        armWatchdog();
         const text = decoder.decode(value, { stream: !done });
         if (text) notifyDriver(driver, { text: driver.text + text, status: "streaming" });
         if (done) {
@@ -108,8 +121,12 @@ function startPrivateStreamDriver(streamUrl: URL | null, streamId: string, acces
           return;
         }
       }
-    } catch {
-      notifyDriver(driver, { status: "error" });
+    } catch (e) {
+      // A watchdog abort → honest "timeout" (wires the StreamedBody timeout branch); anything else → "error".
+      const aborted = controller.signal.aborted || (e instanceof Error && e.name === "AbortError");
+      notifyDriver(driver, { status: aborted ? "timeout" : "error" });
+    } finally {
+      if (watchdog) clearTimeout(watchdog);
     }
   })();
 }
