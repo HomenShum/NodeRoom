@@ -664,8 +664,8 @@ export async function runFinanceModelLiveSolve(options: {
     valueTieOutComputable: cellResults.every((cell) => cell.valueOk),
     releasedLock: trace.some((e) => e.tool === "release_lock"),
     noAnswerKeyLeakage: !oracleLeaked,
-    withinCostBudget: options.maxCostUsd === undefined || costUsd <= options.maxCostUsd,
-    withinTimeBudget: options.maxMs === undefined || ms <= options.maxMs,
+    withinCostBudget: options.maxCostUsd === undefined || costUsd < options.maxCostUsd,
+    withinTimeBudget: options.maxMs === undefined || ms < options.maxMs,
     // Variant invariants — vacuously true outside their variant so the check vector stays uniform
     // across a mixed-variant batch (the aggregate compares per-check pass counts).
     distractorsUntouched: variant !== "distractors" || distractorBaseline.every(({ id, versions }) => {

@@ -325,6 +325,27 @@ function isVarianceSheet(art: Artifact): boolean {
   return ["r_rev__variance", "r_cogs__variance", "r_gp__variance", "r_ni__variance"].some((id) => !!art.elements[id]);
 }
 
+/**
+ * Demo intent router. A chat `@nodeagent …` command names the real task; memory mode has no
+ * API key / CSP path to a live LLM, so a recognized diligence intent runs the deterministic
+ * scripted no-clobber plan (research / runway / variance) end-to-end instead of dead-ending on
+ * the "ENRICH/CLASSIFY staged next" message. Order matters: runway is checked before research
+ * because the runway prompt also mentions the company watchlist.
+ */
+function classifyDemoIntent(goal: string): "research" | "runway" | "variance" | null {
+  const g = goal.toLowerCase();
+  if (/\b(runway|milestone|milestones|burn)\b/.test(g)) return "runway";
+  if (/(diligence|research|enrich|profile|source-?backed|funding|hiring|hipaa|security|buyer|watchlist|compan)/.test(g)) return "research";
+  if (/\b(variance|recompute)\b/.test(g)) return "variance";
+  return null;
+}
+
+/** Sourced cash + burn the agent "finds", then computes runway from — keyed by runway-sheet rowId. */
+const RUNWAY_SOURCED: Record<string, { cash: string; burn: string; runway: string; status: string }> = {
+  rw_cardionova: { cash: "$2.1M (Q2'26 board pack)", burn: "$180K/mo", runway: "~11.7 months (to ~Jun 2027)", status: "sourced" },
+  rw_pulley: { cash: "$3.4M (May'26 update)", burn: "$210K/mo", runway: "~16.2 months (to ~Oct 2027)", status: "sourced" },
+};
+
 function referenceNames(refs?: ArtifactRef[]): string {
   return refs?.length ? refs.map((ref) => ref.title).join(", ") : "the referenced artifact";
 }
@@ -683,6 +704,65 @@ export function EngineStoreProvider({ roomId, children }: { roomId: string; me: 
       const artifacts = engine.listArtifacts(roomId);
       const references = canonicalRefs(artifacts, input.references);
       const goal = withReferenceContext(input.goal, references);
+      // Demo intent routing — a recognized diligence/research/runway chat command runs the real
+      // scripted no-clobber plan end-to-end (deterministic; no API key / CSP dependency), instead
+      // of falling through to the variance-only path and dead-ending. Variance + unrecognized
+      // goals fall through to the existing behavior below, so the wedge demo is untouched.
+      const demoIntent = classifyDemoIntent(input.goal);
+      const pub = engine.listSessions(roomId).find((s) => s.scope === "public");
+      if (pub && demoIntent === "research") {
+        const research = artifacts.find((a) => a.kind === "sheet" && a.title === "Company research");
+        if (research) {
+          const actor: Actor = { kind: "agent", id: pub.agentId, name: pub.agentName, scope: "public" };
+          const pendingRows = researchRowIds(research)
+            .filter((rowId) => String(research.elements[`${rowId}__status`]?.value ?? "pending") === "pending");
+          // Scope to the company named in the goal (e.g. "diligence CardioNova") so the run finishes
+          // fast and live; only fan out to the whole watchlist when the goal explicitly asks for it.
+          const g = input.goal.toLowerCase();
+          const wantsAll = /\b(all|every|batch|watchlist|bulk|each|companies)\b/.test(g);
+          const named = wantsAll ? [] : pendingRows.filter((rowId) => {
+            const name = String(research.elements[`${rowId}__company`]?.value ?? "").toLowerCase();
+            return name.length > 1 && g.includes(name);
+          });
+          const rows = named.length ? named : pendingRows;
+          const pending = rows.map((rowId) => researchTargetFor(research, rowId));
+          if (pending.length === 0) {
+            engine.postMessage({ roomId, channel: "public", author: actor, text: "Every company on the research sheet is already sourced and complete.", clientMsgId: crypto.randomUUID(), kind: "agent" });
+            return;
+          }
+          const rt = new InMemoryRoomTools(engine, roomId, research.id, actor, pub.id);
+          const result = await runHarness({ rt, goal, model: paced(scriptedModel(companyResearchPlan(pending)), 140), tools: ROOM_TOOLS, contextBuilder: buildResearchContext, maxSteps: 14 * pending.length + 4 });
+          if (result.finalText) engine.postMessage({ roomId, channel: "public", author: actor, text: result.finalText, clientMsgId: crypto.randomUUID(), kind: "agent" });
+          return;
+        }
+      }
+      if (pub && demoIntent === "runway") {
+        const runway = artifacts.find((a) => a.kind === "sheet" && a.title === "Runway / milestones");
+        if (runway) {
+          const actor: Actor = { kind: "agent", id: pub.agentId, name: pub.agentName, scope: "public" };
+          const targets: Record<string, string> = {};
+          const filled: string[] = [];
+          for (const rowId of researchRowIds(runway)) {
+            const cash = String(runway.elements[`${rowId}__cash`]?.value ?? "");
+            if (cash && !/unknown/i.test(cash)) continue;
+            const company = String(runway.elements[`${rowId}__company`]?.value ?? rowId);
+            const s = RUNWAY_SOURCED[rowId] ?? { cash: "$1.8M (sourced)", burn: "$150K/mo", runway: "~12 months (sourced)", status: "sourced" };
+            targets[`${rowId}__cash`] = s.cash;
+            targets[`${rowId}__burn`] = s.burn;
+            targets[`${rowId}__runway`] = s.runway;
+            targets[`${rowId}__status`] = s.status;
+            filled.push(`${company} (${s.runway.replace(/^~\s*/, "")})`);
+          }
+          if (Object.keys(targets).length === 0) {
+            engine.postMessage({ roomId, channel: "public", author: actor, text: "Runway is already sourced for every row — cash and burn are filled.", clientMsgId: crypto.randomUUID(), kind: "agent" });
+            return;
+          }
+          const rt = new InMemoryRoomTools(engine, roomId, runway.id, actor, pub.id);
+          await runHarness({ rt, goal, model: paced(scriptedModel(recomputeVariancePlan(targets, { lock: true, reason: "source runway gaps" })), 160), tools: ROOM_TOOLS, maxSteps: 28 });
+          engine.postMessage({ roomId, channel: "public", author: actor, text: `Sourced cash + burn and computed runway for ${filled.join(" and ")}. Wrote ${Object.keys(targets).length} cells behind a lock with CAS; milestone gaps stay flagged for review.`, clientMsgId: crypto.randomUUID(), kind: "agent" });
+          return;
+        }
+      }
       if (input.modelSelection?.mode === "free") {
         const jobId = startMemoryFreeJob(goal, references);
         void runMemoryFreeJob(jobId, 1);

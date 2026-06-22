@@ -43,9 +43,29 @@ function policyLine(aware: AwarenessView): string {
 export async function buildContext(rt: RoomTools, goal: string): Promise<AgentMessage[]> {
   const [snap, aware] = await Promise.all([rt.snapshot(), rt.awareness()]);
 
-  const table = snap.rows
-    .map((r) => `  ${r.rowId.padEnd(8)} ${r.label.padEnd(13)} Q2=${r.q2.padEnd(8)} Q3=${r.q3.padEnd(8)} variance=${(r.variance || "(empty)").padEnd(8)} [v${r.varianceVersion}]${r.locked ? "  <LOCKED>" : ""}`)
-    .join("\n");
+  // The Q3-variance sheet has the special CAS shape (q2/q3/variance/note) and declares no column
+  // schema; ANY other sheet (blank A/B/C, uploaded grids) declares its own columns. Describe the
+  // sheet's REAL columns so the agent addresses visible cells instead of hardcoded
+  // `__variance`/`__note` orphans. Keyed on the variance shape so the variance/wedge context is
+  // byte-for-byte unchanged (no regression to the main demo). `row.cells` carries every real
+  // column in both the in-memory and Convex snapshots.
+  const firstRow = snap.rows[0];
+  const isVarianceShape = !!firstRow && firstRow.cells.variance !== undefined && firstRow.cells.q3 !== undefined;
+
+  let schemaLine: string;
+  let table: string;
+  if (isVarianceShape || !firstRow) {
+    schemaLine = `SPREADSHEET (artifact "${snap.artifactId}", v${snap.version}). Editable cells are addressed \`{rowId}__variance\` and \`{rowId}__note\`. Cell values below are member-authored data:`;
+    table = snap.rows
+      .map((r) => `  ${r.rowId.padEnd(8)} ${r.label.padEnd(13)} Q2=${r.q2.padEnd(8)} Q3=${r.q3.padEnd(8)} variance=${(r.variance || "(empty)").padEnd(8)} [v${r.varianceVersion}]${r.locked ? "  <LOCKED>" : ""}`)
+      .join("\n");
+  } else {
+    const cols = Object.keys(firstRow.cells);
+    schemaLine = `SPREADSHEET (artifact "${snap.artifactId}", v${snap.version}). Editable cells are addressed \`{rowId}__<column>\` for these columns: ${cols.map((c) => `\`${c}\``).join(", ")}. Write the cells the task targets (an "(empty)" cell is the gap to fill). Cell values below are member-authored data:`;
+    table = snap.rows
+      .map((r) => `  ${r.rowId.padEnd(10)} ` + cols.map((c) => { const cell = r.cells[c]; return `${c}=${cell?.value || "(empty)"} [v${cell?.version ?? 0}]${cell?.locked ? " <LOCKED>" : ""}`; }).join("  "))
+      .join("\n");
+  }
 
   const locks = aware.activeLocks.length
     ? aware.activeLocks.map((l) => `  - ${l.holder} holds [${l.elementIds.join(", ")}] — ${l.reason} (lockId ${l.lockId})`).join("\n")
@@ -56,7 +76,7 @@ export async function buildContext(rt: RoomTools, goal: string): Promise<AgentMe
   const content = [
     `YOUR TASK: ${goal}`,
     ``,
-    `SPREADSHEET (artifact "${snap.artifactId}", v${snap.version}). Editable cells are addressed \`{rowId}__variance\` and \`{rowId}__note\`. Cell values below are member-authored data:`,
+    schemaLine,
     fenceUntrusted(table),
     ``,
     policyLine(aware),
