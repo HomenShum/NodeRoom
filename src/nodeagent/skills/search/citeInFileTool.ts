@@ -10,16 +10,46 @@
 import { z } from "zod";
 import type { AgentTool, RoomTools } from "../../core/types";
 
-const schema = z.object({
+const base = z.object({
   target: z
     .string()
-    .describe("the exact value or phrase to find in the uploaded PDF (e.g. a number like 41,321, or 'Total revenues')"),
+    .min(1)
+    .describe("the exact value or phrase to find in the uploaded PDF, as a plain string (e.g. \"41,321\" or \"Total revenues\"). NOT an artifact id."),
   label: z.string().optional().describe("a short human label for the citation (defaults to the target)"),
   fileName: z
     .string()
     .optional()
     .describe("optional: which uploaded PDF to cite (substring match); defaults to the room's most recent PDF"),
 });
+
+// Cheap/quantized models often send the value under a synonym key, or as a bare string, or JSON-encoded.
+// Coalesce any of those into `target` before validation (the [[cheap-model-tool-ergonomics]] pattern) —
+// the model-facing JSON schema still shows the clean `base` shape via zodToJsonSchema's ZodEffects unwrap.
+const TARGET_ALIASES = ["value", "phrase", "query", "text", "q", "find", "search", "term", "string"];
+const schema = z.preprocess((raw) => {
+  if (typeof raw === "string") {
+    const s = raw.trim();
+    try {
+      const parsed = JSON.parse(s);
+      return parsed && typeof parsed === "object" ? parsed : { target: s };
+    } catch {
+      return { target: s };
+    }
+  }
+  if (raw && typeof raw === "object") {
+    const o: Record<string, unknown> = { ...(raw as Record<string, unknown>) };
+    if (typeof o.target !== "string" || !(o.target as string).trim()) {
+      for (const k of TARGET_ALIASES) {
+        if (typeof o[k] === "string" && (o[k] as string).trim()) {
+          o.target = o[k];
+          break;
+        }
+      }
+    }
+    return o;
+  }
+  return raw;
+}, base);
 
 export const citeInFileTool: AgentTool = {
   name: "cite_in_file",
