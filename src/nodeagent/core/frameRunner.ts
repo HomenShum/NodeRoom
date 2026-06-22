@@ -15,6 +15,7 @@ import type {
   RoomTools,
   ToolCall,
 } from "./types";
+import type { AgentStreamEventDraft } from "./stream";
 import type { SpendLimits } from "../guardrails/gateway";
 import type { FrameDelta, ReasoningFrame } from "./reasoningFrames";
 
@@ -41,6 +42,7 @@ export interface RunReasoningFrameOptions {
   systemPrompt?: string;
   onTrace?: (event: AgentTraceEvent) => void;
   onTextDelta?: (text: string, step: number) => void | Promise<void>;
+  onStreamEvent?: (event: AgentStreamEventDraft) => void | Promise<void>;
   onHandoff?: (handoff: AgentHandoff) => void;
   now?: () => number;
   goal?: string;
@@ -185,6 +187,7 @@ export async function runReasoningFrame(opts: RunReasoningFrameOptions): Promise
       systemPrompt: opts.systemPrompt,
       onTrace: opts.onTrace,
       onTextDelta: opts.onTextDelta,
+      onStreamEvent: opts.onStreamEvent,
       onHandoff: opts.onHandoff,
       now: opts.now,
     });

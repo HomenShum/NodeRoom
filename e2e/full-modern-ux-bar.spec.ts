@@ -250,8 +250,11 @@ test.describe("full modern UX release bar", () => {
     await chat.getByTestId("chat-composer").fill("/free fill the remaining Q3 variance cells through the long job path");
     await chat.getByTestId("chat-send").click();
     await expect(chat.getByTestId("job-status")).toContainText(/running 1\/2|running/);
-    await expect(chat.getByTestId("agent-operation-stream")).toBeVisible({ timeout: 3_000 });
-    await expect(chat.getByTestId("agent-operation-stream")).toContainText(/derive_room_intent|patch_bundle_cas/);
+    const unifiedStream = chat.getByTestId("agent-unified-stream").first();
+    await expect(unifiedStream).toBeVisible({ timeout: 3_000 });
+    await expect(unifiedStream.getByTestId("agent-stream-text")).toContainText("Working through the visible sheet cells");
+    await expect(unifiedStream).toContainText(/derive_affected_set|patch_bundle_cas/);
+    await expect(chat.getByTestId("agent-operation-stream")).toHaveCount(0);
     await expect(chat.getByTestId("chat-message").filter({ hasText: "Memory free-auto applied" })).toBeVisible({
       timeout: 15_000,
     });

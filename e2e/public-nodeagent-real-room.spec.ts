@@ -51,6 +51,13 @@ test("fresh room public @nodeagent first send starts one visible durable job", a
   await expect(chat.getByTestId("job-status")).toContainText(/queued|running|completed|blocked|failed/i, { timeout: 30_000 });
   await expect(chat.getByTestId("job-status")).not.toContainText(/cancelled/i);
 
+  const stream = chat.getByTestId("agent-unified-stream").first();
+  await expect(stream).toBeVisible({ timeout: 60_000 });
+  await expect(stream.locator('[data-part="step"], [data-part="tool"], [data-testid="agent-stream-text"]').first()).toBeVisible({
+    timeout: 60_000,
+  });
+  await expect(chat.getByTestId("agent-operation-stream")).toHaveCount(0);
+
   await chat.getByTestId("job-detail-toggle").click();
   const detail = chat.getByTestId("job-detail");
   await expect(detail).toContainText(/Runtime|Policy|Model calls|Tool calls/i, { timeout: 15_000 });

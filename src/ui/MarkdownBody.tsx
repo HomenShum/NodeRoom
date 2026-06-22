@@ -25,7 +25,7 @@ export function MarkdownBody({ text, cursor, className = "text", children, ...pr
 }
 
 export function parseMarkdownBlocks(markdown: string): Block[] {
-  const lines = markdown.replace(/\r\n/g, "\n").split("\n");
+  const lines = normalizeInlinePipeTables(markdown).replace(/\r\n/g, "\n").split("\n");
   const blocks: Block[] = [];
   let index = 0;
 
@@ -107,6 +107,13 @@ export function parseMarkdownBlocks(markdown: string): Block[] {
   }
 
   return blocks;
+}
+
+export function normalizeInlinePipeTables(markdown: string): string {
+  return markdown
+    .replace(/([^\n])\s+(\|[^|\n]+(?:\|[^|\n]+){1,}\|)\s+(?=\|(?:\s*:?-{3,}:?\s*\|){2,})/g, "$1\n\n$2\n")
+    .replace(/(\|(?:\s*:?-{3,}:?\s*\|){2,})\s+(?=\|[^|\n]+(?:\|[^|\n]+){1,}\|)/g, "$1\n")
+    .replace(/(\|[^|\n]+(?:\|[^|\n]+){1,}\|)\s+(?=\|[^|\n]+(?:\|[^|\n]+){1,}\|)/g, "$1\n");
 }
 
 function renderBlock(block: Block, key: string): ReactNode {

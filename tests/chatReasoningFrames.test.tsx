@@ -129,6 +129,55 @@ describe("Chat reasoning-frame job detail", () => {
     expect(screen.queryByTestId("public-chat-empty")).toBeNull();
   });
 
+  it("renders the active public job as one unified text plus tool stream", () => {
+    const store = baseStore();
+    store.lastLongFreeJob = () => ({
+      id: "job1",
+      status: "running",
+      entrypoint: "public_ask",
+      runtime: "workflow",
+      attempts: 1,
+      maxAttempts: 20,
+      modelPolicy: "z-ai/glm-5.2",
+      approvalPolicy: "auto_commit_safe",
+      evidencePolicy: "public_only",
+      updatedAt: 2000,
+    });
+    store.listMessages = () => [{
+      id: "stream-msg",
+      roomId: "r1",
+      channel: "public",
+      author: { kind: "agent", id: "agent_room", name: "Room NodeAgent", scope: "public" },
+      text: "",
+      clientMsgId: "pubstream-job1",
+      kind: "agent",
+      streamId: "stream-1",
+      createdAt: 1000,
+    }];
+    store.lastLongFreeJobDetail = () => ({
+      operations: [],
+      reasoningFrames: [],
+      receipts: [],
+      leases: [],
+      draftOperations: [],
+      latestSteps: [],
+      streamEvents: [],
+      streamParts: [
+        { type: "text" as const, text: "Calculating now. | Row | Q2 | Q3 | Variance % | |---|---:|---:|---:| | Revenue | $10,000 | $12,400 | +24% |", state: "streaming" as const },
+        { type: "tool-write_locked_cells" as const, toolName: "write_locked_cells", toolCallId: "call-write", state: "call" as const, status: "started" as const, input: { ops: 10 } },
+      ],
+    });
+    mockStore.current = store;
+
+    render(<Chat roomId="r1" me={me} channel="public" variant="public" agentName="Room NodeAgent" />);
+
+    expect(screen.getByTestId("agent-unified-stream")).toBeTruthy();
+    expect(screen.getByRole("table")).toBeTruthy();
+    expect(screen.getByRole("columnheader", { name: "Variance %" })).toBeTruthy();
+    expect(screen.getByText("write_locked_cells")).toBeTruthy();
+    expect(screen.queryByTestId("agent-operation-stream")).toBeNull();
+  });
+
   it("passes the selected specific model through the public @nodeagent composer", async () => {
     const store = baseStore();
     mockStore.current = store;

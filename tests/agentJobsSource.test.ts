@@ -200,6 +200,7 @@ describe("long-running agent job source invariants", () => {
     const steps = readFileSync("convex/agentSteps.ts", "utf8");
 
     expect(schema).toContain("agentOperationEvents");
+    expect(schema).toContain("agentStreamEvents");
     expect(schema).toContain("agentMutationReceipts");
     expect(schema).toContain("agentDraftOperations");
     expect(schema).toContain("agentLeases");
@@ -314,6 +315,9 @@ describe("long-running agent job source invariants", () => {
     expect(model).toContain("await onTextDelta(delta)");
     expect(runner).toContain("streaming:ensurePublicAgentJobStream");
     expect(runner).toContain("streaming:appendPublicAgentJobStreamChunk");
+    expect(runner).toContain("agentJobs:recordStreamEvent");
+    expect(runner).toContain('kind: "text_delta"');
+    expect(runner).toContain('kind: terminal ? "message_done" : "warning"');
     expect(runner).toContain("onPublicTextDelta");
     expect(runner).toContain("createdAt: claimed.createdAt");
     expect(streaming).toContain("createdAt: v.optional(v.number())");
@@ -322,6 +326,31 @@ describe("long-running agent job source invariants", () => {
     expect(streaming).toContain("appendPublicAgentJobStreamChunk");
     expect(streaming).toContain('ownerId: PUBLIC_STREAM_OWNER_ID');
     expect(streaming).toContain("components.persistentTextStreaming.lib.addChunk");
+  });
+
+  it("exposes a UIMessage-shaped unified stream beside durable job detail", () => {
+    const schema = readFileSync("convex/schema.ts", "utf8");
+    const jobs = readFileSync("convex/agentJobs.ts", "utf8");
+    const runtime = readFileSync("src/nodeagent/core/runtime.ts", "utf8");
+    const frameRunner = readFileSync("src/nodeagent/core/frameRunner.ts", "utf8");
+    const stream = readFileSync("src/nodeagent/core/stream.ts", "utf8");
+    const store = readFileSync("src/app/store.tsx", "utf8");
+    const chat = readFileSync("src/ui/Chat.tsx", "utf8");
+
+    expect(schema).toContain("agentStreamEvents");
+    expect(schema).toContain('v.literal("tool_call_start")');
+    expect(schema).toContain('v.literal("message_done")');
+    expect(jobs).toContain("export const recordStreamEvent");
+    expect(jobs).toContain("streamEvents");
+    expect(runtime).toContain("onStreamEvent?: (event: AgentStreamEventDraft)");
+    expect(runtime).toContain('kind: "tool_call_start"');
+    expect(runtime).toContain('kind: "tool_call_result"');
+    expect(frameRunner).toContain("onStreamEvent: opts.onStreamEvent");
+    expect(stream).toContain("buildUnifiedAgentStreamParts");
+    expect(stream).toContain("tool-${string}");
+    expect(store).toContain("streamParts: buildUnifiedAgentStreamParts");
+    expect(chat).toContain("AgentUnifiedStream");
+    expect(chat).toContain('data-testid="agent-unified-stream"');
   });
 
   it("dispatches public NodeAgent asks through server-side target resolution", () => {

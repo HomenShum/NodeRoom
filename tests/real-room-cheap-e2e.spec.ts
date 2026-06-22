@@ -150,6 +150,13 @@ test("real user: fresh room -> @nodeagent (cheap default) -> visible sheet match
   await expect(page.locator('[data-testid="agent-error"]')).toHaveCount(0);
   await expect(page.locator('[data-testid="job-status"]')).toContainText(/queued|running|completed|blocked|failed/i, { timeout: 30_000 });
 
+  const stream = page.locator('[data-testid="agent-unified-stream"]').first();
+  await expect(stream).toBeVisible({ timeout: 60_000 });
+  await expect(stream.locator('[data-part="step"], [data-part="tool"], [data-testid="agent-stream-text"]').first()).toBeVisible({
+    timeout: 90_000,
+  });
+  await expect(page.locator('[data-testid="agent-operation-stream"]')).toHaveCount(0);
+
   // Poll the VISIBLE sheet until every metric row has a value (the cheap model filling cells live).
   await expect
     .poll(
