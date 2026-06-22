@@ -181,6 +181,14 @@ function operationStreamText(op: OperationStreamRow): string {
   const count = op.countDelta && op.countDelta > 1 ? ` x${op.countDelta}` : "";
   return `${op.kind}: ${op.name}${count}${affected}`;
 }
+function showInAgentOperationStream(op: OperationStreamRow): boolean {
+  if (op.sequence >= 1_000) return true;
+  return op.name === "agentJobs.start"
+    || op.name === "agentJobs.createOrReuse"
+    || op.name === "agentJobs.claimSlice"
+    || op.name === "agentWorkflows.freeAutoWorkflow"
+    || op.name === "agentJobRunner.runFreeAutoJobSlice";
+}
 type ReasoningFrameRow = AgentJobDetailTelemetry["reasoningFrames"][number];
 function framePrimaryText(frame: ReasoningFrameRow): string {
   if (frame.frameKind === "child") return `${frame.displayName ?? frame.phase}${frame.facet ? ` / ${frame.facet}` : ""}`;
@@ -627,7 +635,7 @@ export function Chat({ roomId, me, channel, variant, agentName, style, onOpenArt
   const longJobTerminal = !!longJob && ["completed", "failed", "blocked", "cancelled"].includes(longJob.status);
   const longJobActive = !!longJob && !longJobTerminal;
   const agentWorking = thinking || (!isPrivate && longJobActive);
-  const liveOperationStream = (!isPrivate && agentWorking ? (longJobDetail?.operations ?? []).filter((op) => op.sequence >= 1_000).slice(-4) : []) as OperationStreamRow[];
+  const liveOperationStream = (!isPrivate && agentWorking ? (longJobDetail?.operations ?? []).filter(showInAgentOperationStream).slice(-4) : []) as OperationStreamRow[];
   const longJobResultText = !isPrivate && longJobTerminal
     ? (longJob.finalText || (["failed", "blocked"].includes(longJob.status) && longJob.error ? `Agent job ${longJob.status}: ${longJob.error}` : ""))
     : "";
@@ -654,6 +662,10 @@ export function Chat({ roomId, me, channel, variant, agentName, style, onOpenArt
     if (!thinking) return;
     if (messages.slice(thinkingStartCount.current).some((m) => m.author.kind === "agent")) setThinking(false);
   }, [messages, thinking]);
+  useEffect(() => {
+    if (!thinking || isPrivate || !longJobTerminal) return;
+    setThinking(false);
+  }, [isPrivate, longJobTerminal, thinking]);
   useEffect(() => {
     if (!specificModelPolicy && defaultSpecificModel) setSpecificModelPolicy(defaultSpecificModel);
   }, [defaultSpecificModel, specificModelPolicy]);
@@ -687,7 +699,12 @@ export function Chat({ roomId, me, channel, variant, agentName, style, onOpenArt
         ? { mode: "specific", modelPolicy: specificModelPolicy || defaultSpecificModel || "gemini-3.5-flash" }
         : { mode: modelSelectionMode };
       beginThinking();
-      void store.askAgent({ goal: publicNodeAgentRequest.goal, references: messageRefs, modelSelection }).catch((e) => { if (aliveRef.current) setAgentErr(agentErrorText(e)); }).finally(() => { if (aliveRef.current) setThinking(false); });
+      void store.askAgent({ goal: publicNodeAgentRequest.goal, references: messageRefs, modelSelection }).catch((e) => {
+        if (aliveRef.current) {
+          setAgentErr(agentErrorText(e));
+          setThinking(false);
+        }
+      });
       return;
     }
 
