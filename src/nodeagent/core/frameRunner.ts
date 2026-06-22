@@ -40,6 +40,7 @@ export interface RunReasoningFrameOptions {
   compaction?: CompactionOpts;
   systemPrompt?: string;
   onTrace?: (event: AgentTraceEvent) => void;
+  onTextDelta?: (text: string, step: number) => void | Promise<void>;
   onHandoff?: (handoff: AgentHandoff) => void;
   now?: () => number;
   goal?: string;
@@ -183,6 +184,7 @@ export async function runReasoningFrame(opts: RunReasoningFrameOptions): Promise
       contextBuilder,
       systemPrompt: opts.systemPrompt,
       onTrace: opts.onTrace,
+      onTextDelta: opts.onTextDelta,
       onHandoff: opts.onHandoff,
       now: opts.now,
     });

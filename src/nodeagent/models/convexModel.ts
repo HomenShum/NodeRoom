@@ -48,6 +48,21 @@ type OpenAiChatResponse = {
   };
 };
 
+type OpenAiChatStreamChunk = {
+  choices?: Array<{
+    delta?: {
+      content?: string | null;
+      tool_calls?: Array<{
+        index?: number;
+        id?: string;
+        type?: "function";
+        function?: { name?: string; arguments?: string };
+      }>;
+    };
+  }>;
+  usage?: OpenAiChatResponse["usage"];
+};
+
 type AnthropicResponse = {
   content?: Array<
     | { type: "text"; text?: string }
@@ -85,11 +100,11 @@ export function convexModel(modelId: string, options: { entrypoint?: ProviderRou
     get name() {
       return resolvedModelId;
     },
-    async next({ system, messages, tools, signal }) {
+    async next({ system, messages, tools, signal, onTextDelta }) {
       // Gateway PII firewall — redact PII/secrets from the system + user content before the prompt leaves.
       const safeSystem = redactPII(system).text;
       const safeMessages = messages.map((m) => (m.role === "user" && m.content ? { ...m, content: redactPII(m.content).text } : m));
-      const { step, resolvedModel } = await generateConvexAgentStep(aliasModelId, safeSystem, safeMessages, tools, entrypoint, signal);
+      const { step, resolvedModel } = await generateConvexAgentStep(aliasModelId, safeSystem, safeMessages, tools, entrypoint, signal, onTextDelta);
       resolvedModelId = resolvedModel;
       return step;
     },
@@ -108,6 +123,7 @@ async function generateConvexAgentStep(
   tools: AgentTool[],
   entrypoint: ProviderRouteEntrypoint,
   signal?: AbortSignal,
+  onTextDelta?: (text: string) => void | Promise<void>,
 ) {
   assertProviderRouteAllowed({ model: modelId, entrypoint, env: process.env });
   if (isOpenRouterFreeAutoModel(modelId)) {
@@ -132,6 +148,7 @@ async function generateConvexAgentStep(
             messages,
             tools,
             signal,
+            onTextDelta,
           }), signal), providerRoute),
           resolvedModel: candidate.id,
         };
@@ -146,7 +163,7 @@ async function generateConvexAgentStep(
   try {
     const providerRoute = assertProviderRouteAllowed({ model: modelId, entrypoint, env: process.env });
     return {
-      step: withProviderRoute(await withRetry(() => providerStep(modelId, system, messages, tools, signal), signal), providerRoute),
+      step: withProviderRoute(await withRetry(() => providerStep(modelId, system, messages, tools, signal, onTextDelta), signal), providerRoute),
       resolvedModel: modelId,
     };
   } catch (error) {
@@ -154,7 +171,7 @@ async function generateConvexAgentStep(
     if (!fb || signal?.aborted) throw error;
     const providerRoute = assertProviderRouteAllowed({ model: fb, entrypoint, env: process.env });
     return {
-      step: withProviderRoute(await withRetry(() => providerStep(fb, system, messages, tools, signal), signal), providerRoute),
+      step: withProviderRoute(await withRetry(() => providerStep(fb, system, messages, tools, signal, onTextDelta), signal), providerRoute),
       resolvedModel: fb,
     };
   }
@@ -166,6 +183,7 @@ async function providerStep(
   messages: AgentMessage[],
   tools: AgentTool[],
   signal?: AbortSignal,
+  onTextDelta?: (text: string) => void | Promise<void>,
 ) {
   const provider = getProviderForModel(modelId);
   if (provider === "openai") {
@@ -178,6 +196,7 @@ async function providerStep(
       messages,
       tools,
       signal,
+      onTextDelta,
     });
   }
   if (provider === "openrouter") {
@@ -190,14 +209,48 @@ async function providerStep(
       messages,
       tools,
       signal,
+      onTextDelta,
     });
   }
   if (provider === "anthropic") return anthropicStep(modelId, system, messages, tools, signal);
-  if (provider === "gemini") return geminiStep(modelId, system, messages, tools, signal);
+  if (provider === "gemini") {
+    if (onTextDelta) {
+      try {
+        return await geminiStreamStep(modelId, system, messages, tools, signal, onTextDelta);
+      } catch (error) {
+        if (signal?.aborted) throw error;
+      }
+    }
+    return geminiStep(modelId, system, messages, tools, signal);
+  }
   throw new Error(`convexModel(): no provider for "${modelId}"`);
 }
 
 async function openAiCompatibleStep(args: {
+  endpoint: string;
+  apiKey?: string;
+  headers: Record<string, string>;
+  modelId: string;
+  system: string;
+  messages: AgentMessage[];
+  tools: AgentTool[];
+  signal?: AbortSignal;
+  onTextDelta?: (text: string) => void | Promise<void>;
+}) {
+  if (args.onTextDelta) {
+    try {
+      return await openAiCompatibleStreamStep({ ...args, onTextDelta: args.onTextDelta });
+    } catch (error) {
+      if (args.signal?.aborted) throw error;
+      // Some OpenAI-compatible providers/models reject stream_options or tool streaming. Keep the
+      // durable job reliable by falling back to the established blocking request path.
+    }
+  }
+
+  return openAiCompatibleBlockingStep(args);
+}
+
+async function openAiCompatibleBlockingStep(args: {
   endpoint: string;
   apiKey?: string;
   headers: Record<string, string>;
@@ -232,6 +285,85 @@ async function openAiCompatibleStep(args: {
     usage: {
       inputTokens: res.usage?.prompt_tokens ?? res.usage?.input_tokens ?? 0,
       outputTokens: res.usage?.completion_tokens ?? res.usage?.output_tokens ?? 0,
+    },
+  };
+}
+
+async function openAiCompatibleStreamStep(args: {
+  endpoint: string;
+  apiKey?: string;
+  headers: Record<string, string>;
+  modelId: string;
+  system: string;
+  messages: AgentMessage[];
+  tools: AgentTool[];
+  signal?: AbortSignal;
+  onTextDelta: (text: string) => void | Promise<void>;
+}) {
+  const res = await fetch(args.endpoint, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      ...args.headers,
+      ...(args.apiKey ? { Authorization: `Bearer ${args.apiKey}` } : {}),
+    },
+    body: JSON.stringify(removeUndefined({
+      model: args.modelId,
+      stream: true,
+      stream_options: { include_usage: true },
+      messages: [{ role: "system", content: args.system }, ...toOpenAiMessages(args.messages)],
+      tools: args.tools.length ? args.tools.map(openAiTool) : undefined,
+      tool_choice: args.tools.length ? "auto" : undefined,
+      ...openAiCompatibleTokenLimitParam(args.modelId, args.endpoint, modelMaxOutputTokens()),
+      ...openAiCompatibleProviderOptions(args.modelId, args.endpoint),
+    })),
+    signal: args.signal,
+  });
+
+  const toolCallParts = new Map<number, { id?: string; name?: string; argsText: string }>();
+  let text = "";
+  let usage: OpenAiChatResponse["usage"] | undefined;
+
+  await readSse(res, async (data) => {
+    let parsed: OpenAiChatStreamChunk;
+    try {
+      parsed = JSON.parse(data) as OpenAiChatStreamChunk;
+    } catch {
+      return;
+    }
+    if (parsed.usage) usage = parsed.usage;
+    for (const choice of parsed.choices ?? []) {
+      const delta = choice.delta;
+      const textDelta = delta?.content ?? "";
+      if (textDelta) {
+        text += textDelta;
+        await args.onTextDelta(textDelta);
+      }
+      for (const toolDelta of delta?.tool_calls ?? []) {
+        const index = typeof toolDelta.index === "number" ? toolDelta.index : toolCallParts.size;
+        const current = toolCallParts.get(index) ?? { argsText: "" };
+        if (toolDelta.id) current.id = toolDelta.id;
+        if (toolDelta.function?.name) current.name = toolDelta.function.name;
+        if (toolDelta.function?.arguments) current.argsText += toolDelta.function.arguments;
+        toolCallParts.set(index, current);
+      }
+    }
+  });
+
+  const toolCalls = [...toolCallParts.entries()]
+    .sort(([a], [b]) => a - b)
+    .map(([, tc]): ToolCall => ({
+      id: tc.id || crypto.randomUUID(),
+      tool: tc.name ?? "unknown_tool",
+      args: parseJsonObject(tc.argsText || "{}"),
+    }));
+  return {
+    text: text || undefined,
+    toolCalls,
+    done: toolCalls.length === 0,
+    usage: {
+      inputTokens: usage?.prompt_tokens ?? usage?.input_tokens ?? 0,
+      outputTokens: usage?.completion_tokens ?? usage?.output_tokens ?? 0,
     },
   };
 }
@@ -312,6 +444,69 @@ async function geminiStep(
     usage: {
       inputTokens: res.usageMetadata?.promptTokenCount ?? 0,
       outputTokens: res.usageMetadata?.candidatesTokenCount ?? 0,
+    },
+  };
+}
+
+async function geminiStreamStep(
+  modelId: string,
+  system: string,
+  messages: AgentMessage[],
+  tools: AgentTool[],
+  signal: AbortSignal | undefined,
+  onTextDelta: (text: string) => void | Promise<void>,
+) {
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(modelId)}:streamGenerateContent?alt=sse&key=${encodeURIComponent(requireEnv("GOOGLE_GENERATIVE_AI_API_KEY"))}`;
+  const res = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(removeUndefined({
+      systemInstruction: { parts: [{ text: system }] },
+      contents: toGeminiContents(messages),
+      tools: tools.length ? [{ functionDeclarations: tools.map(geminiTool) }] : undefined,
+      generationConfig: { maxOutputTokens: modelMaxOutputTokens() },
+    })),
+    signal,
+  });
+
+  let text = "";
+  const toolCalls: ToolCall[] = [];
+  let usage: GeminiResponse["usageMetadata"] | undefined;
+
+  await readSse(res, async (data) => {
+    let parsed: GeminiResponse;
+    try {
+      parsed = JSON.parse(data) as GeminiResponse;
+    } catch {
+      return;
+    }
+    if (parsed.usageMetadata) usage = parsed.usageMetadata;
+    const parts = parsed.candidates?.[0]?.content?.parts ?? [];
+    for (const part of parts) {
+      if ("text" in part) {
+        const delta = part.text ?? "";
+        if (delta) {
+          text += delta;
+          await onTextDelta(delta);
+        }
+      } else if ("functionCall" in part) {
+        toolCalls.push({
+          id: crypto.randomUUID(),
+          tool: part.functionCall?.name ?? "unknown_tool",
+          args: part.functionCall?.args ?? {},
+          providerMetadata: part.thoughtSignature || part.thought_signature ? { geminiThoughtSignature: part.thoughtSignature ?? part.thought_signature } : undefined,
+        });
+      }
+    }
+  });
+
+  return {
+    text: text || undefined,
+    toolCalls,
+    done: toolCalls.length === 0,
+    usage: {
+      inputTokens: usage?.promptTokenCount ?? 0,
+      outputTokens: usage?.candidatesTokenCount ?? 0,
     },
   };
 }
@@ -479,6 +674,37 @@ function toolParameters(toolName: string): JsonObject {
     fetch_source: { type: "object", properties: { url: string }, required: ["url"] },
   };
   return schemas[toolName] ?? { type: "object", properties: {}, required: [] };
+}
+
+async function readSse(res: Response, onData: (data: string) => Promise<void>): Promise<void> {
+  if (!res.ok || !res.body) {
+    const detail = await res.text().catch(() => "");
+    throw new Error(`Provider stream failed ${res.status}: ${detail.slice(0, 500)}`);
+  }
+  const reader = res.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = "";
+  const processLine = async (line: string) => {
+    const trimmed = line.trim();
+    if (!trimmed.startsWith("data:")) return;
+    const data = trimmed.slice(5).trim();
+    if (!data || data === "[DONE]") return;
+    await onData(data);
+  };
+
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buffer += decoder.decode(value, { stream: true });
+    let newline: number;
+    while ((newline = buffer.indexOf("\n")) !== -1) {
+      const line = buffer.slice(0, newline);
+      buffer = buffer.slice(newline + 1);
+      await processLine(line);
+    }
+  }
+  buffer += decoder.decode();
+  if (buffer.trim()) await processLine(buffer);
 }
 
 async function postJson<T>(url: string, body: unknown, headers: Record<string, string>, signal?: AbortSignal): Promise<T> {

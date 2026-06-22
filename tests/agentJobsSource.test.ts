@@ -296,6 +296,31 @@ describe("long-running agent job source invariants", () => {
     expect(model).toContain("enable_thinking: false");
   });
 
+  it("streams actual public LLM text deltas through durable message streams", () => {
+    const runner = readFileSync("convex/agentJobRunner.ts", "utf8");
+    const runtime = readFileSync("src/nodeagent/core/runtime.ts", "utf8");
+    const frameRunner = readFileSync("src/nodeagent/core/frameRunner.ts", "utf8");
+    const model = readFileSync("src/nodeagent/models/convexModel.ts", "utf8");
+    const streaming = readFileSync("convex/streaming.ts", "utf8");
+
+    expect(runtime).toContain("onTextDelta?: (text: string, step: number)");
+    expect(runtime).toContain("onTextDelta: opts.onTextDelta");
+    expect(frameRunner).toContain("onTextDelta: opts.onTextDelta");
+    expect(model).toContain("OpenAiChatStreamChunk");
+    expect(model).toContain("stream: true");
+    expect(model).toContain("geminiStreamStep");
+    expect(model).toContain("streamGenerateContent?alt=sse");
+    expect(model).toContain("await args.onTextDelta(textDelta)");
+    expect(model).toContain("await onTextDelta(delta)");
+    expect(runner).toContain("streaming:ensurePublicAgentJobStream");
+    expect(runner).toContain("streaming:appendPublicAgentJobStreamChunk");
+    expect(runner).toContain("onPublicTextDelta");
+    expect(streaming).toContain("ensurePublicAgentJobStream");
+    expect(streaming).toContain("appendPublicAgentJobStreamChunk");
+    expect(streaming).toContain('ownerId: PUBLIC_STREAM_OWNER_ID');
+    expect(streaming).toContain("components.persistentTextStreaming.lib.addChunk");
+  });
+
   it("keeps NodeAgent execution server-side instead of relying on client_action as a production primitive", () => {
     const agent = readFileSync("convex/agent.ts", "utf8");
     const jobs = readFileSync("convex/agentJobs.ts", "utf8");

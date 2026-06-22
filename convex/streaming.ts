@@ -19,13 +19,43 @@ import { makeFunctionReference } from "convex/server";
 import { PersistentTextStreaming, StreamIdValidator, type StreamId } from "@convex-dev/persistent-text-streaming";
 import { components } from "./_generated/api";
 import { internalMutation, internalQuery, mutation, query } from "./_generated/server";
-import { actorProofV, requireActorCanUseChannel, requireActorProof } from "./lib";
+import type { Id } from "./_generated/dataModel";
+import type { MutationCtx } from "./_generated/server";
+import { actorProofV, actorV, requireActorCanUseChannel, requireActorProof } from "./lib";
 import { summarizeRoomForPrivate } from "./agent";
 import { assertProviderEgressAllowed } from "../src/nodeagent/guardrails/egressPolicy";
 
 const roomsFullRef = makeFunctionReference<"query">("rooms:full");
+const PUBLIC_STREAM_OWNER_ID = "public";
 
 export const streamingComponent = new PersistentTextStreaming(components.persistentTextStreaming);
+
+function publicAgentJobStreamClientMsgId(jobId: string): string {
+  return `pubstream-${jobId}`;
+}
+
+async function ensureStreamMetadata(ctx: MutationCtx, args: {
+  roomId: Id<"rooms">;
+  ownerId: string;
+  requesterName: string;
+  goal: string;
+  roomContext: string;
+  clientMsgId: string;
+  streamId: string;
+}) {
+  const existing = await ctx.db.query("privateReplyStreams").withIndex("by_stream", (q) => q.eq("streamId", args.streamId)).unique();
+  if (existing) return;
+  await ctx.db.insert("privateReplyStreams", {
+    roomId: args.roomId,
+    ownerId: args.ownerId,
+    requesterName: args.requesterName,
+    goal: args.goal,
+    roomContext: args.roomContext,
+    clientMsgId: args.clientMsgId,
+    streamId: args.streamId,
+    createdAt: Date.now(),
+  });
+}
 
 export const createPrivateReplyStream = mutation({
   args: { roomId: v.id("rooms"), requester: actorProofV, goal: v.string() },
@@ -76,8 +106,95 @@ export const createPrivateReplyStream = mutation({
   },
 });
 
+export const ensurePublicAgentJobStream = internalMutation({
+  args: { roomId: v.id("rooms"), jobId: v.id("agentJobs"), author: actorV, goal: v.string() },
+  handler: async (ctx, a): Promise<{ streamId: string; clientMsgId: string }> => {
+    const clientMsgId = publicAgentJobStreamClientMsgId(String(a.jobId));
+    const existingMessage = await ctx.db.query("messages").withIndex("by_clientMsgId", (q) => q.eq("roomId", a.roomId).eq("clientMsgId", clientMsgId)).unique();
+    if (existingMessage?.streamId) {
+      await ensureStreamMetadata(ctx, {
+        roomId: a.roomId,
+        ownerId: PUBLIC_STREAM_OWNER_ID,
+        requesterName: a.author.name,
+        goal: a.goal,
+        roomContext: "",
+        clientMsgId,
+        streamId: existingMessage.streamId,
+      });
+      return { streamId: existingMessage.streamId, clientMsgId };
+    }
+
+    const streamId = String(await streamingComponent.createStream(ctx));
+    if (existingMessage) {
+      await ctx.db.patch(existingMessage._id, { streamId, text: "" });
+    } else {
+      await ctx.db.insert("messages", {
+        roomId: a.roomId,
+        channel: PUBLIC_STREAM_OWNER_ID,
+        author: a.author,
+        text: "",
+        clientMsgId,
+        kind: "agent",
+        createdAt: Date.now(),
+        streamId,
+      });
+    }
+    await ensureStreamMetadata(ctx, {
+      roomId: a.roomId,
+      ownerId: PUBLIC_STREAM_OWNER_ID,
+      requesterName: a.author.name,
+      goal: a.goal,
+      roomContext: "",
+      clientMsgId,
+      streamId,
+    });
+    return { streamId, clientMsgId };
+  },
+});
+
+async function requirePublicAgentJobStream(ctx: MutationCtx, args: { roomId: Id<"rooms">; jobId: Id<"agentJobs">; streamId: string }) {
+  const row = await ctx.db.query("privateReplyStreams").withIndex("by_stream", (q) => q.eq("streamId", args.streamId)).unique();
+  if (!row) throw new Error("stream_not_found");
+  if (String(row.roomId) !== String(args.roomId)) throw new Error("stream_room_mismatch");
+  if (row.ownerId !== PUBLIC_STREAM_OWNER_ID) throw new Error("stream_not_public_agent_job");
+  if (row.clientMsgId !== publicAgentJobStreamClientMsgId(String(args.jobId))) throw new Error("stream_job_mismatch");
+  return row;
+}
+
+export const appendPublicAgentJobStreamChunk = internalMutation({
+  args: { roomId: v.id("rooms"), jobId: v.id("agentJobs"), streamId: v.string(), text: v.string() },
+  handler: async (ctx, a) => {
+    if (!a.text) return;
+    await requirePublicAgentJobStream(ctx, a);
+    await ctx.runMutation(components.persistentTextStreaming.lib.addChunk, {
+      streamId: a.streamId as StreamId,
+      text: a.text,
+      final: false,
+    });
+  },
+});
+
+export const finalizePublicAgentJobStream = internalMutation({
+  args: { roomId: v.id("rooms"), jobId: v.id("agentJobs"), streamId: v.string(), text: v.string() },
+  handler: async (ctx, a) => {
+    const row = await requirePublicAgentJobStream(ctx, a);
+    try {
+      await ctx.runMutation(components.persistentTextStreaming.lib.addChunk, {
+        streamId: a.streamId as StreamId,
+        text: "",
+        final: true,
+      });
+    } catch {
+      // The component treats repeated finalization as an error; job retries can race terminal writes.
+    }
+    const m = await ctx.db.query("messages").withIndex("by_clientMsgId", (q) => q.eq("roomId", a.roomId).eq("clientMsgId", row.clientMsgId)).unique();
+    if (m) await ctx.db.patch(m._id, { text: a.text });
+  },
+});
+
 /** Body + status for a stream. Private reply chunks are guarded like messages.list: the requester
- * must be allowed to read the owning private channel, so streamId is not treated as auth. */
+ * must be allowed to read the owning channel, so streamId is not treated as auth. Public job
+ * streams reuse this metadata with ownerId="public". */
 export const getStreamBody = query({
   args: { streamId: StreamIdValidator, requester: actorProofV },
   handler: async (ctx, a) => {

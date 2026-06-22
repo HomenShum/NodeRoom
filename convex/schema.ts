@@ -313,9 +313,10 @@ export default defineSchema({
     .index("by_room_channel", ["roomId", "channel", "createdAt"])
     .index("by_clientMsgId", ["roomId", "clientMsgId"]),
 
-  /** Server-side metadata for a private NodeAgent reply stream. The prompt + room context are
-   *  captured AT CREATE TIME inside the authenticated mutation, so the public streaming
-   *  httpAction needs nothing but the unguessable streamId. Never returned to clients. */
+  /** Server-side metadata for NodeAgent reply streams. Private replies use ownerId=<member id>;
+   *  durable public job streams use ownerId="public" and the same auth/read path. The prompt +
+   *  room context are captured AT CREATE TIME for private HTTP-driven streams; this table is
+   *  never returned to clients. */
   privateReplyStreams: defineTable({
     roomId: v.id("rooms"),
     ownerId: v.string(),

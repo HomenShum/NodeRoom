@@ -50,7 +50,7 @@ export interface AgentStep {
 /* ── seam 1: the injectable model ── */
 export interface AgentModel {
   readonly name: string;
-  next(input: { system: string; messages: AgentMessage[]; tools: AgentTool[]; signal?: AbortSignal }): Promise<AgentStep>;
+  next(input: { system: string; messages: AgentMessage[]; tools: AgentTool[]; signal?: AbortSignal; onTextDelta?: (text: string) => void | Promise<void> }): Promise<AgentStep>;
 }
 
 /* ── seam 3: tools ── */
