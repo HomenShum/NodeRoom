@@ -1,7 +1,7 @@
 import { v } from "convex/values";
 import { paginationOptsValidator } from "convex/server";
-import { internalMutation, query } from "./_generated/server";
-import { actorProofV, requireActorProof } from "./lib";
+import { internalMutation, mutation, query } from "./_generated/server";
+import { actorProofV, requireActorProof, refutationVerdictV, REFUTATIONS_MAX_PER_TASK } from "./lib";
 
 // ---- Honest-lane eval ledger (Solo Founder Agent Builder) ----
 // Append-only: each iteration is one immutable `evalRuns` row; its `taskResults` are the (~100) children.
@@ -60,8 +60,9 @@ export const startRun = internalMutation({
 export const recordTaskResult = internalMutation({
   args: { roomId: v.id("rooms"), evalRunId: v.id("evalRuns"), ...taskResultFields },
   handler: async (ctx, a) => {
-    // The honest gate: a row counts toward the headline ONLY if it was a clean generic probe with the
-    // model in the loop. Family-writer / model-off rows are recorded but excluded — never headlined.
+    // Provisional clean-probe gate: known family-writer / model-off rows are excluded, but the inputs
+    // still arrive from the harness payload. S9-S16 receipts must derive those inputs before this is a
+    // substrate-secure benchmark headline.
     const countsTowardHeadline = a.cleanGeneralProbe && a.modelCalls > 0;
     const doc = {
       roomId: a.roomId,
@@ -100,8 +101,9 @@ export const finishRun = internalMutation({
     status: v.union(v.literal("completed"), v.literal("failed")),
   },
   handler: async (ctx, a) => {
-    // Recompute the honest headline = mean reward over rows that count (clean probe + model in loop).
-    // Bounded by run size (~100 BTB tasks); a single run's children only.
+    // Recompute the provisional clean-probe mean over rows that count. Bounded by run size (~100 BTB
+    // tasks); a single run's children only. S9-S16 requires stronger derived inputs before this can be
+    // a published clean headline.
     const rows = await ctx.db
       .query("taskResults")
       .withIndex("by_run", (q) => q.eq("evalRunId", a.evalRunId))
@@ -159,6 +161,110 @@ export const taskResultsForRun = query({
   },
 });
 
+export const publicLedgerSnapshot = query({
+  args: {
+    roomCode: v.optional(v.string()),
+    selectedEvalRunId: v.optional(v.id("evalRuns")),
+    runLimit: v.optional(v.number()),
+    taskLimit: v.optional(v.number()),
+  },
+  handler: async (ctx, args) => {
+    const code = (args.roomCode ?? "BTBLEDGER").toUpperCase();
+    if (code !== "BTBLEDGER" && code !== "BTB-EVAL-LEDGER") {
+      throw new Error("unsupported_public_eval_ledger");
+    }
+    const room = await ctx.db.query("rooms").withIndex("by_code", (q) => q.eq("code", code)).first();
+    if (!room) return null;
+
+    const runLimit = Math.min(Math.max(Math.floor(args.runLimit ?? 12), 1), 25);
+    const taskLimit = Math.min(Math.max(Math.floor(args.taskLimit ?? 120), 1), 250);
+    const runs = await ctx.db
+      .query("evalRuns")
+      .withIndex("by_room_started", (q) => q.eq("roomId", room._id))
+      .order("desc")
+      .take(runLimit);
+
+    const selectedRun = args.selectedEvalRunId
+      ? runs.find((run) => run._id === args.selectedEvalRunId) ?? await ctx.db.get(args.selectedEvalRunId)
+      : runs.find((run) => run.taskCount >= 100) ?? runs[0];
+    if (selectedRun && selectedRun.roomId !== room._id) {
+      throw new Error("eval_run_not_in_public_ledger_room");
+    }
+
+    const tasks = selectedRun
+      ? await ctx.db
+        .query("taskResults")
+        .withIndex("by_room_run", (q) => q.eq("roomId", room._id).eq("evalRunId", selectedRun._id))
+        .order("asc")
+        .take(taskLimit)
+      : [];
+
+    const cleanTasks = tasks.filter((task) => task.countsTowardHeadline);
+    const acceptedTasks = tasks.filter((task) => task.cleanGeneralProbe && task.modelCalls > 0);
+    const taskRewards = tasks.filter((task) => Number.isFinite(task.reward));
+    const taskMeanReward = taskRewards.length
+      ? taskRewards.reduce((sum, task) => sum + task.reward, 0) / taskRewards.length
+      : undefined;
+
+    return {
+      room: { id: room._id, code: room.code, title: room.title },
+      runs: runs.map((run) => ({
+        id: run._id,
+        iterationLabel: run.iterationLabel,
+        benchmark: run.benchmark,
+        model: run.model,
+        materializerMode: run.materializerMode,
+        status: run.status,
+        taskCount: run.taskCount,
+        headlineCleanProbeMean: run.headlineCleanProbeMean,
+        headlineN: run.headlineN,
+        startedAt: run.startedAt,
+        completedAt: run.completedAt,
+        notes: run.notes,
+      })),
+      selectedRun: selectedRun
+        ? {
+          id: selectedRun._id,
+          iterationLabel: selectedRun.iterationLabel,
+          benchmark: selectedRun.benchmark,
+          model: selectedRun.model,
+          materializerMode: selectedRun.materializerMode,
+          status: selectedRun.status,
+          taskCount: selectedRun.taskCount,
+          headlineCleanProbeMean: selectedRun.headlineCleanProbeMean,
+          headlineN: selectedRun.headlineN,
+          startedAt: selectedRun.startedAt,
+          completedAt: selectedRun.completedAt,
+          notes: selectedRun.notes,
+        }
+        : null,
+      tasks: tasks.map((task) => ({
+        id: task._id,
+        taskId: task.taskId,
+        reward: task.reward,
+        raw: task.raw,
+        exceptions: task.exceptions,
+        firedWriter: task.firedWriter,
+        cleanGeneralProbe: task.cleanGeneralProbe,
+        modelCalls: task.modelCalls,
+        plannerTransport: task.plannerTransport,
+        countsTowardHeadline: task.countsTowardHeadline,
+        trialId: task.trialId,
+        verdict: task.verdict,
+        createdAt: task.createdAt,
+      })),
+      totals: {
+        visibleRuns: runs.length,
+        visibleTasks: tasks.length,
+        selectedTaskCount: selectedRun?.taskCount ?? 0,
+        cleanHeadlineRows: cleanTasks.length,
+        cleanAcceptedRows: acceptedTasks.length,
+        taskMeanReward,
+      },
+    };
+  },
+});
+
 // Cascade-delete an iteration and all its task results (admin/agent only).
 export const deleteRun = internalMutation({
   args: { evalRunId: v.id("evalRuns") },
@@ -198,7 +304,8 @@ export const ensureLedgerRoom = internalMutation({
 
 // Batch-ingest one iteration + all its task rows in a single transaction (idempotent re-ingest by label).
 // Used to backfill the ledger from existing sweep data. countsTowardHeadline + the headline mean are
-// computed server-side from the honest-lane fields — exactly the same gate as the live recorders.
+// recomputed server-side from sweep fields. Those fields are still harness-reported, so this is useful
+// telemetry rather than a fully substrate-derived anti-cheat gate.
 export const ingestRun = internalMutation({
   args: {
     roomId: v.id("rooms"),
@@ -287,5 +394,116 @@ export const ingestRun = internalMutation({
       headlineN: countedN,
     });
     return { evalRunId, headlineCleanProbeMean, headlineN: countedN, taskCount: a.results.length };
+  },
+});
+
+/* ────────── Adversarial-refutation verdicts (Tekton pattern) ──────────
+ * recordRefutationVerdict — append a verdict to the taskResults row's refutations[],
+ *   deduped by claimId (last-write-wins). BOUND at REFUTATIONS_MAX_PER_TASK.
+ *   Honest doctrine: ALL outcomes persist (stands + refuted + uncertain).
+ *
+ * listRefutationsForRun — flat list of every verdict across the run's taskResults.
+ *   Ordered by refutedAt ascending so the Trace UI can render a chronological audit.
+ */
+
+/** Server-trusted variant of recordRefutationVerdict. The ingester action and any other
+ *  internal harness code calls this — no actorProof is required because there is no
+ *  untrusted caller. Same upsert-by-claimId + BOUND + confidence clamp logic. */
+export const recordRefutationVerdictInternal = internalMutation({
+  args: {
+    evalRunId: v.id("evalRuns"),
+    taskId: v.string(),
+    verdict: refutationVerdictV,
+  },
+  handler: async (ctx, a) => {
+    const incoming = {
+      ...a.verdict,
+      confidence: Math.max(0, Math.min(1, a.verdict.confidence)),
+      refutedAt: a.verdict.refutedAt ?? Date.now(),
+    };
+    const row = await ctx.db
+      .query("taskResults")
+      .withIndex("by_run_task", (q) => q.eq("evalRunId", a.evalRunId).eq("taskId", a.taskId))
+      .unique();
+    if (!row) throw new Error("taskResult not found for this run/task — record the result first");
+    const prior = (row.refutations ?? []).filter((r) => r.claimId !== incoming.claimId);
+    const next = [...prior, incoming];
+    const capped = next.length > REFUTATIONS_MAX_PER_TASK ? next.slice(next.length - REFUTATIONS_MAX_PER_TASK) : next;
+    await ctx.db.patch(row._id, { refutations: capped });
+    return { ok: true, count: capped.length, evicted: next.length - capped.length };
+  },
+});
+
+export const recordRefutationVerdict = mutation({
+  args: {
+    roomId: v.id("rooms"),
+    evalRunId: v.id("evalRuns"),
+    taskId: v.string(),
+    requester: actorProofV,
+    verdict: refutationVerdictV,
+  },
+  handler: async (ctx, a) => {
+    // Auth: only members of the room may write to its ledger.
+    await requireActorProof(ctx, a.roomId, a.requester);
+    // Honest input gate: clamp confidence + ensure refutedAt is present (server time wins).
+    const incoming = {
+      ...a.verdict,
+      confidence: Math.max(0, Math.min(1, a.verdict.confidence)),
+      refutedAt: a.verdict.refutedAt ?? Date.now(),
+    };
+    // Locate the task row in this run.
+    const row = await ctx.db
+      .query("taskResults")
+      .withIndex("by_run_task", (q) => q.eq("evalRunId", a.evalRunId).eq("taskId", a.taskId))
+      .unique();
+    if (!row) throw new Error("taskResult not found for this run/task — record the result first");
+    // Idempotent upsert by claimId; preserve order, BOUND cap by evicting oldest entries.
+    const prior = (row.refutations ?? []).filter((r) => r.claimId !== incoming.claimId);
+    const next = [...prior, incoming];
+    const capped = next.length > REFUTATIONS_MAX_PER_TASK ? next.slice(next.length - REFUTATIONS_MAX_PER_TASK) : next;
+    await ctx.db.patch(row._id, { refutations: capped });
+    return { ok: true, taskResultId: row._id, count: capped.length, evicted: next.length - capped.length };
+  },
+});
+
+export const listRefutationsForRun = query({
+  args: { evalRunId: v.id("evalRuns"), requester: actorProofV },
+  handler: async (ctx, { evalRunId, requester }) => {
+    const run = await ctx.db.get(evalRunId);
+    if (!run) return { runId: evalRunId, verdicts: [] };
+    await requireActorProof(ctx, run.roomId, requester);
+    const rows = await ctx.db
+      .query("taskResults")
+      .withIndex("by_run", (q) => q.eq("evalRunId", evalRunId))
+      .collect();
+    const out = rows.flatMap((r) =>
+      (r.refutations ?? []).map((vd) => ({ taskId: r.taskId, ...vd })),
+    );
+    out.sort((a, b) => (a.refutedAt ?? 0) - (b.refutedAt ?? 0));
+    return { runId: evalRunId, verdicts: out };
+  },
+});
+
+/** Server-side summary mirror of summarizeRefutations(client). Useful for batch reports. */
+export const refutationSummaryForRun = query({
+  args: { evalRunId: v.id("evalRuns"), requester: actorProofV },
+  handler: async (ctx, { evalRunId, requester }) => {
+    const run = await ctx.db.get(evalRunId);
+    if (!run) return null;
+    await requireActorProof(ctx, run.roomId, requester);
+    const rows = await ctx.db
+      .query("taskResults")
+      .withIndex("by_run", (q) => q.eq("evalRunId", evalRunId))
+      .collect();
+    let total = 0, confSum = 0;
+    const byOutcome: Record<"stands" | "refuted" | "uncertain", number> = { stands: 0, refuted: 0, uncertain: 0 };
+    for (const r of rows) {
+      for (const vd of r.refutations ?? []) {
+        total++;
+        byOutcome[vd.verdict]++;
+        confSum += Math.max(0, Math.min(1, vd.confidence ?? 0));
+      }
+    }
+    return { total, byOutcome, avgConfidence: total === 0 ? null : confSum / total };
   },
 });

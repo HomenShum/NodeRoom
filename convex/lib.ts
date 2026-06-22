@@ -16,6 +16,33 @@ export const actorProofV = v.object({
   token: v.optional(v.string()),
 });
 
+/**
+ * Adversarial-refutation verdict — Tekton pattern, persisted alongside taskResults.
+ * An independent verifier in a fresh context window tries to REFUTE each claim;
+ * surviving + overturned + uncertain verdicts ALL persist (failures are evidence).
+ *
+ * Keep this in sync with src/ui/traceLens/types.ts RefutationVerdict.
+ */
+export const refutationOutcomeV = v.union(
+  v.literal("stands"),
+  v.literal("refuted"),
+  v.literal("uncertain"),
+);
+
+export const refutationVerdictV = v.object({
+  claimId: v.string(),         // opaque per-record id (idempotency key for upsert)
+  claim: v.string(),           // plain-English claim under test
+  verdict: refutationOutcomeV,
+  confidence: v.number(),      // verifier's confidence in this verdict (0..1)
+  correctedValue: v.optional(v.string()), // when verdict==="refuted"
+  reasoning: v.string(),       // verifier's plain-English paper trail
+  refutedBy: v.optional(v.string()), // banker-facing label of the verifier
+  refutedAt: v.optional(v.number()),  // ms epoch (writer fills now())
+});
+
+/** BOUND rule cap — max verdicts per taskResult. Above this, oldest are evicted. */
+export const REFUTATIONS_MAX_PER_TASK = 100;
+
 export async function getElement(ctx: QueryCtx, artifactId: Id<"artifacts">, elementId: string) {
   return ctx.db
     .query("elements")

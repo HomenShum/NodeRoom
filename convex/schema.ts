@@ -16,6 +16,7 @@
 
 import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
+import { refutationVerdictV } from "./lib";
 
 const actor = v.object({
   kind: v.union(v.literal("user"), v.literal("agent")),
@@ -1337,6 +1338,7 @@ export default defineSchema({
     countsTowardHeadline: v.boolean(), // cleanGeneralProbe && modelCalls > 0 — the only rows in the headline
     trialId: v.optional(v.string()),
     verdict: v.optional(v.string()),
+    refutations: v.optional(v.array(refutationVerdictV)),
     createdAt: v.number(),
   })
     .index("by_run", ["evalRunId"])

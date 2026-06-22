@@ -404,7 +404,7 @@ input { font-family: inherit; }
 .r-coach-card-button { width: 100%; text-align: left; color: inherit; cursor: pointer; }
 .r-coach-card-button:hover { border-color: var(--accent-border); background: var(--accent-tint); }
 .r-coach-card-head, .r-coach-review-head, .r-coach-runway-row > div { min-width: 0; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 6px; margin-bottom: 5px; }
-.r-coach-card-head strong, .r-coach-review-head strong, .r-coach-runway-row strong, .r-coach-cue strong, .r-coach-handoff strong { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text-primary); font-size: 11.5px; line-height: 1.2; }
+.r-coach-card-head strong, .r-coach-review-head strong, .r-coach-runway-row strong, .r-coach-cue strong, .r-coach-handoff strong { min-width: 0; display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; color: var(--text-primary); font-size: 11.5px; line-height: 1.2; }
 .r-coach-card-head span, .r-coach-review-head span, .r-coach-runway-row span, .r-coach-handoff span { border: 1px solid var(--line); border-radius: 999px; background: var(--bg-secondary); color: var(--text-muted); padding: 1px 6px; font-size: 9.5px; font-weight: 800; white-space: nowrap; }
 .r-coach-card-head span[data-status="verified"], .r-coach-runway-row[data-status="verified"] span { border-color: rgba(31,138,91,.28); background: rgba(31,138,91,.10); color: var(--success-ink); }
 .r-coach-card-head span[data-status="needs_review"], .r-coach-runway-row[data-status="needs_review"] span { border-color: var(--warning-border); background: var(--warning-tint); color: var(--warning-ink); }
@@ -1167,6 +1167,8 @@ button.r-tracevu-step:hover, button.r-tracevu-step:focus-visible { border-color:
 }
 /* Dense-data readability on small screens. */
 @media (max-width: 768px) {
+  .r-wiki-body { grid-template-columns: 1fr; }
+  .r-wiki-toc { display: none; }
   .r-wiki-metrics { grid-template-columns: repeat(2, 1fr); }
   .r-cell-meta { font-size: 10px; }
 }
@@ -1175,6 +1177,7 @@ button.r-tracevu-step:hover, button.r-tracevu-step:focus-visible { border-color:
   .r-iconbtn { width: 44px; height: 44px; }
   .r-iconbtn-sm { width: 44px; height: 44px; }
   .r-tab { min-height: 40px; }
+  .r-chip { min-height: 40px; display: inline-flex; align-items: center; }
   .r-mini-btn { min-height: 40px; }
   .r-icon-btn { width: 32px; height: 32px; }
   /* The auto-allow switch gates whether agent edits apply without review — the biggest-blast-radius
@@ -1401,3 +1404,331 @@ button.r-tracevu-step:hover, button.r-tracevu-step:focus-visible { border-color:
 .r-inbox-practice-input { width: 100%; font: inherit; font-size: 12px; line-height: 1.45; color: var(--text-primary); background: var(--surface-1, rgba(0,0,0,0.18)); border: 1px solid var(--border-subtle, rgba(127,127,127,0.3)); border-radius: 6px; padding: 6px 8px; resize: vertical; box-sizing: border-box; }
 .r-inbox-practice-input:focus { outline: none; border-color: var(--accent-border); box-shadow: 0 0 0 2px var(--accent-tint); }
 .r-inbox-practice-actions { display: flex; align-items: center; gap: 6px; margin-top: 6px; }
+
+/* BankerToolBench live eval ledger. Fixed overlay keeps eval status visible without resizing NodeRoom. */
+.btb-live-ledger {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  z-index: 60;
+  width: min(560px, calc(100vw - 32px));
+  max-height: min(680px, calc(100vh - 40px));
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+  overflow: hidden;
+  color: var(--text-primary);
+  background: color-mix(in srgb, var(--bg-primary) 94%, #ffffff 6%);
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
+  box-shadow: 0 18px 46px rgba(15, 23, 42, 0.22);
+}
+.btb-live-ledger__status,
+.btb-live-ledger__eyebrow,
+.btb-live-ledger__summary div {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.btb-live-ledger__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+.btb-live-ledger__eyebrow {
+  margin-bottom: 3px;
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+.btb-live-ledger h2 {
+  margin: 0;
+  font-size: 18px;
+  line-height: 1.15;
+}
+.btb-live-ledger__badge {
+  flex: 0 0 auto;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  padding: 3px 8px;
+  color: var(--text-muted);
+  background: var(--bg-secondary);
+  font-size: 11px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+.btb-live-ledger__badge--ok {
+  color: #14532d;
+  border-color: #86efac;
+  background: #dcfce7;
+}
+.btb-live-ledger__metrics {
+  display: grid;
+  grid-template-columns: minmax(0, 1.8fr) repeat(3, minmax(74px, 1fr));
+  gap: 8px;
+}
+.btb-live-ledger__metrics div {
+  min-width: 0;
+  padding: 8px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--line-soft);
+  border-radius: 7px;
+}
+.btb-live-ledger__metrics span {
+  display: block;
+  color: var(--text-muted);
+  font-size: 10.5px;
+  font-weight: 700;
+}
+.btb-live-ledger__metrics strong {
+  display: block;
+  margin-top: 3px;
+  overflow: hidden;
+  color: var(--text-primary);
+  font-size: 13px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.btb-live-ledger__runs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+}
+.btb-live-ledger__run {
+  min-width: 0;
+  border: 1px solid var(--line-soft);
+  border-radius: 7px;
+  padding: 7px 8px;
+  text-align: left;
+  color: var(--text-secondary);
+  background: var(--bg-secondary);
+  cursor: pointer;
+}
+.btb-live-ledger__run:hover,
+.btb-live-ledger__run.is-selected {
+  border-color: var(--accent-border);
+  background: var(--accent-tint);
+}
+.btb-live-ledger__run span,
+.btb-live-ledger__run small {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.btb-live-ledger__run span { font-size: 12px; font-weight: 800; }
+.btb-live-ledger__run small { margin-top: 2px; color: var(--text-muted); font-size: 10.5px; }
+.btb-live-ledger__summary {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 4px;
+  color: var(--text-muted);
+  font-size: 11.5px;
+}
+.btb-live-ledger__tasks {
+  min-height: 112px;
+  overflow: auto;
+  border: 1px solid var(--line-soft);
+  border-radius: 7px;
+}
+.btb-live-ledger__task {
+  display: grid;
+  grid-template-columns: minmax(96px, 1fr) minmax(86px, 0.7fr) minmax(108px, 1fr);
+  gap: 8px;
+  align-items: center;
+  min-height: 32px;
+  padding: 6px 8px;
+  border-top: 1px solid var(--line-soft);
+  color: var(--text-secondary);
+  font-size: 11.5px;
+}
+.btb-live-ledger__task:first-child { border-top: 0; }
+.btb-live-ledger__task--head {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  color: var(--text-muted);
+  background: var(--bg-secondary);
+  font-size: 10.5px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+.btb-live-ledger__task span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.btb-live-ledger__task small {
+  display: block;
+  color: var(--text-muted);
+  font-size: 10px;
+}
+.btb-live-ledger__task .is-clean,
+.btb-live-ledger__task .is-rejected {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.btb-live-ledger__task .is-clean { color: #166534; }
+.btb-live-ledger__task .is-rejected { color: #991b1b; }
+
+@media (max-width: 760px) {
+  .btb-live-ledger {
+    right: 8px;
+    bottom: 8px;
+    width: calc(100vw - 16px);
+    max-height: 56vh;
+  }
+  .btb-live-ledger__metrics,
+  .btb-live-ledger__runs {
+    grid-template-columns: 1fr 1fr;
+  }
+  .btb-live-ledger__task {
+    grid-template-columns: minmax(88px, 1fr) minmax(68px, 0.6fr) minmax(84px, 0.8fr);
+  }
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+ * Honesty layer (Tekton evidence-chain pattern).
+ * Tints each sheet cell by `data-evidence-class` ONLY when body has
+ * `.nr-honesty-on`. Off by default — zero visual cost unless toggled.
+ *
+ * 5-class taxonomy lives in src/ui/traceLens/evidence.ts (single source).
+ * One toggle, whole-artifact: see TraceSurface HonestyToggle.
+ * ───────────────────────────────────────────────────────────────────────── */
+:root {
+  --honesty-measured:      #0ea5b7;
+  --honesty-reconstructed: #6366f1;
+  --honesty-rule-derived:  #d97706;
+  --honesty-conjecture:    #dc2626;
+  --honesty-unsourced:     #a21caf;
+}
+
+/* Off-state guard — when toggle is off, evidence classes are pure metadata,
+   no rendering. (Prevents the explorer-mapping risk of evidence leak.) */
+[data-evidence-class] { /* no visual change by default */ }
+
+/* On-state — color each classified cell. Subtle background + left rail. */
+body.nr-honesty-on [data-evidence-class="measured"]      { background-color: color-mix(in srgb, var(--honesty-measured) 14%, transparent); box-shadow: inset 3px 0 0 var(--honesty-measured); }
+body.nr-honesty-on [data-evidence-class="reconstructed"] { background-color: color-mix(in srgb, var(--honesty-reconstructed) 14%, transparent); box-shadow: inset 3px 0 0 var(--honesty-reconstructed); }
+body.nr-honesty-on [data-evidence-class="rule_derived"]  { background-color: color-mix(in srgb, var(--honesty-rule-derived) 14%, transparent); box-shadow: inset 3px 0 0 var(--honesty-rule-derived); }
+body.nr-honesty-on [data-evidence-class="conjecture"]    { background-color: color-mix(in srgb, var(--honesty-conjecture) 16%, transparent); box-shadow: inset 3px 0 0 var(--honesty-conjecture); }
+/* Unsourced — louder. This is the alarm class; the honesty gate trips on these. */
+body.nr-honesty-on [data-evidence-class="unsourced"]     { background-color: color-mix(in srgb, var(--honesty-unsourced) 22%, transparent); box-shadow: inset 3px 0 0 var(--honesty-unsourced), inset 0 0 0 1px color-mix(in srgb, var(--honesty-unsourced) 50%, transparent); }
+
+/* Honesty toolbar inside .r-tracevu — sits above the tab strip. */
+.r-tracevu-honesty {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 12px;
+  border-bottom: 1px solid var(--border-subtle, rgba(0,0,0,0.08));
+  background: var(--surface-1, rgba(0,0,0,0.02));
+  font-size: 11px;
+  flex-wrap: wrap;
+}
+.r-tracevu-honesty-toggle {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 10px; border-radius: 999px; border: 1px solid var(--border-subtle, rgba(0,0,0,0.12));
+  background: transparent; cursor: pointer; font-size: 11px; font-weight: 500;
+}
+.r-tracevu-honesty-toggle[data-on="true"] { background: var(--honesty-measured); color: #fff; border-color: var(--honesty-measured); }
+.r-tracevu-honesty-toggle:focus-visible { outline: 2px solid var(--accent-primary, #2563eb); outline-offset: 2px; }
+
+.r-tracevu-honesty-legend { display: inline-flex; gap: 8px; flex-wrap: wrap; }
+.r-tracevu-honesty-legend > span {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 2px 8px; border-radius: 10px; font-size: 10px;
+  background: var(--surface-2, rgba(0,0,0,0.04));
+}
+.r-tracevu-honesty-legend > span::before {
+  content: ""; width: 8px; height: 8px; border-radius: 2px;
+}
+.r-tracevu-honesty-legend > span[data-c="measured"]::before      { background: var(--honesty-measured); }
+.r-tracevu-honesty-legend > span[data-c="reconstructed"]::before { background: var(--honesty-reconstructed); }
+.r-tracevu-honesty-legend > span[data-c="rule_derived"]::before  { background: var(--honesty-rule-derived); }
+.r-tracevu-honesty-legend > span[data-c="conjecture"]::before    { background: var(--honesty-conjecture); }
+.r-tracevu-honesty-legend > span[data-c="unsourced"]::before     { background: var(--honesty-unsourced); }
+
+/* Audit count — when the gate trips, this badge goes red. */
+.r-tracevu-honesty-gate {
+  margin-left: auto;
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 3px 9px; border-radius: 10px;
+  font-size: 10px; font-weight: 600; letter-spacing: 0.02em;
+}
+.r-tracevu-honesty-gate[data-gate="pass"]  { background: color-mix(in srgb, var(--honesty-measured) 18%, transparent); color: var(--honesty-measured); }
+.r-tracevu-honesty-gate[data-gate="fail"]  { background: color-mix(in srgb, var(--honesty-unsourced) 22%, transparent); color: var(--honesty-unsourced); }
+.r-tracevu-honesty-gate[data-gate="empty"] { background: var(--surface-2, rgba(0,0,0,0.04)); color: var(--text-muted, #6b7280); }
+/* ──────────────────────────────────────────────────────────────────────────
+ * Refutations tab — Tekton adversarial-verification verdict cards.
+ * Three verdict tones, one card layout, one filter bar.
+ * Aligned with the honesty-layer colors so a refuted claim and an unsourced
+ * cell read as the same alarm class.
+ * ───────────────────────────────────────────────────────────────────────── */
+.r-tracevu-refutations { padding: 12px 14px; display: flex; flex-direction: column; gap: 12px; }
+.r-tracevu-refutations-empty { padding: 14px; color: var(--text-muted, #6b7280); font-size: 12px; line-height: 1.55; }
+.r-tracevu-refutations-empty-hint { font-size: 11px; opacity: 0.9; }
+
+.r-tracevu-refutations-head {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  padding-bottom: 8px; border-bottom: 1px solid var(--border-subtle, rgba(0,0,0,0.08));
+}
+.r-tracevu-refutations-counts { display: inline-flex; gap: 8px; flex-wrap: wrap; font-size: 11px; }
+.r-tracevu-refutations-counts > span {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 3px 9px; border-radius: 10px; font-weight: 500;
+  background: var(--surface-2, rgba(0,0,0,0.04));
+}
+.r-tracevu-refutations-counts > span[data-tone="ok"]   { color: var(--honesty-measured); background: color-mix(in srgb, var(--honesty-measured) 14%, transparent); }
+.r-tracevu-refutations-counts > span[data-tone="risk"] { color: var(--honesty-unsourced); background: color-mix(in srgb, var(--honesty-unsourced) 16%, transparent); }
+.r-tracevu-refutations-counts > span[data-tone="warn"] { color: var(--honesty-rule-derived); background: color-mix(in srgb, var(--honesty-rule-derived) 16%, transparent); }
+.r-tracevu-refutations-avg { font-variant-numeric: tabular-nums; opacity: 0.85; }
+
+.r-tracevu-refutations-filter { display: inline-flex; gap: 4px; margin-left: auto; }
+.r-tracevu-refutations-fbtn {
+  padding: 3px 9px; border-radius: 999px; border: 1px solid var(--border-subtle, rgba(0,0,0,0.12));
+  background: transparent; font-size: 11px; cursor: pointer; font-weight: 500;
+}
+.r-tracevu-refutations-fbtn[data-on="true"] {
+  background: var(--accent-primary, #2563eb); color: #fff; border-color: var(--accent-primary, #2563eb);
+}
+.r-tracevu-refutations-fbtn:focus-visible { outline: 2px solid var(--accent-primary, #2563eb); outline-offset: 2px; }
+
+.r-tracevu-refutations-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.r-tracevu-refutation {
+  border: 1px solid var(--border-subtle, rgba(0,0,0,0.10));
+  border-radius: 8px; padding: 10px 12px;
+  background: var(--surface-1, rgba(0,0,0,0.02));
+  display: flex; flex-direction: column; gap: 6px;
+}
+/* Left rail by verdict — same hues as the honesty layer for cross-recognition. */
+.r-tracevu-refutation[data-verdict="stands"]    { box-shadow: inset 3px 0 0 var(--honesty-measured); }
+.r-tracevu-refutation[data-verdict="refuted"]   { box-shadow: inset 3px 0 0 var(--honesty-unsourced); background: color-mix(in srgb, var(--honesty-unsourced) 6%, var(--surface-1, rgba(0,0,0,0.02))); }
+.r-tracevu-refutation[data-verdict="uncertain"] { box-shadow: inset 3px 0 0 var(--honesty-rule-derived); }
+
+.r-tracevu-refutation-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.r-tracevu-refutation-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 2px 8px; border-radius: 999px; font-size: 10px; font-weight: 600; letter-spacing: 0.02em;
+}
+.r-tracevu-refutation-badge[data-tone="ok"]   { background: color-mix(in srgb, var(--honesty-measured) 18%, transparent); color: var(--honesty-measured); }
+.r-tracevu-refutation-badge[data-tone="risk"] { background: color-mix(in srgb, var(--honesty-unsourced) 20%, transparent); color: var(--honesty-unsourced); }
+.r-tracevu-refutation-badge[data-tone="warn"] { background: color-mix(in srgb, var(--honesty-rule-derived) 20%, transparent); color: var(--honesty-rule-derived); }
+.r-tracevu-refutation-claim { flex: 1; font-size: 13px; line-height: 1.4; }
+.r-tracevu-refutation-conf { font-size: 11px; font-variant-numeric: tabular-nums; color: var(--text-muted, #6b7280); }
+
+.r-tracevu-refutation-corrected {
+  margin-top: 4px; padding: 8px 10px; border-radius: 6px;
+  background: color-mix(in srgb, var(--honesty-unsourced) 9%, transparent);
+  border-left: 2px solid var(--honesty-unsourced);
+}
+.r-tracevu-refutation-corrected .kicker { font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--honesty-unsourced); display: block; margin-bottom: 2px; }
+.r-tracevu-refutation-corrected p { margin: 0; font-size: 12px; line-height: 1.45; }
+
+.r-tracevu-refutation-reason { margin: 0; font-size: 12px; line-height: 1.5; color: var(--text-secondary, #4b5563); }
+.r-tracevu-refutation-foot { display: flex; gap: 10px; font-size: 10.5px; color: var(--text-muted, #6b7280); font-variant-numeric: tabular-nums; }

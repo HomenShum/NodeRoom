@@ -9,7 +9,8 @@ import type { BankerCoachPacket, EvidenceCardArtifact } from "../bankerCoachPack
 import type { TraceEvent } from "../../engine/types";
 import type { AgentRunTelemetry } from "../../app/store";
 import type { NormBox } from "../../nodeagent/capture/types";
-export type { NormBox };
+import type { RefutationVerdict } from "../traceLens/types";
+export type { NormBox, RefutationVerdict };
 
 export type TraceTone = "ok" | "warn" | "risk" | "info";
 
@@ -58,6 +59,10 @@ export interface TraceRecord {
   attribution?: { ai: number; mixed: number; human: number };
   steps: TraceStep[];
   evidenceCards?: EvidenceCardArtifact[];
+  /** Adversarial-refutation verdicts on the claims this record carries. Independent verifier in a
+   *  fresh context window tried to refute each claim — the surviving + overturned + uncertain
+   *  verdicts ALL persist here (failures are evidence, not blemishes). Tekton pattern. */
+  refutations?: RefutationVerdict[];
   raw: unknown;
 }
 
@@ -100,6 +105,45 @@ export const QA_TRACE_RECORD: TraceRecord = {
     ],
     findings: [],
   },
+  refutations: [
+    {
+      claimId: "ship-bar",
+      claim: "Ship bar met: P0 = 0, P1 = 0, P2 = 0 across all surfaces.",
+      verdict: "stands",
+      confidence: 0.96,
+      reasoning: "Re-counted from raw.counts in fresh context: P0=0 P1=0 P2=0. Three surfaces all show overflowPx=0 and contrastFails=0; no per-surface override changes the totals.",
+      refutedBy: "Independent verifier · fresh context",
+      refutedAt: "2026-06-17T00:09:14Z",
+    },
+    {
+      claimId: "tabular-nums-universal",
+      claim: "All scanned surfaces render numbers with tabular-nums.",
+      verdict: "refuted",
+      confidence: 0.92,
+      correctedValue: "2 of 3 surfaces use tabular-nums; blank-room reports n/a (no numeric grids on the surface).",
+      reasoning: "raw.surfaces[2] (blank-room) has tabularNums: false. The original phrasing implies universality, which the data does not support — though it is not a regression because blank-room has no tabular grid to opt into.",
+      refutedBy: "Independent verifier · fresh context",
+      refutedAt: "2026-06-17T00:09:18Z",
+    },
+    {
+      claimId: "zero-contrast-fails",
+      claim: "Zero contrast failures across desktop, mobile, and blank-room.",
+      verdict: "stands",
+      confidence: 0.94,
+      reasoning: "All three raw.surfaces entries have contrastFails: 0; cross-checked against the screenshots referenced in steps[].screenshotUrl.",
+      refutedBy: "Independent verifier · fresh context",
+      refutedAt: "2026-06-17T00:09:20Z",
+    },
+    {
+      claimId: "scanned-cells-total",
+      claim: "Roughly 240 elements scanned across the floor run.",
+      verdict: "uncertain",
+      confidence: 0.55,
+      reasoning: "Sum is 117 + 106 + 19 = 242, which IS approximately 240, but 'scanned' is element count, not cells. The claim conflates the two; cannot affirm without seeing the floor's scan-target definition.",
+      refutedBy: "Independent verifier · fresh context",
+      refutedAt: "2026-06-17T00:09:22Z",
+    },
+  ],
 };
 
 /** Producer-generated trace bundles (scripts/qa-trace/capture-flow.ts) auto-load here — drop a JSON, it appears. */

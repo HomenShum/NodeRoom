@@ -4,15 +4,17 @@
  * Right: Overview · Steps (each → the exact source cell / a captured screenshot) · Evidence · Raw JSON.
  */
 import { useEffect, useMemo, useState, type FormEvent } from "react";
-import { Activity, Wrench, FileCheck2, Camera } from "lucide-react";
+import { Activity, Wrench, FileCheck2, Camera, ShieldAlert, ShieldCheck, ShieldQuestion } from "lucide-react";
 import { useStore } from "../../app/store";
 import { buildBankerCoachPacket } from "../bankerCoachPacket";
 import { EvidenceCarouselArtifact } from "../artifacts/EvidenceCarouselArtifact";
+import { EVIDENCE_CLASSES, evidenceLabel, auditEvidenceCoverage, passesHonestyGate, refutationLabel, summarizeRefutations, type EvidenceClass } from "../traceLens/evidence";
+import type { RefutationVerdict, RefutationOutcome } from "../traceLens/types";
 import { QA_TRACE_RECORD, QA_BUNDLES, buildAgentTraceRecords, type TraceRecord, type TraceStep, type TraceAttachment } from "./traceData";
 import { StepRow } from "./TraceStepRow";
 import { TraceFlow } from "./TraceFlow";
 
-type DetailTab = "overview" | "steps" | "flow" | "evidence" | "raw";
+type DetailTab = "overview" | "steps" | "flow" | "evidence" | "refutations" | "raw";
 
 /** Capture a source into the Trace tab. Two lanes: Web (Firecrawl screenshot + extract) and SEC
  *  (EDGAR data API — authoritative facts by ticker/concept). The persisted record joins the list. */
@@ -69,6 +71,47 @@ function CaptureForm({ roomId, onCapture, onSec }: {
   );
 }
 
+/** One toggle, whole-artifact: colors every classified cell on the page by evidence class.
+ *  Reads document.body — survives across artifacts/rooms. Pure DOM, no store. */
+function HonestyToggle() {
+  const [on, setOn] = useState<boolean>(() => typeof document !== "undefined" && document.body.classList.contains("nr-honesty-on"));
+  const [coverage, setCoverage] = useState(() => auditEvidenceCoverage(typeof document !== "undefined" ? document : null));
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+    if (on) document.body.classList.add("nr-honesty-on");
+    else document.body.classList.remove("nr-honesty-on");
+  }, [on]);
+  // Re-audit when the toggle flips OR every 1s while on. Cheap (one querySelectorAll).
+  useEffect(() => {
+    if (!on || typeof document === "undefined") return;
+    const tick = () => setCoverage(auditEvidenceCoverage(document));
+    tick();
+    const id = window.setInterval(tick, 1000);
+    return () => window.clearInterval(id);
+  }, [on]);
+  const gate = !on ? "empty" : coverage.total === 0 ? "empty" : (passesHonestyGate(coverage) ? "pass" : "fail");
+  const gateLabel = gate === "empty" ? "no cells" : gate === "pass" ? "0 unsourced" : `${coverage.classes.unsourced} unsourced / ${coverage.total}`;
+  return (
+    <div className="r-tracevu-honesty" data-testid="honesty-toolbar">
+      <button type="button" className="r-tracevu-honesty-toggle" data-on={String(on)} data-testid="honesty-toggle"
+        onClick={() => setOn((v) => !v)} aria-pressed={on}
+        title="Color every cell by evidence class — the whole artifact's honesty in one switch.">
+        {on ? "Honesty: on" : "Honesty: off"}
+      </button>
+      {on && (
+        <div className="r-tracevu-honesty-legend" data-testid="honesty-legend" aria-label="Evidence classes">
+          {EVIDENCE_CLASSES.map((c: EvidenceClass) => (
+            <span key={c} data-c={c} title={evidenceLabel(c)}>{c.replace("_", "-")} {coverage.classes[c]}</span>
+          ))}
+        </div>
+      )}
+      <span className="r-tracevu-honesty-gate" data-gate={gate} data-testid="honesty-gate"
+        title="Zero-unsourced gate: every classified cell must have a known provenance.">
+        {gateLabel}
+      </span>
+    </div>
+  );
+}
 export function TraceSurface({ roomId, onOpenSource }: {
   roomId: string;
   onOpenSource: (artifactId: string, elementId?: string) => void;
@@ -109,11 +152,13 @@ export function TraceSurface({ roomId, onOpenSource }: {
   const record = records.find((r) => r.id === selectedId) ?? records[0];
   if (!record) return <div className="r-art-body r-tracevu" data-testid="trace-surface" />;
 
-  const detailTabs = (["overview", "steps", "flow", "evidence", "raw"] as DetailTab[])
-    .filter((t) => t !== "evidence" || (record.evidenceCards?.length ?? 0) > 0);
+  const detailTabs = (["overview", "steps", "flow", "evidence", "refutations", "raw"] as DetailTab[])
+    .filter((t) => t !== "evidence" || (record.evidenceCards?.length ?? 0) > 0)
+    .filter((t) => t !== "refutations" || (record.refutations?.length ?? 0) > 0);
 
   return (
     <div className="r-art-body r-tracevu" data-testid="trace-surface" data-noderoom-surface="workSurface.trace">
+      <HonestyToggle />
       <aside className="r-tracevu-list" aria-label="Trace records">
         {store.mode === "convex" && <CaptureForm roomId={roomId} onCapture={store.captureSource} onSec={store.secFacts} />}
         {records.map((r) => (
@@ -137,7 +182,7 @@ export function TraceSurface({ roomId, onOpenSource }: {
           <div className="r-tracevu-tabs" role="tablist" aria-label="Trace detail">
             {detailTabs.map((t) => (
               <button key={t} type="button" role="tab" aria-selected={tab === t} data-on={String(tab === t)} data-testid={`trace-tab-${t}`} onClick={() => setTab(t)}>
-                {t === "overview" ? "Overview" : t === "steps" ? "Steps" : t === "flow" ? "Flow" : t === "evidence" ? "Evidence" : "Raw JSON"}
+                {t === "overview" ? "Overview" : t === "steps" ? "Steps" : t === "flow" ? "Flow" : t === "evidence" ? "Evidence" : t === "refutations" ? "Refutations" : "Raw JSON"}
               </button>
             ))}
           </div>
@@ -148,6 +193,7 @@ export function TraceSurface({ roomId, onOpenSource }: {
           {tab === "steps" && <TraceSteps record={record} onOpenSource={onOpenSource} />}
           {tab === "flow" && <TraceFlow record={record} onOpenSource={onOpenSource} />}
           {tab === "evidence" && <EvidenceCarouselArtifact cards={record.evidenceCards ?? []} onOpenArtifact={onOpenSource} />}
+          {tab === "refutations" && <TraceRefutations record={record} />}
           {tab === "raw" && <TraceRaw record={record} />}
         </div>
       </div>
@@ -271,6 +317,81 @@ function TraceRaw({ record }: { record: TraceRecord }) {
     <div className="r-tracevu-rawwrap">
       {big && <a className="r-tracevu-download" href={href} download={`${record.id}.json`}>Download full JSON ({Math.round(json.length / 1024)} KB)</a>}
       <pre className="r-tracevu-raw" data-testid="trace-raw">{big ? `${json.slice(0, 20000)}\n… (truncated — download for full)` : json}</pre>
+    </div>
+  );
+}
+
+
+/** Refutations tab — Tekton adversarial-verification pattern. Lists every verdict (stands, refuted,
+ *  uncertain), including overturned + uncertain ones. Failures are evidence, not blemishes. */
+function TraceRefutations({ record }: { record: TraceRecord }) {
+  const verdicts = record.refutations ?? [];
+  const summary = summarizeRefutations(verdicts);
+  const [filter, setFilter] = useState<"all" | RefutationOutcome>("all");
+  const visible = filter === "all" ? verdicts : verdicts.filter((v) => v.verdict === filter);
+  if (!verdicts.length) {
+    return (
+      <div className="r-tracevu-refutations-empty" data-testid="refutations-empty">
+        <p>No adversarial-refutation pass has been run on this record yet.</p>
+        <p className="r-tracevu-refutations-empty-hint">An independent verifier in a fresh context window
+          tries to <strong>refute</strong> every claim; surviving claims earn "stands," overturned ones
+          earn "refuted" with a corrected value, and ambiguous ones earn "uncertain." All three persist.</p>
+      </div>
+    );
+  }
+  const tone = (o: RefutationOutcome) => o === "stands" ? "ok" : o === "refuted" ? "risk" : "warn";
+  const Icon = (o: RefutationOutcome) => o === "stands" ? ShieldCheck : o === "refuted" ? ShieldAlert : ShieldQuestion;
+  return (
+    <div className="r-tracevu-refutations" data-testid="trace-refutations">
+      <header className="r-tracevu-refutations-head">
+        <div className="r-tracevu-refutations-counts" data-testid="refutations-summary">
+          <span data-tone="ok"   title="Claims that survived adversarial refutation">✓ {summary.byOutcome.stands} stands</span>
+          <span data-tone="risk" title="Claims overturned by the independent verifier">✗ {summary.byOutcome.refuted} refuted</span>
+          <span data-tone="warn" title="Claims the verifier could neither confirm nor refute">? {summary.byOutcome.uncertain} uncertain</span>
+          {Number.isFinite(summary.avgConfidence) && (
+            <span className="r-tracevu-refutations-avg" title="Average verifier confidence in its own verdicts">
+              avg conf {(summary.avgConfidence * 100).toFixed(0)}%
+            </span>
+          )}
+        </div>
+        <div className="r-tracevu-refutations-filter" role="tablist" aria-label="Filter verdicts">
+          {(["all", "stands", "refuted", "uncertain"] as const).map((f) => (
+            <button key={f} type="button" data-on={String(filter === f)} data-testid={`refutations-filter-${f}`}
+              className="r-tracevu-refutations-fbtn" onClick={() => setFilter(f)}>
+              {f === "all" ? `All ${verdicts.length}` : `${refutationLabel(f)} ${summary.byOutcome[f]}`}
+            </button>
+          ))}
+        </div>
+      </header>
+      <ol className="r-tracevu-refutations-list">
+        {visible.map((v: RefutationVerdict) => {
+          const I = Icon(v.verdict);
+          return (
+            <li key={v.claimId} className="r-tracevu-refutation" data-verdict={v.verdict} data-testid="refutation-card">
+              <div className="r-tracevu-refutation-head">
+                <span className="r-tracevu-refutation-badge" data-tone={tone(v.verdict)}>
+                  <I size={12} /> {refutationLabel(v.verdict)}
+                </span>
+                <strong className="r-tracevu-refutation-claim">{v.claim}</strong>
+                <span className="r-tracevu-refutation-conf" title="Verifier confidence in this verdict">
+                  {(v.confidence * 100).toFixed(0)}%
+                </span>
+              </div>
+              {v.correctedValue && (
+                <div className="r-tracevu-refutation-corrected" data-testid="refutation-corrected">
+                  <span className="kicker">Verifier proposes</span>
+                  <p>{v.correctedValue}</p>
+                </div>
+              )}
+              <p className="r-tracevu-refutation-reason">{v.reasoning}</p>
+              <footer className="r-tracevu-refutation-foot">
+                {v.refutedBy && <span>{v.refutedBy}</span>}
+                {v.refutedAt && <time dateTime={v.refutedAt}>{v.refutedAt.replace("T", " ").replace("Z", " UTC")}</time>}
+              </footer>
+            </li>
+          );
+        })}
+      </ol>
     </div>
   );
 }

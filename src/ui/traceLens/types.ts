@@ -41,3 +41,34 @@ export interface TraceLensState {
   /** server-verified; false for everyone until convex/traceLens viewerCapabilities ships */
   builderCapable: boolean;
 }
+
+/**
+ * Adversarial-refutation verdict — Tekton's `adversarial-verification.json` shape, ported.
+ *
+ * Doctrine: a claim made by an agent run is re-tested by an INDEPENDENT verifier whose context
+ * does NOT include the builder's reasoning. The verifier tries to REFUTE the claim — defaulting
+ * to "refuted" when uncertain. Surviving claims earn `stands`; overturned claims earn `refuted`
+ * with a `correctedValue`. Honest UI keeps the failures: "fail→revise→pass is evidence of
+ * autonomy, not a blemish."
+ *
+ * Client-safe: opaque ids + plain-English text only. No skill paths, no Convex fn names.
+ */
+export type RefutationOutcome = "stands" | "refuted" | "uncertain";
+
+export interface RefutationVerdict {
+  /** Opaque per-record claim id. Banker-readable when possible (e.g. "revenue-q3-2024"). */
+  claimId: string;
+  /** Plain-English claim the verifier tried to refute. */
+  claim: string;
+  verdict: RefutationOutcome;
+  /** Verifier's confidence in the verdict itself (0..1), NOT in the original claim. */
+  confidence: number;
+  /** If verdict === "refuted", the value the verifier proposes instead. */
+  correctedValue?: string;
+  /** Verifier's plain-English reasoning. The honest paper trail. */
+  reasoning: string;
+  /** Banker-facing label of the verifier (e.g. "Independent verifier · fresh context"). */
+  refutedBy?: string;
+  /** ISO-ish timestamp string (display only). */
+  refutedAt?: string;
+}

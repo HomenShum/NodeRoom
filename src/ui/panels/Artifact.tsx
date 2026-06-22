@@ -10,10 +10,12 @@ import { restrictToParentElement } from "@dnd-kit/modifiers";
 import { useEditor, EditorContent, EditorProvider } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { useQuery, useMutation } from "convex/react";
+import { useTiptapSync } from "@convex-dev/prosemirror-sync/tiptap";
 import { api } from "../../../convex/_generated/api";
 import {
   Table2, FileText, StickyNote, Users, GitMerge, Play, RotateCcw, History, Search, BookOpen,
   Lock, Unlock, Ban, Pencil, Plus, Check, AlertTriangle, Eye, Circle, ChevronRight, Download, Trash2, Undo2, X, Columns2, MoreHorizontal, Mail, Hash, Layers, Linkedin, Activity, type LucideIcon,
+  Sparkles,
 } from "lucide-react";
 import { useStore, type ActorProof, type RoomStore, type EditFeedback, type PresenceClaim } from "../../app/store";
 import { formatExcelNumber } from "../../app/numberFormat";
@@ -22,6 +24,7 @@ import { evaluateFormula, FormulaEvalError, type CellResolver, type CellValue, t
 import { rangeBox, boxSize, cellsInBox, rangeLabel, rewriteFormulaRefs, buildTSV, parseTSV, toA1, parseA1 } from "../../shared/gridOps";
 import { onStageFocus, focusStage, type StageFocusTarget } from "../stageFocus";
 import { TraceSurface } from "./TraceSurface";
+import { classifyEvidence } from "../traceLens/evidence";
 import type { Actor, Artifact as Art, CellPayload, DataframeColumn, DocumentParseMeta, Proposal, TraceEvent, ResearchRowInput } from "../../engine/types";
 import { prepareDownstreamDrafts, type PreparedDownstreamDraft } from "../../nodeagent/skills/integration/downstreamPublish";
 
@@ -937,7 +940,7 @@ function GenericSheet({ art }: { art: Art }) {
     <>
       <div className="r-art-body">
         <div className="r-sheet-wrap">
-          <table className="r-sheet r-generic-sheet">
+          <table className="r-sheet r-generic-sheet" data-noderoom-surface="workSurface.sheet" data-artifact-id={art.id}>
             <thead><tr><th className="r-corner" aria-label="row number" />{columns.map((c) => <th key={c.id}>{c.label}</th>)}</tr></thead>
             <tbody>
               {visibleRows.map((rid, i) => (
@@ -948,7 +951,7 @@ function GenericSheet({ art }: { art: Art }) {
                     const payload = asCellPayload(raw);
                     const value = displayCellValue(raw);
                     return (
-                      <td key={col} title={payload?.evidence?.[0]?.label}>
+                      <td key={col} title={payload?.evidence?.[0]?.label} data-evidence-class={classifyEvidence(payload)} data-cell-key={rid + "__" + col} data-element-id={rid + "__" + col} data-testid="sheet-cell">
                         {value || <span className="nullcell">—</span>}
                         {payload && <span className={"r-cell-meta " + (payload.status ?? "complete")}>{payload.evidence?.length ? `${payload.evidence.length} src` : payload.status}</span>}
                       </td>
@@ -1339,6 +1342,7 @@ function ExcelGridSheet({ roomId, me, art, onError }: { roomId: string; me: Acto
                           style={{ ...inline, ...presenceStyle(cellPresence) }}
                           title={title}
                           data-cell-key={elementId}
+                          data-evidence-class={classifyEvidence(payload)}
                           data-presence-mode={cellPresence?.mode}
                           data-presence-label={cellPresence ? presenceLabel(cellPresence) : undefined}
                           data-in-range={rangeCells?.has(elementId) ? "true" : undefined}
@@ -1453,7 +1457,7 @@ function Sheet({ roomId, me, art, onError }: { roomId: string; me: Actor; art: A
                     <td className="label">{cellVal(art, rid, "label")}</td>
                     <td className="num"><span className="r-val-num">{cellVal(art, rid, "q2")}</span></td>
                     <td className="num"><span className="r-val-num">{cellVal(art, rid, "q3")}</span></td>
-                    <td className={vCls} style={presenceStyle(vPresence)} data-cell-key={vId} data-element-id={vId} data-testid="sheet-cell" data-presence-mode={vPresence?.mode} onClick={() => touchPresence(store, roomId, art.id, me, vId, "focus", selfPresenceColor)}>
+                    <td className={vCls} style={presenceStyle(vPresence)} data-cell-key={vId} data-element-id={vId} data-evidence-class={classifyEvidence(asCellPayload(vEl?.value))} data-testid="sheet-cell" data-presence-mode={vPresence?.mode} onClick={() => touchPresence(store, roomId, art.id, me, vId, "focus", selfPresenceColor)}>
                       <EditableCell key={vId + ":" + (vEl?.version ?? 0)} value={String(vEl?.value ?? "")} disabled={!!lk || drafting || !!vProposal} align="right" onEditStart={() => touchPresence(store, roomId, art.id, me, vId, "edit", selfPresenceColor)} onEditEnd={() => store.clearPresence({ roomId, artifactId: art.id, targetKind: "cell", targetId: vId, mode: "edit", actor: me })} onCommit={(s) => doCommit(vId, s)} />
                       {lk && <span className="lockbadge"><Lock size={9} /> NA</span>}
                       {drafting && <span className="lockbadge"><Pencil size={9} /> draft</span>}
@@ -1461,7 +1465,7 @@ function Sheet({ roomId, me, art, onError }: { roomId: string; me: Actor; art: A
                       {personalEditor && <span className="r-prov-dot" style={{ background: personalEditor.color }} title={`edited by ${personalEditor.name}'s agent`} />}
                       {vPresence && <span className="presencebadge" data-testid="presence-flag">{presenceLabel(vPresence)}</span>}
                     </td>
-                    <td className={"r-cell" + (nPresence ? ` presence presence-${nPresence.mode}` : "") + (nProposal ? " proposed" : "")} style={presenceStyle(nPresence)} data-cell-key={nId} data-element-id={nId} data-testid="sheet-cell" data-presence-mode={nPresence?.mode} onClick={() => touchPresence(store, roomId, art.id, me, nId, "focus", selfPresenceColor)}>
+                    <td className={"r-cell" + (nPresence ? ` presence presence-${nPresence.mode}` : "") + (nProposal ? " proposed" : "")} style={presenceStyle(nPresence)} data-cell-key={nId} data-element-id={nId} data-evidence-class={classifyEvidence(asCellPayload(nEl?.value))} data-testid="sheet-cell" data-presence-mode={nPresence?.mode} onClick={() => touchPresence(store, roomId, art.id, me, nId, "focus", selfPresenceColor)}>
                       <EditableCell key={nId + ":" + (nEl?.version ?? 0)} value={String(nEl?.value ?? "")} disabled={!!lk || !!nProposal} addLabel="note" onEditStart={() => touchPresence(store, roomId, art.id, me, nId, "edit", selfPresenceColor)} onEditEnd={() => store.clearPresence({ roomId, artifactId: art.id, targetKind: "cell", targetId: nId, mode: "edit", actor: me })} onCommit={(s) => doCommit(nId, s)} />
                       {nProposal && <InlineProposal roomId={roomId} me={me} proposal={nProposal} onResolved={(f) => { if (!f.ok) onError(f); }} />}
                       {nPresence && <span className="presencebadge" data-testid="presence-flag">{presenceLabel(nPresence)}</span>}
@@ -1549,9 +1553,37 @@ function SyncedNote({ roomId, me, proof, art }: { roomId: string; me: Actor; pro
   if (isUploadedFileDoc(docValue)) return <FileViewer doc={docValue} />;
   const store = useStore();
   const [noteErr, setNoteErr] = useState<string | null>(null);
+  const [dirtyStatus, setDirtyStatus] = useState<"idle" | "queued" | "processed">("idle");
+  const dirtyTimer = useRef<number | null>(null);
   const existing = useQuery(api.prosemirror.getNotebookDoc, { roomId: roomId as never, artifactId: art.id as never, requester: proof });
+  const blocks = useQuery(api.notebookProcessing.listNotebookBlocks, existing ? { roomId: roomId as never, artifactId: art.id as never, requester: proof, limit: 12 } : "skip") ?? [];
+  const plans = useQuery(api.agentArtifacts.listAgentArtifacts, existing ? { roomId: roomId as never, requester: proof, kind: "agent_work_plan", limit: 12 } : "skip") ?? [];
   const ensureDoc = useMutation(api.prosemirror.ensureNotebookDoc);
+  const markDirty = useMutation(api.notebookProcessing.markNotebookDirty);
+  const createPlan = useMutation(api.agentArtifacts.createAgentWorkPlanFromNotebook);
+  const approvePlan = useMutation(api.agentArtifacts.approveAgentWorkPlan);
   const ensuredRef = useRef(false);
+  const scopedPlans = (plans as AgentWorkPlanRow[]).filter((plan) => String(plan.artifactId ?? "") === art.id);
+  const queueDirty = (changedRangeHint = "doc:idle") => {
+    if (dirtyTimer.current !== null) window.clearTimeout(dirtyTimer.current);
+    dirtyTimer.current = window.setTimeout(() => {
+      setDirtyStatus("queued");
+      void markDirty({
+        roomId: roomId as never,
+        artifactId: art.id as never,
+        requester: proof,
+        changedRangeHint,
+        processingLane: "passive",
+        quietMs: 2_000,
+      })
+        .then(() => setNoteErr(null))
+        .catch((e: unknown) => setNoteErr(`Notebook indexing failed: ${String(e).slice(0, 140)}`));
+    }, changedRangeHint === "doc:blur" ? 80 : 1_200);
+  };
+  useEffect(() => () => { if (dirtyTimer.current !== null) window.clearTimeout(dirtyTimer.current); }, []);
+  useEffect(() => {
+    if ((blocks as unknown[]).length > 0) setDirtyStatus("processed");
+  }, [(blocks as unknown[]).length]);
 
   // Lazy migration: if the registry row is absent, create the synced doc once.
   // existing === null means "loaded, no row yet"; undefined means still loading.
@@ -1580,7 +1612,31 @@ function SyncedNote({ roomId, me, proof, art }: { roomId: string; me: Actor; pro
   return (
     <div className="r-art-body">
       {noteErr && <div className="r-wall-error" role="alert" data-testid="note-error">{noteErr}</div>}
-      <SyncedEditorInner docId={existing.prosemirrorDocId} roomId={roomId} me={me} art={art} store={store} setNoteErr={setNoteErr} />
+      <SyncedEditorInner docId={existing.prosemirrorDocId} me={me} art={art} store={store} setNoteErr={setNoteErr} onDirty={queueDirty} />
+      <NotebookReadModelPanel
+        blocks={blocks as NotebookBlockRow[]}
+        plans={scopedPlans}
+        dirtyStatus={dirtyStatus}
+        onCreatePlan={() =>
+          createPlan({
+            roomId: roomId as never,
+            artifactId: art.id as never,
+            requester: proof,
+            goal: "Research the noted company and return source-backed proposals before changing shared artifacts.",
+          })
+            .then(() => setNoteErr(null))
+            .catch((e: unknown) => setNoteErr(`Work plan failed: ${String(e).slice(0, 140)}`))
+        }
+        onApprovePlan={(plan) =>
+          approvePlan({
+            agentArtifactId: plan._id as never,
+            requester: proof,
+            planHash: plan.planHash ?? "",
+          })
+            .then(() => setNoteErr(null))
+            .catch((e: unknown) => setNoteErr(`Plan approval failed: ${String(e).slice(0, 140)}`))
+        }
+      />
       <AgentNotesBlock art={art} />
     </div>
   );
@@ -1590,12 +1646,12 @@ function SyncedNote({ roomId, me, proof, art }: { roomId: string; me: Actor; pro
  *  the `useTiptapSync` hook subscribes to a valid (registered) doc and never a
  *  guessed/placeholder id. */
 function SyncedEditorInner({
-  docId, roomId, me, art, store, setNoteErr,
+  docId, me, art, store, setNoteErr, onDirty,
 }: {
-  docId: string; roomId: string; me: Actor; art: Art; store: RoomStore; setNoteErr: (e: string | null) => void;
+  docId: string; me: Actor; art: Art; store: RoomStore; setNoteErr: (e: string | null) => void; onDirty: (changedRangeHint?: string) => void;
 }) {
   const locked = !!lockedByOther(store, art.id, "doc", me);
-  const sync = useTiptapSyncLazy(api.prosemirror, docId);
+  const sync = useTiptapSync(api.prosemirror, docId);
   if (sync === undefined || sync.isLoading || sync.initialContent === null) {
     return <div data-testid="note-editor-loading">Loading notebook…</div>;
   }
@@ -1606,12 +1662,8 @@ function SyncedEditorInner({
         immediatelyRender={false}
         content={sync.initialContent}
         extensions={[StarterKit, sync.extension]}
-        onBlur={({ editor }) => {
-          const html = editor.getHTML();
-          // Write the HTML snapshot into elements["doc"] via the existing
-          // commit()/CAS path so locks/proposals/OKF keep working unchanged.
-          void commit(store, roomId, me, art.id, "doc", html).then((f) => setNoteErr(f && !f.ok ? editErrorMsg(f) : null));
-        }}
+        onUpdate={() => { onDirty("doc:idle"); }}
+        onBlur={() => { onDirty("doc:blur"); setNoteErr(null); }}
       >
         <EditorContent editor={null} />
       </EditorProvider>
@@ -1619,19 +1671,140 @@ function SyncedEditorInner({
   );
 }
 
-/** Lazy wrapper around useTiptapSync so the ProseMirror Sync client only loads in
- *  native-notebook mode. Returns undefined while the hook module is loading; once
- *  loaded, returns the sync state (which is never null per the hook's type). */
-function useTiptapSyncLazy(syncApi: typeof api.prosemirror, id: string) {
-  const [mod, setMod] = useState<typeof import("@convex-dev/prosemirror-sync/tiptap") | null>(null);
-  useEffect(() => {
-    if (!NOTEBOOK_SYNC_ENABLED) return;
-    void import("@convex-dev/prosemirror-sync/tiptap").then(setMod).catch((e: unknown) => {
-      console.error("Failed to load prosemirror-sync", e);
-    });
-  }, []);
-  // Call the hook unconditionally when the module is loaded so React rules of hooks hold.
-  return mod ? mod.useTiptapSync(syncApi, id) : undefined;
+type NotebookBlockRow = {
+  blockId: string;
+  blockIndex: number;
+  blockType: string;
+  text: string;
+  sourceSnapshotVersion: number;
+};
+type AgentWorkPlanRow = {
+  _id: string;
+  artifactId?: string;
+  status: string;
+  title: string;
+  payload?: unknown;
+  planHash?: string;
+  executedJobId?: string;
+  updatedAt: number;
+};
+
+function payloadRecord(payload: unknown): Record<string, unknown> {
+  return payload && typeof payload === "object" ? payload as Record<string, unknown> : {};
+}
+
+function textList(value: unknown, key: string): string[] {
+  const arr = payloadRecord(value)[key];
+  return Array.isArray(arr)
+    ? arr.map((item) => {
+      if (typeof item === "string") return item;
+      const row = payloadRecord(item);
+      for (const field of ["text", "displayName", "title", "source"]) {
+        if (typeof row[field] === "string" && row[field]) return row[field];
+      }
+      return JSON.stringify(item);
+    }).slice(0, 3)
+    : [];
+}
+
+function NotebookReadModelPanel({
+  blocks,
+  plans,
+  dirtyStatus,
+  onCreatePlan,
+  onApprovePlan,
+}: {
+  blocks: NotebookBlockRow[];
+  plans: AgentWorkPlanRow[];
+  dirtyStatus: "idle" | "queued" | "processed";
+  onCreatePlan: () => Promise<unknown>;
+  onApprovePlan: (plan: AgentWorkPlanRow) => Promise<unknown>;
+}) {
+  const [busy, setBusy] = useState<"create" | string | null>(null);
+  const latestPlan = plans[0];
+  const planPayload = payloadRecord(latestPlan?.payload);
+  const goal = typeof planPayload.goal === "string" ? planPayload.goal : "";
+  const sourceBlocks = textList(latestPlan?.payload, "sourceBlocks");
+  const mentions = textList(latestPlan?.payload, "mentions");
+  const evidenceRequirements = textList(latestPlan?.payload, "evidenceRequirements");
+  const createDisabled = blocks.length === 0 || busy !== null;
+  return (
+    <div className="r-notebook-proof" data-testid="notebook-read-model" data-status={dirtyStatus}>
+      <div className="r-notebook-proof-head">
+        <span><Sparkles size={13} /> Notebook intelligence</span>
+        <span className="r-tag">{dirtyStatus === "processed" ? "read model ready" : dirtyStatus === "queued" ? "indexing" : "listening"}</span>
+      </div>
+      {blocks.length === 0 ? (
+        <p className="tiny faint">Typed notebook text stays in ProseMirror. The read model appears here after idle processing.</p>
+      ) : (
+        <div className="r-notebook-blocks">
+          {blocks.slice(0, 3).map((block) => (
+            <div key={block.blockId} className="r-notebook-block" data-testid="notebook-block">
+              <span className="mono tiny">v{block.sourceSnapshotVersion} / {block.blockType}</span>
+              <p>{block.text}</p>
+            </div>
+          ))}
+        </div>
+      )}
+      <div className="r-notebook-actions">
+        <button
+          type="button"
+          className="r-mini-btn primary"
+          data-testid="agent-work-plan-create"
+          disabled={createDisabled}
+          onClick={() => {
+            setBusy("create");
+            Promise.resolve(onCreatePlan()).finally(() => setBusy(null));
+          }}
+        >
+          <Check size={12} /> {busy === "create" ? "Drafting..." : "Draft work plan"}
+        </button>
+      </div>
+      {latestPlan && (
+        <div className="r-agent-plan-card" data-testid="agent-work-plan-card" data-status={latestPlan.status}>
+          <div className="r-agent-plan-card-head">
+            <b>{latestPlan.title}</b>
+            <span className="r-tag">{latestPlan.status}</span>
+          </div>
+          {goal && <p>{goal}</p>}
+          <div className="r-agent-plan-meta">
+            <span data-testid="agent-work-plan-hash">planHash {latestPlan.planHash?.slice(0, 12)}</span>
+            {latestPlan.executedJobId && <span data-testid="agent-work-plan-job">job {String(latestPlan.executedJobId).slice(-8)}</span>}
+          </div>
+          {sourceBlocks.length > 0 && (
+            <div className="r-agent-plan-source" data-testid="agent-work-plan-source">
+              <span className="mono tiny">affected source</span>
+              {sourceBlocks.map((item) => <p key={item}>{item}</p>)}
+            </div>
+          )}
+          {mentions.length > 0 && (
+            <div className="r-agent-plan-mentions" data-testid="agent-work-plan-mentions">
+              {mentions.map((item) => <span key={item} className="r-tag">{item}</span>)}
+            </div>
+          )}
+          {evidenceRequirements.length > 0 && (
+            <ul className="r-agent-plan-list">
+              {evidenceRequirements.map((item) => <li key={item}>{item}</li>)}
+            </ul>
+          )}
+          {latestPlan.status === "proposed" && (
+            <button
+              type="button"
+              className="r-mini-btn primary"
+              data-testid="agent-work-plan-approve"
+              disabled={busy !== null || !latestPlan.planHash}
+              onClick={() => {
+                setBusy(String(latestPlan._id));
+                Promise.resolve(onApprovePlan(latestPlan)).finally(() => setBusy(null));
+              }}
+            >
+              <Check size={12} /> {busy === String(latestPlan._id) ? "Approving..." : "Approve plan"}
+            </button>
+          )}
+        </div>
+      )}
+    </div>
+  );
 }
 
 /** Labeled, append-only agent-owned notes block. Agents write to the `doc:agent`
@@ -2002,12 +2175,15 @@ function toolFor(type: string): string {
     case "draft_created": return "create_draft";
     case "draft_merged": case "draft_conflict": case "proposal_resolved": case "proposal_resolve_failed": return "smart_merge";
     case "semantic_conflict": return "semantic_rebase";
+    case "notebook_read_model": return "process_notebook_dirty_event";
+    case "agent_work_plan_proposed": return "create_agent_work_plan";
+    case "agent_work_plan_approved": return "approve_agent_work_plan";
     default: return type;
   }
 }
 function statusFor(type: string): "ok" | "error" | "info" {
   if (type === "lock_denied" || type === "edit_blocked" || type === "draft_conflict" || type === "semantic_conflict" || type === "proposal_resolve_failed") return "error";
-  if (type === "agent_session_started" || type === "agent_status" || type === "message") return "info";
+  if (type === "agent_session_started" || type === "agent_status" || type === "message" || type === "notebook_read_model") return "info";
   return "ok";
 }
 
@@ -2021,6 +2197,9 @@ function traceIcon(type: string): { cls: string; Icon: LucideIcon } {
     case "draft_merged": case "proposal_resolved": return { cls: "merge", Icon: Check };
     case "draft_conflict": case "semantic_conflict": case "proposal_resolve_failed": return { cls: "read", Icon: AlertTriangle };
     case "agent_session_started": case "agent_status": return { cls: "read", Icon: Eye };
+    case "notebook_read_model": return { cls: "read", Icon: FileText };
+    case "agent_work_plan_proposed": return { cls: "draft", Icon: Sparkles };
+    case "agent_work_plan_approved": return { cls: "merge", Icon: Check };
     default: return { cls: "other", Icon: Circle };
   }
 }
