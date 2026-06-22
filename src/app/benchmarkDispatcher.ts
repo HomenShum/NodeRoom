@@ -83,11 +83,16 @@ export type BenchmarkResult = {
    *  or `scripted:bench:<task>` when no key was baked in / dry-run mode). UI
    *  surfaces this via `data-testid="model-route"` for live-DOM verification. */
   modelRoute: string;
-  /** True when a real LLM call was made (VITE_OPENROUTER_API_KEY was set at
-   *  build time AND a `liveOpenRouterModel` was successfully constructed). */
+  /** True when a real LLM call was made — either via the Convex modelProxy
+   *  action (server-trusted lane) OR via the direct browser → OpenRouter path
+   *  when VITE_OPENROUTER_API_KEY was baked in at build time. */
   liveModel: boolean;
   /** Why we couldn't run (task not found, malformed rubric, etc.). */
   error?: string;
+  /** Non-fatal proxy issues surfaced to the panel banner (e.g. "ignoring extra
+   *  key 'foo'", "missing key 'bar'"). Empty when no proxy was used or the
+   *  response parsed cleanly. */
+  warnings?: string[];
 };
 
 // ---------- Build-time lookup ----------
@@ -282,6 +287,27 @@ function gradeOutputs(
 
 // ---------- Public entry ----------
 
+/** Shape returned by the Convex `modelProxy.openRouterChat` action. We accept any
+ *  callable that returns this shape (the dispatcher can be invoked from React via
+ *  `useAction(api.modelProxy.openRouterChat)` or from a smoke test via a stub). */
+export type ModelProxyResponse = {
+  content: string | null;
+  error: string | null;
+  model: string;
+  dryRun: boolean;
+};
+export type ModelProxyCall = (args: {
+  taskId: string;
+  instruction: string;
+  prompt: string;
+  model: string;
+  responseSchema?: Record<string, unknown>;
+}) => Promise<ModelProxyResponse>;
+
+/** Default proxy model id. Matches the ALLOWED_MODELS allow-list in
+ *  convex/modelProxy.ts. Cheap + tool-friendly + JSON-mode capable. */
+export const DEFAULT_PROXY_MODEL_ID = "z-ai/glm-5.2";
+
 export type DispatchBenchmarkArgs = {
   engine: RoomEngine;
   roomId: string;
@@ -291,14 +317,131 @@ export type DispatchBenchmarkArgs = {
   /** Optional sink for narration messages (chat). The dispatcher posts the
    *  `BENCHMARK_DISPATCHER_READY task=<id>` signal + the grade summary via this. */
   postMessage?: (text: string) => void;
+  /** Optional Convex action handle. When provided AND the browser-direct
+   *  OpenRouter lane is NOT available (no VITE_OPENROUTER_API_KEY baked in),
+   *  the dispatcher routes the live LLM call through `api.modelProxy.openRouterChat`.
+   *  The action is the only sanctioned lane — direct browser → openrouter.ai is
+   *  blocked by Vercel CSP (scripts/security-gate.ts forbiddenBrowserProviders). */
+  callModelProxy?: ModelProxyCall;
+  /** Optional override for the proxy model id (must be in the action's
+   *  ALLOWED_MODELS allow-list). Defaults to DEFAULT_PROXY_MODEL_ID. */
+  proxyModelId?: string;
 };
+
+// ---------- Proxy helpers (no oracle leak) ----------
+
+/**
+ * Build the instruction sent to the model proxy. ANTI-CHEAT: this string MUST
+ * NOT contain any rubric.expected values — only the deliverable, the allowed
+ * keys (so the model knows the schema of the JSON it must return), and the
+ * formula/citation requirements. The expected values are read locally for
+ * grading AFTER the response arrives.
+ */
+function buildProxyInstruction(rubric: BenchmarkRubric): string {
+  const keysList = rubric.allowed_keys.join(", ");
+  return [
+    `You are a benchmark solver for task '${rubric.task}'.`,
+    `Deliverable: ${rubric.deliverable}`,
+    `Return a single JSON object whose keys are EXACTLY the allowed_keys (no others, no missing keys):`,
+    `  allowed_keys: [${keysList}]`,
+    `Each value MUST be a number (no units, no currency symbols, no quotes).`,
+    rubric.formula_required ? "You must derive each value from the provided source rows; do not invent." : "",
+    rubric.citations_required ? "Only use values that appear in the provided sources." : "",
+    `Respond with ONLY the JSON object, no markdown, no commentary.`,
+  ].filter(Boolean).join("\n");
+}
+
+/** Build the user prompt: the task prompt + the source files inlined.
+ *  No rubric.expected values here either — same anti-cheat reason. */
+function buildProxyPrompt(_rubric: BenchmarkRubric, prompt: string, sources: Record<string, string>): string {
+  const sourceBlock = Object.entries(sources)
+    .map(([name, body]) => `--- ${name} ---\n${body}`)
+    .join("\n\n");
+  return [
+    prompt,
+    "",
+    "Sources:",
+    sourceBlock,
+  ].join("\n");
+}
+
+/** Build a JSON-schema for the response: object with allowed_keys as numeric
+ *  properties. Sent to the model via response_format=json_schema so providers
+ *  that support JSON mode (OpenAI 4.x+, glm-5.2) emit strict JSON. */
+function buildResponseSchema(rubric: BenchmarkRubric): Record<string, unknown> {
+  const properties: Record<string, unknown> = {};
+  for (const key of rubric.allowed_keys) {
+    properties[key] = { type: "number" };
+  }
+  return {
+    type: "object",
+    properties,
+    required: [...rubric.allowed_keys],
+    additionalProperties: false,
+  };
+}
+
+/** Parse the model's content string into a numeric output map. Defensive:
+ *  - strips markdown code fences if the model ignored the instruction
+ *  - coerces strings to numbers where possible (tolerant of "12.5%")
+ *  - drops keys not in allowed_keys (anti-extra-key cheat)
+ *  Returns the partial map + a list of parse warnings (kept on the result so
+ *  the UI banner can show them). */
+function parseProxyContent(
+  content: string,
+  rubric: BenchmarkRubric,
+): { outputs: Record<string, number>; warnings: string[] } {
+  const warnings: string[] = [];
+  let raw = content.trim();
+  // Strip ```json ... ``` or ``` ... ``` fences.
+  const fence = raw.match(/^```(?:json)?\s*([\s\S]*?)\s*```$/i);
+  if (fence) raw = fence[1].trim();
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(raw);
+  } catch (err) {
+    warnings.push(`response was not valid JSON (${err instanceof Error ? err.message : String(err)})`);
+    return { outputs: {}, warnings };
+  }
+  if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+    warnings.push("response JSON was not an object");
+    return { outputs: {}, warnings };
+  }
+  const obj = parsed as Record<string, unknown>;
+  const allowed = new Set(rubric.allowed_keys);
+  const outputs: Record<string, number> = {};
+  for (const [key, val] of Object.entries(obj)) {
+    if (!allowed.has(key)) {
+      warnings.push(`ignoring extra key '${key}' (not in allowed_keys)`);
+      continue;
+    }
+    let n: number | null = null;
+    if (typeof val === "number" && Number.isFinite(val)) {
+      n = val;
+    } else if (typeof val === "string") {
+      const cleaned = val.trim().replace(/[%,$]/g, "");
+      const parsedNum = Number(cleaned);
+      if (Number.isFinite(parsedNum)) n = parsedNum;
+    }
+    if (n === null) {
+      warnings.push(`key '${key}' was not a number (got ${typeof val})`);
+      continue;
+    }
+    outputs[key] = n;
+  }
+  for (const key of rubric.allowed_keys) {
+    if (!(key in outputs)) warnings.push(`missing key '${key}' in model response`);
+  }
+  return { outputs, warnings };
+}
 
 /**
  * Run a benchmark task end-to-end against the live nodeagent runtime.
  * Returns a BenchmarkResult; never throws — errors are reported via `error`.
  */
 export async function dispatchBenchmarkTask(args: DispatchBenchmarkArgs): Promise<BenchmarkResult> {
-  const { engine, roomId, taskId, actor, sessionId, postMessage } = args;
+  const { engine, roomId, taskId, actor, sessionId, postMessage, callModelProxy } = args;
+  const proxyModelId = args.proxyModelId ?? DEFAULT_PROXY_MODEL_ID;
   const rubric = rubricFor(taskId);
   if (!rubric) {
     const err: BenchmarkResult = {
@@ -337,17 +480,85 @@ export async function dispatchBenchmarkTask(args: DispatchBenchmarkArgs): Promis
     };
   }
 
-  // Resolve the model route. On the @bench path we PREFER a real OpenRouter call
-  // (the whole point of this seam — non-bench memory chats stay on scripted).
-  // Build-time gate: when VITE_OPENROUTER_API_KEY was NOT set during `vite build`,
-  // `liveOpenRouterModel()` returns null and we honestly fall back to the
-  // deterministic scripted planner — no fake LLM call, no fake PASS.
+  // Resolve the model route. Priority (highest → lowest):
+  //   1. callModelProxy wired (Convex action lane) — server holds OPENROUTER_API_KEY,
+  //      browser sends prompt+sources only. Anti-cheat: rubric.expected NEVER leaves
+  //      this function; it is read locally for grading AFTER the response.
+  //   2. Direct browser → OpenRouter (VITE_OPENROUTER_API_KEY baked in at build time).
+  //      Vercel CSP forbids this in prod, but it's still useful for local dev.
+  //   3. Deterministic scripted plan — honest dry-run when neither lane works.
   const scriptedRoute = `scripted:bench:${taskId}`;
   const scriptedFallback = scriptedModel(benchmarkPlanner(rubric, outputs), scriptedRoute);
   let chosenModel: AgentModel = scriptedFallback;
   let modelRoute = scriptedRoute;
   let liveModel = false;
-  if (hasBrowserOpenRouterKey()) {
+  let proxyWarnings: string[] = [];
+
+  if (callModelProxy) {
+    // Route through the Convex action. The action returns ONE non-streaming
+    // response containing the model's JSON output; we parse it locally and
+    // feed it into the scripted planner so write_locked_cell semantics + CAS
+    // versioning still apply. The action call is wrapped so a network/timeout
+    // failure surfaces as result.error (banner, not white-screen).
+    let proxyResult: ModelProxyResponse | null = null;
+    try {
+      proxyResult = await callModelProxy({
+        taskId,
+        instruction: buildProxyInstruction(rubric),
+        prompt: buildProxyPrompt(rubric, promptFor(taskId) ?? "", sourcesFor(taskId, rubric.sources)),
+        model: proxyModelId,
+        responseSchema: buildResponseSchema(rubric),
+      });
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      const banner = `proxy_call_failed: ${msg.slice(0, 200)}`;
+      postMessage?.(`BENCHMARK_DISPATCHER_DRYRUN task=${taskId} reason=proxied-dry-run: ${banner}`);
+      modelRoute = `proxied-dry-run:${proxyModelId}`;
+      // Fall through to scripted fallback so the surface still grades honestly.
+      proxyResult = null;
+    }
+
+    if (proxyResult && proxyResult.dryRun) {
+      // No server key OR action explicitly dry-ran. Surface the reason but keep
+      // the honest scripted fallback so the panel still shows a graded result.
+      const reason = proxyResult.error?.slice(0, 200) ?? "no server key";
+      postMessage?.(
+        `BENCHMARK_DISPATCHER_DRYRUN task=${taskId} reason=proxied-dry-run: ${reason}`,
+      );
+      modelRoute = `proxied-dry-run:${proxyResult.model || proxyModelId}`;
+    } else if (proxyResult && proxyResult.error) {
+      // Action ran (key present) but the model call failed or input was invalid.
+      // Banner the error and keep the scripted fallback graded result.
+      postMessage?.(
+        `BENCHMARK_DISPATCHER_DRYRUN task=${taskId} reason=proxied-dry-run: ${proxyResult.error.slice(0, 200)}`,
+      );
+      modelRoute = `proxied-dry-run:${proxyResult.model || proxyModelId}`;
+      proxyWarnings.push(proxyResult.error);
+    } else if (proxyResult && proxyResult.content !== null) {
+      // Parse the model's JSON content against the rubric schema. Each numeric
+      // value becomes a cell write through the scripted planner. The rubric is
+      // ONLY used for the allowed_keys gate here — no expected values are read.
+      const { outputs: modelOutputs, warnings } = parseProxyContent(proxyResult.content, rubric);
+      proxyWarnings = warnings;
+      if (Object.keys(modelOutputs).length > 0) {
+        // Override the planner outputs with the model's values. Grading still
+        // compares actual ± tol from rubric.expected — the model never sees those.
+        const proxyPlanner = scriptedModel(
+          benchmarkPlanner(rubric, modelOutputs),
+          `proxy:${proxyResult.model || proxyModelId}`,
+        );
+        chosenModel = proxyPlanner;
+        modelRoute = `proxy:${proxyResult.model || proxyModelId}`;
+        liveModel = true;
+      } else {
+        // Parse yielded zero usable cells — fall back honestly.
+        postMessage?.(
+          `BENCHMARK_DISPATCHER_DRYRUN task=${taskId} reason=proxied-dry-run: empty_or_invalid_json`,
+        );
+        modelRoute = `proxied-dry-run:${proxyResult.model || proxyModelId}`;
+      }
+    }
+  } else if (hasBrowserOpenRouterKey()) {
     const live = liveOpenRouterModel();
     if (live) {
       chosenModel = live;
@@ -438,5 +649,6 @@ export async function dispatchBenchmarkTask(args: DispatchBenchmarkArgs): Promis
     artifactId,
     modelRoute,
     liveModel,
+    warnings: proxyWarnings.length > 0 ? proxyWarnings : undefined,
   };
 }

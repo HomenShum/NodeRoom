@@ -14,11 +14,15 @@
  */
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useAction, useConvex } from "convex/react";
+import { api } from "../../convex/_generated/api";
 import { engine } from "../app/roomStore";
 import {
   dispatchBenchmarkTask,
   listBenchmarkTaskIds,
+  DEFAULT_PROXY_MODEL_ID,
   type BenchmarkResult,
+  type ModelProxyCall,
 } from "../app/benchmarkDispatcher";
 import { hasBrowserOpenRouterKey, browserModelId } from "../nodeagent/models/openRouterBrowser";
 import type { Actor } from "../engine/types";
@@ -52,6 +56,13 @@ export function BenchmarkDispatcherPanel({ initialTaskId }: { initialTaskId?: st
   const [activeTask, setActiveTask] = useState(initialTaskId || taskIds[0] || "");
   const [run, setRun] = useState<RunState>({ kind: "idle" });
   const [chat, setChat] = useState<string[]>([]);
+  // Wire the Convex action proxy. We probe `useConvex` first — it returns
+  // `undefined` (not a throw) when no ConvexProvider is in the tree (e.g.
+  // VITE_CONVEX_URL unset in local dev). The actual `useAction` call lives in
+  // a sub-component that is only mounted when convex IS present, so hooks
+  // order is stable and the no-provider path never crashes.
+  const convex = useConvex() as (ReturnType<typeof useConvex> | undefined);
+  const [callModelProxy, setCallModelProxy] = useState<ModelProxyCall | undefined>(undefined);
   const seedRef = useRef<{ ok: boolean; error?: string } | null>(null);
   if (!seedRef.current) {
     try {
@@ -84,9 +95,12 @@ export function BenchmarkDispatcherPanel({ initialTaskId }: { initialTaskId?: st
         actor,
         sessionId,
         postMessage: (text) => setChat((cur) => [...cur, text]),
+        callModelProxy,
       });
       setRun({ kind: "done", taskId, result });
     } catch (e) {
+      // Convex action errors surface here as a banner row instead of a white-
+      // screen (the ErrorBoundary above the route stays armed for true crashes).
       setChat((cur) => [...cur, `ERROR ${e instanceof Error ? e.message : String(e)}`]);
       setRun({ kind: "idle" });
     }
@@ -109,6 +123,17 @@ export function BenchmarkDispatcherPanel({ initialTaskId }: { initialTaskId?: st
         overflowY: "auto",
       }}
     >
+      {convex ? (
+        <ProxyWiring
+          onReady={(call) => {
+            // setState with a function form `(prev) => next` so React stores
+            // the proxy call itself instead of treating the function as a
+            // state updater and invoking it with `undefined` (which fires a
+            // bogus empty-args probe to the Convex modelProxy action).
+            setCallModelProxy(() => call);
+          }}
+        />
+      ) : null}
       <header style={{ marginBottom: 24 }}>
         <h1 style={{ fontSize: 22, margin: 0 }}>Benchmark dispatcher</h1>
         <p style={{ color: "#9aa0a6", marginTop: 6, fontSize: 14 }}>
@@ -122,10 +147,25 @@ export function BenchmarkDispatcherPanel({ initialTaskId }: { initialTaskId?: st
             data-testid="model-route" attribute is the live-DOM verification
             handle required by the spec. */}
         {(() => {
+          // Pre-run preview — caller can see which lane WILL fire on click.
+          //   1. Convex proxy wired (preferred prod lane, server holds key).
+          //   2. Browser-direct OpenRouter (local-dev only — VITE_OPENROUTER_API_KEY).
+          //   3. Scripted dry-run.
           const liveAvailable = hasBrowserOpenRouterKey();
-          const initial = liveAvailable ? `openrouter:${browserModelId()}` : `scripted:bench:${activeTask || "(none)"}`;
+          const proxyAvailable = !!callModelProxy;
+          const initial = proxyAvailable
+            ? `proxy:${DEFAULT_PROXY_MODEL_ID}`
+            : liveAvailable
+              ? `openrouter:${browserModelId()}`
+              : `scripted:bench:${activeTask || "(none)"}`;
           const resolved = run.kind === "done" ? run.result.modelRoute : initial;
-          const live = run.kind === "done" ? run.result.liveModel : liveAvailable;
+          const live = run.kind === "done" ? run.result.liveModel : (proxyAvailable || liveAvailable);
+          const isProxiedDryRun = resolved.startsWith("proxied-dry-run:");
+          const label = live
+            ? "(live)"
+            : isProxiedDryRun
+              ? "(proxy reached but server key missing or error — see chat)"
+              : "(scripted — no model key configured; dispatcher is dry-run only)";
           return (
             <p
               data-testid="model-route"
@@ -134,7 +174,7 @@ export function BenchmarkDispatcherPanel({ initialTaskId }: { initialTaskId?: st
               style={{ color: "#9aa0a6", marginTop: 4, fontSize: 13 }}
             >
               model route: <code style={{ color: live ? "#7bd88f" : "#ffb84d" }}>{resolved}</code>{" "}
-              {live ? "(live OpenRouter)" : "(scripted — no model key configured; dispatcher is dry-run only)"}
+              {label}
             </p>
           );
         })()}
@@ -217,8 +257,28 @@ export function BenchmarkDispatcherPanel({ initialTaskId }: { initialTaskId?: st
             </span>
           </h2>
           {run.result.error ? (
-            <p style={{ color: "#ff8a80" }}>{run.result.error}</p>
+            <p data-testid="benchmark-result-error" style={{ color: "#ff8a80" }}>{run.result.error}</p>
           ) : (
+            <>
+            {run.result.warnings && run.result.warnings.length > 0 ? (
+              <div
+                data-testid="benchmark-result-warnings"
+                style={{
+                  background: "#1b1408",
+                  border: "1px solid #5a3a12",
+                  borderRadius: 4,
+                  padding: 8,
+                  marginBottom: 12,
+                  color: "#ffb84d",
+                  fontSize: 12,
+                }}
+              >
+                <strong>Proxy warnings:</strong>
+                <ul style={{ margin: "4px 0 0 16px", padding: 0 }}>
+                  {run.result.warnings.map((w, i) => <li key={i}>{w}</li>)}
+                </ul>
+              </div>
+            ) : null}
             <table style={{ width: "100%", fontSize: 13, borderCollapse: "collapse" }}>
               <thead>
                 <tr style={{ background: "#15171c", color: "#9aa0a6" }}>
@@ -241,9 +301,31 @@ export function BenchmarkDispatcherPanel({ initialTaskId }: { initialTaskId?: st
                 ))}
               </tbody>
             </table>
+            </>
           )}
         </div>
       ) : null}
     </section>
   );
+}
+
+/**
+ * Sub-component that calls `useAction` and hands the resulting bound action up
+ * to the parent via `onReady`. Only mounted when a ConvexProvider is in the
+ * tree — `useAction` THROWS without a provider, so isolating it here keeps the
+ * parent panel safe in local-dev (VITE_CONVEX_URL unset). The wiring is one-
+ * shot: we report `onReady` once on mount, then render nothing.
+ */
+function ProxyWiring({ onReady }: { onReady: (call: ModelProxyCall) => void }) {
+  const rawAction = useAction(api.modelProxy.openRouterChat);
+  useEffect(() => {
+    // Wrap so the dispatcher sees a stable callable shape (independent of
+    // Convex SDK internals). Errors thrown by the action propagate to the
+    // dispatcher's try/catch and surface as result.error / a chat banner —
+    // not a white-screen. The parent wraps this with `() => call` before
+    // handing it to `setCallModelProxy` so React doesn't mistake a bare
+    // function for a state updater and fire a bogus empty-args probe.
+    onReady((proxyArgs) => rawAction(proxyArgs));
+  }, [rawAction, onReady]);
+  return null;
 }
