@@ -1,7 +1,7 @@
 /* ============================================================================
    Curated 2026 model registry — the source of truth for the mobile composer's
-   model chips + the chat job-meta label. The server-side router in
-   the server-side provider router already accepts every id below (via
+   model chips + the chat job-meta label. The server-side NodeAgent router
+   already accepts every id below (via
    prefix-based provider routing); the env var `AGENT_MODEL` on Convex prod
    picks the actual default. This file exists so the UI no longer displays
    "Haiku/Sonnet/Opus" when the agent is actually running on something else.

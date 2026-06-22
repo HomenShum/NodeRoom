@@ -164,7 +164,14 @@ function checkLast(): void {
 }
 
 function checkRange(range: string): void {
-  const refs = git(revListArgsForRange(range)).trim().split(/\s+/).filter(Boolean);
+  let refs: string[];
+  try {
+    refs = git(revListArgsForRange(range)).trim().split(/\s+/).filter(Boolean);
+  } catch {
+    console.warn(`${range}: revision range unavailable; falling back to HEAD`);
+    if (!checkCommit("HEAD")) process.exit(1);
+    return;
+  }
   if (refs.length === 0) {
     console.log(`${range}: no commits to check`);
     return;
