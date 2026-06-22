@@ -48,7 +48,10 @@ function baseStore(): any {
     }),
     lastLongFreeJobAttempts: () => [],
     lastLongFreeJobDetail: () => ({
-      operations: [],
+      operations: [
+        { sequence: 1, kind: "mutation", name: "agentJobs.start", status: "completed", countDelta: 1 },
+        { sequence: 2, kind: "scheduler", name: "agentWorkflows.freeAutoWorkflow", status: "completed", countDelta: 1 },
+      ],
       receipts: [],
       leases: [],
       draftOperations: [],
@@ -115,6 +118,14 @@ describe("Chat reasoning-frame job detail", () => {
     expect(screen.getByText("execute")).toBeTruthy();
     expect(screen.getByText("CardioNova / funding")).toBeTruthy();
     expect(screen.getByText(/missing_research_now/)).toBeTruthy();
+  });
+
+  it("shows early durable job operations while the public agent is queued", () => {
+    render(<Chat roomId="r1" me={me} channel="public" variant="public" agentName="Room NodeAgent" />);
+
+    expect(screen.getByTestId("agent-operation-stream")).toBeTruthy();
+    expect(screen.getByText(/mutation: agentJobs.start/)).toBeTruthy();
+    expect(screen.getByText(/scheduler: agentWorkflows.freeAutoWorkflow/)).toBeTruthy();
   });
 
   it("passes the selected specific model through the public @nodeagent composer", async () => {
