@@ -18,6 +18,7 @@ export * from "./core/contextPack";
 export * from "./core/frameReducer";
 export * from "./core/frameVerifier";
 export * from "./core/frameRunner";
+export * from "./traces";
 export * from "./okf";
 export * from "./retrieval";
 export * from "./retrieval/tools";

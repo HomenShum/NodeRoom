@@ -77,21 +77,29 @@ full Figma canvas/vector/branching parity.
 The current reasoning direction is also explicit: "Fable-like" recursive context
 and multi-frame reasoning are harness capabilities, not provider dependencies.
 NodeAgent owns durable frames, context packs, entity/facet cache, OKF evidence,
-verification, and managed writes; Omnigent, when used, stays the optional outer
-meta-harness for policies, sessions, sandboxing, and model/harness selection.
+verification, trace workpapers, and managed writes; Omnigent, when used, stays
+the optional outer meta-harness for policies, sessions, sandboxing, and
+model/harness selection.
 The smallest adoption proof is runnable with:
 
 ```bash
 npm run nodeagent:frame:smoke
 npm run omnigent:nodeagent:smoke
+npm test -- --run tests/nodeagentTraceSpine.test.ts
 ```
 
 The first command proves the NodeAgent frame runner itself. The second validates
 the Omnigent YAML specs, checks that an Omnigent-launched worker is pointed at
 the right NodeAgent proof commands, runs the frame smoke, and writes
-`docs/eval/omnigent-nodeagent-smoke.json`. If the Omnigent CLI is installed,
-use `omni run examples/omnigent/nodeagent-room.yaml` for the outer harness live
-check.
+`docs/eval/omnigent-nodeagent-smoke.json`. The trace spine test proves runtime
+events become redacted, replayable `NodeAgentTrace` workpaper receipts. If the
+Omnigent CLI is installed, use `omni run examples/omnigent/nodeagent-room.yaml`
+for the outer harness live check.
+
+Trace is the signature dish: not debug logs, but the proof layer connecting user
+prompt, visible UI context, context pack, tools, evidence, mutations, approvals,
+final artifacts, evals, and replayable UI proof. The coding-agent starting point
+is [`docs/traces/TRACE_COOKBOOK.md`](docs/traces/TRACE_COOKBOOK.md).
 
 ## NodeRoom, NodeAgent, And NodeTrace
 
@@ -106,7 +114,8 @@ without copying the whole room:
 - [NodeAgent](https://github.com/HomenShum/NodeAgent): the canonical agent
   harness and durable runtime contract. Use it when another app wants the
   frame runner, context packs, verifier receipts, SQLite/Convex adapter shape,
-  Omnigent compatibility, and the no-key local dashboard scaffold.
+  trace workpaper contract, Omnigent compatibility, and the no-key local
+  dashboard scaffold.
 - [NodeTrace](https://github.com/HomenShum/nodetrace): the portable Trace Lens
   UI and SQLite setup. Use it when another app already has an agent runtime and
   only needs Review/Builder trace surfaces, business proof cards, bounded

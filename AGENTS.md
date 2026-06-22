@@ -15,6 +15,8 @@ Use these files as the map:
 - `src/nodeagent/core/frameReducer.ts` - frame result to `FrameDelta`.
 - `src/nodeagent/core/frameVerifier.ts` - frame status/evidence receipt.
 - `src/nodeagent/core/types.ts` - `AgentModel`, `AgentTool`, `RoomTools`.
+- `src/nodeagent/traces/` - canonical trace workpaper types, receipts,
+  redaction, context-pack provenance, and replay summaries.
 - `examples/nodeagent-frame-runner/minimal.ts` - smallest runnable adoption proof.
 - `examples/omnigent/nodeagent-room.yaml` - Omnigent outer-harness worker.
 - `src/nodeagent/skills/integration/omnigentAdapter.ts` - Omnigent YAML compatibility checks.
@@ -29,3 +31,6 @@ Rules:
   Omnigent YAML.
 - Add or update a deterministic test/smoke when changing frame behavior.
 - Run `npm test -- --run tests/frameRunner.test.ts` after frame-runner edits.
+- Trace is NodeAgent's workpaper layer. New durable memory, evidence, mutation,
+  approval, eval, or rework behavior should point back to a `traceId`; update
+  `tests/nodeagentTraceSpine.test.ts` when changing trace contracts.

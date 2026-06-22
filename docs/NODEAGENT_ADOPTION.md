@@ -19,7 +19,7 @@ This uses `examples/nodeagent-frame-runner/minimal.ts` to run a complete
 frame through the real harness:
 
 ```text
-ReasoningFrame -> ContextPack -> runReasoningFrame -> runAgent -> RoomTools -> FrameDelta -> verifier receipt
+ReasoningFrame -> ContextPack -> runReasoningFrame -> runAgent -> RoomTools -> FrameDelta -> verifier receipt -> NodeAgentTrace
 ```
 
 It writes one demo-room cell through the normal read/lock/CAS/release path and
@@ -39,6 +39,8 @@ smoke, and writes `docs/eval/omnigent-nodeagent-smoke.json`.
 | Frame runner | `src/nodeagent/core/frameRunner.ts` |
 | Frame delta reducer | `src/nodeagent/core/frameReducer.ts` |
 | Frame verifier | `src/nodeagent/core/frameVerifier.ts` |
+| Trace contract | `src/nodeagent/traces/traceTypes.ts` |
+| Trace recorder/receipts | `src/nodeagent/traces/traceRecorder.ts`, `src/nodeagent/traces/traceReceipts.ts` |
 | Backend port | `src/nodeagent/core/types.ts` (`RoomTools`) |
 | In-memory adapter | `src/nodeagent/skills/integration/noderoomAdapter.ts` |
 | Omnigent adapter | `src/nodeagent/skills/integration/omnigentAdapter.ts` |
@@ -56,9 +58,28 @@ A new project needs four pieces:
 3. `AgentTool[]`: zod-validated tool contracts backed by `RoomTools`.
 4. `ReasoningFrame`: a bounded task frame with a `ContextPack`, evidence state,
    and tool allowlist.
+5. `NodeAgentTrace`: the workpaper record that links trigger, context pack,
+   tool receipts, evidence, mutations, approval, final output, and eval proof.
 
 Keep the base loop small. Add project-specific cognition above it as frames,
-context packs, reducers, verifiers, and durable state.
+context packs, reducers, verifiers, trace receipts, and durable state.
+
+## Trace As The Adoption Spine
+
+Trace is not a log. Trace is the receipt that proves the agent understood the
+user, used the right context, called the right tools, preserved evidence,
+respected approval, and produced the right artifact.
+
+Start with:
+
+- `docs/traces/TRACE_SYSTEM.md`
+- `docs/traces/TRACE_COOKBOOK.md`
+- `docs/traces/TRACE_UI_STANDARD.md`
+- `docs/traces/TRACE_EVAL_BINDING.md`
+- `docs/traces/TRACE_REWORK_LEDGER.md`
+
+Every durable memory row, evidence card, mutation receipt, eval result, and
+rework decision should point back to a `traceId`.
 
 ## Coding-Agent Rules
 
@@ -80,6 +101,7 @@ Use this order while adapting:
 ```bash
 npm run nodeagent:frame:smoke
 npm run omnigent:nodeagent:smoke
+npm test -- --run tests/nodeagentTraceSpine.test.ts
 npm test -- --run tests/frameRunner.test.ts
 npm test -- --run tests/reasoningFrames.test.ts tests/roomWorkCache.test.ts
 npm run typecheck -- --pretty false
