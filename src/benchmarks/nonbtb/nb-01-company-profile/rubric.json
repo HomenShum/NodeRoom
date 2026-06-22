@@ -1,0 +1,15 @@
+{
+  "task": "nb-01-company-profile",
+  "deliverable": "company_profile.xlsx",
+  "allowed_keys": ["revenue_growth_pct", "gross_margin_2024", "gross_margin_2025", "eps_2024", "eps_2025"],
+  "expected": {
+    "revenue_growth_pct": {"value": 25.0, "tol": 0.1},
+    "gross_margin_2024": {"value": 40.0, "tol": 0.1},
+    "gross_margin_2025": {"value": 44.0, "tol": 0.1},
+    "eps_2024": {"value": 2.40, "tol": 0.01},
+    "eps_2025": {"value": 3.50, "tol": 0.01}
+  },
+  "formula_required": true,
+  "citations_required": true,
+  "sources": ["source_financials.csv", "source_shares.txt"]
+}

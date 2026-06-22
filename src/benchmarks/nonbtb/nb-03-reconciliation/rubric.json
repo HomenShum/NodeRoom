@@ -1,0 +1,14 @@
+{
+  "task": "nb-03-reconciliation",
+  "deliverable": "reconciliation.md",
+  "allowed_keys": ["inv2_amount_diff", "inv3_missing_in_bank", "inv4_missing_in_ledger", "num_discrepancies"],
+  "expected": {
+    "inv2_amount_diff": {"value": 50, "tol": 0.5},
+    "inv3_missing_in_bank": {"value": 300, "tol": 0.5},
+    "inv4_missing_in_ledger": {"value": 300, "tol": 0.5},
+    "num_discrepancies": {"value": 3, "tol": 0}
+  },
+  "formula_required": false,
+  "citations_required": true,
+  "sources": ["ledger.csv", "bank.csv"]
+}

@@ -1,0 +1,6 @@
+{
+  "acme_total": {"value": 12500, "formula": "=B2*C2", "cite": {"file": "quotes.csv", "locator": "Acme"}},
+  "bolt_total": {"value": 11800, "formula": "=B3*C3", "cite": {"file": "quotes.csv", "locator": "Bolt"}},
+  "cobalt_total": {"value": 13200, "formula": "=B4*C4", "cite": {"file": "quotes.csv", "locator": "Cobalt"}},
+  "lowest_total": {"value": 11800, "formula": "=MIN(D2:D4)", "cite": {"file": "quotes.csv", "locator": "Bolt"}}
+}

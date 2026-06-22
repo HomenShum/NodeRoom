@@ -3,7 +3,7 @@
  *
  * Wedge: chat messages starting with `@bench:<task-id>` route here instead of the
  * variance-scripted askAgent path. We bundle the nonbtb rubrics + prompts + source
- * files at build time via `import.meta.glob('../../docs/eval/nonbtb/**', {as:'raw'})`,
+ * files at build time via `import.meta.glob('../benchmarks/nonbtb/**', {as:'raw'})`,
  * derive the expected outputs from the rubric + source CSVs, run the live nodeagent
  * runtime (runHarness) against a fresh bench-namespaced artifact using a scripted
  * planner that emits `write_locked_cell` ops, then grade actual vs expected ± rubric
@@ -34,18 +34,18 @@ import type { AgentModel } from "../nodeagent/core/types";
 // ---------- Build-time bundle of rubrics / prompts / sources ----------
 // import.meta.glob with `as: 'raw'` keeps the files in the bundle as strings — no
 // runtime fetch, no Vercel public/ duplication, eval set stays versioned with code.
-const RUBRIC_FILES = import.meta.glob("../../docs/eval/nonbtb/**/rubric.json", {
+const RUBRIC_FILES = import.meta.glob("../benchmarks/nonbtb/**/rubric.json", {
   query: "?raw",
   import: "default",
   eager: true,
 }) as Record<string, string>;
-const PROMPT_FILES = import.meta.glob("../../docs/eval/nonbtb/**/prompt.md", {
+const PROMPT_FILES = import.meta.glob("../benchmarks/nonbtb/**/prompt.md", {
   query: "?raw",
   import: "default",
   eager: true,
 }) as Record<string, string>;
 const SOURCE_FILES = import.meta.glob(
-  "../../docs/eval/nonbtb/**/*.{csv,txt}",
+  "../benchmarks/nonbtb/**/*.{csv,txt}",
   { query: "?raw", import: "default", eager: true },
 ) as Record<string, string>;
 

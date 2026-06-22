@@ -1,0 +1,6 @@
+{
+  "revenue_growth_pct": {"value": 30.0, "formula": "25.0", "cite": {"file": "guess.csv", "locator": "x"}},
+  "gross_margin_2024": {"value": 55.0, "formula": "40", "cite": {"file": "source_financials.csv", "locator": "row 2024"}},
+  "eps_2024": {"value": 2.40, "formula": "=D2/E1", "cite": {"file": "source_shares.txt", "locator": "shares"}},
+  "made_up_metric": {"value": 99, "formula": "=1", "cite": {"file": "nope.csv", "locator": "invented"}}
+}
