@@ -32,6 +32,8 @@
     "prod:gate:live:agent": "npm run prod:gate && npm run test:product:live:agent",
     "typecheck": "tsc --noEmit",
     "convex:dev": "convex dev",
+    "convex:deploy": "convex deploy --deployment-name zealous-goshawk-766",
+    "convex:deploy:guard": "node -e \"const fs=require('fs');const m=fs.readFileSync('.env.local','utf8').match(/^CONVEX_DEPLOYMENT=(.+)$/m);if(!m||!/zealous-goshawk-766/.test(m[1])){console.error('[guard] .env.local CONVEX_DEPLOYMENT must resolve to zealous-goshawk-766 (the deployment Vercel production reads from). Got:',m?m[1]:'(unset)');process.exit(1);}console.log('[guard] OK — CONVEX_DEPLOYMENT='+m[1]);\"",
     "benchmark": "tsx scripts/benchmark/run.ts",
     "benchmark:official:readiness": "tsx scripts/official-benchmark-readiness.ts",
     "benchmark:bankertoolbench:ingest": "tsx scripts/bankertoolbench-ingest.ts",

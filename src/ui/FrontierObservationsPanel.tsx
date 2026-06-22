@@ -186,13 +186,27 @@ function FrontierObservationsConvexPanel() {
     setPendingRunParam(null);
   }, [pendingRunParam, snapshot]);
 
-  // If neither ?run= nor user selection has resolved, prefer the most
-  // recent model-frontier run from runs[]. The server's default heuristic
-  // (first run with taskCount >= 100) picks BTB sweeps, not frontier
-  // observations — frontier runs only have 6-8 rows.
+  // If neither ?run= nor user selection has resolved, prefer the model-
+  // frontier run with the MOST tasks (tiebreak: most recent startedAt).
+  // The server's default heuristic (first run with taskCount >= 100) picks
+  // BTB sweeps, not frontier observations — frontier runs only have 6-8
+  // rows. Why max-taskCount and not most-recent: smoke probes and stray
+  // 1-row test writes land at the top of the recent-by-time list and shove
+  // the canonical 8-row run off the headline. The invariant "the canonical
+  // headline is the frontier run with the most tasks" is durable against
+  // future smoke probes, dev test rows, and accidental 1-row writes.
+  // See decision.smokeFix=heuristic-prefer-highest-taskCount (Jun 2026
+  // R13/R14 ledger ingest postmortem: aromatic-bass-102 vs
+  // zealous-goshawk-766 + the 1-row R14 smoke probe).
   useEffect(() => {
     if (selectedRunId || pendingRunParam || !snapshot || !snapshot.runs) return;
-    const frontier = snapshot.runs.find((r) => r.benchmark === "model-frontier");
+    const frontierRuns = snapshot.runs.filter((r) => r.benchmark === "model-frontier");
+    if (frontierRuns.length === 0) return;
+    const frontier = frontierRuns.reduce((best, r) => {
+      if (r.taskCount > best.taskCount) return r;
+      if (r.taskCount === best.taskCount && r.startedAt > best.startedAt) return r;
+      return best;
+    }, frontierRuns[0]);
     if (frontier && (!snapshot.selectedRun || snapshot.selectedRun.id !== frontier.id)) {
       setSelectedRunId(frontier.id);
     }
