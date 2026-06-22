@@ -46,4 +46,10 @@ remotion/public/audio/
 remotion/public/video/
 public/episodes/
 
+# Playwright probe artifacts (screenshots + JSON, regenerable from test runs)
+tests/.artifacts/
+
+# Nested git repo reference (short-term fix; submodule would be the long-term fix)
+skills/solo-founder-nodes/
+
 .vercel
