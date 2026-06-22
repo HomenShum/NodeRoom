@@ -3,7 +3,11 @@ import { useMutation, useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { Landing } from "./Landing";
 import { RoomShell } from "./RoomShell";
-import { BtbLiveLedgerPanel } from "./BtbLiveLedgerPanel";
+// TODO(fleet): BtbLiveLedgerPanel.tsx + its `publicLedgerSnapshot` Convex query
+// are mid-development and not yet committed; the import + usage are disabled to
+// keep prod builds green. Restore both this import and the JSX site below (~L87)
+// when the BtbLive panel + its convex/* dependencies land together.
+// import { BtbLiveLedgerPanel } from "./BtbLiveLedgerPanel";
 import { LandingStory } from "../landing/LandingStory";
 import { MobileRoot } from "./mobile/MobileRoot";
 // Lazy: the Tour bundle is ~50 KB of scripted demo content (panels, sheet,
@@ -84,7 +88,7 @@ export function App() {
     return (
       <EngineStoreProvider roomId={btbSessionRef.current.roomId} me={btbSessionRef.current.me}>
         <RoomShell roomId={btbSessionRef.current.roomId} me={btbSessionRef.current.me} onLeave={() => { window.location.hash = ""; }} />
-        {HAS_CONVEX ? <BtbLiveLedgerPanel /> : null}
+        {/* TODO(fleet): {HAS_CONVEX ? <BtbLiveLedgerPanel /> : null} — disabled, see import note */}
       </EngineStoreProvider>
     );
   }
