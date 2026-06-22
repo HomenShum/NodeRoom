@@ -159,6 +159,7 @@ export interface RoomTools {
   fetchSource(url: string): Promise<SourceResult>;
   /** Persist a finished live capture (screenshots + boxes) so it renders in the Trace tab.
    *  Optional: only the server (Convex) port implements it; in-memory/browser ports omit it. */
+  citeInFile?(input: { target: string; label?: string; fileName?: string }): Promise<unknown>;
   recordCapture?(input: {
     url: string;
     goal: string;
