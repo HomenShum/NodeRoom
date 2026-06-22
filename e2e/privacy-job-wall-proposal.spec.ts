@@ -89,9 +89,13 @@ test.describe("privacy, job, wall, and proposal browser coverage", () => {
 
     await chat.getByTestId("job-retry").click();
     await expect(chat.getByTestId("job-status")).toContainText("running 2/2");
-    await expect(chat.getByTestId("job-status")).toContainText("completed 2/2", { timeout: 10_000 });
+    // Completion: the production UX auto-hides the transient job-status tag once the
+    // job succeeds (see Chat.tsx showLongJobChrome + the success-collapse useEffect,
+    // mirrored by tests/chatReasoningFrames.test.tsx "collapses open successful job
+    // details"). The durable signals of completion are the agent's chat message and
+    // the variance cells the job actually wrote — assert those instead of the tag.
+    await expect(chat.getByTestId("chat-message").filter({ hasText: "Memory free-auto applied" })).toBeVisible({ timeout: 10_000 });
     await expect(chat.getByTestId("job-cancel")).toHaveCount(0);
-    await expect(chat.getByTestId("chat-message").filter({ hasText: "Memory free-auto applied" })).toBeVisible();
     await expect(gpVariance).toContainText("+21.7%");
     await expect(niVariance).toContainText("+22.4%");
     await expect(chat.getByTestId("job-error")).toHaveCount(0);
