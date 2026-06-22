@@ -17,6 +17,7 @@ import {
   type ArtifactRef,
 } from "./artifactRefs";
 import { IntakePlanPreview } from "./IntakePlanPreview";
+import { MarkdownBody } from "./MarkdownBody";
 
 const AGENT_AVATAR_COLOR = "#8F3F27";
 const COLORS = ["#8F3F27", "#315DA8", "#2F6B44", "#6D3FB2", "#80631F", "#A34B2E"];
@@ -166,12 +167,15 @@ function StreamedBody({ streamId }: { streamId: string }) {
   const { text, status } = usePrivateReplyStream(streamId, store.privateStreamAccess(streamId));
   const live = status === "pending" || status === "streaming";
   return (
-    <div className="text" data-testid="stream-body" data-stream-status={status}>
-      {text}
-      {live && <span className="r-stream-cursor" aria-hidden>▍</span>}
-      {status === "error" && <span className="tiny" style={{ color: "var(--danger-ink)" }}> — stream error (partial reply kept)</span>}
-      {status === "timeout" && <span className="tiny" style={{ color: "var(--danger-ink)" }}> — stream timed out</span>}
-    </div>
+    <MarkdownBody
+      text={text}
+      data-testid="stream-body"
+      data-stream-status={status}
+      cursor={live ? <span className="r-stream-cursor" aria-hidden>|</span> : null}
+    >
+      {status === "error" && <span className="tiny" style={{ color: "var(--danger-ink)" }}> - stream error (partial reply kept)</span>}
+      {status === "timeout" && <span className="tiny" style={{ color: "var(--danger-ink)" }}> - stream timed out</span>}
+    </MarkdownBody>
   );
 }
 const shortMs = (ms: number) => ms >= 60_000 ? `${Math.round(ms / 6000) / 10}m` : `${Math.round(ms / 100) / 10}s`;
@@ -1065,7 +1069,7 @@ export function Chat({ roomId, me, channel, variant, agentName, style, onOpenArt
                 <span className={"r-tag agent" + (["failed", "blocked"].includes(item.status) ? " danger" : "")} style={{ padding: "1px 5px", fontSize: 9 }}>{item.status}</span>
                 <span className="time">{clock(item.createdAt)}</span>
               </div>
-              <div className="text">{item.text}</div>
+              <MarkdownBody text={item.text} />
             </div>
           </div>
         ))}
@@ -1441,7 +1445,7 @@ function Bubble({ m, roomId, variant, me, onPromote, onOpenArtifact }: { m: Mess
             {m.streamId && !m.text ? (
               <StreamedBody streamId={m.streamId} />
             ) : (
-              parsed.body && (ask ? <span className="r-bubble-ask">{parsed.body}</span> : <div className="text">{parsed.body}</div>)
+              parsed.body && (ask ? <span className="r-bubble-ask">{parsed.body}</span> : <MarkdownBody text={parsed.body} />)
             )}
           </>
         )}
