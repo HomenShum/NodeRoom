@@ -608,6 +608,16 @@ input { font-family: inherit; }
 .r-agent-stream span { min-width: 0; display: block; padding: 4px 6px; border: 1px solid var(--line); border-radius: 7px; background: color-mix(in srgb, var(--bg-secondary) 78%, transparent); color: var(--text-secondary); font-size: 11px; line-height: 1.25; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .r-agent-stream b { margin-right: 6px; color: var(--accent-ink); font-size: 9px; text-transform: uppercase; letter-spacing: 0; }
 .r-agent-stream span[data-status="failed"] b { color: var(--danger-ink); }
+.r-agent-unified-stream { max-width: 100%; display: grid; gap: 6px; margin-top: 4px; }
+.r-agent-unified-stream > .text { margin: 0; }
+.r-agent-unified-stream .r-md-table-wrap { margin-top: 4px; }
+.r-agent-part { min-width: 0; display: grid; grid-template-columns: auto auto minmax(0, max-content) minmax(0, 1fr); align-items: center; gap: 6px; padding: 4px 6px; border: 1px solid var(--line); border-radius: 7px; background: color-mix(in srgb, var(--bg-secondary) 78%, transparent); color: var(--text-secondary); font-size: 11px; line-height: 1.25; }
+.r-agent-part svg { color: var(--text-tertiary); }
+.r-agent-part b { color: var(--accent-ink); font-size: 9px; text-transform: uppercase; letter-spacing: 0; white-space: nowrap; }
+.r-agent-part span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 700; color: var(--text-primary); }
+.r-agent-part em { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-style: normal; color: var(--text-muted); }
+.r-agent-part[data-status="failed"] b, .r-agent-part[data-status="failed"] svg { color: var(--danger-ink); }
+.r-agent-part.step { grid-template-columns: auto auto minmax(0, 1fr); }
 .r-activity { display: flex; align-items: center; gap: 8px; padding: 4px 2px; }
 .r-activity-ico { width: 20px; height: 20px; border-radius: 6px; flex: none; display: grid; place-items: center; background: var(--bg-secondary); border: 1px solid var(--line); color: var(--accent-ink); font-size: 10px; }
 .r-activity-text { font-size: 11.5px; color: var(--text-muted); line-height: 1.35; flex: 1; min-width: 0; }

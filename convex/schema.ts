@@ -52,6 +52,24 @@ const operationEventKindV = v.union(
   v.literal("checkpoint"),
 );
 const operationStatusV = v.union(v.literal("started"), v.literal("completed"), v.literal("failed"), v.literal("skipped"));
+const agentStreamEventKindV = v.union(
+  v.literal("message_start"),
+  v.literal("step_start"),
+  v.literal("text_delta"),
+  v.literal("tool_call_start"),
+  v.literal("tool_call_result"),
+  v.literal("artifact_update"),
+  v.literal("warning"),
+  v.literal("error"),
+  v.literal("message_done"),
+);
+const agentStreamEventStatusV = v.union(
+  v.literal("started"),
+  v.literal("streaming"),
+  v.literal("completed"),
+  v.literal("failed"),
+  v.literal("skipped"),
+);
 const graphObjectKindV = v.union(
   v.literal("notebook"),
   v.literal("node"),
@@ -805,6 +823,32 @@ export default defineSchema({
     completedAt: v.optional(v.number()),
   })
     .index("by_job_sequence", ["jobId", "sequence"])
+    .index("by_run", ["runId", "sequence"]),
+
+  /** UIMessage-shaped, append-only public/private agent stream timeline. This is the canonical
+   * ordered stream for visible agent UX: model text chunks, tool lifecycle parts, warnings,
+   * artifact updates, and finalization. The legacy persistent-text-streaming body is retained as
+   * a compatibility/materialized text path, but this table owns the part order. */
+  agentStreamEvents: defineTable({
+    jobId: v.id("agentJobs"),
+    roomId: v.id("rooms"),
+    runId: v.optional(v.id("agentRuns")),
+    sequence: v.number(),
+    kind: agentStreamEventKindV,
+    step: v.optional(v.number()),
+    toolCallId: v.optional(v.string()),
+    toolName: v.optional(v.string()),
+    status: v.optional(agentStreamEventStatusV),
+    text: v.optional(v.string()),
+    title: v.optional(v.string()),
+    input: v.optional(v.any()),
+    output: v.optional(v.any()),
+    error: v.optional(v.string()),
+    metadata: v.optional(v.any()),
+    createdAt: v.number(),
+  })
+    .index("by_job_sequence", ["jobId", "sequence"])
+    .index("by_room", ["roomId", "createdAt"])
     .index("by_run", ["runId", "sequence"]),
 
   /** Durable reasoning-frame rows for harness-native recursive reasoning.

@@ -5,6 +5,7 @@
  */
 
 import type { AgentModel, AgentTool, RoomTools, AgentResult, AgentMessage, AgentTraceEvent, AgentStopReason, AgentHandoff, ToolCall, AgentStep } from "./types";
+import type { AgentStreamEventDraft } from "./stream";
 import type { StepJournal } from "./journal";
 import { checkSpendCeiling, type SpendLimits } from "../guardrails/gateway";
 import { SYSTEM_PROMPT } from "../models/prompts/systemPrompt";
@@ -63,6 +64,8 @@ export async function runAgent(opts: {
   onTrace?: (e: AgentTraceEvent) => void;
   /** Optional provider text delta hook. Used by durable public jobs to stream actual LLM prose. */
   onTextDelta?: (text: string, step: number) => void | Promise<void>;
+  /** Optional UI-message-shaped lifecycle hook. Used by durable jobs to show tool/step parts beside text. */
+  onStreamEvent?: (event: AgentStreamEventDraft) => void | Promise<void>;
   onHandoff?: (handoff: AgentHandoff) => void;
   now?: () => number;
 }): Promise<AgentResult> {
@@ -98,6 +101,14 @@ export async function runAgent(opts: {
     };
   };
   const shouldHandoffForTime = () => deadlineAt !== undefined && now() + reserveMs >= deadlineAt;
+  const emitStreamEvent = (event: AgentStreamEventDraft) => {
+    try {
+      const result = opts.onStreamEvent?.({ createdAt: now(), ...event });
+      if (result && typeof (result as Promise<void>).catch === "function") void (result as Promise<void>).catch(() => undefined);
+    } catch {
+      // Streaming telemetry must never change the model/tool control flow.
+    }
+  };
   const latestAssistantText = () => {
     for (let i = messages.length - 1; i >= 0; i--) {
       const m = messages[i];
@@ -150,6 +161,14 @@ export async function runAgent(opts: {
     const ev: AgentTraceEvent = { step, tool: "handoff", args: { reason, deadlineAt, reserveMs }, result: handoff, ms: 0 };
     trace.push(ev);
     opts.onTrace?.(ev);
+    emitStreamEvent({
+      kind: "warning",
+      step,
+      status: "skipped",
+      title: "Agent paused",
+      text: handoff.summary,
+      metadata: { reason, remainingToolCalls: remainingToolCalls.length },
+    });
     opts.onHandoff?.(handoff);
     return handoff;
   };
@@ -167,6 +186,14 @@ export async function runAgent(opts: {
     const t0 = now();
     const tool = tools.find((x) => x.name === call.tool);
     let result: unknown;
+    emitStreamEvent({
+      kind: "tool_call_start",
+      step,
+      toolCallId: call.id,
+      toolName: call.tool,
+      status: "started",
+      input: call.args,
+    });
 
     if (!tool) {
       result = { error: `unknown tool: ${call.tool}` };
@@ -181,6 +208,17 @@ export async function runAgent(opts: {
         const ev: AgentTraceEvent = { step, tool: call.tool, args: call.args, result, ms: now() - t0 };
         trace.push(ev);
         opts.onTrace?.(ev);
+        emitStreamEvent({
+          kind: "tool_call_result",
+          step,
+          toolCallId: call.id,
+          toolName: call.tool,
+          status: "failed",
+          input: call.args,
+          output: result,
+          error: describeError(error),
+          metadata: { ms: ev.ms },
+        });
         messages.push({ role: "tool", toolCallId: call.id, toolName: call.tool, content: JSON.stringify(result) });
         throw error;
       }
@@ -189,6 +227,16 @@ export async function runAgent(opts: {
     const ev: AgentTraceEvent = { step, tool: call.tool, args: call.args, result, ms: now() - t0 };
     trace.push(ev);
     opts.onTrace?.(ev);
+    emitStreamEvent({
+      kind: "tool_call_result",
+      step,
+      toolCallId: call.id,
+      toolName: call.tool,
+      status: (result && typeof result === "object" && "error" in (result as Record<string, unknown>)) ? "failed" : "completed",
+      input: call.args,
+      output: result,
+      metadata: { ms: ev.ms },
+    });
     messages.push({ role: "tool", toolCallId: call.id, toolName: call.tool, content: JSON.stringify(result) });
   };
 
@@ -236,6 +284,13 @@ export async function runAgent(opts: {
           const ev: AgentTraceEvent = { step, tool: "compaction", args: { elided: c.elided }, result: { before: c.before, after: c.after }, ms: 0 };
           trace.push(ev);
           opts.onTrace?.(ev);
+          emitStreamEvent({
+            kind: "warning",
+            step,
+            status: "completed",
+            title: "Context compacted",
+            metadata: { elided: c.elided, before: c.before, after: c.after },
+          });
         }
       }
 
@@ -259,6 +314,13 @@ export async function runAgent(opts: {
         const signal = modelSignal();
         let fresh: AgentStep;
         try {
+          emitStreamEvent({
+            kind: "step_start",
+            step,
+            status: "started",
+            title: `Model turn ${step + 1}`,
+            metadata: { model: model.name },
+          });
           fresh = await model.next({
             system: opts.systemPrompt ?? SYSTEM_PROMPT,
             messages: modelInput,

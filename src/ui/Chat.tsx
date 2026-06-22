@@ -180,6 +180,7 @@ function StreamedBody({ streamId }: { streamId: string }) {
 }
 const shortMs = (ms: number) => ms >= 60_000 ? `${Math.round(ms / 6000) / 10}m` : `${Math.round(ms / 100) / 10}s`;
 type OperationStreamRow = { sequence: number; kind: string; name: string; status: string; countDelta?: number; affectedIds?: string[] };
+type AgentStreamPart = AgentJobDetailTelemetry["streamParts"][number];
 function operationStreamText(op: OperationStreamRow): string {
   const affected = op.affectedIds?.length ? ` - ${op.affectedIds.slice(0, 3).join(", ")}` : "";
   const count = op.countDelta && op.countDelta > 1 ? ` x${op.countDelta}` : "";
@@ -195,6 +196,69 @@ function showInAgentOperationStream(op: OperationStreamRow): boolean {
     || op.name === "derive_room_intent"
     || op.name === "derive_free_auto_route"
     || op.name === "patch_bundle_cas";
+}
+function previewStreamValue(value: unknown): string {
+  if (value === undefined || value === null || value === "") return "";
+  const text = typeof value === "string" ? value : JSON.stringify(value);
+  return text.length > 180 ? `${text.slice(0, 180)}...` : text;
+}
+function toolStateLabel(part: Extract<AgentStreamPart, { type: `tool-${string}` }>): string {
+  if (part.state === "call") return "running";
+  if (part.status === "failed" || part.state === "output-denied") return "failed";
+  return "done";
+}
+function isToolStreamPart(part: AgentStreamPart): part is Extract<AgentStreamPart, { type: `tool-${string}` }> {
+  return part.type.startsWith("tool-");
+}
+function AgentUnifiedStream({ parts, live, fallbackText }: { parts: AgentStreamPart[]; live?: boolean; fallbackText?: string }) {
+  const displayParts = parts.length ? parts : fallbackText ? [{ type: "text" as const, text: fallbackText, state: live ? "streaming" as const : "done" as const }] : [];
+  if (!displayParts.length) return null;
+  const lastTextIndex = displayParts.map((part, index) => part.type === "text" ? index : -1).filter((index) => index >= 0).at(-1);
+  return (
+    <div className="r-agent-unified-stream" data-testid="agent-unified-stream" aria-label="Unified agent response stream">
+      {displayParts.map((part, index) => {
+        if (part.type === "text") {
+          return (
+            <MarkdownBody
+              key={`text-${index}`}
+              text={part.text}
+              data-testid="agent-stream-text"
+              data-stream-state={part.state}
+              cursor={live && index === lastTextIndex ? <span className="r-stream-cursor" aria-hidden>|</span> : null}
+            />
+          );
+        }
+        if (part.type === "step-start") {
+          return (
+            <div className="r-agent-part step" key={`step-${part.step}-${index}`} data-part="step" data-status={part.state}>
+              <ListChecks size={12} /><b>step {part.step + 1}</b><span>{part.title}</span>
+            </div>
+          );
+        }
+        if (isToolStreamPart(part)) {
+          const state = toolStateLabel(part);
+          const preview = previewStreamValue(part.output ?? part.input ?? part.error);
+          return (
+            <div className="r-agent-part tool" key={`${part.toolCallId}-${index}`} data-part="tool" data-status={state}>
+              <Database size={12} /><b>{state}</b><span>{part.toolName}</span>{preview && <em>{preview}</em>}
+            </div>
+          );
+        }
+        if (part.type === "data-artifact") {
+          return (
+            <div className="r-agent-part artifact" key={`artifact-${index}`} data-part="artifact" data-status={part.state}>
+              <Paperclip size={12} /><b>{part.state}</b><span>{part.title}</span>
+            </div>
+          );
+        }
+        return (
+          <div className="r-agent-part notice" key={`notice-${index}`} data-part="notice" data-status={part.state}>
+            <ShieldCheck size={12} /><b>{part.state}</b><span>{part.title}</span>{(part.text || part.error) && <em>{part.text || part.error}</em>}
+          </div>
+        );
+      })}
+    </div>
+  );
 }
 type ReasoningFrameRow = AgentJobDetailTelemetry["reasoningFrames"][number];
 function framePrimaryText(frame: ReasoningFrameRow): string {
@@ -643,18 +707,22 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
   const longJobTerminal = !!longJob && ["completed", "failed", "blocked", "cancelled"].includes(longJob.status);
   const longJobActive = !!longJob && !longJobTerminal;
   const agentWorking = thinking || (!isPrivate && longJobActive);
+  const unifiedStreamParts = (!isPrivate ? longJobDetail?.streamParts ?? [] : []) as AgentStreamPart[];
+  const activeJobClientMsgId = !isPrivate && longJob ? `pubstream-${longJob.id}` : "";
+  const hasActiveJobStreamMessage = !!activeJobClientMsgId && messages.some((m) => m.clientMsgId === activeJobClientMsgId);
   const liveOperationStream = (!isPrivate && agentWorking ? (longJobDetail?.operations ?? []).filter(showInAgentOperationStream).slice(-4) : []) as OperationStreamRow[];
   const longJobResultText = !isPrivate && longJobTerminal
     ? (longJob.finalText || (["failed", "blocked"].includes(longJob.status) && longJob.error ? `Agent job ${longJob.status}: ${longJob.error}` : ""))
     : "";
-  const hasLongJobResultMessage = !!longJobResultText && messages.some((m) => m.author.kind === "agent" && m.text.trim() === longJobResultText.trim());
+  const hasLongJobResultMessage = !!longJobResultText && messages.some((m) => m.author.kind === "agent" && (m.text.trim() === longJobResultText.trim() || m.clientMsgId === activeJobClientMsgId));
   const showLongJobResult = !!longJobResultText && !hasLongJobResultMessage;
   const longJobNeedsAttention = !!longJob && ["failed", "blocked", "cancelled"].includes(longJob.status);
   const showLongJobChrome = !!longJob && (!longJobTerminal || longJobNeedsAttention || jobDetailsOpen);
+  const showAgentWorkingBubble = agentWorking && (!hasActiveJobStreamMessage || unifiedStreamParts.length === 0);
   const feedItems = useMemo(() => {
     const items: Array<
       | { kind: "message"; key: string; createdAt: number; message: Message }
-      | { kind: "jobResult"; key: string; createdAt: number; status: string; text: string }
+      | { kind: "jobResult"; key: string; createdAt: number; status: string; text: string; streamParts: AgentStreamPart[] }
     > = messages.map((message) => ({
       kind: "message" as const,
       key: `msg-${message.clientMsgId || message.id}`,
@@ -668,14 +736,15 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
         createdAt: longJob.updatedAt,
         status: longJob.status,
         text: longJobResultText,
+        streamParts: unifiedStreamParts,
       });
     }
     return items.sort((a, b) => a.createdAt - b.createdAt || a.key.localeCompare(b.key));
-  }, [longJob, longJobResultText, messages, showLongJobResult]);
-  const showEmptyState = messages.length === 0 && failedSends.length === 0 && !showLongJobResult && !agentWorking;
+  }, [longJob, longJobResultText, messages, showLongJobResult, unifiedStreamParts]);
+  const showEmptyState = messages.length === 0 && failedSends.length === 0 && !showLongJobResult && !showAgentWorkingBubble;
   const beginThinking = () => { thinkingStartCount.current = messages.length; setAgentErr(null); setThinking(true); };
 
-  useEffect(() => { const el = feedRef.current; if (el && nearBottom.current) el.scrollTop = el.scrollHeight; }, [messages.length, agentWorking, liveOperationStream.length, multiAgentDemoStarted, multiAgentTick]);
+  useEffect(() => { const el = feedRef.current; if (el && nearBottom.current) el.scrollTop = el.scrollHeight; }, [messages.length, agentWorking, liveOperationStream.length, unifiedStreamParts.length, multiAgentDemoStarted, multiAgentTick]);
   useEffect(() => {
     setMultiAgentDemoStarted(false);
     setMultiAgentScenario(STARTUP_DILIGENCE_DEMO);
@@ -1060,7 +1129,17 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
         )}
         {agentErr && <div className="r-msg" role="alert" data-testid="agent-error" data-state="failed"><div className="body tiny" style={{ color: "var(--danger-ink)" }}>{agentErr}</div></div>}
         {feedItems.map((item) => item.kind === "message" ? (
-          <Bubble key={item.key} m={item.message} roomId={roomId} variant={variant} me={me} onPromote={promote} onOpenArtifact={onOpenArtifact} />
+          <Bubble
+            key={item.key}
+            m={item.message}
+            roomId={roomId}
+            variant={variant}
+            me={me}
+            onPromote={promote}
+            onOpenArtifact={onOpenArtifact}
+            agentStreamParts={item.message.clientMsgId === activeJobClientMsgId ? unifiedStreamParts : undefined}
+            agentStreamLive={!longJobTerminal}
+          />
         ) : (
           <div className="r-msg agent" key={item.key} data-testid="agent-job-result" data-state={item.status}>
             <span className="r-avatar agent sm" style={{ background: AGENT_AVATAR_COLOR }}>N</span>
@@ -1070,7 +1149,7 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
                 <span className={"r-tag agent" + (["failed", "blocked"].includes(item.status) ? " danger" : "")} style={{ padding: "1px 5px", fontSize: 9 }}>{item.status}</span>
                 <span className="time">{clock(item.createdAt)}</span>
               </div>
-              <MarkdownBody text={item.text} />
+              {item.streamParts.length ? <AgentUnifiedStream parts={item.streamParts} live={false} fallbackText={item.text} /> : <MarkdownBody text={item.text} />}
             </div>
           </div>
         ))}
@@ -1088,12 +1167,14 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
           </div>
         ))}
         {!isPrivate && multiAgentDemoStarted && <MultiAgentWorkbenchDemo tick={multiAgentTick} scenario={multiAgentScenario} />}
-        {agentWorking && (
+        {showAgentWorkingBubble && (
           <div className="r-msg agent" aria-label={`${agentName} is ${longJobActive && longJob ? longJob.status : "thinking"}`}>
             <span className="r-avatar agent sm" style={{ background: AGENT_AVATAR_COLOR }}>N</span>
             <div className="body">
               <div className="meta"><span className="who">{agentName}</span><span className="r-tag agent" style={{ padding: "1px 5px", fontSize: 9 }}>{longJobActive && longJob ? longJob.status : "thinking"}</span></div>
-              {liveOperationStream.length ? (
+              {unifiedStreamParts.length ? (
+                <AgentUnifiedStream parts={unifiedStreamParts} live={!longJobTerminal} fallbackText={longJobResultText} />
+              ) : liveOperationStream.length ? (
                 <div className="r-agent-stream" data-testid="agent-operation-stream" aria-label="Live agent operation stream">
                   {liveOperationStream.map((op) => (
                     <span key={`live-${op.sequence}`} data-status={op.status}>
@@ -1380,7 +1461,25 @@ function MultiAgentWorkbenchDemo({ tick, scenario }: { tick: number; scenario: D
   );
 }
 
-function Bubble({ m, roomId, variant, me, onPromote, onOpenArtifact }: { m: Message; roomId: string; variant: "public" | "private"; me: Actor; onPromote: (t: string) => void; onOpenArtifact?: (id: string, options?: { split?: boolean; elementId?: string }) => boolean | void }) {
+function Bubble({
+  m,
+  roomId,
+  variant,
+  me,
+  onPromote,
+  onOpenArtifact,
+  agentStreamParts,
+  agentStreamLive,
+}: {
+  m: Message;
+  roomId: string;
+  variant: "public" | "private";
+  me: Actor;
+  onPromote: (t: string) => void;
+  onOpenArtifact?: (id: string, options?: { split?: boolean; elementId?: string }) => boolean | void;
+  agentStreamParts?: AgentStreamPart[];
+  agentStreamLive?: boolean;
+}) {
   const store = useStore();
   const parsed = parseArtifactRefMessage(m.text);
   const visibleText = displayArtifactRefMessage(m.text);
@@ -1443,7 +1542,9 @@ function Bubble({ m, roomId, variant, me, onPromote, onOpenArtifact }: { m: Mess
                 ))}
               </div>
             )}
-            {m.streamId && !m.text ? (
+            {agentStreamParts?.length ? (
+              <AgentUnifiedStream parts={agentStreamParts} live={agentStreamLive} />
+            ) : m.streamId && !m.text ? (
               <StreamedBody streamId={m.streamId} />
             ) : (
               parsed.body && (ask ? <span className="r-bubble-ask">{parsed.body}</span> : <MarkdownBody text={parsed.body} />)
