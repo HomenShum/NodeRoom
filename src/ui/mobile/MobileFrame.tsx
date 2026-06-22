@@ -88,6 +88,9 @@ export function IOSDevice({
     // Real phone: the device IS the frame — full-bleed, no synthetic chrome.
     return (
       <div className="na-ios-bleed" style={{ position: "fixed", inset: 0, background: dark ? "#000" : "#FBF4E7", overflow: "hidden" }}>
+        <div style={{ position: "absolute", top: 0, left: 0, right: 0, zIndex: 30, pointerEvents: "none" }}>
+          <StatusBar dark={dark} />
+        </div>
         {children}
       </div>
     );
