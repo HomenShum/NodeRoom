@@ -54,7 +54,7 @@ function MobileLiveRoot() {
   // joiner. Memory mode never reaches MobileLiveRoot at all (the parent gates
   // on HAS_CONVEX + ?mode=memory). pendingDemo stores the staged Req while the
   // consent modal is up; the join effect won't fire until setReq is called.
-  const [pendingDemo, setPendingDemo] = useState<{ code: string; name: string } | null>(null);
+  const [pendingDemo, setPendingDemo] = useState<{ code: string; name: string } | null>(() => initialPendingDemo());
   const consentInitial: ConsentChoice = useMemo(() => {
     if (typeof window === "undefined") return "auto";
     const hash = window.location.hash;
@@ -269,16 +269,29 @@ function initialReq(): Req {
   const params = new URLSearchParams(qIndex >= 0 ? hash.slice(qIndex + 1) : window.location.search);
   const name = cleanName(params.get("name") ?? "", "Guest");
   const room = params.get("room");
-  const demo = params.get("demo");
   if (room) {
     const c = normalizeCode(room);
     return c ? { kind: "join", code: c, name } : { kind: "idle" };
   }
-  if (demo !== null) {
-    const c = normalizeCode(demo && demo !== "1" && demo !== "review" ? demo : makeCode());
-    return c ? { kind: "demo", code: c, name, autoAllow: demo !== "review" } : { kind: "idle" };
-  }
+  // URL-driven demo: do NOT auto-fire the mutation. Return idle so the parent
+  // can read initialPendingDemo() and route through the consent modal first.
+  // The user's autoAllow pick lands via onConsentAccept → setReq.
   return { kind: "idle" };
+}
+
+/** Parses ?demo=… into a pending demo descriptor (code + name) WITHOUT setting
+ *  req. The consent modal then mints the room with the user's explicit pick. */
+function initialPendingDemo(): { code: string; name: string } | null {
+  if (typeof window === "undefined") return null;
+  const hash = window.location.hash;
+  const qIndex = hash.indexOf("?");
+  const params = new URLSearchParams(qIndex >= 0 ? hash.slice(qIndex + 1) : window.location.search);
+  if (params.get("room")) return null; // joiners skip — autoAllow lives on the room
+  const demo = params.get("demo");
+  if (demo === null) return null;
+  const name = cleanName(params.get("name") ?? "", "Host");
+  const code = normalizeCode(demo && demo !== "1" && demo !== "review" ? demo : makeCode());
+  return code ? { code, name } : null;
 }
 
 function normalizeCode(raw: string): string {
