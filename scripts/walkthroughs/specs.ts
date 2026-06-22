@@ -29,7 +29,7 @@ export type FeatureSpec = {
    *  a Company research artifact with 3 seeded accounts via the room's own session token.
    *  memoryDemo = the deterministic in-browser demo engine at the SAME prod URL (?mode=memory) —
    *  same UI, scripted agent; used where a live-LLM step is too nondeterministic to walk through. */
-  setup: "createRoom" | "seedResearchRoom" | "startupJoinRoom" | "memoryDemo" | "story";
+  setup: "createRoom" | "seedResearchRoom" | "startupJoinRoom" | "memoryDemo" | "story" | "roomTour";
   /** Real-LLM features get retries (fresh room per attempt); deterministic ones don't need them. */
   retries?: number;
   /** Opt-in specs are SKIPPED by default runs — they need a special server (e.g. the naive
@@ -51,6 +51,57 @@ const COMPOSER = `${CENTER} [data-testid="chat-composer"]`;
 const PRIVATE_COMPOSER = `${PRIVATE} [data-testid="chat-composer"]`;
 
 export const FEATURES: FeatureSpec[] = [
+  {
+    id: "room-tour-walkthrough",
+    title: "The NodeAgent room walkthrough — 8 steps from landing to live collab",
+    setup: "roomTour",
+    steps: [
+      { kind: "state", caption: "The #room-tour dock walks you through the product — landing, create, join, then the room", holdMs: 2400 },
+      {
+        kind: "click", sel: '.rt-stepdot:nth-child(2)',
+        caption: "Step 02 — host a room: a 6-char share code, no account",
+        afterCaption: "Anyone with the code can join. The room id is keyed by host.",
+        after: { sel: '.rt-modal h2', state: "visible", timeoutMs: 8_000 },
+        afterHoldMs: 2600,
+      },
+      {
+        kind: "click", sel: '.rt-modal .rt-btn.primary',
+        caption: "Step 04 — “Enter room” → one panel: public chat + the room agent",
+        afterCaption: "Everyone in the room sees the chat. /ask invokes the room agent.",
+        after: { sel: '.rt-panel.center .rt-chat', state: "visible", timeoutMs: 8_000 },
+        afterHoldMs: 2400,
+      },
+      {
+        kind: "click", sel: '.rt-stepdot:nth-child(5)',
+        caption: "Step 05 — open the artifact beside chat",
+        afterCaption: "Spreadsheet · Note · Wall — the agent edits the same artifact you do.",
+        after: { sel: '.rt-panel.artifact .rt-sheet', state: "visible", timeoutMs: 8_000 },
+        afterHoldMs: 2400,
+      },
+      {
+        kind: "click", sel: '.rt-stepdot:nth-child(7)',
+        caption: "Step 07 — four panels: navigator · chat · artifact · your private agent",
+        afterCaption: "Each panel earns its place. The private agent reads room context, output stays yours.",
+        after: { sel: '.rt-panel.left .rt-file', state: "visible", timeoutMs: 8_000 },
+        afterHoldMs: 2400,
+      },
+      {
+        kind: "click", sel: '.rt-stepdot:nth-child(8)',
+        caption: "Step 08 — live collab: lock → draft → commit → smart-merge",
+        afterCaption: "Two agents, aware of each other. Run the drill.",
+        after: { sel: '.rt-collab-bar', state: "visible", timeoutMs: 8_000 },
+        afterHoldMs: 1800,
+      },
+      {
+        kind: "click", sel: '.rt-collab-bar button:has-text("Run collaboration")',
+        caption: "Room agent locks rows it’s about to write; the private agent drafts around the lock",
+        afterCaption: "v41 → v43: agent commits Revenue+COGS, smart-merge applies the held Gross profit+Net income draft. No clobber.",
+        after: { textSel: '.rt-vpill.next', includes: "v43", timeoutMs: 20_000 },
+        afterHoldMs: 2800,
+      },
+      { kind: "state", caption: "All eight steps run on scripted seed data — the real product wires the same contracts in Convex", holdMs: 2400 },
+    ],
+  },
   {
     id: "story-seven-layers",
     title: "The seven no-clobber layers — a real grid you can drive",

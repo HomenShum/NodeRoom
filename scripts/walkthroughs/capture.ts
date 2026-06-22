@@ -367,6 +367,15 @@ async function memoryDemo(ctx: BrowserContext): Promise<Page> {
 }
 
 /** The landing seven-layer walkthrough's live grid (#story) — in-browser engine, no room. */
+/** The scripted #room-tour landing walkthrough (Room.html port) — seed data, no Convex. */
+async function roomTourPage(ctx: BrowserContext): Promise<Page> {
+  const page = await ctx.newPage();
+  await page.goto(`${BASE}/#room-tour`, { waitUntil: "domcontentloaded", timeout: 60_000 });
+  await page.locator(".rt-app").waitFor({ timeout: 30_000 });
+  await settle(page, 700);
+  return page;
+}
+
 async function storyPage(ctx: BrowserContext): Promise<Page> {
   const page = await ctx.newPage();
   await page.goto(`${BASE}/#story`, { waitUntil: "domcontentloaded", timeout: 60_000 });
@@ -391,7 +400,10 @@ async function runFeature(spec: FeatureSpec, attempt: number): Promise<FeatureOu
       return { id: spec.id, title: spec.title, skipped: false, segments };
     }
     const page =
-      spec.setup === "memoryDemo" ? await memoryDemo(ctx) : spec.setup === "story" ? await storyPage(ctx) : await createRoom(ctx, code);
+      spec.setup === "memoryDemo" ? await memoryDemo(ctx)
+        : spec.setup === "story" ? await storyPage(ctx)
+        : spec.setup === "roomTour" ? await roomTourPage(ctx)
+        : await createRoom(ctx, code);
     if (spec.setup === "seedResearchRoom") await seedResearch(page, code, spec.seedCompanies);
     // Close panels the story doesn't use — the remaining panels (and their text) render larger.
     // Top-bar toggle order matches RoomShell's show state: [Room Binder, Work Surface, Copilot].
