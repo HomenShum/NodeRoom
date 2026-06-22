@@ -130,6 +130,94 @@ describe("managed lock production tools", () => {
     expect(engine.lockFor(d.sheetId, "r_rev__variance")).toBeUndefined();
   });
 
+  it("normalizes cheap-model parallel arrays into managed scalar batch ops", async () => {
+    const { engine, d, rt } = setup();
+    const ids = Object.keys(TARGETS) as Array<keyof typeof TARGETS>;
+
+    const result = await runAgent({
+      rt,
+      goal: "write two variance cells with a cheap-model batch shape",
+      model: scriptedModel(({ messages }) => {
+        const versions = lastVersions(messages);
+        if (!ids.every((id) => versions[id] !== undefined)) {
+          return { toolCalls: [{ tool: "read_range", args: { elementIds: ids } }] };
+        }
+        if (!messages.some((message) => message.role === "tool" && message.toolName === "write_locked_cells")) {
+          return {
+            toolCalls: [{
+              tool: "write_locked_cells",
+              args: {
+                reason: "parallel array managed variance write",
+                elementIds: JSON.stringify(ids),
+                values: JSON.stringify(ids.map((id) => TARGETS[id])),
+                baseVersions: JSON.stringify(ids.map((id) => versions[id])),
+              },
+            }],
+          };
+        }
+        return { say: "Variance cells written through normalized managed locks.", done: true };
+      }, "parallel-array-scripted"),
+      tools: PRODUCTION_ROOM_TOOLS,
+      systemPrompt: MANAGED_LOCK_SYSTEM_PROMPT,
+      maxSteps: 4,
+    });
+    const art = engine.getArtifact(d.sheetId)!;
+    const writeResult = result.trace.find((event) => event.tool === "write_locked_cells")?.result as { ok?: boolean } | undefined;
+
+    expect(result.trace.map((event) => event.tool)).toEqual(["read_range", "write_locked_cells"]);
+    expect(writeResult).toMatchObject({ ok: true });
+    expect(art.elements.r_rev__variance.value).toBe("+24%");
+    expect(art.elements.r_cogs__variance.value).toBe("+27.5%");
+  });
+
+  it("normalizes cellId aliases and fills missing base versions in scalar batch ops", async () => {
+    const { engine, d, rt } = setup();
+    const writeLocked = PRODUCTION_ROOM_TOOLS.find((tool) => tool.name === "write_locked_cells")!;
+    const parsed = writeLocked.schema.parse({
+      reason: "cellId alias write",
+      ops: JSON.stringify([
+        { cellId: "r_rev__variance", value: "+24%" },
+        { cellId: "r_cogs__variance", value: "+27.5%" },
+      ]),
+    });
+
+    const result = await writeLocked.execute(parsed, rt) as { ok?: boolean; results?: Array<{ ok?: boolean }> };
+
+    expect(result.ok).toBe(true);
+    expect(result.results?.every((entry) => entry.ok)).toBe(true);
+    expect(engine.getArtifact(d.sheetId)!.elements.r_rev__variance.value).toBe("+24%");
+    expect(engine.getArtifact(d.sheetId)!.elements.r_cogs__variance.value).toBe("+27.5%");
+  });
+
+  it("normalizes cheap-model parallel arrays for evidence-bearing batch ops", async () => {
+    const { engine, d, rt } = setup();
+    const writeLocked = PRODUCTION_ROOM_TOOLS.find((tool) => tool.name === "write_locked_cell_results")!;
+    const parsed = writeLocked.schema.parse({
+      reason: "parallel evidence write",
+      elementIds: "[\"r_rev__variance\"]",
+      values: "[\"11 months\"]",
+      status: "complete",
+      confidence: "0.82",
+      evidence: "[{\"kind\":\"manual\",\"label\":\"Existing diligence note\"}]",
+    });
+
+    const result = await writeLocked.execute(parsed, rt) as { ok?: boolean };
+    const value = engine.getArtifact(d.sheetId)!.elements.r_rev__variance.value as {
+      value?: unknown;
+      status?: string;
+      confidence?: number;
+      evidence?: Array<{ kind: string; label: string }>;
+    };
+
+    expect(result.ok).toBe(true);
+    expect(value).toMatchObject({
+      value: "11 months",
+      status: "complete",
+      confidence: 0.82,
+      evidence: [{ kind: "manual", label: "Existing diligence note" }],
+    });
+  });
+
   it("drafts instead of writing when another actor already owns the target lock", async () => {
     const { engine, d } = setup();
     const held = engine.proposeLock({
