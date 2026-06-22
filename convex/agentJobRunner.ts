@@ -38,6 +38,7 @@ const DEFAULT_CONTEXT_MAX_CHARS = 24_000;
 const DEFAULT_CONTEXT_KEEP_RECENT = 10;
 const agentJobsClaimSliceRef = makeFunctionReference<"mutation">("agentJobs:claimSlice") as any;
 const agentJobsFinishSliceRef = makeFunctionReference<"mutation">("agentJobs:finishSlice") as any;
+const agentJobsRecordLiveOperationRef = makeFunctionReference<"mutation">("agentJobs:recordLiveOperation") as any;
 const agentRunsRecordRef = makeFunctionReference<"mutation">("agentRuns:record") as any;
 const agentStepsRecordRef = makeFunctionReference<"mutation">("agentSteps:record") as any;
 const artifactsListForRoomRef = makeFunctionReference<"query">("artifacts:listForRoom") as any;
@@ -94,6 +95,11 @@ type RunRecord = {
   telemetry: RunTelemetry;
 };
 
+type LiveOperationKind = "action" | "query" | "mutation" | "model_call" | "tool_call" | "scheduler" | "lease" | "checkpoint";
+
+const QUERY_TOOLS = new Set(["snapshot", "list_artifacts", "awareness", "read_range", "search_sheet_context", "fetch_source"]);
+const MUTATION_TOOLS = new Set(["propose_lock", "release_lock", "edit_cell", "create_draft", "say", "update_wiki", "write_cell_result", "write_locked_cell", "write_locked_cell_result", "write_locked_cells", "write_locked_cell_results"]);
+
 function envNumber(name: string, fallback: number, min: number, max: number): number {
   const raw = Number(process.env[name] ?? fallback);
   if (!Number.isFinite(raw)) return fallback;
@@ -120,6 +126,32 @@ function stepStatus(e: { tool: string; result: unknown }): "ok" | "conflict" | "
   if (e.tool.startsWith("write_locked_cell") && r.drafted) return "ok";
   if (r.error || r.ok === false) return "error";
   return "ok";
+}
+
+function liveOperationKind(event: AgentTraceEvent): LiveOperationKind {
+  if (event.tool === "handoff" || event.tool === "compaction") return "checkpoint";
+  if (QUERY_TOOLS.has(event.tool)) return "query";
+  if (MUTATION_TOOLS.has(event.tool)) return "mutation";
+  return "tool_call";
+}
+
+function liveOperationName(event: AgentTraceEvent): string {
+  const result = event.result as { error?: unknown; conflict?: unknown; locked?: unknown; pendingApproval?: unknown } | null;
+  const suffix = result?.error ? " failed" : result?.conflict ? " conflict" : result?.locked ? " blocked" : result?.pendingApproval ? " needs review" : "";
+  return `${event.tool}${suffix}`;
+}
+
+function liveOperationAffectedIds(event: AgentTraceEvent): string[] | undefined {
+  const out = new Set<string>();
+  const visit = (value: unknown) => {
+    if (typeof value === "string" && value.length <= 120) out.add(value);
+    else if (Array.isArray(value)) for (const item of value) visit(item);
+  };
+  const args = event.args as { elementId?: unknown; elementIds?: unknown; artifactId?: unknown } | null;
+  visit(args?.artifactId);
+  visit(args?.elementId);
+  visit(args?.elementIds);
+  return out.size ? [...out].slice(0, 20) : undefined;
 }
 
 function batchElementIds(args: unknown) {
@@ -261,6 +293,25 @@ export const runFreeAutoJobSlice = internalAction({
     const activeFrame = claimed.activeReasoningFrame
       ? normalizeClaimedFrame(claimed.activeReasoningFrame, String(claimed.jobId))
       : undefined;
+    let liveSequence = 1_000 + Math.max(0, claimed.attempt - 1) * 10_000;
+    const liveWrites: Array<Promise<unknown>> = [];
+    const recordLiveOperation = (args: {
+      kind: LiveOperationKind;
+      name: string;
+      status?: "started" | "completed" | "failed" | "skipped";
+      countDelta?: number;
+      affectedIds?: string[];
+      startedAt?: number;
+      completedAt?: number;
+    }) => {
+      const write = ctx.runMutation(agentJobsRecordLiveOperationRef, {
+        jobId: claimed.jobId,
+        sequence: liveSequence++,
+        ...args,
+      }).catch(() => null);
+      liveWrites.push(write);
+      return write;
+    };
     const modelJournal = makeConvexStepJournal({
       ctx,
       jobId: claimed.jobId,
@@ -328,6 +379,20 @@ export const runFreeAutoJobSlice = internalAction({
     };
 
     try {
+      await recordLiveOperation({
+        kind: "action",
+        name: "agentJobRunner.runFreeAutoJobSlice",
+        status: "started",
+        countDelta: 1,
+        startedAt: t0,
+      });
+      await recordLiveOperation({
+        kind: "model_call",
+        name: model.name,
+        status: "started",
+        countDelta: 1,
+        startedAt: Date.now(),
+      });
       const roomArtifacts = await ctx.runQuery(artifactsListForRoomRef, { roomId: claimed.roomId }) as Array<{ title: string; kind: string; meta?: unknown; visibility?: string }>;
       assertProviderEgressAllowed({
         model: model.name,
@@ -362,6 +427,16 @@ export const runFreeAutoJobSlice = internalAction({
             maxCostUsd: envNumber("AGENT_MAX_USD_PER_SLICE", 2, 0.01, 100),
           },
           priceStep: (modelName: string, inputTokens: number, outputTokens: number) => priceRun(modelName, inputTokens, outputTokens),
+          onTrace: (event) => {
+            void recordLiveOperation({
+              kind: liveOperationKind(event),
+              name: liveOperationName(event),
+              status: (event.result && typeof event.result === "object" && "error" in (event.result as Record<string, unknown>)) ? "failed" : "completed",
+              countDelta: 1,
+              affectedIds: liveOperationAffectedIds(event),
+              completedAt: Date.now(),
+            });
+          },
         })).agentResult
         : await runAgent({
         rt,
@@ -385,6 +460,16 @@ export const runFreeAutoJobSlice = internalAction({
           maxCostUsd: envNumber("AGENT_MAX_USD_PER_SLICE", 2, 0.01, 100),
         },
         priceStep: (modelName: string, inputTokens: number, outputTokens: number) => priceRun(modelName, inputTokens, outputTokens),
+        onTrace: (event) => {
+          void recordLiveOperation({
+            kind: liveOperationKind(event),
+            name: liveOperationName(event),
+            status: (event.result && typeof event.result === "object" && "error" in (event.result as Record<string, unknown>)) ? "failed" : "completed",
+            countDelta: 1,
+            affectedIds: liveOperationAffectedIds(event),
+            completedAt: Date.now(),
+          });
+        },
       });
       const { runId, telemetry } = await recordRun(result);
       const done = result.stopReason === "done" && !result.exhausted;
@@ -393,6 +478,21 @@ export const runFreeAutoJobSlice = internalAction({
       const frameBlocked = frameStatus === "blocked";
       const scheduledNextAt = canContinue || (frameReceipt && done && !frameBlocked) ? Date.now() + DEFAULT_RESUME_DELAY_MS : undefined;
       const cursor = done ? undefined : await checkpoint(result, contextMaxChars, contextKeepRecent, activeFrameId);
+      await recordLiveOperation({
+        kind: "model_call",
+        name: model.name,
+        status: "completed",
+        countDelta: result.usage.modelCalls,
+        completedAt: Date.now(),
+      });
+      await recordLiveOperation({
+        kind: "checkpoint",
+        name: done ? "agentJobRunner.runFreeAutoJobSlice completed" : "agentJobRunner.runFreeAutoJobSlice paused",
+        status: done ? "completed" : "skipped",
+        countDelta: 1,
+        completedAt: Date.now(),
+      });
+      await Promise.allSettled(liveWrites);
 
       await ctx.runMutation(agentJobsFinishSliceRef, clean({
         jobId: claimed.jobId,
@@ -453,6 +553,13 @@ export const runFreeAutoJobSlice = internalAction({
       const scheduledNextAt = delayMs ? Date.now() + delayMs : undefined;
       const activeFrameId = claimed.activeReasoningFrame?.frameId;
       const cursor = fallback.messages.length ? await checkpoint(fallback, contextMaxChars, contextKeepRecent, activeFrameId) : undefined;
+      await recordLiveOperation({
+        kind: "checkpoint",
+        name: "agentJobRunner.runFreeAutoJobSlice failed",
+        status: "failed",
+        countDelta: 1,
+        completedAt: Date.now(),
+      });
 
       await ctx.runMutation(agentJobsFinishSliceRef, clean({
         jobId: claimed.jobId,
@@ -473,6 +580,7 @@ export const runFreeAutoJobSlice = internalAction({
         frameId: activeFrameId,
         frameStatus: canRetry ? "pending" : "failed",
       }));
+      await Promise.allSettled(liveWrites);
 
       return { ok: false as const, retrying: canRetry, error: errorText(rootError), runId };
     }

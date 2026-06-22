@@ -74,7 +74,7 @@ type GeminiResponse = {
 
 const OPENROUTER_REFERER = "https://noderoom.local";
 const OPENROUTER_TITLE = "NodeRoom benchmark";
-const DEFAULT_MAX_TOKENS = 1024;
+const DEFAULT_MAX_OUTPUT_TOKENS = 8_192;
 const TRANSIENT_RE = /(\b429\b|\b5\d\d\b|rate.?limit|overloaded|temporar|timed?.?out|ECONNRESET|ETIMEDOUT|EAI_AGAIN|ENOTFOUND|fetch failed|socket hang up|service unavailable)/i;
 
 export function convexModel(modelId: string, options: { entrypoint?: ProviderRouteEntrypoint } = {}): AgentModel {
@@ -212,7 +212,8 @@ async function openAiCompatibleStep(args: {
     messages: [{ role: "system", content: args.system }, ...toOpenAiMessages(args.messages)],
     tools: args.tools.length ? args.tools.map(openAiTool) : undefined,
     tool_choice: args.tools.length ? "auto" : undefined,
-    ...openAiCompatibleTokenLimitParam(args.modelId, args.endpoint, DEFAULT_MAX_TOKENS),
+    ...openAiCompatibleTokenLimitParam(args.modelId, args.endpoint, modelMaxOutputTokens()),
+    ...openAiCompatibleProviderOptions(args.modelId, args.endpoint),
   }, {
     ...args.headers,
     ...(args.apiKey ? { Authorization: `Bearer ${args.apiKey}` } : {}),
@@ -244,7 +245,7 @@ async function anthropicStep(
 ) {
   const res = await postJson<AnthropicResponse>("https://api.anthropic.com/v1/messages", {
     model: modelId,
-    max_tokens: DEFAULT_MAX_TOKENS,
+    max_tokens: modelMaxOutputTokens(),
     system,
     messages: toAnthropicMessages(messages),
     tools: tools.length ? tools.map(anthropicTool) : undefined,
@@ -288,7 +289,7 @@ async function geminiStep(
     systemInstruction: { parts: [{ text: system }] },
     contents: toGeminiContents(messages),
     tools: tools.length ? [{ functionDeclarations: tools.map(geminiTool) }] : undefined,
-    generationConfig: { maxOutputTokens: DEFAULT_MAX_TOKENS },
+    generationConfig: { maxOutputTokens: modelMaxOutputTokens() },
   }, {}, signal);
 
   const parts = res.candidates?.[0]?.content?.parts ?? [];
@@ -522,6 +523,32 @@ function requireEnv(name: string): string {
 
 function openRouterBaseUrl(): string {
   return envValue("OPENROUTER_BASE_URL") ?? "https://openrouter.ai/api/v1";
+}
+
+function modelMaxOutputTokens(): number {
+  return envNumber("AGENT_MODEL_MAX_OUTPUT_TOKENS", DEFAULT_MAX_OUTPUT_TOKENS, 1_024, 32_000);
+}
+
+function envNumber(name: string, fallback: number, min: number, max: number): number {
+  const raw = Number(envValue(name) ?? fallback);
+  if (!Number.isFinite(raw)) return fallback;
+  return Math.max(min, Math.min(max, raw));
+}
+
+function openAiCompatibleProviderOptions(modelId: string, endpoint: string): JsonObject {
+  // GLM reasoning models served through OpenRouter/vLLM can spend the entire output cap on
+  // hidden thinking and then return Wafer's "response was truncated" error. Keep NodeAgent
+  // tool turns in instruction-following mode unless a caller deliberately overrides the model.
+  if (!isOpenRouterEndpoint(endpoint) || !/^z-ai\/glm-|^glm-/i.test(modelId)) return {};
+  return { chat_template_kwargs: { enable_thinking: false } };
+}
+
+function isOpenRouterEndpoint(endpoint: string): boolean {
+  try {
+    return new URL(endpoint).hostname.includes("openrouter.ai");
+  } catch {
+    return endpoint.includes("openrouter");
+  }
 }
 
 function openRouterHeaders(): Record<string, string> {

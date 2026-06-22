@@ -283,6 +283,19 @@ describe("long-running agent job source invariants", () => {
     expect(chat).toContain("Receipts");
   });
 
+  it("streams workflow-sliced public agent progress through live operation rows", () => {
+    const runner = readFileSync("convex/agentJobRunner.ts", "utf8");
+    const model = readFileSync("src/nodeagent/models/convexModel.ts", "utf8");
+
+    expect(runner).toContain("agentJobs:recordLiveOperation");
+    expect(runner).toContain("agentJobRunner.runFreeAutoJobSlice");
+    expect(runner).toContain("onTrace: (event)");
+    expect(runner).toContain("liveOperationKind(event)");
+    expect(model).toContain("AGENT_MODEL_MAX_OUTPUT_TOKENS");
+    expect(model).toContain("chat_template_kwargs");
+    expect(model).toContain("enable_thinking: false");
+  });
+
   it("keeps NodeAgent execution server-side instead of relying on client_action as a production primitive", () => {
     const agent = readFileSync("convex/agent.ts", "utf8");
     const jobs = readFileSync("convex/agentJobs.ts", "utf8");
