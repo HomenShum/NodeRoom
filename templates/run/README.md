@@ -80,15 +80,17 @@ comparability; rotating late costs you the entire lane's credibility.
 
 ### (c) Honesty gate: `cleanGeneralProbe`
 
-`cleanGeneralProbe` stays `true` for a new slice **only if**
-`memory.markTuned` was called on the previous slice before the new one
-was introduced. This is the gate that prevents implicit tuning signal
-from leaking forward across rotations.
+`cleanGeneralProbe` stays `true` for a new slice **only if** the previous
+slice was sealed and its tuning status was recorded in a non-recallable eval
+ledger before the new one was introduced. This is the gate that prevents
+implicit tuning signal from leaking forward across rotations.
 
 Procedure on every rotation:
 
-1. Confirm `memory.markTuned(previousSliceId)` has been called and
-   persisted.
+1. Confirm the previous slice has a persisted tuning/seal receipt in the eval
+   ledger. For BTB imports, clean headline rows are derived from
+   `cleanCapabilityAccepted`, `modelCalls`, and boundary receipts instead of
+   agent-authored labels.
 2. Seal the previous slice (archive ids + answers, freeze the file).
 3. Introduce the new slice with `cleanGeneralProbe = true`.
 4. If step (1) was skipped, set `cleanGeneralProbe = false` on the new

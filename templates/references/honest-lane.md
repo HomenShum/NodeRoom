@@ -13,9 +13,10 @@ authoritative source for the rules that keep the lane honest.
    capability measurement.
 
 2. **`cleanGeneralProbe` honesty gate.** `cleanGeneralProbe` may only stay
-   `true` if `memory.markTuned` was called on the previous slice *before* a
-   new slice was introduced. Skipping `markTuned` = the agent is implicitly
-   carrying tuning signal forward, and the probe is no longer clean.
+   `true` if the previous slice was sealed and its tuning status was recorded
+   in a non-recallable eval ledger *before* a new slice was introduced.
+   Skipping that receipt = the agent is implicitly carrying tuning signal
+   forward, and the probe is no longer clean.
 
 3. **Rotation cadence.** Rotate the held-out slice:
    - at least **quarterly**, OR

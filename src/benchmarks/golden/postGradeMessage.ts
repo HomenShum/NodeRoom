@@ -1,7 +1,7 @@
 /**
  * postGradeMessage — chat-side display for a finished benchmark run.
  *
- * After gradeGolden() runs (in vitest, the browser dispatcher, or a Convex action's success
+ * After gradeGolden() runs (in vitest, the live UI verifier, or a Convex action's success
  * callback), the trigger calls postGradeMessage() to publish ONE agent-authored summary into the
  * room's public channel. It reuses the engine's existing message path (engine.postMessage,
  * kind="agent") — no new state, no new pub/sub.
