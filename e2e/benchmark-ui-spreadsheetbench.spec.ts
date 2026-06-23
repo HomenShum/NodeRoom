@@ -67,6 +67,11 @@ import {
 
 const BASE = process.env.BENCH_BASE_URL ?? "http://localhost:5273";
 const AGENT_COMPLETION_TIMEOUT_MS = Number(process.env.BENCH_AGENT_COMPLETION_TIMEOUT_MS ?? 15 * 60_000);
+const BENCH_TEST_TIMEOUT_MS = Number(
+  process.env.BENCH_TEST_TIMEOUT_MS ?? Math.max(20 * 60_000, AGENT_COMPLETION_TIMEOUT_MS + 5 * 60_000),
+);
+const BENCH_AGENT_MODEL_MODE = process.env.BENCH_AGENT_MODEL_MODE ?? "adaptive";
+const BENCH_AGENT_MODEL_POLICY = process.env.BENCH_AGENT_MODEL_POLICY ?? "";
 
 // ── nb-01 golden rubric (mirrored from src/benchmarks/nonbtb/nb-01-company-profile/rubric.json;
 //    kept honest by tests/goldenDataset.test.ts). Inlined because Playwright's ESM loader rejects a
@@ -198,8 +203,8 @@ function writeProofReceipt(proof: SpreadsheetBenchLiveRoomProof): void {
   writeFileSync(absolute, `${JSON.stringify(proof, null, 2)}\n`);
 }
 
-test("SpreadsheetBench V1 fresh-room contract: import nb-01 CSV -> cheap @nodeagent -> official gradeGolden on agent cells", async ({ page }, testInfo) => {
-  test.setTimeout(20 * 60_000);
+test("SpreadsheetBench V1 fresh-room contract: import nb-01 CSV -> @nodeagent -> official gradeGolden on agent cells", async ({ page }, testInfo) => {
+  test.setTimeout(BENCH_TEST_TIMEOUT_MS);
   await page.addInitScript(() => {
     window.localStorage.setItem("noderoom.nodeagentRuntimeProfile", "benchmark_completion");
   });
@@ -252,9 +257,14 @@ test("SpreadsheetBench V1 fresh-room contract: import nb-01 CSV -> cheap @nodeag
   await page.getByTestId("binder-artifact").filter({ hasText: "Sheet 1" }).first().click({ timeout: 30_000 });
   await expect(page.locator('[data-element-id="r1__A"]')).toBeVisible({ timeout: 30_000 });
 
-  // ── Step 3: ASK — the cheap route must be selected, then send the literal prompt. ──────────────
+  // ── Step 3: ASK — select the requested live model route, then send the literal prompt. ─────────
   const preset = page.locator('[data-testid="chat-model-preset"]').first();
-  await expect(preset, "must be the cheap adaptive/free route — fail loudly if a flagship is pinned").toHaveValue(/adaptive|free/, { timeout: 30_000 });
+  await expect(preset).toBeVisible({ timeout: 30_000 });
+  if (BENCH_AGENT_MODEL_MODE !== "adaptive") await preset.selectOption(BENCH_AGENT_MODEL_MODE);
+  if (BENCH_AGENT_MODEL_MODE === "specific" && BENCH_AGENT_MODEL_POLICY) {
+    await page.locator('[data-testid="chat-model-specific"]').fill(BENCH_AGENT_MODEL_POLICY);
+  }
+  await expect(preset, `must use requested benchmark model mode ${BENCH_AGENT_MODEL_MODE}`).toHaveValue(BENCH_AGENT_MODEL_MODE, { timeout: 30_000 });
 
   // The composer testid is ON the <textarea> itself (not a wrapper), so target it directly.
   const ta = page.locator('textarea[data-testid="chat-composer"]').first();
