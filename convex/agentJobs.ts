@@ -4,6 +4,8 @@ import { internalMutation, mutation, query } from "./_generated/server";
 import { components, internal } from "./_generated/api";
 import type { Id } from "./_generated/dataModel";
 import { actorProofV, requireActorProof, requireArtifactInRoom, type ActorValue } from "./lib";
+import { assertCreateArtifactLimits } from "./artifacts";
+import { syncSpreadsheetIndexFromSeed } from "./spreadsheetIndexLib";
 import { classifyIntakeMessage, buildPlanPreview } from "../src/nodeagent/core/intakePreflight";
 import { buildRoomWorkReasoningPlan, roomWorkFacetFrameId, roomWorkPhaseFrameId, type ReasoningFramePlan } from "../src/nodeagent/core/reasoningFrames";
 import { parseBulkCompanyIngest } from "../src/nodeagent/skills/finance/bulkIngest";
@@ -1523,6 +1525,87 @@ function goalPrefersVariance(goal: string): boolean {
   return /\b(q3|variance|recompute)\b/i.test(goal);
 }
 
+const PUBLIC_ASK_SCRATCH_ROWS = 8;
+const PUBLIC_ASK_SCRATCH_COLUMNS = ["A", "B", "C"] as const;
+
+function publicAskScratchSeed(): Array<{ id: string; value: unknown }> {
+  const seed: Array<{ id: string; value: unknown }> = [];
+  for (let row = 1; row <= PUBLIC_ASK_SCRATCH_ROWS; row++) {
+    for (const column of PUBLIC_ASK_SCRATCH_COLUMNS) seed.push({ id: `r${row}__${column}`, value: "" });
+  }
+  return seed;
+}
+
+function publicAskScratchMeta() {
+  return {
+    dataframe: {
+      columns: PUBLIC_ASK_SCRATCH_COLUMNS.map((label, order) => ({
+        id: label,
+        label,
+        order,
+        mode: "manual",
+        type: "text",
+        agentWritable: true,
+      })),
+      rowCount: PUBLIC_ASK_SCRATCH_ROWS,
+      sourceFile: "blank-room-agent",
+      parser: "agent_blank_seed",
+      truncated: false,
+      warnings: [],
+    },
+  };
+}
+
+async function createPublicAskScratchSheet(ctx: any, args: { roomId: Id<"rooms">; actor: ActorValue }) {
+  const now = Date.now();
+  const title = "Sheet 1";
+  const seed = publicAskScratchSeed();
+  const meta = publicAskScratchMeta();
+  assertCreateArtifactLimits({ title, seed, meta });
+  const artifactId = await ctx.db.insert("artifacts", {
+    roomId: args.roomId,
+    kind: "sheet" as const,
+    title,
+    version: 1,
+    order: seed.map((s) => s.id),
+    updatedAt: now,
+    createdBy: args.actor,
+    visibility: "room" as const,
+    meta,
+  });
+  for (const s of seed) {
+    await ctx.db.insert("elements", {
+      artifactId,
+      elementId: s.id,
+      value: s.value,
+      version: 1,
+      updatedAt: now,
+      updatedBy: args.actor,
+    });
+  }
+  await syncSpreadsheetIndexFromSeed(ctx, { artifactId, title, kind: "sheet", meta, seed, now });
+  await ctx.db.insert("traces", {
+    roomId: args.roomId,
+    ts: now,
+    actor: args.actor,
+    type: "edit_applied",
+    summary: `${args.actor.name} added ${title} for the public agent request`,
+    detail: `create_artifact - sheet - ${String(artifactId)} - blank_public_ask_fallback`,
+  });
+  return {
+    _id: artifactId,
+    roomId: args.roomId,
+    kind: "sheet" as const,
+    title,
+    version: 1,
+    order: seed.map((s) => s.id),
+    updatedAt: now,
+    createdBy: args.actor,
+    visibility: "room" as const,
+    meta,
+  };
+}
+
 async function resolvePublicAskArtifact(ctx: any, args: {
   roomId: Id<"rooms">;
   requester: unknown;
@@ -1533,7 +1616,7 @@ async function resolvePublicAskArtifact(ctx: any, args: {
   const actor = await requireActorProof(ctx, args.roomId, args.requester as any);
   const rows = await ctx.db.query("artifacts").withIndex("by_room", (q: any) => q.eq("roomId", args.roomId)).collect();
   const visible = rows.filter((artifact: ArtifactAccess) => canUsePublicJobArtifact(artifact, actor));
-  if (!visible.length) throw new Error("no_public_artifact_available");
+  if (!visible.length) return createPublicAskScratchSheet(ctx, { roomId: args.roomId, actor });
 
   const byId = (id?: string) => visible.find((artifact: { _id: unknown }) => String(artifact._id) === String(id));
   for (const ref of args.references ?? []) {

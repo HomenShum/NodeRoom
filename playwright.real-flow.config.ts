@@ -10,13 +10,16 @@
 import { defineConfig, devices } from "@playwright/test";
 
 export default defineConfig({
-  testDir: "./tests",
-  testMatch: ["real-room-cheap-e2e.spec.ts"],
+  // Two real-user, live-Convex flows live here: the cheap-model room e2e (tests/) and the fullest
+  // honest SpreadsheetBench V1 fresh-room contract (e2e/). Both run against an externally started,
+  // Convex-connected server — never ?mode=memory — so the agent makes a real cheap-route model call.
+  testDir: ".",
+  testMatch: ["tests/real-room-cheap-e2e.spec.ts", "e2e/benchmark-ui-spreadsheetbench.spec.ts"],
   fullyParallel: false,
   workers: 1,
   retries: 1,
-  timeout: 420_000,
-  expect: { timeout: 300_000 },
+  timeout: 320_000,
+  expect: { timeout: 200_000 },
   reporter: "list",
-  use: { ...devices["Desktop Chrome"], headless: true },
+  use: { ...devices["Desktop Chrome"], headless: true, trace: "retain-on-failure" },
 });

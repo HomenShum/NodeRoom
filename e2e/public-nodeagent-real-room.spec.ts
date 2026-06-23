@@ -24,6 +24,16 @@ async function openFreshLiveDemoRoom(page: Page, code: string) {
   await ensureBinderOpen(page);
 }
 
+async function openFreshLiveBlankRoom(page: Page) {
+  await page.addInitScript(() => {
+    try { localStorage.setItem("noderoom:tour:v1", "done"); } catch { /* ignore */ }
+  });
+  await page.goto("/", { waitUntil: "domcontentloaded" });
+  await page.getByTestId("create-room").click({ timeout: 60_000 });
+  await expect(page.getByTestId("public-chat-panel").getByTestId("chat-composer")).toBeVisible({ timeout: 60_000 });
+  await expect(page.getByTestId("blank-room-state")).toBeVisible({ timeout: 60_000 });
+}
+
 async function openQ3Variance(page: Page) {
   await ensureBinderOpen(page);
   await page.getByTestId("left-rail").getByRole("button", { name: /Q3 variance/ }).click();
@@ -65,4 +75,32 @@ test("fresh room public @nodeagent first send starts one visible durable job", a
 
   const visibleStarts = await detail.getByText(/agentJobs\.start/).count();
   expect(visibleStarts).toBeLessThanOrEqual(1);
+});
+
+test("blank room public @nodeagent ask materializes a visible sheet and stream", async ({ page }) => {
+  test.setTimeout(180_000);
+  await openFreshLiveBlankRoom(page);
+
+  const chat = publicChat(page);
+  const prompt = "@nodeagent create me a sheet and research liveflow";
+  await chat.getByTestId("chat-composer").fill(prompt);
+  await chat.getByTestId("chat-send").click();
+
+  await expect(chat.getByTestId("chat-message").filter({ hasText: prompt })).toBeVisible({ timeout: 15_000 });
+  await expect(chat.getByTestId("agent-error")).toHaveCount(0);
+  await expect(chat.getByTestId("job-status")).toContainText(/queued|running|completed|blocked|failed/i, { timeout: 30_000 });
+
+  const stream = chat.getByTestId("agent-unified-stream").first();
+  await expect(stream).toBeVisible({ timeout: 60_000 });
+  await expect(stream.locator('[data-part="step"], [data-part="tool"], [data-testid="agent-stream-text"]').first()).toBeVisible({
+    timeout: 60_000,
+  });
+  await expect(chat.getByTestId("agent-operation-stream")).toHaveCount(0);
+  await expect(chat.getByTestId("agent-error")).toHaveCount(0);
+
+  await ensureBinderOpen(page);
+  await expect(page.getByTestId("left-rail").getByTestId("binder-artifact").filter({ hasText: "Sheet 1" }).first()).toBeVisible({
+    timeout: 60_000,
+  });
+  await expect(page.locator('[data-element-id="r1__A"]').first()).toBeVisible({ timeout: 60_000 });
 });

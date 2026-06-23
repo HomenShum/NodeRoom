@@ -1,12 +1,12 @@
 /** Public/private Copilot chat surfaces. Reads via useStore(). */
 import { useEffect, useMemo, useRef, useState, type CSSProperties, type ChangeEvent, type ClipboardEvent, type DragEvent, type KeyboardEvent, type ReactNode } from "react";
-import { Lock, MessageCircle, Globe, Send, Sparkles, Copy, Check, ArrowUpRight, Pencil, Paperclip, X, Timer, RefreshCw, ChevronDown, ChevronUp, ListChecks, GitBranch, ShieldCheck, Database } from "lucide-react";
+import { Lock, MessageCircle, Globe, Send, Sparkles, Copy, Check, ArrowUpRight, Pencil, Paperclip, X, Timer, RefreshCw, ChevronDown, ChevronUp, ListChecks, GitBranch, ShieldCheck, Database, FileText, StickyNote, Table2 } from "lucide-react";
 import { useQuery } from "convex/react";
 import { useStore, CONVEX_SITE_URL, type AgentJobDetailTelemetry, type AgentModelSelection, type PrivateStreamAccess, type RoomStore } from "../app/store";
 import { abortable, parseUploadedFiles, UPLOAD_TIMEOUT_MS } from "../app/uploadedArtifact";
 import type { StreamId } from "@convex-dev/persistent-text-streaming";
 import { api } from "../../convex/_generated/api";
-import type { Actor, Channel, Message } from "../engine/types";
+import type { Actor, Artifact, CellPayload, Channel, Message } from "../engine/types";
 import { llmModelCatalog, resolveModelAlias, type LlmProvider } from "../nodeagent/models/modelCatalog";
 import {
   displayArtifactRefMessage,
@@ -1461,6 +1461,89 @@ function MultiAgentWorkbenchDemo({ tick, scenario }: { tick: number; scenario: D
   );
 }
 
+type ArtifactEmbedPreview = {
+  title: string;
+  kind: string;
+  meta: string;
+  body: string;
+  status?: string;
+  evidenceCount: number;
+  missing?: boolean;
+};
+
+function ArtifactKindIcon({ kind }: { kind: string }) {
+  if (kind === "sheet") return <Table2 size={13} />;
+  if (kind === "note") return <FileText size={13} />;
+  if (kind === "wall") return <StickyNote size={13} />;
+  return <Paperclip size={13} />;
+}
+
+function isCellPayload(value: unknown): value is CellPayload {
+  return !!value && typeof value === "object" && "value" in value;
+}
+
+function valuePreview(value: unknown): string {
+  const raw = isCellPayload(value) ? value.value : value;
+  if (raw == null || raw === "") return "";
+  if (typeof raw === "string") return raw.trim();
+  if (typeof raw === "number" || typeof raw === "boolean") return String(raw);
+  if (typeof raw === "object" && raw && "text" in raw && typeof (raw as { text?: unknown }).text === "string") return (raw as { text: string }).text.trim();
+  try { return JSON.stringify(raw); } catch { return String(raw); }
+}
+
+function previewArtifact(artifact: Artifact | undefined, ref: ArtifactRef): ArtifactEmbedPreview {
+  if (!artifact) {
+    return {
+      title: ref.title,
+      kind: ref.kind || "artifact",
+      meta: "Reference unavailable",
+      body: "The artifact or proposal is no longer available in this room.",
+      evidenceCount: 0,
+      missing: true,
+    };
+  }
+  const elements = artifact.order.map((id) => artifact.elements[id]).filter(Boolean);
+  const values = elements.map((el) => el.value);
+  const bodyBits = values.map(valuePreview).filter(Boolean).slice(0, 4);
+  const status = values.map((value) => isCellPayload(value) ? value.status : undefined).find(Boolean);
+  const evidenceCount = values.reduce<number>((sum, value) => sum + (isCellPayload(value) ? value.evidence?.length ?? 0 : 0), 0);
+  const metaParts = [
+    artifact.kind,
+    artifact.meta?.dataframe ? `${artifact.meta.dataframe.rowCount} rows` : `${elements.length} item${elements.length === 1 ? "" : "s"}`,
+    artifact.visibility && artifact.visibility !== "room" ? artifact.visibility : undefined,
+  ].filter(Boolean);
+  return {
+    title: artifact.title,
+    kind: artifact.kind,
+    meta: metaParts.join(" - "),
+    body: bodyBits.length ? bodyBits.join(" | ") : "No visible content yet.",
+    status,
+    evidenceCount,
+  };
+}
+
+function ArtifactEmbed({ roomId, ref, store, onOpen }: { roomId: string; ref: ArtifactRef; store: RoomStore; onOpen: (ref: ArtifactRef) => void }) {
+  const artifact = store.getArtifact(ref.id) ?? store.listArtifacts(roomId).find((a) => a.id === ref.id);
+  const preview = previewArtifact(artifact, ref);
+  return (
+    <button className="r-msg-artifact r-msg-ref" data-kind={preview.kind} data-missing={preview.missing ? "true" : "false"} type="button" onClick={() => onOpen(ref)}>
+      <span className="r-msg-artifact-icon"><ArtifactKindIcon kind={preview.kind} /></span>
+      <span className="r-msg-artifact-main">
+        <span className="r-msg-artifact-head">
+          <strong>{preview.title}</strong>
+          <em>{preview.meta}</em>
+        </span>
+        <span className="r-msg-artifact-body">{preview.body}</span>
+        <span className="r-msg-artifact-foot">
+          {preview.status && <span data-status={preview.status}>{preview.status}</span>}
+          {preview.evidenceCount > 0 && <span>{preview.evidenceCount} source{preview.evidenceCount === 1 ? "" : "s"}</span>}
+          <span>Open <ArrowUpRight size={10} /></span>
+        </span>
+      </span>
+    </button>
+  );
+}
+
 function Bubble({
   m,
   roomId,
@@ -1536,9 +1619,7 @@ function Bubble({
             {parsed.refs.length > 0 && (
               <div className="r-msg-refs">
                 {parsed.refs.map((ref) => (
-                  <button key={ref.id} className="r-msg-ref" type="button" onClick={() => openRef(ref)}>
-                    <Paperclip size={11} /> <span className="r-ref-title">{ref.title}</span>
-                  </button>
+                  <ArtifactEmbed key={ref.id} roomId={roomId} ref={ref} store={store} onOpen={openRef} />
                 ))}
               </div>
             )}

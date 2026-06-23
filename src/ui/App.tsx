@@ -36,7 +36,7 @@ interface LiveSession {
 
 type LiveRequest =
   | { kind: "idle" }
-  | { kind: "join" | "create" | "demo"; code: string; name: string };
+  | { kind: "join" | "create" | "demo"; code: string; name: string; title?: string };
 
 export function App() {
   const [hash, setHash] = useState(() => (typeof window !== "undefined" ? window.location.hash : ""));
@@ -138,17 +138,18 @@ function ConvexApp() {
   // flashing the UI and re-hammering the join mutation. Mirrors RoomShell's tourAutoStarted ref.
   const attemptedRef = useRef<LiveRequest | null>(null);
 
-  const start = (kind: "join" | "create" | "demo", rawCode: string, rawName: string) => {
+  const start = (kind: "join" | "create" | "demo", rawCode: string, rawName: string, rawTitle?: string) => {
     const normalizedCode = normalizeLiveRoomCode(rawCode);
     if (!normalizedCode) {
       setError("Enter a 6-12 character room code.");
       return;
     }
     const name = cleanLiveName(rawName, kind === "create" ? "Host" : "Guest");
+    const title = kind === "create" ? cleanLiveTitle(rawTitle ?? "", "Blank NodeRoom") : undefined;
     setError(null);
     setSession(kind === "join" ? loadLiveSession(liveSessionKey(normalizedCode)) : null);
-    setRequest({ kind, code: normalizedCode, name });
-    writeLiveUrl(kind, normalizedCode, name);
+    setRequest({ kind, code: normalizedCode, name, title });
+    writeLiveUrl(kind, normalizedCode, name, title);
   };
 
   useEffect(() => {
@@ -189,7 +190,7 @@ function ConvexApp() {
         // seedArtifacts also matches the deployed `rooms.create` validator exactly.
         const result = await createRoom({
           code: request.code,
-          title: "Blank NodeRoom",
+          title: request.title ?? "Blank NodeRoom",
           hostName: name,
           authToken: token,
           autoAllow: true,
@@ -215,7 +216,7 @@ function ConvexApp() {
         joinError={error}
         onLiveDemo={(name) => start("demo", makeLiveRoomCode(), name)}
         onLiveJoin={(roomCode, name) => start("join", roomCode, name)}
-        onLiveCreate={(name) => start("create", makeLiveRoomCode(), name)}
+        onLiveCreate={(name, title, roomCode) => start("create", roomCode ?? makeLiveRoomCode(), name, title)}
       />
     );
   }
@@ -251,7 +252,8 @@ function initialLiveRequest(): LiveRequest {
   }
   if (createParam !== null) {
     const code = normalizeLiveRoomCode(createParam && createParam !== "1" ? createParam : makeLiveRoomCode());
-    return code ? { kind: "create", code, name } : { kind: "idle" };
+    const title = cleanLiveTitle(params.get("title") ?? "", "Blank NodeRoom");
+    return code ? { kind: "create", code, name, title } : { kind: "idle" };
   }
   if (joinParam) {
     const code = normalizeLiveRoomCode(joinParam);
@@ -260,13 +262,14 @@ function initialLiveRequest(): LiveRequest {
   return { kind: "idle" };
 }
 
-function writeLiveUrl(kind: "join" | "create" | "demo", code: string, name: string) {
+function writeLiveUrl(kind: "join" | "create" | "demo", code: string, name: string, title?: string) {
   if (typeof window === "undefined") return;
   const url = new URL(window.location.href);
   url.hash = "";
   url.search = "";
   url.searchParams.set(kind === "demo" ? "demo" : kind === "create" ? "create" : "room", code);
   if (name) url.searchParams.set("name", name);
+  if (kind === "create" && title) url.searchParams.set("title", title);
   window.history.pushState(null, "", url);
 }
 
@@ -285,6 +288,10 @@ function normalizeLiveRoomCode(raw: string): string {
 
 function cleanLiveName(raw: string, fallback: string): string {
   return raw.trim().slice(0, 40) || fallback;
+}
+
+function cleanLiveTitle(raw: string, fallback: string): string {
+  return raw.trim().slice(0, 80) || fallback;
 }
 
 function isJoinFailure(value: unknown): value is { error: "room_full" | "join_rate_limited" } {

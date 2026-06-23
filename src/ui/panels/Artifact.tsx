@@ -193,6 +193,19 @@ function ArtifactSurface({ roomId, me, proof, artId, onArt, collab, style, surfa
         </div>
         <span className="grow" />
         {headerExtra}
+        {activeTab === "sheet" && sheet && !sheet.meta?.excelGrid && (
+          <button
+            type="button"
+            className="r-btn ghost r-artifact-export"
+            aria-label="Export workbook to XLSX"
+            title="Download this sheet as an .xlsx workbook"
+            data-testid="artifact-export-xlsx"
+            onClick={() => { void exportSheetAsXlsx(sheet); }}
+          >
+            <Download size={11} />
+            Export XLSX
+          </button>
+        )}
         {canToggleVis ? (
           <button
             type="button"
@@ -1465,6 +1478,115 @@ function displayCellValue(value: unknown): string {
   if (typeof raw === "string") return raw;
   if (typeof raw === "number" || typeof raw === "boolean") return String(raw);
   return JSON.stringify(raw);
+}
+
+/**
+ * Coerce a sheet element's `value` into a typed Excel cell value. The room engine stores cells as
+ * either a raw scalar OR a `CellPayload` whose `.value` is the scalar; we unwrap once then preserve
+ * the underlying JS type so exceljs writes a number as a number (not a string), which is what the
+ * downstream SpreadsheetBench scorer + reopen flow depend on.
+ */
+function exportCellValue(value: unknown): string | number | boolean | null {
+  const payload = asCellPayload(value);
+  const raw = payload ? payload.value : value;
+  if (raw === null || raw === undefined) return null;
+  if (typeof raw === "number" && Number.isFinite(raw)) return raw;
+  if (typeof raw === "boolean") return raw;
+  if (typeof raw === "string") {
+    const trimmed = raw.trim();
+    if (trimmed === "") return null;
+    // Numeric strings the cheap-route agent commonly writes ("25", "3.5", "44") — keep as number so
+    // the reopened workbook grades on numeric value, not text. Leave anything non-numeric (units,
+    // labels, citations) as the original string.
+    if (/^-?\d+(\.\d+)?$/.test(trimmed)) {
+      const n = Number(trimmed);
+      if (Number.isFinite(n)) return n;
+    }
+    return raw;
+  }
+  return String(raw);
+}
+
+/** Filesystem-safe filename derived from an artifact title (used by the Export XLSX download). */
+function sanitizeFilename(name: string): string {
+  const cleaned = name.replace(/[^a-zA-Z0-9._-]+/g, "_").replace(/^_+|_+$/g, "");
+  return cleaned || "workbook";
+}
+
+/**
+ * Build a real .xlsx (Office-magic-bytes, exceljs) from the sheet artifact in scope and trigger a
+ * browser download. Walks `art.order` for row ids and the column suffix derived from each element
+ * id (same path bankerCoachPacket.ts uses) — no separate Convex fetch. The "Q3 variance" canonical
+ * sheet has a fixed column shape (Account · Q2 · Q3 · Variance · Note); every other sheet uses the
+ * scanned columns in `art.order`-encounter order with Excel column letters (A, B, C...). Triggered
+ * by the toolbar button (data-testid="artifact-export-xlsx") that is gated to the live sheet
+ * surfaces — NOT the `.xl-sheet` ExcelGridSheet branch (that one is the xlsx-recognition surface;
+ * different concern).
+ *
+ * TODO(mobile-export): the mobile #mobile route currently has a Download XLSX button that emits a
+ * fake toast (flagged by R31). Wire it to this same path (extract into a shared helper) in a
+ * follow-up PR; out of scope here.
+ */
+async function exportSheetAsXlsx(art: Art): Promise<void> {
+  const ExcelJSModule = await import("exceljs");
+  const ExcelJS = (ExcelJSModule as { default?: typeof import("exceljs") }).default ?? (ExcelJSModule as unknown as typeof import("exceljs"));
+  const workbook = new ExcelJS.Workbook();
+  const sheetName = (art.title || "Sheet1").slice(0, 31); // Excel sheet name max 31 chars
+  const worksheet = workbook.addWorksheet(sheetName);
+  const rows = rowIdsOf(art);
+
+  if (art.title === "Q3 variance") {
+    // Canonical variance sheet: stable headers matching the live Sheet renderer (Artifact.tsx Sheet).
+    worksheet.addRow(["Account", "Q2", "Q3", "Variance", "Note"]);
+    for (const rid of rows) {
+      worksheet.addRow([
+        exportCellValue(art.elements[`${rid}__account`]?.value),
+        exportCellValue(art.elements[`${rid}__q2`]?.value),
+        exportCellValue(art.elements[`${rid}__q3`]?.value),
+        exportCellValue(art.elements[`${rid}__variance`]?.value),
+        exportCellValue(art.elements[`${rid}__note`]?.value),
+      ]);
+    }
+  } else {
+    // Generic / blank sheet: derive columns from art.order; the SpreadsheetBench fresh-room flow
+    // writes r<row>__A / r<row>__B so this preserves cell addresses exactly (A1=metric, B1=value).
+    const cols = colsOf(art);
+    // Single-letter column ids ("A", "B", ...) are written to their literal Excel column; multi-char
+    // column ids (legacy headers) get a labeled header row and sequential Excel columns.
+    const isLetterCols = cols.length > 0 && cols.every((c) => /^[A-Z]$/.test(c));
+    if (isLetterCols) {
+      for (const rid of rows) {
+        const rowNum = parseInt(rid.replace(/^r/, ""), 10);
+        if (!Number.isFinite(rowNum) || rowNum <= 0) continue;
+        for (const col of cols) {
+          const v = exportCellValue(art.elements[`${rid}__${col}`]?.value);
+          if (v !== null) worksheet.getCell(`${col}${rowNum}`).value = v;
+        }
+      }
+    } else {
+      worksheet.addRow(cols.map((c) => prettyCol(c)));
+      for (const rid of rows) {
+        worksheet.addRow(cols.map((col) => exportCellValue(art.elements[`${rid}__${col}`]?.value)));
+      }
+    }
+  }
+
+  // writeBuffer() returns an exceljs.Buffer (Uint8Array-compatible); Blob accepts both. NEVER call
+  // workbook.xlsx.writeFile here — that is Node-only and would crash in the browser.
+  const buffer = await workbook.xlsx.writeBuffer();
+  const blob = new Blob([buffer as ArrayBuffer], {
+    type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  });
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.download = `${sanitizeFilename(art.title)}.xlsx`;
+  anchor.style.display = "none";
+  document.body.appendChild(anchor);
+  anchor.click();
+  document.body.removeChild(anchor);
+  // Free the object URL on the next tick so Chrome/Firefox have finished the download negotiation.
+  setTimeout(() => URL.revokeObjectURL(url), 0);
 }
 
 function prettyCol(col: string) {

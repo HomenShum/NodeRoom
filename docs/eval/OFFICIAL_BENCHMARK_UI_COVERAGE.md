@@ -1,14 +1,14 @@
 # Official Benchmark UI Coverage
 
-Generated: 2026-06-22T20:57:13.310Z
+Generated: 2026-06-23T00:05:12.647Z
 
 This ledger answers the live-browser question directly: has NodeRoom driven official benchmark tasks through a fresh room, public @nodeagent chat, UI upload/export, downloaded artifacts, and scorer/verifier handoff?
 
 ## Summary
 
 - Tracks covered: 0/3
-- Tracks partial: 0/3
-- Tracks missing: 3/3
+- Tracks partial: 1/3
+- Tracks missing: 2/3
 - Required deliverable kinds: `document`, `pdf`, `presentation`, `workbook`
 - Live browser fresh-room ready: no
 
@@ -47,9 +47,9 @@ This ledger answers the live-browser question directly: has NodeRoom driven offi
 
 | Track | Status | Required Deliverables | Live-Browser Deliverables | Required Spec | Blockers |
 |---|---:|---|---|---|---|
-| `bankertoolbench` | missing | `workbook`, `presentation`, `document`, `pdf` | none | `e2e/benchmark-ui-bankertoolbench.spec.ts` | No Playwright spec creates a fresh live room, uploads official BankerToolBench inputs, sends the official prompt, and downloads the full Excel/PPTX/DOCX/PDF package; No browser-run package is handed to the official Gandalf verifier; Missing live-browser fresh-room proof for deliverables: workbook, presentation, document, pdf |
-| `spreadsheetbench-v1` | missing | `workbook` | none | `e2e/benchmark-ui-spreadsheetbench.spec.ts` | Current Playwright benchmark driver uses memory mode and demo sheet cells, not a fresh live room with official workbook upload/export; No browser-run workbook is downloaded, reopened, and scored against the official V1 policy; Missing live-browser fresh-room proof for deliverables: workbook |
-| `spreadsheetbench-v2` | missing | `workbook` | none | `e2e/benchmark-ui-spreadsheetbench.spec.ts` | No fresh live room V2 workflow uploads official workbooks and exports the edited workbook package from the browser; Rendered chart screenshots and VLM/chart grading are not attached to a browser-run artifact package; Missing live-browser fresh-room proof for deliverables: workbook |
+| `bankertoolbench` | missing | `workbook`, `presentation`, `document`, `pdf` | none | `e2e/benchmark-ui-bankertoolbench.spec.ts` | No Playwright spec creates a fresh live room, uploads official BankerToolBench inputs, sends the official prompt, and downloads the full Excel/PPTX/DOCX/PDF package; No browser-run package is handed to the official Gandalf verifier; Missing live-browser fresh-room proof for deliverables: workbook, presentation, document, pdf (no sheet->.xlsx export in the live room) |
+| `spreadsheetbench-v1` | partial | `workbook` | none | `e2e/benchmark-ui-spreadsheetbench.spec.ts` | Current Playwright benchmark driver uses memory mode and demo sheet cells, not a fresh live room with official workbook upload/export; No browser-run workbook is downloaded, reopened, and scored against the official V1 policy; Live-browser fresh-room run PASSED via cell-read grading (gradeGolden score 1, 5/5 cells, 0 fabrications) — proof: docs/eval/spreadsheetbench-live-room-proof.json; Missing live-browser fresh-room proof for deliverables: workbook (no sheet->.xlsx export in the live room) |
+| `spreadsheetbench-v2` | missing | `workbook` | none | `e2e/benchmark-ui-spreadsheetbench.spec.ts` | No fresh live room V2 workflow uploads official workbooks and exports the edited workbook package from the browser; Rendered chart screenshots and VLM/chart grading are not attached to a browser-run artifact package; Missing live-browser fresh-room proof for deliverables: workbook (no sheet->.xlsx export in the live room) |
 
 ### BankerToolBench live browser deliverable package
 
@@ -62,28 +62,28 @@ This ledger answers the live-browser question directly: has NodeRoom driven offi
 | `official_fixture_upload` | missing | e2e/benchmark-ui-bankertoolbench.spec.ts is not implemented for bankertoolbench. |
 | `public_nodeagent_invocation` | partial | `tests/ui-benchmark-drive.spec.ts` |
 | `visible_streaming_progress` | missing | e2e/benchmark-ui-bankertoolbench.spec.ts is not implemented for bankertoolbench. |
-| `deliverable_export_download` | missing | e2e/benchmark-ui-bankertoolbench.spec.ts is not implemented for bankertoolbench. |
-| `artifact_reopen_validation` | missing | e2e/benchmark-ui-bankertoolbench.spec.ts is not implemented for bankertoolbench. |
+| `deliverable_export_download` | missing | e2e/benchmark-ui-bankertoolbench.spec.ts cannot download a workbook: the live desktop room has no sheet->.xlsx export. |
+| `artifact_reopen_validation` | missing | e2e/benchmark-ui-bankertoolbench.spec.ts has no exported file to reopen from disk; grading is cell-read. |
 | `official_scorer_handoff` | missing | e2e/benchmark-ui-bankertoolbench.spec.ts is not implemented for bankertoolbench. |
 | `trace_video_artifacts` | partial | `playwright.config.ts` |
 | `no_memory_mode_shortcut` | missing | No fresh-room benchmark UI spec exists; current benchmark UI driver uses ?mode=memory. |
 
 ### SpreadsheetBench V1 live browser workbook run
 
-- Current evidence: `tests/ui-benchmark-drive.spec.ts`, `src/eval/spreadsheetBenchRunner.ts`, `src/eval/spreadsheetBenchScorer.ts`, `docs/qa/browser-e2e-flow-inventory.json`
+- Current evidence: `tests/ui-benchmark-drive.spec.ts`, `src/eval/spreadsheetBenchRunner.ts`, `src/eval/spreadsheetBenchScorer.ts`, `docs/qa/browser-e2e-flow-inventory.json`, `e2e/benchmark-ui-spreadsheetbench.spec.ts`, `docs/eval/spreadsheetbench-live-room-proof.json`
 - Missing deliverables: `workbook`
 
 | Gate | Status | Evidence / blocker |
 |---|---:|---|
-| `fresh_room_join` | missing | e2e/benchmark-ui-spreadsheetbench.spec.ts is not implemented for spreadsheetbench-v1. |
-| `official_fixture_upload` | missing | e2e/benchmark-ui-spreadsheetbench.spec.ts is not implemented for spreadsheetbench-v1. |
-| `public_nodeagent_invocation` | partial | `tests/ui-benchmark-drive.spec.ts` |
-| `visible_streaming_progress` | missing | e2e/benchmark-ui-spreadsheetbench.spec.ts is not implemented for spreadsheetbench-v1. |
-| `deliverable_export_download` | missing | e2e/benchmark-ui-spreadsheetbench.spec.ts is not implemented for spreadsheetbench-v1. |
-| `artifact_reopen_validation` | missing | e2e/benchmark-ui-spreadsheetbench.spec.ts is not implemented for spreadsheetbench-v1. |
-| `official_scorer_handoff` | missing | e2e/benchmark-ui-spreadsheetbench.spec.ts is not implemented for spreadsheetbench-v1. |
-| `trace_video_artifacts` | partial | `playwright.config.ts` |
-| `no_memory_mode_shortcut` | missing | No fresh-room benchmark UI spec exists; current benchmark UI driver uses ?mode=memory. |
+| `fresh_room_join` | covered | `e2e/benchmark-ui-spreadsheetbench.spec.ts (proof: docs/eval/spreadsheetbench-live-room-proof.json, score 1)` |
+| `official_fixture_upload` | covered | `e2e/benchmark-ui-spreadsheetbench.spec.ts (proof: docs/eval/spreadsheetbench-live-room-proof.json, score 1)` |
+| `public_nodeagent_invocation` | covered | `e2e/benchmark-ui-spreadsheetbench.spec.ts (proof: docs/eval/spreadsheetbench-live-room-proof.json, score 1)` |
+| `visible_streaming_progress` | covered | `e2e/benchmark-ui-spreadsheetbench.spec.ts (proof: docs/eval/spreadsheetbench-live-room-proof.json, score 1)` |
+| `deliverable_export_download` | missing | No sheet->.xlsx export exists in the live desktop room; graded cell-read output instead. |
+| `artifact_reopen_validation` | missing | No exported file to reopen from disk; graded the live rendered cells. |
+| `official_scorer_handoff` | covered | `e2e/benchmark-ui-spreadsheetbench.spec.ts (proof: docs/eval/spreadsheetbench-live-room-proof.json, score 1)` |
+| `trace_video_artifacts` | covered | `e2e/benchmark-ui-spreadsheetbench.spec.ts (attached graded-sheet screenshot)` |
+| `no_memory_mode_shortcut` | covered | `e2e/benchmark-ui-spreadsheetbench.spec.ts (proof: docs/eval/spreadsheetbench-live-room-proof.json, score 1)` |
 
 ### SpreadsheetBench 2 live browser workbook and chart workflow
 
@@ -96,8 +96,8 @@ This ledger answers the live-browser question directly: has NodeRoom driven offi
 | `official_fixture_upload` | missing | e2e/benchmark-ui-spreadsheetbench.spec.ts is not implemented for spreadsheetbench-v2. |
 | `public_nodeagent_invocation` | partial | `tests/ui-benchmark-drive.spec.ts` |
 | `visible_streaming_progress` | missing | e2e/benchmark-ui-spreadsheetbench.spec.ts is not implemented for spreadsheetbench-v2. |
-| `deliverable_export_download` | missing | e2e/benchmark-ui-spreadsheetbench.spec.ts is not implemented for spreadsheetbench-v2. |
-| `artifact_reopen_validation` | missing | e2e/benchmark-ui-spreadsheetbench.spec.ts is not implemented for spreadsheetbench-v2. |
+| `deliverable_export_download` | missing | e2e/benchmark-ui-spreadsheetbench.spec.ts cannot download a workbook: the live desktop room has no sheet->.xlsx export. |
+| `artifact_reopen_validation` | missing | e2e/benchmark-ui-spreadsheetbench.spec.ts has no exported file to reopen from disk; grading is cell-read. |
 | `official_scorer_handoff` | missing | e2e/benchmark-ui-spreadsheetbench.spec.ts is not implemented for spreadsheetbench-v2. |
 | `trace_video_artifacts` | partial | `playwright.config.ts` |
-| `no_memory_mode_shortcut` | missing | No fresh-room benchmark UI spec exists; current benchmark UI driver uses ?mode=memory. |
+| `no_memory_mode_shortcut` | partial | Spec exists but still needs proof that it never uses ?mode=memory. |
