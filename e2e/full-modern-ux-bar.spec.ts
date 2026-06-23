@@ -275,6 +275,9 @@ test.describe("full modern UX release bar", () => {
     await expect(app).toBeVisible({ timeout: 30_000 });
     await expect(app).toHaveCSS("background-color", "rgb(251, 244, 231)");
     await expect(page.locator(".na-roomsw .nm")).toHaveText("Q3 Diligence");
+    await expect(page.locator('[aria-label="Capture note"]')).toBeVisible();
+    await expectNoHorizontalOverflow(page, "mobile capture");
+    await page.getByRole("button", { name: "Home" }).click();
     await expect(page.locator(".na-kicker").filter({ hasText: "Recents" })).toBeVisible();
     await expect(page.locator(".na-skel")).toHaveCount(0);
     await expectNoHorizontalOverflow(page, "mobile home");
