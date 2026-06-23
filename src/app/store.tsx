@@ -492,6 +492,11 @@ export function EngineStoreProvider({ roomId, children }: { roomId: string; me: 
   const memPassiveRef = useRef<PassiveActivityItem[]>([]);
   const memPassiveHydratedRef = useRef(false);
   const [memPassiveRev, setMemPassiveRev] = useState(0);
+  // Memory-mode presence (reactive). The Convex presence path is live-only (a no-op in ?mode=memory);
+  // this Map + rev counter makes presence real without a backend so the Attention Overlay — and its
+  // tests — can show human/agent focus boxes. Keyed by `${roomId}|${artifactId}`.
+  const memPresenceRef = useRef<Map<string, PresenceClaim[]>>(new Map());
+  const [memPresenceRev, setMemPresenceRev] = useState(0);
   const memLongJobRunRef = useRef(0);
   const memLongJobCurrentRef = useRef<AgentJobTelemetry | null>(null);
   const memLongJobTasksRef = useRef(new Map<string, MemoryFreeJobTask>());
@@ -640,9 +645,37 @@ export function EngineStoreProvider({ roomId, children }: { roomId: string; me: 
     listSessions: (id) => engine.listSessions(id),
     listDrafts: (id) => engine.listDrafts(id),
     listProposals: (id) => engine.listProposals(id),
-    listPresence: () => [],
-    updatePresence: () => {},
-    clearPresence: () => {},
+    listPresence: (id, artifactId) => {
+      const now = Date.now();
+      return (memPresenceRef.current.get(`${id}|${artifactId ?? ""}`) ?? []).filter(
+        (c) => ((c as { expiresAt?: number }).expiresAt ?? Infinity) > now,
+      );
+    },
+    updatePresence: (args) => {
+      const k = `${args.roomId}|${args.artifactId ?? ""}`;
+      const now = Date.now();
+      const cur = (memPresenceRef.current.get(k) ?? []).filter(
+        (c) =>
+          ((c as { expiresAt?: number }).expiresAt ?? Infinity) > now &&
+          !(c.actor.id === args.actor.id && c.targetId === args.targetId && c.mode === args.mode),
+      );
+      cur.push({
+        id: `${args.actor.id}:${args.targetId}:${args.mode}`,
+        roomId: args.roomId, artifactId: args.artifactId, targetKind: args.targetKind, targetId: args.targetId,
+        mode: args.mode, actor: args.actor, label: args.label, color: args.color,
+        updatedAt: now, expiresAt: now + (args.ttlMs ?? 15000),
+      } as unknown as PresenceClaim);
+      memPresenceRef.current.set(k, cur);
+      setMemPresenceRev((v) => v + 1);
+    },
+    clearPresence: (args) => {
+      const k = `${args.roomId}|${args.artifactId ?? ""}`;
+      const cur = (memPresenceRef.current.get(k) ?? []).filter(
+        (c) => !(c.actor.id === args.actor.id && (args.targetId == null || c.targetId === args.targetId) && (args.mode == null || c.mode === args.mode)),
+      );
+      memPresenceRef.current.set(k, cur);
+      setMemPresenceRev((v) => v + 1);
+    },
     lockFor: (aid, eid) => engine.lockFor(aid, eid),
     awareness: (id, aid) => engine.awareness(id, aid),
     applyEdit: async (args) => {
@@ -876,7 +909,36 @@ export function EngineStoreProvider({ roomId, children }: { roomId: string; me: 
       const [rowId] = engine.addResearchRows({ roomId, artifactId: targetArt.id, rows: [{ company: entity }], by: actor });
       return rowId ? { artifactId: targetArt.id, rowId, created: true as const } : undefined;
     },
-  }), [rev, memPassiveRev, memLongJob, memLongJobAttempts, memLongJobDetail, roomId, startMemoryFreeJob, runMemoryFreeJob]);
+  }), [rev, memPassiveRev, memPresenceRev, memLongJob, memLongJobAttempts, memLongJobDetail, roomId, startMemoryFreeJob, runMemoryFreeJob]);
+
+  // Dev/demo seam (memory mode only): seed the Attention Overlay's headline scenario — a human focused on
+  // C2 (blue) and an agent reading A1:C5 (amber) — so the overlay is verifiable in ?mode=memory. Writes the
+  // presence Map directly (any mode) and bumps the rev. No-op in production (window is only poked here).
+  useEffect(() => {
+    const w = window as unknown as { __seedOverlay?: (aid?: string) => string };
+    w.__seedOverlay = (aidArg) => {
+      const aid = aidArg
+        || document.querySelector("table.r-sheet[data-artifact-id]")?.getAttribute("data-artifact-id")
+        || document.querySelector("[data-artifact-id]")?.getAttribute("data-artifact-id")
+        || "";
+      const rid = roomId;
+      const now = Date.now();
+      const k = `${rid}|${aid}`;
+      const cur = memPresenceRef.current.get(k) ?? [];
+      const add = (targetId: string, mode: string, actor: Actor, color?: string) =>
+        cur.push({ id: `${actor.id}:${targetId}:${mode}`, roomId: rid, artifactId: aid, targetKind: "cell", targetId, mode, actor, color, updatedAt: now, expiresAt: now + 600_000 } as unknown as PresenceClaim);
+      add("C2", "focus", { kind: "user", id: "u_alice", name: "Alice" }, "#5E6AD2");
+      add("A1:C5", "agent_intent", { kind: "agent", id: "a_nodeagent", name: "NodeAgent" });
+      // Q3 variance (the demo room's Sheet renderer uses rid__col ids).
+      add("r_rev__variance", "focus", { kind: "user", id: "u_alice", name: "Alice" }, "#5E6AD2");
+      add("r_cogs__variance", "agent_intent", { kind: "agent", id: "a_nodeagent", name: "NodeAgent" });
+      add("r_gp__variance", "agent_intent", { kind: "agent", id: "a_nodeagent", name: "NodeAgent" });
+      memPresenceRef.current.set(k, cur);
+      setMemPresenceRev((v) => v + 1);
+      return k;
+    };
+    return () => { delete (window as unknown as { __seedOverlay?: unknown }).__seedOverlay; };
+  }, []);
   return <Ctx.Provider value={store}>{children}</Ctx.Provider>;
 }
 

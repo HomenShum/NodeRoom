@@ -26,6 +26,9 @@ import { onStageFocus, focusStage, type StageFocusTarget } from "../stageFocus";
 import { TraceSurface } from "./TraceSurface";
 import { classifyEvidence } from "../traceLens/evidence";
 import type { Actor, Artifact as Art, CellPayload, DataframeColumn, DocumentParseMeta, Proposal, TraceEvent, ResearchRowInput } from "../../engine/types";
+import { AttentionOverlay } from "../overlay/AttentionOverlay";
+import { createSpreadsheetResolver } from "../overlay/spreadsheetResolver";
+import { focusBoxesForSheet, type SheetCellState } from "../overlay/focusBoxesForSheet";
 import { prepareDownstreamDrafts, type PreparedDownstreamDraft } from "../../nodeagent/skills/integration/downstreamPublish";
 
 /** Downstream handoff destinations → compact icon + short label (replaces 5 wide ghost buttons). */
@@ -1053,6 +1056,23 @@ function ExcelGridSheet({ roomId, me, art, onError }: { roomId: string; me: Acto
     const visibleRows = Array.from({ length: Math.min(rowCount, pageSize * pages) }, (_, idx) => idx + 1);
     return { columns, visibleRows, pageSize };
   }, [grid?.columns, grid?.rows, pages]);
+  // Attention Overlay (the wedge): derive focus boxes from EXISTING state and paint them on the live grid.
+  const overlayResolver = useMemo(() => createSpreadsheetResolver(() => gridRef.current), []);
+  const overlayCellStates = useMemo<SheetCellState[]>(() => {
+    const out: SheetCellState[] = [];
+    for (const r of visibleRows) for (const c of columns) {
+      const id = `${c}${r}`;
+      const locked = !!lockedByOther(store, art.id, id, me);
+      const proposed = draftedFor(store, roomId, art.id, id);
+      const hasEvidence = !!asCellPayload(art.elements[id]?.value)?.evidence?.length;
+      if (locked || proposed || hasEvidence) out.push({ id, lockedByOther: locked, proposed, hasEvidence });
+    }
+    return out;
+  }, [visibleRows, columns, store, roomId, art, me]);
+  const overlayBoxes = useMemo(
+    () => focusBoxesForSheet({ artifactId: art.id, now: Date.now(), meId: me.id, presence: presenceRows, cellStates: overlayCellStates }),
+    [art.id, me.id, presenceRows, overlayCellStates],
+  );
   const { mergeAnchor, mergeCovered } = useMemo(() => expandMerges(grid?.merges), [grid?.merges]);
   // Live formula recalc: every visible formula cell is computed through the shared engine via a
   // recursive, cycle-guarded resolver (chains resolve; cycles -> #CYCLE!; upstream errors propagate).
@@ -1385,6 +1405,7 @@ function ExcelGridSheet({ roomId, me, art, onError }: { roomId: string; me: Acto
                 ))}
               </tbody>
             </table>
+            <AttentionOverlay boxes={overlayBoxes} resolver={overlayResolver} mode="live" />
           </div>
         </div>
       </div>
@@ -1430,12 +1451,29 @@ function Sheet({ roomId, me, art, onError }: { roomId: string; me: Actor; art: A
   const proposals = store.listProposals(roomId).filter((p) => p.artifactId === art.id);
   const presenceRows = store.listPresence(roomId, art.id);
   const selfPresenceColor = memberColor(store, roomId, me);
+  const sheetWrapRef = useRef<HTMLDivElement>(null);
+  const overlayResolver = useMemo(() => createSpreadsheetResolver(() => sheetWrapRef.current), []);
+  const overlayCellStates = useMemo<SheetCellState[]>(() => {
+    const out: SheetCellState[] = [];
+    for (const rid of rows) for (const id of [`${rid}__variance`, `${rid}__note`]) {
+      const locked = !!lockedByOther(store, art.id, id, me);
+      const proposed = !!proposalFor(proposals, art.id, id) || draftedFor(store, roomId, art.id, id);
+      const hasEvidence = !!asCellPayload(art.elements[id]?.value)?.evidence?.length;
+      if (locked || proposed || hasEvidence) out.push({ id, lockedByOther: locked, proposed, hasEvidence });
+    }
+    return out;
+  }, [rows, store, roomId, art, me, proposals]);
+  const overlayBoxes = useMemo(
+    () => focusBoxesForSheet({ artifactId: art.id, now: Date.now(), meId: me.id, presence: presenceRows, cellStates: overlayCellStates }),
+    [art.id, me.id, presenceRows, overlayCellStates],
+  );
   const doCommit = (id: string, s: string) => { void commit(store, roomId, me, art.id, id, s).then((f) => { if (f && !f.ok) onError(f); }); };
   const doUndo = () => { void store.undoLastEdit(roomId, me).then((f) => { if (!f.ok) onError(f); }); };
   return (
     <>
       <div className="r-art-body">
-        <div className="r-sheet-wrap">
+        <div className="r-sheet-wrap" ref={sheetWrapRef}>
+          <AttentionOverlay boxes={overlayBoxes} resolver={overlayResolver} mode="live" />
           <table className="r-sheet" data-noderoom-surface="workSurface.sheet" data-artifact-id={art.id}>
             <thead><tr><th className="r-corner" aria-label="row number" /><th>Account</th><th className="num">Q2</th><th className="num">Q3</th><th className="num">Variance</th><th>Note</th></tr></thead>
             <tbody>
