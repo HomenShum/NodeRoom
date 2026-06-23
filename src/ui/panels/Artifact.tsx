@@ -222,7 +222,9 @@ function ArtifactSurface({ roomId, me, proof, artId, onArt, collab, style, surfa
           {activeTab === "sheet" && sheet && (sheet.title === "Q3 variance"
             ? <Sheet roomId={roomId} me={me} art={sheet} onError={(f) => setEditErr(editErrorMsg(f))} />
             : sheet.meta?.excelGrid ? <ExcelGridSheet roomId={roomId} me={me} art={sheet} onError={(f) => setEditErr(editErrorMsg(f))} /> : <GenericSheet art={sheet} />)}
-          {activeTab === "research" && research && <Research roomId={roomId} me={me} art={research} />}
+          {/* Research = a blank sheet the agent populates (Quadratic-style) — rendered by the same
+              ExcelGridSheet as any sheet, so it inherits the Attention Overlay. No separate <Research>. */}
+          {activeTab === "research" && research && <ExcelGridSheet roomId={roomId} me={me} art={research} onError={(f) => setEditErr(editErrorMsg(f))} />}
           {activeTab === "note" && note && (NOTEBOOK_SYNC_ENABLED && proof ? <SyncedNote roomId={roomId} me={me} proof={proof} art={note} /> : <Note roomId={roomId} me={me} art={note} />)}
           {activeTab === "wall" && wall && <Wall roomId={roomId} me={me} art={wall} />}
         </>

@@ -148,7 +148,9 @@ export function buildDemoRoom(engine: RoomEngine): DemoRoom {
     };
     for (const col of RESEARCH_COLS) researchSeed.push({ id: `${c.id}__${col}`, value: vals[col] });
   }
-  const researchId = engine.createArtifact({ roomId: room.id, kind: "sheet", title: "Company research", by: me, seed: researchSeed, meta: researchMeta() }).id;
+  // Research is a BLANK sheet the agent populates (Quadratic-style) — same ExcelGridSheet as any sheet,
+  // so it inherits the Attention Overlay. The agent writes headers + rows into the empty A1 grid.
+  const researchId = engine.createArtifact({ roomId: room.id, kind: "sheet", title: "Company research", by: me, seed: [], meta: { excelGrid: { rows: 50, columns: 8, sheetName: "Company research" } } }).id;
   engine.createArtifact({ roomId: room.id, kind: "sheet", title: "Runway / milestones", by: me, seed: runwaySeed(), meta: runwayMeta() });
 
   const noteId = engine.createArtifact({
