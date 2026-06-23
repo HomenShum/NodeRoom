@@ -18,6 +18,7 @@ import { engine, demo, useEngineRev, runDemo } from "./roomStore";
 // Specific imports (NOT the nodeagent barrel) so Node-only model adapters never reach the client bundle.
 import { runAgent as runHarness } from "../nodeagent/core/runtime";
 import type { AgentModel } from "../nodeagent/core/types";
+import { buildUnifiedAgentStreamParts, type PersistedAgentStreamEvent, type UnifiedAgentStreamPart } from "../nodeagent/core/stream";
 import { recomputeVariancePlan, companyResearchPlan } from "../nodeagent/core/plans";
 import { buildResearchContext } from "../nodeagent/core/worldModel";
 import { scriptedModel } from "../nodeagent/models/scripted";
@@ -82,6 +83,8 @@ export type AgentJobAttemptTelemetry = {
 };
 export type AgentJobDetailTelemetry = {
   operations: Array<{ sequence: number; kind: string; name: string; status: string; countDelta?: number; targetKind?: string; targetId?: string; affectedIds?: string[] }>;
+  streamEvents: PersistedAgentStreamEvent[];
+  streamParts: UnifiedAgentStreamPart[];
   reasoningFrames: Array<{
     frameId: string;
     parentFrameId?: string;
@@ -440,12 +443,26 @@ function memoryFreeJobDetail(goal: string, status: "running" | "completed" | "ca
   const affectedIds = options.affectedIds ?? ["r_gp__variance", "r_ni__variance"];
   const appliedIds = options.appliedIds ?? [];
   const patchStatus = status === "cancelled" ? "cancelled" : status === "completed" ? (appliedIds.length ? "done" : "skipped") : "running";
+  const now = Date.now();
+  const terminal = status === "completed" || status === "cancelled";
+  const streamEvents: PersistedAgentStreamEvent[] = [
+    { sequence: 1, kind: "message_start", status: "started", title: "Room NodeAgent", text: goal, createdAt: now },
+    { sequence: 1_000, kind: "step_start", step: 0, status: "started", title: "Resolve affected cells", createdAt: now },
+    { sequence: 1_000.5, kind: "text_delta", step: 0, status: "streaming", text: "Working through the visible sheet cells. ", createdAt: now },
+    { sequence: 1_001, kind: "tool_call_start", step: 0, toolCallId: "memory-derive", toolName: "derive_affected_set", status: "started", input: { goal }, createdAt: now },
+    { sequence: 1_002, kind: "tool_call_result", step: 0, toolCallId: "memory-derive", toolName: "derive_affected_set", status: "completed", output: { affectedIds }, createdAt: now },
+    { sequence: 1_003, kind: "tool_call_start", step: 0, toolCallId: "memory-patch", toolName: "patch_bundle_cas", status: "started", input: { affectedIds }, createdAt: now },
+    { sequence: 1_004, kind: "tool_call_result", step: 0, toolCallId: "memory-patch", toolName: "patch_bundle_cas", status: patchStatus === "running" ? "started" : patchStatus === "done" ? "completed" : "skipped", output: { affectedIds: appliedIds.length ? appliedIds : affectedIds }, createdAt: now },
+    ...(terminal ? [{ sequence: 9_000, kind: "message_done" as const, status: status === "completed" ? "completed" as const : "failed" as const, text: status === "completed" ? "Memory-mode agent job completed." : "Memory-mode agent job cancelled.", createdAt: now }] : []),
+  ];
   return {
     operations: [
       { sequence: 1, kind: "job", name: "derive_room_intent", status: "done", targetKind: "sheet", targetId: "Q3 variance", affectedIds },
       { sequence: 2, kind: "policy", name: "derive_free_auto_route", status: "done", countDelta: 1 },
       { sequence: 3, kind: "mutation", name: "patch_bundle_cas", status: patchStatus, countDelta: appliedIds.length, targetKind: "cell", affectedIds: appliedIds.length ? appliedIds : affectedIds },
     ],
+    streamEvents,
+    streamParts: buildUnifiedAgentStreamParts(streamEvents, { finalText: terminal ? streamEvents.at(-1)?.text : undefined, terminal }),
     reasoningFrames: [
       {
         frameId: "memory_intent",
@@ -1689,6 +1706,25 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
         if (!jobDetail) return null;
         const d = jobDetail as {
           operations?: Array<{ sequence: number; kind: string; name: string; status: string; countDelta?: number; targetKind?: string; targetId?: string; affectedIds?: string[] }>;
+          streamEvents?: Array<{
+            _id?: string;
+            jobId?: string;
+            roomId?: string;
+            runId?: string;
+            sequence: number;
+            kind: PersistedAgentStreamEvent["kind"];
+            step?: number;
+            toolCallId?: string;
+            toolName?: string;
+            status?: PersistedAgentStreamEvent["status"];
+            text?: string;
+            title?: string;
+            input?: unknown;
+            output?: unknown;
+            error?: string;
+            metadata?: Record<string, unknown>;
+            createdAt: number;
+          }>;
           reasoningFrames?: Array<{
             frameId: string;
             parentFrameId?: string;
@@ -1708,8 +1744,31 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
           draftOperations?: Array<{ operationName: string; status: string; affectedIds: string[]; createdAt: number }>;
           latestSteps?: Array<{ idx: number; tool: string; status: string; elementId?: string; mutationReceiptIds?: string[] }>;
         };
+        const streamEvents = (d.streamEvents ?? []).map((event) => ({
+          id: event._id ? String(event._id) : undefined,
+          jobId: event.jobId ? String(event.jobId) : undefined,
+          roomId: event.roomId ? String(event.roomId) : undefined,
+          runId: event.runId ? String(event.runId) : undefined,
+          sequence: event.sequence,
+          kind: event.kind,
+          step: event.step,
+          toolCallId: event.toolCallId,
+          toolName: event.toolName,
+          status: event.status,
+          text: event.text,
+          title: event.title,
+          input: event.input,
+          output: event.output,
+          error: event.error,
+          metadata: event.metadata,
+          createdAt: event.createdAt,
+        })) satisfies PersistedAgentStreamEvent[];
+        const detailJob = (jobs as Array<{ status: string; finalText?: string }>)[0];
+        const terminal = !!detailJob && ["completed", "failed", "blocked", "cancelled"].includes(detailJob.status);
         return {
           operations: (d.operations ?? []).map((o) => ({ sequence: o.sequence, kind: o.kind, name: o.name, status: o.status, countDelta: o.countDelta, targetKind: o.targetKind, targetId: o.targetId, affectedIds: o.affectedIds?.map(String) })),
+          streamEvents,
+          streamParts: buildUnifiedAgentStreamParts(streamEvents, { finalText: detailJob?.finalText, terminal }),
           reasoningFrames: (d.reasoningFrames ?? []).map((f) => ({
             frameId: String(f.frameId),
             parentFrameId: f.parentFrameId ? String(f.parentFrameId) : undefined,

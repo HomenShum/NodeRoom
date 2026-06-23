@@ -21,6 +21,7 @@ import { convexModel as agentModel, convexPriceRun as priceRun } from "../src/no
 import { buildResearchContext } from "../src/nodeagent/core/worldModel";
 import { compactMessages } from "../src/nodeagent/core/contextCompactor";
 import type { AgentMessage, AgentResult, AgentTraceEvent, ToolCall } from "../src/nodeagent/core/types";
+import type { AgentStreamEventDraft } from "../src/nodeagent/core/stream";
 import type { EvidenceState, FrameDelta, ReasoningFrame, ReasoningFrameStatus } from "../src/nodeagent/core/reasoningFrames";
 import type { Actor } from "../src/engine/types";
 import { journalSliceKey } from "../src/nodeagent/core/journal";
@@ -39,6 +40,7 @@ const DEFAULT_CONTEXT_KEEP_RECENT = 10;
 const agentJobsClaimSliceRef = makeFunctionReference<"mutation">("agentJobs:claimSlice") as any;
 const agentJobsFinishSliceRef = makeFunctionReference<"mutation">("agentJobs:finishSlice") as any;
 const agentJobsRecordLiveOperationRef = makeFunctionReference<"mutation">("agentJobs:recordLiveOperation") as any;
+const agentJobsRecordStreamEventRef = makeFunctionReference<"mutation">("agentJobs:recordStreamEvent") as any;
 const agentRunsRecordRef = makeFunctionReference<"mutation">("agentRuns:record") as any;
 const agentStepsRecordRef = makeFunctionReference<"mutation">("agentSteps:record") as any;
 const artifactsListForRoomRef = makeFunctionReference<"query">("artifacts:listForRoom") as any;
@@ -303,7 +305,9 @@ export const runFreeAutoJobSlice = internalAction({
       ? normalizeClaimedFrame(claimed.activeReasoningFrame, String(claimed.jobId))
       : undefined;
     let liveSequence = 1_000 + Math.max(0, claimed.attempt - 1) * 10_000;
+    let streamSequence = 1_000 + Math.max(0, claimed.attempt - 1) * 10_000;
     const liveWrites: Array<Promise<unknown>> = [];
+    const streamEventWrites: Array<Promise<unknown>> = [];
     const recordLiveOperation = (args: {
       kind: LiveOperationKind;
       name: string;
@@ -320,6 +324,18 @@ export const runFreeAutoJobSlice = internalAction({
       }).catch(() => null);
       liveWrites.push(write);
       return write;
+    };
+    const recordStreamEvent = (event: AgentStreamEventDraft) => {
+      const write = ctx.runMutation(agentJobsRecordStreamEventRef, {
+        jobId: claimed.jobId,
+        sequence: streamSequence++,
+        ...event,
+      }).catch(() => null);
+      streamEventWrites.push(write);
+      return write;
+    };
+    const settleStreamEventWrites = async () => {
+      await Promise.allSettled(streamEventWrites);
     };
     const modelJournal = makeConvexStepJournal({
       ctx,
@@ -341,6 +357,7 @@ export const runFreeAutoJobSlice = internalAction({
     let publicStream: PublicAgentJobStream | undefined;
     let publicStreamText = "";
     let publicStreamBuffer = "";
+    let publicStreamBufferStep = 0;
     let publicStreamLastFlushAt = 0;
     let publicStreamWrites: Promise<unknown> = Promise.resolve();
 
@@ -360,14 +377,23 @@ export const runFreeAutoJobSlice = internalAction({
     const flushPublicStreamBuffer = () => {
       if (!publicStreamBuffer) return publicStreamWrites.catch(() => undefined);
       const text = publicStreamBuffer;
+      const step = publicStreamBufferStep;
       publicStreamBuffer = "";
       publicStreamLastFlushAt = Date.now();
+      void recordStreamEvent({
+        kind: "text_delta",
+        step,
+        status: "streaming",
+        text,
+        createdAt: publicStreamLastFlushAt,
+      });
       return enqueuePublicStreamAppend(text);
     };
-    const onPublicTextDelta = async (delta: string) => {
-      if (!publicStream || !delta) return;
+    const onPublicTextDelta = async (delta: string, step = 0) => {
+      if (!delta) return;
       publicStreamText += delta;
       publicStreamBuffer += delta;
+      publicStreamBufferStep = step;
       if (
         publicStreamBuffer.length >= 160 ||
         /[\n.!?]\s*$/.test(publicStreamBuffer) ||
@@ -500,7 +526,8 @@ export const runFreeAutoJobSlice = internalAction({
             maxCostUsd: envNumber("AGENT_MAX_USD_PER_SLICE", 2, 0.01, 100),
           },
           priceStep: (modelName: string, inputTokens: number, outputTokens: number) => priceRun(modelName, inputTokens, outputTokens),
-          onTextDelta: (delta) => onPublicTextDelta(delta),
+          onTextDelta: (delta, step) => onPublicTextDelta(delta, step),
+          onStreamEvent: (event) => recordStreamEvent(event),
           onTrace: (event) => {
             void recordLiveOperation({
               kind: liveOperationKind(event),
@@ -534,7 +561,8 @@ export const runFreeAutoJobSlice = internalAction({
           maxCostUsd: envNumber("AGENT_MAX_USD_PER_SLICE", 2, 0.01, 100),
         },
         priceStep: (modelName: string, inputTokens: number, outputTokens: number) => priceRun(modelName, inputTokens, outputTokens),
-        onTextDelta: (delta) => onPublicTextDelta(delta),
+        onTextDelta: (delta, step) => onPublicTextDelta(delta, step),
+        onStreamEvent: (event) => recordStreamEvent(event),
         onTrace: (event) => {
           void recordLiveOperation({
             kind: liveOperationKind(event),
@@ -556,6 +584,14 @@ export const runFreeAutoJobSlice = internalAction({
       const terminal = done || frameBlocked || !canContinue;
       if (terminal) await finalizePublicStream(result.finalText || publicStreamText);
       else await settlePublicStreamWrites();
+      void recordStreamEvent({
+        kind: terminal ? "message_done" : "warning",
+        status: terminal ? (done ? "completed" : "failed") : "skipped",
+        title: terminal ? "Agent completed" : "Agent paused",
+        text: terminal ? (result.finalText || publicStreamText) : result.handoff?.summary,
+        metadata: { stopReason: result.stopReason, exhausted: result.exhausted, attempt: claimed.attempt },
+        createdAt: Date.now(),
+      });
       await recordLiveOperation({
         kind: "model_call",
         name: model.name,
@@ -571,6 +607,7 @@ export const runFreeAutoJobSlice = internalAction({
         completedAt: Date.now(),
       });
       await Promise.allSettled(liveWrites);
+      await settleStreamEventWrites();
 
       await ctx.runMutation(agentJobsFinishSliceRef, clean({
         jobId: claimed.jobId,
@@ -639,6 +676,24 @@ export const runFreeAutoJobSlice = internalAction({
           : `[Agent job failed: ${errorText(rootError)}]`;
         await finalizePublicStream(failureText);
       }
+      void recordStreamEvent({
+        kind: canRetry ? "warning" : "error",
+        status: canRetry ? "skipped" : "failed",
+        title: canRetry ? "Agent slice failed; retry scheduled" : "Agent job failed",
+        text: fallback.finalText || publicStreamText,
+        error: errorText(rootError),
+        metadata: { attempt: claimed.attempt, canRetry },
+        createdAt: Date.now(),
+      });
+      if (!canRetry) {
+        void recordStreamEvent({
+          kind: "message_done",
+          status: "failed",
+          text: fallback.finalText || publicStreamText || `[Agent job failed: ${errorText(rootError)}]`,
+          metadata: { stopReason: "error", attempt: claimed.attempt },
+          createdAt: Date.now(),
+        });
+      }
       await recordLiveOperation({
         kind: "checkpoint",
         name: "agentJobRunner.runFreeAutoJobSlice failed",
@@ -667,6 +722,7 @@ export const runFreeAutoJobSlice = internalAction({
         frameStatus: canRetry ? "pending" : "failed",
       }));
       await Promise.allSettled(liveWrites);
+      await settleStreamEventWrites();
 
       return { ok: false as const, retrying: canRetry, error: errorText(rootError), runId };
     }

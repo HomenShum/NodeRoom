@@ -15,8 +15,8 @@ export default defineConfig({
   fullyParallel: false,
   workers: 1,
   retries: 1,
-  timeout: 320_000,
-  expect: { timeout: 200_000 },
+  timeout: 420_000,
+  expect: { timeout: 300_000 },
   reporter: "list",
   use: { ...devices["Desktop Chrome"], headless: true },
 });

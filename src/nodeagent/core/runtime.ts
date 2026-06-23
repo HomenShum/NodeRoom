@@ -5,6 +5,7 @@
  */
 
 import type { AgentModel, AgentTool, RoomTools, AgentResult, AgentMessage, AgentTraceEvent, AgentStopReason, AgentHandoff, ToolCall, AgentStep } from "./types";
+import type { AgentStreamEventDraft } from "./stream";
 import type { StepJournal } from "./journal";
 import { checkSpendCeiling, type SpendLimits } from "../guardrails/gateway";
 import { SYSTEM_PROMPT } from "../models/prompts/systemPrompt";
@@ -63,6 +64,8 @@ export async function runAgent(opts: {
   onTrace?: (e: AgentTraceEvent) => void;
   /** Optional provider text delta hook. Used by durable public jobs to stream actual LLM prose. */
   onTextDelta?: (text: string, step: number) => void | Promise<void>;
+  /** Optional UI-message-shaped lifecycle hook. Used by durable jobs to show tool/step parts beside text. */
+  onStreamEvent?: (event: AgentStreamEventDraft) => void | Promise<void>;
   onHandoff?: (handoff: AgentHandoff) => void;
   now?: () => number;
 }): Promise<AgentResult> {
@@ -98,6 +101,14 @@ export async function runAgent(opts: {
     };
   };
   const shouldHandoffForTime = () => deadlineAt !== undefined && now() + reserveMs >= deadlineAt;
+  const emitStreamEvent = (event: AgentStreamEventDraft) => {
+    try {
+      const result = opts.onStreamEvent?.({ createdAt: now(), ...event });
+      if (result && typeof (result as Promise<void>).catch === "function") void (result as Promise<void>).catch(() => undefined);
+    } catch {
+      // Streaming telemetry must never change the model/tool control flow.
+    }
+  };
   const latestAssistantText = () => {
     for (let i = messages.length - 1; i >= 0; i--) {
       const m = messages[i];
@@ -150,6 +161,14 @@ export async function runAgent(opts: {
     const ev: AgentTraceEvent = { step, tool: "handoff", args: { reason, deadlineAt, reserveMs }, result: handoff, ms: 0 };
     trace.push(ev);
     opts.onTrace?.(ev);
+    emitStreamEvent({
+      kind: "warning",
+      step,
+      status: "skipped",
+      title: "Agent paused",
+      text: handoff.summary,
+      metadata: { reason, remainingToolCalls: remainingToolCalls.length },
+    });
     opts.onHandoff?.(handoff);
     return handoff;
   };
@@ -167,6 +186,14 @@ export async function runAgent(opts: {
     const t0 = now();
     const tool = tools.find((x) => x.name === call.tool);
     let result: unknown;
+    emitStreamEvent({
+      kind: "tool_call_start",
+      step,
+      toolCallId: call.id,
+      toolName: call.tool,
+      status: "started",
+      input: call.args,
+    });
 
     if (!tool) {
       result = { error: `unknown tool: ${call.tool}` };
@@ -181,6 +208,17 @@ export async function runAgent(opts: {
         const ev: AgentTraceEvent = { step, tool: call.tool, args: call.args, result, ms: now() - t0 };
         trace.push(ev);
         opts.onTrace?.(ev);
+        emitStreamEvent({
+          kind: "tool_call_result",
+          step,
+          toolCallId: call.id,
+          toolName: call.tool,
+          status: "failed",
+          input: call.args,
+          output: result,
+          error: describeError(error),
+          metadata: { ms: ev.ms },
+        });
         messages.push({ role: "tool", toolCallId: call.id, toolName: call.tool, content: JSON.stringify(result) });
         throw error;
       }
@@ -189,6 +227,16 @@ export async function runAgent(opts: {
     const ev: AgentTraceEvent = { step, tool: call.tool, args: call.args, result, ms: now() - t0 };
     trace.push(ev);
     opts.onTrace?.(ev);
+    emitStreamEvent({
+      kind: "tool_call_result",
+      step,
+      toolCallId: call.id,
+      toolName: call.tool,
+      status: (result && typeof result === "object" && "error" in (result as Record<string, unknown>)) ? "failed" : "completed",
+      input: call.args,
+      output: result,
+      metadata: { ms: ev.ms },
+    });
     messages.push({ role: "tool", toolCallId: call.id, toolName: call.tool, content: JSON.stringify(result) });
   };
 
@@ -200,6 +248,7 @@ export async function runAgent(opts: {
   let readNudged = false;
   let doneNudged = false;
   const managedWriteToolsAvailable = tools.some((tool) => tool.name.startsWith("write_locked_cell"));
+  const goalRequiresWrite = /\b(write|fill|edit|update|set|create|delete|recompute|commit|apply)\b/i.test(goal);
   const finishWriteInstruction = managedWriteToolsAvailable
     ? "Finish the task now: use read_range if you still need current versions, then call write_locked_cells or write_locked_cell_results for the affected range when possible (pendingApproval or drafted results are SUCCESS - never retry them)."
     : "Finish the task now: propose_lock the target cells, then edit_cell each of them with the values implied by what you read (batch the edit_cell calls in one turn; a pendingApproval result is SUCCESS - never retry it).";
@@ -235,6 +284,13 @@ export async function runAgent(opts: {
           const ev: AgentTraceEvent = { step, tool: "compaction", args: { elided: c.elided }, result: { before: c.before, after: c.after }, ms: 0 };
           trace.push(ev);
           opts.onTrace?.(ev);
+          emitStreamEvent({
+            kind: "warning",
+            step,
+            status: "completed",
+            title: "Context compacted",
+            metadata: { elided: c.elided, before: c.before, after: c.after },
+          });
         }
       }
 
@@ -258,6 +314,13 @@ export async function runAgent(opts: {
         const signal = modelSignal();
         let fresh: AgentStep;
         try {
+          emitStreamEvent({
+            kind: "step_start",
+            step,
+            status: "started",
+            title: `Model turn ${step + 1}`,
+            metadata: { model: model.name },
+          });
           fresh = await model.next({
             system: opts.systemPrompt ?? SYSTEM_PROMPT,
             messages: modelInput,
@@ -286,15 +349,32 @@ export async function runAgent(opts: {
       if (out.text) finalText = out.text;
 
       if (out.done || out.toolCalls.length === 0) {
+        const hasFinalText = !!(out.text?.trim() || finalText.trim());
+        const stillNeedsWrite = goalRequiresWrite && writeCalls === 0 && lockCalls === 0;
         // Goal-completion guard: a run that ends with ZERO writes (no edit/draft/wiki/result calls)
         // almost certainly wandered — observed live: gemini-flash spent 9 read-only calls hunting
         // source data across artifacts, then declared done with no proposals (the trio-room 0/3
         // incident). Bounce ONCE with a redirect; accept whatever it decides next (termination safe).
-        if (writeCalls === 0 && lockCalls === 0 && !doneNudged && step < maxSteps - 1) {
+        if ((stillNeedsWrite || (writeCalls === 0 && lockCalls === 0 && !doneNudged)) && step < maxSteps - 1) {
           doneNudged = true;
           if (out.text) messages.push({ role: "assistant", content: out.text });
-          messages.push({ role: "user", content: `HARNESS NOTE: this run cannot be complete - no cells were written or proposed. You already have the data you need in context. ${finishWriteInstruction}` });
+          const prefix = stillNeedsWrite
+            ? "HARNESS NOTE: the user asked for a write/fill/update, so a text-only answer is not complete - no cells were written or proposed."
+            : "HARNESS NOTE: this run cannot be complete - no cells were written or proposed.";
+          messages.push({ role: "user", content: `${prefix} You already have the data you need in context. ${finishWriteInstruction}` });
           continue;
+        }
+        if (stillNeedsWrite) {
+          const handoff = emitHandoff(step + 1, "step_budget", step + 1);
+          return finish("step_budget", step + 1, true, handoff);
+        }
+        if (writeCalls === 0 && lockCalls === 0 && !hasFinalText) {
+          if (step < maxSteps - 1) {
+            messages.push({ role: "user", content: `HARNESS NOTE: the provider returned an empty no-op completion. Continue with an actual answer or tool call. ${finishWriteInstruction}` });
+            continue;
+          }
+          const handoff = emitHandoff(step + 1, "step_budget", step + 1);
+          return finish("step_budget", step + 1, true, handoff);
         }
         if (out.text) messages.push({ role: "assistant", content: out.text });
         return finish("done", step + 1, false);

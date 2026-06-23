@@ -146,6 +146,27 @@ describe("agent runtime — collaboration under concurrency", () => {
     expect(r.steps).toBe(3);
   });
 
+  it("does not complete an empty no-op model response before any work", async () => {
+    const { rt } = setup();
+    const emptyDone = scriptedModel(() => ({ done: true, toolCalls: [] }));
+    const r = await runAgent({ rt, goal: "write the variance cells", model: emptyDone, tools: ROOM_TOOLS, maxSteps: 2 });
+
+    expect(r.exhausted).toBe(true);
+    expect(r.stopReason).toBe("step_budget");
+    expect(r.finalText).toContain("Paused");
+    expect(r.trace.at(-1)?.tool).toBe("handoff");
+  });
+
+  it("does not complete a text-only answer for a write-intent goal before any write", async () => {
+    const { rt } = setup();
+    const textOnlyDone = scriptedModel(() => ({ say: "I computed the values but did not write them.", done: true }));
+    const r = await runAgent({ rt, goal: "fill the sheet cells", model: textOnlyDone, tools: ROOM_TOOLS, maxSteps: 2 });
+
+    expect(r.exhausted).toBe(true);
+    expect(r.stopReason).toBe("step_budget");
+    expect(r.trace.at(-1)?.tool).toBe("handoff");
+  });
+
   it("time budget: stops with a resumable handoff before another model turn", async () => {
     const { rt } = setup();
     let modelCalls = 0;

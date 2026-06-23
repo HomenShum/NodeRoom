@@ -33,6 +33,120 @@ function tolerantArray<T extends z.ZodTypeAny>(item: T, opts: { min?: number } =
   }, base);
 }
 
+function parseJsonish(value: unknown): unknown {
+  if (typeof value !== "string") return value;
+  try {
+    return JSON.parse(value);
+  } catch {
+    return value;
+  }
+}
+
+function arrayish(value: unknown): unknown[] {
+  const parsed = parseJsonish(value);
+  if (Array.isArray(parsed)) return parsed;
+  return parsed === undefined || parsed === null ? [] : [parsed];
+}
+
+type ParallelField = {
+  opKey: string;
+  inputKeys: string[];
+};
+
+type ScalarWriteKind = "set" | "create" | "delete";
+type ResultWriteKind = "set" | "create";
+type RawManagedOp = Record<string, unknown>;
+type ScalarManagedOp = { elementId: string; value: unknown; baseVersion?: number; kind?: ScalarWriteKind };
+type ScalarManagedOpWithVersion = { elementId: string; value: unknown; baseVersion: number; kind?: ScalarWriteKind };
+type ResultManagedOp = ScalarManagedOp & {
+  status: CellStatus;
+  confidence?: number;
+  normalizedValue?: unknown;
+  formula?: string;
+  error?: string;
+  evidence: CellEvidence[];
+  kind?: ResultWriteKind;
+};
+
+function normalizeParallelBatchCall(value: unknown, fields: ParallelField[] = []) {
+  const parsed = parseJsonish(value);
+  if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return parsed;
+  const record = { ...(parsed as Record<string, unknown>) };
+  if (record.ops !== undefined) return record;
+
+  const elementIds = arrayish(record.elementIds ?? record.cellIds ?? record.elementId ?? record.cellId);
+  const values = arrayish(record.values ?? record.value);
+  const baseVersions = arrayish(record.baseVersions ?? record.baseVersion ?? record.versions);
+  if (!elementIds.length || values.length !== elementIds.length) return record;
+  if (baseVersions.length && baseVersions.length !== 1 && baseVersions.length !== elementIds.length) return record;
+
+  const kinds = arrayish(record.kinds ?? record.kind);
+  record.ops = elementIds.map((elementId, idx) => {
+    const op: Record<string, unknown> = {
+      elementId,
+      value: values[idx],
+    };
+    if (baseVersions.length) op.baseVersion = baseVersions.length === 1 ? baseVersions[0] : baseVersions[idx];
+    if (kinds.length === 1 || kinds.length === elementIds.length) op.kind = kinds.length === 1 ? kinds[0] : kinds[idx];
+    for (const field of fields) {
+      const raw = field.inputKeys.map((key) => record[key]).find((candidate) => candidate !== undefined);
+      if (raw === undefined) continue;
+      const entries = arrayish(raw);
+      if (entries.length === 1) op[field.opKey] = entries[0];
+      else if (entries.length === elementIds.length) op[field.opKey] = entries[idx];
+      else op[field.opKey] = raw;
+    }
+    return op;
+  });
+  return record;
+}
+
+function numericVersion(value: unknown): number | undefined {
+  if (value === undefined || value === null || value === "") return undefined;
+  const n = Number(value);
+  return Number.isInteger(n) ? n : undefined;
+}
+
+function normalizeRawOp(value: unknown): RawManagedOp {
+  const parsed = parseJsonish(value);
+  return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? { ...(parsed as RawManagedOp) } : {};
+}
+
+function normalizeScalarOp(value: unknown): ScalarManagedOp {
+  const op = normalizeRawOp(value);
+  const elementId = op.elementId ?? op.cellId ?? op.id;
+  if (typeof elementId !== "string" || !elementId.trim()) throw new Error("managed_write_missing_elementId");
+  const kind = op.kind === "create" || op.kind === "delete" || op.kind === "set" ? op.kind : undefined;
+  return {
+    ...op,
+    elementId: elementId.trim(),
+    value: op.value,
+    baseVersion: numericVersion(op.baseVersion ?? op.version),
+    kind,
+  } as ScalarManagedOp;
+}
+
+function normalizeBatchArgs(value: unknown, fields: ParallelField[] = []) {
+  const parallel = normalizeParallelBatchCall(value, fields);
+  const record = parallel && typeof parallel === "object" && !Array.isArray(parallel)
+    ? parallel as Record<string, unknown>
+    : {};
+  const rawOps = record.ops ?? record.cells;
+  return {
+    reason: typeof record.reason === "string" ? record.reason : undefined,
+    artifactId: typeof record.artifactId === "string" ? record.artifactId : undefined,
+    ops: arrayish(rawOps).map(normalizeScalarOp),
+  };
+}
+
+function hasNormalizableBatchOps(value: unknown, fields: ParallelField[] = []) {
+  try {
+    return normalizeBatchArgs(value, fields).ops.length > 0;
+  } catch {
+    return false;
+  }
+}
+
 const opSchema = z.object({ elementId: z.string(), value: z.any(), baseVersion: z.coerce.number().int() });
 const cellStatusSchema = z.enum(["empty", "running", "complete", "needs_review", "failed", "gap"]);
 const evidenceSchema = z.object({
@@ -166,10 +280,10 @@ function payloadsEquivalent(current: unknown, proposed: unknown): boolean {
 }
 
 async function unchangedSetOps(args: {
-  ops: Array<{ elementId: string; value: unknown; baseVersion: number; kind?: "set" | "create" | "delete" }>;
+  ops: ScalarManagedOpWithVersion[];
   artifactId?: string;
 }, rt: RoomTools): Promise<{
-  activeOps: Array<{ elementId: string; value: unknown; baseVersion: number; kind?: "set" | "create" | "delete" }>;
+  activeOps: ScalarManagedOpWithVersion[];
   skipped: Array<SkippedEditOutcome & { elementId: string; baseVersion: number }>;
 }> {
   if (typeof rt.readRange !== "function") return { activeOps: args.ops, skipped: [] };
@@ -188,14 +302,27 @@ async function unchangedSetOps(args: {
   return { activeOps, skipped };
 }
 
+async function withBaseVersions(ops: ScalarManagedOp[], rt: RoomTools, artifactId?: string): Promise<ScalarManagedOpWithVersion[]> {
+  const missing = ops.filter((op) => op.baseVersion === undefined && (op.kind ?? "set") !== "create");
+  const current = missing.length && typeof rt.readRange === "function"
+    ? await rt.readRange(missing.map((op) => op.elementId), artifactId)
+    : [];
+  const byId = new Map(current.map((cell) => [cell.id, cell.version]));
+  return ops.map((op) => ({
+    ...op,
+    baseVersion: op.baseVersion ?? ((op.kind ?? "set") === "create" ? 0 : byId.get(op.elementId) ?? 0),
+  }));
+}
+
 async function writeWithManagedLock(args: {
   elementId: string;
   value: unknown;
-  baseVersion: number;
+  baseVersion?: number;
   reason?: string;
   kind?: "set" | "create" | "delete";
   artifactId?: string;
 }, rt: RoomTools): Promise<ManagedSingleWriteOutcome> {
+  const [op] = await withBaseVersions([args], rt, args.artifactId);
   const reason = args.reason?.trim() || `write ${args.elementId}`;
   if ((args.kind ?? "set") === "set" && typeof rt.readRange === "function") {
     const [current] = await rt.readRange([args.elementId], args.artifactId);
@@ -210,7 +337,7 @@ async function writeWithManagedLock(args: {
           targetIds: [args.elementId],
           acquired: false,
           skipped: true,
-          baseVersion: args.baseVersion,
+          baseVersion: op.baseVersion,
           currentVersion: current.version,
         },
       };
@@ -220,7 +347,7 @@ async function writeWithManagedLock(args: {
   if (!lock.ok) {
     if (args.kind !== "create" && args.kind !== "delete" && lock.lockId) {
       const draft = await rt.createDraft(
-        [{ elementId: args.elementId, value: args.value, baseVersion: args.baseVersion }],
+        [{ elementId: args.elementId, value: args.value, baseVersion: op.baseVersion }],
         lock.lockId,
         `Managed-lock draft: ${reason}`,
         args.artifactId,
@@ -257,7 +384,7 @@ async function writeWithManagedLock(args: {
   let edit: EditOutcome | undefined;
   let release: Awaited<ReturnType<RoomTools["releaseLock"]>> | undefined;
   try {
-    edit = await rt.editCell(args.elementId, args.value, args.baseVersion, args.artifactId, args.kind);
+    edit = await rt.editCell(args.elementId, args.value, op.baseVersion, args.artifactId, args.kind);
   } finally {
     release = await rt.releaseLock(lock.lockId);
   }
@@ -276,11 +403,12 @@ async function writeWithManagedLock(args: {
 }
 
 async function writeBatchWithManagedLock(args: {
-  ops: Array<{ elementId: string; value: unknown; baseVersion: number; kind?: "set" | "create" | "delete" }>;
+  ops: ScalarManagedOp[];
   reason?: string;
   artifactId?: string;
 }, rt: RoomTools): Promise<Record<string, unknown>> {
-  const preflight = await unchangedSetOps(args, rt);
+  const ops = await withBaseVersions(args.ops, rt, args.artifactId);
+  const preflight = await unchangedSetOps({ ...args, ops }, rt);
   if (!preflight.activeOps.length) {
     const targetIds = args.ops.map((op) => op.elementId);
     return {
@@ -375,41 +503,67 @@ const WRITE_LOCKED_CELL_TOOL: AgentTool = {
   name: "write_locked_cell",
   description: "Production write path for a simple scalar cell. The runtime acquires the exact-cell lock, writes with CAS, releases in finally, and returns coordination evidence. Use this instead of propose_lock/edit_cell/release_lock when it is available.",
   schema: z.object({
-    elementId: z.string(),
+    elementId: z.string().optional(),
+    cellId: z.string().optional(),
     value: z.any(),
-    baseVersion: z.coerce.number().int(),
+    baseVersion: z.coerce.number().int().optional(),
+    version: z.coerce.number().int().optional(),
     reason: z.string().optional().describe("one short phrase shown in the room trace"),
     kind: z.enum(["set", "create", "delete"]).optional().describe("'set' updates an existing element; 'create' adds a new one; 'delete' removes one"),
     artifactId: z.string().optional(),
+  }).superRefine((value, ctx) => {
+    if (!value.elementId && !value.cellId) ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["elementId"], message: "elementId required" });
   }),
-  execute: (a: { elementId: string; value: unknown; baseVersion: number; reason?: string; kind?: "set" | "create" | "delete"; artifactId?: string }, rt) =>
-    writeWithManagedLock(a, rt),
+  execute: (a: { elementId?: string; cellId?: string; value: unknown; baseVersion?: number; version?: number; reason?: string; kind?: "set" | "create" | "delete"; artifactId?: string }, rt) =>
+    writeWithManagedLock({ ...a, ...normalizeScalarOp(a), reason: a.reason, artifactId: a.artifactId }, rt),
 };
+
+const scalarOpInputObject = z.object({
+  elementId: z.string().optional(),
+  cellId: z.string().optional(),
+  id: z.string().optional(),
+  value: z.any(),
+  baseVersion: z.coerce.number().int().optional(),
+  version: z.coerce.number().int().optional(),
+  kind: z.enum(["set", "create", "delete"]).optional(),
+});
+
+const scalarOpInputSchema = scalarOpInputObject.superRefine((value, ctx) => {
+  if (!value.elementId && !value.cellId && !value.id) ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["elementId"], message: "elementId required" });
+});
+
+const scalarBatchSchema = z.object({
+  reason: z.string().optional().describe("one short phrase shown in the room trace"),
+  artifactId: z.string().optional(),
+  ops: tolerantArray(scalarOpInputSchema, { min: 1 }).optional(),
+  cells: tolerantArray(scalarOpInputSchema, { min: 1 }).optional(),
+  elementIds: z.any().optional(),
+  cellIds: z.any().optional(),
+  values: z.any().optional(),
+  baseVersions: z.any().optional(),
+  versions: z.any().optional(),
+  kinds: z.any().optional(),
+  kind: z.any().optional(),
+}).superRefine((value, ctx) => {
+  if (!hasNormalizableBatchOps(value)) ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["ops"], message: "ops required" });
+});
 
 const WRITE_LOCKED_CELLS_TOOL: AgentTool = {
   name: "write_locked_cells",
   description: "Production batch write path for scalar cells. The runtime acquires one exact-range lock, writes every op with CAS, releases in finally, and returns per-cell results plus coordination evidence. Prefer this over separate lock/edit/release calls for multi-cell work.",
-  schema: z.object({
-    reason: z.string().optional().describe("one short phrase shown in the room trace"),
-    artifactId: z.string().optional(),
-    ops: tolerantArray(z.object({
-      elementId: z.string(),
-      value: z.any(),
-      baseVersion: z.coerce.number().int(),
-      kind: z.enum(["set", "create", "delete"]).optional(),
-    }), { min: 1 }),
-  }),
-  execute: (a: { reason?: string; artifactId?: string; ops: Array<{ elementId: string; value: unknown; baseVersion: number; kind?: "set" | "create" | "delete" }> }, rt) =>
-    writeBatchWithManagedLock(a, rt),
+  schema: scalarBatchSchema,
+  execute: (a: unknown, rt) => writeBatchWithManagedLock(normalizeBatchArgs(a), rt),
 };
 
 const WRITE_LOCKED_CELL_RESULT_TOOL: AgentTool = {
   name: "write_locked_cell_result",
   description: "Production write path for ENRICH, CLASSIFY, RESOLVE, CAPTURE, and COMPUTE cells. The runtime acquires/releases the lock around an evidence-bearing CellPayload so the model spends one write call instead of separate lock/edit/release calls.",
   schema: z.object({
-    elementId: z.string(),
+    elementId: z.string().optional(),
+    cellId: z.string().optional(),
     value: z.any(),
-    baseVersion: z.coerce.number().int(),
+    baseVersion: z.coerce.number().int().optional(),
+    version: z.coerce.number().int().optional(),
     status: cellStatusSchema.default("complete"),
     confidence: z.coerce.number().min(0).max(1).optional(),
     normalizedValue: z.any().optional(),
@@ -419,11 +573,15 @@ const WRITE_LOCKED_CELL_RESULT_TOOL: AgentTool = {
     reason: z.string().optional().describe("one short phrase shown in the room trace"),
     kind: z.enum(["set", "create"]).optional().describe("'set' updates an existing result cell; 'create' adds a new one"),
     artifactId: z.string().optional(),
+  }).superRefine((value, ctx) => {
+    if (!value.elementId && !value.cellId) ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["elementId"], message: "elementId required" });
   }),
   execute: (a: {
-    elementId: string;
+    elementId?: string;
+    cellId?: string;
     value: unknown;
-    baseVersion: number;
+    baseVersion?: number;
+    version?: number;
     status: CellStatus;
     confidence?: number;
     normalizedValue?: unknown;
@@ -433,48 +591,84 @@ const WRITE_LOCKED_CELL_RESULT_TOOL: AgentTool = {
     reason?: string;
     kind?: "set" | "create";
     artifactId?: string;
-  }, rt) => reviewedCellPayload(a, rt).then((value) => writeWithManagedLock({ ...a, value }, rt)),
+  }, rt) => {
+    const op = normalizeScalarOp(a);
+    const normalized = { ...a, ...op, kind: a.kind };
+    return reviewedCellPayload(normalized as ResultManagedOp, rt).then((value) => writeWithManagedLock({ ...normalized, value }, rt));
+  },
 };
+
+const resultParallelFields: ParallelField[] = [
+  { opKey: "status", inputKeys: ["statuses", "status"] },
+  { opKey: "confidence", inputKeys: ["confidences", "confidence"] },
+  { opKey: "normalizedValue", inputKeys: ["normalizedValues", "normalizedValue"] },
+  { opKey: "formula", inputKeys: ["formulas", "formula"] },
+  { opKey: "error", inputKeys: ["errors", "error"] },
+  { opKey: "evidence", inputKeys: ["evidences", "evidence"] },
+];
+
+const resultOpInputSchema = scalarOpInputObject.extend({
+  status: cellStatusSchema.default("complete"),
+  confidence: z.coerce.number().min(0).max(1).optional(),
+  normalizedValue: z.any().optional(),
+  formula: z.string().optional(),
+  error: z.string().optional(),
+  evidence: tolerantArray(evidenceSchema, { min: 1 }),
+  kind: z.enum(["set", "create"]).optional(),
+}).superRefine((value, ctx) => {
+  if (!value.elementId && !value.cellId && !value.id) ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["elementId"], message: "elementId required" });
+});
+
+const resultBatchSchema = z.object({
+  reason: z.string().optional().describe("one short phrase shown in the room trace"),
+  artifactId: z.string().optional(),
+  ops: tolerantArray(resultOpInputSchema, { min: 1 }).optional(),
+  cells: tolerantArray(resultOpInputSchema, { min: 1 }).optional(),
+  elementIds: z.any().optional(),
+  cellIds: z.any().optional(),
+  values: z.any().optional(),
+  baseVersions: z.any().optional(),
+  versions: z.any().optional(),
+  statuses: z.any().optional(),
+  status: z.any().optional(),
+  confidences: z.any().optional(),
+  confidence: z.any().optional(),
+  normalizedValues: z.any().optional(),
+  normalizedValue: z.any().optional(),
+  formulas: z.any().optional(),
+  formula: z.any().optional(),
+  errors: z.any().optional(),
+  error: z.any().optional(),
+  evidences: z.any().optional(),
+  evidence: z.any().optional(),
+  kinds: z.any().optional(),
+  kind: z.any().optional(),
+}).superRefine((value, ctx) => {
+  if (!hasNormalizableBatchOps(value, resultParallelFields)) ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["ops"], message: "ops required" });
+});
 
 const WRITE_LOCKED_CELL_RESULTS_TOOL: AgentTool = {
   name: "write_locked_cell_results",
   description: "Production batch write path for ENRICH, CLASSIFY, RESOLVE, CAPTURE, and COMPUTE cells. The runtime acquires one exact-range lock around evidence-bearing CellPayload writes, so the model spends one tool call for the range instead of separate lock/write/release calls.",
-  schema: z.object({
-    reason: z.string().optional().describe("one short phrase shown in the room trace"),
-    artifactId: z.string().optional(),
-    ops: tolerantArray(z.object({
-      elementId: z.string(),
-      value: z.any(),
-      baseVersion: z.coerce.number().int(),
-      status: cellStatusSchema.default("complete"),
-      confidence: z.coerce.number().min(0).max(1).optional(),
-      normalizedValue: z.any().optional(),
-      formula: z.string().optional(),
-      error: z.string().optional(),
-      evidence: tolerantArray(evidenceSchema, { min: 1 }),
-      kind: z.enum(["set", "create"]).optional(),
-    }), { min: 1 }),
-  }),
-  execute: async (a: {
-    reason?: string;
-    artifactId?: string;
-    ops: Array<{
-      elementId: string;
-      value: unknown;
-      baseVersion: number;
-      status: CellStatus;
-      confidence?: number;
-      normalizedValue?: unknown;
-      formula?: string;
-      error?: string;
-      evidence: CellEvidence[];
-      kind?: "set" | "create";
-    }>;
-  }, rt) => writeBatchWithManagedLock({
-    reason: a.reason,
-    artifactId: a.artifactId,
-    ops: await Promise.all(a.ops.map(async (op) => ({ ...op, value: await reviewedCellPayload(op, rt) }))),
-  }, rt),
+  schema: resultBatchSchema,
+  execute: async (a: unknown, rt) => {
+    const normalized = normalizeBatchArgs(a, resultParallelFields);
+    const ops = await Promise.all(normalized.ops.map(async (op) => {
+      const raw = normalizeRawOp(op);
+      const resultOp = {
+        ...op,
+        status: (raw.status as CellStatus | undefined) ?? "complete",
+        confidence: raw.confidence === undefined ? undefined : Number(raw.confidence),
+        normalizedValue: raw.normalizedValue,
+        formula: typeof raw.formula === "string" ? raw.formula : undefined,
+        error: typeof raw.error === "string" ? raw.error : undefined,
+        evidence: arrayish(raw.evidence) as CellEvidence[],
+        kind: op.kind === "create" ? "create" as const : "set" as const,
+      };
+      return { ...op, kind: resultOp.kind, value: await reviewedCellPayload(resultOp, rt) };
+    }));
+    return writeBatchWithManagedLock({ reason: normalized.reason, artifactId: normalized.artifactId, ops }, rt);
+  },
 };
 
 

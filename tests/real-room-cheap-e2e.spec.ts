@@ -35,7 +35,8 @@ const KEYS = Object.keys(EXPECTED);
 // nb-01 source figures, inline (no file upload in a fresh room) — these compute to the golden values.
 const PROMPT =
   "@nodeagent compute and fill the sheet: column A = metric name (exactly as listed), column B = the " +
-  "numeric value only. revenue_growth_pct from 2024 revenue 100 to 2025 revenue 125; gross_margin_2024 " +
+  "numeric value only. Use percentage metrics on a 0-100 scale, so write 40 for 40%, not 0.4. " +
+  "revenue_growth_pct from 2024 revenue 100 to 2025 revenue 125; gross_margin_2024 " +
   "(revenue 100, COGS 60); gross_margin_2025 (revenue 125, COGS 70); eps_2024 (net income 48, shares 20); " +
   "eps_2025 (net income 70, shares 20).";
 
@@ -63,6 +64,67 @@ const parseNum = (s: string | undefined): number | null => {
 };
 const isFilled = (s: string | undefined) => s != null && s !== "" && s !== "—";
 
+async function verifyRenderedTraceBox(page: Page) {
+  await page.getByTestId("trace-tab").click();
+  await expect(page.getByTestId("trace-surface")).toBeVisible({ timeout: 30_000 });
+
+  const webSourceRecord = page.getByTestId("trace-record").filter({ hasText: "Web retrieval" }).first();
+  await expect(webSourceRecord).toBeVisible({ timeout: 15_000 });
+  await webSourceRecord.click();
+  await page.getByTestId("trace-tab-steps").click();
+
+  const frame = page.locator(".r-tracevu-shotframe", { has: page.locator(".r-tracevu-box") }).first();
+  await expect(frame).toBeVisible({ timeout: 15_000 });
+  const image = frame.locator("img.r-tracevu-shot").first();
+  const box = frame.locator(".r-tracevu-box").first();
+  await expect.poll(() => image.evaluate((img) => (img as HTMLImageElement).naturalWidth), { timeout: 15_000 }).toBeGreaterThan(0);
+  await expect(box).toBeVisible();
+
+  const proof = await frame.evaluate((root) => {
+    const img = root.querySelector<HTMLImageElement>("img.r-tracevu-shot");
+    const overlay = root.querySelector<HTMLElement>(".r-tracevu-box");
+    if (!img || !overlay) return null;
+    const imgRect = img.getBoundingClientRect();
+    const boxRect = overlay.getBoundingClientRect();
+    const style = getComputedStyle(overlay);
+    return {
+      naturalWidth: img.naturalWidth,
+      naturalHeight: img.naturalHeight,
+      boxWithinImage:
+        boxRect.left >= imgRect.left
+        && boxRect.top >= imgRect.top
+        && boxRect.right <= imgRect.right + 1
+        && boxRect.bottom <= imgRect.bottom + 1,
+      normalized: {
+        x: (boxRect.left - imgRect.left) / imgRect.width,
+        y: (boxRect.top - imgRect.top) / imgRect.height,
+        w: boxRect.width / imgRect.width,
+        h: boxRect.height / imgRect.height,
+      },
+      position: style.position,
+      borderTopWidth: style.borderTopWidth,
+      borderTopStyle: style.borderTopStyle,
+    };
+  });
+  expect(proof, "trace box proof missing").not.toBeNull();
+  expect(proof!.naturalWidth).toBeGreaterThan(0);
+  expect(proof!.naturalHeight).toBeGreaterThan(0);
+  expect(proof!.boxWithinImage).toBe(true);
+  expect(proof!.position).toBe("absolute");
+  expect(proof!.borderTopStyle).toBe("solid");
+  expect(parseFloat(proof!.borderTopWidth)).toBeGreaterThanOrEqual(1);
+  expect(proof!.normalized.x).toBeGreaterThan(0);
+  expect(proof!.normalized.y).toBeGreaterThan(0);
+  expect(proof!.normalized.w).toBeGreaterThan(0.02);
+  expect(proof!.normalized.h).toBeGreaterThan(0.01);
+  expect(proof!.normalized.x + proof!.normalized.w).toBeLessThanOrEqual(1.02);
+  expect(proof!.normalized.y + proof!.normalized.h).toBeLessThanOrEqual(1.02);
+
+  await page.getByTestId("trace-tab-raw").click();
+  await expect(page.getByTestId("trace-surface")).toContainText(/"box"/);
+  await expect(page.getByTestId("trace-surface")).toContainText(/Revenue|retrieved value|source screenshot/i);
+}
+
 test("real user: fresh room -> @nodeagent (cheap default) -> visible sheet matches golden", async ({ page }) => {
   const pageErrors: string[] = [];
   page.on("pageerror", (e) => pageErrors.push(String(e.message ?? e)));
@@ -86,6 +148,14 @@ test("real user: fresh room -> @nodeagent (cheap default) -> visible sheet match
   await send.click();
   await expect(page.locator('[data-testid="chat-message"]').filter({ hasText: PROMPT })).toBeVisible({ timeout: 15_000 });
   await expect(page.locator('[data-testid="agent-error"]')).toHaveCount(0);
+  await expect(page.locator('[data-testid="job-status"]')).toContainText(/queued|running|completed|blocked|failed/i, { timeout: 30_000 });
+
+  const stream = page.locator('[data-testid="agent-unified-stream"]').first();
+  await expect(stream).toBeVisible({ timeout: 60_000 });
+  await expect(stream.locator('[data-part="step"], [data-part="tool"], [data-testid="agent-stream-text"]').first()).toBeVisible({
+    timeout: 90_000,
+  });
+  await expect(page.locator('[data-testid="agent-operation-stream"]')).toHaveCount(0);
 
   // Poll the VISIBLE sheet until every metric row has a value (the cheap model filling cells live).
   await expect
@@ -112,6 +182,15 @@ test("real user: fresh room -> @nodeagent (cheap default) -> visible sheet match
       `${key}: got ${got}, golden ${spec.value} ± ${spec.tol ?? 0}`,
     ).toBeLessThanOrEqual((spec.tol ?? 0) + 1e-9);
   }
+
+  const jobDetailToggle = page.locator('[data-testid="job-detail-toggle"]').first();
+  if (await jobDetailToggle.isVisible().catch(() => false)) {
+    await jobDetailToggle.click();
+    const detail = page.locator('[data-testid="job-detail"]').first();
+    await expect(detail).toContainText(/agentJobs\.start|agentJobRunner|workflow|public_ask/i, { timeout: 15_000 });
+  }
+
+  await verifyRenderedTraceBox(page);
 
   expect(pageErrors, `page errors: ${pageErrors.join("; ")}`).toEqual([]);
 });

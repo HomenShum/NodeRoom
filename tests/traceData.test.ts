@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { buildAgentTraceRecords, QA_TRACE_RECORD } from "../src/ui/panels/traceData";
+import { buildAgentTraceRecords, QA_BUNDLES, QA_TRACE_RECORD } from "../src/ui/panels/traceData";
 import type { EvidenceCardArtifact } from "../src/ui/bankerCoachPacket";
 
 const card = (over: Partial<EvidenceCardArtifact>): EvidenceCardArtifact =>
@@ -48,5 +48,22 @@ describe("trace data", () => {
       traces: [], run: null,
     });
     expect(recs).toHaveLength(0);
+  });
+
+  it("keeps the harness proof bundles for NodeAgent loop and boxed source retrieval", () => {
+    const agentRun = QA_BUNDLES.find((record) => record.id === "agent-run-variance");
+    expect(agentRun?.source.tool).toMatch(/NodeAgent/i);
+    expect(agentRun?.steps.some((step) => /read_range|edit_cell|release_lock/.test(step.label))).toBe(true);
+
+    const boxedSource = QA_BUNDLES.find((record) => record.id === "web-source-retrieval");
+    const screenshot = boxedSource?.steps.flatMap((step) => step.attachments ?? []).find((a) => a.kind === "screenshot");
+    expect(boxedSource?.source.version).toContain("capture-web-source.ts");
+    expect(screenshot?.kind).toBe("screenshot");
+    expect(screenshot && "box" in screenshot ? screenshot.box : null).toMatchObject({
+      x: expect.any(Number),
+      y: expect.any(Number),
+      w: expect.any(Number),
+      h: expect.any(Number),
+    });
   });
 });
