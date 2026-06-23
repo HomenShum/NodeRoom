@@ -361,7 +361,8 @@ describe("long-running agent job source invariants", () => {
     expect(store).toContain("contextArtifactId: input.contextArtifactId");
     expect(jobs).toContain("export const startPublicAsk = mutation");
     expect(jobs).toContain("resolvePublicAskArtifact");
-    expect(jobs).toContain('throw new Error("no_public_artifact_available")');
+    expect(jobs).toContain("createPublicAskScratchSheet");
+    expect(jobs).toContain("blank_public_ask_fallback");
   });
 
   it("keeps NodeAgent execution server-side instead of relying on client_action as a production primitive", () => {
