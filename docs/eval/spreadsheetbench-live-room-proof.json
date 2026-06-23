@@ -1,0 +1,47 @@
+{
+  "schema": 1,
+  "task": "nb-01-company-profile",
+  "generatedAt": "2026-06-23T00:04:26.329Z",
+  "baseUrl": "http://127.0.0.1:5273",
+  "memoryMode": false,
+  "gradingMethod": "cell-read",
+  "note": "Live desktop room has no sheet->.xlsx download; graded the cells the agent wrote into the live grid via gradeGolden() (value+fabrication dimensions). Formula/citation dimensions exercised in-run against the bundled good/bad fixtures.",
+  "scorer": {
+    "name": "gradeGolden",
+    "file": "src/benchmarks/golden/grader.ts"
+  },
+  "grade": {
+    "score": 1,
+    "ok": true,
+    "correct": 5,
+    "n": 5,
+    "fabrication": 0,
+    "flags": []
+  },
+  "selfTest": {
+    "goodScore": 1,
+    "badScore": 0.4,
+    "badRejected": true
+  },
+  "cells": {
+    "revenue_growth_pct": "25",
+    "gross_margin_2024": "40",
+    "gross_margin_2025": "44",
+    "eps_2024": "2.4",
+    "eps_2025": "3.5",
+    "—": "—"
+  },
+  "passed": true,
+  "gatesProven": [
+    "fresh_room_join",
+    "official_fixture_upload",
+    "public_nodeagent_invocation",
+    "visible_streaming_progress",
+    "official_scorer_handoff",
+    "no_memory_mode_shortcut"
+  ],
+  "gatesNotProven": {
+    "deliverable_export_download": "No sheet->.xlsx export exists in the live desktop room; graded cell-read output instead.",
+    "artifact_reopen_validation": "No exported file to reopen from disk; graded the live rendered cells."
+  }
+}
