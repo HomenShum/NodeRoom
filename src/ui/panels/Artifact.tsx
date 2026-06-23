@@ -4,7 +4,7 @@
  * component renders the in-memory engine OR live Convex (optimistic edits).
  */
 
-import { Fragment, useEffect, useMemo, useRef, useState, type CSSProperties, type KeyboardEvent as ReactKeyboardEvent, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type CSSProperties, type KeyboardEvent as ReactKeyboardEvent, type ReactNode } from "react";
 import { DndContext, useDraggable, type DragEndEvent } from "@dnd-kit/core";
 import { restrictToParentElement } from "@dnd-kit/modifiers";
 import { useEditor, EditorContent, EditorProvider } from "@tiptap/react";
@@ -14,7 +14,7 @@ import { useTiptapSync } from "@convex-dev/prosemirror-sync/tiptap";
 import { api } from "../../../convex/_generated/api";
 import {
   Table2, FileText, StickyNote, Users, GitMerge, Play, RotateCcw, History, Search, BookOpen,
-  Lock, Unlock, Ban, Pencil, Plus, Check, AlertTriangle, Eye, Circle, ChevronRight, Download, Trash2, Undo2, X, Columns2, MoreHorizontal, Mail, Hash, Layers, Linkedin, Activity, type LucideIcon,
+  Lock, Unlock, Ban, Pencil, Plus, Check, AlertTriangle, Eye, Circle, ChevronRight, Trash2, Undo2, X, Columns2, Activity, type LucideIcon,
   Sparkles,
 } from "lucide-react";
 import { useStore, type ActorProof, type RoomStore, type EditFeedback, type PresenceClaim } from "../../app/store";
@@ -25,15 +25,10 @@ import { rangeBox, boxSize, cellsInBox, rangeLabel, rewriteFormulaRefs, buildTSV
 import { onStageFocus, focusStage, type StageFocusTarget } from "../stageFocus";
 import { TraceSurface } from "./TraceSurface";
 import { classifyEvidence } from "../traceLens/evidence";
-import type { Actor, Artifact as Art, CellPayload, DataframeColumn, DocumentParseMeta, Proposal, TraceEvent, ResearchRowInput } from "../../engine/types";
+import type { Actor, Artifact as Art, CellPayload, DataframeColumn, DocumentParseMeta, Proposal, TraceEvent } from "../../engine/types";
 import { AttentionOverlay } from "../overlay/AttentionOverlay";
 import { createSpreadsheetResolver } from "../overlay/spreadsheetResolver";
 import { focusBoxesForSheet, type SheetCellState } from "../overlay/focusBoxesForSheet";
-import { prepareDownstreamDrafts, type PreparedDownstreamDraft } from "../../nodeagent/skills/integration/downstreamPublish";
-
-/** Downstream handoff destinations → compact icon + short label (replaces 5 wide ghost buttons). */
-const HANDOFF_ICONS: Record<string, LucideIcon> = { gmail: Mail, notion: FileText, slack: Hash, linear: Layers, linkedin: Linkedin };
-const HANDOFF_SHORT: Record<string, string> = { gmail: "Gmail", notion: "Notion", slack: "Slack", linear: "Linear", linkedin: "LinkedIn" };
 
 const WIKI_TITLE = "Agent wiki";
 const RESEARCH_TITLE = "Company research";
@@ -545,250 +540,6 @@ function artifactWikiMeta(art: Art): string {
   if (art.kind === "sheet") return `${rowIdsOf(art).length} rows; v${art.version}`;
   if (art.kind === "wall") return `${Object.keys(art.elements ?? {}).length} notes; v${art.version}`;
   return `doc; v${art.version}`;
-}
-
-/* ── company-research surface (ParselyFi loop): status-gated, sourced enrichment ── */
-// Attio/Clay-style record identity: a deterministic colored initials avatar per company
-// (offline-safe -- no live logo fetch). Color is hashed from the name so it's stable across renders.
-const CO_COLORS = ["#315DA8", "#2F6B44", "#6D3FB2", "#80631F", "#A34B2E", "#1F6F78", "#8F3F27", "#7A3FA0"];
-function coColor(name: string): string {
-  let h = 0;
-  for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) >>> 0;
-  return CO_COLORS[h % CO_COLORS.length];
-}
-function coInitials(name: string): string {
-  const parts = name.replace(/[^A-Za-z0-9 ]/g, "").split(/\s+/).filter(Boolean);
-  if (!parts.length) return "?";
-  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
-  return (parts[0][0] + parts[1][0]).toUpperCase();
-}
-
-function Research({ roomId, me, art }: { roomId: string; me: Actor; art: Art }) {
-  const store = useStore();
-  const [running, setRunning] = useState(false);
-  const [pasteOpen, setPasteOpen] = useState(false);
-  const [pasteText, setPasteText] = useState("");
-  const [busy, setBusy] = useState(false);
-  const [pasteError, setPasteError] = useState<string | null>(null);
-  const [requeueError, setRequeueError] = useState<string | null>(null); // C7/C2: honest surface for failed requeue commits
-  const [moreOpen, setMoreOpen] = useState(false);
-  const [expanded, setExpanded] = useState<string | null>(null);
-  const [pages, setPages] = useState(1); // QA P1: page the grid like GenericSheet — no unbounded DOM
-  const [handoffStatus, setHandoffStatus] = useState<string | null>(null);
-  const RESEARCH_PAGE_SIZE = 50;
-  const rowIds = [...new Set(art.order.map((e) => e.split("__")[0]))];
-  const visibleRowIds = rowIds.slice(0, RESEARCH_PAGE_SIZE * pages);
-  const cell = (rid: string, c: string) => displayCellValue(art.elements[`${rid}__${c}`]?.value);
-  const pending = rowIds.filter((rid) => (cell(rid, "status") || "pending") === "pending").length;
-  const complete = rowIds.filter((rid) => cell(rid, "status") === "complete").length;
-  const run = async () => { setRunning(true); try { await store.askResearch(); } finally { setRunning(false); } };
-  const addRows = async () => {
-    const rows = parseResearchRows(pasteText);
-    if (!rows.length) return;
-    setBusy(true); setPasteError(null);
-    try {
-      const added = await store.addResearchRows({ roomId, artifactId: art.id, rows, actor: me });
-      if (added) { setPasteText(""); setPasteOpen(false); }
-    } catch (e) {
-      // Keep the panel open with the typed text so a retry does not re-paste and double-insert.
-      setPasteError("Couldn't add rows — " + (e instanceof Error ? e.message : "try again") + ". Your text is preserved.");
-    } finally { setBusy(false); }
-  };
-  const refreshComplete = async () => {
-    setBusy(true); setRequeueError(null);
-    let failed = 0; let lastReason: string | undefined;
-    try {
-      for (const rid of rowIds.filter((id) => cell(id, "status") === "complete")) {
-        const f = await commit(store, roomId, me, art.id, `${rid}__status`, "pending");
-        if (f && !f.ok) { failed += 1; lastReason = f.reason; }
-      }
-    } finally {
-      // C7/C2: commit() returns {ok:false} as DATA (locked/conflict), never throws — so a partial
-      // requeue must be surfaced, not silently dropped while the rows stay 'complete'.
-      if (failed) setRequeueError(`${failed} row(s) couldn't be requeued — ${editErrorMsg({ ok: false, reason: lastReason })}`);
-      setBusy(false);
-    }
-  };
-  const srcLink = (src: string) => {
-    const u = src.match(/https?:\/\/[^\s]+/)?.[0];
-    return u ? <a href={u} target="_blank" rel="noreferrer">{src}</a> : <span>{src}</span>;
-  };
-  const srcChip = (src: string) => {
-    const u = src.match(/https?:\/\/[^\s]+/)?.[0];
-    let host = src.slice(0, 16);
-    if (u) { try { host = new URL(u).hostname.replace(/^www\./, ""); } catch { /* keep slice */ } }
-    const inner = <><span className="r-srcchip-dot" aria-hidden="true" style={{ background: coColor(host) }} />{host}</>;
-    return u
-      ? <a key={u} className="r-srcchip" href={u} target="_blank" rel="noreferrer" title={src}>{inner}</a>
-      : <span key={src} className="r-srcchip" title={src}>{inner}</span>;
-  };
-  const saveDownstreamDraft = (draft: PreparedDownstreamDraft) => {
-    const blob = new Blob([`# ${draft.title}\n\n${draft.body}\n`], { type: "text/markdown;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `${draft.target}-${draft.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "draft"}.md`;
-    a.click();
-    URL.revokeObjectURL(url);
-    setHandoffStatus(`${HANDOFF_SHORT[draft.target] ?? draft.target} draft prepared for review`);
-  };
-  const activeDraftRowId = expanded ?? rowIds.find((rid) => cell(rid, "status") === "complete") ?? null;
-  const activeDraftCompany = activeDraftRowId ? cell(activeDraftRowId, "company") || activeDraftRowId : null;
-  const downstreamDrafts = activeDraftRowId
-    ? prepareDownstreamDrafts({
-      title: `${activeDraftCompany || activeDraftRowId} diligence`,
-      summary: cell(activeDraftRowId, "summary") || `${activeDraftCompany || activeDraftRowId} is ready for downstream follow-up.`,
-      bullets: [cell(activeDraftRowId, "funding"), cell(activeDraftRowId, "headcount"), cell(activeDraftRowId, "recent_signal")].filter(Boolean),
-      artifactUrl: typeof window !== "undefined" ? `${window.location.href.split("#")[0]}#artifact=${art.id}&row=${activeDraftRowId}` : undefined,
-    })
-    : [];
-  return (
-    <div className="r-art-body r-research-body">
-      <div className="r-research-bar">
-        <span className="tiny faint">{rowIds.length} accounts · {pending} pending · {complete} complete · multi-source research</span>
-        <span className="grow" />
-        <button className="r-btn ghost" disabled={busy} onClick={() => setPasteOpen((v) => !v)}><Plus size={13} /> Import accounts</button>
-        <button className="r-btn ghost" aria-label="More research actions" aria-expanded={moreOpen} title="Requeue complete, export CRM CSV" onClick={() => setMoreOpen((v) => !v)}><MoreHorizontal size={14} /></button>
-        {moreOpen && (
-          <>
-            <button className="r-btn ghost" disabled={busy || complete === 0} onClick={() => void refreshComplete()}><RotateCcw size={13} /> Requeue complete</button>
-            <button className="r-btn ghost" onClick={() => downloadResearchCsv(art, rowIds, cell)}><Download size={13} /> CRM CSV</button>
-          </>
-        )}
-        <button className="r-btn" data-testid="research-enrich" disabled={running || pending === 0} onClick={run}>{running ? "Researching..." : pending ? `Enrich ${pending} pending` : "All complete"}</button>
-        {requeueError && <span className="r-wall-error" role="alert" data-testid="research-requeue-error">{requeueError}</span>}
-      </div>
-      {downstreamDrafts.length > 0 && (
-        <div className="r-handoff-bar" data-testid="research-handoff">
-          <span className="r-handoff-label" title="Draft only — downloads a draft for you to review and send yourself. Nothing is sent automatically.">Export <b>{activeDraftCompany}</b> draft</span>
-          <span className="grow" />
-          <div className="r-handoff-targets">
-            {downstreamDrafts.map((draft) => {
-              const Icon = HANDOFF_ICONS[draft.target] ?? Download;
-              return (
-                <button key={draft.target} className="r-handoff-chip" data-testid={`downstream-${draft.target}`} onClick={() => saveDownstreamDraft(draft)} title={draft.ctaLabel}>
-                  <Icon size={13} /> <span>{HANDOFF_SHORT[draft.target] ?? draft.target}</span>
-                </button>
-              );
-            })}
-          </div>
-          {handoffStatus && <span className="r-handoff-status" data-testid="downstream-status">{handoffStatus}</span>}
-        </div>
-      )}
-      {pasteOpen && (
-        <div className="r-research-import">
-          <textarea value={pasteText} onChange={(e) => setPasteText(e.target.value)} rows={3} placeholder="Company, website, tier, intent, owner, CRM status" />
-          {/* Never disable the submit by default — a dead button can't explain itself. Empty paste
-              gets an inline explanation through the same error channel (form-layout convention). */}
-          <button className="r-btn primary" disabled={busy} onClick={() => { if (parseResearchRows(pasteText).length === 0) { setPasteError("Nothing to import yet — paste one account per line: Company, website, tier, intent, owner, CRM status."); return; } void addRows(); }}>{busy ? "Importing..." : "Import / update rows"}</button>
-          {pasteError && <span className="r-wall-error" role="alert" data-testid="research-add-error">{pasteError}</span>}
-        </div>
-      )}
-      <div className="r-research-scroll">
-        <table className="r-research" data-noderoom-surface="workSurface.research" data-artifact-id={art.id}>
-          <colgroup>
-            <col style={{ width: 148 }} /><col style={{ width: 92 }} /><col style={{ width: 150 }} />
-            <col style={{ width: 248 }} /><col style={{ width: 188 }} /><col style={{ width: 150 }} /><col style={{ width: 96 }} />
-          </colgroup>
-          <thead><tr>
-            <th className="frozen">Account</th><th>Status</th><th>GTM</th><th>Research</th><th>Signals</th><th>Sources</th><th>Freshness</th>
-          </tr></thead>
-          <tbody>
-            {visibleRowIds.map((rid) => {
-              const status = cell(rid, "status") || "pending";
-              const src = cell(rid, "source"), src2 = cell(rid, "source2"), last = cell(rid, "last_researched");
-              const gtm = `${cell(rid, "tier") || "B"} · ${cell(rid, "intent") || "research"}`;
-              const gtmFull = `${gtm} · ${cell(rid, "owner") || me.name} · ${cell(rid, "crm_status") || "Research"}`;
-              const signals = [cell(rid, "funding"), cell(rid, "headcount"), cell(rid, "recent_signal")].filter(Boolean).join(" · ");
-              const open = expanded === rid;
-              // QA P2 perf: only the expanded row renders its 12-entry detail — don't build it per-row per-render.
-              const detail: Array<[string, ReactNode]> = open ? [
-                ["Website", cell(rid, "website") || "—"],
-                ["Tier", cell(rid, "tier") || "—"], ["Intent", cell(rid, "intent") || "—"],
-                ["Owner", cell(rid, "owner") || me.name], ["CRM status", cell(rid, "crm_status") || "—"],
-                ["Summary", cell(rid, "summary") || "—"],
-                ["Funding", cell(rid, "funding") || "—"], ["Headcount", cell(rid, "headcount") || "—"],
-                ["Recent signal", cell(rid, "recent_signal") || "—"],
-                ["Source", src ? srcLink(src) : "—"], ["Source 2", src2 ? srcLink(src2) : "—"],
-                ["Last researched", last || "never"],
-              ] : [];
-              return (
-                <Fragment key={rid}>
-                  <tr className="r-research-row" data-open={String(open)} aria-selected={open} aria-expanded={open} tabIndex={0}
-                    onClick={() => setExpanded(open ? null : rid)}
-                    onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setExpanded(open ? null : rid); } }}>
-                    <td className="r-research-co frozen" title={cell(rid, "company")}>
-                      <span className="r-co">
-                        <span className="r-co-av" aria-hidden="true" style={{ background: coColor(cell(rid, "company") || rid) }}>{coInitials(cell(rid, "company") || rid)}</span>
-                        <span className="r-co-name">{cell(rid, "company") || rid}</span>
-                      </span>
-                    </td>
-                    <td><span className={"r-status r-status-" + status}>{status}</span></td>
-                    <td className="r-research-gtm" title={gtmFull}>{gtm}</td>
-                    <td className="r-research-sum" title={cell(rid, "summary")}>{cell(rid, "summary") || <span className="nullcell">—</span>}</td>
-                    <td className="r-research-signals" title={signals}>{signals || <span className="nullcell">—</span>}</td>
-                    <td className="r-research-src" onClick={(e) => e.stopPropagation()}>{src ? srcChip(src) : <span className="nullcell">—</span>}{src2 ? srcChip(src2) : null}</td>
-                    <td><span className={"r-fresh " + freshnessClass(last)}>{freshnessLabel(last)}</span></td>
-                  </tr>
-                  {open && (
-                    <tr className="r-research-detail-row">
-                      <td colSpan={7}>
-                        <div className="r-research-detail">
-                          {detail.map(([k, v]) => (
-                            <div key={k} className="r-detail-field"><span className="r-detail-k">{k}</span><span className="r-detail-v">{v}</span></div>
-                          ))}
-                        </div>
-                      </td>
-                    </tr>
-                  )}
-                </Fragment>
-              );
-            })}
-          </tbody>
-        </table>
-        {visibleRowIds.length < rowIds.length && (
-          <div className="row" style={{ padding: "8px 10px", gap: 8 }}>
-            <button className="r-mini-btn" onClick={() => setPages((n) => n + 1)}>Show next {Math.min(RESEARCH_PAGE_SIZE, rowIds.length - visibleRowIds.length)}</button>
-            <span className="tiny faint">{visibleRowIds.length} of {rowIds.length} accounts</span>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
-
-function parseResearchRows(text: string): ResearchRowInput[] {
-  return text.split(/\r?\n/).map((line) => line.trim()).filter(Boolean).flatMap((line, idx) => {
-    const cols = line.split(/\t|,/).map((c) => c.trim()).filter(Boolean);
-    if (!cols.length || (idx === 0 && /^company$/i.test(cols[0]))) return [];
-    return [{ company: cols[0], website: cols[1], tier: cols[2], intent: cols[3], owner: cols[4], crmStatus: cols[5] }];
-  });
-}
-function freshnessLabel(last: string) {
-  if (!last) return "never";
-  const days = Math.floor((Date.now() - Date.parse(last)) / 86_400_000);
-  if (!Number.isFinite(days)) return "unknown";
-  return days > 30 ? `${days}d stale` : "fresh";
-}
-function freshnessClass(last: string) {
-  if (!last) return "stale";
-  const days = Math.floor((Date.now() - Date.parse(last)) / 86_400_000);
-  return Number.isFinite(days) && days <= 30 ? "fresh" : "stale";
-}
-function csvEscape(value: string) {
-  const safe = /^[\s]*[=+\-@]/.test(value) ? `'${value}` : value;
-  return /[",\n]/.test(safe) ? `"${safe.replace(/"/g, '""')}"` : safe;
-}
-function downloadResearchCsv(art: Art, rowIds: string[], cell: (rid: string, c: string) => string) {
-  const cols = ["company", "website", "tier", "intent", "owner", "crm_status", "summary", "funding", "headcount", "recent_signal", "source", "source2", "last_researched"];
-  const lines = [cols.join(","), ...rowIds.map((rid) => cols.map((c) => csvEscape(cell(rid, c))).join(","))];
-  const blob = new Blob([lines.join("\n")], { type: "text/csv;charset=utf-8" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `${art.title.toLowerCase().replace(/[^a-z0-9]+/g, "-") || "research"}-crm.csv`;
-  a.click();
-  URL.revokeObjectURL(url);
 }
 
 export function ResearchLegacy({ art }: { art: Art }) {
