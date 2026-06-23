@@ -64,7 +64,9 @@ test("uploaded workbook renders as Excel paper with file formats, formula bar, a
   // 1. The paper surface + Excel chrome render.
   const paper = page.getByTestId("excel-paper");
   await expect(paper).toBeVisible();
-  await expect(paper.locator("th.xl-col").first()).toHaveText("A");
+  await expect(paper.locator("table.r-sheet.r-generic-sheet")).toBeVisible();
+  await expect(paper.getByTestId("sheet-cell").first()).toHaveClass(/r-cell/);
+  await expect(paper.locator("thead th").nth(1)).toHaveText("A");
   await expect(page.getByTestId("workbook-style-excel")).toHaveAttribute("aria-checked", "true");
   await page.getByTestId("workbook-style-sheets").click();
   await expect(paper).toHaveAttribute("data-workbook-style", "sheets");
@@ -92,13 +94,13 @@ test("uploaded workbook renders as Excel paper with file formats, formula bar, a
   await paper.locator('[data-cell-key="D4"]').click();
   await expect(page.getByTestId("excel-namebox")).toHaveText("D4");
   await expect(page.getByTestId("excel-formulabar")).toContainText("0.3374");
-  await expect(paper.locator("th.xl-col.hl")).toHaveText("D");
+  await expect(paper.locator("thead th.hl")).toHaveText("D");
 
   // 5. An inline edit commits through CAS — the version visible in the bar is the receipt.
   const target = paper.locator('[data-cell-key="C5"]'); // empty in-bounds cell of the uploaded grid
   await target.dblclick();
-  await target.locator("input.xl-input").fill("123");
-  await target.locator("input.xl-input").press("Enter");
+  await target.locator("input.r-cell-input").fill("123");
+  await target.locator("input.r-cell-input").press("Enter");
   await expect(paper.locator('[data-cell-key="C5"]')).toHaveText("123");
   await target.click();
   await expect(page.locator(".xl-meta")).toContainText("v2"); // seeded v1 -> CAS write -> v2
@@ -131,7 +133,7 @@ test("spreadsheet keyboard model — arrows, type-to-replace, Enter/Tab moves, E
   // Type-to-replace: typing on a selected cell REPLACES content; Enter commits + moves DOWN.
   await paper.locator('[data-cell-key="C4"]').click();
   await page.keyboard.type("42");
-  await expect(paper.locator('[data-cell-key="C4"] input.xl-input')).toHaveValue("42");
+  await expect(paper.locator('[data-cell-key="C4"] input.r-cell-input')).toHaveValue("42");
   await page.keyboard.press("Enter");
   await expect(paper.locator('[data-cell-key="C4"]')).toHaveText("42");
   await expect(namebox).toHaveText("C5"); // Enter moved the selection down
@@ -152,12 +154,12 @@ test("spreadsheet keyboard model — arrows, type-to-replace, Enter/Tab moves, E
   await paper.locator('[data-cell-key="C4"]').click();
   await page.keyboard.press("Delete");
   await expect(paper.locator('[data-cell-key="C4"]')).not.toContainText("42");
-  await expect(paper.locator('[data-cell-key="C4"] input.xl-input')).toHaveCount(0);
+  await expect(paper.locator('[data-cell-key="C4"] input.r-cell-input')).toHaveCount(0);
 
   // Enter on a selected cell opens the editor (Sheets model) with existing content.
   await paper.locator('[data-cell-key="B4"]').click();
   await page.keyboard.press("Enter");
-  await expect(paper.locator('[data-cell-key="B4"] input.xl-input')).toHaveValue("Gross margin %");
+  await expect(paper.locator('[data-cell-key="B4"] input.r-cell-input')).toHaveValue("Gross margin %");
   await page.keyboard.press("Escape");
 });
 
@@ -206,18 +208,18 @@ test("uploaded workbook formulas display computed values, preserve formulas in e
   await expect(page.getByTestId("excel-formulabar")).toHaveText('=VLOOKUP("Cive",A10:C12,3,FALSE)');
 
   await formula.dblclick();
-  await expect(formula.locator("input.xl-input")).toHaveValue("=C6*2");
+  await expect(formula.locator("input.r-cell-input")).toHaveValue("=C6*2");
   await page.keyboard.press("Escape");
 
   await driver.dblclick();
-  await driver.locator("input.xl-input").fill("11");
-  await driver.locator("input.xl-input").press("Enter");
+  await driver.locator("input.r-cell-input").fill("11");
+  await driver.locator("input.r-cell-input").press("Enter");
   await expect(formula).toHaveText("22");
 
   const blank = paper.locator('[data-cell-key="C5"]');
   await blank.dblclick();
-  await blank.locator("input.xl-input").fill("=D5*2");
-  await blank.locator("input.xl-input").press("Enter");
+  await blank.locator("input.r-cell-input").fill("=D5*2");
+  await blank.locator("input.r-cell-input").press("Enter");
   await expect(blank).toHaveText("131.6");
   await blank.click();
   await expect(page.getByTestId("excel-formulabar")).toHaveText("=D5*2");
