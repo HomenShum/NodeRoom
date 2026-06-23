@@ -16,8 +16,46 @@ export type SpreadsheetBenchProvenGate =
   | "official_fixture_upload"
   | "public_nodeagent_invocation"
   | "visible_streaming_progress"
+  | "deliverable_export_download"
+  | "artifact_reopen_validation"
   | "official_scorer_handoff"
   | "no_memory_mode_shortcut";
+
+/**
+ * Structured receipt for the export-download gate. Populated by the e2e spec on a real
+ * `page.waitForEvent('download')` capture: the spec re-reads the downloaded file from disk and
+ * records its byte length, the first-four-bytes "magic" header (must be the PKZIP signature
+ * "PK\x03\x04" for any real .xlsx — Office files are ZIP packages), and the filename the browser
+ * proposed. The ledger refuses to flip `deliverable_export_download` to covered unless every field
+ * here independently validates — a zero-byte download or a CSV that lied about its extension can
+ * still produce a `gatesProven` entry, so the structured fields are the actual gate.
+ */
+export type DeliverableExportDownloadReceipt = {
+  downloaded: boolean;
+  /** Byte length of the file written to disk after the Playwright download completed. */
+  bytes: number;
+  /** First-four-bytes magic header, as a printable string (must start with "PK"). */
+  magic: string;
+  filename: string;
+};
+
+/**
+ * Structured receipt for the artifact-reopen gate. Populated by the e2e spec after it reopens the
+ * downloaded workbook with exceljs and re-grades the reopened cells through the SAME official
+ * scorer that judged the live DOM cells (gradeGolden against NB01_RUBRIC_DOM). The ledger refuses
+ * to flip `artifact_reopen_validation` to covered unless `reopened === true`, `scorerResult` is
+ * exactly the string `"pass"`, and the cells-matched fraction reaches the full count.
+ */
+export type ArtifactReopenValidationReceipt = {
+  reopened: boolean;
+  /** Scorer verdict on the reopened workbook — only "pass" satisfies the gate. */
+  scorerResult: "pass" | "fail";
+  /** "N/N" tag for the receipt narrative (e.g. "5/5"). */
+  cellsMatched: string;
+  /** Numerator/denominator split, kept structured so the gate can demand correct === n. */
+  correct: number;
+  n: number;
+};
 
 /** Shape of the proof receipt written by the live-browser SpreadsheetBench spec. */
 export type SpreadsheetBenchLiveRoomProof = {
@@ -35,7 +73,56 @@ export type SpreadsheetBenchLiveRoomProof = {
   passed: boolean;
   gatesProven: SpreadsheetBenchProvenGate[];
   gatesNotProven: Record<string, string>;
+  /**
+   * Structured proof for the export gate — present iff the spec actually captured the downloaded
+   * file's bytes and magic header. Missing/invalid fields keep the gate `missing` regardless of
+   * what `gatesProven` claims.
+   */
+  deliverable_export_download?: DeliverableExportDownloadReceipt;
+  /**
+   * Structured proof for the reopen gate — present iff the spec actually reopened the file from
+   * disk and re-graded it via the official scorer. Missing/invalid fields keep the gate `missing`.
+   */
+  artifact_reopen_validation?: ArtifactReopenValidationReceipt;
 };
+
+/** The PKZIP magic header every real .xlsx (and any OOXML file) must start with. */
+export const XLSX_MAGIC_PREFIX = "PK";
+
+/**
+ * Validate the structured export-download receipt. The gate flips ONLY when this returns true —
+ * the spec must have actually downloaded a non-empty file whose first four bytes are the PKZIP
+ * signature. A receipt with `downloaded: false`, `bytes: 0`, or a wrong magic header is rejected
+ * even if `gatesProven` lists the gate id (defense-in-depth against tampered receipts).
+ */
+export function isDeliverableExportDownloadValid(
+  receipt: DeliverableExportDownloadReceipt | undefined,
+): receipt is DeliverableExportDownloadReceipt {
+  if (!receipt) return false;
+  if (receipt.downloaded !== true) return false;
+  if (typeof receipt.bytes !== "number" || !Number.isFinite(receipt.bytes) || receipt.bytes <= 0) return false;
+  if (typeof receipt.magic !== "string" || !receipt.magic.startsWith(XLSX_MAGIC_PREFIX)) return false;
+  if (typeof receipt.filename !== "string" || receipt.filename.length === 0) return false;
+  return true;
+}
+
+/**
+ * Validate the structured reopen receipt. The gate flips ONLY when this returns true — the spec
+ * must have reopened the file from disk, the scorer must have returned the literal string "pass",
+ * and the matched-cells fraction must be complete (`correct === n` with `n > 0`). A receipt that
+ * lists `scorerResult: "fail"` or `correct < n` is rejected.
+ */
+export function isArtifactReopenValidationValid(
+  receipt: ArtifactReopenValidationReceipt | undefined,
+): receipt is ArtifactReopenValidationReceipt {
+  if (!receipt) return false;
+  if (receipt.reopened !== true) return false;
+  if (receipt.scorerResult !== "pass") return false;
+  if (typeof receipt.correct !== "number" || typeof receipt.n !== "number") return false;
+  if (receipt.n <= 0 || receipt.correct !== receipt.n) return false;
+  if (typeof receipt.cellsMatched !== "string" || receipt.cellsMatched.length === 0) return false;
+  return true;
+}
 
 /**
  * Read the SpreadsheetBench live-room proof receipt, but ONLY trust it when it is internally honest:
@@ -327,17 +414,57 @@ function buildTrack(args: {
   proof?: SpreadsheetBenchLiveRoomProof | null;
 }): BenchmarkUiCoverageTrack {
   const proof = args.proof ?? null;
-  // EXPORT is the genuine gap: there is no sheet->.xlsx download in the live desktop room, so even a
-  // passing live-room run produces no downloadable workbook file. The deliverable therefore stays
-  // missing — the row honestly cannot be 'covered' without a real export build.
-  const liveBrowserFreshRoomDeliverables: BenchmarkDeliverableKind[] = [];
+  const provenByReceipt = new Set<string>(proof?.gatesProven ?? []);
+  // EXPORT was the genuine gap; with the Export XLSX toolbar button + reopen step, an honest
+  // file-export receipt now flips the workbook deliverable to covered. Defense-in-depth: the
+  // string membership in `gatesProven` is necessary but NOT sufficient — the receipt must also
+  // carry valid structured field-level receipts so a tampered/zero-byte/wrong-magic file or a
+  // failed reopened-grade cannot pass by string-claim alone.
+  const exportDownloadValid = isDeliverableExportDownloadValid(proof?.deliverable_export_download);
+  const reopenValid = isArtifactReopenValidationValid(proof?.artifact_reopen_validation);
+  const exportProven =
+    !!proof &&
+    proof.gradingMethod === "file-export" &&
+    provenByReceipt.has("deliverable_export_download") &&
+    provenByReceipt.has("artifact_reopen_validation") &&
+    exportDownloadValid &&
+    reopenValid;
+  const liveBrowserFreshRoomDeliverables: BenchmarkDeliverableKind[] =
+    exportProven && args.requiredDeliverables.includes("workbook") ? ["workbook"] : [];
   const missingDeliverables = args.requiredDeliverables.filter((kind) => !liveBrowserFreshRoomDeliverables.includes(kind));
   const requiredSpecExists = existsSync(args.requiredSpec);
-  const provenByReceipt = new Set<string>(proof?.gatesProven ?? []);
   const gates = BENCHMARK_UI_GATES.map((gate) => {
+    // The two export-shaped gates carry STRUCTURED receipts and need extra validation: a string
+    // listing in `gatesProven` is not enough — the matching field on the proof must also pass
+    // `isDeliverableExportDownloadValid` / `isArtifactReopenValidationValid`. The handlers further
+    // down in this map ALSO write a missing-with-blocker branch for these gates, so we only flip
+    // to covered up here when both the receipt-string and the structured field agree.
+    if (gate.id === "deliverable_export_download" && proof && provenByReceipt.has(gate.id) && exportDownloadValid) {
+      const r = proof.deliverable_export_download!;
+      return {
+        ...gate,
+        status: "covered" as const,
+        evidence: `e2e/benchmark-ui-spreadsheetbench.spec.ts (download: ${r.filename}, ${r.bytes} bytes, magic ${r.magic.slice(0, 2)})`,
+      };
+    }
+    if (gate.id === "artifact_reopen_validation" && proof && provenByReceipt.has(gate.id) && reopenValid) {
+      const r = proof.artifact_reopen_validation!;
+      return {
+        ...gate,
+        status: "covered" as const,
+        evidence: `e2e/benchmark-ui-spreadsheetbench.spec.ts (reopened workbook: ${r.scorerResult}, ${r.cellsMatched})`,
+      };
+    }
     // Gates the live-browser run genuinely proves (fresh room, official upload, public ask, visible
-    // progress, scorer handoff, no-memory) flip to 'covered' ONLY when an honest receipt proves them.
-    if (proof && provenByReceipt.has(gate.id)) {
+    // progress, scorer handoff, no-memory) flip to 'covered' ONLY when an honest receipt proves
+    // them. We exclude the two export-shaped gate ids here so the unconditional
+    // `provenByReceipt.has(gate.id)` branch above can't bypass the structured-receipt check.
+    if (
+      proof &&
+      provenByReceipt.has(gate.id) &&
+      gate.id !== "deliverable_export_download" &&
+      gate.id !== "artifact_reopen_validation"
+    ) {
       return {
         ...gate,
         status: "covered" as const,
@@ -361,21 +488,31 @@ function buildTrack(args: {
       };
     }
     if (gate.id === "deliverable_export_download") {
+      // The covered-branch above only fires when the structured receipt validates. Reach this
+      // fallback when (a) there is no proof, (b) the gate id is not in `gatesProven`, or (c) the
+      // structured `deliverable_export_download` field is missing/tampered (zero bytes, wrong
+      // magic, etc.). Surface the most actionable blocker for each case.
+      const claimedButInvalid =
+        !!proof && provenByReceipt.has(gate.id) && !exportDownloadValid;
       return {
         ...gate,
         status: "missing" as const,
-        blocker:
-          proof?.gatesNotProven?.deliverable_export_download ??
-          `${args.requiredSpec} cannot download a workbook: the live desktop room has no sheet->.xlsx export.`,
+        blocker: claimedButInvalid
+          ? "Receipt claims `deliverable_export_download` but the structured field is missing or invalid (need downloaded === true, bytes > 0, magic starting with 'PK', filename set)."
+          : proof?.gatesNotProven?.deliverable_export_download ??
+            `${args.requiredSpec} cannot download a workbook: the live desktop room has no sheet->.xlsx export.`,
       };
     }
     if (gate.id === "artifact_reopen_validation") {
+      const claimedButInvalid =
+        !!proof && provenByReceipt.has(gate.id) && !reopenValid;
       return {
         ...gate,
         status: "missing" as const,
-        blocker:
-          proof?.gatesNotProven?.artifact_reopen_validation ??
-          `${args.requiredSpec} has no exported file to reopen from disk; grading is cell-read.`,
+        blocker: claimedButInvalid
+          ? "Receipt claims `artifact_reopen_validation` but the structured field is missing or invalid (need reopened === true, scorerResult === 'pass', correct === n > 0)."
+          : proof?.gatesNotProven?.artifact_reopen_validation ??
+            `${args.requiredSpec} has no exported file to reopen from disk; grading is cell-read.`,
       };
     }
     if (gate.id === "no_memory_mode_shortcut") {

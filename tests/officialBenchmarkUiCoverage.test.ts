@@ -199,4 +199,208 @@ describe("official benchmark UI coverage ledger", () => {
       expect(report.tracks.find((t) => t.id === "spreadsheetbench-v2")?.status).toBe("missing");
     });
   });
+
+  it("flips export/download + artifact-reopen to COVERED when a file-export receipt proves both gates", () => {
+    withHonestProof(
+      {
+        gradingMethod: "file-export",
+        note: "Live sheet export round-tripped through Export XLSX + exceljs reopen + gradeGolden.",
+        gatesProven: [
+          "fresh_room_join",
+          "official_fixture_upload",
+          "public_nodeagent_invocation",
+          "visible_streaming_progress",
+          "deliverable_export_download",
+          "artifact_reopen_validation",
+          "official_scorer_handoff",
+          "no_memory_mode_shortcut",
+        ],
+        gatesNotProven: {},
+        deliverable_export_download: {
+          downloaded: true,
+          bytes: 4523,
+          magic: "PK\\x03\\x04",
+          filename: "spreadsheetbench-export.xlsx",
+        },
+        artifact_reopen_validation: {
+          reopened: true,
+          scorerResult: "pass",
+          cellsMatched: "5/5",
+          correct: 5,
+          n: 5,
+        },
+      },
+      () => {
+        const report = buildOfficialBenchmarkUiCoverageReport({ generatedAt: "test" });
+        const v1 = report.tracks.find((t) => t.id === "spreadsheetbench-v1")!;
+        const gate = (id: string) => v1.gates.find((g) => g.id === id)?.status;
+
+        // Both export-shaped gates flip when the receipt proves them under file-export grading.
+        expect(gate("deliverable_export_download")).toBe("covered");
+        expect(gate("artifact_reopen_validation")).toBe("covered");
+        // The workbook deliverable is now part of the live-browser package.
+        expect(v1.liveBrowserFreshRoomDeliverables).toEqual(["workbook"]);
+        expect(v1.missingDeliverables).toEqual([]);
+        // Every gate covered (trace_video covered via proof, the rest via gatesProven) → track flips
+        // to covered.
+        expect(v1.status).toBe("covered");
+      },
+    );
+  });
+
+  it("does NOT flip export/reopen when the receipt's gradingMethod is still cell-read, even if the gate ids appear in gatesProven", () => {
+    // Defensive: a receipt that claims to prove the export gates but graded via cell-read is
+    // internally inconsistent — refuse to flip the workbook deliverable.
+    withHonestProof(
+      {
+        gradingMethod: "cell-read",
+        gatesProven: [
+          "fresh_room_join",
+          "official_fixture_upload",
+          "public_nodeagent_invocation",
+          "visible_streaming_progress",
+          "deliverable_export_download",
+          "artifact_reopen_validation",
+          "official_scorer_handoff",
+          "no_memory_mode_shortcut",
+        ],
+        gatesNotProven: {},
+        deliverable_export_download: {
+          downloaded: true,
+          bytes: 4523,
+          magic: "PK\\x03\\x04",
+          filename: "spreadsheetbench-export.xlsx",
+        },
+        artifact_reopen_validation: {
+          reopened: true,
+          scorerResult: "pass",
+          cellsMatched: "5/5",
+          correct: 5,
+          n: 5,
+        },
+      },
+      () => {
+        const report = buildOfficialBenchmarkUiCoverageReport({ generatedAt: "test" });
+        const v1 = report.tracks.find((t) => t.id === "spreadsheetbench-v1")!;
+        // The deliverable stays missing because the grade did not come from a reopened file.
+        expect(v1.liveBrowserFreshRoomDeliverables).toEqual([]);
+        expect(v1.missingDeliverables).toEqual(["workbook"]);
+      },
+    );
+  });
+
+  it("refuses to flip deliverable_export_download when the structured receipt is tampered (zero bytes, wrong magic, downloaded:false, or missing)", () => {
+    // The gate flip now requires a STRUCTURED `deliverable_export_download` field that
+    // independently validates — a `gatesProven` string entry without the field, or with garbage
+    // bytes/magic, is not enough. Five tamper variants, all must keep the gate `missing` AND
+    // surface the structured-receipt blocker (so a debugger can see the dishonest claim).
+    const expectsExportMissing = (overrides: Partial<SpreadsheetBenchLiveRoomProof>) =>
+      withHonestProof(
+        {
+          gradingMethod: "file-export",
+          gatesProven: [
+            "fresh_room_join",
+            "official_fixture_upload",
+            "public_nodeagent_invocation",
+            "visible_streaming_progress",
+            "deliverable_export_download",
+            "artifact_reopen_validation",
+            "official_scorer_handoff",
+            "no_memory_mode_shortcut",
+          ],
+          gatesNotProven: {},
+          artifact_reopen_validation: {
+            reopened: true,
+            scorerResult: "pass",
+            cellsMatched: "5/5",
+            correct: 5,
+            n: 5,
+          },
+          ...overrides,
+        },
+        () => {
+          const report = buildOfficialBenchmarkUiCoverageReport({ generatedAt: "test" });
+          const v1 = report.tracks.find((t) => t.id === "spreadsheetbench-v1")!;
+          const exportGate = v1.gates.find((g) => g.id === "deliverable_export_download");
+          expect(exportGate?.status).toBe("missing");
+          // The workbook stays missing because the export gate didn't flip.
+          expect(v1.liveBrowserFreshRoomDeliverables).toEqual([]);
+          expect(v1.missingDeliverables).toEqual(["workbook"]);
+          expect(v1.status).not.toBe("covered");
+        },
+      );
+
+    // (a) Field entirely missing despite the string-claim.
+    expectsExportMissing({ deliverable_export_download: undefined });
+    // (b) Zero-byte file — magic header is right but the file is empty.
+    expectsExportMissing({
+      deliverable_export_download: { downloaded: true, bytes: 0, magic: "PK\\x03\\x04", filename: "stub.xlsx" },
+    });
+    // (c) Wrong magic — e.g. a CSV renamed to .xlsx. The first bytes will be ASCII text, not PK.
+    expectsExportMissing({
+      deliverable_export_download: { downloaded: true, bytes: 4523, magic: "year", filename: "stub.xlsx" },
+    });
+    // (d) downloaded: false (the spec aborted but still wrote a receipt).
+    expectsExportMissing({
+      deliverable_export_download: { downloaded: false, bytes: 4523, magic: "PK\\x03\\x04", filename: "stub.xlsx" },
+    });
+    // (e) Missing filename — receipts must record what was downloaded.
+    expectsExportMissing({
+      deliverable_export_download: { downloaded: true, bytes: 4523, magic: "PK\\x03\\x04", filename: "" },
+    });
+  });
+
+  it("refuses to flip artifact_reopen_validation when the structured receipt is tampered (scorerResult:fail, partial cellsMatched, reopened:false, or missing)", () => {
+    // Same defense-in-depth on the reopen side: the gate flip requires `reopened === true` AND
+    // `scorerResult === 'pass'` AND `correct === n > 0`. Four tamper variants, all must keep the
+    // gate missing.
+    const expectsReopenMissing = (overrides: Partial<SpreadsheetBenchLiveRoomProof>) =>
+      withHonestProof(
+        {
+          gradingMethod: "file-export",
+          gatesProven: [
+            "fresh_room_join",
+            "official_fixture_upload",
+            "public_nodeagent_invocation",
+            "visible_streaming_progress",
+            "deliverable_export_download",
+            "artifact_reopen_validation",
+            "official_scorer_handoff",
+            "no_memory_mode_shortcut",
+          ],
+          gatesNotProven: {},
+          deliverable_export_download: {
+            downloaded: true,
+            bytes: 4523,
+            magic: "PK\\x03\\x04",
+            filename: "spreadsheetbench-export.xlsx",
+          },
+          ...overrides,
+        },
+        () => {
+          const report = buildOfficialBenchmarkUiCoverageReport({ generatedAt: "test" });
+          const v1 = report.tracks.find((t) => t.id === "spreadsheetbench-v1")!;
+          const reopenGate = v1.gates.find((g) => g.id === "artifact_reopen_validation");
+          expect(reopenGate?.status).toBe("missing");
+          expect(v1.liveBrowserFreshRoomDeliverables).toEqual([]);
+          expect(v1.missingDeliverables).toEqual(["workbook"]);
+          expect(v1.status).not.toBe("covered");
+        },
+      );
+
+    // (a) Field entirely missing despite the string-claim.
+    expectsReopenMissing({ artifact_reopen_validation: undefined });
+    // (b) scorerResult: "fail" — reopen happened but grading rejected the workbook.
+    expectsReopenMissing({
+      artifact_reopen_validation: { reopened: true, scorerResult: "fail", cellsMatched: "3/5", correct: 3, n: 5 },
+    });
+    // (c) Partial match — reopened, scorer says "pass", but correct < n (internal inconsistency).
+    expectsReopenMissing({
+      artifact_reopen_validation: { reopened: true, scorerResult: "pass", cellsMatched: "4/5", correct: 4, n: 5 },
+    });
+    // (d) reopened: false (the spec couldn't read the file but still wrote the receipt).
+    expectsReopenMissing({
+      artifact_reopen_validation: { reopened: false, scorerResult: "pass", cellsMatched: "5/5", correct: 5, n: 5 },
+    });
+  });
 });

@@ -53,11 +53,15 @@
  *        e2e/benchmark-ui-spreadsheetbench.spec.ts
  */
 import { test, expect, type Page } from "@playwright/test";
-import { mkdirSync, writeFileSync } from "node:fs";
-import { dirname, resolve } from "node:path";
+import { mkdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
+import { basename, dirname, resolve } from "node:path";
+import ExcelJS from "exceljs";
 import { gradeGolden, type GoldenRubric, type GoldenOutputs } from "../src/benchmarks/golden/grader";
 import {
   SPREADSHEETBENCH_LIVE_ROOM_PROOF_PATH,
+  XLSX_MAGIC_PREFIX,
+  type ArtifactReopenValidationReceipt,
+  type DeliverableExportDownloadReceipt,
   type SpreadsheetBenchLiveRoomProof,
 } from "../src/eval/officialBenchmarkUiCoverage";
 
@@ -287,40 +291,117 @@ test("SpreadsheetBench V1 fresh-room contract: import nb-01 CSV -> cheap @nodeag
   await page.screenshot({ path: shotPath, fullPage: false });
   await testInfo.attach("graded-sheet", { path: shotPath, contentType: "image/png" });
 
+  // ── Step 5b: EXPORT + REOPEN — real Office-magic-bytes .xlsx via the new toolbar button. ──────
+  // Click [data-testid="artifact-export-xlsx"] in the live sheet toolbar, wait for the download,
+  // capture file bytes / magic header / filename, reopen the file from disk with exceljs, and
+  // re-grade against NB01_RUBRIC_DOM. The structured receipts (bytes / magic / scorerResult /
+  // cellsMatched) are what the ledger reader actually checks — not the string `gatesProven` list.
+  const exportButton = page.locator('[data-testid="artifact-export-xlsx"]').first();
+  await expect(exportButton, "Export XLSX button must be visible on the live sheet toolbar (not a fake toast)").toBeVisible({ timeout: 30_000 });
+  const downloadPromise = page.waitForEvent("download", { timeout: 30_000 });
+  await exportButton.click();
+  const download = await downloadPromise;
+  const xlsxPath = testInfo.outputPath("spreadsheetbench-export.xlsx");
+  await download.saveAs(xlsxPath);
+  await testInfo.attach("exported-workbook", { path: xlsxPath, contentType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+
+  // Capture the file bytes: byte length, the first-four-bytes magic header (must be PKZIP for any
+  // real .xlsx — Office Open XML files are ZIP packages), and the browser-proposed filename.
+  const downloadedBytes = readFileSync(xlsxPath);
+  const fileStat = statSync(xlsxPath);
+  const downloadedFilename = download.suggestedFilename() || basename(xlsxPath);
+  // Magic header as a printable string. Bytes 0x50 0x4B 0x03 0x04 = "PK\x03\x04". We render the
+  // printable PK prefix (good enough for the receipt) and assert the binary signature separately.
+  const magicBytes = downloadedBytes.subarray(0, 4);
+  const magicString = `${String.fromCharCode(magicBytes[0] ?? 0)}${String.fromCharCode(magicBytes[1] ?? 0)}\\x${(magicBytes[2] ?? 0).toString(16).padStart(2, "0")}\\x${(magicBytes[3] ?? 0).toString(16).padStart(2, "0")}`;
+  expect(fileStat.size, "exported workbook must be non-empty (bytes > 0)").toBeGreaterThan(0);
+  expect(fileStat.size).toBe(downloadedBytes.length);
+  expect(magicBytes[0]).toBe(0x50); // 'P'
+  expect(magicBytes[1]).toBe(0x4b); // 'K'
+  // 0x03 0x04 is the local-file-header signature; older ZIPs may also start with 0x05 0x06 (empty)
+  // or 0x07 0x08 (spanned), but a real workbook is the local-file form.
+  expect(magicBytes[2], "Office Open XML must use the PKZIP local-file-header signature").toBe(0x03);
+  expect(magicBytes[3]).toBe(0x04);
+  expect(magicString.startsWith(XLSX_MAGIC_PREFIX)).toBe(true);
+
+  const exportReceipt: DeliverableExportDownloadReceipt = {
+    downloaded: true,
+    bytes: fileStat.size,
+    magic: magicString,
+    filename: downloadedFilename,
+  };
+
+  // Reopen the downloaded workbook and rebuild a {metric -> value} map from its A/B cells.
+  const reopened = new ExcelJS.Workbook();
+  await reopened.xlsx.readFile(xlsxPath);
+  const worksheet = reopened.worksheets[0];
+  expect(worksheet, "exported workbook must have at least one worksheet").toBeTruthy();
+  const reopenedPairs: Record<string, string> = {};
+  worksheet.eachRow({ includeEmpty: false }, (row) => {
+    const a = row.getCell(1).value;
+    const b = row.getCell(2).value;
+    if (a == null) return;
+    const metric = String((a as { result?: unknown }).result ?? a).trim().toLowerCase();
+    const val = b == null ? "" : String((b as { result?: unknown }).result ?? b).trim();
+    if (metric) reopenedPairs[metric] = val;
+  });
+  const reopenedOutputs: GoldenOutputs = {};
+  for (const key of KEYS) {
+    const v = parseNum(reopenedPairs[key]);
+    if (v != null) reopenedOutputs[key] = { value: v };
+  }
+  const reopenedGrade = gradeGolden(NB01_RUBRIC_DOM, reopenedOutputs, 0.6);
+
+  // The reopened workbook must grade clean too — proves the export wrote real numeric cells (not a
+  // truncated stub) AND the round-trip preserved everything the DOM grade just accepted.
+  expect(reopenedGrade.fabrication, `reopened workbook fabricated keys: ${reopenedGrade.flags.join("; ")}`).toBe(0);
+  expect(reopenedGrade.ok, `gradeGolden rejected the reopened workbook (score ${reopenedGrade.score}, flags: ${reopenedGrade.flags.join("; ")})`).toBe(true);
+  expect(reopenedGrade.correct, "every metric must survive the export+reopen round trip").toBe(KEYS.length);
+
+  const reopenReceipt: ArtifactReopenValidationReceipt = {
+    reopened: true,
+    scorerResult: reopenedGrade.ok && reopenedGrade.fabrication === 0 && reopenedGrade.correct === KEYS.length ? "pass" : "fail",
+    cellsMatched: `${reopenedGrade.correct}/${KEYS.length}`,
+    correct: reopenedGrade.correct,
+    n: KEYS.length,
+  };
+
   // ── Step 7: write the proof receipt; the ledger derives `passed` from THIS file. ──────────────
-  const passed = grade.ok && grade.correct === KEYS.length && grade.fabrication === 0;
+  const passed = grade.ok && grade.correct === KEYS.length && grade.fabrication === 0
+    && reopenedGrade.ok && reopenedGrade.correct === KEYS.length && reopenedGrade.fabrication === 0;
   writeProofReceipt({
     schema: 1,
     task: NB01_TASK,
     generatedAt: new Date().toISOString(),
     baseUrl: BASE,
     memoryMode: false,
-    gradingMethod: "cell-read",
-    note: "Live desktop room has no sheet->.xlsx download; graded the cells the agent wrote into the live grid via gradeGolden() (value+fabrication dimensions). Formula/citation dimensions exercised in-run against the bundled good/bad fixtures.",
+    gradingMethod: "file-export",
+    note: "Live desktop room exports the agent's deliverable as a real Office-magic-bytes .xlsx via the Export XLSX toolbar button. Both the live DOM cells AND the reopened workbook were graded by gradeGolden() (value+fabrication dimensions); both accepted the run. Formula/citation dimensions exercised in-run against the bundled good/bad fixtures.",
     scorer: { name: "gradeGolden", file: "src/benchmarks/golden/grader.ts" },
     grade: {
-      score: grade.score,
-      ok: grade.ok,
-      correct: grade.correct,
-      n: grade.n,
-      fabrication: grade.fabrication,
-      flags: grade.flags,
+      score: reopenedGrade.score,
+      ok: reopenedGrade.ok,
+      correct: reopenedGrade.correct,
+      n: reopenedGrade.n,
+      fabrication: reopenedGrade.fabrication,
+      flags: reopenedGrade.flags,
     },
     selfTest: { goodScore: goodGrade.score, badScore: badGrade.score, badRejected: !badGrade.ok },
-    cells: pairs,
+    cells: reopenedPairs,
     passed,
     gatesProven: [
       "fresh_room_join",
       "official_fixture_upload",
       "public_nodeagent_invocation",
       "visible_streaming_progress",
+      "deliverable_export_download",
+      "artifact_reopen_validation",
       "official_scorer_handoff",
       "no_memory_mode_shortcut",
     ],
-    gatesNotProven: {
-      deliverable_export_download: "No sheet->.xlsx export exists in the live desktop room; graded cell-read output instead.",
-      artifact_reopen_validation: "No exported file to reopen from disk; graded the live rendered cells.",
-    },
+    gatesNotProven: {},
+    deliverable_export_download: exportReceipt,
+    artifact_reopen_validation: reopenReceipt,
   });
 
   // Hard assertions — the run only counts if the agent's real output grades clean.
