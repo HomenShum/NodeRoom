@@ -148,9 +148,10 @@ export function buildDemoRoom(engine: RoomEngine): DemoRoom {
     };
     for (const col of RESEARCH_COLS) researchSeed.push({ id: `${c.id}__${col}`, value: vals[col] });
   }
-  // Research is an EMPTY named-column grid the agent populates (matches the prototype's structured grid,
-  // not a raw A1 sheet). Same GenericSheet as any tabular sheet; the agent fills the rows.
-  const researchId = engine.createArtifact({ roomId: room.id, kind: "sheet", title: "Company research", by: me, seed: [], meta: researchMeta() }).id;
+  // Research imports the CRM rows — company/website/tier/intent/owner/crm_status SEEDED (agentWritable:false,
+  // so the agent must preserve them) with the diligence/ENRICH columns blank. The agent fills the blanks; it
+  // does not invent CRM. (A fully-empty grid would leave the agentWritable:false CRM columns unfillable.)
+  const researchId = engine.createArtifact({ roomId: room.id, kind: "sheet", title: "Company research", by: me, seed: researchSeed, meta: researchMeta() }).id;
   engine.createArtifact({ roomId: room.id, kind: "sheet", title: "Runway / milestones", by: me, seed: runwaySeed(), meta: runwayMeta() });
 
   const noteId = engine.createArtifact({
