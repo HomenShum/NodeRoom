@@ -29,6 +29,7 @@ import type { Actor, Artifact as Art, CellPayload, DataframeColumn, DocumentPars
 import { AttentionOverlay } from "../overlay/AttentionOverlay";
 import { createSpreadsheetResolver } from "../overlay/spreadsheetResolver";
 import { focusBoxesForSheet, type SheetCellState } from "../overlay/focusBoxesForSheet";
+import { OPT_ARTIFACT_PREFIX, optimisticArtifactIdentity } from "../openRoomReference";
 import { prepareDownstreamDrafts, type PreparedDownstreamDraft } from "../../nodeagent/skills/integration/downstreamPublish";
 
 /** Downstream handoff destinations → compact icon + short label (replaces 5 wide ghost buttons). */
@@ -326,6 +327,15 @@ export function Artifact(props: {
   const { roomId, me, proof, artId, onArt, sideArtId, onSideArtChange, onOpenChat, collab, style } = props;
   const store = useStore();
   const arts = store.listArtifacts(roomId);
+  useEffect(() => {
+    const optimistic = optimisticArtifactIdentity(artId);
+    if (!optimistic) return;
+    const active = arts.find((a) => a.id === artId);
+    const targetTitle = active?.title ?? optimistic.title;
+    const targetKind = active?.kind ?? optimistic.kind;
+    const real = arts.find((a) => !a.id.startsWith(OPT_ARTIFACT_PREFIX) && a.kind === targetKind && a.title === targetTitle);
+    if (real) onArt(real.id);
+  }, [artId, arts, onArt]);
   const [localSplitId, setLocalSplitId] = useState<string | null>(null);
   const splitId = sideArtId === undefined ? localSplitId : sideArtId;
   const setSplitId = onSideArtChange ?? setLocalSplitId;

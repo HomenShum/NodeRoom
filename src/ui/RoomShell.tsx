@@ -19,7 +19,7 @@ import { BankerCoachPanel } from "./artifacts/BankerCoachPanel";
 import { TraceLensProvider } from "./traceLens/useTraceLens";
 import { TraceLensPanel } from "./traceLens/TraceLensPanel";
 import { PassiveAgentChip } from "./insights/PassiveAgentChip";
-import { resolveRoomOpenTarget } from "./openRoomReference";
+import { OPT_ARTIFACT_PREFIX, optimisticArtifactIdentity, resolveRoomOpenTarget } from "./openRoomReference";
 import type { Actor, Channel } from "../engine/types";
 
 const AUTO_ACCEPT_PREF_KEY = "noderoom:autoAcceptConsent:v1";
@@ -122,6 +122,12 @@ export function RoomShell({ roomId, me, onLeave, proof }: { roomId: string; me: 
   useEffect(() => {
     if (sideArtId && !arts.some((a) => a.id === sideArtId)) setSideArtId(null);
   }, [sideArtId, arts]);
+  useEffect(() => {
+    const optimistic = optimisticArtifactIdentity(artId);
+    if (!optimistic) return;
+    const real = arts.find((a) => !a.id.startsWith(OPT_ARTIFACT_PREFIX) && a.kind === optimistic.kind && a.title === optimistic.title);
+    if (real) setArtId(real.id);
+  }, [artId, arts]);
   // Slow-load affordance — only after a grace period so a normal fast load never sees it. Declared
   // here (before the early return) so hook order stays stable across the undefined→room tick.
   const [slowLoad, setSlowLoad] = useState(false);
@@ -163,23 +169,27 @@ export function RoomShell({ roomId, me, onLeave, proof }: { roomId: string; me: 
   const privChannel: Channel = { private: me.id };
   const curArt = arts.find((a) => a.id === artId) ?? preferredRoomArtifact(arts);
   const openArtifact = (id: string, opts?: { split?: boolean; elementId?: string }): boolean => {
+    const artifactsNow = store.listArtifacts(roomId);
+    const proposalsNow = store.listProposals(roomId);
     const target = resolveRoomOpenTarget({
       id,
-      artifacts: store.listArtifacts(roomId),
-      proposals: store.listProposals(roomId),
+      artifacts: artifactsNow,
+      proposals: proposalsNow,
     });
-    if (!target) return false;
+    const isPendingDirectArtifact = id.startsWith(OPT_ARTIFACT_PREFIX) || /^[a-z0-9]{20,}$/i.test(id);
+    if (!target && !isPendingDirectArtifact) return false;
+    const targetArtifactId = target?.artifactId ?? id;
     const hasMatchMedia = typeof window !== "undefined" && typeof window.matchMedia === "function";
     const compactNow = hasMatchMedia && window.matchMedia("(max-width: 980px)").matches;
     setShow((s) => compactNow ? { ...s, left: false, stage: true, copilot: false } : { ...s, stage: true });
     const canSplitNow = hasMatchMedia && window.matchMedia("(min-width: 1200px)").matches;
-    if (opts?.split && canSplitNow && target.artifactId !== artId) {
-      setSideArtId(target.artifactId);
+    if (opts?.split && canSplitNow && targetArtifactId !== artId) {
+      setSideArtId(targetArtifactId);
     } else {
-      setArtId(target.artifactId);
+      setArtId(targetArtifactId);
     }
-    const elementId = opts?.elementId ?? target.elementId;
-    if (elementId) requestAnimationFrame(() => focusStage({ artifactId: target.artifactId, elementId }));
+    const elementId = opts?.elementId ?? target?.elementId;
+    if (elementId) requestAnimationFrame(() => focusStage({ artifactId: targetArtifactId, elementId }));
     return true;
   };
 

@@ -1008,7 +1008,7 @@ const chanStr = (ch: Channel): string => (ch === "public" ? "public" : ch.privat
    queries don't, and rooms.meta re-ships only the small shell (the artifact-row version bump
    the server does on every edit). Measured per-edit re-ship: ~64KB → 19–31KB. */
 type ElementsMap = Artifact["elements"];
-type MetaArtifact = Omit<Artifact, "elements">;
+type MetaArtifact = Omit<Artifact, "elements"> & { elements?: ElementsMap };
 
 /** Element-scoped mirror of applyCellEditCore's apply step (convex/artifacts.ts): version bump,
  *  order handling for create/delete, updatedBy attribution — operates on ONE artifact's elements
@@ -1333,9 +1333,14 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
     // server-side versions query streams in.
     const optId = `opt-art-${args.kind}-${args.title}`;
     const seedOrder = (args.seed as Array<{ id: string }>).map((s) => s.id);
+    const seedElements: ElementsMap = Object.fromEntries((args.seed as Array<{ id: string; value: unknown }>).map((s) => [
+      s.id,
+      { id: s.id, value: s.value, version: 1, updatedAt: now, updatedBy: args.proof.actor },
+    ]));
     const shell = {
       id: optId, roomId: args.roomId as unknown as string, kind: args.kind, title: args.title,
       meta: args.meta,
+      elements: seedElements,
     };
     local.setQuery(api.rooms.meta, metaQ, { ...curMeta, artifacts: [...arts, shell] } as unknown as typeof curMeta);
     if (curVersions) {
@@ -1424,7 +1429,7 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
   const store = useMemo<RoomStore>(() => {
     const room = (data?.room ?? undefined) as unknown as Room | undefined;
     const members = (data?.members ?? []) as unknown as Member[];
-    const artifacts = metaArtifacts.map((a) => ({ ...a, elements: elementsByArtifact[a.id] ?? {} })) as unknown as Artifact[];
+    const artifacts = metaArtifacts.map((a) => ({ ...a, elements: elementsByArtifact[String(a.id)] ?? a.elements ?? {} })) as unknown as Artifact[];
     const locks = (data?.locks ?? []) as unknown as Lock[];
     const sessions = (data?.sessions ?? []) as unknown as AgentSession[];
     const drafts = (data?.drafts ?? []) as unknown as Draft[];
