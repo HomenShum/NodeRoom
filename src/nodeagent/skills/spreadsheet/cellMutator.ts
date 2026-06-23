@@ -866,6 +866,37 @@ const SET_ARTIFACT_META_TOOL: AgentTool = {
     (await rt.setArtifactMeta?.(a)) ?? { ok: false, error: "set_artifact_meta is unsupported in this room" },
 };
 
+/**
+ * define_columns — the agent governs a sheet's SCHEMA (its columns) per task, CAS-guarded on the
+ * artifact version exactly like a cell write. Conflict comes back as a tool RESULT, so the runtime
+ * re-reads snapshot() and retries (no new coordination primitive). docs/architecture/AGENT_GOVERNED_COLUMNS.md
+ */
+const DEFINE_COLUMNS_TOOL: AgentTool = {
+  name: "define_columns",
+  description:
+    "Declare or replace the COLUMNS (schema) of a tabular sheet BEFORE filling rows — you decide the columns the task needs. " +
+    "CAS-guarded: pass baseVersion (the artifact `version` from snapshot()); if the result is {conflict}, re-read snapshot() and call again with the new version. " +
+    "mode 'merge' (default) upserts columns by id; 'replace' sets EXACTLY these columns and deletes cells in any dropped column. " +
+    "After it returns ok, fill rows with the locked-cell tools keyed `${rowId}__${columnId}` using each returned column's id.",
+  schema: z.object({
+    artifactId: z.string().optional(),
+    baseVersion: z.coerce.number(),
+    mode: z.enum(["replace", "merge"]).default("merge"),
+    columns: tolerantArray(
+      z.object({
+        label: z.string().min(1).max(80),
+        type: z.enum(["text", "number", "date", "currency", "boolean", "json"]).default("text"),
+        agentWritable: z.coerce.boolean().default(true),
+      }),
+      { min: 1 },
+    ),
+  }),
+  execute: async (
+    a: { artifactId?: string; baseVersion: number; mode: "replace" | "merge"; columns: Array<{ label: string; type?: string; agentWritable?: boolean }> },
+    rt,
+  ) => (await rt.setColumns?.(a)) ?? { ok: false, error: "define_columns is unsupported in this room" },
+};
+
 export const MANAGED_LOCK_TOOLS: AgentTool[] = [
   WRITE_LOCKED_CELL_TOOL,
   WRITE_LOCKED_CELLS_TOOL,
@@ -878,5 +909,6 @@ export const PRODUCTION_ROOM_TOOLS: AgentTool[] = [
   ...OKF_RETRIEVAL_TOOLS,
   ...BANKER_COACH_TOOLS,
   SET_ARTIFACT_META_TOOL,
+  DEFINE_COLUMNS_TOOL,
 ];
 export const PRODUCTION_TOOL_NAMES = PRODUCTION_ROOM_TOOLS.map((t) => t.name);
