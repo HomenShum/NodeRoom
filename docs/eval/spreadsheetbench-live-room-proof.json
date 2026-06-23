@@ -1,8 +1,8 @@
 {
   "schema": 1,
   "task": "nb-01-company-profile",
-  "generatedAt": "2026-06-23T07:29:08.389Z",
-  "baseUrl": "http://127.0.0.1:5273",
+  "generatedAt": "2026-06-23T22:11:46.920Z",
+  "baseUrl": "https://noderoom.live",
   "memoryMode": false,
   "gradingMethod": "file-export",
   "note": "Live desktop room exports the agent's deliverable as a real Office-magic-bytes .xlsx via the Export XLSX toolbar button. Both the live DOM cells AND the reopened workbook were graded by gradeGolden() (value+fabrication dimensions); both accepted the run. Formula/citation dimensions exercised in-run against the bundled good/bad fixtures.",
@@ -44,7 +44,7 @@
   "gatesNotProven": {},
   "deliverable_export_download": {
     "downloaded": true,
-    "bytes": 6502,
+    "bytes": 6501,
     "magic": "PK\\x03\\x04",
     "filename": "Sheet_1.xlsx"
   },

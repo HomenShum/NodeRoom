@@ -610,11 +610,14 @@ function geminiTool(tool: AgentTool) {
   };
 }
 
-function toolParameters(toolName: string): JsonObject {
+export function toolParameters(toolName: string): JsonObject {
   const string = { type: "string" };
   const number = { type: "number" };
+  const integer = { type: "integer" };
+  const boolean = { type: "boolean" };
   const any = {};
   const stringArray = { type: "array", items: string };
+  const numberRecord = { type: "object", additionalProperties: number };
   const evidence = {
     type: "object",
     properties: {
@@ -645,33 +648,223 @@ function toolParameters(toolName: string): JsonObject {
     },
     required: ["kind", "label"],
   };
+  const bbox = {
+    type: "object",
+    properties: {
+      x: number,
+      y: number,
+      width: number,
+      height: number,
+      unit: { type: "string", enum: ["px", "pt", "normalized"] },
+    },
+    required: ["x", "y", "width", "height"],
+  };
   const op = {
     type: "object",
     properties: { elementId: string, value: any, baseVersion: { type: "integer" } },
     required: ["elementId", "value", "baseVersion"],
   };
+  const chartPoint = {
+    type: "object",
+    properties: { label: string, value: number, sourceRef: string, estimated: boolean },
+    required: ["label", "value"],
+  };
+  const evidenceCardInput = {
+    type: "object",
+    properties: {
+      label: string,
+      sourceRef: string,
+      quote: string,
+      kind: { type: "string", enum: ["source", "upload", "computed", "manual"] },
+      confidence: number,
+      status: { type: "string", enum: ["verified", "needs_review", "manual", "estimated"] },
+    },
+    required: ["label"],
+  };
+  const evidenceCard = {
+    type: "object",
+    properties: {
+      id: string,
+      label: string,
+      sourceRef: string,
+      quote: string,
+      kind: { type: "string", enum: ["source", "upload", "computed", "manual"] },
+      confidence: number,
+      status: { type: "string", enum: ["verified", "needs_review", "manual", "estimated"] },
+      reviewNote: string,
+    },
+    required: ["id", "label", "sourceRef", "quote", "kind", "confidence", "status"],
+  };
   const schemas: Record<string, JsonObject> = {
-    read_range: { type: "object", properties: { elementIds: stringArray }, required: ["elementIds"] },
-    propose_lock: { type: "object", properties: { elementIds: stringArray, reason: string }, required: ["elementIds", "reason"] },
-    edit_cell: { type: "object", properties: { elementId: string, value: any, baseVersion: { type: "integer" } }, required: ["elementId", "value", "baseVersion"] },
+    read_range: { type: "object", properties: { elementIds: stringArray, artifactId: string }, required: ["elementIds"] },
+    search_sheet_context: { type: "object", properties: { query: string, artifactId: string, limit: integer }, required: ["query"] },
+    list_artifacts: { type: "object", properties: {}, required: [] },
+    propose_lock: { type: "object", properties: { elementIds: stringArray, reason: string, artifactId: string }, required: ["elementIds", "reason"] },
+    edit_cell: { type: "object", properties: { elementId: string, value: any, baseVersion: integer, kind: { type: "string", enum: ["set", "create", "delete"] }, artifactId: string }, required: ["elementId", "value", "baseVersion"] },
     write_cell_result: {
       type: "object",
       properties: {
         elementId: string,
         value: any,
-        baseVersion: { type: "integer" },
+        baseVersion: integer,
         status: { type: "string", enum: ["empty", "running", "complete", "needs_review", "failed", "gap"] },
         confidence: number,
         normalizedValue: any,
+        formula: string,
         error: string,
         evidence: { type: "array", items: evidence },
+        kind: { type: "string", enum: ["set", "create"] },
+        artifactId: string,
       },
       required: ["elementId", "value", "baseVersion", "evidence"],
     },
-    create_draft: { type: "object", properties: { ops: { type: "array", items: op }, blockedByLockId: string, note: string }, required: ["ops", "blockedByLockId", "note"] },
+    update_wiki: {
+      type: "object",
+      properties: { artifactId: string, content: string, citesArtifactIds: stringArray, baseVersion: integer, elementId: string },
+      required: ["artifactId", "content", "citesArtifactIds", "baseVersion"],
+    },
+    reconcile_cell: {
+      type: "object",
+      properties: { elementId: string, expectedValue: any, baseVersion: integer, artifactId: string },
+      required: ["elementId", "expectedValue", "baseVersion"],
+    },
+    run_algorithm_artifact: {
+      type: "object",
+      properties: {
+        artifactId: string,
+        artifact: {
+          type: "object",
+          properties: {
+            schema: integer,
+            algorithmId: string,
+            name: string,
+            description: string,
+            kind: { type: "string", enum: ["spreadsheet_formula"] },
+            language: { type: "string", enum: ["formula_dsl", "noderoom_dsl"] },
+            inputs: { type: "array", items: { type: "object", properties: { id: string, elementId: string, label: string }, required: ["id", "elementId"] } },
+            outputs: { type: "array", items: { type: "object", properties: { id: string, elementId: string, expression: string, format: { type: "string", enum: ["number", "currency", "percent"] }, label: string }, required: ["id", "elementId", "expression"] } },
+            constraints: { type: "object", properties: { deterministic: boolean, noNetwork: boolean, noRandom: boolean, noDateNow: boolean, maxInputs: integer, maxOutputs: integer } },
+            evidencePolicy: { type: "object", properties: { requireSourceCells: boolean } },
+            tests: { type: "array", items: { type: "object", properties: { name: string, inputs: numberRecord, expected: numberRecord, tolerance: number }, required: ["name", "inputs", "expected"] } },
+          },
+          required: ["schema", "algorithmId", "name", "kind", "language", "inputs", "outputs"],
+        },
+      },
+      required: ["artifact"],
+    },
+    create_draft: { type: "object", properties: { ops: { type: "array", items: op }, blockedByLockId: string, note: string, artifactId: string }, required: ["ops", "blockedByLockId", "note"] },
     release_lock: { type: "object", properties: { lockId: string }, required: ["lockId"] },
     say: { type: "object", properties: { text: string }, required: ["text"] },
     fetch_source: { type: "object", properties: { url: string }, required: ["url"] },
+    write_locked_cell: {
+      type: "object",
+      properties: { elementId: string, value: any, baseVersion: integer, reason: string, artifactId: string },
+      required: ["elementId", "value", "baseVersion"],
+    },
+    write_locked_cells: {
+      type: "object",
+      properties: { ops: { type: "array", items: op }, reason: string, artifactId: string },
+      required: ["ops"],
+    },
+    write_locked_cell_result: {
+      type: "object",
+      properties: {
+        elementId: string,
+        value: any,
+        baseVersion: integer,
+        status: { type: "string", enum: ["empty", "running", "complete", "needs_review", "failed", "gap"] },
+        confidence: number,
+        normalizedValue: any,
+        formula: string,
+        error: string,
+        evidence: { type: "array", items: evidence },
+        artifactId: string,
+      },
+      required: ["elementId", "value", "baseVersion", "evidence"],
+    },
+    write_locked_cell_results: {
+      type: "object",
+      properties: {
+        ops: {
+          type: "array",
+          items: {
+            type: "object",
+            properties: {
+              elementId: string,
+              value: any,
+              baseVersion: integer,
+              status: { type: "string", enum: ["empty", "running", "complete", "needs_review", "failed", "gap"] },
+              confidence: number,
+              normalizedValue: any,
+              formula: string,
+              error: string,
+              evidence: { type: "array", items: evidence },
+            },
+            required: ["elementId", "value", "baseVersion", "evidence"],
+          },
+        },
+        reason: string,
+        artifactId: string,
+      },
+      required: ["ops"],
+    },
+    okf_list_concepts: { type: "object", properties: { type: string, tags: stringArray, pathPrefix: string, status: string, confidenceMin: number, timestampAfter: string, visibility: { type: "string", enum: ["public", "private", "redacted"] }, limit: integer }, required: [] },
+    okf_read_concept: { type: "object", properties: { conceptId: string }, required: ["conceptId"] },
+    okf_full_text_search: { type: "object", properties: { query: string, fields: { type: "array", items: { type: "string", enum: ["title", "description", "body", "citations"] } }, type: string, tags: stringArray, pathPrefix: string, status: string, confidenceMin: number, timestampAfter: string, visibility: { type: "string", enum: ["public", "private", "redacted"] }, limit: integer }, required: ["query"] },
+    okf_semantic_search: { type: "object", properties: { query: string, type: string, tags: stringArray, pathPrefix: string, status: string, confidenceMin: number, timestampAfter: string, visibility: { type: "string", enum: ["public", "private", "redacted"] }, limit: integer }, required: ["query"] },
+    okf_search_skills: { type: "object", properties: { query: string, skill_categories: stringArray, skill_trust_min: { type: "string", enum: ["untrusted", "community", "verified"] }, limit: integer }, required: ["query"] },
+    okf_filter: { type: "object", properties: { type: string, tags: stringArray, pathPrefix: string, status: string, confidenceMin: number, timestampAfter: string, visibility: { type: "string", enum: ["public", "private", "redacted"] }, limit: integer }, required: [] },
+    okf_glob: { type: "object", properties: { pattern: string, limit: integer }, required: ["pattern"] },
+    okf_regex: { type: "object", properties: { pattern: string, pathPrefix: string, caseSensitive: boolean, limit: integer }, required: ["pattern"] },
+    okf_backlinks: { type: "object", properties: { conceptId: string, depth: integer, limit: integer }, required: ["conceptId"] },
+    okf_expand_neighbors: { type: "object", properties: { conceptId: string, linkDepth: integer, includeCitations: boolean, includeBacklinks: boolean, limit: integer }, required: ["conceptId", "linkDepth"] },
+    source_resolve_citation: { type: "object", properties: { evidenceId: string }, required: ["evidenceId"] },
+    source_open_literal: { type: "object", properties: { sourceArtifactId: string, page: integer, row: number, column: string, bbox }, required: ["sourceArtifactId"] },
+    source_compare_claim: {
+      type: "object",
+      properties: {
+        claim: string,
+        evidenceRefs: {
+          type: "array",
+          items: { type: "object", properties: { evidenceId: string, conceptId: string, citationId: string, sourceArtifactId: string }, required: ["evidenceId"] },
+        },
+      },
+      required: ["claim", "evidenceRefs"],
+    },
+    build_evidence_cards: { type: "object", properties: { evidence: { type: "array", items: evidenceCardInput } }, required: ["evidence"] },
+    compute_runway_milestones: { type: "object", properties: { company: string, cashUsd: number, monthlyBurnUsd: number, momGrowthRate: number, source: string }, required: ["company", "cashUsd", "monthlyBurnUsd"] },
+    validate_chart_against_source_cells: { type: "object", properties: { sourceCells: numberRecord, series: { type: "array", items: chartPoint }, tolerance: number }, required: ["sourceCells", "series"] },
+    render_chart_artifact: { type: "object", properties: { title: string, chartSvg: string, narrative: string, sourceRefs: stringArray }, required: ["title", "chartSvg"] },
+    generate_banker_coach_cues: { type: "object", properties: { company: string, claim: string, evidenceCards: { type: "array", items: evidenceCard }, runwayMonths: number, status: string }, required: ["company", "claim", "evidenceCards"] },
+    create_review_round_update: { type: "object", properties: { roomTitle: string, company: string, materialChanges: stringArray, openQuestions: stringArray, nextActions: stringArray, sourceRefs: stringArray }, required: ["roomTitle", "materialChanges"] },
+    export_downstream_draft: {
+      type: "object",
+      properties: {
+        artifact: {
+          type: "object",
+          properties: { id: string, title: string, kind: string, body: string, sourceArtifactIds: stringArray, sourceUrls: stringArray, createdAt: number },
+          required: ["id", "title", "kind", "body", "sourceArtifactIds", "sourceUrls"],
+        },
+        destinations: { type: "array", items: { type: "string", enum: ["gmail", "notion", "slack", "linear", "linkedin", "crm_csv"] } },
+      },
+      required: ["artifact"],
+    },
+    set_artifact_meta: { type: "object", properties: { artifactId: string, title: string, summary: string, tags: stringArray }, required: ["artifactId"] },
+    define_columns: {
+      type: "object",
+      properties: {
+        artifactId: string,
+        baseVersion: number,
+        mode: { type: "string", enum: ["replace", "merge"] },
+        columns: { type: "array", items: { type: "object", properties: { label: string, type: { type: "string", enum: ["text", "number", "date", "currency", "boolean", "json"] }, agentWritable: boolean }, required: ["label"] } },
+      },
+      required: ["baseVersion", "columns"],
+    },
+    capture_source: { type: "object", properties: { url: string, goal: string }, required: ["url", "goal"] },
+    sec_facts: { type: "object", properties: { company: string, concept: string }, required: ["company", "concept"] },
+    cite_in_file: { type: "object", properties: { target: string, label: string, fileName: string }, required: ["target"] },
+    skill_search: { type: "object", properties: { query: string, k: integer, skill_categories: stringArray, skill_trust_min: { type: "string", enum: ["untrusted", "community", "verified"] } }, required: ["query"] },
+    load_skill: { type: "object", properties: { idOrUrl: string }, required: ["idOrUrl"] },
   };
   return schemas[toolName] ?? { type: "object", properties: {}, required: [] };
 }
