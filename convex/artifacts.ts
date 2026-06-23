@@ -21,6 +21,10 @@ import { planAndRecordRebase } from "./semanticRebase";
 import { enqueueArtifactSnapshotForOkf } from "./okf";
 import { enqueueRoomActivity } from "./roomActivity";
 import { enqueueFileProcessingJob } from "./fileProcessing";
+// Shared COLUMN normalizer — the SAME id/order/BOUND rules as the in-memory RoomEngine lane, so the
+// governed-columns schema can never drift between the two lanes. (docs/architecture/AGENT_GOVERNED_COLUMNS.md)
+import { normalizeColumns, columnIdOfElement, type ColumnInput } from "../src/engine/columns";
+import type { DataframeColumn } from "../src/engine/types";
 
 const MAX_ARTIFACT_TITLE_CHARS = 180;
 const MAX_ARTIFACT_SEED_ELEMENTS = 20_000;
@@ -354,14 +358,29 @@ function hasCellPayloadEvidence(value: unknown): boolean {
   });
 }
 
+/** Declared column ids on a sheet's governed schema (empty when the sheet has no dataframe schema yet). */
+function declaredColumnIds(meta: unknown): string[] {
+  const dataframe = objectRecord(objectRecord(meta).dataframe) as DataframeMetaLike;
+  const cols = Array.isArray(dataframe.columns) ? dataframe.columns : [];
+  return cols.map((c) => objectRecord(c).id).filter((id): id is string => typeof id === "string");
+}
+
 function agentWritePolicyViolation(
   art: { meta?: unknown },
   elementId: string,
   value: unknown,
   actor: ActorValue,
   kind: "set" | "create" | "delete",
-): "agent_write_forbidden_column" | "evidence_required" | null {
+): "agent_write_forbidden_column" | "evidence_required" | "no_such_column" | null {
   if (actor.kind !== "agent") return null;
+  // Declare-then-fill (parity with RoomEngine.applyOpInternal): once a sheet has a governed schema, an
+  // agent may only write DECLARED columns. An undeclared-column write would otherwise land as an invisible
+  // orphan — a column the UI never renders — so reject it and steer the agent to call define_columns first.
+  if (kind === "set" || kind === "create") {
+    const declared = declaredColumnIds(art.meta);
+    const col = declared.length ? columnIdOfElement(elementId) : null;
+    if (col && !declared.includes(col)) return "no_such_column";
+  }
   const column = dataframeColumnForElement(art.meta, elementId);
   if (!column) return null;
   if (column.agentWritable === false) return "agent_write_forbidden_column";
@@ -891,6 +910,66 @@ export const setArtifactMetaByAgent = internalMutation({
       await enqueueArtifactSnapshotForOkf(ctx, { roomId: a.roomId, artifactId: a.artifactId });
     }
     return { ok: true as const };
+  },
+});
+
+/** Agent path for define_columns: declare/replace a sheet's COLUMN SCHEMA before filling rows. CAS-guarded
+ *  on the ARTIFACT VERSION (the schema's CAS token, exactly like a cell's per-element version) — a stale
+ *  baseVersion is returned as DATA ({ reason: "conflict" }), never thrown, so the agent's re-read/retry loop
+ *  handles it. Mirrors RoomEngine.setColumns and reuses the shared engine normalizer, so the id/order/BOUND
+ *  (MAX_COLUMNS) rules never drift from the in-memory lane. Authed by room membership (the agent governs
+ *  room artifacts it did not create), and re-indexes into OKF so the new schema feeds retrieval. */
+export const setColumnsByAgent = internalMutation({
+  args: {
+    roomId: v.id("rooms"),
+    artifactId: v.id("artifacts"),
+    baseVersion: v.number(),
+    mode: v.optional(v.union(v.literal("replace"), v.literal("merge"))),
+    columns: v.array(v.object({
+      id: v.optional(v.string()),
+      label: v.string(),
+      type: v.optional(v.string()),
+      mode: v.optional(v.string()),
+      agentWritable: v.optional(v.boolean()),
+    })),
+    actor: actorV,
+  },
+  handler: async (ctx, a) => {
+    await requireActorInRoom(ctx, a.roomId, a.actor);
+    const art = await requireArtifactInRoom(ctx, a.roomId, a.artifactId);
+    if (art.kind !== "sheet") return { ok: false as const, reason: "not_a_sheet" as const };
+    // CAS on the artifact version — reject a stale SCHEMA baseline (the anti-clobber check for columns).
+    if (art.version !== a.baseVersion) {
+      return { ok: false as const, reason: "conflict" as const, expected: a.baseVersion, actual: art.version };
+    }
+    const mode = a.mode ?? "merge";
+    const df = objectRecord(objectRecord(art.meta).dataframe);
+    const existing = (Array.isArray(df.columns) ? df.columns : []) as DataframeColumn[];
+    const cols = normalizeColumns(a.columns as unknown as ColumnInput[], existing, mode);
+    const now = Date.now();
+    let nextOrder = art.order;
+    if (mode === "replace") {
+      // orphan rule = delete: drop cells whose column id is no longer declared, then trim art.order.
+      const keep = new Set(cols.map((c) => c.id));
+      const els = await ctx.db.query("elements").withIndex("by_artifact", (q) => q.eq("artifactId", a.artifactId)).collect();
+      for (const el of els) {
+        const colId = columnIdOfElement(el.elementId);
+        if (colId && !keep.has(colId)) await ctx.db.delete(el._id);
+      }
+      nextOrder = art.order.filter((id) => { const colId = columnIdOfElement(id); return !colId || keep.has(colId); });
+    }
+    const meta = { ...objectRecord(art.meta), dataframe: { rowCount: (df.rowCount as number) ?? 0, ...df, columns: cols } };
+    await ctx.db.patch(a.artifactId, { version: art.version + 1, updatedAt: now, order: nextOrder, meta });
+    await ctx.db.insert("traces", {
+      roomId: a.roomId,
+      ts: now,
+      actor: a.actor,
+      type: "schema_changed",
+      summary: `${a.actor.name} set ${cols.length} column(s) on ${art.title}`,
+      detail: `define_columns(${mode}) · artifact ${String(a.artifactId)} · ${cols.map((c) => c.id).join(", ")} → v${art.version + 1}`,
+    });
+    await enqueueArtifactSnapshotForOkf(ctx, { roomId: a.roomId, artifactId: a.artifactId });
+    return { ok: true as const, version: art.version + 1, columns: cols };
   },
 });
 

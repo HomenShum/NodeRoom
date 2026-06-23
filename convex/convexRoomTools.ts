@@ -13,7 +13,7 @@
 import { makeFunctionReference } from "convex/server";
 import type { ActionCtx } from "./_generated/server";
 import type { Id } from "./_generated/dataModel";
-import type { RoomTools, RoomSnapshot, AwarenessView, CellView, EditOutcome, MergeView, SourceResult, ArtifactRef, SpreadsheetContextHit } from "../src/nodeagent/core/types";
+import type { RoomTools, RoomSnapshot, AwarenessView, CellView, EditOutcome, MergeView, SourceResult, ArtifactRef, SpreadsheetContextHit, SetColumnsOutcome } from "../src/nodeagent/core/types";
 import type { Actor } from "../src/engine/types";
 import type { ClaimSupportResult, EvidenceRef, LiteralSourceResult, OkfConceptFilter, OkfRetrievalPort, RetrievalHit } from "../src/nodeagent/retrieval/types";
 import type { OkfConcept } from "../src/nodeagent/okf/types";
@@ -27,6 +27,7 @@ const locksProposeLockRef = makeFunctionReference<"mutation">("locks:proposeLock
 const locksReleaseLockRef = makeFunctionReference<"mutation">("locks:releaseLock") as any;
 const artifactsApplyAgentCellEditRef = makeFunctionReference<"mutation">("artifacts:applyAgentCellEdit") as any;
 const artifactsSetArtifactMetaByAgentRef = makeFunctionReference<"mutation">("artifacts:setArtifactMetaByAgent") as any;
+const artifactsSetColumnsByAgentRef = makeFunctionReference<"mutation">("artifacts:setColumnsByAgent") as any;
 const presenceHeartbeatForAgentRef = makeFunctionReference<"mutation">("presence:heartbeatForAgent") as any;
 const draftsCreateDraftRef = makeFunctionReference<"mutation">("drafts:createDraft") as any;
 const messagesSendAgentRef = makeFunctionReference<"mutation">("messages:sendAgent") as any;
@@ -85,6 +86,23 @@ export class ConvexRoomTools implements RoomTools {
     } catch (e) {
       return { ok: false, error: e instanceof Error ? e.message : "failed" };
     }
+  }
+
+  /** Agent-governed SCHEMA edit (define_columns): declare/replace a sheet's COLUMNS, CAS-guarded on the
+   *  artifact version. A stale baseVersion is returned as { conflict } DATA so the runtime re-reads/retries.
+   *  Mirrors RoomEngine.setColumns / InMemoryRoomTools.setColumns — same SetColumnsOutcome contract. */
+  async setColumns(args: { artifactId?: string; baseVersion: number; mode: "replace" | "merge"; columns: Array<{ label: string; type?: string; agentWritable?: boolean }> }): Promise<SetColumnsOutcome> {
+    const r = await this.ctx.runMutation(artifactsSetColumnsByAgentRef, {
+      roomId: this.roomId,
+      artifactId: (args.artifactId ?? this.artifactId) as Id<"artifacts">,
+      baseVersion: args.baseVersion,
+      mode: args.mode,
+      columns: args.columns,
+      actor: this.actor,
+    });
+    if (r.ok) return { ok: true, version: r.version, columns: r.columns };
+    if (r.reason === "conflict") return { ok: false, conflict: true, expected: r.expected, actual: r.actual };
+    return { ok: false, error: r.reason ?? "set_columns_failed" };
   }
 
   awareness(): Promise<AwarenessView> {
