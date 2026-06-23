@@ -221,10 +221,10 @@ function ArtifactSurface({ roomId, me, proof, artId, onArt, collab, style, surfa
           {activeTab === "wiki" && wiki && <Wiki roomId={roomId} art={wiki} onOpenArtifact={openArtifact} />}
           {activeTab === "sheet" && sheet && (sheet.title === "Q3 variance"
             ? <Sheet roomId={roomId} me={me} art={sheet} onError={(f) => setEditErr(editErrorMsg(f))} />
-            : sheet.meta?.excelGrid ? <ExcelGridSheet roomId={roomId} me={me} art={sheet} onError={(f) => setEditErr(editErrorMsg(f))} /> : <GenericSheet art={sheet} />)}
+            : sheet.meta?.excelGrid ? <ExcelGridSheet roomId={roomId} me={me} art={sheet} onError={(f) => setEditErr(editErrorMsg(f))} /> : <GenericSheet roomId={roomId} me={me} art={sheet} onError={(f) => setEditErr(editErrorMsg(f))} />)}
           {/* Research = an empty NAMED-COLUMN grid the agent populates (matches the prototype's structured
               grid, not a raw A1 sheet). Rendered by GenericSheet — no separate <Research> renderer. */}
-          {activeTab === "research" && research && <GenericSheet art={research} />}
+          {activeTab === "research" && research && <GenericSheet roomId={roomId} me={me} art={research} onError={(f) => setEditErr(editErrorMsg(f))} />}
           {activeTab === "note" && note && (NOTEBOOK_SYNC_ENABLED && proof ? <SyncedNote roomId={roomId} me={me} proof={proof} art={note} /> : <Note roomId={roomId} me={me} art={note} />)}
           {activeTab === "wall" && wall && <Wall roomId={roomId} me={me} art={wall} />}
         </>
@@ -929,7 +929,8 @@ function colsOf(art: Art): string[] {
   return cols;
 }
 
-function GenericSheet({ art }: { art: Art }) {
+function GenericSheet({ roomId, me, art, onError }: { roomId: string; me: Actor; art: Art; onError?: (f: EditFeedback) => void }) {
+  const store = useStore();
   const [pages, setPages] = useState(1);
   // QA P2 perf: derive rows/columns/pageSize once per artifact snapshot, not on every render
   // (paging state changes alone shouldn't re-walk the full element order).
@@ -941,10 +942,34 @@ function GenericSheet({ art }: { art: Art }) {
   }, [art]);
   const cols = columns.map((col) => col.id);
   const visibleRows = rows.slice(0, pageSize * pages);
+
+  // Attention Overlay — SAME wiring as the variance Sheet, on the dynamic `${rid}__${col}` key space, so
+  // agent_write / proposal / evidence boxes land on whatever columns the agent governed via define_columns.
+  const proposals = store.listProposals(roomId).filter((p) => p.artifactId === art.id);
+  const presenceRows = store.listPresence(roomId, art.id);
+  const sheetWrapRef = useRef<HTMLDivElement>(null);
+  const overlayResolver = useMemo(() => createSpreadsheetResolver(() => sheetWrapRef.current), []);
+  const overlayCellStates = useMemo<SheetCellState[]>(() => {
+    const out: SheetCellState[] = [];
+    for (const rid of visibleRows) for (const col of cols) {
+      const id = `${rid}__${col}`;
+      const locked = !!lockedByOther(store, art.id, id, me);
+      const proposed = !!proposalFor(proposals, art.id, id) || draftedFor(store, roomId, art.id, id);
+      const hasEvidence = !!asCellPayload(art.elements[id]?.value)?.evidence?.length;
+      if (locked || proposed || hasEvidence) out.push({ id, lockedByOther: locked, proposed, hasEvidence });
+    }
+    return out;
+  }, [visibleRows, cols, store, roomId, art, me, proposals]);
+  const overlayBoxes = useMemo(
+    () => focusBoxesForSheet({ artifactId: art.id, now: Date.now(), meId: me.id, presence: presenceRows, cellStates: overlayCellStates }),
+    [art.id, me.id, presenceRows, overlayCellStates],
+  );
+  void onError; // research grid is read-only here; signature mirrors Sheet for a uniform call site
   return (
     <>
       <div className="r-art-body">
-        <div className="r-sheet-wrap">
+        <div className="r-sheet-wrap" ref={sheetWrapRef}>
+          <AttentionOverlay boxes={overlayBoxes} resolver={overlayResolver} mode="live" />
           <table className="r-sheet r-generic-sheet" data-noderoom-surface="workSurface.sheet" data-artifact-id={art.id}>
             <thead><tr><th className="r-corner" aria-label="row number" />{columns.map((c) => <th key={c.id}>{c.label}</th>)}</tr></thead>
             <tbody>
