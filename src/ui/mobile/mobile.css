@@ -21,8 +21,8 @@
   /* ── ink ── */
   --text-primary:   #2B1D14;
   --text-secondary: #5C4938;
-  --text-muted:     #8B6F5B;
-  --text-tertiary:  #A89378;
+  --text-muted:     #705541;
+  --text-tertiary:  #765D48;
   --ink-agent:      #6E5946;
 
   /* ── parchment borders ── */
@@ -58,7 +58,7 @@
   --na-accent-bg:    var(--accent-primary-bg);
 
   --na-ok:   #4A6128; --na-ok-bg:  #EEF3E0;
-  --na-warn: #9C6418; --na-warn-bg:#FBEFD8;
+  --na-warn: #8B5510; --na-warn-bg:#FBEFD8;
   --na-bad:  #8B2812; --na-bad-bg: #FBE8E0;
   --na-priv: #4F4F8B; --na-priv-bg:#ECE9F4;
   /* visibility language — who can see a message */
