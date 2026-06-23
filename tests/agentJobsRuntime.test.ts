@@ -149,6 +149,45 @@ describe("agentJobs runtime contract", () => {
     expect(detail?.operations.map((event) => event.name)).toContain("agentJobs.start");
   });
 
+  it("keeps benchmark-completion public asks distinct from standard asks and records the profile", async () => {
+    const { t, proof, roomId, artifactId } = await setupRoom({ seedElement: true });
+    const goal = "compute these 5 metrics and write the visible cells";
+
+    const benchmark = await t.mutation(api.agentJobs.startPublicAsk, {
+      roomId,
+      requester: proof,
+      goal,
+      contextArtifactId: String(artifactId),
+      routePolicy: "fast_default" as const,
+      runtimeProfile: "benchmark_completion" as const,
+      maxAttempts: 100,
+    });
+    const standard = await t.mutation(api.agentJobs.startPublicAsk, {
+      roomId,
+      requester: proof,
+      goal,
+      contextArtifactId: String(artifactId),
+      routePolicy: "fast_default" as const,
+    });
+
+    expect(standard.reused).toBe(false);
+    expect(String(standard.jobId)).not.toBe(String(benchmark.jobId));
+    const detail = await t.query(api.agentJobs.detail, { jobId: benchmark.jobId, requester: proof });
+    expect(detail?.job).toMatchObject({
+      runtimeProfile: "benchmark_completion",
+      maxAttempts: 100,
+    });
+    expect(detail?.job.request).toMatchObject({
+      runtimeProfile: "benchmark_completion",
+      source: "public_chat",
+    });
+    const claimed = await t.mutation(internal.agentJobs.claimSlice, { jobId: benchmark.jobId, leaseId: "lease-benchmark-profile", leaseMs: 60_000 });
+    expect(claimed).toMatchObject({
+      runtimeProfile: "benchmark_completion",
+      maxAttempts: 100,
+    });
+  });
+
   it("materializes a scratch sheet before starting public asks in blank rooms", async () => {
     const { t, proof, roomId } = await setupBlankRoom();
 

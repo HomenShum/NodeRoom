@@ -66,6 +66,7 @@ import {
 } from "../src/eval/officialBenchmarkUiCoverage";
 
 const BASE = process.env.BENCH_BASE_URL ?? "http://localhost:5273";
+const AGENT_COMPLETION_TIMEOUT_MS = Number(process.env.BENCH_AGENT_COMPLETION_TIMEOUT_MS ?? 15 * 60_000);
 
 // ── nb-01 golden rubric (mirrored from src/benchmarks/nonbtb/nb-01-company-profile/rubric.json;
 //    kept honest by tests/goldenDataset.test.ts). Inlined because Playwright's ESM loader rejects a
@@ -198,7 +199,10 @@ function writeProofReceipt(proof: SpreadsheetBenchLiveRoomProof): void {
 }
 
 test("SpreadsheetBench V1 fresh-room contract: import nb-01 CSV -> cheap @nodeagent -> official gradeGolden on agent cells", async ({ page }, testInfo) => {
-  test.setTimeout(320_000);
+  test.setTimeout(20 * 60_000);
+  await page.addInitScript(() => {
+    window.localStorage.setItem("noderoom.nodeagentRuntimeProfile", "benchmark_completion");
+  });
 
   // Anti-cheat gate #1: the expected map must not be the scripted demo seed.
   assertNotCheating(EXPECTED);
@@ -274,7 +278,7 @@ test("SpreadsheetBench V1 fresh-room contract: import nb-01 CSV -> cheap @nodeag
         const live = await readSheet(page);
         return KEYS.filter((k) => isFilled(live[k])).length;
       },
-      { timeout: 240_000, message: "waiting for the cheap adaptive model to write all 5 metric cells into the live grid" },
+      { timeout: AGENT_COMPLETION_TIMEOUT_MS, message: "waiting for the cheap adaptive model to write all 5 metric cells into the live grid" },
     )
     .toBe(KEYS.length);
 

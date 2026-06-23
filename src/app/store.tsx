@@ -49,6 +49,7 @@ export type AgentJobTelemetry = {
   entrypoint?: string;
   scope?: string;
   runtime?: string;
+  runtimeProfile?: AgentRuntimeProfile;
   attempts: number;
   maxAttempts: number;
   modelPolicy: string;
@@ -117,7 +118,15 @@ export type AgentModelSelection =
   | { mode: "free" }
   | { mode: "top_paid" }
   | { mode: "specific"; modelPolicy: string };
-export type AgentAskInput = { goal: string; references?: ArtifactRef[]; modelSelection?: AgentModelSelection; contextArtifactId?: string };
+export type AgentRuntimeProfile = "benchmark_completion";
+export type AgentAskInput = {
+  goal: string;
+  references?: ArtifactRef[];
+  modelSelection?: AgentModelSelection;
+  contextArtifactId?: string;
+  runtimeProfile?: AgentRuntimeProfile;
+  maxAttempts?: number;
+};
 export type ActorProof = { actor: Actor; token: string };
 export type PrivateStreamAccess = { requester: ActorProof; driven: boolean };
 export type PresenceTargetKind = "cell" | "notebook_block" | "deck_component" | "slide";
@@ -169,6 +178,25 @@ function durableRouteForModelSelection(selection?: AgentModelSelection, forced?:
     };
   }
   return { entrypoint: "public_ask", routePolicy: "fast_default", approvalPolicy: "auto_commit_safe", autoAllow: true };
+}
+
+function browserNodeAgentRuntimeProfile(): AgentRuntimeProfile | undefined {
+  if (typeof window === "undefined") return undefined;
+  try {
+    const params = new URLSearchParams(window.location.search);
+    const urlValue = params.get("nodeagentRuntimeProfile") ?? params.get("nodeagentProfile");
+    const storedValue = window.localStorage?.getItem("noderoom.nodeagentRuntimeProfile");
+    return urlValue === "benchmark_completion" || storedValue === "benchmark_completion"
+      ? "benchmark_completion"
+      : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+function maxAttemptsForRuntimeProfile(runtimeProfile: AgentRuntimeProfile | undefined, requested?: number): number | undefined {
+  if (runtimeProfile === "benchmark_completion") return Math.max(requested ?? 100, 100);
+  return requested;
 }
 
 export interface RoomStore {
@@ -1560,11 +1588,15 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
       askAgent: async (input) => {
         const references = canonicalRefs(artifacts, input.references);
         const route = durableRouteForModelSelection(input.modelSelection);
+        const runtimeProfile = input.runtimeProfile ?? browserNodeAgentRuntimeProfile();
+        const maxAttempts = maxAttemptsForRuntimeProfile(runtimeProfile, input.maxAttempts);
         await startPublicAskJob({
           roomId: rid,
           requester: proof,
           routePolicy: route.routePolicy,
           ...(route.modelPolicy ? { modelPolicy: route.modelPolicy } : {}),
+          ...(runtimeProfile ? { runtimeProfile } : {}),
+          ...(maxAttempts !== undefined ? { maxAttempts } : {}),
           references,
           contextArtifactId: input.contextArtifactId,
           goal: withReferenceContext(input.goal, references),
@@ -1648,7 +1680,7 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
       lastLongFreeJob: () => {
         const j = (jobs as Array<{
           _id: string; status: string; entrypoint?: string; scope?: string; runtime?: string; attempts: number; maxAttempts: number;
-          modelPolicy: string; approvalPolicy?: string; evidencePolicy?: string; handoff?: { reason?: string }; nextRunAt?: number;
+          runtimeProfile?: AgentRuntimeProfile; modelPolicy: string; approvalPolicy?: string; evidencePolicy?: string; handoff?: { reason?: string }; nextRunAt?: number;
           finalText?: string; error?: string; latestRunId?: string; actionSliceCount?: number; queryCount?: number; mutationCount?: number;
           modelCallCount?: number; toolCallCount?: number; schedulerHandoffCount?: number; receiptCount?: number; createdAt?: number; updatedAt: number;
         }>)[0];
@@ -1658,6 +1690,7 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
           entrypoint: j.entrypoint,
           scope: j.scope,
           runtime: j.runtime,
+          runtimeProfile: j.runtimeProfile,
           attempts: j.attempts,
           maxAttempts: j.maxAttempts,
           modelPolicy: j.modelPolicy,

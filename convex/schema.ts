@@ -41,6 +41,7 @@ const evidencePolicyV = v.union(v.literal("public_only"), v.literal("private_all
 const traceLevelV = v.union(v.literal("summary"), v.literal("standard"), v.literal("full_operation_ledger"));
 const routePolicyV = v.union(v.literal("fast_default"), v.literal("free_auto"), v.literal("top_paid"), v.literal("explicit"));
 const runtimePolicyV = v.union(v.literal("workflow_sliced"));
+const runtimeProfileV = v.union(v.literal("benchmark_completion"));
 const operationEventKindV = v.union(
   v.literal("action"),
   v.literal("query"),
@@ -730,6 +731,7 @@ export default defineSchema({
     traceLevel: v.optional(traceLevelV),
     routePolicy: v.optional(routePolicyV),
     runtimePolicy: v.optional(runtimePolicyV),
+    runtimeProfile: v.optional(runtimeProfileV),
     idempotencyKey: v.optional(v.string()),
     mode: v.optional(v.union(v.literal("variance"), v.literal("research"), v.literal("coach_eval"))),
     planPreview: v.optional(v.any()),

@@ -65,7 +65,7 @@ function OverlayInner({ boxes, resolver, onActivate }: {
       {live.flatMap((b) => {
         const r = resolver.resolve(b.target);
         return r.rects.map((rect, i) => {
-          const interactive = INTERACTIVE.has(b.focusKind);
+          const interactive = !!onActivate && INTERACTIVE.has(b.focusKind);
           const label = `${b.focusKind.replace("_", " ")}: ${b.label}`;
           return (
             <button

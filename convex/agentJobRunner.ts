@@ -61,6 +61,7 @@ type ClaimedJob = {
   traceLevel?: "summary" | "standard" | "full_operation_ledger";
   routePolicy?: "fast_default" | "free_auto" | "top_paid" | "explicit";
   runtimePolicy?: "workflow_sliced";
+  runtimeProfile?: "benchmark_completion";
   mode?: "variance" | "research";
   modelPolicy: string;
   createdAt: number;
@@ -115,6 +116,30 @@ function envNumber(name: string, fallback: number, min: number, max: number): nu
   const raw = Number(process.env[name] ?? fallback);
   if (!Number.isFinite(raw)) return fallback;
   return Math.max(min, Math.min(max, raw));
+}
+
+function isBenchmarkCompletionProfile(profile: ClaimedJob["runtimeProfile"]): boolean {
+  return profile === "benchmark_completion";
+}
+
+function maxStepsForJob(entrypoint: ProviderEgressEntrypoint, runtimeProfile: ClaimedJob["runtimeProfile"]): number {
+  if (isBenchmarkCompletionProfile(runtimeProfile)) {
+    return envNumber("BENCHMARK_AGENT_MAX_STEPS_PER_SLICE", 80, 1, 500);
+  }
+  return envNumber("FREE_AUTO_JOB_MAX_STEPS_PER_SLICE", defaultMaxStepsForEntrypoint(entrypoint), 1, 12);
+}
+
+function spendLimitsForJob(runtimeProfile: ClaimedJob["runtimeProfile"]) {
+  if (isBenchmarkCompletionProfile(runtimeProfile)) {
+    return {
+      maxTokens: envNumber("BENCHMARK_AGENT_MAX_TOKENS_PER_SLICE", 1_500_000, 1_000, 8_000_000),
+      maxCostUsd: envNumber("BENCHMARK_AGENT_MAX_USD_PER_SLICE", 25, 0.01, 500),
+    };
+  }
+  return {
+    maxTokens: envNumber("AGENT_MAX_TOKENS_PER_SLICE", 250_000, 1_000, 4_000_000),
+    maxCostUsd: envNumber("AGENT_MAX_USD_PER_SLICE", 2, 0.01, 100),
+  };
 }
 
 function boundedActionBudgetMs(requestedBudgetMs: number, reserveMs: number, minimumBudgetMs: number): number {
@@ -299,7 +324,8 @@ export const runFreeAutoJobSlice = internalAction({
     const model = agentModel(resolvedModelPolicy, { entrypoint });
     const contextMaxChars = envNumber("FREE_AUTO_JOB_CONTEXT_MAX_CHARS", DEFAULT_CONTEXT_MAX_CHARS, 4_000, 120_000);
     const contextKeepRecent = envNumber("FREE_AUTO_JOB_CONTEXT_KEEP_RECENT", DEFAULT_CONTEXT_KEEP_RECENT, 2, 40);
-    const maxSteps = envNumber("FREE_AUTO_JOB_MAX_STEPS_PER_SLICE", defaultMaxStepsForEntrypoint(entrypoint), 1, 12);
+    const maxSteps = maxStepsForJob(entrypoint, claimed.runtimeProfile);
+    const spendLimits = spendLimitsForJob(claimed.runtimeProfile);
     const deadlineAt = t0 + sliceBudgetMs;
     const activeFrame = claimed.activeReasoningFrame
       ? normalizeClaimedFrame(claimed.activeReasoningFrame, String(claimed.jobId))
@@ -348,6 +374,7 @@ export const runFreeAutoJobSlice = internalAction({
         goal: claimed.goal,
         mode: claimed.mode ?? "variance",
         modelPolicy: resolvedModelPolicy,
+        runtimeProfile: claimed.runtimeProfile,
         cursor: claimed.cursor ?? null,
         handoff: claimed.handoff ?? null,
         maxSteps,
@@ -521,10 +548,7 @@ export const runFreeAutoJobSlice = internalAction({
           journal: modelJournal,
           deadlineAt,
           reserveMs,
-          spendLimits: {
-            maxTokens: envNumber("AGENT_MAX_TOKENS_PER_SLICE", 250_000, 1_000, 4_000_000),
-            maxCostUsd: envNumber("AGENT_MAX_USD_PER_SLICE", 2, 0.01, 100),
-          },
+          spendLimits,
           priceStep: (modelName: string, inputTokens: number, outputTokens: number) => priceRun(modelName, inputTokens, outputTokens),
           onTextDelta: (delta, step) => onPublicTextDelta(delta, step),
           onStreamEvent: (event) => recordStreamEvent(event),
@@ -556,10 +580,7 @@ export const runFreeAutoJobSlice = internalAction({
         // Gateway spend ceiling — cap a single slice's token AND dollar spend. priceStep makes the
         // USD half reachable (P0-4: without it the gate received costUsd=0 and maxCostUsd was dead
         // surface — one env var pointing free-auto at a paid model meant unbounded spend).
-        spendLimits: {
-          maxTokens: envNumber("AGENT_MAX_TOKENS_PER_SLICE", 250_000, 1_000, 4_000_000),
-          maxCostUsd: envNumber("AGENT_MAX_USD_PER_SLICE", 2, 0.01, 100),
-        },
+        spendLimits,
         priceStep: (modelName: string, inputTokens: number, outputTokens: number) => priceRun(modelName, inputTokens, outputTokens),
         onTextDelta: (delta, step) => onPublicTextDelta(delta, step),
         onStreamEvent: (event) => recordStreamEvent(event),

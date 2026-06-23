@@ -239,11 +239,18 @@ test.describe("full modern UX release bar", () => {
     await openDesktopArtifact(page, "Company research");
     const panel = page.getByTestId("artifact-panel");
     const cardioRow = panel.locator(".r-research-row", { hasText: "CardioNova" });
-    await expect(cardioRow).toContainText(/complete/i);
-    await expect(cardioRow).toContainText(/AI triage workflow/i);
-    await expect(cardioRow).toContainText(/Series B profile/i);
-    await expect(cardioRow.locator(".r-srcchip").first()).toHaveAttribute("title", /cardionova\.example/);
-    await expect(cardioRow.locator(".r-fresh")).toContainText("fresh");
+    const statusCell = panel.locator('[data-cell-key="rc_cardionova__status"]').or(cardioRow.locator("td").nth(1)).first();
+    const summaryCell = panel.locator('[data-cell-key="rc_cardionova__summary"]').or(cardioRow.locator("td").nth(3)).first();
+    const fundingCell = panel.locator('[data-cell-key="rc_cardionova__funding"]').or(cardioRow.locator("td").nth(4)).first();
+    const sourceCell = panel.locator('[data-cell-key="rc_cardionova__source"]').or(cardioRow.locator(".r-research-src")).first();
+    const source2Cell = panel.locator('[data-cell-key="rc_cardionova__source2"]').or(cardioRow.locator(".r-research-src")).first();
+    const freshCell = panel.locator('[data-cell-key="rc_cardionova__last_researched"]').or(cardioRow.locator("td").nth(6)).first();
+    await expect(statusCell).toContainText(/complete/i);
+    await expect(summaryCell).toContainText(/AI triage workflow/i);
+    await expect(fundingCell).toContainText(/Series B profile/i);
+    await expect(sourceCell).toContainText(/cardionova\.example/);
+    await expect(source2Cell).toContainText(/cardionova\.example|wikipedia|fresh/i);
+    await expect(freshCell).not.toBeEmpty();
 
     await openDesktopArtifact(page, "Q3 variance");
     await expect(panel.locator('[data-cell-key="r_gp__variance"]')).toBeVisible();

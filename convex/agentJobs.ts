@@ -33,6 +33,7 @@ const evidencePolicyV = v.union(v.literal("public_only"), v.literal("private_all
 const traceLevelV = v.union(v.literal("summary"), v.literal("standard"), v.literal("full_operation_ledger"));
 const routePolicyV = v.union(v.literal("fast_default"), v.literal("free_auto"), v.literal("top_paid"), v.literal("explicit"));
 const runtimePolicyV = v.union(v.literal("workflow_sliced"));
+const runtimeProfileV = v.union(v.literal("benchmark_completion"));
 const publicAskReferenceV = v.object({
   id: v.string(),
   title: v.optional(v.string()),
@@ -155,9 +156,10 @@ function compactStreamPayload(value: unknown, limit = 4_000): unknown {
   return encoded.length > limit ? `${encoded.slice(0, limit)}...[truncated ${encoded.length - limit} chars]` : value;
 }
 
-function defaultJobIdempotencyKey(args: { roomId: unknown; artifactId: unknown; actorId: string; goal: string; entrypoint: string }) {
+function defaultJobIdempotencyKey(args: { roomId: unknown; artifactId: unknown; actorId: string; goal: string; entrypoint: string; runtimeProfile?: AgentRuntimeProfile }) {
   const normalizedGoal = args.goal.trim().replace(/\s+/g, " ").toLowerCase();
-  return `${args.entrypoint}:${String(args.roomId)}:${String(args.artifactId)}:${args.actorId}:${normalizedGoal}`;
+  const profileSuffix = args.runtimeProfile ? `:${args.runtimeProfile}` : "";
+  return `${args.entrypoint}:${String(args.roomId)}:${String(args.artifactId)}:${args.actorId}:${normalizedGoal}${profileSuffix}`;
 }
 
 function stableJson(value: unknown): string {
@@ -816,6 +818,7 @@ export const createOrReuse = mutation({
     evidencePolicy: v.optional(evidencePolicyV),
     autoAllow: v.optional(v.boolean()),
     traceLevel: v.optional(traceLevelV),
+    runtimeProfile: v.optional(runtimeProfileV),
     request: v.optional(v.any()),
     maxAttempts: v.optional(v.number()),
     initialStatus: v.optional(v.union(v.literal("running"), v.literal("blocked"))),
@@ -841,6 +844,7 @@ export const createOrReuse = mutation({
       evidencePolicy: a.evidencePolicy ?? "public_only",
       autoAllow: a.autoAllow ?? false,
       traceLevel: a.traceLevel ?? "standard",
+      runtimeProfile: a.runtimeProfile,
       request: a.request,
       initialStatus: a.initialStatus,
       planPreview: a.planPreview,
@@ -1452,6 +1456,7 @@ export const startOrReuseRoomWork = mutation({
 type DurableStartEntrypoint = "public_ask" | "private_agent" | "free" | "system" | "automation" | "provider_parser" | "room_work";
 type RoutePolicy = "fast_default" | "free_auto" | "top_paid" | "explicit";
 type RuntimePolicy = "workflow_sliced";
+type AgentRuntimeProfile = "benchmark_completion";
 type DurableStartAgentJobArgs = {
   roomId: Id<"rooms">;
   artifactId: Id<"artifacts">;
@@ -1462,6 +1467,7 @@ type DurableStartAgentJobArgs = {
   scope?: "public_room" | "private_user" | "team";
   routePolicy?: RoutePolicy;
   runtimePolicy?: RuntimePolicy;
+  runtimeProfile?: AgentRuntimeProfile;
   modelPolicy?: string;
   mode?: "variance" | "research";
   maxAttempts?: number;
@@ -1685,7 +1691,14 @@ async function startDurableAgentJob(ctx: any, a: DurableStartAgentJobArgs): Prom
   const now = Date.now();
   const maxAttempts = Math.max(1, Math.min(a.maxAttempts ?? (entrypoint === "free" ? 20 : 20), 100));
   const modelPolicy = defaultModelPolicyForRoute({ routePolicy, entrypoint, mode: a.mode, modelPolicy: a.modelPolicy });
-  const idempotencyKey = a.idempotencyKey ?? defaultJobIdempotencyKey({ roomId: a.roomId, artifactId: a.artifactId, actorId: actor.id, goal: a.goal, entrypoint });
+  const idempotencyKey = a.idempotencyKey ?? defaultJobIdempotencyKey({
+    roomId: a.roomId,
+    artifactId: a.artifactId,
+    actorId: actor.id,
+    goal: a.goal,
+    entrypoint,
+    runtimeProfile: a.runtimeProfile,
+  });
   const prior = await ctx.db.query("agentJobs").withIndex("by_idempotency", (q: any) => q.eq("idempotencyKey", idempotencyKey)).order("desc").take(5);
   const reusable = prior.find((job: any) => String(job.roomId) === String(a.roomId) && String(job.artifactId) === String(a.artifactId) && !terminalStatuses.has(job.status));
   if (reusable) {
@@ -1722,6 +1735,7 @@ async function startDurableAgentJob(ctx: any, a: DurableStartAgentJobArgs): Prom
     scope,
     routePolicy,
     runtimePolicy,
+    runtimeProfile: a.runtimeProfile,
     modelPolicy,
     approvalPolicy,
     evidencePolicy,
@@ -1743,6 +1757,7 @@ async function startDurableAgentJob(ctx: any, a: DurableStartAgentJobArgs): Prom
     traceLevel,
     routePolicy,
     runtimePolicy,
+    runtimeProfile: a.runtimeProfile,
     idempotencyKey,
     mode: a.mode,
     planPreview,
@@ -1783,7 +1798,7 @@ async function startDurableAgentJob(ctx: any, a: DurableStartAgentJobArgs): Prom
     status: "started",
     title: "Room NodeAgent",
     text: a.goal,
-    metadata: { entrypoint, scope, routePolicy, runtimePolicy, modelPolicy },
+    metadata: { entrypoint, scope, routePolicy, runtimePolicy, runtimeProfile: a.runtimeProfile, modelPolicy },
     createdAt: now,
   });
   if (status === "blocked") {
@@ -1871,6 +1886,7 @@ export const start = mutation({
     scope: v.optional(agentScopeV),
     routePolicy: v.optional(routePolicyV),
     runtimePolicy: v.optional(runtimePolicyV),
+    runtimeProfile: v.optional(runtimeProfileV),
     modelPolicy: v.optional(v.string()),
     mode: v.optional(v.union(v.literal("variance"), v.literal("research"))),
     maxAttempts: v.optional(v.number()),
@@ -1893,19 +1909,24 @@ export const startPublicAsk = mutation({
     contextArtifactId: v.optional(v.string()),
     routePolicy: v.optional(routePolicyV),
     modelPolicy: v.optional(v.string()),
+    runtimeProfile: v.optional(runtimeProfileV),
     maxAttempts: v.optional(v.number()),
   },
   handler: async (ctx, a): Promise<DurableStartAgentJobResult> => {
     const artifact = await resolvePublicAskArtifact(ctx, a);
-    return startDurableAgentJob(ctx, await derivePublicStartPolicy(ctx, {
+    const policy = await derivePublicStartPolicy(ctx, {
       roomId: a.roomId,
       artifactId: artifact._id as Id<"artifacts">,
       requester: a.requester,
       goal: a.goal,
       routePolicy: a.routePolicy,
       modelPolicy: a.modelPolicy,
+      runtimeProfile: a.runtimeProfile,
       maxAttempts: a.maxAttempts,
       mode: modeForArtifact(artifact),
+    });
+    return startDurableAgentJob(ctx, {
+      ...policy,
       request: {
         roomId: String(a.roomId),
         targetArtifactId: String(artifact._id),
@@ -1913,8 +1934,9 @@ export const startPublicAsk = mutation({
         references: a.references,
         contextArtifactId: a.contextArtifactId,
         source: "public_chat",
+        runtimeProfile: a.runtimeProfile,
       },
-    }));
+    });
   },
 });
 
@@ -2428,6 +2450,7 @@ export const claimSlice = internalMutation({
       traceLevel: job.traceLevel,
       routePolicy: job.routePolicy,
       runtimePolicy: job.runtimePolicy,
+      runtimeProfile: job.runtimeProfile,
       mode: job.mode,
       modelPolicy: job.modelPolicy,
       createdAt: job.createdAt,
