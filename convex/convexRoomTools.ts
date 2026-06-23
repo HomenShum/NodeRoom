@@ -46,6 +46,7 @@ const okfOpenLiteralRef = makeFunctionReference<"query">("okf:openLiteralForAgen
 const okfCompareClaimRef = makeFunctionReference<"query">("okf:compareClaimForAgent") as any;
 const okfRecordRetrievalEventRef = makeFunctionReference<"mutation">("okf:recordRetrievalEvent") as any;
 const capturesRecordRef = makeFunctionReference<"mutation">("captures:record") as any;
+const citePdfCiteRef = makeFunctionReference<"action">("citePdf:cite") as any;
 const evidenceRecordSourceCaptureRef = makeFunctionReference<"mutation">("evidence:recordSourceCapture") as any;
 const evidenceRecordEvidenceFactRef = makeFunctionReference<"mutation">("evidence:recordEvidenceFact") as any;
 
@@ -158,6 +159,16 @@ export class ConvexRoomTools implements RoomTools {
   fetchSource(url: string): Promise<SourceResult> { return fetchSourceForConvex(url); }
 
   /** Persist an agent's live capture (screenshots → Convex storage, boxes kept) → renders in the Trace tab. */
+  /** Ground a figure from an uploaded PDF: citePdf.cite (Node) parses + locates + boxes + persists. */
+  async citeInFile(input: { target: string; label?: string; fileName?: string }): Promise<unknown> {
+    return this.ctx.runAction(citePdfCiteRef, {
+      roomId: this.roomId,
+      target: input.target,
+      label: input.label,
+      fileName: input.fileName,
+    });
+  }
+
   async recordCapture(input: {
     url: string; goal: string; ok: boolean; title?: string; error?: string;
     data?: Record<string, unknown>;

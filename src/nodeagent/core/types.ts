@@ -125,6 +125,11 @@ export type EditOutcome =
   | { ok: false; pendingApproval: true; proposalId?: string }
   | { ok: false; error: string };
 export interface MergeView { draftId: string; verdict: string; note: string; applied: number; conflicts: number; }
+/** Result of an agent-governed schema edit (define_columns). CAS conflict is returned as DATA, like EditOutcome. */
+export type SetColumnsOutcome =
+  | { ok: true; version: number; columns: Array<{ id: string; label: string; order: number; type?: string; mode?: string; agentWritable?: boolean }> }
+  | { ok: false; conflict: true; expected: number; actual: number }
+  | { ok: false; error: string };
 
 /** A file the agent can reach within the room (the polymorphic node: sheet/note/wiki/wall). */
 export type ArtifactRef = { id: string; title: string; kind: string };
@@ -140,6 +145,9 @@ export interface RoomTools {
   listArtifacts(): Promise<ArtifactRef[]>;
   /** Agent-author a file's topic + metadata from its content (title/summary/tags). Re-indexes into OKF. */
   setArtifactMeta?(args: { artifactId: string; title?: string; summary?: string; tags?: string[] }): Promise<{ ok: boolean; error?: string }>;
+  /** Agent-governed SCHEMA edit: declare/replace a sheet's COLUMNS before filling rows. CAS-guarded on the
+   *  artifact version — a stale baseVersion returns { conflict } as DATA so the runtime re-reads and retries. */
+  setColumns?(args: { artifactId?: string; baseVersion: number; mode: "replace" | "merge"; columns: Array<{ label: string; type?: string; agentWritable?: boolean }> }): Promise<SetColumnsOutcome>;
   /** Read specific cells — WORKS on locked cells (locked != invisible). Defaults to the primary artifact; pass artifactId for another file. */
   readRange(elementIds: string[], artifactId?: string): Promise<CellView[]>;
   /** Search header-prepended cell summaries and structural sub-grid chunks for large sheets. */
@@ -159,6 +167,7 @@ export interface RoomTools {
   fetchSource(url: string): Promise<SourceResult>;
   /** Persist a finished live capture (screenshots + boxes) so it renders in the Trace tab.
    *  Optional: only the server (Convex) port implements it; in-memory/browser ports omit it. */
+  citeInFile?(input: { target: string; label?: string; fileName?: string }): Promise<unknown>;
   recordCapture?(input: {
     url: string;
     goal: string;

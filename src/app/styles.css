@@ -1073,6 +1073,49 @@ button.r-tracevu-step:hover, button.r-tracevu-step:focus-visible { border-color:
 /* Screenshot highlight box — the region acted on (where it clicked / the extracted SEC cell). */
 .r-tracevu-shotframe { position: relative; display: inline-block; line-height: 0; }
 .r-tracevu-box { position: absolute; border: 2px solid var(--accent-primary); border-radius: 3px; background: color-mix(in srgb, var(--accent-primary) 16%, transparent); box-shadow: 0 0 0 1px var(--bg-primary); pointer-events: none; }
+
+/* ── Attention Overlay — the generalized focus box (docs/traces/ATTENTION_OVERLAY_STANDARD.md). ── */
+.r-sheet-wrap { position: relative; } /* establishes the overlay's positioning context (the scroll viewport) */
+.r-focus-layer { position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: 5; }
+.r-focus-box {
+  position: absolute; box-sizing: border-box; margin: 0; padding: 0;
+  border: 2px solid var(--focus-color, var(--accent-primary)); border-radius: 3px;
+  background: color-mix(in srgb, var(--focus-color, var(--accent-primary)) 12%, transparent);
+  box-shadow: 0 0 0 1px var(--bg-primary); pointer-events: none; cursor: default; z-index: 10;
+}
+.r-focus-box[data-interactive="true"] { pointer-events: auto; cursor: pointer; }
+.r-focus-box:focus-visible { outline: 2px solid var(--focus-color, var(--accent-primary)); outline-offset: 2px; }
+/* --focus-color per kind — recolors border AND background together (outline-color would not). */
+.r-focus-box[data-focus-kind="user_focus"]   { --focus-color: var(--info, #5E6AD2); z-index: 50; }
+.r-focus-box[data-focus-kind="agent_read"],
+.r-focus-box[data-focus-kind="agent_write"]  { --focus-color: var(--accent-primary); z-index: 40; }
+.r-focus-box[data-focus-kind="citation"],
+.r-focus-box[data-focus-kind="evidence"]     { --focus-color: var(--success, #1F8A5B); z-index: 10; }
+.r-focus-box[data-focus-kind="proposal"]     { --focus-color: #7C5CE6; z-index: 20; }
+.r-focus-box[data-focus-kind="conflict"],
+.r-focus-box[data-focus-kind="needs_review"] { --focus-color: var(--danger, #B3261E); z-index: 30; }
+.r-focus-box[data-focus-kind="coach_prompt"] { --focus-color: #0E9D9D; z-index: 60; }
+/* flag: icon + text (non-color token, a11y), revealed on hover/focus; always-on for conflict/needs_review. */
+.r-focus-flag {
+  position: absolute; top: -2px; left: 0; transform: translateY(-100%);
+  display: inline-flex; align-items: center; gap: 3px; max-width: 240px;
+  padding: 1px 5px; border-radius: 5px 5px 5px 0; background: var(--focus-color, var(--accent-primary));
+  color: #fff; font: 700 9.5px/1.3 var(--font-mono, ui-monospace, monospace);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; pointer-events: none; opacity: 0;
+}
+.r-focus-glyph { font-size: 10px; line-height: 1; }
+.r-focus-box:hover > .r-focus-flag, .r-focus-box:focus-visible > .r-focus-flag,
+.r-focus-box[data-focus-kind="conflict"] > .r-focus-flag,
+.r-focus-box[data-focus-kind="needs_review"] > .r-focus-flag { opacity: 1; }
+@media (prefers-reduced-motion: no-preference) {
+  .r-focus-flag { transition: opacity .12s ease; }
+  .r-focus-box[data-focus-kind="user_focus"],
+  .r-focus-box[data-focus-kind="agent_write"] { animation: r-focus-pulse 1.6s ease-in-out infinite; }
+  @keyframes r-focus-pulse {
+    0%, 100% { box-shadow: 0 0 0 1px var(--bg-primary); }
+    50% { box-shadow: 0 0 0 1px var(--bg-primary), 0 0 0 4px color-mix(in srgb, var(--focus-color) 22%, transparent); }
+  }
+}
 /* PDF citation — react-pdf <Page> render + the same % box overlay. The wrap pins to the canvas so
    the absolute fractions map 1:1 onto the rendered page (no react-pdf chrome padding). */
 .r-tracevu-pdfframe { display: inline-flex; flex-direction: column; gap: 4px; }

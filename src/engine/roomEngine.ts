@@ -22,6 +22,7 @@
 
 import { deterministicResolver } from "./merge";
 import { deriveArtifactMeta } from "./artifactMeta";
+import { normalizeColumns, columnIdOfElement, type ColumnInput } from "./columns";
 import {
   buildSemanticConflictPacket,
   formulaOf,
@@ -30,7 +31,7 @@ import {
   type SemanticResolution,
 } from "../nodeagent/skills/spreadsheet/semanticRebase";
 import type {
-  Actor, AgentScope, AgentSession, Artifact, ArtifactKind, Channel, ChangeOp,
+  Actor, AgentScope, AgentSession, Artifact, ArtifactKind, Channel, ChangeOp, DataframeColumn,
   Draft, EditResult, Element, Lock, LockResult, Member, MergeResolution, Message,
   Proposal, ResearchRowInput, Room, SmartResolver, ToolPart, TraceEvent, TraceType,
 } from "./types";
@@ -196,6 +197,44 @@ export class RoomEngine {
     art.updatedAt = this.now();
     this.emit();
     return { ok: true };
+  }
+
+  /**
+   * Agent-governed SCHEMA edit, CAS-guarded on the ARTIFACT VERSION (the schema's CAS token, exactly
+   * like a cell's per-element version). A version mismatch is returned as a tool RESULT — never thrown —
+   * so the runtime's existing re-read/retry loop handles it. Mirrors convex/artifacts.setColumnsByAgent.
+   */
+  setColumns(args: {
+    roomId: string; artifactId: string; baseVersion: number;
+    mode?: "replace" | "merge"; columns: ColumnInput[]; by: Actor;
+  }):
+    | { ok: true; version: number; columns: DataframeColumn[] }
+    | { ok: false; conflict?: true; expected?: number; actual?: number; error?: string } {
+    const art = this.artifacts.get(args.artifactId);
+    if (!art || art.roomId !== args.roomId) return { ok: false, error: "not_found" };
+    if (art.kind !== "sheet") return { ok: false, error: "not_a_sheet" };
+    if (art.version !== args.baseVersion) return { ok: false, conflict: true, expected: args.baseVersion, actual: art.version };
+    const mode = args.mode ?? "merge";
+    const cols = normalizeColumns(args.columns, art.meta?.dataframe?.columns ?? [], mode);
+    if (mode === "replace") {
+      // orphan rule = delete: drop cells whose column id is no longer declared, then trim art.order
+      const keep = new Set(cols.map((c) => c.id));
+      for (const id of [...art.order]) {
+        const col = columnIdOfElement(id);
+        if (col && !keep.has(col)) delete art.elements[id];
+      }
+      art.order = art.order.filter((id) => { const col = columnIdOfElement(id); return !col || keep.has(col); });
+    }
+    const df = art.meta?.dataframe;
+    art.meta = { ...art.meta, dataframe: { rowCount: df?.rowCount ?? 0, ...df, columns: cols } };
+    art.version++;
+    art.updatedAt = this.now();
+    this.trace(args.roomId, args.by, "schema_changed",
+      `${args.by.name} set ${cols.length} column(s) on ${art.title}`,
+      { artifactId: art.id },
+      `define_columns(${mode}) · ${cols.map((c) => c.id).join(", ")} → v${art.version}`);
+    this.emit();
+    return { ok: true, version: art.version, columns: cols };
   }
   getArtifact(id: string) { return this.artifacts.get(id); }
   listArtifacts(roomId: string): Artifact[] { return [...this.artifacts.values()].filter((a) => a.roomId === roomId); }
@@ -373,6 +412,16 @@ export class RoomEngine {
   private applyOpInternal(op: ChangeOp, actor: Actor): EditResult {
     const art = this.artifacts.get(op.artifactId);
     if (!art) return { ok: false, reason: "not_found" };
+    // Declare-then-fill: once a sheet has a governed schema, an agent may only write DECLARED columns.
+    // Undeclared-column writes would otherwise land as invisible orphans (the columns the UI never renders).
+    if (actor.kind === "agent" && (op.kind === "set" || op.kind === "create")) {
+      const declared = art.meta?.dataframe?.columns;
+      const col = declared && declared.length ? columnIdOfElement(op.elementId) : null;
+      if (col && !declared!.some((c) => c.id === col)) {
+        this.trace(art.roomId, actor, "edit_blocked", `${actor.name}'s write to undeclared column "${col}" was rejected`, { artifactId: art.id, elementId: op.elementId }, `edit_cell · ${op.elementId} → no_such_column (call define_columns first)`);
+        return { ok: false, reason: "no_such_column" };
+      }
+    }
     const el = art.elements[op.elementId];
     const now = this.now();
 

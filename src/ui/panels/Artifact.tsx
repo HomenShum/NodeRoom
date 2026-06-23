@@ -26,6 +26,9 @@ import { onStageFocus, focusStage, type StageFocusTarget } from "../stageFocus";
 import { TraceSurface } from "./TraceSurface";
 import { classifyEvidence } from "../traceLens/evidence";
 import type { Actor, Artifact as Art, CellPayload, DataframeColumn, DocumentParseMeta, Proposal, TraceEvent, ResearchRowInput } from "../../engine/types";
+import { AttentionOverlay } from "../overlay/AttentionOverlay";
+import { createSpreadsheetResolver } from "../overlay/spreadsheetResolver";
+import { focusBoxesForSheet, type SheetCellState } from "../overlay/focusBoxesForSheet";
 import { prepareDownstreamDrafts, type PreparedDownstreamDraft } from "../../nodeagent/skills/integration/downstreamPublish";
 
 /** Downstream handoff destinations → compact icon + short label (replaces 5 wide ghost buttons). */
@@ -231,8 +234,10 @@ function ArtifactSurface({ roomId, me, proof, artId, onArt, collab, style, surfa
           {activeTab === "wiki" && wiki && <Wiki roomId={roomId} art={wiki} onOpenArtifact={openArtifact} />}
           {activeTab === "sheet" && sheet && (sheet.title === "Q3 variance"
             ? <Sheet roomId={roomId} me={me} art={sheet} onError={(f) => setEditErr(editErrorMsg(f))} />
-            : sheet.meta?.excelGrid ? <ExcelGridSheet roomId={roomId} me={me} art={sheet} onError={(f) => setEditErr(editErrorMsg(f))} /> : <GenericSheet art={sheet} />)}
-          {activeTab === "research" && research && <Research roomId={roomId} me={me} art={research} />}
+            : sheet.meta?.excelGrid ? <ExcelGridSheet roomId={roomId} me={me} art={sheet} onError={(f) => setEditErr(editErrorMsg(f))} /> : <GenericSheet roomId={roomId} me={me} art={sheet} onError={(f) => setEditErr(editErrorMsg(f))} />)}
+          {/* Research = an empty NAMED-COLUMN grid the agent populates (matches the prototype's structured
+              grid, not a raw A1 sheet). Rendered by GenericSheet — no separate <Research> renderer. */}
+          {activeTab === "research" && research && <GenericSheet roomId={roomId} me={me} art={research} onError={(f) => setEditErr(editErrorMsg(f))} />}
           {activeTab === "note" && note && (NOTEBOOK_SYNC_ENABLED && proof ? <SyncedNote roomId={roomId} me={me} proof={proof} art={note} /> : <Note roomId={roomId} me={me} art={note} />)}
           {activeTab === "wall" && wall && <Wall roomId={roomId} me={me} art={wall} />}
         </>
@@ -571,7 +576,7 @@ function coInitials(name: string): string {
   return (parts[0][0] + parts[1][0]).toUpperCase();
 }
 
-function Research({ roomId, me, art }: { roomId: string; me: Actor; art: Art }) {
+export function Research({ roomId, me, art }: { roomId: string; me: Actor; art: Art }) {
   const store = useStore();
   const [running, setRunning] = useState(false);
   const [pasteOpen, setPasteOpen] = useState(false);
@@ -937,7 +942,8 @@ function colsOf(art: Art): string[] {
   return cols;
 }
 
-function GenericSheet({ art }: { art: Art }) {
+function GenericSheet({ roomId, me, art, onError }: { roomId: string; me: Actor; art: Art; onError?: (f: EditFeedback) => void }) {
+  const store = useStore();
   const [pages, setPages] = useState(1);
   // QA P2 perf: derive rows/columns/pageSize once per artifact snapshot, not on every render
   // (paging state changes alone shouldn't re-walk the full element order).
@@ -949,10 +955,34 @@ function GenericSheet({ art }: { art: Art }) {
   }, [art]);
   const cols = columns.map((col) => col.id);
   const visibleRows = rows.slice(0, pageSize * pages);
+
+  // Attention Overlay — SAME wiring as the variance Sheet, on the dynamic `${rid}__${col}` key space, so
+  // agent_write / proposal / evidence boxes land on whatever columns the agent governed via define_columns.
+  const proposals = store.listProposals(roomId).filter((p) => p.artifactId === art.id);
+  const presenceRows = store.listPresence(roomId, art.id);
+  const sheetWrapRef = useRef<HTMLDivElement>(null);
+  const overlayResolver = useMemo(() => createSpreadsheetResolver(() => sheetWrapRef.current), []);
+  const overlayCellStates = useMemo<SheetCellState[]>(() => {
+    const out: SheetCellState[] = [];
+    for (const rid of visibleRows) for (const col of cols) {
+      const id = `${rid}__${col}`;
+      const locked = !!lockedByOther(store, art.id, id, me);
+      const proposed = !!proposalFor(proposals, art.id, id) || draftedFor(store, roomId, art.id, id);
+      const hasEvidence = !!asCellPayload(art.elements[id]?.value)?.evidence?.length;
+      if (locked || proposed || hasEvidence) out.push({ id, lockedByOther: locked, proposed, hasEvidence });
+    }
+    return out;
+  }, [visibleRows, cols, store, roomId, art, me, proposals]);
+  const overlayBoxes = useMemo(
+    () => focusBoxesForSheet({ artifactId: art.id, now: Date.now(), meId: me.id, presence: presenceRows, cellStates: overlayCellStates }),
+    [art.id, me.id, presenceRows, overlayCellStates],
+  );
+  void onError; // research grid is read-only here; signature mirrors Sheet for a uniform call site
   return (
     <>
       <div className="r-art-body">
-        <div className="r-sheet-wrap">
+        <div className="r-sheet-wrap" ref={sheetWrapRef}>
+          <AttentionOverlay boxes={overlayBoxes} resolver={overlayResolver} mode="live" />
           <table className="r-sheet r-generic-sheet" data-noderoom-surface="workSurface.sheet" data-artifact-id={art.id}>
             <thead><tr><th className="r-corner" aria-label="row number" />{columns.map((c) => <th key={c.id}>{c.label}</th>)}</tr></thead>
             <tbody>
@@ -1066,6 +1096,23 @@ function ExcelGridSheet({ roomId, me, art, onError }: { roomId: string; me: Acto
     const visibleRows = Array.from({ length: Math.min(rowCount, pageSize * pages) }, (_, idx) => idx + 1);
     return { columns, visibleRows, pageSize };
   }, [grid?.columns, grid?.rows, pages]);
+  // Attention Overlay (the wedge): derive focus boxes from EXISTING state and paint them on the live grid.
+  const overlayResolver = useMemo(() => createSpreadsheetResolver(() => gridRef.current), []);
+  const overlayCellStates = useMemo<SheetCellState[]>(() => {
+    const out: SheetCellState[] = [];
+    for (const r of visibleRows) for (const c of columns) {
+      const id = `${c}${r}`;
+      const locked = !!lockedByOther(store, art.id, id, me);
+      const proposed = draftedFor(store, roomId, art.id, id);
+      const hasEvidence = !!asCellPayload(art.elements[id]?.value)?.evidence?.length;
+      if (locked || proposed || hasEvidence) out.push({ id, lockedByOther: locked, proposed, hasEvidence });
+    }
+    return out;
+  }, [visibleRows, columns, store, roomId, art, me]);
+  const overlayBoxes = useMemo(
+    () => focusBoxesForSheet({ artifactId: art.id, now: Date.now(), meId: me.id, presence: presenceRows, cellStates: overlayCellStates }),
+    [art.id, me.id, presenceRows, overlayCellStates],
+  );
   const { mergeAnchor, mergeCovered } = useMemo(() => expandMerges(grid?.merges), [grid?.merges]);
   // Live formula recalc: every visible formula cell is computed through the shared engine via a
   // recursive, cycle-guarded resolver (chains resolve; cycles -> #CYCLE!; upstream errors propagate).
@@ -1398,6 +1445,7 @@ function ExcelGridSheet({ roomId, me, art, onError }: { roomId: string; me: Acto
                 ))}
               </tbody>
             </table>
+            <AttentionOverlay boxes={overlayBoxes} resolver={overlayResolver} mode="live" />
           </div>
         </div>
       </div>
@@ -1552,12 +1600,29 @@ function Sheet({ roomId, me, art, onError }: { roomId: string; me: Actor; art: A
   const proposals = store.listProposals(roomId).filter((p) => p.artifactId === art.id);
   const presenceRows = store.listPresence(roomId, art.id);
   const selfPresenceColor = memberColor(store, roomId, me);
+  const sheetWrapRef = useRef<HTMLDivElement>(null);
+  const overlayResolver = useMemo(() => createSpreadsheetResolver(() => sheetWrapRef.current), []);
+  const overlayCellStates = useMemo<SheetCellState[]>(() => {
+    const out: SheetCellState[] = [];
+    for (const rid of rows) for (const id of [`${rid}__variance`, `${rid}__note`]) {
+      const locked = !!lockedByOther(store, art.id, id, me);
+      const proposed = !!proposalFor(proposals, art.id, id) || draftedFor(store, roomId, art.id, id);
+      const hasEvidence = !!asCellPayload(art.elements[id]?.value)?.evidence?.length;
+      if (locked || proposed || hasEvidence) out.push({ id, lockedByOther: locked, proposed, hasEvidence });
+    }
+    return out;
+  }, [rows, store, roomId, art, me, proposals]);
+  const overlayBoxes = useMemo(
+    () => focusBoxesForSheet({ artifactId: art.id, now: Date.now(), meId: me.id, presence: presenceRows, cellStates: overlayCellStates }),
+    [art.id, me.id, presenceRows, overlayCellStates],
+  );
   const doCommit = (id: string, s: string) => { void commit(store, roomId, me, art.id, id, s).then((f) => { if (f && !f.ok) onError(f); }); };
   const doUndo = () => { void store.undoLastEdit(roomId, me).then((f) => { if (!f.ok) onError(f); }); };
   return (
     <>
       <div className="r-art-body">
-        <div className="r-sheet-wrap">
+        <div className="r-sheet-wrap" ref={sheetWrapRef}>
+          <AttentionOverlay boxes={overlayBoxes} resolver={overlayResolver} mode="live" />
           <table className="r-sheet" data-noderoom-surface="workSurface.sheet" data-artifact-id={art.id}>
             <thead><tr><th className="r-corner" aria-label="row number" /><th>Account</th><th className="num">Q2</th><th className="num">Q3</th><th className="num">Variance</th><th>Note</th></tr></thead>
             <tbody>

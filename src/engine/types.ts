@@ -268,7 +268,7 @@ export type EditResult =
   | { ok: false; reason: "locked"; by: Actor; lockId: string }
   | { ok: false; reason: "conflict"; expected: number; actual: number }
   | { ok: false; reason: "pending_approval"; proposalId: string }
-  | { ok: false; reason: "not_found" | "invalid" | "duplicate" | "formula_protected" };
+  | { ok: false; reason: "not_found" | "invalid" | "duplicate" | "formula_protected" | "no_such_column" };
 
 /* ───────────────────────── locks (affected range) ───────────────────────── */
 
@@ -369,7 +369,8 @@ export type TraceType =
   | "edit_applied" | "edit_blocked" | "edit_proposed" | "proposal_resolved" | "proposal_resolve_failed"
   | "draft_created" | "draft_merged" | "draft_conflict" | "semantic_conflict"
   | "agent_session_started" | "agent_status" | "message"
-  | "notebook_read_model" | "agent_work_plan_proposed" | "agent_work_plan_approved";
+  | "notebook_read_model" | "agent_work_plan_proposed" | "agent_work_plan_approved"
+  | "schema_changed";
 
 export interface TraceEvent {
   id: string;

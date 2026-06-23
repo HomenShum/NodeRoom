@@ -8,8 +8,9 @@
 
 import type { RoomEngine } from "../../../engine/roomEngine";
 import type { Actor, CellPayload, Channel, DataframeColumn } from "../../../engine/types";
-import type { RoomTools, RoomSnapshot, AwarenessView, CellView, CellMeta, EditOutcome, MergeView, SourceResult, ArtifactRef, SpreadsheetContextHit } from "../../core/types";
+import type { RoomTools, RoomSnapshot, AwarenessView, CellView, CellMeta, EditOutcome, MergeView, SourceResult, ArtifactRef, SpreadsheetContextHit, SetColumnsOutcome } from "../../core/types";
 import { buildSpreadsheetSemanticIndex, columnLetters } from "../../../app/spreadsheetIndex";
+import type { ColumnInput } from "../../../engine/columns";
 
 export class InMemoryRoomTools implements RoomTools {
   constructor(
@@ -67,6 +68,20 @@ export class InMemoryRoomTools implements RoomTools {
 
   async setArtifactMeta(args: { artifactId: string; title?: string; summary?: string; tags?: string[] }): Promise<{ ok: boolean; error?: string }> {
     return this.engine.setArtifactMeta({ roomId: this.roomId, artifactId: args.artifactId, title: args.title, summary: args.summary, tags: args.tags, by: this.actor });
+  }
+
+  async setColumns(args: { artifactId?: string; baseVersion: number; mode: "replace" | "merge"; columns: Array<{ label: string; type?: string; agentWritable?: boolean }> }): Promise<SetColumnsOutcome> {
+    const res = this.engine.setColumns({
+      roomId: this.roomId,
+      artifactId: this.targetArtifactId(args.artifactId),
+      baseVersion: args.baseVersion,
+      mode: args.mode,
+      columns: args.columns as unknown as ColumnInput[],
+      by: this.actor,
+    });
+    if (res.ok) return { ok: true, version: res.version, columns: res.columns };
+    if (res.conflict) return { ok: false, conflict: true, expected: res.expected!, actual: res.actual! };
+    return { ok: false, error: res.error ?? "set_columns_failed" };
   }
 
   async awareness(): Promise<AwarenessView> {

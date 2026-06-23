@@ -2,7 +2,7 @@
   "name": "noderoom",
   "version": "0.1.1",
   "private": false,
-  "description": "A live collaborative room where humans and NodeAgents (public + private) edit a shared spreadsheet, note, and post-it wall together \u00e2\u20ac\u201d with a lock -> draft -> smart-merge collaboration model, per-room traces, and auto-allow. Distilled from NodeBench AI / ScratchNode.",
+  "description": "A live collaborative room where humans and NodeAgents (public + private) edit a shared spreadsheet, note, and post-it wall together â€” with a lock -> draft -> smart-merge collaboration model, per-room traces, and auto-allow. Distilled from NodeBench AI / ScratchNode.",
   "type": "module",
   "license": "MIT",
   "author": "Homen Shum",
@@ -168,6 +168,7 @@
     "react-dom": "^19.0.0",
     "react-pdf": "^10.4.1",
     "undici": "^8.4.0",
+    "unpdf": "^1.6.2",
     "zod": "^3.25.76"
   },
   "devDependencies": {

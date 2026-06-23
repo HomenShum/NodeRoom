@@ -21,6 +21,8 @@ import type * as artifacts from "../artifacts.js";
 import type * as auditLog from "../auditLog.js";
 import type * as captures from "../captures.js";
 import type * as capturesNode from "../capturesNode.js";
+import type * as citations from "../citations.js";
+import type * as citePdf from "../citePdf.js";
 import type * as collab from "../collab.js";
 import type * as convexRoomTools from "../convexRoomTools.js";
 import type * as crons from "../crons.js";
@@ -78,6 +80,8 @@ declare const fullApi: ApiFromModules<{
   auditLog: typeof auditLog;
   captures: typeof captures;
   capturesNode: typeof capturesNode;
+  citations: typeof citations;
+  citePdf: typeof citePdf;
   collab: typeof collab;
   convexRoomTools: typeof convexRoomTools;
   crons: typeof crons;
