@@ -121,6 +121,21 @@ describe("benchmarkGrade — cellsToGoldenOutputs adapter", () => {
     const out = cellsToGoldenOutputs(rubric, meta, elements);
     expect(out.revenue_growth_pct).toBeUndefined();
   });
+
+  it("normalizes numeric strings without losing zero at the room-cell boundary", () => {
+    const rubric = NONBTB_RUBRICS["nb-03-reconciliation"];
+    const meta = { dataframe: { columns: [
+      { id: "inv2_amount_diff", label: "inv2_amount_diff", order: 0 },
+      { id: "num_discrepancies", label: "num_discrepancies", order: 1 },
+    ] } };
+    const elements: CellElement[] = [
+      { elementId: "r1__inv2_amount_diff", value: "0" },
+      { elementId: "r1__num_discrepancies", value: { value: "3", cite: { file: "ledger.csv" } } },
+    ];
+    const out = cellsToGoldenOutputs(rubric, meta, elements);
+    expect(out.inv2_amount_diff?.value).toBe(0);
+    expect(out.num_discrepancies?.value).toBe(3);
+  });
 });
 
 describe("benchmarkGrade — pipeline (artifact cells → adapter → grader)", () => {

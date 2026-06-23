@@ -48,9 +48,17 @@ function columnIdFromElementId(elementId: string): string {
   return elementId.replace(/\d+$/, "");
 }
 
-function isFinitePrimitive(v: unknown): v is string | number | boolean {
-  if (typeof v === "number") return Number.isFinite(v);
-  return typeof v === "string" || typeof v === "boolean";
+function normalizeScalarValue(v: unknown): string | number | boolean | undefined {
+  if (typeof v === "number") return Number.isFinite(v) ? v : undefined;
+  if (typeof v === "string") {
+    const trimmed = v.trim();
+    if (trimmed !== "") {
+      const numeric = Number(trimmed);
+      if (Number.isFinite(numeric)) return numeric;
+    }
+    return v;
+  }
+  return typeof v === "boolean" ? v : undefined;
 }
 
 /** Resolve a value-cell payload to grader's `{ value, formula, cite }`.
@@ -63,12 +71,12 @@ function recordFromValue(rawValue: unknown): OutputRecord {
     const cite = obj.cite && typeof obj.cite === "object" ? (obj.cite as OutputCite) : undefined;
     const inner = "value" in obj ? obj.value : undefined;
     return {
-      value: typeof inner === "number" || typeof inner === "string" || typeof inner === "boolean" ? inner : undefined,
+      value: normalizeScalarValue(inner),
       formula: typeof obj.formula === "string" ? obj.formula : undefined,
       cite: cite ?? undefined,
     };
   }
-  return { value: isFinitePrimitive(rawValue) ? (typeof rawValue === "string" ? Number(rawValue) || rawValue : rawValue) : undefined };
+  return { value: normalizeScalarValue(rawValue) };
 }
 
 /** Convert a list of elements + the artifact's column schema into the grader's expected shape. */
