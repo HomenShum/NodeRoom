@@ -563,7 +563,7 @@ function coInitials(name: string): string {
   return (parts[0][0] + parts[1][0]).toUpperCase();
 }
 
-function Research({ roomId, me, art }: { roomId: string; me: Actor; art: Art }) {
+export function Research({ roomId, me, art }: { roomId: string; me: Actor; art: Art }) {
   const store = useStore();
   const [running, setRunning] = useState(false);
   const [pasteOpen, setPasteOpen] = useState(false);
