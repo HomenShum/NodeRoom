@@ -17,7 +17,11 @@ export default defineConfig({
   // honest SpreadsheetBench V1 fresh-room contract (e2e/). Both run against an externally started,
   // Convex-connected server — never ?mode=memory — so the agent makes a real cheap-route model call.
   testDir: ".",
-  testMatch: ["tests/real-room-cheap-e2e.spec.ts", "e2e/benchmark-ui-spreadsheetbench.spec.ts"],
+  testMatch: [
+    "tests/real-room-cheap-e2e.spec.ts",
+    "e2e/benchmark-ui-spreadsheetbench.spec.ts",
+    "e2e/uploaded-artifact-live-rendering.spec.ts",
+  ],
   fullyParallel: false,
   workers: 1,
   retries: 1,
