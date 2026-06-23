@@ -7,7 +7,7 @@
  */
 
 import { useEffect, useRef, useState, type CSSProperties } from "react";
-import { PanelLeft, Table2, PanelRight, Moon, Sun, LogOut, Link2, ShieldCheck, X, HelpCircle, Copy, Check, MessageCircle, Sparkles } from "lucide-react";
+import { PanelLeft, Table2, PanelRight, Moon, Sun, LogOut, Link2, ShieldCheck, X, HelpCircle, Copy, Check, MessageCircle, Sparkles, SlidersHorizontal, Palette, Gauge, Play, ChevronLeft, ChevronRight } from "lucide-react";
 import { useStore, type ActorProof } from "../app/store";
 import { Chat } from "./Chat";
 import { Artifact } from "./panels/Artifact";
@@ -25,6 +25,13 @@ import type { Actor, Channel } from "../engine/types";
 const AUTO_ACCEPT_PREF_KEY = "noderoom:autoAcceptConsent:v1";
 const TOUR_KEY = "noderoom:tour:v1";
 const NOTE_PRIORITY = ["Capture Notebook", "Note", "Diligence memo", "Open questions / workplan", "Agent wiki"];
+type AccentKey = "terra" | "indigo" | "green";
+type ReplayPace = "brisk" | "standard" | "cinematic";
+const ACCENTS: Record<AccentKey, { label: string; primary: string; hover: string; ink: string; tint: string; border: string }> = {
+  terra: { label: "Accent", primary: "#D97757", hover: "#C76648", ink: "#E59579", tint: "rgba(217,119,87,.16)", border: "rgba(217,119,87,.28)" },
+  indigo: { label: "Indigo", primary: "#6574D8", hover: "#5665C8", ink: "#A7B0FF", tint: "rgba(101,116,216,.16)", border: "rgba(101,116,216,.30)" },
+  green: { label: "Green", primary: "#24945F", hover: "#1F8354", ink: "#6BD49D", tint: "rgba(36,148,95,.16)", border: "rgba(36,148,95,.30)" },
+};
 
 export function preferredRoomArtifact<T extends { id: string; kind?: string; title?: string }>(arts: T[]): T | undefined {
   for (const title of NOTE_PRIORITY) {
@@ -77,8 +84,21 @@ export function RoomShell({ roomId, me, onLeave, proof }: { roomId: string; me: 
   const [autoAcceptModal, setAutoAcceptModal] = useState(false);
   const [rememberAutoAccept, setRememberAutoAccept] = useState(false);
   const [tourOpen, setTourOpen] = useState(false);
+  const [dockStep, setDockStep] = useState(0);
+  const [tweaksOpen, setTweaksOpen] = useState(false);
+  const [accent, setAccent] = useState<AccentKey>("terra");
+  const [backgroundGlow, setBackgroundGlow] = useState(true);
+  const [replayPace, setReplayPace] = useState<ReplayPace>("standard");
   const tourAutoStarted = useRef(false);
   const collabAlive = useRef(true);
+  const accentTheme = ACCENTS[accent];
+  const shellStyle = {
+    "--accent-primary": accentTheme.primary,
+    "--accent-hover": accentTheme.hover,
+    "--accent-ink": accentTheme.ink,
+    "--accent-tint": accentTheme.tint,
+    "--accent-border": accentTheme.border,
+  } as CSSProperties;
   useEffect(() => {
     collabAlive.current = true;
     return () => { collabAlive.current = false; };
@@ -170,6 +190,7 @@ export function RoomShell({ roomId, me, onLeave, proof }: { roomId: string; me: 
     if (varianceArt) openArtifact(varianceArt.id);
     setShow({ left: true, stage: true, copilot: true });
     setCopilotTab("public");
+    setDockStep(0);
     setTourOpen(true);
   };
   const tourSteps: TourStep[] = [
@@ -220,6 +241,14 @@ export function RoomShell({ roomId, me, onLeave, proof }: { roomId: string; me: 
       placement: "center",
     },
   ];
+  const selectDockStep = (index: number) => {
+    const next = clamp(index, 0, tourSteps.length - 1);
+    const selector = tourSteps[next]?.selector ?? "";
+    setDockStep(next);
+    if (selector.includes("left-rail")) setShow({ left: true, stage: true, copilot: !isCompact });
+    else if (selector.includes("copilot-panel")) setShow({ left: !isCompact, stage: true, copilot: true });
+    else if (selector.includes("artifact-tabs") || selector.includes("collab-run") || selector.includes("room-trace")) setShow((s) => ({ ...s, stage: true }));
+  };
 
   const collabErrText = (e: unknown) => (e instanceof Error && e.message ? `Couldn't run the collaboration — ${e.message}` : "Couldn't run the collaboration. Try again.");
   const runCollab = async () => {
@@ -329,7 +358,7 @@ export function RoomShell({ roomId, me, onLeave, proof }: { roomId: string; me: 
 
   return (
     <TraceLensProvider>
-    <div className="r-app">
+    <div className="r-app" data-bg-glow={String(backgroundGlow)} style={shellStyle}>
       <div className="r-top" data-noderoom-surface="shell.topbar">
         <div className="r-mark">N</div>
         <div className="r-brand">NodeRoom <span>· {room.title}</span></div>
@@ -363,6 +392,7 @@ export function RoomShell({ roomId, me, onLeave, proof }: { roomId: string; me: 
           <span className="r-av agent" style={{ background: "#8F3F27" }}>◆</span>
         </div>
         <span className="r-live-count" title={`${members.length} live room member${members.length === 1 ? "" : "s"}`}>{members.length} live</span>
+        <button className="r-iconbtn" title="Tweaks" aria-label="Open room tweaks" data-on={String(tweaksOpen)} onClick={() => setTweaksOpen((v) => !v)}><SlidersHorizontal size={16} /></button>
         <button className="r-iconbtn" title="Take the guided tour" aria-label="Take the guided tour" data-testid="tour-button" onClick={startTour}><HelpCircle size={16} /></button>
         <ThemeToggle />
         <button className="r-iconbtn" title="Leave room" aria-label="Leave room" onClick={onLeave}><LogOut size={16} /></button>
@@ -386,7 +416,18 @@ export function RoomShell({ roomId, me, onLeave, proof }: { roomId: string; me: 
           />
         )}
       </div>
+      <RoomWalkthroughDock steps={tourSteps} step={dockStep} pace={replayPace} onStep={selectDockStep} onReplay={startTour} />
       <SignalStatusStrip roomId={roomId} me={me} onOpenArtifact={openArtifact} />
+      <RoomTweaksPanel
+        open={tweaksOpen}
+        accent={accent}
+        backgroundGlow={backgroundGlow}
+        replayPace={replayPace}
+        onAccent={setAccent}
+        onBackgroundGlow={setBackgroundGlow}
+        onReplayPace={setReplayPace}
+        onClose={() => setTweaksOpen(false)}
+      />
       {autoAcceptModal && (
         <div className="r-modal-backdrop" role="presentation">
           <div className="r-modal" role="dialog" aria-modal="true" aria-labelledby="auto-accept-title">
@@ -473,6 +514,110 @@ function CopilotPanel({
             )}
           </>
         )}
+      </div>
+    </div>
+  );
+}
+
+function RoomWalkthroughDock({
+  steps,
+  step,
+  pace,
+  onStep,
+  onReplay,
+}: {
+  steps: TourStep[];
+  step: number;
+  pace: ReplayPace;
+  onStep: (step: number) => void;
+  onReplay: () => void;
+}) {
+  const current = steps[step] ?? steps[0];
+  if (!current) return null;
+  return (
+    <div className="r-walkdock" data-testid="walkthrough-dock">
+      <div className="r-walkdock-dots" aria-label="Walkthrough steps">
+        {steps.map((s, i) => (
+          <button key={`${s.title}-${i}`} type="button" className="r-walkdock-dot" data-on={String(i === step)} aria-label={`Show step ${i + 1}`} onClick={() => onStep(i)} />
+        ))}
+      </div>
+      <button className="r-iconbtn r-iconbtn-sm" type="button" aria-label="Previous walkthrough step" disabled={step === 0} onClick={() => onStep(step - 1)}>
+        <ChevronLeft size={14} />
+      </button>
+      <div className="r-walkdock-main">
+        <span>{String(step + 1).padStart(2, "0")} - {current.title}</span>
+        <strong>{current.body}</strong>
+      </div>
+      <span className="r-walkdock-pace"><Gauge size={11} /> {pace}</span>
+      <button className="r-iconbtn r-iconbtn-sm" type="button" aria-label="Next walkthrough step" disabled={step === steps.length - 1} onClick={() => onStep(step + 1)}>
+        <ChevronRight size={14} />
+      </button>
+      <button className="r-btn ghost r-walkdock-replay" type="button" onClick={onReplay}>
+        <Play size={13} /> Replay
+      </button>
+    </div>
+  );
+}
+
+function RoomTweaksPanel({
+  open,
+  accent,
+  backgroundGlow,
+  replayPace,
+  onAccent,
+  onBackgroundGlow,
+  onReplayPace,
+  onClose,
+}: {
+  open: boolean;
+  accent: AccentKey;
+  backgroundGlow: boolean;
+  replayPace: ReplayPace;
+  onAccent: (accent: AccentKey) => void;
+  onBackgroundGlow: (on: boolean) => void;
+  onReplayPace: (pace: ReplayPace) => void;
+  onClose: () => void;
+}) {
+  if (!open) return null;
+  return (
+    <div className="r-tweaks" data-testid="room-tweaks">
+      <div className="r-tweaks-head">
+        <span>Tweaks</span>
+        <button className="r-iconbtn r-iconbtn-sm" type="button" aria-label="Close tweaks" onClick={onClose}><X size={13} /></button>
+      </div>
+      <div className="r-tweaks-section">
+        <span className="r-tweaks-label"><Palette size={12} /> Theme</span>
+        <div className="r-tweak-swatches" role="radiogroup" aria-label="Accent theme">
+          {(Object.keys(ACCENTS) as AccentKey[]).map((key) => (
+            <button
+              key={key}
+              type="button"
+              role="radio"
+              aria-checked={accent === key}
+              className="r-tweak-swatch"
+              data-on={String(accent === key)}
+              style={{ background: ACCENTS[key].primary }}
+              title={ACCENTS[key].label}
+              onClick={() => onAccent(key)}
+            >
+              {accent === key ? <Check size={13} /> : null}
+            </button>
+          ))}
+        </div>
+      </div>
+      <label className="r-tweak-line">
+        <span>Background glow</span>
+        <button className="r-switch" type="button" role="switch" aria-checked={backgroundGlow} data-on={String(backgroundGlow)} onClick={() => onBackgroundGlow(!backgroundGlow)} />
+      </label>
+      <div className="r-tweaks-section">
+        <span className="r-tweaks-label"><Gauge size={12} /> Replay pace</span>
+        <div className="r-tweak-segment" role="radiogroup" aria-label="Replay pace">
+          {(["brisk", "standard", "cinematic"] as ReplayPace[]).map((pace) => (
+            <button key={pace} type="button" role="radio" aria-checked={replayPace === pace} data-on={String(replayPace === pace)} onClick={() => onReplayPace(pace)}>
+              {pace}
+            </button>
+          ))}
+        </div>
       </div>
     </div>
   );

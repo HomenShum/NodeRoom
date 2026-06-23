@@ -251,25 +251,6 @@ type AgentRowCtx = {
   openFromTrace: (job: { artifact?: string; artifactName?: string; trace?: string }) => void;
   toast: (m: string) => void;
 };
-// Honest stand-in for deep-artifact sheets in a LIVE room: those carry real
-// diligence data that isn't streamed to mobile, so rather than render the sample
-// narrative we say so (and terra's rule is "deep artifact work stays on desktop").
-function DesktopOnlySheet({ title, note, onClose }: { title: string; note: string; onClose: () => void }): React.ReactElement {
-  return (
-    <>
-      <div className="na-sheet-head">
-        <div className="st">
-          <strong>{title}</strong>
-          <span>Open on desktop</span>
-        </div>
-        <button className="na-close" onClick={onClose} aria-label="Close">{Ico("x")}</button>
-      </div>
-      <div className="na-sheet-body">
-        <p className="na-ask-note" style={{ textAlign: "left", padding: "10px 2px" }}>{note}</p>
-      </div>
-    </>
-  );
-}
 
 function AgentRow({ a, ctx }: { a: D.PulseAgent; ctx: AgentRowCtx }): React.ReactElement {
   const [open, setOpen] = React.useState(false);
@@ -842,6 +823,9 @@ export function MobileApp({ live }: { live?: MobileLive } = {}): React.ReactElem
     recents: live ? live.recents : D.RECENTS,
     favorites: live ? [] : D.FAVORITES,
     briefings: live ? [] : D.BRIEFINGS,
+    livePlan: live?.plan,
+    liveEvidence: live?.evidence,
+    liveCoach: live?.coach,
   };
 
   const SCREENS: Record<TabId, React.FC<{ ctx: MobileCtx }>> = {
@@ -1192,9 +1176,9 @@ export function MobileApp({ live }: { live?: MobileLive } = {}): React.ReactElem
           </div>
 
           {/* ── leaf sheets ── */}
-          <div className="na-sheet" data-open={sheet === "plan"}><div className="na-handle" />{sheet === "plan" && (live ? <DesktopOnlySheet title="Agent work plan" note="The agent’s read-only work plan for this live room opens on desktop. On mobile you approve, chat, and capture." onClose={closeSheet} /> : <PlanSheet ctx={ctx} />)}</div>
-          <div className="na-sheet" data-open={sheet === "evidence"} data-flash={flashSheet === "evidence"}><div className="na-handle" />{sheet === "evidence" && (live ? <DesktopOnlySheet title="Evidence" note="Source-backed evidence for this live room opens on desktop, where you can read each citation side-by-side." onClose={closeSheet} /> : <EvidenceSheet ctx={ctx} />)}</div>
-          <div className="na-sheet" data-open={sheet === "coach"}><div className="na-handle" />{sheet === "coach" && (live ? <DesktopOnlySheet title="Coach" note="Explain-and-defend coaching for this live room opens on desktop." onClose={closeSheet} /> : <CoachSheet ctx={ctx} />)}</div>
+          <div className="na-sheet" data-open={sheet === "plan"}><div className="na-handle" />{sheet === "plan" && <PlanSheet ctx={ctx} />}</div>
+          <div className="na-sheet" data-open={sheet === "evidence"} data-flash={flashSheet === "evidence"}><div className="na-handle" />{sheet === "evidence" && <EvidenceSheet ctx={ctx} />}</div>
+          <div className="na-sheet" data-open={sheet === "coach"}><div className="na-handle" />{sheet === "coach" && <CoachSheet ctx={ctx} />}</div>
           <div className="na-sheet" data-open={sheet === "row"} data-flash={flashSheet === "row"}><div className="na-handle" />{sheet === "row" && <RowSheet ctx={ctx} />}</div>
           <div className="na-sheet" data-open={sheet === "jobs"}><div className="na-handle" />{sheet === "jobs" && <JobsSheet ctx={ctx} />}</div>
           <div className="na-sheet tall" data-open={sheet === "artifact"}><div className="na-handle" />{sheet === "artifact" && <ArtifactSheet ctx={ctx} />}</div>

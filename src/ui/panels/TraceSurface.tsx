@@ -158,7 +158,6 @@ export function TraceSurface({ roomId, onOpenSource }: {
 
   return (
     <div className="r-art-body r-tracevu" data-testid="trace-surface" data-noderoom-surface="workSurface.trace">
-      <HonestyToggle />
       <aside className="r-tracevu-list" aria-label="Trace records">
         {store.mode === "convex" && <CaptureForm roomId={roomId} onCapture={store.captureSource} onSec={store.secFacts} />}
         {records.map((r) => (
@@ -179,6 +178,7 @@ export function TraceSurface({ roomId, onOpenSource }: {
         <header className="r-tracevu-detail-head">
           <strong>{record.title}</strong>
           <p>{record.subtitle}</p>
+          <HonestyToggle />
           <div className="r-tracevu-tabs" role="tablist" aria-label="Trace detail">
             {detailTabs.map((t) => (
               <button key={t} type="button" role="tab" aria-selected={tab === t} data-on={String(tab === t)} data-testid={`trace-tab-${t}`} onClick={() => setTab(t)}>

@@ -23,6 +23,9 @@ import type {
   RecentItem,
   FavoriteItem,
   Briefing,
+  Plan,
+  Evidence,
+  Coach,
 } from "./mobileData";
 
 // Re-export the UI-state unions so leaf modules can import them from here too.
@@ -158,6 +161,10 @@ export interface MobileCtx {
   recents: RecentItem[];
   favorites: FavoriteItem[];
   briefings: Briefing[];
+  /** Live-backed sheet payloads; absent in standalone mode where seed data is used. */
+  livePlan?: Plan;
+  liveEvidence?: Evidence;
+  liveCoach?: Coach;
 
   // ── polish: live hydration + optimistic send ──
   /** True while a live room is still hydrating (skeletons render only when true). */
@@ -175,6 +182,9 @@ export interface MobileLive {
   people: Record<string, Person>;
   /** Live room artifacts mapped to Home recents (favorites/briefings stay [] — no live source). */
   recents: RecentItem[];
+  plan: Plan;
+  evidence: Evidence;
+  coach: Coach;
   postRoomMessage: (text: string) => Promise<RowEditResult>;
   agentPrivate: AgentMsg[];
   agentRoom: AgentMsg[];

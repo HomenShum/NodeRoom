@@ -8,8 +8,8 @@
    ============================================================================ */
 import { useMemo, useRef } from "react";
 import { useStore } from "../../app/store";
-import type { Actor, Message, Member, CellStatus, Artifact } from "../../engine/types";
-import type { RoomMsg, Person, AgentMsg, Row, Tone, InboxItem, Job, RecentItem, RecentSig } from "./mobileData";
+import type { Actor, Message, Member, CellStatus, Artifact, CellEvidence, CellPayload } from "../../engine/types";
+import type { RoomMsg, Person, AgentMsg, Row, Tone, InboxItem, Job, RecentItem, RecentSig, Plan, Evidence, EvidenceSupport, Coach } from "./mobileData";
 import type { MobileLive } from "./mobileTypes";
 import { MobileApp } from "./MobileApp";
 
@@ -82,6 +82,10 @@ function cellPayload(value: unknown): { value: unknown; status?: CellStatus } {
   }
   return { value };
 }
+function fullCellPayload(value: unknown): CellPayload {
+  if (value && typeof value === "object" && "value" in (value as Record<string, unknown>)) return value as CellPayload;
+  return { value };
+}
 function cellDisplay(value: unknown): string {
   if (value === null || value === undefined || value === "") return "—";
   return String(value);
@@ -113,6 +117,110 @@ function buildRecents(artifacts: Artifact[]): RecentItem[] {
       sig,
     };
   });
+}
+
+function sourceHost(e: CellEvidence): string | undefined {
+  const raw = e.url || e.source;
+  if (!raw) return undefined;
+  try { return new URL(raw).hostname.replace(/^www\./, ""); } catch { return raw.replace(/^https?:\/\//, "").split(/[/?#]/)[0]; }
+}
+
+function supportFromEvidence(e: CellEvidence, idx: number, claim: string, status?: CellStatus): EvidenceSupport {
+  return {
+    kind: "cite",
+    n: String(idx + 1),
+    text: e.label || e.snippet || claim,
+    host: sourceHost(e),
+    verified: status === "complete" || (e.confidence ?? 0) >= 0.72,
+    srcType: e.kind,
+    url: e.url,
+    excerpt: e.snippet,
+  };
+}
+
+function buildLiveEvidence(artifacts: Artifact[]): Evidence {
+  const support: EvidenceSupport[] = [];
+  const gaps: EvidenceSupport[] = [];
+  for (const artifact of artifacts) {
+    for (const id of artifact.order.length ? artifact.order : Object.keys(artifact.elements)) {
+      const el = artifact.elements[id];
+      const payload = fullCellPayload(el?.value);
+      const value = cellDisplay(payload.value);
+      const claim = `${artifact.title} ${id}: ${value}`.slice(0, 120);
+      for (const ev of (payload.evidence ?? []).slice(0, 2)) {
+        if (support.length < 6) support.push(supportFromEvidence(ev, support.length, claim, payload.status));
+      }
+      if ((payload.status === "gap" || payload.status === "needs_review" || payload.status === "failed") && gaps.length < 4) {
+        gaps.push({ kind: "gap", text: `${artifact.title} ${id} is ${payload.status}${value !== "-" ? `: ${value}` : ""}`.slice(0, 140) });
+      }
+      if (support.length >= 6 && gaps.length >= 4) break;
+    }
+    if (support.length >= 6 && gaps.length >= 4) break;
+  }
+  const total = support.length;
+  const gapCount = gaps.length;
+  const supportList: EvidenceSupport[] = total ? [...support, ...gaps] : [{ kind: "gap", text: "No source-backed cells are present in this room yet." }];
+  return {
+    claim: total ? "Live room evidence" : "No evidence yet",
+    status: gapCount ? "needs_review" : total ? "source-backed" : "empty",
+    answer: total
+      ? `${total} cited source${total === 1 ? "" : "s"} found across the room. ${gapCount ? `${gapCount} item${gapCount === 1 ? "" : "s"} still need review.` : "No flagged gaps found in the sampled cells."}`
+      : "Upload a source, run NodeAgent, or fill source-backed cells to populate this evidence sheet.",
+    support: supportList,
+    followups: [
+      { match: ["source", "cite", "citation"], text: total ? "Open any source row above to inspect the citation. Desktop can show the source side by side with the work surface." : "There are no citations yet. Start with a source upload or a read-only agent run." },
+      { match: ["gap", "missing", "review"], text: gapCount ? gaps.map((g) => g.text).join(" ") : "No sampled evidence gaps are currently flagged." },
+      { match: ["close", "fix"], text: "Close gaps by attaching a primary source, rerunning evidence extraction, then approving the proposed change from the review queue." },
+    ],
+    fallback: "This evidence sheet is derived from the live room artifacts, not the standalone sample data.",
+  };
+}
+
+function buildLivePlan(artifacts: Artifact[], proposals: InboxItem[], job: { status?: string; entrypoint?: string; modelPolicy?: string } | null | undefined): Plan {
+  const readable = artifacts.slice(0, 5).map((a) => `${a.title} (${a.kind})`);
+  const pending = proposals.length;
+  const running = job && !["completed", "failed", "cancelled", "blocked", "paused"].includes(job.status ?? "");
+  return {
+    hash: `live-${artifacts.length}-${pending}`,
+    entity: artifacts.find((a) => a.title.includes("Company"))?.title ?? "this room",
+    willRead: readable.length ? readable : ["Room chat and any uploaded source files"],
+    wontRead: ["Private agent lanes", "External data not explicitly fetched", "Anything outside this room"],
+    willCreate: [
+      pending ? `Resolve ${pending} pending proposal${pending === 1 ? "" : "s"}` : "Propose source-backed changes before writing",
+      running ? `Track ${job?.entrypoint ?? "agent job"} until completion` : "Keep evidence and trace receipts attached",
+    ],
+    stats: [
+      { v: String(artifacts.length), l: "artifacts", mono: true },
+      { v: String(pending), l: "reviews", mono: true },
+      { v: job?.modelPolicy ?? "room", l: running ? "running" : "scope", mono: false },
+    ],
+  };
+}
+
+function buildLiveCoach(evidence: Evidence, artifacts: Artifact[], proposals: InboxItem[]): Coach {
+  const gap = evidence.support.find((s) => s.kind === "gap")?.text;
+  const topic = gap || (proposals.length ? "pending agent edit" : artifacts[0]?.title ?? "room evidence");
+  return {
+    topics: [
+      {
+        id: "live-evidence",
+        label: "Evidence defense",
+        question: `Explain the current evidence status for ${topic}.`,
+        howto: [
+          "Name the claim or artifact.",
+          "State which source supports it.",
+          "Call out any missing primary source.",
+          "Say the action that would move it to verified.",
+        ],
+        feedback: {
+          well: "You anchored the answer to the live room evidence.",
+          missed: gap ? "Be precise about the missing source: " + gap : "Mention the exact artifact or citation you inspected.",
+          cite: evidence.support.find((s) => s.kind === "cite")?.text ?? "Attach a primary source before calling the claim verified.",
+          wording: evidence.status === "source-backed" ? "This claim is source-backed in the room and can be defended with the cited artifact." : "This claim remains needs_review until the missing source is attached and the evidence check reruns.",
+        },
+      },
+    ],
+  };
 }
 
 export function MobileAppLive({ roomId, me, onLeave }: { roomId: string; me: Actor; onLeave?: () => void }) {
@@ -179,6 +287,9 @@ export function MobileAppLive({ roomId, me, onLeave }: { roomId: string; me: Act
     }
     return out;
   }, [job]);
+  const liveEvidence = useMemo(() => buildLiveEvidence(artifacts), [artifacts]);
+  const livePlan = useMemo(() => buildLivePlan(artifacts, inboxItems, job), [artifacts, inboxItems, job]);
+  const liveCoach = useMemo(() => buildLiveCoach(liveEvidence, artifacts, inboxItems), [liveEvidence, artifacts, inboxItems]);
 
   // Per-render reshapes memoized so re-renders that don't change the underlying
   // store data (e.g. a sibling state toggle) don't recompute identical arrays.
@@ -199,6 +310,9 @@ export function MobileAppLive({ roomId, me, onLeave }: { roomId: string; me: Act
     roomMsgs,
     people,
     recents,
+    plan: livePlan,
+    evidence: liveEvidence,
+    coach: liveCoach,
     postRoomMessage: async (text: string) => {
       return store.postMessage({ roomId, channel: "public", author: me, text, clientMsgId: crypto.randomUUID(), kind: "chat" });
     },
