@@ -73,8 +73,10 @@ test("fresh live room renders uploaded XLSX data through Convex-backed artifact 
 
   const paper = page.getByTestId("excel-paper");
   await expect(paper).toBeVisible({ timeout: 45_000 });
-  await expect(paper.locator('[data-cell-key="B2"]')).toHaveText("INCOME STATEMENT");
-  await expect(paper.locator('[data-cell-key="B2"]')).toHaveAttribute("colspan", "3");
+  await expect(paper.locator("table.r-sheet.r-generic-sheet")).toBeVisible();
+  await expect(paper.locator('[data-testid="sheet-cell"][data-cell-key="B2"][data-element-id="B2"]')).toHaveText("INCOME STATEMENT");
+  await expect(paper.locator('[data-testid="sheet-cell"][data-cell-key="B2"][data-element-id="B2"]')).toHaveClass(/r-cell/);
+  await expect(paper.locator('[data-testid="sheet-cell"][data-cell-key="B2"][data-element-id="B2"]')).toHaveAttribute("colspan", "3");
   await expect(paper.locator('[data-cell-key="D4"]')).toHaveText("33.7%");
   await expect(paper.locator('[data-cell-key="D5"]')).toHaveText("65.8");
   await expect(paper.locator('[data-cell-key="D6"]')).toHaveText("20");

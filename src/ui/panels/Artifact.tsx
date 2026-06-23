@@ -1177,7 +1177,7 @@ function ExcelGridSheet({ roomId, me, art, onError }: { roomId: string; me: Acto
   const numFmts = grid.numFmts ?? [];
   const doCommit = (id: string, s: string) => {
     // A typed formula persists as a CellPayload {value, formula} (durable + formula-bar after reload),
-    // preserving any prior payload fields (evidence/status). And the xl-grid only seeds non-empty
+    // preserving any prior payload fields (evidence/status). The shared sheet grid only seeds non-empty
     // cells, so CREATE the element when the cell is empty — otherwise typing into a blank cell is lost.
     const value: unknown = s.startsWith("=") ? { ...(asCellPayload(art.elements[id]?.value) ?? {}), value: s, formula: s } : s;
     const exists = !!art.elements[id];
@@ -1348,21 +1348,21 @@ function ExcelGridSheet({ roomId, me, art, onError }: { roomId: string; me: Acto
             </div>
           )}
           <div className="r-sheet-wrap xl-scroll" ref={gridRef} tabIndex={0} role="grid" aria-label={`${grid.sheetName} spreadsheet grid`} onKeyDown={onGridKeyDown}>
-            <table className="xl-grid">
+            <table className="r-sheet r-generic-sheet" data-noderoom-surface="workSurface.sheet" data-artifact-id={art.id}>
               <colgroup>
                 <col style={{ width: 38 }} />
                 {columns.map((col, i) => <col key={col} style={{ width: grid.colWidths?.[i] || 92 }} />)}
               </colgroup>
               <thead>
                 <tr>
-                  <th className="xl-corner" aria-label="cell address" />
-                  {columns.map((col) => <th key={col} className={"xl-col" + (selMatch?.[1] === col ? " hl" : "")}>{col}</th>)}
+                  <th className="r-corner" aria-label="cell address" />
+                  {columns.map((col) => <th key={col} className={selMatch?.[1] === col ? "hl" : undefined}>{col}</th>)}
                 </tr>
               </thead>
               <tbody>
                 {visibleRows.map((rowNumber) => (
                   <tr key={rowNumber}>
-                    <td className={"xl-rowhead" + (selMatch && Number(selMatch[2]) === rowNumber ? " hl" : "")}>{rowNumber}</td>
+                    <td className={"r-rownum" + (selMatch && Number(selMatch[2]) === rowNumber ? " hl" : "")}>{rowNumber}</td>
                     {columns.map((col) => {
                       const elementId = `${col}${rowNumber}`;
                       if (mergeCovered.has(elementId)) return null; // absorbed by a merge anchor's span
@@ -1393,7 +1393,7 @@ function ExcelGridSheet({ roomId, me, art, onError }: { roomId: string; me: Acto
                       const alignRight = numCandidate !== undefined || st?.a === "r";
                       const isEditing = editing?.id === elementId;
                       const inRange = rangeCells?.has(elementId) ?? false;
-                      const cls = "xl-cell" + (alignRight ? " num" : "") + (st?.a === "c" ? " ctr" : "") + (lk ? " locked" : "") + (cellPresence ? ` presence presence-${cellPresence.mode}` : "") + (payload?.evidence?.length ? " evidence" : "") + (cellFormula ? " formula" : "") + (compError ? " cell-error" : "") + (inRange ? " range" : "") + (sel === elementId ? " sel" : "") + (isEditing ? " editing" : "");
+                      const cls = "r-cell" + (alignRight ? " num" : "") + (st?.a === "c" ? " ctr" : "") + (lk ? " locked" : "") + (cellPresence ? ` presence presence-${cellPresence.mode}` : "") + (payload?.evidence?.length ? " evidence" : "") + (cellFormula ? " formula" : "") + (compError ? " cell-error" : "") + (inRange ? " range" : "") + (sel === elementId ? " sel" : "") + (isEditing ? " editing" : "");
                       const inline: Record<string, string | number> = {};
                       if (st?.bg) { inline.background = st.bg; if (!st?.fc && fillNeedsLightInk(st.bg)) inline.color = "#fff"; }
                       if (st?.fc) inline.color = st.fc; // the FILE's font color wins over the heuristic
@@ -1412,6 +1412,8 @@ function ExcelGridSheet({ roomId, me, art, onError }: { roomId: string; me: Acto
                           style={{ ...inline, ...presenceStyle(cellPresence) }}
                           title={title}
                           data-cell-key={elementId}
+                          data-element-id={elementId}
+                          data-testid="sheet-cell"
                           data-evidence-class={classifyEvidence(payload)}
                           data-presence-mode={cellPresence?.mode}
                           data-presence-label={cellPresence ? presenceLabel(cellPresence) : undefined}
@@ -1426,8 +1428,9 @@ function ExcelGridSheet({ roomId, me, art, onError }: { roomId: string; me: Acto
                         >
                           {isEditing ? (
                             <input
-                              className="xl-input"
+                              className="r-cell-input"
                               autoFocus
+                              style={alignRight ? { textAlign: "right" } : undefined}
                               defaultValue={editing.seed ?? editText}
                               onBlur={(e) => finishEdit(elementId, e.target.value, editText)}
                               onKeyDown={(e) => {
@@ -1445,9 +1448,9 @@ function ExcelGridSheet({ roomId, me, art, onError }: { roomId: string; me: Acto
                                 }
                               }}
                             />
-                          ) : display ? <span>{display}</span> : <span className="nullcell">&nbsp;</span>}
-                          {lockFlag && <span className="xl-flag" data-testid="lock-flag">{lockFlag}</span>}
-                          {cellPresence && <span className="xl-presence-flag" data-testid="presence-flag">{presenceLabel(cellPresence)}</span>}
+                          ) : display ? <span>{display}</span> : <span className="nullcell">—</span>}
+                          {lockFlag && <span className="lockbadge" data-testid="lock-flag">{lockFlag}</span>}
+                          {cellPresence && <span className="presencebadge" data-testid="presence-flag">{presenceLabel(cellPresence)}</span>}
                         </td>
                       );
                     })}
