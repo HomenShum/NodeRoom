@@ -9,6 +9,9 @@
  */
 import { defineConfig, devices } from "@playwright/test";
 
+const traceMode = process.env.PLAYWRIGHT_TRACE === "on" ? "on" : "retain-on-failure";
+const videoMode = process.env.PLAYWRIGHT_RECORD_VIDEO === "1" ? "on" : "off";
+
 export default defineConfig({
   // Two real-user, live-Convex flows live here: the cheap-model room e2e (tests/) and the fullest
   // honest SpreadsheetBench V1 fresh-room contract (e2e/). Both run against an externally started,
@@ -21,5 +24,5 @@ export default defineConfig({
   timeout: 320_000,
   expect: { timeout: 200_000 },
   reporter: "list",
-  use: { ...devices["Desktop Chrome"], headless: true, trace: "retain-on-failure" },
+  use: { ...devices["Desktop Chrome"], headless: true, trace: traceMode, video: videoMode },
 });

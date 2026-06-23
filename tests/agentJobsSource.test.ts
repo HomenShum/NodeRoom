@@ -73,6 +73,28 @@ describe("long-running agent job source invariants", () => {
     expect(schema).toContain('scope: v.optional(agentScopeV)');
     expect(schema).toContain('routePolicy: v.optional(routePolicyV)');
     expect(schema).toContain('runtimePolicy: v.optional(runtimePolicyV)');
+    expect(schema).toContain('runtimeProfile: v.optional(runtimeProfileV)');
+  });
+
+  it("keeps benchmark-completion limits opt-in instead of weakening normal public asks", () => {
+    const runner = readFileSync("convex/agentJobRunner.ts", "utf8");
+    const jobs = readFileSync("convex/agentJobs.ts", "utf8");
+    const store = readFileSync("src/app/store.tsx", "utf8");
+    const spec = readFileSync("e2e/benchmark-ui-spreadsheetbench.spec.ts", "utf8");
+
+    expect(jobs).toContain('v.literal("benchmark_completion")');
+    expect(jobs).toContain("runtimeProfile: a.runtimeProfile");
+    expect(jobs).toContain("runtimeProfile: job.runtimeProfile");
+    expect(jobs).toContain("runtimeProfile: a.runtimeProfile");
+    expect(runner).toContain("function maxStepsForJob");
+    expect(runner).toContain("BENCHMARK_AGENT_MAX_STEPS_PER_SLICE");
+    expect(runner).toContain("FREE_AUTO_JOB_MAX_STEPS_PER_SLICE");
+    expect(runner).toContain("defaultMaxStepsForEntrypoint(entrypoint), 1, 12");
+    expect(runner).toContain("BENCHMARK_AGENT_MAX_TOKENS_PER_SLICE");
+    expect(runner).toContain("BENCHMARK_AGENT_MAX_USD_PER_SLICE");
+    expect(store).toContain("noderoom.nodeagentRuntimeProfile");
+    expect(store).toContain("maxAttemptsForRuntimeProfile");
+    expect(spec).toContain('window.localStorage.setItem("noderoom.nodeagentRuntimeProfile", "benchmark_completion")');
   });
 
   it("keeps /ask model policy during workflow handoff while allowing /free overrides", () => {
