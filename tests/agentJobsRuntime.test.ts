@@ -149,6 +149,35 @@ describe("agentJobs runtime contract", () => {
     expect(detail?.operations.map((event) => event.name)).toContain("agentJobs.start");
   });
 
+  it("materializes a scratch sheet before starting public asks in blank rooms", async () => {
+    const { t, proof, roomId } = await setupBlankRoom();
+
+    const started = await t.mutation(api.agentJobs.startPublicAsk, {
+      roomId,
+      requester: proof,
+      goal: "create me a sheet and research liveflow",
+      routePolicy: "fast_default" as const,
+    });
+
+    const detail = await t.query(api.agentJobs.detail, { jobId: started.jobId, requester: proof });
+    const artifacts = await t.run((ctx) => ctx.db.query("artifacts").withIndex("by_room", (q) => q.eq("roomId", roomId)).collect());
+    expect(artifacts).toHaveLength(1);
+    expect(artifacts[0]).toMatchObject({ kind: "sheet", title: "Sheet 1", visibility: "room" });
+    expect(String(detail?.job.artifactId)).toBe(String(artifacts[0]._id));
+    expect(detail?.job.entrypoint).toBe("public_ask");
+    expect(detail?.job.request).toMatchObject({
+      targetArtifactId: String(artifacts[0]._id),
+      commandText: "create me a sheet and research liveflow",
+    });
+
+    const elements = await t.run((ctx) => ctx.db.query("elements").withIndex("by_artifact", (q) => q.eq("artifactId", artifacts[0]._id)).collect());
+    const indexedCells = await t.run((ctx) => ctx.db.query("spreadsheetCells").withIndex("by_artifact_element", (q) => q.eq("artifactId", artifacts[0]._id)).collect());
+    const traces = await t.run((ctx) => ctx.db.query("traces").withIndex("by_room", (q) => q.eq("roomId", roomId)).collect());
+    expect(elements).toHaveLength(24);
+    expect(indexedCells).toHaveLength(24);
+    expect(traces.map((trace) => trace.detail ?? "")).toContainEqual(expect.stringContaining("blank_public_ask_fallback"));
+  });
+
   it("routes diligence asks to the company research sheet before active-note context", async () => {
     const { t, proof, roomId, actor } = await setupRoom({ seedElement: true });
     const now = Date.now();
@@ -817,6 +846,47 @@ async function setupRoom(options: { seedElement?: boolean; extraMember?: boolean
     );
   }
   return { t, proof, memberProof, actor, roomId, artifactId };
+}
+
+async function setupBlankRoom() {
+  const t = convexTest(schema, modules);
+  t.registerComponent("workflow", workflowSchema, workflowModules);
+  t.registerComponent("workflow/workpool", workpoolSchema, workpoolModules);
+  const now = Date.now();
+  const authTokenHash = await hashToken(token);
+  const roomId = await t.run((ctx) =>
+    ctx.db.insert("rooms", {
+      code: `B${Math.random().toString(36).slice(2, 7).toUpperCase()}`,
+      title: "Blank agent room",
+      hostId: "",
+      autoAllow: true,
+      status: "live" as const,
+      createdAt: now,
+    }),
+  );
+  const memberId = await t.run((ctx) =>
+    ctx.db.insert("members", {
+      roomId,
+      name: "Host",
+      role: "host" as const,
+      anon: false,
+      color: "#111111",
+      authTokenHash,
+      lastSeenAt: now,
+    }),
+  );
+  const actor = { kind: "user" as const, id: String(memberId), name: "Host" };
+  await t.run((ctx) => ctx.db.patch(roomId, { hostId: String(memberId) }));
+  await t.run((ctx) => ctx.db.insert("agentSessions", {
+    roomId,
+    agentId: "agent_room",
+    agentName: "Room NodeAgent",
+    scope: "public" as const,
+    status: "idle" as const,
+    lastAction: "started",
+    updatedAt: now,
+  }));
+  return { t, proof: { actor, token }, actor, roomId };
 }
 
 async function seedRuntimeReasoningFrames(
