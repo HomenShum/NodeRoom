@@ -219,6 +219,8 @@ test("SpreadsheetBench V1 fresh-room contract: import nb-01 CSV -> cheap @nodeag
   await page.goto(`${BASE}/`, { waitUntil: "domcontentloaded" });
   expect(page.url(), "must NOT be memory mode — the live agent only runs server-side").not.toContain("mode=memory");
   await page.locator('[data-testid="create-room"]').click({ timeout: 60_000 });
+  await page.locator('[data-testid="create-room-submit"]').waitFor({ state: "visible", timeout: 10_000 });
+  await page.locator('[data-testid="create-room-submit"]').click();
   await page.locator('[data-testid="blank-cta-sheet"]').click({ timeout: 60_000 });
   // Confirm this is a live Convex room (not a memory fallback): the header shows the live badge.
   await expect(page.getByText(/live convex/i)).toBeVisible({ timeout: 30_000 });

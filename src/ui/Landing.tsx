@@ -244,7 +244,7 @@ export function Landing({
                     {"       "}<span className="pr">title</span>: <span className="str">"{createTitle.trim() || "Blank NodeRoom"}"</span>, <span className="pr">host</span>: <span className="str">"{displayName("Host")}"</span>{"});"}
                   </pre>
                 </div>
-                <button className="r-btn primary r-room-modal-submit" disabled={busy} onClick={confirmLiveCreate}>
+                <button className="r-btn primary r-room-modal-submit" data-testid="create-room-submit" aria-label="Create room" disabled={busy} onClick={confirmLiveCreate}>
                   Create room <ArrowRight size={16} />
                 </button>
               </div>
