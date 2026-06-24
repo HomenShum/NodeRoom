@@ -41,7 +41,13 @@ import { buildResearchContext, buildNoteContext, buildWallContext } from "../src
 import { runIdempotencyKey } from "../src/nodeagent/core/idempotency";
 import { compactMessages } from "../src/nodeagent/core/contextCompactor";
 import { journalSliceKey } from "../src/nodeagent/core/journal";
-import { assertProviderEgressAllowed } from "../src/nodeagent/guardrails/egressPolicy";
+import {
+  FREE_FILE_EGRESS_BLOCK_REASON,
+  isOpenRouterFreeRoute,
+  providerEgressDecision,
+  type ProviderEgressArtifact,
+  type ProviderEgressEntrypoint,
+} from "../src/nodeagent/guardrails/egressPolicy";
 import { buildPlanPreview, classifyIntakeMessage } from "../src/nodeagent/core/intakePreflight";
 import { makeConvexStepJournal } from "./agentStepJournalClient";
 
@@ -51,6 +57,7 @@ const MIN_ACTION_RESERVE_MS = 10_000;
 const ACTION_SAFETY_MARGIN_MS = 15_000;
 const DEFAULT_CONTEXT_MAX_CHARS = 24_000;
 const DEFAULT_CONTEXT_KEEP_RECENT = 10;
+const DEFAULT_FILE_EGRESS_MODEL = "z-ai/glm-4.7-flash";
 const roomsFullRef = makeFunctionReference<"query">("rooms:full");
 const agentJobsCreateOrReuseRef = makeFunctionReference<"mutation">("agentJobs:createOrReuse") as any;
 const agentJobsFinishInteractiveRef = makeFunctionReference<"mutation">("agentJobs:finishInteractive") as any;
@@ -74,6 +81,34 @@ function envNumber(name: string, fallback: number, min: number, max: number): nu
 function boundedActionBudgetMs(requestedBudgetMs: number, reserveMs: number, minimumBudgetMs: number): number {
   const ceiling = Math.max(minimumBudgetMs, CONVEX_ACTION_LIMIT_MS - reserveMs - ACTION_SAFETY_MARGIN_MS);
   return Math.max(minimumBudgetMs, Math.min(requestedBudgetMs, ceiling));
+}
+
+function configuredFileEgressModel() {
+  for (const candidate of [
+    process.env.AGENT_FILE_EGRESS_MODEL,
+    process.env.AGENT_MODEL_FILE_EGRESS,
+    DEFAULT_FILE_EGRESS_MODEL,
+    process.env.AGENT_MODEL,
+    process.env.AGENT_TOP_PAID_MODEL,
+  ]) {
+    const value = candidate?.trim();
+    if (value && !isOpenRouterFreeRoute(value)) return value;
+  }
+  return DEFAULT_FILE_EGRESS_MODEL;
+}
+
+function providerEgressArtifactsFromRoomState(roomState: { artifacts: Array<{ title: string; kind: string; meta?: unknown; visibility?: string }> }): ProviderEgressArtifact[] {
+  return roomState.artifacts.map((art: { title: string; kind: string; meta?: unknown; visibility?: string }) => ({
+    title: art.title,
+    kind: art.kind,
+    meta: art.meta,
+    visibility: art.visibility,
+  }));
+}
+
+function modelNameForEgress(modelName: string, entrypoint: ProviderEgressEntrypoint, artifacts: ProviderEgressArtifact[]) {
+  const decision = providerEgressDecision({ model: modelName, entrypoint, artifacts, env: process.env });
+  return !decision.ok && decision.reason === FREE_FILE_EGRESS_BLOCK_REASON ? configuredFileEgressModel() : modelName;
 }
 
 type LiveOperationKind = "action" | "query" | "mutation" | "model_call" | "tool_call" | "scheduler" | "lease" | "checkpoint";
@@ -248,23 +283,18 @@ export const runRoomAgent = action({
     //    measured $1.10/task). Evidence covers the fetch->synthesize->write shape ONLY.
     //  - interactive collaboration (lock/CAS/draft): stays on gemini-3.5-flash, the only route with a
     //    recorded L1-L4 collaboration-ladder pass. flash gets this lane only after it passes the ladder.
-    const model = agentModel(
-      a.mode === "research"
-        ? (process.env.AGENT_RESEARCH_MODEL ?? "deepseek/deepseek-v4-flash")
-        : (process.env.AGENT_MODEL ?? "gemini-3.5-flash"),
-      { entrypoint: "public_ask" },
-    );
-    assertProviderEgressAllowed({
+    const egressArtifacts = providerEgressArtifactsFromRoomState(roomState);
+    const requestedModelName = a.mode === "research"
+      ? (process.env.AGENT_RESEARCH_MODEL ?? "deepseek/deepseek-v4-flash")
+      : (process.env.AGENT_MODEL ?? "gemini-3.5-flash");
+    const model = agentModel(modelNameForEgress(requestedModelName, "public_ask", egressArtifacts), { entrypoint: "public_ask" });
+    const egressDecision = providerEgressDecision({
       model: model.name,
       entrypoint: "public_ask",
-      artifacts: roomState.artifacts.map((art: { title: string; kind: string; meta?: unknown; visibility?: string }) => ({
-        title: art.title,
-        kind: art.kind,
-        meta: art.meta,
-        visibility: art.visibility,
-      })),
+      artifacts: egressArtifacts,
       env: process.env,
     });
+    if (!egressDecision.ok) throw new Error(`provider_egress_blocked:${egressDecision.reason}`);
     const actionReserveMs = Math.max(MIN_ACTION_RESERVE_MS, envNumber("AGENT_ACTION_RESERVE_MS", DEFAULT_ACTION_RESERVE_MS, 1_000, 120_000));
     const actionBudgetMs = boundedActionBudgetMs(
       envNumber("AGENT_ACTION_BUDGET_MS", CONVEX_ACTION_LIMIT_MS, 60_000, CONVEX_ACTION_LIMIT_MS),
@@ -672,18 +702,15 @@ export const runPrivateAgent = action({
     if (!roomState) throw new Error("room_not_found");
     const requester = roomState.members.find((m: { id: unknown }) => String(m.id) === a.requester.actor.id) as { id: unknown; name: string } | undefined;
     if (!requester) throw new Error("member_required");
-    const model = agentModel(process.env.AGENT_MODEL ?? "gemini-3.5-flash", { entrypoint: "private_agent" });
-    assertProviderEgressAllowed({
+    const egressArtifacts = providerEgressArtifactsFromRoomState(roomState);
+    const model = agentModel(modelNameForEgress(process.env.AGENT_MODEL ?? "gemini-3.5-flash", "private_agent", egressArtifacts), { entrypoint: "private_agent" });
+    const egressDecision = providerEgressDecision({
       model: model.name,
       entrypoint: "private_agent",
-      artifacts: roomState.artifacts.map((art: { title: string; kind: string; meta?: unknown; visibility?: string }) => ({
-        title: art.title,
-        kind: art.kind,
-        meta: art.meta,
-        visibility: art.visibility,
-      })),
+      artifacts: egressArtifacts,
       env: process.env,
     });
+    if (!egressDecision.ok) throw new Error(`provider_egress_blocked:${egressDecision.reason}`);
     const system = privateAgentSystemPrompt(requester.name);
     const userMsg = `ROOM CONTEXT\n${summarizeRoomForPrivate(roomState)}\n\n${requester.name} asks: ${a.goal}`;
     let answer = "";

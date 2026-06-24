@@ -25,7 +25,14 @@ import type { AgentStreamEventDraft } from "../src/nodeagent/core/stream";
 import type { EvidenceState, FrameDelta, ReasoningFrame, ReasoningFrameStatus } from "../src/nodeagent/core/reasoningFrames";
 import type { Actor } from "../src/engine/types";
 import { journalSliceKey } from "../src/nodeagent/core/journal";
-import { assertProviderEgressAllowed, type ProviderEgressEntrypoint } from "../src/nodeagent/guardrails/egressPolicy";
+import {
+  FREE_FILE_EGRESS_BLOCK_REASON,
+  isOpenRouterFreeRoute,
+  isProviderPolicyBlockedError,
+  providerEgressDecision,
+  type ProviderEgressArtifact,
+  type ProviderEgressEntrypoint,
+} from "../src/nodeagent/guardrails/egressPolicy";
 import { makeConvexStepJournal } from "./agentStepJournalClient";
 
 const CONVEX_ACTION_LIMIT_MS = 10 * 60_000;
@@ -37,6 +44,7 @@ const DEFAULT_LEASE_EXTRA_MS = 60_000;
 const DEFAULT_RESUME_DELAY_MS = 5_000;
 const DEFAULT_CONTEXT_MAX_CHARS = 24_000;
 const DEFAULT_CONTEXT_KEEP_RECENT = 10;
+const DEFAULT_FILE_EGRESS_MODEL = "z-ai/glm-4.7-flash";
 const agentJobsClaimSliceRef = makeFunctionReference<"mutation">("agentJobs:claimSlice") as any;
 const agentJobsFinishSliceRef = makeFunctionReference<"mutation">("agentJobs:finishSlice") as any;
 const agentJobsRecordLiveOperationRef = makeFunctionReference<"mutation">("agentJobs:recordLiveOperation") as any;
@@ -256,6 +264,29 @@ function defaultMaxStepsForEntrypoint(entrypoint: ProviderEgressEntrypoint): num
   return entrypoint === "free" ? 3 : 8;
 }
 
+function configuredFileEgressModel() {
+  for (const candidate of [
+    process.env.AGENT_FILE_EGRESS_MODEL,
+    process.env.AGENT_MODEL_FILE_EGRESS,
+    DEFAULT_FILE_EGRESS_MODEL,
+    process.env.AGENT_MODEL,
+    process.env.AGENT_TOP_PAID_MODEL,
+  ]) {
+    const value = candidate?.trim();
+    if (value && !isOpenRouterFreeRoute(value)) return value;
+  }
+  return DEFAULT_FILE_EGRESS_MODEL;
+}
+
+function providerEgressArtifactsForClaimedJob(
+  roomArtifacts: Array<{ title?: string; kind?: string; meta?: unknown; visibility?: string }>,
+  claimed: Pick<ClaimedJob, "artifactTitle" | "artifactKind" | "artifactMeta" | "artifactVisibility">,
+): ProviderEgressArtifact[] {
+  return roomArtifacts.length
+    ? roomArtifacts.map((art) => ({ title: art.title, kind: art.kind, meta: art.meta, visibility: art.visibility }))
+    : [{ title: claimed.artifactTitle, kind: claimed.artifactKind, meta: claimed.artifactMeta, visibility: claimed.artifactVisibility }];
+}
+
 function clean<T extends Record<string, unknown>>(value: T): T {
   const out: Record<string, unknown> = {};
   for (const [key, val] of Object.entries(value)) if (val !== undefined) out[key] = val;
@@ -316,11 +347,30 @@ export const runFreeAutoJobSlice = internalAction({
 
     const actor: Actor = { kind: "agent", id: claimed.agentId, name: claimed.agentName, scope: "public" };
     const rt = new ConvexRoomTools(ctx, claimed.roomId, claimed.artifactId, actor, String(claimed.sessionId), claimed.jobId);
-    const entrypoint = runnerEntrypoint(claimed);
+    const roomArtifacts = await ctx.runQuery(artifactsListForRoomRef, { roomId: claimed.roomId }) as Array<{ title?: string; kind?: string; meta?: unknown; visibility?: string }>;
+    const egressArtifacts = providerEgressArtifactsForClaimedJob(roomArtifacts, claimed);
+    let entrypoint = runnerEntrypoint(claimed);
     const modelPolicy = claimed.modelPolicy || (entrypoint === "free" ? "openrouter/free-auto" : process.env.AGENT_MODEL ?? "gemini-3.5-flash");
-    const resolvedModelPolicy = modelPolicy === "openrouter/free-auto"
+    let resolvedModelPolicy = modelPolicy === "openrouter/free-auto"
       ? process.env.FREE_AUTO_JOB_MODEL ?? modelPolicy
       : modelPolicy;
+    let egressDecision = providerEgressDecision({
+      model: resolvedModelPolicy,
+      entrypoint,
+      artifacts: egressArtifacts,
+      env: process.env,
+    });
+    const promotedForFileEgress = !egressDecision.ok && egressDecision.reason === FREE_FILE_EGRESS_BLOCK_REASON;
+    if (promotedForFileEgress) {
+      entrypoint = "public_ask";
+      resolvedModelPolicy = configuredFileEgressModel();
+      egressDecision = providerEgressDecision({
+        model: resolvedModelPolicy,
+        entrypoint,
+        artifacts: egressArtifacts,
+        env: process.env,
+      });
+    }
     const model = agentModel(resolvedModelPolicy, { entrypoint });
     const contextMaxChars = envNumber("FREE_AUTO_JOB_CONTEXT_MAX_CHARS", DEFAULT_CONTEXT_MAX_CHARS, 4_000, 120_000);
     const contextKeepRecent = envNumber("FREE_AUTO_JOB_CONTEXT_KEEP_RECENT", DEFAULT_CONTEXT_KEEP_RECENT, 2, 40);
@@ -519,15 +569,16 @@ export const runFreeAutoJobSlice = internalAction({
         countDelta: 1,
         startedAt: Date.now(),
       });
-      const roomArtifacts = await ctx.runQuery(artifactsListForRoomRef, { roomId: claimed.roomId }) as Array<{ title: string; kind: string; meta?: unknown; visibility?: string }>;
-      assertProviderEgressAllowed({
-        model: model.name,
-        entrypoint,
-        artifacts: roomArtifacts.length
-          ? roomArtifacts.map((art) => ({ title: art.title, kind: art.kind, meta: art.meta, visibility: art.visibility }))
-          : [{ title: claimed.artifactTitle, kind: claimed.artifactKind, meta: claimed.artifactMeta, visibility: claimed.artifactVisibility }],
-        env: process.env,
-      });
+      if (!egressDecision.ok) throw new Error(`provider_egress_blocked:${egressDecision.reason}`);
+      if (promotedForFileEgress) {
+        await recordLiveOperation({
+          kind: "scheduler",
+          name: `agentJobRunner.promotedFileEgressRoute ${modelPolicy} -> ${model.name}`,
+          status: "completed",
+          countDelta: 1,
+          completedAt: Date.now(),
+        });
+      }
       const activeFrameId = activeFrame?.frameId;
       const initialMessages = messagesFromCursor(claimed.cursor, activeFrameId);
       const resumeToolCalls = remainingToolCallsFromCursor(claimed.cursor, activeFrameId);
@@ -684,7 +735,8 @@ export const runFreeAutoJobSlice = internalAction({
         usage: { inputTokens: 0, outputTokens: 0, modelCalls: 0 },
       };
       const { runId, telemetry } = await recordRun(fallback, { tool: "job_error", result: errorText(rootError) });
-      const canRetry = claimed.attempt < claimed.maxAttempts;
+      const retryable = !isProviderPolicyBlockedError(rootError);
+      const canRetry = retryable && claimed.attempt < claimed.maxAttempts;
       const delayMs = canRetry ? backoffMs(claimed.attempt) : undefined;
       const scheduledNextAt = delayMs ? Date.now() + delayMs : undefined;
       const activeFrameId = claimed.activeReasoningFrame?.frameId;
@@ -700,10 +752,10 @@ export const runFreeAutoJobSlice = internalAction({
       void recordStreamEvent({
         kind: canRetry ? "warning" : "error",
         status: canRetry ? "skipped" : "failed",
-        title: canRetry ? "Agent slice failed; retry scheduled" : "Agent job failed",
+        title: canRetry ? "Agent slice failed; retry scheduled" : retryable ? "Agent job failed" : "Agent route blocked",
         text: fallback.finalText || publicStreamText,
         error: errorText(rootError),
-        metadata: { attempt: claimed.attempt, canRetry },
+        metadata: { attempt: claimed.attempt, canRetry, retryable },
         createdAt: Date.now(),
       });
       if (!canRetry) {

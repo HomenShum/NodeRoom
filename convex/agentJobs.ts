@@ -8,10 +8,17 @@ import { assertCreateArtifactLimits } from "./artifacts";
 import { syncSpreadsheetIndexFromSeed } from "./spreadsheetIndexLib";
 import { classifyIntakeMessage, buildPlanPreview } from "../src/nodeagent/core/intakePreflight";
 import { buildRoomWorkReasoningPlan, roomWorkFacetFrameId, roomWorkPhaseFrameId, type ReasoningFramePlan } from "../src/nodeagent/core/reasoningFrames";
+import {
+  FREE_FILE_EGRESS_BLOCK_REASON,
+  isOpenRouterFreeRoute,
+  providerEgressDecision,
+  type ProviderEgressArtifact,
+} from "../src/nodeagent/guardrails/egressPolicy";
 import { parseBulkCompanyIngest } from "../src/nodeagent/skills/finance/bulkIngest";
 
 // BOUND: cap a single bulk-diligence fan-out so one command can't enqueue unbounded jobs.
 const MAX_BULK_COMPANIES = 50;
+const DEFAULT_FILE_EGRESS_MODEL = "z-ai/glm-4.7-flash";
 function companyKeyOf(name: string): string {
   return name.trim().toLowerCase().replace(/\s+/g, "_").replace(/[^a-z0-9_]/g, "");
 }
@@ -1506,6 +1513,37 @@ function defaultModelPolicyForRoute(args: { routePolicy: RoutePolicy; entrypoint
   return process.env.AGENT_MODEL ?? "gemini-3.5-flash";
 }
 
+function configuredFileEgressModel() {
+  for (const candidate of [
+    process.env.AGENT_FILE_EGRESS_MODEL,
+    process.env.AGENT_MODEL_FILE_EGRESS,
+    DEFAULT_FILE_EGRESS_MODEL,
+    process.env.AGENT_MODEL,
+    process.env.AGENT_TOP_PAID_MODEL,
+  ]) {
+    const value = candidate?.trim();
+    if (value && !isOpenRouterFreeRoute(value)) return value;
+  }
+  return DEFAULT_FILE_EGRESS_MODEL;
+}
+
+function providerEgressArtifactFromRow(artifact: { title?: string; kind?: string; meta?: unknown; visibility?: string; source?: string }): ProviderEgressArtifact {
+  return {
+    title: artifact.title,
+    kind: artifact.kind,
+    meta: artifact.meta,
+    visibility: artifact.visibility,
+    source: artifact.source,
+  };
+}
+
+async function providerEgressArtifactsForRoom(ctx: any, roomId: Id<"rooms">, fallbackArtifact: { title?: string; kind?: string; meta?: unknown; visibility?: string }) {
+  const roomArtifacts = await ctx.db.query("artifacts").withIndex("by_room", (q: any) => q.eq("roomId", roomId)).collect();
+  return roomArtifacts.length
+    ? roomArtifacts.map(providerEgressArtifactFromRow)
+    : [providerEgressArtifactFromRow(fallbackArtifact)];
+}
+
 function defaultApprovalPolicyForEntrypoint(entrypoint: DurableStartEntrypoint) {
   return entrypoint === "free" ? "draft_first" : "auto_commit_safe";
 }
@@ -1681,16 +1719,30 @@ async function derivePublicStartPolicy(ctx: any, a: DurableStartAgentJobArgs): P
 async function startDurableAgentJob(ctx: any, a: DurableStartAgentJobArgs): Promise<DurableStartAgentJobResult> {
   if (a.goal.length > 2_000) throw new Error("goal_too_long");
   const execution = a.execution ?? "workflow";
-  const routePolicy = a.routePolicy ?? (a.modelPolicy ? "explicit" : "fast_default");
+  let routePolicy: RoutePolicy = a.routePolicy ?? (a.modelPolicy ? "explicit" : "fast_default");
   const runtimePolicy = a.runtimePolicy ?? "workflow_sliced";
-  const entrypoint = a.entrypoint ?? defaultEntrypointForRoute(routePolicy);
+  let entrypoint: DurableStartEntrypoint = a.entrypoint ?? defaultEntrypointForRoute(routePolicy);
   const scope = a.scope ?? "public_room";
   const actor = await requireActorProof(ctx, a.roomId, a.requester as any);
   const artifact = await requireArtifactInRoom(ctx, a.roomId, a.artifactId);
   requireJobArtifactAccess(artifact, actor, { allowPrivate: scope === "private_user" || entrypoint === "private_agent" || a.evidencePolicy === "private_allowed" });
+  const room = await ctx.db.get(a.roomId);
   const now = Date.now();
+  let modelPolicy = defaultModelPolicyForRoute({ routePolicy, entrypoint, mode: a.mode, modelPolicy: a.modelPolicy });
+  const egressArtifacts = await providerEgressArtifactsForRoom(ctx, a.roomId, artifact);
+  const freeFileEgressDecision = providerEgressDecision({
+    model: modelPolicy,
+    entrypoint,
+    artifacts: egressArtifacts,
+    env: process.env,
+  });
+  const promotedForFileEgress = !freeFileEgressDecision.ok && freeFileEgressDecision.reason === FREE_FILE_EGRESS_BLOCK_REASON;
+  if (promotedForFileEgress) {
+    entrypoint = "public_ask";
+    routePolicy = "explicit";
+    modelPolicy = configuredFileEgressModel();
+  }
   const maxAttempts = Math.max(1, Math.min(a.maxAttempts ?? (entrypoint === "free" ? 20 : 20), 100));
-  const modelPolicy = defaultModelPolicyForRoute({ routePolicy, entrypoint, mode: a.mode, modelPolicy: a.modelPolicy });
   const idempotencyKey = a.idempotencyKey ?? defaultJobIdempotencyKey({
     roomId: a.roomId,
     artifactId: a.artifactId,
@@ -1721,13 +1773,19 @@ async function startDurableAgentJob(ctx: any, a: DurableStartAgentJobArgs): Prom
     planBlocked = planPreview.scheduling !== "run_now";
     blockedReason = planBlocked ? `plan_${planPreview.scheduling}: ${planPreview.conflicts?.[0]?.detail ?? intake.reason}` : undefined;
   }
-  const approvalPolicy = a.approvalPolicy ?? defaultApprovalPolicyForEntrypoint(entrypoint);
+  const approvalPolicy = promotedForFileEgress
+    ? room?.autoAllow === false ? "host_review" : "auto_commit_safe"
+    : a.approvalPolicy ?? defaultApprovalPolicyForEntrypoint(entrypoint);
   const evidencePolicy = a.evidencePolicy ?? "public_only";
   const traceLevel = a.traceLevel ?? (execution === "inline" ? "standard" : "full_operation_ledger");
   const status = execution === "inline" ? (a.initialStatus ?? "running") : planBlocked ? "blocked" : "queued";
   const runtime = execution === "inline" ? "inline" : "workflow";
   const operationName = a.operationName ?? (execution === "inline" ? "agentJobs.createOrReuse" : "agentJobs.start");
-  const request = a.request ?? {
+  const requestBase = a.request && typeof a.request === "object" && !Array.isArray(a.request)
+    ? a.request as Record<string, unknown>
+    : {};
+  const request = clean({
+    ...requestBase,
     roomId: String(a.roomId),
     targetArtifactId: String(a.artifactId),
     commandText: a.goal,
@@ -1740,7 +1798,8 @@ async function startDurableAgentJob(ctx: any, a: DurableStartAgentJobArgs): Prom
     approvalPolicy,
     evidencePolicy,
     traceLevel,
-  };
+    fileEgressPromoted: promotedForFileEgress || undefined,
+  });
   const jobId = await ctx.db.insert("agentJobs", clean({
     roomId: a.roomId,
     artifactId: a.artifactId,
@@ -1753,7 +1812,7 @@ async function startDurableAgentJob(ctx: any, a: DurableStartAgentJobArgs): Prom
     priority: 0,
     approvalPolicy,
     evidencePolicy,
-    autoAllow: a.autoAllow ?? (execution === "inline" ? false : entrypoint !== "free"),
+    autoAllow: promotedForFileEgress ? room?.autoAllow !== false : a.autoAllow ?? (execution === "inline" ? false : entrypoint !== "free"),
     traceLevel,
     routePolicy,
     runtimePolicy,
@@ -1798,7 +1857,7 @@ async function startDurableAgentJob(ctx: any, a: DurableStartAgentJobArgs): Prom
     status: "started",
     title: "Room NodeAgent",
     text: a.goal,
-    metadata: { entrypoint, scope, routePolicy, runtimePolicy, runtimeProfile: a.runtimeProfile, modelPolicy },
+    metadata: { entrypoint, scope, routePolicy, runtimePolicy, runtimeProfile: a.runtimeProfile, modelPolicy, fileEgressPromoted: promotedForFileEgress || undefined },
     createdAt: now,
   });
   if (status === "blocked") {

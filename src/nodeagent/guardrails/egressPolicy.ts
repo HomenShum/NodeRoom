@@ -34,6 +34,7 @@ export type ProviderRouteDecision =
   | ({ ok: false; reason: string; provider?: ProviderRouteProvider | null } & Omit<ProviderRouteReceipt, "provider">);
 
 const DEFAULT_ALLOWED_PROVIDERS: ProviderRouteProvider[] = ["openai", "anthropic", "gemini", "openrouter", "local"];
+export const FREE_FILE_EGRESS_BLOCK_REASON = "free_file_egress_requires_OPENROUTER_FREE_ALLOW_FILE_EGRESS";
 
 export function isOpenRouterFreeRoute(model: string): boolean {
   const normalized = model.trim().toLowerCase();
@@ -65,7 +66,7 @@ export function providerEgressDecision(args: {
       return blocked("sensitive_artifact", artifact);
     }
     if (freeRoute && risk.fileDerived && env.OPENROUTER_FREE_ALLOW_FILE_EGRESS !== "1") {
-      return blocked("free_file_egress_requires_OPENROUTER_FREE_ALLOW_FILE_EGRESS", artifact);
+      return blocked(FREE_FILE_EGRESS_BLOCK_REASON, artifact);
     }
     if (freeRoute && risk.providerDerived && env.OPENROUTER_REQUIRE_NO_TRAINING !== "1") {
       return blocked("free_provider_parse_requires_OPENROUTER_REQUIRE_NO_TRAINING", artifact);
@@ -89,6 +90,20 @@ export function assertProviderEgressAllowed(args: {
     throw new Error(`provider_egress_blocked:${decision.reason}`);
   }
   return decision;
+}
+
+export function hasFileDerivedProviderEgress(artifacts: ProviderEgressArtifact[]): boolean {
+  return artifacts.some((artifact) => classifyArtifactEgress(artifact).fileDerived);
+}
+
+export function providerPolicyBlockedReason(error: unknown): string | undefined {
+  const message = error instanceof Error ? error.message : String(error);
+  const match = message.match(/\bprovider_(?:egress|route)_blocked:([A-Za-z0-9_:-]+)/);
+  return match?.[1];
+}
+
+export function isProviderPolicyBlockedError(error: unknown): boolean {
+  return providerPolicyBlockedReason(error) !== undefined;
 }
 
 export function providerRouteDecision(args: {

@@ -129,10 +129,34 @@ describe("long-running agent job source invariants", () => {
     const runner = readFileSync("convex/agentJobRunner.ts", "utf8");
     const artifacts = readFileSync("convex/artifacts.ts", "utf8");
 
-    expect(agent).toContain("artifacts: roomState.artifacts.map");
+    expect(agent).toContain("function providerEgressArtifactsFromRoomState");
+    expect(agent).toContain("roomState.artifacts.map");
     expect(runner).toContain('makeFunctionReference<"query">("artifacts:listForRoom")');
     expect(runner).toContain("roomArtifacts.map");
     expect(artifacts).toContain("meta: a.meta");
+  });
+
+  it("promotes uploaded-file free jobs to a configured non-free file-egress model instead of retry-looping", () => {
+    const agent = readFileSync("convex/agent.ts", "utf8");
+    const jobs = readFileSync("convex/agentJobs.ts", "utf8");
+    const runner = readFileSync("convex/agentJobRunner.ts", "utf8");
+    const env = readFileSync(".env.example", "utf8");
+
+    for (const source of [agent, jobs, runner]) {
+      expect(source).toContain("FREE_FILE_EGRESS_BLOCK_REASON");
+      expect(source).toContain("configuredFileEgressModel");
+      expect(source).toContain("AGENT_FILE_EGRESS_MODEL");
+      expect(source).toContain("providerEgressDecision");
+    }
+    for (const source of [jobs, runner]) expect(source).toContain('entrypoint = "public_ask"');
+    expect(agent).toContain("modelNameForEgress");
+    expect(jobs).toContain('routePolicy = "explicit"');
+    expect(jobs).toContain("fileEgressPromoted");
+    expect(jobs).toContain('room?.autoAllow === false ? "host_review" : "auto_commit_safe"');
+    expect(runner).toContain("isProviderPolicyBlockedError");
+    expect(runner).toContain("const retryable = !isProviderPolicyBlockedError(rootError)");
+    expect(runner).toContain('title: canRetry ? "Agent slice failed; retry scheduled" : retryable ? "Agent job failed" : "Agent route blocked"');
+    expect(env).toContain("AGENT_FILE_EGRESS_MODEL=z-ai/glm-4.7-flash");
   });
 
   it("does not assume provider-produced batch tool args always carry an ops array", () => {

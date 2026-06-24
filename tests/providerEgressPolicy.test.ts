@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 import {
+  FREE_FILE_EGRESS_BLOCK_REASON,
+  hasFileDerivedProviderEgress,
+  isProviderPolicyBlockedError,
   providerEgressDecision,
+  providerPolicyBlockedReason,
   providerRouteDecision,
 } from "../src/nodeagent/guardrails/egressPolicy";
 
@@ -200,5 +204,15 @@ describe("provider artifact egress policy", () => {
       artifacts: [uploadedFile],
       env: { PROVIDER_PARSER_ALLOW_FILE_EGRESS: "1" },
     })).toMatchObject({ ok: true });
+  });
+
+  it("exposes deterministic helpers for file-egress route promotion and non-retry failures", () => {
+    expect(hasFileDerivedProviderEgress([
+      { title: "Manual note", source: "manual" },
+      { title: "source_financials.csv", meta: { upload: { fileName: "source_financials.csv" } } },
+    ])).toBe(true);
+    expect(providerPolicyBlockedReason(new Error(`provider_egress_blocked:${FREE_FILE_EGRESS_BLOCK_REASON}`))).toBe(FREE_FILE_EGRESS_BLOCK_REASON);
+    expect(isProviderPolicyBlockedError(new Error("provider_route_blocked:provider_not_allowed"))).toBe(true);
+    expect(isProviderPolicyBlockedError(new Error("rate_limit_retryable"))).toBe(false);
   });
 });
