@@ -1,6 +1,6 @@
 import type { ArtifactMeta } from "../engine/types";
 import { documentParsePlan, guessDocumentMimeType } from "./documentParserPlan";
-import { isExcelWorkbook, isSpreadsheetFile, parseSpreadsheetArtifacts } from "./spreadsheetParser";
+import { isExcelWorkbook, isSpreadsheetFile, parseSpreadsheetArtifacts, spreadsheetArtifactFromRows } from "./spreadsheetParser";
 
 export type UploadedSourceFile = {
   blob: Blob;
@@ -69,11 +69,23 @@ export async function artifactsFromFile(file: File, signal?: AbortSignal): Promi
     const text = await file.text();
     return withSourceFile(await parseSpreadsheetArtifacts({ fileName: file.name, mimeType, size: file.size, text, delimiter: lower.endsWith(".tsv") ? "\t" : "," }), file, mimeType);
   }
-  const textLike = mimeType.startsWith("text/") || /(\.md|\.json|\.log)$/i.test(file.name);
+  const textLike = mimeType.startsWith("text/") || /(\.txt|\.md|\.json|\.log)$/i.test(file.name);
   const parse = documentParsePlan(file.name, mimeType);
   const doc: UploadDoc = { upload: true, fileName: file.name, mimeType, size: file.size, parse };
-  if (textLike) doc.text = await file.text();
-  else doc.dataUrl = await readAsDataUrl(file, signal);
+  if (textLike) {
+    const text = await file.text();
+    const structuredRows = isPlainTextKeyValueSource(file.name, mimeType) ? keyValueRows(text) : null;
+    if (structuredRows) {
+      return withSourceFile([spreadsheetArtifactFromRows({
+        fileName: file.name,
+        mimeType,
+        size: file.size,
+        rows: structuredRows,
+        parser: "text:key-value",
+      })], file, mimeType);
+    }
+    doc.text = text;
+  } else doc.dataUrl = await readAsDataUrl(file, signal);
   return withSourceFile([{ kind: "note", title: file.name, seed: [{ id: "doc", value: doc }], meta: { upload: { fileName: file.name, mimeType, size: file.size, parsedAt: Date.now() }, document: parse } }], file, mimeType);
 }
 
@@ -91,6 +103,33 @@ function withSourceFile(artifacts: UploadedArtifactInput[], file: File, mimeType
     ...artifact,
     sourceFile: { blob: file, fileName: file.name, mimeType, size: file.size },
   }));
+}
+
+function isPlainTextKeyValueSource(fileName: string, mimeType: string): boolean {
+  const lower = fileName.toLowerCase();
+  return lower.endsWith(".txt") || mimeType === "text/plain";
+}
+
+function keyValueRows(text: string): unknown[][] | null {
+  const lines = text.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+  if (!lines.length) return null;
+  const rows: unknown[][] = [["field", "value"]];
+  for (const line of lines) {
+    const match = /^([^:=\t]{1,120}?)\s*[:=]\s*(.+)$/.exec(line);
+    if (!match) return null;
+    const key = match[1].trim();
+    const value = match[2].trim();
+    if (!key || !/[A-Za-z0-9]/.test(key) || !value) return null;
+    rows.push([key, structuredScalar(value)]);
+  }
+  return rows.length > 1 ? rows : null;
+}
+
+function structuredScalar(value: string): unknown {
+  const unquoted = value.replace(/^(['"])(.*)\1$/, "$2").trim();
+  const compactNumber = unquoted.replace(/,/g, "");
+  if (/^[+-]?(?:\d+|\d*\.\d+)$/.test(compactNumber)) return Number(compactNumber);
+  return unquoted;
 }
 
 async function readAsDataUrl(file: File, signal?: AbortSignal): Promise<string> {
