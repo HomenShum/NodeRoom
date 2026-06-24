@@ -149,6 +149,55 @@ describe("agentJobs runtime contract", () => {
     expect(detail?.operations.map((event) => event.name)).toContain("agentJobs.start");
   });
 
+  it("promotes free public asks with uploaded file context to the file-egress model before queuing", async () => {
+    const previous = process.env.AGENT_FILE_EGRESS_MODEL;
+    process.env.AGENT_FILE_EGRESS_MODEL = "z-ai/glm-4.7-flash";
+    try {
+      const { t, proof, roomId, artifactId, actor } = await setupRoom({ seedElement: true });
+      const now = Date.now();
+      await t.run((ctx) =>
+        ctx.db.insert("artifacts", {
+          roomId,
+          kind: "note" as const,
+          title: "source_financials.csv",
+          version: 1,
+          order: ["source"],
+          updatedAt: now,
+          createdBy: actor,
+          visibility: "room" as const,
+          meta: { upload: { fileName: "source_financials.csv", mimeType: "text/csv", size: 96 } },
+        }),
+      );
+
+      const started = await t.mutation(api.agentJobs.startPublicAsk, {
+        roomId,
+        requester: proof,
+        goal: "compute the uploaded financial metrics and write the answers into Sheet 1",
+        contextArtifactId: String(artifactId),
+        routePolicy: "free_auto" as const,
+      });
+
+      const detail = await t.query(api.agentJobs.detail, { jobId: started.jobId, requester: proof });
+      expect(started).toMatchObject({
+        reused: false,
+        modelPolicy: "z-ai/glm-4.7-flash",
+        routePolicy: "explicit",
+      });
+      expect(detail?.job).toMatchObject({
+        entrypoint: "public_ask",
+        routePolicy: "explicit",
+        modelPolicy: "z-ai/glm-4.7-flash",
+        approvalPolicy: "auto_commit_safe",
+        autoAllow: true,
+      });
+      expect(detail?.job.request).toMatchObject({ fileEgressPromoted: true });
+      expect(detail?.streamEvents[0]?.metadata).toMatchObject({ fileEgressPromoted: true });
+    } finally {
+      if (previous === undefined) delete process.env.AGENT_FILE_EGRESS_MODEL;
+      else process.env.AGENT_FILE_EGRESS_MODEL = previous;
+    }
+  });
+
   it("keeps benchmark-completion public asks distinct from standard asks and records the profile", async () => {
     const { t, proof, roomId, artifactId } = await setupRoom({ seedElement: true });
     const goal = "compute these 5 metrics and write the visible cells";
