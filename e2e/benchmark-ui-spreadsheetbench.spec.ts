@@ -179,11 +179,23 @@ const PROMPT =
 async function readSheet(page: Page): Promise<Record<string, string>> {
   return page.evaluate(() => {
     const out: Record<string, string> = {};
+    const cellText = (cell: HTMLElement | null | undefined): string => {
+      if (!cell) return "";
+      const direct = Array.from(cell.childNodes)
+        .filter((node) => node.nodeType === Node.TEXT_NODE)
+        .map((node) => node.textContent ?? "")
+        .join("")
+        .trim();
+      if (direct) return direct;
+      const clone = cell.cloneNode(true) as HTMLElement;
+      clone.querySelectorAll(".r-srcchip,.lockbadge,.presencebadge").forEach((node) => node.remove());
+      return (clone.textContent || "").trim();
+    };
     document.querySelectorAll<HTMLElement>('[data-element-id$="__A"]').forEach((a) => {
       const rowId = (a.getAttribute("data-element-id") || "").replace(/__A$/, "");
       const b = document.querySelector<HTMLElement>(`[data-element-id="${rowId}__B"]`);
-      const metric = (a.textContent || "").trim().toLowerCase();
-      const val = (b?.textContent || "").trim();
+      const metric = cellText(a).toLowerCase();
+      const val = cellText(b);
       if (metric) out[metric] = val;
     });
     return out;

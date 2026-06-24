@@ -98,6 +98,26 @@ export async function parseSpreadsheetArtifacts(args: ParseSpreadsheetArgs): Pro
   })];
 }
 
+export function spreadsheetArtifactFromRows(args: {
+  fileName: string;
+  mimeType: string;
+  size: number;
+  rows: unknown[][];
+  sheetName?: string;
+  parser?: string;
+}): UploadedArtifactInput {
+  const sheetName = args.sheetName ?? "Sheet1";
+  return sheetArtifactFromRows({
+    fileName: args.fileName,
+    mimeType: args.mimeType,
+    size: args.size,
+    sheetName,
+    sheetNames: [sheetName],
+    rows: args.rows,
+    parser: args.parser ?? "rows",
+  });
+}
+
 function sheetArtifactFromWorkbookGrid(args: {
   fileName: string;
   mimeType: string;
