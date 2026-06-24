@@ -89,6 +89,12 @@ read-loop/done-without-writes steering, and bounded trace output. The simple
 mental model is still correct, but the production loop has the guardrails needed
 for durable workflow slices.
 
+> **Budget profile rule.** Normal public `@nodeagent` prompts use the conservative
+> `standard` profile. Higher budgets are opt-in via `deep_diligence` or
+> `benchmark_completion`, with visible labels and receipts. The source of truth is
+> `src/nodeagent/core/budgetProfiles.ts`; product policy and workflow map live in
+> `docs/NODEAGENT_FRICTION_BUDGET_POLICY.md` and `docs/nodeagent-action-map.json`.
+
 Here's the loop, lightly trimmed:
 
 ```ts

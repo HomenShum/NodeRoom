@@ -1,0 +1,95 @@
+{
+  "schemaVersion": 1,
+  "policy": "Run safe work automatically. Ask humans only when cost, privacy, evidence, or mutation risk crosses a threshold.",
+  "freshRoomReceiptPattern": "docs/eval/fresh-room/<case-id>/latest.json",
+  "workflows": [
+    {
+      "id": "create_or_join_room",
+      "userAction": "Create room or join room code.",
+      "uiTouched": ["Landing page", "Room code input", "Room header", "Binder / left rail", "Chat panel", "Main artifact surface"],
+      "backend": ["room create/join mutation", "room membership query", "initial artifact query"],
+      "frictionTarget": "1 click or paste code",
+      "approvalPolicy": "auto_run"
+    },
+    {
+      "id": "type_messy_note",
+      "userAction": "Type a messy note in the notebook.",
+      "uiTouched": ["Capture Notebook", "ProseMirror / notebook editor", "Save status", "Noteworthy chip", "Noteworthy Inbox"],
+      "backend": ["ProseMirror sync", "actor-authenticated dirty signal", "debounced snapshot processor", "ACL read model", "passive classifier"],
+      "frictionTarget": "zero extra clicks after typing",
+      "approvalPolicy": "auto_run_safe_classification"
+    },
+    {
+      "id": "public_agent_prompt",
+      "userAction": "Type @nodeagent in room chat.",
+      "uiTouched": ["Chat composer", "Model/preset selector", "Public chat feed", "Agent job card", "Stream/status line", "Trace tab", "Focus Mode toggle"],
+      "backend": ["optimistic user message", "startPublicAsk mutation", "agent job row", "runtime profile / model policy", "model/tool loop", "step trace", "final message fallback"],
+      "frictionTarget": "one text submission",
+      "approvalPolicy": "standard_budget_by_default"
+    },
+    {
+      "id": "agent_fills_spreadsheet_cells",
+      "userAction": "Ask the agent to fill a company research row.",
+      "uiTouched": ["Spreadsheet grid", "Formula bar", "Agent intent outline", "Evidence chips", "Cell status badges", "Proposal/conflict card", "Trace step row"],
+      "backend": ["build spreadsheet context", "write_locked_cell_results tool", "lock/intent claim", "per-cell version check", "CAS", "semantic rebase if stale", "CellPayload write", "mutation receipt"],
+      "frictionTarget": "auto-commit clean blanks, review exceptions",
+      "approvalPolicy": "auto_commit_clean_blanks_review_risky"
+    },
+    {
+      "id": "human_edits_while_agent_works",
+      "userAction": "Human edits C2 while the agent works A1:C5.",
+      "uiTouched": ["human focus box", "agent intent outline", "proposal badge", "conflict card"],
+      "backend": ["human focus / presence claim", "agent affected-set claim", "clean cell commit", "overlap deflected to proposal", "semantic rebase if stale"],
+      "frictionTarget": "human never loses cursor, agent never silently overwrites",
+      "approvalPolicy": "proposal_on_overlap"
+    },
+    {
+      "id": "capture_source_evidence",
+      "userAction": "Open or cite a source.",
+      "uiTouched": ["Source viewer", "Citation hovercard", "Evidence card", "bbox highlight", "Trace preview"],
+      "backend": ["capture_source", "cite_in_file", "source_open_literal", "source_resolve_citation", "evidence fact", "screenshot / bbox / quote", "source artifact id"],
+      "frictionTarget": "one hover or click for exact evidence",
+      "approvalPolicy": "evidence_required_for_writes"
+    },
+    {
+      "id": "focus_mode_follow_along",
+      "userAction": "Turn Focus Mode on and select a job.",
+      "uiTouched": ["Focus Mode toggle", "Watch Task selector", "Main artifact surface", "Trace caption", "Box highlights", "source/spreadsheet/notebook/deck viewer"],
+      "backend": ["selected job subscription", "trace/live operation focus events", "affected ids", "evidence bboxes", "proposals/conflicts"],
+      "frictionTarget": "one toggle, then watch selected job",
+      "approvalPolicy": "user_specific_view_only"
+    },
+    {
+      "id": "review_proposal",
+      "userAction": "Review one proposal or batch.",
+      "uiTouched": ["Proposal card", "Diff preview", "Evidence card", "Accept / reject / edit scope buttons", "Affected cell/source box"],
+      "backend": ["apply proposal mutation", "final CAS check", "mutation receipt", "trace update"],
+      "frictionTarget": "batch accept clean proposals, inspect risky exceptions",
+      "approvalPolicy": "human_review_required"
+    },
+    {
+      "id": "export_deliverable",
+      "userAction": "Click export XLSX / PDF / package.",
+      "uiTouched": ["Export toolbar", "Download toast", "Proof receipt panel", "Scorecard if eval mode"],
+      "backend": ["export action", "file generation", "download", "reopen validation if eval", "scorer handoff if benchmark"],
+      "frictionTarget": "one export click after artifact is ready",
+      "approvalPolicy": "real_export_path_required"
+    },
+    {
+      "id": "coach_review_readiness",
+      "userAction": "Open Coach Mode or answer a prompt.",
+      "uiTouched": ["Coach panel", "Expected answer outline", "User answer box", "Feedback card", "Missed evidence refs"],
+      "backend": ["coach question", "evidence/context packet", "evaluation action", "feedback artifact", "readiness delta"],
+      "frictionTarget": "optional one-click readiness review",
+      "approvalPolicy": "optional_user_initiated"
+    },
+    {
+      "id": "downstream_sync",
+      "userAction": "Export or send to Slack, Gmail, Notion, Linear, or CRM CSV.",
+      "uiTouched": ["Downstream draft panel", "Destination checkboxes", "Source/evidence summary", "Send/Export confirmation"],
+      "backend": ["downstream draft", "permission check", "connector action", "trace receipt"],
+      "frictionTarget": "draft first, explicit send",
+      "approvalPolicy": "explicit_approval"
+    }
+  ]
+}

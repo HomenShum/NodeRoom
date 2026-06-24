@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "caseId": "FR-010",
+  "status": "template_pending_live_run",
+  "runtimeProfile": "benchmark_completion",
+  "prompt": "Fresh-room live UI benchmark proof",
+  "tracePath": null,
+  "videoPath": null,
+  "screenshotPaths": [],
+  "exportedFiles": [],
+  "reopenedFiles": [],
+  "scorer": {
+    "official": false,
+    "name": "pending",
+    "passed": false,
+    "outputPath": null
+  },
+  "costUsd": 0,
+  "latencyMs": 0,
+  "tokenUsage": {
+    "input": 0,
+    "output": 0
+  },
+  "mutationCount": 0,
+  "proofSignals": {
+    "freshRoom": false,
+    "liveBrowser": false,
+    "memoryModeFalse": false,
+    "zeroFabrication": false,
+    "selfTestPassed": false,
+    "exportDownloaded": false,
+    "artifactReopened": false
+  },
+  "pass": false,
+  "note": "Contract path reserved. Do not cite as proof until a live browser run fills artifacts and pass=true."
+}
