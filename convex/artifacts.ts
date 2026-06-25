@@ -27,12 +27,15 @@ import { normalizeColumns, columnIdOfElement, type ColumnInput } from "../src/en
 import type { DataframeColumn } from "../src/engine/types";
 
 const MAX_ARTIFACT_TITLE_CHARS = 180;
-const MAX_ARTIFACT_SEED_ELEMENTS = 20_000;
+// Convex v.array() arguments are rejected above 8,192 items before this
+// mutation body can run, so keep the local contract aligned with that boundary.
+const MAX_ARTIFACT_SEED_ELEMENTS = 8_192;
 const MAX_ARTIFACT_SEED_BYTES = 5_000_000;
 const MAX_ELEMENT_ID_CHARS = 160;
 const MAX_RAW_UPLOAD_BYTES = 25_000_000;
 const MAX_UPLOAD_FILE_NAME_CHARS = 240;
 const MAX_UPLOAD_MIME_CHARS = 200;
+const MAX_DIRECT_ELEMENT_MAP_FIELDS = 900;
 const SPREADSHEET_INDEX_QUIET_MS = 1_500;
 const AGENT_INTENT_CONFLICT_DELAY_MS = 6_000;
 const AGENT_INTENT_TTL_MS = 45_000;
@@ -333,9 +336,82 @@ function scoreText(text: string, terms: string[]): number {
 
 type DataframeColumnMeta = { id?: unknown; label?: unknown; mode?: unknown; agentWritable?: unknown };
 type DataframeMetaLike = { columns?: unknown };
+type WorkbookSampleElement = { elementId: string; value: unknown };
+type ReadRangeCell = {
+  id: string;
+  value: unknown;
+  version: number;
+  locked: { by: string; reason: string } | null;
+  hint?: string;
+  artifactId?: Id<"artifacts">;
+  artifactTitle?: string;
+  sampleElementIds?: string[];
+  error?: string;
+};
 
 function objectRecord(value: unknown): Record<string, unknown> {
   return value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : {};
+}
+
+function hasExcelGridAddressSpace(meta: unknown): boolean {
+  const grid = objectRecord(objectRecord(meta).excelGrid);
+  return typeof grid.rows === "number" && typeof grid.columns === "number";
+}
+
+function normalizeExcelGridElementId(meta: unknown, elementId: string): string {
+  if (!hasExcelGridAddressSpace(meta)) return elementId;
+  const trimmed = elementId.trim();
+  if (/^[A-Z]{1,3}\d+$/i.test(trimmed)) return trimmed.toUpperCase();
+  const alias = trimmed.match(/^(?:r)?(\d+)__([A-Z]{1,3})$/i);
+  if (!alias) return elementId;
+  return `${alias[2].toUpperCase()}${Number(alias[1])}`;
+}
+
+function displayCellValue(value: unknown): unknown {
+  const record = objectRecord(value);
+  if ("value" in record) return record.value;
+  if ("rawValue" in record) return record.rawValue;
+  if ("text" in record) return record.text;
+  return value;
+}
+
+function isNonEmptyCellValue(value: unknown): boolean {
+  const display = displayCellValue(value);
+  if (display === null || display === undefined) return false;
+  if (typeof display === "string") return display.trim().length > 0;
+  if (typeof display === "number" || typeof display === "boolean") return true;
+  if (Array.isArray(display)) return display.some(isNonEmptyCellValue);
+  if (typeof display === "object") {
+    return Object.entries(objectRecord(display)).some(([key, child]) => key !== "status" && isNonEmptyCellValue(child));
+  }
+  return true;
+}
+
+async function workbookReadSample(ctx: any, artifactId: Id<"artifacts">, art: { meta?: unknown; order?: string[] }, sampleLimit: number) {
+  const elements = await ctx.db
+    .query("elements")
+    .withIndex("by_artifact", (q: any) => q.eq("artifactId", artifactId))
+    .collect() as WorkbookSampleElement[];
+  const byId = new Map<string, WorkbookSampleElement>(elements.map((element) => [
+    normalizeExcelGridElementId(art.meta, element.elementId),
+    element,
+  ]));
+  const orderedIds = Array.isArray(art.order) ? art.order.map(String).map((id) => normalizeExcelGridElementId(art.meta, id)) : [];
+  const databaseIds = elements.map((element: { elementId: string }) => normalizeExcelGridElementId(art.meta, element.elementId));
+  const sampleIds: string[] = [];
+  const seen = new Set<string>();
+  const push = (id: string) => {
+    if (!id || seen.has(id) || sampleIds.length >= sampleLimit) return;
+    seen.add(id);
+    sampleIds.push(id);
+  };
+
+  for (const id of orderedIds) if (isNonEmptyCellValue(byId.get(id)?.value)) push(id);
+  for (const id of databaseIds) if (isNonEmptyCellValue(byId.get(id)?.value)) push(id);
+  for (const id of orderedIds) push(id);
+  for (const id of databaseIds) push(id);
+
+  return { sampleIds, byId };
 }
 
 function dataframeColumnForElement(meta: unknown, elementId: string): DataframeColumnMeta | null {
@@ -397,11 +473,63 @@ export const readRange = internalQuery({
   handler: async (ctx, { roomId, artifactId, elementIds }) => {
     const art = await requireArtifactInRoom(ctx, roomId, artifactId);
     assertInternalArtifactReadable(art);
-    const out = [];
+    if (elementIds.length === 0) {
+      const sampleLimit = 24;
+      const { sampleIds } = await workbookReadSample(ctx, artifactId, art, sampleLimit);
+
+      const hint = "read_range requires explicit elementIds. Use these sampleElementIds, or call search_sheet_context with this artifactId to find the exact cells before retrying read_range.";
+      if (sampleIds.length === 0) {
+        return [{
+          id: "__read_range_missing_elementIds__",
+          value: null,
+          version: 0,
+          locked: null,
+          error: "missing_elementIds",
+          hint,
+          artifactId,
+          artifactTitle: art.title,
+          sampleElementIds: [],
+        }];
+      }
+
+      const sampleElementIds = sampleIds.slice(0, sampleLimit);
+      const out: ReadRangeCell[] = [];
+      for (const id of sampleElementIds) {
+        const el = await getElement(ctx, artifactId, id);
+        const lock = await activeLockOn(ctx, artifactId, id);
+        out.push({
+          id,
+          value: el?.value ?? null,
+          version: el?.version ?? 0,
+          locked: lock ? { by: lock.holder.name, reason: lock.reason } : null,
+          hint,
+          artifactId,
+          artifactTitle: art.title,
+          sampleElementIds,
+        });
+      }
+      return out;
+    }
+    const out: ReadRangeCell[] = [];
     for (const id of elementIds) {
-      const el = await getElement(ctx, artifactId, id);
-      const lock = await activeLockOn(ctx, artifactId, id);
-      out.push({ id, value: el?.value ?? null, version: el?.version ?? 0, locked: lock ? { by: lock.holder.name, reason: lock.reason } : null });
+      const resolvedId = normalizeExcelGridElementId(art.meta, id);
+      const el = await getElement(ctx, artifactId, resolvedId);
+      const lock = await activeLockOn(ctx, artifactId, resolvedId);
+      out.push({ id: resolvedId, value: el?.value ?? null, version: el?.version ?? 0, locked: lock ? { by: lock.holder.name, reason: lock.reason } : null });
+    }
+    if (hasExcelGridAddressSpace(art.meta) && out.length > 0 && out.every((cell) => !isNonEmptyCellValue(cell.value))) {
+      const { sampleIds } = await workbookReadSample(ctx, artifactId, art, 12);
+      const nonRequestedSampleIds = sampleIds.filter((id) => !out.some((cell) => cell.id === id));
+      if (nonRequestedSampleIds.length) {
+        const hint = `Requested cells were blank or missing in uploaded workbook "${art.title}". Use sampleElementIds or search_sheet_context with this artifactId before concluding the workbook is empty.`;
+        return out.map((cell) => ({
+          ...cell,
+          hint,
+          artifactId,
+          artifactTitle: art.title,
+          sampleElementIds: nonRequestedSampleIds,
+        }));
+      }
     }
     return out;
   },
@@ -1039,9 +1167,36 @@ export const elements = query({
     if (!art || art.roomId !== roomId) return {};
     if (!canReadArtifact(art, actor)) throw new Error("artifact_not_visible");
     const els = await ctx.db.query("elements").withIndex("by_artifact", (q) => q.eq("artifactId", artifactId)).collect();
+    if (els.length > MAX_DIRECT_ELEMENT_MAP_FIELDS) {
+      return {
+        __transport: "entries" as const,
+        entries: els.map((e) => [
+          e.elementId,
+          { id: e.elementId, version: e.version, value: e.value, updatedAt: e.updatedAt, updatedBy: e.updatedBy },
+        ]),
+      };
+    }
     const out: Record<string, { id: string; version: number; value: unknown; updatedAt: number; updatedBy: unknown }> = {};
     for (const e of els) out[e.elementId] = { id: e.elementId, version: e.version, value: e.value, updatedAt: e.updatedAt, updatedBy: e.updatedBy };
     return out;
+  },
+});
+
+export const sourceFilePreviewUrl = query({
+  args: { roomId: v.id("rooms"), artifactId: v.id("artifacts"), requester: actorProofV },
+  handler: async (ctx, { roomId, artifactId, requester }) => {
+    const actor = await requireActorProof(ctx, roomId, requester);
+    const art = await ctx.db.get(artifactId);
+    if (!art || art.roomId !== roomId) return null;
+    if (!canReadArtifact(art, actor)) throw new Error("artifact_not_visible");
+    const file = await ctx.db.query("uploadedFiles").withIndex("by_artifact", (q) => q.eq("artifactId", artifactId)).first();
+    if (!file || file.roomId !== roomId || file.status === "deleted") return null;
+    if (!canReadArtifact(file, actor)) throw new Error("source_file_not_visible");
+    const lowerName = file.fileName.toLowerCase();
+    const lowerMime = file.mimeType.toLowerCase();
+    if (lowerMime !== "application/pdf" && !lowerName.endsWith(".pdf")) return null;
+    const url = await ctx.storage.getUrl(file.storageId as Id<"_storage">);
+    return url ? { url, fileName: file.fileName, mimeType: file.mimeType, size: file.size } : null;
   },
 });
 
@@ -1466,5 +1621,69 @@ export const createArtifact = mutation({
     await ctx.db.insert("traces", { roomId: a.roomId, ts: now, actor: by, type: "edit_applied", summary: `${by.name} added ${a.title}`, detail: `create_artifact · ${a.kind} · ${String(artifactId)}` });
     await enqueueArtifactSnapshotForOkf(ctx, { roomId: a.roomId, artifactId });
     return artifactId;
+  },
+});
+
+export const createAgentFileArtifact = internalMutation({
+  args: {
+    roomId: v.id("rooms"),
+    actor: actorV,
+    fileName: v.string(),
+    mimeType: v.string(),
+    size: v.number(),
+    dataUrl: v.optional(v.string()),
+    text: v.optional(v.string()),
+    summary: v.optional(v.string()),
+    sourceArtifactIds: v.optional(v.array(v.string())),
+    sourceUrls: v.optional(v.array(v.string())),
+  },
+  handler: async (ctx, a) => {
+    if (!a.fileName || a.fileName.length > MAX_UPLOAD_FILE_NAME_CHARS) throw new Error("invalid_file_name");
+    if (a.mimeType.length > MAX_UPLOAD_MIME_CHARS) throw new Error("invalid_mime_type");
+    if (!Number.isFinite(a.size) || a.size <= 0 || a.size > MAX_RAW_UPLOAD_BYTES) throw new Error("file_size_not_allowed");
+    const room = await ctx.db.get(a.roomId);
+    if (!room) throw new Error("room_not_found");
+    const now = Date.now();
+    const doc = clean({
+      upload: true,
+      fileName: a.fileName,
+      mimeType: a.mimeType,
+      size: a.size,
+      dataUrl: a.dataUrl,
+      text: a.text,
+    });
+    const seed = [{ id: "doc", value: doc }];
+    const meta = clean({
+      upload: { fileName: a.fileName, mimeType: a.mimeType, size: a.size, parsedAt: now },
+      generated: {
+        by: "nodeagent",
+        summary: a.summary,
+        sourceArtifactIds: a.sourceArtifactIds ?? [],
+        sourceUrls: a.sourceUrls ?? [],
+      },
+    });
+    assertCreateArtifactLimits({ title: a.fileName, seed, meta });
+    const artifactId = await ctx.db.insert("artifacts", {
+      roomId: a.roomId,
+      kind: "note",
+      title: a.fileName,
+      version: 1,
+      order: ["doc"],
+      updatedAt: now,
+      createdBy: a.actor,
+      visibility: "room",
+      meta,
+    });
+    await ctx.db.insert("elements", { artifactId, elementId: "doc", value: doc, version: 1, updatedAt: now, updatedBy: a.actor });
+    await ctx.db.insert("traces", {
+      roomId: a.roomId,
+      ts: now,
+      actor: a.actor,
+      type: "edit_applied",
+      summary: `${a.actor.name} generated ${a.fileName}`,
+      detail: `create_agent_file_artifact - ${a.mimeType} - bytes=${a.size} - artifact=${String(artifactId)}`,
+    });
+    await enqueueArtifactSnapshotForOkf(ctx, { roomId: a.roomId, artifactId });
+    return { artifactId };
   },
 });

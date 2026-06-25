@@ -1,9 +1,14 @@
 import { describe, expect, it } from "vitest";
 import type { CellPayload } from "../src/engine/types";
-import { artifactsFromFile } from "../src/app/uploadedArtifact";
+import { artifactsFromFile, MAX_INLINE_PREVIEW_BYTES, MAX_RAW_UPLOAD_BYTES, parseUploadedFiles } from "../src/app/uploadedArtifact";
 
 function textFile(name: string, body: string, type = ""): File {
   const blob = new Blob([body], { type });
+  return Object.assign(blob, { name, lastModified: Date.now() }) as File;
+}
+
+function binaryFile(name: string, size: number, type = ""): File {
+  const blob = new Blob([new Uint8Array(size)], { type });
   return Object.assign(blob, { name, lastModified: Date.now() }) as File;
 }
 
@@ -41,5 +46,50 @@ describe("uploaded artifact parsing", () => {
     expect(artifact.kind).toBe("note");
     expect(artifact.title).toBe("meeting-notes.txt");
     expect((artifact.seed[0]?.value as { text?: string }).text).toContain("Discuss the model assumptions");
+  });
+
+  it("keeps common-size PDF filings storage-backed instead of inlining bytes into room elements", async () => {
+    const [artifact] = await parseUploadedFiles([
+      binaryFile("Google 10K - 2024.pdf", MAX_INLINE_PREVIEW_BYTES + 1, "application/pdf"),
+    ]);
+
+    const doc = artifact.seed[0]?.value as { fileName?: string; dataUrl?: string; text?: string; parse?: { lane?: string } };
+    expect(artifact.kind).toBe("note");
+    expect(doc.fileName).toBe("Google 10K - 2024.pdf");
+    expect(doc.dataUrl).toBeUndefined();
+    expect(doc.text).toBeUndefined();
+    expect(doc.parse?.lane).toBe("document_layout");
+    expect(artifact.sourceFile?.fileName).toBe("Google 10K - 2024.pdf");
+  });
+
+  it("keeps oversized document uploads as stored source artifacts without inline preview data", async () => {
+    const [artifact] = await parseUploadedFiles([
+      binaryFile("CAPRICOR THERAPEUTICS, INC._December 31, 2024 10K.pdf", MAX_INLINE_PREVIEW_BYTES + 1, "application/pdf"),
+    ]);
+
+    const doc = artifact.seed[0]?.value as { fileName?: string; dataUrl?: string; text?: string; parse?: { lane?: string } };
+    expect(artifact.kind).toBe("note");
+    expect(artifact.title).toContain("CAPRICOR THERAPEUTICS");
+    expect(doc.fileName).toContain("10K.pdf");
+    expect(doc.dataUrl).toBeUndefined();
+    expect(doc.text).toBeUndefined();
+    expect(doc.parse?.lane).toBe("document_layout");
+    expect(artifact.sourceFile?.fileName).toContain("10K.pdf");
+    expect(artifact.meta?.upload?.size).toBe(MAX_INLINE_PREVIEW_BYTES + 1);
+  });
+
+  it("rejects source files above the raw storage ceiling", async () => {
+    const oversized = {
+      name: "too-large.pdf",
+      type: "application/pdf",
+      size: MAX_RAW_UPLOAD_BYTES + 1,
+      lastModified: Date.now(),
+      arrayBuffer: async () => new ArrayBuffer(0),
+      text: async () => "",
+      slice: () => new Blob(),
+      stream: () => new Blob().stream(),
+    } as unknown as File;
+
+    await expect(parseUploadedFiles([oversized])).rejects.toThrow("too-large.pdf is too large for room source upload");
   });
 });

@@ -1,0 +1,94 @@
+{
+  "runId": "btb-a31173e3-after-fixes-20260624T212409",
+  "generatedAt": "2026-06-25T04:31:25.196Z",
+  "model": "gemini-3.5-flash",
+  "command": "npm run media:gemini-judge -- --run-id btb-a31173e3-after-fixes-20260624T212409 --out docs/eval/gemini-media-judges/btb-a31173e3-after-fixes --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\a31173e3-e8aa-4ddb-b0d9-e4e7055c950b\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\"",
+  "notes": [
+    "GIF assets are converted to temporary MP4 with ffmpeg before upload.",
+    "This media judge is evidence-quality QA; it does not replace backend/browser production gates."
+  ],
+  "counts": {
+    "total": 1,
+    "judged": 1,
+    "errors": 0,
+    "dryRun": 0,
+    "verdicts": {
+      "publish": 1
+    },
+    "defects": {
+      "P2": 1
+    }
+  },
+  "results": [
+    {
+      "asset": {
+        "id": "test-results-bankertoolbench-matrix-a31173e3-e8aa-4ddb-b0d9-e4e7055c950b-playwright-output-e2e-benchmark-ui-bankertoo-d0047-odeagent-package-verifier-video",
+        "class": "live_browser_proof",
+        "title": "Video",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\a31173e3-e8aa-4ddb-b0d9-e4e7055c950b\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\video.webm",
+        "relPath": "test-results/bankertoolbench/matrix/a31173e3-e8aa-4ddb-b0d9-e4e7055c950b/playwright-output/e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier/video.webm",
+        "purpose": "Live Playwright browser proof clip. Judge only visible product evidence: multi-client sync, advisory presence, no-clobber behavior, proposals, job/privacy/wall surfaces, and production honesty."
+      },
+      "model": "gemini-3.5-flash",
+      "status": "judged",
+      "mediaPath": "test-results/bankertoolbench/matrix/a31173e3-e8aa-4ddb-b0d9-e4e7055c950b/playwright-output/e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier/video.webm",
+      "mediaType": "video/webm",
+      "bytes": 7321543,
+      "judge": {
+        "verdict": "publish",
+        "summary": "The video demonstrates an end-to-end financial analysis workflow where multiple spreadsheets and PDF documents are uploaded to a collaborative room, followed by an agent executing a SOTP valuation task and generating a final PDF report.",
+        "scores": {
+          "featureClarity": {
+            "score": 1,
+            "evidence": "Shows file uploads and agent execution, but rapid actions reduce immediate clarity."
+          },
+          "workflowCompleteness": {
+            "score": 1,
+            "evidence": "Captures the full sequence from empty workspace to final PDF report generation."
+          },
+          "visualDesign": {
+            "score": 1,
+            "evidence": "Clean dark UI, though high-density tables and missing PDF previews look slightly unpolished."
+          },
+          "consistency": {
+            "score": 1,
+            "evidence": "Aligns well with the files, spreadsheets, and agent trace workspace concept."
+          },
+          "evidenceQuality": {
+            "score": 1,
+            "evidence": "Authentic end-to-end execution trace in a live browser environment."
+          },
+          "legibility": {
+            "score": 1,
+            "evidence": "High-density text and small spreadsheet cells are difficult to read at standard scale."
+          },
+          "professionalRelevance": {
+            "score": 1,
+            "evidence": "Demonstrates a realistic financial analysis workflow valuable for banking use cases."
+          },
+          "productionHonesty": {
+            "score": 1,
+            "evidence": "Transparently displays tool execution logs and actual output generation."
+          }
+        },
+        "observedEvidence": [
+          "Multi-file upload and spreadsheet population",
+          "Agent execution logs and tool trace",
+          "Final PDF report generation and rendering"
+        ],
+        "missingEvidence": [],
+        "defects": [
+          {
+            "ts": "00:14",
+            "severity": "P2",
+            "observed": "PDF files show a placeholder stating 'Preview is not available for this file type' instead of rendering a document preview.",
+            "fix": "Implement a basic PDF viewer or thumbnail preview for uploaded documents."
+          }
+        ],
+        "suggestedReadmeCaption": "Watch NodeAgent process financial spreadsheets and PDFs to generate a comprehensive SOTP valuation report."
+      },
+      "score": 8,
+      "maxScore": 16
+    }
+  ]
+}

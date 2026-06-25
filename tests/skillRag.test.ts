@@ -114,6 +114,16 @@ function firstResolvableLocalSlug(): string | null {
 }
 
 describe("load_skill — local read (no network)", () => {
+  it("loads the cataloged powerpoint skill used by deck and BTB runs", async () => {
+    const res = await loadSkill("powerpoint");
+    expect(res.ok).toBe(true);
+    if (!res.ok) return;
+    expect(res.source.kind).toBe("local");
+    expect(res.executionPolicy).toBe("trusted_local");
+    expect(res.body).toContain("BankerToolBench");
+    expect(res.meta.categories).toContain("presentation");
+  });
+
   it("reads a local skill body and marks it trusted_local", async () => {
     const slug = firstResolvableLocalSlug();
     if (!slug) return; // no local SKILL.md present in this checkout — covered by SSRF/honesty tests

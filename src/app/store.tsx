@@ -185,8 +185,9 @@ function browserNodeAgentRuntimeProfile(): AgentRuntimeProfile | undefined {
   try {
     const params = new URLSearchParams(window.location.search);
     const urlValue = params.get("nodeagentRuntimeProfile") ?? params.get("nodeagentProfile");
+    const focusMode = params.get("focusMode");
     const storedValue = window.localStorage?.getItem("noderoom.nodeagentRuntimeProfile");
-    return urlValue === "benchmark_completion" || storedValue === "benchmark_completion"
+    return urlValue === "benchmark_completion" || storedValue === "benchmark_completion" || focusMode === "1" || focusMode === "true"
       ? "benchmark_completion"
       : undefined;
   } catch {
@@ -195,7 +196,7 @@ function browserNodeAgentRuntimeProfile(): AgentRuntimeProfile | undefined {
 }
 
 function maxAttemptsForRuntimeProfile(runtimeProfile: AgentRuntimeProfile | undefined, requested?: number): number | undefined {
-  if (runtimeProfile === "benchmark_completion") return Math.max(requested ?? 100, 100);
+  if (runtimeProfile === "benchmark_completion") return Math.max(requested ?? 1000, 1000);
   return requested;
 }
 
@@ -1009,6 +1010,27 @@ const chanStr = (ch: Channel): string => (ch === "public" ? "public" : ch.privat
    the server does on every edit). Measured per-edit re-ship: ~64KB → 19–31KB. */
 type ElementsMap = Artifact["elements"];
 type MetaArtifact = Omit<Artifact, "elements"> & { elements?: ElementsMap };
+type ElementEntry = ElementsMap[string];
+type ElementsEntriesPayload = { __transport: "entries"; entries: Array<[string, ElementEntry]> };
+const MAX_DIRECT_ELEMENT_MAP_FIELDS = 900;
+
+function isElementsEntriesPayload(value: unknown): value is ElementsEntriesPayload {
+  return !!value && typeof value === "object" && !Array.isArray(value) &&
+    (value as { __transport?: unknown }).__transport === "entries" &&
+    Array.isArray((value as { entries?: unknown }).entries);
+}
+
+function elementsPayloadToMap(value: unknown): ElementsMap {
+  if (isElementsEntriesPayload(value)) return Object.fromEntries(value.entries) as ElementsMap;
+  return (value ?? {}) as ElementsMap;
+}
+
+function elementsMapToPayload(elements: ElementsMap, previous?: unknown): unknown {
+  if (isElementsEntriesPayload(previous) || Object.keys(elements).length > MAX_DIRECT_ELEMENT_MAP_FIELDS) {
+    return { __transport: "entries", entries: Object.entries(elements) };
+  }
+  return elements;
+}
 
 /** Element-scoped mirror of applyCellEditCore's apply step (convex/artifacts.ts): version bump,
  *  order handling for create/delete, updatedBy attribution — operates on ONE artifact's elements
@@ -1035,7 +1057,7 @@ function ArtifactElementsSubscriber({ roomId, artifactId, proof, onElements, onU
   onUnmount: (artifactId: string) => void;
 }) {
   const els = useQuery(api.artifacts.elements, { roomId: roomId as never, artifactId: artifactId as never, requester: proof });
-  useLayoutEffect(() => { if (els !== undefined) onElements(artifactId, els as unknown as ElementsMap); }, [artifactId, els, onElements]);
+  useLayoutEffect(() => { if (els !== undefined) onElements(artifactId, elementsPayloadToMap(els)); }, [artifactId, els, onElements]);
   useEffect(() => () => onUnmount(artifactId), [artifactId, onUnmount]);
   return null;
 }
@@ -1177,9 +1199,10 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
     const versionsQ = { roomId: args.roomId, requester: args.proof };
     const curVersions = local.getQuery(api.artifacts.versions, versionsQ);
     const rowVer = curVersions?.find((a) => String(a.id) === String(args.artifactId));
-    const baseOrder = (rowVer?.order ?? Object.keys(curEls as Record<string, unknown>)) as string[];
-    const { elements, order } = applyCellToElements(curEls as unknown as ElementsMap, baseOrder, args.elementId, args.kind ?? "set", args.value, args.proof.actor);
-    local.setQuery(api.artifacts.elements, elementsQ, elements as unknown as typeof curEls);
+    const curElements = elementsPayloadToMap(curEls);
+    const baseOrder = (rowVer?.order ?? Object.keys(curElements)) as string[];
+    const { elements, order } = applyCellToElements(curElements, baseOrder, args.elementId, args.kind ?? "set", args.value, args.proof.actor);
+    local.setQuery(api.artifacts.elements, elementsQ, elementsMapToPayload(elements, curEls) as typeof curEls);
     // Mirror the server's artifact-row bump (applyCellEditCore: version+updatedAt always, order on
     // create/delete) so the optimistic→authoritative swap is shape-identical (no version flicker).
     // Write to the versions query NOT to rooms.meta — the whole point of Phase 2 is to keep meta's
@@ -1245,7 +1268,8 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
     const now = Date.now();
     // Reconstruct a synthetic Artifact = {shell, cells} so the deterministic builder mirror stays
     // byte-identical to the server (same slugs, suffix-dedup, default columns).
-    const synthetic = { ...(rowMeta as unknown as Artifact), order: rowVer.order, version: rowVer.version, updatedAt: rowVer.updatedAt, elements: curEls as unknown as ElementsMap };
+    const curElements = elementsPayloadToMap(curEls);
+    const synthetic = { ...(rowMeta as unknown as Artifact), order: rowVer.order, version: rowVer.version, updatedAt: rowVer.updatedAt, elements: curElements };
     const nextOrder = [...synthetic.order];
     const elements = { ...synthetic.elements };
     let changed = false;
@@ -1301,7 +1325,7 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
     // Write BOTH caches in this one callback so the row count (versions.order) and the cells
     // (artifacts.elements) never momentarily disagree. B1 Phase 2: the bump-carriers go to
     // artifacts.versions, NOT rooms.meta (keeps meta's hash stable on cell-add writes too).
-    local.setQuery(api.artifacts.elements, elementsQ, elements as unknown as typeof curEls);
+    local.setQuery(api.artifacts.elements, elementsQ, elementsMapToPayload(elements, curEls) as typeof curEls);
     if (curVersions) {
       local.setQuery(api.artifacts.versions, versionsQ, curVersions.map((a) => String(a.id) === artifactId ? { ...a, order: nextOrder, version: a.version + 1, updatedAt: now } : a) as typeof curVersions);
     }

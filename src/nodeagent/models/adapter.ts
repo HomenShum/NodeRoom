@@ -17,7 +17,7 @@ import { generateText, tool, type ModelMessage, type LanguageModel } from "ai";
 import { anthropic } from "@ai-sdk/anthropic";
 import { google } from "@ai-sdk/google";
 import { openai, createOpenAI } from "@ai-sdk/openai";
-import type { AgentModel, AgentMessage, ToolCall } from "../core/types";
+import type { AgentModel, AgentMessage, AgentToolChoice, ToolCall } from "../core/types";
 import { getProviderForModel, getModelPricing, resolveModelAlias } from "./modelCatalog";
 import { isOpenRouterFreeAutoModel, selectOpenRouterFreeModels } from "./openRouterFreeModels";
 import { redactPII } from "../guardrails/gateway";
@@ -53,12 +53,12 @@ export function model(modelId: string, options: { entrypoint?: ProviderRouteEntr
   let resolvedModelId = aliasModelId;
   return {
     get name() { return resolvedModelId; },
-    async next({ system, messages, tools, signal }) {
+    async next({ system, messages, tools, signal, toolChoice }) {
       assertProviderEgressAllowed({ model: aliasModelId, entrypoint, artifacts, env: process.env });
       const safeSystem = redactPII(system).text;
       const safeMessages = messages.map((m) => (m.role === "user" && m.content ? { ...m, content: redactPII(m.content).text } : m));
       const sdkTools = Object.fromEntries(tools.map((t) => [t.name, tool({ description: t.description, inputSchema: t.schema })]));
-      const { res, resolvedModel } = await generateAgentText(aliasModelId, safeSystem, toSdkMessages(safeMessages), sdkTools, signal, entrypoint, artifacts);
+      const { res, resolvedModel } = await generateAgentText(aliasModelId, safeSystem, toSdkMessages(safeMessages), sdkTools, signal, entrypoint, artifacts, toolChoice);
       resolvedModelId = resolvedModel;
       const toolCalls: ToolCall[] = (res.toolCalls ?? []).map((tc: { toolCallId: string; toolName: string; input?: Record<string, unknown>; providerMetadata?: Record<string, unknown> }) => ({ id: tc.toolCallId, tool: tc.toolName, args: tc.input ?? {}, providerMetadata: tc.providerMetadata }));
       return {
@@ -137,12 +137,20 @@ async function generateAgentText(
   signal?: AbortSignal,
   entrypoint: ProviderRouteEntrypoint = "system",
   artifacts: ProviderEgressArtifact[] = [],
+  toolChoice?: AgentToolChoice,
 ): Promise<{ res: GenerateTextResultAny; resolvedModel: string }> {
   if (!isOpenRouterFreeAutoModel(modelId)) {
     const call = (id: string) => {
       assertProviderRouteAllowed({ model: id, entrypoint, env: process.env });
       assertProviderEgressAllowed({ model: id, entrypoint, artifacts, env: process.env });
-      return withRetry(() => generateText({ model: providerFor(id), system, messages, tools: sdkTools, abortSignal: signal }), signal);
+      return withRetry(() => generateText({
+        model: providerFor(id),
+        system,
+        messages,
+        tools: sdkTools,
+        toolChoice: Object.keys(sdkTools).length ? sdkToolChoiceForModel(id, toolChoice) : undefined,
+        abortSignal: signal,
+      }), signal);
     };
     try {
       return { res: await call(modelId), resolvedModel: modelId };
@@ -164,7 +172,14 @@ async function generateAgentText(
     try {
       assertProviderRouteAllowed({ model: candidate.id, entrypoint, env: process.env });
       assertProviderEgressAllowed({ model: candidate.id, entrypoint, artifacts, env: process.env });
-      return { res: await withRetry(() => generateText({ model: openrouter().chat(candidate.id), system, messages, tools: sdkTools, abortSignal: signal }), signal), resolvedModel: candidate.id };
+      return { res: await withRetry(() => generateText({
+        model: openrouter().chat(candidate.id),
+        system,
+        messages,
+        tools: sdkTools,
+        toolChoice: Object.keys(sdkTools).length ? sdkToolChoiceForModel(candidate.id, toolChoice) : undefined,
+        abortSignal: signal,
+      }), signal), resolvedModel: candidate.id };
     } catch (error) {
       if (signal?.aborted) throw error;
       lastError = error;
@@ -211,6 +226,14 @@ function shortProviderError(error: unknown): string {
 function envValue(name: string): string | undefined {
   const value = process.env[name]?.trim();
   return value || undefined;
+}
+
+function sdkToolChoiceForModel(modelId: string, requested?: AgentToolChoice): AgentToolChoice {
+  const choice = requested ?? "auto";
+  if (choice === "required" && getProviderForModel(modelId) === "openrouter" && /^(?:qwen\/qwen3(?:[.-]|$)|qwen3(?:[.-]|$))/i.test(modelId)) {
+    return "auto";
+  }
+  return choice;
 }
 
 function toSdkMessages(messages: AgentMessage[]): ModelMessage[] {

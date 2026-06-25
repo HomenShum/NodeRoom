@@ -24,10 +24,16 @@ import { retrieveUntilSufficient } from "../../retrieval/retrievalLoop";
  * before validation so a slightly-malformed batch call succeeds instead of looping. Batch stays
  * first-class and the single-cell tools are unaffected — this only widens what a batch call accepts.
  */
-function tolerantArray<T extends z.ZodTypeAny>(item: T, opts: { min?: number } = {}) {
+function tolerantArray<T extends z.ZodTypeAny>(item: T, opts: { min?: number; singleString?: boolean } = {}) {
   const base = opts.min != null ? z.array(item).min(opts.min) : z.array(item);
   return z.preprocess((v) => {
-    if (typeof v === "string") { try { v = JSON.parse(v); } catch { /* fall through to validation */ } }
+    if (typeof v === "string") {
+      try {
+        v = JSON.parse(v);
+      } catch {
+        if (opts.singleString) return [v];
+      }
+    }
     if (v != null && !Array.isArray(v) && typeof v === "object") return [v];
     return v;
   }, base);
@@ -675,13 +681,13 @@ const WRITE_LOCKED_CELL_RESULTS_TOOL: AgentTool = {
 export const ROOM_TOOLS: AgentTool[] = [
   {
     name: "read_range",
-    description: "Read the current value + version of specific cells. Works even on LOCKED cells (locked = read-only, not invisible). Call this before editing, and again after any conflict. Defaults to the primary file; pass artifactId (from list_artifacts) to read another file in the room.",
-    schema: z.object({ elementIds: z.array(z.string()).describe("cell ids, e.g. ['r_rev__variance','r_cogs__variance']"), artifactId: z.string().optional().describe("another file's id from list_artifacts; omit for the primary file") }),
-    execute: (a: { elementIds: string[]; artifactId?: string }, rt) => rt.readRange(a.elementIds, a.artifactId),
+    description: "Read the current value + version of specific cells. Works even on LOCKED cells (locked = read-only, not invisible). Call this before editing, and again after any conflict. Defaults to the primary file ONLY. For uploaded source workbooks or any non-primary file, you MUST pass artifactId from list_artifacts; A1-style ids like A1/B2 without artifactId usually read the blank Sheet 1 and are wrong. If you omit elementIds, the tool returns a bounded artifact sample and instructions instead of dumping the file.",
+    schema: z.object({ elementIds: tolerantArray(z.string(), { singleString: true }).optional().default([]).describe("cell ids, e.g. ['r_rev__variance','r_cogs__variance'] or uploaded workbook cells ['A1','B2']; a single id string is accepted and coerced to a one-cell read"), artifactId: z.string().optional().describe("another file's id from list_artifacts; REQUIRED for uploaded source workbooks and other non-primary files") }),
+    execute: (a: { elementIds?: string[]; artifactId?: string }, rt) => rt.readRange(a.elementIds ?? [], a.artifactId),
   },
   {
     name: "search_sheet_context",
-    description: "Search a spreadsheet's header-prepended semantic cell summaries and structural sub-grid chunks. Use this before reading/editing large uploaded sheets so you find relevant cells without dumping the full grid. Returns cell hits with elementId/coordinate and chunk hits with elementIds.",
+    description: "Search a spreadsheet's header-prepended semantic cell summaries and structural sub-grid chunks. Use this before reading/editing large uploaded sheets so you find relevant cells without dumping the full grid. For uploaded workbooks, pass artifactId from list_artifacts; otherwise you search only the primary blank Sheet 1. Returns cell hits with elementId/coordinate and chunk hits with elementIds.",
     schema: z.object({
       query: z.string().describe("business terms to search, e.g. 'software API fees cost' or 'ARR metric'"),
       artifactId: z.string().optional().describe("another file's id from list_artifacts; omit for the primary file"),
@@ -692,7 +698,7 @@ export const ROOM_TOOLS: AgentTool[] = [
   {
     name: "propose_lock",
     description: "Claim an affected range: make these cells read-only for everyone else while you edit. Returns { ok:true, lockId } or { ok:false } if already locked (then read + create_draft instead of waiting).",
-    schema: z.object({ elementIds: z.array(z.string()), reason: z.string().describe("one short phrase, shown to the room"), artifactId: z.string().optional() }),
+    schema: z.object({ elementIds: tolerantArray(z.string(), { singleString: true }), reason: z.string().describe("one short phrase, shown to the room"), artifactId: z.string().optional() }),
     execute: (a: { elementIds: string[]; reason: string; artifactId?: string }, rt) => rt.proposeLock(a.elementIds, a.reason, a.artifactId),
   },
   {
@@ -733,7 +739,7 @@ export const ROOM_TOOLS: AgentTool[] = [
   },
   {
     name: "list_artifacts",
-    description: "List the other files in this room (sheet/note/wiki/wall) with their id, title, and kind. Use this to discover a file to read or write — then pass its id as artifactId to read_range/edit_cell/write_cell_result. This is how one run reads one file and writes another (e.g. summarize a spreadsheet into a wiki note).",
+    description: "List the files in this room (sheet/note/wiki/wall) with id, title, kind, and read hints. Use this to discover uploaded source workbooks — then pass the chosen id as artifactId to search_sheet_context/read_range/edit_cell/write_cell_result. This is how one run reads one file and writes another; never read uploaded A1-style cells from the primary blank Sheet 1.",
     schema: z.object({}),
     execute: (_a: Record<string, never>, rt) => rt.listArtifacts(),
   },

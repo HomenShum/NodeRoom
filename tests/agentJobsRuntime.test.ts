@@ -149,6 +149,38 @@ describe("agentJobs runtime contract", () => {
     expect(detail?.operations.map((event) => event.name)).toContain("agentJobs.start");
   });
 
+  it("lets long official BTB asks infer benchmark mode while normal long chat stays capped", async () => {
+    const { t, proof, roomId, artifactId } = await setupRoom({ seedElement: true });
+    const longGoal = `Run the uploaded official BankerToolBench task.\n${"Build the full DCF package from the room source files. ".repeat(80)}`;
+    const longNormalGoal = `Summarize this room.\n${"Use the visible room context and write a concise note. ".repeat(80)}`;
+    expect(longGoal.length).toBeGreaterThan(2_000);
+    expect(longGoal.length).toBeLessThan(20_000);
+    expect(longNormalGoal.length).toBeGreaterThan(2_000);
+
+    await expect(t.mutation(api.agentJobs.startPublicAsk, {
+      roomId,
+      requester: proof,
+      goal: longNormalGoal,
+      contextArtifactId: String(artifactId),
+      routePolicy: "explicit" as const,
+      modelPolicy: "z-ai/glm-5.2",
+    })).rejects.toThrow(/goal_too_long/);
+
+    const started = await t.mutation(api.agentJobs.startPublicAsk, {
+      roomId,
+      requester: proof,
+      goal: longGoal,
+      contextArtifactId: String(artifactId),
+      routePolicy: "explicit" as const,
+      modelPolicy: "z-ai/glm-5.2",
+    });
+
+    const detail = await t.query(api.agentJobs.detail, { jobId: started.jobId, requester: proof });
+    expect(detail?.job.goal).toBe(longGoal);
+    expect(detail?.job.runtimeProfile).toBe("benchmark_completion");
+    expect(detail?.job.modelPolicy).toBe("z-ai/glm-5.2");
+  });
+
   it("promotes free public asks with uploaded file context to the file-egress model before queuing", async () => {
     const previous = process.env.AGENT_FILE_EGRESS_MODEL;
     process.env.AGENT_FILE_EGRESS_MODEL = "z-ai/glm-4.7-flash";
@@ -237,6 +269,33 @@ describe("agentJobs runtime contract", () => {
     });
   });
 
+  it("infers benchmark-completion for official BTB public asks without a client flag", async () => {
+    const { t, proof, roomId, artifactId } = await setupRoom({ seedElement: true });
+
+    const started = await t.mutation(api.agentJobs.startPublicAsk, {
+      roomId,
+      requester: proof,
+      goal: "Run official BankerToolBench task btb-a31173e3 in a fresh room and create the deliverable package",
+      contextArtifactId: String(artifactId),
+      routePolicy: "fast_default" as const,
+    });
+
+    const detail = await t.query(api.agentJobs.detail, { jobId: started.jobId, requester: proof });
+    expect(detail?.job).toMatchObject({
+      runtimeProfile: "benchmark_completion",
+      maxAttempts: 1000,
+    });
+    expect(detail?.job.request).toMatchObject({
+      runtimeProfile: "benchmark_completion",
+      source: "public_chat",
+    });
+    const claimed = await t.mutation(internal.agentJobs.claimSlice, { jobId: started.jobId, leaseId: "lease-benchmark-inferred", leaseMs: 60_000 });
+    expect(claimed).toMatchObject({
+      runtimeProfile: "benchmark_completion",
+      maxAttempts: 1000,
+    });
+  });
+
   it("materializes a scratch sheet before starting public asks in blank rooms", async () => {
     const { t, proof, roomId } = await setupBlankRoom();
 
@@ -261,8 +320,8 @@ describe("agentJobs runtime contract", () => {
     const elements = await t.run((ctx) => ctx.db.query("elements").withIndex("by_artifact", (q) => q.eq("artifactId", artifacts[0]._id)).collect());
     const indexedCells = await t.run((ctx) => ctx.db.query("spreadsheetCells").withIndex("by_artifact_element", (q) => q.eq("artifactId", artifacts[0]._id)).collect());
     const traces = await t.run((ctx) => ctx.db.query("traces").withIndex("by_room", (q) => q.eq("roomId", roomId)).collect());
-    expect(elements).toHaveLength(24);
-    expect(indexedCells).toHaveLength(24);
+    expect(elements).toHaveLength(96);
+    expect(indexedCells).toHaveLength(96);
     expect(traces.map((trace) => trace.detail ?? "")).toContainEqual(expect.stringContaining("blank_public_ask_fallback"));
   });
 
@@ -640,6 +699,71 @@ describe("agentJobs runtime contract", () => {
     expect(detail?.job.nextRunAt ?? 0).toBe(0);
     expect(detail?.attempts.map((attempt) => attempt.frameId)).toEqual(["rf_child", "rf_execute"]);
     expect(detail?.reasoningFrames.map((frame) => frame.status)).toEqual(["completed", "completed", "completed"]);
+  });
+
+  it("finishSlice compacts oversized handoff and cursor payloads before patching the job row", async () => {
+    const { t, proof, roomId, artifactId } = await setupRoom();
+    const { jobId } = await t.mutation(api.agentJobs.createOrReuse, jobArgs({ roomId, artifactId, proof, idempotencyKey: "job-runtime-compact-continuation" }));
+    const claimed = await t.mutation(internal.agentJobs.claimSlice, { jobId, leaseId: "lease-compact", leaseMs: 60_000 });
+    expect(claimed?.attempt).toBe(1);
+
+    const huge = "x".repeat(1_200_000);
+    const finished = await t.mutation(internal.agentJobs.finishSlice, {
+      ...finishSliceArgs({ jobId, leaseId: "lease-compact", attempt: 1 }),
+      status: "handoff" as const,
+      stopReason: "time_budget",
+      handoff: {
+        summary: huge,
+        latestAssistantText: huge,
+        nextGoal: huge,
+        remainingToolCalls: [{ id: "call-1", tool: "read_range", args: { elementIds: huge } }],
+      },
+      cursor: {
+        messages: [
+          { role: "user", content: "start" },
+          ...Array.from({ length: 40 }, (_, idx) => ({ role: "tool", toolName: "read_range", toolCallId: `c${idx}`, content: huge })),
+        ],
+        remainingToolCalls: [{ id: "call-2", tool: "read_range", args: { elementIds: huge } }],
+      },
+      scheduledNextAt: Date.now() + 1_000,
+    });
+
+    expect(finished).toEqual({ ok: true });
+    const detail = await t.query(api.agentJobs.detail, { jobId, requester: proof });
+    expect(JSON.stringify(detail?.job.handoff).length).toBeLessThan(300_000);
+    expect(JSON.stringify(detail?.job.cursor).length).toBeLessThan(300_000);
+    expect(detail?.job.status).toBe("paused");
+  });
+
+  it("finishSlice clears a stale slice error after a later clean completion", async () => {
+    const { t, proof, roomId, artifactId } = await setupRoom();
+    const { jobId } = await t.mutation(api.agentJobs.createOrReuse, jobArgs({ roomId, artifactId, proof, idempotencyKey: "job-runtime-clear-stale-error" }));
+
+    const firstClaim = await t.mutation(internal.agentJobs.claimSlice, { jobId, leaseId: "lease-error", leaseMs: 60_000 });
+    expect(firstClaim?.attempt).toBe(1);
+    const retried = await t.mutation(internal.agentJobs.finishSlice, {
+      ...finishSliceArgs({ jobId, leaseId: "lease-error", attempt: 1 }),
+      status: "retrying" as const,
+      stopReason: "slice_timeout",
+      error: "slice_timeout",
+      scheduledNextAt: Date.now() + 1_000,
+    });
+    expect(retried).toEqual({ ok: true });
+    let detail = await t.query(api.agentJobs.detail, { jobId, requester: proof });
+    expect(detail?.job.status).toBe("retrying");
+    expect(detail?.job.error).toBe("slice_timeout");
+
+    const secondClaim = await t.mutation(internal.agentJobs.claimSlice, { jobId, leaseId: "lease-clean", leaseMs: 60_000 });
+    expect(secondClaim?.attempt).toBe(2);
+    const completed = await t.mutation(internal.agentJobs.finishSlice, {
+      ...finishSliceArgs({ jobId, leaseId: "lease-clean", attempt: 2 }),
+      finalText: "completed cleanly",
+    });
+    expect(completed).toEqual({ ok: true });
+    detail = await t.query(api.agentJobs.detail, { jobId, requester: proof });
+    expect(detail?.job.status).toBe("completed");
+    expect(detail?.job.error).toBe("");
+    expect(detail?.job.finalText).toBe("completed cleanly");
   });
 
   it("cancel finalizes the job, releases active leases, and records a checkpoint", async () => {

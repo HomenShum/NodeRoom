@@ -102,9 +102,14 @@ describe("private artifact visibility", () => {
       roomId,
       artifactId,
       requester: { actor: hostActor, token: hostToken },
-    });
+    }) as Record<string, { value?: unknown }>;
     expect(hostElements["u1__company"]?.value).toBe("CardioNova");
     await expect(t.query(api.artifacts.elements, {
+      roomId,
+      artifactId,
+      requester: { actor: guestActor, token: guestToken },
+    })).rejects.toThrow(/artifact_not_visible/);
+    await expect(t.query(api.artifacts.sourceFilePreviewUrl, {
       roomId,
       artifactId,
       requester: { actor: guestActor, token: guestToken },

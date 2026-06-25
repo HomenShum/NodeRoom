@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { toolParameters } from "../src/nodeagent/models/convexModel";
-import { SERVER_PRODUCTION_TOOL_NAMES } from "../src/nodeagent/skills/server/productionTools";
+import { SERVER_PRODUCTION_ROOM_TOOLS, SERVER_PRODUCTION_TOOL_NAMES } from "../src/nodeagent/skills/server/productionTools";
+import { providerToolSchemaMismatches } from "../src/nodeagent/tools/schemaIntrospection";
 
 function propertiesOf(schema: Record<string, unknown>) {
   return schema.properties && typeof schema.properties === "object"
@@ -42,5 +43,17 @@ describe("NodeAgent provider tool schemas", () => {
       required: ["ops"],
       properties: { ops: { type: "array" } },
     });
+    expect(toolParameters("create_btb_deliverable_package")).toMatchObject({
+      required: ["title", "narrative"],
+      properties: { title: { type: "string" }, rows: { type: "array" } },
+    });
+  });
+
+  it("keeps provider JSON schemas in parity with the canonical Zod tool surface", () => {
+    const mismatches = SERVER_PRODUCTION_ROOM_TOOLS.flatMap((tool) =>
+      providerToolSchemaMismatches(tool, toolParameters(tool.name)).map((mismatch) => `${mismatch.tool}: ${mismatch.reason}`),
+    );
+
+    expect(mismatches).toEqual([]);
   });
 });

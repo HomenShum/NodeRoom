@@ -1,0 +1,100 @@
+{
+  "schema": 1,
+  "taskId": "bd2aa5d6-30cd-4b6f-875a-2c3626f56441",
+  "harborTaskId": "btb-bd2aa5d6",
+  "generatedAt": "2026-06-25T01:54:19.220Z",
+  "baseUrl": "http://127.0.0.1:5273",
+  "roomUrl": "http://127.0.0.1:5273/?room=NRZKMWSJ8Y6&name=Host",
+  "memoryMode": false,
+  "expectedExtensions": [
+    ".xlsx",
+    ".xlsm",
+    ".pptx",
+    ".docx",
+    ".pdf"
+  ],
+  "visibleExtensions": [
+    ".xlsx",
+    ".xlsm",
+    ".pptx",
+    ".docx",
+    ".pdf"
+  ],
+  "downloadedFiles": [
+    {
+      "kind": "workbook",
+      "filename": "btb-bd2aa5d6-btb-btb-bd2aa5d6-wacc-valuation-googl-meta-avp-xls-ppt-tev.xlsx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\bd2aa5d6-30cd-4b6f-875a-2c3626f56441\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-bd2aa5d6-btb-btb-bd2aa5d6-wacc-valuation-googl-meta-avp-xls-ppt-tev.xlsx",
+      "extension": ".xlsx",
+      "bytes": 6865,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (482 chars)"
+    },
+    {
+      "kind": "workbook",
+      "filename": "btb-bd2aa5d6-btb-btb-bd2aa5d6-wacc-valuation-googl-meta-avp-xls-ppt-tev.xlsm",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\bd2aa5d6-30cd-4b6f-875a-2c3626f56441\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-bd2aa5d6-btb-btb-bd2aa5d6-wacc-valuation-googl-meta-avp-xls-ppt-tev.xlsm",
+      "extension": ".xlsm",
+      "bytes": 6865,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (482 chars)"
+    },
+    {
+      "kind": "presentation",
+      "filename": "btb-bd2aa5d6-btb-btb-bd2aa5d6-wacc-valuation-googl-meta-avp-xls-ppt-tev.pptx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\bd2aa5d6-30cd-4b6f-875a-2c3626f56441\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-bd2aa5d6-btb-btb-bd2aa5d6-wacc-valuation-googl-meta-avp-xls-ppt-tev.pptx",
+      "extension": ".pptx",
+      "bytes": 6236,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains ppt/presentation.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (458 chars)"
+    },
+    {
+      "kind": "document",
+      "filename": "btb-bd2aa5d6-btb-btb-bd2aa5d6-wacc-valuation-googl-meta-avp-xls-ppt-tev.docx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\bd2aa5d6-30cd-4b6f-875a-2c3626f56441\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-bd2aa5d6-btb-btb-bd2aa5d6-wacc-valuation-googl-meta-avp-xls-ppt-tev.docx",
+      "extension": ".docx",
+      "bytes": 2205,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains word/document.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (437 chars)"
+    },
+    {
+      "kind": "pdf",
+      "filename": "btb-bd2aa5d6-btb-btb-bd2aa5d6-wacc-valuation-googl-meta-avp-xls-ppt-tev.pdf",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\bd2aa5d6-30cd-4b6f-875a-2c3626f56441\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-bd2aa5d6-btb-btb-bd2aa5d6-wacc-valuation-googl-meta-avp-xls-ppt-tev.pdf",
+      "extension": ".pdf",
+      "bytes": 1049,
+      "magic": "%PDF",
+      "reopened": true,
+      "reopenDetail": "PDF header reopened",
+      "contentQualityDetail": "placeholder/caveat content scan passed (1579 chars)"
+    }
+  ],
+  "packageManifestPath": "test-results\\bankertoolbench\\matrix\\bd2aa5d6-30cd-4b6f-875a-2c3626f56441\\package-manifest.json",
+  "verifierCommand": "npm run benchmark:bankertoolbench:proof",
+  "verifierOutputTail": "\n> noderoom@0.1.1 benchmark:bankertoolbench:proof\n> tsx scripts/bankertoolbench-proof-check.ts\n\nBankerToolBench proof check passed: stage=1/1 weightedRubric=6 run=0/1 pass positive=1/1 pass candidateBeforeEvaluator=true leaks=0/2+0/3+0/4\n",
+  "screenshot": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\bd2aa5d6-30cd-4b6f-875a-2c3626f56441\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\bankertoolbench-live-room.png",
+  "passed": true,
+  "gatesProven": [
+    "fresh_room_join",
+    "official_fixture_upload",
+    "public_nodeagent_invocation",
+    "visible_streaming_progress",
+    "focus_mode_enabled",
+    "focus_box_or_attention_overlay",
+    "agent_terminal_quality_gate",
+    "deliverable_export_download",
+    "artifact_reopen_validation",
+    "artifact_placeholder_scan",
+    "official_scorer_handoff",
+    "trace_video_artifacts",
+    "no_memory_mode_shortcut"
+  ]
+}

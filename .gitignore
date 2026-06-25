@@ -12,7 +12,12 @@ build/
 .idea/
 .claude/
 .nodeagent/
+.solo/
 .serena/
+/btb-*.json
+/btb-*.md
+/btb-*.png
+/docs/eval/gemini-media-judges/**/results/
 .DS_Store
 Thumbs.db
 *.log

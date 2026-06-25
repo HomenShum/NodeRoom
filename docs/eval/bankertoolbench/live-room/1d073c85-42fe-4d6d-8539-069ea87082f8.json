@@ -1,0 +1,100 @@
+{
+  "schema": 1,
+  "taskId": "1d073c85-42fe-4d6d-8539-069ea87082f8",
+  "harborTaskId": "btb-1d073c85",
+  "generatedAt": "2026-06-25T02:02:26.186Z",
+  "baseUrl": "http://127.0.0.1:5273",
+  "roomUrl": "http://127.0.0.1:5273/?room=NR8UINOU9OI&name=Host",
+  "memoryMode": false,
+  "expectedExtensions": [
+    ".xlsx",
+    ".xlsm",
+    ".pptx",
+    ".docx",
+    ".pdf"
+  ],
+  "visibleExtensions": [
+    ".xlsx",
+    ".xlsm",
+    ".pptx",
+    ".docx",
+    ".pdf"
+  ],
+  "downloadedFiles": [
+    {
+      "kind": "workbook",
+      "filename": "btb-1d073c85-shake-shack-lbo-initial-model-sources-uses-income-statement-cash-flow-debt-schedule.xlsx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\1d073c85-42fe-4d6d-8539-069ea87082f8\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-1d073c85-shake-shack-lbo-initial-model-sources-uses-income-statement-cash-flow-debt-schedule.xlsx",
+      "extension": ".xlsx",
+      "bytes": 11357,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (8711 chars)"
+    },
+    {
+      "kind": "workbook",
+      "filename": "btb-1d073c85-shake-shack-lbo-initial-model-sources-uses-income-statement-cash-flow-debt-schedule.xlsm",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\1d073c85-42fe-4d6d-8539-069ea87082f8\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-1d073c85-shake-shack-lbo-initial-model-sources-uses-income-statement-cash-flow-debt-schedule.xlsm",
+      "extension": ".xlsm",
+      "bytes": 11357,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (8711 chars)"
+    },
+    {
+      "kind": "presentation",
+      "filename": "btb-1d073c85-shake-shack-lbo-initial-model-sources-uses-income-statement-cash-flow-debt-schedule.pptx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\1d073c85-42fe-4d6d-8539-069ea87082f8\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-1d073c85-shake-shack-lbo-initial-model-sources-uses-income-statement-cash-flow-debt-schedule.pptx",
+      "extension": ".pptx",
+      "bytes": 7820,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains ppt/presentation.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (3727 chars)"
+    },
+    {
+      "kind": "document",
+      "filename": "btb-1d073c85-shake-shack-lbo-initial-model-sources-uses-income-statement-cash-flow-debt-schedule.docx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\1d073c85-42fe-4d6d-8539-069ea87082f8\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-1d073c85-shake-shack-lbo-initial-model-sources-uses-income-statement-cash-flow-debt-schedule.docx",
+      "extension": ".docx",
+      "bytes": 4558,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains word/document.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (6520 chars)"
+    },
+    {
+      "kind": "pdf",
+      "filename": "btb-1d073c85-shake-shack-lbo-initial-model-sources-uses-income-statement-cash-flow-debt-schedule.pdf",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\1d073c85-42fe-4d6d-8539-069ea87082f8\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-1d073c85-shake-shack-lbo-initial-model-sources-uses-income-statement-cash-flow-debt-schedule.pdf",
+      "extension": ".pdf",
+      "bytes": 4589,
+      "magic": "%PDF",
+      "reopened": true,
+      "reopenDetail": "PDF header reopened",
+      "contentQualityDetail": "placeholder/caveat content scan passed (8633 chars)"
+    }
+  ],
+  "packageManifestPath": "test-results\\bankertoolbench\\matrix\\1d073c85-42fe-4d6d-8539-069ea87082f8\\package-manifest.json",
+  "verifierCommand": "npm run benchmark:bankertoolbench:proof",
+  "verifierOutputTail": "\n> noderoom@0.1.1 benchmark:bankertoolbench:proof\n> tsx scripts/bankertoolbench-proof-check.ts\n\nBankerToolBench proof check passed: stage=1/1 weightedRubric=6 run=0/1 pass positive=1/1 pass candidateBeforeEvaluator=true leaks=0/2+0/3+0/4\n",
+  "screenshot": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\1d073c85-42fe-4d6d-8539-069ea87082f8\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\bankertoolbench-live-room.png",
+  "passed": true,
+  "gatesProven": [
+    "fresh_room_join",
+    "official_fixture_upload",
+    "public_nodeagent_invocation",
+    "visible_streaming_progress",
+    "focus_mode_enabled",
+    "focus_box_or_attention_overlay",
+    "agent_terminal_quality_gate",
+    "deliverable_export_download",
+    "artifact_reopen_validation",
+    "artifact_placeholder_scan",
+    "official_scorer_handoff",
+    "trace_video_artifacts",
+    "no_memory_mode_shortcut"
+  ]
+}

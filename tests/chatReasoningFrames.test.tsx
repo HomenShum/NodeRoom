@@ -172,8 +172,12 @@ describe("Chat reasoning-frame job detail", () => {
     render(<Chat roomId="r1" me={me} channel="public" variant="public" agentName="Room NodeAgent" />);
 
     expect(screen.getByTestId("agent-unified-stream")).toBeTruthy();
+    expect(screen.getByTestId("agent-progress-card")).toBeTruthy();
+    expect(screen.getByText("Updated Sheet 1")).toBeTruthy();
     expect(screen.getByRole("table")).toBeTruthy();
     expect(screen.getByRole("columnheader", { name: "Variance %" })).toBeTruthy();
+    expect(screen.queryByText("write_locked_cells")).toBeNull();
+    fireEvent.click(screen.getByTestId("agent-progress-details-toggle"));
     expect(screen.getByText("write_locked_cells")).toBeTruthy();
     expect(screen.queryByTestId("agent-operation-stream")).toBeNull();
   });
@@ -258,6 +262,81 @@ describe("Chat reasoning-frame job detail", () => {
     expect(screen.getByText("Done from the durable job row.")).toBeTruthy();
     expect(screen.queryByTestId("job-status")).toBeNull();
     expect(screen.queryByTestId("public-chat-empty")).toBeNull();
+  });
+
+  it("labels completed agent progress as complete even when step-start markers remain started", () => {
+    const store = baseStore();
+    store.lastLongFreeJob = () => ({
+      id: "job1",
+      status: "completed",
+      entrypoint: "public_ask",
+      runtime: "workflow",
+      attempts: 1,
+      maxAttempts: 1000,
+      modelPolicy: "z-ai/glm-5.2",
+      approvalPolicy: "auto_commit_safe",
+      evidencePolicy: "public_only",
+      finalText: "Room artifact count: 1.",
+      updatedAt: 1,
+    });
+    store.lastLongFreeJobDetail = () => ({
+      operations: [],
+      reasoningFrames: [],
+      receipts: [],
+      leases: [],
+      draftOperations: [],
+      latestSteps: [],
+      streamEvents: [],
+      streamParts: [
+        { type: "step-start" as const, title: "Model turn 1", step: 0, state: "started" as const },
+        { type: "tool-list_artifacts" as const, toolName: "list_artifacts", toolCallId: "call-list", state: "output-available" as const, status: "completed" as const, output: [{ id: "sheet1", title: "Sheet 1" }] },
+        { type: "tool-say" as const, toolName: "say", toolCallId: "call-say", state: "output-available" as const, status: "completed" as const, output: { ok: true } },
+        { type: "text" as const, text: "Room artifact count: 1.", state: "done" as const },
+      ],
+    });
+    mockStore.current = store;
+
+    render(<Chat roomId="r1" me={me} channel="public" variant="public" agentName="Room NodeAgent" />);
+
+    expect(screen.getByText("NodeAgent completed the run")).toBeTruthy();
+    expect(screen.queryByText("NodeAgent is working")).toBeNull();
+  });
+
+  it("labels completed jobs with recovered tool errors as recovered instead of needing attention", () => {
+    const store = baseStore();
+    store.lastLongFreeJob = () => ({
+      id: "job1",
+      status: "completed",
+      entrypoint: "public_ask",
+      runtime: "workflow",
+      attempts: 1,
+      maxAttempts: 1000,
+      modelPolicy: "qwen/qwen3.7-plus",
+      approvalPolicy: "auto_commit_safe",
+      evidencePolicy: "public_only",
+      finalText: "BTB task complete. Deliverable package created.",
+      updatedAt: 1,
+    });
+    store.lastLongFreeJobDetail = () => ({
+      operations: [],
+      reasoningFrames: [],
+      receipts: [],
+      leases: [],
+      draftOperations: [],
+      latestSteps: [],
+      streamEvents: [],
+      streamParts: [
+        { type: "tool-source_open_literal" as const, toolName: "source_open_literal", toolCallId: "call-bad", state: "output-error" as const, status: "failed" as const, error: "tool_argument_error" },
+        { type: "tool-create_btb_deliverable_package" as const, toolName: "create_btb_deliverable_package", toolCallId: "call-package", state: "output-available" as const, status: "completed" as const, output: { ok: true } },
+        { type: "text" as const, text: "BTB task complete. Deliverable package created.", state: "done" as const },
+      ],
+    });
+    mockStore.current = store;
+
+    render(<Chat roomId="r1" me={me} channel="public" variant="public" agentName="Room NodeAgent" />);
+
+    expect(screen.getByText("NodeAgent completed with recovered steps")).toBeTruthy();
+    expect(screen.queryByText("NodeAgent needs attention")).toBeNull();
   });
 
   it("renders agent markdown with lists and tables instead of raw syntax", () => {

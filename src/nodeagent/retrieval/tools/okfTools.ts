@@ -95,7 +95,7 @@ export const OKF_RETRIEVAL_TOOLS: AgentTool[] = [
   },
   {
     name: "source_open_literal",
-    description: "Open a literal source concept/location by sourceArtifactId plus optional page/row/column/bbox. Use before presenting a claim as verified.",
+    description: "Open a literal source concept/location by exact sourceArtifactId plus optional page/row/column/bbox. For uploaded workbooks, prefer row-only calls like {sourceArtifactId,row} to return a compact A-Z row before falling back to individual cells. Use the artifact id returned by list_artifacts/source evidence; if artifact_not_found is returned, retry with the exact id rather than guessing or truncating.",
     schema: z.object({
       sourceArtifactId: z.string(),
       page: z.number().int().positive().optional(),

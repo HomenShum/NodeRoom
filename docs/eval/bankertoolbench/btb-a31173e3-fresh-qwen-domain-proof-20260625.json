@@ -1,0 +1,93 @@
+{
+  "plan": {
+    "schema": 1,
+    "benchmark": "bankertoolbench",
+    "caseId": "FR-020",
+    "generatedAt": "2026-06-25T10:41:33.733Z",
+    "bundleRoot": ".tmp/official-benchmarks/btb-fixture",
+    "totalTasks": 100,
+    "selectedTaskCount": 1,
+    "offset": 0,
+    "taskIds": [
+      "a31173e3-e8aa-4ddb-b0d9-e4e7055c950b"
+    ],
+    "tasks": [
+      {
+        "index": 12,
+        "taskId": "a31173e3-e8aa-4ddb-b0d9-e4e7055c950b",
+        "harborTaskId": "btb-a31173e3",
+        "command": "npx",
+        "args": [
+          "playwright",
+          "test",
+          "--config",
+          "playwright.real-flow.config.ts",
+          "e2e/benchmark-ui-bankertoolbench.spec.ts",
+          "--headed",
+          "--output",
+          "test-results\\bankertoolbench\\matrix\\a31173e3-e8aa-4ddb-b0d9-e4e7055c950b\\playwright-output"
+        ],
+        "env": {
+          "BTB_LIVE_ROOM_E2E": "1",
+          "BTB_UI_BUNDLE_ROOT": ".tmp/official-benchmarks/btb-fixture",
+          "BTB_UI_VERIFIER_COMMAND": "npm run benchmark:bankertoolbench:proof",
+          "BENCH_BASE_URL": "http://127.0.0.1:5273",
+          "BENCH_AGENT_MODEL_MODE": "specific",
+          "BENCH_AGENT_MODEL_POLICY": "qwen/qwen3.7-plus",
+          "BTB_AGENT_COMPLETION_TIMEOUT_MS": "9000000",
+          "BTB_AGENT_TERMINAL_TIMEOUT_MS": "9000000",
+          "BTB_TEST_TIMEOUT_MS": "18600000",
+          "PLAYWRIGHT_TRACE": "on",
+          "PLAYWRIGHT_RECORD_VIDEO": "1",
+          "BTB_UI_TASK_ID": "a31173e3-e8aa-4ddb-b0d9-e4e7055c950b",
+          "BTB_FRESH_ROOM_PROOF_PATH": "docs\\eval\\fresh-room\\FR-020\\tasks\\a31173e3-e8aa-4ddb-b0d9-e4e7055c950b\\latest.json",
+          "BTB_LIVE_ROOM_PROOF_PATH": "docs\\eval\\bankertoolbench\\live-room\\a31173e3-e8aa-4ddb-b0d9-e4e7055c950b.json",
+          "BTB_PACKAGE_MANIFEST_PATH": "test-results\\bankertoolbench\\matrix\\a31173e3-e8aa-4ddb-b0d9-e4e7055c950b\\package-manifest.json",
+          "BTB_UI_MATRIX_TASK_INDEX": "12",
+          "BTB_UI_MATRIX_TASK_COUNT": "100"
+        },
+        "receiptPath": "docs\\eval\\fresh-room\\FR-020\\tasks\\a31173e3-e8aa-4ddb-b0d9-e4e7055c950b\\latest.json",
+        "legacyProofPath": "docs\\eval\\bankertoolbench\\live-room\\a31173e3-e8aa-4ddb-b0d9-e4e7055c950b.json",
+        "packageManifestPath": "test-results\\bankertoolbench\\matrix\\a31173e3-e8aa-4ddb-b0d9-e4e7055c950b\\package-manifest.json",
+        "expectedFiles": [
+          "docs\\eval\\fresh-room\\FR-020\\tasks\\a31173e3-e8aa-4ddb-b0d9-e4e7055c950b\\latest.json",
+          "docs\\eval\\bankertoolbench\\live-room\\a31173e3-e8aa-4ddb-b0d9-e4e7055c950b.json",
+          "test-results\\bankertoolbench\\matrix\\a31173e3-e8aa-4ddb-b0d9-e4e7055c950b\\package-manifest.json"
+        ]
+      }
+    ]
+  },
+  "status": {
+    "schema": 1,
+    "benchmark": "bankertoolbench",
+    "caseId": "FR-020",
+    "generatedAt": "2026-06-25T10:41:33.773Z",
+    "bundleRoot": ".tmp/official-benchmarks/btb-fixture",
+    "totalTasks": 100,
+    "selectedTaskCount": 1,
+    "provenTaskCount": 1,
+    "failedReceiptCount": 0,
+    "missingReceiptCount": 0,
+    "passRate": 1,
+    "fullBenchmarkClaim": "not_ready",
+    "ledgerPath": "docs/eval/fresh-room/FR-020/matrix-ledger.json",
+    "rows": [
+      {
+        "taskId": "a31173e3-e8aa-4ddb-b0d9-e4e7055c950b",
+        "harborTaskId": "btb-a31173e3",
+        "receiptPath": "docs\\eval\\fresh-room\\FR-020\\tasks\\a31173e3-e8aa-4ddb-b0d9-e4e7055c950b\\latest.json",
+        "source": "task_receipt",
+        "passed": true,
+        "validationErrors": [],
+        "generatedAt": "2026-06-25T10:38:18.835Z",
+        "roomId": "NRNNNQC2IO9",
+        "roomUrl": "http://127.0.0.1:5273/?room=NRNNNQC2IO9&name=Host",
+        "model": "qwen/qwen3.7-plus",
+        "runtimeProfile": "benchmark_completion",
+        "exportedFileCount": 5,
+        "reopenedFileCount": 5,
+        "visualJudgeVerdict": "pass"
+      }
+    ]
+  }
+}

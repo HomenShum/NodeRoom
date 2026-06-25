@@ -1,0 +1,284 @@
+{
+  "schema": 1,
+  "caseId": "FR-020",
+  "benchmark": "bankertoolbench",
+  "taskId": "69fcdefe-f4af-4676-ba21-b5c23c6b2f7c",
+  "generatedAt": "2026-06-25T01:50:49.030Z",
+  "baseUrl": "http://127.0.0.1:5273",
+  "roomId": "NRG8WBQBRB3",
+  "roomUrl": "http://127.0.0.1:5273/?room=NRG8WBQBRB3&name=Host",
+  "command": "BTB_LIVE_ROOM_E2E=1 BTB_UI_BUNDLE_ROOT=<official-bundle> BTB_UI_VERIFIER_COMMAND=<verifier> BENCH_BASE_URL=<base> npx playwright test --config playwright.real-flow.config.ts e2e/benchmark-ui-bankertoolbench.spec.ts --headed",
+  "model": {
+    "requested": "specific",
+    "resolved": "z-ai/glm-5.2",
+    "routePolicy": "specific",
+    "runtimeProfile": "benchmark_completion",
+    "provider": "openrouter"
+  },
+  "prompt": "Official BankerToolBench task btb-69fcdefe: You are an Associate at an investment banking firm. Your VP has notified you of an upcoming meeting with Okta for a valuation review. He thinks a relative valuation would help them better understand their positioning. Using historical financials (Capital Structure and Income Statement) for Okta (OKTA), Zscaler and Cloudflare, please complete a comparable analysis.\nInclude the following companies in Okta’s comps list:\n•        Palo Alto Networks (PANW)\n•        Cloudflare (NET)\n•        Zscaler (ZS)\n•        CyberArk (CYBR)\nInclude the following metrics in the comps table:\n•        Market Data\no        Share Price\no        Market Cap\no        Enterprise Value\n•        Financial Data\no        Sales\no        EBITDA\no        EBITDA Margin %\n•        Valuation Data\no        EV/Revenue Multiple\no        EV/EBITDA Multiple\n•        Below the comps table include two separate tables for the below:\no        Average and Median of Okta’s comp set\n        Average and Median EV/Revenue\n        Average and Median EV/EBITDA\no        OKTA Discount vs Average/Median\n        Okta Discount vs Average EV/Revenue and EV/EBITDA\n        Okta Discount vs Median EV/Revenue and EV/EBITDA\nPlease include s",
+  "memoryMode": false,
+  "freshness": {
+    "roomCreatedAfterRunStart": true,
+    "forbiddenPreloadedArtifactsAbsent": true,
+    "artifactsCreatedFresh": [
+      "btb-task-btb-task-btb-69fcdefe.xlsx",
+      "btb-task-btb-task-btb-69fcdefe.xlsm",
+      "btb-task-btb-task-btb-69fcdefe.pptx",
+      "btb-task-btb-task-btb-69fcdefe.docx",
+      "btb-task-btb-task-btb-69fcdefe.pdf"
+    ],
+    "uploadedFiles": [
+      "betas_by_industry_category_for_WACC.xlsx",
+      "Equity_Risk_Premium_for_WACC.xlsx",
+      "OKTA-US Company Identity.xlsx",
+      "OKTA-US Income Statement Annual.xlsx",
+      "OKTA-US Balance Sheet Annual.xlsx",
+      "OKTA-US Cash Flow Annual.xlsx",
+      "OKTA-US Shares Outstanding.xlsx",
+      "OKTA-US Price History.xlsx",
+      "OKTA-US Revenue Estimate.xlsx",
+      "OKTA-US Earnings Estimate.xlsx",
+      "PANW-US Company Identity.xlsx",
+      "PANW-US Income Statement Annual.xlsx",
+      "PANW-US Balance Sheet Annual.xlsx",
+      "PANW-US Cash Flow Annual.xlsx",
+      "PANW-US Shares Outstanding.xlsx",
+      "PANW-US Price History.xlsx",
+      "PANW-US Revenue Estimate.xlsx",
+      "PANW-US Earnings Estimate.xlsx",
+      "NET-US Company Identity.xlsx",
+      "NET-US Income Statement Annual.xlsx",
+      "NET-US Balance Sheet Annual.xlsx",
+      "NET-US Cash Flow Annual.xlsx",
+      "NET-US Shares Outstanding.xlsx",
+      "NET-US Price History.xlsx",
+      "NET-US Revenue Estimate.xlsx",
+      "NET-US Earnings Estimate.xlsx",
+      "ZS-US Company Identity.xlsx",
+      "ZS-US Income Statement Annual.xlsx",
+      "ZS-US Balance Sheet Annual.xlsx",
+      "ZS-US Cash Flow Annual.xlsx",
+      "ZS-US Shares Outstanding.xlsx",
+      "ZS-US Price History.xlsx",
+      "ZS-US Revenue Estimate.xlsx",
+      "ZS-US Earnings Estimate.xlsx",
+      "CYBR-US Company Identity.xlsx",
+      "CYBR-US Income Statement Annual.xlsx",
+      "CYBR-US Balance Sheet Annual.xlsx",
+      "CYBR-US Cash Flow Annual.xlsx",
+      "CYBR-US Shares Outstanding.xlsx",
+      "CYBR-US Price History.xlsx",
+      "CYBR-US Revenue Estimate.xlsx",
+      "CYBR-US Earnings Estimate.xlsx",
+      "btb-69fcdefe-official-task-brief.txt"
+    ]
+  },
+  "ui": {
+    "focusModeEnabled": true,
+    "attentionOverlayVisible": true,
+    "streamingVisible": true,
+    "jobDetailVisible": true,
+    "roomTraceVisible": true,
+    "screenshotPaths": [
+      "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\69fcdefe-f4af-4676-ba21-b5c23c6b2f7c\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\bankertoolbench-live-room.png"
+    ],
+    "tracePath": "docs\\eval\\bankertoolbench\\live-room\\69fcdefe-f4af-4676-ba21-b5c23c6b2f7c.json"
+  },
+  "artifacts": {
+    "uploadedFiles": [
+      "betas_by_industry_category_for_WACC.xlsx",
+      "Equity_Risk_Premium_for_WACC.xlsx",
+      "OKTA-US Company Identity.xlsx",
+      "OKTA-US Income Statement Annual.xlsx",
+      "OKTA-US Balance Sheet Annual.xlsx",
+      "OKTA-US Cash Flow Annual.xlsx",
+      "OKTA-US Shares Outstanding.xlsx",
+      "OKTA-US Price History.xlsx",
+      "OKTA-US Revenue Estimate.xlsx",
+      "OKTA-US Earnings Estimate.xlsx",
+      "PANW-US Company Identity.xlsx",
+      "PANW-US Income Statement Annual.xlsx",
+      "PANW-US Balance Sheet Annual.xlsx",
+      "PANW-US Cash Flow Annual.xlsx",
+      "PANW-US Shares Outstanding.xlsx",
+      "PANW-US Price History.xlsx",
+      "PANW-US Revenue Estimate.xlsx",
+      "PANW-US Earnings Estimate.xlsx",
+      "NET-US Company Identity.xlsx",
+      "NET-US Income Statement Annual.xlsx",
+      "NET-US Balance Sheet Annual.xlsx",
+      "NET-US Cash Flow Annual.xlsx",
+      "NET-US Shares Outstanding.xlsx",
+      "NET-US Price History.xlsx",
+      "NET-US Revenue Estimate.xlsx",
+      "NET-US Earnings Estimate.xlsx",
+      "ZS-US Company Identity.xlsx",
+      "ZS-US Income Statement Annual.xlsx",
+      "ZS-US Balance Sheet Annual.xlsx",
+      "ZS-US Cash Flow Annual.xlsx",
+      "ZS-US Shares Outstanding.xlsx",
+      "ZS-US Price History.xlsx",
+      "ZS-US Revenue Estimate.xlsx",
+      "ZS-US Earnings Estimate.xlsx",
+      "CYBR-US Company Identity.xlsx",
+      "CYBR-US Income Statement Annual.xlsx",
+      "CYBR-US Balance Sheet Annual.xlsx",
+      "CYBR-US Cash Flow Annual.xlsx",
+      "CYBR-US Shares Outstanding.xlsx",
+      "CYBR-US Price History.xlsx",
+      "CYBR-US Revenue Estimate.xlsx",
+      "CYBR-US Earnings Estimate.xlsx",
+      "btb-69fcdefe-official-task-brief.txt"
+    ],
+    "created": [
+      "btb-task-btb-task-btb-69fcdefe.xlsx",
+      "btb-task-btb-task-btb-69fcdefe.xlsm",
+      "btb-task-btb-task-btb-69fcdefe.pptx",
+      "btb-task-btb-task-btb-69fcdefe.docx",
+      "btb-task-btb-task-btb-69fcdefe.pdf"
+    ],
+    "exportedFiles": [
+      {
+        "kind": "workbook",
+        "filename": "btb-task-btb-task-btb-69fcdefe.xlsx",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\69fcdefe-f4af-4676-ba21-b5c23c6b2f7c\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-task-btb-task-btb-69fcdefe.xlsx",
+        "extension": ".xlsx",
+        "downloaded": true,
+        "bytes": 6767,
+        "magic": "PK\\x03\\x04"
+      },
+      {
+        "kind": "workbook",
+        "filename": "btb-task-btb-task-btb-69fcdefe.xlsm",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\69fcdefe-f4af-4676-ba21-b5c23c6b2f7c\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-task-btb-task-btb-69fcdefe.xlsm",
+        "extension": ".xlsm",
+        "downloaded": true,
+        "bytes": 6767,
+        "magic": "PK\\x03\\x04"
+      },
+      {
+        "kind": "presentation",
+        "filename": "btb-task-btb-task-btb-69fcdefe.pptx",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\69fcdefe-f4af-4676-ba21-b5c23c6b2f7c\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-task-btb-task-btb-69fcdefe.pptx",
+        "extension": ".pptx",
+        "downloaded": true,
+        "bytes": 6026,
+        "magic": "PK\\x03\\x04"
+      },
+      {
+        "kind": "document",
+        "filename": "btb-task-btb-task-btb-69fcdefe.docx",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\69fcdefe-f4af-4676-ba21-b5c23c6b2f7c\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-task-btb-task-btb-69fcdefe.docx",
+        "extension": ".docx",
+        "downloaded": true,
+        "bytes": 1995,
+        "magic": "PK\\x03\\x04"
+      },
+      {
+        "kind": "pdf",
+        "filename": "btb-task-btb-task-btb-69fcdefe.pdf",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\69fcdefe-f4af-4676-ba21-b5c23c6b2f7c\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-task-btb-task-btb-69fcdefe.pdf",
+        "extension": ".pdf",
+        "downloaded": true,
+        "bytes": 1124,
+        "magic": "%PDF"
+      }
+    ],
+    "reopenedFiles": [
+      {
+        "kind": "workbook",
+        "filename": "btb-task-btb-task-btb-69fcdefe.xlsx",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "ZIP package contains xl/workbook.xml; placeholder/caveat content scan passed (324 chars)"
+      },
+      {
+        "kind": "workbook",
+        "filename": "btb-task-btb-task-btb-69fcdefe.xlsm",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "ZIP package contains xl/workbook.xml; placeholder/caveat content scan passed (324 chars)"
+      },
+      {
+        "kind": "presentation",
+        "filename": "btb-task-btb-task-btb-69fcdefe.pptx",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "ZIP package contains ppt/presentation.xml; placeholder/caveat content scan passed (392 chars)"
+      },
+      {
+        "kind": "document",
+        "filename": "btb-task-btb-task-btb-69fcdefe.docx",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "ZIP package contains word/document.xml; placeholder/caveat content scan passed (367 chars)"
+      },
+      {
+        "kind": "pdf",
+        "filename": "btb-task-btb-task-btb-69fcdefe.pdf",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "PDF header reopened; placeholder/caveat content scan passed (1731 chars)"
+      }
+    ]
+  },
+  "scorer": {
+    "name": "BankerToolBench proof verifier",
+    "command": "npm run benchmark:bankertoolbench:proof",
+    "verdict": "pass",
+    "score": 1,
+    "details": {
+      "verifierOutputTail": "\n> noderoom@0.1.1 benchmark:bankertoolbench:proof\n> tsx scripts/bankertoolbench-proof-check.ts\n\nBankerToolBench proof check passed: stage=1/1 weightedRubric=6 run=0/1 pass positive=1/1 pass candidateBeforeEvaluator=true leaks=0/2+0/3+0/4\n",
+      "packageManifestPath": "test-results\\bankertoolbench\\matrix\\69fcdefe-f4af-4676-ba21-b5c23c6b2f7c\\package-manifest.json",
+      "downloadedExtensions": [
+        ".xlsx",
+        ".xlsm",
+        ".pptx",
+        ".docx",
+        ".pdf"
+      ],
+      "exportSource": "browser_download_link",
+      "agentTerminalQuality": {
+        "statusText": "completed via recovered Convex job: d: btb-task-btb-task-btb-69fcdefe.xlsx, btb-task-btb-task-btb-69fcdefe.xlsm, btb-task-btb-task-btb-69fcdefe.pptx, btb-task-btb-task-btb-69fcdefe.docx, btb-task-btb-task-btb-69fcdefe.pdf. Coverage confirmed for VP, OKTA, PANW, NET, ZS, CYBR.",
+        "evidenceTextLength": 1633,
+        "detail": "agent reached completed status or visible completion text, with no missing-source/unfinished-work caveats"
+      },
+      "taskCoverage": {
+        "ok": true,
+        "requiredTickers": [
+          "VP",
+          "OKTA",
+          "PANW",
+          "NET",
+          "ZS",
+          "CYBR"
+        ],
+        "missingTickers": [],
+        "detail": "generated package mentions every requested ticker/entity: VP, OKTA, PANW, NET, ZS, CYBR"
+      }
+    }
+  },
+  "visualJudge": {
+    "verdict": "not_run",
+    "reason": "GOOGLE_GENERATIVE_AI_API_KEY is not set; deterministic browser/download/reopen/verifier proof passed."
+  },
+  "gatesProven": [
+    "fresh_room_join",
+    "official_fixture_upload",
+    "public_nodeagent_invocation",
+    "visible_streaming_progress",
+    "trace_video_artifacts",
+    "no_memory_mode_shortcut",
+    "focus_mode_enabled",
+    "focus_box_or_attention_overlay",
+    "agent_live_loop",
+    "agent_terminal_quality_gate",
+    "room_trace_visible",
+    "job_detail_visible",
+    "deliverable_export_download",
+    "artifact_reopen_validation",
+    "artifact_placeholder_scan",
+    "official_scorer_handoff"
+  ],
+  "passed": true
+}

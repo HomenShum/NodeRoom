@@ -1,0 +1,98 @@
+{
+  "schema": 1,
+  "taskId": "707cba99-59a7-47bd-bc4d-7f36212e99f3",
+  "harborTaskId": "btb-707cba99",
+  "generatedAt": "2026-06-24T09:32:24.879Z",
+  "baseUrl": "http://127.0.0.1:5273",
+  "roomUrl": "http://127.0.0.1:5273/?room=NR02W182PJ7",
+  "memoryMode": false,
+  "expectedExtensions": [
+    ".xlsx",
+    ".xlsm",
+    ".pptx",
+    ".docx",
+    ".pdf"
+  ],
+  "visibleExtensions": [
+    ".xlsx",
+    ".xlsm",
+    ".pptx",
+    ".docx",
+    ".pdf"
+  ],
+  "downloadedFiles": [
+    {
+      "kind": "workbook",
+      "filename": "btb-707cba99-lvs-las-vegas-sands-corp.-5-year-dcf-analysis-for-equity-raise.xlsx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench-recovery\\xlsx-btb-707cba99-lvs-las-vegas-sands-corp.-5-year-dcf-analysis-for-equity-raise.xlsx",
+      "extension": ".xlsx",
+      "downloaded": true,
+      "bytes": 10743,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml"
+    },
+    {
+      "kind": "workbook",
+      "filename": "btb-707cba99-lvs-las-vegas-sands-corp.-5-year-dcf-analysis-for-equity-raise.xlsm",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench-recovery\\xlsm-btb-707cba99-lvs-las-vegas-sands-corp.-5-year-dcf-analysis-for-equity-raise.xlsm",
+      "extension": ".xlsm",
+      "downloaded": true,
+      "bytes": 10743,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml"
+    },
+    {
+      "kind": "presentation",
+      "filename": "btb-707cba99-lvs-las-vegas-sands-corp.-5-year-dcf-analysis-for-equity-raise.pptx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench-recovery\\pptx-btb-707cba99-lvs-las-vegas-sands-corp.-5-year-dcf-analysis-for-equity-raise.pptx",
+      "extension": ".pptx",
+      "downloaded": true,
+      "bytes": 8605,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains ppt/presentation.xml"
+    },
+    {
+      "kind": "document",
+      "filename": "btb-707cba99-lvs-las-vegas-sands-corp.-5-year-dcf-analysis-for-equity-raise.docx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench-recovery\\docx-btb-707cba99-lvs-las-vegas-sands-corp.-5-year-dcf-analysis-for-equity-raise.docx",
+      "extension": ".docx",
+      "downloaded": true,
+      "bytes": 4796,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains word/document.xml"
+    },
+    {
+      "kind": "pdf",
+      "filename": "btb-707cba99-lvs-las-vegas-sands-corp.-5-year-dcf-analysis-for-equity-raise.pdf",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench-recovery\\pdf-btb-707cba99-lvs-las-vegas-sands-corp.-5-year-dcf-analysis-for-equity-raise.pdf",
+      "extension": ".pdf",
+      "downloaded": true,
+      "bytes": 2887,
+      "magic": "%PDF",
+      "reopened": true,
+      "reopenDetail": "PDF header reopened"
+    }
+  ],
+  "packageManifestPath": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\package-manifest.json",
+  "verifierCommand": "npm run benchmark:bankertoolbench:proof",
+  "verifierOutputTail": "\n> noderoom@0.1.1 benchmark:bankertoolbench:proof\n> tsx scripts/bankertoolbench-proof-check.ts\n\nBankerToolBench proof check passed: stage=1/1 weightedRubric=6 run=0/1 pass positive=1/1 pass candidateBeforeEvaluator=true leaks=0/2+0/3+0/4\n",
+  "screenshot": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench-recovery\\btb-recovery-room.png",
+  "passed": true,
+  "gatesProven": [
+    "fresh_room_join",
+    "official_fixture_upload",
+    "public_nodeagent_invocation",
+    "visible_streaming_progress",
+    "focus_mode_enabled",
+    "focus_box_or_attention_overlay",
+    "deliverable_export_download",
+    "artifact_reopen_validation",
+    "official_scorer_handoff",
+    "trace_video_artifacts",
+    "no_memory_mode_shortcut"
+  ]
+}

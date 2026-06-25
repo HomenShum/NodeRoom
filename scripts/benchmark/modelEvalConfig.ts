@@ -108,13 +108,13 @@ export const MODEL_EVAL_SCENARIOS: ModelEvalScenario[] = [
 
 export const SUPPORTED_MODEL_ROUTES: SupportedModelRoute[] = [
   {
-    route: "nex-agi/nex-n2-pro:free",
+    route: "cohere/north-mini-code:free",
     provider: "openrouter",
-    label: "Nex AGI Nex-N2-Pro free",
+    label: "Cohere North Mini Code free",
     promotion: "demo_only",
     suites: ["research", "collaboration"],
-    evidence: "docs/eval/results.json",
-    notes: "Fastest $0 route in the 2026-06-11 cheap/free research smoke; needs collaboration ladder evidence before shared-room promotion.",
+    evidence: "docs/eval/openrouter-free-model-discovery.json",
+    notes: "Latest concrete $0 OpenRouter tool-capable route discovered from the live Models API; needs route-owned collaboration ladder evidence before shared-room promotion.",
   },
   {
     route: "deepseek/deepseek-v4-flash",
@@ -168,6 +168,14 @@ export const SUPPORTED_MODEL_ROUTES: SupportedModelRoute[] = [
     suites: ["research", "collaboration"],
     evidence: "docs/eval/results.json",
     notes: "Recent low-cost OpenRouter route that cleared the cheap/free research smoke.",
+  },
+  {
+    route: "moonshotai/kimi-k2.7-code",
+    provider: "openrouter",
+    label: "Kimi K2.7 Code",
+    promotion: "candidate",
+    suites: ["research", "collaboration"],
+    notes: "Current cheap coding-focused OpenRouter route; evaluate source-grounded tool behavior before interactive promotion.",
   },
   {
     route: "minimax/minimax-m3",
@@ -231,13 +239,13 @@ export const SUPPORTED_MODEL_ROUTES: SupportedModelRoute[] = [
     notes: "Free concrete route that clears research smoke but times out on blocked-range collaboration behavior.",
   },
   {
-    route: "google/gemma-4-31b-it:free",
+    route: "google/gemma-4-26b-a4b-it:free",
     provider: "openrouter",
-    label: "Gemma 4 31B free",
+    label: "Gemma 4 26B A4B free",
     promotion: "demo_only",
     suites: ["research"],
     evidence: "docs/eval/results.json",
-    notes: "Free route that cleared the 2026-06-11 research smoke; research-only until collaboration is tested.",
+    notes: "Current free route from the live OpenRouter list; research-only until collaboration is tested.",
   },
   {
     route: "openai/gpt-oss-120b:free",
@@ -287,34 +295,28 @@ export const SUPPORTED_MODEL_ROUTES: SupportedModelRoute[] = [
 ];
 
 const OPENROUTER_TOP_PAID_SOURCE =
-  "OpenRouter Models API, 2026-06-22, sort=top-weekly&supported_parameters=tools, paid routes plus current open-model priority";
+  "OpenRouter Models API, 2026-06-24, latest cheap paid text routes with tools+tool_choice and input<=1.25/output<=4 USD per 1M tokens";
 
 export const OPENROUTER_TOP_PAID_AGENT_ROUTES: SupportedModelRoute[] = [
-  ["deepseek/deepseek-v4-flash", "DeepSeek V4 Flash"],
-  ["minimax/minimax-m3", "MiniMax M3"],
-  ["tencent/hy3-preview", "Tencent Hy3 Preview"],
-  ["xiaomi/mimo-v2.5", "Xiaomi MiMo V2.5"],
-  ["anthropic/claude-opus-4.7", "Claude Opus 4.7 via OpenRouter"],
-  ["anthropic/claude-sonnet-4.6", "Claude Sonnet 4.6 via OpenRouter"],
-  ["deepseek/deepseek-v4-pro", "DeepSeek V4 Pro"],
-  ["anthropic/claude-opus-4.8", "Claude Opus 4.8 via OpenRouter"],
-  ["deepseek/deepseek-v3.2", "DeepSeek V3.2"],
-  ["google/gemini-3-flash-preview", "Gemini 3 Flash Preview via OpenRouter"],
-  ["stepfun/step-3.7-flash", "StepFun Step 3.7 Flash"],
-  ["google/gemini-2.5-flash-lite", "Gemini 2.5 Flash Lite via OpenRouter"],
-  ["google/gemini-2.5-flash", "Gemini 2.5 Flash via OpenRouter"],
   ["z-ai/glm-5.2", "GLM 5.2"],
-  ["xiaomi/mimo-v2.5-pro", "Xiaomi MiMo V2.5 Pro"],
-  ["google/gemini-3.5-flash", "Gemini 3.5 Flash via OpenRouter"],
-  ["openai/gpt-5.5", "GPT-5.5 via OpenRouter"],
   ["moonshotai/kimi-k2.7-code", "Kimi K2.7 Code"],
-  ["openai/gpt-oss-120b", "GPT OSS 120B via OpenRouter"],
-  ["moonshotai/kimi-k2.6", "Kimi K2.6"],
+  ["nvidia/nemotron-3-ultra-550b-a55b", "NVIDIA Nemotron 3 Ultra"],
+  ["qwen/qwen3.7-plus", "Qwen 3.7 Plus"],
+  ["minimax/minimax-m3", "MiniMax M3"],
+  ["stepfun/step-3.7-flash", "StepFun Step 3.7 Flash"],
+  ["qwen/qwen3.7-max", "Qwen 3.7 Max"],
+  ["x-ai/grok-build-0.1", "xAI Grok Build 0.1"],
+  ["inclusionai/ring-2.6-1t", "inclusionAI Ring 2.6 1T"],
   ["google/gemini-3.1-flash-lite", "Gemini 3.1 Flash Lite via OpenRouter"],
-  ["anthropic/claude-opus-4.6", "Claude Opus 4.6 via OpenRouter"],
-  ["google/gemini-3.1-pro-preview", "Gemini 3.1 Pro Preview via OpenRouter"],
-  ["openai/gpt-5.4", "GPT-5.4 via OpenRouter"],
-  ["google/gemma-4-26b-a4b-it", "Gemma 4 26B A4B"],
+  ["x-ai/grok-4.3", "Grok 4.3"],
+  ["ibm-granite/granite-4.1-8b", "IBM Granite 4.1 8B"],
+  ["poolside/laguna-xs.2", "Poolside Laguna XS.2"],
+  ["poolside/laguna-m.1", "Poolside Laguna M.1"],
+  ["qwen/qwen3.5-plus-20260420", "Qwen 3.5 Plus 20260420"],
+  ["qwen/qwen3.6-flash", "Qwen 3.6 Flash"],
+  ["qwen/qwen3.6-35b-a3b", "Qwen 3.6 35B A3B"],
+  ["qwen/qwen3.6-27b", "Qwen 3.6 27B"],
+  ["deepseek/deepseek-v4-pro", "DeepSeek V4 Pro"],
 ].map(([route, label]) => ({
   route,
   provider: "openrouter" as const,
@@ -322,15 +324,15 @@ export const OPENROUTER_TOP_PAID_AGENT_ROUTES: SupportedModelRoute[] = [
   promotion: "candidate" as const,
   suites: ["research", "collaboration"],
   evidence: "docs/eval/openrouter-top-paid-tools-snapshot.json",
-  sourceTags: ["openrouter_top_paid_tools"],
+  sourceTags: ["openrouter_top_paid_tools", "openrouter_latest_cheap_tools"],
   notes: `${OPENROUTER_TOP_PAID_SOURCE}. Included in the scorecard and opt-in top-paid route set; not default-promoted until route-owned N=5/p95 and task-suite evidence pass.`,
 }));
 
 export const DEFAULT_RESEARCH_MODEL_ROUTES = [
-  "nex-agi/nex-n2-pro:free",
-  "ibm-granite/granite-4.1-8b",
-  "deepseek/deepseek-v4-flash",
-  "z-ai/glm-4.7-flash",
+  "cohere/north-mini-code:free",
+  "qwen/qwen3.7-plus",
+  "z-ai/glm-5.2",
+  "moonshotai/kimi-k2.7-code",
 ];
 
 export function allAgentLlmRoutes(): SupportedModelRoute[] {

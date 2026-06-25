@@ -2,19 +2,45 @@ import { afterEach, describe, expect, it } from "vitest";
 import { existsSync, mkdirSync, renameSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import {
+  BANKERTOOLBENCH_FRESH_ROOM_PROOF_PATH,
   BENCHMARK_DELIVERABLE_TYPES,
   buildOfficialBenchmarkUiCoverageReport,
   SPREADSHEETBENCH_LIVE_ROOM_PROOF_PATH,
   type SpreadsheetBenchLiveRoomProof,
 } from "../src/eval/officialBenchmarkUiCoverage";
+import type { FreshRoomProofReceipt } from "../src/eval/freshRoomProofReceipts";
 
 const PROOF_ABS = resolve(process.cwd(), SPREADSHEETBENCH_LIVE_ROOM_PROOF_PATH);
 const PROOF_BAK = `${PROOF_ABS}.testbak`;
+const BTB_PROOF_ABS = resolve(process.cwd(), BANKERTOOLBENCH_FRESH_ROOM_PROOF_PATH);
+const BTB_PROOF_BAK = `${BTB_PROOF_ABS}.testbak`;
+
+function stashProof(absolute: string, backup: string): boolean {
+  const hadReal = existsSync(absolute);
+  if (hadReal) renameSync(absolute, backup);
+  return hadReal;
+}
+
+function restoreProof(absolute: string, backup: string, hadReal: boolean): void {
+  rmSync(absolute, { force: true });
+  if (hadReal && existsSync(backup)) renameSync(backup, absolute);
+}
+
+function withNoLiveProofs<T>(fn: () => T): T {
+  const hadSpreadsheet = stashProof(PROOF_ABS, PROOF_BAK);
+  const hadBtb = stashProof(BTB_PROOF_ABS, BTB_PROOF_BAK);
+  try {
+    return fn();
+  } finally {
+    restoreProof(PROOF_ABS, PROOF_BAK, hadSpreadsheet);
+    restoreProof(BTB_PROOF_ABS, BTB_PROOF_BAK, hadBtb);
+  }
+}
 
 /** Run `fn` with a temporary honest proof receipt on disk, then restore any pre-existing one. */
 function withHonestProof<T>(overrides: Partial<SpreadsheetBenchLiveRoomProof>, fn: () => T): T {
-  const hadReal = existsSync(PROOF_ABS);
-  if (hadReal) renameSync(PROOF_ABS, PROOF_BAK);
+  const hadReal = stashProof(PROOF_ABS, PROOF_BAK);
+  const hadBtb = stashProof(BTB_PROOF_ABS, BTB_PROOF_BAK);
   const proof: SpreadsheetBenchLiveRoomProof = {
     schema: 1,
     task: "nb-01-company-profile",
@@ -47,14 +73,113 @@ function withHonestProof<T>(overrides: Partial<SpreadsheetBenchLiveRoomProof>, f
     writeFileSync(PROOF_ABS, `${JSON.stringify(proof, null, 2)}\n`);
     return fn();
   } finally {
-    rmSync(PROOF_ABS, { force: true });
-    if (hadReal) renameSync(PROOF_BAK, PROOF_ABS);
+    restoreProof(PROOF_ABS, PROOF_BAK, hadReal);
+    restoreProof(BTB_PROOF_ABS, BTB_PROOF_BAK, hadBtb);
+  }
+}
+
+function withBankerToolBenchProof<T>(overrides: Partial<FreshRoomProofReceipt>, fn: () => T): T {
+  const hadSpreadsheet = stashProof(PROOF_ABS, PROOF_BAK);
+  const hadBtb = stashProof(BTB_PROOF_ABS, BTB_PROOF_BAK);
+  const evidencePaths = [
+    "test-results/btb-room.png",
+    "test-results/btb-room.webm",
+    "test-results/btb-room.trace",
+  ];
+  const created = [
+    "btb-test.xlsx",
+    "btb-test.xlsm",
+    "btb-test.pptx",
+    "btb-test.docx",
+    "btb-test.pdf",
+  ];
+  const proof: FreshRoomProofReceipt = {
+    schema: 1,
+    caseId: "FR-020",
+    benchmark: "bankertoolbench",
+    taskId: "btb-test",
+    generatedAt: "2026-06-24T00:00:00.000Z",
+    baseUrl: "http://localhost:5273",
+    roomId: "NRTEST",
+    roomUrl: "http://localhost:5273/?room=NRTEST",
+    command: "test BTB fresh room",
+    model: { requested: "specific", resolved: "z-ai/glm-5.2", provider: "openrouter", runtimeProfile: "benchmark_completion" },
+    memoryMode: false,
+    freshness: {
+      roomCreatedAfterRunStart: true,
+      forbiddenPreloadedArtifactsAbsent: true,
+      artifactsCreatedFresh: created,
+      uploadedFiles: ["input-a.xlsx", "input-b.xlsx"],
+    },
+    ui: {
+      focusModeEnabled: true,
+      attentionOverlayVisible: true,
+      streamingVisible: true,
+      jobDetailVisible: true,
+      roomTraceVisible: true,
+      screenshotPaths: ["test-results/btb-room.png"],
+      videoPaths: ["test-results/btb-room.webm"],
+      tracePath: "test-results/btb-room.trace",
+    },
+    artifacts: {
+      uploadedFiles: ["input-a.xlsx", "input-b.xlsx"],
+      created,
+      exportedFiles: [
+        { kind: "workbook", filename: "btb-test.xlsx", extension: ".xlsx", downloaded: true, bytes: 1000, magic: "PK\\x03\\x04" },
+        { kind: "workbook", filename: "btb-test.xlsm", extension: ".xlsm", downloaded: true, bytes: 1000, magic: "PK\\x03\\x04" },
+        { kind: "presentation", filename: "btb-test.pptx", extension: ".pptx", downloaded: true, bytes: 1000, magic: "PK\\x03\\x04" },
+        { kind: "document", filename: "btb-test.docx", extension: ".docx", downloaded: true, bytes: 1000, magic: "PK\\x03\\x04" },
+        { kind: "pdf", filename: "btb-test.pdf", extension: ".pdf", downloaded: true, bytes: 1000, magic: "%PDF" },
+      ],
+      reopenedFiles: [
+        { kind: "workbook", filename: "btb-test.xlsx", reopened: true, scorerResult: "pass" },
+        { kind: "workbook", filename: "btb-test.xlsm", reopened: true, scorerResult: "pass" },
+        { kind: "presentation", filename: "btb-test.pptx", reopened: true, scorerResult: "pass" },
+        { kind: "document", filename: "btb-test.docx", reopened: true, scorerResult: "pass" },
+        { kind: "pdf", filename: "btb-test.pdf", reopened: true, scorerResult: "pass" },
+      ],
+    },
+    scorer: { name: "BankerToolBench proof verifier", command: "npm run benchmark:bankertoolbench:proof", verdict: "pass", score: 1 },
+    visualJudge: { verdict: "not_run", reason: "test key absent" },
+    telemetry: { toolCalls: 32, costUsd: 0.123 },
+    gatesProven: [
+      "fresh_room_join",
+      "official_fixture_upload",
+      "public_nodeagent_invocation",
+      "visible_streaming_progress",
+      "trace_video_artifacts",
+      "no_memory_mode_shortcut",
+      "focus_mode_enabled",
+      "focus_box_or_attention_overlay",
+      "agent_live_loop",
+      "room_trace_visible",
+      "job_detail_visible",
+      "deliverable_export_download",
+      "artifact_reopen_validation",
+      "official_scorer_handoff",
+    ],
+    passed: true,
+    ...overrides,
+  };
+  try {
+    mkdirSync(dirname(BTB_PROOF_ABS), { recursive: true });
+    for (const path of evidencePaths) {
+      mkdirSync(dirname(resolve(process.cwd(), path)), { recursive: true });
+      writeFileSync(resolve(process.cwd(), path), "test evidence\n");
+    }
+    writeFileSync(BTB_PROOF_ABS, `${JSON.stringify(proof, null, 2)}\n`);
+    return fn();
+  } finally {
+    for (const path of evidencePaths) rmSync(resolve(process.cwd(), path), { force: true });
+    restoreProof(PROOF_ABS, PROOF_BAK, hadSpreadsheet);
+    restoreProof(BTB_PROOF_ABS, BTB_PROOF_BAK, hadBtb);
   }
 }
 
 afterEach(() => {
   // Defensive: never leave a stray backup around.
   if (existsSync(PROOF_BAK) && !existsSync(PROOF_ABS)) renameSync(PROOF_BAK, PROOF_ABS);
+  if (existsSync(BTB_PROOF_BAK) && !existsSync(BTB_PROOF_ABS)) renameSync(BTB_PROOF_BAK, BTB_PROOF_ABS);
 });
 
 describe("official benchmark UI coverage ledger", () => {
@@ -79,9 +204,7 @@ describe("official benchmark UI coverage ledger", () => {
 
   it("does not treat memory-mode or runner-only evidence as live-browser benchmark proof (no receipt)", () => {
     // Baseline: with NO live-room proof receipt on disk, every track is missing.
-    const hadReal = existsSync(PROOF_ABS);
-    if (hadReal) renameSync(PROOF_ABS, PROOF_BAK);
-    try {
+    withNoLiveProofs(() => {
       const report = buildOfficialBenchmarkUiCoverageReport({ generatedAt: "test" });
       const tracks = Object.fromEntries(report.tracks.map((track) => [track.id, track]));
 
@@ -108,9 +231,7 @@ describe("official benchmark UI coverage ledger", () => {
         liveBrowserFreshRoomDeliverables: [],
         requiredSpec: "e2e/benchmark-ui-spreadsheetbench.spec.ts",
       });
-    } finally {
-      if (hadReal) renameSync(PROOF_BAK, PROOF_ABS);
-    }
+    });
   });
 
   it("flips ONLY the proven gates to covered when an honest live-room receipt exists — never the export/reopen gates", () => {
@@ -157,9 +278,7 @@ describe("official benchmark UI coverage ledger", () => {
   });
 
   it("requires fresh-room browser gates, export/download, artifact reopen, and scorer handoff (no receipt)", () => {
-    const hadReal = existsSync(PROOF_ABS);
-    if (hadReal) renameSync(PROOF_ABS, PROOF_BAK);
-    try {
+    withNoLiveProofs(() => {
       const report = buildOfficialBenchmarkUiCoverageReport({ generatedAt: "test" });
       const requiredGates = report.gates.map((gate) => gate.id);
 
@@ -182,9 +301,7 @@ describe("official benchmark UI coverage ledger", () => {
         expect(track.gates.find((gate) => gate.id === "official_scorer_handoff")?.status).toBe("missing");
         expect(track.blockers.join(" ")).toContain("Missing live-browser fresh-room proof");
       }
-    } finally {
-      if (hadReal) renameSync(PROOF_BAK, PROOF_ABS);
-    }
+    });
   });
 
   it("keeps export/download + artifact-reopen MISSING for spreadsheetbench-v1 even with an honest receipt (the genuine gap)", () => {
@@ -197,6 +314,38 @@ describe("official benchmark UI coverage ledger", () => {
       // The other two tracks have no receiver wired, so they stay fully missing.
       expect(report.tracks.find((t) => t.id === "bankertoolbench")?.status).toBe("missing");
       expect(report.tracks.find((t) => t.id === "spreadsheetbench-v2")?.status).toBe("missing");
+    });
+  });
+
+  it("covers BankerToolBench when FR-020 proves the fresh-room deliverable package", () => {
+    withBankerToolBenchProof({}, () => {
+      const report = buildOfficialBenchmarkUiCoverageReport({ generatedAt: "test" });
+      const btb = report.tracks.find((t) => t.id === "bankertoolbench")!;
+      const gate = (id: string) => btb.gates.find((g) => g.id === id)?.status;
+
+      expect(btb.status).toBe("covered");
+      expect(btb.liveBrowserFreshRoomDeliverables).toEqual(["workbook", "presentation", "document", "pdf"]);
+      expect(btb.missingDeliverables).toEqual([]);
+      expect(btb.currentEvidence).toEqual(expect.arrayContaining([
+        "e2e/benchmark-ui-bankertoolbench.spec.ts",
+        BANKERTOOLBENCH_FRESH_ROOM_PROOF_PATH,
+      ]));
+      for (const id of [
+        "fresh_room_join",
+        "official_fixture_upload",
+        "public_nodeagent_invocation",
+        "visible_streaming_progress",
+        "deliverable_export_download",
+        "artifact_reopen_validation",
+        "official_scorer_handoff",
+        "trace_video_artifacts",
+        "no_memory_mode_shortcut",
+      ]) {
+        expect(gate(id)).toBe("covered");
+      }
+      expect(btb.blockers.join(" ")).toContain("Live-browser fresh-room BTB run PASSED");
+      expect(btb.blockers.join(" ")).toContain("Gemini visual judge not run");
+      expect(report.summary.liveBrowserFreshRoomReady).toBe(false);
     });
   });
 

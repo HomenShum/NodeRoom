@@ -54,6 +54,43 @@ export type LoadSkillResult =
 
 const ERR = (error: string, detail?: string): LoadSkillResult => (detail ? { ok: false, error, detail } : { ok: false, error });
 
+const BUNDLED_LOCAL_SKILLS: Record<string, string> = {
+  powerpoint: `---
+name: powerpoint
+description: "Build an evidence-backed presentation from room sources, spreadsheets, and benchmark instructions. Use for PowerPoint, PPTX, slide deck, investor-deck, chart-to-slide, or presentation-package tasks."
+tools: [read_range, list_artifacts, fetch_source, capture_source, write_locked_cells, create_draft, say]
+categories: [presentation, powerpoint, finance, benchmark, evidence]
+version: "1.0.0"
+license: "internal"
+---
+
+# PowerPoint Skill
+
+Use this skill when the user asks for a slide deck, PowerPoint, PPTX, or a benchmark package that includes a presentation.
+
+Read the task instructions and uploaded room files first. Build a source-backed workpaper before drafting slides. Every factual claim, chart series, and metric must trace to an uploaded source or a freshly captured public source. If evidence is missing, mark it as needs_review instead of inventing it.
+
+For BankerToolBench tasks, behave like a real user in a fresh room: only use uploaded task inputs and public sources gathered during this room run, keep Focus Mode and trace/boundary boxes active while editing, stream progress in public chat, and produce the requested deliverable package instead of only explaining the answer.
+`,
+};
+
+function bundledLocalSkill(rec: SkillCatalogRecord): LoadSkillResult | null {
+  const body = BUNDLED_LOCAL_SKILLS[rec.slug];
+  if (!body) return null;
+  return {
+    ok: true,
+    slug: rec.slug,
+    name: rec.name,
+    trust: rec.trust,
+    source: { kind: "local", ref: `bundled:${rec.slug}` },
+    body,
+    bytes: Buffer.byteLength(body, "utf8"),
+    truncated: false,
+    meta: { ...readSkillMeta(body), categories: rec.categories.length ? rec.categories : readSkillMeta(body).categories, license: rec.license ?? undefined },
+    executionPolicy: executionPolicyFor(rec.trust),
+  };
+}
+
 function stripQuotes(s: string): string {
   const t = s.trim();
   return (t.startsWith('"') && t.endsWith('"')) || (t.startsWith("'") && t.endsWith("'")) ? t.slice(1, -1) : t;
@@ -135,6 +172,8 @@ async function loadLocalSkill(rec: SkillCatalogRecord): Promise<LoadSkillResult>
       executionPolicy: executionPolicyFor(rec.trust),
     };
   } catch (error) {
+    const bundled = bundledLocalSkill(rec);
+    if (bundled) return bundled;
     return ERR("local_read_failed", error instanceof Error ? error.message : String(error));
   }
 }

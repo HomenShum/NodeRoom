@@ -39,6 +39,7 @@ import { test, expect, type Page, type Locator } from "@playwright/test";
 import { mkdirSync, readFileSync, existsSync } from "node:fs";
 import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
+import { enableFocusModeForTest, expectFocusModeOn } from "../e2e/focusMode";
 import {
   assertNotCheating,
   expectedFromRubric,
@@ -169,11 +170,14 @@ async function waitForCell(page: Page, key: string, spec: ExpectedSpec, timeoutM
 
 /** Memory-mode landing flow: set display name, click start-demo-room. */
 async function enterDemoRoomMemoryMode(page: Page): Promise<void> {
-  await page.addInitScript(() => {
-    try { localStorage.setItem("noderoom:tour:v1", "done"); } catch { /* noop */ }
-  });
+  await enableFocusModeForTest(page);
   await page.goto("/?mode=memory", { waitUntil: "domcontentloaded" });
-  await page.evaluate(() => { try { localStorage.setItem("noderoom:tour:v1", "done"); } catch { /* noop */ } });
+  await page.evaluate(() => {
+    try {
+      localStorage.setItem("noderoom:tour:v1", "done");
+      localStorage.setItem("noderoom:focusMode:v1", JSON.stringify({ enabled: true, paused: false }));
+    } catch { /* noop */ }
+  });
   const artifactPanel = page.getByTestId("artifact-panel");
   const alreadyIn = await artifactPanel.waitFor({ state: "visible", timeout: 1_500 }).then(() => true, () => false);
   if (!alreadyIn) {
@@ -186,6 +190,7 @@ async function enterDemoRoomMemoryMode(page: Page): Promise<void> {
     await startBtn.click();
   }
   await expect(artifactPanel).toBeVisible({ timeout: 20_000 });
+  await expectFocusModeOn(page);
 }
 
 /** Open the Q3 variance sheet — the only artifact that exercises live recompute in memory mode. */

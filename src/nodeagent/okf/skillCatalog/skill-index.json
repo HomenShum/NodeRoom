@@ -19,7 +19,13 @@
     "slug": "powerpoint",
     "name": "powerpoint",
     "description": "Turn messy notes, meeting recaps, research dumps, or a spreadsheet into a real .pptx slide deck WHERE EVERY CLAIM IS TAGGED for provenance (verified / manual / needs_review) and NOTHING is fabricated. Use this skill whenever someone wants to build a deck FROM their own material — 'make slides from my notes', 'turn this call recap into an investor update', 'I met three founders at a conference, build a pitch summary', 'draft a board deck from these numbers'. Especially use it for solo founders / one-person companies who need a presentable deck fast but cannot afford to walk into a meeting with a made-up number. Triggers on: pitch deck, investor update, board deck, sales deck, 'slides from notes', 'deck from research'. This is the honest deck builder: if a fact isn't in the source material, it gets flagged for review instead of invented.",
-    "categories": [],
+    "categories": [
+      "presentation",
+      "powerpoint",
+      "finance",
+      "benchmark",
+      "evidence"
+    ],
     "trust": "local",
     "source": {
       "kind": "local",
@@ -27,8 +33,8 @@
       "url": null
     },
     "install": ".claude/skills/powerpoint",
-    "contentHash": "sha256:eeff8dbedf90cebcb327f8345af7f6fc",
-    "license": "MIT",
+    "contentHash": "sha256:658f00cc9f96b9fddaeddc806af3af44a28e81834d9b26eab5c12bf3e9e4ec9b",
+    "license": "internal",
     "indexedAt": null
   },
   {

@@ -1,0 +1,102 @@
+{
+  "runId": "btb-a31173e3-live-20260624T220817",
+  "generatedAt": "2026-06-25T05:09:22.576Z",
+  "model": "gemini-3.5-flash",
+  "command": "npm run media:gemini-judge -- --run-id btb-a31173e3-live-20260624T220817 --out docs/eval/gemini-media-judges/btb-a31173e3-live --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\a31173e3-e8aa-4ddb-b0d9-e4e7055c950b\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\"",
+  "notes": [
+    "GIF assets are converted to temporary MP4 with ffmpeg before upload.",
+    "This media judge is evidence-quality QA; it does not replace backend/browser production gates."
+  ],
+  "counts": {
+    "total": 1,
+    "judged": 1,
+    "errors": 0,
+    "dryRun": 0,
+    "verdicts": {
+      "publish": 1
+    },
+    "defects": {
+      "P2": 2
+    }
+  },
+  "results": [
+    {
+      "asset": {
+        "id": "test-results-bankertoolbench-matrix-a31173e3-e8aa-4ddb-b0d9-e4e7055c950b-playwright-output-e2e-benchmark-ui-bankertoo-d0047-odeagent-package-verifier-video",
+        "class": "live_browser_proof",
+        "title": "Video",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\a31173e3-e8aa-4ddb-b0d9-e4e7055c950b\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\video.webm",
+        "relPath": "test-results/bankertoolbench/matrix/a31173e3-e8aa-4ddb-b0d9-e4e7055c950b/playwright-output/e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier/video.webm",
+        "purpose": "Live Playwright browser proof clip. Judge only visible product evidence: multi-client sync, advisory presence, no-clobber behavior, proposals, job/privacy/wall surfaces, and production honesty."
+      },
+      "model": "gemini-3.5-flash",
+      "status": "judged",
+      "mediaPath": "test-results/bankertoolbench/matrix/a31173e3-e8aa-4ddb-b0d9-e4e7055c950b/playwright-output/e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier/video.webm",
+      "mediaType": "video/webm",
+      "bytes": 5174128,
+      "judge": {
+        "verdict": "publish",
+        "summary": "The video demonstrates a complete end-to-end workflow where NodeAgent processes financial documents to generate a comprehensive DCF/SOTP valuation package for Alphabet Inc. The UI is highly functional, showing real-time file uploads, agent execution traces, and final artifact generation.",
+        "scores": {
+          "featureClarity": {
+            "score": 1.4,
+            "evidence": "The video clearly shows the core feature: an AI agent collaborating in a workspace to analyze uploaded financial data and produce reports."
+          },
+          "workflowCompleteness": {
+            "score": 1.5,
+            "evidence": "Demonstrates the full sequence from an empty room, uploading multiple source files, initiating the task brief, watching the agent execute, to reviewing the final output files."
+          },
+          "visualDesign": {
+            "score": 1.2,
+            "evidence": "Clean dark-mode interface with structured panels, though some areas like the chat and file list feel slightly crowded."
+          },
+          "consistency": {
+            "score": 1.4,
+            "evidence": "Perfectly aligns with the product's narrative of combining files, spreadsheets, chat, and agent execution traces in one collaborative space."
+          },
+          "evidenceQuality": {
+            "score": 1.5,
+            "evidence": "Authentic, unedited browser capture showing actual execution steps, tool calls, and realistic data processing."
+          },
+          "legibility": {
+            "score": 1.1,
+            "evidence": "The text in the spreadsheet cells and the detailed chat logs is quite small, making it slightly difficult to read at standard preview sizes."
+          },
+          "professionalRelevance": {
+            "score": 1.5,
+            "evidence": "Highly relevant for financial analysts and developers building agentic workflows for complex document synthesis."
+          },
+          "productionHonesty": {
+            "score": 1.3,
+            "evidence": "Honestly displays system limits, such as the lack of preview support for PPTX and DOCX files."
+          }
+        },
+        "observedEvidence": [
+          "Multi-client workspace initialization",
+          "Uploading of multiple CSV and PDF source files",
+          "Agent execution with visible tool-use traces",
+          "Generation of a multi-format financial valuation package",
+          "Inline PDF preview of the final generated report"
+        ],
+        "missingEvidence": [],
+        "defects": [
+          {
+            "ts": "01:54",
+            "severity": "P2",
+            "observed": "The generated PPTX and DOCX files show a 'Preview is not available for this file type' placeholder.",
+            "fix": "Implement basic document viewers or convert these formats to PDF for inline previewing."
+          },
+          {
+            "ts": "01:12",
+            "severity": "P2",
+            "observed": "The chat panel text density is very high, which may overwhelm viewers looking at a small README embed.",
+            "fix": "Slightly increase font size or line height for key status updates in the chat log."
+          }
+        ],
+        "suggestedReadmeCaption": "Watch NodeAgent ingest financial statements, execute a complex DCF/SOTP valuation task, and generate a complete package of Excel, PowerPoint, Word, and PDF reports in real time."
+      },
+      "score": 10.9,
+      "maxScore": 16
+    }
+  ]
+}

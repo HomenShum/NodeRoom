@@ -17,6 +17,7 @@
  *        npx playwright test --config playwright.real-flow.config.ts
  */
 import { test, expect, type Page } from "@playwright/test";
+import { enableFocusModeForTest, expectAttentionOverlayMounted, expectFocusModeOn } from "../e2e/focusMode";
 
 const BASE = process.env.BENCH_BASE_URL ?? "http://localhost:5273";
 
@@ -140,6 +141,7 @@ async function verifyRenderedTraceBox(page: Page) {
 test("real user: fresh room -> @nodeagent (cheap default) -> visible sheet matches golden", async ({ page }) => {
   const pageErrors: string[] = [];
   page.on("pageerror", (e) => pageErrors.push(String(e.message ?? e)));
+  await enableFocusModeForTest(page);
 
   // Live app (Convex-connected, so the agent runs server-side with the cheap proxy model).
   await page.goto(`${BASE}/`, { waitUntil: "domcontentloaded" });
@@ -147,6 +149,8 @@ test("real user: fresh room -> @nodeagent (cheap default) -> visible sheet match
   // Real user flow: join a fresh room, add a sheet.
   await page.locator('[data-testid="create-room"]').click({ timeout: 60_000 });
   await page.locator('[data-testid="blank-cta-sheet"]').click({ timeout: 60_000 });
+  await expectFocusModeOn(page);
+  await expectAttentionOverlayMounted(page);
 
   // The model must be the CHEAP default route — the test fails loudly if someone pins a flagship.
   const preset = page.locator('[data-testid="chat-model-preset"]');

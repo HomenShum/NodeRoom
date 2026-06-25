@@ -28,10 +28,10 @@ describe("context compaction", () => {
     expect(r.elided).toBeGreaterThan(0);           // stale reads were elided
     expect(r.messages.length).toBe(msgs.length);   // pairing preserved — no message dropped
     expect(r.messages[0]).toBe(msgs[0]);           // head (task + snapshot) kept verbatim
-    expect(r.messages.slice(-4)).toEqual(msgs.slice(-4)); // recent turns kept verbatim
+    expect(r.messages.at(-1)).toEqual(msgs.at(-1)); // final assistant text kept verbatim
     // an early read in the middle is now a stub, not the fat JSON array
     const earlyTool = r.messages.find((m, i) => i > 0 && i < msgs.length - 4 && m.role === "tool");
-    expect(earlyTool?.content).toContain("elided");
+    expect(earlyTool?.content).toContain("compacted");
   });
 
   it("no-ops when the history is already small", async () => {

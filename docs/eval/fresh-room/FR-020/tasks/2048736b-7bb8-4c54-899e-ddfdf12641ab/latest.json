@@ -1,0 +1,220 @@
+{
+  "schema": 1,
+  "caseId": "FR-020",
+  "benchmark": "bankertoolbench",
+  "taskId": "2048736b-7bb8-4c54-899e-ddfdf12641ab",
+  "generatedAt": "2026-06-25T02:19:58.586Z",
+  "baseUrl": "http://127.0.0.1:5273",
+  "roomId": "NR1H7PWFP6F",
+  "roomUrl": "http://127.0.0.1:5273/?room=NR1H7PWFP6F&name=Host",
+  "command": "BTB_LIVE_ROOM_E2E=1 BTB_UI_BUNDLE_ROOT=<official-bundle> BTB_UI_VERIFIER_COMMAND=<verifier> BENCH_BASE_URL=<base> npx playwright test --config playwright.real-flow.config.ts e2e/benchmark-ui-bankertoolbench.spec.ts --headed",
+  "model": {
+    "requested": "specific",
+    "resolved": "z-ai/glm-5.2",
+    "routePolicy": "specific",
+    "runtimeProfile": "benchmark_completion",
+    "provider": "openrouter"
+  },
+  "prompt": "Official BankerToolBench task btb-2048736b: You’re an Investment Banking Analyst working in the DCM space, and your MD has tasked you with preparing a Rating Agency Presentation ahead of an issuance for a client. The client is Occidental Petroleum (NYSE: OXY), and they are planning to propose a $2.5B 10-year senior unsecured issuance. The presentation will be created for presentation to credit rating agencies (Moody’s S&P, Fitch). \n\nThe presentation should be in PowerPoint (.pptx) format with 8 total slides with the last slide being an appendix. The slides should go in the following order and include the following topics.\n\n1.        A title slide including OXY’s logo, subtitle relating to the proposition of $2.5B 10-Year unsecured issuance, footer containing date placeholder and confidentiality note.\n2.        An Executive summary slide containing bullet points on business risk, financial policy, liquidity posture, and leverage trajectory. This slide should also show a Key Credit Metrics table for FY2021A – FY2024A for data such as Revenue, EBITDA, CFO, Capex, FCF, Total Debt (excl. leases), Cash, Net Debt, Net Debt/EBITDA (Net Leverage), EBITDA/Interest.\n3.        A Business Overview and Risks slide going over key business ",
+  "memoryMode": false,
+  "freshness": {
+    "roomCreatedAfterRunStart": true,
+    "forbiddenPreloadedArtifactsAbsent": true,
+    "artifactsCreatedFresh": [
+      "btb-2048736b-oxy-rating-agency-presentation-2.5b-10-year-senior-unsecured-issuance-dcm-nyse-oxy.xlsx",
+      "btb-2048736b-oxy-rating-agency-presentation-2.5b-10-year-senior-unsecured-issuance-dcm-nyse-oxy.xlsm",
+      "btb-2048736b-oxy-rating-agency-presentation-2.5b-10-year-senior-unsecured-issuance-dcm-nyse-oxy.pptx",
+      "btb-2048736b-oxy-rating-agency-presentation-2.5b-10-year-senior-unsecured-issuance-dcm-nyse-oxy.docx",
+      "btb-2048736b-oxy-rating-agency-presentation-2.5b-10-year-senior-unsecured-issuance-dcm-nyse-oxy.pdf"
+    ],
+    "uploadedFiles": [
+      "betas_by_industry_category_for_WACC.xlsx",
+      "Equity_Risk_Premium_for_WACC.xlsx",
+      "oxy-10K.pdf",
+      "OXY-US Company Identity.xlsx",
+      "OXY-US Income Statement Annual.xlsx",
+      "OXY-US Balance Sheet Annual.xlsx",
+      "OXY-US Cash Flow Annual.xlsx",
+      "OXY-US Shares Outstanding.xlsx",
+      "OXY-US Price History.xlsx",
+      "OXY-US Revenue Estimate.xlsx",
+      "OXY-US Earnings Estimate.xlsx",
+      "btb-2048736b-official-task-brief.txt"
+    ]
+  },
+  "ui": {
+    "focusModeEnabled": true,
+    "attentionOverlayVisible": true,
+    "streamingVisible": true,
+    "jobDetailVisible": true,
+    "roomTraceVisible": true,
+    "screenshotPaths": [
+      "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\2048736b-7bb8-4c54-899e-ddfdf12641ab\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\bankertoolbench-live-room.png"
+    ],
+    "tracePath": "docs\\eval\\bankertoolbench\\live-room\\2048736b-7bb8-4c54-899e-ddfdf12641ab.json"
+  },
+  "artifacts": {
+    "uploadedFiles": [
+      "betas_by_industry_category_for_WACC.xlsx",
+      "Equity_Risk_Premium_for_WACC.xlsx",
+      "oxy-10K.pdf",
+      "OXY-US Company Identity.xlsx",
+      "OXY-US Income Statement Annual.xlsx",
+      "OXY-US Balance Sheet Annual.xlsx",
+      "OXY-US Cash Flow Annual.xlsx",
+      "OXY-US Shares Outstanding.xlsx",
+      "OXY-US Price History.xlsx",
+      "OXY-US Revenue Estimate.xlsx",
+      "OXY-US Earnings Estimate.xlsx",
+      "btb-2048736b-official-task-brief.txt"
+    ],
+    "created": [
+      "btb-2048736b-oxy-rating-agency-presentation-2.5b-10-year-senior-unsecured-issuance-dcm-nyse-oxy.xlsx",
+      "btb-2048736b-oxy-rating-agency-presentation-2.5b-10-year-senior-unsecured-issuance-dcm-nyse-oxy.xlsm",
+      "btb-2048736b-oxy-rating-agency-presentation-2.5b-10-year-senior-unsecured-issuance-dcm-nyse-oxy.pptx",
+      "btb-2048736b-oxy-rating-agency-presentation-2.5b-10-year-senior-unsecured-issuance-dcm-nyse-oxy.docx",
+      "btb-2048736b-oxy-rating-agency-presentation-2.5b-10-year-senior-unsecured-issuance-dcm-nyse-oxy.pdf"
+    ],
+    "exportedFiles": [
+      {
+        "kind": "workbook",
+        "filename": "btb-2048736b-oxy-rating-agency-presentation-2.5b-10-year-senior-unsecured-issuance-dcm-nyse-oxy.xlsx",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\2048736b-7bb8-4c54-899e-ddfdf12641ab\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-2048736b-oxy-rating-agency-presentation-2.5b-10-year-senior-unsecured-issuance-dcm-nyse-oxy.xlsx",
+        "extension": ".xlsx",
+        "downloaded": true,
+        "bytes": 14143,
+        "magic": "PK\\x03\\x04"
+      },
+      {
+        "kind": "workbook",
+        "filename": "btb-2048736b-oxy-rating-agency-presentation-2.5b-10-year-senior-unsecured-issuance-dcm-nyse-oxy.xlsm",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\2048736b-7bb8-4c54-899e-ddfdf12641ab\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-2048736b-oxy-rating-agency-presentation-2.5b-10-year-senior-unsecured-issuance-dcm-nyse-oxy.xlsm",
+        "extension": ".xlsm",
+        "downloaded": true,
+        "bytes": 14143,
+        "magic": "PK\\x03\\x04"
+      },
+      {
+        "kind": "presentation",
+        "filename": "btb-2048736b-oxy-rating-agency-presentation-2.5b-10-year-senior-unsecured-issuance-dcm-nyse-oxy.pptx",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\2048736b-7bb8-4c54-899e-ddfdf12641ab\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-2048736b-oxy-rating-agency-presentation-2.5b-10-year-senior-unsecured-issuance-dcm-nyse-oxy.pptx",
+        "extension": ".pptx",
+        "downloaded": true,
+        "bytes": 7253,
+        "magic": "PK\\x03\\x04"
+      },
+      {
+        "kind": "document",
+        "filename": "btb-2048736b-oxy-rating-agency-presentation-2.5b-10-year-senior-unsecured-issuance-dcm-nyse-oxy.docx",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\2048736b-7bb8-4c54-899e-ddfdf12641ab\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-2048736b-oxy-rating-agency-presentation-2.5b-10-year-senior-unsecured-issuance-dcm-nyse-oxy.docx",
+        "extension": ".docx",
+        "downloaded": true,
+        "bytes": 4198,
+        "magic": "PK\\x03\\x04"
+      },
+      {
+        "kind": "pdf",
+        "filename": "btb-2048736b-oxy-rating-agency-presentation-2.5b-10-year-senior-unsecured-issuance-dcm-nyse-oxy.pdf",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\2048736b-7bb8-4c54-899e-ddfdf12641ab\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-2048736b-oxy-rating-agency-presentation-2.5b-10-year-senior-unsecured-issuance-dcm-nyse-oxy.pdf",
+        "extension": ".pdf",
+        "downloaded": true,
+        "bytes": 5873,
+        "magic": "%PDF"
+      }
+    ],
+    "reopenedFiles": [
+      {
+        "kind": "workbook",
+        "filename": "btb-2048736b-oxy-rating-agency-presentation-2.5b-10-year-senior-unsecured-issuance-dcm-nyse-oxy.xlsx",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "ZIP package contains xl/workbook.xml; placeholder/caveat content scan passed (10824 chars)"
+      },
+      {
+        "kind": "workbook",
+        "filename": "btb-2048736b-oxy-rating-agency-presentation-2.5b-10-year-senior-unsecured-issuance-dcm-nyse-oxy.xlsm",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "ZIP package contains xl/workbook.xml; placeholder/caveat content scan passed (10824 chars)"
+      },
+      {
+        "kind": "presentation",
+        "filename": "btb-2048736b-oxy-rating-agency-presentation-2.5b-10-year-senior-unsecured-issuance-dcm-nyse-oxy.pptx",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "ZIP package contains ppt/presentation.xml; placeholder/caveat content scan passed (3030 chars)"
+      },
+      {
+        "kind": "document",
+        "filename": "btb-2048736b-oxy-rating-agency-presentation-2.5b-10-year-senior-unsecured-issuance-dcm-nyse-oxy.docx",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "ZIP package contains word/document.xml; placeholder/caveat content scan passed (6769 chars)"
+      },
+      {
+        "kind": "pdf",
+        "filename": "btb-2048736b-oxy-rating-agency-presentation-2.5b-10-year-senior-unsecured-issuance-dcm-nyse-oxy.pdf",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "PDF header reopened; placeholder/caveat content scan passed (11175 chars)"
+      }
+    ]
+  },
+  "scorer": {
+    "name": "BankerToolBench proof verifier",
+    "command": "npm run benchmark:bankertoolbench:proof",
+    "verdict": "pass",
+    "score": 1,
+    "details": {
+      "verifierOutputTail": "\n> noderoom@0.1.1 benchmark:bankertoolbench:proof\n> tsx scripts/bankertoolbench-proof-check.ts\n\nBankerToolBench proof check passed: stage=1/1 weightedRubric=6 run=0/1 pass positive=1/1 pass candidateBeforeEvaluator=true leaks=0/2+0/3+0/4\n",
+      "packageManifestPath": "test-results\\bankertoolbench\\matrix\\2048736b-7bb8-4c54-899e-ddfdf12641ab\\package-manifest.json",
+      "downloadedExtensions": [
+        ".xlsx",
+        ".xlsm",
+        ".pptx",
+        ".docx",
+        ".pdf"
+      ],
+      "exportSource": "browser_download_link",
+      "agentTerminalQuality": {
+        "statusText": "completed via recovered Convex job: 48736b-oxy-rating-agency-presentation-2.5b-10-year-senior-unsecured-issuance-dcm-nyse-oxy.docx, btb-2048736b-oxy-rating-agency-presentation-2.5b-10-year-senior-unsecured-issuance-dcm-nyse-oxy.pdf. Coverage confirmed for DCM, NYSE, OXY, FCF.",
+        "evidenceTextLength": 2473,
+        "detail": "agent reached completed status or visible completion text, with no missing-source/unfinished-work caveats"
+      },
+      "taskCoverage": {
+        "ok": true,
+        "requiredTickers": [
+          "DCM",
+          "NYSE",
+          "OXY",
+          "FCF"
+        ],
+        "missingTickers": [],
+        "detail": "generated package mentions every requested ticker/entity: DCM, NYSE, OXY, FCF"
+      }
+    }
+  },
+  "visualJudge": {
+    "verdict": "not_run",
+    "reason": "GOOGLE_GENERATIVE_AI_API_KEY is not set; deterministic browser/download/reopen/verifier proof passed."
+  },
+  "gatesProven": [
+    "fresh_room_join",
+    "official_fixture_upload",
+    "public_nodeagent_invocation",
+    "visible_streaming_progress",
+    "trace_video_artifacts",
+    "no_memory_mode_shortcut",
+    "focus_mode_enabled",
+    "focus_box_or_attention_overlay",
+    "agent_live_loop",
+    "agent_terminal_quality_gate",
+    "room_trace_visible",
+    "job_detail_visible",
+    "deliverable_export_download",
+    "artifact_reopen_validation",
+    "artifact_placeholder_scan",
+    "official_scorer_handoff"
+  ],
+  "passed": true
+}

@@ -1,0 +1,100 @@
+{
+  "schema": 1,
+  "taskId": "f8571fea-f310-4a46-be0c-bbfb65990198",
+  "harborTaskId": "btb-f8571fea",
+  "generatedAt": "2026-06-25T02:53:33.433Z",
+  "baseUrl": "http://127.0.0.1:5273",
+  "roomUrl": "http://127.0.0.1:5273/?room=NRETE1WN5IP&name=Host",
+  "memoryMode": false,
+  "expectedExtensions": [
+    ".xlsx",
+    ".xlsm",
+    ".pptx",
+    ".docx",
+    ".pdf"
+  ],
+  "visibleExtensions": [
+    ".xlsx",
+    ".xlsm",
+    ".pptx",
+    ".docx",
+    ".pdf"
+  ],
+  "downloadedFiles": [
+    {
+      "kind": "workbook",
+      "filename": "btb-f8571fea-bankertoolbench-btb-f8571fea-le-sofr-ppt-coverage-analysis.xlsx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\f8571fea-f310-4a46-be0c-bbfb65990198\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-f8571fea-bankertoolbench-btb-f8571fea-le-sofr-ppt-coverage-analysis.xlsx",
+      "extension": ".xlsx",
+      "bytes": 9272,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (5631 chars)"
+    },
+    {
+      "kind": "workbook",
+      "filename": "btb-f8571fea-bankertoolbench-btb-f8571fea-le-sofr-ppt-coverage-analysis.xlsm",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\f8571fea-f310-4a46-be0c-bbfb65990198\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-f8571fea-bankertoolbench-btb-f8571fea-le-sofr-ppt-coverage-analysis.xlsm",
+      "extension": ".xlsm",
+      "bytes": 9272,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (5631 chars)"
+    },
+    {
+      "kind": "presentation",
+      "filename": "btb-f8571fea-bankertoolbench-btb-f8571fea-le-sofr-ppt-coverage-analysis.pptx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\f8571fea-f310-4a46-be0c-bbfb65990198\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-f8571fea-bankertoolbench-btb-f8571fea-le-sofr-ppt-coverage-analysis.pptx",
+      "extension": ".pptx",
+      "bytes": 7822,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains ppt/presentation.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (4629 chars)"
+    },
+    {
+      "kind": "document",
+      "filename": "btb-f8571fea-bankertoolbench-btb-f8571fea-le-sofr-ppt-coverage-analysis.docx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\f8571fea-f310-4a46-be0c-bbfb65990198\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-f8571fea-bankertoolbench-btb-f8571fea-le-sofr-ppt-coverage-analysis.docx",
+      "extension": ".docx",
+      "bytes": 4071,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains word/document.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (6371 chars)"
+    },
+    {
+      "kind": "pdf",
+      "filename": "btb-f8571fea-bankertoolbench-btb-f8571fea-le-sofr-ppt-coverage-analysis.pdf",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\f8571fea-f310-4a46-be0c-bbfb65990198\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-f8571fea-bankertoolbench-btb-f8571fea-le-sofr-ppt-coverage-analysis.pdf",
+      "extension": ".pdf",
+      "bytes": 4169,
+      "magic": "%PDF",
+      "reopened": true,
+      "reopenDetail": "PDF header reopened",
+      "contentQualityDetail": "placeholder/caveat content scan passed (7757 chars)"
+    }
+  ],
+  "packageManifestPath": "test-results\\bankertoolbench\\matrix\\f8571fea-f310-4a46-be0c-bbfb65990198\\package-manifest.json",
+  "verifierCommand": "npm run benchmark:bankertoolbench:proof",
+  "verifierOutputTail": "\n> noderoom@0.1.1 benchmark:bankertoolbench:proof\n> tsx scripts/bankertoolbench-proof-check.ts\n\nBankerToolBench proof check passed: stage=1/1 weightedRubric=6 run=0/1 pass positive=1/1 pass candidateBeforeEvaluator=true leaks=0/2+0/3+0/4\n",
+  "screenshot": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\f8571fea-f310-4a46-be0c-bbfb65990198\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\bankertoolbench-live-room.png",
+  "passed": true,
+  "gatesProven": [
+    "fresh_room_join",
+    "official_fixture_upload",
+    "public_nodeagent_invocation",
+    "visible_streaming_progress",
+    "focus_mode_enabled",
+    "focus_box_or_attention_overlay",
+    "agent_terminal_quality_gate",
+    "deliverable_export_download",
+    "artifact_reopen_validation",
+    "artifact_placeholder_scan",
+    "official_scorer_handoff",
+    "trace_video_artifacts",
+    "no_memory_mode_shortcut"
+  ]
+}

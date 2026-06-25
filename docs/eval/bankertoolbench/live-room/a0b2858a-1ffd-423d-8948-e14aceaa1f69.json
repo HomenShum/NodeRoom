@@ -1,0 +1,100 @@
+{
+  "schema": 1,
+  "taskId": "a0b2858a-1ffd-423d-8948-e14aceaa1f69",
+  "harborTaskId": "btb-a0b2858a",
+  "generatedAt": "2026-06-25T02:02:43.330Z",
+  "baseUrl": "http://127.0.0.1:5273",
+  "roomUrl": "http://127.0.0.1:5273/?room=NRKULRPUG6B&name=Host",
+  "memoryMode": false,
+  "expectedExtensions": [
+    ".xlsx",
+    ".xlsm",
+    ".pptx",
+    ".docx",
+    ".pdf"
+  ],
+  "visibleExtensions": [
+    ".xlsx",
+    ".xlsm",
+    ".pptx",
+    ".docx",
+    ".pdf"
+  ],
+  "downloadedFiles": [
+    {
+      "kind": "workbook",
+      "filename": "btb-a0b2858a-crwd-okta-merger-model-5-year-proforma-forecast-with-scenario-analysis-fy2026e-fy20.xlsx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\a0b2858a-1ffd-423d-8948-e14aceaa1f69\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-a0b2858a-crwd-okta-merger-model-5-year-proforma-forecast-with-scenario-analysis-fy2026e-fy20.xlsx",
+      "extension": ".xlsx",
+      "bytes": 10180,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j971dhj4kd3hhxq591drr4nn1n89bfcq",
+      "contentQualityDetail": "placeholder/caveat content scan passed (6855 chars)"
+    },
+    {
+      "kind": "workbook",
+      "filename": "btb-a0b2858a-crwd-okta-merger-model-5-year-proforma-forecast-with-scenario-analysis-fy2026e-fy20.xlsm",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\a0b2858a-1ffd-423d-8948-e14aceaa1f69\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-a0b2858a-crwd-okta-merger-model-5-year-proforma-forecast-with-scenario-analysis-fy2026e-fy20.xlsm",
+      "extension": ".xlsm",
+      "bytes": 10180,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j97e3k7y72mbaw5z7ng4kr29t589a52t",
+      "contentQualityDetail": "placeholder/caveat content scan passed (6855 chars)"
+    },
+    {
+      "kind": "presentation",
+      "filename": "btb-a0b2858a-crwd-okta-merger-model-5-year-proforma-forecast-with-scenario-analysis-fy2026e-fy20.pptx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\a0b2858a-1ffd-423d-8948-e14aceaa1f69\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-a0b2858a-crwd-okta-merger-model-5-year-proforma-forecast-with-scenario-analysis-fy2026e-fy20.pptx",
+      "extension": ".pptx",
+      "bytes": 7760,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains ppt/presentation.xml; recovered from Convex room artifact j976yvzy2k6cxb6hhfkt8m63cs89apya",
+      "contentQualityDetail": "placeholder/caveat content scan passed (4441 chars)"
+    },
+    {
+      "kind": "document",
+      "filename": "btb-a0b2858a-crwd-okta-merger-model-5-year-proforma-forecast-with-scenario-analysis-fy2026e-fy20.docx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\a0b2858a-1ffd-423d-8948-e14aceaa1f69\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-a0b2858a-crwd-okta-merger-model-5-year-proforma-forecast-with-scenario-analysis-fy2026e-fy20.docx",
+      "extension": ".docx",
+      "bytes": 4445,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains word/document.xml; recovered from Convex room artifact j976wadq68z7c2nep92ptsw1hx89b35b",
+      "contentQualityDetail": "placeholder/caveat content scan passed (6279 chars)"
+    },
+    {
+      "kind": "pdf",
+      "filename": "btb-a0b2858a-crwd-okta-merger-model-5-year-proforma-forecast-with-scenario-analysis-fy2026e-fy20.pdf",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\a0b2858a-1ffd-423d-8948-e14aceaa1f69\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-a0b2858a-crwd-okta-merger-model-5-year-proforma-forecast-with-scenario-analysis-fy2026e-fy20.pdf",
+      "extension": ".pdf",
+      "bytes": 4104,
+      "magic": "%PDF",
+      "reopened": true,
+      "reopenDetail": "PDF header reopened; recovered from Convex room artifact j9708pvjnvpg64fj8ak5fx9h6d89bkw1",
+      "contentQualityDetail": "placeholder/caveat content scan passed (7658 chars)"
+    }
+  ],
+  "packageManifestPath": "test-results\\bankertoolbench\\matrix\\a0b2858a-1ffd-423d-8948-e14aceaa1f69\\package-manifest.json",
+  "verifierCommand": "npm run benchmark:bankertoolbench:proof",
+  "verifierOutputTail": "\n> noderoom@0.1.1 benchmark:bankertoolbench:proof\n> tsx scripts/bankertoolbench-proof-check.ts\n\nBankerToolBench proof check passed: stage=1/1 weightedRubric=6 run=0/1 pass positive=1/1 pass candidateBeforeEvaluator=true leaks=0/2+0/3+0/4\n",
+  "screenshot": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\a0b2858a-1ffd-423d-8948-e14aceaa1f69\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\bankertoolbench-live-room.png",
+  "passed": true,
+  "gatesProven": [
+    "fresh_room_join",
+    "official_fixture_upload",
+    "public_nodeagent_invocation",
+    "visible_streaming_progress",
+    "focus_mode_enabled",
+    "focus_box_or_attention_overlay",
+    "agent_terminal_quality_gate",
+    "deliverable_export_download",
+    "artifact_reopen_validation",
+    "artifact_placeholder_scan",
+    "official_scorer_handoff",
+    "trace_video_artifacts",
+    "no_memory_mode_shortcut"
+  ]
+}

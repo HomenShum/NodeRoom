@@ -1,0 +1,208 @@
+{
+  "schema": 1,
+  "caseId": "FR-020",
+  "benchmark": "bankertoolbench",
+  "taskId": "5d72295c-f640-4c78-b85a-6f338e46c02b",
+  "generatedAt": "2026-06-25T02:02:58.561Z",
+  "baseUrl": "http://127.0.0.1:5273",
+  "roomId": "NR34NL8UNSE",
+  "roomUrl": "http://127.0.0.1:5273/?room=NR34NL8UNSE&name=Host",
+  "command": "BTB_LIVE_ROOM_E2E=1 BTB_UI_BUNDLE_ROOT=<official-bundle> BTB_UI_VERIFIER_COMMAND=<verifier> BENCH_BASE_URL=<base> npx playwright test --config playwright.real-flow.config.ts e2e/benchmark-ui-bankertoolbench.spec.ts --headed",
+  "model": {
+    "requested": "specific",
+    "resolved": "z-ai/glm-5.2",
+    "routePolicy": "specific",
+    "runtimeProfile": "benchmark_completion",
+    "provider": "openrouter"
+  },
+  "prompt": "Official BankerToolBench task btb-5d72295c: You are a leverage finance analyst at a bulge-bracket bank. A consortium of private equity firms is taking Boeing private at a 20% premium to the closing-day price on 1/27/26 ($244.56). \n\nYour firm has just been mandated as the agent to raise the financing to support the buyout. The credit facility will represent about 30% of the purchase price (the enterprise value). The transaction will be completed on a cash-free basis, so the consortium of buyers will also contribute $2 billion of cash to the balance sheet. The cash on the current balance sheet will be paid out to the existing shareholders as a dividend. It’s counted as part of the purchase price but wouldn’t be shown in the S&U, as it will be done right before this private transaction closes.\n\nYour MD has asked your team to put together a lender teaser to show prospective lenders before the official lender presentation. Your VP has divided the presentation, and you are responsible for five slides: the front cover page, the transaction summary cover page, the transaction overview, the summary of terms, and the transaction timeline. \n\nYour VP has told you to refer to the Being's financial staetments for the information needed to",
+  "memoryMode": false,
+  "freshness": {
+    "roomCreatedAfterRunStart": true,
+    "forbiddenPreloadedArtifactsAbsent": true,
+    "artifactsCreatedFresh": [
+      "btb-5d72295c-boeing-lender-presentation-s-u-cap-table-btb-5d72295c.xlsx",
+      "btb-5d72295c-boeing-lender-presentation-s-u-cap-table-btb-5d72295c.xlsm",
+      "btb-5d72295c-boeing-lender-presentation-s-u-cap-table-btb-5d72295c.pptx",
+      "btb-5d72295c-boeing-lender-presentation-s-u-cap-table-btb-5d72295c.docx",
+      "btb-5d72295c-boeing-lender-presentation-s-u-cap-table-btb-5d72295c.pdf"
+    ],
+    "uploadedFiles": [
+      "betas_by_industry_category_for_WACC.xlsx",
+      "Boeing Logo.png",
+      "Equity_Risk_Premium_for_WACC.xlsx",
+      "Picture 1.jpeg",
+      "Picture 2.jpg",
+      "btb-5d72295c-official-task-brief.txt"
+    ]
+  },
+  "ui": {
+    "focusModeEnabled": true,
+    "attentionOverlayVisible": true,
+    "streamingVisible": true,
+    "jobDetailVisible": true,
+    "roomTraceVisible": true,
+    "screenshotPaths": [
+      "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\5d72295c-f640-4c78-b85a-6f338e46c02b\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\bankertoolbench-live-room.png"
+    ],
+    "tracePath": "docs\\eval\\bankertoolbench\\live-room\\5d72295c-f640-4c78-b85a-6f338e46c02b.json"
+  },
+  "artifacts": {
+    "uploadedFiles": [
+      "betas_by_industry_category_for_WACC.xlsx",
+      "Boeing Logo.png",
+      "Equity_Risk_Premium_for_WACC.xlsx",
+      "Picture 1.jpeg",
+      "Picture 2.jpg",
+      "btb-5d72295c-official-task-brief.txt"
+    ],
+    "created": [
+      "btb-5d72295c-boeing-lender-presentation-s-u-cap-table-btb-5d72295c.xlsx",
+      "btb-5d72295c-boeing-lender-presentation-s-u-cap-table-btb-5d72295c.xlsm",
+      "btb-5d72295c-boeing-lender-presentation-s-u-cap-table-btb-5d72295c.pptx",
+      "btb-5d72295c-boeing-lender-presentation-s-u-cap-table-btb-5d72295c.docx",
+      "btb-5d72295c-boeing-lender-presentation-s-u-cap-table-btb-5d72295c.pdf"
+    ],
+    "exportedFiles": [
+      {
+        "kind": "workbook",
+        "filename": "btb-5d72295c-boeing-lender-presentation-s-u-cap-table-btb-5d72295c.xlsx",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\5d72295c-f640-4c78-b85a-6f338e46c02b\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-5d72295c-boeing-lender-presentation-s-u-cap-table-btb-5d72295c.xlsx",
+        "extension": ".xlsx",
+        "downloaded": true,
+        "bytes": 9407,
+        "magic": "PK\\x03\\x04"
+      },
+      {
+        "kind": "workbook",
+        "filename": "btb-5d72295c-boeing-lender-presentation-s-u-cap-table-btb-5d72295c.xlsm",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\5d72295c-f640-4c78-b85a-6f338e46c02b\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-5d72295c-boeing-lender-presentation-s-u-cap-table-btb-5d72295c.xlsm",
+        "extension": ".xlsm",
+        "downloaded": true,
+        "bytes": 9407,
+        "magic": "PK\\x03\\x04"
+      },
+      {
+        "kind": "presentation",
+        "filename": "btb-5d72295c-boeing-lender-presentation-s-u-cap-table-btb-5d72295c.pptx",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\5d72295c-f640-4c78-b85a-6f338e46c02b\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-5d72295c-boeing-lender-presentation-s-u-cap-table-btb-5d72295c.pptx",
+        "extension": ".pptx",
+        "downloaded": true,
+        "bytes": 7329,
+        "magic": "PK\\x03\\x04"
+      },
+      {
+        "kind": "document",
+        "filename": "btb-5d72295c-boeing-lender-presentation-s-u-cap-table-btb-5d72295c.docx",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\5d72295c-f640-4c78-b85a-6f338e46c02b\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-5d72295c-boeing-lender-presentation-s-u-cap-table-btb-5d72295c.docx",
+        "extension": ".docx",
+        "downloaded": true,
+        "bytes": 4186,
+        "magic": "PK\\x03\\x04"
+      },
+      {
+        "kind": "pdf",
+        "filename": "btb-5d72295c-boeing-lender-presentation-s-u-cap-table-btb-5d72295c.pdf",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\5d72295c-f640-4c78-b85a-6f338e46c02b\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-5d72295c-boeing-lender-presentation-s-u-cap-table-btb-5d72295c.pdf",
+        "extension": ".pdf",
+        "downloaded": true,
+        "bytes": 5062,
+        "magic": "%PDF"
+      }
+    ],
+    "reopenedFiles": [
+      {
+        "kind": "workbook",
+        "filename": "btb-5d72295c-boeing-lender-presentation-s-u-cap-table-btb-5d72295c.xlsx",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "ZIP package contains xl/workbook.xml; placeholder/caveat content scan passed (5912 chars)"
+      },
+      {
+        "kind": "workbook",
+        "filename": "btb-5d72295c-boeing-lender-presentation-s-u-cap-table-btb-5d72295c.xlsm",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "ZIP package contains xl/workbook.xml; placeholder/caveat content scan passed (5912 chars)"
+      },
+      {
+        "kind": "presentation",
+        "filename": "btb-5d72295c-boeing-lender-presentation-s-u-cap-table-btb-5d72295c.pptx",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "ZIP package contains ppt/presentation.xml; placeholder/caveat content scan passed (3251 chars)"
+      },
+      {
+        "kind": "document",
+        "filename": "btb-5d72295c-boeing-lender-presentation-s-u-cap-table-btb-5d72295c.docx",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "ZIP package contains word/document.xml; placeholder/caveat content scan passed (6564 chars)"
+      },
+      {
+        "kind": "pdf",
+        "filename": "btb-5d72295c-boeing-lender-presentation-s-u-cap-table-btb-5d72295c.pdf",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "PDF header reopened; placeholder/caveat content scan passed (3084 chars)"
+      }
+    ]
+  },
+  "scorer": {
+    "name": "BankerToolBench proof verifier",
+    "command": "npm run benchmark:bankertoolbench:proof",
+    "verdict": "pass",
+    "score": 1,
+    "details": {
+      "verifierOutputTail": "\n> noderoom@0.1.1 benchmark:bankertoolbench:proof\n> tsx scripts/bankertoolbench-proof-check.ts\n\nBankerToolBench proof check passed: stage=1/1 weightedRubric=6 run=0/1 pass positive=1/1 pass candidateBeforeEvaluator=true leaks=0/2+0/3+0/4\n",
+      "packageManifestPath": "test-results\\bankertoolbench\\matrix\\5d72295c-f640-4c78-b85a-6f338e46c02b\\package-manifest.json",
+      "downloadedExtensions": [
+        ".xlsx",
+        ".xlsm",
+        ".pptx",
+        ".docx",
+        ".pdf"
+      ],
+      "exportSource": "browser_download_link",
+      "agentTerminalQuality": {
+        "statusText": "completed via recovered Convex job: -lender-presentation-s-u-cap-table-btb-5d72295c.pptx, btb-5d72295c-boeing-lender-presentation-s-u-cap-table-btb-5d72295c.docx, btb-5d72295c-boeing-lender-presentation-s-u-cap-table-btb-5d72295c.pdf. Coverage confirmed for VP, OID, TL, SOFR.",
+        "evidenceTextLength": 1949,
+        "detail": "agent reached completed status or visible completion text, with no missing-source/unfinished-work caveats"
+      },
+      "taskCoverage": {
+        "ok": true,
+        "requiredTickers": [
+          "VP",
+          "OID",
+          "TL",
+          "SOFR"
+        ],
+        "missingTickers": [],
+        "detail": "generated package mentions every requested ticker/entity: VP, OID, TL, SOFR"
+      }
+    }
+  },
+  "visualJudge": {
+    "verdict": "not_run",
+    "reason": "GOOGLE_GENERATIVE_AI_API_KEY is not set; deterministic browser/download/reopen/verifier proof passed."
+  },
+  "gatesProven": [
+    "fresh_room_join",
+    "official_fixture_upload",
+    "public_nodeagent_invocation",
+    "visible_streaming_progress",
+    "trace_video_artifacts",
+    "no_memory_mode_shortcut",
+    "focus_mode_enabled",
+    "focus_box_or_attention_overlay",
+    "agent_live_loop",
+    "agent_terminal_quality_gate",
+    "room_trace_visible",
+    "job_detail_visible",
+    "deliverable_export_download",
+    "artifact_reopen_validation",
+    "artifact_placeholder_scan",
+    "official_scorer_handoff"
+  ],
+  "passed": true
+}

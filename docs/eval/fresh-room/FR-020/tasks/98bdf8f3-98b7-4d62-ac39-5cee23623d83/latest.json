@@ -1,0 +1,226 @@
+{
+  "schema": 1,
+  "caseId": "FR-020",
+  "benchmark": "bankertoolbench",
+  "taskId": "98bdf8f3-98b7-4d62-ac39-5cee23623d83",
+  "generatedAt": "2026-06-25T01:55:52.221Z",
+  "baseUrl": "http://127.0.0.1:5273",
+  "roomId": "NRPFCYQJU9C",
+  "roomUrl": "http://127.0.0.1:5273/?room=NRPFCYQJU9C&name=Host",
+  "command": "BTB_LIVE_ROOM_E2E=1 BTB_UI_BUNDLE_ROOT=<official-bundle> BTB_UI_VERIFIER_COMMAND=<verifier> BENCH_BASE_URL=<base> npx playwright test --config playwright.real-flow.config.ts e2e/benchmark-ui-bankertoolbench.spec.ts --headed",
+  "model": {
+    "requested": "specific",
+    "resolved": "z-ai/glm-5.2",
+    "routePolicy": "specific",
+    "runtimeProfile": "benchmark_completion",
+    "provider": "openrouter"
+  },
+  "prompt": "Official BankerToolBench task btb-98bdf8f3: Your MD is asking you to put together a two page profile on Meta, to pitch a potential buyside client on acquiring a minority stake.\n\nThe final outputs will be an XLS, a PPT, and a PDF.\n\nThe PPT will include three pages:\n\n1. A title page\n\n2. A qualitative profile page (with company overview, key executives, key statistics, and latest earnings results). \nPlease pull information from the latest 10-Q and other provided information to inform each of the four sections. Include some photos of top 3 key exec members as well as names and titles. One quad for each section, with bullet points. For the key stats section, include boxes with LTM revenue, LTM Adj. EBITDA, total family daily active people, and 2025E expected ARPU (no bullets in this section).\n\n3. Financial Performance page showing share price performance for last 2 years, financial stats (P&L items) and valuation stats.\n\n\nThe XLS will have an output tab with the share price line chart and the tables of financial and valuation stats to drive the third page. \n\nThe PPT will then be PDF'd.",
+  "memoryMode": false,
+  "freshness": {
+    "roomCreatedAfterRunStart": true,
+    "forbiddenPreloadedArtifactsAbsent": true,
+    "artifactsCreatedFresh": [
+      "btb-98bdf8f3-btb-98bdf8f3-deliverable.xlsx",
+      "btb-98bdf8f3-btb-98bdf8f3-deliverable.xlsm",
+      "btb-98bdf8f3-btb-98bdf8f3-deliverable.pptx",
+      "btb-98bdf8f3-btb-98bdf8f3-deliverable.docx",
+      "btb-98bdf8f3-btb-98bdf8f3-deliverable.pdf"
+    ],
+    "uploadedFiles": [
+      "betas_by_industry_category_for_WACC.xlsx",
+      "Equity_Risk_Premium_for_WACC.xlsx",
+      "Meta 2024 10K.pdf",
+      "Meta Leadership Photos.pdf",
+      "Meta_Leadership_Team_Names.pdf",
+      "META-Q3-2025-Earnings-Call-Transcript.pdf",
+      "META-US Company Identity.xlsx",
+      "META-US Income Statement Annual.xlsx",
+      "META-US Balance Sheet Annual.xlsx",
+      "META-US Cash Flow Annual.xlsx",
+      "META-US Shares Outstanding.xlsx",
+      "META-US Price History.xlsx",
+      "META-US Revenue Estimate.xlsx",
+      "META-US Earnings Estimate.xlsx",
+      "btb-98bdf8f3-official-task-brief.txt"
+    ]
+  },
+  "ui": {
+    "focusModeEnabled": true,
+    "attentionOverlayVisible": true,
+    "streamingVisible": true,
+    "jobDetailVisible": true,
+    "roomTraceVisible": true,
+    "screenshotPaths": [
+      "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\98bdf8f3-98b7-4d62-ac39-5cee23623d83\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\bankertoolbench-live-room.png"
+    ],
+    "tracePath": "docs\\eval\\bankertoolbench\\live-room\\98bdf8f3-98b7-4d62-ac39-5cee23623d83.json"
+  },
+  "artifacts": {
+    "uploadedFiles": [
+      "betas_by_industry_category_for_WACC.xlsx",
+      "Equity_Risk_Premium_for_WACC.xlsx",
+      "Meta 2024 10K.pdf",
+      "Meta Leadership Photos.pdf",
+      "Meta_Leadership_Team_Names.pdf",
+      "META-Q3-2025-Earnings-Call-Transcript.pdf",
+      "META-US Company Identity.xlsx",
+      "META-US Income Statement Annual.xlsx",
+      "META-US Balance Sheet Annual.xlsx",
+      "META-US Cash Flow Annual.xlsx",
+      "META-US Shares Outstanding.xlsx",
+      "META-US Price History.xlsx",
+      "META-US Revenue Estimate.xlsx",
+      "META-US Earnings Estimate.xlsx",
+      "btb-98bdf8f3-official-task-brief.txt"
+    ],
+    "created": [
+      "btb-98bdf8f3-btb-98bdf8f3-deliverable.xlsx",
+      "btb-98bdf8f3-btb-98bdf8f3-deliverable.xlsm",
+      "btb-98bdf8f3-btb-98bdf8f3-deliverable.pptx",
+      "btb-98bdf8f3-btb-98bdf8f3-deliverable.docx",
+      "btb-98bdf8f3-btb-98bdf8f3-deliverable.pdf"
+    ],
+    "exportedFiles": [
+      {
+        "kind": "workbook",
+        "filename": "btb-98bdf8f3-btb-98bdf8f3-deliverable.xlsx",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\98bdf8f3-98b7-4d62-ac39-5cee23623d83\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-98bdf8f3-btb-98bdf8f3-deliverable.xlsx",
+        "extension": ".xlsx",
+        "downloaded": true,
+        "bytes": 6774,
+        "magic": "PK\\x03\\x04"
+      },
+      {
+        "kind": "workbook",
+        "filename": "btb-98bdf8f3-btb-98bdf8f3-deliverable.xlsm",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\98bdf8f3-98b7-4d62-ac39-5cee23623d83\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-98bdf8f3-btb-98bdf8f3-deliverable.xlsm",
+        "extension": ".xlsm",
+        "downloaded": true,
+        "bytes": 6774,
+        "magic": "PK\\x03\\x04"
+      },
+      {
+        "kind": "presentation",
+        "filename": "btb-98bdf8f3-btb-98bdf8f3-deliverable.pptx",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\98bdf8f3-98b7-4d62-ac39-5cee23623d83\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-98bdf8f3-btb-98bdf8f3-deliverable.pptx",
+        "extension": ".pptx",
+        "downloaded": true,
+        "bytes": 6087,
+        "magic": "PK\\x03\\x04"
+      },
+      {
+        "kind": "document",
+        "filename": "btb-98bdf8f3-btb-98bdf8f3-deliverable.docx",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\98bdf8f3-98b7-4d62-ac39-5cee23623d83\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-98bdf8f3-btb-98bdf8f3-deliverable.docx",
+        "extension": ".docx",
+        "downloaded": true,
+        "bytes": 2060,
+        "magic": "PK\\x03\\x04"
+      },
+      {
+        "kind": "pdf",
+        "filename": "btb-98bdf8f3-btb-98bdf8f3-deliverable.pdf",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\98bdf8f3-98b7-4d62-ac39-5cee23623d83\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-98bdf8f3-btb-98bdf8f3-deliverable.pdf",
+        "extension": ".pdf",
+        "downloaded": true,
+        "bytes": 1070,
+        "magic": "%PDF"
+      }
+    ],
+    "reopenedFiles": [
+      {
+        "kind": "workbook",
+        "filename": "btb-98bdf8f3-btb-98bdf8f3-deliverable.xlsx",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "ZIP package contains xl/workbook.xml; placeholder/caveat content scan passed (364 chars)"
+      },
+      {
+        "kind": "workbook",
+        "filename": "btb-98bdf8f3-btb-98bdf8f3-deliverable.xlsm",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "ZIP package contains xl/workbook.xml; placeholder/caveat content scan passed (364 chars)"
+      },
+      {
+        "kind": "presentation",
+        "filename": "btb-98bdf8f3-btb-98bdf8f3-deliverable.pptx",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "ZIP package contains ppt/presentation.xml; placeholder/caveat content scan passed (360 chars)"
+      },
+      {
+        "kind": "document",
+        "filename": "btb-98bdf8f3-btb-98bdf8f3-deliverable.docx",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "ZIP package contains word/document.xml; placeholder/caveat content scan passed (341 chars)"
+      },
+      {
+        "kind": "pdf",
+        "filename": "btb-98bdf8f3-btb-98bdf8f3-deliverable.pdf",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "PDF header reopened; placeholder/caveat content scan passed (1623 chars)"
+      }
+    ]
+  },
+  "scorer": {
+    "name": "BankerToolBench proof verifier",
+    "command": "npm run benchmark:bankertoolbench:proof",
+    "verdict": "pass",
+    "score": 1,
+    "details": {
+      "verifierOutputTail": "\n> noderoom@0.1.1 benchmark:bankertoolbench:proof\n> tsx scripts/bankertoolbench-proof-check.ts\n\nBankerToolBench proof check passed: stage=1/1 weightedRubric=6 run=0/1 pass positive=1/1 pass candidateBeforeEvaluator=true leaks=0/2+0/3+0/4\n",
+      "packageManifestPath": "test-results\\bankertoolbench\\matrix\\98bdf8f3-98b7-4d62-ac39-5cee23623d83\\package-manifest.json",
+      "downloadedExtensions": [
+        ".xlsx",
+        ".xlsm",
+        ".pptx",
+        ".docx",
+        ".pdf"
+      ],
+      "exportSource": "browser_download_link",
+      "agentTerminalQuality": {
+        "statusText": "completed via recovered Convex job: f3-deliverable.xlsx, btb-98bdf8f3-btb-98bdf8f3-deliverable.xlsm, btb-98bdf8f3-btb-98bdf8f3-deliverable.pptx, btb-98bdf8f3-btb-98bdf8f3-deliverable.docx, btb-98bdf8f3-btb-98bdf8f3-deliverable.pdf. Coverage confirmed for META, XLS, PPT, ARPU.",
+        "evidenceTextLength": 3335,
+        "detail": "agent reached completed status or visible completion text, with no missing-source/unfinished-work caveats"
+      },
+      "taskCoverage": {
+        "ok": true,
+        "requiredTickers": [
+          "META",
+          "XLS",
+          "PPT",
+          "ARPU"
+        ],
+        "missingTickers": [],
+        "detail": "generated package mentions every requested ticker/entity: META, XLS, PPT, ARPU"
+      }
+    }
+  },
+  "visualJudge": {
+    "verdict": "not_run",
+    "reason": "GOOGLE_GENERATIVE_AI_API_KEY is not set; deterministic browser/download/reopen/verifier proof passed."
+  },
+  "gatesProven": [
+    "fresh_room_join",
+    "official_fixture_upload",
+    "public_nodeagent_invocation",
+    "visible_streaming_progress",
+    "trace_video_artifacts",
+    "no_memory_mode_shortcut",
+    "focus_mode_enabled",
+    "focus_box_or_attention_overlay",
+    "agent_live_loop",
+    "agent_terminal_quality_gate",
+    "room_trace_visible",
+    "job_detail_visible",
+    "deliverable_export_download",
+    "artifact_reopen_validation",
+    "artifact_placeholder_scan",
+    "official_scorer_handoff"
+  ],
+  "passed": true
+}

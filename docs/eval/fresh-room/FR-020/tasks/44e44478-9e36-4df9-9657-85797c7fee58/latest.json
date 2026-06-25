@@ -1,0 +1,220 @@
+{
+  "schema": 1,
+  "caseId": "FR-020",
+  "benchmark": "bankertoolbench",
+  "taskId": "44e44478-9e36-4df9-9657-85797c7fee58",
+  "generatedAt": "2026-06-25T02:43:51.529Z",
+  "baseUrl": "http://127.0.0.1:5273",
+  "roomId": "NRBJ4BI9EER",
+  "roomUrl": "http://127.0.0.1:5273/?room=NRBJ4BI9EER&name=Host",
+  "command": "BTB_LIVE_ROOM_E2E=1 BTB_UI_BUNDLE_ROOT=<official-bundle> BTB_UI_VERIFIER_COMMAND=<verifier> BENCH_BASE_URL=<base> npx playwright test --config playwright.real-flow.config.ts e2e/benchmark-ui-bankertoolbench.spec.ts --headed",
+  "model": {
+    "requested": "specific",
+    "resolved": "z-ai/glm-5.2",
+    "routePolicy": "specific",
+    "runtimeProfile": "benchmark_completion",
+    "provider": "openrouter"
+  },
+  "prompt": "Official BankerToolBench task btb-44e44478: You are an investment banking analyst on the ECM desk. Your bank is lead-left bookrunner on a $350M IPO for NovaCrest Technologies, Inc., a domestic SaaS company (Delaware C-corp) targeting a Nasdaq Global Select Market listing under the ticker symbol \"NCRT.\" The confidential S-1 was submitted to the SEC on November 18, 2025. The SEC's first comment letter - containing 28 comments - was received on January 14, 2026. The FINRA Corporate Financing filing was submitted on December 2, 2025 and is under review. The Nasdaq listing application was submitted on December 16, 2025.\nBuild out the full Regulatory Coordination Tracker workbook in Excel. Populate it with current status across all workstreams, incorporate the SEC comment letter, and prepare it for working group circulation by end of day. The tracker must serve as the single source of truth for the entire deal team and outside counsel on every regulatory filing, approval, and compliance deliverable required from filing through closing.\nData Integrity Rule - No Unsupported Content:\nThis prompt is the sole authoritative data source for the tracker. Every date, status, milestone, page reference, internal deadline, comment summary, an",
+  "memoryMode": false,
+  "freshness": {
+    "roomCreatedAfterRunStart": true,
+    "forbiddenPreloadedArtifactsAbsent": true,
+    "artifactsCreatedFresh": [
+      "btb-44e44478-btb-44e44478-securities-offering-regulatory-framework.xlsx",
+      "btb-44e44478-btb-44e44478-securities-offering-regulatory-framework.xlsm",
+      "btb-44e44478-btb-44e44478-securities-offering-regulatory-framework.pptx",
+      "btb-44e44478-btb-44e44478-securities-offering-regulatory-framework.docx",
+      "btb-44e44478-btb-44e44478-securities-offering-regulatory-framework.pdf"
+    ],
+    "uploadedFiles": [
+      "betas_by_industry_category_for_WACC.xlsx",
+      "Equity_Risk_Premium_for_WACC.xlsx",
+      "btb-44e44478-official-task-brief.txt"
+    ]
+  },
+  "ui": {
+    "focusModeEnabled": true,
+    "attentionOverlayVisible": true,
+    "streamingVisible": true,
+    "jobDetailVisible": true,
+    "roomTraceVisible": true,
+    "screenshotPaths": [
+      "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\44e44478-9e36-4df9-9657-85797c7fee58\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\bankertoolbench-live-room.png"
+    ],
+    "tracePath": "docs\\eval\\bankertoolbench\\live-room\\44e44478-9e36-4df9-9657-85797c7fee58.json"
+  },
+  "artifacts": {
+    "uploadedFiles": [
+      "betas_by_industry_category_for_WACC.xlsx",
+      "Equity_Risk_Premium_for_WACC.xlsx",
+      "btb-44e44478-official-task-brief.txt"
+    ],
+    "created": [
+      "btb-44e44478-btb-44e44478-securities-offering-regulatory-framework.xlsx",
+      "btb-44e44478-btb-44e44478-securities-offering-regulatory-framework.xlsm",
+      "btb-44e44478-btb-44e44478-securities-offering-regulatory-framework.pptx",
+      "btb-44e44478-btb-44e44478-securities-offering-regulatory-framework.docx",
+      "btb-44e44478-btb-44e44478-securities-offering-regulatory-framework.pdf"
+    ],
+    "exportedFiles": [
+      {
+        "kind": "workbook",
+        "filename": "btb-44e44478-btb-44e44478-securities-offering-regulatory-framework.xlsx",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\44e44478-9e36-4df9-9657-85797c7fee58\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-44e44478-btb-44e44478-securities-offering-regulatory-framework.xlsx",
+        "extension": ".xlsx",
+        "downloaded": true,
+        "bytes": 8915,
+        "magic": "PK\\x03\\x04"
+      },
+      {
+        "kind": "workbook",
+        "filename": "btb-44e44478-btb-44e44478-securities-offering-regulatory-framework.xlsm",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\44e44478-9e36-4df9-9657-85797c7fee58\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-44e44478-btb-44e44478-securities-offering-regulatory-framework.xlsm",
+        "extension": ".xlsm",
+        "downloaded": true,
+        "bytes": 8915,
+        "magic": "PK\\x03\\x04"
+      },
+      {
+        "kind": "presentation",
+        "filename": "btb-44e44478-btb-44e44478-securities-offering-regulatory-framework.pptx",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\44e44478-9e36-4df9-9657-85797c7fee58\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-44e44478-btb-44e44478-securities-offering-regulatory-framework.pptx",
+        "extension": ".pptx",
+        "downloaded": true,
+        "bytes": 7220,
+        "magic": "PK\\x03\\x04"
+      },
+      {
+        "kind": "document",
+        "filename": "btb-44e44478-btb-44e44478-securities-offering-regulatory-framework.docx",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\44e44478-9e36-4df9-9657-85797c7fee58\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-44e44478-btb-44e44478-securities-offering-regulatory-framework.docx",
+        "extension": ".docx",
+        "downloaded": true,
+        "bytes": 3815,
+        "magic": "PK\\x03\\x04"
+      },
+      {
+        "kind": "pdf",
+        "filename": "btb-44e44478-btb-44e44478-securities-offering-regulatory-framework.pdf",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\44e44478-9e36-4df9-9657-85797c7fee58\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-44e44478-btb-44e44478-securities-offering-regulatory-framework.pdf",
+        "extension": ".pdf",
+        "downloaded": true,
+        "bytes": 4592,
+        "magic": "%PDF"
+      }
+    ],
+    "reopenedFiles": [
+      {
+        "kind": "workbook",
+        "filename": "btb-44e44478-btb-44e44478-securities-offering-regulatory-framework.xlsx",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "ZIP package contains xl/workbook.xml; placeholder/caveat content scan passed (4571 chars)"
+      },
+      {
+        "kind": "workbook",
+        "filename": "btb-44e44478-btb-44e44478-securities-offering-regulatory-framework.xlsm",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "ZIP package contains xl/workbook.xml; placeholder/caveat content scan passed (4571 chars)"
+      },
+      {
+        "kind": "presentation",
+        "filename": "btb-44e44478-btb-44e44478-securities-offering-regulatory-framework.pptx",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "ZIP package contains ppt/presentation.xml; placeholder/caveat content scan passed (2961 chars)"
+      },
+      {
+        "kind": "document",
+        "filename": "btb-44e44478-btb-44e44478-securities-offering-regulatory-framework.docx",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "ZIP package contains word/document.xml; placeholder/caveat content scan passed (5090 chars)"
+      },
+      {
+        "kind": "pdf",
+        "filename": "btb-44e44478-btb-44e44478-securities-offering-regulatory-framework.pdf",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "PDF header reopened; placeholder/caveat content scan passed (8665 chars)"
+      }
+    ]
+  },
+  "scorer": {
+    "name": "BankerToolBench proof verifier",
+    "command": "npm run benchmark:bankertoolbench:proof",
+    "verdict": "pass",
+    "score": 1,
+    "details": {
+      "verifierOutputTail": "\n> noderoom@0.1.1 benchmark:bankertoolbench:proof\n> tsx scripts/bankertoolbench-proof-check.ts\n\nBankerToolBench proof check passed: stage=1/1 weightedRubric=6 run=0/1 pass positive=1/1 pass candidateBeforeEvaluator=true leaks=0/2+0/3+0/4\n",
+      "packageManifestPath": "test-results\\bankertoolbench\\matrix\\44e44478-9e36-4df9-9657-85797c7fee58\\package-manifest.json",
+      "downloadedExtensions": [
+        ".xlsx",
+        ".xlsm",
+        ".pptx",
+        ".docx",
+        ".pdf"
+      ],
+      "exportSource": "browser_download_link",
+      "agentTerminalQuality": {
+        "statusText": "completed via recovered Convex job: -regulatory-framework.docx, btb-44e44478-btb-44e44478-securities-offering-regulatory-framework.pdf. Coverage confirmed for ECM, NCRT, FINRA, TBD, ASC, BD, UW, DTC, LLP, EDGAR, DFIN, N.A, CUSIP, NOT, ONLY, GAAP, JOBS, NSMIA, DC, CT, SAS, AU.",
+        "evidenceTextLength": 4519,
+        "detail": "agent reached completed status or visible completion text, with no missing-source/unfinished-work caveats"
+      },
+      "taskCoverage": {
+        "ok": true,
+        "requiredTickers": [
+          "ECM",
+          "NCRT",
+          "FINRA",
+          "TBD",
+          "ASC",
+          "BD",
+          "UW",
+          "DTC",
+          "LLP",
+          "EDGAR",
+          "DFIN",
+          "N.A",
+          "CUSIP",
+          "NOT",
+          "ONLY",
+          "GAAP",
+          "JOBS",
+          "NSMIA",
+          "DC",
+          "CT",
+          "SAS",
+          "AU"
+        ],
+        "missingTickers": [],
+        "detail": "generated package mentions every requested ticker/entity: ECM, NCRT, FINRA, TBD, ASC, BD, UW, DTC, LLP, EDGAR, DFIN, N.A, CUSIP, NOT, ONLY, GAAP, JOBS, NSMIA, DC, CT, SAS, AU"
+      }
+    }
+  },
+  "visualJudge": {
+    "verdict": "not_run",
+    "reason": "GOOGLE_GENERATIVE_AI_API_KEY is not set; deterministic browser/download/reopen/verifier proof passed."
+  },
+  "gatesProven": [
+    "fresh_room_join",
+    "official_fixture_upload",
+    "public_nodeagent_invocation",
+    "visible_streaming_progress",
+    "trace_video_artifacts",
+    "no_memory_mode_shortcut",
+    "focus_mode_enabled",
+    "focus_box_or_attention_overlay",
+    "agent_live_loop",
+    "agent_terminal_quality_gate",
+    "room_trace_visible",
+    "job_detail_visible",
+    "deliverable_export_download",
+    "artifact_reopen_validation",
+    "artifact_placeholder_scan",
+    "official_scorer_handoff"
+  ],
+  "passed": true
+}

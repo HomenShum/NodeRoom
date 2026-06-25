@@ -13,7 +13,7 @@ import { makeFunctionReference } from "convex/server";
 import { internalAction } from "./_generated/server";
 import type { Id } from "./_generated/dataModel";
 import { ConvexRoomTools } from "./convexRoomTools";
-import { AgentRunError, runAgent } from "../src/nodeagent/core/runtime";
+import { AgentRunError, TOOL_REQUIRED_NO_CALL_TERMINAL_MARKER, runAgent } from "../src/nodeagent/core/runtime";
 import { runReasoningFrame, type ReasoningFrameRunReceipt } from "../src/nodeagent/core/frameRunner";
 import { SERVER_PRODUCTION_ROOM_TOOLS as PRODUCTION_ROOM_TOOLS } from "../src/nodeagent/skills/server/productionTools";
 import { MANAGED_LOCK_SYSTEM_PROMPT } from "../src/nodeagent/models/prompts/systemPrompt";
@@ -36,8 +36,8 @@ import {
 import { makeConvexStepJournal } from "./agentStepJournalClient";
 
 const CONVEX_ACTION_LIMIT_MS = 10 * 60_000;
-const DEFAULT_SLICE_BUDGET_MS = 9 * 60_000;
-const DEFAULT_RESERVE_MS = 30_000;
+const DEFAULT_SLICE_BUDGET_MS = 7 * 60_000;
+const DEFAULT_RESERVE_MS = 60_000;
 const MIN_ACTION_RESERVE_MS = 10_000;
 const ACTION_SAFETY_MARGIN_MS = 15_000;
 const DEFAULT_LEASE_EXTRA_MS = 60_000;
@@ -45,6 +45,7 @@ const DEFAULT_RESUME_DELAY_MS = 5_000;
 const DEFAULT_CONTEXT_MAX_CHARS = 24_000;
 const DEFAULT_CONTEXT_KEEP_RECENT = 10;
 const DEFAULT_FILE_EGRESS_MODEL = "z-ai/glm-4.7-flash";
+const RESUME_CHECKPOINT_PREFIX = "RESUME CHECKPOINT:";
 const agentJobsClaimSliceRef = makeFunctionReference<"mutation">("agentJobs:claimSlice") as any;
 const agentJobsFinishSliceRef = makeFunctionReference<"mutation">("agentJobs:finishSlice") as any;
 const agentJobsRecordLiveOperationRef = makeFunctionReference<"mutation">("agentJobs:recordLiveOperation") as any;
@@ -132,16 +133,16 @@ function isBenchmarkCompletionProfile(profile: ClaimedJob["runtimeProfile"]): bo
 
 function maxStepsForJob(entrypoint: ProviderEgressEntrypoint, runtimeProfile: ClaimedJob["runtimeProfile"]): number {
   if (isBenchmarkCompletionProfile(runtimeProfile)) {
-    return envNumber("BENCHMARK_AGENT_MAX_STEPS_PER_SLICE", 80, 1, 500);
+    return envNumber("BENCHMARK_AGENT_MAX_STEPS_PER_SLICE", 5_000, 1, 5_000);
   }
-  return envNumber("FREE_AUTO_JOB_MAX_STEPS_PER_SLICE", defaultMaxStepsForEntrypoint(entrypoint), 1, 12);
+  return envNumber("FREE_AUTO_JOB_MAX_STEPS_PER_SLICE", defaultMaxStepsForEntrypoint(entrypoint), 1, 256);
 }
 
 function spendLimitsForJob(runtimeProfile: ClaimedJob["runtimeProfile"]) {
   if (isBenchmarkCompletionProfile(runtimeProfile)) {
     return {
-      maxTokens: envNumber("BENCHMARK_AGENT_MAX_TOKENS_PER_SLICE", 1_500_000, 1_000, 8_000_000),
-      maxCostUsd: envNumber("BENCHMARK_AGENT_MAX_USD_PER_SLICE", 25, 0.01, 500),
+      maxTokens: envNumber("BENCHMARK_AGENT_MAX_TOKENS_PER_SLICE", 8_000_000, 1_000, 64_000_000),
+      maxCostUsd: envNumber("BENCHMARK_AGENT_MAX_USD_PER_SLICE", 250, 0.01, 5_000),
     };
   }
   return {
@@ -168,8 +169,14 @@ function stepStatus(e: { tool: string; result: unknown }): "ok" | "conflict" | "
   const r = (e.result ?? {}) as { ok?: boolean; conflict?: boolean; locked?: boolean; error?: unknown; drafted?: boolean };
   if (e.tool === "edit_cell") { if (r.conflict) return "conflict"; if (r.locked) return "locked"; }
   if (e.tool.startsWith("write_locked_cell") && r.drafted) return "ok";
-  if (r.error || r.ok === false) return "error";
+  if (toolResultFailed(r)) return "error";
   return "ok";
+}
+
+function toolResultFailed(result: unknown): boolean {
+  if (!result || typeof result !== "object") return false;
+  const object = result as Record<string, unknown>;
+  return object.ok === false || typeof object.error === "string";
 }
 
 function liveOperationKind(event: AgentTraceEvent): LiveOperationKind {
@@ -181,7 +188,7 @@ function liveOperationKind(event: AgentTraceEvent): LiveOperationKind {
 
 function liveOperationName(event: AgentTraceEvent): string {
   const result = event.result as { error?: unknown; conflict?: unknown; locked?: unknown; pendingApproval?: unknown } | null;
-  const suffix = result?.error ? " failed" : result?.conflict ? " conflict" : result?.locked ? " blocked" : result?.pendingApproval ? " needs review" : "";
+  const suffix = toolResultFailed(result) ? " failed" : result?.conflict ? " conflict" : result?.locked ? " blocked" : result?.pendingApproval ? " needs review" : "";
   return `${event.tool}${suffix}`;
 }
 
@@ -261,7 +268,7 @@ function runnerEntrypoint(job: Pick<ClaimedJob, "entrypoint" | "modelPolicy">): 
 }
 
 function defaultMaxStepsForEntrypoint(entrypoint: ProviderEgressEntrypoint): number {
-  return entrypoint === "free" ? 3 : 8;
+  return entrypoint === "free" ? 32 : 128;
 }
 
 function configuredFileEgressModel() {
@@ -295,10 +302,23 @@ function clean<T extends Record<string, unknown>>(value: T): T {
 
 async function checkpoint(result: AgentResult, maxChars: number, keepRecent: number, frameId?: string) {
   const compacted = await compactMessages(result.messages, { maxChars, keepRecent });
+  const remainingToolCalls = result.handoff?.remainingToolCalls ?? [];
+  let messages = compacted.messages.filter((message) =>
+    !(message.role === "user" && message.content?.startsWith(RESUME_CHECKPOINT_PREFIX)));
+  if (result.handoff && remainingToolCalls.length === 0) {
+    const latestProgress = (result.handoff.latestAssistantText || result.finalText || result.handoff.summary || "")
+      .replace(/\s+/g, " ")
+      .trim()
+      .slice(0, 2_000);
+    messages = [...messages, {
+      role: "user",
+      content: `${RESUME_CHECKPOINT_PREFIX} Previous slice paused with ${result.stopReason}. Continue the original goal from the current room state and prior tool results; do not restart source reads unless a specific value is missing. Latest progress: ${latestProgress}`,
+    }];
+  }
   return {
     frameId,
-    messages: compacted.messages,
-    remainingToolCalls: result.handoff?.remainingToolCalls ?? [],
+    messages,
+    remainingToolCalls,
     stopReason: result.stopReason,
     compacted: compacted.compacted,
     elided: compacted.elided,
@@ -325,6 +345,11 @@ function frameStatusForFinish(receipt: ReasoningFrameRunReceipt | undefined, res
   if (!receipt) return undefined;
   if (result.stopReason !== "done" || result.exhausted) return canContinue ? "pending" : "failed";
   return receipt.status;
+}
+
+function isNonResumableAgentResult(result: AgentResult): boolean {
+  const summary = result.handoff?.summary ?? result.finalText ?? "";
+  return result.stopReason === "step_budget" && summary.includes(TOOL_REQUIRED_NO_CALL_TERMINAL_MARKER);
 }
 
 export const runFreeAutoJobSlice = internalAction({
@@ -607,7 +632,7 @@ export const runFreeAutoJobSlice = internalAction({
             void recordLiveOperation({
               kind: liveOperationKind(event),
               name: liveOperationName(event),
-              status: (event.result && typeof event.result === "object" && "error" in (event.result as Record<string, unknown>)) ? "failed" : "completed",
+              status: toolResultFailed(event.result) ? "failed" : "completed",
               countDelta: 1,
               affectedIds: liveOperationAffectedIds(event),
               completedAt: Date.now(),
@@ -639,7 +664,7 @@ export const runFreeAutoJobSlice = internalAction({
           void recordLiveOperation({
             kind: liveOperationKind(event),
             name: liveOperationName(event),
-            status: (event.result && typeof event.result === "object" && "error" in (event.result as Record<string, unknown>)) ? "failed" : "completed",
+            status: toolResultFailed(event.result) ? "failed" : "completed",
             countDelta: 1,
             affectedIds: liveOperationAffectedIds(event),
             completedAt: Date.now(),
@@ -648,7 +673,8 @@ export const runFreeAutoJobSlice = internalAction({
       });
       const { runId, telemetry } = await recordRun(result);
       const done = result.stopReason === "done" && !result.exhausted;
-      const canContinue = !done && claimed.attempt < claimed.maxAttempts;
+      const nonResumable = isNonResumableAgentResult(result);
+      const canContinue = !done && !nonResumable && claimed.attempt < claimed.maxAttempts;
       const frameStatus = frameStatusForFinish(frameReceipt, result, canContinue);
       const frameBlocked = frameStatus === "blocked";
       const scheduledNextAt = canContinue || (frameReceipt && done && !frameBlocked) ? Date.now() + DEFAULT_RESUME_DELAY_MS : undefined;
@@ -696,7 +722,11 @@ export const runFreeAutoJobSlice = internalAction({
         handoff: result.handoff,
         cursor,
         finalText: result.finalText,
-        error: frameBlocked ? frameReceipt?.verification.blockedReason ?? frameReceipt?.verification.reason : done || canContinue ? undefined : "max_attempts_exceeded",
+        error: frameBlocked
+          ? frameReceipt?.verification.blockedReason ?? frameReceipt?.verification.reason
+          : nonResumable
+            ? result.handoff?.summary ?? TOOL_REQUIRED_NO_CALL_TERMINAL_MARKER
+            : done || canContinue ? undefined : "max_attempts_exceeded",
         scheduledNextAt,
         frameId: activeFrameId,
         frameStatus,

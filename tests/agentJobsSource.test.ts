@@ -7,7 +7,8 @@ describe("long-running agent job source invariants", () => {
     const runner = readFileSync("convex/agentJobRunner.ts", "utf8");
 
     expect(jobs).toContain("export const finishSlice");
-    expect(jobs).toContain("ctx.scheduler.runAfter(Math.max(0, Number(patch.nextRunAt) - now)");
+    expect(jobs).toContain("const delayMs = Math.max(0, Number(patch.nextRunAt) - now)");
+    expect(jobs).toContain("ctx.scheduler.runAfter(delayMs, internal.agentJobRunner.runFreeAutoJobSlice");
     expect(runner).not.toContain("ctx.scheduler.runAfter(DEFAULT_RESUME_DELAY_MS");
     expect(runner).not.toContain("ctx.scheduler.runAfter(delayMs");
   });
@@ -32,9 +33,15 @@ describe("long-running agent job source invariants", () => {
     expect(jobs).toContain('runtime: "workflow"');
     expect(jobs).toContain("startWorkflow(ctx, internal.agentWorkflows.freeAutoWorkflow");
     expect(jobs).toContain("workflow_start_failed");
-    expect(jobs).toContain('job.runtime !== "workflow"');
+    expect(jobs).toContain('job.runtime === "workflow"');
     expect(workflows).toContain("new WorkflowManager(components.workflow");
     expect(workflows).toContain("MAX_WORKFLOW_SLICES");
+    expect(workflows).toContain("One workflow invocation owns one long-running slice");
+    expect(jobs).toContain("agentWorkflows.freeAutoWorkflow.continue");
+    expect(jobs).toContain('job.status === "paused" || job.status === "retrying"');
+    expect(jobs).toContain('resultKind === "success" && job.status === "queued"');
+    expect(jobs).toContain("agentJobs.finishSlice.workflowSchedulerFallback");
+    expect(jobs).toContain('job.status === "running" && job.attempts > 1');
   });
 
   it("expands spreadsheet locks through formula dependency records", () => {
@@ -76,23 +83,25 @@ describe("long-running agent job source invariants", () => {
     expect(schema).toContain('runtimeProfile: v.optional(runtimeProfileV)');
   });
 
-  it("keeps benchmark-completion limits opt-in instead of weakening normal public asks", () => {
+  it("supports benchmark-completion limits by explicit flag, focus mode, or benchmark goal inference", () => {
     const runner = readFileSync("convex/agentJobRunner.ts", "utf8");
     const jobs = readFileSync("convex/agentJobs.ts", "utf8");
     const store = readFileSync("src/app/store.tsx", "utf8");
     const spec = readFileSync("e2e/benchmark-ui-spreadsheetbench.spec.ts", "utf8");
 
     expect(jobs).toContain('v.literal("benchmark_completion")');
-    expect(jobs).toContain("runtimeProfile: a.runtimeProfile");
+    expect(jobs).toContain("function inferredRuntimeProfileForGoal");
+    expect(jobs).toContain("runtimeProfile = a.runtimeProfile ?? inferredRuntimeProfileForGoal(a.goal)");
     expect(jobs).toContain("runtimeProfile: job.runtimeProfile");
-    expect(jobs).toContain("runtimeProfile: a.runtimeProfile");
+    expect(jobs).toContain('defaultMaxAttempts = runtimeProfile === "benchmark_completion" ? 1000');
     expect(runner).toContain("function maxStepsForJob");
     expect(runner).toContain("BENCHMARK_AGENT_MAX_STEPS_PER_SLICE");
     expect(runner).toContain("FREE_AUTO_JOB_MAX_STEPS_PER_SLICE");
-    expect(runner).toContain("defaultMaxStepsForEntrypoint(entrypoint), 1, 12");
+    expect(runner).toContain("defaultMaxStepsForEntrypoint(entrypoint), 1, 256");
     expect(runner).toContain("BENCHMARK_AGENT_MAX_TOKENS_PER_SLICE");
     expect(runner).toContain("BENCHMARK_AGENT_MAX_USD_PER_SLICE");
     expect(store).toContain("noderoom.nodeagentRuntimeProfile");
+    expect(store).toContain('focusMode === "1" || focusMode === "true"');
     expect(store).toContain("maxAttemptsForRuntimeProfile");
     expect(spec).toContain('window.localStorage.setItem("noderoom.nodeagentRuntimeProfile", "benchmark_completion")');
   });
@@ -207,6 +216,16 @@ describe("long-running agent job source invariants", () => {
     expect(agent).toContain('"AGENT_ACTION_BUDGET_MS"');
     expect(runner).toContain("boundedActionBudgetMs(");
     expect(runner).toContain('"FREE_AUTO_JOB_SLICE_BUDGET_MS"');
+    expect(runner).toContain("const DEFAULT_SLICE_BUDGET_MS = 7 * 60_000");
+    expect(runner).toContain("const DEFAULT_RESERVE_MS = 60_000");
+  });
+
+  it("keeps production public job slices completion-oriented instead of capped at 8 steps", () => {
+    const runner = readFileSync("convex/agentJobRunner.ts", "utf8");
+
+    expect(runner).toContain('return entrypoint === "free" ? 32 : 128');
+    expect(runner).toContain('envNumber("FREE_AUTO_JOB_MAX_STEPS_PER_SLICE", defaultMaxStepsForEntrypoint(entrypoint), 1, 256)');
+    expect(runner).not.toContain('entrypoint === "free" ? 3 : 8');
   });
 
   it("round-trips Gemini tool-call thought signatures for resumed jobs", () => {
@@ -333,6 +352,7 @@ describe("long-running agent job source invariants", () => {
   it("streams workflow-sliced public agent progress through live operation rows", () => {
     const runner = readFileSync("convex/agentJobRunner.ts", "utf8");
     const model = readFileSync("src/nodeagent/models/convexModel.ts", "utf8");
+    const sdkAdapter = readFileSync("src/nodeagent/models/adapter.ts", "utf8");
 
     expect(runner).toContain("agentJobs:recordLiveOperation");
     expect(runner).toContain("agentJobRunner.runFreeAutoJobSlice");
@@ -341,6 +361,12 @@ describe("long-running agent job source invariants", () => {
     expect(model).toContain("AGENT_MODEL_MAX_OUTPUT_TOKENS");
     expect(model).toContain("chat_template_kwargs");
     expect(model).toContain("enable_thinking: false");
+    expect(model).toContain("isOpenRouterHybridThinkingModel");
+    expect(model).toContain("qwen\\/qwen3");
+    expect(model).toContain("openAiCompatibleToolChoice");
+    expect(model).toContain('choice === "required"');
+    expect(sdkAdapter).toContain("sdkToolChoiceForModel");
+    expect(sdkAdapter).toContain('choice === "required"');
   });
 
   it("streams actual public LLM text deltas through durable message streams", () => {

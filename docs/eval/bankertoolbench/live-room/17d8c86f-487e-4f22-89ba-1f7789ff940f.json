@@ -1,0 +1,100 @@
+{
+  "schema": 1,
+  "taskId": "17d8c86f-487e-4f22-89ba-1f7789ff940f",
+  "harborTaskId": "btb-17d8c86f",
+  "generatedAt": "2026-06-24T23:48:53.354Z",
+  "baseUrl": "http://127.0.0.1:5273",
+  "roomUrl": "http://127.0.0.1:5273/?room=NRE17GQXZ1B&name=Host&focusMode=1",
+  "memoryMode": false,
+  "expectedExtensions": [
+    ".xlsx",
+    ".xlsm",
+    ".pptx",
+    ".docx",
+    ".pdf"
+  ],
+  "visibleExtensions": [
+    ".xlsx",
+    ".xlsm",
+    ".pptx",
+    ".docx",
+    ".pdf"
+  ],
+  "downloadedFiles": [
+    {
+      "kind": "workbook",
+      "filename": "btb-17d8c86f-software-sector-valuation-comp-set-crm-peer-analysis.xlsx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\17d8c86f-487e-4f22-89ba-1f7789ff940f\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-17d8c86f-software-sector-valuation-comp-set-crm-peer-analysis.xlsx",
+      "extension": ".xlsx",
+      "bytes": 7701,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j97a5q775zqc4pw9v31qhmqqs189945z",
+      "contentQualityDetail": "placeholder/caveat content scan passed (1506 chars)"
+    },
+    {
+      "kind": "workbook",
+      "filename": "btb-17d8c86f-software-sector-valuation-comp-set-crm-peer-analysis.xlsm",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\17d8c86f-487e-4f22-89ba-1f7789ff940f\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-17d8c86f-software-sector-valuation-comp-set-crm-peer-analysis.xlsm",
+      "extension": ".xlsm",
+      "bytes": 7701,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j97fbk83nnw7kfzp4h7cczrjad899y3x",
+      "contentQualityDetail": "placeholder/caveat content scan passed (1506 chars)"
+    },
+    {
+      "kind": "presentation",
+      "filename": "btb-17d8c86f-software-sector-valuation-comp-set-crm-peer-analysis.pptx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\17d8c86f-487e-4f22-89ba-1f7789ff940f\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-17d8c86f-software-sector-valuation-comp-set-crm-peer-analysis.pptx",
+      "extension": ".pptx",
+      "bytes": 6610,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains ppt/presentation.xml; recovered from Convex room artifact j97d0sdgq5kyvyhnbgaknx747s8999gq",
+      "contentQualityDetail": "placeholder/caveat content scan passed (1755 chars)"
+    },
+    {
+      "kind": "document",
+      "filename": "btb-17d8c86f-software-sector-valuation-comp-set-crm-peer-analysis.docx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\17d8c86f-487e-4f22-89ba-1f7789ff940f\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-17d8c86f-software-sector-valuation-comp-set-crm-peer-analysis.docx",
+      "extension": ".docx",
+      "bytes": 2766,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains word/document.xml; recovered from Convex room artifact j973se1knjkb7gznvfr917pryh898vc2",
+      "contentQualityDetail": "placeholder/caveat content scan passed (2347 chars)"
+    },
+    {
+      "kind": "pdf",
+      "filename": "btb-17d8c86f-software-sector-valuation-comp-set-crm-peer-analysis.pdf",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\17d8c86f-487e-4f22-89ba-1f7789ff940f\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-17d8c86f-software-sector-valuation-comp-set-crm-peer-analysis.pdf",
+      "extension": ".pdf",
+      "bytes": 2855,
+      "magic": "%PDF",
+      "reopened": true,
+      "reopenDetail": "PDF header reopened; recovered from Convex room artifact j9706g26sqf12w9r20pr6qzbhd898htd",
+      "contentQualityDetail": "placeholder/caveat content scan passed (5189 chars)"
+    }
+  ],
+  "packageManifestPath": "test-results\\bankertoolbench\\matrix\\17d8c86f-487e-4f22-89ba-1f7789ff940f\\package-manifest.json",
+  "verifierCommand": "npm run benchmark:bankertoolbench:proof",
+  "verifierOutputTail": "\n> noderoom@0.1.1 benchmark:bankertoolbench:proof\n> tsx scripts/bankertoolbench-proof-check.ts\n\nBankerToolBench proof check passed: stage=1/1 weightedRubric=6 run=0/1 pass positive=1/1 pass candidateBeforeEvaluator=true leaks=0/2+0/3+0/4\n",
+  "screenshot": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\17d8c86f-487e-4f22-89ba-1f7789ff940f\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\bankertoolbench-live-room.png",
+  "passed": true,
+  "gatesProven": [
+    "fresh_room_join",
+    "official_fixture_upload",
+    "public_nodeagent_invocation",
+    "visible_streaming_progress",
+    "focus_mode_enabled",
+    "focus_box_or_attention_overlay",
+    "agent_terminal_quality_gate",
+    "deliverable_export_download",
+    "artifact_reopen_validation",
+    "artifact_placeholder_scan",
+    "official_scorer_handoff",
+    "trace_video_artifacts",
+    "no_memory_mode_shortcut"
+  ]
+}
