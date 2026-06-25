@@ -1,8 +1,8 @@
 {
-  "runId": "live-convex-agent-20260621T113838Z",
-  "generatedAt": "2026-06-21T11:42:40.601Z",
+  "runId": "btb-a31173e3-qwen-fresh-domain-proof-after-pdf-storage-fix-20260625",
+  "generatedAt": "2026-06-25T10:39:48.199Z",
   "model": "gemini-3.5-flash",
-  "command": "npm run media:gemini-judge -- --input=docs/eval/gemini-media-judges/live-convex-agent-20260621T113838Z/live-proof.webm --run-id live-convex-agent-20260621T113838Z --model gemini-3.5-flash",
+  "command": "npm run media:gemini-judge -- --run-id btb-a31173e3-qwen-fresh-domain-proof-after-pdf-storage-fix-20260625 --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\a31173e3-e8aa-4ddb-b0d9-e4e7055c950b\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --out \"docs\\\\eval\\\\gemini-media-judges\"",
   "notes": [
     "GIF assets are converted to temporary MP4 with ffmpeg before upload.",
     "This media judge is evidence-quality QA; it does not replace backend/browser production gates."
@@ -13,83 +13,73 @@
     "errors": 0,
     "dryRun": 0,
     "verdicts": {
-      "fix-then-publish": 1
+      "publish": 1
     },
-    "defects": {
-      "P1": 1
-    }
+    "defects": {}
   },
   "results": [
     {
       "asset": {
-        "id": "docs-eval-gemini-media-judges-live-convex-agent-20260621t113838z-live-proof",
+        "id": "test-results-bankertoolbench-matrix-a31173e3-e8aa-4ddb-b0d9-e4e7055c950b-playwright-output-e2e-benchmark-ui-bankertoo-d0047-odeagent-package-verifier-video",
         "class": "live_browser_proof",
-        "title": "Live Proof",
-        "path": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom_clean_proof\\docs\\eval\\gemini-media-judges\\live-convex-agent-20260621T113838Z\\live-proof.webm",
-        "relPath": "docs/eval/gemini-media-judges/live-convex-agent-20260621T113838Z/live-proof.webm",
+        "title": "Video",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\a31173e3-e8aa-4ddb-b0d9-e4e7055c950b\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\video.webm",
+        "relPath": "test-results/bankertoolbench/matrix/a31173e3-e8aa-4ddb-b0d9-e4e7055c950b/playwright-output/e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier/video.webm",
         "purpose": "Live Playwright browser proof clip. Judge only visible product evidence: multi-client sync, advisory presence, no-clobber behavior, proposals, job/privacy/wall surfaces, and production honesty."
       },
       "model": "gemini-3.5-flash",
       "status": "judged",
-      "mediaPath": "docs/eval/gemini-media-judges/live-convex-agent-20260621T113838Z/live-proof.webm",
+      "mediaPath": "test-results/bankertoolbench/matrix/a31173e3-e8aa-4ddb-b0d9-e4e7055c950b/playwright-output/e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier/video.webm",
       "mediaType": "video/webm",
-      "bytes": 5287839,
+      "bytes": 16456845,
       "judge": {
-        "verdict": "fix-then-publish",
-        "summary": "The video successfully demonstrates collaborative spreadsheet editing and multi-agent execution (public and private) within the NodeRoom war room. However, it suffers from an 8-second blank white screen at the start which needs to be trimmed.",
+        "verdict": "publish",
+        "summary": "The video demonstrates NodeAgent executing a DCF SOTP valuation for Alphabet Inc. inside NodeRoom, covering room creation, document uploads, live agent execution with trace logs, and final artifact generation.",
         "scores": {
           "featureClarity": {
-            "score": 1.5,
-            "evidence": "Clearly shows human users and AI agents interacting with a financial spreadsheet and chat interface."
+            "score": 1,
+            "evidence": "Shows an AI agent executing financial tasks within a collaborative workspace."
           },
           "workflowCompleteness": {
-            "score": 1.5,
-            "evidence": "Demonstrates the complete flow from room entry to chat-triggered agent execution and final cell updates."
+            "score": 1,
+            "evidence": "Captures the entire flow from room setup to final document generation."
           },
           "visualDesign": {
-            "score": 1.3,
-            "evidence": "High-density dark UI with clear active states, though the layout is somewhat busy with multiple panels."
+            "score": 1,
+            "evidence": "Clean, high-density dark UI with structured panels and spreadsheets."
           },
           "consistency": {
-            "score": 1.5,
-            "evidence": "Perfectly aligns with the product story of collaborative files, spreadsheets, and integrated AI agents."
+            "score": 1,
+            "evidence": "Matches the product story of files, spreadsheets, chat, and agent traces."
           },
           "evidenceQuality": {
-            "score": 1.6,
-            "evidence": "Authentic browser capture showing real-time state changes, trace logs, and agent execution steps."
+            "score": 1,
+            "evidence": "Authentic browser recording showing real-time UI and execution steps."
           },
           "legibility": {
-            "score": 1.2,
-            "evidence": "Most UI elements are readable, though chat text and spreadsheet formulas are quite small."
+            "score": 1,
+            "evidence": "UI elements and text are readable at standard browser size."
           },
           "professionalRelevance": {
-            "score": 1.5,
-            "evidence": "Highly relevant for financial analysts and diligence teams managing complex workflows."
+            "score": 1,
+            "evidence": "Highly relevant for financial analysts automating valuation workflows."
           },
           "productionHonesty": {
-            "score": 1.5,
-            "evidence": "Shows realistic agent latency and step-by-step execution without deceptive edits."
+            "score": 1,
+            "evidence": "Shows actual loading states and execution traces without edits."
           }
         },
         "observedEvidence": [
-          "Real-time collaborative spreadsheet cell updates",
-          "Public and private AI agent execution and chat feedback",
-          "Active event trace logging at the bottom of the workspace"
+          "Room creation modal",
+          "Document upload list",
+          "Live agent execution trace",
+          "Generated financial models and PDF exports"
         ],
-        "missingEvidence": [
-          "Explicit demonstration of no-clobber behavior during simultaneous human-agent edits."
-        ],
-        "defects": [
-          {
-            "ts": "00:00",
-            "severity": "P1",
-            "observed": "The video starts with an empty white screen lasting approximately 8 seconds before the UI loads.",
-            "fix": "Trim the video to start at 0:09 when the login screen appears."
-          }
-        ],
-        "suggestedReadmeCaption": "Watch NodeRoom's public and private AI agents collaborate with team members to analyze financial variance and update diligence spreadsheets in real-time."
+        "missingEvidence": [],
+        "defects": [],
+        "suggestedReadmeCaption": "Watch NodeAgent perform a complex DCF SOTP valuation by analyzing financial filings and generating structured models in real-time."
       },
-      "score": 11.6,
+      "score": 8,
       "maxScore": 16
     }
   ]

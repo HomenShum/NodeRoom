@@ -1,0 +1,100 @@
+{
+  "schema": 1,
+  "taskId": "b957a435-13bf-469b-b4de-fa55e3b15edd",
+  "harborTaskId": "btb-b957a435",
+  "generatedAt": "2026-06-25T01:09:23.414Z",
+  "baseUrl": "http://127.0.0.1:5273",
+  "roomUrl": "http://127.0.0.1:5273/?room=NR530YRYCNL&name=Host",
+  "memoryMode": false,
+  "expectedExtensions": [
+    ".xlsx",
+    ".xlsm",
+    ".pptx",
+    ".docx",
+    ".pdf"
+  ],
+  "visibleExtensions": [
+    ".xlsx",
+    ".xlsm",
+    ".pptx",
+    ".docx",
+    ".pdf"
+  ],
+  "downloadedFiles": [
+    {
+      "kind": "workbook",
+      "filename": "btb-b957a435-okta-okta-dcf-valuation-analysis-perpetuity-growth-exit-multiple-methods-2026e-2030.xlsx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\b957a435-13bf-469b-b4de-fa55e3b15edd\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-b957a435-okta-okta-dcf-valuation-analysis-perpetuity-growth-exit-multiple-methods-2026e-2030.xlsx",
+      "extension": ".xlsx",
+      "bytes": 9704,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (4796 chars)"
+    },
+    {
+      "kind": "workbook",
+      "filename": "btb-b957a435-okta-okta-dcf-valuation-analysis-perpetuity-growth-exit-multiple-methods-2026e-2030.xlsm",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\b957a435-13bf-469b-b4de-fa55e3b15edd\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-b957a435-okta-okta-dcf-valuation-analysis-perpetuity-growth-exit-multiple-methods-2026e-2030.xlsm",
+      "extension": ".xlsm",
+      "bytes": 9704,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (4796 chars)"
+    },
+    {
+      "kind": "presentation",
+      "filename": "btb-b957a435-okta-okta-dcf-valuation-analysis-perpetuity-growth-exit-multiple-methods-2026e-2030.pptx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\b957a435-13bf-469b-b4de-fa55e3b15edd\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-b957a435-okta-okta-dcf-valuation-analysis-perpetuity-growth-exit-multiple-methods-2026e-2030.pptx",
+      "extension": ".pptx",
+      "bytes": 7018,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains ppt/presentation.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (2415 chars)"
+    },
+    {
+      "kind": "document",
+      "filename": "btb-b957a435-okta-okta-dcf-valuation-analysis-perpetuity-growth-exit-multiple-methods-2026e-2030.docx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\b957a435-13bf-469b-b4de-fa55e3b15edd\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-b957a435-okta-okta-dcf-valuation-analysis-perpetuity-growth-exit-multiple-methods-2026e-2030.docx",
+      "extension": ".docx",
+      "bytes": 3162,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains word/document.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (3261 chars)"
+    },
+    {
+      "kind": "pdf",
+      "filename": "btb-b957a435-okta-okta-dcf-valuation-analysis-perpetuity-growth-exit-multiple-methods-2026e-2030.pdf",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\b957a435-13bf-469b-b4de-fa55e3b15edd\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-b957a435-okta-okta-dcf-valuation-analysis-perpetuity-growth-exit-multiple-methods-2026e-2030.pdf",
+      "extension": ".pdf",
+      "bytes": 3163,
+      "magic": "%PDF",
+      "reopened": true,
+      "reopenDetail": "PDF header reopened",
+      "contentQualityDetail": "placeholder/caveat content scan passed (5801 chars)"
+    }
+  ],
+  "packageManifestPath": "test-results\\bankertoolbench\\matrix\\b957a435-13bf-469b-b4de-fa55e3b15edd\\package-manifest.json",
+  "verifierCommand": "npm run benchmark:bankertoolbench:proof",
+  "verifierOutputTail": "\n> noderoom@0.1.1 benchmark:bankertoolbench:proof\n> tsx scripts/bankertoolbench-proof-check.ts\n\nBankerToolBench proof check passed: stage=1/1 weightedRubric=6 run=0/1 pass positive=1/1 pass candidateBeforeEvaluator=true leaks=0/2+0/3+0/4\n",
+  "screenshot": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\b957a435-13bf-469b-b4de-fa55e3b15edd\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\bankertoolbench-live-room.png",
+  "passed": true,
+  "gatesProven": [
+    "fresh_room_join",
+    "official_fixture_upload",
+    "public_nodeagent_invocation",
+    "visible_streaming_progress",
+    "focus_mode_enabled",
+    "focus_box_or_attention_overlay",
+    "agent_terminal_quality_gate",
+    "deliverable_export_download",
+    "artifact_reopen_validation",
+    "artifact_placeholder_scan",
+    "official_scorer_handoff",
+    "trace_video_artifacts",
+    "no_memory_mode_shortcut"
+  ]
+}

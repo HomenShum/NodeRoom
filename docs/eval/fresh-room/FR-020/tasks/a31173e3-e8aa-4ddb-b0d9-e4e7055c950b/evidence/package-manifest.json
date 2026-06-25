@@ -1,0 +1,65 @@
+{
+  "schema": 1,
+  "taskId": "a31173e3-e8aa-4ddb-b0d9-e4e7055c950b",
+  "harborTaskId": "btb-a31173e3",
+  "generatedAt": "2026-06-25T10:38:11.024Z",
+  "baseUrl": "http://127.0.0.1:5273",
+  "roomUrl": "http://127.0.0.1:5273/?room=NRNNNQC2IO9&name=Host",
+  "downloadedFiles": [
+    {
+      "kind": "workbook",
+      "filename": "btb-a31173e3-alphabet-inc.-googl-dcf-sum-of-the-parts-valuation-as-of-12-31-2025.xlsx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\a31173e3-e8aa-4ddb-b0d9-e4e7055c950b\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-a31173e3-alphabet-inc.-googl-dcf-sum-of-the-parts-valuation-as-of-12-31-2025.xlsx",
+      "extension": ".xlsx",
+      "bytes": 10548,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (6125 chars)"
+    },
+    {
+      "kind": "workbook",
+      "filename": "btb-a31173e3-alphabet-inc.-googl-dcf-sum-of-the-parts-valuation-as-of-12-31-2025.xlsm",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\a31173e3-e8aa-4ddb-b0d9-e4e7055c950b\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-a31173e3-alphabet-inc.-googl-dcf-sum-of-the-parts-valuation-as-of-12-31-2025.xlsm",
+      "extension": ".xlsm",
+      "bytes": 10548,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (6125 chars)"
+    },
+    {
+      "kind": "presentation",
+      "filename": "btb-a31173e3-alphabet-inc.-googl-dcf-sum-of-the-parts-valuation-as-of-12-31-2025.pptx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\a31173e3-e8aa-4ddb-b0d9-e4e7055c950b\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-a31173e3-alphabet-inc.-googl-dcf-sum-of-the-parts-valuation-as-of-12-31-2025.pptx",
+      "extension": ".pptx",
+      "bytes": 6638,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains ppt/presentation.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (1717 chars)"
+    },
+    {
+      "kind": "document",
+      "filename": "btb-a31173e3-alphabet-inc.-googl-dcf-sum-of-the-parts-valuation-as-of-12-31-2025.docx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\a31173e3-e8aa-4ddb-b0d9-e4e7055c950b\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-a31173e3-alphabet-inc.-googl-dcf-sum-of-the-parts-valuation-as-of-12-31-2025.docx",
+      "extension": ".docx",
+      "bytes": 2949,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains word/document.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (4910 chars)"
+    },
+    {
+      "kind": "pdf",
+      "filename": "btb-a31173e3-alphabet-inc.-googl-dcf-sum-of-the-parts-valuation-as-of-12-31-2025.pdf",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\a31173e3-e8aa-4ddb-b0d9-e4e7055c950b\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-a31173e3-alphabet-inc.-googl-dcf-sum-of-the-parts-valuation-as-of-12-31-2025.pdf",
+      "extension": ".pdf",
+      "bytes": 4733,
+      "magic": "%PDF",
+      "reopened": true,
+      "reopenDetail": "PDF header reopened",
+      "contentQualityDetail": "placeholder/caveat content scan passed (8795 chars)"
+    }
+  ]
+}

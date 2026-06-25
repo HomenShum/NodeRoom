@@ -7,7 +7,7 @@
  * file implements the small AgentModel seam with direct provider HTTP calls.
  */
 
-import type { AgentMessage, AgentModel, AgentStep, AgentTool, ToolCall } from "../core/types";
+import type { AgentMessage, AgentModel, AgentStep, AgentTool, AgentToolChoice, ToolCall } from "../core/types";
 import { getModelPricing, getProviderForModel, resolveModelAlias } from "./modelCatalog";
 import { isOpenRouterFreeAutoModel, selectOpenRouterFreeModels } from "./openRouterFreeModels";
 import { openAiCompatibleTokenLimitParam } from "./openAiTokenLimit";
@@ -63,6 +63,8 @@ type OpenAiChatStreamChunk = {
   usage?: OpenAiChatResponse["usage"];
 };
 
+type OpenAiToolCallDelta = NonNullable<NonNullable<NonNullable<OpenAiChatStreamChunk["choices"]>[number]["delta"]>["tool_calls"]>[number];
+
 type AnthropicResponse = {
   content?: Array<
     | { type: "text"; text?: string }
@@ -100,11 +102,11 @@ export function convexModel(modelId: string, options: { entrypoint?: ProviderRou
     get name() {
       return resolvedModelId;
     },
-    async next({ system, messages, tools, signal, onTextDelta }) {
+    async next({ system, messages, tools, signal, onTextDelta, toolChoice }) {
       // Gateway PII firewall — redact PII/secrets from the system + user content before the prompt leaves.
       const safeSystem = redactPII(system).text;
       const safeMessages = messages.map((m) => (m.role === "user" && m.content ? { ...m, content: redactPII(m.content).text } : m));
-      const { step, resolvedModel } = await generateConvexAgentStep(aliasModelId, safeSystem, safeMessages, tools, entrypoint, signal, onTextDelta);
+      const { step, resolvedModel } = await generateConvexAgentStep(aliasModelId, safeSystem, safeMessages, tools, entrypoint, signal, onTextDelta, toolChoice);
       resolvedModelId = resolvedModel;
       return step;
     },
@@ -124,6 +126,7 @@ async function generateConvexAgentStep(
   entrypoint: ProviderRouteEntrypoint,
   signal?: AbortSignal,
   onTextDelta?: (text: string) => void | Promise<void>,
+  toolChoice?: AgentToolChoice,
 ) {
   assertProviderRouteAllowed({ model: modelId, entrypoint, env: process.env });
   if (isOpenRouterFreeAutoModel(modelId)) {
@@ -149,6 +152,7 @@ async function generateConvexAgentStep(
             tools,
             signal,
             onTextDelta,
+            toolChoice,
           }), signal), providerRoute),
           resolvedModel: candidate.id,
         };
@@ -163,7 +167,7 @@ async function generateConvexAgentStep(
   try {
     const providerRoute = assertProviderRouteAllowed({ model: modelId, entrypoint, env: process.env });
     return {
-      step: withProviderRoute(await withRetry(() => providerStep(modelId, system, messages, tools, signal, onTextDelta), signal), providerRoute),
+      step: withProviderRoute(await withRetry(() => providerStep(modelId, system, messages, tools, signal, onTextDelta, toolChoice), signal), providerRoute),
       resolvedModel: modelId,
     };
   } catch (error) {
@@ -171,7 +175,7 @@ async function generateConvexAgentStep(
     if (!fb || signal?.aborted) throw error;
     const providerRoute = assertProviderRouteAllowed({ model: fb, entrypoint, env: process.env });
     return {
-      step: withProviderRoute(await withRetry(() => providerStep(fb, system, messages, tools, signal, onTextDelta), signal), providerRoute),
+      step: withProviderRoute(await withRetry(() => providerStep(fb, system, messages, tools, signal, onTextDelta, toolChoice), signal), providerRoute),
       resolvedModel: fb,
     };
   }
@@ -184,6 +188,7 @@ async function providerStep(
   tools: AgentTool[],
   signal?: AbortSignal,
   onTextDelta?: (text: string) => void | Promise<void>,
+  toolChoice?: AgentToolChoice,
 ) {
   const provider = getProviderForModel(modelId);
   if (provider === "openai") {
@@ -197,6 +202,7 @@ async function providerStep(
       tools,
       signal,
       onTextDelta,
+      toolChoice,
     });
   }
   if (provider === "openrouter") {
@@ -210,6 +216,7 @@ async function providerStep(
       tools,
       signal,
       onTextDelta,
+      toolChoice,
     });
   }
   if (provider === "anthropic") return anthropicStep(modelId, system, messages, tools, signal);
@@ -236,6 +243,7 @@ async function openAiCompatibleStep(args: {
   tools: AgentTool[];
   signal?: AbortSignal;
   onTextDelta?: (text: string) => void | Promise<void>;
+  toolChoice?: AgentToolChoice;
 }) {
   if (args.onTextDelta) {
     try {
@@ -259,12 +267,13 @@ async function openAiCompatibleBlockingStep(args: {
   messages: AgentMessage[];
   tools: AgentTool[];
   signal?: AbortSignal;
+  toolChoice?: AgentToolChoice;
 }) {
   const res = await postJson<OpenAiChatResponse>(args.endpoint, {
     model: args.modelId,
     messages: [{ role: "system", content: args.system }, ...toOpenAiMessages(args.messages)],
     tools: args.tools.length ? args.tools.map(openAiTool) : undefined,
-    tool_choice: args.tools.length ? "auto" : undefined,
+    tool_choice: args.tools.length ? openAiCompatibleToolChoice(args.modelId, args.endpoint, args.toolChoice) : undefined,
     ...openAiCompatibleTokenLimitParam(args.modelId, args.endpoint, modelMaxOutputTokens()),
     ...openAiCompatibleProviderOptions(args.modelId, args.endpoint),
   }, {
@@ -299,6 +308,7 @@ async function openAiCompatibleStreamStep(args: {
   tools: AgentTool[];
   signal?: AbortSignal;
   onTextDelta: (text: string) => void | Promise<void>;
+  toolChoice?: AgentToolChoice;
 }) {
   const res = await fetch(args.endpoint, {
     method: "POST",
@@ -313,7 +323,7 @@ async function openAiCompatibleStreamStep(args: {
       stream_options: { include_usage: true },
       messages: [{ role: "system", content: args.system }, ...toOpenAiMessages(args.messages)],
       tools: args.tools.length ? args.tools.map(openAiTool) : undefined,
-      tool_choice: args.tools.length ? "auto" : undefined,
+      tool_choice: args.tools.length ? openAiCompatibleToolChoice(args.modelId, args.endpoint, args.toolChoice) : undefined,
       ...openAiCompatibleTokenLimitParam(args.modelId, args.endpoint, modelMaxOutputTokens()),
       ...openAiCompatibleProviderOptions(args.modelId, args.endpoint),
     })),
@@ -321,6 +331,7 @@ async function openAiCompatibleStreamStep(args: {
   });
 
   const toolCallParts = new Map<number, { id?: string; name?: string; argsText: string }>();
+  let lastToolCallIndex = -1;
   let text = "";
   let usage: OpenAiChatResponse["usage"] | undefined;
 
@@ -340,7 +351,8 @@ async function openAiCompatibleStreamStep(args: {
         await args.onTextDelta(textDelta);
       }
       for (const toolDelta of delta?.tool_calls ?? []) {
-        const index = typeof toolDelta.index === "number" ? toolDelta.index : toolCallParts.size;
+        const index = inferOpenAiStreamToolIndex(toolDelta, toolCallParts, lastToolCallIndex);
+        lastToolCallIndex = index;
         const current = toolCallParts.get(index) ?? { argsText: "" };
         if (toolDelta.id) current.id = toolDelta.id;
         if (toolDelta.function?.name) current.name = toolDelta.function.name;
@@ -352,10 +364,11 @@ async function openAiCompatibleStreamStep(args: {
 
   const toolCalls = [...toolCallParts.entries()]
     .sort(([a], [b]) => a - b)
+    .filter(([, tc]) => shouldKeepOpenAiStreamToolCall(tc))
     .map(([, tc]): ToolCall => ({
       id: tc.id || crypto.randomUUID(),
       tool: tc.name ?? "unknown_tool",
-      args: parseJsonObject(tc.argsText || "{}"),
+      args: parseOpenAiStreamToolArgs(tc.name, tc.argsText),
     }));
   return {
     text: text || undefined,
@@ -695,11 +708,12 @@ export function toolParameters(toolName: string): JsonObject {
     },
     required: ["id", "label", "sourceRef", "quote", "kind", "confidence", "status"],
   };
+  const stringOrStringArray = { anyOf: [stringArray, string] };
   const schemas: Record<string, JsonObject> = {
-    read_range: { type: "object", properties: { elementIds: stringArray, artifactId: string }, required: ["elementIds"] },
+    read_range: { type: "object", properties: { elementIds: stringOrStringArray, artifactId: string }, required: [] },
     search_sheet_context: { type: "object", properties: { query: string, artifactId: string, limit: integer }, required: ["query"] },
     list_artifacts: { type: "object", properties: {}, required: [] },
-    propose_lock: { type: "object", properties: { elementIds: stringArray, reason: string, artifactId: string }, required: ["elementIds", "reason"] },
+    propose_lock: { type: "object", properties: { elementIds: stringOrStringArray, reason: string, artifactId: string }, required: ["elementIds", "reason"] },
     edit_cell: { type: "object", properties: { elementId: string, value: any, baseVersion: integer, kind: { type: "string", enum: ["set", "create", "delete"] }, artifactId: string }, required: ["elementId", "value", "baseVersion"] },
     write_cell_result: {
       type: "object",
@@ -758,12 +772,24 @@ export function toolParameters(toolName: string): JsonObject {
     fetch_source: { type: "object", properties: { url: string }, required: ["url"] },
     write_locked_cell: {
       type: "object",
-      properties: { elementId: string, value: any, baseVersion: integer, reason: string, artifactId: string },
+      properties: { elementId: string, cellId: string, value: any, baseVersion: integer, version: integer, reason: string, kind: { type: "string", enum: ["set", "create", "delete"] }, artifactId: string },
       required: ["elementId", "value", "baseVersion"],
     },
     write_locked_cells: {
       type: "object",
-      properties: { ops: { type: "array", items: op }, reason: string, artifactId: string },
+      properties: {
+        ops: { type: "array", items: op },
+        cells: { type: "array", items: op },
+        elementIds: any,
+        cellIds: any,
+        values: any,
+        baseVersions: any,
+        versions: any,
+        kinds: any,
+        kind: { type: "string", enum: ["set", "create", "delete"] },
+        reason: string,
+        artifactId: string,
+      },
       required: ["ops"],
     },
     write_locked_cell_result: {
@@ -778,6 +804,10 @@ export function toolParameters(toolName: string): JsonObject {
         formula: string,
         error: string,
         evidence: { type: "array", items: evidence },
+        cellId: string,
+        version: integer,
+        reason: string,
+        kind: { type: "string", enum: ["set", "create"] },
         artifactId: string,
       },
       required: ["elementId", "value", "baseVersion", "evidence"],
@@ -803,6 +833,47 @@ export function toolParameters(toolName: string): JsonObject {
             required: ["elementId", "value", "baseVersion", "evidence"],
           },
         },
+        cells: {
+          type: "array",
+          items: {
+            type: "object",
+            properties: {
+              elementId: string,
+              cellId: string,
+              id: string,
+              value: any,
+              baseVersion: integer,
+              version: integer,
+              status: { type: "string", enum: ["empty", "running", "complete", "needs_review", "failed", "gap"] },
+              confidence: number,
+              normalizedValue: any,
+              formula: string,
+              error: string,
+              evidence: { type: "array", items: evidence },
+              kind: { type: "string", enum: ["set", "create"] },
+            },
+            required: ["elementId", "value", "baseVersion", "evidence"],
+          },
+        },
+        elementIds: any,
+        cellIds: any,
+        values: any,
+        baseVersions: any,
+        versions: any,
+        statuses: any,
+        status: any,
+        confidences: any,
+        confidence: any,
+        normalizedValues: any,
+        normalizedValue: any,
+        formulas: any,
+        formula: any,
+        errors: any,
+        error: any,
+        evidences: any,
+        evidence: any,
+        kinds: any,
+        kind: { type: "string", enum: ["set", "create"] },
         reason: string,
         artifactId: string,
       },
@@ -848,6 +919,28 @@ export function toolParameters(toolName: string): JsonObject {
         destinations: { type: "array", items: { type: "string", enum: ["gmail", "notion", "slack", "linear", "linkedin", "crm_csv"] } },
       },
       required: ["artifact"],
+    },
+    create_btb_deliverable_package: {
+      type: "object",
+      properties: {
+        taskId: string,
+        title: string,
+        narrative: string,
+        rows: {
+          type: "array",
+          items: {
+            type: "object",
+            properties: {
+              label: string,
+              values: { type: "object", additionalProperties: any },
+            },
+            required: ["label", "values"],
+          },
+        },
+        sourceUrls: stringArray,
+        sourceArtifactIds: stringArray,
+      },
+      required: ["title", "narrative"],
     },
     set_artifact_meta: { type: "object", properties: { artifactId: string, title: string, summary: string, tags: stringArray }, required: ["artifactId"] },
     define_columns: {
@@ -925,6 +1018,40 @@ function removeUndefined(value: unknown): unknown {
   );
 }
 
+function inferOpenAiStreamToolIndex(
+  toolDelta: OpenAiToolCallDelta,
+  toolCallParts: Map<number, { id?: string; name?: string; argsText: string }>,
+  lastToolCallIndex: number,
+): number {
+  if (typeof toolDelta.index === "number") return toolDelta.index;
+  if (toolDelta.id) {
+    const existing = [...toolCallParts.entries()].find(([, part]) => part.id === toolDelta.id);
+    if (existing) return existing[0];
+  }
+  const hasNewIdentity = !!toolDelta.id || !!toolDelta.function?.name;
+  const hasArgsOnly = !!toolDelta.function?.arguments && !toolDelta.id && !toolDelta.function?.name;
+  if (hasArgsOnly && lastToolCallIndex >= 0) return lastToolCallIndex;
+  if (hasNewIdentity) return Math.max(-1, ...toolCallParts.keys()) + 1;
+  return lastToolCallIndex >= 0 ? lastToolCallIndex : Math.max(-1, ...toolCallParts.keys()) + 1;
+}
+
+function shouldKeepOpenAiStreamToolCall(tc: { name?: string; argsText: string }): boolean {
+  if (!tc.name) return false;
+  if (tc.argsText.trim()) return true;
+  const required = toolParameters(tc.name).required;
+  return !Array.isArray(required) || required.length === 0;
+}
+
+function parseOpenAiStreamToolArgs(name: string | undefined, argsText: string): JsonObject {
+  const text = argsText.trim();
+  if (!text) return {};
+  const parsed = parseJsonObject(text, { __parseFailed: true });
+  if (parsed.__parseFailed) {
+    throw new Error(`stream_tool_args_invalid_json:${name ?? "unknown_tool"}`);
+  }
+  return parsed;
+}
+
 function parseJsonObject(text: string, fallback: JsonObject = {}): JsonObject {
   try {
     const parsed = JSON.parse(text);
@@ -955,11 +1082,23 @@ function envNumber(name: string, fallback: number, min: number, max: number): nu
 }
 
 function openAiCompatibleProviderOptions(modelId: string, endpoint: string): JsonObject {
-  // GLM reasoning models served through OpenRouter/vLLM can spend the entire output cap on
-  // hidden thinking and then return Wafer's "response was truncated" error. Keep NodeAgent
-  // tool turns in instruction-following mode unless a caller deliberately overrides the model.
-  if (!isOpenRouterEndpoint(endpoint) || !/^z-ai\/glm-|^glm-/i.test(modelId)) return {};
+  // GLM/Qwen hybrid-thinking models served through OpenRouter/vLLM can spend the entire
+  // output cap on hidden thinking, and Qwen rejects required tool_choice while thinking.
+  // Keep NodeAgent tool turns in instruction-following mode unless a caller deliberately
+  // overrides the model route.
+  if (!isOpenRouterEndpoint(endpoint) || !isOpenRouterHybridThinkingModel(modelId)) return {};
   return { chat_template_kwargs: { enable_thinking: false } };
+}
+
+function openAiCompatibleToolChoice(modelId: string, endpoint: string, requested?: AgentToolChoice): AgentToolChoice {
+  const choice = requested ?? "auto";
+  // Alibaba-hosted Qwen via OpenRouter rejects `tool_choice: "required"` in thinking mode.
+  // NodeAgent still validates required writes/packages after the turn, so provider-level `auto`
+  // is the compatible transport hint while the harness remains strict.
+  if (choice === "required" && isOpenRouterEndpoint(endpoint) && isOpenRouterQwenHybridThinkingModel(modelId)) {
+    return "auto";
+  }
+  return choice;
 }
 
 function isOpenRouterEndpoint(endpoint: string): boolean {
@@ -968,6 +1107,14 @@ function isOpenRouterEndpoint(endpoint: string): boolean {
   } catch {
     return endpoint.includes("openrouter");
   }
+}
+
+function isOpenRouterHybridThinkingModel(modelId: string): boolean {
+  return /^(?:z-ai\/glm-|glm-)/i.test(modelId) || isOpenRouterQwenHybridThinkingModel(modelId);
+}
+
+function isOpenRouterQwenHybridThinkingModel(modelId: string): boolean {
+  return /^(?:qwen\/qwen3(?:[.-]|$)|qwen3(?:[.-]|$))/i.test(modelId);
 }
 
 function openRouterHeaders(): Record<string, string> {

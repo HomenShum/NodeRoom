@@ -4,6 +4,8 @@ test("status click-through opens and pulses the referenced spreadsheet cell", as
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.emulateMedia({ reducedMotion: "reduce" });
   await enterDemoRoom(page);
+  await page.getByTestId("left-rail").getByRole("button", { name: /Q3 variance/ }).click();
+  await expect(page.locator('[data-cell-key="r_rev__variance"]')).toBeVisible({ timeout: 10_000 });
 
   await page.getByTestId("collab-run").click();
   const statusOpen = page.getByTestId("status-open");

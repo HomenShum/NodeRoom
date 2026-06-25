@@ -152,6 +152,15 @@ export async function fetchSourceReal(url: string): Promise<SourceResult> {
     if (!fetched) return { ok: false, error: "blocked host (SSRF)" };
     const { res, dispatcher } = fetched;
     try {
+      if (res.status === 401 || res.status === 403 || res.status === 429) {
+        const finalUrl = new URL(res.url || u.toString());
+        return {
+          ok: true,
+          title: finalUrl.hostname,
+          snippet: `Text fetch unavailable with HTTP ${res.status}. Use capture_source for browser-rendered evidence or choose an unauthenticated source endpoint.`,
+          url: finalUrl.toString(),
+        };
+      }
       if (!res.ok) return { ok: false, error: `http ${res.status}` };
       const finalUrl = new URL(res.url || u.toString());
       if (finalUrl.protocol !== "https:") return { ok: false, error: "blocked redirect" };

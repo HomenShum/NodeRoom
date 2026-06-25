@@ -1,4 +1,5 @@
 import { test, expect, type BrowserContext, type Page } from "@playwright/test";
+import { enableFocusModeForTest, expectAttentionOverlayMounted, expectFocusModeOn } from "./focusMode";
 
 const HAS_BACKEND = !!process.env.E2E_CONVEX_URL && !!process.env.VITE_CONVEX_URL;
 test.skip(!HAS_BACKEND, "set E2E_CONVEX_URL and VITE_CONVEX_URL to run broad live Convex specs");
@@ -28,13 +29,12 @@ async function ensureBinderOpen(page: Page) {
 
 async function openLiveRoom(ctx: BrowserContext, code: string, name: string, create = false) {
   const page = await ctx.newPage();
-  await page.addInitScript(() => {
-    try { localStorage.setItem("noderoom:tour:v1", "done"); } catch { /* ignore */ }
-  });
+  await enableFocusModeForTest(page);
   await page.goto(`/?${create ? "demo" : "room"}=${code}&name=${encodeURIComponent(name)}`, {
     waitUntil: "domcontentloaded",
   });
   await expect(publicChat(page).getByTestId("chat-composer")).toBeVisible({ timeout: 60_000 });
+  await expectFocusModeOn(page);
   await ensureBinderOpen(page);
   return page;
 }
@@ -121,6 +121,7 @@ test("live Convex covers private isolation, wall CRUD, job controls, and agent-i
     await expect(memberWall.locator(`[data-postit-id="${noteId}"]`)).toHaveCount(0, { timeout: 25_000 });
 
     await openVarianceSheet(host);
+    await expectAttentionOverlayMounted(host);
     await host.getByTestId("copilot-tab-public").click();
     const chat = publicChat(host);
     await chat.getByTestId("chat-composer").fill("/free fill the remaining Q3 variance cells through the long job path");
@@ -137,6 +138,7 @@ test("live Convex covers private isolation, wall CRUD, job controls, and agent-i
 
     await setReviewMode(host);
     await openVarianceSheet(member);
+    await expectAttentionOverlayMounted(member);
     await host.getByTestId("artifact-panel").getByTestId("collab-conflict").click();
     const target = "r_rev__variance";
     await expect(host.locator(`[data-cell-key="${target}"] [data-testid="presence-flag"]`)).toContainText("NodeAgent planning", { timeout: 15_000 });

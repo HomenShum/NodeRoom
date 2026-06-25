@@ -14,7 +14,7 @@ type MarkdownBodyProps = HTMLAttributes<HTMLDivElement> & {
 };
 
 export function MarkdownBody({ text, cursor, className = "text", children, ...props }: MarkdownBodyProps) {
-  const blocks = parseMarkdownBlocks(text);
+  const blocks = parseMarkdownBlocks(compactGeneratedFileLists(text));
   return (
     <div className={`${className} r-md`} {...props}>
       {blocks.map((block, index) => renderBlock(block, `b${index}`))}
@@ -22,6 +22,34 @@ export function MarkdownBody({ text, cursor, className = "text", children, ...pr
       {children}
     </div>
   );
+}
+
+export function compactGeneratedFileLists(markdown: string): string {
+  return markdown.replace(/Files created:\s+((?:[^,\n]+?\.(?:xlsx|xlsm|pptx|docx|pdf|json)(?:,\s*|\.\s*|$))+)/gi, (full, rawList: string) => {
+    const files = Array.from(String(rawList).matchAll(/([^,\n]+?\.(xlsx|xlsm|pptx|docx|pdf|json))/gi))
+      .map((match) => ({ name: match[1].trim(), ext: match[2].toLowerCase() }));
+    if (files.length < 2) return full;
+    const seen = new Set<string>();
+    const bullets = files
+      .filter((file) => {
+        const key = `${file.ext}:${file.name}`;
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      })
+      .map((file) => `- ${deliverableLabel(file.ext)} (\`.${file.ext}\`)`);
+    return `Files created:\n${bullets.join("\n")}\n`;
+  });
+}
+
+function deliverableLabel(ext: string): string {
+  if (ext === "xlsx") return "Valuation model";
+  if (ext === "xlsm") return "Macro workbook";
+  if (ext === "pptx") return "Presentation deck";
+  if (ext === "docx") return "Support memo";
+  if (ext === "pdf") return "PDF export";
+  if (ext === "json") return "Package manifest";
+  return "Deliverable";
 }
 
 export function parseMarkdownBlocks(markdown: string): Block[] {

@@ -1,21 +1,21 @@
 {
   "schema": 1,
-  "generatedAt": "2026-06-15T04:23:44.450Z",
+  "generatedAt": "2026-06-24T03:08:10.927Z",
   "summary": {
-    "routeCount": 53,
-    "openRouterRouteCount": 41,
+    "routeCount": 42,
+    "openRouterRouteCount": 30,
     "harnessCases": 6,
     "harnessCasesPassing": 6,
     "officialPromotionCases": 1,
     "officialPromotionCasesPassing": 0,
     "officialStyleSuites": 4,
     "officialStyleSuitesPassing": 3,
-    "agentRouteCount": 53,
+    "agentRouteCount": 42,
     "routesWithManagedN5P95": 1,
     "routesWithSpreadsheetN5": 1,
     "routesInteractivePromoted": 0,
-    "topPaidOpenRouterRoutes": 25,
-    "topPaidRoutesWithManagedN5P95": 1,
+    "topPaidOpenRouterRoutes": 19,
+    "topPaidRoutesWithManagedN5P95": 0,
     "harnessReady": true,
     "officialStyleSuitesReady": false,
     "officialPromotionReady": false
@@ -25,7 +25,7 @@
     "Benchmark-shaped work is routed through deterministic tools first, then bounded model edit plans, then evidence-bearing writes.",
     "Free-auto is a long-running/background lane until ladder and p95 evidence prove it can meet interactive collaboration budgets.",
     "Official benchmark claims stay blocked until the external verifier path is wired; internal Convex benchmark readiness is separate.",
-    "The scorecard includes every configured agent LLM route from llmModelCatalog.agent, curated OpenRouter routes, and the current top-paid OpenRouter tool-capable candidate set."
+    "The scorecard includes every configured agent LLM route from llmModelCatalog.agent, curated OpenRouter routes, and the current latest-cheap OpenRouter tool-capable candidate set."
   ],
   "cases": [
     {
@@ -270,22 +270,22 @@
         "docs/eval/halo-live-path-calibration.json"
       ],
       "metrics": {
-        "agentRoutes": 53,
+        "agentRoutes": 42,
         "calibratedRoutes": 1,
         "latestCalibratedRoute": "deepseek/deepseek-v4-flash",
         "latestP95ToolCalls": 3,
         "latestP95ModelCalls": 4
       },
       "blockers": [
-        "52 agent route(s) still need N=5/p95 live path evidence before interactive promotion."
+        "41 agent route(s) still need N=5/p95 live path evidence before interactive promotion."
       ]
     }
   ],
   "routePlans": [
     {
-      "route": "nex-agi/nex-n2-pro:free",
+      "route": "cohere/north-mini-code:free",
       "provider": "openrouter",
-      "label": "Nex AGI Nex-N2-Pro free",
+      "label": "Cohere North Mini Code free",
       "role": "background_long_running_only",
       "adapter": "convexModel.openrouter_chat_completions",
       "eligibleForConvexHarness": true,
@@ -301,7 +301,7 @@
         "CAS conflicts return as data, not thrown errors, so OpenRouter models can re-read and recover"
       ],
       "evidence": [
-        "docs/eval/results.json",
+        "docs/eval/openrouter-free-model-discovery.json",
         "src/nodeagent/models/convexModel.ts",
         "convex/agentJobs.ts"
       ],
@@ -453,6 +453,30 @@
       ],
       "evidence": [
         "docs/eval/results.json",
+        "src/nodeagent/models/convexModel.ts",
+        "convex/agentJobs.ts"
+      ],
+      "blockers": []
+    },
+    {
+      "route": "moonshotai/kimi-k2.7-code",
+      "provider": "openrouter",
+      "label": "Kimi K2.7 Code",
+      "role": "interactive_candidate",
+      "adapter": "convexModel.openrouter_chat_completions",
+      "eligibleForConvexHarness": true,
+      "mustRunThroughAgentJobs": true,
+      "requiredContract": [
+        "agentJobs is the durable root for every benchmark run, including /ask and /free",
+        "Convex actions call providers; browser/client_action never calls OpenRouter directly",
+        "agentStepJournal records model input/output hashes before replay can skip duplicate provider calls",
+        "agentOperationEvents counts query/action/mutation/model/tool/scheduler steps",
+        "agentLeases fence slices and prevent duplicate workers from committing the same job",
+        "mutationReceipts tie every canonical cell write to a job, tool call, baseVersion, and result",
+        "artifact ids remain the system of record; provider file/cache ids are adapter metadata only",
+        "CAS conflicts return as data, not thrown errors, so OpenRouter models can re-read and recover"
+      ],
+      "evidence": [
         "src/nodeagent/models/convexModel.ts",
         "convex/agentJobs.ts"
       ],
@@ -638,9 +662,9 @@
       ]
     },
     {
-      "route": "google/gemma-4-31b-it:free",
+      "route": "google/gemma-4-26b-a4b-it:free",
       "provider": "openrouter",
-      "label": "Gemma 4 31B free",
+      "label": "Gemma 4 26B A4B free",
       "role": "research_only",
       "adapter": "convexModel.openrouter_chat_completions",
       "eligibleForConvexHarness": false,
@@ -773,9 +797,9 @@
       ]
     },
     {
-      "route": "tencent/hy3-preview",
+      "route": "z-ai/glm-5.2",
       "provider": "openrouter",
-      "label": "Tencent Hy3 Preview",
+      "label": "GLM 5.2",
       "role": "interactive_candidate",
       "adapter": "convexModel.openrouter_chat_completions",
       "eligibleForConvexHarness": true,
@@ -798,9 +822,9 @@
       "blockers": []
     },
     {
-      "route": "anthropic/claude-opus-4.7",
+      "route": "qwen/qwen3.7-max",
       "provider": "openrouter",
-      "label": "Claude Opus 4.7 via OpenRouter",
+      "label": "Qwen 3.7 Max",
       "role": "interactive_candidate",
       "adapter": "convexModel.openrouter_chat_completions",
       "eligibleForConvexHarness": true,
@@ -823,9 +847,9 @@
       "blockers": []
     },
     {
-      "route": "anthropic/claude-sonnet-4.6",
+      "route": "x-ai/grok-build-0.1",
       "provider": "openrouter",
-      "label": "Claude Sonnet 4.6 via OpenRouter",
+      "label": "xAI Grok Build 0.1",
       "role": "interactive_candidate",
       "adapter": "convexModel.openrouter_chat_completions",
       "eligibleForConvexHarness": true,
@@ -848,9 +872,9 @@
       "blockers": []
     },
     {
-      "route": "anthropic/claude-opus-4.8",
+      "route": "x-ai/grok-4.3",
       "provider": "openrouter",
-      "label": "Claude Opus 4.8 via OpenRouter",
+      "label": "Grok 4.3",
       "role": "interactive_candidate",
       "adapter": "convexModel.openrouter_chat_completions",
       "eligibleForConvexHarness": true,
@@ -873,9 +897,9 @@
       "blockers": []
     },
     {
-      "route": "deepseek/deepseek-v3.2",
+      "route": "poolside/laguna-xs.2",
       "provider": "openrouter",
-      "label": "DeepSeek V3.2",
+      "label": "Poolside Laguna XS.2",
       "role": "interactive_candidate",
       "adapter": "convexModel.openrouter_chat_completions",
       "eligibleForConvexHarness": true,
@@ -898,9 +922,9 @@
       "blockers": []
     },
     {
-      "route": "google/gemini-3-flash-preview",
+      "route": "poolside/laguna-m.1",
       "provider": "openrouter",
-      "label": "Gemini 3 Flash Preview via OpenRouter",
+      "label": "Poolside Laguna M.1",
       "role": "interactive_candidate",
       "adapter": "convexModel.openrouter_chat_completions",
       "eligibleForConvexHarness": true,
@@ -923,9 +947,9 @@
       "blockers": []
     },
     {
-      "route": "google/gemini-2.5-flash-lite",
+      "route": "qwen/qwen3.5-plus-20260420",
       "provider": "openrouter",
-      "label": "Gemini 2.5 Flash Lite via OpenRouter",
+      "label": "Qwen 3.5 Plus 20260420",
       "role": "interactive_candidate",
       "adapter": "convexModel.openrouter_chat_completions",
       "eligibleForConvexHarness": true,
@@ -948,9 +972,9 @@
       "blockers": []
     },
     {
-      "route": "google/gemini-2.5-flash",
+      "route": "qwen/qwen3.6-flash",
       "provider": "openrouter",
-      "label": "Gemini 2.5 Flash via OpenRouter",
+      "label": "Qwen 3.6 Flash",
       "role": "interactive_candidate",
       "adapter": "convexModel.openrouter_chat_completions",
       "eligibleForConvexHarness": true,
@@ -973,9 +997,9 @@
       "blockers": []
     },
     {
-      "route": "z-ai/glm-5.1",
+      "route": "qwen/qwen3.6-35b-a3b",
       "provider": "openrouter",
-      "label": "GLM 5.1",
+      "label": "Qwen 3.6 35B A3B",
       "role": "interactive_candidate",
       "adapter": "convexModel.openrouter_chat_completions",
       "eligibleForConvexHarness": true,
@@ -998,9 +1022,9 @@
       "blockers": []
     },
     {
-      "route": "xiaomi/mimo-v2.5-pro",
+      "route": "qwen/qwen3.6-27b",
       "provider": "openrouter",
-      "label": "Xiaomi MiMo V2.5 Pro",
+      "label": "Qwen 3.6 27B",
       "role": "interactive_candidate",
       "adapter": "convexModel.openrouter_chat_completions",
       "eligibleForConvexHarness": true,
@@ -1017,303 +1041,6 @@
       ],
       "evidence": [
         "docs/eval/openrouter-top-paid-tools-snapshot.json",
-        "src/nodeagent/models/convexModel.ts",
-        "convex/agentJobs.ts"
-      ],
-      "blockers": []
-    },
-    {
-      "route": "google/gemini-3.5-flash",
-      "provider": "openrouter",
-      "label": "Gemini 3.5 Flash via OpenRouter",
-      "role": "interactive_candidate",
-      "adapter": "convexModel.openrouter_chat_completions",
-      "eligibleForConvexHarness": true,
-      "mustRunThroughAgentJobs": true,
-      "requiredContract": [
-        "agentJobs is the durable root for every benchmark run, including /ask and /free",
-        "Convex actions call providers; browser/client_action never calls OpenRouter directly",
-        "agentStepJournal records model input/output hashes before replay can skip duplicate provider calls",
-        "agentOperationEvents counts query/action/mutation/model/tool/scheduler steps",
-        "agentLeases fence slices and prevent duplicate workers from committing the same job",
-        "mutationReceipts tie every canonical cell write to a job, tool call, baseVersion, and result",
-        "artifact ids remain the system of record; provider file/cache ids are adapter metadata only",
-        "CAS conflicts return as data, not thrown errors, so OpenRouter models can re-read and recover"
-      ],
-      "evidence": [
-        "docs/eval/openrouter-top-paid-tools-snapshot.json",
-        "src/nodeagent/models/convexModel.ts",
-        "convex/agentJobs.ts"
-      ],
-      "blockers": []
-    },
-    {
-      "route": "openai/gpt-5.5",
-      "provider": "openrouter",
-      "label": "GPT-5.5 via OpenRouter",
-      "role": "interactive_candidate",
-      "adapter": "convexModel.openrouter_chat_completions",
-      "eligibleForConvexHarness": true,
-      "mustRunThroughAgentJobs": true,
-      "requiredContract": [
-        "agentJobs is the durable root for every benchmark run, including /ask and /free",
-        "Convex actions call providers; browser/client_action never calls OpenRouter directly",
-        "agentStepJournal records model input/output hashes before replay can skip duplicate provider calls",
-        "agentOperationEvents counts query/action/mutation/model/tool/scheduler steps",
-        "agentLeases fence slices and prevent duplicate workers from committing the same job",
-        "mutationReceipts tie every canonical cell write to a job, tool call, baseVersion, and result",
-        "artifact ids remain the system of record; provider file/cache ids are adapter metadata only",
-        "CAS conflicts return as data, not thrown errors, so OpenRouter models can re-read and recover"
-      ],
-      "evidence": [
-        "docs/eval/openrouter-top-paid-tools-snapshot.json",
-        "src/nodeagent/models/convexModel.ts",
-        "convex/agentJobs.ts"
-      ],
-      "blockers": []
-    },
-    {
-      "route": "openai/gpt-4o-mini",
-      "provider": "openrouter",
-      "label": "GPT-4o mini via OpenRouter",
-      "role": "interactive_candidate",
-      "adapter": "convexModel.openrouter_chat_completions",
-      "eligibleForConvexHarness": true,
-      "mustRunThroughAgentJobs": true,
-      "requiredContract": [
-        "agentJobs is the durable root for every benchmark run, including /ask and /free",
-        "Convex actions call providers; browser/client_action never calls OpenRouter directly",
-        "agentStepJournal records model input/output hashes before replay can skip duplicate provider calls",
-        "agentOperationEvents counts query/action/mutation/model/tool/scheduler steps",
-        "agentLeases fence slices and prevent duplicate workers from committing the same job",
-        "mutationReceipts tie every canonical cell write to a job, tool call, baseVersion, and result",
-        "artifact ids remain the system of record; provider file/cache ids are adapter metadata only",
-        "CAS conflicts return as data, not thrown errors, so OpenRouter models can re-read and recover"
-      ],
-      "evidence": [
-        "docs/eval/openrouter-top-paid-tools-snapshot.json",
-        "src/nodeagent/models/convexModel.ts",
-        "convex/agentJobs.ts"
-      ],
-      "blockers": []
-    },
-    {
-      "route": "openai/gpt-oss-120b",
-      "provider": "openrouter",
-      "label": "GPT OSS 120B via OpenRouter",
-      "role": "interactive_candidate",
-      "adapter": "convexModel.openrouter_chat_completions",
-      "eligibleForConvexHarness": true,
-      "mustRunThroughAgentJobs": true,
-      "requiredContract": [
-        "agentJobs is the durable root for every benchmark run, including /ask and /free",
-        "Convex actions call providers; browser/client_action never calls OpenRouter directly",
-        "agentStepJournal records model input/output hashes before replay can skip duplicate provider calls",
-        "agentOperationEvents counts query/action/mutation/model/tool/scheduler steps",
-        "agentLeases fence slices and prevent duplicate workers from committing the same job",
-        "mutationReceipts tie every canonical cell write to a job, tool call, baseVersion, and result",
-        "artifact ids remain the system of record; provider file/cache ids are adapter metadata only",
-        "CAS conflicts return as data, not thrown errors, so OpenRouter models can re-read and recover"
-      ],
-      "evidence": [
-        "docs/eval/openrouter-top-paid-tools-snapshot.json",
-        "src/nodeagent/models/convexModel.ts",
-        "convex/agentJobs.ts"
-      ],
-      "blockers": []
-    },
-    {
-      "route": "moonshotai/kimi-k2.6",
-      "provider": "openrouter",
-      "label": "Kimi K2.6",
-      "role": "interactive_candidate",
-      "adapter": "convexModel.openrouter_chat_completions",
-      "eligibleForConvexHarness": true,
-      "mustRunThroughAgentJobs": true,
-      "requiredContract": [
-        "agentJobs is the durable root for every benchmark run, including /ask and /free",
-        "Convex actions call providers; browser/client_action never calls OpenRouter directly",
-        "agentStepJournal records model input/output hashes before replay can skip duplicate provider calls",
-        "agentOperationEvents counts query/action/mutation/model/tool/scheduler steps",
-        "agentLeases fence slices and prevent duplicate workers from committing the same job",
-        "mutationReceipts tie every canonical cell write to a job, tool call, baseVersion, and result",
-        "artifact ids remain the system of record; provider file/cache ids are adapter metadata only",
-        "CAS conflicts return as data, not thrown errors, so OpenRouter models can re-read and recover"
-      ],
-      "evidence": [
-        "docs/eval/openrouter-top-paid-tools-snapshot.json",
-        "src/nodeagent/models/convexModel.ts",
-        "convex/agentJobs.ts"
-      ],
-      "blockers": []
-    },
-    {
-      "route": "anthropic/claude-opus-4.6",
-      "provider": "openrouter",
-      "label": "Claude Opus 4.6 via OpenRouter",
-      "role": "interactive_candidate",
-      "adapter": "convexModel.openrouter_chat_completions",
-      "eligibleForConvexHarness": true,
-      "mustRunThroughAgentJobs": true,
-      "requiredContract": [
-        "agentJobs is the durable root for every benchmark run, including /ask and /free",
-        "Convex actions call providers; browser/client_action never calls OpenRouter directly",
-        "agentStepJournal records model input/output hashes before replay can skip duplicate provider calls",
-        "agentOperationEvents counts query/action/mutation/model/tool/scheduler steps",
-        "agentLeases fence slices and prevent duplicate workers from committing the same job",
-        "mutationReceipts tie every canonical cell write to a job, tool call, baseVersion, and result",
-        "artifact ids remain the system of record; provider file/cache ids are adapter metadata only",
-        "CAS conflicts return as data, not thrown errors, so OpenRouter models can re-read and recover"
-      ],
-      "evidence": [
-        "docs/eval/openrouter-top-paid-tools-snapshot.json",
-        "src/nodeagent/models/convexModel.ts",
-        "convex/agentJobs.ts"
-      ],
-      "blockers": []
-    },
-    {
-      "route": "google/gemini-3.1-pro-preview",
-      "provider": "openrouter",
-      "label": "Gemini 3.1 Pro Preview via OpenRouter",
-      "role": "interactive_candidate",
-      "adapter": "convexModel.openrouter_chat_completions",
-      "eligibleForConvexHarness": true,
-      "mustRunThroughAgentJobs": true,
-      "requiredContract": [
-        "agentJobs is the durable root for every benchmark run, including /ask and /free",
-        "Convex actions call providers; browser/client_action never calls OpenRouter directly",
-        "agentStepJournal records model input/output hashes before replay can skip duplicate provider calls",
-        "agentOperationEvents counts query/action/mutation/model/tool/scheduler steps",
-        "agentLeases fence slices and prevent duplicate workers from committing the same job",
-        "mutationReceipts tie every canonical cell write to a job, tool call, baseVersion, and result",
-        "artifact ids remain the system of record; provider file/cache ids are adapter metadata only",
-        "CAS conflicts return as data, not thrown errors, so OpenRouter models can re-read and recover"
-      ],
-      "evidence": [
-        "docs/eval/openrouter-top-paid-tools-snapshot.json",
-        "src/nodeagent/models/convexModel.ts",
-        "convex/agentJobs.ts"
-      ],
-      "blockers": []
-    },
-    {
-      "route": "openai/gpt-5.4",
-      "provider": "openrouter",
-      "label": "GPT-5.4 via OpenRouter",
-      "role": "interactive_candidate",
-      "adapter": "convexModel.openrouter_chat_completions",
-      "eligibleForConvexHarness": true,
-      "mustRunThroughAgentJobs": true,
-      "requiredContract": [
-        "agentJobs is the durable root for every benchmark run, including /ask and /free",
-        "Convex actions call providers; browser/client_action never calls OpenRouter directly",
-        "agentStepJournal records model input/output hashes before replay can skip duplicate provider calls",
-        "agentOperationEvents counts query/action/mutation/model/tool/scheduler steps",
-        "agentLeases fence slices and prevent duplicate workers from committing the same job",
-        "mutationReceipts tie every canonical cell write to a job, tool call, baseVersion, and result",
-        "artifact ids remain the system of record; provider file/cache ids are adapter metadata only",
-        "CAS conflicts return as data, not thrown errors, so OpenRouter models can re-read and recover"
-      ],
-      "evidence": [
-        "docs/eval/openrouter-top-paid-tools-snapshot.json",
-        "src/nodeagent/models/convexModel.ts",
-        "convex/agentJobs.ts"
-      ],
-      "blockers": []
-    },
-    {
-      "route": "google/gemma-4-26b-a4b-it",
-      "provider": "openrouter",
-      "label": "Gemma 4 26B A4B",
-      "role": "interactive_candidate",
-      "adapter": "convexModel.openrouter_chat_completions",
-      "eligibleForConvexHarness": true,
-      "mustRunThroughAgentJobs": true,
-      "requiredContract": [
-        "agentJobs is the durable root for every benchmark run, including /ask and /free",
-        "Convex actions call providers; browser/client_action never calls OpenRouter directly",
-        "agentStepJournal records model input/output hashes before replay can skip duplicate provider calls",
-        "agentOperationEvents counts query/action/mutation/model/tool/scheduler steps",
-        "agentLeases fence slices and prevent duplicate workers from committing the same job",
-        "mutationReceipts tie every canonical cell write to a job, tool call, baseVersion, and result",
-        "artifact ids remain the system of record; provider file/cache ids are adapter metadata only",
-        "CAS conflicts return as data, not thrown errors, so OpenRouter models can re-read and recover"
-      ],
-      "evidence": [
-        "docs/eval/openrouter-top-paid-tools-snapshot.json",
-        "src/nodeagent/models/convexModel.ts",
-        "convex/agentJobs.ts"
-      ],
-      "blockers": []
-    },
-    {
-      "route": "minimax/minimax-m2.7",
-      "provider": "openrouter",
-      "label": "openrouter agent model: minimax/minimax-m2.7",
-      "role": "interactive_candidate",
-      "adapter": "convexModel.openrouter_chat_completions",
-      "eligibleForConvexHarness": true,
-      "mustRunThroughAgentJobs": true,
-      "requiredContract": [
-        "agentJobs is the durable root for every benchmark run, including /ask and /free",
-        "Convex actions call providers; browser/client_action never calls OpenRouter directly",
-        "agentStepJournal records model input/output hashes before replay can skip duplicate provider calls",
-        "agentOperationEvents counts query/action/mutation/model/tool/scheduler steps",
-        "agentLeases fence slices and prevent duplicate workers from committing the same job",
-        "mutationReceipts tie every canonical cell write to a job, tool call, baseVersion, and result",
-        "artifact ids remain the system of record; provider file/cache ids are adapter metadata only",
-        "CAS conflicts return as data, not thrown errors, so OpenRouter models can re-read and recover"
-      ],
-      "evidence": [
-        "src/nodeagent/models/convexModel.ts",
-        "convex/agentJobs.ts"
-      ],
-      "blockers": []
-    },
-    {
-      "route": "z-ai/glm-4.7",
-      "provider": "openrouter",
-      "label": "openrouter agent model: z-ai/glm-4.7",
-      "role": "interactive_candidate",
-      "adapter": "convexModel.openrouter_chat_completions",
-      "eligibleForConvexHarness": true,
-      "mustRunThroughAgentJobs": true,
-      "requiredContract": [
-        "agentJobs is the durable root for every benchmark run, including /ask and /free",
-        "Convex actions call providers; browser/client_action never calls OpenRouter directly",
-        "agentStepJournal records model input/output hashes before replay can skip duplicate provider calls",
-        "agentOperationEvents counts query/action/mutation/model/tool/scheduler steps",
-        "agentLeases fence slices and prevent duplicate workers from committing the same job",
-        "mutationReceipts tie every canonical cell write to a job, tool call, baseVersion, and result",
-        "artifact ids remain the system of record; provider file/cache ids are adapter metadata only",
-        "CAS conflicts return as data, not thrown errors, so OpenRouter models can re-read and recover"
-      ],
-      "evidence": [
-        "src/nodeagent/models/convexModel.ts",
-        "convex/agentJobs.ts"
-      ],
-      "blockers": []
-    },
-    {
-      "route": "deepseek/deepseek-v3.2-speciale",
-      "provider": "openrouter",
-      "label": "openrouter agent model: deepseek/deepseek-v3.2-speciale",
-      "role": "interactive_candidate",
-      "adapter": "convexModel.openrouter_chat_completions",
-      "eligibleForConvexHarness": true,
-      "mustRunThroughAgentJobs": true,
-      "requiredContract": [
-        "agentJobs is the durable root for every benchmark run, including /ask and /free",
-        "Convex actions call providers; browser/client_action never calls OpenRouter directly",
-        "agentStepJournal records model input/output hashes before replay can skip duplicate provider calls",
-        "agentOperationEvents counts query/action/mutation/model/tool/scheduler steps",
-        "agentLeases fence slices and prevent duplicate workers from committing the same job",
-        "mutationReceipts tie every canonical cell write to a job, tool call, baseVersion, and result",
-        "artifact ids remain the system of record; provider file/cache ids are adapter metadata only",
-        "CAS conflicts return as data, not thrown errors, so OpenRouter models can re-read and recover"
-      ],
-      "evidence": [
         "src/nodeagent/models/convexModel.ts",
         "convex/agentJobs.ts"
       ],
@@ -1322,16 +1049,16 @@
   ],
   "routeScorecards": [
     {
-      "route": "anthropic/claude-opus-4.6",
+      "route": "cohere/north-mini-code:free",
       "provider": "openrouter",
-      "label": "Claude Opus 4.6 via OpenRouter",
+      "label": "Cohere North Mini Code free",
       "suites": [
         "research",
         "collaboration"
       ],
-      "promotion": "candidate",
-      "role": "interactive_candidate",
-      "promotionStatus": "blocked",
+      "promotion": "demo_only",
+      "role": "background_long_running_only",
+      "promotionStatus": "background_only",
       "adapter": "convexModel.openrouter_chat_completions",
       "evidence": {
         "research": {
@@ -1382,7 +1109,7 @@
             "docs/eval/bankertoolbench-run-positive-smoke.json"
           ],
           "metrics": {
-            "route": "anthropic/claude-opus-4.6",
+            "route": "cohere/north-mini-code:free",
             "localHarnessPassRate": 1,
             "averageWeightedScore": 1,
             "verifier": "local_exact_or_workbook_semantic_smoke"
@@ -1406,461 +1133,6 @@
       "blockers": [
         "no company-research v3 evidence recorded for this route",
         "no route-specific collaboration ladder evidence recorded",
-        "no N=5 live managed-path calibration recorded for this route",
-        "no SpreadsheetBench-like N=5 model-edit evidence recorded for this route",
-        "BTB local smoke is harness/package evidence only; no route-owned candidate generation is recorded yet"
-      ]
-    },
-    {
-      "route": "anthropic/claude-opus-4.7",
-      "provider": "openrouter",
-      "label": "Claude Opus 4.7 via OpenRouter",
-      "suites": [
-        "research",
-        "collaboration"
-      ],
-      "promotion": "candidate",
-      "role": "interactive_candidate",
-      "promotionStatus": "blocked",
-      "adapter": "convexModel.openrouter_chat_completions",
-      "evidence": {
-        "research": {
-          "status": "missing",
-          "evidence": [
-            "docs/eval/results.json"
-          ],
-          "metrics": {},
-          "blockers": [
-            "no company-research v3 evidence recorded for this route"
-          ]
-        },
-        "collaborationLadder": {
-          "status": "missing",
-          "evidence": [
-            "docs/eval/model-ladder-supported.json"
-          ],
-          "metrics": {},
-          "blockers": [
-            "no route-specific collaboration ladder evidence recorded"
-          ]
-        },
-        "managedPathN5P95": {
-          "status": "missing",
-          "evidence": [
-            "docs/eval/halo-live-path-calibration.json"
-          ],
-          "metrics": {},
-          "blockers": [
-            "no N=5 live managed-path calibration recorded for this route"
-          ]
-        },
-        "spreadsheetBenchN5": {
-          "status": "missing",
-          "evidence": [
-            "docs/eval/spreadsheetbench-v1-model-edit-plan-3task-n5-live-smoke.json"
-          ],
-          "metrics": {
-            "recordedRoutes": "gpt-5.4-nano"
-          },
-          "blockers": [
-            "no SpreadsheetBench-like N=5 model-edit evidence recorded for this route"
-          ]
-        },
-        "bankerToolBenchLocal": {
-          "status": "missing",
-          "evidence": [
-            "docs/eval/bankertoolbench-run-positive-smoke.json"
-          ],
-          "metrics": {
-            "route": "anthropic/claude-opus-4.7",
-            "localHarnessPassRate": 1,
-            "averageWeightedScore": 1,
-            "verifier": "local_exact_or_workbook_semantic_smoke"
-          },
-          "blockers": [
-            "BTB local smoke is harness/package evidence only; no route-owned candidate generation is recorded yet"
-          ]
-        },
-        "multiUserContract": {
-          "status": "pass",
-          "evidence": [
-            "docs/eval/multi-user-coordination-proof.json"
-          ],
-          "metrics": {
-            "scenarios": 5,
-            "passedScenarios": 5
-          },
-          "blockers": []
-        }
-      },
-      "blockers": [
-        "no company-research v3 evidence recorded for this route",
-        "no route-specific collaboration ladder evidence recorded",
-        "no N=5 live managed-path calibration recorded for this route",
-        "no SpreadsheetBench-like N=5 model-edit evidence recorded for this route",
-        "BTB local smoke is harness/package evidence only; no route-owned candidate generation is recorded yet"
-      ]
-    },
-    {
-      "route": "anthropic/claude-opus-4.8",
-      "provider": "openrouter",
-      "label": "Claude Opus 4.8 via OpenRouter",
-      "suites": [
-        "research",
-        "collaboration"
-      ],
-      "promotion": "candidate",
-      "role": "interactive_candidate",
-      "promotionStatus": "blocked",
-      "adapter": "convexModel.openrouter_chat_completions",
-      "evidence": {
-        "research": {
-          "status": "missing",
-          "evidence": [
-            "docs/eval/results.json"
-          ],
-          "metrics": {},
-          "blockers": [
-            "no company-research v3 evidence recorded for this route"
-          ]
-        },
-        "collaborationLadder": {
-          "status": "missing",
-          "evidence": [
-            "docs/eval/model-ladder-supported.json"
-          ],
-          "metrics": {},
-          "blockers": [
-            "no route-specific collaboration ladder evidence recorded"
-          ]
-        },
-        "managedPathN5P95": {
-          "status": "missing",
-          "evidence": [
-            "docs/eval/halo-live-path-calibration.json"
-          ],
-          "metrics": {},
-          "blockers": [
-            "no N=5 live managed-path calibration recorded for this route"
-          ]
-        },
-        "spreadsheetBenchN5": {
-          "status": "missing",
-          "evidence": [
-            "docs/eval/spreadsheetbench-v1-model-edit-plan-3task-n5-live-smoke.json"
-          ],
-          "metrics": {
-            "recordedRoutes": "gpt-5.4-nano"
-          },
-          "blockers": [
-            "no SpreadsheetBench-like N=5 model-edit evidence recorded for this route"
-          ]
-        },
-        "bankerToolBenchLocal": {
-          "status": "missing",
-          "evidence": [
-            "docs/eval/bankertoolbench-run-positive-smoke.json"
-          ],
-          "metrics": {
-            "route": "anthropic/claude-opus-4.8",
-            "localHarnessPassRate": 1,
-            "averageWeightedScore": 1,
-            "verifier": "local_exact_or_workbook_semantic_smoke"
-          },
-          "blockers": [
-            "BTB local smoke is harness/package evidence only; no route-owned candidate generation is recorded yet"
-          ]
-        },
-        "multiUserContract": {
-          "status": "pass",
-          "evidence": [
-            "docs/eval/multi-user-coordination-proof.json"
-          ],
-          "metrics": {
-            "scenarios": 5,
-            "passedScenarios": 5
-          },
-          "blockers": []
-        }
-      },
-      "blockers": [
-        "no company-research v3 evidence recorded for this route",
-        "no route-specific collaboration ladder evidence recorded",
-        "no N=5 live managed-path calibration recorded for this route",
-        "no SpreadsheetBench-like N=5 model-edit evidence recorded for this route",
-        "BTB local smoke is harness/package evidence only; no route-owned candidate generation is recorded yet"
-      ]
-    },
-    {
-      "route": "anthropic/claude-sonnet-4.6",
-      "provider": "openrouter",
-      "label": "Claude Sonnet 4.6 via OpenRouter",
-      "suites": [
-        "research",
-        "collaboration"
-      ],
-      "promotion": "candidate",
-      "role": "interactive_candidate",
-      "promotionStatus": "blocked",
-      "adapter": "convexModel.openrouter_chat_completions",
-      "evidence": {
-        "research": {
-          "status": "missing",
-          "evidence": [
-            "docs/eval/results.json"
-          ],
-          "metrics": {},
-          "blockers": [
-            "no company-research v3 evidence recorded for this route"
-          ]
-        },
-        "collaborationLadder": {
-          "status": "missing",
-          "evidence": [
-            "docs/eval/model-ladder-supported.json"
-          ],
-          "metrics": {},
-          "blockers": [
-            "no route-specific collaboration ladder evidence recorded"
-          ]
-        },
-        "managedPathN5P95": {
-          "status": "missing",
-          "evidence": [
-            "docs/eval/halo-live-path-calibration.json"
-          ],
-          "metrics": {},
-          "blockers": [
-            "no N=5 live managed-path calibration recorded for this route"
-          ]
-        },
-        "spreadsheetBenchN5": {
-          "status": "missing",
-          "evidence": [
-            "docs/eval/spreadsheetbench-v1-model-edit-plan-3task-n5-live-smoke.json"
-          ],
-          "metrics": {
-            "recordedRoutes": "gpt-5.4-nano"
-          },
-          "blockers": [
-            "no SpreadsheetBench-like N=5 model-edit evidence recorded for this route"
-          ]
-        },
-        "bankerToolBenchLocal": {
-          "status": "missing",
-          "evidence": [
-            "docs/eval/bankertoolbench-run-positive-smoke.json"
-          ],
-          "metrics": {
-            "route": "anthropic/claude-sonnet-4.6",
-            "localHarnessPassRate": 1,
-            "averageWeightedScore": 1,
-            "verifier": "local_exact_or_workbook_semantic_smoke"
-          },
-          "blockers": [
-            "BTB local smoke is harness/package evidence only; no route-owned candidate generation is recorded yet"
-          ]
-        },
-        "multiUserContract": {
-          "status": "pass",
-          "evidence": [
-            "docs/eval/multi-user-coordination-proof.json"
-          ],
-          "metrics": {
-            "scenarios": 5,
-            "passedScenarios": 5
-          },
-          "blockers": []
-        }
-      },
-      "blockers": [
-        "no company-research v3 evidence recorded for this route",
-        "no route-specific collaboration ladder evidence recorded",
-        "no N=5 live managed-path calibration recorded for this route",
-        "no SpreadsheetBench-like N=5 model-edit evidence recorded for this route",
-        "BTB local smoke is harness/package evidence only; no route-owned candidate generation is recorded yet"
-      ]
-    },
-    {
-      "route": "deepseek/deepseek-v3.2",
-      "provider": "openrouter",
-      "label": "DeepSeek V3.2",
-      "suites": [
-        "research",
-        "collaboration"
-      ],
-      "promotion": "candidate",
-      "role": "interactive_candidate",
-      "promotionStatus": "blocked",
-      "adapter": "convexModel.openrouter_chat_completions",
-      "evidence": {
-        "research": {
-          "status": "missing",
-          "evidence": [
-            "docs/eval/results.json"
-          ],
-          "metrics": {},
-          "blockers": [
-            "no company-research v3 evidence recorded for this route"
-          ]
-        },
-        "collaborationLadder": {
-          "status": "missing",
-          "evidence": [
-            "docs/eval/model-ladder-supported.json"
-          ],
-          "metrics": {},
-          "blockers": [
-            "no route-specific collaboration ladder evidence recorded"
-          ]
-        },
-        "managedPathN5P95": {
-          "status": "missing",
-          "evidence": [
-            "docs/eval/halo-live-path-calibration.json"
-          ],
-          "metrics": {},
-          "blockers": [
-            "no N=5 live managed-path calibration recorded for this route"
-          ]
-        },
-        "spreadsheetBenchN5": {
-          "status": "missing",
-          "evidence": [
-            "docs/eval/spreadsheetbench-v1-model-edit-plan-3task-n5-live-smoke.json"
-          ],
-          "metrics": {
-            "recordedRoutes": "gpt-5.4-nano"
-          },
-          "blockers": [
-            "no SpreadsheetBench-like N=5 model-edit evidence recorded for this route"
-          ]
-        },
-        "bankerToolBenchLocal": {
-          "status": "missing",
-          "evidence": [
-            "docs/eval/bankertoolbench-run-positive-smoke.json"
-          ],
-          "metrics": {
-            "route": "deepseek/deepseek-v3.2",
-            "localHarnessPassRate": 1,
-            "averageWeightedScore": 1,
-            "verifier": "local_exact_or_workbook_semantic_smoke"
-          },
-          "blockers": [
-            "BTB local smoke is harness/package evidence only; no route-owned candidate generation is recorded yet"
-          ]
-        },
-        "multiUserContract": {
-          "status": "pass",
-          "evidence": [
-            "docs/eval/multi-user-coordination-proof.json"
-          ],
-          "metrics": {
-            "scenarios": 5,
-            "passedScenarios": 5
-          },
-          "blockers": []
-        }
-      },
-      "blockers": [
-        "no company-research v3 evidence recorded for this route",
-        "no route-specific collaboration ladder evidence recorded",
-        "no N=5 live managed-path calibration recorded for this route",
-        "no SpreadsheetBench-like N=5 model-edit evidence recorded for this route",
-        "BTB local smoke is harness/package evidence only; no route-owned candidate generation is recorded yet"
-      ]
-    },
-    {
-      "route": "deepseek/deepseek-v3.2-speciale",
-      "provider": "openrouter",
-      "label": "openrouter agent model: deepseek/deepseek-v3.2-speciale",
-      "suites": [
-        "collaboration"
-      ],
-      "promotion": "candidate",
-      "role": "interactive_candidate",
-      "promotionStatus": "blocked",
-      "adapter": "convexModel.openrouter_chat_completions",
-      "evidence": {
-        "research": {
-          "status": "missing",
-          "evidence": [
-            "docs/eval/results.json"
-          ],
-          "metrics": {},
-          "blockers": [
-            "no company-research v3 evidence recorded for this route"
-          ]
-        },
-        "collaborationLadder": {
-          "status": "blocked",
-          "evidence": [
-            "docs/eval/model-ladder-supported.json"
-          ],
-          "metrics": {
-            "rungs": 4,
-            "passCount": 0,
-            "p95LatencyMs": 683,
-            "p95ToolCalls": 0,
-            "p95CostUsd": 0
-          },
-          "blockers": [
-            "ladder missing=none failed=L1_read,L2_edit,L3_conflict,L4_blocked"
-          ]
-        },
-        "managedPathN5P95": {
-          "status": "missing",
-          "evidence": [
-            "docs/eval/halo-live-path-calibration.json"
-          ],
-          "metrics": {},
-          "blockers": [
-            "no N=5 live managed-path calibration recorded for this route"
-          ]
-        },
-        "spreadsheetBenchN5": {
-          "status": "missing",
-          "evidence": [
-            "docs/eval/spreadsheetbench-v1-model-edit-plan-3task-n5-live-smoke.json"
-          ],
-          "metrics": {
-            "recordedRoutes": "gpt-5.4-nano"
-          },
-          "blockers": [
-            "no SpreadsheetBench-like N=5 model-edit evidence recorded for this route"
-          ]
-        },
-        "bankerToolBenchLocal": {
-          "status": "missing",
-          "evidence": [
-            "docs/eval/bankertoolbench-run-positive-smoke.json"
-          ],
-          "metrics": {
-            "route": "deepseek/deepseek-v3.2-speciale",
-            "localHarnessPassRate": 1,
-            "averageWeightedScore": 1,
-            "verifier": "local_exact_or_workbook_semantic_smoke"
-          },
-          "blockers": [
-            "BTB local smoke is harness/package evidence only; no route-owned candidate generation is recorded yet"
-          ]
-        },
-        "multiUserContract": {
-          "status": "pass",
-          "evidence": [
-            "docs/eval/multi-user-coordination-proof.json"
-          ],
-          "metrics": {
-            "scenarios": 5,
-            "passedScenarios": 5
-          },
-          "blockers": []
-        }
-      },
-      "blockers": [
-        "no company-research v3 evidence recorded for this route",
-        "ladder missing=none failed=L1_read,L2_edit,L3_conflict,L4_blocked",
         "no N=5 live managed-path calibration recorded for this route",
         "no SpreadsheetBench-like N=5 model-edit evidence recorded for this route",
         "BTB local smoke is harness/package evidence only; no route-owned candidate generation is recorded yet"
@@ -2067,276 +1339,6 @@
       ]
     },
     {
-      "route": "google/gemini-2.5-flash",
-      "provider": "openrouter",
-      "label": "Gemini 2.5 Flash via OpenRouter",
-      "suites": [
-        "research",
-        "collaboration"
-      ],
-      "promotion": "candidate",
-      "role": "interactive_candidate",
-      "promotionStatus": "blocked",
-      "adapter": "convexModel.openrouter_chat_completions",
-      "evidence": {
-        "research": {
-          "status": "missing",
-          "evidence": [
-            "docs/eval/results.json"
-          ],
-          "metrics": {},
-          "blockers": [
-            "no company-research v3 evidence recorded for this route"
-          ]
-        },
-        "collaborationLadder": {
-          "status": "missing",
-          "evidence": [
-            "docs/eval/model-ladder-supported.json"
-          ],
-          "metrics": {},
-          "blockers": [
-            "no route-specific collaboration ladder evidence recorded"
-          ]
-        },
-        "managedPathN5P95": {
-          "status": "missing",
-          "evidence": [
-            "docs/eval/halo-live-path-calibration.json"
-          ],
-          "metrics": {},
-          "blockers": [
-            "no N=5 live managed-path calibration recorded for this route"
-          ]
-        },
-        "spreadsheetBenchN5": {
-          "status": "missing",
-          "evidence": [
-            "docs/eval/spreadsheetbench-v1-model-edit-plan-3task-n5-live-smoke.json"
-          ],
-          "metrics": {
-            "recordedRoutes": "gpt-5.4-nano"
-          },
-          "blockers": [
-            "no SpreadsheetBench-like N=5 model-edit evidence recorded for this route"
-          ]
-        },
-        "bankerToolBenchLocal": {
-          "status": "missing",
-          "evidence": [
-            "docs/eval/bankertoolbench-run-positive-smoke.json"
-          ],
-          "metrics": {
-            "route": "google/gemini-2.5-flash",
-            "localHarnessPassRate": 1,
-            "averageWeightedScore": 1,
-            "verifier": "local_exact_or_workbook_semantic_smoke"
-          },
-          "blockers": [
-            "BTB local smoke is harness/package evidence only; no route-owned candidate generation is recorded yet"
-          ]
-        },
-        "multiUserContract": {
-          "status": "pass",
-          "evidence": [
-            "docs/eval/multi-user-coordination-proof.json"
-          ],
-          "metrics": {
-            "scenarios": 5,
-            "passedScenarios": 5
-          },
-          "blockers": []
-        }
-      },
-      "blockers": [
-        "no company-research v3 evidence recorded for this route",
-        "no route-specific collaboration ladder evidence recorded",
-        "no N=5 live managed-path calibration recorded for this route",
-        "no SpreadsheetBench-like N=5 model-edit evidence recorded for this route",
-        "BTB local smoke is harness/package evidence only; no route-owned candidate generation is recorded yet"
-      ]
-    },
-    {
-      "route": "google/gemini-2.5-flash-lite",
-      "provider": "openrouter",
-      "label": "Gemini 2.5 Flash Lite via OpenRouter",
-      "suites": [
-        "research",
-        "collaboration"
-      ],
-      "promotion": "candidate",
-      "role": "interactive_candidate",
-      "promotionStatus": "blocked",
-      "adapter": "convexModel.openrouter_chat_completions",
-      "evidence": {
-        "research": {
-          "status": "missing",
-          "evidence": [
-            "docs/eval/results.json"
-          ],
-          "metrics": {},
-          "blockers": [
-            "no company-research v3 evidence recorded for this route"
-          ]
-        },
-        "collaborationLadder": {
-          "status": "missing",
-          "evidence": [
-            "docs/eval/model-ladder-supported.json"
-          ],
-          "metrics": {},
-          "blockers": [
-            "no route-specific collaboration ladder evidence recorded"
-          ]
-        },
-        "managedPathN5P95": {
-          "status": "missing",
-          "evidence": [
-            "docs/eval/halo-live-path-calibration.json"
-          ],
-          "metrics": {},
-          "blockers": [
-            "no N=5 live managed-path calibration recorded for this route"
-          ]
-        },
-        "spreadsheetBenchN5": {
-          "status": "missing",
-          "evidence": [
-            "docs/eval/spreadsheetbench-v1-model-edit-plan-3task-n5-live-smoke.json"
-          ],
-          "metrics": {
-            "recordedRoutes": "gpt-5.4-nano"
-          },
-          "blockers": [
-            "no SpreadsheetBench-like N=5 model-edit evidence recorded for this route"
-          ]
-        },
-        "bankerToolBenchLocal": {
-          "status": "missing",
-          "evidence": [
-            "docs/eval/bankertoolbench-run-positive-smoke.json"
-          ],
-          "metrics": {
-            "route": "google/gemini-2.5-flash-lite",
-            "localHarnessPassRate": 1,
-            "averageWeightedScore": 1,
-            "verifier": "local_exact_or_workbook_semantic_smoke"
-          },
-          "blockers": [
-            "BTB local smoke is harness/package evidence only; no route-owned candidate generation is recorded yet"
-          ]
-        },
-        "multiUserContract": {
-          "status": "pass",
-          "evidence": [
-            "docs/eval/multi-user-coordination-proof.json"
-          ],
-          "metrics": {
-            "scenarios": 5,
-            "passedScenarios": 5
-          },
-          "blockers": []
-        }
-      },
-      "blockers": [
-        "no company-research v3 evidence recorded for this route",
-        "no route-specific collaboration ladder evidence recorded",
-        "no N=5 live managed-path calibration recorded for this route",
-        "no SpreadsheetBench-like N=5 model-edit evidence recorded for this route",
-        "BTB local smoke is harness/package evidence only; no route-owned candidate generation is recorded yet"
-      ]
-    },
-    {
-      "route": "google/gemini-3-flash-preview",
-      "provider": "openrouter",
-      "label": "Gemini 3 Flash Preview via OpenRouter",
-      "suites": [
-        "research",
-        "collaboration"
-      ],
-      "promotion": "candidate",
-      "role": "interactive_candidate",
-      "promotionStatus": "blocked",
-      "adapter": "convexModel.openrouter_chat_completions",
-      "evidence": {
-        "research": {
-          "status": "missing",
-          "evidence": [
-            "docs/eval/results.json"
-          ],
-          "metrics": {},
-          "blockers": [
-            "no company-research v3 evidence recorded for this route"
-          ]
-        },
-        "collaborationLadder": {
-          "status": "missing",
-          "evidence": [
-            "docs/eval/model-ladder-supported.json"
-          ],
-          "metrics": {},
-          "blockers": [
-            "no route-specific collaboration ladder evidence recorded"
-          ]
-        },
-        "managedPathN5P95": {
-          "status": "missing",
-          "evidence": [
-            "docs/eval/halo-live-path-calibration.json"
-          ],
-          "metrics": {},
-          "blockers": [
-            "no N=5 live managed-path calibration recorded for this route"
-          ]
-        },
-        "spreadsheetBenchN5": {
-          "status": "missing",
-          "evidence": [
-            "docs/eval/spreadsheetbench-v1-model-edit-plan-3task-n5-live-smoke.json"
-          ],
-          "metrics": {
-            "recordedRoutes": "gpt-5.4-nano"
-          },
-          "blockers": [
-            "no SpreadsheetBench-like N=5 model-edit evidence recorded for this route"
-          ]
-        },
-        "bankerToolBenchLocal": {
-          "status": "missing",
-          "evidence": [
-            "docs/eval/bankertoolbench-run-positive-smoke.json"
-          ],
-          "metrics": {
-            "route": "google/gemini-3-flash-preview",
-            "localHarnessPassRate": 1,
-            "averageWeightedScore": 1,
-            "verifier": "local_exact_or_workbook_semantic_smoke"
-          },
-          "blockers": [
-            "BTB local smoke is harness/package evidence only; no route-owned candidate generation is recorded yet"
-          ]
-        },
-        "multiUserContract": {
-          "status": "pass",
-          "evidence": [
-            "docs/eval/multi-user-coordination-proof.json"
-          ],
-          "metrics": {
-            "scenarios": 5,
-            "passedScenarios": 5
-          },
-          "blockers": []
-        }
-      },
-      "blockers": [
-        "no company-research v3 evidence recorded for this route",
-        "no route-specific collaboration ladder evidence recorded",
-        "no N=5 live managed-path calibration recorded for this route",
-        "no SpreadsheetBench-like N=5 model-edit evidence recorded for this route",
-        "BTB local smoke is harness/package evidence only; no route-owned candidate generation is recorded yet"
-      ]
-    },
-    {
       "route": "google/gemini-3.1-flash-lite",
       "provider": "openrouter",
       "label": "Gemini 3.1 Flash Lite via OpenRouter",
@@ -2431,279 +1433,9 @@
       ]
     },
     {
-      "route": "google/gemini-3.1-pro-preview",
+      "route": "google/gemma-4-26b-a4b-it:free",
       "provider": "openrouter",
-      "label": "Gemini 3.1 Pro Preview via OpenRouter",
-      "suites": [
-        "research",
-        "collaboration"
-      ],
-      "promotion": "candidate",
-      "role": "interactive_candidate",
-      "promotionStatus": "blocked",
-      "adapter": "convexModel.openrouter_chat_completions",
-      "evidence": {
-        "research": {
-          "status": "missing",
-          "evidence": [
-            "docs/eval/results.json"
-          ],
-          "metrics": {},
-          "blockers": [
-            "no company-research v3 evidence recorded for this route"
-          ]
-        },
-        "collaborationLadder": {
-          "status": "missing",
-          "evidence": [
-            "docs/eval/model-ladder-supported.json"
-          ],
-          "metrics": {},
-          "blockers": [
-            "no route-specific collaboration ladder evidence recorded"
-          ]
-        },
-        "managedPathN5P95": {
-          "status": "missing",
-          "evidence": [
-            "docs/eval/halo-live-path-calibration.json"
-          ],
-          "metrics": {},
-          "blockers": [
-            "no N=5 live managed-path calibration recorded for this route"
-          ]
-        },
-        "spreadsheetBenchN5": {
-          "status": "missing",
-          "evidence": [
-            "docs/eval/spreadsheetbench-v1-model-edit-plan-3task-n5-live-smoke.json"
-          ],
-          "metrics": {
-            "recordedRoutes": "gpt-5.4-nano"
-          },
-          "blockers": [
-            "no SpreadsheetBench-like N=5 model-edit evidence recorded for this route"
-          ]
-        },
-        "bankerToolBenchLocal": {
-          "status": "missing",
-          "evidence": [
-            "docs/eval/bankertoolbench-run-positive-smoke.json"
-          ],
-          "metrics": {
-            "route": "google/gemini-3.1-pro-preview",
-            "localHarnessPassRate": 1,
-            "averageWeightedScore": 1,
-            "verifier": "local_exact_or_workbook_semantic_smoke"
-          },
-          "blockers": [
-            "BTB local smoke is harness/package evidence only; no route-owned candidate generation is recorded yet"
-          ]
-        },
-        "multiUserContract": {
-          "status": "pass",
-          "evidence": [
-            "docs/eval/multi-user-coordination-proof.json"
-          ],
-          "metrics": {
-            "scenarios": 5,
-            "passedScenarios": 5
-          },
-          "blockers": []
-        }
-      },
-      "blockers": [
-        "no company-research v3 evidence recorded for this route",
-        "no route-specific collaboration ladder evidence recorded",
-        "no N=5 live managed-path calibration recorded for this route",
-        "no SpreadsheetBench-like N=5 model-edit evidence recorded for this route",
-        "BTB local smoke is harness/package evidence only; no route-owned candidate generation is recorded yet"
-      ]
-    },
-    {
-      "route": "google/gemini-3.5-flash",
-      "provider": "openrouter",
-      "label": "Gemini 3.5 Flash via OpenRouter",
-      "suites": [
-        "research",
-        "collaboration"
-      ],
-      "promotion": "candidate",
-      "role": "interactive_candidate",
-      "promotionStatus": "blocked",
-      "adapter": "convexModel.openrouter_chat_completions",
-      "evidence": {
-        "research": {
-          "status": "missing",
-          "evidence": [
-            "docs/eval/results.json"
-          ],
-          "metrics": {},
-          "blockers": [
-            "no company-research v3 evidence recorded for this route"
-          ]
-        },
-        "collaborationLadder": {
-          "status": "missing",
-          "evidence": [
-            "docs/eval/model-ladder-supported.json"
-          ],
-          "metrics": {},
-          "blockers": [
-            "no route-specific collaboration ladder evidence recorded"
-          ]
-        },
-        "managedPathN5P95": {
-          "status": "missing",
-          "evidence": [
-            "docs/eval/halo-live-path-calibration.json"
-          ],
-          "metrics": {},
-          "blockers": [
-            "no N=5 live managed-path calibration recorded for this route"
-          ]
-        },
-        "spreadsheetBenchN5": {
-          "status": "missing",
-          "evidence": [
-            "docs/eval/spreadsheetbench-v1-model-edit-plan-3task-n5-live-smoke.json"
-          ],
-          "metrics": {
-            "recordedRoutes": "gpt-5.4-nano"
-          },
-          "blockers": [
-            "no SpreadsheetBench-like N=5 model-edit evidence recorded for this route"
-          ]
-        },
-        "bankerToolBenchLocal": {
-          "status": "missing",
-          "evidence": [
-            "docs/eval/bankertoolbench-run-positive-smoke.json"
-          ],
-          "metrics": {
-            "route": "google/gemini-3.5-flash",
-            "localHarnessPassRate": 1,
-            "averageWeightedScore": 1,
-            "verifier": "local_exact_or_workbook_semantic_smoke"
-          },
-          "blockers": [
-            "BTB local smoke is harness/package evidence only; no route-owned candidate generation is recorded yet"
-          ]
-        },
-        "multiUserContract": {
-          "status": "pass",
-          "evidence": [
-            "docs/eval/multi-user-coordination-proof.json"
-          ],
-          "metrics": {
-            "scenarios": 5,
-            "passedScenarios": 5
-          },
-          "blockers": []
-        }
-      },
-      "blockers": [
-        "no company-research v3 evidence recorded for this route",
-        "no route-specific collaboration ladder evidence recorded",
-        "no N=5 live managed-path calibration recorded for this route",
-        "no SpreadsheetBench-like N=5 model-edit evidence recorded for this route",
-        "BTB local smoke is harness/package evidence only; no route-owned candidate generation is recorded yet"
-      ]
-    },
-    {
-      "route": "google/gemma-4-26b-a4b-it",
-      "provider": "openrouter",
-      "label": "Gemma 4 26B A4B",
-      "suites": [
-        "research",
-        "collaboration"
-      ],
-      "promotion": "candidate",
-      "role": "interactive_candidate",
-      "promotionStatus": "blocked",
-      "adapter": "convexModel.openrouter_chat_completions",
-      "evidence": {
-        "research": {
-          "status": "missing",
-          "evidence": [
-            "docs/eval/results.json"
-          ],
-          "metrics": {},
-          "blockers": [
-            "no company-research v3 evidence recorded for this route"
-          ]
-        },
-        "collaborationLadder": {
-          "status": "missing",
-          "evidence": [
-            "docs/eval/model-ladder-supported.json"
-          ],
-          "metrics": {},
-          "blockers": [
-            "no route-specific collaboration ladder evidence recorded"
-          ]
-        },
-        "managedPathN5P95": {
-          "status": "missing",
-          "evidence": [
-            "docs/eval/halo-live-path-calibration.json"
-          ],
-          "metrics": {},
-          "blockers": [
-            "no N=5 live managed-path calibration recorded for this route"
-          ]
-        },
-        "spreadsheetBenchN5": {
-          "status": "missing",
-          "evidence": [
-            "docs/eval/spreadsheetbench-v1-model-edit-plan-3task-n5-live-smoke.json"
-          ],
-          "metrics": {
-            "recordedRoutes": "gpt-5.4-nano"
-          },
-          "blockers": [
-            "no SpreadsheetBench-like N=5 model-edit evidence recorded for this route"
-          ]
-        },
-        "bankerToolBenchLocal": {
-          "status": "missing",
-          "evidence": [
-            "docs/eval/bankertoolbench-run-positive-smoke.json"
-          ],
-          "metrics": {
-            "route": "google/gemma-4-26b-a4b-it",
-            "localHarnessPassRate": 1,
-            "averageWeightedScore": 1,
-            "verifier": "local_exact_or_workbook_semantic_smoke"
-          },
-          "blockers": [
-            "BTB local smoke is harness/package evidence only; no route-owned candidate generation is recorded yet"
-          ]
-        },
-        "multiUserContract": {
-          "status": "pass",
-          "evidence": [
-            "docs/eval/multi-user-coordination-proof.json"
-          ],
-          "metrics": {
-            "scenarios": 5,
-            "passedScenarios": 5
-          },
-          "blockers": []
-        }
-      },
-      "blockers": [
-        "no company-research v3 evidence recorded for this route",
-        "no route-specific collaboration ladder evidence recorded",
-        "no N=5 live managed-path calibration recorded for this route",
-        "no SpreadsheetBench-like N=5 model-edit evidence recorded for this route",
-        "BTB local smoke is harness/package evidence only; no route-owned candidate generation is recorded yet"
-      ]
-    },
-    {
-      "route": "google/gemma-4-31b-it:free",
-      "provider": "openrouter",
-      "label": "Gemma 4 31B free",
+      "label": "Gemma 4 26B A4B free",
       "suites": [
         "research"
       ],
@@ -2713,20 +1445,21 @@
       "adapter": "convexModel.openrouter_chat_completions",
       "evidence": {
         "research": {
-          "status": "pass",
+          "status": "blocked",
           "evidence": [
-            "docs/eval/results.json",
-            "docs/eval/traces/benchmark/20260611T0055281-google-gemma-4-31b-it-free-google-gemma-4-31b-it-free.json"
+            "docs/eval/results.json"
           ],
           "metrics": {
-            "passed": 9,
+            "passed": 0,
             "total": 9,
-            "ms": 24079,
+            "ms": 7272,
             "costUsd": 0,
-            "toolCalls": 10,
-            "steps": 7
+            "toolCalls": 0,
+            "steps": 0
           },
-          "blockers": []
+          "blockers": [
+            "research checks did not all pass for this route"
+          ]
         },
         "collaborationLadder": {
           "status": "missing",
@@ -2766,7 +1499,7 @@
             "docs/eval/bankertoolbench-run-positive-smoke.json"
           ],
           "metrics": {
-            "route": "google/gemma-4-31b-it:free",
+            "route": "google/gemma-4-26b-a4b-it:free",
             "localHarnessPassRate": 1,
             "averageWeightedScore": 1,
             "verifier": "local_exact_or_workbook_semantic_smoke"
@@ -2788,6 +1521,7 @@
         }
       },
       "blockers": [
+        "research checks did not all pass for this route",
         "no route-specific collaboration ladder evidence recorded",
         "no N=5 live managed-path calibration recorded for this route",
         "no SpreadsheetBench-like N=5 model-edit evidence recorded for this route",
@@ -2985,101 +1719,6 @@
       ]
     },
     {
-      "route": "minimax/minimax-m2.7",
-      "provider": "openrouter",
-      "label": "openrouter agent model: minimax/minimax-m2.7",
-      "suites": [
-        "collaboration"
-      ],
-      "promotion": "candidate",
-      "role": "interactive_candidate",
-      "promotionStatus": "blocked",
-      "adapter": "convexModel.openrouter_chat_completions",
-      "evidence": {
-        "research": {
-          "status": "missing",
-          "evidence": [
-            "docs/eval/results.json"
-          ],
-          "metrics": {},
-          "blockers": [
-            "no company-research v3 evidence recorded for this route"
-          ]
-        },
-        "collaborationLadder": {
-          "status": "blocked",
-          "evidence": [
-            "docs/eval/model-ladder-supported.json"
-          ],
-          "metrics": {
-            "rungs": 4,
-            "passCount": 3,
-            "p95LatencyMs": 73599,
-            "p95ToolCalls": 9,
-            "p95CostUsd": 0.015579
-          },
-          "blockers": [
-            "ladder missing=none failed=L1_read"
-          ]
-        },
-        "managedPathN5P95": {
-          "status": "missing",
-          "evidence": [
-            "docs/eval/halo-live-path-calibration.json"
-          ],
-          "metrics": {},
-          "blockers": [
-            "no N=5 live managed-path calibration recorded for this route"
-          ]
-        },
-        "spreadsheetBenchN5": {
-          "status": "missing",
-          "evidence": [
-            "docs/eval/spreadsheetbench-v1-model-edit-plan-3task-n5-live-smoke.json"
-          ],
-          "metrics": {
-            "recordedRoutes": "gpt-5.4-nano"
-          },
-          "blockers": [
-            "no SpreadsheetBench-like N=5 model-edit evidence recorded for this route"
-          ]
-        },
-        "bankerToolBenchLocal": {
-          "status": "missing",
-          "evidence": [
-            "docs/eval/bankertoolbench-run-positive-smoke.json"
-          ],
-          "metrics": {
-            "route": "minimax/minimax-m2.7",
-            "localHarnessPassRate": 1,
-            "averageWeightedScore": 1,
-            "verifier": "local_exact_or_workbook_semantic_smoke"
-          },
-          "blockers": [
-            "BTB local smoke is harness/package evidence only; no route-owned candidate generation is recorded yet"
-          ]
-        },
-        "multiUserContract": {
-          "status": "pass",
-          "evidence": [
-            "docs/eval/multi-user-coordination-proof.json"
-          ],
-          "metrics": {
-            "scenarios": 5,
-            "passedScenarios": 5
-          },
-          "blockers": []
-        }
-      },
-      "blockers": [
-        "no company-research v3 evidence recorded for this route",
-        "ladder missing=none failed=L1_read",
-        "no N=5 live managed-path calibration recorded for this route",
-        "no SpreadsheetBench-like N=5 model-edit evidence recorded for this route",
-        "BTB local smoke is harness/package evidence only; no route-owned candidate generation is recorded yet"
-      ]
-    },
-    {
       "route": "minimax/minimax-m3",
       "provider": "openrouter",
       "label": "MiniMax M3",
@@ -3175,9 +1814,9 @@
       ]
     },
     {
-      "route": "moonshotai/kimi-k2.6",
+      "route": "moonshotai/kimi-k2.7-code",
       "provider": "openrouter",
-      "label": "Kimi K2.6",
+      "label": "Kimi K2.7 Code",
       "suites": [
         "research",
         "collaboration"
@@ -3196,108 +1835,6 @@
           "blockers": [
             "no company-research v3 evidence recorded for this route"
           ]
-        },
-        "collaborationLadder": {
-          "status": "blocked",
-          "evidence": [
-            "docs/eval/model-ladder-supported.json"
-          ],
-          "metrics": {
-            "rungs": 4,
-            "passCount": 3,
-            "p95LatencyMs": 121748,
-            "p95ToolCalls": 6,
-            "p95CostUsd": 0.02345175
-          },
-          "blockers": [
-            "ladder missing=none failed=L1_read"
-          ]
-        },
-        "managedPathN5P95": {
-          "status": "missing",
-          "evidence": [
-            "docs/eval/halo-live-path-calibration.json"
-          ],
-          "metrics": {},
-          "blockers": [
-            "no N=5 live managed-path calibration recorded for this route"
-          ]
-        },
-        "spreadsheetBenchN5": {
-          "status": "missing",
-          "evidence": [
-            "docs/eval/spreadsheetbench-v1-model-edit-plan-3task-n5-live-smoke.json"
-          ],
-          "metrics": {
-            "recordedRoutes": "gpt-5.4-nano"
-          },
-          "blockers": [
-            "no SpreadsheetBench-like N=5 model-edit evidence recorded for this route"
-          ]
-        },
-        "bankerToolBenchLocal": {
-          "status": "missing",
-          "evidence": [
-            "docs/eval/bankertoolbench-run-positive-smoke.json"
-          ],
-          "metrics": {
-            "route": "moonshotai/kimi-k2.6",
-            "localHarnessPassRate": 1,
-            "averageWeightedScore": 1,
-            "verifier": "local_exact_or_workbook_semantic_smoke"
-          },
-          "blockers": [
-            "BTB local smoke is harness/package evidence only; no route-owned candidate generation is recorded yet"
-          ]
-        },
-        "multiUserContract": {
-          "status": "pass",
-          "evidence": [
-            "docs/eval/multi-user-coordination-proof.json"
-          ],
-          "metrics": {
-            "scenarios": 5,
-            "passedScenarios": 5
-          },
-          "blockers": []
-        }
-      },
-      "blockers": [
-        "no company-research v3 evidence recorded for this route",
-        "ladder missing=none failed=L1_read",
-        "no N=5 live managed-path calibration recorded for this route",
-        "no SpreadsheetBench-like N=5 model-edit evidence recorded for this route",
-        "BTB local smoke is harness/package evidence only; no route-owned candidate generation is recorded yet"
-      ]
-    },
-    {
-      "route": "nex-agi/nex-n2-pro:free",
-      "provider": "openrouter",
-      "label": "Nex AGI Nex-N2-Pro free",
-      "suites": [
-        "research",
-        "collaboration"
-      ],
-      "promotion": "demo_only",
-      "role": "background_long_running_only",
-      "promotionStatus": "background_only",
-      "adapter": "convexModel.openrouter_chat_completions",
-      "evidence": {
-        "research": {
-          "status": "pass",
-          "evidence": [
-            "docs/eval/results.json",
-            "docs/eval/traces/benchmark/20260611T0050542-nex-agi-nex-n2-pro-free-nex-agi-nex-n2-pro-free.json"
-          ],
-          "metrics": {
-            "passed": 9,
-            "total": 9,
-            "ms": 6225,
-            "costUsd": 0,
-            "toolCalls": 2,
-            "steps": 4
-          },
-          "blockers": []
         },
         "collaborationLadder": {
           "status": "missing",
@@ -3337,7 +1874,7 @@
             "docs/eval/bankertoolbench-run-positive-smoke.json"
           ],
           "metrics": {
-            "route": "nex-agi/nex-n2-pro:free",
+            "route": "moonshotai/kimi-k2.7-code",
             "localHarnessPassRate": 1,
             "averageWeightedScore": 1,
             "verifier": "local_exact_or_workbook_semantic_smoke"
@@ -3359,6 +1896,7 @@
         }
       },
       "blockers": [
+        "no company-research v3 evidence recorded for this route",
         "no route-specific collaboration ladder evidence recorded",
         "no N=5 live managed-path calibration recorded for this route",
         "no SpreadsheetBench-like N=5 model-edit evidence recorded for this route",
@@ -3660,366 +2198,6 @@
       ]
     },
     {
-      "route": "openai/gpt-4o-mini",
-      "provider": "openrouter",
-      "label": "GPT-4o mini via OpenRouter",
-      "suites": [
-        "research",
-        "collaboration"
-      ],
-      "promotion": "candidate",
-      "role": "interactive_candidate",
-      "promotionStatus": "blocked",
-      "adapter": "convexModel.openrouter_chat_completions",
-      "evidence": {
-        "research": {
-          "status": "missing",
-          "evidence": [
-            "docs/eval/results.json"
-          ],
-          "metrics": {},
-          "blockers": [
-            "no company-research v3 evidence recorded for this route"
-          ]
-        },
-        "collaborationLadder": {
-          "status": "missing",
-          "evidence": [
-            "docs/eval/model-ladder-supported.json"
-          ],
-          "metrics": {},
-          "blockers": [
-            "no route-specific collaboration ladder evidence recorded"
-          ]
-        },
-        "managedPathN5P95": {
-          "status": "missing",
-          "evidence": [
-            "docs/eval/halo-live-path-calibration.json"
-          ],
-          "metrics": {},
-          "blockers": [
-            "no N=5 live managed-path calibration recorded for this route"
-          ]
-        },
-        "spreadsheetBenchN5": {
-          "status": "missing",
-          "evidence": [
-            "docs/eval/spreadsheetbench-v1-model-edit-plan-3task-n5-live-smoke.json"
-          ],
-          "metrics": {
-            "recordedRoutes": "gpt-5.4-nano"
-          },
-          "blockers": [
-            "no SpreadsheetBench-like N=5 model-edit evidence recorded for this route"
-          ]
-        },
-        "bankerToolBenchLocal": {
-          "status": "missing",
-          "evidence": [
-            "docs/eval/bankertoolbench-run-positive-smoke.json"
-          ],
-          "metrics": {
-            "route": "openai/gpt-4o-mini",
-            "localHarnessPassRate": 1,
-            "averageWeightedScore": 1,
-            "verifier": "local_exact_or_workbook_semantic_smoke"
-          },
-          "blockers": [
-            "BTB local smoke is harness/package evidence only; no route-owned candidate generation is recorded yet"
-          ]
-        },
-        "multiUserContract": {
-          "status": "pass",
-          "evidence": [
-            "docs/eval/multi-user-coordination-proof.json"
-          ],
-          "metrics": {
-            "scenarios": 5,
-            "passedScenarios": 5
-          },
-          "blockers": []
-        }
-      },
-      "blockers": [
-        "no company-research v3 evidence recorded for this route",
-        "no route-specific collaboration ladder evidence recorded",
-        "no N=5 live managed-path calibration recorded for this route",
-        "no SpreadsheetBench-like N=5 model-edit evidence recorded for this route",
-        "BTB local smoke is harness/package evidence only; no route-owned candidate generation is recorded yet"
-      ]
-    },
-    {
-      "route": "openai/gpt-5.4",
-      "provider": "openrouter",
-      "label": "GPT-5.4 via OpenRouter",
-      "suites": [
-        "research",
-        "collaboration"
-      ],
-      "promotion": "candidate",
-      "role": "interactive_candidate",
-      "promotionStatus": "blocked",
-      "adapter": "convexModel.openrouter_chat_completions",
-      "evidence": {
-        "research": {
-          "status": "missing",
-          "evidence": [
-            "docs/eval/results.json"
-          ],
-          "metrics": {},
-          "blockers": [
-            "no company-research v3 evidence recorded for this route"
-          ]
-        },
-        "collaborationLadder": {
-          "status": "missing",
-          "evidence": [
-            "docs/eval/model-ladder-supported.json"
-          ],
-          "metrics": {},
-          "blockers": [
-            "no route-specific collaboration ladder evidence recorded"
-          ]
-        },
-        "managedPathN5P95": {
-          "status": "missing",
-          "evidence": [
-            "docs/eval/halo-live-path-calibration.json"
-          ],
-          "metrics": {},
-          "blockers": [
-            "no N=5 live managed-path calibration recorded for this route"
-          ]
-        },
-        "spreadsheetBenchN5": {
-          "status": "missing",
-          "evidence": [
-            "docs/eval/spreadsheetbench-v1-model-edit-plan-3task-n5-live-smoke.json"
-          ],
-          "metrics": {
-            "recordedRoutes": "gpt-5.4-nano"
-          },
-          "blockers": [
-            "no SpreadsheetBench-like N=5 model-edit evidence recorded for this route"
-          ]
-        },
-        "bankerToolBenchLocal": {
-          "status": "missing",
-          "evidence": [
-            "docs/eval/bankertoolbench-run-positive-smoke.json"
-          ],
-          "metrics": {
-            "route": "openai/gpt-5.4",
-            "localHarnessPassRate": 1,
-            "averageWeightedScore": 1,
-            "verifier": "local_exact_or_workbook_semantic_smoke"
-          },
-          "blockers": [
-            "BTB local smoke is harness/package evidence only; no route-owned candidate generation is recorded yet"
-          ]
-        },
-        "multiUserContract": {
-          "status": "pass",
-          "evidence": [
-            "docs/eval/multi-user-coordination-proof.json"
-          ],
-          "metrics": {
-            "scenarios": 5,
-            "passedScenarios": 5
-          },
-          "blockers": []
-        }
-      },
-      "blockers": [
-        "no company-research v3 evidence recorded for this route",
-        "no route-specific collaboration ladder evidence recorded",
-        "no N=5 live managed-path calibration recorded for this route",
-        "no SpreadsheetBench-like N=5 model-edit evidence recorded for this route",
-        "BTB local smoke is harness/package evidence only; no route-owned candidate generation is recorded yet"
-      ]
-    },
-    {
-      "route": "openai/gpt-5.5",
-      "provider": "openrouter",
-      "label": "GPT-5.5 via OpenRouter",
-      "suites": [
-        "research",
-        "collaboration"
-      ],
-      "promotion": "candidate",
-      "role": "interactive_candidate",
-      "promotionStatus": "blocked",
-      "adapter": "convexModel.openrouter_chat_completions",
-      "evidence": {
-        "research": {
-          "status": "missing",
-          "evidence": [
-            "docs/eval/results.json"
-          ],
-          "metrics": {},
-          "blockers": [
-            "no company-research v3 evidence recorded for this route"
-          ]
-        },
-        "collaborationLadder": {
-          "status": "missing",
-          "evidence": [
-            "docs/eval/model-ladder-supported.json"
-          ],
-          "metrics": {},
-          "blockers": [
-            "no route-specific collaboration ladder evidence recorded"
-          ]
-        },
-        "managedPathN5P95": {
-          "status": "missing",
-          "evidence": [
-            "docs/eval/halo-live-path-calibration.json"
-          ],
-          "metrics": {},
-          "blockers": [
-            "no N=5 live managed-path calibration recorded for this route"
-          ]
-        },
-        "spreadsheetBenchN5": {
-          "status": "missing",
-          "evidence": [
-            "docs/eval/spreadsheetbench-v1-model-edit-plan-3task-n5-live-smoke.json"
-          ],
-          "metrics": {
-            "recordedRoutes": "gpt-5.4-nano"
-          },
-          "blockers": [
-            "no SpreadsheetBench-like N=5 model-edit evidence recorded for this route"
-          ]
-        },
-        "bankerToolBenchLocal": {
-          "status": "missing",
-          "evidence": [
-            "docs/eval/bankertoolbench-run-positive-smoke.json"
-          ],
-          "metrics": {
-            "route": "openai/gpt-5.5",
-            "localHarnessPassRate": 1,
-            "averageWeightedScore": 1,
-            "verifier": "local_exact_or_workbook_semantic_smoke"
-          },
-          "blockers": [
-            "BTB local smoke is harness/package evidence only; no route-owned candidate generation is recorded yet"
-          ]
-        },
-        "multiUserContract": {
-          "status": "pass",
-          "evidence": [
-            "docs/eval/multi-user-coordination-proof.json"
-          ],
-          "metrics": {
-            "scenarios": 5,
-            "passedScenarios": 5
-          },
-          "blockers": []
-        }
-      },
-      "blockers": [
-        "no company-research v3 evidence recorded for this route",
-        "no route-specific collaboration ladder evidence recorded",
-        "no N=5 live managed-path calibration recorded for this route",
-        "no SpreadsheetBench-like N=5 model-edit evidence recorded for this route",
-        "BTB local smoke is harness/package evidence only; no route-owned candidate generation is recorded yet"
-      ]
-    },
-    {
-      "route": "openai/gpt-oss-120b",
-      "provider": "openrouter",
-      "label": "GPT OSS 120B via OpenRouter",
-      "suites": [
-        "research",
-        "collaboration"
-      ],
-      "promotion": "candidate",
-      "role": "interactive_candidate",
-      "promotionStatus": "blocked",
-      "adapter": "convexModel.openrouter_chat_completions",
-      "evidence": {
-        "research": {
-          "status": "missing",
-          "evidence": [
-            "docs/eval/results.json"
-          ],
-          "metrics": {},
-          "blockers": [
-            "no company-research v3 evidence recorded for this route"
-          ]
-        },
-        "collaborationLadder": {
-          "status": "missing",
-          "evidence": [
-            "docs/eval/model-ladder-supported.json"
-          ],
-          "metrics": {},
-          "blockers": [
-            "no route-specific collaboration ladder evidence recorded"
-          ]
-        },
-        "managedPathN5P95": {
-          "status": "missing",
-          "evidence": [
-            "docs/eval/halo-live-path-calibration.json"
-          ],
-          "metrics": {},
-          "blockers": [
-            "no N=5 live managed-path calibration recorded for this route"
-          ]
-        },
-        "spreadsheetBenchN5": {
-          "status": "missing",
-          "evidence": [
-            "docs/eval/spreadsheetbench-v1-model-edit-plan-3task-n5-live-smoke.json"
-          ],
-          "metrics": {
-            "recordedRoutes": "gpt-5.4-nano"
-          },
-          "blockers": [
-            "no SpreadsheetBench-like N=5 model-edit evidence recorded for this route"
-          ]
-        },
-        "bankerToolBenchLocal": {
-          "status": "missing",
-          "evidence": [
-            "docs/eval/bankertoolbench-run-positive-smoke.json"
-          ],
-          "metrics": {
-            "route": "openai/gpt-oss-120b",
-            "localHarnessPassRate": 1,
-            "averageWeightedScore": 1,
-            "verifier": "local_exact_or_workbook_semantic_smoke"
-          },
-          "blockers": [
-            "BTB local smoke is harness/package evidence only; no route-owned candidate generation is recorded yet"
-          ]
-        },
-        "multiUserContract": {
-          "status": "pass",
-          "evidence": [
-            "docs/eval/multi-user-coordination-proof.json"
-          ],
-          "metrics": {
-            "scenarios": 5,
-            "passedScenarios": 5
-          },
-          "blockers": []
-        }
-      },
-      "blockers": [
-        "no company-research v3 evidence recorded for this route",
-        "no route-specific collaboration ladder evidence recorded",
-        "no N=5 live managed-path calibration recorded for this route",
-        "no SpreadsheetBench-like N=5 model-edit evidence recorded for this route",
-        "BTB local smoke is harness/package evidence only; no route-owned candidate generation is recorded yet"
-      ]
-    },
-    {
       "route": "openai/gpt-oss-120b:free",
       "provider": "openrouter",
       "label": "GPT OSS 120B free",
@@ -4107,6 +2285,96 @@
         }
       },
       "blockers": [
+        "no route-specific collaboration ladder evidence recorded",
+        "no N=5 live managed-path calibration recorded for this route",
+        "no SpreadsheetBench-like N=5 model-edit evidence recorded for this route",
+        "BTB local smoke is harness/package evidence only; no route-owned candidate generation is recorded yet"
+      ]
+    },
+    {
+      "route": "poolside/laguna-m.1",
+      "provider": "openrouter",
+      "label": "Poolside Laguna M.1",
+      "suites": [
+        "research",
+        "collaboration"
+      ],
+      "promotion": "candidate",
+      "role": "interactive_candidate",
+      "promotionStatus": "blocked",
+      "adapter": "convexModel.openrouter_chat_completions",
+      "evidence": {
+        "research": {
+          "status": "missing",
+          "evidence": [
+            "docs/eval/results.json"
+          ],
+          "metrics": {},
+          "blockers": [
+            "no company-research v3 evidence recorded for this route"
+          ]
+        },
+        "collaborationLadder": {
+          "status": "missing",
+          "evidence": [
+            "docs/eval/model-ladder-supported.json"
+          ],
+          "metrics": {},
+          "blockers": [
+            "no route-specific collaboration ladder evidence recorded"
+          ]
+        },
+        "managedPathN5P95": {
+          "status": "missing",
+          "evidence": [
+            "docs/eval/halo-live-path-calibration.json"
+          ],
+          "metrics": {},
+          "blockers": [
+            "no N=5 live managed-path calibration recorded for this route"
+          ]
+        },
+        "spreadsheetBenchN5": {
+          "status": "missing",
+          "evidence": [
+            "docs/eval/spreadsheetbench-v1-model-edit-plan-3task-n5-live-smoke.json"
+          ],
+          "metrics": {
+            "recordedRoutes": "gpt-5.4-nano"
+          },
+          "blockers": [
+            "no SpreadsheetBench-like N=5 model-edit evidence recorded for this route"
+          ]
+        },
+        "bankerToolBenchLocal": {
+          "status": "missing",
+          "evidence": [
+            "docs/eval/bankertoolbench-run-positive-smoke.json"
+          ],
+          "metrics": {
+            "route": "poolside/laguna-m.1",
+            "localHarnessPassRate": 1,
+            "averageWeightedScore": 1,
+            "verifier": "local_exact_or_workbook_semantic_smoke"
+          },
+          "blockers": [
+            "BTB local smoke is harness/package evidence only; no route-owned candidate generation is recorded yet"
+          ]
+        },
+        "multiUserContract": {
+          "status": "pass",
+          "evidence": [
+            "docs/eval/multi-user-coordination-proof.json"
+          ],
+          "metrics": {
+            "scenarios": 5,
+            "passedScenarios": 5
+          },
+          "blockers": []
+        }
+      },
+      "blockers": [
+        "no company-research v3 evidence recorded for this route",
         "no route-specific collaboration ladder evidence recorded",
         "no N=5 live managed-path calibration recorded for this route",
         "no SpreadsheetBench-like N=5 model-edit evidence recorded for this route",
@@ -4208,6 +2476,96 @@
       ]
     },
     {
+      "route": "poolside/laguna-xs.2",
+      "provider": "openrouter",
+      "label": "Poolside Laguna XS.2",
+      "suites": [
+        "research",
+        "collaboration"
+      ],
+      "promotion": "candidate",
+      "role": "interactive_candidate",
+      "promotionStatus": "blocked",
+      "adapter": "convexModel.openrouter_chat_completions",
+      "evidence": {
+        "research": {
+          "status": "missing",
+          "evidence": [
+            "docs/eval/results.json"
+          ],
+          "metrics": {},
+          "blockers": [
+            "no company-research v3 evidence recorded for this route"
+          ]
+        },
+        "collaborationLadder": {
+          "status": "missing",
+          "evidence": [
+            "docs/eval/model-ladder-supported.json"
+          ],
+          "metrics": {},
+          "blockers": [
+            "no route-specific collaboration ladder evidence recorded"
+          ]
+        },
+        "managedPathN5P95": {
+          "status": "missing",
+          "evidence": [
+            "docs/eval/halo-live-path-calibration.json"
+          ],
+          "metrics": {},
+          "blockers": [
+            "no N=5 live managed-path calibration recorded for this route"
+          ]
+        },
+        "spreadsheetBenchN5": {
+          "status": "missing",
+          "evidence": [
+            "docs/eval/spreadsheetbench-v1-model-edit-plan-3task-n5-live-smoke.json"
+          ],
+          "metrics": {
+            "recordedRoutes": "gpt-5.4-nano"
+          },
+          "blockers": [
+            "no SpreadsheetBench-like N=5 model-edit evidence recorded for this route"
+          ]
+        },
+        "bankerToolBenchLocal": {
+          "status": "missing",
+          "evidence": [
+            "docs/eval/bankertoolbench-run-positive-smoke.json"
+          ],
+          "metrics": {
+            "route": "poolside/laguna-xs.2",
+            "localHarnessPassRate": 1,
+            "averageWeightedScore": 1,
+            "verifier": "local_exact_or_workbook_semantic_smoke"
+          },
+          "blockers": [
+            "BTB local smoke is harness/package evidence only; no route-owned candidate generation is recorded yet"
+          ]
+        },
+        "multiUserContract": {
+          "status": "pass",
+          "evidence": [
+            "docs/eval/multi-user-coordination-proof.json"
+          ],
+          "metrics": {
+            "scenarios": 5,
+            "passedScenarios": 5
+          },
+          "blockers": []
+        }
+      },
+      "blockers": [
+        "no company-research v3 evidence recorded for this route",
+        "no route-specific collaboration ladder evidence recorded",
+        "no N=5 live managed-path calibration recorded for this route",
+        "no SpreadsheetBench-like N=5 model-edit evidence recorded for this route",
+        "BTB local smoke is harness/package evidence only; no route-owned candidate generation is recorded yet"
+      ]
+    },
+    {
       "route": "poolside/laguna-xs.2:free",
       "provider": "openrouter",
       "label": "Poolside Laguna XS.2 free",
@@ -4295,6 +2653,456 @@
         }
       },
       "blockers": [
+        "no route-specific collaboration ladder evidence recorded",
+        "no N=5 live managed-path calibration recorded for this route",
+        "no SpreadsheetBench-like N=5 model-edit evidence recorded for this route",
+        "BTB local smoke is harness/package evidence only; no route-owned candidate generation is recorded yet"
+      ]
+    },
+    {
+      "route": "qwen/qwen3.5-plus-20260420",
+      "provider": "openrouter",
+      "label": "Qwen 3.5 Plus 20260420",
+      "suites": [
+        "research",
+        "collaboration"
+      ],
+      "promotion": "candidate",
+      "role": "interactive_candidate",
+      "promotionStatus": "blocked",
+      "adapter": "convexModel.openrouter_chat_completions",
+      "evidence": {
+        "research": {
+          "status": "missing",
+          "evidence": [
+            "docs/eval/results.json"
+          ],
+          "metrics": {},
+          "blockers": [
+            "no company-research v3 evidence recorded for this route"
+          ]
+        },
+        "collaborationLadder": {
+          "status": "missing",
+          "evidence": [
+            "docs/eval/model-ladder-supported.json"
+          ],
+          "metrics": {},
+          "blockers": [
+            "no route-specific collaboration ladder evidence recorded"
+          ]
+        },
+        "managedPathN5P95": {
+          "status": "missing",
+          "evidence": [
+            "docs/eval/halo-live-path-calibration.json"
+          ],
+          "metrics": {},
+          "blockers": [
+            "no N=5 live managed-path calibration recorded for this route"
+          ]
+        },
+        "spreadsheetBenchN5": {
+          "status": "missing",
+          "evidence": [
+            "docs/eval/spreadsheetbench-v1-model-edit-plan-3task-n5-live-smoke.json"
+          ],
+          "metrics": {
+            "recordedRoutes": "gpt-5.4-nano"
+          },
+          "blockers": [
+            "no SpreadsheetBench-like N=5 model-edit evidence recorded for this route"
+          ]
+        },
+        "bankerToolBenchLocal": {
+          "status": "missing",
+          "evidence": [
+            "docs/eval/bankertoolbench-run-positive-smoke.json"
+          ],
+          "metrics": {
+            "route": "qwen/qwen3.5-plus-20260420",
+            "localHarnessPassRate": 1,
+            "averageWeightedScore": 1,
+            "verifier": "local_exact_or_workbook_semantic_smoke"
+          },
+          "blockers": [
+            "BTB local smoke is harness/package evidence only; no route-owned candidate generation is recorded yet"
+          ]
+        },
+        "multiUserContract": {
+          "status": "pass",
+          "evidence": [
+            "docs/eval/multi-user-coordination-proof.json"
+          ],
+          "metrics": {
+            "scenarios": 5,
+            "passedScenarios": 5
+          },
+          "blockers": []
+        }
+      },
+      "blockers": [
+        "no company-research v3 evidence recorded for this route",
+        "no route-specific collaboration ladder evidence recorded",
+        "no N=5 live managed-path calibration recorded for this route",
+        "no SpreadsheetBench-like N=5 model-edit evidence recorded for this route",
+        "BTB local smoke is harness/package evidence only; no route-owned candidate generation is recorded yet"
+      ]
+    },
+    {
+      "route": "qwen/qwen3.6-27b",
+      "provider": "openrouter",
+      "label": "Qwen 3.6 27B",
+      "suites": [
+        "research",
+        "collaboration"
+      ],
+      "promotion": "candidate",
+      "role": "interactive_candidate",
+      "promotionStatus": "blocked",
+      "adapter": "convexModel.openrouter_chat_completions",
+      "evidence": {
+        "research": {
+          "status": "missing",
+          "evidence": [
+            "docs/eval/results.json"
+          ],
+          "metrics": {},
+          "blockers": [
+            "no company-research v3 evidence recorded for this route"
+          ]
+        },
+        "collaborationLadder": {
+          "status": "missing",
+          "evidence": [
+            "docs/eval/model-ladder-supported.json"
+          ],
+          "metrics": {},
+          "blockers": [
+            "no route-specific collaboration ladder evidence recorded"
+          ]
+        },
+        "managedPathN5P95": {
+          "status": "missing",
+          "evidence": [
+            "docs/eval/halo-live-path-calibration.json"
+          ],
+          "metrics": {},
+          "blockers": [
+            "no N=5 live managed-path calibration recorded for this route"
+          ]
+        },
+        "spreadsheetBenchN5": {
+          "status": "missing",
+          "evidence": [
+            "docs/eval/spreadsheetbench-v1-model-edit-plan-3task-n5-live-smoke.json"
+          ],
+          "metrics": {
+            "recordedRoutes": "gpt-5.4-nano"
+          },
+          "blockers": [
+            "no SpreadsheetBench-like N=5 model-edit evidence recorded for this route"
+          ]
+        },
+        "bankerToolBenchLocal": {
+          "status": "missing",
+          "evidence": [
+            "docs/eval/bankertoolbench-run-positive-smoke.json"
+          ],
+          "metrics": {
+            "route": "qwen/qwen3.6-27b",
+            "localHarnessPassRate": 1,
+            "averageWeightedScore": 1,
+            "verifier": "local_exact_or_workbook_semantic_smoke"
+          },
+          "blockers": [
+            "BTB local smoke is harness/package evidence only; no route-owned candidate generation is recorded yet"
+          ]
+        },
+        "multiUserContract": {
+          "status": "pass",
+          "evidence": [
+            "docs/eval/multi-user-coordination-proof.json"
+          ],
+          "metrics": {
+            "scenarios": 5,
+            "passedScenarios": 5
+          },
+          "blockers": []
+        }
+      },
+      "blockers": [
+        "no company-research v3 evidence recorded for this route",
+        "no route-specific collaboration ladder evidence recorded",
+        "no N=5 live managed-path calibration recorded for this route",
+        "no SpreadsheetBench-like N=5 model-edit evidence recorded for this route",
+        "BTB local smoke is harness/package evidence only; no route-owned candidate generation is recorded yet"
+      ]
+    },
+    {
+      "route": "qwen/qwen3.6-35b-a3b",
+      "provider": "openrouter",
+      "label": "Qwen 3.6 35B A3B",
+      "suites": [
+        "research",
+        "collaboration"
+      ],
+      "promotion": "candidate",
+      "role": "interactive_candidate",
+      "promotionStatus": "blocked",
+      "adapter": "convexModel.openrouter_chat_completions",
+      "evidence": {
+        "research": {
+          "status": "missing",
+          "evidence": [
+            "docs/eval/results.json"
+          ],
+          "metrics": {},
+          "blockers": [
+            "no company-research v3 evidence recorded for this route"
+          ]
+        },
+        "collaborationLadder": {
+          "status": "missing",
+          "evidence": [
+            "docs/eval/model-ladder-supported.json"
+          ],
+          "metrics": {},
+          "blockers": [
+            "no route-specific collaboration ladder evidence recorded"
+          ]
+        },
+        "managedPathN5P95": {
+          "status": "missing",
+          "evidence": [
+            "docs/eval/halo-live-path-calibration.json"
+          ],
+          "metrics": {},
+          "blockers": [
+            "no N=5 live managed-path calibration recorded for this route"
+          ]
+        },
+        "spreadsheetBenchN5": {
+          "status": "missing",
+          "evidence": [
+            "docs/eval/spreadsheetbench-v1-model-edit-plan-3task-n5-live-smoke.json"
+          ],
+          "metrics": {
+            "recordedRoutes": "gpt-5.4-nano"
+          },
+          "blockers": [
+            "no SpreadsheetBench-like N=5 model-edit evidence recorded for this route"
+          ]
+        },
+        "bankerToolBenchLocal": {
+          "status": "missing",
+          "evidence": [
+            "docs/eval/bankertoolbench-run-positive-smoke.json"
+          ],
+          "metrics": {
+            "route": "qwen/qwen3.6-35b-a3b",
+            "localHarnessPassRate": 1,
+            "averageWeightedScore": 1,
+            "verifier": "local_exact_or_workbook_semantic_smoke"
+          },
+          "blockers": [
+            "BTB local smoke is harness/package evidence only; no route-owned candidate generation is recorded yet"
+          ]
+        },
+        "multiUserContract": {
+          "status": "pass",
+          "evidence": [
+            "docs/eval/multi-user-coordination-proof.json"
+          ],
+          "metrics": {
+            "scenarios": 5,
+            "passedScenarios": 5
+          },
+          "blockers": []
+        }
+      },
+      "blockers": [
+        "no company-research v3 evidence recorded for this route",
+        "no route-specific collaboration ladder evidence recorded",
+        "no N=5 live managed-path calibration recorded for this route",
+        "no SpreadsheetBench-like N=5 model-edit evidence recorded for this route",
+        "BTB local smoke is harness/package evidence only; no route-owned candidate generation is recorded yet"
+      ]
+    },
+    {
+      "route": "qwen/qwen3.6-flash",
+      "provider": "openrouter",
+      "label": "Qwen 3.6 Flash",
+      "suites": [
+        "research",
+        "collaboration"
+      ],
+      "promotion": "candidate",
+      "role": "interactive_candidate",
+      "promotionStatus": "blocked",
+      "adapter": "convexModel.openrouter_chat_completions",
+      "evidence": {
+        "research": {
+          "status": "missing",
+          "evidence": [
+            "docs/eval/results.json"
+          ],
+          "metrics": {},
+          "blockers": [
+            "no company-research v3 evidence recorded for this route"
+          ]
+        },
+        "collaborationLadder": {
+          "status": "missing",
+          "evidence": [
+            "docs/eval/model-ladder-supported.json"
+          ],
+          "metrics": {},
+          "blockers": [
+            "no route-specific collaboration ladder evidence recorded"
+          ]
+        },
+        "managedPathN5P95": {
+          "status": "missing",
+          "evidence": [
+            "docs/eval/halo-live-path-calibration.json"
+          ],
+          "metrics": {},
+          "blockers": [
+            "no N=5 live managed-path calibration recorded for this route"
+          ]
+        },
+        "spreadsheetBenchN5": {
+          "status": "missing",
+          "evidence": [
+            "docs/eval/spreadsheetbench-v1-model-edit-plan-3task-n5-live-smoke.json"
+          ],
+          "metrics": {
+            "recordedRoutes": "gpt-5.4-nano"
+          },
+          "blockers": [
+            "no SpreadsheetBench-like N=5 model-edit evidence recorded for this route"
+          ]
+        },
+        "bankerToolBenchLocal": {
+          "status": "missing",
+          "evidence": [
+            "docs/eval/bankertoolbench-run-positive-smoke.json"
+          ],
+          "metrics": {
+            "route": "qwen/qwen3.6-flash",
+            "localHarnessPassRate": 1,
+            "averageWeightedScore": 1,
+            "verifier": "local_exact_or_workbook_semantic_smoke"
+          },
+          "blockers": [
+            "BTB local smoke is harness/package evidence only; no route-owned candidate generation is recorded yet"
+          ]
+        },
+        "multiUserContract": {
+          "status": "pass",
+          "evidence": [
+            "docs/eval/multi-user-coordination-proof.json"
+          ],
+          "metrics": {
+            "scenarios": 5,
+            "passedScenarios": 5
+          },
+          "blockers": []
+        }
+      },
+      "blockers": [
+        "no company-research v3 evidence recorded for this route",
+        "no route-specific collaboration ladder evidence recorded",
+        "no N=5 live managed-path calibration recorded for this route",
+        "no SpreadsheetBench-like N=5 model-edit evidence recorded for this route",
+        "BTB local smoke is harness/package evidence only; no route-owned candidate generation is recorded yet"
+      ]
+    },
+    {
+      "route": "qwen/qwen3.7-max",
+      "provider": "openrouter",
+      "label": "Qwen 3.7 Max",
+      "suites": [
+        "research",
+        "collaboration"
+      ],
+      "promotion": "candidate",
+      "role": "interactive_candidate",
+      "promotionStatus": "blocked",
+      "adapter": "convexModel.openrouter_chat_completions",
+      "evidence": {
+        "research": {
+          "status": "missing",
+          "evidence": [
+            "docs/eval/results.json"
+          ],
+          "metrics": {},
+          "blockers": [
+            "no company-research v3 evidence recorded for this route"
+          ]
+        },
+        "collaborationLadder": {
+          "status": "missing",
+          "evidence": [
+            "docs/eval/model-ladder-supported.json"
+          ],
+          "metrics": {},
+          "blockers": [
+            "no route-specific collaboration ladder evidence recorded"
+          ]
+        },
+        "managedPathN5P95": {
+          "status": "missing",
+          "evidence": [
+            "docs/eval/halo-live-path-calibration.json"
+          ],
+          "metrics": {},
+          "blockers": [
+            "no N=5 live managed-path calibration recorded for this route"
+          ]
+        },
+        "spreadsheetBenchN5": {
+          "status": "missing",
+          "evidence": [
+            "docs/eval/spreadsheetbench-v1-model-edit-plan-3task-n5-live-smoke.json"
+          ],
+          "metrics": {
+            "recordedRoutes": "gpt-5.4-nano"
+          },
+          "blockers": [
+            "no SpreadsheetBench-like N=5 model-edit evidence recorded for this route"
+          ]
+        },
+        "bankerToolBenchLocal": {
+          "status": "missing",
+          "evidence": [
+            "docs/eval/bankertoolbench-run-positive-smoke.json"
+          ],
+          "metrics": {
+            "route": "qwen/qwen3.7-max",
+            "localHarnessPassRate": 1,
+            "averageWeightedScore": 1,
+            "verifier": "local_exact_or_workbook_semantic_smoke"
+          },
+          "blockers": [
+            "BTB local smoke is harness/package evidence only; no route-owned candidate generation is recorded yet"
+          ]
+        },
+        "multiUserContract": {
+          "status": "pass",
+          "evidence": [
+            "docs/eval/multi-user-coordination-proof.json"
+          ],
+          "metrics": {
+            "scenarios": 5,
+            "passedScenarios": 5
+          },
+          "blockers": []
+        }
+      },
+      "blockers": [
+        "no company-research v3 evidence recorded for this route",
         "no route-specific collaboration ladder evidence recorded",
         "no N=5 live managed-path calibration recorded for this route",
         "no SpreadsheetBench-like N=5 model-edit evidence recorded for this route",
@@ -4498,9 +3306,9 @@
       ]
     },
     {
-      "route": "tencent/hy3-preview",
+      "route": "x-ai/grok-4.3",
       "provider": "openrouter",
-      "label": "Tencent Hy3 Preview",
+      "label": "Grok 4.3",
       "suites": [
         "research",
         "collaboration"
@@ -4511,20 +3319,13 @@
       "adapter": "convexModel.openrouter_chat_completions",
       "evidence": {
         "research": {
-          "status": "blocked",
+          "status": "missing",
           "evidence": [
             "docs/eval/results.json"
           ],
-          "metrics": {
-            "passed": 0,
-            "total": 9,
-            "ms": 21989,
-            "costUsd": 0,
-            "toolCalls": 0,
-            "steps": 0
-          },
+          "metrics": {},
           "blockers": [
-            "research checks did not all pass for this route"
+            "no company-research v3 evidence recorded for this route"
           ]
         },
         "collaborationLadder": {
@@ -4565,7 +3366,7 @@
             "docs/eval/bankertoolbench-run-positive-smoke.json"
           ],
           "metrics": {
-            "route": "tencent/hy3-preview",
+            "route": "x-ai/grok-4.3",
             "localHarnessPassRate": 1,
             "averageWeightedScore": 1,
             "verifier": "local_exact_or_workbook_semantic_smoke"
@@ -4587,7 +3388,97 @@
         }
       },
       "blockers": [
-        "research checks did not all pass for this route",
+        "no company-research v3 evidence recorded for this route",
+        "no route-specific collaboration ladder evidence recorded",
+        "no N=5 live managed-path calibration recorded for this route",
+        "no SpreadsheetBench-like N=5 model-edit evidence recorded for this route",
+        "BTB local smoke is harness/package evidence only; no route-owned candidate generation is recorded yet"
+      ]
+    },
+    {
+      "route": "x-ai/grok-build-0.1",
+      "provider": "openrouter",
+      "label": "xAI Grok Build 0.1",
+      "suites": [
+        "research",
+        "collaboration"
+      ],
+      "promotion": "candidate",
+      "role": "interactive_candidate",
+      "promotionStatus": "blocked",
+      "adapter": "convexModel.openrouter_chat_completions",
+      "evidence": {
+        "research": {
+          "status": "missing",
+          "evidence": [
+            "docs/eval/results.json"
+          ],
+          "metrics": {},
+          "blockers": [
+            "no company-research v3 evidence recorded for this route"
+          ]
+        },
+        "collaborationLadder": {
+          "status": "missing",
+          "evidence": [
+            "docs/eval/model-ladder-supported.json"
+          ],
+          "metrics": {},
+          "blockers": [
+            "no route-specific collaboration ladder evidence recorded"
+          ]
+        },
+        "managedPathN5P95": {
+          "status": "missing",
+          "evidence": [
+            "docs/eval/halo-live-path-calibration.json"
+          ],
+          "metrics": {},
+          "blockers": [
+            "no N=5 live managed-path calibration recorded for this route"
+          ]
+        },
+        "spreadsheetBenchN5": {
+          "status": "missing",
+          "evidence": [
+            "docs/eval/spreadsheetbench-v1-model-edit-plan-3task-n5-live-smoke.json"
+          ],
+          "metrics": {
+            "recordedRoutes": "gpt-5.4-nano"
+          },
+          "blockers": [
+            "no SpreadsheetBench-like N=5 model-edit evidence recorded for this route"
+          ]
+        },
+        "bankerToolBenchLocal": {
+          "status": "missing",
+          "evidence": [
+            "docs/eval/bankertoolbench-run-positive-smoke.json"
+          ],
+          "metrics": {
+            "route": "x-ai/grok-build-0.1",
+            "localHarnessPassRate": 1,
+            "averageWeightedScore": 1,
+            "verifier": "local_exact_or_workbook_semantic_smoke"
+          },
+          "blockers": [
+            "BTB local smoke is harness/package evidence only; no route-owned candidate generation is recorded yet"
+          ]
+        },
+        "multiUserContract": {
+          "status": "pass",
+          "evidence": [
+            "docs/eval/multi-user-coordination-proof.json"
+          ],
+          "metrics": {
+            "scenarios": 5,
+            "passedScenarios": 5
+          },
+          "blockers": []
+        }
+      },
+      "blockers": [
+        "no company-research v3 evidence recorded for this route",
         "no route-specific collaboration ladder evidence recorded",
         "no N=5 live managed-path calibration recorded for this route",
         "no SpreadsheetBench-like N=5 model-edit evidence recorded for this route",
@@ -4696,185 +3587,6 @@
       ]
     },
     {
-      "route": "xiaomi/mimo-v2.5-pro",
-      "provider": "openrouter",
-      "label": "Xiaomi MiMo V2.5 Pro",
-      "suites": [
-        "research",
-        "collaboration"
-      ],
-      "promotion": "candidate",
-      "role": "interactive_candidate",
-      "promotionStatus": "blocked",
-      "adapter": "convexModel.openrouter_chat_completions",
-      "evidence": {
-        "research": {
-          "status": "missing",
-          "evidence": [
-            "docs/eval/results.json"
-          ],
-          "metrics": {},
-          "blockers": [
-            "no company-research v3 evidence recorded for this route"
-          ]
-        },
-        "collaborationLadder": {
-          "status": "missing",
-          "evidence": [
-            "docs/eval/model-ladder-supported.json"
-          ],
-          "metrics": {},
-          "blockers": [
-            "no route-specific collaboration ladder evidence recorded"
-          ]
-        },
-        "managedPathN5P95": {
-          "status": "missing",
-          "evidence": [
-            "docs/eval/halo-live-path-calibration.json"
-          ],
-          "metrics": {},
-          "blockers": [
-            "no N=5 live managed-path calibration recorded for this route"
-          ]
-        },
-        "spreadsheetBenchN5": {
-          "status": "missing",
-          "evidence": [
-            "docs/eval/spreadsheetbench-v1-model-edit-plan-3task-n5-live-smoke.json"
-          ],
-          "metrics": {
-            "recordedRoutes": "gpt-5.4-nano"
-          },
-          "blockers": [
-            "no SpreadsheetBench-like N=5 model-edit evidence recorded for this route"
-          ]
-        },
-        "bankerToolBenchLocal": {
-          "status": "missing",
-          "evidence": [
-            "docs/eval/bankertoolbench-run-positive-smoke.json"
-          ],
-          "metrics": {
-            "route": "xiaomi/mimo-v2.5-pro",
-            "localHarnessPassRate": 1,
-            "averageWeightedScore": 1,
-            "verifier": "local_exact_or_workbook_semantic_smoke"
-          },
-          "blockers": [
-            "BTB local smoke is harness/package evidence only; no route-owned candidate generation is recorded yet"
-          ]
-        },
-        "multiUserContract": {
-          "status": "pass",
-          "evidence": [
-            "docs/eval/multi-user-coordination-proof.json"
-          ],
-          "metrics": {
-            "scenarios": 5,
-            "passedScenarios": 5
-          },
-          "blockers": []
-        }
-      },
-      "blockers": [
-        "no company-research v3 evidence recorded for this route",
-        "no route-specific collaboration ladder evidence recorded",
-        "no N=5 live managed-path calibration recorded for this route",
-        "no SpreadsheetBench-like N=5 model-edit evidence recorded for this route",
-        "BTB local smoke is harness/package evidence only; no route-owned candidate generation is recorded yet"
-      ]
-    },
-    {
-      "route": "z-ai/glm-4.7",
-      "provider": "openrouter",
-      "label": "openrouter agent model: z-ai/glm-4.7",
-      "suites": [
-        "collaboration"
-      ],
-      "promotion": "candidate",
-      "role": "interactive_candidate",
-      "promotionStatus": "blocked",
-      "adapter": "convexModel.openrouter_chat_completions",
-      "evidence": {
-        "research": {
-          "status": "missing",
-          "evidence": [
-            "docs/eval/results.json"
-          ],
-          "metrics": {},
-          "blockers": [
-            "no company-research v3 evidence recorded for this route"
-          ]
-        },
-        "collaborationLadder": {
-          "status": "missing",
-          "evidence": [
-            "docs/eval/model-ladder-supported.json"
-          ],
-          "metrics": {},
-          "blockers": [
-            "no route-specific collaboration ladder evidence recorded"
-          ]
-        },
-        "managedPathN5P95": {
-          "status": "missing",
-          "evidence": [
-            "docs/eval/halo-live-path-calibration.json"
-          ],
-          "metrics": {},
-          "blockers": [
-            "no N=5 live managed-path calibration recorded for this route"
-          ]
-        },
-        "spreadsheetBenchN5": {
-          "status": "missing",
-          "evidence": [
-            "docs/eval/spreadsheetbench-v1-model-edit-plan-3task-n5-live-smoke.json"
-          ],
-          "metrics": {
-            "recordedRoutes": "gpt-5.4-nano"
-          },
-          "blockers": [
-            "no SpreadsheetBench-like N=5 model-edit evidence recorded for this route"
-          ]
-        },
-        "bankerToolBenchLocal": {
-          "status": "missing",
-          "evidence": [
-            "docs/eval/bankertoolbench-run-positive-smoke.json"
-          ],
-          "metrics": {
-            "route": "z-ai/glm-4.7",
-            "localHarnessPassRate": 1,
-            "averageWeightedScore": 1,
-            "verifier": "local_exact_or_workbook_semantic_smoke"
-          },
-          "blockers": [
-            "BTB local smoke is harness/package evidence only; no route-owned candidate generation is recorded yet"
-          ]
-        },
-        "multiUserContract": {
-          "status": "pass",
-          "evidence": [
-            "docs/eval/multi-user-coordination-proof.json"
-          ],
-          "metrics": {
-            "scenarios": 5,
-            "passedScenarios": 5
-          },
-          "blockers": []
-        }
-      },
-      "blockers": [
-        "no company-research v3 evidence recorded for this route",
-        "no route-specific collaboration ladder evidence recorded",
-        "no N=5 live managed-path calibration recorded for this route",
-        "no SpreadsheetBench-like N=5 model-edit evidence recorded for this route",
-        "BTB local smoke is harness/package evidence only; no route-owned candidate generation is recorded yet"
-      ]
-    },
-    {
       "route": "z-ai/glm-4.7-flash",
       "provider": "openrouter",
       "label": "GLM 4.7 Flash",
@@ -4976,9 +3688,9 @@
       ]
     },
     {
-      "route": "z-ai/glm-5.1",
+      "route": "z-ai/glm-5.2",
       "provider": "openrouter",
-      "label": "GLM 5.1",
+      "label": "GLM 5.2",
       "suites": [
         "research",
         "collaboration"
@@ -5036,7 +3748,7 @@
             "docs/eval/bankertoolbench-run-positive-smoke.json"
           ],
           "metrics": {
-            "route": "z-ai/glm-5.1",
+            "route": "z-ai/glm-5.2",
             "localHarnessPassRate": 1,
             "averageWeightedScore": 1,
             "verifier": "local_exact_or_workbook_semantic_smoke"
@@ -5162,9 +3874,9 @@
       ]
     },
     {
-      "route": "claude-haiku-4.5",
+      "route": "claude-haiku-4-5",
       "provider": "native",
-      "label": "anthropic agent model: claude-haiku-4.5",
+      "label": "anthropic agent model: claude-haiku-4-5",
       "suites": [
         "collaboration"
       ],
@@ -5221,7 +3933,7 @@
             "docs/eval/bankertoolbench-run-positive-smoke.json"
           ],
           "metrics": {
-            "route": "claude-haiku-4.5",
+            "route": "claude-haiku-4-5",
             "localHarnessPassRate": 1,
             "averageWeightedScore": 1,
             "verifier": "local_exact_or_workbook_semantic_smoke"
@@ -5251,9 +3963,9 @@
       ]
     },
     {
-      "route": "claude-opus-4.7",
+      "route": "claude-opus-4-8",
       "provider": "native",
-      "label": "anthropic agent model: claude-opus-4.7",
+      "label": "anthropic agent model: claude-opus-4-8",
       "suites": [
         "collaboration"
       ],
@@ -5310,7 +4022,7 @@
             "docs/eval/bankertoolbench-run-positive-smoke.json"
           ],
           "metrics": {
-            "route": "claude-opus-4.7",
+            "route": "claude-opus-4-8",
             "localHarnessPassRate": 1,
             "averageWeightedScore": 1,
             "verifier": "local_exact_or_workbook_semantic_smoke"
@@ -5340,9 +4052,9 @@
       ]
     },
     {
-      "route": "claude-sonnet-4.6",
+      "route": "claude-sonnet-4-6",
       "provider": "native",
-      "label": "anthropic agent model: claude-sonnet-4.6",
+      "label": "anthropic agent model: claude-sonnet-4-6",
       "suites": [
         "collaboration"
       ],
@@ -5399,7 +4111,7 @@
             "docs/eval/bankertoolbench-run-positive-smoke.json"
           ],
           "metrics": {
-            "route": "claude-sonnet-4.6",
+            "route": "claude-sonnet-4-6",
             "localHarnessPassRate": 1,
             "averageWeightedScore": 1,
             "verifier": "local_exact_or_workbook_semantic_smoke"

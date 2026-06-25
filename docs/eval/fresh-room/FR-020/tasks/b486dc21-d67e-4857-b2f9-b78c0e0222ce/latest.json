@@ -1,0 +1,216 @@
+{
+  "schema": 1,
+  "caseId": "FR-020",
+  "benchmark": "bankertoolbench",
+  "taskId": "b486dc21-d67e-4857-b2f9-b78c0e0222ce",
+  "generatedAt": "2026-06-25T02:30:48.461Z",
+  "baseUrl": "http://127.0.0.1:5273",
+  "roomId": "NRLWCKKVE8O",
+  "roomUrl": "http://127.0.0.1:5273/?room=NRLWCKKVE8O&name=Host",
+  "command": "BTB_LIVE_ROOM_E2E=1 BTB_UI_BUNDLE_ROOT=<official-bundle> BTB_UI_VERIFIER_COMMAND=<verifier> BENCH_BASE_URL=<base> npx playwright test --config playwright.real-flow.config.ts e2e/benchmark-ui-bankertoolbench.spec.ts --headed",
+  "model": {
+    "requested": "specific",
+    "resolved": "z-ai/glm-5.2",
+    "routePolicy": "specific",
+    "runtimeProfile": "benchmark_completion",
+    "provider": "openrouter"
+  },
+  "prompt": "Official BankerToolBench task btb-b486dc21: Take a shot at framing the valuation landscape for the United Therapeutics board; we need to show them exactly where the market is clearing today from an EV/revenue and EV/EBITDA perspective on current screens, and from a premium and EV/Peak Sales perspective on historical deals so they understand the current premium expectations, from a strategic buyer perspective. This needs to be a PDF deliverable with three distinct sections: 1) a market update section that overviews the biopharmaceutical transaction market with an executive summary quickly highlighting recent transactions in the space and where current public companies in the space are trading. The second and third section will be a detailed 2) a detailed trading comparables section and 3) precedent transactions section. Use company filings and public market data for sources.\nThe output should translate into a realistic premium expectation range (not a single point estimate) and explain what drives the range in bullet format with several tight bullets.ScopeTwo lenses required:Current market (screens): Trading comps, implied valuation ranges, and implied takeover premiums using current price levels.Historical market (precedent ",
+  "memoryMode": false,
+  "freshness": {
+    "roomCreatedAfterRunStart": true,
+    "forbiddenPreloadedArtifactsAbsent": true,
+    "artifactsCreatedFresh": [
+      "btb-b486dc21-united-therapeutics-uthr-valuation-landscape-trading-comps-precedent-transactions-a.xlsx",
+      "btb-b486dc21-united-therapeutics-uthr-valuation-landscape-trading-comps-precedent-transactions-a.xlsm",
+      "btb-b486dc21-united-therapeutics-uthr-valuation-landscape-trading-comps-precedent-transactions-a.pptx",
+      "btb-b486dc21-united-therapeutics-uthr-valuation-landscape-trading-comps-precedent-transactions-a.docx",
+      "btb-b486dc21-united-therapeutics-uthr-valuation-landscape-trading-comps-precedent-transactions-a.pdf"
+    ],
+    "uploadedFiles": [
+      "betas_by_industry_category_for_WACC.xlsx",
+      "Equity_Risk_Premium_for_WACC.xlsx",
+      "UTHR-US Company Identity.xlsx",
+      "UTHR-US Income Statement Annual.xlsx",
+      "UTHR-US Balance Sheet Annual.xlsx",
+      "UTHR-US Cash Flow Annual.xlsx",
+      "UTHR-US Shares Outstanding.xlsx",
+      "UTHR-US Price History.xlsx",
+      "UTHR-US Revenue Estimate.xlsx",
+      "UTHR-US Earnings Estimate.xlsx",
+      "btb-b486dc21-official-task-brief.txt"
+    ]
+  },
+  "ui": {
+    "focusModeEnabled": true,
+    "attentionOverlayVisible": true,
+    "streamingVisible": true,
+    "jobDetailVisible": true,
+    "roomTraceVisible": true,
+    "screenshotPaths": [
+      "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\b486dc21-d67e-4857-b2f9-b78c0e0222ce\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\bankertoolbench-live-room.png"
+    ],
+    "tracePath": "docs\\eval\\bankertoolbench\\live-room\\b486dc21-d67e-4857-b2f9-b78c0e0222ce.json"
+  },
+  "artifacts": {
+    "uploadedFiles": [
+      "betas_by_industry_category_for_WACC.xlsx",
+      "Equity_Risk_Premium_for_WACC.xlsx",
+      "UTHR-US Company Identity.xlsx",
+      "UTHR-US Income Statement Annual.xlsx",
+      "UTHR-US Balance Sheet Annual.xlsx",
+      "UTHR-US Cash Flow Annual.xlsx",
+      "UTHR-US Shares Outstanding.xlsx",
+      "UTHR-US Price History.xlsx",
+      "UTHR-US Revenue Estimate.xlsx",
+      "UTHR-US Earnings Estimate.xlsx",
+      "btb-b486dc21-official-task-brief.txt"
+    ],
+    "created": [
+      "btb-b486dc21-united-therapeutics-uthr-valuation-landscape-trading-comps-precedent-transactions-a.xlsx",
+      "btb-b486dc21-united-therapeutics-uthr-valuation-landscape-trading-comps-precedent-transactions-a.xlsm",
+      "btb-b486dc21-united-therapeutics-uthr-valuation-landscape-trading-comps-precedent-transactions-a.pptx",
+      "btb-b486dc21-united-therapeutics-uthr-valuation-landscape-trading-comps-precedent-transactions-a.docx",
+      "btb-b486dc21-united-therapeutics-uthr-valuation-landscape-trading-comps-precedent-transactions-a.pdf"
+    ],
+    "exportedFiles": [
+      {
+        "kind": "workbook",
+        "filename": "btb-b486dc21-united-therapeutics-uthr-valuation-landscape-trading-comps-precedent-transactions-a.xlsx",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\b486dc21-d67e-4857-b2f9-b78c0e0222ce\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-b486dc21-united-therapeutics-uthr-valuation-landscape-trading-comps-precedent-transactions-a.xlsx",
+        "extension": ".xlsx",
+        "downloaded": true,
+        "bytes": 15858,
+        "magic": "PK\\x03\\x04"
+      },
+      {
+        "kind": "workbook",
+        "filename": "btb-b486dc21-united-therapeutics-uthr-valuation-landscape-trading-comps-precedent-transactions-a.xlsm",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\b486dc21-d67e-4857-b2f9-b78c0e0222ce\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-b486dc21-united-therapeutics-uthr-valuation-landscape-trading-comps-precedent-transactions-a.xlsm",
+        "extension": ".xlsm",
+        "downloaded": true,
+        "bytes": 15858,
+        "magic": "PK\\x03\\x04"
+      },
+      {
+        "kind": "presentation",
+        "filename": "btb-b486dc21-united-therapeutics-uthr-valuation-landscape-trading-comps-precedent-transactions-a.pptx",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\b486dc21-d67e-4857-b2f9-b78c0e0222ce\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-b486dc21-united-therapeutics-uthr-valuation-landscape-trading-comps-precedent-transactions-a.pptx",
+        "extension": ".pptx",
+        "downloaded": true,
+        "bytes": 7307,
+        "magic": "PK\\x03\\x04"
+      },
+      {
+        "kind": "document",
+        "filename": "btb-b486dc21-united-therapeutics-uthr-valuation-landscape-trading-comps-precedent-transactions-a.docx",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\b486dc21-d67e-4857-b2f9-b78c0e0222ce\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-b486dc21-united-therapeutics-uthr-valuation-landscape-trading-comps-precedent-transactions-a.docx",
+        "extension": ".docx",
+        "downloaded": true,
+        "bytes": 5531,
+        "magic": "PK\\x03\\x04"
+      },
+      {
+        "kind": "pdf",
+        "filename": "btb-b486dc21-united-therapeutics-uthr-valuation-landscape-trading-comps-precedent-transactions-a.pdf",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\b486dc21-d67e-4857-b2f9-b78c0e0222ce\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-b486dc21-united-therapeutics-uthr-valuation-landscape-trading-comps-precedent-transactions-a.pdf",
+        "extension": ".pdf",
+        "downloaded": true,
+        "bytes": 6059,
+        "magic": "%PDF"
+      }
+    ],
+    "reopenedFiles": [
+      {
+        "kind": "workbook",
+        "filename": "btb-b486dc21-united-therapeutics-uthr-valuation-landscape-trading-comps-precedent-transactions-a.xlsx",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "ZIP package contains xl/workbook.xml; placeholder/caveat content scan passed (16328 chars)"
+      },
+      {
+        "kind": "workbook",
+        "filename": "btb-b486dc21-united-therapeutics-uthr-valuation-landscape-trading-comps-precedent-transactions-a.xlsm",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "ZIP package contains xl/workbook.xml; placeholder/caveat content scan passed (16328 chars)"
+      },
+      {
+        "kind": "presentation",
+        "filename": "btb-b486dc21-united-therapeutics-uthr-valuation-landscape-trading-comps-precedent-transactions-a.pptx",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "ZIP package contains ppt/presentation.xml; placeholder/caveat content scan passed (2963 chars)"
+      },
+      {
+        "kind": "document",
+        "filename": "btb-b486dc21-united-therapeutics-uthr-valuation-landscape-trading-comps-precedent-transactions-a.docx",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "ZIP package contains word/document.xml; placeholder/caveat content scan passed (9053 chars)"
+      },
+      {
+        "kind": "pdf",
+        "filename": "btb-b486dc21-united-therapeutics-uthr-valuation-landscape-trading-comps-precedent-transactions-a.pdf",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "PDF header reopened; placeholder/caveat content scan passed (11533 chars)"
+      }
+    ]
+  },
+  "scorer": {
+    "name": "BankerToolBench proof verifier",
+    "command": "npm run benchmark:bankertoolbench:proof",
+    "verdict": "pass",
+    "score": 1,
+    "details": {
+      "verifierOutputTail": "\n> noderoom@0.1.1 benchmark:bankertoolbench:proof\n> tsx scripts/bankertoolbench-proof-check.ts\n\nBankerToolBench proof check passed: stage=1/1 weightedRubric=6 run=0/1 pass positive=1/1 pass candidateBeforeEvaluator=true leaks=0/2+0/3+0/4\n",
+      "packageManifestPath": "test-results\\bankertoolbench\\matrix\\b486dc21-d67e-4857-b2f9-b78c0e0222ce\\package-manifest.json",
+      "downloadedExtensions": [
+        ".xlsx",
+        ".xlsm",
+        ".pptx",
+        ".docx",
+        ".pdf"
+      ],
+      "exportSource": "browser_download_link",
+      "agentTerminalQuality": {
+        "statusText": "completed via recovered Convex job: , btb-b486dc21-united-therapeutics-uthr-valuation-landscape-trading-comps-precedent-transactions-a.docx, btb-b486dc21-united-therapeutics-uthr-valuation-landscape-trading-comps-precedent-transactions-a.pdf. Coverage confirmed for USD, UTHR.",
+        "evidenceTextLength": 2171,
+        "detail": "agent reached completed status or visible completion text, with no missing-source/unfinished-work caveats"
+      },
+      "taskCoverage": {
+        "ok": true,
+        "requiredTickers": [
+          "USD",
+          "UTHR"
+        ],
+        "missingTickers": [],
+        "detail": "generated package mentions every requested ticker/entity: USD, UTHR"
+      }
+    }
+  },
+  "visualJudge": {
+    "verdict": "not_run",
+    "reason": "GOOGLE_GENERATIVE_AI_API_KEY is not set; deterministic browser/download/reopen/verifier proof passed."
+  },
+  "gatesProven": [
+    "fresh_room_join",
+    "official_fixture_upload",
+    "public_nodeagent_invocation",
+    "visible_streaming_progress",
+    "trace_video_artifacts",
+    "no_memory_mode_shortcut",
+    "focus_mode_enabled",
+    "focus_box_or_attention_overlay",
+    "agent_live_loop",
+    "agent_terminal_quality_gate",
+    "room_trace_visible",
+    "job_detail_visible",
+    "deliverable_export_download",
+    "artifact_reopen_validation",
+    "artifact_placeholder_scan",
+    "official_scorer_handoff"
+  ],
+  "passed": true
+}

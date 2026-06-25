@@ -1,5 +1,13 @@
 import { existsSync, readFileSync } from "node:fs";
-import { resolve } from "node:path";
+import { extname, resolve } from "node:path";
+import {
+  readFreshRoomProofReceipt,
+  validateFreshRoomProofReceipt,
+  type FreshRoomExportReceipt,
+  type FreshRoomProofGate,
+  type FreshRoomProofReceipt,
+  type FreshRoomReopenReceipt,
+} from "./freshRoomProofReceipts";
 
 export type OfficialBenchmarkUiId = "bankertoolbench" | "spreadsheetbench-v1" | "spreadsheetbench-v2";
 
@@ -9,6 +17,15 @@ export type OfficialBenchmarkUiId = "bankertoolbench" | "spreadsheetbench-v1" | 
  * no receipt -> the row stays 'missing'. This keeps `passed` DERIVED from receipts, never hardcoded.
  */
 export const SPREADSHEETBENCH_LIVE_ROOM_PROOF_PATH = "docs/eval/spreadsheetbench-live-room-proof.json";
+
+/**
+ * Fresh-room proof receipt written by e2e/benchmark-ui-bankertoolbench.spec.ts / the recovery
+ * downloader for a completed live BTB room. This is the BTB equivalent of the SpreadsheetBench
+ * receipt, but it has to prove a package: xlsx, xlsm, pptx, docx, and pdf.
+ */
+export const BANKERTOOLBENCH_FRESH_ROOM_PROOF_PATH = "docs/eval/fresh-room/FR-020/latest.json";
+export const BANKERTOOLBENCH_LIVE_ROOM_PROOF_PATH = "docs/eval/bankertoolbench-live-room-proof.json";
+export const BANKERTOOLBENCH_PACKAGE_MANIFEST_PATH = "test-results/bankertoolbench/package-manifest.json";
 
 /** The gates the live-browser fresh-room spec can honestly prove for SpreadsheetBench V1. */
 export type SpreadsheetBenchProvenGate =
@@ -156,6 +173,101 @@ export function readSpreadsheetBenchLiveRoomProof(
     Array.isArray(proof.gatesProven) &&
     proof.gatesProven.length > 0;
   return honest ? (proof as SpreadsheetBenchLiveRoomProof) : null;
+}
+
+const BANKERTOOLBENCH_REQUIRED_EXTENSIONS = [".xlsx", ".xlsm", ".pptx", ".docx", ".pdf"] as const;
+type BankerToolBenchRequiredExtension = (typeof BANKERTOOLBENCH_REQUIRED_EXTENSIONS)[number];
+
+const BANKERTOOLBENCH_KIND_BY_EXTENSION: Record<BankerToolBenchRequiredExtension, BenchmarkDeliverableKind> = {
+  ".xlsx": "workbook",
+  ".xlsm": "workbook",
+  ".pptx": "presentation",
+  ".docx": "document",
+  ".pdf": "pdf",
+};
+
+const BANKERTOOLBENCH_REQUIRED_PROOF_GATES: FreshRoomProofGate[] = [
+  "fresh_room_join",
+  "official_fixture_upload",
+  "public_nodeagent_invocation",
+  "visible_streaming_progress",
+  "trace_video_artifacts",
+  "no_memory_mode_shortcut",
+  "focus_mode_enabled",
+  "focus_box_or_attention_overlay",
+  "agent_live_loop",
+  "room_trace_visible",
+  "job_detail_visible",
+  "deliverable_export_download",
+  "artifact_reopen_validation",
+  "official_scorer_handoff",
+];
+
+/**
+ * Read the BankerToolBench fresh-room receipt, but only trust it when the browser run proved the
+ * whole package: focus-mode live room, public @nodeagent invocation, streaming/job/trace UI,
+ * downloaded xlsx/xlsm/pptx/docx/pdf deliverables, reopened package files, and a passing verifier.
+ */
+export function readBankerToolBenchFreshRoomProof(
+  proofPath: string = BANKERTOOLBENCH_FRESH_ROOM_PROOF_PATH,
+): FreshRoomProofReceipt | null {
+  const proof = readFreshRoomProofReceipt(proofPath);
+  if (!proof) return null;
+  if (proof.benchmark !== "bankertoolbench") return null;
+
+  const validation = validateFreshRoomProofReceipt(proof, {
+    path: proofPath,
+    caseId: "FR-020",
+    requireFocusMode: true,
+    requireOfficialScorer: true,
+  });
+  if (!validation.ok) return null;
+
+  const gateSet = new Set(proof.gatesProven ?? []);
+  for (const gate of BANKERTOOLBENCH_REQUIRED_PROOF_GATES) {
+    if (!gateSet.has(gate)) return null;
+  }
+  if (!hasCompleteBankerToolBenchExports(proof.artifacts?.exportedFiles)) return null;
+  if (!hasCompleteBankerToolBenchReopens(proof.artifacts?.reopenedFiles)) return null;
+  return proof;
+}
+
+function hasCompleteBankerToolBenchExports(files: FreshRoomExportReceipt[] | undefined): boolean {
+  return BANKERTOOLBENCH_REQUIRED_EXTENSIONS.every((extension) =>
+    (files ?? []).some((file) => isValidBankerToolBenchExport(file, extension)),
+  );
+}
+
+function hasCompleteBankerToolBenchReopens(files: FreshRoomReopenReceipt[] | undefined): boolean {
+  return BANKERTOOLBENCH_REQUIRED_EXTENSIONS.every((extension) =>
+    (files ?? []).some((file) => isValidBankerToolBenchReopen(file, extension)),
+  );
+}
+
+function isValidBankerToolBenchExport(
+  file: FreshRoomExportReceipt,
+  expectedExtension: BankerToolBenchRequiredExtension,
+): boolean {
+  if (normalizedReceiptExtension(file) !== expectedExtension) return false;
+  if (file.kind !== BANKERTOOLBENCH_KIND_BY_EXTENSION[expectedExtension]) return false;
+  if (file.downloaded !== true) return false;
+  if (typeof file.bytes !== "number" || !Number.isFinite(file.bytes) || file.bytes <= 0) return false;
+  const expectedMagic = expectedExtension === ".pdf" ? "%PDF" : XLSX_MAGIC_PREFIX;
+  return typeof file.magic === "string" && file.magic.startsWith(expectedMagic);
+}
+
+function isValidBankerToolBenchReopen(
+  file: FreshRoomReopenReceipt,
+  expectedExtension: BankerToolBenchRequiredExtension,
+): boolean {
+  if (normalizedReceiptExtension(file) !== expectedExtension) return false;
+  if (file.kind !== BANKERTOOLBENCH_KIND_BY_EXTENSION[expectedExtension]) return false;
+  if (file.reopened !== true) return false;
+  return !file.scorerResult || file.scorerResult === "pass";
+}
+
+function normalizedReceiptExtension(file: { extension?: string; filename?: string }): string {
+  return (file.extension || extname(file.filename ?? "")).toLowerCase();
 }
 
 export type BenchmarkUiCoverageStatus = "covered" | "partial" | "missing";
@@ -339,24 +451,127 @@ export function buildOfficialBenchmarkUiCoverageReport(args: {
 }
 
 function bankerToolBenchUiTrack(): BenchmarkUiCoverageTrack {
-  return buildTrack({
+  const proof = readBankerToolBenchFreshRoomProof();
+  const requiredDeliverables: BenchmarkDeliverableKind[] = ["workbook", "presentation", "document", "pdf"];
+  const liveBrowserFreshRoomDeliverables = proof ? requiredDeliverables : [];
+  const missingDeliverables = requiredDeliverables.filter((kind) => !liveBrowserFreshRoomDeliverables.includes(kind));
+  const requiredSpec = "e2e/benchmark-ui-bankertoolbench.spec.ts";
+  const currentEvidence = [
+    "src/eval/bankerToolBenchRunner.ts",
+    "src/eval/bankerToolBenchNodeAgentGeneral.ts",
+    "tests/bankerToolBenchRunner.test.ts",
+    "tests/bankerToolBenchNodeAgentGeneral.test.ts",
+    "docs/qa/browser-e2e-flow-inventory.json",
+    requiredSpec,
+    BANKERTOOLBENCH_FRESH_ROOM_PROOF_PATH,
+    BANKERTOOLBENCH_LIVE_ROOM_PROOF_PATH,
+    BANKERTOOLBENCH_PACKAGE_MANIFEST_PATH,
+  ];
+  const gateSet = new Set(proof?.gatesProven ?? []);
+  const requiredSpecExists = existsSync(requiredSpec);
+  const proofLabel = proof
+    ? `${requiredSpec} (proof: ${BANKERTOOLBENCH_FRESH_ROOM_PROOF_PATH}, room ${proof.roomId ?? "unknown"})`
+    : undefined;
+
+  const gates = BENCHMARK_UI_GATES.map((gate) => {
+    if (proof && gateSet.has(gate.id)) {
+      if (gate.id === "deliverable_export_download") {
+        return {
+          ...gate,
+          status: "covered" as const,
+          evidence: `${proofLabel}; downloaded ${BANKERTOOLBENCH_REQUIRED_EXTENSIONS.join(", ")}`,
+        };
+      }
+      if (gate.id === "artifact_reopen_validation") {
+        return {
+          ...gate,
+          status: "covered" as const,
+          evidence: `${proofLabel}; reopened OOXML/PDF package files before scoring`,
+        };
+      }
+      if (gate.id === "official_scorer_handoff") {
+        const scorer = proof.scorer;
+        return {
+          ...gate,
+          status: "covered" as const,
+          evidence: `${scorer?.name ?? "BankerToolBench verifier"} (${scorer?.command ?? BANKERTOOLBENCH_LIVE_ROOM_PROOF_PATH})`,
+        };
+      }
+      if (gate.id === "trace_video_artifacts") {
+        return {
+          ...gate,
+          status: "covered" as const,
+          evidence: proof.ui.tracePath ?? proof.ui.videoPaths?.[0] ?? BANKERTOOLBENCH_FRESH_ROOM_PROOF_PATH,
+        };
+      }
+      if (gate.id === "visible_streaming_progress") {
+        return {
+          ...gate,
+          status: "covered" as const,
+          evidence: `${proofLabel}; model ${proof.model?.resolved ?? "unknown"}, ${proof.telemetry?.toolCalls ?? 0} tool calls, $${proof.telemetry?.costUsd ?? 0}`,
+        };
+      }
+      return {
+        ...gate,
+        status: "covered" as const,
+        evidence: proofLabel,
+      };
+    }
+    if (gate.id === "public_nodeagent_invocation") {
+      return {
+        ...gate,
+        status: "partial" as const,
+        evidence: "tests/ui-benchmark-drive.spec.ts",
+        blocker: "Covered in memory mode only; no trusted FR-020 fresh-room receipt is present.",
+      };
+    }
+    if (gate.id === "trace_video_artifacts") {
+      return {
+        ...gate,
+        status: "partial" as const,
+        evidence: "playwright.config.ts",
+        blocker: "Generic Playwright traces/videos exist, but no trusted BTB fresh-room artifact package proof is present.",
+      };
+    }
+    if (gate.id === "no_memory_mode_shortcut") {
+      return {
+        ...gate,
+        status: requiredSpecExists ? "partial" as const : "missing" as const,
+        blocker: requiredSpecExists
+          ? "Spec exists but needs a trusted FR-020 receipt proving it never uses ?mode=memory."
+          : "No fresh-room BTB UI spec exists.",
+      };
+    }
+    return {
+      ...gate,
+      status: "missing" as const,
+      blocker: `Missing trusted FR-020 fresh-room proof for ${gate.id}.`,
+    };
+  });
+
+  return {
     id: "bankertoolbench",
     title: "BankerToolBench live browser deliverable package",
-    requiredDeliverables: ["workbook", "presentation", "document", "pdf"],
+    status: proof ? "covered" : "missing",
+    requiredDeliverables,
     supportedByNonUiRunner: ["workbook", "presentation", "document", "pdf", "csv", "image"],
-    currentEvidence: [
-      "src/eval/bankerToolBenchRunner.ts",
-      "src/eval/bankerToolBenchNodeAgentGeneral.ts",
-      "tests/bankerToolBenchRunner.test.ts",
-      "tests/bankerToolBenchNodeAgentGeneral.test.ts",
-      "docs/qa/browser-e2e-flow-inventory.json",
-    ],
-    requiredSpec: "e2e/benchmark-ui-bankertoolbench.spec.ts",
-    blockers: [
-      "No Playwright spec creates a fresh live room, uploads official BankerToolBench inputs, sends the official prompt, and downloads the full Excel/PPTX/DOCX/PDF package.",
-      "No browser-run package is handed to the official Gandalf verifier.",
-    ],
-  });
+    liveBrowserFreshRoomDeliverables,
+    missingDeliverables,
+    gates,
+    currentEvidence,
+    requiredSpec,
+    blockers: proof
+      ? [
+          `Live-browser fresh-room BTB run PASSED for task ${proof.taskId ?? "unknown"} with ${BANKERTOOLBENCH_REQUIRED_EXTENSIONS.join(", ")} downloaded and reopened; proof: ${BANKERTOOLBENCH_FRESH_ROOM_PROOF_PATH}.`,
+          ...(proof.visualJudge?.verdict === "not_run" && proof.visualJudge.reason
+            ? [`Gemini visual judge not run: ${proof.visualJudge.reason}`]
+            : []),
+        ]
+      : [
+          "Missing live-browser fresh-room proof for BankerToolBench package delivery.",
+          "Need a fresh live room, official input upload, public @nodeagent prompt, streamed UI progress, downloaded Excel/PPTX/DOCX/PDF package, reopen checks, trace/video, and verifier handoff.",
+        ],
+  };
 }
 
 function spreadsheetBenchV1UiTrack(): BenchmarkUiCoverageTrack {
@@ -558,10 +773,10 @@ function buildTrack(args: {
     currentEvidence: args.currentEvidence,
     requiredSpec: args.requiredSpec,
     blockers: [
-      ...args.blockers,
+      ...(proof ? [] : args.blockers),
       ...(proof
         ? [
-            `Live-browser fresh-room run PASSED via cell-read grading (gradeGolden score ${proof.grade.score}, ${proof.grade.correct}/${proof.grade.n} cells, 0 fabrications) — proof: ${SPREADSHEETBENCH_LIVE_ROOM_PROOF_PATH}.`,
+            `Live-browser fresh-room run PASSED via ${proof.gradingMethod} grading (gradeGolden score ${proof.grade.score}, ${proof.grade.correct}/${proof.grade.n} cells, 0 fabrications); proof: ${SPREADSHEETBENCH_LIVE_ROOM_PROOF_PATH}.`,
           ]
         : []),
       ...(missingDeliverables.length

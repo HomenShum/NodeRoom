@@ -1,0 +1,219 @@
+{
+  "schema": 1,
+  "caseId": "FR-020",
+  "benchmark": "bankertoolbench",
+  "taskId": "55fd995a-e4df-4942-aee1-ee1be9a72b6a",
+  "generatedAt": "2026-06-25T02:30:40.981Z",
+  "baseUrl": "http://127.0.0.1:5273",
+  "roomId": "NR5007UVMVR",
+  "roomUrl": "http://127.0.0.1:5273/?room=NR5007UVMVR&name=Host",
+  "command": "BTB_LIVE_ROOM_E2E=1 BTB_UI_BUNDLE_ROOT=<official-bundle> BTB_UI_VERIFIER_COMMAND=<verifier> BENCH_BASE_URL=<base> npx playwright test --config playwright.real-flow.config.ts e2e/benchmark-ui-bankertoolbench.spec.ts --headed",
+  "model": {
+    "requested": "specific",
+    "resolved": "z-ai/glm-5.2",
+    "routePolicy": "specific",
+    "runtimeProfile": "benchmark_completion",
+    "provider": "openrouter"
+  },
+  "prompt": "Official BankerToolBench task btb-55fd995a: You are a biotechnology investment banking analyst covering mid cap clinical stage companies. Your Managing Director has asked you to build a clinical risk adjusted sum of the parts unlevered discounted cash flow model for Veridian Therapeutics, Nasdaq ticker VRDN, as of September 1, 2025. The objective is to assess the intrinsic value of VRDN by modeling its two core clinical programs independently and then aggregating their present values. The two programs are the Thyroid Eye Disease program and the Myasthenia Gravis program. The analysis must reflect a full clinical probability framework, program specific commercialization ramp assumptions, and a patent expiry driven forecast horizon through 2041 with no terminal value applied. All value must be derived strictly from explicit forecast cash flows.\n\nYou are required to build a single sheet Excel model titled VRDN DCF that runs from 2025 through 2041. The sheet must be structured vertically in four clearly separated sections in the following order: Assumptions, TED Program DCF, MG Program DCF, and NPV Summary. The model must follow a transparent and audit friendly structure with clean separation between hardcoded assumptions and fo",
+  "memoryMode": false,
+  "freshness": {
+    "roomCreatedAfterRunStart": true,
+    "forbiddenPreloadedArtifactsAbsent": true,
+    "artifactsCreatedFresh": [
+      "btb-55fd995a-vrdn-clinical-risk-adjusted-sotp-dcf-model-ted-mg-programs-2025-2041.xlsx",
+      "btb-55fd995a-vrdn-clinical-risk-adjusted-sotp-dcf-model-ted-mg-programs-2025-2041.xlsm",
+      "btb-55fd995a-vrdn-clinical-risk-adjusted-sotp-dcf-model-ted-mg-programs-2025-2041.pptx",
+      "btb-55fd995a-vrdn-clinical-risk-adjusted-sotp-dcf-model-ted-mg-programs-2025-2041.docx",
+      "btb-55fd995a-vrdn-clinical-risk-adjusted-sotp-dcf-model-ted-mg-programs-2025-2041.pdf"
+    ],
+    "uploadedFiles": [
+      "betas_by_industry_category_for_WACC.xlsx",
+      "Equity_Risk_Premium_for_WACC.xlsx",
+      "VRDN-US Company Identity.xlsx",
+      "VRDN-US Income Statement Annual.xlsx",
+      "VRDN-US Balance Sheet Annual.xlsx",
+      "VRDN-US Cash Flow Annual.xlsx",
+      "VRDN-US Shares Outstanding.xlsx",
+      "VRDN-US Price History.xlsx",
+      "VRDN-US Revenue Estimate.xlsx",
+      "VRDN-US Earnings Estimate.xlsx",
+      "btb-55fd995a-official-task-brief.txt"
+    ]
+  },
+  "ui": {
+    "focusModeEnabled": true,
+    "attentionOverlayVisible": true,
+    "streamingVisible": true,
+    "jobDetailVisible": true,
+    "roomTraceVisible": true,
+    "screenshotPaths": [
+      "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\55fd995a-e4df-4942-aee1-ee1be9a72b6a\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\bankertoolbench-live-room.png"
+    ],
+    "tracePath": "docs\\eval\\bankertoolbench\\live-room\\55fd995a-e4df-4942-aee1-ee1be9a72b6a.json"
+  },
+  "artifacts": {
+    "uploadedFiles": [
+      "betas_by_industry_category_for_WACC.xlsx",
+      "Equity_Risk_Premium_for_WACC.xlsx",
+      "VRDN-US Company Identity.xlsx",
+      "VRDN-US Income Statement Annual.xlsx",
+      "VRDN-US Balance Sheet Annual.xlsx",
+      "VRDN-US Cash Flow Annual.xlsx",
+      "VRDN-US Shares Outstanding.xlsx",
+      "VRDN-US Price History.xlsx",
+      "VRDN-US Revenue Estimate.xlsx",
+      "VRDN-US Earnings Estimate.xlsx",
+      "btb-55fd995a-official-task-brief.txt"
+    ],
+    "created": [
+      "btb-55fd995a-vrdn-clinical-risk-adjusted-sotp-dcf-model-ted-mg-programs-2025-2041.xlsx",
+      "btb-55fd995a-vrdn-clinical-risk-adjusted-sotp-dcf-model-ted-mg-programs-2025-2041.xlsm",
+      "btb-55fd995a-vrdn-clinical-risk-adjusted-sotp-dcf-model-ted-mg-programs-2025-2041.pptx",
+      "btb-55fd995a-vrdn-clinical-risk-adjusted-sotp-dcf-model-ted-mg-programs-2025-2041.docx",
+      "btb-55fd995a-vrdn-clinical-risk-adjusted-sotp-dcf-model-ted-mg-programs-2025-2041.pdf"
+    ],
+    "exportedFiles": [
+      {
+        "kind": "workbook",
+        "filename": "btb-55fd995a-vrdn-clinical-risk-adjusted-sotp-dcf-model-ted-mg-programs-2025-2041.xlsx",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\55fd995a-e4df-4942-aee1-ee1be9a72b6a\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-55fd995a-vrdn-clinical-risk-adjusted-sotp-dcf-model-ted-mg-programs-2025-2041.xlsx",
+        "extension": ".xlsx",
+        "downloaded": true,
+        "bytes": 9988,
+        "magic": "PK\\x03\\x04"
+      },
+      {
+        "kind": "workbook",
+        "filename": "btb-55fd995a-vrdn-clinical-risk-adjusted-sotp-dcf-model-ted-mg-programs-2025-2041.xlsm",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\55fd995a-e4df-4942-aee1-ee1be9a72b6a\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-55fd995a-vrdn-clinical-risk-adjusted-sotp-dcf-model-ted-mg-programs-2025-2041.xlsm",
+        "extension": ".xlsm",
+        "downloaded": true,
+        "bytes": 9988,
+        "magic": "PK\\x03\\x04"
+      },
+      {
+        "kind": "presentation",
+        "filename": "btb-55fd995a-vrdn-clinical-risk-adjusted-sotp-dcf-model-ted-mg-programs-2025-2041.pptx",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\55fd995a-e4df-4942-aee1-ee1be9a72b6a\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-55fd995a-vrdn-clinical-risk-adjusted-sotp-dcf-model-ted-mg-programs-2025-2041.pptx",
+        "extension": ".pptx",
+        "downloaded": true,
+        "bytes": 6879,
+        "magic": "PK\\x03\\x04"
+      },
+      {
+        "kind": "document",
+        "filename": "btb-55fd995a-vrdn-clinical-risk-adjusted-sotp-dcf-model-ted-mg-programs-2025-2041.docx",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\55fd995a-e4df-4942-aee1-ee1be9a72b6a\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-55fd995a-vrdn-clinical-risk-adjusted-sotp-dcf-model-ted-mg-programs-2025-2041.docx",
+        "extension": ".docx",
+        "downloaded": true,
+        "bytes": 3440,
+        "magic": "PK\\x03\\x04"
+      },
+      {
+        "kind": "pdf",
+        "filename": "btb-55fd995a-vrdn-clinical-risk-adjusted-sotp-dcf-model-ted-mg-programs-2025-2041.pdf",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\55fd995a-e4df-4942-aee1-ee1be9a72b6a\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-55fd995a-vrdn-clinical-risk-adjusted-sotp-dcf-model-ted-mg-programs-2025-2041.pdf",
+        "extension": ".pdf",
+        "downloaded": true,
+        "bytes": 3895,
+        "magic": "%PDF"
+      }
+    ],
+    "reopenedFiles": [
+      {
+        "kind": "workbook",
+        "filename": "btb-55fd995a-vrdn-clinical-risk-adjusted-sotp-dcf-model-ted-mg-programs-2025-2041.xlsx",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "ZIP package contains xl/workbook.xml; placeholder/caveat content scan passed (4673 chars)"
+      },
+      {
+        "kind": "workbook",
+        "filename": "btb-55fd995a-vrdn-clinical-risk-adjusted-sotp-dcf-model-ted-mg-programs-2025-2041.xlsm",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "ZIP package contains xl/workbook.xml; placeholder/caveat content scan passed (4673 chars)"
+      },
+      {
+        "kind": "presentation",
+        "filename": "btb-55fd995a-vrdn-clinical-risk-adjusted-sotp-dcf-model-ted-mg-programs-2025-2041.pptx",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "ZIP package contains ppt/presentation.xml; placeholder/caveat content scan passed (1935 chars)"
+      },
+      {
+        "kind": "document",
+        "filename": "btb-55fd995a-vrdn-clinical-risk-adjusted-sotp-dcf-model-ted-mg-programs-2025-2041.docx",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "ZIP package contains word/document.xml; placeholder/caveat content scan passed (4185 chars)"
+      },
+      {
+        "kind": "pdf",
+        "filename": "btb-55fd995a-vrdn-clinical-risk-adjusted-sotp-dcf-model-ted-mg-programs-2025-2041.pdf",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "PDF header reopened; placeholder/caveat content scan passed (7247 chars)"
+      }
+    ]
+  },
+  "scorer": {
+    "name": "BankerToolBench proof verifier",
+    "command": "npm run benchmark:bankertoolbench:proof",
+    "verdict": "pass",
+    "score": 1,
+    "details": {
+      "verifierOutputTail": "\n> noderoom@0.1.1 benchmark:bankertoolbench:proof\n> tsx scripts/bankertoolbench-proof-check.ts\n\nBankerToolBench proof check passed: stage=1/1 weightedRubric=6 run=0/1 pass positive=1/1 pass candidateBeforeEvaluator=true leaks=0/2+0/3+0/4\n",
+      "packageManifestPath": "test-results\\bankertoolbench\\matrix\\55fd995a-e4df-4942-aee1-ee1be9a72b6a\\package-manifest.json",
+      "downloadedExtensions": [
+        ".xlsx",
+        ".xlsm",
+        ".pptx",
+        ".docx",
+        ".pdf"
+      ],
+      "exportSource": "browser_download_link",
+      "agentTerminalQuality": {
+        "statusText": "completed via recovered Convex job: 2025-2041.pptx, btb-55fd995a-vrdn-clinical-risk-adjusted-sotp-dcf-model-ted-mg-programs-2025-2041.docx, btb-55fd995a-vrdn-clinical-risk-adjusted-sotp-dcf-model-ted-mg-programs-2025-2041.pdf. Coverage confirmed for VRDN, TED, MG, NPV, NOPAT.",
+        "evidenceTextLength": 1980,
+        "detail": "agent reached completed status or visible completion text, with no missing-source/unfinished-work caveats"
+      },
+      "taskCoverage": {
+        "ok": true,
+        "requiredTickers": [
+          "VRDN",
+          "TED",
+          "MG",
+          "NPV",
+          "NOPAT"
+        ],
+        "missingTickers": [],
+        "detail": "generated package mentions every requested ticker/entity: VRDN, TED, MG, NPV, NOPAT"
+      }
+    }
+  },
+  "visualJudge": {
+    "verdict": "not_run",
+    "reason": "GOOGLE_GENERATIVE_AI_API_KEY is not set; deterministic browser/download/reopen/verifier proof passed."
+  },
+  "gatesProven": [
+    "fresh_room_join",
+    "official_fixture_upload",
+    "public_nodeagent_invocation",
+    "visible_streaming_progress",
+    "trace_video_artifacts",
+    "no_memory_mode_shortcut",
+    "focus_mode_enabled",
+    "focus_box_or_attention_overlay",
+    "agent_live_loop",
+    "agent_terminal_quality_gate",
+    "room_trace_visible",
+    "job_detail_visible",
+    "deliverable_export_download",
+    "artifact_reopen_validation",
+    "artifact_placeholder_scan",
+    "official_scorer_handoff"
+  ],
+  "passed": true
+}

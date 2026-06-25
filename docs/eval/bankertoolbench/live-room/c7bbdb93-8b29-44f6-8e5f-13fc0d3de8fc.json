@@ -1,0 +1,100 @@
+{
+  "schema": 1,
+  "taskId": "c7bbdb93-8b29-44f6-8e5f-13fc0d3de8fc",
+  "harborTaskId": "btb-c7bbdb93",
+  "generatedAt": "2026-06-25T02:16:29.237Z",
+  "baseUrl": "http://127.0.0.1:5273",
+  "roomUrl": "http://127.0.0.1:5273/?room=NRPWP3XEHGQ&name=Host",
+  "memoryMode": false,
+  "expectedExtensions": [
+    ".xlsx",
+    ".xlsm",
+    ".pptx",
+    ".docx",
+    ".pdf"
+  ],
+  "visibleExtensions": [
+    ".xlsx",
+    ".xlsm",
+    ".pptx",
+    ".docx",
+    ".pdf"
+  ],
+  "downloadedFiles": [
+    {
+      "kind": "workbook",
+      "filename": "btb-c7bbdb93-btb-c7bbdb93-official-task-brief.txt.xlsx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\c7bbdb93-8b29-44f6-8e5f-13fc0d3de8fc\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-c7bbdb93-btb-c7bbdb93-official-task-brief.txt.xlsx",
+      "extension": ".xlsx",
+      "bytes": 6676,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (184 chars)"
+    },
+    {
+      "kind": "workbook",
+      "filename": "btb-c7bbdb93-btb-c7bbdb93-official-task-brief.txt.xlsm",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\c7bbdb93-8b29-44f6-8e5f-13fc0d3de8fc\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-c7bbdb93-btb-c7bbdb93-official-task-brief.txt.xlsm",
+      "extension": ".xlsm",
+      "bytes": 6676,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (184 chars)"
+    },
+    {
+      "kind": "presentation",
+      "filename": "btb-c7bbdb93-btb-c7bbdb93-official-task-brief.txt.pptx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\c7bbdb93-8b29-44f6-8e5f-13fc0d3de8fc\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-c7bbdb93-btb-c7bbdb93-official-task-brief.txt.pptx",
+      "extension": ".pptx",
+      "bytes": 6014,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains ppt/presentation.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (195 chars)"
+    },
+    {
+      "kind": "document",
+      "filename": "btb-c7bbdb93-btb-c7bbdb93-official-task-brief.txt.docx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\c7bbdb93-8b29-44f6-8e5f-13fc0d3de8fc\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-c7bbdb93-btb-c7bbdb93-official-task-brief.txt.docx",
+      "extension": ".docx",
+      "bytes": 1980,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains word/document.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (175 chars)"
+    },
+    {
+      "kind": "pdf",
+      "filename": "btb-c7bbdb93-btb-c7bbdb93-official-task-brief.txt.pdf",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\c7bbdb93-8b29-44f6-8e5f-13fc0d3de8fc\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-c7bbdb93-btb-c7bbdb93-official-task-brief.txt.pdf",
+      "extension": ".pdf",
+      "bytes": 862,
+      "magic": "%PDF",
+      "reopened": true,
+      "reopenDetail": "PDF header reopened",
+      "contentQualityDetail": "placeholder/caveat content scan passed (1207 chars)"
+    }
+  ],
+  "packageManifestPath": "test-results\\bankertoolbench\\matrix\\c7bbdb93-8b29-44f6-8e5f-13fc0d3de8fc\\package-manifest.json",
+  "verifierCommand": "npm run benchmark:bankertoolbench:proof",
+  "verifierOutputTail": "\n> noderoom@0.1.1 benchmark:bankertoolbench:proof\n> tsx scripts/bankertoolbench-proof-check.ts\n\nBankerToolBench proof check passed: stage=1/1 weightedRubric=6 run=0/1 pass positive=1/1 pass candidateBeforeEvaluator=true leaks=0/2+0/3+0/4\n",
+  "screenshot": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\c7bbdb93-8b29-44f6-8e5f-13fc0d3de8fc\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\bankertoolbench-live-room.png",
+  "passed": true,
+  "gatesProven": [
+    "fresh_room_join",
+    "official_fixture_upload",
+    "public_nodeagent_invocation",
+    "visible_streaming_progress",
+    "focus_mode_enabled",
+    "focus_box_or_attention_overlay",
+    "agent_terminal_quality_gate",
+    "deliverable_export_download",
+    "artifact_reopen_validation",
+    "artifact_placeholder_scan",
+    "official_scorer_handoff",
+    "trace_video_artifacts",
+    "no_memory_mode_shortcut"
+  ]
+}

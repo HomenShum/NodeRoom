@@ -1,0 +1,253 @@
+{
+  "schema": 1,
+  "caseId": "FR-020",
+  "benchmark": "bankertoolbench",
+  "taskId": "a31173e3-e8aa-4ddb-b0d9-e4e7055c950b",
+  "generatedAt": "2026-06-25T10:38:18.835Z",
+  "baseUrl": "http://127.0.0.1:5273",
+  "roomId": "NRNNNQC2IO9",
+  "roomUrl": "http://127.0.0.1:5273/?room=NRNNNQC2IO9&name=Host",
+  "command": "BTB_LIVE_ROOM_E2E=1 BTB_UI_BUNDLE_ROOT=<official-bundle> BTB_UI_VERIFIER_COMMAND=<verifier> BENCH_BASE_URL=<base> npx playwright test --config playwright.real-flow.config.ts e2e/benchmark-ui-bankertoolbench.spec.ts --headed",
+  "model": {
+    "requested": "specific",
+    "resolved": "qwen/qwen3.7-plus",
+    "routePolicy": "specific",
+    "runtimeProfile": "benchmark_completion",
+    "provider": "openrouter"
+  },
+  "prompt": "Official BankerToolBench task btb-a31173e3: You are an Equity Research associate and want to Build a DCF Sum-of-the-Parts (SOTP) valuation for Alphabet Inc. (Google). Your objective is to construct a fully linked three-statement operating model and a segment-level DCF SOTP in order to calculate the implied upside or downside to Alphabet's current share price.\nAssume today's date is January 1, 2026, and the valuation date is December 31, 2025. \nThe historical period includes 2022-2024 annuals with the fiscal year ending in December and the first three quarters of 2025 given Google has not reported Q4 figures yet. You will need to forecast Q4 2025 with the full year of 2025 being the sum of the three actual quarters and your forecasted quarter and then forecast the following 5 years up to 2030. Each column represents a single period (quarter or a year) and should read chronologically from left to right. \nThe model should be structured in two tabs, one will be the DCF SOTP and the other will be the operating model, for each of the sections below, please highlight the whole row where you put the name of the section in a dark blue with the font in white and leave one empty row above and below. You should also make sure that each ",
+  "memoryMode": false,
+  "freshness": {
+    "roomCreatedAfterRunStart": true,
+    "forbiddenPreloadedArtifactsAbsent": true,
+    "artifactsCreatedFresh": [
+      "btb-a31173e3-alphabet-inc.-googl-dcf-sum-of-the-parts-valuation-as-of-12-31-2025.xlsx",
+      "btb-a31173e3-alphabet-inc.-googl-dcf-sum-of-the-parts-valuation-as-of-12-31-2025.xlsm",
+      "btb-a31173e3-alphabet-inc.-googl-dcf-sum-of-the-parts-valuation-as-of-12-31-2025.pptx",
+      "btb-a31173e3-alphabet-inc.-googl-dcf-sum-of-the-parts-valuation-as-of-12-31-2025.docx",
+      "btb-a31173e3-alphabet-inc.-googl-dcf-sum-of-the-parts-valuation-as-of-12-31-2025.pdf"
+    ],
+    "uploadedFiles": [
+      "betas_by_industry_category_for_WACC.xlsx",
+      "Equity_Risk_Premium_for_WACC.xlsx",
+      "Google 10K - 2023.pdf",
+      "Google 10K - 2024.pdf",
+      "Google 10Q - 1Q 2025.pdf",
+      "Google 10Q - 2Q 2025.pdf",
+      "Google 10Q - 3Q 2025.pdf",
+      "btb-a31173e3-official-task-brief.txt"
+    ]
+  },
+  "ui": {
+    "focusModeEnabled": true,
+    "attentionOverlayVisible": true,
+    "streamingVisible": true,
+    "jobDetailVisible": true,
+    "roomTraceVisible": true,
+    "screenshotPaths": [
+      "docs/eval/fresh-room/FR-020/tasks/a31173e3-e8aa-4ddb-b0d9-e4e7055c950b/evidence/bankertoolbench-live-room.png"
+    ],
+    "tracePath": "docs/eval/bankertoolbench/live-room/a31173e3-e8aa-4ddb-b0d9-e4e7055c950b.json",
+    "videoPaths": [
+      "docs/eval/fresh-room/FR-020/tasks/a31173e3-e8aa-4ddb-b0d9-e4e7055c950b/evidence/video.webm"
+    ]
+  },
+  "artifacts": {
+    "uploadedFiles": [
+      "betas_by_industry_category_for_WACC.xlsx",
+      "Equity_Risk_Premium_for_WACC.xlsx",
+      "Google 10K - 2023.pdf",
+      "Google 10K - 2024.pdf",
+      "Google 10Q - 1Q 2025.pdf",
+      "Google 10Q - 2Q 2025.pdf",
+      "Google 10Q - 3Q 2025.pdf",
+      "btb-a31173e3-official-task-brief.txt"
+    ],
+    "created": [
+      "btb-a31173e3-alphabet-inc.-googl-dcf-sum-of-the-parts-valuation-as-of-12-31-2025.xlsx",
+      "btb-a31173e3-alphabet-inc.-googl-dcf-sum-of-the-parts-valuation-as-of-12-31-2025.xlsm",
+      "btb-a31173e3-alphabet-inc.-googl-dcf-sum-of-the-parts-valuation-as-of-12-31-2025.pptx",
+      "btb-a31173e3-alphabet-inc.-googl-dcf-sum-of-the-parts-valuation-as-of-12-31-2025.docx",
+      "btb-a31173e3-alphabet-inc.-googl-dcf-sum-of-the-parts-valuation-as-of-12-31-2025.pdf"
+    ],
+    "exportedFiles": [
+      {
+        "kind": "workbook",
+        "filename": "btb-a31173e3-alphabet-inc.-googl-dcf-sum-of-the-parts-valuation-as-of-12-31-2025.xlsx",
+        "path": "docs/eval/fresh-room/FR-020/tasks/a31173e3-e8aa-4ddb-b0d9-e4e7055c950b/evidence/btb-xlsx-btb-a31173e3-alphabet-inc.-googl-dcf-sum-of-the-parts-valuation-as-of-12-31-2025.xlsx",
+        "extension": ".xlsx",
+        "downloaded": true,
+        "bytes": 10548,
+        "magic": "PK\\x03\\x04"
+      },
+      {
+        "kind": "workbook",
+        "filename": "btb-a31173e3-alphabet-inc.-googl-dcf-sum-of-the-parts-valuation-as-of-12-31-2025.xlsm",
+        "path": "docs/eval/fresh-room/FR-020/tasks/a31173e3-e8aa-4ddb-b0d9-e4e7055c950b/evidence/btb-xlsm-btb-a31173e3-alphabet-inc.-googl-dcf-sum-of-the-parts-valuation-as-of-12-31-2025.xlsm",
+        "extension": ".xlsm",
+        "downloaded": true,
+        "bytes": 10548,
+        "magic": "PK\\x03\\x04"
+      },
+      {
+        "kind": "presentation",
+        "filename": "btb-a31173e3-alphabet-inc.-googl-dcf-sum-of-the-parts-valuation-as-of-12-31-2025.pptx",
+        "path": "docs/eval/fresh-room/FR-020/tasks/a31173e3-e8aa-4ddb-b0d9-e4e7055c950b/evidence/btb-pptx-btb-a31173e3-alphabet-inc.-googl-dcf-sum-of-the-parts-valuation-as-of-12-31-2025.pptx",
+        "extension": ".pptx",
+        "downloaded": true,
+        "bytes": 6638,
+        "magic": "PK\\x03\\x04"
+      },
+      {
+        "kind": "document",
+        "filename": "btb-a31173e3-alphabet-inc.-googl-dcf-sum-of-the-parts-valuation-as-of-12-31-2025.docx",
+        "path": "docs/eval/fresh-room/FR-020/tasks/a31173e3-e8aa-4ddb-b0d9-e4e7055c950b/evidence/btb-docx-btb-a31173e3-alphabet-inc.-googl-dcf-sum-of-the-parts-valuation-as-of-12-31-2025.docx",
+        "extension": ".docx",
+        "downloaded": true,
+        "bytes": 2949,
+        "magic": "PK\\x03\\x04"
+      },
+      {
+        "kind": "pdf",
+        "filename": "btb-a31173e3-alphabet-inc.-googl-dcf-sum-of-the-parts-valuation-as-of-12-31-2025.pdf",
+        "path": "docs/eval/fresh-room/FR-020/tasks/a31173e3-e8aa-4ddb-b0d9-e4e7055c950b/evidence/btb-pdf-btb-a31173e3-alphabet-inc.-googl-dcf-sum-of-the-parts-valuation-as-of-12-31-2025.pdf",
+        "extension": ".pdf",
+        "downloaded": true,
+        "bytes": 4733,
+        "magic": "%PDF"
+      }
+    ],
+    "reopenedFiles": [
+      {
+        "kind": "workbook",
+        "filename": "btb-a31173e3-alphabet-inc.-googl-dcf-sum-of-the-parts-valuation-as-of-12-31-2025.xlsx",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "ZIP package contains xl/workbook.xml; placeholder/caveat content scan passed (6125 chars)"
+      },
+      {
+        "kind": "workbook",
+        "filename": "btb-a31173e3-alphabet-inc.-googl-dcf-sum-of-the-parts-valuation-as-of-12-31-2025.xlsm",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "ZIP package contains xl/workbook.xml; placeholder/caveat content scan passed (6125 chars)"
+      },
+      {
+        "kind": "presentation",
+        "filename": "btb-a31173e3-alphabet-inc.-googl-dcf-sum-of-the-parts-valuation-as-of-12-31-2025.pptx",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "ZIP package contains ppt/presentation.xml; placeholder/caveat content scan passed (1717 chars)"
+      },
+      {
+        "kind": "document",
+        "filename": "btb-a31173e3-alphabet-inc.-googl-dcf-sum-of-the-parts-valuation-as-of-12-31-2025.docx",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "ZIP package contains word/document.xml; placeholder/caveat content scan passed (4910 chars)"
+      },
+      {
+        "kind": "pdf",
+        "filename": "btb-a31173e3-alphabet-inc.-googl-dcf-sum-of-the-parts-valuation-as-of-12-31-2025.pdf",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "PDF header reopened; placeholder/caveat content scan passed (8795 chars)"
+      }
+    ]
+  },
+  "scorer": {
+    "name": "BankerToolBench proof verifier",
+    "command": "npm run benchmark:bankertoolbench:proof",
+    "verdict": "pass",
+    "score": 1,
+    "details": {
+      "verifierOutputTail": "\n> noderoom@0.1.1 benchmark:bankertoolbench:proof\n> tsx scripts/bankertoolbench-proof-check.ts\n\nBankerToolBench proof check passed: stage=1/1 weightedRubric=6 run=0/1 pass positive=1/1 pass candidateBeforeEvaluator=true leaks=0/2+0/3+0/4\n",
+      "packageManifestPath": "docs/eval/fresh-room/FR-020/tasks/a31173e3-e8aa-4ddb-b0d9-e4e7055c950b/evidence/package-manifest.json",
+      "downloadedExtensions": [
+        ".xlsx",
+        ".xlsm",
+        ".pptx",
+        ".docx",
+        ".pdf"
+      ],
+      "exportSource": "browser_download_link",
+      "agentTerminalQuality": {
+        "statusText": "completed via recovered Convex job: et-inc.-googl-dcf-sum-of-the-parts-valuation-as-of-12-31-2025.pptx, btb-a31173e3-alphabet-inc.-googl-dcf-sum-of-the-parts-valuation-as-of-12-31-2025.docx, btb-a31173e3-alphabet-inc.-googl-dcf-sum-of-the-parts-valuation-as-of-12-31-2025.pdf.",
+        "evidenceTextLength": 1477,
+        "detail": "agent reached completed status; ignored stale progress caveat(s) after package proof: unfinished_continue"
+      },
+      "taskCoverage": {
+        "ok": true,
+        "requiredTickers": [
+          "GOOGL"
+        ],
+        "missingTickers": [],
+        "domainProof": {
+          "ok": true,
+          "domain": "alphabet_dcf_sotp",
+          "gates": [
+            {
+              "id": "alphabet_identity",
+              "label": "Alphabet / Google / GOOGL identity",
+              "passed": true
+            },
+            {
+              "id": "dcf_sotp_method",
+              "label": "DCF and SOTP methodology",
+              "passed": true
+            },
+            {
+              "id": "operating_model_periods",
+              "label": "Operating model with historical and forecast periods",
+              "passed": true
+            },
+            {
+              "id": "segment_level_model",
+              "label": "Segment-level Google Services / Cloud / Other Bets model",
+              "passed": true
+            },
+            {
+              "id": "wacc_terminal_assumptions",
+              "label": "WACC and terminal-growth assumptions",
+              "passed": true
+            },
+            {
+              "id": "valuation_output",
+              "label": "Enterprise/equity value and per-share output",
+              "passed": true
+            }
+          ],
+          "missingGates": [],
+          "detail": "Alphabet DCF/SOTP domain proof passed"
+        },
+        "detail": "single requested ticker detected (GOOGL); multi-entity coverage gate not required; Alphabet DCF/SOTP domain proof passed"
+      }
+    }
+  },
+  "visualJudge": {
+    "command": "npm run media:gemini-judge -- --run-id btb-a31173e3-qwen-fresh-domain-proof-after-pdf-storage-fix-20260625 --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\a31173e3-e8aa-4ddb-b0d9-e4e7055c950b\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --out \"docs\\\\eval\\\\gemini-media-judges\"",
+    "verdict": "pass",
+    "scorecardPath": "docs/eval/gemini-media-judges/btb-a31173e3-qwen-fresh-domain-proof-after-pdf-storage-fix-20260625/summary.md",
+    "reason": "Gemini media judge publish (8/16); defects P0/P1/P2=0/0/0. The video demonstrates NodeAgent executing a DCF SOTP valuation for Alphabet Inc. inside NodeRoom, covering room creation, document uploads, live agent execution with trace logs, and final artifact generation."
+  },
+  "gatesProven": [
+    "fresh_room_join",
+    "official_fixture_upload",
+    "public_nodeagent_invocation",
+    "visible_streaming_progress",
+    "trace_video_artifacts",
+    "no_memory_mode_shortcut",
+    "focus_mode_enabled",
+    "focus_box_or_attention_overlay",
+    "agent_live_loop",
+    "agent_terminal_quality_gate",
+    "room_trace_visible",
+    "job_detail_visible",
+    "deliverable_export_download",
+    "artifact_reopen_validation",
+    "artifact_placeholder_scan",
+    "official_scorer_handoff",
+    "visual_judge_handoff"
+  ],
+  "passed": true
+}

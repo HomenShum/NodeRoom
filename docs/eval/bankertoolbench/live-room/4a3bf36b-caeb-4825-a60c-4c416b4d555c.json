@@ -1,0 +1,100 @@
+{
+  "schema": 1,
+  "taskId": "4a3bf36b-caeb-4825-a60c-4c416b4d555c",
+  "harborTaskId": "btb-4a3bf36b",
+  "generatedAt": "2026-06-25T01:40:15.202Z",
+  "baseUrl": "http://127.0.0.1:5273",
+  "roomUrl": "http://127.0.0.1:5273/?room=NR3JW0Y2DCO&name=Host",
+  "memoryMode": false,
+  "expectedExtensions": [
+    ".xlsx",
+    ".xlsm",
+    ".pptx",
+    ".docx",
+    ".pdf"
+  ],
+  "visibleExtensions": [
+    ".xlsx",
+    ".xlsm",
+    ".pptx",
+    ".docx",
+    ".pdf"
+  ],
+  "downloadedFiles": [
+    {
+      "kind": "workbook",
+      "filename": "btb-4a3bf36b-hsii-ar-lbo-financing-analysis-sofr-based-wacc-pf-tev-sbc-fcf-moic.xlsx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\4a3bf36b-caeb-4825-a60c-4c416b4d555c\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier-retry1\\btb-xlsx-btb-4a3bf36b-hsii-ar-lbo-financing-analysis-sofr-based-wacc-pf-tev-sbc-fcf-moic.xlsx",
+      "extension": ".xlsx",
+      "bytes": 10483,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (6903 chars)"
+    },
+    {
+      "kind": "workbook",
+      "filename": "btb-4a3bf36b-hsii-ar-lbo-financing-analysis-sofr-based-wacc-pf-tev-sbc-fcf-moic.xlsm",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\4a3bf36b-caeb-4825-a60c-4c416b4d555c\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier-retry1\\btb-xlsm-btb-4a3bf36b-hsii-ar-lbo-financing-analysis-sofr-based-wacc-pf-tev-sbc-fcf-moic.xlsm",
+      "extension": ".xlsm",
+      "bytes": 10483,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (6903 chars)"
+    },
+    {
+      "kind": "presentation",
+      "filename": "btb-4a3bf36b-hsii-ar-lbo-financing-analysis-sofr-based-wacc-pf-tev-sbc-fcf-moic.pptx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\4a3bf36b-caeb-4825-a60c-4c416b4d555c\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier-retry1\\btb-pptx-btb-4a3bf36b-hsii-ar-lbo-financing-analysis-sofr-based-wacc-pf-tev-sbc-fcf-moic.pptx",
+      "extension": ".pptx",
+      "bytes": 7054,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains ppt/presentation.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (2470 chars)"
+    },
+    {
+      "kind": "document",
+      "filename": "btb-4a3bf36b-hsii-ar-lbo-financing-analysis-sofr-based-wacc-pf-tev-sbc-fcf-moic.docx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\4a3bf36b-caeb-4825-a60c-4c416b4d555c\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier-retry1\\btb-docx-btb-4a3bf36b-hsii-ar-lbo-financing-analysis-sofr-based-wacc-pf-tev-sbc-fcf-moic.docx",
+      "extension": ".docx",
+      "bytes": 4171,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains word/document.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (6682 chars)"
+    },
+    {
+      "kind": "pdf",
+      "filename": "btb-4a3bf36b-hsii-ar-lbo-financing-analysis-sofr-based-wacc-pf-tev-sbc-fcf-moic.pdf",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\4a3bf36b-caeb-4825-a60c-4c416b4d555c\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier-retry1\\btb-pdf-btb-4a3bf36b-hsii-ar-lbo-financing-analysis-sofr-based-wacc-pf-tev-sbc-fcf-moic.pdf",
+      "extension": ".pdf",
+      "bytes": 7033,
+      "magic": "%PDF",
+      "reopened": true,
+      "reopenDetail": "PDF header reopened",
+      "contentQualityDetail": "placeholder/caveat content scan passed (13481 chars)"
+    }
+  ],
+  "packageManifestPath": "test-results\\bankertoolbench\\matrix\\4a3bf36b-caeb-4825-a60c-4c416b4d555c\\package-manifest.json",
+  "verifierCommand": "npm run benchmark:bankertoolbench:proof",
+  "verifierOutputTail": "\n> noderoom@0.1.1 benchmark:bankertoolbench:proof\n> tsx scripts/bankertoolbench-proof-check.ts\n\nBankerToolBench proof check passed: stage=1/1 weightedRubric=6 run=0/1 pass positive=1/1 pass candidateBeforeEvaluator=true leaks=0/2+0/3+0/4\n",
+  "screenshot": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\4a3bf36b-caeb-4825-a60c-4c416b4d555c\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier-retry1\\bankertoolbench-live-room.png",
+  "passed": true,
+  "gatesProven": [
+    "fresh_room_join",
+    "official_fixture_upload",
+    "public_nodeagent_invocation",
+    "visible_streaming_progress",
+    "focus_mode_enabled",
+    "focus_box_or_attention_overlay",
+    "agent_terminal_quality_gate",
+    "deliverable_export_download",
+    "artifact_reopen_validation",
+    "artifact_placeholder_scan",
+    "official_scorer_handoff",
+    "trace_video_artifacts",
+    "no_memory_mode_shortcut"
+  ]
+}

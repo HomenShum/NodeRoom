@@ -260,7 +260,7 @@ test.describe("full modern UX release bar", () => {
     const unifiedStream = chat.getByTestId("agent-unified-stream").first();
     await expect(unifiedStream).toBeVisible({ timeout: 3_000 });
     await expect(unifiedStream.getByTestId("agent-stream-text")).toContainText("Working through the visible sheet cells");
-    await expect(unifiedStream).toContainText(/derive_affected_set|patch_bundle_cas/);
+    await expect(unifiedStream).toContainText(/derive_affected_set|patch_bundle_cas|Derive Affected SET|Patch Bundle CAS/i);
     await expect(chat.getByTestId("agent-operation-stream")).toHaveCount(0);
     await expect(chat.getByTestId("chat-message").filter({ hasText: "Memory free-auto applied" })).toBeVisible({
       timeout: 15_000,

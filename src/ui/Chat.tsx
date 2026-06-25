@@ -199,8 +199,64 @@ function showInAgentOperationStream(op: OperationStreamRow): boolean {
 }
 function previewStreamValue(value: unknown): string {
   if (value === undefined || value === null || value === "") return "";
+  const friendly = friendlyStreamPreview(value);
+  if (friendly) return friendly;
   const text = typeof value === "string" ? value : JSON.stringify(value);
-  return text.length > 180 ? `${text.slice(0, 180)}...` : text;
+  const cleaned = text
+    .replace(/\\"/g, "\"")
+    .replace(/[{}[\]"]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+  return cleaned.length > 96 ? `${cleaned.slice(0, 96)}...` : cleaned;
+}
+
+function friendlyStreamPreview(value: unknown): string {
+  const parsed = parseStreamPreviewJson(value);
+  if (Array.isArray(parsed)) {
+    const artifactCount = parsed.filter((item) => item && typeof item === "object" && ("artifactId" in item || "id" in item)).length;
+    if (artifactCount) return `${artifactCount} room artifact${artifactCount === 1 ? "" : "s"} returned`;
+  }
+  if (parsed && typeof parsed === "object") {
+    const object = parsed as Record<string, unknown>;
+    const artifacts = Array.isArray(object.artifacts) ? object.artifacts : undefined;
+    if (artifacts?.length) {
+      const labels = Array.from(new Set(artifacts.map((artifact) => {
+        const title = artifact && typeof artifact === "object" ? String((artifact as Record<string, unknown>).title ?? "") : "";
+        return deliverableStreamLabel(title);
+      }).filter(Boolean)));
+      return `${artifacts.length} deliverable${artifacts.length === 1 ? "" : "s"} created${labels.length ? `: ${labels.join(", ")}` : ""}`;
+    }
+    if (typeof object.preview === "string") {
+      const nested = parseStreamPreviewJson(object.preview);
+      if (Array.isArray(nested)) return `${nested.length} row${nested.length === 1 ? "" : "s"} returned`;
+      return object.kind === "string" ? "text result returned" : "tool result returned";
+    }
+    if (object.ok === true) return "completed";
+    if (typeof object.error === "string") return object.error;
+  }
+  return "";
+}
+
+function parseStreamPreviewJson(value: unknown): unknown {
+  if (typeof value !== "string") return value;
+  const trimmed = value.trim();
+  if (!trimmed || !/^[{[]/.test(trimmed)) return value;
+  try {
+    return JSON.parse(trimmed);
+  } catch {
+    return value;
+  }
+}
+
+function deliverableStreamLabel(title: string): string {
+  const lower = title.toLowerCase();
+  if (lower.endsWith(".xlsx")) return "model";
+  if (lower.endsWith(".xlsm")) return "macro workbook";
+  if (lower.endsWith(".pptx")) return "deck";
+  if (lower.endsWith(".docx")) return "memo";
+  if (lower.endsWith(".pdf")) return "PDF";
+  if (lower.endsWith(".json")) return "manifest";
+  return "";
 }
 function toolStateLabel(part: Extract<AgentStreamPart, { type: `tool-${string}` }>): string {
   if (part.state === "call") return "running";
@@ -210,12 +266,180 @@ function toolStateLabel(part: Extract<AgentStreamPart, { type: `tool-${string}` 
 function isToolStreamPart(part: AgentStreamPart): part is Extract<AgentStreamPart, { type: `tool-${string}` }> {
   return part.type.startsWith("tool-");
 }
-function AgentUnifiedStream({ parts, live, fallbackText }: { parts: AgentStreamPart[]; live?: boolean; fallbackText?: string }) {
+
+function titleCaseToolName(toolName: string): string {
+  return toolName
+    .replace(/^tool-/, "")
+    .split(/[_\s-]+/)
+    .filter(Boolean)
+    .map((word) => word.length <= 3 ? word.toUpperCase() : `${word.slice(0, 1).toUpperCase()}${word.slice(1)}`)
+    .join(" ");
+}
+
+function agentActionLabel(toolName: string): string {
+  switch (toolName) {
+    case "list_artifacts": return "Gathered room files";
+    case "read_range": return "Read source data";
+    case "write_locked_cells": return "Updated Sheet 1";
+    case "create_btb_deliverable_package": return "Created deliverables";
+    case "search_sheet_context": return "Searched workbook context";
+    case "fetch_source": return "Fetched source";
+    case "capture_source_firecrawl": return "Captured source";
+    case "load_skill": return "Loaded skill";
+    case "say": return "Reported answer";
+    case "create_artifact": return "Created artifact";
+    case "update_artifact": return "Updated artifact";
+    case "append_research_note": return "Added research note";
+    default: return titleCaseToolName(toolName);
+  }
+}
+
+function agentPartState(part: Exclude<AgentStreamPart, { type: "text" }>): string {
+  if (isToolStreamPart(part)) return toolStateLabel(part);
+  if (part.state === "failed") return "failed";
+  if (part.state === "started" || part.state === "streaming") return "running";
+  if (part.state === "skipped") return "skipped";
+  return "done";
+}
+
+function agentPartLabel(part: Exclude<AgentStreamPart, { type: "text" }>): string {
+  if (part.type === "step-start") return part.title;
+  if (isToolStreamPart(part)) return agentActionLabel(part.toolName);
+  if (part.type === "data-artifact") return "Published artifact";
+  return part.title;
+}
+
+function agentPartPreview(part: Exclude<AgentStreamPart, { type: "text" }>): string {
+  if (part.type === "step-start") return "";
+  if (isToolStreamPart(part)) return previewStreamValue(part.output ?? part.input ?? part.error);
+  if (part.type === "data-artifact") return part.title;
+  return part.text || part.error || "";
+}
+
+function renderRawAgentPart(part: Exclude<AgentStreamPart, { type: "text" }>, index: number): ReactNode {
+  if (part.type === "step-start") {
+    return (
+      <div className="r-agent-part step" key={`step-${part.step}-${index}`} data-part="step" data-status={part.state}>
+        <ListChecks size={12} /><b>step {part.step + 1}</b><span>{part.title}</span>
+      </div>
+    );
+  }
+  if (isToolStreamPart(part)) {
+    const state = toolStateLabel(part);
+    const preview = previewStreamValue(part.output ?? part.input ?? part.error);
+    return (
+      <div className="r-agent-part tool" key={`${part.toolCallId}-${index}`} data-part="tool" data-status={state}>
+        <Database size={12} /><b>{state}</b><span>{part.toolName}</span>{preview && <em>{preview}</em>}
+      </div>
+    );
+  }
+  if (part.type === "data-artifact") {
+    return (
+      <div className="r-agent-part artifact" key={`artifact-${index}`} data-part="artifact" data-status={part.state}>
+        <Paperclip size={12} /><b>{part.state}</b><span>{part.title}</span>
+      </div>
+    );
+  }
+  return (
+    <div className="r-agent-part notice" key={`notice-${index}`} data-part="notice" data-status={part.state}>
+      <ShieldCheck size={12} /><b>{part.state}</b><span>{part.title}</span>{(part.text || part.error) && <em>{part.text || part.error}</em>}
+    </div>
+  );
+}
+
+type AgentProgressRow = {
+  key: string;
+  state: string;
+  label: string;
+  preview: string;
+  count: number;
+};
+
+function compactAgentProgressRows(parts: Exclude<AgentStreamPart, { type: "text" }>[]): AgentProgressRow[] {
+  const rows: AgentProgressRow[] = [];
+  const seen = new Map<string, AgentProgressRow>();
+  for (const part of parts) {
+    if (part.type === "step-start") continue;
+    const state = agentPartState(part);
+    const label = agentPartLabel(part);
+    const preview = agentPartPreview(part);
+    const key = `${state}\u0000${label}\u0000${preview}`;
+    const existing = seen.get(key);
+    if (existing) {
+      existing.count += 1;
+      continue;
+    }
+    const row = { key, state, label, preview, count: 1 };
+    rows.push(row);
+    seen.set(key, row);
+  }
+  return rows;
+}
+
+function AgentProgressCard({ parts, live, terminalSuccessful }: { parts: Exclude<AgentStreamPart, { type: "text" }>[]; live?: boolean; terminalSuccessful?: boolean }) {
+  const [detailsOpen, setDetailsOpen] = useState(() => parts.some((part) => agentPartState(part) === "failed"));
+  const stepCount = parts.filter((part) => part.type === "step-start").length;
+  const compactRows = compactAgentProgressRows(parts);
+  const hiddenCount = Math.max(0, compactRows.length - 5);
+  const rows = compactRows.slice(Math.max(0, compactRows.length - 5));
+  const hasRecoveredFailure = !!terminalSuccessful && parts.some((part) => agentPartState(part) === "failed");
+  const hasFailure = !terminalSuccessful && parts.some((part) => agentPartState(part) === "failed");
+  const hasRunning = live || parts.some((part) => part.type !== "step-start" && agentPartState(part) === "running");
+  const toolCount = parts.filter(isToolStreamPart).length;
+  const title = hasFailure ? "NodeAgent needs attention" : hasRunning ? "NodeAgent is working" : hasRecoveredFailure ? "NodeAgent completed with recovered steps" : "NodeAgent completed the run";
+  const metaBits = [
+    stepCount ? `${stepCount} model turn${stepCount === 1 ? "" : "s"}` : undefined,
+    toolCount ? `${toolCount} tool action${toolCount === 1 ? "" : "s"}` : undefined,
+    hiddenCount ? `${hiddenCount} earlier` : undefined,
+  ].filter(Boolean);
+  return (
+    <section className="r-agent-workflow-progress" data-testid="agent-progress-card" data-status={hasFailure ? "failed" : hasRunning ? "running" : "done"}>
+      <div className="r-agent-workflow-progress-head">
+        <span className="r-agent-workflow-progress-icon" aria-hidden>{hasFailure ? <X size={13} /> : hasRunning ? <RefreshCw size={13} /> : <Check size={13} />}</span>
+        <div className="r-agent-workflow-progress-copy">
+          <strong>{title}</strong>
+          <span>{metaBits.join(" - ") || "Activity trace recorded"}</span>
+        </div>
+        <button
+          type="button"
+          className="r-agent-workflow-progress-toggle"
+          data-testid="agent-progress-details-toggle"
+          aria-expanded={detailsOpen}
+          onClick={() => setDetailsOpen((open) => !open)}
+        >
+          Trace details {detailsOpen ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
+        </button>
+      </div>
+      {rows.length ? (
+        <div className="r-agent-workflow-progress-list">
+          {rows.map((row, index) => {
+            return (
+              <div className="r-agent-workflow-progress-row" data-status={row.state} key={`${row.key}-${index}`}>
+                <span className="r-agent-workflow-progress-dot" aria-hidden>{row.state === "done" ? <Check size={11} /> : row.state === "failed" ? <X size={11} /> : <RefreshCw size={11} />}</span>
+                <span className="r-agent-workflow-progress-label">{row.label}{row.count > 1 ? <em>x{row.count}</em> : null}</span>
+                {row.preview && <span className="r-agent-workflow-progress-preview">{row.preview}</span>}
+              </div>
+            );
+          })}
+        </div>
+      ) : null}
+      {detailsOpen ? (
+        <div className="r-agent-workflow-progress-details" data-testid="agent-progress-details">
+          {parts.map(renderRawAgentPart)}
+        </div>
+      ) : null}
+    </section>
+  );
+}
+
+function AgentUnifiedStream({ parts, live, fallbackText, terminalSuccessful }: { parts: AgentStreamPart[]; live?: boolean; fallbackText?: string; terminalSuccessful?: boolean }) {
   const displayParts = parts.length ? parts : fallbackText ? [{ type: "text" as const, text: fallbackText, state: live ? "streaming" as const : "done" as const }] : [];
   if (!displayParts.length) return null;
   const lastTextIndex = displayParts.map((part, index) => part.type === "text" ? index : -1).filter((index) => index >= 0).at(-1);
+  const activityParts = displayParts.filter((part): part is Exclude<AgentStreamPart, { type: "text" }> => part.type !== "text");
   return (
     <div className="r-agent-unified-stream" data-testid="agent-unified-stream" aria-label="Unified agent response stream">
+      {activityParts.length ? <AgentProgressCard parts={activityParts} live={live} terminalSuccessful={terminalSuccessful} /> : null}
       {displayParts.map((part, index) => {
         if (part.type === "text") {
           return (
@@ -228,34 +452,7 @@ function AgentUnifiedStream({ parts, live, fallbackText }: { parts: AgentStreamP
             />
           );
         }
-        if (part.type === "step-start") {
-          return (
-            <div className="r-agent-part step" key={`step-${part.step}-${index}`} data-part="step" data-status={part.state}>
-              <ListChecks size={12} /><b>step {part.step + 1}</b><span>{part.title}</span>
-            </div>
-          );
-        }
-        if (isToolStreamPart(part)) {
-          const state = toolStateLabel(part);
-          const preview = previewStreamValue(part.output ?? part.input ?? part.error);
-          return (
-            <div className="r-agent-part tool" key={`${part.toolCallId}-${index}`} data-part="tool" data-status={state}>
-              <Database size={12} /><b>{state}</b><span>{part.toolName}</span>{preview && <em>{preview}</em>}
-            </div>
-          );
-        }
-        if (part.type === "data-artifact") {
-          return (
-            <div className="r-agent-part artifact" key={`artifact-${index}`} data-part="artifact" data-status={part.state}>
-              <Paperclip size={12} /><b>{part.state}</b><span>{part.title}</span>
-            </div>
-          );
-        }
-        return (
-          <div className="r-agent-part notice" key={`notice-${index}`} data-part="notice" data-status={part.state}>
-            <ShieldCheck size={12} /><b>{part.state}</b><span>{part.title}</span>{(part.text || part.error) && <em>{part.text || part.error}</em>}
-          </div>
-        );
+        return null;
       })}
     </div>
   );
@@ -714,6 +911,7 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
   const longJobResultText = !isPrivate && longJobTerminal
     ? (longJob.finalText || (["failed", "blocked"].includes(longJob.status) && longJob.error ? `Agent job ${longJob.status}: ${longJob.error}` : ""))
     : "";
+  const longJobVisibleError = !isPrivate && longJob && longJob.status !== "completed" ? longJob.error : "";
   const hasLongJobResultMessage = !!longJobResultText && messages.some((m) => m.author.kind === "agent" && (m.text.trim() === longJobResultText.trim() || m.clientMsgId === activeJobClientMsgId));
   const showLongJobResult = !!longJobResultText && !hasLongJobResultMessage;
   const longJobNeedsAttention = !!longJob && ["failed", "blocked", "cancelled"].includes(longJob.status);
@@ -1050,7 +1248,7 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
           <span>{longJob.modelPolicy}</span>
           {latestAttempt && <span>attempt {latestAttempt.attempt}: {latestAttempt.resolvedModel} · {latestAttempt.stopReason} · {shortMs(latestAttempt.ms)}</span>}
           {longJob.nextRunAt && longJob.status !== "completed" && <span>next {clock(longJob.nextRunAt)}</span>}
-          {longJob.error && <span>{longJob.error}</span>}
+          {longJobVisibleError && <span>{longJobVisibleError}</span>}
           <button className="r-job-detail-toggle" type="button" data-testid="job-detail-toggle" onClick={() => setJobDetailsOpen((open) => !open)} aria-expanded={jobDetailsOpen}>
             {jobDetailsOpen ? <ChevronUp size={12} /> : <ChevronDown size={12} />} Details
           </button>
@@ -1139,6 +1337,7 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
             onOpenArtifact={onOpenArtifact}
             agentStreamParts={item.message.clientMsgId === activeJobClientMsgId ? unifiedStreamParts : undefined}
             agentStreamLive={!longJobTerminal}
+            agentStreamTerminalSuccessful={longJobTerminal && longJob?.status === "completed"}
           />
         ) : (
           <div className="r-msg agent" key={item.key} data-testid="agent-job-result" data-state={item.status}>
@@ -1149,7 +1348,7 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
                 <span className={"r-tag agent" + (["failed", "blocked"].includes(item.status) ? " danger" : "")} style={{ padding: "1px 5px", fontSize: 9 }}>{item.status}</span>
                 <span className="time">{clock(item.createdAt)}</span>
               </div>
-              {item.streamParts.length ? <AgentUnifiedStream parts={item.streamParts} live={false} fallbackText={item.text} /> : <MarkdownBody text={item.text} />}
+              {item.streamParts.length ? <AgentUnifiedStream parts={item.streamParts} live={false} fallbackText={item.text} terminalSuccessful={!["failed", "blocked"].includes(item.status)} /> : <MarkdownBody text={item.text} />}
             </div>
           </div>
         ))}
@@ -1173,7 +1372,7 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
             <div className="body">
               <div className="meta"><span className="who">{agentName}</span><span className="r-tag agent" style={{ padding: "1px 5px", fontSize: 9 }}>{longJobActive && longJob ? longJob.status : "thinking"}</span></div>
               {unifiedStreamParts.length ? (
-                <AgentUnifiedStream parts={unifiedStreamParts} live={!longJobTerminal} fallbackText={longJobResultText} />
+                <AgentUnifiedStream parts={unifiedStreamParts} live={!longJobTerminal} fallbackText={longJobResultText} terminalSuccessful={longJobTerminal && longJob?.status === "completed"} />
               ) : liveOperationStream.length ? (
                 <div className="r-agent-stream" data-testid="agent-operation-stream" aria-label="Live agent operation stream">
                   {liveOperationStream.map((op) => (
@@ -1553,6 +1752,7 @@ function Bubble({
   onOpenArtifact,
   agentStreamParts,
   agentStreamLive,
+  agentStreamTerminalSuccessful,
 }: {
   m: Message;
   roomId: string;
@@ -1562,6 +1762,7 @@ function Bubble({
   onOpenArtifact?: (id: string, options?: { split?: boolean; elementId?: string }) => boolean | void;
   agentStreamParts?: AgentStreamPart[];
   agentStreamLive?: boolean;
+  agentStreamTerminalSuccessful?: boolean;
 }) {
   const store = useStore();
   const parsed = parseArtifactRefMessage(m.text);
@@ -1624,7 +1825,7 @@ function Bubble({
               </div>
             )}
             {agentStreamParts?.length ? (
-              <AgentUnifiedStream parts={agentStreamParts} live={agentStreamLive} />
+              <AgentUnifiedStream parts={agentStreamParts} live={agentStreamLive} terminalSuccessful={agentStreamTerminalSuccessful} />
             ) : m.streamId && !m.text ? (
               <StreamedBody streamId={m.streamId} />
             ) : (

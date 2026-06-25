@@ -1,0 +1,234 @@
+{
+  "schema": 1,
+  "caseId": "FR-020",
+  "benchmark": "bankertoolbench",
+  "taskId": "11e08646-55be-41cd-a0b8-24d1529b76aa",
+  "generatedAt": "2026-06-24T23:55:47.921Z",
+  "baseUrl": "http://127.0.0.1:5273",
+  "roomId": "NR03073AJFG",
+  "roomUrl": "http://127.0.0.1:5273/?room=NR03073AJFG&name=Host",
+  "command": "BTB_LIVE_ROOM_E2E=1 BTB_UI_BUNDLE_ROOT=<official-bundle> BTB_UI_VERIFIER_COMMAND=<verifier> BENCH_BASE_URL=<base> npx playwright test --config playwright.real-flow.config.ts e2e/benchmark-ui-bankertoolbench.spec.ts --headed",
+  "model": {
+    "requested": "specific",
+    "resolved": "z-ai/glm-5.2",
+    "routePolicy": "specific",
+    "runtimeProfile": "benchmark_completion",
+    "provider": "openrouter"
+  },
+  "prompt": "Official BankerToolBench task btb-11e08646: Hey, just got pulled out of a call with Disney's corp dev team. They're seriously looking at Warner Bros. Discovery as an acquisition target, and our MD wants to see if the deal math works before we go any further.\n\nI need you to build out an accretion/dilution model for DIS acquiring WBD. Use today's date, December 19, 2025, as the announcement date. Here's what we're thinking on structure:\n\nFor the offer, assume a 25% premium to WBD's current trading price, with consideration split 50/50 between cash and stock. On the cash side, Disney would use $5 billion from their balance sheet, and we'd raise the rest through a new term loan at 6.5% with a 7-year maturity and no mandatory amortization. Transaction fees should be 1.5% of equity value, and assume 2.0% financing fees on the new debt that we'll capitalize and amortize over the loan term. Also factor in the lost interest income on the cash Disney uses, assuming they're currently earning 4.0% on it.\n\nFor the target valuation, make sure you're bridging from equity value to enterprise value properly. WBD has an underfunded pension that needs to be included. You'll find the pension funded status in the Key Items tab.\n\nOn purchase pric",
+  "memoryMode": false,
+  "freshness": {
+    "roomCreatedAfterRunStart": true,
+    "forbiddenPreloadedArtifactsAbsent": true,
+    "artifactsCreatedFresh": [
+      "btb-11e08646-btb-btb-11e08646-dis-wbd-merger-accretion-dilution-model-coverage-dis-wbd-pp-ppa.xlsx",
+      "btb-11e08646-btb-btb-11e08646-dis-wbd-merger-accretion-dilution-model-coverage-dis-wbd-pp-ppa.xlsm",
+      "btb-11e08646-btb-btb-11e08646-dis-wbd-merger-accretion-dilution-model-coverage-dis-wbd-pp-ppa.pptx",
+      "btb-11e08646-btb-btb-11e08646-dis-wbd-merger-accretion-dilution-model-coverage-dis-wbd-pp-ppa.docx",
+      "btb-11e08646-btb-btb-11e08646-dis-wbd-merger-accretion-dilution-model-coverage-dis-wbd-pp-ppa.pdf"
+    ],
+    "uploadedFiles": [
+      "betas_by_industry_category_for_WACC.xlsx",
+      "Equity_Risk_Premium_for_WACC.xlsx",
+      "DIS-US Company Identity.xlsx",
+      "DIS-US Income Statement Annual.xlsx",
+      "DIS-US Balance Sheet Annual.xlsx",
+      "DIS-US Cash Flow Annual.xlsx",
+      "DIS-US Shares Outstanding.xlsx",
+      "DIS-US Price History.xlsx",
+      "DIS-US Revenue Estimate.xlsx",
+      "DIS-US Earnings Estimate.xlsx",
+      "WBD-US Company Identity.xlsx",
+      "WBD-US Income Statement Annual.xlsx",
+      "WBD-US Balance Sheet Annual.xlsx",
+      "WBD-US Cash Flow Annual.xlsx",
+      "WBD-US Shares Outstanding.xlsx",
+      "WBD-US Price History.xlsx",
+      "WBD-US Revenue Estimate.xlsx",
+      "WBD-US Earnings Estimate.xlsx",
+      "btb-11e08646-official-task-brief.txt"
+    ]
+  },
+  "ui": {
+    "focusModeEnabled": true,
+    "attentionOverlayVisible": true,
+    "streamingVisible": true,
+    "jobDetailVisible": true,
+    "roomTraceVisible": true,
+    "screenshotPaths": [
+      "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\11e08646-55be-41cd-a0b8-24d1529b76aa\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\bankertoolbench-live-room.png"
+    ],
+    "tracePath": "docs\\eval\\bankertoolbench\\live-room\\11e08646-55be-41cd-a0b8-24d1529b76aa.json"
+  },
+  "artifacts": {
+    "uploadedFiles": [
+      "betas_by_industry_category_for_WACC.xlsx",
+      "Equity_Risk_Premium_for_WACC.xlsx",
+      "DIS-US Company Identity.xlsx",
+      "DIS-US Income Statement Annual.xlsx",
+      "DIS-US Balance Sheet Annual.xlsx",
+      "DIS-US Cash Flow Annual.xlsx",
+      "DIS-US Shares Outstanding.xlsx",
+      "DIS-US Price History.xlsx",
+      "DIS-US Revenue Estimate.xlsx",
+      "DIS-US Earnings Estimate.xlsx",
+      "WBD-US Company Identity.xlsx",
+      "WBD-US Income Statement Annual.xlsx",
+      "WBD-US Balance Sheet Annual.xlsx",
+      "WBD-US Cash Flow Annual.xlsx",
+      "WBD-US Shares Outstanding.xlsx",
+      "WBD-US Price History.xlsx",
+      "WBD-US Revenue Estimate.xlsx",
+      "WBD-US Earnings Estimate.xlsx",
+      "btb-11e08646-official-task-brief.txt"
+    ],
+    "created": [
+      "btb-11e08646-btb-btb-11e08646-dis-wbd-merger-accretion-dilution-model-coverage-dis-wbd-pp-ppa.xlsx",
+      "btb-11e08646-btb-btb-11e08646-dis-wbd-merger-accretion-dilution-model-coverage-dis-wbd-pp-ppa.xlsm",
+      "btb-11e08646-btb-btb-11e08646-dis-wbd-merger-accretion-dilution-model-coverage-dis-wbd-pp-ppa.pptx",
+      "btb-11e08646-btb-btb-11e08646-dis-wbd-merger-accretion-dilution-model-coverage-dis-wbd-pp-ppa.docx",
+      "btb-11e08646-btb-btb-11e08646-dis-wbd-merger-accretion-dilution-model-coverage-dis-wbd-pp-ppa.pdf"
+    ],
+    "exportedFiles": [
+      {
+        "kind": "workbook",
+        "filename": "btb-11e08646-btb-btb-11e08646-dis-wbd-merger-accretion-dilution-model-coverage-dis-wbd-pp-ppa.xlsx",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\11e08646-55be-41cd-a0b8-24d1529b76aa\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-11e08646-btb-btb-11e08646-dis-wbd-merger-accretion-dilution-model-coverage-dis-wbd-pp-ppa.xlsx",
+        "extension": ".xlsx",
+        "downloaded": true,
+        "bytes": 16176,
+        "magic": "PK\\x03\\x04"
+      },
+      {
+        "kind": "workbook",
+        "filename": "btb-11e08646-btb-btb-11e08646-dis-wbd-merger-accretion-dilution-model-coverage-dis-wbd-pp-ppa.xlsm",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\11e08646-55be-41cd-a0b8-24d1529b76aa\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-11e08646-btb-btb-11e08646-dis-wbd-merger-accretion-dilution-model-coverage-dis-wbd-pp-ppa.xlsm",
+        "extension": ".xlsm",
+        "downloaded": true,
+        "bytes": 16176,
+        "magic": "PK\\x03\\x04"
+      },
+      {
+        "kind": "presentation",
+        "filename": "btb-11e08646-btb-btb-11e08646-dis-wbd-merger-accretion-dilution-model-coverage-dis-wbd-pp-ppa.pptx",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\11e08646-55be-41cd-a0b8-24d1529b76aa\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-11e08646-btb-btb-11e08646-dis-wbd-merger-accretion-dilution-model-coverage-dis-wbd-pp-ppa.pptx",
+        "extension": ".pptx",
+        "downloaded": true,
+        "bytes": 8040,
+        "magic": "PK\\x03\\x04"
+      },
+      {
+        "kind": "document",
+        "filename": "btb-11e08646-btb-btb-11e08646-dis-wbd-merger-accretion-dilution-model-coverage-dis-wbd-pp-ppa.docx",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\11e08646-55be-41cd-a0b8-24d1529b76aa\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-11e08646-btb-btb-11e08646-dis-wbd-merger-accretion-dilution-model-coverage-dis-wbd-pp-ppa.docx",
+        "extension": ".docx",
+        "downloaded": true,
+        "bytes": 5376,
+        "magic": "PK\\x03\\x04"
+      },
+      {
+        "kind": "pdf",
+        "filename": "btb-11e08646-btb-btb-11e08646-dis-wbd-merger-accretion-dilution-model-coverage-dis-wbd-pp-ppa.pdf",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\11e08646-55be-41cd-a0b8-24d1529b76aa\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-11e08646-btb-btb-11e08646-dis-wbd-merger-accretion-dilution-model-coverage-dis-wbd-pp-ppa.pdf",
+        "extension": ".pdf",
+        "downloaded": true,
+        "bytes": 4066,
+        "magic": "%PDF"
+      }
+    ],
+    "reopenedFiles": [
+      {
+        "kind": "workbook",
+        "filename": "btb-11e08646-btb-btb-11e08646-dis-wbd-merger-accretion-dilution-model-coverage-dis-wbd-pp-ppa.xlsx",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "ZIP package contains xl/workbook.xml; placeholder/caveat content scan passed (17184 chars)"
+      },
+      {
+        "kind": "workbook",
+        "filename": "btb-11e08646-btb-btb-11e08646-dis-wbd-merger-accretion-dilution-model-coverage-dis-wbd-pp-ppa.xlsm",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "ZIP package contains xl/workbook.xml; placeholder/caveat content scan passed (17184 chars)"
+      },
+      {
+        "kind": "presentation",
+        "filename": "btb-11e08646-btb-btb-11e08646-dis-wbd-merger-accretion-dilution-model-coverage-dis-wbd-pp-ppa.pptx",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "ZIP package contains ppt/presentation.xml; placeholder/caveat content scan passed (4387 chars)"
+      },
+      {
+        "kind": "document",
+        "filename": "btb-11e08646-btb-btb-11e08646-dis-wbd-merger-accretion-dilution-model-coverage-dis-wbd-pp-ppa.docx",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "ZIP package contains word/document.xml; placeholder/caveat content scan passed (9350 chars)"
+      },
+      {
+        "kind": "pdf",
+        "filename": "btb-11e08646-btb-btb-11e08646-dis-wbd-merger-accretion-dilution-model-coverage-dis-wbd-pp-ppa.pdf",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "PDF header reopened; placeholder/caveat content scan passed (7593 chars)"
+      }
+    ]
+  },
+  "scorer": {
+    "name": "BankerToolBench proof verifier",
+    "command": "npm run benchmark:bankertoolbench:proof",
+    "verdict": "pass",
+    "score": 1,
+    "details": {
+      "verifierOutputTail": "\n> noderoom@0.1.1 benchmark:bankertoolbench:proof\n> tsx scripts/bankertoolbench-proof-check.ts\n\nBankerToolBench proof check passed: stage=1/1 weightedRubric=6 run=0/1 pass positive=1/1 pass candidateBeforeEvaluator=true leaks=0/2+0/3+0/4\n",
+      "packageManifestPath": "test-results\\bankertoolbench\\matrix\\11e08646-55be-41cd-a0b8-24d1529b76aa\\package-manifest.json",
+      "downloadedExtensions": [
+        ".xlsx",
+        ".xlsm",
+        ".pptx",
+        ".docx",
+        ".pdf"
+      ],
+      "exportSource": "browser_download_link",
+      "agentTerminalQuality": {
+        "statusText": "completed via visible agent completion text: , pptx, docx, pdf, manifest) covering all 4 entities: DIS (acquirer projections + EPS bridge), WBD (target projections + EV bridge), PP (purchase price allocation), PPA (5×6 sensitivity). Deal is accretive in all 3 years (Yr3: +95.4%). Copy",
+        "evidenceTextLength": 3272,
+        "detail": "agent reached completed status or visible completion text, with no missing-source/unfinished-work caveats"
+      },
+      "taskCoverage": {
+        "ok": true,
+        "requiredTickers": [
+          "DIS",
+          "WBD",
+          "PP",
+          "PPA"
+        ],
+        "missingTickers": [],
+        "detail": "generated package mentions every requested ticker/entity: DIS, WBD, PP, PPA"
+      }
+    }
+  },
+  "visualJudge": {
+    "verdict": "not_run",
+    "reason": "GOOGLE_GENERATIVE_AI_API_KEY is not set; deterministic browser/download/reopen/verifier proof passed."
+  },
+  "gatesProven": [
+    "fresh_room_join",
+    "official_fixture_upload",
+    "public_nodeagent_invocation",
+    "visible_streaming_progress",
+    "trace_video_artifacts",
+    "no_memory_mode_shortcut",
+    "focus_mode_enabled",
+    "focus_box_or_attention_overlay",
+    "agent_live_loop",
+    "agent_terminal_quality_gate",
+    "room_trace_visible",
+    "job_detail_visible",
+    "deliverable_export_download",
+    "artifact_reopen_validation",
+    "artifact_placeholder_scan",
+    "official_scorer_handoff"
+  ],
+  "passed": true
+}

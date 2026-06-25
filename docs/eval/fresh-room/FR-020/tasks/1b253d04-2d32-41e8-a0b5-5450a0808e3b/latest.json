@@ -1,0 +1,253 @@
+{
+  "schema": 1,
+  "caseId": "FR-020",
+  "benchmark": "bankertoolbench",
+  "taskId": "1b253d04-2d32-41e8-a0b5-5450a0808e3b",
+  "generatedAt": "2026-06-25T02:38:12.829Z",
+  "baseUrl": "http://127.0.0.1:5273",
+  "roomId": "NRLSZL10X5U",
+  "roomUrl": "http://127.0.0.1:5273/?room=NRLSZL10X5U&name=Host",
+  "command": "BTB_LIVE_ROOM_E2E=1 BTB_UI_BUNDLE_ROOT=<official-bundle> BTB_UI_VERIFIER_COMMAND=<verifier> BENCH_BASE_URL=<base> npx playwright test --config playwright.real-flow.config.ts e2e/benchmark-ui-bankertoolbench.spec.ts --headed",
+  "model": {
+    "requested": "specific",
+    "resolved": "z-ai/glm-5.2",
+    "routePolicy": "specific",
+    "runtimeProfile": "benchmark_completion",
+    "provider": "openrouter"
+  },
+  "prompt": "Official BankerToolBench task btb-1b253d04: Prepare a concise, institutionally rigorous buyer universe presentation assessing potential acquirers of Transco from The Williams Companies. The purpose is to equip senior bankers ahead of a live client meeting with a defensible view on the most likely and most capable buyers in a potential sale process. The analysis should demonstrate strategic logic, financial capacity, asset fit, regulatory feasibility, and execution credibility. The tone should reflect senior advisory work prepared for internal M&A leadership review.\nBegin by framing Transco as a large-scale, FERC-regulated interstate natural gas transmission system with long-haul exposure across the Northeast and Southeast, predominantly contracted cash flows, and utility-like earnings durability. Reference Transco's scale and asset quality to establish the type of buyer with both the strategic appetite and balance sheet capacity to transact.\nSegment the buyer universe into three categories. First, evaluate strategic pipeline operators and large-cap midstream companies (e.g., Kinder Morgan, Enbridge, TC Energy, Energy Transfer). For each, assess geographic adjacency, commercial and operating synergies, pro forma leverage impa",
+  "memoryMode": false,
+  "freshness": {
+    "roomCreatedAfterRunStart": true,
+    "forbiddenPreloadedArtifactsAbsent": true,
+    "artifactsCreatedFresh": [
+      "btb-1b253d04-btb-btb-1b253d04-kkr-midstream-infrastructure-acquisition-regulatory-investor-lands.xlsx",
+      "btb-1b253d04-btb-btb-1b253d04-kkr-midstream-infrastructure-acquisition-regulatory-investor-lands.xlsm",
+      "btb-1b253d04-btb-btb-1b253d04-kkr-midstream-infrastructure-acquisition-regulatory-investor-lands.pptx",
+      "btb-1b253d04-btb-btb-1b253d04-kkr-midstream-infrastructure-acquisition-regulatory-investor-lands.docx",
+      "btb-1b253d04-btb-btb-1b253d04-kkr-midstream-infrastructure-acquisition-regulatory-investor-lands.pdf"
+    ],
+    "uploadedFiles": [
+      "betas_by_industry_category_for_WACC.xlsx",
+      "Equity_Risk_Premium_for_WACC.xlsx",
+      "1c-stonepeak-fund-v-investor-presentationjanuary-2024versrhodeislandvfpublic.pdf",
+      "2025-bip-investor-day-sept-24-consolidated.pdf",
+      "Blackstone3Q25EarningsPressRelease.pdf",
+      "BLK-Investor-Day-2025-WEB.pdf",
+      "KKR_Q325_Earnings_Release.pdf",
+      "2024_cdpq_annual_report.pdf",
+      "2025-fiic-presentation-Berkshire Energy.pdf",
+      "CPP-Investments-F2025-Annual-Report-English.pdf",
+      "GIC_AR_2024-25_PRINT.pdf",
+      "otpp-2024-annual-report-eng.pdf",
+      "01-26-investor-update-ONEOK.pdf",
+      "2025_Q3_Earnings_Presentation_Final.pdf",
+      "4Q-2025-KMI-Investor-Presentation_Dec-Update_vF.pdf",
+      "ET-November-2025-Investor-Presentation_Final.pdf",
+      "tce-2025-q3-results-presentation.pdf",
+      "KKR-US Company Identity.xlsx",
+      "KKR-US Income Statement Annual.xlsx",
+      "KKR-US Balance Sheet Annual.xlsx",
+      "KKR-US Cash Flow Annual.xlsx",
+      "KKR-US Shares Outstanding.xlsx",
+      "KKR-US Price History.xlsx",
+      "KKR-US Revenue Estimate.xlsx",
+      "KKR-US Earnings Estimate.xlsx",
+      "btb-1b253d04-official-task-brief.txt"
+    ]
+  },
+  "ui": {
+    "focusModeEnabled": true,
+    "attentionOverlayVisible": true,
+    "streamingVisible": true,
+    "jobDetailVisible": true,
+    "roomTraceVisible": true,
+    "screenshotPaths": [
+      "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\1b253d04-2d32-41e8-a0b5-5450a0808e3b\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\bankertoolbench-live-room.png"
+    ],
+    "tracePath": "docs\\eval\\bankertoolbench\\live-room\\1b253d04-2d32-41e8-a0b5-5450a0808e3b.json"
+  },
+  "artifacts": {
+    "uploadedFiles": [
+      "betas_by_industry_category_for_WACC.xlsx",
+      "Equity_Risk_Premium_for_WACC.xlsx",
+      "1c-stonepeak-fund-v-investor-presentationjanuary-2024versrhodeislandvfpublic.pdf",
+      "2025-bip-investor-day-sept-24-consolidated.pdf",
+      "Blackstone3Q25EarningsPressRelease.pdf",
+      "BLK-Investor-Day-2025-WEB.pdf",
+      "KKR_Q325_Earnings_Release.pdf",
+      "2024_cdpq_annual_report.pdf",
+      "2025-fiic-presentation-Berkshire Energy.pdf",
+      "CPP-Investments-F2025-Annual-Report-English.pdf",
+      "GIC_AR_2024-25_PRINT.pdf",
+      "otpp-2024-annual-report-eng.pdf",
+      "01-26-investor-update-ONEOK.pdf",
+      "2025_Q3_Earnings_Presentation_Final.pdf",
+      "4Q-2025-KMI-Investor-Presentation_Dec-Update_vF.pdf",
+      "ET-November-2025-Investor-Presentation_Final.pdf",
+      "tce-2025-q3-results-presentation.pdf",
+      "KKR-US Company Identity.xlsx",
+      "KKR-US Income Statement Annual.xlsx",
+      "KKR-US Balance Sheet Annual.xlsx",
+      "KKR-US Cash Flow Annual.xlsx",
+      "KKR-US Shares Outstanding.xlsx",
+      "KKR-US Price History.xlsx",
+      "KKR-US Revenue Estimate.xlsx",
+      "KKR-US Earnings Estimate.xlsx",
+      "btb-1b253d04-official-task-brief.txt"
+    ],
+    "created": [
+      "btb-1b253d04-btb-btb-1b253d04-kkr-midstream-infrastructure-acquisition-regulatory-investor-lands.xlsx",
+      "btb-1b253d04-btb-btb-1b253d04-kkr-midstream-infrastructure-acquisition-regulatory-investor-lands.xlsm",
+      "btb-1b253d04-btb-btb-1b253d04-kkr-midstream-infrastructure-acquisition-regulatory-investor-lands.pptx",
+      "btb-1b253d04-btb-btb-1b253d04-kkr-midstream-infrastructure-acquisition-regulatory-investor-lands.docx",
+      "btb-1b253d04-btb-btb-1b253d04-kkr-midstream-infrastructure-acquisition-regulatory-investor-lands.pdf"
+    ],
+    "exportedFiles": [
+      {
+        "kind": "workbook",
+        "filename": "btb-1b253d04-btb-btb-1b253d04-kkr-midstream-infrastructure-acquisition-regulatory-investor-lands.xlsx",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\1b253d04-2d32-41e8-a0b5-5450a0808e3b\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-1b253d04-btb-btb-1b253d04-kkr-midstream-infrastructure-acquisition-regulatory-investor-lands.xlsx",
+        "extension": ".xlsx",
+        "downloaded": true,
+        "bytes": 9768,
+        "magic": "PK\\x03\\x04"
+      },
+      {
+        "kind": "workbook",
+        "filename": "btb-1b253d04-btb-btb-1b253d04-kkr-midstream-infrastructure-acquisition-regulatory-investor-lands.xlsm",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\1b253d04-2d32-41e8-a0b5-5450a0808e3b\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-1b253d04-btb-btb-1b253d04-kkr-midstream-infrastructure-acquisition-regulatory-investor-lands.xlsm",
+        "extension": ".xlsm",
+        "downloaded": true,
+        "bytes": 9768,
+        "magic": "PK\\x03\\x04"
+      },
+      {
+        "kind": "presentation",
+        "filename": "btb-1b253d04-btb-btb-1b253d04-kkr-midstream-infrastructure-acquisition-regulatory-investor-lands.pptx",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\1b253d04-2d32-41e8-a0b5-5450a0808e3b\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-1b253d04-btb-btb-1b253d04-kkr-midstream-infrastructure-acquisition-regulatory-investor-lands.pptx",
+        "extension": ".pptx",
+        "downloaded": true,
+        "bytes": 8366,
+        "magic": "PK\\x03\\x04"
+      },
+      {
+        "kind": "document",
+        "filename": "btb-1b253d04-btb-btb-1b253d04-kkr-midstream-infrastructure-acquisition-regulatory-investor-lands.docx",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\1b253d04-2d32-41e8-a0b5-5450a0808e3b\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-1b253d04-btb-btb-1b253d04-kkr-midstream-infrastructure-acquisition-regulatory-investor-lands.docx",
+        "extension": ".docx",
+        "downloaded": true,
+        "bytes": 4408,
+        "magic": "PK\\x03\\x04"
+      },
+      {
+        "kind": "pdf",
+        "filename": "btb-1b253d04-btb-btb-1b253d04-kkr-midstream-infrastructure-acquisition-regulatory-investor-lands.pdf",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\1b253d04-2d32-41e8-a0b5-5450a0808e3b\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-1b253d04-btb-btb-1b253d04-kkr-midstream-infrastructure-acquisition-regulatory-investor-lands.pdf",
+        "extension": ".pdf",
+        "downloaded": true,
+        "bytes": 3248,
+        "magic": "%PDF"
+      }
+    ],
+    "reopenedFiles": [
+      {
+        "kind": "workbook",
+        "filename": "btb-1b253d04-btb-btb-1b253d04-kkr-midstream-infrastructure-acquisition-regulatory-investor-lands.xlsx",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "ZIP package contains xl/workbook.xml; placeholder/caveat content scan passed (6269 chars)"
+      },
+      {
+        "kind": "workbook",
+        "filename": "btb-1b253d04-btb-btb-1b253d04-kkr-midstream-infrastructure-acquisition-regulatory-investor-lands.xlsm",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "ZIP package contains xl/workbook.xml; placeholder/caveat content scan passed (6269 chars)"
+      },
+      {
+        "kind": "presentation",
+        "filename": "btb-1b253d04-btb-btb-1b253d04-kkr-midstream-infrastructure-acquisition-regulatory-investor-lands.pptx",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "ZIP package contains ppt/presentation.xml; placeholder/caveat content scan passed (5672 chars)"
+      },
+      {
+        "kind": "document",
+        "filename": "btb-1b253d04-btb-btb-1b253d04-kkr-midstream-infrastructure-acquisition-regulatory-investor-lands.docx",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "ZIP package contains word/document.xml; placeholder/caveat content scan passed (6236 chars)"
+      },
+      {
+        "kind": "pdf",
+        "filename": "btb-1b253d04-btb-btb-1b253d04-kkr-midstream-infrastructure-acquisition-regulatory-investor-lands.pdf",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "PDF header reopened; placeholder/caveat content scan passed (5971 chars)"
+      }
+    ]
+  },
+  "scorer": {
+    "name": "BankerToolBench proof verifier",
+    "command": "npm run benchmark:bankertoolbench:proof",
+    "verdict": "pass",
+    "score": 1,
+    "details": {
+      "verifierOutputTail": "\n> noderoom@0.1.1 benchmark:bankertoolbench:proof\n> tsx scripts/bankertoolbench-proof-check.ts\n\nBankerToolBench proof check passed: stage=1/1 weightedRubric=6 run=0/1 pass positive=1/1 pass candidateBeforeEvaluator=true leaks=0/2+0/3+0/4\n",
+      "packageManifestPath": "test-results\\bankertoolbench\\matrix\\1b253d04-2d32-41e8-a0b5-5450a0808e3b\\package-manifest.json",
+      "downloadedExtensions": [
+        ".xlsx",
+        ".xlsm",
+        ".pptx",
+        ".docx",
+        ".pdf"
+      ],
+      "exportSource": "browser_download_link",
+      "agentTerminalQuality": {
+        "statusText": "completed via recovered Convex job: idstream-infrastructure-acquisition-regulatory-investor-lands.docx, btb-1b253d04-btb-btb-1b253d04-kkr-midstream-infrastructure-acquisition-regulatory-investor-lands.pdf. Coverage confirmed for FERC, TC, KKR, AUM, CPP, CDPQ, GIC, U.S, CFIUS.",
+        "evidenceTextLength": 2326,
+        "detail": "agent reached completed status or visible completion text, with no missing-source/unfinished-work caveats"
+      },
+      "taskCoverage": {
+        "ok": true,
+        "requiredTickers": [
+          "FERC",
+          "TC",
+          "KKR",
+          "AUM",
+          "CPP",
+          "CDPQ",
+          "GIC",
+          "U.S",
+          "CFIUS"
+        ],
+        "missingTickers": [],
+        "detail": "generated package mentions every requested ticker/entity: FERC, TC, KKR, AUM, CPP, CDPQ, GIC, U.S, CFIUS"
+      }
+    }
+  },
+  "visualJudge": {
+    "verdict": "not_run",
+    "reason": "GOOGLE_GENERATIVE_AI_API_KEY is not set; deterministic browser/download/reopen/verifier proof passed."
+  },
+  "gatesProven": [
+    "fresh_room_join",
+    "official_fixture_upload",
+    "public_nodeagent_invocation",
+    "visible_streaming_progress",
+    "trace_video_artifacts",
+    "no_memory_mode_shortcut",
+    "focus_mode_enabled",
+    "focus_box_or_attention_overlay",
+    "agent_live_loop",
+    "agent_terminal_quality_gate",
+    "room_trace_visible",
+    "job_detail_visible",
+    "deliverable_export_download",
+    "artifact_reopen_validation",
+    "artifact_placeholder_scan",
+    "official_scorer_handoff"
+  ],
+  "passed": true
+}

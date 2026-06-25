@@ -20,6 +20,7 @@ export default defineConfig({
   testMatch: [
     "tests/real-room-cheap-e2e.spec.ts",
     "e2e/benchmark-ui-spreadsheetbench.spec.ts",
+    "e2e/benchmark-ui-bankertoolbench.spec.ts",
     "e2e/uploaded-artifact-live-rendering.spec.ts",
   ],
   fullyParallel: false,

@@ -133,6 +133,95 @@ describe("persistent OKF runtime", () => {
     expect(resolvedEvidence.ok).toBe(true);
     expect(resolvedEvidence.resource).toBe(String(parsedSource.sourceId));
     expect(resolvedEvidence.snippet).toContain("ARR7: ARR source says $15M ARR");
+
+    const a1SourceId = await t.run(async (ctx) => {
+      const now = Date.now();
+      const id = await ctx.db.insert("artifacts", {
+        roomId,
+        kind: "sheet" as const,
+        title: "A1 source workbook",
+        version: 1,
+        order: ["A1", "B1", "C1", "A2", "B2", "C2"],
+        updatedAt: now,
+        createdBy: proof.actor,
+        visibility: "room" as const,
+      });
+      await insertElement(ctx, id, "A1", "Metric");
+      await insertElement(ctx, id, "B1", "FY2024");
+      await insertElement(ctx, id, "C1", "FY2025");
+      await insertElement(ctx, id, "A2", "Revenue");
+      await insertElement(ctx, id, "B2", 100);
+      await insertElement(ctx, id, "C2", 125);
+      return id;
+    });
+
+    const a1Row = await t.query(api.okf.openLiteral, { roomId, requester: proof, sourceArtifactId: String(a1SourceId), row: 2 });
+    expect(a1Row.ok).toBe(true);
+    expect(a1Row.snippet).toContain("A2: Revenue");
+    expect(a1Row.snippet).toContain("B2: 100");
+    expect(a1Row.snippet).toContain("C2: 125");
+  });
+
+  it("returns recoverable literal source errors for malformed artifact ids", async () => {
+    const { t, proof, roomId } = await setupOkfRoom();
+    const malformedId = "j972mz0k1pbxqmr0mrrdg1899hbs";
+
+    const publicLiteral = await t.query(api.okf.openLiteral, {
+      roomId,
+      requester: proof,
+      sourceArtifactId: malformedId,
+      row: 1,
+      column: "J",
+    });
+    expect(publicLiteral).toMatchObject({ ok: false, error: "artifact_not_found" });
+    expect(publicLiteral.snippet).toContain("exact artifact id");
+
+    const agentLiteral = await t.query(internal.okf.openLiteralForAgent, {
+      roomId,
+      actor: { kind: "agent" as const, id: "agent_room", name: "Room NodeAgent", scope: "public" as const },
+      sourceArtifactId: malformedId,
+      row: 1,
+      column: "J",
+    });
+    expect(agentLiteral).toMatchObject({ ok: false, error: "artifact_not_found" });
+    expect(agentLiteral.snippet).toContain("exact artifact id");
+  });
+
+  it("opens uploaded text-note bodies beyond the default literal snippet cap", async () => {
+    const { t, proof, roomId } = await setupOkfRoom();
+    const longBrief = [
+      "Official BankerToolBench task btb-long-brief",
+      "Instruction:",
+      "BEGIN_FULL_BRIEF",
+      "x".repeat(1_200),
+      "critical final section: use the exact uploaded task instruction, not a truncated snippet.",
+    ].join("\n");
+    const textArtifactId = await t.run(async (ctx) => {
+      const now = Date.now();
+      const artifactId = await ctx.db.insert("artifacts", {
+        roomId,
+        kind: "note" as const,
+        title: "btb-long-brief-official-task-brief.txt",
+        version: 1,
+        order: ["doc"],
+        updatedAt: now,
+        createdBy: proof.actor,
+        visibility: "room" as const,
+        meta: { upload: { fileName: "btb-long-brief-official-task-brief.txt", mimeType: "text/plain", size: longBrief.length, parsedAt: now } },
+      });
+      await insertElement(ctx, artifactId, "doc", {
+        fileName: "btb-long-brief-official-task-brief.txt",
+        mimeType: "text/plain",
+        size: longBrief.length,
+        text: longBrief,
+      });
+      return artifactId;
+    });
+
+    const literal = await t.query(api.okf.openLiteral, { roomId, requester: proof, sourceArtifactId: String(textArtifactId) });
+    expect(literal.ok).toBe(true);
+    expect(literal.snippet?.length).toBeGreaterThan(900);
+    expect(literal.snippet).toContain("critical final section");
   });
 
   it("partitions public OKF from owner-private overlays", async () => {
@@ -329,6 +418,17 @@ async function setupOkfRoom() {
     }),
   );
   const proof = { actor: { kind: "user" as const, id: String(memberId), name: "Host" }, token };
+  await t.run((ctx) =>
+    ctx.db.insert("agentSessions", {
+      roomId,
+      agentId: "agent_room",
+      agentName: "Room NodeAgent",
+      scope: "public" as const,
+      status: "idle" as const,
+      lastAction: "seeded",
+      updatedAt: now,
+    }),
+  );
   const artifactId = await t.run((ctx) =>
     ctx.db.insert("artifacts", {
       roomId,

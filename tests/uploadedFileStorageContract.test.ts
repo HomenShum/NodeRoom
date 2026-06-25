@@ -84,4 +84,55 @@ describe("uploaded file storage contract", () => {
     expect(String(sourceFile?.artifactId)).toBe(String(artifactId));
     expect(sourceFile?.status).toBe("linked");
   });
+
+  it("returns large uploaded sheet element maps without exceeding Convex object field limits", async () => {
+    const t = convexTest(schema, modules);
+    const now = Date.now();
+    const authTokenHash = await hashToken(token);
+    const roomId = await t.run((ctx) =>
+      ctx.db.insert("rooms", {
+        code: "BIGXLS",
+        title: "Large upload room",
+        hostId: "",
+        autoAllow: true,
+        status: "live" as const,
+        createdAt: now,
+      }),
+    );
+    const memberId = await t.run((ctx) =>
+      ctx.db.insert("members", {
+        roomId,
+        name: "Host",
+        role: "host" as const,
+        anon: false,
+        color: "#111111",
+        authTokenHash,
+        lastSeenAt: now,
+      }),
+    );
+    const actor = { kind: "user" as const, id: String(memberId), name: "Host" };
+    const proof = { actor, token };
+    const seed = Array.from({ length: 1030 }, (_, index) => ({
+      id: `R${index + 1}__A`,
+      value: `value ${index + 1}`,
+    }));
+
+    const artifactId = await t.mutation(api.artifacts.createArtifact, {
+      roomId,
+      kind: "sheet",
+      title: "large-model.xlsx",
+      seed,
+      meta: { upload: { fileName: "large-model.xlsx", mimeType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", size: 4096, parsedAt: now } },
+      proof,
+    });
+
+    const payload = await t.query(api.artifacts.elements, { roomId, artifactId, requester: proof }) as {
+      __transport?: string;
+      entries?: Array<[string, { value: unknown }]>;
+    };
+
+    expect(payload.__transport).toBe("entries");
+    expect(payload.entries).toHaveLength(1030);
+    expect(payload.entries?.find(([id]) => id === "R1030__A")?.[1].value).toBe("value 1030");
+  });
 });

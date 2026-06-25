@@ -1,0 +1,203 @@
+{
+  "schema": 1,
+  "caseId": "FR-020",
+  "benchmark": "bankertoolbench",
+  "taskId": "1d073c85-42fe-4d6d-8539-069ea87082f8",
+  "generatedAt": "2026-06-25T02:02:26.186Z",
+  "baseUrl": "http://127.0.0.1:5273",
+  "roomId": "NR8UINOU9OI",
+  "roomUrl": "http://127.0.0.1:5273/?room=NR8UINOU9OI&name=Host",
+  "command": "BTB_LIVE_ROOM_E2E=1 BTB_UI_BUNDLE_ROOT=<official-bundle> BTB_UI_VERIFIER_COMMAND=<verifier> BENCH_BASE_URL=<base> npx playwright test --config playwright.real-flow.config.ts e2e/benchmark-ui-bankertoolbench.spec.ts --headed",
+  "model": {
+    "requested": "specific",
+    "resolved": "z-ai/glm-5.2",
+    "routePolicy": "specific",
+    "runtimeProfile": "benchmark_completion",
+    "provider": "openrouter"
+  },
+  "prompt": "Official BankerToolBench task btb-1d073c85: You are a leveraged finance analyst at a bulge-bracket investment bank. A private equity firm is planning to take Shake Shack private at a 20% premium to its closing share price on 9/12/2025 ($81.90). The Sponsor has reached out to your MD to request a leverage read on this potential transaction. The Sponsor has asked for a 40% LTV term loan and 1 turn of revolver capacity. Your MD has asked your team to determine whether the business can support the proposed debt structure.\nYour VP has asked you to put together an initial model to test the scenario and determine the covenant cushion the deal would have.\nYour VP mentioned it doesn’t need to be a full-blown LBO model for now; include a sources-and-uses statement, an income statement, a cash flow statement, a debt schedule, relevant credit metrics, a covenant test schedule, and two sensitivity models on the debt repayment capacity and net leverage at the end of the forecast period.\nYour VP has told you to use the following assumptions for the model.\nThe transaction closes at the end of Q3 2025 (9/30/2025), and the forecast period is fiscal year-end 2025 (which would be a stub period in the cash flow). The final forecast period should",
+  "memoryMode": false,
+  "freshness": {
+    "roomCreatedAfterRunStart": true,
+    "forbiddenPreloadedArtifactsAbsent": true,
+    "artifactsCreatedFresh": [
+      "btb-1d073c85-shake-shack-lbo-initial-model-sources-uses-income-statement-cash-flow-debt-schedule.xlsx",
+      "btb-1d073c85-shake-shack-lbo-initial-model-sources-uses-income-statement-cash-flow-debt-schedule.xlsm",
+      "btb-1d073c85-shake-shack-lbo-initial-model-sources-uses-income-statement-cash-flow-debt-schedule.pptx",
+      "btb-1d073c85-shake-shack-lbo-initial-model-sources-uses-income-statement-cash-flow-debt-schedule.docx",
+      "btb-1d073c85-shake-shack-lbo-initial-model-sources-uses-income-statement-cash-flow-debt-schedule.pdf"
+    ],
+    "uploadedFiles": [
+      "betas_by_industry_category_for_WACC.xlsx",
+      "Equity_Risk_Premium_for_WACC.xlsx",
+      "btb-1d073c85-official-task-brief.txt"
+    ]
+  },
+  "ui": {
+    "focusModeEnabled": true,
+    "attentionOverlayVisible": true,
+    "streamingVisible": true,
+    "jobDetailVisible": true,
+    "roomTraceVisible": true,
+    "screenshotPaths": [
+      "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\1d073c85-42fe-4d6d-8539-069ea87082f8\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\bankertoolbench-live-room.png"
+    ],
+    "tracePath": "docs\\eval\\bankertoolbench\\live-room\\1d073c85-42fe-4d6d-8539-069ea87082f8.json"
+  },
+  "artifacts": {
+    "uploadedFiles": [
+      "betas_by_industry_category_for_WACC.xlsx",
+      "Equity_Risk_Premium_for_WACC.xlsx",
+      "btb-1d073c85-official-task-brief.txt"
+    ],
+    "created": [
+      "btb-1d073c85-shake-shack-lbo-initial-model-sources-uses-income-statement-cash-flow-debt-schedule.xlsx",
+      "btb-1d073c85-shake-shack-lbo-initial-model-sources-uses-income-statement-cash-flow-debt-schedule.xlsm",
+      "btb-1d073c85-shake-shack-lbo-initial-model-sources-uses-income-statement-cash-flow-debt-schedule.pptx",
+      "btb-1d073c85-shake-shack-lbo-initial-model-sources-uses-income-statement-cash-flow-debt-schedule.docx",
+      "btb-1d073c85-shake-shack-lbo-initial-model-sources-uses-income-statement-cash-flow-debt-schedule.pdf"
+    ],
+    "exportedFiles": [
+      {
+        "kind": "workbook",
+        "filename": "btb-1d073c85-shake-shack-lbo-initial-model-sources-uses-income-statement-cash-flow-debt-schedule.xlsx",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\1d073c85-42fe-4d6d-8539-069ea87082f8\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-1d073c85-shake-shack-lbo-initial-model-sources-uses-income-statement-cash-flow-debt-schedule.xlsx",
+        "extension": ".xlsx",
+        "downloaded": true,
+        "bytes": 11357,
+        "magic": "PK\\x03\\x04"
+      },
+      {
+        "kind": "workbook",
+        "filename": "btb-1d073c85-shake-shack-lbo-initial-model-sources-uses-income-statement-cash-flow-debt-schedule.xlsm",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\1d073c85-42fe-4d6d-8539-069ea87082f8\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-1d073c85-shake-shack-lbo-initial-model-sources-uses-income-statement-cash-flow-debt-schedule.xlsm",
+        "extension": ".xlsm",
+        "downloaded": true,
+        "bytes": 11357,
+        "magic": "PK\\x03\\x04"
+      },
+      {
+        "kind": "presentation",
+        "filename": "btb-1d073c85-shake-shack-lbo-initial-model-sources-uses-income-statement-cash-flow-debt-schedule.pptx",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\1d073c85-42fe-4d6d-8539-069ea87082f8\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-1d073c85-shake-shack-lbo-initial-model-sources-uses-income-statement-cash-flow-debt-schedule.pptx",
+        "extension": ".pptx",
+        "downloaded": true,
+        "bytes": 7820,
+        "magic": "PK\\x03\\x04"
+      },
+      {
+        "kind": "document",
+        "filename": "btb-1d073c85-shake-shack-lbo-initial-model-sources-uses-income-statement-cash-flow-debt-schedule.docx",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\1d073c85-42fe-4d6d-8539-069ea87082f8\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-1d073c85-shake-shack-lbo-initial-model-sources-uses-income-statement-cash-flow-debt-schedule.docx",
+        "extension": ".docx",
+        "downloaded": true,
+        "bytes": 4558,
+        "magic": "PK\\x03\\x04"
+      },
+      {
+        "kind": "pdf",
+        "filename": "btb-1d073c85-shake-shack-lbo-initial-model-sources-uses-income-statement-cash-flow-debt-schedule.pdf",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\1d073c85-42fe-4d6d-8539-069ea87082f8\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-1d073c85-shake-shack-lbo-initial-model-sources-uses-income-statement-cash-flow-debt-schedule.pdf",
+        "extension": ".pdf",
+        "downloaded": true,
+        "bytes": 4589,
+        "magic": "%PDF"
+      }
+    ],
+    "reopenedFiles": [
+      {
+        "kind": "workbook",
+        "filename": "btb-1d073c85-shake-shack-lbo-initial-model-sources-uses-income-statement-cash-flow-debt-schedule.xlsx",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "ZIP package contains xl/workbook.xml; placeholder/caveat content scan passed (8711 chars)"
+      },
+      {
+        "kind": "workbook",
+        "filename": "btb-1d073c85-shake-shack-lbo-initial-model-sources-uses-income-statement-cash-flow-debt-schedule.xlsm",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "ZIP package contains xl/workbook.xml; placeholder/caveat content scan passed (8711 chars)"
+      },
+      {
+        "kind": "presentation",
+        "filename": "btb-1d073c85-shake-shack-lbo-initial-model-sources-uses-income-statement-cash-flow-debt-schedule.pptx",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "ZIP package contains ppt/presentation.xml; placeholder/caveat content scan passed (3727 chars)"
+      },
+      {
+        "kind": "document",
+        "filename": "btb-1d073c85-shake-shack-lbo-initial-model-sources-uses-income-statement-cash-flow-debt-schedule.docx",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "ZIP package contains word/document.xml; placeholder/caveat content scan passed (6520 chars)"
+      },
+      {
+        "kind": "pdf",
+        "filename": "btb-1d073c85-shake-shack-lbo-initial-model-sources-uses-income-statement-cash-flow-debt-schedule.pdf",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "PDF header reopened; placeholder/caveat content scan passed (8633 chars)"
+      }
+    ]
+  },
+  "scorer": {
+    "name": "BankerToolBench proof verifier",
+    "command": "npm run benchmark:bankertoolbench:proof",
+    "verdict": "pass",
+    "score": 1,
+    "details": {
+      "verifierOutputTail": "\n> noderoom@0.1.1 benchmark:bankertoolbench:proof\n> tsx scripts/bankertoolbench-proof-check.ts\n\nBankerToolBench proof check passed: stage=1/1 weightedRubric=6 run=0/1 pass positive=1/1 pass candidateBeforeEvaluator=true leaks=0/2+0/3+0/4\n",
+      "packageManifestPath": "test-results\\bankertoolbench\\matrix\\1d073c85-42fe-4d6d-8539-069ea87082f8\\package-manifest.json",
+      "downloadedExtensions": [
+        ".xlsx",
+        ".xlsm",
+        ".pptx",
+        ".docx",
+        ".pdf"
+      ],
+      "exportSource": "browser_download_link",
+      "agentTerminalQuality": {
+        "statusText": "completed via recovered Convex job: shake-shack-lbo-initial-model-sources-uses-income-statement-cash-flow-debt-schedule.docx, btb-1d073c85-shake-shack-lbo-initial-model-sources-uses-income-statement-cash-flow-debt-schedule.pdf. Coverage confirmed for LTV, VP, RCF, SOFR, COGS.",
+        "evidenceTextLength": 2306,
+        "detail": "agent reached completed status or visible completion text, with no missing-source/unfinished-work caveats"
+      },
+      "taskCoverage": {
+        "ok": true,
+        "requiredTickers": [
+          "LTV",
+          "VP",
+          "RCF",
+          "SOFR",
+          "COGS"
+        ],
+        "missingTickers": [],
+        "detail": "generated package mentions every requested ticker/entity: LTV, VP, RCF, SOFR, COGS"
+      }
+    }
+  },
+  "visualJudge": {
+    "verdict": "not_run",
+    "reason": "GOOGLE_GENERATIVE_AI_API_KEY is not set; deterministic browser/download/reopen/verifier proof passed."
+  },
+  "gatesProven": [
+    "fresh_room_join",
+    "official_fixture_upload",
+    "public_nodeagent_invocation",
+    "visible_streaming_progress",
+    "trace_video_artifacts",
+    "no_memory_mode_shortcut",
+    "focus_mode_enabled",
+    "focus_box_or_attention_overlay",
+    "agent_live_loop",
+    "agent_terminal_quality_gate",
+    "room_trace_visible",
+    "job_detail_visible",
+    "deliverable_export_download",
+    "artifact_reopen_validation",
+    "artifact_placeholder_scan",
+    "official_scorer_handoff"
+  ],
+  "passed": true
+}

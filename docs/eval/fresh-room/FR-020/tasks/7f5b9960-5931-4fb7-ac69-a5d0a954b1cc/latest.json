@@ -1,0 +1,199 @@
+{
+  "schema": 1,
+  "caseId": "FR-020",
+  "benchmark": "bankertoolbench",
+  "taskId": "7f5b9960-5931-4fb7-ac69-a5d0a954b1cc",
+  "generatedAt": "2026-06-25T00:58:50.365Z",
+  "baseUrl": "http://127.0.0.1:5273",
+  "roomId": "NRSS6SU2O3G",
+  "roomUrl": "http://127.0.0.1:5273/?room=NRSS6SU2O3G&name=Host&focusMode=1",
+  "command": "BTB recovery join room=NRSS6SU2O3G task=7f5b9960-5931-4fb7-ac69-a5d0a954b1cc command=\"npm run sfn -- noderoom run-btb-matrix --task-id 7f5b9960-5931-4fb7-ac69-a5d0a954b1cc --recover-room-code NRSS6SU2O3G --headed\"",
+  "model": {
+    "requested": "specific",
+    "resolved": "z-ai/glm-5.2",
+    "routePolicy": "specific",
+    "runtimeProfile": "benchmark_completion",
+    "provider": "openrouter"
+  },
+  "prompt": "Official BankerToolBench task btb-7f5b9960: My VP just pulled me into his office - we're pitching FedEx to a potential strategic acquirer next week and he needs a standalone DCF to anchor our valuation discussion.\n\nHe thinks FedEx has been trading at a discount to historical multiples and wants to see if the DCF supports that view. He wants to use data as of 12/19/2025 to use as the starting point, with FY25 as the base year.\n\nFor assumptions, he gave me the following guidance:\n- 10-year projection horizon\n- Revenue growth at 3% for the first three years, stepping down to 2.5% in the outer years\n- EBITDA margins of 12% near-term, normalizing to 11.5% long-term\n- D&A at 4.8%, CapEx at 4.5%, and NWC at 3.0% of revenue\n- 25% tax rate\n\nFor WACC, use 4.50% risk-free, 1.15 beta, 5.50% market risk premium, 5.00% pre-tax cost of debt, and a 35/65 debt-to-equity target structure.\n\nHe wants both terminal value approaches - 8.0x exit multiple and 2.5% perpetuity growth - so we have two perspectives for the client discussion. Use mid-year convention for discounting.\n\nBuild the equity bridge showing implied share price versus the current trading price (~$289), and include three sensitivity tables: WACC vs exit multiple, WACC vs perpetuit",
+  "memoryMode": false,
+  "freshness": {
+    "roomCreatedAfterRunStart": true,
+    "forbiddenPreloadedArtifactsAbsent": true,
+    "artifactsCreatedFresh": [
+      "btb-7f5b9960-fdx-standalone-dcf-valuation-vp-pitch-anchor-12-19-2025.xlsx",
+      "btb-7f5b9960-fdx-standalone-dcf-valuation-vp-pitch-anchor-12-19-2025.xlsm",
+      "btb-7f5b9960-fdx-standalone-dcf-valuation-vp-pitch-anchor-12-19-2025.pptx",
+      "btb-7f5b9960-fdx-standalone-dcf-valuation-vp-pitch-anchor-12-19-2025.docx",
+      "btb-7f5b9960-fdx-standalone-dcf-valuation-vp-pitch-anchor-12-19-2025.pdf"
+    ],
+    "uploadedFiles": [
+      "betas_by_industry_category_for_WACC.xlsx",
+      "Equity_Risk_Premium_for_WACC.xlsx"
+    ]
+  },
+  "ui": {
+    "focusModeEnabled": true,
+    "attentionOverlayVisible": true,
+    "streamingVisible": true,
+    "jobDetailVisible": false,
+    "roomTraceVisible": true,
+    "screenshotPaths": [
+      "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\7f5b9960-5931-4fb7-ac69-a5d0a954b1cc\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\bankertoolbench-live-room.png"
+    ],
+    "tracePath": "docs\\eval\\bankertoolbench\\live-room\\7f5b9960-5931-4fb7-ac69-a5d0a954b1cc.json"
+  },
+  "artifacts": {
+    "uploadedFiles": [
+      "betas_by_industry_category_for_WACC.xlsx",
+      "Equity_Risk_Premium_for_WACC.xlsx"
+    ],
+    "created": [
+      "btb-7f5b9960-fdx-standalone-dcf-valuation-vp-pitch-anchor-12-19-2025.xlsx",
+      "btb-7f5b9960-fdx-standalone-dcf-valuation-vp-pitch-anchor-12-19-2025.xlsm",
+      "btb-7f5b9960-fdx-standalone-dcf-valuation-vp-pitch-anchor-12-19-2025.pptx",
+      "btb-7f5b9960-fdx-standalone-dcf-valuation-vp-pitch-anchor-12-19-2025.docx",
+      "btb-7f5b9960-fdx-standalone-dcf-valuation-vp-pitch-anchor-12-19-2025.pdf"
+    ],
+    "exportedFiles": [
+      {
+        "kind": "workbook",
+        "filename": "btb-7f5b9960-fdx-standalone-dcf-valuation-vp-pitch-anchor-12-19-2025.xlsx",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\7f5b9960-5931-4fb7-ac69-a5d0a954b1cc\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-7f5b9960-fdx-standalone-dcf-valuation-vp-pitch-anchor-12-19-2025.xlsx",
+        "extension": ".xlsx",
+        "downloaded": true,
+        "bytes": 14313,
+        "magic": "PK\\x03\\x04"
+      },
+      {
+        "kind": "workbook",
+        "filename": "btb-7f5b9960-fdx-standalone-dcf-valuation-vp-pitch-anchor-12-19-2025.xlsm",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\7f5b9960-5931-4fb7-ac69-a5d0a954b1cc\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-7f5b9960-fdx-standalone-dcf-valuation-vp-pitch-anchor-12-19-2025.xlsm",
+        "extension": ".xlsm",
+        "downloaded": true,
+        "bytes": 14313,
+        "magic": "PK\\x03\\x04"
+      },
+      {
+        "kind": "presentation",
+        "filename": "btb-7f5b9960-fdx-standalone-dcf-valuation-vp-pitch-anchor-12-19-2025.pptx",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\7f5b9960-5931-4fb7-ac69-a5d0a954b1cc\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-7f5b9960-fdx-standalone-dcf-valuation-vp-pitch-anchor-12-19-2025.pptx",
+        "extension": ".pptx",
+        "downloaded": true,
+        "bytes": 7274,
+        "magic": "PK\\x03\\x04"
+      },
+      {
+        "kind": "document",
+        "filename": "btb-7f5b9960-fdx-standalone-dcf-valuation-vp-pitch-anchor-12-19-2025.docx",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\7f5b9960-5931-4fb7-ac69-a5d0a954b1cc\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-7f5b9960-fdx-standalone-dcf-valuation-vp-pitch-anchor-12-19-2025.docx",
+        "extension": ".docx",
+        "downloaded": true,
+        "bytes": 4589,
+        "magic": "PK\\x03\\x04"
+      },
+      {
+        "kind": "pdf",
+        "filename": "btb-7f5b9960-fdx-standalone-dcf-valuation-vp-pitch-anchor-12-19-2025.pdf",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\7f5b9960-5931-4fb7-ac69-a5d0a954b1cc\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-7f5b9960-fdx-standalone-dcf-valuation-vp-pitch-anchor-12-19-2025.pdf",
+        "extension": ".pdf",
+        "downloaded": true,
+        "bytes": 4772,
+        "magic": "%PDF"
+      }
+    ],
+    "reopenedFiles": [
+      {
+        "kind": "workbook",
+        "filename": "btb-7f5b9960-fdx-standalone-dcf-valuation-vp-pitch-anchor-12-19-2025.xlsx",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j976kshbrnqz83ab87c4byywd989aqg4; placeholder/caveat content scan passed (12201 chars)"
+      },
+      {
+        "kind": "workbook",
+        "filename": "btb-7f5b9960-fdx-standalone-dcf-valuation-vp-pitch-anchor-12-19-2025.xlsm",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j97cc87kxpabgecdmg4xp93akx89amqv; placeholder/caveat content scan passed (12201 chars)"
+      },
+      {
+        "kind": "presentation",
+        "filename": "btb-7f5b9960-fdx-standalone-dcf-valuation-vp-pitch-anchor-12-19-2025.pptx",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "ZIP package contains ppt/presentation.xml; recovered from Convex room artifact j97ezagye119vns49g99htzcn589af0j; placeholder/caveat content scan passed (2566 chars)"
+      },
+      {
+        "kind": "document",
+        "filename": "btb-7f5b9960-fdx-standalone-dcf-valuation-vp-pitch-anchor-12-19-2025.docx",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "ZIP package contains word/document.xml; recovered from Convex room artifact j97466a0w34sj7361td3fjfwxh89bdbc; placeholder/caveat content scan passed (6006 chars)"
+      },
+      {
+        "kind": "pdf",
+        "filename": "btb-7f5b9960-fdx-standalone-dcf-valuation-vp-pitch-anchor-12-19-2025.pdf",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "PDF header reopened; recovered from Convex room artifact j976b1m6dx4ywv9jhk9fret9xh89ahc7; placeholder/caveat content scan passed (9021 chars)"
+      }
+    ]
+  },
+  "scorer": {
+    "name": "BankerToolBench proof verifier",
+    "command": "npm run benchmark:bankertoolbench:proof",
+    "verdict": "pass",
+    "score": 1,
+    "details": {
+      "verifierOutputTail": "\n> noderoom@0.1.1 benchmark:bankertoolbench:proof\n> tsx scripts/bankertoolbench-proof-check.ts\n\nBankerToolBench proof check passed: stage=1/1 weightedRubric=6 run=0/1 pass positive=1/1 pass candidateBeforeEvaluator=true leaks=0/2+0/3+0/4\n",
+      "packageManifestPath": "test-results\\bankertoolbench\\matrix\\7f5b9960-5931-4fb7-ac69-a5d0a954b1cc\\package-manifest.json",
+      "downloadedExtensions": [
+        ".xlsx",
+        ".xlsm",
+        ".pptx",
+        ".docx",
+        ".pdf"
+      ],
+      "exportSource": "convex_room_artifact_data_url_after_browser_ui_proof",
+      "agentTerminalQuality": {
+        "statusText": "completed via recovered Convex job: dalone-dcf-valuation-vp-pitch-anchor-12-19-2025.pptx, btb-7f5b9960-fdx-standalone-dcf-valuation-vp-pitch-anchor-12-19-2025.docx, btb-7f5b9960-fdx-standalone-dcf-valuation-vp-pitch-anchor-12-19-2025.pdf. Coverage confirmed for FDX, VP, WACC.",
+        "evidenceTextLength": 548,
+        "detail": "agent reached completed status or visible completion text, with no missing-source/unfinished-work caveats"
+      },
+      "taskCoverage": {
+        "ok": true,
+        "requiredTickers": [
+          "FDX",
+          "VP",
+          "WACC"
+        ],
+        "missingTickers": [],
+        "detail": "generated package mentions every requested ticker/entity: FDX, VP, WACC"
+      }
+    }
+  },
+  "visualJudge": {
+    "verdict": "not_run",
+    "reason": "GOOGLE_GENERATIVE_AI_API_KEY is not set; deterministic browser/download/reopen/verifier proof passed."
+  },
+  "gatesProven": [
+    "fresh_room_join",
+    "official_fixture_upload",
+    "public_nodeagent_invocation",
+    "visible_streaming_progress",
+    "trace_video_artifacts",
+    "no_memory_mode_shortcut",
+    "focus_mode_enabled",
+    "focus_box_or_attention_overlay",
+    "agent_live_loop",
+    "agent_terminal_quality_gate",
+    "room_trace_visible",
+    "deliverable_export_download",
+    "artifact_reopen_validation",
+    "artifact_placeholder_scan",
+    "official_scorer_handoff",
+    "recovered_completed_fresh_room"
+  ],
+  "passed": true
+}

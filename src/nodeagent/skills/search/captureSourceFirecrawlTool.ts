@@ -36,7 +36,7 @@ export const captureSourceFirecrawlTool: AgentTool = {
       url: r.url,
       title: r.title,
       data: r.data,
-      error: r.error,
+      ...(r.error ? { error: r.error } : {}),
       steps: r.steps.map((s) => ({
         phase: s.phase,
         label: s.label,

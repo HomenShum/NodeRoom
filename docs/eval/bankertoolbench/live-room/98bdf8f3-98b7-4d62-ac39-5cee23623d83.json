@@ -1,0 +1,100 @@
+{
+  "schema": 1,
+  "taskId": "98bdf8f3-98b7-4d62-ac39-5cee23623d83",
+  "harborTaskId": "btb-98bdf8f3",
+  "generatedAt": "2026-06-25T01:55:52.221Z",
+  "baseUrl": "http://127.0.0.1:5273",
+  "roomUrl": "http://127.0.0.1:5273/?room=NRPFCYQJU9C&name=Host",
+  "memoryMode": false,
+  "expectedExtensions": [
+    ".xlsx",
+    ".xlsm",
+    ".pptx",
+    ".docx",
+    ".pdf"
+  ],
+  "visibleExtensions": [
+    ".xlsx",
+    ".xlsm",
+    ".pptx",
+    ".docx",
+    ".pdf"
+  ],
+  "downloadedFiles": [
+    {
+      "kind": "workbook",
+      "filename": "btb-98bdf8f3-btb-98bdf8f3-deliverable.xlsx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\98bdf8f3-98b7-4d62-ac39-5cee23623d83\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-98bdf8f3-btb-98bdf8f3-deliverable.xlsx",
+      "extension": ".xlsx",
+      "bytes": 6774,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (364 chars)"
+    },
+    {
+      "kind": "workbook",
+      "filename": "btb-98bdf8f3-btb-98bdf8f3-deliverable.xlsm",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\98bdf8f3-98b7-4d62-ac39-5cee23623d83\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-98bdf8f3-btb-98bdf8f3-deliverable.xlsm",
+      "extension": ".xlsm",
+      "bytes": 6774,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (364 chars)"
+    },
+    {
+      "kind": "presentation",
+      "filename": "btb-98bdf8f3-btb-98bdf8f3-deliverable.pptx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\98bdf8f3-98b7-4d62-ac39-5cee23623d83\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-98bdf8f3-btb-98bdf8f3-deliverable.pptx",
+      "extension": ".pptx",
+      "bytes": 6087,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains ppt/presentation.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (360 chars)"
+    },
+    {
+      "kind": "document",
+      "filename": "btb-98bdf8f3-btb-98bdf8f3-deliverable.docx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\98bdf8f3-98b7-4d62-ac39-5cee23623d83\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-98bdf8f3-btb-98bdf8f3-deliverable.docx",
+      "extension": ".docx",
+      "bytes": 2060,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains word/document.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (341 chars)"
+    },
+    {
+      "kind": "pdf",
+      "filename": "btb-98bdf8f3-btb-98bdf8f3-deliverable.pdf",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\98bdf8f3-98b7-4d62-ac39-5cee23623d83\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-98bdf8f3-btb-98bdf8f3-deliverable.pdf",
+      "extension": ".pdf",
+      "bytes": 1070,
+      "magic": "%PDF",
+      "reopened": true,
+      "reopenDetail": "PDF header reopened",
+      "contentQualityDetail": "placeholder/caveat content scan passed (1623 chars)"
+    }
+  ],
+  "packageManifestPath": "test-results\\bankertoolbench\\matrix\\98bdf8f3-98b7-4d62-ac39-5cee23623d83\\package-manifest.json",
+  "verifierCommand": "npm run benchmark:bankertoolbench:proof",
+  "verifierOutputTail": "\n> noderoom@0.1.1 benchmark:bankertoolbench:proof\n> tsx scripts/bankertoolbench-proof-check.ts\n\nBankerToolBench proof check passed: stage=1/1 weightedRubric=6 run=0/1 pass positive=1/1 pass candidateBeforeEvaluator=true leaks=0/2+0/3+0/4\n",
+  "screenshot": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\98bdf8f3-98b7-4d62-ac39-5cee23623d83\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\bankertoolbench-live-room.png",
+  "passed": true,
+  "gatesProven": [
+    "fresh_room_join",
+    "official_fixture_upload",
+    "public_nodeagent_invocation",
+    "visible_streaming_progress",
+    "focus_mode_enabled",
+    "focus_box_or_attention_overlay",
+    "agent_terminal_quality_gate",
+    "deliverable_export_download",
+    "artifact_reopen_validation",
+    "artifact_placeholder_scan",
+    "official_scorer_handoff",
+    "trace_video_artifacts",
+    "no_memory_mode_shortcut"
+  ]
+}

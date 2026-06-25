@@ -1,0 +1,100 @@
+{
+  "schema": 1,
+  "taskId": "c1c36cfd-677b-462b-96d4-ea76e12e98e8",
+  "harborTaskId": "btb-c1c36cfd",
+  "generatedAt": "2026-06-25T02:12:06.770Z",
+  "baseUrl": "http://127.0.0.1:5273",
+  "roomUrl": "http://127.0.0.1:5273/?room=NRUT7W3A60W&name=Host&focusMode=1",
+  "memoryMode": false,
+  "expectedExtensions": [
+    ".xlsx",
+    ".xlsm",
+    ".pptx",
+    ".docx",
+    ".pdf"
+  ],
+  "visibleExtensions": [
+    ".xlsx",
+    ".xlsm",
+    ".pptx",
+    ".docx",
+    ".pdf"
+  ],
+  "downloadedFiles": [
+    {
+      "kind": "workbook",
+      "filename": "btb-c1c36cfd-adobe-inc.-adbe-m-a-company-profile-valuation.xlsx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\c1c36cfd-677b-462b-96d4-ea76e12e98e8\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-c1c36cfd-adobe-inc.-adbe-m-a-company-profile-valuation.xlsx",
+      "extension": ".xlsx",
+      "bytes": 8975,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j970nyxja6zxhcmgj315s9nkk5898hez",
+      "contentQualityDetail": "placeholder/caveat content scan passed (4304 chars)"
+    },
+    {
+      "kind": "workbook",
+      "filename": "btb-c1c36cfd-adobe-inc.-adbe-m-a-company-profile-valuation.xlsm",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\c1c36cfd-677b-462b-96d4-ea76e12e98e8\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-c1c36cfd-adobe-inc.-adbe-m-a-company-profile-valuation.xlsm",
+      "extension": ".xlsm",
+      "bytes": 8975,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j97ebt4a6vvy14fhvwv8sach0d899243",
+      "contentQualityDetail": "placeholder/caveat content scan passed (4304 chars)"
+    },
+    {
+      "kind": "presentation",
+      "filename": "btb-c1c36cfd-adobe-inc.-adbe-m-a-company-profile-valuation.pptx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\c1c36cfd-677b-462b-96d4-ea76e12e98e8\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-c1c36cfd-adobe-inc.-adbe-m-a-company-profile-valuation.pptx",
+      "extension": ".pptx",
+      "bytes": 7541,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains ppt/presentation.xml; recovered from Convex room artifact j97acczrrhn9g8xr4vzpswndj9899y5j",
+      "contentQualityDetail": "placeholder/caveat content scan passed (3105 chars)"
+    },
+    {
+      "kind": "document",
+      "filename": "btb-c1c36cfd-adobe-inc.-adbe-m-a-company-profile-valuation.docx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\c1c36cfd-677b-462b-96d4-ea76e12e98e8\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-c1c36cfd-adobe-inc.-adbe-m-a-company-profile-valuation.docx",
+      "extension": ".docx",
+      "bytes": 3737,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains word/document.xml; recovered from Convex room artifact j973zgczfgpne5np016ctc3b8h8989t8",
+      "contentQualityDetail": "placeholder/caveat content scan passed (4143 chars)"
+    },
+    {
+      "kind": "pdf",
+      "filename": "btb-c1c36cfd-adobe-inc.-adbe-m-a-company-profile-valuation.pdf",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\c1c36cfd-677b-462b-96d4-ea76e12e98e8\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-c1c36cfd-adobe-inc.-adbe-m-a-company-profile-valuation.pdf",
+      "extension": ".pdf",
+      "bytes": 2500,
+      "magic": "%PDF",
+      "reopened": true,
+      "reopenDetail": "PDF header reopened; recovered from Convex room artifact j977cea3rhh3hyphz06vqw76w5898nm0",
+      "contentQualityDetail": "placeholder/caveat content scan passed (4479 chars)"
+    }
+  ],
+  "packageManifestPath": "test-results\\bankertoolbench\\matrix\\c1c36cfd-677b-462b-96d4-ea76e12e98e8\\package-manifest.json",
+  "verifierCommand": "npm run benchmark:bankertoolbench:proof",
+  "verifierOutputTail": "\n> noderoom@0.1.1 benchmark:bankertoolbench:proof\n> tsx scripts/bankertoolbench-proof-check.ts\n\nBankerToolBench proof check passed: stage=1/1 weightedRubric=6 run=0/1 pass positive=1/1 pass candidateBeforeEvaluator=true leaks=0/2+0/3+0/4\n",
+  "screenshot": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\c1c36cfd-677b-462b-96d4-ea76e12e98e8\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\bankertoolbench-live-room.png",
+  "passed": true,
+  "gatesProven": [
+    "fresh_room_join",
+    "official_fixture_upload",
+    "public_nodeagent_invocation",
+    "visible_streaming_progress",
+    "focus_mode_enabled",
+    "focus_box_or_attention_overlay",
+    "agent_terminal_quality_gate",
+    "deliverable_export_download",
+    "artifact_reopen_validation",
+    "artifact_placeholder_scan",
+    "official_scorer_handoff",
+    "trace_video_artifacts",
+    "no_memory_mode_shortcut"
+  ]
+}

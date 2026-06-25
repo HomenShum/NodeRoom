@@ -41,8 +41,8 @@ function renderMarkdown(report: OpenRouterConvexBenchmarkReport): string {
   lines.push(`- Official-style suites: ${report.summary.officialStyleSuitesPassing}/${report.summary.officialStyleSuites} ${report.summary.officialStyleSuitesReady ? "PASS" : "BLOCKED"}`);
   lines.push(`- Routes with live N=5/p95 managed-path evidence: ${report.summary.routesWithManagedN5P95}/${report.summary.agentRouteCount}`);
   lines.push(`- Routes with SpreadsheetBench-like N=5 evidence: ${report.summary.routesWithSpreadsheetN5}/${report.summary.agentRouteCount}`);
-  lines.push(`- Top-paid OpenRouter routes in scorecard: ${report.summary.topPaidOpenRouterRoutes}`);
-  lines.push(`- Top-paid OpenRouter routes with live N=5/p95 evidence: ${report.summary.topPaidRoutesWithManagedN5P95}/${report.summary.topPaidOpenRouterRoutes}`);
+  lines.push(`- Latest-cheap OpenRouter routes in scorecard: ${report.summary.topPaidOpenRouterRoutes}`);
+  lines.push(`- Latest-cheap OpenRouter routes with live N=5/p95 evidence: ${report.summary.topPaidRoutesWithManagedN5P95}/${report.summary.topPaidOpenRouterRoutes}`);
   lines.push(`- Official-promotion cases: ${report.summary.officialPromotionCasesPassing}/${report.summary.officialPromotionCases} ${report.summary.officialPromotionReady ? "PASS" : "BLOCKED"}`);
   lines.push("");
   lines.push("## Design Principles");

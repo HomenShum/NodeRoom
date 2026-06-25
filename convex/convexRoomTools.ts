@@ -26,6 +26,7 @@ const artifactsSearchSheetContextRef = makeFunctionReference<"query">("artifacts
 const locksProposeLockRef = makeFunctionReference<"mutation">("locks:proposeLock") as any;
 const locksReleaseLockRef = makeFunctionReference<"mutation">("locks:releaseLock") as any;
 const artifactsApplyAgentCellEditRef = makeFunctionReference<"mutation">("artifacts:applyAgentCellEdit") as any;
+const artifactsCreateAgentFileArtifactRef = makeFunctionReference<"mutation">("artifacts:createAgentFileArtifact") as any;
 const artifactsSetArtifactMetaByAgentRef = makeFunctionReference<"mutation">("artifacts:setArtifactMetaByAgent") as any;
 const artifactsSetColumnsByAgentRef = makeFunctionReference<"mutation">("artifacts:setColumnsByAgent") as any;
 const presenceHeartbeatForAgentRef = makeFunctionReference<"mutation">("presence:heartbeatForAgent") as any;
@@ -76,7 +77,13 @@ export class ConvexRoomTools implements RoomTools {
   }
 
   async listArtifacts(): Promise<ArtifactRef[]> {
-    return this.ctx.runQuery(artifactsListForRoomRef, { roomId: this.roomId });
+    const artifacts = await this.ctx.runQuery(artifactsListForRoomRef, { roomId: this.roomId }) as Array<ArtifactRef & { meta?: unknown }>;
+    return artifacts.map((artifact) => ({
+      id: artifact.id,
+      title: artifact.title,
+      kind: artifact.kind,
+      ...artifactReadHint(artifact),
+    }));
   }
 
   async setArtifactMeta(args: { artifactId: string; title?: string; summary?: string; tags?: string[] }): Promise<{ ok: boolean; error?: string }> {
@@ -85,6 +92,35 @@ export class ConvexRoomTools implements RoomTools {
       return { ok: true };
     } catch (e) {
       return { ok: false, error: e instanceof Error ? e.message : "failed" };
+    }
+  }
+
+  async createFileArtifacts(args: {
+    files: Array<{ fileName: string; mimeType: string; size: number; dataUrl?: string; text?: string }>;
+    summary?: string;
+    sourceArtifactIds?: string[];
+    sourceUrls?: string[];
+  }): Promise<{ ok: true; artifacts: ArtifactRef[] } | { ok: false; error: string }> {
+    try {
+      const artifacts: ArtifactRef[] = [];
+      for (const file of args.files) {
+        const result = await this.ctx.runMutation(artifactsCreateAgentFileArtifactRef, {
+          roomId: this.roomId,
+          actor: this.actor,
+          fileName: file.fileName,
+          mimeType: file.mimeType,
+          size: file.size,
+          dataUrl: file.dataUrl,
+          text: file.text,
+          summary: args.summary,
+          sourceArtifactIds: args.sourceArtifactIds,
+          sourceUrls: args.sourceUrls,
+        });
+        artifacts.push({ id: String(result.artifactId), title: file.fileName, kind: "note" });
+      }
+      return { ok: true, artifacts };
+    } catch (e) {
+      return { ok: false, error: e instanceof Error ? e.message : "create_file_artifacts_failed" };
     }
   }
 
@@ -109,8 +145,22 @@ export class ConvexRoomTools implements RoomTools {
     return this.ctx.runQuery(collabAwarenessRef, { roomId: this.roomId, excludeAgentId: this.actor.id });
   }
 
-  readRange(elementIds: string[], artifactId: string = this.artifactId): Promise<CellView[]> {
-    return this.ctx.runQuery(artifactsReadRangeRef, { roomId: this.roomId, artifactId, elementIds });
+  async readRange(elementIds: string[], artifactId?: string): Promise<CellView[]> {
+    const explicitArtifactId = !!artifactId;
+    const targetArtifactId = artifactId || this.artifactId;
+    const cells = await this.ctx.runQuery(artifactsReadRangeRef, { roomId: this.roomId, artifactId: targetArtifactId, elementIds }) as CellView[];
+    if (!explicitArtifactId && looksLikeExcelAddressRead(elementIds) && cells.every((cell) => cell.version === 0 && (cell.value === null || cell.value === ""))) {
+      const artifacts = await this.ctx.runQuery(artifactsListForRoomRef, { roomId: this.roomId }) as ArtifactRef[];
+      const candidates = artifacts
+        .filter((artifact) => artifact.kind === "sheet" && String(artifact.id) !== String(targetArtifactId))
+        .slice(0, 8)
+        .map((artifact) => ({ id: artifact.id, title: artifact.title, kind: artifact.kind }));
+      if (candidates.length) {
+        const hint = `No A1-style cells were found on the primary blank Sheet 1. Use list_artifacts, then call read_range/search_sheet_context again with artifactId for the uploaded source workbook. Candidate artifactIds: ${candidates.map((artifact) => `${artifact.title}=${artifact.id}`).join("; ")}.`;
+        return cells.map((cell) => ({ ...cell, hint, candidateArtifacts: candidates }));
+      }
+    }
+    return cells;
   }
 
   searchSheetContext(query: string, artifactId: string = this.artifactId, limit = 8): Promise<SpreadsheetContextHit[]> {
@@ -242,6 +292,30 @@ export class ConvexRoomTools implements RoomTools {
       // Evidence Accountant is additive. The older trace-facing capture record above remains durable.
     }
   }
+}
+
+function looksLikeExcelAddressRead(elementIds: string[]): boolean {
+  return elementIds.some((id) => /^[A-Z]{1,3}\d+$/i.test(id.trim()));
+}
+
+function artifactReadHint(artifact: ArtifactRef & { meta?: unknown }): Pick<ArtifactRef, "readHint" | "exampleElementIds"> {
+  if (artifact.kind !== "sheet") return {};
+  const meta = artifact.meta as { excelGrid?: { rows?: unknown; columns?: unknown; sheetName?: unknown }; dataframe?: { columns?: unknown } } | undefined;
+  const grid = meta?.excelGrid;
+  if (typeof grid?.rows === "number" && typeof grid?.columns === "number") {
+    const sheetName = typeof grid.sheetName === "string" ? ` (${grid.sheetName})` : "";
+    return {
+      readHint: `Uploaded workbook grid${sheetName}: pass artifactId="${artifact.id}" to search_sheet_context/read_range; cells use A1 ids such as A1, B2, C10.`,
+      exampleElementIds: ["A1", "B2", "C10"],
+    };
+  }
+  const columns = Array.isArray(meta?.dataframe?.columns) ? meta.dataframe.columns : [];
+  if (columns.length) {
+    return {
+      readHint: `Structured sheet: pass artifactId="${artifact.id}" when reading this file; cells usually use rowId__columnId ids.`,
+    };
+  }
+  return {};
 }
 
 class ConvexOkfRetrievalPort implements OkfRetrievalPort {
@@ -405,16 +479,37 @@ export async function fetchSourceForConvex(url: string): Promise<SourceResult> {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 8_000);
   try {
-    const res = await fetch(parsed.toString(), {
-      redirect: "manual",
-      signal: controller.signal,
-      headers: { "user-agent": "NodeRoomAgent/0.1" },
-    });
-    if (res.status >= 300 && res.status < 400) return { ok: false, error: "redirect_not_followed" };
+    let current = parsed;
+    let res: Response | undefined;
+    for (let redirects = 0; redirects <= 5; redirects++) {
+      res = await fetch(current.toString(), {
+        redirect: "manual",
+        signal: controller.signal,
+        headers: { "user-agent": "NodeRoomAgent/0.1" },
+      });
+      if (res.status < 300 || res.status >= 400) break;
+      const location = res.headers.get("location");
+      if (!location) return { ok: false, error: "redirect_missing_location" };
+      const next = new URL(location, current);
+      if (next.protocol !== "https:") return { ok: false, error: "https_required" };
+      const redirectBlock = blockedConvexFetchHost(next.hostname);
+      if (redirectBlock) return { ok: false, error: redirectBlock };
+      current = next;
+      if (redirects === 5) return { ok: false, error: "too_many_redirects" };
+    }
+    if (!res) return { ok: false, error: "fetch_failed" };
+    if (res.status === 401 || res.status === 403 || res.status === 429) {
+      return {
+        ok: true,
+        title: current.hostname,
+        snippet: `Text fetch unavailable with HTTP ${res.status}. Use capture_source for browser-rendered evidence or choose an unauthenticated source endpoint.`,
+        url: current.toString(),
+      };
+    }
     if (!res.ok) return { ok: false, error: `http_${res.status}` };
     const raw = (await res.text()).slice(0, 50_000);
     const title = raw.match(/<title[^>]*>([\s\S]*?)<\/title>/i)?.[1]?.replace(/\s+/g, " ").trim()
-      || parsed.hostname;
+      || current.hostname;
     const snippet = raw
       .replace(/<script[\s\S]*?<\/script>/gi, " ")
       .replace(/<style[\s\S]*?<\/style>/gi, " ")
@@ -422,7 +517,7 @@ export async function fetchSourceForConvex(url: string): Promise<SourceResult> {
       .replace(/\s+/g, " ")
       .trim()
       .slice(0, 1_200);
-    return { ok: true, title, snippet, url: parsed.toString() };
+    return { ok: true, title, snippet, url: current.toString() };
   } catch (error) {
     return { ok: false, error: error instanceof Error ? error.message : String(error) };
   } finally {

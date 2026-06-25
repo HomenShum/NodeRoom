@@ -23,13 +23,14 @@ type ArtifactOutput =
 
 type ImplementationStatus = "shipped" | "partial" | "target" | "blocked";
 type ProofLevel = "contract_only" | "unit" | "integration" | "live_browser" | "official_scorer" | "human_reviewed";
-type ProofSurface = "chat" | "spreadsheet" | "notebook" | "deck" | "pdf" | "web" | "mobile" | "trace" | "download";
+type ProofSurface = "chat" | "spreadsheet" | "notebook" | "deck" | "pdf" | "web" | "mobile" | "trace" | "download" | "shell";
 
 type ProofSignal =
   | BenchmarkUiGateId
   | "agent_live_loop"
   | "room_trace_visible"
   | "job_detail_visible"
+  | "focus_mode_enabled"
   | "focus_box_or_attention_overlay"
   | "evidence_box_or_citation_anchor"
   | "mutation_visible_in_artifact"
@@ -204,6 +205,7 @@ const proofSignalValues = new Set<ProofSignal>([
   "agent_live_loop",
   "room_trace_visible",
   "job_detail_visible",
+  "focus_mode_enabled",
   "focus_box_or_attention_overlay",
   "evidence_box_or_citation_anchor",
   "mutation_visible_in_artifact",
@@ -225,6 +227,7 @@ const EVERY_RUN_PROOFS: ProofSignalBinding[] = [
   { signal: "agent_live_loop", surface: "chat", required: true, selector: '[data-part="step"], [data-part="tool"]' },
   { signal: "room_trace_visible", surface: "trace", required: true, selector: '[data-testid="room-trace"]' },
   { signal: "job_detail_visible", surface: "chat", required: true, selector: '[data-testid="job-detail"]' },
+  { signal: "focus_mode_enabled", surface: "shell", required: true, selector: '[data-testid="focus-mode-status"][data-on="true"]', screenshotRequired: true },
   { signal: "focus_box_or_attention_overlay", surface: "spreadsheet", required: true, selector: '[data-testid="attention-overlay"]', screenshotRequired: true },
   { signal: "mutation_visible_in_artifact", surface: "spreadsheet", required: true, selector: '[data-testid="artifact-panel"]' },
 ];
@@ -466,7 +469,7 @@ const FRESH_ROOM_REAL_USER_CASES: FreshRoomRealUserCase[] = [
         { kind: "scorecard", titlePattern: "score receipt" },
       ],
       expectedSelectors: ['[data-testid="job-status"]', '[data-testid="artifact-export-xlsx"]'],
-      expectedFiles: ["docs/eval/spreadsheetbench-live-room-proof.json", "test-results/spreadsheetbench-export.xlsx"],
+      expectedFiles: ["docs/eval/fresh-room/FR-010/latest.json", "docs/eval/spreadsheetbench-live-room-proof.json", "test-results/spreadsheetbench-export.xlsx"],
       scorerCommand: "gradeGolden on reopened workbook",
       maxRuntimeMs: 320_000,
       maxCostUsd: 0.25,
@@ -475,13 +478,13 @@ const FRESH_ROOM_REAL_USER_CASES: FreshRoomRealUserCase[] = [
       {
         kind: "playwright",
         command: "npx playwright test --config playwright.real-flow.config.ts e2e/benchmark-ui-spreadsheetbench.spec.ts",
-        outputPath: "docs/eval/spreadsheetbench-live-room-proof.json",
+        outputPath: "docs/eval/fresh-room/FR-010/latest.json",
         passCriteria: ["fresh live room", "official upload", "downloaded xlsx", "reopened workbook", "grade passes"],
       },
       {
         kind: "official_scorer",
         command: "gradeGolden on reopened workbook",
-        outputPath: "docs/eval/spreadsheetbench-live-room-proof.json",
+        outputPath: "docs/eval/fresh-room/FR-010/latest.json",
         passCriteria: ["score ok", "0 fabrication", "correct equals n", "anti-cheat self-test passes"],
       },
     ],
@@ -639,7 +642,13 @@ const FRESH_ROOM_REAL_USER_CASES: FreshRoomRealUserCase[] = [
         { kind: "download", titlePattern: "memo", exportExtension: ".docx" },
         { kind: "download", titlePattern: "PDF", exportExtension: ".pdf" },
       ],
-      expectedSelectors: ['[data-testid="agent-unified-stream"]', '[data-testid="job-detail"]'],
+      expectedSelectors: [
+        '[data-testid="focus-mode-status"][data-on="true"]',
+        '[data-testid="attention-overlay"]',
+        '[data-testid="agent-unified-stream"]',
+        '[data-testid="job-detail"]',
+        '[data-testid="room-trace"]',
+      ],
       expectedFiles: ["docs/eval/bankertoolbench-live-room-proof.json", "test-results/bankertoolbench/package-manifest.json"],
       scorerCommand: "official BankerToolBench verifier",
       maxRuntimeMs: 900_000,
@@ -1103,6 +1112,7 @@ const REQUIRED_PROOFS: ProofSignal[] = [
   "agent_live_loop",
   "room_trace_visible",
   "job_detail_visible",
+  "focus_mode_enabled",
   "focus_box_or_attention_overlay",
   "mutation_visible_in_artifact",
 ];
@@ -1168,7 +1178,7 @@ describe("fresh-room real-user benchmark acceptance matrix", () => {
     for (const item of FRESH_ROOM_REAL_USER_CASES) {
       for (const binding of item.proofSignals) {
         assertProofSignal(binding.signal);
-        expect(binding.surface, `${item.id}:${binding.signal} needs a surface`).toMatch(/^(chat|spreadsheet|notebook|deck|pdf|web|mobile|trace|download)$/);
+        expect(binding.surface, `${item.id}:${binding.signal} needs a surface`).toMatch(/^(chat|spreadsheet|notebook|deck|pdf|web|mobile|trace|download|shell)$/);
         expect(typeof binding.required, `${item.id}:${binding.signal} must mark required`).toBe("boolean");
       }
     }

@@ -7,7 +7,7 @@
  */
 
 import { useEffect, useRef, useState, type CSSProperties } from "react";
-import { PanelLeft, Table2, PanelRight, Moon, Sun, LogOut, Link2, ShieldCheck, X, HelpCircle, Copy, Check, MessageCircle, Sparkles, SlidersHorizontal, Palette, Gauge, Play, ChevronLeft, ChevronRight } from "lucide-react";
+import { PanelLeft, Table2, PanelRight, Moon, Sun, LogOut, Link2, ShieldCheck, X, HelpCircle, Copy, Check, MessageCircle, Sparkles, SlidersHorizontal, Palette, Gauge, Play, ChevronLeft, ChevronRight, Crosshair } from "lucide-react";
 import { useStore, type ActorProof } from "../app/store";
 import { Chat } from "./Chat";
 import { Artifact } from "./panels/Artifact";
@@ -20,6 +20,7 @@ import { TraceLensProvider } from "./traceLens/useTraceLens";
 import { TraceLensPanel } from "./traceLens/TraceLensPanel";
 import { PassiveAgentChip } from "./insights/PassiveAgentChip";
 import { OPT_ARTIFACT_PREFIX, optimisticArtifactIdentity, resolveRoomOpenTarget } from "./openRoomReference";
+import { readFocusModeClientState, persistFocusModeClientState, textEntryIsActive, type FocusModeClientState } from "./focusMode";
 import type { Actor, Channel } from "../engine/types";
 
 const AUTO_ACCEPT_PREF_KEY = "noderoom:autoAcceptConsent:v1";
@@ -89,6 +90,7 @@ export function RoomShell({ roomId, me, onLeave, proof }: { roomId: string; me: 
   const [accent, setAccent] = useState<AccentKey>("terra");
   const [backgroundGlow, setBackgroundGlow] = useState(true);
   const [replayPace, setReplayPace] = useState<ReplayPace>("standard");
+  const [focusMode, setFocusMode] = useState<FocusModeClientState>(() => readFocusModeClientState());
   const tourAutoStarted = useRef(false);
   const collabAlive = useRef(true);
   const accentTheme = ACCENTS[accent];
@@ -304,6 +306,13 @@ export function RoomShell({ roomId, me, onLeave, proof }: { roomId: string; me: 
     setAutoAcceptModal(false);
     store.toggleAutoAllow(roomId, me);
   };
+  const toggleFocusMode = () => {
+    setFocusMode((current) => {
+      const next = { ...current, enabled: !current.enabled, paused: false };
+      persistFocusModeClientState(next);
+      return next;
+    });
+  };
   const toggleBinder = () => {
     setShow((s) => {
       // Mobile: the binder replaces the chat pane. Desktop + Room-button band (981-1199): just toggle
@@ -397,6 +406,11 @@ export function RoomShell({ roomId, me, onLeave, proof }: { roomId: string; me: 
               a real ARIA switch, not a bare button, so assistive tech reads its on/off state. */}
           <button className="r-switch" role="switch" aria-checked={room.autoAllow} aria-label="Auto-allow agent edits without host review" data-testid="auto-allow-switch" data-on={String(room.autoAllow)} disabled={!isHost} title={isHost ? "Auto-approve agent edits" : "Only the host can change auto-allow"} onClick={toggleAutoAccept} />
         </div>
+        <div className="r-pill-auto r-focus-mode-control" data-testid="focus-mode-control" data-on={String(focusMode.enabled)}>
+          <Crosshair size={12} />
+          Focus
+          <button className="r-switch" role="switch" aria-checked={focusMode.enabled} aria-label="Focus Mode follows the selected agent job" data-testid="focus-mode-switch" data-on={String(focusMode.enabled)} title="Follow the current agent job on the work surface" onClick={toggleFocusMode} />
+        </div>
         <div className="r-avatars">
           {members.slice(0, 4).map((m) => (<span key={m.id} className="r-av" style={{ background: m.color }}>{initials(m.name)}<span className="pulse" /></span>))}
           <span className="r-av agent" style={{ background: "#8F3F27" }}>◆</span>
@@ -427,7 +441,7 @@ export function RoomShell({ roomId, me, onLeave, proof }: { roomId: string; me: 
         )}
       </div>
       <RoomWalkthroughDock steps={tourSteps} step={dockStep} pace={replayPace} onStep={selectDockStep} onReplay={startTour} />
-      <SignalStatusStrip roomId={roomId} me={me} onOpenArtifact={openArtifact} />
+      <SignalStatusStrip roomId={roomId} me={me} focusModeEnabled={focusMode.enabled} onOpenArtifact={openArtifact} />
       <RoomTweaksPanel
         open={tweaksOpen}
         accent={accent}
@@ -661,7 +675,17 @@ function ProgressSpine({ roomId }: { roomId: string }) {
   );
 }
 
-function SignalStatusStrip({ roomId, me, onOpenArtifact }: { roomId: string; me: Actor; onOpenArtifact: (id: string) => void }) {
+function SignalStatusStrip({
+  roomId,
+  me,
+  focusModeEnabled,
+  onOpenArtifact,
+}: {
+  roomId: string;
+  me: Actor;
+  focusModeEnabled: boolean;
+  onOpenArtifact: (id: string) => void;
+}) {
   const store = useStore();
   const traces = selectPublicSignalTraces(store.listTraces(roomId));
   const proposals = store.listProposals(roomId);
@@ -669,6 +693,7 @@ function SignalStatusStrip({ roomId, me, onOpenArtifact }: { roomId: string; me:
   const run = store.lastRun();
   const job = store.lastLongFreeJob();
   const latest = traces.at(-1);
+  const lastFollowedTrace = useRef<string | null>(null);
   const status = publicStatusText(latest, proposals.length, job?.status);
   const jobStatus = job?.status ?? "";
   const jobRisk = ["failed", "blocked", "cancelled", "paused"].includes(jobStatus);
@@ -698,10 +723,22 @@ function SignalStatusStrip({ roomId, me, onOpenArtifact }: { roomId: string; me:
     onOpenArtifact(latestArt);
     focusStage({ artifactId: latestArt, elementId: latest?.refs?.cell ?? latest?.refs?.elementId });
   };
+  useEffect(() => {
+    if (!focusModeEnabled || !latest || !latestArt) return;
+    if (lastFollowedTrace.current === latest.id) return;
+    if (textEntryIsActive()) return;
+    lastFollowedTrace.current = latest.id;
+    onOpenArtifact(latestArt);
+    const elementId = latest.refs?.cell ?? latest.refs?.elementId;
+    if (elementId) requestAnimationFrame(() => focusStage({ artifactId: latestArt, elementId }));
+  }, [focusModeEnabled, latest, latestArt, onOpenArtifact]);
 
   return (
     <div className="r-shell-bottom" data-testid="shell-bottom" data-noderoom-surface="shell.statusStrip">
       <ProgressSpine roomId={roomId} />
+      <div className="r-focus-status" data-testid="focus-mode-status" data-on={String(focusModeEnabled)}>
+        <Crosshair size={11} /> Focus Mode {focusModeEnabled ? "on" : "off"}
+      </div>
       <div className="r-status-strip" data-testid="status-strip" role="status" aria-live="polite">
         <span className="r-status-dot" data-kind={status.kind} />
         {latestArt ? (

@@ -1,0 +1,312 @@
+{
+  "schema": 1,
+  "caseId": "FR-020",
+  "benchmark": "bankertoolbench",
+  "taskId": "ed5ac3f0-a9c5-4daa-b97b-e5acc18ae423",
+  "generatedAt": "2026-06-25T02:25:11.410Z",
+  "baseUrl": "http://127.0.0.1:5273",
+  "roomId": "NR63VPPHFS2",
+  "roomUrl": "http://127.0.0.1:5273/?room=NR63VPPHFS2&name=Host",
+  "command": "BTB_LIVE_ROOM_E2E=1 BTB_UI_BUNDLE_ROOT=<official-bundle> BTB_UI_VERIFIER_COMMAND=<verifier> BENCH_BASE_URL=<base> npx playwright test --config playwright.real-flow.config.ts e2e/benchmark-ui-bankertoolbench.spec.ts --headed",
+  "model": {
+    "requested": "specific",
+    "resolved": "z-ai/glm-5.2",
+    "routePolicy": "specific",
+    "runtimeProfile": "benchmark_completion",
+    "provider": "openrouter"
+  },
+  "prompt": "Official BankerToolBench task btb-ed5ac3f0: We're going into a private equity client's office on Wednesday to pitch for the sale of one of their portfolio companies, AB Tech.  Can you please work on the sponsor buyers section of the pitch deck? The deliverable should be a three-page presentation in PDF format, no need to deliver the underlying PPT.\nAB Tech is a leading player in the industrial/enterprise software industry - specifically, it provides software to automobile dealerships. The business will likely sell at a high-teens multiple. The business currently does $150mm in adjusted EBITDA and is growing very quickly. The current owner will likely roll a portion of their stake, so the next buyer should be willing to partner. \nTier one buyers should be Advent, Blackstone, Warburg Pincus, Genstar, and TPG. Tier two buyers should be Carlyle, EQT, KKR, Sixth Street, Great Hill, Thoma Bravo, Francisco Partners, Leonard Green, Berkshire Partners, and Vista Equity. Do not use any other sources or your own judgement. Let's make the first page the tier one buyers and pages 2 and 3 the tier two buyers. Page 1 should be titled “Tier 1 Potential Buyers”, page 2 should be titled “Tier 2 Potential Buyers” and page 3 should be titled “T",
+  "memoryMode": false,
+  "freshness": {
+    "roomCreatedAfterRunStart": true,
+    "forbiddenPreloadedArtifactsAbsent": true,
+    "artifactsCreatedFresh": [
+      "btb-ed5ac3f0-sponsor-buyers-pitch-deck-ab-tech-divestiture.xlsx",
+      "btb-ed5ac3f0-sponsor-buyers-pitch-deck-ab-tech-divestiture.xlsm",
+      "btb-ed5ac3f0-sponsor-buyers-pitch-deck-ab-tech-divestiture.pptx",
+      "btb-ed5ac3f0-sponsor-buyers-pitch-deck-ab-tech-divestiture.docx",
+      "btb-ed5ac3f0-sponsor-buyers-pitch-deck-ab-tech-divestiture.pdf"
+    ],
+    "uploadedFiles": [
+      "advent.png",
+      "Berkshire_Partners_Logo.svg.png",
+      "Blackstone.png",
+      "carlyle-logo.png",
+      "EQT_(Unternehmen)_logo.svg.png",
+      "Francisco Partners.png",
+      "Genstar_Capital_Logo.jpg",
+      "GreatHillPartners_Logo.png",
+      "Kohlberg_Kravis_Roberts_(logo).svg.png",
+      "Leonard Green Partners.png",
+      "Sixth-Street_logo.svg.png",
+      "Thoma Bravo.png",
+      "TPG_Capital_logo.svg.png",
+      "Vista_Equity_Partners_logo.svg.png",
+      "Warburg Pincus.jpg",
+      "Accela.png",
+      "Accelyae_logo.png",
+      "Acumatica.png",
+      "Bloomerang_Logo.jpg",
+      "BMC Software.png",
+      "CCC Information Services.jpeg",
+      "COMMSCOPE.png",
+      "Dayforce_logo.svg.png",
+      "Epicor-logo.svg.png",
+      "forcepoint-logo.png",
+      "fusion-risk-management.png",
+      "IFS.png",
+      "IRTH Solutions.png",
+      "Keyfactor.png",
+      "OEConnection.jpeg",
+      "PDI-Logo-Blue.png",
+      "Planview.png",
+      "Priority Software.png",
+      "Prometheus-Group.jpg",
+      "SYSPRO.png",
+      "varicent.png",
+      "WellSky.png",
+      "betas_by_industry_category_for_WACC.xlsx",
+      "Equity_Risk_Premium_for_WACC.xlsx",
+      "Fundraising Input Data.xlsx",
+      "EQT-US Company Identity.xlsx",
+      "EQT-US Income Statement Annual.xlsx",
+      "EQT-US Balance Sheet Annual.xlsx",
+      "EQT-US Cash Flow Annual.xlsx",
+      "EQT-US Shares Outstanding.xlsx",
+      "EQT-US Price History.xlsx",
+      "EQT-US Revenue Estimate.xlsx",
+      "EQT-US Earnings Estimate.xlsx",
+      "KKR-US Company Identity.xlsx",
+      "KKR-US Income Statement Annual.xlsx",
+      "KKR-US Balance Sheet Annual.xlsx",
+      "KKR-US Cash Flow Annual.xlsx",
+      "KKR-US Shares Outstanding.xlsx",
+      "KKR-US Price History.xlsx",
+      "KKR-US Revenue Estimate.xlsx",
+      "KKR-US Earnings Estimate.xlsx",
+      "btb-ed5ac3f0-official-task-brief.txt"
+    ]
+  },
+  "ui": {
+    "focusModeEnabled": true,
+    "attentionOverlayVisible": true,
+    "streamingVisible": true,
+    "jobDetailVisible": true,
+    "roomTraceVisible": true,
+    "screenshotPaths": [
+      "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\ed5ac3f0-a9c5-4daa-b97b-e5acc18ae423\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\bankertoolbench-live-room.png"
+    ],
+    "tracePath": "docs\\eval\\bankertoolbench\\live-room\\ed5ac3f0-a9c5-4daa-b97b-e5acc18ae423.json"
+  },
+  "artifacts": {
+    "uploadedFiles": [
+      "advent.png",
+      "Berkshire_Partners_Logo.svg.png",
+      "Blackstone.png",
+      "carlyle-logo.png",
+      "EQT_(Unternehmen)_logo.svg.png",
+      "Francisco Partners.png",
+      "Genstar_Capital_Logo.jpg",
+      "GreatHillPartners_Logo.png",
+      "Kohlberg_Kravis_Roberts_(logo).svg.png",
+      "Leonard Green Partners.png",
+      "Sixth-Street_logo.svg.png",
+      "Thoma Bravo.png",
+      "TPG_Capital_logo.svg.png",
+      "Vista_Equity_Partners_logo.svg.png",
+      "Warburg Pincus.jpg",
+      "Accela.png",
+      "Accelyae_logo.png",
+      "Acumatica.png",
+      "Bloomerang_Logo.jpg",
+      "BMC Software.png",
+      "CCC Information Services.jpeg",
+      "COMMSCOPE.png",
+      "Dayforce_logo.svg.png",
+      "Epicor-logo.svg.png",
+      "forcepoint-logo.png",
+      "fusion-risk-management.png",
+      "IFS.png",
+      "IRTH Solutions.png",
+      "Keyfactor.png",
+      "OEConnection.jpeg",
+      "PDI-Logo-Blue.png",
+      "Planview.png",
+      "Priority Software.png",
+      "Prometheus-Group.jpg",
+      "SYSPRO.png",
+      "varicent.png",
+      "WellSky.png",
+      "betas_by_industry_category_for_WACC.xlsx",
+      "Equity_Risk_Premium_for_WACC.xlsx",
+      "Fundraising Input Data.xlsx",
+      "EQT-US Company Identity.xlsx",
+      "EQT-US Income Statement Annual.xlsx",
+      "EQT-US Balance Sheet Annual.xlsx",
+      "EQT-US Cash Flow Annual.xlsx",
+      "EQT-US Shares Outstanding.xlsx",
+      "EQT-US Price History.xlsx",
+      "EQT-US Revenue Estimate.xlsx",
+      "EQT-US Earnings Estimate.xlsx",
+      "KKR-US Company Identity.xlsx",
+      "KKR-US Income Statement Annual.xlsx",
+      "KKR-US Balance Sheet Annual.xlsx",
+      "KKR-US Cash Flow Annual.xlsx",
+      "KKR-US Shares Outstanding.xlsx",
+      "KKR-US Price History.xlsx",
+      "KKR-US Revenue Estimate.xlsx",
+      "KKR-US Earnings Estimate.xlsx",
+      "btb-ed5ac3f0-official-task-brief.txt"
+    ],
+    "created": [
+      "btb-ed5ac3f0-sponsor-buyers-pitch-deck-ab-tech-divestiture.xlsx",
+      "btb-ed5ac3f0-sponsor-buyers-pitch-deck-ab-tech-divestiture.xlsm",
+      "btb-ed5ac3f0-sponsor-buyers-pitch-deck-ab-tech-divestiture.pptx",
+      "btb-ed5ac3f0-sponsor-buyers-pitch-deck-ab-tech-divestiture.docx",
+      "btb-ed5ac3f0-sponsor-buyers-pitch-deck-ab-tech-divestiture.pdf"
+    ],
+    "exportedFiles": [
+      {
+        "kind": "workbook",
+        "filename": "btb-ed5ac3f0-sponsor-buyers-pitch-deck-ab-tech-divestiture.xlsx",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\ed5ac3f0-a9c5-4daa-b97b-e5acc18ae423\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-ed5ac3f0-sponsor-buyers-pitch-deck-ab-tech-divestiture.xlsx",
+        "extension": ".xlsx",
+        "downloaded": true,
+        "bytes": 8758,
+        "magic": "PK\\x03\\x04"
+      },
+      {
+        "kind": "workbook",
+        "filename": "btb-ed5ac3f0-sponsor-buyers-pitch-deck-ab-tech-divestiture.xlsm",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\ed5ac3f0-a9c5-4daa-b97b-e5acc18ae423\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-ed5ac3f0-sponsor-buyers-pitch-deck-ab-tech-divestiture.xlsm",
+        "extension": ".xlsm",
+        "downloaded": true,
+        "bytes": 8758,
+        "magic": "PK\\x03\\x04"
+      },
+      {
+        "kind": "presentation",
+        "filename": "btb-ed5ac3f0-sponsor-buyers-pitch-deck-ab-tech-divestiture.pptx",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\ed5ac3f0-a9c5-4daa-b97b-e5acc18ae423\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-ed5ac3f0-sponsor-buyers-pitch-deck-ab-tech-divestiture.pptx",
+        "extension": ".pptx",
+        "downloaded": true,
+        "bytes": 6809,
+        "magic": "PK\\x03\\x04"
+      },
+      {
+        "kind": "document",
+        "filename": "btb-ed5ac3f0-sponsor-buyers-pitch-deck-ab-tech-divestiture.docx",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\ed5ac3f0-a9c5-4daa-b97b-e5acc18ae423\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-ed5ac3f0-sponsor-buyers-pitch-deck-ab-tech-divestiture.docx",
+        "extension": ".docx",
+        "downloaded": true,
+        "bytes": 3755,
+        "magic": "PK\\x03\\x04"
+      },
+      {
+        "kind": "pdf",
+        "filename": "btb-ed5ac3f0-sponsor-buyers-pitch-deck-ab-tech-divestiture.pdf",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\ed5ac3f0-a9c5-4daa-b97b-e5acc18ae423\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-ed5ac3f0-sponsor-buyers-pitch-deck-ab-tech-divestiture.pdf",
+        "extension": ".pdf",
+        "downloaded": true,
+        "bytes": 2128,
+        "magic": "%PDF"
+      }
+    ],
+    "reopenedFiles": [
+      {
+        "kind": "workbook",
+        "filename": "btb-ed5ac3f0-sponsor-buyers-pitch-deck-ab-tech-divestiture.xlsx",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "ZIP package contains xl/workbook.xml; placeholder/caveat content scan passed (4203 chars)"
+      },
+      {
+        "kind": "workbook",
+        "filename": "btb-ed5ac3f0-sponsor-buyers-pitch-deck-ab-tech-divestiture.xlsm",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "ZIP package contains xl/workbook.xml; placeholder/caveat content scan passed (4203 chars)"
+      },
+      {
+        "kind": "presentation",
+        "filename": "btb-ed5ac3f0-sponsor-buyers-pitch-deck-ab-tech-divestiture.pptx",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "ZIP package contains ppt/presentation.xml; placeholder/caveat content scan passed (2239 chars)"
+      },
+      {
+        "kind": "document",
+        "filename": "btb-ed5ac3f0-sponsor-buyers-pitch-deck-ab-tech-divestiture.docx",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "ZIP package contains word/document.xml; placeholder/caveat content scan passed (4793 chars)"
+      },
+      {
+        "kind": "pdf",
+        "filename": "btb-ed5ac3f0-sponsor-buyers-pitch-deck-ab-tech-divestiture.pdf",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "PDF header reopened; placeholder/caveat content scan passed (3735 chars)"
+      }
+    ]
+  },
+  "scorer": {
+    "name": "BankerToolBench proof verifier",
+    "command": "npm run benchmark:bankertoolbench:proof",
+    "verdict": "pass",
+    "score": 1,
+    "details": {
+      "verifierOutputTail": "\n> noderoom@0.1.1 benchmark:bankertoolbench:proof\n> tsx scripts/bankertoolbench-proof-check.ts\n\nBankerToolBench proof check passed: stage=1/1 weightedRubric=6 run=0/1 pass positive=1/1 pass candidateBeforeEvaluator=true leaks=0/2+0/3+0/4\n",
+      "packageManifestPath": "test-results\\bankertoolbench\\matrix\\ed5ac3f0-a9c5-4daa-b97b-e5acc18ae423\\package-manifest.json",
+      "downloadedExtensions": [
+        ".xlsx",
+        ".xlsm",
+        ".pptx",
+        ".docx",
+        ".pdf"
+      ],
+      "exportSource": "browser_download_link",
+      "agentTerminalQuality": {
+        "statusText": "completed via recovered Convex job: d5ac3f0-sponsor-buyers-pitch-deck-ab-tech-divestiture.pptx, btb-ed5ac3f0-sponsor-buyers-pitch-deck-ab-tech-divestiture.docx, btb-ed5ac3f0-sponsor-buyers-pitch-deck-ab-tech-divestiture.pdf. Coverage confirmed for AB, PPT, TPG, EQT, KKR, USD.",
+        "evidenceTextLength": 2050,
+        "detail": "agent reached completed status or visible completion text, with no missing-source/unfinished-work caveats"
+      },
+      "taskCoverage": {
+        "ok": true,
+        "requiredTickers": [
+          "AB",
+          "PPT",
+          "TPG",
+          "EQT",
+          "KKR",
+          "USD"
+        ],
+        "missingTickers": [],
+        "detail": "generated package mentions every requested ticker/entity: AB, PPT, TPG, EQT, KKR, USD"
+      }
+    }
+  },
+  "visualJudge": {
+    "verdict": "not_run",
+    "reason": "GOOGLE_GENERATIVE_AI_API_KEY is not set; deterministic browser/download/reopen/verifier proof passed."
+  },
+  "gatesProven": [
+    "fresh_room_join",
+    "official_fixture_upload",
+    "public_nodeagent_invocation",
+    "visible_streaming_progress",
+    "trace_video_artifacts",
+    "no_memory_mode_shortcut",
+    "focus_mode_enabled",
+    "focus_box_or_attention_overlay",
+    "agent_live_loop",
+    "agent_terminal_quality_gate",
+    "room_trace_visible",
+    "job_detail_visible",
+    "deliverable_export_download",
+    "artifact_reopen_validation",
+    "artifact_placeholder_scan",
+    "official_scorer_handoff"
+  ],
+  "passed": true
+}

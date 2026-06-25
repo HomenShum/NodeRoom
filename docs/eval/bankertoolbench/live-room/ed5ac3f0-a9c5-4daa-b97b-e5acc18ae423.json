@@ -1,0 +1,100 @@
+{
+  "schema": 1,
+  "taskId": "ed5ac3f0-a9c5-4daa-b97b-e5acc18ae423",
+  "harborTaskId": "btb-ed5ac3f0",
+  "generatedAt": "2026-06-25T02:25:11.410Z",
+  "baseUrl": "http://127.0.0.1:5273",
+  "roomUrl": "http://127.0.0.1:5273/?room=NR63VPPHFS2&name=Host",
+  "memoryMode": false,
+  "expectedExtensions": [
+    ".xlsx",
+    ".xlsm",
+    ".pptx",
+    ".docx",
+    ".pdf"
+  ],
+  "visibleExtensions": [
+    ".xlsx",
+    ".xlsm",
+    ".pptx",
+    ".docx",
+    ".pdf"
+  ],
+  "downloadedFiles": [
+    {
+      "kind": "workbook",
+      "filename": "btb-ed5ac3f0-sponsor-buyers-pitch-deck-ab-tech-divestiture.xlsx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\ed5ac3f0-a9c5-4daa-b97b-e5acc18ae423\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-ed5ac3f0-sponsor-buyers-pitch-deck-ab-tech-divestiture.xlsx",
+      "extension": ".xlsx",
+      "bytes": 8758,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (4203 chars)"
+    },
+    {
+      "kind": "workbook",
+      "filename": "btb-ed5ac3f0-sponsor-buyers-pitch-deck-ab-tech-divestiture.xlsm",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\ed5ac3f0-a9c5-4daa-b97b-e5acc18ae423\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-ed5ac3f0-sponsor-buyers-pitch-deck-ab-tech-divestiture.xlsm",
+      "extension": ".xlsm",
+      "bytes": 8758,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (4203 chars)"
+    },
+    {
+      "kind": "presentation",
+      "filename": "btb-ed5ac3f0-sponsor-buyers-pitch-deck-ab-tech-divestiture.pptx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\ed5ac3f0-a9c5-4daa-b97b-e5acc18ae423\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-ed5ac3f0-sponsor-buyers-pitch-deck-ab-tech-divestiture.pptx",
+      "extension": ".pptx",
+      "bytes": 6809,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains ppt/presentation.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (2239 chars)"
+    },
+    {
+      "kind": "document",
+      "filename": "btb-ed5ac3f0-sponsor-buyers-pitch-deck-ab-tech-divestiture.docx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\ed5ac3f0-a9c5-4daa-b97b-e5acc18ae423\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-ed5ac3f0-sponsor-buyers-pitch-deck-ab-tech-divestiture.docx",
+      "extension": ".docx",
+      "bytes": 3755,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains word/document.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (4793 chars)"
+    },
+    {
+      "kind": "pdf",
+      "filename": "btb-ed5ac3f0-sponsor-buyers-pitch-deck-ab-tech-divestiture.pdf",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\ed5ac3f0-a9c5-4daa-b97b-e5acc18ae423\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-ed5ac3f0-sponsor-buyers-pitch-deck-ab-tech-divestiture.pdf",
+      "extension": ".pdf",
+      "bytes": 2128,
+      "magic": "%PDF",
+      "reopened": true,
+      "reopenDetail": "PDF header reopened",
+      "contentQualityDetail": "placeholder/caveat content scan passed (3735 chars)"
+    }
+  ],
+  "packageManifestPath": "test-results\\bankertoolbench\\matrix\\ed5ac3f0-a9c5-4daa-b97b-e5acc18ae423\\package-manifest.json",
+  "verifierCommand": "npm run benchmark:bankertoolbench:proof",
+  "verifierOutputTail": "\n> noderoom@0.1.1 benchmark:bankertoolbench:proof\n> tsx scripts/bankertoolbench-proof-check.ts\n\nBankerToolBench proof check passed: stage=1/1 weightedRubric=6 run=0/1 pass positive=1/1 pass candidateBeforeEvaluator=true leaks=0/2+0/3+0/4\n",
+  "screenshot": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\ed5ac3f0-a9c5-4daa-b97b-e5acc18ae423\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\bankertoolbench-live-room.png",
+  "passed": true,
+  "gatesProven": [
+    "fresh_room_join",
+    "official_fixture_upload",
+    "public_nodeagent_invocation",
+    "visible_streaming_progress",
+    "focus_mode_enabled",
+    "focus_box_or_attention_overlay",
+    "agent_terminal_quality_gate",
+    "deliverable_export_download",
+    "artifact_reopen_validation",
+    "artifact_placeholder_scan",
+    "official_scorer_handoff",
+    "trace_video_artifacts",
+    "no_memory_mode_shortcut"
+  ]
+}

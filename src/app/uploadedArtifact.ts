@@ -18,8 +18,10 @@ export type UploadedArtifactInput = {
 };
 
 export const MAX_INLINE_PREVIEW_BYTES = 750_000;
+export const MAX_INLINE_PDF_PREVIEW_BYTES = 0;
+export const MAX_RAW_UPLOAD_BYTES = 25_000_000;
 export const MAX_SPREADSHEET_BYTES = 5_000_000;
-export const UPLOAD_TIMEOUT_MS = 30_000;
+export const UPLOAD_TIMEOUT_MS = 12 * 60_000;
 
 type UploadDoc = {
   upload: true;
@@ -72,7 +74,7 @@ export async function artifactsFromFile(file: File, signal?: AbortSignal): Promi
   const textLike = mimeType.startsWith("text/") || /(\.txt|\.md|\.json|\.log)$/i.test(file.name);
   const parse = documentParsePlan(file.name, mimeType);
   const doc: UploadDoc = { upload: true, fileName: file.name, mimeType, size: file.size, parse };
-  if (textLike) {
+  if (textLike && file.size <= MAX_INLINE_PREVIEW_BYTES) {
     const text = await file.text();
     const structuredRows = isPlainTextKeyValueSource(file.name, mimeType) ? keyValueRows(text) : null;
     if (structuredRows) {
@@ -85,8 +87,16 @@ export async function artifactsFromFile(file: File, signal?: AbortSignal): Promi
       })], file, mimeType);
     }
     doc.text = text;
-  } else doc.dataUrl = await readAsDataUrl(file, signal);
+  } else if (!textLike && file.size <= inlinePreviewLimitFor(file.name, mimeType)) {
+    doc.dataUrl = await readAsDataUrl(file, signal);
+  }
   return withSourceFile([{ kind: "note", title: file.name, seed: [{ id: "doc", value: doc }], meta: { upload: { fileName: file.name, mimeType, size: file.size, parsedAt: Date.now() }, document: parse } }], file, mimeType);
+}
+
+function inlinePreviewLimitFor(fileName: string, mimeType: string): number {
+  const lower = fileName.toLowerCase();
+  if (mimeType === "application/pdf" || lower.endsWith(".pdf")) return MAX_INLINE_PDF_PREVIEW_BYTES;
+  return MAX_INLINE_PREVIEW_BYTES;
 }
 
 function assertUploadFileWithinLimit(file: File): void {
@@ -95,7 +105,7 @@ function assertUploadFileWithinLimit(file: File): void {
     if (file.size > MAX_SPREADSHEET_BYTES) throw new Error(`${file.name} is too large for browser spreadsheet parsing (${formatBytes(MAX_SPREADSHEET_BYTES)} max).`);
     return;
   }
-  if (file.size > MAX_INLINE_PREVIEW_BYTES) throw new Error(`${file.name} is too large for inline room preview (${formatBytes(MAX_INLINE_PREVIEW_BYTES)} max).`);
+  if (file.size > MAX_RAW_UPLOAD_BYTES) throw new Error(`${file.name} is too large for room source upload (${formatBytes(MAX_RAW_UPLOAD_BYTES)} max).`);
 }
 
 function withSourceFile(artifacts: UploadedArtifactInput[], file: File, mimeType: string): UploadedArtifactInput[] {

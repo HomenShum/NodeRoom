@@ -1,0 +1,200 @@
+{
+  "schema": 1,
+  "caseId": "FR-020",
+  "benchmark": "bankertoolbench",
+  "taskId": "42449f25-042c-4260-8a68-3c9c35009501",
+  "generatedAt": "2026-06-25T02:19:16.460Z",
+  "baseUrl": "http://127.0.0.1:5273",
+  "roomId": "NR5ZOT673TE",
+  "roomUrl": "http://127.0.0.1:5273/?room=NR5ZOT673TE&name=Host",
+  "command": "BTB_LIVE_ROOM_E2E=1 BTB_UI_BUNDLE_ROOT=<official-bundle> BTB_UI_VERIFIER_COMMAND=<verifier> BENCH_BASE_URL=<base> npx playwright test --config playwright.real-flow.config.ts e2e/benchmark-ui-bankertoolbench.spec.ts --headed",
+  "model": {
+    "requested": "specific",
+    "resolved": "z-ai/glm-5.2",
+    "routePolicy": "specific",
+    "runtimeProfile": "benchmark_completion",
+    "provider": "openrouter"
+  },
+  "prompt": "Official BankerToolBench task btb-42449f25: You work in Private Equity and you must build a Leveraged Buyout model for a veterinary pharmacy. The company is to be acquired on May 31, 2021 (May-21)  and five years later, in May 31, 2026 (May-26) sold.\n\nRelevant details about the company and its financials are as follows:\n•\tCash interest rate: 1.0% (calculated on average of beginning and ending balance for a corresponding year for interest income)\n•\tTax rate: 26.5%\n•\tRevenue growth rate: 8.0% (fixed for all forecasted years from May-22 to May-26)\n•\tMay-21 Last Twelve Months Net Revenue: 11,207 (in thousand $)\n•\tNWC accounts (fixed for all forecasted years from May-22 to May-26):\no\tAccounts Receivable (% of Net Revenue): 9.2% \no\tInventory (% of Cost of Goods Sold): 14.2%\no\tPrepaid Expenses (% of Operating Expenses); 3.3%\no\tAccounts Payable and Accrued Liabilities (% of COGS + Operating Expenses): 11.2%\n\n•\tExpenses as a % of Net Revenue: (fixed for all forecasted years from May-22 to May-26)\no\tCOGS: 53.2%\no\tOperating Expenses: 21.9%\no\tNon-Recurring Expenses: 2.0% (these continue in the future at this rate)\no\tDepreciation: 2.0%\no\tCapEx: 2.0%\n\nIn terms of transaction assumptions, reference the below:\n•\tEntry LTM Adjusted (Adj.) EB",
+  "memoryMode": false,
+  "freshness": {
+    "roomCreatedAfterRunStart": true,
+    "forbiddenPreloadedArtifactsAbsent": true,
+    "artifactsCreatedFresh": [
+      "btb-42449f25-btb-task-package.xlsx",
+      "btb-42449f25-btb-task-package.xlsm",
+      "btb-42449f25-btb-task-package.pptx",
+      "btb-42449f25-btb-task-package.docx",
+      "btb-42449f25-btb-task-package.pdf"
+    ],
+    "uploadedFiles": [
+      "betas_by_industry_category_for_WACC.xlsx",
+      "Equity_Risk_Premium_for_WACC.xlsx",
+      "btb-42449f25-official-task-brief.txt"
+    ]
+  },
+  "ui": {
+    "focusModeEnabled": true,
+    "attentionOverlayVisible": true,
+    "streamingVisible": true,
+    "jobDetailVisible": true,
+    "roomTraceVisible": true,
+    "screenshotPaths": [
+      "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\42449f25-042c-4260-8a68-3c9c35009501\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\bankertoolbench-live-room.png"
+    ],
+    "tracePath": "docs\\eval\\bankertoolbench\\live-room\\42449f25-042c-4260-8a68-3c9c35009501.json"
+  },
+  "artifacts": {
+    "uploadedFiles": [
+      "betas_by_industry_category_for_WACC.xlsx",
+      "Equity_Risk_Premium_for_WACC.xlsx",
+      "btb-42449f25-official-task-brief.txt"
+    ],
+    "created": [
+      "btb-42449f25-btb-task-package.xlsx",
+      "btb-42449f25-btb-task-package.xlsm",
+      "btb-42449f25-btb-task-package.pptx",
+      "btb-42449f25-btb-task-package.docx",
+      "btb-42449f25-btb-task-package.pdf"
+    ],
+    "exportedFiles": [
+      {
+        "kind": "workbook",
+        "filename": "btb-42449f25-btb-task-package.xlsx",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\42449f25-042c-4260-8a68-3c9c35009501\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-42449f25-btb-task-package.xlsx",
+        "extension": ".xlsx",
+        "downloaded": true,
+        "bytes": 6834,
+        "magic": "PK\\x03\\x04"
+      },
+      {
+        "kind": "workbook",
+        "filename": "btb-42449f25-btb-task-package.xlsm",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\42449f25-042c-4260-8a68-3c9c35009501\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-42449f25-btb-task-package.xlsm",
+        "extension": ".xlsm",
+        "downloaded": true,
+        "bytes": 6834,
+        "magic": "PK\\x03\\x04"
+      },
+      {
+        "kind": "presentation",
+        "filename": "btb-42449f25-btb-task-package.pptx",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\42449f25-042c-4260-8a68-3c9c35009501\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-42449f25-btb-task-package.pptx",
+        "extension": ".pptx",
+        "downloaded": true,
+        "bytes": 6116,
+        "magic": "PK\\x03\\x04"
+      },
+      {
+        "kind": "document",
+        "filename": "btb-42449f25-btb-task-package.docx",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\42449f25-042c-4260-8a68-3c9c35009501\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-42449f25-btb-task-package.docx",
+        "extension": ".docx",
+        "downloaded": true,
+        "bytes": 2087,
+        "magic": "PK\\x03\\x04"
+      },
+      {
+        "kind": "pdf",
+        "filename": "btb-42449f25-btb-task-package.pdf",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\42449f25-042c-4260-8a68-3c9c35009501\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-42449f25-btb-task-package.pdf",
+        "extension": ".pdf",
+        "downloaded": true,
+        "bytes": 1105,
+        "magic": "%PDF"
+      }
+    ],
+    "reopenedFiles": [
+      {
+        "kind": "workbook",
+        "filename": "btb-42449f25-btb-task-package.xlsx",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "ZIP package contains xl/workbook.xml; placeholder/caveat content scan passed (395 chars)"
+      },
+      {
+        "kind": "workbook",
+        "filename": "btb-42449f25-btb-task-package.xlsm",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "ZIP package contains xl/workbook.xml; placeholder/caveat content scan passed (395 chars)"
+      },
+      {
+        "kind": "presentation",
+        "filename": "btb-42449f25-btb-task-package.pptx",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "ZIP package contains ppt/presentation.xml; placeholder/caveat content scan passed (429 chars)"
+      },
+      {
+        "kind": "document",
+        "filename": "btb-42449f25-btb-task-package.docx",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "ZIP package contains word/document.xml; placeholder/caveat content scan passed (404 chars)"
+      },
+      {
+        "kind": "pdf",
+        "filename": "btb-42449f25-btb-task-package.pdf",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "PDF header reopened; placeholder/caveat content scan passed (1693 chars)"
+      }
+    ]
+  },
+  "scorer": {
+    "name": "BankerToolBench proof verifier",
+    "command": "npm run benchmark:bankertoolbench:proof",
+    "verdict": "pass",
+    "score": 1,
+    "details": {
+      "verifierOutputTail": "\n> noderoom@0.1.1 benchmark:bankertoolbench:proof\n> tsx scripts/bankertoolbench-proof-check.ts\n\nBankerToolBench proof check passed: stage=1/1 weightedRubric=6 run=0/1 pass positive=1/1 pass candidateBeforeEvaluator=true leaks=0/2+0/3+0/4\n",
+      "packageManifestPath": "test-results\\bankertoolbench\\matrix\\42449f25-042c-4260-8a68-3c9c35009501\\package-manifest.json",
+      "downloadedExtensions": [
+        ".xlsx",
+        ".xlsm",
+        ".pptx",
+        ".docx",
+        ".pdf"
+      ],
+      "exportSource": "browser_download_link",
+      "agentTerminalQuality": {
+        "statusText": "completed via recovered Convex job: Task Package. Files created: btb-42449f25-btb-task-package.xlsx, btb-42449f25-btb-task-package.xlsm, btb-42449f25-btb-task-package.pptx, btb-42449f25-btb-task-package.docx, btb-42449f25-btb-task-package.pdf. Coverage confirmed for COGS, PE.",
+        "evidenceTextLength": 4681,
+        "detail": "agent reached completed status; ignored stale progress caveat(s) after package proof: unfinished_continue"
+      },
+      "taskCoverage": {
+        "ok": true,
+        "requiredTickers": [
+          "COGS",
+          "PE"
+        ],
+        "missingTickers": [],
+        "detail": "generated package mentions every requested ticker/entity: COGS, PE"
+      }
+    }
+  },
+  "visualJudge": {
+    "verdict": "not_run",
+    "reason": "GOOGLE_GENERATIVE_AI_API_KEY is not set; deterministic browser/download/reopen/verifier proof passed."
+  },
+  "gatesProven": [
+    "fresh_room_join",
+    "official_fixture_upload",
+    "public_nodeagent_invocation",
+    "visible_streaming_progress",
+    "trace_video_artifacts",
+    "no_memory_mode_shortcut",
+    "focus_mode_enabled",
+    "focus_box_or_attention_overlay",
+    "agent_live_loop",
+    "agent_terminal_quality_gate",
+    "room_trace_visible",
+    "job_detail_visible",
+    "deliverable_export_download",
+    "artifact_reopen_validation",
+    "artifact_placeholder_scan",
+    "official_scorer_handoff"
+  ],
+  "passed": true
+}

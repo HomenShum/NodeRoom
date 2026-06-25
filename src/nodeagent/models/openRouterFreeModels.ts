@@ -10,6 +10,7 @@ export type OpenRouterModelInfo = {
   id: string;
   name?: string;
   description?: string;
+  created?: number;
   context_length?: number;
   architecture?: {
     input_modalities?: string[];
@@ -44,6 +45,22 @@ export function permitsTraining(model: OpenRouterModelInfo): boolean {
 let cachedModels: { fetchedAt: number; models: OpenRouterModelInfo[] } | null = null;
 
 const FALLBACK_FREE_MODELS: OpenRouterModelInfo[] = [
+  {
+    id: "cohere/north-mini-code:free",
+    name: "Cohere North Mini Code (free)",
+    created: 1_781_723_748,
+    context_length: 256_000,
+    pricing: { prompt: "0", completion: "0" },
+    supported_parameters: ["include_reasoning", "max_tokens", "reasoning", "tool_choice", "tools"],
+  },
+  {
+    id: "nvidia/nemotron-3-ultra-550b-a55b:free",
+    name: "NVIDIA Nemotron 3 Ultra (free)",
+    created: 1_780_551_208,
+    context_length: 1_000_000,
+    pricing: { prompt: "0", completion: "0" },
+    supported_parameters: ["include_reasoning", "max_tokens", "reasoning", "tool_choice", "tools"],
+  },
   {
     id: "openrouter/owl-alpha",
     name: "OpenRouter Owl Alpha",
@@ -209,13 +226,18 @@ export function scoreOpenRouterFreeModel(model: OpenRouterModelInfo, mode: OpenR
     reasons.push(reason);
   };
 
+  const created = model.created ?? 0;
+  if (created >= 1_781_500_000) add(300, "newly listed on OpenRouter");
+  else if (created >= 1_780_500_000) add(140, "recent OpenRouter listing");
+
   if (params.has("tools")) add(450, "tools");
   if (params.has("tool_choice")) add(120, "tool choice");
   if (params.has("structured_outputs")) add(140, "structured outputs");
   if (params.has("response_format")) add(90, "json response format");
   if (params.has("reasoning") || params.has("include_reasoning")) add(130, "reasoning controls");
 
-  if (/qwen\/qwen3-coder/.test(id)) add(mode === "coding" ? 1_350 : 1_200, "coding/agent specialist");
+  if (/cohere\/north-mini-code/.test(id)) add(mode === "coding" ? 1_850 : 1_700, "latest coding/agent specialist");
+  else if (/qwen\/qwen3-coder/.test(id)) add(mode === "coding" ? 1_350 : 1_200, "coding/agent specialist");
   else if (/nemotron-3-ultra|nemotron-3-super/.test(id)) add(1_120, "large reasoning model");
   else if (/openrouter\/owl-alpha/.test(id)) add(1_080, "frontier free router model");
   else if (/qwen\/qwen3-next/.test(id)) add(1_020, "strong instruct model");

@@ -88,9 +88,10 @@ describe("OpenRouter-on-Convex benchmark contract", () => {
     const routes = report.routeScorecards.map((item) => item.route);
 
     expect(routes).toEqual(expect.arrayContaining([
-      "moonshotai/kimi-k2.6",
-      "minimax/minimax-m2.7",
-      "z-ai/glm-4.7",
+      "z-ai/glm-5.2",
+      "moonshotai/kimi-k2.7-code",
+      "qwen/qwen3.7-plus",
+      "minimax/minimax-m3",
       "gpt-5.4",
       "claude-sonnet-4-6",
       "gemini-3.1-pro-preview",
@@ -101,20 +102,21 @@ describe("OpenRouter-on-Convex benchmark contract", () => {
     expect(new Set(routes).size).toBe(routes.length);
   });
 
-  it("includes current top-paid OpenRouter candidates without making them the default live sweep", () => {
+  it("includes current latest-cheap OpenRouter candidates without making them the default live sweep", () => {
     const report = buildOpenRouterConvexBenchmarkReport({ routes: allAgentLlmRoutes() });
     const routes = report.routeScorecards.map((item) => item.route);
 
     expect(report.summary.topPaidOpenRouterRoutes).toBe(OPENROUTER_TOP_PAID_AGENT_ROUTES.length);
     expect(routes).toEqual(expect.arrayContaining([
-      "anthropic/claude-opus-4.8",
-      "openai/gpt-5.5",
-      "google/gemini-3.5-flash",
-      "tencent/hy3-preview",
       "z-ai/glm-5.2",
+      "moonshotai/kimi-k2.7-code",
+      "nvidia/nemotron-3-ultra-550b-a55b",
+      "qwen/qwen3.7-plus",
+      "minimax/minimax-m3",
     ]));
-    expect(resolveRouteSet("top-paid", "collaboration")).toContain("openai/gpt-5.5");
-    expect(resolveRouteSet("supported", "collaboration")).not.toContain("openai/gpt-5.5");
+    expect(resolveRouteSet("top-paid", "collaboration")).toContain("moonshotai/kimi-k2.7-code");
+    expect(resolveRouteSet("top-paid", "collaboration")).not.toContain("anthropic/claude-opus-4.8");
+    expect(resolveRouteSet("supported", "collaboration")).not.toContain("x-ai/grok-build-0.1");
   });
 
   it("keeps route promotion tied to route-owned N=5/p95 evidence", () => {

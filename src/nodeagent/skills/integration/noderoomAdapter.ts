@@ -96,8 +96,10 @@ export class InMemoryRoomTools implements RoomTools {
 
   async readRange(elementIds: string[], artifactId: string = this.artifactId): Promise<CellView[]> {
     artifactId = this.targetArtifactId(artifactId);
-    const els = this.engine.readRange(artifactId, elementIds);
-    return elementIds.map((id) => {
+    const art = this.engine.getArtifact(artifactId);
+    const resolvedIds = elementIds.map((id) => normalizeExcelGridElementId(art?.meta, id));
+    const els = this.engine.readRange(artifactId, resolvedIds);
+    return resolvedIds.map((id) => {
       const el = els[id];
       const lk = this.engine.lockFor(artifactId, id);
       return { id, value: el?.value ?? null, version: el?.version ?? 0, locked: lk ? { by: lk.holder.name, reason: lk.reason } : null };
@@ -214,6 +216,14 @@ function excelGridMeta(meta: unknown): { rows: number; columns: number; sheetNam
   const columns = typeof grid?.columns === "number" ? grid.columns : 0;
   if (rows <= 0 || columns <= 0) return null;
   return { rows, columns, sheetName: typeof grid?.sheetName === "string" ? grid.sheetName : undefined };
+}
+
+function normalizeExcelGridElementId(meta: unknown, elementId: string): string {
+  if (!excelGridMeta(meta)) return elementId;
+  const trimmed = elementId.trim();
+  if (/^[A-Z]{1,3}\d+$/i.test(trimmed)) return trimmed.toUpperCase();
+  const alias = trimmed.match(/^(?:r)?(\d+)__([A-Z]{1,3})$/i);
+  return alias ? `${alias[2].toUpperCase()}${Number(alias[1])}` : elementId;
 }
 
 function dataframeColumns(meta: unknown): DataframeColumn[] {

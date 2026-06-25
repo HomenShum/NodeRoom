@@ -125,8 +125,14 @@ function liveOperationKind(event: AgentTraceEvent): LiveOperationKind {
 
 function liveOperationName(event: AgentTraceEvent): string {
   const result = event.result as { error?: unknown; conflict?: unknown; locked?: unknown; pendingApproval?: unknown } | null;
-  const suffix = result?.error ? " failed" : result?.conflict ? " conflict" : result?.locked ? " blocked" : result?.pendingApproval ? " needs review" : "";
+  const suffix = toolResultFailed(result) ? " failed" : result?.conflict ? " conflict" : result?.locked ? " blocked" : result?.pendingApproval ? " needs review" : "";
   return `${event.tool}${suffix}`;
+}
+
+function toolResultFailed(result: unknown): boolean {
+  if (!result || typeof result !== "object") return false;
+  const object = result as Record<string, unknown>;
+  return object.ok === false || typeof object.error === "string";
 }
 
 function liveOperationAffectedIds(event: AgentTraceEvent): string[] | undefined {
@@ -548,7 +554,7 @@ export const runRoomAgent = action({
           void recordLiveOperation({
             kind: liveOperationKind(event),
             name: liveOperationName(event),
-            status: (event.result && typeof event.result === "object" && "error" in (event.result as Record<string, unknown>)) ? "failed" : "completed",
+            status: toolResultFailed(event.result) ? "failed" : "completed",
             countDelta: 1,
             affectedIds: liveOperationAffectedIds(event),
             completedAt: Date.now(),

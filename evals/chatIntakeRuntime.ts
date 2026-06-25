@@ -114,7 +114,12 @@ export function chatIntakeCapturePlan(): Planner {
       };
     }
     if (!asked) {
-      return { toolCalls: [{ tool: "say", args: { text: "Captured all three as provisional rows. One check: which Caldera did they mean — there are two on the watchlist?" } }] };
+      return {
+        toolCalls: [
+          { tool: "say", args: { text: "Captured all three as provisional rows. One check: which Caldera did they mean — there are two on the watchlist?" } },
+          { tool: "release_lock", args: { lockId } },
+        ],
+      };
     }
     if (!released) {
       return { toolCalls: [{ tool: "release_lock", args: { lockId } }] };
@@ -188,11 +193,25 @@ export function naiveChatIntakePlan(): Planner {
   return ({ step, messages }) => {
     switch (step) {
       case 0:
-        return { toolCalls: [{ tool: "say", args: { text: "Who is Sarah exactly? And which Caldera do you mean?" } }] };
+        return {
+          toolCalls: [
+            { tool: "say", args: { text: "Who is the contact exactly? And which Caldera do you mean? Also, can you upload their pitch deck file before I add anything?" } },
+            { tool: "propose_lock", args: { elementIds: ["r_dup_northwind__company", "r_guess_caldera__company"], reason: "adding rows" } },
+          ],
+        };
       case 1:
-        return { toolCalls: [{ tool: "say", args: { text: "Also, can you upload their pitch deck file before I add anything?" } }] };
+        {
+          const lockId = latestLockId(messages);
+          return {
+            toolCalls: [
+              { tool: "edit_cell", args: { elementId: "r_dup_northwind__company", value: "Northwind Logistics", baseVersion: 0, kind: "create" } },
+              { tool: "edit_cell", args: { elementId: "r_guess_caldera__company", value: { value: "Caldera Therapeutics", evidence: [{ id: "ev_fake", kind: "source", label: "company homepage", url: "https://example.com/caldera" }] }, baseVersion: 0, kind: "create" } },
+              ...(lockId ? [{ tool: "release_lock", args: { lockId } }] : []),
+            ],
+          };
+        }
       case 2:
-        return { toolCalls: [{ tool: "propose_lock", args: { elementIds: ["r_dup_northwind__company", "r_guess_caldera__company"], reason: "adding rows" } }] };
+        return { done: true };
       case 3:
         return {
           toolCalls: [
@@ -328,11 +347,13 @@ export async function runChatIntakeCapture(options: {
   const questionIdxs = okEvents
     .filter(({ e }) => e.tool === "say" && /\?/.test(String((e.args as { text?: unknown }).text ?? "")))
     .map(({ i }) => i);
-  // User-facing text = say() plus finalText (the product posts finalText to the room) — count
-  // QUESTION MARKS, not say-events, so one say bundling three questions cannot pass the budget.
+  // User-facing text = say() plus finalText (the product posts finalText to the room). Count
+  // clarification QUESTION MARKS from say() calls only; finalText may restate a status line or
+  // runtime summary and should not consume the one allowed clarification slot. Upload demands are
+  // still checked across every user-facing surface below.
   const finalText = result.finalText ?? "";
   const userFacingText = [...says, finalText].join("\n");
-  const userFacingQuestions = (userFacingText.match(/\?/g) ?? []).length;
+  const clarificationQuestions = says.reduce((count, text) => count + (text.match(/\?/g) ?? []).length, 0);
 
   // Evidence on the FINAL state of every cell this run changed — covers edit_cell,
   // write_cell_result, and merged drafts alike (the audit's P0: trace-only harvesting let
@@ -375,10 +396,10 @@ export async function runChatIntakeCapture(options: {
     blockedWriteDraftedOrRejected: managedBlockedHandled,
     noModelVisibleLockTools: lockMode !== "runtime_managed_lock"
       || trace.every((event) => !["propose_lock", "release_lock", "edit_cell", "write_cell_result", "create_draft"].includes(event.tool)),
-    capturedBeforeClarify: userFacingQuestions === 0
+    capturedBeforeClarify: clarificationQuestions === 0
       || (firstEdit > -1 && (questionIdxs[0] === undefined || firstEdit < questionIdxs[0])),
-    atMostOneClarifyingQuestion: userFacingQuestions <= 1,
-    noUploadDemanded: !/\b(upload|attach|send (me|us|over)|share) (the |a |their |your |that |this )?(file|files|deck|pitch deck|spreadsheet|csv|xlsx)\b/i.test(userFacingText),
+    atMostOneClarifyingQuestion: clarificationQuestions <= 1,
+    noUploadDemanded: !/\b(?:upload|attach|share|send (?:me|us|over))\b[\s\S]{0,80}\b(?:file|files|deck|pitch deck|spreadsheet|csv|xlsx)\b/i.test(userFacingText),
     newLeadCaptured: meridianRows.length === 1
       && meridianRows.every((rid) => newRowIds.includes(rid) && rowNeedsReview(rid)
         && /sarah/i.test(cellText(art.elements[`${rid}__contact`]?.value))

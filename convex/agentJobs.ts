@@ -163,6 +163,67 @@ function compactStreamPayload(value: unknown, limit = 4_000): unknown {
   return encoded.length > limit ? `${encoded.slice(0, limit)}...[truncated ${encoded.length - limit} chars]` : value;
 }
 
+const MAX_JOB_CONTINUATION_CHARS = 240_000;
+const MAX_JOB_MESSAGE_CONTENT_CHARS = 6_000;
+const MAX_JOB_TOOL_ARGS_CHARS = 4_000;
+const MAX_JOB_CURSOR_MESSAGES = 24;
+const MAX_JOB_REMAINING_TOOL_CALLS = 16;
+
+function encodedSize(value: unknown): number {
+  try {
+    return stableJson(value).length;
+  } catch {
+    return String(value).length;
+  }
+}
+
+function compactJobToolCall(value: unknown): unknown {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return compactStreamPayload(value, MAX_JOB_TOOL_ARGS_CHARS);
+  const record = value as Record<string, unknown>;
+  return clean({
+    id: typeof record.id === "string" ? record.id : undefined,
+    tool: typeof record.tool === "string" ? record.tool : undefined,
+    args: compactStreamPayload(record.args, MAX_JOB_TOOL_ARGS_CHARS),
+  });
+}
+
+function compactJobMessage(value: unknown): unknown {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return compactStreamPayload(value, MAX_JOB_MESSAGE_CONTENT_CHARS);
+  const record = value as Record<string, unknown>;
+  return clean({
+    role: record.role,
+    content: typeof record.content === "string" ? capStreamText(record.content, MAX_JOB_MESSAGE_CONTENT_CHARS) : compactStreamPayload(record.content, MAX_JOB_MESSAGE_CONTENT_CHARS),
+    toolCallId: record.toolCallId,
+    toolName: record.toolName,
+    toolCalls: Array.isArray(record.toolCalls) ? record.toolCalls.slice(0, MAX_JOB_REMAINING_TOOL_CALLS).map(compactJobToolCall) : undefined,
+  });
+}
+
+function compactJobContinuation(value: unknown, limit = MAX_JOB_CONTINUATION_CHARS): unknown {
+  if (value === undefined || encodedSize(value) <= limit) return value;
+  if (!value || typeof value !== "object" || Array.isArray(value)) return compactStreamPayload(value, limit);
+  const record = value as Record<string, unknown>;
+  const messages = Array.isArray(record.messages) ? record.messages : undefined;
+  const remainingToolCalls = Array.isArray(record.remainingToolCalls) ? record.remainingToolCalls : undefined;
+  const selectedMessages = messages
+    ? [
+      ...messages.slice(0, 1),
+      ...messages.slice(Math.max(1, messages.length - (MAX_JOB_CURSOR_MESSAGES - 1))),
+    ].map(compactJobMessage)
+    : undefined;
+  const compacted = clean({
+    ...record,
+    messages: selectedMessages,
+    remainingToolCalls: remainingToolCalls?.slice(0, MAX_JOB_REMAINING_TOOL_CALLS).map(compactJobToolCall),
+    latestAssistantText: typeof record.latestAssistantText === "string" ? capStreamText(record.latestAssistantText, MAX_JOB_MESSAGE_CONTENT_CHARS) : undefined,
+    summary: typeof record.summary === "string" ? capStreamText(record.summary, MAX_JOB_MESSAGE_CONTENT_CHARS) : undefined,
+    nextGoal: typeof record.nextGoal === "string" ? capStreamText(record.nextGoal, MAX_JOB_MESSAGE_CONTENT_CHARS) : undefined,
+    compacted: true,
+    beforeJobRowChars: encodedSize(value),
+  });
+  return encodedSize(compacted) <= limit ? compacted : compactStreamPayload(compacted, limit);
+}
+
 function defaultJobIdempotencyKey(args: { roomId: unknown; artifactId: unknown; actorId: string; goal: string; entrypoint: string; runtimeProfile?: AgentRuntimeProfile }) {
   const normalizedGoal = args.goal.trim().replace(/\s+/g, " ").toLowerCase();
   const profileSuffix = args.runtimeProfile ? `:${args.runtimeProfile}` : "";
@@ -1464,6 +1525,21 @@ type DurableStartEntrypoint = "public_ask" | "private_agent" | "free" | "system"
 type RoutePolicy = "fast_default" | "free_auto" | "top_paid" | "explicit";
 type RuntimePolicy = "workflow_sliced";
 type AgentRuntimeProfile = "benchmark_completion";
+
+function inferredRuntimeProfileForGoal(goal: string): AgentRuntimeProfile | undefined {
+  return /\b(benchmark|eval|scorecard|held[- ]out|spreadsheetbench|bankertoolbench|btb|official\s+benchmark)\b/i.test(goal)
+    ? "benchmark_completion"
+    : undefined;
+}
+
+function maxAttemptsCeilingForRuntimeProfile(runtimeProfile?: AgentRuntimeProfile): number {
+  return runtimeProfile === "benchmark_completion" ? 1000 : 100;
+}
+
+function boundedMaxAttempts(requested: number | undefined, fallback: number, runtimeProfile?: AgentRuntimeProfile): number {
+  return Math.max(1, Math.min(requested ?? fallback, maxAttemptsCeilingForRuntimeProfile(runtimeProfile)));
+}
+
 type DurableStartAgentJobArgs = {
   roomId: Id<"rooms">;
   artifactId: Id<"artifacts">;
@@ -1569,8 +1645,8 @@ function goalPrefersVariance(goal: string): boolean {
   return /\b(q3|variance|recompute)\b/i.test(goal);
 }
 
-const PUBLIC_ASK_SCRATCH_ROWS = 8;
-const PUBLIC_ASK_SCRATCH_COLUMNS = ["A", "B", "C"] as const;
+const PUBLIC_ASK_SCRATCH_ROWS = 12;
+const PUBLIC_ASK_SCRATCH_COLUMNS = ["A", "B", "C", "D", "E", "F", "G", "H"] as const;
 
 function publicAskScratchSeed(): Array<{ id: string; value: unknown }> {
   const seed: Array<{ id: string; value: unknown }> = [];
@@ -1717,7 +1793,9 @@ async function derivePublicStartPolicy(ctx: any, a: DurableStartAgentJobArgs): P
 }
 
 async function startDurableAgentJob(ctx: any, a: DurableStartAgentJobArgs): Promise<DurableStartAgentJobResult> {
-  if (a.goal.length > 2_000) throw new Error("goal_too_long");
+  const runtimeProfile = a.runtimeProfile ?? inferredRuntimeProfileForGoal(a.goal);
+  const maxGoalChars = runtimeProfile === "benchmark_completion" ? 20_000 : 2_000;
+  if (a.goal.length > maxGoalChars) throw new Error("goal_too_long");
   const execution = a.execution ?? "workflow";
   let routePolicy: RoutePolicy = a.routePolicy ?? (a.modelPolicy ? "explicit" : "fast_default");
   const runtimePolicy = a.runtimePolicy ?? "workflow_sliced";
@@ -1742,14 +1820,15 @@ async function startDurableAgentJob(ctx: any, a: DurableStartAgentJobArgs): Prom
     routePolicy = "explicit";
     modelPolicy = configuredFileEgressModel();
   }
-  const maxAttempts = Math.max(1, Math.min(a.maxAttempts ?? (entrypoint === "free" ? 20 : 20), 100));
+  const defaultMaxAttempts = runtimeProfile === "benchmark_completion" ? 1000 : entrypoint === "free" ? 20 : 20;
+  const maxAttempts = boundedMaxAttempts(a.maxAttempts, defaultMaxAttempts, runtimeProfile);
   const idempotencyKey = a.idempotencyKey ?? defaultJobIdempotencyKey({
     roomId: a.roomId,
     artifactId: a.artifactId,
     actorId: actor.id,
     goal: a.goal,
     entrypoint,
-    runtimeProfile: a.runtimeProfile,
+    runtimeProfile,
   });
   const prior = await ctx.db.query("agentJobs").withIndex("by_idempotency", (q: any) => q.eq("idempotencyKey", idempotencyKey)).order("desc").take(5);
   const reusable = prior.find((job: any) => String(job.roomId) === String(a.roomId) && String(job.artifactId) === String(a.artifactId) && !terminalStatuses.has(job.status));
@@ -1793,7 +1872,7 @@ async function startDurableAgentJob(ctx: any, a: DurableStartAgentJobArgs): Prom
     scope,
     routePolicy,
     runtimePolicy,
-    runtimeProfile: a.runtimeProfile,
+    runtimeProfile,
     modelPolicy,
     approvalPolicy,
     evidencePolicy,
@@ -1816,7 +1895,7 @@ async function startDurableAgentJob(ctx: any, a: DurableStartAgentJobArgs): Prom
     traceLevel,
     routePolicy,
     runtimePolicy,
-    runtimeProfile: a.runtimeProfile,
+    runtimeProfile,
     idempotencyKey,
     mode: a.mode,
     planPreview,
@@ -1857,7 +1936,7 @@ async function startDurableAgentJob(ctx: any, a: DurableStartAgentJobArgs): Prom
     status: "started",
     title: "Room NodeAgent",
     text: a.goal,
-    metadata: { entrypoint, scope, routePolicy, runtimePolicy, runtimeProfile: a.runtimeProfile, modelPolicy, fileEgressPromoted: promotedForFileEgress || undefined },
+    metadata: { entrypoint, scope, routePolicy, runtimePolicy, runtimeProfile, modelPolicy, fileEgressPromoted: promotedForFileEgress || undefined },
     createdAt: now,
   });
   if (status === "blocked") {
@@ -2144,9 +2223,38 @@ export const attempts = query({
     if (!job) return [];
     const actor = await requireActorProof(ctx, job.roomId, requester);
     if (!canReadJob(job, actor)) return [];
-    return ctx.db.query("agentJobAttempts").withIndex("by_job", (q) => q.eq("jobId", jobId)).collect();
+    return (await ctx.db.query("agentJobAttempts").withIndex("by_job", (q) => q.eq("jobId", jobId)).order("desc").take(25)).reverse();
   },
 });
+
+function compactDetailPayload(value: unknown): unknown {
+  if (value === undefined || value === null) return value;
+  let encoded = "";
+  try {
+    encoded = JSON.stringify(value);
+  } catch {
+    return { truncated: true, reason: "unserializable" };
+  }
+  if (encoded.length <= 4_000) return value;
+  if (Array.isArray(value)) {
+    return { truncated: true, kind: "array", length: value.length, preview: value.slice(0, 3) };
+  }
+  if (typeof value === "object") {
+    const record = value as Record<string, unknown>;
+    return { truncated: true, kind: "object", keys: Object.keys(record).slice(0, 24) };
+  }
+  return { truncated: true, kind: typeof value, preview: String(value).slice(0, 1_000) };
+}
+
+function compactStreamEventForDetail<T extends Record<string, unknown>>(event: T): T {
+  return {
+    ...event,
+    text: typeof event.text === "string" && event.text.length > 2_000 ? `${event.text.slice(0, 2_000)}...` : event.text,
+    input: compactDetailPayload(event.input),
+    output: compactDetailPayload(event.output),
+    metadata: compactDetailPayload(event.metadata),
+  } as T;
+}
 
 export const detail = query({
   args: { jobId: v.id("agentJobs"), requester: actorProofV },
@@ -2155,21 +2263,22 @@ export const detail = query({
     if (!job) return null;
     const actor = await requireActorProof(ctx, job.roomId, requester);
     if (!canReadJob(job, actor)) return null;
-    const attempts = await ctx.db.query("agentJobAttempts").withIndex("by_job", (q) => q.eq("jobId", jobId)).collect();
-    const operations = await ctx.db.query("agentOperationEvents").withIndex("by_job_sequence", (q) => q.eq("jobId", jobId)).take(100);
-    const streamEvents = await ctx.db.query("agentStreamEvents").withIndex("by_job_sequence", (q) => q.eq("jobId", jobId)).take(400);
-    const reasoningFrames = await ctx.db.query("agentReasoningFrames").withIndex("by_job_sequence", (q) => q.eq("jobId", jobId)).take(200);
-    const receipts = await ctx.db.query("agentMutationReceipts").withIndex("by_job", (q) => q.eq("jobId", jobId)).order("desc").take(50);
-    const modelJournal = await ctx.db.query("agentModelStepJournal").withIndex("by_job", (q) => q.eq("jobId", jobId)).order("desc").take(50);
+    const attempts = (await ctx.db.query("agentJobAttempts").withIndex("by_job", (q) => q.eq("jobId", jobId)).order("desc").take(25)).reverse();
+    const operations = (await ctx.db.query("agentOperationEvents").withIndex("by_job_sequence", (q) => q.eq("jobId", jobId)).order("desc").take(40)).reverse();
+    const streamEvents = (await ctx.db.query("agentStreamEvents").withIndex("by_job_sequence", (q) => q.eq("jobId", jobId)).order("desc").take(80)).reverse()
+      .map((event) => compactStreamEventForDetail(event));
+    const reasoningFrames = (await ctx.db.query("agentReasoningFrames").withIndex("by_job_sequence", (q) => q.eq("jobId", jobId)).order("desc").take(60)).reverse();
+    const receipts = await ctx.db.query("agentMutationReceipts").withIndex("by_job", (q) => q.eq("jobId", jobId)).order("desc").take(20);
+    const modelJournal = await ctx.db.query("agentModelStepJournal").withIndex("by_job", (q) => q.eq("jobId", jobId)).order("desc").take(10);
     const leases = (await Promise.all((["active", "released", "expired", "stolen"] as const).map((status) =>
-      ctx.db.query("agentLeases").withIndex("by_job_status", (q) => q.eq("jobId", jobId).eq("status", status)).take(25)
+      ctx.db.query("agentLeases").withIndex("by_job_status", (q) => q.eq("jobId", jobId).eq("status", status)).take(5)
     ))).flat();
     const draftOperations = (await Promise.all((["pending", "approved", "rejected", "needs_rebase", "applied"] as const).map((status) =>
-      ctx.db.query("agentDraftOperations").withIndex("by_job_status", (q) => q.eq("jobId", jobId).eq("status", status)).take(25)
+      ctx.db.query("agentDraftOperations").withIndex("by_job_status", (q) => q.eq("jobId", jobId).eq("status", status)).take(5)
     ))).flat();
     const latestRun = job.latestRunId ? await ctx.db.get(job.latestRunId) : null;
     const latestSteps = job.latestRunId
-      ? await ctx.db.query("agentSteps").withIndex("by_run", (q) => q.eq("runId", job.latestRunId!)).take(80)
+      ? await ctx.db.query("agentSteps").withIndex("by_run", (q) => q.eq("runId", job.latestRunId!)).order("desc").take(40)
       : [];
     return { job, attempts, operations, streamEvents, reasoningFrames, receipts, modelJournal, leases, draftOperations, latestRun, latestSteps };
   },
@@ -2411,7 +2520,39 @@ export const recordWorkflowComplete = internalMutation({
     if (job.status === "completed" || job.status === "failed" || job.status === "blocked" || job.status === "cancelled") {
       return { ok: true as const, terminal: true as const };
     }
-    if (resultKind === "success") return { ok: true as const, terminal: false as const };
+    if (resultKind !== "success" && job.status === "running" && job.attempts > 1) {
+      return { ok: true as const, terminal: false as const, superseded: true as const };
+    }
+    const shouldContinue = job.status === "paused" || job.status === "retrying" || (resultKind === "success" && job.status === "queued");
+    if (shouldContinue) {
+      const now = Date.now();
+      const nextWorkflowId = String(await startWorkflow(ctx, internal.agentWorkflows.freeAutoWorkflow, { jobId }, {
+        onComplete: internal.agentWorkflows.freeAutoWorkflowComplete,
+        context: { jobId },
+      }));
+      await recordOperationEvent(ctx, {
+        jobId,
+        sequence: (job.actionSliceCount ?? 0) + (job.queryCount ?? 0) + (job.mutationCount ?? 0) + (job.modelCallCount ?? 0) + (job.toolCallCount ?? 0) + (job.schedulerHandoffCount ?? 0) + 4,
+        kind: "scheduler",
+        name: "agentWorkflows.freeAutoWorkflow.continue",
+        targetKind: "artifact",
+        targetId: String(job.artifactId),
+        status: "completed",
+        countDelta: 1,
+        affectedIds: [String(jobId), String(nextWorkflowId)],
+        startedAt: now,
+        completedAt: now,
+      });
+      await ctx.db.patch(jobId, {
+        workflowId: nextWorkflowId,
+        schedulerHandoffCount: (job.schedulerHandoffCount ?? 0) + 1,
+        updatedAt: now,
+      });
+      return { ok: true as const, terminal: false as const, continued: true as const };
+    }
+    if (resultKind === "success") {
+      return { ok: true as const, terminal: false as const };
+    }
     const now = Date.now();
     await ctx.db.patch(jobId, {
       status: resultKind === "canceled" ? "cancelled" : "failed",
@@ -2589,10 +2730,11 @@ export const finishSlice = internalMutation({
       updatedAt: now,
     };
     if (a.runId) patch.latestRunId = a.runId;
-    if (a.handoff !== undefined) patch.handoff = a.handoff;
-    if (a.cursor !== undefined) patch.cursor = a.cursor;
-    if (a.finalText !== undefined) patch.finalText = a.finalText;
-    if (a.error !== undefined) patch.error = a.error;
+    if (a.handoff !== undefined) patch.handoff = compactJobContinuation(a.handoff);
+    if (a.cursor !== undefined) patch.cursor = compactJobContinuation(a.cursor);
+    if (a.finalText !== undefined) patch.finalText = capStreamText(a.finalText, 60_000);
+    if (a.error !== undefined) patch.error = capStreamText(a.error, 4_000);
+    else if (nextStatus === "completed" || nextStatus === "paused") patch.error = "";
     if (a.scheduledNextAt !== undefined && nextStatus !== "completed") patch.nextRunAt = a.scheduledNextAt;
     const activeLeases = await ctx.db.query("agentLeases").withIndex("by_job_status", (q) => q.eq("jobId", a.jobId).eq("status", "active")).collect();
     for (const lease of activeLeases) await ctx.db.patch(lease._id, { status: "released", releasedAt: now });
@@ -2632,8 +2774,25 @@ export const finishSlice = internalMutation({
       completedAt: now,
     });
     await ctx.db.patch(a.jobId, patch as any);
-    if (patch.nextRunAt !== undefined && (effectiveNextStatus === "paused" || effectiveNextStatus === "retrying") && job.runtime !== "workflow") {
-      await ctx.scheduler.runAfter(Math.max(0, Number(patch.nextRunAt) - now), internal.agentJobRunner.runFreeAutoJobSlice, { jobId: a.jobId });
+    if (patch.nextRunAt !== undefined && (effectiveNextStatus === "paused" || effectiveNextStatus === "retrying")) {
+      const delayMs = Math.max(0, Number(patch.nextRunAt) - now);
+      if (job.runtime === "workflow") {
+        await recordOperationEvent(ctx, {
+          jobId: a.jobId,
+          runId: a.runId,
+          sequence: (job.actionSliceCount ?? 0) + (job.queryCount ?? 0) + (job.mutationCount ?? 0) + (job.modelCallCount ?? 0) + (job.toolCallCount ?? 0) + (job.schedulerHandoffCount ?? 0) + 4,
+          kind: "scheduler",
+          name: "agentJobs.finishSlice.workflowSchedulerFallback",
+          targetKind: "artifact",
+          targetId: String(job.artifactId),
+          status: "completed",
+          countDelta: 1,
+          affectedIds: [String(a.jobId), String(job.artifactId)],
+          startedAt: now,
+          completedAt: now,
+        });
+      }
+      await ctx.scheduler.runAfter(delayMs, internal.agentJobRunner.runFreeAutoJobSlice, { jobId: a.jobId });
     }
     return { ok: true as const };
   },

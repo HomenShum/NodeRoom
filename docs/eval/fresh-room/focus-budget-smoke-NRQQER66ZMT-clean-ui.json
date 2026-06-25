@@ -1,0 +1,14 @@
+{
+  "bodyTail": "N\nNodeRoom · Blank NodeRoom\ninvite\nNRQQER66ZMT\n● live convex\nAuto-allow\nFocus\nH\n◆\n1 live\nSheet 1\nTrace\nExport XLSX\nShared\n\tA\tB\tC\tD\tE\tF\tG\tH\n1\t-\t-\t-\t-\t-\t-\t-\t-\n2\t-\t-\t-\t-\t-\t-\t-\t-\n3\t-\t-\t-\t-\t-\t-\t-\t-\n4\t-\t-\t-\t-\t-\t-\t-\t-\n5\t-\t-\t-\t-\t-\t-\t-\t-\n6\t-\t-\t-\t-\t-\t-\t-\t-\n7\t-\t-\t-\t-\t-\t-\t-\t-\n8\t-\t-\t-\t-\t-\t-\t-\t-\n9\t-\t-\t-\t-\t-\t-\t-\t-\n10\t-\t-\t-\t-\t-\t-\t-\t-\n11\t-\t-\t-\t-\t-\t-\t-\t-\n12\t-\t-\t-\t-\t-\t-\t-\t-\n13\t-\t-\t-\t-\t-\t-\t-\t-\n14\t-\t-\t-\t-\t-\t-\t-\t-\n15\t-\t-\t-\t-\t-\t-\t-\t-\n16\t-\t-\t-\t-\t-\t-\t-\t-\n17\t-\t-\t-\t-\t-\t-\t-\t-\n18\t-\t-\t-\t-\t-\t-\t-\t-\n19\t-\t-\t-\t-\t-\t-\t-\t-\n20\t-\t-\t-\t-\t-\t-\t-\t-\n21\t-\t-\t-\t-\t-\t-\t-\t-\n22\t-\t-\t-\t-\t-\t-\t-\t-\n23\t-\t-\t-\t-\t-\t-\t-\t-\n24\t-\t-\t-\t-\t-\t-\t-\t-\nVERSIONEDSPREADSHEETSYNC\nv1\n12 rows | 8 columns\nRoom trace\n2 events\nz-ai/glm-5.2 · 2 tools · $0.038\nRoom\nPrivate\nPublic chat\nEveryone\nN\nRoom NodeAgent\nH\nHost\n01:42\n@nodeagent UI budget smoke: list the room artifacts and report the count only. Do not create or edit artifacts.\nCopy\nEdit\nN\nRoom NodeAgent\nagent\n01:42\nNodeAgent completed the run\n4 model turns - 2 tool actions\nTrace details\nGathered room files\n1 room artifact returned\nReported answer\ncompleted\n\nRoom artifact count: 1 (Sheet 1 — \"j973773ww9zzrzxgzkaba4a8cd89bqdk\"). No edits made per task instructions.\n\nCopy\nN\nRoom NodeAgent\nagent\n01:43\n\nRoom artifact count: 1 (Sheet 1 — \"j973773ww9zzrzxgzkaba4a8cd89bqdk\"). No edits made per task instructions.\n\nCopy\nAdaptive\nFree\nTop paid\nSpecific model\n01 - WELCOME TO NODEROOM\nA live diligence room where bankers, guests, and NodeAgents gather company facts, enrich shared grids, and prepare runway, milestone, and handoff artifacts without clobbering each other. This memory demo is safe: nothing is sent anywhere.\nStandard\nReplay\nIntake\nEvidence\nDraft\nReview\nExport\nFocus Mode on\nHost added Sheet 1 for the public agent request\nHost · edit_applied",
+  "focusOn": "true",
+  "hasAttention": false,
+  "hasWorking": false,
+  "roomCode": "NRQQER66ZMT",
+  "statuses": [
+    "done"
+  ],
+  "titleTexts": [
+    "NodeAgent completed the run"
+  ],
+  "url": "http://127.0.0.1:5273/?room=NRQQER66ZMT&name=Host&focusMode=1"
+}

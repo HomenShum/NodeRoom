@@ -88,6 +88,10 @@ describe("spreadsheet parser", () => {
     expect(payloadValue(f7.value)).toBe(110);
     expect((f7.value as CellPayload).formula).toBe("=B2*1.1");
 
+    const [aliasedF7] = await tools.readRange(["7__F"]);
+    expect(aliasedF7.id).toBe("F7");
+    expect(payloadValue(aliasedF7.value)).toBe(110);
+
     const hits = await tools.searchSheetContext("Revenue");
     expect(hits.some((hit) => hit.kind === "cell" && hit.elementId === "A2")).toBe(true);
   });
@@ -105,15 +109,36 @@ describe("spreadsheet parser", () => {
     expect(artifact.meta?.dataframe?.warnings?.[0]).toContain("Skipped 2 banner rows");
   });
 
-  it("caps wide uploads to the live 20k-cell artifact budget", async () => {
+  it("caps wide CSV uploads to the Convex mutation seed budget", async () => {
     const header = Array.from({ length: 80 }, (_, i) => `Col ${i + 1}`).join(",");
     const row = Array.from({ length: 80 }, (_, i) => String(i + 1)).join(",");
     const text = [header, ...Array.from({ length: 300 }, () => row)].join("\n");
     const [artifact] = await parseSpreadsheetArtifacts({ fileName: "wide.csv", mimeType: "text/csv", size: text.length, text });
 
-    expect(artifact.seed).toHaveLength(20_000);
-    expect(artifact.meta?.dataframe?.rowCount).toBe(250);
-    expect(artifact.meta?.dataframe?.warnings?.join(" ")).toContain("20000 cells");
+    expect(artifact.seed).toHaveLength(8_160);
+    expect(artifact.seed.length).toBeLessThanOrEqual(8_192);
+    expect(artifact.meta?.dataframe?.rowCount).toBe(102);
+    expect(artifact.meta?.dataframe?.warnings?.join(" ")).toContain("8192 cells");
+  });
+
+  it("caps wide XLSX grid uploads before Convex array validation rejects them", async () => {
+    const workbook = new ExcelJS.Workbook();
+    const ws = workbook.addWorksheet("Large model");
+    const row = Array.from({ length: 80 }, (_, i) => i + 1);
+    for (let i = 0; i < 300; i++) ws.addRow(row);
+    const buffer = await workbook.xlsx.writeBuffer();
+
+    const [artifact] = await parseSpreadsheetArtifacts({
+      fileName: "large-model.xlsx",
+      mimeType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      size: buffer.byteLength,
+      arrayBuffer: buffer as ArrayBuffer,
+    });
+
+    expect(artifact.seed).toHaveLength(8_160);
+    expect(artifact.seed.length).toBeLessThanOrEqual(8_192);
+    expect(artifact.meta?.excelGrid).toMatchObject({ rows: 102, columns: 80, truncated: true });
+    expect(artifact.meta?.excelGrid?.warnings?.join(" ")).toContain("8192 cells");
   });
 
   it("captures the Excel style layer at upload — formats, bold, fill, widths, merges (render-only)", async () => {
