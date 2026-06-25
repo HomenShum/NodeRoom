@@ -148,9 +148,9 @@ export function buildDemoRoom(engine: RoomEngine): DemoRoom {
     };
     for (const col of RESEARCH_COLS) researchSeed.push({ id: `${c.id}__${col}`, value: vals[col] });
   }
-  // Research is an EMPTY named-column grid the agent populates (matches the prototype's structured grid,
+  // Research is a named-column grid the agent populates (matches the prototype's structured grid,
   // not a raw A1 sheet). Same GenericSheet as any tabular sheet; the agent fills the rows.
-  const researchId = engine.createArtifact({ roomId: room.id, kind: "sheet", title: "Company research", by: me, seed: [], meta: researchMeta() }).id;
+  const researchId = engine.createArtifact({ roomId: room.id, kind: "sheet", title: "Company research", by: me, seed: researchSeed, meta: researchMeta() }).id;
   engine.createArtifact({ roomId: room.id, kind: "sheet", title: "Runway / milestones", by: me, seed: runwaySeed(), meta: runwayMeta() });
 
   const noteId = engine.createArtifact({
