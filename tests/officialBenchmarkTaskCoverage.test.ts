@@ -39,6 +39,8 @@ describe("official benchmark task coverage ledger", () => {
     expect(multiUser).toMatchObject({
       benchmark: "NodeRoom",
       status: "complete",
+      stagedTasks: 6,
+      deterministicRunTasks: 6,
     });
     expect(multiUser?.stagedTasks).toBeGreaterThan(0);
     expect(multiUser?.deterministicRunTasks).toBe(multiUser?.stagedTasks);

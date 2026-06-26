@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "generatedAt": "2026-06-26T03:31:22.564Z",
+  "generatedAt": "2026-06-26T08:48:37.727Z",
   "summary": {
     "tracks": 3,
     "coveredTracks": 2,
@@ -201,7 +201,7 @@
           "id": "visible_streaming_progress",
           "label": "Show visible agent progress or streamed text while work runs",
           "status": "covered",
-          "evidence": "e2e/benchmark-ui-bankertoolbench.spec.ts (proof: docs/eval/fresh-room/FR-020/latest.json, room NRNNNQC2IO9); model qwen/qwen3.7-plus; runtime benchmark_completion; job detail visible; room trace visible; agent live loop proven"
+          "evidence": "e2e/benchmark-ui-bankertoolbench.spec.ts (proof: docs/eval/fresh-room/FR-020/latest.json, room NRNNNQC2IO9); model qwen/qwen3.7-plus, 0 tool calls, $0"
         },
         {
           "id": "deliverable_export_download",
@@ -247,8 +247,7 @@
       ],
       "requiredSpec": "e2e/benchmark-ui-bankertoolbench.spec.ts",
       "blockers": [
-        "Live-browser fresh-room BTB run PASSED for task a31173e3-e8aa-4ddb-b0d9-e4e7055c950b with .xlsx, .xlsm, .pptx, .docx, .pdf downloaded and reopened; proof: docs/eval/fresh-room/FR-020/latest.json.",
-        "Gemini visual judge passed; scorecard: docs/eval/gemini-media-judges/btb-a31173e3-qwen-fresh-domain-proof-after-pdf-storage-fix-20260625/summary.md; Gemini media judge publish (8/16); defects P0/P1/P2=0/0/0. The video demonstrates NodeAgent executing a DCF SOTP valuation for Alphabet Inc. inside NodeRoom, covering room creation, document uploads, live agent execution with trace logs, and final artifact generation."
+        "Live-browser fresh-room BTB run PASSED for task a31173e3-e8aa-4ddb-b0d9-e4e7055c950b with .xlsx, .xlsm, .pptx, .docx, .pdf downloaded and reopened; proof: docs/eval/fresh-room/FR-020/latest.json."
       ]
     },
     {

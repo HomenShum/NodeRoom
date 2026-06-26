@@ -1,0 +1,168 @@
+{
+  "schema": "noderoom-dogfood-matrix-v1",
+  "generatedAt": "2026-06-26",
+  "categories": [
+    {
+      "id": "A",
+      "label": "Fresh-Room Entry",
+      "rows": [
+        { "id": "A1", "userStory": "Blank room — user creates a room from scratch", "surfaces": ["landing", "room-shell"], "commands": ["e2e/fresh-room-blank.spec.ts"], "passCriteria": "Room opens, no dead panels, chat usable", "severity": "P0", "status": "shipped" },
+        { "id": "A2", "userStory": "Starter/demo room — user opens the demo room", "surfaces": ["landing", "room-shell", "wall-inventory"], "commands": ["e2e/privacy-job-wall-proposal.spec.ts"], "passCriteria": "Demo room loads, wall inventory default, all cards clickable", "severity": "P0", "status": "shipped" },
+        { "id": "A3", "userStory": "Shared link join — user joins via room code", "surfaces": ["landing", "room-shell"], "commands": [], "passCriteria": "Room code accepted, room state visible", "severity": "P1", "status": "shipped" },
+        { "id": "A4", "userStory": "Existing room reopen — user returns to a room", "surfaces": ["room-shell", "binder"], "commands": [], "passCriteria": "State restored, artifacts persisted", "severity": "P1", "status": "shipped" },
+        { "id": "A5", "userStory": "Mobile join — user joins on phone", "surfaces": ["responsive-layout"], "commands": ["e2e/mobile-room.spec.ts"], "passCriteria": "No horizontal overflow, chat+artifact switchable", "severity": "P1", "status": "partial" },
+        { "id": "A6", "userStory": "Public observer join during agent run", "surfaces": ["room-shell", "chat"], "commands": [], "passCriteria": "Observer sees live state, no edit access", "severity": "P2", "status": "partial" },
+        { "id": "A7", "userStory": "Host + collaborator + observer", "surfaces": ["presence", "permissions"], "commands": [], "passCriteria": "Three roles visible, permissions enforced", "severity": "P2", "status": "shipped" }
+      ]
+    },
+    {
+      "id": "B",
+      "label": "Chat / Collaboration",
+      "rows": [
+        { "id": "B1", "userStory": "Public room chat — send a message", "surfaces": ["copilot"], "commands": ["e2e/chat-public.spec.ts"], "passCriteria": "Optimistic send, no duplicates", "severity": "P0", "status": "shipped" },
+        { "id": "B2", "userStory": "Private agent chat — send private message", "surfaces": ["copilot", "private-tab"], "commands": ["e2e/chat-private.spec.ts"], "passCriteria": "Private messages never leak to public", "severity": "P0", "status": "shipped" },
+        { "id": "B3", "userStory": "Mentions — @nodeagent in public chat", "surfaces": ["copilot"], "commands": ["e2e/nodeagent-public.spec.ts"], "passCriteria": "Agent receives and responds", "severity": "P0", "status": "shipped" },
+        { "id": "B4", "userStory": "Artifact references in chat", "surfaces": ["copilot", "artifact-panel"], "commands": [], "passCriteria": "Click opens correct artifact", "severity": "P1", "status": "shipped" },
+        { "id": "B5", "userStory": "File attachments in chat", "surfaces": ["copilot", "file-upload"], "commands": ["e2e/chat-attach.spec.ts"], "passCriteria": "File attached, preview opens", "severity": "P1", "status": "shipped" },
+        { "id": "B6", "userStory": "Multi-user concurrent messages", "surfaces": ["copilot"], "commands": [], "passCriteria": "No duplicate bubbles, order preserved", "severity": "P1", "status": "shipped" },
+        { "id": "B7", "userStory": "Mobile chat switch", "surfaces": ["responsive-copilot"], "commands": ["e2e/mobile-room.spec.ts"], "passCriteria": "Chat ↔ artifact switch works", "severity": "P1", "status": "partial" }
+      ]
+    },
+    {
+      "id": "C",
+      "label": "Wall / Post-it / Inventory Surface",
+      "rows": [
+        { "id": "C1", "userStory": "Wall opens by default when present", "surfaces": ["room-shell", "artifact-panel"], "commands": ["tests/passiveIntelligence.test.tsx"], "passCriteria": "Wall is active tab on room open", "severity": "P0", "status": "shipped" },
+        { "id": "C2", "userStory": "Artifacts clustered by type", "surfaces": ["wall-inventory"], "commands": ["tests/passiveIntelligence.test.tsx"], "passCriteria": "Groups: Deliverables, Spreadsheets, Files, Notes, Walls", "severity": "P0", "status": "shipped" },
+        { "id": "C3", "userStory": "Cards clickable — open target artifact", "surfaces": ["wall-inventory", "artifact-panel"], "commands": ["e2e/privacy-job-wall-proposal.spec.ts"], "passCriteria": "Click card → correct artifact opens", "severity": "P0", "status": "shipped" },
+        { "id": "C4", "userStory": "Post-it add/edit/delete", "surfaces": ["wall-captures"], "commands": ["e2e/privacy-job-wall-proposal.spec.ts"], "passCriteria": "CRUD persists, blur commits, delete syncs", "severity": "P0", "status": "shipped" },
+        { "id": "C5", "userStory": "Post-it conflict — two users edit same note", "surfaces": ["wall-captures"], "commands": [], "passCriteria": "Last-write-wins or merge, no crash", "severity": "P2", "status": "partial" },
+        { "id": "C6", "userStory": "Empty room inventory", "surfaces": ["wall-inventory"], "commands": [], "passCriteria": "Shows empty state, not blank", "severity": "P1", "status": "partial" }
+      ]
+    },
+    {
+      "id": "D",
+      "label": "Files / Previews / Evidence",
+      "rows": [
+        { "id": "D1", "userStory": "Upload PDF", "surfaces": ["file-upload", "preview"], "commands": ["e2e/file-upload-pdf.spec.ts"], "passCriteria": "Artifact created, preview opens", "severity": "P0", "status": "shipped" },
+        { "id": "D2", "userStory": "Upload large PDF", "surfaces": ["file-upload", "preview"], "commands": [], "passCriteria": "No dead placeholder", "severity": "P1", "status": "partial" },
+        { "id": "D3", "userStory": "Upload XLSX", "surfaces": ["file-upload", "workbook"], "commands": ["e2e/file-upload-xlsx.spec.ts"], "passCriteria": "Workbook renders through unified grid", "severity": "P0", "status": "shipped" },
+        { "id": "D4", "userStory": "Upload CSV", "surfaces": ["file-upload", "sheet"], "commands": ["e2e/file-upload-csv.spec.ts"], "passCriteria": "CSV parsed, sheet renders", "severity": "P0", "status": "shipped" },
+        { "id": "D5", "userStory": "Upload DOCX", "surfaces": ["file-upload", "office-preview"], "commands": ["e2e/file-upload-docx.spec.ts"], "passCriteria": "DOCX preview opens, content readable", "severity": "P1", "status": "shipped" },
+        { "id": "D6", "userStory": "Upload PPTX", "surfaces": ["file-upload", "office-preview"], "commands": ["e2e/file-upload-pptx.spec.ts"], "passCriteria": "PPTX preview opens, slides visible", "severity": "P1", "status": "shipped" },
+        { "id": "D7", "userStory": "Upload image (PNG/JPG)", "surfaces": ["file-upload", "image-preview"], "commands": ["e2e/file-upload-image.spec.ts"], "passCriteria": "Image renders, not broken", "severity": "P1", "status": "shipped" },
+        { "id": "D8", "userStory": "Drag/drop into chat", "surfaces": ["copilot", "file-upload"], "commands": [], "passCriteria": "Drag attaches file reference", "severity": "P1", "status": "partial" },
+        { "id": "D9", "userStory": "Paste upload", "surfaces": ["copilot"], "commands": [], "passCriteria": "Paste creates file artifact", "severity": "P2", "status": "partial" },
+        { "id": "D10", "userStory": "Multi-file batch upload", "surfaces": ["file-upload"], "commands": [], "passCriteria": "All files create artifacts", "severity": "P1", "status": "partial" },
+        { "id": "D11", "userStory": "Evidence citation hover/click", "surfaces": ["artifact-panel", "evidence-view"], "commands": [], "passCriteria": "Citation opens source with highlight", "severity": "P1", "status": "shipped" }
+      ]
+    },
+    {
+      "id": "E",
+      "label": "Spreadsheet Operations",
+      "rows": [
+        { "id": "E1", "userStory": "Open sheet — no crash on malformed metadata", "surfaces": ["artifact-panel", "GenericSheet"], "commands": ["tests/passiveIntelligence.test.tsx"], "passCriteria": "No crash, columns render", "severity": "P0", "status": "shipped" },
+        { "id": "E2", "userStory": "Edit cell", "surfaces": ["artifact-panel", "sheet"], "commands": ["e2e/sheet-edit.spec.ts"], "passCriteria": "Value persists, version preserved", "severity": "P0", "status": "shipped" },
+        { "id": "E3", "userStory": "Export workbook to XLSX", "surfaces": ["artifact-panel", "export"], "commands": ["e2e/benchmark-ui-spreadsheetbench.spec.ts"], "passCriteria": "File downloads, reopenable", "severity": "P0", "status": "shipped" },
+        { "id": "E4", "userStory": "Reopen exported workbook", "surfaces": ["file-system", "sheet"], "commands": ["e2e/benchmark-ui-spreadsheetbench.spec.ts"], "passCriteria": "Reopened file matches", "severity": "P0", "status": "shipped" },
+        { "id": "E5", "userStory": "Scroll large sheet", "surfaces": ["artifact-panel", "sheet"], "commands": [], "passCriteria": "Smooth scroll, sticky headers", "severity": "P1", "status": "shipped" },
+        { "id": "E6", "userStory": "Column visibility — all columns visible", "surfaces": ["artifact-panel", "sheet"], "commands": [], "passCriteria": "No hidden columns, horizontal scroll works", "severity": "P0", "status": "shipped" },
+        { "id": "E7", "userStory": "Formula-like cells", "surfaces": ["artifact-panel", "sheet"], "commands": [], "passCriteria": "Formula cells protected, marked", "severity": "P1", "status": "shipped" },
+        { "id": "E8", "userStory": "Merged-cell metadata", "surfaces": ["artifact-panel", "sheet"], "commands": ["tests/passiveIntelligence.test.tsx"], "passCriteria": "No crash on merge ranges", "severity": "P0", "status": "shipped" }
+      ]
+    },
+    {
+      "id": "F",
+      "label": "Human + Agent Concurrency",
+      "rows": [
+        { "id": "F1", "userStory": "Human edits C2 while agent works A1:C5", "surfaces": ["sheet", "trace", "focus-box"], "commands": ["e2e/human-agent-concurrency.spec.ts"], "passCriteria": "Human keeps typing, agent doesn't overwrite C2, C2 becomes proposal", "severity": "P0", "status": "partial" },
+        { "id": "F2", "userStory": "Agent clean cells commit", "surfaces": ["sheet", "trace"], "commands": ["e2e/nodeagent-public.spec.ts"], "passCriteria": "Non-overlapping cells commit directly", "severity": "P0", "status": "shipped" },
+        { "id": "F3", "userStory": "Stale agent proposal", "surfaces": ["sheet", "trace", "review-queue"], "commands": [], "passCriteria": "Stale output becomes proposal, not overwrite", "severity": "P1", "status": "shipped" },
+        { "id": "F4", "userStory": "Formula protection", "surfaces": ["sheet", "trace"], "commands": [], "passCriteria": "Agent cannot overwrite protected formula", "severity": "P1", "status": "shipped" },
+        { "id": "F5", "userStory": "Multi-user live convergence", "surfaces": ["sheet", "presence"], "commands": ["e2e/multi-user-convergence.spec.ts"], "passCriteria": "All clients converge to same state", "severity": "P1", "status": "shipped" }
+      ]
+    },
+    {
+      "id": "G",
+      "label": "Agent Lifecycle",
+      "rows": [
+        { "id": "G1", "userStory": "Public @nodeagent — queued → running → completed", "surfaces": ["copilot", "job-panel", "trace"], "commands": ["e2e/nodeagent-public.spec.ts"], "passCriteria": "Streaming visible, trace recorded", "severity": "P0", "status": "shipped" },
+        { "id": "G2", "userStory": "Private agent — private lane", "surfaces": ["copilot", "private-tab"], "commands": ["e2e/chat-private.spec.ts"], "passCriteria": "Private agent output stays private", "severity": "P0", "status": "shipped" },
+        { "id": "G3", "userStory": "Job cancel", "surfaces": ["job-panel"], "commands": [], "passCriteria": "Cancel stops job, trace records cancellation", "severity": "P1", "status": "shipped" },
+        { "id": "G4", "userStory": "Job retry", "surfaces": ["job-panel"], "commands": [], "passCriteria": "Retry works, first failure preserved", "severity": "P1", "status": "partial" },
+        { "id": "G5", "userStory": "Job failure — honest error UI", "surfaces": ["job-panel", "copilot"], "commands": [], "passCriteria": "Error visible, humanized, no raw stack", "severity": "P1", "status": "partial" },
+        { "id": "G6", "userStory": "Cost/latency/model telemetry", "surfaces": ["trace-panel"], "commands": ["e2e/nodeagent-public.spec.ts"], "passCriteria": "Cost, latency, model, tool-count visible", "severity": "P1", "status": "shipped" }
+      ]
+    },
+    {
+      "id": "H",
+      "label": "Focus Mode",
+      "rows": [
+        { "id": "H1", "userStory": "Focus Mode off → on", "surfaces": ["focus-toggle", "work-surface"], "commands": [], "passCriteria": "Toggle works, no hijack", "severity": "P1", "status": "shipped" },
+        { "id": "H2", "userStory": "Select job to follow", "surfaces": ["focus-mode", "job-panel"], "commands": [], "passCriteria": "Focus follows selected job only", "severity": "P1", "status": "shipped" },
+        { "id": "H3", "userStory": "User editing pauses follow", "surfaces": ["focus-mode", "sheet"], "commands": [], "passCriteria": "Focus does not hijack active typing", "severity": "P1", "status": "partial" },
+        { "id": "H4", "userStory": "Focus box on spreadsheet range", "surfaces": ["focus-box", "sheet"], "commands": ["e2e/focus-mode.spec.ts"], "passCriteria": "Box visible on correct range", "severity": "P1", "status": "shipped" },
+        { "id": "H5", "userStory": "Focus box on source PDF", "surfaces": ["focus-box", "pdf-preview"], "commands": [], "passCriteria": "Box visible on correct page", "severity": "P2", "status": "partial" }
+      ]
+    },
+    {
+      "id": "I",
+      "label": "Notebook / Passive Intelligence",
+      "rows": [
+        { "id": "I1", "userStory": "Capture note — blur/save", "surfaces": ["notebook", "capture"], "commands": ["e2e/notebook-capture.spec.ts"], "passCriteria": "Note persists, passive chip appears", "severity": "P0", "status": "shipped" },
+        { "id": "I2", "userStory": "Passive chip → Noteworthy inbox", "surfaces": ["inbox-panel"], "commands": ["tests/passiveIntelligence.test.tsx"], "passCriteria": "Chip classified, inbox entry created", "severity": "P0", "status": "shipped" },
+        { "id": "I3", "userStory": "Research / Add to sheet / Practice", "surfaces": ["inbox-actions"], "commands": ["tests/passiveIntelligence.test.tsx"], "passCriteria": "Actions produce correct output", "severity": "P1", "status": "shipped" },
+        { "id": "I4", "userStory": "Agent sidecar/proposal — no arbitrary overwrite", "surfaces": ["notebook", "proposals"], "commands": [], "passCriteria": "Agent writes proposals, not direct edits", "severity": "P1", "status": "shipped" },
+        { "id": "I5", "userStory": "Diligence memo alignment", "surfaces": ["notebook-read-model"], "commands": ["tests/passiveIntelligence.test.tsx"], "passCriteria": "No misalignment, clean rendering", "severity": "P0", "status": "shipped" }
+      ]
+    },
+    {
+      "id": "J",
+      "label": "Domain Workflows",
+      "rows": [
+        { "id": "J1", "userStory": "GTM company match/enrich", "surfaces": ["sheet", "chat", "agent"], "commands": ["e2e/gtm-company-match.spec.ts"], "passCriteria": "CRM fields preserved, source cited", "severity": "P1", "status": "partial" },
+        { "id": "J2", "userStory": "Healthtech sector classification", "surfaces": ["sheet", "agent"], "commands": [], "passCriteria": "Classification correct, no conflation", "severity": "P2", "status": "partial" },
+        { "id": "J3", "userStory": "Chat lead capture → watchlist row", "surfaces": ["chat", "sheet"], "commands": ["e2e/chat-intake.spec.ts"], "passCriteria": "Lead creates row, fields mapped", "severity": "P1", "status": "shipped" },
+        { "id": "J4", "userStory": "PII masking in public summaries", "surfaces": ["chat", "agent"], "commands": ["e2e/pii-masking.spec.ts"], "passCriteria": "PII masked in public, not in private", "severity": "P0", "status": "shipped" },
+        { "id": "J5", "userStory": "Finance cost reconciliation", "surfaces": ["sheet", "agent"], "commands": ["e2e/finance-reconcile.spec.ts"], "passCriteria": "Reconciliation correct, evidence-bearing", "severity": "P1", "status": "partial" },
+        { "id": "J6", "userStory": "Timesheet/invoice review", "surfaces": ["sheet", "agent"], "commands": [], "passCriteria": "Review produces correct output", "severity": "P2", "status": "partial" }
+      ]
+    },
+    {
+      "id": "K",
+      "label": "Benchmarks",
+      "rows": [
+        { "id": "K1", "userStory": "FR-001 blank room first ask", "surfaces": ["fresh-room", "agent"], "commands": ["npm run fresh-room:proofs"], "passCriteria": "Fresh-room receipt valid", "severity": "P0", "status": "shipped" },
+        { "id": "K2", "userStory": "FR-010 SpreadsheetBench V1", "surfaces": ["fresh-room", "sheet", "export"], "commands": ["e2e/benchmark-ui-spreadsheetbench.spec.ts"], "passCriteria": "Export/reopen/score pass", "severity": "P0", "status": "shipped" },
+        { "id": "K3", "userStory": "FR-011 SpreadsheetBench V2", "surfaces": ["fresh-room", "sheet", "export", "chart"], "commands": [], "passCriteria": "V2 workbook upload → export → reopen → score → chart/VLM grade", "severity": "P0", "status": "blocked" },
+        { "id": "K4", "userStory": "FR-020 BankerToolBench", "surfaces": ["fresh-room", "btb-package"], "commands": ["e2e/benchmark-ui-bankertoolbench.spec.ts"], "passCriteria": "Selective task pass, all deliverable types", "severity": "P0", "status": "shipped" },
+        { "id": "K5", "userStory": "FR-020B full BTB suite", "surfaces": ["fresh-room", "100-tasks"], "commands": [], "passCriteria": "100/100 tasks, aggregate score", "severity": "P0", "status": "blocked" },
+        { "id": "K6", "userStory": "FR-040 collaboration", "surfaces": ["fresh-room", "multi-user"], "commands": ["e2e/multi-user-convergence.spec.ts"], "passCriteria": "No-clobber proof, convergence", "severity": "P1", "status": "partial" },
+        { "id": "K7", "userStory": "FR-050 mobile", "surfaces": ["mobile-room"], "commands": ["e2e/mobile-room.spec.ts"], "passCriteria": "Mobile review works", "severity": "P1", "status": "partial" },
+        { "id": "K8", "userStory": "FR-060 failure states", "surfaces": ["fresh-room", "error-paths"], "commands": [], "passCriteria": "Honest failure UI, retry works", "severity": "P1", "status": "partial" }
+      ]
+    },
+    {
+      "id": "L",
+      "label": "Notifications / Downstream",
+      "rows": [
+        { "id": "L1", "userStory": "Job completed notification", "surfaces": ["notification", "deep-link"], "commands": [], "passCriteria": "In-app notification, deep link valid", "severity": "P2", "status": "partial" },
+        { "id": "L2", "userStory": "Proposal needs review", "surfaces": ["notification", "review-queue"], "commands": [], "passCriteria": "Push/email draft, no private data in preview", "severity": "P2", "status": "partial" },
+        { "id": "L3", "userStory": "Export ready notification", "surfaces": ["notification", "deep-link"], "commands": [], "passCriteria": "Deep link opens exact artifact", "severity": "P2", "status": "partial" }
+      ]
+    },
+    {
+      "id": "M",
+      "label": "Accessibility / Visual Polish",
+      "rows": [
+        { "id": "M1", "userStory": "Keyboard navigation", "surfaces": ["all-panels"], "commands": [], "passCriteria": "Tab through key controls", "severity": "P1", "status": "partial" },
+        { "id": "M2", "userStory": "Focus states", "surfaces": ["all-interactive"], "commands": [], "passCriteria": "Visible focus rings", "severity": "P1", "status": "shipped" },
+        { "id": "M3", "userStory": "Color contrast", "surfaces": ["all-surfaces"], "commands": [], "passCriteria": "WCAG AA on key text", "severity": "P1", "status": "shipped" },
+        { "id": "M4", "userStory": "Reduced motion", "surfaces": ["all-surfaces"], "commands": [], "passCriteria": "Respects prefers-reduced-motion", "severity": "P2", "status": "partial" },
+        { "id": "M5", "userStory": "Screen-reader labels", "surfaces": ["key-controls"], "commands": [], "passCriteria": "aria-labels on buttons, tabs", "severity": "P1", "status": "partial" },
+        { "id": "M6", "userStory": "Mobile/mid-width overflow", "surfaces": ["responsive"], "commands": ["e2e/mobile-room.spec.ts"], "passCriteria": "No horizontal overflow", "severity": "P1", "status": "partial" },
+        { "id": "M7", "userStory": "Gemini/visual judge scorecard", "surfaces": ["screenshots", "video"], "commands": ["npm run gemini:judge"], "passCriteria": "No P0/P1 defects", "severity": "P1", "status": "shipped" }
+      ]
+    }
+  ]
+}

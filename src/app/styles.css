@@ -706,16 +706,17 @@ input { font-family: inherit; }
 .r-filetab-x:hover { background: var(--bg-hover); color: var(--text-primary); }
 .r-artifact-export { min-height: 28px; white-space: nowrap; flex: 0 0 auto; }
 .r-artifact-export svg { flex: none; }
-.r-art-body { flex: 1; overflow: auto; }
+.r-art-body { flex: 1; min-height: 0; display: flex; flex-direction: column; overflow: hidden; }
+.r-art-body > .r-sheet-wrap { flex: 1; }
 .r-collab-bar { display: flex; align-items: center; gap: 10px; padding: 9px 14px; border-bottom: 1px solid var(--line); background: var(--bg-secondary); flex-wrap: wrap; }
 .r-collab-bar .r-mini-btn, .r-collab-bar .r-btn, .r-collab-bar .r-iconbtn { flex: 0 0 auto; }
 /* honest error state — a hand edit that lost a CAS race */
 .r-art-error { display: flex; align-items: center; gap: 7px; padding: 8px 14px; background: var(--danger-tint); border-bottom: 1px solid var(--danger-border); color: var(--danger-ink); font-size: 12px; font-weight: 600; animation: msgIn .2s var(--ease-out-expo) both; }
 .r-beat-desc { font-size: 12px; color: var(--text-secondary); line-height: 1.4; }
 
-.r-sheet-wrap { padding: 0; }
+.r-sheet-wrap { padding: 0; overflow: auto; }
 .r-sheet { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 12.5px; }
-.r-sheet[data-sheet-kind="generic"] { width: max-content; min-width: 100%; table-layout: fixed; }
+.r-sheet[data-sheet-kind="generic"] { width: 100%; table-layout: fixed; }
 .r-excel-grid { table-layout: fixed; }
 .r-excel-grid th, .r-excel-grid td { min-width: 92px; max-width: 180px; }
 .r-excel-grid .r-excel-corner, .r-excel-grid .r-excel-rowhead { position: sticky; left: 0; z-index: 2; width: 52px; min-width: 52px; max-width: 52px; background: var(--bg-primary); }
@@ -912,6 +913,35 @@ input { font-family: inherit; }
 .r-postit .pby { display: flex; align-items: center; gap: 5px; margin-top: 8px; font-size: 9.5px; font-weight: 700; opacity: .55; }
 .r-wall-toolbar { display: flex; align-items: center; gap: 8px; }
 .r-wall-error { color: var(--danger-ink); font-size: 11px; }
+
+/* Wall inventory — game-item / file-organizer surface */
+.r-wall-inventory { display: flex; flex-direction: column; overflow: hidden; }
+.r-inventory { flex: 1; overflow: auto; padding: 12px 14px; display: flex; flex-direction: column; gap: 18px; }
+.r-inventory-cluster { display: flex; flex-direction: column; gap: 8px; }
+.r-inventory-head { display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 750; color: var(--text-secondary); text-transform: uppercase; letter-spacing: .04em; }
+.r-inventory-count { font-size: 11px; font-weight: 800; color: var(--text-tertiary); background: var(--bg-secondary); border: 1px solid var(--line); border-radius: 999px; padding: 1px 7px; }
+.r-inventory-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; }
+.r-inventory-card { display: flex; align-items: flex-start; gap: 10px; padding: 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--bg-secondary); color: var(--text-primary); text-align: left; cursor: pointer; transition: transform .12s, box-shadow .12s, border-color .12s, background .12s; }
+.r-inventory-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); border-color: var(--accent-border); background: var(--bg-primary); }
+.r-inventory-card-icon { flex: none; width: 32px; height: 32px; border-radius: 8px; display: grid; place-items: center; background: var(--bg-primary); border: 1px solid var(--line); color: var(--text-secondary); }
+.r-inventory-card-icon[data-kind="sheet"] { color: var(--accent-ink); background: var(--accent-tint); border-color: var(--accent-border); }
+.r-inventory-card-icon[data-kind="note"] { color: #6574D8; background: rgba(101,116,216,.12); border-color: rgba(101,116,216,.22); }
+.r-inventory-card-icon[data-kind="wall"] { color: #B08D57; background: rgba(176,141,87,.12); border-color: rgba(176,141,87,.22); }
+.r-inventory-card-body { min-width: 0; flex: 1; display: flex; flex-direction: column; gap: 3px; }
+.r-inventory-card-title { font-size: 12.5px; font-weight: 700; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.r-inventory-card-meta { font-size: 11px; color: var(--text-muted); }
+.r-inventory-card-badge { flex: none; font-size: 9.5px; font-weight: 800; color: var(--text-tertiary); background: var(--bg-primary); border: 1px solid var(--line); border-radius: 4px; padding: 2px 5px; text-transform: uppercase; }
+.r-inventory-captures { border-top: 1px solid var(--line); padding: 10px 14px; flex: none; }
+.r-inventory-captures .r-wall { min-height: 120px; height: 160px; border-radius: 8px; border: 1px solid var(--line); }
+
+/* Notebook intelligence panel */
+.r-notebook-proof { margin: 14px 18px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; background: var(--bg-secondary); display: flex; flex-direction: column; gap: 10px; }
+.r-notebook-proof-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.r-notebook-proof-head > span { display: flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 700; color: var(--text-secondary); }
+.r-notebook-blocks { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 8px; }
+.r-notebook-block { padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg-primary); font-size: 11.5px; color: var(--text-secondary); }
+.r-notebook-block p { margin: 4px 0 0; line-height: 1.4; }
+.r-notebook-actions { display: flex; justify-content: flex-end; }
 
 /* trace strip */
 .r-trace { border-top: 1px solid var(--line); flex: none; max-height: 300px; display: flex; flex-direction: column; }

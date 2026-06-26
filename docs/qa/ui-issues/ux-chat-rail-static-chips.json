@@ -1,0 +1,37 @@
+{
+  "issueId": "ux-chat-rail-static-chips",
+  "surface": "Right chat rail — quick action chips and empty state",
+  "severity": "P2",
+  "type": "user-visible-state",
+  "observed": "Quick action chips show static prompts (@nodeagent diligence CardioNova, @nodeagent runway gaps) regardless of which artifact is active. Empty state text is generic: 'Ask the room agent to work on the seeded model.'",
+  "whyItMatters": "When a user opens the Diligence memo, the chat rail still suggests 'diligence CardioNova' and 'runway gaps' instead of 'draft memo' or 'review memo'. A first-time user cannot tell what NodeAgent can do for the currently selected surface.",
+  "minimalFixLevel": 0,
+  "allowedChanges": [
+    "compute contextual prompts based on activeArtifactId and artifact kind/title",
+    "update empty state hint text based on active artifact",
+    "fall back to default prompts when no artifact is active"
+  ],
+  "forbiddenChanges": [
+    "redesign chat panel layout",
+    "change chat composer structure",
+    "add new UI panels"
+  ],
+  "proofRequired": [
+    "before screenshot",
+    "after screenshot",
+    "console error check",
+    "verify chips change when switching artifacts"
+  ],
+  "beforeScreenshot": "Playwright MCP transient — DOM evidence: wall active, chips were [@nodeagent diligence CardioNova, @nodeagent runway gaps]",
+  "afterScreenshot": "Playwright MCP transient — DOM evidence: wall active, chips became [@nodeagent organize wall, @nodeagent diligence CardioNova]; runway active, chips became [@nodeagent populate runway, @nodeagent find evidence gaps]; diligence memo active, chips became [@nodeagent draft memo, @nodeagent review memo]",
+  "filesChanged": [
+    "src/ui/Chat.tsx"
+  ],
+  "testsRun": [
+    "npx tsc --noEmit --pretty false",
+    "npx vitest run --reporter=dot"
+  ],
+  "consoleErrorCount": 0,
+  "layoutArchitectureChanged": false,
+  "whyNotRedesign": "The chat panel layout is correct. The issue was purely that the quick-action chips and empty state text were hardcoded instead of responding to the active artifact context. A Level 0 copy/state fix (useMemo based on activeArtifactId) fully resolves the issue without touching layout."
+}

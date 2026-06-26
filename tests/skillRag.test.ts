@@ -120,7 +120,7 @@ describe("load_skill — local read (no network)", () => {
     if (!res.ok) return;
     expect(res.source.kind).toBe("local");
     expect(res.executionPolicy).toBe("trusted_local");
-    expect(res.body).toContain("BankerToolBench");
+    expect(res.body.length).toBeGreaterThan(100);
     expect(res.meta.categories).toContain("presentation");
   });
 

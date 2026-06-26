@@ -15,7 +15,7 @@ import { api } from "../../../convex/_generated/api";
 import {
   Table2, FileText, StickyNote, Users, GitMerge, Play, RotateCcw, History, Search, BookOpen,
   Lock, Unlock, Ban, Pencil, Plus, Check, AlertTriangle, Eye, Circle, ChevronRight, Download, Trash2, Undo2, X, Columns2, MoreHorizontal, Mail, Hash, Layers, Linkedin, Activity, type LucideIcon,
-  Sparkles,
+  Sparkles, Folder, Briefcase, Package, File as FileIcon,
 } from "lucide-react";
 import { useStore, type ActorProof, type RoomStore, type EditFeedback, type PresenceClaim } from "../../app/store";
 import { columnLetters } from "../../app/spreadsheetIndex";
@@ -235,7 +235,7 @@ function ArtifactSurface({ roomId, me, proof, artId, onArt, collab, style, surfa
               grid, not a raw A1 sheet). Rendered by GenericSheet — no separate <Research> renderer. */}
           {activeTab === "research" && research && <GenericSheet roomId={roomId} me={me} art={research} onError={(f) => setEditErr(editErrorMsg(f))} />}
           {activeTab === "note" && note && (NOTEBOOK_SYNC_ENABLED && proof ? <SyncedNote roomId={roomId} me={me} proof={proof} art={note} /> : <Note roomId={roomId} me={me} proof={proof} art={note} />)}
-          {activeTab === "wall" && wall && <Wall roomId={roomId} me={me} art={wall} />}
+          {activeTab === "wall" && wall && <Wall roomId={roomId} me={me} art={wall} onOpenArtifact={onArt} />}
         </>
       )}
 
@@ -933,18 +933,21 @@ function EditableCell({ value, disabled, align, onCommit, addLabel, onEditStart,
 
 function rowIdsOf(art: Art): string[] {
   if (art.meta?.excelGrid) {
-    const rowCount = Math.max(1, art.meta.excelGrid.rows ?? 1);
+    const rowCount = Math.max(1, Number(art.meta.excelGrid.rows) || 1);
     return Array.from({ length: rowCount }, (_, i) => String(i + 1));
   }
   const ids: string[] = [];
-  for (const eid of art.order) { const r = eid.split("__")[0]; if (!ids.includes(r)) ids.push(r); }
+  for (const eid of art.order ?? []) {
+    const r = eid.split("__")[0];
+    if (r && !ids.includes(r)) ids.push(r);
+  }
   return ids;
 }
 const cellVal = (art: Art, rowId: string, col: string) => displayCellValue(art.elements[`${rowId}__${col}`]?.value);
 
 function colsOf(art: Art): string[] {
   const cols: string[] = [];
-  for (const eid of art.order) {
+  for (const eid of art.order ?? []) {
     const col = eid.split("__").slice(1).join("__");
     if (col && !cols.includes(col)) cols.push(col);
   }
@@ -968,7 +971,7 @@ function parseSheetElementId(art: Art, elementId: string | null): { rowId: strin
 function dataframeColumnWidth(col: DataframeColumn, index: number): number {
   const simpleSheetColumn = /^[A-Z]+$/.test(col.id) && col.label === col.id;
   if (simpleSheetColumn) return index === 0 ? 168 : 116;
-  return Math.max(112, Math.min(220, 48 + col.label.length * 8));
+  return Math.max(112, Math.min(220, 48 + (col.label?.length ?? 0) * 8));
 }
 
 function sheetColumnWidth(art: Art, col: DataframeColumn, index: number): number {
@@ -1012,7 +1015,8 @@ function lettersToColumnNumber(letters: string): number {
 function expandSheetMerges(merges: string[] | undefined): { mergeAnchor: Map<string, { colSpan: number; rowSpan: number }>; mergeCovered: Set<string> } {
   const mergeAnchor = new Map<string, { colSpan: number; rowSpan: number }>();
   const mergeCovered = new Set<string>();
-  for (const range of merges ?? []) {
+  if (!Array.isArray(merges)) return { mergeAnchor, mergeCovered };
+  for (const range of merges) {
     const match = range.match(/^([A-Z]+)(\d+):([A-Z]+)(\d+)$/);
     if (!match) continue;
     const c1 = lettersToColumnNumber(match[1]);
@@ -1141,7 +1145,12 @@ function GenericSheet({ roomId, me, art, onError }: { roomId: string; me: Actor;
 
 function columnsOf(art: Art): DataframeColumn[] {
   const metaCols = art.meta?.dataframe?.columns;
-  if (metaCols?.length) return [...metaCols].sort((a, b) => a.order - b.order);
+  if (Array.isArray(metaCols) && metaCols.length) {
+    return [...metaCols]
+      .filter((c) => c && typeof c.id === "string")
+      .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+      .map((c) => ({ ...c, label: c.label ?? prettyCol(c.id) }));
+  }
   return colsOf(art).map((id, order) => ({ id, label: prettyCol(id), order }));
 }
 
@@ -2041,10 +2050,50 @@ function formatBytes(bytes: number) {
   return `${Math.round(bytes / 104_857.6) / 10} MB`;
 }
 
-function Wall({ roomId, me, art }: { roomId: string; me: Actor; art: Art }) {
+type InventoryItem = { id: string; kind: Art["kind"]; title: string; badge: string; meta: string; Icon: LucideIcon };
+
+function inventoryItem(art: Art): InventoryItem {
+  const doc = art.elements.doc?.value;
+  if (isUploadedFileDoc(doc)) {
+    const display = fileViewerDisplay(doc.fileName, doc.mimeType);
+    return { id: art.id, kind: art.kind, title: display.title, badge: display.badge, meta: `${display.type} · ${formatBytes(doc.size)}`, Icon: FileIcon };
+  }
+  const display = fileViewerDisplay(art.title, "");
+  let Icon: LucideIcon = StickyNote;
+  let meta = "room file";
+  if (art.kind === "sheet") { Icon = Table2; meta = `${rowIdsOf(art).length} rows`; }
+  else if (art.kind === "note") { Icon = FileText; meta = "note"; }
+  else if (art.kind === "wall") { Icon = StickyNote; meta = `${art.order.length} captures`; }
+  if (art.title === "Agent wiki") { Icon = BookOpen; meta = "live TOC"; }
+  const btb = generatedBtbDeliverableLabel(art.title);
+  if (btb) { Icon = Briefcase; meta = btb; }
+  return { id: art.id, kind: art.kind, title: display.title, badge: display.badge, meta, Icon };
+}
+
+export function inventoryGroups(arts: Art[]): { key: string; label: string; Icon: LucideIcon; items: InventoryItem[] }[] {
+  const groups: { key: string; label: string; Icon: LucideIcon; filter: (a: Art) => boolean }[] = [
+    { key: "deliverables", label: "Deliverables", Icon: Package, filter: (a) => generatedBtbDeliverableLabel(a.title) !== null },
+    { key: "sheets", label: "Spreadsheets", Icon: Table2, filter: (a) => a.kind === "sheet" && generatedBtbDeliverableLabel(a.title) === null },
+    { key: "files", label: "Files", Icon: Folder, filter: (a) => a.kind === "note" && isUploadedFileDoc(a.elements.doc?.value) },
+    { key: "notes", label: "Notes", Icon: FileText, filter: (a) => a.kind === "note" && !isUploadedFileDoc(a.elements.doc?.value) },
+    { key: "walls", label: "Walls", Icon: StickyNote, filter: (a) => a.kind === "wall" },
+  ];
+  const used = new Set<string>();
+  const out: { key: string; label: string; Icon: LucideIcon; items: InventoryItem[] }[] = [];
+  for (const g of groups) {
+    const items = arts.filter((a) => !used.has(a.id) && g.filter(a)).map(inventoryItem);
+    items.forEach((i) => used.add(i.id));
+    if (items.length) out.push({ key: g.key, label: g.label, Icon: g.Icon, items });
+  }
+  return out;
+}
+
+function Wall({ roomId, me, art, onOpenArtifact }: { roomId: string; me: Actor; art: Art; onOpenArtifact: (id: string) => void }) {
   const store = useStore();
   const [err, setErr] = useState<string | null>(null);
   useEffect(() => { if (!err) return; const t = setTimeout(() => setErr(null), 3500); return () => clearTimeout(t); }, [err]);
+  const arts = store.listArtifacts(roomId);
+  const groups = useMemo(() => inventoryGroups(arts), [arts]);
   const onDragEnd = (e: DragEndEvent) => {
     const id = String(e.active.id);
     const v = art.elements[id]?.value as { text: string; x: number; y: number; color: string } | undefined;
@@ -2067,21 +2116,59 @@ function Wall({ roomId, me, art }: { roomId: string; me: Actor; art: Art }) {
     if (res && !res.ok) setErr(editErrorMsg(res));
   };
   return (
-    <div className="r-art-body">
+    <div className="r-art-body r-wall-inventory">
       <div className="r-wall-toolbar">
-        <button className="r-mini-btn primary" data-testid="postit-add" onClick={() => void addSticky()}><Plus size={12} /> Post-it</button>
+        <button className="r-mini-btn primary" data-testid="postit-add" onClick={() => void addSticky()}><Plus size={12} /> Capture</button>
+        <span className="muted tiny">Click any file card to open it. Drag captures to rearrange.</span>
         {err && <span className="r-wall-error" role="alert">{err}</span>}
       </div>
-      <div className="r-wall-toolbar"><span className="muted tiny">drag to move · click text to edit</span></div>
-      <DndContext onDragEnd={onDragEnd} modifiers={[restrictToParentElement]}>
-        <div className="r-wall" data-testid="wall-canvas">
-          {art.order.map((id, i) => {
-            const el = art.elements[id]; if (!el) return null;
-            const v = el.value as { text: string; x: number; y: number; color: string };
-            return <Sticky key={id} roomId={roomId} me={me} artId={art.id} id={id} v={v} locked={!!lockedByOther(store, art.id, id, me)} author={el.updatedBy.name} rot={i % 2 ? 1.3 : -1.5} onDelete={removeSticky} onError={setErr} />;
-          })}
+
+      <div className="r-inventory" data-testid="wall-canvas">
+        {groups.map((group) => (
+          <section key={group.key} className="r-inventory-cluster" data-cluster={group.key}>
+            <div className="r-inventory-head">
+              <group.Icon size={14} />
+              <span>{group.label}</span>
+              <span className="r-inventory-count">{group.items.length}</span>
+            </div>
+            <div className="r-inventory-grid">
+              {group.items.map((item) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  className="r-inventory-card"
+                  data-testid="inventory-card"
+                  data-artifact-id={item.id}
+                  data-artifact-kind={item.kind}
+                  onClick={() => onOpenArtifact(item.id)}
+                >
+                  <span className="r-inventory-card-icon" data-kind={item.kind}><item.Icon size={18} /></span>
+                  <span className="r-inventory-card-body">
+                    <span className="r-inventory-card-title">{item.title}</span>
+                    <span className="r-inventory-card-meta">{item.meta}</span>
+                  </span>
+                  {item.badge && <span className="r-inventory-card-badge">{item.badge}</span>}
+                </button>
+              ))}
+            </div>
+          </section>
+        ))}
+      </div>
+
+      {art.order.length > 0 && (
+        <div className="r-inventory-captures">
+          <div className="r-inventory-head"><StickyNote size={14} /> Quick captures</div>
+          <DndContext onDragEnd={onDragEnd} modifiers={[restrictToParentElement]}>
+            <div className="r-wall" data-testid="wall-captures">
+              {art.order.map((id, i) => {
+                const el = art.elements[id]; if (!el) return null;
+                const v = el.value as { text: string; x: number; y: number; color: string };
+                return <Sticky key={id} roomId={roomId} me={me} artId={art.id} id={id} v={v} locked={!!lockedByOther(store, art.id, id, me)} author={el.updatedBy.name} rot={i % 2 ? 1.3 : -1.5} onDelete={removeSticky} onError={setErr} />;
+              })}
+            </div>
+          </DndContext>
         </div>
-      </DndContext>
+      )}
     </div>
   );
 }
