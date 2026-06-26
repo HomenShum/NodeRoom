@@ -39,8 +39,8 @@ describe("official benchmark task coverage ledger", () => {
     expect(multiUser).toMatchObject({
       benchmark: "NodeRoom",
       status: "complete",
-      stagedTasks: 5,
-      deterministicRunTasks: 5,
+      stagedTasks: 6,
+      deterministicRunTasks: 6,
     });
     expect(report.policy.join(" ")).toContain("complement SpreadsheetBench/BankerToolBench but do not replace them");
   });

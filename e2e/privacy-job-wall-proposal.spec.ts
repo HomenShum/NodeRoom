@@ -33,12 +33,13 @@ test.describe("privacy, job, wall, and proposal browser coverage", () => {
     const panel = page.getByTestId("artifact-panel");
     const wall = panel.getByTestId("wall-canvas");
     await expect(wall).toBeVisible();
+    const captures = panel.getByTestId("wall-captures");
 
-    const initialCount = await wall.getByTestId("post-it").count();
+    const initialCount = await captures.getByTestId("post-it").count();
     await panel.getByTestId("postit-add").click();
-    await expect(wall.getByTestId("post-it")).toHaveCount(initialCount + 1);
+    await expect(captures.getByTestId("post-it")).toHaveCount(initialCount + 1);
 
-    const note = wall.getByTestId("post-it").last();
+    const note = captures.getByTestId("post-it").last();
     await expect(note.getByTestId("post-it-text")).toHaveText("New note");
 
     const revised = `Browser CRUD proof ${Date.now().toString(36)}`;
@@ -48,14 +49,14 @@ test.describe("privacy, job, wall, and proposal browser coverage", () => {
 
     await page.getByTestId("left-rail").getByTestId("binder-artifact").filter({ hasText: "Q3 variance" }).first().click();
     await page.getByTestId("left-rail").getByTestId("binder-artifact").filter({ hasText: "Risk / opportunity wall" }).first().click();
-    const persisted = panel.getByTestId("wall-canvas").getByTestId("post-it").filter({ hasText: revised });
+    const persisted = panel.getByTestId("wall-captures").getByTestId("post-it").filter({ hasText: revised });
     await expect(persisted).toHaveCount(1);
 
     await persisted.getByTestId("post-it-delete").click();
-    await expect(panel.getByTestId("wall-canvas").getByTestId("post-it")).toHaveCount(initialCount);
+    await expect(panel.getByTestId("wall-captures").getByTestId("post-it")).toHaveCount(initialCount);
     await page.getByTestId("left-rail").getByTestId("binder-artifact").filter({ hasText: "Q3 variance" }).first().click();
     await page.getByTestId("left-rail").getByTestId("binder-artifact").filter({ hasText: "Risk / opportunity wall" }).first().click();
-    await expect(panel.getByTestId("wall-canvas").getByTestId("post-it").filter({ hasText: revised })).toHaveCount(0);
+    await expect(panel.getByTestId("wall-captures").getByTestId("post-it").filter({ hasText: revised })).toHaveCount(0);
   });
 
   test("free-route job controls expose status, details, cancel, and retry in the browser", async ({ page }) => {

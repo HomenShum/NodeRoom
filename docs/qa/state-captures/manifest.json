@@ -42,30 +42,6 @@
       "mustBeTrue": "Hovering ✗ reject tints soft-red (semantic decline); the glyph is an X, never a ban-circle."
     },
     {
-      "surface": "landing",
-      "state": "default",
-      "theme": "dark",
-      "width": 1860,
-      "file": "landing/default--dark--1860.png",
-      "mustBeTrue": "Single filled primary CTA (Enter the room); Join is a bordered secondary, not a second filled button. Name field present."
-    },
-    {
-      "surface": "landing",
-      "state": "join-focus",
-      "theme": "dark",
-      "width": 1860,
-      "file": "landing/join-focus--dark--1860.png",
-      "mustBeTrue": "The code input shows a visible focus ring; the Join button stays the quieter secondary."
-    },
-    {
-      "surface": "landing",
-      "state": "default",
-      "theme": "light",
-      "width": 1860,
-      "file": "landing/default--light--1860.png",
-      "mustBeTrue": "Same hierarchy holds in light theme; the primary CTA is the only filled button."
-    },
-    {
       "surface": "topbar",
       "state": "default",
       "theme": "dark",
@@ -122,6 +98,54 @@
       "mustBeTrue": "Top bar holds contrast in light theme; the theme-toggle icon reflects the light state; no invisible icons."
     },
     {
+      "surface": "research",
+      "state": "default",
+      "theme": "dark",
+      "width": 1860,
+      "file": "research/default--dark--1860.png",
+      "mustBeTrue": "Research grid with pending rows; the 'Enrich N pending' and 'Import accounts' buttons are normally-sized, not slabs."
+    },
+    {
+      "surface": "research",
+      "state": "import-open",
+      "theme": "dark",
+      "width": 1860,
+      "file": "research/import-open--dark--1860.png",
+      "mustBeTrue": "The import form: the 'Import / update rows' button sits bottom-right beside the textarea at NORMAL height — it does NOT stretch to a giant orange block matching the 3-row textarea."
+    },
+    {
+      "surface": "research",
+      "state": "import-empty-error",
+      "theme": "dark",
+      "width": 1860,
+      "file": "research/import-empty-error--dark--1860.png",
+      "mustBeTrue": "Submitting an empty paste shows an inline explanation full-width below the field (no silent dead button, no layout shift of the submit)."
+    },
+    {
+      "surface": "landing",
+      "state": "default",
+      "theme": "dark",
+      "width": 1860,
+      "file": "landing/default--dark--1860.png",
+      "mustBeTrue": "Single filled primary CTA (Enter the room); Join is a bordered secondary, not a second filled button. Name field present."
+    },
+    {
+      "surface": "landing",
+      "state": "join-focus",
+      "theme": "dark",
+      "width": 1860,
+      "file": "landing/join-focus--dark--1860.png",
+      "mustBeTrue": "The code input shows a visible focus ring; the Join button stays the quieter secondary."
+    },
+    {
+      "surface": "landing",
+      "state": "default",
+      "theme": "light",
+      "width": 1860,
+      "file": "landing/default--light--1860.png",
+      "mustBeTrue": "Same hierarchy holds in light theme; the primary CTA is the only filled button."
+    },
+    {
       "surface": "leftrail",
       "state": "default",
       "theme": "dark",
@@ -176,30 +200,6 @@
       "width": 1860,
       "file": "chat/message-hover--dark--1860.png",
       "mustBeTrue": "Hovering YOUR OWN message reveals its action controls (copy/edit/promote) at a legible size."
-    },
-    {
-      "surface": "research",
-      "state": "default",
-      "theme": "dark",
-      "width": 1860,
-      "file": "research/default--dark--1860.png",
-      "mustBeTrue": "Research grid with pending rows; the 'Enrich N pending' and 'Import accounts' buttons are normally-sized, not slabs."
-    },
-    {
-      "surface": "research",
-      "state": "import-open",
-      "theme": "dark",
-      "width": 1860,
-      "file": "research/import-open--dark--1860.png",
-      "mustBeTrue": "The import form: the 'Import / update rows' button sits bottom-right beside the textarea at NORMAL height — it does NOT stretch to a giant orange block matching the 3-row textarea."
-    },
-    {
-      "surface": "research",
-      "state": "import-empty-error",
-      "theme": "dark",
-      "width": 1860,
-      "file": "research/import-empty-error--dark--1860.png",
-      "mustBeTrue": "Submitting an empty paste shows an inline explanation full-width below the field (no silent dead button, no layout shift of the submit)."
     }
   ]
 }

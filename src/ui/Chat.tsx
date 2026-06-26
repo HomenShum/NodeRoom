@@ -868,6 +868,50 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
   const longJobAttempts = isPrivate ? [] : store.lastLongFreeJobAttempts();
   const longJobDetail = isPrivate ? null : store.lastLongFreeJobDetail();
   const hasQ3DemoSeed = !isPrivate && store.listArtifacts(roomId).some((a) => a.kind === "sheet" && a.title === "Q3 variance");
+  const activeArtifact = useMemo(() => {
+    if (!activeArtifactId || isPrivate) return undefined;
+    return store.listArtifacts(roomId).find((a) => a.id === activeArtifactId);
+  }, [activeArtifactId, isPrivate, roomId, store]);
+  const contextualPrompts = useMemo(() => {
+    if (!activeArtifact) return NODEAGENT_PROMPTS;
+    const title = activeArtifact.title ?? "";
+    const kind = activeArtifact.kind;
+    if (kind === "sheet" && /runway|milestone/i.test(title)) {
+      return [
+        { label: "@nodeagent populate runway", insert: "@nodeagent calculate runway, burn, milestone risk, and evidence links for the batch" },
+        { label: "@nodeagent find evidence gaps", insert: "@nodeagent identify missing cash, burn, and funding proof in the runway sheet" },
+      ];
+    }
+    if (kind === "sheet" && /company|research/i.test(title)) {
+      return [
+        { label: "@nodeagent enrich companies", insert: "@nodeagent enrich selected companies with source-backed product, buyer, and funding facts" },
+        { label: "@nodeagent diligence CardioNova", insert: "@nodeagent diligence CardioNova with source-backed product, buyer, funding, hiring, and HIPAA/security gaps" },
+      ];
+    }
+    if (kind === "note" && /diligence|memo/i.test(title)) {
+      return [
+        { label: "@nodeagent draft memo", insert: "@nodeagent draft the diligence memo with sourced findings and gap analysis" },
+        { label: "@nodeagent review memo", insert: "@nodeagent review the diligence memo for missing evidence and banker-ready follow-ups" },
+      ];
+    }
+    if (kind === "wall") {
+      return [
+        { label: "@nodeagent organize wall", insert: "@nodeagent organize the wall captures by risk level and assign follow-up owners" },
+        { label: "@nodeagent diligence CardioNova", insert: "@nodeagent diligence CardioNova with source-backed product, buyer, funding, hiring, and HIPAA/security gaps" },
+      ];
+    }
+    return NODEAGENT_PROMPTS;
+  }, [activeArtifact]);
+  const emptyStateHint = useMemo(() => {
+    if (!activeArtifact) return "Ask the room agent to work on the seeded model.";
+    const title = activeArtifact.title ?? "";
+    const kind = activeArtifact.kind;
+    if (kind === "sheet" && /runway|milestone/i.test(title)) return "Ask NodeAgent to calculate runway, burn, and milestone risks.";
+    if (kind === "sheet" && /company|research/i.test(title)) return "Ask NodeAgent to enrich companies with sourced facts.";
+    if (kind === "note" && /diligence|memo/i.test(title)) return "Ask NodeAgent to draft or review the diligence memo.";
+    if (kind === "wall") return "Pick an artifact or ask NodeAgent to organize the wall.";
+    return "Ask the room agent to work on the seeded model.";
+  }, [activeArtifact]);
   const showModelSelection = !isPrivate && store.mode === "convex";
   const specificModelGroups = useMemo(() => AGENT_MODEL_PROVIDER_ORDER
     .map((provider) => ({
@@ -1317,9 +1361,9 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
       <div className="r-chat" ref={feedRef} onScroll={onScroll} aria-live="polite" data-testid="chat-feed">
         {showEmptyState && (
           <div className="r-chat-empty" data-testid={isPrivate ? "private-chat-empty" : "public-chat-empty"}>
-            <span>{isPrivate ? "Ask your NodeAgent privately, or switch it to Room mode." : "Ask the room agent to work on the seeded model."}</span>
+            <span>{isPrivate ? "Ask your NodeAgent privately, or switch it to Room mode." : emptyStateHint}</span>
             {!isPrivate && hasQ3DemoSeed && (
-              <button className="r-mini-btn primary" type="button" data-testid="chat-empty-agent-cta" onClick={() => send(NODEAGENT_PROMPTS[0].insert)}>
+              <button className="r-mini-btn primary" type="button" data-testid="chat-empty-agent-cta" onClick={() => send(contextualPrompts[0]?.insert ?? NODEAGENT_PROMPTS[0].insert)}>
                 <Sparkles size={12} /> Ask NodeAgent
               </button>
             )}
@@ -1515,7 +1559,7 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
             (discoverable behavior doesn't need permanent screen real estate). */}
         {!isPrivate && !slashOpen && hasQ3DemoSeed && (
           <div className="r-composer-hint">
-            {NODEAGENT_PROMPTS.map((prompt) => <button key={prompt.insert} className="r-chip" onClick={() => applySlash(prompt.insert)}>{prompt.label}</button>)}
+            {contextualPrompts.map((prompt) => <button key={prompt.insert} className="r-chip" onClick={() => applySlash(prompt.insert)}>{prompt.label}</button>)}
             {store.mode === "memory" && <button className="r-chip" onClick={() => applySlash(SLASH_CMDS[0].insert)}>/demo multi-agent</button>}
             <span className="r-composer-kbd" aria-hidden="true">{hasQ3DemoSeed ? "Enter sends; Shift+Enter newline; @nodeagent acts" : "Attach, paste, drop files, or mention @nodeagent"}</span>
           </div>

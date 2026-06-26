@@ -35,6 +35,9 @@ const ACCENTS: Record<AccentKey, { label: string; primary: string; hover: string
 };
 
 export function preferredRoomArtifact<T extends { id: string; kind?: string; title?: string }>(arts: T[]): T | undefined {
+  // Default to the wall (post-it / inventory surface) so files feel like a game-item inventory.
+  const wall = arts.find((a) => a.kind === "wall");
+  if (wall) return wall;
   for (const title of NOTE_PRIORITY) {
     const hit = arts.find((a) => a.kind === "note" && a.title === title);
     if (hit) return hit;

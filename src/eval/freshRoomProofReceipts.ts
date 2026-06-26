@@ -248,7 +248,28 @@ export function validateFreshRoomProofReceipt(
 }
 
 function existingPath(path: string): boolean {
-  return nonEmptyString(path) && existsSync(resolve(process.cwd(), path.replace(/\\/g, "/")));
+  if (!nonEmptyString(path)) return false;
+  const normalized = path.replace(/\\/g, "/");
+  // Try direct resolution first (handles relative paths and same-machine absolute paths)
+  const direct = resolve(process.cwd(), normalized);
+  if (existsSync(direct)) return true;
+  // For absolute paths from a different machine, try to extract the project-relative portion.
+  // Receipts generated on other machines may contain paths like:
+  //   C:\Users\hshum\.codex\worktrees\b349\noderoom\test-results\...
+  // We look for the last occurrence of a known project root segment and resolve from there.
+  const projectRootMarkers = ["noderoom/", "test-results/"];
+  for (const marker of projectRootMarkers) {
+    const idx = normalized.lastIndexOf(marker);
+    if (idx >= 0) {
+      const relativePart = normalized.slice(idx + marker.length);
+      const candidate = resolve(process.cwd(), relativePart);
+      if (existsSync(candidate)) return true;
+      // Also try with the marker itself (in case the project root IS the marker)
+      const candidateWithMarker = resolve(process.cwd(), marker + relativePart);
+      if (existsSync(candidateWithMarker)) return true;
+    }
+  }
+  return false;
 }
 
 function nonEmptyString(value: unknown): value is string {

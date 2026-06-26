@@ -1,15 +1,15 @@
 # Official Benchmark Task Coverage
 
-Generated: 2026-06-13T21:50:23.370Z
+Generated: 2026-06-26T08:48:53.035Z
 
 This is the no-shorthand ledger for the external benchmark question: have we staged and run every published task, or only a subset/fixture? It deliberately separates full official tracks, verified subsets, and NodeRoom's internal multi-user conflict suite.
 
 ## Summary
 
 - Tracks complete: 1/5
-- Declared task targets represented in this ledger: 1738
-- Staged tasks: 409
-- Deterministic runner tasks: 408
+- Declared task targets represented in this ledger: 1739
+- Staged tasks: 410
+- Deterministic runner tasks: 409
 - Model-run cases: 7
 - Model-run attempts: 19
 - Strict full coverage ready: no
@@ -30,7 +30,7 @@ This is the no-shorthand ledger for the external benchmark question: have we sta
 | `spreadsheetbench-v1-verified-400` | partial | 400 | 400 | 400 | 3 / 15 | 1.000 | 397 verified task(s) still need model-run evidence; current N=5 smoke covers 3/400 cases.; Full verified-score promotion still needs official scoring parity, not only local workbook scoring. |
 | `spreadsheetbench-v2-full-321` | partial | 321 | 3 | 3 | 3 / 3 | 0.000 | 318 SpreadsheetBench 2 task(s) still need staging from the full official bundle.; Run every staged V2 task through the model runner, static workbook scorer, and rendered/VLM chart grader where applicable. |
 | `bankertoolbench-full-100` | partial | 100 | 1 | 0 | 1 / 1 | 1.000 | 99 BankerToolBench task(s) still need staging from the official bundle.; Wire Harbor/MCP/Gandalf verifier replay before claiming an official BTB score. |
-| `noderoom-multi-user-conflict` | complete | 5 | 5 | 5 | 0 / 0 | 1.000 | none |
+| `noderoom-multi-user-conflict` | complete | 6 | 6 | 6 | 0 / 0 | 1.000 | none |
 
 ## Evidence
 

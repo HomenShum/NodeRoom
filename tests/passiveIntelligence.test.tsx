@@ -25,6 +25,7 @@ beforeAll(() => {
 import { PassiveAgentChip } from "../src/ui/insights/PassiveAgentChip";
 import type { PassiveActivityItem } from "../src/app/store";
 import { preferredRoomArtifact } from "../src/ui/RoomShell";
+import { inventoryGroups } from "../src/ui/panels/Artifact";
 
 function item(over: Partial<PassiveActivityItem>): PassiveActivityItem {
   return {
@@ -211,7 +212,17 @@ describe("PassiveAgentChip + NoteworthyInbox", () => {
 });
 
 describe("preferredRoomArtifact", () => {
-  it("prefers the dedicated Capture Notebook over the Agent wiki", () => {
+  it("prefers the wall (inventory surface) when present", () => {
+    const chosen = preferredRoomArtifact([
+      { id: "wiki", kind: "note", title: "Agent wiki" },
+      { id: "capture", kind: "note", title: "Capture Notebook" },
+      { id: "wall", kind: "wall", title: "Risk / opportunity wall" },
+      { id: "sheet", kind: "sheet", title: "Q3 variance" },
+    ]);
+    expect(chosen?.id).toBe("wall");
+  });
+
+  it("prefers the dedicated Capture Notebook over the Agent wiki when no wall", () => {
     const chosen = preferredRoomArtifact([
       { id: "wiki", kind: "note", title: "Agent wiki" },
       { id: "capture", kind: "note", title: "Capture Notebook" },
@@ -226,5 +237,27 @@ describe("preferredRoomArtifact", () => {
       { id: "note", kind: "note", title: "Note" },
     ]);
     expect(chosen?.id).toBe("note");
+  });
+});
+
+describe("inventoryGroups", () => {
+  const actor = { kind: "user" as const, id: "u1", name: "Homen" };
+  const base = { version: 1, updatedAt: 1, updatedBy: actor };
+  const arts = [
+    { id: "wall", roomId: "r1", kind: "wall" as const, title: "Risk / opportunity wall", elements: {}, order: ["s1"], ...base, createdBy: actor },
+    { id: "sheet", roomId: "r1", kind: "sheet" as const, title: "Company research", elements: {}, order: [], ...base, createdBy: actor },
+    { id: "note", roomId: "r1", kind: "note" as const, title: "Diligence memo", elements: { doc: { id: "doc", value: "<p>memo</p>", ...base } }, order: ["doc"], ...base, createdBy: actor },
+    { id: "file", roomId: "r1", kind: "note" as const, title: "btb-1a2b3c4d-support-memo.docx", elements: { doc: { id: "doc", value: { upload: true, fileName: "btb-1a2b3c4d-support-memo.docx", mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document", size: 10240 }, ...base } }, order: ["doc"], ...base, createdBy: actor },
+    { id: "btb-sheet", roomId: "r1", kind: "sheet" as const, title: "btb-1a2b3c4d-valuation.xlsx", elements: {}, order: [], ...base, createdBy: actor },
+  ];
+
+  it("clusters Banker Tool Bench deliverables, spreadsheets, files, notes, and walls", () => {
+    const groups = inventoryGroups(arts as any);
+    const keys = groups.map((g) => g.key);
+    expect(keys).toEqual(["deliverables", "sheets", "notes", "walls"]);
+    expect(groups.find((g) => g.key === "deliverables")?.items.map((i) => i.id)).toEqual(["file", "btb-sheet"]);
+    expect(groups.find((g) => g.key === "sheets")?.items.map((i) => i.id)).toEqual(["sheet"]);
+    expect(groups.find((g) => g.key === "notes")?.items.map((i) => i.id)).toEqual(["note"]);
+    expect(groups.find((g) => g.key === "walls")?.items.map((i) => i.id)).toEqual(["wall"]);
   });
 });
