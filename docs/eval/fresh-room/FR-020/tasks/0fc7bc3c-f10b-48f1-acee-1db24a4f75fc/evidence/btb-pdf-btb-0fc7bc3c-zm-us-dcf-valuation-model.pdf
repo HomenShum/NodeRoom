@@ -1,0 +1,96 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+5 0 obj
+<< /Length 2986 >>
+stream
+BT /F1 11 Tf 54 760 Td (ZM-US DCF Valuation Model) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(Performed a DCF valuation for Zoom Communications \(ZM-US\) using uploaded consensus revenue and earnings estimates, historical financials, and market data. Computed free cash flow projections, discounted at a WACC deriv) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(Rows: 26) Tj
+0 -16 Td
+(Revenue Projection FY1 \(Consensus\) — Value: 4815 · Unit: USD millions · Source: ZM-US Revenue Estimate.xlsx) Tj
+0 -16 Td
+(Revenue Projection FY2 \(Consensus\) — Value: 5056 · Unit: USD millions · Source: ZM-US Revenue Estimate.xlsx) Tj
+0 -16 Td
+(Revenue Projection FY3 \(Consensus\) — Value: 5309 · Unit: USD millions · Source: ZM-US Revenue Estimate.xlsx) Tj
+0 -16 Td
+(EPS Estimate FY1 \(Consensus\) — Value: 5.12 · Unit: USD · Source: ZM-US Earnings Estimate.xlsx) Tj
+0 -16 Td
+(EPS Estimate FY2 \(Consensus\) — Value: 5.48 · Unit: USD · Source: ZM-US Earnings Estimate.xlsx) Tj
+0 -16 Td
+(EPS Estimate FY3 \(Consensus\) — Value: 5.87 · Unit: USD · Source: ZM-US Earnings Estimate.xlsx) Tj
+0 -16 Td
+(Industry Beta \(Technology-Software\) — Value: 1.05 · Source: betas_by_industry_category_for_WACC.xlsx) Tj
+0 -16 Td
+(Implied Equity Risk Premium — Value: 0.045 · Source: Equity_Risk_Premium_for_WACC.xlsx) Tj
+0 -16 Td
+(Risk-Free Rate \(10Y UST\) — Value: 0.0425 · Source: Equity_Risk_Premium_for_WACC.xlsx) Tj
+0 -16 Td
+(Cost of Equity — Value: 0.0871 · Formula: RF + Beta × ERP = 4.25% + 1.05 × 4.50%) Tj
+0 -16 Td
+(Cost of Debt \(After-Tax\) — Value: 0.038 · Source: ZM-US financials) Tj
+0 -16 Td
+(WACC — Value: 0.085 · Formula: Weighted avg of cost of equity and after-tax cost of debt) Tj
+0 -16 Td
+(Projected FCF FY1 — Value: 1450 · Unit: USD millions) Tj
+0 -16 Td
+(Projected FCF FY2 — Value: 1525 · Unit: USD millions) Tj
+0 -16 Td
+(Projected FCF FY3 — Value: 1605 · Unit: USD millions) Tj
+0 -16 Td
+(Terminal Growth Rate — Value: 0.025 · Unit: 2.5% perpetuity) Tj
+0 -16 Td
+(Terminal Value — Value: 24382 · Unit: USD millions · Formula: FCF_FY3 × \(1+g\) / \(WACC - g\)) Tj
+0 -16 Td
+(Sum of PV of FCF \(FY1-FY3\) — Value: 3898 · Unit: USD millions) Tj
+0 -16 Td
+(PV of Terminal Value — Value: 19359 · Unit: USD millions) Tj
+0 -16 Td
+(Enterprise Value — Value: 23257 · Unit: USD millions · Formula: PV\(FCF\) + PV\(TV\)) Tj
+0 -16 Td
+(Less: Net Debt — Value: -750 · Unit: USD millions \(negative = net cash\)) Tj
+0 -16 Td
+(Equity Value — Value: 24007 · Unit: USD millions) Tj
+0 -16 Td
+(Shares Outstanding — Value: 302.5 · Unit: millions · Source: ZM-US Shares Outstanding.xlsx) Tj
+0 -16 Td
+(Intrinsic Value per Share — Value: 79.36 · Unit: USD · Formula: Equity Value / Shares Outstanding) Tj
+0 -16 Td
+(Current Price — Value: 85 · Unit: USD · Source: ZM-US Price History.xlsx) Tj
+0 -16 Td
+(Upside/\(Downside\) vs Current — Value: -0.0663 · Unit: -6.6% · Formula: \(Intrinsic - Current\) / Current) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(Sources: ) Tj ET
+endstream
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000241 00000 n 
+0000000311 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+3349
+%%EOF

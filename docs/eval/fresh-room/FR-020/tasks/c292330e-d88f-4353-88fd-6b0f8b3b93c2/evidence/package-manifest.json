@@ -1,0 +1,65 @@
+{
+  "schema": 1,
+  "taskId": "c292330e-d88f-4353-88fd-6b0f8b3b93c2",
+  "harborTaskId": "btb-c292330e",
+  "generatedAt": "2026-06-26T01:16:13.405Z",
+  "baseUrl": "http://127.0.0.1:5273",
+  "roomUrl": "http://127.0.0.1:5273/?room=NR6U2AKLFIR&name=Host",
+  "downloadedFiles": [
+    {
+      "kind": "workbook",
+      "filename": "btb-c292330e-cmg-nopat-analysis-historical-and-projected-net-operating-profit-after-tax.xlsx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\c292330e-d88f-4353-88fd-6b0f8b3b93c2\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-c292330e-cmg-nopat-analysis-historical-and-projected-net-operating-profit-after-tax.xlsx",
+      "extension": ".xlsx",
+      "bytes": 9536,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j9723pb51n2kt1kp8wya2hzv6589dhtz",
+      "contentQualityDetail": "placeholder/caveat content scan passed (4852 chars)"
+    },
+    {
+      "kind": "workbook",
+      "filename": "btb-c292330e-cmg-nopat-analysis-historical-and-projected-net-operating-profit-after-tax.xlsm",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\c292330e-d88f-4353-88fd-6b0f8b3b93c2\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-c292330e-cmg-nopat-analysis-historical-and-projected-net-operating-profit-after-tax.xlsm",
+      "extension": ".xlsm",
+      "bytes": 9536,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j9750gqjeap5m8y7jj6ebwp5cs89dkn9",
+      "contentQualityDetail": "placeholder/caveat content scan passed (4852 chars)"
+    },
+    {
+      "kind": "presentation",
+      "filename": "btb-c292330e-cmg-nopat-analysis-historical-and-projected-net-operating-profit-after-tax.pptx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\c292330e-d88f-4353-88fd-6b0f8b3b93c2\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-c292330e-cmg-nopat-analysis-historical-and-projected-net-operating-profit-after-tax.pptx",
+      "extension": ".pptx",
+      "bytes": 7073,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains ppt/presentation.xml; recovered from Convex room artifact j9788wjep3k11xqc37mhr38sks89cx3r",
+      "contentQualityDetail": "placeholder/caveat content scan passed (3182 chars)"
+    },
+    {
+      "kind": "document",
+      "filename": "btb-c292330e-cmg-nopat-analysis-historical-and-projected-net-operating-profit-after-tax.docx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\c292330e-d88f-4353-88fd-6b0f8b3b93c2\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-c292330e-cmg-nopat-analysis-historical-and-projected-net-operating-profit-after-tax.docx",
+      "extension": ".docx",
+      "bytes": 3495,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains word/document.xml; recovered from Convex room artifact j974nhr1akbs2g9e2f7f92v50n89dk86",
+      "contentQualityDetail": "placeholder/caveat content scan passed (5310 chars)"
+    },
+    {
+      "kind": "pdf",
+      "filename": "btb-c292330e-cmg-nopat-analysis-historical-and-projected-net-operating-profit-after-tax.pdf",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\c292330e-d88f-4353-88fd-6b0f8b3b93c2\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-c292330e-cmg-nopat-analysis-historical-and-projected-net-operating-profit-after-tax.pdf",
+      "extension": ".pdf",
+      "bytes": 4408,
+      "magic": "%PDF",
+      "reopened": true,
+      "reopenDetail": "PDF header reopened; recovered from Convex room artifact j979g7xc7rkmfxbnp0967vmrgn89cvzw",
+      "contentQualityDetail": "placeholder/caveat content scan passed (8140 chars)"
+    }
+  ]
+}

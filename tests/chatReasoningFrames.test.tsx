@@ -179,6 +179,8 @@ describe("Chat reasoning-frame job detail", () => {
     expect(screen.queryByText("write_locked_cells")).toBeNull();
     fireEvent.click(screen.getByTestId("agent-progress-details-toggle"));
     expect(screen.getByText("write_locked_cells")).toBeTruthy();
+    fireEvent.click(screen.getByText("write_locked_cells"));
+    expect(screen.getByText(/"ops": 10/)).toBeTruthy();
     expect(screen.queryByTestId("agent-operation-stream")).toBeNull();
   });
 

@@ -1,0 +1,65 @@
+{
+  "schema": 1,
+  "taskId": "aa577c1d-2c22-4963-91c4-456ac32e5b4a",
+  "harborTaskId": "btb-aa577c1d",
+  "generatedAt": "2026-06-26T00:58:43.992Z",
+  "baseUrl": "http://127.0.0.1:5273",
+  "roomUrl": "http://127.0.0.1:5273/?room=NRPIB9B0IA1&name=Host",
+  "downloadedFiles": [
+    {
+      "kind": "workbook",
+      "filename": "btb-task-cross-capitalization-relative-valuation-wmt-nyse-rvlv-fdso-is-btb-aa577c1d.xlsx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\aa577c1d-2c22-4963-91c4-456ac32e5b4a\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-task-cross-capitalization-relative-valuation-wmt-nyse-rvlv-fdso-is-btb-aa577c1d.xlsx",
+      "extension": ".xlsx",
+      "bytes": 8089,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j978qzeghcydrf737qhq6nx0jd89dzfc",
+      "contentQualityDetail": "placeholder/caveat content scan passed (2021 chars)"
+    },
+    {
+      "kind": "workbook",
+      "filename": "btb-task-cross-capitalization-relative-valuation-wmt-nyse-rvlv-fdso-is-btb-aa577c1d.xlsm",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\aa577c1d-2c22-4963-91c4-456ac32e5b4a\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-task-cross-capitalization-relative-valuation-wmt-nyse-rvlv-fdso-is-btb-aa577c1d.xlsm",
+      "extension": ".xlsm",
+      "bytes": 8089,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j97f67zvdtqrjhsd728pwzyr6589db14",
+      "contentQualityDetail": "placeholder/caveat content scan passed (2021 chars)"
+    },
+    {
+      "kind": "presentation",
+      "filename": "btb-task-cross-capitalization-relative-valuation-wmt-nyse-rvlv-fdso-is-btb-aa577c1d.pptx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\aa577c1d-2c22-4963-91c4-456ac32e5b4a\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-task-cross-capitalization-relative-valuation-wmt-nyse-rvlv-fdso-is-btb-aa577c1d.pptx",
+      "extension": ".pptx",
+      "bytes": 6714,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains ppt/presentation.xml; recovered from Convex room artifact j9768py84xsj2rb7bx9n5rvjen89d7gz",
+      "contentQualityDetail": "placeholder/caveat content scan passed (1560 chars)"
+    },
+    {
+      "kind": "document",
+      "filename": "btb-task-cross-capitalization-relative-valuation-wmt-nyse-rvlv-fdso-is-btb-aa577c1d.docx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\aa577c1d-2c22-4963-91c4-456ac32e5b4a\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-task-cross-capitalization-relative-valuation-wmt-nyse-rvlv-fdso-is-btb-aa577c1d.docx",
+      "extension": ".docx",
+      "bytes": 2870,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains word/document.xml; recovered from Convex room artifact j972dpbqn64e8bjgscakednrpn89d2f0",
+      "contentQualityDetail": "placeholder/caveat content scan passed (2392 chars)"
+    },
+    {
+      "kind": "pdf",
+      "filename": "btb-task-cross-capitalization-relative-valuation-wmt-nyse-rvlv-fdso-is-btb-aa577c1d.pdf",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\aa577c1d-2c22-4963-91c4-456ac32e5b4a\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-task-cross-capitalization-relative-valuation-wmt-nyse-rvlv-fdso-is-btb-aa577c1d.pdf",
+      "extension": ".pdf",
+      "bytes": 2217,
+      "magic": "%PDF",
+      "reopened": true,
+      "reopenDetail": "PDF header reopened; recovered from Convex room artifact j971zyfmben2b2nwghg10v4r0589cetm",
+      "contentQualityDetail": "placeholder/caveat content scan passed (3857 chars)"
+    }
+  ]
+}

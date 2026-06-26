@@ -2,9 +2,9 @@
   "schema": 1,
   "taskId": "c0bf2e84-2400-47bf-9dd2-aacfb53a2090",
   "harborTaskId": "btb-c0bf2e84",
-  "generatedAt": "2026-06-25T00:58:50.064Z",
+  "generatedAt": "2026-06-25T23:43:24.313Z",
   "baseUrl": "http://127.0.0.1:5273",
-  "roomUrl": "http://127.0.0.1:5273/?room=NR5257Q2P09&name=Host&focusMode=1",
+  "roomUrl": "http://127.0.0.1:5273/?room=NRUGF2DBP93&name=Host",
   "memoryMode": false,
   "expectedExtensions": [
     ".xlsx",
@@ -23,64 +23,64 @@
   "downloadedFiles": [
     {
       "kind": "workbook",
-      "filename": "btb-c0bf2e84-nyt-lbo-analysis---first-pass-returns-assessment.xlsx",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\c0bf2e84-2400-47bf-9dd2-aacfb53a2090\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-c0bf2e84-nyt-lbo-analysis---first-pass-returns-assessment.xlsx",
+      "filename": "btb-c0bf2e84-lbo-analysis-the-new-york-times-company-nyt.xlsx",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\c0bf2e84-2400-47bf-9dd2-aacfb53a2090\\evidence\\btb-xlsx-btb-c0bf2e84-lbo-analysis-the-new-york-times-company-nyt.xlsx",
       "extension": ".xlsx",
-      "bytes": 10129,
+      "bytes": 8894,
       "magic": "PK\\x03\\x04",
       "reopened": true,
-      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j972xjysh4r2r8ehyh337vmxkh89a0ng",
-      "contentQualityDetail": "placeholder/caveat content scan passed (5555 chars)"
+      "reopenDetail": "ZIP package contains xl/workbook.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (3593 chars)"
     },
     {
       "kind": "workbook",
-      "filename": "btb-c0bf2e84-nyt-lbo-analysis---first-pass-returns-assessment.xlsm",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\c0bf2e84-2400-47bf-9dd2-aacfb53a2090\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-c0bf2e84-nyt-lbo-analysis---first-pass-returns-assessment.xlsm",
+      "filename": "btb-c0bf2e84-lbo-analysis-the-new-york-times-company-nyt.xlsm",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\c0bf2e84-2400-47bf-9dd2-aacfb53a2090\\evidence\\btb-xlsm-btb-c0bf2e84-lbo-analysis-the-new-york-times-company-nyt.xlsm",
       "extension": ".xlsm",
-      "bytes": 10129,
+      "bytes": 8894,
       "magic": "PK\\x03\\x04",
       "reopened": true,
-      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j975jcnbcby0gtx9qkwr8xzvcn89b1fn",
-      "contentQualityDetail": "placeholder/caveat content scan passed (5555 chars)"
+      "reopenDetail": "ZIP package contains xl/workbook.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (3593 chars)"
     },
     {
       "kind": "presentation",
-      "filename": "btb-c0bf2e84-nyt-lbo-analysis---first-pass-returns-assessment.pptx",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\c0bf2e84-2400-47bf-9dd2-aacfb53a2090\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-c0bf2e84-nyt-lbo-analysis---first-pass-returns-assessment.pptx",
+      "filename": "btb-c0bf2e84-lbo-analysis-the-new-york-times-company-nyt.pptx",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\c0bf2e84-2400-47bf-9dd2-aacfb53a2090\\evidence\\btb-pptx-btb-c0bf2e84-lbo-analysis-the-new-york-times-company-nyt.pptx",
       "extension": ".pptx",
-      "bytes": 6901,
+      "bytes": 7308,
       "magic": "PK\\x03\\x04",
       "reopened": true,
-      "reopenDetail": "ZIP package contains ppt/presentation.xml; recovered from Convex room artifact j973pz6nyw0qhewmbyw9ne4hc589atrx",
-      "contentQualityDetail": "placeholder/caveat content scan passed (1835 chars)"
+      "reopenDetail": "ZIP package contains ppt/presentation.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (2716 chars)"
     },
     {
       "kind": "document",
-      "filename": "btb-c0bf2e84-nyt-lbo-analysis---first-pass-returns-assessment.docx",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\c0bf2e84-2400-47bf-9dd2-aacfb53a2090\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-c0bf2e84-nyt-lbo-analysis---first-pass-returns-assessment.docx",
+      "filename": "btb-c0bf2e84-lbo-analysis-the-new-york-times-company-nyt.docx",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\c0bf2e84-2400-47bf-9dd2-aacfb53a2090\\evidence\\btb-docx-btb-c0bf2e84-lbo-analysis-the-new-york-times-company-nyt.docx",
       "extension": ".docx",
-      "bytes": 3358,
+      "bytes": 3532,
       "magic": "PK\\x03\\x04",
       "reopened": true,
-      "reopenDetail": "ZIP package contains word/document.xml; recovered from Convex room artifact j97fw0x46t6jp0xjpgbsn7tj5589b37t",
-      "contentQualityDetail": "placeholder/caveat content scan passed (3725 chars)"
+      "reopenDetail": "ZIP package contains word/document.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (4139 chars)"
     },
     {
       "kind": "pdf",
-      "filename": "btb-c0bf2e84-nyt-lbo-analysis---first-pass-returns-assessment.pdf",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\c0bf2e84-2400-47bf-9dd2-aacfb53a2090\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-c0bf2e84-nyt-lbo-analysis---first-pass-returns-assessment.pdf",
+      "filename": "btb-c0bf2e84-lbo-analysis-the-new-york-times-company-nyt.pdf",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\c0bf2e84-2400-47bf-9dd2-aacfb53a2090\\evidence\\btb-pdf-btb-c0bf2e84-lbo-analysis-the-new-york-times-company-nyt.pdf",
       "extension": ".pdf",
-      "bytes": 3095,
+      "bytes": 3625,
       "magic": "%PDF",
       "reopened": true,
-      "reopenDetail": "PDF header reopened; recovered from Convex room artifact j97d992f4jh3994ysp3ejsp2h989bdmz",
-      "contentQualityDetail": "placeholder/caveat content scan passed (5671 chars)"
+      "reopenDetail": "PDF header reopened",
+      "contentQualityDetail": "placeholder/caveat content scan passed (6620 chars)"
     }
   ],
-  "packageManifestPath": "test-results\\bankertoolbench\\matrix\\c0bf2e84-2400-47bf-9dd2-aacfb53a2090\\package-manifest.json",
+  "packageManifestPath": "docs\\eval\\fresh-room\\FR-020\\tasks\\c0bf2e84-2400-47bf-9dd2-aacfb53a2090\\evidence\\package-manifest.json",
   "verifierCommand": "npm run benchmark:bankertoolbench:proof",
   "verifierOutputTail": "\n> noderoom@0.1.1 benchmark:bankertoolbench:proof\n> tsx scripts/bankertoolbench-proof-check.ts\n\nBankerToolBench proof check passed: stage=1/1 weightedRubric=6 run=0/1 pass positive=1/1 pass candidateBeforeEvaluator=true leaks=0/2+0/3+0/4\n",
-  "screenshot": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\c0bf2e84-2400-47bf-9dd2-aacfb53a2090\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\bankertoolbench-live-room.png",
+  "screenshot": "docs\\eval\\fresh-room\\FR-020\\tasks\\c0bf2e84-2400-47bf-9dd2-aacfb53a2090\\evidence\\bankertoolbench-live-room.png",
   "passed": true,
   "gatesProven": [
     "fresh_room_join",

@@ -2,9 +2,9 @@
   "schema": 1,
   "taskId": "fe996540-6e06-4a84-82d9-06d0f32f6cd9",
   "harborTaskId": "btb-fe996540",
-  "generatedAt": "2026-06-25T01:51:14.709Z",
+  "generatedAt": "2026-06-26T00:00:50.024Z",
   "baseUrl": "http://127.0.0.1:5273",
-  "roomUrl": "http://127.0.0.1:5273/?room=NR99RY2DAOQ&name=Host",
+  "roomUrl": "http://127.0.0.1:5273/?room=NRU00SHU0LW&name=Host",
   "memoryMode": false,
   "expectedExtensions": [
     ".xlsx",
@@ -23,64 +23,64 @@
   "downloadedFiles": [
     {
       "kind": "workbook",
-      "filename": "btb-fe996540-tmt-competitive-landscape-revenue-mix-by-segment-amzn-googl-msft-fy2020-2024.xlsx",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\fe996540-6e06-4a84-82d9-06d0f32f6cd9\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-fe996540-tmt-competitive-landscape-revenue-mix-by-segment-amzn-googl-msft-fy2020-2024.xlsx",
+      "filename": "btb-fe996540-ai-infrastructure-cloud-comparative-analysis-msft-amzn-incl.-aws-googl-and-ai-c3.ai.xlsx",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\fe996540-6e06-4a84-82d9-06d0f32f6cd9\\evidence\\btb-xlsx-btb-fe996540-ai-infrastructure-cloud-comparative-analysis-msft-amzn-incl.-aws-googl-and-ai-c3.ai.xlsx",
       "extension": ".xlsx",
-      "bytes": 7305,
+      "bytes": 10505,
       "magic": "PK\\x03\\x04",
       "reopened": true,
       "reopenDetail": "ZIP package contains xl/workbook.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (1317 chars)"
+      "contentQualityDetail": "placeholder/caveat content scan passed (6450 chars)"
     },
     {
       "kind": "workbook",
-      "filename": "btb-fe996540-tmt-competitive-landscape-revenue-mix-by-segment-amzn-googl-msft-fy2020-2024.xlsm",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\fe996540-6e06-4a84-82d9-06d0f32f6cd9\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-fe996540-tmt-competitive-landscape-revenue-mix-by-segment-amzn-googl-msft-fy2020-2024.xlsm",
+      "filename": "btb-fe996540-ai-infrastructure-cloud-comparative-analysis-msft-amzn-incl.-aws-googl-and-ai-c3.ai.xlsm",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\fe996540-6e06-4a84-82d9-06d0f32f6cd9\\evidence\\btb-xlsm-btb-fe996540-ai-infrastructure-cloud-comparative-analysis-msft-amzn-incl.-aws-googl-and-ai-c3.ai.xlsm",
       "extension": ".xlsm",
-      "bytes": 7305,
+      "bytes": 10505,
       "magic": "PK\\x03\\x04",
       "reopened": true,
       "reopenDetail": "ZIP package contains xl/workbook.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (1317 chars)"
+      "contentQualityDetail": "placeholder/caveat content scan passed (6450 chars)"
     },
     {
       "kind": "presentation",
-      "filename": "btb-fe996540-tmt-competitive-landscape-revenue-mix-by-segment-amzn-googl-msft-fy2020-2024.pptx",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\fe996540-6e06-4a84-82d9-06d0f32f6cd9\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-fe996540-tmt-competitive-landscape-revenue-mix-by-segment-amzn-googl-msft-fy2020-2024.pptx",
+      "filename": "btb-fe996540-ai-infrastructure-cloud-comparative-analysis-msft-amzn-incl.-aws-googl-and-ai-c3.ai.pptx",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\fe996540-6e06-4a84-82d9-06d0f32f6cd9\\evidence\\btb-pptx-btb-fe996540-ai-infrastructure-cloud-comparative-analysis-msft-amzn-incl.-aws-googl-and-ai-c3.ai.pptx",
       "extension": ".pptx",
-      "bytes": 6547,
+      "bytes": 7168,
       "magic": "PK\\x03\\x04",
       "reopened": true,
       "reopenDetail": "ZIP package contains ppt/presentation.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (1221 chars)"
+      "contentQualityDetail": "placeholder/caveat content scan passed (2939 chars)"
     },
     {
       "kind": "document",
-      "filename": "btb-fe996540-tmt-competitive-landscape-revenue-mix-by-segment-amzn-googl-msft-fy2020-2024.docx",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\fe996540-6e06-4a84-82d9-06d0f32f6cd9\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-fe996540-tmt-competitive-landscape-revenue-mix-by-segment-amzn-googl-msft-fy2020-2024.docx",
+      "filename": "btb-fe996540-ai-infrastructure-cloud-comparative-analysis-msft-amzn-incl.-aws-googl-and-ai-c3.ai.docx",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\fe996540-6e06-4a84-82d9-06d0f32f6cd9\\evidence\\btb-docx-btb-fe996540-ai-infrastructure-cloud-comparative-analysis-msft-amzn-incl.-aws-googl-and-ai-c3.ai.docx",
       "extension": ".docx",
-      "bytes": 2506,
+      "bytes": 3780,
       "magic": "PK\\x03\\x04",
       "reopened": true,
       "reopenDetail": "ZIP package contains word/document.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (1202 chars)"
+      "contentQualityDetail": "placeholder/caveat content scan passed (7320 chars)"
     },
     {
       "kind": "pdf",
-      "filename": "btb-fe996540-tmt-competitive-landscape-revenue-mix-by-segment-amzn-googl-msft-fy2020-2024.pdf",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\fe996540-6e06-4a84-82d9-06d0f32f6cd9\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-fe996540-tmt-competitive-landscape-revenue-mix-by-segment-amzn-googl-msft-fy2020-2024.pdf",
+      "filename": "btb-fe996540-ai-infrastructure-cloud-comparative-analysis-msft-amzn-incl.-aws-googl-and-ai-c3.ai.pdf",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\fe996540-6e06-4a84-82d9-06d0f32f6cd9\\evidence\\btb-pdf-btb-fe996540-ai-infrastructure-cloud-comparative-analysis-msft-amzn-incl.-aws-googl-and-ai-c3.ai.pdf",
       "extension": ".pdf",
-      "bytes": 1432,
+      "bytes": 6396,
       "magic": "%PDF",
       "reopened": true,
       "reopenDetail": "PDF header reopened",
-      "contentQualityDetail": "placeholder/caveat content scan passed (2343 chars)"
+      "contentQualityDetail": "placeholder/caveat content scan passed (12034 chars)"
     }
   ],
-  "packageManifestPath": "test-results\\bankertoolbench\\matrix\\fe996540-6e06-4a84-82d9-06d0f32f6cd9\\package-manifest.json",
+  "packageManifestPath": "docs\\eval\\fresh-room\\FR-020\\tasks\\fe996540-6e06-4a84-82d9-06d0f32f6cd9\\evidence\\package-manifest.json",
   "verifierCommand": "npm run benchmark:bankertoolbench:proof",
   "verifierOutputTail": "\n> noderoom@0.1.1 benchmark:bankertoolbench:proof\n> tsx scripts/bankertoolbench-proof-check.ts\n\nBankerToolBench proof check passed: stage=1/1 weightedRubric=6 run=0/1 pass positive=1/1 pass candidateBeforeEvaluator=true leaks=0/2+0/3+0/4\n",
-  "screenshot": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\fe996540-6e06-4a84-82d9-06d0f32f6cd9\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\bankertoolbench-live-room.png",
+  "screenshot": "docs\\eval\\fresh-room\\FR-020\\tasks\\fe996540-6e06-4a84-82d9-06d0f32f6cd9\\evidence\\bankertoolbench-live-room.png",
   "passed": true,
   "gatesProven": [
     "fresh_room_join",

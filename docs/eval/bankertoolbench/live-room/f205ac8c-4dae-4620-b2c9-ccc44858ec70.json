@@ -2,9 +2,9 @@
   "schema": 1,
   "taskId": "f205ac8c-4dae-4620-b2c9-ccc44858ec70",
   "harborTaskId": "btb-f205ac8c",
-  "generatedAt": "2026-06-25T02:28:10.494Z",
+  "generatedAt": "2026-06-26T01:13:37.404Z",
   "baseUrl": "http://127.0.0.1:5273",
-  "roomUrl": "http://127.0.0.1:5273/?room=NRB4HZFPMHZ&name=Host",
+  "roomUrl": "http://127.0.0.1:5273/?room=NRHRJQRKGWU&name=Host",
   "memoryMode": false,
   "expectedExtensions": [
     ".xlsx",
@@ -23,64 +23,64 @@
   "downloadedFiles": [
     {
       "kind": "workbook",
-      "filename": "btb-f205ac8c-multi-entity-wacc-analysis-abc-libor-mip-usa-fcf.xlsx",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\f205ac8c-4dae-4620-b2c9-ccc44858ec70\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-f205ac8c-multi-entity-wacc-analysis-abc-libor-mip-usa-fcf.xlsx",
+      "filename": "btb-f205ac8c-wacc-computation-for-abc-libor-mip-fcf.xlsx",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\f205ac8c-4dae-4620-b2c9-ccc44858ec70\\evidence\\btb-xlsx-btb-f205ac8c-wacc-computation-for-abc-libor-mip-fcf.xlsx",
       "extension": ".xlsx",
-      "bytes": 6958,
+      "bytes": 7223,
       "magic": "PK\\x03\\x04",
       "reopened": true,
       "reopenDetail": "ZIP package contains xl/workbook.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (528 chars)"
+      "contentQualityDetail": "placeholder/caveat content scan passed (1085 chars)"
     },
     {
       "kind": "workbook",
-      "filename": "btb-f205ac8c-multi-entity-wacc-analysis-abc-libor-mip-usa-fcf.xlsm",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\f205ac8c-4dae-4620-b2c9-ccc44858ec70\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-f205ac8c-multi-entity-wacc-analysis-abc-libor-mip-usa-fcf.xlsm",
+      "filename": "btb-f205ac8c-wacc-computation-for-abc-libor-mip-fcf.xlsm",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\f205ac8c-4dae-4620-b2c9-ccc44858ec70\\evidence\\btb-xlsm-btb-f205ac8c-wacc-computation-for-abc-libor-mip-fcf.xlsm",
       "extension": ".xlsm",
-      "bytes": 6958,
+      "bytes": 7223,
       "magic": "PK\\x03\\x04",
       "reopened": true,
       "reopenDetail": "ZIP package contains xl/workbook.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (528 chars)"
+      "contentQualityDetail": "placeholder/caveat content scan passed (1085 chars)"
     },
     {
       "kind": "presentation",
-      "filename": "btb-f205ac8c-multi-entity-wacc-analysis-abc-libor-mip-usa-fcf.pptx",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\f205ac8c-4dae-4620-b2c9-ccc44858ec70\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-f205ac8c-multi-entity-wacc-analysis-abc-libor-mip-usa-fcf.pptx",
+      "filename": "btb-f205ac8c-wacc-computation-for-abc-libor-mip-fcf.pptx",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\f205ac8c-4dae-4620-b2c9-ccc44858ec70\\evidence\\btb-pptx-btb-f205ac8c-wacc-computation-for-abc-libor-mip-fcf.pptx",
       "extension": ".pptx",
-      "bytes": 6205,
+      "bytes": 6381,
       "magic": "PK\\x03\\x04",
       "reopened": true,
       "reopenDetail": "ZIP package contains ppt/presentation.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (469 chars)"
+      "contentQualityDetail": "placeholder/caveat content scan passed (1401 chars)"
     },
     {
       "kind": "document",
-      "filename": "btb-f205ac8c-multi-entity-wacc-analysis-abc-libor-mip-usa-fcf.docx",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\f205ac8c-4dae-4620-b2c9-ccc44858ec70\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-f205ac8c-multi-entity-wacc-analysis-abc-libor-mip-usa-fcf.docx",
+      "filename": "btb-f205ac8c-wacc-computation-for-abc-libor-mip-fcf.docx",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\f205ac8c-4dae-4620-b2c9-ccc44858ec70\\evidence\\btb-docx-btb-f205ac8c-wacc-computation-for-abc-libor-mip-fcf.docx",
       "extension": ".docx",
-      "bytes": 2172,
+      "bytes": 2408,
       "magic": "PK\\x03\\x04",
       "reopened": true,
       "reopenDetail": "ZIP package contains word/document.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (450 chars)"
+      "contentQualityDetail": "placeholder/caveat content scan passed (1634 chars)"
     },
     {
       "kind": "pdf",
-      "filename": "btb-f205ac8c-multi-entity-wacc-analysis-abc-libor-mip-usa-fcf.pdf",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\f205ac8c-4dae-4620-b2c9-ccc44858ec70\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-f205ac8c-multi-entity-wacc-analysis-abc-libor-mip-usa-fcf.pdf",
+      "filename": "btb-f205ac8c-wacc-computation-for-abc-libor-mip-fcf.pdf",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\f205ac8c-4dae-4620-b2c9-ccc44858ec70\\evidence\\btb-pdf-btb-f205ac8c-wacc-computation-for-abc-libor-mip-fcf.pdf",
       "extension": ".pdf",
-      "bytes": 1176,
+      "bytes": 1924,
       "magic": "%PDF",
       "reopened": true,
       "reopenDetail": "PDF header reopened",
-      "contentQualityDetail": "placeholder/caveat content scan passed (1835 chars)"
+      "contentQualityDetail": "placeholder/caveat content scan passed (3290 chars)"
     }
   ],
-  "packageManifestPath": "test-results\\bankertoolbench\\matrix\\f205ac8c-4dae-4620-b2c9-ccc44858ec70\\package-manifest.json",
+  "packageManifestPath": "docs\\eval\\fresh-room\\FR-020\\tasks\\f205ac8c-4dae-4620-b2c9-ccc44858ec70\\evidence\\package-manifest.json",
   "verifierCommand": "npm run benchmark:bankertoolbench:proof",
   "verifierOutputTail": "\n> noderoom@0.1.1 benchmark:bankertoolbench:proof\n> tsx scripts/bankertoolbench-proof-check.ts\n\nBankerToolBench proof check passed: stage=1/1 weightedRubric=6 run=0/1 pass positive=1/1 pass candidateBeforeEvaluator=true leaks=0/2+0/3+0/4\n",
-  "screenshot": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\f205ac8c-4dae-4620-b2c9-ccc44858ec70\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\bankertoolbench-live-room.png",
+  "screenshot": "docs\\eval\\fresh-room\\FR-020\\tasks\\f205ac8c-4dae-4620-b2c9-ccc44858ec70\\evidence\\bankertoolbench-live-room.png",
   "passed": true,
   "gatesProven": [
     "fresh_room_join",

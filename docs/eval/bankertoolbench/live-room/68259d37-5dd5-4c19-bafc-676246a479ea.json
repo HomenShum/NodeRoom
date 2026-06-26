@@ -2,9 +2,9 @@
   "schema": 1,
   "taskId": "68259d37-5dd5-4c19-bafc-676246a479ea",
   "harborTaskId": "btb-68259d37",
-  "generatedAt": "2026-06-25T02:09:47.366Z",
+  "generatedAt": "2026-06-26T00:50:23.354Z",
   "baseUrl": "http://127.0.0.1:5273",
-  "roomUrl": "http://127.0.0.1:5273/?room=NRQPEXO4C0H&name=Host",
+  "roomUrl": "http://127.0.0.1:5273/?room=NR1NA5LPQWP&name=Host",
   "memoryMode": false,
   "expectedExtensions": [
     ".xlsx",
@@ -23,64 +23,64 @@
   "downloadedFiles": [
     {
       "kind": "workbook",
-      "filename": "btb-68259d37-btb-68259d37-comparative-wacc-dcf-valuation-cava-id-saro-ppt.xlsx",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\68259d37-5dd5-4c19-bafc-676246a479ea\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-68259d37-btb-68259d37-comparative-wacc-dcf-valuation-cava-id-saro-ppt.xlsx",
+      "filename": "btb-68259d37-cava-s-share-price-performance-since-ipo---btb-btb-68259d37.xlsx",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\68259d37-5dd5-4c19-bafc-676246a479ea\\evidence\\btb-xlsx-btb-68259d37-cava-s-share-price-performance-since-ipo---btb-btb-68259d37.xlsx",
       "extension": ".xlsx",
-      "bytes": 8264,
+      "bytes": 7337,
       "magic": "PK\\x03\\x04",
       "reopened": true,
-      "reopenDetail": "ZIP package contains xl/workbook.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (2818 chars)"
+      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j977j1hq7r8b9mdz5ffa48xk8n89dn4q",
+      "contentQualityDetail": "placeholder/caveat content scan passed (1311 chars)"
     },
     {
       "kind": "workbook",
-      "filename": "btb-68259d37-btb-68259d37-comparative-wacc-dcf-valuation-cava-id-saro-ppt.xlsm",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\68259d37-5dd5-4c19-bafc-676246a479ea\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-68259d37-btb-68259d37-comparative-wacc-dcf-valuation-cava-id-saro-ppt.xlsm",
+      "filename": "btb-68259d37-cava-s-share-price-performance-since-ipo---btb-btb-68259d37.xlsm",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\68259d37-5dd5-4c19-bafc-676246a479ea\\evidence\\btb-xlsm-btb-68259d37-cava-s-share-price-performance-since-ipo---btb-btb-68259d37.xlsm",
       "extension": ".xlsm",
-      "bytes": 8264,
+      "bytes": 7337,
       "magic": "PK\\x03\\x04",
       "reopened": true,
-      "reopenDetail": "ZIP package contains xl/workbook.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (2818 chars)"
+      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j979r5bw0jq73t0ca4sy5kdckh89d1ew",
+      "contentQualityDetail": "placeholder/caveat content scan passed (1311 chars)"
     },
     {
       "kind": "presentation",
-      "filename": "btb-68259d37-btb-68259d37-comparative-wacc-dcf-valuation-cava-id-saro-ppt.pptx",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\68259d37-5dd5-4c19-bafc-676246a479ea\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-68259d37-btb-68259d37-comparative-wacc-dcf-valuation-cava-id-saro-ppt.pptx",
+      "filename": "btb-68259d37-cava-s-share-price-performance-since-ipo---btb-btb-68259d37.pptx",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\68259d37-5dd5-4c19-bafc-676246a479ea\\evidence\\btb-pptx-btb-68259d37-cava-s-share-price-performance-since-ipo---btb-btb-68259d37.pptx",
       "extension": ".pptx",
-      "bytes": 6972,
+      "bytes": 6516,
       "magic": "PK\\x03\\x04",
       "reopened": true,
-      "reopenDetail": "ZIP package contains ppt/presentation.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (2355 chars)"
+      "reopenDetail": "ZIP package contains ppt/presentation.xml; recovered from Convex room artifact j97b3hg9z9ffk44bs24nne0p8s89cwfx",
+      "contentQualityDetail": "placeholder/caveat content scan passed (1416 chars)"
     },
     {
       "kind": "document",
-      "filename": "btb-68259d37-btb-68259d37-comparative-wacc-dcf-valuation-cava-id-saro-ppt.docx",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\68259d37-5dd5-4c19-bafc-676246a479ea\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-68259d37-btb-68259d37-comparative-wacc-dcf-valuation-cava-id-saro-ppt.docx",
+      "filename": "btb-68259d37-cava-s-share-price-performance-since-ipo---btb-btb-68259d37.docx",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\68259d37-5dd5-4c19-bafc-676246a479ea\\evidence\\btb-docx-btb-68259d37-cava-s-share-price-performance-since-ipo---btb-btb-68259d37.docx",
       "extension": ".docx",
-      "bytes": 3130,
+      "bytes": 2484,
       "magic": "PK\\x03\\x04",
       "reopened": true,
-      "reopenDetail": "ZIP package contains word/document.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (3664 chars)"
+      "reopenDetail": "ZIP package contains word/document.xml; recovered from Convex room artifact j97ct621m2pk2ehba15pw4p34589dkkp",
+      "contentQualityDetail": "placeholder/caveat content scan passed (1397 chars)"
     },
     {
       "kind": "pdf",
-      "filename": "btb-68259d37-btb-68259d37-comparative-wacc-dcf-valuation-cava-id-saro-ppt.pdf",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\68259d37-5dd5-4c19-bafc-676246a479ea\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-68259d37-btb-68259d37-comparative-wacc-dcf-valuation-cava-id-saro-ppt.pdf",
+      "filename": "btb-68259d37-cava-s-share-price-performance-since-ipo---btb-btb-68259d37.pdf",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\68259d37-5dd5-4c19-bafc-676246a479ea\\evidence\\btb-pdf-btb-68259d37-cava-s-share-price-performance-since-ipo---btb-btb-68259d37.pdf",
       "extension": ".pdf",
-      "bytes": 3384,
+      "bytes": 1987,
       "magic": "%PDF",
       "reopened": true,
-      "reopenDetail": "PDF header reopened",
-      "contentQualityDetail": "placeholder/caveat content scan passed (6197 chars)"
+      "reopenDetail": "PDF header reopened; recovered from Convex room artifact j97b56etg07mfsamp1e1eqea6x89cyzy",
+      "contentQualityDetail": "placeholder/caveat content scan passed (3416 chars)"
     }
   ],
-  "packageManifestPath": "test-results\\bankertoolbench\\matrix\\68259d37-5dd5-4c19-bafc-676246a479ea\\package-manifest.json",
+  "packageManifestPath": "docs\\eval\\fresh-room\\FR-020\\tasks\\68259d37-5dd5-4c19-bafc-676246a479ea\\evidence\\package-manifest.json",
   "verifierCommand": "npm run benchmark:bankertoolbench:proof",
   "verifierOutputTail": "\n> noderoom@0.1.1 benchmark:bankertoolbench:proof\n> tsx scripts/bankertoolbench-proof-check.ts\n\nBankerToolBench proof check passed: stage=1/1 weightedRubric=6 run=0/1 pass positive=1/1 pass candidateBeforeEvaluator=true leaks=0/2+0/3+0/4\n",
-  "screenshot": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\68259d37-5dd5-4c19-bafc-676246a479ea\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\bankertoolbench-live-room.png",
+  "screenshot": "docs\\eval\\fresh-room\\FR-020\\tasks\\68259d37-5dd5-4c19-bafc-676246a479ea\\evidence\\bankertoolbench-live-room.png",
   "passed": true,
   "gatesProven": [
     "fresh_room_join",

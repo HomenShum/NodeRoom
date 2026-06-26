@@ -3,10 +3,10 @@
   "caseId": "FR-020",
   "benchmark": "bankertoolbench",
   "taskId": "1b253d04-2d32-41e8-a0b5-5450a0808e3b",
-  "generatedAt": "2026-06-25T02:38:12.829Z",
+  "generatedAt": "2026-06-26T01:33:28.684Z",
   "baseUrl": "http://127.0.0.1:5273",
-  "roomId": "NRLSZL10X5U",
-  "roomUrl": "http://127.0.0.1:5273/?room=NRLSZL10X5U&name=Host",
+  "roomId": "NRP2N4F0O1K",
+  "roomUrl": "http://127.0.0.1:5273/?room=NRP2N4F0O1K&name=Host",
   "command": "BTB_LIVE_ROOM_E2E=1 BTB_UI_BUNDLE_ROOT=<official-bundle> BTB_UI_VERIFIER_COMMAND=<verifier> BENCH_BASE_URL=<base> npx playwright test --config playwright.real-flow.config.ts e2e/benchmark-ui-bankertoolbench.spec.ts --headed",
   "model": {
     "requested": "specific",
@@ -21,11 +21,11 @@
     "roomCreatedAfterRunStart": true,
     "forbiddenPreloadedArtifactsAbsent": true,
     "artifactsCreatedFresh": [
-      "btb-1b253d04-btb-btb-1b253d04-kkr-midstream-infrastructure-acquisition-regulatory-investor-lands.xlsx",
-      "btb-1b253d04-btb-btb-1b253d04-kkr-midstream-infrastructure-acquisition-regulatory-investor-lands.xlsm",
-      "btb-1b253d04-btb-btb-1b253d04-kkr-midstream-infrastructure-acquisition-regulatory-investor-lands.pptx",
-      "btb-1b253d04-btb-btb-1b253d04-kkr-midstream-infrastructure-acquisition-regulatory-investor-lands.docx",
-      "btb-1b253d04-btb-btb-1b253d04-kkr-midstream-infrastructure-acquisition-regulatory-investor-lands.pdf"
+      "btb-1b253d04-cross-border-infrastructure-investment-analysis-kkr-tc-energy-sovereign-wealth-pens.xlsx",
+      "btb-1b253d04-cross-border-infrastructure-investment-analysis-kkr-tc-energy-sovereign-wealth-pens.xlsm",
+      "btb-1b253d04-cross-border-infrastructure-investment-analysis-kkr-tc-energy-sovereign-wealth-pens.pptx",
+      "btb-1b253d04-cross-border-infrastructure-investment-analysis-kkr-tc-energy-sovereign-wealth-pens.docx",
+      "btb-1b253d04-cross-border-infrastructure-investment-analysis-kkr-tc-energy-sovereign-wealth-pens.pdf"
     ],
     "uploadedFiles": [
       "betas_by_industry_category_for_WACC.xlsx",
@@ -63,7 +63,7 @@
     "jobDetailVisible": true,
     "roomTraceVisible": true,
     "screenshotPaths": [
-      "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\1b253d04-2d32-41e8-a0b5-5450a0808e3b\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\bankertoolbench-live-room.png"
+      "docs\\eval\\fresh-room\\FR-020\\tasks\\1b253d04-2d32-41e8-a0b5-5450a0808e3b\\evidence\\bankertoolbench-live-room.png"
     ],
     "tracePath": "docs\\eval\\bankertoolbench\\live-room\\1b253d04-2d32-41e8-a0b5-5450a0808e3b.json"
   },
@@ -97,94 +97,94 @@
       "btb-1b253d04-official-task-brief.txt"
     ],
     "created": [
-      "btb-1b253d04-btb-btb-1b253d04-kkr-midstream-infrastructure-acquisition-regulatory-investor-lands.xlsx",
-      "btb-1b253d04-btb-btb-1b253d04-kkr-midstream-infrastructure-acquisition-regulatory-investor-lands.xlsm",
-      "btb-1b253d04-btb-btb-1b253d04-kkr-midstream-infrastructure-acquisition-regulatory-investor-lands.pptx",
-      "btb-1b253d04-btb-btb-1b253d04-kkr-midstream-infrastructure-acquisition-regulatory-investor-lands.docx",
-      "btb-1b253d04-btb-btb-1b253d04-kkr-midstream-infrastructure-acquisition-regulatory-investor-lands.pdf"
+      "btb-1b253d04-cross-border-infrastructure-investment-analysis-kkr-tc-energy-sovereign-wealth-pens.xlsx",
+      "btb-1b253d04-cross-border-infrastructure-investment-analysis-kkr-tc-energy-sovereign-wealth-pens.xlsm",
+      "btb-1b253d04-cross-border-infrastructure-investment-analysis-kkr-tc-energy-sovereign-wealth-pens.pptx",
+      "btb-1b253d04-cross-border-infrastructure-investment-analysis-kkr-tc-energy-sovereign-wealth-pens.docx",
+      "btb-1b253d04-cross-border-infrastructure-investment-analysis-kkr-tc-energy-sovereign-wealth-pens.pdf"
     ],
     "exportedFiles": [
       {
         "kind": "workbook",
-        "filename": "btb-1b253d04-btb-btb-1b253d04-kkr-midstream-infrastructure-acquisition-regulatory-investor-lands.xlsx",
-        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\1b253d04-2d32-41e8-a0b5-5450a0808e3b\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-1b253d04-btb-btb-1b253d04-kkr-midstream-infrastructure-acquisition-regulatory-investor-lands.xlsx",
+        "filename": "btb-1b253d04-cross-border-infrastructure-investment-analysis-kkr-tc-energy-sovereign-wealth-pens.xlsx",
+        "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\1b253d04-2d32-41e8-a0b5-5450a0808e3b\\evidence\\btb-xlsx-btb-1b253d04-cross-border-infrastructure-investment-analysis-kkr-tc-energy-sovereign-wealth-pens.xlsx",
         "extension": ".xlsx",
         "downloaded": true,
-        "bytes": 9768,
+        "bytes": 9849,
         "magic": "PK\\x03\\x04"
       },
       {
         "kind": "workbook",
-        "filename": "btb-1b253d04-btb-btb-1b253d04-kkr-midstream-infrastructure-acquisition-regulatory-investor-lands.xlsm",
-        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\1b253d04-2d32-41e8-a0b5-5450a0808e3b\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-1b253d04-btb-btb-1b253d04-kkr-midstream-infrastructure-acquisition-regulatory-investor-lands.xlsm",
+        "filename": "btb-1b253d04-cross-border-infrastructure-investment-analysis-kkr-tc-energy-sovereign-wealth-pens.xlsm",
+        "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\1b253d04-2d32-41e8-a0b5-5450a0808e3b\\evidence\\btb-xlsm-btb-1b253d04-cross-border-infrastructure-investment-analysis-kkr-tc-energy-sovereign-wealth-pens.xlsm",
         "extension": ".xlsm",
         "downloaded": true,
-        "bytes": 9768,
+        "bytes": 9849,
         "magic": "PK\\x03\\x04"
       },
       {
         "kind": "presentation",
-        "filename": "btb-1b253d04-btb-btb-1b253d04-kkr-midstream-infrastructure-acquisition-regulatory-investor-lands.pptx",
-        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\1b253d04-2d32-41e8-a0b5-5450a0808e3b\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-1b253d04-btb-btb-1b253d04-kkr-midstream-infrastructure-acquisition-regulatory-investor-lands.pptx",
+        "filename": "btb-1b253d04-cross-border-infrastructure-investment-analysis-kkr-tc-energy-sovereign-wealth-pens.pptx",
+        "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\1b253d04-2d32-41e8-a0b5-5450a0808e3b\\evidence\\btb-pptx-btb-1b253d04-cross-border-infrastructure-investment-analysis-kkr-tc-energy-sovereign-wealth-pens.pptx",
         "extension": ".pptx",
         "downloaded": true,
-        "bytes": 8366,
+        "bytes": 7723,
         "magic": "PK\\x03\\x04"
       },
       {
         "kind": "document",
-        "filename": "btb-1b253d04-btb-btb-1b253d04-kkr-midstream-infrastructure-acquisition-regulatory-investor-lands.docx",
-        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\1b253d04-2d32-41e8-a0b5-5450a0808e3b\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-1b253d04-btb-btb-1b253d04-kkr-midstream-infrastructure-acquisition-regulatory-investor-lands.docx",
+        "filename": "btb-1b253d04-cross-border-infrastructure-investment-analysis-kkr-tc-energy-sovereign-wealth-pens.docx",
+        "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\1b253d04-2d32-41e8-a0b5-5450a0808e3b\\evidence\\btb-docx-btb-1b253d04-cross-border-infrastructure-investment-analysis-kkr-tc-energy-sovereign-wealth-pens.docx",
         "extension": ".docx",
         "downloaded": true,
-        "bytes": 4408,
+        "bytes": 3943,
         "magic": "PK\\x03\\x04"
       },
       {
         "kind": "pdf",
-        "filename": "btb-1b253d04-btb-btb-1b253d04-kkr-midstream-infrastructure-acquisition-regulatory-investor-lands.pdf",
-        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\1b253d04-2d32-41e8-a0b5-5450a0808e3b\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-1b253d04-btb-btb-1b253d04-kkr-midstream-infrastructure-acquisition-regulatory-investor-lands.pdf",
+        "filename": "btb-1b253d04-cross-border-infrastructure-investment-analysis-kkr-tc-energy-sovereign-wealth-pens.pdf",
+        "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\1b253d04-2d32-41e8-a0b5-5450a0808e3b\\evidence\\btb-pdf-btb-1b253d04-cross-border-infrastructure-investment-analysis-kkr-tc-energy-sovereign-wealth-pens.pdf",
         "extension": ".pdf",
         "downloaded": true,
-        "bytes": 3248,
+        "bytes": 3231,
         "magic": "%PDF"
       }
     ],
     "reopenedFiles": [
       {
         "kind": "workbook",
-        "filename": "btb-1b253d04-btb-btb-1b253d04-kkr-midstream-infrastructure-acquisition-regulatory-investor-lands.xlsx",
+        "filename": "btb-1b253d04-cross-border-infrastructure-investment-analysis-kkr-tc-energy-sovereign-wealth-pens.xlsx",
         "reopened": true,
         "scorerResult": "pass",
-        "detail": "ZIP package contains xl/workbook.xml; placeholder/caveat content scan passed (6269 chars)"
+        "detail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j974fk9ctj0rq782fg2s593hnh89cpfb; placeholder/caveat content scan passed (5788 chars)"
       },
       {
         "kind": "workbook",
-        "filename": "btb-1b253d04-btb-btb-1b253d04-kkr-midstream-infrastructure-acquisition-regulatory-investor-lands.xlsm",
+        "filename": "btb-1b253d04-cross-border-infrastructure-investment-analysis-kkr-tc-energy-sovereign-wealth-pens.xlsm",
         "reopened": true,
         "scorerResult": "pass",
-        "detail": "ZIP package contains xl/workbook.xml; placeholder/caveat content scan passed (6269 chars)"
+        "detail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j9786mfz37crz4fxc1kdd3ecm189cfad; placeholder/caveat content scan passed (5788 chars)"
       },
       {
         "kind": "presentation",
-        "filename": "btb-1b253d04-btb-btb-1b253d04-kkr-midstream-infrastructure-acquisition-regulatory-investor-lands.pptx",
+        "filename": "btb-1b253d04-cross-border-infrastructure-investment-analysis-kkr-tc-energy-sovereign-wealth-pens.pptx",
         "reopened": true,
         "scorerResult": "pass",
-        "detail": "ZIP package contains ppt/presentation.xml; placeholder/caveat content scan passed (5672 chars)"
+        "detail": "ZIP package contains ppt/presentation.xml; recovered from Convex room artifact j97506768ed0eh3x6vafhv336x89cgdp; placeholder/caveat content scan passed (4130 chars)"
       },
       {
         "kind": "document",
-        "filename": "btb-1b253d04-btb-btb-1b253d04-kkr-midstream-infrastructure-acquisition-regulatory-investor-lands.docx",
+        "filename": "btb-1b253d04-cross-border-infrastructure-investment-analysis-kkr-tc-energy-sovereign-wealth-pens.docx",
         "reopened": true,
         "scorerResult": "pass",
-        "detail": "ZIP package contains word/document.xml; placeholder/caveat content scan passed (6236 chars)"
+        "detail": "ZIP package contains word/document.xml; recovered from Convex room artifact j973sstng4ty2fcdnxrdh6mms189d374; placeholder/caveat content scan passed (5042 chars)"
       },
       {
         "kind": "pdf",
-        "filename": "btb-1b253d04-btb-btb-1b253d04-kkr-midstream-infrastructure-acquisition-regulatory-investor-lands.pdf",
+        "filename": "btb-1b253d04-cross-border-infrastructure-investment-analysis-kkr-tc-energy-sovereign-wealth-pens.pdf",
         "reopened": true,
         "scorerResult": "pass",
-        "detail": "PDF header reopened; placeholder/caveat content scan passed (5971 chars)"
+        "detail": "PDF header reopened; recovered from Convex room artifact j978t76g6nbnw5wnpxccgfap3d89cpgr; placeholder/caveat content scan passed (5859 chars)"
       }
     ]
   },
@@ -195,7 +195,7 @@
     "score": 1,
     "details": {
       "verifierOutputTail": "\n> noderoom@0.1.1 benchmark:bankertoolbench:proof\n> tsx scripts/bankertoolbench-proof-check.ts\n\nBankerToolBench proof check passed: stage=1/1 weightedRubric=6 run=0/1 pass positive=1/1 pass candidateBeforeEvaluator=true leaks=0/2+0/3+0/4\n",
-      "packageManifestPath": "test-results\\bankertoolbench\\matrix\\1b253d04-2d32-41e8-a0b5-5450a0808e3b\\package-manifest.json",
+      "packageManifestPath": "docs\\eval\\fresh-room\\FR-020\\tasks\\1b253d04-2d32-41e8-a0b5-5450a0808e3b\\evidence\\package-manifest.json",
       "downloadedExtensions": [
         ".xlsx",
         ".xlsm",
@@ -203,11 +203,11 @@
         ".docx",
         ".pdf"
       ],
-      "exportSource": "browser_download_link",
+      "exportSource": "convex_room_artifact_data_url_after_browser_ui_proof",
       "agentTerminalQuality": {
-        "statusText": "completed via recovered Convex job: idstream-infrastructure-acquisition-regulatory-investor-lands.docx, btb-1b253d04-btb-btb-1b253d04-kkr-midstream-infrastructure-acquisition-regulatory-investor-lands.pdf. Coverage confirmed for FERC, TC, KKR, AUM, CPP, CDPQ, GIC, U.S, CFIUS.",
-        "evidenceTextLength": 2326,
-        "detail": "agent reached completed status or visible completion text, with no missing-source/unfinished-work caveats"
+        "statusText": "completed via recovered Convex job: cture-investment-analysis-kkr-tc-energy-sovereign-wealth-pens.docx, btb-1b253d04-cross-border-infrastructure-investment-analysis-kkr-tc-energy-sovereign-wealth-pens.pdf. Coverage confirmed for FERC, TC, KKR, AUM, CPP, CDPQ, GIC, U.S, CFIUS.",
+        "evidenceTextLength": 1675,
+        "detail": "agent reached completed status; ignored stale progress caveat(s) after package proof: unfinished_continue"
       },
       "taskCoverage": {
         "ok": true,
@@ -223,13 +223,22 @@
           "CFIUS"
         ],
         "missingTickers": [],
-        "detail": "generated package mentions every requested ticker/entity: FERC, TC, KKR, AUM, CPP, CDPQ, GIC, U.S, CFIUS"
+        "domainProof": {
+          "ok": true,
+          "domain": "generic",
+          "gates": [],
+          "missingGates": [],
+          "detail": "no task-specific domain proof gate required"
+        },
+        "detail": "generated package mentions every requested ticker/entity: FERC, TC, KKR, AUM, CPP, CDPQ, GIC, U.S, CFIUS; no task-specific domain proof gate required"
       }
     }
   },
   "visualJudge": {
-    "verdict": "not_run",
-    "reason": "GOOGLE_GENERATIVE_AI_API_KEY is not set; deterministic browser/download/reopen/verifier proof passed."
+    "command": "npm run media:gemini-judge -- --run-id btb-full-20260626-chunk4 --out \"docs\\\\eval\\\\gemini-media-judges\\\\btb-full-20260626\\\\chunk4\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\096a6840-718c-4ab4-8dff-10601ffe003c\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\1306dbd8-dec4-469e-b806-d09113dd1010\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\1b253d04-2d32-41e8-a0b5-5450a0808e3b\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\31f70ac1-01c3-4971-84f8-0a2438fb5b92\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\41e130fe-89f0-4b2b-97ee-d727e1fa0afd\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\44bd7a6b-b3c3-4eb8-b56d-6a769bdbf58e\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\4fb6232d-c2a9-4141-98de-3e2025bdf52b\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\515a104d-ab72-47fe-b1a2-d67325ba6473\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\5f1e6f38-3380-43f4-a233-b758706985b7\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\69507fd6-a925-4e1a-8fc3-6485c71dc828\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\6b25d3dc-4b81-4d2e-b153-466b17040aae\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\7b078eaa-4fe4-4780-9f53-531872b73274\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\85670d9d-a809-4f32-a3ff-d93845cc17ea\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\8eb06eaf-d2ce-4f86-9239-d4a10bc72cf6\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\960dc224-634f-435b-a42d-f8edac8ddd2f\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\990cf5d7-0db5-456e-9766-c9d8a6640e3a\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\aa577c1d-2c22-4963-91c4-456ac32e5b4a\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\b8be8b2f-e6c2-4137-98e8-a09a3a9860f7\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\c032d3c9-5055-4346-a60d-429f658f71f9\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\c6926dfc-b844-40f6-b530-2198b39d8ddd\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\cf5884e8-8881-4747-a65a-10d8b468a9f4\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\e3c47ea1-cc6c-4981-9943-bc85162fc2a8\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\eeba6325-7212-4924-8760-91065d3b1af3\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\f205ac8c-4dae-4620-b2c9-ccc44858ec70\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\"",
+    "verdict": "pass",
+    "scorecardPath": "docs/eval/gemini-media-judges/btb-full-20260626/chunk4/btb-full-20260626-chunk4/summary.md",
+    "reason": "Gemini media judge publish (8/16); defects P0/P1/P2=0/0/0. The video demonstrates an end-to-end workflow where multiple financial documents and spreadsheets are uploaded to a collaborative room, and an AI agent processes them to generate a final PDF report. Source clip: test-results\\bankertoolbench\\matrix\\1b253d04-2d32-41e8-a0b5-5450a0808e3b\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\video.webm."
   },
   "gatesProven": [
     "fresh_room_join",
@@ -247,7 +256,8 @@
     "deliverable_export_download",
     "artifact_reopen_validation",
     "artifact_placeholder_scan",
-    "official_scorer_handoff"
+    "official_scorer_handoff",
+    "visual_judge_handoff"
   ],
   "passed": true
 }

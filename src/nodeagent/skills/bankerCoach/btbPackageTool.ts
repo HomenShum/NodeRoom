@@ -74,10 +74,33 @@ function btbPackageQualityErrors(input: PackageInput): string[] {
   if (!(input.sourceArtifactIds?.length || input.sourceUrls?.length)) errors.push("source_provenance_required");
   errors.push(...btbDomainProofErrors(input));
   for (const finding of scanPackageStrings(input)) {
+    if (isGenericPackagePlaceholder(finding)) errors.push(`generic_placeholder:${finding.path}`);
     const matched = PLACEHOLDER_PATTERNS.find(({ pattern }) => pattern.test(finding.value));
     if (matched) errors.push(`${matched.code}:${finding.path}`);
   }
   return [...new Set(errors)].slice(0, 12);
+}
+
+function isGenericPackagePlaceholder(finding: { path: string; value: string }): boolean {
+  if (finding.path !== "title" && finding.path !== "narrative") return false;
+  return isGenericPlaceholderText(finding.value);
+}
+
+const GENERIC_PLACEHOLDER_TOKENS = new Set(["test", "temp", "demo", "sample", "dummy", "foo", "bar", "lorem", "ipsum"]);
+const PACKAGE_FILLER_TOKENS = new Set(["btb", "package", "packages", "deliverable", "deliverables", "artifact", "artifacts", "final", "output"]);
+
+function isGenericPlaceholderText(value: string): boolean {
+  const normalized = value.trim().replace(/\s+/g, " ").toLowerCase();
+  if (!normalized) return true;
+  if (/^(test|test \d+|temp|demo|sample|dummy|foo|bar|lorem ipsum)$/i.test(normalized)) return true;
+  const meaningfulTokens = normalized
+    .split(/[^a-z0-9]+/i)
+    .filter(Boolean)
+    .filter((token) => !PACKAGE_FILLER_TOKENS.has(token))
+    .filter((token) => !/^[a-f0-9]{6,}$/i.test(token))
+    .filter((token) => !/^\d+$/.test(token));
+  if (!meaningfulTokens.length) return true;
+  return meaningfulTokens.every((token) => GENERIC_PLACEHOLDER_TOKENS.has(token));
 }
 
 function btbDomainProofErrors(input: PackageInput): string[] {

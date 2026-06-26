@@ -1,0 +1,65 @@
+{
+  "schema": 1,
+  "taskId": "69507fd6-a925-4e1a-8fc3-6485c71dc828",
+  "harborTaskId": "btb-69507fd6",
+  "generatedAt": "2026-06-26T00:24:14.694Z",
+  "baseUrl": "http://127.0.0.1:5273",
+  "roomUrl": "http://127.0.0.1:5273/?room=NRHUNP5SY09&name=Host",
+  "downloadedFiles": [
+    {
+      "kind": "workbook",
+      "filename": "btb-69507fd6-greenbrier-wacc-analysis.xlsx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\69507fd6-a925-4e1a-8fc3-6485c71dc828\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-69507fd6-greenbrier-wacc-analysis.xlsx",
+      "extension": ".xlsx",
+      "bytes": 7480,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j97evvww2qhnx6y85dq74q4vth89dkcg",
+      "contentQualityDetail": "placeholder/caveat content scan passed (1527 chars)"
+    },
+    {
+      "kind": "workbook",
+      "filename": "btb-69507fd6-greenbrier-wacc-analysis.xlsm",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\69507fd6-a925-4e1a-8fc3-6485c71dc828\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-69507fd6-greenbrier-wacc-analysis.xlsm",
+      "extension": ".xlsm",
+      "bytes": 7480,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j97cxem1pn7xd5pp53fjgthdgx89crms",
+      "contentQualityDetail": "placeholder/caveat content scan passed (1527 chars)"
+    },
+    {
+      "kind": "presentation",
+      "filename": "btb-69507fd6-greenbrier-wacc-analysis.pptx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\69507fd6-a925-4e1a-8fc3-6485c71dc828\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-69507fd6-greenbrier-wacc-analysis.pptx",
+      "extension": ".pptx",
+      "bytes": 6563,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains ppt/presentation.xml; recovered from Convex room artifact j97178643hh1qbgy3ym63wpv0x89d7g8",
+      "contentQualityDetail": "placeholder/caveat content scan passed (1485 chars)"
+    },
+    {
+      "kind": "document",
+      "filename": "btb-69507fd6-greenbrier-wacc-analysis.docx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\69507fd6-a925-4e1a-8fc3-6485c71dc828\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-69507fd6-greenbrier-wacc-analysis.docx",
+      "extension": ".docx",
+      "bytes": 2588,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains word/document.xml; recovered from Convex room artifact j9714vh676z7dvnqz8spg0ks6589dfre",
+      "contentQualityDetail": "placeholder/caveat content scan passed (1697 chars)"
+    },
+    {
+      "kind": "pdf",
+      "filename": "btb-69507fd6-greenbrier-wacc-analysis.pdf",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\69507fd6-a925-4e1a-8fc3-6485c71dc828\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-69507fd6-greenbrier-wacc-analysis.pdf",
+      "extension": ".pdf",
+      "bytes": 2448,
+      "magic": "%PDF",
+      "reopened": true,
+      "reopenDetail": "PDF header reopened; recovered from Convex room artifact j971tm84aj0bpnbr8ddmjy837h89ccxe",
+      "contentQualityDetail": "placeholder/caveat content scan passed (4333 chars)"
+    }
+  ]
+}

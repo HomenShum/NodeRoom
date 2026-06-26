@@ -1,4 +1,4 @@
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
@@ -65,11 +65,119 @@ describe("BTB Gemini judge receipt attachment", () => {
       expect(result.updated).toHaveLength(1);
       expect(updated?.visualJudge).toMatchObject({
         verdict: "pass",
-        scorecardPath: summaryPath,
+        scorecardPath: "docs/eval/gemini-media-judges/btb-selective/summary.md",
       });
-      expect(updated?.ui.videoPaths).toContain(videoPath);
+      const stableVideoPath = join(dirname(btbFreshRoomTaskReceiptPath(taskId)), "evidence", "video.webm");
+      expect(updated?.ui.videoPaths).toContain(stableVideoPath);
+      expect(existsSync(join(projectRoot, stableVideoPath))).toBe(true);
       expect(updated?.gatesProven).toContain("visual_judge_handoff");
       expect(latest.visualJudge?.verdict).toBe("pass");
+    } finally {
+      process.chdir(cwd);
+    }
+  });
+
+  it("can attach bulk judge results without copying large videos into receipt evidence", () => {
+    const cwd = process.cwd();
+    const projectRoot = tempProject();
+    process.chdir(projectRoot);
+    try {
+      const taskId = "707cba99-59a7-47bd-bc4d-7f36212e99f3";
+      const videoPath = join(projectRoot, "test-results", "bankertoolbench", "matrix", taskId, "playwright-output", "case", "video.webm");
+      const screenshotPath = join(projectRoot, "proof.png");
+      const tracePath = join(projectRoot, "trace.json");
+      const summaryPath = join(projectRoot, "docs", "eval", "gemini-media-judges", "btb-bulk", "summary.md");
+      mkdirSync(dirname(videoPath), { recursive: true });
+      mkdirSync(dirname(summaryPath), { recursive: true });
+      writeFileSync(videoPath, "webm");
+      writeFileSync(screenshotPath, "png");
+      writeFileSync(tracePath, "{}");
+      writeFileSync(summaryPath, "# summary\n");
+
+      const receipt = validBtbReceipt(taskId, screenshotPath, tracePath);
+      writeFreshRoomProofReceipt(receipt, btbFreshRoomTaskReceiptPath(taskId));
+
+      const judgePath = join(projectRoot, "docs", "eval", "gemini-media-judges", "latest.json");
+      writeFileSync(judgePath, JSON.stringify({
+        runId: "btb-bulk",
+        command: "npm run media:gemini-judge -- --input video.webm",
+        results: [{
+          status: "judged",
+          score: 13,
+          maxScore: 16,
+          asset: { path: videoPath, relPath: "test-results/bankertoolbench/matrix/707cba99/video.webm" },
+          judge: {
+            verdict: "publish",
+            summary: "Bulk live room evidence is visible.",
+            defects: [],
+          },
+        }],
+      }, null, 2));
+
+      const result = attachBtbGeminiJudgeResults({ judgePath, copyVideoEvidence: false });
+      const updated = readFreshRoomProofReceipt(btbFreshRoomTaskReceiptPath(taskId));
+      const copiedVideoPath = join(dirname(btbFreshRoomTaskReceiptPath(taskId)), "evidence", "video.webm");
+
+      expect(result.updated).toHaveLength(1);
+      expect(updated?.visualJudge?.verdict).toBe("pass");
+      expect(updated?.visualJudge?.reason).toContain("Source clip: test-results");
+      expect(updated?.ui.videoPaths).toBeUndefined();
+      expect(existsSync(join(projectRoot, copiedVideoPath))).toBe(false);
+      expect(updated?.gatesProven).toContain("visual_judge_handoff");
+    } finally {
+      process.chdir(cwd);
+    }
+  });
+
+  it("does not fail benchmark receipts for evidence-packaging-only video duration feedback", () => {
+    const cwd = process.cwd();
+    const projectRoot = tempProject();
+    process.chdir(projectRoot);
+    try {
+      const taskId = "44e44478-9e36-4df9-9657-85797c7fee58";
+      const videoPath = join(projectRoot, "test-results", "bankertoolbench", "matrix", taskId, "playwright-output", "case", "video.webm");
+      const screenshotPath = join(projectRoot, "proof.png");
+      const tracePath = join(projectRoot, "trace.json");
+      const summaryPath = join(projectRoot, "docs", "eval", "gemini-media-judges", "btb-bulk", "summary.md");
+      mkdirSync(dirname(videoPath), { recursive: true });
+      mkdirSync(dirname(summaryPath), { recursive: true });
+      writeFileSync(videoPath, "webm");
+      writeFileSync(screenshotPath, "png");
+      writeFileSync(tracePath, "{}");
+      writeFileSync(summaryPath, "# summary\n");
+
+      const receipt = validBtbReceipt(taskId, screenshotPath, tracePath);
+      writeFreshRoomProofReceipt(receipt, btbFreshRoomTaskReceiptPath(taskId));
+
+      const judgePath = join(projectRoot, "docs", "eval", "gemini-media-judges", "latest.json");
+      writeFileSync(judgePath, JSON.stringify({
+        runId: "btb-bulk",
+        command: "npm run media:gemini-judge -- --input video.webm",
+        results: [{
+          status: "judged",
+          score: 8,
+          maxScore: 16,
+          asset: { path: videoPath, relPath: `test-results/bankertoolbench/matrix/${taskId}/video.webm` },
+          judge: {
+            verdict: "fix-then-publish",
+            summary: "The live proof is complete, but the recording is long for a README demo.",
+            defects: [{
+              ts: "00:17",
+              severity: "P1",
+              observed: "The video is long for a standard README demonstration and may cause viewer disengagement.",
+              fix: "Trim or speed up the clip for marketing use.",
+            }],
+          },
+        }],
+      }, null, 2));
+
+      const result = attachBtbGeminiJudgeResults({ judgePath, copyVideoEvidence: false });
+      const updated = readFreshRoomProofReceipt(btbFreshRoomTaskReceiptPath(taskId));
+
+      expect(result.updated).toHaveLength(1);
+      expect(result.updated[0]?.visualJudgeVerdict).toBe("pass");
+      expect(updated?.visualJudge?.verdict).toBe("pass");
+      expect(updated?.gatesProven).toContain("visual_judge_handoff");
     } finally {
       process.chdir(cwd);
     }

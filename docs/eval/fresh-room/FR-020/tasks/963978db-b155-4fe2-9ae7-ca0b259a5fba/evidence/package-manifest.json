@@ -1,0 +1,65 @@
+{
+  "schema": 1,
+  "taskId": "963978db-b155-4fe2-9ae7-ca0b259a5fba",
+  "harborTaskId": "btb-963978db",
+  "generatedAt": "2026-06-26T00:22:02.511Z",
+  "baseUrl": "http://127.0.0.1:5273",
+  "roomUrl": "http://127.0.0.1:5273/?room=NR0ANC0P8ZW&name=Host",
+  "downloadedFiles": [
+    {
+      "kind": "workbook",
+      "filename": "btb-963978db-solarwinds-swi-deep-dive-company-profile.xlsx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\963978db-b155-4fe2-9ae7-ca0b259a5fba\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-963978db-solarwinds-swi-deep-dive-company-profile.xlsx",
+      "extension": ".xlsx",
+      "bytes": 9647,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (5444 chars)"
+    },
+    {
+      "kind": "workbook",
+      "filename": "btb-963978db-solarwinds-swi-deep-dive-company-profile.xlsm",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\963978db-b155-4fe2-9ae7-ca0b259a5fba\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-963978db-solarwinds-swi-deep-dive-company-profile.xlsm",
+      "extension": ".xlsm",
+      "bytes": 9647,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (5444 chars)"
+    },
+    {
+      "kind": "presentation",
+      "filename": "btb-963978db-solarwinds-swi-deep-dive-company-profile.pptx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\963978db-b155-4fe2-9ae7-ca0b259a5fba\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-963978db-solarwinds-swi-deep-dive-company-profile.pptx",
+      "extension": ".pptx",
+      "bytes": 8051,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains ppt/presentation.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (4823 chars)"
+    },
+    {
+      "kind": "document",
+      "filename": "btb-963978db-solarwinds-swi-deep-dive-company-profile.docx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\963978db-b155-4fe2-9ae7-ca0b259a5fba\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-963978db-solarwinds-swi-deep-dive-company-profile.docx",
+      "extension": ".docx",
+      "bytes": 3995,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains word/document.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (4844 chars)"
+    },
+    {
+      "kind": "pdf",
+      "filename": "btb-963978db-solarwinds-swi-deep-dive-company-profile.pdf",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\963978db-b155-4fe2-9ae7-ca0b259a5fba\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-963978db-solarwinds-swi-deep-dive-company-profile.pdf",
+      "extension": ".pdf",
+      "bytes": 2541,
+      "magic": "%PDF",
+      "reopened": true,
+      "reopenDetail": "PDF header reopened",
+      "contentQualityDetail": "placeholder/caveat content scan passed (4510 chars)"
+    }
+  ]
+}

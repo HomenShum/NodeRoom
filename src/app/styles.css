@@ -671,13 +671,16 @@ input { font-family: inherit; }
 .r-agent-workflow-progress-label em { margin-left: 5px; padding: 1px 4px; border-radius: 999px; background: var(--bg-secondary); color: var(--text-tertiary); font-style: normal; font-size: 10px; font-weight: 800; }
 .r-agent-workflow-progress-preview { min-width: 0; color: var(--text-secondary); font-size: 11.5px; line-height: 1.25; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .r-agent-workflow-progress-details { display: grid; gap: 5px; padding-top: 7px; border-top: 1px solid var(--line); }
-.r-agent-part { min-width: 0; display: grid; grid-template-columns: auto auto minmax(96px, max-content) minmax(0, 1fr); align-items: start; gap: 7px; padding: 6px 8px; border: 1px solid var(--line); border-radius: 7px; background: color-mix(in srgb, var(--bg-secondary) 82%, transparent); color: var(--text-secondary); font-size: 12px; line-height: 1.35; }
+.r-agent-part { min-width: 0; display: block; padding: 6px 8px; border: 1px solid var(--line); border-radius: 7px; background: color-mix(in srgb, var(--bg-secondary) 82%, transparent); color: var(--text-secondary); font-size: 12px; line-height: 1.35; }
+.r-agent-part summary { min-width: 0; display: grid; grid-template-columns: auto auto minmax(96px, max-content) minmax(0, 1fr); align-items: start; gap: 7px; cursor: pointer; list-style: none; }
+.r-agent-part summary::-webkit-details-marker { display: none; }
 .r-agent-part svg { color: var(--text-tertiary); }
 .r-agent-part b { color: var(--accent-ink); font-size: 9.5px; text-transform: uppercase; letter-spacing: 0; white-space: nowrap; padding-top: 1px; }
 .r-agent-part span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 700; color: var(--text-primary); }
 .r-agent-part em { min-width: 0; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; white-space: normal; overflow-wrap: anywhere; font-style: normal; color: var(--text-secondary); font-size: 11.5px; line-height: 1.35; }
 .r-agent-part[data-status="failed"] b, .r-agent-part[data-status="failed"] svg { color: var(--danger-ink); }
-.r-agent-part.step { grid-template-columns: auto auto minmax(0, 1fr); align-items: center; }
+.r-agent-part[data-part="step-start"] summary { grid-template-columns: auto auto minmax(0, 1fr); align-items: center; }
+.r-agent-part-payload { margin: 7px 0 0 19px; padding: 7px 8px; max-height: 220px; overflow: auto; border-radius: 6px; border: 1px solid var(--line); background: color-mix(in srgb, var(--bg-primary) 88%, transparent); color: var(--text-secondary); font: 11px/1.4 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; white-space: pre-wrap; overflow-wrap: anywhere; }
 @media (max-width: 640px) {
   .r-agent-workflow-progress-row { grid-template-columns: auto minmax(0, 1fr); align-items: start; }
   .r-agent-workflow-progress-preview { grid-column: 2; white-space: normal; overflow-wrap: anywhere; }

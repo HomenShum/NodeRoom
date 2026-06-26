@@ -2,9 +2,9 @@
   "schema": 1,
   "taskId": "7f5b9960-5931-4fb7-ac69-a5d0a954b1cc",
   "harborTaskId": "btb-7f5b9960",
-  "generatedAt": "2026-06-25T00:58:50.365Z",
+  "generatedAt": "2026-06-26T02:45:54.255Z",
   "baseUrl": "http://127.0.0.1:5273",
-  "roomUrl": "http://127.0.0.1:5273/?room=NRSS6SU2O3G&name=Host&focusMode=1",
+  "roomUrl": "http://127.0.0.1:5273/?room=NRC73KPTN0D&name=Host",
   "memoryMode": false,
   "expectedExtensions": [
     ".xlsx",
@@ -23,64 +23,64 @@
   "downloadedFiles": [
     {
       "kind": "workbook",
-      "filename": "btb-7f5b9960-fdx-standalone-dcf-valuation-vp-pitch-anchor-12-19-2025.xlsx",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\7f5b9960-5931-4fb7-ac69-a5d0a954b1cc\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-7f5b9960-fdx-standalone-dcf-valuation-vp-pitch-anchor-12-19-2025.xlsx",
+      "filename": "btb-7f5b9960-fedex-fdx-standalone-dcf-valuation-bankertoolbench-btb-7f5b9960.xlsx",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\7f5b9960-5931-4fb7-ac69-a5d0a954b1cc\\evidence\\btb-xlsx-btb-7f5b9960-fedex-fdx-standalone-dcf-valuation-bankertoolbench-btb-7f5b9960.xlsx",
       "extension": ".xlsx",
-      "bytes": 14313,
+      "bytes": 17114,
       "magic": "PK\\x03\\x04",
       "reopened": true,
-      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j976kshbrnqz83ab87c4byywd989aqg4",
-      "contentQualityDetail": "placeholder/caveat content scan passed (12201 chars)"
+      "reopenDetail": "ZIP package contains xl/workbook.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (17024 chars)"
     },
     {
       "kind": "workbook",
-      "filename": "btb-7f5b9960-fdx-standalone-dcf-valuation-vp-pitch-anchor-12-19-2025.xlsm",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\7f5b9960-5931-4fb7-ac69-a5d0a954b1cc\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-7f5b9960-fdx-standalone-dcf-valuation-vp-pitch-anchor-12-19-2025.xlsm",
+      "filename": "btb-7f5b9960-fedex-fdx-standalone-dcf-valuation-bankertoolbench-btb-7f5b9960.xlsm",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\7f5b9960-5931-4fb7-ac69-a5d0a954b1cc\\evidence\\btb-xlsm-btb-7f5b9960-fedex-fdx-standalone-dcf-valuation-bankertoolbench-btb-7f5b9960.xlsm",
       "extension": ".xlsm",
-      "bytes": 14313,
+      "bytes": 17114,
       "magic": "PK\\x03\\x04",
       "reopened": true,
-      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j97cc87kxpabgecdmg4xp93akx89amqv",
-      "contentQualityDetail": "placeholder/caveat content scan passed (12201 chars)"
+      "reopenDetail": "ZIP package contains xl/workbook.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (17024 chars)"
     },
     {
       "kind": "presentation",
-      "filename": "btb-7f5b9960-fdx-standalone-dcf-valuation-vp-pitch-anchor-12-19-2025.pptx",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\7f5b9960-5931-4fb7-ac69-a5d0a954b1cc\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-7f5b9960-fdx-standalone-dcf-valuation-vp-pitch-anchor-12-19-2025.pptx",
+      "filename": "btb-7f5b9960-fedex-fdx-standalone-dcf-valuation-bankertoolbench-btb-7f5b9960.pptx",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\7f5b9960-5931-4fb7-ac69-a5d0a954b1cc\\evidence\\btb-pptx-btb-7f5b9960-fedex-fdx-standalone-dcf-valuation-bankertoolbench-btb-7f5b9960.pptx",
       "extension": ".pptx",
-      "bytes": 7274,
+      "bytes": 8156,
       "magic": "PK\\x03\\x04",
       "reopened": true,
-      "reopenDetail": "ZIP package contains ppt/presentation.xml; recovered from Convex room artifact j97ezagye119vns49g99htzcn589af0j",
-      "contentQualityDetail": "placeholder/caveat content scan passed (2566 chars)"
+      "reopenDetail": "ZIP package contains ppt/presentation.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (4742 chars)"
     },
     {
       "kind": "document",
-      "filename": "btb-7f5b9960-fdx-standalone-dcf-valuation-vp-pitch-anchor-12-19-2025.docx",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\7f5b9960-5931-4fb7-ac69-a5d0a954b1cc\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-7f5b9960-fdx-standalone-dcf-valuation-vp-pitch-anchor-12-19-2025.docx",
+      "filename": "btb-7f5b9960-fedex-fdx-standalone-dcf-valuation-bankertoolbench-btb-7f5b9960.docx",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\7f5b9960-5931-4fb7-ac69-a5d0a954b1cc\\evidence\\btb-docx-btb-7f5b9960-fedex-fdx-standalone-dcf-valuation-bankertoolbench-btb-7f5b9960.docx",
       "extension": ".docx",
-      "bytes": 4589,
+      "bytes": 5070,
       "magic": "PK\\x03\\x04",
       "reopened": true,
-      "reopenDetail": "ZIP package contains word/document.xml; recovered from Convex room artifact j97466a0w34sj7361td3fjfwxh89bdbc",
-      "contentQualityDetail": "placeholder/caveat content scan passed (6006 chars)"
+      "reopenDetail": "ZIP package contains word/document.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (8731 chars)"
     },
     {
       "kind": "pdf",
-      "filename": "btb-7f5b9960-fdx-standalone-dcf-valuation-vp-pitch-anchor-12-19-2025.pdf",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\7f5b9960-5931-4fb7-ac69-a5d0a954b1cc\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-7f5b9960-fdx-standalone-dcf-valuation-vp-pitch-anchor-12-19-2025.pdf",
+      "filename": "btb-7f5b9960-fedex-fdx-standalone-dcf-valuation-bankertoolbench-btb-7f5b9960.pdf",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\7f5b9960-5931-4fb7-ac69-a5d0a954b1cc\\evidence\\btb-pdf-btb-7f5b9960-fedex-fdx-standalone-dcf-valuation-bankertoolbench-btb-7f5b9960.pdf",
       "extension": ".pdf",
-      "bytes": 4772,
+      "bytes": 5756,
       "magic": "%PDF",
       "reopened": true,
-      "reopenDetail": "PDF header reopened; recovered from Convex room artifact j976b1m6dx4ywv9jhk9fret9xh89ahc7",
-      "contentQualityDetail": "placeholder/caveat content scan passed (9021 chars)"
+      "reopenDetail": "PDF header reopened",
+      "contentQualityDetail": "placeholder/caveat content scan passed (10775 chars)"
     }
   ],
-  "packageManifestPath": "test-results\\bankertoolbench\\matrix\\7f5b9960-5931-4fb7-ac69-a5d0a954b1cc\\package-manifest.json",
+  "packageManifestPath": "docs\\eval\\fresh-room\\FR-020\\tasks\\7f5b9960-5931-4fb7-ac69-a5d0a954b1cc\\evidence\\package-manifest.json",
   "verifierCommand": "npm run benchmark:bankertoolbench:proof",
   "verifierOutputTail": "\n> noderoom@0.1.1 benchmark:bankertoolbench:proof\n> tsx scripts/bankertoolbench-proof-check.ts\n\nBankerToolBench proof check passed: stage=1/1 weightedRubric=6 run=0/1 pass positive=1/1 pass candidateBeforeEvaluator=true leaks=0/2+0/3+0/4\n",
-  "screenshot": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\7f5b9960-5931-4fb7-ac69-a5d0a954b1cc\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\bankertoolbench-live-room.png",
+  "screenshot": "docs\\eval\\fresh-room\\FR-020\\tasks\\7f5b9960-5931-4fb7-ac69-a5d0a954b1cc\\evidence\\bankertoolbench-live-room.png",
   "passed": true,
   "gatesProven": [
     "fresh_room_join",

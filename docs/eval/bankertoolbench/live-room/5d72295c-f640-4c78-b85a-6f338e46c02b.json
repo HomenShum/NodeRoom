@@ -2,9 +2,9 @@
   "schema": 1,
   "taskId": "5d72295c-f640-4c78-b85a-6f338e46c02b",
   "harborTaskId": "btb-5d72295c",
-  "generatedAt": "2026-06-25T02:02:58.561Z",
+  "generatedAt": "2026-06-26T00:33:23.587Z",
   "baseUrl": "http://127.0.0.1:5273",
-  "roomUrl": "http://127.0.0.1:5273/?room=NR34NL8UNSE&name=Host",
+  "roomUrl": "http://127.0.0.1:5273/?room=NRBW65N4HB0&name=Host",
   "memoryMode": false,
   "expectedExtensions": [
     ".xlsx",
@@ -23,64 +23,64 @@
   "downloadedFiles": [
     {
       "kind": "workbook",
-      "filename": "btb-5d72295c-boeing-lender-presentation-s-u-cap-table-btb-5d72295c.xlsx",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\5d72295c-f640-4c78-b85a-6f338e46c02b\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-5d72295c-boeing-lender-presentation-s-u-cap-table-btb-5d72295c.xlsx",
+      "filename": "btb-5d72295c-btb-5d72295c---wacc-analysis-oid-tl-sofr.xlsx",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\5d72295c-f640-4c78-b85a-6f338e46c02b\\evidence\\btb-xlsx-btb-5d72295c-btb-5d72295c---wacc-analysis-oid-tl-sofr.xlsx",
       "extension": ".xlsx",
-      "bytes": 9407,
+      "bytes": 6958,
       "magic": "PK\\x03\\x04",
       "reopened": true,
       "reopenDetail": "ZIP package contains xl/workbook.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (5912 chars)"
+      "contentQualityDetail": "placeholder/caveat content scan passed (548 chars)"
     },
     {
       "kind": "workbook",
-      "filename": "btb-5d72295c-boeing-lender-presentation-s-u-cap-table-btb-5d72295c.xlsm",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\5d72295c-f640-4c78-b85a-6f338e46c02b\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-5d72295c-boeing-lender-presentation-s-u-cap-table-btb-5d72295c.xlsm",
+      "filename": "btb-5d72295c-btb-5d72295c---wacc-analysis-oid-tl-sofr.xlsm",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\5d72295c-f640-4c78-b85a-6f338e46c02b\\evidence\\btb-xlsm-btb-5d72295c-btb-5d72295c---wacc-analysis-oid-tl-sofr.xlsm",
       "extension": ".xlsm",
-      "bytes": 9407,
+      "bytes": 6958,
       "magic": "PK\\x03\\x04",
       "reopened": true,
       "reopenDetail": "ZIP package contains xl/workbook.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (5912 chars)"
+      "contentQualityDetail": "placeholder/caveat content scan passed (548 chars)"
     },
     {
       "kind": "presentation",
-      "filename": "btb-5d72295c-boeing-lender-presentation-s-u-cap-table-btb-5d72295c.pptx",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\5d72295c-f640-4c78-b85a-6f338e46c02b\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-5d72295c-boeing-lender-presentation-s-u-cap-table-btb-5d72295c.pptx",
+      "filename": "btb-5d72295c-btb-5d72295c---wacc-analysis-oid-tl-sofr.pptx",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\5d72295c-f640-4c78-b85a-6f338e46c02b\\evidence\\btb-pptx-btb-5d72295c-btb-5d72295c---wacc-analysis-oid-tl-sofr.pptx",
       "extension": ".pptx",
-      "bytes": 7329,
+      "bytes": 6246,
       "magic": "PK\\x03\\x04",
       "reopened": true,
       "reopenDetail": "ZIP package contains ppt/presentation.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (3251 chars)"
+      "contentQualityDetail": "placeholder/caveat content scan passed (678 chars)"
     },
     {
       "kind": "document",
-      "filename": "btb-5d72295c-boeing-lender-presentation-s-u-cap-table-btb-5d72295c.docx",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\5d72295c-f640-4c78-b85a-6f338e46c02b\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-5d72295c-boeing-lender-presentation-s-u-cap-table-btb-5d72295c.docx",
+      "filename": "btb-5d72295c-btb-5d72295c---wacc-analysis-oid-tl-sofr.docx",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\5d72295c-f640-4c78-b85a-6f338e46c02b\\evidence\\btb-docx-btb-5d72295c-btb-5d72295c---wacc-analysis-oid-tl-sofr.docx",
       "extension": ".docx",
-      "bytes": 4186,
+      "bytes": 2212,
       "magic": "PK\\x03\\x04",
       "reopened": true,
       "reopenDetail": "ZIP package contains word/document.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (6564 chars)"
+      "contentQualityDetail": "placeholder/caveat content scan passed (659 chars)"
     },
     {
       "kind": "pdf",
-      "filename": "btb-5d72295c-boeing-lender-presentation-s-u-cap-table-btb-5d72295c.pdf",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\5d72295c-f640-4c78-b85a-6f338e46c02b\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-5d72295c-boeing-lender-presentation-s-u-cap-table-btb-5d72295c.pdf",
+      "filename": "btb-5d72295c-btb-5d72295c---wacc-analysis-oid-tl-sofr.pdf",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\5d72295c-f640-4c78-b85a-6f338e46c02b\\evidence\\btb-pdf-btb-5d72295c-btb-5d72295c---wacc-analysis-oid-tl-sofr.pdf",
       "extension": ".pdf",
-      "bytes": 5062,
+      "bytes": 1386,
       "magic": "%PDF",
       "reopened": true,
       "reopenDetail": "PDF header reopened",
-      "contentQualityDetail": "placeholder/caveat content scan passed (3084 chars)"
+      "contentQualityDetail": "placeholder/caveat content scan passed (2232 chars)"
     }
   ],
-  "packageManifestPath": "test-results\\bankertoolbench\\matrix\\5d72295c-f640-4c78-b85a-6f338e46c02b\\package-manifest.json",
+  "packageManifestPath": "docs\\eval\\fresh-room\\FR-020\\tasks\\5d72295c-f640-4c78-b85a-6f338e46c02b\\evidence\\package-manifest.json",
   "verifierCommand": "npm run benchmark:bankertoolbench:proof",
   "verifierOutputTail": "\n> noderoom@0.1.1 benchmark:bankertoolbench:proof\n> tsx scripts/bankertoolbench-proof-check.ts\n\nBankerToolBench proof check passed: stage=1/1 weightedRubric=6 run=0/1 pass positive=1/1 pass candidateBeforeEvaluator=true leaks=0/2+0/3+0/4\n",
-  "screenshot": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\5d72295c-f640-4c78-b85a-6f338e46c02b\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\bankertoolbench-live-room.png",
+  "screenshot": "docs\\eval\\fresh-room\\FR-020\\tasks\\5d72295c-f640-4c78-b85a-6f338e46c02b\\evidence\\bankertoolbench-live-room.png",
   "passed": true,
   "gatesProven": [
     "fresh_room_join",

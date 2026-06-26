@@ -3,10 +3,10 @@
   "caseId": "FR-020",
   "benchmark": "bankertoolbench",
   "taskId": "6a08ca87-feb5-4061-b532-26e89c888951",
-  "generatedAt": "2026-06-25T01:53:17.515Z",
+  "generatedAt": "2026-06-26T00:03:26.653Z",
   "baseUrl": "http://127.0.0.1:5273",
-  "roomId": "NR54JLZE4RG",
-  "roomUrl": "http://127.0.0.1:5273/?room=NR54JLZE4RG&name=Host",
+  "roomId": "NRZ0J9NVP02",
+  "roomUrl": "http://127.0.0.1:5273/?room=NRZ0J9NVP02&name=Host",
   "command": "BTB_LIVE_ROOM_E2E=1 BTB_UI_BUNDLE_ROOT=<official-bundle> BTB_UI_VERIFIER_COMMAND=<verifier> BENCH_BASE_URL=<base> npx playwright test --config playwright.real-flow.config.ts e2e/benchmark-ui-bankertoolbench.spec.ts --headed",
   "model": {
     "requested": "specific",
@@ -21,11 +21,11 @@
     "roomCreatedAfterRunStart": true,
     "forbiddenPreloadedArtifactsAbsent": true,
     "artifactsCreatedFresh": [
-      "btb-6a08ca87-btb-6a08ca87-relative-valuation-target-price-analysis-crm-adbe-msft-vp-intu-adsk.xlsx",
-      "btb-6a08ca87-btb-6a08ca87-relative-valuation-target-price-analysis-crm-adbe-msft-vp-intu-adsk.xlsm",
-      "btb-6a08ca87-btb-6a08ca87-relative-valuation-target-price-analysis-crm-adbe-msft-vp-intu-adsk.pptx",
-      "btb-6a08ca87-btb-6a08ca87-relative-valuation-target-price-analysis-crm-adbe-msft-vp-intu-adsk.docx",
-      "btb-6a08ca87-btb-6a08ca87-relative-valuation-target-price-analysis-crm-adbe-msft-vp-intu-adsk.pdf"
+      "btb-6a08ca87-test5.xlsx",
+      "btb-6a08ca87-test5.xlsm",
+      "btb-6a08ca87-test5.pptx",
+      "btb-6a08ca87-test5.docx",
+      "btb-6a08ca87-test5.pdf"
     ],
     "uploadedFiles": [
       "2025 MSFT 10-K .pdf",
@@ -84,7 +84,7 @@
     "jobDetailVisible": true,
     "roomTraceVisible": true,
     "screenshotPaths": [
-      "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\6a08ca87-feb5-4061-b532-26e89c888951\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\bankertoolbench-live-room.png"
+      "docs\\eval\\fresh-room\\FR-020\\tasks\\6a08ca87-feb5-4061-b532-26e89c888951\\evidence\\bankertoolbench-live-room.png"
     ],
     "tracePath": "docs\\eval\\bankertoolbench\\live-room\\6a08ca87-feb5-4061-b532-26e89c888951.json"
   },
@@ -139,94 +139,94 @@
       "btb-6a08ca87-official-task-brief.txt"
     ],
     "created": [
-      "btb-6a08ca87-btb-6a08ca87-relative-valuation-target-price-analysis-crm-adbe-msft-vp-intu-adsk.xlsx",
-      "btb-6a08ca87-btb-6a08ca87-relative-valuation-target-price-analysis-crm-adbe-msft-vp-intu-adsk.xlsm",
-      "btb-6a08ca87-btb-6a08ca87-relative-valuation-target-price-analysis-crm-adbe-msft-vp-intu-adsk.pptx",
-      "btb-6a08ca87-btb-6a08ca87-relative-valuation-target-price-analysis-crm-adbe-msft-vp-intu-adsk.docx",
-      "btb-6a08ca87-btb-6a08ca87-relative-valuation-target-price-analysis-crm-adbe-msft-vp-intu-adsk.pdf"
+      "btb-6a08ca87-test5.xlsx",
+      "btb-6a08ca87-test5.xlsm",
+      "btb-6a08ca87-test5.pptx",
+      "btb-6a08ca87-test5.docx",
+      "btb-6a08ca87-test5.pdf"
     ],
     "exportedFiles": [
       {
         "kind": "workbook",
-        "filename": "btb-6a08ca87-btb-6a08ca87-relative-valuation-target-price-analysis-crm-adbe-msft-vp-intu-adsk.xlsx",
-        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\6a08ca87-feb5-4061-b532-26e89c888951\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-6a08ca87-btb-6a08ca87-relative-valuation-target-price-analysis-crm-adbe-msft-vp-intu-adsk.xlsx",
+        "filename": "btb-6a08ca87-test5.xlsx",
+        "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\6a08ca87-feb5-4061-b532-26e89c888951\\evidence\\btb-xlsx-btb-6a08ca87-test5.xlsx",
         "extension": ".xlsx",
         "downloaded": true,
-        "bytes": 8868,
+        "bytes": 6682,
         "magic": "PK\\x03\\x04"
       },
       {
         "kind": "workbook",
-        "filename": "btb-6a08ca87-btb-6a08ca87-relative-valuation-target-price-analysis-crm-adbe-msft-vp-intu-adsk.xlsm",
-        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\6a08ca87-feb5-4061-b532-26e89c888951\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-6a08ca87-btb-6a08ca87-relative-valuation-target-price-analysis-crm-adbe-msft-vp-intu-adsk.xlsm",
+        "filename": "btb-6a08ca87-test5.xlsm",
+        "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\6a08ca87-feb5-4061-b532-26e89c888951\\evidence\\btb-xlsm-btb-6a08ca87-test5.xlsm",
         "extension": ".xlsm",
         "downloaded": true,
-        "bytes": 8868,
+        "bytes": 6682,
         "magic": "PK\\x03\\x04"
       },
       {
         "kind": "presentation",
-        "filename": "btb-6a08ca87-btb-6a08ca87-relative-valuation-target-price-analysis-crm-adbe-msft-vp-intu-adsk.pptx",
-        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\6a08ca87-feb5-4061-b532-26e89c888951\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-6a08ca87-btb-6a08ca87-relative-valuation-target-price-analysis-crm-adbe-msft-vp-intu-adsk.pptx",
+        "filename": "btb-6a08ca87-test5.pptx",
+        "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\6a08ca87-feb5-4061-b532-26e89c888951\\evidence\\btb-pptx-btb-6a08ca87-test5.pptx",
         "extension": ".pptx",
         "downloaded": true,
-        "bytes": 6694,
+        "bytes": 5975,
         "magic": "PK\\x03\\x04"
       },
       {
         "kind": "document",
-        "filename": "btb-6a08ca87-btb-6a08ca87-relative-valuation-target-price-analysis-crm-adbe-msft-vp-intu-adsk.docx",
-        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\6a08ca87-feb5-4061-b532-26e89c888951\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-6a08ca87-btb-6a08ca87-relative-valuation-target-price-analysis-crm-adbe-msft-vp-intu-adsk.docx",
+        "filename": "btb-6a08ca87-test5.docx",
+        "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\6a08ca87-feb5-4061-b532-26e89c888951\\evidence\\btb-docx-btb-6a08ca87-test5.docx",
         "extension": ".docx",
         "downloaded": true,
-        "bytes": 3797,
+        "bytes": 1943,
         "magic": "PK\\x03\\x04"
       },
       {
         "kind": "pdf",
-        "filename": "btb-6a08ca87-btb-6a08ca87-relative-valuation-target-price-analysis-crm-adbe-msft-vp-intu-adsk.pdf",
-        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\6a08ca87-feb5-4061-b532-26e89c888951\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-6a08ca87-btb-6a08ca87-relative-valuation-target-price-analysis-crm-adbe-msft-vp-intu-adsk.pdf",
+        "filename": "btb-6a08ca87-test5.pdf",
+        "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\6a08ca87-feb5-4061-b532-26e89c888951\\evidence\\btb-pdf-btb-6a08ca87-test5.pdf",
         "extension": ".pdf",
         "downloaded": true,
-        "bytes": 2406,
+        "bytes": 930,
         "magic": "%PDF"
       }
     ],
     "reopenedFiles": [
       {
         "kind": "workbook",
-        "filename": "btb-6a08ca87-btb-6a08ca87-relative-valuation-target-price-analysis-crm-adbe-msft-vp-intu-adsk.xlsx",
+        "filename": "btb-6a08ca87-test5.xlsx",
         "reopened": true,
         "scorerResult": "pass",
-        "detail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j979smkpamvzhhg6hg65jk52t589baf9; placeholder/caveat content scan passed (3110 chars)"
+        "detail": "ZIP package contains xl/workbook.xml; placeholder/caveat content scan passed (121 chars)"
       },
       {
         "kind": "workbook",
-        "filename": "btb-6a08ca87-btb-6a08ca87-relative-valuation-target-price-analysis-crm-adbe-msft-vp-intu-adsk.xlsm",
+        "filename": "btb-6a08ca87-test5.xlsm",
         "reopened": true,
         "scorerResult": "pass",
-        "detail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j975ytv884t2becngdaf496pw189b0gk; placeholder/caveat content scan passed (3110 chars)"
+        "detail": "ZIP package contains xl/workbook.xml; placeholder/caveat content scan passed (121 chars)"
       },
       {
         "kind": "presentation",
-        "filename": "btb-6a08ca87-btb-6a08ca87-relative-valuation-target-price-analysis-crm-adbe-msft-vp-intu-adsk.pptx",
+        "filename": "btb-6a08ca87-test5.pptx",
         "reopened": true,
         "scorerResult": "pass",
-        "detail": "ZIP package contains ppt/presentation.xml; recovered from Convex room artifact j97fc6b3jhgwtxfbqyj4ct795d89azq1; placeholder/caveat content scan passed (1630 chars)"
+        "detail": "ZIP package contains ppt/presentation.xml; placeholder/caveat content scan passed (191 chars)"
       },
       {
         "kind": "document",
-        "filename": "btb-6a08ca87-btb-6a08ca87-relative-valuation-target-price-analysis-crm-adbe-msft-vp-intu-adsk.docx",
+        "filename": "btb-6a08ca87-test5.docx",
         "reopened": true,
         "scorerResult": "pass",
-        "detail": "ZIP package contains word/document.xml; recovered from Convex room artifact j976emwqjyccvaa7xx3vk2acfs89ah7z; placeholder/caveat content scan passed (4521 chars)"
+        "detail": "ZIP package contains word/document.xml; placeholder/caveat content scan passed (172 chars)"
       },
       {
         "kind": "pdf",
-        "filename": "btb-6a08ca87-btb-6a08ca87-relative-valuation-target-price-analysis-crm-adbe-msft-vp-intu-adsk.pdf",
+        "filename": "btb-6a08ca87-test5.pdf",
         "reopened": true,
         "scorerResult": "pass",
-        "detail": "PDF header reopened; recovered from Convex room artifact j9726vpkq1dp8sc50ebxb0tsx589bfhz; placeholder/caveat content scan passed (4291 chars)"
+        "detail": "PDF header reopened; placeholder/caveat content scan passed (1328 chars)"
       }
     ]
   },
@@ -237,7 +237,7 @@
     "score": 1,
     "details": {
       "verifierOutputTail": "\n> noderoom@0.1.1 benchmark:bankertoolbench:proof\n> tsx scripts/bankertoolbench-proof-check.ts\n\nBankerToolBench proof check passed: stage=1/1 weightedRubric=6 run=0/1 pass positive=1/1 pass candidateBeforeEvaluator=true leaks=0/2+0/3+0/4\n",
-      "packageManifestPath": "test-results\\bankertoolbench\\matrix\\6a08ca87-feb5-4061-b532-26e89c888951\\package-manifest.json",
+      "packageManifestPath": "docs\\eval\\fresh-room\\FR-020\\tasks\\6a08ca87-feb5-4061-b532-26e89c888951\\evidence\\package-manifest.json",
       "downloadedExtensions": [
         ".xlsx",
         ".xlsm",
@@ -245,11 +245,11 @@
         ".docx",
         ".pdf"
       ],
-      "exportSource": "convex_room_artifact_data_url_after_browser_ui_proof",
+      "exportSource": "browser_download_link",
       "agentTerminalQuality": {
-        "statusText": "completed via recovered Convex job: tb-6a08ca87-relative-valuation-target-price-analysis-crm-adbe-msft-vp-intu-adsk.docx, btb-6a08ca87-btb-6a08ca87-relative-valuation-target-price-analysis-crm-adbe-msft-vp-intu-adsk.pdf. Coverage confirmed for CRM, ADBE, MSFT, VP, INTU, ADSK.",
-        "evidenceTextLength": 1965,
-        "detail": "agent reached completed status or visible completion text, with no missing-source/unfinished-work caveats"
+        "statusText": "completed via recovered Convex job: a87 complete. Deliverable package created: test5. Files created: btb-6a08ca87-test5.xlsx, btb-6a08ca87-test5.xlsm, btb-6a08ca87-test5.pptx, btb-6a08ca87-test5.docx, btb-6a08ca87-test5.pdf. Coverage confirmed for CRM, ADBE, MSFT, INTU, ADSK.",
+        "evidenceTextLength": 1438,
+        "detail": "agent reached completed status; ignored stale progress caveat(s) after package proof: unfinished_continue"
       },
       "taskCoverage": {
         "ok": true,
@@ -257,18 +257,26 @@
           "CRM",
           "ADBE",
           "MSFT",
-          "VP",
           "INTU",
           "ADSK"
         ],
         "missingTickers": [],
-        "detail": "generated package mentions every requested ticker/entity: CRM, ADBE, MSFT, VP, INTU, ADSK"
+        "domainProof": {
+          "ok": true,
+          "domain": "generic",
+          "gates": [],
+          "missingGates": [],
+          "detail": "no task-specific domain proof gate required"
+        },
+        "detail": "generated package mentions every requested ticker/entity: CRM, ADBE, MSFT, INTU, ADSK; no task-specific domain proof gate required"
       }
     }
   },
   "visualJudge": {
-    "verdict": "not_run",
-    "reason": "GOOGLE_GENERATIVE_AI_API_KEY is not set; deterministic browser/download/reopen/verifier proof passed."
+    "command": "npm run media:gemini-judge -- --run-id btb-full-20260626-chunk2 --out \"docs\\\\eval\\\\gemini-media-judges\\\\btb-full-20260626\\\\chunk2\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\06c284ef-6282-4d82-b9f5-6b9587f7d805\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\11e08646-55be-41cd-a0b8-24d1529b76aa\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\19b3361c-82c3-41d6-b941-d3f60ce32026\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\2048736b-7bb8-4c54-899e-ddfdf12641ab\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\40097508-c68a-4066-9031-e99eac4f7a18\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\432c6197-eade-4dcd-ae6d-0a30ec4da18c\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\4a3bf36b-caeb-4825-a60c-4c416b4d555c\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\507a3d72-91bd-4e0c-9c77-c0cf521f4a71\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\55fd995a-e4df-4942-aee1-ee1be9a72b6a\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\6801c651-fd1b-4c12-a4ce-1338442c7ab1\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\6a08ca87-feb5-4061-b532-26e89c888951\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\73c10eda-38d8-4b48-bac6-baaaff3d937f\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\7f5b9960-5931-4fb7-ac69-a5d0a954b1cc\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\8bdef554-4723-42ff-a813-4711f9b330af\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\92235649-0d63-4396-b864-a64257e16746\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\9781216f-b98d-4537-9ab8-f0e62248a6ab\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\a0b2858a-1ffd-423d-8948-e14aceaa1f69\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\b1b4a2a3-6d5b-441f-a17e-41753656a0e3\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\bc55d3e8-0d59-43d6-a385-03c5330e47bf\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\c1c36cfd-677b-462b-96d4-ea76e12e98e8\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\cc4c8473-4c54-4fdd-9af8-c55bc9e4b07d\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\daa6b204-9dc9-491f-bdf9-963208578db2\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\eb58ec7c-f236-47a6-8ca7-d7297f9187f6\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\f0bd3730-d826-46f2-8422-b48480fa6250\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\fe996540-6e06-4a84-82d9-06d0f32f6cd9\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\"",
+    "verdict": "pass",
+    "scorecardPath": "docs/eval/gemini-media-judges/btb-full-20260626/chunk2/btb-full-20260626-chunk2/summary.md",
+    "reason": "Gemini media judge publish (8/16); defects P0/P1/P2=0/0/1. The video demonstrates NodeAgent processing financial documents to generate a valuation model, presentation, and memo, showing the complete workflow from upload to output preview. Source clip: test-results\\bankertoolbench\\matrix\\6a08ca87-feb5-4061-b532-26e89c888951\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\video.webm."
   },
   "gatesProven": [
     "fresh_room_join",
@@ -286,7 +294,8 @@
     "deliverable_export_download",
     "artifact_reopen_validation",
     "artifact_placeholder_scan",
-    "official_scorer_handoff"
+    "official_scorer_handoff",
+    "visual_judge_handoff"
   ],
   "passed": true
 }

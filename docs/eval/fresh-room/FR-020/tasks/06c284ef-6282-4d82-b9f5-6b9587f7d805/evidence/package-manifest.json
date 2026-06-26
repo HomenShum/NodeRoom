@@ -1,0 +1,65 @@
+{
+  "schema": 1,
+  "taskId": "06c284ef-6282-4d82-b9f5-6b9587f7d805",
+  "harborTaskId": "btb-06c284ef",
+  "generatedAt": "2026-06-25T23:49:25.605Z",
+  "baseUrl": "http://127.0.0.1:5273",
+  "roomUrl": "http://127.0.0.1:5273/?room=NRIZS3JKFX3&name=Host",
+  "downloadedFiles": [
+    {
+      "kind": "workbook",
+      "filename": "btb-06c284ef-btb-06c284ef-wacc-inputs-sharpe-ratio-analysis-crm-tlb.xlsx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\06c284ef-6282-4d82-b9f5-6b9587f7d805\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-06c284ef-btb-06c284ef-wacc-inputs-sharpe-ratio-analysis-crm-tlb.xlsx",
+      "extension": ".xlsx",
+      "bytes": 7401,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j97780b6yhtkv7kppny380b0w189a064",
+      "contentQualityDetail": "placeholder/caveat content scan passed (1347 chars)"
+    },
+    {
+      "kind": "workbook",
+      "filename": "btb-06c284ef-btb-06c284ef-wacc-inputs-sharpe-ratio-analysis-crm-tlb.xlsm",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\06c284ef-6282-4d82-b9f5-6b9587f7d805\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-06c284ef-btb-06c284ef-wacc-inputs-sharpe-ratio-analysis-crm-tlb.xlsm",
+      "extension": ".xlsm",
+      "bytes": 7401,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j97ex1f5td4fek5r6rr3tae20589bgj2",
+      "contentQualityDetail": "placeholder/caveat content scan passed (1347 chars)"
+    },
+    {
+      "kind": "presentation",
+      "filename": "btb-06c284ef-btb-06c284ef-wacc-inputs-sharpe-ratio-analysis-crm-tlb.pptx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\06c284ef-6282-4d82-b9f5-6b9587f7d805\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-06c284ef-btb-06c284ef-wacc-inputs-sharpe-ratio-analysis-crm-tlb.pptx",
+      "extension": ".pptx",
+      "bytes": 6578,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains ppt/presentation.xml; recovered from Convex room artifact j9748ga0refebbmc6gksv4qgqs89agj7",
+      "contentQualityDetail": "placeholder/caveat content scan passed (1711 chars)"
+    },
+    {
+      "kind": "document",
+      "filename": "btb-06c284ef-btb-06c284ef-wacc-inputs-sharpe-ratio-analysis-crm-tlb.docx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\06c284ef-6282-4d82-b9f5-6b9587f7d805\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-06c284ef-btb-06c284ef-wacc-inputs-sharpe-ratio-analysis-crm-tlb.docx",
+      "extension": ".docx",
+      "bytes": 2549,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains word/document.xml; recovered from Convex room artifact j97d8szy84gzghvpdrnqrhcx6189af13",
+      "contentQualityDetail": "placeholder/caveat content scan passed (1692 chars)"
+    },
+    {
+      "kind": "pdf",
+      "filename": "btb-06c284ef-btb-06c284ef-wacc-inputs-sharpe-ratio-analysis-crm-tlb.pdf",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\06c284ef-6282-4d82-b9f5-6b9587f7d805\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-06c284ef-btb-06c284ef-wacc-inputs-sharpe-ratio-analysis-crm-tlb.pdf",
+      "extension": ".pdf",
+      "bytes": 2191,
+      "magic": "%PDF",
+      "reopened": true,
+      "reopenDetail": "PDF header reopened; recovered from Convex room artifact j9772aad8mfrcs7jgr582rz0z189ae28",
+      "contentQualityDetail": "placeholder/caveat content scan passed (3831 chars)"
+    }
+  ]
+}

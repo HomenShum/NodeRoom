@@ -1,0 +1,65 @@
+{
+  "schema": 1,
+  "taskId": "ac1a3956-b087-446b-9717-0f3d529e8fff",
+  "harborTaskId": "btb-ac1a3956",
+  "generatedAt": "2026-06-26T01:12:35.607Z",
+  "baseUrl": "http://127.0.0.1:5273",
+  "roomUrl": "http://127.0.0.1:5273/?room=NR25CHPCFLR&name=Host",
+  "downloadedFiles": [
+    {
+      "kind": "workbook",
+      "filename": "btb-ac1a3956-series-c-participating-preferred-waterfall-sponsor-exit-returns-analysis.xlsx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\ac1a3956-b087-446b-9717-0f3d529e8fff\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier-retry1\\btb-xlsx-btb-ac1a3956-series-c-participating-preferred-waterfall-sponsor-exit-returns-analysis.xlsx",
+      "extension": ".xlsx",
+      "bytes": 8560,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j977jtnw494nknh4b7frxyjrk989dncm",
+      "contentQualityDetail": "placeholder/caveat content scan passed (3193 chars)"
+    },
+    {
+      "kind": "workbook",
+      "filename": "btb-ac1a3956-series-c-participating-preferred-waterfall-sponsor-exit-returns-analysis.xlsm",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\ac1a3956-b087-446b-9717-0f3d529e8fff\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier-retry1\\btb-xlsm-btb-ac1a3956-series-c-participating-preferred-waterfall-sponsor-exit-returns-analysis.xlsm",
+      "extension": ".xlsm",
+      "bytes": 8560,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j97d16n2npnvkp2rgcnshwg25s89cyzk",
+      "contentQualityDetail": "placeholder/caveat content scan passed (3193 chars)"
+    },
+    {
+      "kind": "presentation",
+      "filename": "btb-ac1a3956-series-c-participating-preferred-waterfall-sponsor-exit-returns-analysis.pptx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\ac1a3956-b087-446b-9717-0f3d529e8fff\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier-retry1\\btb-pptx-btb-ac1a3956-series-c-participating-preferred-waterfall-sponsor-exit-returns-analysis.pptx",
+      "extension": ".pptx",
+      "bytes": 6971,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains ppt/presentation.xml; recovered from Convex room artifact j970qthq3kzcfhn2rvf88s684s89dd9z",
+      "contentQualityDetail": "placeholder/caveat content scan passed (3139 chars)"
+    },
+    {
+      "kind": "document",
+      "filename": "btb-ac1a3956-series-c-participating-preferred-waterfall-sponsor-exit-returns-analysis.docx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\ac1a3956-b087-446b-9717-0f3d529e8fff\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier-retry1\\btb-docx-btb-ac1a3956-series-c-participating-preferred-waterfall-sponsor-exit-returns-analysis.docx",
+      "extension": ".docx",
+      "bytes": 3113,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains word/document.xml; recovered from Convex room artifact j97cf3hc4b746rn4x0ecc4h3qs89cfbn",
+      "contentQualityDetail": "placeholder/caveat content scan passed (3842 chars)"
+    },
+    {
+      "kind": "pdf",
+      "filename": "btb-ac1a3956-series-c-participating-preferred-waterfall-sponsor-exit-returns-analysis.pdf",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\ac1a3956-b087-446b-9717-0f3d529e8fff\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier-retry1\\btb-pdf-btb-ac1a3956-series-c-participating-preferred-waterfall-sponsor-exit-returns-analysis.pdf",
+      "extension": ".pdf",
+      "bytes": 3296,
+      "magic": "%PDF",
+      "reopened": true,
+      "reopenDetail": "PDF header reopened; recovered from Convex room artifact j97ep1n3rn3vpdnjh2ekpczpps89cj1y",
+      "contentQualityDetail": "placeholder/caveat content scan passed (5991 chars)"
+    }
+  ]
+}

@@ -349,6 +349,32 @@ describe("official benchmark UI coverage ledger", () => {
     });
   });
 
+  it("reports BTB streaming and Gemini evidence without inventing zero telemetry", () => {
+    withBankerToolBenchProof(
+      {
+        telemetry: undefined,
+        visualJudge: {
+          verdict: "pass",
+          scorecardPath: "docs/eval/gemini-media-judges/test-run/summary.md",
+          reason: "Gemini media judge publish (8/16); defects P0/P1/P2=0/0/0.",
+        },
+      },
+      () => {
+        const report = buildOfficialBenchmarkUiCoverageReport({ generatedAt: "test" });
+        const btb = report.tracks.find((t) => t.id === "bankertoolbench")!;
+        const streamingEvidence = btb.gates.find((g) => g.id === "visible_streaming_progress")?.evidence ?? "";
+
+        expect(streamingEvidence).toContain("model z-ai/glm-5.2");
+        expect(streamingEvidence).toContain("runtime benchmark_completion");
+        expect(streamingEvidence).toContain("agent live loop proven");
+        expect(streamingEvidence).not.toContain("0 tool calls");
+        expect(streamingEvidence).not.toContain("$0");
+        expect(btb.blockers.join(" ")).toContain("Gemini visual judge passed");
+        expect(btb.blockers.join(" ")).not.toContain("Gemini visual judge not run");
+      },
+    );
+  });
+
   it("flips export/download + artifact-reopen to COVERED when a file-export receipt proves both gates", () => {
     withHonestProof(
       {

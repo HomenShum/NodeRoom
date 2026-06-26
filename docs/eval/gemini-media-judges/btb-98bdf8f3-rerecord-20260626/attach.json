@@ -1,0 +1,19 @@
+{
+  "schema": 1,
+  "judgePath": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\docs\\eval\\gemini-media-judges\\btb-98bdf8f3-rerecord-20260626\\latest.json",
+  "summaryPath": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\docs\\eval\\gemini-media-judges\\btb-98bdf8f3-rerecord-20260626\\btb-98bdf8f3-rerecord-20260626\\summary.md",
+  "command": "npm run media:gemini-judge -- --run-id btb-98bdf8f3-rerecord-20260626 --out \"docs\\\\eval\\\\gemini-media-judges\\\\btb-98bdf8f3-rerecord-20260626\" --input \"test-results\\\\bankertoolbench\\\\matrix\\\\98bdf8f3-98b7-4d62-ac39-5cee23623d83\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\"",
+  "updated": [
+    {
+      "taskId": "98bdf8f3-98b7-4d62-ac39-5cee23623d83",
+      "receiptPath": "docs\\eval\\fresh-room\\FR-020\\tasks\\98bdf8f3-98b7-4d62-ac39-5cee23623d83\\latest.json",
+      "videoPath": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\98bdf8f3-98b7-4d62-ac39-5cee23623d83\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\video.webm",
+      "visualJudgeVerdict": "pass",
+      "mediaJudgeVerdict": "publish",
+      "score": 8,
+      "maxScore": 16,
+      "reason": "Gemini media judge publish (8/16); defects P0/P1/P2=0/0/1. The video successfully demonstrates the end-to-end benchmark execution of NodeAgent within a collaborative room, showing file uploads, task initiation, agent execution traces, and final deliverable generation. Source clip: test-results\\bankertoolbench\\matrix\\98bdf8f3-98b7-4d62-ac39-5cee23623d83\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\video.webm."
+    }
+  ],
+  "skipped": []
+}

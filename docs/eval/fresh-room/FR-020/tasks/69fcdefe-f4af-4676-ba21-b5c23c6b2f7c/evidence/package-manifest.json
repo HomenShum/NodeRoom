@@ -1,0 +1,65 @@
+{
+  "schema": 1,
+  "taskId": "69fcdefe-f4af-4676-ba21-b5c23c6b2f7c",
+  "harborTaskId": "btb-69fcdefe",
+  "generatedAt": "2026-06-25T23:56:00.794Z",
+  "baseUrl": "http://127.0.0.1:5273",
+  "roomUrl": "http://127.0.0.1:5273/?room=NR3MLOVPR4R&name=Host",
+  "downloadedFiles": [
+    {
+      "kind": "workbook",
+      "filename": "btb-69fcdefe-btb-69fcdefe-wacc-estimation-cybersecurity-peer-group-okta-panw-net-zs-cybr.xlsx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\69fcdefe-f4af-4676-ba21-b5c23c6b2f7c\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-69fcdefe-btb-69fcdefe-wacc-estimation-cybersecurity-peer-group-okta-panw-net-zs-cybr.xlsx",
+      "extension": ".xlsx",
+      "bytes": 8553,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j978gg196c6ag4an8k4p4js7eh89ap45",
+      "contentQualityDetail": "placeholder/caveat content scan passed (4187 chars)"
+    },
+    {
+      "kind": "workbook",
+      "filename": "btb-69fcdefe-btb-69fcdefe-wacc-estimation-cybersecurity-peer-group-okta-panw-net-zs-cybr.xlsm",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\69fcdefe-f4af-4676-ba21-b5c23c6b2f7c\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-69fcdefe-btb-69fcdefe-wacc-estimation-cybersecurity-peer-group-okta-panw-net-zs-cybr.xlsm",
+      "extension": ".xlsm",
+      "bytes": 8553,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j9794gb4x9dyxdxhdx5m96k4k189aat4",
+      "contentQualityDetail": "placeholder/caveat content scan passed (4187 chars)"
+    },
+    {
+      "kind": "presentation",
+      "filename": "btb-69fcdefe-btb-69fcdefe-wacc-estimation-cybersecurity-peer-group-okta-panw-net-zs-cybr.pptx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\69fcdefe-f4af-4676-ba21-b5c23c6b2f7c\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-69fcdefe-btb-69fcdefe-wacc-estimation-cybersecurity-peer-group-okta-panw-net-zs-cybr.pptx",
+      "extension": ".pptx",
+      "bytes": 7461,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains ppt/presentation.xml; recovered from Convex room artifact j973q5bq2c3gxc6jtwezaj89wn89bnhw",
+      "contentQualityDetail": "placeholder/caveat content scan passed (3492 chars)"
+    },
+    {
+      "kind": "document",
+      "filename": "btb-69fcdefe-btb-69fcdefe-wacc-estimation-cybersecurity-peer-group-okta-panw-net-zs-cybr.docx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\69fcdefe-f4af-4676-ba21-b5c23c6b2f7c\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-69fcdefe-btb-69fcdefe-wacc-estimation-cybersecurity-peer-group-okta-panw-net-zs-cybr.docx",
+      "extension": ".docx",
+      "bytes": 3553,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains word/document.xml; recovered from Convex room artifact j97agnj0ny5ff3ghkyahz8t61x89a787",
+      "contentQualityDetail": "placeholder/caveat content scan passed (4860 chars)"
+    },
+    {
+      "kind": "pdf",
+      "filename": "btb-69fcdefe-btb-69fcdefe-wacc-estimation-cybersecurity-peer-group-okta-panw-net-zs-cybr.pdf",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\69fcdefe-f4af-4676-ba21-b5c23c6b2f7c\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-69fcdefe-btb-69fcdefe-wacc-estimation-cybersecurity-peer-group-okta-panw-net-zs-cybr.pdf",
+      "extension": ".pdf",
+      "bytes": 2432,
+      "magic": "%PDF",
+      "reopened": true,
+      "reopenDetail": "PDF header reopened; recovered from Convex room artifact j978sv5fv2bdsw2m6cv22fashn89a9x9",
+      "contentQualityDetail": "placeholder/caveat content scan passed (4283 chars)"
+    }
+  ]
+}

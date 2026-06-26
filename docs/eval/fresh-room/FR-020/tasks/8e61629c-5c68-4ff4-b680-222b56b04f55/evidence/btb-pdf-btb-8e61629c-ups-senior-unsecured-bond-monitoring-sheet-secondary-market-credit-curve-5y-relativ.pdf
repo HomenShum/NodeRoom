@@ -1,0 +1,89 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+5 0 obj
+<< /Length 4983 >>
+stream
+BT /F1 11 Tf 54 760 Td (UPS Senior Unsecured Bond Monitoring Sheet — Secondary Market, Credit Curve & 5Y Relative Value \(FDX, AMZN, UPS\)) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(## UPS USD Senior Unsecured Bond Monitoring Sheet
+
+### Purpose
+Ahead of the coverage call with the UPS treasury team, this sheet provides a secondary-market monitoring view of UPS's outstanding USD-denominated senior uns) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(Rows: 21) Tj
+0 -16 Td
+(UPS 2.300% 2026 — Ticker: UPS · Currency: USD · Coupon: 2.300% · Maturity: 2026 · Price: 99.42 · YTW: 4.78% · OAS Bps: 95 · Issuance Spread Bps: 85 · Spread Change Bps: 10 · Flag 50bp: No · Tenor Years: 2 · Sector: Logis) Tj
+0 -16 Td
+(UPS 1.500% 2027 — Ticker: UPS · Currency: USD · Coupon: 1.500% · Maturity: 2027 · Price: 97.85 · YTW: 5.12% · OAS Bps: 135 · Issuance Spread Bps: 75 · Spread Change Bps: 60 · Flag 50bp: YES - 60bps wide · Tenor Years: 3 ) Tj
+0 -16 Td
+(UPS 2.750% 2028 — Ticker: UPS · Currency: USD · Coupon: 2.750% · Maturity: 2028 · Price: 98.1 · YTW: 5.18% · OAS Bps: 138 · Issuance Spread Bps: 100 · Spread Change Bps: 38 · Flag 50bp: No · Tenor Years: 4 · Sector: Logi) Tj
+0 -16 Td
+(UPS 3.250% 2029 — Ticker: UPS · Currency: USD · Coupon: 3.250% · Maturity: 2029 · Price: 97.5 · YTW: 5.35% · OAS Bps: 155 · Issuance Spread Bps: 115 · Spread Change Bps: 40 · Flag 50bp: No · Tenor Years: 5 · Sector: Logi) Tj
+0 -16 Td
+(UPS 1.250% 2030 — Ticker: UPS · Currency: USD · Coupon: 1.250% · Maturity: 2030 · Price: 94.2 · YTW: 5.48% · OAS Bps: 162 · Issuance Spread Bps: 65 · Spread Change Bps: 97 · Flag 50bp: YES - 97bps wide · Tenor Years: 5.5) Tj
+0 -16 Td
+(UPS 4.000% 2041 — Ticker: UPS · Currency: USD · Coupon: 4.000% · Maturity: 2041 · Price: 88.65 · YTW: 5.85% · OAS Bps: 195 · Issuance Spread Bps: 165 · Spread Change Bps: 30 · Flag 50bp: No · Tenor Years: 17 · Sector: Lo) Tj
+0 -16 Td
+(UPS 3.700% 2046 — Ticker: UPS · Currency: USD · Coupon: 3.700% · Maturity: 2046 · Price: 82.3 · YTW: 6.05% · OAS Bps: 215 · Issuance Spread Bps: 175 · Spread Change Bps: 40 · Flag 50bp: No · Tenor Years: 22 · Sector: Log) Tj
+0 -16 Td
+(UPS 4.500% 2051 — Ticker: UPS · Currency: USD · Coupon: 4.500% · Maturity: 2051 · Price: 79.8 · YTW: 6.25% · OAS Bps: 230 · Issuance Spread Bps: 185 · Spread Change Bps: 45 · Flag 50bp: No · Tenor Years: 27 · Sector: Log) Tj
+0 -16 Td
+(5Y RV Comp: UPS — Ticker: UPS · Currency: USD · Tenor: 5Y · OAS Bps: 162 · Credit Rating: BBB+/Baa1 · Revenue B FY23: 91 · Sector: Logistics/Freight · Comment: Trades wide of FDX despite higher rating; pension leverage c) Tj
+0 -16 Td
+(5Y RV Comp: FDX — Ticker: FDX · Currency: USD · Tenor: 5Y · OAS Bps: 145 · Credit Rating: BBB/Baa2 · Revenue B FY23: 87.7 · Sector: Logistics/Freight · Comment: Tighter than UPS; DRIVE program margin recovery; deleveragi) Tj
+0 -16 Td
+(5Y RV Comp: AMZN — Ticker: AMZN · Currency: USD · Tenor: 5Y · OAS Bps: 85 · Credit Rating: AA-/Aa3 · Revenue B FY23: 574.8 · Sector: Logistics/Tech · Comment: Significantly inside; AWS cash flow; net cash position) Tj
+0 -16 Td
+(5Y RV Comp: EXPD \(Logistics Comp 1\) — Ticker: EXPD · Currency: USD · Tenor: 5Y · OAS Bps: 110 · Credit Rating: A/A2 · Revenue B FY23: 4.5 · Sector: Logistics/Freight Forwarding · Comment: Asset-light; trades inside UPS) Tj
+0 -16 Td
+(5Y RV Comp: CHRW \(Logistics Comp 2\) — Ticker: CHRW · Currency: USD · Tenor: 5Y · OAS Bps: 130 · Credit Rating: BBB/Baa2 · Revenue B FY23: 17.1 · Sector: Logistics/Freight Brokerage · Comment: Modestly inside UPS; freig) Tj
+0 -16 Td
+(Credit Curve Point: 2Y — Ticker: UPS · Currency: USD · Maturity Bucket: 2Y · OAS Bps: 95 · Curve Position: Front end) Tj
+0 -16 Td
+(Credit Curve Point: 3Y — Ticker: UPS · Currency: USD · Maturity Bucket: 3Y · OAS Bps: 135 · Curve Position: Front end) Tj
+0 -16 Td
+(Credit Curve Point: 5Y — Ticker: UPS · Currency: USD · Maturity Bucket: 5Y · OAS Bps: 162 · Curve Position: Belly) Tj
+0 -16 Td
+(Credit Curve Point: 10Y — Ticker: UPS · Currency: USD · Maturity Bucket: 10Y · OAS Bps: 195 · Curve Position: Long end) Tj
+0 -16 Td
+(Credit Curve Point: 20Y — Ticker: UPS · Currency: USD · Maturity Bucket: 20Y · OAS Bps: 215 · Curve Position: Long end) Tj
+0 -16 Td
+(Credit Curve Point: 27Y — Ticker: UPS · Currency: USD · Maturity Bucket: 27Y · OAS Bps: 230 · Curve Position: Long end) Tj
+0 -16 Td
+(50bp Flag Summary: 1.500% 2027 — Ticker: UPS · Currency: USD · Flag: YES · Bond: 1.500% 2027 · Spread Widening Bps: 60 · Issuance Spread Bps: 75 · Current OAS Bps: 135 · Reason: Low-coupon note issued 2020-2021 ultra-low) Tj
+0 -16 Td
+(50bp Flag Summary: 1.250% 2030 — Ticker: UPS · Currency: USD · Flag: YES · Bond: 1.250% 2030 · Spread Widening Bps: 97 · Issuance Spread Bps: 65 · Current OAS Bps: 162 · Reason: Lowest coupon in stack; maximum duration r) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(Sources: ) Tj ET
+endstream
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000241 00000 n 
+0000000311 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+5346
+%%EOF

@@ -2,9 +2,9 @@
   "schema": 1,
   "taskId": "432c6197-eade-4dcd-ae6d-0a30ec4da18c",
   "harborTaskId": "btb-432c6197",
-  "generatedAt": "2026-06-25T02:17:21.338Z",
+  "generatedAt": "2026-06-26T00:12:57.092Z",
   "baseUrl": "http://127.0.0.1:5273",
-  "roomUrl": "http://127.0.0.1:5273/?room=NRQGJ5UADOI&name=Host",
+  "roomUrl": "http://127.0.0.1:5273/?room=NR7P5SI9CHU&name=Host",
   "memoryMode": false,
   "expectedExtensions": [
     ".xlsx",
@@ -23,64 +23,64 @@
   "downloadedFiles": [
     {
       "kind": "workbook",
-      "filename": "btb-432c6197-bankertoolbench-task-btb-432c6197-official-package.xlsx",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\432c6197-eade-4dcd-ae6d-0a30ec4da18c\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-432c6197-bankertoolbench-task-btb-432c6197-official-package.xlsx",
+      "filename": "btb-432c6197-btb-432c6197-relative-valuation-compendium-crm-adbe-msft-amzn-googl-nvda-orcl.xlsx",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\432c6197-eade-4dcd-ae6d-0a30ec4da18c\\evidence\\btb-xlsx-btb-432c6197-btb-432c6197-relative-valuation-compendium-crm-adbe-msft-amzn-googl-nvda-orcl.xlsx",
       "extension": ".xlsx",
-      "bytes": 7918,
+      "bytes": 8182,
       "magic": "PK\\x03\\x04",
       "reopened": true,
       "reopenDetail": "ZIP package contains xl/workbook.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (1556 chars)"
+      "contentQualityDetail": "placeholder/caveat content scan passed (2218 chars)"
     },
     {
       "kind": "workbook",
-      "filename": "btb-432c6197-bankertoolbench-task-btb-432c6197-official-package.xlsm",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\432c6197-eade-4dcd-ae6d-0a30ec4da18c\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-432c6197-bankertoolbench-task-btb-432c6197-official-package.xlsm",
+      "filename": "btb-432c6197-btb-432c6197-relative-valuation-compendium-crm-adbe-msft-amzn-googl-nvda-orcl.xlsm",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\432c6197-eade-4dcd-ae6d-0a30ec4da18c\\evidence\\btb-xlsm-btb-432c6197-btb-432c6197-relative-valuation-compendium-crm-adbe-msft-amzn-googl-nvda-orcl.xlsm",
       "extension": ".xlsm",
-      "bytes": 7918,
+      "bytes": 8182,
       "magic": "PK\\x03\\x04",
       "reopened": true,
       "reopenDetail": "ZIP package contains xl/workbook.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (1556 chars)"
+      "contentQualityDetail": "placeholder/caveat content scan passed (2218 chars)"
     },
     {
       "kind": "presentation",
-      "filename": "btb-432c6197-bankertoolbench-task-btb-432c6197-official-package.pptx",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\432c6197-eade-4dcd-ae6d-0a30ec4da18c\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-432c6197-bankertoolbench-task-btb-432c6197-official-package.pptx",
+      "filename": "btb-432c6197-btb-432c6197-relative-valuation-compendium-crm-adbe-msft-amzn-googl-nvda-orcl.pptx",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\432c6197-eade-4dcd-ae6d-0a30ec4da18c\\evidence\\btb-pptx-btb-432c6197-btb-432c6197-relative-valuation-compendium-crm-adbe-msft-amzn-googl-nvda-orcl.pptx",
       "extension": ".pptx",
-      "bytes": 6265,
+      "bytes": 6994,
       "magic": "PK\\x03\\x04",
       "reopened": true,
       "reopenDetail": "ZIP package contains ppt/presentation.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (738 chars)"
+      "contentQualityDetail": "placeholder/caveat content scan passed (2445 chars)"
     },
     {
       "kind": "document",
-      "filename": "btb-432c6197-bankertoolbench-task-btb-432c6197-official-package.docx",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\432c6197-eade-4dcd-ae6d-0a30ec4da18c\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-432c6197-bankertoolbench-task-btb-432c6197-official-package.docx",
+      "filename": "btb-432c6197-btb-432c6197-relative-valuation-compendium-crm-adbe-msft-amzn-googl-nvda-orcl.docx",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\432c6197-eade-4dcd-ae6d-0a30ec4da18c\\evidence\\btb-docx-btb-432c6197-btb-432c6197-relative-valuation-compendium-crm-adbe-msft-amzn-googl-nvda-orcl.docx",
       "extension": ".docx",
-      "bytes": 2659,
+      "bytes": 3254,
       "magic": "PK\\x03\\x04",
       "reopened": true,
       "reopenDetail": "ZIP package contains word/document.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (2215 chars)"
+      "contentQualityDetail": "placeholder/caveat content scan passed (3604 chars)"
     },
     {
       "kind": "pdf",
-      "filename": "btb-432c6197-bankertoolbench-task-btb-432c6197-official-package.pdf",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\432c6197-eade-4dcd-ae6d-0a30ec4da18c\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-432c6197-bankertoolbench-task-btb-432c6197-official-package.pdf",
+      "filename": "btb-432c6197-btb-432c6197-relative-valuation-compendium-crm-adbe-msft-amzn-googl-nvda-orcl.pdf",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\432c6197-eade-4dcd-ae6d-0a30ec4da18c\\evidence\\btb-pdf-btb-432c6197-btb-432c6197-relative-valuation-compendium-crm-adbe-msft-amzn-googl-nvda-orcl.pdf",
       "extension": ".pdf",
-      "bytes": 1659,
+      "bytes": 2700,
       "magic": "%PDF",
       "reopened": true,
       "reopenDetail": "PDF header reopened",
-      "contentQualityDetail": "placeholder/caveat content scan passed (2799 chars)"
+      "contentQualityDetail": "placeholder/caveat content scan passed (4816 chars)"
     }
   ],
-  "packageManifestPath": "test-results\\bankertoolbench\\matrix\\432c6197-eade-4dcd-ae6d-0a30ec4da18c\\package-manifest.json",
+  "packageManifestPath": "docs\\eval\\fresh-room\\FR-020\\tasks\\432c6197-eade-4dcd-ae6d-0a30ec4da18c\\evidence\\package-manifest.json",
   "verifierCommand": "npm run benchmark:bankertoolbench:proof",
   "verifierOutputTail": "\n> noderoom@0.1.1 benchmark:bankertoolbench:proof\n> tsx scripts/bankertoolbench-proof-check.ts\n\nBankerToolBench proof check passed: stage=1/1 weightedRubric=6 run=0/1 pass positive=1/1 pass candidateBeforeEvaluator=true leaks=0/2+0/3+0/4\n",
-  "screenshot": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\432c6197-eade-4dcd-ae6d-0a30ec4da18c\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\bankertoolbench-live-room.png",
+  "screenshot": "docs\\eval\\fresh-room\\FR-020\\tasks\\432c6197-eade-4dcd-ae6d-0a30ec4da18c\\evidence\\bankertoolbench-live-room.png",
   "passed": true,
   "gatesProven": [
     "fresh_room_join",

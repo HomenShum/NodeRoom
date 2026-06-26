@@ -3,10 +3,10 @@
   "caseId": "FR-020",
   "benchmark": "bankertoolbench",
   "taskId": "433c9e48-4b74-49a4-8d2b-d8c25f445c60",
-  "generatedAt": "2026-06-25T02:15:19.410Z",
+  "generatedAt": "2026-06-26T00:42:26.102Z",
   "baseUrl": "http://127.0.0.1:5273",
-  "roomId": "NR9B4GNYV8R",
-  "roomUrl": "http://127.0.0.1:5273/?room=NR9B4GNYV8R&name=Host",
+  "roomId": "NRBSWEZCNOQ",
+  "roomUrl": "http://127.0.0.1:5273/?room=NRBSWEZCNOQ&name=Host",
   "command": "BTB_LIVE_ROOM_E2E=1 BTB_UI_BUNDLE_ROOT=<official-bundle> BTB_UI_VERIFIER_COMMAND=<verifier> BENCH_BASE_URL=<base> npx playwright test --config playwright.real-flow.config.ts e2e/benchmark-ui-bankertoolbench.spec.ts --headed",
   "model": {
     "requested": "specific",
@@ -21,11 +21,11 @@
     "roomCreatedAfterRunStart": true,
     "forbiddenPreloadedArtifactsAbsent": true,
     "artifactsCreatedFresh": [
-      "btb-433c9e48-btb-433c9e48-cake-lbo-sensitivity-analysis-with-multi-entity-coverage-xyz-abc-nyse.xlsx",
-      "btb-433c9e48-btb-433c9e48-cake-lbo-sensitivity-analysis-with-multi-entity-coverage-xyz-abc-nyse.xlsm",
-      "btb-433c9e48-btb-433c9e48-cake-lbo-sensitivity-analysis-with-multi-entity-coverage-xyz-abc-nyse.pptx",
-      "btb-433c9e48-btb-433c9e48-cake-lbo-sensitivity-analysis-with-multi-entity-coverage-xyz-abc-nyse.docx",
-      "btb-433c9e48-btb-433c9e48-cake-lbo-sensitivity-analysis-with-multi-entity-coverage-xyz-abc-nyse.pdf"
+      "btb-433c9e48-btb-433c9e48-wacc-valuation-analysis-abc-nyse-cake.xlsx",
+      "btb-433c9e48-btb-433c9e48-wacc-valuation-analysis-abc-nyse-cake.xlsm",
+      "btb-433c9e48-btb-433c9e48-wacc-valuation-analysis-abc-nyse-cake.pptx",
+      "btb-433c9e48-btb-433c9e48-wacc-valuation-analysis-abc-nyse-cake.docx",
+      "btb-433c9e48-btb-433c9e48-wacc-valuation-analysis-abc-nyse-cake.pdf"
     ],
     "uploadedFiles": [
       "betas_by_industry_category_for_WACC.xlsx",
@@ -49,7 +49,7 @@
     "jobDetailVisible": true,
     "roomTraceVisible": true,
     "screenshotPaths": [
-      "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\433c9e48-4b74-49a4-8d2b-d8c25f445c60\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\bankertoolbench-live-room.png"
+      "docs\\eval\\fresh-room\\FR-020\\tasks\\433c9e48-4b74-49a4-8d2b-d8c25f445c60\\evidence\\bankertoolbench-live-room.png"
     ],
     "tracePath": "docs\\eval\\bankertoolbench\\live-room\\433c9e48-4b74-49a4-8d2b-d8c25f445c60.json"
   },
@@ -69,94 +69,94 @@
       "btb-433c9e48-official-task-brief.txt"
     ],
     "created": [
-      "btb-433c9e48-btb-433c9e48-cake-lbo-sensitivity-analysis-with-multi-entity-coverage-xyz-abc-nyse.xlsx",
-      "btb-433c9e48-btb-433c9e48-cake-lbo-sensitivity-analysis-with-multi-entity-coverage-xyz-abc-nyse.xlsm",
-      "btb-433c9e48-btb-433c9e48-cake-lbo-sensitivity-analysis-with-multi-entity-coverage-xyz-abc-nyse.pptx",
-      "btb-433c9e48-btb-433c9e48-cake-lbo-sensitivity-analysis-with-multi-entity-coverage-xyz-abc-nyse.docx",
-      "btb-433c9e48-btb-433c9e48-cake-lbo-sensitivity-analysis-with-multi-entity-coverage-xyz-abc-nyse.pdf"
+      "btb-433c9e48-btb-433c9e48-wacc-valuation-analysis-abc-nyse-cake.xlsx",
+      "btb-433c9e48-btb-433c9e48-wacc-valuation-analysis-abc-nyse-cake.xlsm",
+      "btb-433c9e48-btb-433c9e48-wacc-valuation-analysis-abc-nyse-cake.pptx",
+      "btb-433c9e48-btb-433c9e48-wacc-valuation-analysis-abc-nyse-cake.docx",
+      "btb-433c9e48-btb-433c9e48-wacc-valuation-analysis-abc-nyse-cake.pdf"
     ],
     "exportedFiles": [
       {
         "kind": "workbook",
-        "filename": "btb-433c9e48-btb-433c9e48-cake-lbo-sensitivity-analysis-with-multi-entity-coverage-xyz-abc-nyse.xlsx",
-        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\433c9e48-4b74-49a4-8d2b-d8c25f445c60\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-433c9e48-btb-433c9e48-cake-lbo-sensitivity-analysis-with-multi-entity-coverage-xyz-abc-nyse.xlsx",
+        "filename": "btb-433c9e48-btb-433c9e48-wacc-valuation-analysis-abc-nyse-cake.xlsx",
+        "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\433c9e48-4b74-49a4-8d2b-d8c25f445c60\\evidence\\btb-xlsx-btb-433c9e48-btb-433c9e48-wacc-valuation-analysis-abc-nyse-cake.xlsx",
         "extension": ".xlsx",
         "downloaded": true,
-        "bytes": 8534,
+        "bytes": 7912,
         "magic": "PK\\x03\\x04"
       },
       {
         "kind": "workbook",
-        "filename": "btb-433c9e48-btb-433c9e48-cake-lbo-sensitivity-analysis-with-multi-entity-coverage-xyz-abc-nyse.xlsm",
-        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\433c9e48-4b74-49a4-8d2b-d8c25f445c60\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-433c9e48-btb-433c9e48-cake-lbo-sensitivity-analysis-with-multi-entity-coverage-xyz-abc-nyse.xlsm",
+        "filename": "btb-433c9e48-btb-433c9e48-wacc-valuation-analysis-abc-nyse-cake.xlsm",
+        "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\433c9e48-4b74-49a4-8d2b-d8c25f445c60\\evidence\\btb-xlsm-btb-433c9e48-btb-433c9e48-wacc-valuation-analysis-abc-nyse-cake.xlsm",
         "extension": ".xlsm",
         "downloaded": true,
-        "bytes": 8534,
+        "bytes": 7912,
         "magic": "PK\\x03\\x04"
       },
       {
         "kind": "presentation",
-        "filename": "btb-433c9e48-btb-433c9e48-cake-lbo-sensitivity-analysis-with-multi-entity-coverage-xyz-abc-nyse.pptx",
-        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\433c9e48-4b74-49a4-8d2b-d8c25f445c60\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-433c9e48-btb-433c9e48-cake-lbo-sensitivity-analysis-with-multi-entity-coverage-xyz-abc-nyse.pptx",
+        "filename": "btb-433c9e48-btb-433c9e48-wacc-valuation-analysis-abc-nyse-cake.pptx",
+        "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\433c9e48-4b74-49a4-8d2b-d8c25f445c60\\evidence\\btb-pptx-btb-433c9e48-btb-433c9e48-wacc-valuation-analysis-abc-nyse-cake.pptx",
         "extension": ".pptx",
         "downloaded": true,
-        "bytes": 6872,
+        "bytes": 6886,
         "magic": "PK\\x03\\x04"
       },
       {
         "kind": "document",
-        "filename": "btb-433c9e48-btb-433c9e48-cake-lbo-sensitivity-analysis-with-multi-entity-coverage-xyz-abc-nyse.docx",
-        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\433c9e48-4b74-49a4-8d2b-d8c25f445c60\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-433c9e48-btb-433c9e48-cake-lbo-sensitivity-analysis-with-multi-entity-coverage-xyz-abc-nyse.docx",
+        "filename": "btb-433c9e48-btb-433c9e48-wacc-valuation-analysis-abc-nyse-cake.docx",
+        "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\433c9e48-4b74-49a4-8d2b-d8c25f445c60\\evidence\\btb-docx-btb-433c9e48-btb-433c9e48-wacc-valuation-analysis-abc-nyse-cake.docx",
         "extension": ".docx",
         "downloaded": true,
-        "bytes": 2920,
+        "bytes": 2973,
         "magic": "PK\\x03\\x04"
       },
       {
         "kind": "pdf",
-        "filename": "btb-433c9e48-btb-433c9e48-cake-lbo-sensitivity-analysis-with-multi-entity-coverage-xyz-abc-nyse.pdf",
-        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\433c9e48-4b74-49a4-8d2b-d8c25f445c60\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-433c9e48-btb-433c9e48-cake-lbo-sensitivity-analysis-with-multi-entity-coverage-xyz-abc-nyse.pdf",
+        "filename": "btb-433c9e48-btb-433c9e48-wacc-valuation-analysis-abc-nyse-cake.pdf",
+        "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\433c9e48-4b74-49a4-8d2b-d8c25f445c60\\evidence\\btb-pdf-btb-433c9e48-btb-433c9e48-wacc-valuation-analysis-abc-nyse-cake.pdf",
         "extension": ".pdf",
         "downloaded": true,
-        "bytes": 2031,
+        "bytes": 2764,
         "magic": "%PDF"
       }
     ],
     "reopenedFiles": [
       {
         "kind": "workbook",
-        "filename": "btb-433c9e48-btb-433c9e48-cake-lbo-sensitivity-analysis-with-multi-entity-coverage-xyz-abc-nyse.xlsx",
+        "filename": "btb-433c9e48-btb-433c9e48-wacc-valuation-analysis-abc-nyse-cake.xlsx",
         "reopened": true,
         "scorerResult": "pass",
-        "detail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j971s1rvg1fby0rcvnzfnzshzn89bcax; placeholder/caveat content scan passed (2691 chars)"
+        "detail": "ZIP package contains xl/workbook.xml; placeholder/caveat content scan passed (1996 chars)"
       },
       {
         "kind": "workbook",
-        "filename": "btb-433c9e48-btb-433c9e48-cake-lbo-sensitivity-analysis-with-multi-entity-coverage-xyz-abc-nyse.xlsm",
+        "filename": "btb-433c9e48-btb-433c9e48-wacc-valuation-analysis-abc-nyse-cake.xlsm",
         "reopened": true,
         "scorerResult": "pass",
-        "detail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j977hkybbyd213s7r24eewytmx89bjc0; placeholder/caveat content scan passed (2691 chars)"
+        "detail": "ZIP package contains xl/workbook.xml; placeholder/caveat content scan passed (1996 chars)"
       },
       {
         "kind": "presentation",
-        "filename": "btb-433c9e48-btb-433c9e48-cake-lbo-sensitivity-analysis-with-multi-entity-coverage-xyz-abc-nyse.pptx",
+        "filename": "btb-433c9e48-btb-433c9e48-wacc-valuation-analysis-abc-nyse-cake.pptx",
         "reopened": true,
         "scorerResult": "pass",
-        "detail": "ZIP package contains ppt/presentation.xml; recovered from Convex room artifact j978p8ag2par2vgjtgm14eaz2s89aa1b; placeholder/caveat content scan passed (1749 chars)"
+        "detail": "ZIP package contains ppt/presentation.xml; placeholder/caveat content scan passed (2080 chars)"
       },
       {
         "kind": "document",
-        "filename": "btb-433c9e48-btb-433c9e48-cake-lbo-sensitivity-analysis-with-multi-entity-coverage-xyz-abc-nyse.docx",
+        "filename": "btb-433c9e48-btb-433c9e48-wacc-valuation-analysis-abc-nyse-cake.docx",
         "reopened": true,
         "scorerResult": "pass",
-        "detail": "ZIP package contains word/document.xml; recovered from Convex room artifact j971sgy2zw3w24gzp1vdyg6pss89ahy3; placeholder/caveat content scan passed (1887 chars)"
+        "detail": "ZIP package contains word/document.xml; placeholder/caveat content scan passed (2491 chars)"
       },
       {
         "kind": "pdf",
-        "filename": "btb-433c9e48-btb-433c9e48-cake-lbo-sensitivity-analysis-with-multi-entity-coverage-xyz-abc-nyse.pdf",
+        "filename": "btb-433c9e48-btb-433c9e48-wacc-valuation-analysis-abc-nyse-cake.pdf",
         "reopened": true,
         "scorerResult": "pass",
-        "detail": "PDF header reopened; recovered from Convex room artifact j97dj7qvpr8tvm39bk36kxdp3h89bdnj; placeholder/caveat content scan passed (3543 chars)"
+        "detail": "PDF header reopened; placeholder/caveat content scan passed (4945 chars)"
       }
     ]
   },
@@ -167,7 +167,7 @@
     "score": 1,
     "details": {
       "verifierOutputTail": "\n> noderoom@0.1.1 benchmark:bankertoolbench:proof\n> tsx scripts/bankertoolbench-proof-check.ts\n\nBankerToolBench proof check passed: stage=1/1 weightedRubric=6 run=0/1 pass positive=1/1 pass candidateBeforeEvaluator=true leaks=0/2+0/3+0/4\n",
-      "packageManifestPath": "test-results\\bankertoolbench\\matrix\\433c9e48-4b74-49a4-8d2b-d8c25f445c60\\package-manifest.json",
+      "packageManifestPath": "docs\\eval\\fresh-room\\FR-020\\tasks\\433c9e48-4b74-49a4-8d2b-d8c25f445c60\\evidence\\package-manifest.json",
       "downloadedExtensions": [
         ".xlsx",
         ".xlsm",
@@ -175,31 +175,36 @@
         ".docx",
         ".pdf"
       ],
-      "exportSource": "convex_room_artifact_data_url_after_browser_ui_proof",
+      "exportSource": "browser_download_link",
       "agentTerminalQuality": {
-        "statusText": "completed via recovered Convex job: e48-cake-lbo-sensitivity-analysis-with-multi-entity-coverage-xyz-abc-nyse.docx, btb-433c9e48-btb-433c9e48-cake-lbo-sensitivity-analysis-with-multi-entity-coverage-xyz-abc-nyse.pdf. Coverage confirmed for XYZ, ABC, NYSE, CAKE, PPT, VP, COGS.",
-        "evidenceTextLength": 5595,
+        "statusText": "completed via recovered Convex job: 9e48-btb-433c9e48-wacc-valuation-analysis-abc-nyse-cake.pptx, btb-433c9e48-btb-433c9e48-wacc-valuation-analysis-abc-nyse-cake.docx, btb-433c9e48-btb-433c9e48-wacc-valuation-analysis-abc-nyse-cake.pdf. Coverage confirmed for ABC, NYSE, CAKE.",
+        "evidenceTextLength": 2296,
         "detail": "agent reached completed status or visible completion text, with no missing-source/unfinished-work caveats"
       },
       "taskCoverage": {
         "ok": true,
         "requiredTickers": [
-          "XYZ",
           "ABC",
           "NYSE",
-          "CAKE",
-          "PPT",
-          "VP",
-          "COGS"
+          "CAKE"
         ],
         "missingTickers": [],
-        "detail": "generated package mentions every requested ticker/entity: XYZ, ABC, NYSE, CAKE, PPT, VP, COGS"
+        "domainProof": {
+          "ok": true,
+          "domain": "generic",
+          "gates": [],
+          "missingGates": [],
+          "detail": "no task-specific domain proof gate required"
+        },
+        "detail": "generated package mentions every requested ticker/entity: ABC, NYSE, CAKE; no task-specific domain proof gate required"
       }
     }
   },
   "visualJudge": {
-    "verdict": "not_run",
-    "reason": "GOOGLE_GENERATIVE_AI_API_KEY is not set; deterministic browser/download/reopen/verifier proof passed."
+    "command": "npm run media:gemini-judge -- --run-id btb-full-20260626-chunk3 --out \"docs\\\\eval\\\\gemini-media-judges\\\\btb-full-20260626\\\\chunk3\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\07727295-e199-4039-a0ee-582af96749cf\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\129ab204-5e9f-414d-9951-94a11eda8785\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\1b181d77-ad4c-498a-b76e-c8503c05b7b7\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\205a3cb3-33b8-42ea-b50c-fe2dc1630208\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\4194bf8e-eede-480c-b012-b68ab71837c1\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\433c9e48-4b74-49a4-8d2b-d8c25f445c60\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\4e23ce4e-be6f-4d56-ab7b-2878a801a648\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\50f1b669-f6c3-453f-9d80-8aee2b1e01af\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\5d72295c-f640-4c78-b85a-6f338e46c02b\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\68259d37-5dd5-4c19-bafc-676246a479ea\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\6a2f5cf8-be91-4801-87b8-226f259369fb\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\7638f425-6102-4ab9-ae75-ba88c0b8fb8d\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\8182334a-2a3b-4607-91f3-59d5b94f5cb0\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\8e61629c-5c68-4ff4-b680-222b56b04f55\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\93c1e85c-7954-4464-8ff3-4c2c920cad89\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\98bdf8f3-98b7-4d62-ac39-5cee23623d83\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\aa3e4d0f-f456-423b-893b-9d4e88c64e74\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\b486dc21-d67e-4857-b2f9-b78c0e0222ce\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\bd2aa5d6-30cd-4b6f-875a-2c3626f56441\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\c292330e-d88f-4353-88fd-6b0f8b3b93c2\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\ceba18d0-5558-4637-be3a-a97121796201\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\df4c5a14-a6f9-4a56-ac8a-ad2562b50a7e\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\ed5ac3f0-a9c5-4daa-b97b-e5acc18ae423\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\f1c210d9-6357-4fad-828e-252e6f6d59d3\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\"",
+    "verdict": "pass",
+    "scorecardPath": "docs/eval/gemini-media-judges/btb-full-20260626/chunk3/btb-full-20260626-chunk3/summary.md",
+    "reason": "Gemini media judge publish (8/16); defects P0/P1/P2=0/0/0. The video demonstrates NodeAgent's collaborative financial analysis workflow, showing spreadsheet uploads, task execution, and artifact generation. Source clip: test-results\\bankertoolbench\\matrix\\433c9e48-4b74-49a4-8d2b-d8c25f445c60\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\video.webm."
   },
   "gatesProven": [
     "fresh_room_join",
@@ -217,7 +222,8 @@
     "deliverable_export_download",
     "artifact_reopen_validation",
     "artifact_placeholder_scan",
-    "official_scorer_handoff"
+    "official_scorer_handoff",
+    "visual_judge_handoff"
   ],
   "passed": true
 }

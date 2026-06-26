@@ -2,9 +2,9 @@
   "schema": 1,
   "taskId": "8bdef554-4723-42ff-a813-4711f9b330af",
   "harborTaskId": "btb-8bdef554",
-  "generatedAt": "2026-06-25T02:12:54.298Z",
+  "generatedAt": "2026-06-26T00:56:34.808Z",
   "baseUrl": "http://127.0.0.1:5273",
-  "roomUrl": "http://127.0.0.1:5273/?room=NRQHY5G88XR&name=Host",
+  "roomUrl": "http://127.0.0.1:5273/?room=NRNPUG8X973&name=Host",
   "memoryMode": false,
   "expectedExtensions": [
     ".xlsx",
@@ -23,64 +23,64 @@
   "downloadedFiles": [
     {
       "kind": "workbook",
-      "filename": "btb-8bdef554-vertical-saas-lbo-model-arr-waterfall-p-l-debt-schedule-returns-fy2026-fy2030.xlsx",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\8bdef554-4723-42ff-a813-4711f9b330af\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-8bdef554-vertical-saas-lbo-model-arr-waterfall-p-l-debt-schedule-returns-fy2026-fy2030.xlsx",
+      "filename": "btb-8bdef554-vertical-saas-lbo-model-arr-waterfall-p-l-debt-schedule-returns-sensitivities-arr-g.xlsx",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\8bdef554-4723-42ff-a813-4711f9b330af\\evidence\\btb-xlsx-btb-8bdef554-vertical-saas-lbo-model-arr-waterfall-p-l-debt-schedule-returns-sensitivities-arr-g.xlsx",
       "extension": ".xlsx",
-      "bytes": 18118,
+      "bytes": 16003,
       "magic": "PK\\x03\\x04",
       "reopened": true,
-      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j97a49n12wr5zwwtkycax1836s89a15j",
-      "contentQualityDetail": "placeholder/caveat content scan passed (20278 chars)"
+      "reopenDetail": "ZIP package contains xl/workbook.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (16752 chars)"
     },
     {
       "kind": "workbook",
-      "filename": "btb-8bdef554-vertical-saas-lbo-model-arr-waterfall-p-l-debt-schedule-returns-fy2026-fy2030.xlsm",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\8bdef554-4723-42ff-a813-4711f9b330af\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-8bdef554-vertical-saas-lbo-model-arr-waterfall-p-l-debt-schedule-returns-fy2026-fy2030.xlsm",
+      "filename": "btb-8bdef554-vertical-saas-lbo-model-arr-waterfall-p-l-debt-schedule-returns-sensitivities-arr-g.xlsm",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\8bdef554-4723-42ff-a813-4711f9b330af\\evidence\\btb-xlsm-btb-8bdef554-vertical-saas-lbo-model-arr-waterfall-p-l-debt-schedule-returns-sensitivities-arr-g.xlsm",
       "extension": ".xlsm",
-      "bytes": 18118,
+      "bytes": 16003,
       "magic": "PK\\x03\\x04",
       "reopened": true,
-      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j97apzm8ep3znc0318g1jjg54989bmys",
-      "contentQualityDetail": "placeholder/caveat content scan passed (20278 chars)"
+      "reopenDetail": "ZIP package contains xl/workbook.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (16752 chars)"
     },
     {
       "kind": "presentation",
-      "filename": "btb-8bdef554-vertical-saas-lbo-model-arr-waterfall-p-l-debt-schedule-returns-fy2026-fy2030.pptx",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\8bdef554-4723-42ff-a813-4711f9b330af\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-8bdef554-vertical-saas-lbo-model-arr-waterfall-p-l-debt-schedule-returns-fy2026-fy2030.pptx",
+      "filename": "btb-8bdef554-vertical-saas-lbo-model-arr-waterfall-p-l-debt-schedule-returns-sensitivities-arr-g.pptx",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\8bdef554-4723-42ff-a813-4711f9b330af\\evidence\\btb-pptx-btb-8bdef554-vertical-saas-lbo-model-arr-waterfall-p-l-debt-schedule-returns-sensitivities-arr-g.pptx",
       "extension": ".pptx",
-      "bytes": 7449,
+      "bytes": 9467,
       "magic": "PK\\x03\\x04",
       "reopened": true,
-      "reopenDetail": "ZIP package contains ppt/presentation.xml; recovered from Convex room artifact j976vmfjttd6a2179eb0yg299189begp",
-      "contentQualityDetail": "placeholder/caveat content scan passed (3357 chars)"
+      "reopenDetail": "ZIP package contains ppt/presentation.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (7332 chars)"
     },
     {
       "kind": "document",
-      "filename": "btb-8bdef554-vertical-saas-lbo-model-arr-waterfall-p-l-debt-schedule-returns-fy2026-fy2030.docx",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\8bdef554-4723-42ff-a813-4711f9b330af\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-8bdef554-vertical-saas-lbo-model-arr-waterfall-p-l-debt-schedule-returns-fy2026-fy2030.docx",
+      "filename": "btb-8bdef554-vertical-saas-lbo-model-arr-waterfall-p-l-debt-schedule-returns-sensitivities-arr-g.docx",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\8bdef554-4723-42ff-a813-4711f9b330af\\evidence\\btb-docx-btb-8bdef554-vertical-saas-lbo-model-arr-waterfall-p-l-debt-schedule-returns-sensitivities-arr-g.docx",
       "extension": ".docx",
-      "bytes": 4951,
+      "bytes": 5721,
       "magic": "PK\\x03\\x04",
       "reopened": true,
-      "reopenDetail": "ZIP package contains word/document.xml; recovered from Convex room artifact j9740014mfb0zpy1z0f47qcm1989a8ed",
-      "contentQualityDetail": "placeholder/caveat content scan passed (9546 chars)"
+      "reopenDetail": "ZIP package contains word/document.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (9164 chars)"
     },
     {
       "kind": "pdf",
-      "filename": "btb-8bdef554-vertical-saas-lbo-model-arr-waterfall-p-l-debt-schedule-returns-fy2026-fy2030.pdf",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\8bdef554-4723-42ff-a813-4711f9b330af\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-8bdef554-vertical-saas-lbo-model-arr-waterfall-p-l-debt-schedule-returns-fy2026-fy2030.pdf",
+      "filename": "btb-8bdef554-vertical-saas-lbo-model-arr-waterfall-p-l-debt-schedule-returns-sensitivities-arr-g.pdf",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\8bdef554-4723-42ff-a813-4711f9b330af\\evidence\\btb-pdf-btb-8bdef554-vertical-saas-lbo-model-arr-waterfall-p-l-debt-schedule-returns-sensitivities-arr-g.pdf",
       "extension": ".pdf",
-      "bytes": 4788,
+      "bytes": 3388,
       "magic": "%PDF",
       "reopened": true,
-      "reopenDetail": "PDF header reopened; recovered from Convex room artifact j977qrzgrt5zgkxz9m2nw94dk189arst",
-      "contentQualityDetail": "placeholder/caveat content scan passed (9021 chars)"
+      "reopenDetail": "PDF header reopened",
+      "contentQualityDetail": "placeholder/caveat content scan passed (6169 chars)"
     }
   ],
-  "packageManifestPath": "test-results\\bankertoolbench\\matrix\\8bdef554-4723-42ff-a813-4711f9b330af\\package-manifest.json",
+  "packageManifestPath": "docs\\eval\\fresh-room\\FR-020\\tasks\\8bdef554-4723-42ff-a813-4711f9b330af\\evidence\\package-manifest.json",
   "verifierCommand": "npm run benchmark:bankertoolbench:proof",
   "verifierOutputTail": "\n> noderoom@0.1.1 benchmark:bankertoolbench:proof\n> tsx scripts/bankertoolbench-proof-check.ts\n\nBankerToolBench proof check passed: stage=1/1 weightedRubric=6 run=0/1 pass positive=1/1 pass candidateBeforeEvaluator=true leaks=0/2+0/3+0/4\n",
-  "screenshot": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\8bdef554-4723-42ff-a813-4711f9b330af\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\bankertoolbench-live-room.png",
+  "screenshot": "docs\\eval\\fresh-room\\FR-020\\tasks\\8bdef554-4723-42ff-a813-4711f9b330af\\evidence\\bankertoolbench-live-room.png",
   "passed": true,
   "gatesProven": [
     "fresh_room_join",

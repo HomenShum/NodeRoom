@@ -2,9 +2,9 @@
   "schema": 1,
   "taskId": "6a08ca87-feb5-4061-b532-26e89c888951",
   "harborTaskId": "btb-6a08ca87",
-  "generatedAt": "2026-06-25T01:53:17.515Z",
+  "generatedAt": "2026-06-26T00:03:26.653Z",
   "baseUrl": "http://127.0.0.1:5273",
-  "roomUrl": "http://127.0.0.1:5273/?room=NR54JLZE4RG&name=Host",
+  "roomUrl": "http://127.0.0.1:5273/?room=NRZ0J9NVP02&name=Host",
   "memoryMode": false,
   "expectedExtensions": [
     ".xlsx",
@@ -23,64 +23,64 @@
   "downloadedFiles": [
     {
       "kind": "workbook",
-      "filename": "btb-6a08ca87-btb-6a08ca87-relative-valuation-target-price-analysis-crm-adbe-msft-vp-intu-adsk.xlsx",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\6a08ca87-feb5-4061-b532-26e89c888951\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-6a08ca87-btb-6a08ca87-relative-valuation-target-price-analysis-crm-adbe-msft-vp-intu-adsk.xlsx",
+      "filename": "btb-6a08ca87-test5.xlsx",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\6a08ca87-feb5-4061-b532-26e89c888951\\evidence\\btb-xlsx-btb-6a08ca87-test5.xlsx",
       "extension": ".xlsx",
-      "bytes": 8868,
+      "bytes": 6682,
       "magic": "PK\\x03\\x04",
       "reopened": true,
-      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j979smkpamvzhhg6hg65jk52t589baf9",
-      "contentQualityDetail": "placeholder/caveat content scan passed (3110 chars)"
+      "reopenDetail": "ZIP package contains xl/workbook.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (121 chars)"
     },
     {
       "kind": "workbook",
-      "filename": "btb-6a08ca87-btb-6a08ca87-relative-valuation-target-price-analysis-crm-adbe-msft-vp-intu-adsk.xlsm",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\6a08ca87-feb5-4061-b532-26e89c888951\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-6a08ca87-btb-6a08ca87-relative-valuation-target-price-analysis-crm-adbe-msft-vp-intu-adsk.xlsm",
+      "filename": "btb-6a08ca87-test5.xlsm",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\6a08ca87-feb5-4061-b532-26e89c888951\\evidence\\btb-xlsm-btb-6a08ca87-test5.xlsm",
       "extension": ".xlsm",
-      "bytes": 8868,
+      "bytes": 6682,
       "magic": "PK\\x03\\x04",
       "reopened": true,
-      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j975ytv884t2becngdaf496pw189b0gk",
-      "contentQualityDetail": "placeholder/caveat content scan passed (3110 chars)"
+      "reopenDetail": "ZIP package contains xl/workbook.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (121 chars)"
     },
     {
       "kind": "presentation",
-      "filename": "btb-6a08ca87-btb-6a08ca87-relative-valuation-target-price-analysis-crm-adbe-msft-vp-intu-adsk.pptx",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\6a08ca87-feb5-4061-b532-26e89c888951\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-6a08ca87-btb-6a08ca87-relative-valuation-target-price-analysis-crm-adbe-msft-vp-intu-adsk.pptx",
+      "filename": "btb-6a08ca87-test5.pptx",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\6a08ca87-feb5-4061-b532-26e89c888951\\evidence\\btb-pptx-btb-6a08ca87-test5.pptx",
       "extension": ".pptx",
-      "bytes": 6694,
+      "bytes": 5975,
       "magic": "PK\\x03\\x04",
       "reopened": true,
-      "reopenDetail": "ZIP package contains ppt/presentation.xml; recovered from Convex room artifact j97fc6b3jhgwtxfbqyj4ct795d89azq1",
-      "contentQualityDetail": "placeholder/caveat content scan passed (1630 chars)"
+      "reopenDetail": "ZIP package contains ppt/presentation.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (191 chars)"
     },
     {
       "kind": "document",
-      "filename": "btb-6a08ca87-btb-6a08ca87-relative-valuation-target-price-analysis-crm-adbe-msft-vp-intu-adsk.docx",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\6a08ca87-feb5-4061-b532-26e89c888951\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-6a08ca87-btb-6a08ca87-relative-valuation-target-price-analysis-crm-adbe-msft-vp-intu-adsk.docx",
+      "filename": "btb-6a08ca87-test5.docx",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\6a08ca87-feb5-4061-b532-26e89c888951\\evidence\\btb-docx-btb-6a08ca87-test5.docx",
       "extension": ".docx",
-      "bytes": 3797,
+      "bytes": 1943,
       "magic": "PK\\x03\\x04",
       "reopened": true,
-      "reopenDetail": "ZIP package contains word/document.xml; recovered from Convex room artifact j976emwqjyccvaa7xx3vk2acfs89ah7z",
-      "contentQualityDetail": "placeholder/caveat content scan passed (4521 chars)"
+      "reopenDetail": "ZIP package contains word/document.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (172 chars)"
     },
     {
       "kind": "pdf",
-      "filename": "btb-6a08ca87-btb-6a08ca87-relative-valuation-target-price-analysis-crm-adbe-msft-vp-intu-adsk.pdf",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\6a08ca87-feb5-4061-b532-26e89c888951\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-6a08ca87-btb-6a08ca87-relative-valuation-target-price-analysis-crm-adbe-msft-vp-intu-adsk.pdf",
+      "filename": "btb-6a08ca87-test5.pdf",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\6a08ca87-feb5-4061-b532-26e89c888951\\evidence\\btb-pdf-btb-6a08ca87-test5.pdf",
       "extension": ".pdf",
-      "bytes": 2406,
+      "bytes": 930,
       "magic": "%PDF",
       "reopened": true,
-      "reopenDetail": "PDF header reopened; recovered from Convex room artifact j9726vpkq1dp8sc50ebxb0tsx589bfhz",
-      "contentQualityDetail": "placeholder/caveat content scan passed (4291 chars)"
+      "reopenDetail": "PDF header reopened",
+      "contentQualityDetail": "placeholder/caveat content scan passed (1328 chars)"
     }
   ],
-  "packageManifestPath": "test-results\\bankertoolbench\\matrix\\6a08ca87-feb5-4061-b532-26e89c888951\\package-manifest.json",
+  "packageManifestPath": "docs\\eval\\fresh-room\\FR-020\\tasks\\6a08ca87-feb5-4061-b532-26e89c888951\\evidence\\package-manifest.json",
   "verifierCommand": "npm run benchmark:bankertoolbench:proof",
   "verifierOutputTail": "\n> noderoom@0.1.1 benchmark:bankertoolbench:proof\n> tsx scripts/bankertoolbench-proof-check.ts\n\nBankerToolBench proof check passed: stage=1/1 weightedRubric=6 run=0/1 pass positive=1/1 pass candidateBeforeEvaluator=true leaks=0/2+0/3+0/4\n",
-  "screenshot": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\6a08ca87-feb5-4061-b532-26e89c888951\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\bankertoolbench-live-room.png",
+  "screenshot": "docs\\eval\\fresh-room\\FR-020\\tasks\\6a08ca87-feb5-4061-b532-26e89c888951\\evidence\\bankertoolbench-live-room.png",
   "passed": true,
   "gatesProven": [
     "fresh_room_join",

@@ -1,0 +1,65 @@
+{
+  "schema": 1,
+  "taskId": "1b181d77-ad4c-498a-b76e-c8503c05b7b7",
+  "harborTaskId": "btb-1b181d77",
+  "generatedAt": "2026-06-26T00:26:55.701Z",
+  "baseUrl": "http://127.0.0.1:5273",
+  "roomUrl": "http://127.0.0.1:5273/?room=NRAPDXLVJGX&name=Host",
+  "downloadedFiles": [
+    {
+      "kind": "workbook",
+      "filename": "btb-1b181d77-btb-1b181d77-bac-april-2023-senior-notes-offering-terms-summary.xlsx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\1b181d77-ad4c-498a-b76e-c8503c05b7b7\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-1b181d77-btb-1b181d77-bac-april-2023-senior-notes-offering-terms-summary.xlsx",
+      "extension": ".xlsx",
+      "bytes": 8963,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j9726azzpqhr5f10fzht6f6yh589dcbg",
+      "contentQualityDetail": "placeholder/caveat content scan passed (4469 chars)"
+    },
+    {
+      "kind": "workbook",
+      "filename": "btb-1b181d77-btb-1b181d77-bac-april-2023-senior-notes-offering-terms-summary.xlsm",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\1b181d77-ad4c-498a-b76e-c8503c05b7b7\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-1b181d77-btb-1b181d77-bac-april-2023-senior-notes-offering-terms-summary.xlsm",
+      "extension": ".xlsm",
+      "bytes": 8963,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j972w6hsmt7mcem94x1n1tpgs189dgbw",
+      "contentQualityDetail": "placeholder/caveat content scan passed (4469 chars)"
+    },
+    {
+      "kind": "presentation",
+      "filename": "btb-1b181d77-btb-1b181d77-bac-april-2023-senior-notes-offering-terms-summary.pptx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\1b181d77-ad4c-498a-b76e-c8503c05b7b7\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-1b181d77-btb-1b181d77-bac-april-2023-senior-notes-offering-terms-summary.pptx",
+      "extension": ".pptx",
+      "bytes": 7023,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains ppt/presentation.xml; recovered from Convex room artifact j9735y1scpckwsy18p8m55eqen89d1m3",
+      "contentQualityDetail": "placeholder/caveat content scan passed (3800 chars)"
+    },
+    {
+      "kind": "document",
+      "filename": "btb-1b181d77-btb-1b181d77-bac-april-2023-senior-notes-offering-terms-summary.docx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\1b181d77-ad4c-498a-b76e-c8503c05b7b7\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-1b181d77-btb-1b181d77-bac-april-2023-senior-notes-offering-terms-summary.docx",
+      "extension": ".docx",
+      "bytes": 3135,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains word/document.xml; recovered from Convex room artifact j979b9pyt5cqb3yapb9xq62yvs89c2yq",
+      "contentQualityDetail": "placeholder/caveat content scan passed (4960 chars)"
+    },
+    {
+      "kind": "pdf",
+      "filename": "btb-1b181d77-btb-1b181d77-bac-april-2023-senior-notes-offering-terms-summary.pdf",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\1b181d77-ad4c-498a-b76e-c8503c05b7b7\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-1b181d77-btb-1b181d77-bac-april-2023-senior-notes-offering-terms-summary.pdf",
+      "extension": ".pdf",
+      "bytes": 3427,
+      "magic": "%PDF",
+      "reopened": true,
+      "reopenDetail": "PDF header reopened; recovered from Convex room artifact j972tggwzxfprdjct1n4jvp0th89c8kf",
+      "contentQualityDetail": "placeholder/caveat content scan passed (6247 chars)"
+    }
+  ]
+}

@@ -1,0 +1,104 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+5 0 obj
+<< /Length 2167 >>
+stream
+BT /F1 11 Tf 54 760 Td (DCF Valuation: Target Corporation \(TGT\) — NYSE) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(BTB Task btb-d2c04408 — DCF Valuation of Target Corporation \(TGT, NYSE\). This package presents a discounted cash flow \(DCF\) valuation of Target Corporation \(NYSE: TGT\) based on uploaded room source files including ) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(Rows: 36) Tj
+0 -16 Td
+(Company — Value: Target Corporation) Tj
+0 -16 Td
+(Ticker — Value: TGT) Tj
+0 -16 Td
+(Exchange — Value: NYSE) Tj
+0 -16 Td
+(FY2024 Revenue \($M\) — Value: 107412) Tj
+0 -16 Td
+(FY2024 Operating Income \($M\) — Value: 5649) Tj
+0 -16 Td
+(FY2024 Net Income \($M\) — Value: 4238) Tj
+0 -16 Td
+(FY2024 Free Cash Flow \($M\) — Value: 4058) Tj
+0 -16 Td
+(Shares Outstanding \(M\) — Value: 461.5) Tj
+0 -16 Td
+(Current Price \($\) — Value: 137.56) Tj
+0 -16 Td
+(Market Cap \($M\) — Value: 63499) Tj
+0 -16 Td
+(Risk-Free Rate \(%\) — Value: 4.2) Tj
+0 -16 Td
+(Equity Risk Premium \(%\) — Value: 5) Tj
+0 -16 Td
+(Unlevered Beta — Value: 0.51) Tj
+0 -16 Td
+(Cost of Equity \(%\) — Value: 8.85) Tj
+0 -16 Td
+(After-Tax Cost of Debt \(%\) — Value: 4.2) Tj
+0 -16 Td
+(WACC \(%\) — Value: 8.2) Tj
+0 -16 Td
+(Terminal Growth Rate \(%\) — Value: 2) Tj
+0 -16 Td
+(Projected FY2025 Revenue \($M\) — Value: 111200) Tj
+0 -16 Td
+(Projected FY2026 Revenue \($M\) — Value: 115500) Tj
+0 -16 Td
+(Projected FY2027 Revenue \($M\) — Value: 118900) Tj
+0 -16 Td
+(Projected FY2028 Revenue \($M\) — Value: 122400) Tj
+0 -16 Td
+(Projected FY2029 Revenue \($M\) — Value: 125900) Tj
+0 -16 Td
+(Projected FY2025 FCF \($M\) — Value: 4400) Tj
+0 -16 Td
+(Projected FY2026 FCF \($M\) — Value: 4650) Tj
+0 -16 Td
+(Projected FY2027 FCF \($M\) — Value: 4800) Tj
+0 -16 Td
+(Projected FY2028 FCF \($M\) — Value: 5000) Tj
+0 -16 Td
+(Projected FY2029 FCF \($M\) — Value: 5200) Tj
+0 -16 Td
+(Terminal Value \($M\) — Value: 85246) Tj
+0 -16 Td
+(PV of Terminal Value \($M\) — Value: 57391) Tj
+0 -16 Td
+(PV of Explicit FCFs \($M\) — Value: 35247) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(Sources: https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000027419&type=10-K&dateb=&owner=include&count=40) Tj ET
+endstream
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000241 00000 n 
+0000000311 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+2530
+%%EOF

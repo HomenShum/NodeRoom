@@ -2,9 +2,9 @@
   "schema": 1,
   "taskId": "40097508-c68a-4066-9031-e99eac4f7a18",
   "harborTaskId": "btb-40097508",
-  "generatedAt": "2026-06-25T02:14:31.951Z",
+  "generatedAt": "2026-06-26T00:53:53.056Z",
   "baseUrl": "http://127.0.0.1:5273",
-  "roomUrl": "http://127.0.0.1:5273/?room=NRJ59TN73MM&name=Host",
+  "roomUrl": "http://127.0.0.1:5273/?room=NRWLL9MUMPI&name=Host",
   "memoryMode": false,
   "expectedExtensions": [
     ".xlsx",
@@ -23,64 +23,64 @@
   "downloadedFiles": [
     {
       "kind": "workbook",
-      "filename": "btb-40097508-jetblue-lbo-sources-uses-leverage-finance-model-btb-40097508.xlsx",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\40097508-c68a-4066-9031-e99eac4f7a18\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-40097508-jetblue-lbo-sources-uses-leverage-finance-model-btb-40097508.xlsx",
+      "filename": "btb-40097508-wacc-components-industry-betas-and-equity-risk-premium.xlsx",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\40097508-c68a-4066-9031-e99eac4f7a18\\evidence\\btb-xlsx-btb-40097508-wacc-components-industry-betas-and-equity-risk-premium.xlsx",
       "extension": ".xlsx",
-      "bytes": 7901,
+      "bytes": 7208,
       "magic": "PK\\x03\\x04",
       "reopened": true,
-      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j972w26j48e43s5w8jzcqvsb3h89bvwk",
-      "contentQualityDetail": "placeholder/caveat content scan passed (2060 chars)"
+      "reopenDetail": "ZIP package contains xl/workbook.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (1032 chars)"
     },
     {
       "kind": "workbook",
-      "filename": "btb-40097508-jetblue-lbo-sources-uses-leverage-finance-model-btb-40097508.xlsm",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\40097508-c68a-4066-9031-e99eac4f7a18\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-40097508-jetblue-lbo-sources-uses-leverage-finance-model-btb-40097508.xlsm",
+      "filename": "btb-40097508-wacc-components-industry-betas-and-equity-risk-premium.xlsm",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\40097508-c68a-4066-9031-e99eac4f7a18\\evidence\\btb-xlsm-btb-40097508-wacc-components-industry-betas-and-equity-risk-premium.xlsm",
       "extension": ".xlsm",
-      "bytes": 7901,
+      "bytes": 7208,
       "magic": "PK\\x03\\x04",
       "reopened": true,
-      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j9732cvaq10wtmsbnbke94ek2589bg5t",
-      "contentQualityDetail": "placeholder/caveat content scan passed (2060 chars)"
+      "reopenDetail": "ZIP package contains xl/workbook.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (1032 chars)"
     },
     {
       "kind": "presentation",
-      "filename": "btb-40097508-jetblue-lbo-sources-uses-leverage-finance-model-btb-40097508.pptx",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\40097508-c68a-4066-9031-e99eac4f7a18\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-40097508-jetblue-lbo-sources-uses-leverage-finance-model-btb-40097508.pptx",
+      "filename": "btb-40097508-wacc-components-industry-betas-and-equity-risk-premium.pptx",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\40097508-c68a-4066-9031-e99eac4f7a18\\evidence\\btb-pptx-btb-40097508-wacc-components-industry-betas-and-equity-risk-premium.pptx",
       "extension": ".pptx",
-      "bytes": 6562,
+      "bytes": 6339,
       "magic": "PK\\x03\\x04",
       "reopened": true,
-      "reopenDetail": "ZIP package contains ppt/presentation.xml; recovered from Convex room artifact j972t7q50pmngar46b6k4mabtd89bjgq",
-      "contentQualityDetail": "placeholder/caveat content scan passed (1200 chars)"
+      "reopenDetail": "ZIP package contains ppt/presentation.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (1207 chars)"
     },
     {
       "kind": "document",
-      "filename": "btb-40097508-jetblue-lbo-sources-uses-leverage-finance-model-btb-40097508.docx",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\40097508-c68a-4066-9031-e99eac4f7a18\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-40097508-jetblue-lbo-sources-uses-leverage-finance-model-btb-40097508.docx",
+      "filename": "btb-40097508-wacc-components-industry-betas-and-equity-risk-premium.docx",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\40097508-c68a-4066-9031-e99eac4f7a18\\evidence\\btb-docx-btb-40097508-wacc-components-industry-betas-and-equity-risk-premium.docx",
       "extension": ".docx",
-      "bytes": 2807,
+      "bytes": 2352,
       "magic": "PK\\x03\\x04",
       "reopened": true,
-      "reopenDetail": "ZIP package contains word/document.xml; recovered from Convex room artifact j97239exbwz7k18k2m17g3w1nd89br0s",
-      "contentQualityDetail": "placeholder/caveat content scan passed (2230 chars)"
+      "reopenDetail": "ZIP package contains word/document.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (1454 chars)"
     },
     {
       "kind": "pdf",
-      "filename": "btb-40097508-jetblue-lbo-sources-uses-leverage-finance-model-btb-40097508.pdf",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\40097508-c68a-4066-9031-e99eac4f7a18\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-40097508-jetblue-lbo-sources-uses-leverage-finance-model-btb-40097508.pdf",
+      "filename": "btb-40097508-wacc-components-industry-betas-and-equity-risk-premium.pdf",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\40097508-c68a-4066-9031-e99eac4f7a18\\evidence\\btb-pdf-btb-40097508-wacc-components-industry-betas-and-equity-risk-premium.pdf",
       "extension": ".pdf",
-      "bytes": 2836,
+      "bytes": 2182,
       "magic": "%PDF",
       "reopened": true,
-      "reopenDetail": "PDF header reopened; recovered from Convex room artifact j97ebmw3d4fqvhwj300a2t1p6589bsm7",
-      "contentQualityDetail": "placeholder/caveat content scan passed (5152 chars)"
+      "reopenDetail": "PDF header reopened",
+      "contentQualityDetail": "placeholder/caveat content scan passed (3812 chars)"
     }
   ],
-  "packageManifestPath": "test-results\\bankertoolbench\\matrix\\40097508-c68a-4066-9031-e99eac4f7a18\\package-manifest.json",
+  "packageManifestPath": "docs\\eval\\fresh-room\\FR-020\\tasks\\40097508-c68a-4066-9031-e99eac4f7a18\\evidence\\package-manifest.json",
   "verifierCommand": "npm run benchmark:bankertoolbench:proof",
   "verifierOutputTail": "\n> noderoom@0.1.1 benchmark:bankertoolbench:proof\n> tsx scripts/bankertoolbench-proof-check.ts\n\nBankerToolBench proof check passed: stage=1/1 weightedRubric=6 run=0/1 pass positive=1/1 pass candidateBeforeEvaluator=true leaks=0/2+0/3+0/4\n",
-  "screenshot": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\40097508-c68a-4066-9031-e99eac4f7a18\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\bankertoolbench-live-room.png",
+  "screenshot": "docs\\eval\\fresh-room\\FR-020\\tasks\\40097508-c68a-4066-9031-e99eac4f7a18\\evidence\\bankertoolbench-live-room.png",
   "passed": true,
   "gatesProven": [
     "fresh_room_join",

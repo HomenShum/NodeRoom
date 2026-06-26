@@ -2,9 +2,9 @@
   "schema": 1,
   "taskId": "990cf5d7-0db5-456e-9766-c9d8a6640e3a",
   "harborTaskId": "btb-990cf5d7",
-  "generatedAt": "2026-06-25T01:40:52.879Z",
+  "generatedAt": "2026-06-26T02:48:29.208Z",
   "baseUrl": "http://127.0.0.1:5273",
-  "roomUrl": "http://127.0.0.1:5273/?room=NRU6KY43H7Y&name=Host",
+  "roomUrl": "http://127.0.0.1:5273/?room=NRM2Q47XE3C&name=Host",
   "memoryMode": false,
   "expectedExtensions": [
     ".xlsx",
@@ -23,64 +23,64 @@
   "downloadedFiles": [
     {
       "kind": "workbook",
-      "filename": "btb-990cf5d7-adobe-adbe-lbo-analysis-mega-pe-acquisition-model.xlsx",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\990cf5d7-0db5-456e-9766-c9d8a6640e3a\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier-retry1\\btb-xlsx-btb-990cf5d7-adobe-adbe-lbo-analysis-mega-pe-acquisition-model.xlsx",
+      "filename": "btb-990cf5d7-adobe-lbo-analysis.xlsx",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\990cf5d7-0db5-456e-9766-c9d8a6640e3a\\evidence\\btb-xlsx-btb-990cf5d7-adobe-lbo-analysis.xlsx",
       "extension": ".xlsx",
-      "bytes": 8074,
+      "bytes": 6609,
       "magic": "PK\\x03\\x04",
       "reopened": true,
       "reopenDetail": "ZIP package contains xl/workbook.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (2438 chars)"
+      "contentQualityDetail": "placeholder/caveat content scan passed (113 chars)"
     },
     {
       "kind": "workbook",
-      "filename": "btb-990cf5d7-adobe-adbe-lbo-analysis-mega-pe-acquisition-model.xlsm",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\990cf5d7-0db5-456e-9766-c9d8a6640e3a\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier-retry1\\btb-xlsm-btb-990cf5d7-adobe-adbe-lbo-analysis-mega-pe-acquisition-model.xlsm",
+      "filename": "btb-990cf5d7-adobe-lbo-analysis.xlsm",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\990cf5d7-0db5-456e-9766-c9d8a6640e3a\\evidence\\btb-xlsm-btb-990cf5d7-adobe-lbo-analysis.xlsm",
       "extension": ".xlsm",
-      "bytes": 8074,
+      "bytes": 6609,
       "magic": "PK\\x03\\x04",
       "reopened": true,
       "reopenDetail": "ZIP package contains xl/workbook.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (2438 chars)"
+      "contentQualityDetail": "placeholder/caveat content scan passed (113 chars)"
     },
     {
       "kind": "presentation",
-      "filename": "btb-990cf5d7-adobe-adbe-lbo-analysis-mega-pe-acquisition-model.pptx",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\990cf5d7-0db5-456e-9766-c9d8a6640e3a\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier-retry1\\btb-pptx-btb-990cf5d7-adobe-adbe-lbo-analysis-mega-pe-acquisition-model.pptx",
+      "filename": "btb-990cf5d7-adobe-lbo-analysis.pptx",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\990cf5d7-0db5-456e-9766-c9d8a6640e3a\\evidence\\btb-pptx-btb-990cf5d7-adobe-lbo-analysis.pptx",
       "extension": ".pptx",
-      "bytes": 6663,
+      "bytes": 5961,
       "magic": "PK\\x03\\x04",
       "reopened": true,
       "reopenDetail": "ZIP package contains ppt/presentation.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (1434 chars)"
+      "contentQualityDetail": "placeholder/caveat content scan passed (97 chars)"
     },
     {
       "kind": "document",
-      "filename": "btb-990cf5d7-adobe-adbe-lbo-analysis-mega-pe-acquisition-model.docx",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\990cf5d7-0db5-456e-9766-c9d8a6640e3a\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier-retry1\\btb-docx-btb-990cf5d7-adobe-adbe-lbo-analysis-mega-pe-acquisition-model.docx",
+      "filename": "btb-990cf5d7-adobe-lbo-analysis.docx",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\990cf5d7-0db5-456e-9766-c9d8a6640e3a\\evidence\\btb-docx-btb-990cf5d7-adobe-lbo-analysis.docx",
       "extension": ".docx",
-      "bytes": 2885,
+      "bytes": 1930,
       "magic": "PK\\x03\\x04",
       "reopened": true,
       "reopenDetail": "ZIP package contains word/document.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (2091 chars)"
+      "contentQualityDetail": "placeholder/caveat content scan passed (78 chars)"
     },
     {
       "kind": "pdf",
-      "filename": "btb-990cf5d7-adobe-adbe-lbo-analysis-mega-pe-acquisition-model.pdf",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\990cf5d7-0db5-456e-9766-c9d8a6640e3a\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier-retry1\\btb-pdf-btb-990cf5d7-adobe-adbe-lbo-analysis-mega-pe-acquisition-model.pdf",
+      "filename": "btb-990cf5d7-adobe-lbo-analysis.pdf",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\990cf5d7-0db5-456e-9766-c9d8a6640e3a\\evidence\\btb-pdf-btb-990cf5d7-adobe-lbo-analysis.pdf",
       "extension": ".pdf",
-      "bytes": 1517,
+      "bytes": 767,
       "magic": "%PDF",
       "reopened": true,
       "reopenDetail": "PDF header reopened",
-      "contentQualityDetail": "placeholder/caveat content scan passed (2515 chars)"
+      "contentQualityDetail": "placeholder/caveat content scan passed (1015 chars)"
     }
   ],
-  "packageManifestPath": "test-results\\bankertoolbench\\matrix\\990cf5d7-0db5-456e-9766-c9d8a6640e3a\\package-manifest.json",
+  "packageManifestPath": "docs\\eval\\fresh-room\\FR-020\\tasks\\990cf5d7-0db5-456e-9766-c9d8a6640e3a\\evidence\\package-manifest.json",
   "verifierCommand": "npm run benchmark:bankertoolbench:proof",
   "verifierOutputTail": "\n> noderoom@0.1.1 benchmark:bankertoolbench:proof\n> tsx scripts/bankertoolbench-proof-check.ts\n\nBankerToolBench proof check passed: stage=1/1 weightedRubric=6 run=0/1 pass positive=1/1 pass candidateBeforeEvaluator=true leaks=0/2+0/3+0/4\n",
-  "screenshot": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\990cf5d7-0db5-456e-9766-c9d8a6640e3a\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier-retry1\\bankertoolbench-live-room.png",
+  "screenshot": "docs\\eval\\fresh-room\\FR-020\\tasks\\990cf5d7-0db5-456e-9766-c9d8a6640e3a\\evidence\\bankertoolbench-live-room.png",
   "passed": true,
   "gatesProven": [
     "fresh_room_join",

@@ -1,0 +1,65 @@
+{
+  "schema": 1,
+  "taskId": "aa3e4d0f-f456-423b-893b-9d4e88c64e74",
+  "harborTaskId": "btb-aa3e4d0f",
+  "generatedAt": "2026-06-26T00:43:58.265Z",
+  "baseUrl": "http://127.0.0.1:5273",
+  "roomUrl": "http://127.0.0.1:5273/?room=NRSXDEHC3O0&name=Host",
+  "downloadedFiles": [
+    {
+      "kind": "workbook",
+      "filename": "btb-aa3e4d0f-len-dcf-valuation-regal-alpha-fcf-projections-dcp-intrinsic-value-btb-aa3e4d0f.xlsx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\aa3e4d0f-f456-423b-893b-9d4e88c64e74\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-aa3e4d0f-len-dcf-valuation-regal-alpha-fcf-projections-dcp-intrinsic-value-btb-aa3e4d0f.xlsx",
+      "extension": ".xlsx",
+      "bytes": 9864,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j972x2h19easj8ddwqrs0jzq9589dnvp",
+      "contentQualityDetail": "placeholder/caveat content scan passed (4875 chars)"
+    },
+    {
+      "kind": "workbook",
+      "filename": "btb-aa3e4d0f-len-dcf-valuation-regal-alpha-fcf-projections-dcp-intrinsic-value-btb-aa3e4d0f.xlsm",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\aa3e4d0f-f456-423b-893b-9d4e88c64e74\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-aa3e4d0f-len-dcf-valuation-regal-alpha-fcf-projections-dcp-intrinsic-value-btb-aa3e4d0f.xlsm",
+      "extension": ".xlsm",
+      "bytes": 9864,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j976qzcnx9w3z8pwbvjap0p6wn89cz4q",
+      "contentQualityDetail": "placeholder/caveat content scan passed (4875 chars)"
+    },
+    {
+      "kind": "presentation",
+      "filename": "btb-aa3e4d0f-len-dcf-valuation-regal-alpha-fcf-projections-dcp-intrinsic-value-btb-aa3e4d0f.pptx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\aa3e4d0f-f456-423b-893b-9d4e88c64e74\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-aa3e4d0f-len-dcf-valuation-regal-alpha-fcf-projections-dcp-intrinsic-value-btb-aa3e4d0f.pptx",
+      "extension": ".pptx",
+      "bytes": 7019,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains ppt/presentation.xml; recovered from Convex room artifact j975wecxh6x5yqeyf3568qe8k189ceqy",
+      "contentQualityDetail": "placeholder/caveat content scan passed (2380 chars)"
+    },
+    {
+      "kind": "document",
+      "filename": "btb-aa3e4d0f-len-dcf-valuation-regal-alpha-fcf-projections-dcp-intrinsic-value-btb-aa3e4d0f.docx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\aa3e4d0f-f456-423b-893b-9d4e88c64e74\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-aa3e4d0f-len-dcf-valuation-regal-alpha-fcf-projections-dcp-intrinsic-value-btb-aa3e4d0f.docx",
+      "extension": ".docx",
+      "bytes": 3326,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains word/document.xml; recovered from Convex room artifact j9740jbpbhhgvvx3jnxjh7zvmd89d61r",
+      "contentQualityDetail": "placeholder/caveat content scan passed (3503 chars)"
+    },
+    {
+      "kind": "pdf",
+      "filename": "btb-aa3e4d0f-len-dcf-valuation-regal-alpha-fcf-projections-dcp-intrinsic-value-btb-aa3e4d0f.pdf",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\aa3e4d0f-f456-423b-893b-9d4e88c64e74\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-aa3e4d0f-len-dcf-valuation-regal-alpha-fcf-projections-dcp-intrinsic-value-btb-aa3e4d0f.pdf",
+      "extension": ".pdf",
+      "bytes": 3470,
+      "magic": "%PDF",
+      "reopened": true,
+      "reopenDetail": "PDF header reopened; recovered from Convex room artifact j97ex96dn2xxvhpy9vfb8f3b4x89ddxp",
+      "contentQualityDetail": "placeholder/caveat content scan passed (6337 chars)"
+    }
+  ]
+}

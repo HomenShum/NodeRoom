@@ -2,9 +2,9 @@
   "schema": 1,
   "taskId": "44e44478-9e36-4df9-9657-85797c7fee58",
   "harborTaskId": "btb-44e44478",
-  "generatedAt": "2026-06-25T02:43:51.529Z",
+  "generatedAt": "2026-06-26T01:37:45.270Z",
   "baseUrl": "http://127.0.0.1:5273",
-  "roomUrl": "http://127.0.0.1:5273/?room=NRBJ4BI9EER&name=Host",
+  "roomUrl": "http://127.0.0.1:5273/?room=NRBP2BACL5I&name=Host",
   "memoryMode": false,
   "expectedExtensions": [
     ".xlsx",
@@ -23,64 +23,64 @@
   "downloadedFiles": [
     {
       "kind": "workbook",
-      "filename": "btb-44e44478-btb-44e44478-securities-offering-regulatory-framework.xlsx",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\44e44478-9e36-4df9-9657-85797c7fee58\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-44e44478-btb-44e44478-securities-offering-regulatory-framework.xlsx",
+      "filename": "btb-44e44478-btb-44e44478-ecm-wacc-analysis-with-industry-betas-and-equity-risk-premium.xlsx",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\44e44478-9e36-4df9-9657-85797c7fee58\\evidence\\btb-xlsx-btb-44e44478-btb-44e44478-ecm-wacc-analysis-with-industry-betas-and-equity-risk-premium.xlsx",
       "extension": ".xlsx",
-      "bytes": 8915,
+      "bytes": 7599,
       "magic": "PK\\x03\\x04",
       "reopened": true,
       "reopenDetail": "ZIP package contains xl/workbook.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (4571 chars)"
+      "contentQualityDetail": "placeholder/caveat content scan passed (1273 chars)"
     },
     {
       "kind": "workbook",
-      "filename": "btb-44e44478-btb-44e44478-securities-offering-regulatory-framework.xlsm",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\44e44478-9e36-4df9-9657-85797c7fee58\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-44e44478-btb-44e44478-securities-offering-regulatory-framework.xlsm",
+      "filename": "btb-44e44478-btb-44e44478-ecm-wacc-analysis-with-industry-betas-and-equity-risk-premium.xlsm",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\44e44478-9e36-4df9-9657-85797c7fee58\\evidence\\btb-xlsm-btb-44e44478-btb-44e44478-ecm-wacc-analysis-with-industry-betas-and-equity-risk-premium.xlsm",
       "extension": ".xlsm",
-      "bytes": 8915,
+      "bytes": 7599,
       "magic": "PK\\x03\\x04",
       "reopened": true,
       "reopenDetail": "ZIP package contains xl/workbook.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (4571 chars)"
+      "contentQualityDetail": "placeholder/caveat content scan passed (1273 chars)"
     },
     {
       "kind": "presentation",
-      "filename": "btb-44e44478-btb-44e44478-securities-offering-regulatory-framework.pptx",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\44e44478-9e36-4df9-9657-85797c7fee58\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-44e44478-btb-44e44478-securities-offering-regulatory-framework.pptx",
+      "filename": "btb-44e44478-btb-44e44478-ecm-wacc-analysis-with-industry-betas-and-equity-risk-premium.pptx",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\44e44478-9e36-4df9-9657-85797c7fee58\\evidence\\btb-pptx-btb-44e44478-btb-44e44478-ecm-wacc-analysis-with-industry-betas-and-equity-risk-premium.pptx",
       "extension": ".pptx",
-      "bytes": 7220,
+      "bytes": 6382,
       "magic": "PK\\x03\\x04",
       "reopened": true,
       "reopenDetail": "ZIP package contains ppt/presentation.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (2961 chars)"
+      "contentQualityDetail": "placeholder/caveat content scan passed (722 chars)"
     },
     {
       "kind": "document",
-      "filename": "btb-44e44478-btb-44e44478-securities-offering-regulatory-framework.docx",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\44e44478-9e36-4df9-9657-85797c7fee58\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-44e44478-btb-44e44478-securities-offering-regulatory-framework.docx",
+      "filename": "btb-44e44478-btb-44e44478-ecm-wacc-analysis-with-industry-betas-and-equity-risk-premium.docx",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\44e44478-9e36-4df9-9657-85797c7fee58\\evidence\\btb-docx-btb-44e44478-btb-44e44478-ecm-wacc-analysis-with-industry-betas-and-equity-risk-premium.docx",
       "extension": ".docx",
-      "bytes": 3815,
+      "bytes": 2462,
       "magic": "PK\\x03\\x04",
       "reopened": true,
       "reopenDetail": "ZIP package contains word/document.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (5090 chars)"
+      "contentQualityDetail": "placeholder/caveat content scan passed (956 chars)"
     },
     {
       "kind": "pdf",
-      "filename": "btb-44e44478-btb-44e44478-securities-offering-regulatory-framework.pdf",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\44e44478-9e36-4df9-9657-85797c7fee58\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-44e44478-btb-44e44478-securities-offering-regulatory-framework.pdf",
+      "filename": "btb-44e44478-btb-44e44478-ecm-wacc-analysis-with-industry-betas-and-equity-risk-premium.pdf",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\44e44478-9e36-4df9-9657-85797c7fee58\\evidence\\btb-pdf-btb-44e44478-btb-44e44478-ecm-wacc-analysis-with-industry-betas-and-equity-risk-premium.pdf",
       "extension": ".pdf",
-      "bytes": 4592,
+      "bytes": 1470,
       "magic": "%PDF",
       "reopened": true,
       "reopenDetail": "PDF header reopened",
-      "contentQualityDetail": "placeholder/caveat content scan passed (8665 chars)"
+      "contentQualityDetail": "placeholder/caveat content scan passed (2401 chars)"
     }
   ],
-  "packageManifestPath": "test-results\\bankertoolbench\\matrix\\44e44478-9e36-4df9-9657-85797c7fee58\\package-manifest.json",
+  "packageManifestPath": "docs\\eval\\fresh-room\\FR-020\\tasks\\44e44478-9e36-4df9-9657-85797c7fee58\\evidence\\package-manifest.json",
   "verifierCommand": "npm run benchmark:bankertoolbench:proof",
   "verifierOutputTail": "\n> noderoom@0.1.1 benchmark:bankertoolbench:proof\n> tsx scripts/bankertoolbench-proof-check.ts\n\nBankerToolBench proof check passed: stage=1/1 weightedRubric=6 run=0/1 pass positive=1/1 pass candidateBeforeEvaluator=true leaks=0/2+0/3+0/4\n",
-  "screenshot": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\44e44478-9e36-4df9-9657-85797c7fee58\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\bankertoolbench-live-room.png",
+  "screenshot": "docs\\eval\\fresh-room\\FR-020\\tasks\\44e44478-9e36-4df9-9657-85797c7fee58\\evidence\\bankertoolbench-live-room.png",
   "passed": true,
   "gatesProven": [
     "fresh_room_join",

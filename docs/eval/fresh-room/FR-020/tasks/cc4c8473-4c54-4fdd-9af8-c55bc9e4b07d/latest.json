@@ -3,10 +3,10 @@
   "caseId": "FR-020",
   "benchmark": "bankertoolbench",
   "taskId": "cc4c8473-4c54-4fdd-9af8-c55bc9e4b07d",
-  "generatedAt": "2026-06-25T02:32:44.781Z",
+  "generatedAt": "2026-06-26T01:28:49.410Z",
   "baseUrl": "http://127.0.0.1:5273",
-  "roomId": "NR4C3ORY2QQ",
-  "roomUrl": "http://127.0.0.1:5273/?room=NR4C3ORY2QQ&name=Host",
+  "roomId": "NRX61FIWOB5",
+  "roomUrl": "http://127.0.0.1:5273/?room=NRX61FIWOB5&name=Host",
   "command": "BTB_LIVE_ROOM_E2E=1 BTB_UI_BUNDLE_ROOT=<official-bundle> BTB_UI_VERIFIER_COMMAND=<verifier> BENCH_BASE_URL=<base> npx playwright test --config playwright.real-flow.config.ts e2e/benchmark-ui-bankertoolbench.spec.ts --headed",
   "model": {
     "requested": "specific",
@@ -21,11 +21,11 @@
     "roomCreatedAfterRunStart": true,
     "forbiddenPreloadedArtifactsAbsent": true,
     "artifactsCreatedFresh": [
-      "btb-cc4c8473-avp-ntm-424b4-ipo-valuation-wacc-intrinsic-value-analysis.xlsx",
-      "btb-cc4c8473-avp-ntm-424b4-ipo-valuation-wacc-intrinsic-value-analysis.xlsm",
-      "btb-cc4c8473-avp-ntm-424b4-ipo-valuation-wacc-intrinsic-value-analysis.pptx",
-      "btb-cc4c8473-avp-ntm-424b4-ipo-valuation-wacc-intrinsic-value-analysis.docx",
-      "btb-cc4c8473-avp-ntm-424b4-ipo-valuation-wacc-intrinsic-value-analysis.pdf"
+      "btb-cc4c8473-figma-ipo-valuation-analysis-wacc-avp-ntm-forward-metrics-figma-rubrik.xlsx",
+      "btb-cc4c8473-figma-ipo-valuation-analysis-wacc-avp-ntm-forward-metrics-figma-rubrik.xlsm",
+      "btb-cc4c8473-figma-ipo-valuation-analysis-wacc-avp-ntm-forward-metrics-figma-rubrik.pptx",
+      "btb-cc4c8473-figma-ipo-valuation-analysis-wacc-avp-ntm-forward-metrics-figma-rubrik.docx",
+      "btb-cc4c8473-figma-ipo-valuation-analysis-wacc-avp-ntm-forward-metrics-figma-rubrik.pdf"
     ],
     "uploadedFiles": [
       "betas_by_industry_category_for_WACC.xlsx",
@@ -42,7 +42,7 @@
     "jobDetailVisible": true,
     "roomTraceVisible": true,
     "screenshotPaths": [
-      "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\cc4c8473-4c54-4fdd-9af8-c55bc9e4b07d\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\bankertoolbench-live-room.png"
+      "docs\\eval\\fresh-room\\FR-020\\tasks\\cc4c8473-4c54-4fdd-9af8-c55bc9e4b07d\\evidence\\bankertoolbench-live-room.png"
     ],
     "tracePath": "docs\\eval\\bankertoolbench\\live-room\\cc4c8473-4c54-4fdd-9af8-c55bc9e4b07d.json"
   },
@@ -55,94 +55,94 @@
       "btb-cc4c8473-official-task-brief.txt"
     ],
     "created": [
-      "btb-cc4c8473-avp-ntm-424b4-ipo-valuation-wacc-intrinsic-value-analysis.xlsx",
-      "btb-cc4c8473-avp-ntm-424b4-ipo-valuation-wacc-intrinsic-value-analysis.xlsm",
-      "btb-cc4c8473-avp-ntm-424b4-ipo-valuation-wacc-intrinsic-value-analysis.pptx",
-      "btb-cc4c8473-avp-ntm-424b4-ipo-valuation-wacc-intrinsic-value-analysis.docx",
-      "btb-cc4c8473-avp-ntm-424b4-ipo-valuation-wacc-intrinsic-value-analysis.pdf"
+      "btb-cc4c8473-figma-ipo-valuation-analysis-wacc-avp-ntm-forward-metrics-figma-rubrik.xlsx",
+      "btb-cc4c8473-figma-ipo-valuation-analysis-wacc-avp-ntm-forward-metrics-figma-rubrik.xlsm",
+      "btb-cc4c8473-figma-ipo-valuation-analysis-wacc-avp-ntm-forward-metrics-figma-rubrik.pptx",
+      "btb-cc4c8473-figma-ipo-valuation-analysis-wacc-avp-ntm-forward-metrics-figma-rubrik.docx",
+      "btb-cc4c8473-figma-ipo-valuation-analysis-wacc-avp-ntm-forward-metrics-figma-rubrik.pdf"
     ],
     "exportedFiles": [
       {
         "kind": "workbook",
-        "filename": "btb-cc4c8473-avp-ntm-424b4-ipo-valuation-wacc-intrinsic-value-analysis.xlsx",
-        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\cc4c8473-4c54-4fdd-9af8-c55bc9e4b07d\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-cc4c8473-avp-ntm-424b4-ipo-valuation-wacc-intrinsic-value-analysis.xlsx",
+        "filename": "btb-cc4c8473-figma-ipo-valuation-analysis-wacc-avp-ntm-forward-metrics-figma-rubrik.xlsx",
+        "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\cc4c8473-4c54-4fdd-9af8-c55bc9e4b07d\\evidence\\btb-xlsx-btb-cc4c8473-figma-ipo-valuation-analysis-wacc-avp-ntm-forward-metrics-figma-rubrik.xlsx",
         "extension": ".xlsx",
         "downloaded": true,
-        "bytes": 7121,
+        "bytes": 8929,
         "magic": "PK\\x03\\x04"
       },
       {
         "kind": "workbook",
-        "filename": "btb-cc4c8473-avp-ntm-424b4-ipo-valuation-wacc-intrinsic-value-analysis.xlsm",
-        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\cc4c8473-4c54-4fdd-9af8-c55bc9e4b07d\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-cc4c8473-avp-ntm-424b4-ipo-valuation-wacc-intrinsic-value-analysis.xlsm",
+        "filename": "btb-cc4c8473-figma-ipo-valuation-analysis-wacc-avp-ntm-forward-metrics-figma-rubrik.xlsm",
+        "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\cc4c8473-4c54-4fdd-9af8-c55bc9e4b07d\\evidence\\btb-xlsm-btb-cc4c8473-figma-ipo-valuation-analysis-wacc-avp-ntm-forward-metrics-figma-rubrik.xlsm",
         "extension": ".xlsm",
         "downloaded": true,
-        "bytes": 7121,
+        "bytes": 8929,
         "magic": "PK\\x03\\x04"
       },
       {
         "kind": "presentation",
-        "filename": "btb-cc4c8473-avp-ntm-424b4-ipo-valuation-wacc-intrinsic-value-analysis.pptx",
-        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\cc4c8473-4c54-4fdd-9af8-c55bc9e4b07d\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-cc4c8473-avp-ntm-424b4-ipo-valuation-wacc-intrinsic-value-analysis.pptx",
+        "filename": "btb-cc4c8473-figma-ipo-valuation-analysis-wacc-avp-ntm-forward-metrics-figma-rubrik.pptx",
+        "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\cc4c8473-4c54-4fdd-9af8-c55bc9e4b07d\\evidence\\btb-pptx-btb-cc4c8473-figma-ipo-valuation-analysis-wacc-avp-ntm-forward-metrics-figma-rubrik.pptx",
         "extension": ".pptx",
         "downloaded": true,
-        "bytes": 6420,
+        "bytes": 6745,
         "magic": "PK\\x03\\x04"
       },
       {
         "kind": "document",
-        "filename": "btb-cc4c8473-avp-ntm-424b4-ipo-valuation-wacc-intrinsic-value-analysis.docx",
-        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\cc4c8473-4c54-4fdd-9af8-c55bc9e4b07d\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-cc4c8473-avp-ntm-424b4-ipo-valuation-wacc-intrinsic-value-analysis.docx",
+        "filename": "btb-cc4c8473-figma-ipo-valuation-analysis-wacc-avp-ntm-forward-metrics-figma-rubrik.docx",
+        "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\cc4c8473-4c54-4fdd-9af8-c55bc9e4b07d\\evidence\\btb-docx-btb-cc4c8473-figma-ipo-valuation-analysis-wacc-avp-ntm-forward-metrics-figma-rubrik.docx",
         "extension": ".docx",
         "downloaded": true,
-        "bytes": 2385,
+        "bytes": 3280,
         "magic": "PK\\x03\\x04"
       },
       {
         "kind": "pdf",
-        "filename": "btb-cc4c8473-avp-ntm-424b4-ipo-valuation-wacc-intrinsic-value-analysis.pdf",
-        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\cc4c8473-4c54-4fdd-9af8-c55bc9e4b07d\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-cc4c8473-avp-ntm-424b4-ipo-valuation-wacc-intrinsic-value-analysis.pdf",
+        "filename": "btb-cc4c8473-figma-ipo-valuation-analysis-wacc-avp-ntm-forward-metrics-figma-rubrik.pdf",
+        "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\cc4c8473-4c54-4fdd-9af8-c55bc9e4b07d\\evidence\\btb-pdf-btb-cc4c8473-figma-ipo-valuation-analysis-wacc-avp-ntm-forward-metrics-figma-rubrik.pdf",
         "extension": ".pdf",
         "downloaded": true,
-        "bytes": 1390,
+        "bytes": 4568,
         "magic": "%PDF"
       }
     ],
     "reopenedFiles": [
       {
         "kind": "workbook",
-        "filename": "btb-cc4c8473-avp-ntm-424b4-ipo-valuation-wacc-intrinsic-value-analysis.xlsx",
+        "filename": "btb-cc4c8473-figma-ipo-valuation-analysis-wacc-avp-ntm-forward-metrics-figma-rubrik.xlsx",
         "reopened": true,
         "scorerResult": "pass",
-        "detail": "ZIP package contains xl/workbook.xml; placeholder/caveat content scan passed (945 chars)"
+        "detail": "ZIP package contains xl/workbook.xml; placeholder/caveat content scan passed (3718 chars)"
       },
       {
         "kind": "workbook",
-        "filename": "btb-cc4c8473-avp-ntm-424b4-ipo-valuation-wacc-intrinsic-value-analysis.xlsm",
+        "filename": "btb-cc4c8473-figma-ipo-valuation-analysis-wacc-avp-ntm-forward-metrics-figma-rubrik.xlsm",
         "reopened": true,
         "scorerResult": "pass",
-        "detail": "ZIP package contains xl/workbook.xml; placeholder/caveat content scan passed (945 chars)"
+        "detail": "ZIP package contains xl/workbook.xml; placeholder/caveat content scan passed (3718 chars)"
       },
       {
         "kind": "presentation",
-        "filename": "btb-cc4c8473-avp-ntm-424b4-ipo-valuation-wacc-intrinsic-value-analysis.pptx",
+        "filename": "btb-cc4c8473-figma-ipo-valuation-analysis-wacc-avp-ntm-forward-metrics-figma-rubrik.pptx",
         "reopened": true,
         "scorerResult": "pass",
-        "detail": "ZIP package contains ppt/presentation.xml; placeholder/caveat content scan passed (986 chars)"
+        "detail": "ZIP package contains ppt/presentation.xml; placeholder/caveat content scan passed (1809 chars)"
       },
       {
         "kind": "document",
-        "filename": "btb-cc4c8473-avp-ntm-424b4-ipo-valuation-wacc-intrinsic-value-analysis.docx",
+        "filename": "btb-cc4c8473-figma-ipo-valuation-analysis-wacc-avp-ntm-forward-metrics-figma-rubrik.docx",
         "reopened": true,
         "scorerResult": "pass",
-        "detail": "ZIP package contains word/document.xml; placeholder/caveat content scan passed (959 chars)"
+        "detail": "ZIP package contains word/document.xml; placeholder/caveat content scan passed (5114 chars)"
       },
       {
         "kind": "pdf",
-        "filename": "btb-cc4c8473-avp-ntm-424b4-ipo-valuation-wacc-intrinsic-value-analysis.pdf",
+        "filename": "btb-cc4c8473-figma-ipo-valuation-analysis-wacc-avp-ntm-forward-metrics-figma-rubrik.pdf",
         "reopened": true,
         "scorerResult": "pass",
-        "detail": "PDF header reopened; placeholder/caveat content scan passed (2261 chars)"
+        "detail": "PDF header reopened; placeholder/caveat content scan passed (8465 chars)"
       }
     ]
   },
@@ -153,7 +153,7 @@
     "score": 1,
     "details": {
       "verifierOutputTail": "\n> noderoom@0.1.1 benchmark:bankertoolbench:proof\n> tsx scripts/bankertoolbench-proof-check.ts\n\nBankerToolBench proof check passed: stage=1/1 weightedRubric=6 run=0/1 pass positive=1/1 pass candidateBeforeEvaluator=true leaks=0/2+0/3+0/4\n",
-      "packageManifestPath": "test-results\\bankertoolbench\\matrix\\cc4c8473-4c54-4fdd-9af8-c55bc9e4b07d\\package-manifest.json",
+      "packageManifestPath": "docs\\eval\\fresh-room\\FR-020\\tasks\\cc4c8473-4c54-4fdd-9af8-c55bc9e4b07d\\evidence\\package-manifest.json",
       "downloadedExtensions": [
         ".xlsx",
         ".xlsm",
@@ -163,8 +163,8 @@
       ],
       "exportSource": "browser_download_link",
       "agentTerminalQuality": {
-        "statusText": "completed via recovered Convex job: 24b4-ipo-valuation-wacc-intrinsic-value-analysis.pptx, btb-cc4c8473-avp-ntm-424b4-ipo-valuation-wacc-intrinsic-value-analysis.docx, btb-cc4c8473-avp-ntm-424b4-ipo-valuation-wacc-intrinsic-value-analysis.pdf. Coverage confirmed for AVP, NTM.",
-        "evidenceTextLength": 1981,
+        "statusText": "completed via recovered Convex job: d-metrics-figma-rubrik.pptx, btb-cc4c8473-figma-ipo-valuation-analysis-wacc-avp-ntm-forward-metrics-figma-rubrik.docx, btb-cc4c8473-figma-ipo-valuation-analysis-wacc-avp-ntm-forward-metrics-figma-rubrik.pdf. Coverage confirmed for AVP, NTM.",
+        "evidenceTextLength": 1216,
         "detail": "agent reached completed status or visible completion text, with no missing-source/unfinished-work caveats"
       },
       "taskCoverage": {
@@ -174,13 +174,22 @@
           "NTM"
         ],
         "missingTickers": [],
-        "detail": "generated package mentions every requested ticker/entity: AVP, NTM"
+        "domainProof": {
+          "ok": true,
+          "domain": "generic",
+          "gates": [],
+          "missingGates": [],
+          "detail": "no task-specific domain proof gate required"
+        },
+        "detail": "generated package mentions every requested ticker/entity: AVP, NTM; no task-specific domain proof gate required"
       }
     }
   },
   "visualJudge": {
-    "verdict": "not_run",
-    "reason": "GOOGLE_GENERATIVE_AI_API_KEY is not set; deterministic browser/download/reopen/verifier proof passed."
+    "command": "npm run media:gemini-judge -- --run-id btb-full-20260626-retry-nonbc55 --out \"docs\\\\eval\\\\gemini-media-judges\\\\btb-full-20260626\\\\retry-nonbc55\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\205a3cb3-33b8-42ea-b50c-fe2dc1630208\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\5d72295c-f640-4c78-b85a-6f338e46c02b\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\963978db-b155-4fe2-9ae7-ca0b259a5fba\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\9ed5fdf8-7ffa-4c26-92d8-e1f28308af52\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\b486dc21-d67e-4857-b2f9-b78c0e0222ce\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\bd2aa5d6-30cd-4b6f-875a-2c3626f56441\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\c1c36cfd-677b-462b-96d4-ea76e12e98e8\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\cc4c8473-4c54-4fdd-9af8-c55bc9e4b07d\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\df4c5a14-a6f9-4a56-ac8a-ad2562b50a7e\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\"",
+    "verdict": "pass",
+    "scorecardPath": "docs/eval/gemini-media-judges/btb-full-20260626/retry-nonbc55/btb-full-20260626-retry-nonbc55/summary.md",
+    "reason": "Gemini media judge publish (8/16); defects P0/P1/P2=0/0/0. The video demonstrates a complete end-to-end financial analyst workflow where an agent processes uploaded spreadsheets and documents to generate valuation models, presentations, and memos. Source clip: test-results\\bankertoolbench\\matrix\\cc4c8473-4c54-4fdd-9af8-c55bc9e4b07d\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\video.webm."
   },
   "gatesProven": [
     "fresh_room_join",
@@ -198,7 +207,8 @@
     "deliverable_export_download",
     "artifact_reopen_validation",
     "artifact_placeholder_scan",
-    "official_scorer_handoff"
+    "official_scorer_handoff",
+    "visual_judge_handoff"
   ],
   "passed": true
 }

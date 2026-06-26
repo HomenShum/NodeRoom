@@ -1,0 +1,65 @@
+{
+  "schema": 1,
+  "taskId": "8182334a-2a3b-4607-91f3-59d5b94f5cb0",
+  "harborTaskId": "btb-8182334a",
+  "generatedAt": "2026-06-25T23:51:06.814Z",
+  "baseUrl": "http://127.0.0.1:5273",
+  "roomUrl": "http://127.0.0.1:5273/?room=NR3K03TL1P4&name=Host",
+  "downloadedFiles": [
+    {
+      "kind": "workbook",
+      "filename": "btb-8182334a-salesforce-crm-free-cash-flow-fcf-analysis.xlsx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\8182334a-2a3b-4607-91f3-59d5b94f5cb0\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-8182334a-salesforce-crm-free-cash-flow-fcf-analysis.xlsx",
+      "extension": ".xlsx",
+      "bytes": 7197,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j979fp738h9nacj75bb1r86dbn89brjr",
+      "contentQualityDetail": "placeholder/caveat content scan passed (1156 chars)"
+    },
+    {
+      "kind": "workbook",
+      "filename": "btb-8182334a-salesforce-crm-free-cash-flow-fcf-analysis.xlsm",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\8182334a-2a3b-4607-91f3-59d5b94f5cb0\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-8182334a-salesforce-crm-free-cash-flow-fcf-analysis.xlsm",
+      "extension": ".xlsm",
+      "bytes": 7197,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j976vqdccnnqc18z80krwrdj4n89ampk",
+      "contentQualityDetail": "placeholder/caveat content scan passed (1156 chars)"
+    },
+    {
+      "kind": "presentation",
+      "filename": "btb-8182334a-salesforce-crm-free-cash-flow-fcf-analysis.pptx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\8182334a-2a3b-4607-91f3-59d5b94f5cb0\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-8182334a-salesforce-crm-free-cash-flow-fcf-analysis.pptx",
+      "extension": ".pptx",
+      "bytes": 6301,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains ppt/presentation.xml; recovered from Convex room artifact j977z9xcqh9qd67agmgyf9tgz589a6tv",
+      "contentQualityDetail": "placeholder/caveat content scan passed (812 chars)"
+    },
+    {
+      "kind": "document",
+      "filename": "btb-8182334a-salesforce-crm-free-cash-flow-fcf-analysis.docx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\8182334a-2a3b-4607-91f3-59d5b94f5cb0\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-8182334a-salesforce-crm-free-cash-flow-fcf-analysis.docx",
+      "extension": ".docx",
+      "bytes": 2329,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains word/document.xml; recovered from Convex room artifact j97fb4e5pjjnshmjb82rdjy2bn89bv0v",
+      "contentQualityDetail": "placeholder/caveat content scan passed (954 chars)"
+    },
+    {
+      "kind": "pdf",
+      "filename": "btb-8182334a-salesforce-crm-free-cash-flow-fcf-analysis.pdf",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\8182334a-2a3b-4607-91f3-59d5b94f5cb0\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-8182334a-salesforce-crm-free-cash-flow-fcf-analysis.pdf",
+      "extension": ".pdf",
+      "bytes": 1355,
+      "magic": "%PDF",
+      "reopened": true,
+      "reopenDetail": "PDF header reopened; recovered from Convex room artifact j970tq9wkt0ejs26bx6cnx3bgd89awtt",
+      "contentQualityDetail": "placeholder/caveat content scan passed (2182 chars)"
+    }
+  ]
+}

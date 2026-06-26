@@ -1,0 +1,29 @@
+{
+  "schema": 1,
+  "judgePath": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\docs\\eval\\gemini-media-judges\\btb-placeholder-g1-20260626\\latest.json",
+  "summaryPath": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\docs\\eval\\gemini-media-judges\\btb-placeholder-g1-20260626\\btb-placeholder-g1-20260626\\summary.md",
+  "command": "npm run media:gemini-judge -- --run-id btb-placeholder-g1-20260626 --out \"docs\\\\eval\\\\gemini-media-judges\\\\btb-placeholder-g1-20260626\" --input \"test-results\\\\bankertoolbench\\\\matrix\\\\5495a5a9-1087-4fd9-97f9-d677dd856e24\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"test-results\\\\bankertoolbench\\\\matrix\\\\b957a435-13bf-469b-b4de-fa55e3b15edd\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\"",
+  "updated": [
+    {
+      "taskId": "5495a5a9-1087-4fd9-97f9-d677dd856e24",
+      "receiptPath": "docs\\eval\\fresh-room\\FR-020\\tasks\\5495a5a9-1087-4fd9-97f9-d677dd856e24\\latest.json",
+      "videoPath": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\5495a5a9-1087-4fd9-97f9-d677dd856e24\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\video.webm",
+      "visualJudgeVerdict": "pass",
+      "mediaJudgeVerdict": "publish",
+      "score": 8,
+      "maxScore": 16,
+      "reason": "Gemini media judge publish (8/16); defects P0/P1/P2=0/0/1. Excellent benchmark run showing file uploads, agent execution, and verification of generated financial artifacts. Source clip: test-results\\bankertoolbench\\matrix\\5495a5a9-1087-4fd9-97f9-d677dd856e24\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\video.webm."
+    },
+    {
+      "taskId": "b957a435-13bf-469b-b4de-fa55e3b15edd",
+      "receiptPath": "docs\\eval\\fresh-room\\FR-020\\tasks\\b957a435-13bf-469b-b4de-fa55e3b15edd\\latest.json",
+      "videoPath": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\b957a435-13bf-469b-b4de-fa55e3b15edd\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\video.webm",
+      "visualJudgeVerdict": "pass",
+      "mediaJudgeVerdict": "publish",
+      "score": 8,
+      "maxScore": 16,
+      "reason": "Gemini media judge publish (8/16); defects P0/P1/P2=0/0/0. The video demonstrates a complete end-to-end benchmark run where multiple financial data files are uploaded, a task brief is loaded, and NodeAgent is executed to generate a comprehensive valuation model package including spreadsheets, a presentation, and a PDF report. Source clip: test-results\\bankertoolbench\\matrix\\b957a435-13bf-469b-b4de-fa55e3b15edd\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\video.webm."
+    }
+  ],
+  "skipped": []
+}

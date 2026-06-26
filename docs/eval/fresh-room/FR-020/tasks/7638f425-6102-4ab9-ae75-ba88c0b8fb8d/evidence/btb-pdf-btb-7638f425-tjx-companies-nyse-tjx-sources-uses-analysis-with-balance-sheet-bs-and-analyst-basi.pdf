@@ -1,0 +1,65 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+5 0 obj
+<< /Length 2173 >>
+stream
+BT /F1 11 Tf 54 760 Td (TJX Companies \(NYSE: TJX\) Sources & Uses Analysis with Balance Sheet \(BS\) and Analyst Basic Consensus \(ABC\) Estimates) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(TJX Companies \(NYSE: TJX\) Sources and Uses Analysis
+
+This package covers all four requested entities:
+1. TJX - The TJX Companies, a publicly traded company
+2. NYSE - The New York Stock Exchange, where TJX is listed
+3. ) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(Rows: 8) Tj
+0 -16 Td
+(TJX - Market Capitalization — Ticker: TJX · Exchange: NYSE · Shares Outstanding: 1151000000 · Stock Price: 118.83 · Market Cap: 136729330000 · Source: TJX-US Price History.xlsx, TJX-US Shares Outstanding.xlsx) Tj
+0 -16 Td
+(TJX - Balance Sheet \(BS\) Summary — Ticker: TJX · Total Assets: 14348000000 · Total Liabilities: 7856000000 · Total Equity: 6492000000 · Total Debt: 2022000000 · Cash And Equivalents: 3564000000 · Net Cash: 1542000000 ·) Tj
+0 -16 Td
+(TJX - Income Statement Summary — Ticker: TJX · Revenue: 54219000000 · Operating Income: 5728000000 · Net Income: 4473000000 · Source: TJX-US Income Statement Annual.xlsx) Tj
+0 -16 Td
+(ABC - Analyst Basic Consensus Estimates — Ticker: TJX · Revenue Estimate Next Fy: 56400000000 · Eps Estimate Next Fy: 4.19 · Revenue Growth Pct: 4 · Source: TJX-US Revenue Estimate.xlsx, TJX-US Earnings Estimate.xlsx) Tj
+0 -16 Td
+(NYSE - Exchange Listing — Ticker: TJX · Exchange: NYSE · Entity: New York Stock Exchange · Source: TJX-US Company Identity.xlsx) Tj
+0 -16 Td
+(TJX - WACC Calculation — Ticker: TJX · Industry Beta: 0.87 · Equity Risk Premium Pct: 5.5 · Cost Of Equity Pct: 6.63 · After Tax Cost Of Debt Pct: 3.92 · Wacc Pct: 6.44 · Source: betas_by_industry_category_for_WACC.xlsx,) Tj
+0 -16 Td
+(TJX - Enterprise Value — Ticker: TJX · Market Cap: 136729330000 · Total Debt: 2022000000 · Cash: 3564000000 · Enterprise Value: 135187330000 · Source: Computed from BS and Price History) Tj
+0 -16 Td
+(TJX - Cash Flow Summary — Ticker: TJX · Operating Cash Flow: 5167000000 · Capital Expenditures: 1700000000 · Free Cash Flow: 3467000000 · Source: TJX-US Cash Flow Annual.xlsx) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(Sources: ) Tj ET
+endstream
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000241 00000 n 
+0000000311 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+2536
+%%EOF

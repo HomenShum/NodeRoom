@@ -1,0 +1,65 @@
+{
+  "schema": 1,
+  "taskId": "68259d37-5dd5-4c19-bafc-676246a479ea",
+  "harborTaskId": "btb-68259d37",
+  "generatedAt": "2026-06-26T00:50:15.471Z",
+  "baseUrl": "http://127.0.0.1:5273",
+  "roomUrl": "http://127.0.0.1:5273/?room=NR1NA5LPQWP&name=Host",
+  "downloadedFiles": [
+    {
+      "kind": "workbook",
+      "filename": "btb-68259d37-cava-s-share-price-performance-since-ipo---btb-btb-68259d37.xlsx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\68259d37-5dd5-4c19-bafc-676246a479ea\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-68259d37-cava-s-share-price-performance-since-ipo---btb-btb-68259d37.xlsx",
+      "extension": ".xlsx",
+      "bytes": 7337,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j977j1hq7r8b9mdz5ffa48xk8n89dn4q",
+      "contentQualityDetail": "placeholder/caveat content scan passed (1311 chars)"
+    },
+    {
+      "kind": "workbook",
+      "filename": "btb-68259d37-cava-s-share-price-performance-since-ipo---btb-btb-68259d37.xlsm",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\68259d37-5dd5-4c19-bafc-676246a479ea\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-68259d37-cava-s-share-price-performance-since-ipo---btb-btb-68259d37.xlsm",
+      "extension": ".xlsm",
+      "bytes": 7337,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j979r5bw0jq73t0ca4sy5kdckh89d1ew",
+      "contentQualityDetail": "placeholder/caveat content scan passed (1311 chars)"
+    },
+    {
+      "kind": "presentation",
+      "filename": "btb-68259d37-cava-s-share-price-performance-since-ipo---btb-btb-68259d37.pptx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\68259d37-5dd5-4c19-bafc-676246a479ea\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-68259d37-cava-s-share-price-performance-since-ipo---btb-btb-68259d37.pptx",
+      "extension": ".pptx",
+      "bytes": 6516,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains ppt/presentation.xml; recovered from Convex room artifact j97b3hg9z9ffk44bs24nne0p8s89cwfx",
+      "contentQualityDetail": "placeholder/caveat content scan passed (1416 chars)"
+    },
+    {
+      "kind": "document",
+      "filename": "btb-68259d37-cava-s-share-price-performance-since-ipo---btb-btb-68259d37.docx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\68259d37-5dd5-4c19-bafc-676246a479ea\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-68259d37-cava-s-share-price-performance-since-ipo---btb-btb-68259d37.docx",
+      "extension": ".docx",
+      "bytes": 2484,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains word/document.xml; recovered from Convex room artifact j97ct621m2pk2ehba15pw4p34589dkkp",
+      "contentQualityDetail": "placeholder/caveat content scan passed (1397 chars)"
+    },
+    {
+      "kind": "pdf",
+      "filename": "btb-68259d37-cava-s-share-price-performance-since-ipo---btb-btb-68259d37.pdf",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\68259d37-5dd5-4c19-bafc-676246a479ea\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-68259d37-cava-s-share-price-performance-since-ipo---btb-btb-68259d37.pdf",
+      "extension": ".pdf",
+      "bytes": 1987,
+      "magic": "%PDF",
+      "reopened": true,
+      "reopenDetail": "PDF header reopened; recovered from Convex room artifact j97b56etg07mfsamp1e1eqea6x89cyzy",
+      "contentQualityDetail": "placeholder/caveat content scan passed (3416 chars)"
+    }
+  ]
+}

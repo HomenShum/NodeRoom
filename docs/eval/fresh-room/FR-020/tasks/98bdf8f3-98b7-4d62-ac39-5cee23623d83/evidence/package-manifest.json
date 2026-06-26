@@ -1,0 +1,65 @@
+{
+  "schema": 1,
+  "taskId": "98bdf8f3-98b7-4d62-ac39-5cee23623d83",
+  "harborTaskId": "btb-98bdf8f3",
+  "generatedAt": "2026-06-26T03:28:26.898Z",
+  "baseUrl": "http://127.0.0.1:5273",
+  "roomUrl": "http://127.0.0.1:5273/?room=NRH9287BBDC&name=Host",
+  "downloadedFiles": [
+    {
+      "kind": "workbook",
+      "filename": "btb-98bdf8f3-meta-platforms-meta-buyside-minority-stake-profile---xls-ppt-pdf.xlsx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\98bdf8f3-98b7-4d62-ac39-5cee23623d83\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-98bdf8f3-meta-platforms-meta-buyside-minority-stake-profile---xls-ppt-pdf.xlsx",
+      "extension": ".xlsx",
+      "bytes": 10327,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (5211 chars)"
+    },
+    {
+      "kind": "workbook",
+      "filename": "btb-98bdf8f3-meta-platforms-meta-buyside-minority-stake-profile---xls-ppt-pdf.xlsm",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\98bdf8f3-98b7-4d62-ac39-5cee23623d83\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-98bdf8f3-meta-platforms-meta-buyside-minority-stake-profile---xls-ppt-pdf.xlsm",
+      "extension": ".xlsm",
+      "bytes": 10327,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (5211 chars)"
+    },
+    {
+      "kind": "presentation",
+      "filename": "btb-98bdf8f3-meta-platforms-meta-buyside-minority-stake-profile---xls-ppt-pdf.pptx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\98bdf8f3-98b7-4d62-ac39-5cee23623d83\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-98bdf8f3-meta-platforms-meta-buyside-minority-stake-profile---xls-ppt-pdf.pptx",
+      "extension": ".pptx",
+      "bytes": 7161,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains ppt/presentation.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (2436 chars)"
+    },
+    {
+      "kind": "document",
+      "filename": "btb-98bdf8f3-meta-platforms-meta-buyside-minority-stake-profile---xls-ppt-pdf.docx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\98bdf8f3-98b7-4d62-ac39-5cee23623d83\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-98bdf8f3-meta-platforms-meta-buyside-minority-stake-profile---xls-ppt-pdf.docx",
+      "extension": ".docx",
+      "bytes": 3484,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains word/document.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (3231 chars)"
+    },
+    {
+      "kind": "pdf",
+      "filename": "btb-98bdf8f3-meta-platforms-meta-buyside-minority-stake-profile---xls-ppt-pdf.pdf",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\98bdf8f3-98b7-4d62-ac39-5cee23623d83\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-98bdf8f3-meta-platforms-meta-buyside-minority-stake-profile---xls-ppt-pdf.pdf",
+      "extension": ".pdf",
+      "bytes": 3300,
+      "magic": "%PDF",
+      "reopened": true,
+      "reopenDetail": "PDF header reopened",
+      "contentQualityDetail": "placeholder/caveat content scan passed (6012 chars)"
+    }
+  ]
+}

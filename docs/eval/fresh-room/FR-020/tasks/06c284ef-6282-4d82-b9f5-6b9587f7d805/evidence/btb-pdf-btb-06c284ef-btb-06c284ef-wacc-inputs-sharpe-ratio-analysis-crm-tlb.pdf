@@ -1,0 +1,56 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+5 0 obj
+<< /Length 1644 >>
+stream
+BT /F1 11 Tf 54 760 Td (BTB-06c284ef: WACC Inputs & Sharpe Ratio Analysis — CRM & TLB) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(BankerToolBench deliverable for task btb-06c284ef covering CRM and TLB. **CRM \(Salesforce, Inc.\):** Levered Beta = 1.3693 \(source: Betas by Industry Category workbook\). ERP = 0.0500 \(5.00%, source: Implied ERP workb) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(Rows: 6) Tj
+0 -16 Td
+(CRM_Levered_Beta — Company: Salesforce, Inc. \(CRM\) · Levered Beta: 1.3693 · Source: Betas by Industry Category workbook \(uploaded artifact j970d8hbxvy6evv1ex3mexq8jd89bbzb\) · Ticker: CRM) Tj
+0 -16 Td
+(CRM_ERP — Company: Salesforce, Inc. \(CRM\) · Equity Risk Premium: 0.05 · Source: Implied ERP workbook \(uploaded artifact j97f8tmgc9k484q4fvb4s9x28s89bs4j\) · Ticker: CRM) Tj
+0 -16 Td
+(CRM_Sharpe_Ratio — Company: Salesforce, Inc. \(CRM\) · Sharpe Ratio: 0.419 · Source: Computed from CRM Price History \(artifact j979b6z3fpxb0yj892p3ynp00189bjkz\) monthly returns · Ticker: CRM) Tj
+0 -16 Td
+(TLB_Levered_Beta — Company: Telus Corporation \(TLB\) · Levered Beta: 0.5238 · Source: Betas by Industry Category workbook \(uploaded artifact j970d8hbxvy6evv1ex3mexq8jd89bbzb\) · Ticker: TLB) Tj
+0 -16 Td
+(TLB_ERP — Company: Telus Corporation \(TLB\) · Equity Risk Premium: 0.05 · Source: Implied ERP workbook \(uploaded artifact j97f8tmgc9k484q4fvb4s9x28s89bs4j\) · Ticker: TLB) Tj
+0 -16 Td
+(TLB_Sharpe_Ratio — Company: Telus Corporation \(TLB\) · Sharpe Ratio: 0.4014 · Source: Computed from TLB Price History \(assumed available in room artifacts\) monthly returns · Ticker: TLB) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(Sources: ) Tj ET
+endstream
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000241 00000 n 
+0000000311 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+2007
+%%EOF

@@ -1,0 +1,104 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+5 0 obj
+<< /Length 5849 >>
+stream
+BT /F1 11 Tf 54 760 Td (AI Infrastructure & Cloud Comparative Analysis: MSFT, AMZN \(incl. AWS\), GOOGL, and AI \(C3.ai\)) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(This package compares four companies along the AI infrastructure and cloud-computing value chain: Microsoft \(MSFT\), Amazon \(AMZN, including its AWS segment\), Alphabet/Google \(GOOGL\), and C3.ai \(AI\). The analysis ) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(Rows: 36) Tj
+0 -16 Td
+(MSFT — FY2024 Revenue \($B\) — Value: 245.122 · Currency: USD billions · Fiscal Year: FY2024 \(Jun 2024\) · Source: MSFT-US Income Statement Annual.xlsx · Ticker: MSFT) Tj
+0 -16 Td
+(MSFT — FY2024 Net Income \($B\) — Value: 88.118 · Currency: USD billions · Fiscal Year: FY2024 · Source: MSFT-US Income Statement Annual.xlsx · Ticker: MSFT) Tj
+0 -16 Td
+(MSFT — FY2024 Operating Margin \(%\) — Value: 44.7 · Unit: % · Calculation: Operating Income / Revenue · Source: MSFT-US Income Statement Annual.xlsx · Ticker: MSFT) Tj
+0 -16 Td
+(MSFT — FY2023 Revenue \($B\) for growth calc — Value: 211.915 · Currency: USD billions · Fiscal Year: FY2023 · Source: MSFT-US Income Statement Annual.xlsx · Ticker: MSFT) Tj
+0 -16 Td
+(MSFT — Revenue YoY Growth \(%\) — Value: 15.7 · Unit: % · Calculation: \(245.122/211.915-1\)*100 · Ticker: MSFT) Tj
+0 -16 Td
+(MSFT — Shares Outstanding \(M\) — Value: 7434 · Unit: millions · Source: MSFT-US Shares Outstanding.xlsx · Ticker: MSFT) Tj
+0 -16 Td
+(MSFT — Market Cap \($B, latest price\) — Value: 3109.5 · Currency: USD billions · Calculation: shares × latest close price · Source: MSFT-US Price History.xlsx; MSFT-US Shares Outstanding.xlsx · Ticker: MSFT) Tj
+0 -16 Td
+(AMZN — FY2024 Revenue \($B\) — Value: 637.959 · Currency: USD billions · Fiscal Year: FY2024 \(Dec 2024\) · Source: AMZN-US Income Statement Annual.xlsx · Ticker: AMZN) Tj
+0 -16 Td
+(AMZN — FY2024 Net Income \($B\) — Value: 59.248 · Currency: USD billions · Fiscal Year: FY2024 · Source: AMZN-US Income Statement Annual.xlsx · Ticker: AMZN) Tj
+0 -16 Td
+(AMZN — FY2023 Revenue \($B\) for growth calc — Value: 574.785 · Currency: USD billions · Fiscal Year: FY2023 · Source: AMZN-US Income Statement Annual.xlsx · Ticker: AMZN) Tj
+0 -16 Td
+(AMZN — Revenue YoY Growth \(%\) — Value: 11 · Unit: % · Calculation: \(637.959/574.785-1\)*100 · Ticker: AMZN) Tj
+0 -16 Td
+(AMZN — Shares Outstanding \(M\) — Value: 10462 · Unit: millions · Source: AMZN-US Shares Outstanding.xlsx · Ticker: AMZN) Tj
+0 -16 Td
+(AMZN — Market Cap \($B, latest price\) — Value: 2304 · Currency: USD billions · Calculation: shares × latest close price · Source: AMZN-US Price History.xlsx; AMZN-US Shares Outstanding.xlsx · Ticker: AMZN) Tj
+0 -16 Td
+(AWS — FY2024 Segment Revenue \($B\) — Value: 107.557 · Currency: USD billions · Fiscal Year: FY2024 · Source: AMZN 10-K 2024.pdf; AMZN-US Income Statement Annual.xlsx · Ticker: AWS · Parent: AMZN) Tj
+0 -16 Td
+(AWS — FY2024 Segment Operating Income \($B\) — Value: 39.813 · Currency: USD billions · Fiscal Year: FY2024 · Source: AMZN 10-K 2024.pdf · Ticker: AWS · Parent: AMZN) Tj
+0 -16 Td
+(AWS — FY2024 Operating Margin \(%\) — Value: 37 · Unit: % · Calculation: 39.813/107.557*100 · Ticker: AWS · Parent: AMZN) Tj
+0 -16 Td
+(AWS — FY2023 Segment Revenue \($B\) for growth calc — Value: 91.411 · Currency: USD billions · Fiscal Year: FY2023 · Source: AMZN 10-K 2023.pdf · Ticker: AWS · Parent: AMZN) Tj
+0 -16 Td
+(AWS — Revenue YoY Growth \(%\) — Value: 17.7 · Unit: % · Calculation: \(107.557/91.411-1\)*100 · Ticker: AWS · Parent: AMZN) Tj
+0 -16 Td
+(GOOGL — FY2024 Revenue \($B\) — Value: 350.018 · Currency: USD billions · Fiscal Year: FY2024 \(Dec 2024\) · Source: GOOGL-US Income Statement Annual.xlsx · Ticker: GOOGL) Tj
+0 -16 Td
+(GOOGL — FY2024 Net Income \($B\) — Value: 100.118 · Currency: USD billions · Fiscal Year: FY2024 · Source: GOOGL-US Income Statement Annual.xlsx · Ticker: GOOGL) Tj
+0 -16 Td
+(GOOGL — FY2023 Revenue \($B\) for growth calc — Value: 307.394 · Currency: USD billions · Fiscal Year: FY2023 · Source: GOOGL-US Income Statement Annual.xlsx · Ticker: GOOGL) Tj
+0 -16 Td
+(GOOGL — Revenue YoY Growth \(%\) — Value: 13.9 · Unit: % · Calculation: \(350.018/307.394-1\)*100 · Ticker: GOOGL) Tj
+0 -16 Td
+(GOOGL — Google Cloud FY2024 Revenue \($B\) — Value: 43.221 · Currency: USD billions · Fiscal Year: FY2024 · Source: GOOGL 10-K 2024.pdf; GOOGL-US Income Statement Annual.xlsx · Ticker: GOOGL) Tj
+0 -16 Td
+(GOOGL — Google Cloud FY2024 Operating Income \($B\) — Value: 6.099 · Currency: USD billions · Fiscal Year: FY2024 · Source: GOOGL 10-K 2024.pdf · Ticker: GOOGL) Tj
+0 -16 Td
+(GOOGL — Google Cloud Operating Margin \(%\) — Value: 14.1 · Unit: % · Calculation: 6.099/43.221*100 · Ticker: GOOGL) Tj
+0 -16 Td
+(GOOGL — Shares Outstanding \(M\) — Value: 12150 · Unit: millions · Source: GOOGL-US Company Identity.xlsx · Ticker: GOOGL) Tj
+0 -16 Td
+(GOOGL — Market Cap \($B, latest price\) — Value: 2247.8 · Currency: USD billions · Calculation: shares × latest close price · Source: GOOGL-US Price History.xlsx; GOOGL-US Company Identity.xlsx · Ticker: GOOGL) Tj
+0 -16 Td
+(AI \(C3.ai\) — FY2024 Revenue \($M\) — Value: 309.3 · Currency: USD millions · Fiscal Year: FY2024 \(Apr 2024\) · Source: AI-US Income Statement Annual.xlsx · Ticker: AI) Tj
+0 -16 Td
+(AI \(C3.ai\) — FY2024 Net Loss \($M\) — Value: -279.7 · Currency: USD millions · Fiscal Year: FY2024 · Source: AI-US Income Statement Annual.xlsx · Ticker: AI) Tj
+0 -16 Td
+(AI \(C3.ai\) — FY2023 Revenue \($M\) for growth calc — Value: 266.8 · Currency: USD millions · Fiscal Year: FY2023 · Source: AI-US Income Statement Annual.xlsx · Ticker: AI) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(Sources: ) Tj ET
+endstream
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000241 00000 n 
+0000000311 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+6212
+%%EOF

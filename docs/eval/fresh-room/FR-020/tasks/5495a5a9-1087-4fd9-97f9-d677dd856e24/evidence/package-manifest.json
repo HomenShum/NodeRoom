@@ -1,0 +1,65 @@
+{
+  "schema": 1,
+  "taskId": "5495a5a9-1087-4fd9-97f9-d677dd856e24",
+  "harborTaskId": "btb-5495a5a9",
+  "generatedAt": "2026-06-26T03:11:17.558Z",
+  "baseUrl": "http://127.0.0.1:5273",
+  "roomUrl": "http://127.0.0.1:5273/?room=NRLHIYBPZZB&name=Host",
+  "downloadedFiles": [
+    {
+      "kind": "workbook",
+      "filename": "btb-5495a5a9-insulet-podd-acquisition-screening-cover-slide-company-overview-financial-profile-k.xlsx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\5495a5a9-1087-4fd9-97f9-d677dd856e24\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-5495a5a9-insulet-podd-acquisition-screening-cover-slide-company-overview-financial-profile-k.xlsx",
+      "extension": ".xlsx",
+      "bytes": 10168,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (7516 chars)"
+    },
+    {
+      "kind": "workbook",
+      "filename": "btb-5495a5a9-insulet-podd-acquisition-screening-cover-slide-company-overview-financial-profile-k.xlsm",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\5495a5a9-1087-4fd9-97f9-d677dd856e24\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-5495a5a9-insulet-podd-acquisition-screening-cover-slide-company-overview-financial-profile-k.xlsm",
+      "extension": ".xlsm",
+      "bytes": 10168,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (7516 chars)"
+    },
+    {
+      "kind": "presentation",
+      "filename": "btb-5495a5a9-insulet-podd-acquisition-screening-cover-slide-company-overview-financial-profile-k.pptx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\5495a5a9-1087-4fd9-97f9-d677dd856e24\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-5495a5a9-insulet-podd-acquisition-screening-cover-slide-company-overview-financial-profile-k.pptx",
+      "extension": ".pptx",
+      "bytes": 8789,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains ppt/presentation.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (6599 chars)"
+    },
+    {
+      "kind": "document",
+      "filename": "btb-5495a5a9-insulet-podd-acquisition-screening-cover-slide-company-overview-financial-profile-k.docx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\5495a5a9-1087-4fd9-97f9-d677dd856e24\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-5495a5a9-insulet-podd-acquisition-screening-cover-slide-company-overview-financial-profile-k.docx",
+      "extension": ".docx",
+      "bytes": 4770,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains word/document.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (6991 chars)"
+    },
+    {
+      "kind": "pdf",
+      "filename": "btb-5495a5a9-insulet-podd-acquisition-screening-cover-slide-company-overview-financial-profile-k.pdf",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\5495a5a9-1087-4fd9-97f9-d677dd856e24\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-5495a5a9-insulet-podd-acquisition-screening-cover-slide-company-overview-financial-profile-k.pdf",
+      "extension": ".pdf",
+      "bytes": 2256,
+      "magic": "%PDF",
+      "reopened": true,
+      "reopenDetail": "PDF header reopened",
+      "contentQualityDetail": "placeholder/caveat content scan passed (3936 chars)"
+    }
+  ]
+}

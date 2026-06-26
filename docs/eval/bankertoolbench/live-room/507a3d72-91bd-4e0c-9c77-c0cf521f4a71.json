@@ -2,9 +2,9 @@
   "schema": 1,
   "taskId": "507a3d72-91bd-4e0c-9c77-c0cf521f4a71",
   "harborTaskId": "btb-507a3d72",
-  "generatedAt": "2026-06-25T02:14:33.701Z",
+  "generatedAt": "2026-06-26T00:55:54.716Z",
   "baseUrl": "http://127.0.0.1:5273",
-  "roomUrl": "http://127.0.0.1:5273/?room=NR3EFKM8062&name=Host",
+  "roomUrl": "http://127.0.0.1:5273/?room=NRYWELOWZ3Y&name=Host",
   "memoryMode": false,
   "expectedExtensions": [
     ".xlsx",
@@ -23,64 +23,64 @@
   "downloadedFiles": [
     {
       "kind": "workbook",
-      "filename": "btb-507a3d72-joeco-holdings-lbo-model-bankertoolbench-btb-507a3d72.xlsx",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\507a3d72-91bd-4e0c-9c77-c0cf521f4a71\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-507a3d72-joeco-holdings-lbo-model-bankertoolbench-btb-507a3d72.xlsx",
+      "filename": "btb-507a3d72-comprehensive-working-capital-financing-metrics-analysis-tla-tlb-sofr-arpu-ar-dso-d.xlsx",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\507a3d72-91bd-4e0c-9c77-c0cf521f4a71\\evidence\\btb-xlsx-btb-507a3d72-comprehensive-working-capital-financing-metrics-analysis-tla-tlb-sofr-arpu-ar-dso-d.xlsx",
       "extension": ".xlsx",
-      "bytes": 14008,
+      "bytes": 10729,
       "magic": "PK\\x03\\x04",
       "reopened": true,
-      "reopenDetail": "ZIP package contains xl/workbook.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (13311 chars)"
+      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j9768483qna0pj855nvb1d8jp189cwnx",
+      "contentQualityDetail": "placeholder/caveat content scan passed (7655 chars)"
     },
     {
       "kind": "workbook",
-      "filename": "btb-507a3d72-joeco-holdings-lbo-model-bankertoolbench-btb-507a3d72.xlsm",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\507a3d72-91bd-4e0c-9c77-c0cf521f4a71\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-507a3d72-joeco-holdings-lbo-model-bankertoolbench-btb-507a3d72.xlsm",
+      "filename": "btb-507a3d72-comprehensive-working-capital-financing-metrics-analysis-tla-tlb-sofr-arpu-ar-dso-d.xlsm",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\507a3d72-91bd-4e0c-9c77-c0cf521f4a71\\evidence\\btb-xlsm-btb-507a3d72-comprehensive-working-capital-financing-metrics-analysis-tla-tlb-sofr-arpu-ar-dso-d.xlsm",
       "extension": ".xlsm",
-      "bytes": 14008,
+      "bytes": 10729,
       "magic": "PK\\x03\\x04",
       "reopened": true,
-      "reopenDetail": "ZIP package contains xl/workbook.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (13311 chars)"
+      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j97bs7r7ckqx304b5k5jtk6zes89c74p",
+      "contentQualityDetail": "placeholder/caveat content scan passed (7655 chars)"
     },
     {
       "kind": "presentation",
-      "filename": "btb-507a3d72-joeco-holdings-lbo-model-bankertoolbench-btb-507a3d72.pptx",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\507a3d72-91bd-4e0c-9c77-c0cf521f4a71\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-507a3d72-joeco-holdings-lbo-model-bankertoolbench-btb-507a3d72.pptx",
+      "filename": "btb-507a3d72-comprehensive-working-capital-financing-metrics-analysis-tla-tlb-sofr-arpu-ar-dso-d.pptx",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\507a3d72-91bd-4e0c-9c77-c0cf521f4a71\\evidence\\btb-pptx-btb-507a3d72-comprehensive-working-capital-financing-metrics-analysis-tla-tlb-sofr-arpu-ar-dso-d.pptx",
       "extension": ".pptx",
-      "bytes": 8250,
+      "bytes": 8398,
       "magic": "PK\\x03\\x04",
       "reopened": true,
-      "reopenDetail": "ZIP package contains ppt/presentation.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (5221 chars)"
+      "reopenDetail": "ZIP package contains ppt/presentation.xml; recovered from Convex room artifact j97123hqvb8b8z0n7hms1e2xzx89cn6q",
+      "contentQualityDetail": "placeholder/caveat content scan passed (5723 chars)"
     },
     {
       "kind": "document",
-      "filename": "btb-507a3d72-joeco-holdings-lbo-model-bankertoolbench-btb-507a3d72.docx",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\507a3d72-91bd-4e0c-9c77-c0cf521f4a71\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-507a3d72-joeco-holdings-lbo-model-bankertoolbench-btb-507a3d72.docx",
+      "filename": "btb-507a3d72-comprehensive-working-capital-financing-metrics-analysis-tla-tlb-sofr-arpu-ar-dso-d.docx",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\507a3d72-91bd-4e0c-9c77-c0cf521f4a71\\evidence\\btb-docx-btb-507a3d72-comprehensive-working-capital-financing-metrics-analysis-tla-tlb-sofr-arpu-ar-dso-d.docx",
       "extension": ".docx",
-      "bytes": 5092,
+      "bytes": 4741,
       "magic": "PK\\x03\\x04",
       "reopened": true,
-      "reopenDetail": "ZIP package contains word/document.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (8433 chars)"
+      "reopenDetail": "ZIP package contains word/document.xml; recovered from Convex room artifact j971xhpj85zmt226j6txmqnnbh89csj9",
+      "contentQualityDetail": "placeholder/caveat content scan passed (7602 chars)"
     },
     {
       "kind": "pdf",
-      "filename": "btb-507a3d72-joeco-holdings-lbo-model-bankertoolbench-btb-507a3d72.pdf",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\507a3d72-91bd-4e0c-9c77-c0cf521f4a71\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-507a3d72-joeco-holdings-lbo-model-bankertoolbench-btb-507a3d72.pdf",
+      "filename": "btb-507a3d72-comprehensive-working-capital-financing-metrics-analysis-tla-tlb-sofr-arpu-ar-dso-d.pdf",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\507a3d72-91bd-4e0c-9c77-c0cf521f4a71\\evidence\\btb-pdf-btb-507a3d72-comprehensive-working-capital-financing-metrics-analysis-tla-tlb-sofr-arpu-ar-dso-d.pdf",
       "extension": ".pdf",
-      "bytes": 4497,
+      "bytes": 3977,
       "magic": "%PDF",
       "reopened": true,
-      "reopenDetail": "PDF header reopened",
-      "contentQualityDetail": "placeholder/caveat content scan passed (8419 chars)"
+      "reopenDetail": "PDF header reopened; recovered from Convex room artifact j97a5g6d4g6wy98qn5ghdyh4ax89dhny",
+      "contentQualityDetail": "placeholder/caveat content scan passed (7302 chars)"
     }
   ],
-  "packageManifestPath": "test-results\\bankertoolbench\\matrix\\507a3d72-91bd-4e0c-9c77-c0cf521f4a71\\package-manifest.json",
+  "packageManifestPath": "docs\\eval\\fresh-room\\FR-020\\tasks\\507a3d72-91bd-4e0c-9c77-c0cf521f4a71\\evidence\\package-manifest.json",
   "verifierCommand": "npm run benchmark:bankertoolbench:proof",
   "verifierOutputTail": "\n> noderoom@0.1.1 benchmark:bankertoolbench:proof\n> tsx scripts/bankertoolbench-proof-check.ts\n\nBankerToolBench proof check passed: stage=1/1 weightedRubric=6 run=0/1 pass positive=1/1 pass candidateBeforeEvaluator=true leaks=0/2+0/3+0/4\n",
-  "screenshot": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\507a3d72-91bd-4e0c-9c77-c0cf521f4a71\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\bankertoolbench-live-room.png",
+  "screenshot": "docs\\eval\\fresh-room\\FR-020\\tasks\\507a3d72-91bd-4e0c-9c77-c0cf521f4a71\\evidence\\bankertoolbench-live-room.png",
   "passed": true,
   "gatesProven": [
     "fresh_room_join",

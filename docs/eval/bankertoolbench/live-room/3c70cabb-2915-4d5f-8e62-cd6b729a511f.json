@@ -2,9 +2,9 @@
   "schema": 1,
   "taskId": "3c70cabb-2915-4d5f-8e62-cd6b729a511f",
   "harborTaskId": "btb-3c70cabb",
-  "generatedAt": "2026-06-25T02:13:14.974Z",
+  "generatedAt": "2026-06-26T00:53:36.203Z",
   "baseUrl": "http://127.0.0.1:5273",
-  "roomUrl": "http://127.0.0.1:5273/?room=NR2L76Y739I&name=Host",
+  "roomUrl": "http://127.0.0.1:5273/?room=NRFDW8RSSRQ&name=Host",
   "memoryMode": false,
   "expectedExtensions": [
     ".xlsx",
@@ -23,64 +23,64 @@
   "downloadedFiles": [
     {
       "kind": "workbook",
-      "filename": "btb-3c70cabb-btb-3c70cabb-comparative-revenue-growth-ev-revenue-valuation-dash-cart-tam.xlsx",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\3c70cabb-2915-4d5f-8e62-cd6b729a511f\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-3c70cabb-btb-3c70cabb-comparative-revenue-growth-ev-revenue-valuation-dash-cart-tam.xlsx",
+      "filename": "btb-3c70cabb-doordash-dcf-valuation-wacc-fcf-projections-and-target-price-for-dash-cart-tam.xlsx",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\3c70cabb-2915-4d5f-8e62-cd6b729a511f\\evidence\\btb-xlsx-btb-3c70cabb-doordash-dcf-valuation-wacc-fcf-projections-and-target-price-for-dash-cart-tam.xlsx",
       "extension": ".xlsx",
-      "bytes": 8558,
+      "bytes": 9618,
       "magic": "PK\\x03\\x04",
       "reopened": true,
-      "reopenDetail": "ZIP package contains xl/workbook.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (3506 chars)"
+      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j971qx94cnn5qnk3r2ecyzava589dcbj",
+      "contentQualityDetail": "placeholder/caveat content scan passed (5012 chars)"
     },
     {
       "kind": "workbook",
-      "filename": "btb-3c70cabb-btb-3c70cabb-comparative-revenue-growth-ev-revenue-valuation-dash-cart-tam.xlsm",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\3c70cabb-2915-4d5f-8e62-cd6b729a511f\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-3c70cabb-btb-3c70cabb-comparative-revenue-growth-ev-revenue-valuation-dash-cart-tam.xlsm",
+      "filename": "btb-3c70cabb-doordash-dcf-valuation-wacc-fcf-projections-and-target-price-for-dash-cart-tam.xlsm",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\3c70cabb-2915-4d5f-8e62-cd6b729a511f\\evidence\\btb-xlsm-btb-3c70cabb-doordash-dcf-valuation-wacc-fcf-projections-and-target-price-for-dash-cart-tam.xlsm",
       "extension": ".xlsm",
-      "bytes": 8558,
+      "bytes": 9618,
       "magic": "PK\\x03\\x04",
       "reopened": true,
-      "reopenDetail": "ZIP package contains xl/workbook.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (3506 chars)"
+      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j97b49f4v015cq0cxrfh320x7189c554",
+      "contentQualityDetail": "placeholder/caveat content scan passed (5012 chars)"
     },
     {
       "kind": "presentation",
-      "filename": "btb-3c70cabb-btb-3c70cabb-comparative-revenue-growth-ev-revenue-valuation-dash-cart-tam.pptx",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\3c70cabb-2915-4d5f-8e62-cd6b729a511f\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-3c70cabb-btb-3c70cabb-comparative-revenue-growth-ev-revenue-valuation-dash-cart-tam.pptx",
+      "filename": "btb-3c70cabb-doordash-dcf-valuation-wacc-fcf-projections-and-target-price-for-dash-cart-tam.pptx",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\3c70cabb-2915-4d5f-8e62-cd6b729a511f\\evidence\\btb-pptx-btb-3c70cabb-doordash-dcf-valuation-wacc-fcf-projections-and-target-price-for-dash-cart-tam.pptx",
       "extension": ".pptx",
-      "bytes": 7225,
+      "bytes": 6912,
       "magic": "PK\\x03\\x04",
       "reopened": true,
-      "reopenDetail": "ZIP package contains ppt/presentation.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (2910 chars)"
+      "reopenDetail": "ZIP package contains ppt/presentation.xml; recovered from Convex room artifact j970vrnxbmrft31t09dnweff0n89cagf",
+      "contentQualityDetail": "placeholder/caveat content scan passed (2094 chars)"
     },
     {
       "kind": "document",
-      "filename": "btb-3c70cabb-btb-3c70cabb-comparative-revenue-growth-ev-revenue-valuation-dash-cart-tam.docx",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\3c70cabb-2915-4d5f-8e62-cd6b729a511f\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-3c70cabb-btb-3c70cabb-comparative-revenue-growth-ev-revenue-valuation-dash-cart-tam.docx",
+      "filename": "btb-3c70cabb-doordash-dcf-valuation-wacc-fcf-projections-and-target-price-for-dash-cart-tam.docx",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\3c70cabb-2915-4d5f-8e62-cd6b729a511f\\evidence\\btb-docx-btb-3c70cabb-doordash-dcf-valuation-wacc-fcf-projections-and-target-price-for-dash-cart-tam.docx",
       "extension": ".docx",
-      "bytes": 3359,
+      "bytes": 3685,
       "magic": "PK\\x03\\x04",
       "reopened": true,
-      "reopenDetail": "ZIP package contains word/document.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (4221 chars)"
+      "reopenDetail": "ZIP package contains word/document.xml; recovered from Convex room artifact j97e0bthacvqgnn6ew33afhd1h89ck9a",
+      "contentQualityDetail": "placeholder/caveat content scan passed (5307 chars)"
     },
     {
       "kind": "pdf",
-      "filename": "btb-3c70cabb-btb-3c70cabb-comparative-revenue-growth-ev-revenue-valuation-dash-cart-tam.pdf",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\3c70cabb-2915-4d5f-8e62-cd6b729a511f\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-3c70cabb-btb-3c70cabb-comparative-revenue-growth-ev-revenue-valuation-dash-cart-tam.pdf",
+      "filename": "btb-3c70cabb-doordash-dcf-valuation-wacc-fcf-projections-and-target-price-for-dash-cart-tam.pdf",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\3c70cabb-2915-4d5f-8e62-cd6b729a511f\\evidence\\btb-pdf-btb-3c70cabb-doordash-dcf-valuation-wacc-fcf-projections-and-target-price-for-dash-cart-tam.pdf",
       "extension": ".pdf",
-      "bytes": 3385,
+      "bytes": 4605,
       "magic": "%PDF",
       "reopened": true,
-      "reopenDetail": "PDF header reopened",
-      "contentQualityDetail": "placeholder/caveat content scan passed (6245 chars)"
+      "reopenDetail": "PDF header reopened; recovered from Convex room artifact j9707t1b2wkkajcs3jftd93mth89czq8",
+      "contentQualityDetail": "placeholder/caveat content scan passed (8509 chars)"
     }
   ],
-  "packageManifestPath": "test-results\\bankertoolbench\\matrix\\3c70cabb-2915-4d5f-8e62-cd6b729a511f\\package-manifest.json",
+  "packageManifestPath": "docs\\eval\\fresh-room\\FR-020\\tasks\\3c70cabb-2915-4d5f-8e62-cd6b729a511f\\evidence\\package-manifest.json",
   "verifierCommand": "npm run benchmark:bankertoolbench:proof",
   "verifierOutputTail": "\n> noderoom@0.1.1 benchmark:bankertoolbench:proof\n> tsx scripts/bankertoolbench-proof-check.ts\n\nBankerToolBench proof check passed: stage=1/1 weightedRubric=6 run=0/1 pass positive=1/1 pass candidateBeforeEvaluator=true leaks=0/2+0/3+0/4\n",
-  "screenshot": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\3c70cabb-2915-4d5f-8e62-cd6b729a511f\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\bankertoolbench-live-room.png",
+  "screenshot": "docs\\eval\\fresh-room\\FR-020\\tasks\\3c70cabb-2915-4d5f-8e62-cd6b729a511f\\evidence\\bankertoolbench-live-room.png",
   "passed": true,
   "gatesProven": [
     "fresh_room_join",

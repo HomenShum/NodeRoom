@@ -2,9 +2,9 @@
   "schema": 1,
   "taskId": "eb2f7b9c-2f96-4093-bdd5-e28707e707a1",
   "harborTaskId": "btb-eb2f7b9c",
-  "generatedAt": "2026-06-25T01:59:50.941Z",
+  "generatedAt": "2026-06-26T00:28:59.274Z",
   "baseUrl": "http://127.0.0.1:5273",
-  "roomUrl": "http://127.0.0.1:5273/?room=NRPB6H1RM73&name=Host",
+  "roomUrl": "http://127.0.0.1:5273/?room=NRRBBI2Y95T&name=Host",
   "memoryMode": false,
   "expectedExtensions": [
     ".xlsx",
@@ -23,64 +23,64 @@
   "downloadedFiles": [
     {
       "kind": "workbook",
-      "filename": "btb-eb2f7b9c-btb-eb2f7b9c---integrated-lbo-model-with-returns-analysis.xlsx",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\eb2f7b9c-2f96-4093-bdd5-e28707e707a1\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-eb2f7b9c-btb-eb2f7b9c---integrated-lbo-model-with-returns-analysis.xlsx",
+      "filename": "btb-eb2f7b9c-lbo-valuation-model-multi-instrument-capital-structure-rcf-sonia-ebt-fcf.xlsx",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\eb2f7b9c-2f96-4093-bdd5-e28707e707a1\\evidence\\btb-xlsx-btb-eb2f7b9c-lbo-valuation-model-multi-instrument-capital-structure-rcf-sonia-ebt-fcf.xlsx",
       "extension": ".xlsx",
-      "bytes": 16998,
+      "bytes": 23639,
       "magic": "PK\\x03\\x04",
       "reopened": true,
-      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j97ahv8w340f8eg6k4j1hxc47s89akxm",
-      "contentQualityDetail": "placeholder/caveat content scan passed (17349 chars)"
+      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j97d8ya1j0dpvv9naa5njgng0h89dekr",
+      "contentQualityDetail": "placeholder/caveat content scan passed (28663 chars)"
     },
     {
       "kind": "workbook",
-      "filename": "btb-eb2f7b9c-btb-eb2f7b9c---integrated-lbo-model-with-returns-analysis.xlsm",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\eb2f7b9c-2f96-4093-bdd5-e28707e707a1\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-eb2f7b9c-btb-eb2f7b9c---integrated-lbo-model-with-returns-analysis.xlsm",
+      "filename": "btb-eb2f7b9c-lbo-valuation-model-multi-instrument-capital-structure-rcf-sonia-ebt-fcf.xlsm",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\eb2f7b9c-2f96-4093-bdd5-e28707e707a1\\evidence\\btb-xlsm-btb-eb2f7b9c-lbo-valuation-model-multi-instrument-capital-structure-rcf-sonia-ebt-fcf.xlsm",
       "extension": ".xlsm",
-      "bytes": 16998,
+      "bytes": 23639,
       "magic": "PK\\x03\\x04",
       "reopened": true,
-      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j9720yyd0dkmkzy7jhpjq5zg9d89b92p",
-      "contentQualityDetail": "placeholder/caveat content scan passed (17349 chars)"
+      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j97fcq2qhtk0b9tqtyf319zc7d89c6e6",
+      "contentQualityDetail": "placeholder/caveat content scan passed (28663 chars)"
     },
     {
       "kind": "presentation",
-      "filename": "btb-eb2f7b9c-btb-eb2f7b9c---integrated-lbo-model-with-returns-analysis.pptx",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\eb2f7b9c-2f96-4093-bdd5-e28707e707a1\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-eb2f7b9c-btb-eb2f7b9c---integrated-lbo-model-with-returns-analysis.pptx",
+      "filename": "btb-eb2f7b9c-lbo-valuation-model-multi-instrument-capital-structure-rcf-sonia-ebt-fcf.pptx",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\eb2f7b9c-2f96-4093-bdd5-e28707e707a1\\evidence\\btb-pptx-btb-eb2f7b9c-lbo-valuation-model-multi-instrument-capital-structure-rcf-sonia-ebt-fcf.pptx",
       "extension": ".pptx",
-      "bytes": 7367,
+      "bytes": 7998,
       "magic": "PK\\x03\\x04",
       "reopened": true,
-      "reopenDetail": "ZIP package contains ppt/presentation.xml; recovered from Convex room artifact j971rbc9zmy0axvyrzb63tpt2d89b7r7",
-      "contentQualityDetail": "placeholder/caveat content scan passed (3297 chars)"
+      "reopenDetail": "ZIP package contains ppt/presentation.xml; recovered from Convex room artifact j976mv5e12kw8ed7djrjag0qch89d6ny",
+      "contentQualityDetail": "placeholder/caveat content scan passed (4435 chars)"
     },
     {
       "kind": "document",
-      "filename": "btb-eb2f7b9c-btb-eb2f7b9c---integrated-lbo-model-with-returns-analysis.docx",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\eb2f7b9c-2f96-4093-bdd5-e28707e707a1\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-eb2f7b9c-btb-eb2f7b9c---integrated-lbo-model-with-returns-analysis.docx",
+      "filename": "btb-eb2f7b9c-lbo-valuation-model-multi-instrument-capital-structure-rcf-sonia-ebt-fcf.docx",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\eb2f7b9c-2f96-4093-bdd5-e28707e707a1\\evidence\\btb-docx-btb-eb2f7b9c-lbo-valuation-model-multi-instrument-capital-structure-rcf-sonia-ebt-fcf.docx",
       "extension": ".docx",
-      "bytes": 4230,
+      "bytes": 5504,
       "magic": "PK\\x03\\x04",
       "reopened": true,
-      "reopenDetail": "ZIP package contains word/document.xml; recovered from Convex room artifact j97b9ay9wr3w40268d0nwyvtk989amz8",
-      "contentQualityDetail": "placeholder/caveat content scan passed (6441 chars)"
+      "reopenDetail": "ZIP package contains word/document.xml; recovered from Convex room artifact j97c7pz7v5xv04xr1jsng07nvx89c1d4",
+      "contentQualityDetail": "placeholder/caveat content scan passed (10033 chars)"
     },
     {
       "kind": "pdf",
-      "filename": "btb-eb2f7b9c-btb-eb2f7b9c---integrated-lbo-model-with-returns-analysis.pdf",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\eb2f7b9c-2f96-4093-bdd5-e28707e707a1\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-eb2f7b9c-btb-eb2f7b9c---integrated-lbo-model-with-returns-analysis.pdf",
+      "filename": "btb-eb2f7b9c-lbo-valuation-model-multi-instrument-capital-structure-rcf-sonia-ebt-fcf.pdf",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\eb2f7b9c-2f96-4093-bdd5-e28707e707a1\\evidence\\btb-pdf-btb-eb2f7b9c-lbo-valuation-model-multi-instrument-capital-structure-rcf-sonia-ebt-fcf.pdf",
       "extension": ".pdf",
-      "bytes": 5063,
+      "bytes": 6942,
       "magic": "%PDF",
       "reopened": true,
-      "reopenDetail": "PDF header reopened; recovered from Convex room artifact j972q4t60z7cjq1ch980agajyn89anmw",
-      "contentQualityDetail": "placeholder/caveat content scan passed (9607 chars)"
+      "reopenDetail": "PDF header reopened; recovered from Convex room artifact j97cpwpg25qtzzhey2s134cz7x89cm2r",
+      "contentQualityDetail": "placeholder/caveat content scan passed (13122 chars)"
     }
   ],
-  "packageManifestPath": "test-results\\bankertoolbench\\matrix\\eb2f7b9c-2f96-4093-bdd5-e28707e707a1\\package-manifest.json",
+  "packageManifestPath": "docs\\eval\\fresh-room\\FR-020\\tasks\\eb2f7b9c-2f96-4093-bdd5-e28707e707a1\\evidence\\package-manifest.json",
   "verifierCommand": "npm run benchmark:bankertoolbench:proof",
   "verifierOutputTail": "\n> noderoom@0.1.1 benchmark:bankertoolbench:proof\n> tsx scripts/bankertoolbench-proof-check.ts\n\nBankerToolBench proof check passed: stage=1/1 weightedRubric=6 run=0/1 pass positive=1/1 pass candidateBeforeEvaluator=true leaks=0/2+0/3+0/4\n",
-  "screenshot": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\eb2f7b9c-2f96-4093-bdd5-e28707e707a1\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\bankertoolbench-live-room.png",
+  "screenshot": "docs\\eval\\fresh-room\\FR-020\\tasks\\eb2f7b9c-2f96-4093-bdd5-e28707e707a1\\evidence\\bankertoolbench-live-room.png",
   "passed": true,
   "gatesProven": [
     "fresh_room_join",

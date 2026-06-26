@@ -1,0 +1,68 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+5 0 obj
+<< /Length 3234 >>
+stream
+BT /F1 11 Tf 54 760 Td (YUM Brands \(YUM\) Valuation & LBO Analysis – DCF, NOPAT, SBC Adjustments \(USD\)) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(YUM Brands \(YUM\) Valuation & LBO Analysis
+
+This package provides a comprehensive financial analysis of YUM Brands, Inc. \(NYSE: YUM\) as part of BankerToolBench task btb-907e3e2e. The analysis covers the following key ) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(Rows: 11) Tj
+0 -16 Td
+(YUM – Company Overview — Ticker: YUM · Company: Yum! Brands, Inc. · Exchange: NYSE · Currency: USD · Sector: Consumer Discretionary / Restaurants · FY2023 Revenue \(USD M\): 6842 · Source: YUM-US Income Statement Annual.) Tj
+0 -16 Td
+(YUM – Income Statement Summary \(USD M\) — Ticker: YUM · Revenue: 6842 · Operating Income: 1253 · Net Income: 1013 · Currency: USD · Source: YUM-US Income Statement Annual.xlsx) Tj
+0 -16 Td
+(YUM – Balance Sheet Summary \(USD M\) — Ticker: YUM · Total Assets: 6500 · Total Debt: 13800 · Cash & Equivalents: 290 · Shareholders Equity: -5300 · Currency: USD · Source: YUM-US Balance Sheet Annual.xlsx) Tj
+0 -16 Td
+(YUM – Cash Flow Summary \(USD M\) — Ticker: YUM · Operating Cash Flow: 1316 · Capex: 230 · Free Cash Flow: 1086 · Currency: USD · Source: YUM-US Cash Flow Annual.xlsx) Tj
+0 -16 Td
+(SBC – Share-Based Compensation Analysis — Entity: SBC · SBC Expense \(USD M\): 68 · Adjustment Type: Non-cash add-back to operating income · Adjusted Operating Income \(Ex-SBC, USD M\): 1321 · Currency: USD · Source: YUM) Tj
+0 -16 Td
+(NOPAT – Net Operating Profit After Tax — Entity: NOPAT · GAAP Operating Income \(USD M\): 1253 · SBC Add-Back \(USD M\): 68 · Adjusted Operating Income \(USD M\): 1321 · Tax Rate \(%\): 23.5 · NOPAT GAAP \(USD M\): 958 ·) Tj
+0 -16 Td
+(YUM – WACC Calculation — Ticker: YUM · Risk-Free Rate \(%\): 4.2 · Industry Beta: 0.75 · Equity Risk Premium \(%\): 6 · Cost Of Equity \(%\): 8.7 · WACC \(%\): 8.7 · Currency: USD · Source: betas_by_industry_category_for) Tj
+0 -16 Td
+(YUM – DCF Valuation \(USD M\) — Ticker: YUM · NOPAT \(Adjusted, USD M\): 1010 · WACC \(%\): 8.7 · Terminal Growth Rate \(%\): 2.5 · Terminal Value \(USD M\): 16455 · PV Of Terminal Value \(USD M\): 10802 · Sum Of PV FCF ) Tj
+0 -16 Td
+(YUM – LBO Analysis \(USD M\) — Ticker: YUM · Entry EV/EBITDA: 12 · Entry EBITDA \(USD M\): 1321 · Entry Enterprise Value \(USD M\): 15852 · Debt/EBITDA: 6 · LBO Debt \(USD M\): 7926 · Exit Multiple \(EV/EBITDA\): 12 · Ex) Tj
+0 -16 Td
+(YUM – Revenue & Earnings Estimates — Ticker: YUM · FY2024E Revenue \(USD M\): 7232 · FY2025E Revenue \(USD M\): 7540 · FY2024E EPS \(USD\): 5.95 · FY2025E EPS \(USD\): 6.52 · Shares Outstanding \(M\): 282 · Currency: USD) Tj
+0 -16 Td
+(USD – Currency Context — Entity: USD · Reporting Currency: USD · Currency Unit: Millions \(unless otherwise noted\) · FX Impact: N/A – YUM reports in USD · Note: All financial figures in this package are expressed in USD) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(Sources: YUM-US Company Identity.xlsx, YUM-US Income Statement Annual.xlsx, YUM-US Balance Sheet Annual.xlsx, YUM-US Cash Flow Annual.xlsx, YUM-US Shares Outstanding.xlsx, YUM-US Price History.xlsx, YUM-US Revenue Estima) Tj ET
+endstream
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000241 00000 n 
+0000000311 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+3597
+%%EOF

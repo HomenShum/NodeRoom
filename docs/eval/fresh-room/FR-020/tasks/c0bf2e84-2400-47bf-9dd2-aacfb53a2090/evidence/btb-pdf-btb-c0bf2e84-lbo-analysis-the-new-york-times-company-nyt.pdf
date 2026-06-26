@@ -1,0 +1,103 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+5 0 obj
+<< /Length 3078 >>
+stream
+BT /F1 11 Tf 54 760 Td (LBO Analysis — The New York Times Company \(NYT\)) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(## BankerToolBench Task btb-c0bf2e84 — LBO Analysis: The New York Times Company \(NYT\)
+
+### Transaction Assumptions
+An activist investor is seeking an exit via a sale of NYT. This analysis models an LBO using a unitranc) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(Rows: 28) Tj
+0 -16 Td
+(Share Price \(Latest Close\) — Value: 48.6 · Unit: USD · Source: NYT-US Price History.xlsx) Tj
+0 -16 Td
+(Shares Outstanding — Value: 162818823 · Unit: shares · Source: NYT-US Shares Outstanding.xlsx) Tj
+0 -16 Td
+(Equity Purchase Price — Value: 7909 · Unit: USD millions · Calculation: 48.60 × 162,818,823 / 1,000,000) Tj
+0 -16 Td
+(Net Debt — Value: 674.1 · Unit: USD millions · Source: NYT-US Balance Sheet Annual.xlsx) Tj
+0 -16 Td
+(Transaction Enterprise Value — Value: 8583.1 · Unit: USD millions · Calculation: Equity Purchase Price + Net Debt) Tj
+0 -16 Td
+(Purchase EV/EBITDA — Value: 16.4 · Unit: x · Calculation: EV / LTM EBITDA) Tj
+0 -16 Td
+(Unitranche Debt Amount — Value: 4300 · Unit: USD millions · Note: 50.1% of EV) Tj
+0 -16 Td
+(Equity Contribution — Value: 4283 · Unit: USD millions · Note: 49.9% of EV) Tj
+0 -16 Td
+(Blended Interest Rate on Unitranche — Value: 7.5 · Unit: %) Tj
+0 -16 Td
+(FY2024E Revenue — Value: 3061 · Unit: USD millions · Source: NYT-US Revenue Estimate.xlsx) Tj
+0 -16 Td
+(FY2025E Revenue — Value: 3185 · Unit: USD millions · Source: NYT-US Revenue Estimate.xlsx) Tj
+0 -16 Td
+(FY2026E Revenue — Value: 3312 · Unit: USD millions · Source: NYT-US Revenue Estimate.xlsx) Tj
+0 -16 Td
+(FY2027E Revenue \(Extrapolated\) — Value: 3445 · Unit: USD millions · Calculation: Trend continuation) Tj
+0 -16 Td
+(FY2028E Revenue \(Extrapolated\) — Value: 3583 · Unit: USD millions · Calculation: Trend continuation) Tj
+0 -16 Td
+(FY2024E EBITDA — Value: 455 · Unit: USD millions · Calculation: Revenue × 14.9% margin) Tj
+0 -16 Td
+(FY2025E EBITDA — Value: 475 · Unit: USD millions) Tj
+0 -16 Td
+(FY2026E EBITDA — Value: 497 · Unit: USD millions) Tj
+0 -16 Td
+(FY2027E EBITDA — Value: 517 · Unit: USD millions) Tj
+0 -16 Td
+(FY2028E EBITDA — Value: 538 · Unit: USD millions) Tj
+0 -16 Td
+(Cumulative FCF for Debt Paydown \(5yr\) — Value: 1150 · Unit: USD millions) Tj
+0 -16 Td
+(Exit EBITDA \(FY2028\) — Value: 538 · Unit: USD millions) Tj
+0 -16 Td
+(Exit EV/EBITDA Multiple — Value: 13 · Unit: x) Tj
+0 -16 Td
+(Exit Enterprise Value — Value: 6994 · Unit: USD millions · Calculation: 13.0 × 538) Tj
+0 -16 Td
+(Excess Cash at Exit — Value: 613 · Unit: USD millions) Tj
+0 -16 Td
+(Net Debt at Exit — Value: 3150 · Unit: USD millions) Tj
+0 -16 Td
+(Exit Equity Value — Value: 4457 · Unit: USD millions · Calculation: Exit EV + Excess Cash - Net Debt at Exit) Tj
+0 -16 Td
+(Equity IRR — Value: 0.8 · Unit: % · Calculation: 5-year IRR from $4,283M to $4,457M) Tj
+0 -16 Td
+(Money Multiple \(MoM\) — Value: 1.04 · Unit: x · Calculation: 4,457 / 4,283) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(Sources: ) Tj ET
+endstream
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000241 00000 n 
+0000000311 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+3441
+%%EOF

@@ -1,0 +1,65 @@
+{
+  "schema": 1,
+  "taskId": "f1c210d9-6357-4fad-828e-252e6f6d59d3",
+  "harborTaskId": "btb-f1c210d9",
+  "generatedAt": "2026-06-26T00:20:41.772Z",
+  "baseUrl": "http://127.0.0.1:5273",
+  "roomUrl": "http://127.0.0.1:5273/?room=NRV90Y9M0NQ&name=Host",
+  "downloadedFiles": [
+    {
+      "kind": "workbook",
+      "filename": "btb-f1c210d9-nflx-long-term-streaming-subscriber-revenue-profile-2013-2024.xlsx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\f1c210d9-6357-4fad-828e-252e6f6d59d3\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-f1c210d9-nflx-long-term-streaming-subscriber-revenue-profile-2013-2024.xlsx",
+      "extension": ".xlsx",
+      "bytes": 7723,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j97a17n9w9vj2p9b0t0e5t0bmh89daht",
+      "contentQualityDetail": "placeholder/caveat content scan passed (1465 chars)"
+    },
+    {
+      "kind": "workbook",
+      "filename": "btb-f1c210d9-nflx-long-term-streaming-subscriber-revenue-profile-2013-2024.xlsm",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\f1c210d9-6357-4fad-828e-252e6f6d59d3\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-f1c210d9-nflx-long-term-streaming-subscriber-revenue-profile-2013-2024.xlsm",
+      "extension": ".xlsm",
+      "bytes": 7723,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j97cwjpnrxe6pgxck0zdmc0m9589cvev",
+      "contentQualityDetail": "placeholder/caveat content scan passed (1465 chars)"
+    },
+    {
+      "kind": "presentation",
+      "filename": "btb-f1c210d9-nflx-long-term-streaming-subscriber-revenue-profile-2013-2024.pptx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\f1c210d9-6357-4fad-828e-252e6f6d59d3\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-f1c210d9-nflx-long-term-streaming-subscriber-revenue-profile-2013-2024.pptx",
+      "extension": ".pptx",
+      "bytes": 6619,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains ppt/presentation.xml; recovered from Convex room artifact j97e5mhx9a62wmp3drwc55jnys89c6bf",
+      "contentQualityDetail": "placeholder/caveat content scan passed (1479 chars)"
+    },
+    {
+      "kind": "document",
+      "filename": "btb-f1c210d9-nflx-long-term-streaming-subscriber-revenue-profile-2013-2024.docx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\f1c210d9-6357-4fad-828e-252e6f6d59d3\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-f1c210d9-nflx-long-term-streaming-subscriber-revenue-profile-2013-2024.docx",
+      "extension": ".docx",
+      "bytes": 2810,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains word/document.xml; recovered from Convex room artifact j9775saa7cb3vr5133bh4fmpd189dcs1",
+      "contentQualityDetail": "placeholder/caveat content scan passed (2101 chars)"
+    },
+    {
+      "kind": "pdf",
+      "filename": "btb-f1c210d9-nflx-long-term-streaming-subscriber-revenue-profile-2013-2024.pdf",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\f1c210d9-6357-4fad-828e-252e6f6d59d3\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-f1c210d9-nflx-long-term-streaming-subscriber-revenue-profile-2013-2024.pdf",
+      "extension": ".pdf",
+      "bytes": 2805,
+      "magic": "%PDF",
+      "reopened": true,
+      "reopenDetail": "PDF header reopened; recovered from Convex room artifact j97dce3xr8pawhar9t9zndmrwx89d6j8",
+      "contentQualityDetail": "placeholder/caveat content scan passed (4983 chars)"
+    }
+  ]
+}

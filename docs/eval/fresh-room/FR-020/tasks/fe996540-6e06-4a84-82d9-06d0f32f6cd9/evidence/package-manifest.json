@@ -1,0 +1,65 @@
+{
+  "schema": 1,
+  "taskId": "fe996540-6e06-4a84-82d9-06d0f32f6cd9",
+  "harborTaskId": "btb-fe996540",
+  "generatedAt": "2026-06-26T00:00:42.174Z",
+  "baseUrl": "http://127.0.0.1:5273",
+  "roomUrl": "http://127.0.0.1:5273/?room=NRU00SHU0LW&name=Host",
+  "downloadedFiles": [
+    {
+      "kind": "workbook",
+      "filename": "btb-fe996540-ai-infrastructure-cloud-comparative-analysis-msft-amzn-incl.-aws-googl-and-ai-c3.ai.xlsx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\fe996540-6e06-4a84-82d9-06d0f32f6cd9\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-fe996540-ai-infrastructure-cloud-comparative-analysis-msft-amzn-incl.-aws-googl-and-ai-c3.ai.xlsx",
+      "extension": ".xlsx",
+      "bytes": 10505,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (6450 chars)"
+    },
+    {
+      "kind": "workbook",
+      "filename": "btb-fe996540-ai-infrastructure-cloud-comparative-analysis-msft-amzn-incl.-aws-googl-and-ai-c3.ai.xlsm",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\fe996540-6e06-4a84-82d9-06d0f32f6cd9\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-fe996540-ai-infrastructure-cloud-comparative-analysis-msft-amzn-incl.-aws-googl-and-ai-c3.ai.xlsm",
+      "extension": ".xlsm",
+      "bytes": 10505,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (6450 chars)"
+    },
+    {
+      "kind": "presentation",
+      "filename": "btb-fe996540-ai-infrastructure-cloud-comparative-analysis-msft-amzn-incl.-aws-googl-and-ai-c3.ai.pptx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\fe996540-6e06-4a84-82d9-06d0f32f6cd9\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-fe996540-ai-infrastructure-cloud-comparative-analysis-msft-amzn-incl.-aws-googl-and-ai-c3.ai.pptx",
+      "extension": ".pptx",
+      "bytes": 7168,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains ppt/presentation.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (2939 chars)"
+    },
+    {
+      "kind": "document",
+      "filename": "btb-fe996540-ai-infrastructure-cloud-comparative-analysis-msft-amzn-incl.-aws-googl-and-ai-c3.ai.docx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\fe996540-6e06-4a84-82d9-06d0f32f6cd9\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-fe996540-ai-infrastructure-cloud-comparative-analysis-msft-amzn-incl.-aws-googl-and-ai-c3.ai.docx",
+      "extension": ".docx",
+      "bytes": 3780,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains word/document.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (7320 chars)"
+    },
+    {
+      "kind": "pdf",
+      "filename": "btb-fe996540-ai-infrastructure-cloud-comparative-analysis-msft-amzn-incl.-aws-googl-and-ai-c3.ai.pdf",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\fe996540-6e06-4a84-82d9-06d0f32f6cd9\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-fe996540-ai-infrastructure-cloud-comparative-analysis-msft-amzn-incl.-aws-googl-and-ai-c3.ai.pdf",
+      "extension": ".pdf",
+      "bytes": 6396,
+      "magic": "%PDF",
+      "reopened": true,
+      "reopenDetail": "PDF header reopened",
+      "contentQualityDetail": "placeholder/caveat content scan passed (12034 chars)"
+    }
+  ]
+}

@@ -2,9 +2,9 @@
   "schema": 1,
   "taskId": "6a2f5cf8-be91-4801-87b8-226f259369fb",
   "harborTaskId": "btb-6a2f5cf8",
-  "generatedAt": "2026-06-25T02:38:53.201Z",
+  "generatedAt": "2026-06-26T01:33:43.645Z",
   "baseUrl": "http://127.0.0.1:5273",
-  "roomUrl": "http://127.0.0.1:5273/?room=NRSYEAK4QZK&name=Host",
+  "roomUrl": "http://127.0.0.1:5273/?room=NRUXP1Q90P3&name=Host",
   "memoryMode": false,
   "expectedExtensions": [
     ".xlsx",
@@ -23,64 +23,64 @@
   "downloadedFiles": [
     {
       "kind": "workbook",
-      "filename": "btb-6a2f5cf8-amzn-dcf-valuation-wacc-ppe-analysis.xlsx",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\6a2f5cf8-be91-4801-87b8-226f259369fb\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-6a2f5cf8-amzn-dcf-valuation-wacc-ppe-analysis.xlsx",
+      "filename": "btb-6a2f5cf8-amzn-dcf-valuation-model-wacc-dcf-and-ppe-schedule-analysis.xlsx",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\6a2f5cf8-be91-4801-87b8-226f259369fb\\evidence\\btb-xlsx-btb-6a2f5cf8-amzn-dcf-valuation-model-wacc-dcf-and-ppe-schedule-analysis.xlsx",
       "extension": ".xlsx",
-      "bytes": 8290,
+      "bytes": 8217,
       "magic": "PK\\x03\\x04",
       "reopened": true,
       "reopenDetail": "ZIP package contains xl/workbook.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (3104 chars)"
+      "contentQualityDetail": "placeholder/caveat content scan passed (3379 chars)"
     },
     {
       "kind": "workbook",
-      "filename": "btb-6a2f5cf8-amzn-dcf-valuation-wacc-ppe-analysis.xlsm",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\6a2f5cf8-be91-4801-87b8-226f259369fb\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-6a2f5cf8-amzn-dcf-valuation-wacc-ppe-analysis.xlsm",
+      "filename": "btb-6a2f5cf8-amzn-dcf-valuation-model-wacc-dcf-and-ppe-schedule-analysis.xlsm",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\6a2f5cf8-be91-4801-87b8-226f259369fb\\evidence\\btb-xlsm-btb-6a2f5cf8-amzn-dcf-valuation-model-wacc-dcf-and-ppe-schedule-analysis.xlsm",
       "extension": ".xlsm",
-      "bytes": 8290,
+      "bytes": 8217,
       "magic": "PK\\x03\\x04",
       "reopened": true,
       "reopenDetail": "ZIP package contains xl/workbook.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (3104 chars)"
+      "contentQualityDetail": "placeholder/caveat content scan passed (3379 chars)"
     },
     {
       "kind": "presentation",
-      "filename": "btb-6a2f5cf8-amzn-dcf-valuation-wacc-ppe-analysis.pptx",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\6a2f5cf8-be91-4801-87b8-226f259369fb\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-6a2f5cf8-amzn-dcf-valuation-wacc-ppe-analysis.pptx",
+      "filename": "btb-6a2f5cf8-amzn-dcf-valuation-model-wacc-dcf-and-ppe-schedule-analysis.pptx",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\6a2f5cf8-be91-4801-87b8-226f259369fb\\evidence\\btb-pptx-btb-6a2f5cf8-amzn-dcf-valuation-model-wacc-dcf-and-ppe-schedule-analysis.pptx",
       "extension": ".pptx",
-      "bytes": 6977,
+      "bytes": 6927,
       "magic": "PK\\x03\\x04",
       "reopened": true,
       "reopenDetail": "ZIP package contains ppt/presentation.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (2553 chars)"
+      "contentQualityDetail": "placeholder/caveat content scan passed (2484 chars)"
     },
     {
       "kind": "document",
-      "filename": "btb-6a2f5cf8-amzn-dcf-valuation-wacc-ppe-analysis.docx",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\6a2f5cf8-be91-4801-87b8-226f259369fb\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-6a2f5cf8-amzn-dcf-valuation-wacc-ppe-analysis.docx",
+      "filename": "btb-6a2f5cf8-amzn-dcf-valuation-model-wacc-dcf-and-ppe-schedule-analysis.docx",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\6a2f5cf8-be91-4801-87b8-226f259369fb\\evidence\\btb-docx-btb-6a2f5cf8-amzn-dcf-valuation-model-wacc-dcf-and-ppe-schedule-analysis.docx",
       "extension": ".docx",
-      "bytes": 3173,
+      "bytes": 3139,
       "magic": "PK\\x03\\x04",
       "reopened": true,
       "reopenDetail": "ZIP package contains word/document.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (3743 chars)"
+      "contentQualityDetail": "placeholder/caveat content scan passed (4047 chars)"
     },
     {
       "kind": "pdf",
-      "filename": "btb-6a2f5cf8-amzn-dcf-valuation-wacc-ppe-analysis.pdf",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\6a2f5cf8-be91-4801-87b8-226f259369fb\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-6a2f5cf8-amzn-dcf-valuation-wacc-ppe-analysis.pdf",
+      "filename": "btb-6a2f5cf8-amzn-dcf-valuation-model-wacc-dcf-and-ppe-schedule-analysis.pdf",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\6a2f5cf8-be91-4801-87b8-226f259369fb\\evidence\\btb-pdf-btb-6a2f5cf8-amzn-dcf-valuation-model-wacc-dcf-and-ppe-schedule-analysis.pdf",
       "extension": ".pdf",
-      "bytes": 3320,
+      "bytes": 4420,
       "magic": "%PDF",
       "reopened": true,
       "reopenDetail": "PDF header reopened",
-      "contentQualityDetail": "placeholder/caveat content scan passed (6073 chars)"
+      "contentQualityDetail": "placeholder/caveat content scan passed (8225 chars)"
     }
   ],
-  "packageManifestPath": "test-results\\bankertoolbench\\matrix\\6a2f5cf8-be91-4801-87b8-226f259369fb\\package-manifest.json",
+  "packageManifestPath": "docs\\eval\\fresh-room\\FR-020\\tasks\\6a2f5cf8-be91-4801-87b8-226f259369fb\\evidence\\package-manifest.json",
   "verifierCommand": "npm run benchmark:bankertoolbench:proof",
   "verifierOutputTail": "\n> noderoom@0.1.1 benchmark:bankertoolbench:proof\n> tsx scripts/bankertoolbench-proof-check.ts\n\nBankerToolBench proof check passed: stage=1/1 weightedRubric=6 run=0/1 pass positive=1/1 pass candidateBeforeEvaluator=true leaks=0/2+0/3+0/4\n",
-  "screenshot": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\6a2f5cf8-be91-4801-87b8-226f259369fb\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\bankertoolbench-live-room.png",
+  "screenshot": "docs\\eval\\fresh-room\\FR-020\\tasks\\6a2f5cf8-be91-4801-87b8-226f259369fb\\evidence\\bankertoolbench-live-room.png",
   "passed": true,
   "gatesProven": [
     "fresh_room_join",

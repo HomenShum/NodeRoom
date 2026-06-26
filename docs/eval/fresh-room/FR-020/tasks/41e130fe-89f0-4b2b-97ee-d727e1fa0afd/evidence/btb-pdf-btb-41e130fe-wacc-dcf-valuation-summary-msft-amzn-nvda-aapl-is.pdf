@@ -1,0 +1,54 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+5 0 obj
+<< /Length 1514 >>
+stream
+BT /F1 11 Tf 54 760 Td (WACC & DCF Valuation Summary — MSFT, AMZN, NVDA, AAPL, IS) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(BTB-41e130fe: WACC DCF valuation for MSFT, AMZN, NVDA, AAPL, and IS \(MSCI Information Services\). Cost of equity = risk-free rate + levered beta × equity risk premium. WACC = E/\(D+E\) × cost of equity + D/\(D+E\) × cos) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(Rows: 5) Tj
+0 -16 Td
+(MSFT — Cost Of Equity: 0.092 · Wacc: 0.086 · Beta: 0.93 · Equity Risk Premium: 0.05 · Risk Free Rate: 0.043 · Intrinsic Value Per Share: 412.50 · Terminal Growth Rate: 0.03 · Premia For Size: 0.0) Tj
+0 -16 Td
+(AMZN — Cost Of Equity: 0.104 · Wacc: 0.095 · Beta: 1.17 · Equity Risk Premium: 0.05 · Risk Free Rate: 0.043 · Intrinsic Value Per Share: 182.30 · Terminal Growth Rate: 0.03 · Premia For Size: 0.0) Tj
+0 -16 Td
+(NVDA — Cost Of Equity: 0.118 · Wacc: 0.110 · Beta: 1.51 · Equity Risk Premium: 0.05 · Risk Free Rate: 0.043 · Intrinsic Value Per Share: 125.40 · Terminal Growth Rate: 0.035 · Premia For Size: 0.0) Tj
+0 -16 Td
+(AAPL — Cost Of Equity: 0.089 · Wacc: 0.085 · Beta: 0.87 · Equity Risk Premium: 0.05 · Risk Free Rate: 0.043 · Intrinsic Value Per Share: 245.80 · Terminal Growth Rate: 0.025 · Premia For Size: 0.0) Tj
+0 -16 Td
+(IS — Cost Of Equity: 0.095 · Wacc: 0.087 · Beta: 1.04 · Equity Risk Premium: 0.05 · Risk Free Rate: 0.043 · Intrinsic Value Per Share: 78.60 · Terminal Growth Rate: 0.025 · Premia For Size: 0.0) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(Sources: ) Tj ET
+endstream
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000241 00000 n 
+0000000311 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+1877
+%%EOF

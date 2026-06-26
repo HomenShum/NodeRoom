@@ -334,7 +334,7 @@ export async function runAgent(opts: {
     summary: reason === "time_budget"
       ? `Paused before the action deadline with ${budget(attempted).usableMs ?? 0}ms usable budget remaining.`
       : reason === "step_budget"
-        ? `Paused after reaching the ${maxSteps}-step budget.`
+        ? `Checkpointed after this run slice used its configured step window; resume with preserved trace, context, and remaining work.`
         : reason === "spend_budget"
           ? "Paused at the spend ceiling (per-run token/cost cap)."
           : "Paused after an agent runtime error.",
@@ -660,20 +660,25 @@ export async function runAgent(opts: {
           requiredNoToolNudges += 1;
           messages.push({
             role: "user",
-            content: `HARNESS NOTE: ${TOOL_REQUIRED_NO_CALL_MARKER} ${requiredNoToolNudges}/${TOOL_REQUIRED_NO_CALL_TERMINAL_AFTER}. The provider returned text/no-op output after the runtime required a tool call for this required-write task. Continue with an actual tool call now. ${goalRequiresPackage ? finishWriteInstruction : ""}`,
+            content: `HARNESS NOTE: ${TOOL_REQUIRED_NO_CALL_MARKER} ${requiredNoToolNudges}/${TOOL_REQUIRED_NO_CALL_TERMINAL_AFTER}. The provider returned text/no-op output after the runtime required a tool call for this required-write task. Refresh context around the required action and continue with an actual tool call now. ${goalRequiresPackage ? finishWriteInstruction : ""}`,
+          });
+          emitStreamEvent({
+            kind: "warning",
+            step,
+            status: "skipped",
+            title: "Required tool call missing",
+            text: "Provider returned no tool call during a required-write turn; NodeAgent refreshed the instruction and preserved the trace for the next slice.",
+            metadata: { requiredNoToolNudges, requiredAfter: TOOL_REQUIRED_NO_CALL_TERMINAL_AFTER, goalRequiresPackage, goalRequiresWrite },
           });
           if (requiredNoToolNudges < TOOL_REQUIRED_NO_CALL_TERMINAL_AFTER && step < maxSteps - 1) {
             continue;
           }
-          const terminalNoTool = requiredNoToolNudges >= TOOL_REQUIRED_NO_CALL_TERMINAL_AFTER;
           const handoff = emitHandoff(
             step + 1,
             "step_budget",
             step + 1,
             [],
-            terminalNoTool
-              ? `${TOOL_REQUIRED_NO_CALL_TERMINAL_MARKER}: provider returned no tool call for ${requiredNoToolNudges} required tool-use turns.`
-              : "required tool call missing; resuming so the next slice can force a tool call.",
+            `required tool call missing after ${requiredNoToolNudges} required tool-use turn${requiredNoToolNudges === 1 ? "" : "s"}; checkpointed with a narrowed instruction so the next slice can force the required ${goalRequiresPackage ? "deliverable package tool" : "write tool"}.`,
           );
           return finish("step_budget", step + 1, true, handoff);
         }

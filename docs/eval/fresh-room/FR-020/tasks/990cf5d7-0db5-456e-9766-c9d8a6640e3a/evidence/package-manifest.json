@@ -1,0 +1,65 @@
+{
+  "schema": 1,
+  "taskId": "990cf5d7-0db5-456e-9766-c9d8a6640e3a",
+  "harborTaskId": "btb-990cf5d7",
+  "generatedAt": "2026-06-26T02:48:21.444Z",
+  "baseUrl": "http://127.0.0.1:5273",
+  "roomUrl": "http://127.0.0.1:5273/?room=NRM2Q47XE3C&name=Host",
+  "downloadedFiles": [
+    {
+      "kind": "workbook",
+      "filename": "btb-990cf5d7-adobe-lbo-analysis.xlsx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\990cf5d7-0db5-456e-9766-c9d8a6640e3a\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-990cf5d7-adobe-lbo-analysis.xlsx",
+      "extension": ".xlsx",
+      "bytes": 6609,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (113 chars)"
+    },
+    {
+      "kind": "workbook",
+      "filename": "btb-990cf5d7-adobe-lbo-analysis.xlsm",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\990cf5d7-0db5-456e-9766-c9d8a6640e3a\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-990cf5d7-adobe-lbo-analysis.xlsm",
+      "extension": ".xlsm",
+      "bytes": 6609,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (113 chars)"
+    },
+    {
+      "kind": "presentation",
+      "filename": "btb-990cf5d7-adobe-lbo-analysis.pptx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\990cf5d7-0db5-456e-9766-c9d8a6640e3a\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-990cf5d7-adobe-lbo-analysis.pptx",
+      "extension": ".pptx",
+      "bytes": 5961,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains ppt/presentation.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (97 chars)"
+    },
+    {
+      "kind": "document",
+      "filename": "btb-990cf5d7-adobe-lbo-analysis.docx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\990cf5d7-0db5-456e-9766-c9d8a6640e3a\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-990cf5d7-adobe-lbo-analysis.docx",
+      "extension": ".docx",
+      "bytes": 1930,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains word/document.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (78 chars)"
+    },
+    {
+      "kind": "pdf",
+      "filename": "btb-990cf5d7-adobe-lbo-analysis.pdf",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\990cf5d7-0db5-456e-9766-c9d8a6640e3a\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-990cf5d7-adobe-lbo-analysis.pdf",
+      "extension": ".pdf",
+      "bytes": 767,
+      "magic": "%PDF",
+      "reopened": true,
+      "reopenDetail": "PDF header reopened",
+      "contentQualityDetail": "placeholder/caveat content scan passed (1015 chars)"
+    }
+  ]
+}

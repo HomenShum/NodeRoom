@@ -2,9 +2,9 @@
   "schema": 1,
   "taskId": "b8be8b2f-e6c2-4137-98e8-a09a3a9860f7",
   "harborTaskId": "btb-b8be8b2f",
-  "generatedAt": "2026-06-25T01:46:35.264Z",
+  "generatedAt": "2026-06-25T23:47:52.769Z",
   "baseUrl": "http://127.0.0.1:5273",
-  "roomUrl": "http://127.0.0.1:5273/?room=NRNTN278YBU&name=Host",
+  "roomUrl": "http://127.0.0.1:5273/?room=NRJIOPBH34I&name=Host",
   "memoryMode": false,
   "expectedExtensions": [
     ".xlsx",
@@ -23,64 +23,64 @@
   "downloadedFiles": [
     {
       "kind": "workbook",
-      "filename": "btb-b8be8b2f-capricor-therapeutics-capr-dcf-sotp-valuation-model-deramiocel-in-dmd-with-unlevere.xlsx",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\b8be8b2f-e6c2-4137-98e8-a09a3a9860f7\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-b8be8b2f-capricor-therapeutics-capr-dcf-sotp-valuation-model-deramiocel-in-dmd-with-unlevere.xlsx",
+      "filename": "btb-b8be8b2f-capricor-therapeutics-dcf-sotp-valuation-model.xlsx",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\b8be8b2f-e6c2-4137-98e8-a09a3a9860f7\\evidence\\btb-xlsx-btb-b8be8b2f-capricor-therapeutics-dcf-sotp-valuation-model.xlsx",
       "extension": ".xlsx",
-      "bytes": 14930,
+      "bytes": 9811,
       "magic": "PK\\x03\\x04",
       "reopened": true,
       "reopenDetail": "ZIP package contains xl/workbook.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (13333 chars)"
+      "contentQualityDetail": "placeholder/caveat content scan passed (5996 chars)"
     },
     {
       "kind": "workbook",
-      "filename": "btb-b8be8b2f-capricor-therapeutics-capr-dcf-sotp-valuation-model-deramiocel-in-dmd-with-unlevere.xlsm",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\b8be8b2f-e6c2-4137-98e8-a09a3a9860f7\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-b8be8b2f-capricor-therapeutics-capr-dcf-sotp-valuation-model-deramiocel-in-dmd-with-unlevere.xlsm",
+      "filename": "btb-b8be8b2f-capricor-therapeutics-dcf-sotp-valuation-model.xlsm",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\b8be8b2f-e6c2-4137-98e8-a09a3a9860f7\\evidence\\btb-xlsm-btb-b8be8b2f-capricor-therapeutics-dcf-sotp-valuation-model.xlsm",
       "extension": ".xlsm",
-      "bytes": 14930,
+      "bytes": 9811,
       "magic": "PK\\x03\\x04",
       "reopened": true,
       "reopenDetail": "ZIP package contains xl/workbook.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (13333 chars)"
+      "contentQualityDetail": "placeholder/caveat content scan passed (5996 chars)"
     },
     {
       "kind": "presentation",
-      "filename": "btb-b8be8b2f-capricor-therapeutics-capr-dcf-sotp-valuation-model-deramiocel-in-dmd-with-unlevere.pptx",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\b8be8b2f-e6c2-4137-98e8-a09a3a9860f7\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-b8be8b2f-capricor-therapeutics-capr-dcf-sotp-valuation-model-deramiocel-in-dmd-with-unlevere.pptx",
+      "filename": "btb-b8be8b2f-capricor-therapeutics-dcf-sotp-valuation-model.pptx",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\b8be8b2f-e6c2-4137-98e8-a09a3a9860f7\\evidence\\btb-pptx-btb-b8be8b2f-capricor-therapeutics-dcf-sotp-valuation-model.pptx",
       "extension": ".pptx",
-      "bytes": 7660,
+      "bytes": 8050,
       "magic": "PK\\x03\\x04",
       "reopened": true,
       "reopenDetail": "ZIP package contains ppt/presentation.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (3657 chars)"
+      "contentQualityDetail": "placeholder/caveat content scan passed (5104 chars)"
     },
     {
       "kind": "document",
-      "filename": "btb-b8be8b2f-capricor-therapeutics-capr-dcf-sotp-valuation-model-deramiocel-in-dmd-with-unlevere.docx",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\b8be8b2f-e6c2-4137-98e8-a09a3a9860f7\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-b8be8b2f-capricor-therapeutics-capr-dcf-sotp-valuation-model-deramiocel-in-dmd-with-unlevere.docx",
+      "filename": "btb-b8be8b2f-capricor-therapeutics-dcf-sotp-valuation-model.docx",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\b8be8b2f-e6c2-4137-98e8-a09a3a9860f7\\evidence\\btb-docx-btb-b8be8b2f-capricor-therapeutics-dcf-sotp-valuation-model.docx",
       "extension": ".docx",
-      "bytes": 5528,
+      "bytes": 4091,
       "magic": "PK\\x03\\x04",
       "reopened": true,
       "reopenDetail": "ZIP package contains word/document.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (8479 chars)"
+      "contentQualityDetail": "placeholder/caveat content scan passed (5295 chars)"
     },
     {
       "kind": "pdf",
-      "filename": "btb-b8be8b2f-capricor-therapeutics-capr-dcf-sotp-valuation-model-deramiocel-in-dmd-with-unlevere.pdf",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\b8be8b2f-e6c2-4137-98e8-a09a3a9860f7\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-b8be8b2f-capricor-therapeutics-capr-dcf-sotp-valuation-model-deramiocel-in-dmd-with-unlevere.pdf",
+      "filename": "btb-b8be8b2f-capricor-therapeutics-dcf-sotp-valuation-model.pdf",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\b8be8b2f-e6c2-4137-98e8-a09a3a9860f7\\evidence\\btb-pdf-btb-b8be8b2f-capricor-therapeutics-dcf-sotp-valuation-model.pdf",
       "extension": ".pdf",
-      "bytes": 5567,
+      "bytes": 2878,
       "magic": "%PDF",
       "reopened": true,
       "reopenDetail": "PDF header reopened",
-      "contentQualityDetail": "placeholder/caveat content scan passed (10547 chars)"
+      "contentQualityDetail": "placeholder/caveat content scan passed (5163 chars)"
     }
   ],
-  "packageManifestPath": "test-results\\bankertoolbench\\matrix\\b8be8b2f-e6c2-4137-98e8-a09a3a9860f7\\package-manifest.json",
+  "packageManifestPath": "docs\\eval\\fresh-room\\FR-020\\tasks\\b8be8b2f-e6c2-4137-98e8-a09a3a9860f7\\evidence\\package-manifest.json",
   "verifierCommand": "npm run benchmark:bankertoolbench:proof",
   "verifierOutputTail": "\n> noderoom@0.1.1 benchmark:bankertoolbench:proof\n> tsx scripts/bankertoolbench-proof-check.ts\n\nBankerToolBench proof check passed: stage=1/1 weightedRubric=6 run=0/1 pass positive=1/1 pass candidateBeforeEvaluator=true leaks=0/2+0/3+0/4\n",
-  "screenshot": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\b8be8b2f-e6c2-4137-98e8-a09a3a9860f7\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\bankertoolbench-live-room.png",
+  "screenshot": "docs\\eval\\fresh-room\\FR-020\\tasks\\b8be8b2f-e6c2-4137-98e8-a09a3a9860f7\\evidence\\bankertoolbench-live-room.png",
   "passed": true,
   "gatesProven": [
     "fresh_room_join",

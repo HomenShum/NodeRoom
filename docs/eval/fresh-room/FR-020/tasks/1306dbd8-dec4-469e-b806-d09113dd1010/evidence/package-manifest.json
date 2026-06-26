@@ -1,0 +1,65 @@
+{
+  "schema": 1,
+  "taskId": "1306dbd8-dec4-469e-b806-d09113dd1010",
+  "harborTaskId": "btb-1306dbd8",
+  "generatedAt": "2026-06-25T23:52:30.635Z",
+  "baseUrl": "http://127.0.0.1:5273",
+  "roomUrl": "http://127.0.0.1:5273/?room=NR98YZTMKBT&name=Host",
+  "downloadedFiles": [
+    {
+      "kind": "workbook",
+      "filename": "btb-1306dbd8-deere-company-nyse-de-cash-flow-sweep-analysis-fy-2026-fy-2030.xlsx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\1306dbd8-dec4-469e-b806-d09113dd1010\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-1306dbd8-deere-company-nyse-de-cash-flow-sweep-analysis-fy-2026-fy-2030.xlsx",
+      "extension": ".xlsx",
+      "bytes": 9196,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j9730psgc0k2rsmjgx1dm7n42s89b9eg",
+      "contentQualityDetail": "placeholder/caveat content scan passed (3956 chars)"
+    },
+    {
+      "kind": "workbook",
+      "filename": "btb-1306dbd8-deere-company-nyse-de-cash-flow-sweep-analysis-fy-2026-fy-2030.xlsm",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\1306dbd8-dec4-469e-b806-d09113dd1010\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-1306dbd8-deere-company-nyse-de-cash-flow-sweep-analysis-fy-2026-fy-2030.xlsm",
+      "extension": ".xlsm",
+      "bytes": 9196,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j972535z4194yjt2scrrk3078x89bqrw",
+      "contentQualityDetail": "placeholder/caveat content scan passed (3956 chars)"
+    },
+    {
+      "kind": "presentation",
+      "filename": "btb-1306dbd8-deere-company-nyse-de-cash-flow-sweep-analysis-fy-2026-fy-2030.pptx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\1306dbd8-dec4-469e-b806-d09113dd1010\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-1306dbd8-deere-company-nyse-de-cash-flow-sweep-analysis-fy-2026-fy-2030.pptx",
+      "extension": ".pptx",
+      "bytes": 6950,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains ppt/presentation.xml; recovered from Convex room artifact j97306xs2az2cyyvqabhx9zp5n89akmp",
+      "contentQualityDetail": "placeholder/caveat content scan passed (2312 chars)"
+    },
+    {
+      "kind": "document",
+      "filename": "btb-1306dbd8-deere-company-nyse-de-cash-flow-sweep-analysis-fy-2026-fy-2030.docx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\1306dbd8-dec4-469e-b806-d09113dd1010\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-1306dbd8-deere-company-nyse-de-cash-flow-sweep-analysis-fy-2026-fy-2030.docx",
+      "extension": ".docx",
+      "bytes": 3319,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains word/document.xml; recovered from Convex room artifact j970yg02rcrfk8f58aws83n2m589at7c",
+      "contentQualityDetail": "placeholder/caveat content scan passed (4952 chars)"
+    },
+    {
+      "kind": "pdf",
+      "filename": "btb-1306dbd8-deere-company-nyse-de-cash-flow-sweep-analysis-fy-2026-fy-2030.pdf",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\1306dbd8-dec4-469e-b806-d09113dd1010\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-1306dbd8-deere-company-nyse-de-cash-flow-sweep-analysis-fy-2026-fy-2030.pdf",
+      "extension": ".pdf",
+      "bytes": 4603,
+      "magic": "%PDF",
+      "reopened": true,
+      "reopenDetail": "PDF header reopened; recovered from Convex room artifact j977q12ctwrbmnwv0th5hb1dhn89aad2",
+      "contentQualityDetail": "placeholder/caveat content scan passed (8532 chars)"
+    }
+  ]
+}

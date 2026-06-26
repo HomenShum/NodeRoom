@@ -1,0 +1,65 @@
+{
+  "schema": 1,
+  "taskId": "c0bf2e84-2400-47bf-9dd2-aacfb53a2090",
+  "harborTaskId": "btb-c0bf2e84",
+  "generatedAt": "2026-06-25T23:43:16.357Z",
+  "baseUrl": "http://127.0.0.1:5273",
+  "roomUrl": "http://127.0.0.1:5273/?room=NRUGF2DBP93&name=Host",
+  "downloadedFiles": [
+    {
+      "kind": "workbook",
+      "filename": "btb-c0bf2e84-lbo-analysis-the-new-york-times-company-nyt.xlsx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\c0bf2e84-2400-47bf-9dd2-aacfb53a2090\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-c0bf2e84-lbo-analysis-the-new-york-times-company-nyt.xlsx",
+      "extension": ".xlsx",
+      "bytes": 8894,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (3593 chars)"
+    },
+    {
+      "kind": "workbook",
+      "filename": "btb-c0bf2e84-lbo-analysis-the-new-york-times-company-nyt.xlsm",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\c0bf2e84-2400-47bf-9dd2-aacfb53a2090\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-c0bf2e84-lbo-analysis-the-new-york-times-company-nyt.xlsm",
+      "extension": ".xlsm",
+      "bytes": 8894,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (3593 chars)"
+    },
+    {
+      "kind": "presentation",
+      "filename": "btb-c0bf2e84-lbo-analysis-the-new-york-times-company-nyt.pptx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\c0bf2e84-2400-47bf-9dd2-aacfb53a2090\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-c0bf2e84-lbo-analysis-the-new-york-times-company-nyt.pptx",
+      "extension": ".pptx",
+      "bytes": 7308,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains ppt/presentation.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (2716 chars)"
+    },
+    {
+      "kind": "document",
+      "filename": "btb-c0bf2e84-lbo-analysis-the-new-york-times-company-nyt.docx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\c0bf2e84-2400-47bf-9dd2-aacfb53a2090\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-c0bf2e84-lbo-analysis-the-new-york-times-company-nyt.docx",
+      "extension": ".docx",
+      "bytes": 3532,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains word/document.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (4139 chars)"
+    },
+    {
+      "kind": "pdf",
+      "filename": "btb-c0bf2e84-lbo-analysis-the-new-york-times-company-nyt.pdf",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\c0bf2e84-2400-47bf-9dd2-aacfb53a2090\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-c0bf2e84-lbo-analysis-the-new-york-times-company-nyt.pdf",
+      "extension": ".pdf",
+      "bytes": 3625,
+      "magic": "%PDF",
+      "reopened": true,
+      "reopenDetail": "PDF header reopened",
+      "contentQualityDetail": "placeholder/caveat content scan passed (6620 chars)"
+    }
+  ]
+}

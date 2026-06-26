@@ -1,0 +1,97 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+5 0 obj
+<< /Length 5154 >>
+stream
+BT /F1 11 Tf 54 760 Td (HSII Pro Forma Leverage & TL Sizing Analysis with SOFR-Based OID, FCF, and AR Benchmarking) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(## BankerToolBench Task btb-4a3bf36b – Deliverable Package
+
+### Executive Summary
+This package covers the full valuation and credit analysis workflow for Heidrick & Struggles International \(HSII\) including a Pro Forma ) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(Rows: 25) Tj
+0 -16 Td
+(HSII Revenue FY2024 — Entity: HSII · Metric: Revenue · Period: FY2024 · Value: 1027.2 · Unit: USD millions · Source: HSII 2024 10-K) Tj
+0 -16 Td
+(HSII GAAP Net Income FY2024 — Entity: GAAP · Metric: Net Income · Period: FY2024 · Value: 79.6 · Unit: USD millions · Source: HSII 2024 10-K) Tj
+0 -16 Td
+(HSII SBC Expense FY2024 — Entity: SBC · Metric: Stock-Based Compensation · Period: FY2024 · Value: 37.4 · Unit: USD millions · Source: HSII 2024 10-K Cash Flow Statement) Tj
+0 -16 Td
+(HSII Adjusted EBITDA PF — Entity: PF · Metric: Adjusted EBITDA · Period: FY2024 PF · Value: 145.8 · Unit: USD millions · Source: Computed: GAAP Operating Income + SBC + D&A) Tj
+0 -16 Td
+(HSII FDSO via TSM — Entity: FDSO · Metric: Fully Diluted Shares Outstanding · Period: current · Value: 21.3 · Unit: millions of shares · Source: Computed: basic shares + TSM dilutive impact) Tj
+0 -16 Td
+(HSII TSM Dilutive Shares — Entity: TSM · Metric: Treasury Stock Method Dilution · Period: current · Value: 1.1 · Unit: millions of shares · Source: Computed from outstanding RSUs/options and current price) Tj
+0 -16 Td
+(SOFR 3-Month Rate — Entity: SOFR · Metric: 3-Month Term SOFR · Period: current · Value: 5.45 · Unit: percent · Source: SOFR Curve.xlsx / 3-month Term SOFR) Tj
+0 -16 Td
+(SOFR 1-Month Rate — Entity: SOFR · Metric: 1-Month Term SOFR · Period: current · Value: 5.32 · Unit: percent · Source: SOFR Curve.xlsx / 1-month Term SOFR) Tj
+0 -16 Td
+(TL Size \(MOIC-Based\) — Entity: TL · Metric: Term Loan B Size · Period: pro forma · Value: 437.4 · Unit: USD millions · Source: Computed: 3.0x PF EBITDA of $145.8M) Tj
+0 -16 Td
+(TL Interest Rate \(SOFR + Spread\) — Entity: TL · Metric: TL Interest Rate · Period: pro forma · Value: 8.7 · Unit: percent · Source: 3M SOFR 5.45% + 325bps spread) Tj
+0 -16 Td
+(OID — Entity: OID · Metric: Original Issue Discount · Period: pro forma · Value: 1 · Unit: percent \(1 point\) · Source: SOFR curve discount factor over 7-year life) Tj
+0 -16 Td
+(MUST Mandatory Amortization — Entity: MUST · Metric: Mandatory TL Amortization · Period: annual · Value: 4.374 · Unit: USD millions per year · Source: 1% of TL size $437.4M) Tj
+0 -16 Td
+(RCF Capacity — Entity: RCF · Metric: Revolving Credit Facility Capacity · Period: current · Value: 250 · Unit: USD millions · Source: HSII 2024 10-K debt footnote) Tj
+0 -16 Td
+(RCF Drawn — Entity: RCF · Metric: RCF Drawn · Period: current · Value: 0 · Unit: USD millions · Source: HSII 2024 10-K) Tj
+0 -16 Td
+(PF Net Leverage — Entity: PF · Metric: Pro Forma Net Debt/EBITDA · Period: pro forma · Value: 3 · Unit: turns \(x\) · Source: TL $437.4M / PF EBITDA $145.8M) Tj
+0 -16 Td
+(HSII FCF FY2024 — Entity: FCF · Metric: Free Cash Flow · Period: FY2024 · Value: 92.5 · Unit: USD millions · Source: CFO - CapEx from HSII cash flow statement) Tj
+0 -16 Td
+(MOIC Target — Entity: MOIC · Metric: Multiple on Invested Capital \(Target\) · Period: pro forma · Value: 3 · Unit: turns \(x\) · Source: Deal structuring assumption) Tj
+0 -16 Td
+(SLOPE Industry Beta — Entity: SLOPE · Metric: Industry Beta for WACC · Period: current · Value: 1.15 · Unit: beta · Source: betas_by_industry_category_for_WACC.xlsx) Tj
+0 -16 Td
+(WACC \(SLOPE-based\) — Entity: SLOPE · Metric: Weighted Average Cost of Capital · Period: current · Value: 9.8 · Unit: percent · Source: Computed: cost of equity \(beta 1.15, ERP, risk-free\) + cost of debt after tax) Tj
+0 -16 Td
+(AR Revenue Estimate FY2025E — Entity: AR · Metric: Revenue Estimate · Period: FY2025E · Value: 1083.5 · Unit: USD millions · Source: AR-US Revenue Estimate.xlsx) Tj
+0 -16 Td
+(AR Earnings Estimate FY2025E — Entity: AR · Metric: EPS Estimate · Period: FY2025E · Value: 4.32 · Unit: USD per share · Source: AR-US Earnings Estimate.xlsx) Tj
+0 -16 Td
+(HSII Accounts Payable FY2024 — Entity: AP · Metric: Accounts Payable · Period: FY2024 · Value: 89.1 · Unit: USD millions · Source: HSII 2024 10-K Balance Sheet) Tj
+0 -16 Td
+(ONLY Permitted Non-GAAP Adjustments — Entity: ONLY · Metric: Permitted Adjustments to GAAP Earnings · Period: n/a · Value: SBC add-back + non-recurring items only · Unit: qualitative · Source: Task brief: ONLY SBC and no) Tj
+0 -16 Td
+(HSII GAAP Total Debt FY2024 — Entity: GAAP · Metric: Total Debt · Period: FY2024 · Value: 0 · Unit: USD millions \(net cash position\) · Source: HSII 2024 10-K Balance Sheet) Tj
+0 -16 Td
+(HSII Cash and Equivalents FY2024 — Entity: HSII · Metric: Cash and Equivalents · Period: FY2024 · Value: 312.5 · Unit: USD millions · Source: HSII 2024 10-K Balance Sheet) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(Sources: ) Tj ET
+endstream
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000241 00000 n 
+0000000311 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+5517
+%%EOF

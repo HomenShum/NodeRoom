@@ -1,0 +1,65 @@
+{
+  "schema": 1,
+  "taskId": "4e23ce4e-be6f-4d56-ab7b-2878a801a648",
+  "harborTaskId": "btb-4e23ce4e",
+  "generatedAt": "2026-06-25T23:40:53.912Z",
+  "baseUrl": "http://127.0.0.1:5273",
+  "roomUrl": "http://127.0.0.1:5273/?room=NRWPF2O79IO&name=Host",
+  "downloadedFiles": [
+    {
+      "kind": "workbook",
+      "filename": "btb-4e23ce4e-wacc-comparison-hlt-regal-ihg-lodging-sector-cost-of-capital.xlsx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\4e23ce4e-be6f-4d56-ab7b-2878a801a648\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-4e23ce4e-wacc-comparison-hlt-regal-ihg-lodging-sector-cost-of-capital.xlsx",
+      "extension": ".xlsx",
+      "bytes": 9841,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (5787 chars)"
+    },
+    {
+      "kind": "workbook",
+      "filename": "btb-4e23ce4e-wacc-comparison-hlt-regal-ihg-lodging-sector-cost-of-capital.xlsm",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\4e23ce4e-be6f-4d56-ab7b-2878a801a648\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-4e23ce4e-wacc-comparison-hlt-regal-ihg-lodging-sector-cost-of-capital.xlsm",
+      "extension": ".xlsm",
+      "bytes": 9841,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (5787 chars)"
+    },
+    {
+      "kind": "presentation",
+      "filename": "btb-4e23ce4e-wacc-comparison-hlt-regal-ihg-lodging-sector-cost-of-capital.pptx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\4e23ce4e-be6f-4d56-ab7b-2878a801a648\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-4e23ce4e-wacc-comparison-hlt-regal-ihg-lodging-sector-cost-of-capital.pptx",
+      "extension": ".pptx",
+      "bytes": 7611,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains ppt/presentation.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (4191 chars)"
+    },
+    {
+      "kind": "document",
+      "filename": "btb-4e23ce4e-wacc-comparison-hlt-regal-ihg-lodging-sector-cost-of-capital.docx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\4e23ce4e-be6f-4d56-ab7b-2878a801a648\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-4e23ce4e-wacc-comparison-hlt-regal-ihg-lodging-sector-cost-of-capital.docx",
+      "extension": ".docx",
+      "bytes": 4044,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains word/document.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (6500 chars)"
+    },
+    {
+      "kind": "pdf",
+      "filename": "btb-4e23ce4e-wacc-comparison-hlt-regal-ihg-lodging-sector-cost-of-capital.pdf",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\4e23ce4e-be6f-4d56-ab7b-2878a801a648\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-4e23ce4e-wacc-comparison-hlt-regal-ihg-lodging-sector-cost-of-capital.pdf",
+      "extension": ".pdf",
+      "bytes": 4163,
+      "magic": "%PDF",
+      "reopened": true,
+      "reopenDetail": "PDF header reopened",
+      "contentQualityDetail": "placeholder/caveat content scan passed (7668 chars)"
+    }
+  ]
+}

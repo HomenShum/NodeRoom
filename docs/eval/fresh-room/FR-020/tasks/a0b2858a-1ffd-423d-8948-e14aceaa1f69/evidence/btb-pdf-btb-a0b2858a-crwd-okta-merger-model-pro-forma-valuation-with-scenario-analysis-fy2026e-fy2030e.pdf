@@ -1,0 +1,104 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+5 0 obj
+<< /Length 5892 >>
+stream
+BT /F1 11 Tf 54 760 Td (CRWD-OKTA Merger Model: Pro Forma Valuation with Scenario Analysis \(FY2026E-FY2030E\)) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(Merger model for CrowdStrike Holdings \(CRWD\) acquisition of Okta \(OKTA\). The strategic buyer CRWD is evaluated acquiring target OKTA at a 30% premium to the 1/28/26 closing price. The model covers standalone CRWD \(i) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(Rows: 49) Tj
+0 -16 Td
+(CRWD_Standalone_Revenue_FY2025A — Ticker: CRWD · Metric: Standalone Revenue FY2025A · Value: 3967 · Unit: USD millions · Source: CRWD-US Income Statement Annual) Tj
+0 -16 Td
+(CRWD_Standalone_Revenue_FY2026E — Ticker: CRWD · Metric: Standalone Revenue FY2026E · Value: 5269 · Unit: USD millions · Source: CRWD-US Revenue Estimate) Tj
+0 -16 Td
+(CRWD_Standalone_Revenue_FY2030E — Ticker: CRWD · Metric: Standalone Revenue FY2030E · Value: 11342 · Unit: USD millions · Source: CRWD-US Revenue Estimate) Tj
+0 -16 Td
+(CRWD_Standalone_EBIT_FY2025A — Ticker: CRWD · Metric: Standalone EBIT FY2025A · Value: 428 · Unit: USD millions · Source: CRWD-US Income Statement Annual) Tj
+0 -16 Td
+(CRWD_Standalone_FCF_FY2025A — Ticker: CRWD · Metric: Standalone FCF FY2025A · Value: 854 · Unit: USD millions · Source: CRWD-US Cash Flow Annual) Tj
+0 -16 Td
+(CRWD_Shares_Outstanding — Ticker: CRWD · Metric: Diluted Shares Outstanding · Value: 243.5 · Unit: millions · Source: CRWD-US Shares Outstanding) Tj
+0 -16 Td
+(CRWD_Closing_Price_1_28_26 — Ticker: CRWD · Metric: Closing Price 1/28/26 · Value: 385.42 · Unit: USD · Source: CRWD-US Price History) Tj
+0 -16 Td
+(CRWD_Market_Cap — Ticker: CRWD · Metric: Market Capitalization · Value: 93849 · Unit: USD millions · Source: Computed: price x shares) Tj
+0 -16 Td
+(OKTA_Standalone_Revenue_FY2025A — Ticker: OKTA · Metric: Standalone Revenue FY2025A · Value: 664 · Unit: USD millions · Source: OKTA-US Income Statement Annual) Tj
+0 -16 Td
+(OKTA_Standalone_Revenue_FY2026E — Ticker: OKTA · Metric: Standalone Revenue FY2026E · Value: 767 · Unit: USD millions · Source: OKTA-US Revenue Estimate) Tj
+0 -16 Td
+(OKTA_Standalone_Revenue_FY2030E — Ticker: OKTA · Metric: Standalone Revenue FY2030E · Value: 1132 · Unit: USD millions · Source: OKTA-US Revenue Estimate) Tj
+0 -16 Td
+(OKTA_Standalone_EBIT_FY2025A — Ticker: OKTA · Metric: Standalone EBIT FY2025A · Value: -82 · Unit: USD millions · Source: OKTA-US Income Statement Annual) Tj
+0 -16 Td
+(OKTA_Standalone_FCF_FY2025A — Ticker: OKTA · Metric: Standalone FCF FY2025A · Value: 262 · Unit: USD millions · Source: OKTA-US Cash Flow Annual) Tj
+0 -16 Td
+(OKTA_Shares_Outstanding — Ticker: OKTA · Metric: Diluted Shares Outstanding · Value: 169 · Unit: millions · Source: OKTA-US Shares Outstanding) Tj
+0 -16 Td
+(OKTA_Closing_Price_1_28_26 — Ticker: OKTA · Metric: Closing Price 1/28/26 · Value: 93.5 · Unit: USD · Source: OKTA-US Price History) Tj
+0 -16 Td
+(OKTA_Market_Cap — Ticker: OKTA · Metric: Market Capitalization · Value: 15802 · Unit: USD millions · Source: Computed: price x shares) Tj
+0 -16 Td
+(OKTA_Equity_Purchase_Price_30pct_Premium — Ticker: OKTA · Metric: Equity Purchase Price \(30% premium\) · Value: 20542 · Unit: USD millions · Source: Computed: market cap x 1.30) Tj
+0 -16 Td
+(CRWS_Weighted_Avg_Shares_Combined — Ticker: CRWS · Metric: Pro Forma Weighted Avg Shares \(CRWD + OKTA exchange ratio 0.243\) · Value: 284.6 · Unit: millions · Source: Computed: CRWD shares + OKTA shares x exchange ratio) Tj
+0 -16 Td
+(CRWS_Pro_Forma_Revenue_FY2026E — Ticker: CRWS · Metric: Pro Forma Combined Revenue FY2026E · Value: 6036 · Unit: USD millions · Source: Computed: CRWD + OKTA revenue) Tj
+0 -16 Td
+(CRWS_Pro_Forma_Revenue_FY2030E_Base — Ticker: CRWS · Metric: Pro Forma Combined Revenue FY2030E \(Base\) · Value: 12474 · Unit: USD millions · Source: Computed: CRWD + OKTA revenue Base case) Tj
+0 -16 Td
+(CRWS_Pro_Forma_Revenue_FY2030E_Upside — Ticker: CRWS · Metric: Pro Forma Combined Revenue FY2030E \(Upside\) · Value: 13974 · Unit: USD millions · Source: Computed: CRWD + OKTA revenue Upside case) Tj
+0 -16 Td
+(CRWS_Pro_Forma_Revenue_FY2030E_Downside — Ticker: CRWS · Metric: Pro Forma Combined Revenue FY2030E \(Downside\) · Value: 10974 · Unit: USD millions · Source: Computed: CRWD + OKTA revenue Downside case) Tj
+0 -16 Td
+(PPA_Equity_Purchase_Price — Ticker: PPA · Metric: Equity Purchase Price · Value: 20542 · Unit: USD millions · Source: Computed from OKTA market cap x 1.30 premium) Tj
+0 -16 Td
+(PPA_Net_Identifiable_Assets — Ticker: PPA · Metric: Net Identifiable Assets Acquired · Value: 2239 · Unit: USD millions · Source: OKTA-US Balance Sheet Annual) Tj
+0 -16 Td
+(PPA_Goodwill — Ticker: PPA · Metric: Goodwill · Value: 18303 · Unit: USD millions · Source: Computed: purchase price - net identifiable assets) Tj
+0 -16 Td
+(PPA_Intangible_Assets — Ticker: PPA · Metric: Identified Intangible Assets · Value: 3200 · Unit: USD millions · Source: Estimated: customer relationships, technology, trade name) Tj
+0 -16 Td
+(PPA_Deferred_Rev_WriteDown — Ticker: PPA · Metric: Deferred Revenue Write-down · Value: 241 · Unit: USD millions · Source: Estimated: 25% of OKTA deferred revenue) Tj
+0 -16 Td
+(PPA_Deferred_Rev_WriteDown_Amortization — Ticker: PPA · Metric: Deferred Rev Write-down Annual Amortization · Value: 96.4 · Unit: USD millions · Source: Computed: write-down / 2.5 year average life) Tj
+0 -16 Td
+(IS_ProForma_Revenue_FY2026E — Ticker: IS · Metric: Pro Forma Revenue FY2026E · Value: 6036 · Unit: USD millions · Source: Computed: CRWD + OKTA standalone revenue) Tj
+0 -16 Td
+(IS_ProForma_Revenue_FY2027E — Ticker: IS · Metric: Pro Forma Revenue FY2027E · Value: 7375 · Unit: USD millions · Source: Computed: CRWD + OKTA revenue with 22% growth) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(Sources: ) Tj ET
+endstream
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000241 00000 n 
+0000000311 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+6255
+%%EOF

@@ -3,10 +3,10 @@
   "caseId": "FR-020",
   "benchmark": "bankertoolbench",
   "taskId": "cf5884e8-8881-4747-a65a-10d8b468a9f4",
-  "generatedAt": "2026-06-25T02:31:24.790Z",
+  "generatedAt": "2026-06-26T01:19:02.037Z",
   "baseUrl": "http://127.0.0.1:5273",
-  "roomId": "NR6KQHZVAJ2",
-  "roomUrl": "http://127.0.0.1:5273/?room=NR6KQHZVAJ2&name=Host",
+  "roomId": "NR4SL54Q7SL",
+  "roomUrl": "http://127.0.0.1:5273/?room=NR4SL54Q7SL&name=Host",
   "command": "BTB_LIVE_ROOM_E2E=1 BTB_UI_BUNDLE_ROOT=<official-bundle> BTB_UI_VERIFIER_COMMAND=<verifier> BENCH_BASE_URL=<base> npx playwright test --config playwright.real-flow.config.ts e2e/benchmark-ui-bankertoolbench.spec.ts --headed",
   "model": {
     "requested": "specific",
@@ -50,7 +50,7 @@
     "jobDetailVisible": true,
     "roomTraceVisible": true,
     "screenshotPaths": [
-      "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\cf5884e8-8881-4747-a65a-10d8b468a9f4\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\bankertoolbench-live-room.png"
+      "docs\\eval\\fresh-room\\FR-020\\tasks\\cf5884e8-8881-4747-a65a-10d8b468a9f4\\evidence\\bankertoolbench-live-room.png"
     ],
     "tracePath": "docs\\eval\\bankertoolbench\\live-room\\cf5884e8-8881-4747-a65a-10d8b468a9f4.json"
   },
@@ -81,46 +81,46 @@
       {
         "kind": "workbook",
         "filename": "btb-cf5884e8-etsy-q3-fy2025-market-update.xlsx",
-        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\cf5884e8-8881-4747-a65a-10d8b468a9f4\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-cf5884e8-etsy-q3-fy2025-market-update.xlsx",
+        "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\cf5884e8-8881-4747-a65a-10d8b468a9f4\\evidence\\btb-xlsx-btb-cf5884e8-etsy-q3-fy2025-market-update.xlsx",
         "extension": ".xlsx",
         "downloaded": true,
-        "bytes": 6807,
+        "bytes": 9225,
         "magic": "PK\\x03\\x04"
       },
       {
         "kind": "workbook",
         "filename": "btb-cf5884e8-etsy-q3-fy2025-market-update.xlsm",
-        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\cf5884e8-8881-4747-a65a-10d8b468a9f4\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-cf5884e8-etsy-q3-fy2025-market-update.xlsm",
+        "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\cf5884e8-8881-4747-a65a-10d8b468a9f4\\evidence\\btb-xlsm-btb-cf5884e8-etsy-q3-fy2025-market-update.xlsm",
         "extension": ".xlsm",
         "downloaded": true,
-        "bytes": 6807,
+        "bytes": 9225,
         "magic": "PK\\x03\\x04"
       },
       {
         "kind": "presentation",
         "filename": "btb-cf5884e8-etsy-q3-fy2025-market-update.pptx",
-        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\cf5884e8-8881-4747-a65a-10d8b468a9f4\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-cf5884e8-etsy-q3-fy2025-market-update.pptx",
+        "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\cf5884e8-8881-4747-a65a-10d8b468a9f4\\evidence\\btb-pptx-btb-cf5884e8-etsy-q3-fy2025-market-update.pptx",
         "extension": ".pptx",
         "downloaded": true,
-        "bytes": 6075,
+        "bytes": 6968,
         "magic": "PK\\x03\\x04"
       },
       {
         "kind": "document",
         "filename": "btb-cf5884e8-etsy-q3-fy2025-market-update.docx",
-        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\cf5884e8-8881-4747-a65a-10d8b468a9f4\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-cf5884e8-etsy-q3-fy2025-market-update.docx",
+        "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\cf5884e8-8881-4747-a65a-10d8b468a9f4\\evidence\\btb-docx-btb-cf5884e8-etsy-q3-fy2025-market-update.docx",
         "extension": ".docx",
         "downloaded": true,
-        "bytes": 2043,
+        "bytes": 3308,
         "magic": "PK\\x03\\x04"
       },
       {
         "kind": "pdf",
         "filename": "btb-cf5884e8-etsy-q3-fy2025-market-update.pdf",
-        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\cf5884e8-8881-4747-a65a-10d8b468a9f4\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-cf5884e8-etsy-q3-fy2025-market-update.pdf",
+        "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\cf5884e8-8881-4747-a65a-10d8b468a9f4\\evidence\\btb-pdf-btb-cf5884e8-etsy-q3-fy2025-market-update.pdf",
         "extension": ".pdf",
         "downloaded": true,
-        "bytes": 1130,
+        "bytes": 1896,
         "magic": "%PDF"
       }
     ],
@@ -130,35 +130,35 @@
         "filename": "btb-cf5884e8-etsy-q3-fy2025-market-update.xlsx",
         "reopened": true,
         "scorerResult": "pass",
-        "detail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j978z6rhhbj9edmkdqz59cbex189b527; placeholder/caveat content scan passed (366 chars)"
+        "detail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j9758nxss71v3gp8dxqpqpsb9n89d3cc; placeholder/caveat content scan passed (4217 chars)"
       },
       {
         "kind": "workbook",
         "filename": "btb-cf5884e8-etsy-q3-fy2025-market-update.xlsm",
         "reopened": true,
         "scorerResult": "pass",
-        "detail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j974wn854m9xqrc8vk4xy2cm1989a55w; placeholder/caveat content scan passed (366 chars)"
+        "detail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j97209eg14b6z6tn4ztrzxaa0h89chy2; placeholder/caveat content scan passed (4217 chars)"
       },
       {
         "kind": "presentation",
         "filename": "btb-cf5884e8-etsy-q3-fy2025-market-update.pptx",
         "reopened": true,
         "scorerResult": "pass",
-        "detail": "ZIP package contains ppt/presentation.xml; recovered from Convex room artifact j971ah22n36k1kek8pm20gh8fh89b60e; placeholder/caveat content scan passed (411 chars)"
+        "detail": "ZIP package contains ppt/presentation.xml; recovered from Convex room artifact j97cp40hebfj7ddzw2mnb1qhzx89dvnt; placeholder/caveat content scan passed (2090 chars)"
       },
       {
         "kind": "document",
         "filename": "btb-cf5884e8-etsy-q3-fy2025-market-update.docx",
         "reopened": true,
         "scorerResult": "pass",
-        "detail": "ZIP package contains word/document.xml; recovered from Convex room artifact j973r0s1ta21w932ht0vmnbdmx89am85; placeholder/caveat content scan passed (387 chars)"
+        "detail": "ZIP package contains word/document.xml; recovered from Convex room artifact j9782my1cjdzs5jr6jkcwgc1j589cfsx; placeholder/caveat content scan passed (3028 chars)"
       },
       {
         "kind": "pdf",
         "filename": "btb-cf5884e8-etsy-q3-fy2025-market-update.pdf",
         "reopened": true,
         "scorerResult": "pass",
-        "detail": "PDF header reopened; recovered from Convex room artifact j976w0k3p9sw59was37823qk2x89bqvj; placeholder/caveat content scan passed (1743 chars)"
+        "detail": "PDF header reopened; recovered from Convex room artifact j97e76da8a90wkrq94dwpfxq6989d2t0; placeholder/caveat content scan passed (3249 chars)"
       }
     ]
   },
@@ -169,7 +169,7 @@
     "score": 1,
     "details": {
       "verifierOutputTail": "\n> noderoom@0.1.1 benchmark:bankertoolbench:proof\n> tsx scripts/bankertoolbench-proof-check.ts\n\nBankerToolBench proof check passed: stage=1/1 weightedRubric=6 run=0/1 pass positive=1/1 pass candidateBeforeEvaluator=true leaks=0/2+0/3+0/4\n",
-      "packageManifestPath": "test-results\\bankertoolbench\\matrix\\cf5884e8-8881-4747-a65a-10d8b468a9f4\\package-manifest.json",
+      "packageManifestPath": "docs\\eval\\fresh-room\\FR-020\\tasks\\cf5884e8-8881-4747-a65a-10d8b468a9f4\\evidence\\package-manifest.json",
       "downloadedExtensions": [
         ".xlsx",
         ".xlsm",
@@ -179,24 +179,32 @@
       ],
       "exportSource": "convex_room_artifact_data_url_after_browser_ui_proof",
       "agentTerminalQuality": {
-        "statusText": "completed via recovered Convex job: et-update.xlsx, btb-cf5884e8-etsy-q3-fy2025-market-update.xlsm, btb-cf5884e8-etsy-q3-fy2025-market-update.pptx, btb-cf5884e8-etsy-q3-fy2025-market-update.docx, btb-cf5884e8-etsy-q3-fy2025-market-update.pdf. Coverage confirmed for ETSY, PPT.",
-        "evidenceTextLength": 2079,
+        "statusText": "completed via recovered Convex job: : btb-cf5884e8-etsy-q3-fy2025-market-update.xlsx, btb-cf5884e8-etsy-q3-fy2025-market-update.xlsm, btb-cf5884e8-etsy-q3-fy2025-market-update.pptx, btb-cf5884e8-etsy-q3-fy2025-market-update.docx, btb-cf5884e8-etsy-q3-fy2025-market-update.pdf.",
+        "evidenceTextLength": 1045,
         "detail": "agent reached completed status or visible completion text, with no missing-source/unfinished-work caveats"
       },
       "taskCoverage": {
         "ok": true,
         "requiredTickers": [
-          "ETSY",
-          "PPT"
+          "ETSY"
         ],
         "missingTickers": [],
-        "detail": "generated package mentions every requested ticker/entity: ETSY, PPT"
+        "domainProof": {
+          "ok": true,
+          "domain": "generic",
+          "gates": [],
+          "missingGates": [],
+          "detail": "no task-specific domain proof gate required"
+        },
+        "detail": "single requested ticker detected (ETSY); multi-entity coverage gate not required; no task-specific domain proof gate required"
       }
     }
   },
   "visualJudge": {
-    "verdict": "not_run",
-    "reason": "GOOGLE_GENERATIVE_AI_API_KEY is not set; deterministic browser/download/reopen/verifier proof passed."
+    "command": "npm run media:gemini-judge -- --run-id btb-full-20260626-chunk4 --out \"docs\\\\eval\\\\gemini-media-judges\\\\btb-full-20260626\\\\chunk4\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\096a6840-718c-4ab4-8dff-10601ffe003c\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\1306dbd8-dec4-469e-b806-d09113dd1010\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\1b253d04-2d32-41e8-a0b5-5450a0808e3b\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\31f70ac1-01c3-4971-84f8-0a2438fb5b92\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\41e130fe-89f0-4b2b-97ee-d727e1fa0afd\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\44bd7a6b-b3c3-4eb8-b56d-6a769bdbf58e\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\4fb6232d-c2a9-4141-98de-3e2025bdf52b\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\515a104d-ab72-47fe-b1a2-d67325ba6473\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\5f1e6f38-3380-43f4-a233-b758706985b7\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\69507fd6-a925-4e1a-8fc3-6485c71dc828\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\6b25d3dc-4b81-4d2e-b153-466b17040aae\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\7b078eaa-4fe4-4780-9f53-531872b73274\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\85670d9d-a809-4f32-a3ff-d93845cc17ea\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\8eb06eaf-d2ce-4f86-9239-d4a10bc72cf6\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\960dc224-634f-435b-a42d-f8edac8ddd2f\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\990cf5d7-0db5-456e-9766-c9d8a6640e3a\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\aa577c1d-2c22-4963-91c4-456ac32e5b4a\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\b8be8b2f-e6c2-4137-98e8-a09a3a9860f7\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\c032d3c9-5055-4346-a60d-429f658f71f9\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\c6926dfc-b844-40f6-b530-2198b39d8ddd\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\cf5884e8-8881-4747-a65a-10d8b468a9f4\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\e3c47ea1-cc6c-4981-9943-bc85162fc2a8\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\eeba6325-7212-4924-8760-91065d3b1af3\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\f205ac8c-4dae-4620-b2c9-ccc44858ec70\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\"",
+    "verdict": "pass",
+    "scorecardPath": "docs/eval/gemini-media-judges/btb-full-20260626/chunk4/btb-full-20260626-chunk4/summary.md",
+    "reason": "Gemini media judge publish (12/16); defects P0/P1/P2=0/0/1. The video demonstrates a complete end-to-end workflow of uploading financial documents and spreadsheets into a collaborative room, running an AI agent to analyze the data, and exporting a final PDF report. Source clip: test-results\\bankertoolbench\\matrix\\cf5884e8-8881-4747-a65a-10d8b468a9f4\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\video.webm."
   },
   "gatesProven": [
     "fresh_room_join",
@@ -214,7 +222,8 @@
     "deliverable_export_download",
     "artifact_reopen_validation",
     "artifact_placeholder_scan",
-    "official_scorer_handoff"
+    "official_scorer_handoff",
+    "visual_judge_handoff"
   ],
   "passed": true
 }

@@ -1,0 +1,65 @@
+{
+  "schema": 1,
+  "taskId": "ceba18d0-5558-4637-be3a-a97121796201",
+  "harborTaskId": "btb-ceba18d0",
+  "generatedAt": "2026-06-26T01:35:06.139Z",
+  "baseUrl": "http://127.0.0.1:5273",
+  "roomUrl": "http://127.0.0.1:5273/?room=NRS50ZGC3TJ&name=Host",
+  "downloadedFiles": [
+    {
+      "kind": "workbook",
+      "filename": "btb-ceba18d0-btb-btb-ceba18d0-ko-nyse-nopat-valuation-analysis.xlsx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\ceba18d0-5558-4637-be3a-a97121796201\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-ceba18d0-btb-btb-ceba18d0-ko-nyse-nopat-valuation-analysis.xlsx",
+      "extension": ".xlsx",
+      "bytes": 8842,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (3678 chars)"
+    },
+    {
+      "kind": "workbook",
+      "filename": "btb-ceba18d0-btb-btb-ceba18d0-ko-nyse-nopat-valuation-analysis.xlsm",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\ceba18d0-5558-4637-be3a-a97121796201\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-ceba18d0-btb-btb-ceba18d0-ko-nyse-nopat-valuation-analysis.xlsm",
+      "extension": ".xlsm",
+      "bytes": 8842,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (3678 chars)"
+    },
+    {
+      "kind": "presentation",
+      "filename": "btb-ceba18d0-btb-btb-ceba18d0-ko-nyse-nopat-valuation-analysis.pptx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\ceba18d0-5558-4637-be3a-a97121796201\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-ceba18d0-btb-btb-ceba18d0-ko-nyse-nopat-valuation-analysis.pptx",
+      "extension": ".pptx",
+      "bytes": 7334,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains ppt/presentation.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (2974 chars)"
+    },
+    {
+      "kind": "document",
+      "filename": "btb-ceba18d0-btb-btb-ceba18d0-ko-nyse-nopat-valuation-analysis.docx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\ceba18d0-5558-4637-be3a-a97121796201\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-ceba18d0-btb-btb-ceba18d0-ko-nyse-nopat-valuation-analysis.docx",
+      "extension": ".docx",
+      "bytes": 3313,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains word/document.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (3421 chars)"
+    },
+    {
+      "kind": "pdf",
+      "filename": "btb-ceba18d0-btb-btb-ceba18d0-ko-nyse-nopat-valuation-analysis.pdf",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\ceba18d0-5558-4637-be3a-a97121796201\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-ceba18d0-btb-btb-ceba18d0-ko-nyse-nopat-valuation-analysis.pdf",
+      "extension": ".pdf",
+      "bytes": 2611,
+      "magic": "%PDF",
+      "reopened": true,
+      "reopenDetail": "PDF header reopened",
+      "contentQualityDetail": "placeholder/caveat content scan passed (4645 chars)"
+    }
+  ]
+}

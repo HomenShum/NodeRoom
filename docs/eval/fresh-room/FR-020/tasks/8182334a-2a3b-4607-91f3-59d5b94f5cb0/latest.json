@@ -3,10 +3,10 @@
   "caseId": "FR-020",
   "benchmark": "bankertoolbench",
   "taskId": "8182334a-2a3b-4607-91f3-59d5b94f5cb0",
-  "generatedAt": "2026-06-25T01:45:14.182Z",
+  "generatedAt": "2026-06-25T23:51:14.484Z",
   "baseUrl": "http://127.0.0.1:5273",
-  "roomId": "NRELZC28YZA",
-  "roomUrl": "http://127.0.0.1:5273/?room=NRELZC28YZA&name=Host",
+  "roomId": "NR3K03TL1P4",
+  "roomUrl": "http://127.0.0.1:5273/?room=NR3K03TL1P4&name=Host",
   "command": "BTB_LIVE_ROOM_E2E=1 BTB_UI_BUNDLE_ROOT=<official-bundle> BTB_UI_VERIFIER_COMMAND=<verifier> BENCH_BASE_URL=<base> npx playwright test --config playwright.real-flow.config.ts e2e/benchmark-ui-bankertoolbench.spec.ts --headed",
   "model": {
     "requested": "specific",
@@ -21,11 +21,11 @@
     "roomCreatedAfterRunStart": true,
     "forbiddenPreloadedArtifactsAbsent": true,
     "artifactsCreatedFresh": [
-      "btb-8182334a-salesforce-crm-us-historical-financials-leverage-summary-statistics-fy2021-fy2025.xlsx",
-      "btb-8182334a-salesforce-crm-us-historical-financials-leverage-summary-statistics-fy2021-fy2025.xlsm",
-      "btb-8182334a-salesforce-crm-us-historical-financials-leverage-summary-statistics-fy2021-fy2025.pptx",
-      "btb-8182334a-salesforce-crm-us-historical-financials-leverage-summary-statistics-fy2021-fy2025.docx",
-      "btb-8182334a-salesforce-crm-us-historical-financials-leverage-summary-statistics-fy2021-fy2025.pdf"
+      "btb-8182334a-salesforce-crm-free-cash-flow-fcf-analysis.xlsx",
+      "btb-8182334a-salesforce-crm-free-cash-flow-fcf-analysis.xlsm",
+      "btb-8182334a-salesforce-crm-free-cash-flow-fcf-analysis.pptx",
+      "btb-8182334a-salesforce-crm-free-cash-flow-fcf-analysis.docx",
+      "btb-8182334a-salesforce-crm-free-cash-flow-fcf-analysis.pdf"
     ],
     "uploadedFiles": [
       "betas_by_industry_category_for_WACC.xlsx",
@@ -48,7 +48,7 @@
     "jobDetailVisible": true,
     "roomTraceVisible": true,
     "screenshotPaths": [
-      "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\8182334a-2a3b-4607-91f3-59d5b94f5cb0\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\bankertoolbench-live-room.png"
+      "docs\\eval\\fresh-room\\FR-020\\tasks\\8182334a-2a3b-4607-91f3-59d5b94f5cb0\\evidence\\bankertoolbench-live-room.png"
     ],
     "tracePath": "docs\\eval\\bankertoolbench\\live-room\\8182334a-2a3b-4607-91f3-59d5b94f5cb0.json"
   },
@@ -67,94 +67,94 @@
       "btb-8182334a-official-task-brief.txt"
     ],
     "created": [
-      "btb-8182334a-salesforce-crm-us-historical-financials-leverage-summary-statistics-fy2021-fy2025.xlsx",
-      "btb-8182334a-salesforce-crm-us-historical-financials-leverage-summary-statistics-fy2021-fy2025.xlsm",
-      "btb-8182334a-salesforce-crm-us-historical-financials-leverage-summary-statistics-fy2021-fy2025.pptx",
-      "btb-8182334a-salesforce-crm-us-historical-financials-leverage-summary-statistics-fy2021-fy2025.docx",
-      "btb-8182334a-salesforce-crm-us-historical-financials-leverage-summary-statistics-fy2021-fy2025.pdf"
+      "btb-8182334a-salesforce-crm-free-cash-flow-fcf-analysis.xlsx",
+      "btb-8182334a-salesforce-crm-free-cash-flow-fcf-analysis.xlsm",
+      "btb-8182334a-salesforce-crm-free-cash-flow-fcf-analysis.pptx",
+      "btb-8182334a-salesforce-crm-free-cash-flow-fcf-analysis.docx",
+      "btb-8182334a-salesforce-crm-free-cash-flow-fcf-analysis.pdf"
     ],
     "exportedFiles": [
       {
         "kind": "workbook",
-        "filename": "btb-8182334a-salesforce-crm-us-historical-financials-leverage-summary-statistics-fy2021-fy2025.xlsx",
-        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\8182334a-2a3b-4607-91f3-59d5b94f5cb0\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-8182334a-salesforce-crm-us-historical-financials-leverage-summary-statistics-fy2021-fy2025.xlsx",
+        "filename": "btb-8182334a-salesforce-crm-free-cash-flow-fcf-analysis.xlsx",
+        "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\8182334a-2a3b-4607-91f3-59d5b94f5cb0\\evidence\\btb-xlsx-btb-8182334a-salesforce-crm-free-cash-flow-fcf-analysis.xlsx",
         "extension": ".xlsx",
         "downloaded": true,
-        "bytes": 11145,
+        "bytes": 7197,
         "magic": "PK\\x03\\x04"
       },
       {
         "kind": "workbook",
-        "filename": "btb-8182334a-salesforce-crm-us-historical-financials-leverage-summary-statistics-fy2021-fy2025.xlsm",
-        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\8182334a-2a3b-4607-91f3-59d5b94f5cb0\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-8182334a-salesforce-crm-us-historical-financials-leverage-summary-statistics-fy2021-fy2025.xlsm",
+        "filename": "btb-8182334a-salesforce-crm-free-cash-flow-fcf-analysis.xlsm",
+        "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\8182334a-2a3b-4607-91f3-59d5b94f5cb0\\evidence\\btb-xlsm-btb-8182334a-salesforce-crm-free-cash-flow-fcf-analysis.xlsm",
         "extension": ".xlsm",
         "downloaded": true,
-        "bytes": 11145,
+        "bytes": 7197,
         "magic": "PK\\x03\\x04"
       },
       {
         "kind": "presentation",
-        "filename": "btb-8182334a-salesforce-crm-us-historical-financials-leverage-summary-statistics-fy2021-fy2025.pptx",
-        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\8182334a-2a3b-4607-91f3-59d5b94f5cb0\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-8182334a-salesforce-crm-us-historical-financials-leverage-summary-statistics-fy2021-fy2025.pptx",
+        "filename": "btb-8182334a-salesforce-crm-free-cash-flow-fcf-analysis.pptx",
+        "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\8182334a-2a3b-4607-91f3-59d5b94f5cb0\\evidence\\btb-pptx-btb-8182334a-salesforce-crm-free-cash-flow-fcf-analysis.pptx",
         "extension": ".pptx",
         "downloaded": true,
-        "bytes": 6926,
+        "bytes": 6301,
         "magic": "PK\\x03\\x04"
       },
       {
         "kind": "document",
-        "filename": "btb-8182334a-salesforce-crm-us-historical-financials-leverage-summary-statistics-fy2021-fy2025.docx",
-        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\8182334a-2a3b-4607-91f3-59d5b94f5cb0\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-8182334a-salesforce-crm-us-historical-financials-leverage-summary-statistics-fy2021-fy2025.docx",
+        "filename": "btb-8182334a-salesforce-crm-free-cash-flow-fcf-analysis.docx",
+        "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\8182334a-2a3b-4607-91f3-59d5b94f5cb0\\evidence\\btb-docx-btb-8182334a-salesforce-crm-free-cash-flow-fcf-analysis.docx",
         "extension": ".docx",
         "downloaded": true,
-        "bytes": 3886,
+        "bytes": 2329,
         "magic": "PK\\x03\\x04"
       },
       {
         "kind": "pdf",
-        "filename": "btb-8182334a-salesforce-crm-us-historical-financials-leverage-summary-statistics-fy2021-fy2025.pdf",
-        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\8182334a-2a3b-4607-91f3-59d5b94f5cb0\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-8182334a-salesforce-crm-us-historical-financials-leverage-summary-statistics-fy2021-fy2025.pdf",
+        "filename": "btb-8182334a-salesforce-crm-free-cash-flow-fcf-analysis.pdf",
+        "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\8182334a-2a3b-4607-91f3-59d5b94f5cb0\\evidence\\btb-pdf-btb-8182334a-salesforce-crm-free-cash-flow-fcf-analysis.pdf",
         "extension": ".pdf",
         "downloaded": true,
-        "bytes": 6928,
+        "bytes": 1355,
         "magic": "%PDF"
       }
     ],
     "reopenedFiles": [
       {
         "kind": "workbook",
-        "filename": "btb-8182334a-salesforce-crm-us-historical-financials-leverage-summary-statistics-fy2021-fy2025.xlsx",
+        "filename": "btb-8182334a-salesforce-crm-free-cash-flow-fcf-analysis.xlsx",
         "reopened": true,
         "scorerResult": "pass",
-        "detail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j976gbyjg0wf04daqcm9818yjx89bghp; placeholder/caveat content scan passed (6914 chars)"
+        "detail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j979fp738h9nacj75bb1r86dbn89brjr; placeholder/caveat content scan passed (1156 chars)"
       },
       {
         "kind": "workbook",
-        "filename": "btb-8182334a-salesforce-crm-us-historical-financials-leverage-summary-statistics-fy2021-fy2025.xlsm",
+        "filename": "btb-8182334a-salesforce-crm-free-cash-flow-fcf-analysis.xlsm",
         "reopened": true,
         "scorerResult": "pass",
-        "detail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j97fg6h5rdmx1n1s83vnrq8gqh89bgfd; placeholder/caveat content scan passed (6914 chars)"
+        "detail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j976vqdccnnqc18z80krwrdj4n89ampk; placeholder/caveat content scan passed (1156 chars)"
       },
       {
         "kind": "presentation",
-        "filename": "btb-8182334a-salesforce-crm-us-historical-financials-leverage-summary-statistics-fy2021-fy2025.pptx",
+        "filename": "btb-8182334a-salesforce-crm-free-cash-flow-fcf-analysis.pptx",
         "reopened": true,
         "scorerResult": "pass",
-        "detail": "ZIP package contains ppt/presentation.xml; recovered from Convex room artifact j97en3jtx6xnxjb163856k81ph89a61e; placeholder/caveat content scan passed (2985 chars)"
+        "detail": "ZIP package contains ppt/presentation.xml; recovered from Convex room artifact j977z9xcqh9qd67agmgyf9tgz589a6tv; placeholder/caveat content scan passed (812 chars)"
       },
       {
         "kind": "document",
-        "filename": "btb-8182334a-salesforce-crm-us-historical-financials-leverage-summary-statistics-fy2021-fy2025.docx",
+        "filename": "btb-8182334a-salesforce-crm-free-cash-flow-fcf-analysis.docx",
         "reopened": true,
         "scorerResult": "pass",
-        "detail": "ZIP package contains word/document.xml; recovered from Convex room artifact j9782bed193xgjt61q3e679z8h89am4f; placeholder/caveat content scan passed (9241 chars)"
+        "detail": "ZIP package contains word/document.xml; recovered from Convex room artifact j97fb4e5pjjnshmjb82rdjy2bn89bv0v; placeholder/caveat content scan passed (954 chars)"
       },
       {
         "kind": "pdf",
-        "filename": "btb-8182334a-salesforce-crm-us-historical-financials-leverage-summary-statistics-fy2021-fy2025.pdf",
+        "filename": "btb-8182334a-salesforce-crm-free-cash-flow-fcf-analysis.pdf",
         "reopened": true,
         "scorerResult": "pass",
-        "detail": "PDF header reopened; recovered from Convex room artifact j976x2mayxwa5qrfwvsftnmwkx89bb1y; placeholder/caveat content scan passed (13281 chars)"
+        "detail": "PDF header reopened; recovered from Convex room artifact j970tq9wkt0ejs26bx6cnx3bgd89awtt; placeholder/caveat content scan passed (2182 chars)"
       }
     ]
   },
@@ -165,7 +165,7 @@
     "score": 1,
     "details": {
       "verifierOutputTail": "\n> noderoom@0.1.1 benchmark:bankertoolbench:proof\n> tsx scripts/bankertoolbench-proof-check.ts\n\nBankerToolBench proof check passed: stage=1/1 weightedRubric=6 run=0/1 pass positive=1/1 pass candidateBeforeEvaluator=true leaks=0/2+0/3+0/4\n",
-      "packageManifestPath": "test-results\\bankertoolbench\\matrix\\8182334a-2a3b-4607-91f3-59d5b94f5cb0\\package-manifest.json",
+      "packageManifestPath": "docs\\eval\\fresh-room\\FR-020\\tasks\\8182334a-2a3b-4607-91f3-59d5b94f5cb0\\evidence\\package-manifest.json",
       "downloadedExtensions": [
         ".xlsx",
         ".xlsm",
@@ -175,8 +175,8 @@
       ],
       "exportSource": "convex_room_artifact_data_url_after_browser_ui_proof",
       "agentTerminalQuality": {
-        "statusText": "completed via recovered Convex job: .pptx, btb-8182334a-salesforce-crm-us-historical-financials-leverage-summary-statistics-fy2021-fy2025.docx, btb-8182334a-salesforce-crm-us-historical-financials-leverage-summary-statistics-fy2021-fy2025.pdf. Coverage confirmed for CRM, FCF.",
-        "evidenceTextLength": 2104,
+        "statusText": "completed via recovered Convex job: low-fcf-analysis.xlsm, btb-8182334a-salesforce-crm-free-cash-flow-fcf-analysis.pptx, btb-8182334a-salesforce-crm-free-cash-flow-fcf-analysis.docx, btb-8182334a-salesforce-crm-free-cash-flow-fcf-analysis.pdf. Coverage confirmed for CRM, FCF.",
+        "evidenceTextLength": 1338,
         "detail": "agent reached completed status or visible completion text, with no missing-source/unfinished-work caveats"
       },
       "taskCoverage": {
@@ -186,13 +186,22 @@
           "FCF"
         ],
         "missingTickers": [],
-        "detail": "generated package mentions every requested ticker/entity: CRM, FCF"
+        "domainProof": {
+          "ok": true,
+          "domain": "generic",
+          "gates": [],
+          "missingGates": [],
+          "detail": "no task-specific domain proof gate required"
+        },
+        "detail": "generated package mentions every requested ticker/entity: CRM, FCF; no task-specific domain proof gate required"
       }
     }
   },
   "visualJudge": {
-    "verdict": "not_run",
-    "reason": "GOOGLE_GENERATIVE_AI_API_KEY is not set; deterministic browser/download/reopen/verifier proof passed."
+    "command": "npm run media:gemini-judge -- --run-id btb-full-20260626-chunk3 --out \"docs\\\\eval\\\\gemini-media-judges\\\\btb-full-20260626\\\\chunk3\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\07727295-e199-4039-a0ee-582af96749cf\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\129ab204-5e9f-414d-9951-94a11eda8785\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\1b181d77-ad4c-498a-b76e-c8503c05b7b7\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\205a3cb3-33b8-42ea-b50c-fe2dc1630208\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\4194bf8e-eede-480c-b012-b68ab71837c1\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\433c9e48-4b74-49a4-8d2b-d8c25f445c60\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\4e23ce4e-be6f-4d56-ab7b-2878a801a648\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\50f1b669-f6c3-453f-9d80-8aee2b1e01af\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\5d72295c-f640-4c78-b85a-6f338e46c02b\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\68259d37-5dd5-4c19-bafc-676246a479ea\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\6a2f5cf8-be91-4801-87b8-226f259369fb\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\7638f425-6102-4ab9-ae75-ba88c0b8fb8d\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\8182334a-2a3b-4607-91f3-59d5b94f5cb0\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\8e61629c-5c68-4ff4-b680-222b56b04f55\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\93c1e85c-7954-4464-8ff3-4c2c920cad89\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\98bdf8f3-98b7-4d62-ac39-5cee23623d83\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\aa3e4d0f-f456-423b-893b-9d4e88c64e74\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\b486dc21-d67e-4857-b2f9-b78c0e0222ce\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\bd2aa5d6-30cd-4b6f-875a-2c3626f56441\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\c292330e-d88f-4353-88fd-6b0f8b3b93c2\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\ceba18d0-5558-4637-be3a-a97121796201\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\df4c5a14-a6f9-4a56-ac8a-ad2562b50a7e\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\ed5ac3f0-a9c5-4daa-b97b-e5acc18ae423\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\f1c210d9-6357-4fad-828e-252e6f6d59d3\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\"",
+    "verdict": "pass",
+    "scorecardPath": "docs/eval/gemini-media-judges/btb-full-20260626/chunk3/btb-full-20260626-chunk3/summary.md",
+    "reason": "Gemini media judge publish (8/16); defects P0/P1/P2=0/0/1. The video demonstrates NodeAgent's collaborative workspace where multiple financial spreadsheets are uploaded, processed by an AI agent, and compiled into a final PDF report. Source clip: test-results\\bankertoolbench\\matrix\\8182334a-2a3b-4607-91f3-59d5b94f5cb0\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\video.webm."
   },
   "gatesProven": [
     "fresh_room_join",
@@ -210,7 +219,8 @@
     "deliverable_export_download",
     "artifact_reopen_validation",
     "artifact_placeholder_scan",
-    "official_scorer_handoff"
+    "official_scorer_handoff",
+    "visual_judge_handoff"
   ],
   "passed": true
 }

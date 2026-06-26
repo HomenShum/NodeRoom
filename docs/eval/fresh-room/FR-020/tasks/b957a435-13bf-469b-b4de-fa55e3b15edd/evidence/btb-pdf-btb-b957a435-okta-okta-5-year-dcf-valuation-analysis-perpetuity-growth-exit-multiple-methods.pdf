@@ -1,0 +1,111 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+5 0 obj
+<< /Length 3395 >>
+stream
+BT /F1 11 Tf 54 760 Td (Okta \(OKTA\) — 5-Year DCF Valuation Analysis \(Perpetuity Growth & Exit Multiple Methods\)) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(## Okta \(OKTA\) — 5-Year DCF Valuation
+
+### 1. Historical Financials \(FY2023–FY2025A\)
+
+| \($M\) | FY2023 | FY2024 | FY2025A |
+|---|---|---|---|
+| Revenue | 1,867 | 2,460 | 3,140 |
+| EBITDA | \(137\) | \(71\) | \(9\) |) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(Rows: 50) Tj
+0 -16 Td
+(FY2023 Revenue \($M\) — Value: 1867 · Source: OKTA Income Statement Annual) Tj
+0 -16 Td
+(FY2024 Revenue \($M\) — Value: 2460 · Source: OKTA Income Statement Annual) Tj
+0 -16 Td
+(FY2025A Revenue \($M\) — Value: 3140 · Source: OKTA Income Statement Annual) Tj
+0 -16 Td
+(FY2025A EBITDA \($M\) — Value: -9 · Source: OKTA Income Statement Annual) Tj
+0 -16 Td
+(FY2025A EBITDA Margin \(%\) — Value: -0.3 · Source: Calculated from OKTA Income Statement) Tj
+0 -16 Td
+(Total Debt \($M\) — Value: 2170 · Source: OKTA Balance Sheet Annual) Tj
+0 -16 Td
+(Cash & Equivalents \($M\) — Value: 2660 · Source: OKTA Balance Sheet Annual) Tj
+0 -16 Td
+(Net Debt \($M\) — Value: -490 · Source: Calculated from OKTA Balance Sheet) Tj
+0 -16 Td
+(Shares Outstanding \(M\) — Value: 171 · Source: OKTA Shares Outstanding) Tj
+0 -16 Td
+(Current Share Price \($\) — Value: 88 · Source: OKTA Price History) Tj
+0 -16 Td
+(Market Cap \($M\) — Value: 15048 · Source: Calculated: 171.0M × $88.00) Tj
+0 -16 Td
+(Enterprise Value \($M\) — Value: 14558 · Source: Calculated: Market Cap + Net Debt) Tj
+0 -16 Td
+(Risk-Free Rate \(%\) — Value: 4.25 · Source: Equity_Risk_Premium_for_WACC.xlsx) Tj
+0 -16 Td
+(Equity Risk Premium \(%\) — Value: 5.5 · Source: Equity_Risk_Premium_for_WACC.xlsx) Tj
+0 -16 Td
+(Levered Beta — Value: 1.15 · Source: betas_by_industry_category_for_WACC.xlsx) Tj
+0 -16 Td
+(Cost of Equity – CAPM \(%\) — Value: 10.58 · Source: Calculated: 4.25% + 1.15 × 5.50%) Tj
+0 -16 Td
+(After-Tax Cost of Debt \(%\) — Value: 3.6 · Source: Calculated: Cost of debt × \(1 – 25%\)) Tj
+0 -16 Td
+(WACC \(%\) — Value: 10 · Source: Calculated weighted average) Tj
+0 -16 Td
+(2026E Revenue \($M\) — Value: 3420 · Source: Calculated: 3140 × 1.30) Tj
+0 -16 Td
+(2027E Revenue \($M\) — Value: 4549 · Source: Calculated: 3420 × 1.33) Tj
+0 -16 Td
+(2028E Revenue \($M\) — Value: 6186 · Source: Calculated: 4549 × 1.36) Tj
+0 -16 Td
+(2029E Revenue \($M\) — Value: 8403 · Source: Calculated: 6186 × 1.39) Tj
+0 -16 Td
+(2030E Revenue \($M\) — Value: 11489 · Source: Calculated: 8403 × 1.42) Tj
+0 -16 Td
+(2026E EBITDA \($M\) — Value: 161 · Source: Calculated: 3420 × 4.7%) Tj
+0 -16 Td
+(2027E EBITDA \($M\) — Value: 441 · Source: Calculated: 4549 × 9.7%) Tj
+0 -16 Td
+(2028E EBITDA \($M\) — Value: 910 · Source: Calculated: 6186 × 14.7%) Tj
+0 -16 Td
+(2029E EBITDA \($M\) — Value: 1655 · Source: Calculated: 8403 × 19.7%) Tj
+0 -16 Td
+(2030E EBITDA \($M\) — Value: 2838 · Source: Calculated: 11489 × 24.7%) Tj
+0 -16 Td
+(2026E FCFF \($M\) — Value: -99 · Source: Calculated: NOPAT + D&A – Capex – ΔNWC) Tj
+0 -16 Td
+(2027E FCFF \($M\) — Value: 73 · Source: Calculated) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(Sources: OKTA-US Company Identity.xlsx, OKTA-US Income Statement Annual.xlsx, OKTA-US Balance Sheet Annual.xlsx, OKTA-US Cash Flow Annual.xlsx, OKTA-US Shares Outstanding.xlsx, OKTA-US Price History.xlsx, OKTA-US Revenue) Tj ET
+endstream
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000241 00000 n 
+0000000311 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+3758
+%%EOF

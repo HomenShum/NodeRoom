@@ -1,0 +1,73 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+5 0 obj
+<< /Length 3578 >>
+stream
+BT /F1 11 Tf 54 760 Td (P&G Preliminary DCF Analysis) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(## P&G Preliminary DCF Analysis — BTB Task btb-e3c47ea1
+
+### Task Summary
+First-year analyst preliminary DCF for Procter & Gamble \(NYSE: PG\) to assess attractiveness for Private Equity. Valuation date: 30-Jun-25 \(P&G ) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(Rows: 13) Tj
+0 -16 Td
+(Assumptions — WACC: 8.0% · LTGR: 2.0% · Tax Rate: 21.0% · Valuation Date: 30-Jun-25 · Forecast Years: FY26E-FY33E \(8 years\) · Sales Growth Rate: 3.38% \(last historical year\) · EBITDA Margin: 28.12% \(constant at FY25) Tj
+0 -16 Td
+(FY25A Historical — Net Sales: 83989 · EBITDA: 23614 · EBITDA Margin: 28.12% · D&A: 3502 · D&A % Sales: 4.17% · Capex: 3614 · Capex % Sales: 4.30% · EBIT: 20112 · Change In NWC: 950 · NOPAT \(At 21% Tax\): 15888) Tj
+0 -16 Td
+(FY26E Forecast — Net Sales: 86821 · EBITDA: 24400 · D&A: 3621 · EBIT: 20779 · Tax \(21%\): 4364 · NOPAT: 16416 · Plus D&A: 3621 · Less Capex: -3734 · Less Chg NWC: -950 · FCF: 15353 · Discount Factor: 0.962 · DCF: 14769) Tj
+0 -16 Td
+(FY27E Forecast — Net Sales: 90027 · EBITDA: 25300 · D&A: 3755 · EBIT: 21546 · Tax \(21%\): 4525 · NOPAT: 17021 · Plus D&A: 3755 · Less Capex: -3872 · Less Chg NWC: -950 · FCF: 15954 · Discount Factor: 0.89 · DCF: 14197) Tj
+0 -16 Td
+(FY28E Forecast — Net Sales: 93353 · EBITDA: 26236 · D&A: 3894 · EBIT: 22342 · Tax \(21%\): 4692 · NOPAT: 17651 · Plus D&A: 3894 · Less Capex: -4015 · Less Chg NWC: -950 · FCF: 16580 · Discount Factor: 0.824 · DCF: 13667) Tj
+0 -16 Td
+(FY29E Forecast — Net Sales: 96805 · EBITDA: 27207 · D&A: 4038 · EBIT: 23169 · Tax \(21%\): 4865 · NOPAT: 18303 · Plus D&A: 4038 · Less Capex: -4163 · Less Chg NWC: -950 · FCF: 17228 · Discount Factor: 0.763 · DCF: 13146) Tj
+0 -16 Td
+(FY30E Forecast — Net Sales: 100386 · EBITDA: 28213 · D&A: 4187 · EBIT: 24026 · Tax \(21%\): 5046 · NOPAT: 18981 · Plus D&A: 4187 · Less Capex: -4317 · Less Chg NWC: -950 · FCF: 17900 · Discount Factor: 0.706 · DCF: 12644) Tj
+0 -16 Td
+(FY31E Forecast — Net Sales: 104100 · EBITDA: 29257 · D&A: 4342 · EBIT: 24915 · Tax \(21%\): 5232 · NOPAT: 19683 · Plus D&A: 4342 · Less Capex: -4477 · Less Chg NWC: -950 · FCF: 18598 · Discount Factor: 0.654 · DCF: 12160) Tj
+0 -16 Td
+(FY32E Forecast — Net Sales: 107952 · EBITDA: 30340 · D&A: 4503 · EBIT: 25837 · Tax \(21%\): 5426 · NOPAT: 20412 · Plus D&A: 4503 · Less Capex: -4642 · Less Chg NWC: -950 · FCF: 19323 · Discount Factor: 0.606 · DCF: 11710) Tj
+0 -16 Td
+(FY33E Forecast — Net Sales: 111947 · EBITDA: 31464 · D&A: 4669 · EBIT: 26795 · Tax \(21%\): 5627 · NOPAT: 21168 · Plus D&A: 4669 · Less Capex: -4814 · Less Chg NWC: -950 · FCF: 20074 · Discount Factor: 0.561 · DCF: 11262) Tj
+0 -16 Td
+(DCF Valuation Summary — Sum Of DCF \(FY26E-FY33E\): 103555 · Terminal Value \(Undiscounted\): 341258 · PV Of Terminal Value: 191446 · Enterprise Value \(EV\): 295001 · EV/EBITDA FY26E: 12.1x · FCF FY33E: 20074 · Terminal) Tj
+0 -16 Td
+(Sensitivity - EV \($M\) — WACC Down2: 7.0% · WACC Down1: 7.5% · WACC Base: 8.0% · WACC Up1: 8.5% · WACC Up2: 9.0% · LTGR Down2: 1.5% · LTGR Down1: 2.0% · LTGR Base: 2.5% · LTGR Up1: 3.0% · EV WACC7 LTGR1.5: 338930 · EV W) Tj
+0 -16 Td
+(Sensitivity - EV/EBITDA FY26E \(x\) — EV EBITDA WACC7 LTGR1.5: 13.9x · EV EBITDA WACC7 LTGR2.0: 15.3x · EV EBITDA WACC7 LTGR2.5: 17.1x · EV EBITDA WACC7 LTGR3.0: 19.3x · EV EBITDA WACC7.5 LTGR1.5: 12.7x · EV EBITDA WACC7) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(Sources: ) Tj ET
+endstream
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000241 00000 n 
+0000000311 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+3941
+%%EOF

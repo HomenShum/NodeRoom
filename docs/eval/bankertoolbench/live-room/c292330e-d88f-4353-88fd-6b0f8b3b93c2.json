@@ -2,9 +2,9 @@
   "schema": 1,
   "taskId": "c292330e-d88f-4353-88fd-6b0f8b3b93c2",
   "harborTaskId": "btb-c292330e",
-  "generatedAt": "2026-06-25T02:28:28.386Z",
+  "generatedAt": "2026-06-26T01:16:21.240Z",
   "baseUrl": "http://127.0.0.1:5273",
-  "roomUrl": "http://127.0.0.1:5273/?room=NRGFDCWPU37&name=Host",
+  "roomUrl": "http://127.0.0.1:5273/?room=NR6U2AKLFIR&name=Host",
   "memoryMode": false,
   "expectedExtensions": [
     ".xlsx",
@@ -23,64 +23,64 @@
   "downloadedFiles": [
     {
       "kind": "workbook",
-      "filename": "btb-c292330e-btb-c292330e-cmg-nopat-deliverable-package.xlsx",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\c292330e-d88f-4353-88fd-6b0f8b3b93c2\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-c292330e-btb-c292330e-cmg-nopat-deliverable-package.xlsx",
+      "filename": "btb-c292330e-cmg-nopat-analysis-historical-and-projected-net-operating-profit-after-tax.xlsx",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\c292330e-d88f-4353-88fd-6b0f8b3b93c2\\evidence\\btb-xlsx-btb-c292330e-cmg-nopat-analysis-historical-and-projected-net-operating-profit-after-tax.xlsx",
       "extension": ".xlsx",
-      "bytes": 7002,
+      "bytes": 9536,
       "magic": "PK\\x03\\x04",
       "reopened": true,
-      "reopenDetail": "ZIP package contains xl/workbook.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (840 chars)"
+      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j9723pb51n2kt1kp8wya2hzv6589dhtz",
+      "contentQualityDetail": "placeholder/caveat content scan passed (4852 chars)"
     },
     {
       "kind": "workbook",
-      "filename": "btb-c292330e-btb-c292330e-cmg-nopat-deliverable-package.xlsm",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\c292330e-d88f-4353-88fd-6b0f8b3b93c2\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-c292330e-btb-c292330e-cmg-nopat-deliverable-package.xlsm",
+      "filename": "btb-c292330e-cmg-nopat-analysis-historical-and-projected-net-operating-profit-after-tax.xlsm",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\c292330e-d88f-4353-88fd-6b0f8b3b93c2\\evidence\\btb-xlsm-btb-c292330e-cmg-nopat-analysis-historical-and-projected-net-operating-profit-after-tax.xlsm",
       "extension": ".xlsm",
-      "bytes": 7002,
+      "bytes": 9536,
       "magic": "PK\\x03\\x04",
       "reopened": true,
-      "reopenDetail": "ZIP package contains xl/workbook.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (840 chars)"
+      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j9750gqjeap5m8y7jj6ebwp5cs89dkn9",
+      "contentQualityDetail": "placeholder/caveat content scan passed (4852 chars)"
     },
     {
       "kind": "presentation",
-      "filename": "btb-c292330e-btb-c292330e-cmg-nopat-deliverable-package.pptx",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\c292330e-d88f-4353-88fd-6b0f8b3b93c2\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-c292330e-btb-c292330e-cmg-nopat-deliverable-package.pptx",
+      "filename": "btb-c292330e-cmg-nopat-analysis-historical-and-projected-net-operating-profit-after-tax.pptx",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\c292330e-d88f-4353-88fd-6b0f8b3b93c2\\evidence\\btb-pptx-btb-c292330e-cmg-nopat-analysis-historical-and-projected-net-operating-profit-after-tax.pptx",
       "extension": ".pptx",
-      "bytes": 6290,
+      "bytes": 7073,
       "magic": "PK\\x03\\x04",
       "reopened": true,
-      "reopenDetail": "ZIP package contains ppt/presentation.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (926 chars)"
+      "reopenDetail": "ZIP package contains ppt/presentation.xml; recovered from Convex room artifact j9788wjep3k11xqc37mhr38sks89cx3r",
+      "contentQualityDetail": "placeholder/caveat content scan passed (3182 chars)"
     },
     {
       "kind": "document",
-      "filename": "btb-c292330e-btb-c292330e-cmg-nopat-deliverable-package.docx",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\c292330e-d88f-4353-88fd-6b0f8b3b93c2\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-c292330e-btb-c292330e-cmg-nopat-deliverable-package.docx",
+      "filename": "btb-c292330e-cmg-nopat-analysis-historical-and-projected-net-operating-profit-after-tax.docx",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\c292330e-d88f-4353-88fd-6b0f8b3b93c2\\evidence\\btb-docx-btb-c292330e-cmg-nopat-analysis-historical-and-projected-net-operating-profit-after-tax.docx",
       "extension": ".docx",
-      "bytes": 2269,
+      "bytes": 3495,
       "magic": "PK\\x03\\x04",
       "reopened": true,
-      "reopenDetail": "ZIP package contains word/document.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (901 chars)"
+      "reopenDetail": "ZIP package contains word/document.xml; recovered from Convex room artifact j974nhr1akbs2g9e2f7f92v50n89dk86",
+      "contentQualityDetail": "placeholder/caveat content scan passed (5310 chars)"
     },
     {
       "kind": "pdf",
-      "filename": "btb-c292330e-btb-c292330e-cmg-nopat-deliverable-package.pdf",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\c292330e-d88f-4353-88fd-6b0f8b3b93c2\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-c292330e-btb-c292330e-cmg-nopat-deliverable-package.pdf",
+      "filename": "btb-c292330e-cmg-nopat-analysis-historical-and-projected-net-operating-profit-after-tax.pdf",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\c292330e-d88f-4353-88fd-6b0f8b3b93c2\\evidence\\btb-pdf-btb-c292330e-cmg-nopat-analysis-historical-and-projected-net-operating-profit-after-tax.pdf",
       "extension": ".pdf",
-      "bytes": 1316,
+      "bytes": 4408,
       "magic": "%PDF",
       "reopened": true,
-      "reopenDetail": "PDF header reopened",
-      "contentQualityDetail": "placeholder/caveat content scan passed (2115 chars)"
+      "reopenDetail": "PDF header reopened; recovered from Convex room artifact j979g7xc7rkmfxbnp0967vmrgn89cvzw",
+      "contentQualityDetail": "placeholder/caveat content scan passed (8140 chars)"
     }
   ],
-  "packageManifestPath": "test-results\\bankertoolbench\\matrix\\c292330e-d88f-4353-88fd-6b0f8b3b93c2\\package-manifest.json",
+  "packageManifestPath": "docs\\eval\\fresh-room\\FR-020\\tasks\\c292330e-d88f-4353-88fd-6b0f8b3b93c2\\evidence\\package-manifest.json",
   "verifierCommand": "npm run benchmark:bankertoolbench:proof",
   "verifierOutputTail": "\n> noderoom@0.1.1 benchmark:bankertoolbench:proof\n> tsx scripts/bankertoolbench-proof-check.ts\n\nBankerToolBench proof check passed: stage=1/1 weightedRubric=6 run=0/1 pass positive=1/1 pass candidateBeforeEvaluator=true leaks=0/2+0/3+0/4\n",
-  "screenshot": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\c292330e-d88f-4353-88fd-6b0f8b3b93c2\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\bankertoolbench-live-room.png",
+  "screenshot": "docs\\eval\\fresh-room\\FR-020\\tasks\\c292330e-d88f-4353-88fd-6b0f8b3b93c2\\evidence\\bankertoolbench-live-room.png",
   "passed": true,
   "gatesProven": [
     "fresh_room_join",

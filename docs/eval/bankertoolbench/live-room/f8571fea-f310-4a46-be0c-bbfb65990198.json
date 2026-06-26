@@ -2,9 +2,9 @@
   "schema": 1,
   "taskId": "f8571fea-f310-4a46-be0c-bbfb65990198",
   "harborTaskId": "btb-f8571fea",
-  "generatedAt": "2026-06-25T02:53:33.433Z",
+  "generatedAt": "2026-06-26T00:51:47.696Z",
   "baseUrl": "http://127.0.0.1:5273",
-  "roomUrl": "http://127.0.0.1:5273/?room=NRETE1WN5IP&name=Host",
+  "roomUrl": "http://127.0.0.1:5273/?room=NRAW4JWRTWR&name=Host",
   "memoryMode": false,
   "expectedExtensions": [
     ".xlsx",
@@ -23,64 +23,64 @@
   "downloadedFiles": [
     {
       "kind": "workbook",
-      "filename": "btb-f8571fea-bankertoolbench-btb-f8571fea-le-sofr-ppt-coverage-analysis.xlsx",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\f8571fea-f310-4a46-be0c-bbfb65990198\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-f8571fea-bankertoolbench-btb-f8571fea-le-sofr-ppt-coverage-analysis.xlsx",
+      "filename": "btb-f8571fea-lands-end-le-lbo-model-5-year-hold-with-sofr-based-senior-debt-and-redeemable-prefe.xlsx",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\f8571fea-f310-4a46-be0c-bbfb65990198\\evidence\\btb-xlsx-btb-f8571fea-lands-end-le-lbo-model-5-year-hold-with-sofr-based-senior-debt-and-redeemable-prefe.xlsx",
       "extension": ".xlsx",
-      "bytes": 9272,
+      "bytes": 9458,
       "magic": "PK\\x03\\x04",
       "reopened": true,
-      "reopenDetail": "ZIP package contains xl/workbook.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (5631 chars)"
+      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j979ar5617qkj0q86s8bywmags89cgtj",
+      "contentQualityDetail": "placeholder/caveat content scan passed (4221 chars)"
     },
     {
       "kind": "workbook",
-      "filename": "btb-f8571fea-bankertoolbench-btb-f8571fea-le-sofr-ppt-coverage-analysis.xlsm",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\f8571fea-f310-4a46-be0c-bbfb65990198\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-f8571fea-bankertoolbench-btb-f8571fea-le-sofr-ppt-coverage-analysis.xlsm",
+      "filename": "btb-f8571fea-lands-end-le-lbo-model-5-year-hold-with-sofr-based-senior-debt-and-redeemable-prefe.xlsm",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\f8571fea-f310-4a46-be0c-bbfb65990198\\evidence\\btb-xlsm-btb-f8571fea-lands-end-le-lbo-model-5-year-hold-with-sofr-based-senior-debt-and-redeemable-prefe.xlsm",
       "extension": ".xlsm",
-      "bytes": 9272,
+      "bytes": 9458,
       "magic": "PK\\x03\\x04",
       "reopened": true,
-      "reopenDetail": "ZIP package contains xl/workbook.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (5631 chars)"
+      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j9792h71t9d0n5res98begbdzd89dmba",
+      "contentQualityDetail": "placeholder/caveat content scan passed (4221 chars)"
     },
     {
       "kind": "presentation",
-      "filename": "btb-f8571fea-bankertoolbench-btb-f8571fea-le-sofr-ppt-coverage-analysis.pptx",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\f8571fea-f310-4a46-be0c-bbfb65990198\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-f8571fea-bankertoolbench-btb-f8571fea-le-sofr-ppt-coverage-analysis.pptx",
+      "filename": "btb-f8571fea-lands-end-le-lbo-model-5-year-hold-with-sofr-based-senior-debt-and-redeemable-prefe.pptx",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\f8571fea-f310-4a46-be0c-bbfb65990198\\evidence\\btb-pptx-btb-f8571fea-lands-end-le-lbo-model-5-year-hold-with-sofr-based-senior-debt-and-redeemable-prefe.pptx",
       "extension": ".pptx",
-      "bytes": 7822,
+      "bytes": 6606,
       "magic": "PK\\x03\\x04",
       "reopened": true,
-      "reopenDetail": "ZIP package contains ppt/presentation.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (4629 chars)"
+      "reopenDetail": "ZIP package contains ppt/presentation.xml; recovered from Convex room artifact j97e86kjw53v37hmpg2efr157n89dgpq",
+      "contentQualityDetail": "placeholder/caveat content scan passed (1333 chars)"
     },
     {
       "kind": "document",
-      "filename": "btb-f8571fea-bankertoolbench-btb-f8571fea-le-sofr-ppt-coverage-analysis.docx",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\f8571fea-f310-4a46-be0c-bbfb65990198\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-f8571fea-bankertoolbench-btb-f8571fea-le-sofr-ppt-coverage-analysis.docx",
+      "filename": "btb-f8571fea-lands-end-le-lbo-model-5-year-hold-with-sofr-based-senior-debt-and-redeemable-prefe.docx",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\f8571fea-f310-4a46-be0c-bbfb65990198\\evidence\\btb-docx-btb-f8571fea-lands-end-le-lbo-model-5-year-hold-with-sofr-based-senior-debt-and-redeemable-prefe.docx",
       "extension": ".docx",
-      "bytes": 4071,
+      "bytes": 3198,
       "magic": "PK\\x03\\x04",
       "reopened": true,
-      "reopenDetail": "ZIP package contains word/document.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (6371 chars)"
+      "reopenDetail": "ZIP package contains word/document.xml; recovered from Convex room artifact j97et48990bwwm5vymtb7n27pn89dcf3",
+      "contentQualityDetail": "placeholder/caveat content scan passed (3710 chars)"
     },
     {
       "kind": "pdf",
-      "filename": "btb-f8571fea-bankertoolbench-btb-f8571fea-le-sofr-ppt-coverage-analysis.pdf",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\f8571fea-f310-4a46-be0c-bbfb65990198\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-f8571fea-bankertoolbench-btb-f8571fea-le-sofr-ppt-coverage-analysis.pdf",
+      "filename": "btb-f8571fea-lands-end-le-lbo-model-5-year-hold-with-sofr-based-senior-debt-and-redeemable-prefe.pdf",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\f8571fea-f310-4a46-be0c-bbfb65990198\\evidence\\btb-pdf-btb-f8571fea-lands-end-le-lbo-model-5-year-hold-with-sofr-based-senior-debt-and-redeemable-prefe.pdf",
       "extension": ".pdf",
-      "bytes": 4169,
+      "bytes": 3882,
       "magic": "%PDF",
       "reopened": true,
-      "reopenDetail": "PDF header reopened",
-      "contentQualityDetail": "placeholder/caveat content scan passed (7757 chars)"
+      "reopenDetail": "PDF header reopened; recovered from Convex room artifact j973ztkmztcymvtae9khq11bm189dr6s",
+      "contentQualityDetail": "placeholder/caveat content scan passed (7129 chars)"
     }
   ],
-  "packageManifestPath": "test-results\\bankertoolbench\\matrix\\f8571fea-f310-4a46-be0c-bbfb65990198\\package-manifest.json",
+  "packageManifestPath": "docs\\eval\\fresh-room\\FR-020\\tasks\\f8571fea-f310-4a46-be0c-bbfb65990198\\evidence\\package-manifest.json",
   "verifierCommand": "npm run benchmark:bankertoolbench:proof",
   "verifierOutputTail": "\n> noderoom@0.1.1 benchmark:bankertoolbench:proof\n> tsx scripts/bankertoolbench-proof-check.ts\n\nBankerToolBench proof check passed: stage=1/1 weightedRubric=6 run=0/1 pass positive=1/1 pass candidateBeforeEvaluator=true leaks=0/2+0/3+0/4\n",
-  "screenshot": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\f8571fea-f310-4a46-be0c-bbfb65990198\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\bankertoolbench-live-room.png",
+  "screenshot": "docs\\eval\\fresh-room\\FR-020\\tasks\\f8571fea-f310-4a46-be0c-bbfb65990198\\evidence\\bankertoolbench-live-room.png",
   "passed": true,
   "gatesProven": [
     "fresh_room_join",

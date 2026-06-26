@@ -2,9 +2,9 @@
   "schema": 1,
   "taskId": "1b253d04-2d32-41e8-a0b5-5450a0808e3b",
   "harborTaskId": "btb-1b253d04",
-  "generatedAt": "2026-06-25T02:38:12.829Z",
+  "generatedAt": "2026-06-26T01:33:28.684Z",
   "baseUrl": "http://127.0.0.1:5273",
-  "roomUrl": "http://127.0.0.1:5273/?room=NRLSZL10X5U&name=Host",
+  "roomUrl": "http://127.0.0.1:5273/?room=NRP2N4F0O1K&name=Host",
   "memoryMode": false,
   "expectedExtensions": [
     ".xlsx",
@@ -23,64 +23,64 @@
   "downloadedFiles": [
     {
       "kind": "workbook",
-      "filename": "btb-1b253d04-btb-btb-1b253d04-kkr-midstream-infrastructure-acquisition-regulatory-investor-lands.xlsx",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\1b253d04-2d32-41e8-a0b5-5450a0808e3b\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-1b253d04-btb-btb-1b253d04-kkr-midstream-infrastructure-acquisition-regulatory-investor-lands.xlsx",
+      "filename": "btb-1b253d04-cross-border-infrastructure-investment-analysis-kkr-tc-energy-sovereign-wealth-pens.xlsx",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\1b253d04-2d32-41e8-a0b5-5450a0808e3b\\evidence\\btb-xlsx-btb-1b253d04-cross-border-infrastructure-investment-analysis-kkr-tc-energy-sovereign-wealth-pens.xlsx",
       "extension": ".xlsx",
-      "bytes": 9768,
+      "bytes": 9849,
       "magic": "PK\\x03\\x04",
       "reopened": true,
-      "reopenDetail": "ZIP package contains xl/workbook.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (6269 chars)"
+      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j974fk9ctj0rq782fg2s593hnh89cpfb",
+      "contentQualityDetail": "placeholder/caveat content scan passed (5788 chars)"
     },
     {
       "kind": "workbook",
-      "filename": "btb-1b253d04-btb-btb-1b253d04-kkr-midstream-infrastructure-acquisition-regulatory-investor-lands.xlsm",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\1b253d04-2d32-41e8-a0b5-5450a0808e3b\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-1b253d04-btb-btb-1b253d04-kkr-midstream-infrastructure-acquisition-regulatory-investor-lands.xlsm",
+      "filename": "btb-1b253d04-cross-border-infrastructure-investment-analysis-kkr-tc-energy-sovereign-wealth-pens.xlsm",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\1b253d04-2d32-41e8-a0b5-5450a0808e3b\\evidence\\btb-xlsm-btb-1b253d04-cross-border-infrastructure-investment-analysis-kkr-tc-energy-sovereign-wealth-pens.xlsm",
       "extension": ".xlsm",
-      "bytes": 9768,
+      "bytes": 9849,
       "magic": "PK\\x03\\x04",
       "reopened": true,
-      "reopenDetail": "ZIP package contains xl/workbook.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (6269 chars)"
+      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j9786mfz37crz4fxc1kdd3ecm189cfad",
+      "contentQualityDetail": "placeholder/caveat content scan passed (5788 chars)"
     },
     {
       "kind": "presentation",
-      "filename": "btb-1b253d04-btb-btb-1b253d04-kkr-midstream-infrastructure-acquisition-regulatory-investor-lands.pptx",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\1b253d04-2d32-41e8-a0b5-5450a0808e3b\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-1b253d04-btb-btb-1b253d04-kkr-midstream-infrastructure-acquisition-regulatory-investor-lands.pptx",
+      "filename": "btb-1b253d04-cross-border-infrastructure-investment-analysis-kkr-tc-energy-sovereign-wealth-pens.pptx",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\1b253d04-2d32-41e8-a0b5-5450a0808e3b\\evidence\\btb-pptx-btb-1b253d04-cross-border-infrastructure-investment-analysis-kkr-tc-energy-sovereign-wealth-pens.pptx",
       "extension": ".pptx",
-      "bytes": 8366,
+      "bytes": 7723,
       "magic": "PK\\x03\\x04",
       "reopened": true,
-      "reopenDetail": "ZIP package contains ppt/presentation.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (5672 chars)"
+      "reopenDetail": "ZIP package contains ppt/presentation.xml; recovered from Convex room artifact j97506768ed0eh3x6vafhv336x89cgdp",
+      "contentQualityDetail": "placeholder/caveat content scan passed (4130 chars)"
     },
     {
       "kind": "document",
-      "filename": "btb-1b253d04-btb-btb-1b253d04-kkr-midstream-infrastructure-acquisition-regulatory-investor-lands.docx",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\1b253d04-2d32-41e8-a0b5-5450a0808e3b\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-1b253d04-btb-btb-1b253d04-kkr-midstream-infrastructure-acquisition-regulatory-investor-lands.docx",
+      "filename": "btb-1b253d04-cross-border-infrastructure-investment-analysis-kkr-tc-energy-sovereign-wealth-pens.docx",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\1b253d04-2d32-41e8-a0b5-5450a0808e3b\\evidence\\btb-docx-btb-1b253d04-cross-border-infrastructure-investment-analysis-kkr-tc-energy-sovereign-wealth-pens.docx",
       "extension": ".docx",
-      "bytes": 4408,
+      "bytes": 3943,
       "magic": "PK\\x03\\x04",
       "reopened": true,
-      "reopenDetail": "ZIP package contains word/document.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (6236 chars)"
+      "reopenDetail": "ZIP package contains word/document.xml; recovered from Convex room artifact j973sstng4ty2fcdnxrdh6mms189d374",
+      "contentQualityDetail": "placeholder/caveat content scan passed (5042 chars)"
     },
     {
       "kind": "pdf",
-      "filename": "btb-1b253d04-btb-btb-1b253d04-kkr-midstream-infrastructure-acquisition-regulatory-investor-lands.pdf",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\1b253d04-2d32-41e8-a0b5-5450a0808e3b\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-1b253d04-btb-btb-1b253d04-kkr-midstream-infrastructure-acquisition-regulatory-investor-lands.pdf",
+      "filename": "btb-1b253d04-cross-border-infrastructure-investment-analysis-kkr-tc-energy-sovereign-wealth-pens.pdf",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\1b253d04-2d32-41e8-a0b5-5450a0808e3b\\evidence\\btb-pdf-btb-1b253d04-cross-border-infrastructure-investment-analysis-kkr-tc-energy-sovereign-wealth-pens.pdf",
       "extension": ".pdf",
-      "bytes": 3248,
+      "bytes": 3231,
       "magic": "%PDF",
       "reopened": true,
-      "reopenDetail": "PDF header reopened",
-      "contentQualityDetail": "placeholder/caveat content scan passed (5971 chars)"
+      "reopenDetail": "PDF header reopened; recovered from Convex room artifact j978t76g6nbnw5wnpxccgfap3d89cpgr",
+      "contentQualityDetail": "placeholder/caveat content scan passed (5859 chars)"
     }
   ],
-  "packageManifestPath": "test-results\\bankertoolbench\\matrix\\1b253d04-2d32-41e8-a0b5-5450a0808e3b\\package-manifest.json",
+  "packageManifestPath": "docs\\eval\\fresh-room\\FR-020\\tasks\\1b253d04-2d32-41e8-a0b5-5450a0808e3b\\evidence\\package-manifest.json",
   "verifierCommand": "npm run benchmark:bankertoolbench:proof",
   "verifierOutputTail": "\n> noderoom@0.1.1 benchmark:bankertoolbench:proof\n> tsx scripts/bankertoolbench-proof-check.ts\n\nBankerToolBench proof check passed: stage=1/1 weightedRubric=6 run=0/1 pass positive=1/1 pass candidateBeforeEvaluator=true leaks=0/2+0/3+0/4\n",
-  "screenshot": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\1b253d04-2d32-41e8-a0b5-5450a0808e3b\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\bankertoolbench-live-room.png",
+  "screenshot": "docs\\eval\\fresh-room\\FR-020\\tasks\\1b253d04-2d32-41e8-a0b5-5450a0808e3b\\evidence\\bankertoolbench-live-room.png",
   "passed": true,
   "gatesProven": [
     "fresh_room_join",

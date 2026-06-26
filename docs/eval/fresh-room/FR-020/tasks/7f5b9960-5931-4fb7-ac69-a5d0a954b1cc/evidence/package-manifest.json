@@ -1,0 +1,65 @@
+{
+  "schema": 1,
+  "taskId": "7f5b9960-5931-4fb7-ac69-a5d0a954b1cc",
+  "harborTaskId": "btb-7f5b9960",
+  "generatedAt": "2026-06-26T02:45:46.482Z",
+  "baseUrl": "http://127.0.0.1:5273",
+  "roomUrl": "http://127.0.0.1:5273/?room=NRC73KPTN0D&name=Host",
+  "downloadedFiles": [
+    {
+      "kind": "workbook",
+      "filename": "btb-7f5b9960-fedex-fdx-standalone-dcf-valuation-bankertoolbench-btb-7f5b9960.xlsx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\7f5b9960-5931-4fb7-ac69-a5d0a954b1cc\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-7f5b9960-fedex-fdx-standalone-dcf-valuation-bankertoolbench-btb-7f5b9960.xlsx",
+      "extension": ".xlsx",
+      "bytes": 17114,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (17024 chars)"
+    },
+    {
+      "kind": "workbook",
+      "filename": "btb-7f5b9960-fedex-fdx-standalone-dcf-valuation-bankertoolbench-btb-7f5b9960.xlsm",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\7f5b9960-5931-4fb7-ac69-a5d0a954b1cc\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-7f5b9960-fedex-fdx-standalone-dcf-valuation-bankertoolbench-btb-7f5b9960.xlsm",
+      "extension": ".xlsm",
+      "bytes": 17114,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (17024 chars)"
+    },
+    {
+      "kind": "presentation",
+      "filename": "btb-7f5b9960-fedex-fdx-standalone-dcf-valuation-bankertoolbench-btb-7f5b9960.pptx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\7f5b9960-5931-4fb7-ac69-a5d0a954b1cc\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-7f5b9960-fedex-fdx-standalone-dcf-valuation-bankertoolbench-btb-7f5b9960.pptx",
+      "extension": ".pptx",
+      "bytes": 8156,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains ppt/presentation.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (4742 chars)"
+    },
+    {
+      "kind": "document",
+      "filename": "btb-7f5b9960-fedex-fdx-standalone-dcf-valuation-bankertoolbench-btb-7f5b9960.docx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\7f5b9960-5931-4fb7-ac69-a5d0a954b1cc\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-7f5b9960-fedex-fdx-standalone-dcf-valuation-bankertoolbench-btb-7f5b9960.docx",
+      "extension": ".docx",
+      "bytes": 5070,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains word/document.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (8731 chars)"
+    },
+    {
+      "kind": "pdf",
+      "filename": "btb-7f5b9960-fedex-fdx-standalone-dcf-valuation-bankertoolbench-btb-7f5b9960.pdf",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\7f5b9960-5931-4fb7-ac69-a5d0a954b1cc\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-7f5b9960-fedex-fdx-standalone-dcf-valuation-bankertoolbench-btb-7f5b9960.pdf",
+      "extension": ".pdf",
+      "bytes": 5756,
+      "magic": "%PDF",
+      "reopened": true,
+      "reopenDetail": "PDF header reopened",
+      "contentQualityDetail": "placeholder/caveat content scan passed (10775 chars)"
+    }
+  ]
+}

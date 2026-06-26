@@ -1,0 +1,65 @@
+{
+  "schema": 1,
+  "taskId": "5d72295c-f640-4c78-b85a-6f338e46c02b",
+  "harborTaskId": "btb-5d72295c",
+  "generatedAt": "2026-06-26T00:33:15.687Z",
+  "baseUrl": "http://127.0.0.1:5273",
+  "roomUrl": "http://127.0.0.1:5273/?room=NRBW65N4HB0&name=Host",
+  "downloadedFiles": [
+    {
+      "kind": "workbook",
+      "filename": "btb-5d72295c-btb-5d72295c---wacc-analysis-oid-tl-sofr.xlsx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\5d72295c-f640-4c78-b85a-6f338e46c02b\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-5d72295c-btb-5d72295c---wacc-analysis-oid-tl-sofr.xlsx",
+      "extension": ".xlsx",
+      "bytes": 6958,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (548 chars)"
+    },
+    {
+      "kind": "workbook",
+      "filename": "btb-5d72295c-btb-5d72295c---wacc-analysis-oid-tl-sofr.xlsm",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\5d72295c-f640-4c78-b85a-6f338e46c02b\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-5d72295c-btb-5d72295c---wacc-analysis-oid-tl-sofr.xlsm",
+      "extension": ".xlsm",
+      "bytes": 6958,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (548 chars)"
+    },
+    {
+      "kind": "presentation",
+      "filename": "btb-5d72295c-btb-5d72295c---wacc-analysis-oid-tl-sofr.pptx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\5d72295c-f640-4c78-b85a-6f338e46c02b\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-5d72295c-btb-5d72295c---wacc-analysis-oid-tl-sofr.pptx",
+      "extension": ".pptx",
+      "bytes": 6246,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains ppt/presentation.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (678 chars)"
+    },
+    {
+      "kind": "document",
+      "filename": "btb-5d72295c-btb-5d72295c---wacc-analysis-oid-tl-sofr.docx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\5d72295c-f640-4c78-b85a-6f338e46c02b\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-5d72295c-btb-5d72295c---wacc-analysis-oid-tl-sofr.docx",
+      "extension": ".docx",
+      "bytes": 2212,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains word/document.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (659 chars)"
+    },
+    {
+      "kind": "pdf",
+      "filename": "btb-5d72295c-btb-5d72295c---wacc-analysis-oid-tl-sofr.pdf",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\5d72295c-f640-4c78-b85a-6f338e46c02b\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-5d72295c-btb-5d72295c---wacc-analysis-oid-tl-sofr.pdf",
+      "extension": ".pdf",
+      "bytes": 1386,
+      "magic": "%PDF",
+      "reopened": true,
+      "reopenDetail": "PDF header reopened",
+      "contentQualityDetail": "placeholder/caveat content scan passed (2232 chars)"
+    }
+  ]
+}

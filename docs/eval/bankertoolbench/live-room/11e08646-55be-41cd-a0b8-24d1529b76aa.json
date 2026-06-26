@@ -2,9 +2,9 @@
   "schema": 1,
   "taskId": "11e08646-55be-41cd-a0b8-24d1529b76aa",
   "harborTaskId": "btb-11e08646",
-  "generatedAt": "2026-06-24T23:55:47.921Z",
+  "generatedAt": "2026-06-25T23:42:29.453Z",
   "baseUrl": "http://127.0.0.1:5273",
-  "roomUrl": "http://127.0.0.1:5273/?room=NR03073AJFG&name=Host",
+  "roomUrl": "http://127.0.0.1:5273/?room=NR7V22F79NN&name=Host",
   "memoryMode": false,
   "expectedExtensions": [
     ".xlsx",
@@ -23,64 +23,64 @@
   "downloadedFiles": [
     {
       "kind": "workbook",
-      "filename": "btb-11e08646-btb-btb-11e08646-dis-wbd-merger-accretion-dilution-model-coverage-dis-wbd-pp-ppa.xlsx",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\11e08646-55be-41cd-a0b8-24d1529b76aa\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-11e08646-btb-btb-11e08646-dis-wbd-merger-accretion-dilution-model-coverage-dis-wbd-pp-ppa.xlsx",
+      "filename": "btb-11e08646-dis-wbd-acquisition-accretion-dilution-model-with-ppa.xlsx",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\11e08646-55be-41cd-a0b8-24d1529b76aa\\evidence\\btb-xlsx-btb-11e08646-dis-wbd-acquisition-accretion-dilution-model-with-ppa.xlsx",
       "extension": ".xlsx",
-      "bytes": 16176,
+      "bytes": 8211,
       "magic": "PK\\x03\\x04",
       "reopened": true,
-      "reopenDetail": "ZIP package contains xl/workbook.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (17184 chars)"
+      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j977ftvfpb3xrfgb25x1z8kjx989bq6q",
+      "contentQualityDetail": "placeholder/caveat content scan passed (2982 chars)"
     },
     {
       "kind": "workbook",
-      "filename": "btb-11e08646-btb-btb-11e08646-dis-wbd-merger-accretion-dilution-model-coverage-dis-wbd-pp-ppa.xlsm",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\11e08646-55be-41cd-a0b8-24d1529b76aa\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-11e08646-btb-btb-11e08646-dis-wbd-merger-accretion-dilution-model-coverage-dis-wbd-pp-ppa.xlsm",
+      "filename": "btb-11e08646-dis-wbd-acquisition-accretion-dilution-model-with-ppa.xlsm",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\11e08646-55be-41cd-a0b8-24d1529b76aa\\evidence\\btb-xlsm-btb-11e08646-dis-wbd-acquisition-accretion-dilution-model-with-ppa.xlsm",
       "extension": ".xlsm",
-      "bytes": 16176,
+      "bytes": 8211,
       "magic": "PK\\x03\\x04",
       "reopened": true,
-      "reopenDetail": "ZIP package contains xl/workbook.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (17184 chars)"
+      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j97f72wc6mkpzkcw5gc26kdbt189acq3",
+      "contentQualityDetail": "placeholder/caveat content scan passed (2982 chars)"
     },
     {
       "kind": "presentation",
-      "filename": "btb-11e08646-btb-btb-11e08646-dis-wbd-merger-accretion-dilution-model-coverage-dis-wbd-pp-ppa.pptx",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\11e08646-55be-41cd-a0b8-24d1529b76aa\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-11e08646-btb-btb-11e08646-dis-wbd-merger-accretion-dilution-model-coverage-dis-wbd-pp-ppa.pptx",
+      "filename": "btb-11e08646-dis-wbd-acquisition-accretion-dilution-model-with-ppa.pptx",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\11e08646-55be-41cd-a0b8-24d1529b76aa\\evidence\\btb-pptx-btb-11e08646-dis-wbd-acquisition-accretion-dilution-model-with-ppa.pptx",
       "extension": ".pptx",
-      "bytes": 8040,
+      "bytes": 6415,
       "magic": "PK\\x03\\x04",
       "reopened": true,
-      "reopenDetail": "ZIP package contains ppt/presentation.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (4387 chars)"
+      "reopenDetail": "ZIP package contains ppt/presentation.xml; recovered from Convex room artifact j970gjfvkggkt8t04xjqwczzk989ah4n",
+      "contentQualityDetail": "placeholder/caveat content scan passed (1021 chars)"
     },
     {
       "kind": "document",
-      "filename": "btb-11e08646-btb-btb-11e08646-dis-wbd-merger-accretion-dilution-model-coverage-dis-wbd-pp-ppa.docx",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\11e08646-55be-41cd-a0b8-24d1529b76aa\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-11e08646-btb-btb-11e08646-dis-wbd-merger-accretion-dilution-model-coverage-dis-wbd-pp-ppa.docx",
+      "filename": "btb-11e08646-dis-wbd-acquisition-accretion-dilution-model-with-ppa.docx",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\11e08646-55be-41cd-a0b8-24d1529b76aa\\evidence\\btb-docx-btb-11e08646-dis-wbd-acquisition-accretion-dilution-model-with-ppa.docx",
       "extension": ".docx",
-      "bytes": 5376,
+      "bytes": 2923,
       "magic": "PK\\x03\\x04",
       "reopened": true,
-      "reopenDetail": "ZIP package contains word/document.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (9350 chars)"
+      "reopenDetail": "ZIP package contains word/document.xml; recovered from Convex room artifact j97amqh1fsq2y1kwv8dcnashzd89a80g",
+      "contentQualityDetail": "placeholder/caveat content scan passed (2904 chars)"
     },
     {
       "kind": "pdf",
-      "filename": "btb-11e08646-btb-btb-11e08646-dis-wbd-merger-accretion-dilution-model-coverage-dis-wbd-pp-ppa.pdf",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\11e08646-55be-41cd-a0b8-24d1529b76aa\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-11e08646-btb-btb-11e08646-dis-wbd-merger-accretion-dilution-model-coverage-dis-wbd-pp-ppa.pdf",
+      "filename": "btb-11e08646-dis-wbd-acquisition-accretion-dilution-model-with-ppa.pdf",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\11e08646-55be-41cd-a0b8-24d1529b76aa\\evidence\\btb-pdf-btb-11e08646-dis-wbd-acquisition-accretion-dilution-model-with-ppa.pdf",
       "extension": ".pdf",
-      "bytes": 4066,
+      "bytes": 3133,
       "magic": "%PDF",
       "reopened": true,
-      "reopenDetail": "PDF header reopened",
-      "contentQualityDetail": "placeholder/caveat content scan passed (7593 chars)"
+      "reopenDetail": "PDF header reopened; recovered from Convex room artifact j9777hf0cs66nvmyk8v3tg749d89a09h",
+      "contentQualityDetail": "placeholder/caveat content scan passed (5625 chars)"
     }
   ],
-  "packageManifestPath": "test-results\\bankertoolbench\\matrix\\11e08646-55be-41cd-a0b8-24d1529b76aa\\package-manifest.json",
+  "packageManifestPath": "docs\\eval\\fresh-room\\FR-020\\tasks\\11e08646-55be-41cd-a0b8-24d1529b76aa\\evidence\\package-manifest.json",
   "verifierCommand": "npm run benchmark:bankertoolbench:proof",
   "verifierOutputTail": "\n> noderoom@0.1.1 benchmark:bankertoolbench:proof\n> tsx scripts/bankertoolbench-proof-check.ts\n\nBankerToolBench proof check passed: stage=1/1 weightedRubric=6 run=0/1 pass positive=1/1 pass candidateBeforeEvaluator=true leaks=0/2+0/3+0/4\n",
-  "screenshot": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\11e08646-55be-41cd-a0b8-24d1529b76aa\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\bankertoolbench-live-room.png",
+  "screenshot": "docs\\eval\\fresh-room\\FR-020\\tasks\\11e08646-55be-41cd-a0b8-24d1529b76aa\\evidence\\bankertoolbench-live-room.png",
   "passed": true,
   "gatesProven": [
     "fresh_room_join",

@@ -1,0 +1,72 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+5 0 obj
+<< /Length 3861 >>
+stream
+BT /F1 11 Tf 54 760 Td (CMG NOPAT Analysis – Historical and Projected Net Operating Profit After Tax) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(This package covers the BankerToolBench task btb-c292330e: computing and projecting Net Operating Profit After Tax \(NOPAT\) for Chipotle Mexican Grill, Inc. \(CMG-US\). All financial inputs are sourced from the uploaded) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(Rows: 14) Tj
+0 -16 Td
+(CMG NOPAT – Historical FY2020 — Ticker: CMG · Entity: NOPAT · Fiscal Year: FY2020 · Revenue M USD: 5984.7 · Operating Income M USD: 537.7 · Effective Tax Rate Pct: 23.2 · NOPAT M USD: 413 · Source: CMG-US Income Statemen) Tj
+0 -16 Td
+(CMG NOPAT – Historical FY2021 — Ticker: CMG · Entity: NOPAT · Fiscal Year: FY2021 · Revenue M USD: 7547.1 · Operating Income M USD: 904.3 · Effective Tax Rate Pct: 23.6 · NOPAT M USD: 691.1 · Source: CMG-US Income Statem) Tj
+0 -16 Td
+(CMG NOPAT – Historical FY2022 — Ticker: CMG · Entity: NOPAT · Fiscal Year: FY2022 · Revenue M USD: 8634.9 · Operating Income M USD: 971 · Effective Tax Rate Pct: 23.7 · NOPAT M USD: 740.9 · Source: CMG-US Income Statemen) Tj
+0 -16 Td
+(CMG NOPAT – Historical FY2023 — Ticker: CMG · Entity: NOPAT · Fiscal Year: FY2023 · Revenue M USD: 9871.4 · Operating Income M USD: 1313 · Effective Tax Rate Pct: 23.9 · NOPAT M USD: 999.2 · Source: CMG-US Income Stateme) Tj
+0 -16 Td
+(CMG NOPAT – Projected FY2024E — Ticker: CMG · Entity: NOPAT · Fiscal Year: FY2024E · Revenue Estimate M USD: 11265 · Projected Operating Margin Pct: 13.8 · Projected Operating Income M USD: 1554.6 · Effective Tax Rate Pc) Tj
+0 -16 Td
+(CMG NOPAT – Projected FY2025E — Ticker: CMG · Entity: NOPAT · Fiscal Year: FY2025E · Revenue Estimate M USD: 12689 · Projected Operating Margin Pct: 14.2 · Projected Operating Income M USD: 1801.8 · Effective Tax Rate Pc) Tj
+0 -16 Td
+(CMG NOPAT – Projected FY2026E — Ticker: CMG · Entity: NOPAT · Fiscal Year: FY2026E · Revenue Estimate M USD: 14214 · Projected Operating Margin Pct: 14.5 · Projected Operating Income M USD: 2061 · Effective Tax Rate Pct:) Tj
+0 -16 Td
+(CMG NOPAT CAGR – Historical FY2020–FY2023 — Ticker: CMG · Entity: NOPAT · Metric: Historical NOPAT CAGR · Period: FY2020-FY2023 · Value Pct: 34.3 · Base NOPAT M USD: 413 · End NOPAT M USD: 999.2 · Source: Computed from C) Tj
+0 -16 Td
+(CMG NOPAT CAGR – Projected FY2023–FY2026E — Ticker: CMG · Entity: NOPAT · Metric: Projected NOPAT CAGR · Period: FY2023-FY2026E · Value Pct: 16.2 · Base NOPAT M USD: 999.2 · End NOPAT M USD: 1566.4 · Source: Computed fro) Tj
+0 -16 Td
+(CMG WACC – Cost of Equity \(CAPM\) — Ticker: CMG · Entity: NOPAT · Metric: Cost of Equity · Risk Free Rate Pct: 4.25 · Equity Risk Premium Pct: 5.5 · Relevered Beta: 1.35 · Cost Of Equity Pct: 11.68 · Source: betas_by_in) Tj
+0 -16 Td
+(CMG WACC – Cost of Debt \(After-Tax\) — Ticker: CMG · Entity: NOPAT · Metric: After-Tax Cost of Debt · Pre Tax Cost Of Debt Pct: 5.5 · Effective Tax Rate Pct: 24 · After Tax Cost Of Debt Pct: 4.18 · Source: CMG-US Income) Tj
+0 -16 Td
+(CMG WACC – Weighted Average Cost of Capital — Ticker: CMG · Entity: NOPAT · Metric: WACC · Equity Weight Pct: 98.5 · Debt Weight Pct: 1.5 · WACC Pct: 11.57 · Source: CMG-US Balance Sheet Annual + CAPM) Tj
+0 -16 Td
+(CMG NOPAT – EV/NOPAT Valuation Multiple — Ticker: CMG · Entity: NOPAT · Metric: EV/NOPAT · Fiscal Year: FY2023 · Enterprise Value M USD: 78500 · NOPAT M USD: 999.2 · EV NOPAT Multiple X: 78.6 · Source: CMG-US Price Histo) Tj
+0 -16 Td
+(CMG NOPAT – FCF Proxy \(NOPAT – CapEx\) — Ticker: CMG · Entity: NOPAT · Metric: FCF Proxy · Fiscal Year: FY2023 · NOPAT M USD: 999.2 · CapEx M USD: 650 · FCF Proxy M USD: 349.2 · Source: CMG-US Income Statement Annual + ) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(Sources: ) Tj ET
+endstream
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000241 00000 n 
+0000000311 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+4224
+%%EOF

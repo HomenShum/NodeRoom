@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "generatedAt": "2026-06-24T09:37:24.351Z",
+  "generatedAt": "2026-06-26T03:31:22.564Z",
   "summary": {
     "tracks": 3,
     "coveredTracks": 2,
@@ -183,37 +183,37 @@
           "id": "fresh_room_join",
           "label": "Create or join a fresh live room through the browser UI",
           "status": "covered",
-          "evidence": "e2e/benchmark-ui-bankertoolbench.spec.ts (proof: docs/eval/fresh-room/FR-020/latest.json, room NR02W182PJ7)"
+          "evidence": "e2e/benchmark-ui-bankertoolbench.spec.ts (proof: docs/eval/fresh-room/FR-020/latest.json, room NRNNNQC2IO9)"
         },
         {
           "id": "official_fixture_upload",
           "label": "Upload official benchmark input files through the UI",
           "status": "covered",
-          "evidence": "e2e/benchmark-ui-bankertoolbench.spec.ts (proof: docs/eval/fresh-room/FR-020/latest.json, room NR02W182PJ7)"
+          "evidence": "e2e/benchmark-ui-bankertoolbench.spec.ts (proof: docs/eval/fresh-room/FR-020/latest.json, room NRNNNQC2IO9)"
         },
         {
           "id": "public_nodeagent_invocation",
           "label": "Send the official instruction through public @nodeagent chat",
           "status": "covered",
-          "evidence": "e2e/benchmark-ui-bankertoolbench.spec.ts (proof: docs/eval/fresh-room/FR-020/latest.json, room NR02W182PJ7)"
+          "evidence": "e2e/benchmark-ui-bankertoolbench.spec.ts (proof: docs/eval/fresh-room/FR-020/latest.json, room NRNNNQC2IO9)"
         },
         {
           "id": "visible_streaming_progress",
           "label": "Show visible agent progress or streamed text while work runs",
           "status": "covered",
-          "evidence": "e2e/benchmark-ui-bankertoolbench.spec.ts (proof: docs/eval/fresh-room/FR-020/latest.json, room NR02W182PJ7); model z-ai/glm-5.2, 32 tool calls, $0.737"
+          "evidence": "e2e/benchmark-ui-bankertoolbench.spec.ts (proof: docs/eval/fresh-room/FR-020/latest.json, room NRNNNQC2IO9); model qwen/qwen3.7-plus; runtime benchmark_completion; job detail visible; room trace visible; agent live loop proven"
         },
         {
           "id": "deliverable_export_download",
           "label": "Export or download every expected deliverable type from the UI",
           "status": "covered",
-          "evidence": "e2e/benchmark-ui-bankertoolbench.spec.ts (proof: docs/eval/fresh-room/FR-020/latest.json, room NR02W182PJ7); downloaded .xlsx, .xlsm, .pptx, .docx, .pdf"
+          "evidence": "e2e/benchmark-ui-bankertoolbench.spec.ts (proof: docs/eval/fresh-room/FR-020/latest.json, room NRNNNQC2IO9); downloaded .xlsx, .xlsm, .pptx, .docx, .pdf"
         },
         {
           "id": "artifact_reopen_validation",
           "label": "Reopen downloaded artifacts from disk before scoring",
           "status": "covered",
-          "evidence": "e2e/benchmark-ui-bankertoolbench.spec.ts (proof: docs/eval/fresh-room/FR-020/latest.json, room NR02W182PJ7); reopened OOXML/PDF package files before scoring"
+          "evidence": "e2e/benchmark-ui-bankertoolbench.spec.ts (proof: docs/eval/fresh-room/FR-020/latest.json, room NRNNNQC2IO9); reopened OOXML/PDF package files before scoring"
         },
         {
           "id": "official_scorer_handoff",
@@ -225,13 +225,13 @@
           "id": "trace_video_artifacts",
           "label": "Persist trace, screenshot, and video evidence for each run",
           "status": "covered",
-          "evidence": "test-results/.playwright-artifacts-0/traces/c09930d7af9fc8eb9cbc-3f361d871185e746892f.trace"
+          "evidence": "docs/eval/bankertoolbench/live-room/a31173e3-e8aa-4ddb-b0d9-e4e7055c950b.json"
         },
         {
           "id": "no_memory_mode_shortcut",
           "label": "Do not use memory-mode demo seeds for benchmark claims",
           "status": "covered",
-          "evidence": "e2e/benchmark-ui-bankertoolbench.spec.ts (proof: docs/eval/fresh-room/FR-020/latest.json, room NR02W182PJ7)"
+          "evidence": "e2e/benchmark-ui-bankertoolbench.spec.ts (proof: docs/eval/fresh-room/FR-020/latest.json, room NRNNNQC2IO9)"
         }
       ],
       "currentEvidence": [
@@ -247,8 +247,8 @@
       ],
       "requiredSpec": "e2e/benchmark-ui-bankertoolbench.spec.ts",
       "blockers": [
-        "Live-browser fresh-room BTB run PASSED for task 707cba99-59a7-47bd-bc4d-7f36212e99f3 with .xlsx, .xlsm, .pptx, .docx, .pdf downloaded and reopened; proof: docs/eval/fresh-room/FR-020/latest.json.",
-        "Gemini visual judge not run: GOOGLE_GENERATIVE_AI_API_KEY is not set; deterministic browser/download/reopen/verifier proof passed."
+        "Live-browser fresh-room BTB run PASSED for task a31173e3-e8aa-4ddb-b0d9-e4e7055c950b with .xlsx, .xlsm, .pptx, .docx, .pdf downloaded and reopened; proof: docs/eval/fresh-room/FR-020/latest.json.",
+        "Gemini visual judge passed; scorecard: docs/eval/gemini-media-judges/btb-a31173e3-qwen-fresh-domain-proof-after-pdf-storage-fix-20260625/summary.md; Gemini media judge publish (8/16); defects P0/P1/P2=0/0/0. The video demonstrates NodeAgent executing a DCF SOTP valuation for Alphabet Inc. inside NodeRoom, covering room creation, document uploads, live agent execution with trace logs, and final artifact generation."
       ]
     },
     {

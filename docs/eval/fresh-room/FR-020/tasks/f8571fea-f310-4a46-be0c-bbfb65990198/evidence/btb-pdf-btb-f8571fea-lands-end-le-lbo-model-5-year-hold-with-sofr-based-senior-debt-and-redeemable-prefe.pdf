@@ -1,0 +1,104 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+5 0 obj
+<< /Length 3335 >>
+stream
+BT /F1 11 Tf 54 760 Td (Lands' End \(LE\) LBO Model — 5-Year Hold with SOFR-Based Senior Debt and Redeemable Preferred) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(LBO model for Lands' End \(NASDAQ:LE\). Purchase price based on 1/31/2026 share price × shares outstanding × \(1 + 20% premium\). Debt structure: Senior Debt at 4.0× LTM EBITDA priced at SOFR+500bps with 1.0% upfront fee) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(Rows: 48) Tj
+0 -16 Td
+(Share Price \(1/31/2026\) — LE: 19.11 · Source: LE-US Price History.xlsx · Unit: USD per share) Tj
+0 -16 Td
+(Diluted Shares Outstanding — LE: 31895052 · Source: LE-US Shares Outstanding.xlsx · Unit: shares) Tj
+0 -16 Td
+(Equity Purchase Price — LE: 609536043 · Source: Share Price × Shares Outstanding · Unit: USD) Tj
+0 -16 Td
+(Acquisition Premium — Value: 0.2 · Description: 20% premium to 1/31/2026 share price) Tj
+0 -16 Td
+(Total Purchase Price \(Equity Value at Premium\) — LE: 731443251 · Source: Equity Purchase Price × 1.20 · Unit: USD) Tj
+0 -16 Td
+(LTM Revenue — LE: 1437000000 · Source: LE-US Income Statement Annual.xlsx · Unit: USD) Tj
+0 -16 Td
+(LTM EBITDA — LE: 86200000 · Source: LE-US Income Statement Annual.xlsx · Unit: USD) Tj
+0 -16 Td
+(Entry EV/EBITDA Multiple — LE: 12.91 · Source: Total Purchase Price / LTM EBITDA · Unit: x) Tj
+0 -16 Td
+(Senior Debt \(4.0x LTM EBITDA\) — LE: 344800000 · Source: 4.0 × LTM EBITDA · Unit: USD) Tj
+0 -16 Td
+(Redeemable Preferred Equity — LE: 250000000 · Source: Task assumption · Unit: USD) Tj
+0 -16 Td
+(Senior Debt Spread — Value: 0.05 · Description: S+500bps) Tj
+0 -16 Td
+(SOFR Rate \(5-Year\) — SOFR: 0.043 · Source: SOFR curve · Unit: decimal) Tj
+0 -16 Td
+(Senior Debt All-In Rate — LE: 0.093 · Source: SOFR \(4.30%\) + 500bps · Unit: decimal) Tj
+0 -16 Td
+(Senior Debt Upfront Fee — Value: 0.01 · Description: 1.0% of Senior Debt) Tj
+0 -16 Td
+(Senior Debt Mandatory Amortization — Value: 0.01 · Description: 1.0% per year) Tj
+0 -16 Td
+(Preferred Cash Interest Rate — Value: 0.135 · Description: 13.5% cash interest) Tj
+0 -16 Td
+(Preferred PIK Interest Rate — Value: 0.14 · Description: 14.0% PIK interest, quarterly compounding) Tj
+0 -16 Td
+(Preferred Upfront Fee — Value: 0.02 · Description: 2.0% of Preferred amount) Tj
+0 -16 Td
+(Minimum Cash Balance — Value: 25000000 · Description: Task assumption) Tj
+0 -16 Td
+(Other Transaction Fees & Expenses — Value: 10000000 · Description: Task assumption) Tj
+0 -16 Td
+(Tax Rate — Value: 0.21 · Description: 21.0%) Tj
+0 -16 Td
+(Sponsor Cash Distribution — Value: 0.25 · Description: 25% of Levered Free Cash Flow) Tj
+0 -16 Td
+(Hold Period — Value: 5 · Description: 5-year hold) Tj
+0 -16 Td
+(Year 1 Revenue — LE: 1452000000 · Source: Revenue estimate + growth assumptions · Unit: USD) Tj
+0 -16 Td
+(Year 2 Revenue — LE: 1473000000 · Source: Forecast · Unit: USD) Tj
+0 -16 Td
+(Year 3 Revenue — LE: 1492000000 · Source: Forecast · Unit: USD) Tj
+0 -16 Td
+(Year 4 Revenue — LE: 1508000000 · Source: Forecast · Unit: USD) Tj
+0 -16 Td
+(Year 5 Revenue — LE: 1524000000 · Source: Forecast · Unit: USD) Tj
+0 -16 Td
+(Year 1 EBITDA — LE: 87400000 · Source: Forecast at ~6.0% margin · Unit: USD) Tj
+0 -16 Td
+(Year 2 EBITDA — LE: 88900000 · Source: Forecast · Unit: USD) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(Sources: ) Tj ET
+endstream
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000241 00000 n 
+0000000311 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+3698
+%%EOF

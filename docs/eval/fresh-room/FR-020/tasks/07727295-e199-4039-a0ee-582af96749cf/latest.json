@@ -3,10 +3,10 @@
   "caseId": "FR-020",
   "benchmark": "bankertoolbench",
   "taskId": "07727295-e199-4039-a0ee-582af96749cf",
-  "generatedAt": "2026-06-25T03:06:18.752Z",
+  "generatedAt": "2026-06-25T23:55:24.330Z",
   "baseUrl": "http://127.0.0.1:5273",
-  "roomId": "NR2D26Y19VB",
-  "roomUrl": "http://127.0.0.1:5273/?room=NR2D26Y19VB&name=Host",
+  "roomId": "NRQ9HUSOOQQ",
+  "roomUrl": "http://127.0.0.1:5273/?room=NRQ9HUSOOQQ&name=Host",
   "command": "BTB_LIVE_ROOM_E2E=1 BTB_UI_BUNDLE_ROOT=<official-bundle> BTB_UI_VERIFIER_COMMAND=<verifier> BENCH_BASE_URL=<base> npx playwright test --config playwright.real-flow.config.ts e2e/benchmark-ui-bankertoolbench.spec.ts --headed",
   "model": {
     "requested": "specific",
@@ -21,11 +21,11 @@
     "roomCreatedAfterRunStart": true,
     "forbiddenPreloadedArtifactsAbsent": true,
     "artifactsCreatedFresh": [
-      "btb-07727295-coty-trading-comps-beauty-skincare-nov-2025-coty-vs-or-el-elf-ulta.xlsx",
-      "btb-07727295-coty-trading-comps-beauty-skincare-nov-2025-coty-vs-or-el-elf-ulta.xlsm",
-      "btb-07727295-coty-trading-comps-beauty-skincare-nov-2025-coty-vs-or-el-elf-ulta.pptx",
-      "btb-07727295-coty-trading-comps-beauty-skincare-nov-2025-coty-vs-or-el-elf-ulta.docx",
-      "btb-07727295-coty-trading-comps-beauty-skincare-nov-2025-coty-vs-or-el-elf-ulta.pdf"
+      "btb-07727295-beauty-personal-care-peer-set-relative-valuation-wacc-comparison-coty-or-el-elf-ult.xlsx",
+      "btb-07727295-beauty-personal-care-peer-set-relative-valuation-wacc-comparison-coty-or-el-elf-ult.xlsm",
+      "btb-07727295-beauty-personal-care-peer-set-relative-valuation-wacc-comparison-coty-or-el-elf-ult.pptx",
+      "btb-07727295-beauty-personal-care-peer-set-relative-valuation-wacc-comparison-coty-or-el-elf-ult.docx",
+      "btb-07727295-beauty-personal-care-peer-set-relative-valuation-wacc-comparison-coty-or-el-elf-ult.pdf"
     ],
     "uploadedFiles": [
       "betas_by_industry_category_for_WACC.xlsx",
@@ -80,7 +80,7 @@
     "jobDetailVisible": true,
     "roomTraceVisible": true,
     "screenshotPaths": [
-      "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\07727295-e199-4039-a0ee-582af96749cf\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\bankertoolbench-live-room.png"
+      "docs\\eval\\fresh-room\\FR-020\\tasks\\07727295-e199-4039-a0ee-582af96749cf\\evidence\\bankertoolbench-live-room.png"
     ],
     "tracePath": "docs\\eval\\bankertoolbench\\live-room\\07727295-e199-4039-a0ee-582af96749cf.json"
   },
@@ -131,94 +131,94 @@
       "btb-07727295-official-task-brief.txt"
     ],
     "created": [
-      "btb-07727295-coty-trading-comps-beauty-skincare-nov-2025-coty-vs-or-el-elf-ulta.xlsx",
-      "btb-07727295-coty-trading-comps-beauty-skincare-nov-2025-coty-vs-or-el-elf-ulta.xlsm",
-      "btb-07727295-coty-trading-comps-beauty-skincare-nov-2025-coty-vs-or-el-elf-ulta.pptx",
-      "btb-07727295-coty-trading-comps-beauty-skincare-nov-2025-coty-vs-or-el-elf-ulta.docx",
-      "btb-07727295-coty-trading-comps-beauty-skincare-nov-2025-coty-vs-or-el-elf-ulta.pdf"
+      "btb-07727295-beauty-personal-care-peer-set-relative-valuation-wacc-comparison-coty-or-el-elf-ult.xlsx",
+      "btb-07727295-beauty-personal-care-peer-set-relative-valuation-wacc-comparison-coty-or-el-elf-ult.xlsm",
+      "btb-07727295-beauty-personal-care-peer-set-relative-valuation-wacc-comparison-coty-or-el-elf-ult.pptx",
+      "btb-07727295-beauty-personal-care-peer-set-relative-valuation-wacc-comparison-coty-or-el-elf-ult.docx",
+      "btb-07727295-beauty-personal-care-peer-set-relative-valuation-wacc-comparison-coty-or-el-elf-ult.pdf"
     ],
     "exportedFiles": [
       {
         "kind": "workbook",
-        "filename": "btb-07727295-coty-trading-comps-beauty-skincare-nov-2025-coty-vs-or-el-elf-ulta.xlsx",
-        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\07727295-e199-4039-a0ee-582af96749cf\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-07727295-coty-trading-comps-beauty-skincare-nov-2025-coty-vs-or-el-elf-ulta.xlsx",
+        "filename": "btb-07727295-beauty-personal-care-peer-set-relative-valuation-wacc-comparison-coty-or-el-elf-ult.xlsx",
+        "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\07727295-e199-4039-a0ee-582af96749cf\\evidence\\btb-xlsx-btb-07727295-beauty-personal-care-peer-set-relative-valuation-wacc-comparison-coty-or-el-elf-ult.xlsx",
         "extension": ".xlsx",
         "downloaded": true,
-        "bytes": 9108,
+        "bytes": 9725,
         "magic": "PK\\x03\\x04"
       },
       {
         "kind": "workbook",
-        "filename": "btb-07727295-coty-trading-comps-beauty-skincare-nov-2025-coty-vs-or-el-elf-ulta.xlsm",
-        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\07727295-e199-4039-a0ee-582af96749cf\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-07727295-coty-trading-comps-beauty-skincare-nov-2025-coty-vs-or-el-elf-ulta.xlsm",
+        "filename": "btb-07727295-beauty-personal-care-peer-set-relative-valuation-wacc-comparison-coty-or-el-elf-ult.xlsm",
+        "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\07727295-e199-4039-a0ee-582af96749cf\\evidence\\btb-xlsm-btb-07727295-beauty-personal-care-peer-set-relative-valuation-wacc-comparison-coty-or-el-elf-ult.xlsm",
         "extension": ".xlsm",
         "downloaded": true,
-        "bytes": 9108,
+        "bytes": 9725,
         "magic": "PK\\x03\\x04"
       },
       {
         "kind": "presentation",
-        "filename": "btb-07727295-coty-trading-comps-beauty-skincare-nov-2025-coty-vs-or-el-elf-ulta.pptx",
-        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\07727295-e199-4039-a0ee-582af96749cf\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-07727295-coty-trading-comps-beauty-skincare-nov-2025-coty-vs-or-el-elf-ulta.pptx",
+        "filename": "btb-07727295-beauty-personal-care-peer-set-relative-valuation-wacc-comparison-coty-or-el-elf-ult.pptx",
+        "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\07727295-e199-4039-a0ee-582af96749cf\\evidence\\btb-pptx-btb-07727295-beauty-personal-care-peer-set-relative-valuation-wacc-comparison-coty-or-el-elf-ult.pptx",
         "extension": ".pptx",
         "downloaded": true,
-        "bytes": 6524,
+        "bytes": 7386,
         "magic": "PK\\x03\\x04"
       },
       {
         "kind": "document",
-        "filename": "btb-07727295-coty-trading-comps-beauty-skincare-nov-2025-coty-vs-or-el-elf-ulta.docx",
-        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\07727295-e199-4039-a0ee-582af96749cf\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-07727295-coty-trading-comps-beauty-skincare-nov-2025-coty-vs-or-el-elf-ulta.docx",
+        "filename": "btb-07727295-beauty-personal-care-peer-set-relative-valuation-wacc-comparison-coty-or-el-elf-ult.docx",
+        "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\07727295-e199-4039-a0ee-582af96749cf\\evidence\\btb-docx-btb-07727295-beauty-personal-care-peer-set-relative-valuation-wacc-comparison-coty-or-el-elf-ult.docx",
         "extension": ".docx",
         "downloaded": true,
-        "bytes": 2950,
+        "bytes": 3879,
         "magic": "PK\\x03\\x04"
       },
       {
         "kind": "pdf",
-        "filename": "btb-07727295-coty-trading-comps-beauty-skincare-nov-2025-coty-vs-or-el-elf-ulta.pdf",
-        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\07727295-e199-4039-a0ee-582af96749cf\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-07727295-coty-trading-comps-beauty-skincare-nov-2025-coty-vs-or-el-elf-ulta.pdf",
+        "filename": "btb-07727295-beauty-personal-care-peer-set-relative-valuation-wacc-comparison-coty-or-el-elf-ult.pdf",
+        "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\07727295-e199-4039-a0ee-582af96749cf\\evidence\\btb-pdf-btb-07727295-beauty-personal-care-peer-set-relative-valuation-wacc-comparison-coty-or-el-elf-ult.pdf",
         "extension": ".pdf",
         "downloaded": true,
-        "bytes": 4045,
+        "bytes": 5725,
         "magic": "%PDF"
       }
     ],
     "reopenedFiles": [
       {
         "kind": "workbook",
-        "filename": "btb-07727295-coty-trading-comps-beauty-skincare-nov-2025-coty-vs-or-el-elf-ulta.xlsx",
+        "filename": "btb-07727295-beauty-personal-care-peer-set-relative-valuation-wacc-comparison-coty-or-el-elf-ult.xlsx",
         "reopened": true,
         "scorerResult": "pass",
-        "detail": "ZIP package contains xl/workbook.xml; placeholder/caveat content scan passed (3229 chars)"
+        "detail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j97bhr6bs3djg8vnd265gbthh589br7e; placeholder/caveat content scan passed (5452 chars)"
       },
       {
         "kind": "workbook",
-        "filename": "btb-07727295-coty-trading-comps-beauty-skincare-nov-2025-coty-vs-or-el-elf-ulta.xlsm",
+        "filename": "btb-07727295-beauty-personal-care-peer-set-relative-valuation-wacc-comparison-coty-or-el-elf-ult.xlsm",
         "reopened": true,
         "scorerResult": "pass",
-        "detail": "ZIP package contains xl/workbook.xml; placeholder/caveat content scan passed (3229 chars)"
+        "detail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j97a6mxst5m4qrgp35jg020w0d89b5ae; placeholder/caveat content scan passed (5452 chars)"
       },
       {
         "kind": "presentation",
-        "filename": "btb-07727295-coty-trading-comps-beauty-skincare-nov-2025-coty-vs-or-el-elf-ulta.pptx",
+        "filename": "btb-07727295-beauty-personal-care-peer-set-relative-valuation-wacc-comparison-coty-or-el-elf-ult.pptx",
         "reopened": true,
         "scorerResult": "pass",
-        "detail": "ZIP package contains ppt/presentation.xml; placeholder/caveat content scan passed (1226 chars)"
+        "detail": "ZIP package contains ppt/presentation.xml; recovered from Convex room artifact j976x27kpnw49h4q40qn9nyv4d89bwp6; placeholder/caveat content scan passed (3479 chars)"
       },
       {
         "kind": "document",
-        "filename": "btb-07727295-coty-trading-comps-beauty-skincare-nov-2025-coty-vs-or-el-elf-ulta.docx",
+        "filename": "btb-07727295-beauty-personal-care-peer-set-relative-valuation-wacc-comparison-coty-or-el-elf-ult.docx",
         "reopened": true,
         "scorerResult": "pass",
-        "detail": "ZIP package contains word/document.xml; placeholder/caveat content scan passed (2974 chars)"
+        "detail": "ZIP package contains word/document.xml; recovered from Convex room artifact j977g8nhayp09499njx1z2f2n189atfj; placeholder/caveat content scan passed (6339 chars)"
       },
       {
         "kind": "pdf",
-        "filename": "btb-07727295-coty-trading-comps-beauty-skincare-nov-2025-coty-vs-or-el-elf-ulta.pdf",
+        "filename": "btb-07727295-beauty-personal-care-peer-set-relative-valuation-wacc-comparison-coty-or-el-elf-ult.pdf",
         "reopened": true,
         "scorerResult": "pass",
-        "detail": "PDF header reopened; placeholder/caveat content scan passed (7515 chars)"
+        "detail": "PDF header reopened; recovered from Convex room artifact j9710ahyw212wfczds59dx581d89b7kb; placeholder/caveat content scan passed (10705 chars)"
       }
     ]
   },
@@ -229,7 +229,7 @@
     "score": 1,
     "details": {
       "verifierOutputTail": "\n> noderoom@0.1.1 benchmark:bankertoolbench:proof\n> tsx scripts/bankertoolbench-proof-check.ts\n\nBankerToolBench proof check passed: stage=1/1 weightedRubric=6 run=0/1 pass positive=1/1 pass candidateBeforeEvaluator=true leaks=0/2+0/3+0/4\n",
-      "packageManifestPath": "test-results\\bankertoolbench\\matrix\\07727295-e199-4039-a0ee-582af96749cf\\package-manifest.json",
+      "packageManifestPath": "docs\\eval\\fresh-room\\FR-020\\tasks\\07727295-e199-4039-a0ee-582af96749cf\\evidence\\package-manifest.json",
       "downloadedExtensions": [
         ".xlsx",
         ".xlsm",
@@ -237,10 +237,10 @@
         ".docx",
         ".pdf"
       ],
-      "exportSource": "browser_download_link",
+      "exportSource": "convex_room_artifact_data_url_after_browser_ui_proof",
       "agentTerminalQuality": {
-        "statusText": "completed via recovered Convex job: -or-el-elf-ulta.pptx, btb-07727295-coty-trading-comps-beauty-skincare-nov-2025-coty-vs-or-el-elf-ulta.docx, btb-07727295-coty-trading-comps-beauty-skincare-nov-2025-coty-vs-or-el-elf-ulta.pdf. Coverage confirmed for COTY, OR, EL, ELF, ULTA.",
-        "evidenceTextLength": 2227,
+        "statusText": "completed via recovered Convex job: -beauty-personal-care-peer-set-relative-valuation-wacc-comparison-coty-or-el-elf-ult.docx, btb-07727295-beauty-personal-care-peer-set-relative-valuation-wacc-comparison-coty-or-el-elf-ult.pdf. Coverage confirmed for COTY, OR, EL, ELF, ULTA.",
+        "evidenceTextLength": 1319,
         "detail": "agent reached completed status or visible completion text, with no missing-source/unfinished-work caveats"
       },
       "taskCoverage": {
@@ -253,13 +253,22 @@
           "ULTA"
         ],
         "missingTickers": [],
-        "detail": "generated package mentions every requested ticker/entity: COTY, OR, EL, ELF, ULTA"
+        "domainProof": {
+          "ok": true,
+          "domain": "generic",
+          "gates": [],
+          "missingGates": [],
+          "detail": "no task-specific domain proof gate required"
+        },
+        "detail": "generated package mentions every requested ticker/entity: COTY, OR, EL, ELF, ULTA; no task-specific domain proof gate required"
       }
     }
   },
   "visualJudge": {
-    "verdict": "not_run",
-    "reason": "GOOGLE_GENERATIVE_AI_API_KEY is not set; deterministic browser/download/reopen/verifier proof passed."
+    "command": "npm run media:gemini-judge -- --run-id btb-full-20260626-chunk3 --out \"docs\\\\eval\\\\gemini-media-judges\\\\btb-full-20260626\\\\chunk3\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\07727295-e199-4039-a0ee-582af96749cf\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\129ab204-5e9f-414d-9951-94a11eda8785\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\1b181d77-ad4c-498a-b76e-c8503c05b7b7\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\205a3cb3-33b8-42ea-b50c-fe2dc1630208\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\4194bf8e-eede-480c-b012-b68ab71837c1\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\433c9e48-4b74-49a4-8d2b-d8c25f445c60\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\4e23ce4e-be6f-4d56-ab7b-2878a801a648\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\50f1b669-f6c3-453f-9d80-8aee2b1e01af\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\5d72295c-f640-4c78-b85a-6f338e46c02b\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\68259d37-5dd5-4c19-bafc-676246a479ea\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\6a2f5cf8-be91-4801-87b8-226f259369fb\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\7638f425-6102-4ab9-ae75-ba88c0b8fb8d\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\8182334a-2a3b-4607-91f3-59d5b94f5cb0\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\8e61629c-5c68-4ff4-b680-222b56b04f55\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\93c1e85c-7954-4464-8ff3-4c2c920cad89\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\98bdf8f3-98b7-4d62-ac39-5cee23623d83\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\aa3e4d0f-f456-423b-893b-9d4e88c64e74\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\b486dc21-d67e-4857-b2f9-b78c0e0222ce\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\bd2aa5d6-30cd-4b6f-875a-2c3626f56441\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\c292330e-d88f-4353-88fd-6b0f8b3b93c2\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\ceba18d0-5558-4637-be3a-a97121796201\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\df4c5a14-a6f9-4a56-ac8a-ad2562b50a7e\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\ed5ac3f0-a9c5-4daa-b97b-e5acc18ae423\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\f1c210d9-6357-4fad-828e-252e6f6d59d3\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\"",
+    "verdict": "pass",
+    "scorecardPath": "docs/eval/gemini-media-judges/btb-full-20260626/chunk3/btb-full-20260626-chunk3/summary.md",
+    "reason": "Gemini media judge fix-then-publish (8/16); defects P0/P1/P2=0/1/1. The video demonstrates a complete workflow of uploading financial data, running an AI agent, and exporting a PDF. However, the 4-minute duration is too long for a README, and the final PDF preview is barely legible. Source clip: test-results\\bankertoolbench\\matrix\\07727295-e199-4039-a0ee-582af96749cf\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\video.webm."
   },
   "gatesProven": [
     "fresh_room_join",
@@ -277,7 +286,8 @@
     "deliverable_export_download",
     "artifact_reopen_validation",
     "artifact_placeholder_scan",
-    "official_scorer_handoff"
+    "official_scorer_handoff",
+    "visual_judge_handoff"
   ],
   "passed": true
 }

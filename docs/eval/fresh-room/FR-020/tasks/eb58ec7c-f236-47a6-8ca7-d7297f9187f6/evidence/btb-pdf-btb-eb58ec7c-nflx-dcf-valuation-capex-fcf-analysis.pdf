@@ -1,0 +1,104 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+5 0 obj
+<< /Length 4834 >>
+stream
+BT /F1 11 Tf 54 760 Td (NFLX DCF Valuation: CAPEX & FCF Analysis) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(BankerToolBench Task btb-eb58ec7c — Netflix \(NFLX\) DCF Valuation covering CAPEX and FCF analysis. This package presents a discounted cash flow valuation framework for Netflix Inc. \(NFLX\) with explicit focus on capita) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(Rows: 46) Tj
+0 -16 Td
+(NFLX Historical Revenue \(FY2020\) — Value: 24996000000 · Unit: USD · Source: NFLX-US Income Statement Annual.xlsx · Entity: NFLX) Tj
+0 -16 Td
+(NFLX Historical Revenue \(FY2021\) — Value: 29698000000 · Unit: USD · Source: NFLX-US Income Statement Annual.xlsx · Entity: NFLX) Tj
+0 -16 Td
+(NFLX Historical Revenue \(FY2022\) — Value: 31616000000 · Unit: USD · Source: NFLX-US Income Statement Annual.xlsx · Entity: NFLX) Tj
+0 -16 Td
+(NFLX Historical Revenue \(FY2023\) — Value: 33723000000 · Unit: USD · Source: NFLX-US Income Statement Annual.xlsx · Entity: NFLX) Tj
+0 -16 Td
+(NFLX Historical Revenue \(FY2024\) — Value: 39001000000 · Unit: USD · Source: NFLX-US Income Statement Annual.xlsx · Entity: NFLX) Tj
+0 -16 Td
+(NFLX Revenue CAGR \(FY2020-FY2024\) — Value: 11.77 · Unit: percent · Source: Calculated from NFLX-US Income Statement Annual.xlsx · Entity: NFLX) Tj
+0 -16 Td
+(NFLX CAPEX Historical \(FY2020\) — Value: -3144000000 · Unit: USD · Source: NFLX-US Cash Flow Annual.xlsx · Entity: CAPEX) Tj
+0 -16 Td
+(NFLX CAPEX Historical \(FY2021\) — Value: -2446000000 · Unit: USD · Source: NFLX-US Cash Flow Annual.xlsx · Entity: CAPEX) Tj
+0 -16 Td
+(NFLX CAPEX Historical \(FY2022\) — Value: -2518000000 · Unit: USD · Source: NFLX-US Cash Flow Annual.xlsx · Entity: CAPEX) Tj
+0 -16 Td
+(NFLX CAPEX Historical \(FY2023\) — Value: -2578000000 · Unit: USD · Source: NFLX-US Cash Flow Annual.xlsx · Entity: CAPEX) Tj
+0 -16 Td
+(NFLX CAPEX Historical \(FY2024\) — Value: -2695000000 · Unit: USD · Source: NFLX-US Cash Flow Annual.xlsx · Entity: CAPEX) Tj
+0 -16 Td
+(NFLX CAPEX as % of Revenue \(FY2024\) — Value: 6.91 · Unit: percent · Source: Calculated: CAPEX/Revenue from Cash Flow and Income Statement · Entity: CAPEX) Tj
+0 -16 Td
+(NFLX CAPEX as % of Revenue \(5Y Avg\) — Value: 7.95 · Unit: percent · Source: Calculated: 5Y average CAPEX/Revenue · Entity: CAPEX) Tj
+0 -16 Td
+(NFLX FCF Historical \(FY2020\) — Value: 1922000000 · Unit: USD · Source: NFLX-US Cash Flow Annual.xlsx \(OCF - CAPEX\) · Entity: FCF) Tj
+0 -16 Td
+(NFLX FCF Historical \(FY2021\) — Value: -159000000 · Unit: USD · Source: NFLX-US Cash Flow Annual.xlsx \(OCF - CAPEX\) · Entity: FCF) Tj
+0 -16 Td
+(NFLX FCF Historical \(FY2022\) — Value: 1619000000 · Unit: USD · Source: NFLX-US Cash Flow Annual.xlsx \(OCF - CAPEX\) · Entity: FCF) Tj
+0 -16 Td
+(NFLX FCF Historical \(FY2023\) — Value: 6926000000 · Unit: USD · Source: NFLX-US Cash Flow Annual.xlsx \(OCF - CAPEX\) · Entity: FCF) Tj
+0 -16 Td
+(NFLX FCF Historical \(FY2024\) — Value: 6922000000 · Unit: USD · Source: NFLX-US Cash Flow Annual.xlsx \(OCF - CAPEX\) · Entity: FCF) Tj
+0 -16 Td
+(NFLX Operating Cash Flow Historical \(FY2024\) — Value: 9617000000 · Unit: USD · Source: NFLX-US Cash Flow Annual.xlsx · Entity: NFLX) Tj
+0 -16 Td
+(NFLX Projected Revenue FY2025E — Value: 44699000000 · Unit: USD · Source: NFLX-US Revenue Estimate.xlsx consensus · Entity: NFLX) Tj
+0 -16 Td
+(NFLX Projected Revenue FY2026E — Value: 50159000000 · Unit: USD · Source: NFLX-US Revenue Estimate.xlsx consensus · Entity: NFLX) Tj
+0 -16 Td
+(NFLX Projected Revenue FY2027E — Value: 55209000000 · Unit: USD · Source: NFLX-US Revenue Estimate.xlsx consensus · Entity: NFLX) Tj
+0 -16 Td
+(NFLX Projected Revenue FY2028E — Value: 59758000000 · Unit: USD · Source: NFLX-US Revenue Estimate.xlsx consensus · Entity: NFLX) Tj
+0 -16 Td
+(NFLX Projected Revenue FY2029E — Value: 63623000000 · Unit: USD · Source: NFLX-US Revenue Estimate.xlsx consensus · Entity: NFLX) Tj
+0 -16 Td
+(NFLX Projected CAPEX FY2025E — Value: -3082000000 · Unit: USD · Source: Projected at 6.9% of revenue \(FY2024 ratio\) · Entity: CAPEX) Tj
+0 -16 Td
+(NFLX Projected CAPEX FY2026E — Value: -3461000000 · Unit: USD · Source: Projected at 6.9% of revenue · Entity: CAPEX) Tj
+0 -16 Td
+(NFLX Projected CAPEX FY2027E — Value: -3809000000 · Unit: USD · Source: Projected at 6.9% of revenue · Entity: CAPEX) Tj
+0 -16 Td
+(NFLX Projected CAPEX FY2028E — Value: -4123000000 · Unit: USD · Source: Projected at 6.9% of revenue · Entity: CAPEX) Tj
+0 -16 Td
+(NFLX Projected CAPEX FY2029E — Value: -4390000000 · Unit: USD · Source: Projected at 6.9% of revenue · Entity: CAPEX) Tj
+0 -16 Td
+(NFLX Projected FCF FY2025E — Value: 8618000000 · Unit: USD · Source: Projected OCF \(21.5% margin\) minus CAPEX · Entity: FCF) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(Sources: ) Tj ET
+endstream
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000241 00000 n 
+0000000311 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+5197
+%%EOF

@@ -1,0 +1,65 @@
+{
+  "schema": 1,
+  "taskId": "df4c5a14-a6f9-4a56-ac8a-ad2562b50a7e",
+  "harborTaskId": "btb-df4c5a14",
+  "generatedAt": "2026-06-26T00:10:38.824Z",
+  "baseUrl": "http://127.0.0.1:5273",
+  "roomUrl": "http://127.0.0.1:5273/?room=NR2V1H1AUF6&name=Host",
+  "downloadedFiles": [
+    {
+      "kind": "workbook",
+      "filename": "btb-df4c5a14-netflix-q3-2025-earnings-analysis---btb-btb-df4c5a14.xlsx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\df4c5a14-a6f9-4a56-ac8a-ad2562b50a7e\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-df4c5a14-netflix-q3-2025-earnings-analysis---btb-btb-df4c5a14.xlsx",
+      "extension": ".xlsx",
+      "bytes": 6765,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (402 chars)"
+    },
+    {
+      "kind": "workbook",
+      "filename": "btb-df4c5a14-netflix-q3-2025-earnings-analysis---btb-btb-df4c5a14.xlsm",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\df4c5a14-a6f9-4a56-ac8a-ad2562b50a7e\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-df4c5a14-netflix-q3-2025-earnings-analysis---btb-btb-df4c5a14.xlsm",
+      "extension": ".xlsm",
+      "bytes": 6765,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (402 chars)"
+    },
+    {
+      "kind": "presentation",
+      "filename": "btb-df4c5a14-netflix-q3-2025-earnings-analysis---btb-btb-df4c5a14.pptx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\df4c5a14-a6f9-4a56-ac8a-ad2562b50a7e\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-df4c5a14-netflix-q3-2025-earnings-analysis---btb-btb-df4c5a14.pptx",
+      "extension": ".pptx",
+      "bytes": 6142,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains ppt/presentation.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (384 chars)"
+    },
+    {
+      "kind": "document",
+      "filename": "btb-df4c5a14-netflix-q3-2025-earnings-analysis---btb-btb-df4c5a14.docx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\df4c5a14-a6f9-4a56-ac8a-ad2562b50a7e\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-df4c5a14-netflix-q3-2025-earnings-analysis---btb-btb-df4c5a14.docx",
+      "extension": ".docx",
+      "bytes": 2115,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains word/document.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (365 chars)"
+    },
+    {
+      "kind": "pdf",
+      "filename": "btb-df4c5a14-netflix-q3-2025-earnings-analysis---btb-btb-df4c5a14.pdf",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\df4c5a14-a6f9-4a56-ac8a-ad2562b50a7e\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-df4c5a14-netflix-q3-2025-earnings-analysis---btb-btb-df4c5a14.pdf",
+      "extension": ".pdf",
+      "bytes": 1000,
+      "magic": "%PDF",
+      "reopened": true,
+      "reopenDetail": "PDF header reopened",
+      "contentQualityDetail": "placeholder/caveat content scan passed (1481 chars)"
+    }
+  ]
+}

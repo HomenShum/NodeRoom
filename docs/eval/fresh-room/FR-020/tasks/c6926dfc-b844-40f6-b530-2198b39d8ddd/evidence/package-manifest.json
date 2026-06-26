@@ -1,0 +1,65 @@
+{
+  "schema": 1,
+  "taskId": "c6926dfc-b844-40f6-b530-2198b39d8ddd",
+  "harborTaskId": "btb-c6926dfc",
+  "generatedAt": "2026-06-26T01:00:33.632Z",
+  "baseUrl": "http://127.0.0.1:5273",
+  "roomUrl": "http://127.0.0.1:5273/?room=NRMREUF3TBA&name=Host",
+  "downloadedFiles": [
+    {
+      "kind": "workbook",
+      "filename": "btb-c6926dfc-equity-waterfall-model-pe-returns-bridge-with-preferred-equity-two-tranche-common-g.xlsx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\c6926dfc-b844-40f6-b530-2198b39d8ddd\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-c6926dfc-equity-waterfall-model-pe-returns-bridge-with-preferred-equity-two-tranche-common-g.xlsx",
+      "extension": ".xlsx",
+      "bytes": 10256,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (6151 chars)"
+    },
+    {
+      "kind": "workbook",
+      "filename": "btb-c6926dfc-equity-waterfall-model-pe-returns-bridge-with-preferred-equity-two-tranche-common-g.xlsm",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\c6926dfc-b844-40f6-b530-2198b39d8ddd\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-c6926dfc-equity-waterfall-model-pe-returns-bridge-with-preferred-equity-two-tranche-common-g.xlsm",
+      "extension": ".xlsm",
+      "bytes": 10256,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (6151 chars)"
+    },
+    {
+      "kind": "presentation",
+      "filename": "btb-c6926dfc-equity-waterfall-model-pe-returns-bridge-with-preferred-equity-two-tranche-common-g.pptx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\c6926dfc-b844-40f6-b530-2198b39d8ddd\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-c6926dfc-equity-waterfall-model-pe-returns-bridge-with-preferred-equity-two-tranche-common-g.pptx",
+      "extension": ".pptx",
+      "bytes": 7672,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains ppt/presentation.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (4031 chars)"
+    },
+    {
+      "kind": "document",
+      "filename": "btb-c6926dfc-equity-waterfall-model-pe-returns-bridge-with-preferred-equity-two-tranche-common-g.docx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\c6926dfc-b844-40f6-b530-2198b39d8ddd\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-c6926dfc-equity-waterfall-model-pe-returns-bridge-with-preferred-equity-two-tranche-common-g.docx",
+      "extension": ".docx",
+      "bytes": 3909,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains word/document.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (6052 chars)"
+    },
+    {
+      "kind": "pdf",
+      "filename": "btb-c6926dfc-equity-waterfall-model-pe-returns-bridge-with-preferred-equity-two-tranche-common-g.pdf",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\c6926dfc-b844-40f6-b530-2198b39d8ddd\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-c6926dfc-equity-waterfall-model-pe-returns-bridge-with-preferred-equity-two-tranche-common-g.pdf",
+      "extension": ".pdf",
+      "bytes": 3847,
+      "magic": "%PDF",
+      "reopened": true,
+      "reopenDetail": "PDF header reopened",
+      "contentQualityDetail": "placeholder/caveat content scan passed (7041 chars)"
+    }
+  ]
+}

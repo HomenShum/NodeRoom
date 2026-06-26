@@ -3,11 +3,11 @@
   "caseId": "FR-020",
   "benchmark": "bankertoolbench",
   "taskId": "c0bf2e84-2400-47bf-9dd2-aacfb53a2090",
-  "generatedAt": "2026-06-25T00:58:50.064Z",
+  "generatedAt": "2026-06-25T23:43:24.313Z",
   "baseUrl": "http://127.0.0.1:5273",
-  "roomId": "NR5257Q2P09",
-  "roomUrl": "http://127.0.0.1:5273/?room=NR5257Q2P09&name=Host&focusMode=1",
-  "command": "BTB recovery join room=NR5257Q2P09 task=c0bf2e84-2400-47bf-9dd2-aacfb53a2090 command=\"npm run sfn -- noderoom run-btb-matrix --task-id c0bf2e84-2400-47bf-9dd2-aacfb53a2090 --recover-room-code NR5257Q2P09 --headed\"",
+  "roomId": "NRUGF2DBP93",
+  "roomUrl": "http://127.0.0.1:5273/?room=NRUGF2DBP93&name=Host",
+  "command": "BTB_LIVE_ROOM_E2E=1 BTB_UI_BUNDLE_ROOT=<official-bundle> BTB_UI_VERIFIER_COMMAND=<verifier> BENCH_BASE_URL=<base> npx playwright test --config playwright.real-flow.config.ts e2e/benchmark-ui-bankertoolbench.spec.ts --headed",
   "model": {
     "requested": "specific",
     "resolved": "z-ai/glm-5.2",
@@ -21,122 +21,140 @@
     "roomCreatedAfterRunStart": true,
     "forbiddenPreloadedArtifactsAbsent": true,
     "artifactsCreatedFresh": [
-      "btb-c0bf2e84-nyt-lbo-analysis---first-pass-returns-assessment.xlsx",
-      "btb-c0bf2e84-nyt-lbo-analysis---first-pass-returns-assessment.xlsm",
-      "btb-c0bf2e84-nyt-lbo-analysis---first-pass-returns-assessment.pptx",
-      "btb-c0bf2e84-nyt-lbo-analysis---first-pass-returns-assessment.docx",
-      "btb-c0bf2e84-nyt-lbo-analysis---first-pass-returns-assessment.pdf"
+      "btb-c0bf2e84-lbo-analysis-the-new-york-times-company-nyt.xlsx",
+      "btb-c0bf2e84-lbo-analysis-the-new-york-times-company-nyt.xlsm",
+      "btb-c0bf2e84-lbo-analysis-the-new-york-times-company-nyt.pptx",
+      "btb-c0bf2e84-lbo-analysis-the-new-york-times-company-nyt.docx",
+      "btb-c0bf2e84-lbo-analysis-the-new-york-times-company-nyt.pdf"
     ],
     "uploadedFiles": [
       "betas_by_industry_category_for_WACC.xlsx",
-      "Equity_Risk_Premium_for_WACC.xlsx"
+      "Equity_Risk_Premium_for_WACC.xlsx",
+      "NYT-US Company Identity.xlsx",
+      "NYT-US Income Statement Annual.xlsx",
+      "NYT-US Balance Sheet Annual.xlsx",
+      "NYT-US Cash Flow Annual.xlsx",
+      "NYT-US Shares Outstanding.xlsx",
+      "NYT-US Price History.xlsx",
+      "NYT-US Revenue Estimate.xlsx",
+      "NYT-US Earnings Estimate.xlsx",
+      "btb-c0bf2e84-official-task-brief.txt"
     ]
   },
   "ui": {
     "focusModeEnabled": true,
     "attentionOverlayVisible": true,
     "streamingVisible": true,
-    "jobDetailVisible": false,
+    "jobDetailVisible": true,
     "roomTraceVisible": true,
     "screenshotPaths": [
-      "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\c0bf2e84-2400-47bf-9dd2-aacfb53a2090\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\bankertoolbench-live-room.png"
+      "docs\\eval\\fresh-room\\FR-020\\tasks\\c0bf2e84-2400-47bf-9dd2-aacfb53a2090\\evidence\\bankertoolbench-live-room.png"
     ],
     "tracePath": "docs\\eval\\bankertoolbench\\live-room\\c0bf2e84-2400-47bf-9dd2-aacfb53a2090.json"
   },
   "artifacts": {
     "uploadedFiles": [
       "betas_by_industry_category_for_WACC.xlsx",
-      "Equity_Risk_Premium_for_WACC.xlsx"
+      "Equity_Risk_Premium_for_WACC.xlsx",
+      "NYT-US Company Identity.xlsx",
+      "NYT-US Income Statement Annual.xlsx",
+      "NYT-US Balance Sheet Annual.xlsx",
+      "NYT-US Cash Flow Annual.xlsx",
+      "NYT-US Shares Outstanding.xlsx",
+      "NYT-US Price History.xlsx",
+      "NYT-US Revenue Estimate.xlsx",
+      "NYT-US Earnings Estimate.xlsx",
+      "btb-c0bf2e84-official-task-brief.txt"
     ],
     "created": [
-      "btb-c0bf2e84-nyt-lbo-analysis---first-pass-returns-assessment.xlsx",
-      "btb-c0bf2e84-nyt-lbo-analysis---first-pass-returns-assessment.xlsm",
-      "btb-c0bf2e84-nyt-lbo-analysis---first-pass-returns-assessment.pptx",
-      "btb-c0bf2e84-nyt-lbo-analysis---first-pass-returns-assessment.docx",
-      "btb-c0bf2e84-nyt-lbo-analysis---first-pass-returns-assessment.pdf"
+      "btb-c0bf2e84-lbo-analysis-the-new-york-times-company-nyt.xlsx",
+      "btb-c0bf2e84-lbo-analysis-the-new-york-times-company-nyt.xlsm",
+      "btb-c0bf2e84-lbo-analysis-the-new-york-times-company-nyt.pptx",
+      "btb-c0bf2e84-lbo-analysis-the-new-york-times-company-nyt.docx",
+      "btb-c0bf2e84-lbo-analysis-the-new-york-times-company-nyt.pdf"
     ],
     "exportedFiles": [
       {
         "kind": "workbook",
-        "filename": "btb-c0bf2e84-nyt-lbo-analysis---first-pass-returns-assessment.xlsx",
-        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\c0bf2e84-2400-47bf-9dd2-aacfb53a2090\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-c0bf2e84-nyt-lbo-analysis---first-pass-returns-assessment.xlsx",
+        "filename": "btb-c0bf2e84-lbo-analysis-the-new-york-times-company-nyt.xlsx",
+        "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\c0bf2e84-2400-47bf-9dd2-aacfb53a2090\\evidence\\btb-xlsx-btb-c0bf2e84-lbo-analysis-the-new-york-times-company-nyt.xlsx",
         "extension": ".xlsx",
         "downloaded": true,
-        "bytes": 10129,
+        "bytes": 8894,
         "magic": "PK\\x03\\x04"
       },
       {
         "kind": "workbook",
-        "filename": "btb-c0bf2e84-nyt-lbo-analysis---first-pass-returns-assessment.xlsm",
-        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\c0bf2e84-2400-47bf-9dd2-aacfb53a2090\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-c0bf2e84-nyt-lbo-analysis---first-pass-returns-assessment.xlsm",
+        "filename": "btb-c0bf2e84-lbo-analysis-the-new-york-times-company-nyt.xlsm",
+        "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\c0bf2e84-2400-47bf-9dd2-aacfb53a2090\\evidence\\btb-xlsm-btb-c0bf2e84-lbo-analysis-the-new-york-times-company-nyt.xlsm",
         "extension": ".xlsm",
         "downloaded": true,
-        "bytes": 10129,
+        "bytes": 8894,
         "magic": "PK\\x03\\x04"
       },
       {
         "kind": "presentation",
-        "filename": "btb-c0bf2e84-nyt-lbo-analysis---first-pass-returns-assessment.pptx",
-        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\c0bf2e84-2400-47bf-9dd2-aacfb53a2090\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-c0bf2e84-nyt-lbo-analysis---first-pass-returns-assessment.pptx",
+        "filename": "btb-c0bf2e84-lbo-analysis-the-new-york-times-company-nyt.pptx",
+        "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\c0bf2e84-2400-47bf-9dd2-aacfb53a2090\\evidence\\btb-pptx-btb-c0bf2e84-lbo-analysis-the-new-york-times-company-nyt.pptx",
         "extension": ".pptx",
         "downloaded": true,
-        "bytes": 6901,
+        "bytes": 7308,
         "magic": "PK\\x03\\x04"
       },
       {
         "kind": "document",
-        "filename": "btb-c0bf2e84-nyt-lbo-analysis---first-pass-returns-assessment.docx",
-        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\c0bf2e84-2400-47bf-9dd2-aacfb53a2090\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-c0bf2e84-nyt-lbo-analysis---first-pass-returns-assessment.docx",
+        "filename": "btb-c0bf2e84-lbo-analysis-the-new-york-times-company-nyt.docx",
+        "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\c0bf2e84-2400-47bf-9dd2-aacfb53a2090\\evidence\\btb-docx-btb-c0bf2e84-lbo-analysis-the-new-york-times-company-nyt.docx",
         "extension": ".docx",
         "downloaded": true,
-        "bytes": 3358,
+        "bytes": 3532,
         "magic": "PK\\x03\\x04"
       },
       {
         "kind": "pdf",
-        "filename": "btb-c0bf2e84-nyt-lbo-analysis---first-pass-returns-assessment.pdf",
-        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\c0bf2e84-2400-47bf-9dd2-aacfb53a2090\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-c0bf2e84-nyt-lbo-analysis---first-pass-returns-assessment.pdf",
+        "filename": "btb-c0bf2e84-lbo-analysis-the-new-york-times-company-nyt.pdf",
+        "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\c0bf2e84-2400-47bf-9dd2-aacfb53a2090\\evidence\\btb-pdf-btb-c0bf2e84-lbo-analysis-the-new-york-times-company-nyt.pdf",
         "extension": ".pdf",
         "downloaded": true,
-        "bytes": 3095,
+        "bytes": 3625,
         "magic": "%PDF"
       }
     ],
     "reopenedFiles": [
       {
         "kind": "workbook",
-        "filename": "btb-c0bf2e84-nyt-lbo-analysis---first-pass-returns-assessment.xlsx",
+        "filename": "btb-c0bf2e84-lbo-analysis-the-new-york-times-company-nyt.xlsx",
         "reopened": true,
         "scorerResult": "pass",
-        "detail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j972xjysh4r2r8ehyh337vmxkh89a0ng; placeholder/caveat content scan passed (5555 chars)"
+        "detail": "ZIP package contains xl/workbook.xml; placeholder/caveat content scan passed (3593 chars)"
       },
       {
         "kind": "workbook",
-        "filename": "btb-c0bf2e84-nyt-lbo-analysis---first-pass-returns-assessment.xlsm",
+        "filename": "btb-c0bf2e84-lbo-analysis-the-new-york-times-company-nyt.xlsm",
         "reopened": true,
         "scorerResult": "pass",
-        "detail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j975jcnbcby0gtx9qkwr8xzvcn89b1fn; placeholder/caveat content scan passed (5555 chars)"
+        "detail": "ZIP package contains xl/workbook.xml; placeholder/caveat content scan passed (3593 chars)"
       },
       {
         "kind": "presentation",
-        "filename": "btb-c0bf2e84-nyt-lbo-analysis---first-pass-returns-assessment.pptx",
+        "filename": "btb-c0bf2e84-lbo-analysis-the-new-york-times-company-nyt.pptx",
         "reopened": true,
         "scorerResult": "pass",
-        "detail": "ZIP package contains ppt/presentation.xml; recovered from Convex room artifact j973pz6nyw0qhewmbyw9ne4hc589atrx; placeholder/caveat content scan passed (1835 chars)"
+        "detail": "ZIP package contains ppt/presentation.xml; placeholder/caveat content scan passed (2716 chars)"
       },
       {
         "kind": "document",
-        "filename": "btb-c0bf2e84-nyt-lbo-analysis---first-pass-returns-assessment.docx",
+        "filename": "btb-c0bf2e84-lbo-analysis-the-new-york-times-company-nyt.docx",
         "reopened": true,
         "scorerResult": "pass",
-        "detail": "ZIP package contains word/document.xml; recovered from Convex room artifact j97fw0x46t6jp0xjpgbsn7tj5589b37t; placeholder/caveat content scan passed (3725 chars)"
+        "detail": "ZIP package contains word/document.xml; placeholder/caveat content scan passed (4139 chars)"
       },
       {
         "kind": "pdf",
-        "filename": "btb-c0bf2e84-nyt-lbo-analysis---first-pass-returns-assessment.pdf",
+        "filename": "btb-c0bf2e84-lbo-analysis-the-new-york-times-company-nyt.pdf",
         "reopened": true,
         "scorerResult": "pass",
-        "detail": "PDF header reopened; recovered from Convex room artifact j97d992f4jh3994ysp3ejsp2h989bdmz; placeholder/caveat content scan passed (5671 chars)"
+        "detail": "PDF header reopened; placeholder/caveat content scan passed (6620 chars)"
       }
     ]
   },
@@ -147,7 +165,7 @@
     "score": 1,
     "details": {
       "verifierOutputTail": "\n> noderoom@0.1.1 benchmark:bankertoolbench:proof\n> tsx scripts/bankertoolbench-proof-check.ts\n\nBankerToolBench proof check passed: stage=1/1 weightedRubric=6 run=0/1 pass positive=1/1 pass candidateBeforeEvaluator=true leaks=0/2+0/3+0/4\n",
-      "packageManifestPath": "test-results\\bankertoolbench\\matrix\\c0bf2e84-2400-47bf-9dd2-aacfb53a2090\\package-manifest.json",
+      "packageManifestPath": "docs\\eval\\fresh-room\\FR-020\\tasks\\c0bf2e84-2400-47bf-9dd2-aacfb53a2090\\evidence\\package-manifest.json",
       "downloadedExtensions": [
         ".xlsx",
         ".xlsm",
@@ -155,10 +173,10 @@
         ".docx",
         ".pdf"
       ],
-      "exportSource": "convex_room_artifact_data_url_after_browser_ui_proof",
+      "exportSource": "browser_download_link",
       "agentTerminalQuality": {
-        "statusText": "completed via recovered Convex job: --first-pass-returns-assessment.xlsm, btb-c0bf2e84-nyt-lbo-analysis---first-pass-returns-assessment.pptx, btb-c0bf2e84-nyt-lbo-analysis---first-pass-returns-assessment.docx, btb-c0bf2e84-nyt-lbo-analysis---first-pass-returns-assessment.pdf.",
-        "evidenceTextLength": 464,
+        "statusText": "completed via recovered Convex job: 84-lbo-analysis-the-new-york-times-company-nyt.xlsm, btb-c0bf2e84-lbo-analysis-the-new-york-times-company-nyt.pptx, btb-c0bf2e84-lbo-analysis-the-new-york-times-company-nyt.docx, btb-c0bf2e84-lbo-analysis-the-new-york-times-company-nyt.pdf.",
+        "evidenceTextLength": 1112,
         "detail": "agent reached completed status or visible completion text, with no missing-source/unfinished-work caveats"
       },
       "taskCoverage": {
@@ -167,13 +185,22 @@
           "NYT"
         ],
         "missingTickers": [],
-        "detail": "single requested ticker detected (NYT); multi-entity coverage gate not required"
+        "domainProof": {
+          "ok": true,
+          "domain": "generic",
+          "gates": [],
+          "missingGates": [],
+          "detail": "no task-specific domain proof gate required"
+        },
+        "detail": "single requested ticker detected (NYT); multi-entity coverage gate not required; no task-specific domain proof gate required"
       }
     }
   },
   "visualJudge": {
-    "verdict": "not_run",
-    "reason": "GOOGLE_GENERATIVE_AI_API_KEY is not set; deterministic browser/download/reopen/verifier proof passed."
+    "command": "npm run media:gemini-judge -- --run-id btb-full-20260626-chunk1 --out \"docs\\\\eval\\\\gemini-media-judges\\\\btb-full-20260626\\\\chunk1\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\067cb834-ad43-448b-a523-d0c9898656e0\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\0fc7bc3c-f10b-48f1-acee-1db24a4f75fc\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\17d8c86f-487e-4f22-89ba-1f7789ff940f\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\1d073c85-42fe-4d6d-8539-069ea87082f8\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\3c70cabb-2915-4d5f-8e62-cd6b729a511f\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\42449f25-042c-4260-8a68-3c9c35009501\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\44e44478-9e36-4df9-9657-85797c7fee58\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\4fedc1aa-5e19-4339-9f0b-f455239b2655\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\5495a5a9-1087-4fd9-97f9-d677dd856e24\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\60ed36b0-5e15-4c2d-b4a9-0f3d3cab9b16\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\69fcdefe-f4af-4676-ba21-b5c23c6b2f7c\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\73450a4d-5954-496c-a9f8-17f712bc5521\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\7d11ce66-d850-4606-a3ef-f3960db34df7\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\8a19d926-4db7-4068-aabd-6b34bf965f16\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\907e3e2e-c733-47bf-bedc-3650147bbe91\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\963978db-b155-4fe2-9ae7-ca0b259a5fba\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\9ed5fdf8-7ffa-4c26-92d8-e1f28308af52\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\ac1a3956-b087-446b-9717-0f3d529e8fff\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier-retry1\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\b957a435-13bf-469b-b4de-fa55e3b15edd\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\c0bf2e84-2400-47bf-9dd2-aacfb53a2090\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\c7bbdb93-8b29-44f6-8e5f-13fc0d3de8fc\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\d2c04408-4c3b-45a6-a076-7f5ccca8fc2a\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\eb2f7b9c-2f96-4093-bdd5-e28707e707a1\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\eefb52c1-ee12-4d15-9fbe-7f894705d503\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\f8571fea-f310-4a46-be0c-bbfb65990198\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\"",
+    "verdict": "pass",
+    "scorecardPath": "docs/eval/gemini-media-judges/btb-full-20260626/chunk1/btb-full-20260626-chunk1/summary.md",
+    "reason": "Gemini media judge publish (8/16); defects P0/P1/P2=0/0/1. The video demonstrates NodeRoom's collaborative workspace where an AI agent processes uploaded financial spreadsheets to generate valuation models, presentation decks, and PDF reports. Source clip: test-results\\bankertoolbench\\matrix\\c0bf2e84-2400-47bf-9dd2-aacfb53a2090\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\video.webm."
   },
   "gatesProven": [
     "fresh_room_join",
@@ -187,11 +214,12 @@
     "agent_live_loop",
     "agent_terminal_quality_gate",
     "room_trace_visible",
+    "job_detail_visible",
     "deliverable_export_download",
     "artifact_reopen_validation",
     "artifact_placeholder_scan",
     "official_scorer_handoff",
-    "recovered_completed_fresh_room"
+    "visual_judge_handoff"
   ],
   "passed": true
 }

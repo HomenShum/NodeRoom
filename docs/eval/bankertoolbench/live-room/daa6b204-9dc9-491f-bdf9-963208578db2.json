@@ -2,9 +2,9 @@
   "schema": 1,
   "taskId": "daa6b204-9dc9-491f-bdf9-963208578db2",
   "harborTaskId": "btb-daa6b204",
-  "generatedAt": "2026-06-25T02:21:45.665Z",
+  "generatedAt": "2026-06-26T01:10:14.672Z",
   "baseUrl": "http://127.0.0.1:5273",
-  "roomUrl": "http://127.0.0.1:5273/?room=NRKAW8QKB0G&name=Host",
+  "roomUrl": "http://127.0.0.1:5273/?room=NRDAS23FHR4&name=Host",
   "memoryMode": false,
   "expectedExtensions": [
     ".xlsx",
@@ -23,64 +23,64 @@
   "downloadedFiles": [
     {
       "kind": "workbook",
-      "filename": "btb-daa6b204-boeing-company-investment-opportunity-teaser.xlsx",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\daa6b204-9dc9-491f-bdf9-963208578db2\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-daa6b204-boeing-company-investment-opportunity-teaser.xlsx",
+      "filename": "btb-daa6b204-boeing-investment-opportunity-teaser.xlsx",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\daa6b204-9dc9-491f-bdf9-963208578db2\\evidence\\btb-xlsx-btb-daa6b204-boeing-investment-opportunity-teaser.xlsx",
       "extension": ".xlsx",
-      "bytes": 8869,
+      "bytes": 6653,
       "magic": "PK\\x03\\x04",
       "reopened": true,
       "reopenDetail": "ZIP package contains xl/workbook.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (3528 chars)"
+      "contentQualityDetail": "placeholder/caveat content scan passed (200 chars)"
     },
     {
       "kind": "workbook",
-      "filename": "btb-daa6b204-boeing-company-investment-opportunity-teaser.xlsm",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\daa6b204-9dc9-491f-bdf9-963208578db2\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-daa6b204-boeing-company-investment-opportunity-teaser.xlsm",
+      "filename": "btb-daa6b204-boeing-investment-opportunity-teaser.xlsm",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\daa6b204-9dc9-491f-bdf9-963208578db2\\evidence\\btb-xlsm-btb-daa6b204-boeing-investment-opportunity-teaser.xlsm",
       "extension": ".xlsm",
-      "bytes": 8869,
+      "bytes": 6653,
       "magic": "PK\\x03\\x04",
       "reopened": true,
       "reopenDetail": "ZIP package contains xl/workbook.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (3528 chars)"
+      "contentQualityDetail": "placeholder/caveat content scan passed (200 chars)"
     },
     {
       "kind": "presentation",
-      "filename": "btb-daa6b204-boeing-company-investment-opportunity-teaser.pptx",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\daa6b204-9dc9-491f-bdf9-963208578db2\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-daa6b204-boeing-company-investment-opportunity-teaser.pptx",
+      "filename": "btb-daa6b204-boeing-investment-opportunity-teaser.pptx",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\daa6b204-9dc9-491f-bdf9-963208578db2\\evidence\\btb-pptx-btb-daa6b204-boeing-investment-opportunity-teaser.pptx",
       "extension": ".pptx",
-      "bytes": 7169,
+      "bytes": 6013,
       "magic": "PK\\x03\\x04",
       "reopened": true,
       "reopenDetail": "ZIP package contains ppt/presentation.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (2607 chars)"
+      "contentQualityDetail": "placeholder/caveat content scan passed (184 chars)"
     },
     {
       "kind": "document",
-      "filename": "btb-daa6b204-boeing-company-investment-opportunity-teaser.docx",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\daa6b204-9dc9-491f-bdf9-963208578db2\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-daa6b204-boeing-company-investment-opportunity-teaser.docx",
+      "filename": "btb-daa6b204-boeing-investment-opportunity-teaser.docx",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\daa6b204-9dc9-491f-bdf9-963208578db2\\evidence\\btb-docx-btb-daa6b204-boeing-investment-opportunity-teaser.docx",
       "extension": ".docx",
-      "bytes": 3286,
+      "bytes": 1984,
       "magic": "PK\\x03\\x04",
       "reopened": true,
       "reopenDetail": "ZIP package contains word/document.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (2912 chars)"
+      "contentQualityDetail": "placeholder/caveat content scan passed (165 chars)"
     },
     {
       "kind": "pdf",
-      "filename": "btb-daa6b204-boeing-company-investment-opportunity-teaser.pdf",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\daa6b204-9dc9-491f-bdf9-963208578db2\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-daa6b204-boeing-company-investment-opportunity-teaser.pdf",
+      "filename": "btb-daa6b204-boeing-investment-opportunity-teaser.pdf",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\daa6b204-9dc9-491f-bdf9-963208578db2\\evidence\\btb-pdf-btb-daa6b204-boeing-investment-opportunity-teaser.pdf",
       "extension": ".pdf",
-      "bytes": 2187,
+      "bytes": 854,
       "magic": "%PDF",
       "reopened": true,
       "reopenDetail": "PDF header reopened",
-      "contentQualityDetail": "placeholder/caveat content scan passed (3855 chars)"
+      "contentQualityDetail": "placeholder/caveat content scan passed (1189 chars)"
     }
   ],
-  "packageManifestPath": "test-results\\bankertoolbench\\matrix\\daa6b204-9dc9-491f-bdf9-963208578db2\\package-manifest.json",
+  "packageManifestPath": "docs\\eval\\fresh-room\\FR-020\\tasks\\daa6b204-9dc9-491f-bdf9-963208578db2\\evidence\\package-manifest.json",
   "verifierCommand": "npm run benchmark:bankertoolbench:proof",
   "verifierOutputTail": "\n> noderoom@0.1.1 benchmark:bankertoolbench:proof\n> tsx scripts/bankertoolbench-proof-check.ts\n\nBankerToolBench proof check passed: stage=1/1 weightedRubric=6 run=0/1 pass positive=1/1 pass candidateBeforeEvaluator=true leaks=0/2+0/3+0/4\n",
-  "screenshot": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\daa6b204-9dc9-491f-bdf9-963208578db2\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\bankertoolbench-live-room.png",
+  "screenshot": "docs\\eval\\fresh-room\\FR-020\\tasks\\daa6b204-9dc9-491f-bdf9-963208578db2\\evidence\\bankertoolbench-live-room.png",
   "passed": true,
   "gatesProven": [
     "fresh_room_join",

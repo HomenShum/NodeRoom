@@ -2,9 +2,9 @@
   "schema": 1,
   "taskId": "4194bf8e-eede-480c-b012-b68ab71837c1",
   "harborTaskId": "btb-4194bf8e",
-  "generatedAt": "2026-06-25T02:19:02.572Z",
+  "generatedAt": "2026-06-26T02:40:26.294Z",
   "baseUrl": "http://127.0.0.1:5273",
-  "roomUrl": "http://127.0.0.1:5273/?room=NRXESHAH1AM&name=Host",
+  "roomUrl": "http://127.0.0.1:5273/?room=NREPWJ3NN9J&name=Host",
   "memoryMode": false,
   "expectedExtensions": [
     ".xlsx",
@@ -24,63 +24,63 @@
     {
       "kind": "workbook",
       "filename": "btb-4194bf8e-project-tiburon-cap-table-dilution-analysis.xlsx",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\4194bf8e-eede-480c-b012-b68ab71837c1\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-4194bf8e-project-tiburon-cap-table-dilution-analysis.xlsx",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\4194bf8e-eede-480c-b012-b68ab71837c1\\evidence\\btb-xlsx-btb-4194bf8e-project-tiburon-cap-table-dilution-analysis.xlsx",
       "extension": ".xlsx",
-      "bytes": 7811,
+      "bytes": 7763,
       "magic": "PK\\x03\\x04",
       "reopened": true,
       "reopenDetail": "ZIP package contains xl/workbook.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (2194 chars)"
+      "contentQualityDetail": "placeholder/caveat content scan passed (1929 chars)"
     },
     {
       "kind": "workbook",
       "filename": "btb-4194bf8e-project-tiburon-cap-table-dilution-analysis.xlsm",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\4194bf8e-eede-480c-b012-b68ab71837c1\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-4194bf8e-project-tiburon-cap-table-dilution-analysis.xlsm",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\4194bf8e-eede-480c-b012-b68ab71837c1\\evidence\\btb-xlsm-btb-4194bf8e-project-tiburon-cap-table-dilution-analysis.xlsm",
       "extension": ".xlsm",
-      "bytes": 7811,
+      "bytes": 7763,
       "magic": "PK\\x03\\x04",
       "reopened": true,
       "reopenDetail": "ZIP package contains xl/workbook.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (2194 chars)"
+      "contentQualityDetail": "placeholder/caveat content scan passed (1929 chars)"
     },
     {
       "kind": "presentation",
       "filename": "btb-4194bf8e-project-tiburon-cap-table-dilution-analysis.pptx",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\4194bf8e-eede-480c-b012-b68ab71837c1\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-4194bf8e-project-tiburon-cap-table-dilution-analysis.pptx",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\4194bf8e-eede-480c-b012-b68ab71837c1\\evidence\\btb-pptx-btb-4194bf8e-project-tiburon-cap-table-dilution-analysis.pptx",
       "extension": ".pptx",
-      "bytes": 6722,
+      "bytes": 6488,
       "magic": "PK\\x03\\x04",
       "reopened": true,
       "reopenDetail": "ZIP package contains ppt/presentation.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (1974 chars)"
+      "contentQualityDetail": "placeholder/caveat content scan passed (1491 chars)"
     },
     {
       "kind": "document",
       "filename": "btb-4194bf8e-project-tiburon-cap-table-dilution-analysis.docx",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\4194bf8e-eede-480c-b012-b68ab71837c1\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-4194bf8e-project-tiburon-cap-table-dilution-analysis.docx",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\4194bf8e-eede-480c-b012-b68ab71837c1\\evidence\\btb-docx-btb-4194bf8e-project-tiburon-cap-table-dilution-analysis.docx",
       "extension": ".docx",
-      "bytes": 2836,
+      "bytes": 2563,
       "magic": "PK\\x03\\x04",
       "reopened": true,
       "reopenDetail": "ZIP package contains word/document.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (2498 chars)"
+      "contentQualityDetail": "placeholder/caveat content scan passed (2059 chars)"
     },
     {
       "kind": "pdf",
       "filename": "btb-4194bf8e-project-tiburon-cap-table-dilution-analysis.pdf",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\4194bf8e-eede-480c-b012-b68ab71837c1\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-4194bf8e-project-tiburon-cap-table-dilution-analysis.pdf",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\4194bf8e-eede-480c-b012-b68ab71837c1\\evidence\\btb-pdf-btb-4194bf8e-project-tiburon-cap-table-dilution-analysis.pdf",
       "extension": ".pdf",
-      "bytes": 2712,
+      "bytes": 2486,
       "magic": "%PDF",
       "reopened": true,
       "reopenDetail": "PDF header reopened",
-      "contentQualityDetail": "placeholder/caveat content scan passed (4901 chars)"
+      "contentQualityDetail": "placeholder/caveat content scan passed (4389 chars)"
     }
   ],
-  "packageManifestPath": "test-results\\bankertoolbench\\matrix\\4194bf8e-eede-480c-b012-b68ab71837c1\\package-manifest.json",
+  "packageManifestPath": "docs\\eval\\fresh-room\\FR-020\\tasks\\4194bf8e-eede-480c-b012-b68ab71837c1\\evidence\\package-manifest.json",
   "verifierCommand": "npm run benchmark:bankertoolbench:proof",
   "verifierOutputTail": "\n> noderoom@0.1.1 benchmark:bankertoolbench:proof\n> tsx scripts/bankertoolbench-proof-check.ts\n\nBankerToolBench proof check passed: stage=1/1 weightedRubric=6 run=0/1 pass positive=1/1 pass candidateBeforeEvaluator=true leaks=0/2+0/3+0/4\n",
-  "screenshot": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\4194bf8e-eede-480c-b012-b68ab71837c1\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\bankertoolbench-live-room.png",
+  "screenshot": "docs\\eval\\fresh-room\\FR-020\\tasks\\4194bf8e-eede-480c-b012-b68ab71837c1\\evidence\\bankertoolbench-live-room.png",
   "passed": true,
   "gatesProven": [
     "fresh_room_join",

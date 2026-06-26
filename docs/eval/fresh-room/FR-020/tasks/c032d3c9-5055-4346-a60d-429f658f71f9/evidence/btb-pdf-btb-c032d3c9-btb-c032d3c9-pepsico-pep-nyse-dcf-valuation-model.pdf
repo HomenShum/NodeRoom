@@ -1,0 +1,72 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+5 0 obj
+<< /Length 1437 >>
+stream
+BT /F1 11 Tf 54 760 Td (BTB c032d3c9 — PepsiCo \(PEP/NYSE\) DCF Valuation Model) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(BTB task btb-c032d3c9 — DCF valuation of PepsiCo \(PEP\) listed on NYSE. This package covers both requested entities: PEP \(PepsiCo Inc.\) and NYSE \(the listing exchange\). All quantitative values sourced from uploaded ) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(Rows: 14) Tj
+0 -16 Td
+(Company — Ticker: PEP · Exchange: NYSE · Name: PepsiCo Inc.) Tj
+0 -16 Td
+(Risk-Free Rate — Value: 0.0425 · Unit: percent · Source: 10Y UST) Tj
+0 -16 Td
+(Equity Risk Premium — Value: 0.055 · Unit: percent · Source: Implied ERP workbook) Tj
+0 -16 Td
+(Levered Beta — Value: 0.85 · Source: Betas by industry workbook) Tj
+0 -16 Td
+(Cost of Equity — Value: 0.0893 · Formula: Rf + Beta * ERP) Tj
+0 -16 Td
+(WACC — Value: 0.0815 · Formula: Weighted average cost of capital) Tj
+0 -16 Td
+(Terminal Growth Rate — Value: 0.03) Tj
+0 -16 Td
+(Enterprise Value — Value: 22660000000000 · Unit: USD) Tj
+0 -16 Td
+(Net Debt — Value: 3740000000000 · Unit: USD) Tj
+0 -16 Td
+(Equity Value — Value: 18920000000000 · Unit: USD) Tj
+0 -16 Td
+(Shares Outstanding — Value: 1373000000 · Unit: shares) Tj
+0 -16 Td
+(Intrinsic Value Per Share — Value: 137.8 · Unit: USD/share) Tj
+0 -16 Td
+(Market Price — Value: 160 · Unit: USD/share) Tj
+0 -16 Td
+(Upside/Downside — Value: -0.139 · Unit: percent) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(Sources: ) Tj ET
+endstream
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000241 00000 n 
+0000000311 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+1800
+%%EOF

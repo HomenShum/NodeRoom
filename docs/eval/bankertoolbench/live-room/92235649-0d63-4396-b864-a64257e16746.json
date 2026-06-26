@@ -2,9 +2,9 @@
   "schema": 1,
   "taskId": "92235649-0d63-4396-b864-a64257e16746",
   "harborTaskId": "btb-92235649",
-  "generatedAt": "2026-06-25T02:17:15.933Z",
+  "generatedAt": "2026-06-26T01:01:08.805Z",
   "baseUrl": "http://127.0.0.1:5273",
-  "roomUrl": "http://127.0.0.1:5273/?room=NRDS2WVBVA7&name=Host",
+  "roomUrl": "http://127.0.0.1:5273/?room=NR0RFBWZXDE&name=Host",
   "memoryMode": false,
   "expectedExtensions": [
     ".xlsx",
@@ -23,64 +23,64 @@
   "downloadedFiles": [
     {
       "kind": "workbook",
-      "filename": "btb-92235649-test.xlsx",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\92235649-0d63-4396-b864-a64257e16746\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-92235649-test.xlsx",
+      "filename": "btb-92235649-covid-19-impact-analysis-bkng-expe-abnb-revenue-net-income-and-net-margin-nm-assess.xlsx",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\92235649-0d63-4396-b864-a64257e16746\\evidence\\btb-xlsx-btb-92235649-covid-19-impact-analysis-bkng-expe-abnb-revenue-net-income-and-net-margin-nm-assess.xlsx",
       "extension": ".xlsx",
-      "bytes": 6654,
+      "bytes": 10643,
       "magic": "PK\\x03\\x04",
       "reopened": true,
       "reopenDetail": "ZIP package contains xl/workbook.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (111 chars)"
+      "contentQualityDetail": "placeholder/caveat content scan passed (6410 chars)"
     },
     {
       "kind": "workbook",
-      "filename": "btb-92235649-test.xlsm",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\92235649-0d63-4396-b864-a64257e16746\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-92235649-test.xlsm",
+      "filename": "btb-92235649-covid-19-impact-analysis-bkng-expe-abnb-revenue-net-income-and-net-margin-nm-assess.xlsm",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\92235649-0d63-4396-b864-a64257e16746\\evidence\\btb-xlsm-btb-92235649-covid-19-impact-analysis-bkng-expe-abnb-revenue-net-income-and-net-margin-nm-assess.xlsm",
       "extension": ".xlsm",
-      "bytes": 6654,
+      "bytes": 10643,
       "magic": "PK\\x03\\x04",
       "reopened": true,
       "reopenDetail": "ZIP package contains xl/workbook.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (111 chars)"
+      "contentQualityDetail": "placeholder/caveat content scan passed (6410 chars)"
     },
     {
       "kind": "presentation",
-      "filename": "btb-92235649-test.pptx",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\92235649-0d63-4396-b864-a64257e16746\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-92235649-test.pptx",
+      "filename": "btb-92235649-covid-19-impact-analysis-bkng-expe-abnb-revenue-net-income-and-net-margin-nm-assess.pptx",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\92235649-0d63-4396-b864-a64257e16746\\evidence\\btb-pptx-btb-92235649-covid-19-impact-analysis-bkng-expe-abnb-revenue-net-income-and-net-margin-nm-assess.pptx",
       "extension": ".pptx",
-      "bytes": 5945,
+      "bytes": 6859,
       "magic": "PK\\x03\\x04",
       "reopened": true,
       "reopenDetail": "ZIP package contains ppt/presentation.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (95 chars)"
+      "contentQualityDetail": "placeholder/caveat content scan passed (2378 chars)"
     },
     {
       "kind": "document",
-      "filename": "btb-92235649-test.docx",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\92235649-0d63-4396-b864-a64257e16746\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-92235649-test.docx",
+      "filename": "btb-92235649-covid-19-impact-analysis-bkng-expe-abnb-revenue-net-income-and-net-margin-nm-assess.docx",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\92235649-0d63-4396-b864-a64257e16746\\evidence\\btb-docx-btb-92235649-covid-19-impact-analysis-bkng-expe-abnb-revenue-net-income-and-net-margin-nm-assess.docx",
       "extension": ".docx",
-      "bytes": 1912,
+      "bytes": 3780,
       "magic": "PK\\x03\\x04",
       "reopened": true,
       "reopenDetail": "ZIP package contains word/document.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (76 chars)"
+      "contentQualityDetail": "placeholder/caveat content scan passed (7476 chars)"
     },
     {
       "kind": "pdf",
-      "filename": "btb-92235649-test.pdf",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\92235649-0d63-4396-b864-a64257e16746\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-92235649-test.pdf",
+      "filename": "btb-92235649-covid-19-impact-analysis-bkng-expe-abnb-revenue-net-income-and-net-margin-nm-assess.pdf",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\92235649-0d63-4396-b864-a64257e16746\\evidence\\btb-pdf-btb-92235649-covid-19-impact-analysis-bkng-expe-abnb-revenue-net-income-and-net-margin-nm-assess.pdf",
       "extension": ".pdf",
-      "bytes": 819,
+      "bytes": 6013,
       "magic": "%PDF",
       "reopened": true,
       "reopenDetail": "PDF header reopened",
-      "contentQualityDetail": "placeholder/caveat content scan passed (1121 chars)"
+      "contentQualityDetail": "placeholder/caveat content scan passed (11304 chars)"
     }
   ],
-  "packageManifestPath": "test-results\\bankertoolbench\\matrix\\92235649-0d63-4396-b864-a64257e16746\\package-manifest.json",
+  "packageManifestPath": "docs\\eval\\fresh-room\\FR-020\\tasks\\92235649-0d63-4396-b864-a64257e16746\\evidence\\package-manifest.json",
   "verifierCommand": "npm run benchmark:bankertoolbench:proof",
   "verifierOutputTail": "\n> noderoom@0.1.1 benchmark:bankertoolbench:proof\n> tsx scripts/bankertoolbench-proof-check.ts\n\nBankerToolBench proof check passed: stage=1/1 weightedRubric=6 run=0/1 pass positive=1/1 pass candidateBeforeEvaluator=true leaks=0/2+0/3+0/4\n",
-  "screenshot": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\92235649-0d63-4396-b864-a64257e16746\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\bankertoolbench-live-room.png",
+  "screenshot": "docs\\eval\\fresh-room\\FR-020\\tasks\\92235649-0d63-4396-b864-a64257e16746\\evidence\\bankertoolbench-live-room.png",
   "passed": true,
   "gatesProven": [
     "fresh_room_join",

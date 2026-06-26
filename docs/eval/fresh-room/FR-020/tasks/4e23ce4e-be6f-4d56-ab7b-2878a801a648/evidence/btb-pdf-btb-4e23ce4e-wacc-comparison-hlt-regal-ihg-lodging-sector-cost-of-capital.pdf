@@ -1,0 +1,70 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+5 0 obj
+<< /Length 3616 >>
+stream
+BT /F1 11 Tf 54 760 Td (WACC Comparison: HLT, REGAL, IHG — Lodging Sector Cost of Capital) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(This BankerToolBench deliverable computes the Weighted Average Cost of Capital \(WACC\) for three lodging/hospitality companies: Hilton Worldwide Holdings \(HLT\), Regal Entertainment Group \(REGAL\), and InterContinenta) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(Rows: 13) Tj
+0 -16 Td
+(HLT — Cost of Equity \(CAPM\) — Ticker: HLT · Company: Hilton Worldwide Holdings · Risk Free Rate Pct: 4.25 · Beta: 1.34 · Equity Risk Premium Pct: 4.75 · Cost Of Equity Pct: 10.615 · Formula: Rf + Beta × ERP = 4.25% + 1) Tj
+0 -16 Td
+(HLT — Capital Structure — Ticker: HLT · Company: Hilton Worldwide Holdings · Market Cap USD Mm: 38500 · Total Debt USD Mm: 79800 · Enterprise Value USD Mm: 118300 · Debt To Value Pct: 67.45 · Equity To Value Pct: 32.55 ·) Tj
+0 -16 Td
+(HLT — Cost of Debt & Tax — Ticker: HLT · Company: Hilton Worldwide Holdings · Pre Tax Cost Of Debt Pct: 5.5 · Effective Tax Rate Pct: 22.3 · After Tax Cost Of Debt Pct: 4.27 · Source: HLT-US Income Statement Annual.xlsx) Tj
+0 -16 Td
+(HLT — WACC — Ticker: HLT · Company: Hilton Worldwide Holdings · WACC Pct: 7.18 · Equity Weight: 0.3255 · Cost Of Equity Pct: 10.615 · Debt Weight: 0.6745 · After Tax Cost Of Debt Pct: 4.27 · Formula: 0.3255 × 10.615% + 0) Tj
+0 -16 Td
+(IHG — Cost of Equity \(CAPM\) — Ticker: IHG · Company: InterContinental Hotels Group · Risk Free Rate Pct: 4.25 · Beta: 1.09 · Equity Risk Premium Pct: 4.75 · Cost Of Equity Pct: 9.4275 · Formula: Rf + Beta × ERP = 4.25%) Tj
+0 -16 Td
+(IHG — Capital Structure — Ticker: IHG · Company: InterContinental Hotels Group · Market Cap USD Mm: 13200 · Total Debt USD Mm: 11700 · Enterprise Value USD Mm: 24900 · Debt To Value Pct: 46.99 · Equity To Value Pct: 53.0) Tj
+0 -16 Td
+(IHG — Cost of Debt & Tax — Ticker: IHG · Company: InterContinental Hotels Group · Pre Tax Cost Of Debt Pct: 4.75 · Effective Tax Rate Pct: 19 · After Tax Cost Of Debt Pct: 3.85 · Source: IHG-US Income Statement Annual.xl) Tj
+0 -16 Td
+(IHG — WACC — Ticker: IHG · Company: InterContinental Hotels Group · WACC Pct: 6.84 · Equity Weight: 0.5301 · Cost Of Equity Pct: 9.4275 · Debt Weight: 0.4699 · After Tax Cost Of Debt Pct: 3.85 · Formula: 0.5301 × 9.4275%) Tj
+0 -16 Td
+(REGAL — Cost of Equity \(CAPM\) — Ticker: REGAL · Company: Regal Entertainment Group · Risk Free Rate Pct: 4.25 · Beta: 1.26 · Equity Risk Premium Pct: 4.75 · Cost Of Equity Pct: 10.235 · Formula: Rf + Beta × ERP = 4.25%) Tj
+0 -16 Td
+(REGAL — Capital Structure — Ticker: REGAL · Company: Regal Entertainment Group · Market Cap USD Mm: 2400 · Total Debt USD Mm: 2930 · Enterprise Value USD Mm: 5330 · Debt To Value Pct: 54.97 · Equity To Value Pct: 45.03 ·) Tj
+0 -16 Td
+(REGAL — Cost of Debt & Tax — Ticker: REGAL · Company: Regal Entertainment Group · Pre Tax Cost Of Debt Pct: 7.25 · Effective Tax Rate Pct: 21 · After Tax Cost Of Debt Pct: 5.73 · Source: Industry-median cost of debt for ) Tj
+0 -16 Td
+(REGAL — WACC — Ticker: REGAL · Company: Regal Entertainment Group · WACC Pct: 7.65 · Equity Weight: 0.4503 · Cost Of Equity Pct: 10.235 · Debt Weight: 0.5497 · After Tax Cost Of Debt Pct: 5.73 · Formula: 0.4503 × 10.235%) Tj
+0 -16 Td
+(Comparative WACC Summary — Ticker: HLT / IHG / REGAL · HLT WACC Pct: 7.18 · IHG WACC Pct: 6.84 · REGAL WACC Pct: 7.65 · Lowest WACC: IHG · Highest WACC: REGAL · Spread Bps: 81 · Comment: IHG's asset-light franchise model) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(Sources: ) Tj ET
+endstream
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000241 00000 n 
+0000000311 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+3979
+%%EOF

@@ -508,7 +508,7 @@ function bankerToolBenchUiTrack(): BenchmarkUiCoverageTrack {
         return {
           ...gate,
           status: "covered" as const,
-          evidence: `${proofLabel}; model ${proof.model?.resolved ?? "unknown"}, ${proof.telemetry?.toolCalls ?? 0} tool calls, $${proof.telemetry?.costUsd ?? 0}`,
+          evidence: btbStreamingEvidence(proof, proofLabel ?? BANKERTOOLBENCH_FRESH_ROOM_PROOF_PATH),
         };
       }
       return {
@@ -563,6 +563,7 @@ function bankerToolBenchUiTrack(): BenchmarkUiCoverageTrack {
     blockers: proof
       ? [
           `Live-browser fresh-room BTB run PASSED for task ${proof.taskId ?? "unknown"} with ${BANKERTOOLBENCH_REQUIRED_EXTENSIONS.join(", ")} downloaded and reopened; proof: ${BANKERTOOLBENCH_FRESH_ROOM_PROOF_PATH}.`,
+          ...btbVisualJudgeCoverageNotes(proof),
           ...(proof.visualJudge?.verdict === "not_run" && proof.visualJudge.reason
             ? [`Gemini visual judge not run: ${proof.visualJudge.reason}`]
             : []),
@@ -572,6 +573,37 @@ function bankerToolBenchUiTrack(): BenchmarkUiCoverageTrack {
           "Need a fresh live room, official input upload, public @nodeagent prompt, streamed UI progress, downloaded Excel/PPTX/DOCX/PDF package, reopen checks, trace/video, and verifier handoff.",
         ],
   };
+}
+
+function btbStreamingEvidence(proof: FreshRoomProofReceipt, proofLabel: string): string {
+  const parts = [
+    proofLabel,
+    `model ${proof.model?.resolved ?? "unknown"}`,
+    proof.model?.runtimeProfile ? `runtime ${proof.model.runtimeProfile}` : undefined,
+    proof.ui.jobDetailVisible ? "job detail visible" : undefined,
+    proof.ui.roomTraceVisible ? "room trace visible" : undefined,
+    proof.gatesProven?.includes("agent_live_loop") ? "agent live loop proven" : undefined,
+    btbTelemetrySummary(proof),
+  ].filter((part): part is string => !!part);
+  return parts.join("; ");
+}
+
+function btbTelemetrySummary(proof: FreshRoomProofReceipt): string | undefined {
+  const telemetry = proof.telemetry;
+  if (!telemetry) return undefined;
+  const parts: string[] = [];
+  if (typeof telemetry.modelCalls === "number") parts.push(`${telemetry.modelCalls} model calls`);
+  if (typeof telemetry.toolCalls === "number") parts.push(`${telemetry.toolCalls} tool calls`);
+  if (typeof telemetry.mutationCount === "number") parts.push(`${telemetry.mutationCount} mutations`);
+  if (typeof telemetry.costUsd === "number") parts.push(`$${telemetry.costUsd}`);
+  return parts.length ? parts.join(", ") : undefined;
+}
+
+function btbVisualJudgeCoverageNotes(proof: FreshRoomProofReceipt): string[] {
+  if (proof.visualJudge?.verdict !== "pass") return [];
+  const scorecard = proof.visualJudge.scorecardPath ? `; scorecard: ${proof.visualJudge.scorecardPath}` : "";
+  const reason = proof.visualJudge.reason ? `; ${proof.visualJudge.reason.replace(/\.+$/g, "")}` : "";
+  return [`Gemini visual judge passed${scorecard}${reason}.`];
 }
 
 function spreadsheetBenchV1UiTrack(): BenchmarkUiCoverageTrack {

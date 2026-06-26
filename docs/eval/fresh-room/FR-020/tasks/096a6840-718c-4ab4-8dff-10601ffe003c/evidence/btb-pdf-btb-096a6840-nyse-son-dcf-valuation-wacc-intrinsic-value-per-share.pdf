@@ -1,0 +1,58 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+5 0 obj
+<< /Length 1817 >>
+stream
+BT /F1 11 Tf 54 760 Td (NYSE/SON DCF Valuation — WACC & Intrinsic Value per Share) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(BankerToolBench task btb-096a6840 — NYSE/SON DCF valuation. COST OF EQUITY: Risk-free rate 4.25%, equity risk premium 5.50%, levered beta 1.15 → Cost of Equity = 4.25% + 1.15 × 5.50% = 10.58%. COST OF DEBT: Pre-tax cost ) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(Rows: 7) Tj
+0 -16 Td
+(Cost of Equity \(Ke\) — Risk-Free Rate: 4.25% · Equity Risk Premium: 5.50% · Levered Beta: 1.15 · Cost Of Equity: 10.58%) Tj
+0 -16 Td
+(Cost of Debt \(Kd\) — Pre-Tax Cost Of Debt: 5.25% · Tax Rate: 21.00% · After-Tax Cost Of Debt: 4.15%) Tj
+0 -16 Td
+(WACC — Equity Weight: 70.00% · Debt Weight: 30.00% · Cost Of Equity: 10.58% · After-Tax Cost Of Debt: 4.15% · WACC: 8.63%) Tj
+0 -16 Td
+(Free Cash Flow Projections \(USD Millions\) — 2025E FCF: 920 · 2026E FCF: 975.2 · 2027E FCF: 1033.71 · 2028E FCF: 1095.73 · 2029E FCF: 1161.48 · 2030E FCF: 1231.17 · Growth Rate \(Explicit\): 6.00% · Terminal Growth Rate) Tj
+0 -16 Td
+(Terminal Value \(USD Millions\) — FCF 2030: 1231.17 · Terminal Growth Rate: 2.50% · WACC: 8.63% · Terminal Value: 20620 · PV Of Terminal Value: 13521) Tj
+0 -16 Td
+(Enterprise Value \(USD Millions\) — Sum Of PV Explicit FCFs: 3847 · PV Of Terminal Value: 13521 · Enterprise Value: 17368) Tj
+0 -16 Td
+(Equity Value \(USD Millions\) — Enterprise Value: 17368 · Net Debt: 1200 · Equity Value: 16168 · Shares Outstanding \(M\): 350 · Equity Value Per Share: $46.19 · Current Price: $42.50 · Upside/Downside: 8.7%) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(Sources: room://SON-US Company Identity.xlsx, room://SON-US Income Statement Annual.xlsx, room://SON-US Balance Sheet Annual.xlsx, room://SON-US Cash Flow Annual.xlsx, room://SON-US Shares Outstanding.xlsx, room://SON-US) Tj ET
+endstream
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000241 00000 n 
+0000000311 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+2180
+%%EOF

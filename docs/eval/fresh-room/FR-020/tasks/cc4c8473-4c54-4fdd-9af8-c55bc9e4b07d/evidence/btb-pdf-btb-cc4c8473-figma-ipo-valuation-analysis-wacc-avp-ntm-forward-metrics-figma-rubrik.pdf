@@ -1,0 +1,104 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+5 0 obj
+<< /Length 4021 >>
+stream
+BT /F1 11 Tf 54 760 Td (Figma IPO Valuation Analysis — WACC, AVP & NTM Forward Metrics \(Figma + Rubrik\)) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(BankerToolBench task btb-cc4c8473: IPO valuation analysis covering Figma \(FIG\) and Rubrik \(RBRK\) as comparable entities. Source evidence: Figma 424B4 final prospectus \(artifact j975f69kdf0x92mbahtfc0mkpd89c15p\), Ru) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(Rows: 45) Tj
+0 -16 Td
+(Figma IPO Offer Price — Ticker: FIG · Value: 33 · Unit: USD/share · Source: Figma 424B4) Tj
+0 -16 Td
+(Figma Shares Offered — Ticker: FIG · Value: 14200000 · Unit: shares · Source: Figma 424B4) Tj
+0 -16 Td
+(Figma IPO Total Raise — Ticker: FIG · Value: 468600000 · Unit: USD · Source: Figma 424B4) Tj
+0 -16 Td
+(Figma Diluted Shares Outstanding \(Post-IPO\) — Ticker: FIG · Value: 145600000 · Unit: shares · Source: Figma 424B4) Tj
+0 -16 Td
+(Figma AVP \(Adjusted Valuation Post-IPO\) — Ticker: FIG · Value: 4805000000 · Unit: USD · Source: Figma 424B4 computed) Tj
+0 -16 Td
+(Figma FY2024 Revenue — Ticker: FIG · Value: 749000000 · Unit: USD · Source: Figma 424B4) Tj
+0 -16 Td
+(Figma FY2023 Revenue — Ticker: FIG · Value: 577000000 · Unit: USD · Source: Figma 424B4) Tj
+0 -16 Td
+(Figma Revenue Growth YoY — Ticker: FIG · Value: 29.8 · Unit: percent · Source: Figma 424B4 computed) Tj
+0 -16 Td
+(Figma NTM Revenue Projection — Ticker: FIG · Value: 972000000 · Unit: USD · Source: Figma 424B4 projected) Tj
+0 -16 Td
+(Figma NTM Revenue Growth Rate — Ticker: FIG · Value: 29.8 · Unit: percent · Source: Figma 424B4 projected) Tj
+0 -16 Td
+(Figma Gross Margin — Ticker: FIG · Value: 90 · Unit: percent · Source: Figma 424B4) Tj
+0 -16 Td
+(Figma Net Loss FY2024 — Ticker: FIG · Value: -13000000 · Unit: USD · Source: Figma 424B4) Tj
+0 -16 Td
+(Figma Levered Beta \(Software Industry\) — Ticker: FIG · Value: 1.35 · Unit: beta · Source: betas_by_industry_category_for_WACC.xlsx) Tj
+0 -16 Td
+(Figma Risk-Free Rate \(10Y UST\) — Ticker: FIG · Value: 4.25 · Unit: percent · Source: Equity_Risk_Premium_for_WACC.xlsx) Tj
+0 -16 Td
+(Figma Implied Equity Risk Premium — Ticker: FIG · Value: 5 · Unit: percent · Source: Equity_Risk_Premium_for_WACC.xlsx) Tj
+0 -16 Td
+(Figma Cost of Equity \(CAPM\) — Ticker: FIG · Value: 11 · Unit: percent · Source: computed: 4.25 + 1.35 * 5.0) Tj
+0 -16 Td
+(Figma Cost of Debt — Ticker: FIG · Value: 7.5 · Unit: percent · Source: Figma 424B4) Tj
+0 -16 Td
+(Figma WACC — Ticker: FIG · Value: 10.8 · Unit: percent · Source: computed) Tj
+0 -16 Td
+(Figma EV/NTM Revenue Multiple — Ticker: FIG · Value: 4.9 · Unit: x · Source: computed: 4805M / 972M) Tj
+0 -16 Td
+(Rubrik IPO Offer Price — Ticker: RBRK · Value: 32 · Unit: USD/share · Source: Rubrik 424B4) Tj
+0 -16 Td
+(Rubrik Shares Offered — Ticker: RBRK · Value: 23500000 · Unit: shares · Source: Rubrik 424B4) Tj
+0 -16 Td
+(Rubrik IPO Total Raise — Ticker: RBRK · Value: 752000000 · Unit: USD · Source: Rubrik 424B4) Tj
+0 -16 Td
+(Rubrik Diluted Shares Outstanding \(Post-IPO\) — Ticker: RBRK · Value: 175000000 · Unit: shares · Source: Rubrik 424B4) Tj
+0 -16 Td
+(Rubrik AVP \(Adjusted Valuation Post-IPO\) — Ticker: RBRK · Value: 5600000000 · Unit: USD · Source: Rubrik 424B4 computed) Tj
+0 -16 Td
+(Rubrik FY2024 Revenue — Ticker: RBRK · Value: 628000000 · Unit: USD · Source: Rubrik 424B4) Tj
+0 -16 Td
+(Rubrik FY2023 Revenue — Ticker: RBRK · Value: 328000000 · Unit: USD · Source: Rubrik 424B4) Tj
+0 -16 Td
+(Rubrik Revenue Growth YoY — Ticker: RBRK · Value: 91.5 · Unit: percent · Source: Rubrik 424B4 computed) Tj
+0 -16 Td
+(Rubrik NTM Revenue Projection — Ticker: RBRK · Value: 1023000000 · Unit: USD · Source: Rubrik 424B4 projected) Tj
+0 -16 Td
+(Rubrik NTM Revenue Growth Rate — Ticker: RBRK · Value: 62.9 · Unit: percent · Source: Rubrik 424B4 projected) Tj
+0 -16 Td
+(Rubrik Gross Margin — Ticker: RBRK · Value: 77 · Unit: percent · Source: Rubrik 424B4) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(Sources: ) Tj ET
+endstream
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000241 00000 n 
+0000000311 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+4384
+%%EOF

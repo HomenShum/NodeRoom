@@ -1,0 +1,60 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+5 0 obj
+<< /Length 2504 >>
+stream
+BT /F1 11 Tf 54 760 Td (Relative Performance Trading Chart — MSFT, AMZN, GOOGL, META, NVDA \(24-Month Indexed, as of 11/16/2025\)) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(Indexed relative-performance trading chart for an upcoming client meeting. Price data as of 11/16/2025. Each stock rebased to 100 at the start of the 24-month lookback window \(approximately 11/17/2023\). Index level for) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(Rows: 8) Tj
+0 -16 Td
+(Chart Parameters — Metric: Indexed Relative Performance \(Base = 100\) · As-Of Date: 11/16/2025 · Lookback Period: 24 months \(~11/17/2023 – 11/16/2025\) · Tickers: MSFT, AMZN, GOOGL, META, NVDA · Source: Company Price H) Tj
+0 -16 Td
+(MSFT — Ticker: MSFT · Base Index \(Nov 2023\): 100 · Latest Index \(11/16/2025\): 171.4 · 24M Total Return \(%\): 71.4 · Color: Blue \(#0072BD\) · Company: Microsoft Corporation · Sector: Technology – Software) Tj
+0 -16 Td
+(AMZN — Ticker: AMZN · Base Index \(Nov 2023\): 100 · Latest Index \(11/16/2025\): 163.2 · 24M Total Return \(%\): 63.2 · Color: Orange \(#EDB120\) · Company: Amazon.com Inc. · Sector: Consumer Discretionary – Internet Re) Tj
+0 -16 Td
+(GOOGL — Ticker: GOOGL · Base Index \(Nov 2023\): 100 · Latest Index \(11/16/2025\): 158.7 · 24M Total Return \(%\): 58.7 · Color: Green \(#77AC30\) · Company: Alphabet Inc. · Sector: Communication Services – Interactive ) Tj
+0 -16 Td
+(META — Ticker: META · Base Index \(Nov 2023\): 100 · Latest Index \(11/16/2025\): 212.5 · 24M Total Return \(%\): 112.5 · Color: Purple \(#7E2F8E\) · Company: Meta Platforms Inc. · Sector: Communication Services – Intera) Tj
+0 -16 Td
+(NVDA — Ticker: NVDA · Base Index \(Nov 2023\): 100 · Latest Index \(11/16/2025\): 385.9 · 24M Total Return \(%\): 285.9 · Color: Red \(#D95319\) · Company: NVIDIA Corporation · Sector: Technology – Semiconductors) Tj
+0 -16 Td
+(Relative Performance Summary — Rank 1 \(Best\): NVDA \(+285.9%\) · Rank 2: META \(+112.5%\) · Rank 3: MSFT \(+71.4%\) · Rank 4: AMZN \(+63.2%\) · Rank 5: GOOGL \(+58.7%\) · Note: All stocks rebased to 100 at ~11/17/2023;) Tj
+0 -16 Td
+(PowerPoint Slide Content — Slide Title: Mega-Cap Tech Relative Performance — 24-Month Indexed · Tagline: NVDA and META significantly outperformed peers over the trailing 24 months; all five names posted positive returns ) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(Sources: price_history://MSFT, price_history://AMZN, price_history://GOOGL, price_history://META, price_history://NVDA) Tj ET
+endstream
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000241 00000 n 
+0000000311 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+2867
+%%EOF

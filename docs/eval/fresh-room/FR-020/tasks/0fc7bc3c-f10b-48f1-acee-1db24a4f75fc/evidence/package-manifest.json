@@ -1,0 +1,65 @@
+{
+  "schema": 1,
+  "taskId": "0fc7bc3c-f10b-48f1-acee-1db24a4f75fc",
+  "harborTaskId": "btb-0fc7bc3c",
+  "generatedAt": "2026-06-26T01:10:47.420Z",
+  "baseUrl": "http://127.0.0.1:5273",
+  "roomUrl": "http://127.0.0.1:5273/?room=NRDADBPEZPW&name=Host",
+  "downloadedFiles": [
+    {
+      "kind": "workbook",
+      "filename": "btb-0fc7bc3c-zm-us-dcf-valuation-model.xlsx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\0fc7bc3c-f10b-48f1-acee-1db24a4f75fc\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-0fc7bc3c-zm-us-dcf-valuation-model.xlsx",
+      "extension": ".xlsx",
+      "bytes": 8175,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j974nabp0tpx4cg7nw3vt0ghb189djxk",
+      "contentQualityDetail": "placeholder/caveat content scan passed (2349 chars)"
+    },
+    {
+      "kind": "workbook",
+      "filename": "btb-0fc7bc3c-zm-us-dcf-valuation-model.xlsm",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\0fc7bc3c-f10b-48f1-acee-1db24a4f75fc\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-0fc7bc3c-zm-us-dcf-valuation-model.xlsm",
+      "extension": ".xlsm",
+      "bytes": 8175,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j97b99cjxkmvntwvstyjxe7rwh89c4z9",
+      "contentQualityDetail": "placeholder/caveat content scan passed (2349 chars)"
+    },
+    {
+      "kind": "presentation",
+      "filename": "btb-0fc7bc3c-zm-us-dcf-valuation-model.pptx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\0fc7bc3c-f10b-48f1-acee-1db24a4f75fc\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-0fc7bc3c-zm-us-dcf-valuation-model.pptx",
+      "extension": ".pptx",
+      "bytes": 6512,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains ppt/presentation.xml; recovered from Convex room artifact j977s9x5yy64nsnm52jxdhzc8h89d3zp",
+      "contentQualityDetail": "placeholder/caveat content scan passed (1545 chars)"
+    },
+    {
+      "kind": "document",
+      "filename": "btb-0fc7bc3c-zm-us-dcf-valuation-model.docx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\0fc7bc3c-f10b-48f1-acee-1db24a4f75fc\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-0fc7bc3c-zm-us-dcf-valuation-model.docx",
+      "extension": ".docx",
+      "bytes": 2953,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains word/document.xml; recovered from Convex room artifact j9792d9p3c1yk5mbqgk3esrg1h89d1n7",
+      "contentQualityDetail": "placeholder/caveat content scan passed (2844 chars)"
+    },
+    {
+      "kind": "pdf",
+      "filename": "btb-0fc7bc3c-zm-us-dcf-valuation-model.pdf",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\0fc7bc3c-f10b-48f1-acee-1db24a4f75fc\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-0fc7bc3c-zm-us-dcf-valuation-model.pdf",
+      "extension": ".pdf",
+      "bytes": 3533,
+      "magic": "%PDF",
+      "reopened": true,
+      "reopenDetail": "PDF header reopened; recovered from Convex room artifact j9717v3v9622fj1407gcxb1yxd89d90x",
+      "contentQualityDetail": "placeholder/caveat content scan passed (6454 chars)"
+    }
+  ]
+}

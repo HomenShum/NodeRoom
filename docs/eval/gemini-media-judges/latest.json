@@ -1,8 +1,8 @@
 {
-  "runId": "btb-a31173e3-qwen-fresh-domain-proof-after-pdf-storage-fix-20260625",
-  "generatedAt": "2026-06-25T10:39:48.199Z",
+  "runId": "btb-707cba99-live-canary-20260625",
+  "generatedAt": "2026-06-25T23:34:28.164Z",
   "model": "gemini-3.5-flash",
-  "command": "npm run media:gemini-judge -- --run-id btb-a31173e3-qwen-fresh-domain-proof-after-pdf-storage-fix-20260625 --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\a31173e3-e8aa-4ddb-b0d9-e4e7055c950b\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --out \"docs\\\\eval\\\\gemini-media-judges\"",
+  "command": "npm run media:gemini-judge -- --run-id btb-707cba99-live-canary-20260625 --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\707cba99-59a7-47bd-bc4d-7f36212e99f3\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --out \"docs\\\\eval\\\\gemini-media-judges\"",
   "notes": [
     "GIF assets are converted to temporary MP4 with ffmpeg before upload.",
     "This media judge is evidence-quality QA; it does not replace backend/browser production gates."
@@ -20,66 +20,66 @@
   "results": [
     {
       "asset": {
-        "id": "test-results-bankertoolbench-matrix-a31173e3-e8aa-4ddb-b0d9-e4e7055c950b-playwright-output-e2e-benchmark-ui-bankertoo-d0047-odeagent-package-verifier-video",
+        "id": "test-results-bankertoolbench-matrix-707cba99-59a7-47bd-bc4d-7f36212e99f3-playwright-output-e2e-benchmark-ui-bankertoo-d0047-odeagent-package-verifier-video",
         "class": "live_browser_proof",
         "title": "Video",
-        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\a31173e3-e8aa-4ddb-b0d9-e4e7055c950b\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\video.webm",
-        "relPath": "test-results/bankertoolbench/matrix/a31173e3-e8aa-4ddb-b0d9-e4e7055c950b/playwright-output/e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier/video.webm",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\707cba99-59a7-47bd-bc4d-7f36212e99f3\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\video.webm",
+        "relPath": "test-results/bankertoolbench/matrix/707cba99-59a7-47bd-bc4d-7f36212e99f3/playwright-output/e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier/video.webm",
         "purpose": "Live Playwright browser proof clip. Judge only visible product evidence: multi-client sync, advisory presence, no-clobber behavior, proposals, job/privacy/wall surfaces, and production honesty."
       },
       "model": "gemini-3.5-flash",
       "status": "judged",
-      "mediaPath": "test-results/bankertoolbench/matrix/a31173e3-e8aa-4ddb-b0d9-e4e7055c950b/playwright-output/e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier/video.webm",
+      "mediaPath": "test-results/bankertoolbench/matrix/707cba99-59a7-47bd-bc4d-7f36212e99f3/playwright-output/e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier/video.webm",
       "mediaType": "video/webm",
-      "bytes": 16456845,
+      "bytes": 5943043,
       "judge": {
         "verdict": "publish",
-        "summary": "The video demonstrates NodeAgent executing a DCF SOTP valuation for Alphabet Inc. inside NodeRoom, covering room creation, document uploads, live agent execution with trace logs, and final artifact generation.",
+        "summary": "The video demonstrates a complete end-to-end workflow of NodeAgent, from room creation and spreadsheet data upload to invoking an AI agent for financial analysis and viewing the generated PDF report.",
         "scores": {
           "featureClarity": {
-            "score": 1,
-            "evidence": "Shows an AI agent executing financial tasks within a collaborative workspace."
+            "score": 1.5,
+            "evidence": "Clearly shows the collaborative workspace, spreadsheet viewer, and AI agent interaction panel."
           },
           "workflowCompleteness": {
-            "score": 1,
-            "evidence": "Captures the entire flow from room setup to final document generation."
+            "score": 1.6,
+            "evidence": "Captures the entire sequence: landing page, file upload, agent execution with real-time logs, and final PDF deliverable."
           },
           "visualDesign": {
-            "score": 1,
-            "evidence": "Clean, high-density dark UI with structured panels and spreadsheets."
+            "score": 1.4,
+            "evidence": "High-density dark UI with a clean layout, though some log panels are text-heavy."
           },
           "consistency": {
-            "score": 1,
-            "evidence": "Matches the product story of files, spreadsheets, chat, and agent traces."
+            "score": 1.5,
+            "evidence": "Perfectly aligns with the product concept of collaborative rooms, spreadsheets, and agent traces."
           },
           "evidenceQuality": {
-            "score": 1,
-            "evidence": "Authentic browser recording showing real-time UI and execution steps."
+            "score": 1.5,
+            "evidence": "Authentic screen recording of a live browser session showing actual execution steps."
           },
           "legibility": {
-            "score": 1,
-            "evidence": "UI elements and text are readable at standard browser size."
+            "score": 1.4,
+            "evidence": "Most UI text and spreadsheet cells are readable, though log text is small."
           },
           "professionalRelevance": {
-            "score": 1,
-            "evidence": "Highly relevant for financial analysts automating valuation workflows."
+            "score": 1.5,
+            "evidence": "Highly relevant to financial analysts, demonstrating automated valuation and report generation."
           },
           "productionHonesty": {
-            "score": 1,
-            "evidence": "Shows actual loading states and execution traces without edits."
+            "score": 1.6,
+            "evidence": "Shows real-time agent execution, including transient tool failures and retries."
           }
         },
         "observedEvidence": [
-          "Room creation modal",
-          "Document upload list",
-          "Live agent execution trace",
-          "Generated financial models and PDF exports"
+          "Landing page with room creation",
+          "Multi-file spreadsheet upload and rendering",
+          "Agent task brief execution with live trace logs",
+          "Generation and rendering of PDF export deliverable"
         ],
         "missingEvidence": [],
         "defects": [],
-        "suggestedReadmeCaption": "Watch NodeAgent perform a complex DCF SOTP valuation by analyzing financial filings and generating structured models in real-time."
+        "suggestedReadmeCaption": "Watch NodeAgent process financial spreadsheets, execute a valuation task, and compile a final PDF report in real-time."
       },
-      "score": 8,
+      "score": 12,
       "maxScore": 16
     }
   ]

@@ -3,10 +3,10 @@
   "caseId": "FR-020",
   "benchmark": "bankertoolbench",
   "taskId": "c292330e-d88f-4353-88fd-6b0f8b3b93c2",
-  "generatedAt": "2026-06-25T02:28:28.386Z",
+  "generatedAt": "2026-06-26T01:16:21.240Z",
   "baseUrl": "http://127.0.0.1:5273",
-  "roomId": "NRGFDCWPU37",
-  "roomUrl": "http://127.0.0.1:5273/?room=NRGFDCWPU37&name=Host",
+  "roomId": "NR6U2AKLFIR",
+  "roomUrl": "http://127.0.0.1:5273/?room=NR6U2AKLFIR&name=Host",
   "command": "BTB_LIVE_ROOM_E2E=1 BTB_UI_BUNDLE_ROOT=<official-bundle> BTB_UI_VERIFIER_COMMAND=<verifier> BENCH_BASE_URL=<base> npx playwright test --config playwright.real-flow.config.ts e2e/benchmark-ui-bankertoolbench.spec.ts --headed",
   "model": {
     "requested": "specific",
@@ -21,11 +21,11 @@
     "roomCreatedAfterRunStart": true,
     "forbiddenPreloadedArtifactsAbsent": true,
     "artifactsCreatedFresh": [
-      "btb-c292330e-btb-c292330e-cmg-nopat-deliverable-package.xlsx",
-      "btb-c292330e-btb-c292330e-cmg-nopat-deliverable-package.xlsm",
-      "btb-c292330e-btb-c292330e-cmg-nopat-deliverable-package.pptx",
-      "btb-c292330e-btb-c292330e-cmg-nopat-deliverable-package.docx",
-      "btb-c292330e-btb-c292330e-cmg-nopat-deliverable-package.pdf"
+      "btb-c292330e-cmg-nopat-analysis-historical-and-projected-net-operating-profit-after-tax.xlsx",
+      "btb-c292330e-cmg-nopat-analysis-historical-and-projected-net-operating-profit-after-tax.xlsm",
+      "btb-c292330e-cmg-nopat-analysis-historical-and-projected-net-operating-profit-after-tax.pptx",
+      "btb-c292330e-cmg-nopat-analysis-historical-and-projected-net-operating-profit-after-tax.docx",
+      "btb-c292330e-cmg-nopat-analysis-historical-and-projected-net-operating-profit-after-tax.pdf"
     ],
     "uploadedFiles": [
       "betas_by_industry_category_for_WACC.xlsx",
@@ -48,7 +48,7 @@
     "jobDetailVisible": true,
     "roomTraceVisible": true,
     "screenshotPaths": [
-      "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\c292330e-d88f-4353-88fd-6b0f8b3b93c2\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\bankertoolbench-live-room.png"
+      "docs\\eval\\fresh-room\\FR-020\\tasks\\c292330e-d88f-4353-88fd-6b0f8b3b93c2\\evidence\\bankertoolbench-live-room.png"
     ],
     "tracePath": "docs\\eval\\bankertoolbench\\live-room\\c292330e-d88f-4353-88fd-6b0f8b3b93c2.json"
   },
@@ -67,94 +67,94 @@
       "btb-c292330e-official-task-brief.txt"
     ],
     "created": [
-      "btb-c292330e-btb-c292330e-cmg-nopat-deliverable-package.xlsx",
-      "btb-c292330e-btb-c292330e-cmg-nopat-deliverable-package.xlsm",
-      "btb-c292330e-btb-c292330e-cmg-nopat-deliverable-package.pptx",
-      "btb-c292330e-btb-c292330e-cmg-nopat-deliverable-package.docx",
-      "btb-c292330e-btb-c292330e-cmg-nopat-deliverable-package.pdf"
+      "btb-c292330e-cmg-nopat-analysis-historical-and-projected-net-operating-profit-after-tax.xlsx",
+      "btb-c292330e-cmg-nopat-analysis-historical-and-projected-net-operating-profit-after-tax.xlsm",
+      "btb-c292330e-cmg-nopat-analysis-historical-and-projected-net-operating-profit-after-tax.pptx",
+      "btb-c292330e-cmg-nopat-analysis-historical-and-projected-net-operating-profit-after-tax.docx",
+      "btb-c292330e-cmg-nopat-analysis-historical-and-projected-net-operating-profit-after-tax.pdf"
     ],
     "exportedFiles": [
       {
         "kind": "workbook",
-        "filename": "btb-c292330e-btb-c292330e-cmg-nopat-deliverable-package.xlsx",
-        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\c292330e-d88f-4353-88fd-6b0f8b3b93c2\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-c292330e-btb-c292330e-cmg-nopat-deliverable-package.xlsx",
+        "filename": "btb-c292330e-cmg-nopat-analysis-historical-and-projected-net-operating-profit-after-tax.xlsx",
+        "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\c292330e-d88f-4353-88fd-6b0f8b3b93c2\\evidence\\btb-xlsx-btb-c292330e-cmg-nopat-analysis-historical-and-projected-net-operating-profit-after-tax.xlsx",
         "extension": ".xlsx",
         "downloaded": true,
-        "bytes": 7002,
+        "bytes": 9536,
         "magic": "PK\\x03\\x04"
       },
       {
         "kind": "workbook",
-        "filename": "btb-c292330e-btb-c292330e-cmg-nopat-deliverable-package.xlsm",
-        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\c292330e-d88f-4353-88fd-6b0f8b3b93c2\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-c292330e-btb-c292330e-cmg-nopat-deliverable-package.xlsm",
+        "filename": "btb-c292330e-cmg-nopat-analysis-historical-and-projected-net-operating-profit-after-tax.xlsm",
+        "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\c292330e-d88f-4353-88fd-6b0f8b3b93c2\\evidence\\btb-xlsm-btb-c292330e-cmg-nopat-analysis-historical-and-projected-net-operating-profit-after-tax.xlsm",
         "extension": ".xlsm",
         "downloaded": true,
-        "bytes": 7002,
+        "bytes": 9536,
         "magic": "PK\\x03\\x04"
       },
       {
         "kind": "presentation",
-        "filename": "btb-c292330e-btb-c292330e-cmg-nopat-deliverable-package.pptx",
-        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\c292330e-d88f-4353-88fd-6b0f8b3b93c2\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-c292330e-btb-c292330e-cmg-nopat-deliverable-package.pptx",
+        "filename": "btb-c292330e-cmg-nopat-analysis-historical-and-projected-net-operating-profit-after-tax.pptx",
+        "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\c292330e-d88f-4353-88fd-6b0f8b3b93c2\\evidence\\btb-pptx-btb-c292330e-cmg-nopat-analysis-historical-and-projected-net-operating-profit-after-tax.pptx",
         "extension": ".pptx",
         "downloaded": true,
-        "bytes": 6290,
+        "bytes": 7073,
         "magic": "PK\\x03\\x04"
       },
       {
         "kind": "document",
-        "filename": "btb-c292330e-btb-c292330e-cmg-nopat-deliverable-package.docx",
-        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\c292330e-d88f-4353-88fd-6b0f8b3b93c2\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-c292330e-btb-c292330e-cmg-nopat-deliverable-package.docx",
+        "filename": "btb-c292330e-cmg-nopat-analysis-historical-and-projected-net-operating-profit-after-tax.docx",
+        "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\c292330e-d88f-4353-88fd-6b0f8b3b93c2\\evidence\\btb-docx-btb-c292330e-cmg-nopat-analysis-historical-and-projected-net-operating-profit-after-tax.docx",
         "extension": ".docx",
         "downloaded": true,
-        "bytes": 2269,
+        "bytes": 3495,
         "magic": "PK\\x03\\x04"
       },
       {
         "kind": "pdf",
-        "filename": "btb-c292330e-btb-c292330e-cmg-nopat-deliverable-package.pdf",
-        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\c292330e-d88f-4353-88fd-6b0f8b3b93c2\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-c292330e-btb-c292330e-cmg-nopat-deliverable-package.pdf",
+        "filename": "btb-c292330e-cmg-nopat-analysis-historical-and-projected-net-operating-profit-after-tax.pdf",
+        "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\c292330e-d88f-4353-88fd-6b0f8b3b93c2\\evidence\\btb-pdf-btb-c292330e-cmg-nopat-analysis-historical-and-projected-net-operating-profit-after-tax.pdf",
         "extension": ".pdf",
         "downloaded": true,
-        "bytes": 1316,
+        "bytes": 4408,
         "magic": "%PDF"
       }
     ],
     "reopenedFiles": [
       {
         "kind": "workbook",
-        "filename": "btb-c292330e-btb-c292330e-cmg-nopat-deliverable-package.xlsx",
+        "filename": "btb-c292330e-cmg-nopat-analysis-historical-and-projected-net-operating-profit-after-tax.xlsx",
         "reopened": true,
         "scorerResult": "pass",
-        "detail": "ZIP package contains xl/workbook.xml; placeholder/caveat content scan passed (840 chars)"
+        "detail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j9723pb51n2kt1kp8wya2hzv6589dhtz; placeholder/caveat content scan passed (4852 chars)"
       },
       {
         "kind": "workbook",
-        "filename": "btb-c292330e-btb-c292330e-cmg-nopat-deliverable-package.xlsm",
+        "filename": "btb-c292330e-cmg-nopat-analysis-historical-and-projected-net-operating-profit-after-tax.xlsm",
         "reopened": true,
         "scorerResult": "pass",
-        "detail": "ZIP package contains xl/workbook.xml; placeholder/caveat content scan passed (840 chars)"
+        "detail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j9750gqjeap5m8y7jj6ebwp5cs89dkn9; placeholder/caveat content scan passed (4852 chars)"
       },
       {
         "kind": "presentation",
-        "filename": "btb-c292330e-btb-c292330e-cmg-nopat-deliverable-package.pptx",
+        "filename": "btb-c292330e-cmg-nopat-analysis-historical-and-projected-net-operating-profit-after-tax.pptx",
         "reopened": true,
         "scorerResult": "pass",
-        "detail": "ZIP package contains ppt/presentation.xml; placeholder/caveat content scan passed (926 chars)"
+        "detail": "ZIP package contains ppt/presentation.xml; recovered from Convex room artifact j9788wjep3k11xqc37mhr38sks89cx3r; placeholder/caveat content scan passed (3182 chars)"
       },
       {
         "kind": "document",
-        "filename": "btb-c292330e-btb-c292330e-cmg-nopat-deliverable-package.docx",
+        "filename": "btb-c292330e-cmg-nopat-analysis-historical-and-projected-net-operating-profit-after-tax.docx",
         "reopened": true,
         "scorerResult": "pass",
-        "detail": "ZIP package contains word/document.xml; placeholder/caveat content scan passed (901 chars)"
+        "detail": "ZIP package contains word/document.xml; recovered from Convex room artifact j974nhr1akbs2g9e2f7f92v50n89dk86; placeholder/caveat content scan passed (5310 chars)"
       },
       {
         "kind": "pdf",
-        "filename": "btb-c292330e-btb-c292330e-cmg-nopat-deliverable-package.pdf",
+        "filename": "btb-c292330e-cmg-nopat-analysis-historical-and-projected-net-operating-profit-after-tax.pdf",
         "reopened": true,
         "scorerResult": "pass",
-        "detail": "PDF header reopened; placeholder/caveat content scan passed (2115 chars)"
+        "detail": "PDF header reopened; recovered from Convex room artifact j979g7xc7rkmfxbnp0967vmrgn89cvzw; placeholder/caveat content scan passed (8140 chars)"
       }
     ]
   },
@@ -165,7 +165,7 @@
     "score": 1,
     "details": {
       "verifierOutputTail": "\n> noderoom@0.1.1 benchmark:bankertoolbench:proof\n> tsx scripts/bankertoolbench-proof-check.ts\n\nBankerToolBench proof check passed: stage=1/1 weightedRubric=6 run=0/1 pass positive=1/1 pass candidateBeforeEvaluator=true leaks=0/2+0/3+0/4\n",
-      "packageManifestPath": "test-results\\bankertoolbench\\matrix\\c292330e-d88f-4353-88fd-6b0f8b3b93c2\\package-manifest.json",
+      "packageManifestPath": "docs\\eval\\fresh-room\\FR-020\\tasks\\c292330e-d88f-4353-88fd-6b0f8b3b93c2\\evidence\\package-manifest.json",
       "downloadedExtensions": [
         ".xlsx",
         ".xlsm",
@@ -173,10 +173,10 @@
         ".docx",
         ".pdf"
       ],
-      "exportSource": "browser_download_link",
+      "exportSource": "convex_room_artifact_data_url_after_browser_ui_proof",
       "agentTerminalQuality": {
-        "statusText": "completed via recovered Convex job: erable-package.xlsm, btb-c292330e-btb-c292330e-cmg-nopat-deliverable-package.pptx, btb-c292330e-btb-c292330e-cmg-nopat-deliverable-package.docx, btb-c292330e-btb-c292330e-cmg-nopat-deliverable-package.pdf. Coverage confirmed for CMG, NOPAT.",
-        "evidenceTextLength": 3081,
+        "statusText": "completed via recovered Convex job: it-after-tax.pptx, btb-c292330e-cmg-nopat-analysis-historical-and-projected-net-operating-profit-after-tax.docx, btb-c292330e-cmg-nopat-analysis-historical-and-projected-net-operating-profit-after-tax.pdf. Coverage confirmed for CMG, NOPAT.",
+        "evidenceTextLength": 1190,
         "detail": "agent reached completed status or visible completion text, with no missing-source/unfinished-work caveats"
       },
       "taskCoverage": {
@@ -186,13 +186,22 @@
           "NOPAT"
         ],
         "missingTickers": [],
-        "detail": "generated package mentions every requested ticker/entity: CMG, NOPAT"
+        "domainProof": {
+          "ok": true,
+          "domain": "generic",
+          "gates": [],
+          "missingGates": [],
+          "detail": "no task-specific domain proof gate required"
+        },
+        "detail": "generated package mentions every requested ticker/entity: CMG, NOPAT; no task-specific domain proof gate required"
       }
     }
   },
   "visualJudge": {
-    "verdict": "not_run",
-    "reason": "GOOGLE_GENERATIVE_AI_API_KEY is not set; deterministic browser/download/reopen/verifier proof passed."
+    "command": "npm run media:gemini-judge -- --run-id btb-full-20260626-chunk3 --out \"docs\\\\eval\\\\gemini-media-judges\\\\btb-full-20260626\\\\chunk3\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\07727295-e199-4039-a0ee-582af96749cf\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\129ab204-5e9f-414d-9951-94a11eda8785\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\1b181d77-ad4c-498a-b76e-c8503c05b7b7\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\205a3cb3-33b8-42ea-b50c-fe2dc1630208\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\4194bf8e-eede-480c-b012-b68ab71837c1\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\433c9e48-4b74-49a4-8d2b-d8c25f445c60\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\4e23ce4e-be6f-4d56-ab7b-2878a801a648\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\50f1b669-f6c3-453f-9d80-8aee2b1e01af\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\5d72295c-f640-4c78-b85a-6f338e46c02b\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\68259d37-5dd5-4c19-bafc-676246a479ea\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\6a2f5cf8-be91-4801-87b8-226f259369fb\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\7638f425-6102-4ab9-ae75-ba88c0b8fb8d\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\8182334a-2a3b-4607-91f3-59d5b94f5cb0\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\8e61629c-5c68-4ff4-b680-222b56b04f55\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\93c1e85c-7954-4464-8ff3-4c2c920cad89\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\98bdf8f3-98b7-4d62-ac39-5cee23623d83\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\aa3e4d0f-f456-423b-893b-9d4e88c64e74\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\b486dc21-d67e-4857-b2f9-b78c0e0222ce\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\bd2aa5d6-30cd-4b6f-875a-2c3626f56441\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\c292330e-d88f-4353-88fd-6b0f8b3b93c2\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\ceba18d0-5558-4637-be3a-a97121796201\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\df4c5a14-a6f9-4a56-ac8a-ad2562b50a7e\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\ed5ac3f0-a9c5-4daa-b97b-e5acc18ae423\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\f1c210d9-6357-4fad-828e-252e6f6d59d3\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\"",
+    "verdict": "pass",
+    "scorecardPath": "docs/eval/gemini-media-judges/btb-full-20260626/chunk3/btb-full-20260626-chunk3/summary.md",
+    "reason": "Gemini media judge publish (8/16); defects P0/P1/P2=0/0/1. The video demonstrates an automated end-to-end workflow where multiple financial Excel sheets and a task brief are uploaded, processed by an agent, and compiled into deliverables including a PDF report. Source clip: test-results\\bankertoolbench\\matrix\\c292330e-d88f-4353-88fd-6b0f8b3b93c2\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\video.webm."
   },
   "gatesProven": [
     "fresh_room_join",
@@ -210,7 +219,8 @@
     "deliverable_export_download",
     "artifact_reopen_validation",
     "artifact_placeholder_scan",
-    "official_scorer_handoff"
+    "official_scorer_handoff",
+    "visual_judge_handoff"
   ],
   "passed": true
 }

@@ -2,9 +2,9 @@
   "schema": 1,
   "taskId": "5f1e6f38-3380-43f4-a233-b758706985b7",
   "harborTaskId": "btb-5f1e6f38",
-  "generatedAt": "2026-06-25T02:25:58.752Z",
+  "generatedAt": "2026-06-26T01:11:56.931Z",
   "baseUrl": "http://127.0.0.1:5273",
-  "roomUrl": "http://127.0.0.1:5273/?room=NRXBEEZLRPW&name=Host",
+  "roomUrl": "http://127.0.0.1:5273/?room=NR6Z7ADIB5P&name=Host",
   "memoryMode": false,
   "expectedExtensions": [
     ".xlsx",
@@ -23,64 +23,64 @@
   "downloadedFiles": [
     {
       "kind": "workbook",
-      "filename": "btb-5f1e6f38-wacc-comparison-analysis-eni-galp-elpe-omv-rep-fcf.xlsx",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\5f1e6f38-3380-43f4-a233-b758706985b7\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-5f1e6f38-wacc-comparison-analysis-eni-galp-elpe-omv-rep-fcf.xlsx",
+      "filename": "btb-5f1e6f38-btb-5f1e6f38-wacc-deliverable-all-entities-eni-galp-elpe-omv-rep-fcf.xlsx",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\5f1e6f38-3380-43f4-a233-b758706985b7\\evidence\\btb-xlsx-btb-5f1e6f38-btb-5f1e6f38-wacc-deliverable-all-entities-eni-galp-elpe-omv-rep-fcf.xlsx",
       "extension": ".xlsx",
-      "bytes": 7736,
+      "bytes": 8314,
       "magic": "PK\\x03\\x04",
       "reopened": true,
       "reopenDetail": "ZIP package contains xl/workbook.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (1714 chars)"
+      "contentQualityDetail": "placeholder/caveat content scan passed (2956 chars)"
     },
     {
       "kind": "workbook",
-      "filename": "btb-5f1e6f38-wacc-comparison-analysis-eni-galp-elpe-omv-rep-fcf.xlsm",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\5f1e6f38-3380-43f4-a233-b758706985b7\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-5f1e6f38-wacc-comparison-analysis-eni-galp-elpe-omv-rep-fcf.xlsm",
+      "filename": "btb-5f1e6f38-btb-5f1e6f38-wacc-deliverable-all-entities-eni-galp-elpe-omv-rep-fcf.xlsm",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\5f1e6f38-3380-43f4-a233-b758706985b7\\evidence\\btb-xlsm-btb-5f1e6f38-btb-5f1e6f38-wacc-deliverable-all-entities-eni-galp-elpe-omv-rep-fcf.xlsm",
       "extension": ".xlsm",
-      "bytes": 7736,
+      "bytes": 8314,
       "magic": "PK\\x03\\x04",
       "reopened": true,
       "reopenDetail": "ZIP package contains xl/workbook.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (1714 chars)"
+      "contentQualityDetail": "placeholder/caveat content scan passed (2956 chars)"
     },
     {
       "kind": "presentation",
-      "filename": "btb-5f1e6f38-wacc-comparison-analysis-eni-galp-elpe-omv-rep-fcf.pptx",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\5f1e6f38-3380-43f4-a233-b758706985b7\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-5f1e6f38-wacc-comparison-analysis-eni-galp-elpe-omv-rep-fcf.pptx",
+      "filename": "btb-5f1e6f38-btb-5f1e6f38-wacc-deliverable-all-entities-eni-galp-elpe-omv-rep-fcf.pptx",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\5f1e6f38-3380-43f4-a233-b758706985b7\\evidence\\btb-pptx-btb-5f1e6f38-btb-5f1e6f38-wacc-deliverable-all-entities-eni-galp-elpe-omv-rep-fcf.pptx",
       "extension": ".pptx",
-      "bytes": 6563,
+      "bytes": 7233,
       "magic": "PK\\x03\\x04",
       "reopened": true,
       "reopenDetail": "ZIP package contains ppt/presentation.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (1641 chars)"
+      "contentQualityDetail": "placeholder/caveat content scan passed (3110 chars)"
     },
     {
       "kind": "document",
-      "filename": "btb-5f1e6f38-wacc-comparison-analysis-eni-galp-elpe-omv-rep-fcf.docx",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\5f1e6f38-3380-43f4-a233-b758706985b7\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-5f1e6f38-wacc-comparison-analysis-eni-galp-elpe-omv-rep-fcf.docx",
+      "filename": "btb-5f1e6f38-btb-5f1e6f38-wacc-deliverable-all-entities-eni-galp-elpe-omv-rep-fcf.docx",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\5f1e6f38-3380-43f4-a233-b758706985b7\\evidence\\btb-docx-btb-5f1e6f38-btb-5f1e6f38-wacc-deliverable-all-entities-eni-galp-elpe-omv-rep-fcf.docx",
       "extension": ".docx",
-      "bytes": 2753,
+      "bytes": 3315,
       "magic": "PK\\x03\\x04",
       "reopened": true,
       "reopenDetail": "ZIP package contains word/document.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (2721 chars)"
+      "contentQualityDetail": "placeholder/caveat content scan passed (3733 chars)"
     },
     {
       "kind": "pdf",
-      "filename": "btb-5f1e6f38-wacc-comparison-analysis-eni-galp-elpe-omv-rep-fcf.pdf",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\5f1e6f38-3380-43f4-a233-b758706985b7\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-5f1e6f38-wacc-comparison-analysis-eni-galp-elpe-omv-rep-fcf.pdf",
+      "filename": "btb-5f1e6f38-btb-5f1e6f38-wacc-deliverable-all-entities-eni-galp-elpe-omv-rep-fcf.pdf",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\5f1e6f38-3380-43f4-a233-b758706985b7\\evidence\\btb-pdf-btb-5f1e6f38-btb-5f1e6f38-wacc-deliverable-all-entities-eni-galp-elpe-omv-rep-fcf.pdf",
       "extension": ".pdf",
-      "bytes": 2370,
+      "bytes": 2472,
       "magic": "%PDF",
       "reopened": true,
       "reopenDetail": "PDF header reopened",
-      "contentQualityDetail": "placeholder/caveat content scan passed (4221 chars)"
+      "contentQualityDetail": "placeholder/caveat content scan passed (4346 chars)"
     }
   ],
-  "packageManifestPath": "test-results\\bankertoolbench\\matrix\\5f1e6f38-3380-43f4-a233-b758706985b7\\package-manifest.json",
+  "packageManifestPath": "docs\\eval\\fresh-room\\FR-020\\tasks\\5f1e6f38-3380-43f4-a233-b758706985b7\\evidence\\package-manifest.json",
   "verifierCommand": "npm run benchmark:bankertoolbench:proof",
   "verifierOutputTail": "\n> noderoom@0.1.1 benchmark:bankertoolbench:proof\n> tsx scripts/bankertoolbench-proof-check.ts\n\nBankerToolBench proof check passed: stage=1/1 weightedRubric=6 run=0/1 pass positive=1/1 pass candidateBeforeEvaluator=true leaks=0/2+0/3+0/4\n",
-  "screenshot": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\5f1e6f38-3380-43f4-a233-b758706985b7\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\bankertoolbench-live-room.png",
+  "screenshot": "docs\\eval\\fresh-room\\FR-020\\tasks\\5f1e6f38-3380-43f4-a233-b758706985b7\\evidence\\bankertoolbench-live-room.png",
   "passed": true,
   "gatesProven": [
     "fresh_room_join",

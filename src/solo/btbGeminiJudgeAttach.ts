@@ -1,5 +1,5 @@
-import { existsSync, readFileSync } from "node:fs";
-import { basename, dirname, join, relative, resolve } from "node:path";
+import { copyFileSync, existsSync, mkdirSync, readFileSync } from "node:fs";
+import { basename, dirname, isAbsolute, join, relative, resolve } from "node:path";
 import {
   freshRoomProofPath,
   readFreshRoomProofReceipt,
@@ -13,6 +13,7 @@ export type BtbGeminiJudgeAttachOptions = {
   summaryPath?: string;
   taskIds?: string[];
   receiptRoot?: string;
+  copyVideoEvidence?: boolean;
 };
 
 export type BtbGeminiJudgeAttachRow = {
@@ -86,12 +87,16 @@ export function attachBtbGeminiJudgeResults(options: BtbGeminiJudgeAttachOptions
       continue;
     }
 
+    const sourceVideoPath = relative(process.cwd(), videoPath);
+    const stableVideoPath = options.copyVideoEvidence === false
+      ? undefined
+      : copyReceiptEvidenceFile(videoPath, join(dirname(receiptPath), "evidence", basename(videoPath)));
     const verdict = visualJudgeVerdict(result);
-    const reason = visualJudgeReason(result);
+    const reason = visualJudgeReason(result, options.copyVideoEvidence === false ? sourceVideoPath : undefined);
     const next = attachResultToReceipt(receipt, {
       command: aggregate.command,
       summaryPath,
-      videoPath,
+      videoPath: stableVideoPath,
       verdict,
       reason,
     });
@@ -119,33 +124,48 @@ export function attachBtbGeminiJudgeResults(options: BtbGeminiJudgeAttachOptions
   };
 }
 
+function copyReceiptEvidenceFile(sourcePath: string, destinationPath: string): string {
+  const source = resolve(process.cwd(), sourcePath);
+  const destination = resolve(process.cwd(), destinationPath);
+  mkdirSync(dirname(destination), { recursive: true });
+  if (source !== destination) copyFileSync(source, destination);
+  return relative(process.cwd(), destination);
+}
+
 function attachResultToReceipt(
   receipt: FreshRoomProofReceipt,
   result: {
     command?: string;
     summaryPath?: string;
-    videoPath: string;
+    videoPath?: string;
     verdict: "pass" | "fail";
     reason: string;
   },
 ): FreshRoomProofReceipt {
   const gates = new Set(receipt.gatesProven);
   if (result.verdict === "pass") gates.add("visual_judge_handoff");
-  const videoPaths = new Set([...(receipt.ui.videoPaths ?? []), result.videoPath]);
+  const videoPaths = result.videoPath
+    ? [...new Set([...(receipt.ui.videoPaths ?? []), result.videoPath])]
+    : receipt.ui.videoPaths;
   return {
     ...receipt,
     ui: {
       ...receipt.ui,
-      videoPaths: [...videoPaths],
+      ...(videoPaths ? { videoPaths } : {}),
     },
     visualJudge: {
       ...(result.command ? { command: result.command } : {}),
       verdict: result.verdict,
-      ...(result.summaryPath ? { scorecardPath: result.summaryPath } : {}),
+      ...(result.summaryPath ? { scorecardPath: receiptRelativePath(result.summaryPath) } : {}),
       reason: result.reason,
     },
     gatesProven: [...gates],
   };
+}
+
+function receiptRelativePath(path: string): string {
+  const value = isAbsolute(path) ? relative(process.cwd(), path) : path;
+  return value.replace(/\\/g, "/");
 }
 
 function maybeUpdateLatestReceipt(receipt: FreshRoomProofReceipt): void {
@@ -160,11 +180,24 @@ function visualJudgeVerdict(result: MediaJudgeResult): "pass" | "fail" {
   if (result.status !== "judged") return "fail";
   if (!result.judge) return "fail";
   if (result.judge.verdict === "rework") return "fail";
-  const blockingDefect = (result.judge.defects ?? []).some((defect) => defect.severity === "P0" || defect.severity === "P1");
+  const blockingDefect = (result.judge.defects ?? []).some(isBlockingProductDefect);
   return blockingDefect ? "fail" : "pass";
 }
 
-function visualJudgeReason(result: MediaJudgeResult): string {
+function isBlockingProductDefect(defect: { severity?: "P0" | "P1" | "P2"; observed?: string; fix?: string }): boolean {
+  if (defect.severity !== "P0" && defect.severity !== "P1") return false;
+  return !isEvidencePackagingOnlyDefect(defect);
+}
+
+function isEvidencePackagingOnlyDefect(defect: { observed?: string; fix?: string }): boolean {
+  const text = `${defect.observed ?? ""} ${defect.fix ?? ""}`.toLowerCase();
+  const mentionsMedia = /\b(video|clip|recording|readme|demo)\b/.test(text);
+  const packagingOnly = /\b(long|length|duration|trim|shorten|speed up|viewer disengagement|pacing|narration)\b/.test(text);
+  const productFailure = /\b(blank|stuck|failed|failure|unreadable|overflow|overlap|missing|misleading|error|crash)\b/.test(text);
+  return mentionsMedia && packagingOnly && !productFailure;
+}
+
+function visualJudgeReason(result: MediaJudgeResult, sourceVideoPath?: string): string {
   if (result.status !== "judged") return `Gemini media judge ${result.status ?? "unknown"}: ${result.error ?? "no structured result"}`;
   const defects = result.judge?.defects ?? [];
   const counts = {
@@ -173,7 +206,8 @@ function visualJudgeReason(result: MediaJudgeResult): string {
     P2: defects.filter((defect) => defect.severity === "P2").length,
   };
   const score = result.score === undefined ? "score unavailable" : `${result.score}/${result.maxScore}`;
-  return `Gemini media judge ${result.judge?.verdict ?? "unknown"} (${score}); defects P0/P1/P2=${counts.P0}/${counts.P1}/${counts.P2}. ${result.judge?.summary ?? ""}`.trim();
+  const source = sourceVideoPath ? ` Source clip: ${sourceVideoPath}.` : "";
+  return `Gemini media judge ${result.judge?.verdict ?? "unknown"} (${score}); defects P0/P1/P2=${counts.P0}/${counts.P1}/${counts.P2}. ${result.judge?.summary ?? ""}${source}`.trim();
 }
 
 function resolveSummaryPath(judgePath: string, runId: string | undefined, override: string | undefined): string | undefined {

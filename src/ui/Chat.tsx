@@ -199,6 +199,10 @@ function showInAgentOperationStream(op: OperationStreamRow): boolean {
 }
 function previewStreamValue(value: unknown): string {
   if (value === undefined || value === null || value === "") return "";
+  if (typeof value === "string") {
+    const friendlyFailure = humanAgentFailureText(value);
+    if (friendlyFailure !== value.trim()) return truncateAgentPreview(friendlyFailure);
+  }
   const friendly = friendlyStreamPreview(value);
   if (friendly) return friendly;
   const text = typeof value === "string" ? value : JSON.stringify(value);
@@ -207,7 +211,23 @@ function previewStreamValue(value: unknown): string {
     .replace(/[{}[\]"]/g, "")
     .replace(/\s+/g, " ")
     .trim();
-  return cleaned.length > 96 ? `${cleaned.slice(0, 96)}...` : cleaned;
+  return truncateAgentPreview(cleaned);
+}
+
+function truncateAgentPreview(text: string): string {
+  return text.length > 96 ? `${text.slice(0, 96)}...` : text;
+}
+
+function humanAgentFailureText(text: string): string {
+  const normalized = text.replace(/\s+/g, " ").trim();
+  if (!normalized) return "";
+  if (/tool_required_no_call_terminal|provider returned no tool call for \d+ required tool-use turns/i.test(normalized)) {
+    return "Required tool call missing. NodeAgent checkpointed the trace and will resume with the required tool forced.";
+  }
+  if (/provider_egress_blocked:free_file_egress_requires_OPENROUTER_FREE_ALLOW_FILE_EGRESS/i.test(normalized)) {
+    return "Provider blocked file egress for this free OpenRouter model. Use a route with file egress enabled or the local parser lane.";
+  }
+  return normalized;
 }
 
 function friendlyStreamPreview(value: unknown): string {
@@ -313,38 +333,56 @@ function agentPartPreview(part: Exclude<AgentStreamPart, { type: "text" }>): str
   if (part.type === "step-start") return "";
   if (isToolStreamPart(part)) return previewStreamValue(part.output ?? part.input ?? part.error);
   if (part.type === "data-artifact") return part.title;
-  return part.text || part.error || "";
+  return part.text || (part.error ? humanAgentFailureText(part.error) : "");
+}
+
+function agentPartPayload(part: Exclude<AgentStreamPart, { type: "text" }>): string {
+  const payload: Record<string, unknown> = { type: part.type, state: part.state };
+  if ("step" in part && typeof part.step === "number") payload.step = part.step + 1;
+  if ("status" in part && part.status) payload.status = part.status;
+  if ("toolName" in part) payload.toolName = part.toolName;
+  if ("toolCallId" in part) payload.toolCallId = part.toolCallId;
+  if ("input" in part && part.input !== undefined) payload.input = part.input;
+  if ("output" in part && part.output !== undefined) payload.output = parseStreamPreviewJson(part.output);
+  if ("text" in part && part.text) payload.text = part.text;
+  if ("error" in part && part.error) payload.error = humanAgentFailureText(part.error);
+  if ("metadata" in part && part.metadata) payload.metadata = part.metadata;
+  if ("ms" in part && part.ms !== undefined) payload.ms = part.ms;
+  return JSON.stringify(payload, null, 2);
+}
+
+function agentPartSummary(
+  part: Exclude<AgentStreamPart, { type: "text" }>,
+  index: number,
+  icon: ReactNode,
+  status: string,
+  badge: string,
+  label: string,
+  preview: string,
+): ReactNode {
+  return (
+    <details className="r-agent-part" key={`part-${part.type}-${index}`} data-part={part.type} data-status={status}>
+      <summary>
+        {icon}<b>{badge}</b><span>{label}</span>{preview && <em>{preview}</em>}
+      </summary>
+      <pre className="r-agent-part-payload">{agentPartPayload(part)}</pre>
+    </details>
+  );
 }
 
 function renderRawAgentPart(part: Exclude<AgentStreamPart, { type: "text" }>, index: number): ReactNode {
   if (part.type === "step-start") {
-    return (
-      <div className="r-agent-part step" key={`step-${part.step}-${index}`} data-part="step" data-status={part.state}>
-        <ListChecks size={12} /><b>step {part.step + 1}</b><span>{part.title}</span>
-      </div>
-    );
+    return agentPartSummary(part, index, <ListChecks size={12} />, part.state, `step ${part.step + 1}`, part.title, "");
   }
   if (isToolStreamPart(part)) {
     const state = toolStateLabel(part);
     const preview = previewStreamValue(part.output ?? part.input ?? part.error);
-    return (
-      <div className="r-agent-part tool" key={`${part.toolCallId}-${index}`} data-part="tool" data-status={state}>
-        <Database size={12} /><b>{state}</b><span>{part.toolName}</span>{preview && <em>{preview}</em>}
-      </div>
-    );
+    return agentPartSummary(part, index, <Database size={12} />, state, state, part.toolName, preview);
   }
   if (part.type === "data-artifact") {
-    return (
-      <div className="r-agent-part artifact" key={`artifact-${index}`} data-part="artifact" data-status={part.state}>
-        <Paperclip size={12} /><b>{part.state}</b><span>{part.title}</span>
-      </div>
-    );
+    return agentPartSummary(part, index, <Paperclip size={12} />, part.state, part.state, part.title, "");
   }
-  return (
-    <div className="r-agent-part notice" key={`notice-${index}`} data-part="notice" data-status={part.state}>
-      <ShieldCheck size={12} /><b>{part.state}</b><span>{part.title}</span>{(part.text || part.error) && <em>{part.text || part.error}</em>}
-    </div>
-  );
+  return agentPartSummary(part, index, <ShieldCheck size={12} />, part.state, part.state, part.title, part.text || (part.error ? humanAgentFailureText(part.error) : ""));
 }
 
 type AgentProgressRow = {

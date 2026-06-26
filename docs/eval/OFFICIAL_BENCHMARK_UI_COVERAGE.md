@@ -1,6 +1,6 @@
 # Official Benchmark UI Coverage
 
-Generated: 2026-06-24T09:37:24.351Z
+Generated: 2026-06-26T03:31:22.564Z
 
 This ledger answers the live-browser question directly: has NodeRoom driven official benchmark tasks through a fresh room, public @nodeagent chat, UI upload/export, downloaded artifacts, and scorer/verifier handoff?
 
@@ -47,7 +47,7 @@ This ledger answers the live-browser question directly: has NodeRoom driven offi
 
 | Track | Status | Required Deliverables | Live-Browser Deliverables | Required Spec | Blockers |
 |---|---:|---|---|---|---|
-| `bankertoolbench` | covered | `workbook`, `presentation`, `document`, `pdf` | `workbook`, `presentation`, `document`, `pdf` | `e2e/benchmark-ui-bankertoolbench.spec.ts` | Live-browser fresh-room BTB run PASSED for task 707cba99-59a7-47bd-bc4d-7f36212e99f3 with .xlsx, .xlsm, .pptx, .docx, .pdf downloaded and reopened; proof: docs/eval/fresh-room/FR-020/latest.json; Gemini visual judge not run: GOOGLE_GENERATIVE_AI_API_KEY is not set; deterministic browser/download/reopen/verifier proof passed |
+| `bankertoolbench` | covered | `workbook`, `presentation`, `document`, `pdf` | `workbook`, `presentation`, `document`, `pdf` | `e2e/benchmark-ui-bankertoolbench.spec.ts` | Live-browser fresh-room BTB run PASSED for task a31173e3-e8aa-4ddb-b0d9-e4e7055c950b with .xlsx, .xlsm, .pptx, .docx, .pdf downloaded and reopened; proof: docs/eval/fresh-room/FR-020/latest.json; Gemini visual judge passed; scorecard: docs/eval/gemini-media-judges/btb-a31173e3-qwen-fresh-domain-proof-after-pdf-storage-fix-20260625/summary.md; Gemini media judge publish (8/16); defects P0/P1/P2=0/0/0. The video demonstrates NodeAgent executing a DCF SOTP valuation for Alphabet Inc. inside NodeRoom, covering room creation, document uploads, live agent execution with trace logs, and final artifact generation |
 | `spreadsheetbench-v1` | covered | `workbook` | `workbook` | `e2e/benchmark-ui-spreadsheetbench.spec.ts` | Live-browser fresh-room run PASSED via file-export grading (gradeGolden score 1, 5/5 cells, 0 fabrications); proof: docs/eval/spreadsheetbench-live-room-proof.json |
 | `spreadsheetbench-v2` | missing | `workbook` | none | `e2e/benchmark-ui-spreadsheetbench.spec.ts` | No fresh live room V2 workflow uploads official workbooks and exports the edited workbook package from the browser; Rendered chart screenshots and VLM/chart grading are not attached to a browser-run artifact package; Missing live-browser fresh-room proof for deliverables: workbook (no sheet->.xlsx export in the live room) |
 
@@ -58,15 +58,15 @@ This ledger answers the live-browser question directly: has NodeRoom driven offi
 
 | Gate | Status | Evidence / blocker |
 |---|---:|---|
-| `fresh_room_join` | covered | `e2e/benchmark-ui-bankertoolbench.spec.ts (proof: docs/eval/fresh-room/FR-020/latest.json, room NR02W182PJ7)` |
-| `official_fixture_upload` | covered | `e2e/benchmark-ui-bankertoolbench.spec.ts (proof: docs/eval/fresh-room/FR-020/latest.json, room NR02W182PJ7)` |
-| `public_nodeagent_invocation` | covered | `e2e/benchmark-ui-bankertoolbench.spec.ts (proof: docs/eval/fresh-room/FR-020/latest.json, room NR02W182PJ7)` |
-| `visible_streaming_progress` | covered | `e2e/benchmark-ui-bankertoolbench.spec.ts (proof: docs/eval/fresh-room/FR-020/latest.json, room NR02W182PJ7); model z-ai/glm-5.2, 32 tool calls, $0.737` |
-| `deliverable_export_download` | covered | `e2e/benchmark-ui-bankertoolbench.spec.ts (proof: docs/eval/fresh-room/FR-020/latest.json, room NR02W182PJ7); downloaded .xlsx, .xlsm, .pptx, .docx, .pdf` |
-| `artifact_reopen_validation` | covered | `e2e/benchmark-ui-bankertoolbench.spec.ts (proof: docs/eval/fresh-room/FR-020/latest.json, room NR02W182PJ7); reopened OOXML/PDF package files before scoring` |
+| `fresh_room_join` | covered | `e2e/benchmark-ui-bankertoolbench.spec.ts (proof: docs/eval/fresh-room/FR-020/latest.json, room NRNNNQC2IO9)` |
+| `official_fixture_upload` | covered | `e2e/benchmark-ui-bankertoolbench.spec.ts (proof: docs/eval/fresh-room/FR-020/latest.json, room NRNNNQC2IO9)` |
+| `public_nodeagent_invocation` | covered | `e2e/benchmark-ui-bankertoolbench.spec.ts (proof: docs/eval/fresh-room/FR-020/latest.json, room NRNNNQC2IO9)` |
+| `visible_streaming_progress` | covered | `e2e/benchmark-ui-bankertoolbench.spec.ts (proof: docs/eval/fresh-room/FR-020/latest.json, room NRNNNQC2IO9); model qwen/qwen3.7-plus; runtime benchmark_completion; job detail visible; room trace visible; agent live loop proven` |
+| `deliverable_export_download` | covered | `e2e/benchmark-ui-bankertoolbench.spec.ts (proof: docs/eval/fresh-room/FR-020/latest.json, room NRNNNQC2IO9); downloaded .xlsx, .xlsm, .pptx, .docx, .pdf` |
+| `artifact_reopen_validation` | covered | `e2e/benchmark-ui-bankertoolbench.spec.ts (proof: docs/eval/fresh-room/FR-020/latest.json, room NRNNNQC2IO9); reopened OOXML/PDF package files before scoring` |
 | `official_scorer_handoff` | covered | `BankerToolBench proof verifier (npm run benchmark:bankertoolbench:proof)` |
-| `trace_video_artifacts` | covered | `test-results/.playwright-artifacts-0/traces/c09930d7af9fc8eb9cbc-3f361d871185e746892f.trace` |
-| `no_memory_mode_shortcut` | covered | `e2e/benchmark-ui-bankertoolbench.spec.ts (proof: docs/eval/fresh-room/FR-020/latest.json, room NR02W182PJ7)` |
+| `trace_video_artifacts` | covered | `docs/eval/bankertoolbench/live-room/a31173e3-e8aa-4ddb-b0d9-e4e7055c950b.json` |
+| `no_memory_mode_shortcut` | covered | `e2e/benchmark-ui-bankertoolbench.spec.ts (proof: docs/eval/fresh-room/FR-020/latest.json, room NRNNNQC2IO9)` |
 
 ### SpreadsheetBench V1 live browser workbook run
 

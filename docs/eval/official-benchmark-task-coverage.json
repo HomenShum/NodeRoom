@@ -1,14 +1,14 @@
 {
   "schema": 1,
-  "generatedAt": "2026-06-13T21:50:23.370Z",
+  "generatedAt": "2026-06-26T03:50:37.551Z",
   "summary": {
     "tracks": 5,
     "completeTracks": 1,
     "partialTracks": 3,
     "missingTracks": 1,
-    "totalOfficialExpectedTasks": 1738,
-    "totalStagedTasks": 409,
-    "totalDeterministicRunTasks": 408,
+    "totalOfficialExpectedTasks": 1739,
+    "totalStagedTasks": 410,
+    "totalDeterministicRunTasks": 409,
     "totalModelRunCases": 7,
     "totalModelRunAttempts": 19,
     "strictFullCoverageReady": false
@@ -144,15 +144,15 @@
       "id": "noderoom-multi-user-conflict",
       "title": "NodeRoom multi-user conflict suite",
       "benchmark": "NodeRoom",
-      "officialExpectedTasks": 5,
+      "officialExpectedTasks": 6,
       "officialSourceUrls": [
         "evals/multiUserCoordinationProof.ts"
       ],
       "localScope": "internal deterministic conflict suite",
-      "scannedTasks": 5,
-      "stagedTasks": 5,
+      "scannedTasks": 6,
+      "stagedTasks": 6,
       "skippedTasks": 0,
-      "deterministicRunTasks": 5,
+      "deterministicRunTasks": 6,
       "modelRunCases": 0,
       "modelRunAttempts": 0,
       "passRate": 1,

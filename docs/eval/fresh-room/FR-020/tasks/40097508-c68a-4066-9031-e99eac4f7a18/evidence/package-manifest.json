@@ -1,0 +1,65 @@
+{
+  "schema": 1,
+  "taskId": "40097508-c68a-4066-9031-e99eac4f7a18",
+  "harborTaskId": "btb-40097508",
+  "generatedAt": "2026-06-26T00:53:45.084Z",
+  "baseUrl": "http://127.0.0.1:5273",
+  "roomUrl": "http://127.0.0.1:5273/?room=NRWLL9MUMPI&name=Host",
+  "downloadedFiles": [
+    {
+      "kind": "workbook",
+      "filename": "btb-40097508-wacc-components-industry-betas-and-equity-risk-premium.xlsx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\40097508-c68a-4066-9031-e99eac4f7a18\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-40097508-wacc-components-industry-betas-and-equity-risk-premium.xlsx",
+      "extension": ".xlsx",
+      "bytes": 7208,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (1032 chars)"
+    },
+    {
+      "kind": "workbook",
+      "filename": "btb-40097508-wacc-components-industry-betas-and-equity-risk-premium.xlsm",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\40097508-c68a-4066-9031-e99eac4f7a18\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-40097508-wacc-components-industry-betas-and-equity-risk-premium.xlsm",
+      "extension": ".xlsm",
+      "bytes": 7208,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (1032 chars)"
+    },
+    {
+      "kind": "presentation",
+      "filename": "btb-40097508-wacc-components-industry-betas-and-equity-risk-premium.pptx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\40097508-c68a-4066-9031-e99eac4f7a18\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-40097508-wacc-components-industry-betas-and-equity-risk-premium.pptx",
+      "extension": ".pptx",
+      "bytes": 6339,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains ppt/presentation.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (1207 chars)"
+    },
+    {
+      "kind": "document",
+      "filename": "btb-40097508-wacc-components-industry-betas-and-equity-risk-premium.docx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\40097508-c68a-4066-9031-e99eac4f7a18\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-40097508-wacc-components-industry-betas-and-equity-risk-premium.docx",
+      "extension": ".docx",
+      "bytes": 2352,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains word/document.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (1454 chars)"
+    },
+    {
+      "kind": "pdf",
+      "filename": "btb-40097508-wacc-components-industry-betas-and-equity-risk-premium.pdf",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\40097508-c68a-4066-9031-e99eac4f7a18\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-40097508-wacc-components-industry-betas-and-equity-risk-premium.pdf",
+      "extension": ".pdf",
+      "bytes": 2182,
+      "magic": "%PDF",
+      "reopened": true,
+      "reopenDetail": "PDF header reopened",
+      "contentQualityDetail": "placeholder/caveat content scan passed (3812 chars)"
+    }
+  ]
+}

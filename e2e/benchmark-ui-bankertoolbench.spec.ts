@@ -18,8 +18,8 @@
  */
 import { test, expect, type Page } from "@playwright/test";
 import { execFileSync, execSync } from "node:child_process";
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { basename, dirname, join, resolve } from "node:path";
+import { copyFileSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { basename, dirname, isAbsolute, join, relative, resolve } from "node:path";
 import JSZip from "jszip";
 import { scanBankerToolBenchBundle, type BankerToolBenchTask } from "../src/eval/bankerToolBenchAdapter";
 import { assertBtbTaskCoverage, inferOfficialBtbTickers, type BtbTaskCoverageResult } from "../src/eval/btbTaskCoverage";
@@ -173,6 +173,12 @@ test("BankerToolBench fresh-room contract: upload task inputs -> @nodeagent -> p
   const screenshotPath = testInfo.outputPath("bankertoolbench-live-room.png");
   await page.screenshot({ path: screenshotPath, fullPage: false, timeout: 30_000 });
   await testInfo.attach("bankertoolbench-live-room", { path: screenshotPath, contentType: "image/png" });
+  const stableEvidence = persistTaskEvidence({
+    taskId: loaded.task.id,
+    screenshotPath,
+    downloadedFiles,
+    packageManifestPath,
+  });
 
   const verifierOutput = runVerifier();
   const generatedAt = new Date().toISOString();
@@ -186,7 +192,7 @@ test("BankerToolBench fresh-room contract: upload task inputs -> @nodeagent -> p
     memoryMode: false,
     expectedExtensions: REQUIRED_EXTENSIONS,
     visibleExtensions: downloadedFiles.map((file) => file.extension),
-    downloadedFiles: downloadedFiles.map(({ kind, filename, path, extension, bytes, magic, reopened, reopenDetail, contentQualityDetail }) => ({
+    downloadedFiles: stableEvidence.downloadedFiles.map(({ kind, filename, path, extension, bytes, magic, reopened, reopenDetail, contentQualityDetail }) => ({
       kind,
       filename,
       path,
@@ -197,10 +203,10 @@ test("BankerToolBench fresh-room contract: upload task inputs -> @nodeagent -> p
       reopenDetail,
       contentQualityDetail,
     })),
-    packageManifestPath,
+    packageManifestPath: stableEvidence.packageManifestPath,
     verifierCommand: VERIFIER_COMMAND!,
     verifierOutputTail: verifierOutput.slice(-4000),
-    screenshot: screenshotPath,
+    screenshot: stableEvidence.screenshotPath,
     passed: true,
     gatesProven: [
       "fresh_room_join",
@@ -240,7 +246,7 @@ test("BankerToolBench fresh-room contract: upload task inputs -> @nodeagent -> p
     freshness: {
       roomCreatedAfterRunStart: recoveryMode ? process.env.BTB_RECOVER_FRESH_ROOM !== "0" : true,
       forbiddenPreloadedArtifactsAbsent: true,
-      artifactsCreatedFresh: downloadedFiles.map((file) => file.filename),
+      artifactsCreatedFresh: stableEvidence.downloadedFiles.map((file) => file.filename),
       uploadedFiles: uploadedBasenames,
     },
     ui: {
@@ -249,13 +255,13 @@ test("BankerToolBench fresh-room contract: upload task inputs -> @nodeagent -> p
       streamingVisible: proofSurfaces.streamingVisible,
       jobDetailVisible: proofSurfaces.jobDetailVisible,
       roomTraceVisible: proofSurfaces.roomTraceVisible,
-      screenshotPaths: [screenshotPath],
+      screenshotPaths: [stableEvidence.screenshotPath],
       tracePath: RECOVER_TRACE_PATH ?? PROOF_PATH,
     },
     artifacts: {
       uploadedFiles: uploadedBasenames,
-      created: downloadedFiles.map((file) => file.filename),
-      exportedFiles: downloadedFiles.map((file) => ({
+      created: stableEvidence.downloadedFiles.map((file) => file.filename),
+      exportedFiles: stableEvidence.downloadedFiles.map((file) => ({
         kind: file.kind,
         filename: file.filename,
         path: file.path,
@@ -264,7 +270,7 @@ test("BankerToolBench fresh-room contract: upload task inputs -> @nodeagent -> p
         bytes: file.bytes,
         magic: file.magic,
       })),
-      reopenedFiles: downloadedFiles.map((file) => ({
+      reopenedFiles: stableEvidence.downloadedFiles.map((file) => ({
         kind: file.kind,
         filename: file.filename,
         reopened: file.reopened,
@@ -279,8 +285,8 @@ test("BankerToolBench fresh-room contract: upload task inputs -> @nodeagent -> p
       score: 1,
       details: {
         verifierOutputTail: verifierOutput.slice(-4000),
-        packageManifestPath,
-        downloadedExtensions: downloadedFiles.map((file) => file.extension),
+        packageManifestPath: stableEvidence.packageManifestPath,
+        downloadedExtensions: stableEvidence.downloadedFiles.map((file) => file.extension),
         exportSource: packageResult.exportSource,
         agentTerminalQuality,
         taskCoverage,
@@ -1264,6 +1270,25 @@ const BTB_PLACEHOLDER_CONTENT_PATTERNS: Array<{ code: string; pattern: RegExp }>
   { code: "harness_fallback", pattern: /\b(harness[- ]enforced|fallback_package|agent_work_summary)\b/i },
 ];
 
+const BTB_PLACEHOLDER_FILENAME_TOKENS = new Set(["test", "temp", "demo", "sample", "dummy", "foo", "bar", "lorem", "ipsum"]);
+const BTB_FILENAME_FILLER_TOKENS = new Set([
+  "btb",
+  "package",
+  "packages",
+  "deliverable",
+  "deliverables",
+  "artifact",
+  "artifacts",
+  "final",
+  "output",
+  "xlsx",
+  "xlsm",
+  "pptx",
+  "docx",
+  "pdf",
+  "json",
+]);
+
 const BTB_AGENT_COMPLETION_CAVEAT_PATTERNS: Array<{ code: string; pattern: RegExp }> = [
   { code: "unfinished_continue", pattern: /\b(let me|i will|i'll|need to|needs to|still need to)\s+(continue|read|gather|find|calculate|extract|build|work)\b/i },
   { code: "unfinished_remaining", pattern: /\b(continue reading|continue analyzing|remaining work|not yet complete|still working|next step is)\b/i },
@@ -1276,15 +1301,33 @@ async function assertDownloadedBtbContentQuality(
   bytes: Buffer,
 ): Promise<{ ok: true; detail: string }> {
   const text = normalizeArtifactText(await extractDownloadedBtbText(extension, bytes));
-  const findings = BTB_PLACEHOLDER_CONTENT_PATTERNS
+  const findings = [
+    ...btbPlaceholderFilenameFindings(filename),
+    ...BTB_PLACEHOLDER_CONTENT_PATTERNS
     .filter(({ pattern }) => pattern.test(text))
-    .map(({ code }) => code);
+      .map(({ code }) => code),
+  ];
   if (findings.length) {
     throw new Error(
       `generated BTB artifact ${filename} contains placeholder/caveat content: ${[...new Set(findings)].join(", ")}`,
     );
   }
   return { ok: true, detail: `placeholder/caveat content scan passed (${text.length} chars)` };
+}
+
+function btbPlaceholderFilenameFindings(filename: string): string[] {
+  const basename = filename.replace(/\.[^.]+$/u, "").toLowerCase();
+  if (/^btb-[a-f0-9]{6,}-(?:test|temp|demo|sample|dummy)(?:-|$)/i.test(basename)) return ["generic_filename"];
+  const meaningfulTokens = basename
+    .split(/[^a-z0-9]+/i)
+    .filter(Boolean)
+    .filter((token) => !BTB_FILENAME_FILLER_TOKENS.has(token))
+    .filter((token) => !/^[a-f0-9]{6,}$/i.test(token))
+    .filter((token) => !/^\d+$/.test(token));
+  if (!meaningfulTokens.length) return ["generic_filename"];
+  return meaningfulTokens.every((token) => BTB_PLACEHOLDER_FILENAME_TOKENS.has(token))
+    ? ["generic_filename"]
+    : [];
 }
 
 async function extractDownloadedBtbText(extension: RequiredExtension, bytes: Buffer): Promise<string> {
@@ -1351,6 +1394,56 @@ function writePackageManifest(value: {
     })),
   }, null, 2)}\n`);
   return PACKAGE_MANIFEST_PATH;
+}
+
+function persistTaskEvidence(args: {
+  taskId: string;
+  screenshotPath: string;
+  downloadedFiles: DownloadedBtbFile[];
+  packageManifestPath: string;
+}): {
+  screenshotPath: string;
+  downloadedFiles: DownloadedBtbFile[];
+  packageManifestPath: string;
+} {
+  const evidenceRoot = taskEvidenceRoot(args.taskId);
+  const evidenceRootAbs = resolve(process.cwd(), evidenceRoot);
+  const sourcePaths = [args.screenshotPath, args.packageManifestPath, ...args.downloadedFiles.map((file) => file.path)]
+    .map((path) => resolve(process.cwd(), path));
+  if (sourcePaths.every((sourcePath) => !isInsidePath(evidenceRootAbs, sourcePath))) {
+    rmSync(evidenceRootAbs, { recursive: true, force: true });
+  }
+  mkdirSync(evidenceRootAbs, { recursive: true });
+  return {
+    screenshotPath: copyEvidenceFile(args.screenshotPath, join(evidenceRoot, "bankertoolbench-live-room.png")),
+    packageManifestPath: copyEvidenceFile(args.packageManifestPath, join(evidenceRoot, "package-manifest.json")),
+    downloadedFiles: args.downloadedFiles.map((file) => ({
+      ...file,
+      path: copyEvidenceFile(file.path, join(evidenceRoot, basename(file.path))),
+    })),
+  };
+}
+
+function isInsidePath(parentPath: string, candidatePath: string): boolean {
+  const child = relative(parentPath, candidatePath);
+  return child === "" || (!!child && !child.startsWith("..") && !isAbsolute(child));
+}
+
+function taskEvidenceRoot(taskId: string): string {
+  const receiptPath = FRESH_PROOF_PATH ?? join("docs", "eval", "fresh-room", FRESH_PROOF_CASE_ID, "tasks", safeTaskPathSegment(taskId), "latest.json");
+  return join(dirname(receiptPath), "evidence");
+}
+
+function copyEvidenceFile(sourcePath: string, destinationPath: string): string {
+  const source = resolve(process.cwd(), sourcePath);
+  const destination = resolve(process.cwd(), destinationPath);
+  mkdirSync(dirname(destination), { recursive: true });
+  if (source !== destination) copyFileSync(source, destination);
+  return relative(process.cwd(), destination);
+}
+
+function safeTaskPathSegment(value: string): string {
+  return value.replace(/[^A-Za-z0-9_.-]+/g, "_").slice(0, 160);
 }
 
 function magicFor(bytes: Buffer): string {

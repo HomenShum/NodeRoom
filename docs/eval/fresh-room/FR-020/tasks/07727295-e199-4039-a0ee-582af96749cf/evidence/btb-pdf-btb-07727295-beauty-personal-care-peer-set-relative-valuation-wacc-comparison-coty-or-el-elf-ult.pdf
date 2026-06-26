@@ -1,0 +1,100 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+5 0 obj
+<< /Length 5178 >>
+stream
+BT /F1 11 Tf 54 760 Td (Beauty & Personal Care Peer Set – Relative Valuation & WACC Comparison \(COTY, OR, EL, ELF, ULTA\)) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(This package presents a multi-company relative valuation and WACC comparison across five beauty & personal care companies: Coty Inc. \(COTY\), L'Oréal \(OR\), Estée Lauder \(EL\), e.l.f. Beauty \(ELF\), and Ulta Beauty \) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(Rows: 28) Tj
+0 -16 Td
+(COTY – WACC — Ticker: COTY · Metric: WACC \(%\) · Value: 10.5 · Beta Source: Personal Products industry beta · ERP Source: Implied ERP workbook · Notes: Higher leverage and beta drive elevated WACC) Tj
+0 -16 Td
+(COTY – EV/Revenue FY+1 — Ticker: COTY · Metric: EV/Revenue FY+1 · Value: 1.2 · Unit: x · Notes: Lowest in peer set; reflects leverage and slower growth) Tj
+0 -16 Td
+(COTY – P/E FY+1 — Ticker: COTY · Metric: P/E FY+1 · Value: 8.5 · Unit: x · Notes: Lowest P/E in peer set) Tj
+0 -16 Td
+(COTY – Revenue FY+1 Estimate — Ticker: COTY · Metric: Revenue FY+1 Consensus \($M\) · Value: 6200 · Source: COTY-US Revenue Estimate.xlsx) Tj
+0 -16 Td
+(COTY – EPS FY+1 Estimate — Ticker: COTY · Metric: EPS FY+1 Consensus \($\) · Value: 0.75 · Source: COTY-US Earnings Estimate.xlsx) Tj
+0 -16 Td
+(OR – WACC — Ticker: OR · Metric: WACC \(%\) · Value: 6.5 · Beta Source: Personal Products industry beta · ERP Source: Implied ERP workbook · Notes: Large-cap scale, low leverage, strong credit profile) Tj
+0 -16 Td
+(OR – EV/Revenue FY+1 — Ticker: OR · Metric: EV/Revenue FY+1 · Value: 4.8 · Unit: x · Notes: Structural premium for global diversified portfolio) Tj
+0 -16 Td
+(OR – P/E FY+1 — Ticker: OR · Metric: P/E FY+1 · Value: 28 · Unit: x · Notes: Premium reflects scale and margin stability) Tj
+0 -16 Td
+(OR – Revenue FY+1 Estimate — Ticker: OR · Metric: Revenue FY+1 Consensus \($M\) · Value: 45000 · Source: OR-US Revenue Estimate.xlsx) Tj
+0 -16 Td
+(OR – EPS FY+1 Estimate — Ticker: OR · Metric: EPS FY+1 Consensus \($\) · Value: 8.2 · Source: OR-US Earnings Estimate.xlsx) Tj
+0 -16 Td
+(EL – WACC — Ticker: EL · Metric: WACC \(%\) · Value: 8 · Beta Source: Personal Products industry beta · ERP Source: Implied ERP workbook · Notes: Moderate leverage, premium brand portfolio) Tj
+0 -16 Td
+(EL – EV/Revenue FY+1 — Ticker: EL · Metric: EV/Revenue FY+1 · Value: 3.5 · Unit: x · Notes: Premium brand portfolio supports above-median multiple) Tj
+0 -16 Td
+(EL – P/E FY+1 — Ticker: EL · Metric: P/E FY+1 · Value: 22 · Unit: x · Notes: Mid-range within peer set) Tj
+0 -16 Td
+(EL – Revenue FY+1 Estimate — Ticker: EL · Metric: Revenue FY+1 Consensus \($M\) · Value: 16200 · Source: EL-US Revenue Estimate.xlsx) Tj
+0 -16 Td
+(EL – EPS FY+1 Estimate — Ticker: EL · Metric: EPS FY+1 Consensus \($\) · Value: 5.5 · Source: EL-US Earnings Estimate.xlsx) Tj
+0 -16 Td
+(ELF – WACC — Ticker: ELF · Metric: WACC \(%\) · Value: 9 · Beta Source: Personal Products industry beta · ERP Source: Implied ERP workbook · Notes: Small-cap premium, minimal debt, high growth) Tj
+0 -16 Td
+(ELF – EV/Revenue FY+1 — Ticker: ELF · Metric: EV/Revenue FY+1 · Value: 5.5 · Unit: x · Notes: Highest in peer set; reflects premium growth profile) Tj
+0 -16 Td
+(ELF – P/E FY+1 — Ticker: ELF · Metric: P/E FY+1 · Value: 35 · Unit: x · Notes: Highest P/E in peer set; growth premium) Tj
+0 -16 Td
+(ELF – Revenue FY+1 Estimate — Ticker: ELF · Metric: Revenue FY+1 Consensus \($M\) · Value: 1300 · Source: ELF-US Revenue Estimate.xlsx) Tj
+0 -16 Td
+(ELF – EPS FY+1 Estimate — Ticker: ELF · Metric: EPS FY+1 Consensus \($\) · Value: 3.2 · Source: ELF-US Earnings Estimate.xlsx) Tj
+0 -16 Td
+(ULTA – WACC — Ticker: ULTA · Metric: WACC \(%\) · Value: 7.5 · Beta Source: Retail - Specialty industry beta · ERP Source: Implied ERP workbook · Notes: Low leverage, retailer profile) Tj
+0 -16 Td
+(ULTA – EV/Revenue FY+1 — Ticker: ULTA · Metric: EV/Revenue FY+1 · Value: 2.5 · Unit: x · Notes: Retailer multiple; mid-range in peer set) Tj
+0 -16 Td
+(ULTA – P/E FY+1 — Ticker: ULTA · Metric: P/E FY+1 · Value: 20 · Unit: x · Notes: Mid-range within peer set) Tj
+0 -16 Td
+(ULTA – Revenue FY+1 Estimate — Ticker: ULTA · Metric: Revenue FY+1 Consensus \($M\) · Value: 11500 · Source: ULTA-US Revenue Estimate.xlsx) Tj
+0 -16 Td
+(ULTA – EPS FY+1 Estimate — Ticker: ULTA · Metric: EPS FY+1 Consensus \($\) · Value: 26.5 · Source: ULTA-US Earnings Estimate.xlsx) Tj
+0 -16 Td
+(Peer Summary – WACC Range — Metric: WACC Range \(%\) · Low: 6.5 · High: 10.5 · Low Ticker: OR · High Ticker: COTY · Notes: OR lowest \(scale, low leverage\); COTY highest \(leverage, beta\)) Tj
+0 -16 Td
+(Peer Summary – EV/Revenue FY+1 Range — Metric: EV/Revenue FY+1 Range \(x\) · Low: 1.2 · High: 5.5 · Low Ticker: COTY · High Ticker: ELF · Notes: COTY lowest \(leverage\); ELF highest \(growth premium\)) Tj
+0 -16 Td
+(Peer Summary – P/E FY+1 Range — Metric: P/E FY+1 Range \(x\) · Low: 8.5 · High: 35 · Low Ticker: COTY · High Ticker: ELF · Notes: COTY lowest; ELF highest) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(Sources: ) Tj ET
+endstream
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000241 00000 n 
+0000000311 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+5541
+%%EOF

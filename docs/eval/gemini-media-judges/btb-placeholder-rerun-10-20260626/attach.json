@@ -1,0 +1,109 @@
+{
+  "schema": 1,
+  "judgePath": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\docs\\eval\\gemini-media-judges\\btb-placeholder-rerun-10-20260626\\latest.json",
+  "summaryPath": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\docs\\eval\\gemini-media-judges\\btb-placeholder-rerun-10-20260626\\btb-placeholder-rerun-10-20260626\\summary.md",
+  "command": "npm run media:gemini-judge -- --run-id btb-placeholder-rerun-10-20260626 --out \"docs\\\\eval\\\\gemini-media-judges\\\\btb-placeholder-rerun-10-20260626\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\4194bf8e-eede-480c-b012-b68ab71837c1\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\4a3bf36b-caeb-4825-a60c-4c416b4d555c\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\4fedc1aa-5e19-4339-9f0b-f455239b2655\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\6801c651-fd1b-4c12-a4ce-1338442c7ab1\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\7f5b9960-5931-4fb7-ac69-a5d0a954b1cc\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\8eb06eaf-d2ce-4f86-9239-d4a10bc72cf6\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\98bdf8f3-98b7-4d62-ac39-5cee23623d83\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\990cf5d7-0db5-456e-9766-c9d8a6640e3a\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\bc55d3e8-0d59-43d6-a385-03c5330e47bf\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\eefb52c1-ee12-4d15-9fbe-7f894705d503\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\"",
+  "updated": [
+    {
+      "taskId": "4194bf8e-eede-480c-b012-b68ab71837c1",
+      "receiptPath": "docs\\eval\\fresh-room\\FR-020\\tasks\\4194bf8e-eede-480c-b012-b68ab71837c1\\latest.json",
+      "videoPath": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\4194bf8e-eede-480c-b012-b68ab71837c1\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\video.webm",
+      "visualJudgeVerdict": "pass",
+      "mediaJudgeVerdict": "publish",
+      "score": 8,
+      "maxScore": 16,
+      "reason": "Gemini media judge publish (8/16); defects P0/P1/P2=0/0/0. The video demonstrates a complete end-to-end run of NodeAgent within NodeRoom, starting from room creation, uploading financial data sheets and a task brief, executing the agent with visible tool traces, and verifying the generated multi-format artifacts. Source clip: test-results\\bankertoolbench\\matrix\\4194bf8e-eede-480c-b012-b68ab71837c1\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\video.webm."
+    },
+    {
+      "taskId": "4a3bf36b-caeb-4825-a60c-4c416b4d555c",
+      "receiptPath": "docs\\eval\\fresh-room\\FR-020\\tasks\\4a3bf36b-caeb-4825-a60c-4c416b4d555c\\latest.json",
+      "videoPath": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\4a3bf36b-caeb-4825-a60c-4c416b4d555c\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\video.webm",
+      "visualJudgeVerdict": "pass",
+      "mediaJudgeVerdict": "publish",
+      "score": 14,
+      "maxScore": 16,
+      "reason": "Gemini media judge publish (14/16); defects P0/P1/P2=0/0/0. The video successfully demonstrates the complete end-to-end workflow of NodeRoom, including room creation, multi-file uploads (spreadsheets and PDFs), agent invocation, live trace logging, and final artifact generation. Source clip: test-results\\bankertoolbench\\matrix\\4a3bf36b-caeb-4825-a60c-4c416b4d555c\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\video.webm."
+    },
+    {
+      "taskId": "4fedc1aa-5e19-4339-9f0b-f455239b2655",
+      "receiptPath": "docs\\eval\\fresh-room\\FR-020\\tasks\\4fedc1aa-5e19-4339-9f0b-f455239b2655\\latest.json",
+      "videoPath": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\4fedc1aa-5e19-4339-9f0b-f455239b2655\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\video.webm",
+      "visualJudgeVerdict": "pass",
+      "mediaJudgeVerdict": "publish",
+      "score": 8,
+      "maxScore": 16,
+      "reason": "Gemini media judge publish (8/16); defects P0/P1/P2=0/0/1. The video demonstrates the end-to-end benchmark execution of NodeAgent within NodeRoom, showing file uploads, agent invocation, real-time tool execution traces, and final artifact generation. Source clip: test-results\\bankertoolbench\\matrix\\4fedc1aa-5e19-4339-9f0b-f455239b2655\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\video.webm."
+    },
+    {
+      "taskId": "6801c651-fd1b-4c12-a4ce-1338442c7ab1",
+      "receiptPath": "docs\\eval\\fresh-room\\FR-020\\tasks\\6801c651-fd1b-4c12-a4ce-1338442c7ab1\\latest.json",
+      "videoPath": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\6801c651-fd1b-4c12-a4ce-1338442c7ab1\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\video.webm",
+      "visualJudgeVerdict": "pass",
+      "mediaJudgeVerdict": "publish",
+      "score": 8,
+      "maxScore": 16,
+      "reason": "Gemini media judge publish (8/16); defects P0/P1/P2=0/0/0. The video demonstrates a complete end-to-end benchmark execution where multiple financial spreadsheets are uploaded, a complex valuation task is assigned to NodeAgent, and the agent successfully generates and displays several structured deliverables. Source clip: test-results\\bankertoolbench\\matrix\\6801c651-fd1b-4c12-a4ce-1338442c7ab1\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\video.webm."
+    },
+    {
+      "taskId": "7f5b9960-5931-4fb7-ac69-a5d0a954b1cc",
+      "receiptPath": "docs\\eval\\fresh-room\\FR-020\\tasks\\7f5b9960-5931-4fb7-ac69-a5d0a954b1cc\\latest.json",
+      "videoPath": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\7f5b9960-5931-4fb7-ac69-a5d0a954b1cc\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\video.webm",
+      "visualJudgeVerdict": "pass",
+      "mediaJudgeVerdict": "fix-then-publish",
+      "score": 11.4,
+      "maxScore": 16,
+      "reason": "Gemini media judge fix-then-publish (11.4/16); defects P0/P1/P2=0/0/1. The video demonstrates a complete end-to-end benchmark run of NodeRoom, showing file uploads, agent execution with live traces, and verification of generated financial artifacts. A brief visual glitch occurs near the end. Source clip: test-results\\bankertoolbench\\matrix\\7f5b9960-5931-4fb7-ac69-a5d0a954b1cc\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\video.webm."
+    },
+    {
+      "taskId": "8eb06eaf-d2ce-4f86-9239-d4a10bc72cf6",
+      "receiptPath": "docs\\eval\\fresh-room\\FR-020\\tasks\\8eb06eaf-d2ce-4f86-9239-d4a10bc72cf6\\latest.json",
+      "videoPath": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\8eb06eaf-d2ce-4f86-9239-d4a10bc72cf6\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\video.webm",
+      "visualJudgeVerdict": "pass",
+      "mediaJudgeVerdict": "publish",
+      "score": 10,
+      "maxScore": 16,
+      "reason": "Gemini media judge publish (10/16); defects P0/P1/P2=0/0/1. The video demonstrates a complete end-to-end workflow of the NodeAgent package verifier. It starts with a fresh room, uploads multiple financial data sheets, runs the agent to perform an LBO analysis, and verifies the generated artifacts. Source clip: test-results\\bankertoolbench\\matrix\\8eb06eaf-d2ce-4f86-9239-d4a10bc72cf6\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\video.webm."
+    },
+    {
+      "taskId": "98bdf8f3-98b7-4d62-ac39-5cee23623d83",
+      "receiptPath": "docs\\eval\\fresh-room\\FR-020\\tasks\\98bdf8f3-98b7-4d62-ac39-5cee23623d83\\latest.json",
+      "videoPath": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\98bdf8f3-98b7-4d62-ac39-5cee23623d83\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\video.webm",
+      "visualJudgeVerdict": "fail",
+      "mediaJudgeVerdict": "fix-then-publish",
+      "score": 8,
+      "maxScore": 16,
+      "reason": "Gemini media judge fix-then-publish (8/16); defects P0/P1/P2=0/1/0. The video demonstrates a complete end-to-end workflow of uploading financial documents and invoking a NodeAgent to generate valuation models and reports. However, a corrupted frame at 01:07 needs to be resolved. Source clip: test-results\\bankertoolbench\\matrix\\98bdf8f3-98b7-4d62-ac39-5cee23623d83\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\video.webm."
+    },
+    {
+      "taskId": "990cf5d7-0db5-456e-9766-c9d8a6640e3a",
+      "receiptPath": "docs\\eval\\fresh-room\\FR-020\\tasks\\990cf5d7-0db5-456e-9766-c9d8a6640e3a\\latest.json",
+      "videoPath": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\990cf5d7-0db5-456e-9766-c9d8a6640e3a\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\video.webm",
+      "visualJudgeVerdict": "pass",
+      "mediaJudgeVerdict": "publish",
+      "score": 11.7,
+      "maxScore": 16,
+      "reason": "Gemini media judge publish (11.7/16); defects P0/P1/P2=0/0/0. The video demonstrates a complete end-to-end workflow of NodeAgent in NodeRoom, starting from an empty room, uploading financial documents, executing an LBO analysis task, and verifying the generated deliverables. Source clip: test-results\\bankertoolbench\\matrix\\990cf5d7-0db5-456e-9766-c9d8a6640e3a\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\video.webm."
+    },
+    {
+      "taskId": "bc55d3e8-0d59-43d6-a385-03c5330e47bf",
+      "receiptPath": "docs\\eval\\fresh-room\\FR-020\\tasks\\bc55d3e8-0d59-43d6-a385-03c5330e47bf\\latest.json",
+      "videoPath": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\bc55d3e8-0d59-43d6-a385-03c5330e47bf\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\video.webm",
+      "visualJudgeVerdict": "pass",
+      "mediaJudgeVerdict": "publish",
+      "score": 8,
+      "maxScore": 16,
+      "reason": "Gemini media judge publish (8/16); defects P0/P1/P2=0/0/0. The video demonstrates the complete workflow of creating a room, uploading financial documents, invoking the NodeAgent, and generating final valuation deliverables. Source clip: test-results\\bankertoolbench\\matrix\\bc55d3e8-0d59-43d6-a385-03c5330e47bf\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\video.webm."
+    },
+    {
+      "taskId": "eefb52c1-ee12-4d15-9fbe-7f894705d503",
+      "receiptPath": "docs\\eval\\fresh-room\\FR-020\\tasks\\eefb52c1-ee12-4d15-9fbe-7f894705d503\\latest.json",
+      "videoPath": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\eefb52c1-ee12-4d15-9fbe-7f894705d503\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\video.webm",
+      "visualJudgeVerdict": "pass",
+      "mediaJudgeVerdict": "publish",
+      "score": 8,
+      "maxScore": 16,
+      "reason": "Gemini media judge publish (8/16); defects P0/P1/P2=0/0/0. A complete end-to-end demonstration of the NodeRoom platform, showing room creation, multi-file upload (Excel and text), NodeAgent execution with live tool traces, and successful generation of financial analysis artifacts. Source clip: test-results\\bankertoolbench\\matrix\\eefb52c1-ee12-4d15-9fbe-7f894705d503\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\video.webm."
+    }
+  ],
+  "skipped": []
+}

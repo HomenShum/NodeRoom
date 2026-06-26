@@ -1,0 +1,66 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+5 0 obj
+<< /Length 2217 >>
+stream
+BT /F1 11 Tf 54 760 Td (BTB-433c9e48: WACC & Valuation Analysis — ABC, NYSE, CAKE) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(This deliverable package covers the BankerToolBench task btb-433c9e48, performing a WACC and valuation analysis across three required entities: ABC \(industry beta reference\), NYSE \(market equity risk premium reference) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(Rows: 11) Tj
+0 -16 Td
+(CAKE_Revenue_Latest_FY — Ticker: CAKE · Metric: Revenue \(Latest FY\) · Value: 3485000000 · Unit: USD · Source Artifact: j978r8dvrz6aa9e3zbdxdmybph89cjyr) Tj
+0 -16 Td
+(CAKE_Total_Debt — Ticker: CAKE · Metric: Total Debt · Value: 465000000 · Unit: USD · Source Artifact: j9790mt232ph9hz6d5ebh6h92589dgh2) Tj
+0 -16 Td
+(CAKE_Shares_Outstanding — Ticker: CAKE · Metric: Shares Outstanding · Value: 51000000 · Unit: shares · Source Artifact: j9794eqwspydx9p6bnehewmdad89d14f) Tj
+0 -16 Td
+(CAKE_Stock_Price — Ticker: CAKE · Metric: Latest Stock Price · Value: 38.5 · Unit: USD/share · Source Artifact: j97bjt38zhmq082r41bec3pzh189cvfr) Tj
+0 -16 Td
+(CAKE_Market_Cap — Ticker: CAKE · Metric: Market Capitalization · Value: 1963500000 · Unit: USD · Source Artifact: j97bjt38zhmq082r41bec3pzh189cvfr) Tj
+0 -16 Td
+(ABC_Industry_Beta — Ticker: ABC · Metric: Industry Category Beta \(Unlevered\) · Value: 1.12 · Source Artifact: j9725mfb4jfnwm2a76hr7w83qd89cv9e) Tj
+0 -16 Td
+(NYSE_Implied_ERP — Ticker: NYSE · Metric: Implied Equity Risk Premium · Value: 0.0432 · Source Artifact: j97acfvk1qbe8srgntn8hyrwq989c3f1) Tj
+0 -16 Td
+(CAKE_Cost_of_Equity — Ticker: CAKE · Metric: Cost of Equity \(CAPM\) · Value: 0.0848 · Source Artifact: j9725mfb4jfnwm2a76hr7w83qd89cv9e) Tj
+0 -16 Td
+(CAKE_WACC — Ticker: CAKE · Metric: WACC · Value: 0.0795 · Source Artifact: j978r8dvrz6aa9e3zbdxdmybph89cjyr) Tj
+0 -16 Td
+(CAKE_Revenue_Estimate_Next_FY — Ticker: CAKE · Metric: Revenue Estimate Next FY · Value: 3600000000 · Unit: USD · Source Artifact: j97062bcqd2ag3v3xp9g488j6989cfhv) Tj
+0 -16 Td
+(CAKE_Earnings_Estimate_EPS — Ticker: CAKE · Metric: Earnings Estimate EPS · Value: 2.85 · Unit: USD/share · Source Artifact: j979v8jcyak4teprbt6pvmzrrx89ccg8) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(Sources: ) Tj ET
+endstream
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000241 00000 n 
+0000000311 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+2580
+%%EOF
