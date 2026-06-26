@@ -1,0 +1,192 @@
+{
+  "schema": 1,
+  "generatedAt": "2026-06-25T23:56:17.205Z",
+  "policy": [
+    "FR-020, FR-020A, and FR-020B are separate claims and may not be collapsed into one pass.",
+    "A runtime or runner pass may not imply live-browser fresh-room completion.",
+    "A selective benchmark task proof may not imply a full-suite official benchmark score.",
+    "A benchmark claim must name the exact lane, scorer, UI proof status, export/reopen status, and verifier handoff status."
+  ],
+  "summary": {
+    "cases": 3,
+    "passedCases": 1,
+    "partialCases": 1,
+    "blockedCases": 1,
+    "financeDomainGatePassed": true,
+    "selectiveBankerToolBenchReady": false,
+    "bankerToolBenchFullSuiteReady": false,
+    "liveBrowserBenchmarkReady": false
+  },
+  "cases": [
+    {
+      "id": "FR-020",
+      "title": "Finance-domain runtime proof",
+      "lane": "finance_domain_gate",
+      "status": "passed",
+      "sourceReceipt": "docs/eval/fresh-room/FR-020/finance-domain-receipt.json",
+      "claimBoundary": "FR-020 is a finance-domain runtime gate. It proves professional workflow execution through the runtime harness, not a live-browser official BankerToolBench score.",
+      "proves": [
+        "21/21 professional finance/GTM workflow cases pass when the FR-020 runtime receipt is present and passing.",
+        "Managed write coordination, evidence-bearing cell payloads, privacy boundaries, source traceability, and human-review signals are exercised by the runtime receipt."
+      ],
+      "doesNotProve": [
+        "fresh live-browser benchmark completion",
+        "official BankerToolBench score",
+        "export/download and reopen proof",
+        "Gandalf verifier handoff",
+        "full 100-task BankerToolBench suite completion"
+      ],
+      "gates": [
+        {
+          "id": "professional_runtime_cases",
+          "label": "All professional finance runtime cases passed",
+          "status": "pass",
+          "evidence": [
+            "docs/eval/fresh-room/FR-020/latest.json",
+            "docs/eval/professional-live-runtime.json"
+          ]
+        },
+        {
+          "id": "managed_write_coordination",
+          "label": "Managed write coordination and no-clobber substrate exercised",
+          "status": "pass",
+          "evidence": [
+            "docs/eval/fresh-room/FR-020/latest.json",
+            "docs/eval/professional-live-runtime.json"
+          ]
+        },
+        {
+          "id": "domain_receipts",
+          "label": "Finance-domain evidence signals are present",
+          "status": "pass",
+          "evidence": [
+            "docs/eval/fresh-room/FR-020/latest.json",
+            "docs/eval/professional-live-runtime.json"
+          ]
+        },
+        {
+          "id": "live_browser",
+          "label": "Fresh live-browser room proof",
+          "status": "blocked",
+          "blocker": "FR-020 explicitly records liveBrowser=false; it cannot satisfy benchmark UI claims."
+        },
+        {
+          "id": "export_reopen",
+          "label": "Export/download and reopen proof",
+          "status": "blocked",
+          "blocker": "FR-020 has no downloaded/reopened artifact evidence."
+        },
+        {
+          "id": "official_scorer",
+          "label": "Official benchmark scorer or verifier handoff",
+          "status": "blocked",
+          "evidence": [
+            "docs/eval/professional-live-runtime.json"
+          ],
+          "blocker": "FR-020 uses the professional runtime harness, not an official benchmark scorer."
+        }
+      ]
+    },
+    {
+      "id": "FR-020A",
+      "title": "Selective BankerToolBench task plumbing proof",
+      "lane": "bankertoolbench_selective_task",
+      "status": "partial",
+      "claimBoundary": "FR-020A can only be cited as selective BankerToolBench plumbing and task-runner evidence until it has a fresh-room UI receipt, downloaded/reopened deliverables, and verifier handoff.",
+      "proves": [
+        "local BankerToolBench staging/runner/scorer plumbing exists",
+        "selective task artifacts can be audited without treating them as a full suite"
+      ],
+      "doesNotProve": [
+        "official BankerToolBench score",
+        "full 100-task BankerToolBench completion",
+        "fresh live-browser user flow",
+        "Gandalf verifier handoff"
+      ],
+      "gates": [
+        {
+          "id": "runner_plumbing",
+          "label": "Selective BankerToolBench runner evidence exists",
+          "status": "partial",
+          "evidence": [
+            "docs/eval/btb-clean-capability-full100-parallel-v3-gpt41mini.json",
+            "docs/eval/loop-ledger/btb-ledger-import-full100-write.json",
+            "docs/eval/loop-ledger/btb-ledger-import-full100-preview.json",
+            "docs/eval/bankertoolbench-official-contract.json",
+            "src/eval/bankerToolBenchRunner.ts"
+          ],
+          "blocker": "Runner evidence exists, but it is not a full live-browser proof."
+        },
+        {
+          "id": "fresh_room_ui",
+          "label": "Fresh live-browser room, official prompt, and public NodeAgent lane",
+          "status": "blocked",
+          "evidence": [
+            "docs/eval/official-benchmark-ui-coverage.json"
+          ],
+          "blocker": "No FR-020A fresh-room receipt proves this path yet."
+        },
+        {
+          "id": "export_reopen",
+          "label": "Browser-run deliverable export and reopen",
+          "status": "blocked",
+          "evidence": [
+            "docs/eval/official-benchmark-ui-coverage.json"
+          ],
+          "blocker": "Runner-only deliverables do not satisfy browser export/reopen proof."
+        },
+        {
+          "id": "official_verifier",
+          "label": "Official Gandalf verifier handoff",
+          "status": "blocked",
+          "evidence": [
+            "docs/eval/bankertoolbench-official-contract.json"
+          ],
+          "blocker": "The official contract is documented, but verifier execution and import are not wired end to end."
+        }
+      ]
+    },
+    {
+      "id": "FR-020B",
+      "title": "Full BankerToolBench suite completion",
+      "lane": "bankertoolbench_full_suite",
+      "status": "blocked",
+      "claimBoundary": "FR-020B remains a target until the full official BankerToolBench suite runs through isolated execution, live UI evidence, all deliverable types, and official verifier scoring.",
+      "proves": [],
+      "doesNotProve": [
+        "100/100 task official completion",
+        "benchmark-faithful live-browser task execution",
+        "production-quality BTB score"
+      ],
+      "gates": [
+        {
+          "id": "full_suite_execution",
+          "label": "All 100 official BankerToolBench tasks execute",
+          "status": "blocked",
+          "evidence": [
+            "docs/eval/official-benchmark-readiness.json"
+          ],
+          "blocker": "The full suite is not complete through the official harness."
+        },
+        {
+          "id": "live_browser_package",
+          "label": "Fresh-room UI exports Excel/PPTX/DOCX/PDF packages",
+          "status": "blocked",
+          "evidence": [
+            "docs/eval/official-benchmark-ui-coverage.json"
+          ],
+          "blocker": "No live-browser benchmark package proof exists."
+        },
+        {
+          "id": "official_score_import",
+          "label": "Official verifier score is imported and trace-linked",
+          "status": "blocked",
+          "evidence": [
+            "docs/eval/bankertoolbench-official-contract.json"
+          ],
+          "blocker": "Gandalf/Harbor verifier execution is not wired end to end."
+        }
+      ]
+    }
+  ]
+}

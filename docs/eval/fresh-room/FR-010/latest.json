@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
   "caseId": "FR-010",
-  "status": "template_pending_live_run",
-  "runtimeProfile": "benchmark_completion",
-  "prompt": "Fresh-room live UI benchmark proof",
+  "status": "pending_official_benchmark_run",
+  "runtimeProfile": "fresh_room_live_browser",
+  "prompt": "Fresh-room live UI benchmark proof with authenticated capture",
   "tracePath": null,
   "videoPath": null,
   "screenshotPaths": [],
@@ -32,5 +32,5 @@
     "artifactReopened": false
   },
   "pass": false,
-  "note": "Contract path reserved. Do not cite as proof until a live browser run fills artifacts and pass=true."
+  "note": "Authenticated browser capture is now supported (visual-judge PR #2). Waiting on: (1) official BankerToolBench/SpreadsheetBench task bundles, (2) live Convex backend, (3) Gemini media judge for browser evidence, (4) export download and reopen validation. The demo room exists with --storage-state support for authenticated clips."
 }

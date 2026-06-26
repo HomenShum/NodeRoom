@@ -1,10 +1,10 @@
 {
-  "generatedAt": "2026-06-13T20:50:30.750Z",
+  "generatedAt": "2026-06-25T23:59:04.470Z",
   "target": "deterministic multi-user coordination contract used by production Convex mutations",
   "summary": {
     "passed": true,
-    "scenarios": 5,
-    "passedScenarios": 5,
+    "scenarios": 6,
+    "passedScenarios": 6,
     "failedScenarios": []
   },
   "invariants": [
@@ -12,6 +12,7 @@
     "A stale base version returns conflict data and preserves the canonical value.",
     "A second agent blocked by an active lock drafts instead of forcing a write, then smart-merges on release.",
     "Managed writes release their lock in finally even when the CAS write conflicts.",
+    "A stale agent range write over A1:C5 cannot clobber a human's newer C2 edit.",
     "Every scenario ends with zero active locks."
   ],
   "scenarios": [
@@ -88,7 +89,7 @@
                 "id": "r_rev__variance",
                 "version": 2,
                 "value": "+24pct-Homen",
-                "updatedAt": 1750000021000,
+                "updatedAt": 1750000024000,
                 "updatedBy": {
                   "kind": "user",
                   "id": "mem_2",
@@ -116,7 +117,7 @@
                 "id": "r_rev__variance",
                 "version": 2,
                 "value": "+19pct-Priya",
-                "updatedAt": 1750000021000,
+                "updatedAt": 1750000024000,
                 "updatedBy": {
                   "kind": "user",
                   "id": "mem_4",
@@ -151,12 +152,12 @@
         "noLockLeak": true
       },
       "evidence": {
-        "draftId": "draft_24",
+        "draftId": "draft_27",
         "release": [
           {
-            "draftId": "draft_24",
+            "draftId": "draft_27",
             "applied": [
-              "99c51dd9-a258-4ebe-a90a-392b865a124a"
+              "8eb3737a-4de1-421f-bfb9-617c7e82bc55"
             ],
             "conflicts": 0,
             "verdict": "clean"
@@ -187,12 +188,88 @@
               "r_ni__variance"
             ],
             "acquired": true,
-            "lockId": "lock_22",
+            "lockId": "lock_25",
             "released": true,
             "mergedDrafts": 0
           }
         },
         "finalValue": "+5%"
+      },
+      "passed": true
+    },
+    {
+      "id": "human_c2_vs_agent_a1_c5_stale_range_no_clobber",
+      "checks": {
+        "humanC2WriteSucceeded": true,
+        "agentRangeWriteRejected": true,
+        "conflictReturnedForC2": true,
+        "canonicalHumanC2Preserved": true,
+        "staleRangeDidNotPartiallyApplyAfterC2Conflict": true,
+        "releaseRecorded": true,
+        "noLockLeak": true
+      },
+      "evidence": {
+        "coordinateMap": {
+          "c2": "r_rev__variance",
+          "a1c5": [
+            "r_rev__variance",
+            "r_cogs__variance",
+            "r_gp__variance",
+            "r_opex__variance",
+            "r_ni__variance"
+          ],
+          "visibleGridContract": "C2 is the human-edited overlap cell inside the agent's A1:C5 work range."
+        },
+        "humanResult": {
+          "ok": true,
+          "element": {
+            "id": "r_rev__variance",
+            "version": 2,
+            "value": "+11% human C2 adjustment",
+            "updatedAt": 1750000029000,
+            "updatedBy": {
+              "kind": "user",
+              "id": "mem_2",
+              "name": "Homen"
+            }
+          },
+          "fromVersion": 1,
+          "toVersion": 2
+        },
+        "agentResult": {
+          "ok": false,
+          "results": [
+            {
+              "ok": false,
+              "conflict": true,
+              "expected": 1,
+              "actual": 2,
+              "elementId": "r_rev__variance"
+            }
+          ],
+          "coordination": {
+            "mode": "managed_lock_batch",
+            "targetIds": [
+              "r_rev__variance",
+              "r_cogs__variance",
+              "r_gp__variance",
+              "r_opex__variance",
+              "r_ni__variance"
+            ],
+            "acquired": true,
+            "lockId": "lock_25",
+            "released": true,
+            "mergedDrafts": 0,
+            "skippedCount": 0
+          }
+        },
+        "finalValues": {
+          "r_rev__variance": "+11% human C2 adjustment",
+          "r_cogs__variance": "",
+          "r_gp__variance": "",
+          "r_opex__variance": "",
+          "r_ni__variance": ""
+        }
       },
       "passed": true
     }

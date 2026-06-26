@@ -300,6 +300,74 @@ async function managedWriteReleasesAfterCasConflict(): Promise<Scenario> {
   });
 }
 
+async function humanC2BeatsStaleAgentA1C5Range(): Promise<Scenario> {
+  const { engine, d, rt } = setup();
+  const writeLockedCells = tool("write_locked_cells");
+  const a1c5Range = [
+    "r_rev__variance",
+    "r_cogs__variance",
+    "r_gp__variance",
+    "r_opex__variance",
+    "r_ni__variance",
+  ];
+  const cells = await rt.readRange(a1c5Range);
+  const versions = Object.fromEntries(cells.map((cell) => [cell.id, cell.version]));
+
+  const human = engine.applyEdit({
+    roomId: d.roomId,
+    actor: d.members.homen,
+    op: {
+      opId: "human-c2-before-agent-a1c5-write",
+      artifactId: d.sheetId,
+      elementId: "r_rev__variance",
+      kind: "set",
+      value: "+11% human C2 adjustment",
+      baseVersion: versions.r_rev__variance,
+    },
+  });
+
+  const agent = await writeLockedCells.execute({
+    reason: "agent stale A1:C5 range write after human C2 edit",
+    ops: [
+      { elementId: "r_rev__variance", value: "+24% agent stale overwrite attempt", baseVersion: versions.r_rev__variance },
+      { elementId: "r_cogs__variance", value: "+27.5%", baseVersion: versions.r_cogs__variance },
+      { elementId: "r_gp__variance", value: "+21.7%", baseVersion: versions.r_gp__variance },
+      { elementId: "r_opex__variance", value: "+20.5%", baseVersion: versions.r_opex__variance },
+      { elementId: "r_ni__variance", value: "+22.4%", baseVersion: versions.r_ni__variance },
+    ],
+  }, rt) as {
+    ok?: boolean;
+    results?: Array<{ ok?: boolean; reason?: string; conflict?: boolean; elementId?: string }>;
+    coordination?: { released?: boolean; targetIds?: string[] };
+  };
+
+  return result("human_c2_vs_agent_a1_c5_stale_range_no_clobber", {
+    humanC2WriteSucceeded: human.ok === true,
+    agentRangeWriteRejected: agent.ok === false,
+    conflictReturnedForC2: agent.results?.some((item) =>
+      item.elementId === "r_rev__variance" && (item.reason === "conflict" || item.conflict === true)
+    ) === true,
+    canonicalHumanC2Preserved: value(engine, d, "r_rev__variance") === "+11% human C2 adjustment",
+    staleRangeDidNotPartiallyApplyAfterC2Conflict: [
+      "r_cogs__variance",
+      "r_gp__variance",
+      "r_opex__variance",
+      "r_ni__variance",
+    ].every((elementId) => value(engine, d, elementId) === ""),
+    releaseRecorded: agent.coordination?.released === true,
+    noLockLeak: activeLockCount(engine, d) === 0,
+  }, {
+    coordinateMap: {
+      c2: "r_rev__variance",
+      a1c5: a1c5Range,
+      visibleGridContract: "C2 is the human-edited overlap cell inside the agent's A1:C5 work range.",
+    },
+    humanResult: human,
+    agentResult: agent,
+    finalValues: Object.fromEntries(a1c5Range.map((elementId) => [elementId, value(engine, d, elementId)])),
+  });
+}
+
 export async function runMultiUserCoordinationProof(): Promise<MultiUserCoordinationProof> {
   const scenarios = [
     await managedBatchBlocksOnlyTargetRange(),
@@ -307,6 +375,7 @@ export async function runMultiUserCoordinationProof(): Promise<MultiUserCoordina
     await humanVsHumanSameCellConverges(),
     await blockedSecondAgentDraftsThenMerges(),
     await managedWriteReleasesAfterCasConflict(),
+    await humanC2BeatsStaleAgentA1C5Range(),
   ];
   const failedScenarios = scenarios.filter((scenario) => !scenario.passed).map((scenario) => scenario.id);
   return {
@@ -323,6 +392,7 @@ export async function runMultiUserCoordinationProof(): Promise<MultiUserCoordina
       "A stale base version returns conflict data and preserves the canonical value.",
       "A second agent blocked by an active lock drafts instead of forcing a write, then smart-merges on release.",
       "Managed writes release their lock in finally even when the CAS write conflicts.",
+      "A stale agent range write over A1:C5 cannot clobber a human's newer C2 edit.",
       "Every scenario ends with zero active locks.",
     ],
     scenarios,

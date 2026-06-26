@@ -36,6 +36,7 @@
     "convex:deploy:guard": "node -e \"const fs=require('fs');const m=fs.readFileSync('.env.local','utf8').match(/^CONVEX_DEPLOYMENT=(.+)$/m);if(!m||!/zealous-goshawk-766/.test(m[1])){console.error('[guard] .env.local CONVEX_DEPLOYMENT must resolve to zealous-goshawk-766 (the deployment Vercel production reads from). Got:',m?m[1]:'(unset)');process.exit(1);}console.log('[guard] OK — CONVEX_DEPLOYMENT='+m[1]);\"",
     "benchmark": "tsx scripts/benchmark/run.ts",
     "benchmark:official:readiness": "tsx scripts/official-benchmark-readiness.ts",
+    "benchmark:fresh-room:proofs": "tsx scripts/fresh-room-proof-registry.ts",
     "benchmark:bankertoolbench:ingest": "tsx scripts/bankertoolbench-ingest.ts",
     "benchmark:bankertoolbench:stage": "tsx scripts/bankertoolbench-stage.ts",
     "benchmark:bankertoolbench:run": "tsx scripts/bankertoolbench-run.ts",
