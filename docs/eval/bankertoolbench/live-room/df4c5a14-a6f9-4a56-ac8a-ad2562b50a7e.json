@@ -1,0 +1,100 @@
+{
+  "schema": 1,
+  "taskId": "df4c5a14-a6f9-4a56-ac8a-ad2562b50a7e",
+  "harborTaskId": "btb-df4c5a14",
+  "generatedAt": "2026-06-25T01:59:15.280Z",
+  "baseUrl": "http://127.0.0.1:5273",
+  "roomUrl": "http://127.0.0.1:5273/?room=NR6UP8AQW6N&name=Host",
+  "memoryMode": false,
+  "expectedExtensions": [
+    ".xlsx",
+    ".xlsm",
+    ".pptx",
+    ".docx",
+    ".pdf"
+  ],
+  "visibleExtensions": [
+    ".xlsx",
+    ".xlsm",
+    ".pptx",
+    ".docx",
+    ".pdf"
+  ],
+  "downloadedFiles": [
+    {
+      "kind": "workbook",
+      "filename": "btb-df4c5a14-nflx-q3-2025-earnings-summary-pack-xyz-bank-tmt-team.xlsx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\df4c5a14-a6f9-4a56-ac8a-ad2562b50a7e\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier-retry1\\btb-xlsx-btb-df4c5a14-nflx-q3-2025-earnings-summary-pack-xyz-bank-tmt-team.xlsx",
+      "extension": ".xlsx",
+      "bytes": 7813,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j97c9mwcyj46dp4mzaxkmcna7s89aftv",
+      "contentQualityDetail": "placeholder/caveat content scan passed (1810 chars)"
+    },
+    {
+      "kind": "workbook",
+      "filename": "btb-df4c5a14-nflx-q3-2025-earnings-summary-pack-xyz-bank-tmt-team.xlsm",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\df4c5a14-a6f9-4a56-ac8a-ad2562b50a7e\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier-retry1\\btb-xlsm-btb-df4c5a14-nflx-q3-2025-earnings-summary-pack-xyz-bank-tmt-team.xlsm",
+      "extension": ".xlsm",
+      "bytes": 7813,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j977kd7ckthtt19h3f62a40qp989bsxv",
+      "contentQualityDetail": "placeholder/caveat content scan passed (1810 chars)"
+    },
+    {
+      "kind": "presentation",
+      "filename": "btb-df4c5a14-nflx-q3-2025-earnings-summary-pack-xyz-bank-tmt-team.pptx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\df4c5a14-a6f9-4a56-ac8a-ad2562b50a7e\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier-retry1\\btb-pptx-btb-df4c5a14-nflx-q3-2025-earnings-summary-pack-xyz-bank-tmt-team.pptx",
+      "extension": ".pptx",
+      "bytes": 6531,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains ppt/presentation.xml; recovered from Convex room artifact j978mktr11390sw87wx700aqnd89bbzp",
+      "contentQualityDetail": "placeholder/caveat content scan passed (1665 chars)"
+    },
+    {
+      "kind": "document",
+      "filename": "btb-df4c5a14-nflx-q3-2025-earnings-summary-pack-xyz-bank-tmt-team.docx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\df4c5a14-a6f9-4a56-ac8a-ad2562b50a7e\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier-retry1\\btb-docx-btb-df4c5a14-nflx-q3-2025-earnings-summary-pack-xyz-bank-tmt-team.docx",
+      "extension": ".docx",
+      "bytes": 2706,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains word/document.xml; recovered from Convex room artifact j97963rjy3pf1b999w67xb0wj589akdp",
+      "contentQualityDetail": "placeholder/caveat content scan passed (2924 chars)"
+    },
+    {
+      "kind": "pdf",
+      "filename": "btb-df4c5a14-nflx-q3-2025-earnings-summary-pack-xyz-bank-tmt-team.pdf",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\df4c5a14-a6f9-4a56-ac8a-ad2562b50a7e\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier-retry1\\btb-pdf-btb-df4c5a14-nflx-q3-2025-earnings-summary-pack-xyz-bank-tmt-team.pdf",
+      "extension": ".pdf",
+      "bytes": 3567,
+      "magic": "%PDF",
+      "reopened": true,
+      "reopenDetail": "PDF header reopened; recovered from Convex room artifact j97ajyvh4r6876c128wxkyy3m189bat4",
+      "contentQualityDetail": "placeholder/caveat content scan passed (6613 chars)"
+    }
+  ],
+  "packageManifestPath": "test-results\\bankertoolbench\\matrix\\df4c5a14-a6f9-4a56-ac8a-ad2562b50a7e\\package-manifest.json",
+  "verifierCommand": "npm run benchmark:bankertoolbench:proof",
+  "verifierOutputTail": "\n> noderoom@0.1.1 benchmark:bankertoolbench:proof\n> tsx scripts/bankertoolbench-proof-check.ts\n\nBankerToolBench proof check passed: stage=1/1 weightedRubric=6 run=0/1 pass positive=1/1 pass candidateBeforeEvaluator=true leaks=0/2+0/3+0/4\n",
+  "screenshot": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\df4c5a14-a6f9-4a56-ac8a-ad2562b50a7e\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier-retry1\\bankertoolbench-live-room.png",
+  "passed": true,
+  "gatesProven": [
+    "fresh_room_join",
+    "official_fixture_upload",
+    "public_nodeagent_invocation",
+    "visible_streaming_progress",
+    "focus_mode_enabled",
+    "focus_box_or_attention_overlay",
+    "agent_terminal_quality_gate",
+    "deliverable_export_download",
+    "artifact_reopen_validation",
+    "artifact_placeholder_scan",
+    "official_scorer_handoff",
+    "trace_video_artifacts",
+    "no_memory_mode_shortcut"
+  ]
+}

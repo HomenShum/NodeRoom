@@ -4,7 +4,7 @@
  * component renders the in-memory engine OR live Convex (optimistic edits).
  */
 
-import { useEffect, useMemo, useRef, useState, type CSSProperties, type KeyboardEvent as ReactKeyboardEvent, type ReactNode } from "react";
+import { Fragment, useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { DndContext, useDraggable, type DragEndEvent } from "@dnd-kit/core";
 import { restrictToParentElement } from "@dnd-kit/modifiers";
 import { useEditor, EditorContent, EditorProvider } from "@tiptap/react";
@@ -14,25 +14,32 @@ import { useTiptapSync } from "@convex-dev/prosemirror-sync/tiptap";
 import { api } from "../../../convex/_generated/api";
 import {
   Table2, FileText, StickyNote, Users, GitMerge, Play, RotateCcw, History, Search, BookOpen,
-  Lock, Unlock, Ban, Pencil, Plus, Check, AlertTriangle, Eye, Circle, ChevronRight, Trash2, Undo2, X, Columns2, Activity, type LucideIcon,
+  Lock, Unlock, Ban, Pencil, Plus, Check, AlertTriangle, Eye, Circle, ChevronRight, Download, Trash2, Undo2, X, Columns2, MoreHorizontal, Mail, Hash, Layers, Linkedin, Activity, type LucideIcon,
   Sparkles,
 } from "lucide-react";
 import { useStore, type ActorProof, type RoomStore, type EditFeedback, type PresenceClaim } from "../../app/store";
-import { formatExcelNumber } from "../../app/numberFormat";
 import { columnLetters } from "../../app/spreadsheetIndex";
-import { evaluateFormula, FormulaEvalError, type CellResolver, type CellValue, type FormulaResult } from "../../nodeagent/core/formulaEngine";
-import { rangeBox, boxSize, cellsInBox, rangeLabel, rewriteFormulaRefs, buildTSV, parseTSV, toA1, parseA1 } from "../../shared/gridOps";
 import { onStageFocus, focusStage, type StageFocusTarget } from "../stageFocus";
 import { TraceSurface } from "./TraceSurface";
 import { classifyEvidence } from "../traceLens/evidence";
-import type { Actor, Artifact as Art, CellPayload, DataframeColumn, DocumentParseMeta, Proposal, TraceEvent } from "../../engine/types";
+import type { Actor, Artifact as Art, CellPayload, DataframeColumn, DocumentParseMeta, Proposal, TraceEvent, ResearchRowInput } from "../../engine/types";
 import { AttentionOverlay } from "../overlay/AttentionOverlay";
 import { createSpreadsheetResolver } from "../overlay/spreadsheetResolver";
 import { focusBoxesForSheet, type SheetCellState } from "../overlay/focusBoxesForSheet";
+import { OPT_ARTIFACT_PREFIX, optimisticArtifactIdentity } from "../openRoomReference";
+import { prepareDownstreamDrafts, type PreparedDownstreamDraft } from "../../nodeagent/skills/integration/downstreamPublish";
+import { isWorkbookPreviewDoc, workbookPreviewArtifactFromDataUrl } from "./workbookFilePreview";
+import { isOfficePreviewDoc, officePreviewFromDataUrl, type OfficePreview } from "./officeFilePreview";
+
+/** Downstream handoff destinations → compact icon + short label (replaces 5 wide ghost buttons). */
+const HANDOFF_ICONS: Record<string, LucideIcon> = { gmail: Mail, notion: FileText, slack: Hash, linear: Layers, linkedin: Linkedin };
+const HANDOFF_SHORT: Record<string, string> = { gmail: "Gmail", notion: "Notion", slack: "Slack", linear: "Linear", linkedin: "LinkedIn" };
 
 const WIKI_TITLE = "Agent wiki";
 const RESEARCH_TITLE = "Company research";
 const GENERIC_SHEET_CELL_WINDOW = 5_000;
+const BLANK_SHEET_ROWS = 12;
+const BLANK_SHEET_COLUMNS = ["A", "B", "C", "D", "E", "F", "G", "H"] as const;
 type TabId = "wiki" | "sheet" | "research" | "note" | "wall";
 const TABS: { id: TabId; label: string; Icon: LucideIcon }[] = [
   { id: "wiki", label: "Wiki", Icon: BookOpen },
@@ -41,14 +48,7 @@ const TABS: { id: TabId; label: string; Icon: LucideIcon }[] = [
   { id: "note", label: "Note", Icon: FileText },
   { id: "wall", label: "Wall", Icon: StickyNote },
 ];
-type WorkbookViewStyle = "excel" | "sheets" | "evidence";
 type CollabControls = { running: boolean; done: boolean; error?: string; onRun: () => void; onConflict?: () => void };
-const WORKBOOK_VIEW_STYLES: { id: WorkbookViewStyle; label: string; hint: string }[] = [
-  { id: "excel", label: "Excel", hint: "file" },
-  { id: "sheets", label: "Sheets", hint: "collab" },
-  { id: "evidence", label: "Evidence", hint: "review" },
-];
-const WORKBOOK_VIEW_STORAGE_KEY = "noderoom:workbook-view-style";
 
 function ArtifactSurface({ roomId, me, proof, artId, onArt, collab, style, surfaceKey = "primary", headerExtra, openIds, onCloseArtifact }: {
   roomId: string; me: Actor; artId: string; onArt: (id: string) => void;
@@ -168,7 +168,8 @@ function ArtifactSurface({ roomId, me, proof, artId, onArt, collab, style, surfa
             ? openTabArts.map((a) => (
                 <button key={a.id} className="r-tab r-filetab" data-active={String(!traceOpen && a.id === artId)} onClick={() => { onArt(a.id); setTraceOpen(false); }} onDoubleClick={() => renameArtifact(a)} title={a.meta?.summary ? `${a.title} — ${a.meta.summary}` : `${a.title} (double-click to rename)`} data-testid="artifact-filetab">
                   {tabIcon(a)}
-                  <span className="r-filetab-name">{a.title}</span>
+                  <span className="r-filetab-name">{artifactTabDisplay(a).title}</span>
+                  {artifactTabDisplay(a).badge && <span className="r-file-ext r-filetab-ext">{artifactTabDisplay(a).badge}</span>}
                   {onCloseArtifact && openTabArts.length > 1 && (
                     <span className="r-filetab-x" role="button" aria-label={`Close ${a.title}`} onClick={(e) => { e.stopPropagation(); onCloseArtifact(a.id); }}><X size={12} /></span>
                   )}
@@ -188,6 +189,19 @@ function ArtifactSurface({ roomId, me, proof, artId, onArt, collab, style, surfa
         </div>
         <span className="grow" />
         {headerExtra}
+        {activeTab === "sheet" && sheet && (
+          <button
+            type="button"
+            className="r-btn ghost r-artifact-export"
+            aria-label="Export workbook to XLSX"
+            title="Download this sheet as an .xlsx workbook"
+            data-testid="artifact-export-xlsx"
+            onClick={() => { void exportSheetAsXlsx(sheet, surfaceRef.current); }}
+          >
+            <Download size={11} />
+            Export XLSX
+          </button>
+        )}
         {canToggleVis ? (
           <button
             type="button"
@@ -216,11 +230,11 @@ function ArtifactSurface({ roomId, me, proof, artId, onArt, collab, style, surfa
           {activeTab === "wiki" && wiki && <Wiki roomId={roomId} art={wiki} onOpenArtifact={openArtifact} />}
           {activeTab === "sheet" && sheet && (sheet.title === "Q3 variance"
             ? <Sheet roomId={roomId} me={me} art={sheet} onError={(f) => setEditErr(editErrorMsg(f))} />
-            : sheet.meta?.excelGrid ? <ExcelGridSheet roomId={roomId} me={me} art={sheet} onError={(f) => setEditErr(editErrorMsg(f))} /> : <GenericSheet art={sheet} />)}
+            : <GenericSheet roomId={roomId} me={me} art={sheet} onError={(f) => setEditErr(editErrorMsg(f))} />)}
           {/* Research = an empty NAMED-COLUMN grid the agent populates (matches the prototype's structured
               grid, not a raw A1 sheet). Rendered by GenericSheet — no separate <Research> renderer. */}
-          {activeTab === "research" && research && <GenericSheet art={research} />}
-          {activeTab === "note" && note && (NOTEBOOK_SYNC_ENABLED && proof ? <SyncedNote roomId={roomId} me={me} proof={proof} art={note} /> : <Note roomId={roomId} me={me} art={note} />)}
+          {activeTab === "research" && research && <GenericSheet roomId={roomId} me={me} art={research} onError={(f) => setEditErr(editErrorMsg(f))} />}
+          {activeTab === "note" && note && (NOTEBOOK_SYNC_ENABLED && proof ? <SyncedNote roomId={roomId} me={me} proof={proof} art={note} /> : <Note roomId={roomId} me={me} proof={proof} art={note} />)}
           {activeTab === "wall" && wall && <Wall roomId={roomId} me={me} art={wall} />}
         </>
       )}
@@ -265,10 +279,10 @@ function BlankRoomState({ roomId, me, style, onOpenChat }: { roomId: string; me:
     if (busy) return;
     setBusy(true);
     try {
-      const columns: DataframeColumn[] = ["A", "B", "C"].map((label, order) => ({ id: label, label, order, mode: "manual", type: "text", agentWritable: true }));
+      const columns: DataframeColumn[] = BLANK_SHEET_COLUMNS.map((label, order) => ({ id: label, label, order, mode: "manual", type: "text", agentWritable: true }));
       const seed: Array<{ id: string; value: unknown }> = [];
-      for (let r = 1; r <= 8; r++) for (const c of ["A", "B", "C"]) seed.push({ id: `r${r}__${c}`, value: "" });
-      await store.uploadArtifact({ roomId, actor: me, artifact: { kind: "sheet", title: "Sheet 1", seed, meta: { dataframe: { columns, rowCount: 8, sourceFile: "blank-room", parser: "blank_seed", truncated: false, warnings: [] } } } });
+      for (let r = 1; r <= BLANK_SHEET_ROWS; r++) for (const c of BLANK_SHEET_COLUMNS) seed.push({ id: `r${r}__${c}`, value: "" });
+      await store.uploadArtifact({ roomId, actor: me, artifact: { kind: "sheet", title: "Sheet 1", seed, meta: { dataframe: { columns, rowCount: BLANK_SHEET_ROWS, sourceFile: "blank-room", parser: "blank_seed", truncated: false, warnings: [] } } } });
     } catch { /* the store surfaces failures; keep the blank state usable */ }
     finally { setBusy(false); }
   };
@@ -308,6 +322,15 @@ export function Artifact(props: {
   const { roomId, me, proof, artId, onArt, sideArtId, onSideArtChange, onOpenChat, collab, style } = props;
   const store = useStore();
   const arts = store.listArtifacts(roomId);
+  useEffect(() => {
+    const optimistic = optimisticArtifactIdentity(artId);
+    if (!optimistic) return;
+    const active = arts.find((a) => a.id === artId);
+    const targetTitle = active?.title ?? optimistic.title;
+    const targetKind = active?.kind ?? optimistic.kind;
+    const real = arts.find((a) => !a.id.startsWith(OPT_ARTIFACT_PREFIX) && a.kind === targetKind && a.title === targetTitle);
+    if (real) onArt(real.id);
+  }, [artId, arts, onArt]);
   const [localSplitId, setLocalSplitId] = useState<string | null>(null);
   const splitId = sideArtId === undefined ? localSplitId : sideArtId;
   const setSplitId = onSideArtChange ?? setLocalSplitId;
@@ -542,6 +565,250 @@ function artifactWikiMeta(art: Art): string {
   return `doc; v${art.version}`;
 }
 
+/* ── company-research surface (ParselyFi loop): status-gated, sourced enrichment ── */
+// Attio/Clay-style record identity: a deterministic colored initials avatar per company
+// (offline-safe -- no live logo fetch). Color is hashed from the name so it's stable across renders.
+const CO_COLORS = ["#315DA8", "#2F6B44", "#6D3FB2", "#80631F", "#A34B2E", "#1F6F78", "#8F3F27", "#7A3FA0"];
+function coColor(name: string): string {
+  let h = 0;
+  for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) >>> 0;
+  return CO_COLORS[h % CO_COLORS.length];
+}
+function coInitials(name: string): string {
+  const parts = name.replace(/[^A-Za-z0-9 ]/g, "").split(/\s+/).filter(Boolean);
+  if (!parts.length) return "?";
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return (parts[0][0] + parts[1][0]).toUpperCase();
+}
+
+export function Research({ roomId, me, art }: { roomId: string; me: Actor; art: Art }) {
+  const store = useStore();
+  const [running, setRunning] = useState(false);
+  const [pasteOpen, setPasteOpen] = useState(false);
+  const [pasteText, setPasteText] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [pasteError, setPasteError] = useState<string | null>(null);
+  const [requeueError, setRequeueError] = useState<string | null>(null); // C7/C2: honest surface for failed requeue commits
+  const [moreOpen, setMoreOpen] = useState(false);
+  const [expanded, setExpanded] = useState<string | null>(null);
+  const [pages, setPages] = useState(1); // QA P1: page the grid like GenericSheet — no unbounded DOM
+  const [handoffStatus, setHandoffStatus] = useState<string | null>(null);
+  const RESEARCH_PAGE_SIZE = 50;
+  const rowIds = [...new Set(art.order.map((e) => e.split("__")[0]))];
+  const visibleRowIds = rowIds.slice(0, RESEARCH_PAGE_SIZE * pages);
+  const cell = (rid: string, c: string) => displayCellValue(art.elements[`${rid}__${c}`]?.value);
+  const pending = rowIds.filter((rid) => (cell(rid, "status") || "pending") === "pending").length;
+  const complete = rowIds.filter((rid) => cell(rid, "status") === "complete").length;
+  const run = async () => { setRunning(true); try { await store.askResearch(); } finally { setRunning(false); } };
+  const addRows = async () => {
+    const rows = parseResearchRows(pasteText);
+    if (!rows.length) return;
+    setBusy(true); setPasteError(null);
+    try {
+      const added = await store.addResearchRows({ roomId, artifactId: art.id, rows, actor: me });
+      if (added) { setPasteText(""); setPasteOpen(false); }
+    } catch (e) {
+      // Keep the panel open with the typed text so a retry does not re-paste and double-insert.
+      setPasteError("Couldn't add rows — " + (e instanceof Error ? e.message : "try again") + ". Your text is preserved.");
+    } finally { setBusy(false); }
+  };
+  const refreshComplete = async () => {
+    setBusy(true); setRequeueError(null);
+    let failed = 0; let lastReason: string | undefined;
+    try {
+      for (const rid of rowIds.filter((id) => cell(id, "status") === "complete")) {
+        const f = await commit(store, roomId, me, art.id, `${rid}__status`, "pending");
+        if (f && !f.ok) { failed += 1; lastReason = f.reason; }
+      }
+    } finally {
+      // C7/C2: commit() returns {ok:false} as DATA (locked/conflict), never throws — so a partial
+      // requeue must be surfaced, not silently dropped while the rows stay 'complete'.
+      if (failed) setRequeueError(`${failed} row(s) couldn't be requeued — ${editErrorMsg({ ok: false, reason: lastReason })}`);
+      setBusy(false);
+    }
+  };
+  const srcLink = (src: string) => {
+    const u = src.match(/https?:\/\/[^\s]+/)?.[0];
+    return u ? <a href={u} target="_blank" rel="noreferrer">{src}</a> : <span>{src}</span>;
+  };
+  const srcChip = (src: string) => {
+    const u = src.match(/https?:\/\/[^\s]+/)?.[0];
+    let host = src.slice(0, 16);
+    if (u) { try { host = new URL(u).hostname.replace(/^www\./, ""); } catch { /* keep slice */ } }
+    const inner = <><span className="r-srcchip-dot" aria-hidden="true" style={{ background: coColor(host) }} />{host}</>;
+    return u
+      ? <a key={u} className="r-srcchip" href={u} target="_blank" rel="noreferrer" title={src}>{inner}</a>
+      : <span key={src} className="r-srcchip" title={src}>{inner}</span>;
+  };
+  const saveDownstreamDraft = (draft: PreparedDownstreamDraft) => {
+    const blob = new Blob([`# ${draft.title}\n\n${draft.body}\n`], { type: "text/markdown;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${draft.target}-${draft.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "draft"}.md`;
+    a.click();
+    URL.revokeObjectURL(url);
+    setHandoffStatus(`${HANDOFF_SHORT[draft.target] ?? draft.target} draft prepared for review`);
+  };
+  const activeDraftRowId = expanded ?? rowIds.find((rid) => cell(rid, "status") === "complete") ?? null;
+  const activeDraftCompany = activeDraftRowId ? cell(activeDraftRowId, "company") || activeDraftRowId : null;
+  const downstreamDrafts = activeDraftRowId
+    ? prepareDownstreamDrafts({
+      title: `${activeDraftCompany || activeDraftRowId} diligence`,
+      summary: cell(activeDraftRowId, "summary") || `${activeDraftCompany || activeDraftRowId} is ready for downstream follow-up.`,
+      bullets: [cell(activeDraftRowId, "funding"), cell(activeDraftRowId, "headcount"), cell(activeDraftRowId, "recent_signal")].filter(Boolean),
+      artifactUrl: typeof window !== "undefined" ? `${window.location.href.split("#")[0]}#artifact=${art.id}&row=${activeDraftRowId}` : undefined,
+    })
+    : [];
+  return (
+    <div className="r-art-body r-research-body">
+      <div className="r-research-bar">
+        <span className="tiny faint">{rowIds.length} accounts · {pending} pending · {complete} complete · multi-source research</span>
+        <span className="grow" />
+        <button className="r-btn ghost" disabled={busy} onClick={() => setPasteOpen((v) => !v)}><Plus size={13} /> Import accounts</button>
+        <button className="r-btn ghost" aria-label="More research actions" aria-expanded={moreOpen} title="Requeue complete, export CRM CSV" onClick={() => setMoreOpen((v) => !v)}><MoreHorizontal size={14} /></button>
+        {moreOpen && (
+          <>
+            <button className="r-btn ghost" disabled={busy || complete === 0} onClick={() => void refreshComplete()}><RotateCcw size={13} /> Requeue complete</button>
+            <button className="r-btn ghost" onClick={() => downloadResearchCsv(art, rowIds, cell)}><Download size={13} /> CRM CSV</button>
+          </>
+        )}
+        <button className="r-btn" data-testid="research-enrich" disabled={running || pending === 0} onClick={run}>{running ? "Researching..." : pending ? `Enrich ${pending} pending` : "All complete"}</button>
+        {requeueError && <span className="r-wall-error" role="alert" data-testid="research-requeue-error">{requeueError}</span>}
+      </div>
+      {downstreamDrafts.length > 0 && (
+        <div className="r-handoff-bar" data-testid="research-handoff">
+          <span className="r-handoff-label" title="Draft only — downloads a draft for you to review and send yourself. Nothing is sent automatically.">Export <b>{activeDraftCompany}</b> draft</span>
+          <span className="grow" />
+          <div className="r-handoff-targets">
+            {downstreamDrafts.map((draft) => {
+              const Icon = HANDOFF_ICONS[draft.target] ?? Download;
+              return (
+                <button key={draft.target} className="r-handoff-chip" data-testid={`downstream-${draft.target}`} onClick={() => saveDownstreamDraft(draft)} title={draft.ctaLabel}>
+                  <Icon size={13} /> <span>{HANDOFF_SHORT[draft.target] ?? draft.target}</span>
+                </button>
+              );
+            })}
+          </div>
+          {handoffStatus && <span className="r-handoff-status" data-testid="downstream-status">{handoffStatus}</span>}
+        </div>
+      )}
+      {pasteOpen && (
+        <div className="r-research-import">
+          <textarea value={pasteText} onChange={(e) => setPasteText(e.target.value)} rows={3} placeholder="Company, website, tier, intent, owner, CRM status" />
+          {/* Never disable the submit by default — a dead button can't explain itself. Empty paste
+              gets an inline explanation through the same error channel (form-layout convention). */}
+          <button className="r-btn primary" disabled={busy} onClick={() => { if (parseResearchRows(pasteText).length === 0) { setPasteError("Nothing to import yet — paste one account per line: Company, website, tier, intent, owner, CRM status."); return; } void addRows(); }}>{busy ? "Importing..." : "Import / update rows"}</button>
+          {pasteError && <span className="r-wall-error" role="alert" data-testid="research-add-error">{pasteError}</span>}
+        </div>
+      )}
+      <div className="r-research-scroll">
+        <table className="r-research" data-noderoom-surface="workSurface.research" data-artifact-id={art.id}>
+          <colgroup>
+            <col style={{ width: 148 }} /><col style={{ width: 92 }} /><col style={{ width: 150 }} />
+            <col style={{ width: 248 }} /><col style={{ width: 188 }} /><col style={{ width: 150 }} /><col style={{ width: 96 }} />
+          </colgroup>
+          <thead><tr>
+            <th className="frozen">Account</th><th>Status</th><th>GTM</th><th>Research</th><th>Signals</th><th>Sources</th><th>Freshness</th>
+          </tr></thead>
+          <tbody>
+            {visibleRowIds.map((rid) => {
+              const status = cell(rid, "status") || "pending";
+              const src = cell(rid, "source"), src2 = cell(rid, "source2"), last = cell(rid, "last_researched");
+              const gtm = `${cell(rid, "tier") || "B"} · ${cell(rid, "intent") || "research"}`;
+              const gtmFull = `${gtm} · ${cell(rid, "owner") || me.name} · ${cell(rid, "crm_status") || "Research"}`;
+              const signals = [cell(rid, "funding"), cell(rid, "headcount"), cell(rid, "recent_signal")].filter(Boolean).join(" · ");
+              const open = expanded === rid;
+              // QA P2 perf: only the expanded row renders its 12-entry detail — don't build it per-row per-render.
+              const detail: Array<[string, ReactNode]> = open ? [
+                ["Website", cell(rid, "website") || "—"],
+                ["Tier", cell(rid, "tier") || "—"], ["Intent", cell(rid, "intent") || "—"],
+                ["Owner", cell(rid, "owner") || me.name], ["CRM status", cell(rid, "crm_status") || "—"],
+                ["Summary", cell(rid, "summary") || "—"],
+                ["Funding", cell(rid, "funding") || "—"], ["Headcount", cell(rid, "headcount") || "—"],
+                ["Recent signal", cell(rid, "recent_signal") || "—"],
+                ["Source", src ? srcLink(src) : "—"], ["Source 2", src2 ? srcLink(src2) : "—"],
+                ["Last researched", last || "never"],
+              ] : [];
+              return (
+                <Fragment key={rid}>
+                  <tr className="r-research-row" data-open={String(open)} aria-selected={open} aria-expanded={open} tabIndex={0}
+                    onClick={() => setExpanded(open ? null : rid)}
+                    onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setExpanded(open ? null : rid); } }}>
+                    <td className="r-research-co frozen" title={cell(rid, "company")}>
+                      <span className="r-co">
+                        <span className="r-co-av" aria-hidden="true" style={{ background: coColor(cell(rid, "company") || rid) }}>{coInitials(cell(rid, "company") || rid)}</span>
+                        <span className="r-co-name">{cell(rid, "company") || rid}</span>
+                      </span>
+                    </td>
+                    <td><span className={"r-status r-status-" + status}>{status}</span></td>
+                    <td className="r-research-gtm" title={gtmFull}>{gtm}</td>
+                    <td className="r-research-sum" title={cell(rid, "summary")}>{cell(rid, "summary") || <span className="nullcell">—</span>}</td>
+                    <td className="r-research-signals" title={signals}>{signals || <span className="nullcell">—</span>}</td>
+                    <td className="r-research-src" onClick={(e) => e.stopPropagation()}>{src ? srcChip(src) : <span className="nullcell">—</span>}{src2 ? srcChip(src2) : null}</td>
+                    <td><span className={"r-fresh " + freshnessClass(last)}>{freshnessLabel(last)}</span></td>
+                  </tr>
+                  {open && (
+                    <tr className="r-research-detail-row">
+                      <td colSpan={7}>
+                        <div className="r-research-detail">
+                          {detail.map(([k, v]) => (
+                            <div key={k} className="r-detail-field"><span className="r-detail-k">{k}</span><span className="r-detail-v">{v}</span></div>
+                          ))}
+                        </div>
+                      </td>
+                    </tr>
+                  )}
+                </Fragment>
+              );
+            })}
+          </tbody>
+        </table>
+        {visibleRowIds.length < rowIds.length && (
+          <div className="row" style={{ padding: "8px 10px", gap: 8 }}>
+            <button className="r-mini-btn" onClick={() => setPages((n) => n + 1)}>Show next {Math.min(RESEARCH_PAGE_SIZE, rowIds.length - visibleRowIds.length)}</button>
+            <span className="tiny faint">{visibleRowIds.length} of {rowIds.length} accounts</span>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function parseResearchRows(text: string): ResearchRowInput[] {
+  return text.split(/\r?\n/).map((line) => line.trim()).filter(Boolean).flatMap((line, idx) => {
+    const cols = line.split(/\t|,/).map((c) => c.trim()).filter(Boolean);
+    if (!cols.length || (idx === 0 && /^company$/i.test(cols[0]))) return [];
+    return [{ company: cols[0], website: cols[1], tier: cols[2], intent: cols[3], owner: cols[4], crmStatus: cols[5] }];
+  });
+}
+function freshnessLabel(last: string) {
+  if (!last) return "never";
+  const days = Math.floor((Date.now() - Date.parse(last)) / 86_400_000);
+  if (!Number.isFinite(days)) return "unknown";
+  return days > 30 ? `${days}d stale` : "fresh";
+}
+function freshnessClass(last: string) {
+  if (!last) return "stale";
+  const days = Math.floor((Date.now() - Date.parse(last)) / 86_400_000);
+  return Number.isFinite(days) && days <= 30 ? "fresh" : "stale";
+}
+function csvEscape(value: string) {
+  const safe = /^[\s]*[=+\-@]/.test(value) ? `'${value}` : value;
+  return /[",\n]/.test(safe) ? `"${safe.replace(/"/g, '""')}"` : safe;
+}
+function downloadResearchCsv(art: Art, rowIds: string[], cell: (rid: string, c: string) => string) {
+  const cols = ["company", "website", "tier", "intent", "owner", "crm_status", "summary", "funding", "headcount", "recent_signal", "source", "source2", "last_researched"];
+  const lines = [cols.join(","), ...rowIds.map((rid) => cols.map((c) => csvEscape(cell(rid, c))).join(","))];
+  const blob = new Blob([lines.join("\n")], { type: "text/csv;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `${art.title.toLowerCase().replace(/[^a-z0-9]+/g, "-") || "research"}-crm.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
 export function ResearchLegacy({ art }: { art: Art }) {
   const store = useStore();
   const [running, setRunning] = useState(false);
@@ -665,6 +932,10 @@ function EditableCell({ value, disabled, align, onCommit, addLabel, onEditStart,
 }
 
 function rowIdsOf(art: Art): string[] {
+  if (art.meta?.excelGrid) {
+    const rowCount = Math.max(1, art.meta.excelGrid.rows ?? 1);
+    return Array.from({ length: rowCount }, (_, i) => String(i + 1));
+  }
   const ids: string[] = [];
   for (const eid of art.order) { const r = eid.split("__")[0]; if (!ids.includes(r)) ids.push(r); }
   return ids;
@@ -680,88 +951,77 @@ function colsOf(art: Art): string[] {
   return cols;
 }
 
-function GenericSheet({ art }: { art: Art }) {
-  const [pages, setPages] = useState(1);
-  // QA P2 perf: derive rows/columns/pageSize once per artifact snapshot, not on every render
-  // (paging state changes alone shouldn't re-walk the full element order).
-  const { rows, columns, pageSize } = useMemo(() => {
-    const rows = rowIdsOf(art);
-    const columns = columnsOf(art);
-    const pageSize = Math.max(25, Math.min(250, Math.floor(GENERIC_SHEET_CELL_WINDOW / Math.max(columns.length, 1))));
-    return { rows, columns, pageSize };
-  }, [art]);
-  const cols = columns.map((col) => col.id);
-  const visibleRows = rows.slice(0, pageSize * pages);
-  return (
-    <>
-      <div className="r-art-body">
-        <div className="r-sheet-wrap">
-          <table className="r-sheet r-generic-sheet" data-noderoom-surface="workSurface.sheet" data-artifact-id={art.id}>
-            <thead><tr><th className="r-corner" aria-label="row number" />{columns.map((c) => <th key={c.id}>{c.label}</th>)}</tr></thead>
-            <tbody>
-              {visibleRows.map((rid, i) => (
-                <tr key={rid}>
-                  <td className="r-rownum" title={rid}>{i + 1}</td>
-                  {cols.map((col) => {
-                    const raw = art.elements[`${rid}__${col}`]?.value;
-                    const payload = asCellPayload(raw);
-                    const value = displayCellValue(raw);
-                    return (
-                      <td key={col} title={payload?.evidence?.[0]?.label} data-evidence-class={classifyEvidence(payload)} data-cell-key={rid + "__" + col} data-element-id={rid + "__" + col} data-testid="sheet-cell">
-                        {value || <span className="nullcell">—</span>}
-                        {payload && <span className={"r-cell-meta " + (payload.status ?? "complete")}>{payload.evidence?.length ? `${payload.evidence.length} src` : payload.status}</span>}
-                      </td>
-                    );
-                  })}
-                </tr>
-              ))}
-              {Array.from({ length: Math.max(0, 24 - visibleRows.length) }, (_, k) => (
-                <tr key={`fill${k}`} className="r-row-empty" aria-hidden="true">
-                  <td className="r-rownum">{visibleRows.length + k + 1}</td>
-                  {cols.map((c) => <td key={c} />)}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-      <div className="r-sheet-foot">
-        <span className="kicker">uploadedSpreadsheet</span>
-        <span className="r-vpill next">v{art.version}</span>
-        {visibleRows.length < rows.length && <button className="r-mini-btn" onClick={() => setPages((n) => n + 1)}>Show next {pageSize}</button>}
-        <span className="grow" />
-        <span className="mono tiny faint">{rows.length} rows · {cols.length} columns</span>
-      </div>
-    </>
-  );
+function sheetElementId(art: Art, rowId: string, colId: string): string {
+  return art.meta?.excelGrid ? `${colId}${rowId}` : `${rowId}__${colId}`;
 }
 
-/** Dark fills need light ink — used only when the file carries no explicit font color. */
-function fillNeedsLightInk(hex: string): boolean {
-  const m = hex.match(/^#?([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i);
-  if (!m) return false;
-  const [r, g, b] = [m[1], m[2], m[3]].map((c) => parseInt(c, 16));
-  return 0.299 * r + 0.587 * g + 0.114 * b < 120;
+function parseSheetElementId(art: Art, elementId: string | null): { rowId: string; colId: string } {
+  if (!elementId) return { rowId: "", colId: "" };
+  if (art.meta?.excelGrid) {
+    const match = elementId.match(/^([A-Z]+)(\d+)$/);
+    return match ? { colId: match[1], rowId: match[2] } : { rowId: "", colId: "" };
+  }
+  const sep = elementId.indexOf("__");
+  return sep >= 0 ? { rowId: elementId.slice(0, sep), colId: elementId.slice(sep + 2) } : { rowId: "", colId: "" };
 }
 
-/** "B" -> 2 (1-based, inverse of columnLetters) */
-function lettersToColIndex(letters: string): number {
+function dataframeColumnWidth(col: DataframeColumn, index: number): number {
+  const simpleSheetColumn = /^[A-Z]+$/.test(col.id) && col.label === col.id;
+  if (simpleSheetColumn) return index === 0 ? 168 : 116;
+  return Math.max(112, Math.min(220, 48 + col.label.length * 8));
+}
+
+function sheetColumnWidth(art: Art, col: DataframeColumn, index: number): number {
+  const excelWidth = art.meta?.excelGrid?.colWidths?.[index];
+  if (excelWidth) return Math.max(88, Math.min(260, Math.round(excelWidth * 7 + 18)));
+  return dataframeColumnWidth(col, index);
+}
+
+function dataframeCellAddress(art: Art, cols: string[], rows: string[], key: string | null): string {
+  if (!key) return "";
+  if (art.meta?.excelGrid) return key;
+  const sep = key.indexOf("__");
+  if (sep < 0) return "";
+  const rowId = key.slice(0, sep);
+  const colId = key.slice(sep + 2);
+  const colIndex = cols.indexOf(colId);
+  const rowIndex = rows.indexOf(rowId);
+  return colIndex >= 0 && rowIndex >= 0 ? `${columnLetters(colIndex)}${rowIndex + 1}` : "";
+}
+
+function isNumberLikeCell(value: unknown): boolean {
+  const payload = asCellPayload(value);
+  const raw = payload ? payload.value : value;
+  if (typeof raw === "number") return Number.isFinite(raw);
+  if (typeof raw !== "string") return false;
+  const trimmed = raw.trim();
+  if (!trimmed || trimmed.startsWith("=")) return false;
+  return Number.isFinite(Number(trimmed.replace(/,/g, "")));
+}
+
+function cellHasVisibleValue(value: unknown): boolean {
+  return displayCellValue(value).trim().length > 0;
+}
+
+function lettersToColumnNumber(letters: string): number {
   let n = 0;
   for (const ch of letters) n = n * 26 + (ch.charCodeAt(0) - 64);
   return n;
 }
 
-/** Expand "B2:D2" merge ranges into an anchor->span map + the set of covered (skipped) cells.
- *  Pathological ranges (>1k cells) are ignored rather than expanded — render-only, BOUND. */
-function expandMerges(merges: string[] | undefined): { mergeAnchor: Map<string, { colSpan: number; rowSpan: number }>; mergeCovered: Set<string> } {
+function expandSheetMerges(merges: string[] | undefined): { mergeAnchor: Map<string, { colSpan: number; rowSpan: number }>; mergeCovered: Set<string> } {
   const mergeAnchor = new Map<string, { colSpan: number; rowSpan: number }>();
   const mergeCovered = new Set<string>();
   for (const range of merges ?? []) {
-    const m = range.match(/^([A-Z]+)(\d+):([A-Z]+)(\d+)$/);
-    if (!m) continue;
-    const c1 = lettersToColIndex(m[1]), r1 = Number(m[2]), c2 = lettersToColIndex(m[3]), r2 = Number(m[4]);
-    if (c2 < c1 || r2 < r1 || (c2 - c1 + 1) * (r2 - r1 + 1) > 1_000) continue;
-    mergeAnchor.set(`${m[1]}${r1}`, { colSpan: c2 - c1 + 1, rowSpan: r2 - r1 + 1 });
+    const match = range.match(/^([A-Z]+)(\d+):([A-Z]+)(\d+)$/);
+    if (!match) continue;
+    const c1 = lettersToColumnNumber(match[1]);
+    const r1 = Number(match[2]);
+    const c2 = lettersToColumnNumber(match[3]);
+    const r2 = Number(match[4]);
+    const size = (c2 - c1 + 1) * (r2 - r1 + 1);
+    if (c2 < c1 || r2 < r1 || size > 1_000) continue;
+    mergeAnchor.set(`${match[1]}${r1}`, { colSpan: c2 - c1 + 1, rowSpan: r2 - r1 + 1 });
     for (let r = r1; r <= r2; r++) {
       for (let c = c1; c <= c2; c++) {
         if (r === r1 && c === c1) continue;
@@ -772,402 +1032,108 @@ function expandMerges(merges: string[] | undefined): { mergeAnchor: Map<string, 
   return { mergeAnchor, mergeCovered };
 }
 
-/**
- * Excel skin, NodeRoom skeleton. The grid is a light "paper" surface rendering the uploaded file's
- * formats/styles; every edit still travels {elementId, baseVersion} through commit() — the renderer
- * never owns truth. Collaboration states use the Sheets presence grammar: locked cells render with
- * the holder's outline + ONE name flag per lock; conflict feedback flows through the same onError
- * path as every other sheet.
- */
-function ExcelGridSheet({ roomId, me, art, onError }: { roomId: string; me: Actor; art: Art; onError: (f: EditFeedback) => void }) {
+function GenericSheet({ roomId, me, art, onError }: { roomId: string; me: Actor; art: Art; onError?: (f: EditFeedback) => void }) {
   const store = useStore();
   const [pages, setPages] = useState(1);
   const [sel, setSel] = useState<string | null>(null);
-  const [selAnchor, setSelAnchor] = useState<string | null>(null); // other corner of a multi-cell range; null = single cell
-  const [viewStyle, setViewStyle] = useState<WorkbookViewStyle>(() => {
-    if (typeof window === "undefined") return "excel";
-    const stored = window.localStorage.getItem(WORKBOOK_VIEW_STORAGE_KEY);
-    return WORKBOOK_VIEW_STYLES.some((s) => s.id === stored) ? stored as WorkbookViewStyle : "excel";
-  });
-  // editing.seed: null = edit existing content (dblclick/Enter/F2); a string = type-to-replace
-  // (the typed character becomes the whole draft — the Excel/Sheets keyboard model).
-  const [editing, setEditing] = useState<{ id: string; seed: string | null } | null>(null);
-  const gridRef = useRef<HTMLDivElement>(null);
-  const pendingMove = useRef<{ dCol: number; dRow: number } | null>(null);
-  const presenceStoreRef = useRef(store);
-  const presenceActorRef = useRef(me);
-  presenceStoreRef.current = store;
-  presenceActorRef.current = me;
-  const grid = art.meta?.excelGrid;
+  // QA P2 perf: derive rows/columns/pageSize once per artifact snapshot, not on every render
+  // (paging state changes alone shouldn't re-walk the full element order).
+  const { rows, columns, pageSize } = useMemo(() => {
+    const rows = rowIdsOf(art);
+    const columns = columnsOf(art);
+    const pageSize = Math.max(25, Math.min(250, Math.floor(GENERIC_SHEET_CELL_WINDOW / Math.max(columns.length, 1))));
+    return { rows, columns, pageSize };
+  }, [art]);
+  const cols = columns.map((col) => col.id);
+  const colWidths = useMemo(
+    () => columns.map((col, i) => sheetColumnWidth(art, col, i)),
+    [art.meta?.excelGrid?.colWidths, columns],
+  );
+  const visibleRows = rows.slice(0, pageSize * pages);
+  const { mergeAnchor, mergeCovered } = useMemo(() => expandSheetMerges(art.meta?.excelGrid?.merges), [art.meta?.excelGrid?.merges]);
+  const selected = parseSheetElementId(art, sel);
+  const selectedRowId = selected.rowId;
+  const selectedColId = selected.colId;
+  const dataframeMeta = art.meta?.dataframe;
+  const sheetKicker = dataframeMeta?.sourceFile === "blank-room" || dataframeMeta?.sourceFile === "blank-room-agent" ? "versionedSpreadsheetSync" : art.meta?.upload ? "uploadedSpreadsheet" : "dataframe";
+
+  // Attention Overlay — SAME wiring as the variance Sheet, on the dynamic `${rid}__${col}` key space, so
+  // agent_write / proposal / evidence boxes land on whatever columns the agent governed via define_columns.
+  const proposals = store.listProposals(roomId).filter((p) => p.artifactId === art.id);
   const presenceRows = store.listPresence(roomId, art.id);
-  const selfPresenceColor = memberColor(store, roomId, me);
-  const { columns, visibleRows, pageSize } = useMemo(() => {
-    const columnCount = Math.max(1, grid?.columns ?? 1);
-    const rowCount = Math.max(1, grid?.rows ?? 1);
-    const columns = Array.from({ length: columnCount }, (_, idx) => columnLetters(idx));
-    const pageSize = Math.max(25, Math.min(250, Math.floor(GENERIC_SHEET_CELL_WINDOW / Math.max(columnCount, 1))));
-    const visibleRows = Array.from({ length: Math.min(rowCount, pageSize * pages) }, (_, idx) => idx + 1);
-    return { columns, visibleRows, pageSize };
-  }, [grid?.columns, grid?.rows, pages]);
-  // Attention Overlay (the wedge): derive focus boxes from EXISTING state and paint them on the live grid.
-  const overlayResolver = useMemo(() => createSpreadsheetResolver(() => gridRef.current), []);
+  const sheetWrapRef = useRef<HTMLDivElement>(null);
+  const overlayResolver = useMemo(() => createSpreadsheetResolver(() => sheetWrapRef.current), []);
   const overlayCellStates = useMemo<SheetCellState[]>(() => {
     const out: SheetCellState[] = [];
-    for (const r of visibleRows) for (const c of columns) {
-      const id = `${c}${r}`;
+    for (const rid of visibleRows) for (const col of cols) {
+      const id = sheetElementId(art, rid, col);
+      if (mergeCovered.has(id)) continue;
+      const raw = art.elements[id]?.value;
       const locked = !!lockedByOther(store, art.id, id, me);
-      const proposed = draftedFor(store, roomId, art.id, id);
-      const hasEvidence = !!asCellPayload(art.elements[id]?.value)?.evidence?.length;
+      const proposed = !!proposalFor(proposals, art.id, id) || draftedFor(store, roomId, art.id, id);
+      const hasEvidence = !art.meta?.excelGrid && cellHasVisibleValue(raw) && !!asCellPayload(raw)?.evidence?.length;
       if (locked || proposed || hasEvidence) out.push({ id, lockedByOther: locked, proposed, hasEvidence });
     }
     return out;
-  }, [visibleRows, columns, store, roomId, art, me]);
+  }, [visibleRows, cols, store, roomId, art, me, proposals, mergeCovered]);
   const overlayBoxes = useMemo(
     () => focusBoxesForSheet({ artifactId: art.id, now: Date.now(), meId: me.id, presence: presenceRows, cellStates: overlayCellStates }),
     [art.id, me.id, presenceRows, overlayCellStates],
   );
-  const { mergeAnchor, mergeCovered } = useMemo(() => expandMerges(grid?.merges), [grid?.merges]);
-  // Live formula recalc: every visible formula cell is computed through the shared engine via a
-  // recursive, cycle-guarded resolver (chains resolve; cycles -> #CYCLE!; upstream errors propagate).
-  // Computed values are CLIENT-DERIVED only — never written to Convex — so there is zero collab fan-out.
-  const computedByElementId = useMemo(() => {
-    const cache = new Map<string, FormulaResult>();
-    const visiting = new Set<string>();
-    const cellAt = (ref: string): { formula?: string; value: CellValue } => {
-      const el = art.elements[ref];
-      if (!el) return { value: null };
-      const p = asCellPayload(el.value);
-      const raw = p ? p.value : el.value;
-      const formula = p?.formula ?? (typeof raw === "string" && raw.startsWith("=") ? raw : undefined);
-      const value: CellValue = typeof raw === "number" || typeof raw === "boolean" ? raw : typeof raw === "string" ? raw : raw == null ? null : String(raw);
-      return { formula, value };
-    };
-    const compute = (ref: string): FormulaResult => {
-      const key = ref.toUpperCase();
-      const hit = cache.get(key);
-      if (hit) return hit;
-      if (visiting.has(key)) return { error: "#CYCLE!" };
-      const { formula, value } = cellAt(key);
-      if (formula === undefined) { const r: FormulaResult = { value }; cache.set(key, r); return r; }
-      visiting.add(key);
-      const r = evaluateFormula(formula, resolver);
-      visiting.delete(key);
-      cache.set(key, r);
-      return r;
-    };
-    const resolver: CellResolver = { getCell: (ref) => { const r = compute(ref); if ("error" in r) throw new FormulaEvalError(r.error); return r.value; } };
-    for (const rowNumber of visibleRows) for (const col of columns) {
-      const id = `${col}${rowNumber}`;
-      if (cellAt(id).formula !== undefined) compute(id);
-    }
-    return cache;
-  }, [art.elements, art.version, visibleRows, columns]);
-  // Keep the moved-to cell visible (Excel scrolls the viewport with the selection).
-  useEffect(() => {
-    if (!sel) return;
-    gridRef.current?.querySelector(`[data-cell-key="${sel}"]`)?.scrollIntoView({ block: "nearest", inline: "nearest" });
-  }, [sel]);
-  useEffect(() => {
-    if (!sel) return;
-    const mode = editing?.id === sel ? "edit" : "focus";
-    const publish = () => touchPresence(presenceStoreRef.current, roomId, art.id, presenceActorRef.current, sel, mode, selfPresenceColor);
-    publish();
-    const interval = window.setInterval(publish, 5_000);
-    return () => window.clearInterval(interval);
-  }, [art.id, editing?.id, roomId, sel, selfPresenceColor]);
-  if (!grid) return null;
-  const cellStyles = grid.styles ?? {};
-  const numFmts = grid.numFmts ?? [];
-  const doCommit = (id: string, s: string) => {
-    // A typed formula persists as a CellPayload {value, formula} (durable + formula-bar after reload),
-    // preserving any prior payload fields (evidence/status). And the xl-grid only seeds non-empty
-    // cells, so CREATE the element when the cell is empty — otherwise typing into a blank cell is lost.
-    const value: unknown = s.startsWith("=") ? { ...(asCellPayload(art.elements[id]?.value) ?? {}), value: s, formula: s } : s;
-    const exists = !!art.elements[id];
-    const p = exists ? commit(store, roomId, me, art.id, id, value)
-      : s === "" ? Promise.resolve(null) : createElement(store, roomId, me, art.id, id, value);
-    void p.then((f) => { if (f && !f.ok) onError(f); });
-  };
-  const selEl = sel ? art.elements[sel] : undefined;
-  const selPayload = selEl ? asCellPayload(selEl.value) : null;
-  const selRaw = selPayload ? selPayload.value : selEl?.value;
-  const selFormula = selPayload?.formula ?? (typeof selRaw === "string" && selRaw.startsWith("=") ? selRaw : "");
-  const selectedEvidence = selPayload?.evidence ?? [];
-  const selectedSignal = selectedEvidence[0]?.label ?? (selFormula ? "formula" : sel ? "value" : "");
-  const selMatch = sel?.match(/^([A-Z]+)(\d+)$/);
-  const flaggedLocks = new Set<string>();
-
-  /** Move the selection by a row/col delta, clamped to the rendered grid. */
-  const move = (dCol: number, dRow: number) => {
-    if (!selMatch) return;
-    const colIdx = Math.min(Math.max(lettersToColIndex(selMatch[1]) - 1 + dCol, 0), columns.length - 1);
-    const rowNum = Math.min(Math.max(Number(selMatch[2]) + dRow, 1), visibleRows.length);
-    setSelAnchor(null);
-    setSel(`${columns[colIdx]}${rowNum}`);
-  };
-  /** Shift+arrow: extend the selection from a fixed anchor (Excel range-select). */
-  const extendSel = (dCol: number, dRow: number) => {
-    if (!selMatch) return;
-    const colIdx = Math.min(Math.max(lettersToColIndex(selMatch[1]) - 1 + dCol, 0), columns.length - 1);
-    const rowNum = Math.min(Math.max(Number(selMatch[2]) + dRow, 1), visibleRows.length);
-    setSelAnchor((a) => a ?? sel);
-    setSel(`${columns[colIdx]}${rowNum}`);
-  };
-  const cellLocked = (id: string) => !!lockedByOther(store, art.id, id, me);
-  const startEdit = (id: string, seed: string | null) => {
-    if (cellLocked(id)) { onError({ ok: false, reason: "locked" }); return; }
-    touchPresence(store, roomId, art.id, me, id, "edit", selfPresenceColor);
-    setEditing({ id, seed });
-  };
-  const chooseViewStyle = (next: WorkbookViewStyle) => {
-    setViewStyle(next);
-    try { window.localStorage.setItem(WORKBOOK_VIEW_STORAGE_KEY, next); } catch { /* ignore storage failures */ }
-  };
-  /** Grid-level keyboard model (when NOT editing): arrows move, Enter/F2 edit, typing replaces,
-   *  Tab moves right, Delete clears — the spreadsheet muscle memory. */
-  const onGridKeyDown = (e: ReactKeyboardEvent<HTMLDivElement>) => {
-    if (editing || !sel) return;
-    const mv = e.shiftKey ? extendSel : move; // shift+arrow extends the range
-    if ((e.ctrlKey || e.metaKey) && (e.key === "d" || e.key === "D")) { e.preventDefault(); handleFillDown(); }
-    else if ((e.ctrlKey || e.metaKey) && (e.key === "c" || e.key === "C")) { e.preventDefault(); void handleCopy(); }
-    else if ((e.ctrlKey || e.metaKey) && (e.key === "v" || e.key === "V")) { e.preventDefault(); void handlePaste(); }
-    else if (e.key === "ArrowUp") { e.preventDefault(); mv(0, -1); }
-    else if (e.key === "ArrowDown") { e.preventDefault(); mv(0, 1); }
-    else if (e.key === "ArrowLeft") { e.preventDefault(); mv(-1, 0); }
-    else if (e.key === "ArrowRight") { e.preventDefault(); mv(1, 0); }
-    else if (e.key === "Tab") { e.preventDefault(); move(e.shiftKey ? -1 : 1, 0); }
-    else if (e.key === "Enter" || e.key === "F2") { e.preventDefault(); startEdit(sel, null); }
-    else if (e.key === "Delete" || e.key === "Backspace") {
-      e.preventDefault();
-      if (cellLocked(sel)) { onError({ ok: false, reason: "locked" }); return; }
-      doCommit(sel, "");
-    }
-    else if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) { e.preventDefault(); startEdit(sel, e.key); }
-  };
-  /** Enter/Tab/arrow commits route through ONE path (the input's blur) to guarantee exactly one
-   *  CAS write: the key handler records the move + blurs; onBlur commits, then applies the move. */
-  const finishEdit = (elementId: string, draft: string, current: string) => {
-    store.clearPresence({ roomId, artifactId: art.id, targetKind: "cell", targetId: elementId, mode: "edit", actor: me });
-    setEditing(null);
-    if (draft !== current) doCommit(elementId, draft);
-    const mv = pendingMove.current;
-    pendingMove.current = null;
-    if (mv) move(mv.dCol, mv.dRow);
-    gridRef.current?.focus();
-  };
-  /** Ctrl/Cmd+D: fill the top row of a vertical range DOWN, rewriting relative formula refs per row.
-   *  BOUND: never fills more than 500 cells; aborts before writing anything if over. */
-  const handleFillDown = () => {
-    if (editing || !sel || !selAnchor) { onError({ ok: false, reason: "fill_needs_range" }); return; }
-    const box = rangeBox(selAnchor, sel);
-    if (!box || box.r0 === box.r1) { onError({ ok: false, reason: "fill_needs_range" }); return; }
-    if (boxSize(box) > 500) { onError({ ok: false, reason: "too_large" }); return; }
-    for (let c = box.c0; c <= box.c1; c++) {
-      const srcEl = art.elements[toA1(c, box.r0)];
-      const srcP = srcEl ? asCellPayload(srcEl.value) : null;
-      const srcRaw = srcP ? srcP.value : srcEl?.value;
-      const srcFormula = srcP?.formula ?? (typeof srcRaw === "string" && srcRaw.startsWith("=") ? srcRaw : undefined);
-      for (let r = box.r0 + 1; r <= box.r1; r++) {
-        const id = toA1(c, r);
-        if (mergeCovered.has(id) || cellLocked(id)) continue;
-        doCommit(id, srcFormula ? rewriteFormulaRefs(srcFormula, r - box.r0, 0) : srcRaw == null ? "" : String(srcRaw));
-      }
-    }
-  };
-  /** Ctrl/Cmd+C: copy the selected range as TSV to the clipboard. */
-  const handleCopy = async () => {
-    if (editing || !sel) return;
-    const box = rangeBox(selAnchor ?? sel, sel);
-    if (!box) return;
-    const rows: string[][] = [];
-    for (let r = box.r0; r <= box.r1; r++) {
-      const row: string[] = [];
-      for (let c = box.c0; c <= box.c1; c++) { const el = art.elements[toA1(c, r)]; const p = el ? asCellPayload(el.value) : null; const raw = p ? p.value : el?.value; row.push(raw == null ? "" : String(raw)); }
-      rows.push(row);
-    }
-    try { await navigator.clipboard.writeText(buildTSV(rows)); } catch { onError({ ok: false, reason: "clipboard" }); }
-  };
-  /** Ctrl/Cmd+V: paste a TSV block anchored at the active cell, clamped to the grid. BOUND 500. */
-  const handlePaste = async () => {
-    if (editing || !sel) return;
-    const anchor = parseA1(sel);
-    if (!anchor) return;
-    let text = "";
-    try { text = await navigator.clipboard.readText(); } catch { onError({ ok: false, reason: "clipboard" }); return; }
-    const grid = parseTSV(text);
-    if (!grid.length) return;
-    if (grid.length * (grid[0]?.length ?? 0) > 500) { onError({ ok: false, reason: "too_large" }); return; }
-    for (let i = 0; i < grid.length; i++) for (let j = 0; j < grid[i].length; j++) {
-      const c = anchor.col + j, r = anchor.row + i;
-      if (c > columns.length || r > visibleRows.length) continue;
-      const id = toA1(c, r);
-      if (mergeCovered.has(id) || cellLocked(id)) continue;
-      doCommit(id, grid[i][j]);
-    }
-  };
-  const selRangeBox = selAnchor && sel ? rangeBox(selAnchor, sel) : null;
-  const rangeCells = selRangeBox ? new Set(cellsInBox(selRangeBox)) : null;
-  const selLabel = sel ? (selRangeBox ? rangeLabel(selRangeBox) : sel) : "";
+  void onError; // research grid is read-only here; signature mirrors Sheet for a uniform call site
   return (
     <>
       <div className="r-art-body">
-        <div className={`xl-paper xl-paper--${viewStyle}`} data-testid="excel-paper" data-workbook-style={viewStyle}>
-          <div className="xl-modebar">
-            <div className="xl-mode-copy">
-              <span className="xl-mode-title">{grid.sheetName}</span>
-              <span className="xl-mode-sub">{grid.rows} rows · {grid.columns} columns</span>
-            </div>
-            <div className="xl-mode-tabs" role="radiogroup" aria-label="Workbook visual style">
-              {WORKBOOK_VIEW_STYLES.map((s) => (
-                <button
-                  key={s.id}
-                  type="button"
-                  className="xl-mode-tab"
-                  data-active={viewStyle === s.id}
-                  data-testid={`workbook-style-${s.id}`}
-                  role="radio"
-                  aria-checked={viewStyle === s.id}
-                  onClick={() => chooseViewStyle(s.id)}
-                >
-                  <span>{s.label}</span>
-                  <small>{s.hint}</small>
-                </button>
-              ))}
-            </div>
-          </div>
-          <div className="xl-fbar">
-            <span className="xl-name" data-testid="excel-namebox">{selLabel}</span>
-            <span className="xl-fx">fx</span>
-            <span className="xl-ftext" data-testid="excel-formulabar">{sel ? (selFormula || String(selRaw ?? "")) : ""}</span>
-            <span className="grow" />
-            {selEl && <span className="xl-meta">v{selEl.version}{selPayload?.evidence?.[0]?.label ? ` · ${selPayload.evidence[0].label}` : ""}</span>}
-          </div>
-          {viewStyle === "evidence" && (
-            <div className="xl-evidence-strip" data-testid="workbook-evidence-strip">
-              <span className="xl-evidence-chip">{sel ?? "No cell"}</span>
-              <span>{selEl ? `v${selEl.version}` : "unselected"}</span>
-              <span>{selectedEvidence.length ? `${selectedEvidence.length} source${selectedEvidence.length === 1 ? "" : "s"}` : "no source"}</span>
-              {selectedSignal && <span>{selectedSignal}</span>}
-            </div>
-          )}
-          <div className="r-sheet-wrap xl-scroll" ref={gridRef} tabIndex={0} role="grid" aria-label={`${grid.sheetName} spreadsheet grid`} onKeyDown={onGridKeyDown}>
-            <table className="xl-grid">
-              <colgroup>
-                <col style={{ width: 38 }} />
-                {columns.map((col, i) => <col key={col} style={{ width: grid.colWidths?.[i] || 92 }} />)}
-              </colgroup>
-              <thead>
-                <tr>
-                  <th className="xl-corner" aria-label="cell address" />
-                  {columns.map((col) => <th key={col} className={"xl-col" + (selMatch?.[1] === col ? " hl" : "")}>{col}</th>)}
+        <div className="r-sheet-wrap" ref={sheetWrapRef} data-testid="sheet-grid">
+          <AttentionOverlay boxes={overlayBoxes} resolver={overlayResolver} mode="live" />
+          <table className="r-sheet" data-noderoom-surface="workSurface.sheet" data-sheet-kind="generic" data-artifact-id={art.id}>
+            <colgroup>
+              <col style={{ width: 38 }} />
+              {columns.map((c, i) => <col key={c.id} style={{ width: colWidths[i] }} />)}
+            </colgroup>
+            <thead><tr><th className="r-corner" aria-label="row number" />{columns.map((c) => <th key={c.id} className={selectedColId === c.id ? "hl" : undefined}>{c.label}</th>)}</tr></thead>
+            <tbody>
+              {visibleRows.map((rid, i) => (
+                <tr key={rid}>
+                  <td className={"r-rownum" + (selectedRowId === rid ? " hl" : "")} title={rid}>{i + 1}</td>
+                  {cols.map((col) => {
+                    const id = sheetElementId(art, rid, col);
+                    if (mergeCovered.has(id)) return null;
+                    const span = mergeAnchor.get(id);
+                    const raw = art.elements[id]?.value;
+                    const payload = asCellPayload(raw);
+                    const value = displayCellValue(raw);
+                    const locked = !!lockedByOther(store, art.id, id, me);
+                    const proposed = !!proposalFor(proposals, art.id, id) || draftedFor(store, roomId, art.id, id);
+                    const hasVisibleEvidence = !art.meta?.excelGrid && !!value && !!payload?.evidence?.length;
+                    const showFormulaMarker = !art.meta?.excelGrid && !!payload?.formula;
+                    const showMeta = !art.meta?.excelGrid && payload;
+                    const cls = "r-cell" + (isNumberLikeCell(raw) ? " num" : "") + (locked ? " locked" : "") + (proposed ? " proposed" : "") + (hasVisibleEvidence ? " evidence" : "") + (showFormulaMarker ? " formula" : "") + (sel === id ? " sel" : "");
+                    return (
+                      <td key={col} className={cls} title={[dataframeCellAddress(art, cols, visibleRows, id), payload?.evidence?.[0]?.label].filter(Boolean).join(" | ")} data-evidence-class={classifyEvidence(payload)} data-cell-key={id} data-element-id={id} data-testid="sheet-cell" data-has-evidence={hasVisibleEvidence ? "true" : undefined} data-has-formula={payload?.formula ? "true" : undefined} colSpan={span?.colSpan} rowSpan={span?.rowSpan} aria-selected={sel === id || undefined} onClick={() => setSel(id)}>
+                        {value ? <span className="r-cell-value">{value}</span> : <span className="nullcell">-</span>}
+                        {showMeta && <span className={"r-cell-meta " + (payload.status ?? "complete")}>{payload.evidence?.length ? `${payload.evidence.length} src` : payload.status}</span>}
+                      </td>
+                    );
+                  })}
                 </tr>
-              </thead>
-              <tbody>
-                {visibleRows.map((rowNumber) => (
-                  <tr key={rowNumber}>
-                    <td className={"xl-rowhead" + (selMatch && Number(selMatch[2]) === rowNumber ? " hl" : "")}>{rowNumber}</td>
-                    {columns.map((col) => {
-                      const elementId = `${col}${rowNumber}`;
-                      if (mergeCovered.has(elementId)) return null; // absorbed by a merge anchor's span
-                      const span = mergeAnchor.get(elementId);
-                      const colSpan = span ? Math.min(span.colSpan, columns.length - lettersToColIndex(col) + 1) : undefined;
-                      const rowSpan = span ? Math.min(span.rowSpan, visibleRows.length - rowNumber + 1) : undefined;
-                      const el = art.elements[elementId];
-                      const payload = el ? asCellPayload(el.value) : null;
-                      const rawVal = payload ? payload.value : el?.value;
-                      const st = cellStyles[elementId];
-                      // Formula cells display their COMPUTED value (or an error token); the formula bar
-                      // (selFormula) still shows the formula. Non-formula cells are unchanged.
-                      const cellFormula = payload?.formula ?? (typeof rawVal === "string" && rawVal.startsWith("=") ? rawVal : undefined);
-                      const computed = cellFormula ? computedByElementId.get(elementId.toUpperCase()) : undefined;
-                      const compError = computed && "error" in computed ? computed.error : undefined;
-                      const effRaw = cellFormula ? (compError ? undefined : (computed && "value" in computed ? computed.value : undefined)) : rawVal;
-                      const numCandidate = typeof effRaw === "number" ? effRaw
-                        : typeof effRaw === "string" && effRaw !== "" && !effRaw.startsWith("=") && Number.isFinite(Number(effRaw.replace(/,/g, ""))) ? Number(effRaw.replace(/,/g, ""))
-                        : undefined;
-                      const display = compError ? compError
-                        : numCandidate !== undefined ? formatExcelNumber(numCandidate, st?.f !== undefined ? numFmts[st.f] : undefined)
-                        : cellFormula ? (effRaw == null ? "" : String(effRaw))
-                        : displayCellValue(el?.value);
-                      const lk = lockedByOther(store, art.id, elementId, me);
-                      const cellPresence = presenceForCell(presenceRows, elementId, me);
-                      let lockFlag: string | null = null;
-                      if (lk && !flaggedLocks.has(lk.id)) { flaggedLocks.add(lk.id); lockFlag = lk.holder.name; }
-                      const alignRight = numCandidate !== undefined || st?.a === "r";
-                      const isEditing = editing?.id === elementId;
-                      const inRange = rangeCells?.has(elementId) ?? false;
-                      const cls = "xl-cell" + (alignRight ? " num" : "") + (st?.a === "c" ? " ctr" : "") + (lk ? " locked" : "") + (cellPresence ? ` presence presence-${cellPresence.mode}` : "") + (payload?.evidence?.length ? " evidence" : "") + (cellFormula ? " formula" : "") + (compError ? " cell-error" : "") + (inRange ? " range" : "") + (sel === elementId ? " sel" : "") + (isEditing ? " editing" : "");
-                      const inline: Record<string, string | number> = {};
-                      if (st?.bg) { inline.background = st.bg; if (!st?.fc && fillNeedsLightInk(st.bg)) inline.color = "#fff"; }
-                      if (st?.fc) inline.color = st.fc; // the FILE's font color wins over the heuristic
-                      if (st?.b) inline.fontWeight = 700;
-                      if (st?.i) inline.fontStyle = "italic";
-                      if (st?.u) inline.textDecoration = "underline";
-                      if (st?.ind) inline.paddingLeft = 6 + st.ind * 12;
-                      if (st?.bt) inline.borderTop = "1px solid #5f6368";
-                      if (st?.bb) inline.borderBottom = "1px solid #5f6368";
-                      const editText = cellFormula ?? (typeof rawVal === "string" || typeof rawVal === "number" ? String(rawVal) : "");
-                      const title = [elementId, cellFormula ? `Formula: ${cellFormula}` : undefined, lk ? `locked by ${lk.holder.name}` : undefined, cellPresence ? presenceLabel(cellPresence) : undefined].filter(Boolean).join(" | ");
-                      return (
-                        <td
-                          key={col}
-                          className={cls}
-                          style={{ ...inline, ...presenceStyle(cellPresence) }}
-                          title={title}
-                          data-cell-key={elementId}
-                          data-evidence-class={classifyEvidence(payload)}
-                          data-presence-mode={cellPresence?.mode}
-                          data-presence-label={cellPresence ? presenceLabel(cellPresence) : undefined}
-                          data-in-range={rangeCells?.has(elementId) ? "true" : undefined}
-                          data-has-evidence={payload?.evidence?.length ? "true" : undefined}
-                          data-has-formula={cellFormula ? "true" : undefined}
-                          colSpan={colSpan}
-                          rowSpan={rowSpan}
-                          aria-selected={(sel === elementId || inRange) || undefined}
-                          onClick={(e) => { if (e.shiftKey) setSelAnchor((a) => a ?? sel); else setSelAnchor(null); setSel(elementId); gridRef.current?.focus(); }}
-                          onDoubleClick={() => startEdit(elementId, null)}
-                        >
-                          {isEditing ? (
-                            <input
-                              className="xl-input"
-                              autoFocus
-                              defaultValue={editing.seed ?? editText}
-                              onBlur={(e) => finishEdit(elementId, e.target.value, editText)}
-                              onKeyDown={(e) => {
-                                const input = e.target as HTMLInputElement;
-                                // Enter mode (opened by typing): arrows COMMIT + move — the most-missed
-                                // spreadsheet parity detail. Edit mode (F2/dblclick): arrows move the caret.
-                                const enterMode = editing.seed !== null;
-                                if (e.key === "Enter") { e.preventDefault(); pendingMove.current = { dCol: 0, dRow: e.shiftKey ? -1 : 1 }; input.blur(); }
-                                else if (e.key === "Tab") { e.preventDefault(); pendingMove.current = { dCol: e.shiftKey ? -1 : 1, dRow: 0 }; input.blur(); }
-                                else if (e.key === "Escape") { e.preventDefault(); input.value = editText; setEditing(null); gridRef.current?.focus(); }
-                                else if (enterMode && (e.key === "ArrowUp" || e.key === "ArrowDown" || e.key === "ArrowLeft" || e.key === "ArrowRight")) {
-                                  e.preventDefault();
-                                  pendingMove.current = e.key === "ArrowUp" ? { dCol: 0, dRow: -1 } : e.key === "ArrowDown" ? { dCol: 0, dRow: 1 } : e.key === "ArrowLeft" ? { dCol: -1, dRow: 0 } : { dCol: 1, dRow: 0 };
-                                  input.blur();
-                                }
-                              }}
-                            />
-                          ) : display ? <span>{display}</span> : <span className="nullcell">&nbsp;</span>}
-                          {lockFlag && <span className="xl-flag" data-testid="lock-flag">{lockFlag}</span>}
-                          {cellPresence && <span className="xl-presence-flag" data-testid="presence-flag">{presenceLabel(cellPresence)}</span>}
-                        </td>
-                      );
-                    })}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            <AttentionOverlay boxes={overlayBoxes} resolver={overlayResolver} mode="live" />
-          </div>
+              ))}
+              {Array.from({ length: Math.max(0, 24 - visibleRows.length) }, (_, k) => (
+                <tr key={`fill${k}`} className="r-row-empty" aria-hidden="true">
+                  <td className="r-rownum">{visibleRows.length + k + 1}</td>
+                  {cols.map((c) => <td key={c} className="r-cell"><span className="nullcell">-</span></td>)}
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
       <div className="r-sheet-foot">
-        <span className="kicker">excelWorkbook</span>
+        <span className="kicker">{sheetKicker}</span>
         <span className="r-vpill next">v{art.version}</span>
-        {visibleRows.length < grid.rows && <button className="r-mini-btn" onClick={() => setPages((n) => n + 1)}>Show next {pageSize}</button>}
+        {visibleRows.length < rows.length && <button className="r-mini-btn" onClick={() => setPages((n) => n + 1)}>Show next {pageSize}</button>}
         <span className="grow" />
-        <span className="mono tiny faint">{grid.sheetName} | {grid.rows} rows | {grid.columns} columns</span>
+        <span className="mono tiny faint">{rows.length} rows | {cols.length} columns</span>
       </div>
     </>
   );
@@ -1191,6 +1157,131 @@ function displayCellValue(value: unknown): string {
   if (typeof raw === "string") return raw;
   if (typeof raw === "number" || typeof raw === "boolean") return String(raw);
   return JSON.stringify(raw);
+}
+
+/**
+ * Coerce a sheet element's `value` into a typed Excel cell value. The room engine stores cells as
+ * either a raw scalar OR a `CellPayload` whose `.value` is the scalar; we unwrap once then preserve
+ * the underlying JS type so exceljs writes a number as a number (not a string), which is what the
+ * downstream SpreadsheetBench scorer + reopen flow depend on.
+ */
+function exportCellValue(value: unknown): string | number | boolean | null {
+  const payload = asCellPayload(value);
+  const raw = payload ? payload.value : value;
+  if (raw === null || raw === undefined) return null;
+  if (typeof raw === "number" && Number.isFinite(raw)) return raw;
+  if (typeof raw === "boolean") return raw;
+  if (typeof raw === "string") {
+    const trimmed = raw.trim();
+    if (trimmed === "") return null;
+    // Numeric strings the cheap-route agent commonly writes ("25", "3.5", "44") — keep as number so
+    // the reopened workbook grades on numeric value, not text. Leave anything non-numeric (units,
+    // labels, citations) as the original string.
+    if (/^-?\d+(\.\d+)?$/.test(trimmed)) {
+      const n = Number(trimmed);
+      if (Number.isFinite(n)) return n;
+    }
+    return raw;
+  }
+  return String(raw);
+}
+
+/** Filesystem-safe filename derived from an artifact title (used by the Export XLSX download). */
+function sanitizeFilename(name: string): string {
+  const cleaned = name.replace(/[^a-zA-Z0-9._-]+/g, "_").replace(/^_+|_+$/g, "");
+  return cleaned || "workbook";
+}
+
+/**
+ * Build a real .xlsx (Office-magic-bytes, exceljs) from the sheet artifact in scope and trigger a
+ * browser download. Walks `art.order` for row ids and the column suffix derived from each element
+ * id (same path bankerCoachPacket.ts uses) — no separate Convex fetch. The "Q3 variance" canonical
+ * sheet has a fixed column shape (Account · Q2 · Q3 · Variance · Note); every other sheet uses the
+ * scanned columns in `art.order`-encounter order with Excel column letters (A, B, C...). Triggered
+ * by the toolbar button (data-testid="artifact-export-xlsx") that is gated to the live sheet
+ * surfaces, including uploaded workbooks now rendered through the shared Sheet 1 grid.
+ *
+ * TODO(mobile-export): the mobile #mobile route currently has a Download XLSX button that emits a
+ * fake toast (flagged by R31). Wire it to this same path (extract into a shared helper) in a
+ * follow-up PR; out of scope here.
+ */
+async function exportSheetAsXlsx(art: Art, visibleRoot?: HTMLElement | null): Promise<void> {
+  const ExcelJSModule = await import("exceljs");
+  const ExcelJS = (ExcelJSModule as { default?: typeof import("exceljs") }).default ?? (ExcelJSModule as unknown as typeof import("exceljs"));
+  const workbook = new ExcelJS.Workbook();
+  const sheetName = (art.title || "Sheet1").slice(0, 31); // Excel sheet name max 31 chars
+  const worksheet = workbook.addWorksheet(sheetName);
+  const rows = rowIdsOf(art);
+  const visibleCells = visibleRoot ? visibleGenericSheetCellValues(visibleRoot, art.id) : new Map<string, string>();
+  const cellForExport = (id: string) => {
+    const visible = visibleCells.get(id);
+    return exportCellValue(visible !== undefined ? visible : art.elements[id]?.value);
+  };
+
+  if (art.title === "Q3 variance") {
+    // Canonical variance sheet: stable headers matching the live Sheet renderer (Artifact.tsx Sheet).
+    worksheet.addRow(["Account", "Q2", "Q3", "Variance", "Note"]);
+    for (const rid of rows) {
+      worksheet.addRow([
+        exportCellValue(art.elements[`${rid}__account`]?.value),
+        exportCellValue(art.elements[`${rid}__q2`]?.value),
+        exportCellValue(art.elements[`${rid}__q3`]?.value),
+        exportCellValue(art.elements[`${rid}__variance`]?.value),
+        exportCellValue(art.elements[`${rid}__note`]?.value),
+      ]);
+    }
+  } else {
+    // Generic / blank/uploaded sheet: use the same visible columns as the shared sheet grid.
+    // Blank/agent sheets store r<row>__A; uploaded workbooks store A1/B2/etc.
+    const cols = columnsOf(art).map((c) => c.id);
+    // Single-letter column ids ("A", "B", ...) are written to their literal Excel column; multi-char
+    // column ids (legacy headers) get a labeled header row and sequential Excel columns.
+    const isLetterCols = cols.length > 0 && cols.every((c) => /^[A-Z]+$/.test(c));
+    if (isLetterCols) {
+      for (const rid of rows) {
+        const rowNum = parseInt(rid.replace(/^r/, ""), 10);
+        if (!Number.isFinite(rowNum) || rowNum <= 0) continue;
+        for (const col of cols) {
+          const v = cellForExport(sheetElementId(art, rid, col));
+          if (v !== null) worksheet.getCell(`${col}${rowNum}`).value = v;
+        }
+      }
+    } else {
+      worksheet.addRow(cols.map((c) => prettyCol(c)));
+      for (const rid of rows) {
+        worksheet.addRow(cols.map((col) => cellForExport(sheetElementId(art, rid, col))));
+      }
+    }
+  }
+
+  // writeBuffer() returns an exceljs.Buffer (Uint8Array-compatible); Blob accepts both. NEVER call
+  // workbook.xlsx.writeFile here — that is Node-only and would crash in the browser.
+  const buffer = await workbook.xlsx.writeBuffer();
+  const blob = new Blob([buffer as ArrayBuffer], {
+    type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  });
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.download = `${sanitizeFilename(art.title)}.xlsx`;
+  anchor.style.display = "none";
+  document.body.appendChild(anchor);
+  anchor.click();
+  document.body.removeChild(anchor);
+  // Free the object URL on the next tick so Chrome/Firefox have finished the download negotiation.
+  setTimeout(() => URL.revokeObjectURL(url), 0);
+}
+
+function visibleGenericSheetCellValues(root: HTMLElement, artifactId: string): Map<string, string> {
+  const out = new Map<string, string>();
+  root.querySelectorAll<HTMLElement>('table[data-sheet-kind="generic"] [data-element-id]').forEach((cell) => {
+    const table = cell.closest<HTMLElement>("table[data-artifact-id]");
+    if (table?.getAttribute("data-artifact-id") !== artifactId) return;
+    const elementId = cell.getAttribute("data-element-id");
+    const text = cell.querySelector<HTMLElement>(".r-cell-value")?.textContent?.trim();
+    if (elementId && text) out.set(elementId, text);
+  });
+  return out;
 }
 
 function prettyCol(col: string) {
@@ -1341,7 +1432,7 @@ const NOTEBOOK_SYNC_ENABLED = import.meta.env.VITE_NOTEBOOK_SYNC === "prosemirro
  *  never a guessed/placeholder id. */
 function SyncedNote({ roomId, me, proof, art }: { roomId: string; me: Actor; proof: ActorProof; art: Art }) {
   const docValue = art.elements["doc"]?.value;
-  if (isUploadedFileDoc(docValue)) return <FileViewer doc={docValue} />;
+  if (isUploadedFileDoc(docValue)) return <FileViewer roomId={roomId} me={me} proof={proof} art={art} doc={docValue} />;
   const store = useStore();
   const [noteErr, setNoteErr] = useState<string | null>(null);
   const [dirtyStatus, setDirtyStatus] = useState<"idle" | "queued" | "processed">("idle");
@@ -1648,10 +1739,10 @@ function SanitizedHtml({ html, className }: { html: string; className?: string }
   );
 }
 
-function Note({ roomId, me, art }: { roomId: string; me: Actor; art: Art }) {
+function Note({ roomId, me, proof, art }: { roomId: string; me: Actor; proof?: ActorProof; art: Art }) {
   const store = useStore();
   const docValue = art.elements["doc"]?.value;
-  if (isUploadedFileDoc(docValue)) return <FileViewer doc={docValue} />;
+  if (isUploadedFileDoc(docValue)) return <FileViewer roomId={roomId} me={me} proof={proof} art={art} doc={docValue} />;
   const locked = !!lockedByOther(store, art.id, "doc", me);
   const docStr = String(art.elements["doc"]?.value ?? "");
   const [noteErr, setNoteErr] = useState<string | null>(null);
@@ -1694,25 +1785,254 @@ function isUploadedFileDoc(value: unknown): value is UploadedFileDoc {
   return !!value && typeof value === "object" && (value as { upload?: unknown }).upload === true;
 }
 
-function FileViewer({ doc }: { doc: UploadedFileDoc }) {
+function FileViewer({ roomId, me, proof, art, doc }: { roomId: string; me: Actor; proof?: ActorProof; art: Art; doc: UploadedFileDoc }) {
   const isImage = doc.mimeType.startsWith("image/") && doc.dataUrl;
-  const isPdf = doc.mimeType === "application/pdf" && doc.dataUrl;
+  const isPdf = isPdfFileDoc(doc);
+  const canResolveStoredPdf = isPdf && !!proof && isPersistedArtifactId(art.id);
+  const isWorkbook = isWorkbookPreviewDoc(doc);
+  const isOffice = isOfficePreviewDoc(doc);
+  const display = fileViewerDisplay(doc.fileName, doc.mimeType);
+  const pdfObjectUrl = useDataUrlObjectUrl(isPdf ? doc.dataUrl : undefined, doc.mimeType);
+  const storedPdf = useQuery(api.artifacts.sourceFilePreviewUrl, canResolveStoredPdf ? { roomId: roomId as never, artifactId: art.id as never, requester: proof } : "skip") as { url?: string | null } | null | undefined;
+  const storedPdfUrl = typeof storedPdf?.url === "string" ? storedPdf.url : null;
+  const pdfPreviewUrl = pdfObjectUrl ?? storedPdfUrl;
+  const waitingForPersistedPdf = isPdf && !!proof && !doc.dataUrl && !isPersistedArtifactId(art.id);
+  const downloadHref = isPdf ? pdfPreviewUrl : doc.dataUrl;
+  const [workbookArt, setWorkbookArt] = useState<Art | null>(null);
+  const [workbookErr, setWorkbookErr] = useState<string | null>(null);
+  const [officePreview, setOfficePreview] = useState<OfficePreview | null>(null);
+  const [officeErr, setOfficeErr] = useState<string | null>(null);
+  useEffect(() => {
+    if (!isWorkbook) {
+      setWorkbookArt(null);
+      setWorkbookErr(null);
+      return;
+    }
+    let cancelled = false;
+    setWorkbookErr(null);
+    void workbookPreviewArtifactFromDataUrl(doc, roomId, me).then(
+      (artifact) => {
+        if (cancelled) return;
+        setWorkbookArt(artifact);
+        setWorkbookErr(artifact ? null : "Workbook preview could not be built.");
+      },
+      (error) => {
+        if (cancelled) return;
+        setWorkbookArt(null);
+        setWorkbookErr(error instanceof Error ? error.message : "Workbook preview could not be built.");
+      },
+    );
+    return () => { cancelled = true; };
+  }, [doc, isWorkbook, me, roomId]);
+  useEffect(() => {
+    if (!isOffice) {
+      setOfficePreview(null);
+      setOfficeErr(null);
+      return;
+    }
+    let cancelled = false;
+    setOfficeErr(null);
+    void officePreviewFromDataUrl(doc).then(
+      (preview) => {
+        if (cancelled) return;
+        setOfficePreview(preview);
+        setOfficeErr(preview ? null : "Document preview could not be built.");
+      },
+      (error) => {
+        if (cancelled) return;
+        setOfficePreview(null);
+        setOfficeErr(error instanceof Error ? error.message : "Document preview could not be built.");
+      },
+    );
+    return () => { cancelled = true; };
+  }, [doc, isOffice]);
   return (
     <div className="r-art-body r-file-viewer">
       <div className="r-file-viewer-head">
         <div>
-          <div className="r-file-viewer-title">{doc.fileName}</div>
+          <div className="r-file-viewer-title"><span>{display.title}</span>{display.badge && <span className="r-file-ext">{display.badge}</span>}</div>
           {doc.parse && <div className="r-file-viewer-meta">{doc.parse.parser} + {doc.parse.fallbackParser ?? "none"} {doc.parse.lane.replace("_", " ")} | {doc.parse.status.replace(/_/g, " ")}</div>}
-          <div className="r-file-viewer-meta">{doc.mimeType || "file"} · {formatBytes(doc.size)}</div>
+          <div className="r-file-viewer-meta">{display.type} · {formatBytes(doc.size)}</div>
         </div>
-        {doc.dataUrl && <a className="r-btn ghost" href={doc.dataUrl} download={doc.fileName}>Download</a>}
+        {downloadHref && <a className="r-btn ghost" href={downloadHref} download={doc.fileName}>Download</a>}
       </div>
       {isImage ? <img className="r-file-image" src={doc.dataUrl} alt={doc.fileName} />
-        : isPdf ? <iframe className="r-file-pdf" title={doc.fileName} src={doc.dataUrl} />
+        : isPdf ? <PdfFilePreview doc={doc} previewUrl={pdfPreviewUrl} loadingSourceUrl={waitingForPersistedPdf || (canResolveStoredPdf && !doc.dataUrl && storedPdf === undefined)} />
+          : isWorkbook ? (
+            <div className="r-file-workbook-preview" data-testid="workbook-file-preview">
+              {workbookArt ? <GenericSheet roomId={roomId} me={me} art={workbookArt} />
+                : <div className="r-file-empty">{workbookErr ?? "Loading workbook preview..."}</div>}
+            </div>
+          )
+          : isOffice ? <OfficeFilePreview preview={officePreview} error={officeErr} />
           : doc.text !== undefined ? <pre className="r-file-text">{doc.text}</pre>
             : <div className="r-file-empty">Preview is not available for this file type.</div>}
     </div>
   );
+}
+
+function isPdfFileDoc(doc: UploadedFileDoc): boolean {
+  return doc.mimeType.toLowerCase() === "application/pdf" || doc.fileName.toLowerCase().endsWith(".pdf");
+}
+
+function isPersistedArtifactId(id: string): boolean {
+  return !!id && !id.startsWith(OPT_ARTIFACT_PREFIX);
+}
+
+function PdfFilePreview({ doc, previewUrl, loadingSourceUrl }: { doc: UploadedFileDoc; previewUrl: string | null; loadingSourceUrl?: boolean }) {
+  const [loaded, setLoaded] = useState(false);
+  useEffect(() => { setLoaded(false); }, [previewUrl]);
+  if (!previewUrl) {
+    if (loadingSourceUrl) return <div className="r-file-empty">Loading PDF preview...</div>;
+    return (
+      <div className="r-file-source-preview" data-testid="pdf-source-preview">
+        <div className="r-file-source-icon" aria-hidden><FileText size={18} /></div>
+        <div>
+          <div className="r-file-source-title">PDF preview unavailable</div>
+          <div className="r-file-source-copy">
+            The file is stored in this room, but the browser could not resolve a preview URL. Try reopening the artifact or downloading the file.
+          </div>
+        </div>
+      </div>
+    );
+  }
+  return (
+    <div className="r-file-pdf-wrap" data-testid="pdf-file-preview">
+      <iframe className="r-file-pdf" title={doc.fileName} src={previewUrl} onLoad={() => setLoaded(true)} />
+      {!loaded && <div className="r-file-loading">Preparing PDF preview...</div>}
+    </div>
+  );
+}
+
+function useDataUrlObjectUrl(dataUrl: string | undefined, mimeType: string): string | null {
+  const [objectUrl, setObjectUrl] = useState<string | null>(null);
+  useEffect(() => {
+    if (!dataUrl) {
+      setObjectUrl(null);
+      return;
+    }
+    if (!dataUrl.startsWith("data:") || typeof URL === "undefined" || typeof Blob === "undefined" || !URL.createObjectURL) {
+      setObjectUrl(dataUrl);
+      return;
+    }
+    try {
+      const url = objectUrlFromDataUrl(dataUrl, mimeType);
+      setObjectUrl(url);
+      return () => URL.revokeObjectURL(url);
+    } catch {
+      setObjectUrl(dataUrl);
+    }
+  }, [dataUrl, mimeType]);
+  return objectUrl;
+}
+
+function objectUrlFromDataUrl(dataUrl: string, fallbackMimeType: string): string {
+  const match = /^data:([^;,]+)?(;base64)?,(.*)$/s.exec(dataUrl);
+  if (!match) throw new Error("Invalid data URL");
+  const mimeType = match[1] || fallbackMimeType || "application/octet-stream";
+  const isBase64 = !!match[2];
+  const body = match[3] ?? "";
+  const bytes = isBase64 ? bytesFromBase64(body) : new TextEncoder().encode(decodeURIComponent(body));
+  return URL.createObjectURL(new Blob([arrayBufferFromBytes(bytes)], { type: mimeType }));
+}
+
+function bytesFromBase64(base64: string): Uint8Array {
+  const binary = atob(base64);
+  const bytes = new Uint8Array(binary.length);
+  for (let index = 0; index < binary.length; index += 1) bytes[index] = binary.charCodeAt(index);
+  return bytes;
+}
+
+function arrayBufferFromBytes(bytes: Uint8Array): ArrayBuffer {
+  const copy = new Uint8Array(bytes.byteLength);
+  copy.set(bytes);
+  return copy.buffer;
+}
+
+function OfficeFilePreview({ preview, error }: { preview: OfficePreview | null; error: string | null }) {
+  if (!preview) return <div className="r-file-empty">{error ?? "Loading document preview..."}</div>;
+  const Icon = preview.kind === "presentation" ? Layers : FileText;
+  const display = fileViewerDisplay(preview.title, preview.kind === "presentation" ? "application/vnd.openxmlformats-officedocument.presentationml.presentation" : "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
+  return (
+    <div className="r-file-office-preview" data-testid="office-file-preview" data-office-kind={preview.kind}>
+      <div className="r-office-preview-head">
+        <div className="r-office-preview-icon" aria-hidden><Icon size={16} /></div>
+        <div>
+          <div className="r-office-preview-title"><span>{display.title}</span>{display.badge && <span className="r-file-ext">{display.badge}</span>}</div>
+          <div className="r-office-preview-meta">{display.type} · {preview.subtitle}</div>
+        </div>
+      </div>
+      <div className="r-office-sections">
+        {preview.sections.map((section, index) => (
+          <section className="r-office-section" key={`${section.title}-${index}`}>
+            <h3>{section.title}</h3>
+            <ul>
+              {section.lines.slice(0, 12).map((line, lineIndex) => <li key={`${line}-${lineIndex}`}>{line}</li>)}
+            </ul>
+          </section>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function artifactTabDisplay(artifact: Art) {
+  const doc = artifact.elements.doc?.value;
+  if (isUploadedFileDoc(doc)) return fileViewerDisplay(doc.fileName, doc.mimeType);
+  const display = fileViewerDisplay(artifact.title, "");
+  return display.badge ? display : { title: artifact.title, badge: "", type: artifact.kind };
+}
+
+function fileViewerDisplay(fileName: string, mimeType: string) {
+  const ext = fileExtension(fileName);
+  return {
+    title: generatedBtbDeliverableLabel(fileName) ?? compactFileTitle(fileName),
+    badge: ext ? ext.toUpperCase() : "",
+    type: readableFileType(fileName, mimeType),
+  };
+}
+
+function generatedBtbDeliverableLabel(fileName: string): string | null {
+  const lower = fileName.toLowerCase();
+  if (!/^btb-[a-f0-9]{8}-/.test(lower)) return null;
+  if (lower.endsWith(".xlsx")) return "Valuation model";
+  if (lower.endsWith(".xlsm")) return "Macro workbook";
+  if (lower.endsWith(".pptx")) return "Presentation deck";
+  if (lower.endsWith(".docx")) return "Support memo";
+  if (lower.endsWith(".pdf")) return "PDF export";
+  if (lower.endsWith("-manifest.json") || lower.endsWith(".json")) return "Package manifest";
+  return null;
+}
+
+function compactFileTitle(fileName: string): string {
+  const ext = fileExtension(fileName);
+  const base = ext ? fileName.slice(0, -(ext.length + 1)) : fileName;
+  const cleaned = base
+    .replace(/^btb-[a-f0-9]{8}-/i, "")
+    .replace(/[-_]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+  if (!cleaned) return fileName;
+  return cleaned.length > 56 ? `${cleaned.slice(0, 53).trim()}...` : cleaned;
+}
+
+function readableFileType(fileName: string, mimeType: string): string {
+  const lowerName = fileName.toLowerCase();
+  const lowerMime = mimeType.toLowerCase();
+  if (lowerName.endsWith(".xlsm") || lowerMime.includes("macroenabled")) return "Macro workbook";
+  if (lowerName.endsWith(".xlsx") || lowerMime.includes("spreadsheetml.sheet")) return "Excel workbook";
+  if (lowerName.endsWith(".pptx") || lowerMime.includes("presentationml.presentation")) return "PowerPoint";
+  if (lowerName.endsWith(".docx") || lowerMime.includes("wordprocessingml.document")) return "Word document";
+  if (lowerName.endsWith(".pdf") || lowerMime === "application/pdf") return "PDF";
+  if (lowerName.endsWith(".json") || lowerMime === "application/json") return "JSON";
+  if (lowerName.endsWith(".txt") || lowerMime.startsWith("text/")) return "Text";
+  if (lowerMime.startsWith("image/")) return "Image";
+  return "File";
+}
+
+function fileExtension(fileName: string): string {
+  const match = /\.([A-Za-z0-9]{1,8})$/.exec(fileName.trim());
+  return match?.[1] ?? "";
 }
 
 function formatBytes(bytes: number) {

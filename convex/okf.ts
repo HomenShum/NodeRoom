@@ -45,6 +45,8 @@ type SourceLocatorArgs = {
   bbox?: { x: number; y: number; width: number; height: number; unit?: "px" | "pt" | "normalized" };
 };
 type ElementDoc = Doc<"elements">;
+const DEFAULT_LITERAL_SNIPPET_CHARS = 900;
+const TEXT_DOCUMENT_LITERAL_CHARS = 24_000;
 
 function clean<T extends Record<string, unknown>>(value: T): T {
   const out: Record<string, unknown> = {};
@@ -269,6 +271,20 @@ function distinct(values: Array<string | undefined>): string[] {
   return out;
 }
 
+function excelColumnLabels(limit = 52): string[] {
+  const labels: string[] = [];
+  for (let i = 0; i < limit; i += 1) {
+    let n = i;
+    let label = "";
+    do {
+      label = String.fromCharCode(65 + (n % 26)) + label;
+      n = Math.floor(n / 26) - 1;
+    } while (n >= 0);
+    labels.push(label);
+  }
+  return labels;
+}
+
 function columnCandidates(meta: unknown, requested?: string): string[] {
   if (!requested) return [];
   const normalized = normalizedKey(requested);
@@ -375,27 +391,50 @@ async function getElementsByIds(ctx: QueryCtx, artifactId: Id<"artifacts">, elem
   return out;
 }
 
-function artifactLiteralResult(artifact: Doc<"artifacts">, locator: SourceLocatorArgs, snippet: string): LiteralSourceResult {
+function artifactLiteralResult(artifact: Doc<"artifacts">, locator: SourceLocatorArgs, snippet: string, limit = DEFAULT_LITERAL_SNIPPET_CHARS): LiteralSourceResult {
   return {
     ok: true,
     title: artifact.title,
     resource: String(artifact._id),
-    snippet: snippet.slice(0, 900),
+    snippet: snippet.slice(0, limit),
     locator: { page: locator.page, row: locator.row, column: locator.column, bbox: locator.bbox },
   };
 }
 
+function uploadedTextDocumentSnippet(value: unknown): string | null {
+  if (!value || typeof value !== "object") return null;
+  const doc = value as { fileName?: unknown; mimeType?: unknown; size?: unknown; text?: unknown };
+  if (typeof doc.text !== "string" || !doc.text.trim()) return null;
+  const mimeType = typeof doc.mimeType === "string" ? doc.mimeType : "";
+  const fileName = typeof doc.fileName === "string" ? doc.fileName : "";
+  if (mimeType && !mimeType.startsWith("text/") && !/\.(txt|md|json|log)$/i.test(fileName)) return null;
+  return [
+    `fileName: ${fileName || "(uploaded text)"}`,
+    `mimeType: ${mimeType || "text/plain"}`,
+    typeof doc.size === "number" ? `size: ${doc.size}` : undefined,
+    "",
+    doc.text,
+  ].filter((part): part is string => part !== undefined).join("\n");
+}
+
 async function literalFromArtifact(ctx: QueryCtx, artifact: Doc<"artifacts">, locator: SourceLocatorArgs): Promise<LiteralSourceResult> {
+  if (artifact.kind === "note" && locator.row == null && !locator.column && !locator.bbox) {
+    const docElement = await getElementById(ctx, artifact._id, "doc");
+    const textSnippet = uploadedTextDocumentSnippet(docElement?.value);
+    if (textSnippet) return artifactLiteralResult(artifact, locator, textSnippet, TEXT_DOCUMENT_LITERAL_CHARS);
+  }
+
   const columns = columnCandidates(artifact.meta, locator.column);
   const rows = orderedRowIds(artifact.order);
   const rowId = locator.row && locator.row > 0 ? rows[locator.row - 1] : undefined;
   const directIds = [
     ...(locator.row && locator.column ? columns.map((column) => `${column}${locator.row}`) : []),
+    ...(locator.row && !locator.column ? excelColumnLabels().map((column) => `${column}${locator.row}`) : []),
     ...(rowId ? columns.map((column) => `${rowId}__${column}`) : []),
     ...(locator.row ? ["r", "row", "u"].flatMap((prefix) => columns.map((column) => `${prefix}${locator.row}__${column}`)) : []),
   ];
   const direct = await getElementsByIds(ctx, artifact._id, directIds);
-  if (direct[0]) return artifactLiteralResult(artifact, locator, formatElementLine(direct[0]));
+  if (direct[0]) return artifactLiteralResult(artifact, locator, direct.map(formatElementLine).join("\n"));
 
   const orderMatches = artifact.order.filter((elementId) => {
     if (!columns.length) return true;
@@ -438,6 +477,19 @@ async function getSourceArtifact(ctx: QueryCtx, roomId: Id<"rooms">, sourceArtif
   }
   if (!artifact || String(artifact.roomId) !== String(roomId) || !canOpenArtifact(artifact, access)) return null;
   return artifact;
+}
+
+async function sourceArtifactNotFoundResult(ctx: QueryCtx, roomId: Id<"rooms">, access: OkfAccess): Promise<LiteralSourceResult & { candidates: Array<{ id: string; title: string; kind: string }> }> {
+  const candidates = (await ctx.db.query("artifacts").withIndex("by_room", (q) => q.eq("roomId", roomId)).take(80))
+    .filter((artifact) => canOpenArtifact(artifact, access))
+    .slice(0, 16)
+    .map((artifact) => ({ id: String(artifact._id), title: artifact.title, kind: artifact.kind }));
+  return {
+    ok: false,
+    error: "artifact_not_found",
+    snippet: `sourceArtifactId must be an exact artifact id from list_artifacts/source evidence; retry with one of these exact candidate ids: ${candidates.map((artifact) => `${artifact.title}=${artifact.id}`).join("; ")}`,
+    candidates,
+  };
 }
 
 async function resolveCellEvidence(ctx: QueryCtx, roomId: Id<"rooms">, evidenceId: string, access: OkfAccess): Promise<LiteralSourceResult | null> {
@@ -842,9 +894,11 @@ export const resolveCitation = query({
 export const openLiteral = query({
   args: { roomId: v.id("rooms"), sourceArtifactId: v.string(), page: v.optional(v.number()), row: v.optional(v.number()), column: v.optional(v.string()), bbox: v.optional(v.object({ x: v.number(), y: v.number(), width: v.number(), height: v.number(), unit: v.optional(v.union(v.literal("px"), v.literal("pt"), v.literal("normalized"))) })), ...requesterArgsV },
   handler: async (ctx, a) => {
-    const artifact = await ctx.db.get(a.sourceArtifactId as Id<"artifacts">);
-    if (!artifact || String(artifact.roomId) !== String(a.roomId)) return { ok: false, error: "artifact_not_found" };
-    if (!canOpenArtifact(artifact, await accessForRequester(ctx, a.roomId, a.requester))) return { ok: false, error: "artifact_not_found" };
+    const access = await accessForRequester(ctx, a.roomId, a.requester);
+    const artifact = await getSourceArtifact(ctx, a.roomId, a.sourceArtifactId, access);
+    if (!artifact) {
+      return await sourceArtifactNotFoundResult(ctx, a.roomId, access);
+    }
     return await literalFromArtifact(ctx, artifact, { page: a.page, row: a.row, column: a.column, bbox: a.bbox });
   },
 });
@@ -1023,9 +1077,11 @@ export const resolveCitationForAgent = internalQuery({
 export const openLiteralForAgent = internalQuery({
   args: { roomId: v.id("rooms"), ...agentAccessArgsV, sourceArtifactId: v.string(), page: v.optional(v.number()), row: v.optional(v.number()), column: v.optional(v.string()), bbox: v.optional(v.object({ x: v.number(), y: v.number(), width: v.number(), height: v.number(), unit: v.optional(v.union(v.literal("px"), v.literal("pt"), v.literal("normalized"))) })) },
   handler: async (ctx, a) => {
-    const artifact = await ctx.db.get(a.sourceArtifactId as Id<"artifacts">);
-    if (!artifact || String(artifact.roomId) !== String(a.roomId)) return { ok: false, error: "artifact_not_found" };
-    if (!canOpenArtifact(artifact, await accessForAgent(ctx, a.roomId, a.actor))) return { ok: false, error: "artifact_not_found" };
+    const access = await accessForAgent(ctx, a.roomId, a.actor);
+    const artifact = await getSourceArtifact(ctx, a.roomId, a.sourceArtifactId, access);
+    if (!artifact) {
+      return await sourceArtifactNotFoundResult(ctx, a.roomId, access);
+    }
     return await literalFromArtifact(ctx, artifact, { page: a.page, row: a.row, column: a.column, bbox: a.bbox });
   },
 });

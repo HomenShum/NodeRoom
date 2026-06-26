@@ -8,7 +8,9 @@ type ParsedCell = { value: unknown; formula?: string };
 
 const MAX_PARSE_ROWS = 2_000;
 const MAX_PARSE_COLUMNS = 80;
-const MAX_SEED_CELLS = 20_000;
+// Convex validates v.array() arguments before the mutation body runs; 8,192 is
+// the hard upload boundary even though the backend also checks payload size.
+const MAX_MUTATION_SEED_CELLS = 8_192;
 const MAX_HEADER_SCAN_ROWS = 50;
 const MAX_XLSX_ZIP_ENTRIES = 2_000;
 const MAX_XLSX_UNCOMPRESSED_BYTES = 50_000_000;
@@ -98,6 +100,26 @@ export async function parseSpreadsheetArtifacts(args: ParseSpreadsheetArgs): Pro
   })];
 }
 
+export function spreadsheetArtifactFromRows(args: {
+  fileName: string;
+  mimeType: string;
+  size: number;
+  rows: unknown[][];
+  sheetName?: string;
+  parser?: string;
+}): UploadedArtifactInput {
+  const sheetName = args.sheetName ?? "Sheet1";
+  return sheetArtifactFromRows({
+    fileName: args.fileName,
+    mimeType: args.mimeType,
+    size: args.size,
+    sheetName,
+    sheetNames: [sheetName],
+    rows: args.rows,
+    parser: args.parser ?? "rows",
+  });
+}
+
 function sheetArtifactFromWorkbookGrid(args: {
   fileName: string;
   mimeType: string;
@@ -108,11 +130,11 @@ function sheetArtifactFromWorkbookGrid(args: {
 }): UploadedArtifactInput {
   const rawRows = Math.max(args.sheet.rowCount, args.sheet.actualRowCount, 1);
   const rawColumns = Math.max(args.sheet.columnCount, args.sheet.actualColumnCount, 1);
-  const columnLimit = Math.max(1, Math.min(rawColumns, MAX_PARSE_COLUMNS, MAX_SEED_CELLS));
-  const rowLimit = Math.max(1, Math.min(rawRows, MAX_PARSE_ROWS, Math.floor(MAX_SEED_CELLS / columnLimit)));
+  const columnLimit = Math.max(1, Math.min(rawColumns, MAX_PARSE_COLUMNS, MAX_MUTATION_SEED_CELLS));
+  const rowLimit = Math.max(1, Math.min(rawRows, MAX_PARSE_ROWS, Math.floor(MAX_MUTATION_SEED_CELLS / columnLimit)));
   const columns = excelColumns(columnLimit);
   const warnings: string[] = [];
-  if (rawRows > rowLimit) warnings.push(`Parsed first ${rowLimit} worksheet rows to stay within ${MAX_SEED_CELLS} cells.`);
+  if (rawRows > rowLimit) warnings.push(`Parsed first ${rowLimit} worksheet rows to stay within ${MAX_MUTATION_SEED_CELLS} cells.`);
   if (rawColumns > columnLimit) warnings.push(`Parsed first ${columnLimit} worksheet columns.`);
 
   const seed: Array<{ id: string; value: unknown }> = [];
@@ -198,11 +220,11 @@ function sheetArtifactFromRows(args: {
   const headerIndex = chooseHeaderIndex(nonEmptyRows);
   const header = nonEmptyRows[headerIndex]?.length ? nonEmptyRows[headerIndex] : ["Column 1"];
   const columns = uniqueColumns(header.slice(0, MAX_PARSE_COLUMNS).map((h, i) => String(h ?? "").trim() || `Column ${i + 1}`));
-  const rowLimit = Math.max(1, Math.min(MAX_PARSE_ROWS, Math.floor(MAX_SEED_CELLS / Math.max(columns.length, 1))));
+  const rowLimit = Math.max(1, Math.min(MAX_PARSE_ROWS, Math.floor(MAX_MUTATION_SEED_CELLS / Math.max(columns.length, 1))));
   const dataRows = nonEmptyRows.slice(headerIndex + 1, headerIndex + 1 + rowLimit);
   const warnings: string[] = [];
   if (headerIndex > 0) warnings.push(`Skipped ${headerIndex} banner row${headerIndex === 1 ? "" : "s"} before the detected header.`);
-  if (nonEmptyRows.length - headerIndex - 1 > rowLimit) warnings.push(`Parsed first ${rowLimit} data rows to stay within ${MAX_SEED_CELLS} cells.`);
+  if (nonEmptyRows.length - headerIndex - 1 > rowLimit) warnings.push(`Parsed first ${rowLimit} data rows to stay within ${MAX_MUTATION_SEED_CELLS} cells.`);
   if (header.length > MAX_PARSE_COLUMNS) warnings.push(`Parsed first ${MAX_PARSE_COLUMNS} columns.`);
 
   const seed: Array<{ id: string; value: unknown }> = [];

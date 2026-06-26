@@ -239,11 +239,18 @@ test.describe("full modern UX release bar", () => {
     await openDesktopArtifact(page, "Company research");
     const panel = page.getByTestId("artifact-panel");
     const cardioRow = panel.locator(".r-research-row", { hasText: "CardioNova" });
-    await expect(cardioRow).toContainText(/complete/i);
-    await expect(cardioRow).toContainText(/AI triage workflow/i);
-    await expect(cardioRow).toContainText(/Series B profile/i);
-    await expect(cardioRow.locator(".r-srcchip").first()).toHaveAttribute("title", /cardionova\.example/);
-    await expect(cardioRow.locator(".r-fresh")).toContainText("fresh");
+    const statusCell = panel.locator('[data-cell-key="rc_cardionova__status"]').or(cardioRow.locator("td").nth(1)).first();
+    const summaryCell = panel.locator('[data-cell-key="rc_cardionova__summary"]').or(cardioRow.locator("td").nth(3)).first();
+    const fundingCell = panel.locator('[data-cell-key="rc_cardionova__funding"]').or(cardioRow.locator("td").nth(4)).first();
+    const sourceCell = panel.locator('[data-cell-key="rc_cardionova__source"]').or(cardioRow.locator(".r-research-src")).first();
+    const source2Cell = panel.locator('[data-cell-key="rc_cardionova__source2"]').or(cardioRow.locator(".r-research-src")).first();
+    const freshCell = panel.locator('[data-cell-key="rc_cardionova__last_researched"]').or(cardioRow.locator("td").nth(6)).first();
+    await expect(statusCell).toContainText(/complete/i);
+    await expect(summaryCell).toContainText(/AI triage workflow/i);
+    await expect(fundingCell).toContainText(/Series B profile/i);
+    await expect(sourceCell).toContainText(/cardionova\.example/);
+    await expect(source2Cell).toContainText(/cardionova\.example|wikipedia|fresh/i);
+    await expect(freshCell).not.toBeEmpty();
 
     await openDesktopArtifact(page, "Q3 variance");
     await expect(panel.locator('[data-cell-key="r_gp__variance"]')).toBeVisible();
@@ -253,7 +260,7 @@ test.describe("full modern UX release bar", () => {
     const unifiedStream = chat.getByTestId("agent-unified-stream").first();
     await expect(unifiedStream).toBeVisible({ timeout: 3_000 });
     await expect(unifiedStream.getByTestId("agent-stream-text")).toContainText("Working through the visible sheet cells");
-    await expect(unifiedStream).toContainText(/derive_affected_set|patch_bundle_cas/);
+    await expect(unifiedStream).toContainText(/derive_affected_set|patch_bundle_cas|Derive Affected SET|Patch Bundle CAS/i);
     await expect(chat.getByTestId("agent-operation-stream")).toHaveCount(0);
     await expect(chat.getByTestId("chat-message").filter({ hasText: "Memory free-auto applied" })).toBeVisible({
       timeout: 15_000,
@@ -275,6 +282,9 @@ test.describe("full modern UX release bar", () => {
     await expect(app).toBeVisible({ timeout: 30_000 });
     await expect(app).toHaveCSS("background-color", "rgb(251, 244, 231)");
     await expect(page.locator(".na-roomsw .nm")).toHaveText("Q3 Diligence");
+    await expect(page.locator('[aria-label="Capture note"]')).toBeVisible();
+    await expectNoHorizontalOverflow(page, "mobile capture");
+    await page.getByRole("button", { name: "Home" }).click();
     await expect(page.locator(".na-kicker").filter({ hasText: "Recents" })).toBeVisible();
     await expect(page.locator(".na-skel")).toHaveCount(0);
     await expectNoHorizontalOverflow(page, "mobile home");

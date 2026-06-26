@@ -1,0 +1,234 @@
+{
+  "schema": 1,
+  "caseId": "FR-020",
+  "benchmark": "bankertoolbench",
+  "taskId": "7b078eaa-4fe4-4780-9f53-531872b73274",
+  "generatedAt": "2026-06-25T04:14:45.469Z",
+  "baseUrl": "http://127.0.0.1:5273",
+  "roomId": "NRHTW3HK35S",
+  "roomUrl": "http://127.0.0.1:5273/?room=NRHTW3HK35S&name=Host",
+  "command": "BTB_LIVE_ROOM_E2E=1 BTB_UI_BUNDLE_ROOT=<official-bundle> BTB_UI_VERIFIER_COMMAND=<verifier> BENCH_BASE_URL=<base> npx playwright test --config playwright.real-flow.config.ts e2e/benchmark-ui-bankertoolbench.spec.ts --headed",
+  "model": {
+    "requested": "specific",
+    "resolved": "z-ai/glm-5.2",
+    "routePolicy": "specific",
+    "runtimeProfile": "benchmark_completion",
+    "provider": "openrouter"
+  },
+  "prompt": "Official BankerToolBench task btb-7b078eaa: You are an analyst in the M&A group at a bulge-bracket bank. Given the geopolitical landscape and the expected tailwinds for the defense & aerospace industry in the U.S., your MD is considering pitching a merger between Raytheon and General Dynamics to Raytheon's executives. He has asked your team to put together a pitch deck for this idea. Your VP has tasked you with building out an accretion-dilution model to determine whether the deal makes sense and which structures would be optimal. In this Model, Raytheon would be the acquirer and General Dynamics would be the target. The final deliverable should be an Excel file with the accretion-dilution model for this potential transaction. \n\n\nYour VP has given you the following guidelines for the merger model.\nAll units should be in millions and displayed with 1 decimal place.\nThe share price should be displayed with a $ sign and rounded to the nearest cent.\nEach section should be separated by 1 row.\nThe top of the Model (row 2) should have a header labeled \"RTX & GD - Merger Mode.\"\nAll formulas should be linked to the cell (i.e, C21) and not named cells. \n\n\nThe Model should include these sections in the following order. \nList of all the",
+  "memoryMode": false,
+  "freshness": {
+    "roomCreatedAfterRunStart": true,
+    "forbiddenPreloadedArtifactsAbsent": true,
+    "artifactsCreatedFresh": [
+      "btb-7b078eaa-btb-7b078eaa-rtx-gd-valuation-comparison-gaap-basis.xlsx",
+      "btb-7b078eaa-btb-7b078eaa-rtx-gd-valuation-comparison-gaap-basis.xlsm",
+      "btb-7b078eaa-btb-7b078eaa-rtx-gd-valuation-comparison-gaap-basis.pptx",
+      "btb-7b078eaa-btb-7b078eaa-rtx-gd-valuation-comparison-gaap-basis.docx",
+      "btb-7b078eaa-btb-7b078eaa-rtx-gd-valuation-comparison-gaap-basis.pdf"
+    ],
+    "uploadedFiles": [
+      "betas_by_industry_category_for_WACC.xlsx",
+      "Equity_Risk_Premium_for_WACC.xlsx",
+      "RTX-US Company Identity.xlsx",
+      "RTX-US Income Statement Annual.xlsx",
+      "RTX-US Balance Sheet Annual.xlsx",
+      "RTX-US Cash Flow Annual.xlsx",
+      "RTX-US Shares Outstanding.xlsx",
+      "RTX-US Price History.xlsx",
+      "RTX-US Revenue Estimate.xlsx",
+      "RTX-US Earnings Estimate.xlsx",
+      "GD-US Company Identity.xlsx",
+      "GD-US Income Statement Annual.xlsx",
+      "GD-US Balance Sheet Annual.xlsx",
+      "GD-US Cash Flow Annual.xlsx",
+      "GD-US Shares Outstanding.xlsx",
+      "GD-US Price History.xlsx",
+      "GD-US Revenue Estimate.xlsx",
+      "GD-US Earnings Estimate.xlsx",
+      "btb-7b078eaa-official-task-brief.txt"
+    ]
+  },
+  "ui": {
+    "focusModeEnabled": true,
+    "attentionOverlayVisible": true,
+    "streamingVisible": true,
+    "jobDetailVisible": true,
+    "roomTraceVisible": true,
+    "screenshotPaths": [
+      "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\7b078eaa-4fe4-4780-9f53-531872b73274\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\bankertoolbench-live-room.png"
+    ],
+    "tracePath": "docs\\eval\\bankertoolbench\\live-room\\7b078eaa-4fe4-4780-9f53-531872b73274.json"
+  },
+  "artifacts": {
+    "uploadedFiles": [
+      "betas_by_industry_category_for_WACC.xlsx",
+      "Equity_Risk_Premium_for_WACC.xlsx",
+      "RTX-US Company Identity.xlsx",
+      "RTX-US Income Statement Annual.xlsx",
+      "RTX-US Balance Sheet Annual.xlsx",
+      "RTX-US Cash Flow Annual.xlsx",
+      "RTX-US Shares Outstanding.xlsx",
+      "RTX-US Price History.xlsx",
+      "RTX-US Revenue Estimate.xlsx",
+      "RTX-US Earnings Estimate.xlsx",
+      "GD-US Company Identity.xlsx",
+      "GD-US Income Statement Annual.xlsx",
+      "GD-US Balance Sheet Annual.xlsx",
+      "GD-US Cash Flow Annual.xlsx",
+      "GD-US Shares Outstanding.xlsx",
+      "GD-US Price History.xlsx",
+      "GD-US Revenue Estimate.xlsx",
+      "GD-US Earnings Estimate.xlsx",
+      "btb-7b078eaa-official-task-brief.txt"
+    ],
+    "created": [
+      "btb-7b078eaa-btb-7b078eaa-rtx-gd-valuation-comparison-gaap-basis.xlsx",
+      "btb-7b078eaa-btb-7b078eaa-rtx-gd-valuation-comparison-gaap-basis.xlsm",
+      "btb-7b078eaa-btb-7b078eaa-rtx-gd-valuation-comparison-gaap-basis.pptx",
+      "btb-7b078eaa-btb-7b078eaa-rtx-gd-valuation-comparison-gaap-basis.docx",
+      "btb-7b078eaa-btb-7b078eaa-rtx-gd-valuation-comparison-gaap-basis.pdf"
+    ],
+    "exportedFiles": [
+      {
+        "kind": "workbook",
+        "filename": "btb-7b078eaa-btb-7b078eaa-rtx-gd-valuation-comparison-gaap-basis.xlsx",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\7b078eaa-4fe4-4780-9f53-531872b73274\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-7b078eaa-btb-7b078eaa-rtx-gd-valuation-comparison-gaap-basis.xlsx",
+        "extension": ".xlsx",
+        "downloaded": true,
+        "bytes": 7737,
+        "magic": "PK\\x03\\x04"
+      },
+      {
+        "kind": "workbook",
+        "filename": "btb-7b078eaa-btb-7b078eaa-rtx-gd-valuation-comparison-gaap-basis.xlsm",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\7b078eaa-4fe4-4780-9f53-531872b73274\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-7b078eaa-btb-7b078eaa-rtx-gd-valuation-comparison-gaap-basis.xlsm",
+        "extension": ".xlsm",
+        "downloaded": true,
+        "bytes": 7737,
+        "magic": "PK\\x03\\x04"
+      },
+      {
+        "kind": "presentation",
+        "filename": "btb-7b078eaa-btb-7b078eaa-rtx-gd-valuation-comparison-gaap-basis.pptx",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\7b078eaa-4fe4-4780-9f53-531872b73274\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-7b078eaa-btb-7b078eaa-rtx-gd-valuation-comparison-gaap-basis.pptx",
+        "extension": ".pptx",
+        "downloaded": true,
+        "bytes": 6534,
+        "magic": "PK\\x03\\x04"
+      },
+      {
+        "kind": "document",
+        "filename": "btb-7b078eaa-btb-7b078eaa-rtx-gd-valuation-comparison-gaap-basis.docx",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\7b078eaa-4fe4-4780-9f53-531872b73274\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-7b078eaa-btb-7b078eaa-rtx-gd-valuation-comparison-gaap-basis.docx",
+        "extension": ".docx",
+        "downloaded": true,
+        "bytes": 2714,
+        "magic": "PK\\x03\\x04"
+      },
+      {
+        "kind": "pdf",
+        "filename": "btb-7b078eaa-btb-7b078eaa-rtx-gd-valuation-comparison-gaap-basis.pdf",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\7b078eaa-4fe4-4780-9f53-531872b73274\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-7b078eaa-btb-7b078eaa-rtx-gd-valuation-comparison-gaap-basis.pdf",
+        "extension": ".pdf",
+        "downloaded": true,
+        "bytes": 3173,
+        "magic": "%PDF"
+      }
+    ],
+    "reopenedFiles": [
+      {
+        "kind": "workbook",
+        "filename": "btb-7b078eaa-btb-7b078eaa-rtx-gd-valuation-comparison-gaap-basis.xlsx",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "ZIP package contains xl/workbook.xml; placeholder/caveat content scan passed (1895 chars)"
+      },
+      {
+        "kind": "workbook",
+        "filename": "btb-7b078eaa-btb-7b078eaa-rtx-gd-valuation-comparison-gaap-basis.xlsm",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "ZIP package contains xl/workbook.xml; placeholder/caveat content scan passed (1895 chars)"
+      },
+      {
+        "kind": "presentation",
+        "filename": "btb-7b078eaa-btb-7b078eaa-rtx-gd-valuation-comparison-gaap-basis.pptx",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "ZIP package contains ppt/presentation.xml; placeholder/caveat content scan passed (1334 chars)"
+      },
+      {
+        "kind": "document",
+        "filename": "btb-7b078eaa-btb-7b078eaa-rtx-gd-valuation-comparison-gaap-basis.docx",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "ZIP package contains word/document.xml; placeholder/caveat content scan passed (2393 chars)"
+      },
+      {
+        "kind": "pdf",
+        "filename": "btb-7b078eaa-btb-7b078eaa-rtx-gd-valuation-comparison-gaap-basis.pdf",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "PDF header reopened; placeholder/caveat content scan passed (5827 chars)"
+      }
+    ]
+  },
+  "scorer": {
+    "name": "BankerToolBench proof verifier",
+    "command": "npm run benchmark:bankertoolbench:proof",
+    "verdict": "pass",
+    "score": 1,
+    "details": {
+      "verifierOutputTail": "\n> noderoom@0.1.1 benchmark:bankertoolbench:proof\n> tsx scripts/bankertoolbench-proof-check.ts\n\nBankerToolBench proof check passed: stage=1/1 weightedRubric=6 run=0/1 pass positive=1/1 pass candidateBeforeEvaluator=true leaks=0/2+0/3+0/4\n",
+      "packageManifestPath": "test-results\\bankertoolbench\\matrix\\7b078eaa-4fe4-4780-9f53-531872b73274\\package-manifest.json",
+      "downloadedExtensions": [
+        ".xlsx",
+        ".xlsm",
+        ".pptx",
+        ".docx",
+        ".pdf"
+      ],
+      "exportSource": "browser_download_link",
+      "agentTerminalQuality": {
+        "statusText": "completed via recovered Convex job: tb-7b078eaa-rtx-gd-valuation-comparison-gaap-basis.pptx, btb-7b078eaa-btb-7b078eaa-rtx-gd-valuation-comparison-gaap-basis.docx, btb-7b078eaa-btb-7b078eaa-rtx-gd-valuation-comparison-gaap-basis.pdf. Coverage confirmed for U.S, RTX, GD, GAAP.",
+        "evidenceTextLength": 1997,
+        "detail": "agent reached completed status or visible completion text, with no missing-source/unfinished-work caveats"
+      },
+      "taskCoverage": {
+        "ok": true,
+        "requiredTickers": [
+          "U.S",
+          "RTX",
+          "GD",
+          "GAAP"
+        ],
+        "missingTickers": [],
+        "detail": "generated package mentions every requested ticker/entity: U.S, RTX, GD, GAAP"
+      }
+    }
+  },
+  "visualJudge": {
+    "verdict": "not_run",
+    "reason": "Gemini visual judge is run by the external visual-judge command, not this scorer spec."
+  },
+  "gatesProven": [
+    "fresh_room_join",
+    "official_fixture_upload",
+    "public_nodeagent_invocation",
+    "visible_streaming_progress",
+    "trace_video_artifacts",
+    "no_memory_mode_shortcut",
+    "focus_mode_enabled",
+    "focus_box_or_attention_overlay",
+    "agent_live_loop",
+    "agent_terminal_quality_gate",
+    "room_trace_visible",
+    "job_detail_visible",
+    "deliverable_export_download",
+    "artifact_reopen_validation",
+    "artifact_placeholder_scan",
+    "official_scorer_handoff"
+  ],
+  "passed": true
+}

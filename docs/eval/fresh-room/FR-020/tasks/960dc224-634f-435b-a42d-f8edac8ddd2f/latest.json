@@ -1,0 +1,220 @@
+{
+  "schema": 1,
+  "caseId": "FR-020",
+  "benchmark": "bankertoolbench",
+  "taskId": "960dc224-634f-435b-a42d-f8edac8ddd2f",
+  "generatedAt": "2026-06-25T02:24:05.572Z",
+  "baseUrl": "http://127.0.0.1:5273",
+  "roomId": "NRN3J1YMMC4",
+  "roomUrl": "http://127.0.0.1:5273/?room=NRN3J1YMMC4&name=Host",
+  "command": "BTB_LIVE_ROOM_E2E=1 BTB_UI_BUNDLE_ROOT=<official-bundle> BTB_UI_VERIFIER_COMMAND=<verifier> BENCH_BASE_URL=<base> npx playwright test --config playwright.real-flow.config.ts e2e/benchmark-ui-bankertoolbench.spec.ts --headed",
+  "model": {
+    "requested": "specific",
+    "resolved": "z-ai/glm-5.2",
+    "routePolicy": "specific",
+    "runtimeProfile": "benchmark_completion",
+    "provider": "openrouter"
+  },
+  "prompt": "Official BankerToolBench task btb-960dc224: Hello. Please build a DCF model for Keurig Dr Pepper (KDP) using 2021-2024 historicals and a 5-year projection period (2025-2029).\n\nProjection Assumptions:\n- Revenue growth: Rolling average of prior 2 years' growth rates\n- Operating margin: First projection year equals prior year margin, then increases by 25bps annually\n- Tax rate: 21% for all projection years\n- D&A as % of sales: Average of past 2 years, held constant through projection period\n- Operating current assets as % of sales: Average of past 3 years, held constant through projection period\n- Operating current liabilities as % of sales: 35% in first projection year, decreasing by 100bps annually\n- Calculate Net Working Capital form Operating current assets and Operating current liabilities\n- CapEx as % of sales: Average of past 3 years, held constant through projection period\n\nFor the WACC calculation, use a risk-free rate of 4.19%, equity risk premium of 5.83%, beta of 0.65, pre-tax cost of debt of 4.50%, and tax rate of 21%. The terminal growth rate assumption is 2.5%.\nSource all balance sheet and income statement data from KDP's 2024 10-K. Use basic shares outstanding to calculate market cap and use the share price as o",
+  "memoryMode": false,
+  "freshness": {
+    "roomCreatedAfterRunStart": true,
+    "forbiddenPreloadedArtifactsAbsent": true,
+    "artifactsCreatedFresh": [
+      "btb-task-kdp-wacc-computation---bankertoolbench-btb-960dc224.xlsx",
+      "btb-task-kdp-wacc-computation---bankertoolbench-btb-960dc224.xlsm",
+      "btb-task-kdp-wacc-computation---bankertoolbench-btb-960dc224.pptx",
+      "btb-task-kdp-wacc-computation---bankertoolbench-btb-960dc224.docx",
+      "btb-task-kdp-wacc-computation---bankertoolbench-btb-960dc224.pdf"
+    ],
+    "uploadedFiles": [
+      "2023 10-K – Keurig Dr Pepper Inc. – BamSEC.pdf",
+      "2024 10-K – Keurig Dr Pepper Inc. – BamSEC.pdf",
+      "betas_by_industry_category_for_WACC.xlsx",
+      "Equity_Risk_Premium_for_WACC.xlsx",
+      "KDP-US Company Identity.xlsx",
+      "KDP-US Income Statement Annual.xlsx",
+      "KDP-US Balance Sheet Annual.xlsx",
+      "KDP-US Cash Flow Annual.xlsx",
+      "KDP-US Shares Outstanding.xlsx",
+      "KDP-US Price History.xlsx",
+      "KDP-US Revenue Estimate.xlsx",
+      "KDP-US Earnings Estimate.xlsx",
+      "btb-960dc224-official-task-brief.txt"
+    ]
+  },
+  "ui": {
+    "focusModeEnabled": true,
+    "attentionOverlayVisible": true,
+    "streamingVisible": true,
+    "jobDetailVisible": true,
+    "roomTraceVisible": true,
+    "screenshotPaths": [
+      "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\960dc224-634f-435b-a42d-f8edac8ddd2f\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\bankertoolbench-live-room.png"
+    ],
+    "tracePath": "docs\\eval\\bankertoolbench\\live-room\\960dc224-634f-435b-a42d-f8edac8ddd2f.json"
+  },
+  "artifacts": {
+    "uploadedFiles": [
+      "2023 10-K – Keurig Dr Pepper Inc. – BamSEC.pdf",
+      "2024 10-K – Keurig Dr Pepper Inc. – BamSEC.pdf",
+      "betas_by_industry_category_for_WACC.xlsx",
+      "Equity_Risk_Premium_for_WACC.xlsx",
+      "KDP-US Company Identity.xlsx",
+      "KDP-US Income Statement Annual.xlsx",
+      "KDP-US Balance Sheet Annual.xlsx",
+      "KDP-US Cash Flow Annual.xlsx",
+      "KDP-US Shares Outstanding.xlsx",
+      "KDP-US Price History.xlsx",
+      "KDP-US Revenue Estimate.xlsx",
+      "KDP-US Earnings Estimate.xlsx",
+      "btb-960dc224-official-task-brief.txt"
+    ],
+    "created": [
+      "btb-task-kdp-wacc-computation---bankertoolbench-btb-960dc224.xlsx",
+      "btb-task-kdp-wacc-computation---bankertoolbench-btb-960dc224.xlsm",
+      "btb-task-kdp-wacc-computation---bankertoolbench-btb-960dc224.pptx",
+      "btb-task-kdp-wacc-computation---bankertoolbench-btb-960dc224.docx",
+      "btb-task-kdp-wacc-computation---bankertoolbench-btb-960dc224.pdf"
+    ],
+    "exportedFiles": [
+      {
+        "kind": "workbook",
+        "filename": "btb-task-kdp-wacc-computation---bankertoolbench-btb-960dc224.xlsx",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\960dc224-634f-435b-a42d-f8edac8ddd2f\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-task-kdp-wacc-computation---bankertoolbench-btb-960dc224.xlsx",
+        "extension": ".xlsx",
+        "downloaded": true,
+        "bytes": 6851,
+        "magic": "PK\\x03\\x04"
+      },
+      {
+        "kind": "workbook",
+        "filename": "btb-task-kdp-wacc-computation---bankertoolbench-btb-960dc224.xlsm",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\960dc224-634f-435b-a42d-f8edac8ddd2f\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-task-kdp-wacc-computation---bankertoolbench-btb-960dc224.xlsm",
+        "extension": ".xlsm",
+        "downloaded": true,
+        "bytes": 6851,
+        "magic": "PK\\x03\\x04"
+      },
+      {
+        "kind": "presentation",
+        "filename": "btb-task-kdp-wacc-computation---bankertoolbench-btb-960dc224.pptx",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\960dc224-634f-435b-a42d-f8edac8ddd2f\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-task-kdp-wacc-computation---bankertoolbench-btb-960dc224.pptx",
+        "extension": ".pptx",
+        "downloaded": true,
+        "bytes": 6218,
+        "magic": "PK\\x03\\x04"
+      },
+      {
+        "kind": "document",
+        "filename": "btb-task-kdp-wacc-computation---bankertoolbench-btb-960dc224.docx",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\960dc224-634f-435b-a42d-f8edac8ddd2f\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-task-kdp-wacc-computation---bankertoolbench-btb-960dc224.docx",
+        "extension": ".docx",
+        "downloaded": true,
+        "bytes": 2189,
+        "magic": "PK\\x03\\x04"
+      },
+      {
+        "kind": "pdf",
+        "filename": "btb-task-kdp-wacc-computation---bankertoolbench-btb-960dc224.pdf",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\960dc224-634f-435b-a42d-f8edac8ddd2f\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-task-kdp-wacc-computation---bankertoolbench-btb-960dc224.pdf",
+        "extension": ".pdf",
+        "downloaded": true,
+        "bytes": 996,
+        "magic": "%PDF"
+      }
+    ],
+    "reopenedFiles": [
+      {
+        "kind": "workbook",
+        "filename": "btb-task-kdp-wacc-computation---bankertoolbench-btb-960dc224.xlsx",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "ZIP package contains xl/workbook.xml; placeholder/caveat content scan passed (504 chars)"
+      },
+      {
+        "kind": "workbook",
+        "filename": "btb-task-kdp-wacc-computation---bankertoolbench-btb-960dc224.xlsm",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "ZIP package contains xl/workbook.xml; placeholder/caveat content scan passed (504 chars)"
+      },
+      {
+        "kind": "presentation",
+        "filename": "btb-task-kdp-wacc-computation---bankertoolbench-btb-960dc224.pptx",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "ZIP package contains ppt/presentation.xml; placeholder/caveat content scan passed (486 chars)"
+      },
+      {
+        "kind": "document",
+        "filename": "btb-task-kdp-wacc-computation---bankertoolbench-btb-960dc224.docx",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "ZIP package contains word/document.xml; placeholder/caveat content scan passed (467 chars)"
+      },
+      {
+        "kind": "pdf",
+        "filename": "btb-task-kdp-wacc-computation---bankertoolbench-btb-960dc224.pdf",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "PDF header reopened; placeholder/caveat content scan passed (1475 chars)"
+      }
+    ]
+  },
+  "scorer": {
+    "name": "BankerToolBench proof verifier",
+    "command": "npm run benchmark:bankertoolbench:proof",
+    "verdict": "pass",
+    "score": 1,
+    "details": {
+      "verifierOutputTail": "\n> noderoom@0.1.1 benchmark:bankertoolbench:proof\n> tsx scripts/bankertoolbench-proof-check.ts\n\nBankerToolBench proof check passed: stage=1/1 weightedRubric=6 run=0/1 pass positive=1/1 pass candidateBeforeEvaluator=true leaks=0/2+0/3+0/4\n",
+      "packageManifestPath": "test-results\\bankertoolbench\\matrix\\960dc224-634f-435b-a42d-f8edac8ddd2f\\package-manifest.json",
+      "downloadedExtensions": [
+        ".xlsx",
+        ".xlsm",
+        ".pptx",
+        ".docx",
+        ".pdf"
+      ],
+      "exportSource": "browser_download_link",
+      "agentTerminalQuality": {
+        "statusText": "completed via recovered Convex job: .xlsm, btb-task-kdp-wacc-computation---bankertoolbench-btb-960dc224.pptx, btb-task-kdp-wacc-computation---bankertoolbench-btb-960dc224.docx, btb-task-kdp-wacc-computation---bankertoolbench-btb-960dc224.pdf. Coverage confirmed for KDP, WACC.",
+        "evidenceTextLength": 1847,
+        "detail": "agent reached completed status or visible completion text, with no missing-source/unfinished-work caveats"
+      },
+      "taskCoverage": {
+        "ok": true,
+        "requiredTickers": [
+          "KDP",
+          "WACC"
+        ],
+        "missingTickers": [],
+        "detail": "generated package mentions every requested ticker/entity: KDP, WACC"
+      }
+    }
+  },
+  "visualJudge": {
+    "verdict": "not_run",
+    "reason": "GOOGLE_GENERATIVE_AI_API_KEY is not set; deterministic browser/download/reopen/verifier proof passed."
+  },
+  "gatesProven": [
+    "fresh_room_join",
+    "official_fixture_upload",
+    "public_nodeagent_invocation",
+    "visible_streaming_progress",
+    "trace_video_artifacts",
+    "no_memory_mode_shortcut",
+    "focus_mode_enabled",
+    "focus_box_or_attention_overlay",
+    "agent_live_loop",
+    "agent_terminal_quality_gate",
+    "room_trace_visible",
+    "job_detail_visible",
+    "deliverable_export_download",
+    "artifact_reopen_validation",
+    "artifact_placeholder_scan",
+    "official_scorer_handoff"
+  ],
+  "passed": true
+}

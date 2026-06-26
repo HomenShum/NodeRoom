@@ -1,0 +1,204 @@
+{
+  "schema": 1,
+  "caseId": "FR-020",
+  "benchmark": "bankertoolbench",
+  "taskId": "eb2f7b9c-2f96-4093-bdd5-e28707e707a1",
+  "generatedAt": "2026-06-25T01:59:50.941Z",
+  "baseUrl": "http://127.0.0.1:5273",
+  "roomId": "NRPB6H1RM73",
+  "roomUrl": "http://127.0.0.1:5273/?room=NRPB6H1RM73&name=Host",
+  "command": "BTB_LIVE_ROOM_E2E=1 BTB_UI_BUNDLE_ROOT=<official-bundle> BTB_UI_VERIFIER_COMMAND=<verifier> BENCH_BASE_URL=<base> npx playwright test --config playwright.real-flow.config.ts e2e/benchmark-ui-bankertoolbench.spec.ts --headed",
+  "model": {
+    "requested": "specific",
+    "resolved": "z-ai/glm-5.2",
+    "routePolicy": "specific",
+    "runtimeProfile": "benchmark_completion",
+    "provider": "openrouter"
+  },
+  "prompt": "Official BankerToolBench task btb-eb2f7b9c: You are an analyst at a global private equity (PE) firm building a leveraged buyout (LBO) valuation model.\nThe valuation date is 31 December 2025.\nThe historical period is the fiscal year ending 31 December 2025.\nThe forecast period begins on 1 January 2026 and runs for five years, ending on 31 December 2030.\nEach column in the model should represent one full fiscal year and must be presented chronologically from left to right, starting with the historical period (Year 0), followed by forecast Years 1 through 5.\nYou must build a fully integrated LBO model with the following sections, in this order:\n        1. Transaction & Operating Assumptions\n        2. Financing Assumptions\n        3. Sources & Uses & Equity Capitalisation Table (Cap Table)\n        5. Operating Assumptions\n        6. Financial Profile\n        7. Cash Flow Profile\n        8. Debt Schedule\n        9. Returns Analysis\n\nTransaction & Operating Assumptions\n        • Circular reference toggle (“Circ”) is hardcoded to 1\n        • Revenue (Last Twelve Months (LTM) ending December 2025): $1,000 million\n        • EBITDA (Earnings Before Interest, Taxes, Depreciation and Amortisation) (LTM December 2025): $200 million\n    ",
+  "memoryMode": false,
+  "freshness": {
+    "roomCreatedAfterRunStart": true,
+    "forbiddenPreloadedArtifactsAbsent": true,
+    "artifactsCreatedFresh": [
+      "btb-eb2f7b9c-btb-eb2f7b9c---integrated-lbo-model-with-returns-analysis.xlsx",
+      "btb-eb2f7b9c-btb-eb2f7b9c---integrated-lbo-model-with-returns-analysis.xlsm",
+      "btb-eb2f7b9c-btb-eb2f7b9c---integrated-lbo-model-with-returns-analysis.pptx",
+      "btb-eb2f7b9c-btb-eb2f7b9c---integrated-lbo-model-with-returns-analysis.docx",
+      "btb-eb2f7b9c-btb-eb2f7b9c---integrated-lbo-model-with-returns-analysis.pdf"
+    ],
+    "uploadedFiles": [
+      "betas_by_industry_category_for_WACC.xlsx",
+      "Equity_Risk_Premium_for_WACC.xlsx",
+      "btb-eb2f7b9c-official-task-brief.txt"
+    ]
+  },
+  "ui": {
+    "focusModeEnabled": true,
+    "attentionOverlayVisible": true,
+    "streamingVisible": true,
+    "jobDetailVisible": true,
+    "roomTraceVisible": true,
+    "screenshotPaths": [
+      "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\eb2f7b9c-2f96-4093-bdd5-e28707e707a1\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\bankertoolbench-live-room.png"
+    ],
+    "tracePath": "docs\\eval\\bankertoolbench\\live-room\\eb2f7b9c-2f96-4093-bdd5-e28707e707a1.json"
+  },
+  "artifacts": {
+    "uploadedFiles": [
+      "betas_by_industry_category_for_WACC.xlsx",
+      "Equity_Risk_Premium_for_WACC.xlsx",
+      "btb-eb2f7b9c-official-task-brief.txt"
+    ],
+    "created": [
+      "btb-eb2f7b9c-btb-eb2f7b9c---integrated-lbo-model-with-returns-analysis.xlsx",
+      "btb-eb2f7b9c-btb-eb2f7b9c---integrated-lbo-model-with-returns-analysis.xlsm",
+      "btb-eb2f7b9c-btb-eb2f7b9c---integrated-lbo-model-with-returns-analysis.pptx",
+      "btb-eb2f7b9c-btb-eb2f7b9c---integrated-lbo-model-with-returns-analysis.docx",
+      "btb-eb2f7b9c-btb-eb2f7b9c---integrated-lbo-model-with-returns-analysis.pdf"
+    ],
+    "exportedFiles": [
+      {
+        "kind": "workbook",
+        "filename": "btb-eb2f7b9c-btb-eb2f7b9c---integrated-lbo-model-with-returns-analysis.xlsx",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\eb2f7b9c-2f96-4093-bdd5-e28707e707a1\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-eb2f7b9c-btb-eb2f7b9c---integrated-lbo-model-with-returns-analysis.xlsx",
+        "extension": ".xlsx",
+        "downloaded": true,
+        "bytes": 16998,
+        "magic": "PK\\x03\\x04"
+      },
+      {
+        "kind": "workbook",
+        "filename": "btb-eb2f7b9c-btb-eb2f7b9c---integrated-lbo-model-with-returns-analysis.xlsm",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\eb2f7b9c-2f96-4093-bdd5-e28707e707a1\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-eb2f7b9c-btb-eb2f7b9c---integrated-lbo-model-with-returns-analysis.xlsm",
+        "extension": ".xlsm",
+        "downloaded": true,
+        "bytes": 16998,
+        "magic": "PK\\x03\\x04"
+      },
+      {
+        "kind": "presentation",
+        "filename": "btb-eb2f7b9c-btb-eb2f7b9c---integrated-lbo-model-with-returns-analysis.pptx",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\eb2f7b9c-2f96-4093-bdd5-e28707e707a1\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-eb2f7b9c-btb-eb2f7b9c---integrated-lbo-model-with-returns-analysis.pptx",
+        "extension": ".pptx",
+        "downloaded": true,
+        "bytes": 7367,
+        "magic": "PK\\x03\\x04"
+      },
+      {
+        "kind": "document",
+        "filename": "btb-eb2f7b9c-btb-eb2f7b9c---integrated-lbo-model-with-returns-analysis.docx",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\eb2f7b9c-2f96-4093-bdd5-e28707e707a1\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-eb2f7b9c-btb-eb2f7b9c---integrated-lbo-model-with-returns-analysis.docx",
+        "extension": ".docx",
+        "downloaded": true,
+        "bytes": 4230,
+        "magic": "PK\\x03\\x04"
+      },
+      {
+        "kind": "pdf",
+        "filename": "btb-eb2f7b9c-btb-eb2f7b9c---integrated-lbo-model-with-returns-analysis.pdf",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\eb2f7b9c-2f96-4093-bdd5-e28707e707a1\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-eb2f7b9c-btb-eb2f7b9c---integrated-lbo-model-with-returns-analysis.pdf",
+        "extension": ".pdf",
+        "downloaded": true,
+        "bytes": 5063,
+        "magic": "%PDF"
+      }
+    ],
+    "reopenedFiles": [
+      {
+        "kind": "workbook",
+        "filename": "btb-eb2f7b9c-btb-eb2f7b9c---integrated-lbo-model-with-returns-analysis.xlsx",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j97ahv8w340f8eg6k4j1hxc47s89akxm; placeholder/caveat content scan passed (17349 chars)"
+      },
+      {
+        "kind": "workbook",
+        "filename": "btb-eb2f7b9c-btb-eb2f7b9c---integrated-lbo-model-with-returns-analysis.xlsm",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j9720yyd0dkmkzy7jhpjq5zg9d89b92p; placeholder/caveat content scan passed (17349 chars)"
+      },
+      {
+        "kind": "presentation",
+        "filename": "btb-eb2f7b9c-btb-eb2f7b9c---integrated-lbo-model-with-returns-analysis.pptx",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "ZIP package contains ppt/presentation.xml; recovered from Convex room artifact j971rbc9zmy0axvyrzb63tpt2d89b7r7; placeholder/caveat content scan passed (3297 chars)"
+      },
+      {
+        "kind": "document",
+        "filename": "btb-eb2f7b9c-btb-eb2f7b9c---integrated-lbo-model-with-returns-analysis.docx",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "ZIP package contains word/document.xml; recovered from Convex room artifact j97b9ay9wr3w40268d0nwyvtk989amz8; placeholder/caveat content scan passed (6441 chars)"
+      },
+      {
+        "kind": "pdf",
+        "filename": "btb-eb2f7b9c-btb-eb2f7b9c---integrated-lbo-model-with-returns-analysis.pdf",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "PDF header reopened; recovered from Convex room artifact j972q4t60z7cjq1ch980agajyn89anmw; placeholder/caveat content scan passed (9607 chars)"
+      }
+    ]
+  },
+  "scorer": {
+    "name": "BankerToolBench proof verifier",
+    "command": "npm run benchmark:bankertoolbench:proof",
+    "verdict": "pass",
+    "score": 1,
+    "details": {
+      "verifierOutputTail": "\n> noderoom@0.1.1 benchmark:bankertoolbench:proof\n> tsx scripts/bankertoolbench-proof-check.ts\n\nBankerToolBench proof check passed: stage=1/1 weightedRubric=6 run=0/1 pass positive=1/1 pass candidateBeforeEvaluator=true leaks=0/2+0/3+0/4\n",
+      "packageManifestPath": "test-results\\bankertoolbench\\matrix\\eb2f7b9c-2f96-4093-bdd5-e28707e707a1\\package-manifest.json",
+      "downloadedExtensions": [
+        ".xlsx",
+        ".xlsm",
+        ".pptx",
+        ".docx",
+        ".pdf"
+      ],
+      "exportSource": "convex_room_artifact_data_url_after_browser_ui_proof",
+      "agentTerminalQuality": {
+        "statusText": "completed via recovered Convex job: model-with-returns-analysis.pptx, btb-eb2f7b9c-btb-eb2f7b9c---integrated-lbo-model-with-returns-analysis.docx, btb-eb2f7b9c-btb-eb2f7b9c---integrated-lbo-model-with-returns-analysis.pdf. Coverage confirmed for PE, RCF, SONIA, PIK, EBT, FCF.",
+        "evidenceTextLength": 2041,
+        "detail": "agent reached completed status or visible completion text, with no missing-source/unfinished-work caveats"
+      },
+      "taskCoverage": {
+        "ok": true,
+        "requiredTickers": [
+          "PE",
+          "RCF",
+          "SONIA",
+          "PIK",
+          "EBT",
+          "FCF"
+        ],
+        "missingTickers": [],
+        "detail": "generated package mentions every requested ticker/entity: PE, RCF, SONIA, PIK, EBT, FCF"
+      }
+    }
+  },
+  "visualJudge": {
+    "verdict": "not_run",
+    "reason": "GOOGLE_GENERATIVE_AI_API_KEY is not set; deterministic browser/download/reopen/verifier proof passed."
+  },
+  "gatesProven": [
+    "fresh_room_join",
+    "official_fixture_upload",
+    "public_nodeagent_invocation",
+    "visible_streaming_progress",
+    "trace_video_artifacts",
+    "no_memory_mode_shortcut",
+    "focus_mode_enabled",
+    "focus_box_or_attention_overlay",
+    "agent_live_loop",
+    "agent_terminal_quality_gate",
+    "room_trace_visible",
+    "job_detail_visible",
+    "deliverable_export_download",
+    "artifact_reopen_validation",
+    "artifact_placeholder_scan",
+    "official_scorer_handoff"
+  ],
+  "passed": true
+}

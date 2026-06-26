@@ -149,6 +149,182 @@ describe("agentJobs runtime contract", () => {
     expect(detail?.operations.map((event) => event.name)).toContain("agentJobs.start");
   });
 
+  it("lets long official BTB asks infer benchmark mode while normal long chat stays capped", async () => {
+    const { t, proof, roomId, artifactId } = await setupRoom({ seedElement: true });
+    const longGoal = `Run the uploaded official BankerToolBench task.\n${"Build the full DCF package from the room source files. ".repeat(80)}`;
+    const longNormalGoal = `Summarize this room.\n${"Use the visible room context and write a concise note. ".repeat(80)}`;
+    expect(longGoal.length).toBeGreaterThan(2_000);
+    expect(longGoal.length).toBeLessThan(20_000);
+    expect(longNormalGoal.length).toBeGreaterThan(2_000);
+
+    await expect(t.mutation(api.agentJobs.startPublicAsk, {
+      roomId,
+      requester: proof,
+      goal: longNormalGoal,
+      contextArtifactId: String(artifactId),
+      routePolicy: "explicit" as const,
+      modelPolicy: "z-ai/glm-5.2",
+    })).rejects.toThrow(/goal_too_long/);
+
+    const started = await t.mutation(api.agentJobs.startPublicAsk, {
+      roomId,
+      requester: proof,
+      goal: longGoal,
+      contextArtifactId: String(artifactId),
+      routePolicy: "explicit" as const,
+      modelPolicy: "z-ai/glm-5.2",
+    });
+
+    const detail = await t.query(api.agentJobs.detail, { jobId: started.jobId, requester: proof });
+    expect(detail?.job.goal).toBe(longGoal);
+    expect(detail?.job.runtimeProfile).toBe("benchmark_completion");
+    expect(detail?.job.modelPolicy).toBe("z-ai/glm-5.2");
+  });
+
+  it("promotes free public asks with uploaded file context to the file-egress model before queuing", async () => {
+    const previous = process.env.AGENT_FILE_EGRESS_MODEL;
+    process.env.AGENT_FILE_EGRESS_MODEL = "z-ai/glm-4.7-flash";
+    try {
+      const { t, proof, roomId, artifactId, actor } = await setupRoom({ seedElement: true });
+      const now = Date.now();
+      await t.run((ctx) =>
+        ctx.db.insert("artifacts", {
+          roomId,
+          kind: "note" as const,
+          title: "source_financials.csv",
+          version: 1,
+          order: ["source"],
+          updatedAt: now,
+          createdBy: actor,
+          visibility: "room" as const,
+          meta: { upload: { fileName: "source_financials.csv", mimeType: "text/csv", size: 96 } },
+        }),
+      );
+
+      const started = await t.mutation(api.agentJobs.startPublicAsk, {
+        roomId,
+        requester: proof,
+        goal: "compute the uploaded financial metrics and write the answers into Sheet 1",
+        contextArtifactId: String(artifactId),
+        routePolicy: "free_auto" as const,
+      });
+
+      const detail = await t.query(api.agentJobs.detail, { jobId: started.jobId, requester: proof });
+      expect(started).toMatchObject({
+        reused: false,
+        modelPolicy: "z-ai/glm-4.7-flash",
+        routePolicy: "explicit",
+      });
+      expect(detail?.job).toMatchObject({
+        entrypoint: "public_ask",
+        routePolicy: "explicit",
+        modelPolicy: "z-ai/glm-4.7-flash",
+        approvalPolicy: "auto_commit_safe",
+        autoAllow: true,
+      });
+      expect(detail?.job.request).toMatchObject({ fileEgressPromoted: true });
+      expect(detail?.streamEvents[0]?.metadata).toMatchObject({ fileEgressPromoted: true });
+    } finally {
+      if (previous === undefined) delete process.env.AGENT_FILE_EGRESS_MODEL;
+      else process.env.AGENT_FILE_EGRESS_MODEL = previous;
+    }
+  });
+
+  it("keeps benchmark-completion public asks distinct from standard asks and records the profile", async () => {
+    const { t, proof, roomId, artifactId } = await setupRoom({ seedElement: true });
+    const goal = "compute these 5 metrics and write the visible cells";
+
+    const benchmark = await t.mutation(api.agentJobs.startPublicAsk, {
+      roomId,
+      requester: proof,
+      goal,
+      contextArtifactId: String(artifactId),
+      routePolicy: "fast_default" as const,
+      runtimeProfile: "benchmark_completion" as const,
+      maxAttempts: 100,
+    });
+    const standard = await t.mutation(api.agentJobs.startPublicAsk, {
+      roomId,
+      requester: proof,
+      goal,
+      contextArtifactId: String(artifactId),
+      routePolicy: "fast_default" as const,
+    });
+
+    expect(standard.reused).toBe(false);
+    expect(String(standard.jobId)).not.toBe(String(benchmark.jobId));
+    const detail = await t.query(api.agentJobs.detail, { jobId: benchmark.jobId, requester: proof });
+    expect(detail?.job).toMatchObject({
+      runtimeProfile: "benchmark_completion",
+      maxAttempts: 100,
+    });
+    expect(detail?.job.request).toMatchObject({
+      runtimeProfile: "benchmark_completion",
+      source: "public_chat",
+    });
+    const claimed = await t.mutation(internal.agentJobs.claimSlice, { jobId: benchmark.jobId, leaseId: "lease-benchmark-profile", leaseMs: 60_000 });
+    expect(claimed).toMatchObject({
+      runtimeProfile: "benchmark_completion",
+      maxAttempts: 100,
+    });
+  });
+
+  it("infers benchmark-completion for official BTB public asks without a client flag", async () => {
+    const { t, proof, roomId, artifactId } = await setupRoom({ seedElement: true });
+
+    const started = await t.mutation(api.agentJobs.startPublicAsk, {
+      roomId,
+      requester: proof,
+      goal: "Run official BankerToolBench task btb-a31173e3 in a fresh room and create the deliverable package",
+      contextArtifactId: String(artifactId),
+      routePolicy: "fast_default" as const,
+    });
+
+    const detail = await t.query(api.agentJobs.detail, { jobId: started.jobId, requester: proof });
+    expect(detail?.job).toMatchObject({
+      runtimeProfile: "benchmark_completion",
+      maxAttempts: 1000,
+    });
+    expect(detail?.job.request).toMatchObject({
+      runtimeProfile: "benchmark_completion",
+      source: "public_chat",
+    });
+    const claimed = await t.mutation(internal.agentJobs.claimSlice, { jobId: started.jobId, leaseId: "lease-benchmark-inferred", leaseMs: 60_000 });
+    expect(claimed).toMatchObject({
+      runtimeProfile: "benchmark_completion",
+      maxAttempts: 1000,
+    });
+  });
+
+  it("materializes a scratch sheet before starting public asks in blank rooms", async () => {
+    const { t, proof, roomId } = await setupBlankRoom();
+
+    const started = await t.mutation(api.agentJobs.startPublicAsk, {
+      roomId,
+      requester: proof,
+      goal: "create me a sheet and research liveflow",
+      routePolicy: "fast_default" as const,
+    });
+
+    const detail = await t.query(api.agentJobs.detail, { jobId: started.jobId, requester: proof });
+    const artifacts = await t.run((ctx) => ctx.db.query("artifacts").withIndex("by_room", (q) => q.eq("roomId", roomId)).collect());
+    expect(artifacts).toHaveLength(1);
+    expect(artifacts[0]).toMatchObject({ kind: "sheet", title: "Sheet 1", visibility: "room" });
+    expect(String(detail?.job.artifactId)).toBe(String(artifacts[0]._id));
+    expect(detail?.job.entrypoint).toBe("public_ask");
+    expect(detail?.job.request).toMatchObject({
+      targetArtifactId: String(artifacts[0]._id),
+      commandText: "create me a sheet and research liveflow",
+    });
+
+    const elements = await t.run((ctx) => ctx.db.query("elements").withIndex("by_artifact", (q) => q.eq("artifactId", artifacts[0]._id)).collect());
+    const indexedCells = await t.run((ctx) => ctx.db.query("spreadsheetCells").withIndex("by_artifact_element", (q) => q.eq("artifactId", artifacts[0]._id)).collect());
+    const traces = await t.run((ctx) => ctx.db.query("traces").withIndex("by_room", (q) => q.eq("roomId", roomId)).collect());
+    expect(elements).toHaveLength(96);
+    expect(indexedCells).toHaveLength(96);
+    expect(traces.map((trace) => trace.detail ?? "")).toContainEqual(expect.stringContaining("blank_public_ask_fallback"));
+  });
+
   it("routes diligence asks to the company research sheet before active-note context", async () => {
     const { t, proof, roomId, actor } = await setupRoom({ seedElement: true });
     const now = Date.now();
@@ -525,6 +701,71 @@ describe("agentJobs runtime contract", () => {
     expect(detail?.reasoningFrames.map((frame) => frame.status)).toEqual(["completed", "completed", "completed"]);
   });
 
+  it("finishSlice compacts oversized handoff and cursor payloads before patching the job row", async () => {
+    const { t, proof, roomId, artifactId } = await setupRoom();
+    const { jobId } = await t.mutation(api.agentJobs.createOrReuse, jobArgs({ roomId, artifactId, proof, idempotencyKey: "job-runtime-compact-continuation" }));
+    const claimed = await t.mutation(internal.agentJobs.claimSlice, { jobId, leaseId: "lease-compact", leaseMs: 60_000 });
+    expect(claimed?.attempt).toBe(1);
+
+    const huge = "x".repeat(1_200_000);
+    const finished = await t.mutation(internal.agentJobs.finishSlice, {
+      ...finishSliceArgs({ jobId, leaseId: "lease-compact", attempt: 1 }),
+      status: "handoff" as const,
+      stopReason: "time_budget",
+      handoff: {
+        summary: huge,
+        latestAssistantText: huge,
+        nextGoal: huge,
+        remainingToolCalls: [{ id: "call-1", tool: "read_range", args: { elementIds: huge } }],
+      },
+      cursor: {
+        messages: [
+          { role: "user", content: "start" },
+          ...Array.from({ length: 40 }, (_, idx) => ({ role: "tool", toolName: "read_range", toolCallId: `c${idx}`, content: huge })),
+        ],
+        remainingToolCalls: [{ id: "call-2", tool: "read_range", args: { elementIds: huge } }],
+      },
+      scheduledNextAt: Date.now() + 1_000,
+    });
+
+    expect(finished).toEqual({ ok: true });
+    const detail = await t.query(api.agentJobs.detail, { jobId, requester: proof });
+    expect(JSON.stringify(detail?.job.handoff).length).toBeLessThan(300_000);
+    expect(JSON.stringify(detail?.job.cursor).length).toBeLessThan(300_000);
+    expect(detail?.job.status).toBe("paused");
+  });
+
+  it("finishSlice clears a stale slice error after a later clean completion", async () => {
+    const { t, proof, roomId, artifactId } = await setupRoom();
+    const { jobId } = await t.mutation(api.agentJobs.createOrReuse, jobArgs({ roomId, artifactId, proof, idempotencyKey: "job-runtime-clear-stale-error" }));
+
+    const firstClaim = await t.mutation(internal.agentJobs.claimSlice, { jobId, leaseId: "lease-error", leaseMs: 60_000 });
+    expect(firstClaim?.attempt).toBe(1);
+    const retried = await t.mutation(internal.agentJobs.finishSlice, {
+      ...finishSliceArgs({ jobId, leaseId: "lease-error", attempt: 1 }),
+      status: "retrying" as const,
+      stopReason: "slice_timeout",
+      error: "slice_timeout",
+      scheduledNextAt: Date.now() + 1_000,
+    });
+    expect(retried).toEqual({ ok: true });
+    let detail = await t.query(api.agentJobs.detail, { jobId, requester: proof });
+    expect(detail?.job.status).toBe("retrying");
+    expect(detail?.job.error).toBe("slice_timeout");
+
+    const secondClaim = await t.mutation(internal.agentJobs.claimSlice, { jobId, leaseId: "lease-clean", leaseMs: 60_000 });
+    expect(secondClaim?.attempt).toBe(2);
+    const completed = await t.mutation(internal.agentJobs.finishSlice, {
+      ...finishSliceArgs({ jobId, leaseId: "lease-clean", attempt: 2 }),
+      finalText: "completed cleanly",
+    });
+    expect(completed).toEqual({ ok: true });
+    detail = await t.query(api.agentJobs.detail, { jobId, requester: proof });
+    expect(detail?.job.status).toBe("completed");
+    expect(detail?.job.error).toBe("");
+    expect(detail?.job.finalText).toBe("completed cleanly");
+  });
+
   it("cancel finalizes the job, releases active leases, and records a checkpoint", async () => {
     const { t, proof, roomId, artifactId } = await setupRoom();
     const { jobId } = await t.mutation(api.agentJobs.createOrReuse, jobArgs({ roomId, artifactId, proof, idempotencyKey: "job-runtime-cancel-lease" }));
@@ -817,6 +1058,47 @@ async function setupRoom(options: { seedElement?: boolean; extraMember?: boolean
     );
   }
   return { t, proof, memberProof, actor, roomId, artifactId };
+}
+
+async function setupBlankRoom() {
+  const t = convexTest(schema, modules);
+  t.registerComponent("workflow", workflowSchema, workflowModules);
+  t.registerComponent("workflow/workpool", workpoolSchema, workpoolModules);
+  const now = Date.now();
+  const authTokenHash = await hashToken(token);
+  const roomId = await t.run((ctx) =>
+    ctx.db.insert("rooms", {
+      code: `B${Math.random().toString(36).slice(2, 7).toUpperCase()}`,
+      title: "Blank agent room",
+      hostId: "",
+      autoAllow: true,
+      status: "live" as const,
+      createdAt: now,
+    }),
+  );
+  const memberId = await t.run((ctx) =>
+    ctx.db.insert("members", {
+      roomId,
+      name: "Host",
+      role: "host" as const,
+      anon: false,
+      color: "#111111",
+      authTokenHash,
+      lastSeenAt: now,
+    }),
+  );
+  const actor = { kind: "user" as const, id: String(memberId), name: "Host" };
+  await t.run((ctx) => ctx.db.patch(roomId, { hostId: String(memberId) }));
+  await t.run((ctx) => ctx.db.insert("agentSessions", {
+    roomId,
+    agentId: "agent_room",
+    agentName: "Room NodeAgent",
+    scope: "public" as const,
+    status: "idle" as const,
+    lastAction: "started",
+    updatedAt: now,
+  }));
+  return { t, proof: { actor, token }, actor, roomId };
 }
 
 async function seedRuntimeReasoningFrames(

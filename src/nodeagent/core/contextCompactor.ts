@@ -32,6 +32,7 @@ export interface CompactionOpts {
 }
 
 const DEFAULTS = { maxChars: 24_000, keepRecent: 8, staleTools: ["read_range"] };
+const MAX_COMPACTED_READ_CELLS = 200;
 
 /** Cheap size estimate — character count of content + serialized tool calls. */
 export function estimateChars(messages: AgentMessage[]): number {
@@ -42,28 +43,66 @@ export function estimateChars(messages: AgentMessage[]): number {
 
 export interface CompactionResult { messages: AgentMessage[]; compacted: boolean; before: number; after: number; elided: number; }
 
+function compactReadRangeContent(content: string | undefined, fallback: string): string {
+  try {
+    const parsed = JSON.parse(content ?? "");
+    if (!Array.isArray(parsed)) return fallback;
+    const cells = parsed.slice(0, MAX_COMPACTED_READ_CELLS).map((cell) => {
+      const record = cell && typeof cell === "object" && !Array.isArray(cell) ? cell as Record<string, unknown> : {};
+      return {
+        id: typeof record.id === "string" ? record.id : "",
+        version: typeof record.version === "number" ? record.version : 0,
+        locked: record.locked ?? null,
+        value: "[compacted]",
+        compacted: true,
+        note: "read_range value payload compacted to save context; this is not evidence that source data is missing. Re-read this artifactId/cell if the value is required.",
+      };
+    });
+    if (parsed.length > MAX_COMPACTED_READ_CELLS) {
+      cells.push({
+        id: "__read_range_compacted_more__",
+        version: 0,
+        locked: null,
+        value: `${parsed.length - MAX_COMPACTED_READ_CELLS} additional cells compacted`,
+        compacted: true,
+        note: "Additional cells were compacted; re-read a narrower range if needed.",
+      });
+    }
+    return JSON.stringify(cells);
+  } catch {
+    return fallback;
+  }
+}
+
 export async function compactMessages(messages: AgentMessage[], opts: CompactionOpts = {}): Promise<CompactionResult> {
   const maxChars = opts.maxChars ?? DEFAULTS.maxChars;
   const keepRecent = opts.keepRecent ?? DEFAULTS.keepRecent;
   const stale = new Set(opts.staleTools ?? DEFAULTS.staleTools);
   const before = estimateChars(messages);
 
-  if (before <= maxChars || messages.length <= keepRecent + 2) return { messages, compacted: false, before, after: before, elided: 0 };
+  if (before <= maxChars) return { messages, compacted: false, before, after: before, elided: 0 };
 
   const head = messages[0];
-  const tail = messages.slice(messages.length - keepRecent);
-  const middle = messages.slice(1, messages.length - keepRecent);
+  const tailStart = Math.max(1, messages.length - keepRecent);
+  const tail = messages.slice(tailStart);
+  const middle = messages.slice(1, tailStart);
 
-  const elidedReads = middle.filter((m) => m.role === "tool" && stale.has(m.toolName ?? ""));
+  const staleToolMessages = messages.filter((m) => m.role === "tool" && stale.has(m.toolName ?? ""));
+  if (!staleToolMessages.length) return { messages, compacted: false, before, after: before, elided: 0 };
   const stubText = opts.summarize
-    ? `[compacted: earlier reads summarized] ${await opts.summarize(elidedReads)}`
-    : "[stale read elided during compaction — superseded by a later read or the current snapshot]";
+    ? `[compacted: earlier reads summarized] ${await opts.summarize(staleToolMessages)}`
+    : "[read_range payload compacted to save context; this is not evidence that source data is missing. Re-read the needed artifactId/cells if values are required.]";
 
-  // Keep every envelope; only shrink the content of stale tool results.
+  // Keep every envelope; only shrink stale tool results. Recent read_range
+  // payloads can be the largest messages in a BTB slice, so they must compact too.
+  const compactToolContent = (m: AgentMessage) =>
+    m.role === "tool" && stale.has(m.toolName ?? "")
+      ? { ...m, content: m.toolName === "read_range" ? compactReadRangeContent(m.content, stubText) : stubText }
+      : m;
   const compactedMiddle = middle.map((m) =>
-    m.role === "tool" && stale.has(m.toolName ?? "") ? { ...m, content: stubText } : m,
+    compactToolContent(m),
   );
 
-  const out = [head, ...compactedMiddle, ...tail];
-  return { messages: out, compacted: true, before, after: estimateChars(out), elided: elidedReads.length };
+  const out = [head, ...compactedMiddle, ...tail.map(compactToolContent)];
+  return { messages: out, compacted: true, before, after: estimateChars(out), elided: staleToolMessages.length };
 }

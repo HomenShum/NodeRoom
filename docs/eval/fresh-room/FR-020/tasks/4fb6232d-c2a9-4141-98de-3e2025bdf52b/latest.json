@@ -1,0 +1,204 @@
+{
+  "schema": 1,
+  "caseId": "FR-020",
+  "benchmark": "bankertoolbench",
+  "taskId": "4fb6232d-c2a9-4141-98de-3e2025bdf52b",
+  "generatedAt": "2026-06-25T01:56:57.804Z",
+  "baseUrl": "http://127.0.0.1:5273",
+  "roomId": "NRX17O4O863",
+  "roomUrl": "http://127.0.0.1:5273/?room=NRX17O4O863&name=Host",
+  "command": "BTB_LIVE_ROOM_E2E=1 BTB_UI_BUNDLE_ROOT=<official-bundle> BTB_UI_VERIFIER_COMMAND=<verifier> BENCH_BASE_URL=<base> npx playwright test --config playwright.real-flow.config.ts e2e/benchmark-ui-bankertoolbench.spec.ts --headed",
+  "model": {
+    "requested": "specific",
+    "resolved": "z-ai/glm-5.2",
+    "routePolicy": "specific",
+    "runtimeProfile": "benchmark_completion",
+    "provider": "openrouter"
+  },
+  "prompt": "Official BankerToolBench task btb-4fb6232d: Role: You are an Investment Banking Analyst in the M&A Group advising Shipwell (the Client) on a potential sale.\n\nContext & Scenario: Shipwell is a recognized cloud-based Transportation Management System (TMS) that provides visibility, automation, and execution for mid-market shippers.\n\nFinancial Profile: $55M LTM Revenue, $12M EBITDA (Hypothetical figures for this task).\n\nValuation Expectation: We expect the business to trade at ~4.0x Revenue (~$220M Enterprise Value).\n\nTask: We need to construct a \"Buyer Universe\" list to discuss with the Managing Director (MD) before presenting to the client.\n\nCurrent Date: Assume today is December 12, 2025.\n\nInput Materials: I have provided a raw set of research notes below containing potential acquirers (both Strategic and Private Equity) and relevant data points found by our research team.\n\nTask: Based on the input materials, screen the list and select the Top 8 Most Likely Acquirers (4 Strategics and 4 Financial Sponsors).\n\nScreening Criteria:\n\nCapacity to Pay: Buyer must be able to write a check for >$220M. (Exclude strategics with market caps <$1B or small PE funds).\n\nStrategic Fit:\n\nStrategics: Must have an existing presence in Supply Cha",
+  "memoryMode": false,
+  "freshness": {
+    "roomCreatedAfterRunStart": true,
+    "forbiddenPreloadedArtifactsAbsent": true,
+    "artifactsCreatedFresh": [
+      "btb-4fb6232d-preliminary-buyer-universe-shipwell-top-8-acquirers-screening.xlsx",
+      "btb-4fb6232d-preliminary-buyer-universe-shipwell-top-8-acquirers-screening.xlsm",
+      "btb-4fb6232d-preliminary-buyer-universe-shipwell-top-8-acquirers-screening.pptx",
+      "btb-4fb6232d-preliminary-buyer-universe-shipwell-top-8-acquirers-screening.docx",
+      "btb-4fb6232d-preliminary-buyer-universe-shipwell-top-8-acquirers-screening.pdf"
+    ],
+    "uploadedFiles": [
+      "betas_by_industry_category_for_WACC.xlsx",
+      "Equity_Risk_Premium_for_WACC.xlsx",
+      "Shipwell_Buyer_Research_Raw.xlsx",
+      "btb-4fb6232d-official-task-brief.txt"
+    ]
+  },
+  "ui": {
+    "focusModeEnabled": true,
+    "attentionOverlayVisible": true,
+    "streamingVisible": true,
+    "jobDetailVisible": true,
+    "roomTraceVisible": true,
+    "screenshotPaths": [
+      "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\4fb6232d-c2a9-4141-98de-3e2025bdf52b\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\bankertoolbench-live-room.png"
+    ],
+    "tracePath": "docs\\eval\\bankertoolbench\\live-room\\4fb6232d-c2a9-4141-98de-3e2025bdf52b.json"
+  },
+  "artifacts": {
+    "uploadedFiles": [
+      "betas_by_industry_category_for_WACC.xlsx",
+      "Equity_Risk_Premium_for_WACC.xlsx",
+      "Shipwell_Buyer_Research_Raw.xlsx",
+      "btb-4fb6232d-official-task-brief.txt"
+    ],
+    "created": [
+      "btb-4fb6232d-preliminary-buyer-universe-shipwell-top-8-acquirers-screening.xlsx",
+      "btb-4fb6232d-preliminary-buyer-universe-shipwell-top-8-acquirers-screening.xlsm",
+      "btb-4fb6232d-preliminary-buyer-universe-shipwell-top-8-acquirers-screening.pptx",
+      "btb-4fb6232d-preliminary-buyer-universe-shipwell-top-8-acquirers-screening.docx",
+      "btb-4fb6232d-preliminary-buyer-universe-shipwell-top-8-acquirers-screening.pdf"
+    ],
+    "exportedFiles": [
+      {
+        "kind": "workbook",
+        "filename": "btb-4fb6232d-preliminary-buyer-universe-shipwell-top-8-acquirers-screening.xlsx",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\4fb6232d-c2a9-4141-98de-3e2025bdf52b\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-4fb6232d-preliminary-buyer-universe-shipwell-top-8-acquirers-screening.xlsx",
+        "extension": ".xlsx",
+        "downloaded": true,
+        "bytes": 10655,
+        "magic": "PK\\x03\\x04"
+      },
+      {
+        "kind": "workbook",
+        "filename": "btb-4fb6232d-preliminary-buyer-universe-shipwell-top-8-acquirers-screening.xlsm",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\4fb6232d-c2a9-4141-98de-3e2025bdf52b\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-4fb6232d-preliminary-buyer-universe-shipwell-top-8-acquirers-screening.xlsm",
+        "extension": ".xlsm",
+        "downloaded": true,
+        "bytes": 10655,
+        "magic": "PK\\x03\\x04"
+      },
+      {
+        "kind": "presentation",
+        "filename": "btb-4fb6232d-preliminary-buyer-universe-shipwell-top-8-acquirers-screening.pptx",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\4fb6232d-c2a9-4141-98de-3e2025bdf52b\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-4fb6232d-preliminary-buyer-universe-shipwell-top-8-acquirers-screening.pptx",
+        "extension": ".pptx",
+        "downloaded": true,
+        "bytes": 7951,
+        "magic": "PK\\x03\\x04"
+      },
+      {
+        "kind": "document",
+        "filename": "btb-4fb6232d-preliminary-buyer-universe-shipwell-top-8-acquirers-screening.docx",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\4fb6232d-c2a9-4141-98de-3e2025bdf52b\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-4fb6232d-preliminary-buyer-universe-shipwell-top-8-acquirers-screening.docx",
+        "extension": ".docx",
+        "downloaded": true,
+        "bytes": 4680,
+        "magic": "PK\\x03\\x04"
+      },
+      {
+        "kind": "pdf",
+        "filename": "btb-4fb6232d-preliminary-buyer-universe-shipwell-top-8-acquirers-screening.pdf",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\4fb6232d-c2a9-4141-98de-3e2025bdf52b\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-4fb6232d-preliminary-buyer-universe-shipwell-top-8-acquirers-screening.pdf",
+        "extension": ".pdf",
+        "downloaded": true,
+        "bytes": 1685,
+        "magic": "%PDF"
+      }
+    ],
+    "reopenedFiles": [
+      {
+        "kind": "workbook",
+        "filename": "btb-4fb6232d-preliminary-buyer-universe-shipwell-top-8-acquirers-screening.xlsx",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "ZIP package contains xl/workbook.xml; placeholder/caveat content scan passed (9715 chars)"
+      },
+      {
+        "kind": "workbook",
+        "filename": "btb-4fb6232d-preliminary-buyer-universe-shipwell-top-8-acquirers-screening.xlsm",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "ZIP package contains xl/workbook.xml; placeholder/caveat content scan passed (9715 chars)"
+      },
+      {
+        "kind": "presentation",
+        "filename": "btb-4fb6232d-preliminary-buyer-universe-shipwell-top-8-acquirers-screening.pptx",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "ZIP package contains ppt/presentation.xml; placeholder/caveat content scan passed (4994 chars)"
+      },
+      {
+        "kind": "document",
+        "filename": "btb-4fb6232d-preliminary-buyer-universe-shipwell-top-8-acquirers-screening.docx",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "ZIP package contains word/document.xml; placeholder/caveat content scan passed (8754 chars)"
+      },
+      {
+        "kind": "pdf",
+        "filename": "btb-4fb6232d-preliminary-buyer-universe-shipwell-top-8-acquirers-screening.pdf",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "PDF header reopened; placeholder/caveat content scan passed (2837 chars)"
+      }
+    ]
+  },
+  "scorer": {
+    "name": "BankerToolBench proof verifier",
+    "command": "npm run benchmark:bankertoolbench:proof",
+    "verdict": "pass",
+    "score": 1,
+    "details": {
+      "verifierOutputTail": "\n> noderoom@0.1.1 benchmark:bankertoolbench:proof\n> tsx scripts/bankertoolbench-proof-check.ts\n\nBankerToolBench proof check passed: stage=1/1 weightedRubric=6 run=0/1 pass positive=1/1 pass candidateBeforeEvaluator=true leaks=0/2+0/3+0/4\n",
+      "packageManifestPath": "test-results\\bankertoolbench\\matrix\\4fb6232d-c2a9-4141-98de-3e2025bdf52b\\package-manifest.json",
+      "downloadedExtensions": [
+        ".xlsx",
+        ".xlsm",
+        ".pptx",
+        ".docx",
+        ".pdf"
+      ],
+      "exportSource": "browser_download_link",
+      "agentTerminalQuality": {
+        "statusText": "completed via recovered Convex job: pwell-top-8-acquirers-screening.pptx, btb-4fb6232d-preliminary-buyer-universe-shipwell-top-8-acquirers-screening.docx, btb-4fb6232d-preliminary-buyer-universe-shipwell-top-8-acquirers-screening.pdf. Coverage confirmed for TMS, PE, AUM, TAM.",
+        "evidenceTextLength": 1874,
+        "detail": "agent reached completed status or visible completion text, with no missing-source/unfinished-work caveats"
+      },
+      "taskCoverage": {
+        "ok": true,
+        "requiredTickers": [
+          "TMS",
+          "PE",
+          "AUM",
+          "TAM"
+        ],
+        "missingTickers": [],
+        "detail": "generated package mentions every requested ticker/entity: TMS, PE, AUM, TAM"
+      }
+    }
+  },
+  "visualJudge": {
+    "verdict": "not_run",
+    "reason": "GOOGLE_GENERATIVE_AI_API_KEY is not set; deterministic browser/download/reopen/verifier proof passed."
+  },
+  "gatesProven": [
+    "fresh_room_join",
+    "official_fixture_upload",
+    "public_nodeagent_invocation",
+    "visible_streaming_progress",
+    "trace_video_artifacts",
+    "no_memory_mode_shortcut",
+    "focus_mode_enabled",
+    "focus_box_or_attention_overlay",
+    "agent_live_loop",
+    "agent_terminal_quality_gate",
+    "room_trace_visible",
+    "job_detail_visible",
+    "deliverable_export_download",
+    "artifact_reopen_validation",
+    "artifact_placeholder_scan",
+    "official_scorer_handoff"
+  ],
+  "passed": true
+}

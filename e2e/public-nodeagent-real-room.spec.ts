@@ -1,4 +1,5 @@
 import { test, expect, type Page } from "@playwright/test";
+import { enableFocusModeForTest, expectAttentionOverlayMounted, expectFocusModeOn } from "./focusMode";
 
 const HAS_LIVE_BACKEND =
   !!process.env.E2E_CONVEX_URL ||
@@ -16,12 +17,22 @@ async function ensureBinderOpen(page: Page) {
 }
 
 async function openFreshLiveDemoRoom(page: Page, code: string) {
-  await page.addInitScript(() => {
-    try { localStorage.setItem("noderoom:tour:v1", "done"); } catch { /* ignore */ }
-  });
+  await enableFocusModeForTest(page);
   await page.goto(`/?demo=${code}&name=E2E`, { waitUntil: "domcontentloaded" });
   await expect(page.getByTestId("public-chat-panel").getByTestId("chat-composer")).toBeVisible({ timeout: 60_000 });
+  await expectFocusModeOn(page);
   await ensureBinderOpen(page);
+}
+
+async function openFreshLiveBlankRoom(page: Page) {
+  await enableFocusModeForTest(page);
+  await page.goto("/", { waitUntil: "domcontentloaded" });
+  await page.getByTestId("create-room").click({ timeout: 60_000 });
+  await page.getByTestId("create-room-submit").waitFor({ state: "visible", timeout: 10_000 });
+  await page.getByTestId("create-room-submit").click();
+  await expect(page.getByTestId("public-chat-panel").getByTestId("chat-composer")).toBeVisible({ timeout: 60_000 });
+  await expect(page.getByTestId("blank-room-state")).toBeVisible({ timeout: 60_000 });
+  await expectFocusModeOn(page);
 }
 
 async function openQ3Variance(page: Page) {
@@ -40,6 +51,7 @@ test("fresh room public @nodeagent first send starts one visible durable job", a
 
   await openFreshLiveDemoRoom(page, code);
   await openQ3Variance(page);
+  await expectAttentionOverlayMounted(page);
 
   const chat = publicChat(page);
   const prompt = "@nodeagent recompute the remaining Q3 variance cells and write the visible sheet cells only";
@@ -65,4 +77,35 @@ test("fresh room public @nodeagent first send starts one visible durable job", a
 
   const visibleStarts = await detail.getByText(/agentJobs\.start/).count();
   expect(visibleStarts).toBeLessThanOrEqual(1);
+});
+
+test("blank room public @nodeagent ask materializes a visible sheet and stream", async ({ page }) => {
+  test.setTimeout(180_000);
+  await openFreshLiveBlankRoom(page);
+
+  const chat = publicChat(page);
+  const prompt = "@nodeagent create me a sheet and research liveflow";
+  await chat.getByTestId("chat-composer").fill(prompt);
+  await chat.getByTestId("chat-send").click();
+
+  await expect(chat.getByTestId("chat-message").filter({ hasText: prompt })).toBeVisible({ timeout: 15_000 });
+  await expect(chat.getByTestId("agent-error")).toHaveCount(0);
+  await expect(chat.getByTestId("job-status")).toContainText(/queued|running|completed|blocked|failed/i, { timeout: 30_000 });
+
+  const stream = chat.getByTestId("agent-unified-stream").first();
+  await expect(stream).toBeVisible({ timeout: 60_000 });
+  await expect(stream.locator('[data-part="step"], [data-part="tool"], [data-testid="agent-stream-text"]').first()).toBeVisible({
+    timeout: 60_000,
+  });
+  await expect(chat.getByTestId("agent-operation-stream")).toHaveCount(0);
+  await expect(chat.getByTestId("agent-error")).toHaveCount(0);
+
+  await ensureBinderOpen(page);
+  await expect(page.getByTestId("left-rail").getByTestId("binder-artifact").filter({ hasText: "Sheet 1" }).first()).toBeVisible({
+    timeout: 60_000,
+  });
+  await expect(page.getByTestId("sheet-grid")).toBeVisible({ timeout: 60_000 });
+  await expectAttentionOverlayMounted(page);
+  await expect(page.locator('[data-element-id="r1__A"]').first()).toBeVisible({ timeout: 60_000 });
+  await expect(page.locator('[data-element-id="r1__A"]').first()).toHaveClass(/r-cell/);
 });

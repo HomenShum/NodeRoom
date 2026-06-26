@@ -20,11 +20,31 @@ export const roomPdf = internalQuery({
       (f) => f.status !== "deleted" && (/pdf/i.test(f.mimeType) || /\.pdf$/i.test(f.fileName)),
     );
     const match = a.fileName
-      ? pdfs.find((f) => f.fileName.toLowerCase().includes(a.fileName!.toLowerCase()))
+      ? pdfs.find((f) => pdfFileMatches(f.fileName, a.fileName!)) ?? pdfs[0]
       : pdfs[0];
     return match ? { storageId: match.storageId, fileName: match.fileName } : null;
   },
 });
+
+function pdfFileMatches(actual: string, requested: string): boolean {
+  const actualLower = actual.toLowerCase();
+  const requestedLower = requested.toLowerCase();
+  if (actualLower.includes(requestedLower)) return true;
+  const actualNorm = normalizePdfName(actual);
+  const requestedNorm = normalizePdfName(requested);
+  if (!requestedNorm) return false;
+  if (actualNorm.includes(requestedNorm) || requestedNorm.includes(actualNorm)) return true;
+  const tokens = requestedNorm.match(/[a-z0-9]{2,}/g) ?? [];
+  return tokens.length > 0 && tokens.every((token) => actualNorm.includes(token));
+}
+
+function normalizePdfName(value: string): string {
+  return value
+    .toLowerCase()
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "");
+}
 
 /** Insert a pdf_citation capture record (already-normalized 0..1 box) — renders the highlight overlay. */
 export const insertAgentCitation = internalMutation({

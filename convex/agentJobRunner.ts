@@ -13,7 +13,7 @@ import { makeFunctionReference } from "convex/server";
 import { internalAction } from "./_generated/server";
 import type { Id } from "./_generated/dataModel";
 import { ConvexRoomTools } from "./convexRoomTools";
-import { AgentRunError, runAgent } from "../src/nodeagent/core/runtime";
+import { AgentRunError, TOOL_REQUIRED_NO_CALL_TERMINAL_MARKER, runAgent } from "../src/nodeagent/core/runtime";
 import { runReasoningFrame, type ReasoningFrameRunReceipt } from "../src/nodeagent/core/frameRunner";
 import { SERVER_PRODUCTION_ROOM_TOOLS as PRODUCTION_ROOM_TOOLS } from "../src/nodeagent/skills/server/productionTools";
 import { MANAGED_LOCK_SYSTEM_PROMPT } from "../src/nodeagent/models/prompts/systemPrompt";
@@ -25,18 +25,27 @@ import type { AgentStreamEventDraft } from "../src/nodeagent/core/stream";
 import type { EvidenceState, FrameDelta, ReasoningFrame, ReasoningFrameStatus } from "../src/nodeagent/core/reasoningFrames";
 import type { Actor } from "../src/engine/types";
 import { journalSliceKey } from "../src/nodeagent/core/journal";
-import { assertProviderEgressAllowed, type ProviderEgressEntrypoint } from "../src/nodeagent/guardrails/egressPolicy";
+import {
+  FREE_FILE_EGRESS_BLOCK_REASON,
+  isOpenRouterFreeRoute,
+  isProviderPolicyBlockedError,
+  providerEgressDecision,
+  type ProviderEgressArtifact,
+  type ProviderEgressEntrypoint,
+} from "../src/nodeagent/guardrails/egressPolicy";
 import { makeConvexStepJournal } from "./agentStepJournalClient";
 
 const CONVEX_ACTION_LIMIT_MS = 10 * 60_000;
-const DEFAULT_SLICE_BUDGET_MS = 9 * 60_000;
-const DEFAULT_RESERVE_MS = 30_000;
+const DEFAULT_SLICE_BUDGET_MS = 7 * 60_000;
+const DEFAULT_RESERVE_MS = 60_000;
 const MIN_ACTION_RESERVE_MS = 10_000;
 const ACTION_SAFETY_MARGIN_MS = 15_000;
 const DEFAULT_LEASE_EXTRA_MS = 60_000;
 const DEFAULT_RESUME_DELAY_MS = 5_000;
 const DEFAULT_CONTEXT_MAX_CHARS = 24_000;
 const DEFAULT_CONTEXT_KEEP_RECENT = 10;
+const DEFAULT_FILE_EGRESS_MODEL = "z-ai/glm-4.7-flash";
+const RESUME_CHECKPOINT_PREFIX = "RESUME CHECKPOINT:";
 const agentJobsClaimSliceRef = makeFunctionReference<"mutation">("agentJobs:claimSlice") as any;
 const agentJobsFinishSliceRef = makeFunctionReference<"mutation">("agentJobs:finishSlice") as any;
 const agentJobsRecordLiveOperationRef = makeFunctionReference<"mutation">("agentJobs:recordLiveOperation") as any;
@@ -61,6 +70,7 @@ type ClaimedJob = {
   traceLevel?: "summary" | "standard" | "full_operation_ledger";
   routePolicy?: "fast_default" | "free_auto" | "top_paid" | "explicit";
   runtimePolicy?: "workflow_sliced";
+  runtimeProfile?: "benchmark_completion";
   mode?: "variance" | "research";
   modelPolicy: string;
   createdAt: number;
@@ -117,6 +127,30 @@ function envNumber(name: string, fallback: number, min: number, max: number): nu
   return Math.max(min, Math.min(max, raw));
 }
 
+function isBenchmarkCompletionProfile(profile: ClaimedJob["runtimeProfile"]): boolean {
+  return profile === "benchmark_completion";
+}
+
+function maxStepsForJob(entrypoint: ProviderEgressEntrypoint, runtimeProfile: ClaimedJob["runtimeProfile"]): number {
+  if (isBenchmarkCompletionProfile(runtimeProfile)) {
+    return envNumber("BENCHMARK_AGENT_MAX_STEPS_PER_SLICE", 5_000, 1, 5_000);
+  }
+  return envNumber("FREE_AUTO_JOB_MAX_STEPS_PER_SLICE", defaultMaxStepsForEntrypoint(entrypoint), 1, 256);
+}
+
+function spendLimitsForJob(runtimeProfile: ClaimedJob["runtimeProfile"]) {
+  if (isBenchmarkCompletionProfile(runtimeProfile)) {
+    return {
+      maxTokens: envNumber("BENCHMARK_AGENT_MAX_TOKENS_PER_SLICE", 8_000_000, 1_000, 64_000_000),
+      maxCostUsd: envNumber("BENCHMARK_AGENT_MAX_USD_PER_SLICE", 250, 0.01, 5_000),
+    };
+  }
+  return {
+    maxTokens: envNumber("AGENT_MAX_TOKENS_PER_SLICE", 250_000, 1_000, 4_000_000),
+    maxCostUsd: envNumber("AGENT_MAX_USD_PER_SLICE", 2, 0.01, 100),
+  };
+}
+
 function boundedActionBudgetMs(requestedBudgetMs: number, reserveMs: number, minimumBudgetMs: number): number {
   const ceiling = Math.max(minimumBudgetMs, CONVEX_ACTION_LIMIT_MS - reserveMs - ACTION_SAFETY_MARGIN_MS);
   return Math.max(minimumBudgetMs, Math.min(requestedBudgetMs, ceiling));
@@ -135,8 +169,14 @@ function stepStatus(e: { tool: string; result: unknown }): "ok" | "conflict" | "
   const r = (e.result ?? {}) as { ok?: boolean; conflict?: boolean; locked?: boolean; error?: unknown; drafted?: boolean };
   if (e.tool === "edit_cell") { if (r.conflict) return "conflict"; if (r.locked) return "locked"; }
   if (e.tool.startsWith("write_locked_cell") && r.drafted) return "ok";
-  if (r.error || r.ok === false) return "error";
+  if (toolResultFailed(r)) return "error";
   return "ok";
+}
+
+function toolResultFailed(result: unknown): boolean {
+  if (!result || typeof result !== "object") return false;
+  const object = result as Record<string, unknown>;
+  return object.ok === false || typeof object.error === "string";
 }
 
 function liveOperationKind(event: AgentTraceEvent): LiveOperationKind {
@@ -148,7 +188,7 @@ function liveOperationKind(event: AgentTraceEvent): LiveOperationKind {
 
 function liveOperationName(event: AgentTraceEvent): string {
   const result = event.result as { error?: unknown; conflict?: unknown; locked?: unknown; pendingApproval?: unknown } | null;
-  const suffix = result?.error ? " failed" : result?.conflict ? " conflict" : result?.locked ? " blocked" : result?.pendingApproval ? " needs review" : "";
+  const suffix = toolResultFailed(result) ? " failed" : result?.conflict ? " conflict" : result?.locked ? " blocked" : result?.pendingApproval ? " needs review" : "";
   return `${event.tool}${suffix}`;
 }
 
@@ -228,7 +268,30 @@ function runnerEntrypoint(job: Pick<ClaimedJob, "entrypoint" | "modelPolicy">): 
 }
 
 function defaultMaxStepsForEntrypoint(entrypoint: ProviderEgressEntrypoint): number {
-  return entrypoint === "free" ? 3 : 8;
+  return entrypoint === "free" ? 32 : 128;
+}
+
+function configuredFileEgressModel() {
+  for (const candidate of [
+    process.env.AGENT_FILE_EGRESS_MODEL,
+    process.env.AGENT_MODEL_FILE_EGRESS,
+    DEFAULT_FILE_EGRESS_MODEL,
+    process.env.AGENT_MODEL,
+    process.env.AGENT_TOP_PAID_MODEL,
+  ]) {
+    const value = candidate?.trim();
+    if (value && !isOpenRouterFreeRoute(value)) return value;
+  }
+  return DEFAULT_FILE_EGRESS_MODEL;
+}
+
+function providerEgressArtifactsForClaimedJob(
+  roomArtifacts: Array<{ title?: string; kind?: string; meta?: unknown; visibility?: string }>,
+  claimed: Pick<ClaimedJob, "artifactTitle" | "artifactKind" | "artifactMeta" | "artifactVisibility">,
+): ProviderEgressArtifact[] {
+  return roomArtifacts.length
+    ? roomArtifacts.map((art) => ({ title: art.title, kind: art.kind, meta: art.meta, visibility: art.visibility }))
+    : [{ title: claimed.artifactTitle, kind: claimed.artifactKind, meta: claimed.artifactMeta, visibility: claimed.artifactVisibility }];
 }
 
 function clean<T extends Record<string, unknown>>(value: T): T {
@@ -239,10 +302,23 @@ function clean<T extends Record<string, unknown>>(value: T): T {
 
 async function checkpoint(result: AgentResult, maxChars: number, keepRecent: number, frameId?: string) {
   const compacted = await compactMessages(result.messages, { maxChars, keepRecent });
+  const remainingToolCalls = result.handoff?.remainingToolCalls ?? [];
+  let messages = compacted.messages.filter((message) =>
+    !(message.role === "user" && message.content?.startsWith(RESUME_CHECKPOINT_PREFIX)));
+  if (result.handoff && remainingToolCalls.length === 0) {
+    const latestProgress = (result.handoff.latestAssistantText || result.finalText || result.handoff.summary || "")
+      .replace(/\s+/g, " ")
+      .trim()
+      .slice(0, 2_000);
+    messages = [...messages, {
+      role: "user",
+      content: `${RESUME_CHECKPOINT_PREFIX} Previous slice paused with ${result.stopReason}. Continue the original goal from the current room state and prior tool results; do not restart source reads unless a specific value is missing. Latest progress: ${latestProgress}`,
+    }];
+  }
   return {
     frameId,
-    messages: compacted.messages,
-    remainingToolCalls: result.handoff?.remainingToolCalls ?? [],
+    messages,
+    remainingToolCalls,
     stopReason: result.stopReason,
     compacted: compacted.compacted,
     elided: compacted.elided,
@@ -271,6 +347,11 @@ function frameStatusForFinish(receipt: ReasoningFrameRunReceipt | undefined, res
   return receipt.status;
 }
 
+function isNonResumableAgentResult(result: AgentResult): boolean {
+  const summary = result.handoff?.summary ?? result.finalText ?? "";
+  return result.stopReason === "step_budget" && summary.includes(TOOL_REQUIRED_NO_CALL_TERMINAL_MARKER);
+}
+
 export const runFreeAutoJobSlice = internalAction({
   args: { jobId: v.id("agentJobs") },
   handler: async (ctx, { jobId }) => {
@@ -291,15 +372,35 @@ export const runFreeAutoJobSlice = internalAction({
 
     const actor: Actor = { kind: "agent", id: claimed.agentId, name: claimed.agentName, scope: "public" };
     const rt = new ConvexRoomTools(ctx, claimed.roomId, claimed.artifactId, actor, String(claimed.sessionId), claimed.jobId);
-    const entrypoint = runnerEntrypoint(claimed);
+    const roomArtifacts = await ctx.runQuery(artifactsListForRoomRef, { roomId: claimed.roomId }) as Array<{ title?: string; kind?: string; meta?: unknown; visibility?: string }>;
+    const egressArtifacts = providerEgressArtifactsForClaimedJob(roomArtifacts, claimed);
+    let entrypoint = runnerEntrypoint(claimed);
     const modelPolicy = claimed.modelPolicy || (entrypoint === "free" ? "openrouter/free-auto" : process.env.AGENT_MODEL ?? "gemini-3.5-flash");
-    const resolvedModelPolicy = modelPolicy === "openrouter/free-auto"
+    let resolvedModelPolicy = modelPolicy === "openrouter/free-auto"
       ? process.env.FREE_AUTO_JOB_MODEL ?? modelPolicy
       : modelPolicy;
+    let egressDecision = providerEgressDecision({
+      model: resolvedModelPolicy,
+      entrypoint,
+      artifacts: egressArtifacts,
+      env: process.env,
+    });
+    const promotedForFileEgress = !egressDecision.ok && egressDecision.reason === FREE_FILE_EGRESS_BLOCK_REASON;
+    if (promotedForFileEgress) {
+      entrypoint = "public_ask";
+      resolvedModelPolicy = configuredFileEgressModel();
+      egressDecision = providerEgressDecision({
+        model: resolvedModelPolicy,
+        entrypoint,
+        artifacts: egressArtifacts,
+        env: process.env,
+      });
+    }
     const model = agentModel(resolvedModelPolicy, { entrypoint });
     const contextMaxChars = envNumber("FREE_AUTO_JOB_CONTEXT_MAX_CHARS", DEFAULT_CONTEXT_MAX_CHARS, 4_000, 120_000);
     const contextKeepRecent = envNumber("FREE_AUTO_JOB_CONTEXT_KEEP_RECENT", DEFAULT_CONTEXT_KEEP_RECENT, 2, 40);
-    const maxSteps = envNumber("FREE_AUTO_JOB_MAX_STEPS_PER_SLICE", defaultMaxStepsForEntrypoint(entrypoint), 1, 12);
+    const maxSteps = maxStepsForJob(entrypoint, claimed.runtimeProfile);
+    const spendLimits = spendLimitsForJob(claimed.runtimeProfile);
     const deadlineAt = t0 + sliceBudgetMs;
     const activeFrame = claimed.activeReasoningFrame
       ? normalizeClaimedFrame(claimed.activeReasoningFrame, String(claimed.jobId))
@@ -348,6 +449,7 @@ export const runFreeAutoJobSlice = internalAction({
         goal: claimed.goal,
         mode: claimed.mode ?? "variance",
         modelPolicy: resolvedModelPolicy,
+        runtimeProfile: claimed.runtimeProfile,
         cursor: claimed.cursor ?? null,
         handoff: claimed.handoff ?? null,
         maxSteps,
@@ -492,15 +594,16 @@ export const runFreeAutoJobSlice = internalAction({
         countDelta: 1,
         startedAt: Date.now(),
       });
-      const roomArtifacts = await ctx.runQuery(artifactsListForRoomRef, { roomId: claimed.roomId }) as Array<{ title: string; kind: string; meta?: unknown; visibility?: string }>;
-      assertProviderEgressAllowed({
-        model: model.name,
-        entrypoint,
-        artifacts: roomArtifacts.length
-          ? roomArtifacts.map((art) => ({ title: art.title, kind: art.kind, meta: art.meta, visibility: art.visibility }))
-          : [{ title: claimed.artifactTitle, kind: claimed.artifactKind, meta: claimed.artifactMeta, visibility: claimed.artifactVisibility }],
-        env: process.env,
-      });
+      if (!egressDecision.ok) throw new Error(`provider_egress_blocked:${egressDecision.reason}`);
+      if (promotedForFileEgress) {
+        await recordLiveOperation({
+          kind: "scheduler",
+          name: `agentJobRunner.promotedFileEgressRoute ${modelPolicy} -> ${model.name}`,
+          status: "completed",
+          countDelta: 1,
+          completedAt: Date.now(),
+        });
+      }
       const activeFrameId = activeFrame?.frameId;
       const initialMessages = messagesFromCursor(claimed.cursor, activeFrameId);
       const resumeToolCalls = remainingToolCallsFromCursor(claimed.cursor, activeFrameId);
@@ -521,10 +624,7 @@ export const runFreeAutoJobSlice = internalAction({
           journal: modelJournal,
           deadlineAt,
           reserveMs,
-          spendLimits: {
-            maxTokens: envNumber("AGENT_MAX_TOKENS_PER_SLICE", 250_000, 1_000, 4_000_000),
-            maxCostUsd: envNumber("AGENT_MAX_USD_PER_SLICE", 2, 0.01, 100),
-          },
+          spendLimits,
           priceStep: (modelName: string, inputTokens: number, outputTokens: number) => priceRun(modelName, inputTokens, outputTokens),
           onTextDelta: (delta, step) => onPublicTextDelta(delta, step),
           onStreamEvent: (event) => recordStreamEvent(event),
@@ -532,7 +632,7 @@ export const runFreeAutoJobSlice = internalAction({
             void recordLiveOperation({
               kind: liveOperationKind(event),
               name: liveOperationName(event),
-              status: (event.result && typeof event.result === "object" && "error" in (event.result as Record<string, unknown>)) ? "failed" : "completed",
+              status: toolResultFailed(event.result) ? "failed" : "completed",
               countDelta: 1,
               affectedIds: liveOperationAffectedIds(event),
               completedAt: Date.now(),
@@ -556,10 +656,7 @@ export const runFreeAutoJobSlice = internalAction({
         // Gateway spend ceiling — cap a single slice's token AND dollar spend. priceStep makes the
         // USD half reachable (P0-4: without it the gate received costUsd=0 and maxCostUsd was dead
         // surface — one env var pointing free-auto at a paid model meant unbounded spend).
-        spendLimits: {
-          maxTokens: envNumber("AGENT_MAX_TOKENS_PER_SLICE", 250_000, 1_000, 4_000_000),
-          maxCostUsd: envNumber("AGENT_MAX_USD_PER_SLICE", 2, 0.01, 100),
-        },
+        spendLimits,
         priceStep: (modelName: string, inputTokens: number, outputTokens: number) => priceRun(modelName, inputTokens, outputTokens),
         onTextDelta: (delta, step) => onPublicTextDelta(delta, step),
         onStreamEvent: (event) => recordStreamEvent(event),
@@ -567,7 +664,7 @@ export const runFreeAutoJobSlice = internalAction({
           void recordLiveOperation({
             kind: liveOperationKind(event),
             name: liveOperationName(event),
-            status: (event.result && typeof event.result === "object" && "error" in (event.result as Record<string, unknown>)) ? "failed" : "completed",
+            status: toolResultFailed(event.result) ? "failed" : "completed",
             countDelta: 1,
             affectedIds: liveOperationAffectedIds(event),
             completedAt: Date.now(),
@@ -576,7 +673,8 @@ export const runFreeAutoJobSlice = internalAction({
       });
       const { runId, telemetry } = await recordRun(result);
       const done = result.stopReason === "done" && !result.exhausted;
-      const canContinue = !done && claimed.attempt < claimed.maxAttempts;
+      const nonResumable = isNonResumableAgentResult(result);
+      const canContinue = !done && !nonResumable && claimed.attempt < claimed.maxAttempts;
       const frameStatus = frameStatusForFinish(frameReceipt, result, canContinue);
       const frameBlocked = frameStatus === "blocked";
       const scheduledNextAt = canContinue || (frameReceipt && done && !frameBlocked) ? Date.now() + DEFAULT_RESUME_DELAY_MS : undefined;
@@ -624,7 +722,11 @@ export const runFreeAutoJobSlice = internalAction({
         handoff: result.handoff,
         cursor,
         finalText: result.finalText,
-        error: frameBlocked ? frameReceipt?.verification.blockedReason ?? frameReceipt?.verification.reason : done || canContinue ? undefined : "max_attempts_exceeded",
+        error: frameBlocked
+          ? frameReceipt?.verification.blockedReason ?? frameReceipt?.verification.reason
+          : nonResumable
+            ? result.handoff?.summary ?? TOOL_REQUIRED_NO_CALL_TERMINAL_MARKER
+            : done || canContinue ? undefined : "max_attempts_exceeded",
         scheduledNextAt,
         frameId: activeFrameId,
         frameStatus,
@@ -663,7 +765,8 @@ export const runFreeAutoJobSlice = internalAction({
         usage: { inputTokens: 0, outputTokens: 0, modelCalls: 0 },
       };
       const { runId, telemetry } = await recordRun(fallback, { tool: "job_error", result: errorText(rootError) });
-      const canRetry = claimed.attempt < claimed.maxAttempts;
+      const retryable = !isProviderPolicyBlockedError(rootError);
+      const canRetry = retryable && claimed.attempt < claimed.maxAttempts;
       const delayMs = canRetry ? backoffMs(claimed.attempt) : undefined;
       const scheduledNextAt = delayMs ? Date.now() + delayMs : undefined;
       const activeFrameId = claimed.activeReasoningFrame?.frameId;
@@ -679,10 +782,10 @@ export const runFreeAutoJobSlice = internalAction({
       void recordStreamEvent({
         kind: canRetry ? "warning" : "error",
         status: canRetry ? "skipped" : "failed",
-        title: canRetry ? "Agent slice failed; retry scheduled" : "Agent job failed",
+        title: canRetry ? "Agent slice failed; retry scheduled" : retryable ? "Agent job failed" : "Agent route blocked",
         text: fallback.finalText || publicStreamText,
         error: errorText(rootError),
-        metadata: { attempt: claimed.attempt, canRetry },
+        metadata: { attempt: claimed.attempt, canRetry, retryable },
         createdAt: Date.now(),
       });
       if (!canRetry) {

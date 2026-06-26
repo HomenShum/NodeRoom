@@ -139,7 +139,7 @@ export function buildOpenRouterConvexBenchmarkReport(args: {
     .filter((route) => route.provider === "openrouter" || route.provider === "internal_alias")
     .map((route) => routePlan(route, harnessReady));
   const routeScorecards = buildRouteScorecards(args.routes);
-  const topPaidRoutes = new Set(args.routes.filter(isTopPaidOpenRouterRoute).map((route) => route.route));
+  const latestCheapRoutes = new Set(args.routes.filter(isLatestCheapOpenRouterRoute).map((route) => route.route));
 
   return {
     schema: 1,
@@ -157,8 +157,8 @@ export function buildOpenRouterConvexBenchmarkReport(args: {
       routesWithManagedN5P95: routeScorecards.filter((item) => item.evidence.managedPathN5P95.status === "pass").length,
       routesWithSpreadsheetN5: routeScorecards.filter((item) => item.evidence.spreadsheetBenchN5.status === "pass").length,
       routesInteractivePromoted: routeScorecards.filter((item) => item.role === "interactive_promoted").length,
-      topPaidOpenRouterRoutes: topPaidRoutes.size,
-      topPaidRoutesWithManagedN5P95: routeScorecards.filter((item) => topPaidRoutes.has(item.route) && item.evidence.managedPathN5P95.status === "pass").length,
+      topPaidOpenRouterRoutes: latestCheapRoutes.size,
+      topPaidRoutesWithManagedN5P95: routeScorecards.filter((item) => latestCheapRoutes.has(item.route) && item.evidence.managedPathN5P95.status === "pass").length,
       harnessReady,
       officialStyleSuitesReady: officialStyleSuites.every((item) => item.status === "pass"),
       officialPromotionReady: officialCases.every((item) => item.status === "pass"),
@@ -168,7 +168,7 @@ export function buildOpenRouterConvexBenchmarkReport(args: {
       "Benchmark-shaped work is routed through deterministic tools first, then bounded model edit plans, then evidence-bearing writes.",
       "Free-auto is a long-running/background lane until ladder and p95 evidence prove it can meet interactive collaboration budgets.",
       "Official benchmark claims stay blocked until the external verifier path is wired; internal Convex benchmark readiness is separate.",
-      "The scorecard includes every configured agent LLM route from llmModelCatalog.agent, curated OpenRouter routes, and the current top-paid OpenRouter tool-capable candidate set.",
+      "The scorecard includes every configured agent LLM route from llmModelCatalog.agent, curated OpenRouter routes, and the current latest-cheap OpenRouter tool-capable candidate set.",
     ],
     cases,
     officialStyleSuites,
@@ -495,8 +495,11 @@ function providerRank(provider: OpenRouterConvexRoute["provider"]): number {
   return 2;
 }
 
-function isTopPaidOpenRouterRoute(route: OpenRouterConvexRoute): boolean {
-  return route.provider === "openrouter" && route.sourceTags?.includes("openrouter_top_paid_tools") === true;
+function isLatestCheapOpenRouterRoute(route: OpenRouterConvexRoute): boolean {
+  return route.provider === "openrouter" && (
+    route.sourceTags?.includes("openrouter_latest_cheap_tools") === true ||
+    route.sourceTags?.includes("openrouter_top_paid_tools") === true
+  );
 }
 
 type ResearchReport = {

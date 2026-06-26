@@ -1,0 +1,85 @@
+{
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": 1782376935021,
+      "status": "completed",
+      "stopReason": "done"
+    }
+  ],
+  "eventKinds": [
+    {
+      "kind": "message_start",
+      "sequence": 1,
+      "status": "started",
+      "text": "UI budget smoke: list the room artifacts and report the count only. Do not create or edit artifacts."
+    },
+    {
+      "kind": "step_start",
+      "sequence": 1000,
+      "status": "started"
+    },
+    {
+      "kind": "step_start",
+      "sequence": 1001,
+      "status": "started"
+    },
+    {
+      "kind": "step_start",
+      "sequence": 1002,
+      "status": "started"
+    },
+    {
+      "kind": "tool_call_start",
+      "sequence": 1003,
+      "status": "started"
+    },
+    {
+      "kind": "tool_call_result",
+      "sequence": 1004,
+      "status": "completed"
+    },
+    {
+      "kind": "step_start",
+      "sequence": 1005,
+      "status": "started"
+    },
+    {
+      "kind": "tool_call_start",
+      "sequence": 1006,
+      "status": "started"
+    },
+    {
+      "kind": "tool_call_result",
+      "sequence": 1007,
+      "status": "completed"
+    },
+    {
+      "kind": "message_done",
+      "sequence": 1008,
+      "status": "completed",
+      "text": "Room artifact count: 1 (Sheet 1 — \"j973773ww9zzrzxgzkaba4a8cd89bqdk\"). No edits made per task instructions."
+    }
+  ],
+  "found": true,
+  "jobs": [
+    {
+      "attempts": 1,
+      "error": "",
+      "finalText": "Room artifact count: 1 (Sheet 1 — \"j973773ww9zzrzxgzkaba4a8cd89bqdk\"). No edits made per task instructions.",
+      "goal": "UI budget smoke: list the room artifacts and report the count only. Do not create or edit artifacts.",
+      "id": "ks75tnd3n8phps3gdhx5yasvrs89aqfr",
+      "maxAttempts": 1000,
+      "modelCallCount": 1,
+      "modelPolicy": "z-ai/glm-5.2",
+      "runtimeProfile": "benchmark_completion",
+      "status": "completed",
+      "toolCallCount": 1
+    }
+  ],
+  "room": {
+    "code": "NRQQER66ZMT",
+    "id": "k57fwq70sj7jm4ymy2dm0n01x189ayjp",
+    "title": "Blank NodeRoom"
+  }
+}

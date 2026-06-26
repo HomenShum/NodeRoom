@@ -1,0 +1,100 @@
+{
+  "schema": 1,
+  "taskId": "31f70ac1-01c3-4971-84f8-0a2438fb5b92",
+  "harborTaskId": "btb-31f70ac1",
+  "generatedAt": "2026-06-25T02:34:45.206Z",
+  "baseUrl": "http://127.0.0.1:5273",
+  "roomUrl": "http://127.0.0.1:5273/?room=NR5AGROZ935&name=Host",
+  "memoryMode": false,
+  "expectedExtensions": [
+    ".xlsx",
+    ".xlsm",
+    ".pptx",
+    ".docx",
+    ".pdf"
+  ],
+  "visibleExtensions": [
+    ".xlsx",
+    ".xlsm",
+    ".pptx",
+    ".docx",
+    ".pdf"
+  ],
+  "downloadedFiles": [
+    {
+      "kind": "workbook",
+      "filename": "btb-31f70ac1-project-sapphire-anti-il-13-pathway-biologics-in-atopic-dermatitis-competitive-land.xlsx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\31f70ac1-01c3-4971-84f8-0a2438fb5b92\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-31f70ac1-project-sapphire-anti-il-13-pathway-biologics-in-atopic-dermatitis-competitive-land.xlsx",
+      "extension": ".xlsx",
+      "bytes": 10074,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j979s3031pff4yr3xx3vpnb0v189b2d1",
+      "contentQualityDetail": "placeholder/caveat content scan passed (8207 chars)"
+    },
+    {
+      "kind": "workbook",
+      "filename": "btb-31f70ac1-project-sapphire-anti-il-13-pathway-biologics-in-atopic-dermatitis-competitive-land.xlsm",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\31f70ac1-01c3-4971-84f8-0a2438fb5b92\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-31f70ac1-project-sapphire-anti-il-13-pathway-biologics-in-atopic-dermatitis-competitive-land.xlsm",
+      "extension": ".xlsm",
+      "bytes": 10074,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j973zgcsvmwm22ss6e021s486589atb2",
+      "contentQualityDetail": "placeholder/caveat content scan passed (8207 chars)"
+    },
+    {
+      "kind": "presentation",
+      "filename": "btb-31f70ac1-project-sapphire-anti-il-13-pathway-biologics-in-atopic-dermatitis-competitive-land.pptx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\31f70ac1-01c3-4971-84f8-0a2438fb5b92\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-31f70ac1-project-sapphire-anti-il-13-pathway-biologics-in-atopic-dermatitis-competitive-land.pptx",
+      "extension": ".pptx",
+      "bytes": 8651,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains ppt/presentation.xml; recovered from Convex room artifact j97ayrxhehk0nvdz0rbms29zj189bp8q",
+      "contentQualityDetail": "placeholder/caveat content scan passed (7136 chars)"
+    },
+    {
+      "kind": "document",
+      "filename": "btb-31f70ac1-project-sapphire-anti-il-13-pathway-biologics-in-atopic-dermatitis-competitive-land.docx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\31f70ac1-01c3-4971-84f8-0a2438fb5b92\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-31f70ac1-project-sapphire-anti-il-13-pathway-biologics-in-atopic-dermatitis-competitive-land.docx",
+      "extension": ".docx",
+      "bytes": 4833,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains word/document.xml; recovered from Convex room artifact j97eg2fh9sktyh1fcd6n74sv9x89b7jq",
+      "contentQualityDetail": "placeholder/caveat content scan passed (8693 chars)"
+    },
+    {
+      "kind": "pdf",
+      "filename": "btb-31f70ac1-project-sapphire-anti-il-13-pathway-biologics-in-atopic-dermatitis-competitive-land.pdf",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\31f70ac1-01c3-4971-84f8-0a2438fb5b92\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-31f70ac1-project-sapphire-anti-il-13-pathway-biologics-in-atopic-dermatitis-competitive-land.pdf",
+      "extension": ".pdf",
+      "bytes": 2698,
+      "magic": "%PDF",
+      "reopened": true,
+      "reopenDetail": "PDF header reopened; recovered from Convex room artifact j976xrjkvdb8f06vmjsgnpwsfn89bkas",
+      "contentQualityDetail": "placeholder/caveat content scan passed (4844 chars)"
+    }
+  ],
+  "packageManifestPath": "test-results\\bankertoolbench\\matrix\\31f70ac1-01c3-4971-84f8-0a2438fb5b92\\package-manifest.json",
+  "verifierCommand": "npm run benchmark:bankertoolbench:proof",
+  "verifierOutputTail": "\n> noderoom@0.1.1 benchmark:bankertoolbench:proof\n> tsx scripts/bankertoolbench-proof-check.ts\n\nBankerToolBench proof check passed: stage=1/1 weightedRubric=6 run=0/1 pass positive=1/1 pass candidateBeforeEvaluator=true leaks=0/2+0/3+0/4\n",
+  "screenshot": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\31f70ac1-01c3-4971-84f8-0a2438fb5b92\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\bankertoolbench-live-room.png",
+  "passed": true,
+  "gatesProven": [
+    "fresh_room_join",
+    "official_fixture_upload",
+    "public_nodeagent_invocation",
+    "visible_streaming_progress",
+    "focus_mode_enabled",
+    "focus_box_or_attention_overlay",
+    "agent_terminal_quality_gate",
+    "deliverable_export_download",
+    "artifact_reopen_validation",
+    "artifact_placeholder_scan",
+    "official_scorer_handoff",
+    "trace_video_artifacts",
+    "no_memory_mode_shortcut"
+  ]
+}

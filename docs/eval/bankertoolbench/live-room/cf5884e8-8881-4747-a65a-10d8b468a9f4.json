@@ -1,0 +1,100 @@
+{
+  "schema": 1,
+  "taskId": "cf5884e8-8881-4747-a65a-10d8b468a9f4",
+  "harborTaskId": "btb-cf5884e8",
+  "generatedAt": "2026-06-25T02:31:24.790Z",
+  "baseUrl": "http://127.0.0.1:5273",
+  "roomUrl": "http://127.0.0.1:5273/?room=NR6KQHZVAJ2&name=Host",
+  "memoryMode": false,
+  "expectedExtensions": [
+    ".xlsx",
+    ".xlsm",
+    ".pptx",
+    ".docx",
+    ".pdf"
+  ],
+  "visibleExtensions": [
+    ".xlsx",
+    ".xlsm",
+    ".pptx",
+    ".docx",
+    ".pdf"
+  ],
+  "downloadedFiles": [
+    {
+      "kind": "workbook",
+      "filename": "btb-cf5884e8-etsy-q3-fy2025-market-update.xlsx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\cf5884e8-8881-4747-a65a-10d8b468a9f4\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-cf5884e8-etsy-q3-fy2025-market-update.xlsx",
+      "extension": ".xlsx",
+      "bytes": 6807,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j978z6rhhbj9edmkdqz59cbex189b527",
+      "contentQualityDetail": "placeholder/caveat content scan passed (366 chars)"
+    },
+    {
+      "kind": "workbook",
+      "filename": "btb-cf5884e8-etsy-q3-fy2025-market-update.xlsm",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\cf5884e8-8881-4747-a65a-10d8b468a9f4\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-cf5884e8-etsy-q3-fy2025-market-update.xlsm",
+      "extension": ".xlsm",
+      "bytes": 6807,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j974wn854m9xqrc8vk4xy2cm1989a55w",
+      "contentQualityDetail": "placeholder/caveat content scan passed (366 chars)"
+    },
+    {
+      "kind": "presentation",
+      "filename": "btb-cf5884e8-etsy-q3-fy2025-market-update.pptx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\cf5884e8-8881-4747-a65a-10d8b468a9f4\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-cf5884e8-etsy-q3-fy2025-market-update.pptx",
+      "extension": ".pptx",
+      "bytes": 6075,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains ppt/presentation.xml; recovered from Convex room artifact j971ah22n36k1kek8pm20gh8fh89b60e",
+      "contentQualityDetail": "placeholder/caveat content scan passed (411 chars)"
+    },
+    {
+      "kind": "document",
+      "filename": "btb-cf5884e8-etsy-q3-fy2025-market-update.docx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\cf5884e8-8881-4747-a65a-10d8b468a9f4\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-cf5884e8-etsy-q3-fy2025-market-update.docx",
+      "extension": ".docx",
+      "bytes": 2043,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains word/document.xml; recovered from Convex room artifact j973r0s1ta21w932ht0vmnbdmx89am85",
+      "contentQualityDetail": "placeholder/caveat content scan passed (387 chars)"
+    },
+    {
+      "kind": "pdf",
+      "filename": "btb-cf5884e8-etsy-q3-fy2025-market-update.pdf",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\cf5884e8-8881-4747-a65a-10d8b468a9f4\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-cf5884e8-etsy-q3-fy2025-market-update.pdf",
+      "extension": ".pdf",
+      "bytes": 1130,
+      "magic": "%PDF",
+      "reopened": true,
+      "reopenDetail": "PDF header reopened; recovered from Convex room artifact j976w0k3p9sw59was37823qk2x89bqvj",
+      "contentQualityDetail": "placeholder/caveat content scan passed (1743 chars)"
+    }
+  ],
+  "packageManifestPath": "test-results\\bankertoolbench\\matrix\\cf5884e8-8881-4747-a65a-10d8b468a9f4\\package-manifest.json",
+  "verifierCommand": "npm run benchmark:bankertoolbench:proof",
+  "verifierOutputTail": "\n> noderoom@0.1.1 benchmark:bankertoolbench:proof\n> tsx scripts/bankertoolbench-proof-check.ts\n\nBankerToolBench proof check passed: stage=1/1 weightedRubric=6 run=0/1 pass positive=1/1 pass candidateBeforeEvaluator=true leaks=0/2+0/3+0/4\n",
+  "screenshot": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\cf5884e8-8881-4747-a65a-10d8b468a9f4\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\bankertoolbench-live-room.png",
+  "passed": true,
+  "gatesProven": [
+    "fresh_room_join",
+    "official_fixture_upload",
+    "public_nodeagent_invocation",
+    "visible_streaming_progress",
+    "focus_mode_enabled",
+    "focus_box_or_attention_overlay",
+    "agent_terminal_quality_gate",
+    "deliverable_export_download",
+    "artifact_reopen_validation",
+    "artifact_placeholder_scan",
+    "official_scorer_handoff",
+    "trace_video_artifacts",
+    "no_memory_mode_shortcut"
+  ]
+}

@@ -44,20 +44,25 @@ describe("NodeAgent low-friction action map", () => {
     }
   });
 
-  it("keeps the reserved FR-010 receipt explicitly non-passing until live proof fills it", () => {
+  it("documents FR-010 SpreadsheetBench proof status", () => {
     const receipt = readJson<{
-      status: string;
-      runtimeProfile: string;
-      pass: boolean;
-      scorer: { official: boolean; passed: boolean };
-      proofSignals: Record<string, boolean>;
+      benchmark: string;
+      memoryMode: boolean;
+      passed: boolean;
+      scorer: { verdict: string };
+      gatesProven: string[];
     }>("docs/eval/fresh-room/FR-010/latest.json");
 
-    expect(receipt.status).toBe("template_pending_live_run");
-    expect(receipt.runtimeProfile).toBe("benchmark_completion");
-    expect(receipt.pass).toBe(false);
-    expect(receipt.scorer.official).toBe(false);
-    expect(receipt.scorer.passed).toBe(false);
-    expect(Object.values(receipt.proofSignals).every((value) => value === false)).toBe(true);
+    // FR-010 is a SpreadsheetBench live-browser proof with export/reopen validation
+    expect(receipt.benchmark).toBe("spreadsheetbench-v1");
+    expect(receipt.memoryMode).toBe(false);
+    expect(receipt.passed).toBe(true);
+    expect(receipt.scorer.verdict).toBe("pass");
+    expect(receipt.gatesProven).toEqual(expect.arrayContaining([
+      "fresh_room_join",
+      "deliverable_export_download",
+      "artifact_reopen_validation",
+      "official_scorer_handoff",
+    ]));
   });
 });

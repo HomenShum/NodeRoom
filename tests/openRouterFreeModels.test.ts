@@ -18,6 +18,12 @@ const models: OpenRouterModelInfo[] = [
     supported_parameters: ["max_tokens"],
   },
   {
+    id: "cohere/north-mini-code:free",
+    pricing: { prompt: "0", completion: "0", request: "0" },
+    context_length: 256_000,
+    supported_parameters: ["max_tokens", "tools", "tool_choice", "reasoning"],
+  },
+  {
     id: "qwen/qwen3-coder:free",
     pricing: { prompt: "0", completion: "0", request: "0" },
     context_length: 1_048_576,
@@ -40,13 +46,13 @@ const models: OpenRouterModelInfo[] = [
 describe("OpenRouter free auto routing", () => {
   it("filters to zero-priced text models", () => {
     expect(isFreeTextModel(models[0])).toBe(true);
-    expect(isFreeTextModel(models[3])).toBe(false);
+    expect(isFreeTextModel(models[4])).toBe(false);
   });
 
   it("ranks tool-capable free models by capability signals", () => {
     const ranked = rankOpenRouterFreeModels(models, "agent");
-    expect(ranked.map((m) => m.id)).toEqual(["qwen/qwen3-coder:free", "openai/gpt-oss-120b:free"]);
-    expect(ranked[0].reasons).toContain("coding/agent specialist");
+    expect(ranked.map((m) => m.id)).toEqual(["cohere/north-mini-code:free", "qwen/qwen3-coder:free", "openai/gpt-oss-120b:free"]);
+    expect(ranked[0].reasons).toContain("latest coding/agent specialist");
   });
 
   it("skips operator-quarantined free-auto candidates before routing", async () => {
@@ -59,7 +65,7 @@ describe("OpenRouter free auto routing", () => {
       env: { NODEAGENT_QUARANTINED_MODELS: "qwen/qwen3-coder:free=rate_limited" },
     });
 
-    expect(selected.map((m) => m.id)).toEqual(["openai/gpt-oss-120b:free"]);
+    expect(selected.map((m) => m.id)).toEqual(["cohere/north-mini-code:free", "openai/gpt-oss-120b:free"]);
   });
 
   it("fails explicitly when every free-auto candidate is quarantined", async () => {
@@ -74,12 +80,13 @@ describe("OpenRouter free auto routing", () => {
   });
 
   it("keeps free-auto opt-in instead of hiding it behind generic aliases", () => {
-    expect(resolveModelAlias("openrouter")).toBe("moonshotai/kimi-k2.6");
+    expect(resolveModelAlias("openrouter")).toBe("z-ai/glm-5.2");
     expect(resolveModelAlias("auto")).toBe("gemini-3.5-flash");
     expect(resolveModelAlias("free")).toBe(OPENROUTER_FREE_AUTO_MODEL);
     expect(resolveModelAlias("free-auto")).toBe(OPENROUTER_FREE_AUTO_MODEL);
-    expect(resolveModelAlias("kimi")).toBe("moonshotai/kimi-k2.6:free");
-    expect(resolveModelAlias("minimax-m2.7")).toBe("minimax/minimax-m2.7");
+    expect(resolveModelAlias("kimi")).toBe("moonshotai/kimi-k2.7-code");
+    expect(resolveModelAlias("kimi-free")).toBe("cohere/north-mini-code:free");
+    expect(resolveModelAlias("minimax")).toBe("minimax/minimax-m3");
   });
 
   it("treats discovered slash ids and free-auto as OpenRouter models", () => {

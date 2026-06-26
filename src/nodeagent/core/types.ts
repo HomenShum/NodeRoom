@@ -48,9 +48,19 @@ export interface AgentStep {
 }
 
 /* ── seam 1: the injectable model ── */
+export type AgentToolChoice = "auto" | "required";
+
 export interface AgentModel {
   readonly name: string;
-  next(input: { system: string; messages: AgentMessage[]; tools: AgentTool[]; signal?: AbortSignal; onTextDelta?: (text: string) => void | Promise<void> }): Promise<AgentStep>;
+  next(input: {
+    system: string;
+    messages: AgentMessage[];
+    tools: AgentTool[];
+    signal?: AbortSignal;
+    onTextDelta?: (text: string) => void | Promise<void>;
+    /** Hint for providers that support OpenAI-style tool_choice. Runtime still validates writes. */
+    toolChoice?: AgentToolChoice;
+  }): Promise<AgentStep>;
 }
 
 /* ── seam 3: tools ── */
@@ -60,6 +70,32 @@ export interface AgentTool {
   schema: ZodTypeAny;
   execute(args: any, rt: RoomTools): Promise<unknown>;
 }
+
+export type ToolFailureKind =
+  | "missing_required_arg"
+  | "invalid_arg_type"
+  | "permission_denied"
+  | "private_context_blocked"
+  | "cas_conflict"
+  | "lock_blocked"
+  | "evidence_required"
+  | "formula_protected"
+  | "provider_timeout"
+  | "budget_cap"
+  | "unknown_tool"
+  | "tool_exception";
+
+export type ToolArgumentErrorResult = {
+  ok: false;
+  error: "tool_argument_error";
+  failureKind: Extract<ToolFailureKind, "missing_required_arg" | "invalid_arg_type">;
+  missingRequiredArgs: string[];
+  issues: Array<{ path: string; code: string; message: string }>;
+  recovery: {
+    action: "retry_tool_call";
+    instruction: string;
+  };
+};
 
 export interface AgentTraceEvent { step: number; tool: string; args: unknown; result: unknown; ms: number; }
 export type AgentStopReason = "done" | "step_budget" | "time_budget" | "spend_budget" | "error";
@@ -96,7 +132,15 @@ export interface AgentResult {
 }
 
 /* ── seam 2: the room-tools port (in-memory now, Convex later — SAME shape) ── */
-export interface CellView { id: string; value: unknown; version: number; locked: { by: string; reason: string } | null; }
+export interface CellView {
+  id: string;
+  value: unknown;
+  version: number;
+  locked: { by: string; reason: string } | null;
+  /** Non-fatal steering for ambiguous cross-artifact reads, shown to the model as tool data. */
+  hint?: string;
+  candidateArtifacts?: Array<{ id: string; title: string; kind: string }>;
+}
 export interface CellMeta { value: string; version: number; locked: boolean; }
 /** Variance fields are kept for the financial demo; `cells` is the generic per-column map
  *  any tabular artifact (e.g. the company-research sheet) renders + edits through. */
@@ -125,9 +169,14 @@ export type EditOutcome =
   | { ok: false; pendingApproval: true; proposalId?: string }
   | { ok: false; error: string };
 export interface MergeView { draftId: string; verdict: string; note: string; applied: number; conflicts: number; }
+/** Result of an agent-governed schema edit (define_columns). CAS conflict is returned as DATA, like EditOutcome. */
+export type SetColumnsOutcome =
+  | { ok: true; version: number; columns: Array<{ id: string; label: string; order: number; type?: string; mode?: string; agentWritable?: boolean }> }
+  | { ok: false; conflict: true; expected: number; actual: number }
+  | { ok: false; error: string };
 
 /** A file the agent can reach within the room (the polymorphic node: sheet/note/wiki/wall). */
-export type ArtifactRef = { id: string; title: string; kind: string };
+export type ArtifactRef = { id: string; title: string; kind: string; readHint?: string; exampleElementIds?: string[] };
 
 export interface RoomTools {
   /** Optional portable knowledge layer. Present for OKF-aware rooms/evals; absent rooms keep working. */
@@ -140,6 +189,16 @@ export interface RoomTools {
   listArtifacts(): Promise<ArtifactRef[]>;
   /** Agent-author a file's topic + metadata from its content (title/summary/tags). Re-indexes into OKF. */
   setArtifactMeta?(args: { artifactId: string; title?: string; summary?: string; tags?: string[] }): Promise<{ ok: boolean; error?: string }>;
+  /** Create downloadable file-viewer artifacts authored by the agent. */
+  createFileArtifacts?(args: {
+    files: Array<{ fileName: string; mimeType: string; size: number; dataUrl?: string; text?: string }>;
+    summary?: string;
+    sourceArtifactIds?: string[];
+    sourceUrls?: string[];
+  }): Promise<{ ok: true; artifacts: ArtifactRef[] } | { ok: false; error: string }>;
+  /** Agent-governed SCHEMA edit: declare/replace a sheet's COLUMNS before filling rows. CAS-guarded on the
+   *  artifact version — a stale baseVersion returns { conflict } as DATA so the runtime re-reads and retries. */
+  setColumns?(args: { artifactId?: string; baseVersion: number; mode: "replace" | "merge"; columns: Array<{ label: string; type?: string; agentWritable?: boolean }> }): Promise<SetColumnsOutcome>;
   /** Read specific cells — WORKS on locked cells (locked != invisible). Defaults to the primary artifact; pass artifactId for another file. */
   readRange(elementIds: string[], artifactId?: string): Promise<CellView[]>;
   /** Search header-prepended cell summaries and structural sub-grid chunks for large sheets. */

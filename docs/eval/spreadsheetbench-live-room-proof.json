@@ -1,0 +1,58 @@
+{
+  "schema": 1,
+  "task": "nb-01-company-profile",
+  "generatedAt": "2026-06-25T05:05:10.042Z",
+  "baseUrl": "http://127.0.0.1:5273",
+  "memoryMode": false,
+  "gradingMethod": "file-export",
+  "note": "Live desktop room exports the agent's deliverable as a real Office-magic-bytes .xlsx via the Export XLSX toolbar button. Both the live DOM cells AND the reopened workbook were graded by gradeGolden() (value+fabrication dimensions); both accepted the run. Formula/citation dimensions exercised in-run against the bundled good/bad fixtures.",
+  "scorer": {
+    "name": "gradeGolden",
+    "file": "src/benchmarks/golden/grader.ts"
+  },
+  "grade": {
+    "score": 1,
+    "ok": true,
+    "correct": 5,
+    "n": 5,
+    "fabrication": 0,
+    "flags": []
+  },
+  "selfTest": {
+    "goodScore": 1,
+    "badScore": 0.4,
+    "badRejected": true
+  },
+  "cells": {
+    "revenue_growth_pct": "25",
+    "gross_margin_2024": "40",
+    "gross_margin_2025": "44",
+    "eps_2024": "2.4",
+    "eps_2025": "3.5"
+  },
+  "passed": true,
+  "gatesProven": [
+    "fresh_room_join",
+    "official_fixture_upload",
+    "public_nodeagent_invocation",
+    "visible_streaming_progress",
+    "deliverable_export_download",
+    "artifact_reopen_validation",
+    "official_scorer_handoff",
+    "no_memory_mode_shortcut"
+  ],
+  "gatesNotProven": {},
+  "deliverable_export_download": {
+    "downloaded": true,
+    "bytes": 6501,
+    "magic": "PK\\x03\\x04",
+    "filename": "Sheet_1.xlsx"
+  },
+  "artifact_reopen_validation": {
+    "reopened": true,
+    "scorerResult": "pass",
+    "cellsMatched": "5/5",
+    "correct": 5,
+    "n": 5
+  }
+}

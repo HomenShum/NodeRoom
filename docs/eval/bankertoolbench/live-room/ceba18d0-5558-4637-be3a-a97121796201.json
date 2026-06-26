@@ -1,0 +1,100 @@
+{
+  "schema": 1,
+  "taskId": "ceba18d0-5558-4637-be3a-a97121796201",
+  "harborTaskId": "btb-ceba18d0",
+  "generatedAt": "2026-06-25T02:51:34.762Z",
+  "baseUrl": "http://127.0.0.1:5273",
+  "roomUrl": "http://127.0.0.1:5273/?room=NR3ASR38ON2&name=Host",
+  "memoryMode": false,
+  "expectedExtensions": [
+    ".xlsx",
+    ".xlsm",
+    ".pptx",
+    ".docx",
+    ".pdf"
+  ],
+  "visibleExtensions": [
+    ".xlsx",
+    ".xlsm",
+    ".pptx",
+    ".docx",
+    ".pdf"
+  ],
+  "downloadedFiles": [
+    {
+      "kind": "workbook",
+      "filename": "btb-ceba18d0-ko-dcf-valuation---the-coca-cola-company-nyse-ko.xlsx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\ceba18d0-5558-4637-be3a-a97121796201\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-ceba18d0-ko-dcf-valuation---the-coca-cola-company-nyse-ko.xlsx",
+      "extension": ".xlsx",
+      "bytes": 10008,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j97f08f34ga250zbpttg6b691589bvbb",
+      "contentQualityDetail": "placeholder/caveat content scan passed (4760 chars)"
+    },
+    {
+      "kind": "workbook",
+      "filename": "btb-ceba18d0-ko-dcf-valuation---the-coca-cola-company-nyse-ko.xlsm",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\ceba18d0-5558-4637-be3a-a97121796201\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-ceba18d0-ko-dcf-valuation---the-coca-cola-company-nyse-ko.xlsm",
+      "extension": ".xlsm",
+      "bytes": 10008,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j97ewzgt7p8nw125aryz3kbnc189bspf",
+      "contentQualityDetail": "placeholder/caveat content scan passed (4760 chars)"
+    },
+    {
+      "kind": "presentation",
+      "filename": "btb-ceba18d0-ko-dcf-valuation---the-coca-cola-company-nyse-ko.pptx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\ceba18d0-5558-4637-be3a-a97121796201\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-ceba18d0-ko-dcf-valuation---the-coca-cola-company-nyse-ko.pptx",
+      "extension": ".pptx",
+      "bytes": 7013,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains ppt/presentation.xml; recovered from Convex room artifact j97f3ahrpryam1z05aaew4v1kx89bpqf",
+      "contentQualityDetail": "placeholder/caveat content scan passed (2261 chars)"
+    },
+    {
+      "kind": "document",
+      "filename": "btb-ceba18d0-ko-dcf-valuation---the-coca-cola-company-nyse-ko.docx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\ceba18d0-5558-4637-be3a-a97121796201\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-ceba18d0-ko-dcf-valuation---the-coca-cola-company-nyse-ko.docx",
+      "extension": ".docx",
+      "bytes": 3189,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains word/document.xml; recovered from Convex room artifact j97ff7hwt14bwfq5vdtcvxax5d89aa64",
+      "contentQualityDetail": "placeholder/caveat content scan passed (2996 chars)"
+    },
+    {
+      "kind": "pdf",
+      "filename": "btb-ceba18d0-ko-dcf-valuation---the-coca-cola-company-nyse-ko.pdf",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\ceba18d0-5558-4637-be3a-a97121796201\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-ceba18d0-ko-dcf-valuation---the-coca-cola-company-nyse-ko.pdf",
+      "extension": ".pdf",
+      "bytes": 3165,
+      "magic": "%PDF",
+      "reopened": true,
+      "reopenDetail": "PDF header reopened; recovered from Convex room artifact j978kt62ckxb8f98bfhap9hcrs89avw5",
+      "contentQualityDetail": "placeholder/caveat content scan passed (5809 chars)"
+    }
+  ],
+  "packageManifestPath": "test-results\\bankertoolbench\\matrix\\ceba18d0-5558-4637-be3a-a97121796201\\package-manifest.json",
+  "verifierCommand": "npm run benchmark:bankertoolbench:proof",
+  "verifierOutputTail": "\n> noderoom@0.1.1 benchmark:bankertoolbench:proof\n> tsx scripts/bankertoolbench-proof-check.ts\n\nBankerToolBench proof check passed: stage=1/1 weightedRubric=6 run=0/1 pass positive=1/1 pass candidateBeforeEvaluator=true leaks=0/2+0/3+0/4\n",
+  "screenshot": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\ceba18d0-5558-4637-be3a-a97121796201\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\bankertoolbench-live-room.png",
+  "passed": true,
+  "gatesProven": [
+    "fresh_room_join",
+    "official_fixture_upload",
+    "public_nodeagent_invocation",
+    "visible_streaming_progress",
+    "focus_mode_enabled",
+    "focus_box_or_attention_overlay",
+    "agent_terminal_quality_gate",
+    "deliverable_export_download",
+    "artifact_reopen_validation",
+    "artifact_placeholder_scan",
+    "official_scorer_handoff",
+    "trace_video_artifacts",
+    "no_memory_mode_shortcut"
+  ]
+}

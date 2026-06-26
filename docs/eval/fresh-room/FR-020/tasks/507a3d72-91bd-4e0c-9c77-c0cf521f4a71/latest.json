@@ -1,0 +1,229 @@
+{
+  "schema": 1,
+  "caseId": "FR-020",
+  "benchmark": "bankertoolbench",
+  "taskId": "507a3d72-91bd-4e0c-9c77-c0cf521f4a71",
+  "generatedAt": "2026-06-25T02:14:33.701Z",
+  "baseUrl": "http://127.0.0.1:5273",
+  "roomId": "NR3EFKM8062",
+  "roomUrl": "http://127.0.0.1:5273/?room=NR3EFKM8062&name=Host",
+  "command": "BTB_LIVE_ROOM_E2E=1 BTB_UI_BUNDLE_ROOT=<official-bundle> BTB_UI_VERIFIER_COMMAND=<verifier> BENCH_BASE_URL=<base> npx playwright test --config playwright.real-flow.config.ts e2e/benchmark-ui-bankertoolbench.spec.ts --headed",
+  "model": {
+    "requested": "specific",
+    "resolved": "z-ai/glm-5.2",
+    "routePolicy": "specific",
+    "runtimeProfile": "benchmark_completion",
+    "provider": "openrouter"
+  },
+  "prompt": "Official BankerToolBench task btb-507a3d72: You are a Private Equity Associate at PE Partners, a middle-market consumer products fund. Your MD wants you to build an LBO model for JoeCo Holdings, Inc., a specialty consumer company operating across wholesale, retail, and subscription channels. \n\nThe deal closes 31 December 2025 with a five-year hold and exit on 31 December 2030. Include historicals for 2023 to 2025 and forecasts for 2026 to 2030. You have a source workbook with segment breakdowns, a P&L, NWC assumptions, capex assumptions, and a historical balance sheet. Copy that into Tab 1, labeled \"JoeCo Historical Financials,\" and use it as the single source for all operating assumptions unless called out below. Tab 2, labeled \"LBO Model,\" has thirteen sections in this order: Assumptions, Purchase Price and Goodwill, Sources and Uses, Segment Breakdown, Operating Expenses, Capex, Net Working Capital, P&L, Cash Flow, Balance Sheet, Debt Schedule, Returns, and Sensitivities.\n\nIn Assumptions, hardcode these transaction inputs: Transaction Date 31 December 2025, Entry EBITDA Multiple 10.0x, Exit EBITDA Multiple 10.0x, Exit Year 2030, Management Option Pool 10.0%, Minimum Cash 5.0m, Transaction Fees 7.5m, Tax Rate 25.0%. Debt a",
+  "memoryMode": false,
+  "freshness": {
+    "roomCreatedAfterRunStart": true,
+    "forbiddenPreloadedArtifactsAbsent": true,
+    "artifactsCreatedFresh": [
+      "btb-507a3d72-joeco-holdings-lbo-model-bankertoolbench-btb-507a3d72.xlsx",
+      "btb-507a3d72-joeco-holdings-lbo-model-bankertoolbench-btb-507a3d72.xlsm",
+      "btb-507a3d72-joeco-holdings-lbo-model-bankertoolbench-btb-507a3d72.pptx",
+      "btb-507a3d72-joeco-holdings-lbo-model-bankertoolbench-btb-507a3d72.docx",
+      "btb-507a3d72-joeco-holdings-lbo-model-bankertoolbench-btb-507a3d72.pdf"
+    ],
+    "uploadedFiles": [
+      "betas_by_industry_category_for_WACC.xlsx",
+      "Equity_Risk_Premium_for_WACC.xlsx",
+      "JoeCo_Historical_Financials.xlsx",
+      "AR-US Company Identity.xlsx",
+      "AR-US Income Statement Annual.xlsx",
+      "AR-US Balance Sheet Annual.xlsx",
+      "AR-US Cash Flow Annual.xlsx",
+      "AR-US Shares Outstanding.xlsx",
+      "AR-US Price History.xlsx",
+      "AR-US Revenue Estimate.xlsx",
+      "AR-US Earnings Estimate.xlsx",
+      "btb-507a3d72-official-task-brief.txt"
+    ]
+  },
+  "ui": {
+    "focusModeEnabled": true,
+    "attentionOverlayVisible": true,
+    "streamingVisible": true,
+    "jobDetailVisible": true,
+    "roomTraceVisible": true,
+    "screenshotPaths": [
+      "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\507a3d72-91bd-4e0c-9c77-c0cf521f4a71\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\bankertoolbench-live-room.png"
+    ],
+    "tracePath": "docs\\eval\\bankertoolbench\\live-room\\507a3d72-91bd-4e0c-9c77-c0cf521f4a71.json"
+  },
+  "artifacts": {
+    "uploadedFiles": [
+      "betas_by_industry_category_for_WACC.xlsx",
+      "Equity_Risk_Premium_for_WACC.xlsx",
+      "JoeCo_Historical_Financials.xlsx",
+      "AR-US Company Identity.xlsx",
+      "AR-US Income Statement Annual.xlsx",
+      "AR-US Balance Sheet Annual.xlsx",
+      "AR-US Cash Flow Annual.xlsx",
+      "AR-US Shares Outstanding.xlsx",
+      "AR-US Price History.xlsx",
+      "AR-US Revenue Estimate.xlsx",
+      "AR-US Earnings Estimate.xlsx",
+      "btb-507a3d72-official-task-brief.txt"
+    ],
+    "created": [
+      "btb-507a3d72-joeco-holdings-lbo-model-bankertoolbench-btb-507a3d72.xlsx",
+      "btb-507a3d72-joeco-holdings-lbo-model-bankertoolbench-btb-507a3d72.xlsm",
+      "btb-507a3d72-joeco-holdings-lbo-model-bankertoolbench-btb-507a3d72.pptx",
+      "btb-507a3d72-joeco-holdings-lbo-model-bankertoolbench-btb-507a3d72.docx",
+      "btb-507a3d72-joeco-holdings-lbo-model-bankertoolbench-btb-507a3d72.pdf"
+    ],
+    "exportedFiles": [
+      {
+        "kind": "workbook",
+        "filename": "btb-507a3d72-joeco-holdings-lbo-model-bankertoolbench-btb-507a3d72.xlsx",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\507a3d72-91bd-4e0c-9c77-c0cf521f4a71\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-507a3d72-joeco-holdings-lbo-model-bankertoolbench-btb-507a3d72.xlsx",
+        "extension": ".xlsx",
+        "downloaded": true,
+        "bytes": 14008,
+        "magic": "PK\\x03\\x04"
+      },
+      {
+        "kind": "workbook",
+        "filename": "btb-507a3d72-joeco-holdings-lbo-model-bankertoolbench-btb-507a3d72.xlsm",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\507a3d72-91bd-4e0c-9c77-c0cf521f4a71\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-507a3d72-joeco-holdings-lbo-model-bankertoolbench-btb-507a3d72.xlsm",
+        "extension": ".xlsm",
+        "downloaded": true,
+        "bytes": 14008,
+        "magic": "PK\\x03\\x04"
+      },
+      {
+        "kind": "presentation",
+        "filename": "btb-507a3d72-joeco-holdings-lbo-model-bankertoolbench-btb-507a3d72.pptx",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\507a3d72-91bd-4e0c-9c77-c0cf521f4a71\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-507a3d72-joeco-holdings-lbo-model-bankertoolbench-btb-507a3d72.pptx",
+        "extension": ".pptx",
+        "downloaded": true,
+        "bytes": 8250,
+        "magic": "PK\\x03\\x04"
+      },
+      {
+        "kind": "document",
+        "filename": "btb-507a3d72-joeco-holdings-lbo-model-bankertoolbench-btb-507a3d72.docx",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\507a3d72-91bd-4e0c-9c77-c0cf521f4a71\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-507a3d72-joeco-holdings-lbo-model-bankertoolbench-btb-507a3d72.docx",
+        "extension": ".docx",
+        "downloaded": true,
+        "bytes": 5092,
+        "magic": "PK\\x03\\x04"
+      },
+      {
+        "kind": "pdf",
+        "filename": "btb-507a3d72-joeco-holdings-lbo-model-bankertoolbench-btb-507a3d72.pdf",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\507a3d72-91bd-4e0c-9c77-c0cf521f4a71\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-507a3d72-joeco-holdings-lbo-model-bankertoolbench-btb-507a3d72.pdf",
+        "extension": ".pdf",
+        "downloaded": true,
+        "bytes": 4497,
+        "magic": "%PDF"
+      }
+    ],
+    "reopenedFiles": [
+      {
+        "kind": "workbook",
+        "filename": "btb-507a3d72-joeco-holdings-lbo-model-bankertoolbench-btb-507a3d72.xlsx",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "ZIP package contains xl/workbook.xml; placeholder/caveat content scan passed (13311 chars)"
+      },
+      {
+        "kind": "workbook",
+        "filename": "btb-507a3d72-joeco-holdings-lbo-model-bankertoolbench-btb-507a3d72.xlsm",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "ZIP package contains xl/workbook.xml; placeholder/caveat content scan passed (13311 chars)"
+      },
+      {
+        "kind": "presentation",
+        "filename": "btb-507a3d72-joeco-holdings-lbo-model-bankertoolbench-btb-507a3d72.pptx",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "ZIP package contains ppt/presentation.xml; placeholder/caveat content scan passed (5221 chars)"
+      },
+      {
+        "kind": "document",
+        "filename": "btb-507a3d72-joeco-holdings-lbo-model-bankertoolbench-btb-507a3d72.docx",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "ZIP package contains word/document.xml; placeholder/caveat content scan passed (8433 chars)"
+      },
+      {
+        "kind": "pdf",
+        "filename": "btb-507a3d72-joeco-holdings-lbo-model-bankertoolbench-btb-507a3d72.pdf",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "PDF header reopened; placeholder/caveat content scan passed (8419 chars)"
+      }
+    ]
+  },
+  "scorer": {
+    "name": "BankerToolBench proof verifier",
+    "command": "npm run benchmark:bankertoolbench:proof",
+    "verdict": "pass",
+    "score": 1,
+    "details": {
+      "verifierOutputTail": "\n> noderoom@0.1.1 benchmark:bankertoolbench:proof\n> tsx scripts/bankertoolbench-proof-check.ts\n\nBankerToolBench proof check passed: stage=1/1 weightedRubric=6 run=0/1 pass positive=1/1 pass candidateBeforeEvaluator=true leaks=0/2+0/3+0/4\n",
+      "packageManifestPath": "test-results\\bankertoolbench\\matrix\\507a3d72-91bd-4e0c-9c77-c0cf521f4a71\\package-manifest.json",
+      "downloadedExtensions": [
+        ".xlsx",
+        ".xlsm",
+        ".pptx",
+        ".docx",
+        ".pdf"
+      ],
+      "exportSource": "browser_download_link",
+      "agentTerminalQuality": {
+        "statusText": "completed via recovered Convex job: .pptx, btb-507a3d72-joeco-holdings-lbo-model-bankertoolbench-btb-507a3d72.docx, btb-507a3d72-joeco-holdings-lbo-model-bankertoolbench-btb-507a3d72.pdf. Coverage confirmed for TLA, TLB, SOFR, ARPU, AR, DSO, DIO, AP, DPO, EBT, LFCF, PP, MOIC.",
+        "evidenceTextLength": 2353,
+        "detail": "agent reached completed status; ignored stale progress caveat(s) after package proof: unfinished_continue"
+      },
+      "taskCoverage": {
+        "ok": true,
+        "requiredTickers": [
+          "TLA",
+          "TLB",
+          "SOFR",
+          "ARPU",
+          "AR",
+          "DSO",
+          "DIO",
+          "AP",
+          "DPO",
+          "EBT",
+          "LFCF",
+          "PP",
+          "MOIC"
+        ],
+        "missingTickers": [],
+        "detail": "generated package mentions every requested ticker/entity: TLA, TLB, SOFR, ARPU, AR, DSO, DIO, AP, DPO, EBT, LFCF, PP, MOIC"
+      }
+    }
+  },
+  "visualJudge": {
+    "verdict": "not_run",
+    "reason": "GOOGLE_GENERATIVE_AI_API_KEY is not set; deterministic browser/download/reopen/verifier proof passed."
+  },
+  "gatesProven": [
+    "fresh_room_join",
+    "official_fixture_upload",
+    "public_nodeagent_invocation",
+    "visible_streaming_progress",
+    "trace_video_artifacts",
+    "no_memory_mode_shortcut",
+    "focus_mode_enabled",
+    "focus_box_or_attention_overlay",
+    "agent_live_loop",
+    "agent_terminal_quality_gate",
+    "room_trace_visible",
+    "job_detail_visible",
+    "deliverable_export_download",
+    "artifact_reopen_validation",
+    "artifact_placeholder_scan",
+    "official_scorer_handoff"
+  ],
+  "passed": true
+}

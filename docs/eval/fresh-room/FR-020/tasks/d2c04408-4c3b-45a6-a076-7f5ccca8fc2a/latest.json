@@ -1,0 +1,220 @@
+{
+  "schema": 1,
+  "caseId": "FR-020",
+  "benchmark": "bankertoolbench",
+  "taskId": "d2c04408-4c3b-45a6-a076-7f5ccca8fc2a",
+  "generatedAt": "2026-06-25T02:09:33.159Z",
+  "baseUrl": "http://127.0.0.1:5273",
+  "roomId": "NRP69SN4BZJ",
+  "roomUrl": "http://127.0.0.1:5273/?room=NRP69SN4BZJ&name=Host",
+  "command": "BTB_LIVE_ROOM_E2E=1 BTB_UI_BUNDLE_ROOT=<official-bundle> BTB_UI_VERIFIER_COMMAND=<verifier> BENCH_BASE_URL=<base> npx playwright test --config playwright.real-flow.config.ts e2e/benchmark-ui-bankertoolbench.spec.ts --headed",
+  "model": {
+    "requested": "specific",
+    "resolved": "z-ai/glm-5.2",
+    "routePolicy": "specific",
+    "runtimeProfile": "benchmark_completion",
+    "provider": "openrouter"
+  },
+  "prompt": "Official BankerToolBench task btb-d2c04408: You are a 2nd-year banker in the M&A group at a bulge-bracket investment bank. Your MD just let you know that your team has signed a new sell-side control M&A mandate for Target Corporation (NYSE: TGT), and this MD wants you to put together the teaser to kick off the marketing process. The project name for this transaction will be “ Project Redbird.” This teaser should be relevant for both strategic and financial acquirers. You will reference data from both the company's PDF overview and excel overview files.\n\nThis teaser will be 2 pages, and you will use PowerPoint to build it and output it as a PDF for the final deliverable. The deliverable should have the following sections. \n\n\nPage 1: Should include 4 main parts laid out in the order below. \n1) Title & Header - includes project name, a brief one-line tag line to explain what the company is, what industry, and the type of transaction (sale, financing, etc.) Below the title, write a header listing the name of the project and a short 1-sentence description of the company. This section will be at the top and should take up ⅕ of the page\n2) Company overview section with 5-8 bullets describing the Company, what it does, recent financ",
+  "memoryMode": false,
+  "freshness": {
+    "roomCreatedAfterRunStart": true,
+    "forbiddenPreloadedArtifactsAbsent": true,
+    "artifactsCreatedFresh": [
+      "btb-d2c04408-tgt-nyse-dcf-valuation.xlsx",
+      "btb-d2c04408-tgt-nyse-dcf-valuation.xlsm",
+      "btb-d2c04408-tgt-nyse-dcf-valuation.pptx",
+      "btb-d2c04408-tgt-nyse-dcf-valuation.docx",
+      "btb-d2c04408-tgt-nyse-dcf-valuation.pdf"
+    ],
+    "uploadedFiles": [
+      "2024-Annual-Report-Target-Corporation.pdf",
+      "betas_by_industry_category_for_WACC.xlsx",
+      "Equity_Risk_Premium_for_WACC.xlsx",
+      "TGT-Transcript-2025-11-19.pdf",
+      "TGT-US Company Identity.xlsx",
+      "TGT-US Income Statement Annual.xlsx",
+      "TGT-US Balance Sheet Annual.xlsx",
+      "TGT-US Cash Flow Annual.xlsx",
+      "TGT-US Shares Outstanding.xlsx",
+      "TGT-US Price History.xlsx",
+      "TGT-US Revenue Estimate.xlsx",
+      "TGT-US Earnings Estimate.xlsx",
+      "btb-d2c04408-official-task-brief.txt"
+    ]
+  },
+  "ui": {
+    "focusModeEnabled": true,
+    "attentionOverlayVisible": true,
+    "streamingVisible": true,
+    "jobDetailVisible": true,
+    "roomTraceVisible": true,
+    "screenshotPaths": [
+      "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\d2c04408-4c3b-45a6-a076-7f5ccca8fc2a\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\bankertoolbench-live-room.png"
+    ],
+    "tracePath": "docs\\eval\\bankertoolbench\\live-room\\d2c04408-4c3b-45a6-a076-7f5ccca8fc2a.json"
+  },
+  "artifacts": {
+    "uploadedFiles": [
+      "2024-Annual-Report-Target-Corporation.pdf",
+      "betas_by_industry_category_for_WACC.xlsx",
+      "Equity_Risk_Premium_for_WACC.xlsx",
+      "TGT-Transcript-2025-11-19.pdf",
+      "TGT-US Company Identity.xlsx",
+      "TGT-US Income Statement Annual.xlsx",
+      "TGT-US Balance Sheet Annual.xlsx",
+      "TGT-US Cash Flow Annual.xlsx",
+      "TGT-US Shares Outstanding.xlsx",
+      "TGT-US Price History.xlsx",
+      "TGT-US Revenue Estimate.xlsx",
+      "TGT-US Earnings Estimate.xlsx",
+      "btb-d2c04408-official-task-brief.txt"
+    ],
+    "created": [
+      "btb-d2c04408-tgt-nyse-dcf-valuation.xlsx",
+      "btb-d2c04408-tgt-nyse-dcf-valuation.xlsm",
+      "btb-d2c04408-tgt-nyse-dcf-valuation.pptx",
+      "btb-d2c04408-tgt-nyse-dcf-valuation.docx",
+      "btb-d2c04408-tgt-nyse-dcf-valuation.pdf"
+    ],
+    "exportedFiles": [
+      {
+        "kind": "workbook",
+        "filename": "btb-d2c04408-tgt-nyse-dcf-valuation.xlsx",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\d2c04408-4c3b-45a6-a076-7f5ccca8fc2a\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-d2c04408-tgt-nyse-dcf-valuation.xlsx",
+        "extension": ".xlsx",
+        "downloaded": true,
+        "bytes": 7460,
+        "magic": "PK\\x03\\x04"
+      },
+      {
+        "kind": "workbook",
+        "filename": "btb-d2c04408-tgt-nyse-dcf-valuation.xlsm",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\d2c04408-4c3b-45a6-a076-7f5ccca8fc2a\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-d2c04408-tgt-nyse-dcf-valuation.xlsm",
+        "extension": ".xlsm",
+        "downloaded": true,
+        "bytes": 7460,
+        "magic": "PK\\x03\\x04"
+      },
+      {
+        "kind": "presentation",
+        "filename": "btb-d2c04408-tgt-nyse-dcf-valuation.pptx",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\d2c04408-4c3b-45a6-a076-7f5ccca8fc2a\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-d2c04408-tgt-nyse-dcf-valuation.pptx",
+        "extension": ".pptx",
+        "downloaded": true,
+        "bytes": 6233,
+        "magic": "PK\\x03\\x04"
+      },
+      {
+        "kind": "document",
+        "filename": "btb-d2c04408-tgt-nyse-dcf-valuation.docx",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\d2c04408-4c3b-45a6-a076-7f5ccca8fc2a\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-d2c04408-tgt-nyse-dcf-valuation.docx",
+        "extension": ".docx",
+        "downloaded": true,
+        "bytes": 2403,
+        "magic": "PK\\x03\\x04"
+      },
+      {
+        "kind": "pdf",
+        "filename": "btb-d2c04408-tgt-nyse-dcf-valuation.pdf",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\d2c04408-4c3b-45a6-a076-7f5ccca8fc2a\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-d2c04408-tgt-nyse-dcf-valuation.pdf",
+        "extension": ".pdf",
+        "downloaded": true,
+        "bytes": 2060,
+        "magic": "%PDF"
+      }
+    ],
+    "reopenedFiles": [
+      {
+        "kind": "workbook",
+        "filename": "btb-d2c04408-tgt-nyse-dcf-valuation.xlsx",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j97399ygp5f5z9enxewmv5r73h89a0rh; placeholder/caveat content scan passed (1088 chars)"
+      },
+      {
+        "kind": "workbook",
+        "filename": "btb-d2c04408-tgt-nyse-dcf-valuation.xlsm",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j975x20x8nn8jpf7n2tmna80td89arxz; placeholder/caveat content scan passed (1088 chars)"
+      },
+      {
+        "kind": "presentation",
+        "filename": "btb-d2c04408-tgt-nyse-dcf-valuation.pptx",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "ZIP package contains ppt/presentation.xml; recovered from Convex room artifact j97c45nzfcv17c8byyzd9fpy4h89a9f4; placeholder/caveat content scan passed (552 chars)"
+      },
+      {
+        "kind": "document",
+        "filename": "btb-d2c04408-tgt-nyse-dcf-valuation.docx",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "ZIP package contains word/document.xml; recovered from Convex room artifact j97avw1tz6r07e6kv1zx130gf989a46q; placeholder/caveat content scan passed (1075 chars)"
+      },
+      {
+        "kind": "pdf",
+        "filename": "btb-d2c04408-tgt-nyse-dcf-valuation.pdf",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "PDF header reopened; recovered from Convex room artifact j97c0ftgbv7gggt4ad0pdy281589a4v2; placeholder/caveat content scan passed (3599 chars)"
+      }
+    ]
+  },
+  "scorer": {
+    "name": "BankerToolBench proof verifier",
+    "command": "npm run benchmark:bankertoolbench:proof",
+    "verdict": "pass",
+    "score": 1,
+    "details": {
+      "verifierOutputTail": "\n> noderoom@0.1.1 benchmark:bankertoolbench:proof\n> tsx scripts/bankertoolbench-proof-check.ts\n\nBankerToolBench proof check passed: stage=1/1 weightedRubric=6 run=0/1 pass positive=1/1 pass candidateBeforeEvaluator=true leaks=0/2+0/3+0/4\n",
+      "packageManifestPath": "test-results\\bankertoolbench\\matrix\\d2c04408-4c3b-45a6-a076-7f5ccca8fc2a\\package-manifest.json",
+      "downloadedExtensions": [
+        ".xlsx",
+        ".xlsm",
+        ".pptx",
+        ".docx",
+        ".pdf"
+      ],
+      "exportSource": "convex_room_artifact_data_url_after_browser_ui_proof",
+      "agentTerminalQuality": {
+        "statusText": "completed via recovered Convex job: b-d2c04408-tgt-nyse-dcf-valuation.xlsx, btb-d2c04408-tgt-nyse-dcf-valuation.xlsm, btb-d2c04408-tgt-nyse-dcf-valuation.pptx, btb-d2c04408-tgt-nyse-dcf-valuation.docx, btb-d2c04408-tgt-nyse-dcf-valuation.pdf. Coverage confirmed for NYSE, TGT.",
+        "evidenceTextLength": 1205,
+        "detail": "agent reached completed status or visible completion text, with no missing-source/unfinished-work caveats"
+      },
+      "taskCoverage": {
+        "ok": true,
+        "requiredTickers": [
+          "NYSE",
+          "TGT"
+        ],
+        "missingTickers": [],
+        "detail": "generated package mentions every requested ticker/entity: NYSE, TGT"
+      }
+    }
+  },
+  "visualJudge": {
+    "verdict": "not_run",
+    "reason": "GOOGLE_GENERATIVE_AI_API_KEY is not set; deterministic browser/download/reopen/verifier proof passed."
+  },
+  "gatesProven": [
+    "fresh_room_join",
+    "official_fixture_upload",
+    "public_nodeagent_invocation",
+    "visible_streaming_progress",
+    "trace_video_artifacts",
+    "no_memory_mode_shortcut",
+    "focus_mode_enabled",
+    "focus_box_or_attention_overlay",
+    "agent_live_loop",
+    "agent_terminal_quality_gate",
+    "room_trace_visible",
+    "job_detail_visible",
+    "deliverable_export_download",
+    "artifact_reopen_validation",
+    "artifact_placeholder_scan",
+    "official_scorer_handoff"
+  ],
+  "passed": true
+}

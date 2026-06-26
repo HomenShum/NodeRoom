@@ -218,6 +218,23 @@ describe("managed lock production tools", () => {
     });
   });
 
+  it("normalizes single-string elementIds for read_range", async () => {
+    const { rt } = setup();
+    const readRange = PRODUCTION_ROOM_TOOLS.find((tool) => tool.name === "read_range")!;
+
+    const readArgs = readRange.schema.parse({ elementIds: "r_rev__variance" });
+    const [cell] = await readRange.execute(readArgs, rt) as Array<{ id: string }>;
+    expect(cell.id).toBe("r_rev__variance");
+  });
+
+  it("accepts omitted elementIds for read_range so the backend can return guidance", async () => {
+    const readRange = PRODUCTION_ROOM_TOOLS.find((tool) => tool.name === "read_range")!;
+
+    const readArgs = readRange.schema.parse({ artifactId: "source-workbook" });
+
+    expect(readArgs).toMatchObject({ artifactId: "source-workbook", elementIds: [] });
+  });
+
   it("drafts instead of writing when another actor already owns the target lock", async () => {
     const { engine, d } = setup();
     const held = engine.proposeLock({

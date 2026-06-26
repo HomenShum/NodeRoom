@@ -10,7 +10,7 @@ import * as D from "./mobileData";
 import type { Tone } from "./mobileData";
 import type { MobileCtx } from "./mobileTypes";
 
-const { useState } = React;
+const { useEffect, useState } = React;
 
 /** SheetHead reads optional back/close affordances the controller may provide. */
 // MobileCtx already provides canBack / backSheet / openSource with their real
@@ -85,7 +85,7 @@ function scopeTable(P: D.Plan): React.ReactElement {
 
 // ── WORK PLAN / APPROVAL (z.ai-style chat — actions via composer, no big buttons) ──
 export function PlanSheet({ ctx }: { ctx: MobileCtx }): React.ReactElement {
-  const P = D.PLAN;
+  const P = ctx.livePlan ?? D.PLAN;
   const run = ctx.runState; // 'plan' | 'running' | 'done'
   const [thread, setThread] = useState<Array<{ role: "user" | "agent"; text: string }>>([]);
   const [draft, setDraft] = useState("");
@@ -238,7 +238,7 @@ type EvidenceGap = { kind: "gap"; text: string };
 type EvidenceFollowup = { match: string[]; text: string };
 
 export function EvidenceSheet({ ctx }: { ctx: MobileCtx }): React.ReactElement {
-  const E = D.EVIDENCE as D.Evidence & { followups?: EvidenceFollowup[]; fallback?: string };
+  const E = (ctx.liveEvidence ?? D.EVIDENCE) as D.Evidence & { followups?: EvidenceFollowup[]; fallback?: string };
   const [draft, setDraft] = useState("");
   const [thread, setThread] = useState<Array<{ role: "user" | "agent"; text: string }>>([]);
   const cites = E.support.filter((s): s is EvidenceCite => s.kind === "cite") as EvidenceCite[];
@@ -365,13 +365,22 @@ type CoachTopic = {
 };
 
 export function CoachSheet({ ctx }: { ctx: MobileCtx }): React.ReactElement {
-  const [topics, setTopics] = useState<CoachTopic[]>((D.COACH as unknown as { topics: CoachTopic[] }).topics);
+  const coach = (ctx.liveCoach ?? D.COACH) as unknown as { entity?: string; topics: CoachTopic[] };
+  const sourceTopics = coach.topics.length ? coach.topics : (D.COACH as unknown as { topics: CoachTopic[] }).topics;
+  const [topics, setTopics] = useState<CoachTopic[]>(sourceTopics);
   const [topicIdx, setTopicIdx] = useState(0);
   const [newTopic, setNewTopic] = useState("");
   const C = topics[topicIdx];
   const [tab, setTab] = useState("howto");
   const [answer, setAnswer] = useState("");
   const [graded, setGraded] = useState(false);
+  useEffect(() => {
+    setTopics(sourceTopics);
+    setTopicIdx(0);
+    setTab("howto");
+    setAnswer("");
+    setGraded(false);
+  }, [sourceTopics]);
   const pickTopic = (i: number) => {
     setTopicIdx(i);
     setTab("howto");

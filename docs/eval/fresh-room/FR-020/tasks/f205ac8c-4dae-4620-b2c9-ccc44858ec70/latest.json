@@ -1,0 +1,203 @@
+{
+  "schema": 1,
+  "caseId": "FR-020",
+  "benchmark": "bankertoolbench",
+  "taskId": "f205ac8c-4dae-4620-b2c9-ccc44858ec70",
+  "generatedAt": "2026-06-25T02:28:10.494Z",
+  "baseUrl": "http://127.0.0.1:5273",
+  "roomId": "NRB4HZFPMHZ",
+  "roomUrl": "http://127.0.0.1:5273/?room=NRB4HZFPMHZ&name=Host",
+  "command": "BTB_LIVE_ROOM_E2E=1 BTB_UI_BUNDLE_ROOT=<official-bundle> BTB_UI_VERIFIER_COMMAND=<verifier> BENCH_BASE_URL=<base> npx playwright test --config playwright.real-flow.config.ts e2e/benchmark-ui-bankertoolbench.spec.ts --headed",
+  "model": {
+    "requested": "specific",
+    "resolved": "z-ai/glm-5.2",
+    "routePolicy": "specific",
+    "runtimeProfile": "benchmark_completion",
+    "provider": "openrouter"
+  },
+  "prompt": "Official BankerToolBench task btb-f205ac8c: You are an associate at a private equity firm. Your managing director has asked you to build a leveraged buyout model for Company ABC, a publicly traded screw manufacturer, in connection with a potential take private transaction.\n\nTransaction Overview\nCompany ABC trades at $20.00 per share with 25.0 million fully diluted shares outstanding, $275 million of gross debt, and $75 million of cash, giving a net debt position of $200 million. The firm expects to pay a 20% premium, implying an offer price of $24.00 per share and an equity value of $600 million. Enterprise value at entry is $800 million, or 8.0x LTM EBITDA of $100 million. The business requires $20 million of minimum cash, which earns interest at the 3.0% LIBOR rate. One time transaction fees are $50 million, treated as a use of funds and not capitalized. Tax rate is 35%. The deal assumes a 5 year hold with an exit at 8.5x final year EBITDA.\n\nFinancing Structure\nBank debt at 3.0x ($300 million), priced at LIBOR plus 300 basis points for a 6.0% all in rate, with 1% annual amortization on the original balance and sweepable with excess cash. Senior notes at 2.0x ($200 million), 12.0% fixed coupon, bullet with no amortization, ",
+  "memoryMode": false,
+  "freshness": {
+    "roomCreatedAfterRunStart": true,
+    "forbiddenPreloadedArtifactsAbsent": true,
+    "artifactsCreatedFresh": [
+      "btb-f205ac8c-multi-entity-wacc-analysis-abc-libor-mip-usa-fcf.xlsx",
+      "btb-f205ac8c-multi-entity-wacc-analysis-abc-libor-mip-usa-fcf.xlsm",
+      "btb-f205ac8c-multi-entity-wacc-analysis-abc-libor-mip-usa-fcf.pptx",
+      "btb-f205ac8c-multi-entity-wacc-analysis-abc-libor-mip-usa-fcf.docx",
+      "btb-f205ac8c-multi-entity-wacc-analysis-abc-libor-mip-usa-fcf.pdf"
+    ],
+    "uploadedFiles": [
+      "betas_by_industry_category_for_WACC.xlsx",
+      "Equity_Risk_Premium_for_WACC.xlsx",
+      "btb-f205ac8c-official-task-brief.txt"
+    ]
+  },
+  "ui": {
+    "focusModeEnabled": true,
+    "attentionOverlayVisible": true,
+    "streamingVisible": true,
+    "jobDetailVisible": true,
+    "roomTraceVisible": true,
+    "screenshotPaths": [
+      "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\f205ac8c-4dae-4620-b2c9-ccc44858ec70\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\bankertoolbench-live-room.png"
+    ],
+    "tracePath": "docs\\eval\\bankertoolbench\\live-room\\f205ac8c-4dae-4620-b2c9-ccc44858ec70.json"
+  },
+  "artifacts": {
+    "uploadedFiles": [
+      "betas_by_industry_category_for_WACC.xlsx",
+      "Equity_Risk_Premium_for_WACC.xlsx",
+      "btb-f205ac8c-official-task-brief.txt"
+    ],
+    "created": [
+      "btb-f205ac8c-multi-entity-wacc-analysis-abc-libor-mip-usa-fcf.xlsx",
+      "btb-f205ac8c-multi-entity-wacc-analysis-abc-libor-mip-usa-fcf.xlsm",
+      "btb-f205ac8c-multi-entity-wacc-analysis-abc-libor-mip-usa-fcf.pptx",
+      "btb-f205ac8c-multi-entity-wacc-analysis-abc-libor-mip-usa-fcf.docx",
+      "btb-f205ac8c-multi-entity-wacc-analysis-abc-libor-mip-usa-fcf.pdf"
+    ],
+    "exportedFiles": [
+      {
+        "kind": "workbook",
+        "filename": "btb-f205ac8c-multi-entity-wacc-analysis-abc-libor-mip-usa-fcf.xlsx",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\f205ac8c-4dae-4620-b2c9-ccc44858ec70\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-f205ac8c-multi-entity-wacc-analysis-abc-libor-mip-usa-fcf.xlsx",
+        "extension": ".xlsx",
+        "downloaded": true,
+        "bytes": 6958,
+        "magic": "PK\\x03\\x04"
+      },
+      {
+        "kind": "workbook",
+        "filename": "btb-f205ac8c-multi-entity-wacc-analysis-abc-libor-mip-usa-fcf.xlsm",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\f205ac8c-4dae-4620-b2c9-ccc44858ec70\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-f205ac8c-multi-entity-wacc-analysis-abc-libor-mip-usa-fcf.xlsm",
+        "extension": ".xlsm",
+        "downloaded": true,
+        "bytes": 6958,
+        "magic": "PK\\x03\\x04"
+      },
+      {
+        "kind": "presentation",
+        "filename": "btb-f205ac8c-multi-entity-wacc-analysis-abc-libor-mip-usa-fcf.pptx",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\f205ac8c-4dae-4620-b2c9-ccc44858ec70\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-f205ac8c-multi-entity-wacc-analysis-abc-libor-mip-usa-fcf.pptx",
+        "extension": ".pptx",
+        "downloaded": true,
+        "bytes": 6205,
+        "magic": "PK\\x03\\x04"
+      },
+      {
+        "kind": "document",
+        "filename": "btb-f205ac8c-multi-entity-wacc-analysis-abc-libor-mip-usa-fcf.docx",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\f205ac8c-4dae-4620-b2c9-ccc44858ec70\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-f205ac8c-multi-entity-wacc-analysis-abc-libor-mip-usa-fcf.docx",
+        "extension": ".docx",
+        "downloaded": true,
+        "bytes": 2172,
+        "magic": "PK\\x03\\x04"
+      },
+      {
+        "kind": "pdf",
+        "filename": "btb-f205ac8c-multi-entity-wacc-analysis-abc-libor-mip-usa-fcf.pdf",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\f205ac8c-4dae-4620-b2c9-ccc44858ec70\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-f205ac8c-multi-entity-wacc-analysis-abc-libor-mip-usa-fcf.pdf",
+        "extension": ".pdf",
+        "downloaded": true,
+        "bytes": 1176,
+        "magic": "%PDF"
+      }
+    ],
+    "reopenedFiles": [
+      {
+        "kind": "workbook",
+        "filename": "btb-f205ac8c-multi-entity-wacc-analysis-abc-libor-mip-usa-fcf.xlsx",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "ZIP package contains xl/workbook.xml; placeholder/caveat content scan passed (528 chars)"
+      },
+      {
+        "kind": "workbook",
+        "filename": "btb-f205ac8c-multi-entity-wacc-analysis-abc-libor-mip-usa-fcf.xlsm",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "ZIP package contains xl/workbook.xml; placeholder/caveat content scan passed (528 chars)"
+      },
+      {
+        "kind": "presentation",
+        "filename": "btb-f205ac8c-multi-entity-wacc-analysis-abc-libor-mip-usa-fcf.pptx",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "ZIP package contains ppt/presentation.xml; placeholder/caveat content scan passed (469 chars)"
+      },
+      {
+        "kind": "document",
+        "filename": "btb-f205ac8c-multi-entity-wacc-analysis-abc-libor-mip-usa-fcf.docx",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "ZIP package contains word/document.xml; placeholder/caveat content scan passed (450 chars)"
+      },
+      {
+        "kind": "pdf",
+        "filename": "btb-f205ac8c-multi-entity-wacc-analysis-abc-libor-mip-usa-fcf.pdf",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "PDF header reopened; placeholder/caveat content scan passed (1835 chars)"
+      }
+    ]
+  },
+  "scorer": {
+    "name": "BankerToolBench proof verifier",
+    "command": "npm run benchmark:bankertoolbench:proof",
+    "verdict": "pass",
+    "score": 1,
+    "details": {
+      "verifierOutputTail": "\n> noderoom@0.1.1 benchmark:bankertoolbench:proof\n> tsx scripts/bankertoolbench-proof-check.ts\n\nBankerToolBench proof check passed: stage=1/1 weightedRubric=6 run=0/1 pass positive=1/1 pass candidateBeforeEvaluator=true leaks=0/2+0/3+0/4\n",
+      "packageManifestPath": "test-results\\bankertoolbench\\matrix\\f205ac8c-4dae-4620-b2c9-ccc44858ec70\\package-manifest.json",
+      "downloadedExtensions": [
+        ".xlsx",
+        ".xlsm",
+        ".pptx",
+        ".docx",
+        ".pdf"
+      ],
+      "exportSource": "browser_download_link",
+      "agentTerminalQuality": {
+        "statusText": "completed via recovered Convex job: -multi-entity-wacc-analysis-abc-libor-mip-usa-fcf.pptx, btb-f205ac8c-multi-entity-wacc-analysis-abc-libor-mip-usa-fcf.docx, btb-f205ac8c-multi-entity-wacc-analysis-abc-libor-mip-usa-fcf.pdf. Coverage confirmed for ABC, LIBOR, MIP, USA, FCF.",
+        "evidenceTextLength": 3053,
+        "detail": "agent reached completed status or visible completion text, with no missing-source/unfinished-work caveats"
+      },
+      "taskCoverage": {
+        "ok": true,
+        "requiredTickers": [
+          "ABC",
+          "LIBOR",
+          "MIP",
+          "USA",
+          "FCF"
+        ],
+        "missingTickers": [],
+        "detail": "generated package mentions every requested ticker/entity: ABC, LIBOR, MIP, USA, FCF"
+      }
+    }
+  },
+  "visualJudge": {
+    "verdict": "not_run",
+    "reason": "GOOGLE_GENERATIVE_AI_API_KEY is not set; deterministic browser/download/reopen/verifier proof passed."
+  },
+  "gatesProven": [
+    "fresh_room_join",
+    "official_fixture_upload",
+    "public_nodeagent_invocation",
+    "visible_streaming_progress",
+    "trace_video_artifacts",
+    "no_memory_mode_shortcut",
+    "focus_mode_enabled",
+    "focus_box_or_attention_overlay",
+    "agent_live_loop",
+    "agent_terminal_quality_gate",
+    "room_trace_visible",
+    "job_detail_visible",
+    "deliverable_export_download",
+    "artifact_reopen_validation",
+    "artifact_placeholder_scan",
+    "official_scorer_handoff"
+  ],
+  "passed": true
+}

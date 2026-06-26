@@ -1,0 +1,207 @@
+{
+  "schema": 1,
+  "caseId": "FR-020",
+  "benchmark": "bankertoolbench",
+  "taskId": "9781216f-b98d-4537-9ab8-f0e62248a6ab",
+  "generatedAt": "2026-06-25T04:07:28.163Z",
+  "baseUrl": "http://127.0.0.1:5273",
+  "roomId": "NRQ6WQYBE5Z",
+  "roomUrl": "http://127.0.0.1:5273/?room=NRQ6WQYBE5Z&name=Host",
+  "command": "BTB_LIVE_ROOM_E2E=1 BTB_UI_BUNDLE_ROOT=<official-bundle> BTB_UI_VERIFIER_COMMAND=<verifier> BENCH_BASE_URL=<base> npx playwright test --config playwright.real-flow.config.ts e2e/benchmark-ui-bankertoolbench.spec.ts --headed",
+  "model": {
+    "requested": "specific",
+    "resolved": "z-ai/glm-5.2",
+    "routePolicy": "specific",
+    "runtimeProfile": "benchmark_completion",
+    "provider": "openrouter"
+  },
+  "prompt": "Official BankerToolBench task btb-9781216f: Today is December 31, 2024. You are a 2nd year analyst at an investment bank and are asked to perform an LBO valuation on a private equity-backed company in the technology sector focused on internet services and technology infrastructure. Your Managing Director (MD) wants to pull together a pitch and would like to include an LBO valuation with returns calculations, including returns sensitivity tables in the materials to present to PE (Private Equity) investors in a sale process with a valuation date of year-end 2024. \n\nThe company is growing quickly and has just become profitable from years of investing in sales and marketing, research and development, and general growth. The company has a Dec 31st year-end. \n\nYour task is to build an annual LBO (Leveraged Buyout) valuation model by utilizing company provided financials and forecasting financials and KPIs (Key Performance Indicators) / Unit Economics into the future, calculating LBO returns with a debt schedule based on entry and exit assumptions, and sensitizing the returns to show PE investors the range of outcomes based on entry and exit multiples. The holding period for this specific company has been determined to be 6 years, ",
+  "memoryMode": false,
+  "freshness": {
+    "roomCreatedAfterRunStart": true,
+    "forbiddenPreloadedArtifactsAbsent": true,
+    "artifactsCreatedFresh": [
+      "btb-9781216f-btb-9781216f-multi-entity-financial-metrics-package.xlsx",
+      "btb-9781216f-btb-9781216f-multi-entity-financial-metrics-package.xlsm",
+      "btb-9781216f-btb-9781216f-multi-entity-financial-metrics-package.pptx",
+      "btb-9781216f-btb-9781216f-multi-entity-financial-metrics-package.docx",
+      "btb-9781216f-btb-9781216f-multi-entity-financial-metrics-package.pdf"
+    ],
+    "uploadedFiles": [
+      "betas_by_industry_category_for_WACC.xlsx",
+      "Equity_Risk_Premium_for_WACC.xlsx",
+      "Private Technology Company Financials (Dec 2024).xlsx",
+      "btb-9781216f-official-task-brief.txt"
+    ]
+  },
+  "ui": {
+    "focusModeEnabled": true,
+    "attentionOverlayVisible": true,
+    "streamingVisible": true,
+    "jobDetailVisible": true,
+    "roomTraceVisible": true,
+    "screenshotPaths": [
+      "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\9781216f-b98d-4537-9ab8-f0e62248a6ab\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\bankertoolbench-live-room.png"
+    ],
+    "tracePath": "docs\\eval\\bankertoolbench\\live-room\\9781216f-b98d-4537-9ab8-f0e62248a6ab.json"
+  },
+  "artifacts": {
+    "uploadedFiles": [
+      "betas_by_industry_category_for_WACC.xlsx",
+      "Equity_Risk_Premium_for_WACC.xlsx",
+      "Private Technology Company Financials (Dec 2024).xlsx",
+      "btb-9781216f-official-task-brief.txt"
+    ],
+    "created": [
+      "btb-9781216f-btb-9781216f-multi-entity-financial-metrics-package.xlsx",
+      "btb-9781216f-btb-9781216f-multi-entity-financial-metrics-package.xlsm",
+      "btb-9781216f-btb-9781216f-multi-entity-financial-metrics-package.pptx",
+      "btb-9781216f-btb-9781216f-multi-entity-financial-metrics-package.docx",
+      "btb-9781216f-btb-9781216f-multi-entity-financial-metrics-package.pdf"
+    ],
+    "exportedFiles": [
+      {
+        "kind": "workbook",
+        "filename": "btb-9781216f-btb-9781216f-multi-entity-financial-metrics-package.xlsx",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\9781216f-b98d-4537-9ab8-f0e62248a6ab\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-9781216f-btb-9781216f-multi-entity-financial-metrics-package.xlsx",
+        "extension": ".xlsx",
+        "downloaded": true,
+        "bytes": 7065,
+        "magic": "PK\\x03\\x04"
+      },
+      {
+        "kind": "workbook",
+        "filename": "btb-9781216f-btb-9781216f-multi-entity-financial-metrics-package.xlsm",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\9781216f-b98d-4537-9ab8-f0e62248a6ab\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-9781216f-btb-9781216f-multi-entity-financial-metrics-package.xlsm",
+        "extension": ".xlsm",
+        "downloaded": true,
+        "bytes": 7065,
+        "magic": "PK\\x03\\x04"
+      },
+      {
+        "kind": "presentation",
+        "filename": "btb-9781216f-btb-9781216f-multi-entity-financial-metrics-package.pptx",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\9781216f-b98d-4537-9ab8-f0e62248a6ab\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-9781216f-btb-9781216f-multi-entity-financial-metrics-package.pptx",
+        "extension": ".pptx",
+        "downloaded": true,
+        "bytes": 6287,
+        "magic": "PK\\x03\\x04"
+      },
+      {
+        "kind": "document",
+        "filename": "btb-9781216f-btb-9781216f-multi-entity-financial-metrics-package.docx",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\9781216f-b98d-4537-9ab8-f0e62248a6ab\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-9781216f-btb-9781216f-multi-entity-financial-metrics-package.docx",
+        "extension": ".docx",
+        "downloaded": true,
+        "bytes": 2256,
+        "magic": "PK\\x03\\x04"
+      },
+      {
+        "kind": "pdf",
+        "filename": "btb-9781216f-btb-9781216f-multi-entity-financial-metrics-package.pdf",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\9781216f-b98d-4537-9ab8-f0e62248a6ab\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-9781216f-btb-9781216f-multi-entity-financial-metrics-package.pdf",
+        "extension": ".pdf",
+        "downloaded": true,
+        "bytes": 1497,
+        "magic": "%PDF"
+      }
+    ],
+    "reopenedFiles": [
+      {
+        "kind": "workbook",
+        "filename": "btb-9781216f-btb-9781216f-multi-entity-financial-metrics-package.xlsx",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "ZIP package contains xl/workbook.xml; placeholder/caveat content scan passed (587 chars)"
+      },
+      {
+        "kind": "workbook",
+        "filename": "btb-9781216f-btb-9781216f-multi-entity-financial-metrics-package.xlsm",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "ZIP package contains xl/workbook.xml; placeholder/caveat content scan passed (587 chars)"
+      },
+      {
+        "kind": "presentation",
+        "filename": "btb-9781216f-btb-9781216f-multi-entity-financial-metrics-package.pptx",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "ZIP package contains ppt/presentation.xml; placeholder/caveat content scan passed (765 chars)"
+      },
+      {
+        "kind": "document",
+        "filename": "btb-9781216f-btb-9781216f-multi-entity-financial-metrics-package.docx",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "ZIP package contains word/document.xml; placeholder/caveat content scan passed (725 chars)"
+      },
+      {
+        "kind": "pdf",
+        "filename": "btb-9781216f-btb-9781216f-multi-entity-financial-metrics-package.pdf",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "PDF header reopened; placeholder/caveat content scan passed (2477 chars)"
+      }
+    ]
+  },
+  "scorer": {
+    "name": "BankerToolBench proof verifier",
+    "command": "npm run benchmark:bankertoolbench:proof",
+    "verdict": "pass",
+    "score": 1,
+    "details": {
+      "verifierOutputTail": "\n> noderoom@0.1.1 benchmark:bankertoolbench:proof\n> tsx scripts/bankertoolbench-proof-check.ts\n\nBankerToolBench proof check passed: stage=1/1 weightedRubric=6 run=0/1 pass positive=1/1 pass candidateBeforeEvaluator=true leaks=0/2+0/3+0/4\n",
+      "packageManifestPath": "test-results\\bankertoolbench\\matrix\\9781216f-b98d-4537-9ab8-f0e62248a6ab\\package-manifest.json",
+      "downloadedExtensions": [
+        ".xlsx",
+        ".xlsm",
+        ".pptx",
+        ".docx",
+        ".pdf"
+      ],
+      "exportSource": "browser_download_link",
+      "agentTerminalQuality": {
+        "statusText": "completed via recovered Convex job: tity-financial-metrics-package.pptx, btb-9781216f-btb-9781216f-multi-entity-financial-metrics-package.docx, btb-9781216f-btb-9781216f-multi-entity-financial-metrics-package.pdf. Coverage confirmed for MOIC, ARPUS, ARRR, CAC, LTV, SOFR, FCF.",
+        "evidenceTextLength": 2514,
+        "detail": "agent reached completed status; ignored stale progress caveat(s) after package proof: unfinished_continue"
+      },
+      "taskCoverage": {
+        "ok": true,
+        "requiredTickers": [
+          "MOIC",
+          "ARPUS",
+          "ARRR",
+          "CAC",
+          "LTV",
+          "SOFR",
+          "FCF"
+        ],
+        "missingTickers": [],
+        "detail": "generated package mentions every requested ticker/entity: MOIC, ARPUS, ARRR, CAC, LTV, SOFR, FCF"
+      }
+    }
+  },
+  "visualJudge": {
+    "verdict": "not_run",
+    "reason": "Gemini visual judge is run by the external visual-judge command, not this scorer spec."
+  },
+  "gatesProven": [
+    "fresh_room_join",
+    "official_fixture_upload",
+    "public_nodeagent_invocation",
+    "visible_streaming_progress",
+    "trace_video_artifacts",
+    "no_memory_mode_shortcut",
+    "focus_mode_enabled",
+    "focus_box_or_attention_overlay",
+    "agent_live_loop",
+    "agent_terminal_quality_gate",
+    "room_trace_visible",
+    "job_detail_visible",
+    "deliverable_export_download",
+    "artifact_reopen_validation",
+    "artifact_placeholder_scan",
+    "official_scorer_handoff"
+  ],
+  "passed": true
+}

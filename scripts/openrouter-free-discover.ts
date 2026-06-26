@@ -1,10 +1,13 @@
 import "./benchmark/loadEnv";
+import { mkdirSync, writeFileSync } from "node:fs";
+import { dirname, resolve } from "node:path";
 import { z } from "zod";
 import { judge } from "../src/nodeagent/models/adapter";
 import { model } from "../src/nodeagent/models/adapter";
 import { selectOpenRouterFreeModels } from "../src/nodeagent/models/openRouterFreeModels";
 
 const limit = parseLimit();
+const jsonOut = optionValue("--json-out");
 const smoke = process.argv.includes("--smoke");
 const agentSmoke = process.argv.includes("--agent-smoke");
 const candidates = await selectOpenRouterFreeModels({ mode: "agent", limit, forceRefresh: true });
@@ -21,6 +24,36 @@ for (const [index, model] of candidates.entries()) {
     `params=${params.filter((p) => ["tools", "tool_choice", "structured_outputs", "response_format", "reasoning"].includes(p)).join(",")}`,
     `reasons=${model.reasons.slice(0, 5).join("; ")}`,
   ].join(" "));
+}
+
+if (jsonOut) {
+  writeJson(jsonOut, {
+    schema: 1,
+    generatedAt: new Date().toISOString(),
+    source: `${process.env.OPENROUTER_BASE_URL ?? "https://openrouter.ai/api/v1"}/models?output_modalities=text`,
+    selection: {
+      pricing: "free",
+      mode: "agent",
+      supportedParameters: ["tools"],
+      limit,
+    },
+    modelCount: candidates.length,
+    models: candidates.map((candidate, index) => ({
+      rank: index + 1,
+      id: candidate.id,
+      name: candidate.name ?? candidate.id,
+      created: candidate.created ?? 0,
+      createdAt: candidate.created ? new Date(candidate.created * 1000).toISOString() : undefined,
+      contextLength: candidate.context_length ?? candidate.top_provider?.context_length ?? 0,
+      score: candidate.score,
+      reasons: candidate.reasons,
+      supportsTools: candidate.supported_parameters?.includes("tools") === true,
+      supportsToolChoice: candidate.supported_parameters?.includes("tool_choice") === true,
+      supportsStructuredOutputs: candidate.supported_parameters?.includes("structured_outputs") === true,
+      supportedParameters: candidate.supported_parameters ?? [],
+    })),
+  });
+  console.log(`wrote ${jsonOut}`);
 }
 
 if (smoke) {
@@ -54,7 +87,21 @@ if (agentSmoke) {
 }
 
 function parseLimit(): number {
-  const arg = process.argv.find((v) => v.startsWith("--limit="));
-  const value = Number(arg?.split("=")[1] ?? 10);
+  const value = Number(optionValue("--limit") ?? 10);
   return Number.isFinite(value) ? Math.max(1, Math.min(50, value)) : 10;
+}
+
+function writeJson(path: string, value: unknown): void {
+  const absolute = resolve(process.cwd(), path);
+  mkdirSync(dirname(absolute), { recursive: true });
+  writeFileSync(absolute, `${JSON.stringify(value, null, 2)}\n`);
+}
+
+function optionValue(name: string): string | undefined {
+  const inlinePrefix = `${name}=`;
+  const inline = process.argv.find((arg) => arg.startsWith(inlinePrefix));
+  if (inline) return inline.slice(inlinePrefix.length);
+  const index = process.argv.indexOf(name);
+  const next = process.argv[index + 1];
+  return index >= 0 && next && !next.startsWith("--") ? next : undefined;
 }

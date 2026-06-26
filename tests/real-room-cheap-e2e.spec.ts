@@ -17,6 +17,7 @@
  *        npx playwright test --config playwright.real-flow.config.ts
  */
 import { test, expect, type Page } from "@playwright/test";
+import { enableFocusModeForTest, expectAttentionOverlayMounted, expectFocusModeOn } from "../e2e/focusMode";
 
 const BASE = process.env.BENCH_BASE_URL ?? "http://localhost:5273";
 
@@ -44,13 +45,25 @@ const PROMPT =
 async function readSheet(page: Page): Promise<Record<string, string>> {
   return page.evaluate(() => {
     const out: Record<string, string> = {};
+    const cellText = (cell: HTMLElement | null | undefined): string => {
+      if (!cell) return "";
+      const direct = Array.from(cell.childNodes)
+        .filter((node) => node.nodeType === Node.TEXT_NODE)
+        .map((node) => node.textContent ?? "")
+        .join("")
+        .trim();
+      if (direct) return direct;
+      const clone = cell.cloneNode(true) as HTMLElement;
+      clone.querySelectorAll(".r-srcchip,.lockbadge,.presencebadge").forEach((node) => node.remove());
+      return (clone.textContent || "").trim();
+    };
     // Sheet cells render as <td data-element-id="r<row>__<col>" data-testid="sheet-cell">; read the
     // metric name from column A and its value from the adjacent B cell — exactly what the user sees.
     document.querySelectorAll<HTMLElement>('[data-element-id$="__A"]').forEach((a) => {
       const rowId = (a.getAttribute("data-element-id") || "").replace(/__A$/, "");
       const b = document.querySelector<HTMLElement>(`[data-element-id="${rowId}__B"]`);
-      const metric = (a.textContent || "").trim().toLowerCase();
-      const val = (b?.textContent || "").trim();
+      const metric = cellText(a).toLowerCase();
+      const val = cellText(b);
       if (metric) out[metric] = val;
     });
     return out;
@@ -128,6 +141,7 @@ async function verifyRenderedTraceBox(page: Page) {
 test("real user: fresh room -> @nodeagent (cheap default) -> visible sheet matches golden", async ({ page }) => {
   const pageErrors: string[] = [];
   page.on("pageerror", (e) => pageErrors.push(String(e.message ?? e)));
+  await enableFocusModeForTest(page);
 
   // Live app (Convex-connected, so the agent runs server-side with the cheap proxy model).
   await page.goto(`${BASE}/`, { waitUntil: "domcontentloaded" });
@@ -135,6 +149,8 @@ test("real user: fresh room -> @nodeagent (cheap default) -> visible sheet match
   // Real user flow: join a fresh room, add a sheet.
   await page.locator('[data-testid="create-room"]').click({ timeout: 60_000 });
   await page.locator('[data-testid="blank-cta-sheet"]').click({ timeout: 60_000 });
+  await expectFocusModeOn(page);
+  await expectAttentionOverlayMounted(page);
 
   // The model must be the CHEAP default route — the test fails loudly if someone pins a flagship.
   const preset = page.locator('[data-testid="chat-model-preset"]');

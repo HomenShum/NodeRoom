@@ -16,8 +16,9 @@ describe("supported model eval matrix", () => {
     const routes = SUPPORTED_MODEL_ROUTES.map((route) => route.route);
     expect(new Set(routes).size).toBe(routes.length);
     expect(routes).toEqual(expect.arrayContaining([
+      "cohere/north-mini-code:free",
       "deepseek/deepseek-v4-flash",
-      "xiaomi/mimo-v2.5",
+      "moonshotai/kimi-k2.7-code",
       "qwen/qwen3.7-plus",
       "nvidia/nemotron-3-ultra-550b-a55b",
       "openrouter/free-auto",

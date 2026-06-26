@@ -13,7 +13,7 @@ type LandingProps = {
   joinError?: string | null;
   onLiveDemo?: (name: string) => void;
   onLiveJoin?: (code: string, name: string) => void;
-  onLiveCreate?: (name: string) => void;
+  onLiveCreate?: (name: string, title?: string, code?: string) => void;
 };
 
 export function Landing({
@@ -30,6 +30,8 @@ export function Landing({
   const [name, setName] = useState("");
   const [joinErr, setJoinErr] = useState<string | null>(null);
   const [joinDialogCode, setJoinDialogCode] = useState<string | null>(null);
+  const [createDialogCode, setCreateDialogCode] = useState<string | null>(null);
+  const [createTitle, setCreateTitle] = useState("Blank NodeRoom");
   const live = mode === "live";
   const shownError = joinError ?? joinErr;
   const displayName = (fallback = "Guest") => name.trim() || fallback;
@@ -59,13 +61,20 @@ export function Landing({
     else onEnter?.(enterDemoRoomAsHost(name));
   };
   const createRoom = () => {
-    if (live) onLiveCreate?.(displayName("Host"));
-    else onEnter?.(createFreshRoom("My room", name || "Host"));
+    if (live) {
+      setCreateTitle("Blank NodeRoom");
+      setCreateDialogCode(makeLandingRoomCode());
+    } else onEnter?.(createFreshRoom("My room", name || "Host"));
   };
   const confirmLiveJoin = () => {
     if (!joinDialogCode) return;
     onLiveJoin?.(joinDialogCode, displayName());
     setJoinDialogCode(null);
+  };
+  const confirmLiveCreate = () => {
+    if (!createDialogCode) return;
+    onLiveCreate?.(displayName("Host"), createTitle.trim() || "Blank NodeRoom", createDialogCode);
+    setCreateDialogCode(null);
   };
 
   return (
@@ -187,7 +196,69 @@ export function Landing({
             </div>
           </div>
         )}
+        {live && createDialogCode && (
+          <div
+            className="r-room-modal-scrim"
+            onMouseDown={(e) => { if (e.target === e.currentTarget) setCreateDialogCode(null); }}
+          >
+            <div className="r-room-modal" role="dialog" aria-modal="true" aria-labelledby="create-room-title">
+              <div className="r-room-modal-head">
+                <div className="row between">
+                  <span className="kicker">Create a room</span>
+                  <button className="r-iconbtn" type="button" aria-label="Close" onClick={() => setCreateDialogCode(null)}>
+                    <X size={16} />
+                  </button>
+                </div>
+                <h2 id="create-room-title">Host a live room</h2>
+                <p className="sub">Start with a named room and a shareable code. Guests can join anonymously after the room opens.</p>
+              </div>
+              <div className="r-room-modal-body">
+                <label className="r-room-field">
+                  <span>Room title</span>
+                  <input
+                    className="r-text-input"
+                    placeholder="Startup diligence room"
+                    value={createTitle}
+                    maxLength={80}
+                    onChange={(e) => setCreateTitle(e.target.value)}
+                    onKeyDown={(e) => { if (e.key === "Enter") confirmLiveCreate(); }}
+                    autoFocus
+                  />
+                </label>
+                <label className="r-room-field">
+                  <span>Display name</span>
+                  <input
+                    data-testid="create-display-name"
+                    className="r-text-input"
+                    placeholder="Priya"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    onKeyDown={(e) => { if (e.key === "Enter") confirmLiveCreate(); }}
+                  />
+                </label>
+                <div className="r-room-codepeek">
+                  <div className="cp-head"><Code2 size={12} /> rooms - host identity</div>
+                  <pre>
+                    <span className="cm">// host creates the room, then shares this code{"\n"}</span>
+                    <span className="kw">const</span> room = <span className="kw">await</span> <span className="fn">createRoom</span>({"{"}<span className="pr">code</span>: <span className="str">"{createDialogCode}"</span>,{"\n"}
+                    {"       "}<span className="pr">title</span>: <span className="str">"{createTitle.trim() || "Blank NodeRoom"}"</span>, <span className="pr">host</span>: <span className="str">"{displayName("Host")}"</span>{"});"}
+                  </pre>
+                </div>
+                <button className="r-btn primary r-room-modal-submit" data-testid="create-room-submit" aria-label="Create room" disabled={busy} onClick={confirmLiveCreate}>
+                  Create room <ArrowRight size={16} />
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
+}
+
+function makeLandingRoomCode(): string {
+  const bytes = new Uint8Array(5);
+  crypto.getRandomValues(bytes);
+  const suffix = Array.from(bytes, (b) => (b % 36).toString(36)).join("").toUpperCase();
+  return `NR${suffix}${Date.now().toString(36).toUpperCase().slice(-4)}`.slice(0, 12);
 }

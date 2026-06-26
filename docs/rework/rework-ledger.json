@@ -1,0 +1,66 @@
+{
+  "schema": 1,
+  "updatedAt": "2026-06-24T00:00:00.000Z",
+  "entries": [
+    {
+      "id": "RW-001",
+      "oldApproach": "Provider-facing production tool schemas fell back to empty-argument functions or incomplete argument lists.",
+      "whyItSeemedRight": "The backend Zod schemas and tool implementations were correct, so the missing provider projection looked like plumbing rather than product behavior.",
+      "whatFailed": "Fresh-room public asks produced missing-argument tool calls such as search_sheet_context without query and capture_source without goal.",
+      "failureProof": "tests/nodeagentProviderToolSchema.test.ts; docs/eval/fresh-room/FR-010/latest.json",
+      "newApproach": "Production provider JSON schemas expose all canonical top-level Zod fields and required provider arguments, with parity regression coverage.",
+      "survivalProof": "tests/nodeagentProviderToolSchema.test.ts",
+      "status": "replaced"
+    },
+    {
+      "id": "RW-002",
+      "oldApproach": "Free OpenRouter routes were allowed to receive room context until the egress policy blocked uploaded-file data at runtime.",
+      "whyItSeemedRight": "Free routes are useful for cheap benchmark discovery and normally handle text-only public asks.",
+      "whatFailed": "Fresh uploaded-file tasks repeatedly failed with provider_egress_blocked:free_file_egress_requires_OPENROUTER_FREE_ALLOW_FILE_EGRESS.",
+      "failureProof": "tests/providerEgressPolicy.test.ts; tests/agentJobsRuntime.test.ts",
+      "newApproach": "Uploaded-file public asks keep the egress guard, but route-promote to AGENT_FILE_EGRESS_MODEL before queuing or running the slice.",
+      "survivalProof": "tests/agentJobsRuntime.test.ts",
+      "status": "replaced"
+    },
+    {
+      "id": "RW-003",
+      "oldApproach": "Benchmark runs used the same small per-slice step and spend ceilings as ordinary public asks.",
+      "whyItSeemedRight": "Small caps protect public rooms from runaway jobs and unexpected cost.",
+      "whatFailed": "Official benchmark tasks paused prematurely before gathering enough runtime/cost/capability data.",
+      "failureProof": "tests/agentJobsSource.test.ts; tests/agentJobsRuntime.test.ts",
+      "newApproach": "Benchmark jobs carry a benchmark_completion runtime profile through job rows, claims, journals, and browser tests.",
+      "survivalProof": "tests/agentJobsRuntime.test.ts; e2e/benchmark-ui-spreadsheetbench.spec.ts",
+      "status": "replaced"
+    },
+    {
+      "id": "RW-004",
+      "oldApproach": "Uploaded workbook artifacts rendered through a separate Excel-paper UI path with green evidence styling and misaligned workbook chrome.",
+      "whyItSeemedRight": "Uploaded Excel files looked distinct from room-authored Sheet 1 artifacts and seemed to need a viewer-specific shell.",
+      "whatFailed": "The product had two sheet UIs to maintain, and the uploaded artifact did not match the canonical Sheet 1 work surface the agent writes into.",
+      "failureProof": "e2e/excel-grid.spec.ts; e2e/uploaded-artifact-live-rendering.spec.ts",
+      "newApproach": "Uploaded workbooks and blank sheets both render through the shared r-sheet work-surface grid with workbook merge support and no false Excel-paper shell.",
+      "survivalProof": "e2e/excel-grid.spec.ts; e2e/uploaded-artifact-live-rendering.spec.ts",
+      "status": "replaced"
+    },
+    {
+      "id": "RW-005",
+      "oldApproach": "Invalid model tool calls returned unclassified invalid-arguments blobs.",
+      "whyItSeemedRight": "The runtime already fed the error back as a tool result, so the model could theoretically recover.",
+      "whatFailed": "Missing required arguments were not classified as recoverable inputs and traces could not distinguish schema failure from generic tool failure.",
+      "failureProof": "tests/agentStreamParts.test.ts",
+      "newApproach": "Invalid tool arguments return structured tool_argument_error results with failureKind, missingRequiredArgs, and retry instructions.",
+      "survivalProof": "tests/agentStreamParts.test.ts",
+      "status": "replaced"
+    },
+    {
+      "id": "RW-006",
+      "oldApproach": "SpreadsheetBench live-browser proof used a bespoke receipt at docs/eval/spreadsheetbench-live-room-proof.json.",
+      "whyItSeemedRight": "SpreadsheetBench was the first official benchmark path proven through the live UI.",
+      "whatFailed": "The one-off shape could not scale to BTB, mobile, collaboration, failure, visual-judge, cost, and Focus Mode gates.",
+      "failureProof": "tests/freshRoomRealUserPathMatrix.test.ts",
+      "newApproach": "Fresh-room runs write generalized receipts to docs/eval/fresh-room/<case-id>/latest.json and pass scripts/fresh-room-proof-verify.ts.",
+      "survivalProof": "tests/freshRoomProofReceipts.test.ts; npm run fresh-room:proofs",
+      "status": "replaced"
+    }
+  ]
+}

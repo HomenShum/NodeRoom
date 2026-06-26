@@ -1,0 +1,100 @@
+{
+  "schema": 1,
+  "taskId": "55fd995a-e4df-4942-aee1-ee1be9a72b6a",
+  "harborTaskId": "btb-55fd995a",
+  "generatedAt": "2026-06-25T02:30:40.981Z",
+  "baseUrl": "http://127.0.0.1:5273",
+  "roomUrl": "http://127.0.0.1:5273/?room=NR5007UVMVR&name=Host",
+  "memoryMode": false,
+  "expectedExtensions": [
+    ".xlsx",
+    ".xlsm",
+    ".pptx",
+    ".docx",
+    ".pdf"
+  ],
+  "visibleExtensions": [
+    ".xlsx",
+    ".xlsm",
+    ".pptx",
+    ".docx",
+    ".pdf"
+  ],
+  "downloadedFiles": [
+    {
+      "kind": "workbook",
+      "filename": "btb-55fd995a-vrdn-clinical-risk-adjusted-sotp-dcf-model-ted-mg-programs-2025-2041.xlsx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\55fd995a-e4df-4942-aee1-ee1be9a72b6a\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-55fd995a-vrdn-clinical-risk-adjusted-sotp-dcf-model-ted-mg-programs-2025-2041.xlsx",
+      "extension": ".xlsx",
+      "bytes": 9988,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (4673 chars)"
+    },
+    {
+      "kind": "workbook",
+      "filename": "btb-55fd995a-vrdn-clinical-risk-adjusted-sotp-dcf-model-ted-mg-programs-2025-2041.xlsm",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\55fd995a-e4df-4942-aee1-ee1be9a72b6a\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-55fd995a-vrdn-clinical-risk-adjusted-sotp-dcf-model-ted-mg-programs-2025-2041.xlsm",
+      "extension": ".xlsm",
+      "bytes": 9988,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (4673 chars)"
+    },
+    {
+      "kind": "presentation",
+      "filename": "btb-55fd995a-vrdn-clinical-risk-adjusted-sotp-dcf-model-ted-mg-programs-2025-2041.pptx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\55fd995a-e4df-4942-aee1-ee1be9a72b6a\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-55fd995a-vrdn-clinical-risk-adjusted-sotp-dcf-model-ted-mg-programs-2025-2041.pptx",
+      "extension": ".pptx",
+      "bytes": 6879,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains ppt/presentation.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (1935 chars)"
+    },
+    {
+      "kind": "document",
+      "filename": "btb-55fd995a-vrdn-clinical-risk-adjusted-sotp-dcf-model-ted-mg-programs-2025-2041.docx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\55fd995a-e4df-4942-aee1-ee1be9a72b6a\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-55fd995a-vrdn-clinical-risk-adjusted-sotp-dcf-model-ted-mg-programs-2025-2041.docx",
+      "extension": ".docx",
+      "bytes": 3440,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains word/document.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (4185 chars)"
+    },
+    {
+      "kind": "pdf",
+      "filename": "btb-55fd995a-vrdn-clinical-risk-adjusted-sotp-dcf-model-ted-mg-programs-2025-2041.pdf",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\55fd995a-e4df-4942-aee1-ee1be9a72b6a\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-55fd995a-vrdn-clinical-risk-adjusted-sotp-dcf-model-ted-mg-programs-2025-2041.pdf",
+      "extension": ".pdf",
+      "bytes": 3895,
+      "magic": "%PDF",
+      "reopened": true,
+      "reopenDetail": "PDF header reopened",
+      "contentQualityDetail": "placeholder/caveat content scan passed (7247 chars)"
+    }
+  ],
+  "packageManifestPath": "test-results\\bankertoolbench\\matrix\\55fd995a-e4df-4942-aee1-ee1be9a72b6a\\package-manifest.json",
+  "verifierCommand": "npm run benchmark:bankertoolbench:proof",
+  "verifierOutputTail": "\n> noderoom@0.1.1 benchmark:bankertoolbench:proof\n> tsx scripts/bankertoolbench-proof-check.ts\n\nBankerToolBench proof check passed: stage=1/1 weightedRubric=6 run=0/1 pass positive=1/1 pass candidateBeforeEvaluator=true leaks=0/2+0/3+0/4\n",
+  "screenshot": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\55fd995a-e4df-4942-aee1-ee1be9a72b6a\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\bankertoolbench-live-room.png",
+  "passed": true,
+  "gatesProven": [
+    "fresh_room_join",
+    "official_fixture_upload",
+    "public_nodeagent_invocation",
+    "visible_streaming_progress",
+    "focus_mode_enabled",
+    "focus_box_or_attention_overlay",
+    "agent_terminal_quality_gate",
+    "deliverable_export_download",
+    "artifact_reopen_validation",
+    "artifact_placeholder_scan",
+    "official_scorer_handoff",
+    "trace_video_artifacts",
+    "no_memory_mode_shortcut"
+  ]
+}

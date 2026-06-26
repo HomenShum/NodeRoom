@@ -8,8 +8,9 @@
 
 import type { RoomEngine } from "../../../engine/roomEngine";
 import type { Actor, CellPayload, Channel, DataframeColumn } from "../../../engine/types";
-import type { RoomTools, RoomSnapshot, AwarenessView, CellView, CellMeta, EditOutcome, MergeView, SourceResult, ArtifactRef, SpreadsheetContextHit } from "../../core/types";
+import type { RoomTools, RoomSnapshot, AwarenessView, CellView, CellMeta, EditOutcome, MergeView, SourceResult, ArtifactRef, SpreadsheetContextHit, SetColumnsOutcome } from "../../core/types";
 import { buildSpreadsheetSemanticIndex, columnLetters } from "../../../app/spreadsheetIndex";
+import type { ColumnInput } from "../../../engine/columns";
 
 export class InMemoryRoomTools implements RoomTools {
   constructor(
@@ -69,6 +70,20 @@ export class InMemoryRoomTools implements RoomTools {
     return this.engine.setArtifactMeta({ roomId: this.roomId, artifactId: args.artifactId, title: args.title, summary: args.summary, tags: args.tags, by: this.actor });
   }
 
+  async setColumns(args: { artifactId?: string; baseVersion: number; mode: "replace" | "merge"; columns: Array<{ label: string; type?: string; agentWritable?: boolean }> }): Promise<SetColumnsOutcome> {
+    const res = this.engine.setColumns({
+      roomId: this.roomId,
+      artifactId: this.targetArtifactId(args.artifactId),
+      baseVersion: args.baseVersion,
+      mode: args.mode,
+      columns: args.columns as unknown as ColumnInput[],
+      by: this.actor,
+    });
+    if (res.ok) return { ok: true, version: res.version, columns: res.columns };
+    if (res.conflict) return { ok: false, conflict: true, expected: res.expected!, actual: res.actual! };
+    return { ok: false, error: res.error ?? "set_columns_failed" };
+  }
+
   async awareness(): Promise<AwarenessView> {
     const a = this.engine.awareness(this.roomId, this.actor.id);
     return {
@@ -81,8 +96,10 @@ export class InMemoryRoomTools implements RoomTools {
 
   async readRange(elementIds: string[], artifactId: string = this.artifactId): Promise<CellView[]> {
     artifactId = this.targetArtifactId(artifactId);
-    const els = this.engine.readRange(artifactId, elementIds);
-    return elementIds.map((id) => {
+    const art = this.engine.getArtifact(artifactId);
+    const resolvedIds = elementIds.map((id) => normalizeExcelGridElementId(art?.meta, id));
+    const els = this.engine.readRange(artifactId, resolvedIds);
+    return resolvedIds.map((id) => {
       const el = els[id];
       const lk = this.engine.lockFor(artifactId, id);
       return { id, value: el?.value ?? null, version: el?.version ?? 0, locked: lk ? { by: lk.holder.name, reason: lk.reason } : null };
@@ -199,6 +216,14 @@ function excelGridMeta(meta: unknown): { rows: number; columns: number; sheetNam
   const columns = typeof grid?.columns === "number" ? grid.columns : 0;
   if (rows <= 0 || columns <= 0) return null;
   return { rows, columns, sheetName: typeof grid?.sheetName === "string" ? grid.sheetName : undefined };
+}
+
+function normalizeExcelGridElementId(meta: unknown, elementId: string): string {
+  if (!excelGridMeta(meta)) return elementId;
+  const trimmed = elementId.trim();
+  if (/^[A-Z]{1,3}\d+$/i.test(trimmed)) return trimmed.toUpperCase();
+  const alias = trimmed.match(/^(?:r)?(\d+)__([A-Z]{1,3})$/i);
+  return alias ? `${alias[2].toUpperCase()}${Number(alias[1])}` : elementId;
 }
 
 function dataframeColumns(meta: unknown): DataframeColumn[] {

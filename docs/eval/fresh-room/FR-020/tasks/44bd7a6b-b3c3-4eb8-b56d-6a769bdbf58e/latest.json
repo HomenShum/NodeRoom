@@ -1,0 +1,217 @@
+{
+  "schema": 1,
+  "caseId": "FR-020",
+  "benchmark": "bankertoolbench",
+  "taskId": "44bd7a6b-b3c3-4eb8-b56d-6a769bdbf58e",
+  "generatedAt": "2026-06-25T02:05:17.148Z",
+  "baseUrl": "http://127.0.0.1:5273",
+  "roomId": "NR2UT0BWUBV",
+  "roomUrl": "http://127.0.0.1:5273/?room=NR2UT0BWUBV&name=Host",
+  "command": "BTB_LIVE_ROOM_E2E=1 BTB_UI_BUNDLE_ROOT=<official-bundle> BTB_UI_VERIFIER_COMMAND=<verifier> BENCH_BASE_URL=<base> npx playwright test --config playwright.real-flow.config.ts e2e/benchmark-ui-bankertoolbench.spec.ts --headed",
+  "model": {
+    "requested": "specific",
+    "resolved": "z-ai/glm-5.2",
+    "routePolicy": "specific",
+    "runtimeProfile": "benchmark_completion",
+    "provider": "openrouter"
+  },
+  "prompt": "Official BankerToolBench task btb-44bd7a6b: The CFO of Papa John’s Pizza believes that the current footprint modernization project is being funded in a suboptimal manner. Her belief is that using balance sheet cash and cash flow from operations is suboptimal given light net leverage (total net debt/EBITDA) today. She’s had a number of DCM desks approach her about term loans and bond structures that could help fund these improvements while maintaining cash flow from operations and excess cash for capital return to shareholders. She stated that the company’s net leverage profile is significantly more conservative vs. near-in competitor Domino’s Pizza. To this end, she has asked us to put together a net leverage profile analysis that details the historical net leverage profile of Papa John’s and Domino’s over the last three fiscal years (i.e., 2022A, 2023A, 2024A). Separately, she has asked us to show her what the company’s “firepower” might look like if they were to increase net leverage by up to +3.0x vs. where they are at fiscal year 2024. Lastly, she wants us to show the pro forma consequences (capital structure) of using $550 million of debt to purchase new ordering kiosks and in-app AI agents.\n\nThe financial data files of",
+  "memoryMode": false,
+  "freshness": {
+    "roomCreatedAfterRunStart": true,
+    "forbiddenPreloadedArtifactsAbsent": true,
+    "artifactsCreatedFresh": [
+      "btb-44bd7a6b-papa-john-s-pizza-net-leverage-profile-modernization-firepower-analysis.xlsx",
+      "btb-44bd7a6b-papa-john-s-pizza-net-leverage-profile-modernization-firepower-analysis.xlsm",
+      "btb-44bd7a6b-papa-john-s-pizza-net-leverage-profile-modernization-firepower-analysis.pptx",
+      "btb-44bd7a6b-papa-john-s-pizza-net-leverage-profile-modernization-firepower-analysis.docx",
+      "btb-44bd7a6b-papa-john-s-pizza-net-leverage-profile-modernization-firepower-analysis.pdf"
+    ],
+    "uploadedFiles": [
+      "betas_by_industry_category_for_WACC.xlsx",
+      "Equity_Risk_Premium_for_WACC.xlsx",
+      "AI-US Company Identity.xlsx",
+      "AI-US Income Statement Annual.xlsx",
+      "AI-US Balance Sheet Annual.xlsx",
+      "AI-US Cash Flow Annual.xlsx",
+      "AI-US Shares Outstanding.xlsx",
+      "AI-US Price History.xlsx",
+      "AI-US Revenue Estimate.xlsx",
+      "AI-US Earnings Estimate.xlsx",
+      "btb-44bd7a6b-official-task-brief.txt"
+    ]
+  },
+  "ui": {
+    "focusModeEnabled": true,
+    "attentionOverlayVisible": true,
+    "streamingVisible": true,
+    "jobDetailVisible": true,
+    "roomTraceVisible": true,
+    "screenshotPaths": [
+      "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\44bd7a6b-b3c3-4eb8-b56d-6a769bdbf58e\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\bankertoolbench-live-room.png"
+    ],
+    "tracePath": "docs\\eval\\bankertoolbench\\live-room\\44bd7a6b-b3c3-4eb8-b56d-6a769bdbf58e.json"
+  },
+  "artifacts": {
+    "uploadedFiles": [
+      "betas_by_industry_category_for_WACC.xlsx",
+      "Equity_Risk_Premium_for_WACC.xlsx",
+      "AI-US Company Identity.xlsx",
+      "AI-US Income Statement Annual.xlsx",
+      "AI-US Balance Sheet Annual.xlsx",
+      "AI-US Cash Flow Annual.xlsx",
+      "AI-US Shares Outstanding.xlsx",
+      "AI-US Price History.xlsx",
+      "AI-US Revenue Estimate.xlsx",
+      "AI-US Earnings Estimate.xlsx",
+      "btb-44bd7a6b-official-task-brief.txt"
+    ],
+    "created": [
+      "btb-44bd7a6b-papa-john-s-pizza-net-leverage-profile-modernization-firepower-analysis.xlsx",
+      "btb-44bd7a6b-papa-john-s-pizza-net-leverage-profile-modernization-firepower-analysis.xlsm",
+      "btb-44bd7a6b-papa-john-s-pizza-net-leverage-profile-modernization-firepower-analysis.pptx",
+      "btb-44bd7a6b-papa-john-s-pizza-net-leverage-profile-modernization-firepower-analysis.docx",
+      "btb-44bd7a6b-papa-john-s-pizza-net-leverage-profile-modernization-firepower-analysis.pdf"
+    ],
+    "exportedFiles": [
+      {
+        "kind": "workbook",
+        "filename": "btb-44bd7a6b-papa-john-s-pizza-net-leverage-profile-modernization-firepower-analysis.xlsx",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\44bd7a6b-b3c3-4eb8-b56d-6a769bdbf58e\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-44bd7a6b-papa-john-s-pizza-net-leverage-profile-modernization-firepower-analysis.xlsx",
+        "extension": ".xlsx",
+        "downloaded": true,
+        "bytes": 9406,
+        "magic": "PK\\x03\\x04"
+      },
+      {
+        "kind": "workbook",
+        "filename": "btb-44bd7a6b-papa-john-s-pizza-net-leverage-profile-modernization-firepower-analysis.xlsm",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\44bd7a6b-b3c3-4eb8-b56d-6a769bdbf58e\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-44bd7a6b-papa-john-s-pizza-net-leverage-profile-modernization-firepower-analysis.xlsm",
+        "extension": ".xlsm",
+        "downloaded": true,
+        "bytes": 9406,
+        "magic": "PK\\x03\\x04"
+      },
+      {
+        "kind": "presentation",
+        "filename": "btb-44bd7a6b-papa-john-s-pizza-net-leverage-profile-modernization-firepower-analysis.pptx",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\44bd7a6b-b3c3-4eb8-b56d-6a769bdbf58e\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-44bd7a6b-papa-john-s-pizza-net-leverage-profile-modernization-firepower-analysis.pptx",
+        "extension": ".pptx",
+        "downloaded": true,
+        "bytes": 7472,
+        "magic": "PK\\x03\\x04"
+      },
+      {
+        "kind": "document",
+        "filename": "btb-44bd7a6b-papa-john-s-pizza-net-leverage-profile-modernization-firepower-analysis.docx",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\44bd7a6b-b3c3-4eb8-b56d-6a769bdbf58e\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-44bd7a6b-papa-john-s-pizza-net-leverage-profile-modernization-firepower-analysis.docx",
+        "extension": ".docx",
+        "downloaded": true,
+        "bytes": 3686,
+        "magic": "PK\\x03\\x04"
+      },
+      {
+        "kind": "pdf",
+        "filename": "btb-44bd7a6b-papa-john-s-pizza-net-leverage-profile-modernization-firepower-analysis.pdf",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\44bd7a6b-b3c3-4eb8-b56d-6a769bdbf58e\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-44bd7a6b-papa-john-s-pizza-net-leverage-profile-modernization-firepower-analysis.pdf",
+        "extension": ".pdf",
+        "downloaded": true,
+        "bytes": 4026,
+        "magic": "%PDF"
+      }
+    ],
+    "reopenedFiles": [
+      {
+        "kind": "workbook",
+        "filename": "btb-44bd7a6b-papa-john-s-pizza-net-leverage-profile-modernization-firepower-analysis.xlsx",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j97fq40msz38amkwjjec9s4jjs89ak7b; placeholder/caveat content scan passed (5169 chars)"
+      },
+      {
+        "kind": "workbook",
+        "filename": "btb-44bd7a6b-papa-john-s-pizza-net-leverage-profile-modernization-firepower-analysis.xlsm",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j972t7e4tq633evg1n9vxnm1sx89a52w; placeholder/caveat content scan passed (5169 chars)"
+      },
+      {
+        "kind": "presentation",
+        "filename": "btb-44bd7a6b-papa-john-s-pizza-net-leverage-profile-modernization-firepower-analysis.pptx",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "ZIP package contains ppt/presentation.xml; recovered from Convex room artifact j976nf09e1pqcsjhsqbzpdm97589b5c4; placeholder/caveat content scan passed (3953 chars)"
+      },
+      {
+        "kind": "document",
+        "filename": "btb-44bd7a6b-papa-john-s-pizza-net-leverage-profile-modernization-firepower-analysis.docx",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "ZIP package contains word/document.xml; recovered from Convex room artifact j9729g7rgxdz5gjcyx00qaeb9d89b14g; placeholder/caveat content scan passed (5590 chars)"
+      },
+      {
+        "kind": "pdf",
+        "filename": "btb-44bd7a6b-papa-john-s-pizza-net-leverage-profile-modernization-firepower-analysis.pdf",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "PDF header reopened; recovered from Convex room artifact j97ajfec3fve9kawmww4d84jyh89br4b; placeholder/caveat content scan passed (7503 chars)"
+      }
+    ]
+  },
+  "scorer": {
+    "name": "BankerToolBench proof verifier",
+    "command": "npm run benchmark:bankertoolbench:proof",
+    "verdict": "pass",
+    "score": 1,
+    "details": {
+      "verifierOutputTail": "\n> noderoom@0.1.1 benchmark:bankertoolbench:proof\n> tsx scripts/bankertoolbench-proof-check.ts\n\nBankerToolBench proof check passed: stage=1/1 weightedRubric=6 run=0/1 pass positive=1/1 pass candidateBeforeEvaluator=true leaks=0/2+0/3+0/4\n",
+      "packageManifestPath": "test-results\\bankertoolbench\\matrix\\44bd7a6b-b3c3-4eb8-b56d-6a769bdbf58e\\package-manifest.json",
+      "downloadedExtensions": [
+        ".xlsx",
+        ".xlsm",
+        ".pptx",
+        ".docx",
+        ".pdf"
+      ],
+      "exportSource": "convex_room_artifact_data_url_after_browser_ui_proof",
+      "agentTerminalQuality": {
+        "statusText": "completed via recovered Convex job: repower-analysis.pptx, btb-44bd7a6b-papa-john-s-pizza-net-leverage-profile-modernization-firepower-analysis.docx, btb-44bd7a6b-papa-john-s-pizza-net-leverage-profile-modernization-firepower-analysis.pdf. Coverage confirmed for CFO, DCM, AI.",
+        "evidenceTextLength": 2330,
+        "detail": "agent reached completed status or visible completion text, with no missing-source/unfinished-work caveats"
+      },
+      "taskCoverage": {
+        "ok": true,
+        "requiredTickers": [
+          "CFO",
+          "DCM",
+          "AI"
+        ],
+        "missingTickers": [],
+        "detail": "generated package mentions every requested ticker/entity: CFO, DCM, AI"
+      }
+    }
+  },
+  "visualJudge": {
+    "verdict": "not_run",
+    "reason": "GOOGLE_GENERATIVE_AI_API_KEY is not set; deterministic browser/download/reopen/verifier proof passed."
+  },
+  "gatesProven": [
+    "fresh_room_join",
+    "official_fixture_upload",
+    "public_nodeagent_invocation",
+    "visible_streaming_progress",
+    "trace_video_artifacts",
+    "no_memory_mode_shortcut",
+    "focus_mode_enabled",
+    "focus_box_or_attention_overlay",
+    "agent_live_loop",
+    "agent_terminal_quality_gate",
+    "room_trace_visible",
+    "job_detail_visible",
+    "deliverable_export_download",
+    "artifact_reopen_validation",
+    "artifact_placeholder_scan",
+    "official_scorer_handoff"
+  ],
+  "passed": true
+}

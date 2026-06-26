@@ -1,0 +1,219 @@
+{
+  "schema": 1,
+  "caseId": "FR-020",
+  "benchmark": "bankertoolbench",
+  "taskId": "ceba18d0-5558-4637-be3a-a97121796201",
+  "generatedAt": "2026-06-25T02:51:34.762Z",
+  "baseUrl": "http://127.0.0.1:5273",
+  "roomId": "NR3ASR38ON2",
+  "roomUrl": "http://127.0.0.1:5273/?room=NR3ASR38ON2&name=Host",
+  "command": "BTB_LIVE_ROOM_E2E=1 BTB_UI_BUNDLE_ROOT=<official-bundle> BTB_UI_VERIFIER_COMMAND=<verifier> BENCH_BASE_URL=<base> npx playwright test --config playwright.real-flow.config.ts e2e/benchmark-ui-bankertoolbench.spec.ts --headed",
+  "model": {
+    "requested": "specific",
+    "resolved": "z-ai/glm-5.2",
+    "routePolicy": "specific",
+    "runtimeProfile": "benchmark_completion",
+    "provider": "openrouter"
+  },
+  "prompt": "Official BankerToolBench task btb-ceba18d0: Your MD has asked you to run a DCF analysis for Coca-Cola Company (NYSE: KO). The output should be built in Excel and titled \"KO DCF.\" The model should be structured into three clearly separated sections: Financial Assumptions, WACC, and DCF. The objective is to produce a clean, institutional-quality valuation reflecting Coca-Cola's global, diversified beverage portfolio, strong brand equity, recurring cash flow profile, and mature growth characteristics. For formatting, create clearly labeled section headers for Financial Assumptions, WACC, and DCF spanning the width of the model. Bold each section header. Apply consistent borders around cells and clearly distinguish input cells from calculated cells. Maintain professional formatting standards suitable for investment banking deliverables. In the Financial Assumptions section, include the following inputs: Use 2025 revenue and apply a steady growth rate of 4.5%, operating income & D&A margins will be projected as average of past 2 years and held constant across projection period. Tax Rate (21.0%), Change in Net Working Capital (0.5% of Revenue), CapEx % of Revenue (3.5%), Average Asset Beta (0.65), Cost of Debt (4.0%), Risk-Free Ra",
+  "memoryMode": false,
+  "freshness": {
+    "roomCreatedAfterRunStart": true,
+    "forbiddenPreloadedArtifactsAbsent": true,
+    "artifactsCreatedFresh": [
+      "btb-ceba18d0-ko-dcf-valuation---the-coca-cola-company-nyse-ko.xlsx",
+      "btb-ceba18d0-ko-dcf-valuation---the-coca-cola-company-nyse-ko.xlsm",
+      "btb-ceba18d0-ko-dcf-valuation---the-coca-cola-company-nyse-ko.pptx",
+      "btb-ceba18d0-ko-dcf-valuation---the-coca-cola-company-nyse-ko.docx",
+      "btb-ceba18d0-ko-dcf-valuation---the-coca-cola-company-nyse-ko.pdf"
+    ],
+    "uploadedFiles": [
+      "betas_by_industry_category_for_WACC.xlsx",
+      "Equity_Risk_Premium_for_WACC.xlsx",
+      "KO-US Company Identity.xlsx",
+      "KO-US Income Statement Annual.xlsx",
+      "KO-US Balance Sheet Annual.xlsx",
+      "KO-US Cash Flow Annual.xlsx",
+      "KO-US Shares Outstanding.xlsx",
+      "KO-US Price History.xlsx",
+      "KO-US Revenue Estimate.xlsx",
+      "KO-US Earnings Estimate.xlsx",
+      "btb-ceba18d0-official-task-brief.txt"
+    ]
+  },
+  "ui": {
+    "focusModeEnabled": true,
+    "attentionOverlayVisible": true,
+    "streamingVisible": true,
+    "jobDetailVisible": true,
+    "roomTraceVisible": true,
+    "screenshotPaths": [
+      "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\ceba18d0-5558-4637-be3a-a97121796201\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\bankertoolbench-live-room.png"
+    ],
+    "tracePath": "docs\\eval\\bankertoolbench\\live-room\\ceba18d0-5558-4637-be3a-a97121796201.json"
+  },
+  "artifacts": {
+    "uploadedFiles": [
+      "betas_by_industry_category_for_WACC.xlsx",
+      "Equity_Risk_Premium_for_WACC.xlsx",
+      "KO-US Company Identity.xlsx",
+      "KO-US Income Statement Annual.xlsx",
+      "KO-US Balance Sheet Annual.xlsx",
+      "KO-US Cash Flow Annual.xlsx",
+      "KO-US Shares Outstanding.xlsx",
+      "KO-US Price History.xlsx",
+      "KO-US Revenue Estimate.xlsx",
+      "KO-US Earnings Estimate.xlsx",
+      "btb-ceba18d0-official-task-brief.txt"
+    ],
+    "created": [
+      "btb-ceba18d0-ko-dcf-valuation---the-coca-cola-company-nyse-ko.xlsx",
+      "btb-ceba18d0-ko-dcf-valuation---the-coca-cola-company-nyse-ko.xlsm",
+      "btb-ceba18d0-ko-dcf-valuation---the-coca-cola-company-nyse-ko.pptx",
+      "btb-ceba18d0-ko-dcf-valuation---the-coca-cola-company-nyse-ko.docx",
+      "btb-ceba18d0-ko-dcf-valuation---the-coca-cola-company-nyse-ko.pdf"
+    ],
+    "exportedFiles": [
+      {
+        "kind": "workbook",
+        "filename": "btb-ceba18d0-ko-dcf-valuation---the-coca-cola-company-nyse-ko.xlsx",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\ceba18d0-5558-4637-be3a-a97121796201\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-ceba18d0-ko-dcf-valuation---the-coca-cola-company-nyse-ko.xlsx",
+        "extension": ".xlsx",
+        "downloaded": true,
+        "bytes": 10008,
+        "magic": "PK\\x03\\x04"
+      },
+      {
+        "kind": "workbook",
+        "filename": "btb-ceba18d0-ko-dcf-valuation---the-coca-cola-company-nyse-ko.xlsm",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\ceba18d0-5558-4637-be3a-a97121796201\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-ceba18d0-ko-dcf-valuation---the-coca-cola-company-nyse-ko.xlsm",
+        "extension": ".xlsm",
+        "downloaded": true,
+        "bytes": 10008,
+        "magic": "PK\\x03\\x04"
+      },
+      {
+        "kind": "presentation",
+        "filename": "btb-ceba18d0-ko-dcf-valuation---the-coca-cola-company-nyse-ko.pptx",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\ceba18d0-5558-4637-be3a-a97121796201\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-ceba18d0-ko-dcf-valuation---the-coca-cola-company-nyse-ko.pptx",
+        "extension": ".pptx",
+        "downloaded": true,
+        "bytes": 7013,
+        "magic": "PK\\x03\\x04"
+      },
+      {
+        "kind": "document",
+        "filename": "btb-ceba18d0-ko-dcf-valuation---the-coca-cola-company-nyse-ko.docx",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\ceba18d0-5558-4637-be3a-a97121796201\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-ceba18d0-ko-dcf-valuation---the-coca-cola-company-nyse-ko.docx",
+        "extension": ".docx",
+        "downloaded": true,
+        "bytes": 3189,
+        "magic": "PK\\x03\\x04"
+      },
+      {
+        "kind": "pdf",
+        "filename": "btb-ceba18d0-ko-dcf-valuation---the-coca-cola-company-nyse-ko.pdf",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\ceba18d0-5558-4637-be3a-a97121796201\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-ceba18d0-ko-dcf-valuation---the-coca-cola-company-nyse-ko.pdf",
+        "extension": ".pdf",
+        "downloaded": true,
+        "bytes": 3165,
+        "magic": "%PDF"
+      }
+    ],
+    "reopenedFiles": [
+      {
+        "kind": "workbook",
+        "filename": "btb-ceba18d0-ko-dcf-valuation---the-coca-cola-company-nyse-ko.xlsx",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j97f08f34ga250zbpttg6b691589bvbb; placeholder/caveat content scan passed (4760 chars)"
+      },
+      {
+        "kind": "workbook",
+        "filename": "btb-ceba18d0-ko-dcf-valuation---the-coca-cola-company-nyse-ko.xlsm",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j97ewzgt7p8nw125aryz3kbnc189bspf; placeholder/caveat content scan passed (4760 chars)"
+      },
+      {
+        "kind": "presentation",
+        "filename": "btb-ceba18d0-ko-dcf-valuation---the-coca-cola-company-nyse-ko.pptx",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "ZIP package contains ppt/presentation.xml; recovered from Convex room artifact j97f3ahrpryam1z05aaew4v1kx89bpqf; placeholder/caveat content scan passed (2261 chars)"
+      },
+      {
+        "kind": "document",
+        "filename": "btb-ceba18d0-ko-dcf-valuation---the-coca-cola-company-nyse-ko.docx",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "ZIP package contains word/document.xml; recovered from Convex room artifact j97ff7hwt14bwfq5vdtcvxax5d89aa64; placeholder/caveat content scan passed (2996 chars)"
+      },
+      {
+        "kind": "pdf",
+        "filename": "btb-ceba18d0-ko-dcf-valuation---the-coca-cola-company-nyse-ko.pdf",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "PDF header reopened; recovered from Convex room artifact j978kt62ckxb8f98bfhap9hcrs89avw5; placeholder/caveat content scan passed (5809 chars)"
+      }
+    ]
+  },
+  "scorer": {
+    "name": "BankerToolBench proof verifier",
+    "command": "npm run benchmark:bankertoolbench:proof",
+    "verdict": "pass",
+    "score": 1,
+    "details": {
+      "verifierOutputTail": "\n> noderoom@0.1.1 benchmark:bankertoolbench:proof\n> tsx scripts/bankertoolbench-proof-check.ts\n\nBankerToolBench proof check passed: stage=1/1 weightedRubric=6 run=0/1 pass positive=1/1 pass candidateBeforeEvaluator=true leaks=0/2+0/3+0/4\n",
+      "packageManifestPath": "test-results\\bankertoolbench\\matrix\\ceba18d0-5558-4637-be3a-a97121796201\\package-manifest.json",
+      "downloadedExtensions": [
+        ".xlsx",
+        ".xlsm",
+        ".pptx",
+        ".docx",
+        ".pdf"
+      ],
+      "exportSource": "convex_room_artifact_data_url_after_browser_ui_proof",
+      "agentTerminalQuality": {
+        "statusText": "completed via recovered Convex job: ko-dcf-valuation---the-coca-cola-company-nyse-ko.pptx, btb-ceba18d0-ko-dcf-valuation---the-coca-cola-company-nyse-ko.docx, btb-ceba18d0-ko-dcf-valuation---the-coca-cola-company-nyse-ko.pdf. Coverage confirmed for NYSE, KO, WACC, GDP, NOPAT.",
+        "evidenceTextLength": 3976,
+        "detail": "agent reached completed status or visible completion text, with no missing-source/unfinished-work caveats"
+      },
+      "taskCoverage": {
+        "ok": true,
+        "requiredTickers": [
+          "NYSE",
+          "KO",
+          "WACC",
+          "GDP",
+          "NOPAT"
+        ],
+        "missingTickers": [],
+        "detail": "generated package mentions every requested ticker/entity: NYSE, KO, WACC, GDP, NOPAT"
+      }
+    }
+  },
+  "visualJudge": {
+    "verdict": "not_run",
+    "reason": "GOOGLE_GENERATIVE_AI_API_KEY is not set; deterministic browser/download/reopen/verifier proof passed."
+  },
+  "gatesProven": [
+    "fresh_room_join",
+    "official_fixture_upload",
+    "public_nodeagent_invocation",
+    "visible_streaming_progress",
+    "trace_video_artifacts",
+    "no_memory_mode_shortcut",
+    "focus_mode_enabled",
+    "focus_box_or_attention_overlay",
+    "agent_live_loop",
+    "agent_terminal_quality_gate",
+    "room_trace_visible",
+    "job_detail_visible",
+    "deliverable_export_download",
+    "artifact_reopen_validation",
+    "artifact_placeholder_scan",
+    "official_scorer_handoff"
+  ],
+  "passed": true
+}

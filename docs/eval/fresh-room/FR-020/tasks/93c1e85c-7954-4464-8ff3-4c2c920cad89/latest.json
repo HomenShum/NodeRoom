@@ -1,0 +1,209 @@
+{
+  "schema": 1,
+  "caseId": "FR-020",
+  "benchmark": "bankertoolbench",
+  "taskId": "93c1e85c-7954-4464-8ff3-4c2c920cad89",
+  "generatedAt": "2026-06-25T02:09:58.403Z",
+  "baseUrl": "http://127.0.0.1:5273",
+  "roomId": "NRGT9MT1Z07",
+  "roomUrl": "http://127.0.0.1:5273/?room=NRGT9MT1Z07&name=Host",
+  "command": "BTB_LIVE_ROOM_E2E=1 BTB_UI_BUNDLE_ROOT=<official-bundle> BTB_UI_VERIFIER_COMMAND=<verifier> BENCH_BASE_URL=<base> npx playwright test --config playwright.real-flow.config.ts e2e/benchmark-ui-bankertoolbench.spec.ts --headed",
+  "model": {
+    "requested": "specific",
+    "resolved": "z-ai/glm-5.2",
+    "routePolicy": "specific",
+    "runtimeProfile": "benchmark_completion",
+    "provider": "openrouter"
+  },
+  "prompt": "Official BankerToolBench task btb-93c1e85c: You are an analyst in the LevFin Industrial pod working on potential financing opportunities for Entegris. Your MD has asked you to analyze the Entegris Amended Credit and Guaranty Agreement, originally dated November 6, 2018 and subsequently amended and restated as of July 6, 2022 and further amended on March 10, 2023, September 11, 2023, and March 28, 2024 (the \"Amended Credit Agreement\" or \"CA\"), and to prepare a summary outlining the current headroom of the covenant baskets for Secured Debt, Restricted Payments, and Investments. The summary should be presented on a one-page PowerPoint slide for inclusion in a larger deal book, supported by a back-up Excel workbook with the detailed calculations.\n\n**PowerPoint Slide**\n\nThe slide should use a widescreen layout. The top of the slide should have a dark navy header bar spanning the full width, containing a conclusion-driven headline in white bold 14pt Calibri that states the key takeaway (e.g., dollar amount of ratio debt capacity and status of the RP basket), not a topic headline. Place a \"Confidential\" label in gray italic 8pt text in the upper right corner of the header bar.\n\nBelow the header, the slide is divided into two side-b",
+  "memoryMode": false,
+  "freshness": {
+    "roomCreatedAfterRunStart": true,
+    "forbiddenPreloadedArtifactsAbsent": true,
+    "artifactsCreatedFresh": [
+      "btb-93c1e85c-btb-btb-93c1e85c-wacc-analysis-for-ca-rp-if.xlsx",
+      "btb-93c1e85c-btb-btb-93c1e85c-wacc-analysis-for-ca-rp-if.xlsm",
+      "btb-93c1e85c-btb-btb-93c1e85c-wacc-analysis-for-ca-rp-if.pptx",
+      "btb-93c1e85c-btb-btb-93c1e85c-wacc-analysis-for-ca-rp-if.docx",
+      "btb-93c1e85c-btb-btb-93c1e85c-wacc-analysis-for-ca-rp-if.pdf"
+    ],
+    "uploadedFiles": [
+      "10K-2024.pdf",
+      "betas_by_industry_category_for_WACC.xlsx",
+      "Credit Agreement Amendment 2024.pdf",
+      "Credit and Guarantee Agreement 2018.pdf",
+      "Equity_Risk_Premium_for_WACC.xlsx",
+      "Q4 2024 Earnings Release.pdf",
+      "btb-93c1e85c-official-task-brief.txt"
+    ]
+  },
+  "ui": {
+    "focusModeEnabled": true,
+    "attentionOverlayVisible": true,
+    "streamingVisible": true,
+    "jobDetailVisible": true,
+    "roomTraceVisible": true,
+    "screenshotPaths": [
+      "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\93c1e85c-7954-4464-8ff3-4c2c920cad89\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\bankertoolbench-live-room.png"
+    ],
+    "tracePath": "docs\\eval\\bankertoolbench\\live-room\\93c1e85c-7954-4464-8ff3-4c2c920cad89.json"
+  },
+  "artifacts": {
+    "uploadedFiles": [
+      "10K-2024.pdf",
+      "betas_by_industry_category_for_WACC.xlsx",
+      "Credit Agreement Amendment 2024.pdf",
+      "Credit and Guarantee Agreement 2018.pdf",
+      "Equity_Risk_Premium_for_WACC.xlsx",
+      "Q4 2024 Earnings Release.pdf",
+      "btb-93c1e85c-official-task-brief.txt"
+    ],
+    "created": [
+      "btb-93c1e85c-btb-btb-93c1e85c-wacc-analysis-for-ca-rp-if.xlsx",
+      "btb-93c1e85c-btb-btb-93c1e85c-wacc-analysis-for-ca-rp-if.xlsm",
+      "btb-93c1e85c-btb-btb-93c1e85c-wacc-analysis-for-ca-rp-if.pptx",
+      "btb-93c1e85c-btb-btb-93c1e85c-wacc-analysis-for-ca-rp-if.docx",
+      "btb-93c1e85c-btb-btb-93c1e85c-wacc-analysis-for-ca-rp-if.pdf"
+    ],
+    "exportedFiles": [
+      {
+        "kind": "workbook",
+        "filename": "btb-93c1e85c-btb-btb-93c1e85c-wacc-analysis-for-ca-rp-if.xlsx",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\93c1e85c-7954-4464-8ff3-4c2c920cad89\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-93c1e85c-btb-btb-93c1e85c-wacc-analysis-for-ca-rp-if.xlsx",
+        "extension": ".xlsx",
+        "downloaded": true,
+        "bytes": 7701,
+        "magic": "PK\\x03\\x04"
+      },
+      {
+        "kind": "workbook",
+        "filename": "btb-93c1e85c-btb-btb-93c1e85c-wacc-analysis-for-ca-rp-if.xlsm",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\93c1e85c-7954-4464-8ff3-4c2c920cad89\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-93c1e85c-btb-btb-93c1e85c-wacc-analysis-for-ca-rp-if.xlsm",
+        "extension": ".xlsm",
+        "downloaded": true,
+        "bytes": 7701,
+        "magic": "PK\\x03\\x04"
+      },
+      {
+        "kind": "presentation",
+        "filename": "btb-93c1e85c-btb-btb-93c1e85c-wacc-analysis-for-ca-rp-if.pptx",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\93c1e85c-7954-4464-8ff3-4c2c920cad89\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-93c1e85c-btb-btb-93c1e85c-wacc-analysis-for-ca-rp-if.pptx",
+        "extension": ".pptx",
+        "downloaded": true,
+        "bytes": 6408,
+        "magic": "PK\\x03\\x04"
+      },
+      {
+        "kind": "document",
+        "filename": "btb-93c1e85c-btb-btb-93c1e85c-wacc-analysis-for-ca-rp-if.docx",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\93c1e85c-7954-4464-8ff3-4c2c920cad89\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-93c1e85c-btb-btb-93c1e85c-wacc-analysis-for-ca-rp-if.docx",
+        "extension": ".docx",
+        "downloaded": true,
+        "bytes": 2526,
+        "magic": "PK\\x03\\x04"
+      },
+      {
+        "kind": "pdf",
+        "filename": "btb-93c1e85c-btb-btb-93c1e85c-wacc-analysis-for-ca-rp-if.pdf",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\93c1e85c-7954-4464-8ff3-4c2c920cad89\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-93c1e85c-btb-btb-93c1e85c-wacc-analysis-for-ca-rp-if.pdf",
+        "extension": ".pdf",
+        "downloaded": true,
+        "bytes": 3245,
+        "magic": "%PDF"
+      }
+    ],
+    "reopenedFiles": [
+      {
+        "kind": "workbook",
+        "filename": "btb-93c1e85c-btb-btb-93c1e85c-wacc-analysis-for-ca-rp-if.xlsx",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "ZIP package contains xl/workbook.xml; placeholder/caveat content scan passed (1631 chars)"
+      },
+      {
+        "kind": "workbook",
+        "filename": "btb-93c1e85c-btb-btb-93c1e85c-wacc-analysis-for-ca-rp-if.xlsm",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "ZIP package contains xl/workbook.xml; placeholder/caveat content scan passed (1631 chars)"
+      },
+      {
+        "kind": "presentation",
+        "filename": "btb-93c1e85c-btb-btb-93c1e85c-wacc-analysis-for-ca-rp-if.pptx",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "ZIP package contains ppt/presentation.xml; placeholder/caveat content scan passed (1213 chars)"
+      },
+      {
+        "kind": "document",
+        "filename": "btb-93c1e85c-btb-btb-93c1e85c-wacc-analysis-for-ca-rp-if.docx",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "ZIP package contains word/document.xml; placeholder/caveat content scan passed (2464 chars)"
+      },
+      {
+        "kind": "pdf",
+        "filename": "btb-93c1e85c-btb-btb-93c1e85c-wacc-analysis-for-ca-rp-if.pdf",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "PDF header reopened; placeholder/caveat content scan passed (5968 chars)"
+      }
+    ]
+  },
+  "scorer": {
+    "name": "BankerToolBench proof verifier",
+    "command": "npm run benchmark:bankertoolbench:proof",
+    "verdict": "pass",
+    "score": 1,
+    "details": {
+      "verifierOutputTail": "\n> noderoom@0.1.1 benchmark:bankertoolbench:proof\n> tsx scripts/bankertoolbench-proof-check.ts\n\nBankerToolBench proof check passed: stage=1/1 weightedRubric=6 run=0/1 pass positive=1/1 pass candidateBeforeEvaluator=true leaks=0/2+0/3+0/4\n",
+      "packageManifestPath": "test-results\\bankertoolbench\\matrix\\93c1e85c-7954-4464-8ff3-4c2c920cad89\\package-manifest.json",
+      "downloadedExtensions": [
+        ".xlsx",
+        ".xlsm",
+        ".pptx",
+        ".docx",
+        ".pdf"
+      ],
+      "exportSource": "browser_download_link",
+      "agentTerminalQuality": {
+        "statusText": "completed via recovered Convex job: or-ca-rp-if.xlsm, btb-93c1e85c-btb-btb-93c1e85c-wacc-analysis-for-ca-rp-if.pptx, btb-93c1e85c-btb-btb-93c1e85c-wacc-analysis-for-ca-rp-if.docx, btb-93c1e85c-btb-btb-93c1e85c-wacc-analysis-for-ca-rp-if.pdf. Coverage confirmed for CA, RP, IF.",
+        "evidenceTextLength": 2133,
+        "detail": "agent reached completed status or visible completion text, with no missing-source/unfinished-work caveats"
+      },
+      "taskCoverage": {
+        "ok": true,
+        "requiredTickers": [
+          "CA",
+          "RP",
+          "IF"
+        ],
+        "missingTickers": [],
+        "detail": "generated package mentions every requested ticker/entity: CA, RP, IF"
+      }
+    }
+  },
+  "visualJudge": {
+    "verdict": "not_run",
+    "reason": "GOOGLE_GENERATIVE_AI_API_KEY is not set; deterministic browser/download/reopen/verifier proof passed."
+  },
+  "gatesProven": [
+    "fresh_room_join",
+    "official_fixture_upload",
+    "public_nodeagent_invocation",
+    "visible_streaming_progress",
+    "trace_video_artifacts",
+    "no_memory_mode_shortcut",
+    "focus_mode_enabled",
+    "focus_box_or_attention_overlay",
+    "agent_live_loop",
+    "agent_terminal_quality_gate",
+    "room_trace_visible",
+    "job_detail_visible",
+    "deliverable_export_download",
+    "artifact_reopen_validation",
+    "artifact_placeholder_scan",
+    "official_scorer_handoff"
+  ],
+  "passed": true
+}

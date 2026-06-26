@@ -1,0 +1,100 @@
+{
+  "schema": 1,
+  "taskId": "8eb06eaf-d2ce-4f86-9239-d4a10bc72cf6",
+  "harborTaskId": "btb-8eb06eaf",
+  "generatedAt": "2026-06-25T02:05:34.425Z",
+  "baseUrl": "http://127.0.0.1:5273",
+  "roomUrl": "http://127.0.0.1:5273/?room=NR0EXG4Y7S4&name=Host",
+  "memoryMode": false,
+  "expectedExtensions": [
+    ".xlsx",
+    ".xlsm",
+    ".pptx",
+    ".docx",
+    ".pdf"
+  ],
+  "visibleExtensions": [
+    ".xlsx",
+    ".xlsm",
+    ".pptx",
+    ".docx",
+    ".pdf"
+  ],
+  "downloadedFiles": [
+    {
+      "kind": "workbook",
+      "filename": "btb-8eb06eaf-cake-lbo-analysis-pe-sponsor-returns-model.xlsx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\8eb06eaf-d2ce-4f86-9239-d4a10bc72cf6\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier-retry1\\btb-xlsx-btb-8eb06eaf-cake-lbo-analysis-pe-sponsor-returns-model.xlsx",
+      "extension": ".xlsx",
+      "bytes": 9228,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j979newc00z9rb2ngkstv75g8n89bdn3",
+      "contentQualityDetail": "placeholder/caveat content scan passed (3819 chars)"
+    },
+    {
+      "kind": "workbook",
+      "filename": "btb-8eb06eaf-cake-lbo-analysis-pe-sponsor-returns-model.xlsm",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\8eb06eaf-d2ce-4f86-9239-d4a10bc72cf6\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier-retry1\\btb-xlsm-btb-8eb06eaf-cake-lbo-analysis-pe-sponsor-returns-model.xlsm",
+      "extension": ".xlsm",
+      "bytes": 9228,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j97df150cayw1qc4ky0wnez78d89bksp",
+      "contentQualityDetail": "placeholder/caveat content scan passed (3819 chars)"
+    },
+    {
+      "kind": "presentation",
+      "filename": "btb-8eb06eaf-cake-lbo-analysis-pe-sponsor-returns-model.pptx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\8eb06eaf-d2ce-4f86-9239-d4a10bc72cf6\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier-retry1\\btb-pptx-btb-8eb06eaf-cake-lbo-analysis-pe-sponsor-returns-model.pptx",
+      "extension": ".pptx",
+      "bytes": 6779,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains ppt/presentation.xml; recovered from Convex room artifact j97aqst1fdqvkvb91jsk7jghe589bky7",
+      "contentQualityDetail": "placeholder/caveat content scan passed (1740 chars)"
+    },
+    {
+      "kind": "document",
+      "filename": "btb-8eb06eaf-cake-lbo-analysis-pe-sponsor-returns-model.docx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\8eb06eaf-d2ce-4f86-9239-d4a10bc72cf6\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier-retry1\\btb-docx-btb-8eb06eaf-cake-lbo-analysis-pe-sponsor-returns-model.docx",
+      "extension": ".docx",
+      "bytes": 3097,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains word/document.xml; recovered from Convex room artifact j973y55k0cpkk5frc13s9egw9h89a7hc",
+      "contentQualityDetail": "placeholder/caveat content scan passed (2553 chars)"
+    },
+    {
+      "kind": "pdf",
+      "filename": "btb-8eb06eaf-cake-lbo-analysis-pe-sponsor-returns-model.pdf",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\8eb06eaf-d2ce-4f86-9239-d4a10bc72cf6\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier-retry1\\btb-pdf-btb-8eb06eaf-cake-lbo-analysis-pe-sponsor-returns-model.pdf",
+      "extension": ".pdf",
+      "bytes": 2690,
+      "magic": "%PDF",
+      "reopened": true,
+      "reopenDetail": "PDF header reopened; recovered from Convex room artifact j97esnsy5ac8cz5f0y9k5hvcc189b643",
+      "contentQualityDetail": "placeholder/caveat content scan passed (4828 chars)"
+    }
+  ],
+  "packageManifestPath": "test-results\\bankertoolbench\\matrix\\8eb06eaf-d2ce-4f86-9239-d4a10bc72cf6\\package-manifest.json",
+  "verifierCommand": "npm run benchmark:bankertoolbench:proof",
+  "verifierOutputTail": "\n> noderoom@0.1.1 benchmark:bankertoolbench:proof\n> tsx scripts/bankertoolbench-proof-check.ts\n\nBankerToolBench proof check passed: stage=1/1 weightedRubric=6 run=0/1 pass positive=1/1 pass candidateBeforeEvaluator=true leaks=0/2+0/3+0/4\n",
+  "screenshot": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\8eb06eaf-d2ce-4f86-9239-d4a10bc72cf6\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier-retry1\\bankertoolbench-live-room.png",
+  "passed": true,
+  "gatesProven": [
+    "fresh_room_join",
+    "official_fixture_upload",
+    "public_nodeagent_invocation",
+    "visible_streaming_progress",
+    "focus_mode_enabled",
+    "focus_box_or_attention_overlay",
+    "agent_terminal_quality_gate",
+    "deliverable_export_download",
+    "artifact_reopen_validation",
+    "artifact_placeholder_scan",
+    "official_scorer_handoff",
+    "trace_video_artifacts",
+    "no_memory_mode_shortcut"
+  ]
+}

@@ -1,0 +1,222 @@
+{
+  "schema": 1,
+  "caseId": "FR-020",
+  "benchmark": "bankertoolbench",
+  "taskId": "8a19d926-4db7-4068-aabd-6b34bf965f16",
+  "generatedAt": "2026-06-25T02:28:23.022Z",
+  "baseUrl": "http://127.0.0.1:5273",
+  "roomId": "NRO08PQR0FS",
+  "roomUrl": "http://127.0.0.1:5273/?room=NRO08PQR0FS&name=Host",
+  "command": "BTB_LIVE_ROOM_E2E=1 BTB_UI_BUNDLE_ROOT=<official-bundle> BTB_UI_VERIFIER_COMMAND=<verifier> BENCH_BASE_URL=<base> npx playwright test --config playwright.real-flow.config.ts e2e/benchmark-ui-bankertoolbench.spec.ts --headed",
+  "model": {
+    "requested": "specific",
+    "resolved": "z-ai/glm-5.2",
+    "routePolicy": "specific",
+    "runtimeProfile": "benchmark_completion",
+    "provider": "openrouter"
+  },
+  "prompt": "Official BankerToolBench task btb-8a19d926: Build an integrated three-statement operating model (Income Statement, Balance Sheet, Cash Flow Statement) with a debt schedule and DCF valuation using both mid-year and full-year conventions. All three sheets should be in one workbook.\nFormatting\nAll values are in thousands. Format currency with $ and 0 decimals, except per-share metrics which use 2 decimals. Percentages use 1 decimal. Multiples use 1 decimal with an \"x\" suffix. Share counts, options, and warrants use 0 decimals. Beta, discount periods, and working capital days use 1 decimal. Expenses, outflows, and deductions are negative and shown in parentheses. Margins and % of revenue metrics are always shown as positive percentages. Missing prior-year metrics (e.g., growth with no prior year) should be left blank — not zero, not a dash. Zeros should remain numeric zeros in the applicable cell format.\nFont colors: blue for hardcoded inputs, black for same-sheet formulas, green for cross-sheet references, and white for the base-case implied share price displayed adjacent to the sensitivity tables.\nBold the following line items: EBIT, EBT, Net Income, EBITDA, Total Assets, Total Liabilities, CFO, CFI, CFF, End PP&E, Cash Flow A",
+  "memoryMode": false,
+  "freshness": {
+    "roomCreatedAfterRunStart": true,
+    "forbiddenPreloadedArtifactsAbsent": true,
+    "artifactsCreatedFresh": [
+      "btb-8a19d926-cf-us-dcf-valuation-wacc-analysis-ebt-cfi-cff-fcf-ntm-pp.xlsx",
+      "btb-8a19d926-cf-us-dcf-valuation-wacc-analysis-ebt-cfi-cff-fcf-ntm-pp.xlsm",
+      "btb-8a19d926-cf-us-dcf-valuation-wacc-analysis-ebt-cfi-cff-fcf-ntm-pp.pptx",
+      "btb-8a19d926-cf-us-dcf-valuation-wacc-analysis-ebt-cfi-cff-fcf-ntm-pp.docx",
+      "btb-8a19d926-cf-us-dcf-valuation-wacc-analysis-ebt-cfi-cff-fcf-ntm-pp.pdf"
+    ],
+    "uploadedFiles": [
+      "betas_by_industry_category_for_WACC.xlsx",
+      "Equity_Risk_Premium_for_WACC.xlsx",
+      "CF-US Company Identity.xlsx",
+      "CF-US Income Statement Annual.xlsx",
+      "CF-US Balance Sheet Annual.xlsx",
+      "CF-US Cash Flow Annual.xlsx",
+      "CF-US Shares Outstanding.xlsx",
+      "CF-US Price History.xlsx",
+      "CF-US Revenue Estimate.xlsx",
+      "CF-US Earnings Estimate.xlsx",
+      "btb-8a19d926-official-task-brief.txt"
+    ]
+  },
+  "ui": {
+    "focusModeEnabled": true,
+    "attentionOverlayVisible": true,
+    "streamingVisible": true,
+    "jobDetailVisible": true,
+    "roomTraceVisible": true,
+    "screenshotPaths": [
+      "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\8a19d926-4db7-4068-aabd-6b34bf965f16\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\bankertoolbench-live-room.png"
+    ],
+    "tracePath": "docs\\eval\\bankertoolbench\\live-room\\8a19d926-4db7-4068-aabd-6b34bf965f16.json"
+  },
+  "artifacts": {
+    "uploadedFiles": [
+      "betas_by_industry_category_for_WACC.xlsx",
+      "Equity_Risk_Premium_for_WACC.xlsx",
+      "CF-US Company Identity.xlsx",
+      "CF-US Income Statement Annual.xlsx",
+      "CF-US Balance Sheet Annual.xlsx",
+      "CF-US Cash Flow Annual.xlsx",
+      "CF-US Shares Outstanding.xlsx",
+      "CF-US Price History.xlsx",
+      "CF-US Revenue Estimate.xlsx",
+      "CF-US Earnings Estimate.xlsx",
+      "btb-8a19d926-official-task-brief.txt"
+    ],
+    "created": [
+      "btb-8a19d926-cf-us-dcf-valuation-wacc-analysis-ebt-cfi-cff-fcf-ntm-pp.xlsx",
+      "btb-8a19d926-cf-us-dcf-valuation-wacc-analysis-ebt-cfi-cff-fcf-ntm-pp.xlsm",
+      "btb-8a19d926-cf-us-dcf-valuation-wacc-analysis-ebt-cfi-cff-fcf-ntm-pp.pptx",
+      "btb-8a19d926-cf-us-dcf-valuation-wacc-analysis-ebt-cfi-cff-fcf-ntm-pp.docx",
+      "btb-8a19d926-cf-us-dcf-valuation-wacc-analysis-ebt-cfi-cff-fcf-ntm-pp.pdf"
+    ],
+    "exportedFiles": [
+      {
+        "kind": "workbook",
+        "filename": "btb-8a19d926-cf-us-dcf-valuation-wacc-analysis-ebt-cfi-cff-fcf-ntm-pp.xlsx",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\8a19d926-4db7-4068-aabd-6b34bf965f16\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-8a19d926-cf-us-dcf-valuation-wacc-analysis-ebt-cfi-cff-fcf-ntm-pp.xlsx",
+        "extension": ".xlsx",
+        "downloaded": true,
+        "bytes": 10080,
+        "magic": "PK\\x03\\x04"
+      },
+      {
+        "kind": "workbook",
+        "filename": "btb-8a19d926-cf-us-dcf-valuation-wacc-analysis-ebt-cfi-cff-fcf-ntm-pp.xlsm",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\8a19d926-4db7-4068-aabd-6b34bf965f16\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-8a19d926-cf-us-dcf-valuation-wacc-analysis-ebt-cfi-cff-fcf-ntm-pp.xlsm",
+        "extension": ".xlsm",
+        "downloaded": true,
+        "bytes": 10080,
+        "magic": "PK\\x03\\x04"
+      },
+      {
+        "kind": "presentation",
+        "filename": "btb-8a19d926-cf-us-dcf-valuation-wacc-analysis-ebt-cfi-cff-fcf-ntm-pp.pptx",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\8a19d926-4db7-4068-aabd-6b34bf965f16\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-8a19d926-cf-us-dcf-valuation-wacc-analysis-ebt-cfi-cff-fcf-ntm-pp.pptx",
+        "extension": ".pptx",
+        "downloaded": true,
+        "bytes": 7071,
+        "magic": "PK\\x03\\x04"
+      },
+      {
+        "kind": "document",
+        "filename": "btb-8a19d926-cf-us-dcf-valuation-wacc-analysis-ebt-cfi-cff-fcf-ntm-pp.docx",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\8a19d926-4db7-4068-aabd-6b34bf965f16\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-8a19d926-cf-us-dcf-valuation-wacc-analysis-ebt-cfi-cff-fcf-ntm-pp.docx",
+        "extension": ".docx",
+        "downloaded": true,
+        "bytes": 3813,
+        "magic": "PK\\x03\\x04"
+      },
+      {
+        "kind": "pdf",
+        "filename": "btb-8a19d926-cf-us-dcf-valuation-wacc-analysis-ebt-cfi-cff-fcf-ntm-pp.pdf",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\8a19d926-4db7-4068-aabd-6b34bf965f16\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-8a19d926-cf-us-dcf-valuation-wacc-analysis-ebt-cfi-cff-fcf-ntm-pp.pdf",
+        "extension": ".pdf",
+        "downloaded": true,
+        "bytes": 3083,
+        "magic": "%PDF"
+      }
+    ],
+    "reopenedFiles": [
+      {
+        "kind": "workbook",
+        "filename": "btb-8a19d926-cf-us-dcf-valuation-wacc-analysis-ebt-cfi-cff-fcf-ntm-pp.xlsx",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "ZIP package contains xl/workbook.xml; placeholder/caveat content scan passed (5587 chars)"
+      },
+      {
+        "kind": "workbook",
+        "filename": "btb-8a19d926-cf-us-dcf-valuation-wacc-analysis-ebt-cfi-cff-fcf-ntm-pp.xlsm",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "ZIP package contains xl/workbook.xml; placeholder/caveat content scan passed (5587 chars)"
+      },
+      {
+        "kind": "presentation",
+        "filename": "btb-8a19d926-cf-us-dcf-valuation-wacc-analysis-ebt-cfi-cff-fcf-ntm-pp.pptx",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "ZIP package contains ppt/presentation.xml; placeholder/caveat content scan passed (2652 chars)"
+      },
+      {
+        "kind": "document",
+        "filename": "btb-8a19d926-cf-us-dcf-valuation-wacc-analysis-ebt-cfi-cff-fcf-ntm-pp.docx",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "ZIP package contains word/document.xml; placeholder/caveat content scan passed (4724 chars)"
+      },
+      {
+        "kind": "pdf",
+        "filename": "btb-8a19d926-cf-us-dcf-valuation-wacc-analysis-ebt-cfi-cff-fcf-ntm-pp.pdf",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "PDF header reopened; placeholder/caveat content scan passed (5647 chars)"
+      }
+    ]
+  },
+  "scorer": {
+    "name": "BankerToolBench proof verifier",
+    "command": "npm run benchmark:bankertoolbench:proof",
+    "verdict": "pass",
+    "score": 1,
+    "details": {
+      "verifierOutputTail": "\n> noderoom@0.1.1 benchmark:bankertoolbench:proof\n> tsx scripts/bankertoolbench-proof-check.ts\n\nBankerToolBench proof check passed: stage=1/1 weightedRubric=6 run=0/1 pass positive=1/1 pass candidateBeforeEvaluator=true leaks=0/2+0/3+0/4\n",
+      "packageManifestPath": "test-results\\bankertoolbench\\matrix\\8a19d926-4db7-4068-aabd-6b34bf965f16\\package-manifest.json",
+      "downloadedExtensions": [
+        ".xlsx",
+        ".xlsm",
+        ".pptx",
+        ".docx",
+        ".pdf"
+      ],
+      "exportSource": "browser_download_link",
+      "agentTerminalQuality": {
+        "statusText": "completed via recovered Convex job: bt-cfi-cff-fcf-ntm-pp.pptx, btb-8a19d926-cf-us-dcf-valuation-wacc-analysis-ebt-cfi-cff-fcf-ntm-pp.docx, btb-8a19d926-cf-us-dcf-valuation-wacc-analysis-ebt-cfi-cff-fcf-ntm-pp.pdf. Coverage confirmed for EBT, CFI, CFF, PP, WACC, FCF, CF, NTM.",
+        "evidenceTextLength": 2160,
+        "detail": "agent reached completed status; ignored stale progress caveat(s) after package proof: unfinished_continue"
+      },
+      "taskCoverage": {
+        "ok": true,
+        "requiredTickers": [
+          "EBT",
+          "CFI",
+          "CFF",
+          "PP",
+          "WACC",
+          "FCF",
+          "CF",
+          "NTM"
+        ],
+        "missingTickers": [],
+        "detail": "generated package mentions every requested ticker/entity: EBT, CFI, CFF, PP, WACC, FCF, CF, NTM"
+      }
+    }
+  },
+  "visualJudge": {
+    "verdict": "not_run",
+    "reason": "GOOGLE_GENERATIVE_AI_API_KEY is not set; deterministic browser/download/reopen/verifier proof passed."
+  },
+  "gatesProven": [
+    "fresh_room_join",
+    "official_fixture_upload",
+    "public_nodeagent_invocation",
+    "visible_streaming_progress",
+    "trace_video_artifacts",
+    "no_memory_mode_shortcut",
+    "focus_mode_enabled",
+    "focus_box_or_attention_overlay",
+    "agent_live_loop",
+    "agent_terminal_quality_gate",
+    "room_trace_visible",
+    "job_detail_visible",
+    "deliverable_export_download",
+    "artifact_reopen_validation",
+    "artifact_placeholder_scan",
+    "official_scorer_handoff"
+  ],
+  "passed": true
+}

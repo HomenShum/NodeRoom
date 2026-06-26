@@ -1,36 +1,114 @@
 {
-  "schemaVersion": 1,
+  "schema": 1,
   "caseId": "FR-010",
-  "status": "pending_official_benchmark_run",
-  "runtimeProfile": "fresh_room_live_browser",
-  "prompt": "Fresh-room live UI benchmark proof with authenticated capture",
-  "tracePath": null,
-  "videoPath": null,
-  "screenshotPaths": [],
-  "exportedFiles": [],
-  "reopenedFiles": [],
+  "benchmark": "spreadsheetbench-v1",
+  "taskId": "nb-01-company-profile",
+  "generatedAt": "2026-06-25T05:05:10.042Z",
+  "baseUrl": "http://127.0.0.1:5273",
+  "roomId": "NR2VJWHF8LX",
+  "roomUrl": "http://127.0.0.1:5273/?room=NR2VJWHF8LX&name=Host",
+  "command": "BENCH_BASE_URL=<base> npx playwright test --config playwright.real-flow.config.ts e2e/benchmark-ui-spreadsheetbench.spec.ts",
+  "model": {
+    "requested": "specific",
+    "resolved": "z-ai/glm-5.2",
+    "routePolicy": "specific",
+    "runtimeProfile": "benchmark_completion"
+  },
+  "prompt": "@nodeagent You have two uploaded source files in this room: source_financials.csv (columns year,revenue,cogs,net_income in $M) and source_shares.txt (shares_outstanding_millions). Read them, then WRITE the answers into the blank 'Sheet 1' grid using the cell-write tool (write_locked_cells). Put each metric NAME in column A and its numeric VALUE (number only) in column B, one metric per row: r1__A=revenue_growth_pct, r1__B=(latest revenue vs prior year, percent); r2__A=gross_margin_2024, r2__B=((revenue-cogs)/revenue*100 for 2024); r3__A=gross_margin_2025, r3__B=(same for 2025); r4__A=eps_2024, r4__B=(net_income/shares for 2024); r5__A=eps_2025, r5__B=(net_income/shares for 2025). Do not just explain in chat — actually write the five rows into Sheet 1.",
+  "memoryMode": false,
+  "freshness": {
+    "roomCreatedAfterRunStart": true,
+    "forbiddenPreloadedArtifactsAbsent": true,
+    "artifactsCreatedFresh": [
+      "Sheet 1",
+      "source_financials.csv",
+      "source_shares.txt",
+      "Sheet_1.xlsx"
+    ],
+    "uploadedFiles": [
+      "source_financials.csv",
+      "source_shares.txt"
+    ]
+  },
+  "ui": {
+    "focusModeEnabled": true,
+    "attentionOverlayVisible": true,
+    "streamingVisible": true,
+    "jobDetailVisible": true,
+    "roomTraceVisible": true,
+    "screenshotPaths": [
+      "docs\\eval\\fresh-room\\FR-010\\evidence\\spreadsheetbench-graded-sheet.png"
+    ],
+    "tracePath": "docs/eval/spreadsheetbench-live-room-proof.json",
+    "videoPaths": [
+      "docs\\eval\\fresh-room\\FR-010\\evidence\\video.webm"
+    ]
+  },
+  "artifacts": {
+    "uploadedFiles": [
+      "source_financials.csv",
+      "source_shares.txt"
+    ],
+    "created": [
+      "Sheet 1"
+    ],
+    "exportedFiles": [
+      {
+        "kind": "workbook",
+        "filename": "Sheet_1.xlsx",
+        "path": "docs\\eval\\fresh-room\\FR-010\\evidence\\spreadsheetbench-export.xlsx",
+        "extension": ".xlsx",
+        "downloaded": true,
+        "bytes": 6501,
+        "magic": "PK\\x03\\x04"
+      }
+    ],
+    "reopenedFiles": [
+      {
+        "kind": "workbook",
+        "filename": "Sheet_1.xlsx",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "gradeGolden reopened cells 5/5"
+      }
+    ]
+  },
   "scorer": {
-    "official": false,
-    "name": "pending",
-    "passed": false,
-    "outputPath": null
+    "name": "gradeGolden",
+    "command": "gradeGolden on reopened workbook",
+    "verdict": "pass",
+    "score": 1,
+    "details": {
+      "correct": 5,
+      "n": 5,
+      "fabrication": 0,
+      "flags": [],
+      "badFixtureRejected": true
+    }
   },
-  "costUsd": 0,
-  "latencyMs": 0,
-  "tokenUsage": {
-    "input": 0,
-    "output": 0
+  "visualJudge": {
+    "verdict": "not_run",
+    "reason": "GOOGLE_GENERATIVE_AI_API_KEY is not set; deterministic browser/export/scorer proof passed."
   },
-  "mutationCount": 0,
-  "proofSignals": {
-    "freshRoom": false,
-    "liveBrowser": false,
-    "memoryModeFalse": false,
-    "zeroFabrication": false,
-    "selfTestPassed": false,
-    "exportDownloaded": false,
-    "artifactReopened": false
+  "telemetry": {
+    "mutationCount": 5
   },
-  "pass": false,
-  "note": "Authenticated browser capture is now supported (visual-judge PR #2). Waiting on: (1) official BankerToolBench/SpreadsheetBench task bundles, (2) live Convex backend, (3) Gemini media judge for browser evidence, (4) export download and reopen validation. The demo room exists with --storage-state support for authenticated clips."
+  "gatesProven": [
+    "fresh_room_join",
+    "official_fixture_upload",
+    "public_nodeagent_invocation",
+    "visible_streaming_progress",
+    "trace_video_artifacts",
+    "no_memory_mode_shortcut",
+    "focus_mode_enabled",
+    "focus_box_or_attention_overlay",
+    "agent_live_loop",
+    "room_trace_visible",
+    "job_detail_visible",
+    "mutation_visible_in_artifact",
+    "deliverable_export_download",
+    "artifact_reopen_validation",
+    "official_scorer_handoff"
+  ],
+  "passed": true
 }

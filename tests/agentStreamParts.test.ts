@@ -64,6 +64,104 @@ describe("NodeAgent unified stream parts", () => {
     expect(events.find((event) => event.kind === "tool_call_result")).toMatchObject({ status: "completed", output: { ok: true, count: 1 } });
   });
 
+  it("does not mark successful tool results failed just because error is undefined", async () => {
+    const events: AgentStreamEventDraft[] = [];
+    const model: AgentModel = {
+      name: "scripted-undefined-error-test",
+      async next() {
+        return {
+          text: "capturing",
+          toolCalls: [{ id: "call-capture", tool: "capture_source", args: { url: "https://example.com" } }],
+          done: false,
+          usage: { inputTokens: 1, outputTokens: 1 },
+        };
+      },
+    };
+    const tools: AgentTool[] = [{
+      name: "capture_source",
+      description: "Capture source",
+      schema: z.object({ url: z.string() }),
+      execute: async () => ({ ok: true, data: { value: 42 }, error: undefined }),
+    }];
+
+    const result = await runAgent({
+      rt: {} as never,
+      goal: "capture source",
+      model,
+      tools,
+      maxSteps: 1,
+      initialMessages: [{ role: "user", content: "capture source" }],
+      onStreamEvent: (event) => { events.push(event); },
+    });
+
+    expect(result.stopReason).toBe("step_budget");
+    expect(events.find((event) => event.kind === "tool_call_result")).toMatchObject({
+      status: "completed",
+      output: { ok: true, data: { value: 42 }, error: undefined },
+    });
+  });
+
+  it("feeds invalid tool arguments back as recoverable structured errors", async () => {
+    const events: AgentStreamEventDraft[] = [];
+    let turn = 0;
+    const seenToolMessages: string[] = [];
+    const model: AgentModel = {
+      name: "scripted-invalid-tool-recovery-test",
+      async next({ messages }) {
+        turn++;
+        seenToolMessages.push(...messages.filter((message) => message.role === "tool").map((message) => message.content));
+        if (turn === 1) {
+          return {
+            text: "I will search the sheet.",
+            toolCalls: [{ id: "call-bad-search", tool: "search_sheet_context", args: {} }],
+            done: false,
+            usage: { inputTokens: 1, outputTokens: 1 },
+          };
+        }
+        if (turn === 2) {
+          return {
+            text: "Retrying with the missing query.",
+            toolCalls: [{ id: "call-good-search", tool: "search_sheet_context", args: { query: "revenue growth" } }],
+            done: false,
+            usage: { inputTokens: 1, outputTokens: 1 },
+          };
+        }
+        return { text: "Recovered.", toolCalls: [], done: true, usage: { inputTokens: 1, outputTokens: 1 } };
+      },
+    };
+    const tools: AgentTool[] = [{
+      name: "search_sheet_context",
+      description: "Search sheet context",
+      schema: z.object({ query: z.string() }),
+      execute: async (args) => ({ ok: true, query: args.query }),
+    }];
+
+    const result = await runAgent({
+      rt: {} as never,
+      goal: "search revenue growth",
+      model,
+      tools,
+      maxSteps: 3,
+      initialMessages: [{ role: "user", content: "search revenue growth" }],
+      onStreamEvent: (event) => { events.push(event); },
+    });
+
+    expect(result.stopReason).toBe("done");
+    expect(result.trace[0]?.result).toMatchObject({
+      ok: false,
+      error: "tool_argument_error",
+      failureKind: "missing_required_arg",
+      missingRequiredArgs: ["query"],
+      recovery: { action: "retry_tool_call" },
+    });
+    expect(result.trace[1]?.result).toMatchObject({ ok: true, query: "revenue growth" });
+    expect(seenToolMessages.join("\n")).toContain("tool_argument_error");
+    expect(events.find((event) => event.kind === "tool_call_result" && event.toolCallId === "call-bad-search")).toMatchObject({
+      status: "failed",
+      output: expect.objectContaining({ failureKind: "missing_required_arg" }),
+    });
+  });
+
   it("reconciles final text when message_done contains a longer materialized answer", () => {
     const parts = buildUnifiedAgentStreamParts([
       { sequence: 1, kind: "text_delta", text: "Partial", status: "streaming", createdAt: 1 },

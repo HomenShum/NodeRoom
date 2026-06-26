@@ -1,0 +1,100 @@
+{
+  "schema": 1,
+  "taskId": "41e130fe-89f0-4b2b-97ee-d727e1fa0afd",
+  "harborTaskId": "btb-41e130fe",
+  "generatedAt": "2026-06-25T02:39:55.081Z",
+  "baseUrl": "http://127.0.0.1:5273",
+  "roomUrl": "http://127.0.0.1:5273/?room=NRCTK94365U&name=Host",
+  "memoryMode": false,
+  "expectedExtensions": [
+    ".xlsx",
+    ".xlsm",
+    ".pptx",
+    ".docx",
+    ".pdf"
+  ],
+  "visibleExtensions": [
+    ".xlsx",
+    ".xlsm",
+    ".pptx",
+    ".docx",
+    ".pdf"
+  ],
+  "downloadedFiles": [
+    {
+      "kind": "workbook",
+      "filename": "btb-41e130fe-btb-41e130fe-mega-cap-technology-comparable-company-analysis-msft-amzn-nvda-aapl-is.xlsx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\41e130fe-89f0-4b2b-97ee-d727e1fa0afd\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-41e130fe-btb-41e130fe-mega-cap-technology-comparable-company-analysis-msft-amzn-nvda-aapl-is.xlsx",
+      "extension": ".xlsx",
+      "bytes": 7530,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j97b6taaasknhesm0ydh0jbg2n89bbv7",
+      "contentQualityDetail": "placeholder/caveat content scan passed (1572 chars)"
+    },
+    {
+      "kind": "workbook",
+      "filename": "btb-41e130fe-btb-41e130fe-mega-cap-technology-comparable-company-analysis-msft-amzn-nvda-aapl-is.xlsm",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\41e130fe-89f0-4b2b-97ee-d727e1fa0afd\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-41e130fe-btb-41e130fe-mega-cap-technology-comparable-company-analysis-msft-amzn-nvda-aapl-is.xlsm",
+      "extension": ".xlsm",
+      "bytes": 7530,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j979anhzaqrnntgwe02z7g5t4989b6bh",
+      "contentQualityDetail": "placeholder/caveat content scan passed (1572 chars)"
+    },
+    {
+      "kind": "presentation",
+      "filename": "btb-41e130fe-btb-41e130fe-mega-cap-technology-comparable-company-analysis-msft-amzn-nvda-aapl-is.pptx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\41e130fe-89f0-4b2b-97ee-d727e1fa0afd\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-41e130fe-btb-41e130fe-mega-cap-technology-comparable-company-analysis-msft-amzn-nvda-aapl-is.pptx",
+      "extension": ".pptx",
+      "bytes": 6434,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains ppt/presentation.xml; recovered from Convex room artifact j97bpw5sz04fsc12sac39tn9x589b2c4",
+      "contentQualityDetail": "placeholder/caveat content scan passed (1344 chars)"
+    },
+    {
+      "kind": "document",
+      "filename": "btb-41e130fe-btb-41e130fe-mega-cap-technology-comparable-company-analysis-msft-amzn-nvda-aapl-is.docx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\41e130fe-89f0-4b2b-97ee-d727e1fa0afd\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-41e130fe-btb-41e130fe-mega-cap-technology-comparable-company-analysis-msft-amzn-nvda-aapl-is.docx",
+      "extension": ".docx",
+      "bytes": 2646,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains word/document.xml; recovered from Convex room artifact j970amqa39pbzdxdgvcx52fe7s89b5cd",
+      "contentQualityDetail": "placeholder/caveat content scan passed (2155 chars)"
+    },
+    {
+      "kind": "pdf",
+      "filename": "btb-41e130fe-btb-41e130fe-mega-cap-technology-comparable-company-analysis-msft-amzn-nvda-aapl-is.pdf",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\41e130fe-89f0-4b2b-97ee-d727e1fa0afd\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-41e130fe-btb-41e130fe-mega-cap-technology-comparable-company-analysis-msft-amzn-nvda-aapl-is.pdf",
+      "extension": ".pdf",
+      "bytes": 2305,
+      "magic": "%PDF",
+      "reopened": true,
+      "reopenDetail": "PDF header reopened; recovered from Convex room artifact j973yxem3dka4zpk1a06s96jbn89b2k9",
+      "contentQualityDetail": "placeholder/caveat content scan passed (4089 chars)"
+    }
+  ],
+  "packageManifestPath": "test-results\\bankertoolbench\\matrix\\41e130fe-89f0-4b2b-97ee-d727e1fa0afd\\package-manifest.json",
+  "verifierCommand": "npm run benchmark:bankertoolbench:proof",
+  "verifierOutputTail": "\n> noderoom@0.1.1 benchmark:bankertoolbench:proof\n> tsx scripts/bankertoolbench-proof-check.ts\n\nBankerToolBench proof check passed: stage=1/1 weightedRubric=6 run=0/1 pass positive=1/1 pass candidateBeforeEvaluator=true leaks=0/2+0/3+0/4\n",
+  "screenshot": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\41e130fe-89f0-4b2b-97ee-d727e1fa0afd\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\bankertoolbench-live-room.png",
+  "passed": true,
+  "gatesProven": [
+    "fresh_room_join",
+    "official_fixture_upload",
+    "public_nodeagent_invocation",
+    "visible_streaming_progress",
+    "focus_mode_enabled",
+    "focus_box_or_attention_overlay",
+    "agent_terminal_quality_gate",
+    "deliverable_export_download",
+    "artifact_reopen_validation",
+    "artifact_placeholder_scan",
+    "official_scorer_handoff",
+    "trace_video_artifacts",
+    "no_memory_mode_shortcut"
+  ]
+}

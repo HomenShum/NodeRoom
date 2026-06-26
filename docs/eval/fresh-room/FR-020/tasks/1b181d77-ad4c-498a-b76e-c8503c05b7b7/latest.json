@@ -1,0 +1,222 @@
+{
+  "schema": 1,
+  "caseId": "FR-020",
+  "benchmark": "bankertoolbench",
+  "taskId": "1b181d77-ad4c-498a-b76e-c8503c05b7b7",
+  "generatedAt": "2026-06-25T02:00:02.923Z",
+  "baseUrl": "http://127.0.0.1:5273",
+  "roomId": "NRTETCDQ453",
+  "roomUrl": "http://127.0.0.1:5273/?room=NRTETCDQ453&name=Host",
+  "command": "BTB_LIVE_ROOM_E2E=1 BTB_UI_BUNDLE_ROOT=<official-bundle> BTB_UI_VERIFIER_COMMAND=<verifier> BENCH_BASE_URL=<base> npx playwright test --config playwright.real-flow.config.ts e2e/benchmark-ui-bankertoolbench.spec.ts --headed",
+  "model": {
+    "requested": "specific",
+    "resolved": "z-ai/glm-5.2",
+    "routePolicy": "specific",
+    "runtimeProfile": "benchmark_completion",
+    "provider": "openrouter"
+  },
+  "prompt": "Official BankerToolBench task btb-1b181d77: Please deliver a single-slide PPT and its corresponding PDF that includes a clean terms summary of Bank of America Corporation's (NYSE: BAC) April 2023 senior notes offering. Please only include the two tranches below (both priced on April 19, 2023): \n-        The 5.202% Fixed/Floating Rate Senior Notes due April 2029 (CUSIP: 06051GLG2)\n-        The 5.288% Fixed/Floating Rate Senior Notes due April 2034 (CUSIP: 06051GLH0)\nPlease utilize the Pricing Supplement and Final Term Sheets as your source material. If there is a conflict between documents, the Pricing Supplement governs.\nThe summary should include:\n•        Core size and economics\n•        Complete interest rate terms\n•        Full call structure\n•        Security ratings\n•        Sole book-runner and full co-manager list",
+  "memoryMode": false,
+  "freshness": {
+    "roomCreatedAfterRunStart": true,
+    "forbiddenPreloadedArtifactsAbsent": true,
+    "artifactsCreatedFresh": [
+      "btb-1b181d77-bac-senior-notes-offering-ppt-nyse-bac-cusip-summary.xlsx",
+      "btb-1b181d77-bac-senior-notes-offering-ppt-nyse-bac-cusip-summary.xlsm",
+      "btb-1b181d77-bac-senior-notes-offering-ppt-nyse-bac-cusip-summary.pptx",
+      "btb-1b181d77-bac-senior-notes-offering-ppt-nyse-bac-cusip-summary.docx",
+      "btb-1b181d77-bac-senior-notes-offering-ppt-nyse-bac-cusip-summary.pdf"
+    ],
+    "uploadedFiles": [
+      "betas_by_industry_category_for_WACC.xlsx",
+      "Equity_Risk_Premium_for_WACC.xlsx",
+      "Final Term Sheets.docx",
+      "Pricing Supplement - BAC 2023 Notes.docx",
+      "BAC-US Company Identity.xlsx",
+      "BAC-US Income Statement Annual.xlsx",
+      "BAC-US Balance Sheet Annual.xlsx",
+      "BAC-US Cash Flow Annual.xlsx",
+      "BAC-US Shares Outstanding.xlsx",
+      "BAC-US Price History.xlsx",
+      "BAC-US Revenue Estimate.xlsx",
+      "BAC-US Earnings Estimate.xlsx",
+      "btb-1b181d77-official-task-brief.txt"
+    ]
+  },
+  "ui": {
+    "focusModeEnabled": true,
+    "attentionOverlayVisible": true,
+    "streamingVisible": true,
+    "jobDetailVisible": true,
+    "roomTraceVisible": true,
+    "screenshotPaths": [
+      "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\1b181d77-ad4c-498a-b76e-c8503c05b7b7\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\bankertoolbench-live-room.png"
+    ],
+    "tracePath": "docs\\eval\\bankertoolbench\\live-room\\1b181d77-ad4c-498a-b76e-c8503c05b7b7.json"
+  },
+  "artifacts": {
+    "uploadedFiles": [
+      "betas_by_industry_category_for_WACC.xlsx",
+      "Equity_Risk_Premium_for_WACC.xlsx",
+      "Final Term Sheets.docx",
+      "Pricing Supplement - BAC 2023 Notes.docx",
+      "BAC-US Company Identity.xlsx",
+      "BAC-US Income Statement Annual.xlsx",
+      "BAC-US Balance Sheet Annual.xlsx",
+      "BAC-US Cash Flow Annual.xlsx",
+      "BAC-US Shares Outstanding.xlsx",
+      "BAC-US Price History.xlsx",
+      "BAC-US Revenue Estimate.xlsx",
+      "BAC-US Earnings Estimate.xlsx",
+      "btb-1b181d77-official-task-brief.txt"
+    ],
+    "created": [
+      "btb-1b181d77-bac-senior-notes-offering-ppt-nyse-bac-cusip-summary.xlsx",
+      "btb-1b181d77-bac-senior-notes-offering-ppt-nyse-bac-cusip-summary.xlsm",
+      "btb-1b181d77-bac-senior-notes-offering-ppt-nyse-bac-cusip-summary.pptx",
+      "btb-1b181d77-bac-senior-notes-offering-ppt-nyse-bac-cusip-summary.docx",
+      "btb-1b181d77-bac-senior-notes-offering-ppt-nyse-bac-cusip-summary.pdf"
+    ],
+    "exportedFiles": [
+      {
+        "kind": "workbook",
+        "filename": "btb-1b181d77-bac-senior-notes-offering-ppt-nyse-bac-cusip-summary.xlsx",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\1b181d77-ad4c-498a-b76e-c8503c05b7b7\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-1b181d77-bac-senior-notes-offering-ppt-nyse-bac-cusip-summary.xlsx",
+        "extension": ".xlsx",
+        "downloaded": true,
+        "bytes": 6869,
+        "magic": "PK\\x03\\x04"
+      },
+      {
+        "kind": "workbook",
+        "filename": "btb-1b181d77-bac-senior-notes-offering-ppt-nyse-bac-cusip-summary.xlsm",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\1b181d77-ad4c-498a-b76e-c8503c05b7b7\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-1b181d77-bac-senior-notes-offering-ppt-nyse-bac-cusip-summary.xlsm",
+        "extension": ".xlsm",
+        "downloaded": true,
+        "bytes": 6869,
+        "magic": "PK\\x03\\x04"
+      },
+      {
+        "kind": "presentation",
+        "filename": "btb-1b181d77-bac-senior-notes-offering-ppt-nyse-bac-cusip-summary.pptx",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\1b181d77-ad4c-498a-b76e-c8503c05b7b7\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-1b181d77-bac-senior-notes-offering-ppt-nyse-bac-cusip-summary.pptx",
+        "extension": ".pptx",
+        "downloaded": true,
+        "bytes": 6184,
+        "magic": "PK\\x03\\x04"
+      },
+      {
+        "kind": "document",
+        "filename": "btb-1b181d77-bac-senior-notes-offering-ppt-nyse-bac-cusip-summary.docx",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\1b181d77-ad4c-498a-b76e-c8503c05b7b7\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-1b181d77-bac-senior-notes-offering-ppt-nyse-bac-cusip-summary.docx",
+        "extension": ".docx",
+        "downloaded": true,
+        "bytes": 2154,
+        "magic": "PK\\x03\\x04"
+      },
+      {
+        "kind": "pdf",
+        "filename": "btb-1b181d77-bac-senior-notes-offering-ppt-nyse-bac-cusip-summary.pdf",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\1b181d77-ad4c-498a-b76e-c8503c05b7b7\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-1b181d77-bac-senior-notes-offering-ppt-nyse-bac-cusip-summary.pdf",
+        "extension": ".pdf",
+        "downloaded": true,
+        "bytes": 1108,
+        "magic": "%PDF"
+      }
+    ],
+    "reopenedFiles": [
+      {
+        "kind": "workbook",
+        "filename": "btb-1b181d77-bac-senior-notes-offering-ppt-nyse-bac-cusip-summary.xlsx",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j97fjk5d0k22m0nrny8m48gdp189bh68; placeholder/caveat content scan passed (393 chars)"
+      },
+      {
+        "kind": "workbook",
+        "filename": "btb-1b181d77-bac-senior-notes-offering-ppt-nyse-bac-cusip-summary.xlsm",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j97e3sa0s3n5646z2zrn5yc54h89bev2; placeholder/caveat content scan passed (393 chars)"
+      },
+      {
+        "kind": "presentation",
+        "filename": "btb-1b181d77-bac-senior-notes-offering-ppt-nyse-bac-cusip-summary.pptx",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "ZIP package contains ppt/presentation.xml; recovered from Convex room artifact j970kzmpmg3kzde1jhh5f9vsen89b933; placeholder/caveat content scan passed (400 chars)"
+      },
+      {
+        "kind": "document",
+        "filename": "btb-1b181d77-bac-senior-notes-offering-ppt-nyse-bac-cusip-summary.docx",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "ZIP package contains word/document.xml; recovered from Convex room artifact j97ehrmh4crrc19xfz2x5ax1x189b1js; placeholder/caveat content scan passed (377 chars)"
+      },
+      {
+        "kind": "pdf",
+        "filename": "btb-1b181d77-bac-senior-notes-offering-ppt-nyse-bac-cusip-summary.pdf",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "PDF header reopened; recovered from Convex room artifact j9747qcyzq7ebgqk70zwnaa6ds89b1p9; placeholder/caveat content scan passed (1697 chars)"
+      }
+    ]
+  },
+  "scorer": {
+    "name": "BankerToolBench proof verifier",
+    "command": "npm run benchmark:bankertoolbench:proof",
+    "verdict": "pass",
+    "score": 1,
+    "details": {
+      "verifierOutputTail": "\n> noderoom@0.1.1 benchmark:bankertoolbench:proof\n> tsx scripts/bankertoolbench-proof-check.ts\n\nBankerToolBench proof check passed: stage=1/1 weightedRubric=6 run=0/1 pass positive=1/1 pass candidateBeforeEvaluator=true leaks=0/2+0/3+0/4\n",
+      "packageManifestPath": "test-results\\bankertoolbench\\matrix\\1b181d77-ad4c-498a-b76e-c8503c05b7b7\\package-manifest.json",
+      "downloadedExtensions": [
+        ".xlsx",
+        ".xlsm",
+        ".pptx",
+        ".docx",
+        ".pdf"
+      ],
+      "exportSource": "convex_room_artifact_data_url_after_browser_ui_proof",
+      "agentTerminalQuality": {
+        "statusText": "completed via recovered Convex job: ior-notes-offering-ppt-nyse-bac-cusip-summary.pptx, btb-1b181d77-bac-senior-notes-offering-ppt-nyse-bac-cusip-summary.docx, btb-1b181d77-bac-senior-notes-offering-ppt-nyse-bac-cusip-summary.pdf. Coverage confirmed for PPT, NYSE, BAC, CUSIP.",
+        "evidenceTextLength": 4720,
+        "detail": "agent reached completed status or visible completion text, with no missing-source/unfinished-work caveats"
+      },
+      "taskCoverage": {
+        "ok": true,
+        "requiredTickers": [
+          "PPT",
+          "NYSE",
+          "BAC",
+          "CUSIP"
+        ],
+        "missingTickers": [],
+        "detail": "generated package mentions every requested ticker/entity: PPT, NYSE, BAC, CUSIP"
+      }
+    }
+  },
+  "visualJudge": {
+    "verdict": "not_run",
+    "reason": "GOOGLE_GENERATIVE_AI_API_KEY is not set; deterministic browser/download/reopen/verifier proof passed."
+  },
+  "gatesProven": [
+    "fresh_room_join",
+    "official_fixture_upload",
+    "public_nodeagent_invocation",
+    "visible_streaming_progress",
+    "trace_video_artifacts",
+    "no_memory_mode_shortcut",
+    "focus_mode_enabled",
+    "focus_box_or_attention_overlay",
+    "agent_live_loop",
+    "agent_terminal_quality_gate",
+    "room_trace_visible",
+    "job_detail_visible",
+    "deliverable_export_download",
+    "artifact_reopen_validation",
+    "artifact_placeholder_scan",
+    "official_scorer_handoff"
+  ],
+  "passed": true
+}

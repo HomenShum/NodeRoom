@@ -60,6 +60,7 @@ export function LeftRail({ roomId, me, artId, onPick, onOpenChat, style }: { roo
     const base = uploadDocMeta(a) ?? (a.kind === "sheet" ? `v${a.version} · ${rowCount(a)} rows` : a.kind === "wall" ? `${a.order?.length ?? 0} notes` : "edited recently");
     return sourceName && sourceName !== a.title && !base.includes(sourceName) ? `${sourceName} · ${base}` : base;
   };
+  void sub;
   const onUpload = async (files: FileList | null) => {
     if (!files?.length) return;
     setUploading(true);
@@ -120,6 +121,7 @@ export function LeftRail({ roomId, me, artId, onPick, onOpenChat, style }: { roo
           <div className="kicker r-rail-kicker">Workbooks & work products</div>
           {arts.map((a) => {
             const FI = fileIcon(a);
+            const display = binderArtifactDisplay(a);
             return (
               <button
                 key={a.id}
@@ -130,12 +132,15 @@ export function LeftRail({ roomId, me, artId, onPick, onOpenChat, style }: { roo
                 data-artifact-kind={a.kind}
                 data-artifact-title={a.title}
                 draggable
-                title="Drag into chat to reference this file"
+                title={`${a.title}\nDrag into chat to reference this file`}
                 onClick={() => onPick(a.id)}
                 onDragStart={(e) => dragArtifactRef(e, a)}
               >
                 <span className="fi"><FI size={14} /></span>
-                <span style={{ minWidth: 0 }}><div className="fn">{a.title}</div><div className="fm">{sub(a)}</div></span>
+                <span style={{ minWidth: 0 }}>
+                  <div className="fn"><span className="r-file-name">{display.title}</span>{display.badge && <span className="r-file-ext">{display.badge}</span>}</div>
+                  <div className="fm">{display.meta}</div>
+                </span>
               </button>
             );
           })}
@@ -243,7 +248,7 @@ function uploadDocMeta(a: { kind: string; elements: Record<string, unknown> }) {
   if (a.kind !== "note") return null;
   const doc = (a.elements.doc as { value?: unknown } | undefined)?.value;
   if (!isUploadDoc(doc)) return null;
-  return `${doc.mimeType || "file"} · ${formatBytes(doc.size)}`;
+  return `${readableFileType(doc.fileName, doc.mimeType)} · ${formatBytes(doc.size)}`;
 }
 
 function sourceFileLabel(a: { elements: Record<string, unknown>; meta?: { upload?: { fileName: string } } }) {
@@ -261,4 +266,71 @@ function isUploadDoc(value: unknown): value is {
   dataUrl?: string;
 } {
   return !!value && typeof value === "object" && (value as { upload?: unknown }).upload === true;
+}
+
+function binderArtifactDisplay(a: { kind: string; title: string; version: number; elements: Record<string, unknown>; order?: string[]; meta?: { excelGrid?: { rows: number; columns: number }; upload?: { fileName: string } } }) {
+  const sourceName = sourceFileLabel(a) || a.title;
+  const ext = fileExtension(sourceName);
+  const generated = generatedBtbDeliverableLabel(sourceName);
+  return {
+    title: generated ?? compactFileTitle(sourceName),
+    badge: ext ? ext.toUpperCase() : "",
+    meta: subForDisplay(a, sourceName),
+  };
+}
+
+function subForDisplay(a: { kind: string; title: string; version: number; elements: Record<string, unknown>; order?: string[]; meta?: { excelGrid?: { rows: number; columns: number }; upload?: { fileName: string } } }, sourceName: string) {
+  if (a.title === WIKI_TITLE) return `v${a.version} · live TOC`;
+  const uploaded = uploadDocMeta(a);
+  if (uploaded) return uploaded;
+  if (a.kind === "sheet") {
+    const rows = rowCount(a);
+    const type = fileExtension(sourceName) ? readableFileType(sourceName, "") : "Sheet";
+    return `${type} · v${a.version} · ${rows} row${rows === 1 ? "" : "s"}`;
+  }
+  if (a.kind === "wall") return `${a.order?.length ?? 0} notes`;
+  return "edited recently";
+}
+
+function generatedBtbDeliverableLabel(fileName: string): string | null {
+  const lower = fileName.toLowerCase();
+  if (!/^btb-[a-f0-9]{8}-/.test(lower)) return null;
+  if (lower.endsWith(".xlsx")) return "Valuation model";
+  if (lower.endsWith(".xlsm")) return "Macro workbook";
+  if (lower.endsWith(".pptx")) return "Presentation deck";
+  if (lower.endsWith(".docx")) return "Support memo";
+  if (lower.endsWith(".pdf")) return "PDF export";
+  if (lower.endsWith("-manifest.json") || lower.endsWith(".json")) return "Package manifest";
+  return null;
+}
+
+function compactFileTitle(fileName: string): string {
+  const ext = fileExtension(fileName);
+  const base = ext ? fileName.slice(0, -(ext.length + 1)) : fileName;
+  const cleaned = base
+    .replace(/^btb-[a-f0-9]{8}-/i, "")
+    .replace(/[-_]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+  if (!cleaned) return fileName;
+  return cleaned.length > 34 ? `${cleaned.slice(0, 31).trim()}...` : cleaned;
+}
+
+function readableFileType(fileName: string, mimeType: string): string {
+  const lowerName = fileName.toLowerCase();
+  const lowerMime = mimeType.toLowerCase();
+  if (lowerName.endsWith(".xlsm") || lowerMime.includes("macroenabled")) return "Macro workbook";
+  if (lowerName.endsWith(".xlsx") || lowerMime.includes("spreadsheetml.sheet")) return "Excel workbook";
+  if (lowerName.endsWith(".pptx") || lowerMime.includes("presentationml.presentation")) return "PowerPoint";
+  if (lowerName.endsWith(".docx") || lowerMime.includes("wordprocessingml.document")) return "Word document";
+  if (lowerName.endsWith(".pdf") || lowerMime === "application/pdf") return "PDF";
+  if (lowerName.endsWith(".json") || lowerMime === "application/json") return "JSON";
+  if (lowerName.endsWith(".txt") || lowerMime.startsWith("text/")) return "Text";
+  if (lowerMime.startsWith("image/")) return "Image";
+  return "File";
+}
+
+function fileExtension(fileName: string): string {
+  const match = /\.([A-Za-z0-9]{1,8})$/.exec(fileName.trim());
+  return match?.[1] ?? "";
 }

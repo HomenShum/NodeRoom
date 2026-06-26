@@ -185,7 +185,14 @@ describe("CHAT-INTAKE RUNG — capture-first contract through the real room runt
           ],
         };
       }
-      if (!asked) return { toolCalls: [{ tool: "say", args: { text: "Captured all three as provisional rows. One check: which Caldera did they mean — there are two on the watchlist?" } }] };
+      if (!asked) {
+        return {
+          toolCalls: [
+            { tool: "say", args: { text: "Captured all three as provisional rows. One check: which Caldera did they mean — there are two on the watchlist?" } },
+            { tool: "release_lock", args: { lockId } },
+          ],
+        };
+      }
       if (!released) return { toolCalls: [{ tool: "release_lock", args: { lockId } }] };
       return { done: true };
     };

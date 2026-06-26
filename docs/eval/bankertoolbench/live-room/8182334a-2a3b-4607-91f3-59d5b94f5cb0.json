@@ -1,0 +1,100 @@
+{
+  "schema": 1,
+  "taskId": "8182334a-2a3b-4607-91f3-59d5b94f5cb0",
+  "harborTaskId": "btb-8182334a",
+  "generatedAt": "2026-06-25T01:45:14.182Z",
+  "baseUrl": "http://127.0.0.1:5273",
+  "roomUrl": "http://127.0.0.1:5273/?room=NRELZC28YZA&name=Host",
+  "memoryMode": false,
+  "expectedExtensions": [
+    ".xlsx",
+    ".xlsm",
+    ".pptx",
+    ".docx",
+    ".pdf"
+  ],
+  "visibleExtensions": [
+    ".xlsx",
+    ".xlsm",
+    ".pptx",
+    ".docx",
+    ".pdf"
+  ],
+  "downloadedFiles": [
+    {
+      "kind": "workbook",
+      "filename": "btb-8182334a-salesforce-crm-us-historical-financials-leverage-summary-statistics-fy2021-fy2025.xlsx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\8182334a-2a3b-4607-91f3-59d5b94f5cb0\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-8182334a-salesforce-crm-us-historical-financials-leverage-summary-statistics-fy2021-fy2025.xlsx",
+      "extension": ".xlsx",
+      "bytes": 11145,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j976gbyjg0wf04daqcm9818yjx89bghp",
+      "contentQualityDetail": "placeholder/caveat content scan passed (6914 chars)"
+    },
+    {
+      "kind": "workbook",
+      "filename": "btb-8182334a-salesforce-crm-us-historical-financials-leverage-summary-statistics-fy2021-fy2025.xlsm",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\8182334a-2a3b-4607-91f3-59d5b94f5cb0\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-8182334a-salesforce-crm-us-historical-financials-leverage-summary-statistics-fy2021-fy2025.xlsm",
+      "extension": ".xlsm",
+      "bytes": 11145,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j97fg6h5rdmx1n1s83vnrq8gqh89bgfd",
+      "contentQualityDetail": "placeholder/caveat content scan passed (6914 chars)"
+    },
+    {
+      "kind": "presentation",
+      "filename": "btb-8182334a-salesforce-crm-us-historical-financials-leverage-summary-statistics-fy2021-fy2025.pptx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\8182334a-2a3b-4607-91f3-59d5b94f5cb0\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-8182334a-salesforce-crm-us-historical-financials-leverage-summary-statistics-fy2021-fy2025.pptx",
+      "extension": ".pptx",
+      "bytes": 6926,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains ppt/presentation.xml; recovered from Convex room artifact j97en3jtx6xnxjb163856k81ph89a61e",
+      "contentQualityDetail": "placeholder/caveat content scan passed (2985 chars)"
+    },
+    {
+      "kind": "document",
+      "filename": "btb-8182334a-salesforce-crm-us-historical-financials-leverage-summary-statistics-fy2021-fy2025.docx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\8182334a-2a3b-4607-91f3-59d5b94f5cb0\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-8182334a-salesforce-crm-us-historical-financials-leverage-summary-statistics-fy2021-fy2025.docx",
+      "extension": ".docx",
+      "bytes": 3886,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains word/document.xml; recovered from Convex room artifact j9782bed193xgjt61q3e679z8h89am4f",
+      "contentQualityDetail": "placeholder/caveat content scan passed (9241 chars)"
+    },
+    {
+      "kind": "pdf",
+      "filename": "btb-8182334a-salesforce-crm-us-historical-financials-leverage-summary-statistics-fy2021-fy2025.pdf",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\8182334a-2a3b-4607-91f3-59d5b94f5cb0\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-8182334a-salesforce-crm-us-historical-financials-leverage-summary-statistics-fy2021-fy2025.pdf",
+      "extension": ".pdf",
+      "bytes": 6928,
+      "magic": "%PDF",
+      "reopened": true,
+      "reopenDetail": "PDF header reopened; recovered from Convex room artifact j976x2mayxwa5qrfwvsftnmwkx89bb1y",
+      "contentQualityDetail": "placeholder/caveat content scan passed (13281 chars)"
+    }
+  ],
+  "packageManifestPath": "test-results\\bankertoolbench\\matrix\\8182334a-2a3b-4607-91f3-59d5b94f5cb0\\package-manifest.json",
+  "verifierCommand": "npm run benchmark:bankertoolbench:proof",
+  "verifierOutputTail": "\n> noderoom@0.1.1 benchmark:bankertoolbench:proof\n> tsx scripts/bankertoolbench-proof-check.ts\n\nBankerToolBench proof check passed: stage=1/1 weightedRubric=6 run=0/1 pass positive=1/1 pass candidateBeforeEvaluator=true leaks=0/2+0/3+0/4\n",
+  "screenshot": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\8182334a-2a3b-4607-91f3-59d5b94f5cb0\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\bankertoolbench-live-room.png",
+  "passed": true,
+  "gatesProven": [
+    "fresh_room_join",
+    "official_fixture_upload",
+    "public_nodeagent_invocation",
+    "visible_streaming_progress",
+    "focus_mode_enabled",
+    "focus_box_or_attention_overlay",
+    "agent_terminal_quality_gate",
+    "deliverable_export_download",
+    "artifact_reopen_validation",
+    "artifact_placeholder_scan",
+    "official_scorer_handoff",
+    "trace_video_artifacts",
+    "no_memory_mode_shortcut"
+  ]
+}

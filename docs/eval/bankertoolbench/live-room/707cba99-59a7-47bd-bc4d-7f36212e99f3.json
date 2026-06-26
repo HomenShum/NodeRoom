@@ -1,0 +1,100 @@
+{
+  "schema": 1,
+  "taskId": "707cba99-59a7-47bd-bc4d-7f36212e99f3",
+  "harborTaskId": "btb-707cba99",
+  "generatedAt": "2026-06-25T00:40:54.890Z",
+  "baseUrl": "http://127.0.0.1:5273",
+  "roomUrl": "http://127.0.0.1:5273/?room=NR4UTCOSJQG&name=Host",
+  "memoryMode": false,
+  "expectedExtensions": [
+    ".xlsx",
+    ".xlsm",
+    ".pptx",
+    ".docx",
+    ".pdf"
+  ],
+  "visibleExtensions": [
+    ".xlsx",
+    ".xlsm",
+    ".pptx",
+    ".docx",
+    ".pdf"
+  ],
+  "downloadedFiles": [
+    {
+      "kind": "workbook",
+      "filename": "btb-707cba99-bankertoolbench-btb-707cba99-multi-entity-dcf-valuation-lvs-regal-xyz.xlsx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\707cba99-59a7-47bd-bc4d-7f36212e99f3\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-707cba99-bankertoolbench-btb-707cba99-multi-entity-dcf-valuation-lvs-regal-xyz.xlsx",
+      "extension": ".xlsx",
+      "bytes": 8769,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (3937 chars)"
+    },
+    {
+      "kind": "workbook",
+      "filename": "btb-707cba99-bankertoolbench-btb-707cba99-multi-entity-dcf-valuation-lvs-regal-xyz.xlsm",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\707cba99-59a7-47bd-bc4d-7f36212e99f3\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-707cba99-bankertoolbench-btb-707cba99-multi-entity-dcf-valuation-lvs-regal-xyz.xlsm",
+      "extension": ".xlsm",
+      "bytes": 8769,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (3937 chars)"
+    },
+    {
+      "kind": "presentation",
+      "filename": "btb-707cba99-bankertoolbench-btb-707cba99-multi-entity-dcf-valuation-lvs-regal-xyz.pptx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\707cba99-59a7-47bd-bc4d-7f36212e99f3\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-707cba99-bankertoolbench-btb-707cba99-multi-entity-dcf-valuation-lvs-regal-xyz.pptx",
+      "extension": ".pptx",
+      "bytes": 7497,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains ppt/presentation.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (3121 chars)"
+    },
+    {
+      "kind": "document",
+      "filename": "btb-707cba99-bankertoolbench-btb-707cba99-multi-entity-dcf-valuation-lvs-regal-xyz.docx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\707cba99-59a7-47bd-bc4d-7f36212e99f3\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-707cba99-bankertoolbench-btb-707cba99-multi-entity-dcf-valuation-lvs-regal-xyz.docx",
+      "extension": ".docx",
+      "bytes": 3703,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains word/document.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (4045 chars)"
+    },
+    {
+      "kind": "pdf",
+      "filename": "btb-707cba99-bankertoolbench-btb-707cba99-multi-entity-dcf-valuation-lvs-regal-xyz.pdf",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\707cba99-59a7-47bd-bc4d-7f36212e99f3\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-707cba99-bankertoolbench-btb-707cba99-multi-entity-dcf-valuation-lvs-regal-xyz.pdf",
+      "extension": ".pdf",
+      "bytes": 2555,
+      "magic": "%PDF",
+      "reopened": true,
+      "reopenDetail": "PDF header reopened",
+      "contentQualityDetail": "placeholder/caveat content scan passed (4585 chars)"
+    }
+  ],
+  "packageManifestPath": "test-results\\bankertoolbench\\matrix\\707cba99-59a7-47bd-bc4d-7f36212e99f3\\package-manifest.json",
+  "verifierCommand": "npm run benchmark:bankertoolbench:proof",
+  "verifierOutputTail": "\n> noderoom@0.1.1 benchmark:bankertoolbench:proof\n> tsx scripts/bankertoolbench-proof-check.ts\n\nBankerToolBench proof check passed: stage=1/1 weightedRubric=6 run=0/1 pass positive=1/1 pass candidateBeforeEvaluator=true leaks=0/2+0/3+0/4\n",
+  "screenshot": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\707cba99-59a7-47bd-bc4d-7f36212e99f3\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\bankertoolbench-live-room.png",
+  "passed": true,
+  "gatesProven": [
+    "fresh_room_join",
+    "official_fixture_upload",
+    "public_nodeagent_invocation",
+    "visible_streaming_progress",
+    "focus_mode_enabled",
+    "focus_box_or_attention_overlay",
+    "agent_terminal_quality_gate",
+    "deliverable_export_download",
+    "artifact_reopen_validation",
+    "artifact_placeholder_scan",
+    "official_scorer_handoff",
+    "trace_video_artifacts",
+    "no_memory_mode_shortcut"
+  ]
+}

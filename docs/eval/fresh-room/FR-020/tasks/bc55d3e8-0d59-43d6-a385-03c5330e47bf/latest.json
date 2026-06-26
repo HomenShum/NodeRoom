@@ -1,0 +1,201 @@
+{
+  "schema": 1,
+  "caseId": "FR-020",
+  "benchmark": "bankertoolbench",
+  "taskId": "bc55d3e8-0d59-43d6-a385-03c5330e47bf",
+  "generatedAt": "2026-06-25T02:01:49.416Z",
+  "baseUrl": "http://127.0.0.1:5273",
+  "roomId": "NRDP1X1U0Y9",
+  "roomUrl": "http://127.0.0.1:5273/?room=NRDP1X1U0Y9&name=Host",
+  "command": "BTB_LIVE_ROOM_E2E=1 BTB_UI_BUNDLE_ROOT=<official-bundle> BTB_UI_VERIFIER_COMMAND=<verifier> BENCH_BASE_URL=<base> npx playwright test --config playwright.real-flow.config.ts e2e/benchmark-ui-bankertoolbench.spec.ts --headed",
+  "model": {
+    "requested": "specific",
+    "resolved": "z-ai/glm-5.2",
+    "routePolicy": "specific",
+    "runtimeProfile": "benchmark_completion",
+    "provider": "openrouter"
+  },
+  "prompt": "Official BankerToolBench task btb-bc55d3e8: You are an investment banking analyst in the Technology M&A group tasked with evaluating the intrinsic value of Uber Technologies, Inc. (“Uber”) using a DCF analysis. \n\nBuild the entire model in one Excel worksheet tab named “DCF” starting with a clearly labeled Assumptions section, followed by: (i) Net Revenue Mix, (ii) Net Cost Mix, (iii) Core DCF (to implied share price), and (iv) Sensitivities + Checks.\n\nUse 2023A and 2024A historical inputs and project 2025E–2031E. The valuation date is December 31, 2024.\n\nValuation assumptions:\n-        WACC of 12.0%\n-        Mid-year discounting convention \n-        Terminal value calculated using a 15x EV/EBITDA exit multiple\n-        Use share price as of December 31, 2024, ($81.26)\n\nThe model should include a detailed net revenue mix section based on Uber’s revenue by service line (Mobility, Delivery, and Freight) and also by geography (United States and Canada; Latin America; Europe, Middle East, and Africa; and Asia Pacific).\n\nThe model should include a detailed Net Cost Mix section.\n\nThe model should include two sensitivity analyses. The first sensitivity table should show the implied premium or discount to the current stock price as a",
+  "memoryMode": false,
+  "freshness": {
+    "roomCreatedAfterRunStart": true,
+    "forbiddenPreloadedArtifactsAbsent": true,
+    "artifactsCreatedFresh": [
+      "btb-bc55d3e8-uber-technologies-dcf-valuation-model.xlsx",
+      "btb-bc55d3e8-uber-technologies-dcf-valuation-model.xlsm",
+      "btb-bc55d3e8-uber-technologies-dcf-valuation-model.pptx",
+      "btb-bc55d3e8-uber-technologies-dcf-valuation-model.docx",
+      "btb-bc55d3e8-uber-technologies-dcf-valuation-model.pdf"
+    ],
+    "uploadedFiles": [
+      "betas_by_industry_category_for_WACC.xlsx",
+      "Equity_Risk_Premium_for_WACC.xlsx",
+      "Uber - 10-k (Reference).pdf",
+      "btb-bc55d3e8-official-task-brief.txt"
+    ]
+  },
+  "ui": {
+    "focusModeEnabled": true,
+    "attentionOverlayVisible": true,
+    "streamingVisible": true,
+    "jobDetailVisible": true,
+    "roomTraceVisible": true,
+    "screenshotPaths": [
+      "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\bc55d3e8-0d59-43d6-a385-03c5330e47bf\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\bankertoolbench-live-room.png"
+    ],
+    "tracePath": "docs\\eval\\bankertoolbench\\live-room\\bc55d3e8-0d59-43d6-a385-03c5330e47bf.json"
+  },
+  "artifacts": {
+    "uploadedFiles": [
+      "betas_by_industry_category_for_WACC.xlsx",
+      "Equity_Risk_Premium_for_WACC.xlsx",
+      "Uber - 10-k (Reference).pdf",
+      "btb-bc55d3e8-official-task-brief.txt"
+    ],
+    "created": [
+      "btb-bc55d3e8-uber-technologies-dcf-valuation-model.xlsx",
+      "btb-bc55d3e8-uber-technologies-dcf-valuation-model.xlsm",
+      "btb-bc55d3e8-uber-technologies-dcf-valuation-model.pptx",
+      "btb-bc55d3e8-uber-technologies-dcf-valuation-model.docx",
+      "btb-bc55d3e8-uber-technologies-dcf-valuation-model.pdf"
+    ],
+    "exportedFiles": [
+      {
+        "kind": "workbook",
+        "filename": "btb-bc55d3e8-uber-technologies-dcf-valuation-model.xlsx",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\bc55d3e8-0d59-43d6-a385-03c5330e47bf\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-bc55d3e8-uber-technologies-dcf-valuation-model.xlsx",
+        "extension": ".xlsx",
+        "downloaded": true,
+        "bytes": 15545,
+        "magic": "PK\\x03\\x04"
+      },
+      {
+        "kind": "workbook",
+        "filename": "btb-bc55d3e8-uber-technologies-dcf-valuation-model.xlsm",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\bc55d3e8-0d59-43d6-a385-03c5330e47bf\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-bc55d3e8-uber-technologies-dcf-valuation-model.xlsm",
+        "extension": ".xlsm",
+        "downloaded": true,
+        "bytes": 15545,
+        "magic": "PK\\x03\\x04"
+      },
+      {
+        "kind": "presentation",
+        "filename": "btb-bc55d3e8-uber-technologies-dcf-valuation-model.pptx",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\bc55d3e8-0d59-43d6-a385-03c5330e47bf\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-bc55d3e8-uber-technologies-dcf-valuation-model.pptx",
+        "extension": ".pptx",
+        "downloaded": true,
+        "bytes": 6640,
+        "magic": "PK\\x03\\x04"
+      },
+      {
+        "kind": "document",
+        "filename": "btb-bc55d3e8-uber-technologies-dcf-valuation-model.docx",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\bc55d3e8-0d59-43d6-a385-03c5330e47bf\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-bc55d3e8-uber-technologies-dcf-valuation-model.docx",
+        "extension": ".docx",
+        "downloaded": true,
+        "bytes": 4004,
+        "magic": "PK\\x03\\x04"
+      },
+      {
+        "kind": "pdf",
+        "filename": "btb-bc55d3e8-uber-technologies-dcf-valuation-model.pdf",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\bc55d3e8-0d59-43d6-a385-03c5330e47bf\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-bc55d3e8-uber-technologies-dcf-valuation-model.pdf",
+        "extension": ".pdf",
+        "downloaded": true,
+        "bytes": 5186,
+        "magic": "%PDF"
+      }
+    ],
+    "reopenedFiles": [
+      {
+        "kind": "workbook",
+        "filename": "btb-bc55d3e8-uber-technologies-dcf-valuation-model.xlsx",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "ZIP package contains xl/workbook.xml; placeholder/caveat content scan passed (11750 chars)"
+      },
+      {
+        "kind": "workbook",
+        "filename": "btb-bc55d3e8-uber-technologies-dcf-valuation-model.xlsm",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "ZIP package contains xl/workbook.xml; placeholder/caveat content scan passed (11750 chars)"
+      },
+      {
+        "kind": "presentation",
+        "filename": "btb-bc55d3e8-uber-technologies-dcf-valuation-model.pptx",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "ZIP package contains ppt/presentation.xml; placeholder/caveat content scan passed (1698 chars)"
+      },
+      {
+        "kind": "document",
+        "filename": "btb-bc55d3e8-uber-technologies-dcf-valuation-model.docx",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "ZIP package contains word/document.xml; placeholder/caveat content scan passed (5739 chars)"
+      },
+      {
+        "kind": "pdf",
+        "filename": "btb-bc55d3e8-uber-technologies-dcf-valuation-model.pdf",
+        "reopened": true,
+        "scorerResult": "pass",
+        "detail": "PDF header reopened; placeholder/caveat content scan passed (9851 chars)"
+      }
+    ]
+  },
+  "scorer": {
+    "name": "BankerToolBench proof verifier",
+    "command": "npm run benchmark:bankertoolbench:proof",
+    "verdict": "pass",
+    "score": 1,
+    "details": {
+      "verifierOutputTail": "\n> noderoom@0.1.1 benchmark:bankertoolbench:proof\n> tsx scripts/bankertoolbench-proof-check.ts\n\nBankerToolBench proof check passed: stage=1/1 weightedRubric=6 run=0/1 pass positive=1/1 pass candidateBeforeEvaluator=true leaks=0/2+0/3+0/4\n",
+      "packageManifestPath": "test-results\\bankertoolbench\\matrix\\bc55d3e8-0d59-43d6-a385-03c5330e47bf\\package-manifest.json",
+      "downloadedExtensions": [
+        ".xlsx",
+        ".xlsm",
+        ".pptx",
+        ".docx",
+        ".pdf"
+      ],
+      "exportSource": "browser_download_link",
+      "agentTerminalQuality": {
+        "statusText": "completed via recovered Convex job: n-model.xlsx, btb-bc55d3e8-uber-technologies-dcf-valuation-model.xlsm, btb-bc55d3e8-uber-technologies-dcf-valuation-model.pptx, btb-bc55d3e8-uber-technologies-dcf-valuation-model.docx, btb-bc55d3e8-uber-technologies-dcf-valuation-model.pdf.",
+        "evidenceTextLength": 1693,
+        "detail": "agent reached completed status or visible completion text, with no missing-source/unfinished-work caveats"
+      },
+      "taskCoverage": {
+        "ok": true,
+        "requiredTickers": [
+          "WACC"
+        ],
+        "missingTickers": [],
+        "detail": "single requested ticker detected (WACC); multi-entity coverage gate not required"
+      }
+    }
+  },
+  "visualJudge": {
+    "verdict": "not_run",
+    "reason": "GOOGLE_GENERATIVE_AI_API_KEY is not set; deterministic browser/download/reopen/verifier proof passed."
+  },
+  "gatesProven": [
+    "fresh_room_join",
+    "official_fixture_upload",
+    "public_nodeagent_invocation",
+    "visible_streaming_progress",
+    "trace_video_artifacts",
+    "no_memory_mode_shortcut",
+    "focus_mode_enabled",
+    "focus_box_or_attention_overlay",
+    "agent_live_loop",
+    "agent_terminal_quality_gate",
+    "room_trace_visible",
+    "job_detail_visible",
+    "deliverable_export_download",
+    "artifact_reopen_validation",
+    "artifact_placeholder_scan",
+    "official_scorer_handoff"
+  ],
+  "passed": true
+}

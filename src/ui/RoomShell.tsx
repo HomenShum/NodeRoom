@@ -7,7 +7,7 @@
  */
 
 import { useEffect, useRef, useState, type CSSProperties } from "react";
-import { PanelLeft, Table2, PanelRight, Moon, Sun, LogOut, Link2, ShieldCheck, X, HelpCircle, Copy, Check, MessageCircle, Sparkles } from "lucide-react";
+import { PanelLeft, Table2, PanelRight, Moon, Sun, LogOut, Link2, ShieldCheck, X, HelpCircle, Copy, Check, MessageCircle, Sparkles, SlidersHorizontal, Palette, Gauge, Play, ChevronLeft, ChevronRight, Crosshair } from "lucide-react";
 import { useStore, type ActorProof } from "../app/store";
 import { Chat } from "./Chat";
 import { Artifact } from "./panels/Artifact";
@@ -19,12 +19,20 @@ import { BankerCoachPanel } from "./artifacts/BankerCoachPanel";
 import { TraceLensProvider } from "./traceLens/useTraceLens";
 import { TraceLensPanel } from "./traceLens/TraceLensPanel";
 import { PassiveAgentChip } from "./insights/PassiveAgentChip";
-import { resolveRoomOpenTarget } from "./openRoomReference";
+import { OPT_ARTIFACT_PREFIX, optimisticArtifactIdentity, resolveRoomOpenTarget } from "./openRoomReference";
+import { readFocusModeClientState, persistFocusModeClientState, textEntryIsActive, type FocusModeClientState } from "./focusMode";
 import type { Actor, Channel } from "../engine/types";
 
 const AUTO_ACCEPT_PREF_KEY = "noderoom:autoAcceptConsent:v1";
 const TOUR_KEY = "noderoom:tour:v1";
 const NOTE_PRIORITY = ["Capture Notebook", "Note", "Diligence memo", "Open questions / workplan", "Agent wiki"];
+type AccentKey = "terra" | "indigo" | "green";
+type ReplayPace = "brisk" | "standard" | "cinematic";
+const ACCENTS: Record<AccentKey, { label: string; primary: string; hover: string; ink: string; tint: string; border: string }> = {
+  terra: { label: "Accent", primary: "#D97757", hover: "#C76648", ink: "#E59579", tint: "rgba(217,119,87,.16)", border: "rgba(217,119,87,.28)" },
+  indigo: { label: "Indigo", primary: "#6574D8", hover: "#5665C8", ink: "#A7B0FF", tint: "rgba(101,116,216,.16)", border: "rgba(101,116,216,.30)" },
+  green: { label: "Green", primary: "#24945F", hover: "#1F8354", ink: "#6BD49D", tint: "rgba(36,148,95,.16)", border: "rgba(36,148,95,.30)" },
+};
 
 export function preferredRoomArtifact<T extends { id: string; kind?: string; title?: string }>(arts: T[]): T | undefined {
   for (const title of NOTE_PRIORITY) {
@@ -77,8 +85,22 @@ export function RoomShell({ roomId, me, onLeave, proof }: { roomId: string; me: 
   const [autoAcceptModal, setAutoAcceptModal] = useState(false);
   const [rememberAutoAccept, setRememberAutoAccept] = useState(false);
   const [tourOpen, setTourOpen] = useState(false);
+  const [dockStep, setDockStep] = useState(0);
+  const [tweaksOpen, setTweaksOpen] = useState(false);
+  const [accent, setAccent] = useState<AccentKey>("terra");
+  const [backgroundGlow, setBackgroundGlow] = useState(true);
+  const [replayPace, setReplayPace] = useState<ReplayPace>("standard");
+  const [focusMode, setFocusMode] = useState<FocusModeClientState>(() => readFocusModeClientState());
   const tourAutoStarted = useRef(false);
   const collabAlive = useRef(true);
+  const accentTheme = ACCENTS[accent];
+  const shellStyle = {
+    "--accent-primary": accentTheme.primary,
+    "--accent-hover": accentTheme.hover,
+    "--accent-ink": accentTheme.ink,
+    "--accent-tint": accentTheme.tint,
+    "--accent-border": accentTheme.border,
+  } as CSSProperties;
   useEffect(() => {
     collabAlive.current = true;
     return () => { collabAlive.current = false; };
@@ -102,6 +124,12 @@ export function RoomShell({ roomId, me, onLeave, proof }: { roomId: string; me: 
   useEffect(() => {
     if (sideArtId && !arts.some((a) => a.id === sideArtId)) setSideArtId(null);
   }, [sideArtId, arts]);
+  useEffect(() => {
+    const optimistic = optimisticArtifactIdentity(artId);
+    if (!optimistic) return;
+    const real = arts.find((a) => !a.id.startsWith(OPT_ARTIFACT_PREFIX) && a.kind === optimistic.kind && a.title === optimistic.title);
+    if (real) setArtId(real.id);
+  }, [artId, arts]);
   // Slow-load affordance — only after a grace period so a normal fast load never sees it. Declared
   // here (before the early return) so hook order stays stable across the undefined→room tick.
   const [slowLoad, setSlowLoad] = useState(false);
@@ -143,23 +171,27 @@ export function RoomShell({ roomId, me, onLeave, proof }: { roomId: string; me: 
   const privChannel: Channel = { private: me.id };
   const curArt = arts.find((a) => a.id === artId) ?? preferredRoomArtifact(arts);
   const openArtifact = (id: string, opts?: { split?: boolean; elementId?: string }): boolean => {
+    const artifactsNow = store.listArtifacts(roomId);
+    const proposalsNow = store.listProposals(roomId);
     const target = resolveRoomOpenTarget({
       id,
-      artifacts: store.listArtifacts(roomId),
-      proposals: store.listProposals(roomId),
+      artifacts: artifactsNow,
+      proposals: proposalsNow,
     });
-    if (!target) return false;
+    const isPendingDirectArtifact = id.startsWith(OPT_ARTIFACT_PREFIX) || /^[a-z0-9]{20,}$/i.test(id);
+    if (!target && !isPendingDirectArtifact) return false;
+    const targetArtifactId = target?.artifactId ?? id;
     const hasMatchMedia = typeof window !== "undefined" && typeof window.matchMedia === "function";
     const compactNow = hasMatchMedia && window.matchMedia("(max-width: 980px)").matches;
     setShow((s) => compactNow ? { ...s, left: false, stage: true, copilot: false } : { ...s, stage: true });
     const canSplitNow = hasMatchMedia && window.matchMedia("(min-width: 1200px)").matches;
-    if (opts?.split && canSplitNow && target.artifactId !== artId) {
-      setSideArtId(target.artifactId);
+    if (opts?.split && canSplitNow && targetArtifactId !== artId) {
+      setSideArtId(targetArtifactId);
     } else {
-      setArtId(target.artifactId);
+      setArtId(targetArtifactId);
     }
-    const elementId = opts?.elementId ?? target.elementId;
-    if (elementId) requestAnimationFrame(() => focusStage({ artifactId: target.artifactId, elementId }));
+    const elementId = opts?.elementId ?? target?.elementId;
+    if (elementId) requestAnimationFrame(() => focusStage({ artifactId: targetArtifactId, elementId }));
     return true;
   };
 
@@ -170,6 +202,7 @@ export function RoomShell({ roomId, me, onLeave, proof }: { roomId: string; me: 
     if (varianceArt) openArtifact(varianceArt.id);
     setShow({ left: true, stage: true, copilot: true });
     setCopilotTab("public");
+    setDockStep(0);
     setTourOpen(true);
   };
   const tourSteps: TourStep[] = [
@@ -220,6 +253,14 @@ export function RoomShell({ roomId, me, onLeave, proof }: { roomId: string; me: 
       placement: "center",
     },
   ];
+  const selectDockStep = (index: number) => {
+    const next = clamp(index, 0, tourSteps.length - 1);
+    const selector = tourSteps[next]?.selector ?? "";
+    setDockStep(next);
+    if (selector.includes("left-rail")) setShow({ left: true, stage: true, copilot: !isCompact });
+    else if (selector.includes("copilot-panel")) setShow({ left: !isCompact, stage: true, copilot: true });
+    else if (selector.includes("artifact-tabs") || selector.includes("collab-run") || selector.includes("room-trace")) setShow((s) => ({ ...s, stage: true }));
+  };
 
   const collabErrText = (e: unknown) => (e instanceof Error && e.message ? `Couldn't run the collaboration — ${e.message}` : "Couldn't run the collaboration. Try again.");
   const runCollab = async () => {
@@ -264,6 +305,13 @@ export function RoomShell({ roomId, me, onLeave, proof }: { roomId: string; me: 
     if (rememberAutoAccept) localStorage.setItem(AUTO_ACCEPT_PREF_KEY, "host-consented");
     setAutoAcceptModal(false);
     store.toggleAutoAllow(roomId, me);
+  };
+  const toggleFocusMode = () => {
+    setFocusMode((current) => {
+      const next = { ...current, enabled: !current.enabled, paused: false };
+      persistFocusModeClientState(next);
+      return next;
+    });
   };
   const toggleBinder = () => {
     setShow((s) => {
@@ -329,7 +377,7 @@ export function RoomShell({ roomId, me, onLeave, proof }: { roomId: string; me: 
 
   return (
     <TraceLensProvider>
-    <div className="r-app">
+    <div className="r-app" data-bg-glow={String(backgroundGlow)} style={shellStyle}>
       <div className="r-top" data-noderoom-surface="shell.topbar">
         <div className="r-mark">N</div>
         <div className="r-brand">NodeRoom <span>· {room.title}</span></div>
@@ -358,11 +406,17 @@ export function RoomShell({ roomId, me, onLeave, proof }: { roomId: string; me: 
               a real ARIA switch, not a bare button, so assistive tech reads its on/off state. */}
           <button className="r-switch" role="switch" aria-checked={room.autoAllow} aria-label="Auto-allow agent edits without host review" data-testid="auto-allow-switch" data-on={String(room.autoAllow)} disabled={!isHost} title={isHost ? "Auto-approve agent edits" : "Only the host can change auto-allow"} onClick={toggleAutoAccept} />
         </div>
+        <div className="r-pill-auto r-focus-mode-control" data-testid="focus-mode-control" data-on={String(focusMode.enabled)}>
+          <Crosshair size={12} />
+          Focus
+          <button className="r-switch" role="switch" aria-checked={focusMode.enabled} aria-label="Focus Mode follows the selected agent job" data-testid="focus-mode-switch" data-on={String(focusMode.enabled)} title="Follow the current agent job on the work surface" onClick={toggleFocusMode} />
+        </div>
         <div className="r-avatars">
           {members.slice(0, 4).map((m) => (<span key={m.id} className="r-av" style={{ background: m.color }}>{initials(m.name)}<span className="pulse" /></span>))}
           <span className="r-av agent" style={{ background: "#8F3F27" }}>◆</span>
         </div>
         <span className="r-live-count" title={`${members.length} live room member${members.length === 1 ? "" : "s"}`}>{members.length} live</span>
+        <button className="r-iconbtn" title="Tweaks" aria-label="Open room tweaks" data-on={String(tweaksOpen)} onClick={() => setTweaksOpen((v) => !v)}><SlidersHorizontal size={16} /></button>
         <button className="r-iconbtn" title="Take the guided tour" aria-label="Take the guided tour" data-testid="tour-button" onClick={startTour}><HelpCircle size={16} /></button>
         <ThemeToggle />
         <button className="r-iconbtn" title="Leave room" aria-label="Leave room" onClick={onLeave}><LogOut size={16} /></button>
@@ -386,7 +440,18 @@ export function RoomShell({ roomId, me, onLeave, proof }: { roomId: string; me: 
           />
         )}
       </div>
-      <SignalStatusStrip roomId={roomId} me={me} onOpenArtifact={openArtifact} />
+      <RoomWalkthroughDock steps={tourSteps} step={dockStep} pace={replayPace} onStep={selectDockStep} onReplay={startTour} />
+      <SignalStatusStrip roomId={roomId} me={me} focusModeEnabled={focusMode.enabled} onOpenArtifact={openArtifact} />
+      <RoomTweaksPanel
+        open={tweaksOpen}
+        accent={accent}
+        backgroundGlow={backgroundGlow}
+        replayPace={replayPace}
+        onAccent={setAccent}
+        onBackgroundGlow={setBackgroundGlow}
+        onReplayPace={setReplayPace}
+        onClose={() => setTweaksOpen(false)}
+      />
       {autoAcceptModal && (
         <div className="r-modal-backdrop" role="presentation">
           <div className="r-modal" role="dialog" aria-modal="true" aria-labelledby="auto-accept-title">
@@ -478,6 +543,110 @@ function CopilotPanel({
   );
 }
 
+function RoomWalkthroughDock({
+  steps,
+  step,
+  pace,
+  onStep,
+  onReplay,
+}: {
+  steps: TourStep[];
+  step: number;
+  pace: ReplayPace;
+  onStep: (step: number) => void;
+  onReplay: () => void;
+}) {
+  const current = steps[step] ?? steps[0];
+  if (!current) return null;
+  return (
+    <div className="r-walkdock" data-testid="walkthrough-dock">
+      <div className="r-walkdock-dots" aria-label="Walkthrough steps">
+        {steps.map((s, i) => (
+          <button key={`${s.title}-${i}`} type="button" className="r-walkdock-dot" data-on={String(i === step)} aria-label={`Show step ${i + 1}`} onClick={() => onStep(i)} />
+        ))}
+      </div>
+      <button className="r-iconbtn r-iconbtn-sm" type="button" aria-label="Previous walkthrough step" disabled={step === 0} onClick={() => onStep(step - 1)}>
+        <ChevronLeft size={14} />
+      </button>
+      <div className="r-walkdock-main">
+        <span>{String(step + 1).padStart(2, "0")} - {current.title}</span>
+        <strong>{current.body}</strong>
+      </div>
+      <span className="r-walkdock-pace"><Gauge size={11} /> {pace}</span>
+      <button className="r-iconbtn r-iconbtn-sm" type="button" aria-label="Next walkthrough step" disabled={step === steps.length - 1} onClick={() => onStep(step + 1)}>
+        <ChevronRight size={14} />
+      </button>
+      <button className="r-btn ghost r-walkdock-replay" type="button" onClick={onReplay}>
+        <Play size={13} /> Replay
+      </button>
+    </div>
+  );
+}
+
+function RoomTweaksPanel({
+  open,
+  accent,
+  backgroundGlow,
+  replayPace,
+  onAccent,
+  onBackgroundGlow,
+  onReplayPace,
+  onClose,
+}: {
+  open: boolean;
+  accent: AccentKey;
+  backgroundGlow: boolean;
+  replayPace: ReplayPace;
+  onAccent: (accent: AccentKey) => void;
+  onBackgroundGlow: (on: boolean) => void;
+  onReplayPace: (pace: ReplayPace) => void;
+  onClose: () => void;
+}) {
+  if (!open) return null;
+  return (
+    <div className="r-tweaks" data-testid="room-tweaks">
+      <div className="r-tweaks-head">
+        <span>Tweaks</span>
+        <button className="r-iconbtn r-iconbtn-sm" type="button" aria-label="Close tweaks" onClick={onClose}><X size={13} /></button>
+      </div>
+      <div className="r-tweaks-section">
+        <span className="r-tweaks-label"><Palette size={12} /> Theme</span>
+        <div className="r-tweak-swatches" role="radiogroup" aria-label="Accent theme">
+          {(Object.keys(ACCENTS) as AccentKey[]).map((key) => (
+            <button
+              key={key}
+              type="button"
+              role="radio"
+              aria-checked={accent === key}
+              className="r-tweak-swatch"
+              data-on={String(accent === key)}
+              style={{ background: ACCENTS[key].primary }}
+              title={ACCENTS[key].label}
+              onClick={() => onAccent(key)}
+            >
+              {accent === key ? <Check size={13} /> : null}
+            </button>
+          ))}
+        </div>
+      </div>
+      <label className="r-tweak-line">
+        <span>Background glow</span>
+        <button className="r-switch" type="button" role="switch" aria-checked={backgroundGlow} data-on={String(backgroundGlow)} onClick={() => onBackgroundGlow(!backgroundGlow)} />
+      </label>
+      <div className="r-tweaks-section">
+        <span className="r-tweaks-label"><Gauge size={12} /> Replay pace</span>
+        <div className="r-tweak-segment" role="radiogroup" aria-label="Replay pace">
+          {(["brisk", "standard", "cinematic"] as ReplayPace[]).map((pace) => (
+            <button key={pace} type="button" role="radio" aria-checked={replayPace === pace} data-on={String(replayPace === pace)} onClick={() => onReplayPace(pace)}>
+              {pace}
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function ProgressSpine({ roomId }: { roomId: string }) {
   const store = useStore();
   const artifacts = store.listArtifacts(roomId);
@@ -506,7 +675,17 @@ function ProgressSpine({ roomId }: { roomId: string }) {
   );
 }
 
-function SignalStatusStrip({ roomId, me, onOpenArtifact }: { roomId: string; me: Actor; onOpenArtifact: (id: string) => void }) {
+function SignalStatusStrip({
+  roomId,
+  me,
+  focusModeEnabled,
+  onOpenArtifact,
+}: {
+  roomId: string;
+  me: Actor;
+  focusModeEnabled: boolean;
+  onOpenArtifact: (id: string) => void;
+}) {
   const store = useStore();
   const traces = selectPublicSignalTraces(store.listTraces(roomId));
   const proposals = store.listProposals(roomId);
@@ -514,6 +693,7 @@ function SignalStatusStrip({ roomId, me, onOpenArtifact }: { roomId: string; me:
   const run = store.lastRun();
   const job = store.lastLongFreeJob();
   const latest = traces.at(-1);
+  const lastFollowedTrace = useRef<string | null>(null);
   const status = publicStatusText(latest, proposals.length, job?.status);
   const jobStatus = job?.status ?? "";
   const jobRisk = ["failed", "blocked", "cancelled", "paused"].includes(jobStatus);
@@ -543,10 +723,22 @@ function SignalStatusStrip({ roomId, me, onOpenArtifact }: { roomId: string; me:
     onOpenArtifact(latestArt);
     focusStage({ artifactId: latestArt, elementId: latest?.refs?.cell ?? latest?.refs?.elementId });
   };
+  useEffect(() => {
+    if (!focusModeEnabled || !latest || !latestArt) return;
+    if (lastFollowedTrace.current === latest.id) return;
+    if (textEntryIsActive()) return;
+    lastFollowedTrace.current = latest.id;
+    onOpenArtifact(latestArt);
+    const elementId = latest.refs?.cell ?? latest.refs?.elementId;
+    if (elementId) requestAnimationFrame(() => focusStage({ artifactId: latestArt, elementId }));
+  }, [focusModeEnabled, latest, latestArt, onOpenArtifact]);
 
   return (
     <div className="r-shell-bottom" data-testid="shell-bottom" data-noderoom-surface="shell.statusStrip">
       <ProgressSpine roomId={roomId} />
+      <div className="r-focus-status" data-testid="focus-mode-status" data-on={String(focusModeEnabled)}>
+        <Crosshair size={11} /> Focus Mode {focusModeEnabled ? "on" : "off"}
+      </div>
       <div className="r-status-strip" data-testid="status-strip" role="status" aria-live="polite">
         <span className="r-status-dot" data-kind={status.kind} />
         {latestArt ? (
