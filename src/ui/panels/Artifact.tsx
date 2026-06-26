@@ -15,7 +15,7 @@ import { api } from "../../../convex/_generated/api";
 import {
   Table2, FileText, StickyNote, Users, GitMerge, Play, RotateCcw, History, Search, BookOpen,
   Lock, Unlock, Ban, Pencil, Plus, Check, AlertTriangle, Eye, Circle, ChevronRight, Download, Trash2, Undo2, X, Columns2, MoreHorizontal, Mail, Hash, Layers, Linkedin, Activity, type LucideIcon,
-  Sparkles, Folder, Briefcase, Package, File as FileIcon,
+  Sparkles, Folder, Briefcase, Package, File as FileIcon, FlaskConical, Loader2, CircleCheck,
 } from "lucide-react";
 import { useStore, type ActorProof, type RoomStore, type EditFeedback, type PresenceClaim } from "../../app/store";
 import { columnLetters } from "../../app/spreadsheetIndex";
@@ -2197,19 +2197,40 @@ function Sticky({ roomId, me, artId, id, v, locked, author, rot, onDelete, onErr
 }
 
 function CollabBar({ collab }: { collab: CollabControls }) {
-  const stateLabel = collab.done ? "Collaboration run complete" : collab.running ? "Collaboration running" : "Live collaboration";
-  const runLabel = collab.done ? "Replay collaboration" : collab.running ? "Collaboration running" : "Run collaboration";
+  const stateLabel = collab.done
+    ? "Collaboration complete"
+    : collab.running
+    ? "Collaboration running"
+    : "Human + agent collaboration";
+  const runLabel = collab.done ? "Run again" : collab.running ? "Running…" : "Run collaboration";
+  const conflictLabel = "Simulate conflict";
   return (
     <div className="r-collab-bar" aria-label={stateLabel}>
-      <span className="r-tag r-collab-state" title={stateLabel} aria-label={stateLabel} style={{ background: "var(--accent-tint)", color: "var(--accent-ink)" }}><GitMerge size={12} /></span>
+      <span className={"r-collab-icon" + (collab.running ? " running" : collab.done ? " done" : "")}>
+        {collab.done ? <CircleCheck size={14} /> : collab.running ? <Loader2 size={14} /> : <Users size={14} />}
+      </span>
+      <div className="r-collab-info">
+        <span className="r-collab-title">{stateLabel}</span>
+        {!collab.running && !collab.done && (
+          <span className="r-collab-hint">Run a live edit alongside the agent — it locks cells, drafts, and smart-merges without clobbering your work</span>
+        )}
+        {collab.running && (
+          <span className="r-collab-hint">The agent is locking cells and editing — watch the trace for each step</span>
+        )}
+        {collab.done && (
+          <span className="r-collab-hint">Agent and human edits merged safely — every step is in the trace</span>
+        )}
+      </div>
       {collab.error && <span className="r-tag" role="alert" data-testid="collab-error" style={{ color: "var(--danger-ink)" }}>{collab.error}</span>}
       {collab.onConflict && (
-        <button className="r-iconbtn r-iconbtn-sm" data-testid="collab-conflict" disabled={collab.running} title="Create a stale agent draft" aria-label="Create stale agent draft" onClick={collab.onConflict}>
-          <AlertTriangle size={13} />
+        <button className="r-collab-btn ghost" data-testid="collab-conflict" disabled={collab.running} title={conflictLabel} aria-label={conflictLabel} onClick={collab.onConflict}>
+          <FlaskConical size={13} />
+          <span>{conflictLabel}</span>
         </button>
       )}
-      <button className={"r-iconbtn r-iconbtn-sm " + (collab.done ? "" : "primary")} data-testid="collab-run" disabled={collab.running} title={runLabel} aria-label={runLabel} onClick={collab.onRun}>
-        {collab.done ? <RotateCcw size={13} /> : collab.running ? <Activity size={13} /> : <Play size={13} />}
+      <button className={"r-collab-btn " + (collab.done ? "ghost" : "primary")} data-testid="collab-run" disabled={collab.running} title={runLabel} aria-label={runLabel} onClick={collab.onRun}>
+        {collab.done ? <RotateCcw size={13} /> : collab.running ? <Loader2 size={13} /> : <Play size={13} />}
+        <span>{runLabel}</span>
       </button>
     </div>
   );
