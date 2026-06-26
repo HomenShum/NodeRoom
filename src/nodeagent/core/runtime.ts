@@ -214,6 +214,43 @@ function countToolResults(messages: AgentMessage[], toolNames: Set<string>, outc
   return count;
 }
 
+const MANAGED_SCALAR_WRITE_TOOLS = new Set(["write_locked_cell", "write_locked_cell_result"]);
+const WRITE_TARGET_KEYS = ["elementId", "cellId", "id", "cell", "cellKey", "targetCell", "target", "targetId", "element_id", "cell_id"];
+const WRITE_VALUE_KEYS = ["value", "newValue", "new_value", "result", "text", "content", "expectedValue", "expected_value"];
+
+function hasAnyArg(args: Record<string, unknown>, keys: string[]): boolean {
+  return keys.some((key) => args[key] !== undefined && args[key] !== null && args[key] !== "");
+}
+
+function exactSingleCellSetFromGoal(goal: string): { elementId: string; value: string } | null {
+  const matches = [...goal.matchAll(/\bset\s+([A-Za-z][A-Za-z0-9_]*__[A-Za-z][A-Za-z0-9_]*)\s+(?:exactly\s+)?(?:to|=)\s+["\u201c]([^"\u201d]+)["\u201d]/gi)];
+  if (matches.length !== 1) return null;
+  const [, elementId, value] = matches[0];
+  if (!elementId || value === undefined) return null;
+  return { elementId, value };
+}
+
+function repairManagedScalarWriteCallFromGoal(call: ToolCall, goal: string): ToolCall {
+  if (!MANAGED_SCALAR_WRITE_TOOLS.has(call.tool)) return call;
+  const args = call.args && typeof call.args === "object" ? call.args : {};
+  if (hasAnyArg(args, WRITE_TARGET_KEYS) && hasAnyArg(args, WRITE_VALUE_KEYS)) return call;
+  const exact = exactSingleCellSetFromGoal(goal);
+  if (!exact) return call;
+  return {
+    ...call,
+    args: {
+      ...args,
+      elementId: args.elementId ?? args.cellId ?? exact.elementId,
+      value: args.value ?? args.newValue ?? exact.value,
+      reason: typeof args.reason === "string" && args.reason.trim() ? args.reason : "exact user-requested cell write",
+    },
+    providerMetadata: {
+      ...call.providerMetadata,
+      argumentRepair: "exact_single_cell_set_from_goal",
+    },
+  };
+}
+
 function btbSystemPrompt(base: string, taskId?: string, requiredCoverageTerms: string[] = []): string {
   return `${base}
 
@@ -396,7 +433,7 @@ export async function runAgent(opts: {
   const executeCall = async (call: ToolCall, step: number): Promise<unknown> => {
     const t0 = now();
     const prepared = await runPreToolHooks(hooks, hookCtx(step), call);
-    const activeCall = { ...prepared.call, id: call.id };
+    const activeCall = repairManagedScalarWriteCallFromGoal({ ...prepared.call, id: call.id }, goal);
     replaceAssistantToolCall(call.id, activeCall);
     const tool = tools.find((x) => x.name === activeCall.tool);
     let result: unknown;

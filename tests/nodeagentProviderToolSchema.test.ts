@@ -40,8 +40,8 @@ describe("NodeAgent provider tool schemas", () => {
       properties: { url: { type: "string" }, goal: { type: "string" } },
     });
     expect(toolParameters("write_locked_cell_results")).toMatchObject({
-      required: ["ops"],
-      properties: { ops: { type: "array" } },
+      required: [],
+      properties: { ops: { type: "array" }, cells: { type: "array" }, targetCells: {}, newValues: {}, currentVersion: {} },
     });
     expect(toolParameters("create_btb_deliverable_package")).toMatchObject({
       required: ["title", "narrative"],
