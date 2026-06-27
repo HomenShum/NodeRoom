@@ -24,6 +24,8 @@ import { buildResearchContext } from "../nodeagent/core/worldModel";
 import { scriptedModel } from "../nodeagent/models/scripted";
 import { InMemoryRoomTools } from "../nodeagent/skills/integration/noderoomAdapter";
 import { ROOM_TOOLS } from "../nodeagent/skills/spreadsheet/cellMutator";
+import { createCreditLedger, type CreditBalance, type CreditLedger, type ReserveResult, type SettleResult, type UsageEvent } from "../nodeagent/core/creditLedger";
+import { type AgentCreditMode, type CostEstimate, DEFAULT_CREDIT_MODE, DEMO_CREDIT_CONFIG, estimateCostFor } from "../nodeagent/core/creditModel";
 
 /** Demo-mode pacing: yield ~`ms` between scripted agent steps so the UI paints every CAS beat.
  *  The steps are real engine mutations — this only makes them watchable (a run that completes in
@@ -167,6 +169,8 @@ export type AgentAskInput = {
   contextArtifactId?: string;
   runtimeProfile?: AgentRuntimeProfile;
   maxAttempts?: number;
+  /** Credit/depth mode for the run (Quick/Standard/Deep). Defaults to the store's selected mode. */
+  mode?: AgentCreditMode;
 };
 export type ActorProof = { actor: Actor; token: string };
 export type PrivateStreamAccess = { requester: ActorProof; driven: boolean };
@@ -314,6 +318,16 @@ export interface RoomStore {
   /** All in-flight agent jobs for the room (running/queued/paused/failed), most recent first — drives the Room Home
    *  "work lanes". Optional: memory mode returns 0–1; convex mode returns every active job. */
   activeLongFreeJobs?(): AgentJobTelemetry[];
+  /** Credit ledger — memory mode runs a real demo ledger (demo:true, enforced:true); live (convex)
+   *  exposes these only once the backend deploys. Optional so the convex provider can omit them
+   *  until then (the UI renders an honest "not metered" state). */
+  creditBalance?(): CreditBalance;
+  creditMode?(): AgentCreditMode;
+  setCreditMode?(mode: AgentCreditMode): void;
+  estimateCredits?(mode: AgentCreditMode): CostEstimate;
+  reserveCredits?(args: { mode: AgentCreditMode; note?: string }): ReserveResult;
+  settleCredits?(args: { reservationId: string; actualUsd?: number }): SettleResult;
+  listUsageEvents?(): UsageEvent[];
   okfTraceLens(roomId: string): OkfTraceLensTelemetry | null;
   cancelLongFreeJob(jobId: string): Promise<EditFeedback>;
   retryLongFreeJob(jobId: string): Promise<EditFeedback>;
@@ -605,6 +619,13 @@ export function EngineStoreProvider({ roomId, children }: { roomId: string; me: 
   const [memLongJob, setMemLongJob] = useState<AgentJobTelemetry | null>(null);
   const [memLongJobAttempts, setMemLongJobAttempts] = useState<AgentJobAttemptTelemetry[]>([]);
   const [memLongJobDetail, setMemLongJobDetail] = useState<AgentJobDetailTelemetry | null>(null);
+  // Credit ledger (memory demo): a real reserve→settle ledger seeded with the pilot's
+  // 20-credit ($5) grant so the demo can "feel" the credit system. creditRev forces
+  // re-render of balance/usage after every reserve/settle (useRef snapshot + rev counter,
+  // same pattern as memPassive/memPresence above).
+  const creditLedgerRef = useRef<CreditLedger>(createCreditLedger({ startingCredits: DEMO_CREDIT_CONFIG.startingCredits, demo: true, enforced: true }));
+  const [creditMode, setCreditModeState] = useState<AgentCreditMode>(DEFAULT_CREDIT_MODE);
+  const [creditRev, setCreditRev] = useState(0);
   const startMemoryFreeJob = useCallback((goal: string, references?: ArtifactRef[]) => {
     const now = Date.now();
     const id = `memory-free-auto-${++memLongJobRunRef.current}`;
@@ -729,6 +750,22 @@ export function EngineStoreProvider({ roomId, children }: { roomId: string; me: 
   const store = useMemo<RoomStore>(() => ({
     mode: "memory",
     // memPassiveRev is included in deps (below) to force re-compute after Dismiss/Research.
+    // creditRev/creditMode are in deps so balance + selected mode re-render after reserve/settle.
+    creditBalance: () => creditLedgerRef.current.balance(),
+    creditMode: () => creditMode,
+    setCreditMode: (m: AgentCreditMode) => { setCreditModeState(m); },
+    estimateCredits: (m: AgentCreditMode) => estimateCostFor(m),
+    reserveCredits: (args: { mode: AgentCreditMode; note?: string }) => {
+      const r = creditLedgerRef.current.reserve(args);
+      setCreditRev((v) => v + 1);
+      return r;
+    },
+    settleCredits: (args: { reservationId: string; actualUsd?: number }) => {
+      const r = creditLedgerRef.current.settle(args);
+      setCreditRev((v) => v + 1);
+      return r;
+    },
+    listUsageEvents: () => creditLedgerRef.current.events(),
     getRoom: (id) => engine.getRoom(id),
     roomState: (): "loading" | "notFound" | "ready" => "ready",
     listMembers: (id) => engine.listMembers(id),
@@ -813,6 +850,19 @@ export function EngineStoreProvider({ roomId, children }: { roomId: string; me: 
     runCollab: () => runDemo(false),
     runSemanticConflictDrill: () => runDemo(true),
     askAgent: async (input) => {
+      // Credit meter (memory demo): charge the mode estimate so the balance visibly moves and
+      // the user "feels" the credit system. The demo is FORGIVING by design — even at 0 credits
+      // the task still completes (Homen's rule: demos must finish, no overkill friction). The
+      // balance honestly bottoms out at 0; PRODUCTION (the live convex path, Phase B) does true
+      // reserve→run→settle with the ACTUAL cost and HARD-BLOCKS when the wallet is exhausted.
+      {
+        const mode = input.mode ?? creditMode;
+        const res = creditLedgerRef.current.reserve({ mode, note: input.goal.slice(0, 80) });
+        if (res.ok) {
+          creditLedgerRef.current.settle({ reservationId: res.reservationId!, actualUsd: estimateCostFor(mode).estimateUsd });
+        }
+        setCreditRev((v) => v + 1);
+      }
       const artifacts = engine.listArtifacts(roomId);
       const references = canonicalRefs(artifacts, input.references);
       const goal = withReferenceContext(input.goal, references);
@@ -1022,7 +1072,7 @@ export function EngineStoreProvider({ roomId, children }: { roomId: string; me: 
       setMemPassiveRev((v) => v + 1);
       return { ok: true, total: items.length, succeeded: items.length, failed: 0 };
     },
-  }), [rev, memPassiveRev, memPresenceRev, memLongJob, memLongJobAttempts, memLongJobDetail, roomId, startMemoryFreeJob, runMemoryFreeJob]);
+  }), [rev, memPassiveRev, memPresenceRev, memLongJob, memLongJobAttempts, memLongJobDetail, creditRev, creditMode, roomId, startMemoryFreeJob, runMemoryFreeJob]);
 
   // E2E test seam: expose runCollab/runSemanticConflictDrill via window so tests can trigger
   // collaboration and conflict drills without the removed CollabBar buttons.
@@ -1062,6 +1112,33 @@ export function EngineStoreProvider({ roomId, children }: { roomId: string; me: 
       return k;
     };
     return () => { delete (window as unknown as { __seedOverlay?: unknown }).__seedOverlay; };
+  }, []);
+  // Load-test seam (memory mode): drive the credit ledger directly so a backend-free
+  // sustained-load run can stress balance/bound/idempotency from Playwright via page.evaluate
+  // (mirrors the __runCollab/__seedOverlay seams above). Loop is bounded at 10k iterations.
+  useEffect(() => {
+    const w = window as unknown as {
+      __creditState?: () => CreditBalance;
+      __simulateLoad?: (n: number, mode?: AgentCreditMode) => { ran: number; rejected: number; balance: CreditBalance };
+    };
+    w.__creditState = () => creditLedgerRef.current.balance();
+    w.__simulateLoad = (n, mode = "standard") => {
+      let ran = 0;
+      let rejected = 0;
+      const iterations = Math.max(0, Math.min(10_000, Math.floor(n)));
+      for (let i = 0; i < iterations; i++) {
+        const r = creditLedgerRef.current.reserve({ mode });
+        if (!r.ok) { rejected += 1; continue; }
+        creditLedgerRef.current.settle({ reservationId: r.reservationId!, actualUsd: estimateCostFor(mode).estimateUsd });
+        ran += 1;
+      }
+      setCreditRev((v) => v + 1);
+      return { ran, rejected, balance: creditLedgerRef.current.balance() };
+    };
+    return () => {
+      delete (window as unknown as { __creditState?: unknown }).__creditState;
+      delete (window as unknown as { __simulateLoad?: unknown }).__simulateLoad;
+    };
   }, []);
   return <Ctx.Provider value={store}>{children}</Ctx.Provider>;
 }
