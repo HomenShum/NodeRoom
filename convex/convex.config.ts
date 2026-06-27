@@ -8,6 +8,9 @@ import prosemirrorSync from "@convex-dev/prosemirror-sync/convex.config.js";
 const app = defineApp();
 
 app.use(workflow);
+// P0: Separate workflow component for passive jobs — its internal workpool
+// gets maxParallelism=1 so passive jobs can never starve foreground jobs.
+app.use(workflow, { name: "passiveWorkflow" });
 app.use(workpool, { name: "agentWorkpool" });
 app.use(persistentTextStreaming);
 app.use(debouncer);

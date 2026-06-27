@@ -10,6 +10,177 @@ import { actorProofV, requireActorProof, type ActorValue } from "./lib";
 
 const DEFAULT_QUIET_MS = 12_000;
 const MAX_QUIET_MS = 60_000;
+
+/** P0 kill switch: when false, passive detection NEVER auto-creates agent jobs.
+ *  Detection still runs and creates roomSuggestions (outbox rows with status "noteworthy"),
+ *  but execution is gated behind explicit user promotion via researchActivity mutation.
+ *  Doctrine: NodeRoom should notice passively, but act explicitly. */
+function passiveCreateAgentJobsEnabled(): boolean {
+  const raw = process.env.PASSIVE_CREATE_AGENT_JOBS;
+  if (raw === undefined) return false; // default: OFF (safe)
+  return raw === "true" || raw === "1";
+}
+
+/** P3: Assistive policy modes. Most restrictive wins across system → room hierarchy. */
+type AssistiveMode = "off" | "suggestions_only" | "ask_before_research" | "approved_watchlist_only";
+const MODE_RESTRICTION_ORDER: AssistiveMode[] = ["off", "approved_watchlist_only", "ask_before_research", "suggestions_only"];
+
+/** P3: Resolve the effective assistive policy for a room.
+ *  System default is "suggestions_only" (passive detection creates inbox items, never jobs).
+ *  If a room policy exists, the more restrictive of system-default and room-policy wins. */
+async function resolveRoomAssistivePolicy(
+  ctx: MutationCtx,
+  roomId: Id<"rooms">,
+): Promise<{
+  mode: AssistiveMode;
+  allowExternalCalls: boolean;
+  maxSuggestionsPerHour: number;
+  disabledSignalKinds: string[];
+  approvedEntityWatchlist: string[];
+}> {
+  const roomPolicy = await ctx.db
+    .query("roomAssistivePolicies")
+    .withIndex("by_room", (q) => q.eq("roomId", roomId))
+    .first();
+
+  // System default: suggestions_only, external calls allowed, 10/hour.
+  const systemMode: AssistiveMode = "suggestions_only";
+  const systemMaxPerHour = passiveMaxPerRoomPerHour();
+
+  if (!roomPolicy) {
+    return {
+      mode: systemMode,
+      allowExternalCalls: true,
+      maxSuggestionsPerHour: systemMaxPerHour,
+      disabledSignalKinds: [],
+      approvedEntityWatchlist: [],
+    };
+  }
+
+  // Most restrictive wins: lower index in MODE_RESTRICTION_ORDER = more restrictive.
+  const systemIdx = MODE_RESTRICTION_ORDER.indexOf(systemMode);
+  const roomIdx = MODE_RESTRICTION_ORDER.indexOf(roomPolicy.mode as AssistiveMode);
+  const effectiveMode = systemIdx <= roomIdx ? systemMode : roomPolicy.mode as AssistiveMode;
+
+  return {
+    mode: effectiveMode,
+    allowExternalCalls: roomPolicy.allowExternalCalls,
+    maxSuggestionsPerHour: Math.min(roomPolicy.maxSuggestionsPerHour || systemMaxPerHour, systemMaxPerHour),
+    disabledSignalKinds: roomPolicy.disabledSignalKinds ?? [],
+    approvedEntityWatchlist: roomPolicy.approvedEntityWatchlist ?? [],
+  };
+}
+
+/** P3: Check if a signal kind is disabled by the effective room policy. */
+function isSignalDisabled(disabledKinds: string[], signalKinds: string[]): boolean {
+  if (!disabledKinds.length) return false;
+  return signalKinds.some((k) => disabledKinds.includes(k));
+}
+
+/** P3: Check if an entity is on the approved watchlist (for approved_watchlist_only mode). */
+function isEntityWatchlisted(watchlist: string[], entityNames: string[]): boolean {
+  if (!watchlist.length) return false;
+  const lowerWatch = new Set(watchlist.map((w) => w.toLowerCase().trim()));
+  return entityNames.some((e) => lowerWatch.has(e.toLowerCase().trim()));
+}
+
+/** P3: Create a deterministic signal fingerprint hash from suggestion characteristics.
+ *  Used for signal-scoped suppression — "do not show this type of suggestion in this room". */
+function signalFingerprintHash(params: {
+  sourceKind: string;
+  signalKind: string;
+  entityKind?: string;
+}): string {
+  return [params.sourceKind, params.signalKind, params.entityKind ?? "unknown"].join("|");
+}
+
+/** P3: Check if a signal fingerprint has been dismissed with signal scope in this room. */
+async function isSignalDismissed(
+  ctx: MutationCtx,
+  roomId: Id<"rooms">,
+  fingerprintHash: string,
+): Promise<boolean> {
+  const dismissed = await ctx.db
+    .query("suggestionFeedback")
+    .withIndex("by_room_signal", (q) => q.eq("roomId", roomId).eq("signalFingerprintHash", fingerprintHash))
+    .filter((q) => q.eq(q.field("scope"), "signal"))
+    .first();
+  if (!dismissed) return false;
+  // Check TTL expiry.
+  if (dismissed.expiresAt && dismissed.expiresAt < Date.now()) return false;
+  return true;
+}
+
+/** P0: passive jobs get maxAttempts=1, not 20. No infinite retry loops. */
+function passiveMaxAttempts(): number {
+  const raw = Number(process.env.PASSIVE_MAX_ATTEMPTS ?? 1);
+  if (!Number.isFinite(raw)) return 1;
+  return Math.max(1, Math.min(raw, 3));
+}
+
+/** P1: Per-room passive quota — max number of noteworthy suggestions per room per hour.
+ *  Prevents flooding the inbox with duplicates when a user pastes a lot of content. */
+function passiveMaxPerRoomPerHour(): number {
+  const raw = Number(process.env.PASSIVE_MAX_PER_ROOM_PER_HOUR ?? 10);
+  if (!Number.isFinite(raw)) return 10;
+  return Math.max(1, Math.min(raw, 50));
+}
+
+/** P1: Check if a room already has an active noteworthy suggestion for the same entity.
+ *  Prevents duplicate suggestions when the same company/person is mentioned in multiple sources. */
+async function findExistingNoteworthyForEntity(
+  ctx: MutationCtx,
+  roomId: Id<"rooms">,
+  entityNames: string[],
+  excludeId?: Id<"roomActivityOutbox">,
+): Promise<boolean> {
+  if (!entityNames.length) return false;
+  const cutoff = Date.now() - FEED_STALENESS_MS;
+  const rows = await ctx.db
+    .query("roomActivityOutbox")
+    .withIndex("by_room_status", (q) => q.eq("roomId", roomId).eq("status", "noteworthy"))
+    .take(50);
+  const entitySet = new Set(entityNames.map((e) => e.toLowerCase().trim()));
+  for (const row of rows) {
+    if (excludeId && row._id === excludeId) continue;
+    if (row.updatedAt < cutoff) continue;
+    const existingEntities = (row.finding?.entities ?? []).map((e: any) => String(e.name ?? "").toLowerCase().trim()).filter(Boolean);
+    if (existingEntities.some((e: string) => entitySet.has(e))) return true;
+  }
+  return false;
+}
+
+/** P1: Check if a room has exceeded its per-hour noteworthy quota. */
+async function roomNoteworthyQuotaExceeded(
+  ctx: MutationCtx,
+  roomId: Id<"rooms">,
+): Promise<boolean> {
+  const oneHourAgo = Date.now() - 60 * 60 * 1000;
+  const recent = await ctx.db
+    .query("roomActivityOutbox")
+    .withIndex("by_room_status", (q) => q.eq("roomId", roomId).eq("status", "noteworthy"))
+    .filter((q) => q.gte(q.field("updatedAt"), oneHourAgo))
+    .take(passiveMaxPerRoomPerHour() + 1);
+  return recent.length >= passiveMaxPerRoomPerHour();
+}
+
+/** P2: Check if any of the entities were previously dismissed by a room member.
+ *  If so, suppress the new suggestion — the user already said "not interested". */
+async function isEntityDismissed(
+  ctx: MutationCtx,
+  roomId: Id<"rooms">,
+  entityNames: string[],
+): Promise<boolean> {
+  if (!entityNames.length) return false;
+  for (const name of entityNames) {
+    const dismissed = await ctx.db
+      .query("roomDismissedEntities")
+      .withIndex("by_room_entity", (q) => q.eq("roomId", roomId).eq("entityName", name.toLowerCase().trim()))
+      .first();
+    if (dismissed) return true;
+  }
+  return false;
+}
 /** Deploy-safety: the passive feed only surfaces activity from the last 2 days so stale
  *  historical failed/noteworthy rows don't light up the chip indefinitely after deploy. */
 const FEED_STALENESS_MS = 2 * 24 * 60 * 60 * 1000;
@@ -308,6 +479,21 @@ export const dismissActivity = mutation({
     activityId: v.id("roomActivityOutbox"),
     roomId: v.id("rooms"),
     requester: actorProofV,
+    // P3: Optional structured feedback for signal-scoped suppression.
+    dismissReason: v.optional(v.union(
+      v.literal("wrong_entity"),
+      v.literal("not_relevant"),
+      v.literal("too_noisy"),
+      v.literal("already_handled"),
+      v.literal("sensitive"),
+      v.literal("other"),
+    )),
+    scope: v.optional(v.union(
+      v.literal("item"),
+      v.literal("entity"),
+      v.literal("signal"),
+      v.literal("room"),
+    )),
   },
   handler: async (ctx, args) => {
     const actor = await requireActorProof(ctx, args.roomId, args.requester);
@@ -320,7 +506,120 @@ export const dismissActivity = mutation({
       return { ok: false as const, reason: "not_owner" };
     }
     await ctx.db.patch(args.activityId, { status: "ignored", dismissedBy: actor.id, updatedAt: Date.now() });
+    // P2: Learning from dismissals — record dismissed entity names so future
+    // suggestions for the same entity are automatically suppressed.
+    const entityNames = (row.finding?.entities ?? []).map((e: any) => String(e.name ?? "").toLowerCase().trim()).filter(Boolean);
+    const now = Date.now();
+    for (const name of entityNames) {
+      const existing = await ctx.db
+        .query("roomDismissedEntities")
+        .withIndex("by_room_entity", (q) => q.eq("roomId", args.roomId).eq("entityName", name))
+        .first();
+      if (existing) {
+        await ctx.db.patch(existing._id, { dismissedBy: actor.id, dismissedAt: now, dismissCount: existing.dismissCount + 1 });
+      } else {
+        await ctx.db.insert("roomDismissedEntities", {
+          roomId: args.roomId,
+          entityName: name,
+          dismissedBy: actor.id,
+          dismissedAt: now,
+          dismissCount: 1,
+        });
+      }
+    }
+    // P3: Record structured suggestion feedback for signal-scoped suppression.
+    if (args.dismissReason && args.scope) {
+      const entityName = entityNames[0];
+      const signalKind = (row.finding?.signals ?? row.finding?.reasons ?? [])[0] ?? "entity_mention";
+      const entityKind = (row.finding?.entities ?? [])[0]?.type ?? "unknown";
+      const fpHash = signalFingerprintHash({ sourceKind: row.sourceKind, signalKind: String(signalKind), entityKind: String(entityKind) });
+      await ctx.db.insert("suggestionFeedback", {
+        roomId: args.roomId,
+        userId: actor.id,
+        suggestionId: args.activityId,
+        entity: entityName,
+        signalFingerprintHash: fpHash,
+        dismissReason: args.dismissReason,
+        scope: args.scope,
+        // Signal-scoped suppressions expire after 30 days; entity-scoped never expire.
+        expiresAt: args.scope === "signal" ? Date.now() + 30 * 24 * 60 * 60 * 1000 : undefined,
+        createdAt: now,
+      });
+    }
     return { ok: true as const };
+  },
+});
+
+/** P3: Set or update the assistive intelligence policy for a room.
+ *  Most restrictive setting wins against system default. */
+export const setRoomAssistivePolicy = mutation({
+  args: {
+    roomId: v.id("rooms"),
+    requester: actorProofV,
+    mode: v.union(
+      v.literal("off"),
+      v.literal("suggestions_only"),
+      v.literal("ask_before_research"),
+      v.literal("approved_watchlist_only"),
+    ),
+    allowExternalCalls: v.optional(v.boolean()),
+    maxSuggestionsPerHour: v.optional(v.number()),
+    disabledSignalKinds: v.optional(v.array(v.string())),
+    approvedEntityWatchlist: v.optional(v.array(v.string())),
+  },
+  handler: async (ctx, args) => {
+    const actor = await requireActorProof(ctx, args.roomId, args.requester);
+    const existing = await ctx.db
+      .query("roomAssistivePolicies")
+      .withIndex("by_room", (q) => q.eq("roomId", args.roomId))
+      .first();
+    const now = Date.now();
+    const patch = {
+      roomId: args.roomId,
+      mode: args.mode,
+      allowExternalCalls: args.allowExternalCalls ?? true,
+      maxSuggestionsPerHour: args.maxSuggestionsPerHour ?? passiveMaxPerRoomPerHour(),
+      maxApprovedBackgroundJobsPerDay: 5,
+      disabledSignalKinds: args.disabledSignalKinds ?? [],
+      approvedEntityWatchlist: args.approvedEntityWatchlist ?? [],
+      updatedBy: actor.id,
+      updatedAt: now,
+    };
+    if (existing) {
+      await ctx.db.patch(existing._id, patch);
+    } else {
+      await ctx.db.insert("roomAssistivePolicies", patch);
+    }
+    return { ok: true as const };
+  },
+});
+
+/** P3: Read the effective assistive policy for a room. */
+export const roomAssistivePolicy = query({
+  args: { roomId: v.id("rooms") },
+  handler: async (ctx, args) => {
+    const roomPolicy = await ctx.db
+      .query("roomAssistivePolicies")
+      .withIndex("by_room", (q) => q.eq("roomId", args.roomId))
+      .first();
+    if (!roomPolicy) {
+      return {
+        mode: "suggestions_only" as const,
+        allowExternalCalls: true,
+        maxSuggestionsPerHour: passiveMaxPerRoomPerHour(),
+        disabledSignalKinds: [],
+        approvedEntityWatchlist: [],
+        source: "system_default" as const,
+      };
+    }
+    return {
+      mode: roomPolicy.mode,
+      allowExternalCalls: roomPolicy.allowExternalCalls,
+      maxSuggestionsPerHour: roomPolicy.maxSuggestionsPerHour,
+      disabledSignalKinds: roomPolicy.disabledSignalKinds,
+      approvedEntityWatchlist: roomPolicy.approvedEntityWatchlist,
+      source: "room_policy" as const,
+    };
   },
 });
 
@@ -368,6 +667,77 @@ export const researchActivity = mutation({
       lastScannedAt: now,
     });
     return { ok: true as const };
+  },
+});
+
+/** P1: Batch approval — research multiple passive-activity items at once.
+ *  Collects all unique entities across the selected items and creates one research job
+ *  per unique entity. Marks each outbox row as job_created with the job reference.
+ *  This is the "Batch all" action from the Assistive Inbox. */
+export const batchResearchActivity = mutation({
+  args: {
+    activityIds: v.array(v.id("roomActivityOutbox")),
+    roomId: v.id("rooms"),
+    requester: actorProofV,
+  },
+  handler: async (ctx, args) => {
+    const actor = await requireActorProof(ctx, args.roomId, args.requester);
+    if (args.activityIds.length === 0) return { ok: false as const, reason: "no_items" };
+    if (args.activityIds.length > 20) return { ok: false as const, reason: "too_many_items" };
+
+    const now = Date.now();
+    const rows: Array<{ row: any; text: string; finding: any }> = [];
+    const seenEntities = new Set<string>();
+
+    for (const activityId of args.activityIds) {
+      const row = await ctx.db.get(activityId);
+      if (!row || String(row.roomId) !== String(args.roomId)) continue;
+      if (row.visibility === "private" && row.ownerId !== actor.id) continue;
+      const text = row.decision?.text ?? await readSourceText(ctx, row.roomId, row.sourceKind, row.sourceId) ?? "";
+      const baseFinding = row.finding?.entities?.length ? row.finding : classifyNoteworthy(text);
+      if (!baseFinding.entities.length) continue;
+      // Deduplicate entities across the batch — one job per unique entity.
+      const newEntities = baseFinding.entities.filter((e: any) => {
+        const name = String(e.name ?? e.displayName ?? "").toLowerCase().trim();
+        if (!name || seenEntities.has(name)) return false;
+        seenEntities.add(name);
+        return true;
+      });
+      if (!newEntities.length) continue;
+      const finding = { ...baseFinding, entities: newEntities, action: "start_research_job" as const };
+      rows.push({ row, text, finding });
+    }
+
+    if (rows.length === 0) return { ok: false as const, reason: "no_entities" };
+
+    // Create one job per row (each row may have different source context for the same entity).
+    // The agent will deduplicate research results server-side via entityResearchCache.
+    const results: Array<{ activityId: string; ok: boolean; jobId?: string; error?: string }> = [];
+    for (const { row, text, finding } of rows) {
+      const job = await createPassiveRoomWorkJob(ctx, row, finding, text, now);
+      await ctx.db.patch(row._id, {
+        status: job.ok ? "job_created" : "failed",
+        latestJobId: job.jobId,
+        decision: {
+          ...(row.decision ?? { status: "noteworthy" as const, action: "start_research_job" as const }),
+          status: job.ok ? "job_created" : "failed",
+          action: "start_research_job",
+          next: "agentJobs.workflow",
+          text,
+          job,
+          error: job.ok ? undefined : job.error,
+          batchApproved: true,
+        },
+        finding,
+        error: job.ok ? undefined : job.error,
+        updatedAt: now,
+        lastScannedAt: now,
+      });
+      results.push({ activityId: String(row._id), ok: job.ok, jobId: job.jobId ? String(job.jobId) : undefined, error: job.ok ? undefined : job.error });
+    }
+
+    const succeeded = results.filter((r) => r.ok).length;
+    return { ok: true as const, total: results.length, succeeded, failed: results.length - succeeded, results };
   },
 });
 
@@ -631,6 +1001,113 @@ export async function scanActivityRow(ctx: MutationCtx, row: {
     return decision;
   }
 
+  // P0: Passive detection creates suggestions only — NOT agent jobs.
+  // The outbox row stays as "noteworthy" so the UI can surface it as an inbox item.
+  // User must explicitly promote via researchActivity mutation to create a job.
+  // Kill switch: set PASSIVE_CREATE_AGENT_JOBS=true to restore old auto-execution behavior.
+  if (!passiveCreateAgentJobsEnabled()) {
+    // P3: Effective policy resolver — check room-level assistive policy.
+    const policy = await resolveRoomAssistivePolicy(ctx, row.roomId);
+    const entityNames = decision.finding?.entities?.map((e: any) => String(e.displayName ?? e.name ?? "")).filter(Boolean) ?? [];
+    const signalKinds = decision.finding?.signals ?? decision.finding?.reasons ?? [];
+
+    // Mode "off": suppress all passive suggestions for this room.
+    if (policy.mode === "off") {
+      await ctx.db.patch(row._id, {
+        status: "not_noteworthy" as const,
+        decision: { ...decision, status: "not_noteworthy", reason: "policy_off" },
+        finding: decision.finding,
+        updatedAt: Date.now(),
+        lastScannedAt: Date.now(),
+      });
+      return { ...decision, status: "not_noteworthy", reason: "policy_off" };
+    }
+
+    // Disabled signal kinds: suppress if the signal kind is in the disabled list.
+    if (isSignalDisabled(policy.disabledSignalKinds, signalKinds)) {
+      await ctx.db.patch(row._id, {
+        status: "not_noteworthy" as const,
+        decision: { ...decision, status: "not_noteworthy", reason: "signal_disabled_by_policy" },
+        finding: decision.finding,
+        updatedAt: Date.now(),
+        lastScannedAt: Date.now(),
+      });
+      return { ...decision, status: "not_noteworthy", reason: "signal_disabled_by_policy" };
+    }
+
+    // Approved watchlist only: suppress if entity is not on the watchlist.
+    if (policy.mode === "approved_watchlist_only" && !isEntityWatchlisted(policy.approvedEntityWatchlist, entityNames)) {
+      await ctx.db.patch(row._id, {
+        status: "not_noteworthy" as const,
+        decision: { ...decision, status: "not_noteworthy", reason: "not_on_watchlist" },
+        finding: decision.finding,
+        updatedAt: Date.now(),
+        lastScannedAt: Date.now(),
+      });
+      return { ...decision, status: "not_noteworthy", reason: "not_on_watchlist" };
+    }
+
+    // P1: Per-room quota — if the room already has too many noteworthy suggestions,
+    // suppress new ones to prevent inbox flooding.
+    if (await roomNoteworthyQuotaExceeded(ctx, row.roomId)) {
+      await ctx.db.patch(row._id, {
+        status: "not_noteworthy" as const,
+        decision: { ...decision, status: "not_noteworthy", reason: "room_quota_exceeded" },
+        finding: decision.finding,
+        updatedAt: Date.now(),
+        lastScannedAt: Date.now(),
+      });
+      return { ...decision, status: "not_noteworthy", reason: "room_quota_exceeded" };
+    }
+    // P1: Entity dedup — if there's already an active noteworthy suggestion for the
+    // same entity, suppress this one to avoid duplicate inbox items.
+    if (await findExistingNoteworthyForEntity(ctx, row.roomId, entityNames, row._id)) {
+      await ctx.db.patch(row._id, {
+        status: "not_noteworthy" as const,
+        decision: { ...decision, status: "not_noteworthy", reason: "duplicate_entity" },
+        finding: decision.finding,
+        updatedAt: Date.now(),
+        lastScannedAt: Date.now(),
+      });
+      return { ...decision, status: "not_noteworthy", reason: "duplicate_entity" };
+    }
+    // P2: Learning from dismissals — if the user previously dismissed this entity,
+    // suppress the new suggestion automatically.
+    if (await isEntityDismissed(ctx, row.roomId, entityNames)) {
+      await ctx.db.patch(row._id, {
+        status: "not_noteworthy" as const,
+        decision: { ...decision, status: "not_noteworthy", reason: "previously_dismissed" },
+        finding: decision.finding,
+        updatedAt: Date.now(),
+        lastScannedAt: Date.now(),
+      });
+      return { ...decision, status: "not_noteworthy", reason: "previously_dismissed" };
+    }
+    // P3: Signal-scoped suppression — if the user dismissed this signal type
+    // (e.g. "people background from public chat") in this room, suppress.
+    const signalKind = (decision.finding?.signals ?? decision.finding?.reasons ?? [])[0] ?? "entity_mention";
+    const entityKind = (decision.finding?.entities ?? [])[0]?.type ?? "unknown";
+    const fpHash = signalFingerprintHash({ sourceKind: row.sourceKind, signalKind: String(signalKind), entityKind: String(entityKind) });
+    if (await isSignalDismissed(ctx, row.roomId, fpHash)) {
+      await ctx.db.patch(row._id, {
+        status: "not_noteworthy" as const,
+        decision: { ...decision, status: "not_noteworthy", reason: "signal_dismissed" },
+        finding: decision.finding,
+        updatedAt: Date.now(),
+        lastScannedAt: Date.now(),
+      });
+      return { ...decision, status: "not_noteworthy", reason: "signal_dismissed" };
+    }
+    await ctx.db.patch(row._id, {
+      status: "noteworthy" as const,
+      decision: { ...decision, job: { ok: false, error: "passive_execution_disabled" } },
+      finding: decision.finding,
+      updatedAt: Date.now(),
+      lastScannedAt: Date.now(),
+    });
+    return { ...decision, job: { ok: false, error: "passive_execution_disabled" } };
+  }
+
   const job = await createPassiveRoomWorkJob(ctx, row, decision.finding, decision.text ?? "", now);
   await ctx.db.patch(row._id, {
     status: job.ok ? "job_created" : "failed",
@@ -743,7 +1220,7 @@ async function createPassiveRoomWorkJob(
     modelPolicy: "openrouter/free-auto",
     runtime: "workflow",
     attempts: 0,
-    maxAttempts: 20,
+    maxAttempts: passiveMaxAttempts(),
     actionSliceCount: 0,
     queryCount: 0,
     mutationCount: 1,
@@ -804,7 +1281,7 @@ async function createPassiveRoomWorkJob(
   }
 
   try {
-    const workflowId: string = String(await startWorkflow(ctx, internal.agentWorkflows.freeAutoWorkflow, { jobId }, {
+    const workflowId: string = String(await startWorkflow(ctx, internal.agentWorkflows.passiveRoomWorkWorkflow, { jobId }, {
       onComplete: internal.agentWorkflows.freeAutoWorkflowComplete,
       context: { jobId },
     }));
@@ -813,7 +1290,7 @@ async function createPassiveRoomWorkJob(
       jobId,
       sequence: 2,
       kind: "scheduler",
-      name: "agentWorkflows.freeAutoWorkflow",
+      name: "agentWorkflows.passiveRoomWorkWorkflow",
       countDelta: 1,
       affectedIds: [String(jobId)],
       status: "completed",
@@ -835,7 +1312,7 @@ async function createPassiveRoomWorkJob(
       jobId,
       sequence: 2,
       kind: "scheduler",
-      name: "agentWorkflows.freeAutoWorkflow start failed",
+      name: "agentWorkflows.passiveRoomWorkWorkflow start failed",
       countDelta: 0,
       affectedIds: [String(jobId)],
       status: "failed",
@@ -1009,3 +1486,171 @@ function normalizeEntityKey(name: string) {
 function asEntityType(value: string): "company" | "person" | "product" | "source" | "metric" | "unknown" {
   return value === "company" || value === "person" || value === "product" || value === "source" || value === "metric" ? value : "unknown";
 }
+
+/** P3: Cost preview with bands — returns p50/p90/hard cap estimates with confidence levels.
+ *  Replaces the P2 single-average estimate with a range that honestly reflects uncertainty.
+ *  Falls back to conservative static estimates when no history exists. */
+export const researchCostPreview = query({
+  args: { roomId: v.id("rooms") },
+  handler: async (ctx, args) => {
+    // Find recent completed research jobs for this room.
+    const recentJobs = await ctx.db
+      .query("agentJobs")
+      .withIndex("by_room", (q) => q.eq("roomId", args.roomId))
+      .filter((q) => q.eq(q.field("mode"), "research") && q.eq(q.field("status"), "completed"))
+      .take(20);
+    if (recentJobs.length === 0) {
+      // No history — return conservative static estimates with low confidence.
+      return {
+        p50Usd: 0.02,
+        p90Usd: 0.08,
+        hardCapUsd: 2.0,
+        avgTokens: 8000,
+        sampleSize: 0,
+        confidence: "low" as const,
+        basis: "cold_start_no_history",
+      };
+    }
+    // Collect per-job costs for percentile calculation.
+    const jobCosts: number[] = [];
+    let totalTokens = 0;
+    for (const job of recentJobs) {
+      const attempts = await ctx.db
+        .query("agentJobAttempts")
+        .withIndex("by_job", (q) => q.eq("jobId", job._id))
+        .take(10);
+      if (attempts.length === 0) continue;
+      const jobCost = attempts.reduce((sum, a) => sum + a.costUsd, 0);
+      const jobTokens = attempts.reduce((sum, a) => sum + a.inputTokens + a.outputTokens, 0);
+      jobCosts.push(jobCost);
+      totalTokens += jobTokens;
+    }
+    if (jobCosts.length === 0) {
+      return {
+        p50Usd: 0.02,
+        p90Usd: 0.08,
+        hardCapUsd: 2.0,
+        avgTokens: 8000,
+        sampleSize: 0,
+        confidence: "low" as const,
+        basis: "cold_start_no_history",
+      };
+    }
+    // Sort costs for percentile calculation.
+    jobCosts.sort((a, b) => a - b);
+    const p50Idx = Math.floor(jobCosts.length * 0.5);
+    const p90Idx = Math.floor(jobCosts.length * 0.9);
+    const p50 = jobCosts[p50Idx];
+    const p90 = jobCosts[p90Idx] ?? jobCosts[jobCosts.length - 1];
+    // Hard cap: 3x p90, minimum $0.50, maximum $5.00.
+    const hardCap = Math.max(0.5, Math.min(5.0, p90 * 3));
+    const confidence = jobCosts.length >= 10 ? "high" as const : jobCosts.length >= 3 ? "medium" as const : "low" as const;
+    return {
+      p50Usd: Math.round(p50 * 10000) / 10000,
+      p90Usd: Math.round(p90 * 10000) / 10000,
+      hardCapUsd: Math.round(hardCap * 100) / 100,
+      avgTokens: Math.round(totalTokens / jobCosts.length),
+      sampleSize: jobCosts.length,
+      confidence,
+      basis: "similar_jobs",
+    };
+  },
+});
+
+/** P3: Query server-side suggestion digests for a room. Returns grouped summaries
+ *  instead of raw cards when the inbox has many items. */
+export const suggestionDigests = query({
+  args: { roomId: v.id("rooms") },
+  handler: async (ctx, args) => {
+    const digests = await ctx.db
+      .query("roomSuggestionDigests")
+      .withIndex("by_room_status", (q) => q.eq("roomId", args.roomId).eq("status", "open"))
+      .take(20);
+    return digests.map((d) => ({
+      id: String(d._id),
+      groupKey: d.groupKey,
+      groupKind: d.groupKind,
+      title: d.title,
+      summary: d.summary,
+      count: d.count,
+      sampleSuggestionIds: d.sampleSuggestionIds.map(String),
+      highestPriority: d.highestPriority,
+      status: d.status,
+    }));
+  },
+});
+
+/** P3: Build server-side digests by grouping open noteworthy suggestions for a room.
+ *  Groups by entity name, creates/updates digest rows, and archives suggestions older than 7 days
+ *  that have never been interacted with. Called periodically (e.g. via cron or manual trigger). */
+export const buildDigests = internalMutation({
+  args: { roomId: v.id("rooms") },
+  handler: async (ctx, args) => {
+    // Fetch all open noteworthy suggestions for the room.
+    const noteworthy = await ctx.db
+      .query("roomActivityOutbox")
+      .withIndex("by_room_visibility_updated", (q) => q.eq("roomId", args.roomId))
+      .filter((q) => q.eq(q.field("status"), "noteworthy"))
+      .take(100);
+
+    if (noteworthy.length < 5) return { digestsCreated: 0, archived: 0 };
+
+    // Group by entity name.
+    const groups = new Map<string, typeof noteworthy>();
+    for (const row of noteworthy) {
+      const entityName = (row.finding?.entities ?? [])[0]?.displayName ?? row.sourceKind;
+      const key = String(entityName).toLowerCase().trim();
+      const group = groups.get(key);
+      if (group) group.push(row);
+      else groups.set(key, [row]);
+    }
+
+    const now = Date.now();
+    let digestsCreated = 0;
+    let archived = 0;
+
+    for (const [entityKey, rows] of groups) {
+      if (rows.length < 2) continue; // Only digest groups with 2+ items.
+      const title = (rows[0].finding?.entities ?? [])[0]?.displayName ?? entityKey;
+      const sourceKinds = new Set(rows.map((r) => r.sourceKind));
+      const summary = `${rows.length} mentions across ${sourceKinds.size} source type${sourceKinds.size === 1 ? "" : "s"}`;
+      const sampleIds = rows.slice(0, 5).map((r) => r._id);
+      const highestPriority = Math.max(...rows.map((r) => r.decision?.finding?.score ?? 0));
+
+      // Check if a digest already exists for this room + groupKey.
+      const existing = await ctx.db
+        .query("roomSuggestionDigests")
+        .withIndex("by_room_status", (q) => q.eq("roomId", args.roomId).eq("status", "open"))
+        .filter((q) => q.eq(q.field("groupKey"), entityKey))
+        .first();
+
+      if (existing) {
+        await ctx.db.patch(existing._id, {
+          title, summary, count: rows.length, sampleSuggestionIds: sampleIds,
+          highestPriority, updatedAt: now,
+        });
+      } else {
+        await ctx.db.insert("roomSuggestionDigests", {
+          roomId: args.roomId,
+          groupKey: entityKey,
+          groupKind: "entity",
+          title, summary, count: rows.length,
+          sampleSuggestionIds: sampleIds,
+          highestPriority, status: "open", updatedAt: now,
+        });
+        digestsCreated++;
+      }
+    }
+
+    // Archive suggestions older than 7 days that haven't been interacted with.
+    const sevenDaysAgo = now - 7 * 24 * 60 * 60 * 1000;
+    for (const row of noteworthy) {
+      if (row.updatedAt < sevenDaysAgo && row.status === "noteworthy") {
+        await ctx.db.patch(row._id, { status: "ignored" as const, updatedAt: now });
+        archived++;
+      }
+    }
+
+    return { digestsCreated, archived };
+  },
+});

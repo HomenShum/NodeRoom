@@ -447,6 +447,128 @@ export default defineSchema({
     .index("by_room_visibility_updated", ["roomId", "visibility", "updatedAt"])
     .index("by_room_owner_visibility_updated", ["roomId", "ownerId", "visibility", "updatedAt"]),
 
+  /** P2: Tracks entity names dismissed by room members so future passive suggestions
+   *  for the same entity are automatically suppressed. One row per (roomId, entityName) pair.
+   *  dismissedBy tracks who dismissed it; dismissedAt tracks when for staleness. */
+  roomDismissedEntities: defineTable({
+    roomId: v.id("rooms"),
+    entityName: v.string(),
+    dismissedBy: v.string(),
+    dismissedAt: v.number(),
+    dismissCount: v.number(),
+  })
+    .index("by_room_entity", ["roomId", "entityName"])
+    .index("by_room", ["roomId", "dismissedAt"]),
+
+  /** P3: Per-room assistive intelligence policy. Most restrictive setting wins
+   *  across system → workspace → room → user hierarchy. */
+  roomAssistivePolicies: defineTable({
+    roomId: v.id("rooms"),
+    mode: v.union(
+      v.literal("off"),
+      v.literal("suggestions_only"),
+      v.literal("ask_before_research"),
+      v.literal("approved_watchlist_only"),
+    ),
+    allowExternalCalls: v.boolean(),
+    maxSuggestionsPerHour: v.number(),
+    maxApprovedBackgroundJobsPerDay: v.number(),
+    disabledSignalKinds: v.array(v.string()),
+    approvedEntityWatchlist: v.array(v.string()),
+    updatedBy: v.string(),
+    updatedAt: v.number(),
+  })
+    .index("by_room", ["roomId"]),
+
+  /** P3: Structured dismissal feedback with signal fingerprinting.
+   *  Replaces simple entity dismissal with scoped suppression (item/entity/signal/room). */
+  suggestionFeedback: defineTable({
+    roomId: v.id("rooms"),
+    userId: v.string(),
+    suggestionId: v.id("roomActivityOutbox"),
+    entity: v.optional(v.string()),
+    signalFingerprintHash: v.string(),
+    dismissReason: v.union(
+      v.literal("wrong_entity"),
+      v.literal("not_relevant"),
+      v.literal("too_noisy"),
+      v.literal("already_handled"),
+      v.literal("sensitive"),
+      v.literal("other"),
+    ),
+    scope: v.union(
+      v.literal("item"),
+      v.literal("entity"),
+      v.literal("signal"),
+      v.literal("room"),
+    ),
+    expiresAt: v.optional(v.number()),
+    createdAt: v.number(),
+  })
+    .index("by_room_signal", ["roomId", "signalFingerprintHash"])
+    .index("by_room_entity", ["roomId", "entity"])
+    .index("by_suggestion", ["suggestionId"]),
+
+  /** P3: Cost estimates with p50/p90/hard cap bands for research jobs.
+   *  Records both forecast and actual cost for calibration. */
+  passiveCostEstimates: defineTable({
+    roomId: v.id("rooms"),
+    suggestionId: v.id("roomActivityOutbox"),
+    taskClass: v.string(),
+    modelRoute: v.string(),
+    p50Usd: v.number(),
+    p90Usd: v.number(),
+    hardCapUsd: v.number(),
+    confidence: v.union(v.literal("high"), v.literal("medium"), v.literal("low")),
+    basis: v.string(),
+    actualUsd: v.optional(v.number()),
+    forecastErrorRatio: v.optional(v.number()),
+    createdAt: v.number(),
+  })
+    .index("by_room", ["roomId"])
+    .index("by_suggestion", ["suggestionId"]),
+
+  /** P3: Server-side suggestion digests. Groups raw suggestions by entity/signal/source
+   *  so the inbox shows compact groups instead of walls of cards. */
+  roomSuggestionDigests: defineTable({
+    roomId: v.id("rooms"),
+    groupKey: v.string(),
+    groupKind: v.union(
+      v.literal("entity"),
+      v.literal("signal"),
+      v.literal("source"),
+      v.literal("day"),
+      v.literal("artifact"),
+    ),
+    title: v.string(),
+    summary: v.string(),
+    count: v.number(),
+    sampleSuggestionIds: v.array(v.id("roomActivityOutbox")),
+    highestPriority: v.number(),
+    status: v.union(
+      v.literal("open"),
+      v.literal("expanded"),
+      v.literal("dismissed"),
+      v.literal("archived"),
+    ),
+    updatedAt: v.number(),
+  })
+    .index("by_room_status", ["roomId", "status"]),
+
+  /** P3: Non-guarantee ledger. Every place where the system cannot provide a hard
+   *  structural guarantee gets an explicit entry with bounds, fallback, and alerting. */
+  systemNonGuarantees: defineTable({
+    area: v.string(),
+    statement: v.string(),
+    failureMode: v.string(),
+    boundedBy: v.array(v.string()),
+    userVisibleFallback: v.string(),
+    metric: v.string(),
+    alertThreshold: v.string(),
+    owner: v.string(),
+  })
+    .index("by_area", ["area"]),
+
   /** Native notebook wrapper registry. Maps a `note` artifact's "doc" element to the
    *  ProseMirror Sync component document id, so NodeRoom business semantics (room/artifact/
    *  visibility/owner) stay outside the collaborative-text component. `onSnapshot(id, ...)`

@@ -154,6 +154,7 @@ export declare const internal: FilterApi<
 
 export declare const components: {
   workflow: import("@convex-dev/workflow/_generated/component.js").ComponentApi<"workflow">;
+  passiveWorkflow: import("@convex-dev/workflow/_generated/component.js").ComponentApi<"passiveWorkflow">;
   agentWorkpool: import("@convex-dev/workpool/_generated/component.js").ComponentApi<"agentWorkpool">;
   persistentTextStreaming: import("@convex-dev/persistent-text-streaming/_generated/component.js").ComponentApi<"persistentTextStreaming">;
   debouncer: import("@ikhrustalev/convex-debouncer/_generated/component.js").ComponentApi<"debouncer">;

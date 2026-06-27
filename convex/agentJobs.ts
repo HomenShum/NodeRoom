@@ -841,7 +841,9 @@ async function recordStreamEventRow(ctx: any, args: {
     metadata: compactStreamPayload(args.metadata, 2_000),
     createdAt: args.createdAt ?? now,
   }));
-  await ctx.db.patch(args.jobId, { updatedAt: now });
+  // P0: Do NOT patch agentJobs here — the append-only agentStreamEvents row is sufficient.
+  // Patching the hot agentJobs document on every stream event caused 7,345+ OCC conflicts.
+  // updatedAt is reconciled at slice finish (finishInteractive / recordWorkflowComplete).
   return { ok: true as const, eventId };
 }
 
@@ -1049,7 +1051,9 @@ export const recordLiveOperation = internalMutation({
       startedAt: a.startedAt,
       completedAt: a.completedAt,
     });
-    await ctx.db.patch(a.jobId, { updatedAt: Date.now() });
+    // P0: Do NOT patch agentJobs here — the append-only agentOperationEvents row is sufficient.
+    // Patching the hot agentJobs document on every live operation caused 2,298+ OCC conflicts.
+    // updatedAt is reconciled at slice finish (finishInteractive / recordWorkflowComplete).
     return { ok: true as const };
   },
 });
@@ -2556,10 +2560,36 @@ export const recordWorkflowComplete = internalMutation({
     if (resultKind !== "success" && job.status === "running" && job.attempts > 1) {
       return { ok: true as const, terminal: false as const, superseded: true as const };
     }
+    // P0: Passive research jobs must not requeue on spend_budget/rate_limit failures.
+    // This was the root cause of workpool saturation — passive jobs cycled indefinitely.
+    const isPassiveResearch = job.mode === "research" && job.entrypoint === "room_work";
+    const isBudgetOrRateFailure = resultKind !== "success" && (
+      error?.includes("spend_budget") ||
+      error?.includes("rate_limit") ||
+      error?.includes("429") ||
+      error?.includes("quota")
+    );
+    if (isPassiveResearch && isBudgetOrRateFailure) {
+      const now = Date.now();
+      await ctx.db.patch(jobId, {
+        status: "failed",
+        leaseId: "",
+        leaseUntil: 0,
+        error: `passive_job_budget_failure:${error ?? "unknown"}`,
+        updatedAt: now,
+        completedAt: now,
+      });
+      return { ok: true as const, terminal: true as const };
+    }
     const shouldContinue = job.status === "paused" || job.status === "retrying" || (resultKind === "success" && job.status === "queued");
     if (shouldContinue) {
       const now = Date.now();
-      const nextWorkflowId = String(await startWorkflow(ctx, internal.agentWorkflows.freeAutoWorkflow, { jobId }, {
+      // P0: Route passive research jobs to the separate passive workpool.
+      const isPassive = job.mode === "research" && job.entrypoint === "room_work";
+      const workflowRef = isPassive
+        ? internal.agentWorkflows.passiveRoomWorkWorkflow
+        : internal.agentWorkflows.freeAutoWorkflow;
+      const nextWorkflowId = String(await startWorkflow(ctx, workflowRef, { jobId }, {
         onComplete: internal.agentWorkflows.freeAutoWorkflowComplete,
         context: { jobId },
       }));
@@ -2567,7 +2597,7 @@ export const recordWorkflowComplete = internalMutation({
         jobId,
         sequence: (job.actionSliceCount ?? 0) + (job.queryCount ?? 0) + (job.mutationCount ?? 0) + (job.modelCallCount ?? 0) + (job.toolCallCount ?? 0) + (job.schedulerHandoffCount ?? 0) + 4,
         kind: "scheduler",
-        name: "agentWorkflows.freeAutoWorkflow.continue",
+        name: isPassive ? "agentWorkflows.passiveRoomWorkWorkflow.continue" : "agentWorkflows.freeAutoWorkflow.continue",
         targetKind: "artifact",
         targetId: String(job.artifactId),
         status: "completed",
@@ -2972,5 +3002,45 @@ export const finishSlice = internalMutation({
       await ctx.scheduler.runAfter(delayMs, internal.agentJobRunner.runFreeAutoJobSlice, { jobId: a.jobId });
     }
     return { ok: true as const };
+  },
+});
+
+// P0: Workpool saturation dashboard — monitors queue depth by mode/entrypoint
+// so we can detect saturation before user jobs are starved.
+export const workpoolStatus = query({
+  args: {},
+  handler: async (ctx) => {
+    const now = Date.now();
+    const queued = await ctx.db
+      .query("agentJobs")
+      .withIndex("by_status_nextRunAt", (q) => q.eq("status", "queued"))
+      .take(200);
+    const running = await ctx.db
+      .query("agentJobs")
+      .withIndex("by_status_nextRunAt", (q) => q.eq("status", "running"))
+      .take(200);
+
+    const byMode = (jobs: typeof queued) => {
+      const counts: Record<string, number> = {};
+      for (const j of jobs) {
+        const key = `${j.mode ?? "unknown"}:${j.entrypoint ?? "unknown"}`;
+        counts[key] = (counts[key] ?? 0) + 1;
+      }
+      return counts;
+    };
+
+    const passiveQueued = queued.filter((j) => j.mode === "research" && j.entrypoint === "room_work").length;
+    const userQueued = queued.filter((j) => !(j.mode === "research" && j.entrypoint === "room_work")).length;
+    const passiveRunning = running.filter((j) => j.mode === "research" && j.entrypoint === "room_work").length;
+    const userRunning = running.filter((j) => !(j.mode === "research" && j.entrypoint === "room_work")).length;
+
+    return {
+      now,
+      queued: { total: queued.length, passive: passiveQueued, user: userQueued, byMode: byMode(queued) },
+      running: { total: running.length, passive: passiveRunning, user: userRunning, byMode: byMode(running) },
+      // Saturation warning: if passive jobs occupy more than 50% of running slots
+      // or if queued passive jobs exceed 10, the system is at risk.
+      saturated: passiveRunning > 4 || passiveQueued > 10,
+    };
   },
 });
