@@ -874,7 +874,7 @@ export default defineSchema({
     createdAt: v.number(),
     /** Reserve rows past this with no settle are swept + refunded (crashed-run holds). */
     expiresAt: v.optional(v.number()),
-  }).index("by_room", ["roomId", "createdAt"]).index("by_reservation", ["reservationKey"]),
+  }).index("by_room", ["roomId", "createdAt"]).index("by_reservation", ["reservationKey"]).index("by_expiry", ["expiresAt"]),
 
   /** APPEND-ONLY step-level trace — the agent's full (tool · args → result) decision
    * sequence per run. The audit + trajectory-eval record: never updated, linked to a

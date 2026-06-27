@@ -34,7 +34,7 @@ const QUICK_HOLD = estimateCostFor("quick").creditsRequired;
 const DEEP_HOLD = estimateCostFor("deep").creditsRequired;
 
 async function readRoomCredits(t: ReturnType<typeof convexTest>, roomId: any) {
-  return t.run(async (ctx) => ctx.db.query("roomCredits").withIndex("by_room", (q) => q.eq("roomId", roomId)).first());
+  return t.run(async (ctx: any) => ctx.db.query("roomCredits").withIndex("by_room", (q: any) => q.eq("roomId", roomId)).first());
 }
 
 describe("convex credits — grant + reserve + settle", () => {
@@ -60,6 +60,22 @@ describe("convex credits — grant + reserve + settle", () => {
     rc = await readRoomCredits(t, roomId);
     expect(rc?.reservedCredits).toBe(0);
     expect((rc?.availableCredits ?? 0) + (rc?.lifetimeSpentCredits ?? 0)).toBeCloseTo(20, 1);
+  });
+});
+
+describe("convex credits — enrollment scoping", () => {
+  it("an un-enrolled room (no grant) passes through unmetered — never blocked", async () => {
+    const t = convexTest(schema, modules);
+    const roomId = await seedRoom(t);
+    const r = await t.mutation(internal.credits.reserve, { roomId, mode: "deep", reservationKey: "free" });
+    expect(r.ok).toBe(true);
+    expect((r as any).unenrolled).toBe(true);
+    expect((r as any).heldCredits).toBe(0);
+    // No balance row was created — the room stays unenrolled until granted.
+    expect(await readRoomCredits(t, roomId)).toBeNull();
+    // Settle on the same un-enrolled room is a graceful no-op.
+    const s = await t.mutation(internal.credits.settle, { roomId, reservationKey: "free", actualUsd: 5 });
+    expect(s.ok).toBe(true);
   });
 });
 
@@ -172,6 +188,50 @@ describe("convex credits — overspend, pause, sweep", () => {
     rc = await readRoomCredits(t, roomId);
     expect(rc?.reservedCredits).toBe(0); // hold released
     expect(rc?.availableCredits).toBe(20); // fully refunded
+  });
+
+  it("COST-AWARE sweep: a finished-but-unsettled run is charged its ACTUAL cost, not fully refunded", async () => {
+    const t = convexTest(schema, modules);
+    const roomId = await seedRoom(t);
+    const t0 = 2_000_000;
+    await t.mutation(internal.credits.grantCredits, { roomId, credits: 20, source: "pilot", now: t0 });
+    await t.mutation(internal.credits.reserve, { roomId, mode: "deep", reservationKey: "finished-key", now: t0 });
+    // Simulate a run that recorded its cost in agentRuns but whose action died before calling settle.
+    await t.run(async (ctx: any) => {
+      await ctx.db.insert("agentRuns", {
+        roomId, agentId: "a", model: "z-ai/glm-5.2", goal: "g", steps: 5, toolCalls: 1, conflictsSurvived: 0,
+        inputTokens: 1000, outputTokens: 100, costUsd: 0.5, ms: 100, exhausted: false, idempotencyKey: "finished-key", createdAt: t0 + 1000,
+      });
+    });
+    const swept = await t.mutation(internal.credits.sweepExpiredReservations, { now: t0 + 2 * 60 * 60 * 1000 });
+    expect(swept.swept).toBe(1);
+    const rc = await readRoomCredits(t, roomId);
+    // $0.50 = 2 credits charged; the rest of the 12-credit hold refunded → NEVER loses money.
+    expect(rc?.lifetimeSpentCredits).toBe(2);
+    expect(rc?.reservedCredits).toBe(0);
+    expect(rc?.availableCredits).toBe(18);
+  });
+
+  it("COST-AWARE sweep: a crashed run with no recorded cost CAPTURES the hold (never refunds spent money)", async () => {
+    const t = convexTest(schema, modules);
+    const roomId = await seedRoom(t);
+    const t0 = 3_000_000;
+    await t.mutation(internal.credits.grantCredits, { roomId, credits: 20, source: "pilot", now: t0 });
+    await t.mutation(internal.credits.reserve, { roomId, mode: "deep", reservationKey: "crashed-key", now: t0 });
+    // A run was claimed (row exists) but crashed mid-LLM: costUsd never recorded (still 0).
+    await t.run(async (ctx: any) => {
+      await ctx.db.insert("agentRuns", {
+        roomId, agentId: "a", model: "z-ai/glm-5.2", goal: "g", steps: 0, toolCalls: 0, conflictsSurvived: 0,
+        inputTokens: 0, outputTokens: 0, costUsd: 0, ms: 0, exhausted: false, idempotencyKey: "crashed-key", createdAt: t0 + 1000,
+      });
+    });
+    const swept = await t.mutation(internal.credits.sweepExpiredReservations, { now: t0 + 2 * 60 * 60 * 1000 });
+    expect((swept as any).captured).toBe(1);
+    const rc = await readRoomCredits(t, roomId);
+    // Conservative: the full hold is captured as spent (the LLM may have been billed) — money safe.
+    expect(rc?.lifetimeSpentCredits).toBe(DEEP_HOLD);
+    expect(rc?.reservedCredits).toBe(0);
+    expect(rc?.availableCredits).toBe(20 - DEEP_HOLD);
   });
 
   it("admin snapshot rolls up enrolled rooms and spend", async () => {

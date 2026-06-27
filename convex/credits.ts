@@ -144,7 +144,12 @@ export const reserve = internalMutation({
     if (existingReserve) {
       return { ok: true as const, idempotent: true, reservationKey, heldCredits: -existingReserve.credits, balance: balanceView(await getRoomCredits(ctx, roomId)) };
     }
-    const rc = await ensureRoomCredits(ctx, roomId, ts);
+    // Enforcement auto-scopes to ENROLLED rooms only. A room with no grant is unmetered →
+    // pass through (never blocked). Homen enrolls a room by granting it credits.
+    const rc = await getRoomCredits(ctx, roomId);
+    if (!rc) {
+      return { ok: true as const, idempotent: false, unenrolled: true, reservationKey, heldCredits: 0, balance: balanceView(null) };
+    }
     const hold = estimateCostFor(mode).creditsRequired;
 
     // FAIL-CLOSED: paused room or insufficient credits → reject, do not start.
@@ -192,11 +197,17 @@ export const settle = internalMutation({
     if (rows.some((r) => r.kind === "settle")) {
       return { ok: true as const, idempotent: true, balance: balanceView(await getRoomCredits(ctx, roomId)) };
     }
-    const reserveRow = rows.find((r) => r.kind === "reserve");
-    if (!reserveRow) {
-      return { ok: false as const, reason: "unknown_reservation", balance: balanceView(await getRoomCredits(ctx, roomId)) };
+    // Unenrolled room (no balance row) → the run was unmetered; settle is a graceful no-op.
+    // (Checked BEFORE the reserveRow lookup: an unenrolled reserve inserts no ledger row.)
+    const rc = await getRoomCredits(ctx, roomId);
+    if (!rc) {
+      return { ok: true as const, idempotent: false, unenrolled: true, balance: balanceView(null) };
     }
-    const rc = await ensureRoomCredits(ctx, roomId, ts);
+    // Reserve must belong to THIS room (defense against a cross-room reservationKey collision).
+    const reserveRow = rows.find((r) => r.kind === "reserve");
+    if (!reserveRow || reserveRow.roomId !== roomId) {
+      return { ok: false as const, reason: "unknown_reservation", balance: balanceView(rc) };
+    }
     const hold = -reserveRow.credits; // positive
     const actualCredits = Math.max(0, usdToCredits(Math.max(0, actualUsd)));
 
@@ -307,32 +318,63 @@ export const sweepExpiredReservations = internalMutation({
   args: { now: v.optional(v.number()) },
   handler: async (ctx, { now }) => {
     const ts = now ?? Date.now();
-    // Find reserve rows past expiry; refund any with no matching settle (crashed runs).
-    const candidates = await ctx.db
+    // Oldest-expired-first, bounded. The by_expiry range excludes rows with no expiresAt
+    // (settle/refund/reject/grant), so we scan ONLY expired RESERVE holds — and always reach the
+    // oldest stranded ones regardless of total ledger size (a newest-first scan could starve them).
+    const expired = await ctx.db
       .query("creditLedger")
-      .withIndex("by_room")
-      .order("desc")
+      .withIndex("by_expiry", (q) => q.gte("expiresAt", 1).lte("expiresAt", ts))
+      .order("asc")
       .take(MAX_SWEEP_ROWS);
     let swept = 0;
-    for (const row of candidates) {
-      if (row.kind !== "reserve" || !row.expiresAt || row.expiresAt > ts) continue;
+    let captured = 0;
+    for (const row of expired) {
+      if (row.kind !== "reserve") continue;
       const sibs = await ctx.db
         .query("creditLedger")
         .withIndex("by_reservation", (q) => q.eq("reservationKey", row.reservationKey))
         .collect();
       if (sibs.some((s) => s.kind === "settle" || s.kind === "refund")) continue; // already resolved
-      const hold = -row.credits;
       const rc = await getRoomCredits(ctx, row.roomId);
       if (!rc) continue;
+      const hold = -row.credits; // positive
+      // COST-AWARE so a crashed run can't silently refund money the LLM already billed:
+      //  - finished run (agentRuns.costUsd > 0) → charge the ACTUAL cost, refund the remainder;
+      //  - claimed-but-unsettled run (row exists, cost 0) → CAPTURE the hold (assume it spent — never lose money);
+      //  - no run row at all (never started) → refund the full hold.
+      const run = await ctx.db
+        .query("agentRuns")
+        .withIndex("by_idempotency", (q) => q.eq("idempotencyKey", row.reservationKey))
+        .order("desc")
+        .first();
+      let actualUsd: number;
+      let resolution: "settled" | "captured" | "refunded";
+      if (run && run.costUsd > 0) {
+        actualUsd = run.costUsd;
+        resolution = "settled";
+      } else if (run) {
+        actualUsd = creditsToUsd(hold);
+        resolution = "captured";
+      } else {
+        actualUsd = 0;
+        resolution = "refunded";
+      }
+      const actualCredits = Math.max(0, Math.min(hold, usdToCredits(actualUsd))); // capped at the hold
+      const refund = hold - actualCredits;
       await ctx.db.patch(rc._id, {
-        availableCredits: round2(rc.availableCredits + hold),
+        availableCredits: round2(rc.availableCredits + refund),
         reservedCredits: round2(Math.max(0, rc.reservedCredits - hold)),
+        lifetimeSpentCredits: round2(rc.lifetimeSpentCredits + actualCredits),
         updatedAt: ts,
       });
-      await ctx.db.insert("creditLedger", { roomId: row.roomId, kind: "refund", mode: row.mode, reservationKey: row.reservationKey, credits: round2(hold), usd: round4(creditsToUsd(hold)), reason: "expired_reservation", createdAt: ts });
+      await ctx.db.insert("creditLedger", { roomId: row.roomId, kind: "settle", mode: row.mode, reservationKey: row.reservationKey, credits: -round2(actualCredits), usd: -round4(actualUsd), runId: run?._id, reason: `swept_${resolution}`, createdAt: ts });
+      if (refund > 0) {
+        await ctx.db.insert("creditLedger", { roomId: row.roomId, kind: "refund", mode: row.mode, reservationKey: row.reservationKey, credits: round2(refund), usd: round4(creditsToUsd(refund)), reason: "expired_reservation", createdAt: ts });
+      }
       swept++;
+      if (resolution === "captured") captured++;
     }
-    return { swept, scanned: candidates.length, truncated: candidates.length === MAX_SWEEP_ROWS };
+    return { swept, captured, scanned: expired.length, truncated: expired.length === MAX_SWEEP_ROWS };
   },
 });
 

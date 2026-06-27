@@ -76,12 +76,18 @@ export const record = internalMutation({
  *  is [roomId, createdAt], so a rolling-day window scans only that room's recent runs. The cross-run
  *  cumulative cap that the per-run/per-slice ceilings cannot provide (one run is bounded; the SUM
  *  across many /ask runs on a public surface is what this bounds). */
+const MAX_ROOM_SPEND_ROWS = 2000;
 export const roomSpendSince = internalQuery({
   args: { roomId: v.id("rooms"), since: v.number() },
   handler: async (ctx, { roomId, since }) => {
     const rows = await ctx.db.query("agentRuns")
       .withIndex("by_room", (q) => q.eq("roomId", roomId).gte("createdAt", since))
-      .collect();
+      .order("desc")
+      .take(MAX_ROOM_SPEND_ROWS);
+    // FAIL-CLOSED + BOUND: a day-window with more runs than the cap row-count is an unambiguous
+    // runaway — trip the daily cap instead of silently undercounting via an unbounded .collect()
+    // (HONEST_STATUS). The previous .collect() could grow without ceiling and fail OPEN.
+    if (rows.length === MAX_ROOM_SPEND_ROWS) return Number.MAX_SAFE_INTEGER;
     return rows.reduce((sum, r) => sum + (r.costUsd ?? 0), 0);
   },
 });

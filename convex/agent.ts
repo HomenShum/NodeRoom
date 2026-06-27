@@ -69,6 +69,12 @@ const agentRunsFinishRef = makeFunctionReference<"mutation">("agentRuns:finish")
 const agentStepsRecordRef = makeFunctionReference<"mutation">("agentSteps:record") as any;
 const roomSpendSinceRef = makeFunctionReference<"query">("agentRuns:roomSpendSince") as any;
 const globalSpendSinceRef = makeFunctionReference<"query">("agentRuns:globalSpendSince") as any;
+// Credit wallet (Phase B). reserve→settle around the run. INERT unless CREDITS_ENFORCED=true; even
+// then it only meters ENROLLED rooms (credits.reserve passes through unmetered for un-granted rooms),
+// so the live /ask path is unchanged until Homen seeds grants + flips the flag.
+const creditsReserveRef = makeFunctionReference<"mutation">("credits:reserve") as any;
+const creditsSettleRef = makeFunctionReference<"mutation">("credits:settle") as any;
+const creditsEnforced = (): boolean => process.env.CREDITS_ENFORCED === "true";
 const artifactsListProposalsRef = makeFunctionReference<"query">("artifacts:listProposals") as any;
 const postPrivateReplyRef = makeFunctionReference<"mutation">("messages:postPrivateAgentReply") as any;
 const messagesSendAgentRef = makeFunctionReference<"mutation">("messages:sendAgent") as any;
@@ -209,6 +215,16 @@ export const runRoomAgent = action({
     const requestedSteps = a.maxSteps ?? (a.mode === "research" ? 80 : 40);
     const maxSteps = Math.max(1, Math.min(requestedSteps, a.mode === "research" ? 96 : 64));
     const idempotencyKey = runIdempotencyKey({ roomId: String(a.roomId), artifactId: String(a.artifactId), actorId: String(a.requester.actor.id), goal: a.goal });
+    // Credit wallet reserve (flag-gated). Blocks an out-of-credits / paused ENROLLED room like the
+    // spend caps above; un-enrolled rooms pass through unmetered. Settled with actual cost after finish
+    // (and the sweep cron refunds the hold if a run dies before settling). Keyed by idempotencyKey so a
+    // reused run does not double-hold.
+    const creditReservationKey = idempotencyKey;
+    const creditMode = a.mode === "research" ? "deep" : "standard";
+    if (creditsEnforced()) {
+      const reservation = await ctx.runMutation(creditsReserveRef, { roomId: a.roomId, mode: creditMode, reservationKey: creditReservationKey });
+      if (reservation && reservation.ok === false) throw new Error(`credit_${reservation.reason}`);
+    }
     const intake = classifyIntakeMessage(a.goal);
     const pendingProposals = await ctx.runQuery(artifactsListProposalsRef, { roomId: a.roomId, requester: a.requester }) as Array<{ artifactId?: unknown; op?: unknown }>;
     const pendingProposalRefs = pendingProposals
@@ -263,6 +279,9 @@ export const runRoomAgent = action({
         clientMsgId: `plan-blocked-${String(jobClaim.jobId)}`,
         kind: "agent",
       });
+      // Release the credit hold immediately — this run was blocked before any spend (no run yet).
+      // (Other early exits before the run, e.g. egress-blocked, are reclaimed by the sweep cron.)
+      if (creditsEnforced()) await ctx.runMutation(creditsSettleRef, { roomId: a.roomId, reservationKey: creditReservationKey, actualUsd: 0 });
       return {
         finalText,
         jobId: jobClaim.jobId,
@@ -493,6 +512,8 @@ export const runRoomAgent = action({
         handoff: partial?.handoff,
       };
       await ctx.runMutation(agentRunsFinishRef, { runId, model: model.name, steps: telemetry.steps, toolCalls: telemetry.toolCalls, conflictsSurvived, inputTokens, outputTokens, costUsd, ms, exhausted: telemetry.exhausted, stopReason: telemetry.stopReason, remainingMs: telemetry.remainingMs, deadlineAt, handoff: telemetry.handoff });
+      // Settle the credit hold with the ACTUAL (failure-path) cost. No-op unless enforced + enrolled.
+      if (creditsEnforced()) await ctx.runMutation(creditsSettleRef, { roomId: a.roomId, reservationKey: creditReservationKey, actualUsd: costUsd, runId });
       await recordLiveOperation({
         kind: "checkpoint",
         name: "agent.runRoomAgent failed",
@@ -602,6 +623,8 @@ export const runRoomAgent = action({
     };
     // Patch the claimed run row with final telemetry + the APPEND-ONLY step-level trace (audit + trajectory eval).
     await ctx.runMutation(agentRunsFinishRef, { runId, model: model.name, steps: telemetry.steps, toolCalls: telemetry.toolCalls, conflictsSurvived, inputTokens: telemetry.inputTokens, outputTokens: telemetry.outputTokens, costUsd, ms, exhausted: telemetry.exhausted, stopReason: telemetry.stopReason, remainingMs: telemetry.remainingMs, deadlineAt, handoff: telemetry.handoff });
+    // Settle the credit hold with the ACTUAL cost. No-op unless enforced + enrolled.
+    if (creditsEnforced()) await ctx.runMutation(creditsSettleRef, { roomId: a.roomId, reservationKey: creditReservationKey, actualUsd: costUsd, runId });
     const done = result.stopReason === "done" && !result.exhausted;
     const scheduledNextAt = done ? undefined : Date.now() + 5_000;
     const cursor = done ? undefined : await checkpointCursor(result);

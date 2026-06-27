@@ -21,4 +21,8 @@ crons.interval("drain OKF embedding outbox", { minutes: 1 }, drainOkfOutboxRef, 
 // grow without ceiling. Product data, chat, and the spend ledger are intentionally untouched.
 crons.interval("prune old telemetry", { hours: 6 }, internal.retention.pruneOldTelemetry, {});
 
+// Refund credit holds left behind by crashed/abandoned runs (a never-settled reserve past its
+// TTL permanently strands a room's budget otherwise). Append-only refund rows; idempotent.
+crons.interval("sweep expired credit reservations", { minutes: 15 }, internal.credits.sweepExpiredReservations, {});
+
 export default crons;

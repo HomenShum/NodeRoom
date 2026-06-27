@@ -1344,6 +1344,11 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
   const jobAttempts = useQuery(api.agentJobs.attempts, latestJobId ? { jobId: latestJobId as never, requester: proof } : "skip") ?? [];
   const jobDetail = useQuery(api.agentJobs.detail, latestJobId ? { jobId: latestJobId as never, requester: proof } : "skip");
   const proposals = useQuery(api.artifacts.listProposals, roomQuery) ?? [];
+  // Live credit wallet (Phase B). Returns enforced:false for un-enrolled rooms (no grant yet),
+  // so the credit chip stays hidden in live until grants are seeded — honest, non-breaking.
+  const creditBalanceQ = useQuery(api.credits.balance, roomQuery);
+  const creditUsageQ = useQuery(api.credits.usageEvents, roomQuery) ?? [];
+  const [creditMode, setCreditModeState] = useState<AgentCreditMode>(DEFAULT_CREDIT_MODE);
 
   const applyCellEdit = useMutation(api.artifacts.applyCellEdit).withOptimisticUpdate((local, args) => {
     const elementsQ = { roomId: args.roomId, artifactId: args.artifactId, requester: args.proof };
@@ -1624,6 +1629,35 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
 
     return {
       mode: "convex",
+      // Live credit wallet (read-only from the client). reserve/settle are server-only
+      // internalMutations driven by the agent run path (enforcement), never the client.
+      creditBalance: () => {
+        const b = creditBalanceQ;
+        if (!b) return { availableCredits: 0, reservedCredits: 0, lifetimeSpentCredits: 0, availableUsd: 0, reservedUsd: 0, lifetimeSpentUsd: 0, demo: false, enforced: false };
+        return {
+          availableCredits: b.availableCredits,
+          reservedCredits: b.reservedCredits,
+          lifetimeSpentCredits: b.lifetimeSpentCredits,
+          availableUsd: b.availableUsd,
+          reservedUsd: b.reservedUsd,
+          lifetimeSpentUsd: b.lifetimeSpentUsd,
+          demo: false,
+          enforced: b.enforced,
+        };
+      },
+      creditMode: () => creditMode,
+      setCreditMode: (m: AgentCreditMode) => { setCreditModeState(m); },
+      estimateCredits: (m: AgentCreditMode) => estimateCostFor(m),
+      listUsageEvents: () => creditUsageQ.map((e) => ({
+        id: String(e.id),
+        seq: 0,
+        kind: e.kind,
+        mode: e.mode,
+        credits: e.credits,
+        usd: e.usd,
+        reservationId: e.reservationKey,
+        reason: e.reason ?? undefined,
+      })),
       getRoom: () => room,
       roomState: (): "loading" | "notFound" | "ready" =>
         data === undefined ? "loading" : data === null ? "notFound" : "ready",
@@ -2047,7 +2081,7 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
         return result.rowId ? { artifactId: targetArt.id as string, rowId: result.rowId as string, created: result.created } : undefined;
       },
     };
-  }, [data, metaArtifacts, elementsByArtifact, presenceByArtifact, pub, priv, traces, okfLens, runs, jobs, jobAttempts, jobDetail, proposals, passiveActivity, mergedCaptures, applyCellEdit, sendMsg, toggle, editMsg, resolveProposalMutation, addResearchRowsMutation, ensurePassiveResearchRowMutation, createArtifactMutation, uploadSourceFile, runSemanticConflictDrillMutation, runAgent, runPrivateAgent, createPrivateReplyStream, startAgentJob, startPublicAskJob, updatePresenceMutation, clearPresenceMutation, cancelFreeAutoJob, retryFreeAutoJob, dismissActivityMutation, researchActivityMutation, practiceActivityMutation, rid, roomId, proof, me.id, me.name]);
+  }, [data, metaArtifacts, elementsByArtifact, presenceByArtifact, pub, priv, traces, okfLens, runs, jobs, jobAttempts, jobDetail, proposals, passiveActivity, mergedCaptures, applyCellEdit, sendMsg, toggle, editMsg, resolveProposalMutation, addResearchRowsMutation, ensurePassiveResearchRowMutation, createArtifactMutation, uploadSourceFile, runSemanticConflictDrillMutation, runAgent, runPrivateAgent, createPrivateReplyStream, startAgentJob, startPublicAskJob, updatePresenceMutation, clearPresenceMutation, cancelFreeAutoJob, retryFreeAutoJob, dismissActivityMutation, researchActivityMutation, practiceActivityMutation, creditMode, creditBalanceQ, creditUsageQ, rid, roomId, proof, me.id, me.name]);
 
   // E2E test seam: expose runCollab/runSemanticConflictDrill via window so tests can trigger
   // collaboration and conflict drills without the removed CollabBar buttons.

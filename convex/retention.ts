@@ -26,6 +26,10 @@ const PRODUCT_DATA_NOT_PRUNED = [
   "agentRuns",
   "sourceCaptures",
   "evidenceFacts",
+  // Credit wallet — the spend ledger + grants + balances are financial records, never pruned.
+  "roomCredits",
+  "creditLedger",
+  "creditGrants",
 ] as const;
 
 export const telemetryRetentionPolicy = internalQuery({
