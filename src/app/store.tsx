@@ -1344,10 +1344,14 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
   const jobAttempts = useQuery(api.agentJobs.attempts, latestJobId ? { jobId: latestJobId as never, requester: proof } : "skip") ?? [];
   const jobDetail = useQuery(api.agentJobs.detail, latestJobId ? { jobId: latestJobId as never, requester: proof } : "skip");
   const proposals = useQuery(api.artifacts.listProposals, roomQuery) ?? [];
-  // Live credit wallet (Phase B). Returns enforced:false for un-enrolled rooms (no grant yet),
-  // so the credit chip stays hidden in live until grants are seeded — honest, non-breaking.
-  const creditBalanceQ = useQuery(api.credits.balance, roomQuery);
-  const creditUsageQ = useQuery(api.credits.usageEvents, roomQuery) ?? [];
+  // Live credit wallet (Phase B). GATED on VITE_CREDITS_LIVE so the frontend never calls
+  // api.credits.* until those functions are actually deployed to the Convex deployment (Convex
+  // deploy ≠ git push — a build that calls an undeployed function errors at runtime). Flip
+  // VITE_CREDITS_LIVE=true ONLY after `convex deploy` ships convex/credits.ts. Symmetric with the
+  // backend CREDITS_ENFORCED flag. Default OFF → "skip" → no call → live /ask is unaffected.
+  const creditLiveEnabled = (import.meta as unknown as { env?: Record<string, string | undefined> }).env?.VITE_CREDITS_LIVE === "true";
+  const creditBalanceQ = useQuery(api.credits.balance, creditLiveEnabled ? roomQuery : "skip");
+  const creditUsageQ = useQuery(api.credits.usageEvents, creditLiveEnabled ? roomQuery : "skip") ?? [];
   const [creditMode, setCreditModeState] = useState<AgentCreditMode>(DEFAULT_CREDIT_MODE);
 
   const applyCellEdit = useMutation(api.artifacts.applyCellEdit).withOptimisticUpdate((local, args) => {

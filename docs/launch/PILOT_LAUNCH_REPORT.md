@@ -137,27 +137,55 @@ incident that previously starved a user's UpscaleX request must not recur).
   "feel" the credit system but the demo is **forgiving** (tasks always finish). (7 e2e tests)
 - **`window.__simulateLoad`** — backend-free load harness for burst + sustained stress.
 
-### ⏳ Next: live wallet enforcement (Convex backend — Phase B)
-- `creditGrants` + `creditLedger` tables (append-only, never pruned); `agentRuns` gains
-  `reservedUsd`/`settledUsd`/`runtimeProfile`.
-- `convex/credits.ts`: `reserve`/`settle`/`balance`/`usageEvents` with fail-closed + bounded
-  reads; reserve wired into the atomic `claimOrReuse` path (closes the read-then-throw race);
-  settle in `agentRuns.finish`.
-- Per-mode caps at the job-insert sites; reservation-sweep cron (refund dangling holds);
-  `pauseRoom`/`cancelAllQueued` kill switch; audit-log every reserve/settle/breach.
-- Deploy to dev (`npx convex dev --once`), verify a real settled run, **then** prod (gated).
+### ✅ Shipped: live wallet backend (Convex — Phase B, additive + flag-gated)
+- `roomCredits` (materialized balance) + `creditLedger` (append-only audit) + `creditGrants`
+  (append-only top-ups) tables; indexes `by_room` / `by_reservation` / `by_expiry`; excluded
+  from retention pruning (financial records).
+- `convex/credits.ts`: `reserve`/`settle` (idempotent, fail-closed, never-negative, honest
+  overspend), `grantCredits`, `setPaused` (kill switch), `roomGate`, `sweepExpiredReservations`
+  (**cost-aware**: charges a crashed run's actual/held cost — never silently refunds spent money),
+  `balance`/`usageEvents` (auth-gated), `globalCreditSnapshot` (admin). reserve/settle/grant/pause
+  are server-only `internalMutation`s.
+- Enforcement wired into the `runRoomAgent` action behind `CREDITS_ENFORCED` (reserve at admission,
+  settle actual cost at finish, refund on plan-block). **INERT unless the flag is on**, and even then
+  meters only *enrolled* rooms (un-granted rooms pass through unmetered) — live `/ask` is unchanged.
+- `roomSpendSince` bounded + fail-closed (was an unbounded `.collect()` that could fail open).
+- 13 convex-test scenarios + the full adversarial review (boundary PASS; security P1/P2/P3 all fixed).
+- Tables + functions are deployed (additively) to the Vercel-backing deployment `zealous-goshawk-766`;
+  no behavior change because enforcement is flag-off and no grants are seeded yet.
+
+### ⚠️ Important: Convex deploy ≠ git push
+The credit **tables** are live on `zealous-goshawk-766` (codegen pushed the schema), but the credit
+**functions** (`convex/credits.ts`) are **not deployed yet** (verified via `functionSpec`). The frontend
+therefore must NOT call `api.credits.*` in live until those functions ship — so the live credit reads are
+**gated off by `VITE_CREDITS_LIVE`** (default off → the live `/ask` path is provably unaffected). Deploying
+to this Vercel-backing deployment is intentionally left to you (it also carries unrelated committed
+run-path + cron changes), not done unilaterally.
+
+### ⏳ Remaining — needs your go (cannot be self-led), in order
+1. **Deploy the backend**: `npm run convex:deploy` (guarded to `zealous-goshawk-766`). Confirm with
+   `functionSpec` that `credits:balance/reserve/settle/...` now exist.
+2. **Seed grants**: `grantCredits({ roomId, credits, source })` via the Convex dashboard / a seed script.
+   Suggested: UpscaleX team room 100 cr, solo friends 20 cr each.
+3. **Enable the live UI**: set `VITE_CREDITS_LIVE=true` (Vercel env) → rebuild. The credit chip + selector
+   then show real balances for enrolled rooms.
+4. **Turn on metering**: set `CREDITS_ENFORCED=true` (Convex env). Test on ONE enrolled room first
+   (run → balance moves → settles).
+5. **The UpscaleX production dry run** (Section 8 checklist) before inviting anyone.
+6. (Optional) wire enforcement into the durable-job path (`agentJobRunner.runFreeAutoJobSlice`) for
+   parity with the inline `/ask` path; the sweep already reconciles any unsettled holds there.
 
 ---
 
 ## 8. Before the first user — checklist
 
-- [ ] **Phase B backend deployed** to dev + verified (a real run reserves → settles → balance moves).
+- [x] **Phase B backend shipped** (tables + credits.ts + enforcement, flag-gated, deployed additively). ⏳ verify a real reserve→settle→balance move once `CREDITS_ENFORCED=true` + a grant is seeded.
 - [x] Per-mode Quick/Standard/Deep with hard caps (LLM-only, labeled honestly).
-- [x] `GLOBAL_MAX_USD_PER_MONTH` + per-room/day caps defined (`DEFAULT_BUDGET_CAPS`).
-- [ ] Passive jobs confirmed **suggestions-only** (no passive auto-research).
+- [x] `GLOBAL_MAX_USD_PER_MONTH` + per-room/day caps defined (`DEFAULT_BUDGET_CAPS`); `roomSpendSince` now bounded + fail-closed.
+- [ ] Passive jobs confirmed **suggestions-only** (no passive auto-research). _(out of credit-scope — verify before launch)_
 - [ ] `benchmark_completion` confirmed **internal-only** (not public; metered, no exemption).
-- [ ] Admin spend view (today / 30-day rolling / by room / by provider) — even a script is fine.
-- [ ] Kill switch tested (pause a room, cancel queued).
+- [x] Admin spend view — `internal.credits.globalCreditSnapshot` (enrolled rooms, totals, top spenders) + `roomUsageSnapshot`.
+- [x] Kill switch — `internal.credits.setPaused(roomId, true)` (rejects new holds without redeploy); tested in convex-test.
 - [ ] **The UpscaleX dry run on production**: fresh room → "@nodeagent research UpscaleX Palo
   Alto — events, portfolio companies, people" → evidence-backed packet, cost receipt, trace,
   re-openable next day, exportable. Save the video + numbers.
