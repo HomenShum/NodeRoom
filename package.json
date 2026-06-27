@@ -19,6 +19,8 @@
     "eval": "tsx evals/runEval.ts",
     "eval:real": "tsx evals/runEval.ts --real",
     "sfn": "tsx scripts/sfn.ts",
+    "simulate:credits": "tsx scripts/simulate-credits.ts",
+    "simulate:credits:write": "tsx scripts/simulate-credits.ts --json-out docs/eval/credit-simulation.json",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
