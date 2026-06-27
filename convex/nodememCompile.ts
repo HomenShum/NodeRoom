@@ -13,11 +13,10 @@
 
 import { v } from "convex/values";
 import { internalAction, internalMutation, action } from "./_generated/server";
-import type { Id } from "./_generated/dataModel";
-import { api, internal } from "./_generated/api";
+import type { Doc, Id } from "./_generated/dataModel";
+import { internal } from "./_generated/api";
 import { nodeMemMode } from "./nodemem";
-import { compileEpisode, mergeEntities } from "../src/nodemem/core/memoryCompiler";
-import type { NodeMemEntity, NodeMemFact } from "../src/nodemem/core/types";
+import { compileEpisode } from "../src/nodemem/core/memoryCompiler";
 
 const DEFAULT_BATCH_SIZE = 20;
 
@@ -140,7 +139,9 @@ export const compileBatch = internalAction({
   args: {
     batchSize: v.optional(v.number()),
   },
-  handler: async (ctx, args) => {
+  // Explicit return type breaks the api self-reference cycle (TS7022/7023) that otherwise
+  // makes this handler — and compileBatchManual below — infer to `any`.
+  handler: async (ctx, args): Promise<{ compiled: number; skipped: number; errors: number; total?: number }> => {
     if (nodeMemMode() === "off") {
       return { compiled: 0, skipped: 0, errors: 0 };
     }
@@ -148,7 +149,7 @@ export const compileBatch = internalAction({
     const batchSize = args.batchSize ?? DEFAULT_BATCH_SIZE;
 
     // Fetch uncompiled episodes
-    const uncompiled = await ctx.runQuery(internal.nodemem.listUncompiledEpisodes, {
+    const uncompiled: Doc<"nodeMemEpisodes">[] = await ctx.runQuery(internal.nodemem.listUncompiledEpisodes, {
       limit: batchSize,
     });
 
@@ -186,7 +187,7 @@ export const compileBatchManual = action({
   args: {
     batchSize: v.optional(v.number()),
   },
-  handler: async (ctx, args) => {
+  handler: async (ctx, args): Promise<{ compiled: number; skipped: number; errors: number; total?: number }> => {
     return await ctx.runAction(internal.nodememCompile.compileBatch, {
       batchSize: args.batchSize,
     });

@@ -303,7 +303,9 @@ export const assembleContextPackForJob = query({
 
 // ─── listUncompiledEpisodes ──────────────────────────────────────────────────
 
-export const listUncompiledEpisodes = query({
+// internalQuery (not public): only the compile batch action calls this, via internal.*.
+// Was `query` — the circular-inference `any` masked that the call site used `internal.*`.
+export const listUncompiledEpisodes = internalQuery({
   args: {
     limit: v.optional(v.number()),
   },

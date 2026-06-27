@@ -42,6 +42,7 @@ const traceLevelV = v.union(v.literal("summary"), v.literal("standard"), v.liter
 const routePolicyV = v.union(v.literal("fast_default"), v.literal("free_auto"), v.literal("top_paid"), v.literal("explicit"));
 const runtimePolicyV = v.union(v.literal("workflow_sliced"));
 const runtimeProfileV = v.union(v.literal("benchmark_completion"));
+const creditModeV = v.union(v.literal("quick"), v.literal("standard"), v.literal("deep"));
 const operationEventKindV = v.union(
   v.literal("action"),
   v.literal("query"),
@@ -832,6 +833,48 @@ export default defineSchema({
     idempotencyKey: v.optional(v.string()),
     createdAt: v.number(),
   }).index("by_room", ["roomId", "createdAt"]).index("by_idempotency", ["idempotencyKey", "createdAt"]),
+
+  // ── Credit ledger (pilot wallet). The credit math + caps live in
+  // src/nodeagent/core/creditModel.ts (the single source of truth, imported here).
+  // roomCredits = materialized balance (fast reads + transactional reserve/settle);
+  // creditLedger = append-only audit trail; creditGrants = append-only top-ups.
+  // A room with NO roomCredits row is "not enrolled" → unenforced (live stays clean
+  // until grants are seeded). NOT pruned by retention.
+  roomCredits: defineTable({
+    roomId: v.id("rooms"),
+    availableCredits: v.number(),
+    reservedCredits: v.number(),
+    lifetimeSpentCredits: v.number(),
+    /** Kill switch — when true, reserve() rejects new holds without a redeploy. */
+    paused: v.boolean(),
+    updatedAt: v.number(),
+  }).index("by_room", ["roomId"]),
+
+  creditGrants: defineTable({
+    roomId: v.id("rooms"),
+    credits: v.number(),
+    source: v.union(v.literal("pilot"), v.literal("promo"), v.literal("manual"), v.literal("paid")),
+    note: v.optional(v.string()),
+    createdAt: v.number(),
+  }).index("by_room", ["roomId", "createdAt"]),
+
+  creditLedger: defineTable({
+    roomId: v.id("rooms"),
+    kind: v.union(v.literal("reserve"), v.literal("settle"), v.literal("refund"), v.literal("reject")),
+    mode: v.optional(creditModeV),
+    /** Idempotency key (usually the jobId) tying reserve↔settle↔refund together. */
+    reservationKey: v.string(),
+    /** Signed credit delta to `available` (reserve: −hold, settle: −actual, refund: +x). */
+    credits: v.number(),
+    usd: v.number(),
+    jobId: v.optional(v.id("agentJobs")),
+    runId: v.optional(v.id("agentRuns")),
+    reason: v.optional(v.string()),
+    note: v.optional(v.string()),
+    createdAt: v.number(),
+    /** Reserve rows past this with no settle are swept + refunded (crashed-run holds). */
+    expiresAt: v.optional(v.number()),
+  }).index("by_room", ["roomId", "createdAt"]).index("by_reservation", ["reservationKey"]),
 
   /** APPEND-ONLY step-level trace — the agent's full (tool · args → result) decision
    * sequence per run. The audit + trajectory-eval record: never updated, linked to a
