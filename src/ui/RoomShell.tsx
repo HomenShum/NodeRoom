@@ -658,7 +658,11 @@ function SignalStatusStrip({
   const jobStatus = job?.status ?? "";
   const jobRisk = ["failed", "blocked", "cancelled", "paused"].includes(jobStatus);
   const jobLive = !!job && !["completed", "failed", "cancelled", "blocked", "paused"].includes(jobStatus);
+  const credit = store.creditBalance?.();
   const signals = [
+    ...(credit && credit.enforced
+      ? [{ k: "Credits", v: `${credit.availableCredits.toFixed(0)}${credit.reservedCredits ? ` (${credit.reservedCredits.toFixed(0)} held)` : ""}${credit.demo ? " demo" : ""}` }]
+      : []),
     ...(proposals.length ? [{ k: "Review", v: `${proposals.length} pending` }] : []),
     ...(jobRisk ? [{ k: "Run", v: jobStatus }] : []),
     ...(jobLive
@@ -717,6 +721,10 @@ function SignalStatusStrip({
               <button key={s.k} className="r-signal-chip" data-testid="signal-review" style={{ border: "none", cursor: "pointer" }} title="Open the pending proposal on the stage" onClick={openProposal}>
                 <b>{s.k}</b>{s.v}
               </button>
+            ) : s.k === "Credits" ? (
+              <span key={s.k} className="r-signal-chip r-credit-chip" data-testid="signal-credits" title="Demo credits — 1 credit = $0.25. The live wallet meters real spend (not metered until the credit backend deploys).">
+                <b>{s.k}</b>{s.v}
+              </span>
             ) : (
               <span key={s.k} className="r-signal-chip"><b>{s.k}</b>{s.v}</span>
             ),

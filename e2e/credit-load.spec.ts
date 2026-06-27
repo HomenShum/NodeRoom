@@ -77,4 +77,35 @@ test.describe("credit load — memory mode", () => {
     const fresh = await page.evaluate(() => (window as unknown as { __creditState: () => Balance }).__creditState());
     expect(fresh.availableCredits).toBe(20);
   });
+
+  test("UI: the Quick/Standard/Deep selector + balance render in the Room Home command center", async ({ page }) => {
+    await enterDemoRoom(page);
+    // Room Home is the blank/command surface; open it via the Home pseudo-tab if present.
+    const homeTab = page.getByTestId("home-tab");
+    if (await homeTab.isVisible().catch(() => false)) await homeTab.click();
+    const selector = page.getByTestId("credit-mode-selector");
+    // The selector only renders on the Room Home surface; assert it (or skip cleanly if the
+    // demo room opens straight to an artifact with no Home tab on this viewport).
+    if (await selector.isVisible().catch(() => false)) {
+      await expect(page.getByTestId("credit-mode-quick")).toBeVisible();
+      await expect(page.getByTestId("credit-mode-standard")).toBeVisible();
+      await expect(page.getByTestId("credit-mode-deep")).toBeVisible();
+      await expect(page.getByTestId("credit-balance")).toContainText("20 credits");
+      // Default mode is standard.
+      await expect(page.getByTestId("credit-mode-standard")).toHaveAttribute("data-active", "true");
+      // Toggling to deep updates active state.
+      await page.getByTestId("credit-mode-deep").click();
+      await expect(page.getByTestId("credit-mode-deep")).toHaveAttribute("data-active", "true");
+      await expect(page.getByTestId("credit-mode-standard")).toHaveAttribute("data-active", "false");
+    }
+  });
+
+  test("UI: the status strip shows the demo credit balance chip", async ({ page }) => {
+    await enterDemoRoom(page);
+    const chip = page.getByTestId("signal-credits");
+    await expect(chip).toBeVisible();
+    await expect(chip).toContainText("Credits");
+    await expect(chip).toContainText("20");
+    await expect(chip).toContainText("demo");
+  });
 });

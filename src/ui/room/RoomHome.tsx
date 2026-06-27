@@ -179,6 +179,38 @@ export function RoomHome({
           </button>
         </div>
 
+        {store.creditMode && (
+          <div className="r-credit-modes" data-testid="credit-mode-selector" role="group" aria-label="Research depth">
+            {(["quick", "standard", "deep"] as const).map((m) => {
+              const active = (store.creditMode?.() ?? "standard") === m;
+              const est = store.estimateCredits?.(m);
+              return (
+                <button
+                  key={m}
+                  type="button"
+                  className="r-credit-mode"
+                  data-active={String(active)}
+                  data-testid={`credit-mode-${m}`}
+                  aria-pressed={active}
+                  onClick={() => store.setCreditMode?.(m)}
+                  title={est ? `Est ${est.creditsLow}–${est.creditsHigh} credits · hard cap $${est.hardCapUsd.toFixed(2)}${est.requiresApproval ? " · approval required" : ""}` : m}
+                >
+                  <span className="r-credit-mode-name">{m[0].toUpperCase() + m.slice(1)}</span>
+                  {est && <span className="r-credit-mode-est">~{est.creditsRequired} cr</span>}
+                </button>
+              );
+            })}
+            {(() => {
+              const bal = store.creditBalance?.();
+              return bal && bal.enforced ? (
+                <span className="r-credit-modes-balance" data-testid="credit-balance">
+                  {bal.availableCredits.toFixed(0)} credits{bal.demo ? " · demo" : ""}
+                </span>
+              ) : null;
+            })()}
+          </div>
+        )}
+
         <div className="r-room-chips">
           <button className="r-room-chip" onClick={() => { setCommand("@nodeagent research upscaleX Palo Alto"); inputRef.current?.focus(); }}>
             Research upscaleX
