@@ -194,6 +194,20 @@ input { font-family: inherit; }
 .r-inbox-action:hover { background: var(--bg-hover); }
 .r-inbox-action--dismiss { color: var(--text-tertiary); }
 .r-inbox-action--dismiss:hover { color: var(--text-secondary); }
+.r-inbox-action--primary { border-color: var(--accent); color: var(--accent); }
+.r-inbox-action--primary:hover { background: var(--accent-tint, rgba(59,130,246,.08)); }
+.r-inbox-batch { display: flex; align-items: center; gap: 6px; padding: 6px 10px; border-bottom: 1px solid var(--line); }
+.r-inbox-check { display: inline-flex; align-items: center; justify-content: center; width: 18px; height: 18px; border: none; background: transparent; cursor: pointer; color: var(--text-tertiary); padding: 0; flex: none; }
+.r-inbox-check:hover { color: var(--text-secondary); }
+.r-inbox-why { margin-top: 6px; padding: 6px 8px; border-radius: 6px; background: var(--bg-hover); border: 1px solid var(--line); }
+.r-inbox-why-text { font-size: 10px; line-height: 1.5; color: var(--text-secondary); margin: 0; }
+.r-inbox-why-text b { color: var(--text-primary); font-weight: 600; }
+.r-inbox-cost { margin-left: auto; font-size: 9px; color: var(--text-tertiary); font-family: var(--font-mono); white-space: nowrap; }
+.r-inbox-policy { font-size: 10px; border: 1px solid var(--line); border-radius: 4px; background: var(--bg-primary); color: var(--text-secondary); padding: 2px 4px; cursor: pointer; }
+.r-inbox-dismiss-reasons { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; align-items: center; }
+.r-inbox-dismiss-label { font-size: 9px; color: var(--text-tertiary); }
+.r-inbox-dismiss-chip { font-size: 9px; padding: 2px 6px; border: 1px solid var(--line); border-radius: 999px; background: transparent; color: var(--text-secondary); cursor: pointer; }
+.r-inbox-dismiss-chip:hover { background: var(--bg-hover); border-color: var(--text-tertiary); }
 .r-status-dot { width: 8px; height: 8px; border-radius: 50%; flex: none; background: var(--success); box-shadow: 0 0 0 3px rgba(31,138,91,.14); }
 .r-status-dot[data-kind="warn"] { background: var(--warning-ink); box-shadow: 0 0 0 3px var(--warning-tint); }
 .r-status-dot[data-kind="err"] { background: var(--danger-ink); box-shadow: 0 0 0 3px var(--danger-tint); }
@@ -1865,3 +1879,74 @@ body.nr-honesty-on [data-evidence-class="unsourced"]     { background-color: col
 
 .r-tracevu-refutation-reason { margin: 0; font-size: 12px; line-height: 1.5; color: var(--text-secondary, #4b5563); }
 .r-tracevu-refutation-foot { display: flex; gap: 10px; font-size: 10.5px; color: var(--text-muted, #6b7280); font-variant-numeric: tabular-nums; }
+
+/* ===========================================================================
+   Room Home — calm team command center (replaces BlankRoomState)
+   =========================================================================== */
+.r-room-home { display: flex; flex-direction: column; overflow: hidden; }
+.r-room-home-scroll { flex: 1; overflow-y: auto; padding: 48px 48px 32px; display: flex; flex-direction: column; gap: 28px; max-width: 720px; margin: 0 auto; width: 100%; }
+
+.r-room-home-hero { text-align: left; }
+.r-room-home-headline { font-size: 26px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.2; margin: 0 0 8px; color: var(--text-primary); }
+.r-room-home-sub { font-size: 14px; line-height: 1.5; color: var(--text-muted); margin: 0; }
+
+.r-room-command-wrap { display: flex; gap: 8px; align-items: flex-end; padding: 10px 12px; background: var(--bg-secondary); border: 1px solid var(--line); border-radius: 12px; transition: border-color var(--motion-fast), box-shadow var(--motion-fast); }
+.r-room-command-wrap:focus-within { border-color: var(--accent-border); box-shadow: 0 0 0 3px var(--accent-tint); }
+.r-room-command { flex: 1; resize: none; border: none; background: transparent; color: var(--text-primary); font-size: 14px; line-height: 1.5; font-family: var(--font-ui); outline: none; max-height: 120px; }
+.r-room-command::placeholder { color: var(--text-tertiary); }
+.r-room-command-send { flex: none; width: 32px; height: 32px; border-radius: 8px; border: none; background: var(--accent-primary); color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background var(--motion-fast), opacity var(--motion-fast); }
+.r-room-command-send:disabled { opacity: 0.4; cursor: default; }
+.r-room-command-send:not(:disabled):hover { background: var(--accent-hover); }
+
+.r-room-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.r-room-chip { padding: 6px 12px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg-primary); color: var(--text-secondary); font-size: 12px; font-weight: 500; cursor: pointer; transition: all var(--motion-fast); white-space: nowrap; }
+.r-room-chip:hover { border-color: var(--accent-border); color: var(--text-primary); background: var(--accent-tint); }
+
+/* Work lanes */
+.r-room-lanes { display: flex; flex-direction: column; gap: 10px; }
+.r-room-lanes-header { display: flex; align-items: center; justify-content: space-between; }
+.r-room-lanes-label { font-size: 12px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--text-tertiary); }
+.r-room-lanes-count { font-size: 11px; color: var(--text-muted); }
+
+.r-lane-card { display: flex; gap: 12px; align-items: flex-start; padding: 14px 16px; border-radius: 12px; border: 1px solid var(--line); background: var(--bg-secondary); transition: border-color var(--motion-fast); }
+.r-lane-card[data-status="running"] { border-color: var(--accent-border); }
+.r-lane-card[data-status="failed"] { border-color: var(--danger-border); }
+.r-lane-card[data-status="needs_review"] { border-color: var(--warning-border); }
+.r-lane-icon { flex: none; width: 28px; height: 28px; border-radius: 8px; display: flex; align-items: center; justify-content: center; background: var(--bg-tertiary); color: var(--text-muted); }
+.r-lane-card[data-status="running"] .r-lane-icon { color: var(--accent-primary); }
+.r-lane-card[data-status="done"] .r-lane-icon { color: var(--success); }
+.r-lane-card[data-status="failed"] .r-lane-icon { color: var(--danger-ink); }
+.r-lane-card[data-status="needs_review"] .r-lane-icon { color: var(--warning-ink); }
+.r-lane-spin { animation: r-lane-spin 1s linear infinite; }
+@keyframes r-lane-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+.r-lane-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.r-lane-title { font-size: 13px; font-weight: 600; color: var(--text-primary); }
+.r-lane-sub { font-size: 12px; color: var(--text-muted); line-height: 1.4; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.r-lane-progress { font-size: 11px; color: var(--text-tertiary); font-variant-numeric: tabular-nums; }
+.r-lane-actions { flex: none; display: flex; gap: 6px; }
+.r-lane-btn { display: inline-flex; align-items: center; gap: 4px; padding: 4px 8px; border-radius: 6px; border: 1px solid var(--line); background: var(--bg-primary); color: var(--text-secondary); font-size: 11px; font-weight: 500; cursor: pointer; transition: all var(--motion-fast); }
+.r-lane-btn:hover { border-color: var(--accent-border); color: var(--text-primary); }
+
+/* Room inventory */
+.r-room-inventory { display: flex; flex-direction: column; gap: 10px; }
+.r-room-inventory-header { font-size: 12px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--text-tertiary); }
+.r-room-inventory-grid { display: flex; flex-direction: column; gap: 8px; }
+.r-room-inv-item { display: flex; gap: 12px; align-items: center; padding: 12px 14px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg-primary); cursor: pointer; transition: all var(--motion-fast); text-align: left; width: 100%; }
+.r-room-inv-item:hover { border-color: var(--accent-border); background: var(--accent-tint); }
+.r-room-inv-icon { flex: none; width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; background: var(--bg-secondary); color: var(--text-muted); }
+.r-room-inv-item:hover .r-room-inv-icon { color: var(--accent-primary); }
+.r-room-inv-body { flex: 1; min-width: 0; }
+.r-room-inv-title { font-size: 13px; font-weight: 600; color: var(--text-primary); }
+.r-room-inv-meta { font-size: 11px; color: var(--text-muted); }
+.r-room-inv-item svg:last-child { flex: none; color: var(--text-tertiary); }
+
+/* Quiet bottom strip — less visual noise */
+.r-shell-bottom { background: var(--bg-primary); border-top: 1px solid var(--line); }
+.r-status-strip { font-size: 11.5px; color: var(--text-muted); }
+.r-status-dot { width: 7px; height: 7px; border-radius: 50%; flex: none; }
+.r-signal-chip { font-size: 11px; }
+
+@media (max-width: 980px) {
+  .r-room-home-scroll { padding: 24px 20px 20px; }
+  .r-room-home-headline { font-size: 22px; }
+}

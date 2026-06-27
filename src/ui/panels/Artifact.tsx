@@ -30,6 +30,7 @@ import { OPT_ARTIFACT_PREFIX, optimisticArtifactIdentity } from "../openRoomRefe
 import { prepareDownstreamDrafts, type PreparedDownstreamDraft } from "../../nodeagent/skills/integration/downstreamPublish";
 import { isWorkbookPreviewDoc, workbookPreviewArtifactFromDataUrl } from "./workbookFilePreview";
 import { isOfficePreviewDoc, officePreviewFromDataUrl, type OfficePreview } from "./officeFilePreview";
+import { RoomHome } from "../room/RoomHome";
 
 /** Downstream handoff destinations → compact icon + short label (replaces 5 wide ghost buttons). */
 const HANDOFF_ICONS: Record<string, LucideIcon> = { gmail: Mail, notion: FileText, slack: Hash, linear: Layers, linkedin: Linkedin };
@@ -254,23 +255,12 @@ function makeBlankRoomCode(): string {
 }
 
 /**
- * BlankRoomState — what a brand-new (0-artifact) room shows instead of a black void.
- * Per deep-review §0 ("A new room starts blank") the room is empty by design; this gives the
- * first-time user exactly THREE obvious starts (chat / add a surface / load the sample) rather
- * than an empty technical shell. Each CTA is a real one-click action.
+ * BlankRoomHome — wraps RoomHome with the add-sheet and load-sample actions.
+ * Replaces the old BlankRoomState with the Cursor-inspired command center.
  */
-function BlankRoomState({ roomId, me, style, onOpenChat }: { roomId: string; me: Actor; style?: CSSProperties; onOpenChat?: () => void }) {
+function BlankRoomHome({ roomId, me, style, onOpenChat }: { roomId: string; me: Actor; style?: CSSProperties; onOpenChat?: () => void }) {
   const store = useStore();
   const [busy, setBusy] = useState(false);
-  const focusChat = () => {
-    onOpenChat?.();
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        const ta = document.querySelector<HTMLTextAreaElement>('textarea[data-testid="chat-composer"]');
-        if (ta) { ta.focus(); ta.scrollIntoView({ block: "center", behavior: "smooth" }); }
-      });
-    });
-  };
   const addSheet = async () => {
     if (busy) return;
     setBusy(true);
@@ -289,21 +279,14 @@ function BlankRoomState({ roomId, me, style, onOpenChat }: { roomId: string; me:
     window.location.href = url.toString();
   };
   return (
-    <div className="r-panel artifact" style={style} data-testid="blank-room-state">
-      <div style={{ display: "flex", flex: 1, alignItems: "center", justifyContent: "center", padding: 24, minHeight: 0 }}>
-        <div style={{ maxWidth: 440, width: "100%", textAlign: "center" }}>
-          <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 6 }}>This room is blank.</div>
-          <div className="faint" style={{ fontSize: 13, marginBottom: 18, lineHeight: 1.5 }}>
-            Start it your way. Everything you and your NodeAgents add stays live and conflict-safe.
-          </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 8, alignItems: "stretch" }}>
-            <button className="r-btn primary" data-testid="blank-cta-chat" onClick={focusChat}>Ask the agent to build something →</button>
-            <button className="r-btn" data-testid="blank-cta-sheet" disabled={busy} onClick={() => void addSheet()}><Plus size={13} /> {busy ? "Adding a sheet…" : "Add a blank sheet"}</button>
-            <button className="r-btn ghost" data-testid="blank-cta-demo" onClick={loadSample}>Load the sample diligence workspace →</button>
-          </div>
-        </div>
-      </div>
-    </div>
+    <RoomHome
+      roomId={roomId}
+      me={me}
+      style={style}
+      onOpenChat={onOpenChat}
+      onAddSheet={() => void addSheet()}
+      onLoadSample={loadSample}
+    />
   );
 }
 
@@ -368,8 +351,8 @@ export function Artifact(props: {
     mq.addEventListener?.("change", onChange);
     return () => mq.removeEventListener?.("change", onChange);
   }, []);
-  // A blank room (0 artifacts) is intentional (Loop 1) — show the onboarding starts, not a void.
-  if (arts.length === 0) return <BlankRoomState roomId={roomId} me={me} style={style} onOpenChat={onOpenChat} />;
+  // A blank room (0 artifacts) is intentional (Loop 1) — show the Room Home command center.
+  if (arts.length === 0) return <BlankRoomHome roomId={roomId} me={me} style={style} onOpenChat={onOpenChat} />;
   const canSplit = wideEnough && arts.length >= 4;
   // Keep the split target valid: collapse if it vanished, folded back onto the primary, or the
   // viewport became too narrow.
