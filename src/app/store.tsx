@@ -70,6 +70,47 @@ export type AgentJobTelemetry = {
   createdAt?: number;
   updatedAt: number;
 };
+
+/** Shape of a free-auto agent job row from the convex jobs subscription (used by lastLongFreeJob + activeLongFreeJobs). */
+type FreeJobRow = {
+  _id: string; status: string; entrypoint?: string; scope?: string; runtime?: string; attempts: number; maxAttempts: number;
+  runtimeProfile?: AgentRuntimeProfile; modelPolicy: string; approvalPolicy?: string; evidencePolicy?: string; handoff?: { reason?: string }; nextRunAt?: number;
+  finalText?: string; error?: string; latestRunId?: string; actionSliceCount?: number; queryCount?: number; mutationCount?: number;
+  modelCallCount?: number; toolCallCount?: number; schedulerHandoffCount?: number; receiptCount?: number; createdAt?: number; updatedAt: number;
+};
+/** A job is an active "work lane" until it succeeds or is cancelled — failed/paused stay visible so the user can retry/dismiss. */
+function isActiveFreeJob(status: string): boolean {
+  return status !== "completed" && status !== "cancelled";
+}
+function mapConvexFreeJob(j: FreeJobRow): AgentJobTelemetry {
+  return {
+    id: String(j._id),
+    status: j.status,
+    entrypoint: j.entrypoint,
+    scope: j.scope,
+    runtime: j.runtime,
+    runtimeProfile: j.runtimeProfile,
+    attempts: j.attempts,
+    maxAttempts: j.maxAttempts,
+    modelPolicy: j.modelPolicy,
+    approvalPolicy: j.approvalPolicy,
+    evidencePolicy: j.evidencePolicy,
+    stopReason: j.handoff?.reason,
+    nextRunAt: j.nextRunAt,
+    finalText: j.finalText,
+    error: j.error,
+    latestRunId: j.latestRunId ? String(j.latestRunId) : undefined,
+    actionSliceCount: j.actionSliceCount,
+    queryCount: j.queryCount,
+    mutationCount: j.mutationCount,
+    modelCallCount: j.modelCallCount,
+    toolCallCount: j.toolCallCount,
+    schedulerHandoffCount: j.schedulerHandoffCount,
+    receiptCount: j.receiptCount,
+    createdAt: j.createdAt,
+    updatedAt: j.updatedAt,
+  };
+}
 export type AgentJobAttemptTelemetry = {
   attempt: number;
   status: string;
@@ -270,6 +311,9 @@ export interface RoomStore {
   lastLongFreeJob(): AgentJobTelemetry | null;
   lastLongFreeJobAttempts(): AgentJobAttemptTelemetry[];
   lastLongFreeJobDetail(): AgentJobDetailTelemetry | null;
+  /** All in-flight agent jobs for the room (running/queued/paused/failed), most recent first — drives the Room Home
+   *  "work lanes". Optional: memory mode returns 0–1; convex mode returns every active job. */
+  activeLongFreeJobs?(): AgentJobTelemetry[];
   okfTraceLens(roomId: string): OkfTraceLensTelemetry | null;
   cancelLongFreeJob(jobId: string): Promise<EditFeedback>;
   retryLongFreeJob(jobId: string): Promise<EditFeedback>;
@@ -909,6 +953,7 @@ export function EngineStoreProvider({ roomId, children }: { roomId: string; me: 
     lastLongFreeJob: () => memLongJob,
     lastLongFreeJobAttempts: () => memLongJobAttempts,
     lastLongFreeJobDetail: () => memLongJobDetail,
+    activeLongFreeJobs: () => (memLongJob && isActiveFreeJob(memLongJob.status) ? [memLongJob] : []),
     okfTraceLens: () => null,
     cancelLongFreeJob: async (jobId) => {
       const now = Date.now();
@@ -1744,40 +1789,10 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
         return r ? { model: r.model, steps: r.steps, toolCalls: r.toolCalls, inputTokens: r.inputTokens, outputTokens: r.outputTokens, costUsd: r.costUsd, ms: r.ms } : null;
       },
       lastLongFreeJob: () => {
-        const j = (jobs as Array<{
-          _id: string; status: string; entrypoint?: string; scope?: string; runtime?: string; attempts: number; maxAttempts: number;
-          runtimeProfile?: AgentRuntimeProfile; modelPolicy: string; approvalPolicy?: string; evidencePolicy?: string; handoff?: { reason?: string }; nextRunAt?: number;
-          finalText?: string; error?: string; latestRunId?: string; actionSliceCount?: number; queryCount?: number; mutationCount?: number;
-          modelCallCount?: number; toolCallCount?: number; schedulerHandoffCount?: number; receiptCount?: number; createdAt?: number; updatedAt: number;
-        }>)[0];
-        return j ? {
-          id: String(j._id),
-          status: j.status,
-          entrypoint: j.entrypoint,
-          scope: j.scope,
-          runtime: j.runtime,
-          runtimeProfile: j.runtimeProfile,
-          attempts: j.attempts,
-          maxAttempts: j.maxAttempts,
-          modelPolicy: j.modelPolicy,
-          approvalPolicy: j.approvalPolicy,
-          evidencePolicy: j.evidencePolicy,
-          stopReason: j.handoff?.reason,
-          nextRunAt: j.nextRunAt,
-          finalText: j.finalText,
-          error: j.error,
-          latestRunId: j.latestRunId ? String(j.latestRunId) : undefined,
-          actionSliceCount: j.actionSliceCount,
-          queryCount: j.queryCount,
-          mutationCount: j.mutationCount,
-          modelCallCount: j.modelCallCount,
-          toolCallCount: j.toolCallCount,
-          schedulerHandoffCount: j.schedulerHandoffCount,
-          receiptCount: j.receiptCount,
-          createdAt: j.createdAt,
-          updatedAt: j.updatedAt,
-        } : null;
+        const j = (jobs as FreeJobRow[])[0];
+        return j ? mapConvexFreeJob(j) : null;
       },
+      activeLongFreeJobs: () => (jobs as FreeJobRow[]).filter((j) => isActiveFreeJob(j.status)).map(mapConvexFreeJob),
       lastLongFreeJobAttempts: () => (jobAttempts as Array<{
         attempt: number;
         status: string;

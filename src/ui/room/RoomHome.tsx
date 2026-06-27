@@ -1,9 +1,34 @@
-import { useState, useRef, type CSSProperties } from "react";
-import { Plus, ArrowRight, Send, Table2, FileText, Activity } from "lucide-react";
+import { useState, useRef, type CSSProperties, type ReactNode } from "react";
+import { Plus, ArrowRight, Send, Table2, FileText, Activity, BookOpen, StickyNote, Search } from "lucide-react";
 import { useStore } from "../../app/store";
 import type { Actor } from "../../engine/types";
 import type { AgentJobTelemetry } from "../../app/store";
 import { AgentLaneCard, statusFromJob, type RoomWorkLane } from "./AgentLaneCard";
+
+/** A row in the Room Home inventory — the room's real artifacts when populated. */
+export type RoomHomeArtifact = { id: string; title: string; kind: string; badge?: string };
+
+function invIcon(kind: string): ReactNode {
+  switch (kind) {
+    case "sheet": return <Table2 size={16} />;
+    case "note": return <FileText size={16} />;
+    case "wiki": return <BookOpen size={16} />;
+    case "wall": return <StickyNote size={16} />;
+    case "research": return <Search size={16} />;
+    default: return <FileText size={16} />;
+  }
+}
+
+function kindLabel(kind: string): string {
+  switch (kind) {
+    case "sheet": return "Spreadsheet";
+    case "note": return "Note";
+    case "wiki": return "Wiki";
+    case "wall": return "Wall";
+    case "research": return "Research";
+    default: return kind;
+  }
+}
 
 function jobToLane(job: AgentJobTelemetry | null): RoomWorkLane | null {
   if (!job) return null;
@@ -40,6 +65,18 @@ function jobToLane(job: AgentJobTelemetry | null): RoomWorkLane | null {
   };
 }
 
+/** "Started N work lanes" — summarize the active lanes by state (running · queued · needs attention). */
+function laneCountLabel(lanes: RoomWorkLane[]): string {
+  const running = lanes.filter((l) => l.status === "running").length;
+  const queued = lanes.filter((l) => l.status === "queued").length;
+  const attention = lanes.filter((l) => l.status === "failed" || l.status === "needs_review").length;
+  const parts: string[] = [];
+  if (running) parts.push(`${running} running`);
+  if (queued) parts.push(`${queued} queued`);
+  if (attention) parts.push(`${attention} needs attention`);
+  return parts.join(" · ") || `${lanes.length} active`;
+}
+
 export function RoomHome({
   roomId: _roomId,
   me: _me,
@@ -47,6 +84,9 @@ export function RoomHome({
   onOpenChat,
   onAddSheet,
   onLoadSample,
+  embedded,
+  artifacts,
+  onOpenArtifact,
 }: {
   roomId: string;
   me: Actor;
@@ -54,13 +94,20 @@ export function RoomHome({
   onOpenChat?: () => void;
   onAddSheet?: () => void;
   onLoadSample?: () => void;
+  /** Rendered inside the work-surface body (Home tab) — drops the outer panel chrome. */
+  embedded?: boolean;
+  /** The room's real artifacts. When present, the inventory lists them instead of onboarding CTAs. */
+  artifacts?: RoomHomeArtifact[];
+  onOpenArtifact?: (id: string) => void;
 }) {
+  const hasArtifacts = !!artifacts && artifacts.length > 0;
   const store = useStore();
   const [command, setCommand] = useState("");
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
-  const job = store.lastLongFreeJob();
-  const lane = jobToLane(job);
+  const lanes = (store.activeLongFreeJobs?.() ?? [])
+    .map(jobToLane)
+    .filter((l): l is RoomWorkLane => !!l);
 
   const focusChat = () => {
     onOpenChat?.();
@@ -95,12 +142,18 @@ export function RoomHome({
   };
 
   return (
-    <div className="r-panel artifact r-room-home" style={style} data-testid="blank-room-state">
+    <div
+      className={embedded ? "r-room-home r-room-home-embedded" : "r-panel artifact r-room-home"}
+      style={style}
+      data-testid={hasArtifacts ? "room-home-surface" : "blank-room-state"}
+    >
       <div className="r-room-home-scroll" data-testid="room-home">
         <div className="r-room-home-hero">
           <h1 className="r-room-home-headline">Run your deal room like a team of ten.</h1>
           <p className="r-room-home-sub">
-            Capture rough notes, organize companies and people, and let NodeAgent build source-backed follow-up work.
+            {hasArtifacts
+              ? "Your command center: ask NodeAgent for new work, jump back into any artifact, and watch active work lanes."
+              : "Capture rough notes, organize companies and people, and let NodeAgent build source-backed follow-up work."}
           </p>
         </div>
 
@@ -144,48 +197,78 @@ export function RoomHome({
           </button>
         </div>
 
-        {lane && (
-          <div className="r-room-lanes">
+        {lanes.length > 0 && (
+          <div className="r-room-lanes" data-testid="room-work-lanes">
             <div className="r-room-lanes-header">
               <span className="r-room-lanes-label">Work lanes</span>
-              <span className="r-room-lanes-count">{lane.status === "running" ? "1 active" : lane.status === "queued" ? "1 queued" : lane.status === "failed" ? "1 needs attention" : "1 done"}</span>
+              <span className="r-room-lanes-count" data-testid="room-work-lanes-count">{laneCountLabel(lanes)}</span>
             </div>
-            <AgentLaneCard
-              lane={lane}
-              onRetry={() => void store.retryLongFreeJob?.(lane.id)}
-              onDismiss={() => void store.cancelLongFreeJob?.(lane.id)}
-            />
+            {lanes.map((lane) => (
+              <AgentLaneCard
+                key={lane.id}
+                lane={lane}
+                onRetry={() => void store.retryLongFreeJob?.(lane.id)}
+                onDismiss={() => void store.cancelLongFreeJob?.(lane.id)}
+              />
+            ))}
           </div>
         )}
 
         <div className="r-room-inventory">
-          <div className="r-room-inventory-header">Room inventory</div>
-          <div className="r-room-inventory-grid">
-            <button className="r-room-inv-item" data-testid="blank-cta-chat" onClick={focusChat}>
-              <div className="r-room-inv-icon"><Activity size={16} /></div>
-              <div className="r-room-inv-body">
-                <div className="r-room-inv-title">Start with chat</div>
-                <div className="r-room-inv-meta">Ask the room agent to work</div>
+          {hasArtifacts ? (
+            <>
+              <div className="r-room-inventory-header has-add">
+                <span>Room inventory · {artifacts!.length}</span>
+                {onAddSheet && (
+                  <button className="r-room-inv-add" data-testid="room-home-add-sheet" onClick={() => onAddSheet()} title="Add a blank sheet">
+                    <Plus size={13} /> Add sheet
+                  </button>
+                )}
               </div>
-              <ArrowRight size={14} />
-            </button>
-            <button className="r-room-inv-item" data-testid="blank-cta-sheet" onClick={() => onAddSheet?.()}>
-              <div className="r-room-inv-icon"><Table2 size={16} /></div>
-              <div className="r-room-inv-body">
-                <div className="r-room-inv-title">Add a blank sheet</div>
-                <div className="r-room-inv-meta">Start a diligence grid</div>
+              <div className="r-room-inventory-grid">
+                {artifacts!.map((a) => (
+                  <button key={a.id} className="r-room-inv-item" data-testid="room-home-artifact" onClick={() => onOpenArtifact?.(a.id)}>
+                    <div className="r-room-inv-icon">{invIcon(a.kind)}</div>
+                    <div className="r-room-inv-body">
+                      <div className="r-room-inv-title">{a.title}</div>
+                      <div className="r-room-inv-meta">{kindLabel(a.kind)}{a.badge ? ` · ${a.badge}` : ""}</div>
+                    </div>
+                    <ArrowRight size={14} />
+                  </button>
+                ))}
               </div>
-              <Plus size={14} />
-            </button>
-            <button className="r-room-inv-item" data-testid="blank-cta-demo" onClick={() => onLoadSample?.()}>
-              <div className="r-room-inv-icon"><FileText size={16} /></div>
-              <div className="r-room-inv-body">
-                <div className="r-room-inv-title">Load sample workspace</div>
-                <div className="r-room-inv-meta">See a full diligence room</div>
+            </>
+          ) : (
+            <>
+              <div className="r-room-inventory-header">Room inventory</div>
+              <div className="r-room-inventory-grid">
+                <button className="r-room-inv-item" data-testid="blank-cta-chat" onClick={focusChat}>
+                  <div className="r-room-inv-icon"><Activity size={16} /></div>
+                  <div className="r-room-inv-body">
+                    <div className="r-room-inv-title">Start with chat</div>
+                    <div className="r-room-inv-meta">Ask the room agent to work</div>
+                  </div>
+                  <ArrowRight size={14} />
+                </button>
+                <button className="r-room-inv-item" data-testid="blank-cta-sheet" onClick={() => onAddSheet?.()}>
+                  <div className="r-room-inv-icon"><Table2 size={16} /></div>
+                  <div className="r-room-inv-body">
+                    <div className="r-room-inv-title">Add a blank sheet</div>
+                    <div className="r-room-inv-meta">Start a diligence grid</div>
+                  </div>
+                  <Plus size={14} />
+                </button>
+                <button className="r-room-inv-item" data-testid="blank-cta-demo" onClick={() => onLoadSample?.()}>
+                  <div className="r-room-inv-icon"><FileText size={16} /></div>
+                  <div className="r-room-inv-body">
+                    <div className="r-room-inv-title">Load sample workspace</div>
+                    <div className="r-room-inv-meta">See a full diligence room</div>
+                  </div>
+                  <ArrowRight size={14} />
+                </button>
               </div>
-              <ArrowRight size={14} />
-            </button>
-          </div>
+            </>
+          )}
         </div>
       </div>
     </div>

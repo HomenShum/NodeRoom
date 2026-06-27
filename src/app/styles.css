@@ -1007,6 +1007,8 @@ button.r-tracevu-step:hover, button.r-tracevu-step:focus-visible { border-color:
 .r-tracevu-raw { margin: 0; padding: 14px; border-radius: 10px; background: var(--bg-secondary); border: 1px solid var(--line); color: var(--text-secondary); font: 11px/1.5 var(--font-mono); white-space: pre-wrap; overflow-wrap: anywhere; }
 .r-tracetab { color: var(--text-muted); }
 .r-tracetab[data-active="true"] { color: var(--accent-ink); }
+.r-hometab { color: var(--text-muted); }
+.r-hometab[data-active="true"] { color: var(--accent-ink); }
 /* Scale: collapsible groups + content-visibility windowing keep hundreds of steps cheap. */
 .r-tracevu-groups { display: flex; flex-direction: column; gap: 8px; }
 .r-tracevu-group { border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
@@ -1884,6 +1886,8 @@ body.nr-honesty-on [data-evidence-class="unsourced"]     { background-color: col
    Room Home — calm team command center (replaces BlankRoomState)
    =========================================================================== */
 .r-room-home { display: flex; flex-direction: column; overflow: hidden; }
+/* Embedded = rendered inside the work-surface body (Home tab), without the outer panel chrome. */
+.r-room-home-embedded { flex: 1; min-height: 0; display: flex; flex-direction: column; overflow: hidden; }
 .r-room-home-scroll { flex: 1; overflow-y: auto; padding: 48px 48px 32px; display: flex; flex-direction: column; gap: 28px; max-width: 720px; margin: 0 auto; width: 100%; }
 
 .r-room-home-hero { text-align: left; }
@@ -1930,6 +1934,9 @@ body.nr-honesty-on [data-evidence-class="unsourced"]     { background-color: col
 /* Room inventory */
 .r-room-inventory { display: flex; flex-direction: column; gap: 10px; }
 .r-room-inventory-header { font-size: 12px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--text-tertiary); }
+.r-room-inventory-header.has-add { display: flex; align-items: center; justify-content: space-between; }
+.r-room-inv-add { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 600; text-transform: none; letter-spacing: 0; color: var(--text-muted); background: transparent; border: 1px solid var(--line); border-radius: 6px; padding: 3px 8px; cursor: pointer; transition: all var(--motion-fast); }
+.r-room-inv-add:hover { border-color: var(--accent-border); color: var(--accent-primary); }
 .r-room-inventory-grid { display: flex; flex-direction: column; gap: 8px; }
 .r-room-inv-item { display: flex; gap: 12px; align-items: center; padding: 12px 14px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg-primary); cursor: pointer; transition: all var(--motion-fast); text-align: left; width: 100%; }
 .r-room-inv-item:hover { border-color: var(--accent-border); background: var(--accent-tint); }

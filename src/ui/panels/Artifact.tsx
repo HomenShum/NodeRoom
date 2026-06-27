@@ -13,7 +13,7 @@ import { useQuery, useMutation } from "convex/react";
 import { useTiptapSync } from "@convex-dev/prosemirror-sync/tiptap";
 import { api } from "../../../convex/_generated/api";
 import {
-  Table2, FileText, StickyNote, Users, GitMerge, RotateCcw, History, Search, BookOpen,
+  Table2, FileText, StickyNote, Users, GitMerge, RotateCcw, History, Search, BookOpen, Home,
   Lock, Unlock, Ban, Pencil, Plus, Check, AlertTriangle, Eye, Circle, ChevronRight, Download, Trash2, Undo2, X, Columns2, MoreHorizontal, Mail, Hash, Layers, Linkedin, Activity, type LucideIcon,
   Sparkles, Folder, Briefcase, Package, File as FileIcon,
 } from "lucide-react";
@@ -49,7 +49,7 @@ const TABS: { id: TabId; label: string; Icon: LucideIcon }[] = [
   { id: "note", label: "Note", Icon: FileText },
   { id: "wall", label: "Wall", Icon: StickyNote },
 ];
-function ArtifactSurface({ roomId, me, proof, artId, onArt, style, surfaceKey = "primary", headerExtra, openIds, onCloseArtifact }: {
+function ArtifactSurface({ roomId, me, proof, artId, onArt, style, surfaceKey = "primary", headerExtra, openIds, onCloseArtifact, onOpenChat }: {
   roomId: string; me: Actor; artId: string; onArt: (id: string) => void;
   proof?: ActorProof;
   style?: CSSProperties;
@@ -57,6 +57,7 @@ function ArtifactSurface({ roomId, me, proof, artId, onArt, style, surfaceKey = 
   headerExtra?: ReactNode;
   openIds?: string[];
   onCloseArtifact?: (id: string) => void;
+  onOpenChat?: () => void;
 }) {
   const store = useStore();
   const arts = store.listArtifacts(roomId);
@@ -79,6 +80,9 @@ function ArtifactSurface({ roomId, me, proof, artId, onArt, style, surfaceKey = 
   };
   const [tab, setTab] = useState<TabId>(() => tabForArt(artId));
   const [traceOpen, setTraceOpen] = useState(false);
+  // Home is a persistent pinned pseudo-tab (primary surface only) — like Trace, it overlays the
+  // work surface with the Room Home command center (inventory + work lanes) without disturbing openIds.
+  const [homeOpen, setHomeOpen] = useState(false);
   const [editErr, setEditErr] = useState<string | null>(null);
   useEffect(() => { if (!editErr) return; const t = setTimeout(() => setEditErr(null), 4000); return () => clearTimeout(t); }, [editErr]);
   useEffect(() => { setTab(tabForArt(artId)); }, [artId, wiki?.id, sheet?.id, research?.id, note?.id, wall?.id, arts.length]);
@@ -162,9 +166,15 @@ function ArtifactSurface({ roomId, me, proof, artId, onArt, style, surfaceKey = 
     <div className="r-panel artifact" ref={surfaceRef} style={style} data-testid={surfaceKey === "secondary" ? "artifact-panel-secondary" : "artifact-panel"}>
       <div className="r-panel-head">
         <div className="r-tabs" data-testid={surfaceKey === "secondary" ? "artifact-tabs-secondary" : "artifact-tabs"}>
+          {/* Home is a pinned, non-closeable pseudo-tab: the room command center is always one click away. */}
+          {surfaceKey !== "secondary" && (
+            <button type="button" className="r-tab r-hometab" data-active={String(homeOpen)} data-testid="home-tab" title="Room Home — command center, inventory, and work lanes" onClick={() => { setHomeOpen(true); setTraceOpen(false); }}>
+              <Home size={13} /> Home
+            </button>
+          )}
           {openIds
             ? openTabArts.map((a) => (
-                <button key={a.id} className="r-tab r-filetab" data-active={String(!traceOpen && a.id === artId)} onClick={() => { onArt(a.id); setTraceOpen(false); }} onDoubleClick={() => renameArtifact(a)} title={a.meta?.summary ? `${a.title} — ${a.meta.summary}` : `${a.title} (double-click to rename)`} data-testid="artifact-filetab">
+                <button key={a.id} className="r-tab r-filetab" data-active={String(!traceOpen && !homeOpen && a.id === artId)} onClick={() => { onArt(a.id); setTraceOpen(false); setHomeOpen(false); }} onDoubleClick={() => renameArtifact(a)} title={a.meta?.summary ? `${a.title} — ${a.meta.summary}` : `${a.title} (double-click to rename)`} data-testid="artifact-filetab">
                   {tabIcon(a)}
                   <span className="r-filetab-name">{artifactTabDisplay(a).title}</span>
                   {artifactTabDisplay(a).badge && <span className="r-file-ext r-filetab-ext">{artifactTabDisplay(a).badge}</span>}
@@ -174,13 +184,13 @@ function ArtifactSurface({ roomId, me, proof, artId, onArt, style, surfaceKey = 
                 </button>
               ))
             : TABS.filter((t) => artFor(t.id)).map((t) => (
-                <button key={t.id} className="r-tab" data-active={String(!traceOpen && activeTab === t.id)} onClick={() => { pick(t.id); setTraceOpen(false); }}>
+                <button key={t.id} className="r-tab" data-active={String(!traceOpen && !homeOpen && activeTab === t.id)} onClick={() => { pick(t.id); setTraceOpen(false); setHomeOpen(false); }}>
                   <t.Icon size={13} /> {t.label}
                 </button>
               ))}
           {/* Trace is a pinned work-surface tab alongside the artifacts (agent + QA provenance). */}
           {surfaceKey !== "secondary" && (
-            <button type="button" className="r-tab r-tracetab" data-active={String(traceOpen)} data-testid="trace-tab" title="Agent + QA trace records" onClick={() => setTraceOpen(true)}>
+            <button type="button" className="r-tab r-tracetab" data-active={String(traceOpen)} data-testid="trace-tab" title="Agent + QA trace records" onClick={() => { setTraceOpen(true); setHomeOpen(false); }}>
               <Activity size={13} /> Trace
             </button>
           )}
@@ -219,7 +229,16 @@ function ArtifactSurface({ roomId, me, proof, artId, onArt, style, surfaceKey = 
         )}
       </div>
 
-      {traceOpen ? (
+      {homeOpen ? (
+        <RoomHomeSurface
+          roomId={roomId}
+          me={me}
+          embedded
+          onOpenChat={onOpenChat}
+          artifacts={arts.map((a) => ({ id: a.id, title: a.title, kind: a.kind }))}
+          onOpenArtifact={(id) => { onArt(id); setHomeOpen(false); }}
+        />
+      ) : traceOpen ? (
         <TraceSurface roomId={roomId} onOpenSource={openTraceSource} />
       ) : (
         <>
@@ -255,10 +274,11 @@ function makeBlankRoomCode(): string {
 }
 
 /**
- * BlankRoomHome — wraps RoomHome with the add-sheet and load-sample actions.
- * Replaces the old BlankRoomState with the Cursor-inspired command center.
+ * RoomHomeSurface — wraps RoomHome with the add-sheet and load-sample actions.
+ * Serves two roles: the blank-room landing (0 artifacts) AND the pinned Home tab in a
+ * populated room (embedded, with the real artifact inventory). Replaces the old BlankRoomState.
  */
-function BlankRoomHome({ roomId, me, style, onOpenChat }: { roomId: string; me: Actor; style?: CSSProperties; onOpenChat?: () => void }) {
+function RoomHomeSurface({ roomId, me, style, onOpenChat, embedded, artifacts, onOpenArtifact }: { roomId: string; me: Actor; style?: CSSProperties; onOpenChat?: () => void; embedded?: boolean; artifacts?: { id: string; title: string; kind: string }[]; onOpenArtifact?: (id: string) => void }) {
   const store = useStore();
   const [busy, setBusy] = useState(false);
   const addSheet = async () => {
@@ -286,6 +306,9 @@ function BlankRoomHome({ roomId, me, style, onOpenChat }: { roomId: string; me: 
       onOpenChat={onOpenChat}
       onAddSheet={() => void addSheet()}
       onLoadSample={loadSample}
+      embedded={embedded}
+      artifacts={artifacts}
+      onOpenArtifact={onOpenArtifact}
     />
   );
 }
@@ -352,7 +375,7 @@ export function Artifact(props: {
     return () => mq.removeEventListener?.("change", onChange);
   }, []);
   // A blank room (0 artifacts) is intentional (Loop 1) — show the Room Home command center.
-  if (arts.length === 0) return <BlankRoomHome roomId={roomId} me={me} style={style} onOpenChat={onOpenChat} />;
+  if (arts.length === 0) return <RoomHomeSurface roomId={roomId} me={me} style={style} onOpenChat={onOpenChat} />;
   const canSplit = wideEnough && arts.length >= 4;
   // Keep the split target valid: collapse if it vanished, folded back onto the primary, or the
   // viewport became too narrow.
@@ -402,6 +425,7 @@ export function Artifact(props: {
         proof={proof}
         artId={artId}
         onArt={onArt}
+        onOpenChat={onOpenChat}
         surfaceKey="primary"
         headerExtra={canSplit ? splitToggle : undefined}
         openIds={liveOpenIds}
