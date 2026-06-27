@@ -1,0 +1,65 @@
+{
+  "schema": 1,
+  "taskId": "bc55d3e8-0d59-43d6-a385-03c5330e47bf",
+  "harborTaskId": "btb-bc55d3e8",
+  "generatedAt": "2026-06-26T02:50:32.418Z",
+  "baseUrl": "http://127.0.0.1:5273",
+  "roomUrl": "http://127.0.0.1:5273/?room=NR87ANS13VS&name=Host",
+  "downloadedFiles": [
+    {
+      "kind": "workbook",
+      "filename": "btb-bc55d3e8-uber-technologies-dcf.xlsx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\bc55d3e8-0d59-43d6-a385-03c5330e47bf\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-bc55d3e8-uber-technologies-dcf.xlsx",
+      "extension": ".xlsx",
+      "bytes": 6599,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j97ae0vjvf9m4ard56zd0nzdnn89dcj5",
+      "contentQualityDetail": "placeholder/caveat content scan passed (112 chars)"
+    },
+    {
+      "kind": "workbook",
+      "filename": "btb-bc55d3e8-uber-technologies-dcf.xlsm",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\bc55d3e8-0d59-43d6-a385-03c5330e47bf\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-bc55d3e8-uber-technologies-dcf.xlsm",
+      "extension": ".xlsm",
+      "bytes": 6599,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j972zqxf3x8zd0x582h58t3da189cv19",
+      "contentQualityDetail": "placeholder/caveat content scan passed (112 chars)"
+    },
+    {
+      "kind": "presentation",
+      "filename": "btb-bc55d3e8-uber-technologies-dcf.pptx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\bc55d3e8-0d59-43d6-a385-03c5330e47bf\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-bc55d3e8-uber-technologies-dcf.pptx",
+      "extension": ".pptx",
+      "bytes": 5951,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains ppt/presentation.xml; recovered from Convex room artifact j97a92zc137e6pxp6vpghncwwh89catt",
+      "contentQualityDetail": "placeholder/caveat content scan passed (96 chars)"
+    },
+    {
+      "kind": "document",
+      "filename": "btb-bc55d3e8-uber-technologies-dcf.docx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\bc55d3e8-0d59-43d6-a385-03c5330e47bf\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-bc55d3e8-uber-technologies-dcf.docx",
+      "extension": ".docx",
+      "bytes": 1919,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains word/document.xml; recovered from Convex room artifact j9710g7dvwdzjk51qrpknvpmch89cbqj",
+      "contentQualityDetail": "placeholder/caveat content scan passed (77 chars)"
+    },
+    {
+      "kind": "pdf",
+      "filename": "btb-bc55d3e8-uber-technologies-dcf.pdf",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\bc55d3e8-0d59-43d6-a385-03c5330e47bf\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-bc55d3e8-uber-technologies-dcf.pdf",
+      "extension": ".pdf",
+      "bytes": 766,
+      "magic": "%PDF",
+      "reopened": true,
+      "reopenDetail": "PDF header reopened; recovered from Convex room artifact j97drs45cnepvgn0jkr4xkt8sd89dm3t",
+      "contentQualityDetail": "placeholder/caveat content scan passed (1013 chars)"
+    }
+  ]
+}

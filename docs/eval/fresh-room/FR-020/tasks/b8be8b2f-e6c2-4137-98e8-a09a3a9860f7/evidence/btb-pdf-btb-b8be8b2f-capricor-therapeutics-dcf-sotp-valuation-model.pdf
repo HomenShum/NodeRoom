@@ -1,0 +1,60 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+5 0 obj
+<< /Length 2331 >>
+stream
+BT /F1 11 Tf 54 760 Td (Capricor Therapeutics DCF/SOTP Valuation Model) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(Capricor Therapeutics \(CAPR\) — Outside-In DCF/SOTP Valuation Model for Deramiocel in DMD\\n\\nThis package delivers a complete DCF/SOTP model for Capricor Therapeutics, focusing on the lead asset deramiocel in Duchenne) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(Rows: 8) Tj
+0 -16 Td
+(DMD — Lead Indication \(Deramiocel in DMD\) Revenue Build — Source: PGR-US Revenue Estimate.xlsx · Asset: Deramiocel · Indication: DMD · Status: Revenue model completed; linked to P&L and DCF tabs · Description: Lead ass) Tj
+0 -16 Td
+(FCF — Unlevered Free Cash Flow Build — Cogs Pct Of Sales: 5.0% · Ga Ramp: 15% → 25% \(2028–2045\) · Rd Ramp: 8% → 2% \(2028–2045\) · Sga Ramp: 25% → 15% \(Launch-1 → maturity\) · Sbc Pct Of Sales: 2.0% · Capex Pct Of Sal) Tj
+0 -16 Td
+(PGR — Perpetuity Growth Rate — Pgr: 2.0% · Method: Gordon Growth Model · Applied To: Terminal year FCF · Description: 2.0% perpetuity growth rate used in Gordon Growth terminal value calculation) Tj
+0 -16 Td
+(PV — Present Value Calculation — Wacc: 13.5% · Discount Method: Mid-year convention stub for first year · Pv Of Fcf: Sum of discounted FCFs at 13.5% WACC · Pv Of Terminal Value: TV / \(1+WACC\)^n discounted to PV · Enter) Tj
+0 -16 Td
+(NOL — Net Operating Loss Build — Nol Source: Cumulative taxable losses from P&L operating losses · Tax Shield: NOL carryforward reduces cash taxes paid · Impact: Tax savings flow into UFCF as reduced cash tax outflow · D) Tj
+0 -16 Td
+(NOTE — Licensing Deal Treatment — Task Note: Multiple licensing deals exist with NS structure · Model Treatment: Ignored per MD instruction — 100% wholly-owned revenue assumed · Rationale: Client wants to compare/contras) Tj
+0 -16 Td
+(NS — Net Sales / Licensing Structure — Treatment: Excluded from model · Reason: Per MD instruction, assume 100% wholly-owned revenue · Comparison Purpose: Enables client to assess value foregone from licensing out asset ) Tj
+0 -16 Td
+(SBC — Stock-Based Compensation — Sbc Pct Of Sales: 2.0% · Cash Flow Treatment: Added back as non-cash expense in FCF build · Loader Tab Link: Linked via IFISBLANK function · Description: SBC at 2% of sales, treated as no) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(Sources: ) Tj ET
+endstream
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000241 00000 n 
+0000000311 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+2694
+%%EOF

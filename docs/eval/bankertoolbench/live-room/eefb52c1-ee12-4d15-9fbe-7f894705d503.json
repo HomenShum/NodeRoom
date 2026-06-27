@@ -2,9 +2,9 @@
   "schema": 1,
   "taskId": "eefb52c1-ee12-4d15-9fbe-7f894705d503",
   "harborTaskId": "btb-eefb52c1",
-  "generatedAt": "2026-06-25T01:44:31.326Z",
+  "generatedAt": "2026-06-26T02:50:53.687Z",
   "baseUrl": "http://127.0.0.1:5273",
-  "roomUrl": "http://127.0.0.1:5273/?room=NRPP1TE8Z7C&name=Host",
+  "roomUrl": "http://127.0.0.1:5273/?room=NRFZ3AP1SHV&name=Host",
   "memoryMode": false,
   "expectedExtensions": [
     ".xlsx",
@@ -23,64 +23,64 @@
   "downloadedFiles": [
     {
       "kind": "workbook",
-      "filename": "btb-eefb52c1-btb-wacc-analysis---btb-eefb52c1.xlsx",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\eefb52c1-ee12-4d15-9fbe-7f894705d503\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-eefb52c1-btb-wacc-analysis---btb-eefb52c1.xlsx",
+      "filename": "btb-eefb52c1-wacc-calculation-betas-equity-risk-premium-sources.xlsx",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\eefb52c1-ee12-4d15-9fbe-7f894705d503\\evidence\\btb-xlsx-btb-eefb52c1-wacc-calculation-betas-equity-risk-premium-sources.xlsx",
       "extension": ".xlsx",
-      "bytes": 6628,
+      "bytes": 7154,
       "magic": "PK\\x03\\x04",
       "reopened": true,
       "reopenDetail": "ZIP package contains xl/workbook.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (147 chars)"
+      "contentQualityDetail": "placeholder/caveat content scan passed (1134 chars)"
     },
     {
       "kind": "workbook",
-      "filename": "btb-eefb52c1-btb-wacc-analysis---btb-eefb52c1.xlsm",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\eefb52c1-ee12-4d15-9fbe-7f894705d503\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-eefb52c1-btb-wacc-analysis---btb-eefb52c1.xlsm",
+      "filename": "btb-eefb52c1-wacc-calculation-betas-equity-risk-premium-sources.xlsm",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\eefb52c1-ee12-4d15-9fbe-7f894705d503\\evidence\\btb-xlsm-btb-eefb52c1-wacc-calculation-betas-equity-risk-premium-sources.xlsm",
       "extension": ".xlsm",
-      "bytes": 6628,
+      "bytes": 7154,
       "magic": "PK\\x03\\x04",
       "reopened": true,
       "reopenDetail": "ZIP package contains xl/workbook.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (147 chars)"
+      "contentQualityDetail": "placeholder/caveat content scan passed (1134 chars)"
     },
     {
       "kind": "presentation",
-      "filename": "btb-eefb52c1-btb-wacc-analysis---btb-eefb52c1.pptx",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\eefb52c1-ee12-4d15-9fbe-7f894705d503\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-eefb52c1-btb-wacc-analysis---btb-eefb52c1.pptx",
+      "filename": "btb-eefb52c1-wacc-calculation-betas-equity-risk-premium-sources.pptx",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\eefb52c1-ee12-4d15-9fbe-7f894705d503\\evidence\\btb-pptx-btb-eefb52c1-wacc-calculation-betas-equity-risk-premium-sources.pptx",
       "extension": ".pptx",
-      "bytes": 5981,
+      "bytes": 6482,
       "magic": "PK\\x03\\x04",
       "reopened": true,
       "reopenDetail": "ZIP package contains ppt/presentation.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (129 chars)"
+      "contentQualityDetail": "placeholder/caveat content scan passed (1144 chars)"
     },
     {
       "kind": "document",
-      "filename": "btb-eefb52c1-btb-wacc-analysis---btb-eefb52c1.docx",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\eefb52c1-ee12-4d15-9fbe-7f894705d503\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-eefb52c1-btb-wacc-analysis---btb-eefb52c1.docx",
+      "filename": "btb-eefb52c1-wacc-calculation-betas-equity-risk-premium-sources.docx",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\eefb52c1-ee12-4d15-9fbe-7f894705d503\\evidence\\btb-docx-btb-eefb52c1-wacc-calculation-betas-equity-risk-premium-sources.docx",
       "extension": ".docx",
-      "bytes": 1951,
+      "bytes": 2457,
       "magic": "PK\\x03\\x04",
       "reopened": true,
       "reopenDetail": "ZIP package contains word/document.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (110 chars)"
+      "contentQualityDetail": "placeholder/caveat content scan passed (1125 chars)"
     },
     {
       "kind": "pdf",
-      "filename": "btb-eefb52c1-btb-wacc-analysis---btb-eefb52c1.pdf",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\eefb52c1-ee12-4d15-9fbe-7f894705d503\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-eefb52c1-btb-wacc-analysis---btb-eefb52c1.pdf",
+      "filename": "btb-eefb52c1-wacc-calculation-betas-equity-risk-premium-sources.pdf",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\eefb52c1-ee12-4d15-9fbe-7f894705d503\\evidence\\btb-pdf-btb-eefb52c1-wacc-calculation-betas-equity-risk-premium-sources.pdf",
       "extension": ".pdf",
-      "bytes": 797,
+      "bytes": 1395,
       "magic": "%PDF",
       "reopened": true,
       "reopenDetail": "PDF header reopened",
-      "contentQualityDetail": "placeholder/caveat content scan passed (1077 chars)"
+      "contentQualityDetail": "placeholder/caveat content scan passed (2263 chars)"
     }
   ],
-  "packageManifestPath": "test-results\\bankertoolbench\\matrix\\eefb52c1-ee12-4d15-9fbe-7f894705d503\\package-manifest.json",
+  "packageManifestPath": "docs\\eval\\fresh-room\\FR-020\\tasks\\eefb52c1-ee12-4d15-9fbe-7f894705d503\\evidence\\package-manifest.json",
   "verifierCommand": "npm run benchmark:bankertoolbench:proof",
   "verifierOutputTail": "\n> noderoom@0.1.1 benchmark:bankertoolbench:proof\n> tsx scripts/bankertoolbench-proof-check.ts\n\nBankerToolBench proof check passed: stage=1/1 weightedRubric=6 run=0/1 pass positive=1/1 pass candidateBeforeEvaluator=true leaks=0/2+0/3+0/4\n",
-  "screenshot": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\eefb52c1-ee12-4d15-9fbe-7f894705d503\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\bankertoolbench-live-room.png",
+  "screenshot": "docs\\eval\\fresh-room\\FR-020\\tasks\\eefb52c1-ee12-4d15-9fbe-7f894705d503\\evidence\\bankertoolbench-live-room.png",
   "passed": true,
   "gatesProven": [
     "fresh_room_join",

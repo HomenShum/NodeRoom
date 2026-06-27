@@ -3,10 +3,10 @@
   "caseId": "FR-020",
   "benchmark": "bankertoolbench",
   "taskId": "98bdf8f3-98b7-4d62-ac39-5cee23623d83",
-  "generatedAt": "2026-06-25T01:55:52.221Z",
+  "generatedAt": "2026-06-26T03:28:34.828Z",
   "baseUrl": "http://127.0.0.1:5273",
-  "roomId": "NRPFCYQJU9C",
-  "roomUrl": "http://127.0.0.1:5273/?room=NRPFCYQJU9C&name=Host",
+  "roomId": "NRH9287BBDC",
+  "roomUrl": "http://127.0.0.1:5273/?room=NRH9287BBDC&name=Host",
   "command": "BTB_LIVE_ROOM_E2E=1 BTB_UI_BUNDLE_ROOT=<official-bundle> BTB_UI_VERIFIER_COMMAND=<verifier> BENCH_BASE_URL=<base> npx playwright test --config playwright.real-flow.config.ts e2e/benchmark-ui-bankertoolbench.spec.ts --headed",
   "model": {
     "requested": "specific",
@@ -21,11 +21,11 @@
     "roomCreatedAfterRunStart": true,
     "forbiddenPreloadedArtifactsAbsent": true,
     "artifactsCreatedFresh": [
-      "btb-98bdf8f3-btb-98bdf8f3-deliverable.xlsx",
-      "btb-98bdf8f3-btb-98bdf8f3-deliverable.xlsm",
-      "btb-98bdf8f3-btb-98bdf8f3-deliverable.pptx",
-      "btb-98bdf8f3-btb-98bdf8f3-deliverable.docx",
-      "btb-98bdf8f3-btb-98bdf8f3-deliverable.pdf"
+      "btb-98bdf8f3-meta-platforms-meta-buyside-minority-stake-profile---xls-ppt-pdf.xlsx",
+      "btb-98bdf8f3-meta-platforms-meta-buyside-minority-stake-profile---xls-ppt-pdf.xlsm",
+      "btb-98bdf8f3-meta-platforms-meta-buyside-minority-stake-profile---xls-ppt-pdf.pptx",
+      "btb-98bdf8f3-meta-platforms-meta-buyside-minority-stake-profile---xls-ppt-pdf.docx",
+      "btb-98bdf8f3-meta-platforms-meta-buyside-minority-stake-profile---xls-ppt-pdf.pdf"
     ],
     "uploadedFiles": [
       "betas_by_industry_category_for_WACC.xlsx",
@@ -52,7 +52,7 @@
     "jobDetailVisible": true,
     "roomTraceVisible": true,
     "screenshotPaths": [
-      "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\98bdf8f3-98b7-4d62-ac39-5cee23623d83\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\bankertoolbench-live-room.png"
+      "docs\\eval\\fresh-room\\FR-020\\tasks\\98bdf8f3-98b7-4d62-ac39-5cee23623d83\\evidence\\bankertoolbench-live-room.png"
     ],
     "tracePath": "docs\\eval\\bankertoolbench\\live-room\\98bdf8f3-98b7-4d62-ac39-5cee23623d83.json"
   },
@@ -75,94 +75,94 @@
       "btb-98bdf8f3-official-task-brief.txt"
     ],
     "created": [
-      "btb-98bdf8f3-btb-98bdf8f3-deliverable.xlsx",
-      "btb-98bdf8f3-btb-98bdf8f3-deliverable.xlsm",
-      "btb-98bdf8f3-btb-98bdf8f3-deliverable.pptx",
-      "btb-98bdf8f3-btb-98bdf8f3-deliverable.docx",
-      "btb-98bdf8f3-btb-98bdf8f3-deliverable.pdf"
+      "btb-98bdf8f3-meta-platforms-meta-buyside-minority-stake-profile---xls-ppt-pdf.xlsx",
+      "btb-98bdf8f3-meta-platforms-meta-buyside-minority-stake-profile---xls-ppt-pdf.xlsm",
+      "btb-98bdf8f3-meta-platforms-meta-buyside-minority-stake-profile---xls-ppt-pdf.pptx",
+      "btb-98bdf8f3-meta-platforms-meta-buyside-minority-stake-profile---xls-ppt-pdf.docx",
+      "btb-98bdf8f3-meta-platforms-meta-buyside-minority-stake-profile---xls-ppt-pdf.pdf"
     ],
     "exportedFiles": [
       {
         "kind": "workbook",
-        "filename": "btb-98bdf8f3-btb-98bdf8f3-deliverable.xlsx",
-        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\98bdf8f3-98b7-4d62-ac39-5cee23623d83\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-98bdf8f3-btb-98bdf8f3-deliverable.xlsx",
+        "filename": "btb-98bdf8f3-meta-platforms-meta-buyside-minority-stake-profile---xls-ppt-pdf.xlsx",
+        "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\98bdf8f3-98b7-4d62-ac39-5cee23623d83\\evidence\\btb-xlsx-btb-98bdf8f3-meta-platforms-meta-buyside-minority-stake-profile---xls-ppt-pdf.xlsx",
         "extension": ".xlsx",
         "downloaded": true,
-        "bytes": 6774,
+        "bytes": 10327,
         "magic": "PK\\x03\\x04"
       },
       {
         "kind": "workbook",
-        "filename": "btb-98bdf8f3-btb-98bdf8f3-deliverable.xlsm",
-        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\98bdf8f3-98b7-4d62-ac39-5cee23623d83\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-98bdf8f3-btb-98bdf8f3-deliverable.xlsm",
+        "filename": "btb-98bdf8f3-meta-platforms-meta-buyside-minority-stake-profile---xls-ppt-pdf.xlsm",
+        "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\98bdf8f3-98b7-4d62-ac39-5cee23623d83\\evidence\\btb-xlsm-btb-98bdf8f3-meta-platforms-meta-buyside-minority-stake-profile---xls-ppt-pdf.xlsm",
         "extension": ".xlsm",
         "downloaded": true,
-        "bytes": 6774,
+        "bytes": 10327,
         "magic": "PK\\x03\\x04"
       },
       {
         "kind": "presentation",
-        "filename": "btb-98bdf8f3-btb-98bdf8f3-deliverable.pptx",
-        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\98bdf8f3-98b7-4d62-ac39-5cee23623d83\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-98bdf8f3-btb-98bdf8f3-deliverable.pptx",
+        "filename": "btb-98bdf8f3-meta-platforms-meta-buyside-minority-stake-profile---xls-ppt-pdf.pptx",
+        "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\98bdf8f3-98b7-4d62-ac39-5cee23623d83\\evidence\\btb-pptx-btb-98bdf8f3-meta-platforms-meta-buyside-minority-stake-profile---xls-ppt-pdf.pptx",
         "extension": ".pptx",
         "downloaded": true,
-        "bytes": 6087,
+        "bytes": 7161,
         "magic": "PK\\x03\\x04"
       },
       {
         "kind": "document",
-        "filename": "btb-98bdf8f3-btb-98bdf8f3-deliverable.docx",
-        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\98bdf8f3-98b7-4d62-ac39-5cee23623d83\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-98bdf8f3-btb-98bdf8f3-deliverable.docx",
+        "filename": "btb-98bdf8f3-meta-platforms-meta-buyside-minority-stake-profile---xls-ppt-pdf.docx",
+        "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\98bdf8f3-98b7-4d62-ac39-5cee23623d83\\evidence\\btb-docx-btb-98bdf8f3-meta-platforms-meta-buyside-minority-stake-profile---xls-ppt-pdf.docx",
         "extension": ".docx",
         "downloaded": true,
-        "bytes": 2060,
+        "bytes": 3484,
         "magic": "PK\\x03\\x04"
       },
       {
         "kind": "pdf",
-        "filename": "btb-98bdf8f3-btb-98bdf8f3-deliverable.pdf",
-        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\98bdf8f3-98b7-4d62-ac39-5cee23623d83\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-98bdf8f3-btb-98bdf8f3-deliverable.pdf",
+        "filename": "btb-98bdf8f3-meta-platforms-meta-buyside-minority-stake-profile---xls-ppt-pdf.pdf",
+        "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\98bdf8f3-98b7-4d62-ac39-5cee23623d83\\evidence\\btb-pdf-btb-98bdf8f3-meta-platforms-meta-buyside-minority-stake-profile---xls-ppt-pdf.pdf",
         "extension": ".pdf",
         "downloaded": true,
-        "bytes": 1070,
+        "bytes": 3300,
         "magic": "%PDF"
       }
     ],
     "reopenedFiles": [
       {
         "kind": "workbook",
-        "filename": "btb-98bdf8f3-btb-98bdf8f3-deliverable.xlsx",
+        "filename": "btb-98bdf8f3-meta-platforms-meta-buyside-minority-stake-profile---xls-ppt-pdf.xlsx",
         "reopened": true,
         "scorerResult": "pass",
-        "detail": "ZIP package contains xl/workbook.xml; placeholder/caveat content scan passed (364 chars)"
+        "detail": "ZIP package contains xl/workbook.xml; placeholder/caveat content scan passed (5211 chars)"
       },
       {
         "kind": "workbook",
-        "filename": "btb-98bdf8f3-btb-98bdf8f3-deliverable.xlsm",
+        "filename": "btb-98bdf8f3-meta-platforms-meta-buyside-minority-stake-profile---xls-ppt-pdf.xlsm",
         "reopened": true,
         "scorerResult": "pass",
-        "detail": "ZIP package contains xl/workbook.xml; placeholder/caveat content scan passed (364 chars)"
+        "detail": "ZIP package contains xl/workbook.xml; placeholder/caveat content scan passed (5211 chars)"
       },
       {
         "kind": "presentation",
-        "filename": "btb-98bdf8f3-btb-98bdf8f3-deliverable.pptx",
+        "filename": "btb-98bdf8f3-meta-platforms-meta-buyside-minority-stake-profile---xls-ppt-pdf.pptx",
         "reopened": true,
         "scorerResult": "pass",
-        "detail": "ZIP package contains ppt/presentation.xml; placeholder/caveat content scan passed (360 chars)"
+        "detail": "ZIP package contains ppt/presentation.xml; placeholder/caveat content scan passed (2436 chars)"
       },
       {
         "kind": "document",
-        "filename": "btb-98bdf8f3-btb-98bdf8f3-deliverable.docx",
+        "filename": "btb-98bdf8f3-meta-platforms-meta-buyside-minority-stake-profile---xls-ppt-pdf.docx",
         "reopened": true,
         "scorerResult": "pass",
-        "detail": "ZIP package contains word/document.xml; placeholder/caveat content scan passed (341 chars)"
+        "detail": "ZIP package contains word/document.xml; placeholder/caveat content scan passed (3231 chars)"
       },
       {
         "kind": "pdf",
-        "filename": "btb-98bdf8f3-btb-98bdf8f3-deliverable.pdf",
+        "filename": "btb-98bdf8f3-meta-platforms-meta-buyside-minority-stake-profile---xls-ppt-pdf.pdf",
         "reopened": true,
         "scorerResult": "pass",
-        "detail": "PDF header reopened; placeholder/caveat content scan passed (1623 chars)"
+        "detail": "PDF header reopened; placeholder/caveat content scan passed (6012 chars)"
       }
     ]
   },
@@ -173,7 +173,7 @@
     "score": 1,
     "details": {
       "verifierOutputTail": "\n> noderoom@0.1.1 benchmark:bankertoolbench:proof\n> tsx scripts/bankertoolbench-proof-check.ts\n\nBankerToolBench proof check passed: stage=1/1 weightedRubric=6 run=0/1 pass positive=1/1 pass candidateBeforeEvaluator=true leaks=0/2+0/3+0/4\n",
-      "packageManifestPath": "test-results\\bankertoolbench\\matrix\\98bdf8f3-98b7-4d62-ac39-5cee23623d83\\package-manifest.json",
+      "packageManifestPath": "docs\\eval\\fresh-room\\FR-020\\tasks\\98bdf8f3-98b7-4d62-ac39-5cee23623d83\\evidence\\package-manifest.json",
       "downloadedExtensions": [
         ".xlsx",
         ".xlsm",
@@ -183,8 +183,8 @@
       ],
       "exportSource": "browser_download_link",
       "agentTerminalQuality": {
-        "statusText": "completed via recovered Convex job: f3-deliverable.xlsx, btb-98bdf8f3-btb-98bdf8f3-deliverable.xlsm, btb-98bdf8f3-btb-98bdf8f3-deliverable.pptx, btb-98bdf8f3-btb-98bdf8f3-deliverable.docx, btb-98bdf8f3-btb-98bdf8f3-deliverable.pdf. Coverage confirmed for META, XLS, PPT, ARPU.",
-        "evidenceTextLength": 3335,
+        "statusText": "completed via recovered Convex job: stake-profile---xls-ppt-pdf.pptx, btb-98bdf8f3-meta-platforms-meta-buyside-minority-stake-profile---xls-ppt-pdf.docx, btb-98bdf8f3-meta-platforms-meta-buyside-minority-stake-profile---xls-ppt-pdf.pdf. Coverage confirmed for META, XLS, ARPU.",
+        "evidenceTextLength": 1236,
         "detail": "agent reached completed status or visible completion text, with no missing-source/unfinished-work caveats"
       },
       "taskCoverage": {
@@ -192,17 +192,25 @@
         "requiredTickers": [
           "META",
           "XLS",
-          "PPT",
           "ARPU"
         ],
         "missingTickers": [],
-        "detail": "generated package mentions every requested ticker/entity: META, XLS, PPT, ARPU"
+        "domainProof": {
+          "ok": true,
+          "domain": "generic",
+          "gates": [],
+          "missingGates": [],
+          "detail": "no task-specific domain proof gate required"
+        },
+        "detail": "generated package mentions every requested ticker/entity: META, XLS, ARPU; no task-specific domain proof gate required"
       }
     }
   },
   "visualJudge": {
-    "verdict": "not_run",
-    "reason": "GOOGLE_GENERATIVE_AI_API_KEY is not set; deterministic browser/download/reopen/verifier proof passed."
+    "command": "npm run media:gemini-judge -- --run-id btb-98bdf8f3-rerecord-20260626 --out \"docs\\\\eval\\\\gemini-media-judges\\\\btb-98bdf8f3-rerecord-20260626\" --input \"test-results\\\\bankertoolbench\\\\matrix\\\\98bdf8f3-98b7-4d62-ac39-5cee23623d83\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\"",
+    "verdict": "pass",
+    "scorecardPath": "docs/eval/gemini-media-judges/btb-98bdf8f3-rerecord-20260626/btb-98bdf8f3-rerecord-20260626/summary.md",
+    "reason": "Gemini media judge publish (8/16); defects P0/P1/P2=0/0/1. The video successfully demonstrates the end-to-end benchmark execution of NodeAgent within a collaborative room, showing file uploads, task initiation, agent execution traces, and final deliverable generation. Source clip: test-results\\bankertoolbench\\matrix\\98bdf8f3-98b7-4d62-ac39-5cee23623d83\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\video.webm."
   },
   "gatesProven": [
     "fresh_room_join",
@@ -220,7 +228,8 @@
     "deliverable_export_download",
     "artifact_reopen_validation",
     "artifact_placeholder_scan",
-    "official_scorer_handoff"
+    "official_scorer_handoff",
+    "visual_judge_handoff"
   ],
   "passed": true
 }

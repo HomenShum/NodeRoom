@@ -2,9 +2,9 @@
   "schema": 1,
   "taskId": "60ed36b0-5e15-4c2d-b4a9-0f3d3cab9b16",
   "harborTaskId": "btb-60ed36b0",
-  "generatedAt": "2026-06-25T01:55:49.365Z",
+  "generatedAt": "2026-06-26T00:11:09.362Z",
   "baseUrl": "http://127.0.0.1:5273",
-  "roomUrl": "http://127.0.0.1:5273/?room=NREE9OEJCK1&name=Host",
+  "roomUrl": "http://127.0.0.1:5273/?room=NRZQO4H80TY&name=Host",
   "memoryMode": false,
   "expectedExtensions": [
     ".xlsx",
@@ -23,64 +23,64 @@
   "downloadedFiles": [
     {
       "kind": "workbook",
-      "filename": "btb-60ed36b0-test.xlsx",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\60ed36b0-5e15-4c2d-b4a9-0f3d3cab9b16\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-60ed36b0-test.xlsx",
+      "filename": "btb-60ed36b0-ai-hyperscaler-peer-trading-comps-msft-amzn-googl-meta-ai.xlsx",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\60ed36b0-5e15-4c2d-b4a9-0f3d3cab9b16\\evidence\\btb-xlsx-btb-60ed36b0-ai-hyperscaler-peer-trading-comps-msft-amzn-googl-meta-ai.xlsx",
       "extension": ".xlsx",
-      "bytes": 6763,
+      "bytes": 7678,
       "magic": "PK\\x03\\x04",
       "reopened": true,
-      "reopenDetail": "ZIP package contains xl/workbook.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (247 chars)"
+      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j979tj3zkpm8p5bpctzff49qb589dgam",
+      "contentQualityDetail": "placeholder/caveat content scan passed (1567 chars)"
     },
     {
       "kind": "workbook",
-      "filename": "btb-60ed36b0-test.xlsm",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\60ed36b0-5e15-4c2d-b4a9-0f3d3cab9b16\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-60ed36b0-test.xlsm",
+      "filename": "btb-60ed36b0-ai-hyperscaler-peer-trading-comps-msft-amzn-googl-meta-ai.xlsm",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\60ed36b0-5e15-4c2d-b4a9-0f3d3cab9b16\\evidence\\btb-xlsm-btb-60ed36b0-ai-hyperscaler-peer-trading-comps-msft-amzn-googl-meta-ai.xlsm",
       "extension": ".xlsm",
-      "bytes": 6763,
+      "bytes": 7678,
       "magic": "PK\\x03\\x04",
       "reopened": true,
-      "reopenDetail": "ZIP package contains xl/workbook.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (247 chars)"
+      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j9701147tkaczq4p4vbrt2wcr589d726",
+      "contentQualityDetail": "placeholder/caveat content scan passed (1567 chars)"
     },
     {
       "kind": "presentation",
-      "filename": "btb-60ed36b0-test.pptx",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\60ed36b0-5e15-4c2d-b4a9-0f3d3cab9b16\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-60ed36b0-test.pptx",
+      "filename": "btb-60ed36b0-ai-hyperscaler-peer-trading-comps-msft-amzn-googl-meta-ai.pptx",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\60ed36b0-5e15-4c2d-b4a9-0f3d3cab9b16\\evidence\\btb-pptx-btb-60ed36b0-ai-hyperscaler-peer-trading-comps-msft-amzn-googl-meta-ai.pptx",
       "extension": ".pptx",
-      "bytes": 5993,
+      "bytes": 6828,
       "magic": "PK\\x03\\x04",
       "reopened": true,
-      "reopenDetail": "ZIP package contains ppt/presentation.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (320 chars)"
+      "reopenDetail": "ZIP package contains ppt/presentation.xml; recovered from Convex room artifact j970khewxebsabszw3s1wf8as989dxjb",
+      "contentQualityDetail": "placeholder/caveat content scan passed (1794 chars)"
     },
     {
       "kind": "document",
-      "filename": "btb-60ed36b0-test.docx",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\60ed36b0-5e15-4c2d-b4a9-0f3d3cab9b16\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-60ed36b0-test.docx",
+      "filename": "btb-60ed36b0-ai-hyperscaler-peer-trading-comps-msft-amzn-googl-meta-ai.docx",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\60ed36b0-5e15-4c2d-b4a9-0f3d3cab9b16\\evidence\\btb-docx-btb-60ed36b0-ai-hyperscaler-peer-trading-comps-msft-amzn-googl-meta-ai.docx",
       "extension": ".docx",
-      "bytes": 1959,
+      "bytes": 2900,
       "magic": "PK\\x03\\x04",
       "reopened": true,
-      "reopenDetail": "ZIP package contains word/document.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (289 chars)"
+      "reopenDetail": "ZIP package contains word/document.xml; recovered from Convex room artifact j9725zdjwrnxttaaye7aq4a4hh89dha1",
+      "contentQualityDetail": "placeholder/caveat content scan passed (2049 chars)"
     },
     {
       "kind": "pdf",
-      "filename": "btb-60ed36b0-test.pdf",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\60ed36b0-5e15-4c2d-b4a9-0f3d3cab9b16\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-60ed36b0-test.pdf",
+      "filename": "btb-60ed36b0-ai-hyperscaler-peer-trading-comps-msft-amzn-googl-meta-ai.pdf",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\60ed36b0-5e15-4c2d-b4a9-0f3d3cab9b16\\evidence\\btb-pdf-btb-60ed36b0-ai-hyperscaler-peer-trading-comps-msft-amzn-googl-meta-ai.pdf",
       "extension": ".pdf",
-      "bytes": 1046,
+      "bytes": 2195,
       "magic": "%PDF",
       "reopened": true,
-      "reopenDetail": "PDF header reopened",
-      "contentQualityDetail": "placeholder/caveat content scan passed (1575 chars)"
+      "reopenDetail": "PDF header reopened; recovered from Convex room artifact j975a515f9zey2hj04yemqgae989cy1b",
+      "contentQualityDetail": "placeholder/caveat content scan passed (3821 chars)"
     }
   ],
-  "packageManifestPath": "test-results\\bankertoolbench\\matrix\\60ed36b0-5e15-4c2d-b4a9-0f3d3cab9b16\\package-manifest.json",
+  "packageManifestPath": "docs\\eval\\fresh-room\\FR-020\\tasks\\60ed36b0-5e15-4c2d-b4a9-0f3d3cab9b16\\evidence\\package-manifest.json",
   "verifierCommand": "npm run benchmark:bankertoolbench:proof",
   "verifierOutputTail": "\n> noderoom@0.1.1 benchmark:bankertoolbench:proof\n> tsx scripts/bankertoolbench-proof-check.ts\n\nBankerToolBench proof check passed: stage=1/1 weightedRubric=6 run=0/1 pass positive=1/1 pass candidateBeforeEvaluator=true leaks=0/2+0/3+0/4\n",
-  "screenshot": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\60ed36b0-5e15-4c2d-b4a9-0f3d3cab9b16\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\bankertoolbench-live-room.png",
+  "screenshot": "docs\\eval\\fresh-room\\FR-020\\tasks\\60ed36b0-5e15-4c2d-b4a9-0f3d3cab9b16\\evidence\\bankertoolbench-live-room.png",
   "passed": true,
   "gatesProven": [
     "fresh_room_join",

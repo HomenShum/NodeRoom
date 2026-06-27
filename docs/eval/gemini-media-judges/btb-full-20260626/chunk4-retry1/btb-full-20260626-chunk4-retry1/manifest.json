@@ -1,0 +1,34 @@
+{
+  "runId": "btb-full-20260626-chunk4-retry1",
+  "generatedAt": "2026-06-26T02:04:05.184Z",
+  "model": "gemini-3.5-flash",
+  "primaryOnly": true,
+  "all": false,
+  "includeIgnored": false,
+  "assets": [
+    {
+      "id": "test-results-bankertoolbench-matrix-e3c47ea1-cc6c-4981-9943-bc85162fc2a8-playwright-output-e2e-benchmark-ui-bankertoo-d0047-odeagent-package-verifier-video",
+      "class": "live_browser_proof",
+      "title": "Video",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\e3c47ea1-cc6c-4981-9943-bc85162fc2a8\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\video.webm",
+      "relPath": "test-results/bankertoolbench/matrix/e3c47ea1-cc6c-4981-9943-bc85162fc2a8/playwright-output/e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier/video.webm",
+      "purpose": "Live Playwright browser benchmark proof clip. Judge only visible product behavior: fresh-room flow, uploads, public NodeAgent invocation, streaming/tool traces, focus/attention UI, artifact creation/download, and production honesty. Clip duration, silence, or README pacing is not a product defect."
+    },
+    {
+      "id": "test-results-bankertoolbench-matrix-eeba6325-7212-4924-8760-91065d3b1af3-playwright-output-e2e-benchmark-ui-bankertoo-d0047-odeagent-package-verifier-video",
+      "class": "live_browser_proof",
+      "title": "Video",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\eeba6325-7212-4924-8760-91065d3b1af3\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\video.webm",
+      "relPath": "test-results/bankertoolbench/matrix/eeba6325-7212-4924-8760-91065d3b1af3/playwright-output/e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier/video.webm",
+      "purpose": "Live Playwright browser benchmark proof clip. Judge only visible product behavior: fresh-room flow, uploads, public NodeAgent invocation, streaming/tool traces, focus/attention UI, artifact creation/download, and production honesty. Clip duration, silence, or README pacing is not a product defect."
+    },
+    {
+      "id": "test-results-bankertoolbench-matrix-f205ac8c-4dae-4620-b2c9-ccc44858ec70-playwright-output-e2e-benchmark-ui-bankertoo-d0047-odeagent-package-verifier-video",
+      "class": "live_browser_proof",
+      "title": "Video",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\f205ac8c-4dae-4620-b2c9-ccc44858ec70\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\video.webm",
+      "relPath": "test-results/bankertoolbench/matrix/f205ac8c-4dae-4620-b2c9-ccc44858ec70/playwright-output/e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier/video.webm",
+      "purpose": "Live Playwright browser benchmark proof clip. Judge only visible product behavior: fresh-room flow, uploads, public NodeAgent invocation, streaming/tool traces, focus/attention UI, artifact creation/download, and production honesty. Clip duration, silence, or README pacing is not a product defect."
+    }
+  ]
+}

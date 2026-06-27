@@ -1,0 +1,39 @@
+{
+  "schema": 1,
+  "judgePath": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\docs\\eval\\gemini-media-judges\\btb-full-20260626\\chunk4-retry1\\latest.json",
+  "summaryPath": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\docs\\eval\\gemini-media-judges\\btb-full-20260626\\chunk4-retry1\\btb-full-20260626-chunk4-retry1\\summary.md",
+  "command": "npm run media:gemini-judge -- --run-id btb-full-20260626-chunk4-retry1 --out \"docs\\\\eval\\\\gemini-media-judges\\\\btb-full-20260626\\\\chunk4-retry1\" --input \"test-results\\\\bankertoolbench\\\\matrix\\\\e3c47ea1-cc6c-4981-9943-bc85162fc2a8\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"test-results\\\\bankertoolbench\\\\matrix\\\\eeba6325-7212-4924-8760-91065d3b1af3\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"test-results\\\\bankertoolbench\\\\matrix\\\\f205ac8c-4dae-4620-b2c9-ccc44858ec70\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\"",
+  "updated": [
+    {
+      "taskId": "e3c47ea1-cc6c-4981-9943-bc85162fc2a8",
+      "receiptPath": "docs\\eval\\fresh-room\\FR-020\\tasks\\e3c47ea1-cc6c-4981-9943-bc85162fc2a8\\latest.json",
+      "videoPath": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\e3c47ea1-cc6c-4981-9943-bc85162fc2a8\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\video.webm",
+      "visualJudgeVerdict": "pass",
+      "mediaJudgeVerdict": "publish",
+      "score": 11.7,
+      "maxScore": 16,
+      "reason": "Gemini media judge publish (11.7/16); defects P0/P1/P2=0/0/0. Excellent end-to-end benchmark run showing room creation, file uploads, agent execution, and artifact generation with high fidelity. Source clip: test-results\\bankertoolbench\\matrix\\e3c47ea1-cc6c-4981-9943-bc85162fc2a8\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\video.webm."
+    },
+    {
+      "taskId": "eeba6325-7212-4924-8760-91065d3b1af3",
+      "receiptPath": "docs\\eval\\fresh-room\\FR-020\\tasks\\eeba6325-7212-4924-8760-91065d3b1af3\\latest.json",
+      "videoPath": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\eeba6325-7212-4924-8760-91065d3b1af3\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\video.webm",
+      "visualJudgeVerdict": "pass",
+      "mediaJudgeVerdict": "publish",
+      "score": 12.6,
+      "maxScore": 16,
+      "reason": "Gemini media judge publish (12.6/16); defects P0/P1/P2=0/0/1. Excellent live browser proof demonstrating the end-to-end workflow of creating a room, uploading financial spreadsheets, invoking NodeAgent, and generating a PDF report. Source clip: test-results\\bankertoolbench\\matrix\\eeba6325-7212-4924-8760-91065d3b1af3\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\video.webm."
+    },
+    {
+      "taskId": "f205ac8c-4dae-4620-b2c9-ccc44858ec70",
+      "receiptPath": "docs\\eval\\fresh-room\\FR-020\\tasks\\f205ac8c-4dae-4620-b2c9-ccc44858ec70\\latest.json",
+      "videoPath": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\f205ac8c-4dae-4620-b2c9-ccc44858ec70\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\video.webm",
+      "visualJudgeVerdict": "pass",
+      "mediaJudgeVerdict": "publish",
+      "score": 11.8,
+      "maxScore": 16,
+      "reason": "Gemini media judge publish (11.8/16); defects P0/P1/P2=0/0/1. Excellent live browser proof showing the end-to-end workflow of creating a room, uploading financial data, invoking NodeAgent, and verifying the generated multi-format artifacts. Source clip: test-results\\bankertoolbench\\matrix\\f205ac8c-4dae-4620-b2c9-ccc44858ec70\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\video.webm."
+    }
+  ],
+  "skipped": []
+}

@@ -1,0 +1,65 @@
+{
+  "schema": 1,
+  "taskId": "cc4c8473-4c54-4fdd-9af8-c55bc9e4b07d",
+  "harborTaskId": "btb-cc4c8473",
+  "generatedAt": "2026-06-26T01:28:41.597Z",
+  "baseUrl": "http://127.0.0.1:5273",
+  "roomUrl": "http://127.0.0.1:5273/?room=NRX61FIWOB5&name=Host",
+  "downloadedFiles": [
+    {
+      "kind": "workbook",
+      "filename": "btb-cc4c8473-figma-ipo-valuation-analysis-wacc-avp-ntm-forward-metrics-figma-rubrik.xlsx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\cc4c8473-4c54-4fdd-9af8-c55bc9e4b07d\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-cc4c8473-figma-ipo-valuation-analysis-wacc-avp-ntm-forward-metrics-figma-rubrik.xlsx",
+      "extension": ".xlsx",
+      "bytes": 8929,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (3718 chars)"
+    },
+    {
+      "kind": "workbook",
+      "filename": "btb-cc4c8473-figma-ipo-valuation-analysis-wacc-avp-ntm-forward-metrics-figma-rubrik.xlsm",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\cc4c8473-4c54-4fdd-9af8-c55bc9e4b07d\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-cc4c8473-figma-ipo-valuation-analysis-wacc-avp-ntm-forward-metrics-figma-rubrik.xlsm",
+      "extension": ".xlsm",
+      "bytes": 8929,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (3718 chars)"
+    },
+    {
+      "kind": "presentation",
+      "filename": "btb-cc4c8473-figma-ipo-valuation-analysis-wacc-avp-ntm-forward-metrics-figma-rubrik.pptx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\cc4c8473-4c54-4fdd-9af8-c55bc9e4b07d\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-cc4c8473-figma-ipo-valuation-analysis-wacc-avp-ntm-forward-metrics-figma-rubrik.pptx",
+      "extension": ".pptx",
+      "bytes": 6745,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains ppt/presentation.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (1809 chars)"
+    },
+    {
+      "kind": "document",
+      "filename": "btb-cc4c8473-figma-ipo-valuation-analysis-wacc-avp-ntm-forward-metrics-figma-rubrik.docx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\cc4c8473-4c54-4fdd-9af8-c55bc9e4b07d\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-cc4c8473-figma-ipo-valuation-analysis-wacc-avp-ntm-forward-metrics-figma-rubrik.docx",
+      "extension": ".docx",
+      "bytes": 3280,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains word/document.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (5114 chars)"
+    },
+    {
+      "kind": "pdf",
+      "filename": "btb-cc4c8473-figma-ipo-valuation-analysis-wacc-avp-ntm-forward-metrics-figma-rubrik.pdf",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\cc4c8473-4c54-4fdd-9af8-c55bc9e4b07d\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-cc4c8473-figma-ipo-valuation-analysis-wacc-avp-ntm-forward-metrics-figma-rubrik.pdf",
+      "extension": ".pdf",
+      "bytes": 4568,
+      "magic": "%PDF",
+      "reopened": true,
+      "reopenDetail": "PDF header reopened",
+      "contentQualityDetail": "placeholder/caveat content scan passed (8465 chars)"
+    }
+  ]
+}

@@ -1,0 +1,77 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+5 0 obj
+<< /Length 3300 >>
+stream
+BT /F1 11 Tf 54 760 Td (Equity Waterfall Model — PE Returns Bridge with Preferred Equity, Two-Tranche Common & Gain-Share Threshold) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(## Equity Waterfall Model — PE Returns Bridge
+
+### Model Overview
+This deliverable builds a fully dynamic equity waterfall model replicating a PE returns bridge with a preferred equity layer and a two-tranche common equi) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(Rows: 15) Tj
+0 -16 Td
+(Capital Structure — Sponsor Preferred Investment — Investor: Sponsor · Type: Preferred Equity \(8% PIK\) · Amount Musd: 100 · Ownership Pct: 50) Tj
+0 -16 Td
+(Capital Structure — Sponsor Common Investment — Investor: Sponsor · Type: Common Equity · Amount Musd: 40 · Ownership Pct: 20) Tj
+0 -16 Td
+(Capital Structure — Rollover Equity \(Seller\) — Investor: Seller Rollover · Type: Common Equity · Amount Musd: 40 · Ownership Pct: 20) Tj
+0 -16 Td
+(Capital Structure — Management Common — Investor: Management · Type: Common Equity · Amount Musd: 20 · Ownership Pct: 10) Tj
+0 -16 Td
+(Capital Structure — Total Equity — Investor: Total · Type: All · Amount Musd: 200 · Ownership Pct: 100) Tj
+0 -16 Td
+(Deal Assumptions — Entry — Entry Ev Musd: 500 · Entry Ebitda Musd: 50 · Entry Multiple: 10 · Net Debt Musd: 300 · Total Equity Musd: 200 · Hold Period Years: 5) Tj
+0 -16 Td
+(Preferred Equity Terms — Preferred Amount Musd: 100 · Preferred Rate Pct: 8 · Compounding: PIK · Hold Years: 5 · Accumulated Preferred Musd: 146.93) Tj
+0 -16 Td
+(Common Waterfall — Return of Capital — Sponsor Common Roc Musd: 40 · Rollover Roc Musd: 40 · Management Roc Musd: 20 · Total Roc Musd: 100) Tj
+0 -16 Td
+(Common Waterfall — Tranche 1 \(First $50M Gains\) — Threshold Musd: 50 · Sponsor Share Pct: 40 · Rollover Share Pct: 40 · Management Share Pct: 20) Tj
+0 -16 Td
+(Common Waterfall — Tranche 2 \(Gains Above Threshold — Gain Share\) — Threshold Musd: 50 · Sponsor Share Pct: 30 · Rollover Share Pct: 40 · Management Share Pct: 30) Tj
+0 -16 Td
+(Exit Scenario — 8.0x Multiple — Exit Multiple: 8 · Exit Ev Musd: 480 · Net Debt Exit Musd: 250 · Equity Value Musd: 230 · Preferred Payoff Musd: 146.93 · Common Proceeds Musd: 83.07 · Total Distributed Musd: 230 · Sponso) Tj
+0 -16 Td
+(Exit Scenario — 9.0x Multiple — Exit Multiple: 9 · Exit Ev Musd: 540 · Net Debt Exit Musd: 250 · Equity Value Musd: 290 · Preferred Payoff Musd: 146.93 · Common Proceeds Musd: 143.07 · Total Distributed Musd: 290 · Spons) Tj
+0 -16 Td
+(Exit Scenario — 10.0x Multiple — Exit Multiple: 10 · Exit Ev Musd: 600 · Net Debt Exit Musd: 250 · Equity Value Musd: 350 · Preferred Payoff Musd: 146.93 · Common Proceeds Musd: 203.07 · Total Distributed Musd: 350 · Spo) Tj
+0 -16 Td
+(Exit Scenario — 11.0x Multiple — Exit Multiple: 11 · Exit Ev Musd: 660 · Net Debt Exit Musd: 250 · Equity Value Musd: 410 · Preferred Payoff Musd: 146.93 · Common Proceeds Musd: 263.07 · Total Distributed Musd: 410 · Spo) Tj
+0 -16 Td
+(Exit Scenario — 12.0x Multiple — Exit Multiple: 12 · Exit Ev Musd: 720 · Net Debt Exit Musd: 250 · Equity Value Musd: 470 · Preferred Payoff Musd: 146.93 · Common Proceeds Musd: 323.07 · Total Distributed Musd: 470 · Spo) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(Sources: ) Tj ET
+endstream
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000241 00000 n 
+0000000311 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+3663
+%%EOF

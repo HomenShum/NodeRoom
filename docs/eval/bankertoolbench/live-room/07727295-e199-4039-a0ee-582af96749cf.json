@@ -2,9 +2,9 @@
   "schema": 1,
   "taskId": "07727295-e199-4039-a0ee-582af96749cf",
   "harborTaskId": "btb-07727295",
-  "generatedAt": "2026-06-25T03:06:18.752Z",
+  "generatedAt": "2026-06-25T23:55:24.330Z",
   "baseUrl": "http://127.0.0.1:5273",
-  "roomUrl": "http://127.0.0.1:5273/?room=NR2D26Y19VB&name=Host",
+  "roomUrl": "http://127.0.0.1:5273/?room=NRQ9HUSOOQQ&name=Host",
   "memoryMode": false,
   "expectedExtensions": [
     ".xlsx",
@@ -23,64 +23,64 @@
   "downloadedFiles": [
     {
       "kind": "workbook",
-      "filename": "btb-07727295-coty-trading-comps-beauty-skincare-nov-2025-coty-vs-or-el-elf-ulta.xlsx",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\07727295-e199-4039-a0ee-582af96749cf\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-07727295-coty-trading-comps-beauty-skincare-nov-2025-coty-vs-or-el-elf-ulta.xlsx",
+      "filename": "btb-07727295-beauty-personal-care-peer-set-relative-valuation-wacc-comparison-coty-or-el-elf-ult.xlsx",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\07727295-e199-4039-a0ee-582af96749cf\\evidence\\btb-xlsx-btb-07727295-beauty-personal-care-peer-set-relative-valuation-wacc-comparison-coty-or-el-elf-ult.xlsx",
       "extension": ".xlsx",
-      "bytes": 9108,
+      "bytes": 9725,
       "magic": "PK\\x03\\x04",
       "reopened": true,
-      "reopenDetail": "ZIP package contains xl/workbook.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (3229 chars)"
+      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j97bhr6bs3djg8vnd265gbthh589br7e",
+      "contentQualityDetail": "placeholder/caveat content scan passed (5452 chars)"
     },
     {
       "kind": "workbook",
-      "filename": "btb-07727295-coty-trading-comps-beauty-skincare-nov-2025-coty-vs-or-el-elf-ulta.xlsm",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\07727295-e199-4039-a0ee-582af96749cf\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-07727295-coty-trading-comps-beauty-skincare-nov-2025-coty-vs-or-el-elf-ulta.xlsm",
+      "filename": "btb-07727295-beauty-personal-care-peer-set-relative-valuation-wacc-comparison-coty-or-el-elf-ult.xlsm",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\07727295-e199-4039-a0ee-582af96749cf\\evidence\\btb-xlsm-btb-07727295-beauty-personal-care-peer-set-relative-valuation-wacc-comparison-coty-or-el-elf-ult.xlsm",
       "extension": ".xlsm",
-      "bytes": 9108,
+      "bytes": 9725,
       "magic": "PK\\x03\\x04",
       "reopened": true,
-      "reopenDetail": "ZIP package contains xl/workbook.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (3229 chars)"
+      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j97a6mxst5m4qrgp35jg020w0d89b5ae",
+      "contentQualityDetail": "placeholder/caveat content scan passed (5452 chars)"
     },
     {
       "kind": "presentation",
-      "filename": "btb-07727295-coty-trading-comps-beauty-skincare-nov-2025-coty-vs-or-el-elf-ulta.pptx",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\07727295-e199-4039-a0ee-582af96749cf\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-07727295-coty-trading-comps-beauty-skincare-nov-2025-coty-vs-or-el-elf-ulta.pptx",
+      "filename": "btb-07727295-beauty-personal-care-peer-set-relative-valuation-wacc-comparison-coty-or-el-elf-ult.pptx",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\07727295-e199-4039-a0ee-582af96749cf\\evidence\\btb-pptx-btb-07727295-beauty-personal-care-peer-set-relative-valuation-wacc-comparison-coty-or-el-elf-ult.pptx",
       "extension": ".pptx",
-      "bytes": 6524,
+      "bytes": 7386,
       "magic": "PK\\x03\\x04",
       "reopened": true,
-      "reopenDetail": "ZIP package contains ppt/presentation.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (1226 chars)"
+      "reopenDetail": "ZIP package contains ppt/presentation.xml; recovered from Convex room artifact j976x27kpnw49h4q40qn9nyv4d89bwp6",
+      "contentQualityDetail": "placeholder/caveat content scan passed (3479 chars)"
     },
     {
       "kind": "document",
-      "filename": "btb-07727295-coty-trading-comps-beauty-skincare-nov-2025-coty-vs-or-el-elf-ulta.docx",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\07727295-e199-4039-a0ee-582af96749cf\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-07727295-coty-trading-comps-beauty-skincare-nov-2025-coty-vs-or-el-elf-ulta.docx",
+      "filename": "btb-07727295-beauty-personal-care-peer-set-relative-valuation-wacc-comparison-coty-or-el-elf-ult.docx",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\07727295-e199-4039-a0ee-582af96749cf\\evidence\\btb-docx-btb-07727295-beauty-personal-care-peer-set-relative-valuation-wacc-comparison-coty-or-el-elf-ult.docx",
       "extension": ".docx",
-      "bytes": 2950,
+      "bytes": 3879,
       "magic": "PK\\x03\\x04",
       "reopened": true,
-      "reopenDetail": "ZIP package contains word/document.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (2974 chars)"
+      "reopenDetail": "ZIP package contains word/document.xml; recovered from Convex room artifact j977g8nhayp09499njx1z2f2n189atfj",
+      "contentQualityDetail": "placeholder/caveat content scan passed (6339 chars)"
     },
     {
       "kind": "pdf",
-      "filename": "btb-07727295-coty-trading-comps-beauty-skincare-nov-2025-coty-vs-or-el-elf-ulta.pdf",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\07727295-e199-4039-a0ee-582af96749cf\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-07727295-coty-trading-comps-beauty-skincare-nov-2025-coty-vs-or-el-elf-ulta.pdf",
+      "filename": "btb-07727295-beauty-personal-care-peer-set-relative-valuation-wacc-comparison-coty-or-el-elf-ult.pdf",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\07727295-e199-4039-a0ee-582af96749cf\\evidence\\btb-pdf-btb-07727295-beauty-personal-care-peer-set-relative-valuation-wacc-comparison-coty-or-el-elf-ult.pdf",
       "extension": ".pdf",
-      "bytes": 4045,
+      "bytes": 5725,
       "magic": "%PDF",
       "reopened": true,
-      "reopenDetail": "PDF header reopened",
-      "contentQualityDetail": "placeholder/caveat content scan passed (7515 chars)"
+      "reopenDetail": "PDF header reopened; recovered from Convex room artifact j9710ahyw212wfczds59dx581d89b7kb",
+      "contentQualityDetail": "placeholder/caveat content scan passed (10705 chars)"
     }
   ],
-  "packageManifestPath": "test-results\\bankertoolbench\\matrix\\07727295-e199-4039-a0ee-582af96749cf\\package-manifest.json",
+  "packageManifestPath": "docs\\eval\\fresh-room\\FR-020\\tasks\\07727295-e199-4039-a0ee-582af96749cf\\evidence\\package-manifest.json",
   "verifierCommand": "npm run benchmark:bankertoolbench:proof",
   "verifierOutputTail": "\n> noderoom@0.1.1 benchmark:bankertoolbench:proof\n> tsx scripts/bankertoolbench-proof-check.ts\n\nBankerToolBench proof check passed: stage=1/1 weightedRubric=6 run=0/1 pass positive=1/1 pass candidateBeforeEvaluator=true leaks=0/2+0/3+0/4\n",
-  "screenshot": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\07727295-e199-4039-a0ee-582af96749cf\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\bankertoolbench-live-room.png",
+  "screenshot": "docs\\eval\\fresh-room\\FR-020\\tasks\\07727295-e199-4039-a0ee-582af96749cf\\evidence\\bankertoolbench-live-room.png",
   "passed": true,
   "gatesProven": [
     "fresh_room_join",

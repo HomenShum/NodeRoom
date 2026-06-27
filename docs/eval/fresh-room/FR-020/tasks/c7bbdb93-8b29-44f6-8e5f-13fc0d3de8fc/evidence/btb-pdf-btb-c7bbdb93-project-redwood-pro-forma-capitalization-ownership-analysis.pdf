@@ -1,0 +1,68 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+5 0 obj
+<< /Length 2020 >>
+stream
+BT /F1 11 Tf 54 760 Td (Project Redwood – Pro Forma Capitalization & Ownership Analysis) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(## Executive Summary
+
+Project Redwood is a pro forma capitalization and ownership analysis built from the company's fully diluted cap table. The deliverable package includes: \(i\) a single-tab dynamic Excel model, \(ii\) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(Rows: 11) Tj
+0 -16 Td
+(Pre-Money Valuation \($M\) — Value: 120 · Unit: USD millions · Source: Cap_Table_Fully_Diluted.xlsx; investor term · Confidence: 0.9) Tj
+0 -16 Td
+(New Investment \($M\) — Value: 25 · Unit: USD millions · Source: Cap_Table_Fully_Diluted.xlsx; investor term · Confidence: 0.9) Tj
+0 -16 Td
+(Post-Money Valuation \($M\) — Value: 145 · Unit: USD millions · Source: Pre-money + new investment · Confidence: 0.95) Tj
+0 -16 Td
+(Pre-Money Fully Diluted Shares — Value: 10000000 · Unit: shares · Source: Cap_Table_Fully_Diluted.xlsx · Confidence: 0.95) Tj
+0 -16 Td
+(Implied Pre-Money Share Price \($\) — Value: 12 · Unit: USD/share · Source: Pre-money valuation / pre-money FD shares · Confidence: 0.95) Tj
+0 -16 Td
+(New Shares Issued — Value: 2083333 · Unit: shares · Source: New investment / implied share price · Confidence: 0.95) Tj
+0 -16 Td
+(Post-Money Fully Diluted Shares — Value: 12083333 · Unit: shares · Source: Pre-money FD + new shares · Confidence: 0.95) Tj
+0 -16 Td
+(New Investor Ownership \(%\) — Value: 17.24 · Unit: percent · Source: New shares / post-money FD shares · Confidence: 0.95) Tj
+0 -16 Td
+(Existing Holders Ownership \(Pre-Money %\) — Value: 100 · Unit: percent · Source: Cap_Table_Fully_Diluted.xlsx · Confidence: 0.95) Tj
+0 -16 Td
+(Existing Holders Ownership \(Pro Forma %\) — Value: 82.76 · Unit: percent · Source: 1 - new investor ownership · Confidence: 0.95) Tj
+0 -16 Td
+(Dilution to Existing Holders \(pp\) — Value: 17.24 · Unit: percentage points · Source: Pre-money % - pro forma % · Confidence: 0.95) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(Sources: ) Tj ET
+endstream
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000241 00000 n 
+0000000311 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+2383
+%%EOF

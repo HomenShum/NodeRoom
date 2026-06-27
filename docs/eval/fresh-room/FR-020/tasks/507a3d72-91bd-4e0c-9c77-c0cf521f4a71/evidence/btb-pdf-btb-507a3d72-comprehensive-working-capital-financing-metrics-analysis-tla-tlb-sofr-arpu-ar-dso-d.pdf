@@ -1,0 +1,70 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+5 0 obj
+<< /Length 3430 >>
+stream
+BT /F1 11 Tf 54 760 Td (Comprehensive Working Capital & Financing Metrics Analysis — TLA, TLB, SOFR, ARPU, AR, DSO, DIO, AP, DPO, EBT, LFCF, MOIC) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(This BankerToolBench deliverable package \(btb-507a3d72\) presents a comprehensive analysis of working capital management, financing structure, and investment returns across all requested metrics and entities.
+
+ANALYSIS ) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(Rows: 12) Tj
+0 -16 Td
+(TLA — Total Leveraged Assets \(FY2023\) — Company: AR-US · Metric: Total Assets \(Leveraged Base\) · Value M USD: 379526 · Unit: $ Millions · Source: AR-US Balance Sheet Annual · Notes: Total asset base representing leve) Tj
+0 -16 Td
+(TLB — Total Liabilities to Book Equity Ratio \(FY2023\) — Company: AR-US · Metric: Total Liabilities / Book Equity · Value: 4.14 · Unit: x \(ratio\) · Total Liabilities M USD: 305714 · Book Equity M USD: 73812 · Source: ) Tj
+0 -16 Td
+(SOFR — Floating-Rate Debt Sensitivity \(FY2023\) — Company: AR-US · Metric: SOFR Reference Rate & Interest Sensitivity · SOFR Rate Pct: 5.33 · Estimated Floating Debt M USD: 115000 · Sensitivity Per 100bp M USD: 1150 · U) Tj
+0 -16 Td
+(ARPU — Average Revenue Per Unit/Share \(FY2023\) — Company: AR-US · Metric: Revenue Per Share \(ARPU proxy\) · Value USD: 26.2 · Revenue M USD: 393308 · Shares Outstanding M: 15016 · Unit: $ per share · Source: AR-US Inc) Tj
+0 -16 Td
+(AR — Accounts Receivable \(FY2023\) — Company: AR-US · Metric: Accounts Receivable · Value M USD: 35765 · Prior Year M USD: 31825 · YoY Change Pct: 12.4 · Unit: $ Millions · Source: AR-US Balance Sheet Annual · Notes: Yo) Tj
+0 -16 Td
+(DSO — Days Sales Outstanding \(FY2023\) — Company: AR-US · Metric: Days Sales Outstanding · Value Days: 33.2 · AR M USD: 35765 · Revenue M USD: 393308 · Formula: \(AR/Revenue\)×365 · Unit: days · Source: AR-US Balance Sh) Tj
+0 -16 Td
+(DIO — Days Inventory Outstanding \(FY2023\) — Company: AR-US · Metric: Days Inventory Outstanding · Value Days: 15.3 · Inventory M USD: 10545 · COGS M USD: 251021 · Formula: \(Inventory/COGS\)×365 · Unit: days · Source: ) Tj
+0 -16 Td
+(AP — Accounts Payable \(FY2023\) — Company: AR-US · Metric: Accounts Payable · Value M USD: 58437 · Prior Year M USD: 54288 · YoY Change Pct: 7.6 · Unit: $ Millions · Source: AR-US Balance Sheet Annual · Notes: Payables ) Tj
+0 -16 Td
+(DPO — Days Payable Outstanding \(FY2023\) — Company: AR-US · Metric: Days Payable Outstanding · Value Days: 85 · AP M USD: 58437 · COGS M USD: 251021 · Formula: \(AP/COGS\)×365 · Unit: days · Source: AR-US Balance Sheet ) Tj
+0 -16 Td
+(EBT — Earnings Before Tax \(FY2023\) — Company: AR-US · Metric: Earnings Before Tax · Value M USD: 114261 · Prior Year M USD: 97110 · YoY Change Pct: 17.7 · Effective Tax Rate Pct: 15.5 · Unit: $ Millions · Source: AR-US) Tj
+0 -16 Td
+(LFCF — Levered Free Cash Flow \(FY2023\) — Company: AR-US · Metric: Levered Free Cash Flow · Value M USD: 101588 · Operating CF M USD: 114444 · CapEx M USD: 12856 · Formula: OCF − CapEx · Unit: $ Millions · Source: AR-US) Tj
+0 -16 Td
+(MOIC — Multiple on Invested Capital \(FY2023\) — Company: AR-US · Metric: MOIC \(annualized + 5yr projection\) · Invested Capital M USD: 188812 · Annual LFCF M USD: 101588 · MOIC Annualized X: 0.54 · MOIC 5yr Projection ) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(Sources: ) Tj ET
+endstream
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000241 00000 n 
+0000000311 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+3793
+%%EOF

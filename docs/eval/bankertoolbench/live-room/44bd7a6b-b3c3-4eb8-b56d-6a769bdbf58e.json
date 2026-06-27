@@ -2,9 +2,9 @@
   "schema": 1,
   "taskId": "44bd7a6b-b3c3-4eb8-b56d-6a769bdbf58e",
   "harborTaskId": "btb-44bd7a6b",
-  "generatedAt": "2026-06-25T02:05:17.148Z",
+  "generatedAt": "2026-06-26T00:42:13.716Z",
   "baseUrl": "http://127.0.0.1:5273",
-  "roomUrl": "http://127.0.0.1:5273/?room=NR2UT0BWUBV&name=Host",
+  "roomUrl": "http://127.0.0.1:5273/?room=NRMQ4P68ICZ&name=Host",
   "memoryMode": false,
   "expectedExtensions": [
     ".xlsx",
@@ -23,64 +23,64 @@
   "downloadedFiles": [
     {
       "kind": "workbook",
-      "filename": "btb-44bd7a6b-papa-john-s-pizza-net-leverage-profile-modernization-firepower-analysis.xlsx",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\44bd7a6b-b3c3-4eb8-b56d-6a769bdbf58e\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-44bd7a6b-papa-john-s-pizza-net-leverage-profile-modernization-firepower-analysis.xlsx",
+      "filename": "btb-44bd7a6b-dcm-ai-comparative-financial-analysis---btb-task-btb-44bd7a6b.xlsx",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\44bd7a6b-b3c3-4eb8-b56d-6a769bdbf58e\\evidence\\btb-xlsx-btb-44bd7a6b-dcm-ai-comparative-financial-analysis---btb-task-btb-44bd7a6b.xlsx",
       "extension": ".xlsx",
-      "bytes": 9406,
+      "bytes": 7251,
       "magic": "PK\\x03\\x04",
       "reopened": true,
-      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j97fq40msz38amkwjjec9s4jjs89ak7b",
-      "contentQualityDetail": "placeholder/caveat content scan passed (5169 chars)"
+      "reopenDetail": "ZIP package contains xl/workbook.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (970 chars)"
     },
     {
       "kind": "workbook",
-      "filename": "btb-44bd7a6b-papa-john-s-pizza-net-leverage-profile-modernization-firepower-analysis.xlsm",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\44bd7a6b-b3c3-4eb8-b56d-6a769bdbf58e\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-44bd7a6b-papa-john-s-pizza-net-leverage-profile-modernization-firepower-analysis.xlsm",
+      "filename": "btb-44bd7a6b-dcm-ai-comparative-financial-analysis---btb-task-btb-44bd7a6b.xlsm",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\44bd7a6b-b3c3-4eb8-b56d-6a769bdbf58e\\evidence\\btb-xlsm-btb-44bd7a6b-dcm-ai-comparative-financial-analysis---btb-task-btb-44bd7a6b.xlsm",
       "extension": ".xlsm",
-      "bytes": 9406,
+      "bytes": 7251,
       "magic": "PK\\x03\\x04",
       "reopened": true,
-      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j972t7e4tq633evg1n9vxnm1sx89a52w",
-      "contentQualityDetail": "placeholder/caveat content scan passed (5169 chars)"
+      "reopenDetail": "ZIP package contains xl/workbook.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (970 chars)"
     },
     {
       "kind": "presentation",
-      "filename": "btb-44bd7a6b-papa-john-s-pizza-net-leverage-profile-modernization-firepower-analysis.pptx",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\44bd7a6b-b3c3-4eb8-b56d-6a769bdbf58e\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-44bd7a6b-papa-john-s-pizza-net-leverage-profile-modernization-firepower-analysis.pptx",
+      "filename": "btb-44bd7a6b-dcm-ai-comparative-financial-analysis---btb-task-btb-44bd7a6b.pptx",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\44bd7a6b-b3c3-4eb8-b56d-6a769bdbf58e\\evidence\\btb-pptx-btb-44bd7a6b-dcm-ai-comparative-financial-analysis---btb-task-btb-44bd7a6b.pptx",
       "extension": ".pptx",
-      "bytes": 7472,
+      "bytes": 6439,
       "magic": "PK\\x03\\x04",
       "reopened": true,
-      "reopenDetail": "ZIP package contains ppt/presentation.xml; recovered from Convex room artifact j976nf09e1pqcsjhsqbzpdm97589b5c4",
-      "contentQualityDetail": "placeholder/caveat content scan passed (3953 chars)"
+      "reopenDetail": "ZIP package contains ppt/presentation.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (1297 chars)"
     },
     {
       "kind": "document",
-      "filename": "btb-44bd7a6b-papa-john-s-pizza-net-leverage-profile-modernization-firepower-analysis.docx",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\44bd7a6b-b3c3-4eb8-b56d-6a769bdbf58e\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-44bd7a6b-papa-john-s-pizza-net-leverage-profile-modernization-firepower-analysis.docx",
+      "filename": "btb-44bd7a6b-dcm-ai-comparative-financial-analysis---btb-task-btb-44bd7a6b.docx",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\44bd7a6b-b3c3-4eb8-b56d-6a769bdbf58e\\evidence\\btb-docx-btb-44bd7a6b-dcm-ai-comparative-financial-analysis---btb-task-btb-44bd7a6b.docx",
       "extension": ".docx",
-      "bytes": 3686,
+      "bytes": 2410,
       "magic": "PK\\x03\\x04",
       "reopened": true,
-      "reopenDetail": "ZIP package contains word/document.xml; recovered from Convex room artifact j9729g7rgxdz5gjcyx00qaeb9d89b14g",
-      "contentQualityDetail": "placeholder/caveat content scan passed (5590 chars)"
+      "reopenDetail": "ZIP package contains word/document.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (1278 chars)"
     },
     {
       "kind": "pdf",
-      "filename": "btb-44bd7a6b-papa-john-s-pizza-net-leverage-profile-modernization-firepower-analysis.pdf",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\44bd7a6b-b3c3-4eb8-b56d-6a769bdbf58e\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-44bd7a6b-papa-john-s-pizza-net-leverage-profile-modernization-firepower-analysis.pdf",
+      "filename": "btb-44bd7a6b-dcm-ai-comparative-financial-analysis---btb-task-btb-44bd7a6b.pdf",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\44bd7a6b-b3c3-4eb8-b56d-6a769bdbf58e\\evidence\\btb-pdf-btb-44bd7a6b-dcm-ai-comparative-financial-analysis---btb-task-btb-44bd7a6b.pdf",
       "extension": ".pdf",
-      "bytes": 4026,
+      "bytes": 1927,
       "magic": "%PDF",
       "reopened": true,
-      "reopenDetail": "PDF header reopened; recovered from Convex room artifact j97ajfec3fve9kawmww4d84jyh89br4b",
-      "contentQualityDetail": "placeholder/caveat content scan passed (7503 chars)"
+      "reopenDetail": "PDF header reopened",
+      "contentQualityDetail": "placeholder/caveat content scan passed (3287 chars)"
     }
   ],
-  "packageManifestPath": "test-results\\bankertoolbench\\matrix\\44bd7a6b-b3c3-4eb8-b56d-6a769bdbf58e\\package-manifest.json",
+  "packageManifestPath": "docs\\eval\\fresh-room\\FR-020\\tasks\\44bd7a6b-b3c3-4eb8-b56d-6a769bdbf58e\\evidence\\package-manifest.json",
   "verifierCommand": "npm run benchmark:bankertoolbench:proof",
   "verifierOutputTail": "\n> noderoom@0.1.1 benchmark:bankertoolbench:proof\n> tsx scripts/bankertoolbench-proof-check.ts\n\nBankerToolBench proof check passed: stage=1/1 weightedRubric=6 run=0/1 pass positive=1/1 pass candidateBeforeEvaluator=true leaks=0/2+0/3+0/4\n",
-  "screenshot": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\44bd7a6b-b3c3-4eb8-b56d-6a769bdbf58e\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\bankertoolbench-live-room.png",
+  "screenshot": "docs\\eval\\fresh-room\\FR-020\\tasks\\44bd7a6b-b3c3-4eb8-b56d-6a769bdbf58e\\evidence\\bankertoolbench-live-room.png",
   "passed": true,
   "gatesProven": [
     "fresh_room_join",

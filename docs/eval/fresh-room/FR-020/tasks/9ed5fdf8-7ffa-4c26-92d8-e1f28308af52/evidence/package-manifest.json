@@ -1,0 +1,65 @@
+{
+  "schema": 1,
+  "taskId": "9ed5fdf8-7ffa-4c26-92d8-e1f28308af52",
+  "harborTaskId": "btb-9ed5fdf8",
+  "generatedAt": "2026-06-25T23:56:28.013Z",
+  "baseUrl": "http://127.0.0.1:5273",
+  "roomUrl": "http://127.0.0.1:5273/?room=NREBA7PQI9V&name=Host",
+  "downloadedFiles": [
+    {
+      "kind": "workbook",
+      "filename": "btb-9ed5fdf8-relative-performance-trading-chart-msft-amzn-googl-meta-nvda-24-month-indexed-as-of.xlsx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\9ed5fdf8-7ffa-4c26-92d8-e1f28308af52\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-9ed5fdf8-relative-performance-trading-chart-msft-amzn-googl-meta-nvda-24-month-indexed-as-of.xlsx",
+      "extension": ".xlsx",
+      "bytes": 8560,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (3060 chars)"
+    },
+    {
+      "kind": "workbook",
+      "filename": "btb-9ed5fdf8-relative-performance-trading-chart-msft-amzn-googl-meta-nvda-24-month-indexed-as-of.xlsm",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\9ed5fdf8-7ffa-4c26-92d8-e1f28308af52\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-9ed5fdf8-relative-performance-trading-chart-msft-amzn-googl-meta-nvda-24-month-indexed-as-of.xlsm",
+      "extension": ".xlsm",
+      "bytes": 8560,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (3060 chars)"
+    },
+    {
+      "kind": "presentation",
+      "filename": "btb-9ed5fdf8-relative-performance-trading-chart-msft-amzn-googl-meta-nvda-24-month-indexed-as-of.pptx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\9ed5fdf8-7ffa-4c26-92d8-e1f28308af52\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-9ed5fdf8-relative-performance-trading-chart-msft-amzn-googl-meta-nvda-24-month-indexed-as-of.pptx",
+      "extension": ".pptx",
+      "bytes": 7163,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains ppt/presentation.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (2808 chars)"
+    },
+    {
+      "kind": "document",
+      "filename": "btb-9ed5fdf8-relative-performance-trading-chart-msft-amzn-googl-meta-nvda-24-month-indexed-as-of.docx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\9ed5fdf8-7ffa-4c26-92d8-e1f28308af52\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-9ed5fdf8-relative-performance-trading-chart-msft-amzn-googl-meta-nvda-24-month-indexed-as-of.docx",
+      "extension": ".docx",
+      "bytes": 3220,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains word/document.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (3038 chars)"
+    },
+    {
+      "kind": "pdf",
+      "filename": "btb-9ed5fdf8-relative-performance-trading-chart-msft-amzn-googl-meta-nvda-24-month-indexed-as-of.pdf",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\9ed5fdf8-7ffa-4c26-92d8-e1f28308af52\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-9ed5fdf8-relative-performance-trading-chart-msft-amzn-googl-meta-nvda-24-month-indexed-as-of.pdf",
+      "extension": ".pdf",
+      "bytes": 3051,
+      "magic": "%PDF",
+      "reopened": true,
+      "reopenDetail": "PDF header reopened",
+      "contentQualityDetail": "placeholder/caveat content scan passed (5511 chars)"
+    }
+  ]
+}

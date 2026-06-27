@@ -76,6 +76,72 @@ describe("create_btb_deliverable_package", () => {
     expect(created).toHaveLength(0);
   });
 
+  it("rejects exact generic title and narrative placeholders", async () => {
+    const created: Array<{ fileName: string }> = [];
+    const rt = {
+      createFileArtifacts: async ({ files }) => {
+        created.push(...files);
+        return {
+          ok: true as const,
+          artifacts: files.map((file, index): ArtifactRef => ({ id: `art-${index}`, title: file.fileName, kind: "note" })),
+        };
+      },
+    } as RoomTools;
+
+    const result = await createBtbDeliverablePackageTool.execute({
+      taskId: "btb-test",
+      title: "test",
+      narrative: "test 2",
+      rows: [
+        { label: "DCF output", values: { wacc: "12.0%", implied_share_price: 81.26 } },
+      ],
+      sourceArtifactIds: ["source-model"],
+    }, rt);
+
+    expect(result).toMatchObject({
+      ok: false,
+      error: "btb_package_quality_gate_failed",
+      reasons: expect.arrayContaining([
+        "generic_placeholder:title",
+        "generic_placeholder:narrative",
+      ]),
+    });
+    expect(created).toHaveLength(0);
+  });
+
+  it("rejects composite placeholder package names that include task ids", async () => {
+    const created: Array<{ fileName: string }> = [];
+    const rt = {
+      createFileArtifacts: async ({ files }) => {
+        created.push(...files);
+        return {
+          ok: true as const,
+          artifacts: files.map((file, index): ArtifactRef => ({ id: `art-${index}`, title: file.fileName, kind: "note" })),
+        };
+      },
+    } as RoomTools;
+
+    const result = await createBtbDeliverablePackageTool.execute({
+      taskId: "btb-5495a5a9",
+      title: "btb-5495a5a9-test",
+      narrative: "btb-b957a435-temp package",
+      rows: [
+        { label: "DCF output", values: { wacc: "12.0%", implied_share_price: 81.26 } },
+      ],
+      sourceArtifactIds: ["source-model"],
+    }, rt);
+
+    expect(result).toMatchObject({
+      ok: false,
+      error: "btb_package_quality_gate_failed",
+      reasons: expect.arrayContaining([
+        "generic_placeholder:title",
+        "generic_placeholder:narrative",
+      ]),
+    });
+    expect(created).toHaveLength(0);
+  });
+
   it("rejects packages that only contain descriptive company metadata", async () => {
     const created: Array<{ fileName: string }> = [];
     const rt = {

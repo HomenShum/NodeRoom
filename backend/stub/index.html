@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Photo-to-3D Proof Agent — Integration Stub</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0f0f0f; color: #e0e0e0; padding: 24px; }
+  h1 { font-size: 1.5rem; margin-bottom: 16px; }
+  .container { max-width: 720px; margin: 0 auto; }
+  .card { background: #1a1a1a; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .upload-area { border: 2px dashed #444; border-radius: 8px; padding: 32px; text-align: center; cursor: pointer; transition: border-color 0.2s; }
+  .upload-area:hover { border-color: #666; }
+  .upload-area.has-file { border-color: #4a9; }
+  input[type="file"] { display: none; }
+  .btn { background: #4a9; color: #0f0f0f; border: none; padding: 10px 20px; border-radius: 8px; font-size: 1rem; cursor: pointer; margin-top: 12px; }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn.secondary { background: #333; color: #e0e0e0; }
+  .status { font-size: 1.1rem; font-weight: 600; margin: 12px 0; }
+  .progress-bar { background: #333; border-radius: 4px; height: 8px; overflow: hidden; margin: 8px 0; }
+  .progress-fill { background: #4a9; height: 100%; transition: width 0.3s; }
+  .judge { margin-top: 12px; }
+  .judge-score { font-size: 2rem; font-weight: 700; }
+  .judge-verdict { font-size: 1.2rem; opacity: 0.8; }
+  .matches, .wrong { margin-top: 8px; }
+  .matches li, .wrong li { list-style: none; padding: 4px 0; }
+  .matches li::before { content: "✓ "; color: #4a9; }
+  .wrong li::before { content: "✗ "; color: #e55; }
+  .model-preview { width: 100%; border-radius: 8px; margin-top: 12px; }
+  .hidden { display: none; }
+  .label { font-size: 0.85rem; opacity: 0.6; margin-bottom: 4px; }
+  input[type="text"] { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #444; background: #222; color: #e0e0e0; font-size: 1rem; }
+  .attempts { margin-top: 12px; }
+  .attempt { padding: 8px; border-bottom: 1px solid #333; font-size: 0.9rem; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Photo-to-3D Proof Agent</h1>
+
+  <div class="card" id="upload-card">
+    <div class="label">Upload a photo to generate a 3D model</div>
+    <label class="upload-area" id="upload-area" for="file-input">
+      <div id="upload-text">Click or drag a photo here</div>
+      <div id="upload-filename" style="margin-top:8px;font-size:0.9rem;color:#4a9;"></div>
+    </label>
+    <input type="file" id="file-input" accept="image/*" />
+    <div style="margin-top:12px;">
+      <div class="label">Optional: Custom generation prompt</div>
+      <input type="text" id="prompt-input" placeholder="e.g. a person wearing a black jacket and jeans" />
+    </div>
+    <button class="btn" id="run-btn" disabled>Generate 3D Model</button>
+  </div>
+
+  <div class="card hidden" id="status-card">
+    <div class="status" id="status-text">Queued...</div>
+    <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+    <div id="simple-message" style="opacity:0.7;font-size:0.9rem;"></div>
+  </div>
+
+  <div class="card hidden" id="result-card">
+    <div class="label">3D Model</div>
+    <div id="model-url" style="word-break:break-all;font-size:0.85rem;"></div>
+    <img class="model-preview hidden" id="model-preview" />
+
+    <div class="judge" id="judge-section">
+      <div class="label">Visual Judge</div>
+      <div class="judge-score" id="judge-score">—</div>
+      <div class="judge-verdict" id="judge-verdict"></div>
+      <div class="matches"><div class="label">What matches:</div><ul id="what-matches"></ul></div>
+      <div class="wrong"><div class="label">What's wrong:</div><ul id="what-wrong"></ul></div>
+      <div id="judge-recommendation" style="margin-top:8px;font-style:italic;opacity:0.8;"></div>
+    </div>
+
+    <div class="attempts" id="attempts-section">
+      <div class="label">All attempts:</div>
+      <div id="attempts-list"></div>
+    </div>
+
+    <div style="margin-top:16px;display:flex;gap:8px;">
+      <button class="btn secondary" id="improve-btn">Improve</button>
+      <button class="btn" id="accept-btn">Accept & Download</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const API = window.location.origin;
+let currentJobId = null;
+let pollTimer = null;
+
+const fileInput = document.getElementById('file-input');
+const uploadArea = document.getElementById('upload-area');
+const runBtn = document.getElementById('run-btn');
+const promptInput = document.getElementById('prompt-input');
+let selectedFile = null;
+
+fileInput.addEventListener('change', (e) => {
+  selectedFile = e.target.files[0];
+  if (selectedFile) {
+    uploadArea.classList.add('has-file');
+    document.getElementById('upload-filename').textContent = selectedFile.name;
+    runBtn.disabled = false;
+  }
+});
+
+runBtn.addEventListener('click', async () => {
+  if (!selectedFile) return;
+  runBtn.disabled = true;
+  runBtn.textContent = 'Starting...';
+
+  const formData = new FormData();
+  formData.append('photo', selectedFile);
+  if (promptInput.value) formData.append('prompt', promptInput.value);
+
+  try {
+    const resp = await fetch(`${API}/run`, { method: 'POST', body: formData });
+    const data = await resp.json();
+    currentJobId = data.job_id;
+    document.getElementById('upload-card').classList.add('hidden');
+    document.getElementById('status-card').classList.remove('hidden');
+    startPolling();
+  } catch (e) {
+    alert('Error: ' + e.message);
+    runBtn.disabled = false;
+    runBtn.textContent = 'Generate 3D Model';
+  }
+});
+
+function startPolling() {
+  pollTimer = setInterval(pollJob, 2000);
+  pollJob();
+}
+
+async function pollJob() {
+  if (!currentJobId) return;
+  try {
+    const resp = await fetch(`${API}/jobs/${currentJobId}`);
+    const job = await resp.json();
+    updateUI(job);
+    if (['completed', 'partial', 'blocked'].includes(job.status)) {
+      clearInterval(pollTimer);
+      pollTimer = null;
+    }
+  } catch (e) {
+    console.error('Poll error:', e);
+  }
+}
+
+function updateUI(job) {
+  document.getElementById('status-text').textContent = job.status.toUpperCase();
+  document.getElementById('progress-fill').style.width = (job.progress || 0) + '%';
+  document.getElementById('simple-message').textContent = job.simple_message || '';
+
+  if (job.status === 'completed' || job.status === 'partial' || job.status === 'blocked') {
+    const resultCard = document.getElementById('result-card');
+    resultCard.classList.remove('hidden');
+
+    document.getElementById('model-url').textContent = job.current_model_url || 'No model URL';
+    if (job.model_preview_url) {
+      const img = document.getElementById('model-preview');
+      img.src = job.model_preview_url;
+      img.classList.remove('hidden');
+    }
+
+    if (job.judge) {
+      document.getElementById('judge-score').textContent = (job.judge.score * 100).toFixed(0) + '%';
+      document.getElementById('judge-verdict').textContent = job.judge.verdict;
+      const matchesUl = document.getElementById('what-matches');
+      matchesUl.innerHTML = (job.judge.what_matches || []).map(m => `<li>${m}</li>`).join('');
+      const wrongUl = document.getElementById('what-wrong');
+      wrongUl.innerHTML = (job.judge.what_is_wrong || []).map(w => `<li>${w}</li>`).join('');
+      document.getElementById('judge-recommendation').textContent = job.judge.recommendation || '';
+    }
+
+    if (job.attempts && job.attempts.length) {
+      const list = document.getElementById('attempts-list');
+      list.innerHTML = job.attempts.map(a => 
+        `<div class="attempt"><strong>${a.source}</strong> — ${a.status} — score: ${(a.score * 100).toFixed(0)}%<br><span style="opacity:0.6;">${a.note || ''}</span></div>`
+      ).join('');
+    }
+
+    document.getElementById('improve-btn').classList.toggle('hidden', job.status === 'completed');
+  }
+}
+
+document.getElementById('improve-btn').addEventListener('click', () => {
+  document.getElementById('result-card').classList.add('hidden');
+  document.getElementById('status-card').classList.add('hidden');
+  document.getElementById('upload-card').classList.remove('hidden');
+  runBtn.disabled = false;
+  runBtn.textContent = 'Generate 3D Model';
+  promptInput.focus();
+  promptInput.placeholder = 'Describe what to improve...';
+});
+
+document.getElementById('accept-btn').addEventListener('click', async () => {
+  if (!currentJobId) return;
+  const resp = await fetch(`${API}/jobs/${currentJobId}/artifacts`);
+  const artifacts = await resp.json();
+  if (artifacts.model_url) {
+    window.open(artifacts.model_url, '_blank');
+  }
+});
+</script>
+</body>
+</html>

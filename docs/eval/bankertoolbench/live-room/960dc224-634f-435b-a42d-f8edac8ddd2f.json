@@ -2,9 +2,9 @@
   "schema": 1,
   "taskId": "960dc224-634f-435b-a42d-f8edac8ddd2f",
   "harborTaskId": "btb-960dc224",
-  "generatedAt": "2026-06-25T02:24:05.572Z",
+  "generatedAt": "2026-06-26T01:12:48.569Z",
   "baseUrl": "http://127.0.0.1:5273",
-  "roomUrl": "http://127.0.0.1:5273/?room=NRN3J1YMMC4&name=Host",
+  "roomUrl": "http://127.0.0.1:5273/?room=NRV18WOJ6OI&name=Host",
   "memoryMode": false,
   "expectedExtensions": [
     ".xlsx",
@@ -23,64 +23,64 @@
   "downloadedFiles": [
     {
       "kind": "workbook",
-      "filename": "btb-task-kdp-wacc-computation---bankertoolbench-btb-960dc224.xlsx",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\960dc224-634f-435b-a42d-f8edac8ddd2f\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-task-kdp-wacc-computation---bankertoolbench-btb-960dc224.xlsx",
+      "filename": "btb-960dc224-kdp-dcf-valuation-model.xlsx",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\960dc224-634f-435b-a42d-f8edac8ddd2f\\evidence\\btb-xlsx-btb-960dc224-kdp-dcf-valuation-model.xlsx",
       "extension": ".xlsx",
-      "bytes": 6851,
+      "bytes": 6650,
       "magic": "PK\\x03\\x04",
       "reopened": true,
       "reopenDetail": "ZIP package contains xl/workbook.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (504 chars)"
+      "contentQualityDetail": "placeholder/caveat content scan passed (168 chars)"
     },
     {
       "kind": "workbook",
-      "filename": "btb-task-kdp-wacc-computation---bankertoolbench-btb-960dc224.xlsm",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\960dc224-634f-435b-a42d-f8edac8ddd2f\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-task-kdp-wacc-computation---bankertoolbench-btb-960dc224.xlsm",
+      "filename": "btb-960dc224-kdp-dcf-valuation-model.xlsm",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\960dc224-634f-435b-a42d-f8edac8ddd2f\\evidence\\btb-xlsm-btb-960dc224-kdp-dcf-valuation-model.xlsm",
       "extension": ".xlsm",
-      "bytes": 6851,
+      "bytes": 6650,
       "magic": "PK\\x03\\x04",
       "reopened": true,
       "reopenDetail": "ZIP package contains xl/workbook.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (504 chars)"
+      "contentQualityDetail": "placeholder/caveat content scan passed (168 chars)"
     },
     {
       "kind": "presentation",
-      "filename": "btb-task-kdp-wacc-computation---bankertoolbench-btb-960dc224.pptx",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\960dc224-634f-435b-a42d-f8edac8ddd2f\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-task-kdp-wacc-computation---bankertoolbench-btb-960dc224.pptx",
+      "filename": "btb-960dc224-kdp-dcf-valuation-model.pptx",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\960dc224-634f-435b-a42d-f8edac8ddd2f\\evidence\\btb-pptx-btb-960dc224-kdp-dcf-valuation-model.pptx",
       "extension": ".pptx",
-      "bytes": 6218,
+      "bytes": 6007,
       "magic": "PK\\x03\\x04",
       "reopened": true,
       "reopenDetail": "ZIP package contains ppt/presentation.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (486 chars)"
+      "contentQualityDetail": "placeholder/caveat content scan passed (152 chars)"
     },
     {
       "kind": "document",
-      "filename": "btb-task-kdp-wacc-computation---bankertoolbench-btb-960dc224.docx",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\960dc224-634f-435b-a42d-f8edac8ddd2f\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-task-kdp-wacc-computation---bankertoolbench-btb-960dc224.docx",
+      "filename": "btb-960dc224-kdp-dcf-valuation-model.docx",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\960dc224-634f-435b-a42d-f8edac8ddd2f\\evidence\\btb-docx-btb-960dc224-kdp-dcf-valuation-model.docx",
       "extension": ".docx",
-      "bytes": 2189,
+      "bytes": 1978,
       "magic": "PK\\x03\\x04",
       "reopened": true,
       "reopenDetail": "ZIP package contains word/document.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (467 chars)"
+      "contentQualityDetail": "placeholder/caveat content scan passed (133 chars)"
     },
     {
       "kind": "pdf",
-      "filename": "btb-task-kdp-wacc-computation---bankertoolbench-btb-960dc224.pdf",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\960dc224-634f-435b-a42d-f8edac8ddd2f\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-task-kdp-wacc-computation---bankertoolbench-btb-960dc224.pdf",
+      "filename": "btb-960dc224-kdp-dcf-valuation-model.pdf",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\960dc224-634f-435b-a42d-f8edac8ddd2f\\evidence\\btb-pdf-btb-960dc224-kdp-dcf-valuation-model.pdf",
       "extension": ".pdf",
-      "bytes": 996,
+      "bytes": 824,
       "magic": "%PDF",
       "reopened": true,
       "reopenDetail": "PDF header reopened",
-      "contentQualityDetail": "placeholder/caveat content scan passed (1475 chars)"
+      "contentQualityDetail": "placeholder/caveat content scan passed (1129 chars)"
     }
   ],
-  "packageManifestPath": "test-results\\bankertoolbench\\matrix\\960dc224-634f-435b-a42d-f8edac8ddd2f\\package-manifest.json",
+  "packageManifestPath": "docs\\eval\\fresh-room\\FR-020\\tasks\\960dc224-634f-435b-a42d-f8edac8ddd2f\\evidence\\package-manifest.json",
   "verifierCommand": "npm run benchmark:bankertoolbench:proof",
   "verifierOutputTail": "\n> noderoom@0.1.1 benchmark:bankertoolbench:proof\n> tsx scripts/bankertoolbench-proof-check.ts\n\nBankerToolBench proof check passed: stage=1/1 weightedRubric=6 run=0/1 pass positive=1/1 pass candidateBeforeEvaluator=true leaks=0/2+0/3+0/4\n",
-  "screenshot": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\960dc224-634f-435b-a42d-f8edac8ddd2f\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\bankertoolbench-live-room.png",
+  "screenshot": "docs\\eval\\fresh-room\\FR-020\\tasks\\960dc224-634f-435b-a42d-f8edac8ddd2f\\evidence\\bankertoolbench-live-room.png",
   "passed": true,
   "gatesProven": [
     "fresh_room_join",

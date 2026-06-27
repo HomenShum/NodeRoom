@@ -3,10 +3,10 @@
   "caseId": "FR-020",
   "benchmark": "bankertoolbench",
   "taskId": "c6926dfc-b844-40f6-b530-2198b39d8ddd",
-  "generatedAt": "2026-06-25T02:52:10.323Z",
+  "generatedAt": "2026-06-26T01:00:41.450Z",
   "baseUrl": "http://127.0.0.1:5273",
-  "roomId": "NRA435GN8CT",
-  "roomUrl": "http://127.0.0.1:5273/?room=NRA435GN8CT&name=Host",
+  "roomId": "NRMREUF3TBA",
+  "roomUrl": "http://127.0.0.1:5273/?room=NRMREUF3TBA&name=Host",
   "command": "BTB_LIVE_ROOM_E2E=1 BTB_UI_BUNDLE_ROOT=<official-bundle> BTB_UI_VERIFIER_COMMAND=<verifier> BENCH_BASE_URL=<base> npx playwright test --config playwright.real-flow.config.ts e2e/benchmark-ui-bankertoolbench.spec.ts --headed",
   "model": {
     "requested": "specific",
@@ -21,11 +21,11 @@
     "roomCreatedAfterRunStart": true,
     "forbiddenPreloadedArtifactsAbsent": true,
     "artifactsCreatedFresh": [
-      "btb-c6926dfc-equity-waterfall-model-with-exit-multiple-sensitivity.xlsx",
-      "btb-c6926dfc-equity-waterfall-model-with-exit-multiple-sensitivity.xlsm",
-      "btb-c6926dfc-equity-waterfall-model-with-exit-multiple-sensitivity.pptx",
-      "btb-c6926dfc-equity-waterfall-model-with-exit-multiple-sensitivity.docx",
-      "btb-c6926dfc-equity-waterfall-model-with-exit-multiple-sensitivity.pdf"
+      "btb-c6926dfc-equity-waterfall-model-pe-returns-bridge-with-preferred-equity-two-tranche-common-g.xlsx",
+      "btb-c6926dfc-equity-waterfall-model-pe-returns-bridge-with-preferred-equity-two-tranche-common-g.xlsm",
+      "btb-c6926dfc-equity-waterfall-model-pe-returns-bridge-with-preferred-equity-two-tranche-common-g.pptx",
+      "btb-c6926dfc-equity-waterfall-model-pe-returns-bridge-with-preferred-equity-two-tranche-common-g.docx",
+      "btb-c6926dfc-equity-waterfall-model-pe-returns-bridge-with-preferred-equity-two-tranche-common-g.pdf"
     ],
     "uploadedFiles": [
       "betas_by_industry_category_for_WACC.xlsx",
@@ -40,7 +40,7 @@
     "jobDetailVisible": true,
     "roomTraceVisible": true,
     "screenshotPaths": [
-      "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\c6926dfc-b844-40f6-b530-2198b39d8ddd\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\bankertoolbench-live-room.png"
+      "docs\\eval\\fresh-room\\FR-020\\tasks\\c6926dfc-b844-40f6-b530-2198b39d8ddd\\evidence\\bankertoolbench-live-room.png"
     ],
     "tracePath": "docs\\eval\\bankertoolbench\\live-room\\c6926dfc-b844-40f6-b530-2198b39d8ddd.json"
   },
@@ -51,94 +51,94 @@
       "btb-c6926dfc-official-task-brief.txt"
     ],
     "created": [
-      "btb-c6926dfc-equity-waterfall-model-with-exit-multiple-sensitivity.xlsx",
-      "btb-c6926dfc-equity-waterfall-model-with-exit-multiple-sensitivity.xlsm",
-      "btb-c6926dfc-equity-waterfall-model-with-exit-multiple-sensitivity.pptx",
-      "btb-c6926dfc-equity-waterfall-model-with-exit-multiple-sensitivity.docx",
-      "btb-c6926dfc-equity-waterfall-model-with-exit-multiple-sensitivity.pdf"
+      "btb-c6926dfc-equity-waterfall-model-pe-returns-bridge-with-preferred-equity-two-tranche-common-g.xlsx",
+      "btb-c6926dfc-equity-waterfall-model-pe-returns-bridge-with-preferred-equity-two-tranche-common-g.xlsm",
+      "btb-c6926dfc-equity-waterfall-model-pe-returns-bridge-with-preferred-equity-two-tranche-common-g.pptx",
+      "btb-c6926dfc-equity-waterfall-model-pe-returns-bridge-with-preferred-equity-two-tranche-common-g.docx",
+      "btb-c6926dfc-equity-waterfall-model-pe-returns-bridge-with-preferred-equity-two-tranche-common-g.pdf"
     ],
     "exportedFiles": [
       {
         "kind": "workbook",
-        "filename": "btb-c6926dfc-equity-waterfall-model-with-exit-multiple-sensitivity.xlsx",
-        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\c6926dfc-b844-40f6-b530-2198b39d8ddd\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-c6926dfc-equity-waterfall-model-with-exit-multiple-sensitivity.xlsx",
+        "filename": "btb-c6926dfc-equity-waterfall-model-pe-returns-bridge-with-preferred-equity-two-tranche-common-g.xlsx",
+        "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\c6926dfc-b844-40f6-b530-2198b39d8ddd\\evidence\\btb-xlsx-btb-c6926dfc-equity-waterfall-model-pe-returns-bridge-with-preferred-equity-two-tranche-common-g.xlsx",
         "extension": ".xlsx",
         "downloaded": true,
-        "bytes": 8566,
+        "bytes": 10256,
         "magic": "PK\\x03\\x04"
       },
       {
         "kind": "workbook",
-        "filename": "btb-c6926dfc-equity-waterfall-model-with-exit-multiple-sensitivity.xlsm",
-        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\c6926dfc-b844-40f6-b530-2198b39d8ddd\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-c6926dfc-equity-waterfall-model-with-exit-multiple-sensitivity.xlsm",
+        "filename": "btb-c6926dfc-equity-waterfall-model-pe-returns-bridge-with-preferred-equity-two-tranche-common-g.xlsm",
+        "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\c6926dfc-b844-40f6-b530-2198b39d8ddd\\evidence\\btb-xlsm-btb-c6926dfc-equity-waterfall-model-pe-returns-bridge-with-preferred-equity-two-tranche-common-g.xlsm",
         "extension": ".xlsm",
         "downloaded": true,
-        "bytes": 8566,
+        "bytes": 10256,
         "magic": "PK\\x03\\x04"
       },
       {
         "kind": "presentation",
-        "filename": "btb-c6926dfc-equity-waterfall-model-with-exit-multiple-sensitivity.pptx",
-        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\c6926dfc-b844-40f6-b530-2198b39d8ddd\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-c6926dfc-equity-waterfall-model-with-exit-multiple-sensitivity.pptx",
+        "filename": "btb-c6926dfc-equity-waterfall-model-pe-returns-bridge-with-preferred-equity-two-tranche-common-g.pptx",
+        "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\c6926dfc-b844-40f6-b530-2198b39d8ddd\\evidence\\btb-pptx-btb-c6926dfc-equity-waterfall-model-pe-returns-bridge-with-preferred-equity-two-tranche-common-g.pptx",
         "extension": ".pptx",
         "downloaded": true,
-        "bytes": 6620,
+        "bytes": 7672,
         "magic": "PK\\x03\\x04"
       },
       {
         "kind": "document",
-        "filename": "btb-c6926dfc-equity-waterfall-model-with-exit-multiple-sensitivity.docx",
-        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\c6926dfc-b844-40f6-b530-2198b39d8ddd\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-c6926dfc-equity-waterfall-model-with-exit-multiple-sensitivity.docx",
+        "filename": "btb-c6926dfc-equity-waterfall-model-pe-returns-bridge-with-preferred-equity-two-tranche-common-g.docx",
+        "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\c6926dfc-b844-40f6-b530-2198b39d8ddd\\evidence\\btb-docx-btb-c6926dfc-equity-waterfall-model-pe-returns-bridge-with-preferred-equity-two-tranche-common-g.docx",
         "extension": ".docx",
         "downloaded": true,
-        "bytes": 2882,
+        "bytes": 3909,
         "magic": "PK\\x03\\x04"
       },
       {
         "kind": "pdf",
-        "filename": "btb-c6926dfc-equity-waterfall-model-with-exit-multiple-sensitivity.pdf",
-        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\c6926dfc-b844-40f6-b530-2198b39d8ddd\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-c6926dfc-equity-waterfall-model-with-exit-multiple-sensitivity.pdf",
+        "filename": "btb-c6926dfc-equity-waterfall-model-pe-returns-bridge-with-preferred-equity-two-tranche-common-g.pdf",
+        "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\c6926dfc-b844-40f6-b530-2198b39d8ddd\\evidence\\btb-pdf-btb-c6926dfc-equity-waterfall-model-pe-returns-bridge-with-preferred-equity-two-tranche-common-g.pdf",
         "extension": ".pdf",
         "downloaded": true,
-        "bytes": 2602,
+        "bytes": 3847,
         "magic": "%PDF"
       }
     ],
     "reopenedFiles": [
       {
         "kind": "workbook",
-        "filename": "btb-c6926dfc-equity-waterfall-model-with-exit-multiple-sensitivity.xlsx",
+        "filename": "btb-c6926dfc-equity-waterfall-model-pe-returns-bridge-with-preferred-equity-two-tranche-common-g.xlsx",
         "reopened": true,
         "scorerResult": "pass",
-        "detail": "ZIP package contains xl/workbook.xml; placeholder/caveat content scan passed (3218 chars)"
+        "detail": "ZIP package contains xl/workbook.xml; placeholder/caveat content scan passed (6151 chars)"
       },
       {
         "kind": "workbook",
-        "filename": "btb-c6926dfc-equity-waterfall-model-with-exit-multiple-sensitivity.xlsm",
+        "filename": "btb-c6926dfc-equity-waterfall-model-pe-returns-bridge-with-preferred-equity-two-tranche-common-g.xlsm",
         "reopened": true,
         "scorerResult": "pass",
-        "detail": "ZIP package contains xl/workbook.xml; placeholder/caveat content scan passed (3218 chars)"
+        "detail": "ZIP package contains xl/workbook.xml; placeholder/caveat content scan passed (6151 chars)"
       },
       {
         "kind": "presentation",
-        "filename": "btb-c6926dfc-equity-waterfall-model-with-exit-multiple-sensitivity.pptx",
+        "filename": "btb-c6926dfc-equity-waterfall-model-pe-returns-bridge-with-preferred-equity-two-tranche-common-g.pptx",
         "reopened": true,
         "scorerResult": "pass",
-        "detail": "ZIP package contains ppt/presentation.xml; placeholder/caveat content scan passed (2004 chars)"
+        "detail": "ZIP package contains ppt/presentation.xml; placeholder/caveat content scan passed (4031 chars)"
       },
       {
         "kind": "document",
-        "filename": "btb-c6926dfc-equity-waterfall-model-with-exit-multiple-sensitivity.docx",
+        "filename": "btb-c6926dfc-equity-waterfall-model-pe-returns-bridge-with-preferred-equity-two-tranche-common-g.docx",
         "reopened": true,
         "scorerResult": "pass",
-        "detail": "ZIP package contains word/document.xml; placeholder/caveat content scan passed (3814 chars)"
+        "detail": "ZIP package contains word/document.xml; placeholder/caveat content scan passed (6052 chars)"
       },
       {
         "kind": "pdf",
-        "filename": "btb-c6926dfc-equity-waterfall-model-with-exit-multiple-sensitivity.pdf",
+        "filename": "btb-c6926dfc-equity-waterfall-model-pe-returns-bridge-with-preferred-equity-two-tranche-common-g.pdf",
         "reopened": true,
         "scorerResult": "pass",
-        "detail": "PDF header reopened; placeholder/caveat content scan passed (4685 chars)"
+        "detail": "PDF header reopened; placeholder/caveat content scan passed (7041 chars)"
       }
     ]
   },
@@ -149,7 +149,7 @@
     "score": 1,
     "details": {
       "verifierOutputTail": "\n> noderoom@0.1.1 benchmark:bankertoolbench:proof\n> tsx scripts/bankertoolbench-proof-check.ts\n\nBankerToolBench proof check passed: stage=1/1 weightedRubric=6 run=0/1 pass positive=1/1 pass candidateBeforeEvaluator=true leaks=0/2+0/3+0/4\n",
-      "packageManifestPath": "test-results\\bankertoolbench\\matrix\\c6926dfc-b844-40f6-b530-2198b39d8ddd\\package-manifest.json",
+      "packageManifestPath": "docs\\eval\\fresh-room\\FR-020\\tasks\\c6926dfc-b844-40f6-b530-2198b39d8ddd\\evidence\\package-manifest.json",
       "downloadedExtensions": [
         ".xlsx",
         ".xlsm",
@@ -159,21 +159,30 @@
       ],
       "exportSource": "browser_download_link",
       "agentTerminalQuality": {
-        "statusText": "completed via recovered Convex job: iple-sensitivity.xlsm, btb-c6926dfc-equity-waterfall-model-with-exit-multiple-sensitivity.pptx, btb-c6926dfc-equity-waterfall-model-with-exit-multiple-sensitivity.docx, btb-c6926dfc-equity-waterfall-model-with-exit-multiple-sensitivity.pdf.",
-        "evidenceTextLength": 1688,
+        "statusText": "completed via recovered Convex job: d-equity-two-tranche-common-g.pptx, btb-c6926dfc-equity-waterfall-model-pe-returns-bridge-with-preferred-equity-two-tranche-common-g.docx, btb-c6926dfc-equity-waterfall-model-pe-returns-bridge-with-preferred-equity-two-tranche-common-g.pdf.",
+        "evidenceTextLength": 1267,
         "detail": "agent reached completed status or visible completion text, with no missing-source/unfinished-work caveats"
       },
       "taskCoverage": {
         "ok": true,
         "requiredTickers": [],
         "missingTickers": [],
-        "detail": "no multi-entity ticker coverage gate required"
+        "domainProof": {
+          "ok": true,
+          "domain": "generic",
+          "gates": [],
+          "missingGates": [],
+          "detail": "no task-specific domain proof gate required"
+        },
+        "detail": "no multi-entity ticker coverage gate required; no task-specific domain proof gate required"
       }
     }
   },
   "visualJudge": {
-    "verdict": "not_run",
-    "reason": "GOOGLE_GENERATIVE_AI_API_KEY is not set; deterministic browser/download/reopen/verifier proof passed."
+    "command": "npm run media:gemini-judge -- --run-id btb-full-20260626-chunk4 --out \"docs\\\\eval\\\\gemini-media-judges\\\\btb-full-20260626\\\\chunk4\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\096a6840-718c-4ab4-8dff-10601ffe003c\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\1306dbd8-dec4-469e-b806-d09113dd1010\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\1b253d04-2d32-41e8-a0b5-5450a0808e3b\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\31f70ac1-01c3-4971-84f8-0a2438fb5b92\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\41e130fe-89f0-4b2b-97ee-d727e1fa0afd\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\44bd7a6b-b3c3-4eb8-b56d-6a769bdbf58e\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\4fb6232d-c2a9-4141-98de-3e2025bdf52b\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\515a104d-ab72-47fe-b1a2-d67325ba6473\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\5f1e6f38-3380-43f4-a233-b758706985b7\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\69507fd6-a925-4e1a-8fc3-6485c71dc828\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\6b25d3dc-4b81-4d2e-b153-466b17040aae\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\7b078eaa-4fe4-4780-9f53-531872b73274\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\85670d9d-a809-4f32-a3ff-d93845cc17ea\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\8eb06eaf-d2ce-4f86-9239-d4a10bc72cf6\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\960dc224-634f-435b-a42d-f8edac8ddd2f\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\990cf5d7-0db5-456e-9766-c9d8a6640e3a\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\aa577c1d-2c22-4963-91c4-456ac32e5b4a\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\b8be8b2f-e6c2-4137-98e8-a09a3a9860f7\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\c032d3c9-5055-4346-a60d-429f658f71f9\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\c6926dfc-b844-40f6-b530-2198b39d8ddd\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\cf5884e8-8881-4747-a65a-10d8b468a9f4\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\e3c47ea1-cc6c-4981-9943-bc85162fc2a8\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\eeba6325-7212-4924-8760-91065d3b1af3\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\f205ac8c-4dae-4620-b2c9-ccc44858ec70\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\"",
+    "verdict": "pass",
+    "scorecardPath": "docs/eval/gemini-media-judges/btb-full-20260626/chunk4/btb-full-20260626-chunk4/summary.md",
+    "reason": "Gemini media judge publish (8/16); defects P0/P1/P2=0/0/1. The video demonstrates NodeRoom's core workflow: uploading financial spreadsheets, initiating a NodeAgent task brief, watching the agent execute with live traces, and reviewing the generated financial models, presentations, and PDF deliverables. Source clip: test-results\\bankertoolbench\\matrix\\c6926dfc-b844-40f6-b530-2198b39d8ddd\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\video.webm."
   },
   "gatesProven": [
     "fresh_room_join",
@@ -191,7 +200,8 @@
     "deliverable_export_download",
     "artifact_reopen_validation",
     "artifact_placeholder_scan",
-    "official_scorer_handoff"
+    "official_scorer_handoff",
+    "visual_judge_handoff"
   ],
   "passed": true
 }

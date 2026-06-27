@@ -1,0 +1,65 @@
+{
+  "schema": 1,
+  "taskId": "4a3bf36b-caeb-4825-a60c-4c416b4d555c",
+  "harborTaskId": "btb-4a3bf36b",
+  "generatedAt": "2026-06-26T02:42:38.205Z",
+  "baseUrl": "http://127.0.0.1:5273",
+  "roomUrl": "http://127.0.0.1:5273/?room=NR2T5EMNN7R&name=Host",
+  "downloadedFiles": [
+    {
+      "kind": "workbook",
+      "filename": "btb-4a3bf36b-hsii-pro-forma-leverage-tl-sizing-analysis-with-sofr-based-oid-fcf-and-ar-benchmark.xlsx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\4a3bf36b-caeb-4825-a60c-4c416b4d555c\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-4a3bf36b-hsii-pro-forma-leverage-tl-sizing-analysis-with-sofr-based-oid-fcf-and-ar-benchmark.xlsx",
+      "extension": ".xlsx",
+      "bytes": 10916,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j973e5jmqpbdvagdf8b0ek9van89dghk",
+      "contentQualityDetail": "placeholder/caveat content scan passed (8316 chars)"
+    },
+    {
+      "kind": "workbook",
+      "filename": "btb-4a3bf36b-hsii-pro-forma-leverage-tl-sizing-analysis-with-sofr-based-oid-fcf-and-ar-benchmark.xlsm",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\4a3bf36b-caeb-4825-a60c-4c416b4d555c\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-4a3bf36b-hsii-pro-forma-leverage-tl-sizing-analysis-with-sofr-based-oid-fcf-and-ar-benchmark.xlsm",
+      "extension": ".xlsm",
+      "bytes": 10916,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j970cqzxj2znxe7syy2mywpyas89dxwq",
+      "contentQualityDetail": "placeholder/caveat content scan passed (8316 chars)"
+    },
+    {
+      "kind": "presentation",
+      "filename": "btb-4a3bf36b-hsii-pro-forma-leverage-tl-sizing-analysis-with-sofr-based-oid-fcf-and-ar-benchmark.pptx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\4a3bf36b-caeb-4825-a60c-4c416b4d555c\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-4a3bf36b-hsii-pro-forma-leverage-tl-sizing-analysis-with-sofr-based-oid-fcf-and-ar-benchmark.pptx",
+      "extension": ".pptx",
+      "bytes": 9047,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains ppt/presentation.xml; recovered from Convex room artifact j97c9v7jerhw6jdcmqf02jbm7s89ce0r",
+      "contentQualityDetail": "placeholder/caveat content scan passed (6783 chars)"
+    },
+    {
+      "kind": "document",
+      "filename": "btb-4a3bf36b-hsii-pro-forma-leverage-tl-sizing-analysis-with-sofr-based-oid-fcf-and-ar-benchmark.docx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\4a3bf36b-caeb-4825-a60c-4c416b4d555c\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-4a3bf36b-hsii-pro-forma-leverage-tl-sizing-analysis-with-sofr-based-oid-fcf-and-ar-benchmark.docx",
+      "extension": ".docx",
+      "bytes": 5537,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains word/document.xml; recovered from Convex room artifact j974h8ktrsv46m5ntw5my80zyh89c4gx",
+      "contentQualityDetail": "placeholder/caveat content scan passed (9649 chars)"
+    },
+    {
+      "kind": "pdf",
+      "filename": "btb-4a3bf36b-hsii-pro-forma-leverage-tl-sizing-analysis-with-sofr-based-oid-fcf-and-ar-benchmark.pdf",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\4a3bf36b-caeb-4825-a60c-4c416b4d555c\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-4a3bf36b-hsii-pro-forma-leverage-tl-sizing-analysis-with-sofr-based-oid-fcf-and-ar-benchmark.pdf",
+      "extension": ".pdf",
+      "bytes": 5701,
+      "magic": "%PDF",
+      "reopened": true,
+      "reopenDetail": "PDF header reopened; recovered from Convex room artifact j9714n0eedaahhf1xh6mqjber589djsq",
+      "contentQualityDetail": "placeholder/caveat content scan passed (10704 chars)"
+    }
+  ]
+}

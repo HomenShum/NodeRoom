@@ -1,0 +1,210 @@
+{
+  "runId": "btb-full-20260626-chunk1",
+  "generatedAt": "2026-06-26T01:43:56.168Z",
+  "model": "gemini-3.5-flash",
+  "primaryOnly": true,
+  "all": false,
+  "includeIgnored": false,
+  "assets": [
+    {
+      "id": "test-results-bankertoolbench-matrix-067cb834-ad43-448b-a523-d0c9898656e0-playwright-output-e2e-benchmark-ui-bankertoo-d0047-odeagent-package-verifier-video",
+      "class": "live_browser_proof",
+      "title": "Video",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\067cb834-ad43-448b-a523-d0c9898656e0\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\video.webm",
+      "relPath": "test-results/bankertoolbench/matrix/067cb834-ad43-448b-a523-d0c9898656e0/playwright-output/e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier/video.webm",
+      "purpose": "Live Playwright browser proof clip. Judge only visible product evidence: multi-client sync, advisory presence, no-clobber behavior, proposals, job/privacy/wall surfaces, and production honesty."
+    },
+    {
+      "id": "test-results-bankertoolbench-matrix-0fc7bc3c-f10b-48f1-acee-1db24a4f75fc-playwright-output-e2e-benchmark-ui-bankertoo-d0047-odeagent-package-verifier-video",
+      "class": "live_browser_proof",
+      "title": "Video",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\0fc7bc3c-f10b-48f1-acee-1db24a4f75fc\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\video.webm",
+      "relPath": "test-results/bankertoolbench/matrix/0fc7bc3c-f10b-48f1-acee-1db24a4f75fc/playwright-output/e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier/video.webm",
+      "purpose": "Live Playwright browser proof clip. Judge only visible product evidence: multi-client sync, advisory presence, no-clobber behavior, proposals, job/privacy/wall surfaces, and production honesty."
+    },
+    {
+      "id": "test-results-bankertoolbench-matrix-17d8c86f-487e-4f22-89ba-1f7789ff940f-playwright-output-e2e-benchmark-ui-bankertoo-d0047-odeagent-package-verifier-video",
+      "class": "live_browser_proof",
+      "title": "Video",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\17d8c86f-487e-4f22-89ba-1f7789ff940f\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\video.webm",
+      "relPath": "test-results/bankertoolbench/matrix/17d8c86f-487e-4f22-89ba-1f7789ff940f/playwright-output/e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier/video.webm",
+      "purpose": "Live Playwright browser proof clip. Judge only visible product evidence: multi-client sync, advisory presence, no-clobber behavior, proposals, job/privacy/wall surfaces, and production honesty."
+    },
+    {
+      "id": "test-results-bankertoolbench-matrix-1d073c85-42fe-4d6d-8539-069ea87082f8-playwright-output-e2e-benchmark-ui-bankertoo-d0047-odeagent-package-verifier-video",
+      "class": "live_browser_proof",
+      "title": "Video",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\1d073c85-42fe-4d6d-8539-069ea87082f8\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\video.webm",
+      "relPath": "test-results/bankertoolbench/matrix/1d073c85-42fe-4d6d-8539-069ea87082f8/playwright-output/e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier/video.webm",
+      "purpose": "Live Playwright browser proof clip. Judge only visible product evidence: multi-client sync, advisory presence, no-clobber behavior, proposals, job/privacy/wall surfaces, and production honesty."
+    },
+    {
+      "id": "test-results-bankertoolbench-matrix-3c70cabb-2915-4d5f-8e62-cd6b729a511f-playwright-output-e2e-benchmark-ui-bankertoo-d0047-odeagent-package-verifier-video",
+      "class": "live_browser_proof",
+      "title": "Video",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\3c70cabb-2915-4d5f-8e62-cd6b729a511f\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\video.webm",
+      "relPath": "test-results/bankertoolbench/matrix/3c70cabb-2915-4d5f-8e62-cd6b729a511f/playwright-output/e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier/video.webm",
+      "purpose": "Live Playwright browser proof clip. Judge only visible product evidence: multi-client sync, advisory presence, no-clobber behavior, proposals, job/privacy/wall surfaces, and production honesty."
+    },
+    {
+      "id": "test-results-bankertoolbench-matrix-42449f25-042c-4260-8a68-3c9c35009501-playwright-output-e2e-benchmark-ui-bankertoo-d0047-odeagent-package-verifier-video",
+      "class": "live_browser_proof",
+      "title": "Video",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\42449f25-042c-4260-8a68-3c9c35009501\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\video.webm",
+      "relPath": "test-results/bankertoolbench/matrix/42449f25-042c-4260-8a68-3c9c35009501/playwright-output/e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier/video.webm",
+      "purpose": "Live Playwright browser proof clip. Judge only visible product evidence: multi-client sync, advisory presence, no-clobber behavior, proposals, job/privacy/wall surfaces, and production honesty."
+    },
+    {
+      "id": "test-results-bankertoolbench-matrix-44e44478-9e36-4df9-9657-85797c7fee58-playwright-output-e2e-benchmark-ui-bankertoo-d0047-odeagent-package-verifier-video",
+      "class": "live_browser_proof",
+      "title": "Video",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\44e44478-9e36-4df9-9657-85797c7fee58\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\video.webm",
+      "relPath": "test-results/bankertoolbench/matrix/44e44478-9e36-4df9-9657-85797c7fee58/playwright-output/e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier/video.webm",
+      "purpose": "Live Playwright browser proof clip. Judge only visible product evidence: multi-client sync, advisory presence, no-clobber behavior, proposals, job/privacy/wall surfaces, and production honesty."
+    },
+    {
+      "id": "test-results-bankertoolbench-matrix-4fedc1aa-5e19-4339-9f0b-f455239b2655-playwright-output-e2e-benchmark-ui-bankertoo-d0047-odeagent-package-verifier-video",
+      "class": "live_browser_proof",
+      "title": "Video",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\4fedc1aa-5e19-4339-9f0b-f455239b2655\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\video.webm",
+      "relPath": "test-results/bankertoolbench/matrix/4fedc1aa-5e19-4339-9f0b-f455239b2655/playwright-output/e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier/video.webm",
+      "purpose": "Live Playwright browser proof clip. Judge only visible product evidence: multi-client sync, advisory presence, no-clobber behavior, proposals, job/privacy/wall surfaces, and production honesty."
+    },
+    {
+      "id": "test-results-bankertoolbench-matrix-5495a5a9-1087-4fd9-97f9-d677dd856e24-playwright-output-e2e-benchmark-ui-bankertoo-d0047-odeagent-package-verifier-video",
+      "class": "live_browser_proof",
+      "title": "Video",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\5495a5a9-1087-4fd9-97f9-d677dd856e24\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\video.webm",
+      "relPath": "test-results/bankertoolbench/matrix/5495a5a9-1087-4fd9-97f9-d677dd856e24/playwright-output/e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier/video.webm",
+      "purpose": "Live Playwright browser proof clip. Judge only visible product evidence: multi-client sync, advisory presence, no-clobber behavior, proposals, job/privacy/wall surfaces, and production honesty."
+    },
+    {
+      "id": "test-results-bankertoolbench-matrix-60ed36b0-5e15-4c2d-b4a9-0f3d3cab9b16-playwright-output-e2e-benchmark-ui-bankertoo-d0047-odeagent-package-verifier-video",
+      "class": "live_browser_proof",
+      "title": "Video",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\60ed36b0-5e15-4c2d-b4a9-0f3d3cab9b16\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\video.webm",
+      "relPath": "test-results/bankertoolbench/matrix/60ed36b0-5e15-4c2d-b4a9-0f3d3cab9b16/playwright-output/e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier/video.webm",
+      "purpose": "Live Playwright browser proof clip. Judge only visible product evidence: multi-client sync, advisory presence, no-clobber behavior, proposals, job/privacy/wall surfaces, and production honesty."
+    },
+    {
+      "id": "test-results-bankertoolbench-matrix-69fcdefe-f4af-4676-ba21-b5c23c6b2f7c-playwright-output-e2e-benchmark-ui-bankertoo-d0047-odeagent-package-verifier-video",
+      "class": "live_browser_proof",
+      "title": "Video",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\69fcdefe-f4af-4676-ba21-b5c23c6b2f7c\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\video.webm",
+      "relPath": "test-results/bankertoolbench/matrix/69fcdefe-f4af-4676-ba21-b5c23c6b2f7c/playwright-output/e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier/video.webm",
+      "purpose": "Live Playwright browser proof clip. Judge only visible product evidence: multi-client sync, advisory presence, no-clobber behavior, proposals, job/privacy/wall surfaces, and production honesty."
+    },
+    {
+      "id": "test-results-bankertoolbench-matrix-73450a4d-5954-496c-a9f8-17f712bc5521-playwright-output-e2e-benchmark-ui-bankertoo-d0047-odeagent-package-verifier-video",
+      "class": "live_browser_proof",
+      "title": "Video",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\73450a4d-5954-496c-a9f8-17f712bc5521\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\video.webm",
+      "relPath": "test-results/bankertoolbench/matrix/73450a4d-5954-496c-a9f8-17f712bc5521/playwright-output/e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier/video.webm",
+      "purpose": "Live Playwright browser proof clip. Judge only visible product evidence: multi-client sync, advisory presence, no-clobber behavior, proposals, job/privacy/wall surfaces, and production honesty."
+    },
+    {
+      "id": "test-results-bankertoolbench-matrix-7d11ce66-d850-4606-a3ef-f3960db34df7-playwright-output-e2e-benchmark-ui-bankertoo-d0047-odeagent-package-verifier-video",
+      "class": "live_browser_proof",
+      "title": "Video",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\7d11ce66-d850-4606-a3ef-f3960db34df7\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\video.webm",
+      "relPath": "test-results/bankertoolbench/matrix/7d11ce66-d850-4606-a3ef-f3960db34df7/playwright-output/e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier/video.webm",
+      "purpose": "Live Playwright browser proof clip. Judge only visible product evidence: multi-client sync, advisory presence, no-clobber behavior, proposals, job/privacy/wall surfaces, and production honesty."
+    },
+    {
+      "id": "test-results-bankertoolbench-matrix-8a19d926-4db7-4068-aabd-6b34bf965f16-playwright-output-e2e-benchmark-ui-bankertoo-d0047-odeagent-package-verifier-video",
+      "class": "live_browser_proof",
+      "title": "Video",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\8a19d926-4db7-4068-aabd-6b34bf965f16\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\video.webm",
+      "relPath": "test-results/bankertoolbench/matrix/8a19d926-4db7-4068-aabd-6b34bf965f16/playwright-output/e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier/video.webm",
+      "purpose": "Live Playwright browser proof clip. Judge only visible product evidence: multi-client sync, advisory presence, no-clobber behavior, proposals, job/privacy/wall surfaces, and production honesty."
+    },
+    {
+      "id": "test-results-bankertoolbench-matrix-907e3e2e-c733-47bf-bedc-3650147bbe91-playwright-output-e2e-benchmark-ui-bankertoo-d0047-odeagent-package-verifier-video",
+      "class": "live_browser_proof",
+      "title": "Video",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\907e3e2e-c733-47bf-bedc-3650147bbe91\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\video.webm",
+      "relPath": "test-results/bankertoolbench/matrix/907e3e2e-c733-47bf-bedc-3650147bbe91/playwright-output/e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier/video.webm",
+      "purpose": "Live Playwright browser proof clip. Judge only visible product evidence: multi-client sync, advisory presence, no-clobber behavior, proposals, job/privacy/wall surfaces, and production honesty."
+    },
+    {
+      "id": "test-results-bankertoolbench-matrix-963978db-b155-4fe2-9ae7-ca0b259a5fba-playwright-output-e2e-benchmark-ui-bankertoo-d0047-odeagent-package-verifier-video",
+      "class": "live_browser_proof",
+      "title": "Video",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\963978db-b155-4fe2-9ae7-ca0b259a5fba\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\video.webm",
+      "relPath": "test-results/bankertoolbench/matrix/963978db-b155-4fe2-9ae7-ca0b259a5fba/playwright-output/e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier/video.webm",
+      "purpose": "Live Playwright browser proof clip. Judge only visible product evidence: multi-client sync, advisory presence, no-clobber behavior, proposals, job/privacy/wall surfaces, and production honesty."
+    },
+    {
+      "id": "test-results-bankertoolbench-matrix-9ed5fdf8-7ffa-4c26-92d8-e1f28308af52-playwright-output-e2e-benchmark-ui-bankertoo-d0047-odeagent-package-verifier-video",
+      "class": "live_browser_proof",
+      "title": "Video",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\9ed5fdf8-7ffa-4c26-92d8-e1f28308af52\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\video.webm",
+      "relPath": "test-results/bankertoolbench/matrix/9ed5fdf8-7ffa-4c26-92d8-e1f28308af52/playwright-output/e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier/video.webm",
+      "purpose": "Live Playwright browser proof clip. Judge only visible product evidence: multi-client sync, advisory presence, no-clobber behavior, proposals, job/privacy/wall surfaces, and production honesty."
+    },
+    {
+      "id": "test-results-bankertoolbench-matrix-ac1a3956-b087-446b-9717-0f3d529e8fff-playwright-output-e2e-benchmark-ui-bankertoo-d0047-odeagent-package-verifier-retry1-video",
+      "class": "live_browser_proof",
+      "title": "Video",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\ac1a3956-b087-446b-9717-0f3d529e8fff\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier-retry1\\video.webm",
+      "relPath": "test-results/bankertoolbench/matrix/ac1a3956-b087-446b-9717-0f3d529e8fff/playwright-output/e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier-retry1/video.webm",
+      "purpose": "Live Playwright browser proof clip. Judge only visible product evidence: multi-client sync, advisory presence, no-clobber behavior, proposals, job/privacy/wall surfaces, and production honesty."
+    },
+    {
+      "id": "test-results-bankertoolbench-matrix-b957a435-13bf-469b-b4de-fa55e3b15edd-playwright-output-e2e-benchmark-ui-bankertoo-d0047-odeagent-package-verifier-video",
+      "class": "live_browser_proof",
+      "title": "Video",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\b957a435-13bf-469b-b4de-fa55e3b15edd\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\video.webm",
+      "relPath": "test-results/bankertoolbench/matrix/b957a435-13bf-469b-b4de-fa55e3b15edd/playwright-output/e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier/video.webm",
+      "purpose": "Live Playwright browser proof clip. Judge only visible product evidence: multi-client sync, advisory presence, no-clobber behavior, proposals, job/privacy/wall surfaces, and production honesty."
+    },
+    {
+      "id": "test-results-bankertoolbench-matrix-c0bf2e84-2400-47bf-9dd2-aacfb53a2090-playwright-output-e2e-benchmark-ui-bankertoo-d0047-odeagent-package-verifier-video",
+      "class": "live_browser_proof",
+      "title": "Video",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\c0bf2e84-2400-47bf-9dd2-aacfb53a2090\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\video.webm",
+      "relPath": "test-results/bankertoolbench/matrix/c0bf2e84-2400-47bf-9dd2-aacfb53a2090/playwright-output/e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier/video.webm",
+      "purpose": "Live Playwright browser proof clip. Judge only visible product evidence: multi-client sync, advisory presence, no-clobber behavior, proposals, job/privacy/wall surfaces, and production honesty."
+    },
+    {
+      "id": "test-results-bankertoolbench-matrix-c7bbdb93-8b29-44f6-8e5f-13fc0d3de8fc-playwright-output-e2e-benchmark-ui-bankertoo-d0047-odeagent-package-verifier-video",
+      "class": "live_browser_proof",
+      "title": "Video",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\c7bbdb93-8b29-44f6-8e5f-13fc0d3de8fc\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\video.webm",
+      "relPath": "test-results/bankertoolbench/matrix/c7bbdb93-8b29-44f6-8e5f-13fc0d3de8fc/playwright-output/e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier/video.webm",
+      "purpose": "Live Playwright browser proof clip. Judge only visible product evidence: multi-client sync, advisory presence, no-clobber behavior, proposals, job/privacy/wall surfaces, and production honesty."
+    },
+    {
+      "id": "test-results-bankertoolbench-matrix-d2c04408-4c3b-45a6-a076-7f5ccca8fc2a-playwright-output-e2e-benchmark-ui-bankertoo-d0047-odeagent-package-verifier-video",
+      "class": "live_browser_proof",
+      "title": "Video",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\d2c04408-4c3b-45a6-a076-7f5ccca8fc2a\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\video.webm",
+      "relPath": "test-results/bankertoolbench/matrix/d2c04408-4c3b-45a6-a076-7f5ccca8fc2a/playwright-output/e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier/video.webm",
+      "purpose": "Live Playwright browser proof clip. Judge only visible product evidence: multi-client sync, advisory presence, no-clobber behavior, proposals, job/privacy/wall surfaces, and production honesty."
+    },
+    {
+      "id": "test-results-bankertoolbench-matrix-eb2f7b9c-2f96-4093-bdd5-e28707e707a1-playwright-output-e2e-benchmark-ui-bankertoo-d0047-odeagent-package-verifier-video",
+      "class": "live_browser_proof",
+      "title": "Video",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\eb2f7b9c-2f96-4093-bdd5-e28707e707a1\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\video.webm",
+      "relPath": "test-results/bankertoolbench/matrix/eb2f7b9c-2f96-4093-bdd5-e28707e707a1/playwright-output/e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier/video.webm",
+      "purpose": "Live Playwright browser proof clip. Judge only visible product evidence: multi-client sync, advisory presence, no-clobber behavior, proposals, job/privacy/wall surfaces, and production honesty."
+    },
+    {
+      "id": "test-results-bankertoolbench-matrix-eefb52c1-ee12-4d15-9fbe-7f894705d503-playwright-output-e2e-benchmark-ui-bankertoo-d0047-odeagent-package-verifier-video",
+      "class": "live_browser_proof",
+      "title": "Video",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\eefb52c1-ee12-4d15-9fbe-7f894705d503\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\video.webm",
+      "relPath": "test-results/bankertoolbench/matrix/eefb52c1-ee12-4d15-9fbe-7f894705d503/playwright-output/e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier/video.webm",
+      "purpose": "Live Playwright browser proof clip. Judge only visible product evidence: multi-client sync, advisory presence, no-clobber behavior, proposals, job/privacy/wall surfaces, and production honesty."
+    },
+    {
+      "id": "test-results-bankertoolbench-matrix-f8571fea-f310-4a46-be0c-bbfb65990198-playwright-output-e2e-benchmark-ui-bankertoo-d0047-odeagent-package-verifier-video",
+      "class": "live_browser_proof",
+      "title": "Video",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\f8571fea-f310-4a46-be0c-bbfb65990198\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\video.webm",
+      "relPath": "test-results/bankertoolbench/matrix/f8571fea-f310-4a46-be0c-bbfb65990198/playwright-output/e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier/video.webm",
+      "purpose": "Live Playwright browser proof clip. Judge only visible product evidence: multi-client sync, advisory presence, no-clobber behavior, proposals, job/privacy/wall surfaces, and production honesty."
+    }
+  ]
+}

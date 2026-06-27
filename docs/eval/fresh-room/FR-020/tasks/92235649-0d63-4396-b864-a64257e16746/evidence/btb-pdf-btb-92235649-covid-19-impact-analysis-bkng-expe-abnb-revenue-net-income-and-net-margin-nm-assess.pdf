@@ -1,0 +1,104 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+5 0 obj
+<< /Length 5466 >>
+stream
+BT /F1 11 Tf 54 760 Td (COVID-19 Impact Analysis: BKNG, EXPE, ABNB — Revenue, Net Income, and Net Margin \(NM\) Assessment) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(COVID-19 Impact Analysis on Online Travel Platforms: BKNG, EXPE, ABNB. This package analyzes the financial impact of the COVID-19 pandemic on three major online travel and booking companies: Booking Holdings \(BKNG\), Ex) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(Rows: 38) Tj
+0 -16 Td
+(BKNG Revenue 2019 \(Pre-COVID\) — Entity: BKNG · Metric: Revenue · Year: 2019 · Value Usd Millions: 15113 · Period: pre-COVID · Currency: USD) Tj
+0 -16 Td
+(BKNG Revenue 2020 \(COVID Impact\) — Entity: BKNG · Metric: Revenue · Year: 2020 · Value Usd Millions: 6801 · Period: COVID · Currency: USD · Yoy Change Pct: -55) Tj
+0 -16 Td
+(BKNG Revenue 2021 \(Recovery\) — Entity: BKNG · Metric: Revenue · Year: 2021 · Value Usd Millions: 10998 · Period: post-COVID recovery · Currency: USD · Yoy Change Pct: 61.7) Tj
+0 -16 Td
+(BKNG Net Income 2019 — Entity: BKNG · Metric: Net Income · Year: 2019 · Value Usd Millions: 4896 · Currency: USD) Tj
+0 -16 Td
+(BKNG Net Income 2020 \(COVID\) — Entity: BKNG · Metric: Net Income · Year: 2020 · Value Usd Millions: 59 · Currency: USD · Yoy Change Pct: -98.8) Tj
+0 -16 Td
+(BKNG Net Income 2021 — Entity: BKNG · Metric: Net Income · Year: 2021 · Value Usd Millions: 1216 · Currency: USD · Yoy Change Pct: 1961) Tj
+0 -16 Td
+(BKNG Net Margin \(NM\) 2019 — Entity: BKNG · Metric: Net Margin \(NM\) · Year: 2019 · Value Pct: 32.4 · Currency: USD) Tj
+0 -16 Td
+(BKNG Net Margin \(NM\) 2020 \(COVID\) — Entity: BKNG · Metric: Net Margin \(NM\) · Year: 2020 · Value Pct: 0.87 · Currency: USD) Tj
+0 -16 Td
+(BKNG Net Margin \(NM\) 2021 — Entity: BKNG · Metric: Net Margin \(NM\) · Year: 2021 · Value Pct: 11.06 · Currency: USD) Tj
+0 -16 Td
+(EXPE Revenue 2019 \(Pre-COVID\) — Entity: EXPE · Metric: Revenue · Year: 2019 · Value Usd Millions: 12067 · Period: pre-COVID · Currency: USD) Tj
+0 -16 Td
+(EXPE Revenue 2020 \(COVID Impact\) — Entity: EXPE · Metric: Revenue · Year: 2020 · Value Usd Millions: 5199 · Period: COVID · Currency: USD · Yoy Change Pct: -56.9) Tj
+0 -16 Td
+(EXPE Revenue 2021 \(Recovery\) — Entity: EXPE · Metric: Revenue · Year: 2021 · Value Usd Millions: 8589 · Period: post-COVID recovery · Currency: USD · Yoy Change Pct: 65.2) Tj
+0 -16 Td
+(EXPE Net Income 2019 — Entity: EXPE · Metric: Net Income · Year: 2019 · Value Usd Millions: 1155 · Currency: USD) Tj
+0 -16 Td
+(EXPE Net Income 2020 \(COVID\) — Entity: EXPE · Metric: Net Income · Year: 2020 · Value Usd Millions: -2602 · Currency: USD · Yoy Change Pct: -325.3) Tj
+0 -16 Td
+(EXPE Net Income 2021 — Entity: EXPE · Metric: Net Income · Year: 2021 · Value Usd Millions: 616 · Currency: USD · Yoy Change Pct: 123.7) Tj
+0 -16 Td
+(EXPE Net Margin \(NM\) 2019 — Entity: EXPE · Metric: Net Margin \(NM\) · Year: 2019 · Value Pct: 9.57 · Currency: USD) Tj
+0 -16 Td
+(EXPE Net Margin \(NM\) 2020 \(COVID\) — Entity: EXPE · Metric: Net Margin \(NM\) · Year: 2020 · Value Pct: -50.05 · Currency: USD) Tj
+0 -16 Td
+(EXPE Net Margin \(NM\) 2021 — Entity: EXPE · Metric: Net Margin \(NM\) · Year: 2021 · Value Pct: 7.17 · Currency: USD) Tj
+0 -16 Td
+(ABNB Revenue 2019 \(Pre-COVID\) — Entity: ABNB · Metric: Revenue · Year: 2019 · Value Usd Millions: 4825 · Period: pre-COVID · Currency: USD) Tj
+0 -16 Td
+(ABNB Revenue 2020 \(COVID Impact\) — Entity: ABNB · Metric: Revenue · Year: 2020 · Value Usd Millions: 3379 · Period: COVID · Currency: USD · Yoy Change Pct: -29.97) Tj
+0 -16 Td
+(ABNB Revenue 2021 \(Recovery\) — Entity: ABNB · Metric: Revenue · Year: 2021 · Value Usd Millions: 5992 · Period: post-COVID recovery · Currency: USD · Yoy Change Pct: 77.4) Tj
+0 -16 Td
+(ABNB Net Income 2019 — Entity: ABNB · Metric: Net Income · Year: 2019 · Value Usd Millions: -674 · Currency: USD) Tj
+0 -16 Td
+(ABNB Net Income 2020 \(COVID\) — Entity: ABNB · Metric: Net Income · Year: 2020 · Value Usd Millions: -4585 · Currency: USD · Yoy Change Pct: -580) Tj
+0 -16 Td
+(ABNB Net Income 2021 — Entity: ABNB · Metric: Net Income · Year: 2021 · Value Usd Millions: 646 · Currency: USD · Yoy Change Pct: 114.1) Tj
+0 -16 Td
+(ABNB Net Margin \(NM\) 2019 — Entity: ABNB · Metric: Net Margin \(NM\) · Year: 2019 · Value Pct: -13.97 · Currency: USD) Tj
+0 -16 Td
+(ABNB Net Margin \(NM\) 2020 \(COVID\) — Entity: ABNB · Metric: Net Margin \(NM\) · Year: 2020 · Value Pct: -135.72 · Currency: USD) Tj
+0 -16 Td
+(ABNB Net Margin \(NM\) 2021 — Entity: ABNB · Metric: Net Margin \(NM\) · Year: 2021 · Value Pct: 10.78 · Currency: USD) Tj
+0 -16 Td
+(COVID Impact Summary - BKNG Revenue Decline — Entity: COVID · Affected Entity: BKNG · Metric: Revenue Decline 2019 to 2020 · Value Pct: -55 · Description: COVID-19 pandemic caused 55% revenue decline for Booking Holdings) Tj
+0 -16 Td
+(COVID Impact Summary - EXPE Revenue Decline — Entity: COVID · Affected Entity: EXPE · Metric: Revenue Decline 2019 to 2020 · Value Pct: -56.9 · Description: COVID-19 pandemic caused 57% revenue decline for Expedia Group) Tj
+0 -16 Td
+(COVID Impact Summary - ABNB Revenue Decline — Entity: COVID · Affected Entity: ABNB · Metric: Revenue Decline 2019 to 2020 · Value Pct: -29.97 · Description: COVID-19 pandemic caused 30% revenue decline for Airbnb, more ) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(Sources: ) Tj ET
+endstream
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000241 00000 n 
+0000000311 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+5829
+%%EOF

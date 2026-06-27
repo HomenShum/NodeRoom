@@ -154,7 +154,7 @@ test("three users chat, edit the same sheet concurrently, and run the public age
     return values.every((value) => value.includes(publicAgentValue));
   }, { timeout: 180_000, intervals: [3000] }).toBeTruthy();
   await openPublic(sam);
-  await expect(chat(sam).locator('[data-testid="chat-message"].agent').filter({ hasText: /public room proof complete|public-room proof/i })).toBeVisible({ timeout: 30_000 });
+  await expect(chat(sam).locator('[data-testid="chat-message"].agent').filter({ hasText: /public room proof complete|public-room proof/i }).first()).toBeVisible({ timeout: 30_000 });
   const agent = `public-write-${publicAgentKey}-visible-to-all`;
   await shoot(pages, "act5-agent");
 

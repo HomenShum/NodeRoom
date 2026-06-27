@@ -72,7 +72,7 @@ test("live Convex semantic rebase drill fans out and applies only after host app
     await waitForRoom(member);
 
     await setReviewMode(host);
-    await host.getByTestId("artifact-panel").getByTestId("collab-conflict").click();
+    await host.evaluate(() => (window as any).__runConflictDrill());
 
     const target = "r_rev__variance";
     const hostCell = cell(host, target);

@@ -1,0 +1,18 @@
+{
+  "runId": "btb-full-20260626-bc55-rerun",
+  "generatedAt": "2026-06-26T02:18:34.988Z",
+  "model": "gemini-3.5-flash",
+  "primaryOnly": true,
+  "all": false,
+  "includeIgnored": false,
+  "assets": [
+    {
+      "id": "test-results-bankertoolbench-matrix-bc55d3e8-0d59-43d6-a385-03c5330e47bf-playwright-output-e2e-benchmark-ui-bankertoo-d0047-odeagent-package-verifier-video",
+      "class": "live_browser_proof",
+      "title": "Video",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\bc55d3e8-0d59-43d6-a385-03c5330e47bf\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\video.webm",
+      "relPath": "test-results/bankertoolbench/matrix/bc55d3e8-0d59-43d6-a385-03c5330e47bf/playwright-output/e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier/video.webm",
+      "purpose": "Live Playwright browser benchmark proof clip. Judge only visible product behavior: fresh-room flow, uploads, public NodeAgent invocation, streaming/tool traces, focus/attention UI, artifact creation/download, and production honesty. Clip duration, silence, or README pacing is not a product defect."
+    }
+  ]
+}

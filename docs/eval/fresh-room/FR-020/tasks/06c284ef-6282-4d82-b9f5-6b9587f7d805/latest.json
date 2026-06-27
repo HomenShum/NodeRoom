@@ -3,10 +3,10 @@
   "caseId": "FR-020",
   "benchmark": "bankertoolbench",
   "taskId": "06c284ef-6282-4d82-b9f5-6b9587f7d805",
-  "generatedAt": "2026-06-25T01:45:28.384Z",
+  "generatedAt": "2026-06-25T23:49:33.369Z",
   "baseUrl": "http://127.0.0.1:5273",
-  "roomId": "NRPUJJD8XRD",
-  "roomUrl": "http://127.0.0.1:5273/?room=NRPUJJD8XRD&name=Host",
+  "roomId": "NRIZS3JKFX3",
+  "roomUrl": "http://127.0.0.1:5273/?room=NRIZS3JKFX3&name=Host",
   "command": "BTB_LIVE_ROOM_E2E=1 BTB_UI_BUNDLE_ROOT=<official-bundle> BTB_UI_VERIFIER_COMMAND=<verifier> BENCH_BASE_URL=<base> npx playwright test --config playwright.real-flow.config.ts e2e/benchmark-ui-bankertoolbench.spec.ts --headed",
   "model": {
     "requested": "specific",
@@ -21,11 +21,11 @@
     "roomCreatedAfterRunStart": true,
     "forbiddenPreloadedArtifactsAbsent": true,
     "artifactsCreatedFresh": [
-      "btb-06c284ef-salesforce-crm-us-sources-uses-analysis-with-tlb-sensitivity-btb-06c284ef.xlsx",
-      "btb-06c284ef-salesforce-crm-us-sources-uses-analysis-with-tlb-sensitivity-btb-06c284ef.xlsm",
-      "btb-06c284ef-salesforce-crm-us-sources-uses-analysis-with-tlb-sensitivity-btb-06c284ef.pptx",
-      "btb-06c284ef-salesforce-crm-us-sources-uses-analysis-with-tlb-sensitivity-btb-06c284ef.docx",
-      "btb-06c284ef-salesforce-crm-us-sources-uses-analysis-with-tlb-sensitivity-btb-06c284ef.pdf"
+      "btb-06c284ef-btb-06c284ef-wacc-inputs-sharpe-ratio-analysis-crm-tlb.xlsx",
+      "btb-06c284ef-btb-06c284ef-wacc-inputs-sharpe-ratio-analysis-crm-tlb.xlsm",
+      "btb-06c284ef-btb-06c284ef-wacc-inputs-sharpe-ratio-analysis-crm-tlb.pptx",
+      "btb-06c284ef-btb-06c284ef-wacc-inputs-sharpe-ratio-analysis-crm-tlb.docx",
+      "btb-06c284ef-btb-06c284ef-wacc-inputs-sharpe-ratio-analysis-crm-tlb.pdf"
     ],
     "uploadedFiles": [
       "betas_by_industry_category_for_WACC.xlsx",
@@ -48,7 +48,7 @@
     "jobDetailVisible": true,
     "roomTraceVisible": true,
     "screenshotPaths": [
-      "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\06c284ef-6282-4d82-b9f5-6b9587f7d805\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\bankertoolbench-live-room.png"
+      "docs\\eval\\fresh-room\\FR-020\\tasks\\06c284ef-6282-4d82-b9f5-6b9587f7d805\\evidence\\bankertoolbench-live-room.png"
     ],
     "tracePath": "docs\\eval\\bankertoolbench\\live-room\\06c284ef-6282-4d82-b9f5-6b9587f7d805.json"
   },
@@ -67,94 +67,94 @@
       "btb-06c284ef-official-task-brief.txt"
     ],
     "created": [
-      "btb-06c284ef-salesforce-crm-us-sources-uses-analysis-with-tlb-sensitivity-btb-06c284ef.xlsx",
-      "btb-06c284ef-salesforce-crm-us-sources-uses-analysis-with-tlb-sensitivity-btb-06c284ef.xlsm",
-      "btb-06c284ef-salesforce-crm-us-sources-uses-analysis-with-tlb-sensitivity-btb-06c284ef.pptx",
-      "btb-06c284ef-salesforce-crm-us-sources-uses-analysis-with-tlb-sensitivity-btb-06c284ef.docx",
-      "btb-06c284ef-salesforce-crm-us-sources-uses-analysis-with-tlb-sensitivity-btb-06c284ef.pdf"
+      "btb-06c284ef-btb-06c284ef-wacc-inputs-sharpe-ratio-analysis-crm-tlb.xlsx",
+      "btb-06c284ef-btb-06c284ef-wacc-inputs-sharpe-ratio-analysis-crm-tlb.xlsm",
+      "btb-06c284ef-btb-06c284ef-wacc-inputs-sharpe-ratio-analysis-crm-tlb.pptx",
+      "btb-06c284ef-btb-06c284ef-wacc-inputs-sharpe-ratio-analysis-crm-tlb.docx",
+      "btb-06c284ef-btb-06c284ef-wacc-inputs-sharpe-ratio-analysis-crm-tlb.pdf"
     ],
     "exportedFiles": [
       {
         "kind": "workbook",
-        "filename": "btb-06c284ef-salesforce-crm-us-sources-uses-analysis-with-tlb-sensitivity-btb-06c284ef.xlsx",
-        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\06c284ef-6282-4d82-b9f5-6b9587f7d805\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-06c284ef-salesforce-crm-us-sources-uses-analysis-with-tlb-sensitivity-btb-06c284ef.xlsx",
+        "filename": "btb-06c284ef-btb-06c284ef-wacc-inputs-sharpe-ratio-analysis-crm-tlb.xlsx",
+        "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\06c284ef-6282-4d82-b9f5-6b9587f7d805\\evidence\\btb-xlsx-btb-06c284ef-btb-06c284ef-wacc-inputs-sharpe-ratio-analysis-crm-tlb.xlsx",
         "extension": ".xlsx",
         "downloaded": true,
-        "bytes": 9536,
+        "bytes": 7401,
         "magic": "PK\\x03\\x04"
       },
       {
         "kind": "workbook",
-        "filename": "btb-06c284ef-salesforce-crm-us-sources-uses-analysis-with-tlb-sensitivity-btb-06c284ef.xlsm",
-        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\06c284ef-6282-4d82-b9f5-6b9587f7d805\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-06c284ef-salesforce-crm-us-sources-uses-analysis-with-tlb-sensitivity-btb-06c284ef.xlsm",
+        "filename": "btb-06c284ef-btb-06c284ef-wacc-inputs-sharpe-ratio-analysis-crm-tlb.xlsm",
+        "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\06c284ef-6282-4d82-b9f5-6b9587f7d805\\evidence\\btb-xlsm-btb-06c284ef-btb-06c284ef-wacc-inputs-sharpe-ratio-analysis-crm-tlb.xlsm",
         "extension": ".xlsm",
         "downloaded": true,
-        "bytes": 9536,
+        "bytes": 7401,
         "magic": "PK\\x03\\x04"
       },
       {
         "kind": "presentation",
-        "filename": "btb-06c284ef-salesforce-crm-us-sources-uses-analysis-with-tlb-sensitivity-btb-06c284ef.pptx",
-        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\06c284ef-6282-4d82-b9f5-6b9587f7d805\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-06c284ef-salesforce-crm-us-sources-uses-analysis-with-tlb-sensitivity-btb-06c284ef.pptx",
+        "filename": "btb-06c284ef-btb-06c284ef-wacc-inputs-sharpe-ratio-analysis-crm-tlb.pptx",
+        "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\06c284ef-6282-4d82-b9f5-6b9587f7d805\\evidence\\btb-pptx-btb-06c284ef-btb-06c284ef-wacc-inputs-sharpe-ratio-analysis-crm-tlb.pptx",
         "extension": ".pptx",
         "downloaded": true,
-        "bytes": 7128,
+        "bytes": 6578,
         "magic": "PK\\x03\\x04"
       },
       {
         "kind": "document",
-        "filename": "btb-06c284ef-salesforce-crm-us-sources-uses-analysis-with-tlb-sensitivity-btb-06c284ef.docx",
-        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\06c284ef-6282-4d82-b9f5-6b9587f7d805\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-06c284ef-salesforce-crm-us-sources-uses-analysis-with-tlb-sensitivity-btb-06c284ef.docx",
+        "filename": "btb-06c284ef-btb-06c284ef-wacc-inputs-sharpe-ratio-analysis-crm-tlb.docx",
+        "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\06c284ef-6282-4d82-b9f5-6b9587f7d805\\evidence\\btb-docx-btb-06c284ef-btb-06c284ef-wacc-inputs-sharpe-ratio-analysis-crm-tlb.docx",
         "extension": ".docx",
         "downloaded": true,
-        "bytes": 3869,
+        "bytes": 2549,
         "magic": "PK\\x03\\x04"
       },
       {
         "kind": "pdf",
-        "filename": "btb-06c284ef-salesforce-crm-us-sources-uses-analysis-with-tlb-sensitivity-btb-06c284ef.pdf",
-        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\06c284ef-6282-4d82-b9f5-6b9587f7d805\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-06c284ef-salesforce-crm-us-sources-uses-analysis-with-tlb-sensitivity-btb-06c284ef.pdf",
+        "filename": "btb-06c284ef-btb-06c284ef-wacc-inputs-sharpe-ratio-analysis-crm-tlb.pdf",
+        "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\06c284ef-6282-4d82-b9f5-6b9587f7d805\\evidence\\btb-pdf-btb-06c284ef-btb-06c284ef-wacc-inputs-sharpe-ratio-analysis-crm-tlb.pdf",
         "extension": ".pdf",
         "downloaded": true,
-        "bytes": 4993,
+        "bytes": 2191,
         "magic": "%PDF"
       }
     ],
     "reopenedFiles": [
       {
         "kind": "workbook",
-        "filename": "btb-06c284ef-salesforce-crm-us-sources-uses-analysis-with-tlb-sensitivity-btb-06c284ef.xlsx",
+        "filename": "btb-06c284ef-btb-06c284ef-wacc-inputs-sharpe-ratio-analysis-crm-tlb.xlsx",
         "reopened": true,
         "scorerResult": "pass",
-        "detail": "ZIP package contains xl/workbook.xml; placeholder/caveat content scan passed (5849 chars)"
+        "detail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j97780b6yhtkv7kppny380b0w189a064; placeholder/caveat content scan passed (1347 chars)"
       },
       {
         "kind": "workbook",
-        "filename": "btb-06c284ef-salesforce-crm-us-sources-uses-analysis-with-tlb-sensitivity-btb-06c284ef.xlsm",
+        "filename": "btb-06c284ef-btb-06c284ef-wacc-inputs-sharpe-ratio-analysis-crm-tlb.xlsm",
         "reopened": true,
         "scorerResult": "pass",
-        "detail": "ZIP package contains xl/workbook.xml; placeholder/caveat content scan passed (5849 chars)"
+        "detail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j97ex1f5td4fek5r6rr3tae20589bgj2; placeholder/caveat content scan passed (1347 chars)"
       },
       {
         "kind": "presentation",
-        "filename": "btb-06c284ef-salesforce-crm-us-sources-uses-analysis-with-tlb-sensitivity-btb-06c284ef.pptx",
+        "filename": "btb-06c284ef-btb-06c284ef-wacc-inputs-sharpe-ratio-analysis-crm-tlb.pptx",
         "reopened": true,
         "scorerResult": "pass",
-        "detail": "ZIP package contains ppt/presentation.xml; placeholder/caveat content scan passed (2942 chars)"
+        "detail": "ZIP package contains ppt/presentation.xml; recovered from Convex room artifact j9748ga0refebbmc6gksv4qgqs89agj7; placeholder/caveat content scan passed (1711 chars)"
       },
       {
         "kind": "document",
-        "filename": "btb-06c284ef-salesforce-crm-us-sources-uses-analysis-with-tlb-sensitivity-btb-06c284ef.docx",
+        "filename": "btb-06c284ef-btb-06c284ef-wacc-inputs-sharpe-ratio-analysis-crm-tlb.docx",
         "reopened": true,
         "scorerResult": "pass",
-        "detail": "ZIP package contains word/document.xml; placeholder/caveat content scan passed (6806 chars)"
+        "detail": "ZIP package contains word/document.xml; recovered from Convex room artifact j97d8szy84gzghvpdrnqrhcx6189af13; placeholder/caveat content scan passed (1692 chars)"
       },
       {
         "kind": "pdf",
-        "filename": "btb-06c284ef-salesforce-crm-us-sources-uses-analysis-with-tlb-sensitivity-btb-06c284ef.pdf",
+        "filename": "btb-06c284ef-btb-06c284ef-wacc-inputs-sharpe-ratio-analysis-crm-tlb.pdf",
         "reopened": true,
         "scorerResult": "pass",
-        "detail": "PDF header reopened; placeholder/caveat content scan passed (9451 chars)"
+        "detail": "PDF header reopened; recovered from Convex room artifact j9772aad8mfrcs7jgr582rz0z189ae28; placeholder/caveat content scan passed (3831 chars)"
       }
     ]
   },
@@ -165,7 +165,7 @@
     "score": 1,
     "details": {
       "verifierOutputTail": "\n> noderoom@0.1.1 benchmark:bankertoolbench:proof\n> tsx scripts/bankertoolbench-proof-check.ts\n\nBankerToolBench proof check passed: stage=1/1 weightedRubric=6 run=0/1 pass positive=1/1 pass candidateBeforeEvaluator=true leaks=0/2+0/3+0/4\n",
-      "packageManifestPath": "test-results\\bankertoolbench\\matrix\\06c284ef-6282-4d82-b9f5-6b9587f7d805\\package-manifest.json",
+      "packageManifestPath": "docs\\eval\\fresh-room\\FR-020\\tasks\\06c284ef-6282-4d82-b9f5-6b9587f7d805\\evidence\\package-manifest.json",
       "downloadedExtensions": [
         ".xlsx",
         ".xlsm",
@@ -173,10 +173,10 @@
         ".docx",
         ".pdf"
       ],
-      "exportSource": "browser_download_link",
+      "exportSource": "convex_room_artifact_data_url_after_browser_ui_proof",
       "agentTerminalQuality": {
-        "statusText": "completed via recovered Convex job: ity-btb-06c284ef.pptx, btb-06c284ef-salesforce-crm-us-sources-uses-analysis-with-tlb-sensitivity-btb-06c284ef.docx, btb-06c284ef-salesforce-crm-us-sources-uses-analysis-with-tlb-sensitivity-btb-06c284ef.pdf. Coverage confirmed for CRM, TLB.",
-        "evidenceTextLength": 2006,
+        "statusText": "completed via recovered Convex job: btb-06c284ef-wacc-inputs-sharpe-ratio-analysis-crm-tlb.pptx, btb-06c284ef-btb-06c284ef-wacc-inputs-sharpe-ratio-analysis-crm-tlb.docx, btb-06c284ef-btb-06c284ef-wacc-inputs-sharpe-ratio-analysis-crm-tlb.pdf. Coverage confirmed for CRM, TLB.",
+        "evidenceTextLength": 1080,
         "detail": "agent reached completed status or visible completion text, with no missing-source/unfinished-work caveats"
       },
       "taskCoverage": {
@@ -186,13 +186,22 @@
           "TLB"
         ],
         "missingTickers": [],
-        "detail": "generated package mentions every requested ticker/entity: CRM, TLB"
+        "domainProof": {
+          "ok": true,
+          "domain": "generic",
+          "gates": [],
+          "missingGates": [],
+          "detail": "no task-specific domain proof gate required"
+        },
+        "detail": "generated package mentions every requested ticker/entity: CRM, TLB; no task-specific domain proof gate required"
       }
     }
   },
   "visualJudge": {
-    "verdict": "not_run",
-    "reason": "GOOGLE_GENERATIVE_AI_API_KEY is not set; deterministic browser/download/reopen/verifier proof passed."
+    "command": "npm run media:gemini-judge -- --run-id btb-full-20260626-chunk2 --out \"docs\\\\eval\\\\gemini-media-judges\\\\btb-full-20260626\\\\chunk2\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\06c284ef-6282-4d82-b9f5-6b9587f7d805\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\11e08646-55be-41cd-a0b8-24d1529b76aa\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\19b3361c-82c3-41d6-b941-d3f60ce32026\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\2048736b-7bb8-4c54-899e-ddfdf12641ab\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\40097508-c68a-4066-9031-e99eac4f7a18\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\432c6197-eade-4dcd-ae6d-0a30ec4da18c\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\4a3bf36b-caeb-4825-a60c-4c416b4d555c\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\507a3d72-91bd-4e0c-9c77-c0cf521f4a71\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\55fd995a-e4df-4942-aee1-ee1be9a72b6a\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\6801c651-fd1b-4c12-a4ce-1338442c7ab1\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\6a08ca87-feb5-4061-b532-26e89c888951\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\73c10eda-38d8-4b48-bac6-baaaff3d937f\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\7f5b9960-5931-4fb7-ac69-a5d0a954b1cc\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\8bdef554-4723-42ff-a813-4711f9b330af\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\92235649-0d63-4396-b864-a64257e16746\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\9781216f-b98d-4537-9ab8-f0e62248a6ab\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\a0b2858a-1ffd-423d-8948-e14aceaa1f69\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\b1b4a2a3-6d5b-441f-a17e-41753656a0e3\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\bc55d3e8-0d59-43d6-a385-03c5330e47bf\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\c1c36cfd-677b-462b-96d4-ea76e12e98e8\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\cc4c8473-4c54-4fdd-9af8-c55bc9e4b07d\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\daa6b204-9dc9-491f-bdf9-963208578db2\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\eb58ec7c-f236-47a6-8ca7-d7297f9187f6\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\f0bd3730-d826-46f2-8422-b48480fa6250\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\fe996540-6e06-4a84-82d9-06d0f32f6cd9\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\"",
+    "verdict": "pass",
+    "scorecardPath": "docs/eval/gemini-media-judges/btb-full-20260626/chunk2/btb-full-20260626-chunk2/summary.md",
+    "reason": "Gemini media judge publish (8/16); defects P0/P1/P2=0/0/1. The video demonstrates the complete workflow of NodeRoom, from room creation and multi-file spreadsheet upload to running an AI agent on a financial task brief and exporting the final PDF report. Source clip: test-results\\bankertoolbench\\matrix\\06c284ef-6282-4d82-b9f5-6b9587f7d805\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\video.webm."
   },
   "gatesProven": [
     "fresh_room_join",
@@ -210,7 +219,8 @@
     "deliverable_export_download",
     "artifact_reopen_validation",
     "artifact_placeholder_scan",
-    "official_scorer_handoff"
+    "official_scorer_handoff",
+    "visual_judge_handoff"
   ],
   "passed": true
 }

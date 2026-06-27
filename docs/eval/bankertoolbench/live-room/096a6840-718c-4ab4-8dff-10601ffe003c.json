@@ -2,9 +2,9 @@
   "schema": 1,
   "taskId": "096a6840-718c-4ab4-8dff-10601ffe003c",
   "harborTaskId": "btb-096a6840",
-  "generatedAt": "2026-06-25T01:59:15.638Z",
+  "generatedAt": "2026-06-26T00:24:35.300Z",
   "baseUrl": "http://127.0.0.1:5273",
-  "roomUrl": "http://127.0.0.1:5273/?room=NRWS8BQPCVJ&name=Host",
+  "roomUrl": "http://127.0.0.1:5273/?room=NRHF6XKSLZ7&name=Host",
   "memoryMode": false,
   "expectedExtensions": [
     ".xlsx",
@@ -23,64 +23,64 @@
   "downloadedFiles": [
     {
       "kind": "workbook",
-      "filename": "btb-task-son-nyse-dcf-valuation-wacc-bankertoolbench-task-btb-096a6840.xlsx",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\096a6840-718c-4ab4-8dff-10601ffe003c\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-task-son-nyse-dcf-valuation-wacc-bankertoolbench-task-btb-096a6840.xlsx",
+      "filename": "btb-096a6840-nyse-son-dcf-valuation-wacc-intrinsic-value-per-share.xlsx",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\096a6840-718c-4ab4-8dff-10601ffe003c\\evidence\\btb-xlsx-btb-096a6840-nyse-son-dcf-valuation-wacc-intrinsic-value-per-share.xlsx",
       "extension": ".xlsx",
-      "bytes": 7349,
+      "bytes": 8472,
       "magic": "PK\\x03\\x04",
       "reopened": true,
       "reopenDetail": "ZIP package contains xl/workbook.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (1466 chars)"
+      "contentQualityDetail": "placeholder/caveat content scan passed (2839 chars)"
     },
     {
       "kind": "workbook",
-      "filename": "btb-task-son-nyse-dcf-valuation-wacc-bankertoolbench-task-btb-096a6840.xlsm",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\096a6840-718c-4ab4-8dff-10601ffe003c\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-task-son-nyse-dcf-valuation-wacc-bankertoolbench-task-btb-096a6840.xlsm",
+      "filename": "btb-096a6840-nyse-son-dcf-valuation-wacc-intrinsic-value-per-share.xlsm",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\096a6840-718c-4ab4-8dff-10601ffe003c\\evidence\\btb-xlsm-btb-096a6840-nyse-son-dcf-valuation-wacc-intrinsic-value-per-share.xlsm",
       "extension": ".xlsm",
-      "bytes": 7349,
+      "bytes": 8472,
       "magic": "PK\\x03\\x04",
       "reopened": true,
       "reopenDetail": "ZIP package contains xl/workbook.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (1466 chars)"
+      "contentQualityDetail": "placeholder/caveat content scan passed (2839 chars)"
     },
     {
       "kind": "presentation",
-      "filename": "btb-task-son-nyse-dcf-valuation-wacc-bankertoolbench-task-btb-096a6840.pptx",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\096a6840-718c-4ab4-8dff-10601ffe003c\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-task-son-nyse-dcf-valuation-wacc-bankertoolbench-task-btb-096a6840.pptx",
+      "filename": "btb-096a6840-nyse-son-dcf-valuation-wacc-intrinsic-value-per-share.pptx",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\096a6840-718c-4ab4-8dff-10601ffe003c\\evidence\\btb-pptx-btb-096a6840-nyse-son-dcf-valuation-wacc-intrinsic-value-per-share.pptx",
       "extension": ".pptx",
-      "bytes": 6694,
+      "bytes": 6952,
       "magic": "PK\\x03\\x04",
       "reopened": true,
       "reopenDetail": "ZIP package contains ppt/presentation.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (1445 chars)"
+      "contentQualityDetail": "placeholder/caveat content scan passed (2062 chars)"
     },
     {
       "kind": "document",
-      "filename": "btb-task-son-nyse-dcf-valuation-wacc-bankertoolbench-task-btb-096a6840.docx",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\096a6840-718c-4ab4-8dff-10601ffe003c\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-task-son-nyse-dcf-valuation-wacc-bankertoolbench-task-btb-096a6840.docx",
+      "filename": "btb-096a6840-nyse-son-dcf-valuation-wacc-intrinsic-value-per-share.docx",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\096a6840-718c-4ab4-8dff-10601ffe003c\\evidence\\btb-docx-btb-096a6840-nyse-son-dcf-valuation-wacc-intrinsic-value-per-share.docx",
       "extension": ".docx",
-      "bytes": 2665,
+      "bytes": 3028,
       "magic": "PK\\x03\\x04",
       "reopened": true,
       "reopenDetail": "ZIP package contains word/document.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (1421 chars)"
+      "contentQualityDetail": "placeholder/caveat content scan passed (2368 chars)"
     },
     {
       "kind": "pdf",
-      "filename": "btb-task-son-nyse-dcf-valuation-wacc-bankertoolbench-task-btb-096a6840.pdf",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\096a6840-718c-4ab4-8dff-10601ffe003c\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-task-son-nyse-dcf-valuation-wacc-bankertoolbench-task-btb-096a6840.pdf",
+      "filename": "btb-096a6840-nyse-son-dcf-valuation-wacc-intrinsic-value-per-share.pdf",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\096a6840-718c-4ab4-8dff-10601ffe003c\\evidence\\btb-pdf-btb-096a6840-nyse-son-dcf-valuation-wacc-intrinsic-value-per-share.pdf",
       "extension": ".pdf",
-      "bytes": 1110,
+      "bytes": 2364,
       "magic": "%PDF",
       "reopened": true,
       "reopenDetail": "PDF header reopened",
-      "contentQualityDetail": "placeholder/caveat content scan passed (1701 chars)"
+      "contentQualityDetail": "placeholder/caveat content scan passed (4160 chars)"
     }
   ],
-  "packageManifestPath": "test-results\\bankertoolbench\\matrix\\096a6840-718c-4ab4-8dff-10601ffe003c\\package-manifest.json",
+  "packageManifestPath": "docs\\eval\\fresh-room\\FR-020\\tasks\\096a6840-718c-4ab4-8dff-10601ffe003c\\evidence\\package-manifest.json",
   "verifierCommand": "npm run benchmark:bankertoolbench:proof",
   "verifierOutputTail": "\n> noderoom@0.1.1 benchmark:bankertoolbench:proof\n> tsx scripts/bankertoolbench-proof-check.ts\n\nBankerToolBench proof check passed: stage=1/1 weightedRubric=6 run=0/1 pass positive=1/1 pass candidateBeforeEvaluator=true leaks=0/2+0/3+0/4\n",
-  "screenshot": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\096a6840-718c-4ab4-8dff-10601ffe003c\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\bankertoolbench-live-room.png",
+  "screenshot": "docs\\eval\\fresh-room\\FR-020\\tasks\\096a6840-718c-4ab4-8dff-10601ffe003c\\evidence\\bankertoolbench-live-room.png",
   "passed": true,
   "gatesProven": [
     "fresh_room_join",

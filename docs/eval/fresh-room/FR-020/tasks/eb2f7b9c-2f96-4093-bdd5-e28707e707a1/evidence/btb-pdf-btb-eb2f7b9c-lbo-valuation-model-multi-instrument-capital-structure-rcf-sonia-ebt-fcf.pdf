@@ -1,0 +1,103 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+5 0 obj
+<< /Length 6395 >>
+stream
+BT /F1 11 Tf 54 760 Td (LBO Valuation Model — Multi-Instrument Capital Structure \(RCF | SONIA | EBT | FCF\)) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(## LBO Valuation Model — BankerToolBench Task btb-eb2f7b9c
+
+**Valuation date:** 31 December 2025 | **Forecast period:** FY2026–FY2030 \(Years 1–5\)
+
+### Model Architecture
+
+**1. Transaction & Operating Assumptions**
+- Re) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(Rows: 26) Tj
+0 -16 Td
+(Transaction Summary — LTM Revenue M: 1000 · LTM EBITDA M: 200 · Entry Multiple X: 10 · Purchase EV M: 2000 · Transaction Fees M: 10 · Total Debt M: 1200 · Financing Fees M: 24 · Min Cash M: 5 · Total Uses M: 2039 · Total) Tj
+0 -16 Td
+(Financing Structure — Term LoaM: 800 · Term Loan Leverage X: 4 · Term Loan Rate Pct: 9 · Term Loan SONIA Spread Bps: 450 · Term Loan Floor Pct: 2 · Senior Notes M: 400 · Senior Notes Leverage X: 2 · Senior Notes Rate Pct) Tj
+0 -16 Td
+(Revenue Forecast — FY2025 Year0 M: 1000 · FY2026 Year1 M: 1100 · FY2027 Year2 M: 1210 · FY2028 Year3 M: 1331 · FY2029 Year4 M: 1464.1 · FY2030 Year5 M: 1610.51) Tj
+0 -16 Td
+(EBITDA Forecast — FY2025 Year0 M: 200 · FY2026 Year1 M: 220 · FY2027 Year2 M: 242 · FY2028 Year3 M: 266.2 · FY2029 Year4 M: 292.82 · FY2030 Year5 M: 322.102) Tj
+0 -16 Td
+(D&A Forecast \(2% of Revenue\) — FY2026 Year1 M: 22 · FY2027 Year2 M: 24.2 · FY2028 Year3 M: 26.62 · FY2029 Year4 M: 29.282 · FY2030 Year5 M: 32.2102) Tj
+0 -16 Td
+(Capex Forecast \(2% of Revenue\) — FY2026 Year1 M: 22 · FY2027 Year2 M: 24.2 · FY2028 Year3 M: 26.62 · FY2029 Year4 M: 29.282 · FY2030 Year5 M: 32.2102) Tj
+0 -16 Td
+(Change in NWC \(1% of Revenue\) — FY2026 Year1 M: 11 · FY2027 Year2 M: 12.1 · FY2028 Year3 M: 13.31 · FY2029 Year4 M: 14.641 · FY2030 Year5 M: 16.1051) Tj
+0 -16 Td
+(Financing Fee Amortisation \(5yr straight-line\) — Total Financing Fees M: 24 · Annual Amortisation M: 4.8 · FY2026 Year1 M: 4.8 · FY2027 Year2 M: 4.8 · FY2028 Year3 M: 4.8 · FY2029 Year4 M: 4.8 · FY2030 Year5 M: 4.8) Tj
+0 -16 Td
+(Debt Schedule - Term Loan Balances — Opening Y1 M: 800 · Mandatory Amort Y1 M: 40 · Cash Sweep Y1 M: 0 · Closing Y1 M: 760 · Mandatory Amort Y2 M: 40 · Closing Y2 M: 720 · Mandatory Amort Y3 M: 40 · Closing Y3 M: 680 · M) Tj
+0 -16 Td
+(Debt Schedule - Senior Notes Balances — Opening Y1 M: 400 · Closing Y1 M: 400 · Closing Y2 M: 400 · Closing Y3 M: 400 · Closing Y4 M: 400 · Closing Y5 M: 400) Tj
+0 -16 Td
+(Debt Schedule - RCF Balances — Capacity M: 50 · Opening Y1 M: 0 · Drawdown Y1 M: 0 · Closing Y1 M: 0 · Closing Y2 M: 0 · Closing Y3 M: 0 · Closing Y4 M: 0 · Closing Y5 M: 0 · Note: RCF undrawn all years; FCF surplus posi) Tj
+0 -16 Td
+(Interest Expense - Term Loan \(avg balance, circ=1\) — Avg Bal Y1 M: 780 · Interest Y1 M: -70.2 · Avg Bal Y2 M: 740 · Interest Y2 M: -66.6 · Avg Bal Y3 M: 700 · Interest Y3 M: -63 · Avg B4 M: 660 · Interest Y4 M: -59.4 ·) Tj
+0 -16 Td
+(Interest Expense - Senior Notes \(avg balance, circ=1\) — Avg Bal Y1 M: 400 · Interest Y1 M: -26 · Interest Y2 M: -26 · Interest Y3 M: -26 · Interest Y4 M: -26 · Interest Y5 M: -26) Tj
+0 -16 Td
+(Interest Expense - RCF \(avg balance, circ=1\) — Avg Bal Y1 M: 0 · Interest Y1 M: 0 · Commitment Fee Y1 M: -0.125 · Commitment Fee Y2 M: -0.125 · Commitment Fee Y3 M: -0.125 · Commitment Fee Y4 M: -0.125 · Commitment Fee) Tj
+0 -16 Td
+(EBT - Earnings Before Tax — EBITDA Y1 M: 220 · DA Y1 M: 22 · FinFeeAmort Y1 M: 4.8 · Int TL Y1 M: -70.2 · Int SN Y1 M: -26 · Int RCF Y1 M: 0 · CommFee Y1 M: -0.125 · EBT Y1 M: 96.875 · EBT Y2 M: 107.275 · EBT Y3 M: 118.2) Tj
+0 -16 Td
+(Net Income \(25% tax\) — Tax Y1 M: -24.219 · NI Y1 M: 72.656 · EBT Y2 M: 107.275 · Tax Y2 M: -26.819 · NI Y2 M: 80.456 · EBT Y3 M: 118.275 · Tax Y3 M: -29.569 · NI Y3 M: 88.706 · EBT Y4 M: 129.875 · Tax Y4 M: -32.469 · N) Tj
+0 -16 Td
+(FCF - Free Cash Flow Profile — NI Y1 M: 72.656 · DA Addback Y1 M: 22 · FinFeeAmort Addback Y1 M: 4.8 · Capex Y1 M: -22 · DNWC Y1 M: -11 · FCF Pre Mand Amort Y1 M: 66.456 · Mand Amort Y1 M: -40 · FCF Pre RCF Y1 M: 26.456 ) Tj
+0 -16 Td
+(Cash Balance Rollforward — Opening Y1 M: 5 · Change Y1 M: 13.228 · Closing Y1 M: 18.228 · Closing Y2 M: 39.856 · Closing Y3 M: 70.184 · Closing Y4 M: 109.612 · Closing Y5 M: 158.64 · Note: Opening cash = min cash $5M; cl) Tj
+0 -16 Td
+(Term Loan Cash Sweep Detail — FCF Post Mand Amort Y1 M: 26.456 · Cash Sweep 50pct Y1 M: 13.228 · TL Closing Y1 M: 760 · FCF Post Mand Amort Y2 M: 43.256 · Cash Sweep 50pct Y2 M: 21.628 · TL Closing Y2 M: 720 · FCF Post M) Tj
+0 -16 Td
+(Returns Analysis - Exit Metrics — Exit Year: 2030 · Exit EBITDA M: 322.102 · Exit Multiple X: 10 · Exit EV M: 3221.02 · Exit Fees Pct: 1 · Exit Fees M: 32.2102 · Exit EV Net Fees M: 3188.81 · Closing Cash M: 158.64 · TL ) Tj
+0 -16 Td
+(Preference Shares PIK Accretion — Initial Prefs M: 0 · PIK Rate Pct: 12 · Closing Y1 M: 0 · Closing Y2 M: 0 · Closing Y3 M: 0 · Closing Y4 M: 0 · Closing Y5 M: 0 · Note: Prefs = 0 when total equity covers all non-debt so) Tj
+0 -16 Td
+(Returns by Investor Group — PE Invested Capital M: 739 · PE Proceeds M: 2347.45 · PE MOIC X: 3.18 · Mgmt Invested Capital M: 100 · Mgmt Proceeds M: 0 · Mgmt MOIC X: 0 · Sweet Invested Capital M: 0 · Sweet Proceeds M: 0 ·) Tj
+0 -16 Td
+(SONIA Reference Rate Detail — SONIA FY2026 Pct: 4.5 · SONIA FY2027 Pct: 4.5 · SONIA FY2028 Pct: 4.5 · SONIA FY2029 Pct: 4.5 · SONIA FY2030 Pct: 4.5 · TL All In Rate Pct: 9 · RCF All In Rate Pct: 8.5 · TL Spread Bps: 450 ) Tj
+0 -16 Td
+(Cap Table Detail — Ordinary Shares Total M: 1 · Sweet Equity 20pct M: 0.2 · Institutional Ords 80pct M: 0.8 · PE Equity Contribution M: 739 · Mgmt Rollover Equity M: 100 · Total Equity Invested M: 839 · Institutional PE ) Tj
+0 -16 Td
+(Full EBT Bridge by Year — Y1 EBITDA M: 220 · Y1 DA M: -22 · Y1 FinFeeAmort M: -4.8 · Y1 Int TL M: -70.2 · Y1 Int SN M: -26 · Y1 Int RCF M: 0 · Y1 CommFee M: -0.125 · Y1 EBT M: 96.875 · Y2 EBT M: 107.275 · Y3 EBT M: 118.2) Tj
+0 -16 Td
+(Full FCF Bridge by Year — Y1 NI M: 72.656 · Y1 DA Addback M: 22 · Y1 FinFee Addback M: 4.8 · Y1 Capex M: -22 · Y1 DNWC M: -11 · Y1 FCF Pre Mand M: 66.456 · Y1 Mand Amort M: -40 · Y1 FCF Pre RCF M: 26.456 · Y1 RCF M: 0 · ) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(Sources: room://artifact/j978dgqtvexpr32yfeq5mxgf5s89dah9) Tj ET
+endstream
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000241 00000 n 
+0000000311 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+6758
+%%EOF

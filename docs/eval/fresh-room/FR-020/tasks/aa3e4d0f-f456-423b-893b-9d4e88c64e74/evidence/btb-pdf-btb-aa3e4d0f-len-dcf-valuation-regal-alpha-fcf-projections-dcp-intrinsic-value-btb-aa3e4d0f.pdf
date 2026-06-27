@@ -1,0 +1,89 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+5 0 obj
+<< /Length 2923 >>
+stream
+BT /F1 11 Tf 54 760 Td (LEN DCF Valuation — REGAL Alpha, FCF Projections, DCP Intrinsic Value \(btb-aa3e4d0f\)) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(## BankerToolBench Deliverable: btb-aa3e4d0f
+
+### Task: Lennar \(LEN\) DCF Valuation with WACC Components
+
+**Requested Tickers/Entities:** REGAL, LEN, FCF, DCP
+
+#### REGAL \(Regression Alpha\)
+Based on uploaded LEN price) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(Rows: 19) Tj
+0 -16 Td
+(REGAL - Regression Alpha — REGAL: 0.0023 · Description: CAPM regression intercept \(monthly alpha\) from LEN price history · Source: LEN-US Price History.xlsx) Tj
+0 -16 Td
+(LEN - Equity Beta \(Levered\) — LEN Beta: 1.35 · Industry: Homebuilding · Source: betas_by_industry_category_for_WACC.xlsx) Tj
+0 -16 Td
+(LEN - WACC — WACC: 0.0985 · Risk Free Rate: 0.0425 · Equity Risk Premium: 0.055 · Beta: 1.35 · Source: Equity_Risk_Premium_for_WACC.xlsx + betas workbook) Tj
+0 -16 Td
+(FCF - Free Cash Flow \(Latest FY\) — FCF Millions: 1850 · Operating Cash Flow: 3200 · Capex: 1350 · Source: LEN-US Cash Flow Annual.xlsx) Tj
+0 -16 Td
+(FCF - Projected Year 1 — FCF Proj Y1: 2012.5 · Growth Rate: 0.088 · Source: LEN-US Revenue Estimate.xlsx) Tj
+0 -16 Td
+(FCF - Projected Year 2 — FCF Proj Y2: 2169.5 · Growth Rate: 0.078 · Source: LEN-US Revenue Estimate.xlsx) Tj
+0 -16 Td
+(FCF - Projected Year 3 — FCF Proj Y3: 2299.6 · Growth Rate: 0.06 · Source: LEN-US Revenue Estimate.xlsx) Tj
+0 -16 Td
+(FCF - Projected Year 4 — FCF Proj Y4: 2414.6 · Growth Rate: 0.05 · Source: LEN-US Revenue Estimate.xlsx) Tj
+0 -16 Td
+(FCF - Projected Year 5 — FCF Proj Y5: 2511.2 · Growth Rate: 0.04 · Source: LEN-US Revenue Estimate.xlsx) Tj
+0 -16 Td
+(DCP - Terminal Value — Terminal Value Millions: 41985 · Terminal Growth Rate: 0.03 · WACC: 0.0985 · Source: Computed from FCF projections) Tj
+0 -16 Td
+(DCP - PV of Terminal Value — PV Terminal Value Millions: 25228 · Discount Factor: 1.6638 · Source: Discounted at WACC over 5 years) Tj
+0 -16 Td
+(DCP - PV of FCF \(5yr sum\) — PV FCF Sum Millions: 8675 · Source: Sum of discounted FCF projections) Tj
+0 -16 Td
+(DCP - Enterprise Value — EV Millions: 33903 · Calculation: PV_FCF + PV_Terminal · Source: Computed) Tj
+0 -16 Td
+(DCP - Equity Value — Equity Value Millions: 28903 · Net Debt: 5000 · Source: EV - Net Debt from LEN Balance Sheet) Tj
+0 -16 Td
+(DCP - Shares Outstanding — Shares Millions: 268 · Source: LEN-US Company Identity.xlsx) Tj
+0 -16 Td
+(DCP - Intrinsic Value Per Share — DCP Per Share: 107.85 · Source: Equity Value / Shares Outstanding) Tj
+0 -16 Td
+(DCP - Terminal Growth Rate — Terminal Growth: 0.03 · Source: Assumption) Tj
+0 -16 Td
+(LEN - Current Price — Current Price: 142.5 · Source: LEN-US Price History.xlsx) Tj
+0 -16 Td
+(DCP - Upside/Downside vs Current — Upside Pct: -0.243 · DCP Per Share: 107.85 · Current Price: 142.5 · Source: Computed) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(Sources: ) Tj ET
+endstream
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000241 00000 n 
+0000000311 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+3286
+%%EOF

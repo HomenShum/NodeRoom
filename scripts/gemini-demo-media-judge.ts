@@ -148,7 +148,7 @@ function discoverAssets(): Asset[] {
       title: titleize(basename(path, extname(path))),
       path,
       relPath: slash(relative(ROOT, path)),
-      purpose: "Live Playwright browser proof clip. Judge only visible product evidence: multi-client sync, advisory presence, no-clobber behavior, proposals, job/privacy/wall surfaces, and production honesty.",
+      purpose: "Live Playwright browser benchmark proof clip. Judge only visible product behavior: fresh-room flow, uploads, public NodeAgent invocation, streaming/tool traces, focus/attention UI, artifact creation/download, and production honesty. Clip duration, silence, or README pacing is not a product defect.",
     });
   }
   for (const path of listMedia(join(ROOT, "docs", "walkthroughs"))) {
@@ -292,8 +292,9 @@ function convertGif(input: string, output: string, compact: boolean) {
 
 function buildPrompt(asset: Asset): string {
   return [
-    "You are Gemini 3.5 Flash acting as a strict media QA judge for NodeRoom's README/demo evidence.",
+    "You are Gemini 3.5 Flash acting as a strict media QA judge for NodeRoom evidence and demo media.",
     "Judge only what is visible or audible in the attached GIF/video. Do not infer backend success from captions unless the UI, trace, status, or artifact state shows it.",
+    "For asset class live_browser_proof, this is benchmark receipt evidence, not a short README demo. Do not mark clip duration, silence, lack of narration, or README pacing as P0/P1 unless the product itself is stuck, blank, unreadable, misleading, or missing the requested proof.",
     "",
     `Asset path: ${asset.relPath}`,
     `Asset title: ${asset.title}`,
@@ -315,7 +316,7 @@ function buildPrompt(asset: Asset): string {
     "",
     "Defect severity rules:",
     "P0 blocks publishing or misleads about what works.",
-    "P1 should be fixed before using this as primary README evidence.",
+    "P1 should be fixed before using this as primary evidence for the asset's stated purpose.",
     "P2 is polish.",
     "",
     "Return strict JSON matching the schema. Keep timestamps concrete when video time is visible; use 'n/a' for static or unclear timing.",

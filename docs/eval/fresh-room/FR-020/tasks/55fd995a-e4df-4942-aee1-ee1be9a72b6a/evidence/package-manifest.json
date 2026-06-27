@@ -1,0 +1,65 @@
+{
+  "schema": 1,
+  "taskId": "55fd995a-e4df-4942-aee1-ee1be9a72b6a",
+  "harborTaskId": "btb-55fd995a",
+  "generatedAt": "2026-06-26T01:22:30.504Z",
+  "baseUrl": "http://127.0.0.1:5273",
+  "roomUrl": "http://127.0.0.1:5273/?room=NRM7N50UAWM&name=Host",
+  "downloadedFiles": [
+    {
+      "kind": "workbook",
+      "filename": "btb-55fd995a-vrdn-clinical-risk-adjusted-sotp-unlevered-dcf-model-ted-mg-programs.xlsx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\55fd995a-e4df-4942-aee1-ee1be9a72b6a\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-55fd995a-vrdn-clinical-risk-adjusted-sotp-unlevered-dcf-model-ted-mg-programs.xlsx",
+      "extension": ".xlsx",
+      "bytes": 14818,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (13209 chars)"
+    },
+    {
+      "kind": "workbook",
+      "filename": "btb-55fd995a-vrdn-clinical-risk-adjusted-sotp-unlevered-dcf-model-ted-mg-programs.xlsm",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\55fd995a-e4df-4942-aee1-ee1be9a72b6a\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-55fd995a-vrdn-clinical-risk-adjusted-sotp-unlevered-dcf-model-ted-mg-programs.xlsm",
+      "extension": ".xlsm",
+      "bytes": 14818,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (13209 chars)"
+    },
+    {
+      "kind": "presentation",
+      "filename": "btb-55fd995a-vrdn-clinical-risk-adjusted-sotp-unlevered-dcf-model-ted-mg-programs.pptx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\55fd995a-e4df-4942-aee1-ee1be9a72b6a\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-55fd995a-vrdn-clinical-risk-adjusted-sotp-unlevered-dcf-model-ted-mg-programs.pptx",
+      "extension": ".pptx",
+      "bytes": 7750,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains ppt/presentation.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (3963 chars)"
+    },
+    {
+      "kind": "document",
+      "filename": "btb-55fd995a-vrdn-clinical-risk-adjusted-sotp-unlevered-dcf-model-ted-mg-programs.docx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\55fd995a-e4df-4942-aee1-ee1be9a72b6a\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-55fd995a-vrdn-clinical-risk-adjusted-sotp-unlevered-dcf-model-ted-mg-programs.docx",
+      "extension": ".docx",
+      "bytes": 4436,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains word/document.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (7253 chars)"
+    },
+    {
+      "kind": "pdf",
+      "filename": "btb-55fd995a-vrdn-clinical-risk-adjusted-sotp-unlevered-dcf-model-ted-mg-programs.pdf",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\55fd995a-e4df-4942-aee1-ee1be9a72b6a\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-55fd995a-vrdn-clinical-risk-adjusted-sotp-unlevered-dcf-model-ted-mg-programs.pdf",
+      "extension": ".pdf",
+      "bytes": 5019,
+      "magic": "%PDF",
+      "reopened": true,
+      "reopenDetail": "PDF header reopened",
+      "contentQualityDetail": "placeholder/caveat content scan passed (9369 chars)"
+    }
+  ]
+}

@@ -1,0 +1,65 @@
+{
+  "schema": 1,
+  "taskId": "17d8c86f-487e-4f22-89ba-1f7789ff940f",
+  "harborTaskId": "btb-17d8c86f",
+  "generatedAt": "2026-06-26T00:07:06.767Z",
+  "baseUrl": "http://127.0.0.1:5273",
+  "roomUrl": "http://127.0.0.1:5273/?room=NR9IQUVV6F7&name=Host",
+  "downloadedFiles": [
+    {
+      "kind": "workbook",
+      "filename": "btb-17d8c86f-btb-btb-17d8c86f---9-ticker-valuation-analysis-package.xlsx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\17d8c86f-487e-4f22-89ba-1f7789ff940f\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-17d8c86f-btb-btb-17d8c86f---9-ticker-valuation-analysis-package.xlsx",
+      "extension": ".xlsx",
+      "bytes": 7208,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j97agdph031g4kztb160ce8r4x89d9e4",
+      "contentQualityDetail": "placeholder/caveat content scan passed (1184 chars)"
+    },
+    {
+      "kind": "workbook",
+      "filename": "btb-17d8c86f-btb-btb-17d8c86f---9-ticker-valuation-analysis-package.xlsm",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\17d8c86f-487e-4f22-89ba-1f7789ff940f\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-17d8c86f-btb-btb-17d8c86f---9-ticker-valuation-analysis-package.xlsm",
+      "extension": ".xlsm",
+      "bytes": 7208,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j97e89x9a2prmegbmz4ryfjrz589dn62",
+      "contentQualityDetail": "placeholder/caveat content scan passed (1184 chars)"
+    },
+    {
+      "kind": "presentation",
+      "filename": "btb-17d8c86f-btb-btb-17d8c86f---9-ticker-valuation-analysis-package.pptx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\17d8c86f-487e-4f22-89ba-1f7789ff940f\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-17d8c86f-btb-btb-17d8c86f---9-ticker-valuation-analysis-package.pptx",
+      "extension": ".pptx",
+      "bytes": 6439,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains ppt/presentation.xml; recovered from Convex room artifact j978kg687nxrt2fpgmvexa5yg589datd",
+      "contentQualityDetail": "placeholder/caveat content scan passed (1324 chars)"
+    },
+    {
+      "kind": "document",
+      "filename": "btb-17d8c86f-btb-btb-17d8c86f---9-ticker-valuation-analysis-package.docx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\17d8c86f-487e-4f22-89ba-1f7789ff940f\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-17d8c86f-btb-btb-17d8c86f---9-ticker-valuation-analysis-package.docx",
+      "extension": ".docx",
+      "bytes": 2433,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains word/document.xml; recovered from Convex room artifact j97a4g1ws2k8qzekx2196cg78189c8rw",
+      "contentQualityDetail": "placeholder/caveat content scan passed (1399 chars)"
+    },
+    {
+      "kind": "pdf",
+      "filename": "btb-17d8c86f-btb-btb-17d8c86f---9-ticker-valuation-analysis-package.pdf",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\17d8c86f-487e-4f22-89ba-1f7789ff940f\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-17d8c86f-btb-btb-17d8c86f---9-ticker-valuation-analysis-package.pdf",
+      "extension": ".pdf",
+      "bytes": 1971,
+      "magic": "%PDF",
+      "reopened": true,
+      "reopenDetail": "PDF header reopened; recovered from Convex room artifact j976bmcr1sk2gth86a85sa207n89c1fg",
+      "contentQualityDetail": "placeholder/caveat content scan passed (3387 chars)"
+    }
+  ]
+}

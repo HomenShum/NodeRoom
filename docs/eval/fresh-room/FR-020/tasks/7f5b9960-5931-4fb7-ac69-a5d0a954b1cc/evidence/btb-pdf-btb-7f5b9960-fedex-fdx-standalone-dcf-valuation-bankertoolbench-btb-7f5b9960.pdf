@@ -1,0 +1,88 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+5 0 obj
+<< /Length 5209 >>
+stream
+BT /F1 11 Tf 54 760 Td (FedEx \(FDX\) Standalone DCF Valuation — BankerToolBench btb-7f5b9960) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(Standalone DCF valuation for FedEx Corporation \(FDX\) as of 12/19/2025, with FY25 as the base year, prepared for a strategic acquirer pitch.
+
+METHODOLOGY
+— 10-year explicit projection horizon \(FY26–FY35\).
+— Revenue gr) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(Rows: 20) Tj
+0 -16 Td
+(WACC Components — Risk Free Rate: 0.045 · Beta: 1.15 · Market Risk Premium: 0.055 · Cost Of Equity: 0.10825 · Pre Tax Cost Of Debt: 0.05 · Tax Rate: 0.25 · After Tax Cost Of Debt: 0.0375 · Debt Weight: 0.35 · Equity Weig) Tj
+0 -16 Td
+(FY25 Base Year — Revenue FY25 M: 87693 · EBITDA Margin Assumption: 0.12 · Shares Outstanding M: 246 · Current Price USD: 289 · Net Debt M: 14800) Tj
+0 -16 Td
+(Projection FY26 \(Year 1\) — Revenue Growth: 0.03 · Revenue M: 90324 · EBITDA Margin: 0.12 · EBITDA M: 10839 · DA Pct Rev: 0.048 · DA M: 4336 · EBIT M: 6504 · Tax 25pct M: 1626 · NOPAT M: 4878 · CapEx Pct Rev: 0.045 · Ca) Tj
+0 -16 Td
+(Projection FY27 \(Year 2\) — Revenue Growth: 0.03 · Revenue M: 93034 · EBITDA Margin: 0.12 · EBITDA M: 11164 · DA M: 4466 · EBIT M: 6698 · NOPAT M: 5024 · CapEx M: 4187 · NWC Delta M: 2791 · UFCF M: 6663 · Discount Perio) Tj
+0 -16 Td
+(Projection FY28 \(Year 3\) — Revenue Growth: 0.03 · Revenue M: 95825 · EBITDA Margin: 0.12 · EBITDA M: 11499 · DA M: 4600 · EBIT M: 6899 · NOPAT M: 5175 · CapEx M: 4312 · NWC Delta M: 2875 · UFCF M: 6871 · Discount Perio) Tj
+0 -16 Td
+(Projection FY29 \(Year 4\) — Revenue Growth: 0.025 · Revenue M: 98221 · EBITDA Margin: 0.12 · EBITDA M: 11787 · DA M: 4715 · EBIT M: 7072 · NOPAT M: 5304 · CapEx M: 4420 · NWC Delta M: 2947 · UFCF M: 7042 · Discount Peri) Tj
+0 -16 Td
+(Projection FY30 \(Year 5\) — Revenue Growth: 0.025 · Revenue M: 100677 · EBITDA Margin: 0.12 · EBITDA M: 12081 · DA M: 4832 · EBIT M: 7249 · NOPAT M: 5437 · CapEx M: 4530 · NWC Delta M: 3020 · UFCF M: 7219 · Discount Per) Tj
+0 -16 Td
+(Projection FY31 \(Year 6\) — Revenue Growth: 0.025 · Revenue M: 103194 · EBITDA Margin: 0.115 · EBITDA M: 11867 · DA M: 4953 · EBIT M: 6914 · NOPAT M: 5185 · CapEx M: 4644 · NWC Delta M: 3096 · UFCF M: 7024 · Discount Pe) Tj
+0 -16 Td
+(Projection FY32 \(Year 7\) — Revenue Growth: 0.025 · Revenue M: 105774 · EBITDA Margin: 0.115 · EBITDA M: 12164 · DA M: 5077 · EBIT M: 7087 · NOPAT M: 5315 · CapEx M: 4760 · NWC Delta M: 3173 · UFCF M: 7203 · Discount Pe) Tj
+0 -16 Td
+(Projection FY33 \(Year 8\) — Revenue Growth: 0.025 · Revenue M: 108418 · EBITDA Margin: 0.115 · EBITDA M: 12468 · DA M: 5204 · EBIT M: 7264 · NOPAT M: 5448 · CapEx M: 4879 · NWC Delta M: 3253 · UFCF M: 7387 · Discount Pe) Tj
+0 -16 Td
+(Projection FY34 \(Year 9\) — Revenue Growth: 0.025 · Revenue M: 111128 · EBITDA Margin: 0.115 · EBITDA M: 12780 · DA M: 5334 · EBIT M: 7446 · NOPAT M: 5584 · CapEx M: 5001 · NWC Delta M: 3334 · UFCF M: 7577 · Discount Pe) Tj
+0 -16 Td
+(Projection FY35 \(Year 10\) — Revenue Growth: 0.025 · Revenue M: 113906 · EBITDA Margin: 0.115 · EBITDA M: 13101 · DA M: 5467 · EBIT M: 7633 · NOPAT M: 5725 · CapEx M: 5126 · NWC Delta M: 3417 · UFCF M: 7770 · Discount P) Tj
+0 -16 Td
+(Sum PV of Explicit UFCFs — Sum PV UFCF M: 47315) Tj
+0 -16 Td
+(Terminal Value — Exit Multiple \(8.0x\) — Year10 EBITDA M: 13101 · Exit Multiple: 8 · TV Nominal M: 104806 · Discount Period: 9.5 · PV TV M: 48901) Tj
+0 -16 Td
+(Terminal Value — Perpetuity Growth \(2.5%\) — Year10 UFCF M: 7770 · Perp Growth Rate: 0.025 · FCF Year11 M: 7964 · WACC Minus G: 0.0585 · TV Nominal M: 136137 · Discount Period: 9.5 · PV TV M: 63533) Tj
+0 -16 Td
+(Equity Bridge — Exit Multiple Path — PV UFCFs M: 47315 · PV TV M: 48901 · Enterprise Value M: 96216 · Net Debt M: 14800 · Equity Value M: 81416 · Shares M: 246 · Implied Price USD: 331 · Current Price USD: 289 · Premium ) Tj
+0 -16 Td
+(Equity Bridge — Perpetuity Growth Path — PV UFCFs M: 47315 · PV TV M: 63533 · Enterprise Value M: 110848 · Net Debt M: 14800 · Equity Value M: 96048 · Shares M: 246 · Implied Price USD: 390 · Current Price USD: 289 · Pre) Tj
+0 -16 Td
+(Sensitivity 1 — WACC vs Exit Multiple \(Implied Share Price $\) — WACC 7.85 X 7.0: 277 · WACC 7.85 X 7.5: 294 · WACC 7.85 X 8.0: 311 · WACC 7.85 X 8.5: 328 · WACC 7.85 X 9.0: 345 · WACC 8.10 X 7.0: 267 · WACC 8.10 X 7.5:) Tj
+0 -16 Td
+(Sensitivity 2 — WACC vs Perpetuity Growth \(Implied Share Price $\) — WACC 7.85 G 2.0: 346 · WACC 7.85 G 2.25: 366 · WACC 7.85 G 2.5: 390 · WACC 7.85 G 2.75: 418 · WACC 7.85 G 3.0: 452 · WACC 8.10 G 2.0: 323 · WACC 8.10 ) Tj
+0 -16 Td
+(Sensitivity 3 — Near-term Revenue Growth vs EBITDA Margin \(Implied EV $M, Exit Multiple Path\) — Rev 2.0 Margin 11.0: 84100 · Rev 2.0 Margin 11.5: 87400 · Rev 2.0 Margin 12.0: 90700 · Rev 2.0 Margin 12.5: 94000 · Rev 2.) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(Sources: uploaded:FDX-US Income Statement Annual.xlsx, uploaded:FDX-US Balance Sheet Annual.xlsx, uploaded:FDX-US Shares Outstanding.xlsx, uploaded:FDX-US Price History.xlsx, uploaded:FDX-US Company Identity.xlsx, upload) Tj ET
+endstream
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000241 00000 n 
+0000000311 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+5572
+%%EOF

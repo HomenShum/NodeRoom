@@ -151,7 +151,7 @@ test("capture — Sheet cell + proposal states (Artifact)", async ({ page }) => 
 
   // review mode → proposals (locked + proposal-pending + the accept/reject controls)
   await page.locator(".r-pill-auto .r-switch").click();
-  await page.getByTestId("collab-run").click();
+  await page.evaluate(() => (window as any).__runCollab());
   const inlineProp = panel.getByTestId("proposal-inline").first();
   await expect(inlineProp).toBeVisible({ timeout: 15_000 });
   await shoot(panel, "sheet", "proposal-pending", "dark", 1860, "Agent edits arrive as inline proposals: the suggested VALUE carries the accent; the ✓ accept / ✗ reject controls are neutral ghosts of equal weight (no ban-circle, no solid-accent button).");

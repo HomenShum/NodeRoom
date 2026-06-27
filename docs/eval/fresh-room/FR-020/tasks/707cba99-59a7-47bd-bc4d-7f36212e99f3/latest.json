@@ -3,10 +3,10 @@
   "caseId": "FR-020",
   "benchmark": "bankertoolbench",
   "taskId": "707cba99-59a7-47bd-bc4d-7f36212e99f3",
-  "generatedAt": "2026-06-25T00:40:54.890Z",
+  "generatedAt": "2026-06-25T23:31:48.575Z",
   "baseUrl": "http://127.0.0.1:5273",
-  "roomId": "NR4UTCOSJQG",
-  "roomUrl": "http://127.0.0.1:5273/?room=NR4UTCOSJQG&name=Host",
+  "roomId": "NR366GSV78J",
+  "roomUrl": "http://127.0.0.1:5273/?room=NR366GSV78J&name=Host",
   "command": "BTB_LIVE_ROOM_E2E=1 BTB_UI_BUNDLE_ROOT=<official-bundle> BTB_UI_VERIFIER_COMMAND=<verifier> BENCH_BASE_URL=<base> npx playwright test --config playwright.real-flow.config.ts e2e/benchmark-ui-bankertoolbench.spec.ts --headed",
   "model": {
     "requested": "specific",
@@ -21,11 +21,11 @@
     "roomCreatedAfterRunStart": true,
     "forbiddenPreloadedArtifactsAbsent": true,
     "artifactsCreatedFresh": [
-      "btb-707cba99-bankertoolbench-btb-707cba99-multi-entity-dcf-valuation-lvs-regal-xyz.xlsx",
-      "btb-707cba99-bankertoolbench-btb-707cba99-multi-entity-dcf-valuation-lvs-regal-xyz.xlsm",
-      "btb-707cba99-bankertoolbench-btb-707cba99-multi-entity-dcf-valuation-lvs-regal-xyz.pptx",
-      "btb-707cba99-bankertoolbench-btb-707cba99-multi-entity-dcf-valuation-lvs-regal-xyz.docx",
-      "btb-707cba99-bankertoolbench-btb-707cba99-multi-entity-dcf-valuation-lvs-regal-xyz.pdf"
+      "btb-707cba99-dcf-analysis-lvs-vs-regal.xlsx",
+      "btb-707cba99-dcf-analysis-lvs-vs-regal.xlsm",
+      "btb-707cba99-dcf-analysis-lvs-vs-regal.pptx",
+      "btb-707cba99-dcf-analysis-lvs-vs-regal.docx",
+      "btb-707cba99-dcf-analysis-lvs-vs-regal.pdf"
     ],
     "uploadedFiles": [
       "betas_by_industry_category_for_WACC.xlsx",
@@ -48,9 +48,12 @@
     "jobDetailVisible": true,
     "roomTraceVisible": true,
     "screenshotPaths": [
-      "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\707cba99-59a7-47bd-bc4d-7f36212e99f3\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\bankertoolbench-live-room.png"
+      "docs\\eval\\fresh-room\\FR-020\\tasks\\707cba99-59a7-47bd-bc4d-7f36212e99f3\\evidence\\bankertoolbench-live-room.png"
     ],
-    "tracePath": "docs\\eval\\bankertoolbench\\live-room\\707cba99-59a7-47bd-bc4d-7f36212e99f3.json"
+    "tracePath": "docs\\eval\\bankertoolbench\\live-room\\707cba99-59a7-47bd-bc4d-7f36212e99f3.json",
+    "videoPaths": [
+      "docs\\eval\\fresh-room\\FR-020\\tasks\\707cba99-59a7-47bd-bc4d-7f36212e99f3\\evidence\\video.webm"
+    ]
   },
   "artifacts": {
     "uploadedFiles": [
@@ -67,94 +70,94 @@
       "btb-707cba99-official-task-brief.txt"
     ],
     "created": [
-      "btb-707cba99-bankertoolbench-btb-707cba99-multi-entity-dcf-valuation-lvs-regal-xyz.xlsx",
-      "btb-707cba99-bankertoolbench-btb-707cba99-multi-entity-dcf-valuation-lvs-regal-xyz.xlsm",
-      "btb-707cba99-bankertoolbench-btb-707cba99-multi-entity-dcf-valuation-lvs-regal-xyz.pptx",
-      "btb-707cba99-bankertoolbench-btb-707cba99-multi-entity-dcf-valuation-lvs-regal-xyz.docx",
-      "btb-707cba99-bankertoolbench-btb-707cba99-multi-entity-dcf-valuation-lvs-regal-xyz.pdf"
+      "btb-707cba99-dcf-analysis-lvs-vs-regal.xlsx",
+      "btb-707cba99-dcf-analysis-lvs-vs-regal.xlsm",
+      "btb-707cba99-dcf-analysis-lvs-vs-regal.pptx",
+      "btb-707cba99-dcf-analysis-lvs-vs-regal.docx",
+      "btb-707cba99-dcf-analysis-lvs-vs-regal.pdf"
     ],
     "exportedFiles": [
       {
         "kind": "workbook",
-        "filename": "btb-707cba99-bankertoolbench-btb-707cba99-multi-entity-dcf-valuation-lvs-regal-xyz.xlsx",
-        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\707cba99-59a7-47bd-bc4d-7f36212e99f3\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-707cba99-bankertoolbench-btb-707cba99-multi-entity-dcf-valuation-lvs-regal-xyz.xlsx",
+        "filename": "btb-707cba99-dcf-analysis-lvs-vs-regal.xlsx",
+        "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\707cba99-59a7-47bd-bc4d-7f36212e99f3\\evidence\\btb-xlsx-btb-707cba99-dcf-analysis-lvs-vs-regal.xlsx",
         "extension": ".xlsx",
         "downloaded": true,
-        "bytes": 8769,
+        "bytes": 6743,
         "magic": "PK\\x03\\x04"
       },
       {
         "kind": "workbook",
-        "filename": "btb-707cba99-bankertoolbench-btb-707cba99-multi-entity-dcf-valuation-lvs-regal-xyz.xlsm",
-        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\707cba99-59a7-47bd-bc4d-7f36212e99f3\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-707cba99-bankertoolbench-btb-707cba99-multi-entity-dcf-valuation-lvs-regal-xyz.xlsm",
+        "filename": "btb-707cba99-dcf-analysis-lvs-vs-regal.xlsm",
+        "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\707cba99-59a7-47bd-bc4d-7f36212e99f3\\evidence\\btb-xlsm-btb-707cba99-dcf-analysis-lvs-vs-regal.xlsm",
         "extension": ".xlsm",
         "downloaded": true,
-        "bytes": 8769,
+        "bytes": 6743,
         "magic": "PK\\x03\\x04"
       },
       {
         "kind": "presentation",
-        "filename": "btb-707cba99-bankertoolbench-btb-707cba99-multi-entity-dcf-valuation-lvs-regal-xyz.pptx",
-        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\707cba99-59a7-47bd-bc4d-7f36212e99f3\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-707cba99-bankertoolbench-btb-707cba99-multi-entity-dcf-valuation-lvs-regal-xyz.pptx",
+        "filename": "btb-707cba99-dcf-analysis-lvs-vs-regal.pptx",
+        "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\707cba99-59a7-47bd-bc4d-7f36212e99f3\\evidence\\btb-pptx-btb-707cba99-dcf-analysis-lvs-vs-regal.pptx",
         "extension": ".pptx",
         "downloaded": true,
-        "bytes": 7497,
+        "bytes": 6094,
         "magic": "PK\\x03\\x04"
       },
       {
         "kind": "document",
-        "filename": "btb-707cba99-bankertoolbench-btb-707cba99-multi-entity-dcf-valuation-lvs-regal-xyz.docx",
-        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\707cba99-59a7-47bd-bc4d-7f36212e99f3\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-707cba99-bankertoolbench-btb-707cba99-multi-entity-dcf-valuation-lvs-regal-xyz.docx",
+        "filename": "btb-707cba99-dcf-analysis-lvs-vs-regal.docx",
+        "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\707cba99-59a7-47bd-bc4d-7f36212e99f3\\evidence\\btb-docx-btb-707cba99-dcf-analysis-lvs-vs-regal.docx",
         "extension": ".docx",
         "downloaded": true,
-        "bytes": 3703,
+        "bytes": 2060,
         "magic": "PK\\x03\\x04"
       },
       {
         "kind": "pdf",
-        "filename": "btb-707cba99-bankertoolbench-btb-707cba99-multi-entity-dcf-valuation-lvs-regal-xyz.pdf",
-        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\707cba99-59a7-47bd-bc4d-7f36212e99f3\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-707cba99-bankertoolbench-btb-707cba99-multi-entity-dcf-valuation-lvs-regal-xyz.pdf",
+        "filename": "btb-707cba99-dcf-analysis-lvs-vs-regal.pdf",
+        "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\707cba99-59a7-47bd-bc4d-7f36212e99f3\\evidence\\btb-pdf-btb-707cba99-dcf-analysis-lvs-vs-regal.pdf",
         "extension": ".pdf",
         "downloaded": true,
-        "bytes": 2555,
+        "bytes": 990,
         "magic": "%PDF"
       }
     ],
     "reopenedFiles": [
       {
         "kind": "workbook",
-        "filename": "btb-707cba99-bankertoolbench-btb-707cba99-multi-entity-dcf-valuation-lvs-regal-xyz.xlsx",
+        "filename": "btb-707cba99-dcf-analysis-lvs-vs-regal.xlsx",
         "reopened": true,
         "scorerResult": "pass",
-        "detail": "ZIP package contains xl/workbook.xml; placeholder/caveat content scan passed (3937 chars)"
+        "detail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j978fjkccjr4d49be4n82avr0d89appc; placeholder/caveat content scan passed (313 chars)"
       },
       {
         "kind": "workbook",
-        "filename": "btb-707cba99-bankertoolbench-btb-707cba99-multi-entity-dcf-valuation-lvs-regal-xyz.xlsm",
+        "filename": "btb-707cba99-dcf-analysis-lvs-vs-regal.xlsm",
         "reopened": true,
         "scorerResult": "pass",
-        "detail": "ZIP package contains xl/workbook.xml; placeholder/caveat content scan passed (3937 chars)"
+        "detail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j978kgpafvb9jh6zfjb5y0m13s89bz5x; placeholder/caveat content scan passed (313 chars)"
       },
       {
         "kind": "presentation",
-        "filename": "btb-707cba99-bankertoolbench-btb-707cba99-multi-entity-dcf-valuation-lvs-regal-xyz.pptx",
+        "filename": "btb-707cba99-dcf-analysis-lvs-vs-regal.pptx",
         "reopened": true,
         "scorerResult": "pass",
-        "detail": "ZIP package contains ppt/presentation.xml; placeholder/caveat content scan passed (3121 chars)"
+        "detail": "ZIP package contains ppt/presentation.xml; recovered from Convex room artifact j975t208gsh2mgnf6bq5tgxngh89abhx; placeholder/caveat content scan passed (304 chars)"
       },
       {
         "kind": "document",
-        "filename": "btb-707cba99-bankertoolbench-btb-707cba99-multi-entity-dcf-valuation-lvs-regal-xyz.docx",
+        "filename": "btb-707cba99-dcf-analysis-lvs-vs-regal.docx",
         "reopened": true,
         "scorerResult": "pass",
-        "detail": "ZIP package contains word/document.xml; placeholder/caveat content scan passed (4045 chars)"
+        "detail": "ZIP package contains word/document.xml; recovered from Convex room artifact j979xw6d71y3yr7q65z204e2vh89bt24; placeholder/caveat content scan passed (285 chars)"
       },
       {
         "kind": "pdf",
-        "filename": "btb-707cba99-bankertoolbench-btb-707cba99-multi-entity-dcf-valuation-lvs-regal-xyz.pdf",
+        "filename": "btb-707cba99-dcf-analysis-lvs-vs-regal.pdf",
         "reopened": true,
         "scorerResult": "pass",
-        "detail": "PDF header reopened; placeholder/caveat content scan passed (4585 chars)"
+        "detail": "PDF header reopened; recovered from Convex room artifact j974hwk6y2zxnx9y3tdp5mpc7n89a5x5; placeholder/caveat content scan passed (1459 chars)"
       }
     ]
   },
@@ -165,7 +168,7 @@
     "score": 1,
     "details": {
       "verifierOutputTail": "\n> noderoom@0.1.1 benchmark:bankertoolbench:proof\n> tsx scripts/bankertoolbench-proof-check.ts\n\nBankerToolBench proof check passed: stage=1/1 weightedRubric=6 run=0/1 pass positive=1/1 pass candidateBeforeEvaluator=true leaks=0/2+0/3+0/4\n",
-      "packageManifestPath": "test-results\\bankertoolbench\\matrix\\707cba99-59a7-47bd-bc4d-7f36212e99f3\\package-manifest.json",
+      "packageManifestPath": "docs\\eval\\fresh-room\\FR-020\\tasks\\707cba99-59a7-47bd-bc4d-7f36212e99f3\\evidence\\package-manifest.json",
       "downloadedExtensions": [
         ".xlsx",
         ".xlsm",
@@ -173,27 +176,35 @@
         ".docx",
         ".pdf"
       ],
-      "exportSource": "browser_download_link",
+      "exportSource": "convex_room_artifact_data_url_after_browser_ui_proof",
       "agentTerminalQuality": {
-        "statusText": "completed via recovered Convex job: ion-lvs-regal-xyz.pptx, btb-707cba99-bankertoolbench-btb-707cba99-multi-entity-dcf-valuation-lvs-regal-xyz.docx, btb-707cba99-bankertoolbench-btb-707cba99-multi-entity-dcf-valuation-lvs-regal-xyz.pdf. Coverage confirmed for LVS, REGAL, XYZ.",
-        "evidenceTextLength": 8525,
+        "statusText": "completed via recovered Convex job: nalysis-lvs-vs-regal.xlsx, btb-707cba99-dcf-analysis-lvs-vs-regal.xlsm, btb-707cba99-dcf-analysis-lvs-vs-regal.pptx, btb-707cba99-dcf-analysis-lvs-vs-regal.docx, btb-707cba99-dcf-analysis-lvs-vs-regal.pdf. Coverage confirmed for LVS, REGAL.",
+        "evidenceTextLength": 976,
         "detail": "agent reached completed status or visible completion text, with no missing-source/unfinished-work caveats"
       },
       "taskCoverage": {
         "ok": true,
         "requiredTickers": [
           "LVS",
-          "REGAL",
-          "XYZ"
+          "REGAL"
         ],
         "missingTickers": [],
-        "detail": "generated package mentions every requested ticker/entity: LVS, REGAL, XYZ"
+        "domainProof": {
+          "ok": true,
+          "domain": "generic",
+          "gates": [],
+          "missingGates": [],
+          "detail": "no task-specific domain proof gate required"
+        },
+        "detail": "generated package mentions every requested ticker/entity: LVS, REGAL; no task-specific domain proof gate required"
       }
     }
   },
   "visualJudge": {
-    "verdict": "not_run",
-    "reason": "GOOGLE_GENERATIVE_AI_API_KEY is not set; deterministic browser/download/reopen/verifier proof passed."
+    "command": "npm run media:gemini-judge -- --run-id btb-707cba99-live-canary-20260625 --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\707cba99-59a7-47bd-bc4d-7f36212e99f3\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --out \"docs\\\\eval\\\\gemini-media-judges\"",
+    "verdict": "pass",
+    "scorecardPath": "docs/eval/gemini-media-judges/btb-707cba99-live-canary-20260625/summary.md",
+    "reason": "Gemini media judge publish (12/16); defects P0/P1/P2=0/0/0. The video demonstrates a complete end-to-end workflow of NodeAgent, from room creation and spreadsheet data upload to invoking an AI agent for financial analysis and viewing the generated PDF report. Source clip: test-results\\bankertoolbench\\matrix\\707cba99-59a7-47bd-bc4d-7f36212e99f3\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\video.webm."
   },
   "gatesProven": [
     "fresh_room_join",
@@ -211,7 +222,8 @@
     "deliverable_export_download",
     "artifact_reopen_validation",
     "artifact_placeholder_scan",
-    "official_scorer_handoff"
+    "official_scorer_handoff",
+    "visual_judge_handoff"
   ],
   "passed": true
 }

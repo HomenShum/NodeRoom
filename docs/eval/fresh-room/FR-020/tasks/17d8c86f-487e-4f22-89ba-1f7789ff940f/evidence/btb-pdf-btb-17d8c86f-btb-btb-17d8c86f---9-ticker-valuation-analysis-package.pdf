@@ -1,0 +1,62 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+5 0 obj
+<< /Length 1424 >>
+stream
+BT /F1 11 Tf 54 760 Td (BTB btb-17d8c86f - 9-Ticker Valuation Analysis Package) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(BankerToolBench task btb-17d8c86f. This package covers all 9 requested tickers: CRM, ADBE, MSFT, AMZN, GOOGL, INTC, META, NVDA, ORCL. Analysis uses uploaded VDR source artifacts including income statements, balance sheet) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(Rows: 9) Tj
+0 -16 Td
+(CRM — Ticker: CRM · Revenue Mtm: 34857000000 · Source: CRM-US Income Statement Annual.xlsx) Tj
+0 -16 Td
+(ADBE — Ticker: ADBE · Revenue Mtm: 19401000000 · Source: ADBE-US Income Statement Annual.xlsx) Tj
+0 -16 Td
+(MSFT — Ticker: MSFT · Revenue Mtm: 245122000000 · Source: MSFT-US Income Statement Annual.xlsx) Tj
+0 -16 Td
+(AMZN — Ticker: AMZN · Revenue Mtm: 574785000000 · Source: AMZN-US Income Statement Annual.xlsx) Tj
+0 -16 Td
+(GOOGL — Ticker: GOOGL · Revenue Mtm: 307394000000 · Source: GOOGL-US Income Statement Annual.xlsx) Tj
+0 -16 Td
+(INTC — Ticker: INTC · Revenue Mtm: 540058000000 · Source: INTC-US Income Statement Annual.xlsx) Tj
+0 -16 Td
+(META — Ticker: META · Revenue Mtm: 134902000000 · Source: META-US Income Statement Annual.xlsx) Tj
+0 -16 Td
+(NVDA — Ticker: NVDA · Revenue Mtm: 60922000000 · Source: NVDA-US Income Statement Annual.xlsx) Tj
+0 -16 Td
+(ORCL — Ticker: ORCL · Revenue Mtm: 39979000000 · Source: ORCL-US Income Statement Annual.xlsx) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(Sources: ) Tj ET
+endstream
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000241 00000 n 
+0000000311 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+1787
+%%EOF

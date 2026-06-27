@@ -18,9 +18,9 @@ import { runReasoningFrame, type ReasoningFrameRunReceipt } from "../src/nodeage
 import { SERVER_PRODUCTION_ROOM_TOOLS as PRODUCTION_ROOM_TOOLS } from "../src/nodeagent/skills/server/productionTools";
 import { MANAGED_LOCK_SYSTEM_PROMPT } from "../src/nodeagent/models/prompts/systemPrompt";
 import { convexModel as agentModel, convexPriceRun as priceRun } from "../src/nodeagent/models/convexModel";
-import { buildResearchContext } from "../src/nodeagent/core/worldModel";
+import { buildResearchContext, buildCompanyDeepDiveContext } from "../src/nodeagent/core/worldModel";
 import { compactMessages } from "../src/nodeagent/core/contextCompactor";
-import type { AgentMessage, AgentResult, AgentTraceEvent, ToolCall } from "../src/nodeagent/core/types";
+import type { AgentMessage, AgentResult, AgentTraceEvent, ToolCall, RoomTools } from "../src/nodeagent/core/types";
 import type { AgentStreamEventDraft } from "../src/nodeagent/core/stream";
 import type { EvidenceState, FrameDelta, ReasoningFrame, ReasoningFrameStatus } from "../src/nodeagent/core/reasoningFrames";
 import type { Actor } from "../src/engine/types";
@@ -99,6 +99,10 @@ type ClaimedReasoningFrame = {
   toolAllowlist: string[];
   stateDelta?: FrameDelta;
   evidenceState?: EvidenceState;
+  entityType?: string;
+  entityKey?: string;
+  displayName?: string;
+  facet?: string;
 };
 
 type RunTelemetry = {
@@ -341,6 +345,16 @@ function normalizeClaimedFrame(frame: ClaimedReasoningFrame, jobId: string): Rea
   };
 }
 
+/** Choose the right context builder for a frame. Deep-dive child frames use
+ *  buildCompanyDeepDiveContext; other research frames use buildResearchContext. */
+function contextBuilderForFrame(frame: ClaimedReasoningFrame | undefined):
+  | ((rt: RoomTools, goal: string) => Promise<AgentMessage[]>)
+  | undefined {
+  if (!frame) return undefined;
+  if (frame.facet === "deep_dive") return buildCompanyDeepDiveContext;
+  return undefined;
+}
+
 function frameStatusForFinish(receipt: ReasoningFrameRunReceipt | undefined, result: AgentResult, canContinue: boolean): ReasoningFrameStatus | undefined {
   if (!receipt) return undefined;
   if (result.stopReason !== "done" || result.exhausted) return canContinue ? "pending" : "failed";
@@ -397,8 +411,17 @@ export const runFreeAutoJobSlice = internalAction({
       });
     }
     const model = agentModel(resolvedModelPolicy, { entrypoint });
-    const contextMaxChars = envNumber("FREE_AUTO_JOB_CONTEXT_MAX_CHARS", DEFAULT_CONTEXT_MAX_CHARS, 4_000, 120_000);
-    const contextKeepRecent = envNumber("FREE_AUTO_JOB_CONTEXT_KEEP_RECENT", DEFAULT_CONTEXT_KEEP_RECENT, 2, 40);
+    const isDeepDiveChild = claimed.activeReasoningFrame?.facet === "deep_dive";
+    const contextMaxChars = envNumber(
+      "FREE_AUTO_JOB_CONTEXT_MAX_CHARS",
+      isDeepDiveChild ? 48_000 : DEFAULT_CONTEXT_MAX_CHARS,
+      4_000, 120_000,
+    );
+    const contextKeepRecent = envNumber(
+      "FREE_AUTO_JOB_CONTEXT_KEEP_RECENT",
+      isDeepDiveChild ? 16 : DEFAULT_CONTEXT_KEEP_RECENT,
+      2, 40,
+    );
     const maxSteps = maxStepsForJob(entrypoint, claimed.runtimeProfile);
     const spendLimits = spendLimitsForJob(claimed.runtimeProfile);
     const deadlineAt = t0 + sliceBudgetMs;
@@ -619,7 +642,8 @@ export const runFreeAutoJobSlice = internalAction({
           initialMessages,
           resumeToolCalls,
           includeRoomContext: !initialMessages,
-          roomContextBuilder: claimed.mode === "research" ? buildResearchContext : undefined,
+          roomContextBuilder: contextBuilderForFrame(claimed.activeReasoningFrame)
+            ?? (claimed.mode === "research" ? buildResearchContext : undefined),
           compaction: { maxChars: contextMaxChars, keepRecent: contextKeepRecent },
           journal: modelJournal,
           deadlineAt,

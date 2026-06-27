@@ -1,0 +1,65 @@
+{
+  "schema": 1,
+  "taskId": "3c70cabb-2915-4d5f-8e62-cd6b729a511f",
+  "harborTaskId": "btb-3c70cabb",
+  "generatedAt": "2026-06-26T00:53:28.496Z",
+  "baseUrl": "http://127.0.0.1:5273",
+  "roomUrl": "http://127.0.0.1:5273/?room=NRFDW8RSSRQ&name=Host",
+  "downloadedFiles": [
+    {
+      "kind": "workbook",
+      "filename": "btb-3c70cabb-doordash-dcf-valuation-wacc-fcf-projections-and-target-price-for-dash-cart-tam.xlsx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\3c70cabb-2915-4d5f-8e62-cd6b729a511f\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-3c70cabb-doordash-dcf-valuation-wacc-fcf-projections-and-target-price-for-dash-cart-tam.xlsx",
+      "extension": ".xlsx",
+      "bytes": 9618,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j971qx94cnn5qnk3r2ecyzava589dcbj",
+      "contentQualityDetail": "placeholder/caveat content scan passed (5012 chars)"
+    },
+    {
+      "kind": "workbook",
+      "filename": "btb-3c70cabb-doordash-dcf-valuation-wacc-fcf-projections-and-target-price-for-dash-cart-tam.xlsm",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\3c70cabb-2915-4d5f-8e62-cd6b729a511f\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-3c70cabb-doordash-dcf-valuation-wacc-fcf-projections-and-target-price-for-dash-cart-tam.xlsm",
+      "extension": ".xlsm",
+      "bytes": 9618,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j97b49f4v015cq0cxrfh320x7189c554",
+      "contentQualityDetail": "placeholder/caveat content scan passed (5012 chars)"
+    },
+    {
+      "kind": "presentation",
+      "filename": "btb-3c70cabb-doordash-dcf-valuation-wacc-fcf-projections-and-target-price-for-dash-cart-tam.pptx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\3c70cabb-2915-4d5f-8e62-cd6b729a511f\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-3c70cabb-doordash-dcf-valuation-wacc-fcf-projections-and-target-price-for-dash-cart-tam.pptx",
+      "extension": ".pptx",
+      "bytes": 6912,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains ppt/presentation.xml; recovered from Convex room artifact j970vrnxbmrft31t09dnweff0n89cagf",
+      "contentQualityDetail": "placeholder/caveat content scan passed (2094 chars)"
+    },
+    {
+      "kind": "document",
+      "filename": "btb-3c70cabb-doordash-dcf-valuation-wacc-fcf-projections-and-target-price-for-dash-cart-tam.docx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\3c70cabb-2915-4d5f-8e62-cd6b729a511f\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-3c70cabb-doordash-dcf-valuation-wacc-fcf-projections-and-target-price-for-dash-cart-tam.docx",
+      "extension": ".docx",
+      "bytes": 3685,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains word/document.xml; recovered from Convex room artifact j97e0bthacvqgnn6ew33afhd1h89ck9a",
+      "contentQualityDetail": "placeholder/caveat content scan passed (5307 chars)"
+    },
+    {
+      "kind": "pdf",
+      "filename": "btb-3c70cabb-doordash-dcf-valuation-wacc-fcf-projections-and-target-price-for-dash-cart-tam.pdf",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\3c70cabb-2915-4d5f-8e62-cd6b729a511f\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-3c70cabb-doordash-dcf-valuation-wacc-fcf-projections-and-target-price-for-dash-cart-tam.pdf",
+      "extension": ".pdf",
+      "bytes": 4605,
+      "magic": "%PDF",
+      "reopened": true,
+      "reopenDetail": "PDF header reopened; recovered from Convex room artifact j9707t1b2wkkajcs3jftd93mth89czq8",
+      "contentQualityDetail": "placeholder/caveat content scan passed (8509 chars)"
+    }
+  ]
+}

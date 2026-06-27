@@ -8,7 +8,7 @@ This file is the model-facing contract: every production tool must expose a non-
 
 | Tool | Mutates | Canonical Required | Provider Required |
 |---|---:|---|---|
-| `read_range` | read | `elementIds` | `elementIds` |
+| `read_range` | read | none | none |
 | `search_sheet_context` | read | `query` | `query` |
 | `list_artifacts` | read | none | none |
 | `update_wiki` | write | `artifactId`, `baseVersion`, `citesArtifactIds`, `content` | `artifactId`, `baseVersion`, `citesArtifactIds`, `content` |
@@ -16,10 +16,10 @@ This file is the model-facing contract: every production tool must expose a non-
 | `run_algorithm_artifact` | mixed | `artifact` | `artifact` |
 | `say` | mixed | `text` | `text` |
 | `fetch_source` | read | `url` | `url` |
-| `write_locked_cell` | write | `value` | `baseVersion`, `elementId`, `value` |
-| `write_locked_cells` | write | none | `ops` |
-| `write_locked_cell_result` | write | `evidence`, `value` | `baseVersion`, `elementId`, `evidence`, `value` |
-| `write_locked_cell_results` | write | none | `ops` |
+| `write_locked_cell` | write | none | none |
+| `write_locked_cells` | write | none | none |
+| `write_locked_cell_result` | write | `evidence` | `evidence` |
+| `write_locked_cell_results` | write | none | none |
 | `okf_list_concepts` | read | none | none |
 | `okf_read_concept` | read | `conceptId` | `conceptId` |
 | `okf_full_text_search` | read | `query` | `query` |
@@ -58,8 +58,8 @@ This file is the model-facing contract: every production tool must expose a non-
 - When not to use: Do not use as a hidden shortcut around room permissions, privacy boundaries, or artifact freshness.
 - Mutability: read.
 - Canonical Zod properties: `artifactId`, `elementIds`.
-- Canonical required fields: `elementIds`.
-- Provider required fields: `elementIds`.
+- Canonical required fields: none.
+- Provider required fields: none.
 - Expected errors: missing_required_arg; invalid_arg_type.
 - Recovery path: Treat tool failures as inputs: inspect `failureKind` or result reason, add the missing argument or re-read state, and stop rather than inventing data.
 - Example call:
@@ -69,8 +69,9 @@ This file is the model-facing contract: every production tool must expose a non-
   "tool": "read_range",
   "args": {
     "elementIds": [
-      "example"
-    ]
+      "r_rev__note"
+    ],
+    "artifactId": "sheet"
   }
 }
 ```
@@ -99,8 +100,8 @@ This file is the model-facing contract: every production tool must expose a non-
 
 ### list_artifacts
 
-- Purpose: List the other files in this room (sheet/note/wiki/wall) with their id, title, and kind.
-- When to use: List the other files in this room (sheet/note/wiki/wall) with their id, title, and kind.
+- Purpose: List the files in this room (sheet/note/wiki/wall) with id, title, kind, and read hints.
+- When to use: List the files in this room (sheet/note/wiki/wall) with id, title, kind, and read hints.
 - When not to use: Do not use as a hidden shortcut around room permissions, privacy boundaries, or artifact freshness.
 - Mutability: read.
 - Canonical Zod properties: none.
@@ -134,12 +135,10 @@ This file is the model-facing contract: every production tool must expose a non-
 {
   "tool": "update_wiki",
   "args": {
-    "artifactId": [
-      "example"
-    ],
+    "artifactId": "artifact_example",
     "baseVersion": 1,
     "citesArtifactIds": [
-      "example"
+      "artifact_example"
     ],
     "content": "example"
   }
@@ -244,9 +243,9 @@ This file is the model-facing contract: every production tool must expose a non-
 - When to use: Use for production spreadsheet writes so lock, CAS, review mode, and receipts stay runtime-managed.
 - When not to use: Do not use when the target artifact, base version, permission, or evidence requirement is unknown; read or search first.
 - Mutability: write.
-- Canonical Zod properties: `artifactId`, `baseVersion`, `cellId`, `elementId`, `kind`, `reason`, `value`, `version`.
-- Canonical required fields: `value`.
-- Provider required fields: `baseVersion`, `elementId`, `value`.
+- Canonical Zod properties: `artifactId`, `baseVersion`, `base_version`, `cell`, `cellId`, `cellKey`, `cell_id`, `content`, `currentVersion`, `current_version`, `elementId`, `element_id`, `expectedValue`, `expected_value`, `id`, `kind`, `newValue`, `new_value`, `reason`, `result`, `target`, `targetCell`, `targetId`, `text`, `value`, `version`.
+- Canonical required fields: none.
+- Provider required fields: none.
 - Expected errors: missing_required_arg; invalid_arg_type; cas_conflict; lock_blocked; permission_denied.
 - Recovery path: If arguments are invalid, retry once with the missing fields. If conflict or lock_blocked returns as data, re-read the affected cells and either retry with the new version or leave a proposal.
 - Example call:
@@ -255,11 +254,9 @@ This file is the model-facing contract: every production tool must expose a non-
 {
   "tool": "write_locked_cell",
   "args": {
-    "baseVersion": 1,
-    "elementId": [
-      "example"
-    ],
-    "value": "example"
+    "elementId": "r_rev__note",
+    "value": "complete",
+    "baseVersion": 1
   }
 }
 ```
@@ -270,9 +267,9 @@ This file is the model-facing contract: every production tool must expose a non-
 - When to use: Use for production spreadsheet writes so lock, CAS, review mode, and receipts stay runtime-managed.
 - When not to use: Do not use when the target artifact, base version, permission, or evidence requirement is unknown; read or search first.
 - Mutability: write.
-- Canonical Zod properties: `artifactId`, `baseVersions`, `cellIds`, `cells`, `elementIds`, `kind`, `kinds`, `ops`, `reason`, `values`, `versions`.
+- Canonical Zod properties: `artifactId`, `baseVersions`, `base_version`, `base_versions`, `cell`, `cellIds`, `cells`, `content`, `currentVersion`, `currentVersions`, `elementIds`, `expectedValue`, `id`, `ids`, `kind`, `kinds`, `newValue`, `newValues`, `new_value`, `ops`, `reason`, `result`, `results`, `target`, `targetCell`, `targetCells`, `targets`, `text`, `values`, `versions`.
 - Canonical required fields: none.
-- Provider required fields: `ops`.
+- Provider required fields: none.
 - Expected errors: missing_required_arg; invalid_arg_type; cas_conflict; lock_blocked; permission_denied.
 - Recovery path: If arguments are invalid, retry once with the missing fields. If conflict or lock_blocked returns as data, re-read the affected cells and either retry with the new version or leave a proposal.
 - Example call:
@@ -281,7 +278,13 @@ This file is the model-facing contract: every production tool must expose a non-
 {
   "tool": "write_locked_cells",
   "args": {
-    "ops": []
+    "ops": [
+      {
+        "elementId": "r_rev__note",
+        "value": "complete",
+        "baseVersion": 1
+      }
+    ]
   }
 }
 ```
@@ -292,9 +295,9 @@ This file is the model-facing contract: every production tool must expose a non-
 - When to use: Use for production spreadsheet writes so lock, CAS, review mode, and receipts stay runtime-managed.
 - When not to use: Do not use when the target artifact, base version, permission, or evidence requirement is unknown; read or search first.
 - Mutability: write.
-- Canonical Zod properties: `artifactId`, `baseVersion`, `cellId`, `confidence`, `elementId`, `error`, `evidence`, `formula`, `kind`, `normalizedValue`, `reason`, `status`, `value`, `version`.
-- Canonical required fields: `evidence`, `value`.
-- Provider required fields: `baseVersion`, `elementId`, `evidence`, `value`.
+- Canonical Zod properties: `artifactId`, `baseVersion`, `base_version`, `cell`, `cellId`, `cellKey`, `cell_id`, `confidence`, `content`, `currentVersion`, `current_version`, `elementId`, `element_id`, `error`, `evidence`, `expectedValue`, `expected_value`, `formula`, `id`, `kind`, `newValue`, `new_value`, `normalizedValue`, `reason`, `result`, `status`, `target`, `targetCell`, `targetId`, `text`, `value`, `version`.
+- Canonical required fields: `evidence`.
+- Provider required fields: `evidence`.
 - Expected errors: missing_required_arg; invalid_arg_type; cas_conflict; lock_blocked; permission_denied; evidence_required.
 - Recovery path: If arguments are invalid, retry once with the missing fields. If conflict or lock_blocked returns as data, re-read the affected cells and either retry with the new version or leave a proposal.
 - Example call:
@@ -303,14 +306,15 @@ This file is the model-facing contract: every production tool must expose a non-
 {
   "tool": "write_locked_cell_result",
   "args": {
+    "elementId": "r_rev__status",
+    "value": "complete",
     "baseVersion": 1,
-    "elementId": [
-      "example"
-    ],
     "evidence": [
-      "example"
-    ],
-    "value": "example"
+      {
+        "kind": "computed",
+        "label": "formula check"
+      }
+    ]
   }
 }
 ```
@@ -321,9 +325,9 @@ This file is the model-facing contract: every production tool must expose a non-
 - When to use: Use for production spreadsheet writes so lock, CAS, review mode, and receipts stay runtime-managed.
 - When not to use: Do not use when the target artifact, base version, permission, or evidence requirement is unknown; read or search first.
 - Mutability: write.
-- Canonical Zod properties: `artifactId`, `baseVersions`, `cellIds`, `cells`, `confidence`, `confidences`, `elementIds`, `error`, `errors`, `evidence`, `evidences`, `formula`, `formulas`, `kind`, `kinds`, `normalizedValue`, `normalizedValues`, `ops`, `reason`, `status`, `statuses`, `values`, `versions`.
+- Canonical Zod properties: `artifactId`, `baseVersions`, `base_version`, `base_versions`, `cell`, `cellIds`, `cells`, `confidence`, `confidences`, `content`, `currentVersion`, `currentVersions`, `elementIds`, `error`, `errors`, `evidence`, `evidences`, `expectedValue`, `formula`, `formulas`, `id`, `ids`, `kind`, `kinds`, `newValue`, `newValues`, `new_value`, `normalizedValue`, `normalizedValues`, `ops`, `reason`, `result`, `results`, `status`, `statuses`, `target`, `targetCell`, `targetCells`, `targets`, `text`, `values`, `versions`.
 - Canonical required fields: none.
-- Provider required fields: `ops`.
+- Provider required fields: none.
 - Expected errors: missing_required_arg; invalid_arg_type; cas_conflict; lock_blocked; permission_denied; evidence_required.
 - Recovery path: If arguments are invalid, retry once with the missing fields. If conflict or lock_blocked returns as data, re-read the affected cells and either retry with the new version or leave a proposal.
 - Example call:
@@ -332,7 +336,19 @@ This file is the model-facing contract: every production tool must expose a non-
 {
   "tool": "write_locked_cell_results",
   "args": {
-    "ops": []
+    "ops": [
+      {
+        "elementId": "r_rev__status",
+        "value": "complete",
+        "baseVersion": 1,
+        "evidence": [
+          {
+            "kind": "computed",
+            "label": "formula check"
+          }
+        ]
+      }
+    ]
   }
 }
 ```
@@ -596,8 +612,8 @@ This file is the model-facing contract: every production tool must expose a non-
 
 ### source_open_literal
 
-- Purpose: Open a literal source concept/location by sourceArtifactId plus optional page/row/column/bbox.
-- When to use: Open a literal source concept/location by sourceArtifactId plus optional page/row/column/bbox.
+- Purpose: Open a literal source concept/location by exact sourceArtifactId plus optional page/row/column/bbox.
+- When to use: Open a literal source concept/location by exact sourceArtifactId plus optional page/row/column/bbox.
 - When not to use: Do not use as a hidden shortcut around room permissions, privacy boundaries, or artifact freshness.
 - Mutability: read.
 - Canonical Zod properties: `bbox`, `column`, `page`, `row`, `sourceArtifactId`.
@@ -611,9 +627,7 @@ This file is the model-facing contract: every production tool must expose a non-
 {
   "tool": "source_open_literal",
   "args": {
-    "sourceArtifactId": [
-      "example"
-    ]
+    "sourceArtifactId": "artifact_example"
   }
 }
 ```
@@ -825,9 +839,7 @@ This file is the model-facing contract: every production tool must expose a non-
 {
   "tool": "set_artifact_meta",
   "args": {
-    "artifactId": [
-      "example"
-    ]
+    "artifactId": "artifact_example"
   }
 }
 ```

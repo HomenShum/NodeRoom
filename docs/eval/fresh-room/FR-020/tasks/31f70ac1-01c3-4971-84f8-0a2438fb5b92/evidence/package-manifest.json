@@ -1,0 +1,65 @@
+{
+  "schema": 1,
+  "taskId": "31f70ac1-01c3-4971-84f8-0a2438fb5b92",
+  "harborTaskId": "btb-31f70ac1",
+  "generatedAt": "2026-06-26T01:24:27.182Z",
+  "baseUrl": "http://127.0.0.1:5273",
+  "roomUrl": "http://127.0.0.1:5273/?room=NR9OFT0Z4OS&name=Host",
+  "downloadedFiles": [
+    {
+      "kind": "workbook",
+      "filename": "btb-31f70ac1-btb-btb-31f70ac1-wacc-analysis-for-10-tickers-il-ad-easi-iga-tcs-adbry-leo-aslan-no.xlsx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\31f70ac1-01c3-4971-84f8-0a2438fb5b92\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-31f70ac1-btb-btb-31f70ac1-wacc-analysis-for-10-tickers-il-ad-easi-iga-tcs-adbry-leo-aslan-no.xlsx",
+      "extension": ".xlsx",
+      "bytes": 7612,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j973r3zqk2pm89893xmdd3qyah89dz6w",
+      "contentQualityDetail": "placeholder/caveat content scan passed (1288 chars)"
+    },
+    {
+      "kind": "workbook",
+      "filename": "btb-31f70ac1-btb-btb-31f70ac1-wacc-analysis-for-10-tickers-il-ad-easi-iga-tcs-adbry-leo-aslan-no.xlsm",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\31f70ac1-01c3-4971-84f8-0a2438fb5b92\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-31f70ac1-btb-btb-31f70ac1-wacc-analysis-for-10-tickers-il-ad-easi-iga-tcs-adbry-leo-aslan-no.xlsm",
+      "extension": ".xlsm",
+      "bytes": 7612,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j97dmmm3k189shbh0hqzh8h8xx89cmx7",
+      "contentQualityDetail": "placeholder/caveat content scan passed (1288 chars)"
+    },
+    {
+      "kind": "presentation",
+      "filename": "btb-31f70ac1-btb-btb-31f70ac1-wacc-analysis-for-10-tickers-il-ad-easi-iga-tcs-adbry-leo-aslan-no.pptx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\31f70ac1-01c3-4971-84f8-0a2438fb5b92\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-31f70ac1-btb-btb-31f70ac1-wacc-analysis-for-10-tickers-il-ad-easi-iga-tcs-adbry-leo-aslan-no.pptx",
+      "extension": ".pptx",
+      "bytes": 6412,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains ppt/presentation.xml; recovered from Convex room artifact j9703qa53jrwjtzbshe67m4nqn89d0ge",
+      "contentQualityDetail": "placeholder/caveat content scan passed (1341 chars)"
+    },
+    {
+      "kind": "document",
+      "filename": "btb-31f70ac1-btb-btb-31f70ac1-wacc-analysis-for-10-tickers-il-ad-easi-iga-tcs-adbry-leo-aslan-no.docx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\31f70ac1-01c3-4971-84f8-0a2438fb5b92\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-31f70ac1-btb-btb-31f70ac1-wacc-analysis-for-10-tickers-il-ad-easi-iga-tcs-adbry-leo-aslan-no.docx",
+      "extension": ".docx",
+      "bytes": 2593,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains word/document.xml; recovered from Convex room artifact j978hnx1bn4340v6p7py6828px89d9nw",
+      "contentQualityDetail": "placeholder/caveat content scan passed (2534 chars)"
+    },
+    {
+      "kind": "pdf",
+      "filename": "btb-31f70ac1-btb-btb-31f70ac1-wacc-analysis-for-10-tickers-il-ad-easi-iga-tcs-adbry-leo-aslan-no.pdf",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\31f70ac1-01c3-4971-84f8-0a2438fb5b92\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-31f70ac1-btb-btb-31f70ac1-wacc-analysis-for-10-tickers-il-ad-easi-iga-tcs-adbry-leo-aslan-no.pdf",
+      "extension": ".pdf",
+      "bytes": 3445,
+      "magic": "%PDF",
+      "reopened": true,
+      "reopenDetail": "PDF header reopened; recovered from Convex room artifact j9755pgt7hm0smc8n6k2aze31589dmn4",
+      "contentQualityDetail": "placeholder/caveat content scan passed (6241 chars)"
+    }
+  ]
+}

@@ -94,8 +94,16 @@ async function createRoom(ctx: BrowserContext, code: string): Promise<Page> {
   await page.goto(`${BASE}/?create=${roomCode}&name=Maya`, { waitUntil: "domcontentloaded", timeout: 60_000 });
   await page.locator('[data-testid="public-chat-panel"] [data-testid="chat-composer"]').waitFor({ timeout: 60_000 });
   await page.getByTestId("tour-skip").click({ timeout: 8000 }).catch(() => {});
-  await page.locator('[data-testid="artifact-tabs"] button', { hasText: /Q3 variance/i }).first().click({ timeout: 15_000 }).catch(() => {});
-  await page.locator('[data-cell-key="r_rev__variance"]').waitFor({ timeout: 30_000 });
+  // The current app creates blank rooms — load the sample workspace if the blank state is showing.
+  const blank = page.getByTestId("blank-room-state");
+  if (await blank.isVisible({ timeout: 3_000 }).catch(() => false)) {
+    await page.getByTestId("blank-cta-demo").click({ timeout: 10_000 });
+    await settle(page, 2_000);
+  }
+  // Click the Company research tab so the research sheet is visible.
+  await page.locator('[data-testid="artifact-tabs"] button', { hasText: /Company research/i }).first().click({ timeout: 15_000 }).catch(() => {});
+  await page.locator('[data-testid="sheet-grid"]').waitFor({ timeout: 15_000 }).catch(() => {});
+  await settle(page, 500);
   await page.addStyleTag({ content: "*::-webkit-scrollbar{display:none!important} .r-tour{display:none!important} body{zoom:1.15}" });
   await settle(page, 800);
   return page;
@@ -379,6 +387,7 @@ async function roomTourPage(ctx: BrowserContext): Promise<Page> {
 async function storyPage(ctx: BrowserContext): Promise<Page> {
   const page = await ctx.newPage();
   await page.goto(`${BASE}/#story`, { waitUntil: "domcontentloaded", timeout: 60_000 });
+  await page.getByTestId("story-lab").waitFor({ state: "attached", timeout: 30_000 });
   await page.getByTestId("story-lab").scrollIntoViewIfNeeded({ timeout: 30_000 });
   await settle(page, 900);
   return page;
@@ -471,7 +480,7 @@ async function runFeature(spec: FeatureSpec, attempt: number): Promise<FeatureOu
             return filled.length >= want;
           }, { keys: VARS, want }, { timeout, polling: 1500 });
         } else if (step.predicate === "chipsVisible") {
-          await page.locator('[data-testid="proposal-inline"]').first().waitFor({ timeout });
+          await page.locator('[data-testid="proposal-card"], [data-testid="proposal-inline"]').first().waitFor({ timeout });
         } else if (step.predicate === "textGone") {
           // presence first (the vacuous-negative lesson), then wait for the text to vanish
           await page.locator(step.sel!).first().waitFor({ state: "visible", timeout: 10_000 });

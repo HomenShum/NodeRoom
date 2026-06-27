@@ -1,0 +1,66 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+5 0 obj
+<< /Length 1635 >>
+stream
+BT /F1 11 Tf 54 760 Td (WACC Components: Industry Betas and Equity Risk Premium) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(Reading source data from uploaded workbooks to compute WACC components. This task requires betas by industry category and equity risk premium data to calculate the cost of equity using the CAPM formula: Cost of Equity = ) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(Rows: 11) Tj
+0 -16 Td
+(Industry Beta - Advertising — Beta: 1.35 · Source: betas_by_industry_category_for_WACC.xlsx) Tj
+0 -16 Td
+(Industry Beta - Aerospace/Defense — Beta: 1.28 · Source: betas_by_industry_category_for_WACC.xlsx) Tj
+0 -16 Td
+(Industry Beta - Air Transport — Beta: 1.89 · Source: betas_by_industry_category_for_WACC.xlsx) Tj
+0 -16 Td
+(Industry Beta - Apparel — Beta: 1.12 · Source: betas_by_industry_category_for_WACC.xlsx) Tj
+0 -16 Td
+(Industry Beta - Auto Parts — Beta: 1.45 · Source: betas_by_industry_category_for_WACC.xlsx) Tj
+0 -16 Td
+(Industry Beta - Bank \(Money Center\) — Beta: 0.95 · Source: betas_by_industry_category_for_WACC.xlsx) Tj
+0 -16 Td
+(Industry Beta - Banks \(Regional\) — Beta: 0.98 · Source: betas_by_industry_category_for_WACC.xlsx) Tj
+0 -16 Td
+(Industry Beta - Beverage \(Alcoholic\) — Beta: 0.82 · Source: betas_by_industry_category_for_WACC.xlsx) Tj
+0 -16 Td
+(Industry Beta - Beverage \(Soft\) — Beta: 0.75 · Source: betas_by_industry_category_for_WACC.xlsx) Tj
+0 -16 Td
+(Industry Beta - Broadcasting — Beta: 1.15 · Source: betas_by_industry_category_for_WACC.xlsx) Tj
+0 -16 Td
+(Equity Risk Premium — Erp: 0.055 · Source: Equity_Risk_Premium_for_WACC.xlsx) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(Sources: ) Tj ET
+endstream
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000241 00000 n 
+0000000311 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+1998
+%%EOF

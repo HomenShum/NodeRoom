@@ -48,7 +48,7 @@ function renderAgentReadyApiDocs(): string[] {
     lines.push("- Example call:");
     lines.push("");
     lines.push("```json");
-    lines.push(JSON.stringify({ tool: tool.name, args: exampleArgs(provider.required, provider.propertyNames) }, null, 2));
+    lines.push(JSON.stringify({ tool: tool.name, args: exampleArgs(tool.name, provider.required, provider.propertyNames) }, null, 2));
     lines.push("```");
   }
   return lines;
@@ -94,7 +94,16 @@ function recoveryPath(toolName: string): string {
   return "Treat tool failures as inputs: inspect `failureKind` or result reason, add the missing argument or re-read state, and stop rather than inventing data.";
 }
 
-function exampleArgs(required: string[], properties: string[]): Record<string, unknown> {
+function exampleArgs(toolName: string, required: string[], properties: string[]): Record<string, unknown> {
+  if (toolName === "read_range") return { elementIds: ["r_rev__note"], artifactId: "sheet" };
+  if (toolName === "write_locked_cell") return { elementId: "r_rev__note", value: "complete", baseVersion: 1 };
+  if (toolName === "write_locked_cells") return { ops: [{ elementId: "r_rev__note", value: "complete", baseVersion: 1 }] };
+  if (toolName === "write_locked_cell_result") {
+    return { elementId: "r_rev__status", value: "complete", baseVersion: 1, evidence: [{ kind: "computed", label: "formula check" }] };
+  }
+  if (toolName === "write_locked_cell_results") {
+    return { ops: [{ elementId: "r_rev__status", value: "complete", baseVersion: 1, evidence: [{ kind: "computed", label: "formula check" }] }] };
+  }
   const keys = required.length ? required : properties.slice(0, 2);
   const out: Record<string, unknown> = {};
   for (const key of keys) out[key] = exampleValue(key);
@@ -103,11 +112,12 @@ function exampleArgs(required: string[], properties: string[]): Record<string, u
 
 function exampleValue(key: string): unknown {
   if (/idOrUrl/i.test(key)) return "skill_slug_or_https_url";
+  if (/artifactIds/i.test(key)) return ["artifact_example"];
+  if (/artifact/i.test(key)) return "artifact_example";
   if (/ids?|refs?|tags|urls|destinations/i.test(key)) return ["example"];
   if (/ops|cells|rows|columns|evidence|series/i.test(key)) return [];
   if (/version|limit|count|tokens|depth|page|row/i.test(key)) return 1;
   if (/confidence|score|rate|usd|burn|cash|tolerance/i.test(key)) return 0.9;
-  if (/artifact/i.test(key)) return "artifact_example";
   if (/url/i.test(key)) return "https://example.com";
   return "example";
 }

@@ -1,5 +1,5 @@
 /**
- * ArtifactPanel — tabs + Shared tag · collab bar · spreadsheet (CAS) · TipTap note
+ * ArtifactPanel — tabs + Shared tag · spreadsheet (CAS) · TipTap note
  * · dnd-kit wall · Room trace. Reads + writes through `useStore()`, so the same
  * component renders the in-memory engine OR live Convex (optimistic edits).
  */
@@ -13,7 +13,7 @@ import { useQuery, useMutation } from "convex/react";
 import { useTiptapSync } from "@convex-dev/prosemirror-sync/tiptap";
 import { api } from "../../../convex/_generated/api";
 import {
-  Table2, FileText, StickyNote, Users, GitMerge, Play, RotateCcw, History, Search, BookOpen,
+  Table2, FileText, StickyNote, Users, GitMerge, RotateCcw, History, Search, BookOpen,
   Lock, Unlock, Ban, Pencil, Plus, Check, AlertTriangle, Eye, Circle, ChevronRight, Download, Trash2, Undo2, X, Columns2, MoreHorizontal, Mail, Hash, Layers, Linkedin, Activity, type LucideIcon,
   Sparkles, Folder, Briefcase, Package, File as FileIcon,
 } from "lucide-react";
@@ -30,6 +30,7 @@ import { OPT_ARTIFACT_PREFIX, optimisticArtifactIdentity } from "../openRoomRefe
 import { prepareDownstreamDrafts, type PreparedDownstreamDraft } from "../../nodeagent/skills/integration/downstreamPublish";
 import { isWorkbookPreviewDoc, workbookPreviewArtifactFromDataUrl } from "./workbookFilePreview";
 import { isOfficePreviewDoc, officePreviewFromDataUrl, type OfficePreview } from "./officeFilePreview";
+import { RoomHome } from "../room/RoomHome";
 
 /** Downstream handoff destinations → compact icon + short label (replaces 5 wide ghost buttons). */
 const HANDOFF_ICONS: Record<string, LucideIcon> = { gmail: Mail, notion: FileText, slack: Hash, linear: Layers, linkedin: Linkedin };
@@ -48,12 +49,9 @@ const TABS: { id: TabId; label: string; Icon: LucideIcon }[] = [
   { id: "note", label: "Note", Icon: FileText },
   { id: "wall", label: "Wall", Icon: StickyNote },
 ];
-type CollabControls = { running: boolean; done: boolean; error?: string; onRun: () => void; onConflict?: () => void };
-
-function ArtifactSurface({ roomId, me, proof, artId, onArt, collab, style, surfaceKey = "primary", headerExtra, openIds, onCloseArtifact }: {
+function ArtifactSurface({ roomId, me, proof, artId, onArt, style, surfaceKey = "primary", headerExtra, openIds, onCloseArtifact }: {
   roomId: string; me: Actor; artId: string; onArt: (id: string) => void;
   proof?: ActorProof;
-  collab?: CollabControls;
   style?: CSSProperties;
   surfaceKey?: "primary" | "secondary";
   headerExtra?: ReactNode;
@@ -225,7 +223,6 @@ function ArtifactSurface({ roomId, me, proof, artId, onArt, collab, style, surfa
         <TraceSurface roomId={roomId} onOpenSource={openTraceSource} />
       ) : (
         <>
-          {collab && activeTab === "sheet" && sheet?.title === "Q3 variance" && <CollabBar collab={collab} />}
           {editErr && <div className="r-art-error" role="alert"><AlertTriangle size={13} /> {editErr}</div>}
           {activeTab === "wiki" && wiki && <Wiki roomId={roomId} art={wiki} onOpenArtifact={openArtifact} />}
           {activeTab === "sheet" && sheet && (sheet.title === "Q3 variance"
@@ -258,23 +255,12 @@ function makeBlankRoomCode(): string {
 }
 
 /**
- * BlankRoomState — what a brand-new (0-artifact) room shows instead of a black void.
- * Per deep-review §0 ("A new room starts blank") the room is empty by design; this gives the
- * first-time user exactly THREE obvious starts (chat / add a surface / load the sample) rather
- * than an empty technical shell. Each CTA is a real one-click action.
+ * BlankRoomHome — wraps RoomHome with the add-sheet and load-sample actions.
+ * Replaces the old BlankRoomState with the Cursor-inspired command center.
  */
-function BlankRoomState({ roomId, me, style, onOpenChat }: { roomId: string; me: Actor; style?: CSSProperties; onOpenChat?: () => void }) {
+function BlankRoomHome({ roomId, me, style, onOpenChat }: { roomId: string; me: Actor; style?: CSSProperties; onOpenChat?: () => void }) {
   const store = useStore();
   const [busy, setBusy] = useState(false);
-  const focusChat = () => {
-    onOpenChat?.();
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        const ta = document.querySelector<HTMLTextAreaElement>('textarea[data-testid="chat-composer"]');
-        if (ta) { ta.focus(); ta.scrollIntoView({ block: "center", behavior: "smooth" }); }
-      });
-    });
-  };
   const addSheet = async () => {
     if (busy) return;
     setBusy(true);
@@ -293,21 +279,14 @@ function BlankRoomState({ roomId, me, style, onOpenChat }: { roomId: string; me:
     window.location.href = url.toString();
   };
   return (
-    <div className="r-panel artifact" style={style} data-testid="blank-room-state">
-      <div style={{ display: "flex", flex: 1, alignItems: "center", justifyContent: "center", padding: 24, minHeight: 0 }}>
-        <div style={{ maxWidth: 440, width: "100%", textAlign: "center" }}>
-          <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 6 }}>This room is blank.</div>
-          <div className="faint" style={{ fontSize: 13, marginBottom: 18, lineHeight: 1.5 }}>
-            Start it your way. Everything you and your NodeAgents add stays live and conflict-safe.
-          </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 8, alignItems: "stretch" }}>
-            <button className="r-btn primary" data-testid="blank-cta-chat" onClick={focusChat}>Ask the agent to build something →</button>
-            <button className="r-btn" data-testid="blank-cta-sheet" disabled={busy} onClick={() => void addSheet()}><Plus size={13} /> {busy ? "Adding a sheet…" : "Add a blank sheet"}</button>
-            <button className="r-btn ghost" data-testid="blank-cta-demo" onClick={loadSample}>Load the sample diligence workspace →</button>
-          </div>
-        </div>
-      </div>
-    </div>
+    <RoomHome
+      roomId={roomId}
+      me={me}
+      style={style}
+      onOpenChat={onOpenChat}
+      onAddSheet={() => void addSheet()}
+      onLoadSample={loadSample}
+    />
   );
 }
 
@@ -316,10 +295,9 @@ export function Artifact(props: {
   sideArtId?: string | null;
   onSideArtChange?: (id: string | null) => void;
   onOpenChat?: () => void;
-  collab?: CollabControls;
   style?: CSSProperties;
 }) {
-  const { roomId, me, proof, artId, onArt, sideArtId, onSideArtChange, onOpenChat, collab, style } = props;
+  const { roomId, me, proof, artId, onArt, sideArtId, onSideArtChange, onOpenChat, style } = props;
   const store = useStore();
   const arts = store.listArtifacts(roomId);
   useEffect(() => {
@@ -373,8 +351,8 @@ export function Artifact(props: {
     mq.addEventListener?.("change", onChange);
     return () => mq.removeEventListener?.("change", onChange);
   }, []);
-  // A blank room (0 artifacts) is intentional (Loop 1) — show the onboarding starts, not a void.
-  if (arts.length === 0) return <BlankRoomState roomId={roomId} me={me} style={style} onOpenChat={onOpenChat} />;
+  // A blank room (0 artifacts) is intentional (Loop 1) — show the Room Home command center.
+  if (arts.length === 0) return <BlankRoomHome roomId={roomId} me={me} style={style} onOpenChat={onOpenChat} />;
   const canSplit = wideEnough && arts.length >= 4;
   // Keep the split target valid: collapse if it vanished, folded back onto the primary, or the
   // viewport became too narrow.
@@ -424,7 +402,6 @@ export function Artifact(props: {
         proof={proof}
         artId={artId}
         onArt={onArt}
-        collab={collab}
         surfaceKey="primary"
         headerExtra={canSplit ? splitToggle : undefined}
         openIds={liveOpenIds}
@@ -2192,25 +2169,6 @@ function Sticky({ roomId, me, artId, id, v, locked, author, rot, onDelete, onErr
         onKeyDown={(e) => { if (e.key === "Escape") (e.currentTarget as HTMLElement).blur(); }}
         onBlur={(e) => { const t = e.currentTarget.textContent ?? ""; if (t && t !== v.text) void commit(store, roomId, me, artId, id, { ...v, text: t }).then((f) => { if (f && !f.ok) onError(editErrorMsg(f)); }); }}>{v.text}</div>
       <div className="pby">— {author}</div>
-    </div>
-  );
-}
-
-function CollabBar({ collab }: { collab: CollabControls }) {
-  const stateLabel = collab.done ? "Collaboration run complete" : collab.running ? "Collaboration running" : "Live collaboration";
-  const runLabel = collab.done ? "Replay collaboration" : collab.running ? "Collaboration running" : "Run collaboration";
-  return (
-    <div className="r-collab-bar" aria-label={stateLabel}>
-      <span className="r-tag r-collab-state" title={stateLabel} aria-label={stateLabel} style={{ background: "var(--accent-tint)", color: "var(--accent-ink)" }}><GitMerge size={12} /></span>
-      {collab.error && <span className="r-tag" role="alert" data-testid="collab-error" style={{ color: "var(--danger-ink)" }}>{collab.error}</span>}
-      {collab.onConflict && (
-        <button className="r-iconbtn r-iconbtn-sm" data-testid="collab-conflict" disabled={collab.running} title="Create a stale agent draft" aria-label="Create stale agent draft" onClick={collab.onConflict}>
-          <AlertTriangle size={13} />
-        </button>
-      )}
-      <button className={"r-iconbtn r-iconbtn-sm " + (collab.done ? "" : "primary")} data-testid="collab-run" disabled={collab.running} title={runLabel} aria-label={runLabel} onClick={collab.onRun}>
-        {collab.done ? <RotateCcw size={13} /> : collab.running ? <Activity size={13} /> : <Play size={13} />}
-      </button>
     </div>
   );
 }

@@ -1,0 +1,94 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+5 0 obj
+<< /Length 3570 >>
+stream
+BT /F1 11 Tf 54 760 Td (UTHR Valuation Landscape: Trading Comps & Precedent Transactions Market Update) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(BANKERTOOLBENCH TASK btb-b486dc21 — VALUATION LANDSCAPE FOR UNITED THERAPEUTICS BOARD
+
+SECTION 1 — EXECUTIVE TAKEAWAY
+Market clearing levels imply the following valuation bands and premium expectations for UTHR:
+- EV/Rev) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(Rows: 23) Tj
+0 -16 Td
+(UTHR — Current Share Price \(USD\) — Value: 220 · Unit: USD/share · Source: UTHR-US Price History) Tj
+0 -16 Td
+(UTHR — Shares Outstanding — Value: 88000000 · Unit: shares · Source: UTHR-US Shares Outstanding) Tj
+0 -16 Td
+(UTHR — Market Cap \(USD\) — Value: 19360000000 · Unit: USD · Calc: Price × Shares Outstanding) Tj
+0 -16 Td
+(UTHR — Estimated FY+1 Revenue \(USD\) — Value: 2800000000 · Unit: USD · Source: UTHR-US Revenue Estimate) Tj
+0 -16 Td
+(UTHR — Estimated FY+1 EBITDA \(USD\) — Value: 1400000000 · Unit: USD · Source: UTHR-US Earnings Estimate) Tj
+0 -16 Td
+(UTHR — Net Cash \(USD\) — Value: 900000000 · Unit: USD · Source: UTHR-US Balance Sheet Annual) Tj
+0 -16 Td
+(UTHR — Enterprise Value \(USD\) — Value: 18460000000 · Unit: USD · Calc: Market Cap - Net Cash) Tj
+0 -16 Td
+(UTHR — EV/Revenue FY+1 \(x\) — Value: 6.6 · Unit: x · Calc: EV / FY+1 Revenue) Tj
+0 -16 Td
+(UTHR — EV/EBITDA FY+1 \(x\) — Value: 13.2 · Unit: x · Calc: EV / FY+1 EBITDA) Tj
+0 -16 Td
+(Peer Median — EV/Revenue FY+1 \(x\) — Value: 7.25 · Unit: x · Source: Trading comps screen median) Tj
+0 -16 Td
+(Peer Median — EV/EBITDA FY+1 \(x\) — Value: 13.5 · Unit: x · Source: Trading comps screen median) Tj
+0 -16 Td
+(Precedent — Median Premium \(%\) — Value: 53 · Unit: % · Source: Rare/orphan disease M&A precedent set) Tj
+0 -16 Td
+(Precedent — Median EV/Peak Sales \(x\) — Value: 7 · Unit: x · Source: Rare/orphan disease M&A precedent set) Tj
+0 -16 Td
+(UTHR — Implied Takeover Premium Range Low \(%\) — Value: 35 · Unit: % · Calc: Triangulation of trading comps and precedents) Tj
+0 -16 Td
+(UTHR — Implied Takeover Premium Range High \(%\) — Value: 55 · Unit: % · Calc: Triangulation of trading comps and precedents) Tj
+0 -16 Td
+(UTHR — Implied Takeover Premium Midpoint \(%\) — Value: 45 · Unit: % · Calc: Midpoint of recommended range) Tj
+0 -16 Td
+(USD — Currency Convention — Value: USD · Unit: currency · Note: All values presented in USD per task convention) Tj
+0 -16 Td
+(Precedent — AstraZeneca/Alexion EV \(USD\) — Value: 39000000000 · Unit: USD · Note: Dec 2020, ~45% premium) Tj
+0 -16 Td
+(Precedent — Merck/Acceleron EV \(USD\) — Value: 11500000000 · Unit: USD · Note: Sep 2021, ~38% premium, PAH franchise) Tj
+0 -16 Td
+(Precedent — Pfizer/Global Blood Therapeutics EV \(USD\) — Value: 5400000000 · Unit: USD · Note: Aug 2022, ~43% premium, orphan hematology) Tj
+0 -16 Td
+(Precedent — Novartis/Chinook Therapeutics EV \(USD\) — Value: 3500000000 · Unit: USD · Note: Jun 2023, ~67% premium, rare kidney disease) Tj
+0 -16 Td
+(Precedent — Sanofi/Kadmon EV \(USD\) — Value: 1900000000 · Unit: USD · Note: Aug 2021, ~76% premium, transplant therapeutics) Tj
+0 -16 Td
+(Precedent — Horizon/Viela Bio EV \(USD\) — Value: 3100000000 · Unit: USD · Note: 2021, ~53% premium, rare autoimmune) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(Sources: room://artifact/btb-b486dc21-official-task-brief.txt, room://artifact/UTHR-US Revenue Estimate.xlsx, room://artifact/UTHR-US Earnings Estimate.xlsx, room://artifact/UTHR-US Company Identity.xlsx, room://artifact) Tj ET
+endstream
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000241 00000 n 
+0000000311 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+3933
+%%EOF

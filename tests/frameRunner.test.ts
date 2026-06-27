@@ -102,7 +102,7 @@ describe("reasoning frame runner", () => {
 
     expect(receipt.agentResult.stopReason).toBe("step_budget");
     expect(receipt.status).toBe("blocked");
-    expect(receipt.verification.blockedReason).toContain("Paused after reaching the 1-step budget.");
+    expect(receipt.verification.blockedReason).toContain("Checkpointed after this run slice used its configured step window");
     expect(receipt.stateDelta.openQuestions).toEqual(["Missing funding for CardioNova"]);
     expect(receipt.stateDelta.nextActions).toEqual(["Resume frame from step_budget handoff."]);
     expect(receipt.updatedFrame.status).toBe("blocked");

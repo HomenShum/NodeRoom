@@ -3,10 +3,10 @@
   "caseId": "FR-020",
   "benchmark": "bankertoolbench",
   "taskId": "c7bbdb93-8b29-44f6-8e5f-13fc0d3de8fc",
-  "generatedAt": "2026-06-25T02:16:29.237Z",
+  "generatedAt": "2026-06-26T01:02:08.830Z",
   "baseUrl": "http://127.0.0.1:5273",
-  "roomId": "NRPWP3XEHGQ",
-  "roomUrl": "http://127.0.0.1:5273/?room=NRPWP3XEHGQ&name=Host",
+  "roomId": "NRQJJTE5Y5K",
+  "roomUrl": "http://127.0.0.1:5273/?room=NRQJJTE5Y5K&name=Host",
   "command": "BTB_LIVE_ROOM_E2E=1 BTB_UI_BUNDLE_ROOT=<official-bundle> BTB_UI_VERIFIER_COMMAND=<verifier> BENCH_BASE_URL=<base> npx playwright test --config playwright.real-flow.config.ts e2e/benchmark-ui-bankertoolbench.spec.ts --headed",
   "model": {
     "requested": "specific",
@@ -21,11 +21,11 @@
     "roomCreatedAfterRunStart": true,
     "forbiddenPreloadedArtifactsAbsent": true,
     "artifactsCreatedFresh": [
-      "btb-c7bbdb93-btb-c7bbdb93-official-task-brief.txt.xlsx",
-      "btb-c7bbdb93-btb-c7bbdb93-official-task-brief.txt.xlsm",
-      "btb-c7bbdb93-btb-c7bbdb93-official-task-brief.txt.pptx",
-      "btb-c7bbdb93-btb-c7bbdb93-official-task-brief.txt.docx",
-      "btb-c7bbdb93-btb-c7bbdb93-official-task-brief.txt.pdf"
+      "btb-c7bbdb93-project-redwood-pro-forma-capitalization-ownership-analysis.xlsx",
+      "btb-c7bbdb93-project-redwood-pro-forma-capitalization-ownership-analysis.xlsm",
+      "btb-c7bbdb93-project-redwood-pro-forma-capitalization-ownership-analysis.pptx",
+      "btb-c7bbdb93-project-redwood-pro-forma-capitalization-ownership-analysis.docx",
+      "btb-c7bbdb93-project-redwood-pro-forma-capitalization-ownership-analysis.pdf"
     ],
     "uploadedFiles": [
       "betas_by_industry_category_for_WACC.xlsx",
@@ -41,7 +41,7 @@
     "jobDetailVisible": true,
     "roomTraceVisible": true,
     "screenshotPaths": [
-      "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\c7bbdb93-8b29-44f6-8e5f-13fc0d3de8fc\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\bankertoolbench-live-room.png"
+      "docs\\eval\\fresh-room\\FR-020\\tasks\\c7bbdb93-8b29-44f6-8e5f-13fc0d3de8fc\\evidence\\bankertoolbench-live-room.png"
     ],
     "tracePath": "docs\\eval\\bankertoolbench\\live-room\\c7bbdb93-8b29-44f6-8e5f-13fc0d3de8fc.json"
   },
@@ -53,94 +53,94 @@
       "btb-c7bbdb93-official-task-brief.txt"
     ],
     "created": [
-      "btb-c7bbdb93-btb-c7bbdb93-official-task-brief.txt.xlsx",
-      "btb-c7bbdb93-btb-c7bbdb93-official-task-brief.txt.xlsm",
-      "btb-c7bbdb93-btb-c7bbdb93-official-task-brief.txt.pptx",
-      "btb-c7bbdb93-btb-c7bbdb93-official-task-brief.txt.docx",
-      "btb-c7bbdb93-btb-c7bbdb93-official-task-brief.txt.pdf"
+      "btb-c7bbdb93-project-redwood-pro-forma-capitalization-ownership-analysis.xlsx",
+      "btb-c7bbdb93-project-redwood-pro-forma-capitalization-ownership-analysis.xlsm",
+      "btb-c7bbdb93-project-redwood-pro-forma-capitalization-ownership-analysis.pptx",
+      "btb-c7bbdb93-project-redwood-pro-forma-capitalization-ownership-analysis.docx",
+      "btb-c7bbdb93-project-redwood-pro-forma-capitalization-ownership-analysis.pdf"
     ],
     "exportedFiles": [
       {
         "kind": "workbook",
-        "filename": "btb-c7bbdb93-btb-c7bbdb93-official-task-brief.txt.xlsx",
-        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\c7bbdb93-8b29-44f6-8e5f-13fc0d3de8fc\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-c7bbdb93-btb-c7bbdb93-official-task-brief.txt.xlsx",
+        "filename": "btb-c7bbdb93-project-redwood-pro-forma-capitalization-ownership-analysis.xlsx",
+        "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\c7bbdb93-8b29-44f6-8e5f-13fc0d3de8fc\\evidence\\btb-xlsx-btb-c7bbdb93-project-redwood-pro-forma-capitalization-ownership-analysis.xlsx",
         "extension": ".xlsx",
         "downloaded": true,
-        "bytes": 6676,
+        "bytes": 8445,
         "magic": "PK\\x03\\x04"
       },
       {
         "kind": "workbook",
-        "filename": "btb-c7bbdb93-btb-c7bbdb93-official-task-brief.txt.xlsm",
-        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\c7bbdb93-8b29-44f6-8e5f-13fc0d3de8fc\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-c7bbdb93-btb-c7bbdb93-official-task-brief.txt.xlsm",
+        "filename": "btb-c7bbdb93-project-redwood-pro-forma-capitalization-ownership-analysis.xlsm",
+        "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\c7bbdb93-8b29-44f6-8e5f-13fc0d3de8fc\\evidence\\btb-xlsm-btb-c7bbdb93-project-redwood-pro-forma-capitalization-ownership-analysis.xlsm",
         "extension": ".xlsm",
         "downloaded": true,
-        "bytes": 6676,
+        "bytes": 8445,
         "magic": "PK\\x03\\x04"
       },
       {
         "kind": "presentation",
-        "filename": "btb-c7bbdb93-btb-c7bbdb93-official-task-brief.txt.pptx",
-        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\c7bbdb93-8b29-44f6-8e5f-13fc0d3de8fc\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-c7bbdb93-btb-c7bbdb93-official-task-brief.txt.pptx",
+        "filename": "btb-c7bbdb93-project-redwood-pro-forma-capitalization-ownership-analysis.pptx",
+        "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\c7bbdb93-8b29-44f6-8e5f-13fc0d3de8fc\\evidence\\btb-pptx-btb-c7bbdb93-project-redwood-pro-forma-capitalization-ownership-analysis.pptx",
         "extension": ".pptx",
         "downloaded": true,
-        "bytes": 6014,
+        "bytes": 7590,
         "magic": "PK\\x03\\x04"
       },
       {
         "kind": "document",
-        "filename": "btb-c7bbdb93-btb-c7bbdb93-official-task-brief.txt.docx",
-        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\c7bbdb93-8b29-44f6-8e5f-13fc0d3de8fc\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-c7bbdb93-btb-c7bbdb93-official-task-brief.txt.docx",
+        "filename": "btb-c7bbdb93-project-redwood-pro-forma-capitalization-ownership-analysis.docx",
+        "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\c7bbdb93-8b29-44f6-8e5f-13fc0d3de8fc\\evidence\\btb-docx-btb-c7bbdb93-project-redwood-pro-forma-capitalization-ownership-analysis.docx",
         "extension": ".docx",
         "downloaded": true,
-        "bytes": 1980,
+        "bytes": 3547,
         "magic": "PK\\x03\\x04"
       },
       {
         "kind": "pdf",
-        "filename": "btb-c7bbdb93-btb-c7bbdb93-official-task-brief.txt.pdf",
-        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\c7bbdb93-8b29-44f6-8e5f-13fc0d3de8fc\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-c7bbdb93-btb-c7bbdb93-official-task-brief.txt.pdf",
+        "filename": "btb-c7bbdb93-project-redwood-pro-forma-capitalization-ownership-analysis.pdf",
+        "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\c7bbdb93-8b29-44f6-8e5f-13fc0d3de8fc\\evidence\\btb-pdf-btb-c7bbdb93-project-redwood-pro-forma-capitalization-ownership-analysis.pdf",
         "extension": ".pdf",
         "downloaded": true,
-        "bytes": 862,
+        "bytes": 2567,
         "magic": "%PDF"
       }
     ],
     "reopenedFiles": [
       {
         "kind": "workbook",
-        "filename": "btb-c7bbdb93-btb-c7bbdb93-official-task-brief.txt.xlsx",
+        "filename": "btb-c7bbdb93-project-redwood-pro-forma-capitalization-ownership-analysis.xlsx",
         "reopened": true,
         "scorerResult": "pass",
-        "detail": "ZIP package contains xl/workbook.xml; placeholder/caveat content scan passed (184 chars)"
+        "detail": "ZIP package contains xl/workbook.xml; placeholder/caveat content scan passed (4202 chars)"
       },
       {
         "kind": "workbook",
-        "filename": "btb-c7bbdb93-btb-c7bbdb93-official-task-brief.txt.xlsm",
+        "filename": "btb-c7bbdb93-project-redwood-pro-forma-capitalization-ownership-analysis.xlsm",
         "reopened": true,
         "scorerResult": "pass",
-        "detail": "ZIP package contains xl/workbook.xml; placeholder/caveat content scan passed (184 chars)"
+        "detail": "ZIP package contains xl/workbook.xml; placeholder/caveat content scan passed (4202 chars)"
       },
       {
         "kind": "presentation",
-        "filename": "btb-c7bbdb93-btb-c7bbdb93-official-task-brief.txt.pptx",
+        "filename": "btb-c7bbdb93-project-redwood-pro-forma-capitalization-ownership-analysis.pptx",
         "reopened": true,
         "scorerResult": "pass",
-        "detail": "ZIP package contains ppt/presentation.xml; placeholder/caveat content scan passed (195 chars)"
+        "detail": "ZIP package contains ppt/presentation.xml; placeholder/caveat content scan passed (4246 chars)"
       },
       {
         "kind": "document",
-        "filename": "btb-c7bbdb93-btb-c7bbdb93-official-task-brief.txt.docx",
+        "filename": "btb-c7bbdb93-project-redwood-pro-forma-capitalization-ownership-analysis.docx",
         "reopened": true,
         "scorerResult": "pass",
-        "detail": "ZIP package contains word/document.xml; placeholder/caveat content scan passed (175 chars)"
+        "detail": "ZIP package contains word/document.xml; placeholder/caveat content scan passed (4613 chars)"
       },
       {
         "kind": "pdf",
-        "filename": "btb-c7bbdb93-btb-c7bbdb93-official-task-brief.txt.pdf",
+        "filename": "btb-c7bbdb93-project-redwood-pro-forma-capitalization-ownership-analysis.pdf",
         "reopened": true,
         "scorerResult": "pass",
-        "detail": "PDF header reopened; placeholder/caveat content scan passed (1207 chars)"
+        "detail": "PDF header reopened; placeholder/caveat content scan passed (4556 chars)"
       }
     ]
   },
@@ -151,7 +151,7 @@
     "score": 1,
     "details": {
       "verifierOutputTail": "\n> noderoom@0.1.1 benchmark:bankertoolbench:proof\n> tsx scripts/bankertoolbench-proof-check.ts\n\nBankerToolBench proof check passed: stage=1/1 weightedRubric=6 run=0/1 pass positive=1/1 pass candidateBeforeEvaluator=true leaks=0/2+0/3+0/4\n",
-      "packageManifestPath": "test-results\\bankertoolbench\\matrix\\c7bbdb93-8b29-44f6-8e5f-13fc0d3de8fc\\package-manifest.json",
+      "packageManifestPath": "docs\\eval\\fresh-room\\FR-020\\tasks\\c7bbdb93-8b29-44f6-8e5f-13fc0d3de8fc\\evidence\\package-manifest.json",
       "downloadedExtensions": [
         ".xlsx",
         ".xlsm",
@@ -161,21 +161,30 @@
       ],
       "exportSource": "browser_download_link",
       "agentTerminalQuality": {
-        "statusText": "completed via recovered Convex job: k-brief.txt.xlsx, btb-c7bbdb93-btb-c7bbdb93-official-task-brief.txt.xlsm, btb-c7bbdb93-btb-c7bbdb93-official-task-brief.txt.pptx, btb-c7bbdb93-btb-c7bbdb93-official-task-brief.txt.docx, btb-c7bbdb93-btb-c7bbdb93-official-task-brief.txt.pdf.",
-        "evidenceTextLength": 1269,
+        "statusText": "completed via recovered Convex job: lsm, btb-c7bbdb93-project-redwood-pro-forma-capitalization-ownership-analysis.pptx, btb-c7bbdb93-project-redwood-pro-forma-capitalization-ownership-analysis.docx, btb-c7bbdb93-project-redwood-pro-forma-capitalization-ownership-analysis.pdf.",
+        "evidenceTextLength": 1059,
         "detail": "agent reached completed status or visible completion text, with no missing-source/unfinished-work caveats"
       },
       "taskCoverage": {
         "ok": true,
         "requiredTickers": [],
         "missingTickers": [],
-        "detail": "no multi-entity ticker coverage gate required"
+        "domainProof": {
+          "ok": true,
+          "domain": "generic",
+          "gates": [],
+          "missingGates": [],
+          "detail": "no task-specific domain proof gate required"
+        },
+        "detail": "no multi-entity ticker coverage gate required; no task-specific domain proof gate required"
       }
     }
   },
   "visualJudge": {
-    "verdict": "not_run",
-    "reason": "GOOGLE_GENERATIVE_AI_API_KEY is not set; deterministic browser/download/reopen/verifier proof passed."
+    "command": "npm run media:gemini-judge -- --run-id btb-full-20260626-chunk1 --out \"docs\\\\eval\\\\gemini-media-judges\\\\btb-full-20260626\\\\chunk1\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\067cb834-ad43-448b-a523-d0c9898656e0\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\0fc7bc3c-f10b-48f1-acee-1db24a4f75fc\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\17d8c86f-487e-4f22-89ba-1f7789ff940f\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\1d073c85-42fe-4d6d-8539-069ea87082f8\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\3c70cabb-2915-4d5f-8e62-cd6b729a511f\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\42449f25-042c-4260-8a68-3c9c35009501\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\44e44478-9e36-4df9-9657-85797c7fee58\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\4fedc1aa-5e19-4339-9f0b-f455239b2655\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\5495a5a9-1087-4fd9-97f9-d677dd856e24\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\60ed36b0-5e15-4c2d-b4a9-0f3d3cab9b16\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\69fcdefe-f4af-4676-ba21-b5c23c6b2f7c\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\73450a4d-5954-496c-a9f8-17f712bc5521\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\7d11ce66-d850-4606-a3ef-f3960db34df7\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\8a19d926-4db7-4068-aabd-6b34bf965f16\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\907e3e2e-c733-47bf-bedc-3650147bbe91\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\963978db-b155-4fe2-9ae7-ca0b259a5fba\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\9ed5fdf8-7ffa-4c26-92d8-e1f28308af52\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\ac1a3956-b087-446b-9717-0f3d529e8fff\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier-retry1\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\b957a435-13bf-469b-b4de-fa55e3b15edd\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\c0bf2e84-2400-47bf-9dd2-aacfb53a2090\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\c7bbdb93-8b29-44f6-8e5f-13fc0d3de8fc\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\d2c04408-4c3b-45a6-a076-7f5ccca8fc2a\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\eb2f7b9c-2f96-4093-bdd5-e28707e707a1\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\eefb52c1-ee12-4d15-9fbe-7f894705d503\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\f8571fea-f310-4a46-be0c-bbfb65990198\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\"",
+    "verdict": "pass",
+    "scorecardPath": "docs/eval/gemini-media-judges/btb-full-20260626/chunk1/btb-full-20260626-chunk1/summary.md",
+    "reason": "Gemini media judge publish (8/16); defects P0/P1/P2=0/0/2. The video demonstrates NodeAgent ingesting financial files, executing a task brief, and generating structured outputs like valuation models and PDF exports. Source clip: test-results\\bankertoolbench\\matrix\\c7bbdb93-8b29-44f6-8e5f-13fc0d3de8fc\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\video.webm."
   },
   "gatesProven": [
     "fresh_room_join",
@@ -193,7 +202,8 @@
     "deliverable_export_download",
     "artifact_reopen_validation",
     "artifact_placeholder_scan",
-    "official_scorer_handoff"
+    "official_scorer_handoff",
+    "visual_judge_handoff"
   ],
   "passed": true
 }

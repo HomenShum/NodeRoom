@@ -2,9 +2,9 @@
   "schema": 1,
   "taskId": "4fedc1aa-5e19-4339-9f0b-f455239b2655",
   "harborTaskId": "btb-4fedc1aa",
-  "generatedAt": "2026-06-25T02:39:27.618Z",
+  "generatedAt": "2026-06-26T02:42:40.002Z",
   "baseUrl": "http://127.0.0.1:5273",
-  "roomUrl": "http://127.0.0.1:5273/?room=NRD1OSS4OXV&name=Host",
+  "roomUrl": "http://127.0.0.1:5273/?room=NRVT07XNN6A&name=Host",
   "memoryMode": false,
   "expectedExtensions": [
     ".xlsx",
@@ -23,64 +23,64 @@
   "downloadedFiles": [
     {
       "kind": "workbook",
-      "filename": "btb-4fedc1aa-wk-j.m-revenue-and-earnings-estimate-analysis.xlsx",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\4fedc1aa-5e19-4339-9f0b-f455239b2655\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-4fedc1aa-wk-j.m-revenue-and-earnings-estimate-analysis.xlsx",
+      "filename": "btb-4fedc1aa-btb-4fedc1aa-wk-j.m-revenue-earnings-analysis.xlsx",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\4fedc1aa-5e19-4339-9f0b-f455239b2655\\evidence\\btb-xlsx-btb-4fedc1aa-btb-4fedc1aa-wk-j.m-revenue-earnings-analysis.xlsx",
       "extension": ".xlsx",
-      "bytes": 7069,
+      "bytes": 6726,
       "magic": "PK\\x03\\x04",
       "reopened": true,
-      "reopenDetail": "ZIP package contains xl/workbook.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (901 chars)"
+      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j9719jq8fnct8h4cktevrde5rd89d2mw",
+      "contentQualityDetail": "placeholder/caveat content scan passed (279 chars)"
     },
     {
       "kind": "workbook",
-      "filename": "btb-4fedc1aa-wk-j.m-revenue-and-earnings-estimate-analysis.xlsm",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\4fedc1aa-5e19-4339-9f0b-f455239b2655\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-4fedc1aa-wk-j.m-revenue-and-earnings-estimate-analysis.xlsm",
+      "filename": "btb-4fedc1aa-btb-4fedc1aa-wk-j.m-revenue-earnings-analysis.xlsm",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\4fedc1aa-5e19-4339-9f0b-f455239b2655\\evidence\\btb-xlsm-btb-4fedc1aa-btb-4fedc1aa-wk-j.m-revenue-earnings-analysis.xlsm",
       "extension": ".xlsm",
-      "bytes": 7069,
+      "bytes": 6726,
       "magic": "PK\\x03\\x04",
       "reopened": true,
-      "reopenDetail": "ZIP package contains xl/workbook.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (901 chars)"
+      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j9785bdp52gtvw32crfz5ehy5h89c3m7",
+      "contentQualityDetail": "placeholder/caveat content scan passed (279 chars)"
     },
     {
       "kind": "presentation",
-      "filename": "btb-4fedc1aa-wk-j.m-revenue-and-earnings-estimate-analysis.pptx",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\4fedc1aa-5e19-4339-9f0b-f455239b2655\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-4fedc1aa-wk-j.m-revenue-and-earnings-estimate-analysis.pptx",
+      "filename": "btb-4fedc1aa-btb-4fedc1aa-wk-j.m-revenue-earnings-analysis.pptx",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\4fedc1aa-5e19-4339-9f0b-f455239b2655\\evidence\\btb-pptx-btb-4fedc1aa-btb-4fedc1aa-wk-j.m-revenue-earnings-analysis.pptx",
       "extension": ".pptx",
-      "bytes": 6359,
+      "bytes": 6070,
       "magic": "PK\\x03\\x04",
       "reopened": true,
-      "reopenDetail": "ZIP package contains ppt/presentation.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (988 chars)"
+      "reopenDetail": "ZIP package contains ppt/presentation.xml; recovered from Convex room artifact j975jbwgk012v1twvjthvke2hn89cmjb",
+      "contentQualityDetail": "placeholder/caveat content scan passed (275 chars)"
     },
     {
       "kind": "document",
-      "filename": "btb-4fedc1aa-wk-j.m-revenue-and-earnings-estimate-analysis.docx",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\4fedc1aa-5e19-4339-9f0b-f455239b2655\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-4fedc1aa-wk-j.m-revenue-and-earnings-estimate-analysis.docx",
+      "filename": "btb-4fedc1aa-btb-4fedc1aa-wk-j.m-revenue-earnings-analysis.docx",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\4fedc1aa-5e19-4339-9f0b-f455239b2655\\evidence\\btb-docx-btb-4fedc1aa-btb-4fedc1aa-wk-j.m-revenue-earnings-analysis.docx",
       "extension": ".docx",
-      "bytes": 2326,
+      "bytes": 2038,
       "magic": "PK\\x03\\x04",
       "reopened": true,
-      "reopenDetail": "ZIP package contains word/document.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (961 chars)"
+      "reopenDetail": "ZIP package contains word/document.xml; recovered from Convex room artifact j971zf0asr2k11vc2j8xzn9pex89d9sk",
+      "contentQualityDetail": "placeholder/caveat content scan passed (256 chars)"
     },
     {
       "kind": "pdf",
-      "filename": "btb-4fedc1aa-wk-j.m-revenue-and-earnings-estimate-analysis.pdf",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\4fedc1aa-5e19-4339-9f0b-f455239b2655\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-4fedc1aa-wk-j.m-revenue-and-earnings-estimate-analysis.pdf",
+      "filename": "btb-4fedc1aa-btb-4fedc1aa-wk-j.m-revenue-earnings-analysis.pdf",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\4fedc1aa-5e19-4339-9f0b-f455239b2655\\evidence\\btb-pdf-btb-4fedc1aa-btb-4fedc1aa-wk-j.m-revenue-earnings-analysis.pdf",
       "extension": ".pdf",
-      "bytes": 1393,
+      "bytes": 963,
       "magic": "%PDF",
       "reopened": true,
-      "reopenDetail": "PDF header reopened",
-      "contentQualityDetail": "placeholder/caveat content scan passed (2269 chars)"
+      "reopenDetail": "PDF header reopened; recovered from Convex room artifact j972vt89n8zsen9f1j420n00j589d0pr",
+      "contentQualityDetail": "placeholder/caveat content scan passed (1403 chars)"
     }
   ],
-  "packageManifestPath": "test-results\\bankertoolbench\\matrix\\4fedc1aa-5e19-4339-9f0b-f455239b2655\\package-manifest.json",
+  "packageManifestPath": "docs\\eval\\fresh-room\\FR-020\\tasks\\4fedc1aa-5e19-4339-9f0b-f455239b2655\\evidence\\package-manifest.json",
   "verifierCommand": "npm run benchmark:bankertoolbench:proof",
   "verifierOutputTail": "\n> noderoom@0.1.1 benchmark:bankertoolbench:proof\n> tsx scripts/bankertoolbench-proof-check.ts\n\nBankerToolBench proof check passed: stage=1/1 weightedRubric=6 run=0/1 pass positive=1/1 pass candidateBeforeEvaluator=true leaks=0/2+0/3+0/4\n",
-  "screenshot": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\4fedc1aa-5e19-4339-9f0b-f455239b2655\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\bankertoolbench-live-room.png",
+  "screenshot": "docs\\eval\\fresh-room\\FR-020\\tasks\\4fedc1aa-5e19-4339-9f0b-f455239b2655\\evidence\\bankertoolbench-live-room.png",
   "passed": true,
   "gatesProven": [
     "fresh_room_join",

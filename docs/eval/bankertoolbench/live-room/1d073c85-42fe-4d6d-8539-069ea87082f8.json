@@ -2,9 +2,9 @@
   "schema": 1,
   "taskId": "1d073c85-42fe-4d6d-8539-069ea87082f8",
   "harborTaskId": "btb-1d073c85",
-  "generatedAt": "2026-06-25T02:02:26.186Z",
+  "generatedAt": "2026-06-26T00:31:31.589Z",
   "baseUrl": "http://127.0.0.1:5273",
-  "roomUrl": "http://127.0.0.1:5273/?room=NR8UINOU9OI&name=Host",
+  "roomUrl": "http://127.0.0.1:5273/?room=NRFVY991A7H&name=Host",
   "memoryMode": false,
   "expectedExtensions": [
     ".xlsx",
@@ -23,64 +23,64 @@
   "downloadedFiles": [
     {
       "kind": "workbook",
-      "filename": "btb-1d073c85-shake-shack-lbo-initial-model-sources-uses-income-statement-cash-flow-debt-schedule.xlsx",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\1d073c85-42fe-4d6d-8539-069ea87082f8\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-1d073c85-shake-shack-lbo-initial-model-sources-uses-income-statement-cash-flow-debt-schedule.xlsx",
+      "filename": "btb-1d073c85-shake-shack-lbo-debt-structure-credit-metrics-btb-1d073c85.xlsx",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\1d073c85-42fe-4d6d-8539-069ea87082f8\\evidence\\btb-xlsx-btb-1d073c85-shake-shack-lbo-debt-structure-credit-metrics-btb-1d073c85.xlsx",
       "extension": ".xlsx",
-      "bytes": 11357,
+      "bytes": 6885,
       "magic": "PK\\x03\\x04",
       "reopened": true,
-      "reopenDetail": "ZIP package contains xl/workbook.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (8711 chars)"
+      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j978barn8kv8t4bv5ehdzjtd6189cmq6",
+      "contentQualityDetail": "placeholder/caveat content scan passed (445 chars)"
     },
     {
       "kind": "workbook",
-      "filename": "btb-1d073c85-shake-shack-lbo-initial-model-sources-uses-income-statement-cash-flow-debt-schedule.xlsm",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\1d073c85-42fe-4d6d-8539-069ea87082f8\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-1d073c85-shake-shack-lbo-initial-model-sources-uses-income-statement-cash-flow-debt-schedule.xlsm",
+      "filename": "btb-1d073c85-shake-shack-lbo-debt-structure-credit-metrics-btb-1d073c85.xlsm",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\1d073c85-42fe-4d6d-8539-069ea87082f8\\evidence\\btb-xlsm-btb-1d073c85-shake-shack-lbo-debt-structure-credit-metrics-btb-1d073c85.xlsm",
       "extension": ".xlsm",
-      "bytes": 11357,
+      "bytes": 6885,
       "magic": "PK\\x03\\x04",
       "reopened": true,
-      "reopenDetail": "ZIP package contains xl/workbook.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (8711 chars)"
+      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j9712fe5759dxxw0f27b7sd4n989d9as",
+      "contentQualityDetail": "placeholder/caveat content scan passed (445 chars)"
     },
     {
       "kind": "presentation",
-      "filename": "btb-1d073c85-shake-shack-lbo-initial-model-sources-uses-income-statement-cash-flow-debt-schedule.pptx",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\1d073c85-42fe-4d6d-8539-069ea87082f8\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-1d073c85-shake-shack-lbo-initial-model-sources-uses-income-statement-cash-flow-debt-schedule.pptx",
+      "filename": "btb-1d073c85-shake-shack-lbo-debt-structure-credit-metrics-btb-1d073c85.pptx",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\1d073c85-42fe-4d6d-8539-069ea87082f8\\evidence\\btb-pptx-btb-1d073c85-shake-shack-lbo-debt-structure-credit-metrics-btb-1d073c85.pptx",
       "extension": ".pptx",
-      "bytes": 7820,
+      "bytes": 6216,
       "magic": "PK\\x03\\x04",
       "reopened": true,
-      "reopenDetail": "ZIP package contains ppt/presentation.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (3727 chars)"
+      "reopenDetail": "ZIP package contains ppt/presentation.xml; recovered from Convex room artifact j970cvkgng0743enahksxb6fbn89dprf",
+      "contentQualityDetail": "placeholder/caveat content scan passed (464 chars)"
     },
     {
       "kind": "document",
-      "filename": "btb-1d073c85-shake-shack-lbo-initial-model-sources-uses-income-statement-cash-flow-debt-schedule.docx",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\1d073c85-42fe-4d6d-8539-069ea87082f8\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-1d073c85-shake-shack-lbo-initial-model-sources-uses-income-statement-cash-flow-debt-schedule.docx",
+      "filename": "btb-1d073c85-shake-shack-lbo-debt-structure-credit-metrics-btb-1d073c85.docx",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\1d073c85-42fe-4d6d-8539-069ea87082f8\\evidence\\btb-docx-btb-1d073c85-shake-shack-lbo-debt-structure-credit-metrics-btb-1d073c85.docx",
       "extension": ".docx",
-      "bytes": 4558,
+      "bytes": 2186,
       "magic": "PK\\x03\\x04",
       "reopened": true,
-      "reopenDetail": "ZIP package contains word/document.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (6520 chars)"
+      "reopenDetail": "ZIP package contains word/document.xml; recovered from Convex room artifact j97akvzx31z42mee262vzkq93989cxzz",
+      "contentQualityDetail": "placeholder/caveat content scan passed (445 chars)"
     },
     {
       "kind": "pdf",
-      "filename": "btb-1d073c85-shake-shack-lbo-initial-model-sources-uses-income-statement-cash-flow-debt-schedule.pdf",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\1d073c85-42fe-4d6d-8539-069ea87082f8\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-1d073c85-shake-shack-lbo-initial-model-sources-uses-income-statement-cash-flow-debt-schedule.pdf",
+      "filename": "btb-1d073c85-shake-shack-lbo-debt-structure-credit-metrics-btb-1d073c85.pdf",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\1d073c85-42fe-4d6d-8539-069ea87082f8\\evidence\\btb-pdf-btb-1d073c85-shake-shack-lbo-debt-structure-credit-metrics-btb-1d073c85.pdf",
       "extension": ".pdf",
-      "bytes": 4589,
+      "bytes": 1182,
       "magic": "%PDF",
       "reopened": true,
-      "reopenDetail": "PDF header reopened",
-      "contentQualityDetail": "placeholder/caveat content scan passed (8633 chars)"
+      "reopenDetail": "PDF header reopened; recovered from Convex room artifact j9785zcbksxzw7nserh55zqans89cfp8",
+      "contentQualityDetail": "placeholder/caveat content scan passed (1833 chars)"
     }
   ],
-  "packageManifestPath": "test-results\\bankertoolbench\\matrix\\1d073c85-42fe-4d6d-8539-069ea87082f8\\package-manifest.json",
+  "packageManifestPath": "docs\\eval\\fresh-room\\FR-020\\tasks\\1d073c85-42fe-4d6d-8539-069ea87082f8\\evidence\\package-manifest.json",
   "verifierCommand": "npm run benchmark:bankertoolbench:proof",
   "verifierOutputTail": "\n> noderoom@0.1.1 benchmark:bankertoolbench:proof\n> tsx scripts/bankertoolbench-proof-check.ts\n\nBankerToolBench proof check passed: stage=1/1 weightedRubric=6 run=0/1 pass positive=1/1 pass candidateBeforeEvaluator=true leaks=0/2+0/3+0/4\n",
-  "screenshot": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\1d073c85-42fe-4d6d-8539-069ea87082f8\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\bankertoolbench-live-room.png",
+  "screenshot": "docs\\eval\\fresh-room\\FR-020\\tasks\\1d073c85-42fe-4d6d-8539-069ea87082f8\\evidence\\bankertoolbench-live-room.png",
   "passed": true,
   "gatesProven": [
     "fresh_room_join",

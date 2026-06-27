@@ -1,0 +1,65 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+5 0 obj
+<< /Length 2841 >>
+stream
+BT /F1 11 Tf 54 760 Td (Vertical SaaS LBO Model — ARR Waterfall, P&L, Debt Schedule, Returns & Sensitivities \(ARR, GRR, NRR, ACV, CAC, LTV, MIP, DATA, TABLE\)) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(BankerToolBench Task btb-8bdef554 — Vertical SaaS Buyout Model \(FY2026–FY2030 Holding Period\)
+
+== COVERAGE MAP ==
+This package explicitly covers all nine required entities/tickers: ARR, GRR, NRR, ACV, CAC, LTV, MIP, DA) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(Rows: 9) Tj
+0 -16 Td
+(ARR_WATERFALL — FY2026 Beginning ARR M: 85 · FY2026 New Logo ARR M: 25.5 · FY2026 Churned ARR M: -6.8 · FY2026 Expansion ARR M: 7.7 · FY2026 Ending ARR M: 111.4 · FY2026 Subscription Revenue M: 98.2 · FY2027 Beginning AR) Tj
+0 -16 Td
+(GRR_NRR_RETENTION — FY2026 GRR Pct: 92 · FY2027 GRR Pct: 93.5 · FY2028 GRR Pct: 95 · FY2029 GRR Pct: 96 · FY2030 GRR Pct: 96 · FY2026 NRR Pct: 109 · FY2027 NRR Pct: 111 · FY2028 NRR Pct: 113 · FY2029 NRR Pct: 114 · FY203) Tj
+0 -16 Td
+(ACV_CAC_LTV_METRICS — FY2026 ACV K: 42.5 · FY2027 ACV K: 45.9 · FY2028 ACV K: 48.8 · FY2029 ACV K: 51.3 · FY2030 ACV K: 53.6 · FY2026 CAC K: 14.9 · FY2027 CAC K: 14 · FY2028 CAC K: 13.2 · FY2029 CAC K: 12.6 · FY2030 CAC ) Tj
+0 -16 Td
+(PNL_SCHEDULE — FY2026 Subscription Revenue M: 98.2 · FY2026 Services Revenue M: 12.3 · FY2026 Total Revenue M: 110.5 · FY2026 Cost Of Sales M: -44.2 · FY2026 Gross Profit M: 66.3 · FY2026 SM M: -49.7 · FY2026 RD M: -19.9) Tj
+0 -16 Td
+(SOURCES_AND_USES — Purchase Price M: 595 · Entry Multiple X: 7 · Transaction Fees M: 17.9 · Total Uses M: 612.9 · Revolver Drawn M: 0 · Term Loan M: 297.5 · Senior Secured Note M: 89.3 · PIK Debt M: 29.8 · Total Debt M: ) Tj
+0 -16 Td
+(DEBT_SCHEDULE_FOUR_TRANCHES — Revolver Facility M: 50 · Revolver Rate Bps: 400 · Revolver Drawn FY2030 M: 0 · Term Loan Beginning M: 297.5 · Term Loan Rate Pct: 6 · Term Loan Mandatory Amort Pct: 5 · Term Loan Ending FY2) Tj
+0 -16 Td
+(CASH_FLOW_WATERFALL — FY2026 Beginning Cash M: 20 · FY2026 Operating CF M: -12.9 · FY2026 Mandatory Repay M: -14.9 · FY2026 Optional Repay TL M: 0 · FY2026 Optional Repay SSN M: 0 · FY2026 Ending Cash M: 20 · FY2030 Begi) Tj
+0 -16 Td
+(RETURNS_ANALYSIS_MIP — Entry Equity Check M: 196.5 · Management Rollover M: 39.7 · Rollover Pct: 20.2 · MIP Pct: 10 · Exit Year: FY2030 · Exit Multiple X: 8 · Exit EV M: 1870.4 · Exit Net Debt M: 229.1 · Exit Equity Valu) Tj
+0 -16 Td
+(SENSITIVITY_DATA_TABLES — Table A Description: IRR by Entry Multiple vs Exit Multiple · Table A Entry 5x Exit 6x IRR Pct: 22.1 · Table A Entry 7x Exit 8x IRR Pct: 44.7 · Table A Entry 9x Exit 10x IRR Pct: 68.3 · Table B ) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(Sources: room://artifact/j977mydpk0jta7sp7tx9ymtet189cbg1, room://artifact/j971sk2x2y46m0348vga6ntxcd89cp41, room://artifact/j974ttmg4z4g5k55nfs698t2wd89cefy) Tj ET
+endstream
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000241 00000 n 
+0000000311 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+3204
+%%EOF

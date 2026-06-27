@@ -9,7 +9,7 @@ import { describe, it, expect } from "vitest";
 import { z } from "zod";
 import { RoomEngine } from "../src/engine/roomEngine";
 import { buildDemoRoom } from "../src/engine/demoRoom";
-import { AgentRunError, InMemoryRoomTools, ROOM_TOOLS, TOOL_REQUIRED_NO_CALL_TERMINAL_MARKER, lastVersions, runAgent, scriptedModel, type AgentMessage, type AgentTool, type ToolCall } from "../src/nodeagent/index";
+import { AgentRunError, InMemoryRoomTools, ROOM_TOOLS, lastVersions, runAgent, scriptedModel, type AgentMessage, type AgentTool, type ToolCall } from "../src/nodeagent/index";
 import { recomputeVariancePlan } from "../src/nodeagent/core/plans";
 
 const TARGETS = { r_rev__variance: "+24%", r_cogs__variance: "+27.5%" };
@@ -466,7 +466,7 @@ describe("agent runtime — collaboration under concurrency", () => {
     expect(r.trace.some((event) => event.tool === "create_btb_deliverable_package")).toBe(true);
   });
 
-  it("marks repeated no-tool BTB provider output as non-resumable", async () => {
+  it("checkpoints repeated no-tool BTB provider output without exposing a raw terminal marker", async () => {
     const { rt } = setup();
     const choices: Array<string | undefined> = [];
     const packageTool: AgentTool = {
@@ -502,7 +502,9 @@ describe("agent runtime — collaboration under concurrency", () => {
     expect(choices.length).toBe(4);
     expect(r.exhausted).toBe(true);
     expect(r.stopReason).toBe("step_budget");
-    expect(r.handoff?.summary).toContain(TOOL_REQUIRED_NO_CALL_TERMINAL_MARKER);
+    expect(r.handoff?.summary).toContain("required tool call missing");
+    expect(r.handoff?.summary).toContain("checkpointed");
+    expect(r.handoff?.summary).not.toContain("tool_required_no_call_terminal");
   });
 
   it("does not count failed BTB package attempts as a completed package", async () => {

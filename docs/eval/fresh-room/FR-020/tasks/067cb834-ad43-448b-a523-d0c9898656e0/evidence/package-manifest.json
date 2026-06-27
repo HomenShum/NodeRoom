@@ -1,0 +1,65 @@
+{
+  "schema": 1,
+  "taskId": "067cb834-ad43-448b-a523-d0c9898656e0",
+  "harborTaskId": "btb-067cb834",
+  "generatedAt": "2026-06-26T00:49:28.728Z",
+  "baseUrl": "http://127.0.0.1:5273",
+  "roomUrl": "http://127.0.0.1:5273/?room=NRYGDO7P5OH&name=Host",
+  "downloadedFiles": [
+    {
+      "kind": "workbook",
+      "filename": "btb-067cb834-comcast-corporation-cmcsa-take-private-teaser.xlsx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\067cb834-ad43-448b-a523-d0c9898656e0\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-067cb834-comcast-corporation-cmcsa-take-private-teaser.xlsx",
+      "extension": ".xlsx",
+      "bytes": 10335,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j979awtvcktvpx9zh0nqa3b5ps89cg9k",
+      "contentQualityDetail": "placeholder/caveat content scan passed (5455 chars)"
+    },
+    {
+      "kind": "workbook",
+      "filename": "btb-067cb834-comcast-corporation-cmcsa-take-private-teaser.xlsm",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\067cb834-ad43-448b-a523-d0c9898656e0\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-067cb834-comcast-corporation-cmcsa-take-private-teaser.xlsm",
+      "extension": ".xlsm",
+      "bytes": 10335,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j97c5jsxds1hcwngcvv6nteq2x89c5q7",
+      "contentQualityDetail": "placeholder/caveat content scan passed (5455 chars)"
+    },
+    {
+      "kind": "presentation",
+      "filename": "btb-067cb834-comcast-corporation-cmcsa-take-private-teaser.pptx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\067cb834-ad43-448b-a523-d0c9898656e0\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-067cb834-comcast-corporation-cmcsa-take-private-teaser.pptx",
+      "extension": ".pptx",
+      "bytes": 7294,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains ppt/presentation.xml; recovered from Convex room artifact j976yhhv9w55ekdhgk876sdxfd89dj1z",
+      "contentQualityDetail": "placeholder/caveat content scan passed (3042 chars)"
+    },
+    {
+      "kind": "document",
+      "filename": "btb-067cb834-comcast-corporation-cmcsa-take-private-teaser.docx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\067cb834-ad43-448b-a523-d0c9898656e0\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-067cb834-comcast-corporation-cmcsa-take-private-teaser.docx",
+      "extension": ".docx",
+      "bytes": 3617,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains word/document.xml; recovered from Convex room artifact j971gjz9gqtfj9rpxbk048wn6n89d063",
+      "contentQualityDetail": "placeholder/caveat content scan passed (6304 chars)"
+    },
+    {
+      "kind": "pdf",
+      "filename": "btb-067cb834-comcast-corporation-cmcsa-take-private-teaser.pdf",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\067cb834-ad43-448b-a523-d0c9898656e0\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-067cb834-comcast-corporation-cmcsa-take-private-teaser.pdf",
+      "extension": ".pdf",
+      "bytes": 4555,
+      "magic": "%PDF",
+      "reopened": true,
+      "reopenDetail": "PDF header reopened; recovered from Convex room artifact j9788fk2wk58a0k2whjcxwn98h89cxg9",
+      "contentQualityDetail": "placeholder/caveat content scan passed (8430 chars)"
+    }
+  ]
+}

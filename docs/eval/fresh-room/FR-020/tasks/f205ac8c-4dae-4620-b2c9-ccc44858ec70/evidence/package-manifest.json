@@ -1,0 +1,65 @@
+{
+  "schema": 1,
+  "taskId": "f205ac8c-4dae-4620-b2c9-ccc44858ec70",
+  "harborTaskId": "btb-f205ac8c",
+  "generatedAt": "2026-06-26T01:13:29.409Z",
+  "baseUrl": "http://127.0.0.1:5273",
+  "roomUrl": "http://127.0.0.1:5273/?room=NRHRJQRKGWU&name=Host",
+  "downloadedFiles": [
+    {
+      "kind": "workbook",
+      "filename": "btb-f205ac8c-wacc-computation-for-abc-libor-mip-fcf.xlsx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\f205ac8c-4dae-4620-b2c9-ccc44858ec70\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-f205ac8c-wacc-computation-for-abc-libor-mip-fcf.xlsx",
+      "extension": ".xlsx",
+      "bytes": 7223,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (1085 chars)"
+    },
+    {
+      "kind": "workbook",
+      "filename": "btb-f205ac8c-wacc-computation-for-abc-libor-mip-fcf.xlsm",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\f205ac8c-4dae-4620-b2c9-ccc44858ec70\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-f205ac8c-wacc-computation-for-abc-libor-mip-fcf.xlsm",
+      "extension": ".xlsm",
+      "bytes": 7223,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (1085 chars)"
+    },
+    {
+      "kind": "presentation",
+      "filename": "btb-f205ac8c-wacc-computation-for-abc-libor-mip-fcf.pptx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\f205ac8c-4dae-4620-b2c9-ccc44858ec70\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-f205ac8c-wacc-computation-for-abc-libor-mip-fcf.pptx",
+      "extension": ".pptx",
+      "bytes": 6381,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains ppt/presentation.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (1401 chars)"
+    },
+    {
+      "kind": "document",
+      "filename": "btb-f205ac8c-wacc-computation-for-abc-libor-mip-fcf.docx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\f205ac8c-4dae-4620-b2c9-ccc44858ec70\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-f205ac8c-wacc-computation-for-abc-libor-mip-fcf.docx",
+      "extension": ".docx",
+      "bytes": 2408,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains word/document.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (1634 chars)"
+    },
+    {
+      "kind": "pdf",
+      "filename": "btb-f205ac8c-wacc-computation-for-abc-libor-mip-fcf.pdf",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\f205ac8c-4dae-4620-b2c9-ccc44858ec70\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-f205ac8c-wacc-computation-for-abc-libor-mip-fcf.pdf",
+      "extension": ".pdf",
+      "bytes": 1924,
+      "magic": "%PDF",
+      "reopened": true,
+      "reopenDetail": "PDF header reopened",
+      "contentQualityDetail": "placeholder/caveat content scan passed (3290 chars)"
+    }
+  ]
+}

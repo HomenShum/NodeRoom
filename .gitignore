@@ -61,3 +61,6 @@ skills/solo-founder-nodes/
 .worktrees/
 
 .vercel
+
+.vercel
+.env*

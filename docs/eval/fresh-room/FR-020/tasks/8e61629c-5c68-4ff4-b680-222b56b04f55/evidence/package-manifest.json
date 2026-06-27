@@ -1,0 +1,65 @@
+{
+  "schema": 1,
+  "taskId": "8e61629c-5c68-4ff4-b680-222b56b04f55",
+  "harborTaskId": "btb-8e61629c",
+  "generatedAt": "2026-06-26T01:19:19.558Z",
+  "baseUrl": "http://127.0.0.1:5273",
+  "roomUrl": "http://127.0.0.1:5273/?room=NRY30Q7OX5Y&name=Host",
+  "downloadedFiles": [
+    {
+      "kind": "workbook",
+      "filename": "btb-8e61629c-ups-senior-unsecured-bond-monitoring-sheet-secondary-market-credit-curve-5y-relativ.xlsx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\8e61629c-5c68-4ff4-b680-222b56b04f55\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-8e61629c-ups-senior-unsecured-bond-monitoring-sheet-secondary-market-credit-curve-5y-relativ.xlsx",
+      "extension": ".xlsx",
+      "bytes": 11153,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j976523379zm2zy5bfcc4mrmzs89dazk",
+      "contentQualityDetail": "placeholder/caveat content scan passed (7284 chars)"
+    },
+    {
+      "kind": "workbook",
+      "filename": "btb-8e61629c-ups-senior-unsecured-bond-monitoring-sheet-secondary-market-credit-curve-5y-relativ.xlsm",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\8e61629c-5c68-4ff4-b680-222b56b04f55\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-8e61629c-ups-senior-unsecured-bond-monitoring-sheet-secondary-market-credit-curve-5y-relativ.xlsm",
+      "extension": ".xlsm",
+      "bytes": 11153,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j97awk9jn4dnc0sec8zkvkcyq189cfz6",
+      "contentQualityDetail": "placeholder/caveat content scan passed (7284 chars)"
+    },
+    {
+      "kind": "presentation",
+      "filename": "btb-8e61629c-ups-senior-unsecured-bond-monitoring-sheet-secondary-market-credit-curve-5y-relativ.pptx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\8e61629c-5c68-4ff4-b680-222b56b04f55\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-8e61629c-ups-senior-unsecured-bond-monitoring-sheet-secondary-market-credit-curve-5y-relativ.pptx",
+      "extension": ".pptx",
+      "bytes": 8299,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains ppt/presentation.xml; recovered from Convex room artifact j97e3cgcdvnfpd99azz92087sd89dkst",
+      "contentQualityDetail": "placeholder/caveat content scan passed (4960 chars)"
+    },
+    {
+      "kind": "document",
+      "filename": "btb-8e61629c-ups-senior-unsecured-bond-monitoring-sheet-secondary-market-credit-curve-5y-relativ.docx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\8e61629c-5c68-4ff4-b680-222b56b04f55\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-8e61629c-ups-senior-unsecured-bond-monitoring-sheet-secondary-market-credit-curve-5y-relativ.docx",
+      "extension": ".docx",
+      "bytes": 4868,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains word/document.xml; recovered from Convex room artifact j973wq4e29m2fmw154teyc886n89d7fg",
+      "contentQualityDetail": "placeholder/caveat content scan passed (8341 chars)"
+    },
+    {
+      "kind": "pdf",
+      "filename": "btb-8e61629c-ups-senior-unsecured-bond-monitoring-sheet-secondary-market-credit-curve-5y-relativ.pdf",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\8e61629c-5c68-4ff4-b680-222b56b04f55\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-8e61629c-ups-senior-unsecured-bond-monitoring-sheet-secondary-market-credit-curve-5y-relativ.pdf",
+      "extension": ".pdf",
+      "bytes": 5530,
+      "magic": "%PDF",
+      "reopened": true,
+      "reopenDetail": "PDF header reopened; recovered from Convex room artifact j978r5s9xhvp8yv97nczs8cqx589dw6n",
+      "contentQualityDetail": "placeholder/caveat content scan passed (10336 chars)"
+    }
+  ]
+}

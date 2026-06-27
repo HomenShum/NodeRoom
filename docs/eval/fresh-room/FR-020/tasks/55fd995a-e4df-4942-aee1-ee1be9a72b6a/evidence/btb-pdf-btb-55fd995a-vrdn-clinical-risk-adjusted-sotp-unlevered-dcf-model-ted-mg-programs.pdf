@@ -1,0 +1,81 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+5 0 obj
+<< /Length 4472 >>
+stream
+BT /F1 11 Tf 54 760 Td (VRDN Clinical Risk-Adjusted SOTP Unlevered DCF Model \(TED + MG Programs\)) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(## VRDN Clinical Risk-Adjusted SOTP Unlevered DCF Model
+
+### Overview
+This package presents a clinical risk-adjusted sum-of-the-parts \(SOTP\) unlevered discounted cash flow model for Veridian Therapeutics \(Nasdaq: VRDN) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(Rows: 17) Tj
+0 -16 Td
+(VRDN Company Overview — Ticker: VRDN · Company: Veridian Therapeutics · Exchange: Nasdaq · Valuation Date: 2025-09-01 · Model Type: Clinical Risk-Adjusted SOTP Unlevered DCF · Forecast Horizon: 2025–2041 · Terminal Value) Tj
+0 -16 Td
+(Clinical R&D Cost Assumptions — Phase 1 Duration Yrs: 2 · Phase 1 Annual Cost USD K: 15000 · Phase 2 Duration Yrs: 2 · Phase 2 Annual Cost USD K: 25000 · Phase 3 Duration Yrs: 3 · Phase 3 Annual Cost USD K: 45000 · Reg S) Tj
+0 -16 Td
+(TED Program DCF Summary — Program: TED \(Thyroid Eye Disease\) · Geography: US + Europe · Launch Year: 2027 · Peak Penetration Pct: 0.15 · Price Per Patient USD: 350000 · Annual Price Erosion Pct: 0.03 · Gross To Net Pct) Tj
+0 -16 Td
+(TED Program Probability of Success — Phase 1 To 2 POS: 0.632 · Phase 2 To 3 POS: 0.431 · Phase 3 To Reg POS: 0.581 · Reg To Approval POS: 0.832 · Cumulative POS TED: 0.1308) Tj
+0 -16 Td
+(TED Program Unlevered FCF \(2025-2041, $K\) — 2025: -75000 · 2026: -50000 · 2027: -12000 · 2028: 15000 · 2029: 45000 · 2030: 78000 · 2031: 95000 · 2032: 110000 · 2033: 118000 · 2034: 122000 · 2035: 120000 · 2036: 115000) Tj
+0 -16 Td
+(MG Program DCF Summary — Program: MG \(Myasthenia Gravis\) · Geography: US + Europe · Launch Year: 2031 · Peak Penetration Pct: 0.1 · Price Per Patient USD: 300000 · Annual Price Erosion Pct: 0.03 · Gross To Net Pct: 0.8) Tj
+0 -16 Td
+(MG Program Probability of Success — Phase 1 To 2 POS: 0.632 · Phase 2 To 3 POS: 0.431 · Phase 3 To Reg POS: 0.581 · Reg To Approval POS: 0.832 · Cumulative POS MG: 0.1308) Tj
+0 -16 Td
+(MG Program Unlevered FCF \(2025-2041, $K\) — 2025: -15000 · 2026: -25000 · 2027: -45000 · 2028: -45000 · 2029: -45000 · 2030: -10000 · 2031: 20000 · 2032: 55000 · 2033: 72000 · 2034: 80000 · 2035: 82000 · 2036: 78000) Tj
+0 -16 Td
+(MG Program Phase Progression — 2025 Phase: Phase 1 · 2026 Phase: Phase 1 · 2027 Phase: Phase 2 · 2028 Phase: Phase 2 · 2029 Phase: Phase 3 · 2030 Phase: Phase 3 · 2031 Approval Year: Approval + Launch · Phase 1 Cost USD ) Tj
+0 -16 Td
+(NOPAT Calculation - TED \(2025-2035, $K\) — 2025 EBIT: -105000 · 2025 Tax: 0 · 2025 NOPAT: -105000 · 2027 EBIT: -42000 · 2027 Tax: 0 · 2027 NOPAT: -42000 · 2029 EBIT: 56000 · 2029 Tax: 11760 · 2029 NOPAT: 44240 · 2031 EB) Tj
+0 -16 Td
+(NOPAT Calculation - MG \(2028-2035, $K\) — 2028 EBIT: -95000 · 2028 Tax: 0 · 2028 NOPAT: -95000 · 2031 EBIT: 18000 · 2031 Tax: 3780 · 2031 NOPAT: 14220 · 2033 EBIT: 95000 · 2033 Tax: 19950 · 2033 NOPAT: 75050 · 2035 EBIT) Tj
+0 -16 Td
+(NPV Summary - Total VRDN — TED NPV USD M: 142.3 · MG NPV USD M: 87.6 · Total VRDN NPV USD M: 229.9 · Shares Outstanding M: 52.4 · NPV Per Share USD: 4.39 · Model Date: 2025-09-01 · Terminal Value: None \(explicit forecas) Tj
+0 -16 Td
+(TED Revenue Build - US Market \($K\) — US Insured Population M: 180 · TED Prevalence Pct: 0.0008 · Adherence Adjusted Pct: 0.7 · Peak Penetration Pct: 0.15 · Treated Patients Peak: 151200 · Price Per Patient USD: 350000 ) Tj
+0 -16 Td
+(TED Revenue Build - Europe Market \($K\) — EU Insured Population M: 220 · TED Prevalence Pct: 0.0008 · Adherence Adjusted Pct: 0.65 · Peak Penetration Pct: 0.12 · Treated Patients Peak: 137280 · Price Per Patient USD: 30) Tj
+0 -16 Td
+(MG Revenue Build - US Market \($K\) — US Insured Population M: 180 · MG Prevalence Pct: 0.0005 · Adherence Adjusted Pct: 0.7 · Peak Penetration Pct: 0.1 · Treated Patients Peak: 63000 · Price Per Patient USD: 300000 · An) Tj
+0 -16 Td
+(MG Revenue Build - Europe Market \($K\) — EU Insured Population M: 220 · MG Prevalence Pct: 0.0005 · Adherence Adjusted Pct: 0.65 · Peak Penetration Pct: 0.08 · Treated Patients Peak: 57200 · Price Per Patient USD: 26000) Tj
+0 -16 Td
+(WACC Cross-Check — Risk Free Rate Pct: 0.0428 · Equity Risk Premium Pct: 0.0547 · Levered Beta: 1.05 · After Tax Cost Of Debt Pct: 0.04 · WACC Pct: 0.1 · Model Discount Rate Pct: 0.12 · Rationale: 12% selected as clinica) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(Sources: ) Tj ET
+endstream
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000241 00000 n 
+0000000311 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+4835
+%%EOF

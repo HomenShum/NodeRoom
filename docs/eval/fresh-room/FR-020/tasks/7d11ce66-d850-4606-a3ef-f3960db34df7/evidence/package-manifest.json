@@ -1,0 +1,65 @@
+{
+  "schema": 1,
+  "taskId": "7d11ce66-d850-4606-a3ef-f3960db34df7",
+  "harborTaskId": "btb-7d11ce66",
+  "generatedAt": "2026-06-26T01:27:27.575Z",
+  "baseUrl": "http://127.0.0.1:5273",
+  "roomUrl": "http://127.0.0.1:5273/?room=NRGZF0H0U38&name=Host",
+  "downloadedFiles": [
+    {
+      "kind": "workbook",
+      "filename": "btb-7d11ce66-btb-task-btb-7d11ce66-analysis.xlsx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\7d11ce66-d850-4606-a3ef-f3960db34df7\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-7d11ce66-btb-task-btb-7d11ce66-analysis.xlsx",
+      "extension": ".xlsx",
+      "bytes": 6620,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (100 chars)"
+    },
+    {
+      "kind": "workbook",
+      "filename": "btb-7d11ce66-btb-task-btb-7d11ce66-analysis.xlsm",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\7d11ce66-d850-4606-a3ef-f3960db34df7\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-7d11ce66-btb-task-btb-7d11ce66-analysis.xlsm",
+      "extension": ".xlsm",
+      "bytes": 6620,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (100 chars)"
+    },
+    {
+      "kind": "presentation",
+      "filename": "btb-7d11ce66-btb-task-btb-7d11ce66-analysis.pptx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\7d11ce66-d850-4606-a3ef-f3960db34df7\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-7d11ce66-btb-task-btb-7d11ce66-analysis.pptx",
+      "extension": ".pptx",
+      "bytes": 5970,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains ppt/presentation.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (87 chars)"
+    },
+    {
+      "kind": "document",
+      "filename": "btb-7d11ce66-btb-task-btb-7d11ce66-analysis.docx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\7d11ce66-d850-4606-a3ef-f3960db34df7\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-7d11ce66-btb-task-btb-7d11ce66-analysis.docx",
+      "extension": ".docx",
+      "bytes": 1940,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains word/document.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (68 chars)"
+    },
+    {
+      "kind": "pdf",
+      "filename": "btb-7d11ce66-btb-task-btb-7d11ce66-analysis.pdf",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\7d11ce66-d850-4606-a3ef-f3960db34df7\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-7d11ce66-btb-task-btb-7d11ce66-analysis.pdf",
+      "extension": ".pdf",
+      "bytes": 773,
+      "magic": "%PDF",
+      "reopened": true,
+      "reopenDetail": "PDF header reopened",
+      "contentQualityDetail": "placeholder/caveat content scan passed (1025 chars)"
+    }
+  ]
+}

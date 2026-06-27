@@ -1,0 +1,65 @@
+{
+  "schema": 1,
+  "taskId": "c7bbdb93-8b29-44f6-8e5f-13fc0d3de8fc",
+  "harborTaskId": "btb-c7bbdb93",
+  "generatedAt": "2026-06-26T01:02:00.779Z",
+  "baseUrl": "http://127.0.0.1:5273",
+  "roomUrl": "http://127.0.0.1:5273/?room=NRQJJTE5Y5K&name=Host",
+  "downloadedFiles": [
+    {
+      "kind": "workbook",
+      "filename": "btb-c7bbdb93-project-redwood-pro-forma-capitalization-ownership-analysis.xlsx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\c7bbdb93-8b29-44f6-8e5f-13fc0d3de8fc\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-c7bbdb93-project-redwood-pro-forma-capitalization-ownership-analysis.xlsx",
+      "extension": ".xlsx",
+      "bytes": 8445,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (4202 chars)"
+    },
+    {
+      "kind": "workbook",
+      "filename": "btb-c7bbdb93-project-redwood-pro-forma-capitalization-ownership-analysis.xlsm",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\c7bbdb93-8b29-44f6-8e5f-13fc0d3de8fc\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-c7bbdb93-project-redwood-pro-forma-capitalization-ownership-analysis.xlsm",
+      "extension": ".xlsm",
+      "bytes": 8445,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (4202 chars)"
+    },
+    {
+      "kind": "presentation",
+      "filename": "btb-c7bbdb93-project-redwood-pro-forma-capitalization-ownership-analysis.pptx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\c7bbdb93-8b29-44f6-8e5f-13fc0d3de8fc\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-c7bbdb93-project-redwood-pro-forma-capitalization-ownership-analysis.pptx",
+      "extension": ".pptx",
+      "bytes": 7590,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains ppt/presentation.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (4246 chars)"
+    },
+    {
+      "kind": "document",
+      "filename": "btb-c7bbdb93-project-redwood-pro-forma-capitalization-ownership-analysis.docx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\c7bbdb93-8b29-44f6-8e5f-13fc0d3de8fc\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-c7bbdb93-project-redwood-pro-forma-capitalization-ownership-analysis.docx",
+      "extension": ".docx",
+      "bytes": 3547,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains word/document.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (4613 chars)"
+    },
+    {
+      "kind": "pdf",
+      "filename": "btb-c7bbdb93-project-redwood-pro-forma-capitalization-ownership-analysis.pdf",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\c7bbdb93-8b29-44f6-8e5f-13fc0d3de8fc\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-c7bbdb93-project-redwood-pro-forma-capitalization-ownership-analysis.pdf",
+      "extension": ".pdf",
+      "bytes": 2567,
+      "magic": "%PDF",
+      "reopened": true,
+      "reopenDetail": "PDF header reopened",
+      "contentQualityDetail": "placeholder/caveat content scan passed (4556 chars)"
+    }
+  ]
+}

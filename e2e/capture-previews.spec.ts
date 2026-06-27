@@ -94,12 +94,10 @@ test("real-app preview — Room NodeAgent fills the variance column (lock → CA
   await enterDemoRoom(page);
   const panel = page.getByTestId("artifact-panel");
   await expect(panel).toBeVisible();
-  const run = page.getByTestId("collab-run");
-  await expect(run).toBeVisible();
 
   const cam = shooter(panel);
-  await cam.shoot(1500);                    // before: empty variance cells + "Run collaboration"
-  await run.click();                        // the real agent runtime starts (scripted model, in-memory engine)
+  await cam.shoot(1500);                    // before: empty variance cells
+  await page.evaluate(() => (window as any).__runCollab()); // the real agent runtime starts (scripted model, in-memory engine)
   await cam.burst(page, 24);                // during: lock → read → CAS-edit per cell, trace growing
   await page.waitForTimeout(700);
   await cam.shoot(2000);                    // settled: cells filled, trace receipts, collab "done"
@@ -169,14 +167,12 @@ test("real-app preview — review mode: agent edits arrive as proposals, host ap
 
   // Turn auto-allow OFF -> every agent write becomes an inline proposal needing approval.
   await page.locator(".r-pill-auto .r-switch").click();
-  const run = page.getByTestId("collab-run");
-  await expect(run).toBeVisible();
 
   // Sheet area only — proposal chips, approve buttons, and the committed value all live here;
   // the ticker below churns pixels that defeat dedupe and judge as frozen dead air.
   const cam = shooter(panel.locator(".r-art-body"));
   await cam.shoot(1500);                    // before: auto-allow off, cells empty
-  await run.click();
+  await page.evaluate(() => (window as any).__runCollab());
   await cam.burst(page, 14);                // agent works; writes land as pending proposals
   await expect(panel.locator('[data-testid="proposal-inline"]').first()).toBeVisible({ timeout: 15_000 });
   await cam.shoot(1800);                    // proposals visible inline

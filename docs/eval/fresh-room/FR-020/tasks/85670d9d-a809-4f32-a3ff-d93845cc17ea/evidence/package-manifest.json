@@ -1,0 +1,65 @@
+{
+  "schema": 1,
+  "taskId": "85670d9d-a809-4f32-a3ff-d93845cc17ea",
+  "harborTaskId": "btb-85670d9d",
+  "generatedAt": "2026-06-25T23:47:04.585Z",
+  "baseUrl": "http://127.0.0.1:5273",
+  "roomUrl": "http://127.0.0.1:5273/?room=NROJ608FZ9Q&name=Host",
+  "downloadedFiles": [
+    {
+      "kind": "workbook",
+      "filename": "btb-85670d9d-capricor-therapeutics-capr-deramiocel-dmd-epidemiology-revenue-build-cdc-dmd-covera.xlsx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\85670d9d-a809-4f32-a3ff-d93845cc17ea\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-85670d9d-capricor-therapeutics-capr-deramiocel-dmd-epidemiology-revenue-build-cdc-dmd-covera.xlsx",
+      "extension": ".xlsx",
+      "bytes": 11751,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j97evm6b2w5c1k1jqrrb3mfm4189bc09",
+      "contentQualityDetail": "placeholder/caveat content scan passed (9289 chars)"
+    },
+    {
+      "kind": "workbook",
+      "filename": "btb-85670d9d-capricor-therapeutics-capr-deramiocel-dmd-epidemiology-revenue-build-cdc-dmd-covera.xlsm",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\85670d9d-a809-4f32-a3ff-d93845cc17ea\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-85670d9d-capricor-therapeutics-capr-deramiocel-dmd-epidemiology-revenue-build-cdc-dmd-covera.xlsm",
+      "extension": ".xlsm",
+      "bytes": 11751,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j9723vk9a6qwxqmczfrcpk2st189b854",
+      "contentQualityDetail": "placeholder/caveat content scan passed (9289 chars)"
+    },
+    {
+      "kind": "presentation",
+      "filename": "btb-85670d9d-capricor-therapeutics-capr-deramiocel-dmd-epidemiology-revenue-build-cdc-dmd-covera.pptx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\85670d9d-a809-4f32-a3ff-d93845cc17ea\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-85670d9d-capricor-therapeutics-capr-deramiocel-dmd-epidemiology-revenue-build-cdc-dmd-covera.pptx",
+      "extension": ".pptx",
+      "bytes": 8608,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains ppt/presentation.xml; recovered from Convex room artifact j978yak58f0fwpj6qff46s26n589bcv1",
+      "contentQualityDetail": "placeholder/caveat content scan passed (6117 chars)"
+    },
+    {
+      "kind": "document",
+      "filename": "btb-85670d9d-capricor-therapeutics-capr-deramiocel-dmd-epidemiology-revenue-build-cdc-dmd-covera.docx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\85670d9d-a809-4f32-a3ff-d93845cc17ea\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-85670d9d-capricor-therapeutics-capr-deramiocel-dmd-epidemiology-revenue-build-cdc-dmd-covera.docx",
+      "extension": ".docx",
+      "bytes": 5085,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains word/document.xml; recovered from Convex room artifact j973gsf96fqq95d1rkmvb0z39989aae8",
+      "contentQualityDetail": "placeholder/caveat content scan passed (7609 chars)"
+    },
+    {
+      "kind": "pdf",
+      "filename": "btb-85670d9d-capricor-therapeutics-capr-deramiocel-dmd-epidemiology-revenue-build-cdc-dmd-covera.pdf",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\85670d9d-a809-4f32-a3ff-d93845cc17ea\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-85670d9d-capricor-therapeutics-capr-deramiocel-dmd-epidemiology-revenue-build-cdc-dmd-covera.pdf",
+      "extension": ".pdf",
+      "bytes": 3475,
+      "magic": "%PDF",
+      "reopened": true,
+      "reopenDetail": "PDF header reopened; recovered from Convex room artifact j971rk8t07h6trb09rnfffkvtn89bnjn",
+      "contentQualityDetail": "placeholder/caveat content scan passed (6358 chars)"
+    }
+  ]
+}

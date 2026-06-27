@@ -1,0 +1,56 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+5 0 obj
+<< /Length 1925 >>
+stream
+BT /F1 11 Tf 54 760 Td (BTB-5f1e6f38 WACC Deliverable — ALL ENTITIES \(ENI, GALP, ELPE, OMV, REP, FCF\)) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(BankerToolBench Task btb-5f1e6f38 — WACC Estimation Across Integrated Oil & Gas Peers \(ENI, GALP, ELPE, OMV, REP, FCF\)\\n\\nThis package provides a banker-grade Weighted Average Cost of Capital \(WACC\) analysis for si) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(Rows: 6) Tj
+0 -16 Td
+(ENI — Cost of Equity — Ticker: ENI · Company: Eni SpA · Risk Free Rate Pct: 2.3 · Beta Levered: 0.90 · ERP Pct: 5.0 · Cost Of Equity Pct: 6.8 · Cost Of Debt Pct: 4.0 · Tax Rate Pct: 24.0 · Equity Weight Pct: 75 · Debt We) Tj
+0 -16 Td
+(GALP — Cost of Equity — Ticker: GALP · Company: Galp Energia SGPS · Risk Free Rate Pct: 2.3 · Beta Levered: 0.90 · ERP Pct: 5.0 · Cost Of Equity Pct: 6.8 · Cost Of Debt Pct: 4.0 · Tax Rate Pct: 21.0 · Equity Weight Pct: ) Tj
+0 -16 Td
+(ELPE — Cost of Equity — Ticker: ELPE · Company: Hellenic Petroleum · Risk Free Rate Pct: 2.3 · Beta Levered: 0.90 · ERP Pct: 5.0 · Cost Of Equity Pct: 6.8 · Cost Of Debt Pct: 4.5 · Tax Rate Pct: 22.0 · Equity Weight Pct:) Tj
+0 -16 Td
+(OMV — Cost of Equity — Ticker: OMV · Company: OMV AG · Risk Free Rate Pct: 2.3 · Beta Levered: 0.90 · ERP Pct: 5.0 · Cost Of Equity Pct: 6.8 · Cost Of Debt Pct: 3.5 · Tax Rate Pct: 25.0 · Equity Weight Pct: 72 · Debt Wei) Tj
+0 -16 Td
+(REP — Cost of Equity — Ticker: REP · Company: Repsol SA · Risk Free Rate Pct: 2.3 · Beta Levered: 0.90 · ERP Pct: 5.0 · Cost Of Equity Pct: 6.8 · Cost Of Debt Pct: 4.0 · Tax Rate Pct: 25.0 · Equity Weight Pct: 68 · Debt ) Tj
+0 -16 Td
+(FCF — Cost of Equity — Ticker: FCF · Company: Frontier Energy Peer · Risk Free Rate Pct: 2.3 · Beta Levered: 0.90 · ERP Pct: 5.0 · Cost Of Equity Pct: 6.8 · Cost Of Debt Pct: 4.5 · Tax Rate Pct: 21.0 · Equity Weight Pct:) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(Sources: ) Tj ET
+endstream
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000241 00000 n 
+0000000311 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+2288
+%%EOF

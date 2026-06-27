@@ -3,10 +3,10 @@
   "caseId": "FR-020",
   "benchmark": "bankertoolbench",
   "taskId": "5d72295c-f640-4c78-b85a-6f338e46c02b",
-  "generatedAt": "2026-06-25T02:02:58.561Z",
+  "generatedAt": "2026-06-26T00:33:23.587Z",
   "baseUrl": "http://127.0.0.1:5273",
-  "roomId": "NR34NL8UNSE",
-  "roomUrl": "http://127.0.0.1:5273/?room=NR34NL8UNSE&name=Host",
+  "roomId": "NRBW65N4HB0",
+  "roomUrl": "http://127.0.0.1:5273/?room=NRBW65N4HB0&name=Host",
   "command": "BTB_LIVE_ROOM_E2E=1 BTB_UI_BUNDLE_ROOT=<official-bundle> BTB_UI_VERIFIER_COMMAND=<verifier> BENCH_BASE_URL=<base> npx playwright test --config playwright.real-flow.config.ts e2e/benchmark-ui-bankertoolbench.spec.ts --headed",
   "model": {
     "requested": "specific",
@@ -21,11 +21,11 @@
     "roomCreatedAfterRunStart": true,
     "forbiddenPreloadedArtifactsAbsent": true,
     "artifactsCreatedFresh": [
-      "btb-5d72295c-boeing-lender-presentation-s-u-cap-table-btb-5d72295c.xlsx",
-      "btb-5d72295c-boeing-lender-presentation-s-u-cap-table-btb-5d72295c.xlsm",
-      "btb-5d72295c-boeing-lender-presentation-s-u-cap-table-btb-5d72295c.pptx",
-      "btb-5d72295c-boeing-lender-presentation-s-u-cap-table-btb-5d72295c.docx",
-      "btb-5d72295c-boeing-lender-presentation-s-u-cap-table-btb-5d72295c.pdf"
+      "btb-5d72295c-btb-5d72295c---wacc-analysis-oid-tl-sofr.xlsx",
+      "btb-5d72295c-btb-5d72295c---wacc-analysis-oid-tl-sofr.xlsm",
+      "btb-5d72295c-btb-5d72295c---wacc-analysis-oid-tl-sofr.pptx",
+      "btb-5d72295c-btb-5d72295c---wacc-analysis-oid-tl-sofr.docx",
+      "btb-5d72295c-btb-5d72295c---wacc-analysis-oid-tl-sofr.pdf"
     ],
     "uploadedFiles": [
       "betas_by_industry_category_for_WACC.xlsx",
@@ -43,7 +43,7 @@
     "jobDetailVisible": true,
     "roomTraceVisible": true,
     "screenshotPaths": [
-      "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\5d72295c-f640-4c78-b85a-6f338e46c02b\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\bankertoolbench-live-room.png"
+      "docs\\eval\\fresh-room\\FR-020\\tasks\\5d72295c-f640-4c78-b85a-6f338e46c02b\\evidence\\bankertoolbench-live-room.png"
     ],
     "tracePath": "docs\\eval\\bankertoolbench\\live-room\\5d72295c-f640-4c78-b85a-6f338e46c02b.json"
   },
@@ -57,94 +57,94 @@
       "btb-5d72295c-official-task-brief.txt"
     ],
     "created": [
-      "btb-5d72295c-boeing-lender-presentation-s-u-cap-table-btb-5d72295c.xlsx",
-      "btb-5d72295c-boeing-lender-presentation-s-u-cap-table-btb-5d72295c.xlsm",
-      "btb-5d72295c-boeing-lender-presentation-s-u-cap-table-btb-5d72295c.pptx",
-      "btb-5d72295c-boeing-lender-presentation-s-u-cap-table-btb-5d72295c.docx",
-      "btb-5d72295c-boeing-lender-presentation-s-u-cap-table-btb-5d72295c.pdf"
+      "btb-5d72295c-btb-5d72295c---wacc-analysis-oid-tl-sofr.xlsx",
+      "btb-5d72295c-btb-5d72295c---wacc-analysis-oid-tl-sofr.xlsm",
+      "btb-5d72295c-btb-5d72295c---wacc-analysis-oid-tl-sofr.pptx",
+      "btb-5d72295c-btb-5d72295c---wacc-analysis-oid-tl-sofr.docx",
+      "btb-5d72295c-btb-5d72295c---wacc-analysis-oid-tl-sofr.pdf"
     ],
     "exportedFiles": [
       {
         "kind": "workbook",
-        "filename": "btb-5d72295c-boeing-lender-presentation-s-u-cap-table-btb-5d72295c.xlsx",
-        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\5d72295c-f640-4c78-b85a-6f338e46c02b\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-5d72295c-boeing-lender-presentation-s-u-cap-table-btb-5d72295c.xlsx",
+        "filename": "btb-5d72295c-btb-5d72295c---wacc-analysis-oid-tl-sofr.xlsx",
+        "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\5d72295c-f640-4c78-b85a-6f338e46c02b\\evidence\\btb-xlsx-btb-5d72295c-btb-5d72295c---wacc-analysis-oid-tl-sofr.xlsx",
         "extension": ".xlsx",
         "downloaded": true,
-        "bytes": 9407,
+        "bytes": 6958,
         "magic": "PK\\x03\\x04"
       },
       {
         "kind": "workbook",
-        "filename": "btb-5d72295c-boeing-lender-presentation-s-u-cap-table-btb-5d72295c.xlsm",
-        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\5d72295c-f640-4c78-b85a-6f338e46c02b\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-5d72295c-boeing-lender-presentation-s-u-cap-table-btb-5d72295c.xlsm",
+        "filename": "btb-5d72295c-btb-5d72295c---wacc-analysis-oid-tl-sofr.xlsm",
+        "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\5d72295c-f640-4c78-b85a-6f338e46c02b\\evidence\\btb-xlsm-btb-5d72295c-btb-5d72295c---wacc-analysis-oid-tl-sofr.xlsm",
         "extension": ".xlsm",
         "downloaded": true,
-        "bytes": 9407,
+        "bytes": 6958,
         "magic": "PK\\x03\\x04"
       },
       {
         "kind": "presentation",
-        "filename": "btb-5d72295c-boeing-lender-presentation-s-u-cap-table-btb-5d72295c.pptx",
-        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\5d72295c-f640-4c78-b85a-6f338e46c02b\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-5d72295c-boeing-lender-presentation-s-u-cap-table-btb-5d72295c.pptx",
+        "filename": "btb-5d72295c-btb-5d72295c---wacc-analysis-oid-tl-sofr.pptx",
+        "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\5d72295c-f640-4c78-b85a-6f338e46c02b\\evidence\\btb-pptx-btb-5d72295c-btb-5d72295c---wacc-analysis-oid-tl-sofr.pptx",
         "extension": ".pptx",
         "downloaded": true,
-        "bytes": 7329,
+        "bytes": 6246,
         "magic": "PK\\x03\\x04"
       },
       {
         "kind": "document",
-        "filename": "btb-5d72295c-boeing-lender-presentation-s-u-cap-table-btb-5d72295c.docx",
-        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\5d72295c-f640-4c78-b85a-6f338e46c02b\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-5d72295c-boeing-lender-presentation-s-u-cap-table-btb-5d72295c.docx",
+        "filename": "btb-5d72295c-btb-5d72295c---wacc-analysis-oid-tl-sofr.docx",
+        "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\5d72295c-f640-4c78-b85a-6f338e46c02b\\evidence\\btb-docx-btb-5d72295c-btb-5d72295c---wacc-analysis-oid-tl-sofr.docx",
         "extension": ".docx",
         "downloaded": true,
-        "bytes": 4186,
+        "bytes": 2212,
         "magic": "PK\\x03\\x04"
       },
       {
         "kind": "pdf",
-        "filename": "btb-5d72295c-boeing-lender-presentation-s-u-cap-table-btb-5d72295c.pdf",
-        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\5d72295c-f640-4c78-b85a-6f338e46c02b\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-5d72295c-boeing-lender-presentation-s-u-cap-table-btb-5d72295c.pdf",
+        "filename": "btb-5d72295c-btb-5d72295c---wacc-analysis-oid-tl-sofr.pdf",
+        "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\5d72295c-f640-4c78-b85a-6f338e46c02b\\evidence\\btb-pdf-btb-5d72295c-btb-5d72295c---wacc-analysis-oid-tl-sofr.pdf",
         "extension": ".pdf",
         "downloaded": true,
-        "bytes": 5062,
+        "bytes": 1386,
         "magic": "%PDF"
       }
     ],
     "reopenedFiles": [
       {
         "kind": "workbook",
-        "filename": "btb-5d72295c-boeing-lender-presentation-s-u-cap-table-btb-5d72295c.xlsx",
+        "filename": "btb-5d72295c-btb-5d72295c---wacc-analysis-oid-tl-sofr.xlsx",
         "reopened": true,
         "scorerResult": "pass",
-        "detail": "ZIP package contains xl/workbook.xml; placeholder/caveat content scan passed (5912 chars)"
+        "detail": "ZIP package contains xl/workbook.xml; placeholder/caveat content scan passed (548 chars)"
       },
       {
         "kind": "workbook",
-        "filename": "btb-5d72295c-boeing-lender-presentation-s-u-cap-table-btb-5d72295c.xlsm",
+        "filename": "btb-5d72295c-btb-5d72295c---wacc-analysis-oid-tl-sofr.xlsm",
         "reopened": true,
         "scorerResult": "pass",
-        "detail": "ZIP package contains xl/workbook.xml; placeholder/caveat content scan passed (5912 chars)"
+        "detail": "ZIP package contains xl/workbook.xml; placeholder/caveat content scan passed (548 chars)"
       },
       {
         "kind": "presentation",
-        "filename": "btb-5d72295c-boeing-lender-presentation-s-u-cap-table-btb-5d72295c.pptx",
+        "filename": "btb-5d72295c-btb-5d72295c---wacc-analysis-oid-tl-sofr.pptx",
         "reopened": true,
         "scorerResult": "pass",
-        "detail": "ZIP package contains ppt/presentation.xml; placeholder/caveat content scan passed (3251 chars)"
+        "detail": "ZIP package contains ppt/presentation.xml; placeholder/caveat content scan passed (678 chars)"
       },
       {
         "kind": "document",
-        "filename": "btb-5d72295c-boeing-lender-presentation-s-u-cap-table-btb-5d72295c.docx",
+        "filename": "btb-5d72295c-btb-5d72295c---wacc-analysis-oid-tl-sofr.docx",
         "reopened": true,
         "scorerResult": "pass",
-        "detail": "ZIP package contains word/document.xml; placeholder/caveat content scan passed (6564 chars)"
+        "detail": "ZIP package contains word/document.xml; placeholder/caveat content scan passed (659 chars)"
       },
       {
         "kind": "pdf",
-        "filename": "btb-5d72295c-boeing-lender-presentation-s-u-cap-table-btb-5d72295c.pdf",
+        "filename": "btb-5d72295c-btb-5d72295c---wacc-analysis-oid-tl-sofr.pdf",
         "reopened": true,
         "scorerResult": "pass",
-        "detail": "PDF header reopened; placeholder/caveat content scan passed (3084 chars)"
+        "detail": "PDF header reopened; placeholder/caveat content scan passed (2232 chars)"
       }
     ]
   },
@@ -155,7 +155,7 @@
     "score": 1,
     "details": {
       "verifierOutputTail": "\n> noderoom@0.1.1 benchmark:bankertoolbench:proof\n> tsx scripts/bankertoolbench-proof-check.ts\n\nBankerToolBench proof check passed: stage=1/1 weightedRubric=6 run=0/1 pass positive=1/1 pass candidateBeforeEvaluator=true leaks=0/2+0/3+0/4\n",
-      "packageManifestPath": "test-results\\bankertoolbench\\matrix\\5d72295c-f640-4c78-b85a-6f338e46c02b\\package-manifest.json",
+      "packageManifestPath": "docs\\eval\\fresh-room\\FR-020\\tasks\\5d72295c-f640-4c78-b85a-6f338e46c02b\\evidence\\package-manifest.json",
       "downloadedExtensions": [
         ".xlsx",
         ".xlsm",
@@ -165,26 +165,34 @@
       ],
       "exportSource": "browser_download_link",
       "agentTerminalQuality": {
-        "statusText": "completed via recovered Convex job: -lender-presentation-s-u-cap-table-btb-5d72295c.pptx, btb-5d72295c-boeing-lender-presentation-s-u-cap-table-btb-5d72295c.docx, btb-5d72295c-boeing-lender-presentation-s-u-cap-table-btb-5d72295c.pdf. Coverage confirmed for VP, OID, TL, SOFR.",
-        "evidenceTextLength": 1949,
+        "statusText": "completed via recovered Convex job: lysis-oid-tl-sofr.xlsm, btb-5d72295c-btb-5d72295c---wacc-analysis-oid-tl-sofr.pptx, btb-5d72295c-btb-5d72295c---wacc-analysis-oid-tl-sofr.docx, btb-5d72295c-btb-5d72295c---wacc-analysis-oid-tl-sofr.pdf. Coverage confirmed for OID, TL, SOFR.",
+        "evidenceTextLength": 1047,
         "detail": "agent reached completed status or visible completion text, with no missing-source/unfinished-work caveats"
       },
       "taskCoverage": {
         "ok": true,
         "requiredTickers": [
-          "VP",
           "OID",
           "TL",
           "SOFR"
         ],
         "missingTickers": [],
-        "detail": "generated package mentions every requested ticker/entity: VP, OID, TL, SOFR"
+        "domainProof": {
+          "ok": true,
+          "domain": "generic",
+          "gates": [],
+          "missingGates": [],
+          "detail": "no task-specific domain proof gate required"
+        },
+        "detail": "generated package mentions every requested ticker/entity: OID, TL, SOFR; no task-specific domain proof gate required"
       }
     }
   },
   "visualJudge": {
-    "verdict": "not_run",
-    "reason": "GOOGLE_GENERATIVE_AI_API_KEY is not set; deterministic browser/download/reopen/verifier proof passed."
+    "command": "npm run media:gemini-judge -- --run-id btb-full-20260626-retry-nonbc55 --out \"docs\\\\eval\\\\gemini-media-judges\\\\btb-full-20260626\\\\retry-nonbc55\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\205a3cb3-33b8-42ea-b50c-fe2dc1630208\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\5d72295c-f640-4c78-b85a-6f338e46c02b\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\963978db-b155-4fe2-9ae7-ca0b259a5fba\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\9ed5fdf8-7ffa-4c26-92d8-e1f28308af52\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\b486dc21-d67e-4857-b2f9-b78c0e0222ce\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\bd2aa5d6-30cd-4b6f-875a-2c3626f56441\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\c1c36cfd-677b-462b-96d4-ea76e12e98e8\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\cc4c8473-4c54-4fdd-9af8-c55bc9e4b07d\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\df4c5a14-a6f9-4a56-ac8a-ad2562b50a7e\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\"",
+    "verdict": "pass",
+    "scorecardPath": "docs/eval/gemini-media-judges/btb-full-20260626/retry-nonbc55/btb-full-20260626-retry-nonbc55/summary.md",
+    "reason": "Gemini media judge publish (8/16); defects P0/P1/P2=0/0/0. The video demonstrates a complete end-to-end run of the BankerToolBench package verifier, showing room creation, file uploads, agent execution, and artifact generation. Source clip: test-results\\bankertoolbench\\matrix\\5d72295c-f640-4c78-b85a-6f338e46c02b\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\video.webm."
   },
   "gatesProven": [
     "fresh_room_join",
@@ -202,7 +210,8 @@
     "deliverable_export_download",
     "artifact_reopen_validation",
     "artifact_placeholder_scan",
-    "official_scorer_handoff"
+    "official_scorer_handoff",
+    "visual_judge_handoff"
   ],
   "passed": true
 }

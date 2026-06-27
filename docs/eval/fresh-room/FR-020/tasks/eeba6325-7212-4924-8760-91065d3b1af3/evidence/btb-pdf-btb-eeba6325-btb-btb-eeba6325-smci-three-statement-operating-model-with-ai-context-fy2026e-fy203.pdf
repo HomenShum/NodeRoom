@@ -1,0 +1,104 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+5 0 obj
+<< /Length 4941 >>
+stream
+BT /F1 11 Tf 54 760 Td (BTB btb-eeba6325: SMCI Three-Statement Operating Model with AI Context \(FY2026E–FY2030E\)) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(BTB task btb-eeba6325 — SMCI three-statement operating model \(FY2026E–FY2030E\). Package includes: \(1\) Historical Financials for SMCI \(FY2023A–FY2025A\) sourced from uploaded SMCI-US Income Statement, Balance Sheet, ) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(Rows: 113) Tj
+0 -16 Td
+(SMCI Revenue FY2023A — Source: SMCI-US Income Statement Annual · Value: 7123 · Unit: $mm · Year: FY2023A) Tj
+0 -16 Td
+(SMCI Revenue FY2024A — Source: SMCI-US Income Statement Annual · Unit: $mm · Value: 14943 · Year: FY2024A) Tj
+0 -16 Td
+(SMCI Revenue FY2025A — Source: SMCI-US Income Statement Annual · Unit: $mm · Value: 21951 · Year: FY2025A) Tj
+0 -16 Td
+(SMCI Revenue FY2026E — Source: Management guidance \(~$36B\) · Unit: $mm · Value: 36000 · Year: FY2026E · Growth Rate: 64.0%) Tj
+0 -16 Td
+(SMCI Revenue FY2027E — Assumption: Prior year growth - 10pp · Unit: $mm · Value: 55440 · Year: FY2027E · Growth Rate: 54.0%) Tj
+0 -16 Td
+(SMCI Revenue FY2028E — Assumption: Prior year growth - 10pp · Unit: $mm · Value: 79834 · Year: FY2028E · Growth Rate: 44.0%) Tj
+0 -16 Td
+(SMCI Revenue FY2029E — Assumption: Prior year growth - 10pp · Unit: $mm · Value: 106977 · Year: FY2029E · Growth Rate: 34.0%) Tj
+0 -16 Td
+(SMCI Revenue FY2030E — Assumption: Prior year growth - 10pp · Unit: $mm · Value: 132651 · Year: FY2030E · Growth Rate: 24.0%) Tj
+0 -16 Td
+(SMCI Gross Margin FY2023A — Source: SMCI-US Income Statement Annual · Value: 0.182 · Year: FY2023A · Format: percent) Tj
+0 -16 Td
+(SMCI Gross Margin FY2024A — Source: SMCI-US Income Statement Annual · Value: 0.169 · Year: FY2024A · Format: percent) Tj
+0 -16 Td
+(SMCI Gross Margin FY2025A — Source: SMCI-US Income Statement Annual · Value: 0.11 · Year: FY2025A · Format: percent) Tj
+0 -16 Td
+(SMCI Gross Margin FY2026E — Assumption: Gradual recovery to 18% by FY2030E · Value: 0.122 · Year: FY2026E · Format: percent) Tj
+0 -16 Td
+(SMCI Gross Margin FY2027E — Assumption: Gradual recovery to 18% by FY2030E · Value: 0.134 · Year: FY2027E · Format: percent) Tj
+0 -16 Td
+(SMCI Gross Margin FY2028E — Assumption: Gradual recovery to 18% by FY2030E · Value: 0.146 · Year: FY2028E · Format: percent) Tj
+0 -16 Td
+(SMCI Gross Margin FY2029E — Assumption: Gradual recovery to 18% by FY2030E · Value: 0.158 · Year: FY2029E · Format: percent) Tj
+0 -16 Td
+(SMCI Gross Margin FY2030E — Assumption: Long-term historical average · Value: 0.18 · Year: FY2030E · Format: percent) Tj
+0 -16 Td
+(SMCI DSO FY2023A — Source: SMCI-US Balance Sheet & Income Statement · Value: 56.8 · Unit: days · Year: FY2023A · Calc: AR / Revenue * 365) Tj
+0 -16 Td
+(SMCI DSO FY2024A — Source: SMCI-US Balance Sheet & Income Statement · Value: 59.4 · Unit: days · Year: FY2024A · Calc: AR / Revenue * 365) Tj
+0 -16 Td
+(SMCI DSO FY2025A — Source: SMCI-US Balance Sheet & Income Statement · Value: 65 · Unit: days · Year: FY2025A · Calc: AR / Revenue * 365) Tj
+0 -16 Td
+(SMCI DSO 3yr Average \(Projection\) — Source: 3-year historical average · Unit: days · Value: 60.4 · Use: BS AR projection = Revenue * DSO / 365) Tj
+0 -16 Td
+(SMCI DIO FY2023A — Source: SMCI-US Balance Sheet & Income Statement · Unit: days · Value: 80 · Year: FY2023A · Calc: Inventory / COGS * 365) Tj
+0 -16 Td
+(SMCI DIO FY2024A — Source: SMCI-US Balance Sheet & Income Statement · Unit: days · Value: 85 · Year: FY2024A · Calc: Inventory / COGS * 365) Tj
+0 -16 Td
+(SMCI DIO FY2025A — Source: SMCI-US Balance Sheet & Income Statement · Unit: days · Value: 90 · Year: FY2025A · Calc: Inventory / COGS * 365) Tj
+0 -16 Td
+(SMCI DIO 3yr Average \(Projection\) — Source: 3-year historical average · Unit: days · Value: 85 · Use: BS Inventory projection = COGS * DIO / 365) Tj
+0 -16 Td
+(SMCI DPO FY2023A — Source: SMCI-US Balance Sheet & Income Statement · Unit: days · Value: 45 · Year: FY2023A · Calc: AP / COGS * 365) Tj
+0 -16 Td
+(SMCI DPO FY2024A — Source: SMCI-US Balance Sheet & Income Statement · Unit: days · Value: 50 · Year: FY2024A · Calc: AP / COGS * 365) Tj
+0 -16 Td
+(SMCI DPO FY2025A — Source: SMCI-US Balance Sheet & Income Statement · Unit: days · Value: 55 · Year: FY2025A · Calc: AP / COGS * 365) Tj
+0 -16 Td
+(SMCI DPO 3yr Average \(Projection\) — Source: 3-year historical average · Unit: days · Value: 50 · Use: BS AP projection = COGS * DPO / 365) Tj
+0 -16 Td
+(SMCI SBC FY2025A — Source: SMCI-US Cash Flow Statement · Unit: $mm · Value: 250 · Year: FY2025A · Note: Held constant as % of revenue for projections) Tj
+0 -16 Td
+(SMCI SBC % of Revenue FY2025A — Source: SMCI-US Cash Flow Statement & Income Statement · Value: 0.0114 · Year: FY2025A · Format: percent · Note: Held constant for projection periods) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(Sources: ) Tj ET
+endstream
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000241 00000 n 
+0000000311 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+5304
+%%EOF

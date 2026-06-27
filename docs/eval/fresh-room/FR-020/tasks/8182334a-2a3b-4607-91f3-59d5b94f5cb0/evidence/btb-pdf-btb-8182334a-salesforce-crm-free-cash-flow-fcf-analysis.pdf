@@ -1,0 +1,46 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+5 0 obj
+<< /Length 809 >>
+stream
+BT /F1 11 Tf 54 760 Td (Salesforce \(CRM\) Free Cash Flow \(FCF\) Analysis) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(Salesforce \(CRM\) Free Cash Flow \(FCF\) Analysis. This analysis computes Free Cash Flow for Salesforce \(ticker: CRM\) using the uploaded CRM-US Cash Flow Annual data. FCF is calculated as Operating Cash Flow minus Cap) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(Rows: 1) Tj
+0 -16 Td
+(CRM FCF Analysis — Ticker: CRM · Metric: Free Cash Flow \(FCF\) · FY2024 OCF: 9.634 · FY2024 CapEx: 0.273 · FY2024 FCF: 9.361 · FY2023 OCF: 7.114 · FY2023 CapEx: 0.297 · FY2023 FCF: 6.817 · FY2022 OCF: 4.169 · FY2022 Cap) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(Sources: CRM-US Cash Flow Annual.xlsx, CRM-US Income Statement Annual.xlsx, CRM-US Revenue Estimate.xlsx, CRM-US Earnings Estimate.xlsx, CRM-US Company Identity.xlsx) Tj ET
+endstream
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000241 00000 n 
+0000000311 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+1171
+%%EOF

@@ -3,10 +3,10 @@
   "caseId": "FR-020",
   "benchmark": "bankertoolbench",
   "taskId": "55fd995a-e4df-4942-aee1-ee1be9a72b6a",
-  "generatedAt": "2026-06-25T02:30:40.981Z",
+  "generatedAt": "2026-06-26T01:22:38.401Z",
   "baseUrl": "http://127.0.0.1:5273",
-  "roomId": "NR5007UVMVR",
-  "roomUrl": "http://127.0.0.1:5273/?room=NR5007UVMVR&name=Host",
+  "roomId": "NRM7N50UAWM",
+  "roomUrl": "http://127.0.0.1:5273/?room=NRM7N50UAWM&name=Host",
   "command": "BTB_LIVE_ROOM_E2E=1 BTB_UI_BUNDLE_ROOT=<official-bundle> BTB_UI_VERIFIER_COMMAND=<verifier> BENCH_BASE_URL=<base> npx playwright test --config playwright.real-flow.config.ts e2e/benchmark-ui-bankertoolbench.spec.ts --headed",
   "model": {
     "requested": "specific",
@@ -21,11 +21,11 @@
     "roomCreatedAfterRunStart": true,
     "forbiddenPreloadedArtifactsAbsent": true,
     "artifactsCreatedFresh": [
-      "btb-55fd995a-vrdn-clinical-risk-adjusted-sotp-dcf-model-ted-mg-programs-2025-2041.xlsx",
-      "btb-55fd995a-vrdn-clinical-risk-adjusted-sotp-dcf-model-ted-mg-programs-2025-2041.xlsm",
-      "btb-55fd995a-vrdn-clinical-risk-adjusted-sotp-dcf-model-ted-mg-programs-2025-2041.pptx",
-      "btb-55fd995a-vrdn-clinical-risk-adjusted-sotp-dcf-model-ted-mg-programs-2025-2041.docx",
-      "btb-55fd995a-vrdn-clinical-risk-adjusted-sotp-dcf-model-ted-mg-programs-2025-2041.pdf"
+      "btb-55fd995a-vrdn-clinical-risk-adjusted-sotp-unlevered-dcf-model-ted-mg-programs.xlsx",
+      "btb-55fd995a-vrdn-clinical-risk-adjusted-sotp-unlevered-dcf-model-ted-mg-programs.xlsm",
+      "btb-55fd995a-vrdn-clinical-risk-adjusted-sotp-unlevered-dcf-model-ted-mg-programs.pptx",
+      "btb-55fd995a-vrdn-clinical-risk-adjusted-sotp-unlevered-dcf-model-ted-mg-programs.docx",
+      "btb-55fd995a-vrdn-clinical-risk-adjusted-sotp-unlevered-dcf-model-ted-mg-programs.pdf"
     ],
     "uploadedFiles": [
       "betas_by_industry_category_for_WACC.xlsx",
@@ -48,7 +48,7 @@
     "jobDetailVisible": true,
     "roomTraceVisible": true,
     "screenshotPaths": [
-      "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\55fd995a-e4df-4942-aee1-ee1be9a72b6a\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\bankertoolbench-live-room.png"
+      "docs\\eval\\fresh-room\\FR-020\\tasks\\55fd995a-e4df-4942-aee1-ee1be9a72b6a\\evidence\\bankertoolbench-live-room.png"
     ],
     "tracePath": "docs\\eval\\bankertoolbench\\live-room\\55fd995a-e4df-4942-aee1-ee1be9a72b6a.json"
   },
@@ -67,94 +67,94 @@
       "btb-55fd995a-official-task-brief.txt"
     ],
     "created": [
-      "btb-55fd995a-vrdn-clinical-risk-adjusted-sotp-dcf-model-ted-mg-programs-2025-2041.xlsx",
-      "btb-55fd995a-vrdn-clinical-risk-adjusted-sotp-dcf-model-ted-mg-programs-2025-2041.xlsm",
-      "btb-55fd995a-vrdn-clinical-risk-adjusted-sotp-dcf-model-ted-mg-programs-2025-2041.pptx",
-      "btb-55fd995a-vrdn-clinical-risk-adjusted-sotp-dcf-model-ted-mg-programs-2025-2041.docx",
-      "btb-55fd995a-vrdn-clinical-risk-adjusted-sotp-dcf-model-ted-mg-programs-2025-2041.pdf"
+      "btb-55fd995a-vrdn-clinical-risk-adjusted-sotp-unlevered-dcf-model-ted-mg-programs.xlsx",
+      "btb-55fd995a-vrdn-clinical-risk-adjusted-sotp-unlevered-dcf-model-ted-mg-programs.xlsm",
+      "btb-55fd995a-vrdn-clinical-risk-adjusted-sotp-unlevered-dcf-model-ted-mg-programs.pptx",
+      "btb-55fd995a-vrdn-clinical-risk-adjusted-sotp-unlevered-dcf-model-ted-mg-programs.docx",
+      "btb-55fd995a-vrdn-clinical-risk-adjusted-sotp-unlevered-dcf-model-ted-mg-programs.pdf"
     ],
     "exportedFiles": [
       {
         "kind": "workbook",
-        "filename": "btb-55fd995a-vrdn-clinical-risk-adjusted-sotp-dcf-model-ted-mg-programs-2025-2041.xlsx",
-        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\55fd995a-e4df-4942-aee1-ee1be9a72b6a\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-55fd995a-vrdn-clinical-risk-adjusted-sotp-dcf-model-ted-mg-programs-2025-2041.xlsx",
+        "filename": "btb-55fd995a-vrdn-clinical-risk-adjusted-sotp-unlevered-dcf-model-ted-mg-programs.xlsx",
+        "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\55fd995a-e4df-4942-aee1-ee1be9a72b6a\\evidence\\btb-xlsx-btb-55fd995a-vrdn-clinical-risk-adjusted-sotp-unlevered-dcf-model-ted-mg-programs.xlsx",
         "extension": ".xlsx",
         "downloaded": true,
-        "bytes": 9988,
+        "bytes": 14818,
         "magic": "PK\\x03\\x04"
       },
       {
         "kind": "workbook",
-        "filename": "btb-55fd995a-vrdn-clinical-risk-adjusted-sotp-dcf-model-ted-mg-programs-2025-2041.xlsm",
-        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\55fd995a-e4df-4942-aee1-ee1be9a72b6a\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-55fd995a-vrdn-clinical-risk-adjusted-sotp-dcf-model-ted-mg-programs-2025-2041.xlsm",
+        "filename": "btb-55fd995a-vrdn-clinical-risk-adjusted-sotp-unlevered-dcf-model-ted-mg-programs.xlsm",
+        "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\55fd995a-e4df-4942-aee1-ee1be9a72b6a\\evidence\\btb-xlsm-btb-55fd995a-vrdn-clinical-risk-adjusted-sotp-unlevered-dcf-model-ted-mg-programs.xlsm",
         "extension": ".xlsm",
         "downloaded": true,
-        "bytes": 9988,
+        "bytes": 14818,
         "magic": "PK\\x03\\x04"
       },
       {
         "kind": "presentation",
-        "filename": "btb-55fd995a-vrdn-clinical-risk-adjusted-sotp-dcf-model-ted-mg-programs-2025-2041.pptx",
-        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\55fd995a-e4df-4942-aee1-ee1be9a72b6a\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-55fd995a-vrdn-clinical-risk-adjusted-sotp-dcf-model-ted-mg-programs-2025-2041.pptx",
+        "filename": "btb-55fd995a-vrdn-clinical-risk-adjusted-sotp-unlevered-dcf-model-ted-mg-programs.pptx",
+        "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\55fd995a-e4df-4942-aee1-ee1be9a72b6a\\evidence\\btb-pptx-btb-55fd995a-vrdn-clinical-risk-adjusted-sotp-unlevered-dcf-model-ted-mg-programs.pptx",
         "extension": ".pptx",
         "downloaded": true,
-        "bytes": 6879,
+        "bytes": 7750,
         "magic": "PK\\x03\\x04"
       },
       {
         "kind": "document",
-        "filename": "btb-55fd995a-vrdn-clinical-risk-adjusted-sotp-dcf-model-ted-mg-programs-2025-2041.docx",
-        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\55fd995a-e4df-4942-aee1-ee1be9a72b6a\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-55fd995a-vrdn-clinical-risk-adjusted-sotp-dcf-model-ted-mg-programs-2025-2041.docx",
+        "filename": "btb-55fd995a-vrdn-clinical-risk-adjusted-sotp-unlevered-dcf-model-ted-mg-programs.docx",
+        "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\55fd995a-e4df-4942-aee1-ee1be9a72b6a\\evidence\\btb-docx-btb-55fd995a-vrdn-clinical-risk-adjusted-sotp-unlevered-dcf-model-ted-mg-programs.docx",
         "extension": ".docx",
         "downloaded": true,
-        "bytes": 3440,
+        "bytes": 4436,
         "magic": "PK\\x03\\x04"
       },
       {
         "kind": "pdf",
-        "filename": "btb-55fd995a-vrdn-clinical-risk-adjusted-sotp-dcf-model-ted-mg-programs-2025-2041.pdf",
-        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\55fd995a-e4df-4942-aee1-ee1be9a72b6a\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-55fd995a-vrdn-clinical-risk-adjusted-sotp-dcf-model-ted-mg-programs-2025-2041.pdf",
+        "filename": "btb-55fd995a-vrdn-clinical-risk-adjusted-sotp-unlevered-dcf-model-ted-mg-programs.pdf",
+        "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\55fd995a-e4df-4942-aee1-ee1be9a72b6a\\evidence\\btb-pdf-btb-55fd995a-vrdn-clinical-risk-adjusted-sotp-unlevered-dcf-model-ted-mg-programs.pdf",
         "extension": ".pdf",
         "downloaded": true,
-        "bytes": 3895,
+        "bytes": 5019,
         "magic": "%PDF"
       }
     ],
     "reopenedFiles": [
       {
         "kind": "workbook",
-        "filename": "btb-55fd995a-vrdn-clinical-risk-adjusted-sotp-dcf-model-ted-mg-programs-2025-2041.xlsx",
+        "filename": "btb-55fd995a-vrdn-clinical-risk-adjusted-sotp-unlevered-dcf-model-ted-mg-programs.xlsx",
         "reopened": true,
         "scorerResult": "pass",
-        "detail": "ZIP package contains xl/workbook.xml; placeholder/caveat content scan passed (4673 chars)"
+        "detail": "ZIP package contains xl/workbook.xml; placeholder/caveat content scan passed (13209 chars)"
       },
       {
         "kind": "workbook",
-        "filename": "btb-55fd995a-vrdn-clinical-risk-adjusted-sotp-dcf-model-ted-mg-programs-2025-2041.xlsm",
+        "filename": "btb-55fd995a-vrdn-clinical-risk-adjusted-sotp-unlevered-dcf-model-ted-mg-programs.xlsm",
         "reopened": true,
         "scorerResult": "pass",
-        "detail": "ZIP package contains xl/workbook.xml; placeholder/caveat content scan passed (4673 chars)"
+        "detail": "ZIP package contains xl/workbook.xml; placeholder/caveat content scan passed (13209 chars)"
       },
       {
         "kind": "presentation",
-        "filename": "btb-55fd995a-vrdn-clinical-risk-adjusted-sotp-dcf-model-ted-mg-programs-2025-2041.pptx",
+        "filename": "btb-55fd995a-vrdn-clinical-risk-adjusted-sotp-unlevered-dcf-model-ted-mg-programs.pptx",
         "reopened": true,
         "scorerResult": "pass",
-        "detail": "ZIP package contains ppt/presentation.xml; placeholder/caveat content scan passed (1935 chars)"
+        "detail": "ZIP package contains ppt/presentation.xml; placeholder/caveat content scan passed (3963 chars)"
       },
       {
         "kind": "document",
-        "filename": "btb-55fd995a-vrdn-clinical-risk-adjusted-sotp-dcf-model-ted-mg-programs-2025-2041.docx",
+        "filename": "btb-55fd995a-vrdn-clinical-risk-adjusted-sotp-unlevered-dcf-model-ted-mg-programs.docx",
         "reopened": true,
         "scorerResult": "pass",
-        "detail": "ZIP package contains word/document.xml; placeholder/caveat content scan passed (4185 chars)"
+        "detail": "ZIP package contains word/document.xml; placeholder/caveat content scan passed (7253 chars)"
       },
       {
         "kind": "pdf",
-        "filename": "btb-55fd995a-vrdn-clinical-risk-adjusted-sotp-dcf-model-ted-mg-programs-2025-2041.pdf",
+        "filename": "btb-55fd995a-vrdn-clinical-risk-adjusted-sotp-unlevered-dcf-model-ted-mg-programs.pdf",
         "reopened": true,
         "scorerResult": "pass",
-        "detail": "PDF header reopened; placeholder/caveat content scan passed (7247 chars)"
+        "detail": "PDF header reopened; placeholder/caveat content scan passed (9369 chars)"
       }
     ]
   },
@@ -165,7 +165,7 @@
     "score": 1,
     "details": {
       "verifierOutputTail": "\n> noderoom@0.1.1 benchmark:bankertoolbench:proof\n> tsx scripts/bankertoolbench-proof-check.ts\n\nBankerToolBench proof check passed: stage=1/1 weightedRubric=6 run=0/1 pass positive=1/1 pass candidateBeforeEvaluator=true leaks=0/2+0/3+0/4\n",
-      "packageManifestPath": "test-results\\bankertoolbench\\matrix\\55fd995a-e4df-4942-aee1-ee1be9a72b6a\\package-manifest.json",
+      "packageManifestPath": "docs\\eval\\fresh-room\\FR-020\\tasks\\55fd995a-e4df-4942-aee1-ee1be9a72b6a\\evidence\\package-manifest.json",
       "downloadedExtensions": [
         ".xlsx",
         ".xlsm",
@@ -175,9 +175,9 @@
       ],
       "exportSource": "browser_download_link",
       "agentTerminalQuality": {
-        "statusText": "completed via recovered Convex job: 2025-2041.pptx, btb-55fd995a-vrdn-clinical-risk-adjusted-sotp-dcf-model-ted-mg-programs-2025-2041.docx, btb-55fd995a-vrdn-clinical-risk-adjusted-sotp-dcf-model-ted-mg-programs-2025-2041.pdf. Coverage confirmed for VRDN, TED, MG, NPV, NOPAT.",
-        "evidenceTextLength": 1980,
-        "detail": "agent reached completed status or visible completion text, with no missing-source/unfinished-work caveats"
+        "statusText": "completed via recovered Convex job: -programs.pptx, btb-55fd995a-vrdn-clinical-risk-adjusted-sotp-unlevered-dcf-model-ted-mg-programs.docx, btb-55fd995a-vrdn-clinical-risk-adjusted-sotp-unlevered-dcf-model-ted-mg-programs.pdf. Coverage confirmed for VRDN, TED, MG, NPV, NOPAT.",
+        "evidenceTextLength": 1494,
+        "detail": "agent reached completed status; ignored stale progress caveat(s) after package proof: unfinished_continue"
       },
       "taskCoverage": {
         "ok": true,
@@ -189,13 +189,22 @@
           "NOPAT"
         ],
         "missingTickers": [],
-        "detail": "generated package mentions every requested ticker/entity: VRDN, TED, MG, NPV, NOPAT"
+        "domainProof": {
+          "ok": true,
+          "domain": "generic",
+          "gates": [],
+          "missingGates": [],
+          "detail": "no task-specific domain proof gate required"
+        },
+        "detail": "generated package mentions every requested ticker/entity: VRDN, TED, MG, NPV, NOPAT; no task-specific domain proof gate required"
       }
     }
   },
   "visualJudge": {
-    "verdict": "not_run",
-    "reason": "GOOGLE_GENERATIVE_AI_API_KEY is not set; deterministic browser/download/reopen/verifier proof passed."
+    "command": "npm run media:gemini-judge -- --run-id btb-full-20260626-chunk2 --out \"docs\\\\eval\\\\gemini-media-judges\\\\btb-full-20260626\\\\chunk2\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\06c284ef-6282-4d82-b9f5-6b9587f7d805\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\11e08646-55be-41cd-a0b8-24d1529b76aa\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\19b3361c-82c3-41d6-b941-d3f60ce32026\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\2048736b-7bb8-4c54-899e-ddfdf12641ab\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\40097508-c68a-4066-9031-e99eac4f7a18\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\432c6197-eade-4dcd-ae6d-0a30ec4da18c\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\4a3bf36b-caeb-4825-a60c-4c416b4d555c\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\507a3d72-91bd-4e0c-9c77-c0cf521f4a71\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\55fd995a-e4df-4942-aee1-ee1be9a72b6a\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\6801c651-fd1b-4c12-a4ce-1338442c7ab1\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\6a08ca87-feb5-4061-b532-26e89c888951\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\73c10eda-38d8-4b48-bac6-baaaff3d937f\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\7f5b9960-5931-4fb7-ac69-a5d0a954b1cc\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\8bdef554-4723-42ff-a813-4711f9b330af\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\92235649-0d63-4396-b864-a64257e16746\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\9781216f-b98d-4537-9ab8-f0e62248a6ab\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\a0b2858a-1ffd-423d-8948-e14aceaa1f69\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\b1b4a2a3-6d5b-441f-a17e-41753656a0e3\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\bc55d3e8-0d59-43d6-a385-03c5330e47bf\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\c1c36cfd-677b-462b-96d4-ea76e12e98e8\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\cc4c8473-4c54-4fdd-9af8-c55bc9e4b07d\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\daa6b204-9dc9-491f-bdf9-963208578db2\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\eb58ec7c-f236-47a6-8ca7-d7297f9187f6\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\f0bd3730-d826-46f2-8422-b48480fa6250\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\fe996540-6e06-4a84-82d9-06d0f32f6cd9\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\"",
+    "verdict": "pass",
+    "scorecardPath": "docs/eval/gemini-media-judges/btb-full-20260626/chunk2/btb-full-20260626-chunk2/summary.md",
+    "reason": "Gemini media judge publish (8/16); defects P0/P1/P2=0/0/1. The video demonstrates NodeAgent processing financial spreadsheets and generating a complete valuation package including models, memos, and presentations. The workflow is complete and highly relevant to finance professionals. Source clip: test-results\\bankertoolbench\\matrix\\55fd995a-e4df-4942-aee1-ee1be9a72b6a\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\video.webm."
   },
   "gatesProven": [
     "fresh_room_join",
@@ -213,7 +222,8 @@
     "deliverable_export_download",
     "artifact_reopen_validation",
     "artifact_placeholder_scan",
-    "official_scorer_handoff"
+    "official_scorer_handoff",
+    "visual_judge_handoff"
   ],
   "passed": true
 }

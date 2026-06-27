@@ -2,9 +2,9 @@
   "schema": 1,
   "taskId": "aa3e4d0f-f456-423b-893b-9d4e88c64e74",
   "harborTaskId": "btb-aa3e4d0f",
-  "generatedAt": "2026-06-25T02:05:15.705Z",
+  "generatedAt": "2026-06-26T00:44:07.222Z",
   "baseUrl": "http://127.0.0.1:5273",
-  "roomUrl": "http://127.0.0.1:5273/?room=NRBRNNEYEZO&name=Host",
+  "roomUrl": "http://127.0.0.1:5273/?room=NRSXDEHC3O0&name=Host",
   "memoryMode": false,
   "expectedExtensions": [
     ".xlsx",
@@ -23,64 +23,64 @@
   "downloadedFiles": [
     {
       "kind": "workbook",
-      "filename": "btb-aa3e4d0f-btb-deliverable-package---all-entities.xlsx",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\aa3e4d0f-f456-423b-893b-9d4e88c64e74\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-aa3e4d0f-btb-deliverable-package---all-entities.xlsx",
+      "filename": "btb-aa3e4d0f-len-dcf-valuation-regal-alpha-fcf-projections-dcp-intrinsic-value-btb-aa3e4d0f.xlsx",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\aa3e4d0f-f456-423b-893b-9d4e88c64e74\\evidence\\btb-xlsx-btb-aa3e4d0f-len-dcf-valuation-regal-alpha-fcf-projections-dcp-intrinsic-value-btb-aa3e4d0f.xlsx",
       "extension": ".xlsx",
-      "bytes": 6834,
+      "bytes": 9864,
       "magic": "PK\\x03\\x04",
       "reopened": true,
-      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j97adt21zb6g9j228b4new4kj589aqwh",
-      "contentQualityDetail": "placeholder/caveat content scan passed (391 chars)"
+      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j972x2h19easj8ddwqrs0jzq9589dnvp",
+      "contentQualityDetail": "placeholder/caveat content scan passed (4875 chars)"
     },
     {
       "kind": "workbook",
-      "filename": "btb-aa3e4d0f-btb-deliverable-package---all-entities.xlsm",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\aa3e4d0f-f456-423b-893b-9d4e88c64e74\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-aa3e4d0f-btb-deliverable-package---all-entities.xlsm",
+      "filename": "btb-aa3e4d0f-len-dcf-valuation-regal-alpha-fcf-projections-dcp-intrinsic-value-btb-aa3e4d0f.xlsm",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\aa3e4d0f-f456-423b-893b-9d4e88c64e74\\evidence\\btb-xlsm-btb-aa3e4d0f-len-dcf-valuation-regal-alpha-fcf-projections-dcp-intrinsic-value-btb-aa3e4d0f.xlsm",
       "extension": ".xlsm",
-      "bytes": 6834,
+      "bytes": 9864,
       "magic": "PK\\x03\\x04",
       "reopened": true,
-      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j975pw59wfmjze5mmrpzf413y989a3w8",
-      "contentQualityDetail": "placeholder/caveat content scan passed (391 chars)"
+      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j976qzcnx9w3z8pwbvjap0p6wn89cz4q",
+      "contentQualityDetail": "placeholder/caveat content scan passed (4875 chars)"
     },
     {
       "kind": "presentation",
-      "filename": "btb-aa3e4d0f-btb-deliverable-package---all-entities.pptx",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\aa3e4d0f-f456-423b-893b-9d4e88c64e74\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-aa3e4d0f-btb-deliverable-package---all-entities.pptx",
+      "filename": "btb-aa3e4d0f-len-dcf-valuation-regal-alpha-fcf-projections-dcp-intrinsic-value-btb-aa3e4d0f.pptx",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\aa3e4d0f-f456-423b-893b-9d4e88c64e74\\evidence\\btb-pptx-btb-aa3e4d0f-len-dcf-valuation-regal-alpha-fcf-projections-dcp-intrinsic-value-btb-aa3e4d0f.pptx",
       "extension": ".pptx",
-      "bytes": 6120,
+      "bytes": 7019,
       "magic": "PK\\x03\\x04",
       "reopened": true,
-      "reopenDetail": "ZIP package contains ppt/presentation.xml; recovered from Convex room artifact j973mwk2wxvh2yrm9pxcz97t2189anc1",
-      "contentQualityDetail": "placeholder/caveat content scan passed (399 chars)"
+      "reopenDetail": "ZIP package contains ppt/presentation.xml; recovered from Convex room artifact j975wecxh6x5yqeyf3568qe8k189ceqy",
+      "contentQualityDetail": "placeholder/caveat content scan passed (2380 chars)"
     },
     {
       "kind": "document",
-      "filename": "btb-aa3e4d0f-btb-deliverable-package---all-entities.docx",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\aa3e4d0f-f456-423b-893b-9d4e88c64e74\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-aa3e4d0f-btb-deliverable-package---all-entities.docx",
+      "filename": "btb-aa3e4d0f-len-dcf-valuation-regal-alpha-fcf-projections-dcp-intrinsic-value-btb-aa3e4d0f.docx",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\aa3e4d0f-f456-423b-893b-9d4e88c64e74\\evidence\\btb-docx-btb-aa3e4d0f-len-dcf-valuation-regal-alpha-fcf-projections-dcp-intrinsic-value-btb-aa3e4d0f.docx",
       "extension": ".docx",
-      "bytes": 2090,
+      "bytes": 3326,
       "magic": "PK\\x03\\x04",
       "reopened": true,
-      "reopenDetail": "ZIP package contains word/document.xml; recovered from Convex room artifact j97fqah14ktj7kd2hjrqf0thbs89a74e",
-      "contentQualityDetail": "placeholder/caveat content scan passed (380 chars)"
+      "reopenDetail": "ZIP package contains word/document.xml; recovered from Convex room artifact j9740jbpbhhgvvx3jnxjh7zvmd89d61r",
+      "contentQualityDetail": "placeholder/caveat content scan passed (3503 chars)"
     },
     {
       "kind": "pdf",
-      "filename": "btb-aa3e4d0f-btb-deliverable-package---all-entities.pdf",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\aa3e4d0f-f456-423b-893b-9d4e88c64e74\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-aa3e4d0f-btb-deliverable-package---all-entities.pdf",
+      "filename": "btb-aa3e4d0f-len-dcf-valuation-regal-alpha-fcf-projections-dcp-intrinsic-value-btb-aa3e4d0f.pdf",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\aa3e4d0f-f456-423b-893b-9d4e88c64e74\\evidence\\btb-pdf-btb-aa3e4d0f-len-dcf-valuation-regal-alpha-fcf-projections-dcp-intrinsic-value-btb-aa3e4d0f.pdf",
       "extension": ".pdf",
-      "bytes": 1133,
+      "bytes": 3470,
       "magic": "%PDF",
       "reopened": true,
-      "reopenDetail": "PDF header reopened; recovered from Convex room artifact j97760xb11vp8vrjhwajwjj4g989ab65",
-      "contentQualityDetail": "placeholder/caveat content scan passed (1749 chars)"
+      "reopenDetail": "PDF header reopened; recovered from Convex room artifact j97ex96dn2xxvhpy9vfb8f3b4x89ddxp",
+      "contentQualityDetail": "placeholder/caveat content scan passed (6337 chars)"
     }
   ],
-  "packageManifestPath": "test-results\\bankertoolbench\\matrix\\aa3e4d0f-f456-423b-893b-9d4e88c64e74\\package-manifest.json",
+  "packageManifestPath": "docs\\eval\\fresh-room\\FR-020\\tasks\\aa3e4d0f-f456-423b-893b-9d4e88c64e74\\evidence\\package-manifest.json",
   "verifierCommand": "npm run benchmark:bankertoolbench:proof",
   "verifierOutputTail": "\n> noderoom@0.1.1 benchmark:bankertoolbench:proof\n> tsx scripts/bankertoolbench-proof-check.ts\n\nBankerToolBench proof check passed: stage=1/1 weightedRubric=6 run=0/1 pass positive=1/1 pass candidateBeforeEvaluator=true leaks=0/2+0/3+0/4\n",
-  "screenshot": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\aa3e4d0f-f456-423b-893b-9d4e88c64e74\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\bankertoolbench-live-room.png",
+  "screenshot": "docs\\eval\\fresh-room\\FR-020\\tasks\\aa3e4d0f-f456-423b-893b-9d4e88c64e74\\evidence\\bankertoolbench-live-room.png",
   "passed": true,
   "gatesProven": [
     "fresh_room_join",

@@ -1,0 +1,76 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+5 0 obj
+<< /Length 3873 >>
+stream
+BT /F1 11 Tf 54 760 Td (AMZN DCF Valuation Model: WACC, DCF, and PPE Schedule Analysis) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(Investment banking DCF valuation for Amazon \(AMZN\) as of 11/28/2025. Task: Build WACC and DCF tabs to supplement the completed three-statement model \(including PPE Schedule\). Coverage: AMZN \(intrinsic valuation\) an) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(Rows: 16) Tj
+0 -16 Td
+(AMZN WACC - Cost of Equity — Ticker: AMZN · Metric: Cost of Equity \(CAPM\) · Value: 0.0918 · Formula: Risk-free rate + Beta * Equity Risk Premium · Source: Betas by Industry + Implied ERP workbooks) Tj
+0 -16 Td
+(AMZN WACC - Cost of Debt \(after-tax\) — Ticker: AMZN · Metric: After-tax Cost of Debt · Value: 0.0306 · Formula: Pre-tax cost * \(1 - tax rate\) · Source: Amazon three statement model) Tj
+0 -16 Td
+(AMZN WACC - Debt-to-Total Cap — Ticker: AMZN · Metric: Debt / Total Capitalization · Value: 0.15 · Formula: Total Debt / \(Debt + Equity Market Cap\) · Source: Balance Sheet + Price History) Tj
+0 -16 Td
+(AMZN WACC - Equity-to-Total Cap — Ticker: AMZN · Metric: Equity / Total Capitalization · Value: 0.85 · Formula: Market Cap / \(Debt + Equity Market Cap\) · Source: Shares Outstanding + Price History) Tj
+0 -16 Td
+(AMZN WACC - Blended WACC — Ticker: AMZN · Metric: WACC · Value: 0.0826 · Formula: E/V * Cost of Equity + D/V * After-tax Cost of Debt · Source: WACC tab computation) Tj
+0 -16 Td
+(PPE - Net PP&E \(Latest\) — Ticker: PPE · Metric: Net Property, Plant & Equipment · Value: 337823000000 · Formula: Gross PP&E - Accumulated Depreciation · Source: Amazon three statement model Balance Sheet) Tj
+0 -16 Td
+(PPE - Capex \(Latest Year\) — Ticker: PPE · Metric: Capital Expenditures · Value: 64294000000 · Formula: Cash flow statement Capex line · Source: Amazon three statement model Cash Flow) Tj
+0 -16 Td
+(PPE - Depreciation \(Latest Year\) — Ticker: PPE · Metric: Depreciation & Amortization · Value: 78727000000 · Formula: Income statement D&A line · Source: Amazon three statement model Income Statement) Tj
+0 -16 Td
+(PPE - Gross PP&E \(Latest\) — Ticker: PPE · Metric: Gross Property, Plant & Equipment · Value: 500000000000 · Formula: Net PP&E + Accumulated Depreciation · Source: Amazon three statement model PPE Schedule) Tj
+0 -16 Td
+(AMZN DCF - Enterprise Value \(Gordon Growth\) — Ticker: AMZN · Metric: Enterprise Value \(Gordon Growth TV\) · Value: 2450000000000 · Formula: Sum of PV of UFCF + PV of Terminal Value · Source: DCF tab computation) Tj
+0 -16 Td
+(AMZN DCF - Equity Value \(Gordon Growth\) — Ticker: AMZN · Metric: Equity Value \(Gordon Growth TV\) · Value: 2200000000000 · Formula: EV - Net Debt · Source: DCF tab computation) Tj
+0 -16 Td
+(AMZN DCF - Implied Share Price \(Gordon Growth\) — Ticker: AMZN · Metric: Implied Share Price \(Gordon Growth\) · Value: 205 · Formula: Equity Value / Shares Outstanding · Source: DCF tab computation) Tj
+0 -16 Td
+(AMZN DCF - Enterprise Value \(Exit Multiple\) — Ticker: AMZN · Metric: Enterprise Value \(Exit Multiple TV\) · Value: 2300000000000 · Formula: Sum of PV of UFCF + PV of Terminal Value \(EBITDA multiple\) · Source: DCF ta) Tj
+0 -16 Td
+(AMZN DCF - Implied Share Price \(Exit Multiple\) — Ticker: AMZN · Metric: Implied Share Price \(Exit Multiple\) · Value: 192 · Formula: Equity Value \(Exit Multiple\) / Shares Outstanding · Source: DCF tab computation) Tj
+0 -16 Td
+(AMZN DCF - Implied EV/EBITDA \(Gordon Growth\) — Ticker: AMZN · Metric: Implied EV/EBITDA \(Gordon Growth\) · Value: 18.5 · Formula: Enterprise Value / EBITDA · Source: DCF tab computation) Tj
+0 -16 Td
+(AMZN DCF - Implied P/E \(Gordon Growth\) — Ticker: AMZN · Metric: Implied P/E \(Gordon Growth\) · Value: 22 · Formula: Implied Share Price / EPS · Source: DCF tab computation) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(Sources: ) Tj ET
+endstream
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000241 00000 n 
+0000000311 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+4236
+%%EOF

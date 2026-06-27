@@ -10,7 +10,7 @@
 import { useSyncExternalStore } from "react";
 import { RoomEngine } from "../engine/roomEngine";
 import { buildDemoRoom, playCollab, type DemoRoom } from "../engine/demoRoom";
-import type { Actor, ArtifactMeta, DataframeColumn } from "../engine/types";
+import type { Actor, DataframeColumn } from "../engine/types";
 import {
   BTB_ARTIFACT_ROWS,
   BTB_BOUNDARY_ROWS,
@@ -25,9 +25,6 @@ import {
 
 export const engine = new RoomEngine({ now: () => Date.now() });
 export const demo: DemoRoom = buildDemoRoom(engine);
-
-const BLANK_SHEET_ROWS = 12;
-const BLANK_SHEET_COLUMNS = ["A", "B", "C", "D", "E", "F", "G", "H"] as const;
 
 let rev = 0;
 engine.subscribe(() => { rev += 1; });
@@ -44,24 +41,7 @@ export function useEngineRev(): number {
 export function createFreshRoom(title: string, hostName: string): { roomId: string; me: Actor } {
   const { room, host } = engine.createRoom({ title: title || "Untitled room", hostName: hostName || "Host", autoAllow: true });
   const me: Actor = { kind: "user", id: host.id, name: host.name };
-  const seed = blankSheetSeed();
-  const meta: ArtifactMeta = { dataframe: { columns: blankSheetColumns(), rowCount: BLANK_SHEET_ROWS, sourceFile: "blank-room", parser: "blank_seed", truncated: false, warnings: [] } };
-  engine.createArtifact({ roomId: room.id, kind: "sheet", title: "Blank sheet", by: me, seed, meta });
-  engine.createArtifact({ roomId: room.id, kind: "note", title: "Note", by: me, seed: [{ id: "doc", value: "<h1>Notes</h1><p></p>" }] });
-  engine.createArtifact({ roomId: room.id, kind: "wall", title: "Wall", by: me, seed: [] });
   return { roomId: room.id, me };
-}
-
-function blankSheetSeed(): Array<{ id: string; value: unknown }> {
-  const seed: Array<{ id: string; value: unknown }> = [];
-  for (let row = 1; row <= BLANK_SHEET_ROWS; row++) {
-    for (const col of BLANK_SHEET_COLUMNS) seed.push({ id: `r${row}__${col}`, value: "" });
-  }
-  return seed;
-}
-
-function blankSheetColumns(): DataframeColumn[] {
-  return BLANK_SHEET_COLUMNS.map((label, order): DataframeColumn => ({ id: label, label, order, mode: "manual", type: "text", agentWritable: true }));
 }
 
 export function enterDemoRoomAsHost(_hostName?: string): { roomId: string; me: Actor } {

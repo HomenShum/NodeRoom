@@ -1,0 +1,1552 @@
+{
+  "runId": "btb-full-20260626-chunk4",
+  "generatedAt": "2026-06-26T02:02:27.094Z",
+  "model": "gemini-3.5-flash",
+  "command": "npm run media:gemini-judge -- --run-id btb-full-20260626-chunk4 --out \"docs\\\\eval\\\\gemini-media-judges\\\\btb-full-20260626\\\\chunk4\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\096a6840-718c-4ab4-8dff-10601ffe003c\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\1306dbd8-dec4-469e-b806-d09113dd1010\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\1b253d04-2d32-41e8-a0b5-5450a0808e3b\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\31f70ac1-01c3-4971-84f8-0a2438fb5b92\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\41e130fe-89f0-4b2b-97ee-d727e1fa0afd\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\44bd7a6b-b3c3-4eb8-b56d-6a769bdbf58e\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\4fb6232d-c2a9-4141-98de-3e2025bdf52b\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\515a104d-ab72-47fe-b1a2-d67325ba6473\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\5f1e6f38-3380-43f4-a233-b758706985b7\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\69507fd6-a925-4e1a-8fc3-6485c71dc828\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\6b25d3dc-4b81-4d2e-b153-466b17040aae\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\7b078eaa-4fe4-4780-9f53-531872b73274\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\85670d9d-a809-4f32-a3ff-d93845cc17ea\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\8eb06eaf-d2ce-4f86-9239-d4a10bc72cf6\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\960dc224-634f-435b-a42d-f8edac8ddd2f\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\990cf5d7-0db5-456e-9766-c9d8a6640e3a\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\aa577c1d-2c22-4963-91c4-456ac32e5b4a\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\b8be8b2f-e6c2-4137-98e8-a09a3a9860f7\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\c032d3c9-5055-4346-a60d-429f658f71f9\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\c6926dfc-b844-40f6-b530-2198b39d8ddd\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\cf5884e8-8881-4747-a65a-10d8b468a9f4\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\e3c47ea1-cc6c-4981-9943-bc85162fc2a8\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\eeba6325-7212-4924-8760-91065d3b1af3\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\f205ac8c-4dae-4620-b2c9-ccc44858ec70\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\"",
+  "notes": [
+    "GIF assets are converted to temporary MP4 with ffmpeg before upload.",
+    "This media judge is evidence-quality QA; it does not replace backend/browser production gates."
+  ],
+  "counts": {
+    "total": 24,
+    "judged": 21,
+    "errors": 3,
+    "dryRun": 0,
+    "verdicts": {
+      "publish": 20,
+      "fix-then-publish": 1
+    },
+    "defects": {
+      "P2": 20
+    }
+  },
+  "results": [
+    {
+      "asset": {
+        "id": "test-results-bankertoolbench-matrix-096a6840-718c-4ab4-8dff-10601ffe003c-playwright-output-e2e-benchmark-ui-bankertoo-d0047-odeagent-package-verifier-video",
+        "class": "live_browser_proof",
+        "title": "Video",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\096a6840-718c-4ab4-8dff-10601ffe003c\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\video.webm",
+        "relPath": "test-results/bankertoolbench/matrix/096a6840-718c-4ab4-8dff-10601ffe003c/playwright-output/e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier/video.webm",
+        "purpose": "Live Playwright browser proof clip. Judge only visible product evidence: multi-client sync, advisory presence, no-clobber behavior, proposals, job/privacy/wall surfaces, and production honesty."
+      },
+      "model": "gemini-3.5-flash",
+      "status": "judged",
+      "mediaPath": "test-results/bankertoolbench/matrix/096a6840-718c-4ab4-8dff-10601ffe003c/playwright-output/e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier/video.webm",
+      "mediaType": "video/webm",
+      "bytes": 4925395,
+      "judge": {
+        "verdict": "publish",
+        "summary": "The video provides a complete end-to-end demonstration of NodeAgent processing financial documents, spreadsheets, and presentations within a collaborative workspace, culminating in generated valuation models and PDF reports.",
+        "scores": {
+          "featureClarity": {
+            "score": 1.4,
+            "evidence": "Clear demonstration of an AI agent interacting with uploaded financial sheets and generating structured outputs."
+          },
+          "workflowCompleteness": {
+            "score": 1.4,
+            "evidence": "Shows the entire flow from initial file uploads, task initiation, agent execution traces, to final document previews."
+          },
+          "visualDesign": {
+            "score": 1.3,
+            "evidence": "High-density dark UI with clean panels, clear active states, and a cohesive workspace layout."
+          },
+          "consistency": {
+            "score": 1.4,
+            "evidence": "Perfect alignment with the core product story of collaborative rooms, files, spreadsheets, and agent traces."
+          },
+          "evidenceQuality": {
+            "score": 1.4,
+            "evidence": "Authentic browser capture showing realistic loading states, file processing, and execution logs."
+          },
+          "legibility": {
+            "score": 1.1,
+            "evidence": "Most text and spreadsheet cells are legible, though some dense logs and chat messages are quite small."
+          },
+          "professionalRelevance": {
+            "score": 1.4,
+            "evidence": "Highly relevant to finance and banking workflows, demonstrating WACC calculations and valuation models."
+          },
+          "productionHonesty": {
+            "score": 1.4,
+            "evidence": "Accurately displays processing times, step-by-step agent logs, and realistic generation delays."
+          }
+        },
+        "observedEvidence": [
+          "Multi-file upload and spreadsheet rendering",
+          "Agent task execution with live trace logs",
+          "Generation of valuation models and PDF exports"
+        ],
+        "missingEvidence": [],
+        "defects": [
+          {
+            "ts": "00:15",
+            "severity": "P2",
+            "observed": "Slight delay and blank screen during PDF preview generation.",
+            "fix": "Add a skeleton loader or spinner to improve perceived performance during document rendering."
+          }
+        ],
+        "suggestedReadmeCaption": "Watch NodeAgent analyze financial inputs, execute complex valuation tasks, and generate professional reports directly inside the collaborative room."
+      },
+      "score": 10.8,
+      "maxScore": 16
+    },
+    {
+      "asset": {
+        "id": "test-results-bankertoolbench-matrix-1306dbd8-dec4-469e-b806-d09113dd1010-playwright-output-e2e-benchmark-ui-bankertoo-d0047-odeagent-package-verifier-video",
+        "class": "live_browser_proof",
+        "title": "Video",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\1306dbd8-dec4-469e-b806-d09113dd1010\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\video.webm",
+        "relPath": "test-results/bankertoolbench/matrix/1306dbd8-dec4-469e-b806-d09113dd1010/playwright-output/e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier/video.webm",
+        "purpose": "Live Playwright browser proof clip. Judge only visible product evidence: multi-client sync, advisory presence, no-clobber behavior, proposals, job/privacy/wall surfaces, and production honesty."
+      },
+      "model": "gemini-3.5-flash",
+      "status": "judged",
+      "mediaPath": "test-results/bankertoolbench/matrix/1306dbd8-dec4-469e-b806-d09113dd1010/playwright-output/e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier/video.webm",
+      "mediaType": "video/webm",
+      "bytes": 6603306,
+      "judge": {
+        "verdict": "publish",
+        "summary": "The video demonstrates a complete end-to-end execution of a complex financial analysis task by the NodeAgent inside a collaborative NodeRoom. It shows the initial file uploads, the step-by-step execution trace of the agent, and the final generated artifacts including a PDF preview.",
+        "scores": {
+          "featureClarity": {
+            "score": 1.5,
+            "evidence": "The interface clearly distinguishes between the room binder, active spreadsheets, the agent trace, and the chat panel."
+          },
+          "workflowCompleteness": {
+            "score": 1.6,
+            "evidence": "Shows the entire lifecycle from empty room and file uploads to agent execution and final artifact generation."
+          },
+          "visualDesign": {
+            "score": 1.4,
+            "evidence": "Clean dark-mode layout with a structured hierarchy, though the dense spreadsheet views and trace logs can feel slightly crowded."
+          },
+          "consistency": {
+            "score": 1.5,
+            "evidence": "Perfectly aligns with the product story of combining files, spreadsheets, and autonomous agents with visible execution traces."
+          },
+          "evidenceQuality": {
+            "score": 1.6,
+            "evidence": "Authentic live browser recording showing real-time UI updates, file uploads, and actual agent execution logs."
+          },
+          "legibility": {
+            "score": 1.2,
+            "evidence": "Main UI elements are readable, but small text in the spreadsheet cells and trace logs is difficult to read without zooming."
+          },
+          "professionalRelevance": {
+            "score": 1.5,
+            "evidence": "Highly relevant to financial analysts and developers building agentic workflows for complex data processing."
+          },
+          "productionHonesty": {
+            "score": 1.5,
+            "evidence": "Accurately represents the system's latency and step-by-step execution without artificial speed-ups."
+          }
+        },
+        "observedEvidence": [
+          "Multi-client workspace structure",
+          "File upload and spreadsheet rendering",
+          "Autonomous agent execution with live trace updates",
+          "Artifact generation (Excel, PowerPoint, Word, PDF)",
+          "In-app PDF viewer rendering the final report"
+        ],
+        "missingEvidence": [],
+        "defects": [
+          {
+            "ts": "00:04",
+            "severity": "P2",
+            "observed": "The repetitive uploading of multiple Excel files takes up a significant portion of the early video.",
+            "fix": "Consider pre-loading some of the reference files or editing/speeding up the upload sequence to keep the viewer engaged."
+          }
+        ],
+        "suggestedReadmeCaption": "Watch NodeAgent autonomously analyze financial data, execute tools, and generate a complete valuation model and PDF report inside NodeRoom."
+      },
+      "score": 11.8,
+      "maxScore": 16
+    },
+    {
+      "asset": {
+        "id": "test-results-bankertoolbench-matrix-1b253d04-2d32-41e8-a0b5-5450a0808e3b-playwright-output-e2e-benchmark-ui-bankertoo-d0047-odeagent-package-verifier-video",
+        "class": "live_browser_proof",
+        "title": "Video",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\1b253d04-2d32-41e8-a0b5-5450a0808e3b\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\video.webm",
+        "relPath": "test-results/bankertoolbench/matrix/1b253d04-2d32-41e8-a0b5-5450a0808e3b/playwright-output/e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier/video.webm",
+        "purpose": "Live Playwright browser proof clip. Judge only visible product evidence: multi-client sync, advisory presence, no-clobber behavior, proposals, job/privacy/wall surfaces, and production honesty."
+      },
+      "model": "gemini-3.5-flash",
+      "status": "judged",
+      "mediaPath": "test-results/bankertoolbench/matrix/1b253d04-2d32-41e8-a0b5-5450a0808e3b/playwright-output/e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier/video.webm",
+      "mediaType": "video/webm",
+      "bytes": 17108850,
+      "judge": {
+        "verdict": "publish",
+        "summary": "The video demonstrates an end-to-end workflow where multiple financial documents and spreadsheets are uploaded to a collaborative room, and an AI agent processes them to generate a final PDF report.",
+        "scores": {
+          "featureClarity": {
+            "score": 1,
+            "evidence": "The interface clearly shows the transition from an empty room to a populated workspace with spreadsheets and PDFs."
+          },
+          "workflowCompleteness": {
+            "score": 1,
+            "evidence": "The video captures the entire sequence: uploading files, triggering the agent, monitoring execution, and viewing the final PDF export."
+          },
+          "visualDesign": {
+            "score": 1,
+            "evidence": "The dark-themed workspace layout is clean and structured, though the dense UI panels can feel slightly crowded."
+          },
+          "consistency": {
+            "score": 1,
+            "evidence": "The presence of spreadsheets, PDF viewers, and the agent execution trace aligns with the core product concept."
+          },
+          "evidenceQuality": {
+            "score": 1,
+            "evidence": "The recording shows actual browser interactions and real-time agent execution logs, confirming authentic product behavior."
+          },
+          "legibility": {
+            "score": 1,
+            "evidence": "Text in the spreadsheets and agent logs is mostly readable, though some smaller UI labels require zooming."
+          },
+          "professionalRelevance": {
+            "score": 1,
+            "evidence": "The scenario of verifying financial packages and generating reports is highly relevant to banking and finance workflows."
+          },
+          "productionHonesty": {
+            "score": 1,
+            "evidence": "The video honestly displays the loading states, file processing times, and step-by-step agent execution traces."
+          }
+        },
+        "observedEvidence": [
+          "Multi-file upload (spreadsheets and PDFs)",
+          "Agent execution trace panel",
+          "PDF document viewer",
+          "Final PDF report export"
+        ],
+        "missingEvidence": [],
+        "defects": [],
+        "suggestedReadmeCaption": "Watch NodeAgent automatically process uploaded financial documents and generate a comprehensive verification report."
+      },
+      "score": 8,
+      "maxScore": 16
+    },
+    {
+      "asset": {
+        "id": "test-results-bankertoolbench-matrix-31f70ac1-01c3-4971-84f8-0a2438fb5b92-playwright-output-e2e-benchmark-ui-bankertoo-d0047-odeagent-package-verifier-video",
+        "class": "live_browser_proof",
+        "title": "Video",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\31f70ac1-01c3-4971-84f8-0a2438fb5b92\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\video.webm",
+        "relPath": "test-results/bankertoolbench/matrix/31f70ac1-01c3-4971-84f8-0a2438fb5b92/playwright-output/e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier/video.webm",
+        "purpose": "Live Playwright browser proof clip. Judge only visible product evidence: multi-client sync, advisory presence, no-clobber behavior, proposals, job/privacy/wall surfaces, and production honesty."
+      },
+      "model": "gemini-3.5-flash",
+      "status": "judged",
+      "mediaPath": "test-results/bankertoolbench/matrix/31f70ac1-01c3-4971-84f8-0a2438fb5b92/playwright-output/e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier/video.webm",
+      "mediaType": "video/webm",
+      "bytes": 2500642,
+      "judge": {
+        "verdict": "publish",
+        "summary": "The video demonstrates the complete workflow of creating a room, uploading multiple financial and task documents, and having an AI agent process them to generate structured deliverables like a PDF export.",
+        "scores": {
+          "featureClarity": {
+            "score": 1,
+            "evidence": "Shows document uploads transitioning to agent execution and final output generation."
+          },
+          "workflowCompleteness": {
+            "score": 1,
+            "evidence": "Captures the entire lifecycle from empty room to uploaded assets, agent execution, and final PDF viewing."
+          },
+          "visualDesign": {
+            "score": 1,
+            "evidence": "High-density dark UI with clear panels, though slightly cluttered with multiple sidebars."
+          },
+          "consistency": {
+            "score": 1,
+            "evidence": "Aligns with the theme of collaborative rooms combining spreadsheets, documents, and active agents."
+          },
+          "evidenceQuality": {
+            "score": 1,
+            "evidence": "Authentic browser recording showing real-time UI updates, upload states, and agent progress."
+          },
+          "legibility": {
+            "score": 1,
+            "evidence": "Text and spreadsheet cells are readable, though terminal outputs are dense."
+          },
+          "professionalRelevance": {
+            "score": 1,
+            "evidence": "Directly applicable to financial analysts and investment banking workflows involving multi-document synthesis."
+          },
+          "productionHonesty": {
+            "score": 1,
+            "evidence": "Shows realistic processing delays and step-by-step tool execution logs."
+          }
+        },
+        "observedEvidence": [
+          "Empty room initialization",
+          "Multi-file upload (Excel, PPT, PDF, TXT)",
+          "AI agent execution with live status updates",
+          "Generation of final PDF deliverable"
+        ],
+        "missingEvidence": [],
+        "defects": [
+          {
+            "ts": "00:15",
+            "severity": "P2",
+            "observed": "The agent chat panel displays dense technical logs and raw JSON strings which look cluttered.",
+            "fix": "Format or collapse raw JSON traces in the public chat view to maintain a cleaner interface."
+          }
+        ],
+        "suggestedReadmeCaption": "Watch NodeAgent process uploaded financial models and task briefs to automatically generate a formatted PDF report."
+      },
+      "score": 8,
+      "maxScore": 16
+    },
+    {
+      "asset": {
+        "id": "test-results-bankertoolbench-matrix-41e130fe-89f0-4b2b-97ee-d727e1fa0afd-playwright-output-e2e-benchmark-ui-bankertoo-d0047-odeagent-package-verifier-video",
+        "class": "live_browser_proof",
+        "title": "Video",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\41e130fe-89f0-4b2b-97ee-d727e1fa0afd\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\video.webm",
+        "relPath": "test-results/bankertoolbench/matrix/41e130fe-89f0-4b2b-97ee-d727e1fa0afd/playwright-output/e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier/video.webm",
+        "purpose": "Live Playwright browser proof clip. Judge only visible product evidence: multi-client sync, advisory presence, no-clobber behavior, proposals, job/privacy/wall surfaces, and production honesty."
+      },
+      "model": "gemini-3.5-flash",
+      "status": "judged",
+      "mediaPath": "test-results/bankertoolbench/matrix/41e130fe-89f0-4b2b-97ee-d727e1fa0afd/playwright-output/e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier/video.webm",
+      "mediaType": "video/webm",
+      "bytes": 6866218,
+      "judge": {
+        "verdict": "publish",
+        "summary": "The video demonstrates a complete workflow of uploading multiple financial datasets, triggering a NodeAgent to perform WACC & DCF valuation, and exporting the final PDF report.",
+        "scores": {
+          "featureClarity": {
+            "score": 1.5,
+            "evidence": "Clearly shows file uploads, spreadsheet views, agent chat, and PDF generation."
+          },
+          "workflowCompleteness": {
+            "score": 1.6,
+            "evidence": "Covers the entire lifecycle from an empty room to file ingestion, agent execution, and final artifact delivery."
+          },
+          "visualDesign": {
+            "score": 1.3,
+            "evidence": "Professional dark mode interface with clear panels, though the sidebar becomes crowded with many files."
+          },
+          "consistency": {
+            "score": 1.5,
+            "evidence": "Perfect alignment with the NodeRoom concept of sheets, agents, and document binders."
+          },
+          "evidenceQuality": {
+            "score": 1.6,
+            "evidence": "Unedited live browser recording showing real-time interactions and agent logs."
+          },
+          "legibility": {
+            "score": 1.2,
+            "evidence": "UI text and spreadsheet cells are small but readable at full screen."
+          },
+          "professionalRelevance": {
+            "score": 1.6,
+            "evidence": "Directly addresses financial analyst workflows with multi-company valuation tasks."
+          },
+          "productionHonesty": {
+            "score": 1.5,
+            "evidence": "Shows the actual step-by-step execution and trace of the agent without shortcuts."
+          }
+        },
+        "observedEvidence": [
+          "Multi-file upload of financial sheets",
+          "NodeAgent task execution and chat logs",
+          "PDF export generation and preview"
+        ],
+        "missingEvidence": [],
+        "defects": [
+          {
+            "ts": "02:54",
+            "severity": "P2",
+            "observed": "The PDF export preview has large empty margins on the left side of the document page.",
+            "fix": "Optimize the PDF export layout template to better utilize page width."
+          }
+        ],
+        "suggestedReadmeCaption": "NodeRoom in action: Uploading financial datasets and collaborating with NodeAgent to generate a comprehensive WACC & DCF valuation report."
+      },
+      "score": 11.8,
+      "maxScore": 16
+    },
+    {
+      "asset": {
+        "id": "test-results-bankertoolbench-matrix-44bd7a6b-b3c3-4eb8-b56d-6a769bdbf58e-playwright-output-e2e-benchmark-ui-bankertoo-d0047-odeagent-package-verifier-video",
+        "class": "live_browser_proof",
+        "title": "Video",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\44bd7a6b-b3c3-4eb8-b56d-6a769bdbf58e\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\video.webm",
+        "relPath": "test-results/bankertoolbench/matrix/44bd7a6b-b3c3-4eb8-b56d-6a769bdbf58e/playwright-output/e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier/video.webm",
+        "purpose": "Live Playwright browser proof clip. Judge only visible product evidence: multi-client sync, advisory presence, no-clobber behavior, proposals, job/privacy/wall surfaces, and production honesty."
+      },
+      "model": "gemini-3.5-flash",
+      "status": "judged",
+      "mediaPath": "test-results/bankertoolbench/matrix/44bd7a6b-b3c3-4eb8-b56d-6a769bdbf58e/playwright-output/e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier/video.webm",
+      "mediaType": "video/webm",
+      "bytes": 15683255,
+      "judge": {
+        "verdict": "publish",
+        "summary": "The video demonstrates the complete workflow of NodeAgent within NodeRoom, starting from room creation, uploading financial datasets, executing a complex financial analysis task, and successfully generating the final deliverables.",
+        "scores": {
+          "featureClarity": {
+            "score": 1,
+            "evidence": "The video clearly shows the collaborative workspace where an AI agent processes uploaded financial sheets and generates reports."
+          },
+          "workflowCompleteness": {
+            "score": 1,
+            "evidence": "Demonstrates the full lifecycle from initial file uploads to agent execution and final deliverable generation."
+          },
+          "visualDesign": {
+            "score": 1,
+            "evidence": "The dark-themed, multi-panel layout is clean and structured, though highly dense."
+          },
+          "consistency": {
+            "score": 1,
+            "evidence": "Aligns with the product concept of combining spreadsheets, chat, and agent traces in one room."
+          },
+          "evidenceQuality": {
+            "score": 1,
+            "evidence": "An authentic, unedited browser recording showing real-time agent execution and UI updates."
+          },
+          "legibility": {
+            "score": 1,
+            "evidence": "Most text and spreadsheet cells are readable, though some log traces are quite small."
+          },
+          "professionalRelevance": {
+            "score": 1,
+            "evidence": "Highly relevant for financial analysts and developers building agentic workflows."
+          },
+          "productionHonesty": {
+            "score": 1,
+            "evidence": "Shows the actual execution trace, including tool failures and retries, without hiding backend processes."
+          }
+        },
+        "observedEvidence": [
+          "Multi-panel workspace with spreadsheets and chat",
+          "File upload and processing of multiple financial sheets",
+          "Live agent execution trace showing tool calls and status",
+          "Successful generation of final deliverables (valuation model, presentation deck, memo)"
+        ],
+        "missingEvidence": [],
+        "defects": [
+          {
+            "ts": "01:20",
+            "severity": "P2",
+            "observed": "The video is very long (over 7 minutes) due to real-time agent execution, which may lose viewer engagement.",
+            "fix": "Consider speeding up the agent execution segments or editing the video to highlight key milestones."
+          }
+        ],
+        "suggestedReadmeCaption": "Watch NodeAgent analyze financial datasets and generate complete valuation models and presentation decks in real-time within NodeRoom."
+      },
+      "score": 8,
+      "maxScore": 16
+    },
+    {
+      "asset": {
+        "id": "test-results-bankertoolbench-matrix-4fb6232d-c2a9-4141-98de-3e2025bdf52b-playwright-output-e2e-benchmark-ui-bankertoo-d0047-odeagent-package-verifier-video",
+        "class": "live_browser_proof",
+        "title": "Video",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\4fb6232d-c2a9-4141-98de-3e2025bdf52b\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\video.webm",
+        "relPath": "test-results/bankertoolbench/matrix/4fb6232d-c2a9-4141-98de-3e2025bdf52b/playwright-output/e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier/video.webm",
+        "purpose": "Live Playwright browser proof clip. Judge only visible product evidence: multi-client sync, advisory presence, no-clobber behavior, proposals, job/privacy/wall surfaces, and production honesty."
+      },
+      "model": "gemini-3.5-flash",
+      "status": "judged",
+      "mediaPath": "test-results/bankertoolbench/matrix/4fb6232d-c2a9-4141-98de-3e2025bdf52b/playwright-output/e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier/video.webm",
+      "mediaType": "video/webm",
+      "bytes": 2552360,
+      "judge": {
+        "verdict": "publish",
+        "summary": "The video demonstrates a complete workflow of uploading financial spreadsheets, running an AI agent to analyze the data, and exporting a PDF report within a collaborative workspace. All features are clearly visible and function as expected.",
+        "scores": {
+          "featureClarity": {
+            "score": 1,
+            "evidence": "Shows collaborative workspace with spreadsheets and an active AI agent."
+          },
+          "workflowCompleteness": {
+            "score": 1,
+            "evidence": "Demonstrates the full flow from uploading financial sheets to agent execution and PDF generation."
+          },
+          "visualDesign": {
+            "score": 1,
+            "evidence": "Clean dark-themed interface with structured panels, though text density is high."
+          },
+          "consistency": {
+            "score": 1,
+            "evidence": "Aligns with the files, spreadsheets, and agent trace workflow."
+          },
+          "evidenceQuality": {
+            "score": 1,
+            "evidence": "Real browser interaction showing actual loading states and document rendering."
+          },
+          "legibility": {
+            "score": 1,
+            "evidence": "Text in spreadsheets and chat is readable, though small at standard resolutions."
+          },
+          "professionalRelevance": {
+            "score": 1,
+            "evidence": "Directly targets investment banking workflows with beta and equity risk premium data."
+          },
+          "productionHonesty": {
+            "score": 1,
+            "evidence": "Displays real-time agent execution steps and trace logs without cuts."
+          }
+        },
+        "observedEvidence": [
+          "Landing page with room creation",
+          "File upload of multiple spreadsheets",
+          "Spreadsheet data rendering",
+          "Agent execution with live trace logs",
+          "PDF export generation and preview"
+        ],
+        "missingEvidence": [],
+        "defects": [
+          {
+            "ts": "00:16",
+            "severity": "P2",
+            "observed": "The agent chat panel displays dense, rapidly updating system logs that may overwhelm a non-technical user.",
+            "fix": "Simplify or collapse verbose system logs by default in the UI."
+          }
+        ],
+        "suggestedReadmeCaption": "Watch NodeAgent process uploaded financial spreadsheets and generate a comprehensive PDF report in real-time."
+      },
+      "score": 8,
+      "maxScore": 16
+    },
+    {
+      "asset": {
+        "id": "test-results-bankertoolbench-matrix-515a104d-ab72-47fe-b1a2-d67325ba6473-playwright-output-e2e-benchmark-ui-bankertoo-d0047-odeagent-package-verifier-video",
+        "class": "live_browser_proof",
+        "title": "Video",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\515a104d-ab72-47fe-b1a2-d67325ba6473\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\video.webm",
+        "relPath": "test-results/bankertoolbench/matrix/515a104d-ab72-47fe-b1a2-d67325ba6473/playwright-output/e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier/video.webm",
+        "purpose": "Live Playwright browser proof clip. Judge only visible product evidence: multi-client sync, advisory presence, no-clobber behavior, proposals, job/privacy/wall surfaces, and production honesty."
+      },
+      "model": "gemini-3.5-flash",
+      "status": "judged",
+      "mediaPath": "test-results/bankertoolbench/matrix/515a104d-ab72-47fe-b1a2-d67325ba6473/playwright-output/e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier/video.webm",
+      "mediaType": "video/webm",
+      "bytes": 7886304,
+      "judge": {
+        "verdict": "publish",
+        "summary": "The video successfully demonstrates the complete end-to-end workflow of NodeRoom, starting from the landing page, uploading multiple financial Excel sheets, executing the NodeAgent to process the data, and generating final PDF deliverables.",
+        "scores": {
+          "featureClarity": {
+            "score": 1.5,
+            "evidence": "The video clearly shows file uploading, agent execution, and final document generation."
+          },
+          "workflowCompleteness": {
+            "score": 1.6,
+            "evidence": "Captures the entire sequence from room creation to the final PDF export preview."
+          },
+          "visualDesign": {
+            "score": 1.4,
+            "evidence": "Clean dark-themed interface with structured panels for spreadsheets, chat, and agent traces."
+          },
+          "consistency": {
+            "score": 1.5,
+            "evidence": "Perfectly aligns with the product story of collaborative rooms, files, and active agents."
+          },
+          "evidenceQuality": {
+            "score": 1.6,
+            "evidence": "Authentic browser execution showing real-time UI updates and tool outputs."
+          },
+          "legibility": {
+            "score": 1.4,
+            "evidence": "Spreadsheet cells, chat logs, and PDF text remain readable throughout the clip."
+          },
+          "professionalRelevance": {
+            "score": 1.6,
+            "evidence": "Highly relevant to financial analysts, demonstrating automated valuation and report generation."
+          },
+          "productionHonesty": {
+            "score": 1.5,
+            "evidence": "Displays actual loading states, agent execution steps, and trace logs honestly."
+          }
+        },
+        "observedEvidence": [
+          "Landing page with room creation",
+          "Multi-file Excel upload sequence",
+          "Live agent execution with tool traces",
+          "Final PDF deliverable generation and preview"
+        ],
+        "missingEvidence": [],
+        "defects": [],
+        "suggestedReadmeCaption": "Watch NodeAgent automatically ingest financial statements, execute valuation models, and compile a professional PDF deliverable in real-time."
+      },
+      "score": 12.1,
+      "maxScore": 16
+    },
+    {
+      "asset": {
+        "id": "test-results-bankertoolbench-matrix-5f1e6f38-3380-43f4-a233-b758706985b7-playwright-output-e2e-benchmark-ui-bankertoo-d0047-odeagent-package-verifier-video",
+        "class": "live_browser_proof",
+        "title": "Video",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\5f1e6f38-3380-43f4-a233-b758706985b7\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\video.webm",
+        "relPath": "test-results/bankertoolbench/matrix/5f1e6f38-3380-43f4-a233-b758706985b7/playwright-output/e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier/video.webm",
+        "purpose": "Live Playwright browser proof clip. Judge only visible product evidence: multi-client sync, advisory presence, no-clobber behavior, proposals, job/privacy/wall surfaces, and production honesty."
+      },
+      "model": "gemini-3.5-flash",
+      "status": "judged",
+      "mediaPath": "test-results/bankertoolbench/matrix/5f1e6f38-3380-43f4-a233-b758706985b7/playwright-output/e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier/video.webm",
+      "mediaType": "video/webm",
+      "bytes": 3721141,
+      "judge": {
+        "verdict": "publish",
+        "summary": "The video demonstrates an end-to-end workflow where an AI agent processes financial sheets and generates multiple deliverables including valuation models, presentations, and a PDF export within a collaborative room.",
+        "scores": {
+          "featureClarity": {
+            "score": 1,
+            "evidence": "Demonstrates collaborative workspace with an agent, though multiple simultaneous panels can be slightly overwhelming for a first-time viewer."
+          },
+          "workflowCompleteness": {
+            "score": 2,
+            "evidence": "Shows the complete lifecycle from an empty room, uploading source data, agent execution, to final artifact inspection."
+          },
+          "visualDesign": {
+            "score": 1,
+            "evidence": "High-density dark UI with clear sections, though some panels feel slightly cramped during active agent execution."
+          },
+          "consistency": {
+            "score": 1,
+            "evidence": "Aligns well with the product's theme of multi-format workspaces combining sheets, documents, and agent traces."
+          },
+          "evidenceQuality": {
+            "score": 2,
+            "evidence": "Unedited, real-time browser capture showing actual UI state changes, logs, and document rendering."
+          },
+          "legibility": {
+            "score": 1,
+            "evidence": "Most text is readable, but small font sizes in the spreadsheet cells and chat logs require high-resolution viewing."
+          },
+          "professionalRelevance": {
+            "score": 2,
+            "evidence": "Highly relevant to financial analysts and bankers, showcasing automated valuation and report generation."
+          },
+          "productionHonesty": {
+            "score": 1,
+            "evidence": "Clearly displays the step-by-step execution and cost metrics of the agent run without artificial acceleration."
+          }
+        },
+        "observedEvidence": [
+          "Multi-tab spreadsheet interface",
+          "Agent execution logs and cost tracking",
+          "Generated PDF previewer",
+          "Document viewer for task briefs"
+        ],
+        "missingEvidence": [],
+        "defects": [
+          {
+            "ts": "00:10",
+            "severity": "P2",
+            "observed": "The chat log text is quite small and dense, making it difficult to read quickly during playback.",
+            "fix": "Increase the default font size or line height of the agent console logs for better readability in video demos."
+          }
+        ],
+        "suggestedReadmeCaption": "Watch NodeAgent process raw industry beta and equity risk premium sheets to generate a complete valuation model, presentation deck, and PDF report."
+      },
+      "score": 11,
+      "maxScore": 16
+    },
+    {
+      "asset": {
+        "id": "test-results-bankertoolbench-matrix-69507fd6-a925-4e1a-8fc3-6485c71dc828-playwright-output-e2e-benchmark-ui-bankertoo-d0047-odeagent-package-verifier-video",
+        "class": "live_browser_proof",
+        "title": "Video",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\69507fd6-a925-4e1a-8fc3-6485c71dc828\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\video.webm",
+        "relPath": "test-results/bankertoolbench/matrix/69507fd6-a925-4e1a-8fc3-6485c71dc828/playwright-output/e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier/video.webm",
+        "purpose": "Live Playwright browser proof clip. Judge only visible product evidence: multi-client sync, advisory presence, no-clobber behavior, proposals, job/privacy/wall surfaces, and production honesty."
+      },
+      "model": "gemini-3.5-flash",
+      "status": "judged",
+      "mediaPath": "test-results/bankertoolbench/matrix/69507fd6-a925-4e1a-8fc3-6485c71dc828/playwright-output/e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier/video.webm",
+      "mediaType": "video/webm",
+      "bytes": 3245288,
+      "judge": {
+        "verdict": "publish",
+        "summary": "The video successfully demonstrates the end-to-end workflow of creating a room, uploading financial documents, executing an AI agent with visible trace logs, and generating a PDF report.",
+        "scores": {
+          "featureClarity": {
+            "score": 1,
+            "evidence": "Shows the creation of a room and subsequent document processing, though the dense UI requires close attention."
+          },
+          "workflowCompleteness": {
+            "score": 1,
+            "evidence": "Captures the full sequence from room setup and file uploads to agent execution and final PDF export."
+          },
+          "visualDesign": {
+            "score": 1,
+            "evidence": "The dark-mode interface is highly functional and structured, resembling professional developer tools, but is quite dense."
+          },
+          "consistency": {
+            "score": 1,
+            "evidence": "Aligns well with the product's core concept of combining spreadsheets, documents, and agent traces."
+          },
+          "evidenceQuality": {
+            "score": 1,
+            "evidence": "Authentic browser recording showing real-time loading states, uploads, and UI updates."
+          },
+          "legibility": {
+            "score": 1,
+            "evidence": "Most text and numbers in the spreadsheet are readable, though trace logs are small."
+          },
+          "professionalRelevance": {
+            "score": 1,
+            "evidence": "Highly relevant for financial analysts and developers building agentic workflows."
+          },
+          "productionHonesty": {
+            "score": 1,
+            "evidence": "Accurately displays processing delays, loading states, and detailed execution traces."
+          }
+        },
+        "observedEvidence": [
+          "Room creation interface",
+          "Multi-file upload and processing",
+          "Spreadsheet data rendering",
+          "Agent execution and live trace logs",
+          "PDF export generation and preview"
+        ],
+        "missingEvidence": [],
+        "defects": [
+          {
+            "ts": "00:45",
+            "severity": "P2",
+            "observed": "The agent trace log text is small and dense, reducing readability.",
+            "fix": "Slightly increase the font size or line spacing in the trace panel."
+          }
+        ],
+        "suggestedReadmeCaption": "NodeRoom collaborative workspace demonstrating automated financial data extraction, agent execution, and PDF report generation."
+      },
+      "score": 8,
+      "maxScore": 16
+    },
+    {
+      "asset": {
+        "id": "test-results-bankertoolbench-matrix-6b25d3dc-4b81-4d2e-b153-466b17040aae-playwright-output-e2e-benchmark-ui-bankertoo-d0047-odeagent-package-verifier-video",
+        "class": "live_browser_proof",
+        "title": "Video",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\6b25d3dc-4b81-4d2e-b153-466b17040aae\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\video.webm",
+        "relPath": "test-results/bankertoolbench/matrix/6b25d3dc-4b81-4d2e-b153-466b17040aae/playwright-output/e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier/video.webm",
+        "purpose": "Live Playwright browser proof clip. Judge only visible product evidence: multi-client sync, advisory presence, no-clobber behavior, proposals, job/privacy/wall surfaces, and production honesty."
+      },
+      "model": "gemini-3.5-flash",
+      "status": "judged",
+      "mediaPath": "test-results/bankertoolbench/matrix/6b25d3dc-4b81-4d2e-b153-466b17040aae/playwright-output/e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier/video.webm",
+      "mediaType": "video/webm",
+      "bytes": 6356005,
+      "judge": {
+        "verdict": "publish",
+        "summary": "The video demonstrates the complete workflow of creating a room, uploading financial datasets, and having an AI agent process them to generate deliverables, ending with a preview of a generated PDF.",
+        "scores": {
+          "featureClarity": {
+            "score": 1,
+            "evidence": "The interface clearly shows the transition from file uploads to agent execution and final document generation."
+          },
+          "workflowCompleteness": {
+            "score": 1,
+            "evidence": "Captures the entire lifecycle from the landing page to the final generated PDF artifact."
+          },
+          "visualDesign": {
+            "score": 1,
+            "evidence": "The dark-themed multi-panel layout is structured, though dense with text and logs."
+          },
+          "consistency": {
+            "score": 1,
+            "evidence": "Aligns with the product story of collaborative rooms, spreadsheets, and active agent traces."
+          },
+          "evidenceQuality": {
+            "score": 1,
+            "evidence": "Recorded from a live browser session showing real-time agent execution and file rendering."
+          },
+          "legibility": {
+            "score": 1,
+            "evidence": "Most UI elements and spreadsheet cells are readable, though some log text is small."
+          },
+          "professionalRelevance": {
+            "score": 1,
+            "evidence": "Directly relevant to financial analysts and bankers looking to automate valuation workflows."
+          },
+          "productionHonesty": {
+            "score": 1,
+            "evidence": "Shows the step-by-step progress of the agent without skipping the execution logs."
+          }
+        },
+        "observedEvidence": [
+          "Multi-panel collaborative workspace with spreadsheet and document viewer",
+          "File upload workflow for multiple Excel sheets",
+          "Live agent execution logs and status updates in the chat panel",
+          "Generation and preview of final PDF deliverable"
+        ],
+        "missingEvidence": [],
+        "defects": [
+          {
+            "ts": "02:44",
+            "severity": "P2",
+            "observed": "The generated PDF export contains very minimal placeholder-like text with large empty spaces.",
+            "fix": "Improve the document generation template to produce more visually complete and professional reports."
+          }
+        ],
+        "suggestedReadmeCaption": "Watch NodeAgent process financial datasets in real-time to generate structured valuation models and PDF reports."
+      },
+      "score": 8,
+      "maxScore": 16
+    },
+    {
+      "asset": {
+        "id": "test-results-bankertoolbench-matrix-7b078eaa-4fe4-4780-9f53-531872b73274-playwright-output-e2e-benchmark-ui-bankertoo-d0047-odeagent-package-verifier-video",
+        "class": "live_browser_proof",
+        "title": "Video",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\7b078eaa-4fe4-4780-9f53-531872b73274\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\video.webm",
+        "relPath": "test-results/bankertoolbench/matrix/7b078eaa-4fe4-4780-9f53-531872b73274/playwright-output/e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier/video.webm",
+        "purpose": "Live Playwright browser proof clip. Judge only visible product evidence: multi-client sync, advisory presence, no-clobber behavior, proposals, job/privacy/wall surfaces, and production honesty."
+      },
+      "model": "gemini-3.5-flash",
+      "status": "judged",
+      "mediaPath": "test-results/bankertoolbench/matrix/7b078eaa-4fe4-4780-9f53-531872b73274/playwright-output/e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier/video.webm",
+      "mediaType": "video/webm",
+      "bytes": 5026627,
+      "judge": {
+        "verdict": "publish",
+        "summary": "The video demonstrates a complete end-to-end workflow of NodeAgent in NodeRoom, starting from room creation, uploading multiple financial datasets, executing an official task brief, and generating a final PDF export deliverable.",
+        "scores": {
+          "featureClarity": {
+            "score": 1,
+            "evidence": "The interface clearly shows a collaborative workspace where an AI agent processes uploaded financial spreadsheets to generate a report."
+          },
+          "workflowCompleteness": {
+            "score": 1,
+            "evidence": "Shows the full sequence: empty room, file uploads, task initiation, agent execution logs, and final PDF output."
+          },
+          "visualDesign": {
+            "score": 1,
+            "evidence": "Dark-themed, high-density dashboard with clear panels for files, spreadsheet viewer, and agent chat."
+          },
+          "consistency": {
+            "score": 1,
+            "evidence": "Aligns with the product concept of combining spreadsheets, documents, and autonomous agents in one room."
+          },
+          "evidenceQuality": {
+            "score": 1,
+            "evidence": "Captured from a live browser session showing real-time file uploads and agent execution traces."
+          },
+          "legibility": {
+            "score": 1,
+            "evidence": "UI text, spreadsheet cells, and chat logs are legible at standard playback resolution."
+          },
+          "professionalRelevance": {
+            "score": 1,
+            "evidence": "Highly relevant for financial analysts and bankers performing automated accretion-dilution modeling."
+          },
+          "productionHonesty": {
+            "score": 1,
+            "evidence": "Displays actual loading states, step-by-step file uploads, and raw agent execution logs."
+          }
+        },
+        "observedEvidence": [
+          "Landing page with room creation",
+          "Multi-file upload into Room Binder",
+          "Spreadsheet data preview",
+          "Task brief document display",
+          "Live agent execution logs in chat",
+          "Final PDF export generation"
+        ],
+        "missingEvidence": [],
+        "defects": [
+          {
+            "ts": "00:04",
+            "severity": "P2",
+            "observed": "The file upload process is repetitive and takes up a significant portion of the video duration.",
+            "fix": "Fast-forward or cut down the repetitive file uploading sequence to keep the video concise."
+          }
+        ],
+        "suggestedReadmeCaption": "Watch NodeAgent automatically ingest financial data sheets, execute a complex accretion-dilution task brief, and generate a polished PDF report."
+      },
+      "score": 8,
+      "maxScore": 16
+    },
+    {
+      "asset": {
+        "id": "test-results-bankertoolbench-matrix-85670d9d-a809-4f32-a3ff-d93845cc17ea-playwright-output-e2e-benchmark-ui-bankertoo-d0047-odeagent-package-verifier-video",
+        "class": "live_browser_proof",
+        "title": "Video",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\85670d9d-a809-4f32-a3ff-d93845cc17ea\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\video.webm",
+        "relPath": "test-results/bankertoolbench/matrix/85670d9d-a809-4f32-a3ff-d93845cc17ea/playwright-output/e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier/video.webm",
+        "purpose": "Live Playwright browser proof clip. Judge only visible product evidence: multi-client sync, advisory presence, no-clobber behavior, proposals, job/privacy/wall surfaces, and production honesty."
+      },
+      "model": "gemini-3.5-flash",
+      "status": "judged",
+      "mediaPath": "test-results/bankertoolbench/matrix/85670d9d-a809-4f32-a3ff-d93845cc17ea/playwright-output/e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier/video.webm",
+      "mediaType": "video/webm",
+      "bytes": 5088083,
+      "judge": {
+        "verdict": "publish",
+        "summary": "The video demonstrates NodeAgent collaborating in a NodeRoom workspace, uploading financial and clinical documents, and executing an automated analysis workflow to generate a valuation model and PDF report.",
+        "scores": {
+          "featureClarity": {
+            "score": 1,
+            "evidence": "The interface clearly displays the document binder, spreadsheet viewer, and the active agent chat panel executing tasks."
+          },
+          "workflowCompleteness": {
+            "score": 1,
+            "evidence": "Shows the full sequence from document uploads to agent execution and final artifact generation."
+          },
+          "visualDesign": {
+            "score": 1,
+            "evidence": "The dark-mode layout is structured with clear panels, though some dense text areas feel slightly crowded."
+          },
+          "consistency": {
+            "score": 1,
+            "evidence": "Aligns well with the multi-panel workspace concept, combining spreadsheets, PDFs, and agent traces."
+          },
+          "evidenceQuality": {
+            "score": 1,
+            "evidence": "Captured directly from a live browser session showing real-time file processing and agent logs."
+          },
+          "legibility": {
+            "score": 1,
+            "evidence": "Most text and spreadsheet cells are readable, though smaller log outputs require close attention."
+          },
+          "professionalRelevance": {
+            "score": 1,
+            "evidence": "Highly relevant for financial analysts and bankers looking to automate document-heavy valuation workflows."
+          },
+          "productionHonesty": {
+            "score": 1,
+            "evidence": "The video shows actual processing times, loading states, and step-by-step agent execution without artificial cuts."
+          }
+        },
+        "observedEvidence": [
+          "Multi-panel workspace with spreadsheet and PDF viewer",
+          "File upload sequence of multiple financial and clinical documents",
+          "NodeAgent execution trace and automated artifact generation"
+        ],
+        "missingEvidence": [],
+        "defects": [
+          {
+            "ts": "00:40",
+            "severity": "P2",
+            "observed": "A 'Preview is not available for this file type' placeholder is shown for the pipeline file.",
+            "fix": "Provide a basic text or structured preview for pipeline configuration files to avoid empty states."
+          }
+        ],
+        "suggestedReadmeCaption": "Watch NodeAgent analyze uploaded clinical trials and financial sheets to generate a complete valuation model and PDF report in real time."
+      },
+      "score": 8,
+      "maxScore": 16
+    },
+    {
+      "asset": {
+        "id": "test-results-bankertoolbench-matrix-8eb06eaf-d2ce-4f86-9239-d4a10bc72cf6-playwright-output-e2e-benchmark-ui-bankertoo-d0047-odeagent-package-verifier-video",
+        "class": "live_browser_proof",
+        "title": "Video",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\8eb06eaf-d2ce-4f86-9239-d4a10bc72cf6\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\video.webm",
+        "relPath": "test-results/bankertoolbench/matrix/8eb06eaf-d2ce-4f86-9239-d4a10bc72cf6/playwright-output/e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier/video.webm",
+        "purpose": "Live Playwright browser proof clip. Judge only visible product evidence: multi-client sync, advisory presence, no-clobber behavior, proposals, job/privacy/wall surfaces, and production honesty."
+      },
+      "model": "gemini-3.5-flash",
+      "status": "judged",
+      "mediaPath": "test-results/bankertoolbench/matrix/8eb06eaf-d2ce-4f86-9239-d4a10bc72cf6/playwright-output/e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier/video.webm",
+      "mediaType": "video/webm",
+      "bytes": 6559491,
+      "judge": {
+        "verdict": "publish",
+        "summary": "The video demonstrates an automated end-to-end workflow of uploading multiple financial spreadsheets, executing an AI agent to analyze the data, and exporting the final report to a PDF.",
+        "scores": {
+          "featureClarity": {
+            "score": 1,
+            "evidence": "Demonstrates spreadsheet uploads and agent execution, though the specific analytical task is dense."
+          },
+          "workflowCompleteness": {
+            "score": 1,
+            "evidence": "Shows the complete sequence from room creation and file ingestion to agent execution and PDF export."
+          },
+          "visualDesign": {
+            "score": 1,
+            "evidence": "Clean dark-mode layout with structured panels, though the UI becomes dense during active agent execution."
+          },
+          "consistency": {
+            "score": 1,
+            "evidence": "Matches the product story of combining files, spreadsheets, and interactive agent traces."
+          },
+          "evidenceQuality": {
+            "score": 1,
+            "evidence": "Real browser execution showing actual UI transitions and live agent logs."
+          },
+          "legibility": {
+            "score": 1,
+            "evidence": "Spreadsheet cells and log text are small but readable when viewed at full size."
+          },
+          "professionalRelevance": {
+            "score": 1,
+            "evidence": "Highly relevant for financial analysts and bankers automating multi-sheet data synthesis."
+          },
+          "productionHonesty": {
+            "score": 1,
+            "evidence": "Shows raw agent execution steps, tool calls, and the actual generated PDF artifact."
+          }
+        },
+        "observedEvidence": [
+          "Landing page with room creation flow",
+          "Multi-tab spreadsheet interface displaying financial data",
+          "Agent chat panel showing real-time tool execution and logs",
+          "Final PDF export preview"
+        ],
+        "missingEvidence": [
+          "Manual user editing or real-time human collaboration inside the sheets."
+        ],
+        "defects": [
+          {
+            "ts": "00:04",
+            "severity": "P2",
+            "observed": "Rapid automated uploading of multiple files makes it difficult to track individual sheet contents.",
+            "fix": "Introduce slight delays between file uploads to improve viewer comprehension."
+          }
+        ],
+        "suggestedReadmeCaption": "Watch NodeAgent automatically ingest multiple financial sheets, execute analytical tools, and compile a final PDF report."
+      },
+      "score": 8,
+      "maxScore": 16
+    },
+    {
+      "asset": {
+        "id": "test-results-bankertoolbench-matrix-960dc224-634f-435b-a42d-f8edac8ddd2f-playwright-output-e2e-benchmark-ui-bankertoo-d0047-odeagent-package-verifier-video",
+        "class": "live_browser_proof",
+        "title": "Video",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\960dc224-634f-435b-a42d-f8edac8ddd2f\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\video.webm",
+        "relPath": "test-results/bankertoolbench/matrix/960dc224-634f-435b-a42d-f8edac8ddd2f/playwright-output/e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier/video.webm",
+        "purpose": "Live Playwright browser proof clip. Judge only visible product evidence: multi-client sync, advisory presence, no-clobber behavior, proposals, job/privacy/wall surfaces, and production honesty."
+      },
+      "model": "gemini-3.5-flash",
+      "status": "judged",
+      "mediaPath": "test-results/bankertoolbench/matrix/960dc224-634f-435b-a42d-f8edac8ddd2f/playwright-output/e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier/video.webm",
+      "mediaType": "video/webm",
+      "bytes": 3720733,
+      "judge": {
+        "verdict": "fix-then-publish",
+        "summary": "The video demonstrates NodeRoom's core workflow: creating a room, uploading financial documents, executing an agent task with live traces, and reviewing generated deliverables. A minor preview error occurs briefly.",
+        "scores": {
+          "featureClarity": {
+            "score": 1,
+            "evidence": "The workflow clearly shows document uploads, agent execution, and output generation, though the dense UI can be slightly overwhelming."
+          },
+          "workflowCompleteness": {
+            "score": 1,
+            "evidence": "Demonstrates the full sequence from an empty room to uploaded files, agent execution, and final document inspection."
+          },
+          "visualDesign": {
+            "score": 1,
+            "evidence": "The dark-themed interface is highly functional and dense, resembling professional financial tools, though some panels feel cramped."
+          },
+          "consistency": {
+            "score": 1,
+            "evidence": "Successfully aligns with the product story of combining spreadsheets, documents, and agent traces in a single workspace."
+          },
+          "evidenceQuality": {
+            "score": 1,
+            "evidence": "Captured directly from a live browser session showing real-time execution and file rendering."
+          },
+          "legibility": {
+            "score": 1,
+            "evidence": "Most text and spreadsheet cells are readable, though smaller log text in the agent panel requires zooming."
+          },
+          "professionalRelevance": {
+            "score": 1,
+            "evidence": "Highly relevant for financial analysts and developers building agentic workflows for document processing."
+          },
+          "productionHonesty": {
+            "score": 1,
+            "evidence": "Shows the actual speed of the agent and the raw trace logs without artificial acceleration."
+          }
+        },
+        "observedEvidence": [
+          "Room creation from landing page",
+          "Uploading of multiple PDF and Excel files",
+          "Agent task execution with live trace logs",
+          "Generation and preview of financial deliverables"
+        ],
+        "missingEvidence": [
+          "Multi-client synchronization showing real-time collaboration between multiple users."
+        ],
+        "defects": [
+          {
+            "ts": "01:23",
+            "severity": "P2",
+            "observed": "A 'PDF preview unavailable' error message is briefly displayed before the document successfully renders.",
+            "fix": "Optimize the PDF rendering pipeline or add a loading spinner to prevent transient error states from flashing."
+          }
+        ],
+        "suggestedReadmeCaption": "Watch NodeAgent process financial source documents and generate structured valuation models and presentation decks with full trace visibility."
+      },
+      "score": 8,
+      "maxScore": 16
+    },
+    {
+      "asset": {
+        "id": "test-results-bankertoolbench-matrix-990cf5d7-0db5-456e-9766-c9d8a6640e3a-playwright-output-e2e-benchmark-ui-bankertoo-d0047-odeagent-package-verifier-video",
+        "class": "live_browser_proof",
+        "title": "Video",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\990cf5d7-0db5-456e-9766-c9d8a6640e3a\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\video.webm",
+        "relPath": "test-results/bankertoolbench/matrix/990cf5d7-0db5-456e-9766-c9d8a6640e3a/playwright-output/e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier/video.webm",
+        "purpose": "Live Playwright browser proof clip. Judge only visible product evidence: multi-client sync, advisory presence, no-clobber behavior, proposals, job/privacy/wall surfaces, and production honesty."
+      },
+      "model": "gemini-3.5-flash",
+      "status": "judged",
+      "mediaPath": "test-results/bankertoolbench/matrix/990cf5d7-0db5-456e-9766-c9d8a6640e3a/playwright-output/e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier/video.webm",
+      "mediaType": "video/webm",
+      "bytes": 4321518,
+      "judge": {
+        "verdict": "publish",
+        "summary": "The video demonstrates the complete workflow of uploading financial documents, initiating an automated banking agent task, viewing the execution trace, and inspecting the generated multi-format deliverables.",
+        "scores": {
+          "featureClarity": {
+            "score": 1,
+            "evidence": "The interface clearly displays file uploads, agent execution logs, and output tabs, though the dense UI requires close attention."
+          },
+          "workflowCompleteness": {
+            "score": 1,
+            "evidence": "Shows the entire sequence from room creation and document upload to agent execution and final deliverable inspection."
+          },
+          "visualDesign": {
+            "score": 1,
+            "evidence": "High-density dark mode layout with clear panels, though some areas feel slightly crowded with text."
+          },
+          "consistency": {
+            "score": 1,
+            "evidence": "Aligns well with the product's core concept of collaborative rooms, spreadsheets, and active agents."
+          },
+          "evidenceQuality": {
+            "score": 1,
+            "evidence": "Captured directly from a live browser session showing real-time file processing and agent logs."
+          },
+          "legibility": {
+            "score": 1,
+            "evidence": "Most text and spreadsheet cells are readable, though small font sizes in the logs can be hard to parse."
+          },
+          "professionalRelevance": {
+            "score": 1,
+            "evidence": "Highly relevant for financial analysts and developers building automated banking workflows."
+          },
+          "productionHonesty": {
+            "score": 1,
+            "evidence": "Accurately displays the step-by-step execution trace, including tool calls and file generation states."
+          }
+        },
+        "observedEvidence": [
+          "Landing page room creation",
+          "Multi-file upload sequence",
+          "Interactive spreadsheet viewer",
+          "Agent execution trace and chat logs",
+          "Generated deliverables (PDF, Excel, PPT)"
+        ],
+        "missingEvidence": [],
+        "defects": [
+          {
+            "ts": "01:00",
+            "severity": "P2",
+            "observed": "The agent trace log text is quite small and dense, making it difficult to read quickly.",
+            "fix": "Slightly increase the font size or contrast of the trace log panel for better readability."
+          }
+        ],
+        "suggestedReadmeCaption": "Watch NodeRoom's agent process financial source files and automatically generate structured valuation models and presentation decks."
+      },
+      "score": 8,
+      "maxScore": 16
+    },
+    {
+      "asset": {
+        "id": "test-results-bankertoolbench-matrix-aa577c1d-2c22-4963-91c4-456ac32e5b4a-playwright-output-e2e-benchmark-ui-bankertoo-d0047-odeagent-package-verifier-video",
+        "class": "live_browser_proof",
+        "title": "Video",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\aa577c1d-2c22-4963-91c4-456ac32e5b4a\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\video.webm",
+        "relPath": "test-results/bankertoolbench/matrix/aa577c1d-2c22-4963-91c4-456ac32e5b4a/playwright-output/e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier/video.webm",
+        "purpose": "Live Playwright browser proof clip. Judge only visible product evidence: multi-client sync, advisory presence, no-clobber behavior, proposals, job/privacy/wall surfaces, and production honesty."
+      },
+      "model": "gemini-3.5-flash",
+      "status": "judged",
+      "mediaPath": "test-results/bankertoolbench/matrix/aa577c1d-2c22-4963-91c4-456ac32e5b4a/playwright-output/e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier/video.webm",
+      "mediaType": "video/webm",
+      "bytes": 5176288,
+      "judge": {
+        "verdict": "publish",
+        "summary": "The video successfully demonstrates the end-to-end workflow of uploading multiple financial spreadsheets, prompting an AI agent with a complex valuation task, and reviewing the generated PDF report.",
+        "scores": {
+          "featureClarity": {
+            "score": 1.5,
+            "evidence": "The video clearly shows the transition from file uploads to agent execution and final PDF generation."
+          },
+          "workflowCompleteness": {
+            "score": 1.6,
+            "evidence": "Captures the entire lifecycle: room creation, bulk uploading of financial data, agent invocation, and output verification."
+          },
+          "visualDesign": {
+            "score": 1.3,
+            "evidence": "High-density dark UI with clear panels, though the sidebar and chat logs can feel slightly cluttered during execution."
+          },
+          "consistency": {
+            "score": 1.5,
+            "evidence": "Perfectly aligns with the NodeRoom paradigm of spreadsheets, agent traces, and document artifacts."
+          },
+          "evidenceQuality": {
+            "score": 1.6,
+            "evidence": "Authentic browser automation recording showing real-time file processing and agent execution logs."
+          },
+          "legibility": {
+            "score": 1.2,
+            "evidence": "Most UI elements are readable, though spreadsheet cell values and detailed agent logs are small at standard resolution."
+          },
+          "professionalRelevance": {
+            "score": 1.6,
+            "evidence": "Highly relevant to investment banking and financial analysis use cases, showcasing multi-company data ingestion."
+          },
+          "productionHonesty": {
+            "score": 1.5,
+            "evidence": "Shows realistic processing delays, upload states, and step-by-step agent execution traces."
+          }
+        },
+        "observedEvidence": [
+          "Multi-file upload sequence",
+          "Agent task initialization and execution logs",
+          "PDF report generation and inline previewing"
+        ],
+        "missingEvidence": [],
+        "defects": [
+          {
+            "ts": "01:09",
+            "severity": "P2",
+            "observed": "The task brief text block is extremely dense and difficult to read quickly.",
+            "fix": "Consider using markdown formatting or collapsible sections to improve readability of long prompts."
+          },
+          {
+            "ts": "02:01",
+            "severity": "P2",
+            "observed": "The generated PDF preview is small, making the final output hard to verify visually.",
+            "fix": "Add a brief zoom-in or full-screen toggle action on the PDF viewer to highlight the quality of the generated report."
+          }
+        ],
+        "suggestedReadmeCaption": "Watch NodeAgent ingest multiple financial workbooks and generate a comprehensive relative valuation PDF report in real-time."
+      },
+      "score": 11.8,
+      "maxScore": 16
+    },
+    {
+      "asset": {
+        "id": "test-results-bankertoolbench-matrix-b8be8b2f-e6c2-4137-98e8-a09a3a9860f7-playwright-output-e2e-benchmark-ui-bankertoo-d0047-odeagent-package-verifier-video",
+        "class": "live_browser_proof",
+        "title": "Video",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\b8be8b2f-e6c2-4137-98e8-a09a3a9860f7\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\video.webm",
+        "relPath": "test-results/bankertoolbench/matrix/b8be8b2f-e6c2-4137-98e8-a09a3a9860f7/playwright-output/e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier/video.webm",
+        "purpose": "Live Playwright browser proof clip. Judge only visible product evidence: multi-client sync, advisory presence, no-clobber behavior, proposals, job/privacy/wall surfaces, and production honesty."
+      },
+      "model": "gemini-3.5-flash",
+      "status": "judged",
+      "mediaPath": "test-results/bankertoolbench/matrix/b8be8b2f-e6c2-4137-98e8-a09a3a9860f7/playwright-output/e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier/video.webm",
+      "mediaType": "video/webm",
+      "bytes": 5187878,
+      "judge": {
+        "verdict": "publish",
+        "summary": "The video demonstrates a complete end-to-end workflow of NodeAgent, starting from room creation, uploading financial documents, executing an agent task, and verifying the generated outputs in the room binder.",
+        "scores": {
+          "featureClarity": {
+            "score": 1.6,
+            "evidence": "The video clearly demonstrates collaborative rooms, file uploads, and agentic execution on financial tasks."
+          },
+          "workflowCompleteness": {
+            "score": 1.6,
+            "evidence": "Shows the entire lifecycle: empty room, document upload, agent invocation, real-time execution, and final output verification."
+          },
+          "visualDesign": {
+            "score": 1.4,
+            "evidence": "Clean dark-mode interface with high-density data views, though some panels feel slightly crowded."
+          },
+          "consistency": {
+            "score": 1.6,
+            "evidence": "Perfect alignment with the product story of files, spreadsheets, agent chat, and execution traces."
+          },
+          "evidenceQuality": {
+            "score": 1.6,
+            "evidence": "Authentic, unedited browser recording showing real-time system responses and file loading."
+          },
+          "legibility": {
+            "score": 1.4,
+            "evidence": "Most text and spreadsheet cells are readable, though some dense tables require zooming to read clearly."
+          },
+          "professionalRelevance": {
+            "score": 1.6,
+            "evidence": "Highly relevant for financial analysts and developers building agentic workflows."
+          },
+          "productionHonesty": {
+            "score": 1.5,
+            "evidence": "Accurately depicts agent processing times, step-by-step logs, and output generation without artificial cuts."
+          }
+        },
+        "observedEvidence": [
+          "Multi-client room creation",
+          "Document upload (PDFs and Excel sheets)",
+          "Agent execution with real-time trace logs",
+          "Generation of valuation models, presentation decks, and PDF exports"
+        ],
+        "missingEvidence": [],
+        "defects": [
+          {
+            "ts": "01:57",
+            "severity": "P2",
+            "observed": "High visual density in the spreadsheet and document viewer panels can make it slightly hard to focus on specific outputs.",
+            "fix": "Consider simplifying the default visible columns or adding subtle visual separators."
+          }
+        ],
+        "suggestedReadmeCaption": "Watch NodeAgent analyze uploaded financial documents and generate a complete valuation model, presentation deck, and PDF report in real-time."
+      },
+      "score": 12.3,
+      "maxScore": 16
+    },
+    {
+      "asset": {
+        "id": "test-results-bankertoolbench-matrix-c032d3c9-5055-4346-a60d-429f658f71f9-playwright-output-e2e-benchmark-ui-bankertoo-d0047-odeagent-package-verifier-video",
+        "class": "live_browser_proof",
+        "title": "Video",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\c032d3c9-5055-4346-a60d-429f658f71f9\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\video.webm",
+        "relPath": "test-results/bankertoolbench/matrix/c032d3c9-5055-4346-a60d-429f658f71f9/playwright-output/e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier/video.webm",
+        "purpose": "Live Playwright browser proof clip. Judge only visible product evidence: multi-client sync, advisory presence, no-clobber behavior, proposals, job/privacy/wall surfaces, and production honesty."
+      },
+      "model": "gemini-3.5-flash",
+      "status": "judged",
+      "mediaPath": "test-results/bankertoolbench/matrix/c032d3c9-5055-4346-a60d-429f658f71f9/playwright-output/e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier/video.webm",
+      "mediaType": "video/webm",
+      "bytes": 5907031,
+      "judge": {
+        "verdict": "publish",
+        "summary": "The video demonstrates NodeAgent executing a BankerToolBench task within NodeRoom. It shows the initial setup, uploading of multiple financial spreadsheets, the agent's step-by-step execution trace, and the final generation and preview of a PDF report.",
+        "scores": {
+          "featureClarity": {
+            "score": 1,
+            "evidence": "The video clearly shows an AI agent processing financial data to generate a report, though the dense UI requires close attention."
+          },
+          "workflowCompleteness": {
+            "score": 1,
+            "evidence": "The workflow is complete, showing the initial blank room, document uploads, agent execution, and the final PDF output."
+          },
+          "visualDesign": {
+            "score": 1,
+            "evidence": "The dark-themed interface is highly functional and structured, resembling professional tools like Linear, though it is quite dense."
+          },
+          "consistency": {
+            "score": 1,
+            "evidence": "The video perfectly aligns with the product's core concept of collaborative rooms with files, sheets, and active agents."
+          },
+          "evidenceQuality": {
+            "score": 1,
+            "evidence": "The recording is a direct, unedited browser capture of a live execution, providing authentic product proof."
+          },
+          "legibility": {
+            "score": 1,
+            "evidence": "Most text and spreadsheet cells are legible, though some log outputs and trace details are quite small."
+          },
+          "professionalRelevance": {
+            "score": 1,
+            "evidence": "Highly relevant for financial and banking use cases, demonstrating automated valuation and report generation."
+          },
+          "productionHonesty": {
+            "score": 1,
+            "evidence": "The video honestly displays the agent's step-by-step trace, including tool execution details and minor errors."
+          }
+        },
+        "observedEvidence": [
+          "Multi-file upload and spreadsheet preview",
+          "Agent execution trace and status updates",
+          "Final PDF report generation and preview"
+        ],
+        "missingEvidence": [],
+        "defects": [
+          {
+            "ts": "02:17",
+            "severity": "P2",
+            "observed": "The trace logs show a red error message indicating a package build failure during tool execution.",
+            "fix": "Ensure the tool environment is fully configured to avoid build errors, or clarify the recovery behavior in the UI."
+          }
+        ],
+        "suggestedReadmeCaption": "Watch NodeAgent process financial spreadsheets and generate a comprehensive valuation report in real-time within NodeRoom."
+      },
+      "score": 8,
+      "maxScore": 16
+    },
+    {
+      "asset": {
+        "id": "test-results-bankertoolbench-matrix-c6926dfc-b844-40f6-b530-2198b39d8ddd-playwright-output-e2e-benchmark-ui-bankertoo-d0047-odeagent-package-verifier-video",
+        "class": "live_browser_proof",
+        "title": "Video",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\c6926dfc-b844-40f6-b530-2198b39d8ddd\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\video.webm",
+        "relPath": "test-results/bankertoolbench/matrix/c6926dfc-b844-40f6-b530-2198b39d8ddd/playwright-output/e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier/video.webm",
+        "purpose": "Live Playwright browser proof clip. Judge only visible product evidence: multi-client sync, advisory presence, no-clobber behavior, proposals, job/privacy/wall surfaces, and production honesty."
+      },
+      "model": "gemini-3.5-flash",
+      "status": "judged",
+      "mediaPath": "test-results/bankertoolbench/matrix/c6926dfc-b844-40f6-b530-2198b39d8ddd/playwright-output/e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier/video.webm",
+      "mediaType": "video/webm",
+      "bytes": 3333763,
+      "judge": {
+        "verdict": "publish",
+        "summary": "The video demonstrates NodeRoom's core workflow: uploading financial spreadsheets, initiating a NodeAgent task brief, watching the agent execute with live traces, and reviewing the generated financial models, presentations, and PDF deliverables.",
+        "scores": {
+          "featureClarity": {
+            "score": 1,
+            "evidence": "Demonstrates the end-to-end flow of uploading data, running an agent, and generating financial deliverables, though the dense UI requires close attention."
+          },
+          "workflowCompleteness": {
+            "score": 1,
+            "evidence": "Captures the entire sequence from the initial landing page and file uploads to agent execution and final output review."
+          },
+          "visualDesign": {
+            "score": 1,
+            "evidence": "Features a high-density dark mode interface with structured panels, though it contains a large amount of text and complex elements."
+          },
+          "consistency": {
+            "score": 1,
+            "evidence": "Aligns well with the product concept of collaborative rooms combining spreadsheets, documents, and active agents."
+          },
+          "evidenceQuality": {
+            "score": 1,
+            "evidence": "A continuous browser recording showing real-time UI updates, loading states, and file generation."
+          },
+          "legibility": {
+            "score": 1,
+            "evidence": "Most text and spreadsheet cells are readable, though some sidebar elements and trace logs are quite small."
+          },
+          "professionalRelevance": {
+            "score": 1,
+            "evidence": "Highly relevant to finance and banking workflows, showcasing automated equity waterfall and valuation modeling."
+          },
+          "productionHonesty": {
+            "score": 1,
+            "evidence": "Clearly displays the agent's step-by-step execution trace and the actual generated output files."
+          }
+        },
+        "observedEvidence": [
+          "Landing page with 'Create a room' action",
+          "Uploading of 'betas by industry' and 'Equity Risk Premium' spreadsheets",
+          "Official task brief document view",
+          "NodeAgent execution trace and status updates",
+          "Review of generated Valuation model, Presentation deck, and PDF export"
+        ],
+        "missingEvidence": [],
+        "defects": [
+          {
+            "ts": "00:09",
+            "severity": "P2",
+            "observed": "The task brief and sidebar text are quite small and dense, which may impact readability on smaller screens.",
+            "fix": "Increase the default font size or provide collapsible panels to allow focusing on specific content areas."
+          }
+        ],
+        "suggestedReadmeCaption": "Watch NodeAgent process financial spreadsheets and a task brief to automatically generate a complete valuation model, presentation deck, and PDF report."
+      },
+      "score": 8,
+      "maxScore": 16
+    },
+    {
+      "asset": {
+        "id": "test-results-bankertoolbench-matrix-cf5884e8-8881-4747-a65a-10d8b468a9f4-playwright-output-e2e-benchmark-ui-bankertoo-d0047-odeagent-package-verifier-video",
+        "class": "live_browser_proof",
+        "title": "Video",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\cf5884e8-8881-4747-a65a-10d8b468a9f4\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\video.webm",
+        "relPath": "test-results/bankertoolbench/matrix/cf5884e8-8881-4747-a65a-10d8b468a9f4/playwright-output/e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier/video.webm",
+        "purpose": "Live Playwright browser proof clip. Judge only visible product evidence: multi-client sync, advisory presence, no-clobber behavior, proposals, job/privacy/wall surfaces, and production honesty."
+      },
+      "model": "gemini-3.5-flash",
+      "status": "judged",
+      "mediaPath": "test-results/bankertoolbench/matrix/cf5884e8-8881-4747-a65a-10d8b468a9f4/playwright-output/e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier/video.webm",
+      "mediaType": "video/webm",
+      "bytes": 5109565,
+      "judge": {
+        "verdict": "publish",
+        "summary": "The video demonstrates a complete end-to-end workflow of uploading financial documents and spreadsheets into a collaborative room, running an AI agent to analyze the data, and exporting a final PDF report.",
+        "scores": {
+          "featureClarity": {
+            "score": 1,
+            "evidence": "The video clearly shows the transition from a blank room to file uploads, agent execution, and final PDF generation, though the dense UI requires close attention."
+          },
+          "workflowCompleteness": {
+            "score": 2,
+            "evidence": "Captures the entire lifecycle: initial state, file ingestion, agent execution logs, and the final output artifact."
+          },
+          "visualDesign": {
+            "score": 1,
+            "evidence": "High-density dark mode UI with clear panels, though some text elements and status chips are quite small."
+          },
+          "consistency": {
+            "score": 2,
+            "evidence": "Perfectly aligns with the product concept of combining spreadsheets, documents, and autonomous agents in a shared room."
+          },
+          "evidenceQuality": {
+            "score": 2,
+            "evidence": "Authentic browser recording showing real-time execution, file rendering, and console-like agent traces."
+          },
+          "legibility": {
+            "score": 1,
+            "evidence": "Most text is readable, but spreadsheet cells and agent logs are small and require high-resolution viewing."
+          },
+          "professionalRelevance": {
+            "score": 2,
+            "evidence": "Highly relevant to financial analysts and investment bankers performing automated valuation and earnings analysis."
+          },
+          "productionHonesty": {
+            "score": 1,
+            "evidence": "Shows the actual step-by-step execution of the agent rather than skipping straight to a pre-baked result."
+          }
+        },
+        "observedEvidence": [
+          "Multi-file upload and rendering (PDFs and Excel sheets)",
+          "Real-time agent execution logs and status updates",
+          "Final PDF report generation and preview"
+        ],
+        "missingEvidence": [],
+        "defects": [
+          {
+            "ts": "00:18",
+            "severity": "P2",
+            "observed": "PDF viewer displays technical parser metadata ('printer: liteparse document layout | server parser required') which looks unpolished.",
+            "fix": "Hide or clean up internal parser debug strings in the document viewer UI."
+          }
+        ],
+        "suggestedReadmeCaption": "Watch NodeAgent ingest financial spreadsheets and SEC filings to automatically generate a comprehensive valuation and earnings report."
+      },
+      "score": 12,
+      "maxScore": 16
+    },
+    {
+      "asset": {
+        "id": "test-results-bankertoolbench-matrix-e3c47ea1-cc6c-4981-9943-bc85162fc2a8-playwright-output-e2e-benchmark-ui-bankertoo-d0047-odeagent-package-verifier-video",
+        "class": "live_browser_proof",
+        "title": "Video",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\e3c47ea1-cc6c-4981-9943-bc85162fc2a8\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\video.webm",
+        "relPath": "test-results/bankertoolbench/matrix/e3c47ea1-cc6c-4981-9943-bc85162fc2a8/playwright-output/e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier/video.webm",
+        "purpose": "Live Playwright browser proof clip. Judge only visible product evidence: multi-client sync, advisory presence, no-clobber behavior, proposals, job/privacy/wall surfaces, and production honesty."
+      },
+      "model": "gemini-3.5-flash",
+      "status": "error",
+      "error": "Failed after 3 attempts. Last error: Cannot connect to API: getaddrinfo ENOTFOUND generativelanguage.googleapis.com"
+    },
+    {
+      "asset": {
+        "id": "test-results-bankertoolbench-matrix-eeba6325-7212-4924-8760-91065d3b1af3-playwright-output-e2e-benchmark-ui-bankertoo-d0047-odeagent-package-verifier-video",
+        "class": "live_browser_proof",
+        "title": "Video",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\eeba6325-7212-4924-8760-91065d3b1af3\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\video.webm",
+        "relPath": "test-results/bankertoolbench/matrix/eeba6325-7212-4924-8760-91065d3b1af3/playwright-output/e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier/video.webm",
+        "purpose": "Live Playwright browser proof clip. Judge only visible product evidence: multi-client sync, advisory presence, no-clobber behavior, proposals, job/privacy/wall surfaces, and production honesty."
+      },
+      "model": "gemini-3.5-flash",
+      "status": "error",
+      "error": "Failed after 3 attempts. Last error: Cannot connect to API: getaddrinfo ENOTFOUND generativelanguage.googleapis.com"
+    },
+    {
+      "asset": {
+        "id": "test-results-bankertoolbench-matrix-f205ac8c-4dae-4620-b2c9-ccc44858ec70-playwright-output-e2e-benchmark-ui-bankertoo-d0047-odeagent-package-verifier-video",
+        "class": "live_browser_proof",
+        "title": "Video",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\f205ac8c-4dae-4620-b2c9-ccc44858ec70\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\video.webm",
+        "relPath": "test-results/bankertoolbench/matrix/f205ac8c-4dae-4620-b2c9-ccc44858ec70/playwright-output/e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier/video.webm",
+        "purpose": "Live Playwright browser proof clip. Judge only visible product evidence: multi-client sync, advisory presence, no-clobber behavior, proposals, job/privacy/wall surfaces, and production honesty."
+      },
+      "model": "gemini-3.5-flash",
+      "status": "error",
+      "error": "Failed after 3 attempts. Last error: Cannot connect to API: getaddrinfo ENOTFOUND generativelanguage.googleapis.com"
+    }
+  ]
+}

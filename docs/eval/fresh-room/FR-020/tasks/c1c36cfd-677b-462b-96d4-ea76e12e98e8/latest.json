@@ -3,11 +3,11 @@
   "caseId": "FR-020",
   "benchmark": "bankertoolbench",
   "taskId": "c1c36cfd-677b-462b-96d4-ea76e12e98e8",
-  "generatedAt": "2026-06-25T02:12:06.770Z",
+  "generatedAt": "2026-06-26T00:26:04.486Z",
   "baseUrl": "http://127.0.0.1:5273",
-  "roomId": "NRUT7W3A60W",
-  "roomUrl": "http://127.0.0.1:5273/?room=NRUT7W3A60W&name=Host&focusMode=1",
-  "command": "BTB recovery join room=NRUT7W3A60W task=c1c36cfd-677b-462b-96d4-ea76e12e98e8 command=\"npm run sfn -- noderoom run-btb-matrix --task-id c1c36cfd-677b-462b-96d4-ea76e12e98e8 --recover-room-code NRUT7W3A60W --headed\"",
+  "roomId": "NRYKWYHSO98",
+  "roomUrl": "http://127.0.0.1:5273/?room=NRYKWYHSO98&name=Host",
+  "command": "BTB_LIVE_ROOM_E2E=1 BTB_UI_BUNDLE_ROOT=<official-bundle> BTB_UI_VERIFIER_COMMAND=<verifier> BENCH_BASE_URL=<base> npx playwright test --config playwright.real-flow.config.ts e2e/benchmark-ui-bankertoolbench.spec.ts --headed",
   "model": {
     "requested": "specific",
     "resolved": "z-ai/glm-5.2",
@@ -21,11 +21,11 @@
     "roomCreatedAfterRunStart": true,
     "forbiddenPreloadedArtifactsAbsent": true,
     "artifactsCreatedFresh": [
-      "btb-c1c36cfd-adobe-inc.-adbe-m-a-company-profile-valuation.xlsx",
-      "btb-c1c36cfd-adobe-inc.-adbe-m-a-company-profile-valuation.xlsm",
-      "btb-c1c36cfd-adobe-inc.-adbe-m-a-company-profile-valuation.pptx",
-      "btb-c1c36cfd-adobe-inc.-adbe-m-a-company-profile-valuation.docx",
-      "btb-c1c36cfd-adobe-inc.-adbe-m-a-company-profile-valuation.pdf"
+      "btb-c1c36cfd-adobe-inc.-adbe-external-company-profile.xlsx",
+      "btb-c1c36cfd-adobe-inc.-adbe-external-company-profile.xlsm",
+      "btb-c1c36cfd-adobe-inc.-adbe-external-company-profile.pptx",
+      "btb-c1c36cfd-adobe-inc.-adbe-external-company-profile.docx",
+      "btb-c1c36cfd-adobe-inc.-adbe-external-company-profile.pdf"
     ],
     "uploadedFiles": [
       "adbe-10k-fy25-final.pdf",
@@ -33,17 +33,26 @@
       "Adobe 4Q25 Earnings Presentation and Transcript.pdf",
       "Adobe Customer Success Stories _ Adobe for Business.pdf",
       "betas_by_industry_category_for_WACC.xlsx",
-      "Equity_Risk_Premium_for_WACC.xlsx"
+      "Equity_Risk_Premium_for_WACC.xlsx",
+      "ADBE-US Company Identity.xlsx",
+      "ADBE-US Income Statement Annual.xlsx",
+      "ADBE-US Balance Sheet Annual.xlsx",
+      "ADBE-US Cash Flow Annual.xlsx",
+      "ADBE-US Shares Outstanding.xlsx",
+      "ADBE-US Price History.xlsx",
+      "ADBE-US Revenue Estimate.xlsx",
+      "ADBE-US Earnings Estimate.xlsx",
+      "btb-c1c36cfd-official-task-brief.txt"
     ]
   },
   "ui": {
     "focusModeEnabled": true,
     "attentionOverlayVisible": true,
     "streamingVisible": true,
-    "jobDetailVisible": false,
+    "jobDetailVisible": true,
     "roomTraceVisible": true,
     "screenshotPaths": [
-      "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\c1c36cfd-677b-462b-96d4-ea76e12e98e8\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\bankertoolbench-live-room.png"
+      "docs\\eval\\fresh-room\\FR-020\\tasks\\c1c36cfd-677b-462b-96d4-ea76e12e98e8\\evidence\\bankertoolbench-live-room.png"
     ],
     "tracePath": "docs\\eval\\bankertoolbench\\live-room\\c1c36cfd-677b-462b-96d4-ea76e12e98e8.json"
   },
@@ -54,97 +63,106 @@
       "Adobe 4Q25 Earnings Presentation and Transcript.pdf",
       "Adobe Customer Success Stories _ Adobe for Business.pdf",
       "betas_by_industry_category_for_WACC.xlsx",
-      "Equity_Risk_Premium_for_WACC.xlsx"
+      "Equity_Risk_Premium_for_WACC.xlsx",
+      "ADBE-US Company Identity.xlsx",
+      "ADBE-US Income Statement Annual.xlsx",
+      "ADBE-US Balance Sheet Annual.xlsx",
+      "ADBE-US Cash Flow Annual.xlsx",
+      "ADBE-US Shares Outstanding.xlsx",
+      "ADBE-US Price History.xlsx",
+      "ADBE-US Revenue Estimate.xlsx",
+      "ADBE-US Earnings Estimate.xlsx",
+      "btb-c1c36cfd-official-task-brief.txt"
     ],
     "created": [
-      "btb-c1c36cfd-adobe-inc.-adbe-m-a-company-profile-valuation.xlsx",
-      "btb-c1c36cfd-adobe-inc.-adbe-m-a-company-profile-valuation.xlsm",
-      "btb-c1c36cfd-adobe-inc.-adbe-m-a-company-profile-valuation.pptx",
-      "btb-c1c36cfd-adobe-inc.-adbe-m-a-company-profile-valuation.docx",
-      "btb-c1c36cfd-adobe-inc.-adbe-m-a-company-profile-valuation.pdf"
+      "btb-c1c36cfd-adobe-inc.-adbe-external-company-profile.xlsx",
+      "btb-c1c36cfd-adobe-inc.-adbe-external-company-profile.xlsm",
+      "btb-c1c36cfd-adobe-inc.-adbe-external-company-profile.pptx",
+      "btb-c1c36cfd-adobe-inc.-adbe-external-company-profile.docx",
+      "btb-c1c36cfd-adobe-inc.-adbe-external-company-profile.pdf"
     ],
     "exportedFiles": [
       {
         "kind": "workbook",
-        "filename": "btb-c1c36cfd-adobe-inc.-adbe-m-a-company-profile-valuation.xlsx",
-        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\c1c36cfd-677b-462b-96d4-ea76e12e98e8\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-c1c36cfd-adobe-inc.-adbe-m-a-company-profile-valuation.xlsx",
+        "filename": "btb-c1c36cfd-adobe-inc.-adbe-external-company-profile.xlsx",
+        "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\c1c36cfd-677b-462b-96d4-ea76e12e98e8\\evidence\\btb-xlsx-btb-c1c36cfd-adobe-inc.-adbe-external-company-profile.xlsx",
         "extension": ".xlsx",
         "downloaded": true,
-        "bytes": 8975,
+        "bytes": 8508,
         "magic": "PK\\x03\\x04"
       },
       {
         "kind": "workbook",
-        "filename": "btb-c1c36cfd-adobe-inc.-adbe-m-a-company-profile-valuation.xlsm",
-        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\c1c36cfd-677b-462b-96d4-ea76e12e98e8\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-c1c36cfd-adobe-inc.-adbe-m-a-company-profile-valuation.xlsm",
+        "filename": "btb-c1c36cfd-adobe-inc.-adbe-external-company-profile.xlsm",
+        "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\c1c36cfd-677b-462b-96d4-ea76e12e98e8\\evidence\\btb-xlsm-btb-c1c36cfd-adobe-inc.-adbe-external-company-profile.xlsm",
         "extension": ".xlsm",
         "downloaded": true,
-        "bytes": 8975,
+        "bytes": 8508,
         "magic": "PK\\x03\\x04"
       },
       {
         "kind": "presentation",
-        "filename": "btb-c1c36cfd-adobe-inc.-adbe-m-a-company-profile-valuation.pptx",
-        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\c1c36cfd-677b-462b-96d4-ea76e12e98e8\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-c1c36cfd-adobe-inc.-adbe-m-a-company-profile-valuation.pptx",
+        "filename": "btb-c1c36cfd-adobe-inc.-adbe-external-company-profile.pptx",
+        "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\c1c36cfd-677b-462b-96d4-ea76e12e98e8\\evidence\\btb-pptx-btb-c1c36cfd-adobe-inc.-adbe-external-company-profile.pptx",
         "extension": ".pptx",
         "downloaded": true,
-        "bytes": 7541,
+        "bytes": 6425,
         "magic": "PK\\x03\\x04"
       },
       {
         "kind": "document",
-        "filename": "btb-c1c36cfd-adobe-inc.-adbe-m-a-company-profile-valuation.docx",
-        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\c1c36cfd-677b-462b-96d4-ea76e12e98e8\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-c1c36cfd-adobe-inc.-adbe-m-a-company-profile-valuation.docx",
+        "filename": "btb-c1c36cfd-adobe-inc.-adbe-external-company-profile.docx",
+        "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\c1c36cfd-677b-462b-96d4-ea76e12e98e8\\evidence\\btb-docx-btb-c1c36cfd-adobe-inc.-adbe-external-company-profile.docx",
         "extension": ".docx",
         "downloaded": true,
-        "bytes": 3737,
+        "bytes": 2564,
         "magic": "PK\\x03\\x04"
       },
       {
         "kind": "pdf",
-        "filename": "btb-c1c36cfd-adobe-inc.-adbe-m-a-company-profile-valuation.pdf",
-        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\c1c36cfd-677b-462b-96d4-ea76e12e98e8\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-c1c36cfd-adobe-inc.-adbe-m-a-company-profile-valuation.pdf",
+        "filename": "btb-c1c36cfd-adobe-inc.-adbe-external-company-profile.pdf",
+        "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\c1c36cfd-677b-462b-96d4-ea76e12e98e8\\evidence\\btb-pdf-btb-c1c36cfd-adobe-inc.-adbe-external-company-profile.pdf",
         "extension": ".pdf",
         "downloaded": true,
-        "bytes": 2500,
+        "bytes": 2236,
         "magic": "%PDF"
       }
     ],
     "reopenedFiles": [
       {
         "kind": "workbook",
-        "filename": "btb-c1c36cfd-adobe-inc.-adbe-m-a-company-profile-valuation.xlsx",
+        "filename": "btb-c1c36cfd-adobe-inc.-adbe-external-company-profile.xlsx",
         "reopened": true,
         "scorerResult": "pass",
-        "detail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j970nyxja6zxhcmgj315s9nkk5898hez; placeholder/caveat content scan passed (4304 chars)"
+        "detail": "ZIP package contains xl/workbook.xml; placeholder/caveat content scan passed (2507 chars)"
       },
       {
         "kind": "workbook",
-        "filename": "btb-c1c36cfd-adobe-inc.-adbe-m-a-company-profile-valuation.xlsm",
+        "filename": "btb-c1c36cfd-adobe-inc.-adbe-external-company-profile.xlsm",
         "reopened": true,
         "scorerResult": "pass",
-        "detail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j97ebt4a6vvy14fhvwv8sach0d899243; placeholder/caveat content scan passed (4304 chars)"
+        "detail": "ZIP package contains xl/workbook.xml; placeholder/caveat content scan passed (2507 chars)"
       },
       {
         "kind": "presentation",
-        "filename": "btb-c1c36cfd-adobe-inc.-adbe-m-a-company-profile-valuation.pptx",
+        "filename": "btb-c1c36cfd-adobe-inc.-adbe-external-company-profile.pptx",
         "reopened": true,
         "scorerResult": "pass",
-        "detail": "ZIP package contains ppt/presentation.xml; recovered from Convex room artifact j97acczrrhn9g8xr4vzpswndj9899y5j; placeholder/caveat content scan passed (3105 chars)"
+        "detail": "ZIP package contains ppt/presentation.xml; placeholder/caveat content scan passed (999 chars)"
       },
       {
         "kind": "document",
-        "filename": "btb-c1c36cfd-adobe-inc.-adbe-m-a-company-profile-valuation.docx",
+        "filename": "btb-c1c36cfd-adobe-inc.-adbe-external-company-profile.docx",
         "reopened": true,
         "scorerResult": "pass",
-        "detail": "ZIP package contains word/document.xml; recovered from Convex room artifact j973zgczfgpne5np016ctc3b8h8989t8; placeholder/caveat content scan passed (4143 chars)"
+        "detail": "ZIP package contains word/document.xml; placeholder/caveat content scan passed (1311 chars)"
       },
       {
         "kind": "pdf",
-        "filename": "btb-c1c36cfd-adobe-inc.-adbe-m-a-company-profile-valuation.pdf",
+        "filename": "btb-c1c36cfd-adobe-inc.-adbe-external-company-profile.pdf",
         "reopened": true,
         "scorerResult": "pass",
-        "detail": "PDF header reopened; recovered from Convex room artifact j977cea3rhh3hyphz06vqw76w5898nm0; placeholder/caveat content scan passed (4479 chars)"
+        "detail": "PDF header reopened; placeholder/caveat content scan passed (3907 chars)"
       }
     ]
   },
@@ -155,7 +173,7 @@
     "score": 1,
     "details": {
       "verifierOutputTail": "\n> noderoom@0.1.1 benchmark:bankertoolbench:proof\n> tsx scripts/bankertoolbench-proof-check.ts\n\nBankerToolBench proof check passed: stage=1/1 weightedRubric=6 run=0/1 pass positive=1/1 pass candidateBeforeEvaluator=true leaks=0/2+0/3+0/4\n",
-      "packageManifestPath": "test-results\\bankertoolbench\\matrix\\c1c36cfd-677b-462b-96d4-ea76e12e98e8\\package-manifest.json",
+      "packageManifestPath": "docs\\eval\\fresh-room\\FR-020\\tasks\\c1c36cfd-677b-462b-96d4-ea76e12e98e8\\evidence\\package-manifest.json",
       "downloadedExtensions": [
         ".xlsx",
         ".xlsm",
@@ -163,10 +181,10 @@
         ".docx",
         ".pdf"
       ],
-      "exportSource": "convex_room_artifact_data_url_after_browser_ui_proof",
+      "exportSource": "browser_download_link",
       "agentTerminalQuality": {
-        "statusText": "completed via recovered Convex job: age covers Adobe Inc. (NASDAQ: ADBE) with a company snapshot, historical financials (FY2022–FY2024), valuation multiples, WACC calculation, 5-year revenue projections, and a DCF-implied share price of ~$522 vs. current ~$500 (~4.4% upside).",
-        "evidenceTextLength": 604,
+        "statusText": "completed via recovered Convex job: , btb-c1c36cfd-adobe-inc.-adbe-external-company-profile.xlsm, btb-c1c36cfd-adobe-inc.-adbe-external-company-profile.pptx, btb-c1c36cfd-adobe-inc.-adbe-external-company-profile.docx, btb-c1c36cfd-adobe-inc.-adbe-external-company-profile.pdf.",
+        "evidenceTextLength": 927,
         "detail": "agent reached completed status or visible completion text, with no missing-source/unfinished-work caveats"
       },
       "taskCoverage": {
@@ -175,13 +193,22 @@
           "ADBE"
         ],
         "missingTickers": [],
-        "detail": "single requested ticker detected (ADBE); multi-entity coverage gate not required"
+        "domainProof": {
+          "ok": true,
+          "domain": "generic",
+          "gates": [],
+          "missingGates": [],
+          "detail": "no task-specific domain proof gate required"
+        },
+        "detail": "single requested ticker detected (ADBE); multi-entity coverage gate not required; no task-specific domain proof gate required"
       }
     }
   },
   "visualJudge": {
-    "verdict": "not_run",
-    "reason": "GOOGLE_GENERATIVE_AI_API_KEY is not set; deterministic browser/download/reopen/verifier proof passed."
+    "command": "npm run media:gemini-judge -- --run-id btb-full-20260626-retry-nonbc55 --out \"docs\\\\eval\\\\gemini-media-judges\\\\btb-full-20260626\\\\retry-nonbc55\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\205a3cb3-33b8-42ea-b50c-fe2dc1630208\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\5d72295c-f640-4c78-b85a-6f338e46c02b\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\963978db-b155-4fe2-9ae7-ca0b259a5fba\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\9ed5fdf8-7ffa-4c26-92d8-e1f28308af52\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\b486dc21-d67e-4857-b2f9-b78c0e0222ce\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\bd2aa5d6-30cd-4b6f-875a-2c3626f56441\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\c1c36cfd-677b-462b-96d4-ea76e12e98e8\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\cc4c8473-4c54-4fdd-9af8-c55bc9e4b07d\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\df4c5a14-a6f9-4a56-ac8a-ad2562b50a7e\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\"",
+    "verdict": "pass",
+    "scorecardPath": "docs/eval/gemini-media-judges/btb-full-20260626/retry-nonbc55/btb-full-20260626-retry-nonbc55/summary.md",
+    "reason": "Gemini media judge publish (8/16); defects P0/P1/P2=0/0/1. Excellent benchmark run demonstrating the complete workflow of uploading financial documents and using NodeAgent to generate structured deliverables. Source clip: test-results\\bankertoolbench\\matrix\\c1c36cfd-677b-462b-96d4-ea76e12e98e8\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\video.webm."
   },
   "gatesProven": [
     "fresh_room_join",
@@ -195,11 +222,12 @@
     "agent_live_loop",
     "agent_terminal_quality_gate",
     "room_trace_visible",
+    "job_detail_visible",
     "deliverable_export_download",
     "artifact_reopen_validation",
     "artifact_placeholder_scan",
     "official_scorer_handoff",
-    "recovered_completed_fresh_room"
+    "visual_judge_handoff"
   ],
   "passed": true
 }

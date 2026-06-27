@@ -1,0 +1,52 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+5 0 obj
+<< /Length 1311 >>
+stream
+BT /F1 11 Tf 54 760 Td (WTRG DCF Valuation Model) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(BTB task btb-73450a4d: DCF valuation model for Essential Utilities \(WTRG\) as of 12/31/2024. This package covers all required entities: WTRG \(company valuation\), FDSO \(fully diluted shares outstanding\), NOPAT \(net ) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(Rows: 4) Tj
+0 -16 Td
+(WTRG — Company: Essential Utilities · Ticker: WTRG · Valuation Date: 12/31/2024 · Share Price 12 31 2024: 39.46 · Equity Value M: 8760 · Tev 2024 M: 14100 · Ebitda 2024 M: 1050 · Implied Tev Ebitda Multiple: 13.4 · Wacc:) Tj
+0 -16 Td
+(FDSO — Description: Fully diluted shares outstanding as of Dec 2024 · Common Shares M: 221.8 · Dilutive Securities M: 0 · Fdso M: 221.8 · Source: WTRG-US Shares Outstanding) Tj
+0 -16 Td
+(NOPAT — Description: Net operating profit after tax · Nopat 2022 M: 410 · Nopat 2023 M: 440 · Nopat 2024 M: 470 · Nopat 2025e M: 494 · Nopat 2026e M: 519 · Nopat 2027e M: 545 · Nopat 2028e M: 572 · Nopat 2029e M: 601 · T) Tj
+0 -16 Td
+(FCF — Description: Unlevered free cash flow walk · Fcf 2025e M: 155 · Fcf 2026e M: 165 · Fcf 2027e M: 176 · Fcf 2028e M: 187 · Fcf 2029e M: 199 · Pv Fcf 2025e M: 145 · Pv Fcf 2026e M: 144 · Pv Fcf 2027e M: 144 · Pv Fcf 2) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(Sources: ) Tj ET
+endstream
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000241 00000 n 
+0000000311 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+1674
+%%EOF

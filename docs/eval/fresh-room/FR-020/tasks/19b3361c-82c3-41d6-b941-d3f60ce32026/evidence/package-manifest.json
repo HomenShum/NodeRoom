@@ -1,0 +1,65 @@
+{
+  "schema": 1,
+  "taskId": "19b3361c-82c3-41d6-b941-d3f60ce32026",
+  "harborTaskId": "btb-19b3361c",
+  "generatedAt": "2026-06-26T00:19:32.792Z",
+  "baseUrl": "http://127.0.0.1:5273",
+  "roomUrl": "http://127.0.0.1:5273/?room=NRK0U4GN42H&name=Host",
+  "downloadedFiles": [
+    {
+      "kind": "workbook",
+      "filename": "btb-19b3361c-btb-19b3361c-wacc-analysis-loi-cim-ioi-it-esg.xlsx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\19b3361c-82c3-41d6-b941-d3f60ce32026\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-19b3361c-btb-19b3361c-wacc-analysis-loi-cim-ioi-it-esg.xlsx",
+      "extension": ".xlsx",
+      "bytes": 7486,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j97bs71gj7he9pg277ysp8hvd189c5x6",
+      "contentQualityDetail": "placeholder/caveat content scan passed (1485 chars)"
+    },
+    {
+      "kind": "workbook",
+      "filename": "btb-19b3361c-btb-19b3361c-wacc-analysis-loi-cim-ioi-it-esg.xlsm",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\19b3361c-82c3-41d6-b941-d3f60ce32026\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-19b3361c-btb-19b3361c-wacc-analysis-loi-cim-ioi-it-esg.xlsm",
+      "extension": ".xlsm",
+      "bytes": 7486,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j973d4nbvpczfsvhjnsv7dsx5189dnff",
+      "contentQualityDetail": "placeholder/caveat content scan passed (1485 chars)"
+    },
+    {
+      "kind": "presentation",
+      "filename": "btb-19b3361c-btb-19b3361c-wacc-analysis-loi-cim-ioi-it-esg.pptx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\19b3361c-82c3-41d6-b941-d3f60ce32026\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-19b3361c-btb-19b3361c-wacc-analysis-loi-cim-ioi-it-esg.pptx",
+      "extension": ".pptx",
+      "bytes": 6635,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains ppt/presentation.xml; recovered from Convex room artifact j971mcy6r02a730vv8wgwmx0jd89d3g0",
+      "contentQualityDetail": "placeholder/caveat content scan passed (1749 chars)"
+    },
+    {
+      "kind": "document",
+      "filename": "btb-19b3361c-btb-19b3361c-wacc-analysis-loi-cim-ioi-it-esg.docx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\19b3361c-82c3-41d6-b941-d3f60ce32026\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-19b3361c-btb-19b3361c-wacc-analysis-loi-cim-ioi-it-esg.docx",
+      "extension": ".docx",
+      "bytes": 2670,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains word/document.xml; recovered from Convex room artifact j977nkabgvas973dfhbbnf9fw189da0v",
+      "contentQualityDetail": "placeholder/caveat content scan passed (2032 chars)"
+    },
+    {
+      "kind": "pdf",
+      "filename": "btb-19b3361c-btb-19b3361c-wacc-analysis-loi-cim-ioi-it-esg.pdf",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\19b3361c-82c3-41d6-b941-d3f60ce32026\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-19b3361c-btb-19b3361c-wacc-analysis-loi-cim-ioi-it-esg.pdf",
+      "extension": ".pdf",
+      "bytes": 2087,
+      "magic": "%PDF",
+      "reopened": true,
+      "reopenDetail": "PDF header reopened; recovered from Convex room artifact j97591ht9jsepx1fhxjenfx50589da3c",
+      "contentQualityDetail": "placeholder/caveat content scan passed (3603 chars)"
+    }
+  ]
+}

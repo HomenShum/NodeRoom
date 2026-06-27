@@ -1,0 +1,60 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+5 0 obj
+<< /Length 2561 >>
+stream
+BT /F1 11 Tf 54 760 Td (BTB-93c1e85c: WACC & Credit Analysis — CA, RP, IF) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(BankerToolBench task btb-93c1e85c deliverable package covering three requested entities: CA \(Credit Agreement analysis\), RP \(Risk Premium / WACC computation\), and IF \(Industry-level beta analysis\). Sources: Equity_) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(Rows: 8) Tj
+0 -16 Td
+(CA — Credit Agreement Amendment 2024: Key Terms — Entity: CA · Source: Credit Agreement Amendment 2024.pdf · Document Type: Credit Agreement Amendment · Amendment Year: 2024 · Prior Agreement Year: 2018 · Analysis Note: ) Tj
+0 -16 Td
+(CA — Credit & Guarantee Agreement 2018: Baseline Terms — Entity: CA · Source: Credit and Guarantee Agreement 2018.pdf · Document Type: Credit and Guarantee Agreement · Agreement Year: 2018 · Analysis Note: Original basel) Tj
+0 -16 Td
+(RP — Equity Risk Premium: Implied ERP Inputs for WACC — Entity: RP · Source: Equity_Risk_Premium_for_WACC.xlsx · ERP Source Type: Implied Equity Risk Premium · Use Case: WACC cost of equity component \(CAPM\) · Analysis ) Tj
+0 -16 Td
+(RP — WACC Framework: Cost of Equity via CAPM — Entity: RP · Formula: Cost of Equity = Risk-Free Rate + Beta × Equity Risk Premium · ERP Source: Equity_Risk_Premium_for_WACC.xlsx \(implied ERP\) · Beta Source: betas_by_in) Tj
+0 -16 Td
+(IF — Industry Beta Analysis for WACC — Entity: IF · Source: betas_by_industry_category_for_WACC.xlsx · Data Type: Industry-category levered/unlevered betas · Use Case: WACC beta input by industry category · Analysis Note) Tj
+0 -16 Td
+(IF — Q4 2024 Earnings Release: Financial Context — Entity: IF · Source: Q4 2024 Earnings Release.pdf · Period: Q4 2024 · Document Type: Earnings Release · Analysis Note: Q4 2024 earnings release providing latest financia) Tj
+0 -16 Td
+(IF — 10K 2024: Annual Financial Reference — Entity: IF · Source: 10K-2024.pdf · Period: FY 2024 · Document Type: 10-K Annual Report · Analysis Note: FY2024 10-K providing full-year financial statements and disclosures fo) Tj
+0 -16 Td
+(Cross-Entity: WACC Computation Summary — Entities Covered: CA, RP, IF · ERP Source: Equity_Risk_Premium_for_WACC.xlsx · Beta Source: betas_by_industry_category_for_WACC.xlsx · Credit Source: Credit Agreement Amendment 20) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(Sources: artifact:j9770bqvp0q7nqhvm3nnrmpb2589dsdq, artifact:j97b2xq23yhrp990pgeyh31vvs89dfyx, artifact:j976d0g3py8f42yx2tz2kvvpbh89d473, artifact:j972c9nf4qgvpprd2ty2f9zacn89dp95, artifact:j977xhkydakgm76yjh05az7xrh89c0) Tj ET
+endstream
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000241 00000 n 
+0000000311 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+2924
+%%EOF

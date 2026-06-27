@@ -3,10 +3,10 @@
   "caseId": "FR-020",
   "benchmark": "bankertoolbench",
   "taskId": "31f70ac1-01c3-4971-84f8-0a2438fb5b92",
-  "generatedAt": "2026-06-25T02:34:45.206Z",
+  "generatedAt": "2026-06-26T01:24:34.894Z",
   "baseUrl": "http://127.0.0.1:5273",
-  "roomId": "NR5AGROZ935",
-  "roomUrl": "http://127.0.0.1:5273/?room=NR5AGROZ935&name=Host",
+  "roomId": "NR9OFT0Z4OS",
+  "roomUrl": "http://127.0.0.1:5273/?room=NR9OFT0Z4OS&name=Host",
   "command": "BTB_LIVE_ROOM_E2E=1 BTB_UI_BUNDLE_ROOT=<official-bundle> BTB_UI_VERIFIER_COMMAND=<verifier> BENCH_BASE_URL=<base> npx playwright test --config playwright.real-flow.config.ts e2e/benchmark-ui-bankertoolbench.spec.ts --headed",
   "model": {
     "requested": "specific",
@@ -21,11 +21,11 @@
     "roomCreatedAfterRunStart": true,
     "forbiddenPreloadedArtifactsAbsent": true,
     "artifactsCreatedFresh": [
-      "btb-31f70ac1-project-sapphire-anti-il-13-pathway-biologics-in-atopic-dermatitis-competitive-land.xlsx",
-      "btb-31f70ac1-project-sapphire-anti-il-13-pathway-biologics-in-atopic-dermatitis-competitive-land.xlsm",
-      "btb-31f70ac1-project-sapphire-anti-il-13-pathway-biologics-in-atopic-dermatitis-competitive-land.pptx",
-      "btb-31f70ac1-project-sapphire-anti-il-13-pathway-biologics-in-atopic-dermatitis-competitive-land.docx",
-      "btb-31f70ac1-project-sapphire-anti-il-13-pathway-biologics-in-atopic-dermatitis-competitive-land.pdf"
+      "btb-31f70ac1-btb-btb-31f70ac1-wacc-analysis-for-10-tickers-il-ad-easi-iga-tcs-adbry-leo-aslan-no.xlsx",
+      "btb-31f70ac1-btb-btb-31f70ac1-wacc-analysis-for-10-tickers-il-ad-easi-iga-tcs-adbry-leo-aslan-no.xlsm",
+      "btb-31f70ac1-btb-btb-31f70ac1-wacc-analysis-for-10-tickers-il-ad-easi-iga-tcs-adbry-leo-aslan-no.pptx",
+      "btb-31f70ac1-btb-btb-31f70ac1-wacc-analysis-for-10-tickers-il-ad-easi-iga-tcs-adbry-leo-aslan-no.docx",
+      "btb-31f70ac1-btb-btb-31f70ac1-wacc-analysis-for-10-tickers-il-ad-easi-iga-tcs-adbry-leo-aslan-no.pdf"
     ],
     "uploadedFiles": [
       "betas_by_industry_category_for_WACC.xlsx",
@@ -42,7 +42,7 @@
     "jobDetailVisible": true,
     "roomTraceVisible": true,
     "screenshotPaths": [
-      "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\31f70ac1-01c3-4971-84f8-0a2438fb5b92\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\bankertoolbench-live-room.png"
+      "docs\\eval\\fresh-room\\FR-020\\tasks\\31f70ac1-01c3-4971-84f8-0a2438fb5b92\\evidence\\bankertoolbench-live-room.png"
     ],
     "tracePath": "docs\\eval\\bankertoolbench\\live-room\\31f70ac1-01c3-4971-84f8-0a2438fb5b92.json"
   },
@@ -55,94 +55,94 @@
       "btb-31f70ac1-official-task-brief.txt"
     ],
     "created": [
-      "btb-31f70ac1-project-sapphire-anti-il-13-pathway-biologics-in-atopic-dermatitis-competitive-land.xlsx",
-      "btb-31f70ac1-project-sapphire-anti-il-13-pathway-biologics-in-atopic-dermatitis-competitive-land.xlsm",
-      "btb-31f70ac1-project-sapphire-anti-il-13-pathway-biologics-in-atopic-dermatitis-competitive-land.pptx",
-      "btb-31f70ac1-project-sapphire-anti-il-13-pathway-biologics-in-atopic-dermatitis-competitive-land.docx",
-      "btb-31f70ac1-project-sapphire-anti-il-13-pathway-biologics-in-atopic-dermatitis-competitive-land.pdf"
+      "btb-31f70ac1-btb-btb-31f70ac1-wacc-analysis-for-10-tickers-il-ad-easi-iga-tcs-adbry-leo-aslan-no.xlsx",
+      "btb-31f70ac1-btb-btb-31f70ac1-wacc-analysis-for-10-tickers-il-ad-easi-iga-tcs-adbry-leo-aslan-no.xlsm",
+      "btb-31f70ac1-btb-btb-31f70ac1-wacc-analysis-for-10-tickers-il-ad-easi-iga-tcs-adbry-leo-aslan-no.pptx",
+      "btb-31f70ac1-btb-btb-31f70ac1-wacc-analysis-for-10-tickers-il-ad-easi-iga-tcs-adbry-leo-aslan-no.docx",
+      "btb-31f70ac1-btb-btb-31f70ac1-wacc-analysis-for-10-tickers-il-ad-easi-iga-tcs-adbry-leo-aslan-no.pdf"
     ],
     "exportedFiles": [
       {
         "kind": "workbook",
-        "filename": "btb-31f70ac1-project-sapphire-anti-il-13-pathway-biologics-in-atopic-dermatitis-competitive-land.xlsx",
-        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\31f70ac1-01c3-4971-84f8-0a2438fb5b92\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-31f70ac1-project-sapphire-anti-il-13-pathway-biologics-in-atopic-dermatitis-competitive-land.xlsx",
+        "filename": "btb-31f70ac1-btb-btb-31f70ac1-wacc-analysis-for-10-tickers-il-ad-easi-iga-tcs-adbry-leo-aslan-no.xlsx",
+        "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\31f70ac1-01c3-4971-84f8-0a2438fb5b92\\evidence\\btb-xlsx-btb-31f70ac1-btb-btb-31f70ac1-wacc-analysis-for-10-tickers-il-ad-easi-iga-tcs-adbry-leo-aslan-no.xlsx",
         "extension": ".xlsx",
         "downloaded": true,
-        "bytes": 10074,
+        "bytes": 7612,
         "magic": "PK\\x03\\x04"
       },
       {
         "kind": "workbook",
-        "filename": "btb-31f70ac1-project-sapphire-anti-il-13-pathway-biologics-in-atopic-dermatitis-competitive-land.xlsm",
-        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\31f70ac1-01c3-4971-84f8-0a2438fb5b92\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-31f70ac1-project-sapphire-anti-il-13-pathway-biologics-in-atopic-dermatitis-competitive-land.xlsm",
+        "filename": "btb-31f70ac1-btb-btb-31f70ac1-wacc-analysis-for-10-tickers-il-ad-easi-iga-tcs-adbry-leo-aslan-no.xlsm",
+        "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\31f70ac1-01c3-4971-84f8-0a2438fb5b92\\evidence\\btb-xlsm-btb-31f70ac1-btb-btb-31f70ac1-wacc-analysis-for-10-tickers-il-ad-easi-iga-tcs-adbry-leo-aslan-no.xlsm",
         "extension": ".xlsm",
         "downloaded": true,
-        "bytes": 10074,
+        "bytes": 7612,
         "magic": "PK\\x03\\x04"
       },
       {
         "kind": "presentation",
-        "filename": "btb-31f70ac1-project-sapphire-anti-il-13-pathway-biologics-in-atopic-dermatitis-competitive-land.pptx",
-        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\31f70ac1-01c3-4971-84f8-0a2438fb5b92\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-31f70ac1-project-sapphire-anti-il-13-pathway-biologics-in-atopic-dermatitis-competitive-land.pptx",
+        "filename": "btb-31f70ac1-btb-btb-31f70ac1-wacc-analysis-for-10-tickers-il-ad-easi-iga-tcs-adbry-leo-aslan-no.pptx",
+        "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\31f70ac1-01c3-4971-84f8-0a2438fb5b92\\evidence\\btb-pptx-btb-31f70ac1-btb-btb-31f70ac1-wacc-analysis-for-10-tickers-il-ad-easi-iga-tcs-adbry-leo-aslan-no.pptx",
         "extension": ".pptx",
         "downloaded": true,
-        "bytes": 8651,
+        "bytes": 6412,
         "magic": "PK\\x03\\x04"
       },
       {
         "kind": "document",
-        "filename": "btb-31f70ac1-project-sapphire-anti-il-13-pathway-biologics-in-atopic-dermatitis-competitive-land.docx",
-        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\31f70ac1-01c3-4971-84f8-0a2438fb5b92\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-31f70ac1-project-sapphire-anti-il-13-pathway-biologics-in-atopic-dermatitis-competitive-land.docx",
+        "filename": "btb-31f70ac1-btb-btb-31f70ac1-wacc-analysis-for-10-tickers-il-ad-easi-iga-tcs-adbry-leo-aslan-no.docx",
+        "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\31f70ac1-01c3-4971-84f8-0a2438fb5b92\\evidence\\btb-docx-btb-31f70ac1-btb-btb-31f70ac1-wacc-analysis-for-10-tickers-il-ad-easi-iga-tcs-adbry-leo-aslan-no.docx",
         "extension": ".docx",
         "downloaded": true,
-        "bytes": 4833,
+        "bytes": 2593,
         "magic": "PK\\x03\\x04"
       },
       {
         "kind": "pdf",
-        "filename": "btb-31f70ac1-project-sapphire-anti-il-13-pathway-biologics-in-atopic-dermatitis-competitive-land.pdf",
-        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\31f70ac1-01c3-4971-84f8-0a2438fb5b92\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-31f70ac1-project-sapphire-anti-il-13-pathway-biologics-in-atopic-dermatitis-competitive-land.pdf",
+        "filename": "btb-31f70ac1-btb-btb-31f70ac1-wacc-analysis-for-10-tickers-il-ad-easi-iga-tcs-adbry-leo-aslan-no.pdf",
+        "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\31f70ac1-01c3-4971-84f8-0a2438fb5b92\\evidence\\btb-pdf-btb-31f70ac1-btb-btb-31f70ac1-wacc-analysis-for-10-tickers-il-ad-easi-iga-tcs-adbry-leo-aslan-no.pdf",
         "extension": ".pdf",
         "downloaded": true,
-        "bytes": 2698,
+        "bytes": 3445,
         "magic": "%PDF"
       }
     ],
     "reopenedFiles": [
       {
         "kind": "workbook",
-        "filename": "btb-31f70ac1-project-sapphire-anti-il-13-pathway-biologics-in-atopic-dermatitis-competitive-land.xlsx",
+        "filename": "btb-31f70ac1-btb-btb-31f70ac1-wacc-analysis-for-10-tickers-il-ad-easi-iga-tcs-adbry-leo-aslan-no.xlsx",
         "reopened": true,
         "scorerResult": "pass",
-        "detail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j979s3031pff4yr3xx3vpnb0v189b2d1; placeholder/caveat content scan passed (8207 chars)"
+        "detail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j973r3zqk2pm89893xmdd3qyah89dz6w; placeholder/caveat content scan passed (1288 chars)"
       },
       {
         "kind": "workbook",
-        "filename": "btb-31f70ac1-project-sapphire-anti-il-13-pathway-biologics-in-atopic-dermatitis-competitive-land.xlsm",
+        "filename": "btb-31f70ac1-btb-btb-31f70ac1-wacc-analysis-for-10-tickers-il-ad-easi-iga-tcs-adbry-leo-aslan-no.xlsm",
         "reopened": true,
         "scorerResult": "pass",
-        "detail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j973zgcsvmwm22ss6e021s486589atb2; placeholder/caveat content scan passed (8207 chars)"
+        "detail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j97dmmm3k189shbh0hqzh8h8xx89cmx7; placeholder/caveat content scan passed (1288 chars)"
       },
       {
         "kind": "presentation",
-        "filename": "btb-31f70ac1-project-sapphire-anti-il-13-pathway-biologics-in-atopic-dermatitis-competitive-land.pptx",
+        "filename": "btb-31f70ac1-btb-btb-31f70ac1-wacc-analysis-for-10-tickers-il-ad-easi-iga-tcs-adbry-leo-aslan-no.pptx",
         "reopened": true,
         "scorerResult": "pass",
-        "detail": "ZIP package contains ppt/presentation.xml; recovered from Convex room artifact j97ayrxhehk0nvdz0rbms29zj189bp8q; placeholder/caveat content scan passed (7136 chars)"
+        "detail": "ZIP package contains ppt/presentation.xml; recovered from Convex room artifact j9703qa53jrwjtzbshe67m4nqn89d0ge; placeholder/caveat content scan passed (1341 chars)"
       },
       {
         "kind": "document",
-        "filename": "btb-31f70ac1-project-sapphire-anti-il-13-pathway-biologics-in-atopic-dermatitis-competitive-land.docx",
+        "filename": "btb-31f70ac1-btb-btb-31f70ac1-wacc-analysis-for-10-tickers-il-ad-easi-iga-tcs-adbry-leo-aslan-no.docx",
         "reopened": true,
         "scorerResult": "pass",
-        "detail": "ZIP package contains word/document.xml; recovered from Convex room artifact j97eg2fh9sktyh1fcd6n74sv9x89b7jq; placeholder/caveat content scan passed (8693 chars)"
+        "detail": "ZIP package contains word/document.xml; recovered from Convex room artifact j978hnx1bn4340v6p7py6828px89d9nw; placeholder/caveat content scan passed (2534 chars)"
       },
       {
         "kind": "pdf",
-        "filename": "btb-31f70ac1-project-sapphire-anti-il-13-pathway-biologics-in-atopic-dermatitis-competitive-land.pdf",
+        "filename": "btb-31f70ac1-btb-btb-31f70ac1-wacc-analysis-for-10-tickers-il-ad-easi-iga-tcs-adbry-leo-aslan-no.pdf",
         "reopened": true,
         "scorerResult": "pass",
-        "detail": "PDF header reopened; recovered from Convex room artifact j976xrjkvdb8f06vmjsgnpwsfn89bkas; placeholder/caveat content scan passed (4844 chars)"
+        "detail": "PDF header reopened; recovered from Convex room artifact j9755pgt7hm0smc8n6k2aze31589dmn4; placeholder/caveat content scan passed (6241 chars)"
       }
     ]
   },
@@ -153,7 +153,7 @@
     "score": 1,
     "details": {
       "verifierOutputTail": "\n> noderoom@0.1.1 benchmark:bankertoolbench:proof\n> tsx scripts/bankertoolbench-proof-check.ts\n\nBankerToolBench proof check passed: stage=1/1 weightedRubric=6 run=0/1 pass positive=1/1 pass candidateBeforeEvaluator=true leaks=0/2+0/3+0/4\n",
-      "packageManifestPath": "test-results\\bankertoolbench\\matrix\\31f70ac1-01c3-4971-84f8-0a2438fb5b92\\package-manifest.json",
+      "packageManifestPath": "docs\\eval\\fresh-room\\FR-020\\tasks\\31f70ac1-01c3-4971-84f8-0a2438fb5b92\\evidence\\package-manifest.json",
       "downloadedExtensions": [
         ".xlsx",
         ".xlsm",
@@ -163,8 +163,8 @@
       ],
       "exportSource": "convex_room_artifact_data_url_after_browser_ui_proof",
       "agentTerminalQuality": {
-        "statusText": "completed via recovered Convex job: 3-pathway-biologics-in-atopic-dermatitis-competitive-land.docx, btb-31f70ac1-project-sapphire-anti-il-13-pathway-biologics-in-atopic-dermatitis-competitive-land.pdf. Coverage confirmed for IL, AD, EASI, IGA, TCS, ADBRY, LEO, ASLAN, NOT, SC.",
-        "evidenceTextLength": 2384,
+        "statusText": "completed via recovered Convex job: ysis-for-10-tickers-il-ad-easi-iga-tcs-adbry-leo-aslan-no.docx, btb-31f70ac1-btb-btb-31f70ac1-wacc-analysis-for-10-tickers-il-ad-easi-iga-tcs-adbry-leo-aslan-no.pdf. Coverage confirmed for IL, AD, EASI, IGA, TCS, ADBRY, LEO, ASLAN, NOT, SC.",
+        "evidenceTextLength": 1464,
         "detail": "agent reached completed status or visible completion text, with no missing-source/unfinished-work caveats"
       },
       "taskCoverage": {
@@ -182,13 +182,22 @@
           "SC"
         ],
         "missingTickers": [],
-        "detail": "generated package mentions every requested ticker/entity: IL, AD, EASI, IGA, TCS, ADBRY, LEO, ASLAN, NOT, SC"
+        "domainProof": {
+          "ok": true,
+          "domain": "generic",
+          "gates": [],
+          "missingGates": [],
+          "detail": "no task-specific domain proof gate required"
+        },
+        "detail": "generated package mentions every requested ticker/entity: IL, AD, EASI, IGA, TCS, ADBRY, LEO, ASLAN, NOT, SC; no task-specific domain proof gate required"
       }
     }
   },
   "visualJudge": {
-    "verdict": "not_run",
-    "reason": "GOOGLE_GENERATIVE_AI_API_KEY is not set; deterministic browser/download/reopen/verifier proof passed."
+    "command": "npm run media:gemini-judge -- --run-id btb-full-20260626-chunk4 --out \"docs\\\\eval\\\\gemini-media-judges\\\\btb-full-20260626\\\\chunk4\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\096a6840-718c-4ab4-8dff-10601ffe003c\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\1306dbd8-dec4-469e-b806-d09113dd1010\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\1b253d04-2d32-41e8-a0b5-5450a0808e3b\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\31f70ac1-01c3-4971-84f8-0a2438fb5b92\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\41e130fe-89f0-4b2b-97ee-d727e1fa0afd\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\44bd7a6b-b3c3-4eb8-b56d-6a769bdbf58e\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\4fb6232d-c2a9-4141-98de-3e2025bdf52b\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\515a104d-ab72-47fe-b1a2-d67325ba6473\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\5f1e6f38-3380-43f4-a233-b758706985b7\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\69507fd6-a925-4e1a-8fc3-6485c71dc828\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\6b25d3dc-4b81-4d2e-b153-466b17040aae\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\7b078eaa-4fe4-4780-9f53-531872b73274\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\85670d9d-a809-4f32-a3ff-d93845cc17ea\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\8eb06eaf-d2ce-4f86-9239-d4a10bc72cf6\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\960dc224-634f-435b-a42d-f8edac8ddd2f\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\990cf5d7-0db5-456e-9766-c9d8a6640e3a\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\aa577c1d-2c22-4963-91c4-456ac32e5b4a\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\b8be8b2f-e6c2-4137-98e8-a09a3a9860f7\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\c032d3c9-5055-4346-a60d-429f658f71f9\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\c6926dfc-b844-40f6-b530-2198b39d8ddd\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\cf5884e8-8881-4747-a65a-10d8b468a9f4\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\e3c47ea1-cc6c-4981-9943-bc85162fc2a8\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\eeba6325-7212-4924-8760-91065d3b1af3\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\f205ac8c-4dae-4620-b2c9-ccc44858ec70\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\"",
+    "verdict": "pass",
+    "scorecardPath": "docs/eval/gemini-media-judges/btb-full-20260626/chunk4/btb-full-20260626-chunk4/summary.md",
+    "reason": "Gemini media judge publish (8/16); defects P0/P1/P2=0/0/1. The video demonstrates the complete workflow of creating a room, uploading multiple financial and task documents, and having an AI agent process them to generate structured deliverables like a PDF export. Source clip: test-results\\bankertoolbench\\matrix\\31f70ac1-01c3-4971-84f8-0a2438fb5b92\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\video.webm."
   },
   "gatesProven": [
     "fresh_room_join",
@@ -206,7 +215,8 @@
     "deliverable_export_download",
     "artifact_reopen_validation",
     "artifact_placeholder_scan",
-    "official_scorer_handoff"
+    "official_scorer_handoff",
+    "visual_judge_handoff"
   ],
   "passed": true
 }

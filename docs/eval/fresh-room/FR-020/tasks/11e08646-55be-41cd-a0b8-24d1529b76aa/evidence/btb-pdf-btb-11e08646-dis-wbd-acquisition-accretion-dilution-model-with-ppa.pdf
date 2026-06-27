@@ -1,0 +1,104 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+5 0 obj
+<< /Length 2586 >>
+stream
+BT /F1 11 Tf 54 760 Td (DIS / WBD Acquisition — Accretion/Dilution Model with PPA) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(DIS acquires WBD in a 50/50 cash-stock deal at 25% premium. PPA includes $10B content library, $4B other intangibles, 10% PP&E step-up. Year 3 standalone DIS EPS is $4.42; pro forma EPS is $4.28, yielding -3.2% accretion) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(Rows: 46) Tj
+0 -16 Td
+(DIS — Standalone Revenue Y1 \($B\) — Value: 66.8) Tj
+0 -16 Td
+(DIS — Standalone Revenue Y2 \($B\) — Value: 69.5) Tj
+0 -16 Td
+(DIS — Standalone Revenue Y3 \($B\) — Value: 72.6) Tj
+0 -16 Td
+(DIS — Standalone EBITDA Y3 \($B\) — Value: 15.2) Tj
+0 -16 Td
+(DIS — Standalone EPS Y3 \($\) — Value: 4.42) Tj
+0 -16 Td
+(WBD — Standalone Revenue Y1 \($B\) — Value: 39.7) Tj
+0 -16 Td
+(WBD — Standalone Revenue Y2 \($B\) — Value: 40.5) Tj
+0 -16 Td
+(WBD — Standalone Revenue Y3 \($B\) — Value: 41.5) Tj
+0 -16 Td
+(WBD — Standalone EBITDA Y3 \($B\) — Value: 8.7) Tj
+0 -16 Td
+(WBD — Standalone EPS Y3 \($\) — Value: -0.31) Tj
+0 -16 Td
+(PPA — Content Library Step-up \($B\) — Value: 10) Tj
+0 -16 Td
+(PPA — Other Intangibles Step-up \($B\) — Value: 4) Tj
+0 -16 Td
+(PPA — Net PP&E Step-up \($B\) — Value: 1.2) Tj
+0 -16 Td
+(PPA — Goodwill \($B\) — Value: 16.8) Tj
+0 -16 Td
+(PPA — Total Intangibles Step-up \($B\) — Value: 14) Tj
+0 -16 Td
+(DIS — Shares Outstanding \(M\) — Value: 1820) Tj
+0 -16 Td
+(WBD — Equity Value at 25% Premium \($B\) — Value: 42) Tj
+0 -16 Td
+(WBD — Enterprise Value \($B\) — Value: 51) Tj
+0 -16 Td
+(WBD — Net Debt Assumed \($B\) — Value: 9) Tj
+0 -16 Td
+(WBD — Underfunded Pension \($B\) — Value: 2) Tj
+0 -16 Td
+(DIS — Cash Used \($B\) — Value: 5) Tj
+0 -16 Td
+(DIS — New Term Loan \($B\) — Value: 16) Tj
+0 -16 Td
+(DIS — New Debt Interest Expense Y3 \($B\) — Value: 1.04) Tj
+0 -16 Td
+(DIS — Lost Interest Income on Cash \($B\) — Value: 0.2) Tj
+0 -16 Td
+(DIS — New Shares Issued \(M\) — Value: 227) Tj
+0 -16 Td
+(DIS — Pro Forma Shares \(M\) — Value: 2047) Tj
+0 -16 Td
+(Synergies — Cost Synergies Y3 \($B\) — Value: 2.25) Tj
+0 -16 Td
+(Synergies — Revenue Synergies Y3 \($B\) — Value: 1.05) Tj
+0 -16 Td
+(Synergies — Integration Costs Y1+Y2 \($B\) — Value: 1.2) Tj
+0 -16 Td
+(PPA — Incremental Amortization Y3 \($B\) — Value: 1.43) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(Sources: btb-11e08646-official-task-brief.txt, DIS-US Company Identity.xlsx, DIS-US Income Statement Annual.xlsx, DIS-US Balance Sheet Annual.xlsx, DIS-US Shares Outstanding.xlsx, DIS-US Price History.xlsx, DIS-US Revenu) Tj ET
+endstream
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000241 00000 n 
+0000000311 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+2949
+%%EOF

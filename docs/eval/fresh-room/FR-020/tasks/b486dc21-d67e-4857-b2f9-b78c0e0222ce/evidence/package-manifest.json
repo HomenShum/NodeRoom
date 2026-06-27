@@ -1,0 +1,65 @@
+{
+  "schema": 1,
+  "taskId": "b486dc21-d67e-4857-b2f9-b78c0e0222ce",
+  "harborTaskId": "btb-b486dc21",
+  "generatedAt": "2026-06-26T01:21:13.475Z",
+  "baseUrl": "http://127.0.0.1:5273",
+  "roomUrl": "http://127.0.0.1:5273/?room=NRN0I54TPJ3&name=Host",
+  "downloadedFiles": [
+    {
+      "kind": "workbook",
+      "filename": "btb-b486dc21-uthr-valuation-landscape-trading-comps-precedent-transactions-market-update.xlsx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\b486dc21-d67e-4857-b2f9-b78c0e0222ce\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-b486dc21-uthr-valuation-landscape-trading-comps-precedent-transactions-market-update.xlsx",
+      "extension": ".xlsx",
+      "bytes": 9874,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (6641 chars)"
+    },
+    {
+      "kind": "workbook",
+      "filename": "btb-b486dc21-uthr-valuation-landscape-trading-comps-precedent-transactions-market-update.xlsm",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\b486dc21-d67e-4857-b2f9-b78c0e0222ce\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-b486dc21-uthr-valuation-landscape-trading-comps-precedent-transactions-market-update.xlsm",
+      "extension": ".xlsm",
+      "bytes": 9874,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (6641 chars)"
+    },
+    {
+      "kind": "presentation",
+      "filename": "btb-b486dc21-uthr-valuation-landscape-trading-comps-precedent-transactions-market-update.pptx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\b486dc21-d67e-4857-b2f9-b78c0e0222ce\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-b486dc21-uthr-valuation-landscape-trading-comps-precedent-transactions-market-update.pptx",
+      "extension": ".pptx",
+      "bytes": 8220,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains ppt/presentation.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (4970 chars)"
+    },
+    {
+      "kind": "document",
+      "filename": "btb-b486dc21-uthr-valuation-landscape-trading-comps-precedent-transactions-market-update.docx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\b486dc21-d67e-4857-b2f9-b78c0e0222ce\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-b486dc21-uthr-valuation-landscape-trading-comps-precedent-transactions-market-update.docx",
+      "extension": ".docx",
+      "bytes": 4568,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains word/document.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (6970 chars)"
+    },
+    {
+      "kind": "pdf",
+      "filename": "btb-b486dc21-uthr-valuation-landscape-trading-comps-precedent-transactions-market-update.pdf",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\b486dc21-d67e-4857-b2f9-b78c0e0222ce\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-b486dc21-uthr-valuation-landscape-trading-comps-precedent-transactions-market-update.pdf",
+      "extension": ".pdf",
+      "bytes": 4117,
+      "magic": "%PDF",
+      "reopened": true,
+      "reopenDetail": "PDF header reopened",
+      "contentQualityDetail": "placeholder/caveat content scan passed (7570 chars)"
+    }
+  ]
+}

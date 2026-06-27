@@ -1,0 +1,65 @@
+{
+  "schema": 1,
+  "taskId": "d2c04408-4c3b-45a6-a076-7f5ccca8fc2a",
+  "harborTaskId": "btb-d2c04408",
+  "generatedAt": "2026-06-26T00:52:30.761Z",
+  "baseUrl": "http://127.0.0.1:5273",
+  "roomUrl": "http://127.0.0.1:5273/?room=NRY1NZ4RDU1&name=Host",
+  "downloadedFiles": [
+    {
+      "kind": "workbook",
+      "filename": "btb-d2c04408-dcf-valuation-target-corporation-tgt-nyse.xlsx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\d2c04408-4c3b-45a6-a076-7f5ccca8fc2a\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-d2c04408-dcf-valuation-target-corporation-tgt-nyse.xlsx",
+      "extension": ".xlsx",
+      "bytes": 8039,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (2283 chars)"
+    },
+    {
+      "kind": "workbook",
+      "filename": "btb-d2c04408-dcf-valuation-target-corporation-tgt-nyse.xlsm",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\d2c04408-4c3b-45a6-a076-7f5ccca8fc2a\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-d2c04408-dcf-valuation-target-corporation-tgt-nyse.xlsm",
+      "extension": ".xlsm",
+      "bytes": 8039,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (2283 chars)"
+    },
+    {
+      "kind": "presentation",
+      "filename": "btb-d2c04408-dcf-valuation-target-corporation-tgt-nyse.pptx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\d2c04408-4c3b-45a6-a076-7f5ccca8fc2a\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-d2c04408-dcf-valuation-target-corporation-tgt-nyse.pptx",
+      "extension": ".pptx",
+      "bytes": 6711,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains ppt/presentation.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (1428 chars)"
+    },
+    {
+      "kind": "document",
+      "filename": "btb-d2c04408-dcf-valuation-target-corporation-tgt-nyse.docx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\d2c04408-4c3b-45a6-a076-7f5ccca8fc2a\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-d2c04408-dcf-valuation-target-corporation-tgt-nyse.docx",
+      "extension": ".docx",
+      "bytes": 3000,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains word/document.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (2458 chars)"
+    },
+    {
+      "kind": "pdf",
+      "filename": "btb-d2c04408-dcf-valuation-target-corporation-tgt-nyse.pdf",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\d2c04408-4c3b-45a6-a076-7f5ccca8fc2a\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-d2c04408-dcf-valuation-target-corporation-tgt-nyse.pdf",
+      "extension": ".pdf",
+      "bytes": 2714,
+      "magic": "%PDF",
+      "reopened": true,
+      "reopenDetail": "PDF header reopened",
+      "contentQualityDetail": "placeholder/caveat content scan passed (4845 chars)"
+    }
+  ]
+}

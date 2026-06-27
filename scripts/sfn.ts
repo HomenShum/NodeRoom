@@ -310,6 +310,10 @@ async function handleProof(command: string | undefined): Promise<void> {
 }
 
 async function handleNodeRoom(command: string | undefined): Promise<void> {
+  if (optionFlag("--help") || optionFlag("-h")) {
+    printUsage();
+    return;
+  }
   const caseId = optionValue("--case") ?? "FR-010";
   if (command === "watch" || command === "focus") {
     console.log(renderNodeRoomWatch(caseId));

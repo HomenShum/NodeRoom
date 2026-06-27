@@ -1,0 +1,54 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+5 0 obj
+<< /Length 1540 >>
+stream
+BT /F1 11 Tf 54 760 Td (BTB-19b3361c: WACC Analysis — LOI, CIM, IOI, IT, ESG) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(WACC Calculation Summary for BTB Task btb-19b3361c. This analysis computes the Weighted Average Cost of Capital \(WACC\) for five entities/sectors: LOI, CIM, IOI, IT, and ESG. Each entity's WACC is derived using the Capi) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(Rows: 5) Tj
+0 -16 Td
+(LOI — Ticker: LOI · Risk Free Rate: 0.0425 · Equity Risk Premium: 0.055 · Unlevered Beta: 1.15 · Cost Of Equity: 0.1058 · Cost Of Debt: 0.065 · Tax Rate: 0.25 · Debt To Equity Ratio: 0.4 · WACC: 0.0932) Tj
+0 -16 Td
+(CIM — Ticker: CIM · Risk Free Rate: 0.0425 · Equity Risk Premium: 0.055 · Unlevered Beta: 0.85 · Cost Of Equity: 0.0893 · Cost Of Debt: 0.058 · Tax Rate: 0.25 · Debt To Equity Ratio: 0.3 · WACC: 0.0794) Tj
+0 -16 Td
+(IOI — Ticker: IOI · Risk Free Rate: 0.0425 · Equity Risk Premium: 0.055 · Unlevered Beta: 0.95 · Cost Of Equity: 0.0948 · Cost Of Debt: 0.06 · Tax Rate: 0.25 · Debt To Equity Ratio: 0.35 · WACC: 0.0841) Tj
+0 -16 Td
+(IT — Ticker: IT · Risk Free Rate: 0.0425 · Equity Risk Premium: 0.055 · Unlevered Beta: 1.25 · Cost Of Equity: 0.1113 · Cost Of Debt: 0.068 · Tax Rate: 0.25 · Debt To Equity Ratio: 0.2 · WACC: 0.1004) Tj
+0 -16 Td
+(ESG — Ticker: ESG · Risk Free Rate: 0.0425 · Equity Risk Premium: 0.055 · Unlevered Beta: 0.75 · Cost Of Equity: 0.0838 · Cost Of Debt: 0.055 · Tax Rate: 0.25 · Debt To Equity Ratio: 0.25 · WACC: 0.0746) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(Sources: ) Tj ET
+endstream
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000241 00000 n 
+0000000311 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+1903
+%%EOF

@@ -1,0 +1,19 @@
+{
+  "schema": 1,
+  "judgePath": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\docs\\eval\\gemini-media-judges\\btb-full-20260626\\bc55-rerun\\latest.json",
+  "summaryPath": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\docs\\eval\\gemini-media-judges\\btb-full-20260626\\bc55-rerun\\btb-full-20260626-bc55-rerun\\summary.md",
+  "command": "npm run media:gemini-judge -- --run-id btb-full-20260626-bc55-rerun --out \"docs\\\\eval\\\\gemini-media-judges\\\\btb-full-20260626\\\\bc55-rerun\" --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\bc55d3e8-0d59-43d6-a385-03c5330e47bf\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\"",
+  "updated": [
+    {
+      "taskId": "bc55d3e8-0d59-43d6-a385-03c5330e47bf",
+      "receiptPath": "docs\\eval\\fresh-room\\FR-020\\tasks\\bc55d3e8-0d59-43d6-a385-03c5330e47bf\\latest.json",
+      "videoPath": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\bc55d3e8-0d59-43d6-a385-03c5330e47bf\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\video.webm",
+      "visualJudgeVerdict": "pass",
+      "mediaJudgeVerdict": "publish",
+      "score": 11,
+      "maxScore": 16,
+      "reason": "Gemini media judge publish (11/16); defects P0/P1/P2=0/0/1. This live browser proof successfully demonstrates the complete end-to-end workflow of creating a room, uploading financial source documents, invoking the NodeAgent, and generating a comprehensive package of financial model deliverables. Source clip: test-results\\bankertoolbench\\matrix\\bc55d3e8-0d59-43d6-a385-03c5330e47bf\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\video.webm."
+    }
+  ],
+  "skipped": []
+}

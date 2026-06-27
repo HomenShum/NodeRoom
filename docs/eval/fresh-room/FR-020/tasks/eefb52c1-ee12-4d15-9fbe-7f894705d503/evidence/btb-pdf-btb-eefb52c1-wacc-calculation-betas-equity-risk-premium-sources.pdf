@@ -1,0 +1,48 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+5 0 obj
+<< /Length 849 >>
+stream
+BT /F1 11 Tf 54 760 Td (WACC Calculation — Betas & Equity Risk Premium Sources) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(This deliverable provides the key WACC inputs drawn from two uploaded source workbooks: \(1\) betas_by_industry_category_for_WACC.xlsx containing industry/sector levered betas, and \(2\) Equity_Risk_Premium_for_WACC.xlsx) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(Rows: 2) Tj
+0 -16 Td
+(WACC Beta Source — Source File: betas_by_industry_category_for_WACC.xlsx · Artifact Id: j97fr179r92t5tebgxv2d3z9gx89cbg5 · Description: Industry/category levered betas for WACC cost-of-equity \(CAPM\)) Tj
+0 -16 Td
+(WACC ERP Source — Source File: Equity_Risk_Premium_for_WACC.xlsx · Artifact Id: j979xcfp626ynjjpe490amqzr589cv2w · Description: Implied equity risk premium series used as market risk premium in CAPM) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(Sources: ) Tj ET
+endstream
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000241 00000 n 
+0000000311 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+1211
+%%EOF

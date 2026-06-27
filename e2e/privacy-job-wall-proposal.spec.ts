@@ -108,7 +108,7 @@ test.describe("privacy, job, wall, and proposal browser coverage", () => {
     const revenueVariance = panel.locator('[data-cell-key="r_rev__variance"]');
     await expect(revenueVariance).toBeVisible();
 
-    await panel.getByTestId("collab-conflict").click();
+    await page.evaluate(() => (window as any).__runConflictDrill());
     const semanticChip = revenueVariance.locator('[data-testid="proposal-inline"][data-semantic="true"]');
     await expect(semanticChip).toBeVisible({ timeout: 15_000 });
     await expect(semanticChip).toContainText("+19%");

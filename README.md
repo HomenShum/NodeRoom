@@ -406,11 +406,15 @@ capture/render commands remain `npm run walkthroughs` + `npm run walkthroughs:re
 ### Join a live room & chat
 ![Join a live room and chat — walkthrough](docs/walkthroughs/chat.gif)
 
-### Edit the sheet — and take it back (Undo / Ctrl+Z)
-![Spreadsheet edit and undo — walkthrough](docs/walkthroughs/sheet-undo.gif)
+### Edit the diligence memo — and take it back (Undo / Ctrl+Z)
+![Diligence memo edit and undo — walkthrough](docs/walkthroughs/sheet-undo.gif)
 
-### Mention the Room NodeAgent to do the work (`@nodeagent`)
-![@nodeagent reconcile drives the sheet through chat](docs/eval/workflow-previews/app-ask-reconcile.gif)
+### Ask the Room NodeAgent to enrich companies (`@nodeagent`)
+![@nodeagent enrich drives company research through chat](docs/walkthroughs/ask-agent.gif)
+
+### Deep-dive fan-out — events, founders & contacts
+![Deep-dive fan-out: the agent researches events, founders, and possible contacts for completed companies](docs/walkthroughs/feature-noderoom-deepdive.gif)
+<sub>Live walkthrough: enriched companies (status=complete) trigger a deep-dive fan-out — the agent spawns child frames per company to research events attended, founder backgrounds (LinkedIn via Apify), outreach topics, and possible contacts (advisors, board members, mutual connections). Every cell is source-backed with evidence and confidence scores.</sub>
 
 ### Multi-agent work queue (`/demo multi-agent`)
 ![Multi-agent work queue: one prompt splits into concurrent agent lanes with claims, streams, batched commits, and final proof](docs/walkthroughs/multi-agent-workbench.gif)

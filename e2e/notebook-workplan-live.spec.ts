@@ -25,12 +25,20 @@ async function openNoteSurface(page: import("@playwright/test").Page) {
 }
 
 test("messy notebook note becomes read model, approved work plan, queued job, and trace proof", async ({ page }) => {
-  test.setTimeout(180_000);
+  test.setTimeout(360_000);
   await page.setViewportSize({ width: 1440, height: 900 });
   await enableFocusModeForTest(page);
   await page.goto("/", { waitUntil: "domcontentloaded" });
-  await page.getByTestId("display-name").fill("Maya");
-  await page.getByTestId("start-demo-room").click();
+  await page.getByTestId("create-room").click();
+  await page.getByTestId("create-display-name").fill("Maya");
+  await page.getByTestId("create-room-submit").click();
+  await expect(page.getByTestId("public-chat-panel").getByTestId("chat-composer")).toBeVisible({ timeout: 60_000 });
+  await expectFocusModeOn(page);
+  await expect(page.getByTestId("blank-room-state")).toBeVisible({ timeout: 30_000 });
+  await Promise.all([
+    page.waitForURL(/(?:\?|&)demo=/, { timeout: 60_000 }),
+    page.getByTestId("blank-cta-demo").click(),
+  ]);
   await expect(page.getByTestId("public-chat-panel").getByTestId("chat-composer")).toBeVisible({ timeout: 60_000 });
   await expectFocusModeOn(page);
 

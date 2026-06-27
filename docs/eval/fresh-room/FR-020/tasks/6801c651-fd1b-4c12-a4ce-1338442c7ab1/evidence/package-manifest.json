@@ -1,0 +1,65 @@
+{
+  "schema": 1,
+  "taskId": "6801c651-fd1b-4c12-a4ce-1338442c7ab1",
+  "harborTaskId": "btb-6801c651",
+  "generatedAt": "2026-06-26T02:44:39.876Z",
+  "baseUrl": "http://127.0.0.1:5273",
+  "roomUrl": "http://127.0.0.1:5273/?room=NRKBQIOTBKG&name=Host",
+  "downloadedFiles": [
+    {
+      "kind": "workbook",
+      "filename": "btb-6801c651-panw-us-revenue-and-earnings-estimate-analysis.xlsx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\6801c651-fd1b-4c12-a4ce-1338442c7ab1\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-6801c651-panw-us-revenue-and-earnings-estimate-analysis.xlsx",
+      "extension": ".xlsx",
+      "bytes": 7030,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (859 chars)"
+    },
+    {
+      "kind": "workbook",
+      "filename": "btb-6801c651-panw-us-revenue-and-earnings-estimate-analysis.xlsm",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\6801c651-fd1b-4c12-a4ce-1338442c7ab1\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-6801c651-panw-us-revenue-and-earnings-estimate-analysis.xlsm",
+      "extension": ".xlsm",
+      "bytes": 7030,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (859 chars)"
+    },
+    {
+      "kind": "presentation",
+      "filename": "btb-6801c651-panw-us-revenue-and-earnings-estimate-analysis.pptx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\6801c651-fd1b-4c12-a4ce-1338442c7ab1\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-6801c651-panw-us-revenue-and-earnings-estimate-analysis.pptx",
+      "extension": ".pptx",
+      "bytes": 6277,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains ppt/presentation.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (1087 chars)"
+    },
+    {
+      "kind": "document",
+      "filename": "btb-6801c651-panw-us-revenue-and-earnings-estimate-analysis.docx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\6801c651-fd1b-4c12-a4ce-1338442c7ab1\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-6801c651-panw-us-revenue-and-earnings-estimate-analysis.docx",
+      "extension": ".docx",
+      "bytes": 2248,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains word/document.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (1068 chars)"
+    },
+    {
+      "kind": "pdf",
+      "filename": "btb-6801c651-panw-us-revenue-and-earnings-estimate-analysis.pdf",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\6801c651-fd1b-4c12-a4ce-1338442c7ab1\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-6801c651-panw-us-revenue-and-earnings-estimate-analysis.pdf",
+      "extension": ".pdf",
+      "bytes": 1629,
+      "magic": "%PDF",
+      "reopened": true,
+      "reopenDetail": "PDF header reopened",
+      "contentQualityDetail": "placeholder/caveat content scan passed (2715 chars)"
+    }
+  ]
+}

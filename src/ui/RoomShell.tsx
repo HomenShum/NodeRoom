@@ -2,8 +2,7 @@
  * RoomShell — top bar + June 2026 shell roles: Room Binder, Work Surface,
  * Copilot, Signal Tape, and Status Strip. Reads everything through `useStore()`,
  * so it renders identically whether the data is the in-memory engine or live
- * Convex. The collaboration "Run" button calls `store.runCollab()` — the scripted
- * demo in-memory, the real `runRoomAgent` Convex action when live.
+ * Convex.
  */
 
 import { useEffect, useRef, useState, type CSSProperties } from "react";
@@ -68,7 +67,7 @@ export function RoomShell({ roomId, me, onLeave, proof }: { roomId: string; me: 
   // top-bar binder toggle is the Room button that opens it.
   const isMid = typeof window !== "undefined" && typeof window.matchMedia === "function" && window.matchMedia("(min-width: 981px) and (max-width: 1199px)").matches;
   // Panels are a VIEWPORT decision, not a role/mode decision. The old `live && !isCompact` init read
-  // `live` (= isHost via canRunCollab) at mount — still false on a RELOAD while Convex queries load —
+  // `live` at mount — still false on a RELOAD while Convex queries load —
   // so every returning visitor (tour already seen, nothing to force panels open) landed in a chat-only
   // layout. Caught by the walkthrough capturer's reload path; see FRICTION_LOG 2026-06-09.
   const [show, setShow] = useState({ left: false, stage: true, copilot: !isCompact });
@@ -84,7 +83,6 @@ export function RoomShell({ roomId, me, onLeave, proof }: { roomId: string; me: 
   // then arts[0], then "" for async-load ticks where arts is still empty.
   const [artId, setArtId] = useState(() => preferredRoomArtifact(arts)?.id ?? "");
   const [sideArtId, setSideArtId] = useState<string | null>(null);
-  const [collab, setCollab] = useState<{ running: boolean; done: boolean; error?: string }>({ running: false, done: false });
   const [autoAcceptModal, setAutoAcceptModal] = useState(false);
   const [rememberAutoAccept, setRememberAutoAccept] = useState(false);
   const [tourOpen, setTourOpen] = useState(false);
@@ -95,7 +93,6 @@ export function RoomShell({ roomId, me, onLeave, proof }: { roomId: string; me: 
   const [replayPace, setReplayPace] = useState<ReplayPace>("standard");
   const [focusMode, setFocusMode] = useState<FocusModeClientState>(() => readFocusModeClientState());
   const tourAutoStarted = useRef(false);
-  const collabAlive = useRef(true);
   const accentTheme = ACCENTS[accent];
   const shellStyle = {
     "--accent-primary": accentTheme.primary,
@@ -104,23 +101,16 @@ export function RoomShell({ roomId, me, onLeave, proof }: { roomId: string; me: 
     "--accent-tint": accentTheme.tint,
     "--accent-border": accentTheme.border,
   } as CSSProperties;
+  // First-run: auto-start the walkthrough once per browser. The header "?" button replays it.
   useEffect(() => {
-    collabAlive.current = true;
-    return () => { collabAlive.current = false; };
-  }, []);
-  // First-run: auto-start the walkthrough only in the deterministic in-memory demo. Live Convex
-  // rooms now include fresh room-create and teammate-join flows; an auto-modal there blocks the
-  // actual collaboration proof. The header "?" button still replays the tour everywhere.
-  const shouldAutoStartTour = store.mode === "memory" && arts.some((a) => a.title === "Q3 variance");
-  useEffect(() => {
-    if (tourAutoStarted.current || !shouldAutoStartTour) return;
+    if (tourAutoStarted.current) return;
     let seen = false;
     try { seen = localStorage.getItem(TOUR_KEY) === "done"; } catch { /* ignore */ }
     tourAutoStarted.current = true;
     // On compact screens panels are stacked fixed overlays — opening all three would bury the chat
     // the tour is pointing at, so the tour starts from the chat-only default there.
     if (!seen) { if (!isCompact) setShow({ left: true, stage: true, copilot: true }); setTourOpen(true); }
-  }, [shouldAutoStartTour, isCompact]);
+  }, [isCompact]);
   // Drop a stale split-view pin if its artifact vanished. MUST run before the `!room` early return:
   // a LIVE room mounts with room=undefined and resolves a tick later, so a hook placed AFTER the
   // return changes the hook count between those two renders ("rendered more hooks than previous").
@@ -227,12 +217,6 @@ export function RoomShell({ roomId, me, onLeave, proof }: { roomId: string; me: 
       placement: "top",
     },
     {
-      selector: '[data-testid="collab-run"]',
-      title: "Human + agent, no clobbering",
-      body: "Click Run collaboration to watch the agent lock a range, draft around human edits, and merge through compare-and-swap. This is the trust primitive behind evidence-bearing diligence cells.",
-      placement: "left",
-    },
-    {
       selector: '[data-testid="room-trace"]',
       title: "Everything is auditable",
       body: "Every hand edit, agent write, proposal, lock, receipt, and trace event remains inspectable, so a banker can explain how a number or claim entered the room.",
@@ -252,7 +236,7 @@ export function RoomShell({ roomId, me, onLeave, proof }: { roomId: string; me: 
     },
     {
       title: "Now you try",
-      body: "Type /ask diligence CardioNova or run /demo multi-agent startup diligence to show the room moving from intake to evidence, review, runway gaps, and downstream drafts.",
+      body: "Type @nodeagent in the chat to ask the room agent to work on any artifact — it locks cells, drafts around human edits, and merges through compare-and-swap.",
       placement: "center",
     },
   ];
@@ -262,35 +246,9 @@ export function RoomShell({ roomId, me, onLeave, proof }: { roomId: string; me: 
     setDockStep(next);
     if (selector.includes("left-rail")) setShow({ left: true, stage: true, copilot: !isCompact });
     else if (selector.includes("copilot-panel")) setShow({ left: !isCompact, stage: true, copilot: true });
-    else if (selector.includes("artifact-tabs") || selector.includes("collab-run") || selector.includes("room-trace")) setShow((s) => ({ ...s, stage: true }));
+    else if (selector.includes("artifact-tabs") || selector.includes("room-trace")) setShow((s) => ({ ...s, stage: true }));
   };
 
-  const collabErrText = (e: unknown) => (e instanceof Error && e.message ? `Couldn't run the collaboration — ${e.message}` : "Couldn't run the collaboration. Try again.");
-  const runCollab = async () => {
-    if (collab.running) return;
-    setShow({ left: true, stage: true, copilot: true });
-    setCopilotTab("public");
-    setCollab({ running: true, done: false });
-    // C7/C2: a rejected runRoomAgent must surface honestly — not flip done:true as if it succeeded.
-    try {
-      await store.runCollab();
-      if (collabAlive.current) setCollab({ running: false, done: true });
-    } catch (e) {
-      if (collabAlive.current) setCollab({ running: false, done: false, error: collabErrText(e) });
-    }
-  };
-  const runSemanticConflictDrill = async () => {
-    if (collab.running || !store.runSemanticConflictDrill) return;
-    setShow({ left: true, stage: true, copilot: true });
-    setCopilotTab("public");
-    setCollab({ running: true, done: false });
-    try {
-      await store.runSemanticConflictDrill();
-      if (collabAlive.current) setCollab({ running: false, done: true });
-    } catch (e) {
-      if (collabAlive.current) setCollab({ running: false, done: false, error: collabErrText(e) });
-    }
-  };
   const toggleAutoAccept = () => {
     if (!isHost) return;
     if (room.autoAllow) {
@@ -396,7 +354,6 @@ export function RoomShell({ roomId, me, onLeave, proof }: { roomId: string; me: 
           <Link2 size={12} /> invite <b>{room.code}</b> {codeCopied ? <Check size={11} /> : <Copy size={11} />}
         </button>
         {store.mode === "convex" && <span className="r-tag" style={{ background: "var(--bg-secondary)", color: "var(--text-muted)" }}>● live convex</span>}
-        {store.mode === "memory" && <span className="r-tag r-demo-badge" title="Scripted demo — no backend or API keys needed; everything runs locally and offline.">● demo</span>}
         <span className="r-spacer" />
         <div className="r-toggle-group">
           <button className="r-iconbtn" data-mobile-label="Room" data-on={String(show.left)} title="Room Binder" aria-label="Toggle Room Binder panel" aria-pressed={show.left} onClick={toggleBinder}><PanelLeft size={16} /></button>
@@ -428,7 +385,7 @@ export function RoomShell({ roomId, me, onLeave, proof }: { roomId: string; me: 
       <div className="r-workspace" data-shell="june-2026">
         {show.left && <LeftRail roomId={roomId} me={me} artId={curArt?.id ?? artId} style={{ width: layout.left }} onPick={openArtifact} onOpenChat={openSidebarChat} />}
         {show.left && <ResizeHandle label="Resize files panel" onPointerDown={(x) => startResize("left", x)} />}
-        {(!isCompact || show.stage) && <Artifact roomId={roomId} me={me} proof={proof} artId={curArt?.id ?? artId} onArt={setArtId} sideArtId={sideArtId} onSideArtChange={setSideArtId} onOpenChat={openSidebarChat} style={{ flex: layout.stage }} collab={store.canRunCollab ? { ...collab, onRun: runCollab, onConflict: store.runSemanticConflictDrill ? runSemanticConflictDrill : undefined } : undefined} />}
+        {(!isCompact || show.stage) && <Artifact roomId={roomId} me={me} proof={proof} artId={curArt?.id ?? artId} onArt={setArtId} sideArtId={sideArtId} onSideArtChange={setSideArtId} onOpenChat={openSidebarChat} style={{ flex: layout.stage }} />}
         {show.copilot && <ResizeHandle label="Resize Copilot panel" onPointerDown={(x) => startResize("right", x)} />}
         {show.copilot && (
           <CopilotPanel

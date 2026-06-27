@@ -1,0 +1,65 @@
+{
+  "schema": 1,
+  "taskId": "1d073c85-42fe-4d6d-8539-069ea87082f8",
+  "harborTaskId": "btb-1d073c85",
+  "generatedAt": "2026-06-26T00:31:23.749Z",
+  "baseUrl": "http://127.0.0.1:5273",
+  "roomUrl": "http://127.0.0.1:5273/?room=NRFVY991A7H&name=Host",
+  "downloadedFiles": [
+    {
+      "kind": "workbook",
+      "filename": "btb-1d073c85-shake-shack-lbo-debt-structure-credit-metrics-btb-1d073c85.xlsx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\1d073c85-42fe-4d6d-8539-069ea87082f8\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-1d073c85-shake-shack-lbo-debt-structure-credit-metrics-btb-1d073c85.xlsx",
+      "extension": ".xlsx",
+      "bytes": 6885,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j978barn8kv8t4bv5ehdzjtd6189cmq6",
+      "contentQualityDetail": "placeholder/caveat content scan passed (445 chars)"
+    },
+    {
+      "kind": "workbook",
+      "filename": "btb-1d073c85-shake-shack-lbo-debt-structure-credit-metrics-btb-1d073c85.xlsm",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\1d073c85-42fe-4d6d-8539-069ea87082f8\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-1d073c85-shake-shack-lbo-debt-structure-credit-metrics-btb-1d073c85.xlsm",
+      "extension": ".xlsm",
+      "bytes": 6885,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j9712fe5759dxxw0f27b7sd4n989d9as",
+      "contentQualityDetail": "placeholder/caveat content scan passed (445 chars)"
+    },
+    {
+      "kind": "presentation",
+      "filename": "btb-1d073c85-shake-shack-lbo-debt-structure-credit-metrics-btb-1d073c85.pptx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\1d073c85-42fe-4d6d-8539-069ea87082f8\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-1d073c85-shake-shack-lbo-debt-structure-credit-metrics-btb-1d073c85.pptx",
+      "extension": ".pptx",
+      "bytes": 6216,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains ppt/presentation.xml; recovered from Convex room artifact j970cvkgng0743enahksxb6fbn89dprf",
+      "contentQualityDetail": "placeholder/caveat content scan passed (464 chars)"
+    },
+    {
+      "kind": "document",
+      "filename": "btb-1d073c85-shake-shack-lbo-debt-structure-credit-metrics-btb-1d073c85.docx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\1d073c85-42fe-4d6d-8539-069ea87082f8\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-1d073c85-shake-shack-lbo-debt-structure-credit-metrics-btb-1d073c85.docx",
+      "extension": ".docx",
+      "bytes": 2186,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains word/document.xml; recovered from Convex room artifact j97akvzx31z42mee262vzkq93989cxzz",
+      "contentQualityDetail": "placeholder/caveat content scan passed (445 chars)"
+    },
+    {
+      "kind": "pdf",
+      "filename": "btb-1d073c85-shake-shack-lbo-debt-structure-credit-metrics-btb-1d073c85.pdf",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\1d073c85-42fe-4d6d-8539-069ea87082f8\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-1d073c85-shake-shack-lbo-debt-structure-credit-metrics-btb-1d073c85.pdf",
+      "extension": ".pdf",
+      "bytes": 1182,
+      "magic": "%PDF",
+      "reopened": true,
+      "reopenDetail": "PDF header reopened; recovered from Convex room artifact j9785zcbksxzw7nserh55zqans89cfp8",
+      "contentQualityDetail": "placeholder/caveat content scan passed (1833 chars)"
+    }
+  ]
+}

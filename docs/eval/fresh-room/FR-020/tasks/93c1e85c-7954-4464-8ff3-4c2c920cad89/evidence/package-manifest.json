@@ -1,0 +1,65 @@
+{
+  "schema": 1,
+  "taskId": "93c1e85c-7954-4464-8ff3-4c2c920cad89",
+  "harborTaskId": "btb-93c1e85c",
+  "generatedAt": "2026-06-26T00:47:50.407Z",
+  "baseUrl": "http://127.0.0.1:5273",
+  "roomUrl": "http://127.0.0.1:5273/?room=NRW57IOLD06&name=Host",
+  "downloadedFiles": [
+    {
+      "kind": "workbook",
+      "filename": "btb-93c1e85c-btb-93c1e85c-wacc-credit-analysis-ca-rp-if.xlsx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\93c1e85c-7954-4464-8ff3-4c2c920cad89\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-93c1e85c-btb-93c1e85c-wacc-credit-analysis-ca-rp-if.xlsx",
+      "extension": ".xlsx",
+      "bytes": 8580,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j97b2gm7e9cs4hn8x7kfgz1je589cwe1",
+      "contentQualityDetail": "placeholder/caveat content scan passed (3670 chars)"
+    },
+    {
+      "kind": "workbook",
+      "filename": "btb-93c1e85c-btb-93c1e85c-wacc-credit-analysis-ca-rp-if.xlsm",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\93c1e85c-7954-4464-8ff3-4c2c920cad89\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-93c1e85c-btb-93c1e85c-wacc-credit-analysis-ca-rp-if.xlsm",
+      "extension": ".xlsm",
+      "bytes": 8580,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j979dngmxp7qd5dd6m5hf4sq1189d8xj",
+      "contentQualityDetail": "placeholder/caveat content scan passed (3670 chars)"
+    },
+    {
+      "kind": "presentation",
+      "filename": "btb-93c1e85c-btb-93c1e85c-wacc-credit-analysis-ca-rp-if.pptx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\93c1e85c-7954-4464-8ff3-4c2c920cad89\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-93c1e85c-btb-93c1e85c-wacc-credit-analysis-ca-rp-if.pptx",
+      "extension": ".pptx",
+      "bytes": 7210,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains ppt/presentation.xml; recovered from Convex room artifact j97e91xh0xrdr8ty08makf7gyh89cad0",
+      "contentQualityDetail": "placeholder/caveat content scan passed (3420 chars)"
+    },
+    {
+      "kind": "document",
+      "filename": "btb-93c1e85c-btb-93c1e85c-wacc-credit-analysis-ca-rp-if.docx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\93c1e85c-7954-4464-8ff3-4c2c920cad89\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-93c1e85c-btb-93c1e85c-wacc-credit-analysis-ca-rp-if.docx",
+      "extension": ".docx",
+      "bytes": 3274,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains word/document.xml; recovered from Convex room artifact j977f2fej8r5zt59zew7wqxbcx89c23k",
+      "contentQualityDetail": "placeholder/caveat content scan passed (3648 chars)"
+    },
+    {
+      "kind": "pdf",
+      "filename": "btb-93c1e85c-btb-93c1e85c-wacc-credit-analysis-ca-rp-if.pdf",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\93c1e85c-7954-4464-8ff3-4c2c920cad89\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-93c1e85c-btb-93c1e85c-wacc-credit-analysis-ca-rp-if.pdf",
+      "extension": ".pdf",
+      "bytes": 3108,
+      "magic": "%PDF",
+      "reopened": true,
+      "reopenDetail": "PDF header reopened; recovered from Convex room artifact j975h8j2makgg4tw0vxzay2sbd89ds1t",
+      "contentQualityDetail": "placeholder/caveat content scan passed (5633 chars)"
+    }
+  ]
+}

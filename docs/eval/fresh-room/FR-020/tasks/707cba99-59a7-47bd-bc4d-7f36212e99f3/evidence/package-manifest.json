@@ -1,0 +1,65 @@
+{
+  "schema": 1,
+  "taskId": "707cba99-59a7-47bd-bc4d-7f36212e99f3",
+  "harborTaskId": "btb-707cba99",
+  "generatedAt": "2026-06-25T23:31:40.414Z",
+  "baseUrl": "http://127.0.0.1:5273",
+  "roomUrl": "http://127.0.0.1:5273/?room=NR366GSV78J&name=Host",
+  "downloadedFiles": [
+    {
+      "kind": "workbook",
+      "filename": "btb-707cba99-dcf-analysis-lvs-vs-regal.xlsx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\707cba99-59a7-47bd-bc4d-7f36212e99f3\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-707cba99-dcf-analysis-lvs-vs-regal.xlsx",
+      "extension": ".xlsx",
+      "bytes": 6743,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j978fjkccjr4d49be4n82avr0d89appc",
+      "contentQualityDetail": "placeholder/caveat content scan passed (313 chars)"
+    },
+    {
+      "kind": "workbook",
+      "filename": "btb-707cba99-dcf-analysis-lvs-vs-regal.xlsm",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\707cba99-59a7-47bd-bc4d-7f36212e99f3\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-707cba99-dcf-analysis-lvs-vs-regal.xlsm",
+      "extension": ".xlsm",
+      "bytes": 6743,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j978kgpafvb9jh6zfjb5y0m13s89bz5x",
+      "contentQualityDetail": "placeholder/caveat content scan passed (313 chars)"
+    },
+    {
+      "kind": "presentation",
+      "filename": "btb-707cba99-dcf-analysis-lvs-vs-regal.pptx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\707cba99-59a7-47bd-bc4d-7f36212e99f3\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-707cba99-dcf-analysis-lvs-vs-regal.pptx",
+      "extension": ".pptx",
+      "bytes": 6094,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains ppt/presentation.xml; recovered from Convex room artifact j975t208gsh2mgnf6bq5tgxngh89abhx",
+      "contentQualityDetail": "placeholder/caveat content scan passed (304 chars)"
+    },
+    {
+      "kind": "document",
+      "filename": "btb-707cba99-dcf-analysis-lvs-vs-regal.docx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\707cba99-59a7-47bd-bc4d-7f36212e99f3\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-707cba99-dcf-analysis-lvs-vs-regal.docx",
+      "extension": ".docx",
+      "bytes": 2060,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains word/document.xml; recovered from Convex room artifact j979xw6d71y3yr7q65z204e2vh89bt24",
+      "contentQualityDetail": "placeholder/caveat content scan passed (285 chars)"
+    },
+    {
+      "kind": "pdf",
+      "filename": "btb-707cba99-dcf-analysis-lvs-vs-regal.pdf",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\707cba99-59a7-47bd-bc4d-7f36212e99f3\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-707cba99-dcf-analysis-lvs-vs-regal.pdf",
+      "extension": ".pdf",
+      "bytes": 990,
+      "magic": "%PDF",
+      "reopened": true,
+      "reopenDetail": "PDF header reopened; recovered from Convex room artifact j974hwk6y2zxnx9y3tdp5mpc7n89a5x5",
+      "contentQualityDetail": "placeholder/caveat content scan passed (1459 chars)"
+    }
+  ]
+}

@@ -1,0 +1,62 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+5 0 obj
+<< /Length 2064 >>
+stream
+BT /F1 11 Tf 54 760 Td (BTB btb-ceba18d0: KO \(NYSE\) NOPAT & Valuation Analysis) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(## BankerToolBench Task btb-ceba18d0 — KO \(NYSE\) NOPAT Analysis
+
+**Entity Coverage:**
+- NYSE: Listing exchange for The Coca-Cola Company \(KO\)
+- KO: The Coca-Cola Company \(NYSE: KO\), analyzed via uploaded financial ) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(Rows: 7) Tj
+0 -16 Td
+(KO_NOPAT_FY2024 — Company: The Coca-Cola Company \(KO\) · Exchange: NYSE · FiscalYear: 2024 · EBIT OperatingIncome M: 11311 · PreTaxIncome M: 11104 · TaxExpense M: 5393 · EffectiveTaxRate Pct: 48.57 · NOPAT M: 5817 · NOP) Tj
+0 -16 Td
+(KO_BalanceSheet_FY2024 — Company: KO · Exchange: NYSE · TotalAssets M: 97703 · TotalDebt M: 42349 · CashAndEquivalents M: 7259 · NetDebt M: 35090 · Source: KO-US Balance Sheet Annual.xlsx) Tj
+0 -16 Td
+(KO_CashFlow_FY2024 — Company: KO · Exchange: NYSE · OperatingCashFlow M: 10857 · CapEx M: 2072 · FreeCashFlow M: 8785 · Source: KO-US Cash Flow Annual.xlsx) Tj
+0 -16 Td
+(KO_MarketData — Company: KO · Exchange: NYSE · SharesOutstanding M: 4317 · Price USD: 60 · MarketCap M: 259020 · EnterpriseValue M: 294110 · Source: KO-US Shares Outstanding.xlsx; KO-US Price History.xlsx) Tj
+0 -16 Td
+(KO_ValuationMultiples — Company: KO · Exchange: NYSE · EV NOPAT X: 50.6 · EV EBITDA X: 18.9 · PE Ratio X: 45.4 · NOPAT M: 5817 · Source: Computed) Tj
+0 -16 Td
+(KO_ConensusEstimates_FY2025E — Company: KO · Exchange: NYSE · RevenueEstimate B: 47.5 · EPSEstimate USD: 2.95 · Source: KO-US Revenue Estimate.xlsx; KO-US Earnings Estimate.xlsx) Tj
+0 -16 Td
+(NYSE_Listing_Identity — Ticker: KO · Exchange: NYSE · CompanyName: The Coca-Cola Company · Sector: Consumer Staples · Industry: Beverages - Non-Alcoholic · Source: KO-US Company Identity.xlsx) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(Sources: KO-US Company Identity.xlsx, KO-US Income Statement Annual.xlsx, KO-US Balance Sheet Annual.xlsx, KO-US Cash Flow Annual.xlsx, KO-US Shares Outstanding.xlsx, KO-US Price History.xlsx, KO-US Revenue Estimate.xlsx) Tj ET
+endstream
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000241 00000 n 
+0000000311 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+2427
+%%EOF

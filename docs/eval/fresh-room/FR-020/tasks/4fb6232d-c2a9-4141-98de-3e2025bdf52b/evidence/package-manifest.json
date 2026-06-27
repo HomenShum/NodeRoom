@@ -1,0 +1,65 @@
+{
+  "schema": 1,
+  "taskId": "4fb6232d-c2a9-4141-98de-3e2025bdf52b",
+  "harborTaskId": "btb-4fb6232d",
+  "generatedAt": "2026-06-26T00:22:09.690Z",
+  "baseUrl": "http://127.0.0.1:5273",
+  "roomUrl": "http://127.0.0.1:5273/?room=NRXC6K7QXLU&name=Host",
+  "downloadedFiles": [
+    {
+      "kind": "workbook",
+      "filename": "btb-4fb6232d-preliminary-buyer-universe-shipwell.xlsx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\4fb6232d-c2a9-4141-98de-3e2025bdf52b\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-4fb6232d-preliminary-buyer-universe-shipwell.xlsx",
+      "extension": ".xlsx",
+      "bytes": 8158,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j977v8re4z2k6rx22d8ppgw18s89dw9q",
+      "contentQualityDetail": "placeholder/caveat content scan passed (3318 chars)"
+    },
+    {
+      "kind": "workbook",
+      "filename": "btb-4fb6232d-preliminary-buyer-universe-shipwell.xlsm",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\4fb6232d-c2a9-4141-98de-3e2025bdf52b\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-4fb6232d-preliminary-buyer-universe-shipwell.xlsm",
+      "extension": ".xlsm",
+      "bytes": 8158,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j970kpfyqmzkhfdfdx576368xs89cd57",
+      "contentQualityDetail": "placeholder/caveat content scan passed (3318 chars)"
+    },
+    {
+      "kind": "presentation",
+      "filename": "btb-4fb6232d-preliminary-buyer-universe-shipwell.pptx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\4fb6232d-c2a9-4141-98de-3e2025bdf52b\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-4fb6232d-preliminary-buyer-universe-shipwell.pptx",
+      "extension": ".pptx",
+      "bytes": 7191,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains ppt/presentation.xml; recovered from Convex room artifact j977c3my9h6qxvh6znd0by19hs89c7n4",
+      "contentQualityDetail": "placeholder/caveat content scan passed (3889 chars)"
+    },
+    {
+      "kind": "document",
+      "filename": "btb-4fb6232d-preliminary-buyer-universe-shipwell.docx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\4fb6232d-c2a9-4141-98de-3e2025bdf52b\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-4fb6232d-preliminary-buyer-universe-shipwell.docx",
+      "extension": ".docx",
+      "bytes": 3160,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains word/document.xml; recovered from Convex room artifact j979w9273vw7ex002be6hw3tx189cy55",
+      "contentQualityDetail": "placeholder/caveat content scan passed (3870 chars)"
+    },
+    {
+      "kind": "pdf",
+      "filename": "btb-4fb6232d-preliminary-buyer-universe-shipwell.pdf",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\4fb6232d-c2a9-4141-98de-3e2025bdf52b\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-4fb6232d-preliminary-buyer-universe-shipwell.pdf",
+      "extension": ".pdf",
+      "bytes": 2900,
+      "magic": "%PDF",
+      "reopened": true,
+      "reopenDetail": "PDF header reopened; recovered from Convex room artifact j972zejjds2wdtcb8ycvh68bk589dgzp",
+      "contentQualityDetail": "placeholder/caveat content scan passed (5201 chars)"
+    }
+  ]
+}

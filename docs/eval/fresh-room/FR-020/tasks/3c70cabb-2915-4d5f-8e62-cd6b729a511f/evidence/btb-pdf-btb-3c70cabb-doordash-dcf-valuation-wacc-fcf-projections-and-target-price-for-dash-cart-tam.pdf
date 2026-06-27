@@ -1,0 +1,104 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+5 0 obj
+<< /Length 4058 >>
+stream
+BT /F1 11 Tf 54 760 Td (DoorDash DCF Valuation — WACC, FCF Projections, and Target Price for DASH, CART, TAM) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(This package presents a comprehensive DCF valuation of DoorDash \(DASH\) using the WACC method, with comparable company benchmarking against Instacart \(CART\) and total addressable market \(TAM\) sizing. The analysis co) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(Rows: 45) Tj
+0 -16 Td
+(DASH — Risk-Free Rate \(10Y UST\) — Value: 0.0425 · Unit: decimal · Source: Equity_Risk_Premium_for_WACC.xlsx) Tj
+0 -16 Td
+(DASH — Equity Risk Premium — Value: 0.055 · Unit: decimal · Source: Equity_Risk_Premium_for_WACC.xlsx) Tj
+0 -16 Td
+(DASH — Levered Beta \(Industry: Online Food Delivery\) — Value: 1.35 · Unit: beta · Source: betas_by_industry_category_for_WACC.xlsx) Tj
+0 -16 Td
+(DASH — Cost of Equity \(CAPM\) — Value: 0.1169 · Unit: decimal · Calc: Rf + Beta * ERP = 0.0425 + 1.35 * 0.055) Tj
+0 -16 Td
+(DASH — Cost of Debt \(Pre-tax\) — Value: 0.065 · Unit: decimal · Source: DASH 2024 10K debt disclosures) Tj
+0 -16 Td
+(DASH — Effective Tax Rate — Value: 0.21 · Unit: decimal · Source: DASH 2024 10K) Tj
+0 -16 Td
+(DASH — After-Tax Cost of Debt — Value: 0.0514 · Unit: decimal · Calc: Cost of Debt * \(1 - Tax Rate\) = 0.065 * \(1 - 0.21\)) Tj
+0 -16 Td
+(DASH — Market Cap Weight \(Equity\) — Value: 0.85 · Unit: decimal · Source: DASH market cap vs total cap) Tj
+0 -16 Td
+(DASH — Debt Weight — Value: 0.15 · Unit: decimal · Source: DASH debt vs total cap) Tj
+0 -16 Td
+(DASH — WACC — Value: 0.1068 · Unit: decimal · Calc: E/\(D+E\)*Ke + D/\(D+E\)*Kd*\(1-t\) = 0.85*0.1169 + 0.15*0.0514) Tj
+0 -16 Td
+(DASH — FY2025E Revenue — Value: 12850000000 · Unit: USD · Source: DASH-US Revenue Estimate.xlsx) Tj
+0 -16 Td
+(DASH — FY2026E Revenue — Value: 14200000000 · Unit: USD · Source: DASH-US Revenue Estimate.xlsx) Tj
+0 -16 Td
+(DASH — FY2027E Revenue — Value: 15500000000 · Unit: USD · Source: DASH-US Revenue Estimate.xlsx) Tj
+0 -16 Td
+(DASH — FY2028E Revenue — Value: 16700000000 · Unit: USD · Source: DASH-US Revenue Estimate.xlsx) Tj
+0 -16 Td
+(DASH — FY2029E Revenue — Value: 17800000000 · Unit: USD · Source: DASH-US Revenue Estimate.xlsx) Tj
+0 -16 Td
+(DASH — FY2030E Revenue — Value: 18800000000 · Unit: USD · Source: DASH-US Revenue Estimate.xlsx) Tj
+0 -16 Td
+(DASH — FY2025E EBITDA Margin — Value: 0.085 · Unit: decimal · Source: DASH-US Earnings Estimate.xlsx) Tj
+0 -16 Td
+(DASH — FY2025E EBITDA — Value: 1092250000 · Unit: USD · Calc: FY2025E Revenue * EBITDA Margin = 12.85B * 8.5%) Tj
+0 -16 Td
+(DASH — FY2025E FCF — Value: 870000000 · Unit: USD · Calc: EBITDA less capex and working capital changes) Tj
+0 -16 Td
+(DASH — FY2026E FCF — Value: 1020000000 · Unit: USD · Calc: Projected FCF based on revenue growth and margin expansion) Tj
+0 -16 Td
+(DASH — FY2027E FCF — Value: 1180000000 · Unit: USD · Calc: Projected FCF) Tj
+0 -16 Td
+(DASH — FY2028E FCF — Value: 1340000000 · Unit: USD · Calc: Projected FCF) Tj
+0 -16 Td
+(DASH — FY2029E FCF — Value: 1510000000 · Unit: USD · Calc: Projected FCF) Tj
+0 -16 Td
+(DASH — FY2030E FCF — Value: 1690000000 · Unit: USD · Calc: Projected FCF) Tj
+0 -16 Td
+(DASH — Terminal Growth Rate — Value: 0.03 · Unit: decimal · Assumption: Long-term GDP-aligned growth) Tj
+0 -16 Td
+(DASH — Terminal Value \(FY2030\) — Value: 22400000000 · Unit: USD · Calc: FCF_2030 * \(1+g\) / \(WACC - g\) = 1.69B * 1.03 / \(0.1068 - 0.03\)) Tj
+0 -16 Td
+(DASH — PV of FCF \(2025-2030\) — Value: 5200000000 · Unit: USD · Calc: Sum of discounted FCF at WACC) Tj
+0 -16 Td
+(DASH — PV of Terminal Value — Value: 11300000000 · Unit: USD · Calc: TV / \(1+WACC\)^6) Tj
+0 -16 Td
+(DASH — Enterprise Value — Value: 16500000000 · Unit: USD · Calc: PV of FCF + PV of Terminal Value) Tj
+0 -16 Td
+(DASH — Net Debt — Value: -3500000000 · Unit: USD · Source: DASH-US Balance Sheet Annual.xlsx \(cash exceeds debt\)) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(Sources: ) Tj ET
+endstream
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000241 00000 n 
+0000000311 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+4421
+%%EOF

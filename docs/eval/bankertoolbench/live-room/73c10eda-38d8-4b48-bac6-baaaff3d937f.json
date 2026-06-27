@@ -2,9 +2,9 @@
   "schema": 1,
   "taskId": "73c10eda-38d8-4b48-bac6-baaaff3d937f",
   "harborTaskId": "btb-73c10eda",
-  "generatedAt": "2026-06-25T02:35:42.463Z",
+  "generatedAt": "2026-06-26T01:24:35.709Z",
   "baseUrl": "http://127.0.0.1:5273",
-  "roomUrl": "http://127.0.0.1:5273/?room=NRJJLFSYDFE&name=Host",
+  "roomUrl": "http://127.0.0.1:5273/?room=NRW5IZMYAV4&name=Host",
   "memoryMode": false,
   "expectedExtensions": [
     ".xlsx",
@@ -23,64 +23,64 @@
   "downloadedFiles": [
     {
       "kind": "workbook",
-      "filename": "btb-73c10eda-meta-avp-analysis-at-various-prices.xlsx",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\73c10eda-38d8-4b48-bac6-baaaff3d937f\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-73c10eda-meta-avp-analysis-at-various-prices.xlsx",
+      "filename": "btb-73c10eda-dcf-valuation-meta-vs-avp-vs-fdso.xlsx",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\73c10eda-38d8-4b48-bac6-baaaff3d937f\\evidence\\btb-xlsx-btb-73c10eda-dcf-valuation-meta-vs-avp-vs-fdso.xlsx",
       "extension": ".xlsx",
-      "bytes": 9793,
+      "bytes": 6979,
       "magic": "PK\\x03\\x04",
       "reopened": true,
       "reopenDetail": "ZIP package contains xl/workbook.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (4873 chars)"
+      "contentQualityDetail": "placeholder/caveat content scan passed (548 chars)"
     },
     {
       "kind": "workbook",
-      "filename": "btb-73c10eda-meta-avp-analysis-at-various-prices.xlsm",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\73c10eda-38d8-4b48-bac6-baaaff3d937f\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-73c10eda-meta-avp-analysis-at-various-prices.xlsm",
+      "filename": "btb-73c10eda-dcf-valuation-meta-vs-avp-vs-fdso.xlsm",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\73c10eda-38d8-4b48-bac6-baaaff3d937f\\evidence\\btb-xlsm-btb-73c10eda-dcf-valuation-meta-vs-avp-vs-fdso.xlsm",
       "extension": ".xlsm",
-      "bytes": 9793,
+      "bytes": 6979,
       "magic": "PK\\x03\\x04",
       "reopened": true,
       "reopenDetail": "ZIP package contains xl/workbook.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (4873 chars)"
+      "contentQualityDetail": "placeholder/caveat content scan passed (548 chars)"
     },
     {
       "kind": "presentation",
-      "filename": "btb-73c10eda-meta-avp-analysis-at-various-prices.pptx",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\73c10eda-38d8-4b48-bac6-baaaff3d937f\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-73c10eda-meta-avp-analysis-at-various-prices.pptx",
+      "filename": "btb-73c10eda-dcf-valuation-meta-vs-avp-vs-fdso.pptx",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\73c10eda-38d8-4b48-bac6-baaaff3d937f\\evidence\\btb-pptx-btb-73c10eda-dcf-valuation-meta-vs-avp-vs-fdso.pptx",
       "extension": ".pptx",
-      "bytes": 6784,
+      "bytes": 6247,
       "magic": "PK\\x03\\x04",
       "reopened": true,
       "reopenDetail": "ZIP package contains ppt/presentation.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (2183 chars)"
+      "contentQualityDetail": "placeholder/caveat content scan passed (702 chars)"
     },
     {
       "kind": "document",
-      "filename": "btb-73c10eda-meta-avp-analysis-at-various-prices.docx",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\73c10eda-38d8-4b48-bac6-baaaff3d937f\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-73c10eda-meta-avp-analysis-at-various-prices.docx",
+      "filename": "btb-73c10eda-dcf-valuation-meta-vs-avp-vs-fdso.docx",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\73c10eda-38d8-4b48-bac6-baaaff3d937f\\evidence\\btb-docx-btb-73c10eda-dcf-valuation-meta-vs-avp-vs-fdso.docx",
       "extension": ".docx",
-      "bytes": 3805,
+      "bytes": 2242,
       "magic": "PK\\x03\\x04",
       "reopened": true,
       "reopenDetail": "ZIP package contains word/document.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (6473 chars)"
+      "contentQualityDetail": "placeholder/caveat content scan passed (756 chars)"
     },
     {
       "kind": "pdf",
-      "filename": "btb-73c10eda-meta-avp-analysis-at-various-prices.pdf",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\73c10eda-38d8-4b48-bac6-baaaff3d937f\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-73c10eda-meta-avp-analysis-at-various-prices.pdf",
+      "filename": "btb-73c10eda-dcf-valuation-meta-vs-avp-vs-fdso.pdf",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\73c10eda-38d8-4b48-bac6-baaaff3d937f\\evidence\\btb-pdf-btb-73c10eda-dcf-valuation-meta-vs-avp-vs-fdso.pdf",
       "extension": ".pdf",
-      "bytes": 3791,
+      "bytes": 1489,
       "magic": "%PDF",
       "reopened": true,
       "reopenDetail": "PDF header reopened",
-      "contentQualityDetail": "placeholder/caveat content scan passed (7063 chars)"
+      "contentQualityDetail": "placeholder/caveat content scan passed (2437 chars)"
     }
   ],
-  "packageManifestPath": "test-results\\bankertoolbench\\matrix\\73c10eda-38d8-4b48-bac6-baaaff3d937f\\package-manifest.json",
+  "packageManifestPath": "docs\\eval\\fresh-room\\FR-020\\tasks\\73c10eda-38d8-4b48-bac6-baaaff3d937f\\evidence\\package-manifest.json",
   "verifierCommand": "npm run benchmark:bankertoolbench:proof",
   "verifierOutputTail": "\n> noderoom@0.1.1 benchmark:bankertoolbench:proof\n> tsx scripts/bankertoolbench-proof-check.ts\n\nBankerToolBench proof check passed: stage=1/1 weightedRubric=6 run=0/1 pass positive=1/1 pass candidateBeforeEvaluator=true leaks=0/2+0/3+0/4\n",
-  "screenshot": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\73c10eda-38d8-4b48-bac6-baaaff3d937f\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\bankertoolbench-live-room.png",
+  "screenshot": "docs\\eval\\fresh-room\\FR-020\\tasks\\73c10eda-38d8-4b48-bac6-baaaff3d937f\\evidence\\bankertoolbench-live-room.png",
   "passed": true,
   "gatesProven": [
     "fresh_room_join",

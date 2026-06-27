@@ -9,12 +9,13 @@ import {
 const args = process.argv.slice(2);
 
 const judgePath = optionValue("--judge") ?? optionValue("--judge-path");
-if (!judgePath) throw new Error("Usage: tsx scripts/attach-btb-gemini-judge.ts --judge <gemini latest.json> [--task-id <id>] [--json-out <path>]");
+if (!judgePath) throw new Error("Usage: tsx scripts/attach-btb-gemini-judge.ts --judge <gemini latest.json> [--task-id <id>] [--json-out <path>] [--no-copy-video]");
 
 const result = attachBtbGeminiJudgeResults({
   judgePath,
   summaryPath: optionValue("--summary"),
   taskIds: optionValues("--task-id").flatMap((value) => value.split(",").map((item) => item.trim()).filter(Boolean)),
+  copyVideoEvidence: !hasFlag("--no-copy-video"),
 });
 
 console.log(renderBtbGeminiJudgeAttachResult(result));
@@ -46,4 +47,8 @@ function optionValues(name: string): string[] {
     }
   }
   return values;
+}
+
+function hasFlag(name: string): boolean {
+  return args.includes(name);
 }

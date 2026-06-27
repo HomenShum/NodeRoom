@@ -2,9 +2,9 @@
   "schema": 1,
   "taskId": "2048736b-7bb8-4c54-899e-ddfdf12641ab",
   "harborTaskId": "btb-2048736b",
-  "generatedAt": "2026-06-25T02:19:58.586Z",
+  "generatedAt": "2026-06-26T01:04:17.596Z",
   "baseUrl": "http://127.0.0.1:5273",
-  "roomUrl": "http://127.0.0.1:5273/?room=NR1H7PWFP6F&name=Host",
+  "roomUrl": "http://127.0.0.1:5273/?room=NR70MDV6Q1D&name=Host",
   "memoryMode": false,
   "expectedExtensions": [
     ".xlsx",
@@ -23,64 +23,64 @@
   "downloadedFiles": [
     {
       "kind": "workbook",
-      "filename": "btb-2048736b-oxy-rating-agency-presentation-2.5b-10-year-senior-unsecured-issuance-dcm-nyse-oxy.xlsx",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\2048736b-7bb8-4c54-899e-ddfdf12641ab\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-2048736b-oxy-rating-agency-presentation-2.5b-10-year-senior-unsecured-issuance-dcm-nyse-oxy.xlsx",
+      "filename": "btb-2048736b-oxy-2.5b-10-year-senior-unsecured-issuance-rating-agency-presentation.xlsx",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\2048736b-7bb8-4c54-899e-ddfdf12641ab\\evidence\\btb-xlsx-btb-2048736b-oxy-2.5b-10-year-senior-unsecured-issuance-rating-agency-presentation.xlsx",
       "extension": ".xlsx",
-      "bytes": 14143,
+      "bytes": 11626,
       "magic": "PK\\x03\\x04",
       "reopened": true,
       "reopenDetail": "ZIP package contains xl/workbook.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (10824 chars)"
+      "contentQualityDetail": "placeholder/caveat content scan passed (7557 chars)"
     },
     {
       "kind": "workbook",
-      "filename": "btb-2048736b-oxy-rating-agency-presentation-2.5b-10-year-senior-unsecured-issuance-dcm-nyse-oxy.xlsm",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\2048736b-7bb8-4c54-899e-ddfdf12641ab\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-2048736b-oxy-rating-agency-presentation-2.5b-10-year-senior-unsecured-issuance-dcm-nyse-oxy.xlsm",
+      "filename": "btb-2048736b-oxy-2.5b-10-year-senior-unsecured-issuance-rating-agency-presentation.xlsm",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\2048736b-7bb8-4c54-899e-ddfdf12641ab\\evidence\\btb-xlsm-btb-2048736b-oxy-2.5b-10-year-senior-unsecured-issuance-rating-agency-presentation.xlsm",
       "extension": ".xlsm",
-      "bytes": 14143,
+      "bytes": 11626,
       "magic": "PK\\x03\\x04",
       "reopened": true,
       "reopenDetail": "ZIP package contains xl/workbook.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (10824 chars)"
+      "contentQualityDetail": "placeholder/caveat content scan passed (7557 chars)"
     },
     {
       "kind": "presentation",
-      "filename": "btb-2048736b-oxy-rating-agency-presentation-2.5b-10-year-senior-unsecured-issuance-dcm-nyse-oxy.pptx",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\2048736b-7bb8-4c54-899e-ddfdf12641ab\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-2048736b-oxy-rating-agency-presentation-2.5b-10-year-senior-unsecured-issuance-dcm-nyse-oxy.pptx",
+      "filename": "btb-2048736b-oxy-2.5b-10-year-senior-unsecured-issuance-rating-agency-presentation.pptx",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\2048736b-7bb8-4c54-899e-ddfdf12641ab\\evidence\\btb-pptx-btb-2048736b-oxy-2.5b-10-year-senior-unsecured-issuance-rating-agency-presentation.pptx",
       "extension": ".pptx",
-      "bytes": 7253,
+      "bytes": 7390,
       "magic": "PK\\x03\\x04",
       "reopened": true,
       "reopenDetail": "ZIP package contains ppt/presentation.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (3030 chars)"
+      "contentQualityDetail": "placeholder/caveat content scan passed (3268 chars)"
     },
     {
       "kind": "document",
-      "filename": "btb-2048736b-oxy-rating-agency-presentation-2.5b-10-year-senior-unsecured-issuance-dcm-nyse-oxy.docx",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\2048736b-7bb8-4c54-899e-ddfdf12641ab\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-2048736b-oxy-rating-agency-presentation-2.5b-10-year-senior-unsecured-issuance-dcm-nyse-oxy.docx",
+      "filename": "btb-2048736b-oxy-2.5b-10-year-senior-unsecured-issuance-rating-agency-presentation.docx",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\2048736b-7bb8-4c54-899e-ddfdf12641ab\\evidence\\btb-docx-btb-2048736b-oxy-2.5b-10-year-senior-unsecured-issuance-rating-agency-presentation.docx",
       "extension": ".docx",
-      "bytes": 4198,
+      "bytes": 4024,
       "magic": "PK\\x03\\x04",
       "reopened": true,
       "reopenDetail": "ZIP package contains word/document.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (6769 chars)"
+      "contentQualityDetail": "placeholder/caveat content scan passed (5869 chars)"
     },
     {
       "kind": "pdf",
-      "filename": "btb-2048736b-oxy-rating-agency-presentation-2.5b-10-year-senior-unsecured-issuance-dcm-nyse-oxy.pdf",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\2048736b-7bb8-4c54-899e-ddfdf12641ab\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-2048736b-oxy-rating-agency-presentation-2.5b-10-year-senior-unsecured-issuance-dcm-nyse-oxy.pdf",
+      "filename": "btb-2048736b-oxy-2.5b-10-year-senior-unsecured-issuance-rating-agency-presentation.pdf",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\2048736b-7bb8-4c54-899e-ddfdf12641ab\\evidence\\btb-pdf-btb-2048736b-oxy-2.5b-10-year-senior-unsecured-issuance-rating-agency-presentation.pdf",
       "extension": ".pdf",
-      "bytes": 5873,
+      "bytes": 4656,
       "magic": "%PDF",
       "reopened": true,
       "reopenDetail": "PDF header reopened",
-      "contentQualityDetail": "placeholder/caveat content scan passed (11175 chars)"
+      "contentQualityDetail": "placeholder/caveat content scan passed (8628 chars)"
     }
   ],
-  "packageManifestPath": "test-results\\bankertoolbench\\matrix\\2048736b-7bb8-4c54-899e-ddfdf12641ab\\package-manifest.json",
+  "packageManifestPath": "docs\\eval\\fresh-room\\FR-020\\tasks\\2048736b-7bb8-4c54-899e-ddfdf12641ab\\evidence\\package-manifest.json",
   "verifierCommand": "npm run benchmark:bankertoolbench:proof",
   "verifierOutputTail": "\n> noderoom@0.1.1 benchmark:bankertoolbench:proof\n> tsx scripts/bankertoolbench-proof-check.ts\n\nBankerToolBench proof check passed: stage=1/1 weightedRubric=6 run=0/1 pass positive=1/1 pass candidateBeforeEvaluator=true leaks=0/2+0/3+0/4\n",
-  "screenshot": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\2048736b-7bb8-4c54-899e-ddfdf12641ab\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\bankertoolbench-live-room.png",
+  "screenshot": "docs\\eval\\fresh-room\\FR-020\\tasks\\2048736b-7bb8-4c54-899e-ddfdf12641ab\\evidence\\bankertoolbench-live-room.png",
   "passed": true,
   "gatesProven": [
     "fresh_room_join",

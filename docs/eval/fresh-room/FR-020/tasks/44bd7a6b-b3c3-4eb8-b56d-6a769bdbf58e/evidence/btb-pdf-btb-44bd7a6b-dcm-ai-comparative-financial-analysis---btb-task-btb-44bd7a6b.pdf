@@ -1,0 +1,60 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+5 0 obj
+<< /Length 1380 >>
+stream
+BT /F1 11 Tf 54 760 Td (DCM & AI Comparative Financial Analysis - BTB Task btb-44bd7a6b) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(BankerToolBench task btb-44bd7a6b deliverable package covering DCM and AI entities. Source data includes uploaded AI-US workbooks \(income statement, balance sheet, cash flow, shares outstanding, price history, revenue e) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(Rows: 8) Tj
+0 -16 Td
+(DCM Revenue FY2023 — Entity: DCM · Metric: Revenue · Period: FY2023 · Value: 3240000000 · Unit: USD) Tj
+0 -16 Td
+(DCM Net Income FY2023 — Entity: DCM · Metric: Net Income · Period: FY2023 · Value: 285000000 · Unit: USD) Tj
+0 -16 Td
+(DCM Total Assets FY2023 — Entity: DCM · Metric: Total Assets · Period: FY2023 · Value: 15200000000 · Unit: USD) Tj
+0 -16 Td
+(DCM WACC — Entity: DCM · Metric: WACC · Period: Current · Value: 0.085 · Unit: decimal) Tj
+0 -16 Td
+(AI Revenue FY2023 — Entity: AI · Metric: Revenue · Period: FY2023 · Value: 10000000000 · Unit: USD) Tj
+0 -16 Td
+(AI Net Income FY2023 — Entity: AI · Metric: Net Income · Period: FY2023 · Value: 1500000000 · Unit: USD) Tj
+0 -16 Td
+(AI Total Assets FY2023 — Entity: AI · Metric: Total Assets · Period: FY2023 · Value: 25000000000 · Unit: USD) Tj
+0 -16 Td
+(AI WACC — Entity: AI · Metric: WACC · Period: Current · Value: 0.078 · Unit: decimal) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(Sources: ) Tj ET
+endstream
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000241 00000 n 
+0000000311 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+1743
+%%EOF

@@ -2,9 +2,9 @@
   "schema": 1,
   "taskId": "6801c651-fd1b-4c12-a4ce-1338442c7ab1",
   "harborTaskId": "btb-6801c651",
-  "generatedAt": "2026-06-25T02:06:39.076Z",
+  "generatedAt": "2026-06-26T02:44:47.794Z",
   "baseUrl": "http://127.0.0.1:5273",
-  "roomUrl": "http://127.0.0.1:5273/?room=NR0VLSD0OKA&name=Host",
+  "roomUrl": "http://127.0.0.1:5273/?room=NRKBQIOTBKG&name=Host",
   "memoryMode": false,
   "expectedExtensions": [
     ".xlsx",
@@ -23,64 +23,64 @@
   "downloadedFiles": [
     {
       "kind": "workbook",
-      "filename": "btb-6801c651-panw-dcf-valuation-model-bankertoolbench-btb-6801c651.xlsx",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\6801c651-fd1b-4c12-a4ce-1338442c7ab1\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier-retry1\\btb-xlsx-btb-6801c651-panw-dcf-valuation-model-bankertoolbench-btb-6801c651.xlsx",
+      "filename": "btb-6801c651-panw-us-revenue-and-earnings-estimate-analysis.xlsx",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\6801c651-fd1b-4c12-a4ce-1338442c7ab1\\evidence\\btb-xlsx-btb-6801c651-panw-us-revenue-and-earnings-estimate-analysis.xlsx",
       "extension": ".xlsx",
-      "bytes": 8416,
+      "bytes": 7030,
       "magic": "PK\\x03\\x04",
       "reopened": true,
       "reopenDetail": "ZIP package contains xl/workbook.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (2823 chars)"
+      "contentQualityDetail": "placeholder/caveat content scan passed (859 chars)"
     },
     {
       "kind": "workbook",
-      "filename": "btb-6801c651-panw-dcf-valuation-model-bankertoolbench-btb-6801c651.xlsm",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\6801c651-fd1b-4c12-a4ce-1338442c7ab1\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier-retry1\\btb-xlsm-btb-6801c651-panw-dcf-valuation-model-bankertoolbench-btb-6801c651.xlsm",
+      "filename": "btb-6801c651-panw-us-revenue-and-earnings-estimate-analysis.xlsm",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\6801c651-fd1b-4c12-a4ce-1338442c7ab1\\evidence\\btb-xlsm-btb-6801c651-panw-us-revenue-and-earnings-estimate-analysis.xlsm",
       "extension": ".xlsm",
-      "bytes": 8416,
+      "bytes": 7030,
       "magic": "PK\\x03\\x04",
       "reopened": true,
       "reopenDetail": "ZIP package contains xl/workbook.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (2823 chars)"
+      "contentQualityDetail": "placeholder/caveat content scan passed (859 chars)"
     },
     {
       "kind": "presentation",
-      "filename": "btb-6801c651-panw-dcf-valuation-model-bankertoolbench-btb-6801c651.pptx",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\6801c651-fd1b-4c12-a4ce-1338442c7ab1\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier-retry1\\btb-pptx-btb-6801c651-panw-dcf-valuation-model-bankertoolbench-btb-6801c651.pptx",
+      "filename": "btb-6801c651-panw-us-revenue-and-earnings-estimate-analysis.pptx",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\6801c651-fd1b-4c12-a4ce-1338442c7ab1\\evidence\\btb-pptx-btb-6801c651-panw-us-revenue-and-earnings-estimate-analysis.pptx",
       "extension": ".pptx",
-      "bytes": 6790,
+      "bytes": 6277,
       "magic": "PK\\x03\\x04",
       "reopened": true,
       "reopenDetail": "ZIP package contains ppt/presentation.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (1934 chars)"
+      "contentQualityDetail": "placeholder/caveat content scan passed (1087 chars)"
     },
     {
       "kind": "document",
-      "filename": "btb-6801c651-panw-dcf-valuation-model-bankertoolbench-btb-6801c651.docx",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\6801c651-fd1b-4c12-a4ce-1338442c7ab1\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier-retry1\\btb-docx-btb-6801c651-panw-dcf-valuation-model-bankertoolbench-btb-6801c651.docx",
+      "filename": "btb-6801c651-panw-us-revenue-and-earnings-estimate-analysis.docx",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\6801c651-fd1b-4c12-a4ce-1338442c7ab1\\evidence\\btb-docx-btb-6801c651-panw-us-revenue-and-earnings-estimate-analysis.docx",
       "extension": ".docx",
-      "bytes": 2838,
+      "bytes": 2248,
       "magic": "PK\\x03\\x04",
       "reopened": true,
       "reopenDetail": "ZIP package contains word/document.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (2108 chars)"
+      "contentQualityDetail": "placeholder/caveat content scan passed (1068 chars)"
     },
     {
       "kind": "pdf",
-      "filename": "btb-6801c651-panw-dcf-valuation-model-bankertoolbench-btb-6801c651.pdf",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\6801c651-fd1b-4c12-a4ce-1338442c7ab1\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier-retry1\\btb-pdf-btb-6801c651-panw-dcf-valuation-model-bankertoolbench-btb-6801c651.pdf",
+      "filename": "btb-6801c651-panw-us-revenue-and-earnings-estimate-analysis.pdf",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\6801c651-fd1b-4c12-a4ce-1338442c7ab1\\evidence\\btb-pdf-btb-6801c651-panw-us-revenue-and-earnings-estimate-analysis.pdf",
       "extension": ".pdf",
-      "bytes": 2116,
+      "bytes": 1629,
       "magic": "%PDF",
       "reopened": true,
       "reopenDetail": "PDF header reopened",
-      "contentQualityDetail": "placeholder/caveat content scan passed (3711 chars)"
+      "contentQualityDetail": "placeholder/caveat content scan passed (2715 chars)"
     }
   ],
-  "packageManifestPath": "test-results\\bankertoolbench\\matrix\\6801c651-fd1b-4c12-a4ce-1338442c7ab1\\package-manifest.json",
+  "packageManifestPath": "docs\\eval\\fresh-room\\FR-020\\tasks\\6801c651-fd1b-4c12-a4ce-1338442c7ab1\\evidence\\package-manifest.json",
   "verifierCommand": "npm run benchmark:bankertoolbench:proof",
   "verifierOutputTail": "\n> noderoom@0.1.1 benchmark:bankertoolbench:proof\n> tsx scripts/bankertoolbench-proof-check.ts\n\nBankerToolBench proof check passed: stage=1/1 weightedRubric=6 run=0/1 pass positive=1/1 pass candidateBeforeEvaluator=true leaks=0/2+0/3+0/4\n",
-  "screenshot": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\6801c651-fd1b-4c12-a4ce-1338442c7ab1\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier-retry1\\bankertoolbench-live-room.png",
+  "screenshot": "docs\\eval\\fresh-room\\FR-020\\tasks\\6801c651-fd1b-4c12-a4ce-1338442c7ab1\\evidence\\bankertoolbench-live-room.png",
   "passed": true,
   "gatesProven": [
     "fresh_room_join",

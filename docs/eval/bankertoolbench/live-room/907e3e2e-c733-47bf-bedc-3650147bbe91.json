@@ -2,9 +2,9 @@
   "schema": 1,
   "taskId": "907e3e2e-c733-47bf-bedc-3650147bbe91",
   "harborTaskId": "btb-907e3e2e",
-  "generatedAt": "2026-06-25T02:15:11.716Z",
+  "generatedAt": "2026-06-26T00:56:15.973Z",
   "baseUrl": "http://127.0.0.1:5273",
-  "roomUrl": "http://127.0.0.1:5273/?room=NR2VMUFB8RQ&name=Host",
+  "roomUrl": "http://127.0.0.1:5273/?room=NRVU9QSXYX3&name=Host",
   "memoryMode": false,
   "expectedExtensions": [
     ".xlsx",
@@ -23,64 +23,64 @@
   "downloadedFiles": [
     {
       "kind": "workbook",
-      "filename": "btb-907e3e2e-yum-brands-dcf-valuation-model-base-base-stressed-cases-usd-millions.xlsx",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\907e3e2e-c733-47bf-bedc-3650147bbe91\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-907e3e2e-yum-brands-dcf-valuation-model-base-base-stressed-cases-usd-millions.xlsx",
+      "filename": "btb-907e3e2e-yum-brands-yum-valuation-lbo-analysis-dcf-nopat-sbc-adjustments-usd.xlsx",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\907e3e2e-c733-47bf-bedc-3650147bbe91\\evidence\\btb-xlsx-btb-907e3e2e-yum-brands-yum-valuation-lbo-analysis-dcf-nopat-sbc-adjustments-usd.xlsx",
       "extension": ".xlsx",
-      "bytes": 12558,
+      "bytes": 10543,
       "magic": "PK\\x03\\x04",
       "reopened": true,
       "reopenDetail": "ZIP package contains xl/workbook.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (8526 chars)"
+      "contentQualityDetail": "placeholder/caveat content scan passed (6217 chars)"
     },
     {
       "kind": "workbook",
-      "filename": "btb-907e3e2e-yum-brands-dcf-valuation-model-base-base-stressed-cases-usd-millions.xlsm",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\907e3e2e-c733-47bf-bedc-3650147bbe91\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-907e3e2e-yum-brands-dcf-valuation-model-base-base-stressed-cases-usd-millions.xlsm",
+      "filename": "btb-907e3e2e-yum-brands-yum-valuation-lbo-analysis-dcf-nopat-sbc-adjustments-usd.xlsm",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\907e3e2e-c733-47bf-bedc-3650147bbe91\\evidence\\btb-xlsm-btb-907e3e2e-yum-brands-yum-valuation-lbo-analysis-dcf-nopat-sbc-adjustments-usd.xlsm",
       "extension": ".xlsm",
-      "bytes": 12558,
+      "bytes": 10543,
       "magic": "PK\\x03\\x04",
       "reopened": true,
       "reopenDetail": "ZIP package contains xl/workbook.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (8526 chars)"
+      "contentQualityDetail": "placeholder/caveat content scan passed (6217 chars)"
     },
     {
       "kind": "presentation",
-      "filename": "btb-907e3e2e-yum-brands-dcf-valuation-model-base-base-stressed-cases-usd-millions.pptx",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\907e3e2e-c733-47bf-bedc-3650147bbe91\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-907e3e2e-yum-brands-dcf-valuation-model-base-base-stressed-cases-usd-millions.pptx",
+      "filename": "btb-907e3e2e-yum-brands-yum-valuation-lbo-analysis-dcf-nopat-sbc-adjustments-usd.pptx",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\907e3e2e-c733-47bf-bedc-3650147bbe91\\evidence\\btb-pptx-btb-907e3e2e-yum-brands-yum-valuation-lbo-analysis-dcf-nopat-sbc-adjustments-usd.pptx",
       "extension": ".pptx",
-      "bytes": 7028,
+      "bytes": 7388,
       "magic": "PK\\x03\\x04",
       "reopened": true,
       "reopenDetail": "ZIP package contains ppt/presentation.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (2422 chars)"
+      "contentQualityDetail": "placeholder/caveat content scan passed (3220 chars)"
     },
     {
       "kind": "document",
-      "filename": "btb-907e3e2e-yum-brands-dcf-valuation-model-base-base-stressed-cases-usd-millions.docx",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\907e3e2e-c733-47bf-bedc-3650147bbe91\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-907e3e2e-yum-brands-dcf-valuation-model-base-base-stressed-cases-usd-millions.docx",
+      "filename": "btb-907e3e2e-yum-brands-yum-valuation-lbo-analysis-dcf-nopat-sbc-adjustments-usd.docx",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\907e3e2e-c733-47bf-bedc-3650147bbe91\\evidence\\btb-docx-btb-907e3e2e-yum-brands-yum-valuation-lbo-analysis-dcf-nopat-sbc-adjustments-usd.docx",
       "extension": ".docx",
-      "bytes": 3711,
+      "bytes": 3738,
       "magic": "PK\\x03\\x04",
       "reopened": true,
       "reopenDetail": "ZIP package contains word/document.xml",
-      "contentQualityDetail": "placeholder/caveat content scan passed (4772 chars)"
+      "contentQualityDetail": "placeholder/caveat content scan passed (4872 chars)"
     },
     {
       "kind": "pdf",
-      "filename": "btb-907e3e2e-yum-brands-dcf-valuation-model-base-base-stressed-cases-usd-millions.pdf",
-      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\907e3e2e-c733-47bf-bedc-3650147bbe91\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-907e3e2e-yum-brands-dcf-valuation-model-base-base-stressed-cases-usd-millions.pdf",
+      "filename": "btb-907e3e2e-yum-brands-yum-valuation-lbo-analysis-dcf-nopat-sbc-adjustments-usd.pdf",
+      "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\907e3e2e-c733-47bf-bedc-3650147bbe91\\evidence\\btb-pdf-btb-907e3e2e-yum-brands-yum-valuation-lbo-analysis-dcf-nopat-sbc-adjustments-usd.pdf",
       "extension": ".pdf",
-      "bytes": 4422,
+      "bytes": 3781,
       "magic": "%PDF",
       "reopened": true,
       "reopenDetail": "PDF header reopened",
-      "contentQualityDetail": "placeholder/caveat content scan passed (8323 chars)"
+      "contentQualityDetail": "placeholder/caveat content scan passed (6930 chars)"
     }
   ],
-  "packageManifestPath": "test-results\\bankertoolbench\\matrix\\907e3e2e-c733-47bf-bedc-3650147bbe91\\package-manifest.json",
+  "packageManifestPath": "docs\\eval\\fresh-room\\FR-020\\tasks\\907e3e2e-c733-47bf-bedc-3650147bbe91\\evidence\\package-manifest.json",
   "verifierCommand": "npm run benchmark:bankertoolbench:proof",
   "verifierOutputTail": "\n> noderoom@0.1.1 benchmark:bankertoolbench:proof\n> tsx scripts/bankertoolbench-proof-check.ts\n\nBankerToolBench proof check passed: stage=1/1 weightedRubric=6 run=0/1 pass positive=1/1 pass candidateBeforeEvaluator=true leaks=0/2+0/3+0/4\n",
-  "screenshot": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\907e3e2e-c733-47bf-bedc-3650147bbe91\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\bankertoolbench-live-room.png",
+  "screenshot": "docs\\eval\\fresh-room\\FR-020\\tasks\\907e3e2e-c733-47bf-bedc-3650147bbe91\\evidence\\bankertoolbench-live-room.png",
   "passed": true,
   "gatesProven": [
     "fresh_room_join",

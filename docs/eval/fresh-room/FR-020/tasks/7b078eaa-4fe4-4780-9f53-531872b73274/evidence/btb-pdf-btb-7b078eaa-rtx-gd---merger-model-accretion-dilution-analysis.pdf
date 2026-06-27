@@ -1,0 +1,59 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+5 0 obj
+<< /Length 1869 >>
+stream
+BT /F1 11 Tf 54 760 Td (RTX & GD - Merger Model \(Accretion/Dilution Analysis\)) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(## Merger Model: RTX \(Acquirer\) & GD \(Target\)
+
+### Overview
+This package presents an accretion-dilution analysis for a hypothetical merger between RTX and GD, using FYE24 balance sheet and LTM Sep-25 income statement) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(Rows: 6) Tj
+0 -16 Td
+(Transaction Structure — Acquirer: RTX · Target: GD · Acquirer Share Price \(12/19/2025, Opening\): $124.25 · Target Share Price \(12/19/2025, Opening\): $272.80 · Purchase Premium: 20.0% · Offer Price Per GD Share: $327.) Tj
+0 -16 Td
+(Pro Forma Capitalization — New RTX Shares Issued \(Mm\): 433.6 · RTX Pro Forma Shares \(Mm\): 1180.6 · New Debt Raised \($Mm\): 34098.3 · RTX Standalone Debt \($Mm\): 41000 · GD Refinanced Debt \($Mm\): 10000 · Pro Forma) Tj
+0 -16 Td
+(Purchase Price Allocation \(Stock Sale\) — Target Book Equity \($Mm\): 20117 · Purchase Price \($Mm\): 89732.3 · Goodwill \($Mm\): 61735.3 · PP&E Write-Up \(20%\): 3175.4 · Intangibles Write-Up \(20%\): 11704.3 · Deferre) Tj
+0 -16 Td
+(Pro Forma Income Statement \(LTM Sep-25, GAAP Basis\) — RTX Revenue: 80294 · GD Revenue: 42734 · Combined Revenue: 123028 · RTX COGS: 57812 · GD COGS: 36324 · Combined COGS: 94136 · RTX SG&A \(Excl R&D\): 6423 · GD SG&A ) Tj
+0 -16 Td
+(Sensitivity Table - Accretion/\(Dilution\) per Share — % Stock \\\\ % Premium: 15% · 5% Stock: $0.071 · 10% Stock: $0.068 · 15% Stock: $0.064 · 20% Stock: $0.061 · 25% Stock: $0.057 · 30% Stock: $0.054 · Center Case \(60) Tj
+0 -16 Td
+(WACC Components — Risk-Free Rate \(U.S 10Y Treasury\): 4.25% · Equity Risk Premium: 5.50% · RTX Levered Beta: 0.83 · GD Levered Beta: 0.52 · RTX Cost Of Equity: 8.82% · GD Cost Of Equity: 7.11% · Pre-Tax Cost Of Debt: 6.) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(Sources: ) Tj ET
+endstream
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000241 00000 n 
+0000000311 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+2232
+%%EOF

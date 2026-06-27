@@ -28,6 +28,8 @@ export function PassiveAgentChip({
   const store = useStore();
   const feed = store.listPassiveActivity?.(roomId) ?? [];
   const items = actionable(feed);
+  const costPreview = store.researchCostPreview?.() ?? null;
+  const assistivePolicy = store.roomAssistivePolicy?.() ?? null;
   const [open, setOpen] = useState(false);
   const [pulse, setPulse] = useState(false);
   const wrapRef = useRef<HTMLDivElement>(null);
@@ -72,10 +74,14 @@ export function PassiveAgentChip({
       {open && (
         <NoteworthyInbox
           items={items}
+          costPreview={costPreview}
+          assistivePolicy={assistivePolicy}
+          onSetPolicy={(mode) => { void store.setRoomAssistivePolicy?.(mode); }}
           onOpenArtifact={(id, opts) => { onOpenArtifact(id, opts); setOpen(false); }}
           onClose={() => setOpen(false)}
           onDismiss={(item) => { void store.dismissActivity?.(item.id, me); }}
           onResearch={(item) => { void store.researchActivity?.(item, me); }}
+          onBatchResearch={(items) => { void store.batchResearchActivity?.(items, me); }}
           onAddToSheet={(item) => {
             void store.addActivityToSheet?.(item, me).then((result) => {
               if (!result?.artifactId || !result.rowId) return;

@@ -1,0 +1,95 @@
+{
+  "runId": "btb-98bdf8f3-rerecord-20260626",
+  "generatedAt": "2026-06-26T03:30:26.107Z",
+  "model": "gemini-3.5-flash",
+  "command": "npm run media:gemini-judge -- --run-id btb-98bdf8f3-rerecord-20260626 --out \"docs\\\\eval\\\\gemini-media-judges\\\\btb-98bdf8f3-rerecord-20260626\" --input \"test-results\\\\bankertoolbench\\\\matrix\\\\98bdf8f3-98b7-4d62-ac39-5cee23623d83\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\"",
+  "notes": [
+    "GIF assets are converted to temporary MP4 with ffmpeg before upload.",
+    "This media judge is evidence-quality QA; it does not replace backend/browser production gates."
+  ],
+  "counts": {
+    "total": 1,
+    "judged": 1,
+    "errors": 0,
+    "dryRun": 0,
+    "verdicts": {
+      "publish": 1
+    },
+    "defects": {
+      "P2": 1
+    }
+  },
+  "results": [
+    {
+      "asset": {
+        "id": "test-results-bankertoolbench-matrix-98bdf8f3-98b7-4d62-ac39-5cee23623d83-playwright-output-e2e-benchmark-ui-bankertoo-d0047-odeagent-package-verifier-video",
+        "class": "live_browser_proof",
+        "title": "Video",
+        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\98bdf8f3-98b7-4d62-ac39-5cee23623d83\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\video.webm",
+        "relPath": "test-results/bankertoolbench/matrix/98bdf8f3-98b7-4d62-ac39-5cee23623d83/playwright-output/e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier/video.webm",
+        "purpose": "Live Playwright browser benchmark proof clip. Judge only visible product behavior: fresh-room flow, uploads, public NodeAgent invocation, streaming/tool traces, focus/attention UI, artifact creation/download, and production honesty. Clip duration, silence, or README pacing is not a product defect."
+      },
+      "model": "gemini-3.5-flash",
+      "status": "judged",
+      "mediaPath": "test-results/bankertoolbench/matrix/98bdf8f3-98b7-4d62-ac39-5cee23623d83/playwright-output/e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier/video.webm",
+      "mediaType": "video/webm",
+      "bytes": 7080977,
+      "judge": {
+        "verdict": "publish",
+        "summary": "The video successfully demonstrates the end-to-end benchmark execution of NodeAgent within a collaborative room, showing file uploads, task initiation, agent execution traces, and final deliverable generation.",
+        "scores": {
+          "featureClarity": {
+            "score": 1,
+            "evidence": "The interface clearly displays the collaborative workspace, uploaded files, and active agent execution."
+          },
+          "workflowCompleteness": {
+            "score": 1,
+            "evidence": "Shows the full sequence from room creation and document upload to agent execution and final output preview."
+          },
+          "visualDesign": {
+            "score": 1,
+            "evidence": "The dark-themed, high-density layout is functional, though the dense text panels can feel slightly cluttered."
+          },
+          "consistency": {
+            "score": 1,
+            "evidence": "Aligns with the core product concept of combining files, spreadsheets, and agent traces in one workspace."
+          },
+          "evidenceQuality": {
+            "score": 1,
+            "evidence": "Captures a live, unedited benchmark run with real-time tool execution and file generation."
+          },
+          "legibility": {
+            "score": 1,
+            "evidence": "Most UI elements and spreadsheet cells are readable, though some log text is quite small."
+          },
+          "professionalRelevance": {
+            "score": 1,
+            "evidence": "Highly relevant to financial analysts and developers evaluating automated banking workflows."
+          },
+          "productionHonesty": {
+            "score": 1,
+            "evidence": "Accurately displays execution delays, retries, and live trace logs without artificial cuts."
+          }
+        },
+        "observedEvidence": [
+          "Fresh-room creation flow",
+          "Multiple document and spreadsheet uploads",
+          "NodeAgent task invocation and streaming traces",
+          "Artifact generation and previewing of generated PDFs and spreadsheets"
+        ],
+        "missingEvidence": [],
+        "defects": [
+          {
+            "ts": "03:01",
+            "severity": "P2",
+            "observed": "A temporary connection failure message appears in the chat during deliverable retrieval before successfully retrying.",
+            "fix": "Optimize backend polling or handle the transient error state more gracefully in the UI to avoid flashing failure messages."
+          }
+        ],
+        "suggestedReadmeCaption": "Watch NodeAgent process financial source documents in a collaborative room to generate a complete valuation model, presentation deck, and support memo."
+      },
+      "score": 8,
+      "maxScore": 16
+    }
+  ]
+}

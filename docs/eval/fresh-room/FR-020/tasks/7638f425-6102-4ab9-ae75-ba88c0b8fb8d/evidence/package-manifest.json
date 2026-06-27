@@ -1,0 +1,65 @@
+{
+  "schema": 1,
+  "taskId": "7638f425-6102-4ab9-ae75-ba88c0b8fb8d",
+  "harborTaskId": "btb-7638f425",
+  "generatedAt": "2026-06-26T00:48:46.259Z",
+  "baseUrl": "http://127.0.0.1:5273",
+  "roomUrl": "http://127.0.0.1:5273/?room=NRAISZRIPBM&name=Host",
+  "downloadedFiles": [
+    {
+      "kind": "workbook",
+      "filename": "btb-7638f425-tjx-companies-nyse-tjx-sources-uses-analysis-with-balance-sheet-bs-and-analyst-basi.xlsx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\7638f425-6102-4ab9-ae75-ba88c0b8fb8d\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-7638f425-tjx-companies-nyse-tjx-sources-uses-analysis-with-balance-sheet-bs-and-analyst-basi.xlsx",
+      "extension": ".xlsx",
+      "bytes": 8756,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (3825 chars)"
+    },
+    {
+      "kind": "workbook",
+      "filename": "btb-7638f425-tjx-companies-nyse-tjx-sources-uses-analysis-with-balance-sheet-bs-and-analyst-basi.xlsm",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\7638f425-6102-4ab9-ae75-ba88c0b8fb8d\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-7638f425-tjx-companies-nyse-tjx-sources-uses-analysis-with-balance-sheet-bs-and-analyst-basi.xlsm",
+      "extension": ".xlsm",
+      "bytes": 8756,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (3825 chars)"
+    },
+    {
+      "kind": "presentation",
+      "filename": "btb-7638f425-tjx-companies-nyse-tjx-sources-uses-analysis-with-balance-sheet-bs-and-analyst-basi.pptx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\7638f425-6102-4ab9-ae75-ba88c0b8fb8d\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-7638f425-tjx-companies-nyse-tjx-sources-uses-analysis-with-balance-sheet-bs-and-analyst-basi.pptx",
+      "extension": ".pptx",
+      "bytes": 7279,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains ppt/presentation.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (3236 chars)"
+    },
+    {
+      "kind": "document",
+      "filename": "btb-7638f425-tjx-companies-nyse-tjx-sources-uses-analysis-with-balance-sheet-bs-and-analyst-basi.docx",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\7638f425-6102-4ab9-ae75-ba88c0b8fb8d\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-7638f425-tjx-companies-nyse-tjx-sources-uses-analysis-with-balance-sheet-bs-and-analyst-basi.docx",
+      "extension": ".docx",
+      "bytes": 3236,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains word/document.xml",
+      "contentQualityDetail": "placeholder/caveat content scan passed (3369 chars)"
+    },
+    {
+      "kind": "pdf",
+      "filename": "btb-7638f425-tjx-companies-nyse-tjx-sources-uses-analysis-with-balance-sheet-bs-and-analyst-basi.pdf",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\7638f425-6102-4ab9-ae75-ba88c0b8fb8d\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-7638f425-tjx-companies-nyse-tjx-sources-uses-analysis-with-balance-sheet-bs-and-analyst-basi.pdf",
+      "extension": ".pdf",
+      "bytes": 2720,
+      "magic": "%PDF",
+      "reopened": true,
+      "reopenDetail": "PDF header reopened",
+      "contentQualityDetail": "placeholder/caveat content scan passed (4865 chars)"
+    }
+  ]
+}
