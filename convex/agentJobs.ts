@@ -7,7 +7,7 @@ import { actorProofV, requireActorProof, requireArtifactInRoom, type ActorValue 
 import { assertCreateArtifactLimits } from "./artifacts";
 import { syncSpreadsheetIndexFromSeed } from "./spreadsheetIndexLib";
 import { classifyIntakeMessage, buildPlanPreview } from "../src/nodeagent/core/intakePreflight";
-import { buildRoomWorkReasoningPlan, roomWorkFacetFrameId, roomWorkPhaseFrameId, type ReasoningFramePlan } from "../src/nodeagent/core/reasoningFrames";
+import { buildRoomWorkReasoningPlan, roomWorkFacetFrameId, roomWorkPhaseFrameId, DEEP_DIVE_TOOL_ALLOWLIST, FRAME_TOOL_ALLOWLIST, type ReasoningFramePlan } from "../src/nodeagent/core/reasoningFrames";
 import {
   FREE_FILE_EGRESS_BLOCK_REASON,
   isOpenRouterFreeRoute,
@@ -1962,6 +1962,39 @@ async function startDurableAgentJob(ctx: any, a: DurableStartAgentJobArgs): Prom
     return { jobId, reused: false as const, status, modelPolicy, routePolicy, runtimePolicy };
   }
   if (execution === "inline") return { jobId, reused: false as const, status, modelPolicy, routePolicy, runtimePolicy };
+  // Seed a minimal execute-phase reasoning frame for research-mode workflow jobs
+  // (public_ask entrypoint) so the frame machinery — including deep-dive fan-out — works.
+  // room_work jobs already get frames via materializeReasoningFrames.
+  if (a.mode === "research" && entrypoint !== "room_work") {
+    const framePlanId = idempotencyKey;
+    const executeFrameId = roomWorkPhaseFrameId({ framePlanId, phase: "execute", mode: a.mode });
+    await ctx.db.insert("agentReasoningFrames", clean({
+      roomId: a.roomId,
+      artifactId: a.artifactId,
+      jobId,
+      framePlanId,
+      frameId: executeFrameId,
+      sequence: 1,
+      frameKind: "phase",
+      phase: "execute",
+      status: "pending",
+      goal: a.goal,
+      contextPack: {
+        globalGoal: a.goal,
+        currentArtifactDigest: `artifact:${String(a.artifactId)}; mode:${a.mode}`,
+        relevantOkfConceptIds: [],
+        relevantCacheKeys: [],
+        openQuestions: [],
+        constraints: [
+          "Use CAS/managed writes for spreadsheet changes.",
+          "Mark unsupported claims as needs_review instead of guessing.",
+        ],
+      },
+      toolAllowlist: FRAME_TOOL_ALLOWLIST.execute,
+      createdAt: now,
+      updatedAt: now,
+    }));
+  }
   await recordOperationEvent(ctx, {
     jobId,
     sequence: 2,
@@ -2666,6 +2699,133 @@ export const claimSlice = internalMutation({
   },
 });
 
+/** Maximum number of deep-dive child frames to spawn per job (bounded fan-out). */
+const MAX_DEEP_DIVE_CHILD_FRAMES = 20;
+
+/** Extract company rows with status "complete" from the artifact's elements.
+ *  Elements are stored as `{rowId}__{column}` pairs. We group by rowId and
+ *  extract the company name, website, and status. */
+async function extractCompletedCompaniesFromSheet(ctx: any, artifactId: unknown): Promise<Array<{ rowId: string; company: string; website: string }>> {
+  const elements = await ctx.db.query("elements").withIndex("by_artifact", (q: any) => q.eq("artifactId", artifactId)).collect();
+  const rowsMap = new Map<string, { company?: string; website?: string; status?: string }>();
+  for (const el of elements) {
+    const elementId: string = el.elementId;
+    const sep = elementId.indexOf("__");
+    if (sep < 0) continue;
+    const rowId = elementId.slice(0, sep);
+    const col = elementId.slice(sep + 2);
+    if (!rowsMap.has(rowId)) rowsMap.set(rowId, {});
+    const row = rowsMap.get(rowId)!;
+    const rawVal = el.value;
+    const val = rawVal && typeof rawVal === "object" && "value" in rawVal ? (rawVal as { value: unknown }).value : rawVal;
+    if (col === "company") row.company = String(val ?? "");
+    if (col === "website") row.website = String(val ?? "");
+    if (col === "status") row.status = String(val ?? "");
+  }
+  const companies: Array<{ rowId: string; company: string; website: string }> = [];
+  for (const [rowId, row] of rowsMap) {
+    if (row.status === "complete" && row.company) {
+      companies.push({ rowId, company: row.company, website: row.website ?? "" });
+    }
+  }
+  return companies;
+}
+
+/** After the parent (execute) frame completes, spawn one deep-dive child frame per
+ *  completed company. Returns the number of child frames spawned. */
+async function spawnDeepDiveFramesIfNeeded(ctx: any, args: {
+  jobId: unknown;
+  roomId: unknown;
+  artifactId: unknown;
+  completedFrameId: string;
+  now: number;
+}): Promise<number> {
+  // Check if deep-dive child frames already exist for this job
+  const existingFrames = await ctx.db.query("agentReasoningFrames").withIndex("by_job_sequence", (q: any) => q.eq("jobId", args.jobId)).collect() as DurableReasoningFrameRow[];
+  const hasDeepDiveChildren = existingFrames.some((f) => f.frameKind === "child" && f.facet === "deep_dive");
+  if (hasDeepDiveChildren) return 0;
+
+  // Only spawn if the completed frame was an execute-phase frame (the parent research frame)
+  const completedFrame = existingFrames.find((f) => f.frameId === args.completedFrameId);
+  if (!completedFrame || completedFrame.phase !== "execute") return 0;
+
+  // Extract completed companies from the sheet
+  const companies = await extractCompletedCompaniesFromSheet(ctx, args.artifactId);
+  if (companies.length === 0) return 0;
+
+  const maxChildren = Math.min(companies.length, MAX_DEEP_DIVE_CHILD_FRAMES);
+  let sequence = existingFrames.length + 1;
+  let spawned = 0;
+
+  for (const company of companies.slice(0, maxChildren)) {
+    const frameId = `deep_dive:${company.rowId}:${args.completedFrameId}`;
+    const goal = `Deep research on ${company.company} (row ${company.rowId}): founding team, funding history, product, GTM signals, events attended, connections to other portfolio companies, competitive landscape. Website: ${company.website || "(none)"}`;
+    const contextPack = {
+      globalGoal: completedFrame.goal,
+      parentSummary: `Parent execute frame completed. Researching ${company.company} in depth.`,
+      currentArtifactDigest: `artifact:${String(args.artifactId)}; entity:company:${company.rowId}; facet:deep_dive`,
+      relevantOkfConceptIds: [],
+      relevantCacheKeys: [`deep_dive:${company.rowId}`],
+      openQuestions: [
+        `What is ${company.company}'s founding team background?`,
+        `What is ${company.company}'s funding history?`,
+        `What events has ${company.company} attended?`,
+        `What connections does ${company.company} have to other portfolio companies?`,
+      ],
+      constraints: [
+        "Child frames inherit only compact parent context, never the full transcript.",
+        "Write only to the target company's deep-dive cells.",
+        "Use at least 2 corroborating sources for key claims.",
+        "Return evidence-bearing results that match the expected schema.",
+      ],
+      expectedOutputSchema: "company_deep_dive_result_with_evidence_v1",
+    };
+
+    await ctx.db.insert("agentReasoningFrames", clean({
+      roomId: args.roomId,
+      artifactId: args.artifactId,
+      jobId: args.jobId,
+      framePlanId: completedFrame.framePlanId,
+      frameId,
+      parentFrameId: args.completedFrameId,
+      sequence,
+      frameKind: "child",
+      phase: "execute",
+      status: "pending",
+      goal,
+      contextPack,
+      toolAllowlist: DEEP_DIVE_TOOL_ALLOWLIST,
+      cacheKey: `deep_dive:${company.rowId}`,
+      entityType: "company",
+      entityKey: company.rowId,
+      displayName: company.company,
+      facet: "deep_dive",
+      cachePolicy: "missing_research_now",
+      expectedOutputSchema: "company_deep_dive_result_with_evidence_v1",
+      createdAt: args.now,
+      updatedAt: args.now,
+    }));
+    sequence += 1;
+    spawned += 1;
+  }
+
+  if (spawned > 0) {
+    await recordOperationEvent(ctx, {
+      jobId: String(args.jobId),
+      sequence: 999,
+      kind: "checkpoint",
+      name: "agentJobs.spawnDeepDiveFramesIfNeeded",
+      targetKind: "reasoning_frame",
+      countDelta: spawned,
+      affectedIds: companies.slice(0, maxChildren).map((c) => `deep_dive:${c.rowId}:${args.completedFrameId}`),
+      startedAt: args.now,
+      completedAt: args.now,
+    });
+  }
+
+  return spawned;
+}
+
 export const finishSlice = internalMutation({
   args: {
     jobId: v.id("agentJobs"),
@@ -2749,6 +2909,23 @@ export const finishSlice = internalMutation({
       frameResultRef: a.frameResultRef,
       error: a.error,
     });
+    // Fan-out: when the parent execute frame completes, spawn deep-dive child frames
+    // for each completed portfolio company. The existing hasOpenFrames check below
+    // will see the new children and keep the job paused so the workflow continues.
+    if (a.status === "completed" && frameFinish.activeFrameId && job.mode === "research") {
+      const spawned = await spawnDeepDiveFramesIfNeeded(ctx, {
+        jobId: a.jobId,
+        roomId: job.roomId,
+        artifactId: job.artifactId,
+        completedFrameId: frameFinish.activeFrameId,
+        now,
+      });
+      if (spawned > 0) {
+        // Re-check open frames since we just added children
+        const refreshedFrames = await ctx.db.query("agentReasoningFrames").withIndex("by_job_sequence", (q: any) => q.eq("jobId", a.jobId)).collect() as DurableReasoningFrameRow[];
+        frameFinish.hasOpenFrames = refreshedFrames.some((f) => durableFrameIsOpen(f));
+      }
+    }
     let effectiveNextStatus = nextStatus;
     if (frameFinish.activeFrameId && a.status === "completed" && frameFinish.hasOpenFrames) {
       effectiveNextStatus = "paused";

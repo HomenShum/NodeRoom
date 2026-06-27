@@ -1,5 +1,5 @@
 /**
- * ArtifactPanel — tabs + Shared tag · collab bar · spreadsheet (CAS) · TipTap note
+ * ArtifactPanel — tabs + Shared tag · spreadsheet (CAS) · TipTap note
  * · dnd-kit wall · Room trace. Reads + writes through `useStore()`, so the same
  * component renders the in-memory engine OR live Convex (optimistic edits).
  */
@@ -13,9 +13,9 @@ import { useQuery, useMutation } from "convex/react";
 import { useTiptapSync } from "@convex-dev/prosemirror-sync/tiptap";
 import { api } from "../../../convex/_generated/api";
 import {
-  Table2, FileText, StickyNote, Users, GitMerge, Play, RotateCcw, History, Search, BookOpen,
+  Table2, FileText, StickyNote, Users, GitMerge, RotateCcw, History, Search, BookOpen,
   Lock, Unlock, Ban, Pencil, Plus, Check, AlertTriangle, Eye, Circle, ChevronRight, Download, Trash2, Undo2, X, Columns2, MoreHorizontal, Mail, Hash, Layers, Linkedin, Activity, type LucideIcon,
-  Sparkles, Folder, Briefcase, Package, File as FileIcon, FlaskConical, Loader2, CircleCheck,
+  Sparkles, Folder, Briefcase, Package, File as FileIcon,
 } from "lucide-react";
 import { useStore, type ActorProof, type RoomStore, type EditFeedback, type PresenceClaim } from "../../app/store";
 import { columnLetters } from "../../app/spreadsheetIndex";
@@ -48,12 +48,9 @@ const TABS: { id: TabId; label: string; Icon: LucideIcon }[] = [
   { id: "note", label: "Note", Icon: FileText },
   { id: "wall", label: "Wall", Icon: StickyNote },
 ];
-type CollabControls = { running: boolean; done: boolean; error?: string; onRun: () => void; onConflict?: () => void };
-
-function ArtifactSurface({ roomId, me, proof, artId, onArt, collab, style, surfaceKey = "primary", headerExtra, openIds, onCloseArtifact }: {
+function ArtifactSurface({ roomId, me, proof, artId, onArt, style, surfaceKey = "primary", headerExtra, openIds, onCloseArtifact }: {
   roomId: string; me: Actor; artId: string; onArt: (id: string) => void;
   proof?: ActorProof;
-  collab?: CollabControls;
   style?: CSSProperties;
   surfaceKey?: "primary" | "secondary";
   headerExtra?: ReactNode;
@@ -225,7 +222,6 @@ function ArtifactSurface({ roomId, me, proof, artId, onArt, collab, style, surfa
         <TraceSurface roomId={roomId} onOpenSource={openTraceSource} />
       ) : (
         <>
-          {collab && activeTab === "sheet" && sheet?.title === "Q3 variance" && <CollabBar collab={collab} />}
           {editErr && <div className="r-art-error" role="alert"><AlertTriangle size={13} /> {editErr}</div>}
           {activeTab === "wiki" && wiki && <Wiki roomId={roomId} art={wiki} onOpenArtifact={openArtifact} />}
           {activeTab === "sheet" && sheet && (sheet.title === "Q3 variance"
@@ -316,10 +312,9 @@ export function Artifact(props: {
   sideArtId?: string | null;
   onSideArtChange?: (id: string | null) => void;
   onOpenChat?: () => void;
-  collab?: CollabControls;
   style?: CSSProperties;
 }) {
-  const { roomId, me, proof, artId, onArt, sideArtId, onSideArtChange, onOpenChat, collab, style } = props;
+  const { roomId, me, proof, artId, onArt, sideArtId, onSideArtChange, onOpenChat, style } = props;
   const store = useStore();
   const arts = store.listArtifacts(roomId);
   useEffect(() => {
@@ -424,7 +419,6 @@ export function Artifact(props: {
         proof={proof}
         artId={artId}
         onArt={onArt}
-        collab={collab}
         surfaceKey="primary"
         headerExtra={canSplit ? splitToggle : undefined}
         openIds={liveOpenIds}
@@ -2192,46 +2186,6 @@ function Sticky({ roomId, me, artId, id, v, locked, author, rot, onDelete, onErr
         onKeyDown={(e) => { if (e.key === "Escape") (e.currentTarget as HTMLElement).blur(); }}
         onBlur={(e) => { const t = e.currentTarget.textContent ?? ""; if (t && t !== v.text) void commit(store, roomId, me, artId, id, { ...v, text: t }).then((f) => { if (f && !f.ok) onError(editErrorMsg(f)); }); }}>{v.text}</div>
       <div className="pby">— {author}</div>
-    </div>
-  );
-}
-
-function CollabBar({ collab }: { collab: CollabControls }) {
-  const stateLabel = collab.done
-    ? "Collaboration complete"
-    : collab.running
-    ? "Collaboration running"
-    : "Human + agent collaboration";
-  const runLabel = collab.done ? "Run again" : collab.running ? "Running…" : "Run collaboration";
-  const conflictLabel = "Simulate conflict";
-  return (
-    <div className="r-collab-bar" aria-label={stateLabel}>
-      <span className={"r-collab-icon" + (collab.running ? " running" : collab.done ? " done" : "")}>
-        {collab.done ? <CircleCheck size={14} /> : collab.running ? <Loader2 size={14} /> : <Users size={14} />}
-      </span>
-      <div className="r-collab-info">
-        <span className="r-collab-title">{stateLabel}</span>
-        {!collab.running && !collab.done && (
-          <span className="r-collab-hint">Run a live edit alongside the agent — it locks cells, drafts, and smart-merges without clobbering your work</span>
-        )}
-        {collab.running && (
-          <span className="r-collab-hint">The agent is locking cells and editing — watch the trace for each step</span>
-        )}
-        {collab.done && (
-          <span className="r-collab-hint">Agent and human edits merged safely — every step is in the trace</span>
-        )}
-      </div>
-      {collab.error && <span className="r-tag" role="alert" data-testid="collab-error" style={{ color: "var(--danger-ink)" }}>{collab.error}</span>}
-      {collab.onConflict && (
-        <button className="r-collab-btn ghost" data-testid="collab-conflict" disabled={collab.running} title={conflictLabel} aria-label={conflictLabel} onClick={collab.onConflict}>
-          <FlaskConical size={13} />
-          <span>{conflictLabel}</span>
-        </button>
-      )}
-      <button className={"r-collab-btn " + (collab.done ? "ghost" : "primary")} data-testid="collab-run" disabled={collab.running} title={runLabel} aria-label={runLabel} onClick={collab.onRun}>
-        {collab.done ? <RotateCcw size={13} /> : collab.running ? <Loader2 size={13} /> : <Play size={13} />}
-        <span>{runLabel}</span>
-      </button>
     </div>
   );
 }

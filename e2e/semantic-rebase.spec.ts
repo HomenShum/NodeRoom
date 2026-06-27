@@ -17,7 +17,7 @@ test("semantic rebase conflict drill is visible, reviewable, and applies only af
   await page.getByTestId("left-rail").getByRole("button", { name: /Q3 variance/ }).click();
   const panel = page.getByTestId("artifact-panel");
   await expect(panel.locator('[data-cell-key="r_rev__variance"]')).toBeVisible();
-  await panel.getByTestId("collab-conflict").click();
+  await page.evaluate(() => (window as any).__runConflictDrill());
 
   const revenueVariance = panel.locator('[data-cell-key="r_rev__variance"]');
   const semanticChip = revenueVariance.locator('[data-testid="proposal-inline"][data-semantic="true"]');

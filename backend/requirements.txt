@@ -1,0 +1,13 @@
+fastapi>=0.104.0
+uvicorn[standard]>=0.24.0
+openai>=1.6.0
+httpx>=0.25.0
+pillow>=10.0.0
+python-multipart>=0.0.6
+redis>=5.0.0
+tavily-python>=0.3.0
+langsmith>=0.0.63
+langchain>=0.1.0
+langgraph>=0.0.40
+pytest>=7.4.0
+pytest-asyncio>=0.21.0

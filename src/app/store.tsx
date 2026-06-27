@@ -957,6 +957,17 @@ export function EngineStoreProvider({ roomId, children }: { roomId: string; me: 
     },
   }), [rev, memPassiveRev, memPresenceRev, memLongJob, memLongJobAttempts, memLongJobDetail, roomId, startMemoryFreeJob, runMemoryFreeJob]);
 
+  // E2E test seam: expose runCollab/runSemanticConflictDrill via window so tests can trigger
+  // collaboration and conflict drills without the removed CollabBar buttons.
+  useEffect(() => {
+    const w = window as unknown as { __runCollab?: () => Promise<void>; __runConflictDrill?: () => Promise<void> };
+    w.__runCollab = () => store.runCollab();
+    w.__runConflictDrill = () => store.runSemanticConflictDrill?.() ?? Promise.resolve();
+    return () => {
+      delete (window as unknown as { __runCollab?: unknown }).__runCollab;
+      delete (window as unknown as { __runConflictDrill?: unknown }).__runConflictDrill;
+    };
+  }, [store]);
   // Dev/demo seam (memory mode only): seed the Attention Overlay's headline scenario — a human focused on
   // C2 (blue) and an agent reading A1:C5 (amber) — so the overlay is verifiable in ?mode=memory. Writes the
   // presence Map directly (any mode) and bumps the rev. No-op in production (window is only poked here).
@@ -1895,6 +1906,18 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
       },
     };
   }, [data, metaArtifacts, elementsByArtifact, presenceByArtifact, pub, priv, traces, okfLens, runs, jobs, jobAttempts, jobDetail, proposals, passiveActivity, mergedCaptures, applyCellEdit, sendMsg, toggle, editMsg, resolveProposalMutation, addResearchRowsMutation, ensurePassiveResearchRowMutation, createArtifactMutation, uploadSourceFile, runSemanticConflictDrillMutation, runAgent, runPrivateAgent, createPrivateReplyStream, startAgentJob, startPublicAskJob, updatePresenceMutation, clearPresenceMutation, cancelFreeAutoJob, retryFreeAutoJob, dismissActivityMutation, researchActivityMutation, practiceActivityMutation, rid, roomId, proof, me.id, me.name]);
+
+  // E2E test seam: expose runCollab/runSemanticConflictDrill via window so tests can trigger
+  // collaboration and conflict drills without the removed CollabBar buttons.
+  useEffect(() => {
+    const w = window as unknown as { __runCollab?: () => Promise<void>; __runConflictDrill?: () => Promise<void> };
+    w.__runCollab = () => store.runCollab();
+    w.__runConflictDrill = () => store.runSemanticConflictDrill?.() ?? Promise.resolve();
+    return () => {
+      delete (window as unknown as { __runCollab?: unknown }).__runCollab;
+      delete (window as unknown as { __runConflictDrill?: unknown }).__runConflictDrill;
+    };
+  }, [store]);
 
   return (
     <Ctx.Provider value={store}>

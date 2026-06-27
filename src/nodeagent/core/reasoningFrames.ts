@@ -146,6 +146,13 @@ export const FRAME_TOOL_ALLOWLIST: Record<ReasoningFramePhase, string[]> = {
   synthesize: ["say", "export_downstream_draft", "generate_banker_coach_cues"],
 };
 
+/** Tool allowlist for deep-dive child frames: per-company research with expanded dimensions. */
+export const DEEP_DIVE_TOOL_ALLOWLIST: string[] = [
+  "fetch_source", "capture_source", "read_range", "search_sheet_context",
+  "write_locked_cell_results", "define_columns", "say", "update_wiki",
+  "founder_profile",
+];
+
 function stableHash(input: string): string {
   let hash = 2166136261;
   for (let i = 0; i < input.length; i++) {

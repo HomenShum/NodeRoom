@@ -514,9 +514,6 @@ const NODEAGENT_PROMPTS = [
   { label: "@nodeagent diligence CardioNova", insert: "@nodeagent diligence CardioNova with source-backed product, buyer, funding, hiring, and HIPAA/security gaps" },
   { label: "@nodeagent runway gaps", insert: "@nodeagent prepare runway and milestone gaps for CardioNova and the batch watchlist" },
 ];
-const SLASH_CMDS = [
-  { label: "/demo multi-agent", insert: "/demo multi-agent startup diligence ", hint: "show startup-banking diligence queue lanes" },
-];
 const AGENT_MODEL_PROVIDER_ORDER: LlmProvider[] = ["openrouter", "anthropic", "openai", "gemini", "xai"];
 const AGENT_MODEL_PROVIDER_LABELS: Record<LlmProvider, string> = {
   openrouter: "OpenRouter",
@@ -560,291 +557,6 @@ function isPublicNodeAgentDirective(text: string): boolean {
   return parsePublicNodeAgentRequest(text) !== null;
 }
 
-type DemoAgent = {
-  id: string;
-  name: string;
-  scope: string;
-  lane: string;
-  color: string;
-  startTick: number;
-  doneTick: number;
-  chunks: string[];
-  commit: string;
-};
-
-type DemoGoldCase = {
-  caseId: string;
-  title: string;
-  source: string;
-  target: string;
-  output: string;
-  gold: string;
-  evals: string[];
-};
-
-type DemoQueueItem = {
-  label: string;
-  startTick: number;
-  doneTick: number;
-};
-
-type DemoProofItem = {
-  label: string;
-  value: string;
-};
-
-type DemoScenario = {
-  eyebrow: string;
-  title: string;
-  lanes: string[];
-  proofBoardLabel: string;
-  queue: DemoQueueItem[];
-  agents: DemoAgent[];
-  claims: string[];
-  cases: DemoGoldCase[];
-  proof: DemoProofItem[];
-};
-
-const MULTI_AGENT_DEMO_MAX_TICK = 12;
-
-const BENCHMARK_MULTI_AGENT_DEMO: DemoScenario = {
-  eyebrow: "Public-gold work queue",
-  title: "Three agents run public finance docs, exact gold checks, and no-clobber proof",
-  lanes: ["child-job streams", "public source receipts", "CAS + eval gates"],
-  proofBoardLabel: "Public gold proof board",
-  queue: [
-  { label: "Load public-gold manifest", startTick: 0, doneTick: 1 },
-  { label: "Fan out TAT-DQA, FinanceBench, SEC", startTick: 1, doneTick: 3 },
-  { label: "Stream source reads + tool receipts", startTick: 2, doneTick: 8 },
-  { label: "Write CellPayloads through CAS", startTick: 6, doneTick: 10 },
-  { label: "Run validators and seal handoff", startTick: 9, doneTick: 12 },
-  ],
-  agents: [
-  {
-    id: "agent-a",
-    name: "Agent A",
-    scope: "TAT-DQA PDF arithmetic",
-    lane: "Owner token stream",
-    color: "#7DD3FC",
-    startTick: 1,
-    doneTick: 9,
-    chunks: [
-      "Loaded public report page + OCR blocks.",
-      "Claimed D7:D9 and evidence overlay.",
-      "Extracted facts: 200,657 and 50,565.",
-      "Wrote formula =200657-50565.",
-      "Attached bbox/text refs to CellPayload.",
-    ],
-    commit: "D7 formula, 2 bbox refs, exact result",
-  },
-  {
-    id: "agent-b",
-    name: "Agent B",
-    scope: "FinanceBench citation QA",
-    lane: "Observer semantic chunks",
-    color: "#A7F3D0",
-    startTick: 2,
-    doneTick: 10,
-    chunks: [
-      "Opened 3M_2018_10K benchmark row.",
-      "Read cash-flow evidence page 59.",
-      "Matched PP&E purchase line item.",
-      "Answered $1,577.00 with citation.",
-      "Queued QA memo + source page trace.",
-    ],
-    commit: "QA answer, page 59 citation, gold match",
-  },
-  {
-    id: "agent-c",
-    name: "Agent C",
-    scope: "SEC XBRL + no-clobber",
-    lane: "Artifact mutation stream",
-    color: "#FDE68A",
-    startTick: 3,
-    doneTick: 12,
-    chunks: [
-      "Fetched Apple companyfacts snapshot.",
-      "Filled revenue, net income, cash flow.",
-      "Detected human note edit mid-run.",
-      "Skipped stale write; issued review chip.",
-      "Updated wiki TOC from verified evidence.",
-    ],
-    commit: "3 XBRL facts, 1 review chip, 1 wiki block",
-  },
-  ],
-  claims: [
-    "D7:D9 + PDF evidence claimed",
-    "QA memo + source page claimed",
-    "B12:D12 + wiki target claimed",
-  ],
-  cases: [
-  {
-    caseId: "tat-dqa-impairment-change",
-    title: "TAT-DQA arithmetic proof",
-    source: "Financial report PDF + OCR boxes",
-    target: "D7",
-    output: "=200657-50565 -> 150092 thousand",
-    gold: "150092 thousand",
-    evals: ["Formula AST PASS", "Value PASS", "Scale PASS", "bbox/text PASS"],
-  },
-  {
-    caseId: "financebench_id_03029",
-    title: "FinanceBench citation QA",
-    source: "3M_2018_10K, page 59",
-    target: "QA memo",
-    output: "FY2018 capex = $1,577.00",
-    gold: "$1577.00",
-    evals: ["Answer PASS", "Evidence page PASS", "PP&E citation PASS"],
-  },
-  {
-    caseId: "sec-aapl-fy2023-xbrl",
-    title: "SEC XBRL watchlist fill",
-    source: "AAPL 2023 10-K companyfacts",
-    target: "B12:D12",
-    output: "Revenue 383.285B; NI 96.995B; CFO 110.543B",
-    gold: "Accession 0000320193-23-000106",
-    evals: ["Digit PASS", "Unit PASS", "Period PASS", "filing PASS"],
-  },
-  {
-    caseId: "noderoom-no-clobber-overlay",
-    title: "Collaboration safety overlay",
-    source: "Room trace + cell versions",
-    target: "Human-owned note",
-    output: "stale write rejected; review chip filed",
-    gold: "human edit preserved",
-    evals: ["CAS PASS", "Lease PASS", "Trace PASS", "Privacy PASS"],
-  },
-  ],
-  proof: [
-    { label: "Public gold", value: "4/4 cases validated" },
-    { label: "No clobber", value: "human edit preserved" },
-    { label: "Evidence", value: "page, bbox, XBRL refs present" },
-    { label: "Runtime", value: "3 child jobs, 1 sealed handoff" },
-  ],
-};
-
-const STARTUP_DILIGENCE_DEMO: DemoScenario = {
-  eyebrow: "Startup diligence work queue",
-  title: "Three agents turn live banking asks into a cited diligence package",
-  lanes: ["company intake stream", "source-backed CellPayloads", "review + handoff gates"],
-  proofBoardLabel: "Diligence proof board",
-  queue: [
-    { label: "Normalize CardioNova intake + five-company batch", startTick: 0, doneTick: 2 },
-    { label: "Fan out research, finance runway, and source QA", startTick: 1, doneTick: 4 },
-    { label: "Stream source reads, claims, and tool receipts", startTick: 2, doneTick: 8 },
-    { label: "Write cited cells, chart artifact, and open questions", startTick: 6, doneTick: 10 },
-    { label: "Rebase around human edit and seal handoff", startTick: 9, doneTick: 12 },
-  ],
-  agents: [
-    {
-      id: "startup-research",
-      name: "Research Agent",
-      scope: "CardioNova + batch diligence",
-      lane: "Company source stream",
-      color: "#7DD3FC",
-      startTick: 1,
-      doneTick: 9,
-      chunks: [
-        "Parsed intake: CardioNova, AI triage for hospitals.",
-        "Claimed company rows and source-ref columns.",
-        "Compared five-company startup banking watchlist.",
-        "Wrote ICP, signal, competitors, and freshness cells.",
-        "Attached source refs to every CellPayload.",
-      ],
-      commit: "6 company rows, 18 cited cells, 0 duplicate imports",
-    },
-    {
-      id: "startup-finance",
-      name: "Finance Agent",
-      scope: "Runway and milestone chart",
-      lane: "Deterministic finance tool",
-      color: "#A7F3D0",
-      startTick: 2,
-      doneTick: 10,
-      chunks: [
-        "Read cash and burn assumptions from the sheet.",
-        "Computed runway with deterministic math.",
-        "Generated financing-risk status and milestone ticks.",
-        "Drafted partner questions for top two companies.",
-        "Queued chart artifact with assumption provenance.",
-      ],
-      commit: "runway chart, 2 milestone packs, assumptions cited",
-    },
-    {
-      id: "startup-review",
-      name: "Review Agent",
-      scope: "No-clobber + handoff",
-      lane: "Artifact mutation stream",
-      color: "#FDE68A",
-      startTick: 3,
-      doneTick: 12,
-      chunks: [
-        "Detected analyst edit on the diligence sheet.",
-        "Skipped stale write and filed a cell-local proposal.",
-        "Updated workplan and open questions from verified evidence.",
-        "Kept private concerns in the owner lane.",
-        "Prepared Gmail, Notion, Slack, Linear, LinkedIn, and CRM drafts.",
-      ],
-      commit: "1 review chip, private lane preserved, drafts only",
-    },
-  ],
-  claims: [
-    "CardioNova row + batch watchlist claimed",
-    "Runway chart + milestone questions claimed",
-    "Human edit + downstream drafts protected",
-  ],
-  cases: [
-    {
-      caseId: "startup-cardionova-intake",
-      title: "Singular company intake",
-      source: "User call note + public company sources",
-      target: "Company research row",
-      output: "CardioNova: AI triage for hospitals; watchlist added",
-      gold: "No duplicate row; source refs required",
-      evals: ["Entity PASS", "Upsert PASS", "Source refs PASS"],
-    },
-    {
-      caseId: "startup-bulk-five",
-      title: "Bulk company diligence",
-      source: "Startup banking list",
-      target: "Research sheet",
-      output: "Five companies enriched with ICP, signal, competitor, owner",
-      gold: "5/5 rows complete",
-      evals: ["Coverage PASS", "Freshness PASS", "CellPayload PASS"],
-    },
-    {
-      caseId: "startup-runway-milestone",
-      title: "Runway / milestone chart",
-      source: "Cash, burn, and milestone assumptions",
-      target: "Chart artifact",
-      output: "Runway status + milestone ticks for top two targets",
-      gold: "formula-driven, no guessed cash",
-      evals: ["Math PASS", "Assumptions PASS", "Chart spec PASS"],
-    },
-    {
-      caseId: "startup-no-clobber-handoff",
-      title: "Collaboration safety + handoff",
-      source: "Room trace + cell versions + private lane",
-      target: "Proposal + drafts",
-      output: "human edit preserved; downstream drafts require approval",
-      gold: "no silent overwrite or OAuth side effect",
-      evals: ["CAS PASS", "Privacy PASS", "Draft-only PASS"],
-    },
-  ],
-  proof: [
-    { label: "Sources", value: "18 cited cells" },
-    { label: "No clobber", value: "human edit preserved" },
-    { label: "Artifacts", value: "sheet, chart, workplan" },
-    { label: "Handoff", value: "6 approval-gated drafts" },
-  ],
-};
-
-function scenarioForDemoPrompt(prompt: string): DemoScenario {
-  return /benchmark|public-gold|tat-dqa|financebench|sec\s+xbrl/i.test(prompt)
-    ? BENCHMARK_MULTI_AGENT_DEMO
-    : STARTUP_DILIGENCE_DEMO;
-}
-
 type ChatProps = {
   roomId: string;
   me: Actor;
@@ -881,9 +593,6 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
   const [roomLane, setRoomLane] = useState(false); // private panel: false = whisper to me, true = act in the room
   const [modelSelectionMode, setModelSelectionMode] = useState<AgentModelSelection["mode"]>("adaptive");
   const [specificModelPolicy, setSpecificModelPolicy] = useState("");
-  const [multiAgentDemoStarted, setMultiAgentDemoStarted] = useState(false);
-  const [multiAgentScenario, setMultiAgentScenario] = useState<DemoScenario>(STARTUP_DILIGENCE_DEMO);
-  const [multiAgentTick, setMultiAgentTick] = useState(0);
   const feedRef = useRef<HTMLDivElement>(null);
   const taRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -905,7 +614,6 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
   const longJob = isPrivate ? null : store.lastLongFreeJob();
   const longJobAttempts = isPrivate ? [] : store.lastLongFreeJobAttempts();
   const longJobDetail = isPrivate ? null : store.lastLongFreeJobDetail();
-  const hasQ3DemoSeed = !isPrivate && store.listArtifacts(roomId).some((a) => a.kind === "sheet" && a.title === "Q3 variance");
   const activeArtifact = useMemo(() => {
     if (!activeArtifactId || isPrivate) return undefined;
     return store.listArtifacts(roomId).find((a) => a.id === activeArtifactId);
@@ -959,7 +667,7 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
     }))
     .filter((group) => group.models.length > 0), []);
   const defaultSpecificModel = specificModelGroups[0]?.models[0] ?? "";
-  const slashOptions = useMemo(() => SLASH_CMDS.filter((c) => store.mode === "memory" || c.label !== "/demo multi-agent"), [store.mode]);
+  const slashOptions = useMemo(() => [] as { label: string; insert: string; hint: string }[], [store.mode]);
   type MentionItem =
     | { kind: "agent"; key: string; label: string; hint: string }
     | { kind: "artifact"; key: string; label: string; hint: string; ref: ArtifactRef };
@@ -1024,20 +732,7 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
   const showEmptyState = messages.length === 0 && failedSends.length === 0 && !showLongJobResult && !showAgentWorkingBubble;
   const beginThinking = () => { thinkingStartCount.current = messages.length; setAgentErr(null); setThinking(true); };
 
-  useEffect(() => { const el = feedRef.current; if (el && nearBottom.current) el.scrollTop = el.scrollHeight; }, [messages.length, agentWorking, liveOperationStream.length, unifiedStreamParts.length, multiAgentDemoStarted, multiAgentTick]);
-  useEffect(() => {
-    setMultiAgentDemoStarted(false);
-    setMultiAgentScenario(STARTUP_DILIGENCE_DEMO);
-    setMultiAgentTick(0);
-  }, [roomId, channel]);
-  useEffect(() => {
-    if (!multiAgentDemoStarted) return;
-    const prefersReducedMotion = typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const timer = window.setInterval(() => {
-      setMultiAgentTick((tick) => Math.min(MULTI_AGENT_DEMO_MAX_TICK, tick + 1));
-    }, prefersReducedMotion ? 1 : 650);
-    return () => window.clearInterval(timer);
-  }, [multiAgentDemoStarted]);
+  useEffect(() => { const el = feedRef.current; if (el && nearBottom.current) el.scrollTop = el.scrollHeight; }, [messages.length, agentWorking, liveOperationStream.length, unifiedStreamParts.length]);
   useEffect(() => {
     if (!thinking) return;
     if (messages.slice(thinkingStartCount.current).some((m) => m.author.kind === "agent")) setThinking(false);
@@ -1072,13 +767,6 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
       .then((fb) => { if (fb && !fb.ok) setFailedSends((f) => { if (f.some((x) => x.cid === cid)) return f; const next = [...f, { cid, text: messageText }]; return next.length > MAX_FAILED_SENDS ? next.slice(-MAX_FAILED_SENDS) : next; }); });
     setText(""); setRefs([]); setSlashOpen(false); setSlashIndex(0); setMention(null); setMentionIndex(0);
     requestAnimationFrame(grow);
-
-    if (!isPrivate && store.mode === "memory" && /^\/demo\s+multi-agent\b/i.test(t)) {
-      setMultiAgentTick(0);
-      setMultiAgentScenario(scenarioForDemoPrompt(t));
-      setMultiAgentDemoStarted(true);
-      return;
-    }
 
     const publicNodeAgentRequest = !isPrivate ? parsePublicNodeAgentRequest(t) : null;
     if (publicNodeAgentRequest) {
@@ -1400,7 +1088,7 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
         {showEmptyState && (
           <div className="r-chat-empty" data-testid={isPrivate ? "private-chat-empty" : "public-chat-empty"}>
             <span>{isPrivate ? "Ask your NodeAgent privately, or switch it to Room mode." : emptyStateHint}</span>
-            {!isPrivate && hasQ3DemoSeed && (
+            {!isPrivate && (
               <button className="r-mini-btn primary" type="button" data-testid="chat-empty-agent-cta" onClick={() => send(contextualPrompts[0]?.insert ?? NODEAGENT_PROMPTS[0].insert)}>
                 <Sparkles size={12} /> Ask NodeAgent
               </button>
@@ -1447,7 +1135,6 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
             </div>
           </div>
         ))}
-        {!isPrivate && multiAgentDemoStarted && <MultiAgentWorkbenchDemo tick={multiAgentTick} scenario={multiAgentScenario} />}
         {showAgentWorkingBubble && (
           <div className="r-msg agent" aria-label={`${agentName} is ${longJobActive && longJob ? longJob.status : "thinking"}`}>
             <span className="r-avatar agent sm" style={{ background: AGENT_AVATAR_COLOR }}>N</span>
@@ -1593,150 +1280,12 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
             <button className="r-send" onClick={() => send()} disabled={!canSend} data-testid="chat-send" aria-label="Send message"><Send size={15} /></button>
           </div>
         </div>
-        {/* Suggestion chips only when the demo is seeded — no always-on keyboard sentence
-            (discoverable behavior doesn't need permanent screen real estate). */}
-        {!isPrivate && !slashOpen && hasQ3DemoSeed && (
+        {!isPrivate && !slashOpen && (
           <div className="r-composer-hint">
             {contextualPrompts.map((prompt) => <button key={prompt.insert} className="r-chip" onClick={() => applySlash(prompt.insert)}>{prompt.label}</button>)}
-            {store.mode === "memory" && <button className="r-chip" onClick={() => applySlash(SLASH_CMDS[0].insert)}>/demo multi-agent</button>}
-            <span className="r-composer-kbd" aria-hidden="true">{hasQ3DemoSeed ? "Enter sends; Shift+Enter newline; @nodeagent acts" : "Attach, paste, drop files, or mention @nodeagent"}</span>
+            <span className="r-composer-kbd" aria-hidden="true">Enter sends; Shift+Enter newline; @nodeagent acts</span>
           </div>
         )}
-      </div>
-    </div>
-  );
-}
-
-function statusForTick(startTick: number, doneTick: number, tick: number) {
-  if (tick >= doneTick) return "done";
-  if (tick >= startTick) return "running";
-  return "queued";
-}
-
-function pctForTick(startTick: number, doneTick: number, tick: number) {
-  if (tick <= startTick) return tick >= startTick ? 12 : 0;
-  if (tick >= doneTick) return 100;
-  return Math.max(12, Math.round(((tick - startTick) / Math.max(1, doneTick - startTick)) * 100));
-}
-
-function MultiAgentWorkbenchDemo({ tick, scenario }: { tick: number; scenario: DemoScenario }) {
-  const complete = tick >= MULTI_AGENT_DEMO_MAX_TICK;
-  return (
-    <div className="r-agent-workbench" data-testid="multi-agent-workbench" aria-label="Multi-agent work queue demo">
-      <div className="r-agent-workbench-head">
-        <div>
-          <span className="r-agent-eyebrow"><GitBranch size={13} /> {scenario.eyebrow}</span>
-          <strong>{scenario.title}</strong>
-        </div>
-        <span className="r-agent-proof-pill" data-done={String(complete)}>{complete ? "HANDOFF SEALED" : "streaming"}</span>
-      </div>
-
-      <div className="r-agent-lanes" aria-label="Stream lanes">
-        <span><Sparkles size={12} /> {scenario.lanes[0]}</span>
-        <span><Database size={12} /> {scenario.lanes[1]}</span>
-        <span><ShieldCheck size={12} /> {scenario.lanes[2]}</span>
-      </div>
-
-      <div className="r-command-queue" aria-label="Command queue">
-        {scenario.queue.map((item) => {
-          const status = statusForTick(item.startTick, item.doneTick, tick);
-          return (
-            <div className="r-command-item" data-status={status} key={item.label}>
-              <ListChecks size={13} />
-              <span>{item.label}</span>
-              <b>{status}</b>
-            </div>
-          );
-        })}
-      </div>
-
-      <div className="r-agent-grid">
-        {scenario.agents.map((agent) => {
-          const status = statusForTick(agent.startTick, agent.doneTick, tick);
-          const pct = pctForTick(agent.startTick, agent.doneTick, tick);
-          const visibleCount = Math.max(1, Math.min(agent.chunks.length, Math.floor(Math.max(0, tick - agent.startTick) / 2) + 1));
-          const chunks = agent.chunks.slice(0, visibleCount);
-          const active = status === "running";
-          return (
-            <div className="r-agent-card" data-status={status} data-testid={`multi-agent-${agent.id}`} key={agent.id} style={{ "--agent-color": agent.color } as CSSProperties}>
-              <div className="r-agent-card-head">
-                <span className="r-agent-dot" />
-                <span>
-                  <strong>{agent.name}</strong>
-                  <small>{agent.scope}</small>
-                </span>
-                <b>{status}</b>
-              </div>
-              <div className="r-agent-progress" aria-label={`${agent.name} progress`}>
-                <span style={{ width: `${pct}%` }} />
-              </div>
-              <div className="r-agent-stream" aria-label={`${agent.name} stream`}>
-                <em>{agent.lane}</em>
-                {chunks.map((chunk, idx) => (
-                  <span key={`${agent.id}-${idx}`}>{chunk}{active && idx === chunks.length - 1 ? <i aria-hidden="true">|</i> : null}</span>
-                ))}
-              </div>
-              <div className="r-agent-commit">
-                <span>{agent.commit}</span>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-
-      <div className="r-agent-claims" aria-label="Claimed ranges">
-        {scenario.claims.map((claim, index) => (
-          <span key={claim} style={{ "--claim-color": ["#7DD3FC", "#A7F3D0", "#FDE68A"][index] ?? "#CBD5E1" } as CSSProperties}>{claim}</span>
-        ))}
-      </div>
-
-      <div className="r-agent-stream-strip" aria-label="Concurrent stream summary">
-        {scenario.agents.map((agent) => {
-          const status = statusForTick(agent.startTick, agent.doneTick, tick);
-          const visibleCount = Math.max(1, Math.min(agent.chunks.length, Math.floor(Math.max(0, tick - agent.startTick) / 2) + 1));
-          const latest = status === "done" ? agent.commit : agent.chunks[visibleCount - 1];
-          return (
-            <span key={`${agent.id}-strip`} data-status={status} style={{ "--agent-color": agent.color } as CSSProperties}>
-              <i />
-              <b>{agent.name}</b>
-              <em>{latest}</em>
-            </span>
-          );
-        })}
-      </div>
-
-      <div className="r-gold-board" aria-label={scenario.proofBoardLabel}>
-        <div className="r-gold-board-head">
-          <span>Source document</span>
-          <span>NodeRoom output</span>
-          <span>Gold / eval</span>
-        </div>
-        {scenario.cases.map((goldCase, index) => {
-          const active = tick >= Math.max(2, index + 4);
-          return (
-            <div className="r-gold-row" data-active={String(active)} key={goldCase.caseId}>
-              <div>
-                <b>{goldCase.title}</b>
-                <em>{goldCase.source}</em>
-                <code>{goldCase.caseId}</code>
-              </div>
-              <div>
-                <b>{goldCase.target}</b>
-                <em>{active ? goldCase.output : "waiting for child receipt"}</em>
-              </div>
-              <div className="r-gold-evals">
-                <b>{goldCase.gold}</b>
-                {goldCase.evals.map((item) => <span key={item}>{active ? item : "queued"}</span>)}
-              </div>
-            </div>
-          );
-        })}
-      </div>
-
-      <div className="r-agent-proof-grid" data-testid={complete ? "multi-agent-complete" : undefined}>
-        {scenario.proof.map((item) => (
-          <span key={item.label}><b>{item.label}</b><em>{item.value}</em></span>
-        ))}
       </div>
     </div>
   );

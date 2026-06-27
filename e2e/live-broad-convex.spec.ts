@@ -139,7 +139,7 @@ test("live Convex covers private isolation, wall CRUD, job controls, and agent-i
     await setReviewMode(host);
     await openVarianceSheet(member);
     await expectAttentionOverlayMounted(member);
-    await host.getByTestId("artifact-panel").getByTestId("collab-conflict").click();
+    await host.evaluate(() => (window as any).__runConflictDrill());
     const target = "r_rev__variance";
     await expect(host.locator(`[data-cell-key="${target}"] [data-testid="presence-flag"]`)).toContainText("NodeAgent planning", { timeout: 15_000 });
     const humanValue = "+24%";

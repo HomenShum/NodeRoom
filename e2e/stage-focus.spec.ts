@@ -7,7 +7,7 @@ test("status click-through opens and pulses the referenced spreadsheet cell", as
   await page.getByTestId("left-rail").getByRole("button", { name: /Q3 variance/ }).click();
   await expect(page.locator('[data-cell-key="r_rev__variance"]')).toBeVisible({ timeout: 10_000 });
 
-  await page.getByTestId("collab-run").click();
+  await page.evaluate(() => (window as any).__runCollab());
   const statusOpen = page.getByTestId("status-open");
   await expect(statusOpen).toBeVisible({ timeout: 10_000 });
 

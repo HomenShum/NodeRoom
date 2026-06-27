@@ -1,6 +1,6 @@
 /** Room Binder (`.r-panel.left`): source files, room artifacts, people, and public agents. */
 import { useEffect, useRef, useState, type CSSProperties, type DragEvent } from "react";
-import { FolderOpen, Table2, FileText, StickyNote, Database, BookOpen, Upload, Loader2, ShieldCheck, Activity, MessageCircle, ArrowRight, type LucideIcon } from "lucide-react";
+import { FolderOpen, Table2, FileText, StickyNote, BookOpen, Upload, Loader2, ShieldCheck, Activity, MessageCircle, ArrowRight, type LucideIcon } from "lucide-react";
 import { useStore } from "../app/store";
 import type { Actor } from "../engine/types";
 import { ARTIFACT_REF_MIME, encodeArtifactRef } from "./artifactRefs";
@@ -47,7 +47,6 @@ export function LeftRail({ roomId, me, artId, onPick, onOpenChat, style }: { roo
   const traces = store.listTraces(roomId);
   const locks = store.awareness(roomId).activeLocks;
   const allPublicMessages = store.listMessages(roomId, "public");
-  const hasQ3DemoSeed = arts.some((a) => a.kind === "sheet" && a.title === "Q3 variance");
   const firstProposal = proposals[0] as { artifactId: string; op?: { elementId?: string } } | undefined;
   const openProposal = () => {
     if (!firstProposal) return;
@@ -157,12 +156,6 @@ export function LeftRail({ roomId, me, artId, onPick, onOpenChat, style }: { roo
               <button className="r-upload-retry" onClick={() => { setUploadError(null); inputRef.current?.click(); }}>Retry</button>
             </div>
           )}
-          {/* Inert reference row — r-file-static strips the clickable hover affordance it was
-              borrowing from the real artifact buttons above (looks-clickable-must-act rule). */}
-          {hasQ3DemoSeed && <div className="r-file r-file-static">
-            <span className="fi"><Database size={14} /></span>
-            <span><div className="fn">Data room exports</div><div className="fm">source · read-only</div></span>
-          </div>}
         </div>
 
         <div className="r-rail-section">

@@ -40,23 +40,6 @@ test.describe("chat — optimistic send + edit (memory mode)", () => {
     await expect(bubble.getByTestId("chat-edit-error")).toHaveCount(0);
   });
 
-  test("multi-agent quick action streams the startup diligence demo", async ({ page }) => {
-    const chat = publicChat(page);
-
-    await page.emulateMedia({ reducedMotion: "reduce" });
-    await chat.getByRole("button", { name: "/demo multi-agent" }).click();
-    await expect(chat.getByTestId("chat-composer")).toHaveValue("/demo multi-agent startup diligence ");
-    await chat.getByTestId("chat-send").click();
-
-    const workbench = chat.getByTestId("multi-agent-workbench");
-    await expect(workbench).toContainText("Startup diligence work queue");
-    await expect(workbench).toContainText("CardioNova");
-    await expect(workbench).toContainText("Runway / milestone chart");
-    await expect(chat.getByTestId("multi-agent-complete")).toBeVisible({ timeout: 12_000 });
-    await expect(workbench).toContainText("HANDOFF SEALED");
-    await expect(workbench).not.toContainText("Public-gold work queue");
-  });
-
   test("can send an artifact reference without extra text", async ({ page }) => {
     const chat = publicChat(page);
     const source = page.getByTestId("left-rail").getByTestId("binder-artifact").filter({ hasText: "Q3 variance" }).first();
@@ -204,18 +187,6 @@ test.describe("chat — optimistic send + edit (memory mode)", () => {
     await expect(chat.locator(".r-ref-chip").filter({ hasText: "pasted.csv" })).toBeVisible();
     await expect(chat.getByTestId("chat-upload-error")).toHaveCount(0);
     await expect(chat.getByTestId("chat-send")).toBeEnabled();
-  });
-
-  test("slash command menu only exposes the demo compatibility command", async ({ page }) => {
-    const chat = publicChat(page);
-
-    await chat.getByTestId("chat-composer").fill("/");
-    await expect(chat.getByRole("listbox", { name: "Commands" })).toBeVisible();
-    await expect(chat.getByRole("option")).toHaveCount(1);
-    await expect(chat.getByRole("option").first()).toContainText("/demo multi-agent");
-    await chat.getByTestId("chat-composer").press("Enter");
-
-    await expect(chat.getByTestId("chat-composer")).toHaveValue("/demo multi-agent startup diligence ");
   });
 
   test("@nodeagent quick chips replace /ask and /free as the taught public agent UX", async ({ page }) => {

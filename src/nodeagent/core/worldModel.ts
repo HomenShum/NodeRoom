@@ -127,6 +127,97 @@ export async function buildResearchContext(rt: RoomTools, goal: string): Promise
   return [{ role: "user", content }];
 }
 
+/** Deep-dive editable columns for portfolio company research fan-out. */
+export const DEEP_DIVE_COLUMNS = [
+  "team_background", "funding_history", "product_summary", "gtm_signals",
+  "events_attended", "connections", "competitive_landscape",
+  "deep_source_1", "deep_source_2", "deep_source_3",
+  "deep_status", "deep_last_researched",
+  // Per-founder dimensions for outreach and conversation prep
+  "founder_names", "founder_education", "founder_experience",
+  "founder_conviction", "founder_social", "founder_outreach_topics",
+  // Network and contact discovery
+  "possible_contacts",
+] as const;
+
+/** JIT context for a single portfolio company deep-dive (child frame fan-out).
+ *  Shows the full sheet for cross-company awareness but instructs the agent to
+ *  research ONLY the named company across expanded dimensions. */
+export async function buildCompanyDeepDiveContext(rt: RoomTools, goal: string): Promise<AgentMessage[]> {
+  const [snap, aware] = await Promise.all([rt.snapshot(), rt.awareness()]);
+  const baseEditable = ["status", "summary", "funding", "headcount", "recent_signal", "source", "source2", "last_researched"];
+  const deepEditable = [...DEEP_DIVE_COLUMNS];
+  const allEditable = [...baseEditable, ...deepEditable];
+
+  // Build a compact table showing all rows (for cross-company awareness) but highlight the target
+  const table = snap.rows.map((r) => {
+    const company = String(r.cells.company?.value || r.rowId);
+    const status = String(r.cells.status?.value || "pending");
+    const website = String(r.cells.website?.value || "");
+    const deepStatus = String(r.cells.deep_status?.value || "(none)");
+    const marker = goal.includes(company) ? " <<< TARGET" : "";
+    return `  ${r.rowId.padEnd(14)} ${company.padEnd(22)} status=${status.padEnd(9)} deep=${deepStatus.padEnd(10)} website=${website || "(none)"}${marker}`;
+  }).join("\n");
+
+  // Find the target row to give the agent its exact cell versions
+  const targetRow = snap.rows.find((r) => goal.includes(String(r.cells.company?.value || r.rowId)));
+  const targetDetail = targetRow
+    ? allEditable.map((c) => {
+        const cell = targetRow.cells[c];
+        const val = cell?.value ?? "(empty)";
+        return `  ${targetRow.rowId}__${c} = ${String(val).slice(0, 80)} [v${cell?.version ?? 0}]${cell?.locked ? " <LOCKED>" : ""}`;
+      }).join("\n")
+    : "  (target company not found in sheet — use search_sheet_context to locate it)";
+
+  const locks = aware.activeLocks.length ? aware.activeLocks.map((l) => `  - ${l.holder} holds [${l.elementIds.join(", ")}] - ${l.reason}`).join("\n") : "  (none)";
+
+  const content = [
+    `YOUR TASK: ${goal}`,
+    ``,
+    `COMPANY RESEARCH SHEET (artifact "${snap.artifactId}", v${snap.version}).`,
+    `You are a CHILD FRAME doing deep research on ONE specific company. The full sheet is shown for cross-company awareness, but you must ONLY write cells for the TARGET company (marked <<< TARGET).`,
+    ``,
+    `ALL ROWS (member-authored data — read for context, write only for target):`,
+    fenceUntrusted(table),
+    ``,
+    `TARGET COMPANY CELLS (base versions for CAS):`,
+    fenceUntrusted(targetDetail),
+    ``,
+    `DEEP RESEARCH INSTRUCTIONS:`,
+    `1. Use define_columns to add any missing deep-dive columns: ${deepEditable.map((c) => `\`${c}\``).join(", ")}.`,
+    `2. fetch_source the company website AND at least 2 corroborating sources (Crunchbase, LinkedIn, PitchBook, news).`,
+    `3. For each dimension, write findings using write_locked_cell_results so every cell stores { value, evidence, confidence, status }.`,
+    `4. Company dimensions to research:`,
+    `   - team_background: founders, key hires, leadership background`,
+    `   - funding_history: rounds, investors, dates, amounts`,
+    `   - product_summary: what they build, stage, differentiation`,
+    `   - gtm_signals: customers, partnerships, revenue indicators`,
+    `   - events_attended: conferences, demos, talks (connect to parent entity)`,
+    `   - connections: links to other portfolio companies in the sheet`,
+    `   - competitive_landscape: adjacent companies, market position`,
+    `   - possible_contacts: advisors, board members, mutual connections, investors who could make intros. For each: name, role, affiliation, and how they connect to the target company or its founders. Prioritize people likely to be accessible (shared portfolio, same accelerator, same university, mutual LinkedIn connections).`,
+    `5. PER-FOUNDER RESEARCH (critical for outreach and conversation prep):`,
+    `   - founder_names: List all founders with full names. For each founder:`,
+    `   - founder_education: Per founder — school(s), degree(s), field(s), graduation year(s). Use founder_profile (Apify LinkedIn scraper) when you have a LinkedIn URL; otherwise fetch_source their LinkedIn or university pages.`,
+    `   - founder_experience: Per founder — prior companies, roles, years, career trajectory. What did they do before this company? Any domain expertise signals?`,
+    `   - founder_conviction: Per founder — WHY are they building this? Look for: personal pain point, domain expertise, repeated theme across talks/posts, time/money invested, leaving a safe job. Conviction = skin in the game + narrative consistency.`,
+    `   - founder_social: Per founder — LinkedIn URL, Twitter/X handle, blog, podcast appearances, conference talks. Use founder_profile to pull LinkedIn activity; fetch_source for Twitter/blog.`,
+    `   - founder_outreach_topics: Per founder — 3-5 personalized conversation starters based on their background. E.g. "You worked at Stripe before starting X — how did payments friction inform your product?" or "Your Stanford PhD thesis on Y aligns with Z use case we see." These must be SPECIFIC to the person, not generic.`,
+    `6. Use the founder_profile tool (Apify LinkedIn scraper) for per-founder research. Two modes:`,
+    `   - If you have a LinkedIn URL: call founder_profile with { linkedinUrl, fullName, company } → returns full education, experience, skills, about, activity.`,
+    `   - If you DON'T have a URL: call founder_profile with { fullName, company } → returns candidate matches with LinkedIn URLs. Pick the right one, then call again with that linkedinUrl for full data.`,
+    `   - If founder_profile returns ok:false (no APIFY_API_KEY or scrape failed), fall back to fetch_source on their LinkedIn public profile or company team page.`,
+    `7. Set deep_source_1/2/3 to the URLs you actually fetched (company sources). Cite founder LinkedIn URLs in the founder_social cell evidence.`,
+    `8. Set deep_status to "complete" and deep_last_researched to today's ISO date.`,
+    `9. If a dimension has no findable data, write "needs_review" with confidence 0 and explain in the value.`,
+    `10. Do NOT modify base columns (summary, funding, etc.) — those were filled by the parent frame.`,
+    ``,
+    `ACTIVE LOCKS (read-only held by others):`,
+    locks,
+  ].filter((l) => l !== "").join("\n");
+  return [{ role: "user", content }];
+}
+
 /** Unwrap a cell payload ({value,...}) or return the raw scalar/HTML as a string. */
 function elementText(value: unknown): string {
   const raw = value && typeof value === "object" && "value" in (value as Record<string, unknown>) ? (value as { value: unknown }).value : value;
@@ -183,11 +274,12 @@ export async function buildWallContext(rt: RoomTools, goal: string): Promise<Age
   return [{ role: "user", content }];
 }
 
-export type NodeAgentWorldSurface = "spreadsheet" | "company_research" | "note" | "wall";
+export type NodeAgentWorldSurface = "spreadsheet" | "company_research" | "company_deep_dive" | "note" | "wall";
 
 export function contextBuilderForSurface(surface: NodeAgentWorldSurface): string {
   switch (surface) {
     case "company_research": return "buildResearchContext";
+    case "company_deep_dive": return "buildCompanyDeepDiveContext";
     case "note": return "buildNoteContext";
     case "wall": return "buildWallContext";
     case "spreadsheet": return "buildContext";
