@@ -24,6 +24,7 @@ export default defineConfig({
     "e2e/uploaded-artifact-live-rendering.spec.ts",
     "e2e/human-agent-concurrency.spec.ts",
     "e2e/benchmark-ui-spreadsheetbench-v2.spec.ts",
+    "e2e/nodemem-benchmark.spec.ts",
   ],
   fullyParallel: false,
   workers: 1,

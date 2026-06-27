@@ -7,6 +7,7 @@ import { internalMutation, mutation, query } from "./_generated/server";
 import type { MutationCtx } from "./_generated/server";
 import type { Id } from "./_generated/dataModel";
 import { actorProofV, requireActorProof, type ActorValue } from "./lib";
+import { nodeMemRecordingEnabled } from "./nodemem";
 
 const DEFAULT_QUIET_MS = 12_000;
 const MAX_QUIET_MS = 60_000;
@@ -619,6 +620,38 @@ export async function scanActivityRow(ctx: MutationCtx, row: {
 }, now = Date.now()): Promise<ActivityDecision & { job?: PassiveJobAdmission }> {
   await ctx.db.patch(row._id, { status: "scanning", attempts: row.attempts + 1, updatedAt: now });
   const decision = await classifyActivity(ctx, row);
+
+  // NodeMem Phase 2: record the activity as an episode for memory compilation.
+  // This is append-only and fast (no compilation, no LLM). The background compiler
+  // (nodememCompile.ts) processes episodes asynchronously.
+  if (nodeMemRecordingEnabled() && decision.text && decision.text.trim().length >= 12) {
+    try {
+      const { sha256Hex } = await import("./lib");
+      const contentHash = await sha256Hex(`${row.sourceKind}:${row.sourceId}:${decision.text}`);
+      const existing = await ctx.db
+        .query("nodeMemEpisodes")
+        .withIndex("by_content_hash", (q) => q.eq("contentHash", contentHash))
+        .first();
+      if (!existing) {
+        await ctx.db.insert("nodeMemEpisodes", {
+          workspaceId: undefined,
+          roomId: row.roomId,
+          actorId: row.actor?.id,
+          sourceKind: row.sourceKind,
+          sourceId: row.sourceId,
+          sourceVersion: row.sourceVersion,
+          visibility: row.visibility,
+          contentHash,
+          rawText: decision.text,
+          compiled: false,
+          createdAt: now,
+        });
+      }
+    } catch {
+      // Episode recording must never block the scan pipeline — fail silently.
+    }
+  }
+
   if (decision.status !== "noteworthy" || decision.finding?.action !== "start_research_job" || !decision.finding.entities.length) {
     await ctx.db.patch(row._id, {
       status: decision.status,

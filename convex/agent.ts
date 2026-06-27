@@ -38,6 +38,8 @@ import { SERVER_PRODUCTION_ROOM_TOOLS as PRODUCTION_ROOM_TOOLS } from "../src/no
 import { MANAGED_LOCK_SYSTEM_PROMPT } from "../src/nodeagent/models/prompts/systemPrompt";
 import { convexModel as agentModel, convexPriceRun as priceRun } from "../src/nodeagent/models/convexModel";
 import { buildResearchContext, buildNoteContext, buildWallContext } from "../src/nodeagent/core/worldModel";
+import { injectMemoryIntoSystemPrompt } from "../src/nodemem/memoryContextBuilder";
+import { nodeMemInjectionEnabled } from "./nodemem";
 import { runIdempotencyKey } from "../src/nodeagent/core/idempotency";
 import { compactMessages } from "../src/nodeagent/core/contextCompactor";
 import { journalSliceKey } from "../src/nodeagent/core/journal";
@@ -71,6 +73,7 @@ const artifactsListProposalsRef = makeFunctionReference<"query">("artifacts:list
 const postPrivateReplyRef = makeFunctionReference<"mutation">("messages:postPrivateAgentReply") as any;
 const messagesSendAgentRef = makeFunctionReference<"mutation">("messages:sendAgent") as any;
 const ensurePersonalPublicSessionRef = makeFunctionReference<"mutation">("collab:ensurePersonalPublicSession") as any;
+const nodememAssembleContextPackRef = makeFunctionReference<"query">("nodemem:assembleContextPackForJob") as any;
 
 function envNumber(name: string, fallback: number, min: number, max: number): number {
   const raw = Number(process.env[name] ?? fallback);
@@ -529,12 +532,31 @@ export const runRoomAgent = action({
 
     let result;
     try {
+      // NodeMem Phase 3: when injection is enabled (NODEMEM_MODE=active_ab), fetch the
+      // ContextPack from Convex and inject it into the system prompt as bounded memory context.
+      let systemPrompt: string = MANAGED_LOCK_SYSTEM_PROMPT;
+      if (nodeMemInjectionEnabled()) {
+        try {
+          const pack = await ctx.runQuery(nodememAssembleContextPackRef, {
+            roomId: a.roomId,
+            goal: a.goal,
+            userId: String(a.requester.actor.id),
+            maxFacts: 30,
+            maxTokens: 1200,
+          });
+          if (pack) {
+            systemPrompt = injectMemoryIntoSystemPrompt(systemPrompt, pack as never, { maxTokens: 1200 });
+          }
+        } catch {
+          // Memory injection must never block the agent run — fail silently to the base prompt.
+        }
+      }
       result = await runAgent({
         rt,
         goal: a.goal,
         model,
         tools: PRODUCTION_ROOM_TOOLS,
-        systemPrompt: MANAGED_LOCK_SYSTEM_PROMPT,
+        systemPrompt,
         maxSteps,
         // Route the JIT context by artifact kind so the agent can edit ANY artifact, not just the
         // variance sheet: research sheet → research builder; note → note builder; wall → wall builder;

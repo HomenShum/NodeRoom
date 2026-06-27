@@ -1420,4 +1420,80 @@ export default defineSchema({
     .index("by_room_phase", ["roomId", "phase"])
     .searchIndex("by_memory_text", { searchField: "searchText", filterFields: ["roomId", "phase", "benchmarkSafety"] })
     .vectorIndex("by_memory_embedding", { vectorField: "embedding", dimensions: 64, filterFields: ["roomId"] }),
+
+  // ─── NodeMem — Phase 2 shadow mode tables ──────────────────────────────────
+  // Append-only episode log. No hot-row patches. Background compiled.
+  nodeMemEpisodes: defineTable({
+    roomId: v.optional(v.id("rooms")),
+    workspaceId: v.optional(v.string()),
+    actorId: v.optional(v.string()),
+    sourceKind: v.string(), // "chat" | "notebook" | "spreadsheet" | "file" | "source_capture" | "agent_trace" | ...
+    sourceId: v.string(),
+    sourceVersion: v.optional(v.number()),
+    visibility: v.string(), // "public" | "room" | "private" | "system"
+    contentHash: v.string(),
+    rawText: v.optional(v.string()),
+    rawJson: v.optional(v.string()),
+    artifactRefs: v.optional(v.array(v.string())),
+    compiled: v.boolean(), // false on insert, true after background compilation
+    compiledAt: v.optional(v.number()),
+    createdAt: v.number(),
+  })
+    .index("by_room", ["roomId"])
+    .index("by_source", ["sourceKind", "sourceId"])
+    .index("by_content_hash", ["contentHash"])
+    .index("by_uncompiled", ["compiled", "createdAt"]),
+
+  // Compiled entities extracted from episodes.
+  nodeMemEntities: defineTable({
+    roomId: v.optional(v.id("rooms")),
+    workspaceId: v.optional(v.string()),
+    kind: v.string(), // "company" | "person" | "concept" | ...
+    canonicalName: v.string(),
+    aliases: v.array(v.string()),
+    summary: v.string(),
+    confidence: v.number(),
+    lastSeenAt: v.number(),
+    sourceRefs: v.array(v.string()), // episode ids
+  })
+    .index("by_room", ["roomId"])
+    .index("by_room_name", ["roomId", "canonicalName"]),
+
+  // Compiled facts extracted from episodes.
+  nodeMemFacts: defineTable({
+    roomId: v.optional(v.id("rooms")),
+    workspaceId: v.optional(v.string()),
+    subjectEntityId: v.string(),
+    predicate: v.string(),
+    object: v.string(),
+    status: v.string(), // "manual" | "source_backed" | "graph_inferred" | "needs_review" | "superseded" | "rejected"
+    validFrom: v.optional(v.number()),
+    validTo: v.optional(v.number()),
+    evidenceFactIds: v.array(v.string()),
+    episodeIds: v.array(v.string()),
+    confidence: v.number(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_room", ["roomId"])
+    .index("by_entity", ["roomId", "subjectEntityId"])
+    .index("by_status", ["status"]),
+
+  // Assembled ContextPacks — stored for shadow mode analysis.
+  nodeMemContextPacks: defineTable({
+    roomId: v.optional(v.id("rooms")),
+    jobId: v.optional(v.id("agentJobs")),
+    packId: v.string(),
+    goal: v.string(),
+    taskKind: v.string(),
+    packJson: v.string(), // serialized NodeMemContextPack
+    tokenEstimate: v.number(),
+    mode: v.string(), // "shadow" | "active_ab" | "full"
+    injected: v.boolean(), // false in shadow mode, true in active_ab
+    createdAt: v.number(),
+  })
+    .index("by_room", ["roomId"])
+    .index("by_job", ["jobId"])
+    .index("by_pack_id", ["packId"])
+    .index("by_mode", ["mode", "createdAt"]),
 });
