@@ -1,0 +1,509 @@
+{
+  "schema": 1,
+  "gate": "credit_simulation_v1",
+  "generatedAt": "2026-06-27T21:23:03.950Z",
+  "calibration": {
+    "capturedAt": "2026-06-27",
+    "deployment": "zealous-goshawk-766",
+    "sampleSize": 1639,
+    "costUsd": {
+      "p50": 0.0836,
+      "avg": 0.2015,
+      "p95": 0.7019,
+      "max": 4.5973
+    },
+    "inputTokens": {
+      "p50": 67023,
+      "avg": 176874,
+      "p95": 672588,
+      "max": 4826919
+    },
+    "outputTokens": {
+      "p50": 2592,
+      "avg": 5760,
+      "p95": 24641,
+      "max": 57344
+    },
+    "steps": {
+      "p50": 6,
+      "avg": 8.42,
+      "p95": 24,
+      "max": 198
+    },
+    "dominantModel": "z-ai/glm-5.2"
+  },
+  "caps": {
+    "globalMonthlyUsd": 150,
+    "perRoomDailyUsd": 5,
+    "perRoomMonthlyUsd": 50,
+    "perUserDailyUsd": 2,
+    "concurrentForegroundJobsGlobal": 10,
+    "concurrentForegroundJobsPerRoom": 2,
+    "concurrentDeepJobsPerRoom": 1
+  },
+  "modeEstimates": {
+    "quick": {
+      "mode": "quick",
+      "llmUsd": 0.0823,
+      "substrateUsd": 0.045,
+      "estimateUsd": 0.1273,
+      "estimateUsdLow": 0.08,
+      "estimateUsdHigh": 0.18,
+      "hardCapUsd": 0.75,
+      "creditsLow": 0.32,
+      "creditsHigh": 0.72,
+      "creditsRequired": 1,
+      "requiresApproval": false
+    },
+    "standard": {
+      "mode": "standard",
+      "llmUsd": 0.2406,
+      "substrateUsd": 0.162,
+      "estimateUsd": 0.4026,
+      "estimateUsdLow": 0.24,
+      "estimateUsdHigh": 0.56,
+      "hardCapUsd": 3,
+      "creditsLow": 0.96,
+      "creditsHigh": 2.24,
+      "creditsRequired": 3,
+      "requiresApproval": false
+    },
+    "deep": {
+      "mode": "deep",
+      "llmUsd": 0.8784,
+      "substrateUsd": 1.258,
+      "estimateUsd": 2.1364,
+      "estimateUsdLow": 1.28,
+      "estimateUsdHigh": 2.99,
+      "hardCapUsd": 10,
+      "creditsLow": 5.12,
+      "creditsHigh": 11.96,
+      "creditsRequired": 12,
+      "requiresApproval": true
+    }
+  },
+  "results": [
+    {
+      "profileKey": "pilot-vc",
+      "label": "UpscaleX / VC dealflow team",
+      "grounding": "assumption",
+      "days": 30,
+      "users": 4,
+      "rooms": 5,
+      "totalRuns": 384,
+      "runsByMode": {
+        "quick": 240,
+        "standard": 120,
+        "deep": 24
+      },
+      "breakdown": [
+        {
+          "mode": "quick",
+          "runs": 240,
+          "cachedRuns": 36,
+          "llmUsd": 16.7892,
+          "substrateUsd": 9.18,
+          "creditsBurned": 204
+        },
+        {
+          "mode": "standard",
+          "runs": 120,
+          "cachedRuns": 18,
+          "llmUsd": 24.5412,
+          "substrateUsd": 16.524,
+          "creditsBurned": 306
+        },
+        {
+          "mode": "deep",
+          "runs": 24,
+          "cachedRuns": 3.6,
+          "llmUsd": 17.9194,
+          "substrateUsd": 25.6632,
+          "creditsBurned": 244.8
+        }
+      ],
+      "llmCostUsd": 59.2498,
+      "substrateCostUsd": 51.3672,
+      "convexMarginalUsd": 0.2861,
+      "providerCostUsd": 110.617,
+      "totalCostUsd": 110.9,
+      "creditsBurned": 754.8,
+      "perUserPerDayUsd": 0.9242,
+      "perRoomPerDayUsd": 0.7394,
+      "perRunAvgUsd": 0.2888,
+      "peakConcurrency": 2,
+      "costLimitPerDayUsd": 5,
+      "exceedsPerRoomDailyCap": false,
+      "exceedsPerRoomMonthlyCap": false,
+      "exceedsConcurrencyCap": false,
+      "warnings": []
+    },
+    {
+      "profileKey": "finance-friend",
+      "label": "Finance / GTM friend (solo tester)",
+      "grounding": "assumption",
+      "days": 30,
+      "users": 1,
+      "rooms": 3,
+      "totalRuns": 78,
+      "runsByMode": {
+        "quick": 60,
+        "standard": 15,
+        "deep": 3
+      },
+      "breakdown": [
+        {
+          "mode": "quick",
+          "runs": 60,
+          "cachedRuns": 0,
+          "llmUsd": 4.938,
+          "substrateUsd": 2.7,
+          "creditsBurned": 60
+        },
+        {
+          "mode": "standard",
+          "runs": 15,
+          "cachedRuns": 0,
+          "llmUsd": 3.609,
+          "substrateUsd": 2.43,
+          "creditsBurned": 45
+        },
+        {
+          "mode": "deep",
+          "runs": 3,
+          "cachedRuns": 0,
+          "llmUsd": 2.6352,
+          "substrateUsd": 3.774,
+          "creditsBurned": 36
+        }
+      ],
+      "llmCostUsd": 11.1822,
+      "substrateCostUsd": 8.904,
+      "convexMarginalUsd": 0.0581,
+      "providerCostUsd": 20.0862,
+      "totalCostUsd": 20.14,
+      "creditsBurned": 141,
+      "perUserPerDayUsd": 0.6715,
+      "perRoomPerDayUsd": 0.2238,
+      "perRunAvgUsd": 0.2583,
+      "peakConcurrency": 1,
+      "costLimitPerDayUsd": 5,
+      "exceedsPerRoomDailyCap": false,
+      "exceedsPerRoomMonthlyCap": false,
+      "exceedsConcurrencyCap": false,
+      "warnings": []
+    },
+    {
+      "profileKey": "gtm-sales",
+      "label": "GTM sales lead enrichment",
+      "grounding": "repo",
+      "days": 30,
+      "users": 1,
+      "rooms": 1,
+      "totalRuns": 120,
+      "runsByMode": {
+        "quick": 90,
+        "standard": 30,
+        "deep": 0
+      },
+      "breakdown": [
+        {
+          "mode": "quick",
+          "runs": 90,
+          "cachedRuns": 18,
+          "llmUsd": 5.9256,
+          "substrateUsd": 3.24,
+          "creditsBurned": 72
+        },
+        {
+          "mode": "standard",
+          "runs": 30,
+          "cachedRuns": 6,
+          "llmUsd": 5.7744,
+          "substrateUsd": 3.888,
+          "creditsBurned": 72
+        },
+        {
+          "mode": "deep",
+          "runs": 0,
+          "cachedRuns": 0,
+          "llmUsd": 0,
+          "substrateUsd": 0,
+          "creditsBurned": 0
+        }
+      ],
+      "llmCostUsd": 11.7,
+      "substrateCostUsd": 7.128,
+      "convexMarginalUsd": 0.0894,
+      "providerCostUsd": 18.828,
+      "totalCostUsd": 18.92,
+      "creditsBurned": 144,
+      "perUserPerDayUsd": 0.6306,
+      "perRoomPerDayUsd": 0.6306,
+      "perRunAvgUsd": 0.1576,
+      "peakConcurrency": 2,
+      "costLimitPerDayUsd": 5,
+      "exceedsPerRoomDailyCap": false,
+      "exceedsPerRoomMonthlyCap": false,
+      "exceedsConcurrencyCap": false,
+      "warnings": []
+    },
+    {
+      "profileKey": "conference-room",
+      "label": "Conference / event room (burst)",
+      "grounding": "assumption",
+      "days": 30,
+      "users": 10,
+      "rooms": 1,
+      "totalRuns": 480,
+      "runsByMode": {
+        "quick": 300,
+        "standard": 150,
+        "deep": 30
+      },
+      "breakdown": [
+        {
+          "mode": "quick",
+          "runs": 300,
+          "cachedRuns": 0,
+          "llmUsd": 24.69,
+          "substrateUsd": 13.5,
+          "creditsBurned": 300
+        },
+        {
+          "mode": "standard",
+          "runs": 150,
+          "cachedRuns": 0,
+          "llmUsd": 36.09,
+          "substrateUsd": 24.3,
+          "creditsBurned": 450
+        },
+        {
+          "mode": "deep",
+          "runs": 30,
+          "cachedRuns": 0,
+          "llmUsd": 26.352,
+          "substrateUsd": 37.74,
+          "creditsBurned": 360
+        }
+      ],
+      "llmCostUsd": 87.132,
+      "substrateCostUsd": 75.54,
+      "convexMarginalUsd": 0.3576,
+      "providerCostUsd": 162.672,
+      "totalCostUsd": 163.03,
+      "creditsBurned": 1110,
+      "perUserPerDayUsd": 0.5434,
+      "perRoomPerDayUsd": 5.4343,
+      "perRunAvgUsd": 0.3396,
+      "peakConcurrency": 5,
+      "costLimitPerDayUsd": 5,
+      "exceedsPerRoomDailyCap": true,
+      "exceedsPerRoomMonthlyCap": true,
+      "exceedsConcurrencyCap": true,
+      "warnings": [
+        "per-room/day $5.43 > cap $5.00 — runs will hit the room daily cap.",
+        "per-room/month projects > $50 cap.",
+        "peak concurrency 5 > per-room foreground cap 2 — excess queues (expected for burst)."
+      ]
+    },
+    {
+      "profileKey": "ideaflow",
+      "label": "IdeaFlow notebook (passive-heavy)",
+      "grounding": "assumption",
+      "days": 30,
+      "users": 1,
+      "rooms": 2,
+      "totalRuns": 39,
+      "runsByMode": {
+        "quick": 30,
+        "standard": 9,
+        "deep": 0
+      },
+      "breakdown": [
+        {
+          "mode": "quick",
+          "runs": 30,
+          "cachedRuns": 0,
+          "llmUsd": 2.469,
+          "substrateUsd": 1.35,
+          "creditsBurned": 30
+        },
+        {
+          "mode": "standard",
+          "runs": 9,
+          "cachedRuns": 0,
+          "llmUsd": 2.1654,
+          "substrateUsd": 1.458,
+          "creditsBurned": 27
+        },
+        {
+          "mode": "deep",
+          "runs": 0,
+          "cachedRuns": 0,
+          "llmUsd": 0,
+          "substrateUsd": 0,
+          "creditsBurned": 0
+        }
+      ],
+      "llmCostUsd": 4.6344,
+      "substrateCostUsd": 2.808,
+      "convexMarginalUsd": 0.0291,
+      "providerCostUsd": 7.4424,
+      "totalCostUsd": 7.47,
+      "creditsBurned": 57,
+      "perUserPerDayUsd": 0.249,
+      "perRoomPerDayUsd": 0.1245,
+      "perRunAvgUsd": 0.1916,
+      "peakConcurrency": 1,
+      "costLimitPerDayUsd": 5,
+      "exceedsPerRoomDailyCap": false,
+      "exceedsPerRoomMonthlyCap": false,
+      "exceedsConcurrencyCap": false,
+      "warnings": []
+    },
+    {
+      "profileKey": "parselyfi-bulk",
+      "label": "Parselyfi bulk company enrichment",
+      "grounding": "repo",
+      "days": 30,
+      "users": 1,
+      "rooms": 1,
+      "totalRuns": 1500,
+      "runsByMode": {
+        "quick": 1500,
+        "standard": 0,
+        "deep": 0
+      },
+      "breakdown": [
+        {
+          "mode": "quick",
+          "runs": 1500,
+          "cachedRuns": 675,
+          "llmUsd": 67.8975,
+          "substrateUsd": 37.125,
+          "creditsBurned": 825
+        },
+        {
+          "mode": "standard",
+          "runs": 0,
+          "cachedRuns": 0,
+          "llmUsd": 0,
+          "substrateUsd": 0,
+          "creditsBurned": 0
+        },
+        {
+          "mode": "deep",
+          "runs": 0,
+          "cachedRuns": 0,
+          "llmUsd": 0,
+          "substrateUsd": 0,
+          "creditsBurned": 0
+        }
+      ],
+      "llmCostUsd": 67.8975,
+      "substrateCostUsd": 37.125,
+      "convexMarginalUsd": 1.1175,
+      "providerCostUsd": 105.0225,
+      "totalCostUsd": 106.14,
+      "creditsBurned": 825,
+      "perUserPerDayUsd": 3.538,
+      "perRoomPerDayUsd": 3.538,
+      "perRunAvgUsd": 0.0708,
+      "peakConcurrency": 4,
+      "costLimitPerDayUsd": 5,
+      "exceedsPerRoomDailyCap": false,
+      "exceedsPerRoomMonthlyCap": true,
+      "exceedsConcurrencyCap": true,
+      "warnings": [
+        "per-room/month projects > $50 cap.",
+        "peak concurrency 4 > per-room foreground cap 2 — excess queues (expected for burst)."
+      ]
+    },
+    {
+      "profileKey": "ta-studio",
+      "label": "TA Studio people/company research",
+      "grounding": "assumption",
+      "days": 30,
+      "users": 1,
+      "rooms": 2,
+      "totalRuns": 99,
+      "runsByMode": {
+        "quick": 30,
+        "standard": 60,
+        "deep": 9
+      },
+      "breakdown": [
+        {
+          "mode": "quick",
+          "runs": 30,
+          "cachedRuns": 3,
+          "llmUsd": 2.2221,
+          "substrateUsd": 1.215,
+          "creditsBurned": 27
+        },
+        {
+          "mode": "standard",
+          "runs": 60,
+          "cachedRuns": 6,
+          "llmUsd": 12.9924,
+          "substrateUsd": 8.748,
+          "creditsBurned": 162
+        },
+        {
+          "mode": "deep",
+          "runs": 9,
+          "cachedRuns": 0.9,
+          "llmUsd": 7.115,
+          "substrateUsd": 10.1898,
+          "creditsBurned": 97.2
+        }
+      ],
+      "llmCostUsd": 22.3295,
+      "substrateCostUsd": 20.1528,
+      "convexMarginalUsd": 0.0738,
+      "providerCostUsd": 42.4823,
+      "totalCostUsd": 42.56,
+      "creditsBurned": 286.2,
+      "perUserPerDayUsd": 1.4185,
+      "perRoomPerDayUsd": 0.7093,
+      "perRunAvgUsd": 0.4299,
+      "peakConcurrency": 2,
+      "costLimitPerDayUsd": 5,
+      "exceedsPerRoomDailyCap": false,
+      "exceedsPerRoomMonthlyCap": false,
+      "exceedsConcurrencyCap": false,
+      "warnings": []
+    }
+  ],
+  "totals": {
+    "days": 30,
+    "usdPerCredit": 0.25,
+    "demoGrantCredits": 20,
+    "demoGrantUsd": 5,
+    "sumTotalCostUsd": 469.16,
+    "sumCreditsBurned": 3318
+  },
+  "headroom": {
+    "budgetUsd": 150,
+    "pilotVc": {
+      "workspaces": 1,
+      "users": 4,
+      "perWorkspaceMonthlyUsd": 110.9
+    },
+    "financeFriend": {
+      "workspaces": 7,
+      "users": 7,
+      "perWorkspaceMonthlyUsd": 20.14
+    },
+    "gtmSales": {
+      "workspaces": 7,
+      "users": 7,
+      "perWorkspaceMonthlyUsd": 18.92
+    }
+  },
+  "passed": false,
+  "failures": [
+    "conference-room: per-room/day $5.43 > cap $5.00 — runs will hit the room daily cap.; per-room/month projects > $50 cap.; peak concurrency 5 > per-room foreground cap 2 — excess queues (expected for burst)."
+  ]
+}
