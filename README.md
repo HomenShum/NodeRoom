@@ -413,7 +413,7 @@ capture/render commands remain `npm run walkthroughs` + `npm run walkthroughs:re
 ![@nodeagent reconcile drives the sheet through chat](docs/eval/workflow-previews/app-ask-reconcile.gif)
 
 ### Deep-dive fan-out — events, founders & contacts
-![Deep-dive fan-out: the agent researches events, founders, and possible contacts for completed companies](https://raw.githubusercontent.com/HomenShum/feature-walkthrough-gif/main/assets/feature-noderoom-deepdive.gif)
+![Deep-dive fan-out: the agent researches events, founders, and possible contacts for completed companies](docs/walkthroughs/feature-noderoom-deepdive.gif)
 <sub>Live walkthrough: enriched companies (status=complete) trigger a deep-dive fan-out — the agent spawns child frames per company to research events attended, founder backgrounds (LinkedIn via Apify), outreach topics, and possible contacts (advisors, board members, mutual connections). Every cell is source-backed with evidence and confidence scores.</sub>
 
 ### Multi-agent work queue (`/demo multi-agent`)
