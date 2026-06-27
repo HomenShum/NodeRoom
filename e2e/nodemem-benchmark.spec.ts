@@ -34,8 +34,11 @@
 import { test, expect, type Page } from "@playwright/test";
 import { writeFileSync, mkdirSync } from "node:fs";
 import { resolve as pathResolve, dirname } from "node:path";
+import { ConvexHttpClient } from "convex/browser";
+import { api } from "../convex/_generated/api";
 
 const BASE = process.env.BENCH_BASE_URL ?? "http://localhost:5273";
+const CONVEX_URL = process.env.VITE_CONVEX_URL ?? "";
 const AGENT_COMPLETION_TIMEOUT_MS = Number(process.env.BENCH_AGENT_COMPLETION_TIMEOUT_MS ?? 15 * 60_000);
 const BENCH_TEST_TIMEOUT_MS = Number(
   process.env.BENCH_TEST_TIMEOUT_MS ?? Math.max(20 * 60_000, AGENT_COMPLETION_TIMEOUT_MS + 5 * 60_000),
@@ -207,37 +210,27 @@ for (const variant of VARIANTS) {
       // The episodes are recorded via the Convex recordEpisode mutation.
       // For the benchmark, we inject them via page.evaluate calling the Convex API.
       if (variant.mode !== "off") {
-        // Record seed episodes through the Convex client.
-        // The Convex client is available on window.__convexClient in dev mode.
-        // Alternatively, we can use the Convex HTTP API directly.
+        // Record seed episodes through ConvexHttpClient (Node side, not browser).
+        const convexClient = new ConvexHttpClient(CONVEX_URL);
+        // Resolve the Convex room ID from the room code.
+        const roomInfo = await convexClient.query(api.rooms.byCode, { code: result.roomId ?? "" });
+        const roomId = roomInfo?.roomId;
         for (const ep of SEED_EPISODES) {
-          await page.evaluate(async (episode) => {
-            // Call the Convex mutation directly through the room's Convex client.
-            // This is the same path the roomActivity scanner uses.
-            const convex = (window as unknown as { __convexClient?: { mutation: (name: string, args: unknown) => Promise<unknown> } }).__convexClient;
-            if (convex) {
-              await convex.mutation("nodemem:recordEpisode", {
-                sourceKind: episode.sourceKind,
-                sourceId: episode.sourceId,
-                visibility: episode.visibility,
-                rawText: episode.rawText,
-              });
-            }
-          }, ep);
+          await convexClient.mutation(api.nodemem.recordEpisode, {
+            roomId,
+            sourceKind: ep.sourceKind,
+            sourceId: ep.sourceId,
+            visibility: ep.visibility,
+            rawText: ep.rawText,
+          });
         }
 
-        // Wait for background compilation to process the episodes.
-        // In a real deployment, this would be triggered by a cron job.
-        // For the benchmark, we trigger it manually.
-        await page.evaluate(async () => {
-          const convex = (window as unknown as { __convexClient?: { action: (name: string, args: unknown) => Promise<unknown> } }).__convexClient;
-          if (convex) {
-            await convex.action("nodememCompile:compileBatchManual", { batchSize: 10 });
-          }
-        });
+        // Trigger background compilation manually.
+        await convexClient.action(api.nodememCompile.compileBatchManual, { batchSize: 10 });
 
         // Give the compilation a moment to settle.
         await page.waitForTimeout(2000);
+        convexClient.close();
       }
 
       // ── Step 3: ASK — send the research prompt ──────────────────────────────
@@ -281,17 +274,14 @@ for (const variant of VARIANTS) {
 
       // ── Step 5: Collect NodeMem stats (for non-bare variants) ───────────────
       if (variant.mode !== "off") {
-        const stats = await page.evaluate(async () => {
-          const convex = (window as unknown as { __convexClient?: { query: (name: string, args: unknown) => Promise<unknown> } }).__convexClient;
-          if (!convex) return null;
-          // Query nodeMemStats for this room.
-          const room = new URLSearchParams(window.location.search).get("room");
-          if (!room) return null;
-          return await convex.query("nodemem:nodeMemStats", { roomId: room });
-        });
+        const convexClient = new ConvexHttpClient(CONVEX_URL);
+        const roomInfo = await convexClient.query(api.rooms.byCode, { code: result.roomId ?? "" });
+        const roomId = roomInfo?.roomId;
+        const stats = await convexClient.query(api.nodemem.nodeMemStats, { roomId });
         if (stats) {
           result.nodeMemStats = stats as VariantResult["nodeMemStats"];
         }
+        convexClient.close();
       }
 
       // ── Step 6: Verify no page errors ───────────────────────────────────────
