@@ -9,7 +9,7 @@ post-it surfaces — with advisory presence, versioned CAS, drafts/proposals, an
 short publish leases so a human and an AI agent can work beside each other without
 silent overwrite.**
 
-`multi-panel room` · `public + private agents` · `route preference` · `presence + intent claims` · `draft-for-merge` · `per-room traces` · `live Convex + real LLM`
+`multi-panel room` · `public + private agents` · `route preference` · `presence + intent claims` · `draft-for-merge` · `per-room traces` · `NodeMem memory` · `live Convex + real LLM`
 
 [Why Convex](#why-convex-and-why-not) · [Architecture evolution](#collaboration-architecture-evolution) · [Audience fluency](#audience-world-proof-artifacts) · [Solo automation](#how-i-automated-the-process-as-a-single-person) · [Lessons](#lessons-from-building-noderoom) · [Managed writes](#managed-writes-legacy-lock-proof-and-next-lease-layer) · [Multi-user proof](docs/eval/MULTI_USER_COORDINATION_PROOF.md) · [June 2026 target](docs/TARGET_2026_06.md) · [Sequences](#live-collaboration-sequence) · [Harness reasoning](docs/HARNESS_RECURSIVE_REASONING.md) · [Adoption](docs/NODEAGENT_ADOPTION.md) · [Why & HALO](docs/WHY_NODEAGENT_AND_HALO.md) · [Quickstart](#quickstart) · [Agent runtime](docs/AGENT_RUNTIME.md) · [NodeAgent source map](docs/NODEAGENT_SOURCE_MAP.md) · [Agent eval](docs/AGENT_EVAL.md) · [Model eval matrix](docs/eval/MODEL_EVAL_MATRIX.md) · [Feature eval backlog](docs/eval/FEATURE_EVAL_BACKLOG.md) · [Agent wiki](docs/AGENT_WIKI.md) · [Design](docs/DESIGN.md) · [Stack](docs/STACK.md) · [Walkthrough](docs/WALKTHROUGH.md) · [Architecture](docs/ARCHITECTURE.md) · [Diagrams](docs/diagrams/README.md) · [Open gaps](docs/GAPS_NOT_DONE.md)
 
@@ -17,7 +17,7 @@ silent overwrite.**
 
 [Deal workplan](#deal-workplan-human-readable-ownership) | [Semantic rebase](#semantic-rebase-compare-reason-swap) | [Research map](#research-backed-design-map)
 
-[Latest Firecrawl capture change](#latest-change-firecrawl-capture-in-convex) | [Native notebook single-source fix](#native-notebook-single-source-fix) | [Visual plans](#learnable-architecture-visual-plans) | [Convex components](#convex-components-we-reuse) | [Changelog](docs/CHANGELOG.md)
+[Latest Firecrawl capture change](#latest-change-firecrawl-capture-in-convex) | [Native notebook single-source fix](#native-notebook-single-source-fix) | [NodeMem memory system](#nodemem-memory-system) | [Visual plans](#learnable-architecture-visual-plans) | [Convex components](#convex-components-we-reuse) | [Changelog](docs/CHANGELOG.md)
 
 </div>
 
@@ -246,6 +246,122 @@ mutations for writes. If this moved to Postgres, Firestore, Supabase, DynamoDB,
 or Rails, the same invariant would hold: do not attach business-event enqueue
 to low-level editor snapshots; create actor/policy-aware dirty events and
 process them through the checked source/read-model pipeline.
+
+## NodeMem Memory System
+
+NodeMem gives the NodeAgent durable room memory: it records activity episodes,
+compiles them into entities and facts, and assembles a bounded ContextPack that
+gets injected into the agent's system prompt — so the agent recalls prior room
+context without re-reading the full transcript.
+
+The design is deliberately phased to avoid the workpool saturation and hot-row
+OCC conflicts that plagued the earlier Passive Room Intelligence pipeline:
+
+| Phase | Mode | What happens | What doesn't happen |
+|---|---|---|---|
+| **1 — Offline core** | (test only) | Deterministic classifier detects entities; compiler extracts facts; retrieval planner assembles ContextPacks; 21 fixture tests pass. | No Convex calls, no LLM calls, no agent runtime changes. |
+| **2 — Shadow mode** | `NODEMEM_MODE=shadow` | `scanActivityRow` records append-only episodes to `nodeMemEpisodes` with content-hash dedup. Background `compileBatch` action compiles episodes into `nodeMemEntities` + `nodeMemFacts`. | No injection into agent prompt. No compilation inside the record mutation. No `agentJobs` writes. |
+| **3 — Active A/B** | `NODEMEM_MODE=active_ab` | Before each `runAgent` call, `assembleContextPackForJob` query fetches entities/facts and `injectMemoryIntoSystemPrompt` appends a bounded system-context block (1200 tokens max). | No ContextPack as user message. No blocking on memory fetch failure (fails open to base prompt). No LLM calls in compilation. |
+
+### Data flow
+
+```mermaid
+sequenceDiagram
+  autonumber
+  participant User as "Room user"
+  participant Scan as "scanActivityRow"
+  participant Ep as "nodeMemEpisodes"
+  participant Compile as "compileBatch (background)"
+  participant Ent as "nodeMemEntities/Facts"
+  participant Agent as "runRoomAgent"
+  participant Pack as "assembleContextPackForJob"
+  participant Inject as "injectMemoryIntoSystemPrompt"
+  participant LLM as "Model"
+
+  User->>Scan: types chat message / edits cell
+  Scan->>Scan: classifyActivity(text)
+  alt NODEMEM_MODE != off and text >= 12 chars
+    Scan->>Ep: insert episode (content-hash dedup)
+    Note over Ep: append-only, no compilation
+  end
+
+  par background compilation
+    Compile->>Ep: fetch uncompiled batch
+    Compile->>Ent: upsert entities + facts (deterministic)
+    Compile->>Ep: mark compiled
+  end
+
+  User->>Agent: "@nodeagent research X"
+  alt NODEMEM_MODE = active_ab
+    Agent->>Pack: assembleContextPackForJob(roomId, goal)
+    Pack->>Ent: query entities + facts by relevance
+    Pack-->>Agent: ContextPack (evidence + graphFacts)
+    Agent->>Inject: injectMemoryIntoSystemPrompt(basePrompt, pack)
+    Inject-->>Agent: augmented system prompt
+  end
+  Agent->>LLM: model call with augmented prompt
+  LLM-->>Agent: response with tool calls
+  Note over Agent: memory injection never blocks<br/>fails open to base prompt on error
+```
+
+### Design constraints (carried from the PRI redesign)
+
+- **No compilation inside `recordEpisode`** — the record mutation is append-only; compilation runs as a separate background `internalAction`.
+- **No LLM calls in compilation** — entity detection and fact extraction are deterministic (regex + scoring).
+- **No `agentJobs` writes from NodeMem** — memory recording is completely decoupled from the job system.
+- **No hot-row patches** — episodes, entities, and facts live in their own tables with zero OCC conflict risk.
+- **Episode recording on committed events only** — not on keystrokes; debounced scan fires after edit quiet windows.
+- **Graph-only facts marked `needs_review`** — the system context block explicitly tells the agent to verify inferred facts.
+- **Fails open** — if `assembleContextPackForJob` throws, the agent runs with the base `MANAGED_LOCK_SYSTEM_PROMPT`.
+
+### Live browser benchmark
+
+A baseline (bare) variant was run against the live Convex deployment to verify the
+agent completes a research task with NodeMem disabled. The full four-variant
+benchmark (bare / shadow / bounded / full) is defined in
+[`e2e/nodemem-benchmark.spec.ts`](e2e/nodemem-benchmark.spec.ts) and can be run
+with:
+
+```bash
+BENCH_BASE_URL=http://localhost:5273 \
+npx playwright test --config playwright.real-flow.config.ts \
+e2e/nodemem-benchmark.spec.ts
+```
+
+**Baseline result (June 2026, `z-ai/glm-5.2`, live Convex):**
+
+| Metric | Value |
+|---|---|
+| Task | Research UpscaleX: funding, investors, team, product → 5 sheet rows |
+| Total elapsed | 105s |
+| Cells filled | 5/5 |
+| Model turns | 7 |
+| Tool actions | 11 |
+| Cost | $0.122 |
+| Trace events | 14 |
+| Console errors | 0 |
+| Agent finding | Correctly identified UpscaleX as a VC fund (not a startup); marked unfounded fields as `needs_review` |
+
+![NodeMem benchmark — live browser run with agent research task](docs/screenshots/nodemem-benchmark-live.png)
+
+<sub>Live browser benchmark: fresh room, @nodeagent research prompt, agent streams
+through 7 model turns and 11 tool actions to fill 5 sheet rows. The agent
+fetched upscalex.ai + LinkedIn, correctly identified UpscaleX as an AI-native
+seed VC fund rather than a fundraising startup, and marked funding_round and
+investors as needs_review. Full report: [`docs/eval/nodemem-benchmark-report.json`](docs/eval/nodemem-benchmark-report.json).</sub>
+
+### Key files
+
+| File | Role |
+|---|---|
+| `convex/nodemem.ts` | `recordEpisode` mutation, `assembleContextPackForJob` query, `NODEMEM_MODE` flag helpers |
+| `convex/nodememCompile.ts` | Background batch compilation (`compileOneEpisode` mutation, `compileBatch` action) |
+| `convex/agent.ts` | Memory injection wired before `runAgent` call (gated on `active_ab`) |
+| `convex/roomActivity.ts` | Episode recording wired into `scanActivityRow` (gated on `NODEMEM_MODE != off`) |
+| `src/nodemem/memoryContextBuilder.ts` | `buildMemorySystemContext` + `injectMemoryIntoSystemPrompt` (bounded system context, not user message) |
+| `src/nodemem/core/` | Offline core: classifier, compiler, retrieval planner, freshness, evidence, types |
+| `tests/nodemem/core-fixtures.test.ts` | 21 offline fixture tests (entity detection, dedup, compilation, ContextPack assembly, token budget) |
+| `e2e/nodemem-benchmark.spec.ts` | Playwright E2E benchmark with four variants (bare / shadow / bounded / full) |
 
 ## Learnable Architecture Visual Plans
 

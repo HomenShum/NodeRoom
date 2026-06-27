@@ -1,0 +1,38 @@
+{
+  "timestamp": "2026-06-27T19:05:00.000Z",
+  "benchmarkType": "live_browser_single_variant",
+  "variant": "bare",
+  "mode": "off",
+  "model": "z-ai/glm-5.2",
+  "roomCode": "NRCDEMX9V92",
+  "task": "Research UpscaleX: find Series A funding round, investors, key team members. Write 5 rows to Sheet 1.",
+  "results": {
+    "totalElapsedMs": 105412,
+    "firstCellMs": 90000,
+    "allCellsMs": 105412,
+    "cellsFilled": 5,
+    "cellsExpected": 5,
+    "cellValues": {
+      "company": "UpscaleX",
+      "funding_round": "needs_review (UpScaleX is a seed-stage VC fund, not a funded startup; no own Series A disclosed)",
+      "investors": "needs_review (N/A — UpScaleX is an investor/fund, not a fundraising company)",
+      "headcount": "2-10 (LinkedIn: ~4 employees listed; 828 followers)",
+      "product": "AI-native seed fund investing in AI-native applications, agentic economies, and vertical AI; invests + co-builds with founders from seed through Series A"
+    },
+    "modelTurns": 7,
+    "toolActions": 11,
+    "costUsd": 0.122,
+    "traceEvents": 14,
+    "sourcesFetched": 2,
+    "agentSummary": "UpScaleX is an AI-native seed VC fund (Palo Alto), not a fundraising startup — so no Series A/investors of its own; marked funding_round & investors as needs_review. Headcount 2-10 (LinkedIn ~4 employees). Sources: upscalex.ai + LinkedIn company page."
+  },
+  "nodeMemStats": {
+    "mode": "off",
+    "episodes": 0,
+    "entities": 0,
+    "facts": 0,
+    "contextPacks": 0
+  },
+  "consoleErrors": 0,
+  "notes": "Baseline (bare) variant run on live Convex deployment. Agent correctly identified UpscaleX as a VC fund rather than a startup, marked unfounded fields as needs_review. Website fetch timed out on first attempt; agent recovered with corroborating sources. NodeMem was off for this baseline run."
+}
