@@ -276,12 +276,24 @@ export interface RoomStore {
   /** Passive room-intelligence feed: noteworthy detections, queued/running scans, and failed work.
    *  [] in memory mode (the demo has no passive backend); reactive in convex mode. */
   listPassiveActivity(roomId: string): PassiveActivityItem[];
+  /** P3: Cost preview with p50/p90/hard cap bands and confidence levels.
+   *  Null in memory mode; reactive in convex mode. */
+  researchCostPreview(): { p50Usd: number; p90Usd: number; hardCapUsd: number; avgTokens: number; sampleSize: number; confidence: "high" | "medium" | "low"; basis: string } | null;
+  /** P3: Room assistive policy — mode, watchlist, disabled signals. */
+  roomAssistivePolicy(): { mode: string; allowExternalCalls: boolean; maxSuggestionsPerHour: number; disabledSignalKinds: string[]; approvedEntityWatchlist: string[]; source: string } | null;
+  /** P3: Set room assistive policy. */
+  setRoomAssistivePolicy(mode: string, opts?: { allowExternalCalls?: boolean; maxSuggestionsPerHour?: number; disabledSignalKinds?: string[]; approvedEntityWatchlist?: string[] }): Promise<void>;
   /** Dismiss a passive-activity item — sets it to `ignored` so it leaves the chip count.
-   *  Memory mode drops it from the seeded list immediately; live mode calls the Convex mutation. */
-  dismissActivity(activityId: string, actor: Actor): Promise<void>;
+   *  Memory mode drops it from the seeded list immediately; live mode calls the Convex mutation.
+   *  P3: Optional dismissReason and scope enable signal-scoped suppression learning. */
+  dismissActivity(activityId: string, actor: Actor, dismissReason?: string, scope?: string): Promise<void>;
   /** Flip a passive-activity item to `job_created` / Researching. Memory mode updates the seeded list;
    *  live mode starts a research agent job scoped to the item's entity. */
   researchActivity(item: PassiveActivityItem, actor: Actor): Promise<void>;
+  /** P1: Batch approve multiple passive-activity items for research at once.
+   *  Deduplicates entities across the batch so one entity mentioned in multiple sources
+   *  only gets one research job. Returns counts of succeeded/failed jobs. */
+  batchResearchActivity(items: PassiveActivityItem[], actor: Actor): Promise<{ ok: boolean; total?: number; succeeded?: number; failed?: number }>;
   /** Coach Mode: turn a `create_coach_cue` item into an explain-and-defend evaluation.
    *  Live mode starts a coach_eval agentJob scoped to the item's visibility and stores the
    *  user's answer + expected outline on the roomActivityOutbox row's finding. Memory mode is
@@ -955,6 +967,16 @@ export function EngineStoreProvider({ roomId, children }: { roomId: string; me: 
       const [rowId] = engine.addResearchRows({ roomId, artifactId: targetArt.id, rows: [{ company: entity }], by: actor });
       return rowId ? { artifactId: targetArt.id, rowId, created: true as const } : undefined;
     },
+    researchCostPreview: () => null,
+    roomAssistivePolicy: () => null,
+    setRoomAssistivePolicy: async () => {},
+    batchResearchActivity: async (items) => {
+      memPassiveRef.current = memPassiveRef.current.map((i) =>
+        items.some((it) => it.id === i.id) ? { ...i, status: "job_created", action: "start_research_job" } : i,
+      );
+      setMemPassiveRev((v) => v + 1);
+      return { ok: true, total: items.length, succeeded: items.length, failed: 0 };
+    },
   }), [rev, memPassiveRev, memPresenceRev, memLongJob, memLongJobAttempts, memLongJobDetail, roomId, startMemoryFreeJob, runMemoryFreeJob]);
 
   // E2E test seam: expose runCollab/runSemanticConflictDrill via window so tests can trigger
@@ -1194,6 +1216,8 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
   const runs = useQuery(api.agentRuns.list, roomQuery) ?? [];
   const jobs = useQuery(api.agentJobs.list, roomQuery) ?? [];
   const passiveActivity = useQuery(api.roomActivity.feed, roomQuery) ?? [];
+  const costPreview = useQuery(api.roomActivity.researchCostPreview, hasValidLiveSession ? { roomId: rid } : "skip");
+  const assistivePolicy = useQuery(api.roomActivity.roomAssistivePolicy, hasValidLiveSession ? { roomId: rid } : "skip");
   const latestJobId = (jobs as Array<{ _id: string }>)[0]?._id;
   const jobAttempts = useQuery(api.agentJobs.attempts, latestJobId ? { jobId: latestJobId as never, requester: proof } : "skip") ?? [];
   const jobDetail = useQuery(api.agentJobs.detail, latestJobId ? { jobId: latestJobId as never, requester: proof } : "skip");
@@ -1400,6 +1424,8 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
   const dismissActivityMutation = useMutation(api.roomActivity.dismissActivity);
   const researchActivityMutation = useMutation(api.roomActivity.researchActivity);
   const practiceActivityMutation = useMutation(api.roomActivity.practiceActivity);
+  const batchResearchActivityMutation = useMutation(api.roomActivity.batchResearchActivity);
+  const setRoomAssistivePolicyMutation = useMutation(api.roomActivity.setRoomAssistivePolicy);
   // Job-strip controls flip instantly. Mirrors the server's transition + ITS guards (cancel: no-op
   // on terminal; retry: no-op on completed/running) so an ok:false result reconciles honestly via
   // rollback + the returned feedback. Args carry only jobId — patch whichever loaded list holds it.
@@ -1864,6 +1890,19 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
       },
       okfTraceLens: () => okfLens as OkfTraceLensTelemetry | null,
       listPassiveActivity: () => passiveActivity as PassiveActivityItem[],
+      researchCostPreview: () => costPreview ?? null,
+      roomAssistivePolicy: () => assistivePolicy ?? null,
+      setRoomAssistivePolicy: async (mode, opts) => {
+        await setRoomAssistivePolicyMutation({
+          roomId: rid,
+          requester: proof,
+          mode: mode as never,
+          allowExternalCalls: opts?.allowExternalCalls,
+          maxSuggestionsPerHour: opts?.maxSuggestionsPerHour,
+          disabledSignalKinds: opts?.disabledSignalKinds,
+          approvedEntityWatchlist: opts?.approvedEntityWatchlist,
+        });
+      },
       cancelLongFreeJob: async (jobId) => {
         try { const r = await cancelFreeAutoJob({ jobId: jobId as never, requester: proof }); return r.ok ? { ok: true } : { ok: false, reason: r.reason }; }
         catch (e) { return { ok: false, reason: e instanceof Error ? e.message : "cancel_failed" }; }
@@ -1872,13 +1911,24 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
         try { const r = await retryFreeAutoJob({ jobId: jobId as never, requester: proof }); return r.ok ? { ok: true } : { ok: false, reason: r.reason }; }
         catch (e) { return { ok: false, reason: e instanceof Error ? e.message : "retry_failed" }; }
       },
-      dismissActivity: async (activityId) => {
-        await dismissActivityMutation({ activityId: activityId as never, roomId: rid, requester: proof });
+      dismissActivity: async (activityId, _actor, dismissReason, scope) => {
+        await dismissActivityMutation({
+          activityId: activityId as never,
+          roomId: rid,
+          requester: proof,
+          dismissReason: dismissReason as never,
+          scope: scope as never,
+        });
       },
       researchActivity: async (item) => {
         // Scope is derived server-side from the stored outbox row's visibility —
         // never from client-supplied item.visibility (avoids scope manipulation).
         await researchActivityMutation({ activityId: item.id as never, roomId: rid, requester: proof });
+      },
+      batchResearchActivity: async (items) => {
+        const activityIds = items.map((i) => i.id as never);
+        const result = await batchResearchActivityMutation({ activityIds, roomId: rid, requester: proof });
+        return { ok: result.ok, total: (result as any).total, succeeded: (result as any).succeeded, failed: (result as any).failed };
       },
       practiceActivity: async (item, actor, userAnswer, expectedOutline) => {
         await practiceActivityMutation({
