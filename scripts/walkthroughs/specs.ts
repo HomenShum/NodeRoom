@@ -153,13 +153,18 @@ export const FEATURES: FeatureSpec[] = [
     title: "Today's Brief — ranked next actions, each with a source",
     setup: "memoryDemo",
     steps: [
-      { kind: "state", caption: "A populated deal room — the agent has done the research", holdMs: 1800 },
+      { kind: "state", caption: "A populated deal room — the agent has done the research", holdMs: 1600 },
       {
-        kind: "click", sel: '[data-testid="brief-tab"]', caption: "Open Today's Brief — the pinned ranked-action tab",
-        afterCaption: "Ranked next actions, risk first — each backed by a source",
+        kind: "click", sel: '[data-testid="home-tab"]', caption: "Open Room Home",
+        afterCaption: "The full inventory — every artifact, including Today's Brief",
+        after: { sel: '[data-testid="room-home-surface"]', state: "visible" },
+      },
+      {
+        kind: "click", sel: '[data-testid="room-home-artifact"]:has-text("Brief")', caption: "Open Today's Brief — it's just another notebook artifact",
+        afterCaption: "A document: ranked next actions, risk first, each backed by a source",
         after: { sel: '[data-testid="brief-surface"]', state: "visible" },
       },
-      { kind: "state", caption: "Not a wall of results — a short, ranked list of what to do next", holdMs: 2400 },
+      { kind: "state", caption: "Reads like the wiki — a short, ranked memo of what to do next", holdMs: 2400 },
       {
         kind: "click", sel: '[data-testid="brief-handoff-gmail"]', caption: "Hand it off — draft the update",
         afterCaption: "A ready-to-send draft, assembled from the room's own sources",

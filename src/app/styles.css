@@ -1009,8 +1009,6 @@ button.r-tracevu-step:hover, button.r-tracevu-step:focus-visible { border-color:
 .r-tracetab[data-active="true"] { color: var(--accent-ink); }
 .r-hometab { color: var(--text-muted); }
 .r-hometab[data-active="true"] { color: var(--accent-ink); }
-.r-brieftab { color: var(--text-muted); }
-.r-brieftab[data-active="true"] { color: var(--accent-ink); }
 /* Scale: collapsible groups + content-visibility windowing keep hundreds of steps cheap. */
 .r-tracevu-groups { display: flex; flex-direction: column; gap: 8px; }
 .r-tracevu-group { border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
@@ -1977,38 +1975,23 @@ body.nr-honesty-on [data-evidence-class="unsourced"]     { background-color: col
 .r-credit-chip b { color: var(--accent-ink); }
 
 /* ===========================================================================
-   Today's Brief work-surface (BriefSurface.tsx) — ranked actions + evidence + handoff drafts
+   Today's Brief — a derived DOCUMENT tab (renders like the Wiki via .r-wiki-doc), not a surface
    =========================================================================== */
-.r-briefvu { gap: 0; overflow-y: auto; padding: 18px 20px 28px; }
-.r-briefvu-head { margin-bottom: 14px; }
-.r-briefvu-title { display: inline-flex; align-items: center; gap: 8px; font-size: 18px; font-weight: 800; color: var(--text-primary); }
-.r-briefvu-sub { margin-top: 3px; font-size: 12.5px; color: var(--text-muted); }
-.r-briefvu-readiness { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 11px; }
-.r-briefvu-rpill { font-size: 11px; font-weight: 650; padding: 3px 9px; border-radius: 999px; border: 1px solid var(--border); color: var(--text-muted); }
-.r-briefvu-rpill.verified, .r-briefvu-rpill.ready { color: #5aab6e; border-color: #5aab6e55; }
-.r-briefvu-rpill.review { color: #b88a2e; border-color: #b88a2e55; }
-.r-briefvu-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
-.r-briefvu-empty { color: var(--text-muted); font-size: 13px; padding: 16px 2px; }
-.r-briefvu-item { display: flex; gap: 12px; padding: 12px 14px; border: 1px solid var(--border); border-radius: 12px; background: var(--bg-secondary); }
-.r-briefvu-item[data-severity="risk"] { border-left: 3px solid #d4574e; }
-.r-briefvu-item[data-severity="watch"] { border-left: 3px solid #c79a3a; }
-.r-briefvu-item[data-severity="info"] { border-left: 3px solid var(--accent-primary); }
-.r-briefvu-rank { flex: none; width: 26px; height: 26px; border-radius: 999px; background: var(--accent-primary); color: #fff; font-weight: 800; font-size: 13px; display: grid; place-items: center; }
-.r-briefvu-item-main { min-width: 0; flex: 1; }
-.r-briefvu-item-top { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-.r-briefvu-sev { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .03em; padding: 2px 7px; border-radius: 6px; }
-.r-briefvu-sev.risk { color: #d4574e; background: #d4574e1f; }
-.r-briefvu-sev.watch { color: #b88a2e; background: #c79a3a1f; }
-.r-briefvu-sev.info { color: var(--accent-ink); background: var(--accent-tint); }
-.r-briefvu-item-title { font-size: 14px; font-weight: 700; color: var(--text-primary); }
-.r-briefvu-item-body { margin: 6px 0 8px; font-size: 12.5px; line-height: 1.5; color: var(--text-muted); }
-.r-briefvu-item-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
-.r-briefvu-actionlabel { font-size: 11.5px; color: var(--text-muted); }
-.r-briefvu-h3 { font-size: 11.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--text-muted); margin: 22px 0 10px; }
-.r-briefvu-handoff-targets { display: flex; flex-wrap: wrap; gap: 6px; }
-.r-briefvu-handoff-btn[data-active="true"] { color: var(--accent-ink); border-color: var(--accent-primary); box-shadow: inset 0 0 0 1px var(--accent-primary); }
-.r-briefvu-draft { margin-top: 12px; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
-.r-briefvu-draft-head { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-bottom: 1px solid var(--border); font-size: 13px; color: var(--text-primary); }
-.r-briefvu-draft-gate { font-size: 10px; font-weight: 700; text-transform: uppercase; color: #b88a2e; background: #c79a3a1f; padding: 2px 7px; border-radius: 6px; }
-.r-briefvu-draft-body { margin: 0; padding: 12px 14px; font-family: var(--font-mono); font-size: 12px; line-height: 1.55; color: var(--text-primary); white-space: pre-wrap; word-break: break-word; max-height: 320px; overflow: auto; }
-.r-briefvu-draft-src { display: block; padding: 8px 14px 12px; font-size: 11px; color: var(--text-muted); }
+.r-brief-doc { max-width: 860px; }
+.r-brief-doc .r-brief-actions { color: var(--text-secondary); font-size: 13px; line-height: 1.6; padding-left: 22px; max-width: 84ch; }
+.r-brief-doc .r-brief-actions > li { margin: 0 0 13px; }
+.r-brief-doc .r-brief-actions strong { color: var(--text-primary); }
+.r-brief-doc .r-brief-actions p { margin: 3px 0 5px; }
+.r-brief-sev { display: inline-block; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; margin-right: 8px; color: var(--text-tertiary); }
+.r-brief-sev[data-sev="risk"] { color: #d4574e; }
+.r-brief-sev[data-sev="watch"] { color: #b88a2e; }
+.r-brief-sev[data-sev="info"] { color: var(--accent-ink); }
+.r-brief-doc .r-brief-evidence { color: var(--text-secondary); font-size: 13px; line-height: 1.6; padding-left: 22px; }
+.r-brief-doc .r-brief-evidence > li { margin: 0 0 5px; }
+.r-brief-link { background: none; border: 0; padding: 0; color: var(--accent-ink); font: inherit; cursor: pointer; text-decoration: underline; text-underline-offset: 2px; }
+.r-brief-link:hover { color: var(--accent-primary); }
+.r-brief-link[data-active="true"] { font-weight: 800; text-decoration: none; }
+.r-brief-handoff { display: flex; flex-wrap: wrap; gap: 16px; }
+.r-brief-draft-title { font-weight: 700; color: var(--text-primary); margin: 14px 0 6px !important; }
+.r-brief-draft { font-family: var(--font-mono); font-size: 12px; line-height: 1.55; color: var(--text-secondary); background: var(--bg-secondary); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; white-space: pre-wrap; word-break: break-word; max-height: 320px; overflow: auto; }
+.r-brief-doc .faint { color: var(--text-tertiary); font-size: 11.5px; }

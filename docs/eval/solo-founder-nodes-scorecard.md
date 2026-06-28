@@ -40,7 +40,7 @@ bed**, verified two ways (deterministic ffmpeg + Gemini VLM), plus a one-command
 - [~] **partial** — Research generalizes beyond the 2 seeded sheets (unrecognized goal dead-ends at "staged next", `store.tsx:946`).
 - [x] **done** — **Evidence** (strongest stage): Trace tab + unified AttentionOverlay/citation box + click-through to source cell (`TraceSurface.tsx`, inline + replay).
 - [x] **done** — **Brief** *engine*: `buildBankerCoachPacket` (evidence/cues/runway/review/handoff/readiness) + ranked NoteworthyInbox.
-- [x] **done** — **Brief** *surface*: first-class "Today's Brief" pinned work-surface tab — ranked actions (risk→watch→info), readiness rollup, evidence click-through (`src/ui/panels/BriefSurface.tsx`, wired into `Artifact.tsx`). Verified live in memory mode (`specs.ts#brief`).
+- [x] **done** — **Brief** *surface*: "Today's Brief" is a **Tiptap-style notebook artifact** — a `kind:"note"` title-routed document that renders like the Agent wiki, NOT a bespoke surface — ranked actions (risk→watch→info), readiness rollup, evidence click-through (`src/ui/panels/TodaysBrief.tsx`, title-routed in `Artifact.tsx`, seeded in `demoRoom.ts`). Verified live in memory mode (`specs.ts#brief`).
 - [x] **done** — **Handoff**: sheet → XLSX export (`Artifact.tsx:203`).
 - [x] **done** — **Handoff** draft-body generation wired to UI: the Brief surface calls `buildDownstreamHandoffDraft(target, …)` on click and renders the copy-able draft (resolves the dead-code gap). _(The Coach panel's Handoff tab remains a dry-run preview — lower priority.)_
 
@@ -54,7 +54,7 @@ bed**, verified two ways (deterministic ffmpeg + Gemini VLM), plus a one-command
 ## What's needed next (prioritized)
 
 1. **P0 — revert the answer-key contamination** in `harbor_adapter.py` (disable the `is_*_task → write_*_package` dispatch) so general-only mode emits only general-agent output. Do not present BTB numbers as honest capability until then.
-2. ~~Wedge surface — ship a first-class "Today's Brief"~~ — **DONE** (`src/ui/panels/BriefSurface.tsx`, pinned tab, verified live; the demo's Brief scene is now live footage, not a claim card).
+2. ~~Wedge surface — ship a first-class "Today's Brief"~~ — **DONE** (`src/ui/panels/TodaysBrief.tsx`, a notebook-style document tab like the Wiki; verified live; the demo's Brief scene is live footage).
 3. ~~Wedge handoff — wire `buildDownstreamHandoffDraft`~~ — **DONE** (the Brief surface generates copy-able drafts on click).
 4. **Phase-6 honest number** — run held-out + non-BTB with materializers OFF; fill the `?` cells in `BTB_GENERALIZATION_DIAGNOSTIC.md` and emit the per-slice scorecard.
 5. **Backfill cheap RALPH anchors** — `capability-spec.md` / `benchmark-choice.md` / `SETUP.md` from existing prose; decide if `docs/system-map.graph.json` is in scope.
