@@ -17,6 +17,8 @@ import { AgentRunError, TOOL_REQUIRED_NO_CALL_TERMINAL_MARKER, runAgent } from "
 import { runReasoningFrame, type ReasoningFrameRunReceipt } from "../src/nodeagent/core/frameRunner";
 import { SERVER_PRODUCTION_ROOM_TOOLS as PRODUCTION_ROOM_TOOLS } from "../src/nodeagent/skills/server/productionTools";
 import { MANAGED_LOCK_SYSTEM_PROMPT } from "../src/nodeagent/models/prompts/systemPrompt";
+import { injectMemoryIntoSystemPrompt } from "../src/nodemem/memoryContextBuilder";
+import { nodeMemInjectionEnabled, nodeMemRoomConfigEnabled } from "./nodemem";
 import { convexModel as agentModel, convexPriceRun as priceRun } from "../src/nodeagent/models/convexModel";
 import { buildResearchContext, buildCompanyDeepDiveContext } from "../src/nodeagent/core/worldModel";
 import { compactMessages } from "../src/nodeagent/core/contextCompactor";
@@ -56,6 +58,7 @@ const artifactsListForRoomRef = makeFunctionReference<"query">("artifacts:listFo
 const streamingEnsurePublicAgentJobStreamRef = makeFunctionReference<"mutation">("streaming:ensurePublicAgentJobStream") as any;
 const streamingAppendPublicAgentJobStreamChunkRef = makeFunctionReference<"mutation">("streaming:appendPublicAgentJobStreamChunk") as any;
 const streamingFinalizePublicAgentJobStreamRef = makeFunctionReference<"mutation">("streaming:finalizePublicAgentJobStream") as any;
+const nodememAssembleContextPackRef = makeFunctionReference<"query">("nodemem:assembleContextPackForJob") as any;
 
 type ClaimedJob = {
   jobId: Id<"agentJobs">;
@@ -631,13 +634,36 @@ export const runFreeAutoJobSlice = internalAction({
       const initialMessages = messagesFromCursor(claimed.cursor, activeFrameId);
       const resumeToolCalls = remainingToolCallsFromCursor(claimed.cursor, activeFrameId);
       let frameReceipt: ReasoningFrameRunReceipt | undefined;
+
+      // NodeMem Phase 3: inject the room's ContextPack (active_ab) into the system prompt for the
+      // CHAT/job path. The original wiring only covered agent.ts runRoomAgent, so chat-triggered jobs
+      // (this runner — the real production path) never saw memory. Fail-open; verified by the recall
+      // benchmark (pack was perfect but unreached until this).
+      let memorySystemPrompt: string = MANAGED_LOCK_SYSTEM_PROMPT;
+      if (nodeMemInjectionEnabled() || nodeMemRoomConfigEnabled()) {
+        try {
+          const pack = await ctx.runQuery(nodememAssembleContextPackRef, {
+            roomId: claimed.roomId,
+            goal: claimed.goal,
+            userId: String(claimed.requester?.id ?? "agent"),
+            maxFacts: 60,
+          });
+          if (pack) {
+            const budget = (pack as { maxTokensBudget?: number }).maxTokensBudget ?? 1200;
+            memorySystemPrompt = injectMemoryIntoSystemPrompt(memorySystemPrompt, pack as never, { maxTokens: budget });
+          }
+        } catch {
+          // Memory injection must never block the agent run.
+        }
+      }
+
       const result = activeFrame
         ? (frameReceipt = await runReasoningFrame({
           rt,
           frame: activeFrame,
           model,
           tools: PRODUCTION_ROOM_TOOLS,
-          systemPrompt: MANAGED_LOCK_SYSTEM_PROMPT,
+          systemPrompt: memorySystemPrompt,
           maxSteps,
           initialMessages,
           resumeToolCalls,
@@ -668,7 +694,7 @@ export const runFreeAutoJobSlice = internalAction({
         goal: claimed.goal,
         model,
         tools: PRODUCTION_ROOM_TOOLS,
-        systemPrompt: MANAGED_LOCK_SYSTEM_PROMPT,
+        systemPrompt: memorySystemPrompt,
         maxSteps,
         initialMessages,
         resumeToolCalls,

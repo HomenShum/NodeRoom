@@ -267,31 +267,32 @@ for (const size of SIZES) {
           await send.click();
           await expect(page.locator('[data-testid="agent-error"]')).toHaveCount(0);
 
-          // Completion detection: the [data-testid="job-status"] element is a long-running free-auto
-          // step counter ("running 1/20") that never reads "completed", so we DON'T wait on it. Instead
-          // poll the agent's chat reply + sheet cells until they stabilize (unchanged ~12s) — that is the
-          // robust "agent finished writing" signal. Cap at the agent timeout.
-          let prev = "";
-          let stable = 0;
+          // Completion + answer via the DB (AUTHORITATIVE). The agent writes its answer to
+          // agentJobs.finalText AND to virtualized sheet rows — neither is reliably in the DOM, so
+          // scraping silently missed a WORKING recall (verified: finalText contained "$310"/"ChainPlay"
+          // while the scraped DOM did not). Poll benchRoomAnswer until the job is done, grade finalText.
+          let answerText = "";
           const deadline = Date.now() + AGENT_COMPLETION_TIMEOUT_MS;
           while (Date.now() < deadline) {
             await page.waitForTimeout(4000);
-            const cur = (await readChatText(page)) + " ║ " + (await readAllCellText(page));
-            if (cur.replace(/\s/g, "").length > 4 && cur === prev) {
-              if (++stable >= 3) break; // ~12s with no change → done
-            } else {
-              stable = 0;
+            try {
+              const a = await convex.query(api.nodemem.benchRoomAnswer, { roomId, secret: SECRET });
+              if (a) {
+                answerText = a.text;
+                if (a.done && a.text.trim().length > 0) break;
+              }
+            } catch {
+              // ignore transient query errors while the job spins up
             }
-            prev = cur;
           }
           result.latencyMs = Date.now() - t0;
 
-          // ── Grade against chat reply ∪ sheet cells (the answer can land in either) ──
+          // ── Grade the authoritative finalText ∪ any DOM the agent rendered ──
           const chatText = await readChatText(page);
           const cellText = await readAllCellText(page);
-          // Strip the echoed prompt (whitespace-insensitive) so question text can never be graded as an answer.
+          // Strip the echoed prompt (whitespace-insensitive) so question text can never score as an answer.
           const promptFlat = RECALL_PROMPT.replace(/\s+/g, " ").trim();
-          const allText = `${chatText} ║ ${cellText}`.replace(/\s+/g, " ").split(promptFlat).join(" ");
+          const allText = `${answerText} ║ ${chatText} ║ ${cellText}`.replace(/\s+/g, " ").split(promptFlat).join(" ");
           result.cellsWritten = (cellText.match(/│/g) ?? []).length + (cellText.trim() ? 1 : 0);
           const g = grade(allText, size);
           result.recalled = g.recalled;
