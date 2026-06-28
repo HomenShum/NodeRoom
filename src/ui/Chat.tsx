@@ -1,6 +1,6 @@
 /** Public/private Copilot chat surfaces. Reads via useStore(). */
 import { useEffect, useMemo, useRef, useState, type CSSProperties, type ChangeEvent, type ClipboardEvent, type DragEvent, type KeyboardEvent, type ReactNode } from "react";
-import { Lock, MessageCircle, Globe, Send, Square, Sparkles, Copy, Check, ArrowUpRight, Pencil, Paperclip, X, Timer, RefreshCw, ChevronDown, ChevronUp, ListChecks, GitBranch, ShieldCheck, Database, FileText, StickyNote, Table2 } from "lucide-react";
+import { Lock, MessageCircle, Globe, Send, Sparkles, Copy, Check, ArrowUpRight, Pencil, Paperclip, X, Timer, RefreshCw, ChevronDown, ChevronUp, ListChecks, GitBranch, ShieldCheck, Database, FileText, StickyNote, Table2, Brain, Target } from "lucide-react";
 import { useQuery } from "convex/react";
 import { useStore, CONVEX_SITE_URL, type AgentJobDetailTelemetry, type AgentModelSelection, type PrivateStreamAccess, type RoomStore } from "../app/store";
 import { abortable, parseUploadedFiles, UPLOAD_TIMEOUT_MS } from "../app/uploadedArtifact";
@@ -310,12 +310,25 @@ function agentActionLabel(toolName: string): string {
     case "create_artifact": return "Created artifact";
     case "update_artifact": return "Updated artifact";
     case "append_research_note": return "Added research note";
+    case "you_search": return "Searched the web";
+    case "you_research": return "Ran deep research";
+    case "you_finance_research": return "Ran finance research";
+    case "sec_facts": return "Fetched SEC filings";
+    case "skill_search": return "Searched skills catalog";
+    case "propose_lock": return "Locked target cells";
+    case "edit_cell": return "Edited cell";
+    case "create_draft": return "Drafted changes";
+    case "update_wiki": return "Updated wiki";
+    case "reconcile_cell": return "Reconciled cell";
+    case "run_algorithm_artifact": return "Ran algorithm";
+    case "source_open_literal": return "Read source values";
     default: return titleCaseToolName(toolName);
   }
 }
 
 function agentPartState(part: Exclude<AgentStreamPart, { type: "text" }>): string {
   if (isToolStreamPart(part)) return toolStateLabel(part);
+  if (part.type === "reasoning" || part.type === "plan") return part.state === "streaming" || part.state === "started" ? "running" : part.state === "failed" ? "failed" : "done";
   if (part.state === "failed") return "failed";
   if (part.state === "started" || part.state === "streaming") return "running";
   if (part.state === "skipped") return "skipped";
@@ -324,6 +337,8 @@ function agentPartState(part: Exclude<AgentStreamPart, { type: "text" }>): strin
 
 function agentPartLabel(part: Exclude<AgentStreamPart, { type: "text" }>): string {
   if (part.type === "step-start") return part.title;
+  if (part.type === "reasoning") return `Thoughts (step ${part.step + 1})`;
+  if (part.type === "plan") return "Game plan";
   if (isToolStreamPart(part)) return agentActionLabel(part.toolName);
   if (part.type === "data-artifact") return "Published artifact";
   return part.title;
@@ -331,6 +346,8 @@ function agentPartLabel(part: Exclude<AgentStreamPart, { type: "text" }>): strin
 
 function agentPartPreview(part: Exclude<AgentStreamPart, { type: "text" }>): string {
   if (part.type === "step-start") return "";
+  if (part.type === "reasoning") return part.text.slice(0, 120) + (part.text.length > 120 ? "..." : "");
+  if (part.type === "plan") return part.text.slice(0, 120) + (part.text.length > 120 ? "..." : "");
   if (isToolStreamPart(part)) return previewStreamValue(part.output ?? part.input ?? part.error);
   if (part.type === "data-artifact") return part.title;
   return part.text || (part.error ? humanAgentFailureText(part.error) : "");
@@ -374,6 +391,12 @@ function renderRawAgentPart(part: Exclude<AgentStreamPart, { type: "text" }>, in
   if (part.type === "step-start") {
     return agentPartSummary(part, index, <ListChecks size={12} />, part.state, `step ${part.step + 1}`, part.title, "");
   }
+  if (part.type === "reasoning") {
+    return agentPartSummary(part, index, <Brain size={12} />, part.state, part.state, `Thoughts (step ${part.step + 1})`, part.text.slice(0, 200) + (part.text.length > 200 ? "..." : ""));
+  }
+  if (part.type === "plan") {
+    return agentPartSummary(part, index, <Target size={12} />, part.state, part.state, "Game plan", part.text.slice(0, 200) + (part.text.length > 200 ? "..." : ""));
+  }
   if (isToolStreamPart(part)) {
     const state = toolStateLabel(part);
     const preview = previewStreamValue(part.output ?? part.input ?? part.error);
@@ -398,6 +421,7 @@ function compactAgentProgressRows(parts: Exclude<AgentStreamPart, { type: "text"
   const seen = new Map<string, AgentProgressRow>();
   for (const part of parts) {
     if (part.type === "step-start") continue;
+    if (part.type === "reasoning" || part.type === "plan") continue;
     const state = agentPartState(part);
     const label = agentPartLabel(part);
     const preview = agentPartPreview(part);
@@ -416,7 +440,11 @@ function compactAgentProgressRows(parts: Exclude<AgentStreamPart, { type: "text"
 
 function AgentProgressCard({ parts, live, terminalSuccessful }: { parts: Exclude<AgentStreamPart, { type: "text" }>[]; live?: boolean; terminalSuccessful?: boolean }) {
   const [detailsOpen, setDetailsOpen] = useState(() => parts.some((part) => agentPartState(part) === "failed"));
-  const stepCount = parts.filter((part) => part.type === "step-start").length;
+  const stepStarts = parts.filter((part): part is Extract<AgentStreamPart, { type: "step-start" }> => part.type === "step-start");
+  const stepCount = stepStarts.length;
+  const maxSteps = stepStarts[0]?.metadata?.maxSteps as number | undefined;
+  const currentStep = stepStarts.length > 0 ? (stepStarts[stepStarts.length - 1].metadata?.step as number | undefined) ?? stepCount : 0;
+  const progressPct = maxSteps ? Math.min(100, Math.round((currentStep / maxSteps) * 100)) : 0;
   const compactRows = compactAgentProgressRows(parts);
   const hiddenCount = Math.max(0, compactRows.length - 5);
   const rows = compactRows.slice(Math.max(0, compactRows.length - 5));
@@ -448,6 +476,12 @@ function AgentProgressCard({ parts, live, terminalSuccessful }: { parts: Exclude
           Trace details {detailsOpen ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
         </button>
       </div>
+      {maxSteps ? (
+        <div className="r-agent-progress-bar" data-testid="agent-progress-bar" role="progressbar" aria-valuenow={currentStep} aria-valuemin={0} aria-valuemax={maxSteps}>
+          <div className="r-agent-progress-bar-fill" style={{ width: `${progressPct}%` }} />
+          <span className="r-agent-progress-bar-label">Step {currentStep}/{maxSteps}</span>
+        </div>
+      ) : null}
       {rows.length ? (
         <div className="r-agent-workflow-progress-list">
           {rows.map((row, index) => {
@@ -470,14 +504,44 @@ function AgentProgressCard({ parts, live, terminalSuccessful }: { parts: Exclude
   );
 }
 
+function AgentPlanCard({ part }: { part: Extract<AgentStreamPart, { type: "plan" }>; live?: boolean }) {
+  const [open, setOpen] = useState(true);
+  return (
+    <details className="r-agent-plan-card" data-testid="agent-plan-card" open={open} onToggle={(e) => setOpen((e.currentTarget as HTMLDetailsElement).open)}>
+      <summary>
+        <Target size={13} /> <strong>Game plan</strong>
+        {part.goal ? <em>Goal: {part.goal.slice(0, 80)}{part.goal.length > 80 ? "..." : ""}</em> : null}
+      </summary>
+      <div className="r-agent-plan-body">{part.text}</div>
+    </details>
+  );
+}
+
+function AgentReasoningCard({ part }: { part: Extract<AgentStreamPart, { type: "reasoning" }>; live?: boolean }) {
+  const stateLabel = part.state === "streaming" || part.state === "started" ? "thinking" : part.state === "failed" ? "failed" : "done";
+  return (
+    <details className="r-agent-reasoning-card" data-testid="agent-reasoning-card" data-state={stateLabel}>
+      <summary>
+        <Brain size={12} /> <span>Thoughts (step {part.step + 1})</span>
+        {stateLabel === "thinking" ? <RefreshCw size={10} className="r-spin" /> : <Check size={10} />}
+      </summary>
+      <div className="r-agent-reasoning-body">{part.text}</div>
+    </details>
+  );
+}
+
 function AgentUnifiedStream({ parts, live, fallbackText, terminalSuccessful }: { parts: AgentStreamPart[]; live?: boolean; fallbackText?: string; terminalSuccessful?: boolean }) {
   const displayParts = parts.length ? parts : fallbackText ? [{ type: "text" as const, text: fallbackText, state: live ? "streaming" as const : "done" as const }] : [];
   if (!displayParts.length) return null;
   const lastTextIndex = displayParts.map((part, index) => part.type === "text" ? index : -1).filter((index) => index >= 0).at(-1);
-  const activityParts = displayParts.filter((part): part is Exclude<AgentStreamPart, { type: "text" }> => part.type !== "text");
+  const planPart = displayParts.find((part): part is Extract<AgentStreamPart, { type: "plan" }> => part.type === "plan");
+  const reasoningParts = displayParts.filter((part): part is Extract<AgentStreamPart, { type: "reasoning" }> => part.type === "reasoning");
+  const activityParts = displayParts.filter((part): part is Exclude<AgentStreamPart, { type: "text" | "reasoning" | "plan" }> => part.type !== "text" && part.type !== "reasoning" && part.type !== "plan");
   return (
     <div className="r-agent-unified-stream" data-testid="agent-unified-stream" aria-label="Unified agent response stream">
+      {planPart ? <AgentPlanCard part={planPart} live={live} /> : null}
       {activityParts.length ? <AgentProgressCard parts={activityParts} live={live} terminalSuccessful={terminalSuccessful} /> : null}
+      {reasoningParts.map((part, index) => <AgentReasoningCard key={`reasoning-${index}`} part={part} live={live} />)}
       {displayParts.map((part, index) => {
         if (part.type === "text") {
           return (
@@ -597,7 +661,6 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
   const taRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const uploadBusyRef = useRef(false);
-  const lastAgentInputRef = useRef<string | null>(null); // last public-agent request, for Regenerate
   const nearBottom = useRef(true);
   const thinkingStartCount = useRef(0);
   // Room-switch safety: a public @nodeagent or private-agent call is fire-and-forget. If the user leaves this room
@@ -777,7 +840,6 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
         ? { mode: "specific", modelPolicy: specificModelPolicy || defaultSpecificModel || "gemini-3.5-flash" }
         : { mode: modelSelectionMode };
       beginThinking();
-      lastAgentInputRef.current = t;
       void store.askAgent({ goal: publicNodeAgentRequest.goal, references: messageRefs, modelSelection, contextArtifactId: activeArtifactId }).catch((e) => {
         if (aliveRef.current) {
           setAgentErr(agentErrorText(e));
@@ -1279,20 +1341,11 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
             <span className="r-composer-spacer" aria-hidden="true" />
             {/* The send button reflects the composer state — muted + disabled on empty input,
                 not a live accent button that does nothing (state-honesty). */}
-            {/* While the agent is generating, the send slot becomes Stop (ChatGPT/Claude pattern) — wired
-                to the same cancel as the job chrome; no separate hunt for a cancel control. */}
-            {longJobActive ? (
-              <button className="r-send r-send-stop" onClick={cancelJob} disabled={jobBusy !== null} data-testid="chat-stop" title="Stop generating" aria-label="Stop generating"><Square size={13} /></button>
-            ) : (
-              <button className="r-send" onClick={() => send()} disabled={!canSend} data-testid="chat-send" aria-label="Send message"><Send size={15} /></button>
-            )}
+            <button className="r-send" onClick={() => send()} disabled={!canSend} data-testid="chat-send" aria-label="Send message"><Send size={15} /></button>
           </div>
         </div>
         {!isPrivate && !slashOpen && (
           <div className="r-composer-hint">
-            {longJobTerminal && lastAgentInputRef.current && (
-              <button className="r-chip r-chip-regen" data-testid="chat-regenerate" title="Run the last agent request again" onClick={() => send(lastAgentInputRef.current!)}><RefreshCw size={11} /> Regenerate</button>
-            )}
             {contextualPrompts.map((prompt) => <button key={prompt.insert} className="r-chip" onClick={() => applySlash(prompt.insert)}>{prompt.label}</button>)}
             <span className="r-composer-kbd" aria-hidden="true">Enter sends; Shift+Enter newline; @nodeagent acts</span>
           </div>

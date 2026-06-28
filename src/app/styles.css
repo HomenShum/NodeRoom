@@ -477,8 +477,6 @@ input { font-family: inherit; }
 .r-msg .who { font-size: 12.5px; font-weight: 700; letter-spacing: -.01em; }
 .r-msg .time { font-size: 10.5px; color: var(--text-tertiary); }
 .r-msg .text { font-size: 13.5px; line-height: 1.5; color: var(--text-secondary); overflow-wrap: anywhere; }
-/* Reading column: cap AI replies at ~68ch so long answers don't sprawl the full panel (Perplexity/ChatGPT/Claude). */
-.r-chat .r-md, .r-agent-unified-stream .r-md { max-width: 68ch; line-height: 1.6; }
 .r-md > :first-child { margin-top: 0; }
 .r-md > :last-child { margin-bottom: 0; }
 .r-md p { margin: 0 0 8px; }
@@ -630,6 +628,23 @@ input { font-family: inherit; }
 .r-agent-workflow-progress-label em { margin-left: 5px; padding: 1px 4px; border-radius: 999px; background: var(--bg-secondary); color: var(--text-tertiary); font-style: normal; font-size: 10px; font-weight: 800; }
 .r-agent-workflow-progress-preview { min-width: 0; color: var(--text-secondary); font-size: 11.5px; line-height: 1.25; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .r-agent-workflow-progress-details { display: grid; gap: 5px; padding-top: 7px; border-top: 1px solid var(--line); }
+.r-agent-progress-bar { position: relative; display: flex; align-items: center; gap: 8px; height: 20px; border-radius: 6px; background: color-mix(in srgb, var(--bg-primary) 80%, transparent); border: 1px solid var(--line); overflow: hidden; }
+.r-agent-progress-bar-fill { position: absolute; inset: 0 auto 0 0; background: color-mix(in srgb, var(--accent-primary) 38%, transparent); transition: width .4s var(--ease-out-expo); border-radius: 5px 0 0 5px; }
+.r-agent-progress-bar-label { position: relative; z-index: 1; padding-left: 8px; font-size: 10.5px; font-weight: 700; color: var(--text-secondary); white-space: nowrap; }
+.r-agent-plan-card { min-width: 0; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; background: color-mix(in srgb, var(--accent-tint) 18%, var(--bg-secondary)); }
+.r-agent-plan-card summary { min-width: 0; display: flex; align-items: center; gap: 7px; cursor: pointer; list-style: none; }
+.r-agent-plan-card summary::-webkit-details-marker { display: none; }
+.r-agent-plan-card summary svg { color: var(--accent-ink); flex: none; }
+.r-agent-plan-card summary strong { font-size: 12.5px; color: var(--text-primary); white-space: nowrap; }
+.r-agent-plan-card summary em { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-style: normal; font-size: 11px; color: var(--text-tertiary); }
+.r-agent-plan-body { margin-top: 7px; padding-top: 7px; border-top: 1px solid var(--line); font-size: 12.5px; line-height: 1.5; color: var(--text-secondary); white-space: pre-wrap; overflow-wrap: anywhere; }
+.r-agent-reasoning-card { min-width: 0; padding: 6px 10px; border: 1px solid var(--line); border-radius: 7px; background: color-mix(in srgb, var(--bg-secondary) 72%, transparent); }
+.r-agent-reasoning-card summary { min-width: 0; display: flex; align-items: center; gap: 6px; cursor: pointer; list-style: none; }
+.r-agent-reasoning-card summary::-webkit-details-marker { display: none; }
+.r-agent-reasoning-card summary svg { color: var(--text-tertiary); flex: none; }
+.r-agent-reasoning-card summary span { font-size: 11.5px; font-weight: 700; color: var(--text-primary); }
+.r-agent-reasoning-card[data-state="thinking"] summary svg.r-spin { animation: r-spin .9s linear infinite; color: var(--accent-ink); }
+.r-agent-reasoning-body { margin-top: 6px; padding-top: 6px; border-top: 1px solid var(--line); font-size: 12px; line-height: 1.5; color: var(--text-secondary); white-space: pre-wrap; overflow-wrap: anywhere; }
 .r-agent-part { min-width: 0; display: block; padding: 6px 8px; border: 1px solid var(--line); border-radius: 7px; background: color-mix(in srgb, var(--bg-secondary) 82%, transparent); color: var(--text-secondary); font-size: 12px; line-height: 1.35; }
 .r-agent-part summary { min-width: 0; display: grid; grid-template-columns: auto auto minmax(96px, max-content) minmax(0, 1fr); align-items: start; gap: 7px; cursor: pointer; list-style: none; }
 .r-agent-part summary::-webkit-details-marker { display: none; }
@@ -661,8 +676,7 @@ input { font-family: inherit; }
 .r-filetab { max-width: 184px; padding-right: 6px; }
 .r-filetab-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .r-filetab-x { display: inline-flex; align-items: center; justify-content: center; width: 16px; height: 16px; margin-left: 1px; border-radius: 4px; color: var(--text-tertiary); opacity: 0; flex: none; transition: opacity var(--motion-fast), background var(--motion-fast); }
-.r-filetab:hover .r-filetab-x, .r-filetab[data-active="true"] .r-filetab-x, .r-filetab-x:focus-visible { opacity: 1; }
-.r-filetab-x:focus-visible { outline: 2px solid var(--accent-primary); outline-offset: 1px; color: var(--text-primary); }
+.r-filetab:hover .r-filetab-x, .r-filetab[data-active="true"] .r-filetab-x { opacity: 1; }
 .r-filetab-x:hover { background: var(--bg-hover); color: var(--text-primary); }
 .r-artifact-export { min-height: 28px; white-space: nowrap; flex: 0 0 auto; }
 .r-artifact-export svg { flex: none; }
@@ -699,10 +713,8 @@ input { font-family: inherit; }
 .r-sheet .r-row-empty td.r-rownum { font-weight: 400; opacity: .55; }
 .r-sheet td.label { font-weight: 600; color: var(--text-primary); }
 .r-sheet td .nullcell { color: var(--text-tertiary); font-family: var(--font-mono); font-size: 11px; }
-/* Cells soft-wrap; rows grow to fit the tallest cell (Airtable/Notion/Retool: no clip, no in-cell scroll). */
-.r-sheet[data-sheet-kind="generic"] td.r-cell { min-height: 27px; vertical-align: top; white-space: normal; overflow-wrap: anywhere; word-break: break-word; }
-.r-sheet[data-sheet-kind="generic"] td.r-cell.num { white-space: nowrap; }
-.r-sheet[data-sheet-kind="generic"] td.r-cell .r-cell-value { display: block; min-width: 0; white-space: normal; overflow-wrap: anywhere; color: var(--text-primary); }
+.r-sheet[data-sheet-kind="generic"] td.r-cell { height: auto; min-height: 27px; white-space: normal; overflow-wrap: break-word; overflow: visible; vertical-align: top; }
+.r-sheet[data-sheet-kind="generic"] td.r-cell .r-cell-value { display: block; min-width: 0; white-space: normal; overflow-wrap: break-word; color: var(--text-primary); }
 .r-sheet[data-sheet-kind="generic"] td.r-cell.num .r-cell-value { font-variant-numeric: tabular-nums; }
 .r-sheet[data-sheet-kind="generic"] td.r-cell .nullcell { color: transparent; }
 .r-sheet[data-sheet-kind="generic"] td.r-cell.evidence,
@@ -716,6 +728,7 @@ input { font-family: inherit; }
   text-overflow: ellipsis;
   margin-left: 0;
   pointer-events: none;
+  background: var(--bg-primary);
 }
 .r-cell-meta { display: inline-flex; margin-left: 6px; padding: 1px 5px; border-radius: 5px; border: 1px solid var(--line); background: var(--bg-secondary); color: var(--text-tertiary); font-family: var(--font-mono); font-size: 9px; vertical-align: middle; white-space: nowrap; }
 .r-cell-meta.failed, .r-cell-meta.gap { color: var(--danger-ink); border-color: var(--danger-border); background: var(--danger-tint); }
@@ -754,7 +767,10 @@ input { font-family: inherit; }
 .r-cell-edit:hover { background: var(--bg-hover); }
 .r-cell-edit .add-hint { display: inline-flex; align-items: center; gap: 3px; font-size: 11px; color: var(--text-tertiary); font-family: var(--font-mono); }
 .r-cell-edit:hover .add-hint { color: var(--accent-ink); }
-.r-cell-input { display: block; width: 100%; min-width: 56px; min-height: 22px; background: var(--bg-primary); border: 1.5px solid var(--accent-primary); border-radius: 6px; padding: 3px 6px; margin: -3px 0; color: var(--text-primary); font: inherit; font-size: 12.5px; line-height: 1.4; outline: none; box-shadow: 0 0 0 3px var(--accent-tint); resize: none; overflow: hidden; white-space: pre-wrap; overflow-wrap: anywhere; }
+.r-cell-input { width: 100%; min-width: 56px; background: var(--bg-primary); border: 1.5px solid var(--accent-primary); border-radius: 6px; padding: 3px 6px; margin: -3px 0; color: var(--text-primary); font: inherit; font-size: 12.5px; outline: none; box-shadow: 0 0 0 3px var(--accent-tint); }
+.r-cell-editor { background: var(--bg-primary); border: 1.5px solid var(--accent-primary); border-radius: 6px; padding: 4px 8px; color: var(--text-primary); font: inherit; font-size: 12.5px; line-height: 1.4; outline: none; box-shadow: 0 2px 12px rgba(0,0,0,.18), 0 0 0 3px var(--accent-tint); z-index: 10; position: relative; }
+.r-cell-editor:focus { border-color: var(--accent-primary); }
+.r-sheet[data-sheet-kind="generic"] td.r-cell:has(.r-cell-editor) { overflow: visible; position: relative; z-index: 10; background: var(--bg-primary); box-shadow: 0 0 0 2px var(--accent-primary); }
 .r-inline-proposal { margin-top: 4px; display: inline-flex; align-items: center; gap: 5px; max-width: 100%; padding: 2px 3px 2px 6px; border-radius: 6px; border: 1px solid rgba(217,119,87,.28); background: rgba(217,119,87,.12); color: var(--accent-ink); vertical-align: middle; }
 .r-inline-proposal[data-semantic="true"] { border-color: rgba(94,106,210,.36); background: rgba(94,106,210,.13); color: #8C92E0; }
 .r-inline-proposal-kind { flex: none; font-family: var(--font-mono); font-size: 8.5px; line-height: 1; text-transform: uppercase; letter-spacing: .04em; color: inherit; opacity: .9; }
@@ -928,7 +944,7 @@ input { font-family: inherit; }
 .r-research { width: 100%; min-width: 800px; border-collapse: separate; border-spacing: 0; table-layout: fixed; font-size: 13px; }
 .r-research thead th { position: sticky; top: 0; z-index: 3; text-align: left; font-size: 10px; text-transform: uppercase; letter-spacing: .12em; color: var(--text-tertiary); padding: 8px 11px; border-bottom: 1px solid var(--line); font-weight: 600; background: var(--bg-secondary); }
 .r-research thead th.frozen { left: 0; z-index: 4; }
-.r-research td { padding: 8px 11px; vertical-align: top; white-space: normal; overflow-wrap: anywhere; word-break: break-word; line-height: 1.38; border-bottom: 1px solid var(--line); color: var(--text-secondary); font-variant-numeric: tabular-nums; }
+.r-research td { padding: 8px 11px; vertical-align: middle; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.38; border-bottom: 1px solid var(--line); color: var(--text-secondary); font-variant-numeric: tabular-nums; }
 .r-research td:has(> .r-status) { overflow: visible; text-overflow: clip; }
 .r-research td.frozen { position: sticky; left: 0; z-index: 2; background: var(--bg-primary); }
 .r-research-row { height: 42px; cursor: pointer; }

@@ -186,7 +186,7 @@ function ArtifactSurface({ roomId, me, proof, artId, onArt, style, surfaceKey = 
                   <span className="r-filetab-name">{artifactTabDisplay(a).title}</span>
                   {artifactTabDisplay(a).badge && <span className="r-file-ext r-filetab-ext">{artifactTabDisplay(a).badge}</span>}
                   {onCloseArtifact && openTabArts.length > 1 && (
-                    <span className="r-filetab-x" role="button" tabIndex={0} aria-label={`Close ${a.title}`} onClick={(e) => { e.stopPropagation(); onCloseArtifact(a.id); }} onAuxClick={(e) => { if (e.button === 1) { e.preventDefault(); e.stopPropagation(); onCloseArtifact(a.id); } }} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); e.stopPropagation(); onCloseArtifact(a.id); } }}><X size={12} /></span>
+                    <span className="r-filetab-x" role="button" aria-label={`Close ${a.title}`} onClick={(e) => { e.stopPropagation(); onCloseArtifact(a.id); }}><X size={12} /></span>
                   )}
                 </button>
               ))
@@ -926,43 +926,17 @@ function EditableCell({ value, disabled, align, onCommit, addLabel, onEditStart,
   useEffect(() => setDraft(value), [value]);
   if (disabled) return value ? <span className={valueClass(value)}>{value}</span> : <span className="nullcell">—</span>;
   if (editing) {
-    // Auto-grow editor (Retool/Airtable/Coyier pattern): height tracks scrollHeight, no resize handle,
-    // no internal scrollbar; soft-wraps at the column width. Enter commits, Shift+Enter = newline, Esc cancels.
-    const grow = (el: HTMLTextAreaElement | null) => { if (!el) return; el.style.height = "auto"; el.style.height = `${el.scrollHeight}px`; };
     return (
-      <textarea className="r-cell-input" autoFocus rows={1} value={draft} ref={grow}
-        style={align === "right" ? { textAlign: "right" } : undefined}
-        onInput={(e) => grow(e.currentTarget)}
+      <input className="r-cell-input" autoFocus value={draft} style={align === "right" ? { textAlign: "right" } : undefined}
         onChange={(e) => setDraft(e.target.value)}
         onBlur={() => { setEditing(false); onEditEnd?.(); if (draft.trim() !== value) onCommit(draft.trim()); }}
-        onKeyDown={(e) => {
-          if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); e.currentTarget.blur(); }
-          if (e.key === "Escape") { setDraft(value); setEditing(false); onEditEnd?.(); }
-        }} />
+        onKeyDown={(e) => { if (e.key === "Enter") (e.target as HTMLInputElement).blur(); if (e.key === "Escape") { setDraft(value); setEditing(false); onEditEnd?.(); } }} />
     );
   }
   return (
     <button className="r-cell-edit" data-testid="cell-edit-control" data-cell-value={value} onClick={() => { setEditing(true); onEditStart?.(); }}>
       {value ? <span className={valueClass(value)}>{value}</span> : <span className="add-hint"><Plus size={11} /> {addLabel ?? "add"}</span>}
     </button>
-  );
-}
-
-/** Externally-controlled auto-grow cell editor for the data grid (Airtable/Notion/Retool: no scroll,
- *  soft-wrap, height tracks content). Enter commits, Shift+Enter = newline, Esc cancels (no double-commit). */
-function GridCellEditor({ value, align, onCommit, onCancel }: { value: string; align?: "right"; onCommit: (s: string) => void; onCancel: () => void }) {
-  const [draft, setDraft] = useState(value);
-  const done = useRef(false);
-  const grow = (el: HTMLTextAreaElement | null) => { if (!el) return; el.style.height = "auto"; el.style.height = `${el.scrollHeight}px`; };
-  return (
-    <textarea className="r-cell-input" autoFocus rows={1} value={draft} ref={grow} style={align === "right" ? { textAlign: "right" } : undefined}
-      onInput={(e) => grow(e.currentTarget)}
-      onChange={(e) => setDraft(e.target.value)}
-      onBlur={() => { if (done.current) return; done.current = true; onCommit(draft.trim()); }}
-      onKeyDown={(e) => {
-        if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); e.currentTarget.blur(); }
-        else if (e.key === "Escape") { e.preventDefault(); done.current = true; onCancel(); }
-      }} />
   );
 }
 
@@ -1075,7 +1049,6 @@ function GenericSheet({ roomId, me, art, onError }: { roomId: string; me: Actor;
   const store = useStore();
   const [pages, setPages] = useState(1);
   const [sel, setSel] = useState<string | null>(null);
-  const [editId, setEditId] = useState<string | null>(null);
   // QA P2 perf: derive rows/columns/pageSize once per artifact snapshot, not on every render
   // (paging state changes alone shouldn't re-walk the full element order).
   const { rows, columns, pageSize } = useMemo(() => {
@@ -1120,35 +1093,15 @@ function GenericSheet({ roomId, me, art, onError }: { roomId: string; me: Actor;
     () => focusBoxesForSheet({ artifactId: art.id, now: Date.now(), meId: me.id, presence: presenceRows, cellStates: overlayCellStates }),
     [art.id, me.id, presenceRows, overlayCellStates],
   );
-  // Inline cell editing (Airtable/Notion/Retool): double-click or Enter/F2 opens the auto-grow editor;
-  // locked / proposed / merged cells stay read-only so the no-clobber path is never bypassed. Edits
-  // preserve the cell payload (evidence/status/formula) and commit through the same CAS path as the agent.
-  const isEditable = (id: string | null): boolean =>
-    !!id && !lockedByOther(store, art.id, id, me) && !proposalFor(proposals, art.id, id) && !draftedFor(store, roomId, art.id, id) && !mergeCovered.has(id);
-  const moveSel = (dr: number, dc: number) => {
-    const base = sel ? parseSheetElementId(art, sel) : { rowId: visibleRows[0], colId: cols[0] };
-    let ri = visibleRows.indexOf(base.rowId); if (ri < 0) ri = 0;
-    let ci = cols.indexOf(base.colId); if (ci < 0) ci = 0;
-    ri = Math.min(visibleRows.length - 1, Math.max(0, ri + dr));
-    ci = Math.min(cols.length - 1, Math.max(0, ci + dc));
-    if (visibleRows[ri] && cols[ci]) setSel(sheetElementId(art, visibleRows[ri], cols[ci]));
-  };
+  const doCommit = (id: string, s: string) => { void commit(store, roomId, me, art.id, id, s).then((f) => { if (f && !f.ok) onError?.(f); }); };
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editDraft, setEditDraft] = useState("");
   return (
     <>
       <div className="r-art-body">
         <div className="r-sheet-wrap" ref={sheetWrapRef} data-testid="sheet-grid">
           <AttentionOverlay boxes={overlayBoxes} resolver={overlayResolver} mode="live" />
-          <table className="r-sheet" data-noderoom-surface="workSurface.sheet" data-sheet-kind="generic" data-artifact-id={art.id}
-            tabIndex={0}
-            onKeyDown={(e) => {
-              if (editId) return;
-              if (e.key === "ArrowDown") { e.preventDefault(); moveSel(1, 0); }
-              else if (e.key === "ArrowUp") { e.preventDefault(); moveSel(-1, 0); }
-              else if (e.key === "ArrowRight") { e.preventDefault(); moveSel(0, 1); }
-              else if (e.key === "ArrowLeft") { e.preventDefault(); moveSel(0, -1); }
-              else if (e.key === "Tab") { e.preventDefault(); moveSel(0, e.shiftKey ? -1 : 1); }
-              else if ((e.key === "Enter" || e.key === "F2") && isEditable(sel)) { e.preventDefault(); setEditId(sel); }
-            }}>
+          <table className="r-sheet" data-noderoom-surface="workSurface.sheet" data-sheet-kind="generic" data-artifact-id={art.id}>
             <colgroup>
               <col style={{ width: 38 }} />
               {columns.map((c, i) => <col key={c.id} style={{ width: colWidths[i] }} />)}
@@ -1172,13 +1125,19 @@ function GenericSheet({ roomId, me, art, onError }: { roomId: string; me: Actor;
                     const showMeta = !art.meta?.excelGrid && payload;
                     const cls = "r-cell" + (isNumberLikeCell(raw) ? " num" : "") + (locked ? " locked" : "") + (proposed ? " proposed" : "") + (hasVisibleEvidence ? " evidence" : "") + (showFormulaMarker ? " formula" : "") + (sel === id ? " sel" : "");
                     return (
-                      <td key={col} className={cls + (editId === id ? " editing" : "")} title={[dataframeCellAddress(art, cols, visibleRows, id), payload?.evidence?.[0]?.label].filter(Boolean).join(" | ")} data-evidence-class={classifyEvidence(payload)} data-cell-key={id} data-element-id={id} data-testid="sheet-cell" data-has-evidence={hasVisibleEvidence ? "true" : undefined} data-has-formula={payload?.formula ? "true" : undefined} colSpan={span?.colSpan} rowSpan={span?.rowSpan} aria-selected={sel === id || undefined}
-                        onClick={(e) => { setSel(id); (e.currentTarget.closest("table") as HTMLElement | null)?.focus(); }}
-                        onDoubleClick={() => { if (!locked && !proposed && !mergeCovered.has(id)) setEditId(id); }}>
-                        {editId === id ? (
-                          <GridCellEditor value={value} align={isNumberLikeCell(raw) ? "right" : undefined}
-                            onCommit={(text) => { setEditId(null); if (text !== value) void commit(store, roomId, me, art.id, id, payload ? { ...payload, value: text } : text).then((f) => { if (f && !f.ok) onError?.(f); }); }}
-                            onCancel={() => setEditId(null)} />
+                      <td key={col} className={cls} title={[value || undefined, dataframeCellAddress(art, cols, visibleRows, id), payload?.evidence?.[0]?.label].filter(Boolean).join(" | ")} data-evidence-class={classifyEvidence(payload)} data-cell-key={id} data-element-id={id} data-testid="sheet-cell" data-has-evidence={hasVisibleEvidence ? "true" : undefined} data-has-formula={payload?.formula ? "true" : undefined} colSpan={span?.colSpan} rowSpan={span?.rowSpan} aria-selected={sel === id || undefined} onClick={() => setSel(id)} onDoubleClick={() => { setEditingId(id); setEditDraft(value); }}>
+                        {editingId === id ? (
+                          <textarea className="r-cell-editor" autoFocus value={editDraft} data-testid="cell-editor"
+                            style={{ width: "100%", minHeight: "28px", resize: "none", overflow: "hidden" }}
+                            ref={(el) => { if (el) { el.style.height = "auto"; el.style.height = `${el.scrollHeight}px`; } }}
+                            onChange={(e) => {
+                              const el = e.target;
+                              el.style.height = "auto";
+                              el.style.height = `${el.scrollHeight}px`;
+                              setEditDraft(el.value);
+                            }}
+                            onBlur={() => { setEditingId(null); if (editDraft.trim() !== value) doCommit(id, editDraft.trim()); }}
+                            onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); (e.target as HTMLTextAreaElement).blur(); } if (e.key === "Escape") { setEditDraft(value); setEditingId(null); } }} />
                         ) : (
                           <>
                             {value ? <span className="r-cell-value">{value}</span> : <span className="nullcell">-</span>}
