@@ -558,6 +558,9 @@ input { font-family: inherit; }
 .r-msg-act.promote { color: var(--accent-ink); border-color: var(--accent-border); background: var(--accent-tint); }
 .r-send { width: 32px; height: 32px; border-radius: 8px; flex: none; display: grid; place-items: center; border: none; background: var(--accent-primary); color: #fff; transition: filter .15s, transform .08s; }
 .r-send:hover { filter: brightness(1.05); } .r-send:active { transform: scale(.94); }
+.r-send-stop { background: var(--text-secondary); color: #fff; }
+.r-send-stop:hover { filter: none; background: var(--text-primary); }
+.r-chip-regen { display: inline-flex; align-items: center; gap: 4px; }
 .r-composer-hint { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
 .r-chip { font-size: 11px; padding: 3px 8px; border-radius: 7px; background: var(--bg-secondary); border: 1px solid var(--line); color: var(--text-muted); font-family: var(--font-mono); cursor: pointer; }
 .r-chip:hover { border-color: var(--accent-border); color: var(--accent-ink); }
