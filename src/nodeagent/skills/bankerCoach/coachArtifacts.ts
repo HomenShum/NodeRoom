@@ -1,4 +1,4 @@
-export type EvidenceCardStatus = "verified" | "needs_review" | "manual" | "estimated";
+export type EvidenceCardStatus = "verified" | "needs_review" | "manual" | "estimated" | "unsupported";
 
 export interface EvidenceCardInput {
   label: string;
@@ -50,13 +50,15 @@ export interface ReviewRoundUpdate {
 
 export function buildEvidenceCards(input: EvidenceCardInput[]): EvidenceCard[] {
   return input.map((item, index) => {
-    const confidence = clamp(Number(item.confidence ?? 0.72), 0, 1);
+    // Honesty: never fabricate a confidence number for a claim with no verbatim source quote.
+    const hasQuote = !!item.quote?.trim();
+    const confidence = clamp(Number(item.confidence ?? (hasQuote ? 0.72 : 0)), 0, 1);
     const status = item.status ?? statusForEvidence(item.kind, confidence, item.sourceRef);
     return {
       id: `evidence_${index + 1}`,
       label: item.label.trim() || `Evidence ${index + 1}`,
       sourceRef: item.sourceRef?.trim() || "manual-room-claim",
-      quote: item.quote?.trim().slice(0, 280) || item.label.trim().slice(0, 280) || "No quote provided.",
+      quote: hasQuote ? item.quote!.trim().slice(0, 280) : "No verbatim source quote captured — treat as unverified.",
       kind: item.kind ?? (item.sourceRef ? "source" : "manual"),
       confidence,
       status,
@@ -167,6 +169,7 @@ function statusForEvidence(kind: EvidenceCardInput["kind"], confidence: number, 
 
 function reviewNoteFor(status: EvidenceCardStatus): string | undefined {
   if (status === "verified") return undefined;
+  if (status === "unsupported") return "Unsupported: no verbatim source quote — do not present as fact.";
   if (status === "manual") return "Manual claim; verify before public or partner-facing use.";
   if (status === "estimated") return "Estimated value; make the assumption visible in the review packet.";
   return "Needs reviewer acceptance before downstream use.";
