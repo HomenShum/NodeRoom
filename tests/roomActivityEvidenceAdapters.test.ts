@@ -1,6 +1,6 @@
 // @vitest-environment edge-runtime
 import { convexTest } from "convex-test";
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
 import schema from "../convex/schema";
 import { api, internal } from "../convex/_generated/api";
 import { hashToken } from "../convex/lib";
@@ -13,6 +13,16 @@ for (const m of ["../convex/agent.ts", "../convex/agentJobRunner.ts", "../convex
 }
 
 const token = "roomactivityTOKEN0123456789abcdefXYZ";
+
+// Passive auto-execution is OFF by default (doctrine: notice passively, act explicitly —
+// see passiveCreateAgentJobsEnabled in convex/roomActivity.ts). A test that opts into
+// auto-execution sets PASSIVE_CREATE_AGENT_JOBS; restore the original after every test so
+// the flag never leaks into the notice-only default cases.
+const ORIGINAL_PASSIVE_FLAG = process.env.PASSIVE_CREATE_AGENT_JOBS;
+afterEach(() => {
+  if (ORIGINAL_PASSIVE_FLAG === undefined) delete process.env.PASSIVE_CREATE_AGENT_JOBS;
+  else process.env.PASSIVE_CREATE_AGENT_JOBS = ORIGINAL_PASSIVE_FLAG;
+});
 
 async function seedRoom() {
   const t = convexTest(schema, modules);
@@ -196,7 +206,11 @@ describe("passive room activity and evidence adapters", () => {
     expect(row?.status).toBe("not_noteworthy");
   });
 
-  it("promotes high-signal passive cells into durable agent jobs and work items", async () => {
+  it("promotes high-signal passive cells into durable agent jobs and work items (auto-execution opt-in)", async () => {
+    // The default doctrine is notice-only; the auto-create-job path runs only when
+    // PASSIVE_CREATE_AGENT_JOBS is explicitly enabled. This test covers that opt-in path
+    // (job/workItems/agentOperationEvents machinery); afterEach restores the default.
+    process.env.PASSIVE_CREATE_AGENT_JOBS = "true";
     const s = await seedRoom();
     const elementId = "row2__notes";
     await s.t.run((ctx) =>
@@ -245,7 +259,7 @@ describe("passive room activity and evidence adapters", () => {
     expect(job?.request?.passiveActivity?.finding?.action).toBe("start_research_job");
     expect(workItems.length).toBeGreaterThan(0);
     expect(workItems.every((item) => item.cachePolicy === "missing_research_now")).toBe(true);
-    expect(operations.map((event) => event.name)).toEqual(expect.arrayContaining(["roomActivity.scanDueActivity", "agentWorkflows.freeAutoWorkflow start failed"]));
+    expect(operations.map((event) => event.name)).toEqual(expect.arrayContaining(["roomActivity.scanDueActivity", "agentWorkflows.passiveRoomWorkWorkflow start failed"]));
   });
 
   it("routes notebook edits through the same passive activity outbox", async () => {
@@ -424,7 +438,8 @@ describe("passive room activity and evidence adapters", () => {
     await s.t.run((ctx) => ctx.db.patch(low.outboxId, { quietUntil: Date.now() - 1 }));
     await s.t.mutation(internal.roomActivity.scanDueActivity, { roomId: s.roomId, limit: 5 });
 
-    // High-signal cell → job_created attempt (workflow start fails in-test → status failed).
+    // High-signal cell → noteworthy suggestion. Default doctrine is notice passively, act
+    // explicitly: passive detection surfaces an inbox suggestion but spins up NO agent job.
     const highEl = "feed_high__notes";
     await s.t.run((ctx) =>
       ctx.db.insert("elements", {
@@ -456,10 +471,10 @@ describe("passive room activity and evidence adapters", () => {
     expect(lowRow).not.toHaveProperty("finding");
     expect(lowRow).not.toHaveProperty("decision");
 
-    expect(highRow).toMatchObject({ status: "failed", action: "start_research_job", sourceKind: "element" });
+    expect(highRow).toMatchObject({ status: "noteworthy", action: "start_research_job", sourceKind: "element" });
     expect(highRow?.entityNames).toContain("Acme Health Inc");
     expect(highRow?.score).toBeGreaterThanOrEqual(0.75);
-    expect(highRow?.latestJobId).toBeTruthy();
+    expect(highRow?.latestJobId).toBeUndefined(); // notice-only default spins up no agent job
     expect(highRow?.textPreview).toContain("Acme Health Inc");
   });
 
