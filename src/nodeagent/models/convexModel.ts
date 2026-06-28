@@ -868,6 +868,7 @@ export function toolParameters(toolName: string): JsonObject {
     release_lock: { type: "object", properties: { lockId: string }, required: ["lockId"] },
     say: { type: "object", properties: { text: string }, required: ["text"] },
     fetch_source: { type: "object", properties: { url: string }, required: ["url"] },
+    founder_profile: { type: "object", properties: { linkedinUrl: string, fullName: string, company: string }, required: [] },
     write_locked_cell: {
       type: "object",
       properties: { ...managedScalarWriteProperties, reason: string, artifactId: string },

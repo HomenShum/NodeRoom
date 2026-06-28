@@ -46,6 +46,7 @@ This file is the model-facing contract: every production tool must expose a non-
 | `sec_facts` | read | `company`, `concept` | `company`, `concept` |
 | `cite_in_file` | write | `target` | `target` |
 | `create_btb_deliverable_package` | write | `narrative`, `title` | `narrative`, `title` |
+| `founder_profile` | mixed | none | none |
 | `skill_search` | mixed | `query` | `query` |
 | `load_skill` | mixed | `idOrUrl` | `idOrUrl` |
 
@@ -954,6 +955,29 @@ This file is the model-facing contract: every production tool must expose a non-
   "args": {
     "narrative": "example",
     "title": "example"
+  }
+}
+```
+
+### founder_profile
+
+- Purpose: Fetch a founder's professional profile via Apify LinkedIn scraper.
+- When to use: Fetch a founder's professional profile via Apify LinkedIn scraper.
+- When not to use: Do not use as a hidden shortcut around room permissions, privacy boundaries, or artifact freshness.
+- Mutability: mixed.
+- Canonical Zod properties: `company`, `fullName`, `linkedinUrl`.
+- Canonical required fields: none.
+- Provider required fields: none.
+- Expected errors: missing_required_arg; invalid_arg_type.
+- Recovery path: Treat tool failures as inputs: inspect `failureKind` or result reason, add the missing argument or re-read state, and stop rather than inventing data.
+- Example call:
+
+```json
+{
+  "tool": "founder_profile",
+  "args": {
+    "company": "example",
+    "fullName": "example"
   }
 }
 ```
