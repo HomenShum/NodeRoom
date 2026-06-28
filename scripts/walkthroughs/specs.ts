@@ -126,4 +126,25 @@ export const FEATURES: FeatureSpec[] = [
       { kind: "state", caption: "Human-in-the-loop, one click, in context", settleMs: 1200, holdMs: 2400 },
     ],
   },
+  {
+    id: "room-home",
+    closePanels: ["left", "priv"],
+    title: "Room Home — the pinned command center",
+    setup: "memoryDemo",
+    steps: [
+      { kind: "state", caption: "A populated deal room — artifacts open as tabs", holdMs: 2000 },
+      {
+        kind: "click", sel: '[data-testid="home-tab"]', caption: "A pinned Home tab — always one click away",
+        afterCaption: "Room Home: command bar, inventory, and quick actions",
+        after: { sel: '[data-testid="room-home-surface"]', state: "visible" },
+      },
+      { kind: "state", caption: "The full inventory — every artifact, even unopened ones", holdMs: 2200 },
+      {
+        kind: "click", sel: '[data-testid="room-home-artifact"]:has-text("Runway")', caption: "Dive into any artifact",
+        afterCaption: "It opens as a tab — Home steps aside",
+        after: { textSel: '[data-testid="artifact-tabs"]', includes: "Runway" },
+      },
+      { kind: "state", caption: "Your command center, never buried in tabs", settleMs: 1200, holdMs: 2400 },
+    ],
+  },
 ];

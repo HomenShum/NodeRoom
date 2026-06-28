@@ -519,6 +519,10 @@ capture/render commands remain `npm run walkthroughs` + `npm run walkthroughs:re
 ![Fresh startup diligence room with teammates joining by code](docs/walkthroughs/startup-diligence-live-join.gif)
 <sub>Live Convex walkthrough: a fresh Startup Banking Diligence War Room is created, the room code is shared, Priya joins to bulk-run CardioNova plus the startup-banking list, and Alex joins to own runway/milestone questions. This proves the live create/join/multi-user room shell; the richer agent package above is intentionally deterministic until the live provider eval is fully green.</sub>
 
+### Room Home — the pinned command center
+![Room Home walkthrough: a pinned Home tab opens the command center with the full room inventory; clicking an artifact opens it as a tab and steps Home aside](docs/walkthroughs/room-home.gif)
+<sub>Deterministic memory-mode walkthrough: in a populated room, a pinned, non-closeable <strong>Home</strong> tab sits first in the work-surface tab strip. Opening it reveals the room command center — headline, a NodeAgent command bar, quick-action chips, and the full <strong>Room Inventory</strong> (every artifact, including ones not currently open as tabs). Clicking any inventory artifact (e.g. Runway / milestones) opens it as a new active tab and steps Home aside. When an agent job is running it surfaces here as a "work lane" (running / queued / needs-attention). Spec: <a href="scripts/walkthroughs/specs.ts"><code>scripts/walkthroughs/specs.ts</code></a> (<code>room-home</code>), regression net: <a href="e2e/room-home-tab.spec.ts"><code>e2e/room-home-tab.spec.ts</code></a> + <a href="tests/roomHomeWorkLanes.test.tsx"><code>tests/roomHomeWorkLanes.test.tsx</code></a>.</sub>
+
 ### Join a live room & chat
 ![Join a live room and chat — walkthrough](docs/walkthroughs/chat.gif)
 
