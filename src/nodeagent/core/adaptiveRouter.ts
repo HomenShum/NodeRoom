@@ -79,7 +79,7 @@ export interface ReviewAdaptiveRoute {
 }
 
 export function defaultRouteForTask(taskType: AdaptiveRouteRequest["taskType"]): string {
-  if (taskType === "research" || taskType === "finance") return process.env.AGENT_RESEARCH_MODEL ?? "deepseek/deepseek-v4-flash";
+  if (taskType === "research" || taskType === "finance") return process.env.AGENT_RESEARCH_MODEL ?? "deepseek/deepseek-v3.2";
   if (taskType === "router") return process.env.AGENT_ROUTER_MODEL ?? OPENROUTER_FREE_AUTO_MODEL;
   return process.env.AGENT_MODEL ?? "gemini-3.5-flash";
 }
@@ -123,7 +123,7 @@ export function chooseNodeAgentRoute(req: NodeAgentRouteRequest): NodeAgentRoute
     };
   }
   if (req.risk === "high" || req.requiresManagedWrites || req.requiresVisionOrFiles || req.task === "finance") {
-    const modelId = "deepseek/deepseek-v4-flash";
+    const modelId = process.env.AGENT_RESEARCH_MODEL ?? "deepseek/deepseek-v3.2";
     return {
       model: modelId,
       lane: "deep",

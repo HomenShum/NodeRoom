@@ -142,11 +142,17 @@ function maxStepsForJob(entrypoint: ProviderEgressEntrypoint, runtimeProfile: Cl
   return envNumber("FREE_AUTO_JOB_MAX_STEPS_PER_SLICE", defaultMaxStepsForEntrypoint(entrypoint), 1, 256);
 }
 
-function spendLimitsForJob(runtimeProfile: ClaimedJob["runtimeProfile"]) {
+function spendLimitsForJob(runtimeProfile: ClaimedJob["runtimeProfile"], mode?: "variance" | "research") {
   if (isBenchmarkCompletionProfile(runtimeProfile)) {
     return {
       maxTokens: envNumber("BENCHMARK_AGENT_MAX_TOKENS_PER_SLICE", 8_000_000, 1_000, 64_000_000),
       maxCostUsd: envNumber("BENCHMARK_AGENT_MAX_USD_PER_SLICE", 250, 0.01, 5_000),
+    };
+  }
+  if (mode === "research") {
+    return {
+      maxTokens: envNumber("AGENT_RESEARCH_MAX_TOKENS_PER_SLICE", 500_000, 1_000, 4_000_000),
+      maxCostUsd: envNumber("AGENT_RESEARCH_MAX_USD_PER_SLICE", 5, 0.01, 100),
     };
   }
   return {
@@ -423,7 +429,7 @@ export const runFreeAutoJobSlice = internalAction({
       2, 40,
     );
     const maxSteps = maxStepsForJob(entrypoint, claimed.runtimeProfile);
-    const spendLimits = spendLimitsForJob(claimed.runtimeProfile);
+    const spendLimits = spendLimitsForJob(claimed.runtimeProfile, claimed.mode);
     const deadlineAt = t0 + sliceBudgetMs;
     const activeFrame = claimed.activeReasoningFrame
       ? normalizeClaimedFrame(claimed.activeReasoningFrame, String(claimed.jobId))
