@@ -40,9 +40,9 @@ bed**, verified two ways (deterministic ffmpeg + Gemini VLM), plus a one-command
 - [~] **partial** — Research generalizes beyond the 2 seeded sheets (unrecognized goal dead-ends at "staged next", `store.tsx:946`).
 - [x] **done** — **Evidence** (strongest stage): Trace tab + unified AttentionOverlay/citation box + click-through to source cell (`TraceSurface.tsx`, inline + replay).
 - [x] **done** — **Brief** *engine*: `buildBankerCoachPacket` (evidence/cues/runway/review/handoff/readiness) + ranked NoteworthyInbox.
-- [ ] **missing** — **Brief** *surface*: no first-class "Today's Brief" / ranked daily action view (grep `TodaysBrief/ActionBrief/DailyBrief` = 0). **The wedge's headline promise has no dedicated top-level UI.**
+- [x] **done** — **Brief** *surface*: first-class "Today's Brief" pinned work-surface tab — ranked actions (risk→watch→info), readiness rollup, evidence click-through (`src/ui/panels/BriefSurface.tsx`, wired into `Artifact.tsx`). Verified live in memory mode (`specs.ts#brief`).
 - [x] **done** — **Handoff**: sheet → XLSX export (`Artifact.tsx:203`).
-- [ ] **missing** — **Handoff** draft-body generation wired to UI: `buildDownstreamHandoffDraft` has **zero** UI callers (dead in client); Coach Handoff tab is display-only chips.
+- [x] **done** — **Handoff** draft-body generation wired to UI: the Brief surface calls `buildDownstreamHandoffDraft(target, …)` on click and renders the copy-able draft (resolves the dead-code gap). _(The Coach panel's Handoff tab remains a dry-run preview — lower priority.)_
 
 ### Demo / walkthrough pipeline
 - [x] **done** — TTS: `voiceover.ts` (ElevenLabs **or** OpenAI fallback) + ffprobe timing reconcile.
@@ -54,8 +54,8 @@ bed**, verified two ways (deterministic ffmpeg + Gemini VLM), plus a one-command
 ## What's needed next (prioritized)
 
 1. **P0 — revert the answer-key contamination** in `harbor_adapter.py` (disable the `is_*_task → write_*_package` dispatch) so general-only mode emits only general-agent output. Do not present BTB numbers as honest capability until then.
-2. **Wedge surface — ship a first-class "Today's Brief"** ranked-action view (pinned work-surface tab in `Artifact.tsx` or RoomHome hero), backed by the existing packet engine. This is the precondition for a *live-captured* (not card-narrated) wedge episode.
-3. **Wedge handoff — wire `buildDownstreamHandoffDraft`** to the Coach Handoff tab (drafts on click), turning the six targets from chips into real outputs.
+2. ~~Wedge surface — ship a first-class "Today's Brief"~~ — **DONE** (`src/ui/panels/BriefSurface.tsx`, pinned tab, verified live; the demo's Brief scene is now live footage, not a claim card).
+3. ~~Wedge handoff — wire `buildDownstreamHandoffDraft`~~ — **DONE** (the Brief surface generates copy-able drafts on click).
 4. **Phase-6 honest number** — run held-out + non-BTB with materializers OFF; fill the `?` cells in `BTB_GENERALIZATION_DIAGNOSTIC.md` and emit the per-slice scorecard.
 5. **Backfill cheap RALPH anchors** — `capability-spec.md` / `benchmark-choice.md` / `SETUP.md` from existing prose; decide if `docs/system-map.graph.json` is in scope.
 6. **Demo follow-up** — once (2)+(3) land, author `episodes/noderoom-action-brief-v1` with *live* Brief/Handoff footage; meanwhile a P2 on the current episode: add a zoom/crop to the `capture` scene for mobile legibility (`remotion/Episode.tsx` `videoScale`).

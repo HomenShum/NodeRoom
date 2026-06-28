@@ -39,13 +39,15 @@ scenes:
     callout: "every cell cites its source"
 
   - id: brief
-    type: title_card
+    type: app_capture
     status: ready
-    narration: "Out comes today's brief — a ranked list of what to do next, not a wall of search results."
+    narration: "Out comes today's brief — a ranked list of what to do next, not a wall of search results. Each action carries a source, and one click drafts the handoff."
+    source: docs/walkthroughs/brief.mp4
+    evidence: scripts/walkthroughs/specs.ts#brief
     codeTitle: "Today's Brief"
-    callout: "1 · Reply to Sarah — high-value lead"
-    callout: "2 · Review the renewal notice — finance action"
-    callout: "3 · Ask the founder for the deck — traction unclear"
+    callout: "ranked actions, risk first"
+    callout: "each backed by a source"
+    callout: "one-click handoff draft"
 
   - id: evidence
     type: code_diff
