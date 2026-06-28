@@ -658,7 +658,8 @@ input { font-family: inherit; }
 .r-filetab { max-width: 184px; padding-right: 6px; }
 .r-filetab-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .r-filetab-x { display: inline-flex; align-items: center; justify-content: center; width: 16px; height: 16px; margin-left: 1px; border-radius: 4px; color: var(--text-tertiary); opacity: 0; flex: none; transition: opacity var(--motion-fast), background var(--motion-fast); }
-.r-filetab:hover .r-filetab-x, .r-filetab[data-active="true"] .r-filetab-x { opacity: 1; }
+.r-filetab:hover .r-filetab-x, .r-filetab[data-active="true"] .r-filetab-x, .r-filetab-x:focus-visible { opacity: 1; }
+.r-filetab-x:focus-visible { outline: 2px solid var(--accent-primary); outline-offset: 1px; color: var(--text-primary); }
 .r-filetab-x:hover { background: var(--bg-hover); color: var(--text-primary); }
 .r-artifact-export { min-height: 28px; white-space: nowrap; flex: 0 0 auto; }
 .r-artifact-export svg { flex: none; }

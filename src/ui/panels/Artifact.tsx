@@ -186,7 +186,7 @@ function ArtifactSurface({ roomId, me, proof, artId, onArt, style, surfaceKey = 
                   <span className="r-filetab-name">{artifactTabDisplay(a).title}</span>
                   {artifactTabDisplay(a).badge && <span className="r-file-ext r-filetab-ext">{artifactTabDisplay(a).badge}</span>}
                   {onCloseArtifact && openTabArts.length > 1 && (
-                    <span className="r-filetab-x" role="button" aria-label={`Close ${a.title}`} onClick={(e) => { e.stopPropagation(); onCloseArtifact(a.id); }}><X size={12} /></span>
+                    <span className="r-filetab-x" role="button" tabIndex={0} aria-label={`Close ${a.title}`} onClick={(e) => { e.stopPropagation(); onCloseArtifact(a.id); }} onAuxClick={(e) => { if (e.button === 1) { e.preventDefault(); e.stopPropagation(); onCloseArtifact(a.id); } }} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); e.stopPropagation(); onCloseArtifact(a.id); } }}><X size={12} /></span>
                   )}
                 </button>
               ))
