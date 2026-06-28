@@ -1,0 +1,112 @@
+{
+  "benchmarkType": "nodemem_fair_value",
+  "awarenessWindow": 6,
+  "runs": [
+    {
+      "arm": "bare",
+      "scale": "small",
+      "trial": 1,
+      "roomId": "sh74tbxww7jpdd9e4yzmph2ksn89hqgc",
+      "recalled": 5,
+      "total": 5,
+      "recall": 1,
+      "latencyMs": 28228
+    },
+    {
+      "arm": "bare",
+      "scale": "small",
+      "trial": 2,
+      "roomId": "sh7ax07epfnjabqwj37nsnvbhd89h4td",
+      "recalled": 5,
+      "total": 5,
+      "recall": 1,
+      "latencyMs": 20236
+    },
+    {
+      "arm": "memory",
+      "scale": "small",
+      "trial": 1,
+      "roomId": "sh7ayep0g73xb0ppy4x6d2pbmx89hbcb",
+      "recalled": 5,
+      "total": 5,
+      "recall": 1,
+      "latencyMs": 20223
+    },
+    {
+      "arm": "memory",
+      "scale": "small",
+      "trial": 2,
+      "roomId": "sh76r7vd51332n79pg6ckxwg3n89g0sx",
+      "recalled": 5,
+      "total": 5,
+      "recall": 1,
+      "latencyMs": 40308
+    },
+    {
+      "arm": "bare",
+      "scale": "large",
+      "trial": 1,
+      "roomId": "sh73g95ahg9rkqsy07z0c0nvjd89h8ht",
+      "recalled": 0,
+      "total": 5,
+      "recall": 0,
+      "latencyMs": 36316
+    },
+    {
+      "arm": "bare",
+      "scale": "large",
+      "trial": 2,
+      "roomId": "sh7957zwmb12hccfw5xbkr1brd89hqfv",
+      "recalled": 0,
+      "total": 5,
+      "recall": 0,
+      "latencyMs": 313320
+    },
+    {
+      "arm": "memory",
+      "scale": "large",
+      "trial": 1,
+      "roomId": "sh720ywg5kbtqb3xxz2f0edq3189hbte",
+      "recalled": 5,
+      "total": 5,
+      "recall": 1,
+      "latencyMs": 32275
+    },
+    {
+      "arm": "memory",
+      "scale": "large",
+      "trial": 2,
+      "roomId": "sh7ama5x7xmy4rx0d9z4epwzm189hsze",
+      "recalled": 5,
+      "total": 5,
+      "recall": 1,
+      "latencyMs": 24301
+    }
+  ],
+  "summary": [
+    {
+      "scale": "small",
+      "arm": "bare",
+      "trials": 2,
+      "recallMean": 1
+    },
+    {
+      "scale": "small",
+      "arm": "memory",
+      "trials": 2,
+      "recallMean": 1
+    },
+    {
+      "scale": "large",
+      "arm": "bare",
+      "trials": 2,
+      "recallMean": 0
+    },
+    {
+      "scale": "large",
+      "arm": "memory",
+      "trials": 2,
+      "recallMean": 1
+    }
+  ]
+}

@@ -26,6 +26,7 @@ export default defineConfig({
     "e2e/benchmark-ui-spreadsheetbench-v2.spec.ts",
     "e2e/nodemem-benchmark.spec.ts",
     "e2e/nodemem-recall-benchmark.spec.ts",
+    "e2e/nodemem-fairtest.spec.ts",
   ],
   fullyParallel: false,
   workers: 1,

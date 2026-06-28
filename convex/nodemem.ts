@@ -209,15 +209,55 @@ export const benchRoomAnswer = query({
       .withIndex("by_room", (q) => q.eq("roomId", args.roomId))
       .order("desc")
       .take(8);
-    const text = jobs
+    const finalTexts = jobs
       .map((j) => (j as { finalText?: string }).finalText ?? "")
       .filter(Boolean)
       .join(" ║ ");
+    // The agent often writes the ANSWER to sheet CELLS, not finalText (it just summarizes "written to
+    // rows r1-r5"). Collect the room's cell values too so the recall grader sees the real answer.
+    const artifacts = await ctx.db
+      .query("artifacts")
+      .withIndex("by_room", (q) => q.eq("roomId", args.roomId))
+      .take(10);
+    let cellText = "";
+    for (const art of artifacts) {
+      const els = await ctx.db
+        .query("elements")
+        .withIndex("by_artifact", (q) => q.eq("artifactId", art._id))
+        .take(300);
+      cellText += ` ║ ${els.map((e) => (typeof e.value === "string" ? e.value : JSON.stringify(e.value ?? ""))).filter(Boolean).join(" ║ ")}`;
+    }
+    const text = `${finalTexts} ║ ${cellText}`;
     const done = jobs.some((j) => {
       const job = j as { status?: string; completedAt?: number };
       return job.status === "completed" || job.status === "failed" || job.status === "blocked" || job.completedAt != null;
     });
     return { text, done, jobs: jobs.length };
+  },
+});
+
+// ─── benchSeedTrace (fair-test only: seed the room's bounded awareness channel) ──────────────────
+
+/**
+ * Seed a room `traces` row — the channel awareness() reads (last 6, collab.ts) and the agent's
+ * existing context already surfaces. The FAIR value test seeds the SAME facts into BOTH this bounded
+ * channel (so the bare agent can see RECENT ones) AND NodeMem episodes, then scales past 6 to show
+ * NodeMem recalls what awareness has dropped. Env-gated + secret, inert in production.
+ */
+export const benchSeedTrace = mutation({
+  args: { roomId: v.id("rooms"), type: v.string(), summary: v.string(), ts: v.number(), secret: v.string() },
+  handler: async (ctx, args): Promise<{ ok: boolean }> => {
+    if (!nodeMemRoomConfigEnabled() || !process.env.NODEMEM_ROOM_CONFIG_SECRET || args.secret !== process.env.NODEMEM_ROOM_CONFIG_SECRET) {
+      throw new Error("nodemem_room_config_forbidden");
+    }
+    await ctx.db.insert("traces", {
+      roomId: args.roomId,
+      ts: args.ts,
+      actor: { kind: "user", id: "bench-member", name: "Mark Liu" },
+      type: args.type,
+      summary: args.summary,
+    });
+    return { ok: true };
   },
 });
 
