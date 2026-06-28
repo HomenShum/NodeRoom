@@ -477,6 +477,8 @@ input { font-family: inherit; }
 .r-msg .who { font-size: 12.5px; font-weight: 700; letter-spacing: -.01em; }
 .r-msg .time { font-size: 10.5px; color: var(--text-tertiary); }
 .r-msg .text { font-size: 13.5px; line-height: 1.5; color: var(--text-secondary); overflow-wrap: anywhere; }
+/* Reading column: cap AI replies at ~68ch so long answers don't sprawl the full panel (Perplexity/ChatGPT/Claude). */
+.r-chat .r-md, .r-agent-unified-stream .r-md { max-width: 68ch; line-height: 1.6; }
 .r-md > :first-child { margin-top: 0; }
 .r-md > :last-child { margin-bottom: 0; }
 .r-md p { margin: 0 0 8px; }

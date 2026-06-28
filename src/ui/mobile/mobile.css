@@ -677,7 +677,8 @@ button.na-row:hover .chevR { transform: translateX(3px); color: var(--na-accent)
 .na-conv { display: flex; flex-direction: column; gap: 13px; }
 .na-bubble { max-width: 86%; padding: 11px 14px; font-size: var(--na-fs-body); line-height: 1.55; border-radius: 18px; }
 .na-bubble.me { align-self: flex-end; background: linear-gradient(to bottom right, var(--na-accent), var(--na-accent-hover)); color: #fff; border-bottom-right-radius: 6px; box-shadow: var(--glint); }
-.na-bubble.agent { align-self: flex-start; background: var(--bg-secondary); border: 1px solid var(--border-color); color: var(--ink-agent); border-bottom-left-radius: 6px; box-shadow: var(--shadow-xs); }
+/* Agent replies read as a full-width document, not a messenger bubble (the brief's #1 chat anti-pattern). */
+.na-bubble.agent { align-self: stretch; max-width: 100%; background: transparent; border: 0; border-radius: 0; box-shadow: none; padding-left: 2px; padding-right: 2px; color: var(--ink-agent); }
 .na-bubble-who { display: flex; align-items: center; gap: 7px; margin-bottom: 5px; font-size: 11.5px; font-weight: 700; color: var(--text-muted); }
 .na-bubble-who .na-av { width: 20px; height: 20px; border-radius: 6px; font-size: 9px; }
 .na-agent-status { align-self: flex-start; display: inline-flex; align-items: center; gap: 9px; padding: 9px 14px; border: 1px solid var(--border-color); border-radius: 16px; background: var(--bg-secondary); color: var(--text-muted); font-size: var(--na-fs-sm); box-shadow: var(--shadow-xs); }
