@@ -1,4 +1,4 @@
-import { Fragment, type HTMLAttributes, type ReactNode } from "react";
+import { Fragment, useMemo, type HTMLAttributes, type ReactNode } from "react";
 
 type Block =
   | { kind: "paragraph"; lines: string[] }
@@ -14,7 +14,8 @@ type MarkdownBodyProps = HTMLAttributes<HTMLDivElement> & {
 };
 
 export function MarkdownBody({ text, cursor, className = "text", children, ...props }: MarkdownBodyProps) {
-  const blocks = parseMarkdownBlocks(compactGeneratedFileLists(text));
+  // Memoize: the transcript re-renders on every streamed token; only re-parse when the text changes.
+  const blocks = useMemo(() => parseMarkdownBlocks(compactGeneratedFileLists(text)), [text]);
   return (
     <div className={`${className} r-md`} {...props}>
       {blocks.map((block, index) => renderBlock(block, `b${index}`))}
