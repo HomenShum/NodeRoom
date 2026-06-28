@@ -194,8 +194,8 @@ input { font-family: inherit; }
 .r-inbox-action:hover { background: var(--bg-hover); }
 .r-inbox-action--dismiss { color: var(--text-tertiary); }
 .r-inbox-action--dismiss:hover { color: var(--text-secondary); }
-.r-inbox-action--primary { border-color: var(--accent); color: var(--accent); }
-.r-inbox-action--primary:hover { background: var(--accent-tint, rgba(59,130,246,.08)); }
+.r-inbox-action--primary { border-color: var(--accent-primary); color: var(--accent-primary); }
+.r-inbox-action--primary:hover { background: var(--accent-tint); }
 .r-inbox-batch { display: flex; align-items: center; gap: 6px; padding: 6px 10px; border-bottom: 1px solid var(--line); }
 .r-inbox-check { display: inline-flex; align-items: center; justify-content: center; width: 18px; height: 18px; border: none; background: transparent; cursor: pointer; color: var(--text-tertiary); padding: 0; flex: none; }
 .r-inbox-check:hover { color: var(--text-secondary); }
@@ -782,7 +782,7 @@ input { font-family: inherit; }
 .r-wiki-doc section { margin: 0 0 28px; scroll-margin-top: 14px; }
 .r-wiki-doc h1 { font-size: 22px; line-height: 1.15; margin: 4px 0 10px; letter-spacing: -.02em; }
 .r-wiki-doc h2 { font-size: 15px; margin: 0 0 10px; letter-spacing: -.01em; }
-.r-wiki-doc p { font-size: 13px; line-height: 1.65; color: var(--text-secondary); max-width: 76ch; margin: 0 0 12px; }
+.r-wiki-doc p { font-size: 15px; line-height: 1.65; color: var(--text-secondary); max-width: 68ch; margin: 0 0 16px; }
 .r-wiki-doc code { font-family: var(--font-mono); font-size: 11px; background: var(--bg-secondary); border: 1px solid var(--line); border-radius: 5px; padding: 1px 5px; color: var(--text-secondary); }
 .r-wiki-metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; margin-top: 15px; max-width: 620px; }
 .r-wiki-metrics span { border: 1px solid var(--line); border-radius: 8px; padding: 9px 10px; background: var(--bg-secondary); color: var(--text-muted); font-size: 11px; }
@@ -798,7 +798,7 @@ input { font-family: inherit; }
 .r-wiki-list-row > * { min-width: 0; overflow-wrap: anywhere; }
 .r-wiki-list-row:last-child { border-bottom: 0; }
 .r-wiki-list-row span:first-child { color: var(--text-primary); font-weight: 700; }
-.r-wiki-steps { color: var(--text-secondary); font-size: 13px; line-height: 1.6; padding-left: 20px; max-width: 82ch; }
+.r-wiki-steps { color: var(--text-secondary); font-size: 15px; line-height: 1.6; padding-left: 20px; max-width: 72ch; }
 .r-wiki-steps li { margin: 0 0 7px; }
 .r-wiki-run { margin-top: 12px !important; font-family: var(--font-mono); font-size: 11.5px !important; color: var(--text-muted) !important; }
 .r-wiki-timeline { display: flex; flex-direction: column; gap: 7px; }
@@ -806,9 +806,10 @@ input { font-family: inherit; }
 .r-wiki-timeline-row time { font-family: var(--font-mono); color: var(--text-tertiary); font-size: 10.5px; }
 
 .r-note { padding: 22px 26px; max-width: 680px; }
+.r-note .ProseMirror { max-width: 68ch; }
 .r-note .nb-heading { font-size: 19px; font-weight: 700; letter-spacing: -.02em; margin: 0 0 14px; }
 .r-note .nb-block { margin: 0 0 16px; }
-.r-note .nb-para { font-size: 14px; line-height: 1.7; color: var(--text-secondary); margin: 0; }
+.r-note .nb-para { font-size: 15px; line-height: 1.7; color: var(--text-secondary); margin: 0; }
 .r-note .nb-block[contenteditable] { outline: none; border-radius: 8px; }
 .r-note .nb-block[contenteditable]:hover { background: var(--bg-secondary); }
 .r-note .nb-block.locked { background: var(--accent-tint); padding: 8px 10px; margin-left: -10px; }
@@ -816,7 +817,7 @@ input { font-family: inherit; }
 .r-note .ProseMirror { outline: none; }
 .r-note .ProseMirror h1 { font-size: 19px; font-weight: 700; letter-spacing: -.02em; margin: 0 0 14px; color: var(--text-primary); }
 .r-note .ProseMirror h2 { font-size: 16px; font-weight: 700; margin: 0 0 12px; }
-.r-note .ProseMirror p { font-size: 14px; line-height: 1.7; color: var(--text-secondary); margin: 0 0 14px; }
+.r-note .ProseMirror p { font-size: 15px; line-height: 1.7; color: var(--text-secondary); margin: 0 0 16px; }
 .r-note .ProseMirror ul, .r-note .ProseMirror ol { padding-left: 22px; color: var(--text-secondary); }
 .r-note .ProseMirror blockquote { border-left: 2px solid var(--accent-border); padding-left: 14px; font-style: italic; color: var(--text-secondary); }
 .r-note .ProseMirror code { font-family: var(--font-mono); font-size: 12.5px; background: var(--bg-secondary); padding: 1px 5px; border-radius: 5px; }
@@ -1793,7 +1794,7 @@ body.nr-honesty-on [data-evidence-class="unsourced"]     { background-color: col
   background: var(--bg-secondary); color: var(--text-secondary); cursor: pointer; font-size: 11px; font-weight: 700;
 }
 .r-tracevu-honesty-toggle[data-on="true"] { background: var(--honesty-measured); color: #fff; border-color: var(--honesty-measured); }
-.r-tracevu-honesty-toggle:focus-visible { outline: 2px solid var(--accent-primary, #2563eb); outline-offset: 2px; }
+.r-tracevu-honesty-toggle:focus-visible { outline: 2px solid var(--accent-primary); outline-offset: 2px; }
 
 .r-tracevu-honesty-legend { display: inline-flex; gap: 8px; flex-wrap: wrap; }
 .r-tracevu-honesty-legend > span {
@@ -1851,9 +1852,9 @@ body.nr-honesty-on [data-evidence-class="unsourced"]     { background-color: col
   background: transparent; font-size: 11px; cursor: pointer; font-weight: 500;
 }
 .r-tracevu-refutations-fbtn[data-on="true"] {
-  background: var(--accent-primary, #2563eb); color: #fff; border-color: var(--accent-primary, #2563eb);
+  background: var(--accent-primary); color: #fff; border-color: var(--accent-primary);
 }
-.r-tracevu-refutations-fbtn:focus-visible { outline: 2px solid var(--accent-primary, #2563eb); outline-offset: 2px; }
+.r-tracevu-refutations-fbtn:focus-visible { outline: 2px solid var(--accent-primary); outline-offset: 2px; }
 
 .r-tracevu-refutations-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
 .r-tracevu-refutation {
