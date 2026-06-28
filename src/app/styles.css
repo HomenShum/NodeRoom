@@ -1084,7 +1084,8 @@ button.r-tracevu-step:hover, button.r-tracevu-step:focus-visible { border-color:
 @media (prefers-reduced-motion: no-preference) {
   .r-focus-flag { transition: opacity .12s ease; }
   .r-focus-box[data-focus-kind="user_focus"],
-  .r-focus-box[data-focus-kind="agent_write"] { animation: r-focus-pulse 1.6s ease-in-out infinite; }
+  .r-focus-box[data-focus-kind="agent_write"] { animation: r-focus-pulse 1.6s ease-in-out 3; }
+@media (prefers-reduced-motion: reduce) { .r-focus-box[data-focus-kind="user_focus"], .r-focus-box[data-focus-kind="agent_write"] { animation: none; } }
   @keyframes r-focus-pulse {
     0%, 100% { box-shadow: 0 0 0 1px var(--bg-primary); }
     50% { box-shadow: 0 0 0 1px var(--bg-primary), 0 0 0 4px color-mix(in srgb, var(--focus-color) 22%, transparent); }

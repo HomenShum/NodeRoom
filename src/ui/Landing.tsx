@@ -151,6 +151,7 @@ export function Landing({
           <div
             className="r-room-modal-scrim"
             onMouseDown={(e) => { if (e.target === e.currentTarget) setJoinDialogCode(null); }}
+            onKeyDown={(e) => { if (e.key === "Escape") { e.stopPropagation(); setJoinDialogCode(null); } }}
           >
             <div className="r-room-modal" role="dialog" aria-modal="true" aria-labelledby="join-room-title">
               <div className="r-room-modal-head">
@@ -200,6 +201,7 @@ export function Landing({
           <div
             className="r-room-modal-scrim"
             onMouseDown={(e) => { if (e.target === e.currentTarget) setCreateDialogCode(null); }}
+            onKeyDown={(e) => { if (e.key === "Escape") { e.stopPropagation(); setCreateDialogCode(null); } }}
           >
             <div className="r-room-modal" role="dialog" aria-modal="true" aria-labelledby="create-room-title">
               <div className="r-room-modal-head">
