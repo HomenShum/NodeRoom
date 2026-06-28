@@ -39,7 +39,7 @@ import { MANAGED_LOCK_SYSTEM_PROMPT } from "../src/nodeagent/models/prompts/syst
 import { convexModel as agentModel, convexPriceRun as priceRun } from "../src/nodeagent/models/convexModel";
 import { buildResearchContext, buildNoteContext, buildWallContext } from "../src/nodeagent/core/worldModel";
 import { injectMemoryIntoSystemPrompt } from "../src/nodemem/memoryContextBuilder";
-import { nodeMemInjectionEnabled } from "./nodemem";
+import { nodeMemInjectionEnabled, nodeMemRoomConfigEnabled } from "./nodemem";
 import { runIdempotencyKey } from "../src/nodeagent/core/idempotency";
 import { compactMessages } from "../src/nodeagent/core/contextCompactor";
 import { journalSliceKey } from "../src/nodeagent/core/journal";
@@ -556,17 +556,18 @@ export const runRoomAgent = action({
       // NodeMem Phase 3: when injection is enabled (NODEMEM_MODE=active_ab), fetch the
       // ContextPack from Convex and inject it into the system prompt as bounded memory context.
       let systemPrompt: string = MANAGED_LOCK_SYSTEM_PROMPT;
-      if (nodeMemInjectionEnabled()) {
+      if (nodeMemInjectionEnabled() || nodeMemRoomConfigEnabled()) {
         try {
           const pack = await ctx.runQuery(nodememAssembleContextPackRef, {
             roomId: a.roomId,
             goal: a.goal,
             userId: String(a.requester.actor.id),
             maxFacts: 30,
-            maxTokens: 1200,
+            // budget intentionally omitted — the query resolves the per-room budget (600 bounded / 1200 full)
           });
           if (pack) {
-            systemPrompt = injectMemoryIntoSystemPrompt(systemPrompt, pack as never, { maxTokens: 1200 });
+            const budget = (pack as { maxTokensBudget?: number }).maxTokensBudget ?? 1200;
+            systemPrompt = injectMemoryIntoSystemPrompt(systemPrompt, pack as never, { maxTokens: budget });
           }
         } catch {
           // Memory injection must never block the agent run — fail silently to the base prompt.

@@ -1609,6 +1609,16 @@ export default defineSchema({
     .index("by_content_hash", ["contentHash"])
     .index("by_uncompiled", ["compiled", "createdAt"]),
 
+  // Per-room NodeMem mode/budget override — benchmark + dev only, gated by NODEMEM_ROOM_CONFIG_ENABLED.
+  // Absent row → fall back to the global NODEMEM_MODE env, so production rooms are unaffected.
+  nodeMemRoomConfig: defineTable({
+    roomId: v.id("rooms"),
+    mode: v.union(v.literal("off"), v.literal("shadow"), v.literal("active_ab")),
+    maxTokens: v.optional(v.number()),
+    setBy: v.optional(v.string()),
+    updatedAt: v.number(),
+  }).index("by_room", ["roomId"]),
+
   // Compiled entities extracted from episodes.
   nodeMemEntities: defineTable({
     roomId: v.optional(v.id("rooms")),

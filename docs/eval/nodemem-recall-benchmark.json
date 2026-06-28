@@ -1,0 +1,127 @@
+{
+  "benchmarkType": "long_context_recall",
+  "generatedSizes": [
+    50
+  ],
+  "trials": 1,
+  "runs": [
+    {
+      "size": 50,
+      "variant": "bare",
+      "mode": "off",
+      "maxTokens": null,
+      "trial": 1,
+      "roomCode": "NROK98HWGH8",
+      "roomId": "sh79d1qza4x5hfgnhj31qd5ge589hnfk",
+      "episodes": 0,
+      "entities": 0,
+      "facts": 0,
+      "packTokens": null,
+      "packTrimmed": null,
+      "recalled": 0,
+      "answerable": 6,
+      "recall": 0,
+      "needsReview": 0,
+      "cellsWritten": 96,
+      "latencyMs": 32332
+    },
+    {
+      "size": 50,
+      "variant": "shadow",
+      "mode": "shadow",
+      "maxTokens": null,
+      "trial": 1,
+      "roomCode": "NRMB2JCX6E1",
+      "roomId": "sh76hdpn8x6zr1s0qx8jw7q4f989gspp",
+      "episodes": 50,
+      "entities": 23,
+      "facts": 82,
+      "packTokens": null,
+      "packTrimmed": null,
+      "recalled": 0,
+      "answerable": 6,
+      "recall": 0,
+      "needsReview": 0,
+      "cellsWritten": 96,
+      "latencyMs": 16223
+    },
+    {
+      "size": 50,
+      "variant": "bounded",
+      "mode": "active_ab",
+      "maxTokens": 600,
+      "trial": 1,
+      "roomCode": "NRJ6OV2XLZ6",
+      "roomId": "sh780e12vtxr1bd6m9wbj75j1h89hx9a",
+      "episodes": 50,
+      "entities": 23,
+      "facts": 82,
+      "packTokens": 528,
+      "packTrimmed": true,
+      "recalled": 0,
+      "answerable": 6,
+      "recall": 0,
+      "needsReview": 8,
+      "cellsWritten": 96,
+      "latencyMs": 44675
+    },
+    {
+      "size": 50,
+      "variant": "full",
+      "mode": "active_ab",
+      "maxTokens": 1200,
+      "trial": 1,
+      "roomCode": "NR86NF6YO05",
+      "roomId": "sh790cp03za48zcv6cjfcb158s89hdwa",
+      "episodes": 50,
+      "entities": 23,
+      "facts": 82,
+      "packTokens": 528,
+      "packTrimmed": true,
+      "recalled": 0,
+      "answerable": 6,
+      "recall": 0,
+      "needsReview": 9,
+      "cellsWritten": 96,
+      "latencyMs": 36612
+    }
+  ],
+  "summary": [
+    {
+      "size": 50,
+      "variant": "bare",
+      "trials": 1,
+      "recallMean": 0,
+      "recallStdev": 0,
+      "needsReviewMean": 0,
+      "packTokensMean": null
+    },
+    {
+      "size": 50,
+      "variant": "shadow",
+      "trials": 1,
+      "recallMean": 0,
+      "recallStdev": 0,
+      "needsReviewMean": 0,
+      "packTokensMean": null
+    },
+    {
+      "size": 50,
+      "variant": "bounded",
+      "trials": 1,
+      "recallMean": 0,
+      "recallStdev": 0,
+      "needsReviewMean": 8,
+      "packTokensMean": 528
+    },
+    {
+      "size": 50,
+      "variant": "full",
+      "trials": 1,
+      "recallMean": 0,
+      "recallStdev": 0,
+      "needsReviewMean": 9,
+      "packTokensMean": 528
+    }
+  ]
+}

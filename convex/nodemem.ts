@@ -14,9 +14,10 @@
  */
 
 import { v } from "convex/values";
-import { mutation, query, internalQuery } from "./_generated/server";
+import { mutation, query, internalQuery, type QueryCtx } from "./_generated/server";
 import type { Id } from "./_generated/dataModel";
 import { sha256Hex } from "./lib";
+import { pickRoomNodeMem } from "../src/nodemem/core/roomConfig";
 import { compileEpisode } from "../src/nodemem/core/memoryCompiler";
 import { planRetrieval, rankFacts } from "../src/nodemem/core/retrievalPlanner";
 import { partitionByEvidence, classifyConfidence } from "../src/nodemem/core/evidenceMemory";
@@ -41,6 +42,37 @@ export function nodeMemInjectionEnabled(): boolean {
   return nodeMemMode() === "active_ab";
 }
 
+/**
+ * Per-room NodeMem overrides are only honored when this dev/benchmark flag is set. In production the
+ * flag is unset, so every gate keeps its global fast-path (no extra read) and behaves exactly as before.
+ */
+export function nodeMemRoomConfigEnabled(): boolean {
+  return process.env.NODEMEM_ROOM_CONFIG_ENABLED === "1";
+}
+
+/**
+ * Resolve the effective NodeMem mode + token budget for a room: a per-room override row (dev-only) wins,
+ * otherwise fall back to the global NODEMEM_MODE. Reads at most one indexed row, and only when the
+ * per-room flag is enabled — production never hits the DB here.
+ */
+async function resolveRoomNodeMem(
+  ctx: Pick<QueryCtx, "db">,
+  roomId: Id<"rooms"> | undefined,
+): Promise<{ mode: NodeMemMode; maxTokens: number }> {
+  if (roomId && nodeMemRoomConfigEnabled()) {
+    const cfg = await ctx.db
+      .query("nodeMemRoomConfig")
+      .withIndex("by_room", (q) => q.eq("roomId", roomId))
+      .first();
+    if (cfg) {
+      const picked = pickRoomNodeMem({ mode: cfg.mode, maxTokens: cfg.maxTokens }, nodeMemMode());
+      return { mode: picked.mode as NodeMemMode, maxTokens: picked.maxTokens };
+    }
+  }
+  const picked = pickRoomNodeMem(null, nodeMemMode());
+  return { mode: picked.mode as NodeMemMode, maxTokens: picked.maxTokens };
+}
+
 // ─── recordEpisode ───────────────────────────────────────────────────────────
 
 export const recordEpisodeArgs = {
@@ -63,7 +95,11 @@ export const recordEpisodeArgs = {
 export const recordEpisode = mutation({
   args: recordEpisodeArgs,
   handler: async (ctx, args): Promise<{ episodeId: Id<"nodeMemEpisodes"> | null; duplicate: boolean }> => {
-    if (!nodeMemRecordingEnabled()) {
+    if (!nodeMemRecordingEnabled() && !nodeMemRoomConfigEnabled()) {
+      return { episodeId: null, duplicate: false };
+    }
+    const resolved = await resolveRoomNodeMem(ctx, args.roomId);
+    if (resolved.mode === "off") {
       return { episodeId: null, duplicate: false };
     }
 
@@ -106,6 +142,52 @@ export const recordEpisode = mutation({
     });
 
     return { episodeId, duplicate: false };
+  },
+});
+
+// ─── setNodeMemRoomConfig (per-room override; dev/benchmark only) ─────────────
+
+/**
+ * Set a per-room NodeMem mode + token budget. Gated by NODEMEM_ROOM_CONFIG_ENABLED so it THROWS in
+ * production (the flag is only set on the isolated dev/benchmark deployment) — no silent success on
+ * a disabled path. Rooms with no config row fall back to the global NODEMEM_MODE, so production
+ * behavior is unchanged. Upsert (one row per room) keeps this bounded and idempotent.
+ */
+export const setNodeMemRoomConfig = mutation({
+  args: {
+    roomId: v.id("rooms"),
+    mode: v.union(v.literal("off"), v.literal("shadow"), v.literal("active_ab")),
+    maxTokens: v.optional(v.number()),
+    secret: v.string(),
+  },
+  handler: async (ctx, args): Promise<{ ok: boolean }> => {
+    if (!nodeMemRoomConfigEnabled()) {
+      throw new Error("nodemem_room_config_disabled");
+    }
+    // Shared-secret auth: even on the enabled (dev/benchmark) deployment, the caller must present the
+    // secret set in NODEMEM_ROOM_CONFIG_SECRET. Closes the "anyone who guesses a roomId" abuse gap so
+    // the endpoint isn't an open room-state writer if the deployment is ever reachable.
+    const expectedSecret = process.env.NODEMEM_ROOM_CONFIG_SECRET;
+    if (!expectedSecret || args.secret !== expectedSecret) {
+      throw new Error("nodemem_room_config_forbidden");
+    }
+    const now = Date.now();
+    const existing = await ctx.db
+      .query("nodeMemRoomConfig")
+      .withIndex("by_room", (q) => q.eq("roomId", args.roomId))
+      .first();
+    if (existing) {
+      await ctx.db.patch(existing._id, { mode: args.mode, maxTokens: args.maxTokens, updatedAt: now });
+    } else {
+      await ctx.db.insert("nodeMemRoomConfig", {
+        roomId: args.roomId,
+        mode: args.mode,
+        maxTokens: args.maxTokens,
+        setBy: "benchmark",
+        updatedAt: now,
+      });
+    }
+    return { ok: true };
   },
 });
 
@@ -170,7 +252,10 @@ export const assembleContextPackForJobArgs = {
 export const assembleContextPackForJob = query({
   args: assembleContextPackForJobArgs,
   handler: async (ctx, args) => {
-    if (!nodeMemRecordingEnabled()) return null;
+    if (!nodeMemRecordingEnabled() && !nodeMemRoomConfigEnabled()) return null;
+    const resolved = await resolveRoomNodeMem(ctx, args.roomId);
+    // Injection happens only in active_ab; shadow records/compiles but never injects.
+    if (resolved.mode !== "active_ab") return null;
 
     // Gather entities for this room
     const entities = await ctx.db
@@ -266,8 +351,8 @@ export const assembleContextPackForJob = query({
     });
     const tokenEstimate = Math.ceil(packJson.length / 4);
 
-    // Apply token budget if specified
-    const maxTokens = args.maxTokens ?? 1200;
+    // Apply token budget — caller override wins, else the per-room resolved budget (600 bounded / 1200 full).
+    const maxTokens = args.maxTokens ?? resolved.maxTokens;
     const trimmedPackJson = tokenEstimate > maxTokens
       ? JSON.stringify({
           goal: args.goal,
@@ -296,7 +381,8 @@ export const assembleContextPackForJob = query({
       openQuestions,
       tokenEstimate: trimmedTokenEstimate,
       packJson: trimmedPackJson,
-      mode: nodeMemMode(),
+      maxTokensBudget: maxTokens,
+      mode: resolved.mode,
     };
   },
 });
@@ -310,7 +396,7 @@ export const listUncompiledEpisodes = internalQuery({
     limit: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
-    if (!nodeMemRecordingEnabled()) return [];
+    if (!nodeMemRecordingEnabled() && !nodeMemRoomConfigEnabled()) return [];
     const limit = args.limit ?? 20;
     return await ctx.db
       .query("nodeMemEpisodes")
@@ -376,7 +462,7 @@ export const listContextPacksByRoom = query({
     limit: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
-    if (!nodeMemRecordingEnabled()) return [];
+    if (!nodeMemRecordingEnabled() && !nodeMemRoomConfigEnabled()) return [];
     const limit = args.limit ?? 20;
     return await ctx.db
       .query("nodeMemContextPacks")
@@ -393,7 +479,11 @@ export const nodeMemStats = query({
     roomId: v.optional(v.id("rooms")),
   },
   handler: async (ctx, args) => {
-    if (!nodeMemRecordingEnabled()) {
+    if (!nodeMemRecordingEnabled() && !nodeMemRoomConfigEnabled()) {
+      return { mode: "off", episodes: 0, entities: 0, facts: 0, contextPacks: 0, uncompiled: 0 };
+    }
+    const resolved = await resolveRoomNodeMem(ctx, args.roomId);
+    if (resolved.mode === "off") {
       return { mode: "off", episodes: 0, entities: 0, facts: 0, contextPacks: 0, uncompiled: 0 };
     }
 
@@ -416,7 +506,7 @@ export const nodeMemStats = query({
         .collect();
       const uncompiled = episodes.filter((e) => !e.compiled).length;
       return {
-        mode: nodeMemMode(),
+        mode: resolved.mode,
         episodes: episodes.length,
         entities: entities.length,
         facts: facts.length,
@@ -431,7 +521,7 @@ export const nodeMemStats = query({
       .withIndex("by_uncompiled", (q) => q.eq("compiled", false))
       .take(1000);
     return {
-      mode: nodeMemMode(),
+      mode: resolved.mode,
       episodes: -1, // would need full scan
       entities: -1,
       facts: -1,

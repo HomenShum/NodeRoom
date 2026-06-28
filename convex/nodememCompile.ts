@@ -15,7 +15,7 @@ import { v } from "convex/values";
 import { internalAction, internalMutation, action } from "./_generated/server";
 import type { Doc, Id } from "./_generated/dataModel";
 import { internal } from "./_generated/api";
-import { nodeMemMode } from "./nodemem";
+import { nodeMemMode, nodeMemRoomConfigEnabled } from "./nodemem";
 import { compileEpisode } from "../src/nodemem/core/memoryCompiler";
 
 const DEFAULT_BATCH_SIZE = 20;
@@ -34,7 +34,7 @@ export const compileOneEpisode = internalMutation({
     episodeId: v.id("nodeMemEpisodes"),
   },
   handler: async (ctx, args) => {
-    if (nodeMemMode() === "off") return { compiled: false, reason: "mode_off" };
+    if (nodeMemMode() === "off" && !nodeMemRoomConfigEnabled()) return { compiled: false, reason: "mode_off" };
 
     const episode = await ctx.db.get(args.episodeId);
     if (!episode) return { compiled: false, reason: "not_found" };
@@ -142,7 +142,7 @@ export const compileBatch = internalAction({
   // Explicit return type breaks the api self-reference cycle (TS7022/7023) that otherwise
   // makes this handler — and compileBatchManual below — infer to `any`.
   handler: async (ctx, args): Promise<{ compiled: number; skipped: number; errors: number; total?: number }> => {
-    if (nodeMemMode() === "off") {
+    if (nodeMemMode() === "off" && !nodeMemRoomConfigEnabled()) {
       return { compiled: 0, skipped: 0, errors: 0 };
     }
 

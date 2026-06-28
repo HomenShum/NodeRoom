@@ -25,6 +25,7 @@ export default defineConfig({
     "e2e/human-agent-concurrency.spec.ts",
     "e2e/benchmark-ui-spreadsheetbench-v2.spec.ts",
     "e2e/nodemem-benchmark.spec.ts",
+    "e2e/nodemem-recall-benchmark.spec.ts",
   ],
   fullyParallel: false,
   workers: 1,
