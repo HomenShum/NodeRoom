@@ -950,7 +950,7 @@ input { font-family: inherit; }
 .r-handoff-status { flex: 0 1 220px; min-width: 0; padding: 3px 7px; border-radius: 999px; border: 1px solid rgba(31,138,91,.28); background: rgba(31,138,91,.1); color: var(--success-ink); font-size: 10.5px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 /* ── Trace work-surface tab: master-detail provenance (live agent + real QA run) ── */
-.r-tracevu { display: flex; min-height: 0; padding: 0; overflow: hidden; }
+.r-tracevu { display: flex; flex-direction: row; min-height: 0; padding: 0; overflow: hidden; }
 .r-tracevu-list { flex: none; width: 256px; min-height: 0; overflow-y: auto; border-right: 1px solid var(--line); padding: 8px; display: flex; flex-direction: column; gap: 6px; }
 .r-tracevu-rec { display: flex; flex-direction: column; gap: 4px; text-align: left; padding: 9px 10px; border-radius: 10px; border: 1px solid transparent; background: transparent; color: var(--text-secondary); cursor: pointer; transition: background var(--motion-fast), border-color var(--motion-fast); }
 .r-tracevu-rec:hover { background: var(--bg-hover); }
