@@ -1,11 +1,12 @@
 /**
- * Voiceover stage — ElevenLabs TTS for an episode's scene narrations + the timing-reconciliation
- * pass (narration length vs planned scene duration; flag scenes to lengthen/split).
+ * Voiceover stage — TTS for an episode's scene narrations + the timing-reconciliation pass
+ * (narration length vs planned scene duration; flag scenes to lengthen/split).
  *
  * Run:  npx tsx scripts/walkthroughs/voiceover.ts noderoom-live-collab-v1
- * Key resolution: ELEVENLABS_API_KEY env → ./.env.local → ../nodebench-ai/.env.local (workspace
- * sibling that holds the shared secrets). The key never gets printed or written anywhere.
- * Voice: ELEVENLABS_VOICE_ID env, default George (calm narrator premade voice).
+ * Provider: ElevenLabs when ELEVENLABS_API_KEY is set, else OpenAI TTS when OPENAI_API_KEY is set.
+ * Key resolution for each: env → ./.env.local → ../nodebench-ai/.env.local (shared secrets).
+ * Keys are never printed or written anywhere.
+ * Voice: ELEVENLABS_VOICE_ID (default George) / OPENAI_TTS_VOICE (default onyx) — calm narrator.
  * Outputs: episodes/<id>/voiceover/<scene>.mp3 + timings.json (real durations via ffprobe).
  */
 import { execSync } from "node:child_process";
@@ -17,14 +18,52 @@ const episodeId = process.argv[2];
 if (!episodeId) { console.error("usage: voiceover.ts <episodeId>"); process.exit(1); }
 const epDir = join(ROOT, "episodes", episodeId);
 
-function resolveKey(): string {
-  if (process.env.ELEVENLABS_API_KEY) return process.env.ELEVENLABS_API_KEY;
+/** Resolve any secret from env → ./.env.local → ../nodebench-ai/.env.local. Never printed. */
+function fromEnv(name: string): string | undefined {
+  if (process.env[name]) return process.env[name]!.trim();
   for (const p of [join(ROOT, ".env.local"), join(ROOT, "..", "nodebench-ai", ".env.local")]) {
     if (!existsSync(p)) continue;
-    const m = readFileSync(p, "utf8").match(/^ELEVENLABS_API_KEY=(.+)$/m);
+    const m = readFileSync(p, "utf8").match(new RegExp(`^${name}=(.+)$`, "m"));
     if (m) return m[1].trim();
   }
-  throw new Error("ELEVENLABS_API_KEY not found (env, .env.local, ../nodebench-ai/.env.local)");
+  return undefined;
+}
+
+type Tts = { provider: "elevenlabs" | "openai"; key: string };
+/** ElevenLabs preferred; fall back to OpenAI TTS when only OPENAI_API_KEY is available. */
+function resolveTts(): Tts {
+  const el = fromEnv("ELEVENLABS_API_KEY");
+  if (el) return { provider: "elevenlabs", key: el };
+  const oa = fromEnv("OPENAI_API_KEY");
+  if (oa) return { provider: "openai", key: oa };
+  throw new Error("No TTS key — set ELEVENLABS_API_KEY or OPENAI_API_KEY (env, .env.local, ../nodebench-ai/.env.local)");
+}
+
+/** One narration → mp3 bytes, via whichever provider resolved. Calm narrator voice both ways. */
+async function synth(tts: Tts, text: string): Promise<Buffer> {
+  if (tts.provider === "elevenlabs") {
+    const voiceId = process.env.ELEVENLABS_VOICE_ID ?? "JBFqnCBsd6RMkjVDRZzb"; // George — calm narrator
+    const res = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}?output_format=mp3_44100_128`, {
+      method: "POST",
+      headers: { "xi-api-key": tts.key, "content-type": "application/json" },
+      body: JSON.stringify({ text, model_id: "eleven_multilingual_v2", voice_settings: { stability: 0.5, similarity_boost: 0.75, style: 0.2 } }),
+    });
+    if (!res.ok) throw new Error(`ElevenLabs ${res.status} ${(await res.text()).slice(0, 160)}`);
+    return Buffer.from(await res.arrayBuffer());
+  }
+  // OpenAI TTS — gpt-4o-mini-tts honors delivery instructions; "onyx" = deep, calm narrator.
+  const voice = process.env.OPENAI_TTS_VOICE ?? "onyx";
+  const res = await fetch("https://api.openai.com/v1/audio/speech", {
+    method: "POST",
+    headers: { authorization: `Bearer ${tts.key}`, "content-type": "application/json" },
+    body: JSON.stringify({
+      model: process.env.OPENAI_TTS_MODEL ?? "gpt-4o-mini-tts",
+      voice, input: text, response_format: "mp3",
+      instructions: "Calm, measured, confident product narrator. Quiet competence — unhurried, clear diction, warm but precise. No hype.",
+    }),
+  });
+  if (!res.ok) throw new Error(`OpenAI TTS ${res.status} ${(await res.text()).slice(0, 160)}`);
+  return Buffer.from(await res.arrayBuffer());
 }
 
 /** Minimal parser for OUR storyboard.yaml shape — scene id + narration + status lines. */
@@ -44,22 +83,16 @@ function parseScenes(yaml: string): Array<{ id: string; narration: string; statu
 }
 
 const run = async () => {
-  const key = resolveKey();
-  const voiceId = process.env.ELEVENLABS_VOICE_ID ?? "JBFqnCBsd6RMkjVDRZzb"; // George — calm narrator
+  const tts = resolveTts();
   const scenes = parseScenes(readFileSync(join(epDir, "storyboard.yaml"), "utf8"));
   const outDir = join(epDir, "voiceover");
   mkdirSync(outDir, { recursive: true });
   const timings: Record<string, { narrationSec: number; chars: number; status: string }> = {};
+  console.log(`[voiceover] provider: ${tts.provider} · ${scenes.length} narrated scenes`);
 
   for (const s of scenes) {
     const mp3 = join(outDir, `${s.id}.mp3`);
-    const res = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}?output_format=mp3_44100_128`, {
-      method: "POST",
-      headers: { "xi-api-key": key, "content-type": "application/json" },
-      body: JSON.stringify({ text: s.narration, model_id: "eleven_multilingual_v2", voice_settings: { stability: 0.5, similarity_boost: 0.75, style: 0.2 } }),
-    });
-    if (!res.ok) throw new Error(`TTS ${s.id}: ${res.status} ${(await res.text()).slice(0, 160)}`);
-    writeFileSync(mp3, Buffer.from(await res.arrayBuffer()));
+    writeFileSync(mp3, await synth(tts, s.narration));
     const dur = Number(execSync(`ffprobe -v error -show_entries format=duration -of csv=p=0 "${mp3}"`).toString().trim());
     timings[s.id] = { narrationSec: Math.round(dur * 10) / 10, chars: s.narration.length, status: s.status };
     console.log(`[voiceover] ${s.id} — ${timings[s.id].narrationSec}s (${s.status})`);
