@@ -968,6 +968,10 @@ export function toolParameters(toolName: string): JsonObject {
     cite_in_file: { type: "object", properties: { target: string, label: string, fileName: string }, required: ["target"] },
     skill_search: { type: "object", properties: { query: string, k: integer, skill_categories: stringArray, skill_trust_min: { type: "string", enum: ["untrusted", "community", "verified"] } }, required: ["query"] },
     load_skill: { type: "object", properties: { idOrUrl: string }, required: ["idOrUrl"] },
+    you_search: { type: "object", properties: { query: string, count: integer, freshness: { type: "string", enum: ["day", "week", "month", "year"] }, country: string }, required: ["query"] },
+    you_research: { type: "object", properties: { input: string, researchEffort: { type: "string", enum: ["lite", "standard", "deep", "exhaustive"] } }, required: ["input"] },
+    you_finance_research: { type: "object", properties: { input: string, researchEffort: { type: "string", enum: ["deep", "exhaustive"] } }, required: ["input"] },
+    github_profile: { type: "object", properties: { username: string, includeRepos: boolean, includeContributions: boolean, includeLanguages: boolean }, required: ["username"] },
   };
   return schemas[toolName] ?? { type: "object", properties: {}, required: [] };
 }

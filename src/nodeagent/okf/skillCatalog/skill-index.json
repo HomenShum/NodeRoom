@@ -193,6 +193,52 @@
     "indexedAt": null
   },
   {
+    "slug": "company-deep-dive",
+    "name": "company-deep-dive",
+    "description": "Conduct a comprehensive deep dive on any company, VC fund, or key personnel using all available web intelligence tools. Self-adapts the research strategy based on what sources are available (LinkedIn, Crunchbase, news, SEC filings, company website). Use when someone asks to 'deep dive into [Company]', 'research [Company] portfolio', 'map [Fund] investments', 'analyze [Person] background', or 'do a comprehensive research on [Company]'. Produces a structured spreadsheet with Category, Entity, Key Facts, Source, Date columns and a synthesized summary.",
+    "categories": [
+      "research",
+      "due-diligence",
+      "vc",
+      "portfolio",
+      "investor",
+      "company",
+      "general"
+    ],
+    "trust": "local",
+    "source": {
+      "kind": "local",
+      "path": null,
+      "url": null
+    },
+    "install": null,
+    "contentHash": "sha256:company-deep-dive-v2",
+    "license": "internal",
+    "indexedAt": null
+  },
+  {
+    "slug": "person-deep-dive",
+    "name": "person-deep-dive",
+    "description": "Conduct a comprehensive deep dive on an individual person — any dimension: code, career, publications, projects, events, investments, writing, community, education, achievements, press, social presence. Self-adapts research strategy based on what sources exist for THIS person. Use when someone asks to 'deep dive into [Person]', 'research [Person]', 'build a profile on [Person]', 'analyze [Person]', or 'find everything about [Person]'. Produces a structured spreadsheet AND an MDX-formatted profile document.",
+    "categories": [
+      "research",
+      "person",
+      "profile",
+      "due-diligence",
+      "general"
+    ],
+    "trust": "local",
+    "source": {
+      "kind": "local",
+      "path": null,
+      "url": null
+    },
+    "install": null,
+    "contentHash": "sha256:person-deep-dive-v2",
+    "license": "internal",
+    "indexedAt": null
+  },
+  {
     "slug": "google-calendar-automation",
     "name": "Google Calendar Automation",
     "description": "Automate Google Calendar: events, attendees, free/busy, and recurring schedules.",
