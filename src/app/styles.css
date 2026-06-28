@@ -693,20 +693,21 @@ input { font-family: inherit; }
 .r-sheet .r-row-empty td.r-rownum { font-weight: 400; opacity: .55; }
 .r-sheet td.label { font-weight: 600; color: var(--text-primary); }
 .r-sheet td .nullcell { color: var(--text-tertiary); font-family: var(--font-mono); font-size: 11px; }
-.r-sheet[data-sheet-kind="generic"] td.r-cell { height: 27px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.r-sheet[data-sheet-kind="generic"] td.r-cell .r-cell-value { display: block; min-width: 0; overflow: hidden; text-overflow: ellipsis; color: var(--text-primary); }
+/* Cells soft-wrap; rows grow to fit the tallest cell (Airtable/Notion/Retool: no clip, no in-cell scroll). */
+.r-sheet[data-sheet-kind="generic"] td.r-cell { min-height: 27px; vertical-align: top; white-space: normal; overflow-wrap: anywhere; word-break: break-word; }
+.r-sheet[data-sheet-kind="generic"] td.r-cell.num { white-space: nowrap; }
+.r-sheet[data-sheet-kind="generic"] td.r-cell .r-cell-value { display: block; min-width: 0; white-space: normal; overflow-wrap: anywhere; color: var(--text-primary); }
 .r-sheet[data-sheet-kind="generic"] td.r-cell.num .r-cell-value { font-variant-numeric: tabular-nums; }
 .r-sheet[data-sheet-kind="generic"] td.r-cell .nullcell { color: transparent; }
 .r-sheet[data-sheet-kind="generic"] td.r-cell.evidence,
 .r-sheet[data-sheet-kind="generic"] td.r-cell.formula { padding-right: 48px; }
 .r-sheet[data-sheet-kind="generic"] .r-cell-meta {
   position: absolute;
-  top: 50%;
+  top: 4px;
   right: 5px;
   max-width: 42px;
   overflow: hidden;
   text-overflow: ellipsis;
-  transform: translateY(-50%);
   margin-left: 0;
   pointer-events: none;
 }
@@ -747,7 +748,7 @@ input { font-family: inherit; }
 .r-cell-edit:hover { background: var(--bg-hover); }
 .r-cell-edit .add-hint { display: inline-flex; align-items: center; gap: 3px; font-size: 11px; color: var(--text-tertiary); font-family: var(--font-mono); }
 .r-cell-edit:hover .add-hint { color: var(--accent-ink); }
-.r-cell-input { width: 100%; min-width: 56px; background: var(--bg-primary); border: 1.5px solid var(--accent-primary); border-radius: 6px; padding: 3px 6px; margin: -3px 0; color: var(--text-primary); font: inherit; font-size: 12.5px; outline: none; box-shadow: 0 0 0 3px var(--accent-tint); }
+.r-cell-input { display: block; width: 100%; min-width: 56px; min-height: 22px; background: var(--bg-primary); border: 1.5px solid var(--accent-primary); border-radius: 6px; padding: 3px 6px; margin: -3px 0; color: var(--text-primary); font: inherit; font-size: 12.5px; line-height: 1.4; outline: none; box-shadow: 0 0 0 3px var(--accent-tint); resize: none; overflow: hidden; white-space: pre-wrap; overflow-wrap: anywhere; }
 .r-inline-proposal { margin-top: 4px; display: inline-flex; align-items: center; gap: 5px; max-width: 100%; padding: 2px 3px 2px 6px; border-radius: 6px; border: 1px solid rgba(217,119,87,.28); background: rgba(217,119,87,.12); color: var(--accent-ink); vertical-align: middle; }
 .r-inline-proposal[data-semantic="true"] { border-color: rgba(94,106,210,.36); background: rgba(94,106,210,.13); color: #8C92E0; }
 .r-inline-proposal-kind { flex: none; font-family: var(--font-mono); font-size: 8.5px; line-height: 1; text-transform: uppercase; letter-spacing: .04em; color: inherit; opacity: .9; }
@@ -920,7 +921,7 @@ input { font-family: inherit; }
 .r-research { width: 100%; min-width: 800px; border-collapse: separate; border-spacing: 0; table-layout: fixed; font-size: 13px; }
 .r-research thead th { position: sticky; top: 0; z-index: 3; text-align: left; font-size: 10px; text-transform: uppercase; letter-spacing: .12em; color: var(--text-tertiary); padding: 8px 11px; border-bottom: 1px solid var(--line); font-weight: 600; background: var(--bg-secondary); }
 .r-research thead th.frozen { left: 0; z-index: 4; }
-.r-research td { padding: 8px 11px; vertical-align: middle; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.38; border-bottom: 1px solid var(--line); color: var(--text-secondary); font-variant-numeric: tabular-nums; }
+.r-research td { padding: 8px 11px; vertical-align: top; white-space: normal; overflow-wrap: anywhere; word-break: break-word; line-height: 1.38; border-bottom: 1px solid var(--line); color: var(--text-secondary); font-variant-numeric: tabular-nums; }
 .r-research td:has(> .r-status) { overflow: visible; text-overflow: clip; }
 .r-research td.frozen { position: sticky; left: 0; z-index: 2; background: var(--bg-primary); }
 .r-research-row { height: 42px; cursor: pointer; }
