@@ -65,7 +65,21 @@ const run = async () => {
   if (!res.ok) throw new Error(`gemini ${res.status}: ${(await res.text()).slice(0, 300)}`);
   const body = await res.json() as { candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }> };
   const text = body.candidates?.[0]?.content?.parts?.map((p) => p.text ?? "").join("") ?? "";
-  const judge = JSON.parse(text);
+  // Gemini occasionally wraps the JSON in prose/code-fences or emits it twice — take the FIRST
+  // balanced {...} object so the judge doesn't crash on otherwise-valid output.
+  const extractJson = (s: string): string => {
+    const a = s.indexOf("{"); if (a < 0) return s;
+    let depth = 0, inStr = false, esc = false;
+    for (let i = a; i < s.length; i++) {
+      const c = s[i];
+      if (inStr) { if (esc) esc = false; else if (c === "\\") esc = true; else if (c === '"') inStr = false; }
+      else if (c === '"') inStr = true;
+      else if (c === "{") depth++;
+      else if (c === "}" && --depth === 0) return s.slice(a, i + 1);
+    }
+    return s.slice(a);
+  };
+  const judge = JSON.parse(extractJson(text));
   writeFileSync(join(epDir, "judge.json"), JSON.stringify(judge, null, 2));
 
   const scores = Object.entries(judge.scores as Record<string, { score: number; evidence: string }>);

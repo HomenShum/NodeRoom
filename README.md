@@ -503,6 +503,21 @@ result, with step captions and a progress bar. Regenerate and judge any time wit
 directly with `npm run walkthrough-review -- <feature-id> --ui-review`; lower-level
 capture/render commands remain `npm run walkthroughs` + `npm run walkthroughs:render`.
 
+### ▶ Full end-to-end demo — the live analyst room (narrated, with music)
+
+The whole wedge in ~75 seconds — **Capture → Research → Brief → Evidence → Handoff** — with OpenAI TTS
+narration and an original ambient music bed mixed under the voice. This is the only clip here with **audio**.
+
+https://github.com/HomenShum/noderoom/raw/main/episodes/noderoom-analyst-room-v1/renders/short.mp4
+
+<sub>1080×1920 · H.264 + AAC · narration `gpt-4o-mini-tts` (onyx) + bed `assets/audio/episode-bed.mp3`, mixed
+in `remotion/Episode.tsx`. Built from a real `room-home` capture + the real `convex/artifacts.ts` guard code +
+honest claim cards (full ledger: [`episodes/noderoom-analyst-room-v1/report.md`](episodes/noderoom-analyst-room-v1/report.md)).
+Verified two ways — ffmpeg level checks (bed audible, voice ~7 dB on top) **and** the Gemini video judge
+**15/16, "publish"** ([`judge.md`](episodes/noderoom-analyst-room-v1/judge.md)). Rebuild with one command:
+`npm run episode -- noderoom-analyst-room-v1`. If your viewer doesn't autoplay the MP4,
+[download/play it here](episodes/noderoom-analyst-room-v1/renders/short.mp4).</sub>
+
 ### Flagship: Startup diligence war room
 ![Startup diligence war room: agents research, chart runway, preserve human edits, and prepare handoff drafts](docs/walkthroughs/startup-diligence-war-room.gif)
 <sub>Deterministic memory-mode walkthrough of the startup-diligence product story: CardioNova intake, a five-company banking watchlist, concurrent research/finance/review lanes, cited cells, runway/milestone work, no-clobber proof, private banker lane, and draft-only downstream handoff. This is the flagship product walkthrough; live-provider proof is tracked separately in [`docs/eval/startup-diligence-war-room-live.md`](docs/eval/startup-diligence-war-room-live.md).</sub>

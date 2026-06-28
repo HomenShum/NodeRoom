@@ -17,7 +17,12 @@ type EpScene = {
   code?: { title: string; lines: string[] } | null;
   durationInFrames: number; narration: string; card: { title: string; bullets: string[] };
 };
-export type EpisodeData = { episodeId: string; fps: number; title: string; scenes: EpScene[]; totalFrames: number };
+export type EpisodeData = { episodeId: string; fps: number; title: string; scenes: EpScene[]; totalFrames: number; music?: string | null };
+
+// Background music bed — sits ~7-8 dB under the narration (eased in/out), never overpowers the voice.
+// Original ambient pad generated + level-normalized with ffmpeg (assets/audio/episode-bed.mp3).
+// Bed mean ≈ -20 dB × MUSIC_VOL (-10.5 dB) ⇒ ~-30 dB in the mix vs narration ~-23 dB.
+const MUSIC_VOL = 0.3;
 
 const VIDEO_W = 1000;
 const VIDEO_H = Math.round(VIDEO_W * 848 / 1280); // captures are 1280×848
@@ -106,6 +111,19 @@ export const Episode: React.FC<{ data: EpisodeData }> = ({ data }) => {
 
   return (
     <AbsoluteFill style={{ background: "radial-gradient(1100px 800px at 50% -10%, #182030 0%, #0b0f16 55%, #07090d 100%)", fontFamily: FONT }}>
+      {/* background music bed — looped, eased in/out, mixed under every scene's narration */}
+      {data.music && (
+        <Audio
+          src={staticFile(data.music)}
+          loop
+          volume={(f) =>
+            Math.min(
+              interpolate(f, [0, 24], [0, MUSIC_VOL], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
+              interpolate(f, [data.totalFrames - 45, data.totalFrames], [MUSIC_VOL, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })
+            )
+          }
+        />
+      )}
       {/* header */}
       <div style={{ position: "absolute", top: 90, left: 70, right: 70 }}>
         <div style={{ fontSize: 26, fontWeight: 800, letterSpacing: ".14em", color: ACCENT, textTransform: "uppercase" }}>NodeRoom · noderoom.live</div>

@@ -1,0 +1,79 @@
+# Episode manifest — the live-analyst-room wedge, end to end (Capture → Research → Brief → Evidence → Handoff).
+# Scene types: app_capture (walkthrough pipeline, real footage) · code_diff (real repo lines, extracted at
+#             assemble time) · title_card (Remotion claim card). Rule: no scene ships without its evidence
+#             field pointing at something real in this repo. Narration = OpenAI TTS; music = shared ambient bed.
+
+episode:
+  id: noderoom-analyst-room-v1
+  title: "The live analyst room: messy signals in, a sourced action brief out"
+  thesis: "NodeRoom owns the temporary, high-context work session — drop messy signals, leave with a ranked, sourced next-action brief. Not your CRM, not your inbox, not your database."
+  outputs: [youtube_short, linkedin_post, readme_gif]
+
+scenes:
+  - id: cold-open
+    type: title_card
+    status: ready
+    narration: "Sixty inbound leads. A founder intro. A renewal notice. Three messy signals — and one question: what actually matters today?"
+    codeTitle: "The daily problem"
+    callout: "email threads, notes, files, CRM rows"
+    callout: "all messy, all high-context"
+    callout: "what deserves your next hour?"
+
+  - id: capture
+    type: app_capture
+    status: ready
+    narration: "Drop it all into a room. No schema to design, no base to set up — the room is the workspace, and the command bar is the front door."
+    source: docs/walkthroughs/room-home.mp4
+    evidence: scripts/walkthroughs/specs.ts#room-home
+    codeTitle: "Capture — drop messy signals"
+    callout: "paste, note, upload, forward"
+    callout: "zero setup, one room"
+
+  - id: research
+    type: title_card
+    status: ready
+    narration: "The agent reads every source and fills a sourced research grid — one row per company, and every cell carries where it came from."
+    codeTitle: "Research, not retrieval"
+    callout: "the agent reads the files and the web"
+    callout: "it fills a named-column grid"
+    callout: "every cell cites its source"
+
+  - id: brief
+    type: title_card
+    status: ready
+    narration: "Out comes today's brief — a ranked list of what to do next, not a wall of search results."
+    codeTitle: "Today's Brief"
+    callout: "1 · Reply to Sarah — high-value lead"
+    callout: "2 · Review the renewal notice — finance action"
+    callout: "3 · Ask the founder for the deck — traction unclear"
+
+  - id: evidence
+    type: code_diff
+    status: ready
+    render: code
+    narration: "Every figure carries a receipt. Behind each one is a versioned, locked write path — nothing the agent touches is unaccountable."
+    codeFile: convex/artifacts.ts
+    codeStart: "1. LOCK gate"
+    codeEnd: "pending_approval"
+    codeTitle: "convex/artifacts.ts — applyCellEditCore"
+    callout: "every write passes the affected-range LOCK gate"
+    callout: "then the per-element VERSION check (CAS)"
+    callout: "review mode: a conflict becomes a proposal, never a clobber"
+
+  - id: handoff
+    type: title_card
+    status: ready
+    narration: "Then you leave with it — export the brief, draft the reply, push the approved rows onward. The room was the scratch-to-decision space, not the system of record."
+    codeTitle: "Clean handoff"
+    callout: "export the brief or the grid"
+    callout: "draft the reply or memo"
+    callout: "push approved rows to your CRM"
+
+  - id: closing
+    type: title_card
+    status: ready
+    narration: "From messy context to a trusted next action. That is the live analyst room — and this whole video was rendered from the repo that runs it."
+    codeTitle: "The live analyst room"
+    callout: "messy in · sourced brief out"
+    callout: "not your CRM, not your inbox, not your database"
+    callout: "the five-minute room for leads, deals, and finance"
