@@ -1,6 +1,6 @@
 # Dynamic Skill Retrieval — repeatable QA
 
-_Regression-proof verification for skill RAG (see `DYNAMIC_SKILL_RETRIEVAL.md`). Run **all** of T0–T4 locally before a prod deploy, then re-run the deployment-facing checks (T3, and T4 against the prod app) on prod. Last green: 2026-06-19 against `cafecorner:noderoom:prod` (`aromatic-bass-102`) and `https://noderoom.live`._
+_Regression-proof verification for skill RAG (see `DYNAMIC_SKILL_RETRIEVAL.md`). Run **all** of T0–T4 locally before a prod deploy, then re-run the deployment-facing checks (T3, and T4 against the prod app) on prod. Last green: 2026-06-19. **Topology (2026-06-28):** `noderoom.live` is served by the `kind: dev` deployment `zealous-goshawk-766` (Vercel-backing) — run the deployment-facing checks against THAT, not the `kind: prod` deployment `aromatic-bass-102`, which is read-only/standby and does not back the live site. (The earlier "against aromatic-bass-102" record predates this clarification.)_
 
 ## What's under test
 The end-to-end loop: **catalog → `skill_search` (discover) → `load_skill` (load on demand) → wired into the live agent** (server tool registry + frame allowlists), with the honesty/SSRF guarantees intact.
@@ -26,7 +26,7 @@ npx vitest run tests/skillRag.test.ts tests/skillRagWiring.test.ts
 ## T3 — Deployment exposes the mutation (live, deterministic)
 ```bash
 npx convex run okf:indexSkillFromCatalog '{}'        # dev
-# prod: append --prod (or run with the prod CONVEX_DEPLOYMENT)
+# NB: the default (no flag) already runs against zealous-goshawk-766 — the dev-kind deployment that noderoom.live serves. Do NOT use --prod (it targets the read-only/standby aromatic-bass-102, which does NOT back the live site).
 ```
 **Expect:** `ArgumentValidationError: Object is missing the required field 'description'` — this proves the function is **registered** (not "Could not find function") and shows the validator: `description` required, `requester` actor-proof auth, `trust` enum, `body` optional (pure mutation, no fetch). Exit 1 is expected (validation, not a real call → no data written).
 
@@ -54,4 +54,4 @@ All of T0–T4 green (and T5 when a session is available). Any failure blocks de
 - **T3** fails if the mutation is renamed/unexported or the deploy didn't ship it.
 
 ## Running the same suite on prod
-T0–T2 are deployment-agnostic (run as-is). For **T3** target prod (`--prod` / prod `CONVEX_DEPLOYMENT`). For **T4**, point the app at prod (the deployed frontend URL, or `preview_start "noderoom-prod"`). T5 against a prod room.
+T0–T2 are deployment-agnostic (run as-is). For **T3**, run against the production-serving deployment `zealous-goshawk-766` (the default dev deployment — do NOT use `--prod`, which targets the read-only/standby `aromatic-bass-102`). For **T4**, point the app at the live frontend (`https://noderoom.live`, or `preview_start "noderoom-prod"`). T5 against a prod room.

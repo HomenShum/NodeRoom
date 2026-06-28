@@ -312,7 +312,7 @@ FREE_JOB_ACTOR_TOKEN
 Production deployment smoke (2026-06-16):
 
 ```text
-production deployment: aromatic-bass-102
+production deployment: zealous-goshawk-766
 entrypoint: agentJobs.start
 routePolicy: free_auto
 runtimePolicy: workflow_sliced
