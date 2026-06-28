@@ -11,7 +11,7 @@
 | 1 | cold-open | claim card | the daily-problem framing (`docs/WEDGE.md`) |
 | 2 | capture | **live footage** | `docs/walkthroughs/room-home.mp4` (deterministic `memoryDemo` capture, `specs.ts#room-home`) |
 | 3 | research | claim card | research engine: `store.askAgent` → `runtime.ts` (real); seeded surface |
-| 4 | brief | claim card | packet engine `bankerCoachPacket.ts` (real); dedicated surface is roadmap |
+| 4 | brief | **live footage** | `docs/walkthroughs/brief.mp4` — the new Brief surface (`specs.ts#brief`) over packet engine `bankerCoachPacket.ts` |
 | 5 | evidence | **real repo code** | `convex/artifacts.ts` `applyCellEditCore` (LOCK → CAS → proposal), extracted at assemble time |
 | 6 | handoff | claim card | XLSX export real (`Artifact.tsx`); draft-body engine `downstreamHandoff.ts` (not yet UI-wired) |
 | 7 | closing | claim card | the wedge thesis |

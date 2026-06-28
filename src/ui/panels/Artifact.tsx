@@ -13,7 +13,7 @@ import { useQuery, useMutation } from "convex/react";
 import { useTiptapSync } from "@convex-dev/prosemirror-sync/tiptap";
 import { api } from "../../../convex/_generated/api";
 import {
-  Table2, FileText, StickyNote, Users, GitMerge, RotateCcw, History, Search, BookOpen, Home,
+  Table2, FileText, StickyNote, Users, GitMerge, RotateCcw, History, Search, BookOpen, Home, ListChecks,
   Lock, Unlock, Ban, Pencil, Plus, Check, AlertTriangle, Eye, Circle, ChevronRight, Download, Trash2, Undo2, X, Columns2, MoreHorizontal, Mail, Hash, Layers, Linkedin, Activity, type LucideIcon,
   Sparkles, Folder, Briefcase, Package, File as FileIcon,
 } from "lucide-react";
@@ -21,6 +21,7 @@ import { useStore, type ActorProof, type RoomStore, type EditFeedback, type Pres
 import { columnLetters } from "../../app/spreadsheetIndex";
 import { onStageFocus, focusStage, type StageFocusTarget } from "../stageFocus";
 import { TraceSurface } from "./TraceSurface";
+import { BriefSurface } from "./BriefSurface";
 import { classifyEvidence } from "../traceLens/evidence";
 import type { Actor, Artifact as Art, CellPayload, DataframeColumn, DocumentParseMeta, Proposal, TraceEvent, ResearchRowInput } from "../../engine/types";
 import { AttentionOverlay } from "../overlay/AttentionOverlay";
@@ -83,6 +84,8 @@ function ArtifactSurface({ roomId, me, proof, artId, onArt, style, surfaceKey = 
   // Home is a persistent pinned pseudo-tab (primary surface only) — like Trace, it overlays the
   // work surface with the Room Home command center (inventory + work lanes) without disturbing openIds.
   const [homeOpen, setHomeOpen] = useState(false);
+  // Brief is a pinned work-surface overlay (primary surface only) — the room's ranked daily action list.
+  const [briefOpen, setBriefOpen] = useState(false);
   const [editErr, setEditErr] = useState<string | null>(null);
   useEffect(() => { if (!editErr) return; const t = setTimeout(() => setEditErr(null), 4000); return () => clearTimeout(t); }, [editErr]);
   useEffect(() => { setTab(tabForArt(artId)); }, [artId, wiki?.id, sheet?.id, research?.id, note?.id, wall?.id, arts.length]);
@@ -168,13 +171,19 @@ function ArtifactSurface({ roomId, me, proof, artId, onArt, style, surfaceKey = 
         <div className="r-tabs" data-testid={surfaceKey === "secondary" ? "artifact-tabs-secondary" : "artifact-tabs"}>
           {/* Home is a pinned, non-closeable pseudo-tab: the room command center is always one click away. */}
           {surfaceKey !== "secondary" && (
-            <button type="button" className="r-tab r-hometab" data-active={String(homeOpen)} data-testid="home-tab" title="Room Home — command center, inventory, and work lanes" onClick={() => { setHomeOpen(true); setTraceOpen(false); }}>
+            <button type="button" className="r-tab r-hometab" data-active={String(homeOpen)} data-testid="home-tab" title="Room Home — command center, inventory, and work lanes" onClick={() => { setHomeOpen(true); setTraceOpen(false); setBriefOpen(false); }}>
               <Home size={13} /> Home
+            </button>
+          )}
+          {/* Brief is a pinned work-surface tab: the room's ranked daily action list (the wedge headline). */}
+          {surfaceKey !== "secondary" && (
+            <button type="button" className="r-tab r-brieftab" data-active={String(briefOpen)} data-testid="brief-tab" title="Today's Brief — ranked next actions, each backed by a source" onClick={() => { setBriefOpen(true); setHomeOpen(false); setTraceOpen(false); }}>
+              <ListChecks size={13} /> Brief
             </button>
           )}
           {openIds
             ? openTabArts.map((a) => (
-                <button key={a.id} className="r-tab r-filetab" data-active={String(!traceOpen && !homeOpen && a.id === artId)} onClick={() => { onArt(a.id); setTraceOpen(false); setHomeOpen(false); }} onDoubleClick={() => renameArtifact(a)} title={a.meta?.summary ? `${a.title} — ${a.meta.summary}` : `${a.title} (double-click to rename)`} data-testid="artifact-filetab">
+                <button key={a.id} className="r-tab r-filetab" data-active={String(!traceOpen && !homeOpen && !briefOpen && a.id === artId)} onClick={() => { onArt(a.id); setTraceOpen(false); setHomeOpen(false); setBriefOpen(false); }} onDoubleClick={() => renameArtifact(a)} title={a.meta?.summary ? `${a.title} — ${a.meta.summary}` : `${a.title} (double-click to rename)`} data-testid="artifact-filetab">
                   {tabIcon(a)}
                   <span className="r-filetab-name">{artifactTabDisplay(a).title}</span>
                   {artifactTabDisplay(a).badge && <span className="r-file-ext r-filetab-ext">{artifactTabDisplay(a).badge}</span>}
@@ -184,13 +193,13 @@ function ArtifactSurface({ roomId, me, proof, artId, onArt, style, surfaceKey = 
                 </button>
               ))
             : TABS.filter((t) => artFor(t.id)).map((t) => (
-                <button key={t.id} className="r-tab" data-active={String(!traceOpen && !homeOpen && activeTab === t.id)} onClick={() => { pick(t.id); setTraceOpen(false); setHomeOpen(false); }}>
+                <button key={t.id} className="r-tab" data-active={String(!traceOpen && !homeOpen && !briefOpen && activeTab === t.id)} onClick={() => { pick(t.id); setTraceOpen(false); setHomeOpen(false); setBriefOpen(false); }}>
                   <t.Icon size={13} /> {t.label}
                 </button>
               ))}
           {/* Trace is a pinned work-surface tab alongside the artifacts (agent + QA provenance). */}
           {surfaceKey !== "secondary" && (
-            <button type="button" className="r-tab r-tracetab" data-active={String(traceOpen)} data-testid="trace-tab" title="Agent + QA trace records" onClick={() => { setTraceOpen(true); setHomeOpen(false); }}>
+            <button type="button" className="r-tab r-tracetab" data-active={String(traceOpen)} data-testid="trace-tab" title="Agent + QA trace records" onClick={() => { setTraceOpen(true); setHomeOpen(false); setBriefOpen(false); }}>
               <Activity size={13} /> Trace
             </button>
           )}
@@ -229,7 +238,9 @@ function ArtifactSurface({ roomId, me, proof, artId, onArt, style, surfaceKey = 
         )}
       </div>
 
-      {homeOpen ? (
+      {briefOpen ? (
+        <BriefSurface roomId={roomId} onOpenSource={openTraceSource} />
+      ) : homeOpen ? (
         <RoomHomeSurface
           roomId={roomId}
           me={me}

@@ -10,7 +10,7 @@ export default {
       "video": null,
       "audio": "audio/cold-open.mp3",
       "code": null,
-      "durationInFrames": 342,
+      "durationInFrames": 336,
       "narration": "Sixty inbound leads. A founder intro. A renewal notice. Three messy signals — and one question: what actually matters today?",
       "card": {
         "title": "The daily problem",
@@ -27,7 +27,7 @@ export default {
       "video": "video/capture.mp4",
       "audio": "audio/capture.mp3",
       "code": null,
-      "durationInFrames": 333,
+      "durationInFrames": 336,
       "narration": "Drop it all into a room. No schema to design, no base to set up — the room is the workspace, and the command bar is the front door.",
       "card": {
         "title": "Capture — drop messy signals",
@@ -43,7 +43,7 @@ export default {
       "video": null,
       "audio": "audio/research.mp3",
       "code": null,
-      "durationInFrames": 291,
+      "durationInFrames": 300,
       "narration": "The agent reads every source and fills a sourced research grid — one row per company, and every cell carries where it came from.",
       "card": {
         "title": "Research, not retrieval",
@@ -56,18 +56,18 @@ export default {
     },
     {
       "id": "brief",
-      "kind": "card",
-      "video": null,
+      "kind": "video",
+      "video": "video/brief.mp4",
       "audio": "audio/brief.mp3",
       "code": null,
-      "durationInFrames": 255,
-      "narration": "Out comes today's brief — a ranked list of what to do next, not a wall of search results.",
+      "durationInFrames": 396,
+      "narration": "Out comes today's brief — a ranked list of what to do next, not a wall of search results. Each action carries a source, and one click drafts the handoff.",
       "card": {
         "title": "Today's Brief",
         "bullets": [
-          "1 · Reply to Sarah — high-value lead",
-          "2 · Review the renewal notice — finance action",
-          "3 · Ask the founder for the deck — traction unclear"
+          "ranked actions, risk first",
+          "each backed by a source",
+          "one-click handoff draft"
         ]
       }
     },
@@ -103,7 +103,7 @@ export default {
           "    const actual = el?.version ?? 0;"
         ]
       },
-      "durationInFrames": 300,
+      "durationInFrames": 339,
       "narration": "Every figure carries a receipt. Behind each one is a versioned, locked write path — nothing the agent touches is unaccountable.",
       "card": {
         "title": "convex/artifacts.ts — applyCellEditCore",
@@ -120,7 +120,7 @@ export default {
       "video": null,
       "audio": "audio/handoff.mp3",
       "code": null,
-      "durationInFrames": 399,
+      "durationInFrames": 390,
       "narration": "Then you leave with it — export the brief, draft the reply, push the approved rows onward. The room was the scratch-to-decision space, not the system of record.",
       "card": {
         "title": "Clean handoff",
@@ -137,7 +137,7 @@ export default {
       "video": null,
       "audio": "audio/closing.mp3",
       "code": null,
-      "durationInFrames": 318,
+      "durationInFrames": 303,
       "narration": "From messy context to a trusted next action. That is the live analyst room — and this whole video was rendered from the repo that runs it.",
       "card": {
         "title": "The live analyst room",
@@ -149,6 +149,6 @@ export default {
       }
     }
   ],
-  "totalFrames": 2238,
+  "totalFrames": 2400,
   "music": "audio/bed.mp3"
 };
