@@ -139,8 +139,8 @@ use the latest clean-checkout `npm run prod:gate` result instead.
 - Focused OKF/provider/evidence gate: 4 files, 18 tests pass.
 - `npm run qa:matrix:check`, `npm run security:gate`, `npm run slo:gate`, and `npm run content:fluency:check`: pass.
 - `npm run test:product:live`: 17 Playwright/backend specs pass against the deployed backend.
-- Convex production deployment: `aromatic-bass-102`, schema validation complete.
-- Vercel production deployment: `noderoom.live` / `nodeagent.live` ready.
+- Production-serving Convex deployment: `zealous-goshawk-766` — the Vercel-backing, `kind: dev` deployment that `noderoom.live` actually reads (verified live 2026-06-28; enforced by the `convex:deploy:guard` npm script; deploy with `npm run convex:deploy`). The project's `kind: prod` Convex deployment `aromatic-bass-102` is **read-only / standby and does NOT serve live traffic** — deploying there will not update `noderoom.live`.
+- Vercel production deployment: `noderoom.live` / `nodeagent.live` (auto-deploys on push to `main`).
 - Production OKF privacy smoke: owner-private concept/event visible to owner, hidden from peer search and Trace Lens.
 - Live browser smoke: `https://noderoom.live` returns 200, renders expected app shell/title, and reports no console errors.
 

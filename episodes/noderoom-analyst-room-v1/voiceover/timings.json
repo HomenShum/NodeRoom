@@ -1,0 +1,37 @@
+{
+  "cold-open": {
+    "narrationSec": 9.6,
+    "chars": 124,
+    "status": "ready"
+  },
+  "capture": {
+    "narrationSec": 10,
+    "chars": 131,
+    "status": "ready"
+  },
+  "research": {
+    "narrationSec": 8.4,
+    "chars": 128,
+    "status": "ready"
+  },
+  "brief": {
+    "narrationSec": 12,
+    "chars": 153,
+    "status": "ready"
+  },
+  "evidence": {
+    "narrationSec": 9.7,
+    "chars": 127,
+    "status": "ready"
+  },
+  "handoff": {
+    "narrationSec": 11.4,
+    "chars": 160,
+    "status": "ready"
+  },
+  "closing": {
+    "narrationSec": 8.5,
+    "chars": 138,
+    "status": "ready"
+  }
+}

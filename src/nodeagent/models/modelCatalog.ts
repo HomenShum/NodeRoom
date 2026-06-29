@@ -35,7 +35,7 @@
 
 import { OPENROUTER_FREE_AUTO_MODEL, OPENROUTER_FREE_META_MODEL, freeOpenRouterPricing } from "./openRouterFreeModels";
 
-export type LlmProvider = "openai" | "anthropic" | "gemini" | "openrouter" | "xai";
+export type LlmProvider = "openai" | "anthropic" | "gemini" | "openrouter" | "xai" | "nebius";
 
 export type LlmTask =
   | "chat"
@@ -125,6 +125,11 @@ export const modelPricing: Record<string, ModelPricing> = {
   // Pricing reflects OpenRouter's listed rates for deepseek/deepseek-v4-pro as of 2026-06.
   "deepseek-v4-pro": { inputPer1M: 0.55, outputPer1M: 2.19, contextWindow: 163840 },
   "deepseek/deepseek-v4-pro": { inputPer1M: 0.55, outputPer1M: 2.19, contextWindow: 163840 },
+  // Nebius Token Factory (direct inference, OpenAI-compatible at api.tokenfactory.nebius.com)
+  "nebius/zai-org/GLM-5.2": { inputPer1M: 1.00, outputPer1M: 3.00, contextWindow: 200000 },
+  "nebius/MiniMaxAI/MiniMax-M2.5": { inputPer1M: 0.30, outputPer1M: 1.00, contextWindow: 197000 },
+  "nebius/Qwen/Qwen3-235B-A22B-Instruct-2507": { inputPer1M: 0.20, outputPer1M: 0.60, contextWindow: 262000 },
+  "nebius/deepseek-ai/DeepSeek-V4-Pro": { inputPer1M: 2.00, outputPer1M: 4.00, contextWindow: 1000000 },
   "qwen3-235b": { inputPer1M: 0.18, outputPer1M: 0.54, contextWindow: 131072 },
   "minimax-m2.7": { inputPer1M: 0.30, outputPer1M: 1.20, contextWindow: 196608 },
   "minimax/minimax-m2.7": { inputPer1M: 0.30, outputPer1M: 1.20, contextWindow: 196608 },
@@ -210,7 +215,7 @@ export const tierLimits: Record<UserTier, TierLimits> = {
     requestsPerDay: 500,
     tokensPerDay: 2_000_000,
     maxTokensPerRequest: 32_000,
-    allowedProviders: ["openai", "anthropic", "gemini", "openrouter"],
+    allowedProviders: ["openai", "anthropic", "gemini", "openrouter", "nebius"],
     allowedModels: [],  // All models
     costLimitPerDay: 25.00,
   },
@@ -218,7 +223,7 @@ export const tierLimits: Record<UserTier, TierLimits> = {
     requestsPerDay: 2000,
     tokensPerDay: 10_000_000,
     maxTokensPerRequest: 128_000,
-    allowedProviders: ["openai", "anthropic", "gemini", "openrouter"],
+    allowedProviders: ["openai", "anthropic", "gemini", "openrouter", "nebius"],
     allowedModels: [],  // All models
     costLimitPerDay: 100.00,
   },
@@ -226,7 +231,7 @@ export const tierLimits: Record<UserTier, TierLimits> = {
     requestsPerDay: -1,  // Unlimited
     tokensPerDay: -1,    // Unlimited
     maxTokensPerRequest: 400_000,
-    allowedProviders: ["openai", "anthropic", "gemini", "openrouter"],
+    allowedProviders: ["openai", "anthropic", "gemini", "openrouter", "nebius"],
     allowedModels: [],   // All models
     costLimitPerDay: -1, // Unlimited
   },
@@ -304,6 +309,18 @@ export const llmModelCatalog: ModelCatalog = {
     fileSearch: ["grok-3-mini", "grok-4-1-fast-non-reasoning"],
     voice: ["grok-3-mini"],
     coding: ["grok-code-fast-1", "grok-4-1-fast-reasoning"],
+  },
+  nebius: {
+    chat: ["nebius/zai-org/GLM-5.2", "nebius/MiniMaxAI/MiniMax-M2.5", "nebius/Qwen/Qwen3-235B-A22B-Instruct-2507"],
+    agent: ["nebius/zai-org/GLM-5.2", "nebius/MiniMaxAI/MiniMax-M2.5", "nebius/Qwen/Qwen3-235B-A22B-Instruct-2507", "nebius/deepseek-ai/DeepSeek-V4-Pro"],
+    router: ["nebius/MiniMaxAI/MiniMax-M2.5", "nebius/Qwen/Qwen3-235B-A22B-Instruct-2507"],
+    judge: ["nebius/zai-org/GLM-5.2", "nebius/deepseek-ai/DeepSeek-V4-Pro"],
+    analysis: ["nebius/zai-org/GLM-5.2", "nebius/deepseek-ai/DeepSeek-V4-Pro"],
+    deepResearch: ["nebius/zai-org/GLM-5.2", "nebius/deepseek-ai/DeepSeek-V4-Pro"],
+    vision: [],
+    fileSearch: ["nebius/MiniMaxAI/MiniMax-M2.5", "nebius/Qwen/Qwen3-235B-A22B-Instruct-2507"],
+    voice: [],
+    coding: ["nebius/zai-org/GLM-5.2", "nebius/deepseek-ai/DeepSeek-V4-Pro"],
   },
 };
 
@@ -406,7 +423,10 @@ export function getModelPricing(modelName: string): ModelPricing | null {
  */
 export function getProviderForModel(modelName: string): LlmProvider | null {
   const resolved = modelAliases[modelName.toLowerCase().trim()] ?? modelName;
-  if (resolved === OPENROUTER_FREE_AUTO_MODEL || resolved === OPENROUTER_FREE_META_MODEL || resolved.includes("/")) {
+  if (resolved.startsWith("nebius/")) {
+    return "nebius";
+  }
+  if (resolved === OPENROUTER_FREE_AUTO_MODEL || resolved === OPENROUTER_FREE_META_MODEL || (resolved.includes("/") && !resolved.startsWith("nebius/"))) {
     return "openrouter";
   }
   if (resolved.startsWith("gpt-") || resolved.startsWith("o1-") || resolved.startsWith("o3-") || resolved.startsWith("o4-") || resolved.startsWith("text-embedding-")) {
@@ -647,6 +667,11 @@ export const modelAliases: Record<string, string> = {
   // to the slash form that already hits the OpenRouter branch at line 393.
   "deepseek-v4-pro": "deepseek/deepseek-v4-pro",
   "deepseek/deepseek-v4-pro": "deepseek/deepseek-v4-pro",
+  // Nebius Token Factory aliases (prefix with nebius/ for routing)
+  "nebius/glm-5": "nebius/zai-org/GLM-5.2",
+  "nebius/minimax-m2.5": "nebius/MiniMaxAI/MiniMax-M2.5",
+  "nebius/qwen3-235b": "nebius/Qwen/Qwen3-235B-A22B-Instruct-2507",
+  "nebius/deepseek-v4-pro": "nebius/deepseek-ai/DeepSeek-V4-Pro",
 };
 
 /**
@@ -703,6 +728,13 @@ export const providerIntegrationStatus: ProviderStatus[] = [
     integrated: true,
     supportsAgents: true,
     notes: "Integrated via OpenAI-compatible API; requires OPENROUTER_API_KEY.",
+  },
+  {
+    provider: "nebius",
+    sdkPackage: "OpenAI-compatible (api.tokenfactory.nebius.com)",
+    integrated: true,
+    supportsAgents: true,
+    notes: "Nebius Token Factory — direct open-model inference. Requires NEBIUS_API_KEY.",
   },
 ];
 
@@ -831,6 +863,7 @@ export const providerEnvVars: Record<LlmProvider, string> = {
   gemini: "GEMINI_API_KEY",
   openrouter: "OPENROUTER_API_KEY",
   xai: "XAI_API_KEY",
+  nebius: "NEBIUS_API_KEY",
 };
 
 /**
@@ -851,7 +884,7 @@ export function isProviderConfigured(provider: LlmProvider): boolean {
  * Get all configured providers
  */
 export function getConfiguredProviders(): LlmProvider[] {
-  return (["openrouter", "openai", "anthropic", "gemini", "xai"] as LlmProvider[]).filter(isProviderConfigured);
+  return (["openrouter", "openai", "anthropic", "gemini", "xai", "nebius"] as LlmProvider[]).filter(isProviderConfigured);
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -865,35 +898,36 @@ export const providerFallbackChain: Record<LlmProvider, LlmProvider[]> = {
   gemini: ["openrouter", "openai", "anthropic"],
   openrouter: ["gemini", "openai", "anthropic"],
   xai: ["openrouter", "anthropic", "openai"],
+  nebius: ["openrouter", "gemini", "openai"],
 };
 
 /** Model equivalents across providers (for failover) - 8 approved models */
 export const modelEquivalents: Record<string, Record<LlmProvider, string>> = {
   // High-tier models
-  "gpt-5.4": { openai: "gpt-5.4", anthropic: "claude-sonnet-4.6", gemini: "gemini-3.1-pro-preview", openrouter: "z-ai/glm-5.2", xai: "grok-4-1-fast-reasoning" },
-  "claude-opus-4.7": { openai: "gpt-5.4", anthropic: "claude-opus-4.7", gemini: "gemini-3.1-pro-preview", openrouter: "z-ai/glm-5.2", xai: "grok-4-1-fast-reasoning" },
-  "claude-sonnet-4.6": { openai: "gpt-5.4", anthropic: "claude-sonnet-4.6", gemini: "gemini-3.1-pro-preview", openrouter: "z-ai/glm-5.2", xai: "grok-4-1-fast-reasoning" },
-  "gemini-3.1-pro-preview": { openai: "gpt-5.4", anthropic: "claude-sonnet-4.6", gemini: "gemini-3.1-pro-preview", openrouter: "z-ai/glm-5.2", xai: "grok-4-1-fast-reasoning" },
-  "deep-research-preview-04-2026": { openai: "gpt-5.4", anthropic: "claude-sonnet-4.6", gemini: "deep-research-preview-04-2026", openrouter: "z-ai/glm-5.2", xai: "grok-4-1-fast-reasoning" },
-  "deep-research-max-preview-04-2026": { openai: "gpt-5.4", anthropic: "claude-opus-4.7", gemini: "deep-research-max-preview-04-2026", openrouter: "z-ai/glm-5.2", xai: "grok-4-1-fast-reasoning" },
-  "glm-5.2": { openai: "gpt-5.4", anthropic: "claude-sonnet-4.6", gemini: "gemini-3.1-pro-preview", openrouter: "glm-5.2", xai: "grok-4-1-fast-reasoning" },
-  "z-ai/glm-5.2": { openai: "gpt-5.4", anthropic: "claude-sonnet-4.6", gemini: "gemini-3.1-pro-preview", openrouter: "z-ai/glm-5.2", xai: "grok-4-1-fast-reasoning" },
-  "glm-4.7": { openai: "gpt-5.4", anthropic: "claude-sonnet-4.6", gemini: "gemini-3.1-pro-preview", openrouter: "glm-4.7", xai: "grok-4-1-fast-reasoning" },
-  "kimi-k2.7-code": { openai: "gpt-5.4", anthropic: "claude-sonnet-4.6", gemini: "gemini-3.1-pro-preview", openrouter: "moonshotai/kimi-k2.7-code", xai: "grok-4-1-fast-reasoning" },
-  "moonshotai/kimi-k2.7-code": { openai: "gpt-5.4", anthropic: "claude-sonnet-4.6", gemini: "gemini-3.1-pro-preview", openrouter: "moonshotai/kimi-k2.7-code", xai: "grok-4-1-fast-reasoning" },
-  "minimax-m3": { openai: "gpt-5.4-mini", anthropic: "claude-haiku-4.5", gemini: "gemini-3-flash-preview", openrouter: "minimax/minimax-m3", xai: "grok-3-mini" },
-  "minimax/minimax-m3": { openai: "gpt-5.4-mini", anthropic: "claude-haiku-4.5", gemini: "gemini-3-flash-preview", openrouter: "minimax/minimax-m3", xai: "grok-3-mini" },
+  "gpt-5.4": { openai: "gpt-5.4", anthropic: "claude-sonnet-4.6", gemini: "gemini-3.1-pro-preview", openrouter: "z-ai/glm-5.2", xai: "grok-4-1-fast-reasoning", nebius: "nebius/zai-org/GLM-5.2" },
+  "claude-opus-4.7": { openai: "gpt-5.4", anthropic: "claude-opus-4.7", gemini: "gemini-3.1-pro-preview", openrouter: "z-ai/glm-5.2", xai: "grok-4-1-fast-reasoning", nebius: "nebius/zai-org/GLM-5.2" },
+  "claude-sonnet-4.6": { openai: "gpt-5.4", anthropic: "claude-sonnet-4.6", gemini: "gemini-3.1-pro-preview", openrouter: "z-ai/glm-5.2", xai: "grok-4-1-fast-reasoning", nebius: "nebius/zai-org/GLM-5.2" },
+  "gemini-3.1-pro-preview": { openai: "gpt-5.4", anthropic: "claude-sonnet-4.6", gemini: "gemini-3.1-pro-preview", openrouter: "z-ai/glm-5.2", xai: "grok-4-1-fast-reasoning", nebius: "nebius/zai-org/GLM-5.2" },
+  "deep-research-preview-04-2026": { openai: "gpt-5.4", anthropic: "claude-sonnet-4.6", gemini: "deep-research-preview-04-2026", openrouter: "z-ai/glm-5.2", xai: "grok-4-1-fast-reasoning", nebius: "nebius/zai-org/GLM-5.2" },
+  "deep-research-max-preview-04-2026": { openai: "gpt-5.4", anthropic: "claude-opus-4.7", gemini: "deep-research-max-preview-04-2026", openrouter: "z-ai/glm-5.2", xai: "grok-4-1-fast-reasoning", nebius: "nebius/deepseek-ai/DeepSeek-V4-Pro" },
+  "glm-5.2": { openai: "gpt-5.4", anthropic: "claude-sonnet-4.6", gemini: "gemini-3.1-pro-preview", openrouter: "glm-5.2", xai: "grok-4-1-fast-reasoning", nebius: "nebius/zai-org/GLM-5.2" },
+  "z-ai/glm-5.2": { openai: "gpt-5.4", anthropic: "claude-sonnet-4.6", gemini: "gemini-3.1-pro-preview", openrouter: "z-ai/glm-5.2", xai: "grok-4-1-fast-reasoning", nebius: "nebius/zai-org/GLM-5.2" },
+  "glm-4.7": { openai: "gpt-5.4", anthropic: "claude-sonnet-4.6", gemini: "gemini-3.1-pro-preview", openrouter: "glm-4.7", xai: "grok-4-1-fast-reasoning", nebius: "nebius/zai-org/GLM-5.2" },
+  "kimi-k2.7-code": { openai: "gpt-5.4", anthropic: "claude-sonnet-4.6", gemini: "gemini-3.1-pro-preview", openrouter: "moonshotai/kimi-k2.7-code", xai: "grok-4-1-fast-reasoning", nebius: "nebius/deepseek-ai/DeepSeek-V4-Pro" },
+  "moonshotai/kimi-k2.7-code": { openai: "gpt-5.4", anthropic: "claude-sonnet-4.6", gemini: "gemini-3.1-pro-preview", openrouter: "moonshotai/kimi-k2.7-code", xai: "grok-4-1-fast-reasoning", nebius: "nebius/deepseek-ai/DeepSeek-V4-Pro" },
+  "minimax-m3": { openai: "gpt-5.4-mini", anthropic: "claude-haiku-4.5", gemini: "gemini-3-flash-preview", openrouter: "minimax/minimax-m3", xai: "grok-3-mini", nebius: "nebius/MiniMaxAI/MiniMax-M2.5" },
+  "minimax/minimax-m3": { openai: "gpt-5.4-mini", anthropic: "claude-haiku-4.5", gemini: "gemini-3-flash-preview", openrouter: "minimax/minimax-m3", xai: "grok-3-mini", nebius: "nebius/MiniMaxAI/MiniMax-M2.5" },
 
   // Mid-tier/balanced models
-  "gpt-5.4-mini": { openai: "gpt-5.4-mini", anthropic: "claude-haiku-4.5", gemini: "gemini-3-flash-preview", openrouter: "qwen/qwen3.7-plus", xai: "grok-3-mini" },
-  "glm-4.7-flash": { openai: "gpt-5.4-mini", anthropic: "claude-haiku-4.5", gemini: "gemini-3-flash-preview", openrouter: "qwen/qwen3.7-plus", xai: "grok-3-mini" },
+  "gpt-5.4-mini": { openai: "gpt-5.4-mini", anthropic: "claude-haiku-4.5", gemini: "gemini-3-flash-preview", openrouter: "qwen/qwen3.7-plus", xai: "grok-3-mini", nebius: "nebius/MiniMaxAI/MiniMax-M2.5" },
+  "glm-4.7-flash": { openai: "gpt-5.4-mini", anthropic: "claude-haiku-4.5", gemini: "gemini-3-flash-preview", openrouter: "qwen/qwen3.7-plus", xai: "grok-3-mini", nebius: "nebius/MiniMaxAI/MiniMax-M2.5" },
 
   // Fast/efficient models
-  "gpt-5.4-nano": { openai: "gpt-5.4-nano", anthropic: "claude-haiku-4.5", gemini: "gemini-3.1-flash-lite-preview", openrouter: "qwen/qwen3.7-plus", xai: "grok-3-mini" },
-  "claude-haiku-4.5": { openai: "gpt-5.4-nano", anthropic: "claude-haiku-4.5", gemini: "gemini-3.1-flash-lite-preview", openrouter: "qwen/qwen3.7-plus", xai: "grok-3-mini" },
-  "gemini-3-flash-preview": { openai: "gpt-5.4-mini", anthropic: "claude-haiku-4.5", gemini: "gemini-3-flash-preview", openrouter: "qwen/qwen3.7-plus", xai: "grok-3-mini" },
-  "gemini-3.1-flash-lite-preview": { openai: "gpt-5.4-nano", anthropic: "claude-haiku-4.5", gemini: "gemini-3.1-flash-lite-preview", openrouter: "qwen/qwen3.7-plus", xai: "grok-3-mini" },
-  "gemini-2.5-flash": { openai: "gpt-5.4-mini", anthropic: "claude-haiku-4.5", gemini: "gemini-2.5-flash", openrouter: "qwen/qwen3.7-plus", xai: "grok-3-mini" },
+  "gpt-5.4-nano": { openai: "gpt-5.4-nano", anthropic: "claude-haiku-4.5", gemini: "gemini-3.1-flash-lite-preview", openrouter: "qwen/qwen3.7-plus", xai: "grok-3-mini", nebius: "nebius/Qwen/Qwen3-235B-A22B-Instruct-2507" },
+  "claude-haiku-4.5": { openai: "gpt-5.4-nano", anthropic: "claude-haiku-4.5", gemini: "gemini-3.1-flash-lite-preview", openrouter: "qwen/qwen3.7-plus", xai: "grok-3-mini", nebius: "nebius/Qwen/Qwen3-235B-A22B-Instruct-2507" },
+  "gemini-3-flash-preview": { openai: "gpt-5.4-mini", anthropic: "claude-haiku-4.5", gemini: "gemini-3-flash-preview", openrouter: "qwen/qwen3.7-plus", xai: "grok-3-mini", nebius: "nebius/MiniMaxAI/MiniMax-M2.5" },
+  "gemini-3.1-flash-lite-preview": { openai: "gpt-5.4-nano", anthropic: "claude-haiku-4.5", gemini: "gemini-3.1-flash-lite-preview", openrouter: "qwen/qwen3.7-plus", xai: "grok-3-mini", nebius: "nebius/Qwen/Qwen3-235B-A22B-Instruct-2507" },
+  "gemini-2.5-flash": { openai: "gpt-5.4-mini", anthropic: "claude-haiku-4.5", gemini: "gemini-2.5-flash", openrouter: "qwen/qwen3.7-plus", xai: "grok-3-mini", nebius: "nebius/MiniMaxAI/MiniMax-M2.5" },
 };
 
 /**
@@ -911,7 +945,8 @@ export function getEquivalentModel(modelName: string, targetProvider: LlmProvide
     anthropic: "claude-haiku-4.5",
     gemini: "gemini-3.1-flash-lite-preview",
     openrouter: "z-ai/glm-5.2",
-    xai: "grok-3-mini",            // Cheapest xAI (Jan 2026)
+    xai: "grok-3-mini",
+    nebius: "nebius/MiniMaxAI/MiniMax-M2.5",
   };
 
   return defaults[targetProvider];

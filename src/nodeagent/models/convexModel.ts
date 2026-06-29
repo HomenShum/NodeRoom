@@ -219,6 +219,21 @@ async function providerStep(
       toolChoice,
     });
   }
+  if (provider === "nebius") {
+    const nebiusModelId = modelId.replace(/^nebius\//i, "");
+    return openAiCompatibleStep({
+      endpoint: `${nebiusBaseUrl()}/chat/completions`,
+      apiKey: requireEnv("NEBIUS_API_KEY"),
+      headers: {},
+      modelId: nebiusModelId,
+      system,
+      messages,
+      tools,
+      signal,
+      onTextDelta,
+      toolChoice,
+    });
+  }
   if (provider === "anthropic") return anthropicStep(modelId, system, messages, tools, signal);
   if (provider === "gemini") {
     if (onTextDelta) {
@@ -968,6 +983,11 @@ export function toolParameters(toolName: string): JsonObject {
     cite_in_file: { type: "object", properties: { target: string, label: string, fileName: string }, required: ["target"] },
     skill_search: { type: "object", properties: { query: string, k: integer, skill_categories: stringArray, skill_trust_min: { type: "string", enum: ["untrusted", "community", "verified"] } }, required: ["query"] },
     load_skill: { type: "object", properties: { idOrUrl: string }, required: ["idOrUrl"] },
+    you_search: { type: "object", properties: { query: string, count: integer, freshness: { type: "string", enum: ["day", "week", "month", "year"] }, country: string }, required: ["query"] },
+    you_research: { type: "object", properties: { input: string, researchEffort: { type: "string", enum: ["lite", "standard", "deep", "exhaustive"] } }, required: ["input"] },
+    you_finance_research: { type: "object", properties: { input: string, researchEffort: { type: "string", enum: ["deep", "exhaustive"] } }, required: ["input"] },
+    tavily_search: { type: "object", properties: { query: string, maxResults: integer, searchDepth: { type: "string", enum: ["basic", "advanced"] }, topic: { type: "string", enum: ["general", "news", "finance"] }, includeAnswer: boolean, timeRange: { type: "string", enum: ["day", "week", "month", "year"] }, includeDomains: stringArray, excludeDomains: stringArray }, required: ["query"] },
+    github_profile: { type: "object", properties: { username: string, includeRepos: boolean, includeContributions: boolean, includeLanguages: boolean }, required: ["username"] },
   };
   return schemas[toolName] ?? { type: "object", properties: {}, required: [] };
 }
@@ -1079,6 +1099,10 @@ function requireEnv(name: string): string {
 
 function openRouterBaseUrl(): string {
   return envValue("OPENROUTER_BASE_URL") ?? "https://openrouter.ai/api/v1";
+}
+
+function nebiusBaseUrl(): string {
+  return envValue("NEBIUS_BASE_URL") ?? "https://api.tokenfactory.nebius.com/v1";
 }
 
 function modelMaxOutputTokens(): number {

@@ -64,6 +64,8 @@ const agentStreamEventKindV = v.union(
   v.literal("warning"),
   v.literal("error"),
   v.literal("message_done"),
+  v.literal("reasoning"),
+  v.literal("plan"),
 );
 const agentStreamEventStatusV = v.union(
   v.literal("started"),

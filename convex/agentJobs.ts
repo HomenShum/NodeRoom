@@ -67,6 +67,8 @@ const agentStreamEventKindV = v.union(
   v.literal("warning"),
   v.literal("error"),
   v.literal("message_done"),
+  v.literal("reasoning"),
+  v.literal("plan"),
 );
 const agentStreamEventStatusV = v.union(v.literal("started"), v.literal("streaming"), v.literal("completed"), v.literal("failed"), v.literal("skipped"));
 const roomWorkModeV = v.union(
@@ -805,7 +807,7 @@ async function recordStreamEventRow(ctx: any, args: {
   jobId: string;
   runId?: string;
   sequence: number;
-  kind: "message_start" | "step_start" | "text_delta" | "tool_call_start" | "tool_call_result" | "artifact_update" | "warning" | "error" | "message_done";
+  kind: "message_start" | "step_start" | "text_delta" | "tool_call_start" | "tool_call_result" | "artifact_update" | "warning" | "error" | "message_done" | "reasoning" | "plan";
   step?: number;
   toolCallId?: string;
   toolName?: string;
@@ -1589,8 +1591,8 @@ function defaultModelPolicyForRoute(args: { routePolicy: RoutePolicy; entrypoint
   if (args.routePolicy === "explicit") throw new Error("explicit_route_requires_modelPolicy");
   if (args.routePolicy === "free_auto" || args.entrypoint === "free") return "openrouter/free-auto";
   if (args.routePolicy === "top_paid") return process.env.AGENT_TOP_PAID_MODEL ?? process.env.AGENT_MODEL ?? "anthropic/claude-sonnet-4";
-  if (args.mode === "research") return process.env.AGENT_RESEARCH_MODEL ?? "deepseek/deepseek-v4-flash";
-  return process.env.AGENT_MODEL ?? "gemini-3.5-flash";
+  if (args.mode === "research") return process.env.AGENT_RESEARCH_MODEL ?? process.env.AGENT_WORKER_MODEL ?? "minimax/minimax-m3";
+  return process.env.AGENT_ORCHESTRATOR_MODEL ?? process.env.AGENT_MODEL ?? "gemini-3.5-flash";
 }
 
 function configuredFileEgressModel() {
@@ -1639,6 +1641,10 @@ function canUsePublicJobArtifact(artifact: ArtifactAccess, actor: ActorValue): b
 
 function goalPrefersCompanyResearch(goal: string): boolean {
   return /(diligence|research|enrich|profile|source-?backed|funding|hiring|hipaa|security|buyer|watchlist|compan)/i.test(goal);
+}
+
+function goalPrefersPersonResearch(goal: string): boolean {
+  return /(deep[ -]?dive|person|founder|background|career|bio(?:graphy)?|education|publication|talk|award|patent|project|code (?:review|profile)|github profile|linkedin)/i.test(goal);
 }
 
 function goalPrefersRunway(goal: string): boolean {
@@ -2098,7 +2104,7 @@ export const startPublicAsk = mutation({
       modelPolicy: a.modelPolicy,
       runtimeProfile: a.runtimeProfile,
       maxAttempts: a.maxAttempts,
-      mode: modeForArtifact(artifact),
+      mode: modeForArtifact(artifact) ?? (goalPrefersPersonResearch(a.goal) || goalPrefersCompanyResearch(a.goal) ? "research" : undefined),
     });
     return startDurableAgentJob(ctx, {
       ...policy,

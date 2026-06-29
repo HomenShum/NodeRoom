@@ -658,7 +658,7 @@ export async function runAgent(opts: {
             step,
             status: "started",
             title: `Model turn ${step + 1}`,
-            metadata: { model: model.name },
+            metadata: { model: model.name, maxSteps, step: step + 1 },
           });
           fresh = await model.next({
             system: goalRequiresPackage ? btbSystemPrompt(opts.systemPrompt ?? SYSTEM_PROMPT, btbTaskId, btbRequiredCoverageTerms) : opts.systemPrompt ?? SYSTEM_PROMPT,
@@ -688,6 +688,18 @@ export async function runAgent(opts: {
         out = fresh;
       }
       if (out.text) finalText = out.text;
+
+      // Emit reasoning/plan stream events when the model produces text alongside tool calls.
+      // Step 0 text → "plan" (game plan); later steps → "reasoning" (thoughts).
+      if (out.text?.trim() && out.toolCalls.length > 0) {
+        emitStreamEvent({
+          kind: step === 0 ? "plan" : "reasoning",
+          step,
+          status: "completed",
+          text: out.text.trim(),
+          metadata: step === 0 ? { goal } : undefined,
+        });
+      }
 
       if (out.done || out.toolCalls.length === 0) {
         const hasFinalText = !!(out.text?.trim() || finalText.trim());

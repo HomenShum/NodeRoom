@@ -11,6 +11,11 @@ import { secFactsTool } from "../search/secFactsTool";
 import { citeInFileTool } from "../search/citeInFileTool";
 import { createBtbDeliverablePackageTool } from "../bankerCoach/btbPackageTool";
 import { apifyFounderProfileTool } from "../search/apifyFounderProfileTool";
+import { githubProfileTool } from "../search/githubProfileTool";
+import { youComSearchTool } from "../search/youComSearchTool";
+import { youComResearchTool } from "../search/youComResearchTool";
+import { youComFinanceResearchTool } from "../search/youComFinanceResearchTool";
+import { tavilySearchTool } from "../search/tavilySearchTool";
 import { SKILL_SEARCH_TOOLS, LOAD_SKILL_TOOLS } from "../../tools";
 
 export const SERVER_PRODUCTION_ROOM_TOOLS = [
@@ -20,6 +25,11 @@ export const SERVER_PRODUCTION_ROOM_TOOLS = [
   citeInFileTool,
   createBtbDeliverablePackageTool,
   apifyFounderProfileTool,
+  githubProfileTool,
+  youComSearchTool,
+  youComResearchTool,
+  youComFinanceResearchTool,
+  tavilySearchTool,
   // Skill RAG (server-only: local fs read + SSRF-guarded fetch). Discover skills, load one on demand.
   ...SKILL_SEARCH_TOOLS,
   ...LOAD_SKILL_TOOLS,

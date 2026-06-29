@@ -35,7 +35,7 @@ Status: source-of-truth ledger for the public startup-diligence demo.
 - `npx vitest run tests/convexOkfRuntime.test.ts tests/okfEmbeddingProvider.test.ts tests/providerEgressPolicy.test.ts tests/okfEvidenceWriteGate.test.ts --reporter=dot`: 4 files, 18 tests pass on 2026-06-16.
 - `npm run qa:matrix:check`, `npm run security:gate`, `npm run slo:gate`, and `npm run content:fluency:check`: pass on 2026-06-16.
 - `npm run test:product:live`: 17 Playwright/backend specs pass against the deployed backend on 2026-06-16.
-- Convex production deploy to `aromatic-bass-102`: pass on 2026-06-16.
+- Convex deploy to `aromatic-bass-102` (the `kind: prod` deployment): pass on 2026-06-16. NOTE (2026-06-28): `noderoom.live` is actually served by `zealous-goshawk-766` (the Vercel-backing `kind: dev` deployment); `aromatic-bass-102` is read-only/standby and does not back the live site.
 - Vercel production deployment for `noderoom.live` / `nodeagent.live`: ready on 2026-06-16.
 - Production OKF privacy smoke: pass on 2026-06-16; owner-private concept and retrieval event were visible to the owner, hidden from peer search and Trace Lens.
 - Live browser smoke: `https://noderoom.live` returned 200, rendered the expected app shell/title, and reported no console errors on 2026-06-16.

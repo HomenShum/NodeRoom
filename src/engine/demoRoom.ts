@@ -45,6 +45,7 @@ export const RESEARCH_PLAN = [
 ];
 export const CAPTURE_NOTEBOOK_DOC = "<h1>Capture Notebook</h1><p>Who did you talk to? What changed? What should we verify next? Drop messy notes here, then pause — NodeRoom will notice the signals worth returning to.</p>";
 export const WIKI_DOC = "Living wiki for room state, file inventory, agent sessions, workflows, backend map, and recent trace evidence. It updates from artifacts, sessions, runs, and traces.";
+export const BRIEF_DOC = "Today's Brief — the room's ranked next actions, assembled from evidence, runway, and review state. Derived from the room and updated as it changes.";
 
 function researchMeta() {
   return {
@@ -138,6 +139,7 @@ export function buildDemoRoom(engine: RoomEngine): DemoRoom {
   }
   engine.createArtifact({ roomId: room.id, kind: "note", title: "Capture Notebook", by: me, seed: [{ id: "doc", value: CAPTURE_NOTEBOOK_DOC }] });
   const wikiId = engine.createArtifact({ roomId: room.id, kind: "note", title: "Agent wiki", by: me, seed: [{ id: "doc", value: WIKI_DOC }] }).id;
+  engine.createArtifact({ roomId: room.id, kind: "note", title: "Today's Brief", by: me, seed: [{ id: "doc", value: BRIEF_DOC }] });
   const sheetId = engine.createArtifact({ roomId: room.id, kind: "sheet", title: "Q3 variance", by: me, seed }).id;
 
   const researchSeed: Array<{ id: string; value: unknown }> = [];

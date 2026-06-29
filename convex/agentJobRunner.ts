@@ -20,6 +20,7 @@ import { MANAGED_LOCK_SYSTEM_PROMPT } from "../src/nodeagent/models/prompts/syst
 import { injectMemoryIntoSystemPrompt } from "../src/nodemem/memoryContextBuilder";
 import { nodeMemInjectionEnabled, nodeMemRoomConfigEnabled } from "./nodemem";
 import { convexModel as agentModel, convexPriceRun as priceRun } from "../src/nodeagent/models/convexModel";
+import { modelForFramePhase } from "../src/nodeagent/models/phaseModel";
 import { buildResearchContext, buildCompanyDeepDiveContext } from "../src/nodeagent/core/worldModel";
 import { compactMessages } from "../src/nodeagent/core/contextCompactor";
 import type { AgentMessage, AgentResult, AgentTraceEvent, ToolCall, RoomTools } from "../src/nodeagent/core/types";
@@ -145,11 +146,17 @@ function maxStepsForJob(entrypoint: ProviderEgressEntrypoint, runtimeProfile: Cl
   return envNumber("FREE_AUTO_JOB_MAX_STEPS_PER_SLICE", defaultMaxStepsForEntrypoint(entrypoint), 1, 256);
 }
 
-function spendLimitsForJob(runtimeProfile: ClaimedJob["runtimeProfile"]) {
+function spendLimitsForJob(runtimeProfile: ClaimedJob["runtimeProfile"], mode?: "variance" | "research") {
   if (isBenchmarkCompletionProfile(runtimeProfile)) {
     return {
       maxTokens: envNumber("BENCHMARK_AGENT_MAX_TOKENS_PER_SLICE", 8_000_000, 1_000, 64_000_000),
       maxCostUsd: envNumber("BENCHMARK_AGENT_MAX_USD_PER_SLICE", 250, 0.01, 5_000),
+    };
+  }
+  if (mode === "research") {
+    return {
+      maxTokens: envNumber("AGENT_RESEARCH_MAX_TOKENS_PER_SLICE", 500_000, 1_000, 4_000_000),
+      maxCostUsd: envNumber("AGENT_RESEARCH_MAX_USD_PER_SLICE", 5, 0.01, 100),
     };
   }
   return {
@@ -426,11 +433,20 @@ export const runFreeAutoJobSlice = internalAction({
       2, 40,
     );
     const maxSteps = maxStepsForJob(entrypoint, claimed.runtimeProfile);
-    const spendLimits = spendLimitsForJob(claimed.runtimeProfile);
+    const spendLimits = spendLimitsForJob(claimed.runtimeProfile, claimed.mode);
     const deadlineAt = t0 + sliceBudgetMs;
     const activeFrame = claimed.activeReasoningFrame
       ? normalizeClaimedFrame(claimed.activeReasoningFrame, String(claimed.jobId))
       : undefined;
+    // Per-phase model selection: orchestrator phases (intake/plan/verify/synthesize) use
+    // AGENT_ORCHESTRATOR_MODEL; worker phases (execute) use AGENT_WORKER_MODEL.
+    // Falls back to resolvedModelPolicy if env vars not set.
+    const phaseModel = activeFrame
+      ? modelForFramePhase(activeFrame.phase, resolvedModelPolicy)
+      : resolvedModelPolicy;
+    const phaseAwareModel = phaseModel !== resolvedModelPolicy
+      ? agentModel(phaseModel, { entrypoint })
+      : model;
     let liveSequence = 1_000 + Math.max(0, claimed.attempt - 1) * 10_000;
     let streamSequence = 1_000 + Math.max(0, claimed.attempt - 1) * 10_000;
     const liveWrites: Array<Promise<unknown>> = [];
@@ -662,7 +678,7 @@ export const runFreeAutoJobSlice = internalAction({
         ? (frameReceipt = await runReasoningFrame({
           rt,
           frame: activeFrame,
-          model,
+          model: phaseAwareModel,
           tools: PRODUCTION_ROOM_TOOLS,
           systemPrompt: memorySystemPrompt,
           maxSteps,

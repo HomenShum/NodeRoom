@@ -7,7 +7,9 @@ export type AgentStreamEventKind =
   | "artifact_update"
   | "warning"
   | "error"
-  | "message_done";
+  | "message_done"
+  | "reasoning"
+  | "plan";
 
 export type AgentStreamEventStatus = "started" | "streaming" | "completed" | "failed" | "skipped";
 
@@ -78,12 +80,29 @@ export type AgentNoticeStreamPart = {
   metadata?: Record<string, unknown>;
 };
 
+export type AgentReasoningStreamPart = {
+  type: "reasoning";
+  step: number;
+  text: string;
+  state: AgentStreamEventStatus;
+};
+
+export type AgentPlanStreamPart = {
+  type: "plan";
+  step: number;
+  text: string;
+  state: AgentStreamEventStatus;
+  goal?: string;
+};
+
 export type UnifiedAgentStreamPart =
   | AgentTextStreamPart
   | AgentStepStreamPart
   | AgentToolStreamPart
   | AgentArtifactStreamPart
-  | AgentNoticeStreamPart;
+  | AgentNoticeStreamPart
+  | AgentReasoningStreamPart
+  | AgentPlanStreamPart;
 
 export function buildUnifiedAgentStreamParts(
   events: PersistedAgentStreamEvent[],
@@ -92,7 +111,31 @@ export function buildUnifiedAgentStreamParts(
   const parts: UnifiedAgentStreamPart[] = [];
   const sorted = [...events].sort((a, b) => a.sequence - b.sequence || a.createdAt - b.createdAt);
   let textPart: AgentTextStreamPart | undefined;
+  let reasoningPart: AgentReasoningStreamPart | undefined;
+  let planPart: AgentPlanStreamPart | undefined;
   let sawDone = false;
+
+  const appendReasoning = (text: string, step: number, state: AgentStreamEventStatus = "streaming") => {
+    if (!text) return;
+    if (reasoningPart && reasoningPart.step === step) {
+      reasoningPart.text += text;
+      reasoningPart.state = state;
+      return;
+    }
+    reasoningPart = { type: "reasoning", step, text, state };
+    parts.push(reasoningPart);
+  };
+
+  const appendPlan = (text: string, step: number, state: AgentStreamEventStatus = "streaming", goal?: string) => {
+    if (!text) return;
+    if (planPart) {
+      planPart.text += text;
+      planPart.state = state;
+      return;
+    }
+    planPart = { type: "plan", step, text, state, goal };
+    parts.push(planPart);
+  };
 
   const appendText = (text: string, state: AgentTextStreamPart["state"] = "streaming") => {
     if (!text) return;
@@ -172,6 +215,14 @@ export function buildUnifiedAgentStreamParts(
       });
       continue;
     }
+    if (event.kind === "reasoning") {
+      appendReasoning(event.text ?? "", event.step ?? 0, event.status ?? "streaming");
+      continue;
+    }
+    if (event.kind === "plan") {
+      appendPlan(event.text ?? "", event.step ?? 0, event.status ?? "streaming", typeof event.metadata?.goal === "string" ? event.metadata.goal as string : undefined);
+      continue;
+    }
     if (event.kind === "warning" || event.kind === "error") {
       parts.push({
         type: "data-notice",
@@ -186,5 +237,7 @@ export function buildUnifiedAgentStreamParts(
 
   if (opts.finalText && !textPart) appendText(opts.finalText, opts.terminal ? "done" : "streaming");
   if ((sawDone || opts.terminal) && textPart) textPart.state = "done";
+  if ((sawDone || opts.terminal) && reasoningPart) reasoningPart.state = "completed";
+  if ((sawDone || opts.terminal) && planPart) planPart.state = "completed";
   return parts;
 }

@@ -134,26 +134,36 @@ export function RoomShell({ roomId, me, onLeave, proof }: { roomId: string; me: 
   if (!room) {
     // Honest status: a resolved-null meta means the room is gone, not "still loading".
     const notFound = store.roomState() === "notFound";
+    if (notFound) {
+      return (
+        <div className="r-app"><div className="r-screen">
+          <div style={{ margin: "auto", display: "flex", flexDirection: "column", alignItems: "center", gap: 12, textAlign: "center", maxWidth: 320 }} className="muted">
+            <div>This room isn’t available — it may have been closed, or your access was revoked.</div>
+            <button className="r-iconbtn" title="Leave room" aria-label="Leave room" onClick={onLeave}><LogOut size={16} /> Leave</button>
+          </div>
+        </div></div>
+      );
+    }
+    // Loading → a room-shaped skeleton (rail + work surface + chat), not a spinner on a blank screen.
     return (
-      <div className="r-app"><div className="r-screen">
-        <div style={{ margin: "auto", display: "flex", flexDirection: "column", alignItems: "center", gap: 12, textAlign: "center", maxWidth: 320 }} className="muted">
-          {notFound ? (
-            <>
-              <div>This room isn’t available — it may have been closed, or your access was revoked.</div>
-              <button className="r-iconbtn" title="Leave room" aria-label="Leave room" onClick={onLeave}><LogOut size={16} /> Leave</button>
-            </>
-          ) : (
-            <>
-              <div>Loading room…</div>
-              {slowLoad && (
-                <div style={{ display: "flex", gap: 8 }}>
-                  <button className="r-iconbtn" onClick={() => window.location.reload()}>Reload</button>
-                  <button className="r-iconbtn" title="Leave room" aria-label="Leave room" onClick={onLeave}><LogOut size={16} /> Leave</button>
-                </div>
-              )}
-            </>
-          )}
+      <div className="r-app"><div className="r-screen r-skel-shell" aria-busy="true" aria-label="Loading room">
+        <div className="r-skel-rail">
+          <span className="r-skeleton" style={{ height: 26, width: "72%" }} />
+          {Array.from({ length: 6 }).map((_, i) => <span key={i} className="r-skeleton" style={{ height: 14, width: `${88 - (i % 3) * 16}%` }} />)}
         </div>
+        <div className="r-skel-surface">
+          <span className="r-skeleton" style={{ height: 30, width: "42%" }} />
+          {Array.from({ length: 9 }).map((_, i) => <span key={i} className="r-skeleton" style={{ height: 18 }} />)}
+        </div>
+        <div className="r-skel-chat">
+          {Array.from({ length: 5 }).map((_, i) => <span key={i} className="r-skeleton" style={{ height: i % 2 ? 42 : 24, width: i % 2 ? "86%" : "62%" }} />)}
+        </div>
+        {slowLoad && (
+          <div className="r-skel-slow">
+            <button className="r-iconbtn" onClick={() => window.location.reload()}>Reload</button>
+            <button className="r-iconbtn" title="Leave room" aria-label="Leave room" onClick={onLeave}><LogOut size={16} /> Leave</button>
+          </div>
+        )}
       </div></div>
     );
   }

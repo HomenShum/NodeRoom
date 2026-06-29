@@ -11,7 +11,7 @@ silent overwrite.**
 
 `multi-panel room` · `public + private agents` · `route preference` · `presence + intent claims` · `draft-for-merge` · `per-room traces` · `NodeMem memory` · `live Convex + real LLM`
 
-[Why Convex](#why-convex-and-why-not) · [Architecture evolution](#collaboration-architecture-evolution) · [Audience fluency](#audience-world-proof-artifacts) · [Solo automation](#how-i-automated-the-process-as-a-single-person) · [Lessons](#lessons-from-building-noderoom) · [Managed writes](#managed-writes-legacy-lock-proof-and-next-lease-layer) · [Multi-user proof](docs/eval/MULTI_USER_COORDINATION_PROOF.md) · [June 2026 target](docs/TARGET_2026_06.md) · [Sequences](#live-collaboration-sequence) · [Harness reasoning](docs/HARNESS_RECURSIVE_REASONING.md) · [Adoption](docs/NODEAGENT_ADOPTION.md) · [Why & HALO](docs/WHY_NODEAGENT_AND_HALO.md) · [Quickstart](#quickstart) · [Agent runtime](docs/AGENT_RUNTIME.md) · [NodeAgent source map](docs/NODEAGENT_SOURCE_MAP.md) · [Agent eval](docs/AGENT_EVAL.md) · [Model eval matrix](docs/eval/MODEL_EVAL_MATRIX.md) · [Feature eval backlog](docs/eval/FEATURE_EVAL_BACKLOG.md) · [Agent wiki](docs/AGENT_WIKI.md) · [Design](docs/DESIGN.md) · [Stack](docs/STACK.md) · [Walkthrough](docs/WALKTHROUGH.md) · [Architecture](docs/ARCHITECTURE.md) · [Diagrams](docs/diagrams/README.md) · [Open gaps](docs/GAPS_NOT_DONE.md)
+[Why Convex](#why-convex-and-why-not) · [Architecture evolution](#collaboration-architecture-evolution) · [Audience fluency](#audience-world-proof-artifacts) · [Solo automation](#how-i-automated-the-process-as-a-single-person) · [Lessons](#lessons-from-building-noderoom) · [Managed writes](#managed-writes-legacy-lock-proof-and-next-lease-layer) · [Multi-user proof](docs/eval/MULTI_USER_COORDINATION_PROOF.md) · [June 2026 target](docs/TARGET_2026_06.md) · [Sequences](#live-collaboration-sequence) · [Harness reasoning](docs/HARNESS_RECURSIVE_REASONING.md) · [Orchestrator-worker routing](docs/ORCHESTRATOR_WORKER_ROUTING.md) · [Adoption](docs/NODEAGENT_ADOPTION.md) · [Why & HALO](docs/WHY_NODEAGENT_AND_HALO.md) · [Quickstart](#quickstart) · [Agent runtime](docs/AGENT_RUNTIME.md) · [NodeAgent source map](docs/NODEAGENT_SOURCE_MAP.md) · [Agent eval](docs/AGENT_EVAL.md) · [Model eval matrix](docs/eval/MODEL_EVAL_MATRIX.md) · [Feature eval backlog](docs/eval/FEATURE_EVAL_BACKLOG.md) · [Agent wiki](docs/AGENT_WIKI.md) · [Design](docs/DESIGN.md) · [Stack](docs/STACK.md) · [Walkthrough](docs/WALKTHROUGH.md) · [Architecture](docs/ARCHITECTURE.md) · [Diagrams](docs/diagrams/README.md) · [Open gaps](docs/GAPS_NOT_DONE.md)
 
 [Interview notes](docs/INTERVIEW_NOTES.md) · [Over-engineering audit](docs/OVERENGINEERING_AUDIT.md) · [Improvement roadmap](docs/IMPROVEMENT_ROADMAP.md) · [Next priorities](docs/NEXT_STEPS_PRIORITY.md) · [Operating budget](docs/OPERATING_BUDGET.md) · [Audience workloads](docs/AUDIENCE_WORKLOADS.md)
 
@@ -84,6 +84,31 @@ NodeAgent owns durable frames, context packs, entity/facet cache, OKF evidence,
 verification, trace workpapers, and managed writes; Omnigent, when used, stays
 the optional outer meta-harness for policies, sessions, sandboxing, and
 model/harness selection.
+
+### Orchestrator-Worker Model Routing
+
+NodeRoom uses an **orchestrator-worker** model routing pattern — the same
+architecture that OpenAI, Anthropic, and Claude Code have converged on in
+2025–2026. A high-intelligence orchestrator model (`z-ai/glm-5.2`, AA Index
+51.1) handles planning, verification, and synthesis. A cheaper worker model
+(`minimax/minimax-m3`, AA Index 44.4, 4x cheaper) executes bounded tool calls,
+search, and evidence gathering. The orchestrator reviews worker output before
+committing.
+
+This maps directly to NodeRoom's five-phase frame loop:
+
+```
+intake      → orchestrator (glm-5.2)   normalize request
+plan        → orchestrator (glm-5.2)   decompose, decide cache vs research
+execute     → worker (minimax-m3)      search, read, write, evidence
+verify      → orchestrator (glm-5.2)   check evidence, freshness, claims
+synthesize  → orchestrator (glm-5.2)   summarize for room trace + UI
+```
+
+The split gives near-minimax cost with near-glm intelligence for cognitive
+phases: ~$0.08 per deep-dive job vs $0.15 for glm-only or $0.06 for
+minimax-only. Full design record in
+[`docs/ORCHESTRATOR_WORKER_ROUTING.md`](docs/ORCHESTRATOR_WORKER_ROUTING.md).
 The smallest adoption proof is runnable with:
 
 ```bash
@@ -503,6 +528,21 @@ result, with step captions and a progress bar. Regenerate and judge any time wit
 directly with `npm run walkthrough-review -- <feature-id> --ui-review`; lower-level
 capture/render commands remain `npm run walkthroughs` + `npm run walkthroughs:render`.
 
+### ▶ Full end-to-end demo — the live analyst room (narrated, with music)
+
+The whole wedge in ~75 seconds — **Capture → Research → Brief → Evidence → Handoff** — with OpenAI TTS
+narration and an original ambient music bed mixed under the voice. This is the only clip here with **audio**.
+
+https://github.com/HomenShum/noderoom/raw/main/episodes/noderoom-analyst-room-v1/renders/short.mp4
+
+<sub>1080×1920 · H.264 + AAC · narration `gpt-4o-mini-tts` (onyx) + bed `assets/audio/episode-bed.mp3`, mixed
+in `remotion/Episode.tsx`. Built from a real `room-home` capture + the real `convex/artifacts.ts` guard code +
+honest claim cards (full ledger: [`episodes/noderoom-analyst-room-v1/report.md`](episodes/noderoom-analyst-room-v1/report.md)).
+Verified two ways — ffmpeg level checks (bed audible, voice ~7 dB on top) **and** the Gemini video judge
+**15/16, "publish"** ([`judge.md`](episodes/noderoom-analyst-room-v1/judge.md)). Rebuild with one command:
+`npm run episode -- noderoom-analyst-room-v1`. If your viewer doesn't autoplay the MP4,
+[download/play it here](episodes/noderoom-analyst-room-v1/renders/short.mp4).</sub>
+
 ### Flagship: Startup diligence war room
 ![Startup diligence war room: agents research, chart runway, preserve human edits, and prepare handoff drafts](docs/walkthroughs/startup-diligence-war-room.gif)
 <sub>Deterministic memory-mode walkthrough of the startup-diligence product story: CardioNova intake, a five-company banking watchlist, concurrent research/finance/review lanes, cited cells, runway/milestone work, no-clobber proof, private banker lane, and draft-only downstream handoff. This is the flagship product walkthrough; live-provider proof is tracked separately in [`docs/eval/startup-diligence-war-room-live.md`](docs/eval/startup-diligence-war-room-live.md).</sub>
@@ -522,6 +562,10 @@ capture/render commands remain `npm run walkthroughs` + `npm run walkthroughs:re
 ### Room Home — the pinned command center
 ![Room Home walkthrough: a pinned Home tab opens the command center with the full room inventory; clicking an artifact opens it as a tab and steps Home aside](docs/walkthroughs/room-home.gif)
 <sub>Deterministic memory-mode walkthrough: in a populated room, a pinned, non-closeable <strong>Home</strong> tab sits first in the work-surface tab strip. Opening it reveals the room command center — headline, a NodeAgent command bar, quick-action chips, and the full <strong>Room Inventory</strong> (every artifact, including ones not currently open as tabs). Clicking any inventory artifact (e.g. Runway / milestones) opens it as a new active tab and steps Home aside. When an agent job is running it surfaces here as a "work lane" (running / queued / needs-attention). Spec: <a href="scripts/walkthroughs/specs.ts"><code>scripts/walkthroughs/specs.ts</code></a> (<code>room-home</code>), regression net: <a href="e2e/room-home-tab.spec.ts"><code>e2e/room-home-tab.spec.ts</code></a> + <a href="tests/roomHomeWorkLanes.test.tsx"><code>tests/roomHomeWorkLanes.test.tsx</code></a>.</sub>
+
+### Today's Brief — a ranked-action notebook, each with a source
+![Today's Brief walkthrough: opening Today's Brief from the room inventory shows a document — ranked next actions, risk first, each backed by a source — then one click drafts a downstream handoff](docs/walkthroughs/brief.gif)
+<sub>Deterministic memory-mode walkthrough of the wedge headline. <strong>Today's Brief</strong> is a normal notebook artifact (it opens from the Room Home inventory and reads like the Agent wiki, not a bespoke surface): the room's ranked next actions, assembled from the banker-coach packet — severity-ranked (risk → watch → note), a readiness rollup (verified / needs-review / client-ready), and each action's source one click away. The <strong>Hand off</strong> line turns the six targets (Gmail, Slack, Notion, Linear, LinkedIn, CRM CSV) into a copy-able draft via <code>buildDownstreamHandoffDraft</code>. Document: <a href="src/ui/panels/TodaysBrief.tsx"><code>src/ui/panels/TodaysBrief.tsx</code></a>; spec: <a href="scripts/walkthroughs/specs.ts"><code>scripts/walkthroughs/specs.ts</code></a> (<code>brief</code>).</sub>
 
 ### Join a live room & chat
 ![Join a live room and chat — walkthrough](docs/walkthroughs/chat.gif)

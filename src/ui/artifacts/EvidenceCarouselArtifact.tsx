@@ -49,7 +49,7 @@ export function EvidenceCarouselArtifact({
             <small className="r-evidence-src">
               <span className="r-evidence-loc" title={card.sourceRef}>{sourceLabel(card)}</span>
               {(href || canOpenInternal) && <span className="r-evidence-open">Open source <ArrowUpRight size={11} /></span>}
-              <span className="r-evidence-conf"><NodeCount value={confidence} duration={650} suffix="%" ariaLabel={`${confidence}% confidence`} /></span>
+              {card.status === "verified" && <span className="r-evidence-conf"><NodeCount value={confidence} duration={650} suffix="%" ariaLabel={`${confidence}% confidence`} /></span>}
             </small>
           </>
         );

@@ -13,7 +13,7 @@ import { useQuery, useMutation } from "convex/react";
 import { useTiptapSync } from "@convex-dev/prosemirror-sync/tiptap";
 import { api } from "../../../convex/_generated/api";
 import {
-  Table2, FileText, StickyNote, Users, GitMerge, RotateCcw, History, Search, BookOpen, Home,
+  Table2, FileText, StickyNote, Users, GitMerge, RotateCcw, History, Search, BookOpen, Home, ListChecks,
   Lock, Unlock, Ban, Pencil, Plus, Check, AlertTriangle, Eye, Circle, ChevronRight, Download, Trash2, Undo2, X, Columns2, MoreHorizontal, Mail, Hash, Layers, Linkedin, Activity, type LucideIcon,
   Sparkles, Folder, Briefcase, Package, File as FileIcon,
 } from "lucide-react";
@@ -21,6 +21,7 @@ import { useStore, type ActorProof, type RoomStore, type EditFeedback, type Pres
 import { columnLetters } from "../../app/spreadsheetIndex";
 import { onStageFocus, focusStage, type StageFocusTarget } from "../stageFocus";
 import { TraceSurface } from "./TraceSurface";
+import { TodaysBrief } from "./TodaysBrief";
 import { classifyEvidence } from "../traceLens/evidence";
 import type { Actor, Artifact as Art, CellPayload, DataframeColumn, DocumentParseMeta, Proposal, TraceEvent, ResearchRowInput } from "../../engine/types";
 import { AttentionOverlay } from "../overlay/AttentionOverlay";
@@ -38,12 +39,15 @@ const HANDOFF_SHORT: Record<string, string> = { gmail: "Gmail", notion: "Notion"
 
 const WIKI_TITLE = "Agent wiki";
 const RESEARCH_TITLE = "Company research";
+const BRIEF_TITLE = "Today's Brief";
+const MAX_OPEN_TABS = 12; // BOUND: cap open work-surface tabs (agent loops can churn artifacts); evict oldest.
 const GENERIC_SHEET_CELL_WINDOW = 5_000;
 const BLANK_SHEET_ROWS = 12;
 const BLANK_SHEET_COLUMNS = ["A", "B", "C", "D", "E", "F", "G", "H"] as const;
-type TabId = "wiki" | "sheet" | "research" | "note" | "wall";
+type TabId = "wiki" | "brief" | "sheet" | "research" | "note" | "wall";
 const TABS: { id: TabId; label: string; Icon: LucideIcon }[] = [
   { id: "wiki", label: "Wiki", Icon: BookOpen },
+  { id: "brief", label: "Brief", Icon: ListChecks },
   { id: "sheet", label: "Spreadsheet", Icon: Table2 },
   { id: "research", label: "Research", Icon: Search },
   { id: "note", label: "Note", Icon: FileText },
@@ -63,22 +67,27 @@ function ArtifactSurface({ roomId, me, proof, artId, onArt, style, surfaceKey = 
   const arts = store.listArtifacts(roomId);
   const selected = arts.find((a) => a.id === artId);
   const wiki = selected?.kind === "note" && selected.title === WIKI_TITLE ? selected : arts.find((a) => a.title === WIKI_TITLE);
+  const brief = selected?.kind === "note" && selected.title === BRIEF_TITLE ? selected : arts.find((a) => a.title === BRIEF_TITLE);
   const research = selected?.title === RESEARCH_TITLE ? selected : arts.find((a) => a.title === RESEARCH_TITLE);
   const varianceSheet = arts.find((a) => a.kind === "sheet" && a.title === "Q3 variance") ?? arts.find((a) => a.kind === "sheet" && a.title !== RESEARCH_TITLE);
   const sheet = selected?.kind === "sheet" && selected.title !== RESEARCH_TITLE ? selected : varianceSheet;
-  const note = selected?.kind === "note" && selected.title !== WIKI_TITLE ? selected : arts.find((a) => a.kind === "note" && a.title !== WIKI_TITLE);
+  // A "plain" note is any note that is NOT the agent wiki or the brief (both render as their own doc tabs).
+  const isPlainNote = (a: Art) => a.kind === "note" && a.title !== WIKI_TITLE && a.title !== BRIEF_TITLE;
+  const note = selected && isPlainNote(selected) ? selected : arts.find(isPlainNote);
   const wall = selected?.kind === "wall" ? selected : arts.find((a) => a.kind === "wall");
-  const artFor = (t: TabId) => (t === "wiki" ? wiki : t === "sheet" ? sheet : t === "research" ? research : t === "note" ? note : wall);
-  const fallbackTab: TabId = sheet ? "sheet" : wiki ? "wiki" : research ? "research" : note ? "note" : wall ? "wall" : "sheet";
+  const artFor = (t: TabId) => (t === "wiki" ? wiki : t === "brief" ? brief : t === "sheet" ? sheet : t === "research" ? research : t === "note" ? note : wall);
+  const fallbackTab: TabId = sheet ? "sheet" : wiki ? "wiki" : brief ? "brief" : research ? "research" : note ? "note" : wall ? "wall" : "sheet";
   const tabForArt = (id: string): TabId => {
     if (wiki?.id === id) return "wiki";
+    if (brief?.id === id) return "brief";
     if (arts.some((a) => a.id === id && a.kind === "sheet" && a.title !== RESEARCH_TITLE)) return "sheet";
     if (research?.id === id) return "research";
-    if (arts.some((a) => a.id === id && a.kind === "note" && a.title !== WIKI_TITLE)) return "note";
+    if (arts.some((a) => a.id === id && isPlainNote(a))) return "note";
     if (wall?.id === id) return "wall";
     return fallbackTab;
   };
   const [tab, setTab] = useState<TabId>(() => tabForArt(artId));
+  const [renamingId, setRenamingId] = useState<string | null>(null);
   const [traceOpen, setTraceOpen] = useState(false);
   // Home is a persistent pinned pseudo-tab (primary surface only) — like Trace, it overlays the
   // work surface with the Room Home command center (inventory + work lanes) without disturbing openIds.
@@ -142,10 +151,13 @@ function ArtifactSurface({ roomId, me, proof, artId, onArt, style, surfaceKey = 
     return <I size={13} />;
   };
   const openTabArts = (openIds ?? []).map((id) => arts.find((a) => a.id === id)).filter((a): a is Art => !!a);
-  const renameArtifact = (a: Art) => {
-    if (typeof window === "undefined") return;
-    const next = window.prompt("Rename this file", a.title);
-    if (next && next.trim() && next.trim() !== a.title) void store.setArtifactMeta({ roomId, artifactId: a.id, title: next.trim(), actor: me });
+  // Inline rename (double-click / F2) — replaces the window.prompt modal, honoring the same
+  // inline-not-modal standard we hold cells to. Enter commits, Esc cancels; auto-saves via setArtifactMeta.
+  const renameArtifact = (a: Art) => setRenamingId(a.id);
+  const commitRename = (a: Art, value: string) => {
+    setRenamingId(null);
+    const t = value.trim();
+    if (t && t !== a.title) void store.setArtifactMeta({ roomId, artifactId: a.id, title: t, actor: me });
   };
   const pick = (t: TabId) => { const a = artFor(t); if (a) { onArt(a.id); setTab(t); } };
   const openArtifact = (a: Art) => { onArt(a.id); setTab(tabForArt(a.id)); };
@@ -176,7 +188,14 @@ function ArtifactSurface({ roomId, me, proof, artId, onArt, style, surfaceKey = 
             ? openTabArts.map((a) => (
                 <button key={a.id} className="r-tab r-filetab" data-active={String(!traceOpen && !homeOpen && a.id === artId)} onClick={() => { onArt(a.id); setTraceOpen(false); setHomeOpen(false); }} onDoubleClick={() => renameArtifact(a)} title={a.meta?.summary ? `${a.title} — ${a.meta.summary}` : `${a.title} (double-click to rename)`} data-testid="artifact-filetab">
                   {tabIcon(a)}
-                  <span className="r-filetab-name">{artifactTabDisplay(a).title}</span>
+                  {renamingId === a.id ? (
+                    <input className="r-filetab-rename" defaultValue={a.title} autoFocus aria-label="Rename file"
+                      onClick={(e) => e.stopPropagation()} onDoubleClick={(e) => e.stopPropagation()}
+                      onBlur={(e) => commitRename(a, e.currentTarget.value)}
+                      onKeyDown={(e) => { e.stopPropagation(); if (e.key === "Enter") { e.preventDefault(); e.currentTarget.blur(); } else if (e.key === "Escape") { e.preventDefault(); e.currentTarget.value = a.title; e.currentTarget.blur(); } }} />
+                  ) : (
+                    <span className="r-filetab-name">{artifactTabDisplay(a).title}</span>
+                  )}
                   {artifactTabDisplay(a).badge && <span className="r-file-ext r-filetab-ext">{artifactTabDisplay(a).badge}</span>}
                   {onCloseArtifact && openTabArts.length > 1 && (
                     <span className="r-filetab-x" role="button" aria-label={`Close ${a.title}`} onClick={(e) => { e.stopPropagation(); onCloseArtifact(a.id); }}><X size={12} /></span>
@@ -235,7 +254,7 @@ function ArtifactSurface({ roomId, me, proof, artId, onArt, style, surfaceKey = 
           me={me}
           embedded
           onOpenChat={onOpenChat}
-          artifacts={arts.map((a) => ({ id: a.id, title: a.title, kind: a.kind }))}
+          artifacts={arts.map((a) => ({ id: a.id, title: a.title, kind: a.kind, updatedAt: a.updatedAt, owner: a.createdBy?.name, visibility: a.visibility }))}
           onOpenArtifact={(id) => { onArt(id); setHomeOpen(false); }}
         />
       ) : traceOpen ? (
@@ -244,6 +263,7 @@ function ArtifactSurface({ roomId, me, proof, artId, onArt, style, surfaceKey = 
         <>
           {editErr && <div className="r-art-error" role="alert"><AlertTriangle size={13} /> {editErr}</div>}
           {activeTab === "wiki" && wiki && <Wiki roomId={roomId} art={wiki} onOpenArtifact={openArtifact} />}
+          {activeTab === "brief" && brief && <TodaysBrief roomId={roomId} onOpenArtifact={openArtifact} />}
           {activeTab === "sheet" && sheet && (sheet.title === "Q3 variance"
             ? <Sheet roomId={roomId} me={me} art={sheet} onError={(f) => setEditErr(editErrorMsg(f))} />
             : <GenericSheet roomId={roomId} me={me} art={sheet} onError={(f) => setEditErr(editErrorMsg(f))} />)}
@@ -348,7 +368,15 @@ export function Artifact(props: {
     return ids;
   })();
   const [openIds, setOpenIds] = useState<string[]>(() => (artId && !defaultOpenIds.includes(artId) ? [artId, ...defaultOpenIds] : defaultOpenIds));
-  useEffect(() => { if (artId) setOpenIds((prev) => (prev.includes(artId) ? prev : [...prev, artId])); }, [artId]);
+  useEffect(() => {
+    if (!artId) return;
+    setOpenIds((prev) => {
+      if (prev.includes(artId)) return prev;
+      const next = [...prev, artId];
+      // BOUND: the active artifact is appended last, so slicing to the last MAX keeps it + evicts the oldest.
+      return next.length > MAX_OPEN_TABS ? next.slice(next.length - MAX_OPEN_TABS) : next;
+    });
+  }, [artId]);
   // Always include the active artifact (a freshly created/uploaded file is active before the effect
   // appends it), then keep only artifacts that still exist. Guarantees the active file owns a tab.
   const liveOpenIds = [...new Set([...openIds, artId].filter(Boolean))].filter((id) => arts.some((a) => a.id === id));
@@ -1085,7 +1113,9 @@ function GenericSheet({ roomId, me, art, onError }: { roomId: string; me: Actor;
     () => focusBoxesForSheet({ artifactId: art.id, now: Date.now(), meId: me.id, presence: presenceRows, cellStates: overlayCellStates }),
     [art.id, me.id, presenceRows, overlayCellStates],
   );
-  void onError; // research grid is read-only here; signature mirrors Sheet for a uniform call site
+  const doCommit = (id: string, s: string) => { void commit(store, roomId, me, art.id, id, s).then((f) => { if (f && !f.ok) onError?.(f); }); };
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editDraft, setEditDraft] = useState("");
   return (
     <>
       <div className="r-art-body">
@@ -1115,9 +1145,25 @@ function GenericSheet({ roomId, me, art, onError }: { roomId: string; me: Actor;
                     const showMeta = !art.meta?.excelGrid && payload;
                     const cls = "r-cell" + (isNumberLikeCell(raw) ? " num" : "") + (locked ? " locked" : "") + (proposed ? " proposed" : "") + (hasVisibleEvidence ? " evidence" : "") + (showFormulaMarker ? " formula" : "") + (sel === id ? " sel" : "");
                     return (
-                      <td key={col} className={cls} title={[dataframeCellAddress(art, cols, visibleRows, id), payload?.evidence?.[0]?.label].filter(Boolean).join(" | ")} data-evidence-class={classifyEvidence(payload)} data-cell-key={id} data-element-id={id} data-testid="sheet-cell" data-has-evidence={hasVisibleEvidence ? "true" : undefined} data-has-formula={payload?.formula ? "true" : undefined} colSpan={span?.colSpan} rowSpan={span?.rowSpan} aria-selected={sel === id || undefined} onClick={() => setSel(id)}>
-                        {value ? <span className="r-cell-value">{value}</span> : <span className="nullcell">-</span>}
-                        {showMeta && <span className={"r-cell-meta " + (payload.status ?? "complete")}>{payload.evidence?.length ? `${payload.evidence.length} src` : payload.status}</span>}
+                      <td key={col} className={cls} title={[value || undefined, dataframeCellAddress(art, cols, visibleRows, id), payload?.evidence?.[0]?.label].filter(Boolean).join(" | ")} data-evidence-class={classifyEvidence(payload)} data-cell-key={id} data-element-id={id} data-testid="sheet-cell" data-has-evidence={hasVisibleEvidence ? "true" : undefined} data-has-formula={payload?.formula ? "true" : undefined} colSpan={span?.colSpan} rowSpan={span?.rowSpan} aria-selected={sel === id || undefined} onClick={() => setSel(id)} onDoubleClick={() => { setEditingId(id); setEditDraft(value); }}>
+                        {editingId === id ? (
+                          <textarea className="r-cell-editor" autoFocus value={editDraft} data-testid="cell-editor"
+                            style={{ width: "100%", minHeight: "28px", resize: "none", overflow: "hidden" }}
+                            ref={(el) => { if (el) { el.style.height = "auto"; el.style.height = `${el.scrollHeight}px`; } }}
+                            onChange={(e) => {
+                              const el = e.target;
+                              el.style.height = "auto";
+                              el.style.height = `${el.scrollHeight}px`;
+                              setEditDraft(el.value);
+                            }}
+                            onBlur={() => { setEditingId(null); if (editDraft.trim() !== value) doCommit(id, editDraft.trim()); }}
+                            onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); (e.target as HTMLTextAreaElement).blur(); } if (e.key === "Escape") { setEditDraft(value); setEditingId(null); } }} />
+                        ) : (
+                          <>
+                            {value ? <span className="r-cell-value">{value}</span> : <span className="nullcell">-</span>}
+                            {showMeta && <span className={"r-cell-meta " + (payload.status ?? "complete")}>{payload.evidence?.length ? `${payload.evidence.length} src` : payload.status}</span>}
+                          </>
+                        )}
                       </td>
                     );
                   })}

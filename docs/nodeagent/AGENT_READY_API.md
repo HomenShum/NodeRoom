@@ -936,6 +936,74 @@ This file is the model-facing contract: every production tool must expose a non-
 }
 ```
 
+### you_search
+
+- Purpose: Search the web in real-time via You.com for LLM-ready JSON results including news, web pages, and fresh content.
+- When to use: Fast web discovery — finding company websites, news articles, LinkedIn pages, GitHub profiles, product launches, press coverage.
+- When not to use: Do not use as a hidden shortcut around room permissions, privacy boundaries, or artifact freshness.
+- Mutability: mixed.
+- Canonical Zod properties: `query`, `count`, `freshness`, `country`.
+- Canonical required fields: `query`.
+- Provider required fields: `query`.
+- Expected errors: missing_required_arg; invalid_arg_type.
+- Recovery path: Treat tool failures as inputs: inspect `failureKind` or result reason, add the missing argument or re-read state, and stop rather than inventing data.
+- Example call:
+
+```json
+{
+  "tool": "you_search",
+  "args": {
+    "query": "Acme Corp funding Series A"
+  }
+}
+```
+
+### you_research
+
+- Purpose: Multi-step research synthesis via You.com Research API — reads sources, reasons across them, and produces a cited Markdown answer.
+- When to use: Complex research questions requiring multi-source synthesis (investment thesis, competitive landscape, technology deep dive).
+- When not to use: Do not use as a hidden shortcut around room permissions, privacy boundaries, or artifact freshness.
+- Mutability: mixed.
+- Canonical Zod properties: `input`, `researchEffort`.
+- Canonical required fields: `input`.
+- Provider required fields: `input`.
+- Expected errors: missing_required_arg; invalid_arg_type.
+- Recovery path: Treat tool failures as inputs: inspect `failureKind` or result reason, add the missing argument or re-read state, and stop rather than inventing data.
+- Example call:
+
+```json
+{
+  "tool": "you_research",
+  "args": {
+    "input": "What is Acme Corp's investment thesis and portfolio strategy?",
+    "researchEffort": "deep"
+  }
+}
+```
+
+### you_finance_research
+
+- Purpose: Finance-optimized deep research via You.com Finance Research API — searches SEC filings, earnings, fundamentals, equity prices, macro indicators, and financial news.
+- When to use: Financial due diligence on public companies — SEC filings, earnings calls, fundamentals, macro context.
+- When not to use: Do not use as a hidden shortcut around room permissions, privacy boundaries, or artifact freshness.
+- Mutability: mixed.
+- Canonical Zod properties: `input`, `researchEffort`.
+- Canonical required fields: `input`.
+- Provider required fields: `input`.
+- Expected errors: missing_required_arg; invalid_arg_type.
+- Recovery path: Treat tool failures as inputs: inspect `failureKind` or result reason, add the missing argument or re-read state, and stop rather than inventing data.
+- Example call:
+
+```json
+{
+  "tool": "you_finance_research",
+  "args": {
+    "input": "AAPL revenue growth and margin trends 2020-2024",
+    "researchEffort": "deep"
+  }
+}
+```
+
 ### create_btb_deliverable_package
 
 - Purpose: Create the final BankerToolBench deliverable package as downloadable room file artifacts.
@@ -978,6 +1046,28 @@ This file is the model-facing contract: every production tool must expose a non-
   "args": {
     "company": "example",
     "fullName": "example"
+  }
+}
+```
+
+### github_profile
+
+- Purpose: Fetch a developer's public GitHub profile: bio, company, location, followers, top repos by stars, language distribution, recent activity, and organizations contributed to.
+- When to use: Person deep dives — understanding a founder's codebase, tech stack, open-source contributions, and engineering trajectory.
+- When not to use: Do not use as a hidden shortcut around room permissions, privacy boundaries, or artifact freshness.
+- Mutability: mixed.
+- Canonical Zod properties: `username`, `includeRepos`, `includeContributions`, `includeLanguages`.
+- Canonical required fields: `username`.
+- Provider required fields: `username`.
+- Expected errors: missing_required_arg; invalid_arg_type.
+- Recovery path: Treat tool failures as inputs: inspect `failureKind` or result reason, add the missing argument or re-read state, and stop rather than inventing data.
+- Example call:
+
+```json
+{
+  "tool": "github_profile",
+  "args": {
+    "username": "octocat"
   }
 }
 ```

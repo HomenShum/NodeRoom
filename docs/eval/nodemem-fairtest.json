@@ -6,81 +6,61 @@
       "arm": "bare",
       "scale": "small",
       "trial": 1,
-      "roomId": "sh74tbxww7jpdd9e4yzmph2ksn89hqgc",
+      "roomId": "sh70bdr1y0jztfgtvck9bjj6w989kcg7",
       "recalled": 5,
       "total": 5,
       "recall": 1,
-      "latencyMs": 28228
+      "latencyMs": 28339
     },
     {
       "arm": "bare",
       "scale": "small",
       "trial": 2,
-      "roomId": "sh7ax07epfnjabqwj37nsnvbhd89h4td",
+      "roomId": "sh7a8ze0wg8s6p0pg7crvj1v2d89knrb",
       "recalled": 5,
       "total": 5,
       "recall": 1,
-      "latencyMs": 20236
-    },
-    {
-      "arm": "memory",
-      "scale": "small",
-      "trial": 1,
-      "roomId": "sh7ayep0g73xb0ppy4x6d2pbmx89hbcb",
-      "recalled": 5,
-      "total": 5,
-      "recall": 1,
-      "latencyMs": 20223
-    },
-    {
-      "arm": "memory",
-      "scale": "small",
-      "trial": 2,
-      "roomId": "sh76r7vd51332n79pg6ckxwg3n89g0sx",
-      "recalled": 5,
-      "total": 5,
-      "recall": 1,
-      "latencyMs": 40308
+      "latencyMs": 20314
     },
     {
       "arm": "bare",
-      "scale": "large",
+      "scale": "mid",
       "trial": 1,
-      "roomId": "sh73g95ahg9rkqsy07z0c0nvjd89h8ht",
+      "roomId": "sh790kysb14myz3k4k4srmsbvh89jzcg",
+      "recalled": 5,
+      "total": 5,
+      "recall": 1,
+      "latencyMs": 32429
+    },
+    {
+      "arm": "bare",
+      "scale": "mid",
+      "trial": 2,
+      "roomId": "sh79vc58tbpfff1yhb1zhajdfx89jrk4",
+      "recalled": 5,
+      "total": 5,
+      "recall": 1,
+      "latencyMs": 24307
+    },
+    {
+      "arm": "bare",
+      "scale": "big",
+      "trial": 1,
+      "roomId": "sh742ana4c2vktc3svbjd10e4d89ksd6",
       "recalled": 0,
       "total": 5,
       "recall": 0,
-      "latencyMs": 36316
+      "latencyMs": 40344
     },
     {
       "arm": "bare",
-      "scale": "large",
+      "scale": "big",
       "trial": 2,
-      "roomId": "sh7957zwmb12hccfw5xbkr1brd89hqfv",
+      "roomId": "sh7akmfhk13g5dh9ffhacw6xyh89jwpn",
       "recalled": 0,
       "total": 5,
       "recall": 0,
-      "latencyMs": 313320
-    },
-    {
-      "arm": "memory",
-      "scale": "large",
-      "trial": 1,
-      "roomId": "sh720ywg5kbtqb3xxz2f0edq3189hbte",
-      "recalled": 5,
-      "total": 5,
-      "recall": 1,
-      "latencyMs": 32275
-    },
-    {
-      "arm": "memory",
-      "scale": "large",
-      "trial": 2,
-      "roomId": "sh7ama5x7xmy4rx0d9z4epwzm189hsze",
-      "recalled": 5,
-      "total": 5,
-      "recall": 1,
-      "latencyMs": 24301
+      "latencyMs": 52431
     }
   ],
   "summary": [
@@ -91,22 +71,16 @@
       "recallMean": 1
     },
     {
-      "scale": "small",
-      "arm": "memory",
+      "scale": "mid",
+      "arm": "bare",
       "trials": 2,
       "recallMean": 1
     },
     {
-      "scale": "large",
+      "scale": "big",
       "arm": "bare",
       "trials": 2,
       "recallMean": 0
-    },
-    {
-      "scale": "large",
-      "arm": "memory",
-      "trials": 2,
-      "recallMean": 1
     }
   ]
 }
