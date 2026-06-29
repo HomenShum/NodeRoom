@@ -1,38 +1,131 @@
 {
-  "timestamp": "2026-06-27T19:05:00.000Z",
-  "benchmarkType": "live_browser_single_variant",
-  "variant": "bare",
-  "mode": "off",
-  "model": "z-ai/glm-5.2",
-  "roomCode": "NRCDEMX9V92",
-  "task": "Research UpscaleX: find Series A funding round, investors, key team members. Write 5 rows to Sheet 1.",
-  "results": {
-    "totalElapsedMs": 105412,
-    "firstCellMs": 90000,
-    "allCellsMs": 105412,
-    "cellsFilled": 5,
-    "cellsExpected": 5,
-    "cellValues": {
-      "company": "UpscaleX",
-      "funding_round": "needs_review (UpScaleX is a seed-stage VC fund, not a funded startup; no own Series A disclosed)",
-      "investors": "needs_review (N/A — UpScaleX is an investor/fund, not a fundraising company)",
-      "headcount": "2-10 (LinkedIn: ~4 employees listed; 828 followers)",
-      "product": "AI-native seed fund investing in AI-native applications, agentic economies, and vertical AI; invests + co-builds with founders from seed through Series A"
+  "timestamp": "2026-06-28T20:28:30.462Z",
+  "variants": [
+    {
+      "variant": "bare",
+      "mode": "off",
+      "label": "No memory (baseline)",
+      "cellsFilled": 5,
+      "cellValues": {
+        "company": "UpscaleX",
+        "funding_round": "needs_review — no corroborated Series A round found in available sources",
+        "investors": "needs_review — no corroborated lead investor found in available sources",
+        "headcount": "needs_review",
+        "product": "-",
+        "-": "-"
+      },
+      "roomId": "NR2F7CIJGQK",
+      "firstCellMs": 44753,
+      "allCellsMs": 44754
     },
-    "modelTurns": 7,
-    "toolActions": 11,
-    "costUsd": 0.122,
-    "traceEvents": 14,
-    "sourcesFetched": 2,
-    "agentSummary": "UpScaleX is an AI-native seed VC fund (Palo Alto), not a fundraising startup — so no Series A/investors of its own; marked funding_round & investors as needs_review. Headcount 2-10 (LinkedIn ~4 employees). Sources: upscalex.ai + LinkedIn company page."
-  },
-  "nodeMemStats": {
-    "mode": "off",
-    "episodes": 0,
-    "entities": 0,
-    "facts": 0,
-    "contextPacks": 0
-  },
-  "consoleErrors": 0,
-  "notes": "Baseline (bare) variant run on live Convex deployment. Agent correctly identified UpscaleX as a VC fund rather than a startup, marked unfounded fields as needs_review. Website fetch timed out on first attempt; agent recovered with corroborating sources. NodeMem was off for this baseline run."
+    {
+      "variant": "shadow",
+      "mode": "shadow",
+      "label": "Shadow mode (record only, no injection)",
+      "cellsFilled": 5,
+      "cellValues": {
+        "company": "UpscaleX",
+        "funding_round": "No Series A found — UpScaleX is itself an AI-native seed-stage VC fund (Palo Alto), not a company that raised a round",
+        "investors": "Founders/partners (per LinkedIn): Alan Zong, Zidi Zhang, Mark Liu, Si Tong Zhou",
+        "headcount": "2-10 (LinkedIn lists 4 employees)",
+        "product": "AI-native seed fund investing in AI applications, agentic economies, and vertical AI / digital commerce startups, with hands-on co-building support",
+        "-": "-"
+      },
+      "roomId": "NR943VXKG6G",
+      "firstCellMs": 56890,
+      "allCellsMs": 57910,
+      "nodeMemStats": {
+        "contextPacks": 0,
+        "entities": 2,
+        "episodes": 3,
+        "facts": 6,
+        "mode": "shadow",
+        "uncompiled": 0
+      }
+    },
+    {
+      "variant": "bounded",
+      "mode": "active_ab",
+      "label": "Bounded injection (600 tokens)",
+      "cellsFilled": 5,
+      "cellValues": {
+        "company": "UpscaleX",
+        "funding_round": "No Series A found — UpscaleX is an AI-native seed fund (investor), not a funded startup",
+        "investors": "N/A — UpscaleX is the investor; portfolio includes BeFreed, Dex, Daxo, WorldEngine, Garner, MidasShiny, Expertise.ai, MAI Agent",
+        "headcount": "needs_review",
+        "product": "AI-native seed fund & accelerator co-building AI applications, agentic economies, and vertical AI companies",
+        "-": "-"
+      },
+      "roomId": "NRXZRXELRFB",
+      "firstCellMs": 50922,
+      "allCellsMs": 51940,
+      "nodeMemStats": {
+        "contextPacks": 0,
+        "entities": 2,
+        "episodes": 3,
+        "facts": 6,
+        "mode": "active_ab",
+        "uncompiled": 0
+      }
+    },
+    {
+      "variant": "full",
+      "mode": "active_ab",
+      "label": "Full injection (1200 tokens)",
+      "cellsFilled": 5,
+      "cellValues": {
+        "company": "UpscaleX",
+        "funding_round": "needs_review",
+        "investors": "needs_review",
+        "headcount": "needs_review",
+        "product": "needs_review",
+        "-": "-"
+      },
+      "roomId": "NRWTW9XMY1Z",
+      "firstCellMs": 198149,
+      "allCellsMs": 199175,
+      "nodeMemStats": {
+        "contextPacks": 0,
+        "entities": 2,
+        "episodes": 3,
+        "facts": 6,
+        "mode": "active_ab",
+        "uncompiled": 0
+      }
+    }
+  ],
+  "summary": [
+    {
+      "variant": "bare",
+      "label": "No memory (baseline)",
+      "firstCellMs": 44753,
+      "allCellsMs": 44754,
+      "cellsFilled": 5,
+      "hasError": false
+    },
+    {
+      "variant": "shadow",
+      "label": "Shadow mode (record only, no injection)",
+      "firstCellMs": 56890,
+      "allCellsMs": 57910,
+      "cellsFilled": 5,
+      "hasError": false
+    },
+    {
+      "variant": "bounded",
+      "label": "Bounded injection (600 tokens)",
+      "firstCellMs": 50922,
+      "allCellsMs": 51940,
+      "cellsFilled": 5,
+      "hasError": false
+    },
+    {
+      "variant": "full",
+      "label": "Full injection (1200 tokens)",
+      "firstCellMs": 198149,
+      "allCellsMs": 199175,
+      "cellsFilled": 5,
+      "hasError": false
+    }
+  ]
 }

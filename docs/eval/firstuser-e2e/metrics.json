@@ -1,0 +1,62 @@
+{
+  "measuredAt": "2026-06-28",
+  "stack": {
+    "ui": "vite preview (served production build) :5273",
+    "backend": "convex local anonymous deployment :3210 (merged main: per-phase routing + cachedInputTokens observability)",
+    "routingEnv": {
+      "AGENT_ORCHESTRATOR_MODEL": "z-ai/glm-5.2",
+      "AGENT_WORKER_MODEL": "z-ai/glm-5.2",
+      "AWARENESS_WINDOW": "30",
+      "NODEMEM_ROOM_CONFIG_ENABLED": "1"
+    },
+    "note": "Both tiers pinned to glm-5.2 for the reliable headline run; a prior attempt routed the worker tier to minimax-m3 (kept below as the comparison attempt)."
+  },
+  "task": "@nodeagent Research UpscaleX: find their latest funding round, investors, and key team members, and write the findings into the sheet (one row per fact). Mark anything you cannot verify as needs_review.",
+  "evidenceLayers": {
+    "note": "The agent records work in TWO channels; both are honest and say different things.",
+    "chat_say_message": "messages table (kind=agent); the agent's verbatim 'why' incl. exact source-failure codes. Saved to agent-chat.txt; rendered in screenshot 04. NOT in result.json.",
+    "cell_values": "elements read by benchRoomAnswer into result.json answerPreview; structured {value,status,confidence,evidence} per cell. Generic per-cell snippets, no error codes."
+  },
+  "headline_glm": {
+    "roomCode": "NRFUTF79DTL",
+    "roomId": "sh7154sc5hd643mhetayeyhbf189jtpp",
+    "model": "z-ai/glm-5.2",
+    "journeyLatencyMs": 558421,
+    "journeyLatencyMin": 9.3,
+    "slices": 8,
+    "doneSlices": 4,
+    "errorSlices": 4,
+    "terminalSliceMs": 315324,
+    "net_inputTokens": 50248,
+    "net_outputTokens": 6463,
+    "net_cachedInputTokens": 0,
+    "net_costUsd": 0.0867959,
+    "net_toolCalls": 36,
+    "realToolCallsPerTerminalSlice": 9,
+    "jobDoneWithinPoll": false,
+    "cellsWritten": 8,
+    "cellsWritten_source": "agent chat say message ('wrote 8 cells to row r1'); result.json answerPreview shows 5 cell objects before truncation: 4 status=needs_review + 1 status=complete (last_researched); the other 3 cells are past the truncation point.",
+    "outcome": "8 structured cells written to row r1; every unverifiable fact marked needs_review. result.json shows the last_researched timestamp cell is status=complete (the agent chat phrasing 'all needs_review' slightly overstates). Agent cited exact source failures (You.com 422, upscalex.com fetch aborted, Crunchbase capture 408) in its chat message and asked for human verification. Zero fabrication — honesty gate held."
+  },
+  "comparison_minimax": {
+    "roomCode": "NR9RW2SMUMK",
+    "roomId": "sh7e4kat884sd0zmc2hs52q2bn89jgka",
+    "model": "minimax/minimax-m3",
+    "slices": 20,
+    "doneSlices": 10,
+    "net_inputTokens": 58788,
+    "net_outputTokens": 4957,
+    "net_cachedInputTokens": 0,
+    "net_costUsd": 0.0235848,
+    "net_toolCalls": 100,
+    "jobDoneWithinPoll": false,
+    "outcome": "Same honest needs_review behavior; ~3.7x cheaper than glm-5.2 on this task; same poll-lag done=false."
+  },
+  "findings": {
+    "routing_live": "agentRuns.model = configured tier per room (glm-5.2 vs minimax-m3) — modelForFramePhase resolves live.",
+    "cache_observability": "cachedInputTokens wired end-to-end (adapter -> runtime -> agentRuns) and persists. Empirically 0 on BOTH glm-5.2 and minimax-m3 via OpenRouter on this workload — confirms the deferred CACHING_STRATEGY.md next-steps (pin OpenRouter provider; probe res.providerMetadata).",
+    "free_auto_ladder": "The job runs as N sliced agentRuns; billing dedups replayed journal steps, so only the one fresh terminal slice bills. Net cost = that slice.",
+    "done_false_is_poll_lag": "done=false is the job terminal status lagging the 9-min poll on the single-node local backend, NOT an agent failure — real work (cells, tool calls, cost) completed.",
+    "honesty_gate": "Under failing web sources, the agent reported needs_review with exact failure codes (chat channel) and asked for human verification instead of hallucinating UpscaleX facts."
+  }
+}

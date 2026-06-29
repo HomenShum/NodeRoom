@@ -39,6 +39,8 @@ import { api } from "../convex/_generated/api";
 
 const BASE = process.env.BENCH_BASE_URL ?? "http://localhost:5273";
 const CONVEX_URL = process.env.VITE_CONVEX_URL ?? "";
+// Shared secret for the dev-only setNodeMemRoomConfig mutation (must match the deployment env).
+const ROOM_CONFIG_SECRET = process.env.NODEMEM_ROOM_CONFIG_SECRET ?? "";
 const AGENT_COMPLETION_TIMEOUT_MS = Number(process.env.BENCH_AGENT_COMPLETION_TIMEOUT_MS ?? 15 * 60_000);
 const BENCH_TEST_TIMEOUT_MS = Number(
   process.env.BENCH_TEST_TIMEOUT_MS ?? Math.max(20 * 60_000, AGENT_COMPLETION_TIMEOUT_MS + 5 * 60_000),
@@ -215,11 +217,24 @@ for (const variant of VARIANTS) {
         // Resolve the Convex room ID from the room code.
         const roomInfo = await convexClient.query(api.rooms.byCode, { code: result.roomId ?? "" });
         const roomId = roomInfo?.roomId;
+        // Apply THIS variant's NodeMem mode + token budget to THIS room so the agent actually honors
+        // it (shadow/active_ab + 600/1200). Without this, every variant ran identically (the defect).
+        if (roomId) {
+          await convexClient.mutation(api.nodemem.setNodeMemRoomConfig, {
+            roomId,
+            mode: variant.mode as "shadow" | "active_ab",
+            maxTokens: variant.maxTokens,
+            secret: ROOM_CONFIG_SECRET,
+          });
+        }
         for (const ep of SEED_EPISODES) {
           await convexClient.mutation(api.nodemem.recordEpisode, {
             roomId,
             sourceKind: ep.sourceKind,
-            sourceId: ep.sourceId,
+            // Room-scope the sourceId so each room records its OWN episodes. recordEpisode dedups
+            // globally by content hash; identical static seeds otherwise collide across rooms/runs
+            // (only the first room ever gets episodes), leaving later rooms with empty memory.
+            sourceId: `${roomId}_${ep.sourceId}`,
             visibility: ep.visibility,
             rawText: ep.rawText,
           });
@@ -230,7 +245,7 @@ for (const variant of VARIANTS) {
 
         // Give the compilation a moment to settle.
         await page.waitForTimeout(2000);
-        convexClient.close();
+        // ConvexHttpClient is stateless HTTP — no close() needed (calling it throws).
       }
 
       // ── Step 3: ASK — send the research prompt ──────────────────────────────
@@ -281,7 +296,7 @@ for (const variant of VARIANTS) {
         if (stats) {
           result.nodeMemStats = stats as VariantResult["nodeMemStats"];
         }
-        convexClient.close();
+        // ConvexHttpClient is stateless HTTP — no close() needed (calling it throws).
       }
 
       // ── Step 6: Verify no page errors ───────────────────────────────────────
