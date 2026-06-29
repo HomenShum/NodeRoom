@@ -1084,6 +1084,19 @@ button.r-tracevu-step:hover, button.r-tracevu-step:focus-visible { border-color:
 .r-tracetab[data-active="true"] { color: var(--accent-ink); }
 .r-hometab { color: var(--text-muted); }
 .r-hometab[data-active="true"] { color: var(--accent-ink); }
+/* Knowledge graph — derived node-link view of the room's artifacts (reuses @xyflow/react). */
+.r-graphtab { color: var(--text-muted); }
+.r-graphtab[data-active="true"] { color: var(--accent-ink); }
+.r-graphvu { display: flex; flex-direction: column; flex: 1; min-height: 0; height: 100%; overflow: hidden; }
+.r-graphvu-head { flex: none; display: flex; align-items: center; gap: 8px; padding: 10px 14px; border-bottom: 1px solid var(--line); font-size: 12.5px; font-weight: 700; color: var(--text-secondary); }
+.r-graphvu-count { color: var(--text-muted); font-weight: 600; }
+.r-graphvu-canvas { position: relative; flex: 1 1 auto; min-height: 360px; }
+.r-graphvu-canvas .react-flow { background: var(--bg-primary); }
+.r-graphvu-canvas .react-flow__controls { box-shadow: 0 2px 10px rgba(0,0,0,.3); border-radius: 8px; overflow: hidden; }
+.r-graphvu-canvas .react-flow__controls-button { background: var(--bg-secondary); border-bottom: 1px solid var(--line); }
+.r-graphvu-canvas .react-flow__controls-button:hover { background: var(--bg-hover); }
+.r-graphvu-canvas .react-flow__controls-button svg { fill: var(--text-secondary); }
+.r-graphvu-empty { display: flex; align-items: center; justify-content: center; gap: 8px; height: 100%; min-height: 360px; padding: 24px; color: var(--text-muted); font-size: 12.5px; text-align: center; }
 /* Scale: collapsible groups + content-visibility windowing keep hundreds of steps cheap. */
 .r-tracevu-groups { display: flex; flex-direction: column; gap: 8px; }
 .r-tracevu-group { border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
