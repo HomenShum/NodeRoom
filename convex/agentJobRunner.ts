@@ -18,6 +18,7 @@ import { runReasoningFrame, type ReasoningFrameRunReceipt } from "../src/nodeage
 import { SERVER_PRODUCTION_ROOM_TOOLS as PRODUCTION_ROOM_TOOLS } from "../src/nodeagent/skills/server/productionTools";
 import { MANAGED_LOCK_SYSTEM_PROMPT } from "../src/nodeagent/models/prompts/systemPrompt";
 import { convexModel as agentModel, convexPriceRun as priceRun } from "../src/nodeagent/models/convexModel";
+import { modelForFramePhase } from "../src/nodeagent/models/phaseModel";
 import { buildResearchContext, buildCompanyDeepDiveContext } from "../src/nodeagent/core/worldModel";
 import { compactMessages } from "../src/nodeagent/core/contextCompactor";
 import type { AgentMessage, AgentResult, AgentTraceEvent, ToolCall, RoomTools } from "../src/nodeagent/core/types";
@@ -434,6 +435,15 @@ export const runFreeAutoJobSlice = internalAction({
     const activeFrame = claimed.activeReasoningFrame
       ? normalizeClaimedFrame(claimed.activeReasoningFrame, String(claimed.jobId))
       : undefined;
+    // Per-phase model selection: orchestrator phases (intake/plan/verify/synthesize) use
+    // AGENT_ORCHESTRATOR_MODEL; worker phases (execute) use AGENT_WORKER_MODEL.
+    // Falls back to resolvedModelPolicy if env vars not set.
+    const phaseModel = activeFrame
+      ? modelForFramePhase(activeFrame.phase, resolvedModelPolicy)
+      : resolvedModelPolicy;
+    const phaseAwareModel = phaseModel !== resolvedModelPolicy
+      ? agentModel(phaseModel, { entrypoint })
+      : model;
     let liveSequence = 1_000 + Math.max(0, claimed.attempt - 1) * 10_000;
     let streamSequence = 1_000 + Math.max(0, claimed.attempt - 1) * 10_000;
     const liveWrites: Array<Promise<unknown>> = [];
@@ -563,6 +573,7 @@ export const runFreeAutoJobSlice = internalAction({
         conflictsSurvived,
         inputTokens: result.usage.inputTokens,
         outputTokens: result.usage.outputTokens,
+        cachedInputTokens: result.usage.cachedInputTokens ?? 0,
         costUsd,
         ms,
         exhausted: result.exhausted,
@@ -641,7 +652,7 @@ export const runFreeAutoJobSlice = internalAction({
         ? (frameReceipt = await runReasoningFrame({
           rt,
           frame: activeFrame,
-          model,
+          model: phaseAwareModel,
           tools: PRODUCTION_ROOM_TOOLS,
           systemPrompt: MANAGED_LOCK_SYSTEM_PROMPT,
           maxSteps,
@@ -747,6 +758,7 @@ export const runFreeAutoJobSlice = internalAction({
         ms: telemetry.ms,
         inputTokens: result.usage.inputTokens,
         outputTokens: result.usage.outputTokens,
+        cachedInputTokens: result.usage.cachedInputTokens ?? 0,
         costUsd: telemetry.costUsd,
         runId,
         handoff: result.handoff,

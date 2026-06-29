@@ -615,7 +615,7 @@ export const runRoomAgent = action({
     const telemetry = {
       roomId: a.roomId, agentId: actor.id, model: model.name, goal: a.goal,
       steps: result.steps, toolCalls: result.trace.length, conflictsSurvived,
-      inputTokens: result.usage.inputTokens, outputTokens: result.usage.outputTokens, costUsd, ms, exhausted: result.exhausted,
+      inputTokens: result.usage.inputTokens, outputTokens: result.usage.outputTokens, cachedInputTokens: result.usage.cachedInputTokens ?? 0, costUsd, ms, exhausted: result.exhausted,
       stopReason: result.stopReason,
       remainingMs: result.budget.remainingMs,
       deadlineAt,

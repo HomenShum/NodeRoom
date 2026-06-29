@@ -578,13 +578,14 @@ const NODEAGENT_PROMPTS = [
   { label: "@nodeagent diligence CardioNova", insert: "@nodeagent diligence CardioNova with source-backed product, buyer, funding, hiring, and HIPAA/security gaps" },
   { label: "@nodeagent runway gaps", insert: "@nodeagent prepare runway and milestone gaps for CardioNova and the batch watchlist" },
 ];
-const AGENT_MODEL_PROVIDER_ORDER: LlmProvider[] = ["openrouter", "anthropic", "openai", "gemini", "xai"];
+const AGENT_MODEL_PROVIDER_ORDER: LlmProvider[] = ["openrouter", "anthropic", "openai", "gemini", "xai", "nebius"];
 const AGENT_MODEL_PROVIDER_LABELS: Record<LlmProvider, string> = {
   openrouter: "OpenRouter",
   anthropic: "Anthropic",
   openai: "OpenAI",
   gemini: "Google Gemini",
   xai: "xAI",
+  nebius: "Nebius",
 };
 const AGENT_MODEL_PRESETS: Array<{ value: AgentModelSelection["mode"]; label: string }> = [
   { value: "adaptive", label: "Adaptive" },

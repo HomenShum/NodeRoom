@@ -825,6 +825,7 @@ export default defineSchema({
     conflictsSurvived: v.number(),
     inputTokens: v.number(),
     outputTokens: v.number(),
+    cachedInputTokens: v.optional(v.number()), // prefix-cache hits (observability; #1 cache metric)
     costUsd: v.number(),
     ms: v.number(),
     exhausted: v.boolean(),

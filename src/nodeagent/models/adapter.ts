@@ -65,7 +65,14 @@ export function model(modelId: string, options: { entrypoint?: ProviderRouteEntr
         text: res.text || undefined,
         toolCalls,
         done: toolCalls.length === 0,
-        usage: { inputTokens: res.usage?.inputTokens ?? 0, outputTokens: res.usage?.outputTokens ?? 0 },
+        // cachedInputTokens = prefix-cache HITS (AI SDK v5 surfaces it for providers that report
+        // prompt_tokens_details.cached_tokens). For glm/minimax via OpenRouter this is best-effort —
+        // if it stays 0 while you expect hits, also probe res.providerMetadata (see CACHING_STRATEGY.md).
+        usage: {
+          inputTokens: res.usage?.inputTokens ?? 0,
+          outputTokens: res.usage?.outputTokens ?? 0,
+          cachedInputTokens: (res.usage as { cachedInputTokens?: number } | undefined)?.cachedInputTokens ?? 0,
+        },
       };
     },
   };

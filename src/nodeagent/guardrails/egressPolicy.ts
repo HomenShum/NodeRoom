@@ -33,7 +33,7 @@ export type ProviderRouteDecision =
   | ({ ok: true } & ProviderRouteReceipt)
   | ({ ok: false; reason: string; provider?: ProviderRouteProvider | null } & Omit<ProviderRouteReceipt, "provider">);
 
-const DEFAULT_ALLOWED_PROVIDERS: ProviderRouteProvider[] = ["openai", "anthropic", "gemini", "openrouter", "local"];
+const DEFAULT_ALLOWED_PROVIDERS: ProviderRouteProvider[] = ["openai", "anthropic", "gemini", "openrouter", "nebius", "local"];
 export const FREE_FILE_EGRESS_BLOCK_REASON = "free_file_egress_requires_OPENROUTER_FREE_ALLOW_FILE_EGRESS";
 
 export function isOpenRouterFreeRoute(model: string): boolean {

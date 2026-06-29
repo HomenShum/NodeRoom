@@ -219,6 +219,21 @@ async function providerStep(
       toolChoice,
     });
   }
+  if (provider === "nebius") {
+    const nebiusModelId = modelId.replace(/^nebius\//i, "");
+    return openAiCompatibleStep({
+      endpoint: `${nebiusBaseUrl()}/chat/completions`,
+      apiKey: requireEnv("NEBIUS_API_KEY"),
+      headers: {},
+      modelId: nebiusModelId,
+      system,
+      messages,
+      tools,
+      signal,
+      onTextDelta,
+      toolChoice,
+    });
+  }
   if (provider === "anthropic") return anthropicStep(modelId, system, messages, tools, signal);
   if (provider === "gemini") {
     if (onTextDelta) {
@@ -1084,6 +1099,10 @@ function requireEnv(name: string): string {
 
 function openRouterBaseUrl(): string {
   return envValue("OPENROUTER_BASE_URL") ?? "https://openrouter.ai/api/v1";
+}
+
+function nebiusBaseUrl(): string {
+  return envValue("NEBIUS_BASE_URL") ?? "https://api.tokenfactory.nebius.com/v1";
 }
 
 function modelMaxOutputTokens(): number {
