@@ -313,7 +313,7 @@ export const runRoomAgent = action({
     //    recorded L1-L4 collaboration-ladder pass. flash gets this lane only after it passes the ladder.
     const egressArtifacts = providerEgressArtifactsFromRoomState(roomState);
     const requestedModelName = a.mode === "research"
-      ? (process.env.AGENT_RESEARCH_MODEL ?? "gemini-3.5-flash")
+      ? (process.env.AGENT_RESEARCH_MODEL ?? "minimax/minimax-m3")
       : (process.env.AGENT_MODEL ?? "gemini-3.5-flash");
     const model = agentModel(modelNameForEgress(requestedModelName, "public_ask", egressArtifacts), { entrypoint: "public_ask" });
     const egressDecision = providerEgressDecision({

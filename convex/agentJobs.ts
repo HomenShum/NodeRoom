@@ -1591,7 +1591,7 @@ function defaultModelPolicyForRoute(args: { routePolicy: RoutePolicy; entrypoint
   if (args.routePolicy === "explicit") throw new Error("explicit_route_requires_modelPolicy");
   if (args.routePolicy === "free_auto" || args.entrypoint === "free") return "openrouter/free-auto";
   if (args.routePolicy === "top_paid") return process.env.AGENT_TOP_PAID_MODEL ?? process.env.AGENT_MODEL ?? "anthropic/claude-sonnet-4";
-  if (args.mode === "research") return process.env.AGENT_RESEARCH_MODEL ?? "gemini-3.5-flash";
+  if (args.mode === "research") return process.env.AGENT_RESEARCH_MODEL ?? "minimax/minimax-m3";
   return process.env.AGENT_MODEL ?? "gemini-3.5-flash";
 }
 
