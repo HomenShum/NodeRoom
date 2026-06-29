@@ -10,6 +10,7 @@ on:
       - "src/app/styles.css"
       - "scripts/design-qa/**"
       - "e2e/design-baseline.spec.ts"
+      - "e2e/design-baseline.spec.ts-snapshots/**"
 
 jobs:
   design-qa:
