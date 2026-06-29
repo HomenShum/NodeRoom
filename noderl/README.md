@@ -61,6 +61,10 @@ reusable artifacts are the **proof-receipt contract** (`spec/proof-receipt-contr
 | [`packages/nodemem`](packages/nodemem) | Replay / context memory | core pure, +failure-store pending |
 | [`packages/nodeeval`](packages/nodeeval) | Reward builder + visual/video judges + proof schema | walkthrough CLI standalone; judge contract pending |
 
+> Each package's `src/` is **generated** from the canonical NodeRoom source (never hand-forked) via
+> `MANIFEST.json` + `scripts/extract-from-noderoom.mjs`. See [EXTRACTION.md](EXTRACTION.md). Verified
+> 2026-06-28: `node scripts/extract-from-noderoom.mjs --dry-run` → 18/18 files resolve.
+
 ## Spec
 
 - [`spec/trajectory-schema.md`](spec/trajectory-schema.md)

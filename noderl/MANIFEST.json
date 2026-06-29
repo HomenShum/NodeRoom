@@ -1,0 +1,49 @@
+{
+  "//": "Extraction manifest. The public NodeRL packages are GENERATED from the canonical NodeRoom source by scripts/extract-from-noderoom.mjs -- never a hand-maintained fork. Re-run to refresh.",
+  "packages": {
+    "nodetrace": {
+      "from": "src/nodeagent/capture",
+      "to": "packages/nodetrace/src",
+      "files": [
+        "types.ts",
+        "pipeline.ts",
+        "reasoning.ts",
+        "guards.ts",
+        "pdfBox.ts",
+        "index.ts",
+        "secFacts.ts",
+        "substrate/index.ts",
+        "substrate/firecrawl.ts",
+        "substrate/browserbase.ts"
+      ]
+    },
+    "nodemem": {
+      "from": "src/nodemem",
+      "to": "packages/nodemem/src",
+      "files": [
+        "core/types.ts",
+        "core/classifier.ts",
+        "core/memoryCompiler.ts",
+        "core/retrievalPlanner.ts",
+        "failureMemory.ts"
+      ]
+    },
+    "nodeeval": {
+      "from": "src/eval",
+      "to": "packages/nodeeval/src",
+      "files": [
+        "bankerToolBenchEvalLedger.ts",
+        "bankerToolBenchFullSuiteGate.ts",
+        "bankerToolBenchLiveSuiteGate.ts"
+      ]
+    }
+  },
+  "strip": [
+    {
+      "file": "packages/nodetrace/src/secFacts.ts",
+      "find": "research@noderoom.app",
+      "replace": "you@example.com",
+      "reason": "do not ship a real contact email in the public SEC user-agent default"
+    }
+  ]
+}
