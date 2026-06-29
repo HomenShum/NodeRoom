@@ -78,3 +78,27 @@ The cell-editing fix you described (auto-grow textarea, no maxHeight scroll) is 
 auto-grow `.r-cell-editor` exists on one editor path, but the GenericSheet grid is read-only and the
 `EditableCell` default editor is still a single-line `<input>` with `nowrap`/fixed-27px display cells.
 Fixes #1, #2, #6, #18 finish it on the surface it names.
+
+## Resolution log (shipped)
+All 20 items addressed and live-verified in `?mode=memory`. Highlights:
+- **#1–#8, #11–#13, #15–#16, #19–#20** — shipped across PRs #68–#86 (cell editing+CAS, soft-wrap rows,
+  reading column, Stop/Regenerate, evidence honesty gate, keyboard grammar, tab close-X/overflow,
+  markdown copy+fence buffer, inventory triage, focus-trap, token leaks, jump-to-latest, inline rename, skeletons).
+- **#18** — density presets + name-box/value-bar + **column resize** (drag header edge, persisted per-artifact
+  to `localStorage`, BOUND ≥60px). Verified 112→172px exact (PR #86).
+- **#20b** — tab overflow `<details>` dropdown (lists all open tabs, navigates, auto-closes); MAX-12 eviction already present (PR #86).
+
+### #14 — resolved with a correction to the audit's own premise
+The audit framed 7/9/11/13/22px as "drift to snap to the 4/8/12 grid." On inspection that premise is **partly
+wrong**: the compact chips/pills/tags run on a deliberate **dense-UI micro-scale** (2/5/6/10px, Attio/Linear-class)
+where snapping to the 8pt grid would *bloat* tight elements — a regression, not a fix. So #14 was executed
+**surgically**, not blindly:
+- **Tokenized** only the genuinely-arbitrary odd-pixel values (7→`--space-2`, 9→`--space-2`, 11→`--space-3`,
+  13→`--space-3`) and **only on the value side of spacing properties** (padding/margin/gap families) — 127
+  replacements, value-position-preserving in shorthands.
+- **Preserved** the intentional dense micro-scale (2/5/6/10px) and the ≥2px-snap values (14/18/22px) — those
+  are optical tuning, not drift.
+- **Excluded** negative offsets (`-7px` avatar overlap) and decimal values — `-var(--space-2)` is invalid CSS,
+  and those offsets are deliberate.
+- No new tokens added (would be unused → violates cleanliness-by-subtraction); used only the existing scale.
+Build-clean; tokens resolve (`--space-2`=8px, `--space-3`=12px); dense surfaces unchanged visually.
