@@ -47,6 +47,11 @@ This file is the model-facing contract: every production tool must expose a non-
 | `cite_in_file` | write | `target` | `target` |
 | `create_btb_deliverable_package` | write | `narrative`, `title` | `narrative`, `title` |
 | `founder_profile` | mixed | none | none |
+| `github_profile` | mixed | `username` | `username` |
+| `you_search` | mixed | `query` | `query` |
+| `you_research` | mixed | `input` | `input` |
+| `you_finance_research` | mixed | `input` | `input` |
+| `tavily_search` | mixed | `query` | `query` |
 | `skill_search` | mixed | `query` | `query` |
 | `load_skill` | mixed | `idOrUrl` | `idOrUrl` |
 
@@ -936,99 +941,6 @@ This file is the model-facing contract: every production tool must expose a non-
 }
 ```
 
-### you_search
-
-- Purpose: Search the web in real-time via You.com for LLM-ready JSON results including news, web pages, and fresh content.
-- When to use: Fast web discovery — finding company websites, news articles, LinkedIn pages, GitHub profiles, product launches, press coverage.
-- When not to use: Do not use as a hidden shortcut around room permissions, privacy boundaries, or artifact freshness.
-- Mutability: mixed.
-- Canonical Zod properties: `query`, `count`, `freshness`, `country`.
-- Canonical required fields: `query`.
-- Provider required fields: `query`.
-- Expected errors: missing_required_arg; invalid_arg_type.
-- Recovery path: Treat tool failures as inputs: inspect `failureKind` or result reason, add the missing argument or re-read state, and stop rather than inventing data.
-- Example call:
-
-```json
-{
-  "tool": "you_search",
-  "args": {
-    "query": "Acme Corp funding Series A"
-  }
-}
-```
-
-### you_research
-
-- Purpose: Multi-step research synthesis via You.com Research API — reads sources, reasons across them, and produces a cited Markdown answer.
-- When to use: Complex research questions requiring multi-source synthesis (investment thesis, competitive landscape, technology deep dive).
-- When not to use: Do not use as a hidden shortcut around room permissions, privacy boundaries, or artifact freshness.
-- Mutability: mixed.
-- Canonical Zod properties: `input`, `researchEffort`.
-- Canonical required fields: `input`.
-- Provider required fields: `input`.
-- Expected errors: missing_required_arg; invalid_arg_type.
-- Recovery path: Treat tool failures as inputs: inspect `failureKind` or result reason, add the missing argument or re-read state, and stop rather than inventing data.
-- Example call:
-
-```json
-{
-  "tool": "you_research",
-  "args": {
-    "input": "What is Acme Corp's investment thesis and portfolio strategy?",
-    "researchEffort": "deep"
-  }
-}
-```
-
-### you_finance_research
-
-- Purpose: Finance-optimized deep research via You.com Finance Research API — searches SEC filings, earnings, fundamentals, equity prices, macro indicators, and financial news.
-- When to use: Financial due diligence on public companies — SEC filings, earnings calls, fundamentals, macro context.
-- When not to use: Do not use as a hidden shortcut around room permissions, privacy boundaries, or artifact freshness.
-- Mutability: mixed.
-- Canonical Zod properties: `input`, `researchEffort`.
-- Canonical required fields: `input`.
-- Provider required fields: `input`.
-- Expected errors: missing_required_arg; invalid_arg_type.
-- Recovery path: Treat tool failures as inputs: inspect `failureKind` or result reason, add the missing argument or re-read state, and stop rather than inventing data.
-- Example call:
-
-```json
-{
-  "tool": "you_finance_research",
-  "args": {
-    "input": "AAPL revenue growth and margin trends 2020-2024",
-    "researchEffort": "deep"
-  }
-}
-```
-
-### tavily_search
-
-- Purpose: Web search via the Tavily API — ranked results with snippets and an optional LLM-synthesized answer; supports topic (general/news/finance), time range, and domain include/exclude.
-- When to use: Fresh, citable web facts and news; finance/news-filtered lookups or restricting/excluding domains.
-- When not to use: Do not use as a hidden shortcut around room permissions, privacy boundaries, or artifact freshness.
-- Mutability: read-only.
-- Canonical Zod properties: `query`, `maxResults`, `searchDepth`, `topic`, `includeAnswer`, `timeRange`, `includeDomains`, `excludeDomains`.
-- Canonical required fields: `query`.
-- Provider required fields: `query`.
-- Expected errors: missing_required_arg; invalid_arg_type.
-- Recovery path: Treat tool failures as inputs: inspect `failureKind` or result reason, add the missing argument or re-read state, and stop rather than inventing data.
-- Example call:
-
-```json
-{
-  "tool": "tavily_search",
-  "args": {
-    "query": "latest SEC enforcement actions fintech 2026",
-    "topic": "news",
-    "searchDepth": "advanced",
-    "maxResults": 5
-  }
-}
-```
-
 ### create_btb_deliverable_package
 
 - Purpose: Create the final BankerToolBench deliverable package as downloadable room file artifacts.
@@ -1077,11 +989,11 @@ This file is the model-facing contract: every production tool must expose a non-
 
 ### github_profile
 
-- Purpose: Fetch a developer's public GitHub profile: bio, company, location, followers, top repos by stars, language distribution, recent activity, and organizations contributed to.
-- When to use: Person deep dives — understanding a founder's codebase, tech stack, open-source contributions, and engineering trajectory.
+- Purpose: Fetch a developer's public GitHub profile: bio, company, location, followers, top repositories (by stars), language distribution, recent activity (pushes, PRs, issues), and organizations contributed to.
+- When to use: Fetch a developer's public GitHub profile: bio, company, location, followers, top repositories (by stars), language distribution, recent activity (pushes, PRs, issues), and organizations contributed to.
 - When not to use: Do not use as a hidden shortcut around room permissions, privacy boundaries, or artifact freshness.
 - Mutability: mixed.
-- Canonical Zod properties: `username`, `includeRepos`, `includeContributions`, `includeLanguages`.
+- Canonical Zod properties: `includeContributions`, `includeLanguages`, `includeRepos`, `username`.
 - Canonical required fields: `username`.
 - Provider required fields: `username`.
 - Expected errors: missing_required_arg; invalid_arg_type.
@@ -1092,7 +1004,95 @@ This file is the model-facing contract: every production tool must expose a non-
 {
   "tool": "github_profile",
   "args": {
-    "username": "octocat"
+    "username": "example"
+  }
+}
+```
+
+### you_search
+
+- Purpose: Search the web in real-time using You.com.
+- When to use: Search the web in real-time using You.com.
+- When not to use: Do not use as a hidden shortcut around room permissions, privacy boundaries, or artifact freshness.
+- Mutability: mixed.
+- Canonical Zod properties: `count`, `country`, `freshness`, `query`.
+- Canonical required fields: `query`.
+- Provider required fields: `query`.
+- Expected errors: missing_required_arg; invalid_arg_type.
+- Recovery path: Treat tool failures as inputs: inspect `failureKind` or result reason, add the missing argument or re-read state, and stop rather than inventing data.
+- Example call:
+
+```json
+{
+  "tool": "you_search",
+  "args": {
+    "query": "example"
+  }
+}
+```
+
+### you_research
+
+- Purpose: Perform multi-step research using You.com.
+- When to use: Perform multi-step research using You.com.
+- When not to use: Do not use as a hidden shortcut around room permissions, privacy boundaries, or artifact freshness.
+- Mutability: mixed.
+- Canonical Zod properties: `input`, `researchEffort`.
+- Canonical required fields: `input`.
+- Provider required fields: `input`.
+- Expected errors: missing_required_arg; invalid_arg_type.
+- Recovery path: Treat tool failures as inputs: inspect `failureKind` or result reason, add the missing argument or re-read state, and stop rather than inventing data.
+- Example call:
+
+```json
+{
+  "tool": "you_research",
+  "args": {
+    "input": "example"
+  }
+}
+```
+
+### you_finance_research
+
+- Purpose: Perform finance-focused research using You.com.
+- When to use: Perform finance-focused research using You.com.
+- When not to use: Do not use as a hidden shortcut around room permissions, privacy boundaries, or artifact freshness.
+- Mutability: mixed.
+- Canonical Zod properties: `input`, `researchEffort`.
+- Canonical required fields: `input`.
+- Provider required fields: `input`.
+- Expected errors: missing_required_arg; invalid_arg_type.
+- Recovery path: Treat tool failures as inputs: inspect `failureKind` or result reason, add the missing argument or re-read state, and stop rather than inventing data.
+- Example call:
+
+```json
+{
+  "tool": "you_finance_research",
+  "args": {
+    "input": "example"
+  }
+}
+```
+
+### tavily_search
+
+- Purpose: Search the web using Tavily — an LLM-optimized search API built for agents.
+- When to use: Search the web using Tavily — an LLM-optimized search API built for agents.
+- When not to use: Do not use as a hidden shortcut around room permissions, privacy boundaries, or artifact freshness.
+- Mutability: mixed.
+- Canonical Zod properties: `excludeDomains`, `includeAnswer`, `includeDomains`, `maxResults`, `query`, `searchDepth`, `timeRange`, `topic`.
+- Canonical required fields: `query`.
+- Provider required fields: `query`.
+- Expected errors: missing_required_arg; invalid_arg_type.
+- Recovery path: Treat tool failures as inputs: inspect `failureKind` or result reason, add the missing argument or re-read state, and stop rather than inventing data.
+- Example call:
+
+```json
+{
+  "tool": "tavily_search",
+  "args": {
+    "query": "example"
   }
 }
 ```
