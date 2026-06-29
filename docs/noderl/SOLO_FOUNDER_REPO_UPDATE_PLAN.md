@@ -17,7 +17,7 @@ loop" concepts the brainstorm wants to add **already exist as prose in the skill
 | Repair lane | ✅ exists | `harbor --disable-verification` fast path, node 6 |
 | Promotion gate | ✅ exists | held-out + generalization re-measure (node 6); in-app transfer (node 7) |
 | Fresh-context judge | ✅ partial | deterministic grader, no LLM on scored path (node 6) |
-| Reference / domain packs | ✅ / ⚠️ | `references/benchmarks.md` exists; non-BTB fixtures not authored |
+| Reference / domain packs | ✅ | `references/benchmarks.md` exists; non-BTB fixtures vendored (nb-01/02/03 + golden grader, self-test 9/9) |
 
 **Do not re-derive these.** The real debts are below.
 
@@ -38,8 +38,10 @@ loop" concepts the brainstorm wants to add **already exist as prose in the skill
    updated. No "100/100 pass" string anywhere.
 
 ### P1 — Fill the empty proof cells
-3. **Author the non-BTB fixtures (NB-1/2/3).** Rubrics already exist in
-   `BTB_GENERALIZATION_DIAGNOSTIC.md`; the fixtures are not authored. Add
+3. ~~**Author the non-BTB fixtures (NB-1/2/3).**~~ **DONE — already vendored (was stale):**
+   `docs/eval/nonbtb/nb-01-company-profile`, `nb-02-vendor-pricing`, `nb-03-reconciliation` (each
+   `prompt.md` + `rubric.json` + real source CSV/TXT), graded Docker-free by `grade.py` /
+   `src/benchmarks/golden/`, passing self-test `tests/goldenDataset.test.ts` (9/9). Optional follow-up: mirror as
    `references/non-btb-fixtures.md`: source files + grader pseudocode + pass criteria. Use
    **generic** domains (SaaS churn forecast, retail pricing) — not real client deal names.
 4. **Fill the held-out OFF scorecard.** Currently a single provisional point (n=1, gpt-4.1-mini).
