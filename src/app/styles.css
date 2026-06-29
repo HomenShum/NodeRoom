@@ -563,6 +563,15 @@ input { font-family: inherit; }
 .r-chat-jump:hover { background: var(--accent-tint); }
 .r-send-stop { background: var(--text-secondary); color: #fff; }
 .r-send-stop:hover { filter: none; background: var(--text-primary); }
+/* Desktop loading skeleton (room-shaped) — replaces the bare "Loading room…" spinner-on-blank. */
+@keyframes r-skel-shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+.r-skeleton { display: block; border-radius: 6px; background: linear-gradient(90deg, var(--bg-secondary) 25%, var(--bg-hover) 37%, var(--bg-secondary) 63%); background-size: 200% 100%; animation: r-skel-shimmer 1.4s ease infinite; }
+@media (prefers-reduced-motion: reduce) { .r-skeleton { animation: none; } }
+.r-skel-shell { position: relative; gap: 0; }
+.r-skel-rail { width: 220px; flex: none; border-right: 1px solid var(--line); padding: 16px 14px; display: flex; flex-direction: column; gap: 12px; }
+.r-skel-surface { flex: 1; min-width: 0; padding: 18px 22px; display: flex; flex-direction: column; gap: 12px; }
+.r-skel-chat { width: 360px; flex: none; border-left: 1px solid var(--line); padding: 16px 14px; display: flex; flex-direction: column; gap: 12px; }
+.r-skel-slow { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; gap: 8px; }
 .r-chip-regen { display: inline-flex; align-items: center; gap: 4px; }
 .r-composer-hint { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
 .r-chip { font-size: 11px; padding: 3px 8px; border-radius: 7px; background: var(--bg-secondary); border: 1px solid var(--line); color: var(--text-muted); font-family: var(--font-mono); cursor: pointer; }
