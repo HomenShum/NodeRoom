@@ -488,6 +488,19 @@ input { font-family: inherit; }
 .r-md-copy { position: absolute; top: 6px; right: 6px; padding: 2px 7px; font-size: 10px; font-weight: 700; border-radius: 5px; border: 1px solid var(--line); background: var(--bg-secondary); color: var(--text-muted); cursor: pointer; opacity: 0; transition: opacity .12s; }
 .r-md-code:hover .r-md-copy, .r-md-copy:focus-visible { opacity: 1; }
 .r-md-copy:hover { color: var(--text-primary); }
+/* Column resize handle (drag the header's right edge). */
+.r-sheet[data-sheet-kind="generic"] thead th { position: relative; }
+.r-col-resize { position: absolute; top: 0; right: -3px; width: 7px; height: 100%; cursor: col-resize; z-index: 3; touch-action: none; }
+.r-col-resize:hover { background: var(--accent-primary); opacity: .45; }
+/* Tab overflow dropdown — discover off-screen open tabs. */
+.r-tab-overflow { position: relative; flex: none; }
+.r-tab-overflow > summary { list-style: none; cursor: pointer; }
+.r-tab-overflow > summary::-webkit-details-marker { display: none; }
+.r-tab-overflow-menu { position: absolute; top: calc(100% + 4px); right: 0; z-index: 30; min-width: 180px; max-height: 320px; overflow-y: auto; padding: 4px; border: 1px solid var(--line-strong); border-radius: 10px; background: var(--bg-primary); box-shadow: 0 8px 24px rgba(0,0,0,.28); display: flex; flex-direction: column; gap: 1px; }
+.r-tab-overflow-item { display: flex; align-items: center; gap: 8px; padding: 6px 9px; border: 0; background: transparent; border-radius: 6px; color: var(--text-secondary); font-size: 12.5px; cursor: pointer; text-align: left; }
+.r-tab-overflow-item:hover { background: var(--bg-hover); color: var(--text-primary); }
+.r-tab-overflow-item[data-active="true"] { color: var(--accent-ink); }
+.r-tab-overflow-item > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .r-md > :first-child { margin-top: 0; }
 .r-md > :last-child { margin-bottom: 0; }
 .r-md p { margin: 0 0 8px; }
