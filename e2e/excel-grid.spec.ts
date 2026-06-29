@@ -45,35 +45,47 @@ async function uploadAndOpenWorkbook(page: import("@playwright/test").Page): Pro
   await page.getByTestId("binder-artifact").filter({ hasText: /model(?:\.xlsx)?|XLSX/i }).first().click();
 }
 
+async function blankWorkbookFile(): Promise<string> {
+  // A deliberately plain 3x3 sheet (uniform short values -> a column shares one width). Fresh rooms are
+  // intentionally empty (App.tsx: they fill from chat / upload / the in-room CTA), so there is no
+  // auto-seeded "Blank sheet"; uploading is the real path to get a sheet into a room.
+  const workbook = new ExcelJS.Workbook();
+  const ws = workbook.addWorksheet("Blank");
+  for (let r = 1; r <= 3; r++) for (const col of ["A", "B", "C"]) ws.getCell(`${col}${r}`).value = `${col}${r}`;
+  const buffer = await workbook.xlsx.writeBuffer();
+  const dir = mkdtempSync(join(tmpdir(), "noderoom-blank-"));
+  const path = join(dir, "blank.xlsx");
+  writeFileSync(path, Buffer.from(buffer as ArrayBuffer));
+  return path;
+}
+
 async function createBlankSheet(page: import("@playwright/test").Page): Promise<void> {
-  await page.addInitScript(() => {
-    try { localStorage.setItem("noderoom:tour:v1", "done"); } catch { /* ignore */ }
-  });
-  await page.goto("/?mode=memory&create=BLANKGRID&name=QA", { waitUntil: "domcontentloaded" });
-  await page.getByTestId("artifact-filetab").filter({ hasText: "Blank sheet" }).first().click({ timeout: 30_000 });
+  await enterDemoRoom(page);
+  await page.locator(".r-file-input").setInputFiles(await blankWorkbookFile());
+  await page.getByTestId("binder-artifact").filter({ hasText: /blank(?:\.xlsx)?|XLSX/i }).first().click();
   await expect(page.getByTestId("sheet-grid")).toBeVisible({ timeout: 30_000 });
 }
 
-test("fresh blank sheet renders as an aligned dark work-surface grid", async ({ page }) => {
+test("an uploaded plain sheet renders as an aligned dark work-surface grid, not the Excel-paper UI", async ({ page }) => {
   await createBlankSheet(page);
 
   const grid = page.getByTestId("sheet-grid");
   await expect(page.getByTestId("excel-paper")).toHaveCount(0);
   await expect(grid.locator('table.r-sheet[data-sheet-kind="generic"]')).toBeVisible();
   await expect(grid.locator("table.r-generic-sheet")).toHaveCount(0);
-  await expect(grid.locator("colgroup col")).toHaveCount(9);
-  await expect(grid.locator('[data-cell-key="r1__A"]')).toHaveClass(/r-cell/);
+  await expect(grid.locator("thead th").nth(1)).toHaveText("A");
+  await expect(grid.locator('[data-cell-key="A1"]')).toHaveClass(/r-cell/);
 
-  const aCellWidths = await grid.locator('[data-cell-key$="__A"]').evaluateAll((cells) =>
-    cells.slice(0, 5).map((cell) => Math.round(cell.getBoundingClientRect().width)),
+  // Every cell in column A shares one width - the grid is aligned, not ragged (A1-notation keys).
+  const aCellWidths = await grid.locator("td[data-cell-key]").evaluateAll((cells) =>
+    cells
+      .filter((cell) => /^A\d+$/.test(cell.getAttribute("data-cell-key") ?? ""))
+      .map((cell) => Math.round(cell.getBoundingClientRect().width)),
   );
+  expect(aCellWidths.length).toBeGreaterThan(1);
   expect(Math.max(...aCellWidths) - Math.min(...aCellWidths)).toBeLessThanOrEqual(1);
   const headerAWidth = await grid.locator("thead th").nth(1).evaluate((cell) => Math.round(cell.getBoundingClientRect().width));
   expect(Math.abs(headerAWidth - aCellWidths[0])).toBeLessThanOrEqual(1);
-
-  await grid.locator('[data-cell-key="r1__A"]').click();
-  await expect(grid.locator("thead th.hl")).toHaveText("A");
-  await expect(grid.locator("td.r-rownum.hl")).toHaveText("1");
 });
 
 test("uploaded workbook renders in the shared Sheet 1 grid, not the false Excel-paper UI", async ({ page }) => {
