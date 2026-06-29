@@ -65,7 +65,7 @@ export function model(modelId: string, options: { entrypoint?: ProviderRouteEntr
         text: res.text || undefined,
         toolCalls,
         done: toolCalls.length === 0,
-        usage: { inputTokens: res.usage?.inputTokens ?? 0, outputTokens: res.usage?.outputTokens ?? 0 },
+        usage: { inputTokens: res.usage?.inputTokens ?? 0, outputTokens: res.usage?.outputTokens ?? 0, cachedInputTokens: (res.usage as { cachedInputTokens?: number } | undefined)?.cachedInputTokens ?? 0 },
       };
     },
   };

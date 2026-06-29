@@ -37,7 +37,7 @@ export const claimOrReuse = internalMutation({
 export const finish = internalMutation({
   args: {
     runId: v.id("agentRuns"), model: v.string(), steps: v.number(), toolCalls: v.number(), conflictsSurvived: v.number(),
-    inputTokens: v.number(), outputTokens: v.number(), costUsd: v.number(), ms: v.number(), exhausted: v.boolean(),
+    inputTokens: v.number(), outputTokens: v.number(), cachedInputTokens: v.optional(v.number()), costUsd: v.number(), ms: v.number(), exhausted: v.boolean(),
     stopReason: v.optional(v.string()), remainingMs: v.optional(v.number()), deadlineAt: v.optional(v.number()), handoff: v.optional(v.any()),
   },
   handler: async (ctx, { runId, ...patch }) => {
@@ -60,7 +60,7 @@ export const record = internalMutation({
     jobId: v.optional(v.id("agentJobs")),
     roomId: v.id("rooms"), agentId: v.string(), model: v.string(), goal: v.string(),
     steps: v.number(), toolCalls: v.number(), conflictsSurvived: v.number(),
-    inputTokens: v.number(), outputTokens: v.number(), costUsd: v.number(), ms: v.number(), exhausted: v.boolean(),
+    inputTokens: v.number(), outputTokens: v.number(), cachedInputTokens: v.optional(v.number()), costUsd: v.number(), ms: v.number(), exhausted: v.boolean(),
     stopReason: v.optional(v.string()), remainingMs: v.optional(v.number()), deadlineAt: v.optional(v.number()), handoff: v.optional(v.any()),
   },
   handler: (ctx, a) => {

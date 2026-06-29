@@ -314,7 +314,7 @@ export async function runAgent(opts: {
   const messages: AgentMessage[] = [];
   const trace: AgentTraceEvent[] = [];
   let finalText = "";
-  let inputTokens = 0, outputTokens = 0, modelCalls = 0, costUsd = 0;
+  let inputTokens = 0, outputTokens = 0, modelCalls = 0, costUsd = 0, cachedInputTokens = 0;
   let attemptedSteps = 0;
   // P1-3: tool calls not yet executed in the current turn — preserved on an error handoff so the
   // resume cursor never carries unpaired assistant tool_use blocks.
@@ -395,7 +395,7 @@ export async function runAgent(opts: {
     budget: budget(attempted),
     trace,
     messages,
-    usage: { inputTokens, outputTokens, modelCalls },
+    usage: { inputTokens, outputTokens, modelCalls, cachedInputTokens },
   });
   const emitHandoff = (
     step: number,
@@ -682,6 +682,7 @@ export async function runAgent(opts: {
         if (fresh.usage) {
           inputTokens += fresh.usage.inputTokens;
           outputTokens += fresh.usage.outputTokens;
+          cachedInputTokens += fresh.usage.cachedInputTokens ?? 0;
           costUsd += opts.priceStep?.(model.name, fresh.usage.inputTokens, fresh.usage.outputTokens) ?? 0;
         }
         out = fresh;

@@ -823,6 +823,7 @@ export default defineSchema({
     conflictsSurvived: v.number(),
     inputTokens: v.number(),
     outputTokens: v.number(),
+    cachedInputTokens: v.optional(v.number()),
     costUsd: v.number(),
     ms: v.number(),
     exhausted: v.boolean(),

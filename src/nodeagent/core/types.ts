@@ -36,7 +36,7 @@ export interface ToolCall {
   /** Provider-specific metadata to round-trip (e.g. Gemini 3.x thought_signature, required for multi-turn tools). */
   providerMetadata?: Record<string, unknown>;
 }
-export interface TokenUsage { inputTokens: number; outputTokens: number; }
+export interface TokenUsage { inputTokens: number; outputTokens: number; /** Cached prefix-hit input tokens (provider-reported); #1 cache-health metric. */ cachedInputTokens?: number; }
 /** One turn of the model: optional prose + zero or more tool calls + token usage. */
 export interface AgentStep {
   text?: string;
