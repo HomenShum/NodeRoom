@@ -927,18 +927,6 @@ input { font-family: inherit; }
 .r-file-source-copy { margin-top: 4px; font-size: 12px; line-height: 1.55; color: var(--text-muted); overflow-wrap: anywhere; }
 
 .r-wall-toolbar { display: flex; align-items: center; gap: 10px; padding: var(--space-2) 14px; border-bottom: 1px solid var(--line); }
-.r-wall { position: relative; height: 100%; min-height: 380px; background-image: radial-gradient(circle, var(--line) 1px, transparent 1px); background-size: 20px 20px; }
-.r-postit { position: absolute; width: 168px; padding: 12px var(--space-3); border-radius: 4px; font-size: 12px; line-height: 1.45; color: #2A2520; font-weight: 500; box-shadow: 0 8px 18px -8px rgba(0,0,0,.4), 0 1px 2px rgba(0,0,0,.2); transform: rotate(var(--rot, -1deg)); cursor: grab; transition: box-shadow .18s, transform .18s; }
-.r-postit:hover { box-shadow: 0 14px 30px -10px rgba(0,0,0,.5); transform: rotate(0deg) scale(1.02); z-index: 5; }
-.r-postit.locked { outline: 2px dashed rgba(0,0,0,.35); cursor: not-allowed; }
-.r-postit-delete { position: absolute; top: 5px; right: 5px; width: 22px; height: 22px; display: grid; place-items: center; border: 0; border-radius: 5px; background: rgba(255,255,255,.48); color: rgba(42,37,32,.72); opacity: 0; transition: opacity .12s, background .12s; }
-.r-postit:hover .r-postit-delete, .r-postit-delete:focus-visible { opacity: 1; }
-.r-postit-delete:hover { background: rgba(255,255,255,.78); color: #2A2520; }
-.r-postit-delete:disabled { opacity: .35; cursor: not-allowed; }
-.r-postit .pt-text { outline: none; border-radius: 3px; padding: 1px 2px; margin: -1px -2px; }
-.r-postit .pt-text:focus { background: rgba(255,255,255,.35); }
-.r-postit .pby { display: flex; align-items: center; gap: 5px; margin-top: 8px; font-size: 9.5px; font-weight: 700; opacity: .55; }
-.r-wall-toolbar { display: flex; align-items: center; gap: 8px; }
 .r-wall-error { color: var(--danger-ink); font-size: 11px; }
 
 /* Wall inventory — game-item / file-organizer surface */
@@ -958,8 +946,20 @@ input { font-family: inherit; }
 .r-inventory-card-title { font-size: 12.5px; font-weight: 700; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .r-inventory-card-meta { font-size: 11px; color: var(--text-muted); }
 .r-inventory-card-badge { flex: none; font-size: 9.5px; font-weight: 800; color: var(--text-tertiary); background: var(--bg-primary); border: 1px solid var(--line); border-radius: 4px; padding: 2px 5px; text-transform: uppercase; }
-.r-inventory-captures { border-top: 1px solid var(--line); padding: 10px 14px; flex: none; }
-.r-inventory-captures .r-wall { min-height: 120px; height: 160px; border-radius: 8px; border: 1px solid var(--line); }
+.r-inventory-captures { border-top: 1px solid var(--line); padding: 12px 14px 14px; flex: none; max-height: 40%; overflow-y: auto; }
+/* Quick captures now flow in a readable, wrapping grid (was a cramped fixed-height freeform board
+   that cropped notes on join). Each card auto-sizes to its text — nothing is clipped. */
+.r-capture-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; margin-top: 8px; }
+.r-capture-card { position: relative; padding: 12px 13px; border-radius: 8px; font-size: 12.5px; line-height: 1.5; color: #2A2520; font-weight: 500; box-shadow: 0 4px 12px -6px rgba(0,0,0,.4), 0 1px 2px rgba(0,0,0,.18); transition: box-shadow .16s, transform .16s; }
+.r-capture-card:hover { box-shadow: 0 10px 22px -10px rgba(0,0,0,.5); transform: translateY(-2px); }
+.r-capture-card.locked { outline: 2px dashed rgba(0,0,0,.3); }
+.r-capture-card .pt-text { outline: none; border-radius: 3px; padding: 1px 2px; margin: -1px -2px; white-space: pre-wrap; overflow-wrap: anywhere; }
+.r-capture-card .pt-text:focus { background: rgba(255,255,255,.4); }
+.r-capture-card .pby { display: flex; align-items: center; gap: 5px; margin-top: 8px; font-size: 10px; font-weight: 700; opacity: .55; }
+.r-capture-card .r-postit-delete { position: absolute; top: 6px; right: 6px; width: 22px; height: 22px; display: grid; place-items: center; border: 0; border-radius: 5px; background: rgba(255,255,255,.45); color: rgba(42,37,32,.7); opacity: 0; transition: opacity .12s, background .12s; }
+.r-capture-card:hover .r-postit-delete, .r-capture-card .r-postit-delete:focus-visible { opacity: 1; }
+.r-capture-card .r-postit-delete:hover { background: rgba(255,255,255,.78); color: #2A2520; }
+.r-capture-card .r-postit-delete:disabled { opacity: .3; cursor: not-allowed; }
 
 /* Notebook intelligence panel */
 .r-notebook-proof { margin: 14px 18px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; background: var(--bg-secondary); display: flex; flex-direction: column; gap: 10px; }
@@ -1403,7 +1403,7 @@ button.r-tracevu-step:hover, button.r-tracevu-step:focus-visible { border-color:
   .r-switch { width: 44px; height: 26px; }
   .r-switch::after { width: 22px; height: 22px; }
   .r-switch[data-on="true"]::after { transform: translateX(18px); }
-  .r-postit-delete { opacity: 1; width: 28px; height: 28px; }
+  .r-capture-card .r-postit-delete { opacity: 1; width: 28px; height: 28px; }
   .r-resize { display: none; }
 }
 /* Phone: condense the top bar; if controls still exceed the width (they're all reachable now —
@@ -1488,7 +1488,6 @@ button.r-tracevu-step:hover, button.r-tracevu-step:focus-visible { border-color:
   .r-story-command { flex-basis: 100%; margin-left: 0; }
   .r-panel.left, .r-panel.right { inset: 58px 8px 8px; }
   .r-coach-body { max-height: clamp(132px, 24vh, 240px); }
-  .r-postit { width: 128px; }
 }
 
 /* ── Guided tour (dependency-free spotlight walkthrough) ── */

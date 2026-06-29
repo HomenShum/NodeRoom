@@ -5,8 +5,6 @@
  */
 
 import { Fragment, useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
-import { DndContext, useDraggable, type DragEndEvent } from "@dnd-kit/core";
-import { restrictToParentElement } from "@dnd-kit/modifiers";
 import { useEditor, EditorContent, EditorProvider } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { useQuery, useMutation } from "convex/react";
@@ -2212,11 +2210,6 @@ function Wall({ roomId, me, art, onOpenArtifact }: { roomId: string; me: Actor; 
   useEffect(() => { if (!err) return; const t = setTimeout(() => setErr(null), 3500); return () => clearTimeout(t); }, [err]);
   const arts = store.listArtifacts(roomId);
   const groups = useMemo(() => inventoryGroups(arts), [arts]);
-  const onDragEnd = (e: DragEndEvent) => {
-    const id = String(e.active.id);
-    const v = art.elements[id]?.value as { text: string; x: number; y: number; color: string } | undefined;
-    if (v) void commit(store, roomId, me, art.id, id, { ...v, x: Math.max(0, v.x + e.delta.x), y: Math.max(0, v.y + e.delta.y) }).then((f) => { if (f && !f.ok) setErr(editErrorMsg(f)); });
-  };
   const addSticky = async () => {
     const colors = ["#E8C9B8", "#F2DE9B", "#BFD8D5", "#CFC7E8", "#D7E7B5"];
     const i = art.order.length;
@@ -2275,38 +2268,31 @@ function Wall({ roomId, me, art, onOpenArtifact }: { roomId: string; me: Actor; 
 
       {art.order.length > 0 && (
         <div className="r-inventory-captures">
-          <div className="r-inventory-head"><StickyNote size={14} /> Quick captures</div>
-          <DndContext onDragEnd={onDragEnd} modifiers={[restrictToParentElement]}>
-            <div className="r-wall" data-testid="wall-captures">
-              {art.order.map((id, i) => {
-                const el = art.elements[id]; if (!el) return null;
-                const v = el.value as { text: string; x: number; y: number; color: string };
-                return <Sticky key={id} roomId={roomId} me={me} artId={art.id} id={id} v={v} locked={!!lockedByOther(store, art.id, id, me)} author={el.updatedBy.name} rot={i % 2 ? 1.3 : -1.5} onDelete={removeSticky} onError={setErr} />;
-              })}
-            </div>
-          </DndContext>
+          <div className="r-inventory-head">
+            <StickyNote size={14} /> <span>Quick captures</span>
+            <span className="r-inventory-count">{art.order.length}</span>
+          </div>
+          <div className="r-capture-grid" data-testid="wall-captures">
+            {art.order.map((id) => {
+              const el = art.elements[id]; if (!el) return null;
+              const v = el.value as { text: string; x: number; y: number; color: string };
+              return <Sticky key={id} roomId={roomId} me={me} artId={art.id} id={id} v={v} locked={!!lockedByOther(store, art.id, id, me)} author={el.updatedBy.name} onDelete={removeSticky} onError={setErr} />;
+            })}
+          </div>
         </div>
       )}
     </div>
   );
 }
 
-function Sticky({ roomId, me, artId, id, v, locked, author, rot, onDelete, onError }: { roomId: string; me: Actor; artId: string; id: string; v: { text: string; x: number; y: number; color: string }; locked: boolean; author: string; rot: number; onDelete: (id: string) => void; onError: (msg: string) => void }) {
+// Quick-capture card — a readable, wrapped sticky (no longer a cramped freeform board). Keeps the
+// colored-note aesthetic + inline edit + delete + author, but flows in a grid so nothing is cropped.
+function Sticky({ roomId, me, artId, id, v, locked, author, onDelete, onError }: { roomId: string; me: Actor; artId: string; id: string; v: { text: string; x: number; y: number; color: string }; locked: boolean; author: string; onDelete: (id: string) => void; onError: (msg: string) => void }) {
   const store = useStore();
-  const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({ id, disabled: locked });
-  // QA P2 perf: the drag style is rebuilt only when its real inputs change, not on every wall render.
-  const style = useMemo<CSSProperties>(() => ({
-    left: v.x, top: v.y, background: v.color,
-    transform: `translate3d(${transform?.x ?? 0}px, ${transform?.y ?? 0}px, 0) rotate(${rot}deg)`,
-    zIndex: isDragging ? 9 : undefined, boxShadow: isDragging ? "var(--shadow-lg)" : undefined,
-  }), [v.x, v.y, v.color, transform?.x, transform?.y, rot, isDragging]);
   return (
-    <div ref={setNodeRef} className={"r-postit" + (locked ? " locked" : "")} {...attributes} {...listeners}
-      data-testid="post-it" data-postit-id={id}
-      style={style}>
-      <button className="r-postit-delete" data-testid="post-it-delete" disabled={locked} aria-label="Delete post-it" onPointerDown={(e) => e.stopPropagation()} onClick={(e) => { e.stopPropagation(); onDelete(id); }}><Trash2 size={12} /></button>
+    <div className={"r-capture-card" + (locked ? " locked" : "")} data-testid="post-it" data-postit-id={id} style={{ background: v.color }}>
+      <button className="r-postit-delete" data-testid="post-it-delete" disabled={locked} aria-label="Delete post-it" onClick={(e) => { e.stopPropagation(); onDelete(id); }}><Trash2 size={12} /></button>
       <div className="pt-text" data-testid="post-it-text" contentEditable={!locked} suppressContentEditableWarning role="textbox" aria-label="Edit post-it text"
-        onPointerDown={(e) => e.stopPropagation()}
         onKeyDown={(e) => { if (e.key === "Escape") (e.currentTarget as HTMLElement).blur(); }}
         onBlur={(e) => { const t = e.currentTarget.textContent ?? ""; if (t && t !== v.text) void commit(store, roomId, me, artId, id, { ...v, text: t }).then((f) => { if (f && !f.ok) onError(editErrorMsg(f)); }); }}>{v.text}</div>
       <div className="pby">— {author}</div>

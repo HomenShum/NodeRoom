@@ -25,11 +25,16 @@
  *   - Stats overlay (node/edge/density)
  *   - Legend for color mapping
  *
- * Reuses @xyflow/react (already a dep via TraceFlow) with a small built-in force layout — no new
- * graph/force dependency.
+ * Layout: a clean LAYERED / multipartite layout — nodes are placed in columns by kind
+ * (artifacts → categories → companies → people → attributes → sources), left-to-right, mirroring
+ * the readable Trace · Flow view. This replaces the old force-directed layout, which produced an
+ * unreadable "hairball" (per graph-viz best practice: hierarchical/layered layouts beat
+ * force-directed for entity exploration and avoid clutter).
+ *
+ * Reuses @xyflow/react (already a dep via TraceFlow) — no new graph/force/layout dependency.
  */
 import { useMemo, useState, type ReactElement } from "react";
-import { ReactFlow, Background, Controls, type Node, type Edge } from "@xyflow/react";
+import { ReactFlow, Background, Controls, MiniMap, Position, type Node, type Edge } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { Share2, Search, X } from "lucide-react";
 import { useStore } from "../../app/store";
@@ -55,6 +60,17 @@ const KIND_LABEL: Record<string, string> = {
 };
 const ENTITY_KINDS: GKind[] = ["company", "person", "event", "project", "publication", "achievement", "investment", "source", "category"];
 const colorOf = (k: string): string => KIND_COLOR[k] ?? "var(--accent-primary)";
+
+// Layered layout: each kind sits in a column (left→right), like the Trace · Flow view. Empty
+// layers are compacted out so the columns are always adjacent and the canvas stays tight.
+const KIND_LAYER: Record<GKind, number> = {
+  sheet: 0, note: 0, wall: 0, // artifacts (the room's own documents) anchor the left edge
+  category: 1, // grouping hubs
+  company: 2, // primary organizations
+  person: 3, // people tied to organizations
+  event: 4, project: 4, publication: 4, achievement: 4, investment: 4, // attributes / facts
+  source: 5, // citations on the right edge
+};
 
 interface GNode { id: string; label: string; kind: GKind; artifactId?: string; sourceArtifact?: string; }
 interface GEdgeInfo { source: string; target: string; sourceLabel: string; targetLabel: string; sourceKind: GKind; targetKind: GKind; }
@@ -272,26 +288,23 @@ export function KnowledgeGraph({ roomId, onOpenArtifact }: { roomId: string; onO
     const degree = new Map<string, number>();
     for (const [s, t] of edgeList) { degree.set(s, (degree.get(s) ?? 0) + 1); degree.set(t, (degree.get(t) ?? 0) + 1); }
 
-    // Small Fruchterman-Reingold-style force layout (deterministic: circle seed, no RNG).
-    const pos = new Map<string, { x: number; y: number }>();
-    const n = ids.length || 1;
-    ids.forEach((id, i) => { const ang = (i / n) * Math.PI * 2; pos.set(id, { x: Math.cos(ang) * 300, y: Math.sin(ang) * 300 }); });
-    const ITER = n > 1 ? 320 : 0;
-    for (let it = 0; it < ITER; it++) {
-      const disp = new Map(ids.map((id) => [id, { x: 0, y: 0 }]));
-      for (let i = 0; i < n; i++) for (let j = i + 1; j < n; j++) {
-        const a = pos.get(ids[i])!, b = pos.get(ids[j])!;
-        const dx = a.x - b.x, dy = a.y - b.y; const d2 = Math.max(dx * dx + dy * dy, 0.01); const f = 9000 / d2;
-        const da = disp.get(ids[i])!, db = disp.get(ids[j])!; da.x += dx * f; da.y += dy * f; db.x -= dx * f; db.y -= dy * f;
-      }
-      for (const [s, t] of edgeList) {
-        const a = pos.get(s), b = pos.get(t); if (!a || !b) continue;
-        const dx = a.x - b.x, dy = a.y - b.y; const f = 0.012;
-        const da = disp.get(s)!, db = disp.get(t)!; da.x -= dx * f; da.y -= dy * f; db.x += dx * f; db.y += dy * f;
-      }
-      const cool = 1 - it / ITER;
-      for (const id of ids) { const dp = disp.get(id)!; const len = Math.max(Math.hypot(dp.x, dp.y), 0.01); const step = Math.min(len, 34 * cool); const p = pos.get(id)!; p.x += (dp.x / len) * step; p.y += (dp.y / len) * step; }
+    // ── Layered (multipartite) layout — columns by kind, like the Trace · Flow view ──────────────
+    // Group ids by their kind's layer, compacting out empty layers so columns stay adjacent.
+    const COL_W = 300, ROW_H = 66;
+    const byLayer = new Map<number, string[]>();
+    for (const id of ids) {
+      const layer = KIND_LAYER[gnodes.get(id)!.kind] ?? 3;
+      (byLayer.get(layer) ?? byLayer.set(layer, []).get(layer)!).push(id);
     }
+    const presentLayers = [...byLayer.keys()].sort((x, y) => x - y);
+    const pos = new Map<string, { x: number; y: number }>();
+    presentLayers.forEach((layer, colIdx) => {
+      const col = byLayer.get(layer)!;
+      // Highest-degree (most connected) nodes first, then alphabetical — hubs sit near the top.
+      col.sort((a, b) => (degree.get(b) ?? 0) - (degree.get(a) ?? 0) || gnodes.get(a)!.label.localeCompare(gnodes.get(b)!.label));
+      const count = col.length;
+      col.forEach((id, row) => { pos.set(id, { x: colIdx * COL_W, y: (row - (count - 1) / 2) * ROW_H }); });
+    });
 
     const adj = new Map<string, Set<string>>();
     for (const id of ids) adj.set(id, new Set());
@@ -356,14 +369,20 @@ export function KnowledgeGraph({ roomId, onOpenArtifact }: { roomId: string; onO
       position: p,
       data: { label: nd.label },
       draggable: false,
+      sourcePosition: Position.Right,
+      targetPosition: Position.Left,
       style: {
-        width: 120 + Math.min(deg, 6) * 14,
-        padding: "7px 10px", borderRadius: 10,
-        border: `${isFocus ? 2.5 : 1.5}px solid ${colorOf(nd.kind)}`,
+        width: 168 + Math.min(deg, 6) * 12,
+        padding: "9px 12px 9px 14px", borderRadius: 10,
+        border: `1.5px solid ${isFocus ? colorOf(nd.kind) : "var(--line)"}`,
         background: "var(--bg-secondary)", color: "var(--text-primary)",
-        fontSize: 12, fontWeight: 600, textAlign: "center" as const,
+        fontSize: 12.5, fontWeight: 600, textAlign: "left" as const,
+        lineHeight: 1.3, whiteSpace: "normal" as const, wordBreak: "break-word" as const,
         opacity: on ? 1 : dimmed ? 0.12 : 0.4,
-        boxShadow: isFocus ? `0 0 0 4px color-mix(in srgb, ${colorOf(nd.kind)} 35%, transparent)` : "none",
+        // Left accent via inset shadow (avoids mixing `border` shorthand with borderLeft* longhand).
+        boxShadow: isFocus
+          ? `inset 4px 0 0 0 ${colorOf(nd.kind)}, 0 0 0 4px color-mix(in srgb, ${colorOf(nd.kind)} 35%, transparent)`
+          : `inset 4px 0 0 0 ${colorOf(nd.kind)}, var(--shadow-sm)`,
       },
     };
   }), [base, lit, focus, hiddenKinds, searchMatches]);
@@ -375,7 +394,7 @@ export function KnowledgeGraph({ roomId, onOpenArtifact }: { roomId: string; onO
     const on = !lit || (lit.has(s) && lit.has(t));
     const inSearch = !searchMatches || (searchMatches.has(s) && searchMatches.has(t));
     const visible = on && inSearch;
-    return { id: `${s}->${t}`, source: s, target: t, style: { stroke: visible ? "var(--accent-primary)" : "var(--line)", strokeWidth: visible && lit ? 1.6 : 1, opacity: visible ? (lit ? 0.9 : 0.5) : 0.06 } };
+    return { id: `${s}->${t}`, source: s, target: t, type: "smoothstep", style: { stroke: visible ? "var(--accent-primary)" : "var(--line)", strokeWidth: visible && lit ? 1.6 : 1, opacity: visible ? (lit ? 0.9 : 0.45) : 0.06 } };
   }), [base, lit, hiddenKinds, searchMatches]);
 
   // ── Stats ───────────────────────────────────────────────────────────────────────────────────
@@ -428,11 +447,14 @@ export function KnowledgeGraph({ roomId, onOpenArtifact }: { roomId: string; onO
             nodes={nodes}
             edges={edges}
             fitView
-            fitViewOptions={{ padding: 0.25 }}
-            minZoom={0.2}
+            fitViewOptions={{ padding: 0.2, maxZoom: 1 }}
+            minZoom={0.1}
+            maxZoom={1.75}
             nodesDraggable={false}
             nodesConnectable={false}
             elementsSelectable
+            onlyRenderVisibleElements
+            colorMode="dark"
             onNodeClick={(_, node) => setFocus((cur) => (cur === node.id ? null : node.id))}
             onNodeDoubleClick={(_, node) => { const nd = base.gnodes.get(node.id); if (nd?.artifactId) onOpenArtifact(nd.artifactId); }}
             onPaneClick={() => setFocus(null)}
@@ -440,6 +462,7 @@ export function KnowledgeGraph({ roomId, onOpenArtifact }: { roomId: string; onO
           >
             <Background gap={16} />
             <Controls showInteractive={false} />
+            <MiniMap pannable zoomable nodeColor={(n) => colorOf(base.gnodes.get(n.id)?.kind ?? "")} nodeStrokeWidth={2} />
           </ReactFlow>
         </div>
 
