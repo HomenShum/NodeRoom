@@ -18,7 +18,7 @@ import { runReasoningFrame, type ReasoningFrameRunReceipt } from "../src/nodeage
 import { SERVER_PRODUCTION_ROOM_TOOLS as PRODUCTION_ROOM_TOOLS } from "../src/nodeagent/skills/server/productionTools";
 import { MANAGED_LOCK_SYSTEM_PROMPT } from "../src/nodeagent/models/prompts/systemPrompt";
 import { injectMemoryIntoSystemPrompt } from "../src/nodemem/memoryContextBuilder";
-import { nodeMemInjectionEnabled, nodeMemRoomConfigEnabled } from "./nodemem";
+import { nodeMemInjectionEnabled, nodeMemRecordingEnabled, nodeMemRoomConfigEnabled } from "./nodemem";
 import { convexModel as agentModel, convexPriceRun as priceRun } from "../src/nodeagent/models/convexModel";
 import { modelForFramePhase } from "../src/nodeagent/models/phaseModel";
 import { buildResearchContext, buildCompanyDeepDiveContext } from "../src/nodeagent/core/worldModel";
@@ -60,6 +60,8 @@ const streamingEnsurePublicAgentJobStreamRef = makeFunctionReference<"mutation">
 const streamingAppendPublicAgentJobStreamChunkRef = makeFunctionReference<"mutation">("streaming:appendPublicAgentJobStreamChunk") as any;
 const streamingFinalizePublicAgentJobStreamRef = makeFunctionReference<"mutation">("streaming:finalizePublicAgentJobStream") as any;
 const nodememAssembleContextPackRef = makeFunctionReference<"query">("nodemem:assembleContextPackForJob") as any;
+const nodememRecordEpisodeRef = makeFunctionReference<"mutation">("nodemem:recordEpisode") as any;
+const NODEMEM_MAX_EPISODE_CHARS = 2000;
 
 type ClaimedJob = {
   jobId: Id<"agentJobs">;
@@ -749,6 +751,25 @@ export const runFreeAutoJobSlice = internalAction({
       const terminal = done || frameBlocked || !canContinue;
       if (terminal) await finalizePublicStream(result.finalText || publicStreamText);
       else await settlePublicStreamWrites();
+      // NodeMem recording (production wiring): on a SUCCESSFUL completion, record the agent's findings
+      // as a room-visible episode so they're recallable in later sessions. Best-effort + size-bounded;
+      // a recording failure must NEVER fail the agent run, so it's try/caught and gated to a no-op when
+      // recording is off. Keyed on the jobId so re-runs of the same job content-hash dedup.
+      if (done && (nodeMemRecordingEnabled() || nodeMemRoomConfigEnabled())) {
+        const finding = (result.finalText || "").trim().slice(0, NODEMEM_MAX_EPISODE_CHARS);
+        if (finding.length > 0) {
+          try {
+            await ctx.runMutation(nodememRecordEpisodeRef, {
+              roomId: claimed.roomId,
+              actorId: actor.id,
+              sourceKind: "agent_finding",
+              sourceId: `job_${String(claimed.jobId)}`,
+              visibility: "room",
+              rawText: finding,
+            });
+          } catch { /* best-effort: recording must not break the run */ }
+        }
+      }
       void recordStreamEvent({
         kind: terminal ? "message_done" : "warning",
         status: terminal ? (done ? "completed" : "failed") : "skipped",

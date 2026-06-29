@@ -2,8 +2,15 @@
  * to one row, which is exactly what makes the UI's optimistic insert safe to
  * reconcile (the optimistic row and the server row share the clientMsgId). */
 import { v } from "convex/values";
+import { makeFunctionReference } from "convex/server";
 import { internalMutation, mutation, query } from "./_generated/server";
 import type { MutationCtx } from "./_generated/server";
+import { nodeMemRecordingEnabled, nodeMemRoomConfigEnabled } from "./nodemem";
+
+// NodeMem recording: a room-visible chat message becomes an episode the agent can recall later
+// (once it scrolls past the awareness window). Scheduled, not inline, so it can never roll back a send.
+const nodememRecordEpisodeRef = makeFunctionReference<"mutation">("nodemem:recordEpisode") as unknown as Parameters<MutationCtx["scheduler"]["runAfter"]>[1];
+const NODEMEM_MAX_EPISODE_CHARS = 2000;
 import type { Id } from "./_generated/dataModel";
 import { actorProofV, actorV, requireActorCanUseChannel, requireActorInRoom, requireActorProof, type ActorValue } from "./lib";
 
@@ -20,7 +27,25 @@ async function sendCore(ctx: MutationCtx, a: SendArgs) {
     await requireActorCanUseChannel(ctx, a.roomId, a.author, a.channel);
     const existing = await ctx.db.query("messages").withIndex("by_clientMsgId", (q) => q.eq("roomId", a.roomId).eq("clientMsgId", a.clientMsgId)).unique();
     if (existing) return existing._id; // idempotent send
-    return ctx.db.insert("messages", { roomId: a.roomId, channel: a.channel, author: a.author, text: a.text, clientMsgId: a.clientMsgId, kind: a.kind ?? "chat", createdAt: Date.now() });
+    const messageId = await ctx.db.insert("messages", { roomId: a.roomId, channel: a.channel, author: a.author, text: a.text, clientMsgId: a.clientMsgId, kind: a.kind ?? "chat", createdAt: Date.now() });
+    // NodeMem recording (production wiring): a ROOM-VISIBLE chat message (channel "public") is recorded
+    // as an episode so it stays recallable after it scrolls past the awareness window. PRIVATE messages
+    // (channel = a member's ownerId) and system messages are excluded. Gated → a strict no-op unless
+    // recording is enabled. recordEpisode itself is content-hash deduped + does the final mode resolve.
+    if (a.channel === "public" && a.kind !== "system" && (nodeMemRecordingEnabled() || nodeMemRoomConfigEnabled())) {
+      const rawText = a.text.trim().slice(0, NODEMEM_MAX_EPISODE_CHARS);
+      if (rawText.length > 0) {
+        await ctx.scheduler.runAfter(0, nodememRecordEpisodeRef, {
+          roomId: a.roomId,
+          actorId: a.author.id,
+          sourceKind: a.author.kind === "agent" ? "agent_msg" : "chat",
+          sourceId: String(messageId),
+          visibility: "room",
+          rawText,
+        });
+      }
+    }
+    return messageId;
 }
 
 export const send = mutation({
