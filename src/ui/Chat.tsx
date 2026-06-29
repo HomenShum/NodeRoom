@@ -662,6 +662,7 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
   const fileInputRef = useRef<HTMLInputElement>(null);
   const uploadBusyRef = useRef(false);
   const nearBottom = useRef(true);
+  const [showJump, setShowJump] = useState(false); // "Jump to latest" pill when scrolled up
   const thinkingStartCount = useRef(0);
   // Room-switch safety: a public @nodeagent or private-agent call is fire-and-forget. If the user leaves this room
   // before it resolves, the server action still finishes on its OWN room (every mutation is roomId-scoped,
@@ -817,7 +818,7 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
   useEffect(() => {
     if (!specificModelPolicy && defaultSpecificModel) setSpecificModelPolicy(defaultSpecificModel);
   }, [defaultSpecificModel, specificModelPolicy]);
-  const onScroll = () => { const el = feedRef.current; if (el) nearBottom.current = el.scrollHeight - el.scrollTop - el.clientHeight < 80; };
+  const onScroll = () => { const el = feedRef.current; if (!el) return; const near = el.scrollHeight - el.scrollTop - el.clientHeight < 80; nearBottom.current = near; setShowJump(!near); };
 
   const grow = () => { const el = taRef.current; if (el) { el.style.height = "auto"; el.style.height = Math.min(el.scrollHeight, 120) + "px"; } };
 
@@ -1221,6 +1222,11 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
           </div>
         )}
         {!isPrivate && coach}
+        {showJump && (
+          <button type="button" className="r-chat-jump" data-testid="chat-jump-latest" onClick={() => { const el = feedRef.current; if (el) { el.scrollTop = el.scrollHeight; nearBottom.current = true; setShowJump(false); } }}>
+            <ChevronDown size={13} /> Jump to latest
+          </button>
+        )}
       </div>
 
       <div className="r-composer">
