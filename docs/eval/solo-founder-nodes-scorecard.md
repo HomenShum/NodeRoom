@@ -10,9 +10,11 @@
 
 NodeRoom is the **dogfooded origin** the framework was distilled from — every "Reuse" asset the playbooks
 cite resolves to a real path. The loop is authored and the verification gates are real and runnable. The
-two real debts are **(1)** a known answer-key contamination in the BTB harness (flagged by the repo's own
-diagnostic, not yet reverted) and **(2)** the wedge's headline "Today's Brief" surface exists only as an
-engine, not a first-class view.
+prior two debts are now **resolved (2026-06-28)**: **(1)** the BTB answer-key contamination is
+hard-gated (the per-task `write_*_package` writers are replay-only; generated templates still compile),
+and **(2)** the "Today's Brief" wedge surface shipped (`src/ui/panels/TodaysBrief.tsx`). The full BTB
+suite is now proven via gate-driven, durable receipts — FR-020B (isolated, 100/100, mean 0.2519) and
+FR-020C (live UI, 100/100) — in `docs/eval/fresh-room/proof-registry.json`.
 
 This increment shipped the **demo lane**: a full end-to-end "live analyst room" episode with **TTS + a music
 bed**, verified two ways (deterministic ffmpeg + Gemini VLM), plus a one-command episode build.
@@ -24,9 +26,9 @@ bed**, verified two ways (deterministic ffmpeg + Gemini VLM), plus a one-command
 - [x] **done** — Adapter honest-baseline switch (general-only / materializers-OFF): `btb_noderoom_agent/harbor_adapter.py:34,57-64` (`materializer_mode` enum + provenance).
 - [x] **done** — Iterate honesty instrument: deterministic grader `docs/eval/nonbtb/grade.py` + `_selftest_good/_selftest_bad`; mirrored in TS (`src/benchmarks/golden/`, `tests/goldenDataset.test.ts`).
 - [x] **done** — Anti-shallow QA gate is real & runnable: `playwright.config.ts` + 30 e2e specs (incl. in-app transfer); design floor `scripts/design-qa/floor.ts` (blank-render hard-fail, exit-code ship bar); eval gate `.claude/skills/eval-gate/` (codegen→tsc→vitest→ladder→credit→diff).
-- [ ] **missing — P0** — NO-ANSWER-KEYS non-negotiable **violated** in the BTB adapter: `harbor_adapter.py` still has the `is_*_task → write_*_package` dispatch (incl. `write_comcast_take_private_teaser_package`, `write_greenbrier_cim_package`, `write_coty_trading_comps_package`). The repo's own `docs/eval/BTB_GENERALIZATION_DIAGNOSTIC.md` names `harbor_adapter.py:4717` as "the contamination to revert."
+- [x] **done — P0 (2026-06-28)** — NO-ANSWER-KEYS enforced: the `is_*_task → write_*_package` dispatch in `harbor_adapter.py` (incl. `write_comcast_take_private_teaser_package`, `write_greenbrier_cim_package`, `write_coty_trading_comps_package`) is now nested under an explicit `materializer_mode == "replay"` branch with an `else: raise`, so answer-key writers **cannot** run under generic-only (the headline mode). Verified: all 3 generated materializer templates still compile. The full-suite proof runs generic-only.
 - [ ] **missing** — RALPH machine-readable anchors: no `docs/system-map.graph.json`, no `.solo/anchors/`, no `capability-spec.md` / `benchmark-choice.md` / `SETUP.md`. (Intent lives in prose: `docs/ARCHITECTURE.md`, `docs/WEDGE.md`.) This file is the first scorecard anchor.
-- [~] **partial** — Phase-6 honest headline (held-out-OFF / non-BTB-OFF) recorded only as a single-model point (`meanReward 0.2519`, n=1, gpt-4.1-mini); the held-out/non-BTB OFF cells in the diagnostic are still `?`.
+- [x] **done (2026-06-28)** — Full-suite proof is now gate-driven + durable: **FR-020B** (isolated/Harbor, 100/100 scored generic-only, mean reward 0.2519) + **FR-020C** (live product UI, 100/100 completed) in `docs/eval/fresh-room/proof-registry.json`, derived from committed gate verdicts (`benchmark:bankertoolbench:{fullsuite,livesuite}-gate`). Reported as completion + scoring, **not** a 100% rubric pass rate. (Per-slice held-out / non-BTB cells remain future work.)
 
 ### Agent layer + benchmarks
 - [x] **done** — Tool registry (ROOM_TOOLS + managed-lock + server superset); CAS-guarded cell mutators + no-clobber `reconcile_cell` + `define_columns`/`set_artifact_meta`; SSRF guard + bounded capture + honest-status pipeline; anti-cheat gates (clean-capability, contamination scan, docker isolation probe); Convex eval+memory ledger with held-out quarantine; real SpreadsheetBench + BankerToolBench scorers/adapters/runners.
@@ -53,7 +55,7 @@ bed**, verified two ways (deterministic ffmpeg + Gemini VLM), plus a one-command
 
 ## What's needed next (prioritized)
 
-1. **P0 — revert the answer-key contamination** in `harbor_adapter.py` (disable the `is_*_task → write_*_package` dispatch) so general-only mode emits only general-agent output. Do not present BTB numbers as honest capability until then.
+1. ~~**P0 — revert the answer-key contamination**~~ — **DONE (2026-06-28)**: the `is_*_task → write_*_package` dispatch is hard-gated to `materializer_mode == "replay"` (else raises), so the generic-only headline cannot reach answer-key writers. BTB full-suite now proven gate-driven (FR-020B + FR-020C).
 2. ~~Wedge surface — ship a first-class "Today's Brief"~~ — **DONE** (`src/ui/panels/TodaysBrief.tsx`, a notebook-style document tab like the Wiki; verified live; the demo's Brief scene is live footage).
 3. ~~Wedge handoff — wire `buildDownstreamHandoffDraft`~~ — **DONE** (the Brief surface generates copy-able drafts on click).
 4. **Phase-6 honest number** — run held-out + non-BTB with materializers OFF; fill the `?` cells in `BTB_GENERALIZATION_DIAGNOSTIC.md` and emit the per-slice scorecard.

@@ -25,15 +25,17 @@ loop" concepts the brainstorm wants to add **already exist as prose in the skill
 
 ## Ranked updates
 
-### P0 — Settle the honesty debts (these are the product)
-1. **Revert / gate the answer-key contamination.** `harbor_adapter.py:4717` still has
-   `is_*_task → write_*_package`; the repo's own `BTB_GENERALIZATION_DIAGNOSTIC.md` names it as
-   "the contamination to revert." Default materializers OFF behind `BTB_DISABLE_MATERIALIZERS`;
-   in `nodes/5-adapter.md` quote this dispatch as *the regression to watch*; label the example
-   adapter as a **known-contaminated reference**, not shipping code.
-2. **Swap the BTB headline to the honest claim** everywhere (scorecard + any pitch copy): "1 task
-   proven through the live product path + generic-only baseline across N tasks at mean X; full
-   suite in progress." Kill any "100/100" string. (See `HONESTY_DEBTS_BEFORE_PUBLISH.md`.)
+### P0 — Settle the honesty debts (these are the product) — DONE 2026-06-28
+1. ~~**Revert / gate the answer-key contamination.**~~ **DONE** — the `is_*_task → write_*_package`
+   dispatch in `harbor_adapter.py` is now nested under an explicit `materializer_mode == "replay"`
+   branch with an `else: raise`, so answer-key writers cannot run under generic-only (the headline
+   mode); all 3 generated materializer templates still compile. Remaining (P3): quote this guard in
+   `nodes/5-adapter.md` as *the regression to watch*.
+2. ~~**Swap the BTB headline to the honest claim.**~~ **DONE — and upgraded from a swap to a PROOF.**
+   The full suite is now proven gate-driven + durable: FR-020B (isolated/Harbor, 100/100 scored
+   generic-only, mean 0.2519) + FR-020C (live product UI, 100/100 completed), recorded honestly in
+   `docs/eval/fresh-room/proof-registry.json` (completion + scoring, NOT a 100% pass rate). Scorecard
+   updated. No "100/100 pass" string anywhere.
 
 ### P1 — Fill the empty proof cells
 3. **Author the non-BTB fixtures (NB-1/2/3).** Rubrics already exist in
