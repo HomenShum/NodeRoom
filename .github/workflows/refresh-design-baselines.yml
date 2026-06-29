@@ -1,0 +1,35 @@
+# One-shot: regenerate the design-baseline visual snapshots on linux (the platform CI
+# asserts against) and upload them as an artifact to commit. Playwright snapshots are
+# platform-specific, so -chromium-linux baselines cannot be produced on a Windows dev box.
+# Trigger: gh workflow run refresh-design-baselines.yml --ref <branch>
+name: refresh-design-baselines
+
+on:
+  workflow_dispatch:
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    env:
+      QA_BASE_URL: http://localhost:5301
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Start app (memory mode)
+        run: npm run dev -- --port 5301 --strictPort &
+      - name: Wait for app
+        run: npx wait-on http://localhost:5301 --timeout 60000
+      - name: Regenerate baselines
+        run: npx playwright test design-baseline --update-snapshots
+      - name: Upload refreshed snapshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: design-baselines
+          path: e2e/design-baseline.spec.ts-snapshots/**
+          if-no-files-found: error
