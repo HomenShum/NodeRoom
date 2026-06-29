@@ -1,6 +1,6 @@
 /** Public/private Copilot chat surfaces. Reads via useStore(). */
 import { useEffect, useMemo, useRef, useState, type CSSProperties, type ChangeEvent, type ClipboardEvent, type DragEvent, type KeyboardEvent, type ReactNode } from "react";
-import { Lock, MessageCircle, Globe, Send, Sparkles, Copy, Check, ArrowUpRight, Pencil, Paperclip, X, Timer, RefreshCw, ChevronDown, ChevronUp, ListChecks, GitBranch, ShieldCheck, Database, FileText, StickyNote, Table2, Brain, Target } from "lucide-react";
+import { Lock, MessageCircle, Globe, Send, Square, Sparkles, Copy, Check, ArrowUpRight, Pencil, Paperclip, X, Timer, RefreshCw, ChevronDown, ChevronUp, ListChecks, GitBranch, ShieldCheck, Database, FileText, StickyNote, Table2, Brain, Target } from "lucide-react";
 import { useQuery } from "convex/react";
 import { useStore, CONVEX_SITE_URL, type AgentJobDetailTelemetry, type AgentModelSelection, type PrivateStreamAccess, type RoomStore } from "../app/store";
 import { abortable, parseUploadedFiles, UPLOAD_TIMEOUT_MS } from "../app/uploadedArtifact";
@@ -662,6 +662,7 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
   const taRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const uploadBusyRef = useRef(false);
+  const lastAgentInputRef = useRef<string | null>(null); // last public-agent request, for Regenerate
   const nearBottom = useRef(true);
   const [showJump, setShowJump] = useState(false); // "Jump to latest" pill when scrolled up
   const thinkingStartCount = useRef(0);
@@ -842,6 +843,7 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
         ? { mode: "specific", modelPolicy: specificModelPolicy || defaultSpecificModel || "gemini-3.5-flash" }
         : { mode: modelSelectionMode };
       beginThinking();
+      lastAgentInputRef.current = t;
       void store.askAgent({ goal: publicNodeAgentRequest.goal, references: messageRefs, modelSelection, contextArtifactId: activeArtifactId }).catch((e) => {
         if (aliveRef.current) {
           setAgentErr(agentErrorText(e));
@@ -1348,11 +1350,18 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
             <span className="r-composer-spacer" aria-hidden="true" />
             {/* The send button reflects the composer state — muted + disabled on empty input,
                 not a live accent button that does nothing (state-honesty). */}
-            <button className="r-send" onClick={() => send()} disabled={!canSend} data-testid="chat-send" aria-label="Send message"><Send size={15} /></button>
+            {longJobActive ? (
+              <button className="r-send r-send-stop" onClick={cancelJob} disabled={jobBusy !== null} data-testid="chat-stop" title="Stop generating" aria-label="Stop generating"><Square size={13} /></button>
+            ) : (
+              <button className="r-send" onClick={() => send()} disabled={!canSend} data-testid="chat-send" aria-label="Send message"><Send size={15} /></button>
+            )}
           </div>
         </div>
         {!isPrivate && !slashOpen && (
           <div className="r-composer-hint">
+            {longJobTerminal && lastAgentInputRef.current && (
+              <button className="r-chip r-chip-regen" data-testid="chat-regenerate" title="Run the last agent request again" onClick={() => send(lastAgentInputRef.current!)}><RefreshCw size={11} /> Regenerate</button>
+            )}
             {contextualPrompts.map((prompt) => <button key={prompt.insert} className="r-chip" onClick={() => applySlash(prompt.insert)}>{prompt.label}</button>)}
             <span className="r-composer-kbd" aria-hidden="true">Enter sends; Shift+Enter newline; @nodeagent acts</span>
           </div>
