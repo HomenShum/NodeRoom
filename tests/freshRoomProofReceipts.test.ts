@@ -25,10 +25,12 @@ describe("fresh-room proof receipt registry", () => {
     expect(registry.summary.financeDomainGatePassed).toBe(true);
     expect(registry.summary.selectiveBankerToolBenchReady).toBe(true);
     expect(registry.summary.selectiveLiveBrowserBenchmarkReady).toBe(true);
-    expect(registry.summary.bankerToolBenchFullSuiteReady).toBe(false);
-    expect(registry.summary.liveBrowserBenchmarkReady).toBe(false);
+    // Full-suite lanes are now PROVEN, derived from committed gate verdicts (FR-020B isolated,
+    // FR-020C live-UI). Still kept as separate claims from the selective ones below.
+    expect(registry.summary.bankerToolBenchFullSuiteReady).toBe(true);
+    expect(registry.summary.liveBrowserBenchmarkReady).toBe(true);
 
-    expect(Object.keys(cases)).toEqual(["FR-020", "FR-020A", "FR-020B"]);
+    expect(Object.keys(cases)).toEqual(["FR-020", "FR-020A", "FR-020B", "FR-020C"]);
     expect(cases["FR-020"]).toMatchObject({
       lane: "bankertoolbench_selective_live_task",
       status: "passed",
@@ -47,11 +49,21 @@ describe("fresh-room proof receipt registry", () => {
     expect(cases["FR-020A"].gates.find((gate) => gate.id === "fresh_room_ui")?.status).toBe("pass");
     expect(cases["FR-020A"].gates.find((gate) => gate.id === "official_verifier")?.status).toBe("pass");
 
+    // FR-020B (isolated/Harbor lane) and FR-020C (live product-UI lane) are now PASSED, derived
+    // from committed gate verdicts -- but remain separate full-suite claims that do not assert a
+    // 100% rubric pass rate.
     expect(cases["FR-020B"]).toMatchObject({
       lane: "bankertoolbench_full_suite",
-      status: "blocked",
+      status: "passed",
     });
-    expect(cases["FR-020B"].gates.every((gate) => gate.status === "blocked")).toBe(true);
+    expect(cases["FR-020B"].gates.every((gate) => gate.status === "pass")).toBe(true);
+    expect(cases["FR-020B"].doesNotProve.join(" ")).toMatch(/pass rate/i);
+
+    expect(cases["FR-020C"]).toMatchObject({
+      lane: "bankertoolbench_full_suite",
+      status: "passed",
+    });
+    expect(cases["FR-020C"].proves.join(" ")).toMatch(/live product UI/i);
   });
 
   it("documents that the finance runtime receipt is not a live-browser benchmark proof", () => {
