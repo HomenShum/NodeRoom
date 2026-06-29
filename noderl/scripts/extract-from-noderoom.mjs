@@ -50,7 +50,14 @@ if (missing > 0) {
 
 function applyStrips(destRel, body) {
   for (const s of manifest.strip ?? []) {
-    if (s.file === destRel && body.includes(s.find)) {
+    if (s.file !== destRel) continue;
+    if (s.findRegex) {
+      const re = new RegExp(s.findRegex, "g");
+      if (re.test(body)) {
+        body = body.replace(new RegExp(s.findRegex, "g"), s.replace);
+        console.log(`  strip(re) ${destRel}: /${s.findRegex}/ -> "${s.replace}"`);
+      }
+    } else if (s.find && body.includes(s.find)) {
       body = body.split(s.find).join(s.replace);
       console.log(`  strip    ${destRel}: "${s.find}" -> "${s.replace}"`);
     }
