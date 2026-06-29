@@ -186,6 +186,7 @@ describe("Chat reasoning-frame job detail", () => {
 
   it("passes the selected specific model through the public @nodeagent composer", async () => {
     const store = baseStore();
+    store.lastLongFreeJob = () => null; // send path: with no active job the composer shows Send, not the #4 Stop swap
     mockStore.current = store;
 
     render(<Chat roomId="r1" me={me} channel="public" variant="public" agentName="Room NodeAgent" />);
@@ -205,6 +206,7 @@ describe("Chat reasoning-frame job detail", () => {
 
   it("keeps /free as a hidden compatibility alias for the central free route", async () => {
     const store = baseStore();
+    store.lastLongFreeJob = () => null; // send path: with no active job the composer shows Send, not the #4 Stop swap
     mockStore.current = store;
 
     render(<Chat roomId="r1" me={me} channel="public" variant="public" agentName="Room NodeAgent" />);
