@@ -40,6 +40,7 @@ const HANDOFF_SHORT: Record<string, string> = { gmail: "Gmail", notion: "Notion"
 const WIKI_TITLE = "Agent wiki";
 const RESEARCH_TITLE = "Company research";
 const BRIEF_TITLE = "Today's Brief";
+const MAX_OPEN_TABS = 12; // BOUND: cap open work-surface tabs (agent loops can churn artifacts); evict oldest.
 const GENERIC_SHEET_CELL_WINDOW = 5_000;
 const BLANK_SHEET_ROWS = 12;
 const BLANK_SHEET_COLUMNS = ["A", "B", "C", "D", "E", "F", "G", "H"] as const;
@@ -367,7 +368,15 @@ export function Artifact(props: {
     return ids;
   })();
   const [openIds, setOpenIds] = useState<string[]>(() => (artId && !defaultOpenIds.includes(artId) ? [artId, ...defaultOpenIds] : defaultOpenIds));
-  useEffect(() => { if (artId) setOpenIds((prev) => (prev.includes(artId) ? prev : [...prev, artId])); }, [artId]);
+  useEffect(() => {
+    if (!artId) return;
+    setOpenIds((prev) => {
+      if (prev.includes(artId)) return prev;
+      const next = [...prev, artId];
+      // BOUND: the active artifact is appended last, so slicing to the last MAX keeps it + evicts the oldest.
+      return next.length > MAX_OPEN_TABS ? next.slice(next.length - MAX_OPEN_TABS) : next;
+    });
+  }, [artId]);
   // Always include the active artifact (a freshly created/uploaded file is active before the effect
   // appends it), then keep only artifacts that still exist. Guarantees the active file owns a tab.
   const liveOpenIds = [...new Set([...openIds, artId].filter(Boolean))].filter((id) => arts.some((a) => a.id === id));
