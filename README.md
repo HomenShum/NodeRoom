@@ -11,7 +11,7 @@ silent overwrite.**
 
 `multi-panel room` · `public + private agents` · `route preference` · `presence + intent claims` · `draft-for-merge` · `per-room traces` · `NodeMem memory` · `live Convex + real LLM`
 
-[Why Convex](#why-convex-and-why-not) · [Architecture evolution](#collaboration-architecture-evolution) · [Audience fluency](#audience-world-proof-artifacts) · [Solo automation](#how-i-automated-the-process-as-a-single-person) · [Lessons](#lessons-from-building-noderoom) · [Managed writes](#managed-writes-legacy-lock-proof-and-next-lease-layer) · [Multi-user proof](docs/eval/MULTI_USER_COORDINATION_PROOF.md) · [June 2026 target](docs/TARGET_2026_06.md) · [Sequences](#live-collaboration-sequence) · [Harness reasoning](docs/HARNESS_RECURSIVE_REASONING.md) · [Adoption](docs/NODEAGENT_ADOPTION.md) · [Why & HALO](docs/WHY_NODEAGENT_AND_HALO.md) · [Quickstart](#quickstart) · [Agent runtime](docs/AGENT_RUNTIME.md) · [NodeAgent source map](docs/NODEAGENT_SOURCE_MAP.md) · [Agent eval](docs/AGENT_EVAL.md) · [Model eval matrix](docs/eval/MODEL_EVAL_MATRIX.md) · [Feature eval backlog](docs/eval/FEATURE_EVAL_BACKLOG.md) · [Agent wiki](docs/AGENT_WIKI.md) · [Design](docs/DESIGN.md) · [Stack](docs/STACK.md) · [Walkthrough](docs/WALKTHROUGH.md) · [Architecture](docs/ARCHITECTURE.md) · [Diagrams](docs/diagrams/README.md) · [Open gaps](docs/GAPS_NOT_DONE.md)
+[Why Convex](#why-convex-and-why-not) · [Architecture evolution](#collaboration-architecture-evolution) · [Audience fluency](#audience-world-proof-artifacts) · [Solo automation](#how-i-automated-the-process-as-a-single-person) · [Lessons](#lessons-from-building-noderoom) · [Managed writes](#managed-writes-legacy-lock-proof-and-next-lease-layer) · [Multi-user proof](docs/eval/MULTI_USER_COORDINATION_PROOF.md) · [June 2026 target](docs/TARGET_2026_06.md) · [Sequences](#live-collaboration-sequence) · [Harness reasoning](docs/HARNESS_RECURSIVE_REASONING.md) · [Orchestrator-worker routing](docs/ORCHESTRATOR_WORKER_ROUTING.md) · [Adoption](docs/NODEAGENT_ADOPTION.md) · [Why & HALO](docs/WHY_NODEAGENT_AND_HALO.md) · [Quickstart](#quickstart) · [Agent runtime](docs/AGENT_RUNTIME.md) · [NodeAgent source map](docs/NODEAGENT_SOURCE_MAP.md) · [Agent eval](docs/AGENT_EVAL.md) · [Model eval matrix](docs/eval/MODEL_EVAL_MATRIX.md) · [Feature eval backlog](docs/eval/FEATURE_EVAL_BACKLOG.md) · [Agent wiki](docs/AGENT_WIKI.md) · [Design](docs/DESIGN.md) · [Stack](docs/STACK.md) · [Walkthrough](docs/WALKTHROUGH.md) · [Architecture](docs/ARCHITECTURE.md) · [Diagrams](docs/diagrams/README.md) · [Open gaps](docs/GAPS_NOT_DONE.md)
 
 [Interview notes](docs/INTERVIEW_NOTES.md) · [Over-engineering audit](docs/OVERENGINEERING_AUDIT.md) · [Improvement roadmap](docs/IMPROVEMENT_ROADMAP.md) · [Next priorities](docs/NEXT_STEPS_PRIORITY.md) · [Operating budget](docs/OPERATING_BUDGET.md) · [Audience workloads](docs/AUDIENCE_WORKLOADS.md)
 
@@ -84,6 +84,31 @@ NodeAgent owns durable frames, context packs, entity/facet cache, OKF evidence,
 verification, trace workpapers, and managed writes; Omnigent, when used, stays
 the optional outer meta-harness for policies, sessions, sandboxing, and
 model/harness selection.
+
+### Orchestrator-Worker Model Routing
+
+NodeRoom uses an **orchestrator-worker** model routing pattern — the same
+architecture that OpenAI, Anthropic, and Claude Code have converged on in
+2025–2026. A high-intelligence orchestrator model (`z-ai/glm-5.2`, AA Index
+51.1) handles planning, verification, and synthesis. A cheaper worker model
+(`minimax/minimax-m3`, AA Index 44.4, 4x cheaper) executes bounded tool calls,
+search, and evidence gathering. The orchestrator reviews worker output before
+committing.
+
+This maps directly to NodeRoom's five-phase frame loop:
+
+```
+intake      → orchestrator (glm-5.2)   normalize request
+plan        → orchestrator (glm-5.2)   decompose, decide cache vs research
+execute     → worker (minimax-m3)      search, read, write, evidence
+verify      → orchestrator (glm-5.2)   check evidence, freshness, claims
+synthesize  → orchestrator (glm-5.2)   summarize for room trace + UI
+```
+
+The split gives near-minimax cost with near-glm intelligence for cognitive
+phases: ~$0.08 per deep-dive job vs $0.15 for glm-only or $0.06 for
+minimax-only. Full design record in
+[`docs/ORCHESTRATOR_WORKER_ROUTING.md`](docs/ORCHESTRATOR_WORKER_ROUTING.md).
 The smallest adoption proof is runnable with:
 
 ```bash

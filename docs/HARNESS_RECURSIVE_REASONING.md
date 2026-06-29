@@ -126,6 +126,14 @@ NodeAgent run; Convex rows store the cognition state.
 - No memory hidden only in model transcripts.
 - No bypass around Convex auth, CAS, locks, proposals, or evidence write gates.
 
+## Orchestrator-Worker Model Routing
+
+The frame loop's phase separation (`intake` → `plan` → `execute` → `verify` →
+`synthesize`) naturally supports per-phase model assignment. The orchestrator
+model handles planning/verification/synthesis; the worker model handles
+execution. See [`ORCHESTRATOR_WORKER_ROUTING.md`](ORCHESTRATOR_WORKER_ROUTING.md)
+for the full design record, cost profile, and industry references.
+
 ## Verification Pointers
 
 - Runnable adoption proof: `npm run nodeagent:frame:smoke` executes a complete
