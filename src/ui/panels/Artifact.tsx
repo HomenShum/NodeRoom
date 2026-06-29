@@ -14,13 +14,14 @@ import { useTiptapSync } from "@convex-dev/prosemirror-sync/tiptap";
 import { api } from "../../../convex/_generated/api";
 import {
   Table2, FileText, StickyNote, Users, GitMerge, RotateCcw, History, Search, BookOpen, Home, ListChecks,
-  Lock, Unlock, Ban, Pencil, Plus, Check, AlertTriangle, Eye, Circle, ChevronRight, Download, Trash2, Undo2, X, Columns2, MoreHorizontal, Mail, Hash, Layers, Linkedin, Activity, type LucideIcon,
+  Lock, Unlock, Ban, Pencil, Plus, Check, AlertTriangle, Eye, Circle, ChevronRight, Download, Trash2, Undo2, X, Columns2, MoreHorizontal, Mail, Hash, Layers, Linkedin, Activity, Share2, type LucideIcon,
   Sparkles, Folder, Briefcase, Package, File as FileIcon,
 } from "lucide-react";
 import { useStore, type ActorProof, type RoomStore, type EditFeedback, type PresenceClaim } from "../../app/store";
 import { columnLetters } from "../../app/spreadsheetIndex";
 import { onStageFocus, focusStage, type StageFocusTarget } from "../stageFocus";
 import { TraceSurface } from "./TraceSurface";
+import { KnowledgeGraph } from "./KnowledgeGraph";
 import { TodaysBrief } from "./TodaysBrief";
 import { classifyEvidence } from "../traceLens/evidence";
 import type { Actor, Artifact as Art, CellPayload, DataframeColumn, DocumentParseMeta, Proposal, TraceEvent, ResearchRowInput } from "../../engine/types";
@@ -88,10 +89,13 @@ function ArtifactSurface({ roomId, me, proof, artId, onArt, style, surfaceKey = 
   };
   const [tab, setTab] = useState<TabId>(() => tabForArt(artId));
   const [renamingId, setRenamingId] = useState<string | null>(null);
+  const tabMenuRef = useRef<HTMLDetailsElement>(null);
   const [traceOpen, setTraceOpen] = useState(false);
   // Home is a persistent pinned pseudo-tab (primary surface only) — like Trace, it overlays the
   // work surface with the Room Home command center (inventory + work lanes) without disturbing openIds.
   const [homeOpen, setHomeOpen] = useState(false);
+  // Knowledge graph: a derived node-link view of how this room's artifacts reference each other.
+  const [graphOpen, setGraphOpen] = useState(false);
   const [editErr, setEditErr] = useState<string | null>(null);
   useEffect(() => { if (!editErr) return; const t = setTimeout(() => setEditErr(null), 4000); return () => clearTimeout(t); }, [editErr]);
   useEffect(() => { setTab(tabForArt(artId)); }, [artId, wiki?.id, sheet?.id, research?.id, note?.id, wall?.id, arts.length]);
@@ -180,13 +184,13 @@ function ArtifactSurface({ roomId, me, proof, artId, onArt, style, surfaceKey = 
         <div className="r-tabs" data-testid={surfaceKey === "secondary" ? "artifact-tabs-secondary" : "artifact-tabs"}>
           {/* Home is a pinned, non-closeable pseudo-tab: the room command center is always one click away. */}
           {surfaceKey !== "secondary" && (
-            <button type="button" className="r-tab r-hometab" data-active={String(homeOpen)} data-testid="home-tab" title="Room Home — command center, inventory, and work lanes" onClick={() => { setHomeOpen(true); setTraceOpen(false); }}>
+            <button type="button" className="r-tab r-hometab" data-active={String(homeOpen)} data-testid="home-tab" title="Room Home — command center, inventory, and work lanes" onClick={() => { setHomeOpen(true); setTraceOpen(false); setGraphOpen(false); }}>
               <Home size={13} /> Home
             </button>
           )}
           {openIds
             ? openTabArts.map((a) => (
-                <button key={a.id} className="r-tab r-filetab" data-active={String(!traceOpen && !homeOpen && a.id === artId)} onClick={() => { onArt(a.id); setTraceOpen(false); setHomeOpen(false); }} onDoubleClick={() => renameArtifact(a)} title={a.meta?.summary ? `${a.title} — ${a.meta.summary}` : `${a.title} (double-click to rename)`} data-testid="artifact-filetab">
+                <button key={a.id} className="r-tab r-filetab" data-active={String(!traceOpen && !homeOpen && !graphOpen && a.id === artId)} onClick={() => { onArt(a.id); setTraceOpen(false); setHomeOpen(false); setGraphOpen(false); }} onDoubleClick={() => renameArtifact(a)} title={a.meta?.summary ? `${a.title} — ${a.meta.summary}` : `${a.title} (double-click to rename)`} data-testid="artifact-filetab">
                   {tabIcon(a)}
                   {renamingId === a.id ? (
                     <input className="r-filetab-rename" defaultValue={a.title} autoFocus aria-label="Rename file"
@@ -203,14 +207,29 @@ function ArtifactSurface({ roomId, me, proof, artId, onArt, style, surfaceKey = 
                 </button>
               ))
             : TABS.filter((t) => artFor(t.id)).map((t) => (
-                <button key={t.id} className="r-tab" data-active={String(!traceOpen && !homeOpen && activeTab === t.id)} onClick={() => { pick(t.id); setTraceOpen(false); setHomeOpen(false); }}>
+                <button key={t.id} className="r-tab" data-active={String(!traceOpen && !homeOpen && !graphOpen && activeTab === t.id)} onClick={() => { pick(t.id); setTraceOpen(false); setHomeOpen(false); setGraphOpen(false); }}>
                   <t.Icon size={13} /> {t.label}
                 </button>
               ))}
+          {openIds && openTabArts.length > 1 && (
+            <details className="r-tab-overflow" ref={tabMenuRef}>
+              <summary className="r-tab r-tab-overflow-btn" aria-label="All open tabs" title="All open tabs"><MoreHorizontal size={14} /></summary>
+              <div className="r-tab-overflow-menu" role="menu">
+                {openTabArts.map((a) => (
+                  <button key={a.id} type="button" role="menuitem" className="r-tab-overflow-item" data-active={String(!traceOpen && !homeOpen && !graphOpen && a.id === artId)} onClick={() => { onArt(a.id); setTraceOpen(false); setHomeOpen(false); setGraphOpen(false); tabMenuRef.current?.removeAttribute("open"); }}>{tabIcon(a)} <span>{a.title}</span></button>
+                ))}
+              </div>
+            </details>
+          )}
           {/* Trace is a pinned work-surface tab alongside the artifacts (agent + QA provenance). */}
           {surfaceKey !== "secondary" && (
-            <button type="button" className="r-tab r-tracetab" data-active={String(traceOpen)} data-testid="trace-tab" title="Agent + QA trace records" onClick={() => { setTraceOpen(true); setHomeOpen(false); }}>
+            <button type="button" className="r-tab r-tracetab" data-active={String(traceOpen)} data-testid="trace-tab" title="Agent + QA trace records" onClick={() => { setTraceOpen(true); setHomeOpen(false); setGraphOpen(false); }}>
               <Activity size={13} /> Trace
+            </button>
+          )}
+          {surfaceKey !== "secondary" && (
+            <button type="button" className="r-tab r-graphtab" data-active={String(graphOpen)} data-testid="graph-tab" title="Knowledge graph — how this room's artifacts reference each other" onClick={() => { setGraphOpen(true); setHomeOpen(false); setTraceOpen(false); }}>
+              <Share2 size={13} /> Graph
             </button>
           )}
         </div>
@@ -259,6 +278,8 @@ function ArtifactSurface({ roomId, me, proof, artId, onArt, style, surfaceKey = 
         />
       ) : traceOpen ? (
         <TraceSurface roomId={roomId} onOpenSource={openTraceSource} />
+      ) : graphOpen ? (
+        <KnowledgeGraph roomId={roomId} onOpenArtifact={(id) => { onArt(id); setGraphOpen(false); }} />
       ) : (
         <>
           {editErr && <div className="r-art-error" role="alert"><AlertTriangle size={13} /> {editErr}</div>}
@@ -1116,6 +1137,16 @@ function GenericSheet({ roomId, me, art, onError }: { roomId: string; me: Actor;
   const doCommit = (id: string, s: string) => { void commit(store, roomId, me, art.id, id, s).then((f) => { if (f && !f.ok) onError?.(f); }); };
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editDraft, setEditDraft] = useState("");
+  // Column resize: drag the header's right edge; per-column widths persist per artifact (BOUND to >=60px).
+  const [colOverrides, setColOverrides] = useState<Record<string, number>>(() => {
+    try { return JSON.parse(localStorage.getItem(`noderoom:grid-cols:${art.id}`) || "{}") as Record<string, number>; } catch { return {}; }
+  });
+  useEffect(() => { try { localStorage.setItem(`noderoom:grid-cols:${art.id}`, JSON.stringify(colOverrides)); } catch { /* ignore */ } }, [art.id, colOverrides]);
+  const startColResize = (colId: string, startWidth: number, startX: number) => {
+    const onMove = (ev: PointerEvent) => setColOverrides((p) => ({ ...p, [colId]: Math.max(60, Math.round(startWidth + (ev.clientX - startX))) }));
+    const onUp = () => { window.removeEventListener("pointermove", onMove); window.removeEventListener("pointerup", onUp); };
+    window.addEventListener("pointermove", onMove); window.addEventListener("pointerup", onUp);
+  };
   // Row-density preset (Compact re-enables clip; Default/Comfortable wrap), persisted per artifact.
   const [density, setDensity] = useState<"compact" | "default" | "comfortable">(() => {
     try { const v = localStorage.getItem(`noderoom:grid-density:${art.id}`); return v === "compact" || v === "comfortable" ? v : "default"; } catch { return "default"; }
@@ -1164,9 +1195,9 @@ function GenericSheet({ roomId, me, art, onError }: { roomId: string; me: Actor;
             }}>
             <colgroup>
               <col style={{ width: 38 }} />
-              {columns.map((c, i) => <col key={c.id} style={{ width: colWidths[i] }} />)}
+              {columns.map((c, i) => <col key={c.id} style={{ width: colOverrides[c.id] ?? colWidths[i] }} />)}
             </colgroup>
-            <thead><tr><th className="r-corner" aria-label="row number" />{columns.map((c) => <th key={c.id} className={selectedColId === c.id ? "hl" : undefined}>{c.label}</th>)}</tr></thead>
+            <thead><tr><th className="r-corner" aria-label="row number" />{columns.map((c, i) => <th key={c.id} className={selectedColId === c.id ? "hl" : undefined}>{c.label}<span className="r-col-resize" role="separator" aria-orientation="vertical" aria-label={`Resize ${c.label}`} onPointerDown={(e) => { e.preventDefault(); e.stopPropagation(); startColResize(c.id, colOverrides[c.id] ?? colWidths[i], e.clientX); }} /></th>)}</tr></thead>
             <tbody>
               {visibleRows.map((rid, i) => (
                 <tr key={rid}>

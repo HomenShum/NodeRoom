@@ -50,6 +50,8 @@
     "benchmark:bankertoolbench:nodeagent-clean-parallel": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/bankertoolbench-nodeagent-clean-parallel.ps1",
     "benchmark:bankertoolbench:nodeagent-clean-sequential": "node scripts/bankertoolbench-nodeagent-clean-sequential.mjs",
     "benchmark:bankertoolbench:ledger-ingest": "tsx scripts/bankertoolbench-ledger-ingest.ts",
+    "benchmark:bankertoolbench:fullsuite-gate": "tsx scripts/bankertoolbench-fullsuite-gate.ts",
+    "benchmark:bankertoolbench:livesuite-gate": "tsx scripts/bankertoolbench-livesuite-gate.ts",
     "benchmark:contamination": "tsx scripts/benchmark-contamination-check.ts",
     "benchmark:spreadsheetbench:ingest": "tsx scripts/spreadsheetbench-ingest.ts",
     "benchmark:spreadsheetbench:stage": "tsx scripts/spreadsheetbench-stage.ts",

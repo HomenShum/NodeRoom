@@ -92,7 +92,7 @@ describe("BankerToolBench official bundle ingest", () => {
     const generalOnlyRouting = sourceBetween(
       adapterSource,
       'if materializer_mode == "general-only":',
-      "elif is_meta_overview_pack_task(task_text_for_family):",
+      'elif materializer_mode == "replay":',
     );
 
     expect(generalSourcesUses).toContain("sources_uses_task_shape()");
@@ -114,7 +114,7 @@ describe("BankerToolBench official bundle ingest", () => {
     const generalOnlyRouting = sourceBetween(
       adapterSource,
       'if materializer_mode == "general-only":',
-      "elif is_meta_overview_pack_task(task_text_for_family):",
+      'elif materializer_mode == "replay":',
     );
 
     expect(generalTakePrivate).toContain("take_private_teaser_task_shape()");
@@ -141,7 +141,7 @@ describe("BankerToolBench official bundle ingest", () => {
     const generalOnlyRouting = sourceBetween(
       adapterSource,
       'if materializer_mode == "general-only":',
-      "elif is_meta_overview_pack_task(task_text_for_family):",
+      'elif materializer_mode == "replay":',
     );
 
     expect(generalBuyerUniverse).toContain("buyer_universe_task_shape()");

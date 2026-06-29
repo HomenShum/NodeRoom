@@ -1,0 +1,27 @@
+{
+  "schema": "noderoom-btb-fullsuite-gate-v1",
+  "expectedCount": 100,
+  "executedTaskCount": 100,
+  "cleanScoredTaskCount": 100,
+  "meanCleanReward": 0.251875,
+  "passThreshold": 1,
+  "passCount": 0,
+  "passRate": 0,
+  "missingTaskIds": [],
+  "contaminatedTaskIds": [],
+  "unscoredTaskIds": [],
+  "subGates": [
+    {
+      "id": "full_suite_execution",
+      "status": "pass",
+      "reason": "100/100 tasks executed clean generic-only."
+    },
+    {
+      "id": "aggregate_score_import",
+      "status": "pass",
+      "reason": "All 100 clean tasks carry official scores + trace links; mean reward 0.2519."
+    }
+  ],
+  "flipEligible": true,
+  "claim": "All 100/100 BankerToolBench tasks executed and officially scored, generic-only (no answer-key writers). Aggregate mean reward 0.2519; pass-rate 0.0000 (reward >= 1). This proves full-suite COMPLETION + SCORING, not a 100% pass rate."
+}

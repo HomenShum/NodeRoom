@@ -348,7 +348,11 @@ All companies discovered through UpScaleX LinkedIn posts and their E2E test stat
 - ✅ Knowledge graph visualization researched (Obsidian, NotebookLM, React libraries)
 - ✅ Knowledge graph feature designed (data model, UI integration, implementation plan)
 - ✅ Design doc updated with generalized architecture + graph visualization + coverage ledger
-- 🔲 Knowledge graph implementation (Phase 1-4 — future work)
+- ✅ Knowledge graph IMPLEMENTED (PR #95, commit b0a0f9bc): `src/ui/panels/KnowledgeGraph.tsx` — a "Graph"
+  work-surface tab rendering a derived node-link view (nodes = artifacts colored by kind, edges = real
+  title-token "mentions"), reusing `@xyflow/react` (no new dep), derived client-side (no Convex tables),
+  works in memory mode. Verified live (9 nodes / 8 edges, node-click opens artifact, design-gate + CI green).
+  Remaining graph polish (backlinks side-panel, sheet-row/source/trace node types, local-vs-global modes) is future.
 
 ---
 
@@ -519,6 +523,10 @@ Finalize: say() — summary + spreadsheet + wiki link
 - ✅ **Person deep dive: `person-deep-dive` skill created with MDX output template**
 - ✅ **Person deep dive: 5 E2E tests added (GitHub, papers, career, events, MDX)**
 - ✅ **TypeScript compiles cleanly (`npx tsc --noEmit` — 0 errors)**
-- 🔲 Knowledge graph implementation (Phase 1-4 — future work)
+- ✅ Knowledge graph IMPLEMENTED (PR #95, commit b0a0f9bc): `src/ui/panels/KnowledgeGraph.tsx` — a "Graph"
+  work-surface tab rendering a derived node-link view (nodes = artifacts colored by kind, edges = real
+  title-token "mentions"), reusing `@xyflow/react` (no new dep), derived client-side (no Convex tables),
+  works in memory mode. Verified live (9 nodes / 8 edges, node-click opens artifact, design-gate + CI green).
+  Remaining graph polish (backlinks side-panel, sheet-row/source/trace node types, local-vs-global modes) is future.
 - 🔲 Semantic Scholar API integration (future — `you_search` covers arxiv/scholar for now)
 - 🔲 MDX renderer in NodeRoom wiki (future — currently outputs MDX as text to wiki)
