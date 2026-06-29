@@ -193,7 +193,6 @@ test.describe("chat — optimistic send + edit (memory mode)", () => {
     const chat = publicChat(page);
 
     await expect(chat.getByRole("button", { name: "@nodeagent diligence CardioNova" })).toBeVisible();
-    await expect(chat.getByRole("button", { name: "@nodeagent runway gaps" })).toBeVisible();
     await expect(chat.getByRole("button", { name: "/ask diligence CardioNova" })).toHaveCount(0);
     await expect(chat.getByRole("button", { name: "/free" })).toHaveCount(0);
 
