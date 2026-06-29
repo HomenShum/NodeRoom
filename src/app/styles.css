@@ -678,6 +678,7 @@ input { font-family: inherit; }
 /* browser-style open-file tabs: each open artifact is a closeable tab */
 .r-filetab { max-width: 184px; padding-right: 6px; }
 .r-filetab-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.r-filetab-rename { min-width: 80px; max-width: 160px; font: inherit; color: var(--text-primary); background: var(--bg-primary); border: 1px solid var(--accent-primary); border-radius: 4px; padding: 0 5px; outline: none; box-shadow: 0 0 0 2px var(--accent-tint); }
 .r-filetab-x { display: inline-flex; align-items: center; justify-content: center; width: 16px; height: 16px; margin-left: 1px; border-radius: 4px; color: var(--text-tertiary); opacity: 0; flex: none; transition: opacity var(--motion-fast), background var(--motion-fast); }
 .r-filetab:hover .r-filetab-x, .r-filetab[data-active="true"] .r-filetab-x { opacity: 1; }
 .r-filetab-x:hover { background: var(--bg-hover); color: var(--text-primary); }

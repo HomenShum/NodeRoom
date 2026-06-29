@@ -86,6 +86,7 @@ function ArtifactSurface({ roomId, me, proof, artId, onArt, style, surfaceKey = 
     return fallbackTab;
   };
   const [tab, setTab] = useState<TabId>(() => tabForArt(artId));
+  const [renamingId, setRenamingId] = useState<string | null>(null);
   const [traceOpen, setTraceOpen] = useState(false);
   // Home is a persistent pinned pseudo-tab (primary surface only) — like Trace, it overlays the
   // work surface with the Room Home command center (inventory + work lanes) without disturbing openIds.
@@ -149,10 +150,13 @@ function ArtifactSurface({ roomId, me, proof, artId, onArt, style, surfaceKey = 
     return <I size={13} />;
   };
   const openTabArts = (openIds ?? []).map((id) => arts.find((a) => a.id === id)).filter((a): a is Art => !!a);
-  const renameArtifact = (a: Art) => {
-    if (typeof window === "undefined") return;
-    const next = window.prompt("Rename this file", a.title);
-    if (next && next.trim() && next.trim() !== a.title) void store.setArtifactMeta({ roomId, artifactId: a.id, title: next.trim(), actor: me });
+  // Inline rename (double-click / F2) — replaces the window.prompt modal, honoring the same
+  // inline-not-modal standard we hold cells to. Enter commits, Esc cancels; auto-saves via setArtifactMeta.
+  const renameArtifact = (a: Art) => setRenamingId(a.id);
+  const commitRename = (a: Art, value: string) => {
+    setRenamingId(null);
+    const t = value.trim();
+    if (t && t !== a.title) void store.setArtifactMeta({ roomId, artifactId: a.id, title: t, actor: me });
   };
   const pick = (t: TabId) => { const a = artFor(t); if (a) { onArt(a.id); setTab(t); } };
   const openArtifact = (a: Art) => { onArt(a.id); setTab(tabForArt(a.id)); };
@@ -183,7 +187,14 @@ function ArtifactSurface({ roomId, me, proof, artId, onArt, style, surfaceKey = 
             ? openTabArts.map((a) => (
                 <button key={a.id} className="r-tab r-filetab" data-active={String(!traceOpen && !homeOpen && a.id === artId)} onClick={() => { onArt(a.id); setTraceOpen(false); setHomeOpen(false); }} onDoubleClick={() => renameArtifact(a)} title={a.meta?.summary ? `${a.title} — ${a.meta.summary}` : `${a.title} (double-click to rename)`} data-testid="artifact-filetab">
                   {tabIcon(a)}
-                  <span className="r-filetab-name">{artifactTabDisplay(a).title}</span>
+                  {renamingId === a.id ? (
+                    <input className="r-filetab-rename" defaultValue={a.title} autoFocus aria-label="Rename file"
+                      onClick={(e) => e.stopPropagation()} onDoubleClick={(e) => e.stopPropagation()}
+                      onBlur={(e) => commitRename(a, e.currentTarget.value)}
+                      onKeyDown={(e) => { e.stopPropagation(); if (e.key === "Enter") { e.preventDefault(); e.currentTarget.blur(); } else if (e.key === "Escape") { e.preventDefault(); e.currentTarget.value = a.title; e.currentTarget.blur(); } }} />
+                  ) : (
+                    <span className="r-filetab-name">{artifactTabDisplay(a).title}</span>
+                  )}
                   {artifactTabDisplay(a).badge && <span className="r-file-ext r-filetab-ext">{artifactTabDisplay(a).badge}</span>}
                   {onCloseArtifact && openTabArts.length > 1 && (
                     <span className="r-filetab-x" role="button" aria-label={`Close ${a.title}`} onClick={(e) => { e.stopPropagation(); onCloseArtifact(a.id); }}><X size={12} /></span>
