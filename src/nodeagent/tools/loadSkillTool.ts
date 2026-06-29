@@ -142,7 +142,19 @@ For each key fact (funding amount, ARR, user count, valuation):
 
 ### Step 5 — Structure & Write
 1. Create a spreadsheet with columns: Category, Entity, Key Facts, Source, Date.
-2. Categories: Portfolio Company, Event, Key Personnel, Investment Thesis, Ecosystem Partner, Product, Competitor.
+2. Use **canonical Category values** so the knowledge graph can type entities correctly. The graph reads the Category column to determine node type. Use these exact values:
+   - \`Portfolio Company\` — each company in a fund's portfolio
+   - \`Key Personnel\` — founders, CEOs, partners, investors, executives
+   - \`Event\` — conferences, hackathons, pitch nights, demo days, webinars, meetups
+   - \`Product\` — specific product names, platforms, apps, tools
+   - \`Project\` — specific projects, initiatives, repos
+   - \`Publication\` — papers, blog posts, books, press articles
+   - \`Award\` — awards, recognitions, grants, prizes
+   - \`Investment\` — funding rounds, valuations, investment amounts
+   - \`Ecosystem Partner\` — co-investors, advisors, board members, partners
+   - \`Competitor\` — competing companies or products
+   - \`Investment Thesis\` — market size, sector focus, differentiation points
+   - \`Source\` — key source URLs (put the URL in the Entity column, domain in Key Facts)
 3. Use \`write_locked_cell_results\` to write each row.
 4. Use \`say\` to provide a synthesized summary in the chat stream.
 
@@ -282,7 +294,22 @@ For each key fact (funding amount, user count, citation count, role title, date)
 ### Step 5 — Structure & Write
 
 1. Create a spreadsheet with columns: **Category | Entity | Key Facts | Source | Date**
-2. Categories are open-ended — use whatever fits what you found: GitHub Repo, Publication, Career Milestone, Event, Project, Investment, Press, Award, Education, Community Role, Product, Patent, Technical Writing, Social Presence, etc.
+2. Use **canonical Category values** so the knowledge graph can type entities correctly. The graph reads the Category column to determine node type. Use these exact values:
+   - \`GitHub Repo\` — repositories (name in Entity, stars/language in Key Facts)
+   - \`Publication\` — papers, blog posts, books, articles
+   - \`Career Milestone\` — job roles, company transitions
+   - \`Event\` — conference talks, hackathons, demo days, meetups, webinars
+   - \`Project\` — side projects, open-source contributions, products built
+   - \`Investment\` — angel investments, funding rounds participated in
+   - \`Press\` — news mentions, media coverage, interviews
+   - \`Award\` — awards, recognitions, grants, honors
+   - \`Education\` — schools, degrees, fields of study
+   - \`Community Role\` — open-source maintainer, organizer, advisor
+   - \`Product\` — products launched, platforms built
+   - \`Patent\` — patents filed or granted
+   - \`Technical Writing\` — blog posts, documentation, tutorials
+   - \`Social Presence\` — Twitter/X, YouTube, podcast appearances
+   - \`Source\` — key source URLs (put the URL in the Entity column, domain in Key Facts)
 3. Use \`write_locked_cell_results\` to write each row.
 4. Use \`say\` to provide a synthesized summary in the chat stream.
 

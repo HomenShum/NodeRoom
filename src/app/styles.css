@@ -1097,6 +1097,31 @@ button.r-tracevu-step:hover, button.r-tracevu-step:focus-visible { border-color:
 .r-graphvu-canvas .react-flow__controls-button:hover { background: var(--bg-hover); }
 .r-graphvu-canvas .react-flow__controls-button svg { fill: var(--text-secondary); }
 .r-graphvu-empty { display: flex; align-items: center; justify-content: center; gap: 8px; height: 100%; min-height: 360px; padding: 24px; color: var(--text-muted); font-size: 12.5px; text-align: center; }
+/* Filter chips — toggle visibility by entity kind. */
+.r-graphvu-filters { flex: none; display: flex; flex-wrap: wrap; gap: 6px; padding: 6px 14px; border-bottom: 1px solid var(--line); }
+.r-graphvu-chip { display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px; border: 1px solid; border-radius: 14px; background: var(--bg-secondary); color: var(--text-secondary); font-size: 11px; font-weight: 600; cursor: pointer; transition: opacity .15s; }
+.r-graphvu-chip:hover { background: var(--bg-hover); }
+.r-graphvu-chip-off { opacity: 0.4; }
+.r-graphvu-chip-off .r-graphvu-chip-count { text-decoration: line-through; }
+.r-graphvu-chip-dot { width: 8px; height: 8px; border-radius: 50%; border: 1.5px solid; flex: none; }
+.r-graphvu-chip-count { color: var(--text-muted); font-weight: 500; }
+/* Search filter. */
+.r-graphvu-search { flex: none; display: flex; align-items: center; gap: 6px; padding: 6px 14px; border-bottom: 1px solid var(--line); }
+.r-graphvu-search input { flex: 1; background: var(--bg-secondary); border: 1px solid var(--line); border-radius: 6px; padding: 4px 8px; color: var(--text-primary); font-size: 12px; outline: none; }
+.r-graphvu-search input:focus { border-color: var(--accent-primary); }
+.r-graphvu-search-clear { background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 2px; display: flex; }
+.r-graphvu-search-clear:hover { color: var(--text-primary); }
+/* Body: canvas + backlinks side panel. */
+.r-graphvu-body { display: flex; flex: 1; min-height: 0; overflow: hidden; }
+/* Backlinks panel — shows all references to the focused node. */
+.r-graphvu-backlinks { flex: none; width: 240px; border-left: 1px solid var(--line); display: flex; flex-direction: column; overflow: hidden; }
+.r-graphvu-backlinks-head { flex: none; padding: 8px 12px; border-bottom: 1px solid var(--line); font-size: 11px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: .04em; }
+.r-graphvu-backlinks-list { flex: 1; overflow-y: auto; padding: 4px 0; }
+.r-graphvu-backlink { display: flex; align-items: center; gap: 6px; width: 100%; padding: 6px 12px; background: none; border: none; border-bottom: 1px solid var(--line); cursor: pointer; text-align: left; }
+.r-graphvu-backlink:hover { background: var(--bg-hover); }
+.r-graphvu-backlink-dot { width: 8px; height: 8px; border-radius: 50%; flex: none; }
+.r-graphvu-backlink-label { flex: 1; font-size: 12px; font-weight: 600; color: var(--text-primary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.r-graphvu-backlink-kind { flex: none; font-size: 10px; font-weight: 500; color: var(--text-muted); text-transform: uppercase; }
 /* Scale: collapsible groups + content-visibility windowing keep hundreds of steps cheap. */
 .r-tracevu-groups { display: flex; flex-direction: column; gap: 8px; }
 .r-tracevu-group { border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }

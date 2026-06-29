@@ -192,11 +192,16 @@ test.describe("chat — optimistic send + edit (memory mode)", () => {
   test("@nodeagent quick chips replace /ask and /free as the taught public agent UX", async ({ page }) => {
     const chat = publicChat(page);
 
-    await expect(chat.getByRole("button", { name: "@nodeagent diligence CardioNova" })).toBeVisible();
-    await expect(chat.getByRole("button", { name: "/ask diligence CardioNova" })).toHaveCount(0);
-    await expect(chat.getByRole("button", { name: "/free" })).toHaveCount(0);
+    // Quick chips are context-aware (they vary by the active artifact — diligence/runway/enrich/
+    // organize/memo), so assert the durable contract, not a fixed prompt pair: @nodeagent chips are
+    // present and the legacy /ask + /free slash chips are gone.
+    const agentChips = chat.locator(".r-composer-hint .r-chip").filter({ hasText: /^@nodeagent / });
+    await expect(agentChips.first()).toBeVisible();
+    await expect(chat.locator(".r-composer-hint .r-chip").filter({ hasText: /^\/(ask|free)\b/ })).toHaveCount(0);
 
-    await chat.getByRole("button", { name: "@nodeagent diligence CardioNova" }).click();
-    await expect(chat.getByTestId("chat-composer")).toHaveValue("@nodeagent diligence CardioNova with source-backed product, buyer, funding, hiring, and HIPAA/security gaps");
+    // Clicking a chip prefills the composer with its @nodeagent goal (label is the goal's prefix).
+    const label = ((await agentChips.first().textContent()) ?? "").trim();
+    await agentChips.first().click();
+    await expect(chat.getByTestId("chat-composer")).toHaveValue(new RegExp("^" + label.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
   });
 });

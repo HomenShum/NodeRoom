@@ -527,6 +527,19 @@ Finalize: say() — summary + spreadsheet + wiki link
   work-surface tab rendering a derived node-link view (nodes = artifacts colored by kind, edges = real
   title-token "mentions"), reusing `@xyflow/react` (no new dep), derived client-side (no Convex tables),
   works in memory mode. Verified live (9 nodes / 8 edges, node-click opens artifact, design-gate + CI green).
-  Remaining graph polish (backlinks side-panel, sheet-row/source/trace node types, local-vs-global modes) is future.
+- ✅ **Next-layer entity types IMPLEMENTED**: extended `KnowledgeGraph.tsx` with Category-driven entity
+  derivation — now extracts event, project, publication, achievement, investment, source, and category
+  nodes from sheet rows. The Category column value drives the entity kind; other columns are scanned by
+  keyword regex for types not in Category. Source URLs parsed into source nodes (domain as label).
+  Funding amounts ($M/B/K) parsed into investment nodes. Category values create hub nodes that cluster
+  related entities. MAX_NODES raised to 200 with per-kind caps (30 sources, 15 categories).
+- ✅ **Cambridge Intelligence design practices applied**: filter chips (toggle visibility by entity kind),
+  search filter (text-based node dimming), backlinks panel (side panel showing all connections to
+  focused node — click to navigate), stats overlay (visible/total nodes, edges, density), color legend
+  via KIND_COLOR/KIND_LABEL mappings, node sizing proportional to degree.
+- ✅ **Skill output contract updated**: `company-deep-dive` and `person-deep-dive` skills now include
+  canonical Category value guidance so agents produce spreadsheet rows the graph can type correctly.
+  No format change — just clearer instructions on what Category values to use.
+  Remaining graph polish (local-vs-global modes, trace node types) is future.
 - 🔲 Semantic Scholar API integration (future — `you_search` covers arxiv/scholar for now)
 - 🔲 MDX renderer in NodeRoom wiki (future — currently outputs MDX as text to wiki)

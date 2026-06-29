@@ -46,7 +46,7 @@ async function uploadAndOpenWorkbook(page: import("@playwright/test").Page): Pro
 }
 
 async function blankWorkbookFile(): Promise<string> {
-  // A deliberately plain 3x3 sheet (uniform short values -> a column shares one width). Fresh rooms are
+  // A deliberately plain 3×3 sheet (uniform short values → a column shares one width). Fresh rooms are
   // intentionally empty (App.tsx: they fill from chat / upload / the in-room CTA), so there is no
   // auto-seeded "Blank sheet"; uploading is the real path to get a sheet into a room.
   const workbook = new ExcelJS.Workbook();
@@ -76,7 +76,7 @@ test("an uploaded plain sheet renders as an aligned dark work-surface grid, not 
   await expect(grid.locator("thead th").nth(1)).toHaveText("A");
   await expect(grid.locator('[data-cell-key="A1"]')).toHaveClass(/r-cell/);
 
-  // Every cell in column A shares one width - the grid is aligned, not ragged (A1-notation keys).
+  // Every cell in column A shares one width — the grid is aligned, not ragged (A1-notation keys).
   const aCellWidths = await grid.locator("td[data-cell-key]").evaluateAll((cells) =>
     cells
       .filter((cell) => /^A\d+$/.test(cell.getAttribute("data-cell-key") ?? ""))
