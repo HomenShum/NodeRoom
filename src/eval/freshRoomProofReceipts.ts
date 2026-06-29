@@ -280,7 +280,7 @@ function objectRecord(value: unknown): Record<string, unknown> | undefined {
   return value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : undefined;
 }
 
-export type FreshRoomProofBoundaryCaseId = "FR-020" | "FR-020A" | "FR-020B";
+export type FreshRoomProofBoundaryCaseId = "FR-020" | "FR-020A" | "FR-020B" | "FR-020C";
 export type FreshRoomProofBoundaryStatus = "passed" | "partial" | "blocked";
 export type FreshRoomProofBoundaryGateStatus = "pass" | "partial" | "blocked";
 
@@ -354,6 +354,39 @@ type ProfessionalRuntimeReceipt = {
 const FINANCE_RUNTIME_PATH = "docs/eval/professional-live-runtime.json";
 const FINANCE_BOUNDARY_RECEIPT = "docs/eval/fresh-room/FR-020/finance-domain-receipt.json";
 const FR020_LIVE_BTB_RECEIPT = "docs/eval/fresh-room/FR-020/latest.json";
+const FULLSUITE_GATE_VERDICT = "docs/eval/fresh-room/FR-020/fullsuite-gate-receipt.json";
+const LIVESUITE_GATE_VERDICT = "docs/eval/fresh-room/FR-020/livesuite-gate-receipt.json";
+
+type FullSuiteGateVerdictFile = {
+  schema?: string;
+  flipEligible?: boolean;
+  cleanScoredTaskCount?: number;
+  expectedCount?: number;
+  meanCleanReward?: number | null;
+  passRate?: number | null;
+  passThreshold?: number;
+};
+
+type LiveSuiteGateVerdictFile = {
+  schema?: string;
+  flipEligible?: boolean;
+  passedTaskCount?: number;
+  expectedCount?: number;
+};
+
+function readGateVerdict<T>(path: string): T | null {
+  const absolute = resolve(process.cwd(), path);
+  if (!existsSync(absolute)) return null;
+  try {
+    return JSON.parse(readFileSync(absolute, "utf8")) as T;
+  } catch {
+    return null;
+  }
+}
+
+function fmtReward(value: number | null | undefined): string {
+  return value == null ? "n/a" : value.toFixed(4);
+}
 const FULL_SUITE_EVIDENCE = [
   "docs/eval/official-benchmark-readiness.json",
   "docs/eval/official-benchmark-ui-coverage.json",
@@ -471,6 +504,14 @@ export function buildFreshRoomProofRegistry(args: { generatedAt?: string } = {})
     && fr020?.passed === true
     && fr020Validation.ok;
 
+  // FR-020B (official isolated lane) and FR-020C (live product-UI lane) are DERIVED from the
+  // committed gate-verdict receipts, not hardcoded -- so `benchmark:fresh-room:proofs` regenerates
+  // an honest, evidence-driven registry that survives re-runs.
+  const fullSuiteVerdict = readGateVerdict<FullSuiteGateVerdictFile>(FULLSUITE_GATE_VERDICT);
+  const fullSuiteReady = fullSuiteVerdict?.flipEligible === true;
+  const liveSuiteVerdict = readGateVerdict<LiveSuiteGateVerdictFile>(LIVESUITE_GATE_VERDICT);
+  const liveSuiteReady = liveSuiteVerdict?.flipEligible === true;
+
   const selectiveGates = [
     boundaryGate(
       "fresh_room_ui",
@@ -544,31 +585,61 @@ export function buildFreshRoomProofRegistry(args: { generatedAt?: string } = {})
     },
     {
       id: "FR-020B",
-      title: "Full BankerToolBench suite completion",
+      title: "Full BankerToolBench suite completion (official isolated lane)",
       lane: "bankertoolbench_full_suite",
-      status: "blocked",
-      claimBoundary:
-        "FR-020B remains blocked until the full official BankerToolBench suite runs through isolated execution, live UI evidence, all deliverable types, and official verifier scoring.",
-      proves: [],
+      status: fullSuiteReady ? "passed" : "blocked",
+      claimBoundary: fullSuiteReady
+        ? "FR-020B proves full-suite COMPLETION + official Gandalf scoring via the isolated (Harbor) generic-only lane. It does NOT prove a 100% rubric pass rate, nor live-browser UI for all 100 tasks (FR-020C is the live-UI lane)."
+        : "FR-020B remains blocked until the full official BankerToolBench suite runs through isolated execution and official verifier scoring (generic-only).",
+      proves: fullSuiteReady
+        ? [
+            `Full BankerToolBench suite executed and officially scored generic-only (${fullSuiteVerdict?.cleanScoredTaskCount ?? 0}/${fullSuiteVerdict?.expectedCount ?? 100} clean tasks, mean reward ${fmtReward(fullSuiteVerdict?.meanCleanReward)}).`,
+          ]
+        : [],
       doesNotProve: [
-        "100/100 task official completion",
-        "benchmark-faithful live-browser task execution for every task",
-        "production-quality aggregate BTB score",
+        `A 100% rubric pass rate (observed pass-rate ${fmtReward(fullSuiteVerdict?.passRate)} at reward >= ${fullSuiteVerdict?.passThreshold ?? 1}).`,
+        "Live-browser UI evidence for all 100 tasks (that is FR-020C; FR-020A proves live-UI for one task).",
       ],
       gates: [
         boundaryGate(
           "full_suite_execution",
           "All 100 official BankerToolBench tasks execute",
-          "blocked",
-          FULL_SUITE_EVIDENCE,
-          "Only a selective live task is proven; full-suite execution is not complete.",
+          fullSuiteReady ? "pass" : "blocked",
+          [FULLSUITE_GATE_VERDICT, ...FULL_SUITE_EVIDENCE],
+          fullSuiteReady ? undefined : "No flip-eligible full-suite gate verdict present.",
         ),
         boundaryGate(
           "aggregate_score_import",
           "Official aggregate verifier scores are imported and trace-linked",
-          "blocked",
-          FULL_SUITE_EVIDENCE,
-          "No full-suite aggregate score import is present.",
+          fullSuiteReady ? "pass" : "blocked",
+          [FULLSUITE_GATE_VERDICT],
+          fullSuiteReady ? undefined : "No flip-eligible full-suite gate verdict present.",
+        ),
+      ],
+    },
+    {
+      id: "FR-020C",
+      title: "Full BankerToolBench suite through live product UI",
+      lane: "bankertoolbench_full_suite",
+      status: liveSuiteReady ? "passed" : "blocked",
+      claimBoundary: liveSuiteReady
+        ? "FR-020C proves all 100 tasks completed through the live product UI (fresh room -> upload -> public @nodeagent -> export -> reopen -> verifier + visual judge)."
+        : "FR-020C remains blocked until all 100 tasks pass the live-browser UI flow (per-task fresh-room receipts). FR-020A proves the live-UI flow for one task today.",
+      proves: liveSuiteReady
+        ? [
+            `All ${liveSuiteVerdict?.passedTaskCount ?? 0}/${liveSuiteVerdict?.expectedCount ?? 100} tasks completed through the live product UI with passing per-task fresh-room receipts.`,
+          ]
+        : [],
+      doesNotProve: liveSuiteReady
+        ? ["A 100% rubric pass rate (live UI proves completion through the product, not perfect scores)."]
+        : ["Full live-UI suite completion (only FR-020A, one task, is proven live today)."],
+      gates: [
+        boundaryGate(
+          "full_suite_live_ui_execution",
+          "All 100 tasks complete through the live product UI",
+          liveSuiteReady ? "pass" : "blocked",
+          [LIVESUITE_GATE_VERDICT],
+          liveSuiteReady ? undefined : "No flip-eligible live-suite gate verdict present.",
         ),
       ],
     },
@@ -579,6 +650,7 @@ export function buildFreshRoomProofRegistry(args: { generatedAt?: string } = {})
     generatedAt: args.generatedAt,
     policy: [
       "FR-020/FR-020A selective task proof and FR-020B full-suite proof are separate claims and may not be collapsed into one pass.",
+      "FR-020B (official isolated/Harbor lane) and FR-020C (live product-UI lane) are separate full-suite claims; completion + scoring is not a 100% pass rate.",
       "A domain runtime pass may not imply live-browser benchmark completion.",
       "A selective benchmark task proof may not imply a full-suite official benchmark score.",
       "A benchmark claim must name the exact lane, scorer, UI proof status, export/reopen status, and verifier handoff status.",
@@ -591,8 +663,8 @@ export function buildFreshRoomProofRegistry(args: { generatedAt?: string } = {})
       financeDomainGatePassed: finance.status === "passed",
       selectiveBankerToolBenchReady: fr020SelectiveReady,
       selectiveLiveBrowserBenchmarkReady: fr020SelectiveReady,
-      bankerToolBenchFullSuiteReady: false,
-      liveBrowserBenchmarkReady: false,
+      bankerToolBenchFullSuiteReady: fullSuiteReady,
+      liveBrowserBenchmarkReady: liveSuiteReady,
     },
     financeReceiptPath: FINANCE_BOUNDARY_RECEIPT,
     cases,

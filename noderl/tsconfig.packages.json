@@ -1,0 +1,16 @@
+{
+  "//": "Standalone typecheck for the generated NodeRL packages. Resolves npm deps from the parent node_modules (noderl/ lives inside noderoom during extraction). Run: npx tsc -p noderl/tsconfig.packages.json",
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "types": ["node"],
+    "strict": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true
+  },
+  "include": ["packages/*/src/**/*.ts"]
+}

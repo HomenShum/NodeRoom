@@ -28,6 +28,8 @@ docs/**/*.webm
 # and the dispatcher silently ships zero tasks.
 !docs/eval/nonbtb
 !docs/eval/nonbtb/**
+# Staging area for the standalone public NodeRL repo (see docs/noderl/). Not served by the site.
+noderl
 episodes
 remotion
 e2e
