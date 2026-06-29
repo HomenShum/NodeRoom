@@ -1,7 +1,7 @@
 {
   "name": "@noderl/nodeeval",
-  "version": "0.0.0",
-  "description": "Reward builder + visual/video judges + proof-receipt schema (scaffold; not yet published).",
+  "version": "0.1.0",
+  "description": "Reward builder + proof gates (full-suite + live-suite). src/ generated from NodeRoom — see ../../EXTRACTION.md.",
   "license": "MIT",
   "private": true,
   "type": "module",

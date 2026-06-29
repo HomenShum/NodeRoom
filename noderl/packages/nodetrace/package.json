@@ -1,10 +1,19 @@
 {
   "name": "@noderl/nodetrace",
-  "version": "0.0.0",
-  "description": "Framework-free trajectory/evidence recorder for agent runs (scaffold; not yet published).",
+  "version": "0.1.0",
+  "description": "Framework-free trajectory/evidence recorder for agent runs. src/ is generated from NodeRoom — see ../../EXTRACTION.md.",
   "license": "MIT",
   "private": true,
   "type": "module",
   "main": "src/index.ts",
-  "keywords": ["agent", "trajectory", "rl", "trace", "evidence", "capture"]
+  "keywords": ["agent", "trajectory", "rl", "trace", "evidence", "capture"],
+  "dependencies": {
+    "ai": "^6.0.206",
+    "@ai-sdk/anthropic": "^3.0.84",
+    "@ai-sdk/openai": "^3.0.71",
+    "zod": "^3.25.76"
+  },
+  "optionalDependencies": {
+    "playwright-core": "*"
+  }
 }

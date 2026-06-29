@@ -1,7 +1,7 @@
 {
   "name": "@noderl/nodemem",
-  "version": "0.0.0",
-  "description": "Deterministic replay/context memory: episode compile + ranked retrieval (scaffold; not yet published).",
+  "version": "0.1.0",
+  "description": "Deterministic replay/context memory + failure store. src/ generated from NodeRoom — see ../../EXTRACTION.md.",
   "license": "MIT",
   "private": true,
   "type": "module",
