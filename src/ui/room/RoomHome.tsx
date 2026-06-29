@@ -6,7 +6,17 @@ import type { AgentJobTelemetry } from "../../app/store";
 import { AgentLaneCard, statusFromJob, type RoomWorkLane } from "./AgentLaneCard";
 
 /** A row in the Room Home inventory — the room's real artifacts when populated. */
-export type RoomHomeArtifact = { id: string; title: string; kind: string; badge?: string };
+export type RoomHomeArtifact = { id: string; title: string; kind: string; badge?: string; updatedAt?: number; owner?: string; visibility?: string };
+
+/** Compact "time since" for the inventory's last-activity column — turns a static list into scannable state. */
+function fmtAgo(ts?: number): string {
+  if (!ts) return "";
+  const s = Math.max(0, Math.round((Date.now() - ts) / 1000));
+  if (s < 60) return "just now";
+  const m = Math.round(s / 60); if (m < 60) return `${m}m ago`;
+  const h = Math.round(m / 60); if (h < 24) return `${h}h ago`;
+  return `${Math.round(h / 24)}d ago`;
+}
 
 function invIcon(kind: string): ReactNode {
   switch (kind) {
@@ -258,13 +268,14 @@ export function RoomHome({
                 )}
               </div>
               <div className="r-room-inventory-grid">
-                {artifacts!.map((a) => (
+                {[...artifacts!].sort((a, b) => (b.updatedAt ?? 0) - (a.updatedAt ?? 0)).map((a) => (
                   <button key={a.id} className="r-room-inv-item" data-testid="room-home-artifact" onClick={() => onOpenArtifact?.(a.id)}>
                     <div className="r-room-inv-icon">{invIcon(a.kind)}</div>
                     <div className="r-room-inv-body">
                       <div className="r-room-inv-title">{a.title}</div>
-                      <div className="r-room-inv-meta">{kindLabel(a.kind)}{a.badge ? ` · ${a.badge}` : ""}</div>
+                      <div className="r-room-inv-meta">{[kindLabel(a.kind), a.owner, fmtAgo(a.updatedAt), a.badge].filter(Boolean).join(" · ")}</div>
                     </div>
+                    {a.visibility && a.visibility !== "room" && <span className="r-room-inv-vis" data-vis={a.visibility}>{a.visibility}</span>}
                     <ArrowRight size={14} />
                   </button>
                 ))}
