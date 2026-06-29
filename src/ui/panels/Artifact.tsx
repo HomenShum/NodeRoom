@@ -88,6 +88,7 @@ function ArtifactSurface({ roomId, me, proof, artId, onArt, style, surfaceKey = 
   };
   const [tab, setTab] = useState<TabId>(() => tabForArt(artId));
   const [renamingId, setRenamingId] = useState<string | null>(null);
+  const tabMenuRef = useRef<HTMLDetailsElement>(null);
   const [traceOpen, setTraceOpen] = useState(false);
   // Home is a persistent pinned pseudo-tab (primary surface only) — like Trace, it overlays the
   // work surface with the Room Home command center (inventory + work lanes) without disturbing openIds.
@@ -207,6 +208,16 @@ function ArtifactSurface({ roomId, me, proof, artId, onArt, style, surfaceKey = 
                   <t.Icon size={13} /> {t.label}
                 </button>
               ))}
+          {openIds && openTabArts.length > 1 && (
+            <details className="r-tab-overflow" ref={tabMenuRef}>
+              <summary className="r-tab r-tab-overflow-btn" aria-label="All open tabs" title="All open tabs"><MoreHorizontal size={14} /></summary>
+              <div className="r-tab-overflow-menu" role="menu">
+                {openTabArts.map((a) => (
+                  <button key={a.id} type="button" role="menuitem" className="r-tab-overflow-item" data-active={String(!traceOpen && !homeOpen && a.id === artId)} onClick={() => { onArt(a.id); setTraceOpen(false); setHomeOpen(false); tabMenuRef.current?.removeAttribute("open"); }}>{tabIcon(a)} <span>{a.title}</span></button>
+                ))}
+              </div>
+            </details>
+          )}
           {/* Trace is a pinned work-surface tab alongside the artifacts (agent + QA provenance). */}
           {surfaceKey !== "secondary" && (
             <button type="button" className="r-tab r-tracetab" data-active={String(traceOpen)} data-testid="trace-tab" title="Agent + QA trace records" onClick={() => { setTraceOpen(true); setHomeOpen(false); }}>
@@ -1116,6 +1127,16 @@ function GenericSheet({ roomId, me, art, onError }: { roomId: string; me: Actor;
   const doCommit = (id: string, s: string) => { void commit(store, roomId, me, art.id, id, s).then((f) => { if (f && !f.ok) onError?.(f); }); };
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editDraft, setEditDraft] = useState("");
+  // Column resize: drag the header's right edge; per-column widths persist per artifact (BOUND to >=60px).
+  const [colOverrides, setColOverrides] = useState<Record<string, number>>(() => {
+    try { return JSON.parse(localStorage.getItem(`noderoom:grid-cols:${art.id}`) || "{}") as Record<string, number>; } catch { return {}; }
+  });
+  useEffect(() => { try { localStorage.setItem(`noderoom:grid-cols:${art.id}`, JSON.stringify(colOverrides)); } catch { /* ignore */ } }, [art.id, colOverrides]);
+  const startColResize = (colId: string, startWidth: number, startX: number) => {
+    const onMove = (ev: PointerEvent) => setColOverrides((p) => ({ ...p, [colId]: Math.max(60, Math.round(startWidth + (ev.clientX - startX))) }));
+    const onUp = () => { window.removeEventListener("pointermove", onMove); window.removeEventListener("pointerup", onUp); };
+    window.addEventListener("pointermove", onMove); window.addEventListener("pointerup", onUp);
+  };
   // Row-density preset (Compact re-enables clip; Default/Comfortable wrap), persisted per artifact.
   const [density, setDensity] = useState<"compact" | "default" | "comfortable">(() => {
     try { const v = localStorage.getItem(`noderoom:grid-density:${art.id}`); return v === "compact" || v === "comfortable" ? v : "default"; } catch { return "default"; }
@@ -1164,9 +1185,9 @@ function GenericSheet({ roomId, me, art, onError }: { roomId: string; me: Actor;
             }}>
             <colgroup>
               <col style={{ width: 38 }} />
-              {columns.map((c, i) => <col key={c.id} style={{ width: colWidths[i] }} />)}
+              {columns.map((c, i) => <col key={c.id} style={{ width: colOverrides[c.id] ?? colWidths[i] }} />)}
             </colgroup>
-            <thead><tr><th className="r-corner" aria-label="row number" />{columns.map((c) => <th key={c.id} className={selectedColId === c.id ? "hl" : undefined}>{c.label}</th>)}</tr></thead>
+            <thead><tr><th className="r-corner" aria-label="row number" />{columns.map((c, i) => <th key={c.id} className={selectedColId === c.id ? "hl" : undefined}>{c.label}<span className="r-col-resize" role="separator" aria-orientation="vertical" aria-label={`Resize ${c.label}`} onPointerDown={(e) => { e.preventDefault(); e.stopPropagation(); startColResize(c.id, colOverrides[c.id] ?? colWidths[i], e.clientX); }} /></th>)}</tr></thead>
             <tbody>
               {visibleRows.map((rid, i) => (
                 <tr key={rid}>

@@ -1,5 +1,5 @@
 /** Landing (`.r-landing`) - design hero + create/join, recreated from room.css. */
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ArrowLeft, ArrowRight, Code2, Globe2, LayoutGrid, Lock, Moon, Plus, Sparkles, X } from "lucide-react";
 import { createFreshRoom, enterDemoRoomAsHost, joinRoomByCode } from "../app/roomStore";
 import { NodeReveal } from "./motion/NodeReveal";
@@ -15,6 +15,28 @@ type LandingProps = {
   onLiveJoin?: (code: string, name: string) => void;
   onLiveCreate?: (name: string, title?: string, code?: string) => void;
 };
+
+/** Minimal focus-trap + focus-restore for the room dialogs (Tab cycles within; focus returns to the
+ *  trigger on close). Escape-to-close + autofocus are wired on the modal itself. */
+function useFocusTrap(active: boolean) {
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!active) return;
+    const node = ref.current;
+    const prev = document.activeElement as HTMLElement | null;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "Tab" || !node) return;
+      const f = Array.from(node.querySelectorAll<HTMLElement>('a[href],button:not([disabled]),input:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])')).filter((el) => el.offsetParent !== null);
+      if (!f.length) return;
+      const first = f[0], last = f[f.length - 1];
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    };
+    node?.addEventListener("keydown", onKey);
+    return () => { node?.removeEventListener("keydown", onKey); prev?.focus?.(); };
+  }, [active]);
+  return ref;
+}
 
 export function Landing({
   onEnter,
@@ -33,6 +55,8 @@ export function Landing({
   const [createDialogCode, setCreateDialogCode] = useState<string | null>(null);
   const [createTitle, setCreateTitle] = useState("Blank NodeRoom");
   const live = mode === "live";
+  const joinTrapRef = useFocusTrap(live && !!joinDialogCode);
+  const createTrapRef = useFocusTrap(live && !!createDialogCode);
   const shownError = joinError ?? joinErr;
   const displayName = (fallback = "Guest") => name.trim() || fallback;
   const toggleTheme = () => {
@@ -153,7 +177,7 @@ export function Landing({
             onMouseDown={(e) => { if (e.target === e.currentTarget) setJoinDialogCode(null); }}
             onKeyDown={(e) => { if (e.key === "Escape") { e.stopPropagation(); setJoinDialogCode(null); } }}
           >
-            <div className="r-room-modal" role="dialog" aria-modal="true" aria-labelledby="join-room-title">
+            <div className="r-room-modal" role="dialog" aria-modal="true" aria-labelledby="join-room-title" ref={joinTrapRef}>
               <div className="r-room-modal-head">
                 <div className="row between">
                   <span className="kicker">Join a room</span>
@@ -203,7 +227,7 @@ export function Landing({
             onMouseDown={(e) => { if (e.target === e.currentTarget) setCreateDialogCode(null); }}
             onKeyDown={(e) => { if (e.key === "Escape") { e.stopPropagation(); setCreateDialogCode(null); } }}
           >
-            <div className="r-room-modal" role="dialog" aria-modal="true" aria-labelledby="create-room-title">
+            <div className="r-room-modal" role="dialog" aria-modal="true" aria-labelledby="create-room-title" ref={createTrapRef}>
               <div className="r-room-modal-head">
                 <div className="row between">
                   <span className="kicker">Create a room</span>
