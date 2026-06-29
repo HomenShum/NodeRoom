@@ -1,0 +1,10 @@
+{
+  "name": "@noderl/nodemem",
+  "version": "0.0.0",
+  "description": "Deterministic replay/context memory: episode compile + ranked retrieval (scaffold; not yet published).",
+  "license": "MIT",
+  "private": true,
+  "type": "module",
+  "main": "src/index.ts",
+  "keywords": ["agent", "memory", "rl", "replay", "retrieval"]
+}

@@ -1,0 +1,10 @@
+{
+  "name": "@noderl/nodetrace",
+  "version": "0.0.0",
+  "description": "Framework-free trajectory/evidence recorder for agent runs (scaffold; not yet published).",
+  "license": "MIT",
+  "private": true,
+  "type": "module",
+  "main": "src/index.ts",
+  "keywords": ["agent", "trajectory", "rl", "trace", "evidence", "capture"]
+}

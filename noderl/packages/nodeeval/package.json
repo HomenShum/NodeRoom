@@ -1,0 +1,10 @@
+{
+  "name": "@noderl/nodeeval",
+  "version": "0.0.0",
+  "description": "Reward builder + visual/video judges + proof-receipt schema (scaffold; not yet published).",
+  "license": "MIT",
+  "private": true,
+  "type": "module",
+  "main": "src/index.ts",
+  "keywords": ["agent", "reward", "rl", "judge", "eval", "proof"]
+}
