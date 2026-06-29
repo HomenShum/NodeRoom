@@ -1,22 +1,23 @@
 {
   "schema": 1,
-  "generatedAt": "2026-06-26T00:28:04.918Z",
+  "generatedAt": "2026-06-29T02:41:44.526Z",
   "policy": [
     "FR-020/FR-020A selective task proof and FR-020B full-suite proof are separate claims and may not be collapsed into one pass.",
+    "FR-020B (official isolated/Harbor lane) and FR-020C (live product-UI lane) are separate full-suite claims; completion + scoring is not a 100% pass rate.",
     "A domain runtime pass may not imply live-browser benchmark completion.",
     "A selective benchmark task proof may not imply a full-suite official benchmark score.",
     "A benchmark claim must name the exact lane, scorer, UI proof status, export/reopen status, and verifier handoff status."
   ],
   "summary": {
-    "cases": 3,
-    "passedCases": 2,
+    "cases": 4,
+    "passedCases": 4,
     "partialCases": 0,
-    "blockedCases": 1,
+    "blockedCases": 0,
     "financeDomainGatePassed": true,
     "selectiveBankerToolBenchReady": true,
     "selectiveLiveBrowserBenchmarkReady": true,
-    "bankerToolBenchFullSuiteReady": false,
-    "liveBrowserBenchmarkReady": false
+    "bankerToolBenchFullSuiteReady": true,
+    "liveBrowserBenchmarkReady": true
   },
   "financeReceiptPath": "docs/eval/fresh-room/FR-020/finance-domain-receipt.json",
   "cases": [
@@ -126,38 +127,59 @@
     },
     {
       "id": "FR-020B",
-      "title": "Full BankerToolBench suite completion",
+      "title": "Full BankerToolBench suite completion (official isolated lane)",
       "lane": "bankertoolbench_full_suite",
-      "status": "blocked",
-      "claimBoundary": "FR-020B remains blocked until the full official BankerToolBench suite runs through isolated execution, live UI evidence, all deliverable types, and official verifier scoring.",
-      "proves": [],
+      "status": "passed",
+      "claimBoundary": "FR-020B proves full-suite COMPLETION + official Gandalf scoring via the isolated (Harbor) generic-only lane. It does NOT prove a 100% rubric pass rate, nor live-browser UI for all 100 tasks (FR-020C is the live-UI lane).",
+      "proves": [
+        "Full BankerToolBench suite executed and officially scored generic-only (100/100 clean tasks, mean reward 0.2519)."
+      ],
       "doesNotProve": [
-        "100/100 task official completion",
-        "benchmark-faithful live-browser task execution for every task",
-        "production-quality aggregate BTB score"
+        "A 100% rubric pass rate (observed pass-rate 0.0000 at reward >= 1).",
+        "Live-browser UI evidence for all 100 tasks (that is FR-020C; FR-020A proves live-UI for one task)."
       ],
       "gates": [
         {
           "id": "full_suite_execution",
           "label": "All 100 official BankerToolBench tasks execute",
-          "status": "blocked",
+          "status": "pass",
           "evidence": [
+            "docs/eval/fresh-room/FR-020/fullsuite-gate-receipt.json",
             "docs/eval/official-benchmark-readiness.json",
             "docs/eval/official-benchmark-ui-coverage.json",
             "docs/eval/bankertoolbench-official-contract.json"
-          ],
-          "blocker": "Only a selective live task is proven; full-suite execution is not complete."
+          ]
         },
         {
           "id": "aggregate_score_import",
           "label": "Official aggregate verifier scores are imported and trace-linked",
-          "status": "blocked",
+          "status": "pass",
           "evidence": [
-            "docs/eval/official-benchmark-readiness.json",
-            "docs/eval/official-benchmark-ui-coverage.json",
-            "docs/eval/bankertoolbench-official-contract.json"
-          ],
-          "blocker": "No full-suite aggregate score import is present."
+            "docs/eval/fresh-room/FR-020/fullsuite-gate-receipt.json"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "FR-020C",
+      "title": "Full BankerToolBench suite through live product UI",
+      "lane": "bankertoolbench_full_suite",
+      "status": "passed",
+      "claimBoundary": "FR-020C proves all 100 tasks completed through the live product UI (fresh room -> upload -> public @nodeagent -> export -> reopen -> verifier + visual judge).",
+      "proves": [
+        "All 100/100 tasks completed through the live product UI with passing per-task fresh-room receipts."
+      ],
+      "doesNotProve": [
+        "A 100% rubric pass rate (live UI proves completion through the product, not perfect scores)."
+      ],
+      "gates": [
+        {
+          "id": "full_suite_live_ui_execution",
+          "label": "All 100 tasks complete through the live product UI",
+          "status": "pass",
+          "evidence": [
+            "docs/eval/fresh-room/FR-020/livesuite-gate-receipt.json"
+          ]
         }
       ]
     }

@@ -1,0 +1,10 @@
+{
+  "schema": "noderoom-btb-livesuite-gate-v1",
+  "expectedCount": 100,
+  "evaluatedTaskCount": 100,
+  "passedTaskCount": 100,
+  "failedTaskIds": [],
+  "missingTaskIds": [],
+  "flipEligible": true,
+  "claim": "All 100/100 BankerToolBench tasks completed through the live product UI with passing per-task fresh-room receipts. This proves COMPLETION through the product, not a 100% rubric pass rate."
+}
