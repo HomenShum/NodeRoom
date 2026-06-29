@@ -53,9 +53,12 @@ const TARGETS = [
     question: "What named retention cohort did Mark trust for the AI-audio company's user base?", token: ["Lighthouse"] },
 ];
 
-const NOISE = Array.from({ length: 16 }, (_, i) =>
-  `Mark reviewed the week-${i + 1} portfolio pipeline and headcount; no material change beyond the logged risks; next check-in scheduled.`,
+const NOISE = Array.from({ length: 50 }, (_, i) =>
+  `Mark reviewed the day-${i + 1} portfolio pipeline and headcount; no material change beyond the logged risks; next check-in scheduled.`,
 );
+// noise per scale: small fits any window; mid (12) exceeds a 6-window but fits a 30-window; big (50)
+// exceeds even a 30-window → only relevance retrieval (NodeMem) still finds the old targets.
+const NOISE_BY_SCALE: Record<string, number> = { small: 0, mid: 12, big: 50 };
 
 const PROMPT =
   "@nodeagent You are Mark Liu's diligence assistant. Answer ONLY from what you already know about this " +
@@ -65,7 +68,7 @@ const PROMPT =
 
 interface Run {
   arm: "bare" | "memory";
-  scale: "small" | "large";
+  scale: "small" | "mid" | "big";
   trial: number;
   roomId: string | null;
   recalled: number;
@@ -87,7 +90,7 @@ const ARMS: { name: "bare" | "memory"; mode: "off" | "active_ab"; maxTokens?: nu
   { name: "memory", mode: "active_ab", maxTokens: 1200 },
 ];
 
-for (const scale of ["small", "large"] as const) {
+for (const scale of ["small", "mid", "big"] as const) {
   for (const arm of ARMS) {
     for (let trial = 1; trial <= TRIALS; trial++) {
       test(`fairtest — ${scale} ${arm.name} trial ${trial}`, async ({ page }) => {
@@ -109,19 +112,18 @@ for (const scale of ["small", "large"] as const) {
 
           await convex.mutation(api.nodemem.setNodeMemRoomConfig, { roomId, mode: arm.mode, maxTokens: arm.maxTokens, secret: SECRET });
 
-          // Seed the 5 fact-traces into the awareness channel. SMALL: most-recent (fit in last-6).
-          // LARGE: ancient (buried below the noise). Also record them as NodeMem episodes.
-          const targetTs = scale === "small" ? TS_NEW : TS_OLD;
+          // Seed the 5 fact-traces. No noise → most-recent (fit any window). With noise → ancient
+          // (buried below the noise). Also record them as NodeMem episodes (the memory channel).
+          const noiseCount = NOISE_BY_SCALE[scale] ?? 0;
+          const targetTs = noiseCount === 0 ? TS_NEW : TS_OLD;
           for (let i = 0; i < TARGETS.length; i++) {
             await convex.mutation(api.nodemem.benchSeedTrace, { roomId, type: "chat", summary: TARGETS[i].note, ts: targetTs + i, secret: SECRET });
             await convex.mutation(api.nodemem.recordEpisode, { roomId, sourceKind: "chat", sourceId: `${roomId}_tgt${i}`, visibility: "room", rawText: TARGETS[i].note });
           }
-          // LARGE: bury the targets with newer noise traces so they fall out of awareness's last-6.
-          if (scale === "large") {
-            for (let i = 0; i < NOISE.length; i++) {
-              await convex.mutation(api.nodemem.benchSeedTrace, { roomId, type: "chat", summary: NOISE[i], ts: TS_NEW + i, secret: SECRET });
-              await convex.mutation(api.nodemem.recordEpisode, { roomId, sourceKind: "chat", sourceId: `${roomId}_noise${i}`, visibility: "room", rawText: NOISE[i] });
-            }
+          // Bury the targets with newer noise traces so they fall out of the awareness window.
+          for (let i = 0; i < noiseCount; i++) {
+            await convex.mutation(api.nodemem.benchSeedTrace, { roomId, type: "chat", summary: NOISE[i], ts: TS_NEW + i, secret: SECRET });
+            await convex.mutation(api.nodemem.recordEpisode, { roomId, sourceKind: "chat", sourceId: `${roomId}_noise${i}`, visibility: "room", rawText: NOISE[i] });
           }
           if (arm.mode !== "off") {
             for (let b = 0; b < 2; b++) await convex.action(api.nodememCompile.compileBatchManual, { batchSize: 50 });

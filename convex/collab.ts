@@ -4,12 +4,21 @@ import { v } from "convex/values";
 import { internalMutation, internalQuery, query } from "./_generated/server";
 import { actorProofV, requireActorProof } from "./lib";
 
+/** Awareness recency window — how many recent traces the agent's existing context surfaces. Default 6
+ *  (historical). The "cheap alternative" to NodeMem raises this; it recovers moderate long-tail recall
+ *  but does NOT scale — raw recency dumping grows the prompt linearly AND is recency- not relevance-
+ *  ordered, so a relevant-but-old fact buried under newer noise still falls out. */
+function awarenessWindow(): number {
+  const n = Number(process.env.AWARENESS_WINDOW ?? 6);
+  return Number.isFinite(n) ? Math.max(1, Math.min(200, Math.floor(n))) : 6;
+}
+
 export const awareness = internalQuery({
   args: { roomId: v.id("rooms"), excludeAgentId: v.optional(v.string()) },
   handler: async (ctx, { roomId, excludeAgentId }) => {
     const locks = await ctx.db.query("locks").withIndex("by_room_status", (q) => q.eq("roomId", roomId).eq("status", "active")).collect();
     const sessions = await ctx.db.query("agentSessions").withIndex("by_room", (q) => q.eq("roomId", roomId)).collect();
-    const traces = await ctx.db.query("traces").withIndex("by_room", (q) => q.eq("roomId", roomId)).order("desc").take(6);
+    const traces = await ctx.db.query("traces").withIndex("by_room", (q) => q.eq("roomId", roomId)).order("desc").take(awarenessWindow());
     const room = await ctx.db.get(roomId);
     return {
       activeLocks: locks.filter((l) => l.holder.id !== excludeAgentId).map((l) => ({ lockId: l._id, elementIds: l.elementIds, holder: l.holder.name, reason: l.reason })),

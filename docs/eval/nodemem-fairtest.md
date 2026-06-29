@@ -41,8 +41,36 @@ awareness channel (room `traces`) AND NodeMem episodes — and scale.
 - Cheap model (`glm-5.2`) + local backend; the mechanism (window-bounded vs unbounded retrieval) is
   structural and holds regardless.
 
+## Head-to-head vs the cheap alternative (a bigger awareness window)
+
+`awareness()` is hard-capped at 6 traces. The cheapest possible fix is to raise it (now env-configurable,
+`AWARENESS_WINDOW`, default 6 — `convex/collab.ts`). Three-way, scaling noise (n=2):
+
+| scale (noise items) | `bare-6` (today) | `bare-30` (cheap fix) | `+ NodeMem` |
+|---|:---:|:---:|:---:|
+| small (0)  | 1.00 | 1.00 | 1.00 |
+| mid (12)   | 0.00 | **1.00** | 1.00 |
+| big (50)   | 0.00 | **0.00** | **1.00** |
+
+The crossover is exact:
+- **A bigger window recovers recall up to ~N items, for zero engineering.** Raising 6→30 fully fixes the
+  `mid` scale — NodeMem adds **nothing** there. Most accumulation is probably in this regime.
+- **The window approach breaks past N, and can't be fixed by growing N.** It is *recency*-ordered, so a
+  relevant-but-old fact buried under newer noise falls out no matter how large N is — until N is so large
+  the raw activity blows the token budget (and cost grows linearly every run). At `big` (50 noise),
+  `bare-30` is back to 0.00.
+- **NodeMem is the only thing that survives `big`** — it is *relevance*-ranked and bounded, so it keeps the
+  old relevant facts and drops the noise, at fixed token cost (held 1.00 at 200 facts / ~190 noise).
+
 ## Ship decision
 
-NodeMem is worth it **iff the product is long-running, accumulating rooms** (the stated wedge). For
-short rooms, bump the awareness window instead. Independent of the value call, land the `agentJobRunner`
-injection fix — memory never reached the chat agent (a correctness bug, not a value bet).
+NodeMem's marginal value over the cheap fix is real but appears **only at genuinely long, noisy histories**
+(beyond what a reasonable window can hold). Decision rule:
+
+- **Rooms accumulate ≲ a few dozen relevant activity events** → just raise `AWARENESS_WINDOW` (one env var,
+  already built, default-safe). NodeMem is overkill.
+- **Rooms accumulate heavy, noisy, cross-session history** (the long-running wedge) → NodeMem's
+  relevance-retrieval is required; the window cannot keep up at any size without blowing cost.
+
+Independent of the value call: land the `agentJobRunner` injection fix — memory never reached the chat
+agent (a correctness bug, not a value bet).
