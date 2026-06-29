@@ -561,6 +561,8 @@ input { font-family: inherit; }
 .r-msg-act.promote { color: var(--accent-ink); border-color: var(--accent-border); background: var(--accent-tint); }
 .r-send { width: 32px; height: 32px; border-radius: 8px; flex: none; display: grid; place-items: center; border: none; background: var(--accent-primary); color: #fff; transition: filter .15s, transform .08s; }
 .r-send:hover { filter: brightness(1.05); } .r-send:active { transform: scale(.94); }
+.r-chat-jump { position: sticky; bottom: 10px; align-self: center; z-index: 5; display: inline-flex; align-items: center; gap: 5px; padding: 5px 12px; border-radius: 999px; border: 1px solid var(--accent-border); background: var(--bg-primary); color: var(--accent-ink); font-size: 11.5px; font-weight: 650; box-shadow: 0 4px 14px rgba(0,0,0,.25); cursor: pointer; }
+.r-chat-jump:hover { background: var(--accent-tint); }
 .r-send-stop { background: var(--text-secondary); color: #fff; }
 .r-send-stop:hover { filter: none; background: var(--text-primary); }
 .r-chip-regen { display: inline-flex; align-items: center; gap: 4px; }
