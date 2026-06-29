@@ -41,9 +41,9 @@
   "strip": [
     {
       "file": "packages/nodetrace/src/secFacts.ts",
-      "find": "research@noderoom.app",
-      "replace": "you@example.com",
-      "reason": "do not ship a real contact email in the public SEC user-agent default"
+      "findRegex": "contact: [^)]+\\)",
+      "replace": "contact: you@example.com)",
+      "reason": "do not ship a real contact email in the public SEC user-agent default (regex avoids naming the address in this manifest)"
     }
   ]
 }
