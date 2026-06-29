@@ -490,6 +490,9 @@ input { font-family: inherit; }
 .r-md pre code { display: block; padding: 0; border: 0; background: transparent; white-space: pre; }
 .r-md blockquote { margin: 7px 0 9px; padding: 2px 0 2px 10px; border-left: 2px solid var(--accent-border); color: var(--text-muted); }
 .r-md a { color: var(--accent-ink); text-decoration: underline; text-underline-offset: 2px; }
+/* Links in the doc surfaces (Note/Wiki/Brief) — Tiptap v3 StarterKit marks them; make them visible (WCAG 1.4.1). */
+.r-note .ProseMirror a, .r-wiki-doc a, .r-brief-doc a { color: var(--accent-ink); text-decoration: underline; text-underline-offset: 2px; }
+.r-note .ProseMirror a:hover, .r-wiki-doc a:hover, .r-brief-doc a:hover { color: var(--accent-primary); }
 .r-md-table-wrap { max-width: 100%; overflow-x: auto; margin: 7px 0 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg-primary); }
 .r-md table { width: 100%; min-width: 420px; border-collapse: collapse; table-layout: auto; font-size: 12px; }
 .r-md th, .r-md td { padding: 6px 8px; border-bottom: 1px solid var(--line); vertical-align: top; white-space: nowrap; overflow-wrap: normal; }
@@ -1971,6 +1974,12 @@ body.nr-honesty-on [data-evidence-class="unsourced"]     { background-color: col
 .r-room-inv-title { font-size: 13px; font-weight: 600; color: var(--text-primary); }
 .r-room-inv-meta { font-size: 11px; color: var(--text-muted); }
 .r-room-inv-item svg:last-child { flex: none; color: var(--text-tertiary); }
+/* Scannable inventory rows: single-line title/meta + a visibility pill (command-center state). */
+.r-room-inv-body { min-width: 0; }
+.r-room-inv-title { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.r-room-inv-meta { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.r-room-inv-vis { flex: none; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; padding: 2px 6px; border-radius: 999px; border: 1px solid var(--line); color: var(--text-tertiary); }
+.r-room-inv-vis[data-vis="private"] { color: var(--accent-ink); border-color: var(--accent-border); }
 
 /* Quiet bottom strip — less visual noise */
 .r-shell-bottom { background: var(--bg-primary); border-top: 1px solid var(--line); }

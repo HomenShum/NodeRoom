@@ -242,7 +242,7 @@ function ArtifactSurface({ roomId, me, proof, artId, onArt, style, surfaceKey = 
           me={me}
           embedded
           onOpenChat={onOpenChat}
-          artifacts={arts.map((a) => ({ id: a.id, title: a.title, kind: a.kind }))}
+          artifacts={arts.map((a) => ({ id: a.id, title: a.title, kind: a.kind, updatedAt: a.updatedAt, owner: a.createdBy?.name, visibility: a.visibility }))}
           onOpenArtifact={(id) => { onArt(id); setHomeOpen(false); }}
         />
       ) : traceOpen ? (
