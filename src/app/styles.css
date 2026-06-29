@@ -88,7 +88,7 @@ input { font-family: inherit; }
 .r-iconbtn.primary { background: var(--accent-primary); color: #fff; border-color: var(--accent-primary); }
 .r-iconbtn.primary:hover { filter: brightness(1.04); }
 .r-toggle-group { display: flex; gap: 2px; padding: 3px; border-radius: 9px; background: var(--bg-secondary); border: 1px solid var(--line); }
-.r-btn { display: inline-flex; align-items: center; gap: 7px; padding: 7px 13px; border-radius: 9px; font-size: 13px; font-weight: 600; border: 1px solid var(--line); background: var(--bg-secondary); color: var(--text-primary); transition: background .15s, border-color .15s, transform .08s; }
+.r-btn { display: inline-flex; align-items: center; gap: var(--space-2); padding: var(--space-2) var(--space-3); border-radius: 9px; font-size: 13px; font-weight: 600; border: 1px solid var(--line); background: var(--bg-secondary); color: var(--text-primary); transition: background .15s, border-color .15s, transform .08s; }
 .r-btn:hover { background: var(--bg-hover); } .r-btn:active { transform: translateY(1px); }
 /* Flat fill, no glow: a form submit is attached, not floating (Linear/Vercel primary spec —
    "no shadow, color shift on hover"). The old 22px-blur glow scaled with the box and turned any
@@ -107,8 +107,8 @@ input { font-family: inherit; }
 .r-switch[data-on="true"] { background: var(--accent-primary); }
 .r-switch[data-on="true"]::after { transform: translateX(14px); }
 .r-switch:disabled { opacity: .55; cursor: not-allowed; }
-.r-modal-backdrop { position: fixed; inset: 0; z-index: 90; display: grid; place-items: center; padding: 20px; background: rgba(0,0,0,.46); backdrop-filter: blur(8px); }
-.r-modal { width: min(420px, 100%); position: relative; padding: 22px; border-radius: 12px; border: 1px solid var(--line-strong); background: var(--bg-primary); box-shadow: var(--shadow-lg); }
+.r-modal-backdrop { position: fixed; inset: 0; z-index: 90; display: grid; place-items: center; padding: var(--space-5); background: rgba(0,0,0,.46); backdrop-filter: blur(8px); }
+.r-modal { width: min(420px, 100%); position: relative; padding: var(--space-6); border-radius: 12px; border: 1px solid var(--line-strong); background: var(--bg-primary); box-shadow: var(--shadow-lg); }
 .r-modal-x { position: absolute; top: 10px; right: 10px; }
 .r-modal-icon { width: 36px; height: 36px; display: grid; place-items: center; border-radius: 9px; color: var(--accent-ink); background: var(--accent-tint); border: 1px solid var(--accent-border); margin-bottom: 12px; }
 .r-modal h2 { margin: 0 32px 8px 0; font-size: 18px; letter-spacing: 0; }
@@ -520,7 +520,7 @@ input { font-family: inherit; }
 .r-composer { flex: none; padding: 10px 12px 12px; border-top: 1px solid var(--line); }
 /* Composer (assistant-ui/shadcn): textarea stacked over ONE calm control row.
    The model route lives here as a ghost chip-select, not a labeled top row. */
-.r-input-wrap.r-input-stack { flex-direction: column; align-items: stretch; gap: 7px; padding: 9px 10px 8px; }
+.r-input-wrap.r-input-stack { flex-direction: column; align-items: stretch; gap: var(--space-2); padding: 9px 10px 8px; }
 .r-input-wrap.r-input-stack textarea { flex: none; width: 100%; }
 .r-composer-bar { display: flex; align-items: center; gap: 6px; }
 .r-composer-spacer { flex: 1; }
@@ -1483,9 +1483,9 @@ button.r-tracevu-step:hover, button.r-tracevu-step:focus-visible { border-color:
 .r-room-modal-body { padding: 16px 22px 22px; }
 .r-room-modal h2 { margin: 10px 32px 6px 0; font-size: 20px; letter-spacing: 0; line-height: 1.15; color: var(--text-primary); }
 .r-room-modal .sub { margin: 0; font-size: 13.5px; line-height: 1.5; color: var(--text-muted); }
-.r-room-field { display: flex; flex-direction: column; gap: 7px; margin-top: 16px; }
+.r-room-field { display: flex; flex-direction: column; gap: var(--space-2); margin-top: var(--space-4); }
 .r-room-field > span { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: var(--text-muted); }
-.r-room-field .r-text-input { width: 100%; padding: 11px 13px; border-radius: 10px; font-size: 14px; }
+.r-room-field .r-text-input { width: 100%; padding: var(--space-3) var(--space-3); border-radius: 10px; font-size: 14px; }
 .r-room-codepeek { margin-top: 14px; border-radius: 11px; border: 1px solid var(--line); background: var(--bg-app); overflow: hidden; }
 .r-room-codepeek .cp-head { display: flex; align-items: center; gap: 7px; padding: 7px 11px; border-bottom: 1px solid var(--line); font-family: var(--font-mono); font-size: 10.5px; color: var(--text-tertiary); }
 .r-room-codepeek pre { margin: 0; padding: 11px 13px; overflow-x: auto; font-family: var(--font-mono); font-size: 11px; line-height: 1.6; color: var(--text-secondary); }
