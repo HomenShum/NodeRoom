@@ -1004,6 +1004,31 @@ This file is the model-facing contract: every production tool must expose a non-
 }
 ```
 
+### tavily_search
+
+- Purpose: Web search via the Tavily API — ranked results with snippets and an optional LLM-synthesized answer; supports topic (general/news/finance), time range, and domain include/exclude.
+- When to use: Fresh, citable web facts and news; finance/news-filtered lookups or restricting/excluding domains.
+- When not to use: Do not use as a hidden shortcut around room permissions, privacy boundaries, or artifact freshness.
+- Mutability: read-only.
+- Canonical Zod properties: `query`, `maxResults`, `searchDepth`, `topic`, `includeAnswer`, `timeRange`, `includeDomains`, `excludeDomains`.
+- Canonical required fields: `query`.
+- Provider required fields: `query`.
+- Expected errors: missing_required_arg; invalid_arg_type.
+- Recovery path: Treat tool failures as inputs: inspect `failureKind` or result reason, add the missing argument or re-read state, and stop rather than inventing data.
+- Example call:
+
+```json
+{
+  "tool": "tavily_search",
+  "args": {
+    "query": "latest SEC enforcement actions fintech 2026",
+    "topic": "news",
+    "searchDepth": "advanced",
+    "maxResults": 5
+  }
+}
+```
+
 ### create_btb_deliverable_package
 
 - Purpose: Create the final BankerToolBench deliverable package as downloadable room file artifacts.

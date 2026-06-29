@@ -1,5 +1,7 @@
 // @vitest-environment edge-runtime
 import { convexTest } from "convex-test";
+import { internalAction } from "../convex/_generated/server";
+import { v } from "convex/values";
 import { describe, expect, it, vi } from "vitest";
 import schema from "../convex/schema";
 import { api, internal } from "../convex/_generated/api";
@@ -12,8 +14,15 @@ const modules = import.meta.glob("../convex/**/*.ts");
 const workflowModules = import.meta.glob("../node_modules/@convex-dev/workflow/dist/component/**/*.js");
 const workpoolModules = import.meta.glob("../node_modules/@convex-dev/workpool/dist/component/**/*.js");
 delete (modules as Record<string, unknown>)["../convex/agent.ts"];
-delete (modules as Record<string, unknown>)["../convex/agentJobRunner.ts"];
-delete (modules as Record<string, unknown>)["../convex/embeddingRunner.ts"];
+// agentJobRunner + embeddingRunner are "use node" actions convex-test (edge runtime) cannot bundle.
+// Stub their scheduled entrypoints so scheduler.runAfter(internal.<runner>.*, ...) resolves to a
+// no-op instead of throwing "Could not find module" as an unhandled rejection after assertions pass.
+(modules as Record<string, unknown>)["../convex/agentJobRunner.ts"] = async () => ({
+  runFreeAutoJobSlice: internalAction({ args: { jobId: v.id("agentJobs") }, handler: async () => null }),
+});
+(modules as Record<string, unknown>)["../convex/embeddingRunner.ts"] = async () => ({
+  runOne: internalAction({ args: {}, handler: async () => null }),
+});
 
 const token = "0123456789abcdefghijklmnopqrstuvwxyzTOKEN";
 
