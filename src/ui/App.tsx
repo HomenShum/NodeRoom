@@ -12,7 +12,7 @@ import { MobileRoot } from "./mobile/MobileRoot";
 // route's first paint.
 const RoomTour = lazy(() => import("../landing/roomTour/RoomTour").then((m) => ({ default: m.RoomTour })));
 import { EngineStoreProvider, ConvexStoreProvider, HAS_CONVEX } from "../app/store";
-import { createFreshRoom, enterBankerToolBenchRoomAsHost, enterDemoRoomAsHost } from "../app/roomStore";
+import { createFreshRoom, enterBankerToolBenchRoomAsHost, enterDemoRoomAsHost, enterUpScaleXRoomAsHost } from "../app/roomStore";
 import type { Actor } from "../engine/types";
 
 const liveSessionKey = (code: string) => `noderoom:live:${code.toUpperCase()}`;
@@ -42,6 +42,7 @@ export function App() {
   const [hash, setHash] = useState(() => (typeof window !== "undefined" ? window.location.hash : ""));
   const [memorySession, setMemorySession] = useState<Session | null>(() => initialMemorySession());
   const btbSessionRef = useRef<Session | null>(null);
+  const upscalexSessionRef = useRef<Session | null>(null);
   useEffect(() => {
     const onHash = () => setHash(window.location.hash);
     window.addEventListener("hashchange", onHash);
@@ -86,6 +87,16 @@ export function App() {
       <EngineStoreProvider roomId={btbSessionRef.current.roomId} me={btbSessionRef.current.me}>
         <RoomShell roomId={btbSessionRef.current.roomId} me={btbSessionRef.current.me} onLeave={() => { window.location.hash = ""; }} />
         {HAS_CONVEX ? <BtbLiveLedgerPanel /> : null}
+      </EngineStoreProvider>
+    );
+  }
+
+  // #upscalex — a fresh room seeded with the UpScaleX portfolio; open the Graph tab for Mark's network.
+  if (hash === "#upscalex" || hash === "#/upscalex") {
+    upscalexSessionRef.current ??= enterUpScaleXRoomAsHost();
+    return (
+      <EngineStoreProvider roomId={upscalexSessionRef.current.roomId} me={upscalexSessionRef.current.me}>
+        <RoomShell roomId={upscalexSessionRef.current.roomId} me={upscalexSessionRef.current.me} onLeave={() => { window.location.hash = ""; }} />
       </EngineStoreProvider>
     );
   }

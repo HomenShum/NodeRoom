@@ -223,6 +223,64 @@ export function joinRoomByCode(code: string, name: string): { roomId: string; me
   return { roomId: res.room.id, me: { kind: "user", id: res.member.id, name: res.member.name } };
 }
 
+// ── UpScaleX demo room (#upscalex) — Mark Liu's portfolio + network, seeded for the knowledge graph.
+//    The Graph tab derives company / founder / lead / investor nodes from this sheet's rows. Company,
+//    founder, and sector are from the LinkedIn-verified deep dive; the `lead` column is intentionally
+//    BLANK — the team fills who owns each deal, which is what connects each partner to the graph (and
+//    avoids asserting deal-ownership the partners would catch). All cells are editable in the demo.
+let upscalexRoom: { roomId: string; me: Actor } | null = null;
+const UPSCALEX_PORTFOLIO_COLS: DataframeColumn[] = [
+  { id: "company", label: "Company", order: 0, type: "text" },
+  { id: "founder", label: "Founder", order: 1, type: "text" },
+  { id: "lead", label: "UpScaleX lead", order: 2, type: "text" },
+  { id: "lead_investor", label: "Lead investor", order: 3, type: "text" },
+  { id: "sector", label: "Sector", order: 4, type: "text" },
+  { id: "stage", label: "Stage", order: 5, type: "text" },
+  { id: "notes", label: "Notes", order: 6, type: "text" },
+];
+const UPSCALEX_PORTFOLIO: Array<Record<string, string>> = [
+  { company: "MAI Agents", founder: "Yuchen W.", lead: "", lead_investor: "UpScaleX", sector: "AI performance marketing", stage: "Seed", notes: "MAI Insights + Canvas; Prime Day launch" },
+  { company: "Blueberry", founder: "Nima Mozhgani", lead: "", lead_investor: "Founders Inc", sector: "Agentic social commerce", stage: "Seed", notes: "1:1 social-DM marketing at scale" },
+  { company: "Expertise AI", founder: "Hao Sheng", lead: "", lead_investor: "UpScaleX", sector: "AI B2B sales", stage: "Seed", notes: "#1 on HubSpot Marketplace" },
+  { company: "BeFreed", founder: "Jisong L.", lead: "", lead_investor: "645 Ventures", sector: "AI audio learning", stage: "Seed", notes: "audio agent for learning" },
+  { company: "Dex", founder: "Reni Cao", lead: "Alan Zong", lead_investor: "UpScaleX", sector: "AI EdTech / hardware", stage: "Pre-seed", notes: "AI learning camera; CES 2026 honoree" },
+  { company: "Dimension Studios", founder: "Ali Mirzaei", lead: "Alan Zong", lead_investor: "Science Inc", sector: "Agentic social commerce", stage: "Seed", notes: "AI OS for TikTok Shop" },
+  { company: "Make the Dot", founder: "Emilie H.", lead: "", lead_investor: "UpScaleX", sector: "AI fashion design", stage: "Seed", notes: "design-to-production" },
+  { company: "Daxo", founder: "Tom Zhang", lead: "", lead_investor: "UpScaleX", sector: "AI robotics", stage: "Seed", notes: "dexterous robotic hands (verify founder)" },
+  { company: "Sentrial", founder: "Neel Sharma", lead: "", lead_investor: "Y Combinator", sector: "Agent reliability", stage: "Pre-seed", notes: "YC W26; agent eval/testing" },
+  { company: "Sourcy", founder: "Karl Chan", lead: "", lead_investor: "UpScaleX", sector: "Cross-border e-commerce", stage: "Seed", notes: "prompt-to-product sourcing" },
+  { company: "Curator", founder: "Pavan Otthi", lead: "", lead_investor: "UpScaleX", sector: "Agentic brand ops", stage: "Seed", notes: "back-office automation" },
+  { company: "Tioga", founder: "Jean-Nicolas Vollmer", lead: "", lead_investor: "UpScaleX", sector: "Agentic commerce", stage: "Seed", notes: "" },
+  { company: "Midas Touch", founder: "Cordelia Xiao", lead: "", lead_investor: "UpScaleX", sector: "Consumer commerce", stage: "Seed", notes: "" },
+  { company: "WorkDuo AI", founder: "Fiona Lau", lead: "", lead_investor: "UpScaleX", sector: "Agentic commerce", stage: "Seed", notes: "" },
+];
+
+/** #upscalex — a fresh room seeded with the UpScaleX portfolio so the Graph tab renders Mark's network. */
+export function enterUpScaleXRoomAsHost(): { roomId: string; me: Actor } {
+  if (upscalexRoom) return upscalexRoom;
+  const { room, host } = engine.createRoom({ title: "UpScaleX — Portfolio & Network", hostName: "Mark Liu", autoAllow: true });
+  const me: Actor = { kind: "user", id: host.id, name: host.name };
+  const seed: Array<{ id: string; value: unknown }> = [];
+  UPSCALEX_PORTFOLIO.forEach((row, i) => {
+    const rid = `r${i + 1}`;
+    for (const col of UPSCALEX_PORTFOLIO_COLS) seed.push({ id: `${rid}__${col.id}`, value: row[col.id] ?? "" });
+  });
+  engine.createArtifact({
+    roomId: room.id,
+    kind: "sheet",
+    title: "UpScaleX Portfolio",
+    by: me,
+    seed,
+    meta: {
+      dataframe: { columns: UPSCALEX_PORTFOLIO_COLS, rowCount: UPSCALEX_PORTFOLIO.length, sourceFile: "upscalex-deep-dive", parser: "upscalex_seed", truncated: false, warnings: [] },
+      summary: "UpScaleX portfolio + network — companies, founders, and investors seeded for the knowledge graph. Fill the 'UpScaleX lead' column to connect each partner to their deals.",
+      tags: ["upscalex", "portfolio", "vc", "network"],
+    },
+  });
+  upscalexRoom = { roomId: room.id, me };
+  return upscalexRoom;
+}
+
 export function runDemo(conflict: boolean): Promise<void> {
   const reduced = window.matchMedia?.("(prefers-reduced-motion:reduce)").matches ?? false;
   return playCollab(engine, demo, { reduced, conflict });
