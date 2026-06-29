@@ -73,8 +73,10 @@ export function parseMarkdownBlocks(markdown: string): Block[] {
         code.push(lines[index] ?? "");
         index++;
       }
-      if (index < lines.length) index++;
-      blocks.push({ kind: "code", language: fence[1] ?? "", code: code.join("\n") });
+      const closed = index < lines.length; // stopped on a closing fence, not end-of-stream
+      if (closed) { index++; blocks.push({ kind: "code", language: fence[1] ?? "", code: code.join("\n") }); }
+      // Unterminated fence (mid-stream): render the partial as plain text until the closing ``` arrives.
+      else if (code.length) blocks.push({ kind: "paragraph", lines: code });
       continue;
     }
 
@@ -168,7 +170,12 @@ function renderBlock(block: Block, key: string): ReactNode {
     return <blockquote key={key}>{renderParagraphLines(block.text.split("\n"), `${key}-q`)}</blockquote>;
   }
   if (block.kind === "code") {
-    return <pre key={key}><code>{block.code}</code></pre>;
+    return (
+      <div className="r-md-code" key={key}>
+        <button type="button" className="r-md-copy" aria-label="Copy code" onClick={(e) => { const btn = e.currentTarget; void navigator.clipboard?.writeText(block.code).then(() => { btn.textContent = "Copied"; setTimeout(() => { btn.textContent = "Copy"; }, 1200); }).catch(() => {}); }}>Copy</button>
+        <pre><code>{block.code}</code></pre>
+      </div>
+    );
   }
   if (block.kind === "table") {
     return (
