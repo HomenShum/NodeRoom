@@ -1,11 +1,20 @@
 # BankerToolBench NodeRoom Chat Status
 
-Current claim:
+Current claim (updated 2026-06-28):
 
 ```text
-One BankerToolBench task has receipt-backed proof through the real NodeRoom fresh-room public @nodeagent chat path.
-The full BankerToolBench 100-task benchmark is not yet proven through NodeRoom chat.
+All 100 BankerToolBench tasks have file-backed per-task LIVE receipts through the real NodeRoom
+fresh-room public @nodeagent chat path (fresh room -> upload -> public @nodeagent -> export ->
+reopen -> package verifier -> visual judge). Aggregated + strictly validated by the FR-020C
+live-suite gate (npm run benchmark:bankertoolbench:livesuite-gate). Registry FR-020C = passed,
+liveBrowserBenchmarkReady = true. This proves COMPLETION through the live product UI, NOT a 100%
+rubric pass rate. Separately, the official isolated (Harbor) generic-only lane scored all 100
+(FR-020B), mean reward 0.2519.
 ```
+
+> Note: the prior claim said only ONE task was proven. That was stale — the 100 per-task live
+> receipts were committed in PR #66 but never aggregated into a claim until the FR-020C gate
+> (this session) validated all 100 against the strict `validateFreshRoomProofReceipt`.
 
 ## Proven
 

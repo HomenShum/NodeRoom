@@ -7826,27 +7826,39 @@ class NodeRoomNodeAgent(BaseAgent):
                     write_presentation()
                     write_memo()
                     write_pdf()
-            elif is_meta_overview_pack_task(task_text_for_family):
-                write_meta_overview_package()
-            elif is_competitive_landscape_task(task_text_for_family):
-                write_competitive_landscape_package()
-            elif is_sources_uses_task(task_text_for_family):
-                write_sources_uses_package()
-            elif is_gantt_timeline_task(task_text_for_family):
-                write_gantt_package()
-            elif is_comcast_take_private_teaser_task(task_text_for_family):
-                write_comcast_take_private_teaser_package()
-            elif is_coty_trading_comps_task(task_text_for_family):
-                write_coty_trading_comps_package()
-            elif is_thermosafe_buyer_universe_task(task_text_for_family):
-                write_thermosafe_buyer_universe_package()
-            elif is_greenbrier_cim_task(task_text_for_family):
-                write_greenbrier_cim_package()
-            elif not write_teaser_package():
-                write_workbook()
-                write_presentation()
-                write_memo()
-                write_pdf()
+            elif materializer_mode == "replay":
+                # Per-task answer-key writers are DIAGNOSTIC ONLY and may run only under
+                # replay. generic-only is the sole headline-eligible mode. Nesting these
+                # under an explicit replay branch makes that a hard structural gate, not
+                # merely if/elif ordering -- a future refactor cannot let an answer-key
+                # writer fire under generic-only without first removing this guard.
+                if is_meta_overview_pack_task(task_text_for_family):
+                    write_meta_overview_package()
+                elif is_competitive_landscape_task(task_text_for_family):
+                    write_competitive_landscape_package()
+                elif is_sources_uses_task(task_text_for_family):
+                    write_sources_uses_package()
+                elif is_gantt_timeline_task(task_text_for_family):
+                    write_gantt_package()
+                elif is_comcast_take_private_teaser_task(task_text_for_family):
+                    write_comcast_take_private_teaser_package()
+                elif is_coty_trading_comps_task(task_text_for_family):
+                    write_coty_trading_comps_package()
+                elif is_thermosafe_buyer_universe_task(task_text_for_family):
+                    write_thermosafe_buyer_universe_package()
+                elif is_greenbrier_cim_task(task_text_for_family):
+                    write_greenbrier_cim_package()
+                elif not write_teaser_package():
+                    write_workbook()
+                    write_presentation()
+                    write_memo()
+                    write_pdf()
+            else:
+                raise RuntimeError(
+                    "answer-key writers are replay-only; refusing to run them under "
+                    "materializer_mode=" + repr(materializer_mode)
+                    + " (generic-only is the only headline-eligible mode)"
+                )
             (OUT_DIR / "materializer_mode.json").write_text(
                 json.dumps(
                     {
