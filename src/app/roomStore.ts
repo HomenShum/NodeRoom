@@ -260,6 +260,14 @@ export function enterUpScaleXRoomAsHost(): { roomId: string; me: Actor } {
   if (upscalexRoom) return upscalexRoom;
   const { room, host } = engine.createRoom({ title: "UpScaleX — Portfolio & Network", hostName: "Mark Liu", autoAllow: true });
   const me: Actor = { kind: "user", id: host.id, name: host.name };
+  engine.createArtifact({
+    roomId: room.id,
+    kind: "note",
+    title: "Start here",
+    by: me,
+    seed: [{ id: "doc", value: "<h1>Start here</h1><p>Your UpScaleX portfolio as a living graph — companies, founders, and investors in one place.</p><ul><li><b>Open the “Graph” tab</b> (top of the work surface): click any node to trace its connections, click the canvas to reset.</li><li><b>Click “UpScaleX”</b> to light up the whole portfolio, or any founder to see their company.</li><li><b>Fill the “UpScaleX lead” column</b> in the Portfolio sheet (who owns each deal) — then clicking your own name shows your deals.</li></ul><p>Everything is editable — double-click any cell to correct it. Nothing here leaves your room.</p>" }],
+    meta: { summary: "How to read this room: open the Graph tab, click nodes to trace connections, fill the lead column.", tags: ["upscalex", "readme"] },
+  });
   const seed: Array<{ id: string; value: unknown }> = [];
   UPSCALEX_PORTFOLIO.forEach((row, i) => {
     const rid = `r${i + 1}`;
