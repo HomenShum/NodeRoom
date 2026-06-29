@@ -1,0 +1,10 @@
+# Exact agent chat message — first-user E2E (room sh7154sc5hd643mhetayeyhbf189jtpp / NRFUTF79DTL)
+# Source of truth: convex `messages` table, kind=agent, msg id ns7cgcqqa3754tpj8ee2ad2kg189k3b1, ts 1782699515025.
+# This is the agent's `say` channel output (rendered in screenshot 04 chat panel). It is NOT in result.json,
+# which captures the cell-VALUE layer (generic per-cell snippets) via benchRoomAnswer, not chat messages.
+
+## USER PROMPT (Host)
+@nodeagent Research UpscaleX: find their latest funding round, investors, and key team members, and write the findings into the sheet (one row per fact). Mark anything you cannot verify as needs_review.
+
+## AGENT REPLY (Room NodeAgent, kind=agent)
+UpscaleX research complete — wrote 8 cells to row r1 via managed batch (lock released, all v1). All cells marked **needs_review** because every source attempt failed: You.com search returned 422 errors, upscalex.com fetch was aborted, and Crunchbase capture timed out (408). No funding, investor, or team data could be verified. Row status set to `needs_review`, `last_researched` = 2025-07-11. A human should manually verify UpscaleX's details or provide a working URL.

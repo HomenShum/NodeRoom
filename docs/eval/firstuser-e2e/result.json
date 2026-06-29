@@ -1,0 +1,7 @@
+{
+  "roomCode": "NRFUTF79DTL",
+  "roomId": "sh7154sc5hd643mhetayeyhbf189jtpp",
+  "done": false,
+  "latencyMs": 558421,
+  "answerPreview": " ║ ║ {\"confidence\":0.1,\"evidence\":[{\"id\":\"manual:funding_r1:1\",\"kind\":\"manual\",\"label\":\"Research attempt\",\"snippet\":\"No funding information could be verified from any source\"}],\"status\":\"needs_review\",\"value\":\"Could not verify — no funding round information found in public sources\"} ║ {\"confidence\":0.1,\"evidence\":[{\"id\":\"manual:headcount_r1:1\",\"kind\":\"manual\",\"label\":\"Research attempt\",\"snippet\":\"No headcount or team size information could be verified\"}],\"status\":\"needs_review\",\"value\":\"Could not verify — no headcount information found\"} ║ {\"confidence\":0.9,\"evidence\":[{\"id\":\"manual:last_researched_r1:1\",\"kind\":\"manual\",\"label\":\"Research attempt\",\"snippet\":\"Research performed on 2025-07-11\"}],\"status\":\"complete\",\"value\":\"2025-07-11\"} ║ {\"confidence\":0.1,\"evidence\":[{\"id\":\"manual:recent_signal_r1:1\",\"kind\":\"manual\",\"label\":\"Research attempt\",\"snippet\":\"No recent signals found from search or source capture attempts\"}],\"status\":\"needs_review\",\"value\":\"Could not verify — no recent news or signals found\"} ║ {\"confidence\":0.1,\"evidence\":[{\"id\":\"manual:source2_r1:1\",\"kind\":\"manual\",\"label\":\"Research attempt\",\"snippet\":\"No secondary source could be fetched\"}],\"status\":\"needs_review\",\"value"
+}

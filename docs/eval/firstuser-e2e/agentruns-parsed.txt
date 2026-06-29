@@ -1,0 +1,60 @@
+# agentRuns — first-user E2E journey (parsed from `npx convex data agentRuns`, anchored columns)
+# measured 2026-06-28 on local convex :3210
+
+## HEADLINE: glm-5.2 — room sh7154sc5hd643mhetayeyhbf189jtpp (NRFUTF79DTL)
+8 runs for room sh7154sc5hd643…
+
+   stopReason |         steps |     toolCalls |         model |   inputTokens |  outputTokens | cachedInputTokens |       costUsd |            ms
+------------------------------------------------------------------------------------------------------------------------------------------------------
+        error |             0 |             0 |  z-ai/glm-5.2 |             0 |             0 |             0 |             0 |         95611
+         done |             8 |             9 |  z-ai/glm-5.2 |             0 |             0 |             0 |             0 |         95168
+        error |             0 |             0 |  z-ai/glm-5.2 |             0 |             0 |             0 |             0 |         73322
+         done |             8 |             9 |  z-ai/glm-5.2 |             0 |             0 |             0 |             0 |         72901
+        error |             0 |             0 |  z-ai/glm-5.2 |             0 |             0 |             0 |             0 |         85355
+         done |             8 |             9 |  z-ai/glm-5.2 |             0 |             0 |             0 |             0 |         84870
+        error |             0 |             0 |  z-ai/glm-5.2 |             0 |             0 |             0 |             0 |        315526
+         done |             8 |             9 |  z-ai/glm-5.2 |         50248 |          6463 |             0 |     0.0867959 |        315324
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+AGGREGATE across 8 runs (4 done):
+  inputTokens       = 50,248
+  outputTokens      = 6,463
+  cachedInputTokens = 0  (cache-hit share = 0.0% of input)
+  costUsd           = $0.086796
+  toolCalls         = 36
+  models used       = ['z-ai/glm-5.2']
+
+## COMPARISON: minimax-m3 — room sh7e4kat884sd0zmc2hs52q2bn89jgka (NR9RW2SMUMK)
+20 runs for room sh7e4kat884sd0…
+
+   stopReason |         steps |     toolCalls |         model |   inputTokens |  outputTokens | cachedInputTokens |       costUsd |            ms
+------------------------------------------------------------------------------------------------------------------------------------------------------
+        error |             0 |             0 | minimax/minimax-m3 |             0 |             0 |             0 |             0 |         10200
+         done |             9 |            10 | minimax/minimax-m3 |             0 |             0 |             0 |             0 |          9937
+        error |             0 |             0 | minimax/minimax-m3 |             0 |             0 |             0 |             0 |         10436
+         done |             9 |            10 | minimax/minimax-m3 |             0 |             0 |             0 |             0 |         10149
+        error |             0 |             0 | minimax/minimax-m3 |             0 |             0 |             0 |             0 |         10019
+         done |             9 |            10 | minimax/minimax-m3 |             0 |             0 |             0 |             0 |          9617
+        error |             0 |             0 | minimax/minimax-m3 |             0 |             0 |             0 |             0 |          9911
+         done |             9 |            10 | minimax/minimax-m3 |             0 |             0 |             0 |             0 |          9487
+        error |             0 |             0 | minimax/minimax-m3 |             0 |             0 |             0 |             0 |          9779
+         done |             9 |            10 | minimax/minimax-m3 |             0 |             0 |             0 |             0 |          9400
+        error |             0 |             0 | minimax/minimax-m3 |             0 |             0 |             0 |             0 |          9873
+         done |             9 |            10 | minimax/minimax-m3 |             0 |             0 |             0 |             0 |          9420
+        error |             0 |             0 | minimax/minimax-m3 |             0 |             0 |             0 |             0 |          9663
+         done |             9 |            10 | minimax/minimax-m3 |             0 |             0 |             0 |             0 |          9424
+        error |             0 |             0 | minimax/minimax-m3 |             0 |             0 |             0 |             0 |         10032
+         done |             9 |            10 | minimax/minimax-m3 |             0 |             0 |             0 |             0 |          9561
+        error |             0 |             0 | minimax/minimax-m3 |             0 |             0 |             0 |             0 |          9953
+         done |             9 |            10 | minimax/minimax-m3 |             0 |             0 |             0 |             0 |          9470
+        error |             0 |             0 | minimax/minimax-m3 |             0 |             0 |             0 |             0 |        228967
+         done |             9 |            10 | minimax/minimax-m3 |         58788 |          4957 |             0 | 0.023584799999999996 |        228736
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+AGGREGATE across 20 runs (10 done):
+  inputTokens       = 58,788
+  outputTokens      = 4,957
+  cachedInputTokens = 0  (cache-hit share = 0.0% of input)
+  costUsd           = $0.023585
+  toolCalls         = 100
+  models used       = ['minimax/minimax-m3']

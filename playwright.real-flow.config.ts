@@ -27,6 +27,7 @@ export default defineConfig({
     "e2e/nodemem-benchmark.spec.ts",
     "e2e/nodemem-recall-benchmark.spec.ts",
     "e2e/nodemem-fairtest.spec.ts",
+    "e2e/nodemem-firstuser.spec.ts",
   ],
   fullyParallel: false,
   workers: 1,
