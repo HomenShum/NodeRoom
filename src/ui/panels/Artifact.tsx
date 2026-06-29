@@ -1116,12 +1116,52 @@ function GenericSheet({ roomId, me, art, onError }: { roomId: string; me: Actor;
   const doCommit = (id: string, s: string) => { void commit(store, roomId, me, art.id, id, s).then((f) => { if (f && !f.ok) onError?.(f); }); };
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editDraft, setEditDraft] = useState("");
+  // Row-density preset (Compact re-enables clip; Default/Comfortable wrap), persisted per artifact.
+  const [density, setDensity] = useState<"compact" | "default" | "comfortable">(() => {
+    try { const v = localStorage.getItem(`noderoom:grid-density:${art.id}`); return v === "compact" || v === "comfortable" ? v : "default"; } catch { return "default"; }
+  });
+  useEffect(() => { try { localStorage.setItem(`noderoom:grid-density:${art.id}`, density); } catch { /* ignore */ } }, [art.id, density]);
+  // Keyboard grammar (restores #6 after the editor refactor): arrows move the active cell, Tab moves,
+  // Enter/F2 opens the editor; locked / proposed / merged cells stay read-only.
+  const isEditable = (id: string | null): boolean =>
+    !!id && !lockedByOther(store, art.id, id, me) && !proposalFor(proposals, art.id, id) && !draftedFor(store, roomId, art.id, id) && !mergeCovered.has(id);
+  const moveSel = (dr: number, dc: number) => {
+    const base = sel ? parseSheetElementId(art, sel) : { rowId: visibleRows[0], colId: cols[0] };
+    let ri = visibleRows.indexOf(base.rowId); if (ri < 0) ri = 0;
+    let ci = cols.indexOf(base.colId); if (ci < 0) ci = 0;
+    ri = Math.min(visibleRows.length - 1, Math.max(0, ri + dr));
+    ci = Math.min(cols.length - 1, Math.max(0, ci + dc));
+    if (visibleRows[ri] && cols[ci]) setSel(sheetElementId(art, visibleRows[ri], cols[ci]));
+  };
+  const beginEdit = (id: string) => { setEditingId(id); setEditDraft(displayCellValue(art.elements[id]?.value)); };
   return (
     <>
       <div className="r-art-body">
+        {/* Name-box + value bar: the A1 address + FULL value of the selected cell (recovery path for any
+            clipped cell) + a row-density switcher (Excel/Sheets convention). */}
+        <div className="r-sheet-bar">
+          <span className="r-sheet-namebox" data-testid="sheet-namebox">{sel ? dataframeCellAddress(art, cols, visibleRows, sel) : "—"}</span>
+          <span className="r-sheet-valuebar" title={sel ? displayCellValue(art.elements[sel]?.value) : ""}>{sel ? displayCellValue(art.elements[sel]?.value) : ""}</span>
+          <span className="grow" />
+          <div className="r-sheet-density" role="group" aria-label="Row density">
+            {([["compact", "S"], ["default", "M"], ["comfortable", "L"]] as const).map(([d, label]) => (
+              <button key={d} type="button" className="r-sheet-density-btn" data-on={String(density === d)} data-testid={`grid-density-${d}`} aria-label={`${d} row density`} title={`${d} rows`} onClick={() => setDensity(d)}>{label}</button>
+            ))}
+          </div>
+        </div>
         <div className="r-sheet-wrap" ref={sheetWrapRef} data-testid="sheet-grid">
           <AttentionOverlay boxes={overlayBoxes} resolver={overlayResolver} mode="live" />
-          <table className="r-sheet" data-noderoom-surface="workSurface.sheet" data-sheet-kind="generic" data-artifact-id={art.id}>
+          <table className="r-sheet" data-noderoom-surface="workSurface.sheet" data-sheet-kind="generic" data-density={density} data-artifact-id={art.id}
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (editingId) return;
+              if (e.key === "ArrowDown") { e.preventDefault(); moveSel(1, 0); }
+              else if (e.key === "ArrowUp") { e.preventDefault(); moveSel(-1, 0); }
+              else if (e.key === "ArrowRight") { e.preventDefault(); moveSel(0, 1); }
+              else if (e.key === "ArrowLeft") { e.preventDefault(); moveSel(0, -1); }
+              else if (e.key === "Tab") { e.preventDefault(); moveSel(0, e.shiftKey ? -1 : 1); }
+              else if ((e.key === "Enter" || e.key === "F2") && isEditable(sel)) { e.preventDefault(); beginEdit(sel!); }
+            }}>
             <colgroup>
               <col style={{ width: 38 }} />
               {columns.map((c, i) => <col key={c.id} style={{ width: colWidths[i] }} />)}
@@ -1145,7 +1185,7 @@ function GenericSheet({ roomId, me, art, onError }: { roomId: string; me: Actor;
                     const showMeta = !art.meta?.excelGrid && payload;
                     const cls = "r-cell" + (isNumberLikeCell(raw) ? " num" : "") + (locked ? " locked" : "") + (proposed ? " proposed" : "") + (hasVisibleEvidence ? " evidence" : "") + (showFormulaMarker ? " formula" : "") + (sel === id ? " sel" : "");
                     return (
-                      <td key={col} className={cls} title={[value || undefined, dataframeCellAddress(art, cols, visibleRows, id), payload?.evidence?.[0]?.label].filter(Boolean).join(" | ")} data-evidence-class={classifyEvidence(payload)} data-cell-key={id} data-element-id={id} data-testid="sheet-cell" data-has-evidence={hasVisibleEvidence ? "true" : undefined} data-has-formula={payload?.formula ? "true" : undefined} colSpan={span?.colSpan} rowSpan={span?.rowSpan} aria-selected={sel === id || undefined} onClick={() => setSel(id)} onDoubleClick={() => { setEditingId(id); setEditDraft(value); }}>
+                      <td key={col} className={cls} title={[value || undefined, dataframeCellAddress(art, cols, visibleRows, id), payload?.evidence?.[0]?.label].filter(Boolean).join(" | ")} data-evidence-class={classifyEvidence(payload)} data-cell-key={id} data-element-id={id} data-testid="sheet-cell" data-has-evidence={hasVisibleEvidence ? "true" : undefined} data-has-formula={payload?.formula ? "true" : undefined} colSpan={span?.colSpan} rowSpan={span?.rowSpan} aria-selected={sel === id || undefined} onClick={(e) => { setSel(id); (e.currentTarget.closest("table") as HTMLElement | null)?.focus(); }} onDoubleClick={() => { setEditingId(id); setEditDraft(value); }}>
                         {editingId === id ? (
                           <textarea className="r-cell-editor" autoFocus value={editDraft} data-testid="cell-editor"
                             style={{ width: "100%", minHeight: "28px", resize: "none", overflow: "hidden" }}
