@@ -27,6 +27,8 @@ This ledger preserves the two pasted source texts and maps them to repo artifact
 | Fusion router v0 supports routing features, route plans, bounded costs/attempts, escalation policy, and reward-aware follow-up. | Implemented | `src/noderl/loop/fusionRouter.ts`, `src/noderl/loop/rewardBuilder.ts`, `tests/nodeLoopRuntime.test.ts` |
 | NodeLoopRuntime v1 has loop policy, registry, attempt ledger, failure taxonomy, evaluator, strategy delta, reward builder, memory writer, and fusion router modules. | Implemented | `src/noderl/loop/`, `tests/nodeLoopRuntime.test.ts` |
 | The exact 20 loop patterns are machine-readable and mapped to NodeAgent, NodeMem, NodeTrace, NodeEval, NodeRL, and Fusion Router layers. | Implemented | `src/noderl/loop/types.ts`, `src/noderl/loop/loopRegistry.ts` |
+| NodeRoom-specific Convex loop contracts exist for attempts, rewards, and policies. | Implemented | `convex/loopAttempts.ts`, `convex/loopRewards.ts`, `convex/loopPolicies.ts`, `tests/loopContractsAndPanels.test.tsx` |
+| NodeRoom-specific React trace panels exist for Trace Storybook and Loop Reward Panel. | Implemented | `src/ui/trace/TraceStorybook.tsx`, `src/ui/trace/LoopRewardPanel.tsx`, `tests/loopContractsAndPanels.test.tsx` |
 
 ## External Research Anchors
 
