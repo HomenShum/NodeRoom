@@ -25,6 +25,7 @@ import { scanBankerToolBenchBundle, type BankerToolBenchTask } from "../src/eval
 import { assertBtbTaskCoverage, inferOfficialBtbTickers, type BtbTaskCoverageResult } from "../src/eval/btbTaskCoverage";
 import { writeFreshRoomProofReceipt, type FreshRoomExportReceipt } from "../src/eval/freshRoomProofReceipts";
 import { enableFocusModeForTest, expectAttentionOverlayMounted, expectFocusModeOn } from "./focusMode";
+import { installCockpit, emitCockpitEvent, cockpitEventsPath } from "../proofloop/cockpit/overlay";
 
 const BASE = process.env.BENCH_BASE_URL ?? "http://localhost:5273";
 const ENABLED = process.env.BTB_LIVE_ROOM_E2E === "1";
@@ -48,6 +49,9 @@ const PROOF_PATH = process.env.BTB_LIVE_ROOM_PROOF_PATH ?? "docs/eval/bankertool
 const FRESH_PROOF_PATH = process.env.BTB_FRESH_ROOM_PROOF_PATH;
 const FRESH_PROOF_CASE_ID = "FR-020";
 const PACKAGE_MANIFEST_PATH = process.env.BTB_PACKAGE_MANIFEST_PATH ?? "test-results/bankertoolbench/package-manifest.json";
+const COCKPIT_ENABLED = process.env.PROOFLOOP_COCKPIT !== "0";
+const RUN_ID = process.env.PROOFLOOP_RUN_ID ?? `btb-live-${Date.now()}`;
+const COCKPIT_EVENTS_PATH = COCKPIT_ENABLED ? cockpitEventsPath(RUN_ID) : undefined;
 const RECOVER_ROOM_CODE = process.env.BTB_RECOVER_ROOM_CODE;
 const RECOVER_TRACE_PATH = process.env.BTB_RECOVER_TRACE_PATH;
 const REQUIRED_EXTENSIONS = [".xlsx", ".xlsm", ".pptx", ".docx", ".pdf"] as const;
@@ -125,9 +129,16 @@ test("BankerToolBench fresh-room contract: upload task inputs -> @nodeagent -> p
     await createFreshLiveRoom(page);
   }
   console.log(`[btb-live-room] ${page.url()}`);
+  if (COCKPIT_ENABLED) {
+    await installCockpit(page, { suite: "bankertoolbench", baseUrl: BASE });
+    await emitCockpitEvent(page, { type: "run_start", message: `run ${RUN_ID} · task ${loaded.task.id}` }, COCKPIT_EVENTS_PATH);
+  }
   await expectFocusModeOn(page);
+  await emitCockpitEvent(page, { type: "gate_pass", gate: "fresh_room_join" }, COCKPIT_EVENTS_PATH);
   await openSheetSurfaceForFocusOverlay(page);
   await expectAttentionOverlayMounted(page);
+  await emitCockpitEvent(page, { type: "gate_pass", gate: "focus_mode_enabled" }, COCKPIT_EVENTS_PATH);
+  await emitCockpitEvent(page, { type: "gate_pass", gate: "focus_box_or_attention_overlay" }, COCKPIT_EVENTS_PATH);
   let uploadedBasenames = loaded.task.agentTask.inputFiles.map((file) => basename(file));
   if (recoveryMode) {
     await warnIfRecoveredInputsAreNotVisible(page, uploadedBasenames);
@@ -138,6 +149,8 @@ test("BankerToolBench fresh-room contract: upload task inputs -> @nodeagent -> p
   }
 
   const proofSurfaces = await expectLiveAgentProofSurfaces(page, { recoveryMode });
+  await emitCockpitEvent(page, { type: proofSurfaces.streamingVisible ? "gate_pass" : "gate_fail", gate: "visible_streaming_progress" }, COCKPIT_EVENTS_PATH);
+  await emitCockpitEvent(page, { type: proofSurfaces.jobDetailVisible ? "gate_pass" : "gate_fail", gate: "job_detail_visible" }, COCKPIT_EVENTS_PATH);
   await pauseForProofTransition(page);
   if (recoveryMode) await collapseCopilotForArtifactProof(page);
 
@@ -157,9 +170,12 @@ test("BankerToolBench fresh-room contract: upload task inputs -> @nodeagent -> p
   const packageEvidenceReady = downloadedFiles.length >= REQUIRED_EXTENSIONS.length
     && downloadedFiles.every((file) => file.reopened)
     && taskCoverage.ok;
+  await emitCockpitEvent(page, { type: packageEvidenceReady ? "gate_pass" : "gate_fail", gate: "deliverable_export_download" }, COCKPIT_EVENTS_PATH);
+  await emitCockpitEvent(page, { type: downloadedFiles.every((f) => f.reopened) ? "gate_pass" : "gate_fail", gate: "artifact_reopen_validation" }, COCKPIT_EVENTS_PATH);
   const agentTerminalQuality = await expectAgentTerminalQuality(page, AGENT_TERMINAL_TIMEOUT_MS, loaded.task.harborTaskId, {
     packageEvidenceReady,
   });
+  await emitCockpitEvent(page, { type: "gate_pass", gate: "agent_terminal_quality_gate", message: agentTerminalQuality.statusText.slice(0, 120) }, COCKPIT_EVENTS_PATH);
   const packageManifestPath = writePackageManifest({
     taskId: loaded.task.id,
     harborTaskId: loaded.task.harborTaskId,
@@ -181,6 +197,8 @@ test("BankerToolBench fresh-room contract: upload task inputs -> @nodeagent -> p
   });
 
   const verifierOutput = runVerifier();
+  await emitCockpitEvent(page, { type: "gate_pass", gate: "official_scorer_handoff", message: `verifier exited ${verifierOutput.length > 0 ? "ok" : "empty"}` }, COCKPIT_EVENTS_PATH);
+  await emitCockpitEvent(page, { type: "run_done", message: `task ${loaded.task.id}: PASS` }, COCKPIT_EVENTS_PATH);
   const generatedAt = new Date().toISOString();
   writeProof({
     schema: 1,

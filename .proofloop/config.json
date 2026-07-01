@@ -18,6 +18,12 @@
       "minScore": 100,
       "kind": "browser",
       "receiptGlob": "live-browser"
+    },
+    "bankertoolbench": {
+      "cmd": "npm run proofloop:live:btb",
+      "minScore": 100,
+      "kind": "browser",
+      "receiptGlob": "live-browser"
     }
   }
 }

@@ -88,6 +88,12 @@ const DEFAULT_CONFIG: ProofloopConfig = {
       kind: "browser",
       receiptGlob: "live-browser",
     },
+    "bankertoolbench": {
+      cmd: "npm run proofloop:live:btb",
+      minScore: 100,
+      kind: "browser",
+      receiptGlob: "live-browser",
+    },
   },
 };
 
@@ -98,8 +104,11 @@ function main(): void {
       return cmdInit();
     case "status":
       return cmdStatus();
-    case "run":
-      return cmdRun(args[0]);
+    case "run": {
+      const suiteArg = args[0]?.startsWith("--") ? undefined : args[0];
+      const flagArgs = suiteArg ? args.slice(1) : args;
+      return cmdRun(suiteArg, flagArgs);
+    }
     case "show":
       return cmdShow(args[0]);
     case "log":
@@ -144,7 +153,21 @@ function cmdInit(): void {
     writeJson(CONFIG_PATH, DEFAULT_CONFIG);
     console.log(`proofloop: wrote ${rel(CONFIG_PATH)}`);
   } else {
-    console.log(`proofloop: ${rel(CONFIG_PATH)} already exists`);
+    const existing = JSON.parse(readFileSync(CONFIG_PATH, "utf8")) as ProofloopConfig;
+    const knownSuites = new Set(Object.keys(existing.suites));
+    let added = 0;
+    for (const [name, cfg] of Object.entries(DEFAULT_CONFIG.suites)) {
+      if (!knownSuites.has(name)) {
+        existing.suites[name] = cfg;
+        added++;
+      }
+    }
+    if (added > 0) {
+      writeJson(CONFIG_PATH, existing);
+      console.log(`proofloop: merged ${added} new suite(s) into ${rel(CONFIG_PATH)}`);
+    } else {
+      console.log(`proofloop: ${rel(CONFIG_PATH)} already up to date`);
+    }
   }
   if (!existsSync(MEMORY_PATH)) {
     writeFileSync(MEMORY_PATH, "");
@@ -188,7 +211,7 @@ function cmdStatus(): void {
   }
 }
 
-function cmdRun(suiteArg: string | undefined): void {
+function cmdRun(suiteArg: string | undefined, extraArgs: string[] = []): void {
   const config = loadConfig();
   const suite = suiteArg ?? config.defaultSuite;
   const suiteConfig = config.suites[suite];
@@ -197,19 +220,26 @@ function cmdRun(suiteArg: string | undefined): void {
     process.exitCode = 1;
     return;
   }
+
+  const flags = parseRunFlags(extraArgs);
   const runId = `${suite}-${new Date().toISOString().replace(/[:.]/g, "-")}`;
   const runDir = join(RUNS_DIR, runId);
   mkdirSync(runDir, { recursive: true });
 
-  console.log(`proofloop: running suite "${suite}"`);
-  console.log(`proofloop: ${suiteConfig.cmd}`);
+  const cmd = flags.cockpit ? `${suiteConfig.cmd} --cockpit` : suiteConfig.cmd;
+  const env: Record<string, string> = { ...process.env, PROOFLOOP_RUN_ID: runId };
+  if (flags.prod) env.VITE_CONVEX_URL = process.env.CONVEX_PROD_URL ?? "";
+  if (flags.cockpit) env.PROOFLOOP_COCKPIT = "1";
+
+  console.log(`proofloop: running suite "${suite}"${flags.prod ? " --prod" : ""}${flags.headed ? " --headed" : ""}${flags.cockpit ? " --cockpit" : ""}`);
+  console.log(`proofloop: ${cmd}`);
   const startedAt = new Date().toISOString();
   const started = Date.now();
-  const result = spawnSync(suiteConfig.cmd, {
+  const result = spawnSync(cmd, {
     cwd: ROOT,
     shell: true,
     stdio: "inherit",
-    env: { ...process.env, PROOFLOOP_RUN_ID: runId },
+    env,
   });
   const finishedAt = new Date().toISOString();
   const durationMs = Date.now() - started;
@@ -217,6 +247,9 @@ function cmdRun(suiteArg: string | undefined): void {
 
   const receipt = locateReceipt(suite, suiteConfig, runId);
   const passed = exitCode === 0 && (receipt.passed ?? true);
+
+  writeCostLedger(runDir, { suite, runId, durationMs, exitCode, passed });
+  writeCockpitSnapshot(runDir, runId);
 
   const meta: RunMeta = {
     runId,
@@ -276,21 +309,30 @@ function cmdDiff(runA: string | undefined, runB: string | undefined): void {
     process.exitCode = 1;
     return;
   }
-  console.log(`Score: ${a.score ?? "n/a"} -> ${b.score ?? "n/a"}`);
-  console.log(`Passed: ${a.passed} -> ${b.passed}`);
+  console.log(`Suite:   ${a.suite} -> ${b.suite}`);
+  console.log(`Score:   ${a.score ?? "n/a"} -> ${b.score ?? "n/a"}`);
+  console.log(`Passed:  ${a.passed} -> ${b.passed}`);
+  console.log(`Duration: ${formatMs(a.durationMs)} -> ${formatMs(b.durationMs)}`);
+  console.log(`Exit:    ${a.exitCode} -> ${b.exitCode}`);
   const gatesA = new Set(a.failedGates ?? []);
   const gatesB = new Set(b.failedGates ?? []);
   const fixed = [...gatesA].filter((g) => !gatesB.has(g));
   const regressed = [...gatesB].filter((g) => !gatesA.has(g));
+  const persisted = [...gatesA].filter((g) => gatesB.has(g));
   if (fixed.length) {
     console.log("");
-    console.log("Fixed:");
-    for (const gate of fixed) console.log(`  - ${gate}`);
+    console.log(`Fixed (${fixed.length}):`);
+    for (const gate of fixed) console.log(`  + ${gate}`);
   }
   if (regressed.length) {
     console.log("");
-    console.log("Regressed:");
+    console.log(`Regressed (${regressed.length}):`);
     for (const gate of regressed) console.log(`  - ${gate}`);
+  }
+  if (persisted.length) {
+    console.log("");
+    console.log(`Still failing (${persisted.length}):`);
+    for (const gate of persisted) console.log(`  ! ${gate}`);
   }
   if (!fixed.length && !regressed.length) console.log("\nNo gate differences.");
 }
@@ -302,7 +344,11 @@ function cmdReplay(runIdArg: string | undefined): void {
     process.exitCode = 1;
     return;
   }
-  console.log(`proofloop: replaying ${meta.runId} -- ${meta.cmd}`);
+  console.log(`proofloop: replaying ${meta.runId}`);
+  console.log(`  suite:   ${meta.suite}`);
+  console.log(`  cmd:     ${meta.cmd}`);
+  console.log(`  origin:  ${meta.startedAt} (${meta.passed ? "PASS" : "FAIL"}, score=${meta.score ?? "n/a"}, ${formatMs(meta.durationMs)})`);
+  console.log("");
   cmdRun(meta.suite);
 }
 
@@ -325,6 +371,14 @@ function cmdPromote(runIdArg: string | undefined): void {
   if (!alreadyPromoted) regressions.push(entry);
   writeJson(REGRESSIONS_PATH, regressions);
   console.log(`proofloop: promoted ${meta.runId} to ${rel(REGRESSIONS_PATH)} (${alreadyPromoted ? "already tracked" : "new regression"})`);
+  console.log(`  suite:       ${meta.suite}`);
+  console.log(`  failed gates: ${meta.failedGates?.length ?? 0}`);
+  if (meta.failedGates?.length) {
+    for (const gate of meta.failedGates) console.log(`    - ${gate}`);
+  }
+  console.log(`  score:       ${meta.score ?? "n/a"}/${meta.minScore ?? "n/a"}`);
+  console.log(`  duration:    ${formatMs(meta.durationMs)}`);
+  console.log(`  total tracked regressions: ${regressions.length}`);
 }
 
 function cmdExportRl(runIdArg: string | undefined): void {
@@ -431,6 +485,91 @@ function writeJson(path: string, value: unknown): void {
 
 function rel(path: string): string {
   return path.startsWith(ROOT) ? path.slice(ROOT.length + 1).replace(/\\/g, "/") : path;
+}
+
+type CockpitEvent = {
+  ts?: string;
+  type: string;
+  gate?: string;
+  message?: string;
+  metadata?: Record<string, unknown>;
+};
+
+type RunFlags = { prod: boolean; headed: boolean; cockpit: boolean };
+
+function parseRunFlags(args: string[]): RunFlags {
+  const flags: RunFlags = { prod: false, headed: false, cockpit: false };
+  for (const arg of args) {
+    if (arg === "--prod") flags.prod = true;
+    if (arg === "--headed") flags.headed = true;
+    if (arg === "--cockpit") flags.cockpit = true;
+  }
+  return flags;
+}
+
+function formatMs(ms: number): string {
+  if (ms < 60_000) return `${(ms / 1000).toFixed(1)}s`;
+  const m = Math.floor(ms / 60_000);
+  const s = Math.floor((ms % 60_000) / 1000);
+  return `${m}m${s}s`;
+}
+
+type CostLedger = {
+  suite: string;
+  runId: string;
+  durationMs: number;
+  exitCode: number;
+  passed: boolean;
+  costUsd: string;
+  note: string;
+};
+
+function writeCostLedger(runDir: string, info: { suite: string; runId: string; durationMs: number; exitCode: number; passed: boolean }): void {
+  const ledger: CostLedger = {
+    ...info,
+    costUsd: "not exposed in UI",
+    note: "NodeRoom job-detail UI does not render dollar cost; cockpit signals track visible counters only.",
+  };
+  writeJson(join(runDir, "cost-ledger.json"), ledger);
+}
+
+type CockpitSnapshot = {
+  runId: string;
+  capturedAt: string;
+  totalEvents: number;
+  gateResults: Array<{ gate: string; status: string; ts: string }>;
+  signals: Array<{ type: string; message: string; ts: string }>;
+};
+
+function writeCockpitSnapshot(runDir: string, runId: string): void {
+  const eventsPath = join(runDir, "events.jsonl");
+  if (!existsSync(eventsPath)) {
+    writeJson(join(runDir, "cockpit-snapshot.json"), { runId, capturedAt: new Date().toISOString(), totalEvents: 0, gateResults: [], signals: [] } satisfies CockpitSnapshot);
+    return;
+  }
+  const lines = readFileSync(eventsPath, "utf8").split("\n").filter(Boolean);
+  const gateResults: CockpitSnapshot["gateResults"] = [];
+  const signals: CockpitSnapshot["signals"] = [];
+  for (const line of lines) {
+    try {
+      const ev = JSON.parse(line) as CockpitEvent;
+      if (ev.type === "gate_pass" || ev.type === "gate_fail") {
+        gateResults.push({ gate: ev.gate ?? ev.message ?? "gate", status: ev.type === "gate_pass" ? "pass" : "fail", ts: ev.ts ?? "" });
+      } else {
+        signals.push({ type: ev.type, message: ev.message ?? ev.type, ts: ev.ts ?? "" });
+      }
+    } catch {
+      // skip malformed lines
+    }
+  }
+  const snapshot: CockpitSnapshot = {
+    runId,
+    capturedAt: new Date().toISOString(),
+    totalEvents: lines.length,
+    gateResults,
+    signals,
+  };
+  writeJson(join(runDir, "cockpit-snapshot.json"), snapshot);
 }
 
 main();
