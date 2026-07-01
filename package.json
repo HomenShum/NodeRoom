@@ -87,6 +87,7 @@
     "proofloop:notion:seed": "tsx proofloop/notion/seed-datasets.ts",
     "proofloop:live:accounting": "tsx scripts/live-proofloop-runner.ts --config=proofloop/accounting/live.accounting.config.json",
     "proofloop:live:notion": "tsx scripts/live-proofloop-runner.ts --config=proofloop/notion/live.notion.config.json",
+    "proofloop:live:browser": "PROOFLOOP_LIVE_BROWSER=1 npx playwright test --config playwright.proofloop.config.ts proofloop/live-browser-proof.spec.ts --headed",
     "nodeagent:frame:smoke": "tsx scripts/nodeagent-frame-smoke.ts",
     "omnigent:nodeagent:smoke": "tsx scripts/omnigent-nodeagent-smoke.ts --json-out docs/eval/omnigent-nodeagent-smoke.json",
     "omniagent:nodeagent:smoke": "tsx scripts/omnigent-nodeagent-smoke.ts --json-out docs/eval/omnigent-nodeagent-smoke.json",
