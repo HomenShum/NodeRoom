@@ -1,16 +1,16 @@
 {
   "schema": 1,
-  "generatedAt": "2026-06-26T08:48:53.035Z",
+  "generatedAt": "2026-07-01T23:46:23.306Z",
   "summary": {
     "tracks": 5,
-    "completeTracks": 1,
-    "partialTracks": 3,
+    "completeTracks": 2,
+    "partialTracks": 2,
     "missingTracks": 1,
     "totalOfficialExpectedTasks": 1739,
-    "totalStagedTasks": 410,
+    "totalStagedTasks": 509,
     "totalDeterministicRunTasks": 409,
-    "totalModelRunCases": 7,
-    "totalModelRunAttempts": 19,
+    "totalModelRunCases": 106,
+    "totalModelRunAttempts": 118,
     "strictFullCoverageReady": false
   },
   "policy": [
@@ -119,26 +119,25 @@
         "https://github.com/Handshake-AI-Research/bankertoolbench",
         "https://huggingface.co/datasets/handshake-ai-research/bankertoolbench"
       ],
-      "localScope": "one-task local fixture",
-      "scannedTasks": 1,
-      "stagedTasks": 1,
+      "localScope": "full official 100-task clean generic-only full-suite receipt",
+      "scannedTasks": 100,
+      "stagedTasks": 100,
       "skippedTasks": 0,
       "deterministicRunTasks": 0,
-      "modelRunCases": 1,
-      "modelRunAttempts": 1,
-      "passRate": 1,
-      "allOfficialTasksStaged": false,
-      "allOfficialTasksRunWithModel": false,
-      "status": "partial",
+      "modelRunCases": 100,
+      "modelRunAttempts": 100,
+      "passRate": 0,
+      "allOfficialTasksStaged": true,
+      "allOfficialTasksRunWithModel": true,
+      "status": "complete",
       "evidence": [
+        "docs/eval/fresh-room/FR-020/fullsuite-gate-receipt.json",
+        "docs/eval/btb-clean-capability-full100-parallel-v3-gpt41mini.json",
         "docs/eval/bankertoolbench-stage-smoke.json",
         "docs/eval/bankertoolbench-run-positive-smoke.json",
         "docs/eval/bankertoolbench-official-contract.json"
       ],
-      "blockers": [
-        "99 BankerToolBench task(s) still need staging from the official bundle.",
-        "Wire Harbor/MCP/Gandalf verifier replay before claiming an official BTB score."
-      ]
+      "blockers": []
     },
     {
       "id": "noderoom-multi-user-conflict",

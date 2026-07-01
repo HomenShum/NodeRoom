@@ -8,6 +8,7 @@ export type ProofloopBenchmarkBoardStatus =
   | "registered"
   | "partial"
   | "blocked"
+  | "not_applicable"
   | "not_claimed";
 
 export type ProofloopBenchmarkBoardScore = {
@@ -16,6 +17,7 @@ export type ProofloopBenchmarkBoardScore = {
   evidence: string[];
   command?: string;
   blockers: string[];
+  metrics?: Record<string, number | string | boolean | null>;
 };
 
 export type ProofloopBenchmarkBoardEntry = {
@@ -38,6 +40,7 @@ export type ProofloopBenchmarkBoard = {
     productPathReadyToRun: number;
     externalAdaptersRegistered: number;
     officialScoresClaimed: number;
+    officialScoresNotApplicable: number;
     officialScoresBlockedOrNotClaimed: number;
   };
   entries: ProofloopBenchmarkBoardEntry[];
@@ -75,7 +78,10 @@ export function buildProofloopBenchmarkBoard(args: {
       productPathReadyToRun: entries.filter((entry) => entry.productPathCompletion.status === "ready_to_run").length,
       externalAdaptersRegistered: entries.filter((entry) => entry.productPathCompletion.status === "registered").length,
       officialScoresClaimed: entries.filter((entry) => entry.officialSemanticScore.status === "proven").length,
-      officialScoresBlockedOrNotClaimed: entries.filter((entry) => entry.officialSemanticScore.status !== "proven").length,
+      officialScoresNotApplicable: entries.filter((entry) => entry.officialSemanticScore.status === "not_applicable").length,
+      officialScoresBlockedOrNotClaimed: entries.filter(
+        (entry) => !["proven", "not_applicable"].includes(entry.officialSemanticScore.status),
+      ).length,
     },
     entries,
   };
@@ -100,6 +106,7 @@ export function renderProofloopBenchmarkBoardMarkdown(board: ProofloopBenchmarkB
     `- Product-path ready to run: ${board.summary.productPathReadyToRun}`,
     `- External adapters registered: ${board.summary.externalAdaptersRegistered}`,
     `- Official scores claimed: ${board.summary.officialScoresClaimed}`,
+    `- Official scores not applicable: ${board.summary.officialScoresNotApplicable}`,
     `- Official scores blocked/not claimed: ${board.summary.officialScoresBlockedOrNotClaimed}`,
     "",
     "## Benchmarks",
@@ -122,6 +129,7 @@ export function renderProofloopBenchmarkBoardMarkdown(board: ProofloopBenchmarkB
     "",
     "- `proven` product path means Proof Loop has evidence for the app workflow; it is not an official leaderboard score.",
     "- `registered` means the benchmark is tracked and has an adapter contract, but it should not be sold as live-proofed yet.",
+    "- `not_applicable` official score means the lane is an internal/product harness, not a public official benchmark score lane.",
     "- `blocked` official score means the scorer/verifier path is not imported, even if product-path proof exists.",
     "",
   );
@@ -176,11 +184,11 @@ function openRouterConvexEntry(root: string): ProofloopBenchmarkBoardEntry {
       blockers: harnessReady ? [] : ["OpenRouter-on-Convex product harness cases are not all passing."],
     },
     officialSemanticScore: {
-      status: officialReady ? "proven" : "blocked",
+      status: officialReady ? "proven" : "not_applicable",
       scoreType: "official_semantic_score",
       evidence: ["docs/eval/openrouter-convex-benchmark.json"],
       command: "npm run benchmark:openrouter-convex",
-      blockers: officialReady ? [] : ["Official benchmark promotion remains separate from the product route harness."],
+      blockers: officialReady ? [] : ["Model-route harness; not a public official benchmark score lane."],
     },
     notes: ["Route eligibility should depend on the Convex harness, not Docker/Harbor official-runner availability."],
   };
@@ -206,7 +214,7 @@ function proximittyEntry(root: string): ProofloopBenchmarkBoardEntry {
       blockers: proven || hasConfig ? [] : ["Missing Proximitty proof suite config."],
     },
     officialSemanticScore: {
-      status: "not_claimed",
+      status: "not_applicable",
       scoreType: "official_semantic_score",
       evidence: ["proofloop/suites/proximitty-underwriting-pr0.json"],
       blockers: ["Synthetic underwriting suite; do not label as an official finance benchmark score."],
@@ -232,7 +240,7 @@ function accountingEntry(root: string): ProofloopBenchmarkBoardEntry {
       blockers: hasConfig && hasRegistry ? [] : ["Accounting proof-loop config or benchmark registry is missing."],
     },
     officialSemanticScore: {
-      status: "not_claimed",
+      status: "not_applicable",
       scoreType: "official_semantic_score",
       evidence: ["proofloop/accounting/benchmarks/benchmark-registry.json"],
       blockers: ["Accounting suite pins external benchmark families, but local proof-loop runs are product-path evidence."],
@@ -257,7 +265,7 @@ function notionEntry(root: string): ProofloopBenchmarkBoardEntry {
       blockers: hasConfig ? [] : ["Notion proof-loop config is missing."],
     },
     officialSemanticScore: {
-      status: "not_claimed",
+      status: "not_applicable",
       scoreType: "official_semantic_score",
       evidence: ["proofloop/notion/proofloop.notion.config.json"],
       blockers: ["Product workflow benchmark, not an official public benchmark score."],
@@ -272,8 +280,22 @@ function adapterEntry(adapter: ProofloopBenchmarkAdapter, root: string): Prooflo
   const isBtb = adapter.id === "bankertoolbench";
   const live = isBtb ? readJson<JsonObject>(root, "docs/eval/bankertoolbench-live-room-proof.json") : undefined;
   const btbOfficial = isBtb ? readJson<{ pass?: boolean; blockers?: string[] }>(root, "docs/eval/bankertoolbench-official-contract.json") : undefined;
+  const btbFullSuite = isBtb
+    ? readJson<{
+      flipEligible?: boolean;
+      expectedCount?: number;
+      executedTaskCount?: number;
+      cleanScoredTaskCount?: number;
+      meanCleanReward?: number | null;
+      passThreshold?: number;
+      passCount?: number;
+      passRate?: number | null;
+      claim?: string;
+    }>(root, "docs/eval/fresh-room/FR-020/fullsuite-gate-receipt.json")
+    : undefined;
   const livePassed = live?.passed === true;
   const readyToRun = validationErrors.length === 0 && implementationMissing.length === 0;
+  const btbOfficialProven = btbFullSuite?.flipEligible === true;
 
   return {
     id: adapter.id,
@@ -294,16 +316,38 @@ function adapterEntry(adapter: ProofloopBenchmarkAdapter, root: string): Prooflo
       ],
     },
     officialSemanticScore: {
-      status: btbOfficial?.pass === true ? "proven" : isBtb ? "blocked" : "not_claimed",
+      status: btbOfficialProven || btbOfficial?.pass === true ? "proven" : isBtb ? "blocked" : "blocked",
       scoreType: "official_semantic_score",
-      evidence: isBtb ? ["docs/eval/bankertoolbench-official-contract.json"] : [`proofloop/benchmarks/${adapter.id}/adapter.json`],
+      evidence: isBtb
+        ? [
+          "docs/eval/fresh-room/FR-020/fullsuite-gate-receipt.json",
+          "docs/eval/btb-clean-capability-full100-parallel-v3-gpt41mini.json",
+          "docs/eval/bankertoolbench-official-contract.json",
+        ]
+        : [`proofloop/benchmarks/${adapter.id}/adapter.json`],
       command: adapter.verifierCommand,
       blockers: isBtb
-        ? btbOfficial?.blockers ?? ["BankerToolBench official contract artifact is missing."]
+        ? btbOfficialProven
+          ? []
+          : btbOfficial?.blockers ?? ["BankerToolBench official contract artifact is missing."]
         : ["Adapter registered; official verifier import has not been implemented or run."],
+      metrics: btbOfficialProven
+        ? {
+          expectedCount: btbFullSuite?.expectedCount ?? null,
+          executedTaskCount: btbFullSuite?.executedTaskCount ?? null,
+          cleanScoredTaskCount: btbFullSuite?.cleanScoredTaskCount ?? null,
+          meanCleanReward: btbFullSuite?.meanCleanReward ?? null,
+          passThreshold: btbFullSuite?.passThreshold ?? null,
+          passCount: btbFullSuite?.passCount ?? null,
+          passRate: btbFullSuite?.passRate ?? null,
+          claim: btbFullSuite?.claim ?? "",
+        }
+        : undefined,
     },
     notes: isBtb
-      ? ["BankerToolBench product-path proof can pass while Harbor/Gandalf official score import remains blocked."]
+      ? btbOfficialProven
+        ? ["BankerToolBench full-suite official scoring is imported: completion/scoring is proven separately from pass rate."]
+        : ["BankerToolBench product-path proof can pass while Harbor/Gandalf official score import remains blocked."]
       : ["Adapter registration is useful backlog inventory; it is not a live proof claim."],
   };
 }
@@ -320,10 +364,14 @@ function readJson<T>(root: string, relativePath: string): T | undefined {
   const path = join(root, relativePath);
   if (!existsSync(path)) return undefined;
   try {
-    return JSON.parse(readFileSync(path, "utf-8")) as T;
+    return JSON.parse(stripJsonBom(readFileSync(path, "utf-8"))) as T;
   } catch {
     return undefined;
   }
+}
+
+function stripJsonBom(text: string): string {
+  return text.replace(/^\uFEFF/, "").replace(/^ï»¿/, "");
 }
 
 function normalizeEvidencePath(root: string, value: string): string {

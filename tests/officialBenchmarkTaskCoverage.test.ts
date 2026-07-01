@@ -26,9 +26,11 @@ describe("official benchmark task coverage ledger", () => {
     });
     expect(tracks["bankertoolbench-full-100"]).toMatchObject({
       officialExpectedTasks: 100,
-      stagedTasks: 1,
-      modelRunCases: 1,
-      status: "partial",
+      stagedTasks: 100,
+      modelRunCases: 100,
+      modelRunAttempts: 100,
+      passRate: 0,
+      status: "complete",
     });
   });
 

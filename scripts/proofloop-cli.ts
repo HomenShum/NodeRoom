@@ -45,6 +45,16 @@ import {
   writeFileSync,
 } from "node:fs";
 import { dirname, join, resolve } from "node:path";
+import {
+  blockProofloopGoal,
+  formatProofloopGoalResume,
+  formatProofloopGoalStatus,
+  gateProofloopGoal,
+  initProofloopGoal,
+  loadProofloopGoal,
+  runNextProofloopGoalTask,
+  superviseProofloopGoal,
+} from "../src/eval/proofloopGoalSupervisor";
 import { writeLoopArtifactsForMeta } from "../src/eval/proofloopLoopArtifacts";
 
 const ROOT = process.cwd();
@@ -160,6 +170,14 @@ function main(): void {
     case "export":
       if (args[0] === "rl") return cmdExportRl(args[1]);
       return usage(`unknown export target: ${args[0] ?? ""}`);
+    case "goal":
+      return cmdGoal(args);
+    case "gate":
+      return cmdGoalGate(args);
+    case "supervise":
+      return cmdGoalSupervise(args);
+    case "resume":
+      return cmdGoalResume(args);
     default:
       return usage(command ? `unknown command: ${command}` : undefined);
   }
@@ -196,6 +214,13 @@ function usage(error?: string): void {
       "  router suggest [runId] write route-plan suggestion",
       "  promote <runId>      turn a failure into a tracked regression",
       "  export rl [runId]    export a run as agentic-RL trace data",
+      "  goal init <goal-id> [--template official-scores] create a long-running proof ledger",
+      "  goal status <goal-id> show persisted goal state",
+      "  goal next <goal-id>   run or classify the next unfinished goal task",
+      "  goal block <goal-id> --task <id> --reason <text> [--resume-command <cmd>] add an external blocker",
+      "  gate --goal <goal-id> pass only when the persisted goal ledger passed",
+      "  supervise --goal <goal-id> [--max-steps N] continue until passed or terminal blocker",
+      "  resume --goal <goal-id> print the next resume action and blockers",
     ].join("\n"),
   );
   process.exitCode = error ? 1 : 0;
@@ -545,6 +570,89 @@ function cmdExportRl(runIdArg: string | undefined): void {
   process.exitCode = result.status ?? 1;
 }
 
+function cmdGoal(args: string[]): void {
+  const [subcommand, goalId, ...rest] = args;
+  if (!subcommand) return usage("missing goal command");
+  if (!goalId) return usage(`proofloop goal ${subcommand} requires <goal-id>`);
+  try {
+    if (subcommand === "init") {
+      const template = optionValueFromArgs(rest, "--template") === "official-scores" ? "official-scores" : undefined;
+      const overwrite = rest.includes("--force") || rest.includes("--overwrite");
+      const state = initProofloopGoal({ root: ROOT, goalId, template, overwrite });
+      console.log(formatProofloopGoalStatus(state));
+      return;
+    }
+    if (subcommand === "status") {
+      console.log(formatProofloopGoalStatus(loadProofloopGoal(goalId, { root: ROOT })));
+      return;
+    }
+    if (subcommand === "next") {
+      const result = runNextProofloopGoalTask(goalId, { root: ROOT });
+      if (result.task) {
+        console.log(`${result.task.id}: ${result.task.status}`);
+        if (result.task.stdoutTail) console.log(result.task.stdoutTail);
+        if (result.task.stderrTail) console.error(result.task.stderrTail);
+      }
+      console.log(formatProofloopGoalStatus(result.state));
+      if (result.state.status === "failed") process.exitCode = 1;
+      return;
+    }
+    if (subcommand === "block") {
+      const taskId = optionValueFromArgs(rest, "--task");
+      const reason = optionValueFromArgs(rest, "--reason");
+      if (!taskId || !reason) return usage("proofloop goal block requires --task <id> and --reason <text>");
+      const evidence = optionValuesFromArgs(rest, "--evidence");
+      const resumeCommand = optionValueFromArgs(rest, "--resume-command");
+      const state = blockProofloopGoal(goalId, { taskId, reason, evidence, resumeCommand }, { root: ROOT });
+      console.log(formatProofloopGoalStatus(state));
+      return;
+    }
+    return usage(`unknown goal command: ${subcommand}`);
+  } catch (error) {
+    console.error(`proofloop: ${error instanceof Error ? error.message : String(error)}`);
+    process.exitCode = 1;
+  }
+}
+
+function cmdGoalGate(args: string[]): void {
+  const goalId = optionValueFromArgs(args, "--goal") ?? args[0];
+  if (!goalId) return usage("proofloop gate requires --goal <goal-id>");
+  try {
+    const state = gateProofloopGoal(goalId, { root: ROOT });
+    console.log(formatProofloopGoalStatus(state));
+    if (state.status !== "passed") process.exitCode = 1;
+  } catch (error) {
+    console.error(`proofloop: ${error instanceof Error ? error.message : String(error)}`);
+    process.exitCode = 1;
+  }
+}
+
+function cmdGoalSupervise(args: string[]): void {
+  const goalId = optionValueFromArgs(args, "--goal") ?? args[0];
+  if (!goalId) return usage("proofloop supervise requires --goal <goal-id>");
+  const maxStepsRaw = optionValueFromArgs(args, "--max-steps");
+  const maxSteps = maxStepsRaw ? Number(maxStepsRaw) : undefined;
+  try {
+    const state = superviseProofloopGoal(goalId, { root: ROOT, maxSteps });
+    console.log(formatProofloopGoalStatus(state));
+    if (state.status === "failed") process.exitCode = 1;
+  } catch (error) {
+    console.error(`proofloop: ${error instanceof Error ? error.message : String(error)}`);
+    process.exitCode = 1;
+  }
+}
+
+function cmdGoalResume(args: string[]): void {
+  const goalId = optionValueFromArgs(args, "--goal") ?? args[0];
+  if (!goalId) return usage("proofloop resume requires --goal <goal-id>");
+  try {
+    console.log(formatProofloopGoalResume(loadProofloopGoal(goalId, { root: ROOT })));
+  } catch (error) {
+    console.error(`proofloop: ${error instanceof Error ? error.message : String(error)}`);
+    process.exitCode = 1;
+  }
+}
+
 // ---------------------------------------------------------------------------
 
 function loadConfig(): ProofloopConfig {
@@ -789,6 +897,32 @@ type CockpitEvent = {
 };
 
 type RunFlags = { prod: boolean; headed: boolean; cockpit: boolean; userEmulationStrict: boolean };
+
+function optionValueFromArgs(args: string[], name: string): string | undefined {
+  const inlinePrefix = `${name}=`;
+  const inline = args.find((arg) => arg.startsWith(inlinePrefix));
+  if (inline) return inline.slice(inlinePrefix.length);
+  const index = args.indexOf(name);
+  const next = args[index + 1];
+  return index >= 0 && next && !next.startsWith("--") ? next : undefined;
+}
+
+function optionValuesFromArgs(args: string[], name: string): string[] {
+  const values: string[] = [];
+  const inlinePrefix = `${name}=`;
+  for (let i = 0; i < args.length; i++) {
+    const arg = args[i];
+    if (arg.startsWith(inlinePrefix)) values.push(arg.slice(inlinePrefix.length));
+    else if (arg === name) {
+      const next = args[i + 1];
+      if (next && !next.startsWith("--")) {
+        values.push(next);
+        i++;
+      }
+    }
+  }
+  return values;
+}
 
 function parseRunFlags(args: string[]): RunFlags {
   const flags: RunFlags = { prod: false, headed: false, cockpit: false, userEmulationStrict: false };
