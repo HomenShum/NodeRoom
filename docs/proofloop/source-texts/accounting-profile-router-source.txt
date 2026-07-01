@@ -1,0 +1,1877 @@
+Testing out the accounting related benchmarks on noderoom, what else should we test out. Also, how can we generate a palantir grade research of any profiles for research purposes surfaced on either existing spreadsheet view or tiptap notebook view like notion.
+Finally, maybe our mixture of the “proofloop” can help us come up with our own prod use adaptive Fusion model router for the tasks
+Thought for 4m 8s
+
+Yes — accounting benchmarks are the right next stress test, but do not treat them as only “can the model answer accounting questions.” For NodeRoom, the bar should be:
+
+Can a real user enter a fresh room, upload accounting/finance artifacts, ask NodeAgent, watch the work, get a spreadsheet or notebook result, inspect the evidence, export/reopen the output, and see the cost/trace/reward receipt?
+
+That is where NodeRoom differs from a plain benchmark runner. Your proof-registry direction already requires runtime commands, selectors, expected files, output paths, pass criteria, artifact assertions, freshness proof, visual evidence, cost/latency gates, and security assertions for fresh-room user paths.
+
+1. What else to test for accounting
+
+I would split accounting tests into four layers.
+
+Layer A — accounting correctness
+
+These are deterministic or semi-deterministic accounting tasks.
+
+Test pack	Inputs	Expected output	Verifier
+Trial balance → financial statements	GL/trial balance CSV/XLSX	IS/BS/CF workbook	totals tie, balance sheet balances, net income links
+Bank reconciliation	bank CSV + ledger CSV	reconciliation schedule + exceptions	matched items, unmatched items, ending cash tie-out
+Journal entry generation	transaction list + policy memo	proposed JEs	debits = credits, account mapping valid
+Accruals / deferrals	invoices, service periods, close date	adjusting entries	period logic, expense/revenue recognition
+AR/AP aging	invoice list, payments, dates	aging buckets + reserve suggestion	bucket math, due-date logic
+Inventory / COGS	purchase/sales records	FIFO/LIFO/weighted average schedule	unit math, ending inventory tie-out
+Lease accounting	lease terms	ROU asset / lease liability schedule	PV math, interest/amortization
+Revenue recognition	contracts + performance obligations	rev rec schedule	obligation mapping, period allocation
+Intercompany / consolidation	multi-entity ledgers	eliminations + consolidated financials	eliminations tie, minority interests if present
+Cash flow statement	IS + BS changes	indirect cash flow	cash movement ties to balance sheet
+Layer B — finance/accounting benchmark compatibility
+
+Use existing benchmarks as external pressure tests, but wrap them in NodeRoom’s real UI flow.
+
+Good references:
+
+Finch is especially aligned with NodeRoom because it evaluates finance and accounting workflows across messy enterprise spreadsheets, emails, PDFs, formulas, charts, and reporting artifacts; it contains 172 composite workflows, 384 tasks, and 1,710 spreadsheets with 27M cells.
+FinAuditing is useful for XBRL/GAAP multi-document auditing because it tests semantic, relational, and numerical consistency in US-GAAP XBRL filings.
+FinRule-Bench is useful for explicit accounting-rule reasoning over balance sheets, cash-flow statements, income statements, and statements of equity.
+FinVerBench is useful for financial-statement verification because it tests arithmetic, cross-statement linkage, year-over-year, and magnitude perturbations.
+Fin-RATE is useful for SEC-style analyst workflows because it includes single-disclosure reasoning, cross-entity comparison, and longitudinal tracking across reporting periods.
+TAT-QA remains useful for table-plus-text numerical reasoning in financial reports.
+
+For NodeRoom, the question should not be only “score on the benchmark.” It should be:
+
+fresh room
+  -> upload official files
+  -> public @nodeagent
+  -> stream work visibly
+  -> produce sheet / notebook / export
+  -> reopen output
+  -> verify formulas and evidence
+  -> attach visual trace
+  -> write cost + reward receipt
+Layer C — product and collaboration correctness
+
+Every accounting task should also test:
+
+1. Fresh room starts clean.
+2. Uploads show in inventory.
+3. User can ask in public chat.
+4. NodeAgent streams progress.
+5. Focus Mode / trace shows what the agent is touching.
+6. Spreadsheet cells or notebook blocks update visibly.
+7. Human edits are not clobbered.
+8. Proposed changes are reviewable.
+9. Exports reopen.
+10. Every material claim links to evidence.
+
+This matters because your previous failure was not “the model could not answer.” It was a system failure: passive jobs saturated the workpool, user jobs got stuck, retries cycled, and hot-row stream/live-operation writes produced thousands of OCC conflicts.
+
+Layer D — cost, latency, and router-quality data
+
+For every accounting run, record:
+
+model
+model route
+task type
+source types
+tokens
+tool calls
+Linkup / Firecrawl / Browserbase calls
+Convex actions / mutations / queries
+duration
+retries
+failure category
+export success
+evidence-backed claim ratio
+human accept/reject
+
+This becomes the training data for the Fusion router.
+
+2. “Palantir-grade” profile research inside spreadsheet or notebook
+
+I would define Palantir-grade as:
+
+ontology-backed
+source-backed
+graph-linked
+actionable
+auditable
+reviewable
+permission-aware
+
+Not “pretty research summary.”
+
+A useful analogy from recent enterprise-agent research is event → ontology simulation → decision: business events should update a structured working graph, and decisions should come from that scenario-valid graph with a traceable audit log, not from unrestricted model free-form reasoning.
+
+For NodeRoom, build a ProfileResearchPacket.
+
+type ProfileResearchPacket = {
+  packetId: string;
+  subject: {
+    kind: "person" | "company" | "fund" | "portfolio_company" | "topic";
+    name: string;
+    aliases: string[];
+    confidence: number;
+  };
+
+  ontology: {
+    entities: Array<{
+      id: string;
+      kind: "person" | "company" | "fund" | "event" | "source" | "role";
+      label: string;
+      confidence: number;
+    }>;
+    edges: Array<{
+      from: string;
+      relation:
+        | "works_at"
+        | "founded"
+        | "invested_in"
+        | "portfolio_of"
+        | "attended_event"
+        | "mentioned_with"
+        | "source_supports"
+        | "needs_review";
+      to: string;
+      evidenceFactIds: string[];
+      confidence: number;
+    }>;
+  };
+
+  dossier: {
+    executiveSummary: string;
+    timeline: string[];
+    people: string[];
+    companies: string[];
+    events: string[];
+    openQuestions: string[];
+    nextActions: string[];
+  };
+
+  evidence: Array<{
+    factId: string;
+    claim: string;
+    sourceUrl?: string;
+    quote?: string;
+    screenshotRef?: string;
+    bboxNorm?: { x: number; y: number; w: number; h: number };
+    status: "source_backed" | "manual" | "graph_inferred" | "needs_review";
+  }>;
+
+  outputs: {
+    spreadsheetRows: unknown[];
+    notebookBlocks: unknown[];
+    graphNodes: unknown[];
+  };
+};
+Spreadsheet surface
+
+Create a “Profiles” workbook with these tabs:
+
+1. Profile Summary
+   subject, entity type, status, confidence, owner, last checked
+
+2. People
+   name, role, company, relationship, source, confidence
+
+3. Companies / Portfolio
+   company, stage, sector, relationship to subject, lead/owner, evidence
+
+4. Events / Timeline
+   date, event, location, involved entities, source
+
+5. Evidence Facts
+   claim, quote, URL, screenshot, bbox, status, last checked
+
+6. Open Questions
+   question, why it matters, suggested next source, owner
+
+7. Actions
+   follow-up, diligence task, CRM row, email draft, export status
+
+The key is that rows are not just text. Each row has evidenceFactIds, confidence, status, and needs_review flags.
+
+Notebook / Tiptap / Notion-like surface
+
+Render the same packet as a research dossier:
+
+# Mark Liu / UpscaleX Research Packet
+
+## Executive Brief
+3-5 bullets with only source-backed or explicitly manual claims.
+
+## Entity Graph
+People, companies, portfolio, events.
+
+## Timeline
+Events and public references.
+
+## People & Companies
+Expandable cards.
+
+## Evidence Cards
+Claim → quote → source → screenshot / bbox.
+
+## Open Questions
+What the agent could not verify.
+
+## Proposed Actions
+Add to sheet, assign owner, draft email, export.
+
+Architecturally, this should follow your notebook boundary: ProseMirror/Tiptap is the user-owned collaborative canvas; the agent should write sidecar findings, proposals, evidence, and structured read models first, then insert into the notebook only through an approval path.
+
+The pipeline
+User asks:
+  "Research Mark Liu / UpscaleX Palo Alto."
+
+NodeAgent:
+  1. Resolve entity aliases.
+  2. Search public sources with Linkup.
+  3. Capture source pages with Firecrawl / browser capture when needed.
+  4. Extract evidence facts.
+  5. Build ontology graph.
+  6. Generate ProfileResearchPacket.
+  7. Surface as spreadsheet rows + notebook dossier.
+  8. Mark unsupported graph facts as needs_review.
+  9. Save trace and cost receipt.
+
+Your “Evidence Accountant” concept is exactly the right substrate: raw source, markdown/html/PDF, screenshot, selector/bbox, extracted value, quote, confidence, checks, and downstream artifact usage should all be tracked.
+
+3. How Proofloop becomes an adaptive Fusion model router
+
+Yes — your Proofloop can become a production adaptive router. Do not start with full RL. Start with a contextual router + proof feedback loop.
+
+The router’s job:
+
+For this task, choose the cheapest model/tool plan that is likely to pass the verifier, and escalate only when proof says it is necessary.
+
+Router inputs
+type RoutingFeatures = {
+  taskKind:
+    | "accounting_reconciliation"
+    | "profile_research"
+    | "xbrl_tagging"
+    | "financial_statement_verification"
+    | "spreadsheet_edit"
+    | "notebook_dossier"
+    | "visual_trace_judge";
+
+  sourceTypes: Array<"xlsx" | "pdf" | "docx" | "pptx" | "html" | "image" | "chat" | "xbrl">;
+  outputTargets: Array<"spreadsheet" | "notebook" | "deck" | "pdf" | "graph">;
+
+  contextSizeTokens: number;
+  formulaComplexity: "low" | "medium" | "high";
+  evidenceStrictness: "low" | "medium" | "banker_grade";
+  privacyLevel: "public" | "room" | "private";
+  budgetRemainingUsd: number;
+  latencyTargetMs?: number;
+
+  priorFailures: string[];
+  similarTaskStats?: {
+    model: string;
+    passRate: number;
+    medianCostUsd: number;
+    medianLatencyMs: number;
+    evidenceScore: number;
+  }[];
+};
+Router outputs
+type FusionRoutePlan = {
+  plannerModel: string;
+  extractorModel: string;
+  reasoningModel: string;
+  verifierModel: string;
+  visualJudgeModel?: string;
+
+  tools: Array<
+    | "deterministic_parser"
+    | "linkup_search"
+    | "firecrawl_capture"
+    | "browser_bbox_capture"
+    | "spreadsheet_formula_engine"
+    | "xbrl_parser"
+  >;
+
+  maxCostUsd: number;
+  maxAttempts: number;
+  escalationPolicy: Array<{
+    ifFailure: string;
+    thenRoute: Partial<FusionRoutePlan>;
+  }>;
+};
+The Proofloop reward
+
+Every run produces a reward vector:
+
+type ProofloopReward = {
+  taskCompletion: number;        // benchmark or user-goal pass
+  evidenceGrounding: number;     // source-backed claim ratio
+  artifactCorrectness: number;   // formulas, exports, reopen
+  visualClarity: number;         // screenshots / video judge
+  humanAcceptance: number;       // accepted vs rejected
+  costEfficiency: number;        // cost normalized by task class
+  latencyEfficiency: number;
+  safety: number;                // no private leak, no clobber, no retry storm
+  total: number;
+};
+
+You already have the right direction: the BTB live-browser matrix ultimately produced 100/100 fresh-room chat receipts, with the important caveat that completion/product-path proof must be kept separate from official semantic score claims.
+
+Fusion router loop
+1. Classify task.
+2. Choose cheapest credible route.
+3. Run NodeAgent.
+4. Verify with Proofloop:
+   - deterministic scorer
+   - evidence verifier
+   - export/reopen
+   - visual judge
+   - cost/latency
+5. If pass:
+   - store route as successful sample
+6. If fail:
+   - classify failure
+   - escalate model/tool plan
+   - rerun
+7. Periodically update router policy from stored traces.
+
+This aligns with current research on agent trace assurance: modern agent failures include unsupported claims, non-termination, external side effects, role drift, and tool/memory faults, so trace contracts and machine-checkable step verdicts are necessary for evaluating and improving orchestration.
+
+Start with bandits, not full RL
+
+The first production router should be:
+
+rules + contextual bandit + held-out evals
+
+Not:
+
+online RL directly changing production behavior
+
+Use:
+
+shadow mode:
+  router recommends route but current route runs
+
+active_ab:
+  route 10-20% of low-risk tasks through Fusion
+
+assist mode:
+  router can escalate on verifier failure
+
+prod mode:
+  router is default, but hard-capped by credits and safety gates
+
+For heavier analytics and model-routing trends, store events in an OLAP layer rather than running huge historical scans inside Convex. Your Convex notes already separate live OLTP state from BI-scale scans and recommend a downstream warehouse/analytics path for large cost/model/performance analysis.
+
+4. Concrete accounting benchmark roadmap
+P0 — Accounting live-room smoke
+
+Build 5 small tasks:
+
+A1. Bank reconciliation
+A2. Trial balance to statements
+A3. AR/AP aging
+A4. Journal entry proposal
+A5. Cash flow indirect method
+
+Each must run as:
+
+fresh room
+upload files
+@nodeagent
+stream
+spreadsheet output
+notebook summary
+evidence facts
+export/reopen
+receipt
+P1 — Public benchmark adapters
+
+Add adapters for:
+
+Finch-style spreadsheet workflows
+FinAuditing / XBRL consistency
+FinRule-Bench rule verification
+FinVerBench statement verification
+TAT-QA table/text numerical reasoning
+Fin-RATE SEC longitudinal/cross-entity tasks
+P2 — Palantir-grade profile research
+
+Build:
+
+ProfileResearchPacket schema
+profile spreadsheet tabs
+Tiptap/Notebook dossier renderer
+evidence-card hover
+entity graph view
+open-questions queue
+P3 — Fusion router v0
+
+Implement:
+
+router shadow mode
+route receipt
+reward vector
+cost/latency/evidence metrics
+failure taxonomy
+escalation policy
+P4 — Production scoring dashboard
+
+Show:
+
+task class
+model route
+pass rate
+cost per pass
+time per pass
+evidence score
+visual score
+user acceptance
+failure categories
+5. The highest-value next test
+
+The next best NodeRoom test is:
+
+Accounting FR-A1:
+Fresh room bank reconciliation packet
+
+Inputs:
+
+bank_statement.csv
+general_ledger.csv
+prior_month_recon.xlsx
+close_policy.pdf
+
+Expected outputs:
+
+reconciliation.xlsx
+exceptions tab
+journal entries tab
+notebook memo
+evidence facts
+trace storybook
+export/reopen receipt
+
+Verifier:
+
+ending cash ties
+matched/unmatched classification correct
+debits = credits
+exceptions cited
+memo references evidence
+no private leak
+cost under cap
+
+This is a better first accounting demo than an abstract SEC filing Q&A because it shows NodeRoom’s full strength:
+
+files
+spreadsheet
+notebook
+agent
+evidence
+trace
+export
+review
+Final recommendation
+
+Test accounting in this order:
+
+1. Bank reconciliation
+2. Trial balance → financial statements
+3. AR/AP aging
+4. Journal entry proposal
+5. Cash flow statement
+6. XBRL / GAAP rule verification
+7. SEC longitudinal / cross-company analysis
+8. Multi-artifact Finch-style enterprise workflows
+
+Build profile research as:
+
+ProfileResearchPacket
+  -> spreadsheet tabs
+  -> Notion-like notebook dossier
+  -> evidence cards
+  -> ontology graph
+  -> open questions
+  -> actions
+
+And build the Fusion router as:
+
+Proofloop feedback
+  -> route recommendation
+  -> cheap model first
+  -> verifier
+  -> escalate only on failure
+  -> store reward
+  -> update routing policy
+
+The crisp product doctrine:
+
+NodeRoom should not just answer accounting and profile questions. It should produce auditable workpapers, dossiers, and model-routing receipts that prove which agent/model/tool path was worth paying for.
+
+How the loop come into play:
+
+20 Loop Design Patterns Every AI Engineer Should Know
+
+Rahul
+@sairahul1
+·
+8h
+Most AI engineers know how to build an agent.
+Very few know how to build a system that gets better after the first attempt.
+That gap is worth six figures.
+Here's the difference:
+An agent is a worker.
+A loop is what makes the worker improve.
+The most capable AI systems in production today are not single model calls.
+They are loops.
+Generate → Evaluate → Learn → Improve.
+Over and over.
+Until the output is actually good.
+Here are 20 loop design patterns that show up repeatedly in production AI systems.
+Save this. You will build with these.
+Agents vs Loops
+
+Old way: Prompt → Response → Done.
+New way: Generate → Critique → Rewrite → Score → Retry → Remember → Improve.
+One is a factory worker who does the job once.
+The other is a factory worker who studies every mistake, rewrites the playbook, and gets 3% better every single shift.
+The teams shipping production AI right now are not writing better prompts.
+They are building better loops.
+Image
+CATEGORY 1 — QUALITY IMPROVEMENT LOOPS (Make the output better before it leaves the system)
+
+1. Generate → Critique → Rewrite
+
+The most important loop in AI engineering.
+Generate output. Critic reviews it. Generator rewrites based on feedback. Repeat until quality threshold is met.
+Not one model. Two roles. One pipeline.
+plaintext
+[Generator] → draft
+[Critic]    → "paragraph 3 is vague. missing evidence. tone is off."
+[Generator] → rewrite based on critique
+[Critic]    → "better. but conclusion still weak."
+[Generator] → final rewrite
+Used for: writing, code review, reports, strategy docs, sales emails.
+The insight: the model that generates is not the best judge of its own output.
+A separate critic finds what the generator missed every time.
+Image
+2. Score-and-Retry Loop
+
+Generate. Score. Retry if below threshold.
+Simple. Powerful. Underused.
+score = evaluate(output)
+plaintext
+score = evaluate(output)
+
+while score < threshold:
+    output = generate(prompt)
+    score = evaluate(output)
+    attempts += 1
+    if attempts > max_retries:
+        return best_so_far
+Best when quality is measurable — extraction accuracy, format compliance, factual correctness, lead scoring.
+The generator doesn't know it's being graded.
+The evaluator does.
+That separation is the pattern.
+3. Multi-Critic Loop
+
+One critic has blind spots.
+Use four.
+→ Correctness critic: is it factually accurate? 
+→ Style critic: is it clear and well-written? 
+→ Safety critic: is it appropriate and safe? 
+→ Domain critic: does it meet specialist standards?
+Each evaluates independently.
+Final output must satisfy all four before it exits.
+Used in: medical AI, legal document review, financial analysis, regulated content.
+Image
+4. Adversarial Critique Loop
+
+The critic's only job is to break the answer.
+Not improve it. Break it.
+Questions the adversarial critic asks:
+→ What assumptions fail here? → What evidence is missing? → What would a skeptic say? → Where is this confidently wrong?
+The generator then defends or rewrites.
+The best answer survives the attack.
+Used for: research synthesis, investment thesis review, strategic planning, risk analysis.
+5. Judge Ensemble Loop
+
+One judge gives noisy scores.
+Five judges average out the noise.
+Run the same output through multiple evaluators.
+Aggregate scores.
+Only outputs with high consensus advance.
+Used when: single-model evaluation is unreliable, stakes are high, edge cases matter.
+Image
+CATEGORY 2 — MEMORY LOOPS (Learn from what happened so next time is smarter)
+
+6. Reflexion Loop
+
+The most important self-improvement pattern that exists.
+Agent fails. Agent analyzes why it failed. Agent stores the lesson. Agent retries with that lesson in context.
+Each iteration: smarter than the last.
+plaintext
+attempt 1: fails
+reflection: "I assumed X but X was wrong. Next time verify X first."
+attempt 2: incorporates lesson → partial success
+reflection: "Better. But I skipped Y. Add Y check."
+attempt 3: succeeds
+The difference between a system that fails once and a system that only fails once.
+
+Image
+7. Memory Update Loop
+
+After every task, store three things:
+→ What decision was made → What the outcome was → What would be done differently
+Future runs inherit this knowledge.
+The system in month 6 is not the same as the system in month 1.
+It has read 6 months of its own history.
+8. Error Library Loop
+
+Store every failure.
+Wrong answer. Bad output. Failed execution. Edge case.
+Before acting on a new task:
+Search the error library first.
+If a similar failure exists → apply the known fix before even starting.
+The system stops making the same mistake twice.
+The most underused pattern in production AI.
+9. Success Pattern Loop
+
+Most engineers only store failures.
+Store successes too.
+When a task goes well:
+→ Save the approach → Save the context → Save what made it work
+Retrieve successful patterns when facing similar tasks.
+Learn from wins. Not just mistakes.
+10. Memory Compression Loop
+
+Memory grows forever.
+Unlimited memory is unusable memory.
+After N items accumulate:
+Compress them.
+Many specific memories → fewer higher-level abstractions.
+plaintext
+Before compression:
+"Failed on task A because of X"
+"Failed on task B because of X"  
+"Failed on task C because of X"
+
+After compression:
+"Pattern: X causes failures. Always check X first."
+Context stays manageable. Patterns stay accessible. System stays fast.
+Image
+CATEGORY 3 — PLANNING LOOPS (Adapt the plan when reality changes)
+
+11. Plan → Execute → Replan
+
+The most common mistake in AI agent design:
+Treating the plan as fixed.
+Plans break on contact with reality.
+The pattern:
+Create plan → execute step → observe outcome → update plan → continue
+Not a waterfall.
+A spiral.
+Each lap around tightens the approach.
+Used when: environment changes, tasks have dependencies, long-horizon goals.
+Image
+12. Dynamic Workflow Loop
+
+Most pipelines are fixed.
+Step 1 → Step 2 → Step 3. Always.
+Dynamic workflows change based on results.
+If output A → run branch X If output B → run branch Y If output C → skip to step 5
+The pipeline decides its own shape at runtime.
+Used in: multi-document research, customer support routing, adaptive content pipelines.
+13. Goal Decomposition Loop
+
+Large goal enters.
+System breaks it into subgoals.
+Each subgoal breaks into tasks.
+Each task breaks into steps.
+Decompose until each unit is small enough to execute in one call.
+plaintext
+Goal: "Write a comprehensive competitive analysis"
+↓
+Subgoal 1: "Identify top 5 competitors"
+Subgoal 2: "Analyze each competitor's product"
+Subgoal 3: "Compare pricing models"
+Subgoal 4: "Identify gaps"
+↓
+Each subgoal → tasks → individual model calls
+The loop keeps decomposing until the system can act.
+14. Progress Evaluation Loop
+
+Every N steps: stop and ask.
+"Are we actually getting closer to the goal?"
+If yes: continue current strategy. If no: change strategy, tools, or plan.
+The system monitors its own progress.
+Not just executes blindly.
+Used in: long-running research agents, multi-day autonomous tasks, debugging agents.
+15. Constraint Satisfaction Loop
+
+Keep running until all constraints are met.
+plaintext
+while not all_constraints_satisfied(output):
+    output = improve(output, unsatisfied_constraints)
+
+constraints = [
+    budget_under_limit,
+    quality_above_threshold,
+    latency_under_200ms,
+    tone_matches_brand,
+    no_hallucinations
+]
+Very common in production systems.
+The output is not done until every business rule passes.
+Image
+CATEGORY 4 — EXPLORATION LOOPS (Find the best answer by trying multiple paths)
+
+16. Branch-and-Explore Loop
+
+Don't commit to one path.
+Explore several simultaneously.
+plaintext
+paths = [
+    generate(approach="conservative"),
+    generate(approach="aggressive"),
+    generate(approach="creative")
+]
+
+scores = [evaluate(p) for p in paths]
+best = paths[scores.index(max(scores))]
+Compare outcomes. Choose the best branch. Discard the rest.
+Used for: content variations, architecture decisions, debugging multiple hypotheses, A/B generation.
+
+
+Image
+17. Tree Search Loop
+
+Branch-and-Explore goes one level deep.
+Tree Search goes as deep as needed.
+Expand the most promising nodes. Prune the weakest ones. Keep exploring until the solution is found.
+plaintext
+root → [A, B, C]
+A → [A1, A2]   # A looks promising, expand it
+B → prune      # B is weak, stop here
+A1 → [A1a, A1b]
+A1a → solution ✓
+Used for: complex reasoning chains, multi-step planning, code debugging, research synthesis.
+Computationally expensive but finds solutions single-pass calls cannot.
+18. Debate Loop
+
+Two agents. One topic. Opposite positions.
+Agent A argues for the answer. Agent B argues against it.
+Each round challenges assumptions, demands evidence, exposes weak logic.
+Final answer emerges through disagreement.
+Not through agreement.
+The adversarial pressure finds what confident single-agent answers miss.
+Used for: investment decisions, strategic planning, risk assessment, research critique.
+Image
+CATEGORY 5 — SYSTEM OPTIMIZATION LOOPS (The loop improves the loop)
+
+19. Prompt Optimization Loop
+
+Most engineers write a prompt once and never touch it again.
+Prompt optimization loops change that.
+The system:
+→ Runs the prompt on a test set 
+→ Scores every output 
+→ Identifies where the prompt fails 
+→ Rewrites the prompt to fix those failures → Reruns and rescores
+The prompt gets better automatically.
+Without a human touching it.
+plaintext
+current_prompt = "Summarize this document."
+
+for iteration in range(max_iterations):
+    outputs = [run(current_prompt, doc) for doc in test_set]
+    scores = [evaluate(o) for o in outputs]
+    avg_score = mean(scores)
+    
+    if avg_score >= target:
+        break
+    
+    failures = [o for o, s in zip(outputs, scores) if s < threshold]
+    current_prompt = improve_prompt(current_prompt, failures)
+    # Prompt rewrites itself based on where it fails
+Used in: production pipelines, automated content systems, classification tasks.
+The best prompts in production AI were not written by a human.
+They were evolved.
+Image
+20. Workflow Optimization Loop
+
+This is where it gets interesting.
+The loop improves the loop.
+The system measures its own performance:
+→ latency: how long does each step take? 
+→ cost: how many tokens does each call use? 
+→ quality: what is the output score at each stage?
+Then it modifies its own workflow.
+Too slow? Parallelize two steps. Too expensive? Replace a GPT-4 call with a smaller model where quality holds. Quality dropping? Add a critic before the final output.
+plaintext
+metrics = measure_workflow(outputs, latency, cost)
+
+if metrics.latency > target_latency:
+    workflow = parallelize(slow_steps)
+
+if metrics.cost > budget:
+    workflow = replace_with_cheaper_model(high_cost_steps)
+
+if metrics.quality < threshold:
+    workflow = add_critic_before(final_output_step)
+This is where truly self-improving systems begin.
+Not just outputs that improve.
+Systems that redesign themselves.
+Image
+The pattern behind all 20 patterns
+
+Every single loop above shares one structure:
+Act → Observe → Evaluate → Adjust
+That is the entire recipe.
+The output is never final on the first attempt.
+The output is a starting point.
+The loop is what turns a starting point into something production-worthy.
+Image
+The full map
+
+Category 1 — Quality Loops (Make output better before it leaves)
+→ 1. Generate → Critique → Rewrite 
+→ 2. Score-and-Retry 
+→ 3. Multi-Critic 
+→ 4. Adversarial Critique 
+→ 5. Judge Ensemble
+Category 2 — Memory Loops (Learn from what happened)
+→ 6. Reflexion 
+→ 7. Memory Update 
+→ 8. Error Library 
+→ 9. Success Pattern 
+→ 10. Memory Compression
+Category 3 — Planning Loops (Adapt when reality changes)
+→ 11. Plan → Execute → Replan 
+→ 12. Dynamic Workflow 
+→ 13. Goal Decomposition 
+→ 14. Progress Evaluation 
+→ 15. Constraint Satisfaction
+Category 4 — Exploration Loops (Find best answer by trying many paths)
+→ 16. Branch-and-Explore 
+→ 17. Tree Search 
+→ 18. Debate
+Category 5 — System Optimization Loops (The loop improves the loop)
+→ 19. Prompt Optimization 
+→ 20. Workflow Optimization
+Most engineers think agents are the future.
+
+Agents are just workers.
+Loops are what make workers improve.
+The biggest shift happening in AI right now is not better models.
+It's moving from:
+Prompt → Response
+to
+Generate → Evaluate → Learn → Improve
+The teams that master loop design will not build better prompts.
+They will build systems that get better every single day after deployment.
+Without anyone touching them.
+If this was useful:
+
+→
+Thought for 4m 47s
+
+The loop is the operating system of everything you are building.
+
+An agent is only the worker. The loop decides:
+
+what the worker tries
+how we know if it worked
+what failure means
+what memory gets saved
+what gets retried
+what gets escalated
+what becomes training / routing data
+
+For NodeRoom / NodeRL, the core shift is:
+
+old:
+  prompt -> response -> done
+
+new:
+  goal -> act -> observe -> evaluate -> remember -> repair -> rerun -> reward
+
+That is why your stack is becoming more than an AI app. It is becoming a closed-loop production agent system.
+
+1. The master loop for your whole system
+================================================================================
+                         NODEROOM / NODERL MASTER LOOP
+================================================================================
+
+USER GOAL
+  "Research UpscaleX"
+  "Reconcile this bank statement"
+  "Create an accounting workpaper"
+  "Generate a profile dossier"
+  "Fix this UI failure"
+
+        │
+        ▼
+
+PLAN
+  NodeAgent / coding agent decomposes task:
+  - what artifact to create
+  - what sources to inspect
+  - what tools to call
+  - what proof gates must pass
+
+        │
+        ▼
+
+ACT
+  - Linkup search
+  - Firecrawl / source capture
+  - spreadsheet write
+  - notebook proposal
+  - graph update
+  - export package
+  - browser interaction
+  - code edit
+
+        │
+        ▼
+
+OBSERVE
+  Inner trace:
+    tool calls, errors, model output, evidence, artifact mutations
+
+  Outer trace:
+    browser state, screenshots, video, visible UI, user path
+
+        │
+        ▼
+
+EVALUATE
+  - deterministic scorer
+  - evidence verifier
+  - export/reopen verifier
+  - Gemini visual judge
+  - cost / latency budget
+  - human accept/reject
+  - no-clobber / privacy checks
+
+        │
+        ▼
+
+REMEMBER
+  NodeMem stores:
+  - what worked
+  - what failed
+  - which sources supported the answer
+  - which tool path was wasteful
+  - which model route passed
+  - which failure category appeared
+
+        │
+        ▼
+
+REPAIR / REROUTE / ESCALATE
+  - retry with better context
+  - switch model
+  - call a different tool
+  - ask human
+  - mark needs_review
+  - spawn coding-agent repair lane
+  - update system map / proof gates
+
+        │
+        ▼
+
+REWARD / DATASET
+  NodeRL exports:
+  - state
+  - action
+  - observation
+  - reward
+  - failure class
+  - repair instruction
+  - trajectory JSONL
+
+================================================================================
+
+That is the practical meaning of “agentic RL” in your system.
+
+2. Where the 20 loops fit
+
+Not every loop should run on every task. The mistake would be to turn every user request into an expensive 20-loop monster. Instead, NodeRoom should pick loops by task class, risk, budget, and proof requirement.
+
+Category 1 — Quality loops
+
+These improve the answer before the user sees it.
+
+1. Generate → Critique → Rewrite
+
+Use for:
+
+diligence memo
+profile research notebook
+accounting explanation
+investor-ready summary
+follow-up email draft
+
+NodeRoom implementation:
+
+NodeAgent drafts output
+  -> EvidenceCritic checks source coverage
+  -> FinanceCritic checks domain correctness
+  -> UXCritic checks readability
+  -> NodeAgent rewrites
+
+Good for notebook / Tiptap / Notion-style outputs.
+
+2. Score-and-Retry
+
+Use for:
+
+SpreadsheetBench
+BankerToolBench
+accounting reconciliation
+cash-flow statement
+AR/AP aging
+export/reopen package
+
+NodeRoom implementation:
+
+candidate workbook
+  -> deterministic scorer
+  -> if score < threshold:
+       retry with failure summary
+  -> save best attempt
+
+This is exactly what your fresh-room benchmark proof system is moving toward: no claim without a runtime receipt, screenshot/video, verifier, output paths, and pass criteria.
+
+3. Multi-Critic
+
+Use for high-stakes outputs:
+
+finance
+accounting
+banking
+VC diligence
+legal/compliance-adjacent work
+
+Critics:
+
+Accounting critic:
+  Are numbers and debits/credits correct?
+
+Evidence critic:
+  Does every claim cite source evidence?
+
+Visual critic:
+  Is the UI state legible?
+
+Safety critic:
+  Any private leak / overclaim / unsupported claim?
+
+Cost critic:
+  Did this use too expensive a route?
+4. Adversarial Critique
+
+Use for:
+
+investment thesis
+risk memo
+credit memo
+dealflow prioritization
+portfolio company profile
+
+Prompt role:
+
+Break this answer.
+What assumption fails?
+What source is missing?
+What would a skeptical banker / investor / auditor reject?
+
+This matters because finance users do not trust polished prose. They trust objections survived.
+
+5. Judge Ensemble
+
+Use sparingly because it costs more.
+
+Use when:
+
+client-facing report
+benchmark proof
+public demo
+high-stakes financial output
+landing-page/product taste review
+
+Example:
+
+deterministic scorer
++ Gemini visual judge
++ evidence verifier
++ human reviewer
+
+This is also how your Feature Walkthrough / visual judge layer becomes a reward signal instead of just a demo asset.
+
+3. Memory loops
+
+This is where NodeMem becomes essential.
+
+6. Reflexion Loop
+
+This is your default repair pattern.
+
+attempt fails
+  -> classify why
+  -> summarize what failed
+  -> store failure memory
+  -> rerun with that lesson
+
+Example:
+
+Failure:
+  source_open_literal missing sourceArtifactId
+
+Memory:
+  "Do not call source_open_literal until capture_source returns a sourceArtifactId."
+
+Next attempt:
+  use capture_source first
+
+This is how the agent stops repeating tool misuse.
+
+7. Memory Update Loop
+
+After every meaningful run, store:
+
+decision made
+outcome
+what to do differently
+source evidence
+model/tool route
+cost
+
+For NodeRoom:
+
+NodeMemEpisode
+NodeMemFact
+NodeMemFailurePattern
+NodeMemContextPack
+
+NodeMem recently moved closer to real production usage because public room chat can now record memory episodes, while private/system messages are excluded and recording runs out-of-band so it cannot roll back the send path.
+
+8. Error Library Loop
+
+This should become one of NodeRL’s highest-value features.
+
+Before starting a task:
+  search similar failures
+
+If match:
+  inject known fix before the first attempt
+
+Examples:
+
+empty managed-write args
+volatile receipt path
+passive job starvation
+no sourceArtifactId
+Gemini key missing
+chart visual grade missing
+
+The passive intelligence workpool saturation incident is the canonical error-library item: passive jobs auto-fired, retried, saturated workpool slots, and starved foreground user jobs. That failure should permanently shape the loop policy.
+
+9. Success Pattern Loop
+
+Store wins too.
+
+Example:
+
+Task:
+  BTB package generation
+
+Successful path:
+  upload official inputs
+  public @nodeagent
+  Focus Mode
+  package verifier
+  export/reopen
+  durable evidence copy
+  Gemini attach
+
+Next similar task should reuse this path before exploring.
+
+10. Memory Compression Loop
+
+NodeMem cannot keep dumping everything into the prompt.
+
+Compression ladder:
+
+raw trace
+  -> attempt summary
+  -> failure pattern
+  -> strategy rule
+  -> routing policy
+
+Example:
+
+100 raw failures:
+  "source open failed because sourceArtifactId missing"
+
+compressed rule:
+  "All source-open tools require capture_source provenance first."
+
+This is how NodeMem stays useful instead of becoming prompt bloat.
+
+4. Planning loops
+
+These are the heart of NodeAgent.
+
+11. Plan → Execute → Replan
+
+For long tasks:
+
+research company
+build evidence
+fill spreadsheet
+export
+verify
+
+The plan must change when reality changes.
+
+Example:
+
+Plan:
+  use website source
+
+Observation:
+  website has no funding info
+
+Replan:
+  search news, SEC, LinkedIn, Crunchbase-like public sources, or mark needs_review
+12. Dynamic Workflow Loop
+
+Different outputs need different branches.
+
+If accounting task:
+  use formula verifier + export/reopen
+
+If profile research:
+  use source capture + evidence graph + notebook dossier
+
+If UI bug:
+  use browser screenshot + visual judge
+
+If benchmark:
+  use official scorer + receipt registry
+
+This is how the Fusion router should work.
+
+13. Goal Decomposition Loop
+
+Use for profile research and accounting.
+
+Example:
+
+Goal:
+  Research UpscaleX Palo Alto
+
+Subgoals:
+  1. identify entity
+  2. identify people
+  3. find events
+  4. find portfolio companies
+  5. collect evidence
+  6. create spreadsheet rows
+  7. create notebook dossier
+  8. verify citations
+
+For accounting:
+
+Goal:
+  bank reconciliation
+
+Subgoals:
+  1. parse bank statement
+  2. parse GL
+  3. match transactions
+  4. identify exceptions
+  5. propose journal entries
+  6. verify debits = credits
+  7. export workpaper
+14. Progress Evaluation Loop
+
+This is what prevents 17-hour runs from becoming blind loops.
+
+Every N steps:
+
+Are we closer to the goal?
+What output exists?
+What evidence exists?
+What is still missing?
+Are we repeating a failed path?
+Should we switch model/tool?
+Should we stop and return partial?
+
+This should be a NodeTrace/NodeLoop primitive.
+
+15. Constraint Satisfaction Loop
+
+This is the finance-grade loop.
+
+The output is not done until constraints pass:
+
+all required fields filled
+every material claim cited
+no unsupported final facts
+spreadsheet formulas recompute
+exports reopen
+trace exists
+visual state legible
+cost under cap
+no private leak
+human edits preserved
+
+This maps directly to your proof registry and fresh-room acceptance matrix. The matrix already formalizes proof signals like fresh-room join, public @nodeagent, streaming progress, trace/video artifacts, no memory-mode shortcut, focus boxes, evidence anchors, mutation visibility, export/reopen, and official scorer handoff.
+
+5. Exploration loops
+
+Use these only when the value justifies the cost.
+
+16. Branch-and-Explore
+
+Use for:
+
+model route selection
+UI design alternatives
+research strategy
+accounting parsing strategy
+profile research source strategy
+
+Example:
+
+Branch A:
+  cheap model + Linkup standard
+
+Branch B:
+  stronger model + Linkup deep
+
+Branch C:
+  deterministic parser + evidence verifier
+
+Judge:
+  pass rate, cost, evidence, latency
+
+This directly feeds the Fusion router.
+
+17. Tree Search
+
+Use only for hard problems:
+
+complex accounting reconciliation
+multi-file BTB packages
+deep research across many people/companies
+coding-agent repair
+
+Tree search is expensive, so gate it behind:
+
+Deep mode
+benchmark mode
+internal evaluation
+high-credit user approval
+18. Debate Loop
+
+Use for:
+
+investment thesis
+credit risk
+strategic positioning
+product architecture decisions
+pricing / GTM decisions
+
+Example:
+
+Bull case agent:
+  why this company is promising
+
+Bear case agent:
+  why this company is risky
+
+Evidence judge:
+  which claims are source-backed?
+
+For NodeRoom, debate should produce a review artifact, not just chat.
+
+6. System optimization loops
+
+This is where NodeRL and Fusion router become real.
+
+19. Prompt Optimization Loop
+
+Use internally.
+
+run prompt on held-out tasks
+score outputs
+collect failures
+rewrite prompt/tool descriptions
+rerun
+compare reward
+
+But do not let prompt optimization silently modify production prompts without proof.
+
+It should create:
+
+promptVersion
+evalSet
+scoreBefore
+scoreAfter
+failureCategories
+promotionReceipt
+20. Workflow Optimization Loop
+
+This is the big one.
+
+The loop improves the loop.
+
+If latency too high:
+  parallelize source capture
+
+If cost too high:
+  route extraction to cheaper model
+
+If evidence score low:
+  add source capture before synthesis
+
+If visual quality low:
+  add screenshot judge before final
+
+If retry storms appear:
+  lower attempts, quarantine provider, change tool schema
+
+If passive suggestions are noisy:
+  switch to digest mode / suppress signal
+
+This is your adaptive Fusion router.
+
+7. How this becomes NodeRL
+
+NodeRL is the system that turns these loops into data.
+
+Loop execution
+  -> NodeTrace records trajectory
+  -> NodeEval creates reward
+  -> NodeMem stores memory
+  -> NodeLoop decides repair
+  -> Fusion router updates policy
+
+In RL terms:
+
+state:
+  room, artifact, task, UI, memory, evidence, budget
+
+action:
+  model route, tool call, write, ask, retry, stop
+
+observation:
+  tool result, screenshot, artifact diff, user-visible state
+
+reward:
+  scorer, visual judge, evidence, cost, latency, human accept
+
+next state:
+  updated room, updated artifact, updated memory
+
+That is why Joseph’s point about agentic RL is important: your loops produce the missing training substrate.
+
+8. How Convex fits the loop
+
+Convex gives you the durable loop rails:
+
+Mutation:
+  fast transactional write
+  create job
+  append trace event
+  write evidence fact
+  update artifact
+
+Action:
+  call LLM
+  call Linkup
+  call Firecrawl
+  run external verifier
+  run model-router experiment
+
+Query:
+  render live room state
+  stream progress
+  show trace/storybook
+  show cost/reward state
+
+Do not put long-running LLM or web work inside mutations. Keep the loop as:
+
+mutation creates checkpoint
+  -> action performs nondeterministic work
+  -> internal mutation commits result
+  -> query streams updated UI
+
+This is the safe Action/Mutation/Query contract.
+
+Also: use append-only trace rows rather than hot-patching one agentJobs row for every stream event. The prior OCC storm is exactly why loop traces need append-only event tables and separated workpools.
+
+9. Product-level loop modes
+
+You need loop profiles.
+
+Quick mode
+
+For first-user low-cost workflows.
+
+Loops:
+  goal decomposition
+  deterministic validation
+  one score-and-retry
+  evidence check
+
+No:
+  multi-critic
+  tree search
+  debate
+  video judge
+
+Use for:
+
+quick company lookup
+simple profile row
+basic accounting question
+Standard mode
+
+For most NodeRoom paid/user value.
+
+Loops:
+  plan-execute-replan
+  evidence capture
+  score-and-retry
+  critic rewrite
+  memory update
+  cost tracking
+
+Use for:
+
+UpscaleX research packet
+bank reconciliation
+runway/milestone workpaper
+company profile dossier
+Deep mode
+
+User-approved, credit-gated.
+
+Loops:
+  multi-critic
+  adversarial critique
+  branch explore
+  deeper source search
+  visual judge
+  export/reopen
+
+Use for:
+
+client-facing finance packet
+investment thesis
+full multi-company diligence
+Benchmark / completion mode
+
+Internal or explicitly approved.
+
+Loops:
+  run to completion
+  record true cost
+  capture all traces
+  attach visual judge
+  export all artifacts
+  no arbitrary small step cap
+
+This is how you learned the true BTB cost and model behavior. The goal of this mode is not cheapness; it is measurement.
+
+10. The loop registry you should add
+
+Add a repo-level NODE-LOOPS.md plus a machine-readable registry.
+
+type LoopPattern =
+  | "generate_critique_rewrite"
+  | "score_retry"
+  | "multi_critic"
+  | "adversarial_critique"
+  | "judge_ensemble"
+  | "reflexion"
+  | "memory_update"
+  | "error_library"
+  | "success_pattern"
+  | "memory_compression"
+  | "plan_execute_replan"
+  | "dynamic_workflow"
+  | "goal_decomposition"
+  | "progress_evaluation"
+  | "constraint_satisfaction"
+  | "branch_explore"
+  | "tree_search"
+  | "debate"
+  | "prompt_optimization"
+  | "workflow_optimization";
+
+type LoopPolicy = {
+  taskKind: string;
+  mode: "quick" | "standard" | "deep" | "benchmark";
+  requiredLoops: LoopPattern[];
+  optionalLoops: LoopPattern[];
+  forbiddenLoops: LoopPattern[];
+  maxAttempts: number;
+  maxCostUsd: number;
+  stopConditions: string[];
+  verifier: string[];
+  memoryWrites: string[];
+};
+
+Example:
+
+{
+  "taskKind": "profile_research_packet",
+  "mode": "standard",
+  "requiredLoops": [
+    "goal_decomposition",
+    "plan_execute_replan",
+    "evidence_capture",
+    "score_retry",
+    "memory_update"
+  ],
+  "optionalLoops": [
+    "adversarial_critique",
+    "multi_critic"
+  ],
+  "forbiddenLoops": [
+    "tree_search"
+  ],
+  "maxAttempts": 3,
+  "maxCostUsd": 2.5,
+  "stopConditions": [
+    "evidence_backed_packet_ready",
+    "budget_cap_reached",
+    "needs_human_review"
+  ],
+  "verifier": [
+    "evidence_fact_check",
+    "notebook_dossier_check",
+    "spreadsheet_row_check"
+  ],
+  "memoryWrites": [
+    "success_pattern",
+    "failure_pattern",
+    "source_fact"
+  ]
+}
+11. What this means for accounting benchmarks
+
+Accounting should use these loops:
+
+Goal decomposition:
+  split bank rec / trial balance / JE / aging into substeps
+
+Constraint satisfaction:
+  debits = credits
+  balance sheet balances
+  cash flow ties
+  dates and periods correct
+  formulas recompute
+
+Score-and-retry:
+  rerun if workbook scorer fails
+
+Evidence loop:
+  every number links to source row/file/page
+
+Progress evaluation:
+  stop if no cells are changing after N steps
+
+Memory update:
+  save known mapping failures and successful accounting templates
+
+Workflow optimization:
+  learn which model/tool route completes accounting tasks cheapest
+
+The key is not “AI accountant answer.” It is:
+
+auditable accounting workpaper
+  + formulas
+  + evidence
+  + trace
+  + export/reopen
+  + cost receipt
+12. What this means for Palantir-grade profile research
+
+Profile research uses:
+
+Goal decomposition:
+  subject -> people -> companies -> events -> sources -> open questions
+
+Dynamic workflow:
+  if person: background graph
+  if company: sector/funding/customer/product
+  if fund: portfolio/investment/team
+
+Evidence loop:
+  every claim gets source/citation
+
+Adversarial critique:
+  what is unverified?
+  what might be mistaken identity?
+
+Memory update:
+  entity aliases, relationships, sources, prior dismissals
+
+Constraint satisfaction:
+  no graph-only fact as final source-backed claim
+  unsupported facts marked needs_review
+
+Outputs:
+
+spreadsheet tabs
+Tiptap notebook dossier
+graph view
+evidence cards
+trace storybook
+
+The ProseMirror/notebook architecture should keep the user canvas separate from agent sidecars/proposals: agents read processed snapshots and write evidence/proposals, while user approval promotes content into the human-owned notebook.
+
+13. What this means for Fusion model routing
+
+Fusion router is loop #20: workflow optimization.
+
+It should learn:
+
+which model is good at extraction
+which model is good at accounting formulas
+which model is good at visual QA
+which model is cheap but unreliable with tool args
+which task needs escalation
+
+Route loop:
+
+task classified
+  -> router chooses model/tool path
+  -> NodeAgent runs
+  -> Proofloop scores
+  -> reward saved
+  -> router updates future choice
+
+Reward:
+
+pass / fail
+evidence score
+visual score
+cost
+latency
+retry count
+tool error count
+human acceptance
+
+This is the practical version of RL before full model training.
+
+14. The biggest rule: loops must be bounded
+
+The article is right that loops make agents improve. But your real-world lesson is:
+
+Unbounded loops become cost explosions, retry storms, and invisible user frustration.
+
+So every loop needs:
+
+max attempts
+max cost
+max time
+progress check
+failure taxonomy
+human escalation
+receipt
+
+The old passive room intelligence failure happened because a background loop lacked the right boundaries and priority isolation. It created passive jobs, retried on spend/rate limits, and starved explicit user work. That is exactly what loop engineering must prevent.
+
+15. Practical next build
+
+The next concrete thing to build is not another agent feature.
+
+Build:
+
+NodeLoopRuntime v1
+
+Files:
+
+src/noderl/loop/
+  loopPolicy.ts
+  loopRegistry.ts
+  attemptLedger.ts
+  failureTaxonomy.ts
+  evaluator.ts
+  strategyDelta.ts
+  rewardBuilder.ts
+  memoryWriter.ts
+  fusionRouter.ts
+
+For NodeRoom specifically:
+
+convex/loopAttempts.ts
+convex/loopRewards.ts
+convex/loopPolicies.ts
+src/ui/trace/TraceStorybook.tsx
+src/ui/trace/LoopRewardPanel.tsx
+
+Minimum event shape:
+
+type LoopAttempt = {
+  attemptId: string;
+  roomId: string;
+  jobId: string;
+  taskKind: string;
+  mode: "quick" | "standard" | "deep" | "benchmark";
+  loopsUsed: LoopPattern[];
+  modelRoute: string[];
+  toolsUsed: string[];
+  costUsd: number;
+  latencyMs: number;
+  outputRefs: string[];
+  evidenceRefs: string[];
+  visualRefs: string[];
+  score: number;
+  passed: boolean;
+  failureCategories: string[];
+  strategyDelta?: string;
+};
+Final synthesis
+
+The 20 loop patterns are not abstract. They map directly into your system:
+
+NodeAgent:
+  plan, act, observe, write, retry
+
+NodeMem:
+  remember failures, successes, context, source facts
+
+NodeTrace:
+  record state/action/observation/reward
+
+NodeEval:
+  score evidence, UI, task completion, cost
+
+NodeRL:
+  convert loops into trajectories and policy data
+
+Solo Founder Agent Builder:
+  use the same loop discipline to improve coding-agent output
+
+Feature Walkthrough:
+  outer-loop visual observation and visual reward
+
+Fusion Router:
+  workflow optimization loop for model/tool selection
+
+The one-line doctrine:
+
+Agents do work. Loops make the work trustworthy, repeatable, cheaper, and eventually trainable.

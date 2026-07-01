@@ -1,0 +1,29 @@
+{
+  "schema": 1,
+  "id": "workstreambench",
+  "source": {
+    "name": "WorkstreamBench",
+    "paper": "https://arxiv.org/html/2605.22664v1",
+    "domain": "end-to-end finance spreadsheet workstreams"
+  },
+  "taskLoader": "proofloop/benchmarks/workstreambench/load-tasks.ts",
+  "seedInputsThroughUi": true,
+  "browserScenario": "proofloop/benchmarks/workstreambench/browser-scenario.spec.ts",
+  "verifierCommand": "proofloop/benchmarks/workstreambench/verify.ts",
+  "expectedArtifacts": [
+    "live-user-contract.json",
+    "node-trace-v2.json",
+    "node-eval.json",
+    "scorecard.md",
+    "cost-ledger.json",
+    "verifier-receipt.json",
+    "visual-proof",
+    "exported-files-reopen-proof.json"
+  ],
+  "scoringMode": "hybrid",
+  "scoreFields": [
+    "productPathCompletion",
+    "officialSemanticScore"
+  ],
+  "liveUserCommand": "npm run proofloop -- run workstreambench --prod --user-emulation strict --cockpit"
+}

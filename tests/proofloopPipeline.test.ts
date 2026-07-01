@@ -193,6 +193,40 @@ describe("notion SDR/BDR proof-loop", () => {
 // ─── Adapter Tests ────────────────────────────────────────────────────────
 
 describe("proofloop adapters", () => {
+  it("CLI implements loop engineering commands", () => {
+    const content = readFileSync(join(process.cwd(), "scripts/proofloop-cli.ts"), "utf-8");
+    for (const command of [
+      'case "eval"',
+      'case "mem"',
+      'case "storybook"',
+      'case "repair"',
+      'case "rerun"',
+      'case "storyboard"',
+      'case "clips"',
+      'case "release-video"',
+      'case "lagging"',
+      'case "router"',
+      "writeLoopArtifactsForMeta",
+      "--user-emulation strict",
+    ]) {
+      expect(content).toContain(command);
+    }
+  });
+
+  it("strict live-user benchmark adapters exist", () => {
+    for (const adapterId of ["bankertoolbench", "finch", "finauditing", "workstreambench"]) {
+      const path = join(process.cwd(), "proofloop", "benchmarks", adapterId, "adapter.json");
+      expect(existsSync(path)).toBe(true);
+      const adapter = JSON.parse(readFileSync(path, "utf-8"));
+      expect(adapter.seedInputsThroughUi).toBe(true);
+      expect(adapter.liveUserCommand).toContain("--prod");
+      expect(adapter.liveUserCommand).toContain("--user-emulation strict");
+      expect(adapter.expectedArtifacts).toContain("live-user-contract.json");
+      expect(adapter.scoreFields).toContain("productPathCompletion");
+      expect(adapter.scoreFields).toContain("officialSemanticScore");
+    }
+  });
+
   it("visual-judge adapter exists", () => {
     expect(existsSync(join(process.cwd(), "proofloop/adapters/visual-judge.ts"))).toBe(true);
     const content = readFileSync(join(process.cwd(), "proofloop/adapters/visual-judge.ts"), "utf-8");

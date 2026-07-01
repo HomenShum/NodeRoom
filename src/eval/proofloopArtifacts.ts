@@ -291,9 +291,15 @@ function renderTraceStorybook(nodeTrace: unknown, nodeEval: unknown): string {
   <header><h1>Trace Storybook</h1><div id="verdict"></div></header>
   <main>
     <section><h2>RoomHeaderAtom</h2><div id="summary"></div></section>
+    <section><h2>ChatMessageAtom</h2><div id="messages"></div></section>
+    <section><h2>ArtifactTabAtom</h2><div id="artifact-tabs"></div></section>
+    <section><h2>SpreadsheetCellAtom</h2><div id="spreadsheet-cells"></div></section>
     <section><h2>VerdictBadgeAtom</h2><div id="reward"></div></section>
     <section><h2>AgentToolAtom</h2><div id="steps"></div></section>
     <section><h2>EvidenceCardAtom</h2><div id="evidence"></div></section>
+    <section><h2>SourceCaptureAtom</h2><div id="sources"></div></section>
+    <section><h2>FocusBoxAtom</h2><div id="focus"></div></section>
+    <section><h2>CostBadgeAtom</h2><div id="cost"></div></section>
   </main>
   <script type="application/json" id="trace-data">${payload}</script>
   <script>
@@ -301,11 +307,18 @@ function renderTraceStorybook(nodeTrace: unknown, nodeEval: unknown): string {
     const trace = data.nodeTrace;
     const evalResult = data.nodeEval;
     const reward = trace.reward || evalResult.reward;
+    const atomList = (items, fallback) => (items && items.length ? items : [fallback]).map((value) => "<div class='atom'>" + value + "</div>").join("");
     document.getElementById("verdict").textContent = evalResult.verifier.hardPass ? "PASS" : "FAIL";
     document.getElementById("summary").innerHTML = "<code>" + trace.runId + "</code><br/>" + trace.userGoal;
+    document.getElementById("messages").innerHTML = atomList([trace.userGoal, evalResult.judge.diagnosticSummary], "No chat messages recorded.");
+    document.getElementById("artifact-tabs").innerHTML = atomList(trace.artifacts.map((a) => "<code>" + a.artifactId + "</code><br/>" + a.exportPath), "No artifacts recorded.");
+    document.getElementById("spreadsheet-cells").innerHTML = atomList(trace.outerTrace.uiAssertions.map((a) => "<code>" + a.id + "</code>: " + a.observed), "No cell assertions recorded.");
     document.getElementById("reward").innerHTML = Object.entries(reward).map(([k, v]) => "<div class='atom'><code>" + k + "</code>: " + JSON.stringify(v) + "</div>").join("");
     document.getElementById("steps").innerHTML = trace.innerTrace.steps.map((s) => "<div class='atom " + (s.error ? "fail" : "pass") + "'><code>" + s.action + "</code><br/>" + s.observation + "</div>").join("");
     document.getElementById("evidence").innerHTML = trace.outerTrace.screenshots.concat(trace.artifacts).map((e) => "<div class='atom'><code>" + (e.path || e.exportPath) + "</code></div>").join("");
+    document.getElementById("sources").innerHTML = atomList((evalResult.judge.evidencePaths || []).map((p) => "<code>" + p + "</code>"), "No source captures recorded.");
+    document.getElementById("focus").innerHTML = atomList(trace.outerTrace.uiAssertions.map((a) => (a.passed ? "pass" : "fail") + ": " + a.expected), "No focus boxes recorded.");
+    document.getElementById("cost").innerHTML = atomList(trace.innerTrace.steps.map((s) => "<code>" + s.action + "</code>: $" + s.costUsd + ", " + s.latencyMs + "ms"), "No cost data recorded.");
   </script>
 </body>
 </html>

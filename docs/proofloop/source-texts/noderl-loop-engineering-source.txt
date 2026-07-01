@@ -1,0 +1,899 @@
+noderoom_noderl_detailed_report.md
+File
+noderoom_noderl_one_page_report.md
+File
+These all come together:
+
+Done — I created both Markdown files:
+
+Download the one-page report⁠￼
+
+Download the detailed report⁠￼
+
+Condensed read
+
+The past week’s work now points to one clear product thesis:
+
+NodeRoom + NodeTrace + NodeMem + Feature Walkthrough + NodeRL is a production agent-evaluation loop, not just an AI app demo.
+
+The strongest completed pieces are:
+
+1. NodeRoom now has a self-improving loop manifest. The latest NodeRoom commit adds NODE-LOOPS.md, explicitly framing the repo as a self-improving loop with NodeMem, a graph/knowledge layer, OKF/RAG, and proof gates.
+2. The #upscalex demo path is now more concrete. Recent commits added an UpscaleX / Mark Liu portfolio graph and a “Start here” note for external reviewers, so the demo can show a room, a portfolio/network graph, and guided user action rather than a generic room shell.
+3. NodeMem was wired into the real production chat path. A key gap was fixed: NodeMem was previously recording only benchmark/spec episodes, not normal live chat. The new path records public room chat and successful agent findings while excluding private/system messages and preventing memory recording failures from rolling back user sends.
+4. NodeRL has become a real mono-reference substrate. Recent commits added manifest-driven extraction from NodeRoom, standalone package sources, a literature review, a BTB tool-policy experiment spec, and a (state, action, observation, reward) trajectory exporter.
+5. Feature Walkthrough is now an outer-loop trace system. It now includes NodeRoom hero walkthroughs, multi-pane collaboration, streaming/burst capture, and Gemini-judged visual proof. The NodeRoom hero clip specifically shows landing → room creation → NodeAgent diligence → trace/evidence, with Gemini judging it 16/16.
+6. The BTB proof path matured from selected proof to full-suite live proof. The live run logs show the direction: fresh-room browser runs, public @nodeagent, Focus Mode, upload/export/reopen, trace/video evidence, and a full matrix eventually reaching 100/100 completion receipts. The report keeps the important caveat: this is a completion/product-path proof, not automatically an official semantic 100% score.  
+
+Main remaining gap
+
+The missing product layer is the merged trace object:
+
+inner agent trace
+  + outer browser/user trace
+  + artifact state
+  + evidence state
+  + visual judge
+  + task verifier
+  + cost/latency
+  = NodeRL trajectory
+
+That is the bridge to NeoSigma-like production evaluation and to agentic RL. You already have most pieces. What remains is making them one canonical object with golden expectations, reward scoring, and a deterministic storybook viewer.
+
+The next build target I recommend is:
+
+NodeTrace v2 + NodeEval v1 + Trace Storybook v1.
+
+That closes the loop from “agent did something” to “real user saw the right thing, the task completed, evidence supports it, the system knows the reward, and the coding agent can repair failures.”
+Thought for 1m 8s
+1. Human version
+
+Loop engineering is the discipline underneath all of this.
+
+It means we are not building “one agent feature.”
+
+We are building a loop that can run, check itself, remember what happened, repair failure, and run again.
+
+The loop is:
+
+Do the task
+→ watch what happened
+→ judge if it worked
+→ remember success/failure
+→ repair the app or harness
+→ rerun
+→ promote the fix into a regression
+
+Your reports already describe this exact shape: the final production-eval loop starts with a user/benchmark/coding-agent task, records the outer browser trace and inner agent trace, computes rewards, stores success/failure in NodeMem, sends exact failure evidence to a coding agent, changes app code or agent policy, reruns the task, and promotes only if proof gates pass.
+
+How each piece fits
+NodeRoom
+= the live environment where the loop runs
+
+NodeAgent
+= the worker that takes actions
+
+NodeTrace
+= the recorder of what happened
+
+Feature Walkthrough
+= the outer UI/browser proof
+
+NodeEval
+= the judge/reward builder
+
+NodeMem
+= the memory of what worked and failed
+
+NodeRL
+= the learning layer that can use those traces
+
+Solo Founder Agent Builder
+= the coding-agent repair loop
+
+The detailed report frames the stack this way too: NodeRoom is the live human-agent workroom, NodeAgent edits artifacts and produces evidence, NodeMem supplies memory, NodeTrace records trajectories, Feature Walkthrough captures outer browser/user proof, NodeEval builds reward, and NodeRL turns trace into reward, memory, repair, and policy learning.
+
+The simple sentence
+
+Loop engineering is how Proof Loop becomes self-improving instead of just observability.
+
+Observability says:
+
+Here is what happened.
+
+Loop engineering says:
+
+Here is what happened.
+Here is why it failed.
+Here is what to fix.
+Here is the memory.
+Now rerun and prove it improved.
+Why NodeTrace v2 matters
+
+NodeTrace v2 is the loop object.
+
+It combines:
+
+inner agent trace
++ outer browser trace
++ artifact state
++ evidence
++ visual judge
++ verifier
++ cost
++ reward
+
+That matters because a benchmark can pass while the UI fails, the UI can look good while the output is wrong, and a tool trace can look busy while the final artifact is unsupported. The merged trace lets the system judge task, artifact, evidence, UI, experience, cost, and safety together.
+
+The final loop engineering formula
+NodeTrace = record the loop
+NodeEval = score the loop
+NodeMem = remember the loop
+NodeRL = learn from the loop
+Proof Loop = rerun the loop
+Trace Storybook = show the loop
+Coding Agent = repair the loop
+
+That is the product.
+
+2. Coding-agent version
+Goal
+
+Implement loop engineering as the core operating model.
+
+Do not add more agent features first.
+
+Build:
+
+NodeTrace v2
+NodeEval v1
+Trace Storybook v1
+
+The detailed report says this should be the next milestone because it closes the product loop:
+
+real user path
++ inner agent path
++ visual evidence
++ artifact evidence
++ reward
++ repair
+
+Loop architecture
+1. Task starts
+2. Outer browser trace records real UI behavior
+3. Inner agent trace records agent actions
+4. NodeEval computes rewards
+5. NodeMem stores success/failure patterns
+6. Coding agent receives failure evidence
+7. App or agent policy changes
+8. Same task reruns
+9. Fix is promoted only if proof gates pass
+Required loop object
+
+Create:
+
+NodeMergedTrajectory
+
+It must include:
+
+userGoal
+outerTrace
+innerTrace
+artifacts
+reward
+failureCategories
+
+The current proposed schema already includes outer browser screenshots, console/network errors, UI assertions, inner agent steps, artifact hashes/exports/reopen checks, and reward fields for task completion, UI correctness, visual quality, evidence grounding, cost efficiency, latency, safety, and total score.
+
+Required commands
+proofloop run <suite>
+proofloop eval latest
+proofloop mem write latest
+proofloop storybook latest
+proofloop repair latest
+proofloop rerun latest
+Loop engineering P0
+P0.1 NodeTrace v2
+
+Output:
+
+.proofloop/runs/<run-id>/node-trace-v2.json
+
+Must join:
+
+roomId
+agentJobId
+traceId
+artifactId
+screenshotId
+P0.2 NodeEval v1
+
+Output:
+
+.proofloop/runs/<run-id>/node-eval.json
+
+Must score:
+
+taskCompletion
+uiStateCorrectness
+visualQuality
+evidenceGrounding
+costEfficiency
+latencySmoothness
+safety
+total
+failureCategories
+P0.3 NodeMem write
+
+Store:
+
+success pattern
+failure pattern
+task kind
+model policy
+harness version
+cost
+reward
+repair action
+receipt refs
+P0.4 Repair prompt
+
+Generate:
+
+.proofloop/runs/<run-id>/repair-prompt.md
+
+It must include:
+
+exact failure
+evidence paths
+screenshots
+trace step
+artifact state
+suggested smallest fix
+regression to add
+Loop engineering P1
+Trace Storybook
+
+Render from trace JSON only.
+
+Do not rebuild the live app.
+
+Use compact atoms:
+
+RoomHeaderAtom
+ChatMessageAtom
+ArtifactTabAtom
+SpreadsheetCellAtom
+EvidenceCardAtom
+SourceCaptureAtom
+FocusBoxAtom
+AgentToolAtom
+CostBadgeAtom
+VerdictBadgeAtom
+
+The detailed report says the storybook should render compact trace atoms from canonical trace data, not duplicate the full app UI.
+
+Acceptance criteria
+
+Loop engineering is working when one failed run can produce:
+
+node-trace-v2.json
+node-eval.json
+scorecard.md
+repair-prompt.md
+memory write
+storybook view
+rerun result
+regression promotion
+
+And the system can answer:
+
+What failed?
+Why did it fail?
+Where is the evidence?
+What should be repaired?
+Did the repair work?
+What should be remembered?
+One-line technical thesis
+
+Loop engineering is the closed-loop runtime: trace → reward → memory → repair → rerun → regression.
+
+We should enrich our existing demo and video making pipeline for spreading the findings at each layer with storyboards method, research how top latest blog or content creators are using coding agents to do it
+
+ Proof Loop
+- [ ] Offerings: App’s own fusion router maker
+- [ ] Video: Describe the model performance changes for new model releases, spread on social media, X, Hackernews, Reddit
+- [ ] Easy setup, fixes agent harness, fixes UI, ensure prod agent readiness for end users 
+
+Show what’s lagging as well 
+Thought for 1m 40s
+1. Human version
+
+Yes. We should add a Proof Loop media layer.
+
+The screenshot shows the exact content pattern:
+
+Model A vs Model B
+same pipeline
+same task
+different behavior
+side-by-side clip
+simple public takeaway
+
+But the comment also shows the risk:
+
+“Why compare LLMs on video generation? This is nonsense.”
+
+So our framing must be clearer.
+
+We are not comparing LLMs as video generators.
+
+We are comparing them as:
+
+planner
+director
+router
+harness user
+tool caller
+verifier
+UI operator
+
+That is our angle.
+
+The new Proof Loop content pipeline
+
+Every proof run should create two things:
+
+1. Technical proof
+   scorecard, trace, cost, verifier, screenshots, logs
+
+2. Public story
+   storyboard, clips, captions, model delta, what lagged
+
+Your Feature Walkthrough repo already gives us the owned base: scripted Playwright capture, Remotion render, cursor motion, zoom, captions, progress bar, loading/streaming capture, GIF/MP4 output.
+
+So Proof Loop should turn:
+
+NodeTrace v2
++ NodeEval
++ cockpit events
++ screenshots/video
+
+into:
+
+a model release clip
+a benchmark proof clip
+a lagging/failure clip
+a harness changelog clip
+What creators are doing
+
+The current creator pattern is:
+
+storyboard first
+→ generate images/video
+→ compare model behavior
+→ post short side-by-side proof
+
+That is also where AI video apps are going. Higgsfield is being reported as a workflow layer for creators and marketers, integrating multiple third-party models rather than only building one foundation model. Reuters reported that social media marketers are a major usage segment and that Higgsfield chains multiple AI systems to improve consistency.
+
+Research agrees with the decomposition idea too: StoryAgent splits storytelling video generation into specialized agents for story design, storyboard generation, video creation, coordination, and evaluation.
+
+So our version should be:
+
+Proof Loop creates storyboards from real proof traces, not from vibes.
+
+The content structure
+
+For every model release or harness update, generate:
+
+1. What changed?
+2. Same task, same app, same UI.
+3. Model A run.
+4. Model B run.
+5. What the stronger model did differently.
+6. What lagged.
+7. What scaffold/harness fix helped.
+8. Cost, speed, proof score.
+9. Final recommendation.
+Show what’s lagging
+
+This is important.
+
+Do not only show the winner.
+
+Show:
+
+lagging model
+lagging route
+lagging UI state
+lagging tool
+lagging cost
+lagging verifier step
+lagging artifact
+lagging design
+
+Examples:
+
+Claude passed, GLM failed because it stopped after .xlsx and missed .pptx/.docx/.pdf.
+
+Fusion v2 passed cheaper, but visual quality lagged because the sidekick skipped screenshot verification.
+
+New model passed the benchmark, but cost was 3x higher.
+
+Harness v4 improved artifact generation, but UI focus boxes still lag.
+
+That makes the content credible.
+
+Proof Loop offerings
+
+Clean offering list:
+
+1. App’s own fusion router maker
+   We help your app decide which model/worker handles which task.
+
+2. Model release proof videos
+   We show new model behavior on real app tasks with clips, cost, score, and failure deltas.
+
+3. Easy setup
+   We install proof-looping into your repo so agents can fix the harness, fix the UI, run prod benchmarks, and prove readiness.
+
+4. Lagging-layer dashboard
+   We show which layer is blocking success: model, router, context, tool, UI, verifier, artifact, cost, or design.
+The simple pitch
+
+Proof Loop turns every benchmark run into both a proof artifact and a public story. It shows which model worked, what lagged, what it cost, what the user saw, and what scaffold change made the system better.
+
+2. Coding-agent version
+Goal
+
+Extend Proof Loop with:
+
+Proof Storyboard
+Proof Clips
+Model Release Video
+Lagging Layer Report
+Fusion Router Maker
+New commands
+proofloop storyboard latest
+proofloop clips latest
+proofloop release-video latest
+proofloop lagging latest
+proofloop router suggest latest
+Required outputs
+.proofloop/runs/<run-id>/
+  storyboard.json
+  storyboard.md
+  lagging-layers.json
+  lagging-layers.md
+  clips/
+    01-task-setup.mp4
+    02-model-a-run.mp4
+    03-model-b-run.mp4
+    04-delta.mp4
+    05-lagging-layer.mp4
+    final-release-video.mp4
+  social/
+    x-thread.md
+    reddit-post.md
+    hackernews-title.txt
+    short-caption.txt
+Storyboard schema
+{
+  "title": "Claude vs GLM on BankerToolBench inside NodeRoom",
+  "claim": "We are comparing model behavior inside a real agent harness, not raw video generation.",
+  "scenes": [
+    {
+      "id": "setup",
+      "caption": "Same app. Same task. Same verifier.",
+      "evidence": ["node-trace-v2.json", "scorecard.md"]
+    },
+    {
+      "id": "model-a",
+      "caption": "Model A completes the package.",
+      "clip": "clips/02-model-a-run.mp4"
+    },
+    {
+      "id": "model-b",
+      "caption": "Model B misses the document/deck artifacts.",
+      "clip": "clips/03-model-b-run.mp4"
+    },
+    {
+      "id": "delta",
+      "caption": "The difference was checklist discipline and verifier retry.",
+      "evidence": ["model-delta.json"]
+    },
+    {
+      "id": "lagging",
+      "caption": "Lagging layer: artifact-generation scaffold.",
+      "evidence": ["lagging-layers.json"]
+    }
+  ]
+}
+Lagging layer taxonomy
+type LaggingLayer =
+  | "model_reasoning"
+  | "fusion_router"
+  | "context_pack"
+  | "tool_schema"
+  | "ui_affordance"
+  | "app_state"
+  | "artifact_generation"
+  | "verifier_feedback"
+  | "visual_design"
+  | "cost_budget"
+  | "latency"
+  | "memory_recall";
+Lagging report example
+{
+  "runId": "btb-2026-07-01",
+  "suite": "bankertoolbench",
+  "winner": "claude-opus",
+  "lagging": [
+    {
+      "layer": "artifact_generation",
+      "symptom": "weaker model generated .xlsx and .pdf but missed .pptx/.docx/.xlsm",
+      "evidence": "proof-receipt.json",
+      "recommendedFix": "Add visible deliverable checklist and package-generation tool schema."
+    },
+    {
+      "layer": "cost_budget",
+      "symptom": "winner passed but cost was 3.2x higher",
+      "recommendedFix": "Use fusion router: cheap worker for upload/reopen/verifier, strong model for planning."
+    }
+  ]
+}
+Clip pipeline
+
+Use feature-walkthrough-gif as default clip backend.
+
+Its current pipeline is already:
+
+spec
+→ Playwright capture
+→ Remotion render
+→ ffmpeg GIF/MP4
+
+Add adapter:
+
+proofloop/adapters/feature-walkthrough.mjs
+
+Responsibilities:
+
+1. Read node-trace-v2.json
+2. Pick key trace moments
+3. Generate walkthrough spec
+4. Capture app UI or use existing screenshots/video
+5. Render MP4/GIF
+6. Write social-ready clips
+Agent Clips adapter
+
+I could not verify a public Builder.io Agent Clips source from search, so implement it as optional:
+
+{
+  "clipProvider": "feature-walkthrough",
+  "optionalProviders": ["builder-agent-clips"]
+}
+
+Rule:
+
+If Builder Agent Clips is available locally, use it.
+Otherwise fallback to feature-walkthrough-gif.
+Fusion router maker
+
+New command:
+
+proofloop router suggest latest
+
+It should read:
+
+model comparison
+model delta
+cost ledger
+lagging layers
+NodeMem prior successes
+
+Then output:
+
+{
+  "routerPolicy": {
+    "planner": "strong-model",
+    "mechanicalWorker": "cheap-model",
+    "visualJudge": "vision-model",
+    "verifier": "deterministic",
+    "escalationRules": [
+      "artifact_missing",
+      "verifier_failed_twice",
+      "ambiguous_business_judgment",
+      "cost_overrun"
+    ]
+  }
+}
+Video types
+1. Model release video
+New model vs old model on real app task.
+2. Harness changelog video
+Harness v1 failed.
+Harness v4 fixed tool schema.
+Harness v10 made cheaper model pass.
+3. Lagging layer video
+Everything passed except visual UI state / cost / artifact proof.
+4. Investor proof video
+Same app, same task, multiple models, proof receipts, cost ranking.
+Important framing rule
+
+Never say:
+
+Model X is better at video generation.
+
+Say:
+
+Model X planned, routed, verified, or operated the production workflow better.
+Final product sentence
+
+Proof Loop turns production agent traces into benchmark proof, model-delta analysis, lagging-layer reports, fusion-router recommendations, and social-ready clips.
+
+while using proofloop for noderoom and nodebench ai for example, it needs to guarantee this:
+ensure the benchmark runs are emulating real users landing on live browser ui to conduct real user behaviors end to end : 
+Finch ✓ real (2512.13168, FinWorkBench/Finch on GitHub+HF; GPT-5.1 Pro passes only 38.4% — a serious bar).
+FinAuditing ✓ real (2510.08886, The-FinAI/FinAuditing).
+WorkstreamBench (2605.22664) — LLM agents on end-to-end finance spreadsheets, very on-target.
+
+Thought for 2m 24s
+1. Human version
+
+Yes. This should become a hard Proof Loop rule:
+
+A benchmark run only counts if it behaves like a real user landing on the live app UI and completing the workflow end to end.
+
+So for NodeRoom and NodeBench AI, we should not accept:
+
+backend-only benchmark
+seeded replay
+preloaded room
+fake artifact
+direct database shortcut
+golden-output shortcut
+
+We only count:
+
+fresh browser session
+live/staging prod URL
+real UI navigation
+real file upload
+real agent invocation
+visible streaming/progress
+real artifact generation
+export/reopen validation
+verifier receipt
+visual proof
+cost trace
+
+This matches the gap from your report: the BTB path already proves fresh-room browser runs, public @nodeagent, Focus Mode, upload/export/reopen, trace/video evidence, and durable receipts — but we must keep completion/product-path proof separate from official semantic benchmark score.
+
+Why Finch / FinAuditing / WorkstreamBench matter
+
+These are stronger bars than toy finance evals.
+
+Finch is especially aligned with us because it tests real-world finance/accounting workflows across messy spreadsheets, emails, formulas, charts, PDFs, modeling, validation, and reporting. It has 172 workflows, 384 tasks, 1,710 spreadsheets, and 27M cells; GPT-5.1 Pro reportedly spends 48 hours and passes only 38.4% of workflows.
+
+FinAuditing is useful for audit/taxonomy reasoning: it uses real US-GAAP-compliant XBRL filings and tests semantic, relational, and numerical consistency across structured multi-document audit tasks.
+
+WorkstreamBench is useful for end-to-end finance spreadsheet workflows: it evaluates whether agents can produce complete spreadsheet artifacts from high-level finance instructions, judged across Accuracy, Formula, and Format.
+
+So Proof Loop should support this ladder:
+
+BTB = agent can complete package workflow in NodeRoom
+Finch = agent can handle messy enterprise finance/accounting workflows
+FinAuditing = agent can reason over structured GAAP/XBRL audit docs
+WorkstreamBench = agent can build professional finance spreadsheets end to end
+The guarantee wording
+
+Do not say:
+
+“We guarantee the model is good.”
+
+Say:
+
+We guarantee the benchmark was executed through the live product UI under real-user constraints, and we produce proof if it passed or failed.
+
+That means if the run fails, we know exactly what layer failed:
+
+model
+harness
+UI
+context
+tool
+artifact generation
+verifier
+visual experience
+cost budget
+2. Coding-agent version
+Goal
+
+Add a strict Live User Benchmark Contract to Proof Loop.
+
+A benchmark run is valid only if it emulates a real user using the live browser UI end to end.
+
+Required command shape
+proofloop run bankertoolbench --prod --user-emulation strict --cockpit
+proofloop run finch --prod --user-emulation strict --cockpit
+proofloop run finauditing --prod --user-emulation strict --cockpit
+proofloop run workstreambench --prod --user-emulation strict --cockpit
+Live User Contract
+
+A run is valid only if all required gates pass:
+
+1. live_or_staging_prod_url
+2. fresh_browser_context
+3. no_seeded_replay_room
+4. no_memory_mode_shortcut
+5. user_lands_on_public_ui
+6. user_creates_or_joins_fresh_workspace
+7. benchmark_inputs_uploaded_through_ui
+8. agent_invoked_through_user_visible_ui
+9. streaming_or_progress_visible
+10. focus_or_attention_overlay_visible
+11. trace_or_worklog_visible
+12. artifacts_generated_by_agent
+13. artifacts_exported_or_downloaded
+14. artifacts_reopened_successfully
+15. official_or_task_verifier_runs
+16. visual_browser_proof_captured
+17. cost_latency_recorded
+18. node_trace_v2_exported
+19. proof_receipt_written
+20. no_unexpected_console_or_page_errors
+Invalid shortcut cases
+
+Fail the run if any of these are detected:
+
+seeded evidence room
+direct DB artifact injection
+preloaded final artifacts
+golden answer copy
+memory replay instead of fresh run
+backend-only scorer with no browser proof
+API-only task execution
+hidden tool call not surfaced in UI
+missing screenshot/video
+missing artifact reopen check
+missing verifier receipt
+Benchmark adapters
+
+Create:
+
+proofloop/benchmarks/
+  bankertoolbench/
+  finch/
+  finauditing/
+  workstreambench/
+
+Each adapter must define:
+
+type BenchmarkAdapter = {
+  id: string;
+  source: string;
+  taskLoader: () => BenchmarkTask[];
+  seedInputsThroughUi: boolean;
+  browserScenario: string;
+  verifierCommand: string;
+  expectedArtifacts: string[];
+  scoringMode: "completion" | "semantic" | "hybrid";
+};
+Important distinction
+
+Track both:
+
+productPathCompletion
+officialSemanticScore
+
+Example:
+
+{
+  "benchmark": "bankertoolbench",
+  "productPathCompletion": true,
+  "officialSemanticScore": null,
+  "scoreType": "completion_not_official_semantic",
+  "note": "Run proved live-browser package completion, export/reopen, and verifier handoff. Do not claim official semantic 100% unless official scorer says so."
+}
+
+This distinction is already called out in the NodeRoom/NodeRL report: BTB live-suite proof is strong, but completion/package-path proof must remain separate from official semantic score.
+
+Proof output
+
+Each run must create:
+
+.proofloop/runs/<run-id>/
+  live-user-contract.json
+  node-trace-v2.json
+  node-eval.json
+  scorecard.md
+  cost-ledger.json
+  verifier-receipt.json
+  visual-proof/
+    before.png
+    during.png
+    after.png
+    video.webm
+  artifacts/
+    exported-files/
+    reopen-results.json
+  cockpit/
+    events.jsonl
+    snapshot.json
+live-user-contract.json
+{
+  "schema": 1,
+  "benchmark": "finch",
+  "app": "noderoom",
+  "baseUrl": "https://prod-or-staging-url",
+  "userEmulation": "strict",
+  "freshBrowserContext": true,
+  "freshWorkspace": true,
+  "inputMode": "browser_upload",
+  "agentInvocation": "public_ui",
+  "memoryShortcutUsed": false,
+  "backendShortcutUsed": false,
+  "visibleStreaming": true,
+  "visualProofCaptured": true,
+  "artifactsReopened": true,
+  "verifierReceiptWritten": true,
+  "valid": true
+}
+Cockpit update
+
+The right-side Proof Loop cockpit should show:
+
+Live User Contract
+- fresh browser
+- fresh room/workspace
+- no memory shortcut
+- UI upload
+- UI agent invocation
+- visible trace
+- artifact export
+- verifier
+- visual proof
+
+Benchmark
+- BTB / Finch / FinAuditing / WorkstreamBench
+- task id
+- scoring mode
+- product completion
+- semantic score
+
+Cost
+- by model
+- by worker
+- by verifier
+- projected final cost
+
+Lagging Layer
+- model
+- harness
+- UI
+- tool
+- verifier
+- artifact
+- cost
+Acceptance criteria
+
+A benchmark suite is ready only when:
+
+proofloop run <suite> --prod --user-emulation strict --cockpit
+
+produces:
+
+valid live-user-contract.json
+node-trace-v2.json
+node-eval.json
+scorecard.md
+visual proof
+verifier receipt
+cost ledger
+
+and exits 0.
+
+Final product rule
+
+No live-user proof, no benchmark claim.
