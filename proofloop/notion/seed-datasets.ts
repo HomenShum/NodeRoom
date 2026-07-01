@@ -9,6 +9,7 @@ import { join } from "node:path";
 import { createHash } from "node:crypto";
 
 const dataDir = join(process.cwd(), "proofloop", "notion", "data");
+const FIXTURE_GENERATED_AT = "2026-07-01T00:00:00.000Z";
 mkdirSync(dataDir, { recursive: true });
 
 function checksum(content: string): string {
@@ -28,7 +29,7 @@ const registry = {
     { name: "pipeline", source: "local-fixture", task: "automated_pipeline", license_checked: true, checksum: checksum(pipeline), description: "5 prospects across different pipeline stages" },
     { name: "meetings", source: "local-fixture", task: "meeting_prep", license_checked: true, checksum: checksum(meetings), description: "3 executive discovery calls for meeting prep" },
   ],
-  generatedAt: new Date().toISOString(),
+  generatedAt: FIXTURE_GENERATED_AT,
 };
 
 writeFileSync(join(dataDir, "dataset-registry.json"), JSON.stringify(registry, null, 2), "utf-8");

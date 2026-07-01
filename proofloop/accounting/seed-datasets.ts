@@ -9,6 +9,7 @@ import { join } from "node:path";
 import { createHash } from "node:crypto";
 
 const dataDir = join(process.cwd(), "proofloop", "accounting", "datasets");
+const FIXTURE_GENERATED_AT = "2026-07-01T00:00:00.000Z";
 mkdirSync(dataDir, { recursive: true });
 
 interface DatasetEntry {
@@ -76,7 +77,7 @@ writeFileSync(join(dataDir, "variance.json"), varianceJson, "utf-8");
 datasets.push({ name: "variance", source: "local-fixture", task: "variance_analysis", license_checked: true, checksum: checksum(varianceJson), description: "Budget vs actuals with 4 categories" });
 
 // Write dataset registry
-const registry = { datasets, generatedAt: new Date().toISOString() };
+const registry = { datasets, generatedAt: FIXTURE_GENERATED_AT };
 writeFileSync(join(dataDir, "dataset-registry.json"), JSON.stringify(registry, null, 2), "utf-8");
 
 console.log(`seed-datasets: ✅ ${datasets.length} accounting datasets seeded`);
