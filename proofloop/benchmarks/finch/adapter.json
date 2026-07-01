@@ -1,0 +1,31 @@
+{
+  "schema": 1,
+  "id": "finch",
+  "source": {
+    "name": "Finch / FinWorkBench",
+    "paper": "https://arxiv.org/abs/2512.13168",
+    "repository": "https://github.com/FinWorkBench/Finch",
+    "dataset": "https://huggingface.co/datasets/FinWorkBench/Finch"
+  },
+  "taskLoader": "proofloop/benchmarks/finch/load-tasks.ts",
+  "seedInputsThroughUi": true,
+  "browserScenario": "proofloop/benchmarks/finch/browser-scenario.spec.ts",
+  "verifierCommand": "proofloop/benchmarks/finch/verify.ts",
+  "expectedArtifacts": [
+    "live-user-contract.json",
+    "node-trace-v2.json",
+    "node-eval.json",
+    "scorecard.md",
+    "cost-ledger.json",
+    "verifier-receipt.json",
+    "visual-proof",
+    "exported-files-reopen-proof.json"
+  ],
+  "scoringMode": "hybrid",
+  "scoreFields": [
+    "productPathCompletion",
+    "officialSemanticScore"
+  ],
+  "liveUserCommand": "npm run proofloop -- run finch --prod --user-emulation strict --cockpit"
+}
+

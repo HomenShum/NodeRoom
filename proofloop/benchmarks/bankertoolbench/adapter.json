@@ -1,0 +1,30 @@
+{
+  "schema": 1,
+  "id": "bankertoolbench",
+  "source": {
+    "name": "BankerToolBench",
+    "kind": "local_live_browser_suite",
+    "repoPath": "e2e/benchmark-ui-bankertoolbench.spec.ts"
+  },
+  "taskLoader": "scripts/bankertoolbench-stage.ts",
+  "seedInputsThroughUi": true,
+  "browserScenario": "e2e/benchmark-ui-bankertoolbench.spec.ts",
+  "verifierCommand": "npm run benchmark:bankertoolbench:proof",
+  "expectedArtifacts": [
+    "live-user-contract.json",
+    "node-trace-v2.json",
+    "node-eval.json",
+    "scorecard.md",
+    "cost-ledger.json",
+    "verifier-receipt.json",
+    "cockpit-snapshot.json",
+    "exported-files-reopen-proof.json"
+  ],
+  "scoringMode": "hybrid",
+  "scoreFields": [
+    "productPathCompletion",
+    "officialSemanticScore"
+  ],
+  "liveUserCommand": "npm run proofloop -- run bankertoolbench --prod --user-emulation strict --cockpit"
+}
+
