@@ -1,0 +1,23 @@
+{
+  "defaultSuite": "accounting-live",
+  "suites": {
+    "accounting-live": {
+      "cmd": "npm run proofloop:live:accounting",
+      "minScore": 75,
+      "kind": "cli",
+      "receiptGlob": "live-cli"
+    },
+    "notion-live": {
+      "cmd": "npm run proofloop:live:notion",
+      "minScore": 75,
+      "kind": "cli",
+      "receiptGlob": "live-cli"
+    },
+    "browser-live": {
+      "cmd": "npm run proofloop:live:browser",
+      "minScore": 100,
+      "kind": "browser",
+      "receiptGlob": "live-browser"
+    }
+  }
+}

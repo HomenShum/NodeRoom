@@ -38,6 +38,12 @@ playwright/.cache/
 .tmp/
 .tmp-qa/
 .playwright-mcp/
+
+# Proofloop run history/output (like .git objects) -- keep .proofloop/config.json tracked
+.proofloop/runs/
+.proofloop/live/
+.proofloop/memory.jsonl
+.proofloop/regressions.json
 noderoom-*.png
 opendesign-*.png
 docs/eval/finance-model-runs/

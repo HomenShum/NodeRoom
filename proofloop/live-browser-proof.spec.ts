@@ -32,8 +32,12 @@ import {
   type FreshRoomProofReceipt,
 } from "../src/eval/freshRoomProofReceipts";
 import { enableFocusModeForTest, expectAttentionOverlayMounted, expectFocusModeOn } from "../e2e/focusMode";
+import { installCockpit, emitCockpitEvent, cockpitEventsPath } from "./cockpit/overlay";
 
 const ENABLED = process.env.PROOFLOOP_LIVE_BROWSER === "1";
+const COCKPIT_ENABLED = process.env.PROOFLOOP_COCKPIT !== "0";
+const RUN_ID = process.env.PROOFLOOP_RUN_ID ?? `browser-live-${Date.now()}`;
+const COCKPIT_EVENTS_PATH = COCKPIT_ENABLED ? cockpitEventsPath(RUN_ID) : undefined;
 const BASE = process.env.BENCH_BASE_URL ?? "http://127.0.0.1:5173";
 const AGENT_TIMEOUT_MS = Number(process.env.PROOFLOOP_AGENT_TIMEOUT_MS ?? 20 * 60_000);
 const TEST_TIMEOUT_MS = Number(process.env.PROOFLOOP_TEST_TIMEOUT_MS ?? Math.max(25 * 60_000, AGENT_TIMEOUT_MS + 5 * 60_000));
@@ -101,9 +105,16 @@ test("Live browser proof-loop: starter room -> agent tasks -> UI + terminal-qual
 
   await createFreshStarterRoom(page);
   console.log(`[proofloop-live] room created: ${page.url()}`);
+  if (COCKPIT_ENABLED) {
+    await installCockpit(page, { suite: "live-browser", baseUrl: BASE });
+    await emitCockpitEvent(page, { type: "run_start", message: `run ${RUN_ID} · ${tasks.length} tasks` }, COCKPIT_EVENTS_PATH);
+  }
   await expectFocusModeOn(page);
+  await emitCockpitEvent(page, { type: "gate_pass", gate: "fresh_room_join" }, COCKPIT_EVENTS_PATH);
   await openSheetSurfaceForFocusOverlay(page, tasks[0]?.name.includes("Runway") ? "Runway" : "Q3 variance");
   await expectAttentionOverlayMounted(page);
+  await emitCockpitEvent(page, { type: "gate_pass", gate: "focus_mode_enabled" }, COCKPIT_EVENTS_PATH);
+  await emitCockpitEvent(page, { type: "gate_pass", gate: "focus_box_or_attention_overlay" }, COCKPIT_EVENTS_PATH);
 
   const roomUrl = page.url();
   const taskProofs: TaskProof[] = [];
@@ -114,6 +125,7 @@ test("Live browser proof-loop: starter room -> agent tasks -> UI + terminal-qual
     console.log(`[proofloop-live] running task: ${task.name}`);
     const started = Date.now();
 
+    await emitCockpitEvent(page, { type: "agent_status", message: `${task.name}: sending goal` }, COCKPIT_EVENTS_PATH);
     const composer = page.locator('textarea[data-testid="chat-composer"]');
     await expect(composer).toBeVisible({ timeout: 30_000 });
     await composer.fill(task.goal);
@@ -123,8 +135,10 @@ test("Live browser proof-loop: starter room -> agent tasks -> UI + terminal-qual
     try {
       await expect(page.locator('[data-testid="agent-unified-stream"]').first()).toBeVisible({ timeout: 60_000 });
       streamingVisible = true;
+      await emitCockpitEvent(page, { type: "gate_pass", gate: "visible_streaming_progress" }, COCKPIT_EVENTS_PATH);
     } catch {
       console.warn(`[proofloop-live] streaming did not become visible for task: ${task.id}`);
+      await emitCockpitEvent(page, { type: "gate_fail", gate: "visible_streaming_progress" }, COCKPIT_EVENTS_PATH);
     }
 
     let jobStatusVisible = false;
@@ -144,6 +158,9 @@ test("Live browser proof-loop: starter room -> agent tasks -> UI + terminal-qual
       }
       await expect(jobDetail).toBeVisible({ timeout: 15_000 });
       jobDetailVisible = true;
+      await emitCockpitEvent(page, { type: "gate_pass", gate: "job_detail_visible" }, COCKPIT_EVENTS_PATH);
+      const jobDetailText = (await jobDetail.textContent().catch(() => "")) ?? "";
+      await emitCockpitEvent(page, { type: "signal", message: `activity: ${jobDetailText.replace(/\s+/g, " ").trim().slice(0, 160)}` }, COCKPIT_EVENTS_PATH);
     } catch {
       console.warn(`[proofloop-live] job detail not visible for task: ${task.id}`);
     }
@@ -155,10 +172,12 @@ test("Live browser proof-loop: starter room -> agent tasks -> UI + terminal-qual
       if (/\bcompleted\b/i.test(status)) { jobCompleted = true; break; }
       if (/\b(failed|blocked|cancelled)\b/i.test(status)) {
         console.warn(`[proofloop-live] job reached non-passing status: ${status}`);
+        await emitCockpitEvent(page, { type: "warning", message: `${task.id}: job status ${status}` }, COCKPIT_EVENTS_PATH);
         break;
       }
       await page.waitForTimeout(5_000);
     }
+    await emitCockpitEvent(page, { type: jobCompleted ? "gate_pass" : "gate_fail", gate: "agent_job_completed" }, COCKPIT_EVENTS_PATH);
 
     const agentOutput = streamingVisible
       ? ((await page.locator('[data-testid="agent-unified-stream"]').first().textContent().catch(() => "")) ?? "").slice(0, 6_000)
@@ -173,8 +192,10 @@ test("Live browser proof-loop: starter room -> agent tasks -> UI + terminal-qual
         await expect(page.getByText(/\d+\s+trace events/i).first()).toBeVisible({ timeout: 30_000 });
         roomTraceVisible = true;
       }
+      await emitCockpitEvent(page, { type: "gate_pass", gate: "room_trace_visible" }, COCKPIT_EVENTS_PATH);
     } catch {
       console.warn(`[proofloop-live] room trace not visible for task: ${task.id}`);
+      await emitCockpitEvent(page, { type: "gate_fail", gate: "room_trace_visible" }, COCKPIT_EVENTS_PATH);
     }
 
     const outputLower = agentOutput.toLowerCase();
@@ -193,6 +214,9 @@ test("Live browser proof-loop: starter room -> agent tasks -> UI + terminal-qual
     const placeholderFindings = [...new Set(PLACEHOLDER_PATTERNS.filter(({ pattern }) => pattern.test(scanText)).map(({ code }) => code))];
 
     const passed = evidenceReady && blockingCaveats.length === 0 && placeholderFindings.length === 0;
+    await emitCockpitEvent(page, { type: blockingCaveats.length === 0 ? "gate_pass" : "gate_fail", gate: "agent_terminal_quality_gate" }, COCKPIT_EVENTS_PATH);
+    await emitCockpitEvent(page, { type: placeholderFindings.length === 0 ? "gate_pass" : "gate_fail", gate: "artifact_placeholder_scan" }, COCKPIT_EVENTS_PATH);
+    await emitCockpitEvent(page, { type: passed ? "gate_pass" : "gate_fail", message: `${task.id}: ${passed ? "PASS" : "FAIL"}` }, COCKPIT_EVENTS_PATH);
 
     const screenshotPath = testInfo.outputPath(`proofloop-${task.id}.png`);
     await page.screenshot({ path: screenshotPath, fullPage: false, timeout: 30_000 });
@@ -307,6 +331,7 @@ test("Live browser proof-loop: starter room -> agent tasks -> UI + terminal-qual
 
   const passCount = taskProofs.filter((t) => t.passed).length;
   console.log(`[proofloop-live] verdict: ${passCount}/${taskProofs.length} passed`);
+  await emitCockpitEvent(page, { type: "run_done", message: `${passCount}/${taskProofs.length} tasks passed` }, COCKPIT_EVENTS_PATH);
 
   const suiteReceiptPath = resolve(SUITE_PROOF_PATH);
   writeFreshRoomProofReceipt(
