@@ -1,0 +1,37 @@
+{
+  "datasets": [
+    {
+      "name": "leads",
+      "source": "local-fixture",
+      "task": "warm_intro",
+      "license_checked": true,
+      "checksum": "4e07d2325aca9e5a",
+      "description": "5 sample leads for SDR warm intro scenario"
+    },
+    {
+      "name": "discovery-call-notes",
+      "source": "local-fixture",
+      "task": "follow_up",
+      "license_checked": true,
+      "checksum": "ba3b44dc3dbf0e48",
+      "description": "Discovery call notes for follow-up scenario"
+    },
+    {
+      "name": "pipeline",
+      "source": "local-fixture",
+      "task": "automated_pipeline",
+      "license_checked": true,
+      "checksum": "93fc29e7d6403165",
+      "description": "5 prospects across different pipeline stages"
+    },
+    {
+      "name": "meetings",
+      "source": "local-fixture",
+      "task": "meeting_prep",
+      "license_checked": true,
+      "checksum": "87ee3bdd5f985176",
+      "description": "3 executive discovery calls for meeting prep"
+    }
+  ],
+  "generatedAt": "2026-07-01T00:00:00.000Z"
+}

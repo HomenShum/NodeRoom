@@ -1,0 +1,24 @@
+id: variance-analysis
+category: quantitative_finance_reasoning
+goal: Perform variance analysis between budget and actuals, explain drivers.
+app_flow:
+  - upload budget and actuals spreadsheets
+  - agent calculates variances per line item
+  - agent identifies top variance drivers
+  - NodeBench validates variance calculations
+  - report generated with charts and evidence
+pass_criteria:
+  - variance calculations accurate
+  - top 3 drivers identified
+  - report includes charts
+  - source evidence attached
+  - analysis completes within 60s
+benchmark_refs:
+  - name: QuantEval
+    source: academic
+    description: Financial quantitative reasoning/coding
+dataset:
+  name: variance-sample
+  source: local-fixture
+  task: variance_analysis
+  license_checked: true

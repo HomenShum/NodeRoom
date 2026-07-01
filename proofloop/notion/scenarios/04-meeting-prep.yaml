@@ -1,0 +1,17 @@
+id: meeting-prep
+goal: Prepare 3 executive discovery calls.
+app_flow:
+  - load tomorrow meeting list
+  - research each company
+  - infer likely challenges
+  - generate discovery questions
+  - save prep packet
+pass_criteria:
+  - 3 prep briefs created
+  - each brief has business context
+  - each brief has likely pain points
+  - each brief has discovery questions
+  - each brief has sources
+clip:
+  title: "Meeting prep"
+  output: ".proofloop/runs/latest/clips/04-meeting-prep.mp4"

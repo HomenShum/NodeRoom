@@ -240,7 +240,7 @@ function ArtifactSurface({ roomId, me, proof, artId, onArt, style, surfaceKey = 
             aria-label="Export workbook to XLSX"
             title="Download this sheet as an .xlsx workbook"
             data-testid="artifact-export-xlsx"
-            onClick={() => { void exportSheetAsXlsx(sheet, surfaceRef.current); }}
+            onClick={() => { void exportSheetAsXlsx(sheet, surfaceRef.current, arts); }}
           >
             <Download size={11} />
             Export XLSX
@@ -1192,7 +1192,7 @@ function GenericSheet({ roomId, me, art, onError }: { roomId: string; me: Actor;
               else if ((e.key === "Enter" || e.key === "F2") && isEditable(sel)) { e.preventDefault(); beginEdit(sel!); }
             }}>
             <colgroup>
-              <col style={{ width: 38 }} />
+              <col style={{ width: 44 }} />
               {columns.map((c, i) => <col key={c.id} style={{ width: colOverrides[c.id] ?? colWidths[i] }} />)}
             </colgroup>
             <thead><tr><th className="r-corner" aria-label="row number" />{columns.map((c, i) => <th key={c.id} className={selectedColId === c.id ? "hl" : undefined}>{c.label}<span className="r-col-resize" role="separator" aria-orientation="vertical" aria-label={`Resize ${c.label}`} onPointerDown={(e) => { e.preventDefault(); e.stopPropagation(); startColResize(c.id, colOverrides[c.id] ?? colWidths[i], e.clientX); }} /></th>)}</tr></thead>
@@ -1330,11 +1330,13 @@ function sanitizeFilename(name: string): string {
  * fake toast (flagged by R31). Wire it to this same path (extract into a shared helper) in a
  * follow-up PR; out of scope here.
  */
-async function exportSheetAsXlsx(art: Art, visibleRoot?: HTMLElement | null): Promise<void> {
+async function exportSheetAsXlsx(art: Art, visibleRoot?: HTMLElement | null, allArts: Art[] = [art]): Promise<void> {
   const ExcelJSModule = await import("exceljs");
   const ExcelJS = (ExcelJSModule as { default?: typeof import("exceljs") }).default ?? (ExcelJSModule as unknown as typeof import("exceljs"));
   const workbook = new ExcelJS.Workbook();
-  const sheetName = (art.title || "Sheet1").slice(0, 31); // Excel sheet name max 31 chars
+  const exportSheets = workbookExportSheets(art, allArts);
+  const usedSheetNames = new Set<string>();
+  const sheetName = worksheetNameForExport(art, usedSheetNames);
   const worksheet = workbook.addWorksheet(sheetName);
   const rows = rowIdsOf(art);
   const visibleCells = visibleRoot ? visibleGenericSheetCellValues(visibleRoot, art.id) : new Map<string, string>();
@@ -1379,6 +1381,11 @@ async function exportSheetAsXlsx(art: Art, visibleRoot?: HTMLElement | null): Pr
     }
   }
 
+  for (const sibling of exportSheets) {
+    if (sibling.id === art.id) continue;
+    appendSheetArtifactWorksheet(workbook, sibling, usedSheetNames);
+  }
+
   // writeBuffer() returns an exceljs.Buffer (Uint8Array-compatible); Blob accepts both. NEVER call
   // workbook.xlsx.writeFile here — that is Node-only and would crash in the browser.
   const buffer = await workbook.xlsx.writeBuffer();
@@ -1388,13 +1395,90 @@ async function exportSheetAsXlsx(art: Art, visibleRoot?: HTMLElement | null): Pr
   const url = URL.createObjectURL(blob);
   const anchor = document.createElement("a");
   anchor.href = url;
-  anchor.download = `${sanitizeFilename(art.title)}.xlsx`;
+  anchor.download = `${sanitizeFilename(exportWorkbookBaseName(art, exportSheets))}.xlsx`;
   anchor.style.display = "none";
   document.body.appendChild(anchor);
   anchor.click();
   document.body.removeChild(anchor);
   // Free the object URL on the next tick so Chrome/Firefox have finished the download negotiation.
   setTimeout(() => URL.revokeObjectURL(url), 0);
+}
+
+function workbookExportSheets(active: Art, allArts: Art[]): Art[] {
+  const sourceFile = active.meta?.upload?.fileName;
+  const sheetNames = active.meta?.excelGrid?.sheetNames;
+  if (!sourceFile || !Array.isArray(sheetNames) || sheetNames.length <= 1) return [active];
+
+  const siblings = allArts.filter((candidate) =>
+    candidate.kind === "sheet"
+    && candidate.meta?.upload?.fileName === sourceFile
+    && candidate.meta?.excelGrid?.sheetName,
+  );
+  const byName = new Map(siblings.map((candidate) => [candidate.meta?.excelGrid?.sheetName, candidate]));
+  const ordered = sheetNames.map((name) => byName.get(name)).filter((candidate): candidate is Art => !!candidate);
+  return ordered.some((candidate) => candidate.id === active.id) ? ordered : [active];
+}
+
+function exportWorkbookBaseName(active: Art, sheets: Art[]): string {
+  if (sheets.length > 1 && active.meta?.upload?.fileName) {
+    return active.meta.upload.fileName.replace(/\.(xlsx|xlsm|xls)$/i, "");
+  }
+  return active.title || "workbook";
+}
+
+function worksheetNameForExport(art: Art, used: Set<string>): string {
+  const raw = (art.meta?.excelGrid?.sheetName || art.title || "Sheet1").replace(/[\[\]:*?/\\]/g, "_").trim() || "Sheet1";
+  const base = raw.slice(0, 31);
+  let candidate = base;
+  let suffix = 2;
+  while (used.has(candidate.toLowerCase())) {
+    const tag = `_${suffix++}`;
+    candidate = `${base.slice(0, Math.max(1, 31 - tag.length))}${tag}`;
+  }
+  used.add(candidate.toLowerCase());
+  return candidate;
+}
+
+function appendSheetArtifactWorksheet(
+  workbook: import("exceljs").Workbook,
+  art: Art,
+  usedSheetNames: Set<string>,
+): void {
+  const worksheet = workbook.addWorksheet(worksheetNameForExport(art, usedSheetNames));
+  const rows = rowIdsOf(art);
+
+  if (art.title === "Q3 variance") {
+    worksheet.addRow(["Account", "Q2", "Q3", "Variance", "Note"]);
+    for (const rid of rows) {
+      worksheet.addRow([
+        exportCellValue(art.elements[`${rid}__account`]?.value),
+        exportCellValue(art.elements[`${rid}__q2`]?.value),
+        exportCellValue(art.elements[`${rid}__q3`]?.value),
+        exportCellValue(art.elements[`${rid}__variance`]?.value),
+        exportCellValue(art.elements[`${rid}__note`]?.value),
+      ]);
+    }
+    return;
+  }
+
+  const cols = columnsOf(art).map((c) => c.id);
+  const isLetterCols = cols.length > 0 && cols.every((c) => /^[A-Z]+$/.test(c));
+  if (isLetterCols) {
+    for (const rid of rows) {
+      const rowNum = parseInt(rid.replace(/^r/, ""), 10);
+      if (!Number.isFinite(rowNum) || rowNum <= 0) continue;
+      for (const col of cols) {
+        const value = exportCellValue(art.elements[sheetElementId(art, rid, col)]?.value);
+        if (value !== null) worksheet.getCell(`${col}${rowNum}`).value = value;
+      }
+    }
+    return;
+  }
+
+  worksheet.addRow(cols.map((c) => prettyCol(c)));
+  for (const rid of rows) {
+    worksheet.addRow(cols.map((col) => exportCellValue(art.elements[sheetElementId(art, rid, col)]?.value)));
+  }
 }
 
 function visibleGenericSheetCellValues(root: HTMLElement, artifactId: string): Map<string, string> {
@@ -2214,23 +2298,31 @@ function Wall({ roomId, me, art, onOpenArtifact }: { roomId: string; me: Actor; 
     const colors = ["#E8C9B8", "#F2DE9B", "#BFD8D5", "#CFC7E8", "#D7E7B5"];
     const i = art.order.length;
     const id = `s_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 6)}`;
-    const res = await createElement(store, roomId, me, art.id, id, {
-      text: "New note",
-      x: 28 + ((i * 34) % 360),
-      y: 28 + ((i * 26) % 220),
-      color: colors[i % colors.length],
-    });
-    if (!res.ok) setErr(editErrorMsg(res));
+    try {
+      const res = await createElement(store, roomId, me, art.id, id, {
+        text: "New note",
+        x: 0,
+        y: 0,
+        color: colors[i % colors.length],
+      });
+      if (!res.ok) setErr(editErrorMsg(res));
+    } catch (e) {
+      setErr(e instanceof Error ? e.message : "Failed to add capture");
+    }
   };
   const removeSticky = async (id: string) => {
-    const res = await deleteElement(store, roomId, me, art.id, id);
-    if (res && !res.ok) setErr(editErrorMsg(res));
+    try {
+      const res = await deleteElement(store, roomId, me, art.id, id);
+      if (res && !res.ok) setErr(editErrorMsg(res));
+    } catch (e) {
+      setErr(e instanceof Error ? e.message : "Failed to delete capture");
+    }
   };
   return (
     <div className="r-art-body r-wall-inventory">
       <div className="r-wall-toolbar">
         <button className="r-mini-btn primary" data-testid="postit-add" onClick={() => void addSticky()}><Plus size={12} /> Capture</button>
-        <span className="muted tiny">Click any file card to open it. Drag captures to rearrange.</span>
+        <span className="muted tiny">Click any file card to open it. Click a capture to edit.</span>
         {err && <span className="r-wall-error" role="alert">{err}</span>}
       </div>
 

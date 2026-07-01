@@ -54,6 +54,7 @@ This file is the model-facing contract: every production tool must expose a non-
 | `tavily_search` | mixed | `query` | `query` |
 | `skill_search` | mixed | `query` | `query` |
 | `load_skill` | mixed | `idOrUrl` | `idOrUrl` |
+| `plan_and_dispatch` | mixed | `waves` | `waves` |
 
 ## Tool Contracts
 
@@ -1137,6 +1138,28 @@ This file is the model-facing contract: every production tool must expose a non-
   "tool": "load_skill",
   "args": {
     "idOrUrl": "skill_slug_or_https_url"
+  }
+}
+```
+
+### plan_and_dispatch
+
+- Purpose: Decompose a complex task into subagent tasks and dispatch them in parallel waves.
+- When to use: Decompose a complex task into subagent tasks and dispatch them in parallel waves.
+- When not to use: Do not use as a hidden shortcut around room permissions, privacy boundaries, or artifact freshness.
+- Mutability: mixed.
+- Canonical Zod properties: `synthesisGoal`, `waves`.
+- Canonical required fields: `waves`.
+- Provider required fields: `waves`.
+- Expected errors: missing_required_arg; invalid_arg_type.
+- Recovery path: Treat tool failures as inputs: inspect `failureKind` or result reason, add the missing argument or re-read state, and stop rather than inventing data.
+- Example call:
+
+```json
+{
+  "tool": "plan_and_dispatch",
+  "args": {
+    "waves": "example"
   }
 }
 ```

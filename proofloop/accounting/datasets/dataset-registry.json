@@ -1,0 +1,37 @@
+{
+  "datasets": [
+    {
+      "name": "invoices",
+      "source": "local-fixture",
+      "task": "invoice_extraction",
+      "license_checked": true,
+      "checksum": "832d3622ab4c42d6",
+      "description": "3 sample invoices with known ground truth"
+    },
+    {
+      "name": "reconciliation",
+      "source": "local-fixture",
+      "task": "reconciliation",
+      "license_checked": true,
+      "checksum": "acc2eb9d3f669f81",
+      "description": "Ledger vs bank statement with 1 known discrepancy"
+    },
+    {
+      "name": "financial-statements",
+      "source": "local-fixture",
+      "task": "statement_qa",
+      "license_checked": true,
+      "checksum": "bc167d66947d1428",
+      "description": "Balance sheet, income statement, cash flow"
+    },
+    {
+      "name": "variance",
+      "source": "local-fixture",
+      "task": "variance_analysis",
+      "license_checked": true,
+      "checksum": "2ca315aa843f11c0",
+      "description": "Budget vs actuals with 4 categories"
+    }
+  ],
+  "generatedAt": "2026-07-01T00:00:00.000Z"
+}

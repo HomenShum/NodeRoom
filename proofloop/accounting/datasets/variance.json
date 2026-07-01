@@ -1,0 +1,25 @@
+{
+  "budget": [
+    {
+      "category": "Revenue",
+      "budget": 300000,
+      "actual": 320000
+    },
+    {
+      "category": "COGS",
+      "budget": 120000,
+      "actual": 135000
+    },
+    {
+      "category": "Marketing",
+      "budget": 50000,
+      "actual": 38000
+    },
+    {
+      "category": "Engineering",
+      "budget": 80000,
+      "actual": 92000
+    }
+  ],
+  "expectedVariances": 4
+}

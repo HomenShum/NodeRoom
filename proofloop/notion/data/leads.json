@@ -1,0 +1,7 @@
+[
+  { "id": "lead-001", "company": "Acme Corp", "industry": "SaaS", "size": 250, "contact": "Sarah Chen", "title": "VP Operations", "lastInteraction": "2026-06-15", "stage": "warm" },
+  { "id": "lead-002", "company": "Globex", "industry": "Fintech", "size": 500, "contact": "James Park", "title": "Head of Product", "lastInteraction": "2026-06-20", "stage": "warm" },
+  { "id": "lead-003", "company": "Initech", "industry": "Enterprise Software", "size": 1200, "contact": "Lisa Wang", "title": "CTO", "lastInteraction": "2026-06-10", "stage": "warm" },
+  { "id": "lead-004", "company": "Umbrella Inc", "industry": "Healthcare", "size": 800, "contact": "Mark Reyes", "title": "Director of IT", "lastInteraction": "2026-06-25", "stage": "cold" },
+  { "id": "lead-005", "company": "Stark Industries", "industry": "Manufacturing", "size": 5000, "contact": "Pepper Potts", "title": "COO", "lastInteraction": "2026-06-28", "stage": "hot" }
+]

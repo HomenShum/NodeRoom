@@ -84,8 +84,11 @@ test("an uploaded plain sheet renders as an aligned dark work-surface grid, not 
   );
   expect(aCellWidths.length).toBeGreaterThan(1);
   expect(Math.max(...aCellWidths) - Math.min(...aCellWidths)).toBeLessThanOrEqual(1);
-  const headerAWidth = await grid.locator("thead th").nth(1).evaluate((cell) => Math.round(cell.getBoundingClientRect().width));
-  expect(Math.abs(headerAWidth - aCellWidths[0])).toBeLessThanOrEqual(1);
+  await expect.poll(async () => {
+    const headerAWidth = await grid.locator("thead th").nth(1).evaluate((cell) => Math.round(cell.getBoundingClientRect().width));
+    const firstBodyAWidth = await grid.locator('[data-cell-key="A1"]').evaluate((cell) => Math.round(cell.getBoundingClientRect().width));
+    return Math.abs(headerAWidth - firstBodyAWidth);
+  }, { timeout: 5_000 }).toBeLessThanOrEqual(1);
 });
 
 test("uploaded workbook renders in the shared Sheet 1 grid, not the false Excel-paper UI", async ({ page }) => {

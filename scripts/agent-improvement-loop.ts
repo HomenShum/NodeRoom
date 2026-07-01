@@ -16,6 +16,15 @@ import {
   type ProfessionalHarnessRequirement,
 } from "../evals/professionalWorkflows";
 import { readEvalRuns, runKey, type EvalRunRecord } from "../evals/evalStore";
+import {
+  type ScaffoldProposal,
+  type ScaffoldReviewResult,
+  type SelfScaffoldingLoopResult,
+  generateScaffoldProposals,
+  rejectScaffoldProposal,
+  buildSelfScaffoldingReport,
+} from "../src/eval/scaffoldProposal";
+import { applyAcceptedProposals, type ScaffoldLedger } from "../src/eval/scaffoldApply";
 
 type Lane = "deterministic" | "live" | "ui" | "full-live";
 type StepStatus = "pass" | "fail" | "skip" | "blocked";
@@ -77,6 +86,8 @@ type LoopRun = {
     blockedImplementationHandoffCandidates: HandoffDecision[];
     nextLiveRuns: string[];
     architectureBudget: ReturnType<typeof buildArchitectureBudget>;
+    /** Self-scaffolding proof-looping: scaffold proposals generated from failing steps. */
+    scaffoldProposals: SelfScaffoldingLoopResult;
   };
 };
 
@@ -864,14 +875,37 @@ function buildHandoff(results: StepResult[]): LoopRun["handoff"] {
     "npm run agent:improve -- --ui-media=docs/eval/ui-recordings/<recording-or-screenshot>",
     "npm run benchmark:charts",
   ];
+  // Self-scaffolding proof-looping: generate scaffold proposals from failing steps.
+  // The agent may improve the scaffold (playbook, rubrics, subagent roles, repair strategies).
+  // The agent may NOT weaken the proof gate (verifier, CI gate, score calculation, hidden tests).
+  const scaffoldSeeds = failed.map((step) => ({
+    failingStepId: step.id,
+    failureSummary: step.reason ?? "see captured output",
+    rootCauseCategory: "bad_prompt_or_context" as const,
+    currentScaffoldGaps: [`Step ${step.id} failed — scaffold may need explicit instruction or evidence assertion.`],
+  }));
+  const scaffoldProposalList = generateScaffoldProposals(scaffoldSeeds);
+  const scaffoldReviews = scaffoldProposalList.map((p) => rejectScaffoldProposal(p, [p.target]));
+  const scaffoldReport = buildSelfScaffoldingReport({
+    proposals: scaffoldProposalList,
+    reviews: scaffoldReviews,
+  });
+
+  const scaffoldRecommendations = scaffoldReport.accepted.length > 0
+    ? [`Apply ${scaffoldReport.accepted.length} accepted scaffold proposal(s): ${scaffoldReport.accepted.map((p) => p.proposalId).join(", ")}.`]
+    : scaffoldReport.needsAdversarialReview.length > 0
+      ? [`Review ${scaffoldReport.needsAdversarialReview.length} scaffold proposal(s) needing adversarial review: ${scaffoldReport.needsAdversarialReview.map((p) => p.proposalId).join(", ")}.`]
+      : [];
+
   return {
-    topRecommendations,
+    topRecommendations: [...topRecommendations, ...scaffoldRecommendations].slice(0, 8),
     failingEvalEvidence,
     generatedEvalIdeas,
     implementationHandoffCandidates,
     blockedImplementationHandoffCandidates,
     nextLiveRuns,
     architectureBudget: buildArchitectureBudget(),
+    scaffoldProposals: scaffoldReport,
   };
 }
 
@@ -1081,6 +1115,23 @@ function renderMarkdown(run: LoopRun, timestampedJson: string): string {
     lines.push("- No implementation handoff candidates passed trust and architecture-fit policy in this run.");
   }
   lines.push("");
+  lines.push("## Self-Scaffolding Proof-Looping");
+  lines.push("");
+  lines.push(`> ${run.handoff.scaffoldProposals.thesis}`);
+  lines.push("");
+  const sp = run.handoff.scaffoldProposals;
+  lines.push(`Proposals: ${sp.proposals.length} total, ${sp.accepted.length} accepted, ${sp.rejected.length} rejected, ${sp.needsAdversarialReview.length} needs adversarial review.`);
+  lines.push("");
+  if (sp.proposals.length > 0) {
+    lines.push("| Proposal | Target | Type | Verdict | Problem |");
+    lines.push("|---|---|---|---|---|");
+    for (const proposal of sp.proposals) {
+      const review = sp.reviews.find((r) => r.proposalId === proposal.proposalId);
+      const verdict = review?.verdict ?? "pending";
+      lines.push(`| ${proposal.proposalId} | ${proposal.target} | ${proposal.changeType} | ${verdict} | ${proposal.problem.slice(0, 80)} |`);
+    }
+    lines.push("");
+  }
   lines.push("## Next Live Runs");
   lines.push("");
   for (const item of run.handoff.nextLiveRuns) lines.push(`- \`${item}\``);

@@ -45,6 +45,14 @@ async function openArtifact(page: Page, name: RegExp) {
   await expect(page.getByTestId("artifact-panel")).toBeVisible({ timeout: 20_000 });
 }
 
+async function openWallArtifact(page: Page) {
+  await openArtifact(page, /Risk \/ opportunity wall/);
+  const panel = page.getByTestId("artifact-panel");
+  await expect(panel.getByTestId("wall-canvas")).toBeVisible({ timeout: 20_000 });
+  await expect(panel.getByTestId("postit-add")).toBeEnabled({ timeout: 20_000 });
+  return panel;
+}
+
 async function openVarianceSheet(page: Page) {
   await ensureBinderOpen(page);
   await page.getByTestId("left-rail").getByRole("button", { name: /Q3 variance/ }).click();
@@ -103,22 +111,21 @@ test("live Convex covers private isolation, wall CRUD, job controls, and agent-i
     await expect(privateChat(member).getByTestId("chat-message").filter({ hasText: secret })).toHaveCount(0);
     await member.getByTestId("copilot-tab-public").click();
 
-    await openArtifact(host, /Risk \/ opportunity wall/);
-    await openArtifact(member, /Risk \/ opportunity wall/);
-    const hostWall = host.getByTestId("artifact-panel").getByTestId("wall-canvas");
-    const memberWall = member.getByTestId("artifact-panel").getByTestId("wall-canvas");
-    const initialCount = await hostWall.getByTestId("post-it").count();
-    await host.getByTestId("artifact-panel").getByTestId("postit-add").click();
-    await expect(hostWall.getByTestId("post-it")).toHaveCount(initialCount + 1);
+    const hostPanel = await openWallArtifact(host);
+    const memberPanel = await openWallArtifact(member);
+    const hostNotes = hostPanel.getByTestId("post-it");
+    const initialCount = await hostNotes.count();
+    await hostPanel.getByTestId("postit-add").click();
+    await expect(hostNotes).toHaveCount(initialCount + 1, { timeout: 25_000 });
     const revised = `Live wall proof ${Date.now().toString(36)}`;
-    const note = hostWall.getByTestId("post-it").last();
+    const note = hostNotes.last();
     const noteId = await note.getAttribute("data-postit-id");
     if (!noteId) throw new Error("new post-it did not expose a stable id");
     await note.getByTestId("post-it-text").fill(revised);
     await note.getByTestId("post-it-text").evaluate((node) => (node as HTMLElement).blur());
-    await expect(memberWall.locator(`[data-postit-id="${noteId}"]`).getByTestId("post-it-text")).toContainText(revised, { timeout: 25_000 });
-    await hostWall.locator(`[data-postit-id="${noteId}"]`).getByTestId("post-it-delete").click();
-    await expect(memberWall.locator(`[data-postit-id="${noteId}"]`)).toHaveCount(0, { timeout: 25_000 });
+    await expect(memberPanel.locator(`[data-postit-id="${noteId}"]`).getByTestId("post-it-text")).toContainText(revised, { timeout: 25_000 });
+    await hostPanel.locator(`[data-postit-id="${noteId}"]`).getByTestId("post-it-delete").click();
+    await expect(memberPanel.locator(`[data-postit-id="${noteId}"]`)).toHaveCount(0, { timeout: 25_000 });
 
     await openVarianceSheet(host);
     await expectAttentionOverlayMounted(host);

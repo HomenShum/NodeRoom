@@ -709,7 +709,7 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
     }
     if (kind === "wall") {
       return [
-        { label: "@nodeagent organize wall", insert: "@nodeagent organize the wall captures by risk level and assign follow-up owners" },
+        { label: "@nodeagent organize the wall", insert: "@nodeagent organize the wall captures by risk level and assign follow-up owners" },
         { label: "@nodeagent diligence CardioNova", insert: "@nodeagent diligence CardioNova with source-backed product, buyer, funding, hiring, and HIPAA/security gaps" },
       ];
     }

@@ -1,0 +1,7 @@
+[
+  { "id": "p-01", "company": "Acme Corp", "contact": "Sarah Chen", "stage": "Discovery", "lastActivity": "2026-06-15", "daysStale": 15, "trigger": null, "nextAction": null },
+  { "id": "p-02", "company": "Globex", "contact": "James Park", "stage": "Demo", "lastActivity": "2026-06-28", "daysStale": 2, "trigger": "funding_round", "nextAction": null },
+  { "id": "p-03", "company": "Initech", "contact": "Lisa Wang", "stage": "Proposal", "lastActivity": "2026-06-10", "daysStale": 20, "trigger": null, "nextAction": null },
+  { "id": "p-04", "company": "Umbrella Inc", "contact": "Mark Reyes", "stage": "Qualification", "lastActivity": "2026-06-25", "daysStale": 5, "trigger": "leadership_change", "nextAction": null },
+  { "id": "p-05", "company": "Stark Industries", "contact": "Pepper Potts", "stage": "Negotiation", "lastActivity": "2026-06-28", "daysStale": 2, "trigger": "product_launch", "nextAction": null }
+]

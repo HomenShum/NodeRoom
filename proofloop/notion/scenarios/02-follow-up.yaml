@@ -1,0 +1,17 @@
+id: follow-up
+goal: Draft a thoughtful follow-up after discovery call.
+app_flow:
+  - load discovery call notes
+  - extract VP EPD pain points
+  - connect pain points to Notion use case
+  - draft follow-up email
+  - run tone/specificity review
+pass_criteria:
+  - draft references call notes
+  - draft names specific business challenge
+  - draft connects to Notion capability
+  - draft has clear next step
+  - reviewer flags no generic filler
+clip:
+  title: "Discovery follow-up"
+  output: ".proofloop/runs/latest/clips/02-follow-up.mp4"

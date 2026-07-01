@@ -1,0 +1,17 @@
+id: warm-intro
+goal: Research 50 leads and prepare call context.
+app_flow:
+  - open NodeRoom lead table
+  - run NodeBench research for selected leads
+  - write company summary, recent change, why Notion matters
+  - attach sources
+pass_criteria:
+  - lead table updated
+  - at least 3 researched leads complete in demo mode
+  - each completed lead has company summary
+  - each completed lead has recent trigger
+  - each completed lead has Notion relevance
+  - each completed lead has source evidence
+clip:
+  title: "Warm intro research"
+  output: ".proofloop/runs/latest/clips/01-warm-intro.mp4"

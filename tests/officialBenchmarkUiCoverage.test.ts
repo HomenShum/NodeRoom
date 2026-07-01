@@ -1,46 +1,58 @@
 import { afterEach, describe, expect, it } from "vitest";
-import { existsSync, mkdirSync, renameSync, rmSync, writeFileSync } from "node:fs";
-import { dirname, resolve } from "node:path";
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { dirname, join } from "node:path";
 import {
-  BANKERTOOLBENCH_FRESH_ROOM_PROOF_PATH,
   BENCHMARK_DELIVERABLE_TYPES,
   buildOfficialBenchmarkUiCoverageReport,
-  SPREADSHEETBENCH_LIVE_ROOM_PROOF_PATH,
+  type OfficialBenchmarkUiCoverageProofPaths,
   type SpreadsheetBenchLiveRoomProof,
 } from "../src/eval/officialBenchmarkUiCoverage";
 import type { FreshRoomProofReceipt } from "../src/eval/freshRoomProofReceipts";
 
-const PROOF_ABS = resolve(process.cwd(), SPREADSHEETBENCH_LIVE_ROOM_PROOF_PATH);
-const PROOF_BAK = `${PROOF_ABS}.testbak`;
-const BTB_PROOF_ABS = resolve(process.cwd(), BANKERTOOLBENCH_FRESH_ROOM_PROOF_PATH);
-const BTB_PROOF_BAK = `${BTB_PROOF_ABS}.testbak`;
+type TestProofPaths = Required<OfficialBenchmarkUiCoverageProofPaths>;
 
-function stashProof(absolute: string, backup: string): boolean {
-  const hadReal = existsSync(absolute);
-  if (hadReal) renameSync(absolute, backup);
-  return hadReal;
+const roots: string[] = [];
+let activeProofPaths: TestProofPaths | undefined;
+
+function makeProofPaths(): TestProofPaths {
+  const root = mkdtempSync(join(tmpdir(), "noderoom-ui-coverage-"));
+  roots.push(root);
+  return {
+    spreadsheetBenchLiveRoomProofPath: join(root, "spreadsheetbench-live-room-proof.json"),
+    bankerToolBenchFreshRoomProofPath: join(root, "FR-020-latest.json"),
+  };
 }
 
-function restoreProof(absolute: string, backup: string, hadReal: boolean): void {
-  rmSync(absolute, { force: true });
-  if (hadReal && existsSync(backup)) renameSync(backup, absolute);
+function writeJson(path: string, value: unknown): void {
+  mkdirSync(dirname(path), { recursive: true });
+  writeFileSync(path, `${JSON.stringify(value, null, 2)}\n`);
 }
 
-function withNoLiveProofs<T>(fn: () => T): T {
-  const hadSpreadsheet = stashProof(PROOF_ABS, PROOF_BAK);
-  const hadBtb = stashProof(BTB_PROOF_ABS, BTB_PROOF_BAK);
+function buildTestReport() {
+  return buildOfficialBenchmarkUiCoverageReport({
+    generatedAt: "test",
+    ...(activeProofPaths ? { proofPaths: activeProofPaths } : {}),
+  });
+}
+
+function withProofPaths<T>(paths: TestProofPaths, fn: () => T): T {
+  const previous = activeProofPaths;
+  activeProofPaths = paths;
   try {
     return fn();
   } finally {
-    restoreProof(PROOF_ABS, PROOF_BAK, hadSpreadsheet);
-    restoreProof(BTB_PROOF_ABS, BTB_PROOF_BAK, hadBtb);
+    activeProofPaths = previous;
   }
+}
+
+function withNoLiveProofs<T>(fn: () => T): T {
+  return withProofPaths(makeProofPaths(), fn);
 }
 
 /** Run `fn` with a temporary honest proof receipt on disk, then restore any pre-existing one. */
 function withHonestProof<T>(overrides: Partial<SpreadsheetBenchLiveRoomProof>, fn: () => T): T {
-  const hadReal = stashProof(PROOF_ABS, PROOF_BAK);
-  const hadBtb = stashProof(BTB_PROOF_ABS, BTB_PROOF_BAK);
+  const paths = makeProofPaths();
   const proof: SpreadsheetBenchLiveRoomProof = {
     schema: 1,
     task: "nb-01-company-profile",
@@ -68,23 +80,17 @@ function withHonestProof<T>(overrides: Partial<SpreadsheetBenchLiveRoomProof>, f
     },
     ...overrides,
   };
-  try {
-    mkdirSync(dirname(PROOF_ABS), { recursive: true });
-    writeFileSync(PROOF_ABS, `${JSON.stringify(proof, null, 2)}\n`);
-    return fn();
-  } finally {
-    restoreProof(PROOF_ABS, PROOF_BAK, hadReal);
-    restoreProof(BTB_PROOF_ABS, BTB_PROOF_BAK, hadBtb);
-  }
+  writeJson(paths.spreadsheetBenchLiveRoomProofPath, proof);
+  return withProofPaths(paths, fn);
 }
 
 function withBankerToolBenchProof<T>(overrides: Partial<FreshRoomProofReceipt>, fn: () => T): T {
-  const hadSpreadsheet = stashProof(PROOF_ABS, PROOF_BAK);
-  const hadBtb = stashProof(BTB_PROOF_ABS, BTB_PROOF_BAK);
+  const paths = makeProofPaths();
+  const evidenceRoot = dirname(paths.bankerToolBenchFreshRoomProofPath);
   const evidencePaths = [
-    "test-results/btb-room.png",
-    "test-results/btb-room.webm",
-    "test-results/btb-room.trace",
+    join(evidenceRoot, "btb-room.png"),
+    join(evidenceRoot, "btb-room.webm"),
+    join(evidenceRoot, "btb-room.trace"),
   ];
   const created = [
     "btb-test.xlsx",
@@ -117,9 +123,9 @@ function withBankerToolBenchProof<T>(overrides: Partial<FreshRoomProofReceipt>, 
       streamingVisible: true,
       jobDetailVisible: true,
       roomTraceVisible: true,
-      screenshotPaths: ["test-results/btb-room.png"],
-      videoPaths: ["test-results/btb-room.webm"],
-      tracePath: "test-results/btb-room.trace",
+      screenshotPaths: [evidencePaths[0]],
+      videoPaths: [evidencePaths[1]],
+      tracePath: evidencePaths[2],
     },
     artifacts: {
       uploadedFiles: ["input-a.xlsx", "input-b.xlsx"],
@@ -161,25 +167,14 @@ function withBankerToolBenchProof<T>(overrides: Partial<FreshRoomProofReceipt>, 
     passed: true,
     ...overrides,
   };
-  try {
-    mkdirSync(dirname(BTB_PROOF_ABS), { recursive: true });
-    for (const path of evidencePaths) {
-      mkdirSync(dirname(resolve(process.cwd(), path)), { recursive: true });
-      writeFileSync(resolve(process.cwd(), path), "test evidence\n");
-    }
-    writeFileSync(BTB_PROOF_ABS, `${JSON.stringify(proof, null, 2)}\n`);
-    return fn();
-  } finally {
-    for (const path of evidencePaths) rmSync(resolve(process.cwd(), path), { force: true });
-    restoreProof(PROOF_ABS, PROOF_BAK, hadSpreadsheet);
-    restoreProof(BTB_PROOF_ABS, BTB_PROOF_BAK, hadBtb);
-  }
+  for (const path of evidencePaths) writeJson(path, { test: "evidence" });
+  writeJson(paths.bankerToolBenchFreshRoomProofPath, proof);
+  return withProofPaths(paths, fn);
 }
 
 afterEach(() => {
-  // Defensive: never leave a stray backup around.
-  if (existsSync(PROOF_BAK) && !existsSync(PROOF_ABS)) renameSync(PROOF_BAK, PROOF_ABS);
-  if (existsSync(BTB_PROOF_BAK) && !existsSync(BTB_PROOF_ABS)) renameSync(BTB_PROOF_BAK, BTB_PROOF_ABS);
+  for (const root of roots.splice(0)) rmSync(root, { recursive: true, force: true });
+  activeProofPaths = undefined;
 });
 
 describe("official benchmark UI coverage ledger", () => {
@@ -205,7 +200,7 @@ describe("official benchmark UI coverage ledger", () => {
   it("does not treat memory-mode or runner-only evidence as live-browser benchmark proof (no receipt)", () => {
     // Baseline: with NO live-room proof receipt on disk, every track is missing.
     withNoLiveProofs(() => {
-      const report = buildOfficialBenchmarkUiCoverageReport({ generatedAt: "test" });
+      const report = buildTestReport();
       const tracks = Object.fromEntries(report.tracks.map((track) => [track.id, track]));
 
       expect(report.summary.liveBrowserFreshRoomReady).toBe(false);
@@ -236,7 +231,7 @@ describe("official benchmark UI coverage ledger", () => {
 
   it("flips ONLY the proven gates to covered when an honest live-room receipt exists — never the export/reopen gates", () => {
     withHonestProof({}, () => {
-      const report = buildOfficialBenchmarkUiCoverageReport({ generatedAt: "test" });
+      const report = buildTestReport();
       const v1 = report.tracks.find((t) => t.id === "spreadsheetbench-v1")!;
       const gate = (id: string) => v1.gates.find((g) => g.id === id)?.status;
 
@@ -263,7 +258,7 @@ describe("official benchmark UI coverage ledger", () => {
   it("refuses to flip on a tampered/dishonest receipt (memory mode, fabrication, failed self-test, or not-passed)", () => {
     const stays = (overrides: Partial<SpreadsheetBenchLiveRoomProof>) =>
       withHonestProof(overrides, () => {
-        const report = buildOfficialBenchmarkUiCoverageReport({ generatedAt: "test" });
+        const report = buildTestReport();
         const v1 = report.tracks.find((t) => t.id === "spreadsheetbench-v1")!;
         expect(v1.gates.find((g) => g.id === "fresh_room_join")?.status).toBe("missing");
         expect(v1.status).toBe("missing");
@@ -279,7 +274,7 @@ describe("official benchmark UI coverage ledger", () => {
 
   it("requires fresh-room browser gates, export/download, artifact reopen, and scorer handoff (no receipt)", () => {
     withNoLiveProofs(() => {
-      const report = buildOfficialBenchmarkUiCoverageReport({ generatedAt: "test" });
+      const report = buildTestReport();
       const requiredGates = report.gates.map((gate) => gate.id);
 
       expect(requiredGates).toEqual(expect.arrayContaining([
@@ -306,7 +301,7 @@ describe("official benchmark UI coverage ledger", () => {
 
   it("keeps export/download + artifact-reopen MISSING for spreadsheetbench-v1 even with an honest receipt (the genuine gap)", () => {
     withHonestProof({}, () => {
-      const report = buildOfficialBenchmarkUiCoverageReport({ generatedAt: "test" });
+      const report = buildTestReport();
       const v1 = report.tracks.find((t) => t.id === "spreadsheetbench-v1")!;
       // The two export-shaped gates are the honest hard floor: no file leaves the room.
       expect(v1.gates.find((g) => g.id === "deliverable_export_download")?.status).toBe("missing");
@@ -319,7 +314,7 @@ describe("official benchmark UI coverage ledger", () => {
 
   it("covers BankerToolBench when FR-020 proves the fresh-room deliverable package", () => {
     withBankerToolBenchProof({}, () => {
-      const report = buildOfficialBenchmarkUiCoverageReport({ generatedAt: "test" });
+      const report = buildTestReport();
       const btb = report.tracks.find((t) => t.id === "bankertoolbench")!;
       const gate = (id: string) => btb.gates.find((g) => g.id === id)?.status;
 
@@ -328,7 +323,7 @@ describe("official benchmark UI coverage ledger", () => {
       expect(btb.missingDeliverables).toEqual([]);
       expect(btb.currentEvidence).toEqual(expect.arrayContaining([
         "e2e/benchmark-ui-bankertoolbench.spec.ts",
-        BANKERTOOLBENCH_FRESH_ROOM_PROOF_PATH,
+        activeProofPaths!.bankerToolBenchFreshRoomProofPath,
       ]));
       for (const id of [
         "fresh_room_join",
@@ -360,7 +355,7 @@ describe("official benchmark UI coverage ledger", () => {
         },
       },
       () => {
-        const report = buildOfficialBenchmarkUiCoverageReport({ generatedAt: "test" });
+        const report = buildTestReport();
         const btb = report.tracks.find((t) => t.id === "bankertoolbench")!;
         const streamingEvidence = btb.gates.find((g) => g.id === "visible_streaming_progress")?.evidence ?? "";
 
@@ -406,7 +401,7 @@ describe("official benchmark UI coverage ledger", () => {
         },
       },
       () => {
-        const report = buildOfficialBenchmarkUiCoverageReport({ generatedAt: "test" });
+        const report = buildTestReport();
         const v1 = report.tracks.find((t) => t.id === "spreadsheetbench-v1")!;
         const gate = (id: string) => v1.gates.find((g) => g.id === id)?.status;
 
@@ -455,7 +450,7 @@ describe("official benchmark UI coverage ledger", () => {
         },
       },
       () => {
-        const report = buildOfficialBenchmarkUiCoverageReport({ generatedAt: "test" });
+        const report = buildTestReport();
         const v1 = report.tracks.find((t) => t.id === "spreadsheetbench-v1")!;
         // The deliverable stays missing because the grade did not come from a reopened file.
         expect(v1.liveBrowserFreshRoomDeliverables).toEqual([]);
@@ -494,7 +489,7 @@ describe("official benchmark UI coverage ledger", () => {
           ...overrides,
         },
         () => {
-          const report = buildOfficialBenchmarkUiCoverageReport({ generatedAt: "test" });
+          const report = buildTestReport();
           const v1 = report.tracks.find((t) => t.id === "spreadsheetbench-v1")!;
           const exportGate = v1.gates.find((g) => g.id === "deliverable_export_download");
           expect(exportGate?.status).toBe("missing");
@@ -553,7 +548,7 @@ describe("official benchmark UI coverage ledger", () => {
           ...overrides,
         },
         () => {
-          const report = buildOfficialBenchmarkUiCoverageReport({ generatedAt: "test" });
+          const report = buildTestReport();
           const v1 = report.tracks.find((t) => t.id === "spreadsheetbench-v1")!;
           const reopenGate = v1.gates.find((g) => g.id === "artifact_reopen_validation");
           expect(reopenGate?.status).toBe("missing");

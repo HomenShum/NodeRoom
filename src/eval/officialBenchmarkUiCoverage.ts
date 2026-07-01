@@ -333,6 +333,11 @@ export type OfficialBenchmarkUiCoverageReport = {
   tracks: BenchmarkUiCoverageTrack[];
 };
 
+export type OfficialBenchmarkUiCoverageProofPaths = {
+  spreadsheetBenchLiveRoomProofPath?: string;
+  bankerToolBenchFreshRoomProofPath?: string;
+};
+
 export const BENCHMARK_DELIVERABLE_TYPES: BenchmarkDeliverableType[] = [
   {
     kind: "workbook",
@@ -416,10 +421,15 @@ export const BENCHMARK_UI_GATES: BenchmarkUiGate[] = [
 
 export function buildOfficialBenchmarkUiCoverageReport(args: {
   generatedAt?: string;
+  proofPaths?: OfficialBenchmarkUiCoverageProofPaths;
 } = {}): OfficialBenchmarkUiCoverageReport {
+  const proofPaths = {
+    spreadsheetBenchLiveRoomProofPath: args.proofPaths?.spreadsheetBenchLiveRoomProofPath ?? SPREADSHEETBENCH_LIVE_ROOM_PROOF_PATH,
+    bankerToolBenchFreshRoomProofPath: args.proofPaths?.bankerToolBenchFreshRoomProofPath ?? BANKERTOOLBENCH_FRESH_ROOM_PROOF_PATH,
+  };
   const tracks = [
-    bankerToolBenchUiTrack(),
-    spreadsheetBenchV1UiTrack(),
+    bankerToolBenchUiTrack(proofPaths.bankerToolBenchFreshRoomProofPath),
+    spreadsheetBenchV1UiTrack(proofPaths.spreadsheetBenchLiveRoomProofPath),
     spreadsheetBenchV2UiTrack(),
   ];
   const requiredDeliverableKinds = [
@@ -450,8 +460,8 @@ export function buildOfficialBenchmarkUiCoverageReport(args: {
   };
 }
 
-function bankerToolBenchUiTrack(): BenchmarkUiCoverageTrack {
-  const proof = readBankerToolBenchFreshRoomProof();
+function bankerToolBenchUiTrack(proofPath: string = BANKERTOOLBENCH_FRESH_ROOM_PROOF_PATH): BenchmarkUiCoverageTrack {
+  const proof = readBankerToolBenchFreshRoomProof(proofPath);
   const requiredDeliverables: BenchmarkDeliverableKind[] = ["workbook", "presentation", "document", "pdf"];
   const liveBrowserFreshRoomDeliverables = proof ? requiredDeliverables : [];
   const missingDeliverables = requiredDeliverables.filter((kind) => !liveBrowserFreshRoomDeliverables.includes(kind));
@@ -463,14 +473,14 @@ function bankerToolBenchUiTrack(): BenchmarkUiCoverageTrack {
     "tests/bankerToolBenchNodeAgentGeneral.test.ts",
     "docs/qa/browser-e2e-flow-inventory.json",
     requiredSpec,
-    BANKERTOOLBENCH_FRESH_ROOM_PROOF_PATH,
+    proofPath,
     BANKERTOOLBENCH_LIVE_ROOM_PROOF_PATH,
     BANKERTOOLBENCH_PACKAGE_MANIFEST_PATH,
   ];
   const gateSet = new Set(proof?.gatesProven ?? []);
   const requiredSpecExists = existsSync(requiredSpec);
   const proofLabel = proof
-    ? `${requiredSpec} (proof: ${BANKERTOOLBENCH_FRESH_ROOM_PROOF_PATH}, room ${proof.roomId ?? "unknown"})`
+    ? `${requiredSpec} (proof: ${proofPath}, room ${proof.roomId ?? "unknown"})`
     : undefined;
 
   const gates = BENCHMARK_UI_GATES.map((gate) => {
@@ -501,14 +511,14 @@ function bankerToolBenchUiTrack(): BenchmarkUiCoverageTrack {
         return {
           ...gate,
           status: "covered" as const,
-          evidence: proof.ui.tracePath ?? proof.ui.videoPaths?.[0] ?? BANKERTOOLBENCH_FRESH_ROOM_PROOF_PATH,
+          evidence: proof.ui.tracePath ?? proof.ui.videoPaths?.[0] ?? proofPath,
         };
       }
       if (gate.id === "visible_streaming_progress") {
         return {
           ...gate,
           status: "covered" as const,
-          evidence: btbStreamingEvidence(proof, proofLabel ?? BANKERTOOLBENCH_FRESH_ROOM_PROOF_PATH),
+          evidence: btbStreamingEvidence(proof, proofLabel ?? proofPath),
         };
       }
       return {
@@ -562,7 +572,7 @@ function bankerToolBenchUiTrack(): BenchmarkUiCoverageTrack {
     requiredSpec,
     blockers: proof
       ? [
-          `Live-browser fresh-room BTB run PASSED for task ${proof.taskId ?? "unknown"} with ${BANKERTOOLBENCH_REQUIRED_EXTENSIONS.join(", ")} downloaded and reopened; proof: ${BANKERTOOLBENCH_FRESH_ROOM_PROOF_PATH}.`,
+          `Live-browser fresh-room BTB run PASSED for task ${proof.taskId ?? "unknown"} with ${BANKERTOOLBENCH_REQUIRED_EXTENSIONS.join(", ")} downloaded and reopened; proof: ${proofPath}.`,
           ...btbVisualJudgeCoverageNotes(proof),
           ...(proof.visualJudge?.verdict === "not_run" && proof.visualJudge.reason
             ? [`Gemini visual judge not run: ${proof.visualJudge.reason}`]
@@ -606,8 +616,8 @@ function btbVisualJudgeCoverageNotes(proof: FreshRoomProofReceipt): string[] {
   return [`Gemini visual judge passed${scorecard}${reason}.`];
 }
 
-function spreadsheetBenchV1UiTrack(): BenchmarkUiCoverageTrack {
-  const proof = readSpreadsheetBenchLiveRoomProof();
+function spreadsheetBenchV1UiTrack(proofPath: string = SPREADSHEETBENCH_LIVE_ROOM_PROOF_PATH): BenchmarkUiCoverageTrack {
+  const proof = readSpreadsheetBenchLiveRoomProof(proofPath);
   return buildTrack({
     id: "spreadsheetbench-v1",
     title: "SpreadsheetBench V1 live browser workbook run",
@@ -618,7 +628,7 @@ function spreadsheetBenchV1UiTrack(): BenchmarkUiCoverageTrack {
       "src/eval/spreadsheetBenchRunner.ts",
       "src/eval/spreadsheetBenchScorer.ts",
       "docs/qa/browser-e2e-flow-inventory.json",
-      ...(proof ? ["e2e/benchmark-ui-spreadsheetbench.spec.ts", SPREADSHEETBENCH_LIVE_ROOM_PROOF_PATH] : []),
+      ...(proof ? ["e2e/benchmark-ui-spreadsheetbench.spec.ts", proofPath] : []),
     ],
     requiredSpec: "e2e/benchmark-ui-spreadsheetbench.spec.ts",
     blockers: [
@@ -626,6 +636,7 @@ function spreadsheetBenchV1UiTrack(): BenchmarkUiCoverageTrack {
       "No browser-run workbook is downloaded, reopened, and scored against the official V1 policy.",
     ],
     proof,
+    proofPath,
   });
 }
 
@@ -659,8 +670,10 @@ function buildTrack(args: {
   blockers: string[];
   /** Honest live-browser proof receipt; when present, flips the gates the receipt proves. */
   proof?: SpreadsheetBenchLiveRoomProof | null;
+  proofPath?: string;
 }): BenchmarkUiCoverageTrack {
   const proof = args.proof ?? null;
+  const proofPath = args.proofPath ?? SPREADSHEETBENCH_LIVE_ROOM_PROOF_PATH;
   const provenByReceipt = new Set<string>(proof?.gatesProven ?? []);
   // EXPORT was the genuine gap; with the Export XLSX toolbar button + reopen step, an honest
   // file-export receipt now flips the workbook deliverable to covered. Defense-in-depth: the
@@ -715,7 +728,7 @@ function buildTrack(args: {
       return {
         ...gate,
         status: "covered" as const,
-        evidence: `e2e/benchmark-ui-spreadsheetbench.spec.ts (proof: ${SPREADSHEETBENCH_LIVE_ROOM_PROOF_PATH}, score ${proof.grade.score})`,
+        evidence: `e2e/benchmark-ui-spreadsheetbench.spec.ts (proof: ${proofPath}, score ${proof.grade.score})`,
       };
     }
     if (gate.id === "public_nodeagent_invocation") {
@@ -808,7 +821,7 @@ function buildTrack(args: {
       ...(proof ? [] : args.blockers),
       ...(proof
         ? [
-            `Live-browser fresh-room run PASSED via ${proof.gradingMethod} grading (gradeGolden score ${proof.grade.score}, ${proof.grade.correct}/${proof.grade.n} cells, 0 fabrications); proof: ${SPREADSHEETBENCH_LIVE_ROOM_PROOF_PATH}.`,
+            `Live-browser fresh-room run PASSED via ${proof.gradingMethod} grading (gradeGolden score ${proof.grade.score}, ${proof.grade.correct}/${proof.grade.n} cells, 0 fabrications); proof: ${proofPath}.`,
           ]
         : []),
       ...(missingDeliverables.length

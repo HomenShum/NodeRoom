@@ -1,0 +1,26 @@
+id: invoice-extraction
+category: invoice_receipt_extraction
+goal: Extract line items, totals, and vendor info from invoice images/PDFs.
+app_flow:
+  - upload invoice file to NodeRoom
+  - agent parses invoice using OCR/structured extraction
+  - NodeBench validates extracted fields against known schema
+  - results displayed in spreadsheet with source evidence
+pass_criteria:
+  - vendor name extracted correctly
+  - invoice total matches expected value
+  - line items count matches
+  - source evidence (file ref) attached
+  - extraction completes within 30s
+benchmark_refs:
+  - name: FATURA
+    source: academic
+    description: 10,000 annotated invoices across 50 layouts
+  - name: CORU
+    source: academic
+    description: Receipt OCR and information extraction
+dataset:
+  name: sample-invoices
+  source: local-fixture
+  task: invoice_extraction
+  license_checked: true

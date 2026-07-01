@@ -1,0 +1,23 @@
+[
+  {
+    "id": "inv-001",
+    "vendor": "ACME Supplies",
+    "total": 1250,
+    "lineItems": 3,
+    "date": "2026-06-15"
+  },
+  {
+    "id": "inv-002",
+    "vendor": "TechCorp",
+    "total": 4800.5,
+    "lineItems": 7,
+    "date": "2026-06-20"
+  },
+  {
+    "id": "inv-003",
+    "vendor": "Office Depot",
+    "total": 312.75,
+    "lineItems": 2,
+    "date": "2026-06-25"
+  }
+]
