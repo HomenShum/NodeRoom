@@ -30,6 +30,7 @@ docs/**/*.webm
 !docs/eval/nonbtb/**
 # Staging area for the standalone public NodeRL repo (see docs/noderl/). Not served by the site.
 noderl
+/nodetrace
 episodes
 remotion
 e2e
@@ -37,7 +38,23 @@ tests
 evals
 demo
 scripts
+/.agent
+/.claude
+/.kilo
+/.nodeagent
+/.playwright-mcp
+/.proofloop
+/.serena
+/.tmp
+/.tmp-halo
 .tmp-qa
+/.worktrees
+/btb_noderoom_agent
+/backend
+/dist
+/runs
+/skills
+/test-results
 *.log
 # Episode videos are gitignored (repo stays lean) but MUST deploy — they are served at
 # noderoom.live/episodes/*.mp4. The ! re-includes them for the upload.

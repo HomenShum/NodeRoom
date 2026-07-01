@@ -1,0 +1,10 @@
+name: proximitty-visual-design-rubric
+version: 1
+checks:
+  - primary action is visible
+  - loading or streaming state is visible when the agent is invoked
+  - no critical horizontal overflow on desktop
+  - key controls have accessible labels or stable test ids
+  - proof and evidence panels are understandable in screenshots
+  - screenshots are presentable enough for a customer-facing demo review
+  - no unexpected console or page errors

@@ -1,0 +1,15 @@
+name: proximitty-evidence-rubric
+version: 1
+rules:
+  - id: claim_source_or_needs_review
+    severity: hard_fail
+    description: Every material claim must carry an evidenceRef or be marked needs_review.
+  - id: no_fabricated_source
+    severity: hard_fail
+    description: Evidence refs must point to the synthetic source pack, policy, financials, or risk notes.
+  - id: unsupported_legal_or_lien_claim
+    severity: hard_fail
+    description: Legal, insurance, environmental, or lien statements without included source evidence must remain needs_review.
+  - id: visible_evidence_cards
+    severity: warning
+    description: The trace/storybook should expose evidence refs as compact proof atoms.

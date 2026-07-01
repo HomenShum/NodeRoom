@@ -6,9 +6,6 @@
   "type": "module",
   "license": "MIT",
   "author": "Homen Shum",
-  "engines": {
-    "node": ">=22"
-  },
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
@@ -89,7 +86,10 @@
     "proofloop:live:notion": "tsx scripts/live-proofloop-runner.ts --config=proofloop/notion/live.notion.config.json",
     "proofloop:live:browser": "PROOFLOOP_LIVE_BROWSER=1 npx playwright test --config playwright.proofloop.config.ts proofloop/live-browser-proof.spec.ts --headed",
     "proofloop:live:btb": "BTB_LIVE_ROOM_E2E=1 npx playwright test --config playwright.real-flow.config.ts e2e/benchmark-ui-bankertoolbench.spec.ts --headed",
-    "proofloop": "tsx scripts/proofloop-cli.ts",
+    "proofloop": "node scripts/proofloop.mjs",
+    "proofloop:proximitty": "node scripts/proofloop.mjs proximitty",
+    "proofloop:proximitty:models": "node proofloop/adapters/model-delta.mjs --suite=proximitty-underwriting-pr0 --run=latest",
+    "proofloop:proximitty:clips": "node proofloop/adapters/generate-clips.mjs --suite=proximitty-underwriting-pr0 --run=latest",
     "nodeagent:frame:smoke": "tsx scripts/nodeagent-frame-smoke.ts",
     "omnigent:nodeagent:smoke": "tsx scripts/omnigent-nodeagent-smoke.ts --json-out docs/eval/omnigent-nodeagent-smoke.json",
     "omniagent:nodeagent:smoke": "tsx scripts/omnigent-nodeagent-smoke.ts --json-out docs/eval/omnigent-nodeagent-smoke.json",
@@ -193,7 +193,7 @@
     "react-pdf": "^10.4.1",
     "undici": "^8.4.0",
     "unpdf": "^1.6.2",
-    "zod": "^3.25.76"
+    "zod": "4.3.6"
   },
   "devDependencies": {
     "@ai-sdk/gateway": "^4.0.6",

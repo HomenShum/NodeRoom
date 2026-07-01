@@ -6,7 +6,7 @@ import { evaluateBtbDomainProof } from "../../../eval/btbTaskCoverage";
 
 const packageRowSchema = z.object({
   label: z.string().describe("Date, period, ticker, metric, or row label."),
-  values: z.record(z.union([z.string(), z.number(), z.boolean(), z.null()])).describe("Column/value pairs for this row."),
+  values: z.record(z.string(), z.union([z.string(), z.number(), z.boolean(), z.null()])).describe("Column/value pairs for this row."),
 });
 
 const packageInputSchema = z.object({
@@ -142,7 +142,7 @@ function packageRowsHaveQuantitativeValue(rows: Array<z.infer<typeof packageRowS
   return rows.some((row) => Object.values(row.values).some(isQuantitativePackageValue));
 }
 
-function isQuantitativePackageValue(value: string | number | boolean | null): boolean {
+function isQuantitativePackageValue(value: unknown): boolean {
   if (typeof value === "number") return Number.isFinite(value);
   if (typeof value !== "string") return false;
   const trimmed = value.trim();

@@ -1,0 +1,26 @@
+{
+  "schema": 1,
+  "demoSafe": true,
+  "company": {
+    "name": "HarborPoint Robotics",
+    "legalName": "HarborPoint Robotics, Inc.",
+    "sector": "warehouse automation",
+    "founded": 2021,
+    "headquarters": "Reno, Nevada",
+    "employees": 48,
+    "businessModel": "Robotics-as-a-service contracts for mid-market third-party logistics warehouses"
+  },
+  "borrower": {
+    "name": "HPR Holdings LLC",
+    "requestedFacilityUsd": 3500000,
+    "facilityType": "senior secured working-capital line",
+    "purpose": "Purchase inventory and bridge customer deployment milestones",
+    "requestedTenorMonths": 18
+  },
+  "collateral": {
+    "primary": "Eligible accounts receivable and finished inventory",
+    "secondary": "Robotics fleet hardware and deployment kits",
+    "excluded": ["capitalized software", "unverified customer pilots"]
+  },
+  "demoNotice": "Synthetic underwriting profile for Proof Loop evaluation only. Do not use for real financial, legal, lending, or insurance decisions."
+}

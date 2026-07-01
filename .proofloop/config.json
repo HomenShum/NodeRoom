@@ -24,6 +24,12 @@
       "minScore": 100,
       "kind": "browser",
       "receiptGlob": "live-browser"
+    },
+    "proximitty-underwriting-pr0": {
+      "cmd": "npm run proofloop:proximitty",
+      "minScore": 85,
+      "kind": "browser",
+      "receiptGlob": "none"
     }
   }
 }

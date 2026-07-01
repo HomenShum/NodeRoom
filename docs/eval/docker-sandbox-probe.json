@@ -1,33 +1,26 @@
 {
   "schema": 1,
-  "generatedAt": "2026-06-13T21:19:47.096Z",
+  "generatedAt": "2026-07-01T22:16:42.631Z",
   "verifier": "docker_harbor_availability_probe",
-  "status": "container_isolation_proven",
-  "pass": true,
+  "status": "daemon_unavailable",
+  "pass": false,
   "image": "node:22-alpine",
   "dockerCli": {
     "command": "docker --version",
     "exitCode": 0,
-    "stdoutPreview": "Docker version 28.5.1, build e180ab8",
+    "stdoutPreview": "Docker version 29.5.3, build d1c06ef",
     "stderrPreview": "",
     "ok": true
   },
   "daemon": {
     "command": "docker info --format {{json .ServerVersion}}",
-    "exitCode": 0,
-    "stdoutPreview": "\"28.5.1\"",
-    "stderrPreview": "",
-    "ok": true
+    "exitCode": 1,
+    "stdoutPreview": "\"\"",
+    "stderrPreview": "failed to connect to the docker API at npipe:////./pipe/dockerDesktopLinuxEngine; check if the path is correct and if the daemon is running: open //./pipe/dockerDesktopLinuxEngine: The system cannot find the file specified.",
+    "ok": false
   },
-  "container": {
-    "command": "docker run --rm --pull=never --network=none --read-only -v D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.tmp\\docker-sandbox-probe\\agent-workspace:/agent:ro node:22-alpine node -e const fs=require('node:fs');const agent=fs.readFileSync('/agent/task.json','utf8');let denied=false;try{fs.readFileSync('/evaluator/gold.json','utf8')}catch{denied=true}process.stdout.write(JSON.stringify({agentVisible:agent.includes('docker-sandbox-probe'),evaluatorDenied:denied}));if(!agent.includes('docker-sandbox-probe')||!denied)process.exit(7);",
-    "exitCode": 0,
-    "stdoutPreview": "{\"agentVisible\":true,\"evaluatorDenied\":true}",
-    "stderrPreview": "",
-    "ok": true,
-    "networkMode": "none",
-    "mountedAgentWorkspace": true,
-    "mountedEvaluatorWorkspace": false
-  },
-  "warnings": []
+  "warnings": [
+    "Docker/Harbor process isolation is not proven in this environment; official benchmark readiness must remain red.",
+    "Docker CLI is installed, but the Docker daemon is unavailable or Docker Desktop is not running."
+  ]
 }

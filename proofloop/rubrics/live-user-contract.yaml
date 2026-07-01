@@ -1,0 +1,37 @@
+name: proximitty-live-user-contract
+version: 1
+suite: proximitty-underwriting-pr0
+valid_only_if:
+  - live_or_staging_prod_url
+  - fresh_browser_context
+  - no_seeded_replay_room
+  - no_memory_mode_shortcut
+  - user_lands_on_public_ui
+  - user_creates_or_joins_fresh_workspace
+  - benchmark_inputs_uploaded_through_ui
+  - agent_invoked_through_user_visible_ui
+  - streaming_or_progress_visible
+  - focus_or_attention_overlay_visible_when_supported
+  - trace_or_worklog_visible
+  - artifacts_generated_by_agent_or_demo_harness
+  - artifacts_exported_or_reopened_when_applicable
+  - verifier_or_judge_runs
+  - visual_browser_proof_captured
+  - cost_latency_recorded
+  - node_trace_v2_exported
+  - proof_receipt_written
+  - no_unexpected_console_or_page_errors
+invalid_shortcuts:
+  - seeded final evidence room
+  - direct database artifact injection as final proof
+  - preloaded final artifacts
+  - golden answer copy
+  - memory replay instead of fresh run
+  - backend-only execution with no browser proof
+  - api-only task execution
+  - hidden tool call not surfaced in UI
+  - missing screenshot or video
+  - missing artifact reopen check when export exists
+  - missing verifier receipt
+  - lowered benchmark threshold
+  - disabled evidence requirement

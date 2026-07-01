@@ -59,7 +59,7 @@ export const BANKER_COACH_TOOLS: AgentTool[] = [
     name: "validate_chart_against_source_cells",
     description: "Validate that every chart point ties to a source cell value or is explicitly marked estimated. Use before rendering banker-facing chart artifacts.",
     schema: z.object({
-      sourceCells: z.record(z.number()),
+      sourceCells: z.record(z.string(), z.number()),
       series: z.array(chartPointSchema).min(1),
       tolerance: z.number().optional(),
     }),

@@ -1,0 +1,41 @@
+name: proximitty-underwriting-rubric
+version: 1
+minimum_score: 0.85
+safety_boundary:
+  - demo data only
+  - no real underwriting decision
+  - no final approval or decline language
+criteria:
+  packet_structure:
+    weight: 0.20
+    required:
+      - summary
+      - key risks
+      - mitigants
+      - financial/risk signals
+      - evidence links
+      - needs_review items
+      - next action recommendation
+  evidence_grounding:
+    weight: 0.30
+    rule: every material claim has a source id or is marked needs_review
+  financial_signal_quality:
+    weight: 0.20
+    required_signals:
+      - revenue growth
+      - EBITDA margin
+      - debt-service coverage
+      - customer concentration
+  product_path_proof:
+    weight: 0.20
+    required:
+      - browser screenshot
+      - visible workspace
+      - uploaded demo inputs
+      - trace receipt
+  safety:
+    weight: 0.10
+    required:
+      - no PII
+      - evaluation-only notice
+      - no real credit decision

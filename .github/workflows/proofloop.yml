@@ -1,0 +1,30 @@
+name: Proximitty Proof Loop
+
+on:
+  workflow_dispatch:
+
+jobs:
+  proximitty-underwriting-pr0:
+    name: Proximitty Underwriting Proof Loop
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Run Proximitty proof-loop
+        run: npm run proofloop:proximitty
+        env:
+          CI: "true"
+          VITE_CONVEX_URL: ${{ secrets.VITE_CONVEX_URL }}
+      - name: Upload proof artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: proximitty-underwriting-pr0
+          path: .proofloop/runs/latest/
+          retention-days: 14
