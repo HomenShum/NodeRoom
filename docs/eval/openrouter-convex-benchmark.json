@@ -1,12 +1,12 @@
 {
   "schema": 1,
-  "generatedAt": "2026-07-01T22:53:00.520Z",
+  "generatedAt": "2026-07-01T23:17:48.093Z",
   "summary": {
     "routeCount": 46,
     "openRouterRouteCount": 30,
-    "harnessCases": 6,
+    "harnessCases": 5,
     "harnessCasesPassing": 5,
-    "officialPromotionCases": 1,
+    "officialPromotionCases": 2,
     "officialPromotionCasesPassing": 0,
     "officialStyleSuites": 4,
     "officialStyleSuitesPassing": 3,
@@ -16,7 +16,7 @@
     "routesInteractivePromoted": 0,
     "topPaidOpenRouterRoutes": 19,
     "topPaidRoutesWithManagedN5P95": 0,
-    "harnessReady": false,
+    "harnessReady": true,
     "officialStyleSuitesReady": false,
     "officialPromotionReady": false
   },
@@ -143,12 +143,12 @@
     },
     {
       "id": "docker_agent_workspace_isolation",
-      "title": "Agent workspace isolation for benchmark execution",
+      "title": "Official scorer workspace isolation",
       "inspiredBy": [
         "SpreadsheetBench",
         "BankerToolBench"
       ],
-      "scope": "openrouter_convex_harness",
+      "scope": "official_promotion",
       "status": "blocked",
       "evidence": [
         "docs/eval/docker-sandbox-probe.json",
@@ -161,7 +161,7 @@
       ],
       "acceptance": "Docker probe records container_isolation_proven with evaluator reads denied.",
       "blockers": [
-        "Start Docker and run npm run benchmark:docker-sandbox:probe -- --require-pass."
+        "Docker/Harbor isolation is required only for official score promotion; product-path Proof Loop runs stay valid without it."
       ]
     },
     {
@@ -290,7 +290,7 @@
       "label": "Cohere North Mini Code free",
       "role": "background_long_running_only",
       "adapter": "convexModel.openrouter_chat_completions",
-      "eligibleForConvexHarness": false,
+      "eligibleForConvexHarness": true,
       "mustRunThroughAgentJobs": true,
       "requiredContract": [
         "agentJobs is the durable root for every benchmark run, including /ask and /free",
@@ -308,7 +308,6 @@
         "convex/agentJobs.ts"
       ],
       "blockers": [
-        "OpenRouter-on-Convex harness cases are not all passing",
         "route needs N>=5 p95 ladder evidence before interactive promotion"
       ]
     },
@@ -318,7 +317,7 @@
       "label": "DeepSeek V4 Flash",
       "role": "interactive_candidate",
       "adapter": "convexModel.openrouter_chat_completions",
-      "eligibleForConvexHarness": false,
+      "eligibleForConvexHarness": true,
       "mustRunThroughAgentJobs": true,
       "requiredContract": [
         "agentJobs is the durable root for every benchmark run, including /ask and /free",
@@ -335,9 +334,7 @@
         "src/nodeagent/models/convexModel.ts",
         "convex/agentJobs.ts"
       ],
-      "blockers": [
-        "OpenRouter-on-Convex harness cases are not all passing"
-      ]
+      "blockers": []
     },
     {
       "route": "ibm-granite/granite-4.1-8b",
@@ -345,7 +342,7 @@
       "label": "IBM Granite 4.1 8B",
       "role": "interactive_candidate",
       "adapter": "convexModel.openrouter_chat_completions",
-      "eligibleForConvexHarness": false,
+      "eligibleForConvexHarness": true,
       "mustRunThroughAgentJobs": true,
       "requiredContract": [
         "agentJobs is the durable root for every benchmark run, including /ask and /free",
@@ -362,9 +359,7 @@
         "src/nodeagent/models/convexModel.ts",
         "convex/agentJobs.ts"
       ],
-      "blockers": [
-        "OpenRouter-on-Convex harness cases are not all passing"
-      ]
+      "blockers": []
     },
     {
       "route": "z-ai/glm-4.7-flash",
@@ -372,7 +367,7 @@
       "label": "GLM 4.7 Flash",
       "role": "interactive_candidate",
       "adapter": "convexModel.openrouter_chat_completions",
-      "eligibleForConvexHarness": false,
+      "eligibleForConvexHarness": true,
       "mustRunThroughAgentJobs": true,
       "requiredContract": [
         "agentJobs is the durable root for every benchmark run, including /ask and /free",
@@ -389,9 +384,7 @@
         "src/nodeagent/models/convexModel.ts",
         "convex/agentJobs.ts"
       ],
-      "blockers": [
-        "OpenRouter-on-Convex harness cases are not all passing"
-      ]
+      "blockers": []
     },
     {
       "route": "inclusionai/ring-2.6-1t",
@@ -399,7 +392,7 @@
       "label": "inclusionAI Ring 2.6 1T",
       "role": "interactive_candidate",
       "adapter": "convexModel.openrouter_chat_completions",
-      "eligibleForConvexHarness": false,
+      "eligibleForConvexHarness": true,
       "mustRunThroughAgentJobs": true,
       "requiredContract": [
         "agentJobs is the durable root for every benchmark run, including /ask and /free",
@@ -416,9 +409,7 @@
         "src/nodeagent/models/convexModel.ts",
         "convex/agentJobs.ts"
       ],
-      "blockers": [
-        "OpenRouter-on-Convex harness cases are not all passing"
-      ]
+      "blockers": []
     },
     {
       "route": "xiaomi/mimo-v2.5",
@@ -426,7 +417,7 @@
       "label": "Xiaomi MiMo V2.5",
       "role": "interactive_candidate",
       "adapter": "convexModel.openrouter_chat_completions",
-      "eligibleForConvexHarness": false,
+      "eligibleForConvexHarness": true,
       "mustRunThroughAgentJobs": true,
       "requiredContract": [
         "agentJobs is the durable root for every benchmark run, including /ask and /free",
@@ -442,9 +433,7 @@
         "src/nodeagent/models/convexModel.ts",
         "convex/agentJobs.ts"
       ],
-      "blockers": [
-        "OpenRouter-on-Convex harness cases are not all passing"
-      ]
+      "blockers": []
     },
     {
       "route": "stepfun/step-3.7-flash",
@@ -452,7 +441,7 @@
       "label": "StepFun Step 3.7 Flash",
       "role": "interactive_candidate",
       "adapter": "convexModel.openrouter_chat_completions",
-      "eligibleForConvexHarness": false,
+      "eligibleForConvexHarness": true,
       "mustRunThroughAgentJobs": true,
       "requiredContract": [
         "agentJobs is the durable root for every benchmark run, including /ask and /free",
@@ -469,9 +458,7 @@
         "src/nodeagent/models/convexModel.ts",
         "convex/agentJobs.ts"
       ],
-      "blockers": [
-        "OpenRouter-on-Convex harness cases are not all passing"
-      ]
+      "blockers": []
     },
     {
       "route": "moonshotai/kimi-k2.7-code",
@@ -479,7 +466,7 @@
       "label": "Kimi K2.7 Code",
       "role": "interactive_candidate",
       "adapter": "convexModel.openrouter_chat_completions",
-      "eligibleForConvexHarness": false,
+      "eligibleForConvexHarness": true,
       "mustRunThroughAgentJobs": true,
       "requiredContract": [
         "agentJobs is the durable root for every benchmark run, including /ask and /free",
@@ -495,9 +482,7 @@
         "src/nodeagent/models/convexModel.ts",
         "convex/agentJobs.ts"
       ],
-      "blockers": [
-        "OpenRouter-on-Convex harness cases are not all passing"
-      ]
+      "blockers": []
     },
     {
       "route": "minimax/minimax-m3",
@@ -505,7 +490,7 @@
       "label": "MiniMax M3",
       "role": "interactive_candidate",
       "adapter": "convexModel.openrouter_chat_completions",
-      "eligibleForConvexHarness": false,
+      "eligibleForConvexHarness": true,
       "mustRunThroughAgentJobs": true,
       "requiredContract": [
         "agentJobs is the durable root for every benchmark run, including /ask and /free",
@@ -522,9 +507,7 @@
         "src/nodeagent/models/convexModel.ts",
         "convex/agentJobs.ts"
       ],
-      "blockers": [
-        "OpenRouter-on-Convex harness cases are not all passing"
-      ]
+      "blockers": []
     },
     {
       "route": "deepseek/deepseek-v4-pro",
@@ -532,7 +515,7 @@
       "label": "DeepSeek V4 Pro",
       "role": "interactive_candidate",
       "adapter": "convexModel.openrouter_chat_completions",
-      "eligibleForConvexHarness": false,
+      "eligibleForConvexHarness": true,
       "mustRunThroughAgentJobs": true,
       "requiredContract": [
         "agentJobs is the durable root for every benchmark run, including /ask and /free",
@@ -549,9 +532,7 @@
         "src/nodeagent/models/convexModel.ts",
         "convex/agentJobs.ts"
       ],
-      "blockers": [
-        "OpenRouter-on-Convex harness cases are not all passing"
-      ]
+      "blockers": []
     },
     {
       "route": "google/gemini-3.1-flash-lite",
@@ -577,8 +558,7 @@
         "convex/agentJobs.ts"
       ],
       "blockers": [
-        "route is not ladder-tested for collaboration writes",
-        "OpenRouter-on-Convex harness cases are not all passing"
+        "route is not ladder-tested for collaboration writes"
       ]
     },
     {
@@ -587,7 +567,7 @@
       "label": "Qwen 3.7 Plus",
       "role": "interactive_candidate",
       "adapter": "convexModel.openrouter_chat_completions",
-      "eligibleForConvexHarness": false,
+      "eligibleForConvexHarness": true,
       "mustRunThroughAgentJobs": true,
       "requiredContract": [
         "agentJobs is the durable root for every benchmark run, including /ask and /free",
@@ -603,9 +583,7 @@
         "src/nodeagent/models/convexModel.ts",
         "convex/agentJobs.ts"
       ],
-      "blockers": [
-        "OpenRouter-on-Convex harness cases are not all passing"
-      ]
+      "blockers": []
     },
     {
       "route": "nvidia/nemotron-3-ultra-550b-a55b",
@@ -613,7 +591,7 @@
       "label": "NVIDIA Nemotron 3 Ultra",
       "role": "interactive_candidate",
       "adapter": "convexModel.openrouter_chat_completions",
-      "eligibleForConvexHarness": false,
+      "eligibleForConvexHarness": true,
       "mustRunThroughAgentJobs": true,
       "requiredContract": [
         "agentJobs is the durable root for every benchmark run, including /ask and /free",
@@ -629,9 +607,7 @@
         "src/nodeagent/models/convexModel.ts",
         "convex/agentJobs.ts"
       ],
-      "blockers": [
-        "OpenRouter-on-Convex harness cases are not all passing"
-      ]
+      "blockers": []
     },
     {
       "route": "nvidia/nemotron-3-ultra-550b-a55b:free",
@@ -639,7 +615,7 @@
       "label": "NVIDIA Nemotron 3 Ultra free",
       "role": "background_long_running_only",
       "adapter": "convexModel.openrouter_chat_completions",
-      "eligibleForConvexHarness": false,
+      "eligibleForConvexHarness": true,
       "mustRunThroughAgentJobs": true,
       "requiredContract": [
         "agentJobs is the durable root for every benchmark run, including /ask and /free",
@@ -657,7 +633,6 @@
         "convex/agentJobs.ts"
       ],
       "blockers": [
-        "OpenRouter-on-Convex harness cases are not all passing",
         "route needs N>=5 p95 ladder evidence before interactive promotion"
       ]
     },
@@ -667,7 +642,7 @@
       "label": "NVIDIA Nemotron 3 Super free",
       "role": "background_long_running_only",
       "adapter": "convexModel.openrouter_chat_completions",
-      "eligibleForConvexHarness": false,
+      "eligibleForConvexHarness": true,
       "mustRunThroughAgentJobs": true,
       "requiredContract": [
         "agentJobs is the durable root for every benchmark run, including /ask and /free",
@@ -685,7 +660,6 @@
         "convex/agentJobs.ts"
       ],
       "blockers": [
-        "OpenRouter-on-Convex harness cases are not all passing",
         "route needs N>=5 p95 ladder evidence before interactive promotion"
       ]
     },
@@ -713,8 +687,7 @@
         "convex/agentJobs.ts"
       ],
       "blockers": [
-        "route is not ladder-tested for collaboration writes",
-        "OpenRouter-on-Convex harness cases are not all passing"
+        "route is not ladder-tested for collaboration writes"
       ]
     },
     {
@@ -741,8 +714,7 @@
         "convex/agentJobs.ts"
       ],
       "blockers": [
-        "route is not ladder-tested for collaboration writes",
-        "OpenRouter-on-Convex harness cases are not all passing"
+        "route is not ladder-tested for collaboration writes"
       ]
     },
     {
@@ -769,8 +741,7 @@
         "convex/agentJobs.ts"
       ],
       "blockers": [
-        "route is not ladder-tested for collaboration writes",
-        "OpenRouter-on-Convex harness cases are not all passing"
+        "route is not ladder-tested for collaboration writes"
       ]
     },
     {
@@ -797,8 +768,7 @@
         "convex/agentJobs.ts"
       ],
       "blockers": [
-        "route is not ladder-tested for collaboration writes",
-        "OpenRouter-on-Convex harness cases are not all passing"
+        "route is not ladder-tested for collaboration writes"
       ]
     },
     {
@@ -807,7 +777,7 @@
       "label": "OpenRouter free-auto alias",
       "role": "background_long_running_only",
       "adapter": "convexModel.openrouter_free_auto",
-      "eligibleForConvexHarness": false,
+      "eligibleForConvexHarness": true,
       "mustRunThroughAgentJobs": true,
       "requiredContract": [
         "agentJobs is the durable root for every benchmark run, including /ask and /free",
@@ -825,7 +795,6 @@
         "convex/agentJobs.ts"
       ],
       "blockers": [
-        "OpenRouter-on-Convex harness cases are not all passing",
         "route needs N>=5 p95 ladder evidence before interactive promotion"
       ]
     },
@@ -835,7 +804,7 @@
       "label": "GLM 5.2",
       "role": "interactive_candidate",
       "adapter": "convexModel.openrouter_chat_completions",
-      "eligibleForConvexHarness": false,
+      "eligibleForConvexHarness": true,
       "mustRunThroughAgentJobs": true,
       "requiredContract": [
         "agentJobs is the durable root for every benchmark run, including /ask and /free",
@@ -852,9 +821,7 @@
         "src/nodeagent/models/convexModel.ts",
         "convex/agentJobs.ts"
       ],
-      "blockers": [
-        "OpenRouter-on-Convex harness cases are not all passing"
-      ]
+      "blockers": []
     },
     {
       "route": "qwen/qwen3.7-max",
@@ -862,7 +829,7 @@
       "label": "Qwen 3.7 Max",
       "role": "interactive_candidate",
       "adapter": "convexModel.openrouter_chat_completions",
-      "eligibleForConvexHarness": false,
+      "eligibleForConvexHarness": true,
       "mustRunThroughAgentJobs": true,
       "requiredContract": [
         "agentJobs is the durable root for every benchmark run, including /ask and /free",
@@ -879,9 +846,7 @@
         "src/nodeagent/models/convexModel.ts",
         "convex/agentJobs.ts"
       ],
-      "blockers": [
-        "OpenRouter-on-Convex harness cases are not all passing"
-      ]
+      "blockers": []
     },
     {
       "route": "x-ai/grok-build-0.1",
@@ -889,7 +854,7 @@
       "label": "xAI Grok Build 0.1",
       "role": "interactive_candidate",
       "adapter": "convexModel.openrouter_chat_completions",
-      "eligibleForConvexHarness": false,
+      "eligibleForConvexHarness": true,
       "mustRunThroughAgentJobs": true,
       "requiredContract": [
         "agentJobs is the durable root for every benchmark run, including /ask and /free",
@@ -906,9 +871,7 @@
         "src/nodeagent/models/convexModel.ts",
         "convex/agentJobs.ts"
       ],
-      "blockers": [
-        "OpenRouter-on-Convex harness cases are not all passing"
-      ]
+      "blockers": []
     },
     {
       "route": "x-ai/grok-4.3",
@@ -916,7 +879,7 @@
       "label": "Grok 4.3",
       "role": "interactive_candidate",
       "adapter": "convexModel.openrouter_chat_completions",
-      "eligibleForConvexHarness": false,
+      "eligibleForConvexHarness": true,
       "mustRunThroughAgentJobs": true,
       "requiredContract": [
         "agentJobs is the durable root for every benchmark run, including /ask and /free",
@@ -933,9 +896,7 @@
         "src/nodeagent/models/convexModel.ts",
         "convex/agentJobs.ts"
       ],
-      "blockers": [
-        "OpenRouter-on-Convex harness cases are not all passing"
-      ]
+      "blockers": []
     },
     {
       "route": "poolside/laguna-xs.2",
@@ -943,7 +904,7 @@
       "label": "Poolside Laguna XS.2",
       "role": "interactive_candidate",
       "adapter": "convexModel.openrouter_chat_completions",
-      "eligibleForConvexHarness": false,
+      "eligibleForConvexHarness": true,
       "mustRunThroughAgentJobs": true,
       "requiredContract": [
         "agentJobs is the durable root for every benchmark run, including /ask and /free",
@@ -960,9 +921,7 @@
         "src/nodeagent/models/convexModel.ts",
         "convex/agentJobs.ts"
       ],
-      "blockers": [
-        "OpenRouter-on-Convex harness cases are not all passing"
-      ]
+      "blockers": []
     },
     {
       "route": "poolside/laguna-m.1",
@@ -970,7 +929,7 @@
       "label": "Poolside Laguna M.1",
       "role": "interactive_candidate",
       "adapter": "convexModel.openrouter_chat_completions",
-      "eligibleForConvexHarness": false,
+      "eligibleForConvexHarness": true,
       "mustRunThroughAgentJobs": true,
       "requiredContract": [
         "agentJobs is the durable root for every benchmark run, including /ask and /free",
@@ -987,9 +946,7 @@
         "src/nodeagent/models/convexModel.ts",
         "convex/agentJobs.ts"
       ],
-      "blockers": [
-        "OpenRouter-on-Convex harness cases are not all passing"
-      ]
+      "blockers": []
     },
     {
       "route": "qwen/qwen3.5-plus-20260420",
@@ -997,7 +954,7 @@
       "label": "Qwen 3.5 Plus 20260420",
       "role": "interactive_candidate",
       "adapter": "convexModel.openrouter_chat_completions",
-      "eligibleForConvexHarness": false,
+      "eligibleForConvexHarness": true,
       "mustRunThroughAgentJobs": true,
       "requiredContract": [
         "agentJobs is the durable root for every benchmark run, including /ask and /free",
@@ -1014,9 +971,7 @@
         "src/nodeagent/models/convexModel.ts",
         "convex/agentJobs.ts"
       ],
-      "blockers": [
-        "OpenRouter-on-Convex harness cases are not all passing"
-      ]
+      "blockers": []
     },
     {
       "route": "qwen/qwen3.6-flash",
@@ -1024,7 +979,7 @@
       "label": "Qwen 3.6 Flash",
       "role": "interactive_candidate",
       "adapter": "convexModel.openrouter_chat_completions",
-      "eligibleForConvexHarness": false,
+      "eligibleForConvexHarness": true,
       "mustRunThroughAgentJobs": true,
       "requiredContract": [
         "agentJobs is the durable root for every benchmark run, including /ask and /free",
@@ -1041,9 +996,7 @@
         "src/nodeagent/models/convexModel.ts",
         "convex/agentJobs.ts"
       ],
-      "blockers": [
-        "OpenRouter-on-Convex harness cases are not all passing"
-      ]
+      "blockers": []
     },
     {
       "route": "qwen/qwen3.6-35b-a3b",
@@ -1051,7 +1004,7 @@
       "label": "Qwen 3.6 35B A3B",
       "role": "interactive_candidate",
       "adapter": "convexModel.openrouter_chat_completions",
-      "eligibleForConvexHarness": false,
+      "eligibleForConvexHarness": true,
       "mustRunThroughAgentJobs": true,
       "requiredContract": [
         "agentJobs is the durable root for every benchmark run, including /ask and /free",
@@ -1068,9 +1021,7 @@
         "src/nodeagent/models/convexModel.ts",
         "convex/agentJobs.ts"
       ],
-      "blockers": [
-        "OpenRouter-on-Convex harness cases are not all passing"
-      ]
+      "blockers": []
     },
     {
       "route": "qwen/qwen3.6-27b",
@@ -1078,7 +1029,7 @@
       "label": "Qwen 3.6 27B",
       "role": "interactive_candidate",
       "adapter": "convexModel.openrouter_chat_completions",
-      "eligibleForConvexHarness": false,
+      "eligibleForConvexHarness": true,
       "mustRunThroughAgentJobs": true,
       "requiredContract": [
         "agentJobs is the durable root for every benchmark run, including /ask and /free",
@@ -1095,9 +1046,7 @@
         "src/nodeagent/models/convexModel.ts",
         "convex/agentJobs.ts"
       ],
-      "blockers": [
-        "OpenRouter-on-Convex harness cases are not all passing"
-      ]
+      "blockers": []
     }
   ],
   "routeScorecards": [

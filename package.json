@@ -63,6 +63,7 @@
     "benchmark:agent-sandbox": "tsx scripts/agent-workspace-sandbox-smoke.ts",
     "benchmark:docker-sandbox:probe": "tsx scripts/docker-sandbox-probe.ts --json-out docs/eval/docker-sandbox-probe.json",
     "benchmark:openrouter-convex": "tsx scripts/openrouter-convex-benchmark.ts",
+    "benchmark:proofloop:board": "tsx scripts/proofloop-benchmark-board.ts",
     "benchmark:official:task-coverage": "tsx scripts/official-benchmark-task-coverage.ts",
     "benchmark:official:ui-coverage": "tsx scripts/official-benchmark-ui-coverage.ts",
     "fresh-room:proofs": "tsx scripts/fresh-room-proof-verify.ts",

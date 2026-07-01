@@ -282,6 +282,7 @@ describe("proofloop npm scripts", () => {
     expect(pkg.scripts["proofloop:proximitty"]).toBeDefined();
     expect(pkg.scripts["proofloop:proximitty:models"]).toBeDefined();
     expect(pkg.scripts["proofloop:proximitty:clips"]).toBeDefined();
+    expect(pkg.scripts["benchmark:proofloop:board"]).toBeDefined();
     expect(pkg.scripts["proofloop:accounting:seed"]).toBeDefined();
     expect(pkg.scripts["proofloop:notion:seed"]).toBeDefined();
   });
