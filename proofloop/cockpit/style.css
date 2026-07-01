@@ -1,0 +1,16 @@
+#proximitty-proofloop-cockpit {
+  position: fixed;
+  top: 12px;
+  right: 12px;
+  z-index: 2147483647;
+  width: 260px;
+  display: grid;
+  gap: 6px;
+  padding: 12px;
+  border: 1px solid rgba(148, 163, 184, .35);
+  border-radius: 8px;
+  background: rgba(15, 23, 42, .92);
+  color: #f8fafc;
+  font: 12px/1.35 system-ui, sans-serif;
+  box-shadow: 0 18px 48px rgba(0, 0, 0, .28);
+}

@@ -18,6 +18,9 @@
  *   proofloop replay <runId>        re-run a past run's exact command
  *   proofloop eval [runId|latest]   write NodeTrace v2 + NodeEval for a run
  *   proofloop mem write [runId]     write run reward/failure to Proofloop memory
+ *   proofloop memory init           create local-first SQLite/FTS memory
+ *   proofloop memory compact latest compact a proof run into recall memory
+ *   proofloop memory search <query> search local compacted memory
  *   proofloop storybook [runId]     write trace-storybook.html for a run
  *   proofloop repair [runId]        write/print the smallest repair prompt
  *   proofloop rerun [runId]         alias for replay
@@ -135,6 +138,8 @@ function main(): void {
     case "mem":
       if (args[0] === "write") return cmdMemWrite(args[1]);
       return usage(`unknown mem target: ${args[0] ?? ""}`);
+    case "memory":
+      return cmdMemory(args);
     case "storybook":
       return cmdStorybook(args[0]);
     case "repair":
@@ -176,6 +181,12 @@ function usage(error?: string): void {
       "  rerun <runId>        alias for replay",
       "  eval [runId|latest]  write NodeTrace v2 and NodeEval",
       "  mem write [runId]    write run reward/failure to Proofloop memory",
+      "  memory init          create local-first SQLite/FTS memory",
+      "  memory compact latest compact a proof run into recall memory",
+      "  memory search <query> search local compacted memory",
+      "  memory show <id>     print one compacted memory episode",
+      "  memory export --redacted write a redacted compacted-memory export",
+      "  memory doctor        verify local memory/index health",
       "  storybook [runId]    write trace-storybook.html",
       "  repair [runId]       write/print repair-prompt.md",
       "  storyboard [runId]   write storyboard.json/md",
@@ -422,6 +433,15 @@ function cmdMemWrite(runIdArg: string | undefined): void {
   if (!meta) return;
   const paths = ensureLoopArtifacts(meta, { memoryPath: MEMORY_PATH });
   console.log(`proofloop: wrote memory entry to ${rel(paths.memoryPath ?? MEMORY_PATH)}`);
+}
+
+function cmdMemory(args: string[]): void {
+  const result = spawnSync("node", ["--no-warnings", "scripts/proofloop-memory.mjs", ...args], {
+    cwd: ROOT,
+    stdio: "inherit",
+    shell: process.platform === "win32",
+  });
+  process.exitCode = result.status ?? 1;
 }
 
 function cmdStorybook(runIdArg: string | undefined): void {

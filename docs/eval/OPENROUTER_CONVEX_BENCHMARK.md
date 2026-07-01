@@ -1,17 +1,17 @@
 # OpenRouter Convex Benchmark
 
-Generated: 2026-06-24T03:08:10.927Z
+Generated: 2026-07-01T22:53:00.520Z
 
 This is NodeRoom's own benchmark contract for the product shape we actually ship: OpenRouter models running through Convex-owned jobs, leases, journals, mutation receipts, and artifact evidence. It is inspired by SpreadsheetBench, SpreadsheetBench 2, and BankerToolBench, but it is not an official score for those benchmarks.
 
 ## Summary
 
-- OpenRouter routes evaluated: 30/42
-- Agent LLM routes in scorecard: 42
-- OpenRouter-on-Convex harness cases: 6/6 PASS
+- OpenRouter routes evaluated: 30/46
+- Agent LLM routes in scorecard: 46
+- OpenRouter-on-Convex harness cases: 5/6 BLOCKED
 - Official-style suites: 3/4 BLOCKED
-- Routes with live N=5/p95 managed-path evidence: 1/42
-- Routes with SpreadsheetBench-like N=5 evidence: 1/42
+- Routes with live N=5/p95 managed-path evidence: 1/46
+- Routes with SpreadsheetBench-like N=5 evidence: 1/46
 - Latest-cheap OpenRouter routes in scorecard: 19
 - Latest-cheap OpenRouter routes with live N=5/p95 evidence: 0/19
 - Official-promotion cases: 0/1 BLOCKED
@@ -33,7 +33,7 @@ This is NodeRoom's own benchmark contract for the product shape we actually ship
 | `convex_multi_user_coordination` | openrouter_convex_harness | pass | NodeRoom, SpreadsheetBench | All recorded multi-user coordination scenarios pass with zero active lock leaks. |
 | `spreadsheetbench_route_contract` | openrouter_convex_harness | pass | SpreadsheetBench, SpreadsheetBench 2 | Staged route-selection reports have tasks, and blocked_chart_visual is zero. |
 | `spreadsheetbench_chart_visual_grade` | openrouter_convex_harness | pass | SpreadsheetBench 2 | The chart visual probe records chart_visual_grade_proven with an accepted positive candidate and rejected negative control. |
-| `docker_agent_workspace_isolation` | openrouter_convex_harness | pass | SpreadsheetBench, BankerToolBench | Docker probe records container_isolation_proven with evaluator reads denied. |
+| `docker_agent_workspace_isolation` | openrouter_convex_harness | blocked | SpreadsheetBench, BankerToolBench | Docker probe records container_isolation_proven with evaluator reads denied. |
 | `bankertoolbench_official_verifier_path` | official_promotion | blocked | BankerToolBench | Official BTB contract imports verifier scores from the real Harbor/Gandalf path. |
 
 ## Official-Style Suite Scorecard
@@ -42,8 +42,8 @@ This is NodeRoom's own benchmark contract for the product shape we actually ship
 |---|---:|---|---|---|
 | `spreadsheetbench_like` | pass | `docs/eval/spreadsheetbench-v1-model-edit-plan-3task-n5-live-smoke.json`<br>`docs/eval/spreadsheetbench-v1-run-3task-n5-contamination-smoke.json` | caseCount=3; repeats=5; passRate=1; p95LatencyMs=5080; modelCalls=15; providerCostUsd=0.0462905 | none |
 | `bankertoolbench_like` | pass | `docs/eval/bankertoolbench-run-positive-smoke.json`<br>`docs/eval/bankertoolbench-official-contract.json` | taskCount=1; passRate=1; averageWeightedScore=1; verifier=local_exact_or_workbook_semantic_smoke | none |
-| `multi_user_conflict` | pass | `docs/eval/multi-user-coordination-proof.json`<br>`evals/multiUserCoordinationProof.ts` | scenarios=5; passedScenarios=5 | none |
-| `provider_route_n5_p95` | blocked | `docs/eval/halo-live-path-calibration.json` | agentRoutes=42; calibratedRoutes=1; latestCalibratedRoute=deepseek/deepseek-v4-flash; latestP95ToolCalls=3; latestP95ModelCalls=4 | 41 agent route(s) still need N=5/p95 live path evidence before interactive promotion. |
+| `multi_user_conflict` | pass | `docs/eval/multi-user-coordination-proof.json`<br>`evals/multiUserCoordinationProof.ts` | scenarios=6; passedScenarios=6 | none |
+| `provider_route_n5_p95` | blocked | `docs/eval/halo-live-path-calibration.json` | agentRoutes=46; calibratedRoutes=1; latestCalibratedRoute=deepseek/deepseek-v4-flash; latestP95ToolCalls=3; latestP95ModelCalls=4 | 45 agent route(s) still need N=5/p95 live path evidence before interactive promotion. |
 
 ## Agent LLM Route Scorecard
 
@@ -91,41 +91,45 @@ This is NodeRoom's own benchmark contract for the product shape we actually ship
 | `gpt-5.4-nano` | native | interactive_candidate | blocked | missing | missing | missing | pass | no company-research v3 evidence recorded for this route; no route-specific collaboration ladder evidence recorded; no N=5 live managed-path calibration recorded for this route; BTB local smoke is harness/package evidence only; no route-owned candidate generation is recorded yet |
 | `grok-4` | native | interactive_candidate | blocked | missing | missing | missing | missing | no company-research v3 evidence recorded for this route; no route-specific collaboration ladder evidence recorded; no N=5 live managed-path calibration recorded for this route; no SpreadsheetBench-like N=5 model-edit evidence recorded for this route; BTB local smoke is harness/package evidence only; no route-owned candidate generation is recorded yet |
 | `grok-4-1-fast-reasoning` | native | interactive_candidate | blocked | missing | missing | missing | missing | no company-research v3 evidence recorded for this route; no route-specific collaboration ladder evidence recorded; no N=5 live managed-path calibration recorded for this route; no SpreadsheetBench-like N=5 model-edit evidence recorded for this route; BTB local smoke is harness/package evidence only; no route-owned candidate generation is recorded yet |
+| `nebius/deepseek-ai/DeepSeek-V4-Pro` | native | interactive_candidate | blocked | missing | missing | missing | missing | no company-research v3 evidence recorded for this route; no route-specific collaboration ladder evidence recorded; no N=5 live managed-path calibration recorded for this route; no SpreadsheetBench-like N=5 model-edit evidence recorded for this route; BTB local smoke is harness/package evidence only; no route-owned candidate generation is recorded yet |
+| `nebius/MiniMaxAI/MiniMax-M2.5` | native | interactive_candidate | blocked | missing | missing | missing | missing | no company-research v3 evidence recorded for this route; no route-specific collaboration ladder evidence recorded; no N=5 live managed-path calibration recorded for this route; no SpreadsheetBench-like N=5 model-edit evidence recorded for this route; BTB local smoke is harness/package evidence only; no route-owned candidate generation is recorded yet |
+| `nebius/Qwen/Qwen3-235B-A22B-Instruct-2507` | native | interactive_candidate | blocked | missing | missing | missing | missing | no company-research v3 evidence recorded for this route; no route-specific collaboration ladder evidence recorded; no N=5 live managed-path calibration recorded for this route; no SpreadsheetBench-like N=5 model-edit evidence recorded for this route; BTB local smoke is harness/package evidence only; no route-owned candidate generation is recorded yet |
+| `nebius/zai-org/GLM-5.2` | native | interactive_candidate | blocked | missing | missing | missing | missing | no company-research v3 evidence recorded for this route; no route-specific collaboration ladder evidence recorded; no N=5 live managed-path calibration recorded for this route; no SpreadsheetBench-like N=5 model-edit evidence recorded for this route; BTB local smoke is harness/package evidence only; no route-owned candidate generation is recorded yet |
 
 ## OpenRouter Route Plan
 
 | Route | Role | Adapter | Eligible | Blockers |
 |---|---|---|---:|---|
-| `cohere/north-mini-code:free` | background_long_running_only | convexModel.openrouter_chat_completions | yes | route needs N>=5 p95 ladder evidence before interactive promotion |
-| `deepseek/deepseek-v4-flash` | interactive_candidate | convexModel.openrouter_chat_completions | yes | none |
-| `ibm-granite/granite-4.1-8b` | interactive_candidate | convexModel.openrouter_chat_completions | yes | none |
-| `z-ai/glm-4.7-flash` | interactive_candidate | convexModel.openrouter_chat_completions | yes | none |
-| `inclusionai/ring-2.6-1t` | interactive_candidate | convexModel.openrouter_chat_completions | yes | none |
-| `xiaomi/mimo-v2.5` | interactive_candidate | convexModel.openrouter_chat_completions | yes | none |
-| `stepfun/step-3.7-flash` | interactive_candidate | convexModel.openrouter_chat_completions | yes | none |
-| `moonshotai/kimi-k2.7-code` | interactive_candidate | convexModel.openrouter_chat_completions | yes | none |
-| `minimax/minimax-m3` | interactive_candidate | convexModel.openrouter_chat_completions | yes | none |
-| `deepseek/deepseek-v4-pro` | interactive_candidate | convexModel.openrouter_chat_completions | yes | none |
-| `google/gemini-3.1-flash-lite` | research_only | convexModel.openrouter_chat_completions | no | route is not ladder-tested for collaboration writes |
-| `qwen/qwen3.7-plus` | interactive_candidate | convexModel.openrouter_chat_completions | yes | none |
-| `nvidia/nemotron-3-ultra-550b-a55b` | interactive_candidate | convexModel.openrouter_chat_completions | yes | none |
-| `nvidia/nemotron-3-ultra-550b-a55b:free` | background_long_running_only | convexModel.openrouter_chat_completions | yes | route needs N>=5 p95 ladder evidence before interactive promotion |
-| `nvidia/nemotron-3-super-120b-a12b:free` | background_long_running_only | convexModel.openrouter_chat_completions | yes | route needs N>=5 p95 ladder evidence before interactive promotion |
-| `google/gemma-4-26b-a4b-it:free` | research_only | convexModel.openrouter_chat_completions | no | route is not ladder-tested for collaboration writes |
-| `openai/gpt-oss-120b:free` | research_only | convexModel.openrouter_chat_completions | no | route is not ladder-tested for collaboration writes |
-| `poolside/laguna-xs.2:free` | research_only | convexModel.openrouter_chat_completions | no | route is not ladder-tested for collaboration writes |
-| `poolside/laguna-m.1:free` | research_only | convexModel.openrouter_chat_completions | no | route is not ladder-tested for collaboration writes |
-| `openrouter/free-auto` | background_long_running_only | convexModel.openrouter_free_auto | yes | route needs N>=5 p95 ladder evidence before interactive promotion |
-| `z-ai/glm-5.2` | interactive_candidate | convexModel.openrouter_chat_completions | yes | none |
-| `qwen/qwen3.7-max` | interactive_candidate | convexModel.openrouter_chat_completions | yes | none |
-| `x-ai/grok-build-0.1` | interactive_candidate | convexModel.openrouter_chat_completions | yes | none |
-| `x-ai/grok-4.3` | interactive_candidate | convexModel.openrouter_chat_completions | yes | none |
-| `poolside/laguna-xs.2` | interactive_candidate | convexModel.openrouter_chat_completions | yes | none |
-| `poolside/laguna-m.1` | interactive_candidate | convexModel.openrouter_chat_completions | yes | none |
-| `qwen/qwen3.5-plus-20260420` | interactive_candidate | convexModel.openrouter_chat_completions | yes | none |
-| `qwen/qwen3.6-flash` | interactive_candidate | convexModel.openrouter_chat_completions | yes | none |
-| `qwen/qwen3.6-35b-a3b` | interactive_candidate | convexModel.openrouter_chat_completions | yes | none |
-| `qwen/qwen3.6-27b` | interactive_candidate | convexModel.openrouter_chat_completions | yes | none |
+| `cohere/north-mini-code:free` | background_long_running_only | convexModel.openrouter_chat_completions | no | OpenRouter-on-Convex harness cases are not all passing; route needs N>=5 p95 ladder evidence before interactive promotion |
+| `deepseek/deepseek-v4-flash` | interactive_candidate | convexModel.openrouter_chat_completions | no | OpenRouter-on-Convex harness cases are not all passing |
+| `ibm-granite/granite-4.1-8b` | interactive_candidate | convexModel.openrouter_chat_completions | no | OpenRouter-on-Convex harness cases are not all passing |
+| `z-ai/glm-4.7-flash` | interactive_candidate | convexModel.openrouter_chat_completions | no | OpenRouter-on-Convex harness cases are not all passing |
+| `inclusionai/ring-2.6-1t` | interactive_candidate | convexModel.openrouter_chat_completions | no | OpenRouter-on-Convex harness cases are not all passing |
+| `xiaomi/mimo-v2.5` | interactive_candidate | convexModel.openrouter_chat_completions | no | OpenRouter-on-Convex harness cases are not all passing |
+| `stepfun/step-3.7-flash` | interactive_candidate | convexModel.openrouter_chat_completions | no | OpenRouter-on-Convex harness cases are not all passing |
+| `moonshotai/kimi-k2.7-code` | interactive_candidate | convexModel.openrouter_chat_completions | no | OpenRouter-on-Convex harness cases are not all passing |
+| `minimax/minimax-m3` | interactive_candidate | convexModel.openrouter_chat_completions | no | OpenRouter-on-Convex harness cases are not all passing |
+| `deepseek/deepseek-v4-pro` | interactive_candidate | convexModel.openrouter_chat_completions | no | OpenRouter-on-Convex harness cases are not all passing |
+| `google/gemini-3.1-flash-lite` | research_only | convexModel.openrouter_chat_completions | no | route is not ladder-tested for collaboration writes; OpenRouter-on-Convex harness cases are not all passing |
+| `qwen/qwen3.7-plus` | interactive_candidate | convexModel.openrouter_chat_completions | no | OpenRouter-on-Convex harness cases are not all passing |
+| `nvidia/nemotron-3-ultra-550b-a55b` | interactive_candidate | convexModel.openrouter_chat_completions | no | OpenRouter-on-Convex harness cases are not all passing |
+| `nvidia/nemotron-3-ultra-550b-a55b:free` | background_long_running_only | convexModel.openrouter_chat_completions | no | OpenRouter-on-Convex harness cases are not all passing; route needs N>=5 p95 ladder evidence before interactive promotion |
+| `nvidia/nemotron-3-super-120b-a12b:free` | background_long_running_only | convexModel.openrouter_chat_completions | no | OpenRouter-on-Convex harness cases are not all passing; route needs N>=5 p95 ladder evidence before interactive promotion |
+| `google/gemma-4-26b-a4b-it:free` | research_only | convexModel.openrouter_chat_completions | no | route is not ladder-tested for collaboration writes; OpenRouter-on-Convex harness cases are not all passing |
+| `openai/gpt-oss-120b:free` | research_only | convexModel.openrouter_chat_completions | no | route is not ladder-tested for collaboration writes; OpenRouter-on-Convex harness cases are not all passing |
+| `poolside/laguna-xs.2:free` | research_only | convexModel.openrouter_chat_completions | no | route is not ladder-tested for collaboration writes; OpenRouter-on-Convex harness cases are not all passing |
+| `poolside/laguna-m.1:free` | research_only | convexModel.openrouter_chat_completions | no | route is not ladder-tested for collaboration writes; OpenRouter-on-Convex harness cases are not all passing |
+| `openrouter/free-auto` | background_long_running_only | convexModel.openrouter_free_auto | no | OpenRouter-on-Convex harness cases are not all passing; route needs N>=5 p95 ladder evidence before interactive promotion |
+| `z-ai/glm-5.2` | interactive_candidate | convexModel.openrouter_chat_completions | no | OpenRouter-on-Convex harness cases are not all passing |
+| `qwen/qwen3.7-max` | interactive_candidate | convexModel.openrouter_chat_completions | no | OpenRouter-on-Convex harness cases are not all passing |
+| `x-ai/grok-build-0.1` | interactive_candidate | convexModel.openrouter_chat_completions | no | OpenRouter-on-Convex harness cases are not all passing |
+| `x-ai/grok-4.3` | interactive_candidate | convexModel.openrouter_chat_completions | no | OpenRouter-on-Convex harness cases are not all passing |
+| `poolside/laguna-xs.2` | interactive_candidate | convexModel.openrouter_chat_completions | no | OpenRouter-on-Convex harness cases are not all passing |
+| `poolside/laguna-m.1` | interactive_candidate | convexModel.openrouter_chat_completions | no | OpenRouter-on-Convex harness cases are not all passing |
+| `qwen/qwen3.5-plus-20260420` | interactive_candidate | convexModel.openrouter_chat_completions | no | OpenRouter-on-Convex harness cases are not all passing |
+| `qwen/qwen3.6-flash` | interactive_candidate | convexModel.openrouter_chat_completions | no | OpenRouter-on-Convex harness cases are not all passing |
+| `qwen/qwen3.6-35b-a3b` | interactive_candidate | convexModel.openrouter_chat_completions | no | OpenRouter-on-Convex harness cases are not all passing |
+| `qwen/qwen3.6-27b` | interactive_candidate | convexModel.openrouter_chat_completions | no | OpenRouter-on-Convex harness cases are not all passing |
 
 ## Promotion Rule
 

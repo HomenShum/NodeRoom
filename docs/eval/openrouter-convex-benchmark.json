@@ -1,22 +1,22 @@
 {
   "schema": 1,
-  "generatedAt": "2026-06-24T03:08:10.927Z",
+  "generatedAt": "2026-07-01T22:53:00.520Z",
   "summary": {
-    "routeCount": 42,
+    "routeCount": 46,
     "openRouterRouteCount": 30,
     "harnessCases": 6,
-    "harnessCasesPassing": 6,
+    "harnessCasesPassing": 5,
     "officialPromotionCases": 1,
     "officialPromotionCasesPassing": 0,
     "officialStyleSuites": 4,
     "officialStyleSuitesPassing": 3,
-    "agentRouteCount": 42,
+    "agentRouteCount": 46,
     "routesWithManagedN5P95": 1,
     "routesWithSpreadsheetN5": 1,
     "routesInteractivePromoted": 0,
     "topPaidOpenRouterRoutes": 19,
     "topPaidRoutesWithManagedN5P95": 0,
-    "harnessReady": true,
+    "harnessReady": false,
     "officialStyleSuitesReady": false,
     "officialPromotionReady": false
   },
@@ -149,7 +149,7 @@
         "BankerToolBench"
       ],
       "scope": "openrouter_convex_harness",
-      "status": "pass",
+      "status": "blocked",
       "evidence": [
         "docs/eval/docker-sandbox-probe.json",
         "src/eval/dockerSandboxProbe.ts"
@@ -160,7 +160,9 @@
         "network policy is explicit"
       ],
       "acceptance": "Docker probe records container_isolation_proven with evaluator reads denied.",
-      "blockers": []
+      "blockers": [
+        "Start Docker and run npm run benchmark:docker-sandbox:probe -- --require-pass."
+      ]
     },
     {
       "id": "bankertoolbench_official_verifier_path",
@@ -250,8 +252,8 @@
         "evals/multiUserCoordinationProof.ts"
       ],
       "metrics": {
-        "scenarios": 5,
-        "passedScenarios": 5
+        "scenarios": 6,
+        "passedScenarios": 6
       },
       "blockers": []
     },
@@ -270,14 +272,14 @@
         "docs/eval/halo-live-path-calibration.json"
       ],
       "metrics": {
-        "agentRoutes": 42,
+        "agentRoutes": 46,
         "calibratedRoutes": 1,
         "latestCalibratedRoute": "deepseek/deepseek-v4-flash",
         "latestP95ToolCalls": 3,
         "latestP95ModelCalls": 4
       },
       "blockers": [
-        "41 agent route(s) still need N=5/p95 live path evidence before interactive promotion."
+        "45 agent route(s) still need N=5/p95 live path evidence before interactive promotion."
       ]
     }
   ],
@@ -288,7 +290,7 @@
       "label": "Cohere North Mini Code free",
       "role": "background_long_running_only",
       "adapter": "convexModel.openrouter_chat_completions",
-      "eligibleForConvexHarness": true,
+      "eligibleForConvexHarness": false,
       "mustRunThroughAgentJobs": true,
       "requiredContract": [
         "agentJobs is the durable root for every benchmark run, including /ask and /free",
@@ -306,6 +308,7 @@
         "convex/agentJobs.ts"
       ],
       "blockers": [
+        "OpenRouter-on-Convex harness cases are not all passing",
         "route needs N>=5 p95 ladder evidence before interactive promotion"
       ]
     },
@@ -315,7 +318,7 @@
       "label": "DeepSeek V4 Flash",
       "role": "interactive_candidate",
       "adapter": "convexModel.openrouter_chat_completions",
-      "eligibleForConvexHarness": true,
+      "eligibleForConvexHarness": false,
       "mustRunThroughAgentJobs": true,
       "requiredContract": [
         "agentJobs is the durable root for every benchmark run, including /ask and /free",
@@ -332,7 +335,9 @@
         "src/nodeagent/models/convexModel.ts",
         "convex/agentJobs.ts"
       ],
-      "blockers": []
+      "blockers": [
+        "OpenRouter-on-Convex harness cases are not all passing"
+      ]
     },
     {
       "route": "ibm-granite/granite-4.1-8b",
@@ -340,7 +345,7 @@
       "label": "IBM Granite 4.1 8B",
       "role": "interactive_candidate",
       "adapter": "convexModel.openrouter_chat_completions",
-      "eligibleForConvexHarness": true,
+      "eligibleForConvexHarness": false,
       "mustRunThroughAgentJobs": true,
       "requiredContract": [
         "agentJobs is the durable root for every benchmark run, including /ask and /free",
@@ -357,7 +362,9 @@
         "src/nodeagent/models/convexModel.ts",
         "convex/agentJobs.ts"
       ],
-      "blockers": []
+      "blockers": [
+        "OpenRouter-on-Convex harness cases are not all passing"
+      ]
     },
     {
       "route": "z-ai/glm-4.7-flash",
@@ -365,7 +372,7 @@
       "label": "GLM 4.7 Flash",
       "role": "interactive_candidate",
       "adapter": "convexModel.openrouter_chat_completions",
-      "eligibleForConvexHarness": true,
+      "eligibleForConvexHarness": false,
       "mustRunThroughAgentJobs": true,
       "requiredContract": [
         "agentJobs is the durable root for every benchmark run, including /ask and /free",
@@ -382,7 +389,9 @@
         "src/nodeagent/models/convexModel.ts",
         "convex/agentJobs.ts"
       ],
-      "blockers": []
+      "blockers": [
+        "OpenRouter-on-Convex harness cases are not all passing"
+      ]
     },
     {
       "route": "inclusionai/ring-2.6-1t",
@@ -390,7 +399,7 @@
       "label": "inclusionAI Ring 2.6 1T",
       "role": "interactive_candidate",
       "adapter": "convexModel.openrouter_chat_completions",
-      "eligibleForConvexHarness": true,
+      "eligibleForConvexHarness": false,
       "mustRunThroughAgentJobs": true,
       "requiredContract": [
         "agentJobs is the durable root for every benchmark run, including /ask and /free",
@@ -407,7 +416,9 @@
         "src/nodeagent/models/convexModel.ts",
         "convex/agentJobs.ts"
       ],
-      "blockers": []
+      "blockers": [
+        "OpenRouter-on-Convex harness cases are not all passing"
+      ]
     },
     {
       "route": "xiaomi/mimo-v2.5",
@@ -415,7 +426,7 @@
       "label": "Xiaomi MiMo V2.5",
       "role": "interactive_candidate",
       "adapter": "convexModel.openrouter_chat_completions",
-      "eligibleForConvexHarness": true,
+      "eligibleForConvexHarness": false,
       "mustRunThroughAgentJobs": true,
       "requiredContract": [
         "agentJobs is the durable root for every benchmark run, including /ask and /free",
@@ -431,7 +442,9 @@
         "src/nodeagent/models/convexModel.ts",
         "convex/agentJobs.ts"
       ],
-      "blockers": []
+      "blockers": [
+        "OpenRouter-on-Convex harness cases are not all passing"
+      ]
     },
     {
       "route": "stepfun/step-3.7-flash",
@@ -439,7 +452,7 @@
       "label": "StepFun Step 3.7 Flash",
       "role": "interactive_candidate",
       "adapter": "convexModel.openrouter_chat_completions",
-      "eligibleForConvexHarness": true,
+      "eligibleForConvexHarness": false,
       "mustRunThroughAgentJobs": true,
       "requiredContract": [
         "agentJobs is the durable root for every benchmark run, including /ask and /free",
@@ -456,7 +469,9 @@
         "src/nodeagent/models/convexModel.ts",
         "convex/agentJobs.ts"
       ],
-      "blockers": []
+      "blockers": [
+        "OpenRouter-on-Convex harness cases are not all passing"
+      ]
     },
     {
       "route": "moonshotai/kimi-k2.7-code",
@@ -464,7 +479,7 @@
       "label": "Kimi K2.7 Code",
       "role": "interactive_candidate",
       "adapter": "convexModel.openrouter_chat_completions",
-      "eligibleForConvexHarness": true,
+      "eligibleForConvexHarness": false,
       "mustRunThroughAgentJobs": true,
       "requiredContract": [
         "agentJobs is the durable root for every benchmark run, including /ask and /free",
@@ -480,7 +495,9 @@
         "src/nodeagent/models/convexModel.ts",
         "convex/agentJobs.ts"
       ],
-      "blockers": []
+      "blockers": [
+        "OpenRouter-on-Convex harness cases are not all passing"
+      ]
     },
     {
       "route": "minimax/minimax-m3",
@@ -488,7 +505,7 @@
       "label": "MiniMax M3",
       "role": "interactive_candidate",
       "adapter": "convexModel.openrouter_chat_completions",
-      "eligibleForConvexHarness": true,
+      "eligibleForConvexHarness": false,
       "mustRunThroughAgentJobs": true,
       "requiredContract": [
         "agentJobs is the durable root for every benchmark run, including /ask and /free",
@@ -505,7 +522,9 @@
         "src/nodeagent/models/convexModel.ts",
         "convex/agentJobs.ts"
       ],
-      "blockers": []
+      "blockers": [
+        "OpenRouter-on-Convex harness cases are not all passing"
+      ]
     },
     {
       "route": "deepseek/deepseek-v4-pro",
@@ -513,7 +532,7 @@
       "label": "DeepSeek V4 Pro",
       "role": "interactive_candidate",
       "adapter": "convexModel.openrouter_chat_completions",
-      "eligibleForConvexHarness": true,
+      "eligibleForConvexHarness": false,
       "mustRunThroughAgentJobs": true,
       "requiredContract": [
         "agentJobs is the durable root for every benchmark run, including /ask and /free",
@@ -530,7 +549,9 @@
         "src/nodeagent/models/convexModel.ts",
         "convex/agentJobs.ts"
       ],
-      "blockers": []
+      "blockers": [
+        "OpenRouter-on-Convex harness cases are not all passing"
+      ]
     },
     {
       "route": "google/gemini-3.1-flash-lite",
@@ -556,7 +577,8 @@
         "convex/agentJobs.ts"
       ],
       "blockers": [
-        "route is not ladder-tested for collaboration writes"
+        "route is not ladder-tested for collaboration writes",
+        "OpenRouter-on-Convex harness cases are not all passing"
       ]
     },
     {
@@ -565,7 +587,7 @@
       "label": "Qwen 3.7 Plus",
       "role": "interactive_candidate",
       "adapter": "convexModel.openrouter_chat_completions",
-      "eligibleForConvexHarness": true,
+      "eligibleForConvexHarness": false,
       "mustRunThroughAgentJobs": true,
       "requiredContract": [
         "agentJobs is the durable root for every benchmark run, including /ask and /free",
@@ -581,7 +603,9 @@
         "src/nodeagent/models/convexModel.ts",
         "convex/agentJobs.ts"
       ],
-      "blockers": []
+      "blockers": [
+        "OpenRouter-on-Convex harness cases are not all passing"
+      ]
     },
     {
       "route": "nvidia/nemotron-3-ultra-550b-a55b",
@@ -589,7 +613,7 @@
       "label": "NVIDIA Nemotron 3 Ultra",
       "role": "interactive_candidate",
       "adapter": "convexModel.openrouter_chat_completions",
-      "eligibleForConvexHarness": true,
+      "eligibleForConvexHarness": false,
       "mustRunThroughAgentJobs": true,
       "requiredContract": [
         "agentJobs is the durable root for every benchmark run, including /ask and /free",
@@ -605,7 +629,9 @@
         "src/nodeagent/models/convexModel.ts",
         "convex/agentJobs.ts"
       ],
-      "blockers": []
+      "blockers": [
+        "OpenRouter-on-Convex harness cases are not all passing"
+      ]
     },
     {
       "route": "nvidia/nemotron-3-ultra-550b-a55b:free",
@@ -613,7 +639,7 @@
       "label": "NVIDIA Nemotron 3 Ultra free",
       "role": "background_long_running_only",
       "adapter": "convexModel.openrouter_chat_completions",
-      "eligibleForConvexHarness": true,
+      "eligibleForConvexHarness": false,
       "mustRunThroughAgentJobs": true,
       "requiredContract": [
         "agentJobs is the durable root for every benchmark run, including /ask and /free",
@@ -631,6 +657,7 @@
         "convex/agentJobs.ts"
       ],
       "blockers": [
+        "OpenRouter-on-Convex harness cases are not all passing",
         "route needs N>=5 p95 ladder evidence before interactive promotion"
       ]
     },
@@ -640,7 +667,7 @@
       "label": "NVIDIA Nemotron 3 Super free",
       "role": "background_long_running_only",
       "adapter": "convexModel.openrouter_chat_completions",
-      "eligibleForConvexHarness": true,
+      "eligibleForConvexHarness": false,
       "mustRunThroughAgentJobs": true,
       "requiredContract": [
         "agentJobs is the durable root for every benchmark run, including /ask and /free",
@@ -658,6 +685,7 @@
         "convex/agentJobs.ts"
       ],
       "blockers": [
+        "OpenRouter-on-Convex harness cases are not all passing",
         "route needs N>=5 p95 ladder evidence before interactive promotion"
       ]
     },
@@ -685,7 +713,8 @@
         "convex/agentJobs.ts"
       ],
       "blockers": [
-        "route is not ladder-tested for collaboration writes"
+        "route is not ladder-tested for collaboration writes",
+        "OpenRouter-on-Convex harness cases are not all passing"
       ]
     },
     {
@@ -712,7 +741,8 @@
         "convex/agentJobs.ts"
       ],
       "blockers": [
-        "route is not ladder-tested for collaboration writes"
+        "route is not ladder-tested for collaboration writes",
+        "OpenRouter-on-Convex harness cases are not all passing"
       ]
     },
     {
@@ -739,7 +769,8 @@
         "convex/agentJobs.ts"
       ],
       "blockers": [
-        "route is not ladder-tested for collaboration writes"
+        "route is not ladder-tested for collaboration writes",
+        "OpenRouter-on-Convex harness cases are not all passing"
       ]
     },
     {
@@ -766,7 +797,8 @@
         "convex/agentJobs.ts"
       ],
       "blockers": [
-        "route is not ladder-tested for collaboration writes"
+        "route is not ladder-tested for collaboration writes",
+        "OpenRouter-on-Convex harness cases are not all passing"
       ]
     },
     {
@@ -775,7 +807,7 @@
       "label": "OpenRouter free-auto alias",
       "role": "background_long_running_only",
       "adapter": "convexModel.openrouter_free_auto",
-      "eligibleForConvexHarness": true,
+      "eligibleForConvexHarness": false,
       "mustRunThroughAgentJobs": true,
       "requiredContract": [
         "agentJobs is the durable root for every benchmark run, including /ask and /free",
@@ -793,6 +825,7 @@
         "convex/agentJobs.ts"
       ],
       "blockers": [
+        "OpenRouter-on-Convex harness cases are not all passing",
         "route needs N>=5 p95 ladder evidence before interactive promotion"
       ]
     },
@@ -802,7 +835,7 @@
       "label": "GLM 5.2",
       "role": "interactive_candidate",
       "adapter": "convexModel.openrouter_chat_completions",
-      "eligibleForConvexHarness": true,
+      "eligibleForConvexHarness": false,
       "mustRunThroughAgentJobs": true,
       "requiredContract": [
         "agentJobs is the durable root for every benchmark run, including /ask and /free",
@@ -819,7 +852,9 @@
         "src/nodeagent/models/convexModel.ts",
         "convex/agentJobs.ts"
       ],
-      "blockers": []
+      "blockers": [
+        "OpenRouter-on-Convex harness cases are not all passing"
+      ]
     },
     {
       "route": "qwen/qwen3.7-max",
@@ -827,7 +862,7 @@
       "label": "Qwen 3.7 Max",
       "role": "interactive_candidate",
       "adapter": "convexModel.openrouter_chat_completions",
-      "eligibleForConvexHarness": true,
+      "eligibleForConvexHarness": false,
       "mustRunThroughAgentJobs": true,
       "requiredContract": [
         "agentJobs is the durable root for every benchmark run, including /ask and /free",
@@ -844,7 +879,9 @@
         "src/nodeagent/models/convexModel.ts",
         "convex/agentJobs.ts"
       ],
-      "blockers": []
+      "blockers": [
+        "OpenRouter-on-Convex harness cases are not all passing"
+      ]
     },
     {
       "route": "x-ai/grok-build-0.1",
@@ -852,7 +889,7 @@
       "label": "xAI Grok Build 0.1",
       "role": "interactive_candidate",
       "adapter": "convexModel.openrouter_chat_completions",
-      "eligibleForConvexHarness": true,
+      "eligibleForConvexHarness": false,
       "mustRunThroughAgentJobs": true,
       "requiredContract": [
         "agentJobs is the durable root for every benchmark run, including /ask and /free",
@@ -869,7 +906,9 @@
         "src/nodeagent/models/convexModel.ts",
         "convex/agentJobs.ts"
       ],
-      "blockers": []
+      "blockers": [
+        "OpenRouter-on-Convex harness cases are not all passing"
+      ]
     },
     {
       "route": "x-ai/grok-4.3",
@@ -877,7 +916,7 @@
       "label": "Grok 4.3",
       "role": "interactive_candidate",
       "adapter": "convexModel.openrouter_chat_completions",
-      "eligibleForConvexHarness": true,
+      "eligibleForConvexHarness": false,
       "mustRunThroughAgentJobs": true,
       "requiredContract": [
         "agentJobs is the durable root for every benchmark run, including /ask and /free",
@@ -894,7 +933,9 @@
         "src/nodeagent/models/convexModel.ts",
         "convex/agentJobs.ts"
       ],
-      "blockers": []
+      "blockers": [
+        "OpenRouter-on-Convex harness cases are not all passing"
+      ]
     },
     {
       "route": "poolside/laguna-xs.2",
@@ -902,7 +943,7 @@
       "label": "Poolside Laguna XS.2",
       "role": "interactive_candidate",
       "adapter": "convexModel.openrouter_chat_completions",
-      "eligibleForConvexHarness": true,
+      "eligibleForConvexHarness": false,
       "mustRunThroughAgentJobs": true,
       "requiredContract": [
         "agentJobs is the durable root for every benchmark run, including /ask and /free",
@@ -919,7 +960,9 @@
         "src/nodeagent/models/convexModel.ts",
         "convex/agentJobs.ts"
       ],
-      "blockers": []
+      "blockers": [
+        "OpenRouter-on-Convex harness cases are not all passing"
+      ]
     },
     {
       "route": "poolside/laguna-m.1",
@@ -927,7 +970,7 @@
       "label": "Poolside Laguna M.1",
       "role": "interactive_candidate",
       "adapter": "convexModel.openrouter_chat_completions",
-      "eligibleForConvexHarness": true,
+      "eligibleForConvexHarness": false,
       "mustRunThroughAgentJobs": true,
       "requiredContract": [
         "agentJobs is the durable root for every benchmark run, including /ask and /free",
@@ -944,7 +987,9 @@
         "src/nodeagent/models/convexModel.ts",
         "convex/agentJobs.ts"
       ],
-      "blockers": []
+      "blockers": [
+        "OpenRouter-on-Convex harness cases are not all passing"
+      ]
     },
     {
       "route": "qwen/qwen3.5-plus-20260420",
@@ -952,7 +997,7 @@
       "label": "Qwen 3.5 Plus 20260420",
       "role": "interactive_candidate",
       "adapter": "convexModel.openrouter_chat_completions",
-      "eligibleForConvexHarness": true,
+      "eligibleForConvexHarness": false,
       "mustRunThroughAgentJobs": true,
       "requiredContract": [
         "agentJobs is the durable root for every benchmark run, including /ask and /free",
@@ -969,7 +1014,9 @@
         "src/nodeagent/models/convexModel.ts",
         "convex/agentJobs.ts"
       ],
-      "blockers": []
+      "blockers": [
+        "OpenRouter-on-Convex harness cases are not all passing"
+      ]
     },
     {
       "route": "qwen/qwen3.6-flash",
@@ -977,7 +1024,7 @@
       "label": "Qwen 3.6 Flash",
       "role": "interactive_candidate",
       "adapter": "convexModel.openrouter_chat_completions",
-      "eligibleForConvexHarness": true,
+      "eligibleForConvexHarness": false,
       "mustRunThroughAgentJobs": true,
       "requiredContract": [
         "agentJobs is the durable root for every benchmark run, including /ask and /free",
@@ -994,7 +1041,9 @@
         "src/nodeagent/models/convexModel.ts",
         "convex/agentJobs.ts"
       ],
-      "blockers": []
+      "blockers": [
+        "OpenRouter-on-Convex harness cases are not all passing"
+      ]
     },
     {
       "route": "qwen/qwen3.6-35b-a3b",
@@ -1002,7 +1051,7 @@
       "label": "Qwen 3.6 35B A3B",
       "role": "interactive_candidate",
       "adapter": "convexModel.openrouter_chat_completions",
-      "eligibleForConvexHarness": true,
+      "eligibleForConvexHarness": false,
       "mustRunThroughAgentJobs": true,
       "requiredContract": [
         "agentJobs is the durable root for every benchmark run, including /ask and /free",
@@ -1019,7 +1068,9 @@
         "src/nodeagent/models/convexModel.ts",
         "convex/agentJobs.ts"
       ],
-      "blockers": []
+      "blockers": [
+        "OpenRouter-on-Convex harness cases are not all passing"
+      ]
     },
     {
       "route": "qwen/qwen3.6-27b",
@@ -1027,7 +1078,7 @@
       "label": "Qwen 3.6 27B",
       "role": "interactive_candidate",
       "adapter": "convexModel.openrouter_chat_completions",
-      "eligibleForConvexHarness": true,
+      "eligibleForConvexHarness": false,
       "mustRunThroughAgentJobs": true,
       "requiredContract": [
         "agentJobs is the durable root for every benchmark run, including /ask and /free",
@@ -1044,7 +1095,9 @@
         "src/nodeagent/models/convexModel.ts",
         "convex/agentJobs.ts"
       ],
-      "blockers": []
+      "blockers": [
+        "OpenRouter-on-Convex harness cases are not all passing"
+      ]
     }
   ],
   "routeScorecards": [
@@ -1124,8 +1177,8 @@
             "docs/eval/multi-user-coordination-proof.json"
           ],
           "metrics": {
-            "scenarios": 5,
-            "passedScenarios": 5
+            "scenarios": 6,
+            "passedScenarios": 6
           },
           "blockers": []
         }
@@ -1231,8 +1284,8 @@
             "docs/eval/multi-user-coordination-proof.json"
           ],
           "metrics": {
-            "scenarios": 5,
-            "passedScenarios": 5
+            "scenarios": 6,
+            "passedScenarios": 6
           },
           "blockers": []
         }
@@ -1325,8 +1378,8 @@
             "docs/eval/multi-user-coordination-proof.json"
           ],
           "metrics": {
-            "scenarios": 5,
-            "passedScenarios": 5
+            "scenarios": 6,
+            "passedScenarios": 6
           },
           "blockers": []
         }
@@ -1419,8 +1472,8 @@
             "docs/eval/multi-user-coordination-proof.json"
           ],
           "metrics": {
-            "scenarios": 5,
-            "passedScenarios": 5
+            "scenarios": 6,
+            "passedScenarios": 6
           },
           "blockers": []
         }
@@ -1514,8 +1567,8 @@
             "docs/eval/multi-user-coordination-proof.json"
           ],
           "metrics": {
-            "scenarios": 5,
-            "passedScenarios": 5
+            "scenarios": 6,
+            "passedScenarios": 6
           },
           "blockers": []
         }
@@ -1610,8 +1663,8 @@
             "docs/eval/multi-user-coordination-proof.json"
           ],
           "metrics": {
-            "scenarios": 5,
-            "passedScenarios": 5
+            "scenarios": 6,
+            "passedScenarios": 6
           },
           "blockers": []
         }
@@ -1705,8 +1758,8 @@
             "docs/eval/multi-user-coordination-proof.json"
           ],
           "metrics": {
-            "scenarios": 5,
-            "passedScenarios": 5
+            "scenarios": 6,
+            "passedScenarios": 6
           },
           "blockers": []
         }
@@ -1800,8 +1853,8 @@
             "docs/eval/multi-user-coordination-proof.json"
           ],
           "metrics": {
-            "scenarios": 5,
-            "passedScenarios": 5
+            "scenarios": 6,
+            "passedScenarios": 6
           },
           "blockers": []
         }
@@ -1889,8 +1942,8 @@
             "docs/eval/multi-user-coordination-proof.json"
           ],
           "metrics": {
-            "scenarios": 5,
-            "passedScenarios": 5
+            "scenarios": 6,
+            "passedScenarios": 6
           },
           "blockers": []
         }
@@ -1991,8 +2044,8 @@
             "docs/eval/multi-user-coordination-proof.json"
           ],
           "metrics": {
-            "scenarios": 5,
-            "passedScenarios": 5
+            "scenarios": 6,
+            "passedScenarios": 6
           },
           "blockers": []
         }
@@ -2090,8 +2143,8 @@
             "docs/eval/multi-user-coordination-proof.json"
           ],
           "metrics": {
-            "scenarios": 5,
-            "passedScenarios": 5
+            "scenarios": 6,
+            "passedScenarios": 6
           },
           "blockers": []
         }
@@ -2184,8 +2237,8 @@
             "docs/eval/multi-user-coordination-proof.json"
           ],
           "metrics": {
-            "scenarios": 5,
-            "passedScenarios": 5
+            "scenarios": 6,
+            "passedScenarios": 6
           },
           "blockers": []
         }
@@ -2278,8 +2331,8 @@
             "docs/eval/multi-user-coordination-proof.json"
           ],
           "metrics": {
-            "scenarios": 5,
-            "passedScenarios": 5
+            "scenarios": 6,
+            "passedScenarios": 6
           },
           "blockers": []
         }
@@ -2367,8 +2420,8 @@
             "docs/eval/multi-user-coordination-proof.json"
           ],
           "metrics": {
-            "scenarios": 5,
-            "passedScenarios": 5
+            "scenarios": 6,
+            "passedScenarios": 6
           },
           "blockers": []
         }
@@ -2462,8 +2515,8 @@
             "docs/eval/multi-user-coordination-proof.json"
           ],
           "metrics": {
-            "scenarios": 5,
-            "passedScenarios": 5
+            "scenarios": 6,
+            "passedScenarios": 6
           },
           "blockers": []
         }
@@ -2551,8 +2604,8 @@
             "docs/eval/multi-user-coordination-proof.json"
           ],
           "metrics": {
-            "scenarios": 5,
-            "passedScenarios": 5
+            "scenarios": 6,
+            "passedScenarios": 6
           },
           "blockers": []
         }
@@ -2646,8 +2699,8 @@
             "docs/eval/multi-user-coordination-proof.json"
           ],
           "metrics": {
-            "scenarios": 5,
-            "passedScenarios": 5
+            "scenarios": 6,
+            "passedScenarios": 6
           },
           "blockers": []
         }
@@ -2735,8 +2788,8 @@
             "docs/eval/multi-user-coordination-proof.json"
           ],
           "metrics": {
-            "scenarios": 5,
-            "passedScenarios": 5
+            "scenarios": 6,
+            "passedScenarios": 6
           },
           "blockers": []
         }
@@ -2825,8 +2878,8 @@
             "docs/eval/multi-user-coordination-proof.json"
           ],
           "metrics": {
-            "scenarios": 5,
-            "passedScenarios": 5
+            "scenarios": 6,
+            "passedScenarios": 6
           },
           "blockers": []
         }
@@ -2915,8 +2968,8 @@
             "docs/eval/multi-user-coordination-proof.json"
           ],
           "metrics": {
-            "scenarios": 5,
-            "passedScenarios": 5
+            "scenarios": 6,
+            "passedScenarios": 6
           },
           "blockers": []
         }
@@ -3005,8 +3058,8 @@
             "docs/eval/multi-user-coordination-proof.json"
           ],
           "metrics": {
-            "scenarios": 5,
-            "passedScenarios": 5
+            "scenarios": 6,
+            "passedScenarios": 6
           },
           "blockers": []
         }
@@ -3095,8 +3148,8 @@
             "docs/eval/multi-user-coordination-proof.json"
           ],
           "metrics": {
-            "scenarios": 5,
-            "passedScenarios": 5
+            "scenarios": 6,
+            "passedScenarios": 6
           },
           "blockers": []
         }
@@ -3197,8 +3250,8 @@
             "docs/eval/multi-user-coordination-proof.json"
           ],
           "metrics": {
-            "scenarios": 5,
-            "passedScenarios": 5
+            "scenarios": 6,
+            "passedScenarios": 6
           },
           "blockers": []
         }
@@ -3292,8 +3345,8 @@
             "docs/eval/multi-user-coordination-proof.json"
           ],
           "metrics": {
-            "scenarios": 5,
-            "passedScenarios": 5
+            "scenarios": 6,
+            "passedScenarios": 6
           },
           "blockers": []
         }
@@ -3381,8 +3434,8 @@
             "docs/eval/multi-user-coordination-proof.json"
           ],
           "metrics": {
-            "scenarios": 5,
-            "passedScenarios": 5
+            "scenarios": 6,
+            "passedScenarios": 6
           },
           "blockers": []
         }
@@ -3471,8 +3524,8 @@
             "docs/eval/multi-user-coordination-proof.json"
           ],
           "metrics": {
-            "scenarios": 5,
-            "passedScenarios": 5
+            "scenarios": 6,
+            "passedScenarios": 6
           },
           "blockers": []
         }
@@ -3573,8 +3626,8 @@
             "docs/eval/multi-user-coordination-proof.json"
           ],
           "metrics": {
-            "scenarios": 5,
-            "passedScenarios": 5
+            "scenarios": 6,
+            "passedScenarios": 6
           },
           "blockers": []
         }
@@ -3674,8 +3727,8 @@
             "docs/eval/multi-user-coordination-proof.json"
           ],
           "metrics": {
-            "scenarios": 5,
-            "passedScenarios": 5
+            "scenarios": 6,
+            "passedScenarios": 6
           },
           "blockers": []
         }
@@ -3763,8 +3816,8 @@
             "docs/eval/multi-user-coordination-proof.json"
           ],
           "metrics": {
-            "scenarios": 5,
-            "passedScenarios": 5
+            "scenarios": 6,
+            "passedScenarios": 6
           },
           "blockers": []
         }
@@ -3859,8 +3912,8 @@
             "docs/eval/multi-user-coordination-proof.json"
           ],
           "metrics": {
-            "scenarios": 5,
-            "passedScenarios": 5
+            "scenarios": 6,
+            "passedScenarios": 6
           },
           "blockers": []
         }
@@ -3948,8 +4001,8 @@
             "docs/eval/multi-user-coordination-proof.json"
           ],
           "metrics": {
-            "scenarios": 5,
-            "passedScenarios": 5
+            "scenarios": 6,
+            "passedScenarios": 6
           },
           "blockers": []
         }
@@ -4037,8 +4090,8 @@
             "docs/eval/multi-user-coordination-proof.json"
           ],
           "metrics": {
-            "scenarios": 5,
-            "passedScenarios": 5
+            "scenarios": 6,
+            "passedScenarios": 6
           },
           "blockers": []
         }
@@ -4126,8 +4179,8 @@
             "docs/eval/multi-user-coordination-proof.json"
           ],
           "metrics": {
-            "scenarios": 5,
-            "passedScenarios": 5
+            "scenarios": 6,
+            "passedScenarios": 6
           },
           "blockers": []
         }
@@ -4215,8 +4268,8 @@
             "docs/eval/multi-user-coordination-proof.json"
           ],
           "metrics": {
-            "scenarios": 5,
-            "passedScenarios": 5
+            "scenarios": 6,
+            "passedScenarios": 6
           },
           "blockers": []
         }
@@ -4304,8 +4357,8 @@
             "docs/eval/multi-user-coordination-proof.json"
           ],
           "metrics": {
-            "scenarios": 5,
-            "passedScenarios": 5
+            "scenarios": 6,
+            "passedScenarios": 6
           },
           "blockers": []
         }
@@ -4393,8 +4446,8 @@
             "docs/eval/multi-user-coordination-proof.json"
           ],
           "metrics": {
-            "scenarios": 5,
-            "passedScenarios": 5
+            "scenarios": 6,
+            "passedScenarios": 6
           },
           "blockers": []
         }
@@ -4486,8 +4539,8 @@
             "docs/eval/multi-user-coordination-proof.json"
           ],
           "metrics": {
-            "scenarios": 5,
-            "passedScenarios": 5
+            "scenarios": 6,
+            "passedScenarios": 6
           },
           "blockers": []
         }
@@ -4574,8 +4627,8 @@
             "docs/eval/multi-user-coordination-proof.json"
           ],
           "metrics": {
-            "scenarios": 5,
-            "passedScenarios": 5
+            "scenarios": 6,
+            "passedScenarios": 6
           },
           "blockers": []
         }
@@ -4663,8 +4716,8 @@
             "docs/eval/multi-user-coordination-proof.json"
           ],
           "metrics": {
-            "scenarios": 5,
-            "passedScenarios": 5
+            "scenarios": 6,
+            "passedScenarios": 6
           },
           "blockers": []
         }
@@ -4754,8 +4807,8 @@
             "docs/eval/multi-user-coordination-proof.json"
           ],
           "metrics": {
-            "scenarios": 5,
-            "passedScenarios": 5
+            "scenarios": 6,
+            "passedScenarios": 6
           },
           "blockers": []
         }
@@ -4842,8 +4895,8 @@
             "docs/eval/multi-user-coordination-proof.json"
           ],
           "metrics": {
-            "scenarios": 5,
-            "passedScenarios": 5
+            "scenarios": 6,
+            "passedScenarios": 6
           },
           "blockers": []
         }
@@ -4931,8 +4984,364 @@
             "docs/eval/multi-user-coordination-proof.json"
           ],
           "metrics": {
-            "scenarios": 5,
-            "passedScenarios": 5
+            "scenarios": 6,
+            "passedScenarios": 6
+          },
+          "blockers": []
+        }
+      },
+      "blockers": [
+        "no company-research v3 evidence recorded for this route",
+        "no route-specific collaboration ladder evidence recorded",
+        "no N=5 live managed-path calibration recorded for this route",
+        "no SpreadsheetBench-like N=5 model-edit evidence recorded for this route",
+        "BTB local smoke is harness/package evidence only; no route-owned candidate generation is recorded yet"
+      ]
+    },
+    {
+      "route": "nebius/deepseek-ai/DeepSeek-V4-Pro",
+      "provider": "native",
+      "label": "nebius agent model: nebius/deepseek-ai/DeepSeek-V4-Pro",
+      "suites": [
+        "collaboration"
+      ],
+      "promotion": "compatibility",
+      "role": "interactive_candidate",
+      "promotionStatus": "blocked",
+      "adapter": "convexModel.native_provider",
+      "evidence": {
+        "research": {
+          "status": "missing",
+          "evidence": [
+            "docs/eval/results.json"
+          ],
+          "metrics": {},
+          "blockers": [
+            "no company-research v3 evidence recorded for this route"
+          ]
+        },
+        "collaborationLadder": {
+          "status": "missing",
+          "evidence": [
+            "docs/eval/model-ladder-supported.json"
+          ],
+          "metrics": {},
+          "blockers": [
+            "no route-specific collaboration ladder evidence recorded"
+          ]
+        },
+        "managedPathN5P95": {
+          "status": "missing",
+          "evidence": [
+            "docs/eval/halo-live-path-calibration.json"
+          ],
+          "metrics": {},
+          "blockers": [
+            "no N=5 live managed-path calibration recorded for this route"
+          ]
+        },
+        "spreadsheetBenchN5": {
+          "status": "missing",
+          "evidence": [
+            "docs/eval/spreadsheetbench-v1-model-edit-plan-3task-n5-live-smoke.json"
+          ],
+          "metrics": {
+            "recordedRoutes": "gpt-5.4-nano"
+          },
+          "blockers": [
+            "no SpreadsheetBench-like N=5 model-edit evidence recorded for this route"
+          ]
+        },
+        "bankerToolBenchLocal": {
+          "status": "missing",
+          "evidence": [
+            "docs/eval/bankertoolbench-run-positive-smoke.json"
+          ],
+          "metrics": {
+            "route": "nebius/deepseek-ai/DeepSeek-V4-Pro",
+            "localHarnessPassRate": 1,
+            "averageWeightedScore": 1,
+            "verifier": "local_exact_or_workbook_semantic_smoke"
+          },
+          "blockers": [
+            "BTB local smoke is harness/package evidence only; no route-owned candidate generation is recorded yet"
+          ]
+        },
+        "multiUserContract": {
+          "status": "pass",
+          "evidence": [
+            "docs/eval/multi-user-coordination-proof.json"
+          ],
+          "metrics": {
+            "scenarios": 6,
+            "passedScenarios": 6
+          },
+          "blockers": []
+        }
+      },
+      "blockers": [
+        "no company-research v3 evidence recorded for this route",
+        "no route-specific collaboration ladder evidence recorded",
+        "no N=5 live managed-path calibration recorded for this route",
+        "no SpreadsheetBench-like N=5 model-edit evidence recorded for this route",
+        "BTB local smoke is harness/package evidence only; no route-owned candidate generation is recorded yet"
+      ]
+    },
+    {
+      "route": "nebius/MiniMaxAI/MiniMax-M2.5",
+      "provider": "native",
+      "label": "nebius agent model: nebius/MiniMaxAI/MiniMax-M2.5",
+      "suites": [
+        "collaboration"
+      ],
+      "promotion": "compatibility",
+      "role": "interactive_candidate",
+      "promotionStatus": "blocked",
+      "adapter": "convexModel.native_provider",
+      "evidence": {
+        "research": {
+          "status": "missing",
+          "evidence": [
+            "docs/eval/results.json"
+          ],
+          "metrics": {},
+          "blockers": [
+            "no company-research v3 evidence recorded for this route"
+          ]
+        },
+        "collaborationLadder": {
+          "status": "missing",
+          "evidence": [
+            "docs/eval/model-ladder-supported.json"
+          ],
+          "metrics": {},
+          "blockers": [
+            "no route-specific collaboration ladder evidence recorded"
+          ]
+        },
+        "managedPathN5P95": {
+          "status": "missing",
+          "evidence": [
+            "docs/eval/halo-live-path-calibration.json"
+          ],
+          "metrics": {},
+          "blockers": [
+            "no N=5 live managed-path calibration recorded for this route"
+          ]
+        },
+        "spreadsheetBenchN5": {
+          "status": "missing",
+          "evidence": [
+            "docs/eval/spreadsheetbench-v1-model-edit-plan-3task-n5-live-smoke.json"
+          ],
+          "metrics": {
+            "recordedRoutes": "gpt-5.4-nano"
+          },
+          "blockers": [
+            "no SpreadsheetBench-like N=5 model-edit evidence recorded for this route"
+          ]
+        },
+        "bankerToolBenchLocal": {
+          "status": "missing",
+          "evidence": [
+            "docs/eval/bankertoolbench-run-positive-smoke.json"
+          ],
+          "metrics": {
+            "route": "nebius/MiniMaxAI/MiniMax-M2.5",
+            "localHarnessPassRate": 1,
+            "averageWeightedScore": 1,
+            "verifier": "local_exact_or_workbook_semantic_smoke"
+          },
+          "blockers": [
+            "BTB local smoke is harness/package evidence only; no route-owned candidate generation is recorded yet"
+          ]
+        },
+        "multiUserContract": {
+          "status": "pass",
+          "evidence": [
+            "docs/eval/multi-user-coordination-proof.json"
+          ],
+          "metrics": {
+            "scenarios": 6,
+            "passedScenarios": 6
+          },
+          "blockers": []
+        }
+      },
+      "blockers": [
+        "no company-research v3 evidence recorded for this route",
+        "no route-specific collaboration ladder evidence recorded",
+        "no N=5 live managed-path calibration recorded for this route",
+        "no SpreadsheetBench-like N=5 model-edit evidence recorded for this route",
+        "BTB local smoke is harness/package evidence only; no route-owned candidate generation is recorded yet"
+      ]
+    },
+    {
+      "route": "nebius/Qwen/Qwen3-235B-A22B-Instruct-2507",
+      "provider": "native",
+      "label": "nebius agent model: nebius/Qwen/Qwen3-235B-A22B-Instruct-2507",
+      "suites": [
+        "collaboration"
+      ],
+      "promotion": "compatibility",
+      "role": "interactive_candidate",
+      "promotionStatus": "blocked",
+      "adapter": "convexModel.native_provider",
+      "evidence": {
+        "research": {
+          "status": "missing",
+          "evidence": [
+            "docs/eval/results.json"
+          ],
+          "metrics": {},
+          "blockers": [
+            "no company-research v3 evidence recorded for this route"
+          ]
+        },
+        "collaborationLadder": {
+          "status": "missing",
+          "evidence": [
+            "docs/eval/model-ladder-supported.json"
+          ],
+          "metrics": {},
+          "blockers": [
+            "no route-specific collaboration ladder evidence recorded"
+          ]
+        },
+        "managedPathN5P95": {
+          "status": "missing",
+          "evidence": [
+            "docs/eval/halo-live-path-calibration.json"
+          ],
+          "metrics": {},
+          "blockers": [
+            "no N=5 live managed-path calibration recorded for this route"
+          ]
+        },
+        "spreadsheetBenchN5": {
+          "status": "missing",
+          "evidence": [
+            "docs/eval/spreadsheetbench-v1-model-edit-plan-3task-n5-live-smoke.json"
+          ],
+          "metrics": {
+            "recordedRoutes": "gpt-5.4-nano"
+          },
+          "blockers": [
+            "no SpreadsheetBench-like N=5 model-edit evidence recorded for this route"
+          ]
+        },
+        "bankerToolBenchLocal": {
+          "status": "missing",
+          "evidence": [
+            "docs/eval/bankertoolbench-run-positive-smoke.json"
+          ],
+          "metrics": {
+            "route": "nebius/Qwen/Qwen3-235B-A22B-Instruct-2507",
+            "localHarnessPassRate": 1,
+            "averageWeightedScore": 1,
+            "verifier": "local_exact_or_workbook_semantic_smoke"
+          },
+          "blockers": [
+            "BTB local smoke is harness/package evidence only; no route-owned candidate generation is recorded yet"
+          ]
+        },
+        "multiUserContract": {
+          "status": "pass",
+          "evidence": [
+            "docs/eval/multi-user-coordination-proof.json"
+          ],
+          "metrics": {
+            "scenarios": 6,
+            "passedScenarios": 6
+          },
+          "blockers": []
+        }
+      },
+      "blockers": [
+        "no company-research v3 evidence recorded for this route",
+        "no route-specific collaboration ladder evidence recorded",
+        "no N=5 live managed-path calibration recorded for this route",
+        "no SpreadsheetBench-like N=5 model-edit evidence recorded for this route",
+        "BTB local smoke is harness/package evidence only; no route-owned candidate generation is recorded yet"
+      ]
+    },
+    {
+      "route": "nebius/zai-org/GLM-5.2",
+      "provider": "native",
+      "label": "nebius agent model: nebius/zai-org/GLM-5.2",
+      "suites": [
+        "collaboration"
+      ],
+      "promotion": "compatibility",
+      "role": "interactive_candidate",
+      "promotionStatus": "blocked",
+      "adapter": "convexModel.native_provider",
+      "evidence": {
+        "research": {
+          "status": "missing",
+          "evidence": [
+            "docs/eval/results.json"
+          ],
+          "metrics": {},
+          "blockers": [
+            "no company-research v3 evidence recorded for this route"
+          ]
+        },
+        "collaborationLadder": {
+          "status": "missing",
+          "evidence": [
+            "docs/eval/model-ladder-supported.json"
+          ],
+          "metrics": {},
+          "blockers": [
+            "no route-specific collaboration ladder evidence recorded"
+          ]
+        },
+        "managedPathN5P95": {
+          "status": "missing",
+          "evidence": [
+            "docs/eval/halo-live-path-calibration.json"
+          ],
+          "metrics": {},
+          "blockers": [
+            "no N=5 live managed-path calibration recorded for this route"
+          ]
+        },
+        "spreadsheetBenchN5": {
+          "status": "missing",
+          "evidence": [
+            "docs/eval/spreadsheetbench-v1-model-edit-plan-3task-n5-live-smoke.json"
+          ],
+          "metrics": {
+            "recordedRoutes": "gpt-5.4-nano"
+          },
+          "blockers": [
+            "no SpreadsheetBench-like N=5 model-edit evidence recorded for this route"
+          ]
+        },
+        "bankerToolBenchLocal": {
+          "status": "missing",
+          "evidence": [
+            "docs/eval/bankertoolbench-run-positive-smoke.json"
+          ],
+          "metrics": {
+            "route": "nebius/zai-org/GLM-5.2",
+            "localHarnessPassRate": 1,
+            "averageWeightedScore": 1,
+            "verifier": "local_exact_or_workbook_semantic_smoke"
+          },
+          "blockers": [
+            "BTB local smoke is harness/package evidence only; no route-owned candidate generation is recorded yet"
+          ]
+        },
+        "multiUserContract": {
+          "status": "pass",
+          "evidence": [
+            "docs/eval/multi-user-coordination-proof.json"
+          ],
+          "metrics": {
+            "scenarios": 6,
+            "passedScenarios": 6
           },
           "blockers": []
         }

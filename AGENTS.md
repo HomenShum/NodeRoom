@@ -34,3 +34,22 @@ Rules:
 - Trace is NodeAgent's workpaper layer. New durable memory, evidence, mutation,
   approval, eval, or rework behavior should point back to a `traceId`; update
   `tests/nodeagentTraceSpine.test.ts` when changing trace contracts.
+
+## Proximitty Underwriting Proof Loop
+
+The Proximitty demo suite is `proximitty-underwriting-pr0`. It is an
+evaluation-only underwriting workflow using synthetic data; do not use it to
+make real financial, legal, lending, or insurance decisions.
+
+Run:
+
+```bash
+npm run proofloop:proximitty
+```
+
+The command must create `.proofloop/runs/<run-id>/scorecard.md`,
+`live-user-contract.json`, `node-trace-v2.json`, `node-eval.json`,
+`model-comparison.json`, `cost-ledger.json`, `verifier-receipt.json`, clips,
+the legacy `.proofloop/memory.jsonl` receipt, and local-first recall memory in
+`.proofloop/memory/` with SQLite/FTS indexing. Do not weaken proof gates to make
+this suite pass, and do not commit generated local memory stores.

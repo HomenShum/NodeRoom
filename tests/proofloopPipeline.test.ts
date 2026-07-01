@@ -279,6 +279,9 @@ describe("proofloop npm scripts", () => {
     const pkg = JSON.parse(readFileSync(join(process.cwd(), "package.json"), "utf-8"));
     expect(pkg.scripts["proofloop:accounting"]).toBeDefined();
     expect(pkg.scripts["proofloop:notion"]).toBeDefined();
+    expect(pkg.scripts["proofloop:proximitty"]).toBeDefined();
+    expect(pkg.scripts["proofloop:proximitty:models"]).toBeDefined();
+    expect(pkg.scripts["proofloop:proximitty:clips"]).toBeDefined();
     expect(pkg.scripts["proofloop:accounting:seed"]).toBeDefined();
     expect(pkg.scripts["proofloop:notion:seed"]).toBeDefined();
   });
@@ -291,5 +294,56 @@ describe("proofloop npm scripts", () => {
   it("proofloop:notion script references notion config", () => {
     const pkg = JSON.parse(readFileSync(join(process.cwd(), "package.json"), "utf-8"));
     expect(pkg.scripts["proofloop:notion"]).toContain("proofloop.notion.config.json");
+  });
+
+  it("Proximitty underwriting suite exists with required artifacts and adapters", () => {
+    const configPath = join(process.cwd(), "proofloop/suites/proximitty-underwriting-pr0.json");
+    expect(existsSync(configPath)).toBe(true);
+    const config = JSON.parse(readFileSync(configPath, "utf-8"));
+    expect(config.suite).toBe("proximitty-underwriting-pr0");
+    expect(config.minScore).toBeGreaterThanOrEqual(85);
+    const stepNames = config.steps.map((step: { name: string }) => step.name);
+    expect(stepNames).toContain("scenario-1-underwriting-intake");
+    expect(stepNames).toContain("scenario-2-risk-research-evidence");
+    expect(stepNames).toContain("scenario-3-underwriting-packet");
+    expect(stepNames).toContain("scenario-4-model-policy-comparison");
+    expect(stepNames).toContain("model-delta-and-verifier");
+
+    for (const path of [
+      "proofloop/datasets/proximitty-demo-underwriting/company-profile.json",
+      "proofloop/datasets/proximitty-demo-underwriting/underwriting-policy.md",
+      "proofloop/datasets/proximitty-demo-underwriting/synthetic-financials.csv",
+      "proofloop/datasets/proximitty-demo-underwriting/risk-notes.md",
+      "proofloop/datasets/proximitty-demo-underwriting/source-pack.md",
+      "proofloop/rubrics/underwriting-rubric.yaml",
+      "proofloop/rubrics/evidence-rubric.yaml",
+      "proofloop/rubrics/visual-design-rubric.yaml",
+      "proofloop/rubrics/live-user-contract.yaml",
+      "proofloop/adapters/node-trace-v2-export.mjs",
+      "proofloop/adapters/node-eval.mjs",
+      "proofloop/adapters/nodemem-write.mjs",
+      "proofloop/adapters/model-delta.mjs",
+      "proofloop/adapters/generate-clips.mjs",
+      "proofloop/cockpit/server.mjs",
+      "scripts/proofloop.mjs",
+      "scripts/proofloop-memory.mjs",
+      ".github/workflows/proofloop.yml",
+    ]) {
+      expect(existsSync(join(process.cwd(), path))).toBe(true);
+    }
+
+    const clipAdapter = readFileSync(join(process.cwd(), "proofloop/adapters/generate-clips.mjs"), "utf-8");
+    expect(clipAdapter).toContain("videos");
+    expect(clipAdapter).toContain("final-proximitty-demo.mp4");
+
+    const memoryCli = readFileSync(join(process.cwd(), "scripts/proofloop-memory.mjs"), "utf-8");
+    expect(memoryCli).toContain("index.db");
+    expect(memoryCli).toContain("CREATE VIRTUAL TABLE IF NOT EXISTS memories_fts USING fts5");
+    expect(memoryCli).toContain("cloudSync: false");
+    expect(memoryCli).toContain("storeScreenshots: \"path-only\"");
+
+    const wrapper = readFileSync(join(process.cwd(), "scripts/proofloop.mjs"), "utf-8");
+    expect(wrapper).toContain("proofloop-memory.mjs");
+    expect(wrapper).toContain(".proofloop\", \"memory\", \"index.db\"");
   });
 });

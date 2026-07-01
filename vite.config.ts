@@ -28,5 +28,24 @@ export default defineConfig({
     },
   },
   optimizeDeps: { include: ["exceljs", "@xyflow/react"] },
-  build: { outDir: "dist", sourcemap: process.env.VITE_BUILD_SOURCEMAP === "1" },
+  build: {
+    outDir: "dist",
+    sourcemap: process.env.VITE_BUILD_SOURCEMAP === "1",
+    chunkSizeWarningLimit: 1100,
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (!id.includes("node_modules")) return undefined;
+          if (/[\\/]node_modules[\\/](react|react-dom|scheduler)[\\/]/.test(id)) return "react-vendor";
+          if (id.includes("@tiptap") || id.includes("prosemirror")) return "editor-vendor";
+          if (id.includes("@xyflow")) return "graph-vendor";
+          if (id.includes("exceljs") || id.includes("jszip")) return "workbook-vendor";
+          if (id.includes("react-pdf") || id.includes("pdfjs-dist")) return "pdf-vendor";
+          if (id.includes("convex") || id.includes("@convex-dev")) return "convex-vendor";
+          if (id.includes("lucide-react")) return "icons-vendor";
+          return "vendor";
+        },
+      },
+    },
+  },
 });
