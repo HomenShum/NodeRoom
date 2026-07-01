@@ -1,0 +1,41 @@
+{
+  "suite": "live-accounting",
+  "minScore": 75,
+  "outputDir": ".proofloop/live",
+  "memoryFile": ".proofloop/live-memory.jsonl",
+  "useStarterRoom": true,
+  "tasks": [
+    {
+      "id": "variance-calc",
+      "name": "Q3 Variance Calculation",
+      "goal": "Compute the Q3 variance for each row in the Q3 variance sheet. For each row, variance = Q3 minus Q2. Write the result in the variance column. Show your work.",
+      "passPatterns": ["variance", "revenue", "cogs", "2,400", "1,100"],
+      "expectArtifactEdit": true,
+      "timeoutMs": 300000
+    },
+    {
+      "id": "research-enrich",
+      "name": "Company Research Enrichment",
+      "goal": "Research CardioNova and fill in the pending fields: funding, headcount, and recent_signal in the Company research sheet. Use web search if available. Cite your sources.",
+      "passPatterns": ["CardioNova", "funding", "headcount"],
+      "expectArtifactEdit": true,
+      "timeoutMs": 600000
+    },
+    {
+      "id": "runway-calc",
+      "name": "Runway Calculation",
+      "goal": "For Mercury in the Runway / milestones sheet, compute the runway if cash is $50M and burn is $4M/mo. Write the result in the runway cell.",
+      "passPatterns": ["runway", "12.5", "months", "Mercury"],
+      "expectArtifactEdit": true,
+      "timeoutMs": 300000
+    },
+    {
+      "id": "memo-draft",
+      "name": "Diligence Memo Draft",
+      "goal": "Draft a 3-paragraph diligence memo for Mercury in the Diligence memo note. Cover: product overview, market position, and key risks.",
+      "passPatterns": ["Mercury", "product", "market", "risk"],
+      "expectArtifactEdit": true,
+      "timeoutMs": 300000
+    }
+  ]
+}

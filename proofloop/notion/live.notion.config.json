@@ -1,0 +1,41 @@
+{
+  "suite": "live-notion-sdr-bdr",
+  "minScore": 75,
+  "outputDir": ".proofloop/live",
+  "memoryFile": ".proofloop/live-memory.jsonl",
+  "useStarterRoom": true,
+  "tasks": [
+    {
+      "id": "company-research",
+      "name": "Company Research — Mercury",
+      "goal": "Research Mercury (mercury.com) and fill in the pending fields in the Company research sheet: funding, headcount, and recent_signal. Use web search if available. Cite sources.",
+      "passPatterns": ["Mercury", "funding", "headcount"],
+      "expectArtifactEdit": true,
+      "timeoutMs": 600000
+    },
+    {
+      "id": "competitor-analysis",
+      "name": "Competitor Analysis — Ramp vs Brex",
+      "goal": "Compare Ramp and Brex in the Company research sheet. Fill in their funding, headcount, and recent_signal fields. Note key differences in their market positioning.",
+      "passPatterns": ["Ramp", "Brex", "funding"],
+      "expectArtifactEdit": true,
+      "timeoutMs": 600000
+    },
+    {
+      "id": "diligence-memo",
+      "name": "Diligence Memo — CardioNova",
+      "goal": "Write a 3-paragraph diligence memo for CardioNova in the Diligence memo note. Cover: AI triage product, hospital buyer profile, and key risks (regulatory, adoption, competition).",
+      "passPatterns": ["CardioNova", "AI", "triage", "hospital", "risk"],
+      "expectArtifactEdit": true,
+      "timeoutMs": 300000
+    },
+    {
+      "id": "workplan-update",
+      "name": "Workplan Update",
+      "goal": "Update the Open questions / workplan note with 3 specific next steps for the Mercury account based on what you know. Each step should have an owner and a timeline.",
+      "passPatterns": ["Mercury", "next", "step", "owner"],
+      "expectArtifactEdit": true,
+      "timeoutMs": 300000
+    }
+  ]
+}

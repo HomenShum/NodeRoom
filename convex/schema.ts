@@ -954,6 +954,7 @@ export default defineSchema({
     ms: v.number(),
     inputTokens: v.number(),
     outputTokens: v.number(),
+    cachedInputTokens: v.optional(v.number()),
     costUsd: v.number(),
     error: v.optional(v.string()),
     scheduledNextAt: v.optional(v.number()),
