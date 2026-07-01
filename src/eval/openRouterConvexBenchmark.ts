@@ -439,9 +439,9 @@ function benchmarkCases(): OpenRouterConvexBenchmarkCase[] {
     },
     {
       id: "docker_agent_workspace_isolation",
-      title: "Agent workspace isolation for benchmark execution",
+      title: "Official scorer workspace isolation",
       inspiredBy: ["SpreadsheetBench", "BankerToolBench"],
-      scope: "openrouter_convex_harness",
+      scope: "official_promotion",
       status: docker?.pass === true && docker.status === "container_isolation_proven" ? "pass" : "blocked",
       evidence: ["docs/eval/docker-sandbox-probe.json", "src/eval/dockerSandboxProbe.ts"],
       requiredConvexContract: [
@@ -450,7 +450,7 @@ function benchmarkCases(): OpenRouterConvexBenchmarkCase[] {
         "network policy is explicit",
       ],
       acceptance: "Docker probe records container_isolation_proven with evaluator reads denied.",
-      blockers: docker?.pass === true ? [] : ["Start Docker and run npm run benchmark:docker-sandbox:probe -- --require-pass."],
+      blockers: docker?.pass === true ? [] : ["Docker/Harbor isolation is required only for official score promotion; product-path Proof Loop runs stay valid without it."],
     },
     {
       id: "bankertoolbench_official_verifier_path",
