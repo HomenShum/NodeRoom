@@ -33,12 +33,12 @@
  *
  * Reuses @xyflow/react (already a dep via TraceFlow) — no new graph/force/layout dependency.
  */
-import { useMemo, useState, type ReactElement } from "react";
-import { ReactFlow, Background, Controls, MiniMap, Position, type Node, type Edge } from "@xyflow/react";
+import { memo, useMemo, useState, type ReactElement } from "react";
+import { ReactFlow, Background, Controls, MiniMap, Position, Handle, type Node, type Edge, type NodeProps } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
-import { Share2, Search, X } from "lucide-react";
+import { Share2, Search, X, Users } from "lucide-react";
 import { useStore } from "../../app/store";
-import type { Artifact as Art, DataframeColumn } from "../../engine/types";
+import type { Artifact as Art, Actor, DataframeColumn } from "../../engine/types";
 
 const MAX_NODES = 200; // BOUND: keep the canvas legible + the O(n^2) layout cheap.
 const MAX_SOURCES = 30; // BOUND: cap source nodes (URLs can proliferate).
@@ -72,7 +72,7 @@ const KIND_LAYER: Record<GKind, number> = {
   source: 5, // citations on the right edge
 };
 
-interface GNode { id: string; label: string; kind: GKind; artifactId?: string; sourceArtifact?: string; }
+interface GNode { id: string; label: string; kind: GKind; artifactId?: string; sourceArtifact?: string; contributor?: Actor; }
 interface GEdgeInfo { source: string; target: string; sourceLabel: string; targetLabel: string; sourceKind: GKind; targetKind: GKind; }
 
 const cellText = (v: unknown): string => {
@@ -138,13 +138,66 @@ const extractFunding = (text: string): string[] => {
   return matches ? [...new Set(matches.map((m) => m.trim()))] : [];
 };
 
+// ── Custom node component (defined outside KnowledgeGraph for stable reference) ──────────────────
+// React Flow requires nodeTypes to have a stable reference — defining inside the component
+// creates a new object every render, causing re-initialization and breaking edges.
+interface EntityNodeData {
+  label: string;
+  deg: number;
+  isGap: boolean;
+  isFocus: boolean;
+  isRadial: boolean;
+  kind: string;
+  kindColor: string;
+  presenceColor: string | null;
+  opacity: number;
+}
+const EntityNode = memo(({ data }: NodeProps) => {
+  const d = data as unknown as EntityNodeData;
+  return (
+    <div
+      className={`r-graphvu-node${d.isFocus ? " r-graphvu-node-focus" : ""}${d.isGap ? " r-graphvu-node-gap" : ""}${d.isRadial ? " r-graphvu-node-radial" : ""}${d.presenceColor ? " r-graphvu-node-presence" : ""}`}
+      style={{
+        borderLeftColor: d.kindColor,
+        opacity: d.opacity,
+        boxShadow: d.isFocus
+          ? `inset 4px 0 0 0 ${d.kindColor}, 0 0 0 4px color-mix(in srgb, ${d.kindColor} 35%, transparent)`
+          : d.presenceColor
+            ? `inset 4px 0 0 0 ${d.kindColor}, 0 0 0 2px ${d.presenceColor}`
+            : `inset 4px 0 0 0 ${d.kindColor}, var(--shadow-sm)`,
+      }}
+    >
+      <Handle type="target" position={Position.Left} style={{ opacity: 0, pointerEvents: "none" }} />
+      <span className="r-graphvu-node-label">{d.label}</span>
+      <span className="r-graphvu-node-meta">
+        {d.presenceColor && <span className="r-graphvu-node-presence-dot" style={{ background: d.presenceColor }} title="Someone is viewing this" />}
+        {d.deg > 0 && <span className="r-graphvu-node-deg">{d.deg}</span>}
+      </span>
+      <Handle type="source" position={Position.Right} style={{ opacity: 0, pointerEvents: "none" }} />
+    </div>
+  );
+});
+EntityNode.displayName = "EntityNode";
+
+// ✅ Stable reference — defined outside the component so React Flow doesn't re-initialize.
+const nodeTypes = { entity: EntityNode };
+
 export function KnowledgeGraph({ roomId, onOpenArtifact }: { roomId: string; onOpenArtifact: (id: string) => void }): ReactElement {
   const store = useStore();
   const arts = store.listArtifacts(roomId);
+  const members = store.listMembers(roomId);
   const [focus, setFocus] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [hiddenKinds, setHiddenKinds] = useState<Set<string>>(new Set());
+  const [hoveredNode, setHoveredNode] = useState<string | null>(null);
   const sig = arts.map((a) => `${a.id}:${a.version}`).join("|");
+
+  // Map actor id → member color for contributor badges.
+  const memberColors = useMemo(() => {
+    const m = new Map<string, string>();
+    for (const mem of members) m.set(mem.id, mem.color);
+    return m;
+  }, [members]);
 
   // ── Derive the graph (nodes + edges + force-laid-out positions) ──────────────────────────────
   const base = useMemo(() => {
@@ -163,7 +216,7 @@ export function KnowledgeGraph({ roomId, onOpenArtifact }: { roomId: string; onO
     const entId = (kind: string, name: string) => `${kind}:${name.toLowerCase().replace(/\s+/g, "_")}`;
     let sourceCount = 0, categoryCount = 0;
 
-    for (const a of arts) gnodes.set(a.id, { id: a.id, label: a.title, kind: (a.kind as GKind) ?? "note", artifactId: a.id });
+    for (const a of arts) gnodes.set(a.id, { id: a.id, label: a.title, kind: (a.kind as GKind) ?? "note", artifactId: a.id, contributor: a.createdBy });
 
     // Entity nodes from sheet rows — Category-driven typing + keyword scanning.
     for (const a of arts) {
@@ -191,7 +244,7 @@ export function KnowledgeGraph({ roomId, onOpenArtifact }: { roomId: string; onO
 
         // Create the primary entity node.
         const eid = entId(primaryKind, name);
-        if (!gnodes.has(eid)) gnodes.set(eid, { id: eid, label: name, kind: primaryKind, sourceArtifact: a.id });
+        if (!gnodes.has(eid)) gnodes.set(eid, { id: eid, label: name, kind: primaryKind, sourceArtifact: a.id, contributor: a.createdBy });
         addEdge(a.id, eid);
 
         // Category hub node (if we have a Category column with a value).
@@ -290,7 +343,7 @@ export function KnowledgeGraph({ roomId, onOpenArtifact }: { roomId: string; onO
 
     // ── Layered (multipartite) layout — columns by kind, like the Trace · Flow view ──────────────
     // Group ids by their kind's layer, compacting out empty layers so columns stay adjacent.
-    const COL_W = 300, ROW_H = 66;
+    const COL_W = 360, ROW_H = 78;
     const byLayer = new Map<number, string[]>();
     for (const id of ids) {
       const layer = KIND_LAYER[gnodes.get(id)!.kind] ?? 3;
@@ -348,6 +401,39 @@ export function KnowledgeGraph({ roomId, onOpenArtifact }: { roomId: string; onO
     return result.slice(0, 20);
   }, [focus, base]);
 
+  // ── Radial focus layout: when a node is focused, re-lay its neighborhood radially ──────────
+  const radialPos = useMemo(() => {
+    if (!focus || !lit) return null;
+    const pos = new Map<string, { x: number; y: number }>();
+    pos.set(focus, { x: 0, y: 0 });
+    const direct = [...(base.adj.get(focus) ?? [])].filter((id) => lit.has(id));
+    const R1 = 220, R2 = 440;
+    direct.forEach((id, i) => {
+      const angle = (i / direct.length) * Math.PI * 2 - Math.PI / 2;
+      pos.set(id, { x: Math.cos(angle) * R1, y: Math.sin(angle) * R1 });
+    });
+    const outer = [...lit].filter((id) => id !== focus && !pos.has(id));
+    outer.forEach((id, i) => {
+      const angle = (i / Math.max(outer.length, 1)) * Math.PI * 2 - Math.PI / 2;
+      pos.set(id, { x: Math.cos(angle) * R2, y: Math.sin(angle) * R2 });
+    });
+    return pos;
+  }, [focus, lit, base]);
+
+  // ── Live presence: which artifact nodes have someone viewing them ─────────────────────────────
+  const presenceMap = useMemo(() => {
+    const m = new Map<string, string>();
+    for (const a of arts) {
+      const claims = store.listPresence(roomId, a.id);
+      const humanClaim = claims.find((c) => c.actor.kind === "user");
+      if (humanClaim) {
+        const color = humanClaim.color ?? memberColors.get(humanClaim.actor.id) ?? "#5E6AD2";
+        m.set(a.id, color);
+      }
+    }
+    return m;
+  }, [arts, store, roomId, memberColors]);
+
   // ── Kind counts for filter chips ────────────────────────────────────────────────────────────
   const kindCounts = useMemo(() => {
     const counts = new Map<string, number>();
@@ -356,46 +442,63 @@ export function KnowledgeGraph({ roomId, onOpenArtifact }: { roomId: string; onO
   }, [base]);
 
   // ── Visible nodes (filter chips + search + focus) ───────────────────────────────────────────
-  const nodes: Node[] = useMemo(() => [...base.gnodes.values()].filter((nd) => !hiddenKinds.has(nd.kind)).map((nd) => {
-    const p = base.pos.get(nd.id) ?? { x: 0, y: 0 };
-    const deg = base.degree.get(nd.id) ?? 0;
-    const inFocus = !lit || lit.has(nd.id);
-    const inSearch = !searchMatches || searchMatches.has(nd.id);
-    const on = inFocus && inSearch;
-    const isFocus = focus === nd.id;
-    const dimmed = (lit && !inFocus) || (searchMatches && !inSearch);
-    return {
-      id: nd.id,
-      position: p,
-      data: { label: nd.label },
-      draggable: false,
-      sourcePosition: Position.Right,
-      targetPosition: Position.Left,
-      style: {
-        width: 168 + Math.min(deg, 6) * 12,
-        padding: "9px 12px 9px 14px", borderRadius: 10,
-        border: `1.5px solid ${isFocus ? colorOf(nd.kind) : "var(--line)"}`,
-        background: "var(--bg-secondary)", color: "var(--text-primary)",
-        fontSize: 12.5, fontWeight: 600, textAlign: "left" as const,
-        lineHeight: 1.3, whiteSpace: "normal" as const, wordBreak: "break-word" as const,
-        opacity: on ? 1 : dimmed ? 0.12 : 0.4,
-        // Left accent via inset shadow (avoids mixing `border` shorthand with borderLeft* longhand).
-        boxShadow: isFocus
-          ? `inset 4px 0 0 0 ${colorOf(nd.kind)}, 0 0 0 4px color-mix(in srgb, ${colorOf(nd.kind)} 35%, transparent)`
-          : `inset 4px 0 0 0 ${colorOf(nd.kind)}, var(--shadow-sm)`,
-      },
-    };
-  }), [base, lit, focus, hiddenKinds, searchMatches]);
+  const nodes: Node[] = useMemo(() => {
+    const entityNodes: Node[] = [...base.gnodes.values()].filter((nd) => !hiddenKinds.has(nd.kind)).map((nd) => {
+      const p = (radialPos?.get(nd.id) ?? base.pos.get(nd.id)) ?? { x: 0, y: 0 };
+      const deg = base.degree.get(nd.id) ?? 0;
+      const inFocus = !lit || lit.has(nd.id);
+      const inSearch = !searchMatches || searchMatches.has(nd.id);
+      const on = inFocus && inSearch;
+      const isFocus = focus === nd.id;
+      const dimmed = (lit && !inFocus) || (searchMatches && !inSearch);
+      const isGap = deg <= 1 && nd.kind !== "sheet" && nd.kind !== "note" && nd.kind !== "wall";
+      const kindColor = colorOf(nd.kind);
+      const presenceColor = nd.artifactId ? (presenceMap.get(nd.artifactId) ?? null) : null;
+      const isRadial = !!radialPos;
+      return {
+        id: nd.id,
+        position: p,
+        type: "entity",
+        data: {
+          label: nd.label,
+          deg,
+          isGap,
+          isFocus,
+          isRadial,
+          kind: nd.kind,
+          kindColor,
+          presenceColor,
+          opacity: on ? 1 : dimmed ? 0.12 : 0.4,
+        } as unknown as Record<string, unknown>,
+        draggable: false,
+        className: `r-graphvu-node${isFocus ? " r-graphvu-node-focus" : ""}${isGap ? " r-graphvu-node-gap" : ""}${isRadial ? " r-graphvu-node-radial" : ""}${presenceColor ? " r-graphvu-node-presence" : ""}`,
+        style: {
+          width: 168 + Math.min(deg, 6) * 12,
+        },
+      };
+    });
+    return [...entityNodes];
+  }, [base, lit, focus, hiddenKinds, searchMatches, memberColors, radialPos, presenceMap]);
 
   const edges: Edge[] = useMemo(() => base.edgeList.filter(([s, t]) => {
     const sn = base.gnodes.get(s), tn = base.gnodes.get(t);
     return sn && tn && !hiddenKinds.has(sn.kind) && !hiddenKinds.has(tn.kind);
   }).map(([s, t]) => {
+    const sn = base.gnodes.get(s)!, tn = base.gnodes.get(t)!;
     const on = !lit || (lit.has(s) && lit.has(t));
     const inSearch = !searchMatches || (searchMatches.has(s) && searchMatches.has(t));
     const visible = on && inSearch;
-    return { id: `${s}->${t}`, source: s, target: t, type: "smoothstep", style: { stroke: visible ? "var(--accent-primary)" : "var(--line)", strokeWidth: visible && lit ? 1.6 : 1, opacity: visible ? (lit ? 0.9 : 0.45) : 0.06 } };
-  }), [base, lit, hiddenKinds, searchMatches]);
+    const hovered = hoveredNode === s || hoveredNode === t;
+    const opacity = visible
+      ? lit ? (hovered ? 1 : 0.9)
+      : hovered ? 0.75 : 0.45
+      : 0.06;
+    const strokeWidth = visible && (lit || hovered) ? 1.8 : 1;
+    const srcColor = colorOf(sn.kind);
+    const tgtColor = colorOf(tn.kind);
+    const stroke = visible && (lit || hovered) ? srcColor : "var(--line)";
+    return { id: `${s}->${t}`, source: s, target: t, type: "smoothstep", style: { stroke, strokeWidth, opacity }, data: { srcColor, tgtColor } };
+  }), [base, lit, hiddenKinds, searchMatches, hoveredNode]);
 
   // ── Stats ───────────────────────────────────────────────────────────────────────────────────
   const stats = useMemo(() => {
@@ -404,7 +507,16 @@ export function KnowledgeGraph({ roomId, onOpenArtifact }: { roomId: string; onO
     const density = totalNodes > 1 ? (2 * totalEdges) / (totalNodes * (totalNodes - 1)) : 0;
     const visibleNodes = nodes.length;
     const visibleEdges = edges.length;
-    return { totalNodes, totalEdges, density, visibleNodes, visibleEdges };
+    // Gap detection: entity nodes with 0-1 connections (under-researched).
+    let gapCount = 0;
+    for (const [id, nd] of base.gnodes) {
+      if (nd.kind === "sheet" || nd.kind === "note" || nd.kind === "wall") continue;
+      if ((base.degree.get(id) ?? 0) <= 1) gapCount++;
+    }
+    // Contributor counts: how many unique people created/researched nodes.
+    const contributorIds = new Set<string>();
+    for (const nd of base.gnodes.values()) { if (nd.contributor) contributorIds.add(nd.contributor.id); }
+    return { totalNodes, totalEdges, density, visibleNodes, visibleEdges, gapCount, contributorCount: contributorIds.size };
   }, [base, nodes, edges]);
 
   const toggleKind = (kind: string) => setHiddenKinds((prev) => {
@@ -422,6 +534,7 @@ export function KnowledgeGraph({ roomId, onOpenArtifact }: { roomId: string; onO
       <div className="r-graphvu-head">
         <Share2 size={14} /> Knowledge graph
         <span className="r-graphvu-count">{stats.visibleNodes}{stats.visibleNodes !== stats.totalNodes ? `/${stats.totalNodes}` : ""} nodes · {stats.visibleEdges} links · density {stats.density.toFixed(2)}{focus ? " · click canvas to reset" : " · click a node to trace"}</span>
+        <span className="r-graphvu-team"><Users size={11} /> {stats.contributorCount} {stats.contributorCount === 1 ? "contributor" : "contributors"}{stats.gapCount > 0 ? ` · ${stats.gapCount} gaps` : ""}</span>
       </div>
 
       {/* Filter chips — toggle visibility by entity kind */}
@@ -446,6 +559,7 @@ export function KnowledgeGraph({ roomId, onOpenArtifact }: { roomId: string; onO
           <ReactFlow
             nodes={nodes}
             edges={edges}
+            nodeTypes={nodeTypes}
             fitView
             fitViewOptions={{ padding: 0.2, maxZoom: 1 }}
             minZoom={0.1}
@@ -456,8 +570,10 @@ export function KnowledgeGraph({ roomId, onOpenArtifact }: { roomId: string; onO
             onlyRenderVisibleElements
             colorMode="dark"
             onNodeClick={(_, node) => setFocus((cur) => (cur === node.id ? null : node.id))}
+            onNodeMouseEnter={(_, node) => setHoveredNode(node.id)}
+            onNodeMouseLeave={() => setHoveredNode(null)}
             onNodeDoubleClick={(_, node) => { const nd = base.gnodes.get(node.id); if (nd?.artifactId) onOpenArtifact(nd.artifactId); }}
-            onPaneClick={() => setFocus(null)}
+            onPaneClick={() => { setFocus(null); setHoveredNode(null); }}
             proOptions={{ hideAttribution: true }}
           >
             <Background gap={16} />

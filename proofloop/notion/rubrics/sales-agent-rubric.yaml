@@ -1,0 +1,46 @@
+# Sales Agent Rubric — Notion SDR/BDR Proof-Loop
+
+> Evaluates whether the agent can perform real SDR/BDR workflows
+> across all 4 Notion Build Challenge scenarios.
+
+## Scenarios
+
+### S1: Warm Intro
+- **pass**: 3+ leads researched with company summary, trigger, Notion relevance, and sources.
+- **fail**: Missing research, no sources, or generic filler.
+
+### S2: Follow Up
+- **pass**: Draft references call notes, names specific challenge, connects to Notion, has next step.
+- **fail**: Generic template, no call reference, no specific connection.
+
+### S3: Automated Pipeline
+- **pass**: All prospects have stage, stale flagged, triggers prioritized, next actions visible.
+- **fail**: Missing stages, no stale detection, no triggers, no actions.
+
+### S4: Meeting Prep
+- **pass**: 3 briefs with business context, pain points, discovery questions, and sources.
+- **fail**: Missing briefs, no context, no questions, no sources.
+
+## Scoring
+
+- Each scenario: 0 (fail), 10 (partial), 25 (pass)
+- Max score: 100
+- Min score to pass: 80
+- Any scenario scoring 0 fails the entire run
+
+## Demo Video Rubric
+
+### D1: Clarity
+- Problem stated clearly
+- Solution demonstrated
+- Why it matters explained
+
+### D2: Evidence
+- Shows real agent actions
+- Shows real data/results
+- Shows UI, not just code
+
+### D3: Production Quality
+- Clean transitions
+- Good pacing (under 4 min)
+- Readable text/UI

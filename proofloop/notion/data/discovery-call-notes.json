@@ -1,0 +1,26 @@
+{
+  "company": "Globex",
+  "contact": "James Park",
+  "title": "Head of Product",
+  "companySize": 500,
+  "industry": "Fintech",
+  "callDate": "2026-06-28",
+  "notes": [
+    "James mentioned their team struggles with scattered knowledge across Notion, Confluence, and Google Docs",
+    "They have 40+ product people who waste time searching for specs and decisions",
+    "Current pain: no single source of truth, decisions get lost in Slack threads",
+    "Interested in AI-assisted search and automated meeting notes",
+    "Budget not confirmed but James said he can make a case to finance if ROI is clear",
+    "Wants to pilot with his team of 8 before rolling out to all 40"
+  ],
+  "painPoints": [
+    "Knowledge fragmentation across 3+ tools",
+    "No searchable decision log",
+    "Meeting notes are inconsistent and not actionable"
+  ],
+  "notionRelevance": [
+    "Notion AI can unify knowledge base + search",
+    "Custom agents can automate meeting notes → action items",
+    "Notion's database views can replace their Confluence page tree"
+  ]
+}

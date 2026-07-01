@@ -43,7 +43,10 @@ playwright/.cache/
 .proofloop/runs/
 .proofloop/live/
 .proofloop/memory.jsonl
+.proofloop/live-memory.jsonl
 .proofloop/regressions.json
+docs/eval/scaffold-handoff.md
+docs/eval/scaffold-report.json
 noderoom-*.png
 opendesign-*.png
 docs/eval/finance-model-runs/

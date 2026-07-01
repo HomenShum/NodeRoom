@@ -1,0 +1,62 @@
+{
+  "suite": "accounting",
+  "minScore": 85,
+  "outputDir": ".proofloop/runs",
+  "memoryFile": ".proofloop/memory.jsonl",
+  "steps": [
+    {
+      "name": "build",
+      "cmd": "npm run build",
+      "required": true,
+      "timeoutMs": 180000
+    },
+    {
+      "name": "agent-ui-contract",
+      "cmd": "npx playwright test --config=playwright.proofloop.config.ts accounting/scenarios/accounting-ui-contract.spec.ts --reporter=line",
+      "required": true,
+      "timeoutMs": 120000
+    },
+    {
+      "name": "seed-accounting-data",
+      "cmd": "npx tsx proofloop/accounting/seed-datasets.ts",
+      "required": true,
+      "timeoutMs": 30000
+    },
+    {
+      "name": "noderoom-accounting-ui",
+      "cmd": "npx playwright test --config=playwright.proofloop.config.ts accounting/scenarios/noderoom-accounting.spec.ts --reporter=line",
+      "required": true,
+      "timeoutMs": 120000
+    },
+    {
+      "name": "nodebench-accounting-report",
+      "cmd": "npx playwright test --config=playwright.proofloop.config.ts accounting/scenarios/nodebench-accounting-report.spec.ts --reporter=line",
+      "required": true,
+      "timeoutMs": 120000
+    },
+    {
+      "name": "fr-a1-bank-reconciliation-packet",
+      "cmd": "npx playwright test --config=playwright.proofloop.config.ts accounting/scenarios/fr-a1-bank-reconciliation.spec.ts --reporter=line",
+      "required": true,
+      "timeoutMs": 180000
+    },
+    {
+      "name": "accounting-benchmark-checks",
+      "cmd": "npx tsx proofloop/accounting/run-benchmarks.ts",
+      "required": true,
+      "timeoutMs": 60000
+    },
+    {
+      "name": "visual-design-review",
+      "cmd": "npx tsx proofloop/adapters/visual-judge.ts --suite=accounting",
+      "required": true,
+      "timeoutMs": 120000
+    },
+    {
+      "name": "noderl-export",
+      "cmd": "npx tsx proofloop/adapters/export-rl-trace.ts --suite=accounting",
+      "required": true,
+      "timeoutMs": 30000
+    }
+  ]
+}

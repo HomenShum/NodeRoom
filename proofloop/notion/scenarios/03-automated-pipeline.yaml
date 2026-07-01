@@ -1,0 +1,17 @@
+id: automated-pipeline
+goal: Manage 30 prospects and recommend next actions.
+app_flow:
+  - open NodeRoom pipeline table
+  - detect stale prospects
+  - detect trigger events
+  - assign next action
+  - create priority queue
+pass_criteria:
+  - every prospect has stage
+  - stale accounts are flagged
+  - trigger accounts are prioritized
+  - next action is visible
+  - reasoning/evidence is attached
+clip:
+  title: "Automated pipeline"
+  output: ".proofloop/runs/latest/clips/03-automated-pipeline.mp4"

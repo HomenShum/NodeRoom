@@ -1,0 +1,43 @@
+{
+  "ledger": [
+    {
+      "id": "l-001",
+      "date": "2026-06-01",
+      "description": "Client payment",
+      "amount": 5000
+    },
+    {
+      "id": "l-002",
+      "date": "2026-06-05",
+      "description": "Office rent",
+      "amount": -2000
+    },
+    {
+      "id": "l-003",
+      "date": "2026-06-10",
+      "description": "Software subscription",
+      "amount": -99
+    }
+  ],
+  "bankStatement": [
+    {
+      "id": "b-001",
+      "date": "2026-06-01",
+      "description": "Client payment",
+      "amount": 5000
+    },
+    {
+      "id": "b-002",
+      "date": "2026-06-05",
+      "description": "Office rent",
+      "amount": -2000
+    },
+    {
+      "id": "b-003",
+      "date": "2026-06-12",
+      "description": "Software subscription",
+      "amount": -99
+    }
+  ],
+  "expectedDiscrepancies": 1
+}

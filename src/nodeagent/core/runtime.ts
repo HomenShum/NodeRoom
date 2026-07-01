@@ -12,6 +12,7 @@ import { SYSTEM_PROMPT } from "../models/prompts/systemPrompt";
 import { buildContext } from "./worldModel";
 import { compactMessages, type CompactionOpts } from "./contextCompactor";
 import { evaluateBtbTaskCoverage } from "../../eval/btbTaskCoverage";
+import { executePlanAndDispatch, planAndDispatchSchema } from "./subagentDispatcher";
 import {
   blockedToolResult,
   runPostToolHooks,
@@ -450,6 +451,17 @@ export async function runAgent(opts: {
       result = blockedToolResult(prepared.blocked);
     } else if (!tool) {
       result = { ok: false, error: `unknown tool: ${activeCall.tool}`, failureKind: "unknown_tool" };
+    } else if (activeCall.tool === "plan_and_dispatch") {
+      const parsed = planAndDispatchSchema.safeParse(activeCall.args);
+      if (parsed.success) {
+        result = await executePlanAndDispatch(parsed.data, {
+          model, tools, rt, parentGoal: goal, parentStep: step, now,
+          deadlineAt, onTrace: opts.onTrace, onStreamEvent: emitStreamEvent,
+          systemPrompt: opts.systemPrompt, contextBuilder: opts.contextBuilder,
+        });
+      } else {
+        result = toolArgumentErrorResult("plan_and_dispatch", parsed.error.issues);
+      }
     } else {
       const parsed = tool.schema.safeParse(activeCall.args);
       try {

@@ -1,0 +1,26 @@
+id: financial-statement-qa
+category: financial_statement_qa
+goal: Answer financial questions from balance sheet, income statement, and cash flow statement.
+app_flow:
+  - upload financial statements to NodeRoom
+  - agent parses statements into structured data
+  - user asks financial questions
+  - agent answers with calculations and source references
+  - NodeBench validates answer accuracy
+pass_criteria:
+  - answers reference correct statement sections
+  - calculations are accurate
+  - source evidence attached per answer
+  - answers complete within 45s
+benchmark_refs:
+  - name: BizFinBench
+    source: academic
+    description: Real-world financial application benchmark
+  - name: FinTMMBench
+    source: academic
+    description: Temporal multimodal finance RAG
+dataset:
+  name: financial-statements-sample
+  source: local-fixture
+  task: statement_qa
+  license_checked: true

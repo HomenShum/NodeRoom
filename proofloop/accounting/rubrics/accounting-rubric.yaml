@@ -1,0 +1,59 @@
+# Accounting Proof-Loop Rubric
+
+> Evaluates whether NodeRoom + NodeBench can handle real accounting workflows
+> end-to-end with evidence, accuracy, and modern UI.
+
+## Categories
+
+### A1: Invoice/Receipt Extraction
+- **pass**: Vendor, total, and line items extracted with source evidence.
+- **fail**: Missing fields, wrong totals, or no source reference.
+
+### A2: Spreadsheet Reconciliation
+- **pass**: Matched/unmatched rows correct, discrepancies flagged with amounts.
+- **fail**: Wrong match count, missing discrepancies, or no evidence.
+
+### A3: Financial Statement QA
+- **pass**: Answers reference correct statement sections, calculations accurate.
+- **fail**: Wrong section, inaccurate calculation, or no source.
+
+### A4: Variance Analysis
+- **pass**: Variances calculated, top drivers identified, report with charts.
+- **fail**: Wrong variance, missing drivers, or no visual output.
+
+### A5: Report Generation
+- **pass**: Report is structured, includes evidence, and is exportable.
+- **fail**: Missing sections, no evidence, or not exportable.
+
+## Scoring
+
+- Each category: 0 (fail), 10 (partial), 20 (pass)
+- Max score: 100
+- Min score to pass: 85
+- Any category scoring 0 fails the entire run
+
+## UI/Design Checks
+
+### U1: Modern Design
+- App loads fast (LCP < 2s)
+- Primary action is obvious
+- One main job per screen
+- Loading/empty/error states present
+
+### U2: Accessibility (WCAG 2.2)
+- Color contrast meets AA
+- Keyboard navigation works
+- ARIA labels on interactive elements
+- Focus visible
+
+### U3: Mobile
+- Layout works at 375px width
+- Touch targets >= 44px
+- No horizontal scroll
+
+## Safety
+
+- Datasets must be pinned (no "latest" without version)
+- Evidence must be saved per result
+- Trace must be exported
+- Memory must be updated

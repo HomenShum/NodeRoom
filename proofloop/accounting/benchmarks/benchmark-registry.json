@@ -1,0 +1,83 @@
+{
+  "datasets": [
+    {
+      "name": "sample-invoices",
+      "source": "local-fixture",
+      "task": "invoice_extraction",
+      "license_checked": true,
+      "description": "5 sample invoices with known ground truth for extraction testing"
+    },
+    {
+      "name": "reconciliation-sample",
+      "source": "local-fixture",
+      "task": "reconciliation",
+      "license_checked": true,
+      "description": "Ledger and bank statement pair with known discrepancies"
+    },
+    {
+      "name": "financial-statements-sample",
+      "source": "local-fixture",
+      "task": "statement_qa",
+      "license_checked": true,
+      "description": "Balance sheet, income statement, cash flow with known Q&A pairs"
+    },
+    {
+      "name": "variance-sample",
+      "source": "local-fixture",
+      "task": "variance_analysis",
+      "license_checked": true,
+      "description": "Budget vs actuals with known variance drivers"
+    }
+  ],
+  "benchmarks": [
+    {
+      "name": "Finch",
+      "source": "academic",
+      "description": "Spreadsheet-centric finance/accounting workflows across messy enterprise spreadsheets",
+      "categories": ["finance_accounting_spreadsheet_workflow"],
+      "pinned": true
+    },
+    {
+      "name": "BizFinBench",
+      "source": "academic",
+      "description": "Real-world financial application benchmark: calculation, reasoning, extraction, prediction, QA",
+      "categories": ["financial_statement_qa"],
+      "pinned": true
+    },
+    {
+      "name": "FinTMMBench",
+      "source": "academic",
+      "description": "Temporal multimodal finance RAG",
+      "categories": ["temporal_finance_rag"],
+      "pinned": true
+    },
+    {
+      "name": "QuantEval",
+      "source": "academic",
+      "description": "Financial quantitative reasoning and coding",
+      "categories": ["quantitative_finance_reasoning"],
+      "pinned": true
+    },
+    {
+      "name": "FATURA",
+      "source": "academic",
+      "description": "10,000 annotated invoices across 50 layouts for invoice understanding",
+      "categories": ["invoice_receipt_extraction"],
+      "pinned": true
+    },
+    {
+      "name": "CORU",
+      "source": "academic",
+      "description": "Receipt OCR and receipt information extraction",
+      "categories": ["invoice_receipt_extraction"],
+      "pinned": true
+    },
+    {
+      "name": "AMuRD",
+      "source": "academic",
+      "description": "Annotated multi-receipt dataset for receipt understanding",
+      "categories": ["invoice_receipt_extraction"],
+      "pinned": true
+    }
+  ]
+}

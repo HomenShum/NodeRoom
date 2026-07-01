@@ -1,0 +1,63 @@
+{
+  "suite": "notion-sdr-bdr",
+  "minScore": 80,
+  "outputDir": ".proofloop/runs",
+  "memoryFile": ".proofloop/memory.jsonl",
+  "steps": [
+    {
+      "name": "build",
+      "cmd": "npm run build",
+      "required": true,
+      "timeoutMs": 180000
+    },
+    {
+      "name": "seed-notion-sdr-data",
+      "cmd": "npx tsx proofloop/notion/seed-datasets.ts",
+      "required": true,
+      "timeoutMs": 30000
+    },
+    {
+      "name": "scenario-1-warm-intro",
+      "cmd": "npx playwright test --config=playwright.proofloop.config.ts notion/scenarios/01-warm-intro.spec.ts --reporter=line",
+      "required": true,
+      "timeoutMs": 120000
+    },
+    {
+      "name": "scenario-2-follow-up",
+      "cmd": "npx playwright test --config=playwright.proofloop.config.ts notion/scenarios/02-follow-up.spec.ts --reporter=line",
+      "required": true,
+      "timeoutMs": 120000
+    },
+    {
+      "name": "scenario-3-automated-pipeline",
+      "cmd": "npx playwright test --config=playwright.proofloop.config.ts notion/scenarios/03-automated-pipeline.spec.ts --reporter=line",
+      "required": true,
+      "timeoutMs": 120000
+    },
+    {
+      "name": "scenario-4-meeting-prep",
+      "cmd": "npx playwright test --config=playwright.proofloop.config.ts notion/scenarios/04-meeting-prep.spec.ts --reporter=line",
+      "required": true,
+      "timeoutMs": 120000
+    },
+    {
+      "name": "visual-design-review",
+      "cmd": "npx tsx proofloop/adapters/visual-judge.ts --suite=notion",
+      "required": true,
+      "timeoutMs": 120000
+    },
+    {
+      "name": "generate-clips",
+      "cmd": "npx tsx proofloop/adapters/generate-clips.ts --suite=notion",
+      "required": false,
+      "timeoutMs": 300000,
+      "softFail": true
+    },
+    {
+      "name": "noderl-export",
+      "cmd": "npx tsx proofloop/adapters/export-rl-trace.ts --suite=notion",
+      "required": true,
+      "timeoutMs": 30000
+    }
+  ]
+}

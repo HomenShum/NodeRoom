@@ -1,0 +1,24 @@
+id: spreadsheet-reconciliation
+category: finance_accounting_spreadsheet_workflow
+goal: Reconcile two spreadsheets (ledger vs bank statement) and flag discrepancies.
+app_flow:
+  - upload ledger spreadsheet to NodeRoom
+  - upload bank statement spreadsheet
+  - agent performs reconciliation matching
+  - NodeBench validates matched/unmatched rows
+  - discrepancies highlighted with evidence
+pass_criteria:
+  - matched rows count correct
+  - unmatched rows flagged
+  - discrepancy amounts calculated
+  - source evidence attached per row
+  - reconciliation completes within 60s
+benchmark_refs:
+  - name: Finch
+    source: academic
+    description: Spreadsheet-centric finance/accounting workflows
+dataset:
+  name: reconciliation-sample
+  source: local-fixture
+  task: reconciliation
+  license_checked: true

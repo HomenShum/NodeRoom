@@ -1,0 +1,32 @@
+[
+  {
+    "id": "m-01",
+    "company": "Hooli",
+    "contact": "Gavin Belson",
+    "title": "CEO",
+    "industry": "Tech",
+    "size": 10000,
+    "date": "2026-07-01",
+    "knownChallenges": ["Scaling knowledge management across 10k employees", "Multiple legacy wiki systems"]
+  },
+  {
+    "id": "m-02",
+    "company": "Pied Piper",
+    "contact": "Richard Hendricks",
+    "title": "Founder/CEO",
+    "industry": "Compression Tech",
+    "size": 50,
+    "date": "2026-07-01",
+    "knownChallenges": ["Rapid team growth, no documentation culture", "Need to onboard fast while building"]
+  },
+  {
+    "id": "m-03",
+    "company": "Aviato",
+    "contact": "Erlich Bachman",
+    "title": "Founder",
+    "industry": "Incubator",
+    "size": 15,
+    "date": "2026-07-01",
+    "knownChallenges": ["Managing multiple portfolio companies", "Need shared workspace for portfolio ops"]
+  }
+]

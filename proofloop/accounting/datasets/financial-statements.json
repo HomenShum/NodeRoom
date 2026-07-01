@@ -1,0 +1,18 @@
+{
+  "balanceSheet": {
+    "assets": 150000,
+    "liabilities": 45000,
+    "equity": 105000
+  },
+  "incomeStatement": {
+    "revenue": 320000,
+    "expenses": 210000,
+    "netIncome": 110000
+  },
+  "cashFlow": {
+    "operating": 95000,
+    "investing": -30000,
+    "financing": -15000,
+    "net": 50000
+  }
+}
