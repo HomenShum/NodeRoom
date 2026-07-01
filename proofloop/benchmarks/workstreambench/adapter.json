@@ -10,6 +10,11 @@
   "seedInputsThroughUi": true,
   "browserScenario": "proofloop/benchmarks/workstreambench/browser-scenario.spec.ts",
   "verifierCommand": "proofloop/benchmarks/workstreambench/verify.ts",
+  "officialScorer": {
+    "name": "WorkstreamBench official scorer",
+    "required": true,
+    "unavailableReason": "WorkstreamBench live UI adapter and official scorer are registered as required but not implemented in this repo yet."
+  },
   "expectedArtifacts": [
     "live-user-contract.json",
     "node-trace-v2.json",
@@ -17,6 +22,9 @@
     "scorecard.md",
     "cost-ledger.json",
     "verifier-receipt.json",
+    "official-scorer-receipt.json",
+    "cockpit-events.jsonl",
+    "cockpit-snapshot.json",
     "visual-proof",
     "exported-files-reopen-proof.json"
   ],

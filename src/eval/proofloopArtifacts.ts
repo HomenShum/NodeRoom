@@ -29,6 +29,7 @@ export interface ProofLoopArtifactRun {
 
 export interface ProofLoopArtifactOptions {
   baseUrl?: string;
+  browserSessionId?: string;
 }
 
 export interface ProofLoopArtifactPaths {
@@ -58,7 +59,35 @@ const CANONICAL_OUTPUT_FILES = [
   "visual-review.json",
   "visual-review.md",
   "accounting-results.json",
+  "live-user-contract.json",
+  "verifier-receipt.json",
+  "official-scorer-receipt.json",
+  "exported-files-reopen-proof.json",
+  "cost-ledger.json",
+  "cockpit-events.jsonl",
+  "cockpit-snapshot.json",
 ];
+
+const PRODUCT_IDENTITY = {
+  name: "Proof Loop",
+  statement: "Proof Loop proves real agent work on real app UI, stores the proof in memory, and uses it to improve the next run.",
+  category: "production proof memory system",
+  command: "proofloop",
+  operatingLoop: "proof-looping",
+  proofObject: "NodeTrace v2",
+  rewardObject: "NodeEval",
+  memoryLayer: "NodeMem",
+  viewer: "Trace Storybook",
+  liveDashboard: "Cockpit",
+};
+
+const SCORE_POLICY = {
+  productPathCompletionField: "productPathCompletion",
+  officialSemanticScoreField: "officialSemanticScore",
+  rule: "Never claim an official benchmark score from product-path completion proof alone.",
+  productPathLabel: "100% product-path completion proof",
+  officialScoreLabel: "official semantic score",
+};
 
 export function writeProofLoopArtifacts(
   run: ProofLoopArtifactRun,
@@ -104,10 +133,27 @@ function buildNodeMergedTrajectory(
 
   return {
     schema: 2,
+    kind: "node_trace_v2_merged_trajectory",
+    productIdentity: PRODUCT_IDENTITY,
     trajectoryId: `traj-${run.runId}`,
     runId: run.runId,
     userGoal: `Run proof-loop suite ${run.suite}`,
+    mergeContract: {
+      requiredLayers: [
+        "inner_agent_trace",
+        "outer_browser_trace",
+        "artifact_state",
+        "evidence",
+        "visual_judge",
+        "task_verifier",
+        "cost_latency",
+        "reward",
+      ],
+      canonicalObject: "NodeTrace v2",
+      nodeRlTrajectory: true,
+    },
     outerTrace: {
+      browserSessionId: options.browserSessionId ?? `browser-${run.runId}`,
       url: options.baseUrl ?? "",
       screenshots,
       videoPath: firstExistingPath(outputDir, ["video.webm", "run-video.webm"]),
@@ -146,7 +192,9 @@ function buildNodeMergedTrajectory(
       exportPath: relativeOutputPath(outputDir, path),
       reopenPassed: true,
     })),
+    scorePolicy: SCORE_POLICY,
     reward,
+    failureCategories: reward.failureCategories,
   };
 }
 
@@ -154,9 +202,18 @@ function buildNodeEval(run: ProofLoopArtifactRun, outputDir: string, reward: Rew
   const failedSteps = run.steps.filter((step) => step.required && step.status !== "pass" && !step.softFail);
   return {
     schema: 1,
+    kind: "node_eval_v1",
+    productIdentity: PRODUCT_IDENTITY,
     runId: run.runId,
     suite: run.suite,
     generatedAt: new Date().toISOString(),
+    scorePolicy: {
+      ...SCORE_POLICY,
+      productPathCompletion: run.passed,
+      officialSemanticScore: null,
+      scoreType: "completion_not_official_semantic",
+      caveat: "This NodeEval score is a product-path proof reward unless an official scorer receipt is attached.",
+    },
     verifier: {
       hardPass: run.passed,
       minScore: run.minScore,
@@ -178,6 +235,7 @@ function buildNodeEval(run: ProofLoopArtifactRun, outputDir: string, reward: Rew
       ].filter((path) => existsSync(join(outputDir, path)) || path.includes("/")),
     },
     reward,
+    failureCategories: reward.failureCategories,
   };
 }
 

@@ -44,6 +44,11 @@ describe("proofloop loop artifacts", () => {
     writeFileSync(join(runDir, "trace.jsonl"), "{}\n", "utf-8");
     writeFileSync(join(runDir, "screenshots", "proof.png"), "fake screenshot", "utf-8");
     writeFileSync(join(runDir, "cost-ledger.json"), JSON.stringify({ costUsd: "0.00" }), "utf-8");
+    writeFileSync(join(runDir, "cockpit-events.jsonl"), JSON.stringify({ type: "gate_pass", gate: "fresh_browser_context" }) + "\n", "utf-8");
+    writeFileSync(join(runDir, "cockpit-snapshot.json"), JSON.stringify({ totalEvents: 1 }), "utf-8");
+    writeFileSync(join(runDir, "verifier-receipt.json"), JSON.stringify({ passed: true }), "utf-8");
+    writeFileSync(join(runDir, "official-scorer-receipt.json"), JSON.stringify({ passed: true }), "utf-8");
+    writeFileSync(join(runDir, "exported-files-reopen-proof.json"), JSON.stringify({ reopened: true }), "utf-8");
 
     const paths = writeLoopArtifactsForMeta({
       meta: fakeMeta(),
@@ -76,7 +81,13 @@ describe("proofloop loop artifacts", () => {
     expect(contract.productPathCompletion).toBe(true);
     expect(contract.officialSemanticScore).toBeNull();
     expect(contract.scoreType).toBe("completion_not_official_semantic");
+    expect(contract.caveat).toContain("official semantic score");
+    expect(contract.invalidIf).toContain("backend-only execution");
+    expect(contract.officialScorerReceiptWritten).toBe(true);
     expect(contract.gates.every((gate: { passed: boolean }) => gate.passed)).toBe(true);
+    expect(contract.gates.map((gate: { gate: string }) => gate.gate)).toContain("no_backend_only_execution");
+    expect(contract.gates.map((gate: { gate: string }) => gate.gate)).toContain("artifacts_exported_or_reopened");
+    expect(contract.gates.map((gate: { gate: string }) => gate.gate)).toContain("official_scorer_receipt_written");
 
     const storybook = readFileSync(paths.storybookPath, "utf-8");
     for (const atom of [
@@ -97,6 +108,33 @@ describe("proofloop loop artifacts", () => {
     const memory = readFileSync(paths.memoryPath ?? "", "utf-8");
     expect(memory).toContain("success_pattern");
     expect(memory).toContain("bankertoolbench");
+  });
+
+  it("invalidates strict benchmark claims that only have backend or seeded proof", () => {
+    const root = tempRoot();
+    const runDir = join(root, "run");
+    mkdirSync(runDir, { recursive: true });
+    writeFileSync(join(runDir, "scorecard.md"), "## Verdict: PASS\nScore: 100/100\n", "utf-8");
+    writeFileSync(join(runDir, "trace.jsonl"), "{}\n", "utf-8");
+    writeFileSync(join(runDir, "cost-ledger.json"), JSON.stringify({ costUsd: "0.00" }), "utf-8");
+
+    const paths = writeLoopArtifactsForMeta({
+      meta: fakeMeta({
+        suite: "bankertoolbench",
+        cmd: "npm run benchmark:bankertoolbench:proof --seeded final --backend-only",
+        receiptPaths: ["docs/eval/backend-receipt.json"],
+      }),
+      runDir,
+      baseUrl: "https://noderoom.live",
+      strictLiveUser: true,
+    });
+
+    const contract = JSON.parse(readFileSync(paths.liveUserContractPath, "utf-8"));
+    expect(contract.valid).toBe(false);
+    expect(contract.backendShortcutUsed).toBe(true);
+    expect(contract.gates.find((gate: { gate: string }) => gate.gate === "no_seeded_replay_room").passed).toBe(false);
+    expect(contract.gates.find((gate: { gate: string }) => gate.gate === "no_backend_only_execution").passed).toBe(false);
+    expect(contract.gates.find((gate: { gate: string }) => gate.gate === "visual_browser_proof_captured").passed).toBe(false);
   });
 });
 

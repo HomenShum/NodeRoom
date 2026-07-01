@@ -35,12 +35,16 @@
 import { spawnSync } from "node:child_process";
 import {
   existsSync,
+  appendFileSync,
+  copyFileSync,
   mkdirSync,
   readdirSync,
   readFileSync,
+  rmSync,
   statSync,
   writeFileSync,
 } from "node:fs";
+import { createRequire } from "node:module";
 import { dirname, join, resolve } from "node:path";
 import { writeLoopArtifactsForMeta } from "../src/eval/proofloopLoopArtifacts";
 
@@ -48,14 +52,35 @@ const ROOT = process.cwd();
 const PROOFLOOP_DIR = join(ROOT, ".proofloop");
 const CONFIG_PATH = join(PROOFLOOP_DIR, "config.json");
 const RUNS_DIR = join(PROOFLOOP_DIR, "runs");
-const MEMORY_PATH = join(PROOFLOOP_DIR, "memory.jsonl");
+const LEGACY_MEMORY_PATH = join(PROOFLOOP_DIR, "memory.jsonl");
+const MEMORY_DIR = join(PROOFLOOP_DIR, "memory");
+const MEMORY_PATH = join(MEMORY_DIR, "memory.jsonl");
+const MEMORY_INDEX_PATH = join(MEMORY_DIR, "index.db");
+const MEMORY_POLICY_PATH = join(MEMORY_DIR, "policies.json");
+const MEMORY_COMPACTED_DIR = join(MEMORY_DIR, "compacted");
 const REGRESSIONS_PATH = join(PROOFLOOP_DIR, "regressions.json");
+const requireFromCli = createRequire(import.meta.url);
 
 type SuiteConfig = {
   cmd: string;
   minScore?: number;
   kind?: "cli" | "browser";
   receiptGlob?: "live-cli" | "live-browser" | "none";
+};
+
+type BenchmarkAdapter = {
+  schema: 1;
+  id: string;
+  browserScenario?: string;
+  verifierCommand: string;
+  officialScorer?: {
+    name: string;
+    required: true;
+    command?: string;
+    receiptPath?: string;
+    unavailableReason?: string;
+  };
+  expectedArtifacts?: string[];
 };
 
 type ProofloopConfig = {
@@ -108,6 +133,19 @@ const DEFAULT_CONFIG: ProofloopConfig = {
   },
 };
 
+const DEFAULT_MEMORY_POLICY = {
+  schema: 1,
+  rawTraceRetentionDays: 30,
+  rawVideoRetentionDays: 7,
+  storeRawTranscripts: false,
+  screenshots: "path-only",
+  videos: "path-only",
+  scrubSecrets: true,
+  scrubPII: true,
+  cloudSync: false,
+  customerOwnedStorage: true,
+};
+
 function main(): void {
   const [command, ...args] = process.argv.slice(2);
   switch (command) {
@@ -134,7 +172,9 @@ function main(): void {
       return cmdEval(args[0]);
     case "mem":
       if (args[0] === "write") return cmdMemWrite(args[1]);
-      return usage(`unknown mem target: ${args[0] ?? ""}`);
+      return cmdMemory(args);
+    case "memory":
+      return cmdMemory(args);
     case "storybook":
       return cmdStorybook(args[0]);
     case "repair":
@@ -176,6 +216,13 @@ function usage(error?: string): void {
       "  rerun <runId>        alias for replay",
       "  eval [runId|latest]  write NodeTrace v2 and NodeEval",
       "  mem write [runId]    write run reward/failure to Proofloop memory",
+      "  memory init          create local memory store, retention policy, and compacted logs",
+      "  memory compact [runId|latest] compact a proof run into recall memory",
+      "  memory index         build local searchable memory index",
+      "  memory search <q>    search compacted local memory",
+      "  memory show <id>     show a memory entry by id or runId",
+      "  memory doctor        verify local memory policy and files",
+      "  memory export --redacted write a redacted memory export",
       "  storybook [runId]    write trace-storybook.html",
       "  repair [runId]       write/print repair-prompt.md",
       "  storyboard [runId]   write storyboard.json/md",
@@ -212,10 +259,7 @@ function cmdInit(): void {
       console.log(`proofloop: ${rel(CONFIG_PATH)} already up to date`);
     }
   }
-  if (!existsSync(MEMORY_PATH)) {
-    writeFileSync(MEMORY_PATH, "");
-    console.log(`proofloop: wrote ${rel(MEMORY_PATH)}`);
-  }
+  initMemoryStore();
   console.log("proofloop: initialized. Run `proofloop status` next.");
 }
 
@@ -257,28 +301,31 @@ function cmdStatus(): void {
 function cmdRun(suiteArg: string | undefined, extraArgs: string[] = []): void {
   const config = loadConfig();
   const suite = suiteArg ?? config.defaultSuite;
-  const suiteConfig = config.suites[suite];
+  const adapter = readBenchmarkAdapterIfExists(suite);
+  const suiteConfig = config.suites[suite] ?? suiteConfigForAdapter(adapter);
   if (!suiteConfig) {
-    console.error(`proofloop: unknown suite "${suite}". Known: ${Object.keys(config.suites).join(", ")}`);
+    console.error(`proofloop: unknown suite "${suite}". Known: ${knownSuites(config).join(", ")}`);
     process.exitCode = 1;
     return;
   }
 
-  const flags = parseRunFlags(extraArgs);
+  const flags = forceOfficialAdapterFlags(parseRunFlags(extraArgs), adapter);
   const runId = `${suite}-${new Date().toISOString().replace(/[:.]/g, "-")}`;
   const runDir = join(RUNS_DIR, runId);
   mkdirSync(runDir, { recursive: true });
 
-  const cmd = flags.cockpit ? `${suiteConfig.cmd} --cockpit` : suiteConfig.cmd;
+  const cmd = suiteConfig.cmd;
   const recordedCmd = [cmd, flags.prod ? "--prod" : "", flags.headed ? "--headed" : "", flags.userEmulationStrict ? "--user-emulation strict" : ""]
     .filter(Boolean)
     .join(" ");
-  const env: Record<string, string> = { ...process.env, PROOFLOOP_RUN_ID: runId };
+  const env: Record<string, string> = { ...process.env, PROOFLOOP_RUN_ID: runId, PROOFLOOP_RUN_DIR: runDir };
   if (flags.prod) env.VITE_CONVEX_URL = process.env.CONVEX_PROD_URL ?? "";
   if (flags.cockpit) env.PROOFLOOP_COCKPIT = "1";
   if (flags.userEmulationStrict) env.PROOFLOOP_USER_EMULATION = "strict";
+  if (suiteConfig.receiptGlob === "live-browser") env.PROOFLOOP_SUITE_PROOF_PATH = join(runDir, "verifier-receipt.json");
+  applyBenchmarkAdapterEnv(env, adapter, runDir, flags, recordedCmd);
 
-  console.log(`proofloop: running suite "${suite}"${flags.prod ? " --prod" : ""}${flags.headed ? " --headed" : ""}${flags.cockpit ? " --cockpit" : ""}${flags.userEmulationStrict ? " --user-emulation strict" : ""}`);
+  console.log(`proofloop: running suite "${suite}"${adapter ? " [official adapter]" : ""}${flags.prod ? " --prod" : ""}${flags.headed ? " --headed" : ""}${flags.cockpit ? " --cockpit" : ""}${flags.userEmulationStrict ? " --user-emulation strict" : ""}`);
   console.log(`proofloop: ${cmd}`);
   const startedAt = new Date().toISOString();
   const started = Date.now();
@@ -292,10 +339,12 @@ function cmdRun(suiteArg: string | undefined, extraArgs: string[] = []): void {
   const durationMs = Date.now() - started;
   const exitCode = result.status ?? 1;
 
-  const receipt = locateReceipt(suite, suiteConfig, runId);
-  const passed = exitCode === 0 && (receipt.passed ?? true);
+  const receipt = locateReceipt(suite, suiteConfig, runId, runDir);
+  hydrateRunArtifactsFromReceipts(runDir, receipt.receiptPaths);
+  const officialScorer = writeOfficialScorerReceipt({ adapter, suite, runDir });
+  const preContractPassed = exitCode === 0 && (receipt.passed ?? true) && officialScorer.passed;
 
-  writeCostLedger(runDir, { suite, runId, durationMs, exitCode, passed });
+  writeCostLedger(runDir, { suite, runId, durationMs, exitCode, passed: preContractPassed });
   writeCockpitSnapshot(runDir, runId);
 
   const meta: RunMeta = {
@@ -306,10 +355,13 @@ function cmdRun(suiteArg: string | undefined, extraArgs: string[] = []): void {
     finishedAt,
     durationMs,
     exitCode,
-    passed,
+    passed: preContractPassed,
     score: receipt.score,
     minScore: suiteConfig.minScore,
-    failedGates: receipt.failedGates,
+    failedGates: [
+      ...(receipt.failedGates ?? []),
+      ...officialScorer.failedGates,
+    ],
     receiptPaths: receipt.receiptPaths,
   };
   writeJson(join(runDir, "meta.json"), meta);
@@ -319,12 +371,30 @@ function cmdRun(suiteArg: string | undefined, extraArgs: string[] = []): void {
     baseUrl: baseUrlForRun(flags, recordedCmd),
     strictLiveUser: flags.userEmulationStrict,
   });
+  const contract = readJsonIfExists<{ valid?: boolean; gates?: Array<{ gate: string; passed: boolean }> }>(paths.liveUserContractPath);
+  const finalPassed = preContractPassed && contract?.valid === true;
+  if (finalPassed !== meta.passed) {
+    meta.passed = finalPassed;
+    meta.failedGates = [
+      ...(meta.failedGates ?? []),
+      ...((contract?.gates ?? []).filter((gate) => !gate.passed).map((gate) => gate.gate)),
+    ];
+    writeJson(join(runDir, "meta.json"), meta);
+    writeLoopArtifactsForMeta({
+      meta,
+      runDir,
+      baseUrl: baseUrlForRun(flags, recordedCmd),
+      strictLiveUser: flags.userEmulationStrict,
+    });
+  }
+  writeCostLedger(runDir, { suite, runId, durationMs, exitCode, passed: finalPassed });
   console.log("");
-  console.log(`proofloop: run recorded -- ${runId} (${passed ? "PASS" : "FAIL"})`);
+  console.log(`proofloop: run recorded -- ${runId} (${finalPassed ? "PASS" : "FAIL"})`);
   console.log(`proofloop: node trace -- ${rel(paths.nodeTracePath)}`);
   console.log(`proofloop: node eval  -- ${rel(paths.nodeEvalPath)}`);
   console.log(`proofloop: contract   -- ${rel(paths.liveUserContractPath)}`);
-  if (!passed) process.exitCode = 1;
+  console.log(`proofloop: official scorer -- ${rel(join(runDir, "official-scorer-receipt.json"))}`);
+  if (!finalPassed) process.exitCode = 1;
 }
 
 function cmdShow(runIdArg: string | undefined): void {
@@ -418,10 +488,157 @@ function cmdEval(runIdArg: string | undefined): void {
 }
 
 function cmdMemWrite(runIdArg: string | undefined): void {
+  initMemoryStore();
   const meta = requireRun(runIdArg);
   if (!meta) return;
   const paths = ensureLoopArtifacts(meta, { memoryPath: MEMORY_PATH });
   console.log(`proofloop: wrote memory entry to ${rel(paths.memoryPath ?? MEMORY_PATH)}`);
+}
+
+function cmdMemory(args: string[]): void {
+  const [target, ...rest] = args;
+  switch (target) {
+    case "init":
+    case undefined:
+      return cmdMemoryInit();
+    case "compact":
+      return cmdMemoryCompact(rest[0]);
+    case "index":
+      return cmdMemoryIndex();
+    case "search":
+      return cmdMemorySearch(rest.join(" "));
+    case "show":
+      return cmdMemoryShow(rest[0]);
+    case "doctor":
+      return cmdMemoryDoctor();
+    case "export":
+      return cmdMemoryExport(rest.includes("--redacted"));
+    default:
+      return usage(`unknown memory target: ${target}`);
+  }
+}
+
+function cmdMemoryInit(): void {
+  initMemoryStore();
+  console.log(`proofloop: memory initialized at ${rel(MEMORY_DIR)}`);
+}
+
+function cmdMemoryCompact(runIdArg: string | undefined): void {
+  initMemoryStore();
+  const meta = requireRun(runIdArg);
+  if (!meta) return;
+  const runDir = resolveRunDir(meta);
+  const paths = ensureLoopArtifacts(meta, { memoryPath: MEMORY_PATH });
+  const nodeEval = readJsonIfExists<{ reward?: unknown; verifier?: { failReasons?: string[] } }>(join(runDir, "node-eval.json"));
+  const episode = {
+    schema: 1,
+    id: `episode-${meta.runId}`,
+    runId: meta.runId,
+    traceId: `traj-${meta.runId}`,
+    suite: meta.suite,
+    passed: meta.passed,
+    reward: nodeEval?.reward ?? null,
+    receipts: meta.receiptPaths,
+    sourceTracePath: rel(paths.nodeTracePath),
+    compactedAt: new Date().toISOString(),
+  };
+  appendJsonl(join(MEMORY_COMPACTED_DIR, "episodes.jsonl"), episode);
+  if (!meta.passed) {
+    appendJsonl(join(MEMORY_COMPACTED_DIR, "failures.jsonl"), {
+      schema: 1,
+      id: `failure-${meta.runId}`,
+      runId: meta.runId,
+      traceId: `traj-${meta.runId}`,
+      suite: meta.suite,
+      failReasons: nodeEval?.verifier?.failReasons ?? meta.failedGates ?? [`exit ${meta.exitCode}`],
+      repairPromptPath: rel(paths.repairPromptPath),
+      writtenAt: new Date().toISOString(),
+    });
+  }
+  cmdMemoryIndex();
+  console.log(`proofloop: compacted ${meta.runId} into ${rel(MEMORY_COMPACTED_DIR)}`);
+}
+
+function cmdMemoryIndex(): void {
+  initMemoryStore();
+  const documents = loadMemoryDocuments();
+  const engine = writeMemoryIndex(documents);
+  console.log(`proofloop: indexed ${documents.length} memory document(s) at ${rel(MEMORY_INDEX_PATH)} (${engine})`);
+}
+
+function cmdMemorySearch(query: string): void {
+  initMemoryStore();
+  if (!query.trim()) {
+    console.error("proofloop: usage: proofloop memory search <query>");
+    process.exitCode = 1;
+    return;
+  }
+  if (!existsSync(MEMORY_INDEX_PATH)) cmdMemoryIndex();
+  const hits = searchMemoryIndex(query);
+  for (const hit of hits) {
+    console.log(`${hit.id} score=${hit.score} run=${hit.runId ?? "unknown"} source=${hit.source}`);
+    console.log(`  ${hit.textPreview.replace(/\s+/g, " ")}`);
+  }
+  if (!hits.length) console.log("proofloop: no memory hits");
+}
+
+function cmdMemoryShow(id: string | undefined): void {
+  initMemoryStore();
+  if (!id) {
+    console.error("proofloop: usage: proofloop memory show <id-or-runId>");
+    process.exitCode = 1;
+    return;
+  }
+  const doc = loadMemoryDocuments().find((entry) => entry.id === id || entry.runId === id);
+  if (!doc) {
+    console.error(`proofloop: memory entry not found: ${id}`);
+    process.exitCode = 1;
+    return;
+  }
+  console.log(doc.text);
+}
+
+function cmdMemoryDoctor(): void {
+  initMemoryStore();
+  const required = [
+    MEMORY_INDEX_PATH,
+    MEMORY_PATH,
+    join(MEMORY_COMPACTED_DIR, "episodes.jsonl"),
+    join(MEMORY_COMPACTED_DIR, "failures.jsonl"),
+    join(MEMORY_COMPACTED_DIR, "scaffold-deltas.jsonl"),
+    join(MEMORY_COMPACTED_DIR, "model-deltas.jsonl"),
+    join(MEMORY_DIR, "redaction.log"),
+    MEMORY_POLICY_PATH,
+  ];
+  const missing = required.filter((path) => !existsSync(path));
+  const policy = readJsonIfExists<typeof DEFAULT_MEMORY_POLICY>(MEMORY_POLICY_PATH);
+  const policyErrors: string[] = [];
+  if (policy?.cloudSync !== false) policyErrors.push("cloudSync must default to false");
+  if (policy?.storeRawTranscripts !== false) policyErrors.push("storeRawTranscripts must default to false");
+  if (policy?.scrubSecrets !== true) policyErrors.push("scrubSecrets must default to true");
+  if (policy?.scrubPII !== true) policyErrors.push("scrubPII must default to true");
+  if (missing.length || policyErrors.length) {
+    console.error("proofloop: memory doctor FAIL");
+    for (const path of missing) console.error(`  missing ${rel(path)}`);
+    for (const error of policyErrors) console.error(`  ${error}`);
+    process.exitCode = 1;
+    return;
+  }
+  console.log("proofloop: memory doctor PASS");
+}
+
+function cmdMemoryExport(redacted: boolean): void {
+  initMemoryStore();
+  if (!redacted) {
+    console.error("proofloop: only redacted memory export is supported; pass --redacted");
+    process.exitCode = 1;
+    return;
+  }
+  const output = join(MEMORY_DIR, "export-redacted.jsonl");
+  const lines = loadMemoryDocuments().map((doc) => redactText(doc.text));
+  writeFileSync(output, `${lines.join("\n")}${lines.length ? "\n" : ""}`, "utf8");
+  appendFileSync(join(MEMORY_DIR, "redaction.log"), `${new Date().toISOString()} export-redacted count=${lines.length}\n`, "utf8");
+  console.log(`proofloop: wrote ${rel(output)}`);
 }
 
 function cmdStorybook(runIdArg: string | undefined): void {
@@ -523,6 +740,431 @@ function cmdExportRl(runIdArg: string | undefined): void {
     shell: process.platform === "win32",
   });
   process.exitCode = result.status ?? 1;
+}
+
+// ---------------------------------------------------------------------------
+
+function readBenchmarkAdapterIfExists(suite: string): BenchmarkAdapter | undefined {
+  const path = join(ROOT, "proofloop", "benchmarks", suite, "adapter.json");
+  if (!existsSync(path)) return undefined;
+  return JSON.parse(readFileSync(path, "utf8")) as BenchmarkAdapter;
+}
+
+function suiteConfigForAdapter(adapter: BenchmarkAdapter | undefined): SuiteConfig | undefined {
+  if (!adapter) return undefined;
+  return {
+    cmd: `npm run proofloop:live:adapter -- ${adapter.id}`,
+    minScore: 100,
+    kind: "browser",
+    receiptGlob: "live-browser",
+  };
+}
+
+function knownSuites(config: ProofloopConfig): string[] {
+  const configured = Object.keys(config.suites);
+  const benchmarkDir = join(ROOT, "proofloop", "benchmarks");
+  if (!existsSync(benchmarkDir)) return configured;
+  const adapters = readdirSync(benchmarkDir, { withFileTypes: true })
+    .filter((entry) => entry.isDirectory() && existsSync(join(benchmarkDir, entry.name, "adapter.json")))
+    .map((entry) => entry.name);
+  return [...new Set([...configured, ...adapters])].sort();
+}
+
+function forceOfficialAdapterFlags(flags: RunFlags, adapter: BenchmarkAdapter | undefined): RunFlags {
+  if (!adapter) return flags;
+  return {
+    ...flags,
+    prod: true,
+    cockpit: true,
+    userEmulationStrict: true,
+  };
+}
+
+function applyBenchmarkAdapterEnv(
+  env: Record<string, string>,
+  adapter: BenchmarkAdapter | undefined,
+  runDir: string,
+  flags: RunFlags,
+  recordedCmd: string,
+): void {
+  if (!adapter) return;
+  const baseUrl = baseUrlForRun(flags, recordedCmd);
+  env.PROOFLOOP_OFFICIAL_ADAPTER = adapter.id;
+  env.PROOFLOOP_COCKPIT = "1";
+  env.PROOFLOOP_USER_EMULATION = "strict";
+  env.PLAYWRIGHT_BASE_URL = baseUrl;
+  env.BENCH_BASE_URL = baseUrl;
+  if (adapter.id === "bankertoolbench") {
+    env.BTB_LIVE_ROOM_E2E = "1";
+    env.BTB_UI_VERIFIER_COMMAND = env.BTB_UI_VERIFIER_COMMAND || adapter.verifierCommand;
+    env.BTB_LIVE_ROOM_PROOF_PATH = join(runDir, "verifier-receipt.json");
+    env.BTB_FRESH_ROOM_PROOF_PATH = join(runDir, "fresh-room-proof.json");
+    env.BTB_PACKAGE_MANIFEST_PATH = join(runDir, "exported-files-reopen-proof.json");
+  }
+}
+
+function writeOfficialScorerReceipt(args: {
+  adapter: BenchmarkAdapter | undefined;
+  suite: string;
+  runDir: string;
+}): { passed: boolean; failedGates: string[] } {
+  const { adapter, runDir, suite } = args;
+  const receiptPath = join(runDir, "official-scorer-receipt.json");
+  if (!adapter) {
+    writeJson(receiptPath, {
+      schema: 1,
+      required: true,
+      status: "blocked",
+      passed: false,
+      benchmark: suite,
+      generatedAt: new Date().toISOString(),
+      blocker: "No official benchmark adapter is registered for this suite.",
+    });
+    return { passed: false, failedGates: ["official_scorer_unregistered"] };
+  }
+  const scorer = adapter.officialScorer;
+  if (!scorer?.command) {
+    writeJson(receiptPath, {
+      schema: 1,
+      required: true,
+      status: "blocked",
+      passed: false,
+      benchmark: adapter.id,
+      scorerName: scorer?.name ?? "official scorer",
+      generatedAt: new Date().toISOString(),
+      blocker: scorer?.unavailableReason ?? "Official scorer command is not configured.",
+    });
+    return { passed: false, failedGates: ["official_scorer_unavailable"] };
+  }
+
+  const sourceReceipt = scorer.receiptPath ? join(runDir, "official-scorer-source-receipt.json") : undefined;
+  const command = sourceReceipt ? `${scorer.command} --json-out ${quoteShellArg(sourceReceipt)}` : scorer.command;
+  const startedAt = new Date().toISOString();
+  const started = Date.now();
+  const result = spawnSync(command, {
+    cwd: ROOT,
+    shell: true,
+    encoding: "utf8",
+    env: {
+      ...process.env,
+      PROOFLOOP_OFFICIAL_SCORER_RECEIPT_PATH: receiptPath,
+      ...(sourceReceipt ? { PROOFLOOP_OFFICIAL_SCORER_SOURCE_RECEIPT_PATH: sourceReceipt } : {}),
+    },
+  });
+  const exitCode = result.status ?? 1;
+  const sourceReceiptJson = sourceReceipt ? readJsonIfExists<unknown>(sourceReceipt) : null;
+  const passed = exitCode === 0 && (!sourceReceipt || sourceReceiptJson !== null) && officialSourceReceiptPassed(sourceReceiptJson);
+  writeJson(receiptPath, {
+    schema: 1,
+    required: true,
+    status: passed ? "pass" : "fail",
+    passed,
+    benchmark: adapter.id,
+    scorerName: scorer.name,
+    command,
+    startedAt,
+    finishedAt: new Date().toISOString(),
+    durationMs: Date.now() - started,
+    exitCode,
+    sourceReceiptPath: sourceReceipt ? rel(sourceReceipt) : undefined,
+    sourceReceipt: sourceReceiptJson,
+    stdoutTail: String(result.stdout ?? "").slice(-4000),
+    stderrTail: String(result.stderr ?? "").slice(-4000),
+  });
+  return { passed, failedGates: passed ? [] : ["official_scorer_failed"] };
+}
+
+function quoteShellArg(value: string): string {
+  if (process.platform === "win32") return `"${value.replace(/"/g, '\\"')}"`;
+  return `'${value.replace(/'/g, "'\\''")}'`;
+}
+
+function officialSourceReceiptPassed(receipt: unknown): boolean {
+  if (!receipt || typeof receipt !== "object") return true;
+  const record = receipt as { pass?: unknown; passed?: unknown; status?: unknown };
+  if (typeof record.pass === "boolean") return record.pass;
+  if (typeof record.passed === "boolean") return record.passed;
+  if (typeof record.status === "string") return /pass|ready|green/i.test(record.status);
+  return true;
+}
+
+function hydrateRunArtifactsFromReceipts(runDir: string, receiptPaths: string[]): void {
+  for (const receiptPath of receiptPaths) {
+    const absolute = resolve(ROOT, receiptPath);
+    const receipt = readJsonIfExists<{
+      screenshot?: string;
+      ui?: { screenshotPaths?: string[] };
+      packageManifestPath?: string;
+      artifacts?: {
+        exportedFiles?: Array<{ path?: string; reopened?: boolean; filename?: string; extension?: string }>;
+        reopenedFiles?: Array<{ reopened?: boolean; filename?: string; detail?: string }>;
+      };
+      scorer?: unknown;
+    }>(absolute);
+    if (!receipt) continue;
+    if (!existsSync(join(runDir, "verifier-receipt.json"))) copyJsonOrFile(absolute, join(runDir, "verifier-receipt.json"));
+
+    const screenshots = [
+      receipt.screenshot,
+      ...(receipt.ui?.screenshotPaths ?? []),
+    ].filter((path): path is string => Boolean(path));
+    if (screenshots.length) {
+      const screenshotsDir = join(runDir, "screenshots");
+      mkdirSync(screenshotsDir, { recursive: true });
+      for (const screenshot of screenshots) {
+        const source = resolve(ROOT, screenshot);
+        if (existsSync(source)) copyFileSync(source, join(screenshotsDir, `${Date.now()}-${source.split(/[\\/]/).pop() ?? "proof.png"}`));
+      }
+    }
+
+    if (!existsSync(join(runDir, "exported-files-reopen-proof.json"))) {
+      const manifestSource = receipt.packageManifestPath ? resolve(ROOT, receipt.packageManifestPath) : undefined;
+      if (manifestSource && existsSync(manifestSource)) {
+        copyJsonOrFile(manifestSource, join(runDir, "exported-files-reopen-proof.json"));
+      } else if (receipt.artifacts?.exportedFiles || receipt.artifacts?.reopenedFiles) {
+        writeJson(join(runDir, "exported-files-reopen-proof.json"), {
+          schema: 1,
+          exportedFiles: receipt.artifacts.exportedFiles ?? [],
+          reopenedFiles: receipt.artifacts.reopenedFiles ?? [],
+          allReopened: (receipt.artifacts.reopenedFiles ?? []).every((file) => file.reopened !== false),
+        });
+      }
+    }
+  }
+}
+
+function copyJsonOrFile(source: string, destination: string): void {
+  mkdirSync(dirname(destination), { recursive: true });
+  try {
+    const parsed = JSON.parse(readFileSync(source, "utf8"));
+    writeJson(destination, parsed);
+  } catch {
+    copyFileSync(source, destination);
+  }
+}
+
+// ---------------------------------------------------------------------------
+
+function initMemoryStore(): void {
+  mkdirSync(MEMORY_DIR, { recursive: true });
+  mkdirSync(MEMORY_COMPACTED_DIR, { recursive: true });
+  for (const path of [
+    MEMORY_PATH,
+    join(MEMORY_COMPACTED_DIR, "episodes.jsonl"),
+    join(MEMORY_COMPACTED_DIR, "failures.jsonl"),
+    join(MEMORY_COMPACTED_DIR, "scaffold-deltas.jsonl"),
+    join(MEMORY_COMPACTED_DIR, "model-deltas.jsonl"),
+    join(MEMORY_DIR, "redaction.log"),
+  ]) {
+    if (!existsSync(path)) writeFileSync(path, "", "utf8");
+  }
+  if (!existsSync(MEMORY_POLICY_PATH)) writeJson(MEMORY_POLICY_PATH, DEFAULT_MEMORY_POLICY);
+  if (existsSync(LEGACY_MEMORY_PATH) && statSync(LEGACY_MEMORY_PATH).size > 0 && statSync(MEMORY_PATH).size === 0) {
+    writeFileSync(MEMORY_PATH, readFileSync(LEGACY_MEMORY_PATH, "utf8"), "utf8");
+  }
+  if (!existsSync(MEMORY_INDEX_PATH)) writeMemoryIndex([]);
+}
+
+function appendJsonl(path: string, value: unknown): void {
+  mkdirSync(dirname(path), { recursive: true });
+  appendFileSync(path, `${JSON.stringify(value)}\n`, "utf8");
+}
+
+function loadMemoryDocuments(): Array<{ id: string; runId?: string; source: string; text: string }> {
+  const paths = [
+    MEMORY_PATH,
+    join(MEMORY_COMPACTED_DIR, "episodes.jsonl"),
+    join(MEMORY_COMPACTED_DIR, "failures.jsonl"),
+    join(MEMORY_COMPACTED_DIR, "scaffold-deltas.jsonl"),
+    join(MEMORY_COMPACTED_DIR, "model-deltas.jsonl"),
+  ];
+  const docs: Array<{ id: string; runId?: string; source: string; text: string }> = [];
+  for (const path of paths) {
+    if (!existsSync(path)) continue;
+    const lines = readFileSync(path, "utf8").split("\n").filter((line) => line.trim().length > 0);
+    for (let i = 0; i < lines.length; i++) {
+      const raw = lines[i];
+      const parsed = parseJsonLine(raw);
+      const runId = parsed && typeof parsed === "object" && "runId" in parsed ? String((parsed as { runId?: unknown }).runId ?? "") : undefined;
+      const explicitId = parsed && typeof parsed === "object" && "id" in parsed ? String((parsed as { id?: unknown }).id ?? "") : undefined;
+      docs.push({
+        id: explicitId || runId || `${rel(path)}#${i + 1}`,
+        runId,
+        source: path,
+        text: raw,
+      });
+    }
+  }
+  return docs;
+}
+
+type MemorySearchHit = {
+  id: string;
+  runId?: string;
+  source: string;
+  textPreview: string;
+  score: number;
+};
+
+type SqliteStatement = {
+  run: (...args: unknown[]) => unknown;
+  all: (...args: unknown[]) => Array<Record<string, unknown>>;
+};
+
+type SqliteDatabase = {
+  exec: (sql: string) => unknown;
+  prepare: (sql: string) => SqliteStatement;
+  close: () => void;
+};
+
+function writeMemoryIndex(documents: Array<{ id: string; runId?: string; source: string; text: string }>): string {
+  const db = openMemorySqlite(true);
+  if (!db) {
+    writeJsonMemoryIndex(documents);
+    return "local-jsonl-inverted-index";
+  }
+  try {
+    db.exec(`
+      CREATE TABLE IF NOT EXISTS meta (key TEXT PRIMARY KEY, value TEXT NOT NULL);
+      CREATE TABLE IF NOT EXISTS documents (
+        id TEXT PRIMARY KEY,
+        runId TEXT,
+        source TEXT NOT NULL,
+        text TEXT NOT NULL,
+        tokens TEXT NOT NULL
+      );
+      CREATE VIRTUAL TABLE IF NOT EXISTS documents_fts USING fts5(id UNINDEXED, runId UNINDEXED, source UNINDEXED, text);
+      DELETE FROM documents;
+      DELETE FROM documents_fts;
+      DELETE FROM meta;
+    `);
+    const insertDoc = db.prepare("INSERT INTO documents (id, runId, source, text, tokens) VALUES (?, ?, ?, ?, ?)");
+    const insertFts = db.prepare("INSERT INTO documents_fts (id, runId, source, text) VALUES (?, ?, ?, ?)");
+    for (const doc of documents) {
+      const source = rel(doc.source);
+      const tokens = [...new Set(tokenize(doc.text))].sort().join(" ");
+      insertDoc.run(doc.id, doc.runId ?? null, source, doc.text, tokens);
+      insertFts.run(doc.id, doc.runId ?? null, source, doc.text);
+    }
+    db.prepare("INSERT INTO meta (key, value) VALUES (?, ?)").run("engine", "sqlite-fts5");
+    db.prepare("INSERT INTO meta (key, value) VALUES (?, ?)").run("generatedAt", new Date().toISOString());
+    db.close();
+    return "sqlite-fts5";
+  } catch {
+    db.close();
+    writeJsonMemoryIndex(documents);
+    return "local-jsonl-inverted-index";
+  }
+}
+
+function searchMemoryIndex(query: string): MemorySearchHit[] {
+  const db = openMemorySqlite(false);
+  const fts = ftsQuery(query);
+  if (db && fts) {
+    try {
+      const rows = db.prepare(`
+        SELECT id, runId, source, snippet(documents_fts, 3, '[', ']', ' ... ', 18) AS textPreview, bm25(documents_fts) AS rank
+        FROM documents_fts
+        WHERE documents_fts MATCH ?
+        ORDER BY rank
+        LIMIT 10
+      `).all(fts);
+      db.close();
+      return rows.map((row) => ({
+        id: String(row.id ?? ""),
+        runId: row.runId === null || row.runId === undefined ? undefined : String(row.runId),
+        source: String(row.source ?? ""),
+        textPreview: String(row.textPreview ?? ""),
+        score: Math.max(0, Math.round(Math.abs(Number(row.rank ?? 0)) * 1000) / 1000),
+      }));
+    } catch {
+      db.close();
+    }
+  } else if (db) {
+    db.close();
+  }
+  return searchJsonMemoryIndex(query);
+}
+
+function openMemorySqlite(resetInvalid: boolean): SqliteDatabase | null {
+  try {
+    const sqlite = requireFromCli("node:sqlite") as { DatabaseSync: new (path: string) => SqliteDatabase };
+    if (resetInvalid && existsSync(MEMORY_INDEX_PATH) && statSync(MEMORY_INDEX_PATH).size > 0 && !looksLikeSqlite(MEMORY_INDEX_PATH)) {
+      rmSync(MEMORY_INDEX_PATH, { force: true });
+    }
+    return new sqlite.DatabaseSync(MEMORY_INDEX_PATH);
+  } catch {
+    return null;
+  }
+}
+
+function looksLikeSqlite(path: string): boolean {
+  try {
+    return readFileSync(path).subarray(0, 16).toString("utf8").startsWith("SQLite format 3");
+  } catch {
+    return false;
+  }
+}
+
+function writeJsonMemoryIndex(documents: Array<{ id: string; runId?: string; source: string; text: string }>): void {
+  const index = {
+    schema: 1,
+    engine: "local-jsonl-inverted-index",
+    note: "Fallback index for runtimes without node:sqlite. The primary memory index is SQLite FTS5.",
+    generatedAt: new Date().toISOString(),
+    documents: documents.map((doc) => ({
+      id: doc.id,
+      runId: doc.runId,
+      source: rel(doc.source),
+      tokens: [...new Set(tokenize(doc.text))].sort(),
+      textPreview: doc.text.slice(0, 280),
+    })),
+  };
+  writeJson(MEMORY_INDEX_PATH, index);
+}
+
+function searchJsonMemoryIndex(query: string): MemorySearchHit[] {
+  const index = readJsonIfExists<{ documents?: Array<{ id: string; runId?: string; source: string; tokens: string[]; textPreview: string }> }>(MEMORY_INDEX_PATH);
+  const queryTokens = new Set(tokenize(query));
+  return (index?.documents ?? [])
+    .map((doc) => ({
+      ...doc,
+      score: doc.tokens.reduce((sum, token) => sum + (queryTokens.has(token) ? 1 : 0), 0),
+    }))
+    .filter((doc) => doc.score > 0)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 10);
+}
+
+function ftsQuery(value: string): string {
+  return tokenize(value)
+    .map((token) => token.replace(/[^a-z0-9_]/g, ""))
+    .filter(Boolean)
+    .map((token) => `"${token}"`)
+    .join(" OR ");
+}
+
+function parseJsonLine(value: string): unknown | null {
+  try {
+    return JSON.parse(value);
+  } catch {
+    return null;
+  }
+}
+
+function tokenize(value: string): string[] {
+  return value
+    .toLowerCase()
+    .replace(/[^a-z0-9_:\-./]+/g, " ")
+    .split(/\s+/)
+    .filter((token) => token.length >= 3 && token.length <= 80);
+}
+
+function redactText(value: string): string {
+  return value
+    .replace(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi, "[redacted-email]")
+    .replace(/\b(?:sk|pk|rk|ghp|github_pat|xox[baprs])-?[A-Za-z0-9_=-]{12,}\b/g, "[redacted-secret]")
+    .replace(/\b\d{3}[-.\s]?\d{2}[-.\s]?\d{4}\b/g, "[redacted-ssn]");
 }
 
 // ---------------------------------------------------------------------------
@@ -699,6 +1341,7 @@ function locateReceipt(
   suite: string,
   suiteConfig: SuiteConfig,
   runId: string,
+  runDir: string,
 ): { passed?: boolean; score?: number; failedGates?: string[]; receiptPaths: string[] } {
   if (suiteConfig.receiptGlob === "live-cli") {
     const liveRoot = join(PROOFLOOP_DIR, "live");
@@ -717,8 +1360,12 @@ function locateReceipt(
     };
   }
   if (suiteConfig.receiptGlob === "live-browser") {
-    const suiteReceiptPath = resolve(ROOT, "docs/eval/proofloop-live-room-proof.json");
-    if (!existsSync(suiteReceiptPath)) return { receiptPaths: [] };
+    const candidateReceipts = [
+      join(runDir, "verifier-receipt.json"),
+      join(runDir, "fresh-room-proof.json"),
+    ].filter(Boolean);
+    const suiteReceiptPath = candidateReceipts.find((path) => existsSync(path));
+    if (!suiteReceiptPath) return { receiptPaths: [] };
     const receipt = JSON.parse(readFileSync(suiteReceiptPath, "utf8"));
     const failedGates = ((receipt.scorer?.details?.taskProofs ?? []) as Array<{ taskId: string; passed: boolean }>)
       .filter((t) => !t.passed)
@@ -821,7 +1468,7 @@ type CockpitSnapshot = {
 };
 
 function writeCockpitSnapshot(runDir: string, runId: string): void {
-  const eventsPath = join(runDir, "events.jsonl");
+  const eventsPath = firstExistingPath(runDir, ["cockpit-events.jsonl", "events.jsonl"]);
   if (!existsSync(eventsPath)) {
     writeJson(join(runDir, "cockpit-snapshot.json"), { runId, capturedAt: new Date().toISOString(), totalEvents: 0, gateResults: [], signals: [] } satisfies CockpitSnapshot);
     return;
@@ -849,6 +1496,10 @@ function writeCockpitSnapshot(runDir: string, runId: string): void {
     signals,
   };
   writeJson(join(runDir, "cockpit-snapshot.json"), snapshot);
+}
+
+function firstExistingPath(root: string, names: string[]): string {
+  return names.map((name) => join(root, name)).find((path) => existsSync(path)) ?? join(root, names[0]);
 }
 
 main();

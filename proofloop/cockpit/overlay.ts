@@ -42,7 +42,7 @@ export type CockpitOptions = {
 };
 
 export function cockpitEventsPath(runId: string): string {
-  return join(resolve(process.cwd(), ".proofloop", "runs", runId), "events.jsonl");
+  return join(resolve(process.cwd(), ".proofloop", "runs", runId), "cockpit-events.jsonl");
 }
 
 export async function installCockpit(page: Page, options: CockpitOptions): Promise<void> {

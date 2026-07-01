@@ -14,6 +14,11 @@
   "seedInputsThroughUi": true,
   "browserScenario": "proofloop/benchmarks/finauditing/browser-scenario.spec.ts",
   "verifierCommand": "proofloop/benchmarks/finauditing/verify.ts",
+  "officialScorer": {
+    "name": "FinAuditing official scorer",
+    "required": true,
+    "unavailableReason": "FinAuditing live UI adapter and official scorer are registered as required but not implemented in this repo yet."
+  },
   "expectedArtifacts": [
     "live-user-contract.json",
     "node-trace-v2.json",
@@ -21,6 +26,9 @@
     "scorecard.md",
     "cost-ledger.json",
     "verifier-receipt.json",
+    "official-scorer-receipt.json",
+    "cockpit-events.jsonl",
+    "cockpit-snapshot.json",
     "visual-proof",
     "exported-files-reopen-proof.json"
   ],
@@ -31,4 +39,3 @@
   ],
   "liveUserCommand": "npm run proofloop -- run finauditing --prod --user-emulation strict --cockpit"
 }
-

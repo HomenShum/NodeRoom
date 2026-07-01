@@ -13,6 +13,13 @@ export type ProofloopBenchmarkAdapter = {
   seedInputsThroughUi: boolean;
   browserScenario: string;
   verifierCommand: string;
+  officialScorer: {
+    name: string;
+    required: true;
+    command?: string;
+    receiptPath?: string;
+    unavailableReason?: string;
+  };
   expectedArtifacts: string[];
   scoringMode: "completion" | "semantic" | "hybrid";
   scoreFields: Array<"productPathCompletion" | "officialSemanticScore">;
@@ -26,6 +33,10 @@ const REQUIRED_LIVE_USER_ARTIFACTS = [
   "scorecard.md",
   "cost-ledger.json",
   "verifier-receipt.json",
+  "official-scorer-receipt.json",
+  "cockpit-events.jsonl",
+  "cockpit-snapshot.json",
+  "exported-files-reopen-proof.json",
 ];
 
 export function readBenchmarkAdapter(id: BenchmarkAdapterId, root = process.cwd()): ProofloopBenchmarkAdapter {
@@ -47,6 +58,11 @@ export function validateBenchmarkAdapter(adapter: ProofloopBenchmarkAdapter): st
   if (adapter.schema !== 1) errors.push(`${adapter.id}: schema must be 1`);
   if (!BENCHMARK_ADAPTER_IDS.includes(adapter.id)) errors.push(`${adapter.id}: unknown adapter id`);
   if (!adapter.seedInputsThroughUi) errors.push(`${adapter.id}: benchmark inputs must be seeded through the UI`);
+  if (adapter.officialScorer?.required !== true) errors.push(`${adapter.id}: official scorer must be required`);
+  if (!adapter.officialScorer?.name) errors.push(`${adapter.id}: official scorer name is required`);
+  if (!adapter.officialScorer?.command && !adapter.officialScorer?.unavailableReason) {
+    errors.push(`${adapter.id}: official scorer must define command or unavailableReason`);
+  }
   if (!adapter.liveUserCommand.includes("--prod")) errors.push(`${adapter.id}: live command must include --prod`);
   if (!adapter.liveUserCommand.includes("--cockpit")) errors.push(`${adapter.id}: live command must include --cockpit`);
   if (!/--user-emulation(?:=|\s+)strict/.test(adapter.liveUserCommand)) errors.push(`${adapter.id}: live command must use strict user emulation`);

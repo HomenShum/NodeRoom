@@ -4,7 +4,10 @@ import { buildBankerToolBenchOfficialContract } from "../src/eval/bankerToolBenc
 
 const args = process.argv.slice(2);
 const strict = args.includes("--strict");
-const jsonOut = optionValue("--json-out") ?? "docs/eval/bankertoolbench-official-contract.json";
+const jsonOut =
+  optionValue("--json-out") ??
+  process.env.PROOFLOOP_OFFICIAL_SCORER_SOURCE_RECEIPT_PATH ??
+  "docs/eval/bankertoolbench-official-contract.json";
 
 const report = buildBankerToolBenchOfficialContract({
   generatedAt: new Date().toISOString(),
@@ -23,11 +26,13 @@ console.log(`BankerToolBench official contract: ${report.status} (${report.block
 if (strict && !report.pass) process.exitCode = 1;
 
 function optionValue(name: string): string | undefined {
-  const index = args.indexOf(name);
-  if (index >= 0) return args[index + 1];
   const prefix = `${name}=`;
-  const found = args.find((arg) => arg.startsWith(prefix));
-  return found?.slice(prefix.length);
+  let value: string | undefined;
+  for (let index = 0; index < args.length; index += 1) {
+    if (args[index] === name && args[index + 1]) value = args[index + 1];
+    else if (args[index].startsWith(prefix)) value = args[index].slice(prefix.length);
+  }
+  return value;
 }
 
 function listOption(name: string): string[] {

@@ -10,6 +10,12 @@
   "seedInputsThroughUi": true,
   "browserScenario": "e2e/benchmark-ui-bankertoolbench.spec.ts",
   "verifierCommand": "npm run benchmark:bankertoolbench:proof",
+  "officialScorer": {
+    "name": "BankerToolBench Gandalf official scorer",
+    "required": true,
+    "command": "npm run benchmark:bankertoolbench:official-contract -- --strict",
+    "receiptPath": "docs/eval/bankertoolbench-official-contract.json"
+  },
   "expectedArtifacts": [
     "live-user-contract.json",
     "node-trace-v2.json",
@@ -17,6 +23,8 @@
     "scorecard.md",
     "cost-ledger.json",
     "verifier-receipt.json",
+    "official-scorer-receipt.json",
+    "cockpit-events.jsonl",
     "cockpit-snapshot.json",
     "exported-files-reopen-proof.json"
   ],
@@ -27,4 +35,3 @@
   ],
   "liveUserCommand": "npm run proofloop -- run bankertoolbench --prod --user-emulation strict --cockpit"
 }
-

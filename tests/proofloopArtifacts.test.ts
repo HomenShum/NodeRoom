@@ -64,11 +64,21 @@ describe("writeProofLoopArtifacts", () => {
 
     const nodeTrace = JSON.parse(readFileSync(paths.nodeTracePath, "utf-8"));
     expect(nodeTrace.schema).toBe(2);
+    expect(nodeTrace.kind).toBe("node_trace_v2_merged_trajectory");
+    expect(nodeTrace.productIdentity.statement).toContain("real agent work on real app UI");
+    expect(nodeTrace.mergeContract.requiredLayers).toContain("outer_browser_trace");
+    expect(nodeTrace.outerTrace.browserSessionId).toBe("browser-run-001");
+    expect(nodeTrace.scorePolicy.officialSemanticScoreField).toBe("officialSemanticScore");
     expect(nodeTrace.outerTrace.screenshots).toHaveLength(1);
     expect(nodeTrace.innerTrace.steps[1]).toMatchObject({ action: "scenario", phase: "repair" });
     expect(nodeTrace.reward.failureCategories).toContain("task_completion_failure");
+    expect(nodeTrace.failureCategories).toContain("task_completion_failure");
 
     const nodeEval = JSON.parse(readFileSync(paths.nodeEvalPath, "utf-8"));
+    expect(nodeEval.kind).toBe("node_eval_v1");
+    expect(nodeEval.scorePolicy.productPathCompletion).toBe(false);
+    expect(nodeEval.scorePolicy.officialSemanticScore).toBeNull();
+    expect(nodeEval.scorePolicy.caveat).toContain("official scorer receipt");
     expect(nodeEval.verifier.hardPass).toBe(false);
     expect(nodeEval.reward.total).toBeLessThan(1);
 

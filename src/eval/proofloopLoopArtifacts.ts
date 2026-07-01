@@ -57,17 +57,20 @@ const LIVE_USER_GATES = [
   "fresh_browser_context",
   "no_seeded_replay_room",
   "no_memory_mode_shortcut",
+  "no_preloaded_final_artifacts",
+  "no_direct_db_artifact_injection",
+  "no_backend_only_execution",
+  "no_api_only_task_execution",
   "user_lands_on_public_ui",
   "user_creates_or_joins_fresh_workspace",
   "benchmark_inputs_uploaded_through_ui",
   "agent_invoked_through_user_visible_ui",
   "streaming_or_progress_visible",
-  "focus_or_attention_overlay_visible",
   "trace_or_worklog_visible",
   "artifacts_generated_by_agent",
-  "artifacts_exported_or_downloaded",
-  "artifacts_reopened_successfully",
-  "official_or_task_verifier_runs",
+  "artifacts_exported_or_reopened",
+  "verifier_or_judge_runs",
+  "official_scorer_receipt_written",
   "visual_browser_proof_captured",
   "cost_latency_recorded",
   "node_trace_v2_exported",
@@ -83,6 +86,14 @@ const LAGGING_LAYER_BY_FAILURE: Record<string, string> = {
   task_completion_failure: "model_reasoning",
   score_below_threshold: "verifier_feedback",
 };
+
+const PRODUCT_IDENTITY = {
+  name: "Proof Loop",
+  statement: "Proof Loop proves real agent work on real app UI, stores the proof in memory, and uses it to improve the next run.",
+  category: "production proof memory system",
+};
+
+const SCORE_CAVEAT = "Product-path completion is not an official semantic score unless an official scorer receipt is attached.";
 
 export function writeLoopArtifactsForMeta(args: {
   meta: ProofloopMetaForLoop;
@@ -159,17 +170,50 @@ export function writeLiveUserContract(args: {
   strictLiveUser?: boolean;
 }): string {
   const { meta, runDir, baseUrl = "", strictLiveUser = false } = args;
-  const browserLike = /browser|btb|banker|live/i.test(`${meta.suite} ${meta.cmd}`);
+  const browserLike = /browser|btb|banker|live|playwright|headed|ui/i.test(`${meta.suite} ${meta.cmd}`);
   const prodLike = /^https?:\/\//.test(baseUrl) || /--prod|live/i.test(meta.cmd);
+  const shortcutText = `${meta.suite} ${meta.cmd} ${meta.failedGates?.join(" ") ?? ""}`.toLowerCase();
+  const visualProofPaths = visualProofs(runDir);
+  const hasCockpitEvents = fileHasBytes(join(runDir, "cockpit-events.jsonl")) || fileHasBytes(join(runDir, "events.jsonl"));
+  const hasCockpitSnapshot = cockpitSnapshotHasEvents(runDir);
+  const hasReopenProof = ["exported-files-reopen-proof.json", "artifact-reopen-proof.json", "package-manifest.json"].some((name) =>
+    existsSync(join(runDir, name)),
+  );
+  const hasVerifierReceipt = meta.receiptPaths.length > 0 || existsSync(join(runDir, "verifier-receipt.json"));
+  const hasTrace = hasVerifierReceipt || hasCockpitEvents;
+  const hasArtifacts = hasAgentArtifactProof(runDir);
+  const hasVerifier = hasVerifierReceipt || existsSync(join(runDir, "visual-review.json"));
+  const hasOfficialScorerReceipt = existsSync(join(runDir, "official-scorer-receipt.json"));
+  const hasCost = existsSync(join(runDir, "cost-ledger.json"));
+  const hasConsoleErrors = readConsoleErrors(runDir).length > 0;
+  const backendShortcut = !browserLike || /backend-only|api-only|direct db|direct-db|db injection|db-injection/.test(shortcutText);
+  const apiShortcut = /api-only|backend-only|direct api|fixture api/.test(shortcutText);
   const gateResults = LIVE_USER_GATES.map((gate) => {
-    let passed = true;
-    if (gate === "live_or_staging_prod_url") passed = prodLike;
-    if (gate === "fresh_browser_context") passed = browserLike || strictLiveUser;
-    if (gate === "no_memory_mode_shortcut") passed = !/mode=memory|memory-mode/i.test(meta.cmd);
-    if (gate === "benchmark_inputs_uploaded_through_ui") passed = browserLike;
-    if (gate === "visual_browser_proof_captured") passed = browserLike || hasAnyVisualProof(runDir);
-    if (gate === "node_trace_v2_exported") passed = existsSync(join(runDir, "node-trace-v2.json"));
-    if (gate === "proof_receipt_written") passed = meta.receiptPaths.length > 0 || existsSync(join(runDir, "run-result.json"));
+    let passed: boolean;
+    if (gate === "live_or_staging_prod_url") passed = prodLike && /^https?:\/\//.test(baseUrl);
+    else if (gate === "fresh_browser_context") passed = strictLiveUser && (hasCockpitEvents || hasCockpitSnapshot);
+    else if (gate === "no_seeded_replay_room") passed = !/seeded replay|seeded final|replay room|fixture room|golden room/.test(shortcutText);
+    else if (gate === "no_memory_mode_shortcut") passed = !/mode=memory|memory-mode|memory shortcut|cached final/.test(shortcutText);
+    else if (gate === "no_preloaded_final_artifacts") passed = !/preloaded final|preload final|golden answer|golden artifact|fixture output/.test(shortcutText);
+    else if (gate === "no_direct_db_artifact_injection") passed = !/direct db|direct-db|db injection|db-injection|artifact injection/.test(shortcutText);
+    else if (gate === "no_backend_only_execution") passed = !backendShortcut;
+    else if (gate === "no_api_only_task_execution") passed = !apiShortcut;
+    else if (gate === "user_lands_on_public_ui") passed = browserLike && /^https?:\/\//.test(baseUrl) && (visualProofPaths.length > 0 || hasCockpitEvents || hasCockpitSnapshot);
+    else if (gate === "user_creates_or_joins_fresh_workspace") passed = browserLike && (hasCockpitEvents || meta.receiptPaths.some((path) => /room|workspace|fresh/i.test(path)));
+    else if (gate === "benchmark_inputs_uploaded_through_ui") passed = browserLike && !backendShortcut && hasVerifierReceipt;
+    else if (gate === "agent_invoked_through_user_visible_ui") passed = browserLike && !backendShortcut && hasVerifierReceipt;
+    else if (gate === "streaming_or_progress_visible") passed = hasCockpitEvents || hasCockpitSnapshot;
+    else if (gate === "trace_or_worklog_visible") passed = hasTrace;
+    else if (gate === "artifacts_generated_by_agent") passed = hasArtifacts;
+    else if (gate === "artifacts_exported_or_reopened") passed = hasReopenProof;
+    else if (gate === "verifier_or_judge_runs") passed = hasVerifier;
+    else if (gate === "official_scorer_receipt_written") passed = hasOfficialScorerReceipt;
+    else if (gate === "visual_browser_proof_captured") passed = visualProofPaths.length > 0;
+    else if (gate === "cost_latency_recorded") passed = hasCost;
+    else if (gate === "node_trace_v2_exported") passed = existsSync(join(runDir, "node-trace-v2.json"));
+    else if (gate === "proof_receipt_written") passed = hasVerifierReceipt;
+    else if (gate === "no_unexpected_console_or_page_errors") passed = !hasConsoleErrors;
+    else passed = false;
     return {
       gate,
       passed: strictLiveUser ? passed : (passed || !prodLike),
@@ -178,6 +222,7 @@ export function writeLiveUserContract(args: {
   });
   const contract = {
     schema: 1,
+    productIdentity: PRODUCT_IDENTITY,
     benchmark: meta.suite,
     app: "noderoom",
     baseUrl,
@@ -187,15 +232,29 @@ export function writeLiveUserContract(args: {
     inputMode: browserLike ? "browser_upload" : "unknown_or_cli",
     agentInvocation: browserLike ? "public_ui" : "unknown_or_cli",
     memoryShortcutUsed: /mode=memory|memory-mode/i.test(meta.cmd),
-    backendShortcutUsed: !browserLike,
+    backendShortcutUsed: backendShortcut,
+    apiShortcutUsed: apiShortcut,
     visibleStreaming: gateResults.find((g) => g.gate === "streaming_or_progress_visible")?.passed ?? false,
     visualProofCaptured: gateResults.find((g) => g.gate === "visual_browser_proof_captured")?.passed ?? false,
-    artifactsReopened: gateResults.find((g) => g.gate === "artifacts_reopened_successfully")?.passed ?? false,
+    artifactsReopened: gateResults.find((g) => g.gate === "artifacts_exported_or_reopened")?.passed ?? false,
     verifierReceiptWritten: gateResults.find((g) => g.gate === "proof_receipt_written")?.passed ?? false,
+    officialScorerReceiptWritten: gateResults.find((g) => g.gate === "official_scorer_receipt_written")?.passed ?? false,
     scoringMode: scoringModeForSuite(meta.suite),
     productPathCompletion: meta.passed,
     officialSemanticScore: null,
     scoreType: "completion_not_official_semantic",
+    caveat: SCORE_CAVEAT,
+    invalidIf: [
+      "seeded final evidence room",
+      "direct DB artifact injection as final proof",
+      "preloaded final artifacts",
+      "golden answer copy",
+      "backend-only execution",
+      "API-only task execution",
+      "missing screenshot/video",
+      "missing verifier receipt",
+      "missing official scorer receipt",
+    ],
     gates: gateResults,
     valid: meta.passed && gateResults.every((gate) => gate.passed),
   };
@@ -211,6 +270,8 @@ export function writeMemoryEntry(args: { meta: ProofloopMetaForLoop; runDir: str
     schema: 1,
     kind: meta.passed ? "success_pattern" : "failure_pattern",
     runId: meta.runId,
+    traceId: `traj-${meta.runId}`,
+    sourceTracePath: rel(dirname(memoryPath), join(runDir, "node-trace-v2.json")),
     suite: meta.suite,
     taskKind: taskKindForSuite(meta.suite),
     modelPolicy: "proofloop-recorded",
@@ -219,6 +280,16 @@ export function writeMemoryEntry(args: { meta: ProofloopMetaForLoop; runDir: str
     reward: nodeEval?.reward ?? null,
     repairAction: meta.passed ? "promote_as_regression_proof" : "inspect_repair_prompt_and_add_regression",
     receiptRefs: meta.receiptPaths,
+    retention: {
+      rawTraceRetentionDays: 30,
+      rawVideoRetentionDays: 7,
+      storeRawTranscripts: false,
+      screenshotsPathOnly: true,
+      videosPathOnly: true,
+      scrubSecrets: true,
+      scrubPII: true,
+      cloudSync: false,
+    },
     writtenAt: new Date().toISOString(),
   };
   mkdirSync(dirname(memoryPath), { recursive: true });
@@ -366,11 +437,74 @@ function evidenceForGate(gate: string, meta: ProofloopMetaForLoop, runDir: strin
   if (gate === "node_trace_v2_exported") return rel(runDir, join(runDir, "node-trace-v2.json"));
   if (gate === "proof_receipt_written") return meta.receiptPaths[0] ?? rel(runDir, join(runDir, "run-result.json"));
   if (gate === "cost_latency_recorded") return rel(runDir, join(runDir, "cost-ledger.json"));
+  if (gate === "streaming_or_progress_visible") {
+    return rel(runDir, firstExisting(runDir, ["cockpit-events.jsonl", "events.jsonl", "cockpit-snapshot.json"]) ?? join(runDir, "cockpit-events.jsonl"));
+  }
+  if (gate === "artifacts_exported_or_reopened") {
+    return rel(runDir, firstExisting(runDir, ["exported-files-reopen-proof.json", "artifact-reopen-proof.json", "package-manifest.json"]) ?? join(runDir, "exported-files-reopen-proof.json"));
+  }
+  if (gate === "visual_browser_proof_captured") return visualProofs(runDir)[0] ?? rel(runDir, join(runDir, "screenshots"));
+  if (gate === "verifier_or_judge_runs") {
+    return rel(runDir, firstExisting(runDir, ["verifier-receipt.json", "node-eval.json", "visual-review.json"]) ?? join(runDir, "verifier-receipt.json"));
+  }
+  if (gate === "official_scorer_receipt_written") return rel(runDir, join(runDir, "official-scorer-receipt.json"));
   return meta.receiptPaths[0] ?? meta.cmd;
 }
 
-function hasAnyVisualProof(runDir: string): boolean {
-  return existsSync(join(runDir, "screenshots")) || existsSync(join(runDir, "video.webm")) || existsSync(join(runDir, "run-video.webm"));
+function visualProofs(runDir: string): string[] {
+  const paths = ["video.webm", "run-video.webm"]
+    .map((name) => join(runDir, name))
+    .filter((path) => existsSync(path))
+    .map((path) => rel(runDir, path));
+  const screenshotDir = join(runDir, "screenshots");
+  if (existsSync(screenshotDir)) paths.push(rel(runDir, screenshotDir));
+  return paths;
+}
+
+function fileHasBytes(path: string): boolean {
+  try {
+    return existsSync(path) && readFileSync(path).byteLength > 0;
+  } catch {
+    return false;
+  }
+}
+
+function cockpitSnapshotHasEvents(runDir: string): boolean {
+  const snapshot = readJson<{ totalEvents?: number }>(join(runDir, "cockpit-snapshot.json"));
+  return (snapshot?.totalEvents ?? 0) > 0;
+}
+
+function hasAgentArtifactProof(runDir: string): boolean {
+  const receipt = readJson<{
+    artifacts?: {
+      created?: unknown[];
+      exportedFiles?: unknown[];
+      reopenedFiles?: unknown[];
+    };
+  }>(join(runDir, "verifier-receipt.json"));
+  if ((receipt?.artifacts?.created?.length ?? 0) > 0) return true;
+  if ((receipt?.artifacts?.exportedFiles?.length ?? 0) > 0) return true;
+  if ((receipt?.artifacts?.reopenedFiles?.length ?? 0) > 0) return true;
+  return ["accounting-results.json", "exported-files-reopen-proof.json", "artifact-reopen-proof.json", "package-manifest.json"].some((name) =>
+    existsSync(join(runDir, name)),
+  );
+}
+
+function firstExisting(runDir: string, names: string[]): string | undefined {
+  return names.map((name) => join(runDir, name)).find((path) => existsSync(path));
+}
+
+function readConsoleErrors(runDir: string): string[] {
+  const visualReview = readJson<{ checks?: Array<{ name?: string; status?: string; detail?: string }> }>(join(runDir, "visual-review.json"));
+  const visualErrors = visualReview?.checks
+    ?.filter((check) => check.status === "fail" && /console|page error|network/i.test(`${check.name ?? ""} ${check.detail ?? ""}`))
+    .map((check) => check.detail ?? check.name ?? "visual error") ?? [];
+  const nodeTrace = readJson<{ outerTrace?: { consoleErrors?: string[]; networkErrors?: string[] } }>(join(runDir, "node-trace-v2.json"));
+  return [
+    ...visualErrors,
+    ...(nodeTrace?.outerTrace?.consoleErrors ?? []),
+    ...(nodeTrace?.outerTrace?.networkErrors ?? []),
+  ];
 }
 
 function scoringModeForSuite(suite: string): "completion" | "semantic" | "hybrid" {

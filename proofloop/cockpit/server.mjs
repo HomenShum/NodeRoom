@@ -1,7 +1,7 @@
 /**
  * Proofloop Cockpit WebSocket server.
  *
- * Tails .proofloop/runs/<runId>/events.jsonl and pushes every event line to
+ * Tails .proofloop/runs/<runId>/cockpit-events.jsonl and pushes every event line to
  * connected WebSocket clients in real time.  This lets an external dashboard
  * (or a second browser tab) watch gates/signals live without being inside the
  * Playwright page.
@@ -32,7 +32,10 @@ function latestRunId() {
 }
 
 function eventsPath(runId) {
-  return join(RUNS_DIR, runId, "events.jsonl");
+  const runDir = join(RUNS_DIR, runId);
+  const canonical = join(runDir, "cockpit-events.jsonl");
+  const legacy = join(runDir, "events.jsonl");
+  return existsSync(canonical) || !existsSync(legacy) ? canonical : legacy;
 }
 
 function sendExistingEvents(ws, filePath) {

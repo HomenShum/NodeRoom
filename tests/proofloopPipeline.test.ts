@@ -198,6 +198,12 @@ describe("proofloop adapters", () => {
     for (const command of [
       'case "eval"',
       'case "mem"',
+      'case "memory"',
+      "memory init",
+      "memory compact",
+      "memory search",
+      "memory doctor",
+      "memory export --redacted",
       'case "storybook"',
       'case "repair"',
       'case "rerun"',
@@ -207,10 +213,22 @@ describe("proofloop adapters", () => {
       'case "lagging"',
       'case "router"',
       "writeLoopArtifactsForMeta",
+      "suiteConfigForAdapter",
+      "knownSuites(config)",
+      "official_scorer_unregistered",
       "--user-emulation strict",
     ]) {
       expect(content).toContain(command);
     }
+  });
+
+  it("live adapter wrapper resolves registered browser scenarios", () => {
+    const packageJson = readFileSync(join(process.cwd(), "package.json"), "utf-8");
+    const wrapper = readFileSync(join(process.cwd(), "scripts/proofloop-live-playwright.ts"), "utf-8");
+    expect(packageJson).toContain("proofloop:live:adapter");
+    expect(wrapper).toContain('suite === "adapter"');
+    expect(wrapper).toContain("adapter.browserScenario");
+    expect(wrapper).toContain("PROOFLOOP_BENCHMARK_ADAPTER");
   });
 
   it("strict live-user benchmark adapters exist", () => {
@@ -222,6 +240,10 @@ describe("proofloop adapters", () => {
       expect(adapter.liveUserCommand).toContain("--prod");
       expect(adapter.liveUserCommand).toContain("--user-emulation strict");
       expect(adapter.expectedArtifacts).toContain("live-user-contract.json");
+      expect(adapter.expectedArtifacts).toContain("official-scorer-receipt.json");
+      expect(adapter.expectedArtifacts).toContain("cockpit-events.jsonl");
+      expect(adapter.expectedArtifacts).toContain("cockpit-snapshot.json");
+      expect(adapter.expectedArtifacts).toContain("exported-files-reopen-proof.json");
       expect(adapter.scoreFields).toContain("productPathCompletion");
       expect(adapter.scoreFields).toContain("officialSemanticScore");
     }
