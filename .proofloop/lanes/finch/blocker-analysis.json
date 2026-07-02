@@ -1,0 +1,129 @@
+{
+  "schema": "proofloop-blocker-solver-v1",
+  "blockerId": "finch-official-score",
+  "suite": "finch",
+  "title": "Finch / FinWorkBench official score",
+  "generatedAt": "2026-07-02T20:46:40.277Z",
+  "phase": "solve",
+  "classes": [
+    "missing_judge_credentials",
+    "missing_official_scorer",
+    "missing_output_exporter",
+    "missing_task_bundle"
+  ],
+  "status": "needs_scaffold_or_run",
+  "externalBlockClaimAllowed": false,
+  "stopCondition": {
+    "setupAttempted": true,
+    "researchAttempted": true,
+    "scaffoldAttempted": true,
+    "doctorAttempted": true,
+    "resumeCommandWritten": true,
+    "allNonExternalPartsCompleted": false
+  },
+  "remainingExternalClasses": [
+    "missing_judge_credentials"
+  ],
+  "remainingLocalClasses": [
+    "missing_official_scorer",
+    "missing_output_exporter",
+    "missing_task_bundle"
+  ],
+  "blockers": [
+    "finch: official scorer receipt docs/eval/proofloop-official-scores/finch.json is blocked_external; scored receipt is still required before claiming score.",
+    "finch: official task bundle lock docs/eval/proofloop-official-task-bundles/finch.json is staged, but NodeRoom still needs one official-output artifact per Finch task id and an accepted upstream judge/scorer path; Azure OpenAI credentials are one path, while cheaper OpenRouter proxy judges are product-gate evidence only unless accepted upstream."
+  ],
+  "artifacts": {
+    "blocker-analysis.json": ".proofloop/lanes/finch/blocker-analysis.json",
+    "upstream-research.md": ".proofloop/lanes/finch/upstream-research.md",
+    "scaffold-plan.md": ".proofloop/lanes/finch/scaffold-plan.md",
+    "harness-version.json": ".proofloop/lanes/finch/harness-version.json",
+    "model-matrix.json": ".proofloop/lanes/finch/model-matrix.json",
+    "cost-ledger.json": ".proofloop/lanes/finch/cost-ledger.json",
+    "official-output-manifest.json": ".proofloop/lanes/finch/official-output-manifest.json",
+    "official-score-receipt.json": ".proofloop/lanes/finch/official-score-receipt.json",
+    "proxy-score-receipt.json": ".proofloop/lanes/finch/proxy-score-receipt.json",
+    "memory-write.json": ".proofloop/lanes/finch/memory-write.json"
+  },
+  "nextCommands": [
+    "emit NodeRoom outputs for every official Finch task id, run/import the accepted upstream Finch scorer or judge output, use npm run benchmark:proofloop:harness-economics for proxy triage, then npm run benchmark:proofloop:adapter-blockers -- --id finch --strict",
+    "npm run proofloop -- setup finch --doctor",
+    "npm run benchmark:proofloop:adapter-blockers -- --id finch",
+    "npm run proofloop -- blocker scaffold finch-official-score",
+    "npm run benchmark:proofloop:adapter-blockers -- --id finch --strict"
+  ],
+  "models": [
+    {
+      "provider": "openrouter",
+      "id": "deepseek/deepseek-v4-pro",
+      "routePolicy": "proxy",
+      "role": "planner",
+      "costUsd": 0,
+      "tokensIn": 0,
+      "tokensOut": 0,
+      "latencyMs": 0,
+      "selectionReason": "Candidate selected from OpenRouter tool-capable snapshot for finch proxy comparison.",
+      "source": "env"
+    },
+    {
+      "provider": "openrouter",
+      "id": "z-ai/glm-5.2",
+      "routePolicy": "specific",
+      "role": "planner",
+      "costUsd": 0,
+      "tokensIn": 0,
+      "tokensOut": 0,
+      "latencyMs": 0,
+      "selectionReason": "Candidate selected from OpenRouter tool-capable snapshot for finch proxy comparison.",
+      "source": "env"
+    },
+    {
+      "provider": "openrouter",
+      "id": "qwen/qwen3.6-flash",
+      "routePolicy": "specific",
+      "role": "planner",
+      "costUsd": 0,
+      "tokensIn": 0,
+      "tokensOut": 0,
+      "latencyMs": 0,
+      "selectionReason": "Candidate selected from OpenRouter tool-capable snapshot for finch proxy comparison.",
+      "source": "env"
+    },
+    {
+      "provider": "openrouter",
+      "id": "qwen/qwen3.6-35b-a3b",
+      "routePolicy": "specific",
+      "role": "planner",
+      "costUsd": 0,
+      "tokensIn": 0,
+      "tokensOut": 0,
+      "latencyMs": 0,
+      "selectionReason": "Candidate selected from OpenRouter tool-capable snapshot for finch proxy comparison.",
+      "source": "env"
+    },
+    {
+      "provider": "openai",
+      "id": "gpt-4.1-mini",
+      "routePolicy": "specific",
+      "role": "planner",
+      "costUsd": 0,
+      "tokensIn": 0,
+      "tokensOut": 0,
+      "latencyMs": 0,
+      "selectionReason": "Candidate selected from suite default matrix for finch; live metadata was not present in the local snapshot.",
+      "source": "suite-default"
+    },
+    {
+      "provider": "openrouter",
+      "id": "ibm-granite/granite-4.1-8b",
+      "routePolicy": "specific",
+      "role": "planner",
+      "costUsd": 0,
+      "tokensIn": 0,
+      "tokensOut": 0,
+      "latencyMs": 0,
+      "selectionReason": "Candidate selected from OpenRouter tool-capable snapshot for finch proxy comparison.",
+      "source": "env"
+    }
+  ]
+}

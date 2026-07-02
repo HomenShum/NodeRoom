@@ -1,0 +1,20 @@
+{
+  "schema": 1,
+  "suite": "spreadsheetbench-v1",
+  "blockerId": "spreadsheetbench-v1-full-official-score",
+  "generatedAt": "2026-07-02T20:46:40.266Z",
+  "status": "needs_scaffold_or_run",
+  "officialScoreClaimable": false,
+  "officialSemanticScore": null,
+  "acceptedProxyJudge": false,
+  "blockers": [
+    "Full public 912-task SpreadsheetBench V1 bundle is staged and deterministically scored: 912/912 tasks, 2,729 agent-visible workbooks, 2,729 evaluator answer workbooks, 95/912 copy-input baseline pass.",
+    "All 912 tasks need model-run evidence before strict official-score promotion; cheaper OpenRouter proxy judges can triage product quality but cannot replace the SpreadsheetBench workbook scorer for the official claim."
+  ],
+  "remainingLocalClasses": [
+    "missing_model_run",
+    "missing_official_scorer",
+    "missing_task_bundle"
+  ],
+  "remainingExternalClasses": []
+}

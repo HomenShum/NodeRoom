@@ -1,0 +1,19 @@
+{
+  "schema": 1,
+  "kind": "blocker_solver_memory",
+  "suite": "spreadsheetbench-v1",
+  "blockerId": "spreadsheetbench-v1-full-official-score",
+  "generatedAt": "2026-07-02T20:46:40.266Z",
+  "classes": [
+    "missing_model_run",
+    "missing_official_scorer",
+    "missing_task_bundle"
+  ],
+  "nextCommands": [
+    "run all 912 SpreadsheetBench V1 tasks through the model runner, use npm run benchmark:proofloop:harness-economics to select cheap proxy routes for product iteration, then npm run benchmark:official:task-coverage -- --strict",
+    "npm run benchmark:proofloop:harness-economics",
+    "npm run benchmark:spreadsheetbench:run-chunked -- --suite v1 --all --model deepseek/deepseek-v4-pro",
+    "npm run benchmark:official:task-coverage -- --strict"
+  ],
+  "lesson": "Do not declare external-blocked until setup, research, scaffold, doctor, model tracking, and resume evidence are written."
+}

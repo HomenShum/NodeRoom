@@ -1,0 +1,19 @@
+{
+  "schema": 1,
+  "suite": "workstreambench",
+  "generatedAt": "2026-07-02T20:46:40.290Z",
+  "status": "blocked_external",
+  "expectedOutputs": [
+    "upstream official task bundle lock",
+    "upstream rubric/scorer receipt",
+    "proxy suite receipt labeled proxy_only until upstream release exists"
+  ],
+  "currentEvidence": [
+    ".proofloop/setup/workstreambench-local-setup.json",
+    "proofloop/benchmarks/workstreambench/adapter.json",
+    "docs/eval/proofloop-external-adapter-runs/workstreambench.json",
+    "docs/eval/proofloop-adapter-blockers/workstreambench.json",
+    "docs/eval/proofloop-official-scores/workstreambench.json"
+  ],
+  "missingClasses": []
+}

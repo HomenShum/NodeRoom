@@ -1,0 +1,24 @@
+{
+  "schema": 1,
+  "suite": "bankertoolbench",
+  "blockerId": "bankertoolbench-official-score",
+  "generatedAt": "2026-07-02T20:47:13.457Z",
+  "status": "needs_scaffold_or_run",
+  "officialScoreClaimable": false,
+  "officialSemanticScore": null,
+  "acceptedProxyJudge": false,
+  "blockers": [
+    "Quality failure remains local model/harness work, not an external blocker.",
+    "Official sources checked for model/harness sweep context: https://github.com/Handshake-AI-Research/bankertoolbench, https://huggingface.co/datasets/handshake-ai-research/bankertoolbench.",
+    "Model/harness sweep artifact: failure clusters for 100 scored tasks.",
+    "Model/harness sweep artifact: model route matrix.",
+    "Model/harness sweep artifact: rerun receipt for promoted route.",
+    "Model/harness sweep work: cluster low-reward tasks by unmet criteria.",
+    "Model/harness sweep work: run model/harness sweep against existing scored gate.",
+    "Model/harness sweep work: promote best route only after score/cost receipt."
+  ],
+  "remainingLocalClasses": [
+    "harness_quality_failure"
+  ],
+  "remainingExternalClasses": []
+}

@@ -55,10 +55,27 @@ import {
   loadProofloopGoal,
   runNextProofloopGoalTask,
   superviseProofloopGoal,
+  officialScoresGoalTasks,
+  type ProofloopGoalTask,
 } from "../src/eval/proofloopGoalSupervisor";
 import { writeLoopArtifactsForMeta } from "../src/eval/proofloopLoopArtifacts";
 import { promoteProofloopRegression } from "../src/eval/proofloopRegressions";
 import { setupProofloopAdapter, setupReceiptPath } from "../src/eval/proofloopSetup";
+import {
+  compareProofloopModelsForSuite,
+  solveProofloopBlocker,
+  solveProofloopBlockers,
+  promoteProofloopHarnessForSuite,
+  type ProofloopBlockerSolvePhase,
+  type ProofloopBlockerTaskLike,
+} from "../src/eval/proofloopBlockerSolver";
+import {
+  assertProofloopModelTracked,
+  proofloopHarnessVersionForSuite,
+  proofloopModelRouteForRun,
+  type ProofloopHarnessVersion,
+  type ProofloopModelRoute,
+} from "../src/eval/proofloopModelTracking";
 
 const ROOT = process.cwd();
 const PROOFLOOP_DIR = join(ROOT, ".proofloop");
@@ -91,6 +108,8 @@ type RunMeta = {
   minScore?: number;
   failedGates?: string[];
   receiptPaths: string[];
+  model: ProofloopModelRoute;
+  harnessVersion: string;
 };
 
 const DEFAULT_CONFIG: ProofloopConfig = {
@@ -170,6 +189,14 @@ function main(): void {
     case "setup":
       void cmdSetup(args);
       return;
+    case "solve-blockers":
+      return cmdSolveBlockers(args);
+    case "blocker":
+      return cmdBlocker(args);
+    case "compare-models":
+      return cmdCompareModels(args);
+    case "promote-harness":
+      return cmdPromoteHarness(args);
     case "storybook":
       return cmdStorybook(args[0]);
     case "repair":
@@ -226,6 +253,10 @@ function usage(error?: string): void {
       "  memory export --redacted write a redacted compacted-memory export",
       "  memory doctor        verify local memory/index health",
       "  setup <adapter>      prepare local fixtures/adapters before proof runs",
+      "  solve-blockers --goal <goal-id> convert blocked lanes into scaffold/model-run artifacts",
+      "  blocker list|solve|research|scaffold|run inspect or advance one blocker",
+      "  compare-models <suite> write a model matrix for a suite",
+      "  promote-harness <suite> write/update harness-version.json for a suite",
       "  storybook [runId]    write trace-storybook.html",
       "  repair [runId]       write/print repair-prompt.md",
       "  storyboard [runId]   write storyboard.json/md",
@@ -345,9 +376,13 @@ function cmdRun(suiteArg: string | undefined, extraArgs: string[] = []): void {
   const receipt = locateReceipt(suite, suiteConfig, runId, started);
   const receiptRequired = suiteConfig.receiptGlob !== undefined && suiteConfig.receiptGlob !== "none";
   const receiptFresh = !receiptRequired || receipt.receiptPaths.length > 0;
-  const passed = exitCode === 0 && receiptFresh && (receipt.passed ?? true);
+  const model = proofloopModelRouteForRun({ suite, cmd: recordedCmd, env });
+  const modelTrackingFailures = assertProofloopModelTracked(model);
+  const harnessVersion = proofloopHarnessVersionForSuite(ROOT, suite);
+  const failedGates = [...(receipt.failedGates ?? []), ...modelTrackingFailures];
+  const passed = exitCode === 0 && receiptFresh && (receipt.passed ?? true) && modelTrackingFailures.length === 0;
 
-  writeCostLedger(runDir, { suite, runId, durationMs, exitCode, passed });
+  writeCostLedger(runDir, { suite, runId, durationMs, exitCode, passed, model, harnessVersion });
   writeCockpitSnapshot(runDir, runId);
 
   const meta: RunMeta = {
@@ -361,8 +396,10 @@ function cmdRun(suiteArg: string | undefined, extraArgs: string[] = []): void {
     passed,
     score: receipt.score,
     minScore: suiteConfig.minScore,
-    failedGates: receipt.failedGates,
+    failedGates,
     receiptPaths: receipt.receiptPaths,
+    model,
+    harnessVersion: harnessVersion.harnessVersion,
   };
   writeJson(join(runDir, "meta.json"), meta);
   const paths = writeLoopArtifactsForMeta({
@@ -507,6 +544,78 @@ async function cmdSetup(args: string[]): Promise<void> {
     if (hasFlag(rest, "--strict") && receipt.status !== "ready") process.exitCode = 1;
   } catch (error) {
     console.error(`proofloop setup: ${error instanceof Error ? error.message : String(error)}`);
+    process.exitCode = 1;
+  }
+}
+
+function cmdSolveBlockers(args: string[]): void {
+  const goalId = optionValueFromArgs(args, "--goal") ?? args[0] ?? "official-scores";
+  const phase = (optionValueFromArgs(args, "--phase") as ProofloopBlockerSolvePhase | undefined) ?? "solve";
+  try {
+    const blockers = blockerTasksForGoal(goalId);
+    const receipts = solveProofloopBlockers({ root: ROOT, tasks: blockers, phase });
+    console.log(`proofloop: solved ${receipts.length} blocker lane(s) for goal ${goalId}`);
+    for (const receipt of receipts) {
+      console.log(`  - ${receipt.blockerId}: ${receipt.status} (${receipt.classes.join(", ") || "unclassified"})`);
+      console.log(`    analysis: ${receipt.artifacts["blocker-analysis.json"]}`);
+      if (receipt.nextCommands[0]) console.log(`    next: ${receipt.nextCommands[0]}`);
+    }
+  } catch (error) {
+    console.error(`proofloop: ${error instanceof Error ? error.message : String(error)}`);
+    process.exitCode = 1;
+  }
+}
+
+function cmdBlocker(args: string[]): void {
+  const [subcommand, blockerId, ...rest] = args;
+  if (!subcommand) return usage("proofloop blocker requires list|solve|research|scaffold|run");
+  const goalId = optionValueFromArgs(rest, "--goal") ?? optionValueFromArgs(args, "--goal") ?? "official-scores";
+  try {
+    if (subcommand === "list") {
+      const blockers = blockerTasksForGoal(goalId);
+      for (const task of blockers) {
+        const receipt = solveProofloopBlocker({ root: ROOT, task, phase: "research" });
+        console.log(`${task.id}\t${receipt.status}\t${receipt.classes.join(",")}\t${receipt.artifacts["blocker-analysis.json"]}`);
+      }
+      return;
+    }
+    if (!blockerId) return usage(`proofloop blocker ${subcommand} requires <blocker-id>`);
+    const task = findBlockerTask(goalId, blockerId);
+    const phase = phaseForBlockerCommand(subcommand);
+    const receipt = solveProofloopBlocker({ root: ROOT, task, phase });
+    console.log(`${receipt.blockerId}: ${receipt.status}`);
+    console.log(`analysis: ${receipt.artifacts["blocker-analysis.json"]}`);
+    console.log(`models: ${receipt.models.map((model) => model.id).join(", ")}`);
+    if (receipt.nextCommands.length) {
+      console.log("next:");
+      for (const command of receipt.nextCommands) console.log(`  ${command}`);
+    }
+  } catch (error) {
+    console.error(`proofloop: ${error instanceof Error ? error.message : String(error)}`);
+    process.exitCode = 1;
+  }
+}
+
+function cmdCompareModels(args: string[]): void {
+  const suite = args[0];
+  if (!suite) return usage("proofloop compare-models requires <suite>");
+  try {
+    const path = compareProofloopModelsForSuite({ root: ROOT, suite });
+    console.log(`proofloop: model matrix ${rel(path)}`);
+  } catch (error) {
+    console.error(`proofloop: ${error instanceof Error ? error.message : String(error)}`);
+    process.exitCode = 1;
+  }
+}
+
+function cmdPromoteHarness(args: string[]): void {
+  const suite = args[0];
+  if (!suite) return usage("proofloop promote-harness requires <suite>");
+  try {
+    const path = promoteProofloopHarnessForSuite({ root: ROOT, suite });
+    console.log(`proofloop: harness version ${rel(path)}`);
+  } catch (error) {
+    console.error(`proofloop: ${error instanceof Error ? error.message : String(error)}`);
     process.exitCode = 1;
   }
 }
@@ -723,6 +832,40 @@ function mergeDefaultSuites(config: ProofloopConfig): number {
     }
   }
   return added;
+}
+
+function blockerTasksForGoal(goalId: string): ProofloopBlockerTaskLike[] {
+  let tasks: ProofloopGoalTask[];
+  try {
+    tasks = loadProofloopGoal(goalId, { root: ROOT }).tasks;
+  } catch {
+    if (goalId !== "official-scores") throw new Error(`Goal does not exist: ${goalId}`);
+    tasks = officialScoresGoalTasks();
+  }
+  return tasks
+    .filter((task) => task.kind === "external_blocker" || task.status === "blocked_external" || task.status === "needs_scaffold_or_run")
+    .map((task) => ({
+      id: task.id,
+      title: task.title,
+      blockers: task.blockers,
+      evidence: task.evidence,
+      resumeCommand: task.resumeCommand,
+    }));
+}
+
+function findBlockerTask(goalId: string, blockerId: string): ProofloopBlockerTaskLike {
+  const blockers = blockerTasksForGoal(goalId);
+  const task = blockers.find((candidate) => candidate.id === blockerId || candidate.id.includes(blockerId));
+  if (!task) throw new Error(`Blocker not found: ${blockerId}`);
+  return task;
+}
+
+function phaseForBlockerCommand(subcommand: string): ProofloopBlockerSolvePhase {
+  if (subcommand === "research") return "research";
+  if (subcommand === "scaffold") return "scaffold";
+  if (subcommand === "run") return "run";
+  if (subcommand === "solve") return "solve";
+  throw new Error(`unknown blocker command: ${subcommand}`);
 }
 
 function listRuns(): RunMeta[] {
@@ -1062,13 +1205,26 @@ type CostLedger = {
   passed: boolean;
   costUsd: string;
   note: string;
+  model: ProofloopModelRoute;
+  harnessVersion: ProofloopHarnessVersion;
 };
 
-function writeCostLedger(runDir: string, info: { suite: string; runId: string; durationMs: number; exitCode: number; passed: boolean }): void {
+function writeCostLedger(
+  runDir: string,
+  info: {
+    suite: string;
+    runId: string;
+    durationMs: number;
+    exitCode: number;
+    passed: boolean;
+    model: ProofloopModelRoute;
+    harnessVersion: ProofloopHarnessVersion;
+  },
+): void {
   const ledger: CostLedger = {
     ...info,
-    costUsd: "not exposed in UI",
-    note: "NodeRoom job-detail UI does not render dollar cost; cockpit signals track visible counters only.",
+    costUsd: String(info.model.costUsd),
+    note: "Model identity and harness version are always serialized; token/cost values remain zero unless the route reports usage.",
   };
   writeJson(join(runDir, "cost-ledger.json"), ledger);
 }

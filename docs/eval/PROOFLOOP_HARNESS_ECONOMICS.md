@@ -1,16 +1,16 @@
 # Proof Loop Harness Economics
 
-Generated: 2026-07-02T15:46:02.462Z
+Generated: 2026-07-02T20:46:55.504Z
 
 This ledger records harness/config versions and cheaper model routes for Proof Loop product gates while preserving official scorer boundaries.
 
 ## Summary
 
 - Package version: 0.1.1
-- Git commit: a904e2636c50cc793574e16e181b57c9df11bad6 (dirty)
-- Harness files tracked: 21
+- Git commit: 772ed699616c7b084392087e75a6aaaa4b6a32ec (dirty)
+- Harness files tracked: 23
 - Missing harness files: 0
-- OpenRouter candidates: 20
+- OpenRouter candidates: 25
 - Proxy judge candidates: 8
 - Cheaper proxy routes available: yes
 - Accepted official scorer still required for official claims: yes
@@ -29,27 +29,27 @@ This ledger records harness/config versions and cheaper model routes for Proof L
 
 | Rank | Model | Context | Input $/M | Output $/M | Score | Reasons |
 |---:|---|---:|---:|---:|---:|---|
-| 1 | `deepseek/deepseek-v4-pro` | 1048576 | 0.435 | 0.87 | 19.2 | tools; tool_choice; structured_outputs; 1M context; finance/proxy-judge candidate family |
-| 2 | `minimax/minimax-m3` | 1048576 | 0.3 | 1.2 | 19.0 | tools; tool_choice; structured_outputs; 1M context; finance/proxy-judge candidate family |
-| 3 | `google/gemini-3.1-flash-lite` | 1048576 | 0.25 | 1.5 | 18.7 | tools; tool_choice; structured_outputs; 1M context |
-| 4 | `qwen/qwen3.6-flash` | 1000000 | 0.1875 | 1.125 | 18.7 | tools; tool_choice; structured_outputs; 1M context; finance/proxy-judge candidate family |
-| 5 | `qwen/qwen3.7-plus` | 1000000 | 0.32 | 1.28 | 18.4 | tools; tool_choice; structured_outputs; 1M context; finance/proxy-judge candidate family |
-| 6 | `qwen/qwen3.5-plus-20260420` | 1000000 | 0.3 | 1.8 | 17.9 | tools; tool_choice; structured_outputs; 1M context; finance/proxy-judge candidate family |
-| 7 | `z-ai/glm-5.2` | 1048576 | 0.93 | 3 | 17.6 | tools; tool_choice; structured_outputs; 1M context; finance/proxy-judge candidate family |
-| 8 | `nvidia/nemotron-3-ultra-550b-a55b` | 1000000 | 0.5 | 2.2 | 17.3 | tools; tool_choice; structured_outputs; 1M context; finance/proxy-judge candidate family |
+| 1 | `deepseek/deepseek-v4-flash` | 1048576 | 0.089 | 0.18 | 20.2 | tools; tool_choice; structured_outputs; 1M context; finance/proxy-judge candidate family |
+| 2 | `deepseek/deepseek-v4-pro` | 1048576 | 0.435 | 0.87 | 19.2 | tools; tool_choice; structured_outputs; 1M context; finance/proxy-judge candidate family |
+| 3 | `xiaomi/mimo-v2.5-pro` | 1048576 | 0.435 | 0.87 | 19.2 | tools; tool_choice; structured_outputs; 1M context |
+| 4 | `minimax/minimax-m3` | 1048576 | 0.3 | 1.2 | 19.0 | tools; tool_choice; structured_outputs; 1M context; finance/proxy-judge candidate family |
+| 5 | `google/gemini-3.1-flash-lite` | 1048576 | 0.25 | 1.5 | 18.7 | tools; tool_choice; structured_outputs; 1M context |
+| 6 | `qwen/qwen3.6-flash` | 1000000 | 0.1875 | 1.125 | 18.7 | tools; tool_choice; structured_outputs; 1M context; finance/proxy-judge candidate family |
+| 7 | `qwen/qwen3.7-plus` | 1000000 | 0.32 | 1.28 | 18.4 | tools; tool_choice; structured_outputs; 1M context; finance/proxy-judge candidate family |
+| 8 | `qwen/qwen3.5-plus-20260420` | 1000000 | 0.3 | 1.8 | 17.9 | tools; tool_choice; structured_outputs; 1M context; finance/proxy-judge candidate family |
 
 ## Cheapest Tool Routes
 
 | Rank | Model | Context | Input $/M | Output $/M | Structured |
 |---:|---|---:|---:|---:|---:|
 | 1 | `ibm-granite/granite-4.1-8b` | 131072 | 0.05 | 0.1 | yes |
-| 2 | `poolside/laguna-xs.2` | 262144 | 0.1 | 0.2 | no |
-| 3 | `poolside/laguna-m.1` | 262144 | 0.2 | 0.4 | no |
-| 4 | `inclusionai/ring-2.6-1t` | 262144 | 0.075 | 0.625 | no |
-| 5 | `qwen/qwen3.6-35b-a3b` | 262144 | 0.14 | 1 | yes |
-| 6 | `deepseek/deepseek-v4-pro` | 1048576 | 0.435 | 0.87 | yes |
-| 7 | `qwen/qwen3.6-flash` | 1000000 | 0.1875 | 1.125 | yes |
-| 8 | `stepfun/step-3.7-flash` | 256000 | 0.2 | 1.15 | yes |
+| 2 | `poolside/laguna-xs-2.1` | 262144 | 0.06 | 0.12 | no |
+| 3 | `deepseek/deepseek-v4-flash` | 1048576 | 0.089 | 0.18 | yes |
+| 4 | `tencent/hy3-preview` | 262144 | 0.063 | 0.21 | no |
+| 5 | `poolside/laguna-xs.2` | 262144 | 0.1 | 0.2 | no |
+| 6 | `poolside/laguna-m.1` | 262144 | 0.2 | 0.4 | no |
+| 7 | `inclusionai/ling-2.6-1t` | 262144 | 0.075 | 0.625 | yes |
+| 8 | `inclusionai/ring-2.6-1t` | 262144 | 0.075 | 0.625 | no |
 
 ## DeepSeek V4 Pro
 
@@ -63,18 +63,18 @@ This ledger records harness/config versions and cheaper model routes for Proof L
 
 | Lane | Official requirement | Proxy allowed | Official claim with proxy | Recommended proxy |
 |---|---|---:|---:|---|
-| `spreadsheetbench-v1` | Full 912-task model-run outputs and SpreadsheetBench workbook scorer receipt. | yes | no | `deepseek/deepseek-v4-pro` |
-| `spreadsheetbench-v2` | Full 321-task bundle, run artifacts, workbook scorer, and rendered chart-grader receipt. | yes | no | `deepseek/deepseek-v4-pro` |
-| `finch` | Upstream Finch scorer imports Azure OpenAI judge output for official claim. | yes | no | `deepseek/deepseek-v4-pro` |
-| `finauditing` | Official-format FinSM/FinRE/FinMR predictions and the accepted FinMR judge path. | yes | no | `deepseek/deepseek-v4-pro` |
-| `workstreambench` | Upstream official task bundle, rubric, and scorer or author-provided package. | yes | no | `deepseek/deepseek-v4-pro` |
+| `spreadsheetbench-v1` | Full 912-task model-run outputs and SpreadsheetBench workbook scorer receipt. | yes | no | `deepseek/deepseek-v4-flash` |
+| `spreadsheetbench-v2` | Full 321-task bundle, run artifacts, workbook scorer, and rendered chart-grader receipt. | yes | no | `deepseek/deepseek-v4-flash` |
+| `finch` | Upstream Finch scorer imports Azure OpenAI judge output for official claim. | yes | no | `deepseek/deepseek-v4-flash` |
+| `finauditing` | Official-format FinSM/FinRE/FinMR predictions and the accepted FinMR judge path. | yes | no | `deepseek/deepseek-v4-flash` |
+| `workstreambench` | Upstream official task bundle, rubric, and scorer or author-provided package. | yes | no | `deepseek/deepseek-v4-flash` |
 
 ## Harness File Hashes
 
 - `scripts/proofloop.mjs`: 95aec6cc8e95fa03a45904081f01150202473050e6defbec38dd9c6d0ff55fc9
-- `scripts/proofloop-runner.ts`: ddfa9e8620e51d395a3b150fbad2353b44a72a4f0822ef8c9f3be9e7b889d3bf
+- `scripts/proofloop-runner.ts`: c4be8ba68615eabc03144a2ff93b39b1d42916b82ae372d99d4f6eda2d851f0a
 - `scripts/live-proofloop-runner.ts`: 76e00595a762ad80bf60ee4d13a0eb8c3ca7b0548e77cb98a34643379fd8d411
-- `proofloop/live-browser-proof.spec.ts`: 8cd38b605de661a8d028a1b164db0a48617f29c721a1b1977987f6d1820565d7
+- `proofloop/live-browser-proof.spec.ts`: c5848a8e704e7b4d955257d3b6eb0496ed99aaad72be2568a3dc1883f7fad203
 - `proofloop/cockpit/playwrightOverlay.ts`: 08516b60f3fa088ef87a9233d898fda3f9f0e7f4134220866c2c7425816637a7
 - `proofloop/suites/proximitty-underwriting-pr0.json`: 77d5c2987a6eb504f99c96698eee63070a645494a0b5579fc9673c5ae2f5df23
 - `proofloop/accounting/proofloop.accounting.config.json`: 2d08079aed2c2d4631c4cd91f62d85f35eb3aaf698e0d80e3ac5b81dc00d241d
@@ -86,11 +86,13 @@ This ledger records harness/config versions and cheaper model routes for Proof L
 - `proofloop/benchmarks/workstreambench/adapter.json`: e3655f8b4b04c2c670d645b4d70901cee2cf3b02e69f3d2bd2aa3dc8276eab1f
 - `scripts/proofloop-company-task-coverage.ts`: 66eb7e8dd23b3a3eca2d363cfde287260af8604859be047ece606ef101342a5a
 - `scripts/proofloop-harness-economics.ts`: 88af3482e8bc8d8ed15a8df44756e2498159b3682d350a404c86be063b1fb53c
-- `src/eval/proofloopGoalSupervisor.ts`: 064545291e526e3879147b2c9b8532743b50a97d9eccaa7164509f78cd6ce1a4
+- `src/eval/proofloopGoalSupervisor.ts`: 4c073a490290e8507753264cdd6507698b6f9ae08eb501eeb7969c1255a9648c
+- `src/eval/proofloopBlockerSolver.ts`: 919b26821754bc6d88d49e98c028b1dd10cd64ec3b1ffebec11f46fb8a2cec5f
+- `src/eval/proofloopModelTracking.ts`: 2c7e76cf762e0195e69fbcb37afd38e7a554e5dfdd4eb7aca5815d20a7bc2adc
 - `src/eval/proofloopBenchmarkNormalization.ts`: a32eb66ea33976a98b6fadcf741f1f2bf6e783d70b10e1b02ee5ed9f7d58823f
-- `src/eval/proofloopBenchmarkBoard.ts`: ecad3528bcd067e3115fb4de64a7a67f8c3ba6c15e73a0dd702f78c8c9be2c22
+- `src/eval/proofloopBenchmarkBoard.ts`: 4f9ad6a04a2b2aea077d6a0e1096f83a24148cf3b4f14e04c64007d460ba1a15
 - `src/eval/proofloopCompanyTaskCoverage.ts`: 50268bb77d08101f83b844dc7a8a34e4a867d35fce3d7cbf32f8f662338b5d6f
-- `src/eval/proofloopHarnessEconomics.ts`: 8695753594190d60d2a764097a24c40bdfba9a986601c4707a7b1ad11f868ea8
+- `src/eval/proofloopHarnessEconomics.ts`: fde021345bf656bcd7c4c6a328bafeae1918e0bd2cc9ec34a024d3029d0cca55
 - `src/eval/proofloopLiveBrowserPrompt.ts`: 930b20ce976736bf2b8be2a6bb2b308d1756015c1cde5f83f1fed950e67f2ac7
 
 ## Recommendations
@@ -99,4 +101,4 @@ This ledger records harness/config versions and cheaper model routes for Proof L
 - Keep official score receipts separate: proxy routes can triage and improve outputs, but cannot replace official scorer imports for leaderboard claims.
 - Do not block product iteration on Azure/OpenAI judge credentials; block only official-score promotion when no accepted scorer receipt exists.
 - Add deepseek/deepseek-v4-pro to the proxy judge matrix: current snapshot shows 1048576 context and $0.435/M input, $0.87/M output.
-- Use deepseek/deepseek-v4-pro as the first cheap structured proxy judge candidate, then require task-level Proof Loop pass before promotion.
+- Use deepseek/deepseek-v4-flash as the first cheap structured proxy judge candidate, then require task-level Proof Loop pass before promotion.

@@ -1,11 +1,12 @@
 {
   "schema": 1,
-  "generatedAt": "2026-07-02T15:46:23.075Z",
+  "generatedAt": "2026-07-02T20:46:45.611Z",
   "policy": [
     "Product-path completion is useful proof: real UI, visible progress, artifacts, verifier receipts, trace, memory, and browser evidence.",
     "Official semantic score is only claimed when the benchmark's official scorer/verifier result is imported.",
     "Docker/Harbor isolation can block official score promotion; it must not block product-path Proof Loop runs.",
-    "External benchmark adapters can prove local app-agnostic product paths before official score promotion; the two claims must stay separate."
+    "External benchmark adapters can prove local app-agnostic product paths before official score promotion; the two claims must stay separate.",
+    "Proof Loop may not call a lane external-blocked until setup, research, scaffold, doctor, resume, model, and harness receipts exist."
   ],
   "summary": {
     "total": 9,
@@ -32,15 +33,25 @@
         "blockers": []
       },
       "officialSemanticScore": {
-        "status": "blocked",
+        "status": "needs_scaffold_or_run",
         "scoreType": "official_semantic_score",
         "evidence": [
           "docs/eval/official-benchmark-task-coverage.json",
-          "docs/eval/official-benchmark-readiness.json"
+          "docs/eval/official-benchmark-readiness.json",
+          ".proofloop/lanes/spreadsheetbench-v1/blocker-analysis.json",
+          ".proofloop/lanes/spreadsheetbench-v2/blocker-analysis.json"
         ],
-        "command": "npm run benchmark:official:task-coverage",
+        "command": "npm run proofloop -- solve-blockers --goal official-scores",
         "blockers": [
-          "Full official SpreadsheetBench task coverage and scorer import are not ready."
+          "missing model run remains before external-blocked can be claimed",
+          "missing official scorer remains before external-blocked can be claimed",
+          "missing task bundle remains before external-blocked can be claimed",
+          "Full public 912-task SpreadsheetBench V1 bundle is staged and deterministically scored: 912/912 tasks, 2,729 agent-visible workbooks, 2,729 evaluator answer workbooks, 95/912 copy-input baseline pass.",
+          "All 912 tasks need model-run evidence before strict official-score promotion; cheaper OpenRouter proxy judges can triage product quality but cannot replace the SpreadsheetBench workbook scorer for the official claim.",
+          "next: run all 912 SpreadsheetBench V1 tasks through the model runner, use npm run benchmark:proofloop:harness-economics to select cheap proxy routes for product iteration, then npm run benchmark:official:task-coverage -- --strict",
+          "Only the public/example SpreadsheetBench V2 slice is staged locally.",
+          "All 321 V2 tasks need official bundle, model-run, workbook scorer, and rendered chart-grader evidence; proxy judges can improve candidates but cannot stand in for the V2 scorer path.",
+          "next: stage the full SpreadsheetBench V2 321-task bundle, run all tasks and scorer/chart grader, use npm run benchmark:proofloop:harness-economics for proxy-model routing, then npm run benchmark:official:task-coverage -- --strict"
         ]
       },
       "notes": [
@@ -86,7 +97,7 @@
         "scoreType": "product_path_completion",
         "evidence": [
           ".proofloop/runs/latest/run-result.json",
-          ".proofloop/runs/2026-07-01T22-40-30"
+          ".proofloop/runs/2026-07-02T20-31-20"
         ],
         "command": "npm run proofloop:proximitty",
         "blockers": []
@@ -219,17 +230,24 @@
         "blockers": []
       },
       "officialSemanticScore": {
-        "status": "blocked",
+        "status": "needs_scaffold_or_run",
         "scoreType": "official_semantic_score",
         "evidence": [
           "proofloop/benchmarks/finch/adapter.json",
           "docs/eval/proofloop-adapter-blockers/finch.json",
           "docs/eval/proofloop-official-scores/finch.json",
-          "docs/eval/proofloop-official-task-bundles/finch.json"
+          "docs/eval/proofloop-official-task-bundles/finch.json",
+          ".proofloop/lanes/finch/blocker-analysis.json"
         ],
         "command": "npm run benchmark:proofloop:adapter-blockers -- --id finch --strict",
         "blockers": [
-          "finch: official scorer receipt docs/eval/proofloop-official-scores/finch.json is blocked_external; scored receipt is still required before claiming score. No Azure OpenAI judge credentials are present in this shell: AZURE endpoint, API key, API version, and deployment name are all required by src/call_gpt_judge.py. No NodeRoom model-output directory exists with one output artifact per official Finch task id, so the upstream prompt_build_pipeline.py cannot build claimable content_parts.jsonl for scoring."
+          "missing official scorer remains before external-blocked can be claimed",
+          "missing output exporter remains before external-blocked can be claimed",
+          "missing task bundle remains before external-blocked can be claimed",
+          "missing judge credentials remains before official score can be claimed",
+          "finch: official scorer receipt docs/eval/proofloop-official-scores/finch.json is blocked_external; scored receipt is still required before claiming score.",
+          "finch: official task bundle lock docs/eval/proofloop-official-task-bundles/finch.json is staged, but NodeRoom still needs one official-output artifact per Finch task id and an accepted upstream judge/scorer path; Azure OpenAI credentials are one path, while cheaper OpenRouter proxy judges are product-gate evidence only unless accepted upstream.",
+          "next: emit NodeRoom outputs for every official Finch task id, run/import the accepted upstream Finch scorer or judge output, use npm run benchmark:proofloop:harness-economics for proxy triage, then npm run benchmark:proofloop:adapter-blockers -- --id finch --strict"
         ],
         "metrics": {
           "missingImplementationFiles": 0,
@@ -261,17 +279,24 @@
         "blockers": []
       },
       "officialSemanticScore": {
-        "status": "blocked",
+        "status": "needs_scaffold_or_run",
         "scoreType": "official_semantic_score",
         "evidence": [
           "proofloop/benchmarks/finauditing/adapter.json",
           "docs/eval/proofloop-adapter-blockers/finauditing.json",
           "docs/eval/proofloop-official-scores/finauditing.json",
-          "docs/eval/proofloop-official-task-bundles/finauditing.json"
+          "docs/eval/proofloop-official-task-bundles/finauditing.json",
+          ".proofloop/lanes/finauditing/blocker-analysis.json"
         ],
         "command": "npm run benchmark:proofloop:adapter-blockers -- --id finauditing --strict",
         "blockers": [
-          "finauditing: official scorer receipt docs/eval/proofloop-official-scores/finauditing.json is blocked_external; scored receipt is still required before claiming score. No NodeRoom prediction JSONL exists for FinSM, FinRE, or FinMR in the official evaluator format. FinMR evaluation uses an OpenAI LLM judge and this shell has no OPENAI_API_KEY. The full benchmark path also points to the separate FinBen framework, which is not yet wired to NodeRoom output artifacts."
+          "missing official scorer remains before external-blocked can be claimed",
+          "missing output exporter remains before external-blocked can be claimed",
+          "missing task bundle remains before external-blocked can be claimed",
+          "missing judge credentials remains before official score can be claimed",
+          "finauditing: official scorer receipt docs/eval/proofloop-official-scores/finauditing.json is blocked_external; scored receipt is still required before claiming score.",
+          "finauditing: official task bundle lock docs/eval/proofloop-official-task-bundles/finauditing.json is staged, but NodeRoom still needs official-format FinSM/FinRE/FinMR prediction JSONL and an accepted FinMR judge path; OpenAI credentials are one path, while cheaper OpenRouter proxy judges are product-gate evidence only unless accepted upstream.",
+          "next: emit official-format FinSM/FinRE/FinMR predictions, run/import FinAuditing scorer output with an accepted FinMR judge path, use npm run benchmark:proofloop:harness-economics for proxy triage, then npm run benchmark:proofloop:adapter-blockers -- --id finauditing --strict"
         ],
         "metrics": {
           "missingImplementationFiles": 0,
@@ -308,12 +333,17 @@
         "evidence": [
           "proofloop/benchmarks/workstreambench/adapter.json",
           "docs/eval/proofloop-adapter-blockers/workstreambench.json",
-          "docs/eval/proofloop-official-scores/workstreambench.json"
+          "docs/eval/proofloop-official-scores/workstreambench.json",
+          ".proofloop/lanes/workstreambench/blocker-analysis.json"
         ],
         "command": "npm run benchmark:proofloop:adapter-blockers -- --id workstreambench --strict",
         "blockers": [
-          "workstreambench: official scorer receipt docs/eval/proofloop-official-scores/workstreambench.json is blocked_external; scored receipt is still required before claiming score. No public official WorkstreamBench task bundle URL was found. No public official WorkstreamBench scorer repository or CLI was found. The paper describes LLM-as-judge evaluation over structured representations, so a claimable score requires the official rubric/task bundle/scorer release or author-provided supplementary package.",
-          "workstreambench: official task bundle lock docs/eval/proofloop-official-task-bundles/workstreambench.json is not staged yet."
+          "missing official scorer remains before official score can be claimed",
+          "missing task bundle remains before official score can be claimed",
+          "no public upstream release remains before official score can be claimed",
+          "workstreambench: official scorer receipt docs/eval/proofloop-official-scores/workstreambench.json is blocked_external; scored receipt is still required before claiming score.",
+          "workstreambench: no public official task bundle lock docs/eval/proofloop-official-task-bundles/workstreambench.json is staged because no public official bundle/scorer/rubric URL was found.",
+          "next: obtain the official WorkstreamBench task bundle and scorer/rubric from an upstream release or authors, lock it in docs/eval/proofloop-official-task-bundles/workstreambench.json, use npm run benchmark:proofloop:harness-economics for proxy triage, import a scored receipt, then npm run benchmark:proofloop:adapter-blockers -- --id workstreambench --strict"
         ],
         "metrics": {
           "missingImplementationFiles": 0,

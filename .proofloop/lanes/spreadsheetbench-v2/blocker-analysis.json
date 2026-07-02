@@ -1,0 +1,125 @@
+{
+  "schema": "proofloop-blocker-solver-v1",
+  "blockerId": "spreadsheetbench-v2-full-official-score",
+  "suite": "spreadsheetbench-v2",
+  "title": "SpreadsheetBench V2 full 321-task official score",
+  "generatedAt": "2026-07-02T20:46:40.273Z",
+  "phase": "solve",
+  "classes": [
+    "missing_model_run",
+    "missing_official_scorer",
+    "missing_task_bundle"
+  ],
+  "status": "needs_scaffold_or_run",
+  "externalBlockClaimAllowed": false,
+  "stopCondition": {
+    "setupAttempted": true,
+    "researchAttempted": true,
+    "scaffoldAttempted": true,
+    "doctorAttempted": true,
+    "resumeCommandWritten": true,
+    "allNonExternalPartsCompleted": false
+  },
+  "remainingExternalClasses": [],
+  "remainingLocalClasses": [
+    "missing_model_run",
+    "missing_official_scorer",
+    "missing_task_bundle"
+  ],
+  "blockers": [
+    "Only the public/example SpreadsheetBench V2 slice is staged locally.",
+    "All 321 V2 tasks need official bundle, model-run, workbook scorer, and rendered chart-grader evidence; proxy judges can improve candidates but cannot stand in for the V2 scorer path."
+  ],
+  "artifacts": {
+    "blocker-analysis.json": ".proofloop/lanes/spreadsheetbench-v2/blocker-analysis.json",
+    "upstream-research.md": ".proofloop/lanes/spreadsheetbench-v2/upstream-research.md",
+    "scaffold-plan.md": ".proofloop/lanes/spreadsheetbench-v2/scaffold-plan.md",
+    "harness-version.json": ".proofloop/lanes/spreadsheetbench-v2/harness-version.json",
+    "model-matrix.json": ".proofloop/lanes/spreadsheetbench-v2/model-matrix.json",
+    "cost-ledger.json": ".proofloop/lanes/spreadsheetbench-v2/cost-ledger.json",
+    "official-output-manifest.json": ".proofloop/lanes/spreadsheetbench-v2/official-output-manifest.json",
+    "official-score-receipt.json": ".proofloop/lanes/spreadsheetbench-v2/official-score-receipt.json",
+    "proxy-score-receipt.json": ".proofloop/lanes/spreadsheetbench-v2/proxy-score-receipt.json",
+    "memory-write.json": ".proofloop/lanes/spreadsheetbench-v2/memory-write.json"
+  },
+  "nextCommands": [
+    "stage the full SpreadsheetBench V2 321-task bundle, run all tasks and scorer/chart grader, use npm run benchmark:proofloop:harness-economics for proxy-model routing, then npm run benchmark:official:task-coverage -- --strict",
+    "npm run benchmark:proofloop:harness-economics",
+    "npm run benchmark:spreadsheetbench:v2:stage -- --all",
+    "npm run benchmark:spreadsheetbench:run-chunked -- --suite v2 --all --model deepseek/deepseek-v4-pro"
+  ],
+  "models": [
+    {
+      "provider": "openrouter",
+      "id": "deepseek/deepseek-v4-pro",
+      "routePolicy": "proxy",
+      "role": "planner",
+      "costUsd": 0,
+      "tokensIn": 0,
+      "tokensOut": 0,
+      "latencyMs": 0,
+      "selectionReason": "Candidate selected from OpenRouter tool-capable snapshot for spreadsheetbench-v2 proxy comparison.",
+      "source": "env"
+    },
+    {
+      "provider": "openrouter",
+      "id": "z-ai/glm-5.2",
+      "routePolicy": "specific",
+      "role": "planner",
+      "costUsd": 0,
+      "tokensIn": 0,
+      "tokensOut": 0,
+      "latencyMs": 0,
+      "selectionReason": "Candidate selected from OpenRouter tool-capable snapshot for spreadsheetbench-v2 proxy comparison.",
+      "source": "env"
+    },
+    {
+      "provider": "openrouter",
+      "id": "qwen/qwen3.6-flash",
+      "routePolicy": "specific",
+      "role": "planner",
+      "costUsd": 0,
+      "tokensIn": 0,
+      "tokensOut": 0,
+      "latencyMs": 0,
+      "selectionReason": "Candidate selected from OpenRouter tool-capable snapshot for spreadsheetbench-v2 proxy comparison.",
+      "source": "env"
+    },
+    {
+      "provider": "openrouter",
+      "id": "qwen/qwen3.6-35b-a3b",
+      "routePolicy": "specific",
+      "role": "planner",
+      "costUsd": 0,
+      "tokensIn": 0,
+      "tokensOut": 0,
+      "latencyMs": 0,
+      "selectionReason": "Candidate selected from OpenRouter tool-capable snapshot for spreadsheetbench-v2 proxy comparison.",
+      "source": "env"
+    },
+    {
+      "provider": "openai",
+      "id": "gpt-4.1-mini",
+      "routePolicy": "specific",
+      "role": "planner",
+      "costUsd": 0,
+      "tokensIn": 0,
+      "tokensOut": 0,
+      "latencyMs": 0,
+      "selectionReason": "Candidate selected from suite default matrix for spreadsheetbench-v2; live metadata was not present in the local snapshot.",
+      "source": "suite-default"
+    },
+    {
+      "provider": "openrouter",
+      "id": "ibm-granite/granite-4.1-8b",
+      "routePolicy": "specific",
+      "role": "planner",
+      "costUsd": 0,
+      "tokensIn": 0,
+      "tokensOut": 0,
+      "latencyMs": 0,
+      "selectionReason": "Candidate selected from OpenRouter tool-capable snapshot for spreadsheetbench-v2 proxy comparison.",
+      "source": "env"
+    }
+  ]
+}

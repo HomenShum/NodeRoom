@@ -1,8 +1,8 @@
 {
   "schema": "proofloop-harness-economics-v1",
-  "generatedAt": "2026-07-02T15:46:02.462Z",
+  "generatedAt": "2026-07-02T20:46:55.504Z",
   "git": {
-    "commit": "a904e2636c50cc793574e16e181b57c9df11bad6",
+    "commit": "772ed699616c7b084392087e75a6aaaa4b6a32ec",
     "dirty": true
   },
   "packageVersion": "0.1.1",
@@ -23,7 +23,7 @@
     {
       "path": "scripts/proofloop-runner.ts",
       "exists": true,
-      "sha256": "ddfa9e8620e51d395a3b150fbad2353b44a72a4f0822ef8c9f3be9e7b889d3bf"
+      "sha256": "c4be8ba68615eabc03144a2ff93b39b1d42916b82ae372d99d4f6eda2d851f0a"
     },
     {
       "path": "scripts/live-proofloop-runner.ts",
@@ -33,7 +33,7 @@
     {
       "path": "proofloop/live-browser-proof.spec.ts",
       "exists": true,
-      "sha256": "8cd38b605de661a8d028a1b164db0a48617f29c721a1b1977987f6d1820565d7"
+      "sha256": "c5848a8e704e7b4d955257d3b6eb0496ed99aaad72be2568a3dc1883f7fad203"
     },
     {
       "path": "proofloop/cockpit/playwrightOverlay.ts",
@@ -93,7 +93,17 @@
     {
       "path": "src/eval/proofloopGoalSupervisor.ts",
       "exists": true,
-      "sha256": "064545291e526e3879147b2c9b8532743b50a97d9eccaa7164509f78cd6ce1a4"
+      "sha256": "4c073a490290e8507753264cdd6507698b6f9ae08eb501eeb7969c1255a9648c"
+    },
+    {
+      "path": "src/eval/proofloopBlockerSolver.ts",
+      "exists": true,
+      "sha256": "919b26821754bc6d88d49e98c028b1dd10cd64ec3b1ffebec11f46fb8a2cec5f"
+    },
+    {
+      "path": "src/eval/proofloopModelTracking.ts",
+      "exists": true,
+      "sha256": "2c7e76cf762e0195e69fbcb37afd38e7a554e5dfdd4eb7aca5815d20a7bc2adc"
     },
     {
       "path": "src/eval/proofloopBenchmarkNormalization.ts",
@@ -103,7 +113,7 @@
     {
       "path": "src/eval/proofloopBenchmarkBoard.ts",
       "exists": true,
-      "sha256": "ecad3528bcd067e3115fb4de64a7a67f8c3ba6c15e73a0dd702f78c8c9be2c22"
+      "sha256": "4f9ad6a04a2b2aea077d6a0e1096f83a24148cf3b4f14e04c64007d460ba1a15"
     },
     {
       "path": "src/eval/proofloopCompanyTaskCoverage.ts",
@@ -113,7 +123,7 @@
     {
       "path": "src/eval/proofloopHarnessEconomics.ts",
       "exists": true,
-      "sha256": "8695753594190d60d2a764097a24c40bdfba9a986601c4707a7b1ad11f868ea8"
+      "sha256": "fde021345bf656bcd7c4c6a328bafeae1918e0bd2cc9ec34a024d3029d0cca55"
     },
     {
       "path": "src/eval/proofloopLiveBrowserPrompt.ts",
@@ -123,11 +133,11 @@
   ],
   "openRouterSnapshot": {
     "source": "https://openrouter.ai/api/v1/models",
-    "generatedAt": "2026-07-02T10:46:23.124Z",
-    "modelCount": 20,
+    "generatedAt": "2026-07-02T20:05:06.977Z",
+    "modelCount": 25,
     "cheapestToolRoutes": [
       {
-        "rank": 12,
+        "rank": 13,
         "id": "ibm-granite/granite-4.1-8b",
         "name": "IBM: Granite 4.1 8B",
         "created": 1777577071,
@@ -158,7 +168,92 @@
         ]
       },
       {
-        "rank": 13,
+        "rank": 1,
+        "id": "poolside/laguna-xs-2.1",
+        "name": "Poolside: Laguna XS 2.1",
+        "created": 1783002429,
+        "createdAt": "2026-07-02T14:27:09.000Z",
+        "contextLength": 262144,
+        "inputPerMillionUsd": 0.06,
+        "outputPerMillionUsd": 0.12,
+        "supportsTools": true,
+        "supportsToolChoice": true,
+        "supportsStructuredOutputs": false,
+        "supportsParallelToolCalls": false,
+        "supportedParameters": [
+          "include_reasoning",
+          "max_tokens",
+          "reasoning",
+          "temperature",
+          "tool_choice",
+          "tools"
+        ]
+      },
+      {
+        "rank": 22,
+        "id": "deepseek/deepseek-v4-flash",
+        "name": "DeepSeek: DeepSeek V4 Flash",
+        "created": 1777000666,
+        "createdAt": "2026-04-24T03:17:46.000Z",
+        "contextLength": 1048576,
+        "inputPerMillionUsd": 0.089,
+        "outputPerMillionUsd": 0.18,
+        "supportsTools": true,
+        "supportsToolChoice": true,
+        "supportsStructuredOutputs": true,
+        "supportsParallelToolCalls": false,
+        "supportedParameters": [
+          "frequency_penalty",
+          "include_reasoning",
+          "logit_bias",
+          "logprobs",
+          "max_tokens",
+          "min_p",
+          "presence_penalty",
+          "reasoning",
+          "repetition_penalty",
+          "response_format",
+          "seed",
+          "stop",
+          "structured_outputs",
+          "temperature",
+          "tool_choice",
+          "tools",
+          "top_k",
+          "top_logprobs",
+          "top_p"
+        ]
+      },
+      {
+        "rank": 24,
+        "id": "tencent/hy3-preview",
+        "name": "Tencent: Hy3 preview",
+        "created": 1776878150,
+        "createdAt": "2026-04-22T17:15:50.000Z",
+        "contextLength": 262144,
+        "inputPerMillionUsd": 0.063,
+        "outputPerMillionUsd": 0.21,
+        "supportsTools": true,
+        "supportsToolChoice": true,
+        "supportsStructuredOutputs": false,
+        "supportsParallelToolCalls": false,
+        "supportedParameters": [
+          "frequency_penalty",
+          "include_reasoning",
+          "max_tokens",
+          "presence_penalty",
+          "reasoning",
+          "seed",
+          "stop",
+          "temperature",
+          "tool_choice",
+          "tools",
+          "top_k",
+          "top_p"
+        ]
+      },
+      {
+        "rank": 14,
         "id": "poolside/laguna-xs.2",
         "name": "Poolside: Laguna XS.2",
         "created": 1777389604,
@@ -180,7 +275,7 @@
         ]
       },
       {
-        "rank": 14,
+        "rank": 15,
         "id": "poolside/laguna-m.1",
         "name": "Poolside: Laguna M.1",
         "created": 1777388504,
@@ -202,7 +297,38 @@
         ]
       },
       {
-        "rank": 9,
+        "rank": 23,
+        "id": "inclusionai/ling-2.6-1t",
+        "name": "inclusionAI: Ling-2.6-1T",
+        "created": 1776948238,
+        "createdAt": "2026-04-23T12:43:58.000Z",
+        "contextLength": 262144,
+        "inputPerMillionUsd": 0.075,
+        "outputPerMillionUsd": 0.625,
+        "supportsTools": true,
+        "supportsToolChoice": true,
+        "supportsStructuredOutputs": true,
+        "supportsParallelToolCalls": false,
+        "supportedParameters": [
+          "frequency_penalty",
+          "logprobs",
+          "max_tokens",
+          "presence_penalty",
+          "repetition_penalty",
+          "response_format",
+          "seed",
+          "stop",
+          "structured_outputs",
+          "temperature",
+          "tool_choice",
+          "tools",
+          "top_k",
+          "top_logprobs",
+          "top_p"
+        ]
+      },
+      {
+        "rank": 10,
         "id": "inclusionai/ring-2.6-1t",
         "name": "inclusionAI: Ring-2.6-1T",
         "created": 1778247440,
@@ -230,145 +356,33 @@
           "top_k",
           "top_p"
         ]
-      },
-      {
-        "rank": 18,
-        "id": "qwen/qwen3.6-35b-a3b",
-        "name": "Qwen: Qwen3.6 35B A3B",
-        "created": 1777260255,
-        "createdAt": "2026-04-27T03:24:15.000Z",
-        "contextLength": 262144,
-        "inputPerMillionUsd": 0.14,
-        "outputPerMillionUsd": 1,
-        "supportsTools": true,
-        "supportsToolChoice": true,
-        "supportsStructuredOutputs": true,
-        "supportsParallelToolCalls": false,
-        "supportedParameters": [
-          "frequency_penalty",
-          "include_reasoning",
-          "logit_bias",
-          "logprobs",
-          "max_tokens",
-          "min_p",
-          "presence_penalty",
-          "reasoning",
-          "repetition_penalty",
-          "response_format",
-          "seed",
-          "stop",
-          "structured_outputs",
-          "temperature",
-          "tool_choice",
-          "tools",
-          "top_k",
-          "top_logprobs",
-          "top_p"
-        ]
-      },
-      {
-        "rank": 20,
-        "id": "deepseek/deepseek-v4-pro",
-        "name": "DeepSeek: DeepSeek V4 Pro",
-        "created": 1777000679,
-        "createdAt": "2026-04-24T03:17:59.000Z",
-        "contextLength": 1048576,
-        "inputPerMillionUsd": 0.435,
-        "outputPerMillionUsd": 0.87,
-        "supportsTools": true,
-        "supportsToolChoice": true,
-        "supportsStructuredOutputs": true,
-        "supportsParallelToolCalls": false,
-        "supportedParameters": [
-          "frequency_penalty",
-          "include_reasoning",
-          "logit_bias",
-          "logprobs",
-          "max_tokens",
-          "min_p",
-          "presence_penalty",
-          "reasoning",
-          "repetition_penalty",
-          "response_format",
-          "seed",
-          "stop",
-          "structured_outputs",
-          "temperature",
-          "tool_choice",
-          "tools",
-          "top_k",
-          "top_logprobs",
-          "top_p"
-        ]
-      },
-      {
-        "rank": 17,
-        "id": "qwen/qwen3.6-flash",
-        "name": "Qwen: Qwen3.6 Flash",
-        "created": 1777261362,
-        "createdAt": "2026-04-27T03:42:42.000Z",
-        "contextLength": 1000000,
-        "inputPerMillionUsd": 0.1875,
-        "outputPerMillionUsd": 1.125,
-        "supportsTools": true,
-        "supportsToolChoice": true,
-        "supportsStructuredOutputs": true,
-        "supportsParallelToolCalls": false,
-        "supportedParameters": [
-          "include_reasoning",
-          "logprobs",
-          "max_tokens",
-          "presence_penalty",
-          "reasoning",
-          "response_format",
-          "seed",
-          "structured_outputs",
-          "temperature",
-          "tool_choice",
-          "tools",
-          "top_logprobs",
-          "top_p"
-        ]
-      },
-      {
-        "rank": 6,
-        "id": "stepfun/step-3.7-flash",
-        "name": "StepFun: Step 3.7 Flash",
-        "created": 1779985069,
-        "createdAt": "2026-05-28T16:17:49.000Z",
-        "contextLength": 256000,
-        "inputPerMillionUsd": 0.2,
-        "outputPerMillionUsd": 1.15,
-        "supportsTools": true,
-        "supportsToolChoice": true,
-        "supportsStructuredOutputs": true,
-        "supportsParallelToolCalls": false,
-        "supportedParameters": [
-          "frequency_penalty",
-          "include_reasoning",
-          "logit_bias",
-          "logprobs",
-          "max_tokens",
-          "min_p",
-          "presence_penalty",
-          "reasoning",
-          "repetition_penalty",
-          "response_format",
-          "seed",
-          "stop",
-          "structured_outputs",
-          "temperature",
-          "tool_choice",
-          "tools",
-          "top_k",
-          "top_logprobs",
-          "top_p"
-        ]
       }
     ],
     "newestCheapToolRoutes": [
       {
         "rank": 1,
+        "id": "poolside/laguna-xs-2.1",
+        "name": "Poolside: Laguna XS 2.1",
+        "created": 1783002429,
+        "createdAt": "2026-07-02T14:27:09.000Z",
+        "contextLength": 262144,
+        "inputPerMillionUsd": 0.06,
+        "outputPerMillionUsd": 0.12,
+        "supportsTools": true,
+        "supportsToolChoice": true,
+        "supportsStructuredOutputs": false,
+        "supportsParallelToolCalls": false,
+        "supportedParameters": [
+          "include_reasoning",
+          "max_tokens",
+          "reasoning",
+          "temperature",
+          "tool_choice",
+          "tools"
+        ]
+      },
+      {
+        "rank": 2,
         "id": "z-ai/glm-5.2",
         "name": "Z.ai: GLM 5.2",
         "created": 1781631930,
@@ -405,7 +419,7 @@
         ]
       },
       {
-        "rank": 2,
+        "rank": 3,
         "id": "moonshotai/kimi-k2.7-code",
         "name": "MoonshotAI: Kimi K2.7 Code",
         "created": 1781266361,
@@ -442,7 +456,7 @@
         ]
       },
       {
-        "rank": 3,
+        "rank": 4,
         "id": "nvidia/nemotron-3-ultra-550b-a55b",
         "name": "NVIDIA: Nemotron 3 Ultra",
         "created": 1780551208,
@@ -475,7 +489,7 @@
         ]
       },
       {
-        "rank": 4,
+        "rank": 5,
         "id": "qwen/qwen3.7-plus",
         "name": "Qwen: Qwen3.7 Plus",
         "created": 1780491783,
@@ -504,7 +518,7 @@
         ]
       },
       {
-        "rank": 5,
+        "rank": 6,
         "id": "minimax/minimax-m3",
         "name": "MiniMax: MiniMax M3",
         "created": 1780245374,
@@ -539,7 +553,7 @@
         ]
       },
       {
-        "rank": 6,
+        "rank": 7,
         "id": "stepfun/step-3.7-flash",
         "name": "StepFun: Step 3.7 Flash",
         "created": 1779985069,
@@ -574,7 +588,7 @@
         ]
       },
       {
-        "rank": 7,
+        "rank": 8,
         "id": "qwen/qwen3.7-max",
         "name": "Qwen: Qwen3.7 Max",
         "created": 1779376861,
@@ -601,16 +615,18 @@
           "top_logprobs",
           "top_p"
         ]
-      },
+      }
+    ],
+    "proxyJudgeCandidates": [
       {
-        "rank": 8,
-        "id": "x-ai/grok-build-0.1",
-        "name": "xAI: Grok Build 0.1",
-        "created": 1779298123,
-        "createdAt": "2026-05-20T17:28:43.000Z",
-        "contextLength": 256000,
-        "inputPerMillionUsd": 1,
-        "outputPerMillionUsd": 2,
+        "rank": 22,
+        "id": "deepseek/deepseek-v4-flash",
+        "name": "DeepSeek: DeepSeek V4 Flash",
+        "created": 1777000666,
+        "createdAt": "2026-04-24T03:17:46.000Z",
+        "contextLength": 1048576,
+        "inputPerMillionUsd": 0.089,
+        "outputPerMillionUsd": 0.18,
         "supportsTools": true,
         "supportsToolChoice": true,
         "supportsStructuredOutputs": true,
@@ -618,10 +634,13 @@
         "supportedParameters": [
           "frequency_penalty",
           "include_reasoning",
+          "logit_bias",
           "logprobs",
           "max_tokens",
+          "min_p",
           "presence_penalty",
           "reasoning",
+          "repetition_penalty",
           "response_format",
           "seed",
           "stop",
@@ -629,14 +648,21 @@
           "temperature",
           "tool_choice",
           "tools",
+          "top_k",
           "top_logprobs",
           "top_p"
+        ],
+        "proxyJudgeScore": 20.21676,
+        "reasons": [
+          "tools",
+          "tool_choice",
+          "structured_outputs",
+          "1M context",
+          "finance/proxy-judge candidate family"
         ]
-      }
-    ],
-    "proxyJudgeCandidates": [
+      },
       {
-        "rank": 20,
+        "rank": 21,
         "id": "deepseek/deepseek-v4-pro",
         "name": "DeepSeek: DeepSeek V4 Pro",
         "created": 1777000679,
@@ -679,7 +705,49 @@
         ]
       },
       {
-        "rank": 5,
+        "rank": 25,
+        "id": "xiaomi/mimo-v2.5-pro",
+        "name": "Xiaomi: MiMo-V2.5-Pro",
+        "created": 1776874273,
+        "createdAt": "2026-04-22T16:11:13.000Z",
+        "contextLength": 1048576,
+        "inputPerMillionUsd": 0.435,
+        "outputPerMillionUsd": 0.87,
+        "supportsTools": true,
+        "supportsToolChoice": true,
+        "supportsStructuredOutputs": true,
+        "supportsParallelToolCalls": false,
+        "supportedParameters": [
+          "frequency_penalty",
+          "include_reasoning",
+          "logit_bias",
+          "logprobs",
+          "max_tokens",
+          "min_p",
+          "presence_penalty",
+          "reasoning",
+          "repetition_penalty",
+          "response_format",
+          "seed",
+          "stop",
+          "structured_outputs",
+          "temperature",
+          "tool_choice",
+          "tools",
+          "top_k",
+          "top_logprobs",
+          "top_p"
+        ],
+        "proxyJudgeScore": 19.18076,
+        "reasons": [
+          "tools",
+          "tool_choice",
+          "structured_outputs",
+          "1M context"
+        ]
+      },
+      {
+        "rank": 6,
         "id": "minimax/minimax-m3",
         "name": "MiniMax: MiniMax M3",
         "created": 1780245374,
@@ -722,7 +790,7 @@
         ]
       },
       {
-        "rank": 10,
+        "rank": 11,
         "id": "google/gemini-3.1-flash-lite",
         "name": "Google: Gemini 3.1 Flash Lite",
         "created": 1778168828,
@@ -756,7 +824,7 @@
         ]
       },
       {
-        "rank": 17,
+        "rank": 18,
         "id": "qwen/qwen3.6-flash",
         "name": "Qwen: Qwen3.6 Flash",
         "created": 1777261362,
@@ -793,7 +861,7 @@
         ]
       },
       {
-        "rank": 4,
+        "rank": 5,
         "id": "qwen/qwen3.7-plus",
         "name": "Qwen: Qwen3.7 Plus",
         "created": 1780491783,
@@ -830,7 +898,7 @@
         ]
       },
       {
-        "rank": 16,
+        "rank": 17,
         "id": "qwen/qwen3.5-plus-20260420",
         "name": "Qwen: Qwen3.5 Plus 2026-04-20",
         "created": 1777261368,
@@ -865,96 +933,10 @@
           "1M context",
           "finance/proxy-judge candidate family"
         ]
-      },
-      {
-        "rank": 1,
-        "id": "z-ai/glm-5.2",
-        "name": "Z.ai: GLM 5.2",
-        "created": 1781631930,
-        "createdAt": "2026-06-16T17:45:30.000Z",
-        "contextLength": 1048576,
-        "inputPerMillionUsd": 0.93,
-        "outputPerMillionUsd": 3,
-        "supportsTools": true,
-        "supportsToolChoice": true,
-        "supportsStructuredOutputs": true,
-        "supportsParallelToolCalls": true,
-        "supportedParameters": [
-          "frequency_penalty",
-          "include_reasoning",
-          "logit_bias",
-          "logprobs",
-          "max_tokens",
-          "min_p",
-          "parallel_tool_calls",
-          "presence_penalty",
-          "reasoning",
-          "reasoning_effort",
-          "repetition_penalty",
-          "response_format",
-          "seed",
-          "stop",
-          "structured_outputs",
-          "temperature",
-          "tool_choice",
-          "tools",
-          "top_k",
-          "top_logprobs",
-          "top_p"
-        ],
-        "proxyJudgeScore": 17.55576,
-        "reasons": [
-          "tools",
-          "tool_choice",
-          "structured_outputs",
-          "1M context",
-          "finance/proxy-judge candidate family"
-        ]
-      },
-      {
-        "rank": 3,
-        "id": "nvidia/nemotron-3-ultra-550b-a55b",
-        "name": "NVIDIA: Nemotron 3 Ultra",
-        "created": 1780551208,
-        "createdAt": "2026-06-04T05:33:28.000Z",
-        "contextLength": 1000000,
-        "inputPerMillionUsd": 0.5,
-        "outputPerMillionUsd": 2.2,
-        "supportsTools": true,
-        "supportsToolChoice": true,
-        "supportsStructuredOutputs": true,
-        "supportsParallelToolCalls": false,
-        "supportedParameters": [
-          "frequency_penalty",
-          "include_reasoning",
-          "logit_bias",
-          "max_tokens",
-          "min_p",
-          "presence_penalty",
-          "reasoning",
-          "repetition_penalty",
-          "response_format",
-          "seed",
-          "stop",
-          "structured_outputs",
-          "temperature",
-          "tool_choice",
-          "tools",
-          "top_k",
-          "top_p"
-        ],
-        "proxyJudgeScore": 17.3,
-        "reasons": [
-          "tools",
-          "tool_choice",
-          "structured_outputs",
-          "1M context",
-          "finance/proxy-judge candidate family"
-        ]
       }
     ],
     "deepseekV4Pro": {
-      "rank": 20,
+      "rank": 21,
       "id": "deepseek/deepseek-v4-pro",
       "name": "DeepSeek: DeepSeek V4 Pro",
       "created": 1777000679,
@@ -1005,35 +987,35 @@
       "officialRequirement": "Full 912-task model-run outputs and SpreadsheetBench workbook scorer receipt.",
       "proxyJudgeAllowedForProofLoop": true,
       "proxyJudgeCannotClaimOfficialScore": true,
-      "recommendedProxyRoute": "deepseek/deepseek-v4-pro"
+      "recommendedProxyRoute": "deepseek/deepseek-v4-flash"
     },
     {
       "lane": "spreadsheetbench-v2",
       "officialRequirement": "Full 321-task bundle, run artifacts, workbook scorer, and rendered chart-grader receipt.",
       "proxyJudgeAllowedForProofLoop": true,
       "proxyJudgeCannotClaimOfficialScore": true,
-      "recommendedProxyRoute": "deepseek/deepseek-v4-pro"
+      "recommendedProxyRoute": "deepseek/deepseek-v4-flash"
     },
     {
       "lane": "finch",
       "officialRequirement": "Upstream Finch scorer imports Azure OpenAI judge output for official claim.",
       "proxyJudgeAllowedForProofLoop": true,
       "proxyJudgeCannotClaimOfficialScore": true,
-      "recommendedProxyRoute": "deepseek/deepseek-v4-pro"
+      "recommendedProxyRoute": "deepseek/deepseek-v4-flash"
     },
     {
       "lane": "finauditing",
       "officialRequirement": "Official-format FinSM/FinRE/FinMR predictions and the accepted FinMR judge path.",
       "proxyJudgeAllowedForProofLoop": true,
       "proxyJudgeCannotClaimOfficialScore": true,
-      "recommendedProxyRoute": "deepseek/deepseek-v4-pro"
+      "recommendedProxyRoute": "deepseek/deepseek-v4-flash"
     },
     {
       "lane": "workstreambench",
       "officialRequirement": "Upstream official task bundle, rubric, and scorer or author-provided package.",
       "proxyJudgeAllowedForProofLoop": true,
       "proxyJudgeCannotClaimOfficialScore": true,
-      "recommendedProxyRoute": "deepseek/deepseek-v4-pro"
+      "recommendedProxyRoute": "deepseek/deepseek-v4-flash"
     }
   ],
   "recommendations": [
@@ -1041,12 +1023,12 @@
     "Keep official score receipts separate: proxy routes can triage and improve outputs, but cannot replace official scorer imports for leaderboard claims.",
     "Do not block product iteration on Azure/OpenAI judge credentials; block only official-score promotion when no accepted scorer receipt exists.",
     "Add deepseek/deepseek-v4-pro to the proxy judge matrix: current snapshot shows 1048576 context and $0.435/M input, $0.87/M output.",
-    "Use deepseek/deepseek-v4-pro as the first cheap structured proxy judge candidate, then require task-level Proof Loop pass before promotion."
+    "Use deepseek/deepseek-v4-flash as the first cheap structured proxy judge candidate, then require task-level Proof Loop pass before promotion."
   ],
   "summary": {
-    "harnessFilesTracked": 21,
+    "harnessFilesTracked": 23,
     "missingHarnessFiles": 0,
-    "openRouterCandidates": 20,
+    "openRouterCandidates": 25,
     "proxyJudgeCandidates": 8,
     "cheaperProxyRoutesAvailable": true,
     "acceptedOfficialScorerStillRequiredForOfficialClaims": true,

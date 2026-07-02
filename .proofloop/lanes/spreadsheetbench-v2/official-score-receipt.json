@@ -1,0 +1,20 @@
+{
+  "schema": 1,
+  "suite": "spreadsheetbench-v2",
+  "blockerId": "spreadsheetbench-v2-full-official-score",
+  "generatedAt": "2026-07-02T20:46:40.273Z",
+  "status": "needs_scaffold_or_run",
+  "officialScoreClaimable": false,
+  "officialSemanticScore": null,
+  "acceptedProxyJudge": false,
+  "blockers": [
+    "Only the public/example SpreadsheetBench V2 slice is staged locally.",
+    "All 321 V2 tasks need official bundle, model-run, workbook scorer, and rendered chart-grader evidence; proxy judges can improve candidates but cannot stand in for the V2 scorer path."
+  ],
+  "remainingLocalClasses": [
+    "missing_model_run",
+    "missing_official_scorer",
+    "missing_task_bundle"
+  ],
+  "remainingExternalClasses": []
+}

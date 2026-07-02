@@ -33,11 +33,15 @@ describe("Proof Loop benchmark board", () => {
 
     for (const id of ["finch", "finauditing", "workstreambench"]) {
       expect(entries[id].productPathCompletion.status).toBe("proven");
-      expect(entries[id].officialSemanticScore.status).toBe("blocked");
       expect(entries[id].productPathCompletion.blockers).toEqual([]);
       expect(entries[id].officialSemanticScore.evidence).toContain(`docs/eval/proofloop-adapter-blockers/${id}.json`);
       expect(entries[id].officialSemanticScore.blockers.join(" ")).toContain(`${id}: official scorer receipt`);
     }
+    expect(entries.finch.officialSemanticScore.status).toBe("needs_scaffold_or_run");
+    expect(entries.finauditing.officialSemanticScore.status).toBe("needs_scaffold_or_run");
+    expect(entries.workstreambench.officialSemanticScore.status).toBe("blocked");
+    expect(entries.finch.officialSemanticScore.blockers.join(" ")).toContain("missing output exporter");
+    expect(entries.workstreambench.officialSemanticScore.blockers.join(" ")).toContain("no public official bundle/scorer/rubric URL");
   });
 
   it("renders a compact markdown status table for users", () => {
@@ -45,7 +49,9 @@ describe("Proof Loop benchmark board", () => {
 
     expect(markdown).toContain("# Proof Loop Benchmark Board");
     expect(markdown).toContain("| `bankertoolbench` | external_adapter | proven | proven |");
-    expect(markdown).toContain("| `finch` | external_adapter | proven | blocked |");
+    expect(markdown).toContain("| `finch` | external_adapter | proven | needs_scaffold_or_run |");
+    expect(markdown).toContain("missing output exporter remains before external-blocked can be claimed");
+    expect(markdown).toContain("NodeRoom still needs one official-output artifact per Finch task id");
     expect(markdown).toContain("Product-path completion is useful proof");
   });
 });

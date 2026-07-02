@@ -7,10 +7,15 @@ import {
   writeFileSync,
 } from "node:fs";
 import { dirname, join, resolve } from "node:path";
+import {
+  solveProofloopBlocker,
+  type ProofloopBlockerSolveReceipt,
+} from "./proofloopBlockerSolver";
 
 export type ProofloopGoalTerminalStatus =
   | "passed"
   | "blocked_external"
+  | "needs_scaffold_or_run"
   | "needs_human_approval"
   | "budget_exhausted"
   | "failed";
@@ -22,6 +27,7 @@ export type ProofloopGoalTaskStatus =
   | "running"
   | "passed"
   | "blocked_external"
+  | "needs_scaffold_or_run"
   | "needs_human_approval"
   | "failed";
 
@@ -67,6 +73,7 @@ export type ProofloopGoalEvent = {
     | "task_started"
     | "task_passed"
     | "task_blocked_external"
+    | "task_needs_scaffold_or_run"
     | "task_needs_human_approval"
     | "task_failed"
     | "goal_status"
@@ -78,6 +85,7 @@ export type ProofloopGoalEvent = {
   evidence?: string[];
   blockers?: string[];
   resumeCommand?: string;
+  solver?: ProofloopBlockerSolveReceipt;
   unblockedTasksRemaining?: number;
   blockedTasksRemaining?: number;
 };
@@ -184,6 +192,18 @@ export function officialScoresGoalTasks(): ProofloopGoalTask[] {
         "docs/eval/proofloop-adapter-blockers/finch.json",
         "docs/eval/proofloop-adapter-blockers/finauditing.json",
         "docs/eval/proofloop-adapter-blockers/workstreambench.json",
+      ],
+    }),
+    commandTask({
+      id: "blocked-lane-solver",
+      title: "Blocked official-lane research/scaffold/model-sweep solver",
+      command: "npm run proofloop -- solve-blockers --goal official-scores",
+      evidence: [
+        ".proofloop/lanes/spreadsheetbench-v1/blocker-analysis.json",
+        ".proofloop/lanes/spreadsheetbench-v2/blocker-analysis.json",
+        ".proofloop/lanes/finch/blocker-analysis.json",
+        ".proofloop/lanes/finauditing/blocker-analysis.json",
+        ".proofloop/lanes/workstreambench/blocker-analysis.json",
       ],
     }),
     commandTask({
@@ -330,11 +350,33 @@ export function runNextProofloopGoalTask(goalId: string, options: ProofloopGoalO
   }
 
   if (task.kind === "external_blocker") {
-    task.status = "blocked_external";
+    const solver = solveProofloopBlocker({
+      root,
+      task: {
+        id: task.id,
+        title: task.title,
+        blockers: task.blockers,
+        evidence: task.evidence,
+        resumeCommand: task.resumeCommand,
+      },
+      phase: "solve",
+      generatedAt: now,
+    });
+    task.status = solver.externalBlockClaimAllowed ? "blocked_external" : "needs_scaffold_or_run";
     task.finishedAt = now;
     task.attempts += 1;
+    task.evidence = [...new Set([...task.evidence, ...Object.values(solver.artifacts)])];
+    task.resumeCommand = solver.nextCommands[0] ?? task.resumeCommand;
     const updated = writeState(root, finalizeState(state, now));
-    const event = appendLedger(root, goalId, taskEvent("task_blocked_external", updated, task, now));
+    const event = appendLedger(root, goalId, {
+      ...taskEvent(
+        task.status === "blocked_external" ? "task_blocked_external" : "task_needs_scaffold_or_run",
+        updated,
+        task,
+        now,
+      ),
+      solver,
+    });
     return { state: updated, task, event };
   }
 
@@ -423,7 +465,9 @@ export function gateProofloopGoal(goalId: string, options: ProofloopGoalOptions 
     goalId,
     type: "goal_gate",
     status: state.status,
-    blockers: state.tasks.filter((task) => task.status === "blocked_external").flatMap((task) => task.blockers),
+    blockers: state.tasks
+      .filter((task) => task.status === "blocked_external" || task.status === "needs_scaffold_or_run")
+      .flatMap((task) => task.blockers),
     unblockedTasksRemaining: state.unblockedTasksRemaining,
     blockedTasksRemaining: state.blockedTasksRemaining,
   });
@@ -453,6 +497,7 @@ export function formatProofloopGoalStatus(state: ProofloopGoalState): string {
 export function formatProofloopGoalResume(state: ProofloopGoalState): string {
   const pending = state.tasks.find((task) => task.status === "pending");
   const blocked = state.tasks.filter((task) => task.status === "blocked_external");
+  const scaffold = state.tasks.filter((task) => task.status === "needs_scaffold_or_run");
   const lines = [
     `Proof Loop resume: ${state.goalId}`,
     `Current status: ${state.status}`,
@@ -471,6 +516,13 @@ export function formatProofloopGoalResume(state: ProofloopGoalState): string {
     for (const task of blocked) {
       lines.push(`  - ${task.id}: ${task.blockers.join("; ")}`);
       if (task.resumeCommand) lines.push(`    resume: ${task.resumeCommand}`);
+    }
+  }
+  if (scaffold.length) {
+    lines.push("", "Scaffold/model-run work:");
+    for (const task of scaffold) {
+      lines.push(`  - ${task.id}: ${task.blockers.join("; ")}`);
+      if (task.resumeCommand) lines.push(`    next: ${task.resumeCommand}`);
     }
   }
   return `${lines.join("\n")}\n`;
@@ -507,6 +559,7 @@ function externalBlockerTask(args: { id: string; title: string; blockers: string
 function finalizeState(state: ProofloopGoalState, now: string): ProofloopGoalState {
   const required = state.tasks.filter((task) => task.required !== false);
   const failed = required.filter((task) => task.status === "failed");
+  const scaffold = required.filter((task) => task.status === "needs_scaffold_or_run");
   const approvals = required.filter((task) => task.status === "needs_human_approval");
   const pending = required.filter((task) => task.status === "pending" || task.status === "running");
   const blockers = required.filter((task) => task.status === "blocked_external");
@@ -514,6 +567,9 @@ function finalizeState(state: ProofloopGoalState, now: string): ProofloopGoalSta
   if (failed.length) {
     state.status = "failed";
     state.terminalReason = `${failed.length} required task(s) failed.`;
+  } else if (scaffold.length && pending.length === 0) {
+    state.status = "needs_scaffold_or_run";
+    state.terminalReason = `${scaffold.length} required task(s) still need local scaffold or model-run work before external-blocked can be claimed.`;
   } else if (approvals.length && pending.length === 0) {
     state.status = "needs_human_approval";
     state.terminalReason = `${approvals.length} required task(s) need human approval.`;
@@ -529,7 +585,10 @@ function finalizeState(state: ProofloopGoalState, now: string): ProofloopGoalSta
   }
 
   state.unblockedTasksRemaining = required.filter((task) => task.status === "pending" && task.kind === "command").length;
-  state.blockedTasksRemaining = blockers.length + required.filter((task) => task.status === "pending" && task.kind !== "command").length;
+  state.blockedTasksRemaining =
+    blockers.length +
+    scaffold.length +
+    required.filter((task) => task.status === "pending" && task.kind !== "command").length;
   state.updatedAt = now;
   return state;
 }
@@ -599,7 +658,7 @@ function cloneTasks(tasks: ProofloopGoalTask[]): ProofloopGoalTask[] {
 }
 
 function isTerminal(status: ProofloopGoalStatus): status is ProofloopGoalTerminalStatus {
-  return ["passed", "blocked_external", "needs_human_approval", "budget_exhausted", "failed"].includes(status);
+  return ["passed", "blocked_external", "needs_scaffold_or_run", "needs_human_approval", "budget_exhausted", "failed"].includes(status);
 }
 
 function relativePath(root: string, path: string): string {

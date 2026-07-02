@@ -1,0 +1,22 @@
+{
+  "schema": 1,
+  "suite": "finauditing",
+  "blockerId": "finauditing-official-score",
+  "generatedAt": "2026-07-02T20:46:40.282Z",
+  "status": "needs_scaffold_or_run",
+  "officialScoreClaimable": false,
+  "officialSemanticScore": null,
+  "acceptedProxyJudge": false,
+  "blockers": [
+    "finauditing: official scorer receipt docs/eval/proofloop-official-scores/finauditing.json is blocked_external; scored receipt is still required before claiming score.",
+    "finauditing: official task bundle lock docs/eval/proofloop-official-task-bundles/finauditing.json is staged, but NodeRoom still needs official-format FinSM/FinRE/FinMR prediction JSONL and an accepted FinMR judge path; OpenAI credentials are one path, while cheaper OpenRouter proxy judges are product-gate evidence only unless accepted upstream."
+  ],
+  "remainingLocalClasses": [
+    "missing_official_scorer",
+    "missing_output_exporter",
+    "missing_task_bundle"
+  ],
+  "remainingExternalClasses": [
+    "missing_judge_credentials"
+  ]
+}

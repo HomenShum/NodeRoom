@@ -1,0 +1,81 @@
+{
+  "schema": 1,
+  "suite": "finch",
+  "generatedAt": "2026-07-02T20:46:40.277Z",
+  "currency": "USD",
+  "models": [
+    {
+      "id": "deepseek/deepseek-v4-pro",
+      "provider": "openrouter",
+      "role": "planner",
+      "costUsd": 0,
+      "tokensIn": 0,
+      "tokensOut": 0,
+      "latencyMs": 0,
+      "routePolicy": "proxy",
+      "source": "env",
+      "selectionReason": "Candidate selected from OpenRouter tool-capable snapshot for finch proxy comparison."
+    },
+    {
+      "id": "z-ai/glm-5.2",
+      "provider": "openrouter",
+      "role": "planner",
+      "costUsd": 0,
+      "tokensIn": 0,
+      "tokensOut": 0,
+      "latencyMs": 0,
+      "routePolicy": "specific",
+      "source": "env",
+      "selectionReason": "Candidate selected from OpenRouter tool-capable snapshot for finch proxy comparison."
+    },
+    {
+      "id": "qwen/qwen3.6-flash",
+      "provider": "openrouter",
+      "role": "planner",
+      "costUsd": 0,
+      "tokensIn": 0,
+      "tokensOut": 0,
+      "latencyMs": 0,
+      "routePolicy": "specific",
+      "source": "env",
+      "selectionReason": "Candidate selected from OpenRouter tool-capable snapshot for finch proxy comparison."
+    },
+    {
+      "id": "qwen/qwen3.6-35b-a3b",
+      "provider": "openrouter",
+      "role": "planner",
+      "costUsd": 0,
+      "tokensIn": 0,
+      "tokensOut": 0,
+      "latencyMs": 0,
+      "routePolicy": "specific",
+      "source": "env",
+      "selectionReason": "Candidate selected from OpenRouter tool-capable snapshot for finch proxy comparison."
+    },
+    {
+      "id": "gpt-4.1-mini",
+      "provider": "openai",
+      "role": "planner",
+      "costUsd": 0,
+      "tokensIn": 0,
+      "tokensOut": 0,
+      "latencyMs": 0,
+      "routePolicy": "specific",
+      "source": "suite-default",
+      "selectionReason": "Candidate selected from suite default matrix for finch; live metadata was not present in the local snapshot."
+    },
+    {
+      "id": "ibm-granite/granite-4.1-8b",
+      "provider": "openrouter",
+      "role": "planner",
+      "costUsd": 0,
+      "tokensIn": 0,
+      "tokensOut": 0,
+      "latencyMs": 0,
+      "routePolicy": "specific",
+      "source": "env",
+      "selectionReason": "Candidate selected from OpenRouter tool-capable snapshot for finch proxy comparison."
+    }
+  ],
+  "note": "Costs are zero until a model route actually runs and records token usage."
+}

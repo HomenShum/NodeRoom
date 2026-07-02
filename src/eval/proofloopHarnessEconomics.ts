@@ -122,6 +122,8 @@ const HARNESS_VERSION_FILES = [
   "scripts/proofloop-company-task-coverage.ts",
   "scripts/proofloop-harness-economics.ts",
   "src/eval/proofloopGoalSupervisor.ts",
+  "src/eval/proofloopBlockerSolver.ts",
+  "src/eval/proofloopModelTracking.ts",
   "src/eval/proofloopBenchmarkNormalization.ts",
   "src/eval/proofloopBenchmarkBoard.ts",
   "src/eval/proofloopCompanyTaskCoverage.ts",
