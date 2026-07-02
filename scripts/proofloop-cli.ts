@@ -10,6 +10,7 @@
  *
  * Commands (mirrors git on purpose -- an agent should only need these five):
  *   proofloop init                 install .proofloop/ scaffold + config
+ *   proofloop this-repo            detect app shape and write local proof intake
  *   proofloop status                is the repo currently proven or broken?
  *   proofloop run [suite]           run a suite, record a proof run
  *   proofloop show [runId|latest]   print a proof run's scorecard/receipt
@@ -47,6 +48,11 @@ import {
 import { dirname, join, resolve } from "node:path";
 import { scanBankerToolBenchBundle } from "../src/eval/bankerToolBenchAdapter";
 import { buildBankerToolBenchManifestLock } from "../src/eval/bankerToolBenchManifestLock";
+import {
+  buildProofloopThisRepoPlan,
+  relativeProofloopPath,
+  writeProofloopThisRepoPlan,
+} from "../src/eval/proofloopAppIntake";
 import {
   BENCHMARK_ADAPTER_IDS,
   readBenchmarkAdapter,
@@ -150,6 +156,8 @@ async function main(): Promise<void> {
   switch (command) {
     case "init":
       return cmdInit();
+    case "this-repo":
+      return cmdThisRepo(args);
     case "status":
       return cmdStatus();
     case "run": {
@@ -216,6 +224,7 @@ function usage(error?: string): void {
       "Usage: proofloop <command> [args]",
       "",
       "  init                 install .proofloop/ scaffold + config",
+      "  this-repo            detect this app and write a local proof intake plan",
       "  status               is the repo currently proven or broken?",
       "  run [suite]          run a suite, record a proof run",
       "  show [runId|latest]  print a proof run's scorecard/receipt",
@@ -308,6 +317,34 @@ function cmdStatus(): void {
   } else {
     console.log("All known suites last passed.");
   }
+}
+
+function cmdThisRepo(args: string[]): void {
+  const goal = optionValueFromArgs(args, "--goal");
+  const report = buildProofloopThisRepoPlan({ root: ROOT, goal });
+  const paths = writeProofloopThisRepoPlan(report, { root: ROOT });
+  const output = {
+    ...report,
+    paths: {
+      intakeReportPath: relativeProofloopPath(ROOT, paths.intakeReportPath),
+      workflowSpecPath: relativeProofloopPath(ROOT, paths.workflowSpecPath),
+    },
+  };
+  if (hasFlag(args, "--json")) {
+    console.log(JSON.stringify(output, null, 2));
+    return;
+  }
+
+  console.log(`proofloop this-repo: ${report.primaryAdapter}`);
+  console.log(`proofloop this-repo: intake ${output.paths.intakeReportPath}`);
+  console.log(`proofloop this-repo: workflow ${output.paths.workflowSpecPath}`);
+  if (report.blockers.length) {
+    console.log("proofloop this-repo: blockers");
+    for (const blocker of report.blockers) console.log(`  - ${blocker}`);
+  }
+  console.log("proofloop this-repo: next commands");
+  for (const command of report.nextCommands) console.log(`  ${command}`);
+  console.log(`proofloop this-repo: live browser proof ${report.liveBrowserProofCommand}`);
 }
 
 function cmdRun(suiteArg: string | undefined, extraArgs: string[] = []): void {
