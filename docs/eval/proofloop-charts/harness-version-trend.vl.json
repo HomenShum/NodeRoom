@@ -1,0 +1,91 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "title": "Harness Version Trend",
+  "description": "Whether newer harness versions improve pass rate, cost, latency, and failure count.",
+  "data": {
+    "url": "data/harness-version-trend.data.json",
+    "format": {
+      "type": "json"
+    }
+  },
+  "mark": {
+    "type": "line",
+    "point": true
+  },
+  "encoding": {
+    "x": {
+      "field": "harnessVersion",
+      "type": "nominal",
+      "title": "Harness version"
+    },
+    "y": {
+      "field": "passRate",
+      "type": "quantitative",
+      "title": "Pass rate"
+    },
+    "color": {
+      "field": "suite",
+      "type": "nominal",
+      "title": "Suite"
+    },
+    "tooltip": [
+      {
+        "field": "suite",
+        "type": "nominal"
+      },
+      {
+        "field": "harnessVersion",
+        "type": "nominal"
+      },
+      {
+        "field": "passRate",
+        "type": "nominal"
+      },
+      {
+        "field": "costUsd",
+        "type": "quantitative"
+      },
+      {
+        "field": "latencyMs",
+        "type": "quantitative"
+      },
+      {
+        "field": "failureCount",
+        "type": "nominal"
+      },
+      {
+        "field": "filesTracked",
+        "type": "nominal"
+      },
+      {
+        "field": "missingFiles",
+        "type": "nominal"
+      },
+      {
+        "field": "sourceFile",
+        "type": "nominal"
+      },
+      {
+        "field": "sourceField",
+        "type": "nominal"
+      }
+    ]
+  },
+  "usermeta": {
+    "proofloop": {
+      "chartId": "harness-version-trend",
+      "sourceBindings": [
+        {
+          "sourceFile": "harness-version.json",
+          "sourceField": "harnessVersion",
+          "required": false
+        },
+        {
+          "sourceFile": "meta.json",
+          "sourceField": "harnessVersion",
+          "required": false
+        }
+      ]
+    }
+  }
+}

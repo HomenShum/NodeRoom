@@ -1,0 +1,12 @@
+[
+  {
+    "suite": "proximitty-underwriting-pr0",
+    "model": "strong-single-model",
+    "passed": true,
+    "costUsd": 0.041,
+    "costPerPassUsd": 0.041,
+    "score": 94,
+    "sourceFile": ".proofloop/runs/latest/model-comparison.json",
+    "sourceField": "policies[0].costUsd"
+  }
+]

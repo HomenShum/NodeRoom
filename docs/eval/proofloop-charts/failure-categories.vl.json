@@ -1,0 +1,74 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "title": "Failure Categories",
+  "description": "What is actually breaking across proof runs and benchmark lanes.",
+  "data": {
+    "url": "data/failure-categories.data.json",
+    "format": {
+      "type": "json"
+    }
+  },
+  "mark": "bar",
+  "encoding": {
+    "x": {
+      "field": "failureCategory",
+      "type": "nominal",
+      "title": "Failure category",
+      "sort": "-y"
+    },
+    "y": {
+      "field": "count",
+      "type": "quantitative",
+      "title": "Count"
+    },
+    "color": {
+      "field": "failureCategory",
+      "type": "nominal",
+      "title": "Failure category"
+    },
+    "tooltip": [
+      {
+        "field": "failureCategory",
+        "type": "nominal"
+      },
+      {
+        "field": "count",
+        "type": "quantitative"
+      },
+      {
+        "field": "suites",
+        "type": "nominal"
+      },
+      {
+        "field": "sourceFile",
+        "type": "nominal"
+      },
+      {
+        "field": "sourceField",
+        "type": "nominal"
+      }
+    ]
+  },
+  "usermeta": {
+    "proofloop": {
+      "chartId": "failure-categories",
+      "sourceBindings": [
+        {
+          "sourceFile": "blocker-analysis.json",
+          "sourceField": "classes[]",
+          "required": false
+        },
+        {
+          "sourceFile": "node-eval.json",
+          "sourceField": "reward.failureCategories[]",
+          "required": false
+        },
+        {
+          "sourceFile": "model-comparison.json",
+          "sourceField": "policies[].failureLayer",
+          "required": false
+        }
+      ]
+    }
+  }
+}

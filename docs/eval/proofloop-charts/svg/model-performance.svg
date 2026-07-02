@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="980" height="520" viewBox="0 0 980 520" role="img" aria-label="Model Performance">
+<rect width="980" height="520" fill="#F8FAFC"/>
+<text x="28" y="34" fill="#0F172A" font-size="22" font-family="Arial, sans-serif" font-weight="700">Model Performance</text>
+<text x="28" y="56" fill="#475569" font-size="13" font-family="Arial, sans-serif">Backed by Proof Loop chart data rows</text>
+<text x="28" y="98" fill="#334155" font-size="12" font-family="Arial, sans-serif">deepseek/deepseek-v4-pro</text>
+<rect x="300" y="83" width="2.0" height="18" rx="3" fill="#64748B"/>
+<text x="310" y="97" fill="#334155" font-size="12" font-family="Arial, sans-serif">0</text>
+<text x="28" y="132" fill="#334155" font-size="12" font-family="Arial, sans-serif">z-ai/glm-5.2</text>
+<rect x="300" y="117" width="2.0" height="18" rx="3" fill="#64748B"/>
+<text x="310" y="131" fill="#334155" font-size="12" font-family="Arial, sans-serif">0</text>
+<text x="28" y="166" fill="#334155" font-size="12" font-family="Arial, sans-serif">qwen/qwen3.6-flash</text>
+<rect x="300" y="151" width="2.0" height="18" rx="3" fill="#64748B"/>
+<text x="310" y="165" fill="#334155" font-size="12" font-family="Arial, sans-serif">0</text>
+<text x="28" y="200" fill="#334155" font-size="12" font-family="Arial, sans-serif">qwen/qwen3.6-35b-a3b</text>
+<rect x="300" y="185" width="2.0" height="18" rx="3" fill="#64748B"/>
+<text x="310" y="199" fill="#334155" font-size="12" font-family="Arial, sans-serif">0</text>
+<text x="28" y="234" fill="#334155" font-size="12" font-family="Arial, sans-serif">gpt-4.1-mini</text>
+<rect x="300" y="219" width="2.0" height="18" rx="3" fill="#64748B"/>
+<text x="310" y="233" fill="#334155" font-size="12" font-family="Arial, sans-serif">0</text>
+<text x="28" y="268" fill="#334155" font-size="12" font-family="Arial, sans-serif">ibm-granite/granite-4.1-8b</text>
+<rect x="300" y="253" width="2.0" height="18" rx="3" fill="#64748B"/>
+<text x="310" y="267" fill="#334155" font-size="12" font-family="Arial, sans-serif">0</text>
+<text x="28" y="302" fill="#334155" font-size="12" font-family="Arial, sans-serif">deepseek/deepseek-v4-pro</text>
+<rect x="300" y="287" width="2.0" height="18" rx="3" fill="#64748B"/>
+<text x="310" y="301" fill="#334155" font-size="12" font-family="Arial, sans-serif">0</text>
+<text x="28" y="336" fill="#334155" font-size="12" font-family="Arial, sans-serif">z-ai/glm-5.2</text>
+<rect x="300" y="321" width="2.0" height="18" rx="3" fill="#64748B"/>
+<text x="310" y="335" fill="#334155" font-size="12" font-family="Arial, sans-serif">0</text>
+<text x="28" y="370" fill="#334155" font-size="12" font-family="Arial, sans-serif">qwen/qwen3.6-flash</text>
+<rect x="300" y="355" width="2.0" height="18" rx="3" fill="#64748B"/>
+<text x="310" y="369" fill="#334155" font-size="12" font-family="Arial, sans-serif">0</text>
+<text x="28" y="404" fill="#334155" font-size="12" font-family="Arial, sans-serif">qwen/qwen3.6-35b-a3b</text>
+<rect x="300" y="389" width="2.0" height="18" rx="3" fill="#64748B"/>
+<text x="310" y="403" fill="#334155" font-size="12" font-family="Arial, sans-serif">0</text>
+<text x="28" y="438" fill="#334155" font-size="12" font-family="Arial, sans-serif">gpt-4.1-mini</text>
+<rect x="300" y="423" width="2.0" height="18" rx="3" fill="#64748B"/>
+<text x="310" y="437" fill="#334155" font-size="12" font-family="Arial, sans-serif">0</text>
+<text x="28" y="472" fill="#334155" font-size="12" font-family="Arial, sans-serif">ibm-granite/granite-4.1-8b</text>
+<rect x="300" y="457" width="2.0" height="18" rx="3" fill="#64748B"/>
+<text x="310" y="471" fill="#334155" font-size="12" font-family="Arial, sans-serif">0</text>
+</svg>

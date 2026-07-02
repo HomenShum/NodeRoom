@@ -210,9 +210,13 @@ describe("proofloop adapters", () => {
       'case "blocker"',
       'case "compare-models"',
       'case "promote-harness"',
+      'case "charts"',
       "writeLoopArtifactsForMeta",
       "proofloopModelRouteForRun",
       "solveProofloopBlocker",
+      "writeProofloopChartPack",
+      "writeChartsAfterCommand",
+      "chart-pack.html",
       "--user-emulation strict",
       "stale_receipt",
       "fileIsFresh",
@@ -294,6 +298,7 @@ describe("proofloop npm scripts", () => {
     expect(pkg.scripts["proofloop:live:browser"]).toContain("proofloop-live-playwright.ts browser");
     expect(pkg.scripts["proofloop:live:btb"]).toContain("proofloop-live-playwright.ts bankertoolbench");
     expect(pkg.scripts["benchmark:proofloop:board"]).toBeDefined();
+    expect(pkg.scripts["benchmark:proofloop:charts"]).toBeDefined();
     expect(pkg.scripts["proofloop:accounting:seed"]).toBeDefined();
     expect(pkg.scripts["proofloop:notion:seed"]).toBeDefined();
   });

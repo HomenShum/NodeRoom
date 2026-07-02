@@ -1,0 +1,77 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "title": "Cost Per Pass",
+  "description": "How much it costs to get one successful proof run for each route.",
+  "data": {
+    "url": "data/cost-per-pass.data.json",
+    "format": {
+      "type": "json"
+    }
+  },
+  "mark": "bar",
+  "encoding": {
+    "x": {
+      "field": "model",
+      "type": "nominal",
+      "title": "Model / route",
+      "sort": "-y"
+    },
+    "y": {
+      "field": "costPerPassUsd",
+      "type": "quantitative",
+      "title": "Cost per pass (USD)"
+    },
+    "color": {
+      "field": "passed",
+      "type": "nominal",
+      "title": "Passed"
+    },
+    "tooltip": [
+      {
+        "field": "suite",
+        "type": "nominal"
+      },
+      {
+        "field": "model",
+        "type": "nominal"
+      },
+      {
+        "field": "costUsd",
+        "type": "quantitative"
+      },
+      {
+        "field": "costPerPassUsd",
+        "type": "quantitative"
+      },
+      {
+        "field": "score",
+        "type": "quantitative"
+      },
+      {
+        "field": "sourceFile",
+        "type": "nominal"
+      },
+      {
+        "field": "sourceField",
+        "type": "nominal"
+      }
+    ]
+  },
+  "usermeta": {
+    "proofloop": {
+      "chartId": "cost-per-pass",
+      "sourceBindings": [
+        {
+          "sourceFile": "cost-ledger.json",
+          "sourceField": "policies[].costUsd",
+          "required": false
+        },
+        {
+          "sourceFile": "meta.json",
+          "sourceField": "model.costUsd",
+          "required": false
+        }
+      ]
+    }
+  }
+}

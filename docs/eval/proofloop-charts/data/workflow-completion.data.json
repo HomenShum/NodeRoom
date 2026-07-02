@@ -1,0 +1,65 @@
+[
+  {
+    "id": "bankertoolbench-official-score",
+    "suite": "bankertoolbench",
+    "status": "needs_scaffold_or_run",
+    "passed": false,
+    "score": null,
+    "sourceFile": ".proofloop/lanes/bankertoolbench/blocker-analysis.json",
+    "sourceField": "status"
+  },
+  {
+    "id": "finauditing-official-score",
+    "suite": "finauditing",
+    "status": "needs_scaffold_or_run",
+    "passed": false,
+    "score": null,
+    "sourceFile": ".proofloop/lanes/finauditing/blocker-analysis.json",
+    "sourceField": "status"
+  },
+  {
+    "id": "finch-official-score",
+    "suite": "finch",
+    "status": "needs_scaffold_or_run",
+    "passed": false,
+    "score": null,
+    "sourceFile": ".proofloop/lanes/finch/blocker-analysis.json",
+    "sourceField": "status"
+  },
+  {
+    "id": "spreadsheetbench-v1-full-official-score",
+    "suite": "spreadsheetbench-v1",
+    "status": "needs_scaffold_or_run",
+    "passed": false,
+    "score": null,
+    "sourceFile": ".proofloop/lanes/spreadsheetbench-v1/blocker-analysis.json",
+    "sourceField": "status"
+  },
+  {
+    "id": "spreadsheetbench-v2-full-official-score",
+    "suite": "spreadsheetbench-v2",
+    "status": "needs_scaffold_or_run",
+    "passed": false,
+    "score": null,
+    "sourceFile": ".proofloop/lanes/spreadsheetbench-v2/blocker-analysis.json",
+    "sourceField": "status"
+  },
+  {
+    "id": "workstreambench-official-score",
+    "suite": "workstreambench",
+    "status": "blocked_external",
+    "passed": false,
+    "score": null,
+    "sourceFile": ".proofloop/lanes/workstreambench/blocker-analysis.json",
+    "sourceField": "status"
+  },
+  {
+    "id": "2026-07-02T20-31-20",
+    "suite": "proximitty-underwriting-pr0",
+    "status": "passed",
+    "passed": true,
+    "score": 94,
+    "sourceFile": ".proofloop/runs/latest/node-eval.json",
+    "sourceField": "verifier.hardPass"
+  }
+]
