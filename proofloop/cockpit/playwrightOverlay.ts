@@ -9,7 +9,7 @@
  * "not exposed in UI" rather than inventing a number.
  *
  * Usage (inside a Playwright spec):
- *   import { installCockpit, emitCockpitEvent, cockpitEventsPath } from "./cockpit/overlay";
+ *   import { installCockpit, emitCockpitEvent, cockpitEventsPath } from "./cockpit/playwrightOverlay";
  *   const eventsPath = cockpitEventsPath(runId);
  *   await installCockpit(page, { suite: "live-browser", baseUrl: BASE });
  *   await emitCockpitEvent(page, { type: "gate_pass", gate: "fresh_room_join" }, eventsPath);

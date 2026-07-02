@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "generatedAt": "2026-07-02T10:25:54.066Z",
+  "generatedAt": "2026-07-02T15:18:58.619Z",
   "policy": [
     "Product-path completion is useful proof: real UI, visible progress, artifacts, verifier receipts, trace, memory, and browser evidence.",
     "Official semantic score is only claimed when the benchmark's official scorer/verifier result is imported.",

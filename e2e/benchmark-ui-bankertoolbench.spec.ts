@@ -25,7 +25,7 @@ import { scanBankerToolBenchBundle, type BankerToolBenchTask } from "../src/eval
 import { assertBtbTaskCoverage, inferOfficialBtbTickers, type BtbTaskCoverageResult } from "../src/eval/btbTaskCoverage";
 import { writeFreshRoomProofReceipt, type FreshRoomExportReceipt } from "../src/eval/freshRoomProofReceipts";
 import { enableFocusModeForTest, expectAttentionOverlayMounted, expectFocusModeOn } from "./focusMode";
-import { installCockpit, emitCockpitEvent, cockpitEventsPath } from "../proofloop/cockpit/overlay";
+import { installCockpit, emitCockpitEvent, cockpitEventsPath } from "../proofloop/cockpit/playwrightOverlay";
 
 const BASE = process.env.BENCH_BASE_URL ?? "http://localhost:5273";
 const ENABLED = process.env.BTB_LIVE_ROOM_E2E === "1";

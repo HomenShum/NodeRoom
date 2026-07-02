@@ -1,6 +1,6 @@
 # Proof Loop Benchmark Board
 
-Generated: 2026-07-02T10:25:54.066Z
+Generated: 2026-07-02T15:18:58.619Z
 
 This board keeps fast product proof separate from official benchmark score claims.
 

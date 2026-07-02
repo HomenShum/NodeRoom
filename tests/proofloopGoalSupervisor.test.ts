@@ -73,10 +73,17 @@ describe("Proof Loop goal supervisor", () => {
 
     expect(tasks.find((task) => task.id === "btb-fullsuite-official-score")?.command).toContain("bankertoolbench:fullsuite-gate");
     expect(tasks.find((task) => task.id === "benchmark-normalization-ledger")?.command).toBe("npm run benchmark:proofloop:normalized");
+    expect(tasks.find((task) => task.id === "company-task-coverage-ledger")?.command).toBe("npm run benchmark:proofloop:company-tasks");
+    expect(tasks.find((task) => task.id === "harness-economics-ledger")?.command).toBe("npm run benchmark:proofloop:harness-economics");
+    expect(tasks.find((task) => task.id === "harness-economics-ledger")?.evidence.join(" ")).toContain("openrouter-top-paid-tools-snapshot");
     const spreadsheetV1 = tasks.find((task) => task.id === "spreadsheetbench-v1-full-official-score");
     expect(spreadsheetV1?.blockers.join(" ")).toContain("912/912 tasks");
     expect(spreadsheetV1?.blockers.join(" ")).toContain("model-run evidence");
+    expect(spreadsheetV1?.blockers.join(" ")).toContain("OpenRouter proxy judges");
     expect(spreadsheetV1?.blockers.join(" ")).not.toContain("not staged");
+    const spreadsheetV2 = tasks.find((task) => task.id === "spreadsheetbench-v2-full-official-score");
+    expect(spreadsheetV2?.blockers.join(" ")).toContain("321 V2 tasks");
+    expect(spreadsheetV2?.blockers.join(" ")).toContain("proxy judges");
     expect(tasks.find((task) => task.id === "external-adapter-local-product-proofs")?.command).toContain("benchmark:proofloop:external-adapter");
     expect(tasks.find((task) => task.id === "external-adapter-blocker-receipts")?.command).toBe("npm run benchmark:proofloop:adapter-blockers");
     for (const id of ["finch-official-score", "finauditing-official-score", "workstreambench-official-score"]) {
@@ -87,8 +94,12 @@ describe("Proof Loop goal supervisor", () => {
       expect(task?.evidence.join(" ")).toContain("docs/eval/proofloop-adapter-blockers");
       expect(task?.evidence.join(" ")).toContain("docs/eval/proofloop-external-adapter-runs");
       expect(task?.evidence.join(" ")).toContain("docs/eval/proofloop-official-scores");
+      expect(task?.resumeCommand).toContain("benchmark:proofloop:harness-economics");
       expect(task?.blockers.join(" ")).not.toContain(".tmp/official-benchmarks");
     }
+    expect(tasks.find((task) => task.id === "finch-official-score")?.blockers.join(" ")).toContain("accepted upstream judge/scorer path");
+    expect(tasks.find((task) => task.id === "finauditing-official-score")?.blockers.join(" ")).toContain("accepted FinMR judge path");
+    expect(tasks.find((task) => task.id === "workstreambench-official-score")?.blockers.join(" ")).toContain("scorer/rubric");
     expect(tasks.find((task) => task.id === "finch-official-score")?.evidence.join(" ")).toContain("docs/eval/proofloop-official-task-bundles/finch.json");
     expect(tasks.find((task) => task.id === "finauditing-official-score")?.evidence.join(" ")).toContain("docs/eval/proofloop-official-task-bundles/finauditing.json");
   });

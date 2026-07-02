@@ -132,6 +132,25 @@ export function officialScoresGoalTasks(): ProofloopGoalTask[] {
       ],
     }),
     commandTask({
+      id: "company-task-coverage-ledger",
+      title: "Company/task archetype coverage ledger",
+      command: "npm run benchmark:proofloop:company-tasks",
+      evidence: [
+        "docs/eval/proofloop-company-task-coverage.json",
+        "docs/eval/PROOFLOOP_COMPANY_TASK_COVERAGE.md",
+      ],
+    }),
+    commandTask({
+      id: "harness-economics-ledger",
+      title: "Harness version and OpenRouter proxy economics ledger",
+      command: "npm run benchmark:proofloop:harness-economics",
+      evidence: [
+        "docs/eval/proofloop-harness-economics.json",
+        "docs/eval/PROOFLOOP_HARNESS_ECONOMICS.md",
+        "docs/eval/openrouter-top-paid-tools-snapshot.json",
+      ],
+    }),
+    commandTask({
       id: "external-adapter-local-product-proofs",
       title: "External adapter local product-path browser proofs",
       command: "npm run benchmark:proofloop:external-adapter -- --prod --user-emulation strict",
@@ -165,7 +184,7 @@ export function officialScoresGoalTasks(): ProofloopGoalTask[] {
       title: "SpreadsheetBench V1 full 912-task official score",
       blockers: [
         "Full public 912-task SpreadsheetBench V1 bundle is staged and deterministically scored: 912/912 tasks, 2,729 agent-visible workbooks, 2,729 evaluator answer workbooks, 95/912 copy-input baseline pass.",
-        "All 912 tasks need model-run evidence before strict official-score promotion.",
+        "All 912 tasks need model-run evidence before strict official-score promotion; cheaper OpenRouter proxy judges can triage product quality but cannot replace the SpreadsheetBench workbook scorer for the official claim.",
       ],
       evidence: [
         "docs/eval/official-benchmark-task-coverage.json",
@@ -173,25 +192,25 @@ export function officialScoresGoalTasks(): ProofloopGoalTask[] {
         "docs/eval/spreadsheetbench-v1-912-copy-input-baseline.json",
       ],
       resumeCommand:
-        "run all 912 SpreadsheetBench V1 tasks through the model runner, then npm run benchmark:official:task-coverage -- --strict",
+        "run all 912 SpreadsheetBench V1 tasks through the model runner, use npm run benchmark:proofloop:harness-economics to select cheap proxy routes for product iteration, then npm run benchmark:official:task-coverage -- --strict",
     }),
     externalBlockerTask({
       id: "spreadsheetbench-v2-full-official-score",
       title: "SpreadsheetBench V2 full 321-task official score",
       blockers: [
         "Only the public/example SpreadsheetBench V2 slice is staged locally.",
-        "All 321 V2 tasks need model-run, workbook scorer, and rendered chart-grader evidence.",
+        "All 321 V2 tasks need official bundle, model-run, workbook scorer, and rendered chart-grader evidence; proxy judges can improve candidates but cannot stand in for the V2 scorer path.",
       ],
       evidence: ["docs/eval/official-benchmark-task-coverage.json"],
       resumeCommand:
-        "stage the full SpreadsheetBench V2 bundle, run all 321 tasks, then npm run benchmark:official:task-coverage -- --strict",
+        "stage the full SpreadsheetBench V2 321-task bundle, run all tasks and scorer/chart grader, use npm run benchmark:proofloop:harness-economics for proxy-model routing, then npm run benchmark:official:task-coverage -- --strict",
     }),
     externalBlockerTask({
       id: "finch-official-score",
       title: "Finch / FinWorkBench official score",
       blockers: [
         "finch: official scorer receipt docs/eval/proofloop-official-scores/finch.json is blocked_external; scored receipt is still required before claiming score.",
-        "finch: official task bundle lock docs/eval/proofloop-official-task-bundles/finch.json is staged, but NodeRoom still needs one official-output artifact per Finch task id and Azure OpenAI judge credentials for the upstream scorer.",
+        "finch: official task bundle lock docs/eval/proofloop-official-task-bundles/finch.json is staged, but NodeRoom still needs one official-output artifact per Finch task id and an accepted upstream judge/scorer path; Azure OpenAI credentials are one path, while cheaper OpenRouter proxy judges are product-gate evidence only unless accepted upstream.",
       ],
       evidence: [
         "proofloop/benchmarks/finch/adapter.json",
@@ -200,14 +219,14 @@ export function officialScoresGoalTasks(): ProofloopGoalTask[] {
         "docs/eval/proofloop-official-task-bundles/finch.json",
         "docs/eval/proofloop-official-scores/finch.json",
       ],
-      resumeCommand: "emit NodeRoom outputs for every official Finch task id, run the upstream Finch prompt/judge pipeline with Azure OpenAI judge credentials, import a scored receipt, then npm run benchmark:proofloop:adapter-blockers -- --id finch --strict",
+      resumeCommand: "emit NodeRoom outputs for every official Finch task id, run/import the accepted upstream Finch scorer or judge output, use npm run benchmark:proofloop:harness-economics for proxy triage, then npm run benchmark:proofloop:adapter-blockers -- --id finch --strict",
     }),
     externalBlockerTask({
       id: "finauditing-official-score",
       title: "FinAuditing official score",
       blockers: [
         "finauditing: official scorer receipt docs/eval/proofloop-official-scores/finauditing.json is blocked_external; scored receipt is still required before claiming score.",
-        "finauditing: official task bundle lock docs/eval/proofloop-official-task-bundles/finauditing.json is staged, but NodeRoom still needs official-format FinSM/FinRE/FinMR prediction JSONL and OpenAI judge credentials for FinMR.",
+        "finauditing: official task bundle lock docs/eval/proofloop-official-task-bundles/finauditing.json is staged, but NodeRoom still needs official-format FinSM/FinRE/FinMR prediction JSONL and an accepted FinMR judge path; OpenAI credentials are one path, while cheaper OpenRouter proxy judges are product-gate evidence only unless accepted upstream.",
       ],
       evidence: [
         "proofloop/benchmarks/finauditing/adapter.json",
@@ -216,14 +235,14 @@ export function officialScoresGoalTasks(): ProofloopGoalTask[] {
         "docs/eval/proofloop-official-task-bundles/finauditing.json",
         "docs/eval/proofloop-official-scores/finauditing.json",
       ],
-      resumeCommand: "emit official-format FinSM/FinRE/FinMR predictions, run/import FinAuditing scorer output, provide OpenAI judge credentials for FinMR, then npm run benchmark:proofloop:adapter-blockers -- --id finauditing --strict",
+      resumeCommand: "emit official-format FinSM/FinRE/FinMR predictions, run/import FinAuditing scorer output with an accepted FinMR judge path, use npm run benchmark:proofloop:harness-economics for proxy triage, then npm run benchmark:proofloop:adapter-blockers -- --id finauditing --strict",
     }),
     externalBlockerTask({
       id: "workstreambench-official-score",
       title: "WorkstreamBench official score",
       blockers: [
         "workstreambench: official scorer receipt docs/eval/proofloop-official-scores/workstreambench.json is blocked_external; scored receipt is still required before claiming score.",
-        "workstreambench: no public official task bundle lock docs/eval/proofloop-official-task-bundles/workstreambench.json is staged because no public official bundle/scorer URL was found.",
+        "workstreambench: no public official task bundle lock docs/eval/proofloop-official-task-bundles/workstreambench.json is staged because no public official bundle/scorer/rubric URL was found.",
       ],
       evidence: [
         "proofloop/benchmarks/workstreambench/adapter.json",
@@ -231,7 +250,7 @@ export function officialScoresGoalTasks(): ProofloopGoalTask[] {
         "docs/eval/proofloop-adapter-blockers/workstreambench.json",
         "docs/eval/proofloop-official-scores/workstreambench.json",
       ],
-      resumeCommand: "obtain the official WorkstreamBench task bundle and scorer/rubric from an upstream release or authors, lock it in docs/eval/proofloop-official-task-bundles/workstreambench.json, import a scored receipt, then npm run benchmark:proofloop:adapter-blockers -- --id workstreambench --strict",
+      resumeCommand: "obtain the official WorkstreamBench task bundle and scorer/rubric from an upstream release or authors, lock it in docs/eval/proofloop-official-task-bundles/workstreambench.json, use npm run benchmark:proofloop:harness-economics for proxy triage, import a scored receipt, then npm run benchmark:proofloop:adapter-blockers -- --id workstreambench --strict",
     }),
   ];
 }
