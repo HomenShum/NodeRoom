@@ -32,11 +32,11 @@ describe("Proof Loop benchmark board", () => {
     const entries = Object.fromEntries(board.entries.map((entry) => [entry.id, entry]));
 
     for (const id of ["finch", "finauditing", "workstreambench"]) {
-      expect(entries[id].productPathCompletion.status).toBe("registered");
+      expect(entries[id].productPathCompletion.status).toBe("proven");
       expect(entries[id].officialSemanticScore.status).toBe("blocked");
-      expect(entries[id].productPathCompletion.blockers.join(" ")).toContain("missing implementation file");
+      expect(entries[id].productPathCompletion.blockers).toEqual([]);
       expect(entries[id].officialSemanticScore.evidence).toContain(`docs/eval/proofloop-adapter-blockers/${id}.json`);
-      expect(entries[id].officialSemanticScore.blockers.join(" ")).toContain(`${id}: missing implementation file`);
+      expect(entries[id].officialSemanticScore.blockers.join(" ")).toContain(`${id}: official scorer receipt`);
     }
   });
 
@@ -45,7 +45,7 @@ describe("Proof Loop benchmark board", () => {
 
     expect(markdown).toContain("# Proof Loop Benchmark Board");
     expect(markdown).toContain("| `bankertoolbench` | external_adapter | proven | proven |");
-    expect(markdown).toContain("| `finch` | external_adapter | registered | blocked |");
+    expect(markdown).toContain("| `finch` | external_adapter | proven | blocked |");
     expect(markdown).toContain("Product-path completion is useful proof");
   });
 });

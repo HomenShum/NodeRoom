@@ -68,7 +68,7 @@ type SuiteConfig = {
   cmd: string;
   minScore?: number;
   kind?: "cli" | "browser";
-  receiptGlob?: "live-cli" | "live-browser" | "adapter-blocker" | "none";
+  receiptGlob?: "live-cli" | "live-browser" | "adapter-blocker" | "external-adapter-run" | "none";
 };
 
 type ProofloopConfig = {
@@ -119,19 +119,19 @@ const DEFAULT_CONFIG: ProofloopConfig = {
       receiptGlob: "live-browser",
     },
     finch: {
-      cmd: "npm run benchmark:proofloop:adapter-blockers -- --id finch --strict",
-      kind: "cli",
-      receiptGlob: "adapter-blocker",
+      cmd: "npm run benchmark:proofloop:external-adapter -- --id finch --prod --user-emulation strict",
+      kind: "browser",
+      receiptGlob: "external-adapter-run",
     },
     finauditing: {
-      cmd: "npm run benchmark:proofloop:adapter-blockers -- --id finauditing --strict",
-      kind: "cli",
-      receiptGlob: "adapter-blocker",
+      cmd: "npm run benchmark:proofloop:external-adapter -- --id finauditing --prod --user-emulation strict",
+      kind: "browser",
+      receiptGlob: "external-adapter-run",
     },
     workstreambench: {
-      cmd: "npm run benchmark:proofloop:adapter-blockers -- --id workstreambench --strict",
-      kind: "cli",
-      receiptGlob: "adapter-blocker",
+      cmd: "npm run benchmark:proofloop:external-adapter -- --id workstreambench --prod --user-emulation strict",
+      kind: "browser",
+      receiptGlob: "external-adapter-run",
     },
   },
 };
@@ -887,6 +887,16 @@ function locateReceipt(
     return {
       passed: receipt.status === "ready",
       failedGates: receipt.status === "ready" ? [] : receipt.blockers ?? [`${suite}: blocked_external`],
+      receiptPaths: [rel(receiptPath)],
+    };
+  }
+  if (suiteConfig.receiptGlob === "external-adapter-run") {
+    const receiptPath = resolve(ROOT, "docs", "eval", "proofloop-external-adapter-runs", `${suite}.json`);
+    if (!existsSync(receiptPath)) return { receiptPaths: [] };
+    const receipt = JSON.parse(readFileSync(receiptPath, "utf8")) as { status?: string; failedGates?: string[] };
+    return {
+      passed: receipt.status === "passed",
+      failedGates: receipt.status === "passed" ? [] : receipt.failedGates ?? [`${suite}: external adapter product proof failed`],
       receiptPaths: [rel(receiptPath)],
     };
   }

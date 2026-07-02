@@ -3,6 +3,8 @@
   "adapterId": "finch",
   "name": "Finch / FinWorkBench",
   "status": "blocked_external",
+  "localImplementationStatus": "ready",
+  "officialScoreStatus": "blocked_external",
   "officialSourceUrls": [
     "https://arxiv.org/abs/2512.13168",
     "https://github.com/FinWorkBench/Finch",
@@ -10,14 +12,13 @@
   ],
   "verifierCommand": "npm run benchmark:proofloop:adapter-blockers -- --id finch --strict",
   "liveUserCommand": "npm run proofloop -- run finch --prod --user-emulation strict --cockpit",
-  "missingImplementationFiles": [
-    "proofloop/benchmarks/finch/load-tasks.ts",
-    "proofloop/benchmarks/finch/browser-scenario.spec.ts"
-  ],
+  "missingImplementationFiles": [],
+  "officialScoreReceiptPath": "docs/eval/proofloop-official-scores/finch.json",
+  "officialTaskBundleManifestPath": ".tmp/official-benchmarks/finch/manifest.json",
   "validationErrors": [],
   "blockers": [
-    "finch: missing implementation file proofloop/benchmarks/finch/load-tasks.ts",
-    "finch: missing implementation file proofloop/benchmarks/finch/browser-scenario.spec.ts"
+    "finch: official scorer receipt docs/eval/proofloop-official-scores/finch.json is not imported yet.",
+    "finch: official task bundle lock .tmp/official-benchmarks/finch/manifest.json is not staged yet."
   ],
   "officialCommandPlan": [
     "Clone/lock https://github.com/FinWorkBench/Finch and https://huggingface.co/datasets/FinWorkBench/Finch.",
@@ -26,9 +27,10 @@
     "Import the official judge JSON into docs/eval/proofloop-adapter-blockers/finch.json before claiming score."
   ],
   "resumeCommands": [
+    "npm run benchmark:proofloop:external-adapter -- --id finch --prod --user-emulation strict",
     "npm run benchmark:proofloop:adapter-blockers -- --id finch",
-    "implement proofloop/benchmarks/finch/load-tasks.ts",
-    "implement proofloop/benchmarks/finch/browser-scenario.spec.ts",
+    "import docs/eval/proofloop-official-scores/finch.json from the upstream official scorer",
+    "stage .tmp/official-benchmarks/finch/manifest.json from the locked official task bundle",
     "npm run proofloop -- run finch --prod --user-emulation strict --cockpit",
     "npm run benchmark:proofloop:adapter-blockers -- --id finch --strict"
   ],

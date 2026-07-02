@@ -50,10 +50,21 @@ type JsonObject = Record<string, unknown>;
 
 type ExternalAdapterBlockerReceipt = {
   status?: "ready" | "blocked_external";
+  localImplementationStatus?: "ready" | "missing";
+  officialScoreStatus?: "imported" | "blocked_external";
   blockers?: string[];
   missingImplementationFiles?: string[];
   officialSourceUrls?: string[];
   resumeCommands?: string[];
+};
+
+type ExternalAdapterProductProofReceipt = {
+  status?: "passed" | "failed";
+  taskCount?: number;
+  localAdapterOnly?: boolean;
+  officialScoreClaim?: boolean;
+  evidence?: string[];
+  failedGates?: string[];
 };
 
 export function buildProofloopBenchmarkBoard(args: {
@@ -78,7 +89,7 @@ export function buildProofloopBenchmarkBoard(args: {
       "Product-path completion is useful proof: real UI, visible progress, artifacts, verifier receipts, trace, memory, and browser evidence.",
       "Official semantic score is only claimed when the benchmark's official scorer/verifier result is imported.",
       "Docker/Harbor isolation can block official score promotion; it must not block product-path Proof Loop runs.",
-      "Registered external adapters are backlog inventory until their live browser scenario and verifier implementation exist.",
+      "External benchmark adapters can prove local app-agnostic product paths before official score promotion; the two claims must stay separate.",
     ],
     summary: {
       total: entries.length,
@@ -304,10 +315,15 @@ function adapterEntry(adapter: ProofloopBenchmarkAdapter, root: string): Prooflo
   const adapterBlocker = !isBtb
     ? readJson<ExternalAdapterBlockerReceipt>(root, `docs/eval/proofloop-adapter-blockers/${adapter.id}.json`)
     : undefined;
+  const adapterProductProof = !isBtb
+    ? readJson<ExternalAdapterProductProofReceipt>(root, `docs/eval/proofloop-external-adapter-runs/${adapter.id}.json`)
+    : undefined;
   const livePassed = live?.passed === true;
   const readyToRun = validationErrors.length === 0 && implementationMissing.length === 0;
+  const adapterProductProofPassed = adapterProductProof?.status === "passed";
   const btbOfficialProven = btbFullSuite?.flipEligible === true;
   const adapterBlockerEvidence = !isBtb && adapterBlocker ? [`docs/eval/proofloop-adapter-blockers/${adapter.id}.json`] : [];
+  const adapterProductProofEvidence = !isBtb && adapterProductProof ? [`docs/eval/proofloop-external-adapter-runs/${adapter.id}.json`] : [];
   const adapterOfficialBlockers = adapterBlocker?.blockers?.length
     ? adapterBlocker.blockers
     : ["Run npm run benchmark:proofloop:adapter-blockers to produce a typed external-adapter blocker receipt."];
@@ -318,17 +334,19 @@ function adapterEntry(adapter: ProofloopBenchmarkAdapter, root: string): Prooflo
     family: "external_adapter",
     liveUserContract: "required",
     productPathCompletion: {
-      status: livePassed ? "proven" : readyToRun ? "ready_to_run" : "registered",
+      status: livePassed || adapterProductProofPassed ? "proven" : readyToRun ? "ready_to_run" : "registered",
       scoreType: "product_path_completion",
       evidence: [
         `proofloop/benchmarks/${adapter.id}/adapter.json`,
         ...(livePassed ? ["docs/eval/bankertoolbench-live-room-proof.json"] : []),
+        ...adapterProductProofEvidence,
         ...adapterBlockerEvidence,
       ],
       command: adapter.liveUserCommand,
       blockers: [
         ...validationErrors,
         ...implementationMissing.map((file) => `${adapter.id}: missing implementation file ${file}`),
+        ...(adapterProductProof?.status === "failed" ? adapterProductProof.failedGates ?? [`${adapter.id}: external adapter product proof failed`] : []),
       ],
     },
     officialSemanticScore: {
@@ -361,6 +379,9 @@ function adapterEntry(adapter: ProofloopBenchmarkAdapter, root: string): Prooflo
         : !isBtb && adapterBlocker
           ? {
             missingImplementationFiles: adapterBlocker.missingImplementationFiles?.length ?? null,
+            localAdapterTasks: adapterProductProof?.taskCount ?? null,
+            localAdapterOnly: adapterProductProof?.localAdapterOnly ?? null,
+            officialScoreClaim: adapterProductProof?.officialScoreClaim ?? null,
             officialSourceUrls: adapterBlocker.officialSourceUrls?.length ?? null,
             resumeCommands: adapterBlocker.resumeCommands?.length ?? null,
           }
@@ -370,7 +391,11 @@ function adapterEntry(adapter: ProofloopBenchmarkAdapter, root: string): Prooflo
       ? btbOfficialProven
         ? ["BankerToolBench full-suite official scoring is imported: completion/scoring is proven separately from pass rate."]
         : ["BankerToolBench product-path proof can pass while Harbor/Gandalf official score import remains blocked."]
-      : ["Adapter registration is useful backlog inventory; it is not a live proof claim."],
+      : [
+        adapterProductProofPassed
+          ? "Local app-agnostic Proof Loop adapter has browser proof; official score is still blocked on upstream scorer import."
+          : "Adapter registration is useful backlog inventory until its local browser proof has run.",
+      ],
   };
 }
 

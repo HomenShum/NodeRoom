@@ -123,6 +123,16 @@ export function officialScoresGoalTasks(): ProofloopGoalTask[] {
       ],
     }),
     commandTask({
+      id: "external-adapter-local-product-proofs",
+      title: "External adapter local product-path browser proofs",
+      command: "npm run benchmark:proofloop:external-adapter -- --prod --user-emulation strict",
+      evidence: [
+        "docs/eval/proofloop-external-adapter-runs/finch.json",
+        "docs/eval/proofloop-external-adapter-runs/finauditing.json",
+        "docs/eval/proofloop-external-adapter-runs/workstreambench.json",
+      ],
+    }),
+    commandTask({
       id: "external-adapter-blocker-receipts",
       title: "External adapter typed blocker receipts",
       command: "npm run benchmark:proofloop:adapter-blockers",
@@ -167,31 +177,43 @@ export function officialScoresGoalTasks(): ProofloopGoalTask[] {
       id: "finch-official-score",
       title: "Finch / FinWorkBench official score",
       blockers: [
-        "finch: missing implementation file proofloop/benchmarks/finch/load-tasks.ts",
-        "finch: missing implementation file proofloop/benchmarks/finch/browser-scenario.spec.ts",
+        "finch: local Proof Loop adapter proof exists; official scorer receipt docs/eval/proofloop-official-scores/finch.json is not imported yet.",
+        "finch: official task bundle lock .tmp/official-benchmarks/finch/manifest.json is not staged yet.",
       ],
-      evidence: ["proofloop/benchmarks/finch/adapter.json", "docs/eval/proofloop-adapter-blockers/finch.json"],
-      resumeCommand: "implement proofloop/benchmarks/finch/load-tasks.ts plus proofloop/benchmarks/finch/browser-scenario.spec.ts, then npm run proofloop -- run finch --prod --user-emulation strict --cockpit",
+      evidence: [
+        "proofloop/benchmarks/finch/adapter.json",
+        "docs/eval/proofloop-external-adapter-runs/finch.json",
+        "docs/eval/proofloop-adapter-blockers/finch.json",
+      ],
+      resumeCommand: "import Finch official scorer receipt and locked task-bundle manifest, then npm run benchmark:proofloop:adapter-blockers -- --id finch --strict",
     }),
     externalBlockerTask({
       id: "finauditing-official-score",
       title: "FinAuditing official score",
       blockers: [
-        "finauditing: missing implementation file proofloop/benchmarks/finauditing/load-tasks.ts",
-        "finauditing: missing implementation file proofloop/benchmarks/finauditing/browser-scenario.spec.ts",
+        "finauditing: local Proof Loop adapter proof exists; official scorer receipt docs/eval/proofloop-official-scores/finauditing.json is not imported yet.",
+        "finauditing: official task bundle lock .tmp/official-benchmarks/finauditing/manifest.json is not staged yet.",
       ],
-      evidence: ["proofloop/benchmarks/finauditing/adapter.json", "docs/eval/proofloop-adapter-blockers/finauditing.json"],
-      resumeCommand: "implement proofloop/benchmarks/finauditing/load-tasks.ts plus proofloop/benchmarks/finauditing/browser-scenario.spec.ts, then npm run proofloop -- run finauditing --prod --user-emulation strict --cockpit",
+      evidence: [
+        "proofloop/benchmarks/finauditing/adapter.json",
+        "docs/eval/proofloop-external-adapter-runs/finauditing.json",
+        "docs/eval/proofloop-adapter-blockers/finauditing.json",
+      ],
+      resumeCommand: "import FinAuditing official scorer receipt and locked task-bundle manifest, then npm run benchmark:proofloop:adapter-blockers -- --id finauditing --strict",
     }),
     externalBlockerTask({
       id: "workstreambench-official-score",
       title: "WorkstreamBench official score",
       blockers: [
-        "workstreambench: missing implementation file proofloop/benchmarks/workstreambench/load-tasks.ts",
-        "workstreambench: missing implementation file proofloop/benchmarks/workstreambench/browser-scenario.spec.ts",
+        "workstreambench: local Proof Loop adapter proof exists; official scorer receipt docs/eval/proofloop-official-scores/workstreambench.json is not imported yet.",
+        "workstreambench: official task bundle lock .tmp/official-benchmarks/workstreambench/manifest.json is not staged yet.",
       ],
-      evidence: ["proofloop/benchmarks/workstreambench/adapter.json", "docs/eval/proofloop-adapter-blockers/workstreambench.json"],
-      resumeCommand: "implement proofloop/benchmarks/workstreambench/load-tasks.ts plus proofloop/benchmarks/workstreambench/browser-scenario.spec.ts, then npm run proofloop -- run workstreambench --prod --user-emulation strict --cockpit",
+      evidence: [
+        "proofloop/benchmarks/workstreambench/adapter.json",
+        "docs/eval/proofloop-external-adapter-runs/workstreambench.json",
+        "docs/eval/proofloop-adapter-blockers/workstreambench.json",
+      ],
+      resumeCommand: "import WorkstreamBench official scorer receipt and locked task-bundle manifest, then npm run benchmark:proofloop:adapter-blockers -- --id workstreambench --strict",
     }),
   ];
 }
