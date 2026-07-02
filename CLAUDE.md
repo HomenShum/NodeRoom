@@ -41,3 +41,15 @@ npm run agent:improve     # run the full improvement loop
 npm run scaffold:check    # check current diff + generate handoff
 npm run scaffold:check -- --strict-immutability  # hard gate for scaffold-repair PRs
 ```
+
+## Proximitty Proof Loop
+
+`npm run proofloop:proximitty` runs the local/staging Proximitty underwriting
+Proof Loop demo. It uses synthetic demo data only and must keep completion proof
+separate from any official semantic benchmark score. If a policy fails, produce
+scaffold suggestions in `model-delta.md`; do not lower the verifier or evidence
+gate.
+
+Use `npm run proofloop -- memory doctor` to verify the local-first recall layer,
+and `npm run proofloop -- memory search "<query>"` to inspect compacted proof
+episodes. Generated `.proofloop/memory/` stores stay local and uncommitted.

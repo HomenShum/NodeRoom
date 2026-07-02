@@ -603,7 +603,7 @@ describe("agent runtime — collaboration under concurrency", () => {
         narrative: z.string(),
         rows: z.array(z.object({
           label: z.string(),
-          values: z.record(z.union([z.string(), z.number(), z.boolean(), z.null()])),
+          values: z.record(z.string(), z.union([z.string(), z.number(), z.boolean(), z.null()])),
         })).optional(),
         sourceArtifactIds: z.array(z.string()).optional(),
       }),
@@ -696,7 +696,7 @@ describe("agent runtime — collaboration under concurrency", () => {
         narrative: z.string(),
         rows: z.array(z.object({
           label: z.string(),
-          values: z.record(z.union([z.string(), z.number(), z.boolean(), z.null()])),
+          values: z.record(z.string(), z.union([z.string(), z.number(), z.boolean(), z.null()])),
         })),
         sourceArtifactIds: z.array(z.string()),
       }),
@@ -765,7 +765,7 @@ describe("agent runtime — collaboration under concurrency", () => {
         narrative: z.string(),
         rows: z.array(z.object({
           label: z.string(),
-          values: z.record(z.union([z.string(), z.number(), z.boolean(), z.null()])),
+          values: z.record(z.string(), z.union([z.string(), z.number(), z.boolean(), z.null()])),
         })),
         sourceArtifactIds: z.array(z.string()),
       }),

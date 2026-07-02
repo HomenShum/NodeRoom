@@ -886,8 +886,8 @@ export const ROOM_TOOLS: AgentTool[] = [
         }).optional(),
         tests: z.array(z.object({
           name: z.string(),
-          inputs: z.record(z.number()),
-          expected: z.record(z.number()),
+          inputs: z.record(z.string(), z.number()),
+          expected: z.record(z.string(), z.number()),
           tolerance: z.number().optional(),
         })).optional(),
       }),

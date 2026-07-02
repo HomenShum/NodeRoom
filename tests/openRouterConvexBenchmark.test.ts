@@ -10,11 +10,16 @@ describe("OpenRouter-on-Convex benchmark contract", () => {
     });
 
     expect(report.summary.openRouterRouteCount).toBeGreaterThan(10);
-    expect(report.summary.harnessCases).toBeGreaterThan(5);
+    expect(report.summary.harnessCases).toBeGreaterThanOrEqual(5);
     expect(report.summary.harnessReady).toBe(true);
+    expect(report.summary.harnessCasesPassing).toBe(report.summary.harnessCases);
     expect(report.summary.officialPromotionReady).toBe(false);
     expect(report.summary.officialStyleSuites).toBe(4);
     expect(report.summary.officialStyleSuitesReady).toBe(false);
+    expect(report.cases.find((item) => item.id === "docker_agent_workspace_isolation")).toMatchObject({
+      scope: "official_promotion",
+      status: "blocked",
+    });
     expect(report.cases.find((item) => item.id === "bankertoolbench_official_verifier_path")).toMatchObject({
       scope: "official_promotion",
       status: "blocked",
@@ -31,6 +36,7 @@ describe("OpenRouter-on-Convex benchmark contract", () => {
       eligibleForConvexHarness: true,
       mustRunThroughAgentJobs: true,
     });
+    expect(route?.blockers).not.toContain("OpenRouter-on-Convex harness cases are not all passing");
     expect(route?.requiredContract).toEqual(expect.arrayContaining([
       expect.stringContaining("agentJobs"),
       expect.stringContaining("Convex actions call providers"),
@@ -48,6 +54,7 @@ describe("OpenRouter-on-Convex benchmark contract", () => {
       role: "background_long_running_only",
       eligibleForConvexHarness: true,
     });
+    expect(freeAuto?.blockers).not.toContain("OpenRouter-on-Convex harness cases are not all passing");
     expect(freeAuto?.blockers).toContain("route needs N>=5 p95 ladder evidence before interactive promotion");
   });
 

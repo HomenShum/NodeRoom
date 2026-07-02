@@ -1,17 +1,17 @@
 # Official Benchmark Task Coverage
 
-Generated: 2026-06-26T08:48:53.035Z
+Generated: 2026-07-01T23:46:23.306Z
 
 This is the no-shorthand ledger for the external benchmark question: have we staged and run every published task, or only a subset/fixture? It deliberately separates full official tracks, verified subsets, and NodeRoom's internal multi-user conflict suite.
 
 ## Summary
 
-- Tracks complete: 1/5
+- Tracks complete: 2/5
 - Declared task targets represented in this ledger: 1739
-- Staged tasks: 410
+- Staged tasks: 509
 - Deterministic runner tasks: 409
-- Model-run cases: 7
-- Model-run attempts: 19
+- Model-run cases: 106
+- Model-run attempts: 118
 - Strict full coverage ready: no
 
 ## Policy
@@ -29,7 +29,7 @@ This is the no-shorthand ledger for the external benchmark question: have we sta
 | `spreadsheetbench-v1-full-912` | missing | 912 | 0 | 0 | 0 / 0 | n/a | Download/lock the full 912-task SpreadsheetBench V1 bundle.; Stage all 912 tasks with agent/evaluator isolation.; Run all 912 tasks through the model runner or an approved chunked official-policy runner. |
 | `spreadsheetbench-v1-verified-400` | partial | 400 | 400 | 400 | 3 / 15 | 1.000 | 397 verified task(s) still need model-run evidence; current N=5 smoke covers 3/400 cases.; Full verified-score promotion still needs official scoring parity, not only local workbook scoring. |
 | `spreadsheetbench-v2-full-321` | partial | 321 | 3 | 3 | 3 / 3 | 0.000 | 318 SpreadsheetBench 2 task(s) still need staging from the full official bundle.; Run every staged V2 task through the model runner, static workbook scorer, and rendered/VLM chart grader where applicable. |
-| `bankertoolbench-full-100` | partial | 100 | 1 | 0 | 1 / 1 | 1.000 | 99 BankerToolBench task(s) still need staging from the official bundle.; Wire Harbor/MCP/Gandalf verifier replay before claiming an official BTB score. |
+| `bankertoolbench-full-100` | complete | 100 | 100 | 0 | 100 / 100 | 0.000 | none |
 | `noderoom-multi-user-conflict` | complete | 6 | 6 | 6 | 0 / 0 | 1.000 | none |
 
 ## Evidence
@@ -54,9 +54,9 @@ This is the no-shorthand ledger for the external benchmark question: have we sta
 
 ### BankerToolBench full investment-banking benchmark
 
-- Local scope: one-task local fixture
+- Local scope: full official 100-task clean generic-only full-suite receipt
 - Sources: [https://github.com/Handshake-AI-Research/bankertoolbench](https://github.com/Handshake-AI-Research/bankertoolbench), [https://huggingface.co/datasets/handshake-ai-research/bankertoolbench](https://huggingface.co/datasets/handshake-ai-research/bankertoolbench)
-- Evidence: `docs/eval/bankertoolbench-stage-smoke.json`, `docs/eval/bankertoolbench-run-positive-smoke.json`, `docs/eval/bankertoolbench-official-contract.json`
+- Evidence: `docs/eval/fresh-room/FR-020/fullsuite-gate-receipt.json`, `docs/eval/btb-clean-capability-full100-parallel-v3-gpt41mini.json`, `docs/eval/bankertoolbench-stage-smoke.json`, `docs/eval/bankertoolbench-run-positive-smoke.json`, `docs/eval/bankertoolbench-official-contract.json`
 
 ### NodeRoom multi-user conflict suite
 

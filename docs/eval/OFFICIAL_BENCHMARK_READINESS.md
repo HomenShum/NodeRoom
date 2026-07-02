@@ -1,6 +1,6 @@
 # Official Benchmark Readiness
 
-Generated: 2026-06-26T08:48:40.351Z
+Generated: 2026-07-01T22:53:00.453Z
 
 This is the benchmark-faithful gate for the public targets we care about most: BankerToolBench and SpreadsheetBench. It is deliberately stricter than NodeRoom's internal professional evals. Internal green runs do not imply an official benchmark claim.
 
@@ -15,7 +15,7 @@ This is the benchmark-faithful gate for the public targets we care about most: B
 
 - Ready official benchmarks: 0/3
 - Blocked official benchmarks: 3/3
-- Missing/partial capabilities: `format_diff`, `formula_recompute`, `live_browser_fresh_room_e2e`, `mcp_financial_tools`, `official_gold_isolation`, `official_runner_adapter`, `pptx_docx_pdf_outputs`, `rubric_weighted_scoring`, `xlsx_import_export`
+- Missing/partial capabilities: `docker_sandbox`, `format_diff`, `formula_recompute`, `live_browser_fresh_room_e2e`, `mcp_financial_tools`, `official_gold_isolation`, `official_runner_adapter`, `pptx_docx_pdf_outputs`, `rubric_weighted_scoring`, `xlsx_import_export`
 
 ## Benchmark Contracts
 
@@ -39,7 +39,7 @@ Scoring shape: Agentic verifier opens deliverables and scores weighted binary ru
 | `formula_recompute` | partial | `evals/financeModelLive.ts` |
 | `pptx_docx_pdf_outputs` | partial | `src/eval/bankerToolBenchRunner.ts` |
 | `mcp_financial_tools` | external | `docs/eval/bankertoolbench-official-contract.json` |
-| `docker_sandbox` | implemented | `docs/eval/docker-sandbox-probe.json` |
+| `docker_sandbox` | external | `docs/eval/docker-sandbox-probe.json` |
 | `rubric_weighted_scoring` | partial | `docs/eval/bankertoolbench-official-contract.json` |
 
 Blockers:
@@ -50,6 +50,7 @@ Blockers:
 - formula_recompute: Finance eval recomputes supported formulas; full Excel-compatible official recompute is not complete.
 - pptx_docx_pdf_outputs: The local BTB runner validates multi-file candidate packages and supported .pptx/.docx/.pdf deliverable extensions after candidate emission; actual pitch-deck/report generation and official verifier handoff are not wired.
 - mcp_financial_tools: The BTB official execution contract names the required SEC filings, market data, company logo, document search, and web research MCP tools, but those benchmark tool servers are not adapted into NodeRoom's tool registry yet.
+- docker_sandbox: BTB/official process isolation requires Docker/Harbor execution outside the Vite/Convex app runtime; npm run benchmark:docker-sandbox:probe records whether the local daemon can prove a container with --network=none, an agent workspace mount, and no evaluator mount. If the artifact status is not container_isolation_proven, official readiness remains red.
 - rubric_weighted_scoring: Weighted rubric metadata is parsed, isolated for the evaluator, consumed by a local exact-package/exact-or-workbook-semantic-golden smoke scorer, and guarded by npm run benchmark:bankertoolbench:proof across both a failing copy-input baseline and a passing apply-agent-output smoke. The BTB official execution contract now defines the Gandalf score-import schema, but Gandalf/Harbor verifier execution and score import are not wired.
 
 ### SpreadsheetBench

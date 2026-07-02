@@ -1,0 +1,50 @@
+{
+  "suite": "proximitty-underwriting-pr0",
+  "minScore": 85,
+  "outputDir": ".proofloop/runs",
+  "memoryFile": ".proofloop/memory.jsonl",
+  "steps": [
+    {
+      "name": "build",
+      "cmd": "npm run build",
+      "required": true,
+      "timeoutMs": 180000
+    },
+    {
+      "name": "scenario-1-underwriting-intake",
+      "cmd": "npx playwright test --config=playwright.proofloop.config.ts scenarios/proximitty-intake.spec.ts --reporter=line",
+      "required": true,
+      "timeoutMs": 180000
+    },
+    {
+      "name": "scenario-2-risk-research-evidence",
+      "cmd": "npx playwright test --config=playwright.proofloop.config.ts scenarios/proximitty-risk-research.spec.ts --reporter=line",
+      "required": true,
+      "timeoutMs": 180000
+    },
+    {
+      "name": "scenario-3-underwriting-packet",
+      "cmd": "npx playwright test --config=playwright.proofloop.config.ts scenarios/proximitty-underwriting-packet.spec.ts --reporter=line",
+      "required": true,
+      "timeoutMs": 180000
+    },
+    {
+      "name": "scenario-4-model-policy-comparison",
+      "cmd": "npx playwright test --config=playwright.proofloop.config.ts scenarios/proximitty-model-comparison.spec.ts --reporter=line",
+      "required": true,
+      "timeoutMs": 180000
+    },
+    {
+      "name": "model-delta-and-verifier",
+      "cmd": "node proofloop/adapters/model-delta.mjs --suite=proximitty-underwriting-pr0",
+      "required": true,
+      "timeoutMs": 30000
+    },
+    {
+      "name": "noderl-export",
+      "cmd": "npx tsx proofloop/adapters/export-rl-trace.ts --suite=proximitty-underwriting-pr0",
+      "required": true,
+      "timeoutMs": 30000
+    }
+  ]
+}

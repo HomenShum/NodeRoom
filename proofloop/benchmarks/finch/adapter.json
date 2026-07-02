@@ -10,7 +10,7 @@
   "taskLoader": "proofloop/benchmarks/finch/load-tasks.ts",
   "seedInputsThroughUi": true,
   "browserScenario": "proofloop/benchmarks/finch/browser-scenario.spec.ts",
-  "verifierCommand": "proofloop/benchmarks/finch/verify.ts",
+  "verifierCommand": "npm run benchmark:proofloop:adapter-blockers -- --id finch --strict",
   "officialScorer": {
     "name": "Finch official scorer",
     "required": true,

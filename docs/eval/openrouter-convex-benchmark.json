@@ -1,16 +1,16 @@
 {
   "schema": 1,
-  "generatedAt": "2026-06-24T03:08:10.927Z",
+  "generatedAt": "2026-07-01T23:17:48.093Z",
   "summary": {
-    "routeCount": 42,
+    "routeCount": 46,
     "openRouterRouteCount": 30,
-    "harnessCases": 6,
-    "harnessCasesPassing": 6,
-    "officialPromotionCases": 1,
+    "harnessCases": 5,
+    "harnessCasesPassing": 5,
+    "officialPromotionCases": 2,
     "officialPromotionCasesPassing": 0,
     "officialStyleSuites": 4,
     "officialStyleSuitesPassing": 3,
-    "agentRouteCount": 42,
+    "agentRouteCount": 46,
     "routesWithManagedN5P95": 1,
     "routesWithSpreadsheetN5": 1,
     "routesInteractivePromoted": 0,
@@ -143,13 +143,13 @@
     },
     {
       "id": "docker_agent_workspace_isolation",
-      "title": "Agent workspace isolation for benchmark execution",
+      "title": "Official scorer workspace isolation",
       "inspiredBy": [
         "SpreadsheetBench",
         "BankerToolBench"
       ],
-      "scope": "openrouter_convex_harness",
-      "status": "pass",
+      "scope": "official_promotion",
+      "status": "blocked",
       "evidence": [
         "docs/eval/docker-sandbox-probe.json",
         "src/eval/dockerSandboxProbe.ts"
@@ -160,7 +160,9 @@
         "network policy is explicit"
       ],
       "acceptance": "Docker probe records container_isolation_proven with evaluator reads denied.",
-      "blockers": []
+      "blockers": [
+        "Docker/Harbor isolation is required only for official score promotion; product-path Proof Loop runs stay valid without it."
+      ]
     },
     {
       "id": "bankertoolbench_official_verifier_path",
@@ -250,8 +252,8 @@
         "evals/multiUserCoordinationProof.ts"
       ],
       "metrics": {
-        "scenarios": 5,
-        "passedScenarios": 5
+        "scenarios": 6,
+        "passedScenarios": 6
       },
       "blockers": []
     },
@@ -270,14 +272,14 @@
         "docs/eval/halo-live-path-calibration.json"
       ],
       "metrics": {
-        "agentRoutes": 42,
+        "agentRoutes": 46,
         "calibratedRoutes": 1,
         "latestCalibratedRoute": "deepseek/deepseek-v4-flash",
         "latestP95ToolCalls": 3,
         "latestP95ModelCalls": 4
       },
       "blockers": [
-        "41 agent route(s) still need N=5/p95 live path evidence before interactive promotion."
+        "45 agent route(s) still need N=5/p95 live path evidence before interactive promotion."
       ]
     }
   ],
@@ -1124,8 +1126,8 @@
             "docs/eval/multi-user-coordination-proof.json"
           ],
           "metrics": {
-            "scenarios": 5,
-            "passedScenarios": 5
+            "scenarios": 6,
+            "passedScenarios": 6
           },
           "blockers": []
         }
@@ -1231,8 +1233,8 @@
             "docs/eval/multi-user-coordination-proof.json"
           ],
           "metrics": {
-            "scenarios": 5,
-            "passedScenarios": 5
+            "scenarios": 6,
+            "passedScenarios": 6
           },
           "blockers": []
         }
@@ -1325,8 +1327,8 @@
             "docs/eval/multi-user-coordination-proof.json"
           ],
           "metrics": {
-            "scenarios": 5,
-            "passedScenarios": 5
+            "scenarios": 6,
+            "passedScenarios": 6
           },
           "blockers": []
         }
@@ -1419,8 +1421,8 @@
             "docs/eval/multi-user-coordination-proof.json"
           ],
           "metrics": {
-            "scenarios": 5,
-            "passedScenarios": 5
+            "scenarios": 6,
+            "passedScenarios": 6
           },
           "blockers": []
         }
@@ -1514,8 +1516,8 @@
             "docs/eval/multi-user-coordination-proof.json"
           ],
           "metrics": {
-            "scenarios": 5,
-            "passedScenarios": 5
+            "scenarios": 6,
+            "passedScenarios": 6
           },
           "blockers": []
         }
@@ -1610,8 +1612,8 @@
             "docs/eval/multi-user-coordination-proof.json"
           ],
           "metrics": {
-            "scenarios": 5,
-            "passedScenarios": 5
+            "scenarios": 6,
+            "passedScenarios": 6
           },
           "blockers": []
         }
@@ -1705,8 +1707,8 @@
             "docs/eval/multi-user-coordination-proof.json"
           ],
           "metrics": {
-            "scenarios": 5,
-            "passedScenarios": 5
+            "scenarios": 6,
+            "passedScenarios": 6
           },
           "blockers": []
         }
@@ -1800,8 +1802,8 @@
             "docs/eval/multi-user-coordination-proof.json"
           ],
           "metrics": {
-            "scenarios": 5,
-            "passedScenarios": 5
+            "scenarios": 6,
+            "passedScenarios": 6
           },
           "blockers": []
         }
@@ -1889,8 +1891,8 @@
             "docs/eval/multi-user-coordination-proof.json"
           ],
           "metrics": {
-            "scenarios": 5,
-            "passedScenarios": 5
+            "scenarios": 6,
+            "passedScenarios": 6
           },
           "blockers": []
         }
@@ -1991,8 +1993,8 @@
             "docs/eval/multi-user-coordination-proof.json"
           ],
           "metrics": {
-            "scenarios": 5,
-            "passedScenarios": 5
+            "scenarios": 6,
+            "passedScenarios": 6
           },
           "blockers": []
         }
@@ -2090,8 +2092,8 @@
             "docs/eval/multi-user-coordination-proof.json"
           ],
           "metrics": {
-            "scenarios": 5,
-            "passedScenarios": 5
+            "scenarios": 6,
+            "passedScenarios": 6
           },
           "blockers": []
         }
@@ -2184,8 +2186,8 @@
             "docs/eval/multi-user-coordination-proof.json"
           ],
           "metrics": {
-            "scenarios": 5,
-            "passedScenarios": 5
+            "scenarios": 6,
+            "passedScenarios": 6
           },
           "blockers": []
         }
@@ -2278,8 +2280,8 @@
             "docs/eval/multi-user-coordination-proof.json"
           ],
           "metrics": {
-            "scenarios": 5,
-            "passedScenarios": 5
+            "scenarios": 6,
+            "passedScenarios": 6
           },
           "blockers": []
         }
@@ -2367,8 +2369,8 @@
             "docs/eval/multi-user-coordination-proof.json"
           ],
           "metrics": {
-            "scenarios": 5,
-            "passedScenarios": 5
+            "scenarios": 6,
+            "passedScenarios": 6
           },
           "blockers": []
         }
@@ -2462,8 +2464,8 @@
             "docs/eval/multi-user-coordination-proof.json"
           ],
           "metrics": {
-            "scenarios": 5,
-            "passedScenarios": 5
+            "scenarios": 6,
+            "passedScenarios": 6
           },
           "blockers": []
         }
@@ -2551,8 +2553,8 @@
             "docs/eval/multi-user-coordination-proof.json"
           ],
           "metrics": {
-            "scenarios": 5,
-            "passedScenarios": 5
+            "scenarios": 6,
+            "passedScenarios": 6
           },
           "blockers": []
         }
@@ -2646,8 +2648,8 @@
             "docs/eval/multi-user-coordination-proof.json"
           ],
           "metrics": {
-            "scenarios": 5,
-            "passedScenarios": 5
+            "scenarios": 6,
+            "passedScenarios": 6
           },
           "blockers": []
         }
@@ -2735,8 +2737,8 @@
             "docs/eval/multi-user-coordination-proof.json"
           ],
           "metrics": {
-            "scenarios": 5,
-            "passedScenarios": 5
+            "scenarios": 6,
+            "passedScenarios": 6
           },
           "blockers": []
         }
@@ -2825,8 +2827,8 @@
             "docs/eval/multi-user-coordination-proof.json"
           ],
           "metrics": {
-            "scenarios": 5,
-            "passedScenarios": 5
+            "scenarios": 6,
+            "passedScenarios": 6
           },
           "blockers": []
         }
@@ -2915,8 +2917,8 @@
             "docs/eval/multi-user-coordination-proof.json"
           ],
           "metrics": {
-            "scenarios": 5,
-            "passedScenarios": 5
+            "scenarios": 6,
+            "passedScenarios": 6
           },
           "blockers": []
         }
@@ -3005,8 +3007,8 @@
             "docs/eval/multi-user-coordination-proof.json"
           ],
           "metrics": {
-            "scenarios": 5,
-            "passedScenarios": 5
+            "scenarios": 6,
+            "passedScenarios": 6
           },
           "blockers": []
         }
@@ -3095,8 +3097,8 @@
             "docs/eval/multi-user-coordination-proof.json"
           ],
           "metrics": {
-            "scenarios": 5,
-            "passedScenarios": 5
+            "scenarios": 6,
+            "passedScenarios": 6
           },
           "blockers": []
         }
@@ -3197,8 +3199,8 @@
             "docs/eval/multi-user-coordination-proof.json"
           ],
           "metrics": {
-            "scenarios": 5,
-            "passedScenarios": 5
+            "scenarios": 6,
+            "passedScenarios": 6
           },
           "blockers": []
         }
@@ -3292,8 +3294,8 @@
             "docs/eval/multi-user-coordination-proof.json"
           ],
           "metrics": {
-            "scenarios": 5,
-            "passedScenarios": 5
+            "scenarios": 6,
+            "passedScenarios": 6
           },
           "blockers": []
         }
@@ -3381,8 +3383,8 @@
             "docs/eval/multi-user-coordination-proof.json"
           ],
           "metrics": {
-            "scenarios": 5,
-            "passedScenarios": 5
+            "scenarios": 6,
+            "passedScenarios": 6
           },
           "blockers": []
         }
@@ -3471,8 +3473,8 @@
             "docs/eval/multi-user-coordination-proof.json"
           ],
           "metrics": {
-            "scenarios": 5,
-            "passedScenarios": 5
+            "scenarios": 6,
+            "passedScenarios": 6
           },
           "blockers": []
         }
@@ -3573,8 +3575,8 @@
             "docs/eval/multi-user-coordination-proof.json"
           ],
           "metrics": {
-            "scenarios": 5,
-            "passedScenarios": 5
+            "scenarios": 6,
+            "passedScenarios": 6
           },
           "blockers": []
         }
@@ -3674,8 +3676,8 @@
             "docs/eval/multi-user-coordination-proof.json"
           ],
           "metrics": {
-            "scenarios": 5,
-            "passedScenarios": 5
+            "scenarios": 6,
+            "passedScenarios": 6
           },
           "blockers": []
         }
@@ -3763,8 +3765,8 @@
             "docs/eval/multi-user-coordination-proof.json"
           ],
           "metrics": {
-            "scenarios": 5,
-            "passedScenarios": 5
+            "scenarios": 6,
+            "passedScenarios": 6
           },
           "blockers": []
         }
@@ -3859,8 +3861,8 @@
             "docs/eval/multi-user-coordination-proof.json"
           ],
           "metrics": {
-            "scenarios": 5,
-            "passedScenarios": 5
+            "scenarios": 6,
+            "passedScenarios": 6
           },
           "blockers": []
         }
@@ -3948,8 +3950,8 @@
             "docs/eval/multi-user-coordination-proof.json"
           ],
           "metrics": {
-            "scenarios": 5,
-            "passedScenarios": 5
+            "scenarios": 6,
+            "passedScenarios": 6
           },
           "blockers": []
         }
@@ -4037,8 +4039,8 @@
             "docs/eval/multi-user-coordination-proof.json"
           ],
           "metrics": {
-            "scenarios": 5,
-            "passedScenarios": 5
+            "scenarios": 6,
+            "passedScenarios": 6
           },
           "blockers": []
         }
@@ -4126,8 +4128,8 @@
             "docs/eval/multi-user-coordination-proof.json"
           ],
           "metrics": {
-            "scenarios": 5,
-            "passedScenarios": 5
+            "scenarios": 6,
+            "passedScenarios": 6
           },
           "blockers": []
         }
@@ -4215,8 +4217,8 @@
             "docs/eval/multi-user-coordination-proof.json"
           ],
           "metrics": {
-            "scenarios": 5,
-            "passedScenarios": 5
+            "scenarios": 6,
+            "passedScenarios": 6
           },
           "blockers": []
         }
@@ -4304,8 +4306,8 @@
             "docs/eval/multi-user-coordination-proof.json"
           ],
           "metrics": {
-            "scenarios": 5,
-            "passedScenarios": 5
+            "scenarios": 6,
+            "passedScenarios": 6
           },
           "blockers": []
         }
@@ -4393,8 +4395,8 @@
             "docs/eval/multi-user-coordination-proof.json"
           ],
           "metrics": {
-            "scenarios": 5,
-            "passedScenarios": 5
+            "scenarios": 6,
+            "passedScenarios": 6
           },
           "blockers": []
         }
@@ -4486,8 +4488,8 @@
             "docs/eval/multi-user-coordination-proof.json"
           ],
           "metrics": {
-            "scenarios": 5,
-            "passedScenarios": 5
+            "scenarios": 6,
+            "passedScenarios": 6
           },
           "blockers": []
         }
@@ -4574,8 +4576,8 @@
             "docs/eval/multi-user-coordination-proof.json"
           ],
           "metrics": {
-            "scenarios": 5,
-            "passedScenarios": 5
+            "scenarios": 6,
+            "passedScenarios": 6
           },
           "blockers": []
         }
@@ -4663,8 +4665,8 @@
             "docs/eval/multi-user-coordination-proof.json"
           ],
           "metrics": {
-            "scenarios": 5,
-            "passedScenarios": 5
+            "scenarios": 6,
+            "passedScenarios": 6
           },
           "blockers": []
         }
@@ -4754,8 +4756,8 @@
             "docs/eval/multi-user-coordination-proof.json"
           ],
           "metrics": {
-            "scenarios": 5,
-            "passedScenarios": 5
+            "scenarios": 6,
+            "passedScenarios": 6
           },
           "blockers": []
         }
@@ -4842,8 +4844,8 @@
             "docs/eval/multi-user-coordination-proof.json"
           ],
           "metrics": {
-            "scenarios": 5,
-            "passedScenarios": 5
+            "scenarios": 6,
+            "passedScenarios": 6
           },
           "blockers": []
         }
@@ -4931,8 +4933,364 @@
             "docs/eval/multi-user-coordination-proof.json"
           ],
           "metrics": {
-            "scenarios": 5,
-            "passedScenarios": 5
+            "scenarios": 6,
+            "passedScenarios": 6
+          },
+          "blockers": []
+        }
+      },
+      "blockers": [
+        "no company-research v3 evidence recorded for this route",
+        "no route-specific collaboration ladder evidence recorded",
+        "no N=5 live managed-path calibration recorded for this route",
+        "no SpreadsheetBench-like N=5 model-edit evidence recorded for this route",
+        "BTB local smoke is harness/package evidence only; no route-owned candidate generation is recorded yet"
+      ]
+    },
+    {
+      "route": "nebius/deepseek-ai/DeepSeek-V4-Pro",
+      "provider": "native",
+      "label": "nebius agent model: nebius/deepseek-ai/DeepSeek-V4-Pro",
+      "suites": [
+        "collaboration"
+      ],
+      "promotion": "compatibility",
+      "role": "interactive_candidate",
+      "promotionStatus": "blocked",
+      "adapter": "convexModel.native_provider",
+      "evidence": {
+        "research": {
+          "status": "missing",
+          "evidence": [
+            "docs/eval/results.json"
+          ],
+          "metrics": {},
+          "blockers": [
+            "no company-research v3 evidence recorded for this route"
+          ]
+        },
+        "collaborationLadder": {
+          "status": "missing",
+          "evidence": [
+            "docs/eval/model-ladder-supported.json"
+          ],
+          "metrics": {},
+          "blockers": [
+            "no route-specific collaboration ladder evidence recorded"
+          ]
+        },
+        "managedPathN5P95": {
+          "status": "missing",
+          "evidence": [
+            "docs/eval/halo-live-path-calibration.json"
+          ],
+          "metrics": {},
+          "blockers": [
+            "no N=5 live managed-path calibration recorded for this route"
+          ]
+        },
+        "spreadsheetBenchN5": {
+          "status": "missing",
+          "evidence": [
+            "docs/eval/spreadsheetbench-v1-model-edit-plan-3task-n5-live-smoke.json"
+          ],
+          "metrics": {
+            "recordedRoutes": "gpt-5.4-nano"
+          },
+          "blockers": [
+            "no SpreadsheetBench-like N=5 model-edit evidence recorded for this route"
+          ]
+        },
+        "bankerToolBenchLocal": {
+          "status": "missing",
+          "evidence": [
+            "docs/eval/bankertoolbench-run-positive-smoke.json"
+          ],
+          "metrics": {
+            "route": "nebius/deepseek-ai/DeepSeek-V4-Pro",
+            "localHarnessPassRate": 1,
+            "averageWeightedScore": 1,
+            "verifier": "local_exact_or_workbook_semantic_smoke"
+          },
+          "blockers": [
+            "BTB local smoke is harness/package evidence only; no route-owned candidate generation is recorded yet"
+          ]
+        },
+        "multiUserContract": {
+          "status": "pass",
+          "evidence": [
+            "docs/eval/multi-user-coordination-proof.json"
+          ],
+          "metrics": {
+            "scenarios": 6,
+            "passedScenarios": 6
+          },
+          "blockers": []
+        }
+      },
+      "blockers": [
+        "no company-research v3 evidence recorded for this route",
+        "no route-specific collaboration ladder evidence recorded",
+        "no N=5 live managed-path calibration recorded for this route",
+        "no SpreadsheetBench-like N=5 model-edit evidence recorded for this route",
+        "BTB local smoke is harness/package evidence only; no route-owned candidate generation is recorded yet"
+      ]
+    },
+    {
+      "route": "nebius/MiniMaxAI/MiniMax-M2.5",
+      "provider": "native",
+      "label": "nebius agent model: nebius/MiniMaxAI/MiniMax-M2.5",
+      "suites": [
+        "collaboration"
+      ],
+      "promotion": "compatibility",
+      "role": "interactive_candidate",
+      "promotionStatus": "blocked",
+      "adapter": "convexModel.native_provider",
+      "evidence": {
+        "research": {
+          "status": "missing",
+          "evidence": [
+            "docs/eval/results.json"
+          ],
+          "metrics": {},
+          "blockers": [
+            "no company-research v3 evidence recorded for this route"
+          ]
+        },
+        "collaborationLadder": {
+          "status": "missing",
+          "evidence": [
+            "docs/eval/model-ladder-supported.json"
+          ],
+          "metrics": {},
+          "blockers": [
+            "no route-specific collaboration ladder evidence recorded"
+          ]
+        },
+        "managedPathN5P95": {
+          "status": "missing",
+          "evidence": [
+            "docs/eval/halo-live-path-calibration.json"
+          ],
+          "metrics": {},
+          "blockers": [
+            "no N=5 live managed-path calibration recorded for this route"
+          ]
+        },
+        "spreadsheetBenchN5": {
+          "status": "missing",
+          "evidence": [
+            "docs/eval/spreadsheetbench-v1-model-edit-plan-3task-n5-live-smoke.json"
+          ],
+          "metrics": {
+            "recordedRoutes": "gpt-5.4-nano"
+          },
+          "blockers": [
+            "no SpreadsheetBench-like N=5 model-edit evidence recorded for this route"
+          ]
+        },
+        "bankerToolBenchLocal": {
+          "status": "missing",
+          "evidence": [
+            "docs/eval/bankertoolbench-run-positive-smoke.json"
+          ],
+          "metrics": {
+            "route": "nebius/MiniMaxAI/MiniMax-M2.5",
+            "localHarnessPassRate": 1,
+            "averageWeightedScore": 1,
+            "verifier": "local_exact_or_workbook_semantic_smoke"
+          },
+          "blockers": [
+            "BTB local smoke is harness/package evidence only; no route-owned candidate generation is recorded yet"
+          ]
+        },
+        "multiUserContract": {
+          "status": "pass",
+          "evidence": [
+            "docs/eval/multi-user-coordination-proof.json"
+          ],
+          "metrics": {
+            "scenarios": 6,
+            "passedScenarios": 6
+          },
+          "blockers": []
+        }
+      },
+      "blockers": [
+        "no company-research v3 evidence recorded for this route",
+        "no route-specific collaboration ladder evidence recorded",
+        "no N=5 live managed-path calibration recorded for this route",
+        "no SpreadsheetBench-like N=5 model-edit evidence recorded for this route",
+        "BTB local smoke is harness/package evidence only; no route-owned candidate generation is recorded yet"
+      ]
+    },
+    {
+      "route": "nebius/Qwen/Qwen3-235B-A22B-Instruct-2507",
+      "provider": "native",
+      "label": "nebius agent model: nebius/Qwen/Qwen3-235B-A22B-Instruct-2507",
+      "suites": [
+        "collaboration"
+      ],
+      "promotion": "compatibility",
+      "role": "interactive_candidate",
+      "promotionStatus": "blocked",
+      "adapter": "convexModel.native_provider",
+      "evidence": {
+        "research": {
+          "status": "missing",
+          "evidence": [
+            "docs/eval/results.json"
+          ],
+          "metrics": {},
+          "blockers": [
+            "no company-research v3 evidence recorded for this route"
+          ]
+        },
+        "collaborationLadder": {
+          "status": "missing",
+          "evidence": [
+            "docs/eval/model-ladder-supported.json"
+          ],
+          "metrics": {},
+          "blockers": [
+            "no route-specific collaboration ladder evidence recorded"
+          ]
+        },
+        "managedPathN5P95": {
+          "status": "missing",
+          "evidence": [
+            "docs/eval/halo-live-path-calibration.json"
+          ],
+          "metrics": {},
+          "blockers": [
+            "no N=5 live managed-path calibration recorded for this route"
+          ]
+        },
+        "spreadsheetBenchN5": {
+          "status": "missing",
+          "evidence": [
+            "docs/eval/spreadsheetbench-v1-model-edit-plan-3task-n5-live-smoke.json"
+          ],
+          "metrics": {
+            "recordedRoutes": "gpt-5.4-nano"
+          },
+          "blockers": [
+            "no SpreadsheetBench-like N=5 model-edit evidence recorded for this route"
+          ]
+        },
+        "bankerToolBenchLocal": {
+          "status": "missing",
+          "evidence": [
+            "docs/eval/bankertoolbench-run-positive-smoke.json"
+          ],
+          "metrics": {
+            "route": "nebius/Qwen/Qwen3-235B-A22B-Instruct-2507",
+            "localHarnessPassRate": 1,
+            "averageWeightedScore": 1,
+            "verifier": "local_exact_or_workbook_semantic_smoke"
+          },
+          "blockers": [
+            "BTB local smoke is harness/package evidence only; no route-owned candidate generation is recorded yet"
+          ]
+        },
+        "multiUserContract": {
+          "status": "pass",
+          "evidence": [
+            "docs/eval/multi-user-coordination-proof.json"
+          ],
+          "metrics": {
+            "scenarios": 6,
+            "passedScenarios": 6
+          },
+          "blockers": []
+        }
+      },
+      "blockers": [
+        "no company-research v3 evidence recorded for this route",
+        "no route-specific collaboration ladder evidence recorded",
+        "no N=5 live managed-path calibration recorded for this route",
+        "no SpreadsheetBench-like N=5 model-edit evidence recorded for this route",
+        "BTB local smoke is harness/package evidence only; no route-owned candidate generation is recorded yet"
+      ]
+    },
+    {
+      "route": "nebius/zai-org/GLM-5.2",
+      "provider": "native",
+      "label": "nebius agent model: nebius/zai-org/GLM-5.2",
+      "suites": [
+        "collaboration"
+      ],
+      "promotion": "compatibility",
+      "role": "interactive_candidate",
+      "promotionStatus": "blocked",
+      "adapter": "convexModel.native_provider",
+      "evidence": {
+        "research": {
+          "status": "missing",
+          "evidence": [
+            "docs/eval/results.json"
+          ],
+          "metrics": {},
+          "blockers": [
+            "no company-research v3 evidence recorded for this route"
+          ]
+        },
+        "collaborationLadder": {
+          "status": "missing",
+          "evidence": [
+            "docs/eval/model-ladder-supported.json"
+          ],
+          "metrics": {},
+          "blockers": [
+            "no route-specific collaboration ladder evidence recorded"
+          ]
+        },
+        "managedPathN5P95": {
+          "status": "missing",
+          "evidence": [
+            "docs/eval/halo-live-path-calibration.json"
+          ],
+          "metrics": {},
+          "blockers": [
+            "no N=5 live managed-path calibration recorded for this route"
+          ]
+        },
+        "spreadsheetBenchN5": {
+          "status": "missing",
+          "evidence": [
+            "docs/eval/spreadsheetbench-v1-model-edit-plan-3task-n5-live-smoke.json"
+          ],
+          "metrics": {
+            "recordedRoutes": "gpt-5.4-nano"
+          },
+          "blockers": [
+            "no SpreadsheetBench-like N=5 model-edit evidence recorded for this route"
+          ]
+        },
+        "bankerToolBenchLocal": {
+          "status": "missing",
+          "evidence": [
+            "docs/eval/bankertoolbench-run-positive-smoke.json"
+          ],
+          "metrics": {
+            "route": "nebius/zai-org/GLM-5.2",
+            "localHarnessPassRate": 1,
+            "averageWeightedScore": 1,
+            "verifier": "local_exact_or_workbook_semantic_smoke"
+          },
+          "blockers": [
+            "BTB local smoke is harness/package evidence only; no route-owned candidate generation is recorded yet"
+          ]
+        },
+        "multiUserContract": {
+          "status": "pass",
+          "evidence": [
+            "docs/eval/multi-user-coordination-proof.json"
+          ],
+          "metrics": {
+            "scenarios": 6,
+            "passedScenarios": 6
           },
           "blockers": []
         }

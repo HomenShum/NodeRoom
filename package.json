@@ -6,9 +6,6 @@
   "type": "module",
   "license": "MIT",
   "author": "Homen Shum",
-  "engines": {
-    "node": ">=22"
-  },
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
@@ -66,6 +63,8 @@
     "benchmark:agent-sandbox": "tsx scripts/agent-workspace-sandbox-smoke.ts",
     "benchmark:docker-sandbox:probe": "tsx scripts/docker-sandbox-probe.ts --json-out docs/eval/docker-sandbox-probe.json",
     "benchmark:openrouter-convex": "tsx scripts/openrouter-convex-benchmark.ts",
+    "benchmark:proofloop:board": "tsx scripts/proofloop-benchmark-board.ts",
+    "benchmark:proofloop:adapter-blockers": "tsx scripts/proofloop-adapter-blockers.ts",
     "benchmark:official:task-coverage": "tsx scripts/official-benchmark-task-coverage.ts",
     "benchmark:official:ui-coverage": "tsx scripts/official-benchmark-ui-coverage.ts",
     "fresh-room:proofs": "tsx scripts/fresh-room-proof-verify.ts",
@@ -91,6 +90,9 @@
     "proofloop:live:adapter": "tsx scripts/proofloop-live-playwright.ts adapter",
     "proofloop:live:btb": "tsx scripts/proofloop-live-playwright.ts bankertoolbench",
     "proofloop": "tsx scripts/proofloop-cli.ts",
+    "proofloop:proximitty": "node scripts/proofloop.mjs proximitty",
+    "proofloop:proximitty:models": "node proofloop/adapters/model-delta.mjs --suite=proximitty-underwriting-pr0 --run=latest",
+    "proofloop:proximitty:clips": "node proofloop/adapters/generate-clips.mjs --suite=proximitty-underwriting-pr0 --run=latest",
     "nodeagent:frame:smoke": "tsx scripts/nodeagent-frame-smoke.ts",
     "omnigent:nodeagent:smoke": "tsx scripts/omnigent-nodeagent-smoke.ts --json-out docs/eval/omnigent-nodeagent-smoke.json",
     "omniagent:nodeagent:smoke": "tsx scripts/omnigent-nodeagent-smoke.ts --json-out docs/eval/omnigent-nodeagent-smoke.json",
@@ -194,7 +196,7 @@
     "react-pdf": "^10.4.1",
     "undici": "^8.4.0",
     "unpdf": "^1.6.2",
-    "zod": "^3.25.76"
+    "zod": "4.3.6"
   },
   "devDependencies": {
     "@ai-sdk/gateway": "^4.0.6",

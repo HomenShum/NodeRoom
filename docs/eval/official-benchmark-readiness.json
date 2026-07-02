@@ -1,11 +1,12 @@
 {
   "schema": 1,
-  "generatedAt": "2026-06-26T08:48:40.351Z",
+  "generatedAt": "2026-07-01T22:53:00.453Z",
   "summary": {
     "total": 3,
     "ready": 0,
     "blocked": 3,
     "missingCapabilities": [
+      "docker_sandbox",
       "format_diff",
       "formula_recompute",
       "live_browser_fresh_room_e2e",
@@ -102,8 +103,9 @@
         },
         {
           "capability": "docker_sandbox",
-          "state": "implemented",
-          "evidence": "docs/eval/docker-sandbox-probe.json"
+          "state": "external",
+          "evidence": "docs/eval/docker-sandbox-probe.json",
+          "blocker": "BTB/official process isolation requires Docker/Harbor execution outside the Vite/Convex app runtime; npm run benchmark:docker-sandbox:probe records whether the local daemon can prove a container with --network=none, an agent workspace mount, and no evaluator mount. If the artifact status is not container_isolation_proven, official readiness remains red."
         },
         {
           "capability": "rubric_weighted_scoring",
@@ -121,6 +123,7 @@
         "formula_recompute: Finance eval recomputes supported formulas; full Excel-compatible official recompute is not complete.",
         "pptx_docx_pdf_outputs: The local BTB runner validates multi-file candidate packages and supported .pptx/.docx/.pdf deliverable extensions after candidate emission; actual pitch-deck/report generation and official verifier handoff are not wired.",
         "mcp_financial_tools: The BTB official execution contract names the required SEC filings, market data, company logo, document search, and web research MCP tools, but those benchmark tool servers are not adapted into NodeRoom's tool registry yet.",
+        "docker_sandbox: BTB/official process isolation requires Docker/Harbor execution outside the Vite/Convex app runtime; npm run benchmark:docker-sandbox:probe records whether the local daemon can prove a container with --network=none, an agent workspace mount, and no evaluator mount. If the artifact status is not container_isolation_proven, official readiness remains red.",
         "rubric_weighted_scoring: Weighted rubric metadata is parsed, isolated for the evaluator, consumed by a local exact-package/exact-or-workbook-semantic-golden smoke scorer, and guarded by npm run benchmark:bankertoolbench:proof across both a failing copy-input baseline and a passing apply-agent-output smoke. The BTB official execution contract now defines the Gandalf score-import schema, but Gandalf/Harbor verifier execution and score import are not wired."
       ]
     },

@@ -1,0 +1,326 @@
+{
+  "schema": 1,
+  "generatedAt": "2026-07-02T00:24:31.878Z",
+  "policy": [
+    "Product-path completion is useful proof: real UI, visible progress, artifacts, verifier receipts, trace, memory, and browser evidence.",
+    "Official semantic score is only claimed when the benchmark's official scorer/verifier result is imported.",
+    "Docker/Harbor isolation can block official score promotion; it must not block product-path Proof Loop runs.",
+    "Registered external adapters are backlog inventory until their live browser scenario and verifier implementation exist."
+  ],
+  "summary": {
+    "total": 9,
+    "productPathProven": 4,
+    "productPathReadyToRun": 2,
+    "externalAdaptersRegistered": 3,
+    "officialScoresClaimed": 1,
+    "officialScoresNotApplicable": 4,
+    "officialScoresBlockedOrNotClaimed": 4
+  },
+  "entries": [
+    {
+      "id": "spreadsheetbench",
+      "name": "SpreadsheetBench",
+      "family": "official_style",
+      "liveUserContract": "required",
+      "productPathCompletion": {
+        "status": "proven",
+        "scoreType": "product_path_completion",
+        "evidence": [
+          "docs/eval/spreadsheetbench-live-room-proof.json"
+        ],
+        "command": "npm run benchmark:spreadsheetbench:proof",
+        "blockers": []
+      },
+      "officialSemanticScore": {
+        "status": "blocked",
+        "scoreType": "official_semantic_score",
+        "evidence": [
+          "docs/eval/official-benchmark-task-coverage.json",
+          "docs/eval/official-benchmark-readiness.json"
+        ],
+        "command": "npm run benchmark:official:task-coverage",
+        "blockers": [
+          "Full official SpreadsheetBench task coverage and scorer import are not ready."
+        ]
+      },
+      "notes": [
+        "Workbook product proof is separate from full official task coverage."
+      ]
+    },
+    {
+      "id": "openrouter-convex",
+      "name": "OpenRouter on Convex",
+      "family": "model_route_harness",
+      "liveUserContract": "required",
+      "productPathCompletion": {
+        "status": "proven",
+        "scoreType": "product_path_completion",
+        "evidence": [
+          "docs/eval/openrouter-convex-benchmark.json"
+        ],
+        "command": "npm run benchmark:openrouter-convex -- --strict",
+        "blockers": []
+      },
+      "officialSemanticScore": {
+        "status": "not_applicable",
+        "scoreType": "official_semantic_score",
+        "evidence": [
+          "docs/eval/openrouter-convex-benchmark.json"
+        ],
+        "command": "npm run benchmark:openrouter-convex",
+        "blockers": [
+          "Model-route harness; not a public official benchmark score lane."
+        ]
+      },
+      "notes": [
+        "Route eligibility should depend on the Convex harness, not Docker/Harbor official-runner availability."
+      ]
+    },
+    {
+      "id": "proximitty-underwriting-pr0",
+      "name": "Proximitty underwriting PR0",
+      "family": "product_suite",
+      "liveUserContract": "required",
+      "productPathCompletion": {
+        "status": "proven",
+        "scoreType": "product_path_completion",
+        "evidence": [
+          ".proofloop/runs/latest/run-result.json",
+          ".proofloop/runs/2026-07-01T22-40-30"
+        ],
+        "command": "npm run proofloop:proximitty",
+        "blockers": []
+      },
+      "officialSemanticScore": {
+        "status": "not_applicable",
+        "scoreType": "official_semantic_score",
+        "evidence": [
+          "proofloop/suites/proximitty-underwriting-pr0.json"
+        ],
+        "blockers": [
+          "Synthetic underwriting suite; do not label as an official finance benchmark score."
+        ]
+      },
+      "notes": [
+        "Evaluation-only underwriting demo; not a real lending or credit decision."
+      ]
+    },
+    {
+      "id": "accounting",
+      "name": "Accounting proof-loop",
+      "family": "product_suite",
+      "liveUserContract": "required",
+      "productPathCompletion": {
+        "status": "ready_to_run",
+        "scoreType": "product_path_completion",
+        "evidence": [
+          "proofloop/accounting/proofloop.accounting.config.json",
+          "proofloop/accounting/benchmarks/benchmark-registry.json"
+        ],
+        "command": "npm run proofloop:accounting",
+        "blockers": []
+      },
+      "officialSemanticScore": {
+        "status": "not_applicable",
+        "scoreType": "official_semantic_score",
+        "evidence": [
+          "proofloop/accounting/benchmarks/benchmark-registry.json"
+        ],
+        "blockers": [
+          "Accounting suite pins external benchmark families, but local proof-loop runs are product-path evidence."
+        ]
+      },
+      "notes": [
+        "Pinned benchmark families include Finch, BizFinBench, FinTMMBench, QuantEval, and FATURA."
+      ]
+    },
+    {
+      "id": "notion-sdr-bdr",
+      "name": "Notion SDR/BDR proof-loop",
+      "family": "product_suite",
+      "liveUserContract": "required",
+      "productPathCompletion": {
+        "status": "ready_to_run",
+        "scoreType": "product_path_completion",
+        "evidence": [
+          "proofloop/notion/proofloop.notion.config.json"
+        ],
+        "command": "npm run proofloop:notion",
+        "blockers": []
+      },
+      "officialSemanticScore": {
+        "status": "not_applicable",
+        "scoreType": "official_semantic_score",
+        "evidence": [
+          "proofloop/notion/proofloop.notion.config.json"
+        ],
+        "blockers": [
+          "Product workflow benchmark, not an official public benchmark score."
+        ]
+      },
+      "notes": [
+        "Sales workflow suite used for proof-loop mechanics and memory learning."
+      ]
+    },
+    {
+      "id": "bankertoolbench",
+      "name": "BankerToolBench",
+      "family": "external_adapter",
+      "liveUserContract": "required",
+      "productPathCompletion": {
+        "status": "proven",
+        "scoreType": "product_path_completion",
+        "evidence": [
+          "proofloop/benchmarks/bankertoolbench/adapter.json",
+          "docs/eval/bankertoolbench-live-room-proof.json"
+        ],
+        "command": "npm run proofloop -- run bankertoolbench --prod --user-emulation strict --cockpit",
+        "blockers": []
+      },
+      "officialSemanticScore": {
+        "status": "proven",
+        "scoreType": "official_semantic_score",
+        "evidence": [
+          "docs/eval/fresh-room/FR-020/fullsuite-gate-receipt.json",
+          "docs/eval/btb-clean-capability-full100-parallel-v3-gpt41mini.json",
+          "docs/eval/bankertoolbench-official-contract.json"
+        ],
+        "command": "npm run benchmark:bankertoolbench:proof",
+        "blockers": [],
+        "metrics": {
+          "expectedCount": 100,
+          "executedTaskCount": 100,
+          "cleanScoredTaskCount": 100,
+          "meanCleanReward": 0.251875,
+          "passThreshold": 1,
+          "passCount": 0,
+          "passRate": 0,
+          "claim": "All 100/100 BankerToolBench tasks executed and officially scored, generic-only (no answer-key writers). Aggregate mean reward 0.2519; pass-rate 0.0000 (reward >= 1). This proves full-suite COMPLETION + SCORING, not a 100% pass rate."
+        }
+      },
+      "notes": [
+        "BankerToolBench full-suite official scoring is imported: completion/scoring is proven separately from pass rate."
+      ]
+    },
+    {
+      "id": "finch",
+      "name": "Finch / FinWorkBench",
+      "family": "external_adapter",
+      "liveUserContract": "required",
+      "productPathCompletion": {
+        "status": "registered",
+        "scoreType": "product_path_completion",
+        "evidence": [
+          "proofloop/benchmarks/finch/adapter.json",
+          "docs/eval/proofloop-adapter-blockers/finch.json"
+        ],
+        "command": "npm run proofloop -- run finch --prod --user-emulation strict --cockpit",
+        "blockers": [
+          "finch: missing implementation file proofloop/benchmarks/finch/load-tasks.ts",
+          "finch: missing implementation file proofloop/benchmarks/finch/browser-scenario.spec.ts"
+        ]
+      },
+      "officialSemanticScore": {
+        "status": "blocked",
+        "scoreType": "official_semantic_score",
+        "evidence": [
+          "proofloop/benchmarks/finch/adapter.json",
+          "docs/eval/proofloop-adapter-blockers/finch.json"
+        ],
+        "command": "npm run benchmark:proofloop:adapter-blockers -- --id finch --strict",
+        "blockers": [
+          "finch: missing implementation file proofloop/benchmarks/finch/load-tasks.ts",
+          "finch: missing implementation file proofloop/benchmarks/finch/browser-scenario.spec.ts"
+        ],
+        "metrics": {
+          "missingImplementationFiles": 2,
+          "officialSourceUrls": 3,
+          "resumeCommands": 5
+        }
+      },
+      "notes": [
+        "Adapter registration is useful backlog inventory; it is not a live proof claim."
+      ]
+    },
+    {
+      "id": "finauditing",
+      "name": "FinAuditing",
+      "family": "external_adapter",
+      "liveUserContract": "required",
+      "productPathCompletion": {
+        "status": "registered",
+        "scoreType": "product_path_completion",
+        "evidence": [
+          "proofloop/benchmarks/finauditing/adapter.json",
+          "docs/eval/proofloop-adapter-blockers/finauditing.json"
+        ],
+        "command": "npm run proofloop -- run finauditing --prod --user-emulation strict --cockpit",
+        "blockers": [
+          "finauditing: missing implementation file proofloop/benchmarks/finauditing/load-tasks.ts",
+          "finauditing: missing implementation file proofloop/benchmarks/finauditing/browser-scenario.spec.ts"
+        ]
+      },
+      "officialSemanticScore": {
+        "status": "blocked",
+        "scoreType": "official_semantic_score",
+        "evidence": [
+          "proofloop/benchmarks/finauditing/adapter.json",
+          "docs/eval/proofloop-adapter-blockers/finauditing.json"
+        ],
+        "command": "npm run benchmark:proofloop:adapter-blockers -- --id finauditing --strict",
+        "blockers": [
+          "finauditing: missing implementation file proofloop/benchmarks/finauditing/load-tasks.ts",
+          "finauditing: missing implementation file proofloop/benchmarks/finauditing/browser-scenario.spec.ts"
+        ],
+        "metrics": {
+          "missingImplementationFiles": 2,
+          "officialSourceUrls": 4,
+          "resumeCommands": 5
+        }
+      },
+      "notes": [
+        "Adapter registration is useful backlog inventory; it is not a live proof claim."
+      ]
+    },
+    {
+      "id": "workstreambench",
+      "name": "WorkstreamBench",
+      "family": "external_adapter",
+      "liveUserContract": "required",
+      "productPathCompletion": {
+        "status": "registered",
+        "scoreType": "product_path_completion",
+        "evidence": [
+          "proofloop/benchmarks/workstreambench/adapter.json",
+          "docs/eval/proofloop-adapter-blockers/workstreambench.json"
+        ],
+        "command": "npm run proofloop -- run workstreambench --prod --user-emulation strict --cockpit",
+        "blockers": [
+          "workstreambench: missing implementation file proofloop/benchmarks/workstreambench/load-tasks.ts",
+          "workstreambench: missing implementation file proofloop/benchmarks/workstreambench/browser-scenario.spec.ts"
+        ]
+      },
+      "officialSemanticScore": {
+        "status": "blocked",
+        "scoreType": "official_semantic_score",
+        "evidence": [
+          "proofloop/benchmarks/workstreambench/adapter.json",
+          "docs/eval/proofloop-adapter-blockers/workstreambench.json"
+        ],
+        "command": "npm run benchmark:proofloop:adapter-blockers -- --id workstreambench --strict",
+        "blockers": [
+          "workstreambench: missing implementation file proofloop/benchmarks/workstreambench/load-tasks.ts",
+          "workstreambench: missing implementation file proofloop/benchmarks/workstreambench/browser-scenario.spec.ts"
+        ],
+        "metrics": {
+          "missingImplementationFiles": 2,
+          "officialSourceUrls": 1,
+          "resumeCommands": 5
+        }
+      },
+      "notes": [
+        "Adapter registration is useful backlog inventory; it is not a live proof claim."
+      ]
+    }
+  ]
+}

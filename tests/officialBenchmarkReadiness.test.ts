@@ -81,9 +81,11 @@ describe("official benchmark readiness", () => {
     expect(documentOutputs?.blocker).toContain("multi-file candidate packages");
     expect(documentOutputs?.blocker).toContain("official verifier");
     expect(docker).toMatchObject({
-      state: "implemented",
+      state: "external",
       evidence: "docs/eval/docker-sandbox-probe.json",
     });
+    expect(docker?.blocker).toContain("Docker/Harbor execution");
+    expect(docker?.blocker).toContain("container_isolation_proven");
     expect(liveBrowser).toMatchObject({
       state: "partial",
       evidence: "docs/eval/official-benchmark-ui-coverage.json",
@@ -91,9 +93,9 @@ describe("official benchmark readiness", () => {
     expect(liveBrowser?.blocker).toContain("fresh live room");
     expect(liveBrowser?.blocker).toContain("downloads every required deliverable type");
     expect(rubric?.blocker).toContain("Gandalf score-import schema");
-    expect(docker?.blocker).toBeUndefined();
     expect(btb?.ready).toBe(false);
     expect(btb?.blockers).toEqual(expect.arrayContaining([
+      expect.stringContaining("docker_sandbox"),
       expect.stringContaining("official_runner_adapter"),
       expect.stringContaining("mcp_financial_tools"),
     ]));

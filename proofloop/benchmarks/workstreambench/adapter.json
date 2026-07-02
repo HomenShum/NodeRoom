@@ -9,7 +9,7 @@
   "taskLoader": "proofloop/benchmarks/workstreambench/load-tasks.ts",
   "seedInputsThroughUi": true,
   "browserScenario": "proofloop/benchmarks/workstreambench/browser-scenario.spec.ts",
-  "verifierCommand": "proofloop/benchmarks/workstreambench/verify.ts",
+  "verifierCommand": "npm run benchmark:proofloop:adapter-blockers -- --id workstreambench --strict",
   "officialScorer": {
     "name": "WorkstreamBench official scorer",
     "required": true,

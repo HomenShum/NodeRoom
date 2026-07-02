@@ -56,6 +56,17 @@ type RunReport = {
   passRate?: number;
 };
 
+type FullSuiteGateReceipt = {
+  expectedCount?: number;
+  executedTaskCount?: number;
+  cleanScoredTaskCount?: number;
+  meanCleanReward?: number | null;
+  passThreshold?: number;
+  passCount?: number;
+  passRate?: number | null;
+  flipEligible?: boolean;
+};
+
 type MultiUserReport = {
   summary?: {
     passed?: boolean;
@@ -211,39 +222,47 @@ function spreadsheetBenchV2Full(): BenchmarkTaskCoverageTrack {
 }
 
 function bankerToolBenchFull(): BenchmarkTaskCoverageTrack {
+  const fullSuite = readJson<FullSuiteGateReceipt>("docs/eval/fresh-room/FR-020/fullsuite-gate-receipt.json");
   const stage = readJson<StageReport>("docs/eval/bankertoolbench-stage-smoke.json");
   const run = readJson<RunReport>("docs/eval/bankertoolbench-run-positive-smoke.json");
-  const stagedTasks = stage?.stagedTaskCount ?? 0;
-  const modelRunCases = run?.taskCount ?? 0;
-  const complete = stagedTasks >= 100 && modelRunCases >= 100;
+  const expectedTasks = fullSuite?.expectedCount ?? 100;
+  const cleanScoredTasks = fullSuite?.cleanScoredTaskCount ?? 0;
+  const executedTasks = fullSuite?.executedTaskCount ?? 0;
+  const fullSuiteComplete = fullSuite?.flipEligible === true && cleanScoredTasks >= expectedTasks;
+  const stagedTasks = fullSuiteComplete ? cleanScoredTasks : stage?.stagedTaskCount ?? 0;
+  const modelRunCases = fullSuiteComplete ? cleanScoredTasks : run?.taskCount ?? 0;
+  const modelRunAttempts = fullSuiteComplete ? executedTasks : modelRunCases;
+  const complete = stagedTasks >= expectedTasks && modelRunCases >= expectedTasks;
 
   return {
     id: "bankertoolbench-full-100",
     title: "BankerToolBench full investment-banking benchmark",
     benchmark: "BankerToolBench",
-    officialExpectedTasks: 100,
+    officialExpectedTasks: expectedTasks,
     officialSourceUrls: [
       "https://github.com/Handshake-AI-Research/bankertoolbench",
       "https://huggingface.co/datasets/handshake-ai-research/bankertoolbench",
     ],
-    localScope: "one-task local fixture",
-    scannedTasks: stage?.scannedTaskCount ?? 0,
+    localScope: fullSuiteComplete ? "full official 100-task clean generic-only full-suite receipt" : "one-task local fixture",
+    scannedTasks: fullSuiteComplete ? executedTasks : stage?.scannedTaskCount ?? 0,
     stagedTasks,
-    skippedTasks: stage?.skippedTaskCount ?? 99,
+    skippedTasks: fullSuiteComplete ? Math.max(0, expectedTasks - cleanScoredTasks) : stage?.skippedTaskCount ?? 99,
     deterministicRunTasks: 0,
     modelRunCases,
-    modelRunAttempts: modelRunCases,
-    passRate: run?.passRate ?? null,
-    allOfficialTasksStaged: stagedTasks >= 100,
-    allOfficialTasksRunWithModel: modelRunCases >= 100,
+    modelRunAttempts,
+    passRate: fullSuiteComplete ? fullSuite?.passRate ?? null : run?.passRate ?? null,
+    allOfficialTasksStaged: stagedTasks >= expectedTasks,
+    allOfficialTasksRunWithModel: modelRunCases >= expectedTasks,
     status: complete ? "complete" : stagedTasks > 0 ? "partial" : "missing",
     evidence: [
+      "docs/eval/fresh-room/FR-020/fullsuite-gate-receipt.json",
+      "docs/eval/btb-clean-capability-full100-parallel-v3-gpt41mini.json",
       "docs/eval/bankertoolbench-stage-smoke.json",
       "docs/eval/bankertoolbench-run-positive-smoke.json",
       "docs/eval/bankertoolbench-official-contract.json",
     ],
     blockers: complete ? [] : [
-      `${Math.max(0, 100 - stagedTasks)} BankerToolBench task(s) still need staging from the official bundle.`,
+      `${Math.max(0, expectedTasks - stagedTasks)} BankerToolBench task(s) still need staging from the official bundle.`,
       "Wire Harbor/MCP/Gandalf verifier replay before claiming an official BTB score.",
     ],
   };
@@ -288,8 +307,12 @@ function numberValue(value: unknown): number {
 function readJson<T>(path: string): T | undefined {
   if (!existsSync(path)) return undefined;
   try {
-    return JSON.parse(readFileSync(path, "utf8")) as T;
+    return JSON.parse(stripJsonBom(readFileSync(path, "utf8"))) as T;
   } catch {
     return undefined;
   }
+}
+
+function stripJsonBom(text: string): string {
+  return text.replace(/^\uFEFF/, "").replace(/^ï»¿/, "");
 }

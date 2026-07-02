@@ -56,7 +56,7 @@ function toolResultFailed(result: unknown): boolean {
   return object.ok === false || typeof object.error === "string";
 }
 
-function toolArgumentErrorResult(toolName: string, issues: Array<{ path: Array<string | number>; code: string; message: string }>): ToolArgumentErrorResult {
+function toolArgumentErrorResult(toolName: string, issues: Array<{ path: PropertyKey[]; code: string; message: string }>): ToolArgumentErrorResult {
   const normalized = issues.map((issue) => ({
     path: issue.path.map(String).join("."),
     code: issue.code,

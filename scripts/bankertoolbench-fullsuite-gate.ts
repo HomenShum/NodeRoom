@@ -168,6 +168,9 @@ function optionValues(name: string): string[] {
 }
 
 function decodeJsonBuffer(buffer: Buffer): string {
+  if (buffer.length >= 3 && buffer[0] === 0xef && buffer[1] === 0xbb && buffer[2] === 0xbf) {
+    return buffer.subarray(3).toString("utf8");
+  }
   if (buffer.length >= 2 && buffer[0] === 0xff && buffer[1] === 0xfe) {
     return buffer.toString("utf16le").replace(/^﻿/, "");
   }

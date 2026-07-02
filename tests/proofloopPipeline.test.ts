@@ -194,7 +194,8 @@ describe("notion SDR/BDR proof-loop", () => {
 
 describe("proofloop adapters", () => {
   it("CLI implements loop engineering commands", () => {
-    const content = readFileSync(join(process.cwd(), "scripts/proofloop-cli.ts"), "utf-8");
+    const cli = readFileSync(join(process.cwd(), "scripts/proofloop-cli.ts"), "utf-8");
+    const supervisor = readFileSync(join(process.cwd(), "src/eval/proofloopGoalSupervisor.ts"), "utf-8");
     for (const command of [
       'case "eval"',
       'case "mem"',
@@ -221,64 +222,59 @@ describe("proofloop adapters", () => {
       "suiteConfigForAdapter",
       "knownSuites(config)",
       "official_scorer_unregistered",
-      ".proofloop/goals",
+      "gate --goal",
+      "proofloop setup",
+      "--user-emulation strict",
+    ]) {
+      expect(cli).toContain(command);
+    }
+    for (const invariant of [
+      '".proofloop", "goals"',
       "heartbeats.jsonl",
       "ledger.jsonl",
       "queue.json",
       "blockers.json",
-      "type GoalState",
-      "TERMINAL_GOAL_STATES",
+      "export type ProofloopGoalState",
+      "ProofloopGoalTerminalStatus",
       "blocked_external",
       "needs_human_approval",
       "budget_exhausted",
-      "worker_stalled",
-      "proofloop gate --goal",
-      "proofloop setup",
-      "--user-emulation strict",
+      "isTerminal",
     ]) {
-      expect(content).toContain(command);
+      expect(supervisor).toContain(invariant);
     }
   });
 
-  it("supervisor gate enforces proof artifacts before completion", () => {
-    const content = readFileSync(join(process.cwd(), "scripts/proofloop-cli.ts"), "utf-8");
+  it("supervisor gate enforces persisted proof tasks before completion", () => {
+    const content = readFileSync(join(process.cwd(), "src/eval/proofloopGoalSupervisor.ts"), "utf-8");
     for (const invariant of [
-      "evaluateGoalGate",
-      "latest proof run missing",
-      "node-trace-v2.json",
-      "node-eval.json",
-      "scorecard.md",
-      "NodeMem write missing",
-      "live-user proof missing or invalid",
-      "official scorer receipt missing or failing",
-      "cockpit events missing",
-      "CI/deploy proof missing for shipping goal",
+      "gateProofloopGoal",
+      "goal_gate",
+      "finalizeState",
+      "All required tasks passed from persisted proof ledger state.",
+      "required task(s) blocked by external requirements.",
+      'state.status = state.tasks.some((task) => task.status !== "pending") ? "running" : "initialized"',
+      "unblockedTasksRemaining",
+      "blockedTasksRemaining",
     ]) {
       expect(content).toContain(invariant);
     }
   });
 
   it("supervisor records valid external blockers and continues unblocked work", () => {
-    const content = readFileSync(join(process.cwd(), "scripts/proofloop-cli.ts"), "utf-8");
+    const content = readFileSync(join(process.cwd(), "src/eval/proofloopGoalSupervisor.ts"), "utf-8");
     for (const invariant of [
-      "missing_credential",
-      "missing_dataset",
-      "missing_official_scorer",
-      "paid_service_required",
-      "destructive_approval_required",
-      "external_service_down",
+      "blockProofloopGoal",
+      "externalBlockerTask",
+      "task_blocked_external",
       "unblockedTasksRemaining",
-      "btb_ui_bundle_root does not exist",
-      "official BankerToolBench fixture bundle",
-      "browserscenario does not exist",
-      "nextRunnableTask",
-      "recordGoalBlocker",
-      "localSetupTaskForFailure",
-      "setup-bankertoolbench-local",
-      "bankertoolbench-official-contract",
-      "setup bankertoolbench --allow-download",
-      "--verify-official-contract",
-      "requirements",
+      "resumeCommand",
+      "officialScoresGoalTasks",
+      "BankerToolBench official full-suite score receipt",
+      "External adapter typed blocker receipts",
+      "Finch / FinWorkBench official score",
+      "FinAuditing official score",
+      "WorkstreamBench official score",
     ]) {
       expect(content).toContain(invariant);
     }
@@ -383,6 +379,10 @@ describe("proofloop npm scripts", () => {
     const pkg = JSON.parse(readFileSync(join(process.cwd(), "package.json"), "utf-8"));
     expect(pkg.scripts["proofloop:accounting"]).toBeDefined();
     expect(pkg.scripts["proofloop:notion"]).toBeDefined();
+    expect(pkg.scripts["proofloop:proximitty"]).toBeDefined();
+    expect(pkg.scripts["proofloop:proximitty:models"]).toBeDefined();
+    expect(pkg.scripts["proofloop:proximitty:clips"]).toBeDefined();
+    expect(pkg.scripts["benchmark:proofloop:board"]).toBeDefined();
     expect(pkg.scripts["proofloop:accounting:seed"]).toBeDefined();
     expect(pkg.scripts["proofloop:notion:seed"]).toBeDefined();
   });
@@ -395,5 +395,56 @@ describe("proofloop npm scripts", () => {
   it("proofloop:notion script references notion config", () => {
     const pkg = JSON.parse(readFileSync(join(process.cwd(), "package.json"), "utf-8"));
     expect(pkg.scripts["proofloop:notion"]).toContain("proofloop.notion.config.json");
+  });
+
+  it("Proximitty underwriting suite exists with required artifacts and adapters", () => {
+    const configPath = join(process.cwd(), "proofloop/suites/proximitty-underwriting-pr0.json");
+    expect(existsSync(configPath)).toBe(true);
+    const config = JSON.parse(readFileSync(configPath, "utf-8"));
+    expect(config.suite).toBe("proximitty-underwriting-pr0");
+    expect(config.minScore).toBeGreaterThanOrEqual(85);
+    const stepNames = config.steps.map((step: { name: string }) => step.name);
+    expect(stepNames).toContain("scenario-1-underwriting-intake");
+    expect(stepNames).toContain("scenario-2-risk-research-evidence");
+    expect(stepNames).toContain("scenario-3-underwriting-packet");
+    expect(stepNames).toContain("scenario-4-model-policy-comparison");
+    expect(stepNames).toContain("model-delta-and-verifier");
+
+    for (const path of [
+      "proofloop/datasets/proximitty-demo-underwriting/company-profile.json",
+      "proofloop/datasets/proximitty-demo-underwriting/underwriting-policy.md",
+      "proofloop/datasets/proximitty-demo-underwriting/synthetic-financials.csv",
+      "proofloop/datasets/proximitty-demo-underwriting/risk-notes.md",
+      "proofloop/datasets/proximitty-demo-underwriting/source-pack.md",
+      "proofloop/rubrics/underwriting-rubric.yaml",
+      "proofloop/rubrics/evidence-rubric.yaml",
+      "proofloop/rubrics/visual-design-rubric.yaml",
+      "proofloop/rubrics/live-user-contract.yaml",
+      "proofloop/adapters/node-trace-v2-export.mjs",
+      "proofloop/adapters/node-eval.mjs",
+      "proofloop/adapters/nodemem-write.mjs",
+      "proofloop/adapters/model-delta.mjs",
+      "proofloop/adapters/generate-clips.mjs",
+      "proofloop/cockpit/server.mjs",
+      "scripts/proofloop.mjs",
+      "scripts/proofloop-memory.mjs",
+      ".github/workflows/proofloop.yml",
+    ]) {
+      expect(existsSync(join(process.cwd(), path))).toBe(true);
+    }
+
+    const clipAdapter = readFileSync(join(process.cwd(), "proofloop/adapters/generate-clips.mjs"), "utf-8");
+    expect(clipAdapter).toContain("videos");
+    expect(clipAdapter).toContain("final-proximitty-demo.mp4");
+
+    const memoryCli = readFileSync(join(process.cwd(), "scripts/proofloop-memory.mjs"), "utf-8");
+    expect(memoryCli).toContain("index.db");
+    expect(memoryCli).toContain("CREATE VIRTUAL TABLE IF NOT EXISTS memories_fts USING fts5");
+    expect(memoryCli).toContain("cloudSync: false");
+    expect(memoryCli).toContain("storeScreenshots: \"path-only\"");
+
+    const wrapper = readFileSync(join(process.cwd(), "scripts/proofloop.mjs"), "utf-8");
+    expect(wrapper).toContain("proofloop-memory.mjs");
+    expect(wrapper).toContain(".proofloop\", \"memory\", \"index.db\"");
   });
 });
