@@ -123,6 +123,16 @@ export function officialScoresGoalTasks(): ProofloopGoalTask[] {
       ],
     }),
     commandTask({
+      id: "external-adapter-blocker-receipts",
+      title: "External adapter typed blocker receipts",
+      command: "npm run benchmark:proofloop:adapter-blockers",
+      evidence: [
+        "docs/eval/proofloop-adapter-blockers/finch.json",
+        "docs/eval/proofloop-adapter-blockers/finauditing.json",
+        "docs/eval/proofloop-adapter-blockers/workstreambench.json",
+      ],
+    }),
+    commandTask({
       id: "proofloop-benchmark-board",
       title: "9-lane Proof Loop benchmark board",
       command: "npm run benchmark:proofloop:board",
@@ -157,28 +167,31 @@ export function officialScoresGoalTasks(): ProofloopGoalTask[] {
       id: "finch-official-score",
       title: "Finch / FinWorkBench official score",
       blockers: [
-        "Finch adapter is registered, but task loader, browser scenario, and verifier implementation files are missing.",
+        "finch: missing implementation file proofloop/benchmarks/finch/load-tasks.ts",
+        "finch: missing implementation file proofloop/benchmarks/finch/browser-scenario.spec.ts",
       ],
-      evidence: ["proofloop/benchmarks/finch/adapter.json"],
-      resumeCommand: "implement proofloop/benchmarks/finch/load-tasks.ts and proofloop/benchmarks/finch/verify.ts, then npm run proofloop -- run finch --prod --user-emulation strict --cockpit",
+      evidence: ["proofloop/benchmarks/finch/adapter.json", "docs/eval/proofloop-adapter-blockers/finch.json"],
+      resumeCommand: "implement proofloop/benchmarks/finch/load-tasks.ts plus proofloop/benchmarks/finch/browser-scenario.spec.ts, then npm run proofloop -- run finch --prod --user-emulation strict --cockpit",
     }),
     externalBlockerTask({
       id: "finauditing-official-score",
       title: "FinAuditing official score",
       blockers: [
-        "FinAuditing adapter is registered, but task loader, browser scenario, and verifier implementation files are missing.",
+        "finauditing: missing implementation file proofloop/benchmarks/finauditing/load-tasks.ts",
+        "finauditing: missing implementation file proofloop/benchmarks/finauditing/browser-scenario.spec.ts",
       ],
-      evidence: ["proofloop/benchmarks/finauditing/adapter.json"],
-      resumeCommand: "implement proofloop/benchmarks/finauditing/load-tasks.ts and proofloop/benchmarks/finauditing/verify.ts, then npm run proofloop -- run finauditing --prod --user-emulation strict --cockpit",
+      evidence: ["proofloop/benchmarks/finauditing/adapter.json", "docs/eval/proofloop-adapter-blockers/finauditing.json"],
+      resumeCommand: "implement proofloop/benchmarks/finauditing/load-tasks.ts plus proofloop/benchmarks/finauditing/browser-scenario.spec.ts, then npm run proofloop -- run finauditing --prod --user-emulation strict --cockpit",
     }),
     externalBlockerTask({
       id: "workstreambench-official-score",
       title: "WorkstreamBench official score",
       blockers: [
-        "WorkstreamBench adapter is registered, but task loader, browser scenario, and verifier implementation files are missing.",
+        "workstreambench: missing implementation file proofloop/benchmarks/workstreambench/load-tasks.ts",
+        "workstreambench: missing implementation file proofloop/benchmarks/workstreambench/browser-scenario.spec.ts",
       ],
-      evidence: ["proofloop/benchmarks/workstreambench/adapter.json"],
-      resumeCommand: "implement proofloop/benchmarks/workstreambench/load-tasks.ts and proofloop/benchmarks/workstreambench/verify.ts, then npm run proofloop -- run workstreambench --prod --user-emulation strict --cockpit",
+      evidence: ["proofloop/benchmarks/workstreambench/adapter.json", "docs/eval/proofloop-adapter-blockers/workstreambench.json"],
+      resumeCommand: "implement proofloop/benchmarks/workstreambench/load-tasks.ts plus proofloop/benchmarks/workstreambench/browser-scenario.spec.ts, then npm run proofloop -- run workstreambench --prod --user-emulation strict --cockpit",
     }),
   ];
 }

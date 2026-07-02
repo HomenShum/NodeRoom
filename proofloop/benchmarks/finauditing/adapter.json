@@ -4,6 +4,9 @@
   "source": {
     "name": "FinAuditing",
     "paper": "https://arxiv.org/abs/2510.08886",
+    "repository": "https://github.com/The-FinAI/FinAuditing",
+    "dataset": "https://huggingface.co/collections/TheFinAI/finauditing",
+    "contest": "https://open-finance-lab.github.io/SecureFinAI_Contest_2026/",
     "tasks": [
       "FinSM",
       "FinRE",
@@ -13,7 +16,7 @@
   "taskLoader": "proofloop/benchmarks/finauditing/load-tasks.ts",
   "seedInputsThroughUi": true,
   "browserScenario": "proofloop/benchmarks/finauditing/browser-scenario.spec.ts",
-  "verifierCommand": "proofloop/benchmarks/finauditing/verify.ts",
+  "verifierCommand": "npm run benchmark:proofloop:adapter-blockers -- --id finauditing --strict",
   "expectedArtifacts": [
     "live-user-contract.json",
     "node-trace-v2.json",
@@ -31,4 +34,3 @@
   ],
   "liveUserCommand": "npm run proofloop -- run finauditing --prod --user-emulation strict --cockpit"
 }
-

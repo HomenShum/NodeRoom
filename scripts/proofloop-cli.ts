@@ -68,7 +68,7 @@ type SuiteConfig = {
   cmd: string;
   minScore?: number;
   kind?: "cli" | "browser";
-  receiptGlob?: "live-cli" | "live-browser" | "none";
+  receiptGlob?: "live-cli" | "live-browser" | "adapter-blocker" | "none";
 };
 
 type ProofloopConfig = {
@@ -117,6 +117,21 @@ const DEFAULT_CONFIG: ProofloopConfig = {
       minScore: 100,
       kind: "browser",
       receiptGlob: "live-browser",
+    },
+    finch: {
+      cmd: "npm run benchmark:proofloop:adapter-blockers -- --id finch --strict",
+      kind: "cli",
+      receiptGlob: "adapter-blocker",
+    },
+    finauditing: {
+      cmd: "npm run benchmark:proofloop:adapter-blockers -- --id finauditing --strict",
+      kind: "cli",
+      receiptGlob: "adapter-blocker",
+    },
+    workstreambench: {
+      cmd: "npm run benchmark:proofloop:adapter-blockers -- --id workstreambench --strict",
+      kind: "cli",
+      receiptGlob: "adapter-blocker",
     },
   },
 };
@@ -233,14 +248,7 @@ function cmdInit(): void {
     console.log(`proofloop: wrote ${rel(CONFIG_PATH)}`);
   } else {
     const existing = JSON.parse(readFileSync(CONFIG_PATH, "utf8")) as ProofloopConfig;
-    const knownSuites = new Set(Object.keys(existing.suites));
-    let added = 0;
-    for (const [name, cfg] of Object.entries(DEFAULT_CONFIG.suites)) {
-      if (!knownSuites.has(name)) {
-        existing.suites[name] = cfg;
-        added++;
-      }
-    }
+    const added = mergeDefaultSuites(existing);
     if (added > 0) {
       writeJson(CONFIG_PATH, existing);
       console.log(`proofloop: merged ${added} new suite(s) into ${rel(CONFIG_PATH)}`);
@@ -660,7 +668,21 @@ function loadConfig(): ProofloopConfig {
     console.warn(`proofloop: ${rel(CONFIG_PATH)} not found -- run \`proofloop init\` first. Using defaults.`);
     return DEFAULT_CONFIG;
   }
-  return JSON.parse(readFileSync(CONFIG_PATH, "utf8")) as ProofloopConfig;
+  const config = JSON.parse(readFileSync(CONFIG_PATH, "utf8")) as ProofloopConfig;
+  mergeDefaultSuites(config);
+  return config;
+}
+
+function mergeDefaultSuites(config: ProofloopConfig): number {
+  const knownSuites = new Set(Object.keys(config.suites));
+  let added = 0;
+  for (const [name, cfg] of Object.entries(DEFAULT_CONFIG.suites)) {
+    if (!knownSuites.has(name)) {
+      config.suites[name] = cfg;
+      added++;
+    }
+  }
+  return added;
 }
 
 function listRuns(): RunMeta[] {
@@ -856,6 +878,16 @@ function locateReceipt(
       score: receipt.scorer?.score !== undefined ? Math.round(receipt.scorer.score * 100) : undefined,
       failedGates,
       receiptPaths: [rel(suiteReceiptPath)],
+    };
+  }
+  if (suiteConfig.receiptGlob === "adapter-blocker") {
+    const receiptPath = resolve(ROOT, "docs", "eval", "proofloop-adapter-blockers", `${suite}.json`);
+    if (!existsSync(receiptPath)) return { receiptPaths: [] };
+    const receipt = JSON.parse(readFileSync(receiptPath, "utf8")) as { status?: string; blockers?: string[] };
+    return {
+      passed: receipt.status === "ready",
+      failedGates: receipt.status === "ready" ? [] : receipt.blockers ?? [`${suite}: blocked_external`],
+      receiptPaths: [rel(receiptPath)],
     };
   }
   return { receiptPaths: [] };

@@ -1,6 +1,6 @@
 # Proof Loop Benchmark Board
 
-Generated: 2026-07-01T23:46:24.238Z
+Generated: 2026-07-02T00:24:31.878Z
 
 This board keeps fast product proof separate from official benchmark score claims.
 
@@ -31,9 +31,9 @@ This board keeps fast product proof separate from official benchmark score claim
 | `accounting` | product_suite | ready_to_run | not_applicable | `proofloop/accounting/proofloop.accounting.config.json`<br>`proofloop/accounting/benchmarks/benchmark-registry.json` | Accounting suite pins external benchmark families, but local proof-loop runs are product-path evidence. |
 | `notion-sdr-bdr` | product_suite | ready_to_run | not_applicable | `proofloop/notion/proofloop.notion.config.json` | Product workflow benchmark, not an official public benchmark score. |
 | `bankertoolbench` | external_adapter | proven | proven | `proofloop/benchmarks/bankertoolbench/adapter.json`<br>`docs/eval/bankertoolbench-live-room-proof.json`<br>`docs/eval/fresh-room/FR-020/fullsuite-gate-receipt.json`<br>`docs/eval/btb-clean-capability-full100-parallel-v3-gpt41mini.json` | none |
-| `finch` | external_adapter | registered | blocked | `proofloop/benchmarks/finch/adapter.json` | finch: missing implementation file proofloop/benchmarks/finch/load-tasks.ts |
-| `finauditing` | external_adapter | registered | blocked | `proofloop/benchmarks/finauditing/adapter.json` | finauditing: missing implementation file proofloop/benchmarks/finauditing/load-tasks.ts |
-| `workstreambench` | external_adapter | registered | blocked | `proofloop/benchmarks/workstreambench/adapter.json` | workstreambench: missing implementation file proofloop/benchmarks/workstreambench/load-tasks.ts |
+| `finch` | external_adapter | registered | blocked | `proofloop/benchmarks/finch/adapter.json`<br>`docs/eval/proofloop-adapter-blockers/finch.json` | finch: missing implementation file proofloop/benchmarks/finch/load-tasks.ts |
+| `finauditing` | external_adapter | registered | blocked | `proofloop/benchmarks/finauditing/adapter.json`<br>`docs/eval/proofloop-adapter-blockers/finauditing.json` | finauditing: missing implementation file proofloop/benchmarks/finauditing/load-tasks.ts |
+| `workstreambench` | external_adapter | registered | blocked | `proofloop/benchmarks/workstreambench/adapter.json`<br>`docs/eval/proofloop-adapter-blockers/workstreambench.json` | workstreambench: missing implementation file proofloop/benchmarks/workstreambench/load-tasks.ts |
 
 ## Interpretation
 

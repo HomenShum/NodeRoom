@@ -35,6 +35,8 @@ describe("Proof Loop benchmark board", () => {
       expect(entries[id].productPathCompletion.status).toBe("registered");
       expect(entries[id].officialSemanticScore.status).toBe("blocked");
       expect(entries[id].productPathCompletion.blockers.join(" ")).toContain("missing implementation file");
+      expect(entries[id].officialSemanticScore.evidence).toContain(`docs/eval/proofloop-adapter-blockers/${id}.json`);
+      expect(entries[id].officialSemanticScore.blockers.join(" ")).toContain(`${id}: missing implementation file`);
     }
   });
 
