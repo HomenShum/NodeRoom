@@ -26,6 +26,7 @@ const REQUIRED_LIVE_USER_ARTIFACTS = [
   "scorecard.md",
   "cost-ledger.json",
   "verifier-receipt.json",
+  "official-scorer-receipt.json",
 ];
 
 export function readBenchmarkAdapter(id: BenchmarkAdapterId, root = process.cwd()): ProofloopBenchmarkAdapter {

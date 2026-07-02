@@ -39,6 +39,7 @@ import {
 } from "../src/eval/proofloopLiveBrowserPrompt";
 import { enableFocusModeForTest, expectAttentionOverlayMounted, expectFocusModeOn } from "../e2e/focusMode";
 import { installCockpit, emitCockpitEvent, cockpitEventsPath } from "./cockpit/playwrightOverlay";
+import { noderoomSelectors, noderoomTextLocators } from "./adapters/noderoom/selectors";
 
 const ENABLED = process.env.PROOFLOOP_LIVE_BROWSER === "1";
 const COCKPIT_ENABLED = process.env.PROOFLOOP_COCKPIT !== "0";
@@ -139,15 +140,15 @@ test("Live browser proof-loop: starter room -> agent tasks -> UI + terminal-qual
     const started = Date.now();
     const taskDeadline = started + taskTimeout;
     const agentGoal = withNodeAgentMention(task.goal);
-    const streams = page.locator('[data-testid="agent-unified-stream"]');
+    const streams = page.locator(noderoomSelectors.agentStream);
     const streamCountBeforeSend = await streams.count().catch(() => 0);
     let stream = streams.last();
 
     await emitCockpitEvent(page, { type: "agent_status", message: `${task.name}: sending goal` }, COCKPIT_EVENTS_PATH);
-    const composer = page.locator('textarea[data-testid="chat-composer"]');
+    const composer = page.locator(noderoomSelectors.chatComposer);
     await expect(composer).toBeVisible({ timeout: 30_000 });
     await composer.fill(agentGoal);
-    await page.locator('[data-testid="chat-send"]').click();
+    await page.locator(noderoomSelectors.chatSend).click();
 
     let streamingVisible = false;
     try {
@@ -155,7 +156,7 @@ test("Live browser proof-loop: starter room -> agent tasks -> UI + terminal-qual
       streamingVisible = true;
       await emitCockpitEvent(page, { type: "gate_pass", gate: "visible_streaming_progress" }, COCKPIT_EVENTS_PATH);
     } catch {
-      stream = page.locator('[data-testid="agent-unified-stream"]').last();
+      stream = page.locator(noderoomSelectors.agentStream).last();
       streamingVisible = await stream.isVisible().catch(() => false);
       console.warn(`[proofloop-live] streaming did not become visible for task: ${task.id}`);
       await emitCockpitEvent(page, { type: "gate_fail", gate: "visible_streaming_progress" }, COCKPIT_EVENTS_PATH);
@@ -163,7 +164,7 @@ test("Live browser proof-loop: starter room -> agent tasks -> UI + terminal-qual
 
     let jobStatusVisible = false;
     try {
-      await expect(page.locator('[data-testid="job-status"]').first())
+      await expect(page.locator(noderoomSelectors.jobStatus).first())
         .toContainText(/queued|running|completed|blocked|failed/i, { timeout: 60_000 });
       jobStatusVisible = true;
     } catch {
@@ -174,9 +175,9 @@ test("Live browser proof-loop: starter room -> agent tasks -> UI + terminal-qual
 
     let jobDetailVisible = false;
     try {
-      const jobDetail = page.locator('[data-testid="job-detail"]').first();
+      const jobDetail = page.locator(noderoomSelectors.jobDetail).first();
       if (!(await jobDetail.isVisible().catch(() => false))) {
-        await page.locator('[data-testid="job-detail-toggle"]').first().click({ timeout: 10_000 });
+        await page.locator(noderoomSelectors.jobDetailToggle).first().click({ timeout: 10_000 });
       }
       await expect(jobDetail).toBeVisible({ timeout: 15_000 });
       jobDetailVisible = true;
@@ -206,7 +207,7 @@ test("Live browser proof-loop: starter room -> agent tasks -> UI + terminal-qual
 
     let roomTraceVisible = false;
     try {
-      const trace = page.locator('[data-testid="room-trace"]').first();
+      const trace = page.locator(noderoomSelectors.roomTrace).first();
       if (await trace.isVisible().catch(() => false)) {
         roomTraceVisible = true;
       } else {
@@ -428,7 +429,7 @@ async function createFreshStarterRoom(page: Page): Promise<void> {
   const code = `pl${Date.now().toString(36)}`.slice(0, 12);
   await page.goto(`${BASE}/?demo=${encodeURIComponent(code)}&name=${encodeURIComponent("Proof Loop")}`, { waitUntil: "domcontentloaded" });
   expect(page.url(), "proof-loop must not use memory mode").not.toContain("mode=memory");
-  await expect(page.getByText(/live convex/i)).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByText(noderoomTextLocators.liveConvex)).toBeVisible({ timeout: 30_000 });
 }
 
 async function ensureLeftRailVisible(page: Page): Promise<void> {
@@ -441,21 +442,21 @@ async function ensureLeftRailVisible(page: Page): Promise<void> {
 
 async function openSheetSurfaceForFocusOverlay(page: Page, preferredTitle: string): Promise<void> {
   await ensureLeftRailVisible(page);
-  const byTitle = page.locator(`[data-testid="binder-artifact"][data-artifact-title*="${preferredTitle}"]`).first();
+  const byTitle = page.locator(`${noderoomSelectors.binderArtifact}[data-artifact-title*="${preferredTitle}"]`).first();
   if (await byTitle.isVisible().catch(() => false)) {
     await byTitle.click({ timeout: 30_000 });
   } else {
-    await page.getByTestId("binder-artifact").first().click({ timeout: 30_000 });
+    await page.locator(noderoomSelectors.binderArtifact).first().click({ timeout: 30_000 });
   }
-  await expect(page.locator('table[data-noderoom-surface="workSurface.sheet"]').first()).toBeVisible({ timeout: 30_000 });
+  await expect(page.locator(noderoomSelectors.sheetSurface).first()).toBeVisible({ timeout: 30_000 });
 }
 
 async function selectAgentRoute(page: Page): Promise<void> {
-  const preset = page.locator('[data-testid="chat-model-preset"]').first();
+  const preset = page.locator(noderoomSelectors.chatModelPreset).first();
   if (!(await preset.isVisible({ timeout: 30_000 }).catch(() => false))) return;
   await preset.selectOption(AGENT_MODEL_MODE);
   if (AGENT_MODEL_MODE === "specific") {
-    const specific = page.locator('[data-testid="chat-model-specific"]').first();
+    const specific = page.locator(noderoomSelectors.chatModelSpecific).first();
     await expect(specific).toBeVisible({ timeout: 30_000 });
     await specific.fill(AGENT_MODEL_POLICY);
   }
@@ -464,8 +465,8 @@ async function selectAgentRoute(page: Page): Promise<void> {
 
 async function visibleBinderArtifactText(page: Page): Promise<string> {
   return page.locator([
-    '[data-testid="binder-artifact"]',
-    '[data-testid="agent-unified-stream"]',
+    noderoomSelectors.binderArtifact,
+    noderoomSelectors.agentStream,
     '[data-noderoom-surface="workSurface.sheet"]',
   ].join(",")).evaluateAll((els) => els.map((el) => el.textContent ?? "").join("\n"));
 }
@@ -511,12 +512,12 @@ async function currentAgentCompletion(page: Page, stream: Locator): Promise<{
   failed: boolean;
   statusText: string;
 }> {
-  const jobStatus = (await quickText(page.locator('[data-testid="job-status"]').first())).trim();
+  const jobStatus = (await quickText(page.locator(noderoomSelectors.jobStatus).first())).trim();
   const streamText = (await quickText(stream)).trim();
-  const latestStream = page.locator('[data-testid="agent-unified-stream"]').last();
+  const latestStream = page.locator(noderoomSelectors.agentStream).last();
   const latestStreamText = (await quickText(latestStream)).trim();
   const combinedStreamText = [streamText, latestStreamText].filter(Boolean).join("\n");
-  const progressStatus = (await quickAttribute(latestStream.locator('[data-testid="agent-progress-card"]').last(), "data-status")).trim();
+  const progressStatus = (await quickAttribute(latestStream.locator(noderoomSelectors.agentProgressCard).last(), "data-status")).trim();
   const peopleText = ((await page.locator("text=/Public agent\\s*·\\s*(done|failed|blocked|idle|running)/i").last().textContent().catch(() => "")) ?? "").trim();
   const statusText = [jobStatus, progressStatus, peopleText, combinedStreamText.slice(0, 240)].filter(Boolean).join(" | ");
   const completed =
@@ -532,7 +533,7 @@ async function currentAgentCompletion(page: Page, stream: Locator): Promise<{
 
 async function currentPublicAgentDone(page: Page): Promise<boolean> {
   const peopleText = (await quickText(page.locator("text=/Public agent\\s*.\\s*(done|failed|blocked|idle|running)/i").last())).trim();
-  return /\bPublic agent\s*.\s*done\b/i.test(peopleText);
+  return noderoomTextLocators.publicAgentDone.test(peopleText);
 }
 
 async function currentAgentCompletionFast(page: Page, stream: Locator): Promise<{
@@ -540,12 +541,12 @@ async function currentAgentCompletionFast(page: Page, stream: Locator): Promise<
   failed: boolean;
   statusText: string;
 }> {
-  const jobStatus = (await quickText(page.locator('[data-testid="job-status"]').first())).trim();
+  const jobStatus = (await quickText(page.locator(noderoomSelectors.jobStatus).first())).trim();
   const streamText = (await quickText(stream)).trim();
-  const latestStream = page.locator('[data-testid="agent-unified-stream"]').last();
+  const latestStream = page.locator(noderoomSelectors.agentStream).last();
   const latestStreamText = (await quickText(latestStream)).trim();
   const combinedStreamText = [streamText, latestStreamText].filter(Boolean).join("\n");
-  const progressStatus = (await quickAttribute(latestStream.locator('[data-testid="agent-progress-card"]').last(), "data-status")).trim();
+  const progressStatus = (await quickAttribute(latestStream.locator(noderoomSelectors.agentProgressCard).last(), "data-status")).trim();
   const peopleText = (await quickText(page.locator("text=/Public agent\\s*.\\s*(done|failed|blocked|idle|running)/i").last())).trim();
   const statusText = [jobStatus, progressStatus, peopleText, combinedStreamText.slice(0, 240)].filter(Boolean).join(" | ");
   const completed =
@@ -587,7 +588,7 @@ function proofloopLiveBrowserCommand(): string {
 }
 
 async function waitForNewAgentStream(page: Page, previousCount: number, timeoutMs: number): Promise<Locator> {
-  const streams = page.locator('[data-testid="agent-unified-stream"]');
+  const streams = page.locator(noderoomSelectors.agentStream);
   const deadline = Date.now() + Math.min(timeoutMs, 10 * 60_000);
   while (Date.now() < deadline) {
     const count = await streams.count().catch(() => 0);

@@ -1,13 +1,13 @@
 # Proof Loop Harness Economics
 
-Generated: 2026-07-02T15:18:45.840Z
+Generated: 2026-07-02T15:46:02.462Z
 
 This ledger records harness/config versions and cheaper model routes for Proof Loop product gates while preserving official scorer boundaries.
 
 ## Summary
 
 - Package version: 0.1.1
-- Git commit: e6ebe8235229b8e776d2c915ea5abb1d256b8d48 (dirty)
+- Git commit: a904e2636c50cc793574e16e181b57c9df11bad6 (dirty)
 - Harness files tracked: 21
 - Missing harness files: 0
 - OpenRouter candidates: 20
@@ -74,19 +74,19 @@ This ledger records harness/config versions and cheaper model routes for Proof L
 - `scripts/proofloop.mjs`: 95aec6cc8e95fa03a45904081f01150202473050e6defbec38dd9c6d0ff55fc9
 - `scripts/proofloop-runner.ts`: ddfa9e8620e51d395a3b150fbad2353b44a72a4f0822ef8c9f3be9e7b889d3bf
 - `scripts/live-proofloop-runner.ts`: 76e00595a762ad80bf60ee4d13a0eb8c3ca7b0548e77cb98a34643379fd8d411
-- `proofloop/live-browser-proof.spec.ts`: 09a4968d3dfddfb3e9ebf67e3420317ec38122eeea987f25c5ddb6f0e4fd23e7
+- `proofloop/live-browser-proof.spec.ts`: 8cd38b605de661a8d028a1b164db0a48617f29c721a1b1977987f6d1820565d7
 - `proofloop/cockpit/playwrightOverlay.ts`: 08516b60f3fa088ef87a9233d898fda3f9f0e7f4134220866c2c7425816637a7
 - `proofloop/suites/proximitty-underwriting-pr0.json`: 77d5c2987a6eb504f99c96698eee63070a645494a0b5579fc9673c5ae2f5df23
 - `proofloop/accounting/proofloop.accounting.config.json`: 2d08079aed2c2d4631c4cd91f62d85f35eb3aaf698e0d80e3ac5b81dc00d241d
 - `proofloop/accounting/live.accounting.config.json`: 94a2ea9b6a797340d766dbf7b0a9ccbf3446f61bc18e5222a00714f6660c2e55
 - `proofloop/notion/proofloop.notion.config.json`: 6400e479c17267842288ecb16139da07924744cf2aef70f8a80343fd1e860354
 - `proofloop/notion/live.notion.config.json`: 48f3b060db525f38ccbe1dfacf97ecd8c08915e46b50cf08c2c10e53ea0d5077
-- `proofloop/benchmarks/finch/adapter.json`: 20a7ca80261a7e725cd8c28a56ef28331b8ad73ef2a4a7707bddcd0842eb927b
-- `proofloop/benchmarks/finauditing/adapter.json`: 9eb4081389ad6753597f6091870cf213e6caffdaaad155fe936926f4729ddc78
-- `proofloop/benchmarks/workstreambench/adapter.json`: 01264dabe6d05c19669159d0192aaa85b6cabf35d20da6bd5ec13b79852681b5
+- `proofloop/benchmarks/finch/adapter.json`: d878402cf74c5bbf9548978e12b2a4bb7ebd753ad05b93f5ca120bc82116c387
+- `proofloop/benchmarks/finauditing/adapter.json`: a36a06fadf1d9e3bcb5e2c60d0b71cd7f6053d89fb13d1fb4f603d822192dca6
+- `proofloop/benchmarks/workstreambench/adapter.json`: e3655f8b4b04c2c670d645b4d70901cee2cf3b02e69f3d2bd2aa3dc8276eab1f
 - `scripts/proofloop-company-task-coverage.ts`: 66eb7e8dd23b3a3eca2d363cfde287260af8604859be047ece606ef101342a5a
 - `scripts/proofloop-harness-economics.ts`: 88af3482e8bc8d8ed15a8df44756e2498159b3682d350a404c86be063b1fb53c
-- `src/eval/proofloopGoalSupervisor.ts`: f7dd63458f330b6af74c9153de5fe620a08fd8f375c76782a6097ebd653edcf0
+- `src/eval/proofloopGoalSupervisor.ts`: 064545291e526e3879147b2c9b8532743b50a97d9eccaa7164509f78cd6ce1a4
 - `src/eval/proofloopBenchmarkNormalization.ts`: a32eb66ea33976a98b6fadcf741f1f2bf6e783d70b10e1b02ee5ed9f7d58823f
 - `src/eval/proofloopBenchmarkBoard.ts`: ecad3528bcd067e3115fb4de64a7a67f8c3ba6c15e73a0dd702f78c8c9be2c22
 - `src/eval/proofloopCompanyTaskCoverage.ts`: 50268bb77d08101f83b844dc7a8a34e4a867d35fce3d7cbf32f8f662338b5d6f

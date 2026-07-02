@@ -137,6 +137,19 @@ export interface NodeMemProcedure {
 
 // ─── Failure Patterns ───────────────────────────────────────────────────────
 
+// Where a failure/pattern actually originated -- see noderl/spec/anti-reward-hacking-doctrine.md.
+// Kept as a local duplicate (not imported from src/eval/scaffoldProposal.ts's ProofLoopSource,
+// which has the identical shape) so this portable, dependency-light nodemem module doesn't take on
+// a cross-package import; keep the two definitions in sync if this union changes.
+export type NodeMemSource =
+  | "real_user_run"
+  | "live_browser_proof"
+  | "official_benchmark"
+  | "human_feedback"
+  | "redteam_proposal"
+  | "synthetic_edge_case"
+  | "model_generated_proposal";
+
 export interface NodeMemFailurePattern {
   id: string;
   symptom: string;
@@ -146,6 +159,8 @@ export interface NodeMemFailurePattern {
   affectedSystems: string[];
   receiptRefs: string[];
   createdAt: number;
+  /** Optional, additive: prefer real_user_run/official_benchmark when weighing repair priority. */
+  source?: NodeMemSource;
 }
 
 // ─── Feedback ───────────────────────────────────────────────────────────────

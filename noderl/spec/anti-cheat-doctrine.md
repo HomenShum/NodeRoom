@@ -2,6 +2,11 @@
 
 > Generalized + redacted from the originating product's BankerToolBench anti-cheat doctrine.
 > "The number went up" must mean "the agent got better," not "I overfit."
+>
+> See also [`anti-reward-hacking-doctrine.md`](anti-reward-hacking-doctrine.md) for the
+> Certification Loop / Exploration Loop split this doctrine's "promotion gate" and "materializer
+> toggle" primitives imply — that doc names the pattern and closes the promoted-vs-proposed and
+> memory-source-typing gaps.
 
 The doctrine is the product. A benchmark you can only pass by hardcoding is the wrong benchmark —
 or it is being used dishonestly.

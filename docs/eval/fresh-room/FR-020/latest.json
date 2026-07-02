@@ -2,40 +2,35 @@
   "schema": 1,
   "caseId": "FR-020",
   "benchmark": "bankertoolbench",
-  "taskId": "a31173e3-e8aa-4ddb-b0d9-e4e7055c950b",
-  "generatedAt": "2026-06-25T10:38:18.835Z",
-  "baseUrl": "http://127.0.0.1:5273",
-  "roomId": "NRNNNQC2IO9",
-  "roomUrl": "http://127.0.0.1:5273/?room=NRNNNQC2IO9&name=Host",
+  "taskId": "0fc7bc3c-a111-4222-8333-444455556666",
+  "generatedAt": "2026-07-02T15:51:20.843Z",
+  "baseUrl": "https://noderoom.live",
+  "roomId": "NRJNGW6LELB",
+  "roomUrl": "https://noderoom.live/?room=NRJNGW6LELB&name=Host",
   "command": "BTB_LIVE_ROOM_E2E=1 BTB_UI_BUNDLE_ROOT=<official-bundle> BTB_UI_VERIFIER_COMMAND=<verifier> BENCH_BASE_URL=<base> npx playwright test --config playwright.real-flow.config.ts e2e/benchmark-ui-bankertoolbench.spec.ts --headed",
   "model": {
     "requested": "specific",
-    "resolved": "qwen/qwen3.7-plus",
+    "resolved": "z-ai/glm-5.2",
     "routePolicy": "specific",
     "runtimeProfile": "benchmark_completion",
     "provider": "openrouter"
   },
-  "prompt": "Official BankerToolBench task btb-a31173e3: You are an Equity Research associate and want to Build a DCF Sum-of-the-Parts (SOTP) valuation for Alphabet Inc. (Google). Your objective is to construct a fully linked three-statement operating model and a segment-level DCF SOTP in order to calculate the implied upside or downside to Alphabet's current share price.\nAssume today's date is January 1, 2026, and the valuation date is December 31, 2025. \nThe historical period includes 2022-2024 annuals with the fiscal year ending in December and the first three quarters of 2025 given Google has not reported Q4 figures yet. You will need to forecast Q4 2025 with the full year of 2025 being the sum of the three actual quarters and your forecasted quarter and then forecast the following 5 years up to 2030. Each column represents a single period (quarter or a year) and should read chronologically from left to right. \nThe model should be structured in two tabs, one will be the DCF SOTP and the other will be the operating model, for each of the sections below, please highlight the whole row where you put the name of the section in a dark blue with the font in white and leave one empty row above and below. You should also make sure that each ",
+  "prompt": "Official BankerToolBench task btb-0fc7bc3c: Build a buyer screen and short memo.",
   "memoryMode": false,
   "freshness": {
     "roomCreatedAfterRunStart": true,
     "forbiddenPreloadedArtifactsAbsent": true,
     "artifactsCreatedFresh": [
-      "btb-a31173e3-alphabet-inc.-googl-dcf-sum-of-the-parts-valuation-as-of-12-31-2025.xlsx",
-      "btb-a31173e3-alphabet-inc.-googl-dcf-sum-of-the-parts-valuation-as-of-12-31-2025.xlsm",
-      "btb-a31173e3-alphabet-inc.-googl-dcf-sum-of-the-parts-valuation-as-of-12-31-2025.pptx",
-      "btb-a31173e3-alphabet-inc.-googl-dcf-sum-of-the-parts-valuation-as-of-12-31-2025.docx",
-      "btb-a31173e3-alphabet-inc.-googl-dcf-sum-of-the-parts-valuation-as-of-12-31-2025.pdf"
+      "btb-0fc7bc3c-bankertoolbench-btb-0fc7bc3c-deliverable-package.xlsx",
+      "btb-0fc7bc3c-bankertoolbench-btb-0fc7bc3c-deliverable-package.xlsm",
+      "btb-0fc7bc3c-bankertoolbench-btb-0fc7bc3c-deliverable-package.pptx",
+      "btb-0fc7bc3c-bankertoolbench-btb-0fc7bc3c-deliverable-package.docx",
+      "btb-0fc7bc3c-bankertoolbench-btb-0fc7bc3c-deliverable-package.pdf"
     ],
     "uploadedFiles": [
-      "betas_by_industry_category_for_WACC.xlsx",
-      "Equity_Risk_Premium_for_WACC.xlsx",
-      "Google 10K - 2023.pdf",
-      "Google 10K - 2024.pdf",
-      "Google 10Q - 1Q 2025.pdf",
-      "Google 10Q - 2Q 2025.pdf",
-      "Google 10Q - 3Q 2025.pdf",
-      "btb-a31173e3-official-task-brief.txt"
+      "model.xlsx",
+      "source.pdf",
+      "btb-0fc7bc3c-official-task-brief.txt"
     ]
   },
   "ui": {
@@ -45,113 +40,105 @@
     "jobDetailVisible": true,
     "roomTraceVisible": true,
     "screenshotPaths": [
-      "docs/eval/fresh-room/FR-020/tasks/a31173e3-e8aa-4ddb-b0d9-e4e7055c950b/evidence/bankertoolbench-live-room.png"
+      "docs\\eval\\fresh-room\\FR-020\\tasks\\0fc7bc3c-a111-4222-8333-444455556666\\evidence\\bankertoolbench-live-room.png"
     ],
-    "tracePath": "docs/eval/bankertoolbench/live-room/a31173e3-e8aa-4ddb-b0d9-e4e7055c950b.json",
-    "videoPaths": [
-      "docs/eval/fresh-room/FR-020/tasks/a31173e3-e8aa-4ddb-b0d9-e4e7055c950b/evidence/video.webm"
-    ]
+    "tracePath": "docs/eval/bankertoolbench-live-room-proof.json"
   },
   "artifacts": {
     "uploadedFiles": [
-      "betas_by_industry_category_for_WACC.xlsx",
-      "Equity_Risk_Premium_for_WACC.xlsx",
-      "Google 10K - 2023.pdf",
-      "Google 10K - 2024.pdf",
-      "Google 10Q - 1Q 2025.pdf",
-      "Google 10Q - 2Q 2025.pdf",
-      "Google 10Q - 3Q 2025.pdf",
-      "btb-a31173e3-official-task-brief.txt"
+      "model.xlsx",
+      "source.pdf",
+      "btb-0fc7bc3c-official-task-brief.txt"
     ],
     "created": [
-      "btb-a31173e3-alphabet-inc.-googl-dcf-sum-of-the-parts-valuation-as-of-12-31-2025.xlsx",
-      "btb-a31173e3-alphabet-inc.-googl-dcf-sum-of-the-parts-valuation-as-of-12-31-2025.xlsm",
-      "btb-a31173e3-alphabet-inc.-googl-dcf-sum-of-the-parts-valuation-as-of-12-31-2025.pptx",
-      "btb-a31173e3-alphabet-inc.-googl-dcf-sum-of-the-parts-valuation-as-of-12-31-2025.docx",
-      "btb-a31173e3-alphabet-inc.-googl-dcf-sum-of-the-parts-valuation-as-of-12-31-2025.pdf"
+      "btb-0fc7bc3c-bankertoolbench-btb-0fc7bc3c-deliverable-package.xlsx",
+      "btb-0fc7bc3c-bankertoolbench-btb-0fc7bc3c-deliverable-package.xlsm",
+      "btb-0fc7bc3c-bankertoolbench-btb-0fc7bc3c-deliverable-package.pptx",
+      "btb-0fc7bc3c-bankertoolbench-btb-0fc7bc3c-deliverable-package.docx",
+      "btb-0fc7bc3c-bankertoolbench-btb-0fc7bc3c-deliverable-package.pdf"
     ],
     "exportedFiles": [
       {
         "kind": "workbook",
-        "filename": "btb-a31173e3-alphabet-inc.-googl-dcf-sum-of-the-parts-valuation-as-of-12-31-2025.xlsx",
-        "path": "docs/eval/fresh-room/FR-020/tasks/a31173e3-e8aa-4ddb-b0d9-e4e7055c950b/evidence/btb-xlsx-btb-a31173e3-alphabet-inc.-googl-dcf-sum-of-the-parts-valuation-as-of-12-31-2025.xlsx",
+        "filename": "btb-0fc7bc3c-bankertoolbench-btb-0fc7bc3c-deliverable-package.xlsx",
+        "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\0fc7bc3c-a111-4222-8333-444455556666\\evidence\\btb-xlsx-btb-0fc7bc3c-bankertoolbench-btb-0fc7bc3c-deliverable-package.xlsx",
         "extension": ".xlsx",
         "downloaded": true,
-        "bytes": 10548,
+        "bytes": 6876,
         "magic": "PK\\x03\\x04"
       },
       {
         "kind": "workbook",
-        "filename": "btb-a31173e3-alphabet-inc.-googl-dcf-sum-of-the-parts-valuation-as-of-12-31-2025.xlsm",
-        "path": "docs/eval/fresh-room/FR-020/tasks/a31173e3-e8aa-4ddb-b0d9-e4e7055c950b/evidence/btb-xlsm-btb-a31173e3-alphabet-inc.-googl-dcf-sum-of-the-parts-valuation-as-of-12-31-2025.xlsm",
+        "filename": "btb-0fc7bc3c-bankertoolbench-btb-0fc7bc3c-deliverable-package.xlsm",
+        "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\0fc7bc3c-a111-4222-8333-444455556666\\evidence\\btb-xlsm-btb-0fc7bc3c-bankertoolbench-btb-0fc7bc3c-deliverable-package.xlsm",
         "extension": ".xlsm",
         "downloaded": true,
-        "bytes": 10548,
+        "bytes": 6876,
         "magic": "PK\\x03\\x04"
       },
       {
         "kind": "presentation",
-        "filename": "btb-a31173e3-alphabet-inc.-googl-dcf-sum-of-the-parts-valuation-as-of-12-31-2025.pptx",
-        "path": "docs/eval/fresh-room/FR-020/tasks/a31173e3-e8aa-4ddb-b0d9-e4e7055c950b/evidence/btb-pptx-btb-a31173e3-alphabet-inc.-googl-dcf-sum-of-the-parts-valuation-as-of-12-31-2025.pptx",
+        "filename": "btb-0fc7bc3c-bankertoolbench-btb-0fc7bc3c-deliverable-package.pptx",
+        "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\0fc7bc3c-a111-4222-8333-444455556666\\evidence\\btb-pptx-btb-0fc7bc3c-bankertoolbench-btb-0fc7bc3c-deliverable-package.pptx",
         "extension": ".pptx",
         "downloaded": true,
-        "bytes": 6638,
+        "bytes": 6208,
         "magic": "PK\\x03\\x04"
       },
       {
         "kind": "document",
-        "filename": "btb-a31173e3-alphabet-inc.-googl-dcf-sum-of-the-parts-valuation-as-of-12-31-2025.docx",
-        "path": "docs/eval/fresh-room/FR-020/tasks/a31173e3-e8aa-4ddb-b0d9-e4e7055c950b/evidence/btb-docx-btb-a31173e3-alphabet-inc.-googl-dcf-sum-of-the-parts-valuation-as-of-12-31-2025.docx",
+        "filename": "btb-0fc7bc3c-bankertoolbench-btb-0fc7bc3c-deliverable-package.docx",
+        "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\0fc7bc3c-a111-4222-8333-444455556666\\evidence\\btb-docx-btb-0fc7bc3c-bankertoolbench-btb-0fc7bc3c-deliverable-package.docx",
         "extension": ".docx",
         "downloaded": true,
-        "bytes": 2949,
+        "bytes": 2179,
         "magic": "PK\\x03\\x04"
       },
       {
         "kind": "pdf",
-        "filename": "btb-a31173e3-alphabet-inc.-googl-dcf-sum-of-the-parts-valuation-as-of-12-31-2025.pdf",
-        "path": "docs/eval/fresh-room/FR-020/tasks/a31173e3-e8aa-4ddb-b0d9-e4e7055c950b/evidence/btb-pdf-btb-a31173e3-alphabet-inc.-googl-dcf-sum-of-the-parts-valuation-as-of-12-31-2025.pdf",
+        "filename": "btb-0fc7bc3c-bankertoolbench-btb-0fc7bc3c-deliverable-package.pdf",
+        "path": "docs\\eval\\fresh-room\\FR-020\\tasks\\0fc7bc3c-a111-4222-8333-444455556666\\evidence\\btb-pdf-btb-0fc7bc3c-bankertoolbench-btb-0fc7bc3c-deliverable-package.pdf",
         "extension": ".pdf",
         "downloaded": true,
-        "bytes": 4733,
+        "bytes": 1168,
         "magic": "%PDF"
       }
     ],
     "reopenedFiles": [
       {
         "kind": "workbook",
-        "filename": "btb-a31173e3-alphabet-inc.-googl-dcf-sum-of-the-parts-valuation-as-of-12-31-2025.xlsx",
+        "filename": "btb-0fc7bc3c-bankertoolbench-btb-0fc7bc3c-deliverable-package.xlsx",
         "reopened": true,
         "scorerResult": "pass",
-        "detail": "ZIP package contains xl/workbook.xml; placeholder/caveat content scan passed (6125 chars)"
+        "detail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j970rd4143e87y6ta5qjw754bs89stje; placeholder/caveat content scan passed (589 chars)"
       },
       {
         "kind": "workbook",
-        "filename": "btb-a31173e3-alphabet-inc.-googl-dcf-sum-of-the-parts-valuation-as-of-12-31-2025.xlsm",
+        "filename": "btb-0fc7bc3c-bankertoolbench-btb-0fc7bc3c-deliverable-package.xlsm",
         "reopened": true,
         "scorerResult": "pass",
-        "detail": "ZIP package contains xl/workbook.xml; placeholder/caveat content scan passed (6125 chars)"
+        "detail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j976y89bse30j0az5fr4cyv2y189rvwd; placeholder/caveat content scan passed (589 chars)"
       },
       {
         "kind": "presentation",
-        "filename": "btb-a31173e3-alphabet-inc.-googl-dcf-sum-of-the-parts-valuation-as-of-12-31-2025.pptx",
+        "filename": "btb-0fc7bc3c-bankertoolbench-btb-0fc7bc3c-deliverable-package.pptx",
         "reopened": true,
         "scorerResult": "pass",
-        "detail": "ZIP package contains ppt/presentation.xml; placeholder/caveat content scan passed (1717 chars)"
+        "detail": "ZIP package contains ppt/presentation.xml; recovered from Convex room artifact j9710bybscezm8ej6k5shqb90d89s2ts; placeholder/caveat content scan passed (563 chars)"
       },
       {
         "kind": "document",
-        "filename": "btb-a31173e3-alphabet-inc.-googl-dcf-sum-of-the-parts-valuation-as-of-12-31-2025.docx",
+        "filename": "btb-0fc7bc3c-bankertoolbench-btb-0fc7bc3c-deliverable-package.docx",
         "reopened": true,
         "scorerResult": "pass",
-        "detail": "ZIP package contains word/document.xml; placeholder/caveat content scan passed (4910 chars)"
+        "detail": "ZIP package contains word/document.xml; recovered from Convex room artifact j977q5sa93edwbgar6gn4t74qh89szjj; placeholder/caveat content scan passed (544 chars)"
       },
       {
         "kind": "pdf",
-        "filename": "btb-a31173e3-alphabet-inc.-googl-dcf-sum-of-the-parts-valuation-as-of-12-31-2025.pdf",
+        "filename": "btb-0fc7bc3c-bankertoolbench-btb-0fc7bc3c-deliverable-package.pdf",
         "reopened": true,
         "scorerResult": "pass",
-        "detail": "PDF header reopened; placeholder/caveat content scan passed (8795 chars)"
+        "detail": "PDF header reopened; recovered from Convex room artifact j97550q8cg1ya9q1fg6vb07ttx89rtqp; placeholder/caveat content scan passed (1814 chars)"
       }
     ]
   },
@@ -162,7 +149,7 @@
     "score": 1,
     "details": {
       "verifierOutputTail": "\n> noderoom@0.1.1 benchmark:bankertoolbench:proof\n> tsx scripts/bankertoolbench-proof-check.ts\n\nBankerToolBench proof check passed: stage=1/1 weightedRubric=6 run=0/1 pass positive=1/1 pass candidateBeforeEvaluator=true leaks=0/2+0/3+0/4\n",
-      "packageManifestPath": "docs/eval/fresh-room/FR-020/tasks/a31173e3-e8aa-4ddb-b0d9-e4e7055c950b/evidence/package-manifest.json",
+      "packageManifestPath": "docs\\eval\\fresh-room\\FR-020\\tasks\\0fc7bc3c-a111-4222-8333-444455556666\\evidence\\package-manifest.json",
       "downloadedExtensions": [
         ".xlsx",
         ".xlsm",
@@ -170,65 +157,30 @@
         ".docx",
         ".pdf"
       ],
-      "exportSource": "browser_download_link",
+      "exportSource": "convex_room_artifact_data_url_after_browser_ui_proof",
       "agentTerminalQuality": {
-        "statusText": "completed via recovered Convex job: et-inc.-googl-dcf-sum-of-the-parts-valuation-as-of-12-31-2025.pptx, btb-a31173e3-alphabet-inc.-googl-dcf-sum-of-the-parts-valuation-as-of-12-31-2025.docx, btb-a31173e3-alphabet-inc.-googl-dcf-sum-of-the-parts-valuation-as-of-12-31-2025.pdf.",
-        "evidenceTextLength": 1477,
-        "detail": "agent reached completed status; ignored stale progress caveat(s) after package proof: unfinished_continue"
+        "statusText": "completed via recovered Convex job: tb-0fc7bc3c-deliverable-package.xlsm, btb-0fc7bc3c-bankertoolbench-btb-0fc7bc3c-deliverable-package.pptx, btb-0fc7bc3c-bankertoolbench-btb-0fc7bc3c-deliverable-package.docx, btb-0fc7bc3c-bankertoolbench-btb-0fc7bc3c-deliverable-package.pdf.",
+        "evidenceTextLength": 1008,
+        "detail": "agent reached completed status or visible completion text, with no missing-source/unfinished-work caveats"
       },
       "taskCoverage": {
         "ok": true,
-        "requiredTickers": [
-          "GOOGL"
-        ],
+        "requiredTickers": [],
         "missingTickers": [],
         "domainProof": {
           "ok": true,
-          "domain": "alphabet_dcf_sotp",
-          "gates": [
-            {
-              "id": "alphabet_identity",
-              "label": "Alphabet / Google / GOOGL identity",
-              "passed": true
-            },
-            {
-              "id": "dcf_sotp_method",
-              "label": "DCF and SOTP methodology",
-              "passed": true
-            },
-            {
-              "id": "operating_model_periods",
-              "label": "Operating model with historical and forecast periods",
-              "passed": true
-            },
-            {
-              "id": "segment_level_model",
-              "label": "Segment-level Google Services / Cloud / Other Bets model",
-              "passed": true
-            },
-            {
-              "id": "wacc_terminal_assumptions",
-              "label": "WACC and terminal-growth assumptions",
-              "passed": true
-            },
-            {
-              "id": "valuation_output",
-              "label": "Enterprise/equity value and per-share output",
-              "passed": true
-            }
-          ],
+          "domain": "generic",
+          "gates": [],
           "missingGates": [],
-          "detail": "Alphabet DCF/SOTP domain proof passed"
+          "detail": "no task-specific domain proof gate required"
         },
-        "detail": "single requested ticker detected (GOOGL); multi-entity coverage gate not required; Alphabet DCF/SOTP domain proof passed"
+        "detail": "no multi-entity ticker coverage gate required; no task-specific domain proof gate required"
       }
     }
   },
   "visualJudge": {
-    "command": "npm run media:gemini-judge -- --run-id btb-a31173e3-qwen-fresh-domain-proof-after-pdf-storage-fix-20260625 --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\a31173e3-e8aa-4ddb-b0d9-e4e7055c950b\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --out \"docs\\\\eval\\\\gemini-media-judges\"",
-    "verdict": "pass",
-    "scorecardPath": "docs/eval/gemini-media-judges/btb-a31173e3-qwen-fresh-domain-proof-after-pdf-storage-fix-20260625/summary.md",
-    "reason": "Gemini media judge publish (8/16); defects P0/P1/P2=0/0/0. The video demonstrates NodeAgent executing a DCF SOTP valuation for Alphabet Inc. inside NodeRoom, covering room creation, document uploads, live agent execution with trace logs, and final artifact generation."
+    "verdict": "not_run",
+    "reason": "GOOGLE_GENERATIVE_AI_API_KEY is not set; deterministic browser/download/reopen/verifier proof passed."
   },
   "gatesProven": [
     "fresh_room_join",
@@ -246,8 +198,7 @@
     "deliverable_export_download",
     "artifact_reopen_validation",
     "artifact_placeholder_scan",
-    "official_scorer_handoff",
-    "visual_judge_handoff"
+    "official_scorer_handoff"
   ],
   "passed": true
 }

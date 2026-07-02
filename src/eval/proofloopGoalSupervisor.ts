@@ -151,6 +151,22 @@ export function officialScoresGoalTasks(): ProofloopGoalTask[] {
       ],
     }),
     commandTask({
+      id: "external-adapter-setup-doctor",
+      title: "External adapter setup/doctor receipts before blocked status",
+      command: [
+        "npm run proofloop -- setup bankertoolbench --doctor",
+        "npm run proofloop -- setup finch --doctor",
+        "npm run proofloop -- setup finauditing --doctor",
+        "npm run proofloop -- setup workstreambench --doctor",
+      ].join(" && "),
+      evidence: [
+        ".proofloop/setup/bankertoolbench-local-setup.json",
+        ".proofloop/setup/finch-local-setup.json",
+        ".proofloop/setup/finauditing-local-setup.json",
+        ".proofloop/setup/workstreambench-local-setup.json",
+      ],
+    }),
+    commandTask({
       id: "external-adapter-local-product-proofs",
       title: "External adapter local product-path browser proofs",
       command: "npm run benchmark:proofloop:external-adapter -- --prod --user-emulation strict",
@@ -213,6 +229,7 @@ export function officialScoresGoalTasks(): ProofloopGoalTask[] {
         "finch: official task bundle lock docs/eval/proofloop-official-task-bundles/finch.json is staged, but NodeRoom still needs one official-output artifact per Finch task id and an accepted upstream judge/scorer path; Azure OpenAI credentials are one path, while cheaper OpenRouter proxy judges are product-gate evidence only unless accepted upstream.",
       ],
       evidence: [
+        ".proofloop/setup/finch-local-setup.json",
         "proofloop/benchmarks/finch/adapter.json",
         "docs/eval/proofloop-external-adapter-runs/finch.json",
         "docs/eval/proofloop-adapter-blockers/finch.json",
@@ -229,6 +246,7 @@ export function officialScoresGoalTasks(): ProofloopGoalTask[] {
         "finauditing: official task bundle lock docs/eval/proofloop-official-task-bundles/finauditing.json is staged, but NodeRoom still needs official-format FinSM/FinRE/FinMR prediction JSONL and an accepted FinMR judge path; OpenAI credentials are one path, while cheaper OpenRouter proxy judges are product-gate evidence only unless accepted upstream.",
       ],
       evidence: [
+        ".proofloop/setup/finauditing-local-setup.json",
         "proofloop/benchmarks/finauditing/adapter.json",
         "docs/eval/proofloop-external-adapter-runs/finauditing.json",
         "docs/eval/proofloop-adapter-blockers/finauditing.json",
@@ -245,6 +263,7 @@ export function officialScoresGoalTasks(): ProofloopGoalTask[] {
         "workstreambench: no public official task bundle lock docs/eval/proofloop-official-task-bundles/workstreambench.json is staged because no public official bundle/scorer/rubric URL was found.",
       ],
       evidence: [
+        ".proofloop/setup/workstreambench-local-setup.json",
         "proofloop/benchmarks/workstreambench/adapter.json",
         "docs/eval/proofloop-external-adapter-runs/workstreambench.json",
         "docs/eval/proofloop-adapter-blockers/workstreambench.json",

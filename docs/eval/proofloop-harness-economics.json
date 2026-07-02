@@ -1,8 +1,8 @@
 {
   "schema": "proofloop-harness-economics-v1",
-  "generatedAt": "2026-07-02T15:18:45.840Z",
+  "generatedAt": "2026-07-02T15:46:02.462Z",
   "git": {
-    "commit": "e6ebe8235229b8e776d2c915ea5abb1d256b8d48",
+    "commit": "a904e2636c50cc793574e16e181b57c9df11bad6",
     "dirty": true
   },
   "packageVersion": "0.1.1",
@@ -33,7 +33,7 @@
     {
       "path": "proofloop/live-browser-proof.spec.ts",
       "exists": true,
-      "sha256": "09a4968d3dfddfb3e9ebf67e3420317ec38122eeea987f25c5ddb6f0e4fd23e7"
+      "sha256": "8cd38b605de661a8d028a1b164db0a48617f29c721a1b1977987f6d1820565d7"
     },
     {
       "path": "proofloop/cockpit/playwrightOverlay.ts",
@@ -68,17 +68,17 @@
     {
       "path": "proofloop/benchmarks/finch/adapter.json",
       "exists": true,
-      "sha256": "20a7ca80261a7e725cd8c28a56ef28331b8ad73ef2a4a7707bddcd0842eb927b"
+      "sha256": "d878402cf74c5bbf9548978e12b2a4bb7ebd753ad05b93f5ca120bc82116c387"
     },
     {
       "path": "proofloop/benchmarks/finauditing/adapter.json",
       "exists": true,
-      "sha256": "9eb4081389ad6753597f6091870cf213e6caffdaaad155fe936926f4729ddc78"
+      "sha256": "a36a06fadf1d9e3bcb5e2c60d0b71cd7f6053d89fb13d1fb4f603d822192dca6"
     },
     {
       "path": "proofloop/benchmarks/workstreambench/adapter.json",
       "exists": true,
-      "sha256": "01264dabe6d05c19669159d0192aaa85b6cabf35d20da6bd5ec13b79852681b5"
+      "sha256": "e3655f8b4b04c2c670d645b4d70901cee2cf3b02e69f3d2bd2aa3dc8276eab1f"
     },
     {
       "path": "scripts/proofloop-company-task-coverage.ts",
@@ -93,7 +93,7 @@
     {
       "path": "src/eval/proofloopGoalSupervisor.ts",
       "exists": true,
-      "sha256": "f7dd63458f330b6af74c9153de5fe620a08fd8f375c76782a6097ebd653edcf0"
+      "sha256": "064545291e526e3879147b2c9b8532743b50a97d9eccaa7164509f78cd6ce1a4"
     },
     {
       "path": "src/eval/proofloopBenchmarkNormalization.ts",

@@ -1,6 +1,6 @@
 {
   "schema": "proofloop-company-task-coverage-v1",
-  "generatedAt": "2026-07-02T15:18:45.252Z",
+  "generatedAt": "2026-07-02T15:46:01.895Z",
   "policy": [
     "Track company-named requests as task archetypes unless the third-party app is explicitly consented and reachable.",
     "Prod browser proof is a separate gate from local browser proof and production API/runtime proof.",
