@@ -72,6 +72,7 @@ describe("Proof Loop goal supervisor", () => {
     const tasks = officialScoresGoalTasks();
 
     expect(tasks.find((task) => task.id === "btb-fullsuite-official-score")?.command).toContain("bankertoolbench:fullsuite-gate");
+    expect(tasks.find((task) => task.id === "benchmark-normalization-ledger")?.command).toBe("npm run benchmark:proofloop:normalized");
     const spreadsheetV1 = tasks.find((task) => task.id === "spreadsheetbench-v1-full-official-score");
     expect(spreadsheetV1?.blockers.join(" ")).toContain("912/912 tasks");
     expect(spreadsheetV1?.blockers.join(" ")).toContain("model-run evidence");

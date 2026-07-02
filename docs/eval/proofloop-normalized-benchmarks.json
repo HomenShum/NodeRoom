@@ -1,0 +1,747 @@
+{
+  "schema": "proofloop-benchmark-normalization-v1",
+  "generatedAt": "2026-07-02T10:31:50.880Z",
+  "policy": [
+    "Normalize benchmark tasks into NodeRoom product-facing manifests and run specs before routing work through the current codebase.",
+    "Do not normalize away official scorer semantics: official rubrics, judges, output schemas, and credentials stay benchmark-specific.",
+    "A local product-path proof can be proven while official task expansion, submission export, or official scorer import remains blocked.",
+    "Every blocker must name the missing stage: official bundle, product manifest, NodeRoom run spec, artifact export, official submission, or official scorer."
+  ],
+  "summary": {
+    "entries": 9,
+    "productFitProven": 3,
+    "productFitReady": 2,
+    "productFitPartial": 4,
+    "productFitBlocked": 0,
+    "officialScoresClaimed": 1,
+    "officialScoresBlocked": 4,
+    "officialScoresNotApplicable": 4,
+    "everyBenchmarkHasNodeRoomShape": true
+  },
+  "entries": [
+    {
+      "id": "spreadsheetbench",
+      "name": "SpreadsheetBench",
+      "family": "official_style",
+      "sourceBenchmark": "SpreadsheetBench V1, SpreadsheetBench Verified, and SpreadsheetBench V2",
+      "productSurface": "NodeRoom",
+      "taskShape": "official spreadsheet task -> agent/evaluator-isolated workbook manifest -> NodeRoom workbook run -> candidate workbook export -> official scorer",
+      "productFit": "partial",
+      "officialFit": "blocked",
+      "officialScorerSemantics": "preserved",
+      "stages": {
+        "officialTaskBundle": {
+          "status": "partial",
+          "contract": "Official bundles must be staged with agent-visible inputs separated from evaluator answer workbooks and scorer metadata.",
+          "evidence": [
+            "docs/eval/spreadsheetbench-v1-912-stage.json",
+            "docs/eval/spreadsheetbench-v1-912-copy-input-baseline.json",
+            "docs/eval/official-benchmark-readiness.json",
+            "docs/eval/spreadsheetbench-v1-full-stage-smoke.json",
+            "docs/eval/spreadsheetbench-v1-copy-input-full-smoke.json",
+            "docs/eval/spreadsheetbench-v1-model-edit-plan-3task-n5-live-smoke.json",
+            "docs/eval/spreadsheetbench-v2-stage-smoke.json",
+            "docs/eval/spreadsheetbench-v2-run-smoke.json",
+            "docs/eval/spreadsheetbench-chart-visual-probe.json"
+          ],
+          "blockers": [
+            "spreadsheetbench-v2-full-321 is not fully staged."
+          ]
+        },
+        "productTaskManifest": {
+          "status": "partial",
+          "contract": "Product manifest covers 1315/1633 staged task targets with agent/evaluator isolation.",
+          "evidence": [
+            "docs/eval/spreadsheetbench-v1-912-stage.json",
+            "docs/eval/spreadsheetbench-v2-stage-smoke.json",
+            "docs/eval/spreadsheetbench-v1-full-stage-smoke.json"
+          ],
+          "blockers": [
+            "spreadsheetbench-v2-full-321 is not fully staged."
+          ]
+        },
+        "nodeRoomRunSpec": {
+          "status": "partial",
+          "contract": "NodeRoom runner must execute every staged task before official score promotion.",
+          "evidence": [
+            "docs/eval/spreadsheetbench-v1-912-copy-input-baseline.json",
+            "docs/eval/spreadsheetbench-v1-model-edit-plan-3task-n5-live-smoke.json",
+            "docs/eval/spreadsheetbench-v2-run-smoke.json"
+          ],
+          "command": "npm run benchmark:spreadsheetbench:run-chunked",
+          "blockers": [
+            "Only 6/1633 task targets have model-run cases."
+          ]
+        },
+        "artifactExport": {
+          "status": "proven",
+          "contract": "Candidate workbook exports must be reopened/scored from agent output before evaluator access opens.",
+          "evidence": [
+            "docs/eval/spreadsheetbench-live-room-proof.json"
+          ],
+          "command": "npm run benchmark:spreadsheetbench:proof",
+          "blockers": []
+        },
+        "officialSubmission": {
+          "status": "blocked",
+          "contract": "Official submission requires full model-generated candidate workbook outputs for the published task set.",
+          "evidence": [
+            "docs/eval/official-benchmark-task-coverage.json"
+          ],
+          "blockers": [
+            "Run all 912 tasks through the model runner or an approved chunked official-policy runner before claiming a model score.",
+            "397 verified task(s) still need model-run evidence; current N=5 smoke covers 3/400 cases.",
+            "Full verified-score promotion still needs official scoring parity, not only local workbook scoring.",
+            "318 SpreadsheetBench 2 task(s) still need staging from the full official bundle.",
+            "Run every staged V2 task through the model runner, static workbook scorer, and rendered/VLM chart grader where applicable."
+          ]
+        },
+        "officialScorer": {
+          "status": "partial",
+          "contract": "Workbook scorer path exists, but official score is not claimable until full model outputs are scored.",
+          "evidence": [
+            "docs/eval/official-benchmark-readiness.json"
+          ],
+          "blockers": [
+            "Run all 912 tasks through the model runner or an approved chunked official-policy runner before claiming a model score.",
+            "397 verified task(s) still need model-run evidence; current N=5 smoke covers 3/400 cases.",
+            "Full verified-score promotion still needs official scoring parity, not only local workbook scoring.",
+            "318 SpreadsheetBench 2 task(s) still need staging from the full official bundle.",
+            "Run every staged V2 task through the model runner, static workbook scorer, and rendered/VLM chart grader where applicable."
+          ]
+        }
+      },
+      "nextBlockers": [
+        "spreadsheetbench-v2-full-321 is not fully staged.",
+        "Only 6/1633 task targets have model-run cases.",
+        "Run all 912 tasks through the model runner or an approved chunked official-policy runner before claiming a model score.",
+        "397 verified task(s) still need model-run evidence; current N=5 smoke covers 3/400 cases.",
+        "Full verified-score promotion still needs official scoring parity, not only local workbook scoring.",
+        "318 SpreadsheetBench 2 task(s) still need staging from the full official bundle.",
+        "Run every staged V2 task through the model runner, static workbook scorer, and rendered/VLM chart grader where applicable."
+      ]
+    },
+    {
+      "id": "bankertoolbench",
+      "name": "BankerToolBench",
+      "family": "official_style",
+      "sourceBenchmark": "BankerToolBench full 100-task suite",
+      "productSurface": "NodeRoom",
+      "taskShape": "official banking task -> NodeRoom fresh-room task -> generated deliverable package -> full-suite gate receipt",
+      "productFit": "proven",
+      "officialFit": "claimed",
+      "officialScorerSemantics": "preserved",
+      "stages": {
+        "officialTaskBundle": {
+          "status": "proven",
+          "contract": "Official task bundle is represented in the full-suite gate receipt and staged task evidence.",
+          "evidence": [
+            "docs/eval/fresh-room/FR-020/fullsuite-gate-receipt.json",
+            "docs/eval/btb-clean-capability-full100-parallel-v3-gpt41mini.json",
+            "docs/eval/bankertoolbench-stage-smoke.json",
+            "docs/eval/bankertoolbench-run-positive-smoke.json",
+            "docs/eval/bankertoolbench-official-contract.json"
+          ],
+          "blockers": []
+        },
+        "productTaskManifest": {
+          "status": "proven",
+          "contract": "Each official task is normalized into a NodeRoom fresh-room task with expected deliverable artifacts.",
+          "evidence": [
+            "proofloop/benchmarks/bankertoolbench/adapter.json",
+            "docs/eval/bankertoolbench-live-room-proof.json"
+          ],
+          "command": "npm run proofloop -- run bankertoolbench --prod --user-emulation strict --cockpit",
+          "blockers": []
+        },
+        "nodeRoomRunSpec": {
+          "status": "proven",
+          "contract": "NodeRoom run spec covers all official tasks in the full-suite receipt.",
+          "evidence": [
+            "docs/eval/fresh-room/FR-020/fullsuite-gate-receipt.json"
+          ],
+          "command": "npm run benchmark:bankertoolbench:fullsuite-gate",
+          "blockers": []
+        },
+        "artifactExport": {
+          "status": "proven",
+          "contract": "Generated Excel, PowerPoint, Word, and PDF deliverables are packaged and reopened before scoring.",
+          "evidence": [
+            "proofloop/benchmarks/bankertoolbench/adapter.json",
+            "docs/eval/bankertoolbench-live-room-proof.json"
+          ],
+          "blockers": []
+        },
+        "officialSubmission": {
+          "status": "proven",
+          "contract": "Full-suite gate imports the official-style scoring receipt without changing the scorer claim.",
+          "evidence": [
+            "docs/eval/fresh-room/FR-020/fullsuite-gate-receipt.json",
+            "docs/eval/btb-clean-capability-full100-parallel-v3-gpt41mini.json",
+            "docs/eval/bankertoolbench-official-contract.json"
+          ],
+          "blockers": []
+        },
+        "officialScorer": {
+          "status": "proven",
+          "contract": "Official semantic score is only claimed from the full-suite gate receipt.",
+          "evidence": [
+            "docs/eval/fresh-room/FR-020/fullsuite-gate-receipt.json",
+            "docs/eval/btb-clean-capability-full100-parallel-v3-gpt41mini.json",
+            "docs/eval/bankertoolbench-official-contract.json"
+          ],
+          "command": "npm run benchmark:bankertoolbench:proof",
+          "blockers": []
+        }
+      },
+      "nextBlockers": []
+    },
+    {
+      "id": "openrouter-convex",
+      "name": "OpenRouter on Convex",
+      "family": "model_route_harness",
+      "sourceBenchmark": "NodeRoom model-route harness",
+      "productSurface": "NodeRoom",
+      "taskShape": "model-route eval case -> NodeRoom/Convex run contract -> route receipt",
+      "productFit": "proven",
+      "officialFit": "not_applicable",
+      "officialScorerSemantics": "not_applicable",
+      "stages": {
+        "officialTaskBundle": {
+          "status": "not_applicable",
+          "contract": "Model-route harness is an internal product benchmark, not an official public scorer.",
+          "evidence": [
+            "docs/eval/openrouter-convex-benchmark.json"
+          ],
+          "blockers": [
+            "Model-route harness; not a public official benchmark score lane."
+          ]
+        },
+        "productTaskManifest": {
+          "status": "proven",
+          "contract": "Model route cases are already expressed as NodeRoom/Convex product tasks.",
+          "evidence": [
+            "docs/eval/openrouter-convex-benchmark.json"
+          ],
+          "command": "npm run benchmark:openrouter-convex -- --strict",
+          "blockers": []
+        },
+        "nodeRoomRunSpec": {
+          "status": "proven",
+          "contract": "Run through the current NodeRoom Proof Loop command and receipt contract.",
+          "evidence": [
+            "docs/eval/openrouter-convex-benchmark.json"
+          ],
+          "command": "npm run benchmark:openrouter-convex -- --strict",
+          "blockers": []
+        },
+        "artifactExport": {
+          "status": "proven",
+          "contract": "Product evidence exports are the suite receipt bundle, trace, scorecard, cost ledger, and verifier receipt.",
+          "evidence": [
+            "docs/eval/openrouter-convex-benchmark.json"
+          ],
+          "blockers": []
+        },
+        "officialSubmission": {
+          "status": "not_applicable",
+          "contract": "Model-route harness is an internal product benchmark, not an official public scorer.",
+          "evidence": [
+            "docs/eval/openrouter-convex-benchmark.json"
+          ],
+          "blockers": [
+            "Model-route harness; not a public official benchmark score lane."
+          ]
+        },
+        "officialScorer": {
+          "status": "not_applicable",
+          "contract": "Model-route harness is an internal product benchmark, not an official public scorer.",
+          "evidence": [
+            "docs/eval/openrouter-convex-benchmark.json"
+          ],
+          "blockers": [
+            "Model-route harness; not a public official benchmark score lane."
+          ]
+        }
+      },
+      "nextBlockers": []
+    },
+    {
+      "id": "proximitty-underwriting-pr0",
+      "name": "Proximitty underwriting PR0",
+      "family": "product_suite",
+      "sourceBenchmark": "Synthetic underwriting Proof Loop suite",
+      "productSurface": "NodeRoom",
+      "taskShape": "synthetic underwriting task -> NodeRoom proof-loop run -> local receipt bundle",
+      "productFit": "proven",
+      "officialFit": "not_applicable",
+      "officialScorerSemantics": "not_applicable",
+      "stages": {
+        "officialTaskBundle": {
+          "status": "not_applicable",
+          "contract": "Synthetic underwriting demo; no official finance benchmark score should be claimed.",
+          "evidence": [
+            "proofloop/suites/proximitty-underwriting-pr0.json"
+          ],
+          "blockers": [
+            "Synthetic underwriting suite; do not label as an official finance benchmark score."
+          ]
+        },
+        "productTaskManifest": {
+          "status": "proven",
+          "contract": "Suite config defines product tasks, traces, receipts, clips, and local-first memory.",
+          "evidence": [
+            ".proofloop/runs/latest/run-result.json",
+            ".proofloop/runs/2026-07-01T22-40-30"
+          ],
+          "command": "npm run proofloop:proximitty",
+          "blockers": []
+        },
+        "nodeRoomRunSpec": {
+          "status": "proven",
+          "contract": "Run through the current NodeRoom Proof Loop command and receipt contract.",
+          "evidence": [
+            ".proofloop/runs/latest/run-result.json",
+            ".proofloop/runs/2026-07-01T22-40-30"
+          ],
+          "command": "npm run proofloop:proximitty",
+          "blockers": []
+        },
+        "artifactExport": {
+          "status": "proven",
+          "contract": "Product evidence exports are the suite receipt bundle, trace, scorecard, cost ledger, and verifier receipt.",
+          "evidence": [
+            ".proofloop/runs/latest/run-result.json",
+            ".proofloop/runs/2026-07-01T22-40-30"
+          ],
+          "blockers": []
+        },
+        "officialSubmission": {
+          "status": "not_applicable",
+          "contract": "Synthetic underwriting demo; no official finance benchmark score should be claimed.",
+          "evidence": [
+            "proofloop/suites/proximitty-underwriting-pr0.json"
+          ],
+          "blockers": [
+            "Synthetic underwriting suite; do not label as an official finance benchmark score."
+          ]
+        },
+        "officialScorer": {
+          "status": "not_applicable",
+          "contract": "Synthetic underwriting demo; no official finance benchmark score should be claimed.",
+          "evidence": [
+            "proofloop/suites/proximitty-underwriting-pr0.json"
+          ],
+          "blockers": [
+            "Synthetic underwriting suite; do not label as an official finance benchmark score."
+          ]
+        }
+      },
+      "nextBlockers": []
+    },
+    {
+      "id": "accounting",
+      "name": "Accounting proof-loop",
+      "family": "product_suite",
+      "sourceBenchmark": "Accounting Proof Loop suite",
+      "productSurface": "NodeRoom",
+      "taskShape": "accounting benchmark registry task -> NodeRoom proof-loop run -> receipt bundle",
+      "productFit": "ready",
+      "officialFit": "not_applicable",
+      "officialScorerSemantics": "not_applicable",
+      "stages": {
+        "officialTaskBundle": {
+          "status": "not_applicable",
+          "contract": "Accounting product runs are product-path evidence unless each upstream official scorer is imported.",
+          "evidence": [
+            "proofloop/accounting/benchmarks/benchmark-registry.json"
+          ],
+          "blockers": [
+            "Accounting suite pins external benchmark families, but local proof-loop runs are product-path evidence."
+          ]
+        },
+        "productTaskManifest": {
+          "status": "ready",
+          "contract": "Accounting registry pins benchmark-family tasks into product proof-loop cases.",
+          "evidence": [
+            "proofloop/accounting/proofloop.accounting.config.json",
+            "proofloop/accounting/benchmarks/benchmark-registry.json"
+          ],
+          "command": "npm run proofloop:accounting",
+          "blockers": []
+        },
+        "nodeRoomRunSpec": {
+          "status": "ready",
+          "contract": "Run through the current NodeRoom Proof Loop command and receipt contract.",
+          "evidence": [
+            "proofloop/accounting/proofloop.accounting.config.json",
+            "proofloop/accounting/benchmarks/benchmark-registry.json"
+          ],
+          "command": "npm run proofloop:accounting",
+          "blockers": []
+        },
+        "artifactExport": {
+          "status": "ready",
+          "contract": "Product evidence exports are the suite receipt bundle, trace, scorecard, cost ledger, and verifier receipt.",
+          "evidence": [
+            "proofloop/accounting/proofloop.accounting.config.json",
+            "proofloop/accounting/benchmarks/benchmark-registry.json"
+          ],
+          "blockers": []
+        },
+        "officialSubmission": {
+          "status": "not_applicable",
+          "contract": "Accounting product runs are product-path evidence unless each upstream official scorer is imported.",
+          "evidence": [
+            "proofloop/accounting/benchmarks/benchmark-registry.json"
+          ],
+          "blockers": [
+            "Accounting suite pins external benchmark families, but local proof-loop runs are product-path evidence."
+          ]
+        },
+        "officialScorer": {
+          "status": "not_applicable",
+          "contract": "Accounting product runs are product-path evidence unless each upstream official scorer is imported.",
+          "evidence": [
+            "proofloop/accounting/benchmarks/benchmark-registry.json"
+          ],
+          "blockers": [
+            "Accounting suite pins external benchmark families, but local proof-loop runs are product-path evidence."
+          ]
+        }
+      },
+      "nextBlockers": []
+    },
+    {
+      "id": "notion-sdr-bdr",
+      "name": "Notion SDR/BDR proof-loop",
+      "family": "product_suite",
+      "sourceBenchmark": "Notion SDR/BDR Proof Loop suite",
+      "productSurface": "NodeRoom",
+      "taskShape": "sales workflow task -> NodeRoom/Notion proof-loop run -> receipt bundle",
+      "productFit": "ready",
+      "officialFit": "not_applicable",
+      "officialScorerSemantics": "not_applicable",
+      "stages": {
+        "officialTaskBundle": {
+          "status": "not_applicable",
+          "contract": "Sales workflow suite is a product benchmark, not a public official scorer.",
+          "evidence": [
+            "proofloop/notion/proofloop.notion.config.json"
+          ],
+          "blockers": [
+            "Product workflow benchmark, not an official public benchmark score."
+          ]
+        },
+        "productTaskManifest": {
+          "status": "ready",
+          "contract": "Notion config defines product-facing workflow tasks.",
+          "evidence": [
+            "proofloop/notion/proofloop.notion.config.json"
+          ],
+          "command": "npm run proofloop:notion",
+          "blockers": []
+        },
+        "nodeRoomRunSpec": {
+          "status": "ready",
+          "contract": "Run through the current NodeRoom Proof Loop command and receipt contract.",
+          "evidence": [
+            "proofloop/notion/proofloop.notion.config.json"
+          ],
+          "command": "npm run proofloop:notion",
+          "blockers": []
+        },
+        "artifactExport": {
+          "status": "ready",
+          "contract": "Product evidence exports are the suite receipt bundle, trace, scorecard, cost ledger, and verifier receipt.",
+          "evidence": [
+            "proofloop/notion/proofloop.notion.config.json"
+          ],
+          "blockers": []
+        },
+        "officialSubmission": {
+          "status": "not_applicable",
+          "contract": "Sales workflow suite is a product benchmark, not a public official scorer.",
+          "evidence": [
+            "proofloop/notion/proofloop.notion.config.json"
+          ],
+          "blockers": [
+            "Product workflow benchmark, not an official public benchmark score."
+          ]
+        },
+        "officialScorer": {
+          "status": "not_applicable",
+          "contract": "Sales workflow suite is a product benchmark, not a public official scorer.",
+          "evidence": [
+            "proofloop/notion/proofloop.notion.config.json"
+          ],
+          "blockers": [
+            "Product workflow benchmark, not an official public benchmark score."
+          ]
+        }
+      },
+      "nextBlockers": []
+    },
+    {
+      "id": "finch",
+      "name": "Finch / FinWorkBench",
+      "family": "external_adapter",
+      "sourceBenchmark": "Finch / FinWorkBench",
+      "productSurface": "NodeRoom",
+      "taskShape": "official Finch workflow task -> ProductTaskManifest -> NodeRoom run -> content_parts.jsonl submission -> Azure OpenAI judge",
+      "productFit": "partial",
+      "officialFit": "blocked",
+      "officialScorerSemantics": "preserved",
+      "stages": {
+        "officialTaskBundle": {
+          "status": "ready",
+          "contract": "Official task bundle must be locked by repository/dataset revision before product expansion.",
+          "evidence": [
+            "docs/eval/proofloop-official-task-bundles/finch.json"
+          ],
+          "blockers": []
+        },
+        "productTaskManifest": {
+          "status": "partial",
+          "contract": "Current codebase has a local compatibility ProductTaskManifest; full official task-id expansion is still required.",
+          "evidence": [
+            "proofloop/benchmarks/finch/adapter.json",
+            "docs/eval/proofloop-external-adapter-runs/finch.json",
+            "docs/eval/proofloop-adapter-blockers/finch.json"
+          ],
+          "command": "npm run proofloop -- run finch --prod --user-emulation strict --cockpit",
+          "blockers": [
+            "Expand all 172 official Finch task ids into ProductTaskManifest rows."
+          ]
+        },
+        "nodeRoomRunSpec": {
+          "status": "proven",
+          "contract": "Strict prod browser run spec exists for the local compatibility task through NodeRoom.",
+          "evidence": [
+            "proofloop/benchmarks/finch/adapter.json",
+            "docs/eval/proofloop-external-adapter-runs/finch.json",
+            "docs/eval/proofloop-adapter-blockers/finch.json"
+          ],
+          "command": "npm run proofloop -- run finch --prod --user-emulation strict --cockpit",
+          "blockers": []
+        },
+        "artifactExport": {
+          "status": "blocked",
+          "contract": "Export one NodeRoom model-output artifact per official Finch task id.",
+          "evidence": [
+            "proofloop/benchmarks/finch/adapter.json",
+            "docs/eval/proofloop-external-adapter-runs/finch.json",
+            "docs/eval/proofloop-adapter-blockers/finch.json"
+          ],
+          "blockers": [
+            "No NodeRoom model-output directory exists with one output artifact per official Finch task id."
+          ]
+        },
+        "officialSubmission": {
+          "status": "blocked",
+          "contract": "Submit content_parts.jsonl built by upstream prompt_build_pipeline.py to call_gpt_judge.py.",
+          "evidence": [
+            "docs/eval/proofloop-official-scores/finch.json"
+          ],
+          "blockers": [
+            "finch: official scorer receipt docs/eval/proofloop-official-scores/finch.json is blocked_external; scored receipt is still required before claiming score. No Azure OpenAI judge credentials are present in this shell: AZURE endpoint, API key, API version, and deployment name are all required by src/call_gpt_judge.py. No NodeRoom model-output directory exists with one output artifact per official Finch task id, so the upstream prompt_build_pipeline.py cannot build claimable content_parts.jsonl for scoring."
+          ]
+        },
+        "officialScorer": {
+          "status": "blocked",
+          "contract": "Upstream official scorer or judge output must be imported without changing the rubric.",
+          "evidence": [
+            "proofloop/benchmarks/finch/adapter.json",
+            "docs/eval/proofloop-adapter-blockers/finch.json",
+            "docs/eval/proofloop-official-scores/finch.json",
+            "docs/eval/proofloop-official-task-bundles/finch.json"
+          ],
+          "command": "npm run benchmark:proofloop:adapter-blockers -- --id finch --strict",
+          "blockers": [
+            "finch: official scorer receipt docs/eval/proofloop-official-scores/finch.json is blocked_external; scored receipt is still required before claiming score. No Azure OpenAI judge credentials are present in this shell: AZURE endpoint, API key, API version, and deployment name are all required by src/call_gpt_judge.py. No NodeRoom model-output directory exists with one output artifact per official Finch task id, so the upstream prompt_build_pipeline.py cannot build claimable content_parts.jsonl for scoring."
+          ]
+        }
+      },
+      "nextBlockers": [
+        "Expand all 172 official Finch task ids into ProductTaskManifest rows.",
+        "No NodeRoom model-output directory exists with one output artifact per official Finch task id.",
+        "finch: official scorer receipt docs/eval/proofloop-official-scores/finch.json is blocked_external; scored receipt is still required before claiming score. No Azure OpenAI judge credentials are present in this shell: AZURE endpoint, API key, API version, and deployment name are all required by src/call_gpt_judge.py. No NodeRoom model-output directory exists with one output artifact per official Finch task id, so the upstream prompt_build_pipeline.py cannot build claimable content_parts.jsonl for scoring."
+      ]
+    },
+    {
+      "id": "finauditing",
+      "name": "FinAuditing",
+      "family": "external_adapter",
+      "sourceBenchmark": "FinAuditing",
+      "productSurface": "NodeRoom",
+      "taskShape": "official FinSM/FinRE/FinMR row -> ProductTaskManifest -> NodeRoom run -> prediction JSONL -> official evaluator notebook",
+      "productFit": "partial",
+      "officialFit": "blocked",
+      "officialScorerSemantics": "preserved",
+      "stages": {
+        "officialTaskBundle": {
+          "status": "ready",
+          "contract": "Official task bundle must be locked by repository/dataset revision before product expansion.",
+          "evidence": [
+            "docs/eval/proofloop-official-task-bundles/finauditing.json"
+          ],
+          "blockers": []
+        },
+        "productTaskManifest": {
+          "status": "partial",
+          "contract": "Current codebase has a local compatibility ProductTaskManifest; full official task-id expansion is still required.",
+          "evidence": [
+            "proofloop/benchmarks/finauditing/adapter.json",
+            "docs/eval/proofloop-external-adapter-runs/finauditing.json",
+            "docs/eval/proofloop-adapter-blockers/finauditing.json"
+          ],
+          "command": "npm run proofloop -- run finauditing --prod --user-emulation strict --cockpit",
+          "blockers": [
+            "Expand FinSM, FinRE, and FinMR test rows into ProductTaskManifest rows."
+          ]
+        },
+        "nodeRoomRunSpec": {
+          "status": "proven",
+          "contract": "Strict prod browser run spec exists for the local compatibility task through NodeRoom.",
+          "evidence": [
+            "proofloop/benchmarks/finauditing/adapter.json",
+            "docs/eval/proofloop-external-adapter-runs/finauditing.json",
+            "docs/eval/proofloop-adapter-blockers/finauditing.json"
+          ],
+          "command": "npm run proofloop -- run finauditing --prod --user-emulation strict --cockpit",
+          "blockers": []
+        },
+        "artifactExport": {
+          "status": "blocked",
+          "contract": "Export official-format prediction JSONL for FinSM, FinRE, and FinMR.",
+          "evidence": [
+            "proofloop/benchmarks/finauditing/adapter.json",
+            "docs/eval/proofloop-external-adapter-runs/finauditing.json",
+            "docs/eval/proofloop-adapter-blockers/finauditing.json"
+          ],
+          "blockers": [
+            "No NodeRoom prediction JSONL exists for FinSM, FinRE, or FinMR in the official evaluator format."
+          ]
+        },
+        "officialSubmission": {
+          "status": "blocked",
+          "contract": "Submit official prediction JSONL rows with prediction and ground_truth fields to the evaluator notebooks.",
+          "evidence": [
+            "docs/eval/proofloop-official-scores/finauditing.json"
+          ],
+          "blockers": [
+            "finauditing: official scorer receipt docs/eval/proofloop-official-scores/finauditing.json is blocked_external; scored receipt is still required before claiming score. No NodeRoom prediction JSONL exists for FinSM, FinRE, or FinMR in the official evaluator format. FinMR evaluation uses an OpenAI LLM judge and this shell has no OPENAI_API_KEY. The full benchmark path also points to the separate FinBen framework, which is not yet wired to NodeRoom output artifacts."
+          ]
+        },
+        "officialScorer": {
+          "status": "blocked",
+          "contract": "Upstream official scorer or judge output must be imported without changing the rubric.",
+          "evidence": [
+            "proofloop/benchmarks/finauditing/adapter.json",
+            "docs/eval/proofloop-adapter-blockers/finauditing.json",
+            "docs/eval/proofloop-official-scores/finauditing.json",
+            "docs/eval/proofloop-official-task-bundles/finauditing.json"
+          ],
+          "command": "npm run benchmark:proofloop:adapter-blockers -- --id finauditing --strict",
+          "blockers": [
+            "finauditing: official scorer receipt docs/eval/proofloop-official-scores/finauditing.json is blocked_external; scored receipt is still required before claiming score. No NodeRoom prediction JSONL exists for FinSM, FinRE, or FinMR in the official evaluator format. FinMR evaluation uses an OpenAI LLM judge and this shell has no OPENAI_API_KEY. The full benchmark path also points to the separate FinBen framework, which is not yet wired to NodeRoom output artifacts."
+          ]
+        }
+      },
+      "nextBlockers": [
+        "Expand FinSM, FinRE, and FinMR test rows into ProductTaskManifest rows.",
+        "No NodeRoom prediction JSONL exists for FinSM, FinRE, or FinMR in the official evaluator format.",
+        "finauditing: official scorer receipt docs/eval/proofloop-official-scores/finauditing.json is blocked_external; scored receipt is still required before claiming score. No NodeRoom prediction JSONL exists for FinSM, FinRE, or FinMR in the official evaluator format. FinMR evaluation uses an OpenAI LLM judge and this shell has no OPENAI_API_KEY. The full benchmark path also points to the separate FinBen framework, which is not yet wired to NodeRoom output artifacts."
+      ]
+    },
+    {
+      "id": "workstreambench",
+      "name": "WorkstreamBench",
+      "family": "external_adapter",
+      "sourceBenchmark": "WorkstreamBench",
+      "productSurface": "NodeRoom",
+      "taskShape": "official spreadsheet workstream -> ProductTaskManifest -> NodeRoom run -> structured representation -> official LLM judge",
+      "productFit": "partial",
+      "officialFit": "blocked",
+      "officialScorerSemantics": "preserved",
+      "stages": {
+        "officialTaskBundle": {
+          "status": "blocked",
+          "contract": "Official task bundle must be locked by repository/dataset revision before product expansion.",
+          "evidence": [],
+          "blockers": [
+            "workstreambench: official task bundle lock is missing."
+          ]
+        },
+        "productTaskManifest": {
+          "status": "partial",
+          "contract": "Current codebase has a local compatibility ProductTaskManifest; full official task-id expansion is still required.",
+          "evidence": [
+            "proofloop/benchmarks/workstreambench/adapter.json",
+            "docs/eval/proofloop-external-adapter-runs/workstreambench.json",
+            "docs/eval/proofloop-adapter-blockers/workstreambench.json"
+          ],
+          "command": "npm run proofloop -- run workstreambench --prod --user-emulation strict --cockpit",
+          "blockers": [
+            "Obtain the public official WorkstreamBench task bundle before expanding ProductTaskManifest rows."
+          ]
+        },
+        "nodeRoomRunSpec": {
+          "status": "proven",
+          "contract": "Strict prod browser run spec exists for the local compatibility task through NodeRoom.",
+          "evidence": [
+            "proofloop/benchmarks/workstreambench/adapter.json",
+            "docs/eval/proofloop-external-adapter-runs/workstreambench.json",
+            "docs/eval/proofloop-adapter-blockers/workstreambench.json"
+          ],
+          "command": "npm run proofloop -- run workstreambench --prod --user-emulation strict --cockpit",
+          "blockers": []
+        },
+        "artifactExport": {
+          "status": "blocked",
+          "contract": "Export the official structured workstream representation expected by WorkstreamBench.",
+          "evidence": [
+            "proofloop/benchmarks/workstreambench/adapter.json",
+            "docs/eval/proofloop-external-adapter-runs/workstreambench.json",
+            "docs/eval/proofloop-adapter-blockers/workstreambench.json"
+          ],
+          "blockers": [
+            "No official WorkstreamBench output schema is available to export against."
+          ]
+        },
+        "officialSubmission": {
+          "status": "blocked",
+          "contract": "Submit official structured representations to the released WorkstreamBench scorer/rubric.",
+          "evidence": [
+            "docs/eval/proofloop-official-scores/workstreambench.json"
+          ],
+          "blockers": [
+            "workstreambench: official scorer receipt docs/eval/proofloop-official-scores/workstreambench.json is blocked_external; scored receipt is still required before claiming score. No public official WorkstreamBench task bundle URL was found. No public official WorkstreamBench scorer repository or CLI was found. The paper describes LLM-as-judge evaluation over structured representations, so a claimable score requires the official rubric/task bundle/scorer release or author-provided supplementary package.",
+            "workstreambench: official task bundle lock docs/eval/proofloop-official-task-bundles/workstreambench.json is not staged yet."
+          ]
+        },
+        "officialScorer": {
+          "status": "blocked",
+          "contract": "Upstream official scorer or judge output must be imported without changing the rubric.",
+          "evidence": [
+            "proofloop/benchmarks/workstreambench/adapter.json",
+            "docs/eval/proofloop-adapter-blockers/workstreambench.json",
+            "docs/eval/proofloop-official-scores/workstreambench.json"
+          ],
+          "command": "npm run benchmark:proofloop:adapter-blockers -- --id workstreambench --strict",
+          "blockers": [
+            "workstreambench: official scorer receipt docs/eval/proofloop-official-scores/workstreambench.json is blocked_external; scored receipt is still required before claiming score. No public official WorkstreamBench task bundle URL was found. No public official WorkstreamBench scorer repository or CLI was found. The paper describes LLM-as-judge evaluation over structured representations, so a claimable score requires the official rubric/task bundle/scorer release or author-provided supplementary package.",
+            "workstreambench: official task bundle lock docs/eval/proofloop-official-task-bundles/workstreambench.json is not staged yet."
+          ]
+        }
+      },
+      "nextBlockers": [
+        "workstreambench: official task bundle lock is missing.",
+        "Obtain the public official WorkstreamBench task bundle before expanding ProductTaskManifest rows.",
+        "No official WorkstreamBench output schema is available to export against.",
+        "workstreambench: official scorer receipt docs/eval/proofloop-official-scores/workstreambench.json is blocked_external; scored receipt is still required before claiming score. No public official WorkstreamBench task bundle URL was found. No public official WorkstreamBench scorer repository or CLI was found. The paper describes LLM-as-judge evaluation over structured representations, so a claimable score requires the official rubric/task bundle/scorer release or author-provided supplementary package.",
+        "workstreambench: official task bundle lock docs/eval/proofloop-official-task-bundles/workstreambench.json is not staged yet."
+      ]
+    }
+  ]
+}

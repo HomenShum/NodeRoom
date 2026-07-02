@@ -64,6 +64,7 @@
     "benchmark:docker-sandbox:probe": "tsx scripts/docker-sandbox-probe.ts --json-out docs/eval/docker-sandbox-probe.json",
     "benchmark:openrouter-convex": "tsx scripts/openrouter-convex-benchmark.ts",
     "benchmark:proofloop:board": "tsx scripts/proofloop-benchmark-board.ts",
+    "benchmark:proofloop:normalized": "tsx scripts/proofloop-normalized-benchmarks.ts",
     "benchmark:proofloop:adapter-blockers": "tsx scripts/proofloop-adapter-blockers.ts",
     "benchmark:proofloop:external-adapter": "tsx scripts/proofloop-external-adapter-run.ts",
     "benchmark:official:task-coverage": "tsx scripts/official-benchmark-task-coverage.ts",

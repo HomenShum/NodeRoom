@@ -2,21 +2,21 @@
   "schema": "proofloop-external-adapter-product-proof-v1",
   "adapterId": "finauditing",
   "status": "passed",
-  "runId": "finauditing-2026-07-02T09-50-41-821Z",
-  "generatedAt": "2026-07-02T09:50:49.723Z",
+  "runId": "finauditing-2026-07-02T10-25-41-783Z",
+  "generatedAt": "2026-07-02T10:25:48.775Z",
   "localAdapterOnly": true,
   "officialScoreClaim": false,
   "taskCount": 1,
   "baseUrl": "https://noderoom.live",
   "scenario": "proofloop/benchmarks/finauditing/browser-scenario.spec.ts",
-  "outputDir": ".proofloop/runs/finauditing-2026-07-02T09-50-41-821Z/external-adapter/finauditing",
+  "outputDir": ".proofloop/runs/finauditing-2026-07-02T10-25-41-783Z/external-adapter/finauditing",
   "exitCode": 0,
   "evidence": [
     "proofloop/benchmarks/finauditing/load-tasks.ts",
     "proofloop/benchmarks/finauditing/browser-scenario.spec.ts",
-    ".proofloop/runs/finauditing-2026-07-02T09-50-41-821Z/external-adapter/finauditing/browser-proof.json",
-    ".proofloop/runs/finauditing-2026-07-02T09-50-41-821Z/external-adapter/finauditing/local-task-manifest.json",
-    ".proofloop/runs/finauditing-2026-07-02T09-50-41-821Z/external-adapter/finauditing/visual-proof.png"
+    ".proofloop/runs/finauditing-2026-07-02T10-25-41-783Z/external-adapter/finauditing/browser-proof.json",
+    ".proofloop/runs/finauditing-2026-07-02T10-25-41-783Z/external-adapter/finauditing/local-task-manifest.json",
+    ".proofloop/runs/finauditing-2026-07-02T10-25-41-783Z/external-adapter/finauditing/visual-proof.png"
   ],
   "failedGates": [],
   "browserProof": {
