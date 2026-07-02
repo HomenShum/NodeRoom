@@ -123,6 +123,15 @@ export function officialScoresGoalTasks(): ProofloopGoalTask[] {
       ],
     }),
     commandTask({
+      id: "benchmark-normalization-ledger",
+      title: "Proof Loop benchmark normalization ledger",
+      command: "npm run benchmark:proofloop:normalized",
+      evidence: [
+        "docs/eval/proofloop-normalized-benchmarks.json",
+        "docs/eval/PROOFLOOP_NORMALIZED_BENCHMARKS.md",
+      ],
+    }),
+    commandTask({
       id: "external-adapter-local-product-proofs",
       title: "External adapter local product-path browser proofs",
       command: "npm run benchmark:proofloop:external-adapter -- --prod --user-emulation strict",
