@@ -1,4 +1,4 @@
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import {
   BENCHMARK_ADAPTER_IDS,
@@ -30,6 +30,11 @@ export type ExternalAdapterBlockerReceipt = {
   evidence: string[];
 };
 
+type OfficialScoreReceipt = {
+  status?: "scored" | "blocked_external";
+  blockers?: unknown;
+};
+
 export function externalAdapterIds(): BenchmarkAdapterId[] {
   return BENCHMARK_ADAPTER_IDS.filter((id) => id !== "bankertoolbench");
 }
@@ -46,7 +51,7 @@ export function buildExternalAdapterBlockerReceipt(args: {
   const officialSourceUrls = adapterSourceUrls(adapter);
   const officialCommandPlan = officialCommandsFor(adapter);
   const officialScoreReceiptPath = `docs/eval/proofloop-official-scores/${adapter.id}.json`;
-  const officialTaskBundleManifestPath = `.tmp/official-benchmarks/${adapter.id}/manifest.json`;
+  const officialTaskBundleManifestPath = `docs/eval/proofloop-official-task-bundles/${adapter.id}.json`;
   const officialScoreBlockers = officialScoreBlockersFor(adapter, root, {
     officialScoreReceiptPath,
     officialTaskBundleManifestPath,
@@ -133,8 +138,14 @@ function officialScoreBlockersFor(
   paths: { officialScoreReceiptPath: string; officialTaskBundleManifestPath: string },
 ): string[] {
   const blockers: string[] = [];
-  if (!existsSync(join(root, paths.officialScoreReceiptPath))) {
+  const scoreReceipt = readJson<OfficialScoreReceipt>(join(root, paths.officialScoreReceiptPath));
+  if (!scoreReceipt) {
     blockers.push(`${adapter.id}: official scorer receipt ${paths.officialScoreReceiptPath} is not imported yet.`);
+  } else if (scoreReceipt.status !== "scored") {
+    const detail = Array.isArray(scoreReceipt.blockers) && scoreReceipt.blockers.length
+      ? ` ${scoreReceipt.blockers.map(String).join(" ")}`
+      : "";
+    blockers.push(`${adapter.id}: official scorer receipt ${paths.officialScoreReceiptPath} is ${scoreReceipt.status ?? "invalid"}; scored receipt is still required before claiming score.${detail}`);
   }
   if (!existsSync(join(root, paths.officialTaskBundleManifestPath))) {
     blockers.push(`${adapter.id}: official task bundle lock ${paths.officialTaskBundleManifestPath} is not staged yet.`);
@@ -148,8 +159,17 @@ function resumeCommandsFor(adapter: ProofloopBenchmarkAdapter): string[] {
     `npm run benchmark:proofloop:external-adapter -- --id ${adapter.id} --prod --user-emulation strict`,
     refreshReceipt,
     `import docs/eval/proofloop-official-scores/${adapter.id}.json from the upstream official scorer`,
-    `stage .tmp/official-benchmarks/${adapter.id}/manifest.json from the locked official task bundle`,
+    `stage docs/eval/proofloop-official-task-bundles/${adapter.id}.json from the locked official task bundle`,
     adapter.liveUserCommand,
     adapter.verifierCommand,
   ];
+}
+
+function readJson<T>(path: string): T | undefined {
+  if (!existsSync(path)) return undefined;
+  try {
+    return JSON.parse(readFileSync(path, "utf8")) as T;
+  } catch {
+    return undefined;
+  }
 }

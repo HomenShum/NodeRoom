@@ -266,7 +266,7 @@ function isPromptPath(file: string): boolean {
 }
 
 function isGoldPath(file: string): boolean {
-  return /(^|[/\\])[^/\\]*(golden|gold|ground[_-]?truth)[^/\\]*\.(xlsx|xlsm|xls)$/i.test(file);
+  return /(^|[/\\])[^/\\]*(answer|golden|gold|ground[_-]?truth)[^/\\]*\.(xlsx|xlsm|xls)$/i.test(file);
 }
 
 function readJsonArray(file: string): RawTask[] {

@@ -26,7 +26,7 @@ describe("SpreadsheetBench sandbox staging", () => {
       },
     ]);
     touch(join(source, "spreadsheet", "13-1", "1_13-1_init.xlsx"));
-    touch(join(source, "spreadsheet", "13-1", "1_13-1_golden.xlsx"));
+    touch(join(source, "spreadsheet", "13-1", "1_13-1_answer.xlsx"));
     writeFileSync(join(source, "spreadsheet", "13-1", "prompt.txt"), "Preserve formulas.");
 
     const report = stageSpreadsheetBenchBundle(source, {
@@ -50,6 +50,7 @@ describe("SpreadsheetBench sandbox staging", () => {
     expect(task.agentPromptFiles).toHaveLength(1);
     expect(task.evaluatorGoldFiles).toHaveLength(1);
     expect(JSON.stringify(agentManifest).toLowerCase()).not.toContain("gold");
+    expect(JSON.stringify(agentManifest).toLowerCase()).not.toContain("answer");
     expect(JSON.stringify(agentManifest)).not.toContain("answer_position");
     expect(JSON.stringify(agentManifest)).not.toContain("answerPosition");
     expect(agentManifest).toMatchObject({
@@ -63,7 +64,7 @@ describe("SpreadsheetBench sandbox staging", () => {
       taskId: "13-1",
       answerPosition: "Sheet1!B2:C3",
       answerSheet: "Sheet1",
-      goldFiles: ["gold/01-1_13-1_golden.xlsx"],
+      goldFiles: ["gold/01-1_13-1_answer.xlsx"],
     });
   });
 

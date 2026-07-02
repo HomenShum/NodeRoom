@@ -1,0 +1,27 @@
+{
+  "schema": "proofloop-official-score-receipt-v1",
+  "adapterId": "finch",
+  "status": "blocked_external",
+  "generatedAt": "2026-07-02T09:50:00.000Z",
+  "officialScorer": {
+    "repository": "https://github.com/FinWorkBench/Finch",
+    "commit": "95a8b8d135a528b325be003e54c55f886a22602d",
+    "commandTemplate": "python src/call_gpt_judge.py eval_set -o results.xlsx --api-key <AZURE_KEY> --azure-endpoint <AZURE_ENDPOINT> --api-version <API_VERSION> --model <DEPLOYMENT_NAME>",
+    "inputPrerequisite": "eval_set/<model>/content_parts.jsonl produced by src/prompt_build_pipeline.py from the official 172-task Finch dataset and model output files"
+  },
+  "attempted": [
+    "Cloned the official Finch GitHub repository.",
+    "Cloned the official Finch Hugging Face task dataset.",
+    "Verified the official scorer entrypoint and official task JSONL count."
+  ],
+  "blockers": [
+    "No Azure OpenAI judge credentials are present in this shell: AZURE endpoint, API key, API version, and deployment name are all required by src/call_gpt_judge.py.",
+    "No NodeRoom model-output directory exists with one output artifact per official Finch task id, so the upstream prompt_build_pipeline.py cannot build claimable content_parts.jsonl for scoring."
+  ],
+  "scoreClaim": false,
+  "evidence": [
+    "docs/eval/proofloop-official-task-bundles/finch.json",
+    "proofloop/benchmarks/finch/adapter.json",
+    "docs/eval/proofloop-external-adapter-runs/finch.json"
+  ]
+}

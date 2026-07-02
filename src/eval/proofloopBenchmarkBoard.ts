@@ -52,6 +52,8 @@ type ExternalAdapterBlockerReceipt = {
   status?: "ready" | "blocked_external";
   localImplementationStatus?: "ready" | "missing";
   officialScoreStatus?: "imported" | "blocked_external";
+  officialScoreReceiptPath?: string;
+  officialTaskBundleManifestPath?: string;
   blockers?: string[];
   missingImplementationFiles?: string[];
   officialSourceUrls?: string[];
@@ -323,6 +325,12 @@ function adapterEntry(adapter: ProofloopBenchmarkAdapter, root: string): Prooflo
   const adapterProductProofPassed = adapterProductProof?.status === "passed";
   const btbOfficialProven = btbFullSuite?.flipEligible === true;
   const adapterBlockerEvidence = !isBtb && adapterBlocker ? [`docs/eval/proofloop-adapter-blockers/${adapter.id}.json`] : [];
+  const adapterOfficialEvidence = !isBtb && adapterBlocker
+    ? [
+      adapterBlocker.officialScoreReceiptPath,
+      adapterBlocker.officialTaskBundleManifestPath,
+    ].filter((item): item is string => typeof item === "string" && existsSync(join(root, item)))
+    : [];
   const adapterProductProofEvidence = !isBtb && adapterProductProof ? [`docs/eval/proofloop-external-adapter-runs/${adapter.id}.json`] : [];
   const adapterOfficialBlockers = adapterBlocker?.blockers?.length
     ? adapterBlocker.blockers
@@ -358,7 +366,7 @@ function adapterEntry(adapter: ProofloopBenchmarkAdapter, root: string): Prooflo
           "docs/eval/btb-clean-capability-full100-parallel-v3-gpt41mini.json",
           "docs/eval/bankertoolbench-official-contract.json",
         ]
-        : [`proofloop/benchmarks/${adapter.id}/adapter.json`, ...adapterBlockerEvidence],
+        : [`proofloop/benchmarks/${adapter.id}/adapter.json`, ...adapterBlockerEvidence, ...adapterOfficialEvidence],
       command: adapter.verifierCommand,
       blockers: isBtb
         ? btbOfficialProven
