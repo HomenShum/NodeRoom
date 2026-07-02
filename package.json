@@ -114,6 +114,7 @@
     "proofloop:proximitty:browser": "tsx scripts/proofloop-live-playwright.ts proximitty-browser",
     "proofloop:live:multi-user-conflict": "tsx scripts/proofloop-live-playwright.ts multi-user-conflict",
     "proofloop": "node scripts/proofloop.mjs",
+    "proofloop:package": "tsx scripts/proofloop-package.ts",
     "proofloop:orchestrator": "tsx scripts/proofloop-orchestrator.ts",
     "benchmark:proofloop:orchestrator-longrun": "tsx scripts/proofloop-orchestrator.ts dogfood --execute-safe --fresh-template --json-out docs/eval/proofloop-orchestrator-dogfood.json --md-out docs/eval/PROOFLOOP_ORCHESTRATOR_DOGFOOD.md",
     "proofloop:proximitty": "node scripts/proofloop.mjs proximitty",
