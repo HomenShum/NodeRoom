@@ -10,6 +10,7 @@
  *
  * Commands (mirrors git on purpose -- an agent should only need these five):
  *   proofloop init                 install .proofloop/ scaffold + config
+ *   proofloop setup <adapter>      prepare local fixtures/adapters before proof runs
  *   proofloop status                is the repo currently proven or broken?
  *   proofloop run [suite]           run a suite, record a proof run
  *   proofloop show [runId|latest]   print a proof run's scorecard/receipt
@@ -56,13 +57,14 @@ import {
   superviseProofloopGoal,
 } from "../src/eval/proofloopGoalSupervisor";
 import { writeLoopArtifactsForMeta } from "../src/eval/proofloopLoopArtifacts";
+import { promoteProofloopRegression } from "../src/eval/proofloopRegressions";
+import { setupProofloopAdapter, setupReceiptPath } from "../src/eval/proofloopSetup";
 
 const ROOT = process.cwd();
 const PROOFLOOP_DIR = join(ROOT, ".proofloop");
 const CONFIG_PATH = join(PROOFLOOP_DIR, "config.json");
 const RUNS_DIR = join(PROOFLOOP_DIR, "runs");
 const MEMORY_PATH = join(PROOFLOOP_DIR, "memory.jsonl");
-const REGRESSIONS_PATH = join(PROOFLOOP_DIR, "regressions.json");
 
 type SuiteConfig = {
   cmd: string;
@@ -165,6 +167,9 @@ function main(): void {
       return usage(`unknown mem target: ${args[0] ?? ""}`);
     case "memory":
       return cmdMemory(args);
+    case "setup":
+      void cmdSetup(args);
+      return;
     case "storybook":
       return cmdStorybook(args[0]);
     case "repair":
@@ -220,6 +225,7 @@ function usage(error?: string): void {
       "  memory show <id>     print one compacted memory episode",
       "  memory export --redacted write a redacted compacted-memory export",
       "  memory doctor        verify local memory/index health",
+      "  setup <adapter>      prepare local fixtures/adapters before proof runs",
       "  storybook [runId]    write trace-storybook.html",
       "  repair [runId]       write/print repair-prompt.md",
       "  storyboard [runId]   write storyboard.json/md",
@@ -336,8 +342,10 @@ function cmdRun(suiteArg: string | undefined, extraArgs: string[] = []): void {
   const durationMs = Date.now() - started;
   const exitCode = result.status ?? 1;
 
-  const receipt = locateReceipt(suite, suiteConfig, runId);
-  const passed = exitCode === 0 && (receipt.passed ?? true);
+  const receipt = locateReceipt(suite, suiteConfig, runId, started);
+  const receiptRequired = suiteConfig.receiptGlob !== undefined && suiteConfig.receiptGlob !== "none";
+  const receiptFresh = !receiptRequired || receipt.receiptPaths.length > 0;
+  const passed = exitCode === 0 && receiptFresh && (receipt.passed ?? true);
 
   writeCostLedger(runDir, { suite, runId, durationMs, exitCode, passed });
   writeCockpitSnapshot(runDir, runId);
@@ -477,6 +485,32 @@ function cmdMemory(args: string[]): void {
   process.exitCode = result.status ?? 1;
 }
 
+async function cmdSetup(args: string[]): Promise<void> {
+  const [adapterId, ...rest] = args;
+  if (!adapterId) return usage("usage: proofloop setup <adapter>");
+  try {
+    const receipt = await setupProofloopAdapter({
+      adapterId,
+      projectRoot: ROOT,
+      fixtureRoot: optionValueFromArgs(rest, "--root"),
+      dataset: optionValueFromArgs(rest, "--dataset"),
+      revision: optionValueFromArgs(rest, "--revision"),
+      limit: numberOption(rest, "--limit"),
+      maxBytes: numberOption(rest, "--max-bytes"),
+      taskId: optionValueFromArgs(rest, "--task-id"),
+      allowDownload: hasFlag(rest, "--allow-download"),
+    });
+    const receiptPath = setupReceiptPath(ROOT, adapterId);
+    console.log(`proofloop setup: ${adapterId} ${receipt.status}`);
+    console.log(`proofloop setup: receipt ${rel(receiptPath)}`);
+    console.log(`proofloop setup: next ${receipt.nextCommands[0]}`);
+    if (hasFlag(rest, "--strict") && receipt.status !== "ready") process.exitCode = 1;
+  } catch (error) {
+    console.error(`proofloop setup: ${error instanceof Error ? error.message : String(error)}`);
+    process.exitCode = 1;
+  }
+}
+
 function cmdStorybook(runIdArg: string | undefined): void {
   const meta = requireRun(runIdArg);
   if (!meta) return;
@@ -542,14 +576,20 @@ function cmdPromote(runIdArg: string | undefined): void {
     console.log(`proofloop: run ${meta.runId} passed -- nothing to promote.`);
     return;
   }
-  const regressions: Array<{ suite: string; runId: string; failedGates: string[]; promotedAt: string }> = existsSync(REGRESSIONS_PATH)
-    ? JSON.parse(readFileSync(REGRESSIONS_PATH, "utf8"))
-    : [];
-  const entry = { suite: meta.suite, runId: meta.runId, failedGates: meta.failedGates ?? [], promotedAt: new Date().toISOString() };
-  const alreadyPromoted = regressions.some((r) => r.suite === entry.suite && JSON.stringify(r.failedGates) === JSON.stringify(entry.failedGates));
-  if (!alreadyPromoted) regressions.push(entry);
-  writeJson(REGRESSIONS_PATH, regressions);
-  console.log(`proofloop: promoted ${meta.runId} to ${rel(REGRESSIONS_PATH)} (${alreadyPromoted ? "already tracked" : "new regression"})`);
+  const promotion = promoteProofloopRegression(ROOT, {
+    suite: meta.suite,
+    runId: meta.runId,
+    failedGates: meta.failedGates ?? [],
+    score: meta.score,
+    minScore: meta.minScore,
+    durationMs: meta.durationMs,
+  });
+  // "human" is deliberate: this command only runs when a person invokes `proofloop promote`,
+  // never automatically from inside a repair pass, so it records a human-outside-the-loop decision.
+  console.log(`proofloop: promoted ${meta.runId} to ${promotion.relativePath} (${promotion.alreadyPromoted ? "already tracked" : "new regression"})`);
+  if (promotion.migratedLegacyCount > 0) {
+    console.log(`  migrated legacy local regressions: ${promotion.migratedLegacyCount}`);
+  }
   console.log(`  suite:       ${meta.suite}`);
   console.log(`  failed gates: ${meta.failedGates?.length ?? 0}`);
   if (meta.failedGates?.length) {
@@ -557,7 +597,7 @@ function cmdPromote(runIdArg: string | undefined): void {
   }
   console.log(`  score:       ${meta.score ?? "n/a"}/${meta.minScore ?? "n/a"}`);
   console.log(`  duration:    ${formatMs(meta.durationMs)}`);
-  console.log(`  total tracked regressions: ${regressions.length}`);
+  console.log(`  total tracked regressions: ${promotion.entries.length}`);
 }
 
 function cmdExportRl(runIdArg: string | undefined): void {
@@ -849,6 +889,7 @@ function locateReceipt(
   suite: string,
   suiteConfig: SuiteConfig,
   runId: string,
+  startedMs: number,
 ): { passed?: boolean; score?: number; failedGates?: string[]; receiptPaths: string[] } {
   if (suiteConfig.receiptGlob === "live-cli") {
     const liveRoot = join(PROOFLOOP_DIR, "live");
@@ -856,6 +897,7 @@ function locateReceipt(
     if (!latestDir) return { receiptPaths: [] };
     const scorecardPath = join(liveRoot, latestDir, "scorecard.md");
     if (!existsSync(scorecardPath)) return { receiptPaths: [] };
+    if (!fileIsFresh(scorecardPath, startedMs)) return { passed: false, failedGates: ["stale_receipt"], receiptPaths: [] };
     const text = readFileSync(scorecardPath, "utf8");
     const scoreMatch = text.match(/Score:\s*(\d+)\/(\d+)/);
     const failedGates = [...text.matchAll(/^- Task "([^"]+)" (?:fail|timeout)/gm)].map((m) => m[1]);
@@ -867,8 +909,9 @@ function locateReceipt(
     };
   }
   if (suiteConfig.receiptGlob === "live-browser") {
-    const suiteReceiptPath = resolve(ROOT, "docs/eval/proofloop-live-room-proof.json");
+    const suiteReceiptPath = resolve(ROOT, liveBrowserReceiptPathForSuite(suite));
     if (!existsSync(suiteReceiptPath)) return { receiptPaths: [] };
+    if (!fileIsFresh(suiteReceiptPath, startedMs)) return { passed: false, failedGates: ["stale_receipt"], receiptPaths: [] };
     const receipt = JSON.parse(readFileSync(suiteReceiptPath, "utf8"));
     const failedGates = ((receipt.scorer?.details?.taskProofs ?? []) as Array<{ taskId: string; passed: boolean }>)
       .filter((t) => !t.passed)
@@ -883,6 +926,7 @@ function locateReceipt(
   if (suiteConfig.receiptGlob === "adapter-blocker") {
     const receiptPath = resolve(ROOT, "docs", "eval", "proofloop-adapter-blockers", `${suite}.json`);
     if (!existsSync(receiptPath)) return { receiptPaths: [] };
+    if (!fileIsFresh(receiptPath, startedMs)) return { passed: false, failedGates: ["stale_receipt"], receiptPaths: [] };
     const receipt = JSON.parse(readFileSync(receiptPath, "utf8")) as { status?: string; blockers?: string[] };
     return {
       passed: receipt.status === "ready",
@@ -893,6 +937,7 @@ function locateReceipt(
   if (suiteConfig.receiptGlob === "external-adapter-run") {
     const receiptPath = resolve(ROOT, "docs", "eval", "proofloop-external-adapter-runs", `${suite}.json`);
     if (!existsSync(receiptPath)) return { receiptPaths: [] };
+    if (!fileIsFresh(receiptPath, startedMs)) return { passed: false, failedGates: ["stale_receipt"], receiptPaths: [] };
     const receipt = JSON.parse(readFileSync(receiptPath, "utf8")) as { status?: string; failedGates?: string[] };
     return {
       passed: receipt.status === "passed",
@@ -901,6 +946,15 @@ function locateReceipt(
     };
   }
   return { receiptPaths: [] };
+}
+
+function liveBrowserReceiptPathForSuite(suite: string): string {
+  if (suite === "bankertoolbench") return "docs/eval/bankertoolbench-live-room-proof.json";
+  return "docs/eval/proofloop-live-room-proof.json";
+}
+
+function fileIsFresh(path: string, startedMs: number): boolean {
+  return statSync(path).mtimeMs >= startedMs - 1_000;
 }
 
 function latestSubdir(root: string): string | undefined {
@@ -964,6 +1018,17 @@ function optionValuesFromArgs(args: string[], name: string): string[] {
     }
   }
   return values;
+}
+
+function hasFlag(args: string[], name: string): boolean {
+  return args.includes(name);
+}
+
+function numberOption(args: string[], name: string): number | undefined {
+  const value = optionValueFromArgs(args, name);
+  if (value === undefined) return undefined;
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : undefined;
 }
 
 function parseRunFlags(args: string[]): RunFlags {

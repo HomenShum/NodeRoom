@@ -208,6 +208,9 @@ describe("proofloop adapters", () => {
       'case "router"',
       "writeLoopArtifactsForMeta",
       "--user-emulation strict",
+      "stale_receipt",
+      "fileIsFresh",
+      "bankertoolbench-live-room-proof.json",
     ]) {
       expect(content).toContain(command);
     }
@@ -282,6 +285,8 @@ describe("proofloop npm scripts", () => {
     expect(pkg.scripts["proofloop:proximitty"]).toBeDefined();
     expect(pkg.scripts["proofloop:proximitty:models"]).toBeDefined();
     expect(pkg.scripts["proofloop:proximitty:clips"]).toBeDefined();
+    expect(pkg.scripts["proofloop:live:browser"]).toContain("proofloop-live-playwright.ts browser");
+    expect(pkg.scripts["proofloop:live:btb"]).toContain("proofloop-live-playwright.ts bankertoolbench");
     expect(pkg.scripts["benchmark:proofloop:board"]).toBeDefined();
     expect(pkg.scripts["proofloop:accounting:seed"]).toBeDefined();
     expect(pkg.scripts["proofloop:notion:seed"]).toBeDefined();
@@ -346,5 +351,9 @@ describe("proofloop npm scripts", () => {
     const wrapper = readFileSync(join(process.cwd(), "scripts/proofloop.mjs"), "utf-8");
     expect(wrapper).toContain("proofloop-memory.mjs");
     expect(wrapper).toContain(".proofloop\", \"memory\", \"index.db\"");
+
+    const liveLauncher = readFileSync(join(process.cwd(), "scripts/proofloop-live-playwright.ts"), "utf-8");
+    expect(liveLauncher).toContain("BTB_UI_VERIFIER_COMMAND");
+    expect(liveLauncher).toContain("benchmark:bankertoolbench:proof");
   });
 });

@@ -55,6 +55,7 @@ describe("proofloop loop artifacts", () => {
 
     for (const path of [
       paths.runResultPath,
+      paths.officialScorerReceiptPath,
       paths.liveUserContractPath,
       paths.nodeTracePath,
       paths.nodeEvalPath,
@@ -74,9 +75,15 @@ describe("proofloop loop artifacts", () => {
     const contract = JSON.parse(readFileSync(paths.liveUserContractPath, "utf-8"));
     expect(contract.valid).toBe(true);
     expect(contract.productPathCompletion).toBe(true);
+    expect(contract.officialScorerReceiptWritten).toBe(true);
     expect(contract.officialSemanticScore).toBeNull();
     expect(contract.scoreType).toBe("completion_not_official_semantic");
     expect(contract.gates.every((gate: { passed: boolean }) => gate.passed)).toBe(true);
+
+    const officialReceipt = JSON.parse(readFileSync(paths.officialScorerReceiptPath, "utf-8"));
+    expect(officialReceipt.status).toBe("blocked_external");
+    expect(officialReceipt.officialScoreClaimable).toBe(false);
+    expect(officialReceipt.blocker).toContain("product-path evidence only");
 
     const storybook = readFileSync(paths.storybookPath, "utf-8");
     for (const atom of [

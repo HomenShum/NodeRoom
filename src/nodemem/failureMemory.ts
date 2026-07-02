@@ -4,7 +4,7 @@
 // unresolved failures and condition the agent off known-bad paths -- the "memory -> repair" half of
 // the NodeRL loop. Pure + deterministic (the CLI does file IO); no Convex dependency, so it works in
 // the portable NodeRL extraction as well as in NodeRoom.
-import type { NodeMemFailurePattern } from "./core/types";
+import type { NodeMemFailurePattern, NodeMemSource } from "./core/types";
 
 export interface TaskFailure {
   taskId: string;
@@ -12,6 +12,18 @@ export interface TaskFailure {
   /** Which proof lane produced the failure. */
   lane: "live" | "isolated";
   receiptRef?: string;
+  /** Optional, additive: see NodeMemSource / noderl/spec/anti-reward-hacking-doctrine.md. */
+  source?: NodeMemSource;
+}
+
+export interface MemoryBackedScaffoldSuggestion {
+  targetTaskId: string;
+  rootCause: string;
+  suggestedChange: string;
+  rerunCommand: string;
+  recalledPatternIds: string[];
+  recalledReceiptRefs: string[];
+  sourceConfidence: "grounded" | "mixed" | "synthetic_only";
 }
 
 /** Map a validation/scorer error string to a stable root-cause category for dedupe + repair routing. */
@@ -68,6 +80,7 @@ export function buildFailurePatterns(failures: TaskFailure[], now: number): Node
       affectedSystems: [f.taskId],
       receiptRefs: f.receiptRef ? [f.receiptRef] : [],
       createdAt: now,
+      source: f.source,
     };
   });
 }
@@ -94,4 +107,45 @@ export function mergeFailureMemory(
 /** Distinct task ids with an unresolved failure pattern = the re-run targets. */
 export function repairTargets(memory: NodeMemFailurePattern[]): string[] {
   return [...new Set(memory.flatMap((p) => p.affectedSystems))].sort();
+}
+
+/**
+ * Recall prior failures with the same root cause and turn them into a scaffold suggestion.
+ * This is the deterministic proof that memory compounds: failure B does not start from a blank
+ * prompt if failure A already taught the loop a repair pattern.
+ */
+export function suggestScaffoldFromFailureMemory(
+  memory: NodeMemFailurePattern[],
+  currentFailure: TaskFailure,
+  now: number,
+): MemoryBackedScaffoldSuggestion | null {
+  const [current] = buildFailurePatterns([currentFailure], now);
+  const matches = memory
+    .filter((pattern) => pattern.rootCause === current.rootCause)
+    .sort((a, b) => sourceWeight(b.source) - sourceWeight(a.source) || b.createdAt - a.createdAt || a.id.localeCompare(b.id));
+  if (!matches.length) return null;
+  const grounded = matches.some((pattern) => isGroundedSource(pattern.source));
+  const syntheticOnly = matches.every((pattern) => pattern.source === "synthetic_edge_case" || pattern.source === "model_generated_proposal");
+  return {
+    targetTaskId: currentFailure.taskId,
+    rootCause: current.rootCause,
+    suggestedChange: `${matches[0].fixSummary} Reuse prior failure evidence before changing verifier gates.`,
+    rerunCommand: current.regressionTest,
+    recalledPatternIds: matches.map((pattern) => pattern.id),
+    recalledReceiptRefs: [...new Set(matches.flatMap((pattern) => pattern.receiptRefs))].sort(),
+    sourceConfidence: grounded ? "grounded" : syntheticOnly ? "synthetic_only" : "mixed",
+  };
+}
+
+function sourceWeight(source: NodeMemSource | undefined): number {
+  if (source === "official_benchmark") return 5;
+  if (source === "real_user_run" || source === "live_browser_proof") return 4;
+  if (source === "human_feedback") return 3;
+  if (source === "redteam_proposal") return 2;
+  if (source === "synthetic_edge_case" || source === "model_generated_proposal") return 1;
+  return 0;
+}
+
+function isGroundedSource(source: NodeMemSource | undefined): boolean {
+  return source === "official_benchmark" || source === "real_user_run" || source === "live_browser_proof" || source === "human_feedback";
 }

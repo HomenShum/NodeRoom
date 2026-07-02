@@ -17,6 +17,7 @@
     "scorecard.md",
     "cost-ledger.json",
     "verifier-receipt.json",
+    "official-scorer-receipt.json",
     "visual-proof",
     "exported-files-reopen-proof.json"
   ],

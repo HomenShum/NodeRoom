@@ -35,6 +35,29 @@ Rules:
   approval, eval, or rework behavior should point back to a `traceId`; update
   `tests/nodeagentTraceSpine.test.ts` when changing trace contracts.
 
+## Proof Loop: two-loop architecture
+
+Every proof-loop suite in this repo (Proximitty, BankerToolBench, the accounting proofloop, and any
+new one) follows the same split, formalized in
+[`noderl/spec/anti-reward-hacking-doctrine.md`](noderl/spec/anti-reward-hacking-doctrine.md):
+
+- **Certification Loop** (locked): runs the real product UI, scores against an immutable verifier
+  and held-out fixtures, produces a proof receipt. This is what `scaffold-check.ts
+  --strict-immutability`, `fresh-room-proof-verify.ts`, and the `IMMUTABLE_FILES` list protect.
+- **Exploration Loop** (open-ended): proposes new scenarios, red-team cases, and scaffold deltas —
+  this is the `proofloop/scenarios/*.yaml` / `proofloop/rubrics/*.yaml` / `.proofloop/memory.jsonl`
+  surface `CLAUDE.md`'s "Self-Scaffolding Proof-Looping" section already scopes as editable.
+
+The rule that makes the split real is already coded in `src/eval/scaffoldProposal.ts`'s
+`evaluateScaffoldAcceptance()`: a scaffold proposal cannot reach `"accepted"` unless
+`ctx.adversarialReviewerApproved` was set by something outside the function — the loop proposes, it
+does not self-promote. Never weaken that: a repair pass that grades its own homework is reward
+hacking, not improvement.
+
+Promoted proof failures are product-governance state and must be written to the tracked
+`proofloop/regressions/promoted-regressions.json` ledger via `proofloop promote`; keep in-flight
+memory and run output under `.proofloop/` gitignored.
+
 ## Proximitty Underwriting Proof Loop
 
 The Proximitty demo suite is `proximitty-underwriting-pr0`. It is an

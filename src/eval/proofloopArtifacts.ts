@@ -58,6 +58,7 @@ const CANONICAL_OUTPUT_FILES = [
   "visual-review.json",
   "visual-review.md",
   "accounting-results.json",
+  "official-scorer-receipt.json",
 ];
 
 export function writeProofLoopArtifacts(

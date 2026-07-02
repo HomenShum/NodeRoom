@@ -76,6 +76,15 @@ describe("Proof Loop goal supervisor", () => {
     expect(tasks.find((task) => task.id === "company-task-coverage-ledger")?.command).toBe("npm run benchmark:proofloop:company-tasks");
     expect(tasks.find((task) => task.id === "harness-economics-ledger")?.command).toBe("npm run benchmark:proofloop:harness-economics");
     expect(tasks.find((task) => task.id === "harness-economics-ledger")?.evidence.join(" ")).toContain("openrouter-top-paid-tools-snapshot");
+    const setupDoctor = tasks.find((task) => task.id === "external-adapter-setup-doctor");
+    expect(setupDoctor?.command).toContain("setup bankertoolbench --doctor");
+    expect(setupDoctor?.command).toContain("setup finch --doctor");
+    expect(setupDoctor?.command).toContain("setup finauditing --doctor");
+    expect(setupDoctor?.command).toContain("setup workstreambench --doctor");
+    expect(setupDoctor?.evidence.join(" ")).toContain(".proofloop/setup/bankertoolbench-local-setup.json");
+    expect(tasks.findIndex((task) => task.id === "external-adapter-setup-doctor")).toBeLessThan(
+      tasks.findIndex((task) => task.id === "external-adapter-local-product-proofs"),
+    );
     const spreadsheetV1 = tasks.find((task) => task.id === "spreadsheetbench-v1-full-official-score");
     expect(spreadsheetV1?.blockers.join(" ")).toContain("912/912 tasks");
     expect(spreadsheetV1?.blockers.join(" ")).toContain("model-run evidence");

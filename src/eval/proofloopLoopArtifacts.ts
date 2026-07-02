@@ -19,6 +19,7 @@ export type ProofloopMetaForLoop = {
 
 export type LoopArtifactPaths = {
   runResultPath: string;
+  officialScorerReceiptPath: string;
   liveUserContractPath: string;
   nodeTracePath: string;
   nodeEvalPath: string;
@@ -71,6 +72,7 @@ const LIVE_USER_GATES = [
   "visual_browser_proof_captured",
   "cost_latency_recorded",
   "node_trace_v2_exported",
+  "official_scorer_receipt_written",
   "proof_receipt_written",
   "no_unexpected_console_or_page_errors",
 ] as const;
@@ -96,6 +98,7 @@ export function writeLoopArtifactsForMeta(args: {
 
   const run = ensureRunResult(meta, runDir);
   const artifactPaths = writeProofLoopArtifacts(run, runDir, { baseUrl });
+  const officialScorerReceiptPath = writeOfficialScorerReceipt({ meta, runDir });
   const liveUserContractPath = writeLiveUserContract({ meta, runDir, baseUrl, strictLiveUser });
   const memoryPathWritten = memoryPath ? writeMemoryEntry({ meta, runDir, memoryPath }) : undefined;
   const { storyboardJsonPath, storyboardMdPath } = writeStoryboardArtifacts({ meta, runDir });
@@ -105,6 +108,7 @@ export function writeLoopArtifactsForMeta(args: {
 
   return {
     runResultPath: join(runDir, "run-result.json"),
+    officialScorerReceiptPath,
     liveUserContractPath,
     nodeTracePath: artifactPaths.nodeTracePath,
     nodeEvalPath: artifactPaths.nodeEvalPath,
@@ -161,6 +165,7 @@ export function writeLiveUserContract(args: {
   const { meta, runDir, baseUrl = "", strictLiveUser = false } = args;
   const browserLike = /browser|btb|banker|live/i.test(`${meta.suite} ${meta.cmd}`);
   const prodLike = /^https?:\/\//.test(baseUrl) || /--prod|live/i.test(meta.cmd);
+  const hasOfficialScorerReceipt = existsSync(join(runDir, "official-scorer-receipt.json"));
   const gateResults = LIVE_USER_GATES.map((gate) => {
     let passed = true;
     if (gate === "live_or_staging_prod_url") passed = prodLike;
@@ -169,6 +174,7 @@ export function writeLiveUserContract(args: {
     if (gate === "benchmark_inputs_uploaded_through_ui") passed = browserLike;
     if (gate === "visual_browser_proof_captured") passed = browserLike || hasAnyVisualProof(runDir);
     if (gate === "node_trace_v2_exported") passed = existsSync(join(runDir, "node-trace-v2.json"));
+    if (gate === "official_scorer_receipt_written") passed = hasOfficialScorerReceipt;
     if (gate === "proof_receipt_written") passed = meta.receiptPaths.length > 0 || existsSync(join(runDir, "run-result.json"));
     return {
       gate,
@@ -192,6 +198,7 @@ export function writeLiveUserContract(args: {
     visualProofCaptured: gateResults.find((g) => g.gate === "visual_browser_proof_captured")?.passed ?? false,
     artifactsReopened: gateResults.find((g) => g.gate === "artifacts_reopened_successfully")?.passed ?? false,
     verifierReceiptWritten: gateResults.find((g) => g.gate === "proof_receipt_written")?.passed ?? false,
+    officialScorerReceiptWritten: gateResults.find((g) => g.gate === "official_scorer_receipt_written")?.passed ?? false,
     scoringMode: scoringModeForSuite(meta.suite),
     productPathCompletion: meta.passed,
     officialSemanticScore: null,
@@ -201,6 +208,31 @@ export function writeLiveUserContract(args: {
   };
   const path = join(runDir, "live-user-contract.json");
   writeJson(path, contract);
+  return path;
+}
+
+export function writeOfficialScorerReceipt(args: { meta: ProofloopMetaForLoop; runDir: string }): string {
+  const { meta, runDir } = args;
+  const path = join(runDir, "official-scorer-receipt.json");
+  if (existsSync(path)) return path;
+  writeJson(path, {
+    schema: 1,
+    runId: meta.runId,
+    suite: meta.suite,
+    generatedAt: meta.finishedAt,
+    status: "blocked_external",
+    officialScoreClaimable: false,
+    officialSemanticScore: null,
+    scorer: null,
+    productPathCompletion: meta.passed,
+    requiredForOfficialClaim: true,
+    acceptedProxyJudge: false,
+    blocker: "No accepted official scorer receipt was attached. This run is product-path evidence only.",
+    nextActions: [
+      "Attach or import the upstream official scorer output for this suite.",
+      "Keep OpenRouter or other proxy judges labeled as product-gate triage unless accepted by the benchmark upstream.",
+    ],
+  });
   return path;
 }
 
@@ -364,6 +396,7 @@ export function writeSocialArtifacts(args: { meta: ProofloopMetaForLoop; runDir:
 function evidenceForGate(gate: string, meta: ProofloopMetaForLoop, runDir: string, baseUrl: string): string {
   if (gate === "live_or_staging_prod_url") return baseUrl || meta.cmd;
   if (gate === "node_trace_v2_exported") return rel(runDir, join(runDir, "node-trace-v2.json"));
+  if (gate === "official_scorer_receipt_written") return rel(runDir, join(runDir, "official-scorer-receipt.json"));
   if (gate === "proof_receipt_written") return meta.receiptPaths[0] ?? rel(runDir, join(runDir, "run-result.json"));
   if (gate === "cost_latency_recorded") return rel(runDir, join(runDir, "cost-ledger.json"));
   return meta.receiptPaths[0] ?? meta.cmd;

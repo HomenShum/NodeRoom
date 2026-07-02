@@ -42,10 +42,12 @@ playwright/.cache/
 # Proofloop run history/output (like .git objects) -- keep .proofloop/config.json tracked
 .proofloop/runs/
 .proofloop/goals/
+.proofloop/setup/
 .proofloop/live/
 .proofloop/memory/
 .proofloop/memory.jsonl
 .proofloop/live-memory.jsonl
+# Legacy local promoted-regression mirror. Canonical promoted regressions are tracked in proofloop/regressions/.
 .proofloop/regressions.json
 docs/eval/scaffold-handoff.md
 docs/eval/scaffold-report.json
