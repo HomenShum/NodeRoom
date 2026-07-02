@@ -1,0 +1,41 @@
+{
+  "schema": "proofloop-external-adapter-blocker-v1",
+  "adapterId": "finch",
+  "name": "Finch / FinWorkBench",
+  "status": "blocked_external",
+  "officialSourceUrls": [
+    "https://arxiv.org/abs/2512.13168",
+    "https://github.com/FinWorkBench/Finch",
+    "https://huggingface.co/datasets/FinWorkBench/Finch"
+  ],
+  "verifierCommand": "npm run benchmark:proofloop:adapter-blockers -- --id finch --strict",
+  "liveUserCommand": "npm run proofloop -- run finch --prod --user-emulation strict --cockpit",
+  "missingImplementationFiles": [
+    "proofloop/benchmarks/finch/load-tasks.ts",
+    "proofloop/benchmarks/finch/browser-scenario.spec.ts"
+  ],
+  "validationErrors": [],
+  "blockers": [
+    "finch: missing implementation file proofloop/benchmarks/finch/load-tasks.ts",
+    "finch: missing implementation file proofloop/benchmarks/finch/browser-scenario.spec.ts"
+  ],
+  "officialCommandPlan": [
+    "Clone/lock https://github.com/FinWorkBench/Finch and https://huggingface.co/datasets/FinWorkBench/Finch.",
+    "Run the upstream Finch prompt_build_pipeline against the locked official task split.",
+    "Run the upstream Finch call_gpt_judge scorer on NodeRoom output artifacts.",
+    "Import the official judge JSON into docs/eval/proofloop-adapter-blockers/finch.json before claiming score."
+  ],
+  "resumeCommands": [
+    "npm run benchmark:proofloop:adapter-blockers -- --id finch",
+    "implement proofloop/benchmarks/finch/load-tasks.ts",
+    "implement proofloop/benchmarks/finch/browser-scenario.spec.ts",
+    "npm run proofloop -- run finch --prod --user-emulation strict --cockpit",
+    "npm run benchmark:proofloop:adapter-blockers -- --id finch --strict"
+  ],
+  "evidence": [
+    "proofloop/benchmarks/finch/adapter.json",
+    "https://arxiv.org/abs/2512.13168",
+    "https://github.com/FinWorkBench/Finch",
+    "https://huggingface.co/datasets/FinWorkBench/Finch"
+  ]
+}

@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "generatedAt": "2026-07-01T23:46:24.238Z",
+  "generatedAt": "2026-07-02T00:24:31.878Z",
   "policy": [
     "Product-path completion is useful proof: real UI, visible progress, artifacts, verifier receipts, trace, memory, and browser evidence.",
     "Official semantic score is only claimed when the benchmark's official scorer/verifier result is imported.",
@@ -211,25 +211,32 @@
         "status": "registered",
         "scoreType": "product_path_completion",
         "evidence": [
-          "proofloop/benchmarks/finch/adapter.json"
+          "proofloop/benchmarks/finch/adapter.json",
+          "docs/eval/proofloop-adapter-blockers/finch.json"
         ],
         "command": "npm run proofloop -- run finch --prod --user-emulation strict --cockpit",
         "blockers": [
           "finch: missing implementation file proofloop/benchmarks/finch/load-tasks.ts",
-          "finch: missing implementation file proofloop/benchmarks/finch/browser-scenario.spec.ts",
-          "finch: missing implementation file proofloop/benchmarks/finch/verify.ts"
+          "finch: missing implementation file proofloop/benchmarks/finch/browser-scenario.spec.ts"
         ]
       },
       "officialSemanticScore": {
         "status": "blocked",
         "scoreType": "official_semantic_score",
         "evidence": [
-          "proofloop/benchmarks/finch/adapter.json"
+          "proofloop/benchmarks/finch/adapter.json",
+          "docs/eval/proofloop-adapter-blockers/finch.json"
         ],
-        "command": "proofloop/benchmarks/finch/verify.ts",
+        "command": "npm run benchmark:proofloop:adapter-blockers -- --id finch --strict",
         "blockers": [
-          "Adapter registered; official verifier import has not been implemented or run."
-        ]
+          "finch: missing implementation file proofloop/benchmarks/finch/load-tasks.ts",
+          "finch: missing implementation file proofloop/benchmarks/finch/browser-scenario.spec.ts"
+        ],
+        "metrics": {
+          "missingImplementationFiles": 2,
+          "officialSourceUrls": 3,
+          "resumeCommands": 5
+        }
       },
       "notes": [
         "Adapter registration is useful backlog inventory; it is not a live proof claim."
@@ -244,25 +251,32 @@
         "status": "registered",
         "scoreType": "product_path_completion",
         "evidence": [
-          "proofloop/benchmarks/finauditing/adapter.json"
+          "proofloop/benchmarks/finauditing/adapter.json",
+          "docs/eval/proofloop-adapter-blockers/finauditing.json"
         ],
         "command": "npm run proofloop -- run finauditing --prod --user-emulation strict --cockpit",
         "blockers": [
           "finauditing: missing implementation file proofloop/benchmarks/finauditing/load-tasks.ts",
-          "finauditing: missing implementation file proofloop/benchmarks/finauditing/browser-scenario.spec.ts",
-          "finauditing: missing implementation file proofloop/benchmarks/finauditing/verify.ts"
+          "finauditing: missing implementation file proofloop/benchmarks/finauditing/browser-scenario.spec.ts"
         ]
       },
       "officialSemanticScore": {
         "status": "blocked",
         "scoreType": "official_semantic_score",
         "evidence": [
-          "proofloop/benchmarks/finauditing/adapter.json"
+          "proofloop/benchmarks/finauditing/adapter.json",
+          "docs/eval/proofloop-adapter-blockers/finauditing.json"
         ],
-        "command": "proofloop/benchmarks/finauditing/verify.ts",
+        "command": "npm run benchmark:proofloop:adapter-blockers -- --id finauditing --strict",
         "blockers": [
-          "Adapter registered; official verifier import has not been implemented or run."
-        ]
+          "finauditing: missing implementation file proofloop/benchmarks/finauditing/load-tasks.ts",
+          "finauditing: missing implementation file proofloop/benchmarks/finauditing/browser-scenario.spec.ts"
+        ],
+        "metrics": {
+          "missingImplementationFiles": 2,
+          "officialSourceUrls": 4,
+          "resumeCommands": 5
+        }
       },
       "notes": [
         "Adapter registration is useful backlog inventory; it is not a live proof claim."
@@ -277,25 +291,32 @@
         "status": "registered",
         "scoreType": "product_path_completion",
         "evidence": [
-          "proofloop/benchmarks/workstreambench/adapter.json"
+          "proofloop/benchmarks/workstreambench/adapter.json",
+          "docs/eval/proofloop-adapter-blockers/workstreambench.json"
         ],
         "command": "npm run proofloop -- run workstreambench --prod --user-emulation strict --cockpit",
         "blockers": [
           "workstreambench: missing implementation file proofloop/benchmarks/workstreambench/load-tasks.ts",
-          "workstreambench: missing implementation file proofloop/benchmarks/workstreambench/browser-scenario.spec.ts",
-          "workstreambench: missing implementation file proofloop/benchmarks/workstreambench/verify.ts"
+          "workstreambench: missing implementation file proofloop/benchmarks/workstreambench/browser-scenario.spec.ts"
         ]
       },
       "officialSemanticScore": {
         "status": "blocked",
         "scoreType": "official_semantic_score",
         "evidence": [
-          "proofloop/benchmarks/workstreambench/adapter.json"
+          "proofloop/benchmarks/workstreambench/adapter.json",
+          "docs/eval/proofloop-adapter-blockers/workstreambench.json"
         ],
-        "command": "proofloop/benchmarks/workstreambench/verify.ts",
+        "command": "npm run benchmark:proofloop:adapter-blockers -- --id workstreambench --strict",
         "blockers": [
-          "Adapter registered; official verifier import has not been implemented or run."
-        ]
+          "workstreambench: missing implementation file proofloop/benchmarks/workstreambench/load-tasks.ts",
+          "workstreambench: missing implementation file proofloop/benchmarks/workstreambench/browser-scenario.spec.ts"
+        ],
+        "metrics": {
+          "missingImplementationFiles": 2,
+          "officialSourceUrls": 1,
+          "resumeCommands": 5
+        }
       },
       "notes": [
         "Adapter registration is useful backlog inventory; it is not a live proof claim."

@@ -48,6 +48,14 @@ export type ProofloopBenchmarkBoard = {
 
 type JsonObject = Record<string, unknown>;
 
+type ExternalAdapterBlockerReceipt = {
+  status?: "ready" | "blocked_external";
+  blockers?: string[];
+  missingImplementationFiles?: string[];
+  officialSourceUrls?: string[];
+  resumeCommands?: string[];
+};
+
 export function buildProofloopBenchmarkBoard(args: {
   root?: string;
   generatedAt?: string;
@@ -293,9 +301,16 @@ function adapterEntry(adapter: ProofloopBenchmarkAdapter, root: string): Prooflo
       claim?: string;
     }>(root, "docs/eval/fresh-room/FR-020/fullsuite-gate-receipt.json")
     : undefined;
+  const adapterBlocker = !isBtb
+    ? readJson<ExternalAdapterBlockerReceipt>(root, `docs/eval/proofloop-adapter-blockers/${adapter.id}.json`)
+    : undefined;
   const livePassed = live?.passed === true;
   const readyToRun = validationErrors.length === 0 && implementationMissing.length === 0;
   const btbOfficialProven = btbFullSuite?.flipEligible === true;
+  const adapterBlockerEvidence = !isBtb && adapterBlocker ? [`docs/eval/proofloop-adapter-blockers/${adapter.id}.json`] : [];
+  const adapterOfficialBlockers = adapterBlocker?.blockers?.length
+    ? adapterBlocker.blockers
+    : ["Run npm run benchmark:proofloop:adapter-blockers to produce a typed external-adapter blocker receipt."];
 
   return {
     id: adapter.id,
@@ -308,6 +323,7 @@ function adapterEntry(adapter: ProofloopBenchmarkAdapter, root: string): Prooflo
       evidence: [
         `proofloop/benchmarks/${adapter.id}/adapter.json`,
         ...(livePassed ? ["docs/eval/bankertoolbench-live-room-proof.json"] : []),
+        ...adapterBlockerEvidence,
       ],
       command: adapter.liveUserCommand,
       blockers: [
@@ -324,13 +340,13 @@ function adapterEntry(adapter: ProofloopBenchmarkAdapter, root: string): Prooflo
           "docs/eval/btb-clean-capability-full100-parallel-v3-gpt41mini.json",
           "docs/eval/bankertoolbench-official-contract.json",
         ]
-        : [`proofloop/benchmarks/${adapter.id}/adapter.json`],
+        : [`proofloop/benchmarks/${adapter.id}/adapter.json`, ...adapterBlockerEvidence],
       command: adapter.verifierCommand,
       blockers: isBtb
         ? btbOfficialProven
           ? []
           : btbOfficial?.blockers ?? ["BankerToolBench official contract artifact is missing."]
-        : ["Adapter registered; official verifier import has not been implemented or run."],
+        : adapterOfficialBlockers,
       metrics: btbOfficialProven
         ? {
           expectedCount: btbFullSuite?.expectedCount ?? null,
@@ -342,7 +358,13 @@ function adapterEntry(adapter: ProofloopBenchmarkAdapter, root: string): Prooflo
           passRate: btbFullSuite?.passRate ?? null,
           claim: btbFullSuite?.claim ?? "",
         }
-        : undefined,
+        : !isBtb && adapterBlocker
+          ? {
+            missingImplementationFiles: adapterBlocker.missingImplementationFiles?.length ?? null,
+            officialSourceUrls: adapterBlocker.officialSourceUrls?.length ?? null,
+            resumeCommands: adapterBlocker.resumeCommands?.length ?? null,
+          }
+          : undefined,
     },
     notes: isBtb
       ? btbOfficialProven

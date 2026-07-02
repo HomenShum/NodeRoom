@@ -10,7 +10,7 @@
   "taskLoader": "proofloop/benchmarks/finch/load-tasks.ts",
   "seedInputsThroughUi": true,
   "browserScenario": "proofloop/benchmarks/finch/browser-scenario.spec.ts",
-  "verifierCommand": "proofloop/benchmarks/finch/verify.ts",
+  "verifierCommand": "npm run benchmark:proofloop:adapter-blockers -- --id finch --strict",
   "expectedArtifacts": [
     "live-user-contract.json",
     "node-trace-v2.json",
@@ -28,4 +28,3 @@
   ],
   "liveUserCommand": "npm run proofloop -- run finch --prod --user-emulation strict --cockpit"
 }
-

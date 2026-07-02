@@ -1,0 +1,36 @@
+{
+  "schema": "proofloop-external-adapter-blocker-v1",
+  "adapterId": "workstreambench",
+  "name": "WorkstreamBench",
+  "status": "blocked_external",
+  "officialSourceUrls": [
+    "https://arxiv.org/html/2605.22664v1"
+  ],
+  "verifierCommand": "npm run benchmark:proofloop:adapter-blockers -- --id workstreambench --strict",
+  "liveUserCommand": "npm run proofloop -- run workstreambench --prod --user-emulation strict --cockpit",
+  "missingImplementationFiles": [
+    "proofloop/benchmarks/workstreambench/load-tasks.ts",
+    "proofloop/benchmarks/workstreambench/browser-scenario.spec.ts"
+  ],
+  "validationErrors": [],
+  "blockers": [
+    "workstreambench: missing implementation file proofloop/benchmarks/workstreambench/load-tasks.ts",
+    "workstreambench: missing implementation file proofloop/benchmarks/workstreambench/browser-scenario.spec.ts"
+  ],
+  "officialCommandPlan": [
+    "Lock the official WorkstreamBench task bundle and scorer from the paper/supplementary source.",
+    "Run every official workstream through NodeRoom live-user seeding and artifact export.",
+    "Run the official WorkstreamBench scorer and import the result into docs/eval/proofloop-adapter-blockers/workstreambench.json before claiming score."
+  ],
+  "resumeCommands": [
+    "npm run benchmark:proofloop:adapter-blockers -- --id workstreambench",
+    "implement proofloop/benchmarks/workstreambench/load-tasks.ts",
+    "implement proofloop/benchmarks/workstreambench/browser-scenario.spec.ts",
+    "npm run proofloop -- run workstreambench --prod --user-emulation strict --cockpit",
+    "npm run benchmark:proofloop:adapter-blockers -- --id workstreambench --strict"
+  ],
+  "evidence": [
+    "proofloop/benchmarks/workstreambench/adapter.json",
+    "https://arxiv.org/html/2605.22664v1"
+  ]
+}
