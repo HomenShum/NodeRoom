@@ -6,6 +6,7 @@ This ledger preserves the two pasted source texts and maps them to repo artifact
 
 - `docs/proofloop/source-texts/noderl-loop-engineering-source.txt`
 - `docs/proofloop/source-texts/accounting-profile-router-source.txt`
+- `docs/proofloop/APP_AGNOSTIC_HACKATHON_DEMO_PLAN.md`
 
 ## Requirements And Proofs
 
