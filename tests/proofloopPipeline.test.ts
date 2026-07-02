@@ -199,6 +199,10 @@ describe("proofloop adapters", () => {
       'case "eval"',
       'case "mem"',
       'case "memory"',
+      'case "goal"',
+      'case "gate"',
+      'case "supervise"',
+      'case "resume"',
       "memory init",
       "memory compact",
       "memory search",
@@ -216,9 +220,59 @@ describe("proofloop adapters", () => {
       "suiteConfigForAdapter",
       "knownSuites(config)",
       "official_scorer_unregistered",
+      ".proofloop/goals",
+      "heartbeats.jsonl",
+      "ledger.jsonl",
+      "queue.json",
+      "blockers.json",
+      "type GoalState",
+      "TERMINAL_GOAL_STATES",
+      "blocked_external",
+      "needs_human_approval",
+      "budget_exhausted",
+      "worker_stalled",
+      "proofloop gate --goal",
       "--user-emulation strict",
     ]) {
       expect(content).toContain(command);
+    }
+  });
+
+  it("supervisor gate enforces proof artifacts before completion", () => {
+    const content = readFileSync(join(process.cwd(), "scripts/proofloop-cli.ts"), "utf-8");
+    for (const invariant of [
+      "evaluateGoalGate",
+      "latest proof run missing",
+      "node-trace-v2.json",
+      "node-eval.json",
+      "scorecard.md",
+      "NodeMem write missing",
+      "live-user proof missing or invalid",
+      "official scorer receipt missing or failing",
+      "cockpit events missing",
+      "CI/deploy proof missing for shipping goal",
+    ]) {
+      expect(content).toContain(invariant);
+    }
+  });
+
+  it("supervisor records valid external blockers and continues unblocked work", () => {
+    const content = readFileSync(join(process.cwd(), "scripts/proofloop-cli.ts"), "utf-8");
+    for (const invariant of [
+      "missing_credential",
+      "missing_dataset",
+      "missing_official_scorer",
+      "paid_service_required",
+      "destructive_approval_required",
+      "external_service_down",
+      "unblockedTasksRemaining",
+      "btb_ui_bundle_root does not exist",
+      "official BankerToolBench fixture bundle",
+      "browserscenario does not exist",
+      "nextRunnableTask",
+      "recordGoalBlocker",
+    ]) {
+      expect(content).toContain(invariant);
     }
   });
 

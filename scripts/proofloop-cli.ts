@@ -58,6 +58,7 @@ const MEMORY_PATH = join(MEMORY_DIR, "memory.jsonl");
 const MEMORY_INDEX_PATH = join(MEMORY_DIR, "index.db");
 const MEMORY_POLICY_PATH = join(MEMORY_DIR, "policies.json");
 const MEMORY_COMPACTED_DIR = join(MEMORY_DIR, "compacted");
+const GOALS_DIR = join(PROOFLOOP_DIR, "goals");
 const REGRESSIONS_PATH = join(PROOFLOOP_DIR, "regressions.json");
 const requireFromCli = createRequire(import.meta.url);
 
@@ -103,6 +104,101 @@ type RunMeta = {
   receiptPaths: string[];
 };
 
+type GoalState =
+  | "queued"
+  | "running"
+  | "verifying"
+  | "repairing"
+  | "rerunning"
+  | "blocked_external"
+  | "needs_human_approval"
+  | "budget_exhausted"
+  | "passed"
+  | "failed";
+
+type GoalTaskBucket = "must_do_now" | "blocked" | "unblocked_next" | "nice_to_have" | "done";
+
+type GoalTask = {
+  id: string;
+  title: string;
+  command?: string;
+  bucket: GoalTaskBucket;
+  required: boolean;
+  retries: number;
+  maxRetries: number;
+  createdAt: string;
+  updatedAt: string;
+  evidence?: string;
+  resumeCommand?: string;
+  blockerType?: GoalBlocker["type"];
+  blockerName?: string;
+};
+
+type GoalQueue = {
+  schema: 1;
+  goalId: string;
+  must_do_now: GoalTask[];
+  blocked: GoalTask[];
+  unblocked_next: GoalTask[];
+  nice_to_have: GoalTask[];
+  done: GoalTask[];
+};
+
+type GoalBlocker = {
+  type:
+    | "missing_credential"
+    | "missing_dataset"
+    | "missing_official_scorer"
+    | "paid_service_required"
+    | "destructive_approval_required"
+    | "external_service_down";
+  name?: string;
+  evidence: string;
+  resumeCommand: string;
+  unblockedTasksRemaining: boolean;
+  taskId?: string;
+  recordedAt: string;
+};
+
+type GoalBlockers = {
+  schema: 1;
+  goalId: string;
+  blockers: GoalBlocker[];
+};
+
+type GoalStateFile = {
+  schema: 1;
+  goalId: string;
+  state: GoalState;
+  createdAt: string;
+  updatedAt: string;
+  startedAt?: string;
+  completedAt?: string;
+  maxHours: number;
+  budgetUsd?: number;
+  heartbeatTimeoutMinutes: number;
+  maxStalls: number;
+  maxRetriesPerTask: number;
+  stallCount: number;
+  latestRunId?: string;
+  latestGate?: {
+    passed: boolean;
+    checkedAt: string;
+    missing: string[];
+  };
+  requiresShippingProof: boolean;
+  spentUsd: number;
+};
+
+type GoalPaths = {
+  root: string;
+  state: string;
+  ledger: string;
+  queue: string;
+  blockers: string;
+  heartbeats: string;
+};
+
 const DEFAULT_CONFIG: ProofloopConfig = {
   defaultSuite: "accounting-live",
   suites: {
@@ -146,6 +242,14 @@ const DEFAULT_MEMORY_POLICY = {
   customerOwnedStorage: true,
 };
 
+const TERMINAL_GOAL_STATES: GoalState[] = ["passed", "blocked_external", "needs_human_approval", "budget_exhausted", "failed"];
+
+const DEFAULT_SUPERVISOR_POLICY = {
+  heartbeatTimeoutMinutes: 10,
+  maxStalls: 5,
+  maxRetriesPerTask: 3,
+};
+
 function main(): void {
   const [command, ...args] = process.argv.slice(2);
   switch (command) {
@@ -175,6 +279,14 @@ function main(): void {
       return cmdMemory(args);
     case "memory":
       return cmdMemory(args);
+    case "goal":
+      return cmdGoal(args);
+    case "gate":
+      return cmdGate(args);
+    case "supervise":
+      return cmdSupervise(args);
+    case "resume":
+      return cmdResume(args);
     case "storybook":
       return cmdStorybook(args[0]);
     case "repair":
@@ -223,6 +335,13 @@ function usage(error?: string): void {
       "  memory show <id>     show a memory entry by id or runId",
       "  memory doctor        verify local memory policy and files",
       "  memory export --redacted write a redacted memory export",
+      "  goal init <goal-id>  create supervisor state, ledger, queue, blockers, heartbeats",
+      "  goal status <goal-id> print supervisor state and queue counts",
+      "  goal next <goal-id>  print the next unblocked task",
+      "  goal block <goal-id> record an external blocker",
+      "  gate --goal <id>     fail unless the proof ledger can close the goal",
+      "  supervise --goal <id> run queued work until a terminal ledger state",
+      "  resume --goal <id>   print the worker resume prompt and next task",
       "  storybook [runId]    write trace-storybook.html",
       "  repair [runId]       write/print repair-prompt.md",
       "  storyboard [runId]   write storyboard.json/md",
@@ -639,6 +758,757 @@ function cmdMemoryExport(redacted: boolean): void {
   writeFileSync(output, `${lines.join("\n")}${lines.length ? "\n" : ""}`, "utf8");
   appendFileSync(join(MEMORY_DIR, "redaction.log"), `${new Date().toISOString()} export-redacted count=${lines.length}\n`, "utf8");
   console.log(`proofloop: wrote ${rel(output)}`);
+}
+
+function cmdGoal(args: string[]): void {
+  const [target, goalId, ...rest] = args;
+  if (!target) return usage("usage: proofloop goal <init|status|next|block> <goal-id>");
+  if (!goalId) return usage(`usage: proofloop goal ${target} <goal-id>`);
+  switch (target) {
+    case "init":
+      return cmdGoalInit(goalId, rest);
+    case "status":
+      return cmdGoalStatus(goalId);
+    case "next":
+      return cmdGoalNext(goalId);
+    case "block":
+      return cmdGoalBlock(goalId, rest);
+    default:
+      return usage(`unknown goal target: ${target}`);
+  }
+}
+
+function cmdGoalInit(goalIdArg: string, args: string[]): void {
+  const goalId = normalizeGoalId(goalIdArg);
+  if (!goalId) return;
+  const paths = ensureGoal(goalId, {
+    maxHours: Number(optionValue(args, "--max-hours") ?? 72),
+    budgetUsd: optionNumber(args, "--budget-usd"),
+    requiresShippingProof: hasFlag(args, "--shipping"),
+  });
+  console.log(`proofloop: goal initialized at ${rel(paths.root)}`);
+}
+
+function cmdGoalStatus(goalIdArg: string): void {
+  const goalId = normalizeGoalId(goalIdArg);
+  if (!goalId) return;
+  const paths = ensureGoal(goalId);
+  const state = readGoalState(paths);
+  const queue = readGoalQueue(paths);
+  const blockers = readGoalBlockers(paths);
+  const next = nextRunnableTask(queue);
+  console.log(JSON.stringify({
+    goalId,
+    state: state.state,
+    terminal: isTerminalGoalState(state.state),
+    latestRunId: state.latestRunId ?? null,
+    latestGate: state.latestGate ?? null,
+    queue: queueCounts(queue),
+    blockers: blockers.blockers.length,
+    next: next ? { id: next.id, bucket: next.bucket, command: next.command ?? null } : null,
+  }, null, 2));
+}
+
+function cmdGoalNext(goalIdArg: string): void {
+  const goalId = normalizeGoalId(goalIdArg);
+  if (!goalId) return;
+  const paths = ensureGoal(goalId);
+  const queue = readGoalQueue(paths);
+  const task = nextRunnableTask(queue);
+  if (!task) {
+    console.log(`proofloop: no unblocked task for goal ${goalId}`);
+    return;
+  }
+  console.log(JSON.stringify(task, null, 2));
+}
+
+function cmdGoalBlock(goalIdArg: string, args: string[]): void {
+  const goalId = normalizeGoalId(goalIdArg);
+  if (!goalId) return;
+  const paths = ensureGoal(goalId);
+  const queue = readGoalQueue(paths);
+  const task = optionValue(args, "--task") ? findTask(queue, optionValue(args, "--task") ?? "")?.task : nextRunnableTask(queue);
+  const blocker = blockerFromArgs(args, task) ?? classifyLatestExternalBlocker(paths, task);
+  if (!blocker) {
+    console.error("proofloop: blocker requires --type, --evidence, and --resume-command, or a latest Proof Loop run with a known external blocker");
+    process.exitCode = 1;
+    return;
+  }
+  recordGoalBlocker(paths, blocker, task);
+  console.log(`proofloop: recorded blocker ${blocker.type}${blocker.name ? ` (${blocker.name})` : ""}`);
+}
+
+function cmdGate(args: string[]): void {
+  const goalId = optionValue(args, "--goal") ?? args[0];
+  if (!goalId) return usage("usage: proofloop gate --goal <goal-id>");
+  const normalized = normalizeGoalId(goalId);
+  if (!normalized) return;
+  const paths = ensureGoal(normalized);
+  const result = evaluateGoalGate(paths, { shipping: hasFlag(args, "--shipping") });
+  const state = readGoalState(paths);
+  state.latestGate = {
+    passed: result.passed,
+    checkedAt: new Date().toISOString(),
+    missing: result.missing,
+  };
+  if (result.passed) {
+    state.state = "passed";
+    state.completedAt = state.completedAt ?? state.latestGate.checkedAt;
+  }
+  writeGoalState(paths, state);
+  appendGoalLedger(paths, "gate_checked", { passed: result.passed, missing: result.missing });
+  if (result.passed) {
+    console.log(`proofloop gate: PASS goal=${normalized}`);
+    return;
+  }
+  console.error(`proofloop gate: FAIL goal=${normalized}`);
+  for (const missing of result.missing) console.error(`  - ${missing}`);
+  process.exitCode = 1;
+}
+
+function cmdSupervise(args: string[]): void {
+  const goalId = optionValue(args, "--goal") ?? args[0];
+  if (!goalId) return usage("usage: proofloop supervise --goal <goal-id>");
+  const normalized = normalizeGoalId(goalId);
+  if (!normalized) return;
+  const paths = ensureGoal(normalized, {
+    maxHours: Number(optionValue(args, "--max-hours") ?? 72),
+    budgetUsd: optionNumber(args, "--budget-usd"),
+    requiresShippingProof: hasFlag(args, "--shipping"),
+  });
+  detectStalledWorker(paths);
+  let state = readGoalState(paths);
+  if (isTerminalGoalState(state.state)) {
+    console.log(`proofloop: goal ${normalized} is already terminal (${state.state})`);
+    return;
+  }
+  state.state = "running";
+  state.startedAt = state.startedAt ?? new Date().toISOString();
+  writeGoalState(paths, state);
+
+  const maxIterations = Number(optionValue(args, "--max-iterations") ?? 100);
+  const once = hasFlag(args, "--once");
+  for (let iteration = 0; iteration < maxIterations; iteration += 1) {
+    writeGoalHeartbeat(paths, "supervisor", { iteration });
+    state = readGoalState(paths);
+    if (isTerminalGoalState(state.state)) break;
+    if (budgetExceeded(state)) {
+      markGoalState(paths, "budget_exhausted", { spentUsd: state.spentUsd, budgetUsd: state.budgetUsd });
+      break;
+    }
+    if (maxHoursExceeded(state)) {
+      markGoalState(paths, "budget_exhausted", { reason: "max-hours exceeded", maxHours: state.maxHours });
+      break;
+    }
+
+    const gate = evaluateGoalGate(paths);
+    if (gate.passed) {
+      markGoalState(paths, "passed", { gate });
+      break;
+    }
+
+    const queue = readGoalQueue(paths);
+    const task = nextRunnableTask(queue);
+    if (!task) {
+      const openRequired = requiredOpenTasks(queue);
+      const blockedRequired = queue.blocked.filter((item) => item.required);
+      if (blockedRequired.length && openRequired.length === blockedRequired.length) {
+        markGoalState(paths, "blocked_external", { blockedRequired: blockedRequired.map((item) => item.id) });
+      } else {
+        markGoalState(paths, "failed", { reason: "gate failed and no unblocked queue item remains", missing: gate.missing });
+      }
+      break;
+    }
+
+    runGoalTask(paths, task);
+    if (once) break;
+  }
+
+  const finalState = readGoalState(paths);
+  console.log(`proofloop: supervisor goal=${normalized} state=${finalState.state}`);
+  if (!isTerminalGoalState(finalState.state)) process.exitCode = 1;
+}
+
+function cmdResume(args: string[]): void {
+  const goalId = optionValue(args, "--goal") ?? args[0];
+  if (!goalId) return usage("usage: proofloop resume --goal <goal-id>");
+  const normalized = normalizeGoalId(goalId);
+  if (!normalized) return;
+  const paths = ensureGoal(normalized);
+  detectStalledWorker(paths);
+  writeGoalHeartbeat(paths, "resume_prompt", {});
+  const queue = readGoalQueue(paths);
+  const task = nextRunnableTask(queue);
+  const latest = readGoalState(paths).latestRunId ?? resolveRun("latest")?.runId ?? "latest";
+  console.log(renderResumePrompt(normalized, task, latest));
+}
+
+function normalizeGoalId(goalId: string): string | undefined {
+  if (!/^[A-Za-z0-9._-]+$/.test(goalId)) {
+    console.error("proofloop: goal id must use only letters, numbers, dot, underscore, or dash");
+    process.exitCode = 1;
+    return undefined;
+  }
+  return goalId;
+}
+
+function goalPaths(goalId: string): GoalPaths {
+  const root = join(GOALS_DIR, goalId);
+  return {
+    root,
+    state: join(root, "state.json"),
+    ledger: join(root, "ledger.jsonl"),
+    queue: join(root, "queue.json"),
+    blockers: join(root, "blockers.json"),
+    heartbeats: join(root, "heartbeats.jsonl"),
+  };
+}
+
+function ensureGoal(goalId: string, options: { maxHours?: number; budgetUsd?: number; requiresShippingProof?: boolean } = {}): GoalPaths {
+  const paths = goalPaths(goalId);
+  mkdirSync(paths.root, { recursive: true });
+  const now = new Date().toISOString();
+  let created = false;
+  if (!existsSync(paths.state)) {
+    const state: GoalStateFile = {
+      schema: 1,
+      goalId,
+      state: "queued",
+      createdAt: now,
+      updatedAt: now,
+      maxHours: Number.isFinite(options.maxHours) ? options.maxHours ?? 72 : 72,
+      budgetUsd: options.budgetUsd,
+      heartbeatTimeoutMinutes: DEFAULT_SUPERVISOR_POLICY.heartbeatTimeoutMinutes,
+      maxStalls: DEFAULT_SUPERVISOR_POLICY.maxStalls,
+      maxRetriesPerTask: DEFAULT_SUPERVISOR_POLICY.maxRetriesPerTask,
+      stallCount: 0,
+      requiresShippingProof: options.requiresShippingProof ?? false,
+      spentUsd: 0,
+    };
+    writeJson(paths.state, state);
+    created = true;
+  }
+  if (!existsSync(paths.queue)) writeJson(paths.queue, defaultGoalQueue(goalId));
+  if (!existsSync(paths.blockers)) writeJson(paths.blockers, { schema: 1, goalId, blockers: [] } satisfies GoalBlockers);
+  if (!existsSync(paths.ledger)) writeFileSync(paths.ledger, "", "utf8");
+  if (!existsSync(paths.heartbeats)) writeFileSync(paths.heartbeats, "", "utf8");
+  if (created) {
+    appendGoalLedger(paths, "goal_initialized", { state: "queued" });
+    writeGoalHeartbeat(paths, "supervisor", { event: "goal_initialized" });
+  }
+  return paths;
+}
+
+function defaultGoalQueue(goalId: string): GoalQueue {
+  const now = new Date().toISOString();
+  const task = (id: string, title: string, bucket: GoalTaskBucket, command: string | undefined, required = true): GoalTask => ({
+    id,
+    title,
+    command,
+    bucket,
+    required,
+    retries: 0,
+    maxRetries: DEFAULT_SUPERVISOR_POLICY.maxRetriesPerTask,
+    createdAt: now,
+    updatedAt: now,
+  });
+  return {
+    schema: 1,
+    goalId,
+    must_do_now: [
+      task("typecheck", "TypeScript typecheck", "must_do_now", "npm run typecheck -- --pretty false"),
+      task("proofloop-focused-tests", "Proof Loop focused tests", "must_do_now", "npm test -- --run tests/proofloopArtifacts.test.ts tests/proofloopLoopArtifacts.test.ts tests/proofloopPipeline.test.ts"),
+      task("nodeagent-trace-frame-tests", "NodeAgent trace/frame tests", "must_do_now", "npm test -- --run tests/nodeagentTraceSpine.test.ts tests/frameRunner.test.ts"),
+      task("nodeagent-frame-smoke", "NodeAgent frame smoke", "must_do_now", "npm run nodeagent:frame:smoke"),
+      task("omnigent-nodeagent-smoke", "Omnigent NodeAgent smoke", "must_do_now", "npm run omnigent:nodeagent:smoke"),
+      task("memory-doctor", "NodeMem local-first memory doctor", "must_do_now", "npm run proofloop -- memory doctor"),
+      task("bankertoolbench-live", "BankerToolBench strict live proof", "must_do_now", "npm run proofloop -- run bankertoolbench"),
+    ],
+    blocked: [],
+    unblocked_next: [
+      task("finch-live", "Finch strict live proof", "unblocked_next", "npm run proofloop -- run finch"),
+      task("finauditing-live", "FinAuditing strict live proof", "unblocked_next", "npm run proofloop -- run finauditing"),
+      task("workstreambench-live", "WorkstreamBench strict live proof", "unblocked_next", "npm run proofloop -- run workstreambench"),
+      task("memory-index", "NodeMem searchable index", "unblocked_next", "npm run proofloop -- memory index"),
+    ],
+    nice_to_have: [
+      task("trace-storybook", "Trace Storybook deterministic trace atoms", "nice_to_have", undefined, false),
+      task("model-delta-reports", "Model-delta reports", "nice_to_have", undefined, false),
+      task("prototype-mode", "Prototype-to-proof mode", "nice_to_have", undefined, false),
+      task("design-adapters", "Open Design/Open CoDesign adapters", "nice_to_have", undefined, false),
+      task("ci-hardening", "CI/deploy proof hardening", "nice_to_have", undefined, false),
+    ],
+    done: [],
+  };
+}
+
+function readGoalState(paths: GoalPaths): GoalStateFile {
+  return JSON.parse(readFileSync(paths.state, "utf8")) as GoalStateFile;
+}
+
+function writeGoalState(paths: GoalPaths, state: GoalStateFile): void {
+  state.updatedAt = new Date().toISOString();
+  writeJson(paths.state, state);
+}
+
+function readGoalQueue(paths: GoalPaths): GoalQueue {
+  return JSON.parse(readFileSync(paths.queue, "utf8")) as GoalQueue;
+}
+
+function writeGoalQueue(paths: GoalPaths, queue: GoalQueue): void {
+  writeJson(paths.queue, queue);
+}
+
+function readGoalBlockers(paths: GoalPaths): GoalBlockers {
+  return JSON.parse(readFileSync(paths.blockers, "utf8")) as GoalBlockers;
+}
+
+function writeGoalBlockers(paths: GoalPaths, blockers: GoalBlockers): void {
+  writeJson(paths.blockers, blockers);
+}
+
+function appendGoalLedger(paths: GoalPaths, event: string, data: Record<string, unknown>): void {
+  appendJsonl(paths.ledger, {
+    schema: 1,
+    ts: new Date().toISOString(),
+    event,
+    ...data,
+  });
+}
+
+function writeGoalHeartbeat(paths: GoalPaths, workerId: string, data: Record<string, unknown>): void {
+  appendJsonl(paths.heartbeats, {
+    schema: 1,
+    ts: new Date().toISOString(),
+    workerId,
+    ...data,
+  });
+}
+
+function detectStalledWorker(paths: GoalPaths): void {
+  const state = readGoalState(paths);
+  if (isTerminalGoalState(state.state) || !existsSync(paths.heartbeats)) return;
+  const last = readLastJsonl<{ ts?: string }>(paths.heartbeats);
+  if (!last?.ts) return;
+  const ageMs = Date.now() - Date.parse(last.ts);
+  if (ageMs < state.heartbeatTimeoutMinutes * 60_000) return;
+  state.stallCount += 1;
+  state.state = state.stallCount >= state.maxStalls ? "needs_human_approval" : state.state;
+  writeGoalState(paths, state);
+  appendGoalLedger(paths, "worker_stalled", {
+    ageMs,
+    heartbeatTimeoutMinutes: state.heartbeatTimeoutMinutes,
+    stallCount: state.stallCount,
+    terminal: state.state === "needs_human_approval",
+  });
+}
+
+function readLastJsonl<T>(path: string): T | undefined {
+  if (!existsSync(path)) return undefined;
+  const lines = readFileSync(path, "utf8").split("\n").filter(Boolean);
+  if (!lines.length) return undefined;
+  try {
+    return JSON.parse(lines[lines.length - 1]) as T;
+  } catch {
+    return undefined;
+  }
+}
+
+function isTerminalGoalState(state: GoalState): boolean {
+  return TERMINAL_GOAL_STATES.includes(state);
+}
+
+function queueCounts(queue: GoalQueue): Record<GoalTaskBucket, number> {
+  return {
+    must_do_now: queue.must_do_now.length,
+    blocked: queue.blocked.length,
+    unblocked_next: queue.unblocked_next.length,
+    nice_to_have: queue.nice_to_have.length,
+    done: queue.done.length,
+  };
+}
+
+function nextRunnableTask(queue: GoalQueue): GoalTask | undefined {
+  return [...queue.must_do_now, ...queue.unblocked_next].find((task) => Boolean(task.command));
+}
+
+function requiredOpenTasks(queue: GoalQueue): GoalTask[] {
+  return [...queue.must_do_now, ...queue.blocked, ...queue.unblocked_next, ...queue.nice_to_have].filter((task) => task.required);
+}
+
+function findTask(queue: GoalQueue, taskId: string): { task: GoalTask; bucket: GoalTaskBucket } | undefined {
+  for (const bucket of ["must_do_now", "blocked", "unblocked_next", "nice_to_have", "done"] as GoalTaskBucket[]) {
+    const task = queue[bucket].find((item) => item.id === taskId);
+    if (task) return { task, bucket };
+  }
+  return undefined;
+}
+
+function moveTask(queue: GoalQueue, taskId: string, target: GoalTaskBucket, update: Partial<GoalTask> = {}): GoalTask | undefined {
+  const found = findTask(queue, taskId);
+  if (!found) return undefined;
+  for (const bucket of ["must_do_now", "blocked", "unblocked_next", "nice_to_have", "done"] as GoalTaskBucket[]) {
+    queue[bucket] = queue[bucket].filter((task) => task.id !== taskId);
+  }
+  const moved: GoalTask = {
+    ...found.task,
+    ...update,
+    bucket: target,
+    updatedAt: new Date().toISOString(),
+  };
+  queue[target].push(moved);
+  return moved;
+}
+
+function prependTask(queue: GoalQueue, task: GoalTask): void {
+  for (const bucket of ["must_do_now", "blocked", "unblocked_next", "nice_to_have", "done"] as GoalTaskBucket[]) {
+    queue[bucket] = queue[bucket].filter((item) => item.id !== task.id);
+  }
+  queue.must_do_now.unshift({ ...task, bucket: "must_do_now", updatedAt: new Date().toISOString() });
+}
+
+function runGoalTask(paths: GoalPaths, task: GoalTask): void {
+  if (!task.command) {
+    const queue = readGoalQueue(paths);
+    moveTask(queue, task.id, "done");
+    writeGoalQueue(paths, queue);
+    appendGoalLedger(paths, "task_done", { taskId: task.id, skipped: true });
+    return;
+  }
+
+  markGoalState(paths, "running", { taskId: task.id, command: task.command });
+  appendGoalLedger(paths, "task_started", { taskId: task.id, command: task.command, retries: task.retries });
+  const beforeRunIds = new Set(listRuns().map((run) => run.runId));
+  const result = spawnSync(task.command, {
+    cwd: ROOT,
+    shell: true,
+    encoding: "utf8",
+    maxBuffer: 1024 * 1024 * 20,
+    env: process.env,
+  });
+  const stdout = String(result.stdout ?? "");
+  const stderr = String(result.stderr ?? "");
+  if (stdout) process.stdout.write(stdout);
+  if (stderr) process.stderr.write(stderr);
+
+  const newRun = listRuns()
+    .filter((run) => !beforeRunIds.has(run.runId))
+    .sort((a, b) => b.startedAt.localeCompare(a.startedAt))[0];
+  if (newRun) {
+    const state = readGoalState(paths);
+    state.latestRunId = newRun.runId;
+    writeGoalState(paths, state);
+    initMemoryStore();
+    ensureLoopArtifacts(newRun, { memoryPath: MEMORY_PATH });
+  }
+
+  const exitCode = result.status ?? 1;
+  if (exitCode === 0) {
+    const queue = readGoalQueue(paths);
+    moveTask(queue, task.id, "done", { evidence: newRun ? rel(join(resolveRunDir(newRun), "meta.json")) : undefined });
+    writeGoalQueue(paths, queue);
+    appendGoalLedger(paths, "task_passed", { taskId: task.id, exitCode, latestRunId: newRun?.runId });
+    return;
+  }
+
+  const blocker = classifyExternalBlocker(paths, task, `${stdout}\n${stderr}`, newRun);
+  if (blocker) {
+    recordGoalBlocker(paths, blocker, task);
+    appendGoalLedger(paths, "task_blocked_external", { taskId: task.id, blocker });
+    return;
+  }
+
+  const queue = readGoalQueue(paths);
+  const retries = task.retries + 1;
+  if (retries > task.maxRetries) {
+    moveTask(queue, task.id, "blocked", { retries, blockerName: "max retries exceeded", evidence: newRun ? rel(join(resolveRunDir(newRun), "meta.json")) : undefined });
+    writeGoalQueue(paths, queue);
+    markGoalState(paths, "failed", { taskId: task.id, exitCode, retries, reason: "max retries exceeded" });
+    return;
+  }
+
+  moveTask(queue, task.id, task.bucket, { retries });
+  prependTask(queue, {
+    id: `repair-${task.id}-${retries}`,
+    title: `Repair ${task.title}`,
+    command: "npm run proofloop -- repair latest",
+    bucket: "must_do_now",
+    required: false,
+    retries: 0,
+    maxRetries: 1,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  });
+  writeGoalQueue(paths, queue);
+  markGoalState(paths, "repairing", { taskId: task.id, exitCode, retries });
+  appendGoalLedger(paths, "repair_task_created", { taskId: task.id, repairTaskId: `repair-${task.id}-${retries}` });
+}
+
+function recordGoalBlocker(paths: GoalPaths, blocker: GoalBlocker, task: GoalTask | undefined): void {
+  const blockers = readGoalBlockers(paths);
+  blockers.blockers.push(blocker);
+  writeGoalBlockers(paths, blockers);
+
+  const queue = readGoalQueue(paths);
+  if (task) {
+    moveTask(queue, task.id, "blocked", {
+      blockerType: blocker.type,
+      blockerName: blocker.name,
+      evidence: blocker.evidence,
+      resumeCommand: blocker.resumeCommand,
+    });
+  }
+  writeGoalQueue(paths, queue);
+
+  const unblockedRequired = requiredOpenTasks(queue).filter((item) => item.bucket !== "blocked");
+  const state = readGoalState(paths);
+  state.state = unblockedRequired.length ? "running" : "blocked_external";
+  writeGoalState(paths, state);
+  appendGoalLedger(paths, "blocker_recorded", { blocker });
+}
+
+function blockerFromArgs(args: string[], task: GoalTask | undefined): GoalBlocker | undefined {
+  const type = optionValue(args, "--type") as GoalBlocker["type"] | undefined;
+  const evidence = optionValue(args, "--evidence");
+  const resumeCommand = optionValue(args, "--resume-command");
+  if (!type || !evidence || !resumeCommand) return undefined;
+  if (!isGoalBlockerType(type)) return undefined;
+  return {
+    type,
+    name: optionValue(args, "--name"),
+    evidence,
+    resumeCommand,
+    unblockedTasksRemaining: parseBooleanOption(args, "--unblocked-tasks-remaining", true),
+    taskId: optionValue(args, "--task") ?? task?.id,
+    recordedAt: new Date().toISOString(),
+  };
+}
+
+function classifyLatestExternalBlocker(paths: GoalPaths, task: GoalTask | undefined): GoalBlocker | undefined {
+  const state = readGoalState(paths);
+  const latest = state.latestRunId ? resolveRun(state.latestRunId) : resolveRun("latest");
+  return classifyExternalBlocker(paths, task, "", latest);
+}
+
+function classifyExternalBlocker(paths: GoalPaths, task: GoalTask | undefined, output: string, latestRun: RunMeta | undefined): GoalBlocker | undefined {
+  const queue = readGoalQueue(paths);
+  const unblockedTasksRemaining = requiredOpenTasks(queue).some((item) => item.id !== task?.id && item.bucket !== "blocked");
+  const runDir = latestRun ? resolveRunDir(latestRun) : undefined;
+  const officialReceiptPath = runDir ? join(runDir, "official-scorer-receipt.json") : undefined;
+  const officialReceipt = officialReceiptPath ? readJsonIfExists<{ status?: string; blocker?: string; sourceReceipt?: { blockers?: string[] } }>(officialReceiptPath) : null;
+  const evidence = officialReceiptPath && existsSync(officialReceiptPath)
+    ? rel(officialReceiptPath)
+    : latestRun ? rel(join(resolveRunDir(latestRun), "meta.json")) : paths.ledger;
+  const command = task?.command ?? "npm run proofloop -- run bankertoolbench";
+  const lower = `${output}\n${officialReceipt?.blocker ?? ""}\n${officialReceipt?.sourceReceipt?.blockers?.join("\n") ?? ""}`.toLowerCase();
+
+  if (/btb_ui_bundle_root does not exist|official bankertoolbench fixture|btb-fixture/.test(lower)) {
+    return {
+      type: "missing_dataset",
+      name: "official BankerToolBench fixture bundle",
+      evidence,
+      resumeCommand: "BTB_UI_BUNDLE_ROOT=.tmp/official-benchmarks/btb-fixture npm run proofloop -- run bankertoolbench",
+      unblockedTasksRemaining,
+      taskId: task?.id,
+      recordedAt: new Date().toISOString(),
+    };
+  }
+  if (/browserscenario does not exist|official scorer command is not configured|not implemented in this repo yet/.test(lower)) {
+    return {
+      type: "missing_official_scorer",
+      name: task ? `${task.title} adapter/scorer` : "official scorer adapter",
+      evidence,
+      resumeCommand: command,
+      unblockedTasksRemaining,
+      taskId: task?.id,
+      recordedAt: new Date().toISOString(),
+    };
+  }
+  if (/credential|api key|auth|login required|unauthorized/.test(lower)) {
+    return {
+      type: "missing_credential",
+      name: "credential required by proof command",
+      evidence,
+      resumeCommand: command,
+      unblockedTasksRemaining,
+      taskId: task?.id,
+      recordedAt: new Date().toISOString(),
+    };
+  }
+  if (/paid service|billing|quota|payment required/.test(lower)) {
+    return {
+      type: "paid_service_required",
+      name: "paid service requirement",
+      evidence,
+      resumeCommand: command,
+      unblockedTasksRemaining,
+      taskId: task?.id,
+      recordedAt: new Date().toISOString(),
+    };
+  }
+  if (/service unavailable|econnreset|etimedout|external service down/.test(lower)) {
+    return {
+      type: "external_service_down",
+      name: "external service unavailable",
+      evidence,
+      resumeCommand: command,
+      unblockedTasksRemaining,
+      taskId: task?.id,
+      recordedAt: new Date().toISOString(),
+    };
+  }
+  return undefined;
+}
+
+function isGoalBlockerType(value: string): value is GoalBlocker["type"] {
+  return [
+    "missing_credential",
+    "missing_dataset",
+    "missing_official_scorer",
+    "paid_service_required",
+    "destructive_approval_required",
+    "external_service_down",
+  ].includes(value);
+}
+
+function evaluateGoalGate(paths: GoalPaths, options: { shipping?: boolean } = {}): { passed: boolean; missing: string[] } {
+  const state = readGoalState(paths);
+  const queue = readGoalQueue(paths);
+  const blockers = readGoalBlockers(paths);
+  const missing: string[] = [];
+
+  for (const task of requiredOpenTasks(queue)) {
+    missing.push(`${task.bucket === "blocked" ? "required task blocked" : "required task open"}: ${task.id}`);
+  }
+  if (blockers.blockers.length) missing.push(`known blockers remain: ${blockers.blockers.map((blocker) => blocker.type).join(", ")}`);
+
+  const latest = state.latestRunId ? resolveRun(state.latestRunId) : resolveRun("latest");
+  if (!latest) {
+    missing.push("latest proof run missing");
+  } else {
+    const runDir = resolveRunDir(latest);
+    if (!latest.passed) missing.push(`latest proof run did not pass: ${latest.runId}`);
+    for (const artifact of ["node-trace-v2.json", "node-eval.json", "scorecard.md"]) {
+      if (!existsSync(join(runDir, artifact))) missing.push(`${artifact} missing for ${latest.runId}`);
+    }
+    if (!memoryContainsRun(latest.runId)) missing.push(`NodeMem write missing for ${latest.runId}`);
+    if (isLiveRun(latest)) {
+      const contract = readJsonIfExists<{ valid?: boolean }>(join(runDir, "live-user-contract.json"));
+      if (contract?.valid !== true) missing.push(`live-user proof missing or invalid for ${latest.runId}`);
+      if (!existsSync(join(runDir, "verifier-receipt.json"))) missing.push(`verifier receipt missing for ${latest.runId}`);
+      if (!hasAnyFile(join(runDir, "screenshots"))) missing.push(`browser visual evidence missing for ${latest.runId}`);
+      if (!fileHasBytesLocal(join(runDir, "cockpit-events.jsonl"))) missing.push(`cockpit events missing for ${latest.runId}`);
+    }
+    if (readBenchmarkAdapterIfExists(latest.suite) || existsSync(join(runDir, "official-scorer-receipt.json"))) {
+      const receipt = readJsonIfExists<{ passed?: boolean; status?: string }>(join(runDir, "official-scorer-receipt.json"));
+      if (receipt?.passed !== true) missing.push(`official scorer receipt missing or failing for ${latest.runId}`);
+    }
+  }
+
+  if ((state.requiresShippingProof || options.shipping) && !existsSync(join(paths.root, "ci-deploy-proof.json"))) {
+    missing.push("CI/deploy proof missing for shipping goal");
+  }
+  if (state.state !== "passed" && isTerminalGoalState(state.state)) missing.push(`goal terminal state is ${state.state}, not passed`);
+
+  return { passed: missing.length === 0, missing };
+}
+
+function isLiveRun(meta: RunMeta): boolean {
+  return /live|browser|btb|banker|playwright|--prod|ui/i.test(`${meta.suite} ${meta.cmd}`);
+}
+
+function memoryContainsRun(runId: string): boolean {
+  const memoryFiles = [
+    MEMORY_PATH,
+    LEGACY_MEMORY_PATH,
+    join(MEMORY_COMPACTED_DIR, "episodes.jsonl"),
+    join(MEMORY_COMPACTED_DIR, "failures.jsonl"),
+  ];
+  return memoryFiles.some((path) => existsSync(path) && readFileSync(path, "utf8").includes(runId));
+}
+
+function hasAnyFile(path: string): boolean {
+  if (!existsSync(path)) return false;
+  const stat = statSync(path);
+  if (stat.isFile()) return stat.size > 0;
+  return readdirSync(path, { withFileTypes: true }).some((entry) => entry.isFile() && statSync(join(path, entry.name)).size > 0);
+}
+
+function fileHasBytesLocal(path: string): boolean {
+  return existsSync(path) && statSync(path).isFile() && statSync(path).size > 0;
+}
+
+function markGoalState(paths: GoalPaths, goalState: GoalState, data: Record<string, unknown>): void {
+  const state = readGoalState(paths);
+  state.state = goalState;
+  if (isTerminalGoalState(goalState)) state.completedAt = new Date().toISOString();
+  writeGoalState(paths, state);
+  appendGoalLedger(paths, "state_changed", { state: goalState, ...data });
+}
+
+function budgetExceeded(state: GoalStateFile): boolean {
+  return typeof state.budgetUsd === "number" && state.spentUsd > state.budgetUsd;
+}
+
+function maxHoursExceeded(state: GoalStateFile): boolean {
+  if (!state.startedAt) return false;
+  return Date.now() - Date.parse(state.startedAt) > state.maxHours * 60 * 60 * 1000;
+}
+
+function renderResumePrompt(goalId: string, task: GoalTask | undefined, latestRunId: string): string {
+  return [
+    "You are resuming a Proof Loop goal.",
+    "",
+    "Do not summarize and stop.",
+    "Read:",
+    `- .proofloop/goals/${goalId}/state.json`,
+    `- .proofloop/goals/${goalId}/ledger.jsonl`,
+    "- latest scorecard",
+    `- .proofloop/goals/${goalId}/blockers.json`,
+    `- .proofloop/goals/${goalId}/queue.json`,
+    "",
+    "Continue the next unblocked task.",
+    "",
+    "You may stop only if:",
+    `1. proofloop gate --goal ${goalId} passes, or`,
+    "2. all remaining tasks are blocked by explicit external requirements.",
+    "",
+    "Return BLOCKED only with:",
+    "- exact missing requirement",
+    "- exact resume command",
+    "- completed deterministic work",
+    "- next unblocked task if any.",
+    "",
+    `latestRunId: ${latestRunId}`,
+    `nextTask: ${task ? `${task.id} :: ${task.command ?? task.title}` : "none"}`,
+  ].join("\n");
+}
+
+function optionValue(args: string[], name: string): string | undefined {
+  const prefix = `${name}=`;
+  let value: string | undefined;
+  for (let index = 0; index < args.length; index += 1) {
+    if (args[index] === name && args[index + 1]) value = args[index + 1];
+    else if (args[index].startsWith(prefix)) value = args[index].slice(prefix.length);
+  }
+  return value;
+}
+
+function optionNumber(args: string[], name: string): number | undefined {
+  const value = optionValue(args, name);
+  if (value === undefined) return undefined;
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : undefined;
+}
+
+function hasFlag(args: string[], name: string): boolean {
+  return args.includes(name);
+}
+
+function parseBooleanOption(args: string[], name: string, fallback: boolean): boolean {
+  const value = optionValue(args, name);
+  if (value === undefined) return fallback;
+  return /^(1|true|yes)$/i.test(value);
 }
 
 function cmdStorybook(runIdArg: string | undefined): void {
