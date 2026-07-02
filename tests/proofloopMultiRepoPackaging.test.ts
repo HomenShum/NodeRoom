@@ -33,6 +33,8 @@ describe("Proof Loop multi-repo packaging", () => {
     expect(manifest.files.some((file) => file.startsWith(".proofloop/"))).toBe(false);
     expect(manifest.files.some((file) => file.startsWith("docs/eval/fresh-room/"))).toBe(false);
     expect(manifest.publishCommands.join("\n")).toContain("--public");
+    expect(manifest.publishCommands.join("\n")).toContain("git -C .proofloop/packages/public-core/repo init -b main");
+    expect(manifest.publishCommands.join("\n")).toContain("--push");
   });
 
   it("builds a private hosted manifest that records missing hosted components", () => {

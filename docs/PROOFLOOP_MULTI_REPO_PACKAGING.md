@@ -88,22 +88,25 @@ npm run proofloop:package -- private-hosted --copy
 Create remotes only after repo names and ownership are confirmed:
 
 ```bash
-gh repo create HomenShum/proofloop --public --source .proofloop/packages/public-core/repo --remote public-core
-gh repo create HomenShum/proofloop-hosted --private --source .proofloop/packages/private-hosted/repo --remote private-hosted
+git -C .proofloop/packages/public-core/repo init -b main
+git -C .proofloop/packages/public-core/repo add .
+git -C .proofloop/packages/public-core/repo commit -m "chore: publish Proof Loop public-core package"
+gh repo create HomenShum/proofloop --public --source .proofloop/packages/public-core/repo --remote origin --push
+
+git -C .proofloop/packages/private-hosted/repo init -b main
+git -C .proofloop/packages/private-hosted/repo add .
+git -C .proofloop/packages/private-hosted/repo commit -m "chore: publish Proof Loop private-hosted package"
+gh repo create HomenShum/proofloop-hosted --private --source .proofloop/packages/private-hosted/repo --remote origin --push
 ```
 
-Push:
+If the GitHub repositories already exist, add remotes and push instead of
+creating them:
 
 ```bash
-git -C .proofloop/packages/public-core/repo push -u public-core main
-git -C .proofloop/packages/private-hosted/repo push -u private-hosted main
-```
-
-If the GitHub repositories already exist, add remotes instead of creating them:
-
-```bash
-git -C .proofloop/packages/public-core/repo remote add public-core https://github.com/HomenShum/proofloop.git
-git -C .proofloop/packages/private-hosted/repo remote add private-hosted https://github.com/HomenShum/proofloop-hosted.git
+git -C .proofloop/packages/public-core/repo remote add origin https://github.com/HomenShum/proofloop.git
+git -C .proofloop/packages/public-core/repo push -u origin main
+git -C .proofloop/packages/private-hosted/repo remote add origin https://github.com/HomenShum/proofloop-hosted.git
+git -C .proofloop/packages/private-hosted/repo push -u origin main
 ```
 
 ## Proof Rule
