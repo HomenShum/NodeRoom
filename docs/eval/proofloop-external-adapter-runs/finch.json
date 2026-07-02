@@ -1,0 +1,46 @@
+{
+  "schema": "proofloop-external-adapter-product-proof-v1",
+  "adapterId": "finch",
+  "status": "passed",
+  "runId": "finch-2026-07-02T09-00-52-643Z",
+  "generatedAt": "2026-07-02T09:00:59.233Z",
+  "localAdapterOnly": true,
+  "officialScoreClaim": false,
+  "taskCount": 1,
+  "baseUrl": "https://noderoom.live",
+  "scenario": "proofloop/benchmarks/finch/browser-scenario.spec.ts",
+  "outputDir": ".proofloop/runs/finch-2026-07-02T09-00-52-643Z/external-adapter/finch",
+  "exitCode": 0,
+  "evidence": [
+    "proofloop/benchmarks/finch/load-tasks.ts",
+    "proofloop/benchmarks/finch/browser-scenario.spec.ts",
+    ".proofloop/runs/finch-2026-07-02T09-00-52-643Z/external-adapter/finch/browser-proof.json",
+    ".proofloop/runs/finch-2026-07-02T09-00-52-643Z/external-adapter/finch/local-task-manifest.json",
+    ".proofloop/runs/finch-2026-07-02T09-00-52-643Z/external-adapter/finch/visual-proof.png"
+  ],
+  "failedGates": [],
+  "browserProof": {
+    "url": "https://noderoom.live/#story",
+    "title": "NodeRoom — live collaborative room with NodeAgents",
+    "visibleSignals": {
+      "variance": "3,250",
+      "demoVisible": true,
+      "computedVisible": true,
+      "finalVisible": true
+    },
+    "problemCounts": {
+      "pageErrors": 0,
+      "consoleProblems": 0,
+      "requestFailures": 0,
+      "badResponses": 0
+    }
+  },
+  "officialSemanticScore": {
+    "status": "blocked_external",
+    "blockers": [
+      "finch: official scorer receipt docs/eval/proofloop-official-scores/finch.json is not imported yet.",
+      "finch: official task bundle lock .tmp/official-benchmarks/finch/manifest.json is not staged yet."
+    ],
+    "verifierCommand": "npm run benchmark:proofloop:adapter-blockers -- --id finch --strict"
+  }
+}

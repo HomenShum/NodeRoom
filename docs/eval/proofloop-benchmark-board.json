@@ -1,17 +1,17 @@
 {
   "schema": 1,
-  "generatedAt": "2026-07-02T00:24:31.878Z",
+  "generatedAt": "2026-07-02T08:58:45.054Z",
   "policy": [
     "Product-path completion is useful proof: real UI, visible progress, artifacts, verifier receipts, trace, memory, and browser evidence.",
     "Official semantic score is only claimed when the benchmark's official scorer/verifier result is imported.",
     "Docker/Harbor isolation can block official score promotion; it must not block product-path Proof Loop runs.",
-    "Registered external adapters are backlog inventory until their live browser scenario and verifier implementation exist."
+    "External benchmark adapters can prove local app-agnostic product paths before official score promotion; the two claims must stay separate."
   ],
   "summary": {
     "total": 9,
-    "productPathProven": 4,
+    "productPathProven": 7,
     "productPathReadyToRun": 2,
-    "externalAdaptersRegistered": 3,
+    "externalAdaptersRegistered": 0,
     "officialScoresClaimed": 1,
     "officialScoresNotApplicable": 4,
     "officialScoresBlockedOrNotClaimed": 4
@@ -208,17 +208,15 @@
       "family": "external_adapter",
       "liveUserContract": "required",
       "productPathCompletion": {
-        "status": "registered",
+        "status": "proven",
         "scoreType": "product_path_completion",
         "evidence": [
           "proofloop/benchmarks/finch/adapter.json",
+          "docs/eval/proofloop-external-adapter-runs/finch.json",
           "docs/eval/proofloop-adapter-blockers/finch.json"
         ],
         "command": "npm run proofloop -- run finch --prod --user-emulation strict --cockpit",
-        "blockers": [
-          "finch: missing implementation file proofloop/benchmarks/finch/load-tasks.ts",
-          "finch: missing implementation file proofloop/benchmarks/finch/browser-scenario.spec.ts"
-        ]
+        "blockers": []
       },
       "officialSemanticScore": {
         "status": "blocked",
@@ -229,17 +227,20 @@
         ],
         "command": "npm run benchmark:proofloop:adapter-blockers -- --id finch --strict",
         "blockers": [
-          "finch: missing implementation file proofloop/benchmarks/finch/load-tasks.ts",
-          "finch: missing implementation file proofloop/benchmarks/finch/browser-scenario.spec.ts"
+          "finch: official scorer receipt docs/eval/proofloop-official-scores/finch.json is not imported yet.",
+          "finch: official task bundle lock .tmp/official-benchmarks/finch/manifest.json is not staged yet."
         ],
         "metrics": {
-          "missingImplementationFiles": 2,
+          "missingImplementationFiles": 0,
+          "localAdapterTasks": 1,
+          "localAdapterOnly": true,
+          "officialScoreClaim": false,
           "officialSourceUrls": 3,
-          "resumeCommands": 5
+          "resumeCommands": 6
         }
       },
       "notes": [
-        "Adapter registration is useful backlog inventory; it is not a live proof claim."
+        "Local app-agnostic Proof Loop adapter has browser proof; official score is still blocked on upstream scorer import."
       ]
     },
     {
@@ -248,17 +249,15 @@
       "family": "external_adapter",
       "liveUserContract": "required",
       "productPathCompletion": {
-        "status": "registered",
+        "status": "proven",
         "scoreType": "product_path_completion",
         "evidence": [
           "proofloop/benchmarks/finauditing/adapter.json",
+          "docs/eval/proofloop-external-adapter-runs/finauditing.json",
           "docs/eval/proofloop-adapter-blockers/finauditing.json"
         ],
         "command": "npm run proofloop -- run finauditing --prod --user-emulation strict --cockpit",
-        "blockers": [
-          "finauditing: missing implementation file proofloop/benchmarks/finauditing/load-tasks.ts",
-          "finauditing: missing implementation file proofloop/benchmarks/finauditing/browser-scenario.spec.ts"
-        ]
+        "blockers": []
       },
       "officialSemanticScore": {
         "status": "blocked",
@@ -269,17 +268,20 @@
         ],
         "command": "npm run benchmark:proofloop:adapter-blockers -- --id finauditing --strict",
         "blockers": [
-          "finauditing: missing implementation file proofloop/benchmarks/finauditing/load-tasks.ts",
-          "finauditing: missing implementation file proofloop/benchmarks/finauditing/browser-scenario.spec.ts"
+          "finauditing: official scorer receipt docs/eval/proofloop-official-scores/finauditing.json is not imported yet.",
+          "finauditing: official task bundle lock .tmp/official-benchmarks/finauditing/manifest.json is not staged yet."
         ],
         "metrics": {
-          "missingImplementationFiles": 2,
+          "missingImplementationFiles": 0,
+          "localAdapterTasks": 1,
+          "localAdapterOnly": true,
+          "officialScoreClaim": false,
           "officialSourceUrls": 4,
-          "resumeCommands": 5
+          "resumeCommands": 6
         }
       },
       "notes": [
-        "Adapter registration is useful backlog inventory; it is not a live proof claim."
+        "Local app-agnostic Proof Loop adapter has browser proof; official score is still blocked on upstream scorer import."
       ]
     },
     {
@@ -288,17 +290,15 @@
       "family": "external_adapter",
       "liveUserContract": "required",
       "productPathCompletion": {
-        "status": "registered",
+        "status": "proven",
         "scoreType": "product_path_completion",
         "evidence": [
           "proofloop/benchmarks/workstreambench/adapter.json",
+          "docs/eval/proofloop-external-adapter-runs/workstreambench.json",
           "docs/eval/proofloop-adapter-blockers/workstreambench.json"
         ],
         "command": "npm run proofloop -- run workstreambench --prod --user-emulation strict --cockpit",
-        "blockers": [
-          "workstreambench: missing implementation file proofloop/benchmarks/workstreambench/load-tasks.ts",
-          "workstreambench: missing implementation file proofloop/benchmarks/workstreambench/browser-scenario.spec.ts"
-        ]
+        "blockers": []
       },
       "officialSemanticScore": {
         "status": "blocked",
@@ -309,17 +309,20 @@
         ],
         "command": "npm run benchmark:proofloop:adapter-blockers -- --id workstreambench --strict",
         "blockers": [
-          "workstreambench: missing implementation file proofloop/benchmarks/workstreambench/load-tasks.ts",
-          "workstreambench: missing implementation file proofloop/benchmarks/workstreambench/browser-scenario.spec.ts"
+          "workstreambench: official scorer receipt docs/eval/proofloop-official-scores/workstreambench.json is not imported yet.",
+          "workstreambench: official task bundle lock .tmp/official-benchmarks/workstreambench/manifest.json is not staged yet."
         ],
         "metrics": {
-          "missingImplementationFiles": 2,
+          "missingImplementationFiles": 0,
+          "localAdapterTasks": 1,
+          "localAdapterOnly": true,
+          "officialScoreClaim": false,
           "officialSourceUrls": 1,
-          "resumeCommands": 5
+          "resumeCommands": 6
         }
       },
       "notes": [
-        "Adapter registration is useful backlog inventory; it is not a live proof claim."
+        "Local app-agnostic Proof Loop adapter has browser proof; official score is still blocked on upstream scorer import."
       ]
     }
   ]

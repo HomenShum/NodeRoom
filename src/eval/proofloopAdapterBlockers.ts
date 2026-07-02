@@ -15,10 +15,14 @@ export type ExternalAdapterBlockerReceipt = {
   adapterId: BenchmarkAdapterId;
   name: string;
   status: ExternalAdapterBlockerStatus;
+  localImplementationStatus: "ready" | "missing";
+  officialScoreStatus: "imported" | "blocked_external";
   officialSourceUrls: string[];
   verifierCommand: string;
   liveUserCommand: string;
   missingImplementationFiles: string[];
+  officialScoreReceiptPath: string;
+  officialTaskBundleManifestPath: string;
   validationErrors: string[];
   blockers: string[];
   officialCommandPlan: string[];
@@ -41,9 +45,16 @@ export function buildExternalAdapterBlockerReceipt(args: {
     .filter((file) => !existsSync(join(root, file)));
   const officialSourceUrls = adapterSourceUrls(adapter);
   const officialCommandPlan = officialCommandsFor(adapter);
+  const officialScoreReceiptPath = `docs/eval/proofloop-official-scores/${adapter.id}.json`;
+  const officialTaskBundleManifestPath = `.tmp/official-benchmarks/${adapter.id}/manifest.json`;
+  const officialScoreBlockers = officialScoreBlockersFor(adapter, root, {
+    officialScoreReceiptPath,
+    officialTaskBundleManifestPath,
+  });
   const blockers = [
     ...validationErrors,
     ...missingImplementationFiles.map((file) => `${adapter.id}: missing implementation file ${file}`),
+    ...officialScoreBlockers,
     ...(officialCommandPlan.length ? [] : [`${adapter.id}: no official scorer command plan is registered.`]),
   ];
 
@@ -52,10 +63,14 @@ export function buildExternalAdapterBlockerReceipt(args: {
     adapterId: adapter.id,
     name: String(adapter.source.name ?? adapter.id),
     status: blockers.length ? "blocked_external" : "ready",
+    localImplementationStatus: validationErrors.length === 0 && missingImplementationFiles.length === 0 ? "ready" : "missing",
+    officialScoreStatus: officialScoreBlockers.length === 0 ? "imported" : "blocked_external",
     officialSourceUrls,
     verifierCommand: adapter.verifierCommand,
     liveUserCommand: adapter.liveUserCommand,
     missingImplementationFiles,
+    officialScoreReceiptPath,
+    officialTaskBundleManifestPath,
     validationErrors,
     blockers,
     officialCommandPlan,
@@ -112,12 +127,28 @@ function officialCommandsFor(adapter: ProofloopBenchmarkAdapter): string[] {
   }
 }
 
+function officialScoreBlockersFor(
+  adapter: ProofloopBenchmarkAdapter,
+  root: string,
+  paths: { officialScoreReceiptPath: string; officialTaskBundleManifestPath: string },
+): string[] {
+  const blockers: string[] = [];
+  if (!existsSync(join(root, paths.officialScoreReceiptPath))) {
+    blockers.push(`${adapter.id}: official scorer receipt ${paths.officialScoreReceiptPath} is not imported yet.`);
+  }
+  if (!existsSync(join(root, paths.officialTaskBundleManifestPath))) {
+    blockers.push(`${adapter.id}: official task bundle lock ${paths.officialTaskBundleManifestPath} is not staged yet.`);
+  }
+  return blockers;
+}
+
 function resumeCommandsFor(adapter: ProofloopBenchmarkAdapter): string[] {
   const refreshReceipt = `npm run benchmark:proofloop:adapter-blockers -- --id ${adapter.id}`;
   return [
+    `npm run benchmark:proofloop:external-adapter -- --id ${adapter.id} --prod --user-emulation strict`,
     refreshReceipt,
-    `implement ${adapter.taskLoader}`,
-    `implement ${adapter.browserScenario}`,
+    `import docs/eval/proofloop-official-scores/${adapter.id}.json from the upstream official scorer`,
+    `stage .tmp/official-benchmarks/${adapter.id}/manifest.json from the locked official task bundle`,
     adapter.liveUserCommand,
     adapter.verifierCommand,
   ];

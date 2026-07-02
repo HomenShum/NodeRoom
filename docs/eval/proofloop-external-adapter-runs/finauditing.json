@@ -1,0 +1,46 @@
+{
+  "schema": "proofloop-external-adapter-product-proof-v1",
+  "adapterId": "finauditing",
+  "status": "passed",
+  "runId": "finauditing-2026-07-02T09-00-59-234Z",
+  "generatedAt": "2026-07-02T09:01:06.880Z",
+  "localAdapterOnly": true,
+  "officialScoreClaim": false,
+  "taskCount": 1,
+  "baseUrl": "https://noderoom.live",
+  "scenario": "proofloop/benchmarks/finauditing/browser-scenario.spec.ts",
+  "outputDir": ".proofloop/runs/finauditing-2026-07-02T09-00-59-234Z/external-adapter/finauditing",
+  "exitCode": 0,
+  "evidence": [
+    "proofloop/benchmarks/finauditing/load-tasks.ts",
+    "proofloop/benchmarks/finauditing/browser-scenario.spec.ts",
+    ".proofloop/runs/finauditing-2026-07-02T09-00-59-234Z/external-adapter/finauditing/browser-proof.json",
+    ".proofloop/runs/finauditing-2026-07-02T09-00-59-234Z/external-adapter/finauditing/local-task-manifest.json",
+    ".proofloop/runs/finauditing-2026-07-02T09-00-59-234Z/external-adapter/finauditing/visual-proof.png"
+  ],
+  "failedGates": [],
+  "browserProof": {
+    "url": "https://noderoom.live/#story",
+    "title": "NodeRoom — live collaborative room with NodeAgents",
+    "visibleSignals": {
+      "variance": "3,250",
+      "demoVisible": true,
+      "computedVisible": true,
+      "finalVisible": true
+    },
+    "problemCounts": {
+      "pageErrors": 0,
+      "consoleProblems": 0,
+      "requestFailures": 0,
+      "badResponses": 0
+    }
+  },
+  "officialSemanticScore": {
+    "status": "blocked_external",
+    "blockers": [
+      "finauditing: official scorer receipt docs/eval/proofloop-official-scores/finauditing.json is not imported yet.",
+      "finauditing: official task bundle lock .tmp/official-benchmarks/finauditing/manifest.json is not staged yet."
+    ],
+    "verifierCommand": "npm run benchmark:proofloop:adapter-blockers -- --id finauditing --strict"
+  }
+}

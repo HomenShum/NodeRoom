@@ -1,0 +1,46 @@
+{
+  "schema": "proofloop-external-adapter-product-proof-v1",
+  "adapterId": "workstreambench",
+  "status": "passed",
+  "runId": "workstreambench-2026-07-02T09-01-06-881Z",
+  "generatedAt": "2026-07-02T09:01:12.818Z",
+  "localAdapterOnly": true,
+  "officialScoreClaim": false,
+  "taskCount": 1,
+  "baseUrl": "https://noderoom.live",
+  "scenario": "proofloop/benchmarks/workstreambench/browser-scenario.spec.ts",
+  "outputDir": ".proofloop/runs/workstreambench-2026-07-02T09-01-06-881Z/external-adapter/workstreambench",
+  "exitCode": 0,
+  "evidence": [
+    "proofloop/benchmarks/workstreambench/load-tasks.ts",
+    "proofloop/benchmarks/workstreambench/browser-scenario.spec.ts",
+    ".proofloop/runs/workstreambench-2026-07-02T09-01-06-881Z/external-adapter/workstreambench/browser-proof.json",
+    ".proofloop/runs/workstreambench-2026-07-02T09-01-06-881Z/external-adapter/workstreambench/local-task-manifest.json",
+    ".proofloop/runs/workstreambench-2026-07-02T09-01-06-881Z/external-adapter/workstreambench/visual-proof.png"
+  ],
+  "failedGates": [],
+  "browserProof": {
+    "url": "https://noderoom.live/#story",
+    "title": "NodeRoom — live collaborative room with NodeAgents",
+    "visibleSignals": {
+      "variance": "3,250",
+      "demoVisible": true,
+      "computedVisible": true,
+      "finalVisible": true
+    },
+    "problemCounts": {
+      "pageErrors": 0,
+      "consoleProblems": 0,
+      "requestFailures": 0,
+      "badResponses": 0
+    }
+  },
+  "officialSemanticScore": {
+    "status": "blocked_external",
+    "blockers": [
+      "workstreambench: official scorer receipt docs/eval/proofloop-official-scores/workstreambench.json is not imported yet.",
+      "workstreambench: official task bundle lock .tmp/official-benchmarks/workstreambench/manifest.json is not staged yet."
+    ],
+    "verifierCommand": "npm run benchmark:proofloop:adapter-blockers -- --id workstreambench --strict"
+  }
+}

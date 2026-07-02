@@ -3,19 +3,20 @@
   "adapterId": "workstreambench",
   "name": "WorkstreamBench",
   "status": "blocked_external",
+  "localImplementationStatus": "ready",
+  "officialScoreStatus": "blocked_external",
   "officialSourceUrls": [
     "https://arxiv.org/html/2605.22664v1"
   ],
   "verifierCommand": "npm run benchmark:proofloop:adapter-blockers -- --id workstreambench --strict",
   "liveUserCommand": "npm run proofloop -- run workstreambench --prod --user-emulation strict --cockpit",
-  "missingImplementationFiles": [
-    "proofloop/benchmarks/workstreambench/load-tasks.ts",
-    "proofloop/benchmarks/workstreambench/browser-scenario.spec.ts"
-  ],
+  "missingImplementationFiles": [],
+  "officialScoreReceiptPath": "docs/eval/proofloop-official-scores/workstreambench.json",
+  "officialTaskBundleManifestPath": ".tmp/official-benchmarks/workstreambench/manifest.json",
   "validationErrors": [],
   "blockers": [
-    "workstreambench: missing implementation file proofloop/benchmarks/workstreambench/load-tasks.ts",
-    "workstreambench: missing implementation file proofloop/benchmarks/workstreambench/browser-scenario.spec.ts"
+    "workstreambench: official scorer receipt docs/eval/proofloop-official-scores/workstreambench.json is not imported yet.",
+    "workstreambench: official task bundle lock .tmp/official-benchmarks/workstreambench/manifest.json is not staged yet."
   ],
   "officialCommandPlan": [
     "Lock the official WorkstreamBench task bundle and scorer from the paper/supplementary source.",
@@ -23,9 +24,10 @@
     "Run the official WorkstreamBench scorer and import the result into docs/eval/proofloop-adapter-blockers/workstreambench.json before claiming score."
   ],
   "resumeCommands": [
+    "npm run benchmark:proofloop:external-adapter -- --id workstreambench --prod --user-emulation strict",
     "npm run benchmark:proofloop:adapter-blockers -- --id workstreambench",
-    "implement proofloop/benchmarks/workstreambench/load-tasks.ts",
-    "implement proofloop/benchmarks/workstreambench/browser-scenario.spec.ts",
+    "import docs/eval/proofloop-official-scores/workstreambench.json from the upstream official scorer",
+    "stage .tmp/official-benchmarks/workstreambench/manifest.json from the locked official task bundle",
     "npm run proofloop -- run workstreambench --prod --user-emulation strict --cockpit",
     "npm run benchmark:proofloop:adapter-blockers -- --id workstreambench --strict"
   ],

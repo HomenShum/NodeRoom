@@ -3,6 +3,8 @@
   "adapterId": "finauditing",
   "name": "FinAuditing",
   "status": "blocked_external",
+  "localImplementationStatus": "ready",
+  "officialScoreStatus": "blocked_external",
   "officialSourceUrls": [
     "https://arxiv.org/abs/2510.08886",
     "https://github.com/The-FinAI/FinAuditing",
@@ -11,14 +13,13 @@
   ],
   "verifierCommand": "npm run benchmark:proofloop:adapter-blockers -- --id finauditing --strict",
   "liveUserCommand": "npm run proofloop -- run finauditing --prod --user-emulation strict --cockpit",
-  "missingImplementationFiles": [
-    "proofloop/benchmarks/finauditing/load-tasks.ts",
-    "proofloop/benchmarks/finauditing/browser-scenario.spec.ts"
-  ],
+  "missingImplementationFiles": [],
+  "officialScoreReceiptPath": "docs/eval/proofloop-official-scores/finauditing.json",
+  "officialTaskBundleManifestPath": ".tmp/official-benchmarks/finauditing/manifest.json",
   "validationErrors": [],
   "blockers": [
-    "finauditing: missing implementation file proofloop/benchmarks/finauditing/load-tasks.ts",
-    "finauditing: missing implementation file proofloop/benchmarks/finauditing/browser-scenario.spec.ts"
+    "finauditing: official scorer receipt docs/eval/proofloop-official-scores/finauditing.json is not imported yet.",
+    "finauditing: official task bundle lock .tmp/official-benchmarks/finauditing/manifest.json is not staged yet."
   ],
   "officialCommandPlan": [
     "Lock the official FinAuditing task source for FinSM, FinRE, and FinMR.",
@@ -26,9 +27,10 @@
     "Import the official scorer output into docs/eval/proofloop-adapter-blockers/finauditing.json before claiming score."
   ],
   "resumeCommands": [
+    "npm run benchmark:proofloop:external-adapter -- --id finauditing --prod --user-emulation strict",
     "npm run benchmark:proofloop:adapter-blockers -- --id finauditing",
-    "implement proofloop/benchmarks/finauditing/load-tasks.ts",
-    "implement proofloop/benchmarks/finauditing/browser-scenario.spec.ts",
+    "import docs/eval/proofloop-official-scores/finauditing.json from the upstream official scorer",
+    "stage .tmp/official-benchmarks/finauditing/manifest.json from the locked official task bundle",
     "npm run proofloop -- run finauditing --prod --user-emulation strict --cockpit",
     "npm run benchmark:proofloop:adapter-blockers -- --id finauditing --strict"
   ],

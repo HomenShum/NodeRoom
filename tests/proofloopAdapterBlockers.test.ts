@@ -9,28 +9,31 @@ describe("Proof Loop external adapter blocker receipts", () => {
     expect(externalAdapterIds()).toEqual(["finch", "finauditing", "workstreambench"]);
   });
 
-  it("writes a typed blocker receipt for missing Finch implementation files", () => {
+  it("writes a typed blocker receipt for Finch official-score imports after local implementation exists", () => {
     const receipt = buildExternalAdapterBlockerReceipt({ id: "finch" });
 
     expect(receipt).toMatchObject({
       schema: "proofloop-external-adapter-blocker-v1",
       adapterId: "finch",
       status: "blocked_external",
+      localImplementationStatus: "ready",
+      officialScoreStatus: "blocked_external",
       verifierCommand: "npm run benchmark:proofloop:adapter-blockers -- --id finch --strict",
     });
-    expect(receipt.missingImplementationFiles).toEqual([
-      "proofloop/benchmarks/finch/load-tasks.ts",
-      "proofloop/benchmarks/finch/browser-scenario.spec.ts",
-    ]);
+    expect(receipt.missingImplementationFiles).toEqual([]);
+    expect(receipt.blockers.join(" ")).toContain("official scorer receipt docs/eval/proofloop-official-scores/finch.json is not imported yet");
+    expect(receipt.blockers.join(" ")).toContain("official task bundle lock .tmp/official-benchmarks/finch/manifest.json is not staged yet");
     expect(receipt.officialCommandPlan.join(" ")).toContain("upstream Finch");
     expect(receipt.resumeCommands).toContain("npm run benchmark:proofloop:adapter-blockers -- --id finch");
   });
 
-  it("keeps WorkstreamBench blocked until official bundle/scorer files are implemented", () => {
+  it("keeps WorkstreamBench blocked only on official bundle/scorer import", () => {
     const receipt = buildExternalAdapterBlockerReceipt({ id: "workstreambench" });
 
     expect(receipt.status).toBe("blocked_external");
-    expect(receipt.blockers.join(" ")).toContain("workstreambench: missing implementation file");
+    expect(receipt.localImplementationStatus).toBe("ready");
+    expect(receipt.missingImplementationFiles).toEqual([]);
+    expect(receipt.blockers.join(" ")).toContain("workstreambench: official scorer receipt");
     expect(receipt.officialCommandPlan.join(" ")).toContain("official WorkstreamBench scorer");
     expect(receipt.officialSourceUrls).toContain("https://arxiv.org/html/2605.22664v1");
   });

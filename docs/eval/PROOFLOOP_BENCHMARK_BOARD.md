@@ -1,6 +1,6 @@
 # Proof Loop Benchmark Board
 
-Generated: 2026-07-02T00:24:31.878Z
+Generated: 2026-07-02T08:58:45.054Z
 
 This board keeps fast product proof separate from official benchmark score claims.
 
@@ -9,14 +9,14 @@ This board keeps fast product proof separate from official benchmark score claim
 - Product-path completion is useful proof: real UI, visible progress, artifacts, verifier receipts, trace, memory, and browser evidence.
 - Official semantic score is only claimed when the benchmark's official scorer/verifier result is imported.
 - Docker/Harbor isolation can block official score promotion; it must not block product-path Proof Loop runs.
-- Registered external adapters are backlog inventory until their live browser scenario and verifier implementation exist.
+- External benchmark adapters can prove local app-agnostic product paths before official score promotion; the two claims must stay separate.
 
 ## Summary
 
 - Benchmarks tracked: 9
-- Product-path proven: 4
+- Product-path proven: 7
 - Product-path ready to run: 2
-- External adapters registered: 3
+- External adapters registered: 0
 - Official scores claimed: 1
 - Official scores not applicable: 4
 - Official scores blocked/not claimed: 4
@@ -31,9 +31,9 @@ This board keeps fast product proof separate from official benchmark score claim
 | `accounting` | product_suite | ready_to_run | not_applicable | `proofloop/accounting/proofloop.accounting.config.json`<br>`proofloop/accounting/benchmarks/benchmark-registry.json` | Accounting suite pins external benchmark families, but local proof-loop runs are product-path evidence. |
 | `notion-sdr-bdr` | product_suite | ready_to_run | not_applicable | `proofloop/notion/proofloop.notion.config.json` | Product workflow benchmark, not an official public benchmark score. |
 | `bankertoolbench` | external_adapter | proven | proven | `proofloop/benchmarks/bankertoolbench/adapter.json`<br>`docs/eval/bankertoolbench-live-room-proof.json`<br>`docs/eval/fresh-room/FR-020/fullsuite-gate-receipt.json`<br>`docs/eval/btb-clean-capability-full100-parallel-v3-gpt41mini.json` | none |
-| `finch` | external_adapter | registered | blocked | `proofloop/benchmarks/finch/adapter.json`<br>`docs/eval/proofloop-adapter-blockers/finch.json` | finch: missing implementation file proofloop/benchmarks/finch/load-tasks.ts |
-| `finauditing` | external_adapter | registered | blocked | `proofloop/benchmarks/finauditing/adapter.json`<br>`docs/eval/proofloop-adapter-blockers/finauditing.json` | finauditing: missing implementation file proofloop/benchmarks/finauditing/load-tasks.ts |
-| `workstreambench` | external_adapter | registered | blocked | `proofloop/benchmarks/workstreambench/adapter.json`<br>`docs/eval/proofloop-adapter-blockers/workstreambench.json` | workstreambench: missing implementation file proofloop/benchmarks/workstreambench/load-tasks.ts |
+| `finch` | external_adapter | proven | blocked | `proofloop/benchmarks/finch/adapter.json`<br>`docs/eval/proofloop-external-adapter-runs/finch.json`<br>`docs/eval/proofloop-adapter-blockers/finch.json` | finch: official scorer receipt docs/eval/proofloop-official-scores/finch.json is not imported yet. |
+| `finauditing` | external_adapter | proven | blocked | `proofloop/benchmarks/finauditing/adapter.json`<br>`docs/eval/proofloop-external-adapter-runs/finauditing.json`<br>`docs/eval/proofloop-adapter-blockers/finauditing.json` | finauditing: official scorer receipt docs/eval/proofloop-official-scores/finauditing.json is not imported yet. |
+| `workstreambench` | external_adapter | proven | blocked | `proofloop/benchmarks/workstreambench/adapter.json`<br>`docs/eval/proofloop-external-adapter-runs/workstreambench.json`<br>`docs/eval/proofloop-adapter-blockers/workstreambench.json` | workstreambench: official scorer receipt docs/eval/proofloop-official-scores/workstreambench.json is not imported yet. |
 
 ## Interpretation
 

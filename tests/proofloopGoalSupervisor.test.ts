@@ -72,12 +72,15 @@ describe("Proof Loop goal supervisor", () => {
     const tasks = officialScoresGoalTasks();
 
     expect(tasks.find((task) => task.id === "btb-fullsuite-official-score")?.command).toContain("bankertoolbench:fullsuite-gate");
+    expect(tasks.find((task) => task.id === "external-adapter-local-product-proofs")?.command).toContain("benchmark:proofloop:external-adapter");
     expect(tasks.find((task) => task.id === "external-adapter-blocker-receipts")?.command).toBe("npm run benchmark:proofloop:adapter-blockers");
     for (const id of ["finch-official-score", "finauditing-official-score", "workstreambench-official-score"]) {
       const task = tasks.find((candidate) => candidate.id === id);
       expect(task?.kind).toBe("external_blocker");
-      expect(task?.resumeCommand).toContain("npm run proofloop");
+      expect(task?.resumeCommand).toContain("benchmark:proofloop:adapter-blockers");
+      expect(task?.blockers.join(" ")).toContain("official scorer receipt");
       expect(task?.evidence.join(" ")).toContain("docs/eval/proofloop-adapter-blockers");
+      expect(task?.evidence.join(" ")).toContain("docs/eval/proofloop-external-adapter-runs");
     }
   });
 });
