@@ -1,0 +1,85 @@
+[
+  {
+    "failureCategory": "missing_official_scorer",
+    "count": 5,
+    "suites": [
+      "finauditing",
+      "finch",
+      "spreadsheetbench-v1",
+      "spreadsheetbench-v2",
+      "workstreambench"
+    ],
+    "sourceFile": ".proofloop/lanes/finauditing/blocker-analysis.json",
+    "sourceField": "classes[1]"
+  },
+  {
+    "failureCategory": "missing_task_bundle",
+    "count": 5,
+    "suites": [
+      "finauditing",
+      "finch",
+      "spreadsheetbench-v1",
+      "spreadsheetbench-v2",
+      "workstreambench"
+    ],
+    "sourceFile": ".proofloop/lanes/finauditing/blocker-analysis.json",
+    "sourceField": "classes[3]"
+  },
+  {
+    "failureCategory": "context_pack",
+    "count": 3,
+    "suites": [
+      "proximitty-underwriting-pr0"
+    ],
+    "sourceFile": ".proofloop/runs/latest/model-comparison.json",
+    "sourceField": "policies[1].failureLayer"
+  },
+  {
+    "failureCategory": "missing_judge_credentials",
+    "count": 2,
+    "suites": [
+      "finauditing",
+      "finch"
+    ],
+    "sourceFile": ".proofloop/lanes/finauditing/blocker-analysis.json",
+    "sourceField": "classes[0]"
+  },
+  {
+    "failureCategory": "missing_model_run",
+    "count": 2,
+    "suites": [
+      "spreadsheetbench-v1",
+      "spreadsheetbench-v2"
+    ],
+    "sourceFile": ".proofloop/lanes/spreadsheetbench-v1/blocker-analysis.json",
+    "sourceField": "classes[0]"
+  },
+  {
+    "failureCategory": "missing_output_exporter",
+    "count": 2,
+    "suites": [
+      "finauditing",
+      "finch"
+    ],
+    "sourceFile": ".proofloop/lanes/finauditing/blocker-analysis.json",
+    "sourceField": "classes[2]"
+  },
+  {
+    "failureCategory": "harness_quality_failure",
+    "count": 1,
+    "suites": [
+      "bankertoolbench"
+    ],
+    "sourceFile": ".proofloop/lanes/bankertoolbench/blocker-analysis.json",
+    "sourceField": "classes[0]"
+  },
+  {
+    "failureCategory": "no_public_upstream_release",
+    "count": 1,
+    "suites": [
+      "workstreambench"
+    ],
+    "sourceFile": ".proofloop/lanes/workstreambench/blocker-analysis.json",
+    "sourceField": "classes[2]"
+  }
+]

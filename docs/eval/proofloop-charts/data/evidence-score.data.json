@@ -1,0 +1,29 @@
+[
+  {
+    "runId": "2026-07-02T20-31-20",
+    "suite": "proximitty-underwriting-pr0",
+    "evidenceGrounding": 96,
+    "visualScore": 92,
+    "totalReward": 94,
+    "sourceFile": ".proofloop/runs/latest/model-comparison.json",
+    "sourceField": "policies[0].evidenceQuality"
+  },
+  {
+    "runId": "2026-07-02T20-31-20",
+    "suite": "proximitty-underwriting-pr0",
+    "evidenceGrounding": 68,
+    "visualScore": 91,
+    "totalReward": 72,
+    "sourceFile": ".proofloop/runs/latest/model-comparison.json",
+    "sourceField": "policies[1].evidenceQuality"
+  },
+  {
+    "runId": "2026-07-02T20-31-20",
+    "suite": "proximitty-underwriting-pr0",
+    "evidenceGrounding": 96,
+    "visualScore": 92,
+    "totalReward": 96,
+    "sourceFile": ".proofloop/runs/latest/node-eval.json",
+    "sourceField": "reward.evidenceGrounding"
+  }
+]

@@ -30,6 +30,7 @@
  *   proofloop release-video [runId] render final-release-video.mp4 from trace cards
  *   proofloop lagging [runId]       classify lagging layers from NodeEval
  *   proofloop router suggest [runId] write a route-plan suggestion
+ *   proofloop charts [latest|runId] write chart-pack.json, chart-pack.html, Vega-Lite specs, data, Markdown, and SVG
  *   proofloop promote <runId>       turn a failure into a tracked regression
  *   proofloop export rl [runId]     export a run as agentic-RL trace data
  *
@@ -69,6 +70,7 @@ import {
   type ProofloopBlockerSolvePhase,
   type ProofloopBlockerTaskLike,
 } from "../src/eval/proofloopBlockerSolver";
+import { writeProofloopChartPack } from "../src/eval/proofloopChartPack";
 import {
   assertProofloopModelTracked,
   proofloopHarnessVersionForSuite,
@@ -197,6 +199,8 @@ function main(): void {
       return cmdCompareModels(args);
     case "promote-harness":
       return cmdPromoteHarness(args);
+    case "charts":
+      return cmdCharts(args);
     case "storybook":
       return cmdStorybook(args[0]);
     case "repair":
@@ -264,6 +268,7 @@ function usage(error?: string): void {
       "  release-video [runId] render final-release-video.mp4 from trace cards",
       "  lagging [runId]      classify lagging layers",
       "  router suggest [runId] write route-plan suggestion",
+      "  charts [latest|runId] write chart-pack.json, chart-pack.html, Vega-Lite specs, data, Markdown, and SVG",
       "  promote <runId>      turn a failure into a tracked regression",
       "  export rl [runId]    export a run as agentic-RL trace data",
       "  goal init <goal-id> [--template official-scores] create a long-running proof ledger",
@@ -413,6 +418,7 @@ function cmdRun(suiteArg: string | undefined, extraArgs: string[] = []): void {
   console.log(`proofloop: node trace -- ${rel(paths.nodeTracePath)}`);
   console.log(`proofloop: node eval  -- ${rel(paths.nodeEvalPath)}`);
   console.log(`proofloop: contract   -- ${rel(paths.liveUserContractPath)}`);
+  writeChartsAfterCommand(runId, join(".proofloop", "runs", runId, "charts"), { writeRunArtifacts: false });
   if (!passed) process.exitCode = 1;
 }
 
@@ -580,6 +586,19 @@ function cmdBlocker(args: string[]): void {
       return;
     }
     if (!blockerId) return usage(`proofloop blocker ${subcommand} requires <blocker-id>`);
+    if (subcommand === "solve") {
+      const blockers = blockerTasksForGoal(goalId);
+      const exactTask = blockers.find((candidate) => candidate.id === blockerId || candidate.id.includes(blockerId));
+      if (!exactTask && goalCanBeLoaded(blockerId)) {
+        const receipts = solveProofloopBlockers({ root: ROOT, tasks: blockerTasksForGoal(blockerId), phase: "solve" });
+        console.log(`proofloop: solved ${receipts.length} blocker lane(s) for goal ${blockerId}`);
+        for (const receipt of receipts) {
+          console.log(`  - ${receipt.blockerId}: ${receipt.status}`);
+          console.log(`    analysis: ${receipt.artifacts["blocker-analysis.json"]}`);
+        }
+        return;
+      }
+    }
     const task = findBlockerTask(goalId, blockerId);
     const phase = phaseForBlockerCommand(subcommand);
     const receipt = solveProofloopBlocker({ root: ROOT, task, phase });
@@ -602,6 +621,7 @@ function cmdCompareModels(args: string[]): void {
   try {
     const path = compareProofloopModelsForSuite({ root: ROOT, suite });
     console.log(`proofloop: model matrix ${rel(path)}`);
+    writeChartsAfterCommand("latest");
   } catch (error) {
     console.error(`proofloop: ${error instanceof Error ? error.message : String(error)}`);
     process.exitCode = 1;
@@ -614,8 +634,59 @@ function cmdPromoteHarness(args: string[]): void {
   try {
     const path = promoteProofloopHarnessForSuite({ root: ROOT, suite });
     console.log(`proofloop: harness version ${rel(path)}`);
+    writeChartsAfterCommand("latest");
   } catch (error) {
     console.error(`proofloop: ${error instanceof Error ? error.message : String(error)}`);
+    process.exitCode = 1;
+  }
+}
+
+function cmdCharts(args: string[]): void {
+  const target = args[0] && !args[0].startsWith("--") ? args[0] : "latest";
+  const outDir = optionValueFromArgs(args, "--out-dir") ?? "docs/eval/proofloop-charts";
+  const strict = hasFlag(args, "--strict");
+  try {
+    const result = writeProofloopChartPack({ root: ROOT, target, outDir, generatedAt: new Date().toISOString() });
+    console.log(`proofloop: chart pack ${result.paths.json}`);
+    console.log(`proofloop: chart report ${result.paths.markdown}`);
+    console.log(`proofloop: chart html ${result.paths.html}`);
+    for (const [name, path] of Object.entries(result.paths.specs)) {
+      console.log(`proofloop: chart spec ${name} ${path}`);
+    }
+    for (const [name, path] of Object.entries(result.paths.svgs)) {
+      console.log(`proofloop: chart ${name} ${path}`);
+    }
+    for (const artifact of result.paths.runArtifacts) {
+      console.log(`proofloop: run chart pack ${artifact.json}`);
+      console.log(`proofloop: run chart html ${artifact.html}`);
+    }
+    if (strict && (!result.validation.ok || result.pack.summary.workflowItems === 0)) {
+      for (const error of result.validation.errors) console.error(`proofloop: chart validation ${error}`);
+      process.exitCode = 1;
+    }
+  } catch (error) {
+    console.error(`proofloop: ${error instanceof Error ? error.message : String(error)}`);
+    process.exitCode = 1;
+  }
+}
+
+function writeChartsAfterCommand(target: string, outDir?: string, options: { writeRunArtifacts?: boolean } = {}): void {
+  try {
+    const result = writeProofloopChartPack({
+      root: ROOT,
+      target,
+      ...(outDir ? { outDir } : {}),
+      generatedAt: new Date().toISOString(),
+      ...(options.writeRunArtifacts === undefined ? {} : { writeRunArtifacts: options.writeRunArtifacts }),
+    });
+    console.log(`proofloop: charts -- ${result.paths.json}`);
+    console.log(`proofloop: chart html -- ${result.paths.html}`);
+    if (!result.validation.ok) {
+      for (const error of result.validation.errors) console.error(`proofloop: chart validation ${error}`);
+      process.exitCode = 1;
+    }
+  } catch (error) {
+    console.error(`proofloop: chart generation failed: ${error instanceof Error ? error.message : String(error)}`);
     process.exitCode = 1;
   }
 }
@@ -777,6 +848,7 @@ function cmdGoalGate(args: string[]): void {
   try {
     const state = gateProofloopGoal(goalId, { root: ROOT });
     console.log(formatProofloopGoalStatus(state));
+    writeChartsAfterCommand("latest");
     if (state.status !== "passed") process.exitCode = 1;
   } catch (error) {
     console.error(`proofloop: ${error instanceof Error ? error.message : String(error)}`);
@@ -792,6 +864,7 @@ function cmdGoalSupervise(args: string[]): void {
   try {
     const state = superviseProofloopGoal(goalId, { root: ROOT, maxSteps });
     console.log(formatProofloopGoalStatus(state));
+    writeChartsAfterCommand("latest");
     if (state.status === "failed") process.exitCode = 1;
   } catch (error) {
     console.error(`proofloop: ${error instanceof Error ? error.message : String(error)}`);
@@ -851,6 +924,12 @@ function blockerTasksForGoal(goalId: string): ProofloopBlockerTaskLike[] {
       evidence: task.evidence,
       resumeCommand: task.resumeCommand,
     }));
+}
+
+function goalCanBeLoaded(goalId: string): boolean {
+  if (goalId === "official-scores") return true;
+  const safeGoalId = goalId.replace(/[^a-zA-Z0-9._-]/g, "_");
+  return existsSync(join(PROOFLOOP_DIR, "goals", safeGoalId, "state.json"));
 }
 
 function findBlockerTask(goalId: string, blockerId: string): ProofloopBlockerTaskLike {

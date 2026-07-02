@@ -1,0 +1,246 @@
+{
+  "schema": "proofloop-chart-pack-v1",
+  "runId": "2026-07-02T20-31-20",
+  "suite": "proximitty-underwriting-pr0",
+  "generatedAt": "2026-07-02T21:14:34.107Z",
+  "sourceRefs": {
+    "nodeTraceV2": ".proofloop/runs/latest/node-trace-v2.json",
+    "nodeEval": ".proofloop/runs/latest/node-eval.json",
+    "costLedger": ".proofloop/runs/latest/cost-ledger.json",
+    "modelComparison": ".proofloop/runs/latest/model-comparison.json",
+    "runResult": ".proofloop/runs/latest/run-result.json",
+    "memory": ".proofloop/memory.jsonl",
+    "laneAnalyses": [
+      ".proofloop/lanes/bankertoolbench/blocker-analysis.json",
+      ".proofloop/lanes/finauditing/blocker-analysis.json",
+      ".proofloop/lanes/finch/blocker-analysis.json",
+      ".proofloop/lanes/spreadsheetbench-v1/blocker-analysis.json",
+      ".proofloop/lanes/spreadsheetbench-v2/blocker-analysis.json",
+      ".proofloop/lanes/workstreambench/blocker-analysis.json"
+    ],
+    "laneCostLedgers": [
+      ".proofloop/lanes/bankertoolbench/cost-ledger.json",
+      ".proofloop/lanes/finauditing/cost-ledger.json",
+      ".proofloop/lanes/finch/cost-ledger.json",
+      ".proofloop/lanes/spreadsheetbench-v1/cost-ledger.json",
+      ".proofloop/lanes/spreadsheetbench-v2/cost-ledger.json",
+      ".proofloop/lanes/workstreambench/cost-ledger.json"
+    ],
+    "laneModelMatrices": [
+      ".proofloop/lanes/bankertoolbench/model-matrix.json",
+      ".proofloop/lanes/finauditing/model-matrix.json",
+      ".proofloop/lanes/finch/model-matrix.json",
+      ".proofloop/lanes/spreadsheetbench-v1/model-matrix.json",
+      ".proofloop/lanes/spreadsheetbench-v2/model-matrix.json",
+      ".proofloop/lanes/workstreambench/model-matrix.json"
+    ],
+    "laneHarnessVersions": [
+      ".proofloop/lanes/bankertoolbench/harness-version.json",
+      ".proofloop/lanes/finauditing/harness-version.json",
+      ".proofloop/lanes/finch/harness-version.json",
+      ".proofloop/lanes/spreadsheetbench-v1/harness-version.json",
+      ".proofloop/lanes/spreadsheetbench-v2/harness-version.json",
+      ".proofloop/lanes/workstreambench/harness-version.json"
+    ],
+    "failureTaxonomy": ".proofloop/lanes/bankertoolbench/blocker-analysis.json"
+  },
+  "summary": {
+    "lanes": 6,
+    "runs": 1,
+    "models": 38,
+    "blockerCategories": 8,
+    "workflowItems": 7,
+    "chartCount": 8,
+    "unavailableCharts": 1
+  },
+  "charts": [
+    {
+      "id": "model-performance",
+      "title": "Model Performance",
+      "purpose": "Which model or fusion policy actually passes this task, with score, cost, latency, and evidence quality.",
+      "kind": "model_performance",
+      "specPath": "model-performance.vl.json",
+      "dataPath": "data/model-performance.data.json",
+      "sourceBindings": [
+        {
+          "sourceFile": "model-comparison.json",
+          "sourceField": "policies[].score",
+          "required": false
+        },
+        {
+          "sourceFile": "model-matrix.json",
+          "sourceField": "models[].qualityScore",
+          "required": false
+        },
+        {
+          "sourceFile": "meta.json",
+          "sourceField": "model",
+          "required": false
+        }
+      ]
+    },
+    {
+      "id": "cost-per-pass",
+      "title": "Cost Per Pass",
+      "purpose": "How much it costs to get one successful proof run for each route.",
+      "kind": "cost_per_pass",
+      "specPath": "cost-per-pass.vl.json",
+      "dataPath": "data/cost-per-pass.data.json",
+      "sourceBindings": [
+        {
+          "sourceFile": "cost-ledger.json",
+          "sourceField": "policies[].costUsd",
+          "required": false
+        },
+        {
+          "sourceFile": "meta.json",
+          "sourceField": "model.costUsd",
+          "required": false
+        }
+      ]
+    },
+    {
+      "id": "failure-categories",
+      "title": "Failure Categories",
+      "purpose": "What is actually breaking across proof runs and benchmark lanes.",
+      "kind": "failure_categories",
+      "specPath": "failure-categories.vl.json",
+      "dataPath": "data/failure-categories.data.json",
+      "sourceBindings": [
+        {
+          "sourceFile": "blocker-analysis.json",
+          "sourceField": "classes[]",
+          "required": false
+        },
+        {
+          "sourceFile": "node-eval.json",
+          "sourceField": "reward.failureCategories[]",
+          "required": false
+        },
+        {
+          "sourceFile": "model-comparison.json",
+          "sourceField": "policies[].failureLayer",
+          "required": false
+        }
+      ]
+    },
+    {
+      "id": "harness-version-trend",
+      "title": "Harness Version Trend",
+      "purpose": "Whether newer harness versions improve pass rate, cost, latency, and failure count.",
+      "kind": "harness_version",
+      "specPath": "harness-version-trend.vl.json",
+      "dataPath": "data/harness-version-trend.data.json",
+      "sourceBindings": [
+        {
+          "sourceFile": "harness-version.json",
+          "sourceField": "harnessVersion",
+          "required": false
+        },
+        {
+          "sourceFile": "meta.json",
+          "sourceField": "harnessVersion",
+          "required": false
+        }
+      ]
+    },
+    {
+      "id": "evidence-score",
+      "title": "Evidence Grounding",
+      "purpose": "How strongly the proof run is grounded in recorded evidence and visual/verifier receipts.",
+      "kind": "evidence_score",
+      "specPath": "evidence-score.vl.json",
+      "dataPath": "data/evidence-score.data.json",
+      "sourceBindings": [
+        {
+          "sourceFile": "node-eval.json",
+          "sourceField": "reward.evidenceGrounding",
+          "required": false
+        },
+        {
+          "sourceFile": "model-comparison.json",
+          "sourceField": "policies[].evidenceQuality",
+          "required": false
+        }
+      ]
+    },
+    {
+      "id": "latency-cost-frontier",
+      "title": "Latency / Cost Frontier",
+      "purpose": "Which route is cheapest and fastest without losing proof score.",
+      "kind": "latency_cost",
+      "specPath": "latency-cost-frontier.vl.json",
+      "dataPath": "data/latency-cost-frontier.data.json",
+      "sourceBindings": [
+        {
+          "sourceFile": "cost-ledger.json",
+          "sourceField": "policies[].durationMs",
+          "required": false
+        },
+        {
+          "sourceFile": "model-matrix.json",
+          "sourceField": "models[].latencyMs",
+          "required": false
+        },
+        {
+          "sourceFile": "meta.json",
+          "sourceField": "durationMs",
+          "required": false
+        }
+      ]
+    },
+    {
+      "id": "accounting-workpaper",
+      "title": "Accounting Workpaper",
+      "purpose": "Finance/accounting proof metrics such as tie-outs, debit-credit balance, aging buckets, and variance waterfalls.",
+      "kind": "accounting_workpaper",
+      "specPath": "accounting-workpaper.vl.json",
+      "dataPath": "data/accounting-workpaper.data.json",
+      "sourceBindings": [
+        {
+          "sourceFile": "node-eval.json",
+          "sourceField": "reward.taskCompletion",
+          "required": false
+        },
+        {
+          "sourceFile": "verifier-receipt.json",
+          "sourceField": "accounting",
+          "required": false
+        },
+        {
+          "sourceFile": "run-result.json",
+          "sourceField": "accounting",
+          "required": false
+        }
+      ],
+      "unavailable": {
+        "reason": "The selected proof target did not include accounting workpaper metrics."
+      }
+    },
+    {
+      "id": "workflow-completion",
+      "title": "Workflow Completion",
+      "purpose": "Latest proof state by run and benchmark lane.",
+      "kind": "workflow_timeline",
+      "specPath": "workflow-completion.vl.json",
+      "dataPath": "data/workflow-completion.data.json",
+      "sourceBindings": [
+        {
+          "sourceFile": "blocker-analysis.json",
+          "sourceField": "status",
+          "required": false
+        },
+        {
+          "sourceFile": "meta.json",
+          "sourceField": "passed",
+          "required": false
+        },
+        {
+          "sourceFile": "node-eval.json",
+          "sourceField": "verifier.hardPass",
+          "required": false
+        }
+      ]
+    }
+  ]
+}

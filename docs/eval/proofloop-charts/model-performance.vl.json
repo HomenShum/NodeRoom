@@ -1,0 +1,94 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "title": "Model Performance",
+  "description": "Which model or fusion policy actually passes this task, with score, cost, latency, and evidence quality.",
+  "data": {
+    "url": "data/model-performance.data.json",
+    "format": {
+      "type": "json"
+    }
+  },
+  "mark": "bar",
+  "encoding": {
+    "x": {
+      "field": "model",
+      "type": "nominal",
+      "title": "Model / route",
+      "sort": "-y"
+    },
+    "y": {
+      "field": "score",
+      "type": "quantitative",
+      "title": "Score"
+    },
+    "color": {
+      "field": "passed",
+      "type": "nominal",
+      "title": "Passed"
+    },
+    "tooltip": [
+      {
+        "field": "suite",
+        "type": "nominal"
+      },
+      {
+        "field": "model",
+        "type": "nominal"
+      },
+      {
+        "field": "provider",
+        "type": "nominal"
+      },
+      {
+        "field": "score",
+        "type": "quantitative"
+      },
+      {
+        "field": "costUsd",
+        "type": "quantitative"
+      },
+      {
+        "field": "durationMs",
+        "type": "quantitative"
+      },
+      {
+        "field": "evidenceScore",
+        "type": "nominal"
+      },
+      {
+        "field": "failureLayer",
+        "type": "nominal"
+      },
+      {
+        "field": "sourceFile",
+        "type": "nominal"
+      },
+      {
+        "field": "sourceField",
+        "type": "nominal"
+      }
+    ]
+  },
+  "usermeta": {
+    "proofloop": {
+      "chartId": "model-performance",
+      "sourceBindings": [
+        {
+          "sourceFile": "model-comparison.json",
+          "sourceField": "policies[].score",
+          "required": false
+        },
+        {
+          "sourceFile": "model-matrix.json",
+          "sourceField": "models[].qualityScore",
+          "required": false
+        },
+        {
+          "sourceFile": "meta.json",
+          "sourceField": "model",
+          "required": false
+        }
+      ]
+    }
+  }
+}

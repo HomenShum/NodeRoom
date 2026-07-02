@@ -1,0 +1,76 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "title": "Evidence Grounding",
+  "description": "How strongly the proof run is grounded in recorded evidence and visual/verifier receipts.",
+  "data": {
+    "url": "data/evidence-score.data.json",
+    "format": {
+      "type": "json"
+    }
+  },
+  "mark": "bar",
+  "encoding": {
+    "x": {
+      "field": "runId",
+      "type": "nominal",
+      "title": "Run"
+    },
+    "y": {
+      "field": "evidenceGrounding",
+      "type": "quantitative",
+      "title": "Evidence grounding"
+    },
+    "color": {
+      "field": "suite",
+      "type": "nominal",
+      "title": "Suite"
+    },
+    "tooltip": [
+      {
+        "field": "runId",
+        "type": "nominal"
+      },
+      {
+        "field": "suite",
+        "type": "nominal"
+      },
+      {
+        "field": "evidenceGrounding",
+        "type": "nominal"
+      },
+      {
+        "field": "visualScore",
+        "type": "nominal"
+      },
+      {
+        "field": "totalReward",
+        "type": "nominal"
+      },
+      {
+        "field": "sourceFile",
+        "type": "nominal"
+      },
+      {
+        "field": "sourceField",
+        "type": "nominal"
+      }
+    ]
+  },
+  "usermeta": {
+    "proofloop": {
+      "chartId": "evidence-score",
+      "sourceBindings": [
+        {
+          "sourceFile": "node-eval.json",
+          "sourceField": "reward.evidenceGrounding",
+          "required": false
+        },
+        {
+          "sourceFile": "model-comparison.json",
+          "sourceField": "policies[].evidenceQuality",
+          "required": false
+        }
+      ]
+    }
+  }
+}

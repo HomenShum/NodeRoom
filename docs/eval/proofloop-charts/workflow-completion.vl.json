@@ -1,0 +1,91 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "title": "Workflow Completion",
+  "description": "Latest proof state by run and benchmark lane.",
+  "data": {
+    "url": "data/workflow-completion.data.json",
+    "format": {
+      "type": "json"
+    }
+  },
+  "mark": "bar",
+  "encoding": {
+    "x": {
+      "field": "status",
+      "type": "nominal",
+      "title": "Status",
+      "sort": "-y"
+    },
+    "y": {
+      "aggregate": "count",
+      "type": "quantitative",
+      "title": "Count"
+    },
+    "color": {
+      "field": "status",
+      "type": "nominal",
+      "title": "Status"
+    },
+    "tooltip": [
+      {
+        "field": "status",
+        "type": "nominal"
+      },
+      {
+        "field": "suite",
+        "type": "nominal"
+      },
+      {
+        "field": "id",
+        "type": "nominal"
+      },
+      {
+        "field": "score",
+        "type": "quantitative"
+      },
+      {
+        "field": "sourceFile",
+        "type": "nominal"
+      },
+      {
+        "field": "sourceField",
+        "type": "nominal"
+      }
+    ]
+  },
+  "usermeta": {
+    "proofloop": {
+      "chartId": "workflow-completion",
+      "sourceBindings": [
+        {
+          "sourceFile": "blocker-analysis.json",
+          "sourceField": "status",
+          "required": false
+        },
+        {
+          "sourceFile": "meta.json",
+          "sourceField": "passed",
+          "required": false
+        },
+        {
+          "sourceFile": "node-eval.json",
+          "sourceField": "verifier.hardPass",
+          "required": false
+        }
+      ]
+    }
+  },
+  "transform": [
+    {
+      "aggregate": [
+        {
+          "op": "count",
+          "as": "count"
+        }
+      ],
+      "groupby": [
+        "status"
+      ]
+    }
+  ]
+}

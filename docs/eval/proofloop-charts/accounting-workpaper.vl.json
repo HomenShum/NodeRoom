@@ -1,0 +1,80 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "title": "Accounting Workpaper",
+  "description": "Finance/accounting proof metrics such as tie-outs, debit-credit balance, aging buckets, and variance waterfalls.",
+  "data": {
+    "url": "data/accounting-workpaper.data.json",
+    "format": {
+      "type": "json"
+    }
+  },
+  "mark": "bar",
+  "encoding": {
+    "x": {
+      "field": "metric",
+      "type": "nominal",
+      "title": "Metric"
+    },
+    "y": {
+      "field": "value",
+      "type": "quantitative",
+      "title": "Value"
+    },
+    "color": {
+      "field": "status",
+      "type": "nominal",
+      "title": "Status"
+    },
+    "tooltip": [
+      {
+        "field": "suite",
+        "type": "nominal"
+      },
+      {
+        "field": "metric",
+        "type": "nominal"
+      },
+      {
+        "field": "value",
+        "type": "nominal"
+      },
+      {
+        "field": "status",
+        "type": "nominal"
+      },
+      {
+        "field": "sourceFile",
+        "type": "nominal"
+      },
+      {
+        "field": "sourceField",
+        "type": "nominal"
+      }
+    ]
+  },
+  "usermeta": {
+    "proofloop": {
+      "chartId": "accounting-workpaper",
+      "sourceBindings": [
+        {
+          "sourceFile": "node-eval.json",
+          "sourceField": "reward.taskCompletion",
+          "required": false
+        },
+        {
+          "sourceFile": "verifier-receipt.json",
+          "sourceField": "accounting",
+          "required": false
+        },
+        {
+          "sourceFile": "run-result.json",
+          "sourceField": "accounting",
+          "required": false
+        }
+      ],
+      "unavailable": {
+        "reason": "The selected proof target did not include accounting workpaper metrics."
+      }
+    }
+  }
+}

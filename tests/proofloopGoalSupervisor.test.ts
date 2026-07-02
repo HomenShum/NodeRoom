@@ -99,7 +99,17 @@ describe("Proof Loop goal supervisor", () => {
     const solver = tasks.find((task) => task.id === "blocked-lane-solver");
     expect(solver?.command).toBe("npm run proofloop -- solve-blockers --goal official-scores");
     expect(solver?.evidence.join(" ")).toContain(".proofloop/lanes/spreadsheetbench-v1/blocker-analysis.json");
+    const chartPack = tasks.find((task) => task.id === "proofloop-chart-pack");
+    expect(chartPack?.command).toBe("npm run proofloop -- charts latest");
+    expect(chartPack?.evidence.join(" ")).toContain(".proofloop/runs/latest/charts/chart-pack.json");
+    expect(chartPack?.evidence.join(" ")).toContain(".proofloop/runs/latest/charts/model-performance.vl.json");
+    expect(chartPack?.evidence.join(" ")).toContain("docs/eval/proofloop-charts/chart-pack.html");
+    expect(chartPack?.evidence.join(" ")).toContain("docs/eval/proofloop-charts/proofloop-chart-pack.json");
+    expect(chartPack?.evidence.join(" ")).toContain("docs/eval/proofloop-charts/svg/latency-cost-frontier.svg");
     expect(tasks.findIndex((task) => task.id === "blocked-lane-solver")).toBeLessThan(
+      tasks.findIndex((task) => task.id === "proofloop-chart-pack"),
+    );
+    expect(tasks.findIndex((task) => task.id === "proofloop-chart-pack")).toBeLessThan(
       tasks.findIndex((task) => task.id === "proofloop-benchmark-board"),
     );
     for (const id of ["finch-official-score", "finauditing-official-score", "workstreambench-official-score"]) {

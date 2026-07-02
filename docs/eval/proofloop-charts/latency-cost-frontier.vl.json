@@ -1,0 +1,94 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "title": "Latency / Cost Frontier",
+  "description": "Which route is cheapest and fastest without losing proof score.",
+  "data": {
+    "url": "data/latency-cost-frontier.data.json",
+    "format": {
+      "type": "json"
+    }
+  },
+  "mark": "point",
+  "encoding": {
+    "x": {
+      "field": "costUsd",
+      "type": "quantitative",
+      "title": "Cost (USD)"
+    },
+    "y": {
+      "field": "durationMs",
+      "type": "quantitative",
+      "title": "Duration / latency (ms)"
+    },
+    "size": {
+      "field": "score",
+      "type": "quantitative",
+      "title": "Score"
+    },
+    "color": {
+      "field": "passed",
+      "type": "nominal",
+      "title": "Passed"
+    },
+    "tooltip": [
+      {
+        "field": "suite",
+        "type": "nominal"
+      },
+      {
+        "field": "model",
+        "type": "nominal"
+      },
+      {
+        "field": "provider",
+        "type": "nominal"
+      },
+      {
+        "field": "costUsd",
+        "type": "quantitative"
+      },
+      {
+        "field": "durationMs",
+        "type": "quantitative"
+      },
+      {
+        "field": "score",
+        "type": "quantitative"
+      },
+      {
+        "field": "passed",
+        "type": "nominal"
+      },
+      {
+        "field": "sourceFile",
+        "type": "nominal"
+      },
+      {
+        "field": "sourceField",
+        "type": "nominal"
+      }
+    ]
+  },
+  "usermeta": {
+    "proofloop": {
+      "chartId": "latency-cost-frontier",
+      "sourceBindings": [
+        {
+          "sourceFile": "cost-ledger.json",
+          "sourceField": "policies[].durationMs",
+          "required": false
+        },
+        {
+          "sourceFile": "model-matrix.json",
+          "sourceField": "models[].latencyMs",
+          "required": false
+        },
+        {
+          "sourceFile": "meta.json",
+          "sourceField": "durationMs",
+          "required": false
+        }
+      ]
+    }
+  }
+}

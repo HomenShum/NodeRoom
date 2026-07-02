@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Proof Loop Chart Pack - 2026-07-02T20-31-20</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 0; color: #0f172a; background: #f8fafc; }
+    header, section { max-width: 1120px; margin: 0 auto; padding: 24px; }
+    header { border-bottom: 1px solid #cbd5e1; background: #ffffff; }
+    section { background: #ffffff; border-bottom: 1px solid #e2e8f0; }
+    h1, h2 { margin: 0 0 8px; }
+    p { color: #475569; }
+    code { background: #f1f5f9; padding: 2px 4px; border-radius: 4px; }
+    .unavailable { color: #92400e; }
+    .source { font-size: 12px; }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/vega@5"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vega-lite@5"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vega-embed@6"></script>
+</head>
+<body>
+  <header>
+    <h1>Proof Loop Chart Pack</h1>
+    <p>Run <code>2026-07-02T20-31-20</code> / suite <code>proximitty-underwriting-pr0</code>. Generated 2026-07-02T21:14:34.107Z.</p>
+  </header>
+  <section><h2>Model Performance</h2><p>Which model or fusion policy actually passes this task, with score, cost, latency, and evidence quality.</p><div id="chart-model-performance"></div><p class="source">Spec: <code>model-performance.vl.json</code> Data: <code>data/model-performance.data.json</code></p></section>
+<section><h2>Cost Per Pass</h2><p>How much it costs to get one successful proof run for each route.</p><div id="chart-cost-per-pass"></div><p class="source">Spec: <code>cost-per-pass.vl.json</code> Data: <code>data/cost-per-pass.data.json</code></p></section>
+<section><h2>Failure Categories</h2><p>What is actually breaking across proof runs and benchmark lanes.</p><div id="chart-failure-categories"></div><p class="source">Spec: <code>failure-categories.vl.json</code> Data: <code>data/failure-categories.data.json</code></p></section>
+<section><h2>Harness Version Trend</h2><p>Whether newer harness versions improve pass rate, cost, latency, and failure count.</p><div id="chart-harness-version-trend"></div><p class="source">Spec: <code>harness-version-trend.vl.json</code> Data: <code>data/harness-version-trend.data.json</code></p></section>
+<section><h2>Evidence Grounding</h2><p>How strongly the proof run is grounded in recorded evidence and visual/verifier receipts.</p><div id="chart-evidence-score"></div><p class="source">Spec: <code>evidence-score.vl.json</code> Data: <code>data/evidence-score.data.json</code></p></section>
+<section><h2>Latency / Cost Frontier</h2><p>Which route is cheapest and fastest without losing proof score.</p><div id="chart-latency-cost-frontier"></div><p class="source">Spec: <code>latency-cost-frontier.vl.json</code> Data: <code>data/latency-cost-frontier.data.json</code></p></section>
+<section><h2>Accounting Workpaper</h2><p>Finance/accounting proof metrics such as tie-outs, debit-credit balance, aging buckets, and variance waterfalls.</p><p class="unavailable">The selected proof target did not include accounting workpaper metrics.</p><div id="chart-accounting-workpaper"></div><p class="source">Spec: <code>accounting-workpaper.vl.json</code> Data: <code>data/accounting-workpaper.data.json</code></p></section>
+<section><h2>Workflow Completion</h2><p>Latest proof state by run and benchmark lane.</p><div id="chart-workflow-completion"></div><p class="source">Spec: <code>workflow-completion.vl.json</code> Data: <code>data/workflow-completion.data.json</code></p></section>
+  <script>
+vegaEmbed("#chart-model-performance", "model-performance.vl.json", { actions: false }).catch((error) => {
+  document.querySelector("#chart-model-performance").innerHTML = "<pre>" + String(error).replace(/[&<>]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c])) + "</pre>";
+});
+vegaEmbed("#chart-cost-per-pass", "cost-per-pass.vl.json", { actions: false }).catch((error) => {
+  document.querySelector("#chart-cost-per-pass").innerHTML = "<pre>" + String(error).replace(/[&<>]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c])) + "</pre>";
+});
+vegaEmbed("#chart-failure-categories", "failure-categories.vl.json", { actions: false }).catch((error) => {
+  document.querySelector("#chart-failure-categories").innerHTML = "<pre>" + String(error).replace(/[&<>]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c])) + "</pre>";
+});
+vegaEmbed("#chart-harness-version-trend", "harness-version-trend.vl.json", { actions: false }).catch((error) => {
+  document.querySelector("#chart-harness-version-trend").innerHTML = "<pre>" + String(error).replace(/[&<>]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c])) + "</pre>";
+});
+vegaEmbed("#chart-evidence-score", "evidence-score.vl.json", { actions: false }).catch((error) => {
+  document.querySelector("#chart-evidence-score").innerHTML = "<pre>" + String(error).replace(/[&<>]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c])) + "</pre>";
+});
+vegaEmbed("#chart-latency-cost-frontier", "latency-cost-frontier.vl.json", { actions: false }).catch((error) => {
+  document.querySelector("#chart-latency-cost-frontier").innerHTML = "<pre>" + String(error).replace(/[&<>]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c])) + "</pre>";
+});
+vegaEmbed("#chart-accounting-workpaper", "accounting-workpaper.vl.json", { actions: false }).catch((error) => {
+  document.querySelector("#chart-accounting-workpaper").innerHTML = "<pre>" + String(error).replace(/[&<>]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c])) + "</pre>";
+});
+vegaEmbed("#chart-workflow-completion", "workflow-completion.vl.json", { actions: false }).catch((error) => {
+  document.querySelector("#chart-workflow-completion").innerHTML = "<pre>" + String(error).replace(/[&<>]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c])) + "</pre>";
+});
+  </script>
+</body>
+</html>
