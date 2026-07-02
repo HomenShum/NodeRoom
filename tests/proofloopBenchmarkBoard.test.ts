@@ -12,12 +12,19 @@ describe("Proof Loop benchmark board", () => {
       scoreType: "product_path_completion",
     });
     expect(entries.bankertoolbench.officialSemanticScore).toMatchObject({
-      status: "blocked",
+      status: "proven",
       scoreType: "official_semantic_score",
+      metrics: {
+        expectedCount: 100,
+        executedTaskCount: 100,
+        cleanScoredTaskCount: 100,
+        meanCleanReward: 0.251875,
+        passRate: 0,
+      },
     });
     expect(entries.spreadsheetbench.productPathCompletion.status).toBe("proven");
     expect(entries["openrouter-convex"].productPathCompletion.status).toBe("proven");
-    expect(entries["openrouter-convex"].officialSemanticScore.status).toBe("blocked");
+    expect(entries["openrouter-convex"].officialSemanticScore.status).toBe("not_applicable");
   });
 
   it("lists the registered future finance benchmarks without claiming they are live-proven", () => {
@@ -26,7 +33,7 @@ describe("Proof Loop benchmark board", () => {
 
     for (const id of ["finch", "finauditing", "workstreambench"]) {
       expect(entries[id].productPathCompletion.status).toBe("registered");
-      expect(entries[id].officialSemanticScore.status).toBe("not_claimed");
+      expect(entries[id].officialSemanticScore.status).toBe("blocked");
       expect(entries[id].productPathCompletion.blockers.join(" ")).toContain("missing implementation file");
     }
   });
@@ -35,8 +42,8 @@ describe("Proof Loop benchmark board", () => {
     const markdown = renderProofloopBenchmarkBoardMarkdown(buildProofloopBenchmarkBoard({ generatedAt: "test" }));
 
     expect(markdown).toContain("# Proof Loop Benchmark Board");
-    expect(markdown).toContain("| `bankertoolbench` | external_adapter | proven | blocked |");
-    expect(markdown).toContain("| `finch` | external_adapter | registered | not_claimed |");
+    expect(markdown).toContain("| `bankertoolbench` | external_adapter | proven | proven |");
+    expect(markdown).toContain("| `finch` | external_adapter | registered | blocked |");
     expect(markdown).toContain("Product-path completion is useful proof");
   });
 });
