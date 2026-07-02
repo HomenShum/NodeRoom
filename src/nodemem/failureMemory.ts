@@ -4,7 +4,7 @@
 // unresolved failures and condition the agent off known-bad paths -- the "memory -> repair" half of
 // the NodeRL loop. Pure + deterministic (the CLI does file IO); no Convex dependency, so it works in
 // the portable NodeRL extraction as well as in NodeRoom.
-import type { NodeMemFailurePattern } from "./core/types";
+import type { NodeMemFailurePattern, NodeMemSource } from "./core/types";
 
 export interface TaskFailure {
   taskId: string;
@@ -12,6 +12,8 @@ export interface TaskFailure {
   /** Which proof lane produced the failure. */
   lane: "live" | "isolated";
   receiptRef?: string;
+  /** Optional, additive: see NodeMemSource / noderl/spec/anti-reward-hacking-doctrine.md. */
+  source?: NodeMemSource;
 }
 
 /** Map a validation/scorer error string to a stable root-cause category for dedupe + repair routing. */
@@ -68,6 +70,7 @@ export function buildFailurePatterns(failures: TaskFailure[], now: number): Node
       affectedSystems: [f.taskId],
       receiptRefs: f.receiptRef ? [f.receiptRef] : [],
       createdAt: now,
+      source: f.source,
     };
   });
 }

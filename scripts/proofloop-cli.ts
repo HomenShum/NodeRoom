@@ -56,6 +56,7 @@ import {
   superviseProofloopGoal,
 } from "../src/eval/proofloopGoalSupervisor";
 import { writeLoopArtifactsForMeta } from "../src/eval/proofloopLoopArtifacts";
+import type { ProofLoopSource } from "../src/eval/scaffoldProposal";
 
 const ROOT = process.cwd();
 const PROOFLOOP_DIR = join(ROOT, ".proofloop");
@@ -542,10 +543,27 @@ function cmdPromote(runIdArg: string | undefined): void {
     console.log(`proofloop: run ${meta.runId} passed -- nothing to promote.`);
     return;
   }
-  const regressions: Array<{ suite: string; runId: string; failedGates: string[]; promotedAt: string }> = existsSync(REGRESSIONS_PATH)
+  const regressions: Array<{
+    suite: string;
+    runId: string;
+    failedGates: string[];
+    promotedAt: string;
+    // Additive per noderl/spec/anti-reward-hacking-doctrine.md -- "human" here is deliberate:
+    // this CLI command only runs when a person invokes `proofloop promote`, never automatically
+    // from inside a repair pass, so it always records a human-outside-the-loop decision.
+    promotedBy?: "human" | "locked_verifier";
+    source?: ProofLoopSource;
+  }> = existsSync(REGRESSIONS_PATH)
     ? JSON.parse(readFileSync(REGRESSIONS_PATH, "utf8"))
     : [];
-  const entry = { suite: meta.suite, runId: meta.runId, failedGates: meta.failedGates ?? [], promotedAt: new Date().toISOString() };
+  const entry = {
+    suite: meta.suite,
+    runId: meta.runId,
+    failedGates: meta.failedGates ?? [],
+    promotedAt: new Date().toISOString(),
+    promotedBy: "human" as const,
+    source: "real_user_run" as const,
+  };
   const alreadyPromoted = regressions.some((r) => r.suite === entry.suite && JSON.stringify(r.failedGates) === JSON.stringify(entry.failedGates));
   if (!alreadyPromoted) regressions.push(entry);
   writeJson(REGRESSIONS_PATH, regressions);

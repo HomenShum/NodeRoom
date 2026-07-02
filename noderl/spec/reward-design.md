@@ -65,3 +65,9 @@ R = 1.00·proof_verdict_pass
 The headline number is **generic-only** (no per-task answer-key writers). Per-task materializers,
 if present, are diagnostic and must be labeled as such — never the reported reward. A reward that
 can be earned by hardcoding the output is the wrong reward (see `anti-cheat-doctrine.md`).
+
+See [`anti-reward-hacking-doctrine.md`](anti-reward-hacking-doctrine.md) for the full
+Certification-Loop-vs-Exploration-Loop framing, plus the `NodeRewardProvenance` extension (an
+additive `source`-style field set — `deterministic`, `officialScorer`, `visualJudge`,
+`humanFeedback`, `syntheticOnly`) that lets a reward be audited back to where it actually came from,
+not just what number it reports.

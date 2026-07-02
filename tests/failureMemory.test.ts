@@ -34,6 +34,27 @@ describe("NodeMem failure memory — memory->repair half of the loop", () => {
     expect(p.fixSummary.length).toBeGreaterThan(0);
   });
 
+  // Per noderl/spec/anti-reward-hacking-doctrine.md: source provenance must survive the
+  // TaskFailure -> NodeMemFailurePattern conversion, or the field is dead weight that nothing
+  // ever actually populates end to end.
+  it("propagates optional source provenance from TaskFailure into the built pattern", () => {
+    const [real] = buildFailurePatterns(
+      [{ taskId: "btb-2", reason: "agent timed out after 20 minutes", lane: "live", source: "real_user_run" }],
+      NOW,
+    );
+    expect(real.source).toBe("real_user_run");
+
+    const [synthetic] = buildFailurePatterns(
+      [{ taskId: "btb-3", reason: "agent timed out after 20 minutes", lane: "isolated", source: "synthetic_edge_case" }],
+      NOW,
+    );
+    expect(synthetic.source).toBe("synthetic_edge_case");
+
+    // Omitting source must not break existing callers -- it stays undefined, not a crash.
+    const [untagged] = buildFailurePatterns([{ taskId: "btb-4", reason: "agent timed out", lane: "live" }], NOW);
+    expect(untagged.source).toBeUndefined();
+  });
+
   it("merge drops resolved tasks, upserts new failures, dedupes by id", () => {
     const existing = buildFailurePatterns(
       [{ taskId: "btb-1", reason: "scorer.verdict=pass", lane: "live" }, { taskId: "btb-2", reason: "agent timed out", lane: "live" }],

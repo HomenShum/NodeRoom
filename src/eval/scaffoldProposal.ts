@@ -27,6 +27,23 @@ import type { RootCauseCategory } from "./improvementArtifacts";
 
 // ─── Types ────────────────────────────────────────────────────────────────
 
+// Where a proposal/failure/regression actually originated -- see
+// noderl/spec/anti-reward-hacking-doctrine.md. Optional and additive: nothing that already
+// constructs a ScaffoldProposal (or the regressions.json entries in proofloop-cli.ts, or the
+// TaskFailure/NodeMemFailurePattern records in src/nodemem/failureMemory.ts) needs to change.
+// A scaffold-delta suggestion grounded in "real_user_run" or "official_benchmark" should be
+// trusted over one grounded in "synthetic_edge_case" or "model_generated_proposal" -- treating
+// them as equally trustworthy is the model-collapse failure mode (training the loop's future
+// behavior only on its own generated output).
+export type ProofLoopSource =
+  | "real_user_run"
+  | "live_browser_proof"
+  | "official_benchmark"
+  | "human_feedback"
+  | "redteam_proposal"
+  | "synthetic_edge_case"
+  | "model_generated_proposal";
+
 export type ScaffoldChangeType =
   | "scenario"
   | "rubric"
@@ -80,6 +97,8 @@ export interface ScaffoldProposal {
   rootCauseCategory?: RootCauseCategory;
   /** The specific failing step or eval case that triggered this proposal. */
   triggeredBy?: string;
+  /** Where the failure/insight behind this proposal actually came from. See ProofLoopSource. */
+  source?: ProofLoopSource;
 }
 
 export type ScaffoldReviewVerdict = "accepted" | "rejected" | "needs_adversarial_review";
