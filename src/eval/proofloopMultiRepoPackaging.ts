@@ -284,10 +284,13 @@ function isExcluded(file: string, spec: ProofloopPackageTargetSpec): boolean {
 
 function publishCommandsFor(spec: ProofloopPackageTargetSpec): string[] {
   const visibilityFlag = spec.visibility === "public" ? "--public" : "--private";
+  const repoDir = `.proofloop/packages/${spec.id}/repo`;
   return [
     `npm run proofloop:package -- ${spec.id} --copy`,
-    `gh repo create HomenShum/${spec.repoName} ${visibilityFlag} --source .proofloop/packages/${spec.id}/repo --remote ${spec.id}`,
-    `git -C .proofloop/packages/${spec.id}/repo push -u ${spec.id} main`,
+    `git -C ${repoDir} init -b main`,
+    `git -C ${repoDir} add .`,
+    `git -C ${repoDir} commit -m "chore: publish Proof Loop ${spec.id} package"`,
+    `gh repo create HomenShum/${spec.repoName} ${visibilityFlag} --source ${repoDir} --remote origin --push`,
   ];
 }
 
