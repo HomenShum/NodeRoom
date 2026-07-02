@@ -203,6 +203,7 @@ describe("proofloop adapters", () => {
       'case "gate"',
       'case "supervise"',
       'case "resume"',
+      'case "setup"',
       "memory init",
       "memory compact",
       "memory search",
@@ -232,6 +233,7 @@ describe("proofloop adapters", () => {
       "budget_exhausted",
       "worker_stalled",
       "proofloop gate --goal",
+      "proofloop setup",
       "--user-emulation strict",
     ]) {
       expect(content).toContain(command);
@@ -271,6 +273,32 @@ describe("proofloop adapters", () => {
       "browserscenario does not exist",
       "nextRunnableTask",
       "recordGoalBlocker",
+      "localSetupTaskForFailure",
+      "setup-bankertoolbench-local",
+      "bankertoolbench-official-contract",
+      "setup bankertoolbench --allow-download",
+      "--verify-official-contract",
+      "requirements",
+    ]) {
+      expect(content).toContain(invariant);
+    }
+  });
+
+  it("setup command can prepare local benchmark fixtures before declaring blockers", () => {
+    const content = readFileSync(join(process.cwd(), "scripts/proofloop-cli.ts"), "utf-8");
+    for (const invariant of [
+      "cmdSetupBankerToolBench",
+      "fetchHfDatasetTree",
+      "downloadHfFile",
+      "writeBtbManifestLock",
+      "writeSelectedBtbTasksJsonl",
+      "scanBankerToolBenchBundle",
+      "bankertoolbench-manifest-lock.json",
+      "BTB_DATASET_REVISION",
+      "BTB_MANIFEST_LOCKFILE",
+      "Proof Loop guides the coding agent to set up local fixtures before declaring external blockers.",
+      "needs_download",
+      "needs_local_adapter_implementation",
     ]) {
       expect(content).toContain(invariant);
     }

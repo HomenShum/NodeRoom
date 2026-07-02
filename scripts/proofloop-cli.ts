@@ -46,6 +46,8 @@ import {
 } from "node:fs";
 import { createRequire } from "node:module";
 import { dirname, join, resolve } from "node:path";
+import { scanBankerToolBenchBundle } from "../src/eval/bankerToolBenchAdapter";
+import { buildBankerToolBenchManifestLock } from "../src/eval/bankerToolBenchManifestLock";
 import { writeLoopArtifactsForMeta } from "../src/eval/proofloopLoopArtifacts";
 
 const ROOT = process.cwd();
@@ -59,6 +61,7 @@ const MEMORY_INDEX_PATH = join(MEMORY_DIR, "index.db");
 const MEMORY_POLICY_PATH = join(MEMORY_DIR, "policies.json");
 const MEMORY_COMPACTED_DIR = join(MEMORY_DIR, "compacted");
 const GOALS_DIR = join(PROOFLOOP_DIR, "goals");
+const SETUP_DIR = join(PROOFLOOP_DIR, "setup");
 const REGRESSIONS_PATH = join(PROOFLOOP_DIR, "regressions.json");
 const requireFromCli = createRequire(import.meta.url);
 
@@ -158,6 +161,7 @@ type GoalBlocker = {
   unblockedTasksRemaining: boolean;
   taskId?: string;
   recordedAt: string;
+  requirements?: string[];
 };
 
 type GoalBlockers = {
@@ -250,7 +254,7 @@ const DEFAULT_SUPERVISOR_POLICY = {
   maxRetriesPerTask: 3,
 };
 
-function main(): void {
+async function main(): Promise<void> {
   const [command, ...args] = process.argv.slice(2);
   switch (command) {
     case "init":
@@ -287,6 +291,8 @@ function main(): void {
       return cmdSupervise(args);
     case "resume":
       return cmdResume(args);
+    case "setup":
+      return await cmdSetup(args);
     case "storybook":
       return cmdStorybook(args[0]);
     case "repair":
@@ -342,6 +348,7 @@ function usage(error?: string): void {
       "  gate --goal <id>     fail unless the proof ledger can close the goal",
       "  supervise --goal <id> run queued work until a terminal ledger state",
       "  resume --goal <id>   print the worker resume prompt and next task",
+      "  setup <adapter>      prepare local fixtures/adapters before proof runs",
       "  storybook [runId]    write trace-storybook.html",
       "  repair [runId]       write/print repair-prompt.md",
       "  storyboard [runId]   write storyboard.json/md",
@@ -943,6 +950,331 @@ function cmdResume(args: string[]): void {
   console.log(renderResumePrompt(normalized, task, latest));
 }
 
+async function cmdSetup(args: string[]): Promise<void> {
+  const [target, ...rest] = args;
+  if (!target) return usage("usage: proofloop setup <adapter>");
+  if (target === "bankertoolbench") return cmdSetupBankerToolBench(rest);
+  return cmdSetupUnsupportedAdapter(target, rest);
+}
+
+async function cmdSetupBankerToolBench(args: string[]): Promise<void> {
+  const root = resolve(ROOT, optionValue(args, "--root") ?? ".tmp/official-benchmarks/btb-fixture");
+  const dataset = optionValue(args, "--dataset") ?? "handshake-ai-research/bankertoolbench";
+  const revision = optionValue(args, "--revision") ?? "main";
+  const limit = Number(optionValue(args, "--limit") ?? 1);
+  const maxBytes = Number(optionValue(args, "--max-bytes") ?? 250_000_000);
+  const taskId = optionValue(args, "--task-id");
+  const allowDownload = hasFlag(args, "--allow-download");
+  const verifyOfficialContract = hasFlag(args, "--verify-official-contract");
+  const receiptPath = join(SETUP_DIR, "bankertoolbench-local-setup.json");
+  mkdirSync(root, { recursive: true });
+  mkdirSync(SETUP_DIR, { recursive: true });
+
+  const existing = tryScanBtb(root);
+  if (existing.ok) {
+    const manifestLockfile = writeBtbManifestLock(root, revision);
+    const fixtureFiles = listBtbFixtureFiles(root, existing.taskIds);
+    writeJson(receiptPath, btbSetupReceipt({
+      status: "ready",
+      root,
+      dataset,
+      revision,
+      taskIds: existing.taskIds,
+      downloadedFiles: [],
+      fixtureFiles,
+      manifestLockfile,
+      totalBytes: totalRelativeFileBytes(root, fixtureFiles),
+      message: "Existing local BankerToolBench fixture scanned successfully.",
+    }));
+    console.log(`proofloop setup: BankerToolBench local fixture ready at ${rel(root)}`);
+    console.log(`proofloop setup: manifest lock ${rel(manifestLockfile)}`);
+    console.log(`proofloop setup: receipt ${rel(receiptPath)}`);
+    if (verifyOfficialContract) runBtbOfficialContractPreflight(revision, manifestLockfile);
+    return;
+  }
+
+  if (!allowDownload) {
+    writeJson(receiptPath, btbSetupReceipt({
+      status: "needs_download",
+      root,
+      dataset,
+      revision,
+      taskIds: [],
+      downloadedFiles: [],
+      totalBytes: 0,
+      message: "Local fixture is missing. Re-run with --allow-download to fetch an official-shaped subset locally.",
+    }));
+    console.error(`proofloop setup: local BankerToolBench fixture missing at ${rel(root)}`);
+    console.error(`proofloop setup: run npm run proofloop -- setup bankertoolbench --allow-download --limit ${limit}`);
+    process.exitCode = 1;
+    return;
+  }
+
+  const tree = await fetchHfDatasetTree(dataset, revision);
+  const tasksJsonlPath = "tasks.jsonl";
+  const tasksJsonlEntry = tree.find((entry) => entry.type === "file" && entry.path === tasksJsonlPath);
+  if (!tasksJsonlEntry) throw new Error(`Hugging Face dataset ${dataset}@${revision} does not expose tasks.jsonl`);
+  await downloadHfFile({ dataset, revision, filePath: tasksJsonlPath, root, expectedSize: tasksJsonlEntry.size });
+  const rows = readJsonlObjects(join(root, tasksJsonlPath));
+  const selectedTaskIds = selectBtbTaskIds(rows, tree, { taskId, limit });
+  const files = tree
+    .filter((entry) => entry.type === "file")
+    .filter((entry) =>
+      entry.path === tasksJsonlPath ||
+      selectedTaskIds.some((id) => entry.path.startsWith(`task-data/${id}/`) || entry.path.startsWith(`golden-outputs/${id}/`)),
+    );
+  const totalBytes = files.reduce((sum, entry) => sum + (entry.size ?? 0), 0);
+  if (totalBytes > maxBytes) {
+    writeJson(receiptPath, btbSetupReceipt({
+      status: "blocked",
+      root,
+      dataset,
+      revision,
+      taskIds: selectedTaskIds,
+      downloadedFiles: [],
+      totalBytes,
+      message: `Selected local fixture is ${totalBytes} bytes, above --max-bytes ${maxBytes}.`,
+    }));
+    console.error(`proofloop setup: selected BTB fixture would download ${totalBytes} bytes, above --max-bytes ${maxBytes}`);
+    process.exitCode = 1;
+    return;
+  }
+
+  const downloadedFiles: string[] = [];
+  for (const entry of files) {
+    const downloaded = await downloadHfFile({ dataset, revision, filePath: entry.path, root, expectedSize: entry.size });
+    if (downloaded) downloadedFiles.push(entry.path);
+  }
+  writeSelectedBtbTasksJsonl(root, rows, selectedTaskIds);
+
+  const scan = scanBankerToolBenchBundle(root, { includeTasks: false, sampleLimit: 3, generatedAt: new Date().toISOString() });
+  const manifestLockfile = writeBtbManifestLock(root, revision);
+  writeJson(receiptPath, btbSetupReceipt({
+    status: "ready",
+    root,
+    dataset,
+    revision,
+    taskIds: selectedTaskIds,
+    downloadedFiles,
+    fixtureFiles: files.map((entry) => entry.path),
+    manifestLockfile,
+    totalBytes,
+    message: `Downloaded and verified ${selectedTaskIds.length} local BankerToolBench task fixture(s).`,
+    scan,
+  }));
+  console.log(`proofloop setup: BankerToolBench local fixture ready at ${rel(root)}`);
+  console.log(`proofloop setup: downloaded ${downloadedFiles.length} file(s), ${totalBytes} bytes`);
+  console.log(`proofloop setup: manifest lock ${rel(manifestLockfile)}`);
+  console.log(`proofloop setup: next npm run proofloop -- run bankertoolbench`);
+  if (verifyOfficialContract) runBtbOfficialContractPreflight(revision, manifestLockfile);
+}
+
+function cmdSetupUnsupportedAdapter(adapterId: string, _args: string[]): void {
+  const adapter = readBenchmarkAdapterIfExists(adapterId);
+  const receiptPath = join(SETUP_DIR, `${adapterId}-local-setup.json`);
+  mkdirSync(SETUP_DIR, { recursive: true });
+  writeJson(receiptPath, {
+    schema: 1,
+    adapterId,
+    status: "needs_local_adapter_implementation",
+    generatedAt: new Date().toISOString(),
+    requiredFiles: adapter
+      ? [
+          adapter.browserScenario,
+          adapter.verifierCommand,
+          adapter.officialScorer?.command ?? adapter.officialScorer?.unavailableReason,
+        ].filter(Boolean)
+      : [`proofloop/benchmarks/${adapterId}/adapter.json`],
+    nextActions: [
+      `Create or complete proofloop/benchmarks/${adapterId}/adapter.json`,
+      "Add a Playwright browser scenario that uploads official inputs through the public UI.",
+      "Add a verifier/official scorer command that writes official-scorer-receipt.json.",
+      `Rerun npm run proofloop -- setup ${adapterId}`,
+      `Rerun npm run proofloop -- run ${adapterId}`,
+    ],
+  });
+  console.error(`proofloop setup: ${adapterId} local setup recipe is not implemented yet`);
+  console.error(`proofloop setup: wrote ${rel(receiptPath)}`);
+  process.exitCode = 1;
+}
+
+type HfTreeEntry = {
+  type: "file" | "directory";
+  path: string;
+  size?: number;
+};
+
+async function fetchHfDatasetTree(dataset: string, revision: string): Promise<HfTreeEntry[]> {
+  const url = `https://huggingface.co/api/datasets/${dataset}/tree/${revision}?recursive=1`;
+  const response = await fetch(url);
+  if (!response.ok) throw new Error(`Hugging Face tree fetch failed (${response.status}): ${url}`);
+  const parsed = await response.json() as HfTreeEntry[];
+  return parsed;
+}
+
+async function downloadHfFile(args: {
+  dataset: string;
+  revision: string;
+  filePath: string;
+  root: string;
+  expectedSize?: number;
+}): Promise<boolean> {
+  const { dataset, revision, filePath, root, expectedSize } = args;
+  const output = join(root, filePath);
+  if (existsSync(output) && (expectedSize === undefined || statSync(output).size === expectedSize)) return false;
+  const url = `https://huggingface.co/datasets/${dataset}/resolve/${revision}/${filePath.split("/").map(encodeURIComponent).join("/")}`;
+  const response = await fetch(url);
+  if (!response.ok) throw new Error(`Hugging Face file download failed (${response.status}): ${filePath}`);
+  const bytes = Buffer.from(await response.arrayBuffer());
+  mkdirSync(dirname(output), { recursive: true });
+  writeFileSync(output, bytes);
+  return true;
+}
+
+function readJsonlObjects(path: string): Array<Record<string, unknown>> {
+  return readFileSync(path, "utf8")
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .map((line) => JSON.parse(line) as Record<string, unknown>);
+}
+
+function selectBtbTaskIds(
+  rows: Array<Record<string, unknown>>,
+  tree: HfTreeEntry[],
+  options: { taskId?: string; limit: number },
+): string[] {
+  const taskIdsWithInputs = new Set(
+    tree
+      .filter((entry) => entry.type === "file" && /^task-data\/[^/]+\/Inputs?\//i.test(entry.path))
+      .map((entry) => entry.path.split("/")[1])
+      .filter(Boolean),
+  );
+  const requested = options.taskId ? [options.taskId] : [];
+  const candidates = requested.length
+    ? rows.filter((row) => requested.includes(String(row.task_id ?? "")))
+    : rows.filter((row) => typeof row.final_prompt === "string" && taskIdsWithInputs.has(String(row.task_id ?? "")));
+  const selected = candidates
+    .map((row) => String(row.task_id ?? ""))
+    .filter(Boolean)
+    .slice(0, Math.max(1, options.limit));
+  if (!selected.length) throw new Error(options.taskId ? `BTB task not found or has no input files: ${options.taskId}` : "No BTB task with input files found");
+  return selected;
+}
+
+function writeSelectedBtbTasksJsonl(root: string, rows: Array<Record<string, unknown>>, selectedTaskIds: string[]): void {
+  const selected = rows.filter((row) => selectedTaskIds.includes(String(row.task_id ?? "")));
+  writeFileSync(join(root, "tasks.jsonl"), `${selected.map((row) => JSON.stringify(row)).join("\n")}\n`, "utf8");
+}
+
+function writeBtbManifestLock(root: string, revision: string): string {
+  const manifestLockfile = join(SETUP_DIR, "bankertoolbench-manifest-lock.json");
+  const manifest = buildBankerToolBenchManifestLock(root, {
+    generatedAt: new Date().toISOString(),
+    datasetRevision: revision,
+  });
+  writeJson(manifestLockfile, manifest);
+  return manifestLockfile;
+}
+
+function listBtbFixtureFiles(root: string, taskIds: string[]): string[] {
+  const files = new Set<string>();
+  if (existsSync(join(root, "tasks.jsonl"))) files.add("tasks.jsonl");
+  for (const taskId of taskIds) {
+    collectRelativeFiles(root, `task-data/${taskId}`, files);
+    collectRelativeFiles(root, `golden-outputs/${taskId}`, files);
+  }
+  return [...files].sort((a, b) => a.localeCompare(b));
+}
+
+function collectRelativeFiles(root: string, relativeDir: string, out: Set<string>): void {
+  const dir = join(root, relativeDir);
+  if (!existsSync(dir)) return;
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    const childRelative = `${relativeDir}/${entry.name}`;
+    if (entry.isDirectory()) collectRelativeFiles(root, childRelative, out);
+    else if (entry.isFile()) out.add(childRelative.replace(/\\/g, "/"));
+  }
+}
+
+function totalRelativeFileBytes(root: string, files: string[]): number {
+  return files.reduce((sum, file) => {
+    const absolute = join(root, file);
+    return existsSync(absolute) && statSync(absolute).isFile() ? sum + statSync(absolute).size : sum;
+  }, 0);
+}
+
+function runBtbOfficialContractPreflight(revision: string, manifestLockfile: string): void {
+  const command = [
+    "npm run benchmark:bankertoolbench:official-contract -- --strict",
+    `--dataset-revision ${quoteShellArg(revision)}`,
+    `--manifest-lockfile ${quoteShellArg(rel(manifestLockfile))}`,
+  ].join(" ");
+  console.log(`proofloop setup: official contract preflight ${command}`);
+  const result = spawnSync(command, {
+    cwd: ROOT,
+    shell: true,
+    stdio: "inherit",
+    env: {
+      ...process.env,
+      BTB_DATASET_REVISION: revision,
+      BTB_MANIFEST_LOCKFILE: rel(manifestLockfile),
+    },
+  });
+  process.exitCode = result.status ?? 1;
+}
+
+function tryScanBtb(root: string): { ok: boolean; taskIds: string[] } {
+  try {
+    const report = scanBankerToolBenchBundle(root, { includeTasks: true, sampleLimit: 3 });
+    const missingTaskData = report.warnings.some((warning) => /missing task-data directory/i.test(warning));
+    const taskIds = (report.tasks ?? [])
+      .filter((task) => task.agentTask.inputFiles.length > 0 && task.agentTask.instruction.trim())
+      .slice(0, 3)
+      .map((task) => task.id);
+    return { ok: taskIds.length > 0 && !missingTaskData, taskIds };
+  } catch {
+    return { ok: false, taskIds: [] };
+  }
+}
+
+function btbSetupReceipt(args: {
+  status: "ready" | "needs_download" | "blocked";
+  root: string;
+  dataset: string;
+  revision: string;
+  taskIds: string[];
+  downloadedFiles: string[];
+  fixtureFiles?: string[];
+  manifestLockfile?: string;
+  totalBytes: number;
+  message: string;
+  scan?: unknown;
+}): Record<string, unknown> {
+  return {
+    schema: 1,
+    benchmark: "bankertoolbench",
+    generatedAt: new Date().toISOString(),
+    productRule: "Proof Loop guides the coding agent to set up local fixtures before declaring external blockers.",
+    root: rel(args.root),
+    dataset: args.dataset,
+    revision: args.revision,
+    status: args.status,
+    taskIds: args.taskIds,
+    downloadedFiles: args.downloadedFiles,
+    fixtureFiles: args.fixtureFiles,
+    manifestLockfile: args.manifestLockfile ? rel(args.manifestLockfile) : undefined,
+    totalBytes: args.totalBytes,
+    message: args.message,
+    nextCommands: [
+      "npm run proofloop -- setup bankertoolbench --allow-download --limit 1",
+      "npm run proofloop -- setup bankertoolbench --allow-download --limit 1 --verify-official-contract",
+      "npm run proofloop -- run bankertoolbench",
+    ],
+    scan: args.scan,
+  };
+}
+
 function normalizeGoalId(goalId: string): string | undefined {
   if (!/^[A-Za-z0-9._-]+$/.test(goalId)) {
     console.error("proofloop: goal id must use only letters, numbers, dot, underscore, or dash");
@@ -1022,12 +1354,17 @@ function defaultGoalQueue(goalId: string): GoalQueue {
       task("nodeagent-frame-smoke", "NodeAgent frame smoke", "must_do_now", "npm run nodeagent:frame:smoke"),
       task("omnigent-nodeagent-smoke", "Omnigent NodeAgent smoke", "must_do_now", "npm run omnigent:nodeagent:smoke"),
       task("memory-doctor", "NodeMem local-first memory doctor", "must_do_now", "npm run proofloop -- memory doctor"),
+      task("setup-bankertoolbench-local", "Prepare local BankerToolBench fixture", "must_do_now", "npm run proofloop -- setup bankertoolbench --allow-download --limit 1"),
+      task("bankertoolbench-official-contract", "BankerToolBench official scorer contract preflight", "must_do_now", "npm run proofloop -- setup bankertoolbench --allow-download --limit 1 --verify-official-contract"),
       task("bankertoolbench-live", "BankerToolBench strict live proof", "must_do_now", "npm run proofloop -- run bankertoolbench"),
     ],
     blocked: [],
     unblocked_next: [
+      task("setup-finch-local", "Prepare local Finch adapter", "unblocked_next", "npm run proofloop -- setup finch"),
       task("finch-live", "Finch strict live proof", "unblocked_next", "npm run proofloop -- run finch"),
+      task("setup-finauditing-local", "Prepare local FinAuditing adapter", "unblocked_next", "npm run proofloop -- setup finauditing"),
       task("finauditing-live", "FinAuditing strict live proof", "unblocked_next", "npm run proofloop -- run finauditing"),
+      task("setup-workstreambench-local", "Prepare local WorkstreamBench adapter", "unblocked_next", "npm run proofloop -- setup workstreambench"),
       task("workstreambench-live", "WorkstreamBench strict live proof", "unblocked_next", "npm run proofloop -- run workstreambench"),
       task("memory-index", "NodeMem searchable index", "unblocked_next", "npm run proofloop -- memory index"),
     ],
@@ -1211,6 +1548,17 @@ function runGoalTask(paths: GoalPaths, task: GoalTask): void {
     return;
   }
 
+  const setupTask = localSetupTaskForFailure(task, `${stdout}\n${stderr}`);
+  if (setupTask) {
+    const queue = readGoalQueue(paths);
+    if (!findTask(queue, setupTask.id)) prependTask(queue, setupTask);
+    if (findTask(queue, task.id)?.bucket === "must_do_now") moveTask(queue, task.id, "unblocked_next", { retries: task.retries + 1 });
+    writeGoalQueue(paths, queue);
+    markGoalState(paths, "repairing", { taskId: task.id, setupTaskId: setupTask.id, reason: "local setup required before blocker classification" });
+    appendGoalLedger(paths, "local_setup_task_created", { taskId: task.id, setupTaskId: setupTask.id, command: setupTask.command });
+    return;
+  }
+
   const blocker = classifyExternalBlocker(paths, task, `${stdout}\n${stderr}`, newRun);
   if (blocker) {
     recordGoalBlocker(paths, blocker, task);
@@ -1242,6 +1590,25 @@ function runGoalTask(paths: GoalPaths, task: GoalTask): void {
   writeGoalQueue(paths, queue);
   markGoalState(paths, "repairing", { taskId: task.id, exitCode, retries });
   appendGoalLedger(paths, "repair_task_created", { taskId: task.id, repairTaskId: `repair-${task.id}-${retries}` });
+}
+
+function localSetupTaskForFailure(task: GoalTask, output: string): GoalTask | undefined {
+  const lower = output.toLowerCase();
+  const now = new Date().toISOString();
+  if (task.id === "bankertoolbench-live" && /btb_ui_bundle_root does not exist|btb-fixture/.test(lower)) {
+    return {
+      id: "setup-bankertoolbench-local",
+      title: "Prepare local BankerToolBench fixture",
+      command: "npm run proofloop -- setup bankertoolbench --allow-download --limit 1",
+      bucket: "must_do_now",
+      required: true,
+      retries: 0,
+      maxRetries: DEFAULT_SUPERVISOR_POLICY.maxRetriesPerTask,
+      createdAt: now,
+      updatedAt: now,
+    };
+  }
+  return undefined;
 }
 
 function recordGoalBlocker(paths: GoalPaths, blocker: GoalBlocker, task: GoalTask | undefined): void {
@@ -1295,12 +1662,20 @@ function classifyExternalBlocker(paths: GoalPaths, task: GoalTask | undefined, o
   const unblockedTasksRemaining = requiredOpenTasks(queue).some((item) => item.id !== task?.id && item.bucket !== "blocked");
   const runDir = latestRun ? resolveRunDir(latestRun) : undefined;
   const officialReceiptPath = runDir ? join(runDir, "official-scorer-receipt.json") : undefined;
-  const officialReceipt = officialReceiptPath ? readJsonIfExists<{ status?: string; blocker?: string; sourceReceipt?: { blockers?: string[] } }>(officialReceiptPath) : null;
+  const officialReceipt = officialReceiptPath ? readJsonIfExists<{
+    status?: string;
+    blocker?: string;
+    sourceReceipt?: {
+      status?: string;
+      blockers?: string[];
+    };
+  }>(officialReceiptPath) : null;
+  const receiptBlockers = officialReceipt?.sourceReceipt?.blockers ?? extractOutputBlockers(output);
   const evidence = officialReceiptPath && existsSync(officialReceiptPath)
     ? rel(officialReceiptPath)
     : latestRun ? rel(join(resolveRunDir(latestRun), "meta.json")) : paths.ledger;
   const command = task?.command ?? "npm run proofloop -- run bankertoolbench";
-  const lower = `${output}\n${officialReceipt?.blocker ?? ""}\n${officialReceipt?.sourceReceipt?.blockers?.join("\n") ?? ""}`.toLowerCase();
+  const lower = `${output}\n${officialReceipt?.blocker ?? ""}\n${receiptBlockers.join("\n") ?? ""}`.toLowerCase();
 
   if (/btb_ui_bundle_root does not exist|official bankertoolbench fixture|btb-fixture/.test(lower)) {
     return {
@@ -1311,6 +1686,23 @@ function classifyExternalBlocker(paths: GoalPaths, task: GoalTask | undefined, o
       unblockedTasksRemaining,
       taskId: task?.id,
       recordedAt: new Date().toISOString(),
+    };
+  }
+  if (/blocked_external_requirements|harbor\/docker|official gandalf verifier|mcp financial tools|manifest lockfile/.test(lower)) {
+    return {
+      type: "missing_official_scorer",
+      name: task ? `${task.title} official execution contract` : "BankerToolBench official execution contract",
+      evidence,
+      resumeCommand: command,
+      unblockedTasksRemaining,
+      taskId: task?.id,
+      recordedAt: new Date().toISOString(),
+      requirements: receiptBlockers.length ? receiptBlockers : [
+        "Record dataset revision plus a manifest lockfile with per-file hashes.",
+        "Run each official task in Harbor/Docker with agent-only workspace mounts before verifier access.",
+        "Adapt required MCP financial tools.",
+        "Import official Gandalf verifier scores.",
+      ],
     };
   }
   if (/browserscenario does not exist|official scorer command is not configured|not implemented in this repo yet/.test(lower)) {
@@ -1358,6 +1750,18 @@ function classifyExternalBlocker(paths: GoalPaths, task: GoalTask | undefined, o
     };
   }
   return undefined;
+}
+
+function extractOutputBlockers(output: string): string[] {
+  return output
+    .split(/\r?\n/)
+    .map((line) => line.trim().replace(/^[*-]\s*/, ""))
+    .filter((line) => (
+      /^Record BankerToolBench dataset revision/i.test(line) ||
+      /^Run each official task in Harbor\/Docker/i.test(line) ||
+      /^Adapt required MCP financial tools/i.test(line) ||
+      /^Import official Gandalf verifier scores/i.test(line)
+    ));
 }
 
 function isGoalBlockerType(value: string): value is GoalBlocker["type"] {
@@ -1670,6 +2074,10 @@ function applyBenchmarkAdapterEnv(
     env.BTB_LIVE_ROOM_PROOF_PATH = join(runDir, "verifier-receipt.json");
     env.BTB_FRESH_ROOM_PROOF_PATH = join(runDir, "fresh-room-proof.json");
     env.BTB_PACKAGE_MANIFEST_PATH = join(runDir, "exported-files-reopen-proof.json");
+    const setupReceipt = readJsonIfExists<{ revision?: string; manifestLockfile?: string }>(join(SETUP_DIR, "bankertoolbench-local-setup.json"));
+    const manifestLockfile = setupReceipt?.manifestLockfile ? resolve(ROOT, setupReceipt.manifestLockfile) : join(SETUP_DIR, "bankertoolbench-manifest-lock.json");
+    if (setupReceipt?.revision) env.BTB_DATASET_REVISION = env.BTB_DATASET_REVISION || String(setupReceipt.revision);
+    if (existsSync(manifestLockfile)) env.BTB_MANIFEST_LOCKFILE = env.BTB_MANIFEST_LOCKFILE || rel(manifestLockfile);
   }
 }
 
@@ -2372,4 +2780,7 @@ function firstExistingPath(root: string, names: string[]): string {
   return names.map((name) => join(root, name)).find((path) => existsSync(path)) ?? join(root, names[0]);
 }
 
-main();
+main().catch((error) => {
+  console.error(`proofloop: ${error instanceof Error ? error.message : String(error)}`);
+  process.exitCode = 1;
+});
