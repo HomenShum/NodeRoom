@@ -90,6 +90,7 @@
     "proofloop:live:adapter": "tsx scripts/proofloop-live-playwright.ts adapter",
     "proofloop:live:btb": "tsx scripts/proofloop-live-playwright.ts bankertoolbench",
     "proofloop": "tsx scripts/proofloop-cli.ts",
+    "proofloop:package": "tsx scripts/proofloop-package.ts",
     "proofloop:proximitty": "node scripts/proofloop.mjs proximitty",
     "proofloop:proximitty:models": "node proofloop/adapters/model-delta.mjs --suite=proximitty-underwriting-pr0 --run=latest",
     "proofloop:proximitty:clips": "node proofloop/adapters/generate-clips.mjs --suite=proximitty-underwriting-pr0 --run=latest",

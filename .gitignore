@@ -43,6 +43,7 @@ playwright/.cache/
 .proofloop/runs/
 .proofloop/goals/
 .proofloop/intake/
+.proofloop/packages/
 .proofloop/workflows/
 .proofloop/screenshots/
 .proofloop/ui-map.json
