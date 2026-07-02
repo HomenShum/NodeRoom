@@ -65,6 +65,8 @@
     "benchmark:openrouter-convex": "tsx scripts/openrouter-convex-benchmark.ts",
     "benchmark:proofloop:board": "tsx scripts/proofloop-benchmark-board.ts",
     "benchmark:proofloop:normalized": "tsx scripts/proofloop-normalized-benchmarks.ts",
+    "benchmark:proofloop:company-tasks": "tsx scripts/proofloop-company-task-coverage.ts",
+    "benchmark:proofloop:harness-economics": "tsx scripts/proofloop-harness-economics.ts",
     "benchmark:proofloop:adapter-blockers": "tsx scripts/proofloop-adapter-blockers.ts",
     "benchmark:proofloop:external-adapter": "tsx scripts/proofloop-external-adapter-run.ts",
     "benchmark:official:task-coverage": "tsx scripts/official-benchmark-task-coverage.ts",

@@ -41,6 +41,9 @@ const STARTUP_RESEARCH_COLS = [
 ] as const;
 const STARTUP_RESEARCH_EVIDENCE_COLS = new Set(["summary", "funding", "headcount", "recent_signal"]);
 const STARTUP_RESEARCH_AGENT_READONLY_COLS = new Set(["company", "website", "tier", "intent", "owner", "crm_status"]);
+const STARTER_RUNWAY_COLS = ["company", "cash", "burn", "runway", "status", "milestones"] as const;
+const STARTER_RUNWAY_COMPUTE_COLS = new Set(["runway", "milestones"]);
+const STARTER_RUNWAY_AGENT_READONLY_COLS = new Set(["company"]);
 
 type StartupResearchRow = { rowId: string } & Record<(typeof STARTUP_RESEARCH_COLS)[number], string>;
 
@@ -208,6 +211,28 @@ const starterRunwaySeed = () => [
   { id: "mercury__milestones", value: "Confirm current treasury/account products and growth signals" },
 ];
 
+function starterRunwayMeta() {
+  return {
+    dataframe: {
+      columns: STARTER_RUNWAY_COLS.map((col, order) => ({
+        id: col,
+        label: col.replace(/_/g, " "),
+        order,
+        mode: STARTER_RUNWAY_COMPUTE_COLS.has(col) ? "compute" : "manual",
+        type: "text",
+        agentWritable: !STARTER_RUNWAY_AGENT_READONLY_COLS.has(col),
+      })),
+      rowCount: 2,
+      sourceFile: "starter-room",
+      sheetName: "Runway / milestones",
+      sheetNames: ["Runway / milestones"],
+      parser: "starter_seed",
+      truncated: false,
+      warnings: [],
+    },
+  };
+}
+
 const starterWorkplanSeed = () => [
   {
     id: "doc",
@@ -332,7 +357,7 @@ export const createStarterRoom = mutation({
     await insertStarterArtifact(ctx, { roomId, kind: "sheet", title: "Company research", seed: startupResearchSeed(), actor, now, meta: startupResearchMeta() });
     await insertStarterArtifact(ctx, { roomId, kind: "note", title: "Diligence memo", seed: starterNoteSeed(), actor, now });
     await insertStarterArtifact(ctx, { roomId, kind: "wall", title: "Risk / opportunity wall", seed: starterWallSeed(), actor, now });
-    await insertStarterArtifact(ctx, { roomId, kind: "sheet", title: "Runway / milestones", seed: starterRunwaySeed(), actor, now, meta: { dataframe: { columns: ["company", "cash", "burn", "runway", "status", "milestones"], rowCount: 2, sourceFile: "starter-room", parser: "starter_seed", truncated: false, warnings: [] } } });
+    await insertStarterArtifact(ctx, { roomId, kind: "sheet", title: "Runway / milestones", seed: starterRunwaySeed(), actor, now, meta: starterRunwayMeta() });
     await insertStarterArtifact(ctx, { roomId, kind: "note", title: "Open questions / workplan", seed: starterWorkplanSeed(), actor, now });
     await insertStarterArtifact(ctx, { roomId, kind: "sheet", title: "Q3 variance", seed: starterSheetSeed(), actor, now });
     return { roomId, memberId };

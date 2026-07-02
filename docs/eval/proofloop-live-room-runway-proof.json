@@ -1,0 +1,79 @@
+{
+  "schema": 1,
+  "caseId": "PL-LIVE-RUNWAY",
+  "benchmark": "product-smoke",
+  "generatedAt": "2026-07-02T15:11:56.358Z",
+  "baseUrl": "https://noderoom.live",
+  "roomUrl": "https://noderoom.live/?room=PLMR3N6O89&name=Proof+Loop",
+  "command": "PROOFLOOP_LIVE_BROWSER=1 PROOFLOOP_TASKS_JSON=proofloop/accounting/live.accounting.config.json PROOFLOOP_TASK_IDS=runway-calc PROOFLOOP_TEST_TIMEOUT_MS=420000 PROOFLOOP_MAX_TASK_TIMEOUT_MS=300000 BENCH_AGENT_MODEL_MODE=specific BENCH_AGENT_MODEL_POLICY=z-ai/glm-5.2 npx playwright test --config playwright.proofloop.config.ts proofloop/live-browser-proof.spec.ts --headed",
+  "model": {
+    "requested": "z-ai/glm-5.2",
+    "resolved": "z-ai/glm-5.2",
+    "routePolicy": "specific",
+    "runtimeProfile": "benchmark_completion",
+    "provider": "openrouter"
+  },
+  "memoryMode": false,
+  "freshness": {
+    "roomCreatedAfterRunStart": true,
+    "forbiddenPreloadedArtifactsAbsent": true,
+    "artifactsCreatedFresh": [
+      "runway-calc"
+    ]
+  },
+  "ui": {
+    "focusModeEnabled": true,
+    "attentionOverlayVisible": true,
+    "streamingVisible": true,
+    "roomTraceVisible": true,
+    "screenshotPaths": [],
+    "tracePath": "docs\\eval\\fresh-room\\PL-LIVE-RUNWAY\\tasks\\runway-calc\\latest.json"
+  },
+  "artifacts": {
+    "created": [
+      "runway-calc"
+    ]
+  },
+  "scorer": {
+    "name": "Proof-loop suite aggregate",
+    "verdict": "pass",
+    "score": 1,
+    "details": {
+      "taskProofs": [
+        {
+          "taskId": "runway-calc",
+          "taskName": "Runway Calculation",
+          "passed": true,
+          "matchedPatterns": [
+            "runway",
+            "12.5",
+            "months",
+            "Mercury"
+          ],
+          "unmatchedPatterns": [],
+          "streamingVisible": true,
+          "jobStatusVisible": true,
+          "jobDetailVisible": true,
+          "roomTraceVisible": true,
+          "jobCompleted": true,
+          "caveatFindings": [],
+          "blockingCaveats": [],
+          "placeholderFindings": [],
+          "durationMs": 36696,
+          "receiptPath": "docs\\eval\\fresh-room\\PL-LIVE-RUNWAY\\tasks\\runway-calc\\latest.json"
+        }
+      ]
+    }
+  },
+  "gatesProven": [
+    "fresh_room_join",
+    "public_nodeagent_invocation",
+    "no_memory_mode_shortcut",
+    "agent_live_loop",
+    "focus_mode_enabled",
+    "focus_box_or_attention_overlay",
+    "trace_video_artifacts",
+    "official_scorer_handoff"
+  ],
+  "passed": true
+}

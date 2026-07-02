@@ -33,6 +33,8 @@ const artifactsIn = (t: T, roomId: unknown) =>
   t.run(async (ctx) => (await ctx.db.query("artifacts").collect()).filter((a) => String(a.roomId) === String(roomId)));
 const elementsOf = (t: T, artifactId: unknown) =>
   t.run(async (ctx) => (await ctx.db.query("elements").collect()).filter((e) => String(e.artifactId) === String(artifactId)));
+const spreadsheetCellsOf = (t: T, artifactId: unknown) =>
+  t.run(async (ctx) => (await ctx.db.query("spreadsheetCells").collect()).filter((e) => String(e.artifactId) === String(artifactId)));
 const membersIn = (t: T, roomId: unknown) =>
   t.run(async (ctx) => (await ctx.db.query("members").collect()).filter((m) => String(m.roomId) === String(roomId)));
 
@@ -47,6 +49,12 @@ describe("atomic room create — no orphaned rooms", () => {
     expect(arts.map((a) => a.title).sort()).toEqual([...STARTER_TITLES].sort());
     // Each artifact is actually seeded — not an empty shell (the partial-room failure mode).
     for (const a of arts) expect((await elementsOf(t, a._id)).length).toBeGreaterThan(0);
+    const runway = arts.find((a) => a.title === "Runway / milestones");
+    const runwayColumns = ((runway?.meta as { dataframe?: { columns?: unknown[] } } | undefined)?.dataframe?.columns ?? [])
+      .map((column) => column as { id?: unknown; label?: unknown; order?: unknown });
+    expect(runwayColumns.map((column) => column.id)).toEqual(["company", "cash", "burn", "runway", "status", "milestones"]);
+    expect(runwayColumns.every((column) => typeof column.label === "string" && typeof column.order === "number")).toBe(true);
+    expect(await spreadsheetCellsOf(t, runway?._id)).toHaveLength(12);
     // Host member committed in the same transaction.
     const members = await membersIn(t, res.roomId);
     expect(members.some((m) => m.role === "host" && m.name === "Maya")).toBe(true);

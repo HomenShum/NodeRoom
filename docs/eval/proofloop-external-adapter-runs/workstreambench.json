@@ -2,21 +2,21 @@
   "schema": "proofloop-external-adapter-product-proof-v1",
   "adapterId": "workstreambench",
   "status": "passed",
-  "runId": "workstreambench-2026-07-02T10-25-48-776Z",
-  "generatedAt": "2026-07-02T10:25:53.077Z",
+  "runId": "workstreambench-2026-07-02T15-18-53-835Z",
+  "generatedAt": "2026-07-02T15:18:57.512Z",
   "localAdapterOnly": true,
   "officialScoreClaim": false,
   "taskCount": 1,
   "baseUrl": "https://noderoom.live",
   "scenario": "proofloop/benchmarks/workstreambench/browser-scenario.spec.ts",
-  "outputDir": ".proofloop/runs/workstreambench-2026-07-02T10-25-48-776Z/external-adapter/workstreambench",
+  "outputDir": ".proofloop/runs/workstreambench-2026-07-02T15-18-53-835Z/external-adapter/workstreambench",
   "exitCode": 0,
   "evidence": [
     "proofloop/benchmarks/workstreambench/load-tasks.ts",
     "proofloop/benchmarks/workstreambench/browser-scenario.spec.ts",
-    ".proofloop/runs/workstreambench-2026-07-02T10-25-48-776Z/external-adapter/workstreambench/browser-proof.json",
-    ".proofloop/runs/workstreambench-2026-07-02T10-25-48-776Z/external-adapter/workstreambench/local-task-manifest.json",
-    ".proofloop/runs/workstreambench-2026-07-02T10-25-48-776Z/external-adapter/workstreambench/visual-proof.png"
+    ".proofloop/runs/workstreambench-2026-07-02T15-18-53-835Z/external-adapter/workstreambench/browser-proof.json",
+    ".proofloop/runs/workstreambench-2026-07-02T15-18-53-835Z/external-adapter/workstreambench/local-task-manifest.json",
+    ".proofloop/runs/workstreambench-2026-07-02T15-18-53-835Z/external-adapter/workstreambench/visual-proof.png"
   ],
   "failedGates": [],
   "browserProof": {
