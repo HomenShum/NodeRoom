@@ -1,14 +1,14 @@
 {
   "schema": 1,
-  "generatedAt": "2026-07-01T23:46:23.306Z",
+  "generatedAt": "2026-07-02T09:50:29.565Z",
   "summary": {
     "tracks": 5,
     "completeTracks": 2,
-    "partialTracks": 2,
-    "missingTracks": 1,
+    "partialTracks": 3,
+    "missingTracks": 0,
     "totalOfficialExpectedTasks": 1739,
-    "totalStagedTasks": 509,
-    "totalDeterministicRunTasks": 409,
+    "totalStagedTasks": 1421,
+    "totalDeterministicRunTasks": 1321,
     "totalModelRunCases": 106,
     "totalModelRunAttempts": 118,
     "strictFullCoverageReady": false
@@ -30,24 +30,24 @@
         "https://github.com/RUCKBReasoning/SpreadsheetBench",
         "https://huggingface.co/datasets/KAKA22/SpreadsheetBench"
       ],
-      "localScope": "full public V1 bundle is not staged in this repo; current full-staging evidence is for the verified-400 subset",
-      "scannedTasks": 0,
-      "stagedTasks": 0,
-      "skippedTasks": 912,
-      "deterministicRunTasks": 0,
+      "localScope": "full public 912-task bundle staged and scored with deterministic copy-input baseline",
+      "scannedTasks": 912,
+      "stagedTasks": 912,
+      "skippedTasks": 0,
+      "deterministicRunTasks": 912,
       "modelRunCases": 0,
       "modelRunAttempts": 0,
-      "passRate": null,
-      "allOfficialTasksStaged": false,
+      "passRate": 0.104167,
+      "allOfficialTasksStaged": true,
       "allOfficialTasksRunWithModel": false,
-      "status": "missing",
+      "status": "partial",
       "evidence": [
+        "docs/eval/spreadsheetbench-v1-912-stage.json",
+        "docs/eval/spreadsheetbench-v1-912-copy-input-baseline.json",
         "docs/eval/official-benchmark-readiness.json"
       ],
       "blockers": [
-        "Download/lock the full 912-task SpreadsheetBench V1 bundle.",
-        "Stage all 912 tasks with agent/evaluator isolation.",
-        "Run all 912 tasks through the model runner or an approved chunked official-policy runner."
+        "Run all 912 tasks through the model runner or an approved chunked official-policy runner before claiming a model score."
       ]
     },
     {

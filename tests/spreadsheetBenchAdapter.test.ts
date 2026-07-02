@@ -26,7 +26,7 @@ describe("SpreadsheetBench official bundle ingest", () => {
       },
     ]);
     touch(join(root, "spreadsheet", "13-1", "1_13-1_init.xlsx"));
-    touch(join(root, "spreadsheet", "13-1", "1_13-1_golden.xlsx"));
+    touch(join(root, "spreadsheet", "13-1", "1_13-1_answer.xlsx"));
     writeFileSync(join(root, "spreadsheet", "13-1", "prompt.txt"), "Use the workbook and preserve formulas.");
 
     const report = scanSpreadsheetBenchBundle(root, {
@@ -47,13 +47,14 @@ describe("SpreadsheetBench official bundle ingest", () => {
     });
     expect(report.tasks?.[0]?.agentTask.inputFiles).toEqual(["spreadsheet/13-1/1_13-1_init.xlsx"]);
     expect(report.tasks?.[0]?.agentTask.promptFiles).toEqual(["spreadsheet/13-1/prompt.txt"]);
-    expect(report.tasks?.[0]?.evaluatorGoldFiles).toEqual(["spreadsheet/13-1/1_13-1_golden.xlsx"]);
+    expect(report.tasks?.[0]?.evaluatorGoldFiles).toEqual(["spreadsheet/13-1/1_13-1_answer.xlsx"]);
     expect(report.tasks?.[0]?.evaluatorMetadata).toEqual({
       answerPosition: "Sheet1!C3",
       answerSheet: "Sheet1",
       dataPosition: "Sheet1!A1:C5",
     });
     expect(JSON.stringify(report.tasks?.[0]?.agentTask)).not.toContain("golden");
+    expect(JSON.stringify(report.tasks?.[0]?.agentTask)).not.toContain("answer");
     expect(JSON.stringify(report.tasks?.[0]?.agentTask)).not.toContain("answerPosition");
     expect(JSON.stringify(report.tasks?.[0]?.agentTask)).not.toContain("dataPosition");
   });

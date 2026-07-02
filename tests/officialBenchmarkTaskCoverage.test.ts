@@ -9,8 +9,10 @@ describe("official benchmark task coverage ledger", () => {
     expect(report.summary.strictFullCoverageReady).toBe(false);
     expect(tracks["spreadsheetbench-v1-full-912"]).toMatchObject({
       officialExpectedTasks: 912,
-      stagedTasks: 0,
-      status: "missing",
+      stagedTasks: 912,
+      deterministicRunTasks: 912,
+      modelRunCases: 0,
+      status: "partial",
     });
     expect(tracks["spreadsheetbench-v1-verified-400"]).toMatchObject({
       officialExpectedTasks: 400,

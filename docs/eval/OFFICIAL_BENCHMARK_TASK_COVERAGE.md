@@ -1,6 +1,6 @@
 # Official Benchmark Task Coverage
 
-Generated: 2026-07-01T23:46:23.306Z
+Generated: 2026-07-02T09:50:29.565Z
 
 This is the no-shorthand ledger for the external benchmark question: have we staged and run every published task, or only a subset/fixture? It deliberately separates full official tracks, verified subsets, and NodeRoom's internal multi-user conflict suite.
 
@@ -8,8 +8,8 @@ This is the no-shorthand ledger for the external benchmark question: have we sta
 
 - Tracks complete: 2/5
 - Declared task targets represented in this ledger: 1739
-- Staged tasks: 509
-- Deterministic runner tasks: 409
+- Staged tasks: 1421
+- Deterministic runner tasks: 1321
 - Model-run cases: 106
 - Model-run attempts: 118
 - Strict full coverage ready: no
@@ -26,7 +26,7 @@ This is the no-shorthand ledger for the external benchmark question: have we sta
 
 | Track | Status | Task Targets | Staged | Deterministic Run | Model Cases / Attempts | Pass Rate | Blockers |
 |---|---:|---:|---:|---:|---:|---:|---|
-| `spreadsheetbench-v1-full-912` | missing | 912 | 0 | 0 | 0 / 0 | n/a | Download/lock the full 912-task SpreadsheetBench V1 bundle.; Stage all 912 tasks with agent/evaluator isolation.; Run all 912 tasks through the model runner or an approved chunked official-policy runner. |
+| `spreadsheetbench-v1-full-912` | partial | 912 | 912 | 912 | 0 / 0 | 0.104 | Run all 912 tasks through the model runner or an approved chunked official-policy runner before claiming a model score. |
 | `spreadsheetbench-v1-verified-400` | partial | 400 | 400 | 400 | 3 / 15 | 1.000 | 397 verified task(s) still need model-run evidence; current N=5 smoke covers 3/400 cases.; Full verified-score promotion still needs official scoring parity, not only local workbook scoring. |
 | `spreadsheetbench-v2-full-321` | partial | 321 | 3 | 3 | 3 / 3 | 0.000 | 318 SpreadsheetBench 2 task(s) still need staging from the full official bundle.; Run every staged V2 task through the model runner, static workbook scorer, and rendered/VLM chart grader where applicable. |
 | `bankertoolbench-full-100` | complete | 100 | 100 | 0 | 100 / 100 | 0.000 | none |
@@ -36,9 +36,9 @@ This is the no-shorthand ledger for the external benchmark question: have we sta
 
 ### SpreadsheetBench V1 full benchmark
 
-- Local scope: full public V1 bundle is not staged in this repo; current full-staging evidence is for the verified-400 subset
+- Local scope: full public 912-task bundle staged and scored with deterministic copy-input baseline
 - Sources: [https://github.com/RUCKBReasoning/SpreadsheetBench](https://github.com/RUCKBReasoning/SpreadsheetBench), [https://huggingface.co/datasets/KAKA22/SpreadsheetBench](https://huggingface.co/datasets/KAKA22/SpreadsheetBench)
-- Evidence: `docs/eval/official-benchmark-readiness.json`
+- Evidence: `docs/eval/spreadsheetbench-v1-912-stage.json`, `docs/eval/spreadsheetbench-v1-912-copy-input-baseline.json`, `docs/eval/official-benchmark-readiness.json`
 
 ### SpreadsheetBench Verified 400 subset
 

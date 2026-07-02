@@ -92,7 +92,7 @@ export function stageSpreadsheetBenchBundle(rootDir: string, options: Spreadshee
     ...staged.flatMap((task) => task.warnings.map((warning) => `${task.id}: ${warning}`)),
   ];
   const agentDirectoryGoldFileCount = staged.reduce((sum, task) =>
-    sum + task.agentInputFiles.concat(task.agentPromptFiles).filter((file) => /gold|golden|ground[_-]?truth/i.test(file)).length, 0);
+    sum + task.agentInputFiles.concat(task.agentPromptFiles).filter((file) => /answer|gold|golden|ground[_-]?truth/i.test(file)).length, 0);
   const agentManifestGoldPathLeaks = staged.filter((task) => manifestLeaksGold(join(outputRoot, task.agentManifest))).length;
   const agentManifestScorerMetadataLeaks = staged.filter((task) => manifestLeaksScorerMetadata(join(outputRoot, task.agentManifest))).length;
   const agentEvaluatorPathOverlap = staged.some((task) =>
@@ -188,9 +188,9 @@ function copyFiles(sourceRoot: string, sourceFiles: string[], destinationDir: st
 
 function manifestLeaksGold(path: string): boolean {
   const parsed = JSON.parse(readFileSync(path, "utf8")) as Record<string, unknown>;
-  const forbiddenKeys = Object.keys(parsed).some((key) => /gold|golden|evaluator/i.test(key));
+  const forbiddenKeys = Object.keys(parsed).some((key) => /answer|gold|golden|evaluator/i.test(key));
   const fileValues = [...stringArray(parsed.inputFiles), ...stringArray(parsed.promptFiles)];
-  return forbiddenKeys || fileValues.some((file) => /gold|golden|ground[_-]?truth/i.test(file));
+  return forbiddenKeys || fileValues.some((file) => /answer|gold|golden|ground[_-]?truth/i.test(file));
 }
 
 function manifestLeaksScorerMetadata(path: string): boolean {

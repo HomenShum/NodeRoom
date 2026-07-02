@@ -1,0 +1,59 @@
+{
+  "schema": "proofloop-official-task-bundle-lock-v1",
+  "adapterId": "finauditing",
+  "status": "locked",
+  "generatedAt": "2026-07-02T09:50:00.000Z",
+  "officialSources": {
+    "repository": {
+      "url": "https://github.com/The-FinAI/FinAuditing",
+      "commit": "cee2b4e563d8d6cadb94cd0138163bb72e8ee0e7",
+      "localEvaluatorEntrypoints": [
+        "StartKit/evaluateFinSM.ipynb",
+        "StartKit/evaluateFinRE.ipynb",
+        "StartKit/evaluateFinMR.ipynb"
+      ],
+      "fullFramework": "https://github.com/Yan2266336/FinBen"
+    },
+    "datasets": [
+      {
+        "id": "FinSM",
+        "url": "https://huggingface.co/datasets/TheFinAI/FinSM",
+        "commit": "08084d379017fcc387800300315e1b14b6ea0242",
+        "split": "test",
+        "file": "data/test-00000-of-00001.parquet",
+        "taskCount": 330
+      },
+      {
+        "id": "FinRE",
+        "url": "https://huggingface.co/datasets/TheFinAI/FinRE",
+        "commit": "a524406e89d488203cfe0e822750955f954ffeaa",
+        "split": "test",
+        "file": "data/test-00000-of-00001.parquet",
+        "taskCount": 440
+      },
+      {
+        "id": "FinMR",
+        "url": "https://huggingface.co/datasets/TheFinAI/FinMR",
+        "commit": "3b1babd0487c1d5a7229f7a26a1654d3fb693e92",
+        "split": "test",
+        "file": "data/test-00000-of-00001.parquet",
+        "taskCount": 332
+      }
+    ]
+  },
+  "localVerification": {
+    "repoPath": ".tmp/official-benchmarks/finauditing-repo",
+    "datasetPaths": [
+      ".tmp/official-benchmarks/finauditing-FinSM",
+      ".tmp/official-benchmarks/finauditing-FinRE",
+      ".tmp/official-benchmarks/finauditing-FinMR"
+    ],
+    "commands": [
+      "git clone https://github.com/The-FinAI/FinAuditing .tmp/official-benchmarks/finauditing-repo",
+      "git clone https://huggingface.co/datasets/TheFinAI/FinSM .tmp/official-benchmarks/finauditing-FinSM",
+      "git clone https://huggingface.co/datasets/TheFinAI/FinRE .tmp/official-benchmarks/finauditing-FinRE",
+      "git clone https://huggingface.co/datasets/TheFinAI/FinMR .tmp/official-benchmarks/finauditing-FinMR",
+      "python -c \"read each parquet test split and count rows\""
+    ]
+  }
+}

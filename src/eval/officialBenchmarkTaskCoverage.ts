@@ -113,6 +113,12 @@ export function buildOfficialBenchmarkTaskCoverageReport(args: {
 }
 
 function spreadsheetBenchV1Full(): BenchmarkTaskCoverageTrack {
+  const stage = readJson<StageReport>("docs/eval/spreadsheetbench-v1-912-stage.json");
+  const copyRun = readJson<RunReport>("docs/eval/spreadsheetbench-v1-912-copy-input-baseline.json");
+  const stagedTasks = stage?.stagedTaskCount ?? 0;
+  const deterministicRunTasks = copyRun?.caseCount ?? copyRun?.taskCount ?? 0;
+  const complete = stagedTasks >= 912 && deterministicRunTasks >= 912;
+
   return {
     id: "spreadsheetbench-v1-full-912",
     title: "SpreadsheetBench V1 full benchmark",
@@ -122,22 +128,28 @@ function spreadsheetBenchV1Full(): BenchmarkTaskCoverageTrack {
       "https://github.com/RUCKBReasoning/SpreadsheetBench",
       "https://huggingface.co/datasets/KAKA22/SpreadsheetBench",
     ],
-    localScope: "full public V1 bundle is not staged in this repo; current full-staging evidence is for the verified-400 subset",
-    scannedTasks: 0,
-    stagedTasks: 0,
-    skippedTasks: 912,
-    deterministicRunTasks: 0,
+    localScope: complete
+      ? "full public 912-task bundle staged and scored with deterministic copy-input baseline"
+      : "full public 912-task bundle evidence is incomplete",
+    scannedTasks: stage?.scannedTaskCount ?? 0,
+    stagedTasks,
+    skippedTasks: stage?.skippedTaskCount ?? 912,
+    deterministicRunTasks,
     modelRunCases: 0,
     modelRunAttempts: 0,
-    passRate: null,
-    allOfficialTasksStaged: false,
+    passRate: copyRun?.passRate ?? null,
+    allOfficialTasksStaged: stagedTasks >= 912,
     allOfficialTasksRunWithModel: false,
-    status: "missing",
-    evidence: ["docs/eval/official-benchmark-readiness.json"],
+    status: complete ? "partial" : stagedTasks > 0 ? "partial" : "missing",
+    evidence: [
+      "docs/eval/spreadsheetbench-v1-912-stage.json",
+      "docs/eval/spreadsheetbench-v1-912-copy-input-baseline.json",
+      "docs/eval/official-benchmark-readiness.json",
+    ],
     blockers: [
-      "Download/lock the full 912-task SpreadsheetBench V1 bundle.",
-      "Stage all 912 tasks with agent/evaluator isolation.",
-      "Run all 912 tasks through the model runner or an approved chunked official-policy runner.",
+      ...(stagedTasks >= 912 ? [] : ["Download/lock and stage the full 912-task SpreadsheetBench V1 bundle."]),
+      ...(deterministicRunTasks >= 912 ? [] : ["Run all 912 staged V1 tasks through the deterministic scorer path."]),
+      "Run all 912 tasks through the model runner or an approved chunked official-policy runner before claiming a model score.",
     ],
   };
 }

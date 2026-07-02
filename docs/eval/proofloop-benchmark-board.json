@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "generatedAt": "2026-07-02T08:58:45.054Z",
+  "generatedAt": "2026-07-02T09:50:59.202Z",
   "policy": [
     "Product-path completion is useful proof: real UI, visible progress, artifacts, verifier receipts, trace, memory, and browser evidence.",
     "Official semantic score is only claimed when the benchmark's official scorer/verifier result is imported.",
@@ -223,12 +223,13 @@
         "scoreType": "official_semantic_score",
         "evidence": [
           "proofloop/benchmarks/finch/adapter.json",
-          "docs/eval/proofloop-adapter-blockers/finch.json"
+          "docs/eval/proofloop-adapter-blockers/finch.json",
+          "docs/eval/proofloop-official-scores/finch.json",
+          "docs/eval/proofloop-official-task-bundles/finch.json"
         ],
         "command": "npm run benchmark:proofloop:adapter-blockers -- --id finch --strict",
         "blockers": [
-          "finch: official scorer receipt docs/eval/proofloop-official-scores/finch.json is not imported yet.",
-          "finch: official task bundle lock .tmp/official-benchmarks/finch/manifest.json is not staged yet."
+          "finch: official scorer receipt docs/eval/proofloop-official-scores/finch.json is blocked_external; scored receipt is still required before claiming score. No Azure OpenAI judge credentials are present in this shell: AZURE endpoint, API key, API version, and deployment name are all required by src/call_gpt_judge.py. No NodeRoom model-output directory exists with one output artifact per official Finch task id, so the upstream prompt_build_pipeline.py cannot build claimable content_parts.jsonl for scoring."
         ],
         "metrics": {
           "missingImplementationFiles": 0,
@@ -264,12 +265,13 @@
         "scoreType": "official_semantic_score",
         "evidence": [
           "proofloop/benchmarks/finauditing/adapter.json",
-          "docs/eval/proofloop-adapter-blockers/finauditing.json"
+          "docs/eval/proofloop-adapter-blockers/finauditing.json",
+          "docs/eval/proofloop-official-scores/finauditing.json",
+          "docs/eval/proofloop-official-task-bundles/finauditing.json"
         ],
         "command": "npm run benchmark:proofloop:adapter-blockers -- --id finauditing --strict",
         "blockers": [
-          "finauditing: official scorer receipt docs/eval/proofloop-official-scores/finauditing.json is not imported yet.",
-          "finauditing: official task bundle lock .tmp/official-benchmarks/finauditing/manifest.json is not staged yet."
+          "finauditing: official scorer receipt docs/eval/proofloop-official-scores/finauditing.json is blocked_external; scored receipt is still required before claiming score. No NodeRoom prediction JSONL exists for FinSM, FinRE, or FinMR in the official evaluator format. FinMR evaluation uses an OpenAI LLM judge and this shell has no OPENAI_API_KEY. The full benchmark path also points to the separate FinBen framework, which is not yet wired to NodeRoom output artifacts."
         ],
         "metrics": {
           "missingImplementationFiles": 0,
@@ -305,12 +307,13 @@
         "scoreType": "official_semantic_score",
         "evidence": [
           "proofloop/benchmarks/workstreambench/adapter.json",
-          "docs/eval/proofloop-adapter-blockers/workstreambench.json"
+          "docs/eval/proofloop-adapter-blockers/workstreambench.json",
+          "docs/eval/proofloop-official-scores/workstreambench.json"
         ],
         "command": "npm run benchmark:proofloop:adapter-blockers -- --id workstreambench --strict",
         "blockers": [
-          "workstreambench: official scorer receipt docs/eval/proofloop-official-scores/workstreambench.json is not imported yet.",
-          "workstreambench: official task bundle lock .tmp/official-benchmarks/workstreambench/manifest.json is not staged yet."
+          "workstreambench: official scorer receipt docs/eval/proofloop-official-scores/workstreambench.json is blocked_external; scored receipt is still required before claiming score. No public official WorkstreamBench task bundle URL was found. No public official WorkstreamBench scorer repository or CLI was found. The paper describes LLM-as-judge evaluation over structured representations, so a claimable score requires the official rubric/task bundle/scorer release or author-provided supplementary package.",
+          "workstreambench: official task bundle lock docs/eval/proofloop-official-task-bundles/workstreambench.json is not staged yet."
         ],
         "metrics": {
           "missingImplementationFiles": 0,

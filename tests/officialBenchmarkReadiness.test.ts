@@ -134,36 +134,46 @@ describe("official benchmark readiness", () => {
         state: "implemented",
         evidence: "src/eval/spreadsheetBenchAdapter.ts",
       });
-      expect(gold).toMatchObject({
-        state: "partial",
-        evidence: "src/eval/spreadsheetBenchStage.ts",
-      });
-      expect(gold?.blocker).toContain("contamination");
-      if (item.id === "spreadsheetbench-v1") expect(gold?.blocker).toContain("verified-400");
-      if (item.id === "spreadsheetbench-v2") expect(gold?.blocker).toContain("public-example");
-      expect(runner).toMatchObject({
-        state: "partial",
-        evidence: "src/eval/spreadsheetBenchRunner.ts",
-      });
-      expect(runner?.blocker).toContain("model-edit-plan");
-      expect(runner?.blocker).toContain("N=5");
-      expect(runner?.blocker).toContain("retry-policy");
-      expect(runner?.blocker).toContain("raw model output");
-      expect(runner?.blocker).toContain("SUM");
-      expect(runner?.blocker).toContain("workspace");
-      expect(runner?.blocker).toContain("Route-selection reports");
-      expect(runner?.blocker).toContain("deterministic table transforms");
-      expect(runner?.blocker).toContain("chunked full 400-task V1 copy-input baseline");
       if (item.id === "spreadsheetbench-v1") {
-        expect(runner?.blocker).toContain("400/400 attempted tasks");
-        expect(runner?.blocker).toContain("15/400 pass");
-        expect(runner?.blocker).toContain("zero failure counts");
-        expect(runner?.blocker).toContain("external-link cell-read repair");
+        expect(gold).toMatchObject({
+          state: "partial",
+          evidence: "docs/eval/spreadsheetbench-v1-912-stage.json",
+        });
+        expect(gold?.blocker).toContain("912/912 tasks staged");
+        expect(gold?.blocker).toContain("2,729 agent input workbooks");
+        expect(gold?.blocker).toContain("zero agent/evaluator path overlap");
+        expect(runner).toMatchObject({
+          state: "partial",
+          evidence: "docs/eval/spreadsheetbench-v1-912-copy-input-baseline.json",
+        });
+        expect(runner?.blocker).toContain("912/912 attempted tasks");
+        expect(runner?.blocker).toContain("95/912 pass");
+        expect(runner?.blocker).toContain("average overall 0.335005");
+        expect(runner?.blocker).toContain("official 912 input/evaluator scorer path");
+        expect(runner?.blocker).toContain("full-bundle model or route-execution runs");
+      } else {
+        expect(gold).toMatchObject({
+          state: "partial",
+          evidence: "src/eval/spreadsheetBenchStage.ts",
+        });
+        expect(gold?.blocker).toContain("public-example");
+        expect(runner).toMatchObject({
+          state: "partial",
+          evidence: "src/eval/spreadsheetBenchRunner.ts",
+        });
+        expect(runner?.blocker).toContain("model-edit-plan");
+        expect(runner?.blocker).toContain("N=5");
+        expect(runner?.blocker).toContain("retry-policy");
+        expect(runner?.blocker).toContain("raw model output");
+        expect(runner?.blocker).toContain("SUM");
+        expect(runner?.blocker).toContain("workspace");
+        expect(runner?.blocker).toContain("Route-selection reports");
+        expect(runner?.blocker).toContain("deterministic table transforms");
+        expect(runner?.blocker).toMatch(/route[- ]execution/);
+        expect(runner?.blocker).not.toContain("route selection remain incomplete");
+        expect(gold?.blocker).toContain("Node permission subprocess");
+        expect(runner?.blocker).not.toContain("benchmark retry policy");
       }
-      expect(runner?.blocker).toMatch(/route[- ]execution/);
-      expect(runner?.blocker).not.toContain("route selection remain incomplete");
-      expect(gold?.blocker).toContain("Node permission subprocess");
-      expect(runner?.blocker).not.toContain("benchmark retry policy");
       expect(xlsx).toMatchObject({
         state: "implemented",
         evidence: "src/eval/spreadsheetBenchRunner.ts",

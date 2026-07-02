@@ -155,12 +155,16 @@ export function officialScoresGoalTasks(): ProofloopGoalTask[] {
       id: "spreadsheetbench-v1-full-official-score",
       title: "SpreadsheetBench V1 full 912-task official score",
       blockers: [
-        "Full public 912-task SpreadsheetBench V1 bundle is not staged in this repo.",
+        "Full public 912-task SpreadsheetBench V1 bundle is staged and deterministically scored: 912/912 tasks, 2,729 agent-visible workbooks, 2,729 evaluator answer workbooks, 95/912 copy-input baseline pass.",
         "All 912 tasks need model-run evidence before strict official-score promotion.",
       ],
-      evidence: ["docs/eval/official-benchmark-task-coverage.json"],
+      evidence: [
+        "docs/eval/official-benchmark-task-coverage.json",
+        "docs/eval/spreadsheetbench-v1-912-stage.json",
+        "docs/eval/spreadsheetbench-v1-912-copy-input-baseline.json",
+      ],
       resumeCommand:
-        "stage the full SpreadsheetBench V1 bundle, run all 912 tasks, then npm run benchmark:official:task-coverage -- --strict",
+        "run all 912 SpreadsheetBench V1 tasks through the model runner, then npm run benchmark:official:task-coverage -- --strict",
     }),
     externalBlockerTask({
       id: "spreadsheetbench-v2-full-official-score",
@@ -177,43 +181,48 @@ export function officialScoresGoalTasks(): ProofloopGoalTask[] {
       id: "finch-official-score",
       title: "Finch / FinWorkBench official score",
       blockers: [
-        "finch: local Proof Loop adapter proof exists; official scorer receipt docs/eval/proofloop-official-scores/finch.json is not imported yet.",
-        "finch: official task bundle lock .tmp/official-benchmarks/finch/manifest.json is not staged yet.",
+        "finch: official scorer receipt docs/eval/proofloop-official-scores/finch.json is blocked_external; scored receipt is still required before claiming score.",
+        "finch: official task bundle lock docs/eval/proofloop-official-task-bundles/finch.json is staged, but NodeRoom still needs one official-output artifact per Finch task id and Azure OpenAI judge credentials for the upstream scorer.",
       ],
       evidence: [
         "proofloop/benchmarks/finch/adapter.json",
         "docs/eval/proofloop-external-adapter-runs/finch.json",
         "docs/eval/proofloop-adapter-blockers/finch.json",
+        "docs/eval/proofloop-official-task-bundles/finch.json",
+        "docs/eval/proofloop-official-scores/finch.json",
       ],
-      resumeCommand: "import Finch official scorer receipt and locked task-bundle manifest, then npm run benchmark:proofloop:adapter-blockers -- --id finch --strict",
+      resumeCommand: "emit NodeRoom outputs for every official Finch task id, run the upstream Finch prompt/judge pipeline with Azure OpenAI judge credentials, import a scored receipt, then npm run benchmark:proofloop:adapter-blockers -- --id finch --strict",
     }),
     externalBlockerTask({
       id: "finauditing-official-score",
       title: "FinAuditing official score",
       blockers: [
-        "finauditing: local Proof Loop adapter proof exists; official scorer receipt docs/eval/proofloop-official-scores/finauditing.json is not imported yet.",
-        "finauditing: official task bundle lock .tmp/official-benchmarks/finauditing/manifest.json is not staged yet.",
+        "finauditing: official scorer receipt docs/eval/proofloop-official-scores/finauditing.json is blocked_external; scored receipt is still required before claiming score.",
+        "finauditing: official task bundle lock docs/eval/proofloop-official-task-bundles/finauditing.json is staged, but NodeRoom still needs official-format FinSM/FinRE/FinMR prediction JSONL and OpenAI judge credentials for FinMR.",
       ],
       evidence: [
         "proofloop/benchmarks/finauditing/adapter.json",
         "docs/eval/proofloop-external-adapter-runs/finauditing.json",
         "docs/eval/proofloop-adapter-blockers/finauditing.json",
+        "docs/eval/proofloop-official-task-bundles/finauditing.json",
+        "docs/eval/proofloop-official-scores/finauditing.json",
       ],
-      resumeCommand: "import FinAuditing official scorer receipt and locked task-bundle manifest, then npm run benchmark:proofloop:adapter-blockers -- --id finauditing --strict",
+      resumeCommand: "emit official-format FinSM/FinRE/FinMR predictions, run/import FinAuditing scorer output, provide OpenAI judge credentials for FinMR, then npm run benchmark:proofloop:adapter-blockers -- --id finauditing --strict",
     }),
     externalBlockerTask({
       id: "workstreambench-official-score",
       title: "WorkstreamBench official score",
       blockers: [
-        "workstreambench: local Proof Loop adapter proof exists; official scorer receipt docs/eval/proofloop-official-scores/workstreambench.json is not imported yet.",
-        "workstreambench: official task bundle lock .tmp/official-benchmarks/workstreambench/manifest.json is not staged yet.",
+        "workstreambench: official scorer receipt docs/eval/proofloop-official-scores/workstreambench.json is blocked_external; scored receipt is still required before claiming score.",
+        "workstreambench: no public official task bundle lock docs/eval/proofloop-official-task-bundles/workstreambench.json is staged because no public official bundle/scorer URL was found.",
       ],
       evidence: [
         "proofloop/benchmarks/workstreambench/adapter.json",
         "docs/eval/proofloop-external-adapter-runs/workstreambench.json",
         "docs/eval/proofloop-adapter-blockers/workstreambench.json",
+        "docs/eval/proofloop-official-scores/workstreambench.json",
       ],
-      resumeCommand: "import WorkstreamBench official scorer receipt and locked task-bundle manifest, then npm run benchmark:proofloop:adapter-blockers -- --id workstreambench --strict",
+      resumeCommand: "obtain the official WorkstreamBench task bundle and scorer/rubric from an upstream release or authors, lock it in docs/eval/proofloop-official-task-bundles/workstreambench.json, import a scored receipt, then npm run benchmark:proofloop:adapter-blockers -- --id workstreambench --strict",
     }),
   ];
 }

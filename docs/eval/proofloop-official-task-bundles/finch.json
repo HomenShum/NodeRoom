@@ -1,0 +1,30 @@
+{
+  "schema": "proofloop-official-task-bundle-lock-v1",
+  "adapterId": "finch",
+  "status": "locked",
+  "generatedAt": "2026-07-02T09:50:00.000Z",
+  "officialSources": {
+    "repository": {
+      "url": "https://github.com/FinWorkBench/Finch",
+      "commit": "95a8b8d135a528b325be003e54c55f886a22602d",
+      "scorerEntrypoint": "src/call_gpt_judge.py",
+      "promptPipelineEntrypoint": "src/prompt_build_pipeline.py"
+    },
+    "dataset": {
+      "url": "https://huggingface.co/datasets/FinWorkBench/Finch",
+      "commit": "530700c28f7eb68a66c7753d7857c5be80ca274d",
+      "taskJsonl": "finch_workflows_test.jsonl",
+      "taskCount": 172,
+      "gitLfsFileCount": 158
+    }
+  },
+  "localVerification": {
+    "repoPath": ".tmp/official-benchmarks/finch-repo",
+    "datasetPath": ".tmp/official-benchmarks/finch-dataset",
+    "commands": [
+      "git clone https://github.com/FinWorkBench/Finch .tmp/official-benchmarks/finch-repo",
+      "git clone https://huggingface.co/datasets/FinWorkBench/Finch .tmp/official-benchmarks/finch-dataset",
+      "python -c \"count nonempty JSONL rows in finch_workflows_test.jsonl\""
+    ]
+  }
+}

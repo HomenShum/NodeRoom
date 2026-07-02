@@ -14,11 +14,10 @@
   "liveUserCommand": "npm run proofloop -- run finch --prod --user-emulation strict --cockpit",
   "missingImplementationFiles": [],
   "officialScoreReceiptPath": "docs/eval/proofloop-official-scores/finch.json",
-  "officialTaskBundleManifestPath": ".tmp/official-benchmarks/finch/manifest.json",
+  "officialTaskBundleManifestPath": "docs/eval/proofloop-official-task-bundles/finch.json",
   "validationErrors": [],
   "blockers": [
-    "finch: official scorer receipt docs/eval/proofloop-official-scores/finch.json is not imported yet.",
-    "finch: official task bundle lock .tmp/official-benchmarks/finch/manifest.json is not staged yet."
+    "finch: official scorer receipt docs/eval/proofloop-official-scores/finch.json is blocked_external; scored receipt is still required before claiming score. No Azure OpenAI judge credentials are present in this shell: AZURE endpoint, API key, API version, and deployment name are all required by src/call_gpt_judge.py. No NodeRoom model-output directory exists with one output artifact per official Finch task id, so the upstream prompt_build_pipeline.py cannot build claimable content_parts.jsonl for scoring."
   ],
   "officialCommandPlan": [
     "Clone/lock https://github.com/FinWorkBench/Finch and https://huggingface.co/datasets/FinWorkBench/Finch.",
@@ -30,7 +29,7 @@
     "npm run benchmark:proofloop:external-adapter -- --id finch --prod --user-emulation strict",
     "npm run benchmark:proofloop:adapter-blockers -- --id finch",
     "import docs/eval/proofloop-official-scores/finch.json from the upstream official scorer",
-    "stage .tmp/official-benchmarks/finch/manifest.json from the locked official task bundle",
+    "stage docs/eval/proofloop-official-task-bundles/finch.json from the locked official task bundle",
     "npm run proofloop -- run finch --prod --user-emulation strict --cockpit",
     "npm run benchmark:proofloop:adapter-blockers -- --id finch --strict"
   ],
