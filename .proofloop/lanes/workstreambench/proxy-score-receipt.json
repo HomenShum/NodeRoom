@@ -1,0 +1,17 @@
+{
+  "schema": 1,
+  "suite": "workstreambench",
+  "generatedAt": "2026-07-02T20:46:40.290Z",
+  "status": "proxy_only",
+  "proxyOnly": true,
+  "officialScoreClaimable": false,
+  "recommendedProxyRoute": "deepseek/deepseek-v4-pro",
+  "models": [
+    "deepseek/deepseek-v4-pro",
+    "z-ai/glm-5.2",
+    "qwen/qwen3.6-flash",
+    "qwen/qwen3.6-35b-a3b",
+    "gpt-4.1-mini",
+    "ibm-granite/granite-4.1-8b"
+  ]
+}

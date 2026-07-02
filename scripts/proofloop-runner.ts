@@ -25,6 +25,12 @@ import { cpSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync, app
 import { basename, join, dirname } from "node:path";
 import http from "node:http";
 import { writeProofLoopArtifacts } from "../src/eval/proofloopArtifacts";
+import {
+  assertProofloopModelTracked,
+  proofloopHarnessVersionForSuite,
+  proofloopModelRouteForRun,
+  type ProofloopModelRoute,
+} from "../src/eval/proofloopModelTracking";
 
 // ─── Types ────────────────────────────────────────────────────────────────
 
@@ -70,6 +76,8 @@ export interface ProofLoopRunResult {
   score: number;
   failReasons: string[];
   outputDir: string;
+  model: ProofloopModelRoute;
+  harnessVersion: string;
 }
 
 // ─── Utils ────────────────────────────────────────────────────────────────
@@ -128,6 +136,7 @@ function runStep(step: ProofLoopStepConfig, cwd: string, env?: NodeJS.ProcessEnv
 // ─── Dev server management ───────────────────────────────────────────────
 
 let devServer: ChildProcess | null = null;
+let devServerPort: string | null = null;
 
 function startDevServer(port: string): Promise<void> {
   return new Promise((resolve, reject) => {
@@ -146,6 +155,7 @@ function startDevServer(port: string): Promise<void> {
         stdio: "pipe",
         detached: false,
       });
+      devServerPort = port;
       devServer.stdout?.on("data", () => {});
       devServer.stderr?.on("data", () => {});
       // Wait for server to be ready
@@ -173,12 +183,27 @@ function stopDevServer(): void {
   if (devServer) {
     console.log("proof-loop: stopping dev server...");
     try {
-      process.kill(-devServer.pid!);
+      if (process.platform === "win32" && devServer.pid) {
+        spawnSync("taskkill", ["/pid", String(devServer.pid), "/t", "/f"], { stdio: "ignore" });
+        killWindowsListenerOnPort(devServerPort);
+      } else {
+        process.kill(-devServer.pid!);
+      }
     } catch {
       devServer.kill("SIGTERM");
     }
     devServer = null;
+    devServerPort = null;
   }
+}
+
+function killWindowsListenerOnPort(port: string | null): void {
+  if (!port || !/^\d+$/.test(port)) return;
+  spawnSync("powershell.exe", [
+    "-NoProfile",
+    "-Command",
+    `$ownerPids = Get-NetTCPConnection -LocalPort ${port} -State Listen -ErrorAction SilentlyContinue | Select-Object -ExpandProperty OwningProcess -Unique; foreach ($ownerPid in $ownerPids) { Stop-Process -Id $ownerPid -Force -ErrorAction SilentlyContinue }`,
+  ], { stdio: "ignore" });
 }
 
 // ─── Incremental output ─────────────────────────────────────────────────
@@ -188,6 +213,7 @@ function writeIncrementalOutput(
   config: ProofLoopConfig,
   runId: string,
   outputDir: string,
+  configPath: string,
 ): void {
   const requiredSteps = results.filter((r) => r.required);
   const requiredPassed = requiredSteps.filter((r) => r.status === "pass");
@@ -201,6 +227,11 @@ function writeIncrementalOutput(
   if (score < config.minScore) {
     failReasons.push(`Score ${score} < minScore ${config.minScore}`);
   }
+  const model = modelRouteForConfig(config);
+  for (const failure of assertProofloopModelTracked(model)) {
+    failReasons.push(`Model tracking failure: ${failure}`);
+  }
+  const harness = proofloopHarnessVersionForSuite(process.cwd(), config.suite, [configPath]);
   const passed = failReasons.length === 0;
   const incremental: ProofLoopRunResult = {
     schema: 1,
@@ -214,10 +245,20 @@ function writeIncrementalOutput(
     score,
     failReasons,
     outputDir,
+    model,
+    harnessVersion: harness.harnessVersion,
   };
   writeFileSync(join(outputDir, "run-result.json"), JSON.stringify(incremental, null, 2), "utf-8");
   exportTrace(incremental, outputDir);
   writeProofLoopArtifacts(incremental, outputDir, { baseUrl: process.env.PLAYWRIGHT_BASE_URL });
+}
+
+function modelRouteForConfig(config: ProofLoopConfig): ProofloopModelRoute {
+  return proofloopModelRouteForRun({
+    suite: config.suite,
+    cmd: config.steps.map((step) => step.cmd).join(" && "),
+    env: process.env,
+  });
 }
 
 function copyToLatest(outputDir: string, latestDir: string): void {
@@ -392,7 +433,7 @@ for (const step of config.steps) {
     console.log(`  stderr: ${result.stderr.slice(0, 200)}`);
   }
   // Write incremental run-result and trace so adapters can read them
-  writeIncrementalOutput(results, config, runId, outputDir);
+  writeIncrementalOutput(results, config, runId, outputDir, configPath);
   // Copy to latest after each step so adapters using latest also work
   copyToLatest(outputDir, latestDir);
 }
@@ -413,6 +454,11 @@ for (const r of results) {
 if (score < config.minScore) {
   failReasons.push(`Score ${score} < minScore ${config.minScore}`);
 }
+const model = modelRouteForConfig(config);
+for (const failure of assertProofloopModelTracked(model)) {
+  failReasons.push(`Model tracking failure: ${failure}`);
+}
+const harness = proofloopHarnessVersionForSuite(process.cwd(), config.suite, [configPath]);
 
 const passed = failReasons.length === 0;
 
@@ -428,6 +474,8 @@ const runResult: ProofLoopRunResult = {
   score,
   failReasons,
   outputDir,
+  model,
+  harnessVersion: harness.harnessVersion,
 };
 
 // Write outputs

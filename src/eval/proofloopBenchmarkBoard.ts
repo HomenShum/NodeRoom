@@ -8,6 +8,8 @@ export type ProofloopBenchmarkBoardStatus =
   | "registered"
   | "partial"
   | "blocked"
+  | "needs_scaffold_or_run"
+  | "proxy_only"
   | "not_applicable"
   | "not_claimed";
 
@@ -69,6 +71,15 @@ type ExternalAdapterProductProofReceipt = {
   failedGates?: string[];
 };
 
+type BlockerAnalysisReceipt = {
+  status?: "blocked_external" | "needs_scaffold_or_run" | "proxy_only" | "ready";
+  artifacts?: Record<string, string>;
+  remainingLocalClasses?: string[];
+  remainingExternalClasses?: string[];
+  blockers?: string[];
+  nextCommands?: string[];
+};
+
 export function buildProofloopBenchmarkBoard(args: {
   root?: string;
   generatedAt?: string;
@@ -92,6 +103,7 @@ export function buildProofloopBenchmarkBoard(args: {
       "Official semantic score is only claimed when the benchmark's official scorer/verifier result is imported.",
       "Docker/Harbor isolation can block official score promotion; it must not block product-path Proof Loop runs.",
       "External benchmark adapters can prove local app-agnostic product paths before official score promotion; the two claims must stay separate.",
+      "Proof Loop may not call a lane external-blocked until setup, research, scaffold, doctor, resume, model, and harness receipts exist.",
     ],
     summary: {
       total: entries.length,
@@ -140,7 +152,7 @@ export function renderProofloopBenchmarkBoardMarkdown(board: ProofloopBenchmarkB
     const product = entry.productPathCompletion;
     const official = entry.officialSemanticScore;
     const evidence = [...new Set([...product.evidence, ...official.evidence])].slice(0, 4).map((item) => `\`${item}\``).join("<br>") || "none";
-    const blocker = [...product.blockers, ...official.blockers][0] ?? "none";
+    const blocker = renderTableBlockers([...product.blockers, ...official.blockers]);
     lines.push(`| \`${entry.id}\` | ${entry.family} | ${product.status} | ${official.status} | ${evidence} | ${escapePipes(blocker)} |`);
   }
 
@@ -152,17 +164,28 @@ export function renderProofloopBenchmarkBoardMarkdown(board: ProofloopBenchmarkB
     "- `registered` means the benchmark is tracked and has an adapter contract, but it should not be sold as live-proofed yet.",
     "- `not_applicable` official score means the lane is an internal/product harness, not a public official benchmark score lane.",
     "- `blocked` official score means the scorer/verifier path is not imported, even if product-path proof exists.",
+    "- `needs_scaffold_or_run` means Proof Loop found local exporter, model-run, or harness work that must be attempted before external-blocked is allowed.",
+    "- `proxy_only` means local product/proxy evidence exists, but the lane still cannot claim an official score.",
     "",
   );
 
   return `${lines.join("\n")}\n`;
 }
 
+function renderTableBlockers(blockers: string[]): string {
+  const unique = [...new Set(blockers.filter(Boolean))];
+  if (unique.length === 0) return "none";
+  return unique.map((blocker) => blocker.trim()).join("<br>");
+}
+
 function spreadsheetBenchEntry(root: string): ProofloopBenchmarkBoardEntry {
   const live = readJson<JsonObject>(root, "docs/eval/spreadsheetbench-live-room-proof.json");
   const taskCoverage = readJson<{ summary?: { strictFullCoverageReady?: boolean } }>(root, "docs/eval/official-benchmark-task-coverage.json");
+  const v1Solver = readLaneAnalysis(root, "spreadsheetbench-v1");
+  const v2Solver = readLaneAnalysis(root, "spreadsheetbench-v2");
   const livePassed = live?.passed === true;
   const officialReady = taskCoverage?.summary?.strictFullCoverageReady === true;
+  const solverStatus = solverAggregateStatus([v1Solver, v2Solver]);
 
   return {
     id: "spreadsheetbench",
@@ -177,11 +200,16 @@ function spreadsheetBenchEntry(root: string): ProofloopBenchmarkBoardEntry {
       blockers: livePassed ? [] : ["Run the fresh-room SpreadsheetBench UI proof and export/reopen scorer."],
     },
     officialSemanticScore: {
-      status: officialReady ? "proven" : "blocked",
+      status: officialReady ? "proven" : solverStatus ?? "blocked",
       scoreType: "official_semantic_score",
-      evidence: ["docs/eval/official-benchmark-task-coverage.json", "docs/eval/official-benchmark-readiness.json"],
-      command: "npm run benchmark:official:task-coverage",
-      blockers: officialReady ? [] : ["Full official SpreadsheetBench task coverage and scorer import are not ready."],
+      evidence: [
+        "docs/eval/official-benchmark-task-coverage.json",
+        "docs/eval/official-benchmark-readiness.json",
+        ...(v1Solver ? [".proofloop/lanes/spreadsheetbench-v1/blocker-analysis.json"] : []),
+        ...(v2Solver ? [".proofloop/lanes/spreadsheetbench-v2/blocker-analysis.json"] : []),
+      ],
+      command: solverStatus ? "npm run proofloop -- solve-blockers --goal official-scores" : "npm run benchmark:official:task-coverage",
+      blockers: officialReady ? [] : solverBlockers([v1Solver, v2Solver], ["Full official SpreadsheetBench task coverage and scorer import are not ready."]),
     },
     notes: ["Workbook product proof is separate from full official task coverage."],
   };
@@ -320,6 +348,7 @@ function adapterEntry(adapter: ProofloopBenchmarkAdapter, root: string): Prooflo
   const adapterProductProof = !isBtb
     ? readJson<ExternalAdapterProductProofReceipt>(root, `docs/eval/proofloop-external-adapter-runs/${adapter.id}.json`)
     : undefined;
+  const blockerAnalysis = !isBtb ? readLaneAnalysis(root, adapter.id) : undefined;
   const livePassed = live?.passed === true;
   const readyToRun = validationErrors.length === 0 && implementationMissing.length === 0;
   const adapterProductProofPassed = adapterProductProof?.status === "passed";
@@ -358,7 +387,13 @@ function adapterEntry(adapter: ProofloopBenchmarkAdapter, root: string): Prooflo
       ],
     },
     officialSemanticScore: {
-      status: btbOfficialProven || btbOfficial?.pass === true ? "proven" : isBtb ? "blocked" : "blocked",
+      status: btbOfficialProven || btbOfficial?.pass === true
+        ? "proven"
+        : isBtb
+          ? "blocked"
+          : blockerAnalysis?.status === "needs_scaffold_or_run" || blockerAnalysis?.status === "proxy_only"
+            ? blockerAnalysis.status
+            : "blocked",
       scoreType: "official_semantic_score",
       evidence: isBtb
         ? [
@@ -366,13 +401,18 @@ function adapterEntry(adapter: ProofloopBenchmarkAdapter, root: string): Prooflo
           "docs/eval/btb-clean-capability-full100-parallel-v3-gpt41mini.json",
           "docs/eval/bankertoolbench-official-contract.json",
         ]
-        : [`proofloop/benchmarks/${adapter.id}/adapter.json`, ...adapterBlockerEvidence, ...adapterOfficialEvidence],
+        : [
+          `proofloop/benchmarks/${adapter.id}/adapter.json`,
+          ...adapterBlockerEvidence,
+          ...adapterOfficialEvidence,
+          ...(blockerAnalysis ? [`.proofloop/lanes/${adapter.id}/blocker-analysis.json`] : []),
+        ],
       command: adapter.verifierCommand,
       blockers: isBtb
         ? btbOfficialProven
           ? []
           : btbOfficial?.blockers ?? ["BankerToolBench official contract artifact is missing."]
-        : adapterOfficialBlockers,
+        : solverBlockers([blockerAnalysis], adapterOfficialBlockers),
       metrics: btbOfficialProven
         ? {
           expectedCount: btbFullSuite?.expectedCount ?? null,
@@ -413,6 +453,44 @@ function missingImplementationFiles(adapter: ProofloopBenchmarkAdapter, root: st
     candidateFiles.push(adapter.verifierCommand);
   }
   return candidateFiles.filter((file) => !existsSync(join(root, file)));
+}
+
+function readLaneAnalysis(root: string, suite: string): BlockerAnalysisReceipt | undefined {
+  return readJson<BlockerAnalysisReceipt>(root, `.proofloop/lanes/${suite}/blocker-analysis.json`);
+}
+
+function solverAggregateStatus(receipts: Array<BlockerAnalysisReceipt | undefined>): ProofloopBenchmarkBoardStatus | undefined {
+  const statuses = receipts.map((receipt) => receipt?.status).filter(Boolean);
+  if (statuses.includes("needs_scaffold_or_run")) return "needs_scaffold_or_run";
+  if (statuses.includes("proxy_only")) return "proxy_only";
+  if (statuses.includes("blocked_external")) return "blocked";
+  if (statuses.includes("ready")) return "ready_to_run";
+  return undefined;
+}
+
+function solverBlockers(receipts: Array<BlockerAnalysisReceipt | undefined>, fallback: string[]): string[] {
+  const blockers = receipts.flatMap((receipt) => {
+    if (!receipt) return [];
+    const local = receipt.remainingLocalClasses ?? [];
+    const external = receipt.remainingExternalClasses ?? [];
+    const original = receipt.blockers ?? [];
+    const next = receipt.nextCommands?.[0];
+    const parts = [
+      ...local.map((item) => `${blockerClassLabel(item)} remains before external-blocked can be claimed`),
+      ...external.map((item) => `${blockerClassLabel(item)} remains before official score can be claimed`),
+      ...original,
+      ...(next ? [`next: ${next}`] : []),
+    ];
+    return parts.length ? parts : [`solver status: ${receipt.status ?? "unknown"}`];
+  });
+  return blockers.length ? [...new Set(blockers)] : fallback;
+}
+
+function blockerClassLabel(value: string): string {
+  return value
+    .replace(/^local_/, "")
+    .replace(/^external_/, "")
+    .replace(/_/g, " ");
 }
 
 function readJson<T>(root: string, relativePath: string): T | undefined {

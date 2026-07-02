@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "generatedAt": "2026-07-02T10:46:23.124Z",
+  "generatedAt": "2026-07-02T20:05:06.977Z",
   "source": "https://openrouter.ai/api/v1/models",
   "selection": {
     "sort": "created_desc_then_price",
@@ -16,12 +16,34 @@
     "outputModalities": [
       "text"
     ],
-    "limit": 20
+    "limit": 25
   },
-  "modelCount": 20,
+  "modelCount": 25,
   "models": [
     {
       "rank": 1,
+      "id": "poolside/laguna-xs-2.1",
+      "name": "Poolside: Laguna XS 2.1",
+      "created": 1783002429,
+      "createdAt": "2026-07-02T14:27:09.000Z",
+      "contextLength": 262144,
+      "inputPerMillionUsd": 0.06,
+      "outputPerMillionUsd": 0.12,
+      "supportsTools": true,
+      "supportsToolChoice": true,
+      "supportsStructuredOutputs": false,
+      "supportsParallelToolCalls": false,
+      "supportedParameters": [
+        "include_reasoning",
+        "max_tokens",
+        "reasoning",
+        "temperature",
+        "tool_choice",
+        "tools"
+      ]
+    },
+    {
+      "rank": 2,
       "id": "z-ai/glm-5.2",
       "name": "Z.ai: GLM 5.2",
       "created": 1781631930,
@@ -58,7 +80,7 @@
       ]
     },
     {
-      "rank": 2,
+      "rank": 3,
       "id": "moonshotai/kimi-k2.7-code",
       "name": "MoonshotAI: Kimi K2.7 Code",
       "created": 1781266361,
@@ -95,7 +117,7 @@
       ]
     },
     {
-      "rank": 3,
+      "rank": 4,
       "id": "nvidia/nemotron-3-ultra-550b-a55b",
       "name": "NVIDIA: Nemotron 3 Ultra",
       "created": 1780551208,
@@ -128,7 +150,7 @@
       ]
     },
     {
-      "rank": 4,
+      "rank": 5,
       "id": "qwen/qwen3.7-plus",
       "name": "Qwen: Qwen3.7 Plus",
       "created": 1780491783,
@@ -157,7 +179,7 @@
       ]
     },
     {
-      "rank": 5,
+      "rank": 6,
       "id": "minimax/minimax-m3",
       "name": "MiniMax: MiniMax M3",
       "created": 1780245374,
@@ -192,7 +214,7 @@
       ]
     },
     {
-      "rank": 6,
+      "rank": 7,
       "id": "stepfun/step-3.7-flash",
       "name": "StepFun: Step 3.7 Flash",
       "created": 1779985069,
@@ -227,7 +249,7 @@
       ]
     },
     {
-      "rank": 7,
+      "rank": 8,
       "id": "qwen/qwen3.7-max",
       "name": "Qwen: Qwen3.7 Max",
       "created": 1779376861,
@@ -256,7 +278,7 @@
       ]
     },
     {
-      "rank": 8,
+      "rank": 9,
       "id": "x-ai/grok-build-0.1",
       "name": "xAI: Grok Build 0.1",
       "created": 1779298123,
@@ -287,7 +309,7 @@
       ]
     },
     {
-      "rank": 9,
+      "rank": 10,
       "id": "inclusionai/ring-2.6-1t",
       "name": "inclusionAI: Ring-2.6-1T",
       "created": 1778247440,
@@ -317,7 +339,7 @@
       ]
     },
     {
-      "rank": 10,
+      "rank": 11,
       "id": "google/gemini-3.1-flash-lite",
       "name": "Google: Gemini 3.1 Flash Lite",
       "created": 1778168828,
@@ -344,7 +366,7 @@
       ]
     },
     {
-      "rank": 11,
+      "rank": 12,
       "id": "x-ai/grok-4.3",
       "name": "xAI: Grok 4.3",
       "created": 1777591821,
@@ -375,7 +397,7 @@
       ]
     },
     {
-      "rank": 12,
+      "rank": 13,
       "id": "ibm-granite/granite-4.1-8b",
       "name": "IBM: Granite 4.1 8B",
       "created": 1777577071,
@@ -406,7 +428,7 @@
       ]
     },
     {
-      "rank": 13,
+      "rank": 14,
       "id": "poolside/laguna-xs.2",
       "name": "Poolside: Laguna XS.2",
       "created": 1777389604,
@@ -428,7 +450,7 @@
       ]
     },
     {
-      "rank": 14,
+      "rank": 15,
       "id": "poolside/laguna-m.1",
       "name": "Poolside: Laguna M.1",
       "created": 1777388504,
@@ -450,14 +472,14 @@
       ]
     },
     {
-      "rank": 15,
+      "rank": 16,
       "id": "~moonshotai/kimi-latest",
       "name": "MoonshotAI Kimi Latest",
       "created": 1777318428,
       "createdAt": "2026-04-27T19:33:48.000Z",
       "contextLength": 262144,
-      "inputPerMillionUsd": 0.55,
-      "outputPerMillionUsd": 3.2,
+      "inputPerMillionUsd": 0.66,
+      "outputPerMillionUsd": 3.41,
       "supportsTools": true,
       "supportsToolChoice": true,
       "supportsStructuredOutputs": true,
@@ -486,7 +508,7 @@
       ]
     },
     {
-      "rank": 16,
+      "rank": 17,
       "id": "qwen/qwen3.5-plus-20260420",
       "name": "Qwen: Qwen3.5 Plus 2026-04-20",
       "created": 1777261368,
@@ -515,7 +537,7 @@
       ]
     },
     {
-      "rank": 17,
+      "rank": 18,
       "id": "qwen/qwen3.6-flash",
       "name": "Qwen: Qwen3.6 Flash",
       "created": 1777261362,
@@ -544,7 +566,7 @@
       ]
     },
     {
-      "rank": 18,
+      "rank": 19,
       "id": "qwen/qwen3.6-35b-a3b",
       "name": "Qwen: Qwen3.6 35B A3B",
       "created": 1777260255,
@@ -579,7 +601,7 @@
       ]
     },
     {
-      "rank": 19,
+      "rank": 20,
       "id": "qwen/qwen3.6-27b",
       "name": "Qwen: Qwen3.6 27B",
       "created": 1777255064,
@@ -614,11 +636,140 @@
       ]
     },
     {
-      "rank": 20,
+      "rank": 21,
       "id": "deepseek/deepseek-v4-pro",
       "name": "DeepSeek: DeepSeek V4 Pro",
       "created": 1777000679,
       "createdAt": "2026-04-24T03:17:59.000Z",
+      "contextLength": 1048576,
+      "inputPerMillionUsd": 0.435,
+      "outputPerMillionUsd": 0.87,
+      "supportsTools": true,
+      "supportsToolChoice": true,
+      "supportsStructuredOutputs": true,
+      "supportsParallelToolCalls": false,
+      "supportedParameters": [
+        "frequency_penalty",
+        "include_reasoning",
+        "logit_bias",
+        "logprobs",
+        "max_tokens",
+        "min_p",
+        "presence_penalty",
+        "reasoning",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_logprobs",
+        "top_p"
+      ]
+    },
+    {
+      "rank": 22,
+      "id": "deepseek/deepseek-v4-flash",
+      "name": "DeepSeek: DeepSeek V4 Flash",
+      "created": 1777000666,
+      "createdAt": "2026-04-24T03:17:46.000Z",
+      "contextLength": 1048576,
+      "inputPerMillionUsd": 0.089,
+      "outputPerMillionUsd": 0.18,
+      "supportsTools": true,
+      "supportsToolChoice": true,
+      "supportsStructuredOutputs": true,
+      "supportsParallelToolCalls": false,
+      "supportedParameters": [
+        "frequency_penalty",
+        "include_reasoning",
+        "logit_bias",
+        "logprobs",
+        "max_tokens",
+        "min_p",
+        "presence_penalty",
+        "reasoning",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_logprobs",
+        "top_p"
+      ]
+    },
+    {
+      "rank": 23,
+      "id": "inclusionai/ling-2.6-1t",
+      "name": "inclusionAI: Ling-2.6-1T",
+      "created": 1776948238,
+      "createdAt": "2026-04-23T12:43:58.000Z",
+      "contextLength": 262144,
+      "inputPerMillionUsd": 0.075,
+      "outputPerMillionUsd": 0.625,
+      "supportsTools": true,
+      "supportsToolChoice": true,
+      "supportsStructuredOutputs": true,
+      "supportsParallelToolCalls": false,
+      "supportedParameters": [
+        "frequency_penalty",
+        "logprobs",
+        "max_tokens",
+        "presence_penalty",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_logprobs",
+        "top_p"
+      ]
+    },
+    {
+      "rank": 24,
+      "id": "tencent/hy3-preview",
+      "name": "Tencent: Hy3 preview",
+      "created": 1776878150,
+      "createdAt": "2026-04-22T17:15:50.000Z",
+      "contextLength": 262144,
+      "inputPerMillionUsd": 0.063,
+      "outputPerMillionUsd": 0.21,
+      "supportsTools": true,
+      "supportsToolChoice": true,
+      "supportsStructuredOutputs": false,
+      "supportsParallelToolCalls": false,
+      "supportedParameters": [
+        "frequency_penalty",
+        "include_reasoning",
+        "max_tokens",
+        "presence_penalty",
+        "reasoning",
+        "seed",
+        "stop",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_p"
+      ]
+    },
+    {
+      "rank": 25,
+      "id": "xiaomi/mimo-v2.5-pro",
+      "name": "Xiaomi: MiMo-V2.5-Pro",
+      "created": 1776874273,
+      "createdAt": "2026-04-22T16:11:13.000Z",
       "contextLength": 1048576,
       "inputPerMillionUsd": 0.435,
       "outputPerMillionUsd": 0.87,

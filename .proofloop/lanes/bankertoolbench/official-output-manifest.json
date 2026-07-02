@@ -1,0 +1,15 @@
+{
+  "schema": 1,
+  "suite": "bankertoolbench",
+  "generatedAt": "2026-07-02T20:47:13.457Z",
+  "status": "needs_generation",
+  "expectedOutputs": [
+    "failure clusters for 100 scored tasks",
+    "model route matrix",
+    "rerun receipt for promoted route"
+  ],
+  "currentEvidence": [],
+  "missingClasses": [
+    "harness_quality_failure"
+  ]
+}

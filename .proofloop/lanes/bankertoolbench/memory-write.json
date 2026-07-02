@@ -1,0 +1,17 @@
+{
+  "schema": 1,
+  "kind": "blocker_solver_memory",
+  "suite": "bankertoolbench",
+  "blockerId": "bankertoolbench-official-score",
+  "generatedAt": "2026-07-02T20:47:13.457Z",
+  "classes": [
+    "harness_quality_failure"
+  ],
+  "nextCommands": [
+    "npm run proofloop -- setup bankertoolbench --doctor",
+    "npm run benchmark:bankertoolbench:official-contract",
+    "npm run proofloop -- compare-models bankertoolbench",
+    "npm run benchmark:bankertoolbench:fullsuite-gate -- --assert"
+  ],
+  "lesson": "Do not declare external-blocked until setup, research, scaffold, doctor, model tracking, and resume evidence are written."
+}

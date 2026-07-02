@@ -65,9 +65,14 @@ export type FreshRoomProofReceipt = {
   roomUrl?: string;
   command: string;
   model?: {
+    id?: string;
     requested?: string;
     resolved?: string;
     routePolicy?: string;
+    role?: "planner" | "worker" | "judge" | "verifier";
+    costUsd?: number;
+    tokensIn?: number;
+    tokensOut?: number;
     runtimeProfile?: string;
     provider?: string;
   };
@@ -177,6 +182,14 @@ export function validateFreshRoomProofReceipt(
   if (!nonEmptyString(proof?.generatedAt) || Number.isNaN(Date.parse(proof.generatedAt ?? ""))) add("generatedAt must be an ISO timestamp");
   if (!nonEmptyString(proof?.baseUrl)) add("baseUrl is required");
   if (!nonEmptyString(proof?.command)) add("command is required");
+  if (!proof?.model || typeof proof.model !== "object") add("model is required");
+  if (!nonEmptyString(proof?.model?.id ?? proof?.model?.resolved)) add("model.id is required");
+  if (!nonEmptyString(proof?.model?.provider)) add("model.provider is required");
+  if (!nonEmptyString(proof?.model?.routePolicy)) add("model.routePolicy is required");
+  if (!nonEmptyString(proof?.model?.role)) add("model.role is required");
+  if (typeof proof?.model?.costUsd !== "number" || !Number.isFinite(proof.model.costUsd)) add("model.costUsd is required");
+  if (typeof proof?.model?.tokensIn !== "number" || !Number.isFinite(proof.model.tokensIn)) add("model.tokensIn is required");
+  if (typeof proof?.model?.tokensOut !== "number" || !Number.isFinite(proof.model.tokensOut)) add("model.tokensOut is required");
   if (proof?.memoryMode !== false) add("memoryMode must be false");
   if (proof?.passed !== true) add("passed must be true");
 

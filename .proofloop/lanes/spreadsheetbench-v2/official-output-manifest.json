@@ -1,0 +1,20 @@
+{
+  "schema": 1,
+  "suite": "spreadsheetbench-v2",
+  "generatedAt": "2026-07-02T20:46:40.273Z",
+  "status": "needs_generation",
+  "expectedOutputs": [
+    "321 official V2 task manifests",
+    "candidate workbook outputs",
+    "static workbook scorer receipt",
+    "rendered chart/visual grader receipt"
+  ],
+  "currentEvidence": [
+    "docs/eval/official-benchmark-task-coverage.json"
+  ],
+  "missingClasses": [
+    "missing_model_run",
+    "missing_official_scorer",
+    "missing_task_bundle"
+  ]
+}

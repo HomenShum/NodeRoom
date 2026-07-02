@@ -1,6 +1,7 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync, appendFileSync } from "node:fs";
 import { dirname, join, relative } from "node:path";
 import { writeProofLoopArtifacts, type ProofLoopArtifactRun } from "./proofloopArtifacts";
+import type { ProofloopModelRoute } from "./proofloopModelTracking";
 
 export type ProofloopMetaForLoop = {
   runId: string;
@@ -15,6 +16,8 @@ export type ProofloopMetaForLoop = {
   minScore?: number;
   failedGates?: string[];
   receiptPaths: string[];
+  model?: ProofloopModelRoute;
+  harnessVersion?: string;
 };
 
 export type LoopArtifactPaths = {
@@ -140,6 +143,8 @@ export function ensureRunResult(meta: ProofloopMetaForLoop, runDir: string): Pro
     passed: meta.passed,
     score,
     failReasons: meta.passed ? [] : (meta.failedGates?.length ? meta.failedGates.map((gate) => `Failed gate: ${gate}`) : [`Command exited ${meta.exitCode}`]),
+    model: meta.model,
+    harnessVersion: meta.harnessVersion,
     steps: [
       {
         name: "proofloop-run",
@@ -203,6 +208,8 @@ export function writeLiveUserContract(args: {
     productPathCompletion: meta.passed,
     officialSemanticScore: null,
     scoreType: "completion_not_official_semantic",
+    model: meta.model,
+    harnessVersion: meta.harnessVersion,
     gates: gateResults,
     valid: meta.passed && gateResults.every((gate) => gate.passed),
   };
@@ -227,6 +234,8 @@ export function writeOfficialScorerReceipt(args: { meta: ProofloopMetaForLoop; r
     productPathCompletion: meta.passed,
     requiredForOfficialClaim: true,
     acceptedProxyJudge: false,
+    model: meta.model,
+    harnessVersion: meta.harnessVersion,
     blocker: "No accepted official scorer receipt was attached. This run is product-path evidence only.",
     nextActions: [
       "Attach or import the upstream official scorer output for this suite.",
@@ -245,8 +254,9 @@ export function writeMemoryEntry(args: { meta: ProofloopMetaForLoop; runDir: str
     runId: meta.runId,
     suite: meta.suite,
     taskKind: taskKindForSuite(meta.suite),
-    modelPolicy: "proofloop-recorded",
-    harnessVersion: "proofloop-loop-engineering-v1",
+    modelPolicy: meta.model?.routePolicy ?? "proofloop-recorded",
+    model: meta.model,
+    harnessVersion: meta.harnessVersion ?? "proofloop-loop-engineering-v1",
     costUsd: readJson<{ costUsd?: string }>(join(runDir, "cost-ledger.json"))?.costUsd ?? "unknown",
     reward: nodeEval?.reward ?? null,
     repairAction: meta.passed ? "promote_as_regression_proof" : "inspect_repair_prompt_and_add_regression",
@@ -337,6 +347,8 @@ export function writeRouterSuggestion(args: { meta: ProofloopMetaForLoop; runDir
     schema: 1,
     runId: meta.runId,
     suite: meta.suite,
+    model: meta.model,
+    harnessVersion: meta.harnessVersion,
     routerPolicy: {
       planner: "strong-model",
       mechanicalWorker: "cheap-model",

@@ -1,0 +1,127 @@
+{
+  "schema": "proofloop-blocker-solver-v1",
+  "blockerId": "bankertoolbench-official-score",
+  "suite": "bankertoolbench",
+  "title": "BankerToolBench model/harness quality sweep",
+  "generatedAt": "2026-07-02T20:47:13.457Z",
+  "phase": "run",
+  "classes": [
+    "harness_quality_failure"
+  ],
+  "status": "needs_scaffold_or_run",
+  "externalBlockClaimAllowed": false,
+  "stopCondition": {
+    "setupAttempted": true,
+    "researchAttempted": true,
+    "scaffoldAttempted": true,
+    "doctorAttempted": true,
+    "resumeCommandWritten": true,
+    "allNonExternalPartsCompleted": false
+  },
+  "remainingExternalClasses": [],
+  "remainingLocalClasses": [
+    "harness_quality_failure"
+  ],
+  "blockers": [
+    "Quality failure remains local model/harness work, not an external blocker.",
+    "Official sources checked for model/harness sweep context: https://github.com/Handshake-AI-Research/bankertoolbench, https://huggingface.co/datasets/handshake-ai-research/bankertoolbench.",
+    "Model/harness sweep artifact: failure clusters for 100 scored tasks.",
+    "Model/harness sweep artifact: model route matrix.",
+    "Model/harness sweep artifact: rerun receipt for promoted route.",
+    "Model/harness sweep work: cluster low-reward tasks by unmet criteria.",
+    "Model/harness sweep work: run model/harness sweep against existing scored gate.",
+    "Model/harness sweep work: promote best route only after score/cost receipt."
+  ],
+  "artifacts": {
+    "blocker-analysis.json": ".proofloop/lanes/bankertoolbench/blocker-analysis.json",
+    "upstream-research.md": ".proofloop/lanes/bankertoolbench/upstream-research.md",
+    "scaffold-plan.md": ".proofloop/lanes/bankertoolbench/scaffold-plan.md",
+    "harness-version.json": ".proofloop/lanes/bankertoolbench/harness-version.json",
+    "model-matrix.json": ".proofloop/lanes/bankertoolbench/model-matrix.json",
+    "cost-ledger.json": ".proofloop/lanes/bankertoolbench/cost-ledger.json",
+    "official-output-manifest.json": ".proofloop/lanes/bankertoolbench/official-output-manifest.json",
+    "official-score-receipt.json": ".proofloop/lanes/bankertoolbench/official-score-receipt.json",
+    "proxy-score-receipt.json": ".proofloop/lanes/bankertoolbench/proxy-score-receipt.json",
+    "memory-write.json": ".proofloop/lanes/bankertoolbench/memory-write.json"
+  },
+  "nextCommands": [
+    "npm run proofloop -- setup bankertoolbench --doctor",
+    "npm run benchmark:bankertoolbench:official-contract",
+    "npm run proofloop -- compare-models bankertoolbench",
+    "npm run benchmark:bankertoolbench:fullsuite-gate -- --assert"
+  ],
+  "models": [
+    {
+      "provider": "openrouter",
+      "id": "deepseek/deepseek-v4-pro",
+      "routePolicy": "proxy",
+      "role": "planner",
+      "costUsd": 0,
+      "tokensIn": 0,
+      "tokensOut": 0,
+      "latencyMs": 0,
+      "selectionReason": "Candidate selected from OpenRouter tool-capable snapshot for bankertoolbench proxy comparison.",
+      "source": "env"
+    },
+    {
+      "provider": "openrouter",
+      "id": "z-ai/glm-5.2",
+      "routePolicy": "specific",
+      "role": "planner",
+      "costUsd": 0,
+      "tokensIn": 0,
+      "tokensOut": 0,
+      "latencyMs": 0,
+      "selectionReason": "Candidate selected from OpenRouter tool-capable snapshot for bankertoolbench proxy comparison.",
+      "source": "env"
+    },
+    {
+      "provider": "openrouter",
+      "id": "qwen/qwen3.6-flash",
+      "routePolicy": "specific",
+      "role": "planner",
+      "costUsd": 0,
+      "tokensIn": 0,
+      "tokensOut": 0,
+      "latencyMs": 0,
+      "selectionReason": "Candidate selected from OpenRouter tool-capable snapshot for bankertoolbench proxy comparison.",
+      "source": "env"
+    },
+    {
+      "provider": "openrouter",
+      "id": "qwen/qwen3.6-35b-a3b",
+      "routePolicy": "specific",
+      "role": "planner",
+      "costUsd": 0,
+      "tokensIn": 0,
+      "tokensOut": 0,
+      "latencyMs": 0,
+      "selectionReason": "Candidate selected from OpenRouter tool-capable snapshot for bankertoolbench proxy comparison.",
+      "source": "env"
+    },
+    {
+      "provider": "openai",
+      "id": "gpt-4.1-mini",
+      "routePolicy": "specific",
+      "role": "planner",
+      "costUsd": 0,
+      "tokensIn": 0,
+      "tokensOut": 0,
+      "latencyMs": 0,
+      "selectionReason": "Candidate selected from suite default matrix for bankertoolbench; live metadata was not present in the local snapshot.",
+      "source": "suite-default"
+    },
+    {
+      "provider": "openrouter",
+      "id": "ibm-granite/granite-4.1-8b",
+      "routePolicy": "specific",
+      "role": "planner",
+      "costUsd": 0,
+      "tokensIn": 0,
+      "tokensOut": 0,
+      "latencyMs": 0,
+      "selectionReason": "Candidate selected from OpenRouter tool-capable snapshot for bankertoolbench proxy comparison.",
+      "source": "env"
+    }
+  ]
+}

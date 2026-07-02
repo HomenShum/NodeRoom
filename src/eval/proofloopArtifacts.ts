@@ -25,6 +25,8 @@ export interface ProofLoopArtifactRun {
   score: number;
   failReasons: string[];
   outputDir: string;
+  model?: unknown;
+  harnessVersion?: string;
 }
 
 export interface ProofLoopArtifactOptions {
@@ -123,8 +125,9 @@ function buildNodeMergedTrajectory(
     },
     innerTrace: {
       agentJobId: undefined,
-      model: undefined,
+      model: run.model,
       runtimeProfile: "proofloop-runner",
+      harnessVersion: run.harnessVersion,
       contextPackHash: undefined,
       steps: run.steps.map((step, index) => ({
         stepIndex: index,
@@ -158,6 +161,8 @@ function buildNodeEval(run: ProofLoopArtifactRun, outputDir: string, reward: Rew
     runId: run.runId,
     suite: run.suite,
     generatedAt: new Date().toISOString(),
+    model: run.model,
+    harnessVersion: run.harnessVersion,
     verifier: {
       hardPass: run.passed,
       minScore: run.minScore,

@@ -20,7 +20,7 @@ afterEach(() => {
 });
 
 describe("Proof Loop goal supervisor", () => {
-  it("continues from persisted tasks until only typed external blockers remain", () => {
+  it("continues from persisted tasks and refuses external status before solver work is complete", () => {
     const root = tempRoot();
     initProofloopGoal({
       root,
@@ -36,19 +36,20 @@ describe("Proof Loop goal supervisor", () => {
     expect(first.state.status).toBe("running");
 
     const second = runNextProofloopGoalTask("official-scores", { root });
-    expect(second.task?.status).toBe("blocked_external");
-    expect(second.state.status).toBe("blocked_external");
+    expect(second.task?.status).toBe("needs_scaffold_or_run");
+    expect(second.state.status).toBe("needs_scaffold_or_run");
     expect(second.state.unblockedTasksRemaining).toBe(0);
     expect(second.state.blockedTasksRemaining).toBe(1);
 
     const gate = gateProofloopGoal("official-scores", { root });
-    expect(gate.status).toBe("blocked_external");
+    expect(gate.status).toBe("needs_scaffold_or_run");
 
     const goalDir = join(root, ".proofloop", "goals", "official-scores");
     expect(existsSync(join(goalDir, "state.json"))).toBe(true);
     expect(existsSync(join(goalDir, "queue.json"))).toBe(true);
-    expect(JSON.parse(readFileSync(join(goalDir, "blockers.json"), "utf8"))).toHaveLength(1);
-    expect(readFileSync(join(goalDir, "ledger.jsonl"), "utf8")).toContain("task_blocked_external");
+    expect(JSON.parse(readFileSync(join(goalDir, "blockers.json"), "utf8"))).toHaveLength(0);
+    expect(readFileSync(join(goalDir, "ledger.jsonl"), "utf8")).toContain("task_needs_scaffold_or_run");
+    expect(existsSync(join(root, ".proofloop", "lanes", "spreadsheetbench-full", "blocker-analysis.json"))).toBe(true);
   });
 
   it("supervises repeatedly without treating a transcript summary as completion", () => {
@@ -95,6 +96,12 @@ describe("Proof Loop goal supervisor", () => {
     expect(spreadsheetV2?.blockers.join(" ")).toContain("proxy judges");
     expect(tasks.find((task) => task.id === "external-adapter-local-product-proofs")?.command).toContain("benchmark:proofloop:external-adapter");
     expect(tasks.find((task) => task.id === "external-adapter-blocker-receipts")?.command).toBe("npm run benchmark:proofloop:adapter-blockers");
+    const solver = tasks.find((task) => task.id === "blocked-lane-solver");
+    expect(solver?.command).toBe("npm run proofloop -- solve-blockers --goal official-scores");
+    expect(solver?.evidence.join(" ")).toContain(".proofloop/lanes/spreadsheetbench-v1/blocker-analysis.json");
+    expect(tasks.findIndex((task) => task.id === "blocked-lane-solver")).toBeLessThan(
+      tasks.findIndex((task) => task.id === "proofloop-benchmark-board"),
+    );
     for (const id of ["finch-official-score", "finauditing-official-score", "workstreambench-official-score"]) {
       const task = tasks.find((candidate) => candidate.id === id);
       expect(task?.kind).toBe("external_blocker");

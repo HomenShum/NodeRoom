@@ -1,0 +1,21 @@
+{
+  "schema": 1,
+  "suite": "spreadsheetbench-v1",
+  "generatedAt": "2026-07-02T20:46:40.266Z",
+  "status": "needs_generation",
+  "expectedOutputs": [
+    "912 model-generated candidate workbook outputs",
+    "SpreadsheetBench workbook scorer receipt",
+    "per-task model/cost/harness trace"
+  ],
+  "currentEvidence": [
+    "docs/eval/official-benchmark-task-coverage.json",
+    "docs/eval/spreadsheetbench-v1-912-stage.json",
+    "docs/eval/spreadsheetbench-v1-912-copy-input-baseline.json"
+  ],
+  "missingClasses": [
+    "missing_model_run",
+    "missing_official_scorer",
+    "missing_task_bundle"
+  ]
+}

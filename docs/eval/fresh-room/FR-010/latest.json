@@ -9,9 +9,15 @@
   "roomUrl": "http://127.0.0.1:5273/?room=NR2VJWHF8LX&name=Host",
   "command": "BENCH_BASE_URL=<base> npx playwright test --config playwright.real-flow.config.ts e2e/benchmark-ui-spreadsheetbench.spec.ts",
   "model": {
+    "id": "z-ai/glm-5.2",
     "requested": "specific",
     "resolved": "z-ai/glm-5.2",
+    "provider": "openrouter",
     "routePolicy": "specific",
+    "role": "planner",
+    "costUsd": 0,
+    "tokensIn": 0,
+    "tokensOut": 0,
     "runtimeProfile": "benchmark_completion"
   },
   "prompt": "@nodeagent You have two uploaded source files in this room: source_financials.csv (columns year,revenue,cogs,net_income in $M) and source_shares.txt (shares_outstanding_millions). Read them, then WRITE the answers into the blank 'Sheet 1' grid using the cell-write tool (write_locked_cells). Put each metric NAME in column A and its numeric VALUE (number only) in column B, one metric per row: r1__A=revenue_growth_pct, r1__B=(latest revenue vs prior year, percent); r2__A=gross_margin_2024, r2__B=((revenue-cogs)/revenue*100 for 2024); r3__A=gross_margin_2025, r3__B=(same for 2025); r4__A=eps_2024, r4__B=(net_income/shares for 2024); r5__A=eps_2025, r5__B=(net_income/shares for 2025). Do not just explain in chat — actually write the five rows into Sheet 1.",

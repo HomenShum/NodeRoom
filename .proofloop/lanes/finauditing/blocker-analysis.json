@@ -1,0 +1,129 @@
+{
+  "schema": "proofloop-blocker-solver-v1",
+  "blockerId": "finauditing-official-score",
+  "suite": "finauditing",
+  "title": "FinAuditing official score",
+  "generatedAt": "2026-07-02T20:46:40.282Z",
+  "phase": "solve",
+  "classes": [
+    "missing_judge_credentials",
+    "missing_official_scorer",
+    "missing_output_exporter",
+    "missing_task_bundle"
+  ],
+  "status": "needs_scaffold_or_run",
+  "externalBlockClaimAllowed": false,
+  "stopCondition": {
+    "setupAttempted": true,
+    "researchAttempted": true,
+    "scaffoldAttempted": true,
+    "doctorAttempted": true,
+    "resumeCommandWritten": true,
+    "allNonExternalPartsCompleted": false
+  },
+  "remainingExternalClasses": [
+    "missing_judge_credentials"
+  ],
+  "remainingLocalClasses": [
+    "missing_official_scorer",
+    "missing_output_exporter",
+    "missing_task_bundle"
+  ],
+  "blockers": [
+    "finauditing: official scorer receipt docs/eval/proofloop-official-scores/finauditing.json is blocked_external; scored receipt is still required before claiming score.",
+    "finauditing: official task bundle lock docs/eval/proofloop-official-task-bundles/finauditing.json is staged, but NodeRoom still needs official-format FinSM/FinRE/FinMR prediction JSONL and an accepted FinMR judge path; OpenAI credentials are one path, while cheaper OpenRouter proxy judges are product-gate evidence only unless accepted upstream."
+  ],
+  "artifacts": {
+    "blocker-analysis.json": ".proofloop/lanes/finauditing/blocker-analysis.json",
+    "upstream-research.md": ".proofloop/lanes/finauditing/upstream-research.md",
+    "scaffold-plan.md": ".proofloop/lanes/finauditing/scaffold-plan.md",
+    "harness-version.json": ".proofloop/lanes/finauditing/harness-version.json",
+    "model-matrix.json": ".proofloop/lanes/finauditing/model-matrix.json",
+    "cost-ledger.json": ".proofloop/lanes/finauditing/cost-ledger.json",
+    "official-output-manifest.json": ".proofloop/lanes/finauditing/official-output-manifest.json",
+    "official-score-receipt.json": ".proofloop/lanes/finauditing/official-score-receipt.json",
+    "proxy-score-receipt.json": ".proofloop/lanes/finauditing/proxy-score-receipt.json",
+    "memory-write.json": ".proofloop/lanes/finauditing/memory-write.json"
+  },
+  "nextCommands": [
+    "emit official-format FinSM/FinRE/FinMR predictions, run/import FinAuditing scorer output with an accepted FinMR judge path, use npm run benchmark:proofloop:harness-economics for proxy triage, then npm run benchmark:proofloop:adapter-blockers -- --id finauditing --strict",
+    "npm run proofloop -- setup finauditing --doctor",
+    "npm run benchmark:proofloop:adapter-blockers -- --id finauditing",
+    "npm run proofloop -- blocker scaffold finauditing-official-score",
+    "npm run benchmark:proofloop:adapter-blockers -- --id finauditing --strict"
+  ],
+  "models": [
+    {
+      "provider": "openrouter",
+      "id": "deepseek/deepseek-v4-pro",
+      "routePolicy": "proxy",
+      "role": "planner",
+      "costUsd": 0,
+      "tokensIn": 0,
+      "tokensOut": 0,
+      "latencyMs": 0,
+      "selectionReason": "Candidate selected from OpenRouter tool-capable snapshot for finauditing proxy comparison.",
+      "source": "env"
+    },
+    {
+      "provider": "openrouter",
+      "id": "z-ai/glm-5.2",
+      "routePolicy": "specific",
+      "role": "planner",
+      "costUsd": 0,
+      "tokensIn": 0,
+      "tokensOut": 0,
+      "latencyMs": 0,
+      "selectionReason": "Candidate selected from OpenRouter tool-capable snapshot for finauditing proxy comparison.",
+      "source": "env"
+    },
+    {
+      "provider": "openrouter",
+      "id": "qwen/qwen3.6-flash",
+      "routePolicy": "specific",
+      "role": "planner",
+      "costUsd": 0,
+      "tokensIn": 0,
+      "tokensOut": 0,
+      "latencyMs": 0,
+      "selectionReason": "Candidate selected from OpenRouter tool-capable snapshot for finauditing proxy comparison.",
+      "source": "env"
+    },
+    {
+      "provider": "openrouter",
+      "id": "qwen/qwen3.6-35b-a3b",
+      "routePolicy": "specific",
+      "role": "planner",
+      "costUsd": 0,
+      "tokensIn": 0,
+      "tokensOut": 0,
+      "latencyMs": 0,
+      "selectionReason": "Candidate selected from OpenRouter tool-capable snapshot for finauditing proxy comparison.",
+      "source": "env"
+    },
+    {
+      "provider": "openai",
+      "id": "gpt-4.1-mini",
+      "routePolicy": "specific",
+      "role": "planner",
+      "costUsd": 0,
+      "tokensIn": 0,
+      "tokensOut": 0,
+      "latencyMs": 0,
+      "selectionReason": "Candidate selected from suite default matrix for finauditing; live metadata was not present in the local snapshot.",
+      "source": "suite-default"
+    },
+    {
+      "provider": "openrouter",
+      "id": "ibm-granite/granite-4.1-8b",
+      "routePolicy": "specific",
+      "role": "planner",
+      "costUsd": 0,
+      "tokensIn": 0,
+      "tokensOut": 0,
+      "latencyMs": 0,
+      "selectionReason": "Candidate selected from OpenRouter tool-capable snapshot for finauditing proxy comparison.",
+      "source": "env"
+    }
+  ]
+}

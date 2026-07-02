@@ -9,11 +9,16 @@
   "roomUrl": "https://noderoom.live/?room=NRJNGW6LELB&name=Host",
   "command": "BTB_LIVE_ROOM_E2E=1 BTB_UI_BUNDLE_ROOT=<official-bundle> BTB_UI_VERIFIER_COMMAND=<verifier> BENCH_BASE_URL=<base> npx playwright test --config playwright.real-flow.config.ts e2e/benchmark-ui-bankertoolbench.spec.ts --headed",
   "model": {
+    "id": "z-ai/glm-5.2",
     "requested": "specific",
     "resolved": "z-ai/glm-5.2",
+    "provider": "openrouter",
     "routePolicy": "specific",
-    "runtimeProfile": "benchmark_completion",
-    "provider": "openrouter"
+    "role": "planner",
+    "costUsd": 0,
+    "tokensIn": 0,
+    "tokensOut": 0,
+    "runtimeProfile": "benchmark_completion"
   },
   "prompt": "Official BankerToolBench task btb-0fc7bc3c: Build a buyer screen and short memo.",
   "memoryMode": false,

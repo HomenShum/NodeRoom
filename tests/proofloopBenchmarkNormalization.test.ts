@@ -51,7 +51,7 @@ describe("Proof Loop benchmark normalization", () => {
 
     expect(entries.workstreambench.stages.officialTaskBundle.status).toBe("blocked");
     expect(entries.workstreambench.stages.productTaskManifest.blockers.join(" ")).toContain("official WorkstreamBench task bundle");
-    expect(entries.workstreambench.stages.officialScorer.blockers.join(" ")).toContain("No public official WorkstreamBench task bundle URL");
+    expect(entries.workstreambench.stages.officialScorer.blockers.join(" ")).toContain("no public official bundle/scorer/rubric URL");
   });
 
   it("renders a compact normalization table", () => {

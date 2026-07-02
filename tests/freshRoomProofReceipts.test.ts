@@ -88,6 +88,36 @@ describe("fresh-room proof receipts", () => {
     expect(validation).toMatchObject({ ok: true, errors: [] });
   });
 
+  it("requires normalized model tracking", () => {
+    const receipt = validReceipt();
+    delete receipt.model;
+
+    const validation = validateFreshRoomProofReceipt(receipt, { caseId: "FR-010" });
+
+    expect(validation.ok).toBe(false);
+    expect(validation.errors.join("\n")).toContain("model is required");
+    expect(validation.errors.join("\n")).toContain("model.id is required");
+    expect(validation.errors.join("\n")).toContain("model.provider is required");
+    expect(validation.errors.join("\n")).toContain("model.routePolicy is required");
+  });
+
+  it("accepts resolved model identity when the canonical model id is absent", () => {
+    const receipt = validReceipt();
+    receipt.model = {
+      resolved: "z-ai/glm-5.2",
+      provider: "openrouter",
+      routePolicy: "specific",
+      role: "planner",
+      costUsd: 0,
+      tokensIn: 0,
+      tokensOut: 0,
+    };
+
+    const validation = validateFreshRoomProofReceipt(receipt, { caseId: "FR-010" });
+
+    expect(validation).toMatchObject({ ok: true, errors: [] });
+  });
+
   it("rejects receipts that claim export/reopen/scorer gates without structured proof", () => {
     const receipt = validReceipt();
     const tampered: FreshRoomProofReceipt = {
@@ -202,6 +232,15 @@ function validReceipt(): FreshRoomProofReceipt {
     roomId: "NRTEST",
     roomUrl: "http://127.0.0.1:5273/?room=NRTEST&name=Host",
     command: "npx playwright test",
+    model: {
+      id: "z-ai/glm-5.2",
+      provider: "openrouter",
+      routePolicy: "specific",
+      role: "planner",
+      costUsd: 0,
+      tokensIn: 0,
+      tokensOut: 0,
+    },
     memoryMode: false,
     freshness: {
       roomCreatedAfterRunStart: true,

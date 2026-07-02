@@ -1,0 +1,69 @@
+{
+  "schema": 1,
+  "suite": "finch",
+  "harnessVersion": "finch-harness-2ff1220ba611",
+  "generatedAt": "2026-07-02T20:46:40.277Z",
+  "previousVersion": null,
+  "changes": [
+    "add Finch content_parts exporter",
+    "add NodeRoom output manifest per official task id",
+    "wire accepted Finch judge command adapter when credentials exist"
+  ],
+  "modelsTested": [
+    "deepseek/deepseek-v4-pro",
+    "z-ai/glm-5.2",
+    "qwen/qwen3.6-flash",
+    "qwen/qwen3.6-35b-a3b",
+    "gpt-4.1-mini",
+    "ibm-granite/granite-4.1-8b"
+  ],
+  "bestRoute": "deepseek/deepseek-v4-pro",
+  "reason": "Official judge credentials are external, but output generation/exporter work still has to complete first.",
+  "files": [
+    {
+      "path": "scripts/proofloop-cli.ts",
+      "exists": true,
+      "sha256": "d8de08fbf26d12ff107d8e8eb36c4db751dba18c5b33aba2ce53a02cfe39b78b"
+    },
+    {
+      "path": "scripts/proofloop.mjs",
+      "exists": true,
+      "sha256": "95aec6cc8e95fa03a45904081f01150202473050e6defbec38dd9c6d0ff55fc9"
+    },
+    {
+      "path": "src/eval/proofloopGoalSupervisor.ts",
+      "exists": true,
+      "sha256": "4c073a490290e8507753264cdd6507698b6f9ae08eb501eeb7969c1255a9648c"
+    },
+    {
+      "path": "src/eval/proofloopLoopArtifacts.ts",
+      "exists": true,
+      "sha256": "67c6fc3b3a2c42ec710c1d18c8f0c2a6e8d81363c130da32d7e63e991554ba1d"
+    },
+    {
+      "path": "src/eval/proofloopModelTracking.ts",
+      "exists": true,
+      "sha256": "2c7e76cf762e0195e69fbcb37afd38e7a554e5dfdd4eb7aca5815d20a7bc2adc"
+    },
+    {
+      "path": "src/eval/proofloopBlockerSolver.ts",
+      "exists": true,
+      "sha256": "919b26821754bc6d88d49e98c028b1dd10cd64ec3b1ffebec11f46fb8a2cec5f"
+    },
+    {
+      "path": "proofloop/benchmarks/finch/adapter.json",
+      "exists": true,
+      "sha256": "d878402cf74c5bbf9548978e12b2a4bb7ebd753ad05b93f5ca120bc82116c387"
+    },
+    {
+      "path": "docs/eval/openrouter-top-paid-tools-snapshot.json",
+      "exists": true,
+      "sha256": "c0f63fb9f0289ec5f79b0c67092afe7ed10bbf502feb593122e0c639bec89e66"
+    },
+    {
+      "path": "docs/eval/official-benchmark-task-coverage.json",
+      "exists": true,
+      "sha256": "4d74dbd9472d6207aa36b0ac4f21fe914464bbdd5352d2315aa9e8837274bc07"
+    }
+  ]
+}

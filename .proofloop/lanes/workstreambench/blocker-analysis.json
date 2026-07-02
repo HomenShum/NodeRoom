@@ -1,0 +1,126 @@
+{
+  "schema": "proofloop-blocker-solver-v1",
+  "blockerId": "workstreambench-official-score",
+  "suite": "workstreambench",
+  "title": "WorkstreamBench official score",
+  "generatedAt": "2026-07-02T20:46:40.290Z",
+  "phase": "solve",
+  "classes": [
+    "missing_official_scorer",
+    "missing_task_bundle",
+    "no_public_upstream_release"
+  ],
+  "status": "blocked_external",
+  "externalBlockClaimAllowed": true,
+  "stopCondition": {
+    "setupAttempted": true,
+    "researchAttempted": true,
+    "scaffoldAttempted": true,
+    "doctorAttempted": true,
+    "resumeCommandWritten": true,
+    "allNonExternalPartsCompleted": true
+  },
+  "remainingExternalClasses": [
+    "missing_official_scorer",
+    "missing_task_bundle",
+    "no_public_upstream_release"
+  ],
+  "remainingLocalClasses": [],
+  "blockers": [
+    "workstreambench: official scorer receipt docs/eval/proofloop-official-scores/workstreambench.json is blocked_external; scored receipt is still required before claiming score.",
+    "workstreambench: no public official task bundle lock docs/eval/proofloop-official-task-bundles/workstreambench.json is staged because no public official bundle/scorer/rubric URL was found."
+  ],
+  "artifacts": {
+    "blocker-analysis.json": ".proofloop/lanes/workstreambench/blocker-analysis.json",
+    "upstream-research.md": ".proofloop/lanes/workstreambench/upstream-research.md",
+    "scaffold-plan.md": ".proofloop/lanes/workstreambench/scaffold-plan.md",
+    "harness-version.json": ".proofloop/lanes/workstreambench/harness-version.json",
+    "model-matrix.json": ".proofloop/lanes/workstreambench/model-matrix.json",
+    "cost-ledger.json": ".proofloop/lanes/workstreambench/cost-ledger.json",
+    "official-output-manifest.json": ".proofloop/lanes/workstreambench/official-output-manifest.json",
+    "official-score-receipt.json": ".proofloop/lanes/workstreambench/official-score-receipt.json",
+    "proxy-score-receipt.json": ".proofloop/lanes/workstreambench/proxy-score-receipt.json",
+    "memory-write.json": ".proofloop/lanes/workstreambench/memory-write.json"
+  },
+  "nextCommands": [
+    "obtain the official WorkstreamBench task bundle and scorer/rubric from an upstream release or authors, lock it in docs/eval/proofloop-official-task-bundles/workstreambench.json, use npm run benchmark:proofloop:harness-economics for proxy triage, import a scored receipt, then npm run benchmark:proofloop:adapter-blockers -- --id workstreambench --strict",
+    "npm run proofloop -- setup workstreambench --doctor",
+    "npm run benchmark:proofloop:adapter-blockers -- --id workstreambench",
+    "npm run proofloop -- blocker research workstreambench-official-score",
+    "npm run benchmark:proofloop:adapter-blockers -- --id workstreambench --strict"
+  ],
+  "models": [
+    {
+      "provider": "openrouter",
+      "id": "deepseek/deepseek-v4-pro",
+      "routePolicy": "proxy",
+      "role": "planner",
+      "costUsd": 0,
+      "tokensIn": 0,
+      "tokensOut": 0,
+      "latencyMs": 0,
+      "selectionReason": "Candidate selected from OpenRouter tool-capable snapshot for workstreambench proxy comparison.",
+      "source": "env"
+    },
+    {
+      "provider": "openrouter",
+      "id": "z-ai/glm-5.2",
+      "routePolicy": "specific",
+      "role": "planner",
+      "costUsd": 0,
+      "tokensIn": 0,
+      "tokensOut": 0,
+      "latencyMs": 0,
+      "selectionReason": "Candidate selected from OpenRouter tool-capable snapshot for workstreambench proxy comparison.",
+      "source": "env"
+    },
+    {
+      "provider": "openrouter",
+      "id": "qwen/qwen3.6-flash",
+      "routePolicy": "specific",
+      "role": "planner",
+      "costUsd": 0,
+      "tokensIn": 0,
+      "tokensOut": 0,
+      "latencyMs": 0,
+      "selectionReason": "Candidate selected from OpenRouter tool-capable snapshot for workstreambench proxy comparison.",
+      "source": "env"
+    },
+    {
+      "provider": "openrouter",
+      "id": "qwen/qwen3.6-35b-a3b",
+      "routePolicy": "specific",
+      "role": "planner",
+      "costUsd": 0,
+      "tokensIn": 0,
+      "tokensOut": 0,
+      "latencyMs": 0,
+      "selectionReason": "Candidate selected from OpenRouter tool-capable snapshot for workstreambench proxy comparison.",
+      "source": "env"
+    },
+    {
+      "provider": "openai",
+      "id": "gpt-4.1-mini",
+      "routePolicy": "specific",
+      "role": "planner",
+      "costUsd": 0,
+      "tokensIn": 0,
+      "tokensOut": 0,
+      "latencyMs": 0,
+      "selectionReason": "Candidate selected from suite default matrix for workstreambench; live metadata was not present in the local snapshot.",
+      "source": "suite-default"
+    },
+    {
+      "provider": "openrouter",
+      "id": "ibm-granite/granite-4.1-8b",
+      "routePolicy": "specific",
+      "role": "planner",
+      "costUsd": 0,
+      "tokensIn": 0,
+      "tokensOut": 0,
+      "latencyMs": 0,
+      "selectionReason": "Candidate selected from OpenRouter tool-capable snapshot for workstreambench proxy comparison.",
+      "source": "env"
+    }
+  ]
+}
