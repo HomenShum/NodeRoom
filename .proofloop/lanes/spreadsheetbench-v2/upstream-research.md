@@ -1,6 +1,6 @@
 # SpreadsheetBench V2 full 321-task official score Research
 
-Generated: 2026-07-02T20:46:40.273Z
+Generated: 2026-07-03T22:15:25.870Z
 Blocker: spreadsheetbench-v2-full-official-score
 
 ## Classes

@@ -1,4 +1,5 @@
 import type { ProofloopGoalTask } from "../../eval/proofloopGoalSupervisor";
+import type { ProofloopModelRoute } from "../../eval/proofloopModelTracking";
 import type { ProofloopCodeGraphQueryHit } from "../codegraph/types";
 import type { ProofloopWorkerInventory } from "../workers/detectWorkers";
 
@@ -56,6 +57,67 @@ export type ProofloopWorkerDispatch = {
   command?: string;
 };
 
+export type ProofloopLongRunControlPlane = {
+  schema: "proofloop-long-running-agent-v1";
+  goalContract: {
+    objective: string;
+    measurableExitCriteria: string[];
+    acceptedTerminalStatuses: ProofloopOrchestratorTerminalStatus[];
+    nonGoals: string[];
+  };
+  evaluator: {
+    schema: "proofloop-detached-evaluator-v1";
+    kind: "deterministic_state_judge";
+    sharesExecutorContext: false;
+    verdict: "pass" | "not_done" | "failed" | "budget_exhausted";
+    checkedAt: string;
+    reasons: string[];
+  };
+  verifierStack: {
+    deterministic: string[];
+    expensiveOrLive: string[];
+    officialPromotionBlockedBy: string[];
+    receiptPaths: string[];
+  };
+  outerLoop: {
+    enabled: true;
+    maxSteps: number;
+    stepsUsed: number;
+    earlyStopPolicy: "terminal_status_only_after_evaluator_and_verifiers";
+    retryPolicy: string;
+    notDoneTaskIds: string[];
+  };
+  orchestration: {
+    roles: Array<{
+      role: "planner" | "executor" | "evaluator" | "verifier" | "memory_miner";
+      route: ProofloopModelRoute;
+      costPolicy: string;
+      launchSurface: "local-shell" | "worker-dispatch" | "deterministic-receipt";
+    }>;
+    workerDispatches: number;
+    availableWorkers: string[];
+  };
+  observability: {
+    rawEventLog: string;
+    heartbeatLog: string;
+    dashboardPath: string;
+    workerDispatchPath: string;
+    repairContextDir: string;
+    summaryPath: string;
+    feedbackSurfaces: string[];
+  };
+  memory: {
+    sessionMiningPolicy: "mine_unfinished_tasks_into_rules";
+    memoryPath: string;
+    minedRules: Array<{
+      id: string;
+      rule: string;
+      evidenceTaskIds: string[];
+    }>;
+    priorFailurePatterns: string[];
+  };
+};
+
 export type ProofloopOrchestratorState = {
   schema: "proofloop-orchestrator-v1";
   runId: string;
@@ -74,8 +136,12 @@ export type ProofloopOrchestratorState = {
     state: string;
     queue: string;
     events: string;
+    heartbeats: string;
     workerDispatch: string;
     summary: string;
+    dashboard: string;
+    evaluatorReceipt: string;
+    sessionMemory: string;
     codeGraphManifest: string;
   };
   workerInventory: ProofloopWorkerInventory;
@@ -90,6 +156,7 @@ export type ProofloopOrchestratorState = {
     skipped: number;
     notDone: number;
   };
+  longRun: ProofloopLongRunControlPlane;
 };
 
 export type ProofloopOrchestratorOptions = {

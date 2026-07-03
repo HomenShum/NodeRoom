@@ -1,6 +1,6 @@
 # Proof Loop Benchmark Normalization
 
-Generated: 2026-07-02T20:46:50.582Z
+Generated: 2026-07-03T22:15:23.524Z
 
 This ledger answers whether each benchmark is shaped for the current NodeRoom codebase while preserving its official scorer boundary.
 

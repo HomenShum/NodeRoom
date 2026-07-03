@@ -1,13 +1,13 @@
 # Proof Loop Harness Economics
 
-Generated: 2026-07-02T20:46:55.504Z
+Generated: 2026-07-03T22:15:26.303Z
 
 This ledger records harness/config versions and cheaper model routes for Proof Loop product gates while preserving official scorer boundaries.
 
 ## Summary
 
 - Package version: 0.1.1
-- Git commit: 772ed699616c7b084392087e75a6aaaa4b6a32ec (dirty)
+- Git commit: 589cb13478dc9bae26436efa77d67fb6241a87af (dirty)
 - Harness files tracked: 23
 - Missing harness files: 0
 - OpenRouter candidates: 25
@@ -86,9 +86,9 @@ This ledger records harness/config versions and cheaper model routes for Proof L
 - `proofloop/benchmarks/workstreambench/adapter.json`: e3655f8b4b04c2c670d645b4d70901cee2cf3b02e69f3d2bd2aa3dc8276eab1f
 - `scripts/proofloop-company-task-coverage.ts`: 66eb7e8dd23b3a3eca2d363cfde287260af8604859be047ece606ef101342a5a
 - `scripts/proofloop-harness-economics.ts`: 88af3482e8bc8d8ed15a8df44756e2498159b3682d350a404c86be063b1fb53c
-- `src/eval/proofloopGoalSupervisor.ts`: 4c073a490290e8507753264cdd6507698b6f9ae08eb501eeb7969c1255a9648c
+- `src/eval/proofloopGoalSupervisor.ts`: 394db83b3cb3192ff67ce854096a76a9427ce5af49f9c69765f8ea020885b06b
 - `src/eval/proofloopBlockerSolver.ts`: 919b26821754bc6d88d49e98c028b1dd10cd64ec3b1ffebec11f46fb8a2cec5f
-- `src/eval/proofloopModelTracking.ts`: 2c7e76cf762e0195e69fbcb37afd38e7a554e5dfdd4eb7aca5815d20a7bc2adc
+- `src/eval/proofloopModelTracking.ts`: 7ea29d78b38dc9234f7c6e0994ef359b65b72e229185598a3f49e9f2941580e7
 - `src/eval/proofloopBenchmarkNormalization.ts`: a32eb66ea33976a98b6fadcf741f1f2bf6e783d70b10e1b02ee5ed9f7d58823f
 - `src/eval/proofloopBenchmarkBoard.ts`: 4f9ad6a04a2b2aea077d6a0e1096f83a24148cf3b4f14e04c64007d460ba1a15
 - `src/eval/proofloopCompanyTaskCoverage.ts`: 50268bb77d08101f83b844dc7a8a34e4a867d35fce3d7cbf32f8f662338b5d6f

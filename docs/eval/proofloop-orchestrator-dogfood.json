@@ -1,28 +1,32 @@
 {
   "schema": "proofloop-orchestrator-v1",
-  "runId": "dogfood-official-scores-2026-07-03T09-09-00-226Z",
+  "runId": "dogfood-official-scores-2026-07-03T22-15-12-870Z",
   "mode": "dogfood",
   "goalId": "official-scores",
   "objective": "Make official benchmark scores real, tested, shipped, and externally blocked only with durable proof.",
-  "generatedAt": "2026-07-03T09:09:00.226Z",
-  "updatedAt": "2026-07-03T09:09:17.226Z",
+  "generatedAt": "2026-07-03T22:15:12.870Z",
+  "updatedAt": "2026-07-03T22:15:29.870Z",
   "terminalStatus": "NEEDS_HUMAN_APPROVAL",
   "dryRun": false,
   "executeSafe": true,
   "maxSteps": 100,
   "stepsUsed": 16,
   "paths": {
-    "runDir": ".proofloop/orchestrator/runs/dogfood-official-scores-2026-07-03T09-09-00-226Z",
-    "state": ".proofloop/orchestrator/runs/dogfood-official-scores-2026-07-03T09-09-00-226Z/orchestrator-state.json",
-    "queue": ".proofloop/orchestrator/runs/dogfood-official-scores-2026-07-03T09-09-00-226Z/task-queue.json",
-    "events": ".proofloop/orchestrator/runs/dogfood-official-scores-2026-07-03T09-09-00-226Z/events.jsonl",
-    "workerDispatch": ".proofloop/orchestrator/runs/dogfood-official-scores-2026-07-03T09-09-00-226Z/worker-dispatch.json",
-    "summary": ".proofloop/orchestrator/runs/dogfood-official-scores-2026-07-03T09-09-00-226Z/summary.md",
+    "runDir": ".proofloop/orchestrator/runs/dogfood-official-scores-2026-07-03T22-15-12-870Z",
+    "state": ".proofloop/orchestrator/runs/dogfood-official-scores-2026-07-03T22-15-12-870Z/orchestrator-state.json",
+    "queue": ".proofloop/orchestrator/runs/dogfood-official-scores-2026-07-03T22-15-12-870Z/task-queue.json",
+    "events": ".proofloop/orchestrator/runs/dogfood-official-scores-2026-07-03T22-15-12-870Z/events.jsonl",
+    "heartbeats": ".proofloop/orchestrator/runs/dogfood-official-scores-2026-07-03T22-15-12-870Z/heartbeats.jsonl",
+    "workerDispatch": ".proofloop/orchestrator/runs/dogfood-official-scores-2026-07-03T22-15-12-870Z/worker-dispatch.json",
+    "summary": ".proofloop/orchestrator/runs/dogfood-official-scores-2026-07-03T22-15-12-870Z/summary.md",
+    "dashboard": ".proofloop/orchestrator/runs/dogfood-official-scores-2026-07-03T22-15-12-870Z/dashboard.json",
+    "evaluatorReceipt": ".proofloop/orchestrator/runs/dogfood-official-scores-2026-07-03T22-15-12-870Z/evaluator-receipt.json",
+    "sessionMemory": ".proofloop/orchestrator/runs/dogfood-official-scores-2026-07-03T22-15-12-870Z/session-memory.json",
     "codeGraphManifest": ".proofloop/codegraph/graph-manifest.json"
   },
   "workerInventory": {
     "schema": "proofloop-worker-inventory-v1",
-    "generatedAt": "2026-07-03T09:09:00.226Z",
+    "generatedAt": "2026-07-03T22:15:12.870Z",
     "workers": [
       {
         "kind": "codex",
@@ -90,38 +94,6 @@
       "attempts": 0,
       "likelyFiles": [
         {
-          "nodeId": "file:docs/eval/fresh-room/FR-020/fullsuite-gate-receipt.json",
-          "kind": "proof_artifact",
-          "label": "docs/eval/fresh-room/FR-020/fullsuite-gate-receipt.json",
-          "path": "docs/eval/fresh-room/FR-020/fullsuite-gate-receipt.json",
-          "score": 94,
-          "reasons": [
-            "path:fullsuite",
-            "label:fullsuite",
-            "path:full",
-            "label:full",
-            "path:suite",
-            "label:suite",
-            "path:receipt",
-            "label:receipt",
-            "path:gate",
-            "label:gate",
-            "path:docs",
-            "label:docs",
-            "path:eval",
-            "label:eval",
-            "path:json",
-            "label:json",
-            "path:fresh",
-            "label:fresh",
-            "path:room",
-            "label:room",
-            "path:020",
-            "label:020",
-            "proof-artifact"
-          ]
-        },
-        {
           "nodeId": "file:docs/eval/btb-clean-capability-full100-parallel-v3-gpt41mini.json",
           "kind": "proof_artifact",
           "label": "docs/eval/btb-clean-capability-full100-parallel-v3-gpt41mini.json",
@@ -148,34 +120,6 @@
             "label:gpt41mini",
             "path:json",
             "label:json",
-            "proof-artifact"
-          ]
-        },
-        {
-          "nodeId": "file:docs/eval/fresh-room/FR-020/livesuite-gate-receipt.json",
-          "kind": "proof_artifact",
-          "label": "docs/eval/fresh-room/FR-020/livesuite-gate-receipt.json",
-          "path": "docs/eval/fresh-room/FR-020/livesuite-gate-receipt.json",
-          "score": 75,
-          "reasons": [
-            "path:suite",
-            "label:suite",
-            "path:receipt",
-            "label:receipt",
-            "path:gate",
-            "label:gate",
-            "path:docs",
-            "label:docs",
-            "path:eval",
-            "label:eval",
-            "path:json",
-            "label:json",
-            "path:fresh",
-            "label:fresh",
-            "path:room",
-            "label:room",
-            "path:020",
-            "label:020",
             "proof-artifact"
           ]
         },
@@ -228,96 +172,6 @@
           ]
         },
         {
-          "nodeId": "file:docs/eval/fresh-room/FR-020/finance-domain-receipt.json",
-          "kind": "proof_artifact",
-          "label": "docs/eval/fresh-room/FR-020/finance-domain-receipt.json",
-          "path": "docs/eval/fresh-room/FR-020/finance-domain-receipt.json",
-          "score": 65,
-          "reasons": [
-            "path:receipt",
-            "label:receipt",
-            "path:docs",
-            "label:docs",
-            "path:eval",
-            "label:eval",
-            "path:json",
-            "label:json",
-            "path:fresh",
-            "label:fresh",
-            "path:room",
-            "label:room",
-            "path:020",
-            "label:020",
-            "proof-artifact"
-          ]
-        },
-        {
-          "nodeId": "file:docs/eval/fresh-room/FR-020/tasks/1b181d77-ad4c-498a-b76e-c8503c05b7b7/latest.json",
-          "kind": "proof_artifact",
-          "label": "docs/eval/fresh-room/FR-020/tasks/1b181d77-ad4c-498a-b76e-c8503c05b7b7/latest.json",
-          "path": "docs/eval/fresh-room/FR-020/tasks/1b181d77-ad4c-498a-b76e-c8503c05b7b7/latest.json",
-          "score": 61,
-          "reasons": [
-            "path:docs",
-            "label:docs",
-            "path:eval",
-            "label:eval",
-            "path:json",
-            "label:json",
-            "path:fresh",
-            "label:fresh",
-            "path:room",
-            "label:room",
-            "path:020",
-            "label:020",
-            "proof-artifact"
-          ]
-        },
-        {
-          "nodeId": "file:docs/eval/fresh-room/FR-020/tasks/4194bf8e-eede-480c-b012-b68ab71837c1/latest.json",
-          "kind": "proof_artifact",
-          "label": "docs/eval/fresh-room/FR-020/tasks/4194bf8e-eede-480c-b012-b68ab71837c1/latest.json",
-          "path": "docs/eval/fresh-room/FR-020/tasks/4194bf8e-eede-480c-b012-b68ab71837c1/latest.json",
-          "score": 61,
-          "reasons": [
-            "path:docs",
-            "label:docs",
-            "path:eval",
-            "label:eval",
-            "path:json",
-            "label:json",
-            "path:fresh",
-            "label:fresh",
-            "path:room",
-            "label:room",
-            "path:020",
-            "label:020",
-            "proof-artifact"
-          ]
-        },
-        {
-          "nodeId": "file:docs/eval/fresh-room/FR-020/tasks/41e130fe-89f0-4b2b-97ee-d727e1fa0afd/latest.json",
-          "kind": "proof_artifact",
-          "label": "docs/eval/fresh-room/FR-020/tasks/41e130fe-89f0-4b2b-97ee-d727e1fa0afd/latest.json",
-          "path": "docs/eval/fresh-room/FR-020/tasks/41e130fe-89f0-4b2b-97ee-d727e1fa0afd/latest.json",
-          "score": 61,
-          "reasons": [
-            "path:docs",
-            "label:docs",
-            "path:eval",
-            "label:eval",
-            "path:json",
-            "label:json",
-            "path:fresh",
-            "label:fresh",
-            "path:room",
-            "label:room",
-            "path:020",
-            "label:020",
-            "proof-artifact"
-          ]
-        },
-        {
           "nodeId": "file:docs/eval/fresh-room/FR-020/tasks/f0bd3730-d826-46f2-8422-b48480fa6250/latest.json",
           "kind": "proof_artifact",
           "label": "docs/eval/fresh-room/FR-020/tasks/f0bd3730-d826-46f2-8422-b48480fa6250/latest.json",
@@ -362,10 +216,142 @@
           ]
         },
         {
-          "nodeId": "file:docs/eval/fresh-room/FR-020/tasks/067cb834-ad43-448b-a523-d0c9898656e0/latest.json",
+          "nodeId": "file:docs/eval/fresh-room/FR-020/tasks/432c6197-eade-4dcd-ae6d-0a30ec4da18c/latest.json",
           "kind": "proof_artifact",
-          "label": "docs/eval/fresh-room/FR-020/tasks/067cb834-ad43-448b-a523-d0c9898656e0/latest.json",
-          "path": "docs/eval/fresh-room/FR-020/tasks/067cb834-ad43-448b-a523-d0c9898656e0/latest.json",
+          "label": "docs/eval/fresh-room/FR-020/tasks/432c6197-eade-4dcd-ae6d-0a30ec4da18c/latest.json",
+          "path": "docs/eval/fresh-room/FR-020/tasks/432c6197-eade-4dcd-ae6d-0a30ec4da18c/latest.json",
+          "score": 60,
+          "reasons": [
+            "path:docs",
+            "label:docs",
+            "path:eval",
+            "label:eval",
+            "path:json",
+            "label:json",
+            "path:fresh",
+            "label:fresh",
+            "path:room",
+            "label:room",
+            "path:020",
+            "label:020",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/fresh-room/FR-020/tasks/433c9e48-4b74-49a4-8d2b-d8c25f445c60/latest.json",
+          "kind": "proof_artifact",
+          "label": "docs/eval/fresh-room/FR-020/tasks/433c9e48-4b74-49a4-8d2b-d8c25f445c60/latest.json",
+          "path": "docs/eval/fresh-room/FR-020/tasks/433c9e48-4b74-49a4-8d2b-d8c25f445c60/latest.json",
+          "score": 60,
+          "reasons": [
+            "path:docs",
+            "label:docs",
+            "path:eval",
+            "label:eval",
+            "path:json",
+            "label:json",
+            "path:fresh",
+            "label:fresh",
+            "path:room",
+            "label:room",
+            "path:020",
+            "label:020",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/fresh-room/FR-020/tasks/44bd7a6b-b3c3-4eb8-b56d-6a769bdbf58e/latest.json",
+          "kind": "proof_artifact",
+          "label": "docs/eval/fresh-room/FR-020/tasks/44bd7a6b-b3c3-4eb8-b56d-6a769bdbf58e/latest.json",
+          "path": "docs/eval/fresh-room/FR-020/tasks/44bd7a6b-b3c3-4eb8-b56d-6a769bdbf58e/latest.json",
+          "score": 60,
+          "reasons": [
+            "path:docs",
+            "label:docs",
+            "path:eval",
+            "label:eval",
+            "path:json",
+            "label:json",
+            "path:fresh",
+            "label:fresh",
+            "path:room",
+            "label:room",
+            "path:020",
+            "label:020",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/fresh-room/FR-020/tasks/44e44478-9e36-4df9-9657-85797c7fee58/latest.json",
+          "kind": "proof_artifact",
+          "label": "docs/eval/fresh-room/FR-020/tasks/44e44478-9e36-4df9-9657-85797c7fee58/latest.json",
+          "path": "docs/eval/fresh-room/FR-020/tasks/44e44478-9e36-4df9-9657-85797c7fee58/latest.json",
+          "score": 60,
+          "reasons": [
+            "path:docs",
+            "label:docs",
+            "path:eval",
+            "label:eval",
+            "path:json",
+            "label:json",
+            "path:fresh",
+            "label:fresh",
+            "path:room",
+            "label:room",
+            "path:020",
+            "label:020",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/fresh-room/FR-020/tasks/f1c210d9-6357-4fad-828e-252e6f6d59d3/latest.json",
+          "kind": "proof_artifact",
+          "label": "docs/eval/fresh-room/FR-020/tasks/f1c210d9-6357-4fad-828e-252e6f6d59d3/latest.json",
+          "path": "docs/eval/fresh-room/FR-020/tasks/f1c210d9-6357-4fad-828e-252e6f6d59d3/latest.json",
+          "score": 60,
+          "reasons": [
+            "path:docs",
+            "label:docs",
+            "path:eval",
+            "label:eval",
+            "path:json",
+            "label:json",
+            "path:fresh",
+            "label:fresh",
+            "path:room",
+            "label:room",
+            "path:020",
+            "label:020",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/fresh-room/FR-020/tasks/f205ac8c-4dae-4620-b2c9-ccc44858ec70/latest.json",
+          "kind": "proof_artifact",
+          "label": "docs/eval/fresh-room/FR-020/tasks/f205ac8c-4dae-4620-b2c9-ccc44858ec70/latest.json",
+          "path": "docs/eval/fresh-room/FR-020/tasks/f205ac8c-4dae-4620-b2c9-ccc44858ec70/latest.json",
+          "score": 60,
+          "reasons": [
+            "path:docs",
+            "label:docs",
+            "path:eval",
+            "label:eval",
+            "path:json",
+            "label:json",
+            "path:fresh",
+            "label:fresh",
+            "path:room",
+            "label:room",
+            "path:020",
+            "label:020",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/fresh-room/FR-020/tasks/f8571fea-f310-4a46-be0c-bbfb65990198/latest.json",
+          "kind": "proof_artifact",
+          "label": "docs/eval/fresh-room/FR-020/tasks/f8571fea-f310-4a46-be0c-bbfb65990198/latest.json",
+          "path": "docs/eval/fresh-room/FR-020/tasks/f8571fea-f310-4a46-be0c-bbfb65990198/latest.json",
           "score": 60,
           "reasons": [
             "path:docs",
@@ -384,7 +370,7 @@
           ]
         }
       ],
-      "repairContextPath": ".proofloop/orchestrator/runs/dogfood-official-scores-2026-07-03T09-09-00-226Z/repair-contexts/btb-fullsuite-official-score.md"
+      "repairContextPath": ".proofloop/orchestrator/runs/dogfood-official-scores-2026-07-03T22-15-12-870Z/repair-contexts/btb-fullsuite-official-score.md"
     },
     {
       "id": "official-task-coverage-ledger",
@@ -455,62 +441,11 @@
           ]
         },
         {
-          "nodeId": "file:src/eval/officialBenchmarkTaskCoverage.ts",
-          "kind": "file",
-          "label": "src/eval/officialBenchmarkTaskCoverage.ts",
-          "path": "src/eval/officialBenchmarkTaskCoverage.ts",
-          "score": 34,
-          "reasons": [
-            "path:official",
-            "label:official",
-            "path:task",
-            "label:task",
-            "path:coverage",
-            "label:coverage",
-            "path:benchmark",
-            "label:benchmark"
-          ]
-        },
-        {
           "nodeId": "file:tests/officialBenchmarkTaskCoverage.test.ts",
           "kind": "file",
           "label": "tests/officialBenchmarkTaskCoverage.test.ts",
           "path": "tests/officialBenchmarkTaskCoverage.test.ts",
           "score": 34,
-          "reasons": [
-            "path:official",
-            "label:official",
-            "path:task",
-            "label:task",
-            "path:coverage",
-            "label:coverage",
-            "path:benchmark",
-            "label:benchmark"
-          ]
-        },
-        {
-          "nodeId": "symbol:src/eval/officialBenchmarkTaskCoverage.ts#OfficialBenchmarkTaskCoverageReport",
-          "kind": "symbol",
-          "label": "OfficialBenchmarkTaskCoverageReport",
-          "path": "src/eval/officialBenchmarkTaskCoverage.ts",
-          "score": 32,
-          "reasons": [
-            "path:official",
-            "label:official",
-            "path:task",
-            "label:task",
-            "path:coverage",
-            "label:coverage",
-            "path:benchmark",
-            "label:benchmark"
-          ]
-        },
-        {
-          "nodeId": "symbol:src/eval/officialBenchmarkTaskCoverage.ts#buildOfficialBenchmarkTaskCoverageReport",
-          "kind": "symbol",
-          "label": "buildOfficialBenchmarkTaskCoverageReport",
-          "path": "src/eval/officialBenchmarkTaskCoverage.ts",
-          "score": 32,
           "reasons": [
             "path:official",
             "label:official",
@@ -536,38 +471,6 @@
             "path:benchmark",
             "label:benchmark",
             "proof-artifact"
-          ]
-        },
-        {
-          "nodeId": "symbol:src/eval/officialBenchmarkTaskCoverage.ts#BenchmarkTaskCoverageStatus",
-          "kind": "symbol",
-          "label": "BenchmarkTaskCoverageStatus",
-          "path": "src/eval/officialBenchmarkTaskCoverage.ts",
-          "score": 29,
-          "reasons": [
-            "path:official",
-            "path:task",
-            "label:task",
-            "path:coverage",
-            "label:coverage",
-            "path:benchmark",
-            "label:benchmark"
-          ]
-        },
-        {
-          "nodeId": "symbol:src/eval/officialBenchmarkTaskCoverage.ts#BenchmarkTaskCoverageTrack",
-          "kind": "symbol",
-          "label": "BenchmarkTaskCoverageTrack",
-          "path": "src/eval/officialBenchmarkTaskCoverage.ts",
-          "score": 29,
-          "reasons": [
-            "path:official",
-            "path:task",
-            "label:task",
-            "path:coverage",
-            "label:coverage",
-            "path:benchmark",
-            "label:benchmark"
           ]
         },
         {
@@ -599,6 +502,77 @@
             "label:coverage",
             "path:benchmark",
             "label:benchmark"
+          ]
+        },
+        {
+          "nodeId": "file:scripts/official-benchmark-ui-coverage.ts",
+          "kind": "file",
+          "label": "scripts/official-benchmark-ui-coverage.ts",
+          "path": "scripts/official-benchmark-ui-coverage.ts",
+          "score": 26,
+          "reasons": [
+            "path:official",
+            "label:official",
+            "path:coverage",
+            "label:coverage",
+            "path:benchmark",
+            "label:benchmark"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/PROOFLOOP_COMPANY_TASK_COVERAGE.md",
+          "kind": "proof_artifact",
+          "label": "docs/eval/PROOFLOOP_COMPANY_TASK_COVERAGE.md",
+          "path": "docs/eval/PROOFLOOP_COMPANY_TASK_COVERAGE.md",
+          "score": 22,
+          "reasons": [
+            "path:task",
+            "label:task",
+            "path:coverage",
+            "label:coverage",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/proofloop-company-task-coverage.json",
+          "kind": "proof_artifact",
+          "label": "docs/eval/proofloop-company-task-coverage.json",
+          "path": "docs/eval/proofloop-company-task-coverage.json",
+          "score": 22,
+          "reasons": [
+            "path:task",
+            "label:task",
+            "path:coverage",
+            "label:coverage",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/OFFICIAL_BENCHMARK_READINESS.md",
+          "kind": "proof_artifact",
+          "label": "docs/eval/OFFICIAL_BENCHMARK_READINESS.md",
+          "path": "docs/eval/OFFICIAL_BENCHMARK_READINESS.md",
+          "score": 21,
+          "reasons": [
+            "path:official",
+            "label:official",
+            "path:benchmark",
+            "label:benchmark",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/official-benchmark-readiness.json",
+          "kind": "proof_artifact",
+          "label": "docs/eval/official-benchmark-readiness.json",
+          "path": "docs/eval/official-benchmark-readiness.json",
+          "score": 21,
+          "reasons": [
+            "path:official",
+            "label:official",
+            "path:benchmark",
+            "label:benchmark",
+            "proof-artifact"
           ]
         }
       ],
@@ -662,25 +636,6 @@
           ]
         },
         {
-          "nodeId": "file:src/eval/proofloopBenchmarkNormalization.ts",
-          "kind": "file",
-          "label": "src/eval/proofloopBenchmarkNormalization.ts",
-          "path": "src/eval/proofloopBenchmarkNormalization.ts",
-          "score": 44,
-          "reasons": [
-            "path:benchmark",
-            "label:benchmark",
-            "path:normalization",
-            "label:normalization",
-            "path:proof",
-            "label:proof",
-            "path:loop",
-            "label:loop",
-            "path:proofloop",
-            "label:proofloop"
-          ]
-        },
-        {
           "nodeId": "file:proofloop/accounting/run-benchmarks.ts",
           "kind": "proof_artifact",
           "label": "proofloop/accounting/run-benchmarks.ts",
@@ -739,63 +694,6 @@
           ]
         },
         {
-          "nodeId": "symbol:src/eval/proofloopBenchmarkNormalization.ts#ProofloopBenchmarkNormalizationReport",
-          "kind": "symbol",
-          "label": "ProofloopBenchmarkNormalizationReport",
-          "path": "src/eval/proofloopBenchmarkNormalization.ts",
-          "score": 40,
-          "reasons": [
-            "path:benchmark",
-            "label:benchmark",
-            "path:normalization",
-            "label:normalization",
-            "path:proof",
-            "label:proof",
-            "path:loop",
-            "label:loop",
-            "path:proofloop",
-            "label:proofloop"
-          ]
-        },
-        {
-          "nodeId": "symbol:src/eval/proofloopBenchmarkNormalization.ts#buildProofloopBenchmarkNormalizationReport",
-          "kind": "symbol",
-          "label": "buildProofloopBenchmarkNormalizationReport",
-          "path": "src/eval/proofloopBenchmarkNormalization.ts",
-          "score": 40,
-          "reasons": [
-            "path:benchmark",
-            "label:benchmark",
-            "path:normalization",
-            "label:normalization",
-            "path:proof",
-            "label:proof",
-            "path:loop",
-            "label:loop",
-            "path:proofloop",
-            "label:proofloop"
-          ]
-        },
-        {
-          "nodeId": "symbol:src/eval/proofloopBenchmarkNormalization.ts#renderProofloopBenchmarkNormalizationMarkdown",
-          "kind": "symbol",
-          "label": "renderProofloopBenchmarkNormalizationMarkdown",
-          "path": "src/eval/proofloopBenchmarkNormalization.ts",
-          "score": 40,
-          "reasons": [
-            "path:benchmark",
-            "label:benchmark",
-            "path:normalization",
-            "label:normalization",
-            "path:proof",
-            "label:proof",
-            "path:loop",
-            "label:loop",
-            "path:proofloop",
-            "label:proofloop"
-          ]
-        },
-        {
           "nodeId": "file:proofloop/benchmarks/bankertoolbench/adapter.json",
           "kind": "proof_artifact",
           "label": "proofloop/benchmarks/bankertoolbench/adapter.json",
@@ -844,6 +742,78 @@
             "label:proof",
             "path:loop",
             "label:loop",
+            "path:proofloop",
+            "label:proofloop",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:proofloop/benchmarks/workstreambench/adapter.json",
+          "kind": "proof_artifact",
+          "label": "proofloop/benchmarks/workstreambench/adapter.json",
+          "path": "proofloop/benchmarks/workstreambench/adapter.json",
+          "score": 36,
+          "reasons": [
+            "path:benchmark",
+            "label:benchmark",
+            "path:proof",
+            "label:proof",
+            "path:loop",
+            "label:loop",
+            "path:proofloop",
+            "label:proofloop",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/PROOFLOOP_BENCHMARK_BOARD.md",
+          "kind": "proof_artifact",
+          "label": "docs/eval/PROOFLOOP_BENCHMARK_BOARD.md",
+          "path": "docs/eval/PROOFLOOP_BENCHMARK_BOARD.md",
+          "score": 35,
+          "reasons": [
+            "path:benchmark",
+            "label:benchmark",
+            "path:proof",
+            "label:proof",
+            "path:loop",
+            "label:loop",
+            "path:proofloop",
+            "label:proofloop",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/proofloop-benchmark-board.json",
+          "kind": "proof_artifact",
+          "label": "docs/eval/proofloop-benchmark-board.json",
+          "path": "docs/eval/proofloop-benchmark-board.json",
+          "score": 35,
+          "reasons": [
+            "path:benchmark",
+            "label:benchmark",
+            "path:proof",
+            "label:proof",
+            "path:loop",
+            "label:loop",
+            "path:proofloop",
+            "label:proofloop",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/proofloop-external-adapter-runs/finauditing.json",
+          "kind": "proof_artifact",
+          "label": "docs/eval/proofloop-external-adapter-runs/finauditing.json",
+          "path": "docs/eval/proofloop-external-adapter-runs/finauditing.json",
+          "score": 35,
+          "reasons": [
+            "path:proof",
+            "label:proof",
+            "path:loop",
+            "label:loop",
+            "path:run",
+            "label:run",
             "path:proofloop",
             "label:proofloop",
             "proof-artifact"
@@ -903,23 +873,6 @@
             "path:proofloop",
             "label:proofloop",
             "proof-artifact"
-          ]
-        },
-        {
-          "nodeId": "file:src/eval/proofloopCompanyTaskCoverage.ts",
-          "kind": "file",
-          "label": "src/eval/proofloopCompanyTaskCoverage.ts",
-          "path": "src/eval/proofloopCompanyTaskCoverage.ts",
-          "score": 38,
-          "reasons": [
-            "path:company",
-            "label:company",
-            "path:task",
-            "label:task",
-            "path:coverage",
-            "label:coverage",
-            "path:proofloop",
-            "label:proofloop"
           ]
         },
         {
@@ -1029,54 +982,67 @@
           ]
         },
         {
-          "nodeId": "symbol:src/eval/proofloopCompanyTaskCoverage.ts#ProofloopCompanyTaskCoverageReport",
+          "nodeId": "symbol:proofloop/benchmarks/common/local-tasks.ts#loadExternalBenchmarkLocalTasks",
           "kind": "symbol",
-          "label": "ProofloopCompanyTaskCoverageReport",
-          "path": "src/eval/proofloopCompanyTaskCoverage.ts",
-          "score": 32,
+          "label": "loadExternalBenchmarkLocalTasks",
+          "path": "proofloop/benchmarks/common/local-tasks.ts",
+          "score": 29,
           "reasons": [
-            "path:company",
-            "label:company",
             "path:task",
             "label:task",
-            "path:coverage",
-            "label:coverage",
+            "path:benchmark",
+            "label:benchmark",
             "path:proofloop",
-            "label:proofloop"
+            "path:tasks",
+            "label:tasks"
           ]
         },
         {
-          "nodeId": "symbol:src/eval/proofloopCompanyTaskCoverage.ts#buildProofloopCompanyTaskCoverageReport",
-          "kind": "symbol",
-          "label": "buildProofloopCompanyTaskCoverageReport",
-          "path": "src/eval/proofloopCompanyTaskCoverage.ts",
-          "score": 32,
+          "nodeId": "file:docs/eval/OFFICIAL_BENCHMARK_TASK_COVERAGE.md",
+          "kind": "proof_artifact",
+          "label": "docs/eval/OFFICIAL_BENCHMARK_TASK_COVERAGE.md",
+          "path": "docs/eval/OFFICIAL_BENCHMARK_TASK_COVERAGE.md",
+          "score": 28,
           "reasons": [
-            "path:company",
-            "label:company",
             "path:task",
             "label:task",
             "path:coverage",
             "label:coverage",
-            "path:proofloop",
-            "label:proofloop"
+            "path:benchmark",
+            "label:benchmark",
+            "proof-artifact"
           ]
         },
         {
-          "nodeId": "symbol:src/eval/proofloopCompanyTaskCoverage.ts#renderProofloopCompanyTaskCoverageMarkdown",
-          "kind": "symbol",
-          "label": "renderProofloopCompanyTaskCoverageMarkdown",
-          "path": "src/eval/proofloopCompanyTaskCoverage.ts",
-          "score": 32,
+          "nodeId": "file:docs/eval/fresh-room/PL-LIVE-RUNWAY/tasks/runway-calc/latest.json",
+          "kind": "proof_artifact",
+          "label": "docs/eval/fresh-room/PL-LIVE-RUNWAY/tasks/runway-calc/latest.json",
+          "path": "docs/eval/fresh-room/PL-LIVE-RUNWAY/tasks/runway-calc/latest.json",
+          "score": 27,
           "reasons": [
-            "path:company",
-            "label:company",
+            "path:task",
+            "label:task",
+            "path:run",
+            "label:run",
+            "path:tasks",
+            "label:tasks",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/official-benchmark-task-coverage.json",
+          "kind": "proof_artifact",
+          "label": "docs/eval/official-benchmark-task-coverage.json",
+          "path": "docs/eval/official-benchmark-task-coverage.json",
+          "score": 27,
+          "reasons": [
             "path:task",
             "label:task",
             "path:coverage",
             "label:coverage",
-            "path:proofloop",
-            "label:proofloop"
+            "path:benchmark",
+            "label:benchmark",
+            "proof-artifact"
           ]
         }
       ],
@@ -1133,21 +1099,6 @@
           ]
         },
         {
-          "nodeId": "file:src/eval/proofloopHarnessEconomics.ts",
-          "kind": "file",
-          "label": "src/eval/proofloopHarnessEconomics.ts",
-          "path": "src/eval/proofloopHarnessEconomics.ts",
-          "score": 31,
-          "reasons": [
-            "path:harness",
-            "label:harness",
-            "path:economics",
-            "label:economics",
-            "path:proofloop",
-            "label:proofloop"
-          ]
-        },
-        {
           "nodeId": "file:tests/proofloopHarnessEconomics.test.ts",
           "kind": "file",
           "label": "tests/proofloopHarnessEconomics.test.ts",
@@ -1173,22 +1124,6 @@
             "label:harness",
             "path:economics",
             "label:economics",
-            "path:proofloop",
-            "label:proofloop"
-          ]
-        },
-        {
-          "nodeId": "symbol:src/eval/proofloopHarnessEconomics.ts#buildProofloopHarnessEconomicsLedger",
-          "kind": "symbol",
-          "label": "buildProofloopHarnessEconomicsLedger",
-          "path": "src/eval/proofloopHarnessEconomics.ts",
-          "score": 28,
-          "reasons": [
-            "path:harness",
-            "label:harness",
-            "path:economics",
-            "label:economics",
-            "label:ledger",
             "path:proofloop",
             "label:proofloop"
           ]
@@ -1270,18 +1205,45 @@
           ]
         },
         {
-          "nodeId": "symbol:src/eval/proofloopHarnessEconomics.ts#HarnessEconomicsLedger",
-          "kind": "symbol",
-          "label": "HarnessEconomicsLedger",
-          "path": "src/eval/proofloopHarnessEconomics.ts",
-          "score": 25,
+          "nodeId": "file:docs/eval/PROOFLOOP_BENCHMARK_BOARD.md",
+          "kind": "proof_artifact",
+          "label": "docs/eval/PROOFLOOP_BENCHMARK_BOARD.md",
+          "path": "docs/eval/PROOFLOOP_BENCHMARK_BOARD.md",
+          "score": 24,
           "reasons": [
-            "path:harness",
-            "label:harness",
-            "path:economics",
-            "label:economics",
-            "label:ledger",
-            "path:proofloop"
+            "path:benchmark",
+            "label:benchmark",
+            "path:proofloop",
+            "label:proofloop",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/proofloop-benchmark-board.json",
+          "kind": "proof_artifact",
+          "label": "docs/eval/proofloop-benchmark-board.json",
+          "path": "docs/eval/proofloop-benchmark-board.json",
+          "score": 24,
+          "reasons": [
+            "path:benchmark",
+            "label:benchmark",
+            "path:proofloop",
+            "label:proofloop",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/openrouter-convex-benchmark.json",
+          "kind": "proof_artifact",
+          "label": "docs/eval/openrouter-convex-benchmark.json",
+          "path": "docs/eval/openrouter-convex-benchmark.json",
+          "score": 22,
+          "reasons": [
+            "path:openrouter",
+            "label:openrouter",
+            "path:benchmark",
+            "label:benchmark",
+            "proof-artifact"
           ]
         }
       ],
@@ -1716,22 +1678,21 @@
           ]
         },
         {
-          "nodeId": "file:src/eval/proofloopBenchmarkAdapters.ts",
-          "kind": "file",
-          "label": "src/eval/proofloopBenchmarkAdapters.ts",
-          "path": "src/eval/proofloopBenchmarkAdapters.ts",
-          "score": 31,
+          "nodeId": "file:docs/eval/proofloop-benchmark-board.json",
+          "kind": "proof_artifact",
+          "label": "docs/eval/proofloop-benchmark-board.json",
+          "path": "docs/eval/proofloop-benchmark-board.json",
+          "score": 29,
           "reasons": [
-            "path:adapter",
-            "label:adapter",
             "path:benchmark",
             "label:benchmark",
             "path:proofloop",
-            "label:proofloop"
+            "label:proofloop",
+            "proof-artifact"
           ]
         }
       ],
-      "repairContextPath": ".proofloop/orchestrator/runs/dogfood-official-scores-2026-07-03T09-09-00-226Z/repair-contexts/external-adapter-local-product-proofs.md"
+      "repairContextPath": ".proofloop/orchestrator/runs/dogfood-official-scores-2026-07-03T22-15-12-870Z/repair-contexts/external-adapter-local-product-proofs.md"
     },
     {
       "id": "external-adapter-blocker-receipts",
@@ -1875,23 +1836,6 @@
           ]
         },
         {
-          "nodeId": "file:src/eval/proofloopAdapterBlockers.ts",
-          "kind": "file",
-          "label": "src/eval/proofloopAdapterBlockers.ts",
-          "path": "src/eval/proofloopAdapterBlockers.ts",
-          "score": 36,
-          "reasons": [
-            "path:adapter",
-            "label:adapter",
-            "path:blocker",
-            "label:blocker",
-            "path:proofloop",
-            "label:proofloop",
-            "path:blockers",
-            "label:blockers"
-          ]
-        },
-        {
           "nodeId": "file:scripts/proofloop-adapter-blockers.ts",
           "kind": "file",
           "label": "scripts/proofloop-adapter-blockers.ts",
@@ -1926,36 +1870,51 @@
           ]
         },
         {
-          "nodeId": "symbol:src/eval/proofloopAdapterBlockers.ts#ExternalAdapterBlockerStatus",
-          "kind": "symbol",
-          "label": "ExternalAdapterBlockerStatus",
-          "path": "src/eval/proofloopAdapterBlockers.ts",
-          "score": 33,
+          "nodeId": "file:proofloop/benchmarks/finauditing/adapter.json",
+          "kind": "proof_artifact",
+          "label": "proofloop/benchmarks/finauditing/adapter.json",
+          "path": "proofloop/benchmarks/finauditing/adapter.json",
+          "score": 29,
           "reasons": [
-            "label:external",
             "path:adapter",
             "label:adapter",
-            "path:blocker",
-            "label:blocker",
+            "path:benchmark",
+            "label:benchmark",
             "path:proofloop",
-            "path:blockers",
-            "label:blockers"
+            "label:proofloop",
+            "proof-artifact"
           ]
         },
         {
-          "nodeId": "symbol:src/eval/proofloopAdapterBlockers.ts#ExternalAdapterBlockerReceipt",
-          "kind": "symbol",
-          "label": "ExternalAdapterBlockerReceipt",
-          "path": "src/eval/proofloopAdapterBlockers.ts",
-          "score": 30,
+          "nodeId": "file:proofloop/benchmarks/finch/adapter.json",
+          "kind": "proof_artifact",
+          "label": "proofloop/benchmarks/finch/adapter.json",
+          "path": "proofloop/benchmarks/finch/adapter.json",
+          "score": 29,
           "reasons": [
-            "label:external",
             "path:adapter",
             "label:adapter",
-            "path:blocker",
-            "label:blocker",
+            "path:benchmark",
+            "label:benchmark",
             "path:proofloop",
-            "path:blockers"
+            "label:proofloop",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:proofloop/benchmarks/workstreambench/adapter.json",
+          "kind": "proof_artifact",
+          "label": "proofloop/benchmarks/workstreambench/adapter.json",
+          "path": "proofloop/benchmarks/workstreambench/adapter.json",
+          "score": 29,
+          "reasons": [
+            "path:adapter",
+            "label:adapter",
+            "path:benchmark",
+            "label:benchmark",
+            "path:proofloop",
+            "label:proofloop",
+            "proof-artifact"
           ]
         }
       ],
@@ -1982,45 +1941,11 @@
       "attempts": 0,
       "likelyFiles": [
         {
-          "nodeId": "file:src/eval/proofloopBlockerSolver.ts",
-          "kind": "file",
-          "label": "src/eval/proofloopBlockerSolver.ts",
-          "path": "src/eval/proofloopBlockerSolver.ts",
-          "score": 42,
-          "reasons": [
-            "path:solver",
-            "label:solver",
-            "path:proofloop",
-            "label:proofloop",
-            "path:solve",
-            "label:solve",
-            "path:blockers",
-            "label:blockers"
-          ]
-        },
-        {
           "nodeId": "file:tests/proofloopBlockerSolver.test.ts",
           "kind": "file",
           "label": "tests/proofloopBlockerSolver.test.ts",
           "path": "tests/proofloopBlockerSolver.test.ts",
           "score": 39,
-          "reasons": [
-            "path:solver",
-            "label:solver",
-            "path:proofloop",
-            "label:proofloop",
-            "path:solve",
-            "label:solve",
-            "path:blockers",
-            "label:blockers"
-          ]
-        },
-        {
-          "nodeId": "symbol:src/eval/proofloopBlockerSolver.ts#ProofloopBlockerSolveReceipt",
-          "kind": "symbol",
-          "label": "ProofloopBlockerSolveReceipt",
-          "path": "src/eval/proofloopBlockerSolver.ts",
-          "score": 32,
           "reasons": [
             "path:solver",
             "label:solver",
@@ -2046,51 +1971,6 @@
             "path:scores",
             "label:scores",
             "proof-artifact"
-          ]
-        },
-        {
-          "nodeId": "symbol:src/eval/proofloopBlockerSolver.ts#ProofloopBlockerSolvePhase",
-          "kind": "symbol",
-          "label": "ProofloopBlockerSolvePhase",
-          "path": "src/eval/proofloopBlockerSolver.ts",
-          "score": 29,
-          "reasons": [
-            "path:solver",
-            "path:proofloop",
-            "label:proofloop",
-            "path:solve",
-            "label:solve",
-            "path:blockers",
-            "label:blockers"
-          ]
-        },
-        {
-          "nodeId": "symbol:src/eval/proofloopBlockerSolver.ts#solveProofloopBlockers",
-          "kind": "symbol",
-          "label": "solveProofloopBlockers",
-          "path": "src/eval/proofloopBlockerSolver.ts",
-          "score": 29,
-          "reasons": [
-            "path:solver",
-            "path:proofloop",
-            "label:proofloop",
-            "path:solve",
-            "label:solve",
-            "path:blockers",
-            "label:blockers"
-          ]
-        },
-        {
-          "nodeId": "file:src/eval/proofloopGoalSupervisor.ts",
-          "kind": "file",
-          "label": "src/eval/proofloopGoalSupervisor.ts",
-          "path": "src/eval/proofloopGoalSupervisor.ts",
-          "score": 29,
-          "reasons": [
-            "path:proofloop",
-            "label:proofloop",
-            "path:goal",
-            "label:goal"
           ]
         },
         {
@@ -2126,36 +2006,6 @@
           ]
         },
         {
-          "nodeId": "symbol:src/eval/proofloopBlockerSolver.ts#modelRoutesForLane",
-          "kind": "symbol",
-          "label": "modelRoutesForLane",
-          "path": "src/eval/proofloopBlockerSolver.ts",
-          "score": 28,
-          "reasons": [
-            "label:lane",
-            "path:solver",
-            "label:model",
-            "path:proofloop",
-            "path:solve",
-            "path:blockers"
-          ]
-        },
-        {
-          "nodeId": "symbol:src/eval/proofloopBlockerSolver.ts#compareProofloopModelsForSuite",
-          "kind": "symbol",
-          "label": "compareProofloopModelsForSuite",
-          "path": "src/eval/proofloopBlockerSolver.ts",
-          "score": 27,
-          "reasons": [
-            "path:solver",
-            "label:model",
-            "path:proofloop",
-            "label:proofloop",
-            "path:solve",
-            "path:blockers"
-          ]
-        },
-        {
           "nodeId": "file:tests/proofloopGoalSupervisor.test.ts",
           "kind": "file",
           "label": "tests/proofloopGoalSupervisor.test.ts",
@@ -2166,6 +2016,102 @@
             "label:proofloop",
             "path:goal",
             "label:goal"
+          ]
+        },
+        {
+          "nodeId": "symbol:tests/proofloopBlockerSolver.test.ts#modelMatrix",
+          "kind": "symbol",
+          "label": "modelMatrix",
+          "path": "tests/proofloopBlockerSolver.test.ts",
+          "score": 24,
+          "reasons": [
+            "path:solver",
+            "label:model",
+            "path:proofloop",
+            "path:solve",
+            "path:blockers"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/proofloop-adapter-blockers/finch.json",
+          "kind": "proof_artifact",
+          "label": "docs/eval/proofloop-adapter-blockers/finch.json",
+          "path": "docs/eval/proofloop-adapter-blockers/finch.json",
+          "score": 23,
+          "reasons": [
+            "path:proofloop",
+            "label:proofloop",
+            "path:blockers",
+            "label:blockers",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/proofloop-external-adapter-runs/finch.json",
+          "kind": "proof_artifact",
+          "label": "docs/eval/proofloop-external-adapter-runs/finch.json",
+          "path": "docs/eval/proofloop-external-adapter-runs/finch.json",
+          "score": 23,
+          "reasons": [
+            "path:run",
+            "label:run",
+            "path:proofloop",
+            "label:proofloop",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/proofloop-orchestrator-dogfood.json",
+          "kind": "proof_artifact",
+          "label": "docs/eval/proofloop-orchestrator-dogfood.json",
+          "path": "docs/eval/proofloop-orchestrator-dogfood.json",
+          "score": 23,
+          "reasons": [
+            "path:proofloop",
+            "label:proofloop",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/proofloop-adapter-blockers/finauditing.json",
+          "kind": "proof_artifact",
+          "label": "docs/eval/proofloop-adapter-blockers/finauditing.json",
+          "path": "docs/eval/proofloop-adapter-blockers/finauditing.json",
+          "score": 22,
+          "reasons": [
+            "path:proofloop",
+            "label:proofloop",
+            "path:blockers",
+            "label:blockers",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/proofloop-adapter-blockers/workstreambench.json",
+          "kind": "proof_artifact",
+          "label": "docs/eval/proofloop-adapter-blockers/workstreambench.json",
+          "path": "docs/eval/proofloop-adapter-blockers/workstreambench.json",
+          "score": 22,
+          "reasons": [
+            "path:proofloop",
+            "label:proofloop",
+            "path:blockers",
+            "label:blockers",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/proofloop-external-adapter-runs/finauditing.json",
+          "kind": "proof_artifact",
+          "label": "docs/eval/proofloop-external-adapter-runs/finauditing.json",
+          "path": "docs/eval/proofloop-external-adapter-runs/finauditing.json",
+          "score": 22,
+          "reasons": [
+            "path:run",
+            "label:run",
+            "path:proofloop",
+            "label:proofloop",
+            "proof-artifact"
           ]
         }
       ],
@@ -2367,25 +2313,6 @@
           ]
         },
         {
-          "nodeId": "file:src/eval/proofloopChartPack.ts",
-          "kind": "file",
-          "label": "src/eval/proofloopChartPack.ts",
-          "path": "src/eval/proofloopChartPack.ts",
-          "score": 49,
-          "reasons": [
-            "path:proofloop",
-            "label:proofloop",
-            "path:chart",
-            "label:chart",
-            "path:pack",
-            "label:pack",
-            "path:proof",
-            "label:proof",
-            "path:loop",
-            "label:loop"
-          ]
-        },
-        {
           "nodeId": "file:docs/eval/proofloop-charts/data/failure-categories.data.json",
           "kind": "proof_artifact",
           "label": "docs/eval/proofloop-charts/data/failure-categories.data.json",
@@ -2463,6 +2390,26 @@
             "label:charts",
             "proof-artifact"
           ]
+        },
+        {
+          "nodeId": "file:docs/eval/proofloop-charts/data/latency-cost-frontier.data.json",
+          "kind": "proof_artifact",
+          "label": "docs/eval/proofloop-charts/data/latency-cost-frontier.data.json",
+          "path": "docs/eval/proofloop-charts/data/latency-cost-frontier.data.json",
+          "score": 44,
+          "reasons": [
+            "path:proofloop",
+            "label:proofloop",
+            "path:chart",
+            "label:chart",
+            "path:proof",
+            "label:proof",
+            "path:loop",
+            "label:loop",
+            "path:charts",
+            "label:charts",
+            "proof-artifact"
+          ]
         }
       ],
       "exitCode": 0,
@@ -2525,25 +2472,6 @@
           ]
         },
         {
-          "nodeId": "file:src/eval/proofloopBenchmarkBoard.ts",
-          "kind": "file",
-          "label": "src/eval/proofloopBenchmarkBoard.ts",
-          "path": "src/eval/proofloopBenchmarkBoard.ts",
-          "score": 43,
-          "reasons": [
-            "path:proofloop",
-            "label:proofloop",
-            "path:benchmark",
-            "label:benchmark",
-            "path:board",
-            "label:board",
-            "path:proof",
-            "label:proof",
-            "path:loop",
-            "label:loop"
-          ]
-        },
-        {
           "nodeId": "file:proofloop/accounting/run-benchmarks.ts",
           "kind": "proof_artifact",
           "label": "proofloop/accounting/run-benchmarks.ts",
@@ -2602,117 +2530,129 @@
           ]
         },
         {
-          "nodeId": "symbol:src/eval/proofloopBenchmarkBoard.ts#ProofloopBenchmarkBoard",
-          "kind": "symbol",
-          "label": "ProofloopBenchmarkBoard",
-          "path": "src/eval/proofloopBenchmarkBoard.ts",
-          "score": 40,
+          "nodeId": "file:docs/eval/PROOFLOOP_NORMALIZED_BENCHMARKS.md",
+          "kind": "proof_artifact",
+          "label": "docs/eval/PROOFLOOP_NORMALIZED_BENCHMARKS.md",
+          "path": "docs/eval/PROOFLOOP_NORMALIZED_BENCHMARKS.md",
+          "score": 36,
           "reasons": [
             "path:proofloop",
             "label:proofloop",
             "path:benchmark",
             "label:benchmark",
-            "path:board",
-            "label:board",
             "path:proof",
             "label:proof",
             "path:loop",
-            "label:loop"
+            "label:loop",
+            "proof-artifact"
           ]
         },
         {
-          "nodeId": "symbol:src/eval/proofloopBenchmarkBoard.ts#ProofloopBenchmarkBoardEntry",
-          "kind": "symbol",
-          "label": "ProofloopBenchmarkBoardEntry",
-          "path": "src/eval/proofloopBenchmarkBoard.ts",
-          "score": 40,
+          "nodeId": "file:docs/eval/proofloop-normalized-benchmarks.json",
+          "kind": "proof_artifact",
+          "label": "docs/eval/proofloop-normalized-benchmarks.json",
+          "path": "docs/eval/proofloop-normalized-benchmarks.json",
+          "score": 36,
           "reasons": [
             "path:proofloop",
             "label:proofloop",
             "path:benchmark",
             "label:benchmark",
-            "path:board",
-            "label:board",
             "path:proof",
             "label:proof",
             "path:loop",
-            "label:loop"
+            "label:loop",
+            "proof-artifact"
           ]
         },
         {
-          "nodeId": "symbol:src/eval/proofloopBenchmarkBoard.ts#ProofloopBenchmarkBoardScore",
-          "kind": "symbol",
-          "label": "ProofloopBenchmarkBoardScore",
-          "path": "src/eval/proofloopBenchmarkBoard.ts",
-          "score": 40,
+          "nodeId": "file:docs/eval/proofloop-external-adapter-runs/finauditing.json",
+          "kind": "proof_artifact",
+          "label": "docs/eval/proofloop-external-adapter-runs/finauditing.json",
+          "path": "docs/eval/proofloop-external-adapter-runs/finauditing.json",
+          "score": 35,
           "reasons": [
             "path:proofloop",
             "label:proofloop",
-            "path:benchmark",
-            "label:benchmark",
-            "path:board",
-            "label:board",
             "path:proof",
             "label:proof",
             "path:loop",
-            "label:loop"
+            "label:loop",
+            "path:run",
+            "label:run",
+            "proof-artifact"
           ]
         },
         {
-          "nodeId": "symbol:src/eval/proofloopBenchmarkBoard.ts#ProofloopBenchmarkBoardStatus",
-          "kind": "symbol",
-          "label": "ProofloopBenchmarkBoardStatus",
-          "path": "src/eval/proofloopBenchmarkBoard.ts",
-          "score": 40,
+          "nodeId": "file:docs/eval/proofloop-external-adapter-runs/finch.json",
+          "kind": "proof_artifact",
+          "label": "docs/eval/proofloop-external-adapter-runs/finch.json",
+          "path": "docs/eval/proofloop-external-adapter-runs/finch.json",
+          "score": 35,
           "reasons": [
             "path:proofloop",
             "label:proofloop",
-            "path:benchmark",
-            "label:benchmark",
-            "path:board",
-            "label:board",
             "path:proof",
             "label:proof",
             "path:loop",
-            "label:loop"
+            "label:loop",
+            "path:run",
+            "label:run",
+            "proof-artifact"
           ]
         },
         {
-          "nodeId": "symbol:src/eval/proofloopBenchmarkBoard.ts#buildProofloopBenchmarkBoard",
-          "kind": "symbol",
-          "label": "buildProofloopBenchmarkBoard",
-          "path": "src/eval/proofloopBenchmarkBoard.ts",
-          "score": 40,
+          "nodeId": "file:docs/eval/proofloop-external-adapter-runs/workstreambench.json",
+          "kind": "proof_artifact",
+          "label": "docs/eval/proofloop-external-adapter-runs/workstreambench.json",
+          "path": "docs/eval/proofloop-external-adapter-runs/workstreambench.json",
+          "score": 35,
           "reasons": [
             "path:proofloop",
             "label:proofloop",
-            "path:benchmark",
-            "label:benchmark",
-            "path:board",
-            "label:board",
             "path:proof",
             "label:proof",
             "path:loop",
-            "label:loop"
+            "label:loop",
+            "path:run",
+            "label:run",
+            "proof-artifact"
           ]
         },
         {
-          "nodeId": "symbol:src/eval/proofloopBenchmarkBoard.ts#renderProofloopBenchmarkBoardMarkdown",
-          "kind": "symbol",
-          "label": "renderProofloopBenchmarkBoardMarkdown",
-          "path": "src/eval/proofloopBenchmarkBoard.ts",
-          "score": 40,
+          "nodeId": "file:proofloop/benchmarks/bankertoolbench/adapter.json",
+          "kind": "proof_artifact",
+          "label": "proofloop/benchmarks/bankertoolbench/adapter.json",
+          "path": "proofloop/benchmarks/bankertoolbench/adapter.json",
+          "score": 35,
           "reasons": [
             "path:proofloop",
             "label:proofloop",
             "path:benchmark",
             "label:benchmark",
-            "path:board",
-            "label:board",
             "path:proof",
             "label:proof",
             "path:loop",
-            "label:loop"
+            "label:loop",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:proofloop/benchmarks/finauditing/adapter.json",
+          "kind": "proof_artifact",
+          "label": "proofloop/benchmarks/finauditing/adapter.json",
+          "path": "proofloop/benchmarks/finauditing/adapter.json",
+          "score": 35,
+          "reasons": [
+            "path:proofloop",
+            "label:proofloop",
+            "path:benchmark",
+            "label:benchmark",
+            "path:proof",
+            "label:proof",
+            "path:loop",
+            "label:loop",
+            "proof-artifact"
           ]
         }
       ],
@@ -2838,34 +2778,6 @@
           ]
         },
         {
-          "nodeId": "file:src/eval/officialBenchmarkTaskCoverage.ts",
-          "kind": "file",
-          "label": "src/eval/officialBenchmarkTaskCoverage.ts",
-          "path": "src/eval/officialBenchmarkTaskCoverage.ts",
-          "score": 69,
-          "reasons": [
-            "path:official",
-            "label:official",
-            "path:task",
-            "label:task",
-            "path:benchmark",
-            "label:benchmark",
-            "path:coverage",
-            "label:coverage"
-          ]
-        },
-        {
-          "nodeId": "file:src/eval/proofloopGoalSupervisor.ts",
-          "kind": "file",
-          "label": "src/eval/proofloopGoalSupervisor.ts",
-          "path": "src/eval/proofloopGoalSupervisor.ts",
-          "score": 68,
-          "reasons": [
-            "path:proofloop",
-            "label:proofloop"
-          ]
-        },
-        {
           "nodeId": "file:docs/eval/PROOFLOOP_NORMALIZED_BENCHMARKS.md",
           "kind": "proof_artifact",
           "label": "docs/eval/PROOFLOOP_NORMALIZED_BENCHMARKS.md",
@@ -2924,9 +2836,37 @@
             "label:economics",
             "proof-artifact"
           ]
+        },
+        {
+          "nodeId": "file:docs/eval/OFFICIAL_BENCHMARK_READINESS.md",
+          "kind": "proof_artifact",
+          "label": "docs/eval/OFFICIAL_BENCHMARK_READINESS.md",
+          "path": "docs/eval/OFFICIAL_BENCHMARK_READINESS.md",
+          "score": 61,
+          "reasons": [
+            "path:official",
+            "label:official",
+            "path:benchmark",
+            "label:benchmark",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/official-benchmark-readiness.json",
+          "kind": "proof_artifact",
+          "label": "docs/eval/official-benchmark-readiness.json",
+          "path": "docs/eval/official-benchmark-readiness.json",
+          "score": 57,
+          "reasons": [
+            "path:official",
+            "label:official",
+            "path:benchmark",
+            "label:benchmark",
+            "proof-artifact"
+          ]
         }
       ],
-      "repairContextPath": ".proofloop/orchestrator/runs/dogfood-official-scores-2026-07-03T09-09-00-226Z/repair-contexts/spreadsheetbench-v1-full-official-score.md"
+      "repairContextPath": ".proofloop/orchestrator/runs/dogfood-official-scores-2026-07-03T22-15-12-870Z/repair-contexts/spreadsheetbench-v1-full-official-score.md"
     },
     {
       "id": "spreadsheetbench-v2-full-official-score",
@@ -2981,23 +2921,6 @@
             "path:proofloop",
             "label:proofloop",
             "proof-artifact"
-          ]
-        },
-        {
-          "nodeId": "file:src/eval/officialBenchmarkTaskCoverage.ts",
-          "kind": "file",
-          "label": "src/eval/officialBenchmarkTaskCoverage.ts",
-          "path": "src/eval/officialBenchmarkTaskCoverage.ts",
-          "score": 62,
-          "reasons": [
-            "path:official",
-            "label:official",
-            "path:task",
-            "label:task",
-            "path:benchmark",
-            "label:benchmark",
-            "path:coverage",
-            "label:coverage"
           ]
         },
         {
@@ -3069,21 +2992,6 @@
           ]
         },
         {
-          "nodeId": "file:src/eval/proofloopHarnessEconomics.ts",
-          "kind": "file",
-          "label": "src/eval/proofloopHarnessEconomics.ts",
-          "path": "src/eval/proofloopHarnessEconomics.ts",
-          "score": 57,
-          "reasons": [
-            "path:proofloop",
-            "label:proofloop",
-            "path:harness",
-            "label:harness",
-            "path:economics",
-            "label:economics"
-          ]
-        },
-        {
           "nodeId": "file:docs/eval/PROOFLOOP_NORMALIZED_BENCHMARKS.md",
           "kind": "proof_artifact",
           "label": "docs/eval/PROOFLOOP_NORMALIZED_BENCHMARKS.md",
@@ -3134,9 +3042,37 @@
             "label:proofloop",
             "proof-artifact"
           ]
+        },
+        {
+          "nodeId": "file:docs/eval/OFFICIAL_BENCHMARK_READINESS.md",
+          "kind": "proof_artifact",
+          "label": "docs/eval/OFFICIAL_BENCHMARK_READINESS.md",
+          "path": "docs/eval/OFFICIAL_BENCHMARK_READINESS.md",
+          "score": 51,
+          "reasons": [
+            "path:official",
+            "label:official",
+            "path:benchmark",
+            "label:benchmark",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/official-benchmark-readiness.json",
+          "kind": "proof_artifact",
+          "label": "docs/eval/official-benchmark-readiness.json",
+          "path": "docs/eval/official-benchmark-readiness.json",
+          "score": 49,
+          "reasons": [
+            "path:official",
+            "label:official",
+            "path:benchmark",
+            "label:benchmark",
+            "proof-artifact"
+          ]
         }
       ],
-      "repairContextPath": ".proofloop/orchestrator/runs/dogfood-official-scores-2026-07-03T09-09-00-226Z/repair-contexts/spreadsheetbench-v2-full-official-score.md"
+      "repairContextPath": ".proofloop/orchestrator/runs/dogfood-official-scores-2026-07-03T22-15-12-870Z/repair-contexts/spreadsheetbench-v2-full-official-score.md"
     },
     {
       "id": "finch-official-score",
@@ -3433,7 +3369,7 @@
           ]
         }
       ],
-      "repairContextPath": ".proofloop/orchestrator/runs/dogfood-official-scores-2026-07-03T09-09-00-226Z/repair-contexts/finch-official-score.md"
+      "repairContextPath": ".proofloop/orchestrator/runs/dogfood-official-scores-2026-07-03T22-15-12-870Z/repair-contexts/finch-official-score.md"
     },
     {
       "id": "finauditing-official-score",
@@ -3730,7 +3666,7 @@
           ]
         }
       ],
-      "repairContextPath": ".proofloop/orchestrator/runs/dogfood-official-scores-2026-07-03T09-09-00-226Z/repair-contexts/finauditing-official-score.md"
+      "repairContextPath": ".proofloop/orchestrator/runs/dogfood-official-scores-2026-07-03T22-15-12-870Z/repair-contexts/finauditing-official-score.md"
     },
     {
       "id": "workstreambench-official-score",
@@ -4032,7 +3968,7 @@
           ]
         }
       ],
-      "repairContextPath": ".proofloop/orchestrator/runs/dogfood-official-scores-2026-07-03T09-09-00-226Z/repair-contexts/workstreambench-official-score.md"
+      "repairContextPath": ".proofloop/orchestrator/runs/dogfood-official-scores-2026-07-03T22-15-12-870Z/repair-contexts/workstreambench-official-score.md"
     }
   ],
   "dispatches": [
@@ -4041,7 +3977,7 @@
       "workerKind": "codex",
       "status": "written",
       "reason": "Worker launch was not allowed for this orchestrator run; dispatch packet was written for resume.",
-      "promptPath": ".proofloop/orchestrator/runs/dogfood-official-scores-2026-07-03T09-09-00-226Z/repair-contexts/btb-fullsuite-official-score.md",
+      "promptPath": ".proofloop/orchestrator/runs/dogfood-official-scores-2026-07-03T22-15-12-870Z/repair-contexts/btb-fullsuite-official-score.md",
       "command": "npm run benchmark:bankertoolbench:fullsuite-gate -- --summary docs/eval/btb-clean-capability-full100-parallel-v3-gpt41mini.json --receipt-out docs/eval/fresh-room/FR-020/fullsuite-gate-receipt.json --assert"
     },
     {
@@ -4049,7 +3985,7 @@
       "workerKind": "codex",
       "status": "written",
       "reason": "Worker launch was not allowed for this orchestrator run; dispatch packet was written for resume.",
-      "promptPath": ".proofloop/orchestrator/runs/dogfood-official-scores-2026-07-03T09-09-00-226Z/repair-contexts/external-adapter-local-product-proofs.md",
+      "promptPath": ".proofloop/orchestrator/runs/dogfood-official-scores-2026-07-03T22-15-12-870Z/repair-contexts/external-adapter-local-product-proofs.md",
       "command": "npm run benchmark:proofloop:external-adapter -- --prod --user-emulation strict"
     },
     {
@@ -4057,35 +3993,35 @@
       "workerKind": "codex",
       "status": "written",
       "reason": "Worker launch was not allowed for this orchestrator run; dispatch packet was written for resume.",
-      "promptPath": ".proofloop/orchestrator/runs/dogfood-official-scores-2026-07-03T09-09-00-226Z/repair-contexts/spreadsheetbench-v1-full-official-score.md"
+      "promptPath": ".proofloop/orchestrator/runs/dogfood-official-scores-2026-07-03T22-15-12-870Z/repair-contexts/spreadsheetbench-v1-full-official-score.md"
     },
     {
       "taskId": "spreadsheetbench-v2-full-official-score",
       "workerKind": "codex",
       "status": "written",
       "reason": "Worker launch was not allowed for this orchestrator run; dispatch packet was written for resume.",
-      "promptPath": ".proofloop/orchestrator/runs/dogfood-official-scores-2026-07-03T09-09-00-226Z/repair-contexts/spreadsheetbench-v2-full-official-score.md"
+      "promptPath": ".proofloop/orchestrator/runs/dogfood-official-scores-2026-07-03T22-15-12-870Z/repair-contexts/spreadsheetbench-v2-full-official-score.md"
     },
     {
       "taskId": "finch-official-score",
       "workerKind": "codex",
       "status": "written",
       "reason": "Worker launch was not allowed for this orchestrator run; dispatch packet was written for resume.",
-      "promptPath": ".proofloop/orchestrator/runs/dogfood-official-scores-2026-07-03T09-09-00-226Z/repair-contexts/finch-official-score.md"
+      "promptPath": ".proofloop/orchestrator/runs/dogfood-official-scores-2026-07-03T22-15-12-870Z/repair-contexts/finch-official-score.md"
     },
     {
       "taskId": "finauditing-official-score",
       "workerKind": "codex",
       "status": "written",
       "reason": "Worker launch was not allowed for this orchestrator run; dispatch packet was written for resume.",
-      "promptPath": ".proofloop/orchestrator/runs/dogfood-official-scores-2026-07-03T09-09-00-226Z/repair-contexts/finauditing-official-score.md"
+      "promptPath": ".proofloop/orchestrator/runs/dogfood-official-scores-2026-07-03T22-15-12-870Z/repair-contexts/finauditing-official-score.md"
     },
     {
       "taskId": "workstreambench-official-score",
       "workerKind": "codex",
       "status": "written",
       "reason": "Worker launch was not allowed for this orchestrator run; dispatch packet was written for resume.",
-      "promptPath": ".proofloop/orchestrator/runs/dogfood-official-scores-2026-07-03T09-09-00-226Z/repair-contexts/workstreambench-official-score.md"
+      "promptPath": ".proofloop/orchestrator/runs/dogfood-official-scores-2026-07-03T22-15-12-870Z/repair-contexts/workstreambench-official-score.md"
     }
   ],
   "summary": {
@@ -4096,5 +4032,366 @@
     "needsWorker": 2,
     "skipped": 0,
     "notDone": 7
+  },
+  "longRun": {
+    "schema": "proofloop-long-running-agent-v1",
+    "goalContract": {
+      "objective": "Make official benchmark scores real, tested, shipped, and externally blocked only with durable proof.",
+      "measurableExitCriteria": [
+        "Every required queue task is passed, or the remaining task is blocked only by a named accepted external scorer, credential, production approval, or managed worker.",
+        "Every unfinished task has a repair context or dispatch packet that names command, blockers, likely files, and resume evidence.",
+        "Safe local verifier commands must be executed and recorded before terminal PASS.",
+        "Official benchmark scores cannot be promoted from proxy-model or transcript-only evidence.",
+        "Dashboard, detached evaluator receipt, and session-memory artifacts must be written for the run."
+      ],
+      "acceptedTerminalStatuses": [
+        "PASS",
+        "BLOCKED_EXTERNAL_AFTER_ALL_LOCAL_WORK_DONE"
+      ],
+      "nonGoals": [
+        "Do not treat a chat transcript, model assertion, or cost-only proxy judge as an official score.",
+        "Do not spend on live/prod/model-judge work without an explicit approved worker or credential path.",
+        "Do not weaken locked verifier fixtures or certification-loop gates to make a run pass."
+      ]
+    },
+    "evaluator": {
+      "schema": "proofloop-detached-evaluator-v1",
+      "kind": "deterministic_state_judge",
+      "sharesExecutorContext": false,
+      "verdict": "not_done",
+      "checkedAt": "2026-07-03T22:15:29.870Z",
+      "reasons": [
+        "7 task(s) still need proof, worker execution, approval, or accepted external receipts.",
+        "Official score promotion remains blocked for: btb-fullsuite-official-score, spreadsheetbench-v1-full-official-score, spreadsheetbench-v2-full-official-score, finch-official-score, finauditing-official-score, workstreambench-official-score."
+      ]
+    },
+    "verifierStack": {
+      "deterministic": [
+        "tests/proofloopOrchestrator.test.ts",
+        "npm run typecheck -- --pretty false",
+        "npm run benchmark:official:task-coverage",
+        "npm run benchmark:proofloop:normalized",
+        "npm run benchmark:proofloop:company-tasks",
+        "npm run benchmark:proofloop:harness-economics",
+        "npm run proofloop -- setup bankertoolbench --doctor && npm run proofloop -- setup finch --doctor && npm run proofloop -- setup finauditing --doctor && npm run proofloop -- setup workstreambench --doctor",
+        "npm run benchmark:proofloop:adapter-blockers",
+        "npm run proofloop -- solve-blockers --goal official-scores",
+        "npm run proofloop -- charts latest",
+        "npm run benchmark:proofloop:board"
+      ],
+      "expensiveOrLive": [
+        "npm run benchmark:bankertoolbench:fullsuite-gate -- --summary docs/eval/btb-clean-capability-full100-parallel-v3-gpt41mini.json --receipt-out docs/eval/fresh-room/FR-020/fullsuite-gate-receipt.json --assert",
+        "npm run benchmark:proofloop:external-adapter -- --prod --user-emulation strict"
+      ],
+      "officialPromotionBlockedBy": [
+        "btb-fullsuite-official-score",
+        "spreadsheetbench-v1-full-official-score",
+        "spreadsheetbench-v2-full-official-score",
+        "finch-official-score",
+        "finauditing-official-score",
+        "workstreambench-official-score"
+      ],
+      "receiptPaths": [
+        ".proofloop/orchestrator/runs/dogfood-official-scores-2026-07-03T22-15-12-870Z/orchestrator-state.json",
+        ".proofloop/orchestrator/runs/dogfood-official-scores-2026-07-03T22-15-12-870Z/task-queue.json",
+        ".proofloop/orchestrator/runs/dogfood-official-scores-2026-07-03T22-15-12-870Z/dashboard.json",
+        ".proofloop/orchestrator/runs/dogfood-official-scores-2026-07-03T22-15-12-870Z/evaluator-receipt.json",
+        ".proofloop/orchestrator/runs/dogfood-official-scores-2026-07-03T22-15-12-870Z/session-memory.json",
+        "docs/eval/fresh-room/FR-020/fullsuite-gate-receipt.json",
+        "docs/eval/btb-clean-capability-full100-parallel-v3-gpt41mini.json",
+        "docs/eval/official-benchmark-task-coverage.json",
+        "docs/eval/OFFICIAL_BENCHMARK_TASK_COVERAGE.md",
+        "docs/eval/proofloop-normalized-benchmarks.json",
+        "docs/eval/PROOFLOOP_NORMALIZED_BENCHMARKS.md",
+        "docs/eval/proofloop-company-task-coverage.json",
+        "docs/eval/PROOFLOOP_COMPANY_TASK_COVERAGE.md",
+        "docs/eval/proofloop-harness-economics.json",
+        "docs/eval/PROOFLOOP_HARNESS_ECONOMICS.md",
+        "docs/eval/openrouter-top-paid-tools-snapshot.json",
+        ".proofloop/setup/bankertoolbench-local-setup.json",
+        ".proofloop/setup/finch-local-setup.json",
+        ".proofloop/setup/finauditing-local-setup.json",
+        ".proofloop/setup/workstreambench-local-setup.json",
+        "docs/eval/proofloop-external-adapter-runs/finch.json",
+        "docs/eval/proofloop-external-adapter-runs/finauditing.json",
+        "docs/eval/proofloop-external-adapter-runs/workstreambench.json",
+        "docs/eval/proofloop-adapter-blockers/finch.json",
+        "docs/eval/proofloop-adapter-blockers/finauditing.json",
+        "docs/eval/proofloop-adapter-blockers/workstreambench.json",
+        ".proofloop/lanes/spreadsheetbench-v1/blocker-analysis.json",
+        ".proofloop/lanes/spreadsheetbench-v2/blocker-analysis.json",
+        ".proofloop/lanes/finch/blocker-analysis.json",
+        ".proofloop/lanes/finauditing/blocker-analysis.json",
+        ".proofloop/lanes/workstreambench/blocker-analysis.json",
+        ".proofloop/runs/latest/charts/chart-pack.json",
+        ".proofloop/runs/latest/charts/chart-pack.html",
+        ".proofloop/runs/latest/charts/model-performance.vl.json",
+        ".proofloop/runs/latest/charts/cost-per-pass.vl.json",
+        ".proofloop/runs/latest/charts/failure-categories.vl.json",
+        ".proofloop/runs/latest/charts/harness-version-trend.vl.json",
+        ".proofloop/runs/latest/charts/evidence-score.vl.json",
+        ".proofloop/runs/latest/charts/latency-cost-frontier.vl.json",
+        ".proofloop/runs/latest/charts/accounting-workpaper.vl.json",
+        "docs/eval/proofloop-charts/chart-pack.json",
+        "docs/eval/proofloop-charts/proofloop-chart-pack.json",
+        "docs/eval/proofloop-charts/chart-pack.html",
+        "docs/eval/proofloop-charts/model-performance.vl.json",
+        "docs/eval/proofloop-charts/cost-per-pass.vl.json",
+        "docs/eval/proofloop-charts/failure-categories.vl.json",
+        "docs/eval/proofloop-charts/harness-version-trend.vl.json",
+        "docs/eval/proofloop-charts/evidence-score.vl.json",
+        "docs/eval/proofloop-charts/latency-cost-frontier.vl.json",
+        "docs/eval/proofloop-charts/accounting-workpaper.vl.json",
+        "docs/eval/proofloop-charts/PROOFLOOP_CHART_PACK.md",
+        "docs/eval/proofloop-charts/svg/model-performance.svg",
+        "docs/eval/proofloop-charts/svg/cost-per-pass.svg",
+        "docs/eval/proofloop-charts/svg/failure-categories.svg",
+        "docs/eval/proofloop-charts/svg/harness-version-trend.svg",
+        "docs/eval/proofloop-charts/svg/latency-cost-frontier.svg",
+        "docs/eval/proofloop-charts/svg/workflow-completion.svg",
+        "docs/eval/proofloop-benchmark-board.json",
+        "docs/eval/PROOFLOOP_BENCHMARK_BOARD.md",
+        "docs/eval/spreadsheetbench-v1-912-stage.json",
+        "docs/eval/spreadsheetbench-v1-912-copy-input-baseline.json",
+        ".proofloop/lanes/spreadsheetbench-v1/upstream-research.md",
+        ".proofloop/lanes/spreadsheetbench-v1/scaffold-plan.md",
+        ".proofloop/lanes/spreadsheetbench-v1/harness-version.json",
+        ".proofloop/lanes/spreadsheetbench-v1/model-matrix.json",
+        ".proofloop/lanes/spreadsheetbench-v1/cost-ledger.json",
+        ".proofloop/lanes/spreadsheetbench-v1/official-output-manifest.json",
+        ".proofloop/lanes/spreadsheetbench-v1/official-score-receipt.json",
+        ".proofloop/lanes/spreadsheetbench-v1/proxy-score-receipt.json",
+        ".proofloop/lanes/spreadsheetbench-v1/memory-write.json",
+        ".proofloop/lanes/spreadsheetbench-v2/upstream-research.md",
+        ".proofloop/lanes/spreadsheetbench-v2/scaffold-plan.md",
+        ".proofloop/lanes/spreadsheetbench-v2/harness-version.json",
+        ".proofloop/lanes/spreadsheetbench-v2/model-matrix.json",
+        ".proofloop/lanes/spreadsheetbench-v2/cost-ledger.json",
+        ".proofloop/lanes/spreadsheetbench-v2/official-output-manifest.json",
+        ".proofloop/lanes/spreadsheetbench-v2/official-score-receipt.json",
+        ".proofloop/lanes/spreadsheetbench-v2/proxy-score-receipt.json",
+        ".proofloop/lanes/spreadsheetbench-v2/memory-write.json",
+        "proofloop/benchmarks/finch/adapter.json",
+        "docs/eval/proofloop-official-task-bundles/finch.json",
+        "docs/eval/proofloop-official-scores/finch.json",
+        ".proofloop/lanes/finch/upstream-research.md",
+        ".proofloop/lanes/finch/scaffold-plan.md",
+        ".proofloop/lanes/finch/harness-version.json",
+        ".proofloop/lanes/finch/model-matrix.json",
+        ".proofloop/lanes/finch/cost-ledger.json",
+        ".proofloop/lanes/finch/official-output-manifest.json",
+        ".proofloop/lanes/finch/official-score-receipt.json",
+        ".proofloop/lanes/finch/proxy-score-receipt.json",
+        ".proofloop/lanes/finch/memory-write.json",
+        "proofloop/benchmarks/finauditing/adapter.json",
+        "docs/eval/proofloop-official-task-bundles/finauditing.json",
+        "docs/eval/proofloop-official-scores/finauditing.json",
+        ".proofloop/lanes/finauditing/upstream-research.md",
+        ".proofloop/lanes/finauditing/scaffold-plan.md",
+        ".proofloop/lanes/finauditing/harness-version.json",
+        ".proofloop/lanes/finauditing/model-matrix.json",
+        ".proofloop/lanes/finauditing/cost-ledger.json",
+        ".proofloop/lanes/finauditing/official-output-manifest.json",
+        ".proofloop/lanes/finauditing/official-score-receipt.json",
+        ".proofloop/lanes/finauditing/proxy-score-receipt.json",
+        ".proofloop/lanes/finauditing/memory-write.json",
+        "proofloop/benchmarks/workstreambench/adapter.json",
+        "docs/eval/proofloop-official-scores/workstreambench.json",
+        ".proofloop/lanes/workstreambench/upstream-research.md",
+        ".proofloop/lanes/workstreambench/scaffold-plan.md",
+        ".proofloop/lanes/workstreambench/harness-version.json",
+        ".proofloop/lanes/workstreambench/model-matrix.json",
+        ".proofloop/lanes/workstreambench/cost-ledger.json",
+        ".proofloop/lanes/workstreambench/official-output-manifest.json",
+        ".proofloop/lanes/workstreambench/official-score-receipt.json",
+        ".proofloop/lanes/workstreambench/proxy-score-receipt.json",
+        ".proofloop/lanes/workstreambench/memory-write.json"
+      ]
+    },
+    "outerLoop": {
+      "enabled": true,
+      "maxSteps": 100,
+      "stepsUsed": 16,
+      "earlyStopPolicy": "terminal_status_only_after_evaluator_and_verifiers",
+      "retryPolicy": "resume unfinished tasks from durable queue; failed commands get repair context before retry",
+      "notDoneTaskIds": [
+        "btb-fullsuite-official-score",
+        "external-adapter-local-product-proofs",
+        "spreadsheetbench-v1-full-official-score",
+        "spreadsheetbench-v2-full-official-score",
+        "finch-official-score",
+        "finauditing-official-score",
+        "workstreambench-official-score"
+      ]
+    },
+    "orchestration": {
+      "workerDispatches": 7,
+      "availableWorkers": [
+        "codex",
+        "claude",
+        "node",
+        "npm",
+        "git"
+      ],
+      "roles": [
+        {
+          "role": "planner",
+          "route": {
+            "provider": "openrouter",
+            "id": "deepseek/deepseek-v4-pro",
+            "routePolicy": "specific",
+            "role": "planner",
+            "costUsd": 0,
+            "tokensIn": 0,
+            "tokensOut": 0,
+            "latencyMs": 0,
+            "selectionReason": "cheap long-run planning/proxy triage route; official score promotion still requires accepted scorers",
+            "source": "env"
+          },
+          "costPolicy": "Use cheap OpenRouter planner/proxy routes for scaffold research and capability comparison before any official scorer spend.",
+          "launchSurface": "worker-dispatch"
+        },
+        {
+          "role": "executor",
+          "route": {
+            "provider": "local",
+            "id": "local/deterministic",
+            "routePolicy": "deterministic",
+            "role": "worker",
+            "costUsd": 0,
+            "tokensIn": 0,
+            "tokensOut": 0,
+            "latencyMs": 0,
+            "selectionReason": "safe local commands run deterministically; coding workers receive repair packets",
+            "source": "env"
+          },
+          "costPolicy": "Run safe local commands automatically; defer code-agent launches unless explicitly allowed.",
+          "launchSurface": "local-shell"
+        },
+        {
+          "role": "evaluator",
+          "route": {
+            "provider": "local",
+            "id": "local/deterministic",
+            "routePolicy": "deterministic",
+            "role": "judge",
+            "costUsd": 0,
+            "tokensIn": 0,
+            "tokensOut": 0,
+            "latencyMs": 0,
+            "selectionReason": "detached deterministic state judge reads receipts rather than executor transcript",
+            "source": "env"
+          },
+          "costPolicy": "Use deterministic state judgment first; model judges are expensive verifier add-ons, not default completion authority.",
+          "launchSurface": "deterministic-receipt"
+        },
+        {
+          "role": "verifier",
+          "route": {
+            "provider": "local",
+            "id": "local/deterministic",
+            "routePolicy": "deterministic",
+            "role": "verifier",
+            "costUsd": 0,
+            "tokensIn": 0,
+            "tokensOut": 0,
+            "latencyMs": 0,
+            "selectionReason": "strict verifier stack starts with tests, receipts, and official scorers",
+            "source": "env"
+          },
+          "costPolicy": "Deterministic verifiers run first; live/prod and official scorers stay explicit.",
+          "launchSurface": "deterministic-receipt"
+        },
+        {
+          "role": "memory_miner",
+          "route": {
+            "provider": "local",
+            "id": "local/deterministic",
+            "routePolicy": "deterministic",
+            "role": "worker",
+            "costUsd": 0,
+            "tokensIn": 0,
+            "tokensOut": 0,
+            "latencyMs": 0,
+            "selectionReason": "session mining turns unfinished task patterns into durable rules",
+            "source": "env"
+          },
+          "costPolicy": "Mine rules locally from failure receipts before asking for a stronger model.",
+          "launchSurface": "deterministic-receipt"
+        }
+      ]
+    },
+    "observability": {
+      "rawEventLog": ".proofloop/orchestrator/runs/dogfood-official-scores-2026-07-03T22-15-12-870Z/events.jsonl",
+      "heartbeatLog": ".proofloop/orchestrator/runs/dogfood-official-scores-2026-07-03T22-15-12-870Z/heartbeats.jsonl",
+      "dashboardPath": ".proofloop/orchestrator/runs/dogfood-official-scores-2026-07-03T22-15-12-870Z/dashboard.json",
+      "workerDispatchPath": ".proofloop/orchestrator/runs/dogfood-official-scores-2026-07-03T22-15-12-870Z/worker-dispatch.json",
+      "repairContextDir": ".proofloop/orchestrator/runs/dogfood-official-scores-2026-07-03T22-15-12-870Z/repair-contexts",
+      "summaryPath": ".proofloop/orchestrator/runs/dogfood-official-scores-2026-07-03T22-15-12-870Z/summary.md",
+      "feedbackSurfaces": [
+        "worker-dispatch.json for agent handoff",
+        "repair-contexts/*.md for task-level continuation",
+        "dashboard.json for live monitoring",
+        "session-memory.json for recurring failure rules"
+      ]
+    },
+    "memory": {
+      "sessionMiningPolicy": "mine_unfinished_tasks_into_rules",
+      "memoryPath": ".proofloop/orchestrator/runs/dogfood-official-scores-2026-07-03T22-15-12-870Z/session-memory.json",
+      "minedRules": [
+        {
+          "id": "do-not-stop-while-not-done",
+          "rule": "A ProofLoop run is not complete while any durable queue task is not passed or accepted as externally blocked.",
+          "evidenceTaskIds": [
+            "btb-fullsuite-official-score",
+            "external-adapter-local-product-proofs",
+            "spreadsheetbench-v1-full-official-score",
+            "spreadsheetbench-v2-full-official-score",
+            "finch-official-score",
+            "finauditing-official-score",
+            "workstreambench-official-score"
+          ]
+        },
+        {
+          "id": "scaffold-blockers-into-runnable-receipts",
+          "rule": "Convert each blocker into a concrete scaffold, command, receipt path, and repair context before asking for completion.",
+          "evidenceTaskIds": [
+            "spreadsheetbench-v1-full-official-score",
+            "spreadsheetbench-v2-full-official-score",
+            "finch-official-score",
+            "finauditing-official-score"
+          ]
+        },
+        {
+          "id": "approval-for-live-expensive-work",
+          "rule": "Live/prod, expensive model, and coding-worker launches require an explicit approved dispatch path.",
+          "evidenceTaskIds": [
+            "btb-fullsuite-official-score",
+            "external-adapter-local-product-proofs"
+          ]
+        },
+        {
+          "id": "proxy-judges-do-not-promote-official-scores",
+          "rule": "Cheap proxy judges can triage product quality, but official-score claims require accepted upstream scorer or judge receipts.",
+          "evidenceTaskIds": [
+            "btb-fullsuite-official-score",
+            "spreadsheetbench-v1-full-official-score",
+            "spreadsheetbench-v2-full-official-score",
+            "finch-official-score",
+            "finauditing-official-score",
+            "workstreambench-official-score"
+          ]
+        }
+      ],
+      "priorFailurePatterns": [
+        "expensive_or_live",
+        "needs_worker",
+        "command",
+        "requires_worker",
+        "needs_scaffold_or_run",
+        "external_blocker",
+        "blocked_external"
+      ]
+    }
   }
 }

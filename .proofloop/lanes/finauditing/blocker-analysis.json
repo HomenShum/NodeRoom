@@ -3,7 +3,7 @@
   "blockerId": "finauditing-official-score",
   "suite": "finauditing",
   "title": "FinAuditing official score",
-  "generatedAt": "2026-07-02T20:46:40.282Z",
+  "generatedAt": "2026-07-03T22:15:27.870Z",
   "phase": "solve",
   "classes": [
     "missing_judge_credentials",

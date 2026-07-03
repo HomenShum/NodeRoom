@@ -13,7 +13,7 @@
   },
   {
     "suite": "finauditing",
-    "harnessVersion": "finauditing-harness-9d2e85767e75",
+    "harnessVersion": "finauditing-harness-9005925db73d",
     "passRate": 0,
     "costUsd": 0,
     "latencyMs": 0,
@@ -25,7 +25,7 @@
   },
   {
     "suite": "finch",
-    "harnessVersion": "finch-harness-4fb72f222b2c",
+    "harnessVersion": "finch-harness-9718e2f457c4",
     "passRate": 0,
     "costUsd": 0,
     "latencyMs": 0,
@@ -37,7 +37,7 @@
   },
   {
     "suite": "spreadsheetbench-v1",
-    "harnessVersion": "spreadsheetbench-v1-harness-72d4ac516817",
+    "harnessVersion": "spreadsheetbench-v1-harness-9b1a4d1134c0",
     "passRate": 0,
     "costUsd": 0,
     "latencyMs": 0,
@@ -49,7 +49,7 @@
   },
   {
     "suite": "spreadsheetbench-v2",
-    "harnessVersion": "spreadsheetbench-v2-harness-535a3a6ae191",
+    "harnessVersion": "spreadsheetbench-v2-harness-87585d30c645",
     "passRate": 0,
     "costUsd": 0,
     "latencyMs": 0,
@@ -61,7 +61,7 @@
   },
   {
     "suite": "workstreambench",
-    "harnessVersion": "workstreambench-harness-fbff61840796",
+    "harnessVersion": "workstreambench-harness-c4a1735fa87d",
     "passRate": 0,
     "costUsd": 0,
     "latencyMs": 0,

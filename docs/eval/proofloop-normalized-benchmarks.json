@@ -1,6 +1,6 @@
 {
   "schema": "proofloop-benchmark-normalization-v1",
-  "generatedAt": "2026-07-02T20:46:50.582Z",
+  "generatedAt": "2026-07-03T22:15:23.524Z",
   "policy": [
     "Normalize benchmark tasks into NodeRoom product-facing manifests and run specs before routing work through the current codebase.",
     "Do not normalize away official scorer semantics: official rubrics, judges, output schemas, and credentials stay benchmark-specific.",

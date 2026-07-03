@@ -20,7 +20,7 @@ export const proofloopOrchestratorMcpManifest: ProofloopOrchestratorMcpManifest 
   tools: [
     {
       name: "proofloop.orchestrator.start",
-      description: "Start or resume the durable ProofLoop Orchestrator for a repo goal.",
+      description: "Start or resume the durable long-running ProofLoop Orchestrator for a repo goal.",
       writes: [".proofloop/orchestrator/", ".proofloop/codegraph/"],
     },
     {
@@ -33,11 +33,28 @@ export const proofloopOrchestratorMcpManifest: ProofloopOrchestratorMcpManifest 
       description: "Write a worker repair packet for a failed, blocked, or approval-gated proof task.",
       writes: [".proofloop/orchestrator/runs/<run-id>/worker-dispatch.json"],
     },
+    {
+      name: "proofloop.orchestrator.mineSession",
+      description: "Publish session-mined rules from unfinished ProofLoop tasks into the durable run memory artifact.",
+      writes: [".proofloop/orchestrator/runs/<run-id>/session-memory.json"],
+    },
   ],
   resources: [
     {
       uri: "proofloop://orchestrator/latest-state",
       description: "Latest orchestrator state, queue, task statuses, and terminal reason.",
+    },
+    {
+      uri: "proofloop://orchestrator/latest-dashboard",
+      description: "Latest long-running control dashboard with goal contract, evaluator verdict, verifier stack, and not-done tasks.",
+    },
+    {
+      uri: "proofloop://orchestrator/latest-evaluator",
+      description: "Latest detached evaluator receipt produced from durable state rather than the executor transcript.",
+    },
+    {
+      uri: "proofloop://orchestrator/session-memory",
+      description: "Latest session-mined rules that turn previous blocked or failed work into future run constraints.",
     },
     {
       uri: "proofloop://codegraph/latest",

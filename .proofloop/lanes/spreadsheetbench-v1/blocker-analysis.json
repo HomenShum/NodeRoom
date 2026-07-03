@@ -3,7 +3,7 @@
   "blockerId": "spreadsheetbench-v1-full-official-score",
   "suite": "spreadsheetbench-v1",
   "title": "SpreadsheetBench V1 full 912-task official score",
-  "generatedAt": "2026-07-02T20:46:40.266Z",
+  "generatedAt": "2026-07-03T22:15:24.870Z",
   "phase": "solve",
   "classes": [
     "missing_model_run",

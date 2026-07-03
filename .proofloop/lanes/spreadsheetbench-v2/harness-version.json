@@ -1,8 +1,8 @@
 {
   "schema": 1,
   "suite": "spreadsheetbench-v2",
-  "harnessVersion": "spreadsheetbench-v2-harness-14d091044dad",
-  "generatedAt": "2026-07-02T20:46:40.273Z",
+  "harnessVersion": "spreadsheetbench-v2-harness-87585d30c645",
+  "generatedAt": "2026-07-03T22:15:25.870Z",
   "previousVersion": null,
   "changes": [
     "stage full 321-task official bundle",
@@ -23,7 +23,7 @@
     {
       "path": "scripts/proofloop-cli.ts",
       "exists": true,
-      "sha256": "d8de08fbf26d12ff107d8e8eb36c4db751dba18c5b33aba2ce53a02cfe39b78b"
+      "sha256": "b54e78397ce83f295afd55eb2c308721ef5794fd49a3a4fe7a20f3444b5e6d58"
     },
     {
       "path": "scripts/proofloop.mjs",
@@ -33,7 +33,7 @@
     {
       "path": "src/eval/proofloopGoalSupervisor.ts",
       "exists": true,
-      "sha256": "4c073a490290e8507753264cdd6507698b6f9ae08eb501eeb7969c1255a9648c"
+      "sha256": "394db83b3cb3192ff67ce854096a76a9427ce5af49f9c69765f8ea020885b06b"
     },
     {
       "path": "src/eval/proofloopLoopArtifacts.ts",
@@ -43,7 +43,7 @@
     {
       "path": "src/eval/proofloopModelTracking.ts",
       "exists": true,
-      "sha256": "2c7e76cf762e0195e69fbcb37afd38e7a554e5dfdd4eb7aca5815d20a7bc2adc"
+      "sha256": "7ea29d78b38dc9234f7c6e0994ef359b65b72e229185598a3f49e9f2941580e7"
     },
     {
       "path": "src/eval/proofloopBlockerSolver.ts",
@@ -62,7 +62,7 @@
     {
       "path": "docs/eval/official-benchmark-task-coverage.json",
       "exists": true,
-      "sha256": "4d74dbd9472d6207aa36b0ac4f21fe914464bbdd5352d2315aa9e8837274bc07"
+      "sha256": "62e66650064dfd7517012ea01806a47b2009886056b24f78d619bac745d80687"
     }
   ]
 }

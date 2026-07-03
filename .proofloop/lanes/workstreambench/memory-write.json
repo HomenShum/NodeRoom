@@ -3,7 +3,7 @@
   "kind": "blocker_solver_memory",
   "suite": "workstreambench",
   "blockerId": "workstreambench-official-score",
-  "generatedAt": "2026-07-02T20:46:40.290Z",
+  "generatedAt": "2026-07-03T22:15:28.870Z",
   "classes": [
     "missing_official_scorer",
     "missing_task_bundle",
