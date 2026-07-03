@@ -1,6 +1,13 @@
+import { spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync, appendFileSync } from "node:fs";
 import { dirname, join, relative } from "node:path";
-import { writeProofLoopArtifacts, type ProofLoopArtifactRun } from "./proofloopArtifacts";
+import { createSqliteBackend, DEFAULT_CODEGRAPH_DB_RELPATH } from "../proofloop/codegraph/adapters/sqliteBackend";
+import { blastRadius } from "../proofloop/codegraph/core/query";
+import {
+  writeProofLoopArtifacts,
+  type ProofLoopArtifactRun,
+  type RepairBlastRadiusSection,
+} from "./proofloopArtifacts";
 import type { ProofloopModelRoute } from "./proofloopModelTracking";
 
 export type ProofloopMetaForLoop = {
@@ -89,18 +96,26 @@ const LAGGING_LAYER_BY_FAILURE: Record<string, string> = {
   score_below_threshold: "verifier_feedback",
 };
 
+const CODEGRAPH_META_LAST_INDEX_COMMIT = "last_index_commit";
+
 export function writeLoopArtifactsForMeta(args: {
   meta: ProofloopMetaForLoop;
   runDir: string;
   memoryPath?: string;
   baseUrl?: string;
   strictLiveUser?: boolean;
+  /** Repo root used to locate the optional code-graph index; defaults to cwd. */
+  repoRoot?: string;
 }): LoopArtifactPaths {
-  const { meta, runDir, memoryPath, baseUrl, strictLiveUser = false } = args;
+  const { meta, runDir, memoryPath, baseUrl, strictLiveUser = false, repoRoot = process.cwd() } = args;
   mkdirSync(runDir, { recursive: true });
 
   const run = ensureRunResult(meta, runDir);
-  const artifactPaths = writeProofLoopArtifacts(run, runDir, { baseUrl });
+  const codeGraphBlastRadius = buildRepairBlastRadius(run, repoRoot);
+  const artifactPaths = writeProofLoopArtifacts(run, runDir, {
+    baseUrl,
+    ...(codeGraphBlastRadius ? { blastRadius: codeGraphBlastRadius } : {}),
+  });
   const officialScorerReceiptPath = writeOfficialScorerReceipt({ meta, runDir });
   const liveUserContractPath = writeLiveUserContract({ meta, runDir, baseUrl, strictLiveUser });
   const memoryPathWritten = memoryPath ? writeMemoryEntry({ meta, runDir, memoryPath }) : undefined;
@@ -403,6 +418,86 @@ export function writeSocialArtifacts(args: { meta: ProofloopMetaForLoop; runDir:
     ].map((output) => ({ output, ready: false })),
   });
   writeFileSync(join(clipsDir, "README.md"), "Clip storyboard is ready. MP4 rendering requires captured screenshots or video from the live run.\n", "utf-8");
+}
+
+/**
+ * Optional code-graph seam (docs/architecture/CODE_GRAPH_SUBSTRATE.md): when a local
+ * .proofloop/codegraph/index.db exists, look up blast radius for selector/route strings
+ * carried by failed required steps. Additive-only: if the db is absent, no seeds are
+ * found, or anything throws, this returns undefined and repair-prompt.md is
+ * byte-identical to today's output.
+ */
+function buildRepairBlastRadius(run: ProofLoopArtifactRun, repoRoot: string): RepairBlastRadiusSection[] | undefined {
+  try {
+    const dbPath = join(repoRoot, DEFAULT_CODEGRAPH_DB_RELPATH);
+    if (!existsSync(dbPath)) return undefined;
+    const failedSteps = run.steps.filter((step) => step.required && step.status !== "pass" && !step.softFail);
+    if (!failedSteps.length) return undefined;
+    const failureText = [
+      ...failedSteps.map((step) => `${step.name}\n${step.stdout}\n${step.stderr}`),
+      ...run.failReasons,
+    ].join("\n");
+    const seeds = extractBlastRadiusSeeds(failureText);
+    if (!seeds.length) return undefined;
+    const backend = createSqliteBackend({ dbPath });
+    try {
+      backend.init();
+      const lastIndexCommit = backend.getMeta(CODEGRAPH_META_LAST_INDEX_COMMIT);
+      const recentFiles = lastIndexCommit ? gitChangedFilesSince(repoRoot, lastIndexCommit) : [];
+      const sections: RepairBlastRadiusSection[] = [];
+      for (const seed of seeds) {
+        const results = blastRadius(
+          backend,
+          seed.kind === "selector" ? { selector: seed.value } : { route: seed.value },
+          { limit: 10, recentFiles },
+        );
+        if (!results.length) continue;
+        sections.push({
+          seedKind: seed.kind,
+          seed: seed.value,
+          files: results.map((entry) => ({
+            file: entry.file,
+            score: entry.score,
+            why: entry.why,
+            ...(entry.recentlyChanged ? { recentlyChanged: true } : {}),
+            ...(entry.symbols.length ? { symbols: entry.symbols } : {}),
+          })),
+        });
+      }
+      return sections.length ? sections : undefined;
+    } finally {
+      backend.close();
+    }
+  } catch {
+    return undefined;
+  }
+}
+
+function extractBlastRadiusSeeds(text: string): Array<{ kind: "selector" | "route"; value: string }> {
+  const seeds = new Map<string, { kind: "selector" | "route"; value: string }>();
+  const selectorPatterns = [
+    /data-testid\s*=\s*["']([^"']+)["']/g,
+    /\[data-testid=["']?([^"'\]]+)["']?\]/g,
+    /getByTestId\(\s*["']([^"']+)["']\s*\)/g,
+  ];
+  for (const pattern of selectorPatterns) {
+    for (const match of text.matchAll(pattern)) {
+      seeds.set(`selector:${match[1]}`, { kind: "selector", value: match[1] });
+    }
+  }
+  for (const match of text.matchAll(/(?:route|path|url)[=:\s]+["']?(\/[A-Za-z0-9_\-./]*)/gi)) {
+    seeds.set(`route:${match[1]}`, { kind: "route", value: match[1] });
+  }
+  return [...seeds.values()].slice(0, 5);
+}
+
+function gitChangedFilesSince(root: string, commit: string): string[] {
+  const result = spawnSync("git", ["diff", "--name-only", commit], { cwd: root, encoding: "utf-8" });
+  if (result.status !== 0) return [];
+  return result.stdout
+    .split(/\r?\n/)
+    .map((line) => line.trim().replace(/\\/g, "/"))
+    .filter(Boolean);
 }
 
 function evidenceForGate(gate: string, meta: ProofloopMetaForLoop, runDir: string, baseUrl: string): string {

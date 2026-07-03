@@ -1,0 +1,3830 @@
+{
+  "schema": "proofloop-orchestrator-v1",
+  "runId": "codegraph-dogfood",
+  "mode": "dogfood",
+  "goalId": "official-scores",
+  "objective": "Make official benchmark scores real, tested, shipped, and externally blocked only with durable proof.",
+  "generatedAt": "2026-07-03T09:59:44.336Z",
+  "updatedAt": "2026-07-03T10:00:01.336Z",
+  "terminalStatus": "NEEDS_HUMAN_APPROVAL",
+  "dryRun": true,
+  "executeSafe": true,
+  "maxSteps": 100,
+  "stepsUsed": 16,
+  "paths": {
+    "runDir": ".proofloop/orchestrator/runs/codegraph-dogfood",
+    "state": ".proofloop/orchestrator/runs/codegraph-dogfood/orchestrator-state.json",
+    "queue": ".proofloop/orchestrator/runs/codegraph-dogfood/task-queue.json",
+    "events": ".proofloop/orchestrator/runs/codegraph-dogfood/events.jsonl",
+    "workerDispatch": ".proofloop/orchestrator/runs/codegraph-dogfood/worker-dispatch.json",
+    "summary": ".proofloop/orchestrator/runs/codegraph-dogfood/summary.md",
+    "codeGraphManifest": ".proofloop/codegraph/graph-manifest.json"
+  },
+  "workerInventory": {
+    "schema": "proofloop-worker-inventory-v1",
+    "generatedAt": "2026-07-03T09:59:44.336Z",
+    "workers": [
+      {
+        "kind": "codex",
+        "command": "codex",
+        "launchMode": "interactive_agent",
+        "available": true,
+        "resolvedPath": "[local-path-redacted]"
+      },
+      {
+        "kind": "claude",
+        "command": "claude",
+        "launchMode": "interactive_agent",
+        "available": true,
+        "resolvedPath": "[local-path-redacted]"
+      },
+      {
+        "kind": "cursor",
+        "command": "cursor",
+        "launchMode": "ide",
+        "available": false
+      },
+      {
+        "kind": "windsurf",
+        "command": "windsurf",
+        "launchMode": "ide",
+        "available": false
+      },
+      {
+        "kind": "node",
+        "command": "node",
+        "launchMode": "tooling",
+        "available": true,
+        "resolvedPath": "[local-path-redacted]"
+      },
+      {
+        "kind": "npm",
+        "command": "npm",
+        "launchMode": "tooling",
+        "available": true,
+        "resolvedPath": "[local-path-redacted]"
+      },
+      {
+        "kind": "git",
+        "command": "git",
+        "launchMode": "tooling",
+        "available": true,
+        "resolvedPath": "[local-path-redacted]"
+      }
+    ]
+  },
+  "tasks": [
+    {
+      "id": "btb-fullsuite-official-score",
+      "title": "BankerToolBench official full-suite score receipt",
+      "sourceStatus": "pending",
+      "kind": "command",
+      "command": "npm run benchmark:bankertoolbench:fullsuite-gate -- --summary docs/eval/btb-clean-capability-full100-parallel-v3-gpt41mini.json --receipt-out docs/eval/fresh-room/FR-020/fullsuite-gate-receipt.json --assert",
+      "safety": "expensive_or_live",
+      "status": "needs_worker",
+      "evidence": [
+        "docs/eval/fresh-room/FR-020/fullsuite-gate-receipt.json",
+        "docs/eval/btb-clean-capability-full100-parallel-v3-gpt41mini.json"
+      ],
+      "blockers": [],
+      "attempts": 0,
+      "likelyFiles": [
+        {
+          "nodeId": "file:noderl/packages/nodeeval/src/bankerToolBenchFullSuiteGate.ts",
+          "kind": "file",
+          "label": "bankerToolBenchFullSuiteGate.ts",
+          "path": "noderl/packages/nodeeval/src/bankerToolBenchFullSuiteGate.ts",
+          "score": 39,
+          "reasons": [
+            "path:fullsuite",
+            "label:fullsuite",
+            "path:bankertoolbench",
+            "label:bankertoolbench",
+            "path:full",
+            "label:full",
+            "path:suite",
+            "label:suite",
+            "path:gate",
+            "label:gate",
+            "path:eval"
+          ]
+        },
+        {
+          "nodeId": "symbol:noderl/packages/nodeeval/src/bankerToolBenchFullSuiteGate.ts#evaluateFullSuiteGate",
+          "kind": "symbol",
+          "label": "evaluateFullSuiteGate",
+          "path": "noderl/packages/nodeeval/src/bankerToolBenchFullSuiteGate.ts",
+          "score": 39,
+          "reasons": [
+            "path:fullsuite",
+            "label:fullsuite",
+            "path:bankertoolbench",
+            "path:full",
+            "label:full",
+            "path:suite",
+            "label:suite",
+            "path:gate",
+            "label:gate",
+            "path:eval",
+            "label:eval"
+          ]
+        },
+        {
+          "nodeId": "symbol:noderl/packages/nodeeval/src/bankerToolBenchFullSuiteGate.ts#evaluateFullSuiteGateFromSummaries",
+          "kind": "symbol",
+          "label": "evaluateFullSuiteGateFromSummaries",
+          "path": "noderl/packages/nodeeval/src/bankerToolBenchFullSuiteGate.ts",
+          "score": 39,
+          "reasons": [
+            "path:fullsuite",
+            "label:fullsuite",
+            "path:bankertoolbench",
+            "path:full",
+            "label:full",
+            "path:suite",
+            "label:suite",
+            "path:gate",
+            "label:gate",
+            "path:eval",
+            "label:eval"
+          ]
+        },
+        {
+          "nodeId": "file:src/eval/bankerToolBenchFullSuiteGate.ts",
+          "kind": "file",
+          "label": "bankerToolBenchFullSuiteGate.ts",
+          "path": "src/eval/bankerToolBenchFullSuiteGate.ts",
+          "score": 39,
+          "reasons": [
+            "path:fullsuite",
+            "label:fullsuite",
+            "path:bankertoolbench",
+            "label:bankertoolbench",
+            "path:full",
+            "label:full",
+            "path:suite",
+            "label:suite",
+            "path:gate",
+            "label:gate",
+            "path:eval"
+          ]
+        },
+        {
+          "nodeId": "symbol:src/eval/bankerToolBenchFullSuiteGate.ts#evaluateFullSuiteGate",
+          "kind": "symbol",
+          "label": "evaluateFullSuiteGate",
+          "path": "src/eval/bankerToolBenchFullSuiteGate.ts",
+          "score": 39,
+          "reasons": [
+            "path:fullsuite",
+            "label:fullsuite",
+            "path:bankertoolbench",
+            "path:full",
+            "label:full",
+            "path:suite",
+            "label:suite",
+            "path:gate",
+            "label:gate",
+            "path:eval",
+            "label:eval"
+          ]
+        },
+        {
+          "nodeId": "symbol:src/eval/bankerToolBenchFullSuiteGate.ts#evaluateFullSuiteGateFromSummaries",
+          "kind": "symbol",
+          "label": "evaluateFullSuiteGateFromSummaries",
+          "path": "src/eval/bankerToolBenchFullSuiteGate.ts",
+          "score": 39,
+          "reasons": [
+            "path:fullsuite",
+            "label:fullsuite",
+            "path:bankertoolbench",
+            "path:full",
+            "label:full",
+            "path:suite",
+            "label:suite",
+            "path:gate",
+            "label:gate",
+            "path:eval",
+            "label:eval"
+          ]
+        },
+        {
+          "nodeId": "symbol:noderl/packages/nodeeval/src/bankerToolBenchFullSuiteGate.ts#FullSuiteGateId",
+          "kind": "symbol",
+          "label": "FullSuiteGateId",
+          "path": "noderl/packages/nodeeval/src/bankerToolBenchFullSuiteGate.ts",
+          "score": 36,
+          "reasons": [
+            "path:fullsuite",
+            "label:fullsuite",
+            "path:bankertoolbench",
+            "path:full",
+            "label:full",
+            "path:suite",
+            "label:suite",
+            "path:gate",
+            "label:gate",
+            "path:eval"
+          ]
+        },
+        {
+          "nodeId": "symbol:noderl/packages/nodeeval/src/bankerToolBenchFullSuiteGate.ts#FullSuiteGateOptions",
+          "kind": "symbol",
+          "label": "FullSuiteGateOptions",
+          "path": "noderl/packages/nodeeval/src/bankerToolBenchFullSuiteGate.ts",
+          "score": 36,
+          "reasons": [
+            "path:fullsuite",
+            "label:fullsuite",
+            "path:bankertoolbench",
+            "path:full",
+            "label:full",
+            "path:suite",
+            "label:suite",
+            "path:gate",
+            "label:gate",
+            "path:eval"
+          ]
+        },
+        {
+          "nodeId": "symbol:noderl/packages/nodeeval/src/bankerToolBenchFullSuiteGate.ts#FullSuiteGateVerdict",
+          "kind": "symbol",
+          "label": "FullSuiteGateVerdict",
+          "path": "noderl/packages/nodeeval/src/bankerToolBenchFullSuiteGate.ts",
+          "score": 36,
+          "reasons": [
+            "path:fullsuite",
+            "label:fullsuite",
+            "path:bankertoolbench",
+            "path:full",
+            "label:full",
+            "path:suite",
+            "label:suite",
+            "path:gate",
+            "label:gate",
+            "path:eval"
+          ]
+        },
+        {
+          "nodeId": "symbol:noderl/packages/nodeeval/src/bankerToolBenchFullSuiteGate.ts#FullSuiteSubGate",
+          "kind": "symbol",
+          "label": "FullSuiteSubGate",
+          "path": "noderl/packages/nodeeval/src/bankerToolBenchFullSuiteGate.ts",
+          "score": 36,
+          "reasons": [
+            "path:fullsuite",
+            "label:fullsuite",
+            "path:bankertoolbench",
+            "path:full",
+            "label:full",
+            "path:suite",
+            "label:suite",
+            "path:gate",
+            "label:gate",
+            "path:eval"
+          ]
+        },
+        {
+          "nodeId": "symbol:src/eval/bankerToolBenchFullSuiteGate.ts#FullSuiteGateId",
+          "kind": "symbol",
+          "label": "FullSuiteGateId",
+          "path": "src/eval/bankerToolBenchFullSuiteGate.ts",
+          "score": 36,
+          "reasons": [
+            "path:fullsuite",
+            "label:fullsuite",
+            "path:bankertoolbench",
+            "path:full",
+            "label:full",
+            "path:suite",
+            "label:suite",
+            "path:gate",
+            "label:gate",
+            "path:eval"
+          ]
+        },
+        {
+          "nodeId": "symbol:src/eval/bankerToolBenchFullSuiteGate.ts#FullSuiteGateOptions",
+          "kind": "symbol",
+          "label": "FullSuiteGateOptions",
+          "path": "src/eval/bankerToolBenchFullSuiteGate.ts",
+          "score": 36,
+          "reasons": [
+            "path:fullsuite",
+            "label:fullsuite",
+            "path:bankertoolbench",
+            "path:full",
+            "label:full",
+            "path:suite",
+            "label:suite",
+            "path:gate",
+            "label:gate",
+            "path:eval"
+          ]
+        }
+      ],
+      "repairContextPath": ".proofloop/orchestrator/runs/codegraph-dogfood/repair-contexts/btb-fullsuite-official-score.md"
+    },
+    {
+      "id": "official-task-coverage-ledger",
+      "title": "Official benchmark task coverage ledger",
+      "sourceStatus": "pending",
+      "kind": "command",
+      "command": "npm run benchmark:official:task-coverage",
+      "safety": "safe_local",
+      "status": "skipped",
+      "evidence": [
+        "docs/eval/official-benchmark-task-coverage.json",
+        "docs/eval/OFFICIAL_BENCHMARK_TASK_COVERAGE.md"
+      ],
+      "blockers": [],
+      "attempts": 0,
+      "likelyFiles": [
+        {
+          "nodeId": "file:scripts/official-benchmark-task-coverage.ts",
+          "kind": "file",
+          "label": "official-benchmark-task-coverage.ts",
+          "path": "scripts/official-benchmark-task-coverage.ts",
+          "score": 29,
+          "reasons": [
+            "path:official",
+            "label:official",
+            "path:task",
+            "label:task",
+            "path:coverage",
+            "label:coverage",
+            "path:benchmark",
+            "label:benchmark",
+            "proofloop-file"
+          ]
+        },
+        {
+          "nodeId": "file:src/eval/officialBenchmarkTaskCoverage.ts",
+          "kind": "file",
+          "label": "officialBenchmarkTaskCoverage.ts",
+          "path": "src/eval/officialBenchmarkTaskCoverage.ts",
+          "score": 29,
+          "reasons": [
+            "path:official",
+            "label:official",
+            "path:task",
+            "label:task",
+            "path:coverage",
+            "label:coverage",
+            "path:benchmark",
+            "label:benchmark",
+            "proofloop-file"
+          ]
+        },
+        {
+          "nodeId": "file:tests/officialBenchmarkTaskCoverage.test.ts",
+          "kind": "file",
+          "label": "officialBenchmarkTaskCoverage.test.ts",
+          "path": "tests/officialBenchmarkTaskCoverage.test.ts",
+          "score": 29,
+          "reasons": [
+            "path:official",
+            "label:official",
+            "path:task",
+            "label:task",
+            "path:coverage",
+            "label:coverage",
+            "path:benchmark",
+            "label:benchmark",
+            "proofloop-file"
+          ]
+        },
+        {
+          "nodeId": "symbol:src/eval/officialBenchmarkTaskCoverage.ts#OfficialBenchmarkTaskCoverageReport",
+          "kind": "symbol",
+          "label": "OfficialBenchmarkTaskCoverageReport",
+          "path": "src/eval/officialBenchmarkTaskCoverage.ts",
+          "score": 28,
+          "reasons": [
+            "path:official",
+            "label:official",
+            "path:task",
+            "label:task",
+            "path:coverage",
+            "label:coverage",
+            "path:benchmark",
+            "label:benchmark"
+          ]
+        },
+        {
+          "nodeId": "symbol:src/eval/officialBenchmarkTaskCoverage.ts#buildOfficialBenchmarkTaskCoverageReport",
+          "kind": "symbol",
+          "label": "buildOfficialBenchmarkTaskCoverageReport",
+          "path": "src/eval/officialBenchmarkTaskCoverage.ts",
+          "score": 28,
+          "reasons": [
+            "path:official",
+            "label:official",
+            "path:task",
+            "label:task",
+            "path:coverage",
+            "label:coverage",
+            "path:benchmark",
+            "label:benchmark"
+          ]
+        },
+        {
+          "nodeId": "symbol:src/eval/officialBenchmarkTaskCoverage.ts#BenchmarkTaskCoverageStatus",
+          "kind": "symbol",
+          "label": "BenchmarkTaskCoverageStatus",
+          "path": "src/eval/officialBenchmarkTaskCoverage.ts",
+          "score": 25,
+          "reasons": [
+            "path:official",
+            "path:task",
+            "label:task",
+            "path:coverage",
+            "label:coverage",
+            "path:benchmark",
+            "label:benchmark"
+          ]
+        },
+        {
+          "nodeId": "symbol:src/eval/officialBenchmarkTaskCoverage.ts#BenchmarkTaskCoverageTrack",
+          "kind": "symbol",
+          "label": "BenchmarkTaskCoverageTrack",
+          "path": "src/eval/officialBenchmarkTaskCoverage.ts",
+          "score": 25,
+          "reasons": [
+            "path:official",
+            "path:task",
+            "label:task",
+            "path:coverage",
+            "label:coverage",
+            "path:benchmark",
+            "label:benchmark"
+          ]
+        },
+        {
+          "nodeId": "file:scripts/official-benchmark-ui-coverage.ts",
+          "kind": "file",
+          "label": "official-benchmark-ui-coverage.ts",
+          "path": "scripts/official-benchmark-ui-coverage.ts",
+          "score": 22,
+          "reasons": [
+            "path:official",
+            "label:official",
+            "path:coverage",
+            "label:coverage",
+            "path:benchmark",
+            "label:benchmark",
+            "proofloop-file"
+          ]
+        },
+        {
+          "nodeId": "file:src/eval/officialBenchmarkUiCoverage.ts",
+          "kind": "file",
+          "label": "officialBenchmarkUiCoverage.ts",
+          "path": "src/eval/officialBenchmarkUiCoverage.ts",
+          "score": 22,
+          "reasons": [
+            "path:official",
+            "label:official",
+            "path:coverage",
+            "label:coverage",
+            "path:benchmark",
+            "label:benchmark",
+            "proofloop-file"
+          ]
+        },
+        {
+          "nodeId": "file:tests/officialBenchmarkUiCoverage.test.ts",
+          "kind": "file",
+          "label": "officialBenchmarkUiCoverage.test.ts",
+          "path": "tests/officialBenchmarkUiCoverage.test.ts",
+          "score": 22,
+          "reasons": [
+            "path:official",
+            "label:official",
+            "path:coverage",
+            "label:coverage",
+            "path:benchmark",
+            "label:benchmark",
+            "proofloop-file"
+          ]
+        },
+        {
+          "nodeId": "symbol:src/eval/officialBenchmarkUiCoverage.ts#OfficialBenchmarkUiCoverageProofPaths",
+          "kind": "symbol",
+          "label": "OfficialBenchmarkUiCoverageProofPaths",
+          "path": "src/eval/officialBenchmarkUiCoverage.ts",
+          "score": 21,
+          "reasons": [
+            "path:official",
+            "label:official",
+            "path:coverage",
+            "label:coverage",
+            "path:benchmark",
+            "label:benchmark"
+          ]
+        },
+        {
+          "nodeId": "symbol:src/eval/officialBenchmarkUiCoverage.ts#OfficialBenchmarkUiCoverageReport",
+          "kind": "symbol",
+          "label": "OfficialBenchmarkUiCoverageReport",
+          "path": "src/eval/officialBenchmarkUiCoverage.ts",
+          "score": 21,
+          "reasons": [
+            "path:official",
+            "label:official",
+            "path:coverage",
+            "label:coverage",
+            "path:benchmark",
+            "label:benchmark"
+          ]
+        }
+      ],
+      "repairContextPath": ".proofloop/orchestrator/runs/codegraph-dogfood/repair-contexts/official-task-coverage-ledger.md"
+    },
+    {
+      "id": "benchmark-normalization-ledger",
+      "title": "Proof Loop benchmark normalization ledger",
+      "sourceStatus": "pending",
+      "kind": "command",
+      "command": "npm run benchmark:proofloop:normalized",
+      "safety": "safe_local",
+      "status": "skipped",
+      "evidence": [
+        "docs/eval/proofloop-normalized-benchmarks.json",
+        "docs/eval/PROOFLOOP_NORMALIZED_BENCHMARKS.md"
+      ],
+      "blockers": [],
+      "attempts": 0,
+      "likelyFiles": [
+        {
+          "nodeId": "file:scripts/proofloop-normalized-benchmarks.ts",
+          "kind": "file",
+          "label": "proofloop-normalized-benchmarks.ts",
+          "path": "scripts/proofloop-normalized-benchmarks.ts",
+          "score": 36,
+          "reasons": [
+            "path:benchmark",
+            "label:benchmark",
+            "path:proof",
+            "label:proof",
+            "path:loop",
+            "label:loop",
+            "path:proofloop",
+            "label:proofloop",
+            "path:normalized",
+            "label:normalized",
+            "proofloop-file"
+          ]
+        },
+        {
+          "nodeId": "file:src/eval/proofloopBenchmarkNormalization.ts",
+          "kind": "file",
+          "label": "proofloopBenchmarkNormalization.ts",
+          "path": "src/eval/proofloopBenchmarkNormalization.ts",
+          "score": 36,
+          "reasons": [
+            "path:benchmark",
+            "label:benchmark",
+            "path:normalization",
+            "label:normalization",
+            "path:proof",
+            "label:proof",
+            "path:loop",
+            "label:loop",
+            "path:proofloop",
+            "label:proofloop",
+            "proofloop-file"
+          ]
+        },
+        {
+          "nodeId": "file:tests/proofloopBenchmarkNormalization.test.ts",
+          "kind": "file",
+          "label": "proofloopBenchmarkNormalization.test.ts",
+          "path": "tests/proofloopBenchmarkNormalization.test.ts",
+          "score": 36,
+          "reasons": [
+            "path:benchmark",
+            "label:benchmark",
+            "path:normalization",
+            "label:normalization",
+            "path:proof",
+            "label:proof",
+            "path:loop",
+            "label:loop",
+            "path:proofloop",
+            "label:proofloop",
+            "proofloop-file"
+          ]
+        },
+        {
+          "nodeId": "symbol:src/eval/proofloopBenchmarkNormalization.ts#ProofloopBenchmarkNormalizationReport",
+          "kind": "symbol",
+          "label": "ProofloopBenchmarkNormalizationReport",
+          "path": "src/eval/proofloopBenchmarkNormalization.ts",
+          "score": 35,
+          "reasons": [
+            "path:benchmark",
+            "label:benchmark",
+            "path:normalization",
+            "label:normalization",
+            "path:proof",
+            "label:proof",
+            "path:loop",
+            "label:loop",
+            "path:proofloop",
+            "label:proofloop"
+          ]
+        },
+        {
+          "nodeId": "symbol:src/eval/proofloopBenchmarkNormalization.ts#buildProofloopBenchmarkNormalizationReport",
+          "kind": "symbol",
+          "label": "buildProofloopBenchmarkNormalizationReport",
+          "path": "src/eval/proofloopBenchmarkNormalization.ts",
+          "score": 35,
+          "reasons": [
+            "path:benchmark",
+            "label:benchmark",
+            "path:normalization",
+            "label:normalization",
+            "path:proof",
+            "label:proof",
+            "path:loop",
+            "label:loop",
+            "path:proofloop",
+            "label:proofloop"
+          ]
+        },
+        {
+          "nodeId": "symbol:src/eval/proofloopBenchmarkNormalization.ts#renderProofloopBenchmarkNormalizationMarkdown",
+          "kind": "symbol",
+          "label": "renderProofloopBenchmarkNormalizationMarkdown",
+          "path": "src/eval/proofloopBenchmarkNormalization.ts",
+          "score": 35,
+          "reasons": [
+            "path:benchmark",
+            "label:benchmark",
+            "path:normalization",
+            "label:normalization",
+            "path:proof",
+            "label:proof",
+            "path:loop",
+            "label:loop",
+            "path:proofloop",
+            "label:proofloop"
+          ]
+        },
+        {
+          "nodeId": "file:scripts/live-proofloop-runner.ts",
+          "kind": "file",
+          "label": "live-proofloop-runner.ts",
+          "path": "scripts/live-proofloop-runner.ts",
+          "score": 29,
+          "reasons": [
+            "path:proof",
+            "label:proof",
+            "path:loop",
+            "label:loop",
+            "path:run",
+            "label:run",
+            "path:proofloop",
+            "label:proofloop",
+            "proofloop-file"
+          ]
+        },
+        {
+          "nodeId": "file:scripts/proofloop-benchmark-board.ts",
+          "kind": "file",
+          "label": "proofloop-benchmark-board.ts",
+          "path": "scripts/proofloop-benchmark-board.ts",
+          "score": 29,
+          "reasons": [
+            "path:benchmark",
+            "label:benchmark",
+            "path:proof",
+            "label:proof",
+            "path:loop",
+            "label:loop",
+            "path:proofloop",
+            "label:proofloop",
+            "proofloop-file"
+          ]
+        },
+        {
+          "nodeId": "file:scripts/proofloop-external-adapter-run.ts",
+          "kind": "file",
+          "label": "proofloop-external-adapter-run.ts",
+          "path": "scripts/proofloop-external-adapter-run.ts",
+          "score": 29,
+          "reasons": [
+            "path:proof",
+            "label:proof",
+            "path:loop",
+            "label:loop",
+            "path:run",
+            "label:run",
+            "path:proofloop",
+            "label:proofloop",
+            "proofloop-file"
+          ]
+        },
+        {
+          "nodeId": "file:scripts/proofloop-runner.ts",
+          "kind": "file",
+          "label": "proofloop-runner.ts",
+          "path": "scripts/proofloop-runner.ts",
+          "score": 29,
+          "reasons": [
+            "path:proof",
+            "label:proof",
+            "path:loop",
+            "label:loop",
+            "path:run",
+            "label:run",
+            "path:proofloop",
+            "label:proofloop",
+            "proofloop-file"
+          ]
+        },
+        {
+          "nodeId": "file:src/eval/proofloopBenchmarkAdapters.ts",
+          "kind": "file",
+          "label": "proofloopBenchmarkAdapters.ts",
+          "path": "src/eval/proofloopBenchmarkAdapters.ts",
+          "score": 29,
+          "reasons": [
+            "path:benchmark",
+            "label:benchmark",
+            "path:proof",
+            "label:proof",
+            "path:loop",
+            "label:loop",
+            "path:proofloop",
+            "label:proofloop",
+            "proofloop-file"
+          ]
+        },
+        {
+          "nodeId": "file:src/eval/proofloopBenchmarkBoard.ts",
+          "kind": "file",
+          "label": "proofloopBenchmarkBoard.ts",
+          "path": "src/eval/proofloopBenchmarkBoard.ts",
+          "score": 29,
+          "reasons": [
+            "path:benchmark",
+            "label:benchmark",
+            "path:proof",
+            "label:proof",
+            "path:loop",
+            "label:loop",
+            "path:proofloop",
+            "label:proofloop",
+            "proofloop-file"
+          ]
+        }
+      ],
+      "repairContextPath": ".proofloop/orchestrator/runs/codegraph-dogfood/repair-contexts/benchmark-normalization-ledger.md"
+    },
+    {
+      "id": "company-task-coverage-ledger",
+      "title": "Company/task archetype coverage ledger",
+      "sourceStatus": "pending",
+      "kind": "command",
+      "command": "npm run benchmark:proofloop:company-tasks",
+      "safety": "safe_local",
+      "status": "skipped",
+      "evidence": [
+        "docs/eval/proofloop-company-task-coverage.json",
+        "docs/eval/PROOFLOOP_COMPANY_TASK_COVERAGE.md"
+      ],
+      "blockers": [],
+      "attempts": 0,
+      "likelyFiles": [
+        {
+          "nodeId": "file:scripts/proofloop-company-task-coverage.ts",
+          "kind": "file",
+          "label": "proofloop-company-task-coverage.ts",
+          "path": "scripts/proofloop-company-task-coverage.ts",
+          "score": 29,
+          "reasons": [
+            "path:company",
+            "label:company",
+            "path:task",
+            "label:task",
+            "path:coverage",
+            "label:coverage",
+            "path:proofloop",
+            "label:proofloop",
+            "proofloop-file"
+          ]
+        },
+        {
+          "nodeId": "file:src/eval/proofloopCompanyTaskCoverage.ts",
+          "kind": "file",
+          "label": "proofloopCompanyTaskCoverage.ts",
+          "path": "src/eval/proofloopCompanyTaskCoverage.ts",
+          "score": 29,
+          "reasons": [
+            "path:company",
+            "label:company",
+            "path:task",
+            "label:task",
+            "path:coverage",
+            "label:coverage",
+            "path:proofloop",
+            "label:proofloop",
+            "proofloop-file"
+          ]
+        },
+        {
+          "nodeId": "file:tests/proofloopCompanyTaskCoverage.test.ts",
+          "kind": "file",
+          "label": "proofloopCompanyTaskCoverage.test.ts",
+          "path": "tests/proofloopCompanyTaskCoverage.test.ts",
+          "score": 29,
+          "reasons": [
+            "path:company",
+            "label:company",
+            "path:task",
+            "label:task",
+            "path:coverage",
+            "label:coverage",
+            "path:proofloop",
+            "label:proofloop",
+            "proofloop-file"
+          ]
+        },
+        {
+          "nodeId": "symbol:src/eval/proofloopCompanyTaskCoverage.ts#ProofloopCompanyTaskCoverageReport",
+          "kind": "symbol",
+          "label": "ProofloopCompanyTaskCoverageReport",
+          "path": "src/eval/proofloopCompanyTaskCoverage.ts",
+          "score": 28,
+          "reasons": [
+            "path:company",
+            "label:company",
+            "path:task",
+            "label:task",
+            "path:coverage",
+            "label:coverage",
+            "path:proofloop",
+            "label:proofloop"
+          ]
+        },
+        {
+          "nodeId": "symbol:src/eval/proofloopCompanyTaskCoverage.ts#buildProofloopCompanyTaskCoverageReport",
+          "kind": "symbol",
+          "label": "buildProofloopCompanyTaskCoverageReport",
+          "path": "src/eval/proofloopCompanyTaskCoverage.ts",
+          "score": 28,
+          "reasons": [
+            "path:company",
+            "label:company",
+            "path:task",
+            "label:task",
+            "path:coverage",
+            "label:coverage",
+            "path:proofloop",
+            "label:proofloop"
+          ]
+        },
+        {
+          "nodeId": "symbol:src/eval/proofloopCompanyTaskCoverage.ts#renderProofloopCompanyTaskCoverageMarkdown",
+          "kind": "symbol",
+          "label": "renderProofloopCompanyTaskCoverageMarkdown",
+          "path": "src/eval/proofloopCompanyTaskCoverage.ts",
+          "score": 28,
+          "reasons": [
+            "path:company",
+            "label:company",
+            "path:task",
+            "label:task",
+            "path:coverage",
+            "label:coverage",
+            "path:proofloop",
+            "label:proofloop"
+          ]
+        },
+        {
+          "nodeId": "symbol:src/eval/proofloopCompanyTaskCoverage.ts#CompanyTaskCoverageEntry",
+          "kind": "symbol",
+          "label": "CompanyTaskCoverageEntry",
+          "path": "src/eval/proofloopCompanyTaskCoverage.ts",
+          "score": 25,
+          "reasons": [
+            "path:company",
+            "label:company",
+            "path:task",
+            "label:task",
+            "path:coverage",
+            "label:coverage",
+            "path:proofloop"
+          ]
+        },
+        {
+          "nodeId": "symbol:src/eval/proofloopCompanyTaskCoverage.ts#CompanyTaskCoverageStatus",
+          "kind": "symbol",
+          "label": "CompanyTaskCoverageStatus",
+          "path": "src/eval/proofloopCompanyTaskCoverage.ts",
+          "score": 25,
+          "reasons": [
+            "path:company",
+            "label:company",
+            "path:task",
+            "label:task",
+            "path:coverage",
+            "label:coverage",
+            "path:proofloop"
+          ]
+        },
+        {
+          "nodeId": "file:proofloop/benchmarks/common/local-tasks.ts",
+          "kind": "file",
+          "label": "local-tasks.ts",
+          "path": "proofloop/benchmarks/common/local-tasks.ts",
+          "score": 23,
+          "reasons": [
+            "path:task",
+            "label:task",
+            "path:benchmark",
+            "path:proofloop",
+            "path:tasks",
+            "label:tasks",
+            "proofloop-file"
+          ]
+        },
+        {
+          "nodeId": "file:scripts/official-benchmark-task-coverage.ts",
+          "kind": "file",
+          "label": "official-benchmark-task-coverage.ts",
+          "path": "scripts/official-benchmark-task-coverage.ts",
+          "score": 22,
+          "reasons": [
+            "path:task",
+            "label:task",
+            "path:coverage",
+            "label:coverage",
+            "path:benchmark",
+            "label:benchmark",
+            "proofloop-file"
+          ]
+        },
+        {
+          "nodeId": "file:src/eval/officialBenchmarkTaskCoverage.ts",
+          "kind": "file",
+          "label": "officialBenchmarkTaskCoverage.ts",
+          "path": "src/eval/officialBenchmarkTaskCoverage.ts",
+          "score": 22,
+          "reasons": [
+            "path:task",
+            "label:task",
+            "path:coverage",
+            "label:coverage",
+            "path:benchmark",
+            "label:benchmark",
+            "proofloop-file"
+          ]
+        },
+        {
+          "nodeId": "file:tests/officialBenchmarkTaskCoverage.test.ts",
+          "kind": "file",
+          "label": "officialBenchmarkTaskCoverage.test.ts",
+          "path": "tests/officialBenchmarkTaskCoverage.test.ts",
+          "score": 22,
+          "reasons": [
+            "path:task",
+            "label:task",
+            "path:coverage",
+            "label:coverage",
+            "path:benchmark",
+            "label:benchmark",
+            "proofloop-file"
+          ]
+        }
+      ],
+      "repairContextPath": ".proofloop/orchestrator/runs/codegraph-dogfood/repair-contexts/company-task-coverage-ledger.md"
+    },
+    {
+      "id": "harness-economics-ledger",
+      "title": "Harness version and OpenRouter proxy economics ledger",
+      "sourceStatus": "pending",
+      "kind": "command",
+      "command": "npm run benchmark:proofloop:harness-economics",
+      "safety": "safe_local",
+      "status": "skipped",
+      "evidence": [
+        "docs/eval/proofloop-harness-economics.json",
+        "docs/eval/PROOFLOOP_HARNESS_ECONOMICS.md",
+        "docs/eval/openrouter-top-paid-tools-snapshot.json"
+      ],
+      "blockers": [],
+      "attempts": 0,
+      "likelyFiles": [
+        {
+          "nodeId": "symbol:src/eval/proofloopHarnessEconomics.ts#buildProofloopHarnessEconomicsLedger",
+          "kind": "symbol",
+          "label": "buildProofloopHarnessEconomicsLedger",
+          "path": "src/eval/proofloopHarnessEconomics.ts",
+          "score": 24,
+          "reasons": [
+            "path:harness",
+            "label:harness",
+            "path:economics",
+            "label:economics",
+            "label:ledger",
+            "path:proofloop",
+            "label:proofloop"
+          ]
+        },
+        {
+          "nodeId": "file:scripts/proofloop-harness-economics.ts",
+          "kind": "file",
+          "label": "proofloop-harness-economics.ts",
+          "path": "scripts/proofloop-harness-economics.ts",
+          "score": 22,
+          "reasons": [
+            "path:harness",
+            "label:harness",
+            "path:economics",
+            "label:economics",
+            "path:proofloop",
+            "label:proofloop",
+            "proofloop-file"
+          ]
+        },
+        {
+          "nodeId": "file:src/eval/proofloopHarnessEconomics.ts",
+          "kind": "file",
+          "label": "proofloopHarnessEconomics.ts",
+          "path": "src/eval/proofloopHarnessEconomics.ts",
+          "score": 22,
+          "reasons": [
+            "path:harness",
+            "label:harness",
+            "path:economics",
+            "label:economics",
+            "path:proofloop",
+            "label:proofloop",
+            "proofloop-file"
+          ]
+        },
+        {
+          "nodeId": "file:tests/proofloopHarnessEconomics.test.ts",
+          "kind": "file",
+          "label": "proofloopHarnessEconomics.test.ts",
+          "path": "tests/proofloopHarnessEconomics.test.ts",
+          "score": 22,
+          "reasons": [
+            "path:harness",
+            "label:harness",
+            "path:economics",
+            "label:economics",
+            "path:proofloop",
+            "label:proofloop",
+            "proofloop-file"
+          ]
+        },
+        {
+          "nodeId": "symbol:src/eval/proofloopHarnessEconomics.ts#HarnessEconomicsLedger",
+          "kind": "symbol",
+          "label": "HarnessEconomicsLedger",
+          "path": "src/eval/proofloopHarnessEconomics.ts",
+          "score": 21,
+          "reasons": [
+            "path:harness",
+            "label:harness",
+            "path:economics",
+            "label:economics",
+            "label:ledger",
+            "path:proofloop"
+          ]
+        },
+        {
+          "nodeId": "symbol:src/eval/proofloopHarnessEconomics.ts#renderProofloopHarnessEconomicsMarkdown",
+          "kind": "symbol",
+          "label": "renderProofloopHarnessEconomicsMarkdown",
+          "path": "src/eval/proofloopHarnessEconomics.ts",
+          "score": 21,
+          "reasons": [
+            "path:harness",
+            "label:harness",
+            "path:economics",
+            "label:economics",
+            "path:proofloop",
+            "label:proofloop"
+          ]
+        },
+        {
+          "nodeId": "symbol:src/eval/proofloopHarnessEconomics.ts#HarnessVersionFile",
+          "kind": "symbol",
+          "label": "HarnessVersionFile",
+          "path": "src/eval/proofloopHarnessEconomics.ts",
+          "score": 18,
+          "reasons": [
+            "path:harness",
+            "label:harness",
+            "path:economics",
+            "label:version",
+            "path:proofloop"
+          ]
+        },
+        {
+          "nodeId": "symbol:src/eval/proofloopHarnessEconomics.ts#OpenRouterEconomicsModel",
+          "kind": "symbol",
+          "label": "OpenRouterEconomicsModel",
+          "path": "src/eval/proofloopHarnessEconomics.ts",
+          "score": 18,
+          "reasons": [
+            "path:harness",
+            "path:economics",
+            "label:economics",
+            "label:openrouter",
+            "path:proofloop"
+          ]
+        },
+        {
+          "nodeId": "symbol:src/eval/proofloopHarnessEconomics.ts#ProxyJudgeCandidate",
+          "kind": "symbol",
+          "label": "ProxyJudgeCandidate",
+          "path": "src/eval/proofloopHarnessEconomics.ts",
+          "score": 18,
+          "reasons": [
+            "path:harness",
+            "path:economics",
+            "label:and",
+            "label:proxy",
+            "path:proofloop"
+          ]
+        },
+        {
+          "nodeId": "file:scripts/live-proofloop-runner.ts",
+          "kind": "file",
+          "label": "live-proofloop-runner.ts",
+          "path": "scripts/live-proofloop-runner.ts",
+          "score": 15,
+          "reasons": [
+            "path:run",
+            "label:run",
+            "path:proofloop",
+            "label:proofloop",
+            "proofloop-file"
+          ]
+        },
+        {
+          "nodeId": "file:scripts/openrouter-convex-benchmark.ts",
+          "kind": "file",
+          "label": "openrouter-convex-benchmark.ts",
+          "path": "scripts/openrouter-convex-benchmark.ts",
+          "score": 15,
+          "reasons": [
+            "path:openrouter",
+            "label:openrouter",
+            "path:benchmark",
+            "label:benchmark",
+            "proofloop-file"
+          ]
+        },
+        {
+          "nodeId": "file:scripts/proofloop-benchmark-board.ts",
+          "kind": "file",
+          "label": "proofloop-benchmark-board.ts",
+          "path": "scripts/proofloop-benchmark-board.ts",
+          "score": 15,
+          "reasons": [
+            "path:benchmark",
+            "label:benchmark",
+            "path:proofloop",
+            "label:proofloop",
+            "proofloop-file"
+          ]
+        }
+      ],
+      "repairContextPath": ".proofloop/orchestrator/runs/codegraph-dogfood/repair-contexts/harness-economics-ledger.md"
+    },
+    {
+      "id": "external-adapter-setup-doctor",
+      "title": "External adapter setup/doctor receipts before blocked status",
+      "sourceStatus": "pending",
+      "kind": "command",
+      "command": "npm run proofloop -- setup bankertoolbench --doctor && npm run proofloop -- setup finch --doctor && npm run proofloop -- setup finauditing --doctor && npm run proofloop -- setup workstreambench --doctor",
+      "safety": "safe_local",
+      "status": "skipped",
+      "evidence": [
+        ".proofloop/setup/bankertoolbench-local-setup.json",
+        ".proofloop/setup/finch-local-setup.json",
+        ".proofloop/setup/finauditing-local-setup.json",
+        ".proofloop/setup/workstreambench-local-setup.json"
+      ],
+      "blockers": [],
+      "attempts": 0,
+      "likelyFiles": [
+        {
+          "nodeId": "file:scripts/proofloop-external-adapter-run.ts",
+          "kind": "file",
+          "label": "proofloop-external-adapter-run.ts",
+          "path": "scripts/proofloop-external-adapter-run.ts",
+          "score": 29,
+          "reasons": [
+            "path:external",
+            "label:external",
+            "path:adapter",
+            "label:adapter",
+            "path:run",
+            "label:run",
+            "path:proofloop",
+            "label:proofloop",
+            "proofloop-file"
+          ]
+        },
+        {
+          "nodeId": "file:tests/proofloopExternalAdapterTasks.test.ts",
+          "kind": "file",
+          "label": "proofloopExternalAdapterTasks.test.ts",
+          "path": "tests/proofloopExternalAdapterTasks.test.ts",
+          "score": 22,
+          "reasons": [
+            "path:external",
+            "label:external",
+            "path:adapter",
+            "label:adapter",
+            "path:proofloop",
+            "label:proofloop",
+            "proofloop-file"
+          ]
+        },
+        {
+          "nodeId": "symbol:src/eval/proofloopAdapterBlockers.ts#ExternalAdapterBlockerStatus",
+          "kind": "symbol",
+          "label": "ExternalAdapterBlockerStatus",
+          "path": "src/eval/proofloopAdapterBlockers.ts",
+          "score": 17,
+          "reasons": [
+            "label:external",
+            "path:adapter",
+            "label:adapter",
+            "label:status",
+            "path:proofloop"
+          ]
+        },
+        {
+          "nodeId": "symbol:src/eval/proofloopSetup.ts#ProofloopSetupStatus",
+          "kind": "symbol",
+          "label": "ProofloopSetupStatus",
+          "path": "src/eval/proofloopSetup.ts",
+          "score": 17,
+          "reasons": [
+            "path:setup",
+            "label:setup",
+            "label:status",
+            "path:proofloop",
+            "label:proofloop"
+          ]
+        },
+        {
+          "nodeId": "symbol:src/eval/proofloopSetup.ts#setupProofloopAdapter",
+          "kind": "symbol",
+          "label": "setupProofloopAdapter",
+          "path": "src/eval/proofloopSetup.ts",
+          "score": 17,
+          "reasons": [
+            "label:adapter",
+            "path:setup",
+            "label:setup",
+            "path:proofloop",
+            "label:proofloop"
+          ]
+        },
+        {
+          "nodeId": "file:scripts/live-proofloop-runner.ts",
+          "kind": "file",
+          "label": "live-proofloop-runner.ts",
+          "path": "scripts/live-proofloop-runner.ts",
+          "score": 15,
+          "reasons": [
+            "path:run",
+            "label:run",
+            "path:proofloop",
+            "label:proofloop",
+            "proofloop-file"
+          ]
+        },
+        {
+          "nodeId": "file:scripts/proofloop-adapter-blockers.ts",
+          "kind": "file",
+          "label": "proofloop-adapter-blockers.ts",
+          "path": "scripts/proofloop-adapter-blockers.ts",
+          "score": 15,
+          "reasons": [
+            "path:adapter",
+            "label:adapter",
+            "path:proofloop",
+            "label:proofloop",
+            "proofloop-file"
+          ]
+        },
+        {
+          "nodeId": "file:scripts/proofloop-runner.ts",
+          "kind": "file",
+          "label": "proofloop-runner.ts",
+          "path": "scripts/proofloop-runner.ts",
+          "score": 15,
+          "reasons": [
+            "path:run",
+            "label:run",
+            "path:proofloop",
+            "label:proofloop",
+            "proofloop-file"
+          ]
+        },
+        {
+          "nodeId": "file:src/eval/proofloopAdapterBlockers.ts",
+          "kind": "file",
+          "label": "proofloopAdapterBlockers.ts",
+          "path": "src/eval/proofloopAdapterBlockers.ts",
+          "score": 15,
+          "reasons": [
+            "path:adapter",
+            "label:adapter",
+            "path:proofloop",
+            "label:proofloop",
+            "proofloop-file"
+          ]
+        },
+        {
+          "nodeId": "file:src/eval/proofloopAppAdapter.ts",
+          "kind": "file",
+          "label": "proofloopAppAdapter.ts",
+          "path": "src/eval/proofloopAppAdapter.ts",
+          "score": 15,
+          "reasons": [
+            "path:adapter",
+            "label:adapter",
+            "path:proofloop",
+            "label:proofloop",
+            "proofloop-file"
+          ]
+        },
+        {
+          "nodeId": "file:src/eval/proofloopBenchmarkAdapters.ts",
+          "kind": "file",
+          "label": "proofloopBenchmarkAdapters.ts",
+          "path": "src/eval/proofloopBenchmarkAdapters.ts",
+          "score": 15,
+          "reasons": [
+            "path:adapter",
+            "label:adapter",
+            "path:proofloop",
+            "label:proofloop",
+            "proofloop-file"
+          ]
+        },
+        {
+          "nodeId": "file:src/eval/proofloopSetup.ts",
+          "kind": "file",
+          "label": "proofloopSetup.ts",
+          "path": "src/eval/proofloopSetup.ts",
+          "score": 15,
+          "reasons": [
+            "path:setup",
+            "label:setup",
+            "path:proofloop",
+            "label:proofloop",
+            "proofloop-file"
+          ]
+        }
+      ],
+      "repairContextPath": ".proofloop/orchestrator/runs/codegraph-dogfood/repair-contexts/external-adapter-setup-doctor.md"
+    },
+    {
+      "id": "external-adapter-local-product-proofs",
+      "title": "External adapter local product-path browser proofs",
+      "sourceStatus": "pending",
+      "kind": "command",
+      "command": "npm run benchmark:proofloop:external-adapter -- --prod --user-emulation strict",
+      "safety": "expensive_or_live",
+      "status": "needs_worker",
+      "evidence": [
+        "docs/eval/proofloop-external-adapter-runs/finch.json",
+        "docs/eval/proofloop-external-adapter-runs/finauditing.json",
+        "docs/eval/proofloop-external-adapter-runs/workstreambench.json"
+      ],
+      "blockers": [],
+      "attempts": 0,
+      "likelyFiles": [
+        {
+          "nodeId": "file:scripts/proofloop-external-adapter-run.ts",
+          "kind": "file",
+          "label": "proofloop-external-adapter-run.ts",
+          "path": "scripts/proofloop-external-adapter-run.ts",
+          "score": 29,
+          "reasons": [
+            "path:external",
+            "label:external",
+            "path:adapter",
+            "label:adapter",
+            "path:run",
+            "label:run",
+            "path:proofloop",
+            "label:proofloop",
+            "proofloop-file"
+          ]
+        },
+        {
+          "nodeId": "file:src/eval/proofloopBenchmarkAdapters.ts",
+          "kind": "file",
+          "label": "proofloopBenchmarkAdapters.ts",
+          "path": "src/eval/proofloopBenchmarkAdapters.ts",
+          "score": 22,
+          "reasons": [
+            "path:adapter",
+            "label:adapter",
+            "path:benchmark",
+            "label:benchmark",
+            "path:proofloop",
+            "label:proofloop",
+            "proofloop-file"
+          ]
+        },
+        {
+          "nodeId": "file:tests/proofloopExternalAdapterTasks.test.ts",
+          "kind": "file",
+          "label": "proofloopExternalAdapterTasks.test.ts",
+          "path": "tests/proofloopExternalAdapterTasks.test.ts",
+          "score": 22,
+          "reasons": [
+            "path:external",
+            "label:external",
+            "path:adapter",
+            "label:adapter",
+            "path:proofloop",
+            "label:proofloop",
+            "proofloop-file"
+          ]
+        },
+        {
+          "nodeId": "symbol:src/eval/proofloopBenchmarkAdapters.ts#ProofloopBenchmarkAdapter",
+          "kind": "symbol",
+          "label": "ProofloopBenchmarkAdapter",
+          "path": "src/eval/proofloopBenchmarkAdapters.ts",
+          "score": 21,
+          "reasons": [
+            "path:adapter",
+            "label:adapter",
+            "path:benchmark",
+            "label:benchmark",
+            "path:proofloop",
+            "label:proofloop"
+          ]
+        },
+        {
+          "nodeId": "symbol:src/eval/proofloopBenchmarkAdapters.ts#benchmarkAdapterPath",
+          "kind": "symbol",
+          "label": "benchmarkAdapterPath",
+          "path": "src/eval/proofloopBenchmarkAdapters.ts",
+          "score": 21,
+          "reasons": [
+            "path:adapter",
+            "label:adapter",
+            "label:path",
+            "path:benchmark",
+            "label:benchmark",
+            "path:proofloop"
+          ]
+        },
+        {
+          "nodeId": "symbol:src/eval/proofloopBenchmarkAdapters.ts#BENCHMARK_ADAPTER_IDS",
+          "kind": "symbol",
+          "label": "BENCHMARK_ADAPTER_IDS",
+          "path": "src/eval/proofloopBenchmarkAdapters.ts",
+          "score": 18,
+          "reasons": [
+            "path:adapter",
+            "label:adapter",
+            "path:benchmark",
+            "label:benchmark",
+            "path:proofloop"
+          ]
+        },
+        {
+          "nodeId": "symbol:src/eval/proofloopBenchmarkAdapters.ts#BenchmarkAdapterId",
+          "kind": "symbol",
+          "label": "BenchmarkAdapterId",
+          "path": "src/eval/proofloopBenchmarkAdapters.ts",
+          "score": 18,
+          "reasons": [
+            "path:adapter",
+            "label:adapter",
+            "path:benchmark",
+            "label:benchmark",
+            "path:proofloop"
+          ]
+        },
+        {
+          "nodeId": "symbol:src/eval/proofloopBenchmarkAdapters.ts#listBenchmarkAdapters",
+          "kind": "symbol",
+          "label": "listBenchmarkAdapters",
+          "path": "src/eval/proofloopBenchmarkAdapters.ts",
+          "score": 18,
+          "reasons": [
+            "path:adapter",
+            "label:adapter",
+            "path:benchmark",
+            "label:benchmark",
+            "path:proofloop"
+          ]
+        },
+        {
+          "nodeId": "symbol:src/eval/proofloopBenchmarkAdapters.ts#readBenchmarkAdapter",
+          "kind": "symbol",
+          "label": "readBenchmarkAdapter",
+          "path": "src/eval/proofloopBenchmarkAdapters.ts",
+          "score": 18,
+          "reasons": [
+            "path:adapter",
+            "label:adapter",
+            "path:benchmark",
+            "label:benchmark",
+            "path:proofloop"
+          ]
+        },
+        {
+          "nodeId": "symbol:src/eval/proofloopBenchmarkAdapters.ts#validateBenchmarkAdapter",
+          "kind": "symbol",
+          "label": "validateBenchmarkAdapter",
+          "path": "src/eval/proofloopBenchmarkAdapters.ts",
+          "score": 18,
+          "reasons": [
+            "path:adapter",
+            "label:adapter",
+            "path:benchmark",
+            "label:benchmark",
+            "path:proofloop"
+          ]
+        },
+        {
+          "nodeId": "file:proofloop/benchmarks/common/local-tasks.ts",
+          "kind": "file",
+          "label": "local-tasks.ts",
+          "path": "proofloop/benchmarks/common/local-tasks.ts",
+          "score": 16,
+          "reasons": [
+            "path:local",
+            "label:local",
+            "path:benchmark",
+            "path:proofloop",
+            "proofloop-file"
+          ]
+        },
+        {
+          "nodeId": "file:scripts/live-proofloop-runner.ts",
+          "kind": "file",
+          "label": "live-proofloop-runner.ts",
+          "path": "scripts/live-proofloop-runner.ts",
+          "score": 15,
+          "reasons": [
+            "path:run",
+            "label:run",
+            "path:proofloop",
+            "label:proofloop",
+            "proofloop-file"
+          ]
+        }
+      ],
+      "repairContextPath": ".proofloop/orchestrator/runs/codegraph-dogfood/repair-contexts/external-adapter-local-product-proofs.md"
+    },
+    {
+      "id": "external-adapter-blocker-receipts",
+      "title": "External adapter typed blocker receipts",
+      "sourceStatus": "pending",
+      "kind": "command",
+      "command": "npm run benchmark:proofloop:adapter-blockers",
+      "safety": "safe_local",
+      "status": "skipped",
+      "evidence": [
+        "docs/eval/proofloop-adapter-blockers/finch.json",
+        "docs/eval/proofloop-adapter-blockers/finauditing.json",
+        "docs/eval/proofloop-adapter-blockers/workstreambench.json"
+      ],
+      "blockers": [],
+      "attempts": 0,
+      "likelyFiles": [
+        {
+          "nodeId": "file:scripts/proofloop-adapter-blockers.ts",
+          "kind": "file",
+          "label": "proofloop-adapter-blockers.ts",
+          "path": "scripts/proofloop-adapter-blockers.ts",
+          "score": 29,
+          "reasons": [
+            "path:adapter",
+            "label:adapter",
+            "path:blocker",
+            "label:blocker",
+            "path:proofloop",
+            "label:proofloop",
+            "path:blockers",
+            "label:blockers",
+            "proofloop-file"
+          ]
+        },
+        {
+          "nodeId": "file:scripts/proofloop-external-adapter-run.ts",
+          "kind": "file",
+          "label": "proofloop-external-adapter-run.ts",
+          "path": "scripts/proofloop-external-adapter-run.ts",
+          "score": 29,
+          "reasons": [
+            "path:external",
+            "label:external",
+            "path:adapter",
+            "label:adapter",
+            "path:run",
+            "label:run",
+            "path:proofloop",
+            "label:proofloop",
+            "proofloop-file"
+          ]
+        },
+        {
+          "nodeId": "file:src/eval/proofloopAdapterBlockers.ts",
+          "kind": "file",
+          "label": "proofloopAdapterBlockers.ts",
+          "path": "src/eval/proofloopAdapterBlockers.ts",
+          "score": 29,
+          "reasons": [
+            "path:adapter",
+            "label:adapter",
+            "path:blocker",
+            "label:blocker",
+            "path:proofloop",
+            "label:proofloop",
+            "path:blockers",
+            "label:blockers",
+            "proofloop-file"
+          ]
+        },
+        {
+          "nodeId": "file:tests/proofloopAdapterBlockers.test.ts",
+          "kind": "file",
+          "label": "proofloopAdapterBlockers.test.ts",
+          "path": "tests/proofloopAdapterBlockers.test.ts",
+          "score": 29,
+          "reasons": [
+            "path:adapter",
+            "label:adapter",
+            "path:blocker",
+            "label:blocker",
+            "path:proofloop",
+            "label:proofloop",
+            "path:blockers",
+            "label:blockers",
+            "proofloop-file"
+          ]
+        },
+        {
+          "nodeId": "symbol:src/eval/proofloopAdapterBlockers.ts#ExternalAdapterBlockerStatus",
+          "kind": "symbol",
+          "label": "ExternalAdapterBlockerStatus",
+          "path": "src/eval/proofloopAdapterBlockers.ts",
+          "score": 28,
+          "reasons": [
+            "label:external",
+            "path:adapter",
+            "label:adapter",
+            "path:blocker",
+            "label:blocker",
+            "path:proofloop",
+            "path:blockers",
+            "label:blockers"
+          ]
+        },
+        {
+          "nodeId": "symbol:src/eval/proofloopAdapterBlockers.ts#ExternalAdapterBlockerReceipt",
+          "kind": "symbol",
+          "label": "ExternalAdapterBlockerReceipt",
+          "path": "src/eval/proofloopAdapterBlockers.ts",
+          "score": 25,
+          "reasons": [
+            "label:external",
+            "path:adapter",
+            "label:adapter",
+            "path:blocker",
+            "label:blocker",
+            "path:proofloop",
+            "path:blockers"
+          ]
+        },
+        {
+          "nodeId": "symbol:src/eval/proofloopAdapterBlockers.ts#buildExternalAdapterBlockerReceipt",
+          "kind": "symbol",
+          "label": "buildExternalAdapterBlockerReceipt",
+          "path": "src/eval/proofloopAdapterBlockers.ts",
+          "score": 25,
+          "reasons": [
+            "label:external",
+            "path:adapter",
+            "label:adapter",
+            "path:blocker",
+            "label:blocker",
+            "path:proofloop",
+            "path:blockers"
+          ]
+        },
+        {
+          "nodeId": "symbol:src/eval/proofloopAdapterBlockers.ts#externalAdapterIds",
+          "kind": "symbol",
+          "label": "externalAdapterIds",
+          "path": "src/eval/proofloopAdapterBlockers.ts",
+          "score": 22,
+          "reasons": [
+            "label:external",
+            "path:adapter",
+            "label:adapter",
+            "path:blocker",
+            "path:proofloop",
+            "path:blockers"
+          ]
+        },
+        {
+          "nodeId": "file:src/eval/proofloopBenchmarkAdapters.ts",
+          "kind": "file",
+          "label": "proofloopBenchmarkAdapters.ts",
+          "path": "src/eval/proofloopBenchmarkAdapters.ts",
+          "score": 22,
+          "reasons": [
+            "path:adapter",
+            "label:adapter",
+            "path:benchmark",
+            "label:benchmark",
+            "path:proofloop",
+            "label:proofloop",
+            "proofloop-file"
+          ]
+        },
+        {
+          "nodeId": "file:src/eval/proofloopBlockerSolver.ts",
+          "kind": "file",
+          "label": "proofloopBlockerSolver.ts",
+          "path": "src/eval/proofloopBlockerSolver.ts",
+          "score": 22,
+          "reasons": [
+            "path:blocker",
+            "label:blocker",
+            "path:proofloop",
+            "label:proofloop",
+            "path:blockers",
+            "label:blockers",
+            "proofloop-file"
+          ]
+        },
+        {
+          "nodeId": "file:tests/proofloopBlockerSolver.test.ts",
+          "kind": "file",
+          "label": "proofloopBlockerSolver.test.ts",
+          "path": "tests/proofloopBlockerSolver.test.ts",
+          "score": 22,
+          "reasons": [
+            "path:blocker",
+            "label:blocker",
+            "path:proofloop",
+            "label:proofloop",
+            "path:blockers",
+            "label:blockers",
+            "proofloop-file"
+          ]
+        },
+        {
+          "nodeId": "file:tests/proofloopExternalAdapterTasks.test.ts",
+          "kind": "file",
+          "label": "proofloopExternalAdapterTasks.test.ts",
+          "path": "tests/proofloopExternalAdapterTasks.test.ts",
+          "score": 22,
+          "reasons": [
+            "path:external",
+            "label:external",
+            "path:adapter",
+            "label:adapter",
+            "path:proofloop",
+            "label:proofloop",
+            "proofloop-file"
+          ]
+        }
+      ],
+      "repairContextPath": ".proofloop/orchestrator/runs/codegraph-dogfood/repair-contexts/external-adapter-blocker-receipts.md"
+    },
+    {
+      "id": "blocked-lane-solver",
+      "title": "Blocked official-lane research/scaffold/model-sweep solver",
+      "sourceStatus": "pending",
+      "kind": "command",
+      "command": "npm run proofloop -- solve-blockers --goal official-scores",
+      "safety": "safe_local",
+      "status": "skipped",
+      "evidence": [
+        ".proofloop/lanes/spreadsheetbench-v1/blocker-analysis.json",
+        ".proofloop/lanes/spreadsheetbench-v2/blocker-analysis.json",
+        ".proofloop/lanes/finch/blocker-analysis.json",
+        ".proofloop/lanes/finauditing/blocker-analysis.json",
+        ".proofloop/lanes/workstreambench/blocker-analysis.json"
+      ],
+      "blockers": [],
+      "attempts": 0,
+      "likelyFiles": [
+        {
+          "nodeId": "file:src/eval/proofloopBlockerSolver.ts",
+          "kind": "file",
+          "label": "proofloopBlockerSolver.ts",
+          "path": "src/eval/proofloopBlockerSolver.ts",
+          "score": 29,
+          "reasons": [
+            "path:solver",
+            "label:solver",
+            "path:proofloop",
+            "label:proofloop",
+            "path:solve",
+            "label:solve",
+            "path:blockers",
+            "label:blockers",
+            "proofloop-file"
+          ]
+        },
+        {
+          "nodeId": "file:tests/proofloopBlockerSolver.test.ts",
+          "kind": "file",
+          "label": "proofloopBlockerSolver.test.ts",
+          "path": "tests/proofloopBlockerSolver.test.ts",
+          "score": 29,
+          "reasons": [
+            "path:solver",
+            "label:solver",
+            "path:proofloop",
+            "label:proofloop",
+            "path:solve",
+            "label:solve",
+            "path:blockers",
+            "label:blockers",
+            "proofloop-file"
+          ]
+        },
+        {
+          "nodeId": "symbol:src/eval/proofloopBlockerSolver.ts#ProofloopBlockerSolveReceipt",
+          "kind": "symbol",
+          "label": "ProofloopBlockerSolveReceipt",
+          "path": "src/eval/proofloopBlockerSolver.ts",
+          "score": 28,
+          "reasons": [
+            "path:solver",
+            "label:solver",
+            "path:proofloop",
+            "label:proofloop",
+            "path:solve",
+            "label:solve",
+            "path:blockers",
+            "label:blockers"
+          ]
+        },
+        {
+          "nodeId": "symbol:src/eval/proofloopBlockerSolver.ts#ProofloopBlockerSolvePhase",
+          "kind": "symbol",
+          "label": "ProofloopBlockerSolvePhase",
+          "path": "src/eval/proofloopBlockerSolver.ts",
+          "score": 25,
+          "reasons": [
+            "path:solver",
+            "path:proofloop",
+            "label:proofloop",
+            "path:solve",
+            "label:solve",
+            "path:blockers",
+            "label:blockers"
+          ]
+        },
+        {
+          "nodeId": "symbol:src/eval/proofloopBlockerSolver.ts#solveProofloopBlockers",
+          "kind": "symbol",
+          "label": "solveProofloopBlockers",
+          "path": "src/eval/proofloopBlockerSolver.ts",
+          "score": 25,
+          "reasons": [
+            "path:solver",
+            "path:proofloop",
+            "label:proofloop",
+            "path:solve",
+            "label:solve",
+            "path:blockers",
+            "label:blockers"
+          ]
+        },
+        {
+          "nodeId": "symbol:src/eval/proofloopBlockerSolver.ts#compareProofloopModelsForSuite",
+          "kind": "symbol",
+          "label": "compareProofloopModelsForSuite",
+          "path": "src/eval/proofloopBlockerSolver.ts",
+          "score": 22,
+          "reasons": [
+            "path:solver",
+            "label:model",
+            "path:proofloop",
+            "label:proofloop",
+            "path:solve",
+            "path:blockers"
+          ]
+        },
+        {
+          "nodeId": "symbol:src/eval/proofloopBlockerSolver.ts#solveProofloopBlocker",
+          "kind": "symbol",
+          "label": "solveProofloopBlocker",
+          "path": "src/eval/proofloopBlockerSolver.ts",
+          "score": 22,
+          "reasons": [
+            "path:solver",
+            "path:proofloop",
+            "label:proofloop",
+            "path:solve",
+            "label:solve",
+            "path:blockers"
+          ]
+        },
+        {
+          "nodeId": "symbol:src/eval/proofloopBlockerSolver.ts#ProofloopBlockerTaskLike",
+          "kind": "symbol",
+          "label": "ProofloopBlockerTaskLike",
+          "path": "src/eval/proofloopBlockerSolver.ts",
+          "score": 19,
+          "reasons": [
+            "path:solver",
+            "path:proofloop",
+            "label:proofloop",
+            "path:solve",
+            "path:blockers"
+          ]
+        },
+        {
+          "nodeId": "symbol:src/eval/proofloopBlockerSolver.ts#classifyBlockers",
+          "kind": "symbol",
+          "label": "classifyBlockers",
+          "path": "src/eval/proofloopBlockerSolver.ts",
+          "score": 19,
+          "reasons": [
+            "path:solver",
+            "path:proofloop",
+            "path:solve",
+            "path:blockers",
+            "label:blockers"
+          ]
+        },
+        {
+          "nodeId": "symbol:src/eval/proofloopBlockerSolver.ts#laneIdForBlocker",
+          "kind": "symbol",
+          "label": "laneIdForBlocker",
+          "path": "src/eval/proofloopBlockerSolver.ts",
+          "score": 19,
+          "reasons": [
+            "label:lane",
+            "path:solver",
+            "path:proofloop",
+            "path:solve",
+            "path:blockers"
+          ]
+        },
+        {
+          "nodeId": "symbol:src/eval/proofloopBlockerSolver.ts#promoteProofloopHarnessForSuite",
+          "kind": "symbol",
+          "label": "promoteProofloopHarnessForSuite",
+          "path": "src/eval/proofloopBlockerSolver.ts",
+          "score": 19,
+          "reasons": [
+            "path:solver",
+            "path:proofloop",
+            "label:proofloop",
+            "path:solve",
+            "path:blockers"
+          ]
+        },
+        {
+          "nodeId": "symbol:evals/financeModelRuntime.ts#FinanceModelSolveReport",
+          "kind": "symbol",
+          "label": "FinanceModelSolveReport",
+          "path": "evals/financeModelRuntime.ts",
+          "score": 17,
+          "reasons": [
+            "label:solver",
+            "path:model",
+            "label:model",
+            "path:run",
+            "label:solve"
+          ]
+        }
+      ],
+      "repairContextPath": ".proofloop/orchestrator/runs/codegraph-dogfood/repair-contexts/blocked-lane-solver.md"
+    },
+    {
+      "id": "proofloop-chart-pack",
+      "title": "Proof Loop chart pack from model/task/harness ledgers",
+      "sourceStatus": "pending",
+      "kind": "command",
+      "command": "npm run proofloop -- charts latest",
+      "safety": "safe_local",
+      "status": "skipped",
+      "evidence": [
+        ".proofloop/runs/latest/charts/chart-pack.json",
+        ".proofloop/runs/latest/charts/chart-pack.html",
+        ".proofloop/runs/latest/charts/model-performance.vl.json",
+        ".proofloop/runs/latest/charts/cost-per-pass.vl.json",
+        ".proofloop/runs/latest/charts/failure-categories.vl.json",
+        ".proofloop/runs/latest/charts/harness-version-trend.vl.json",
+        ".proofloop/runs/latest/charts/evidence-score.vl.json",
+        ".proofloop/runs/latest/charts/latency-cost-frontier.vl.json",
+        ".proofloop/runs/latest/charts/accounting-workpaper.vl.json",
+        "docs/eval/proofloop-charts/chart-pack.json",
+        "docs/eval/proofloop-charts/proofloop-chart-pack.json",
+        "docs/eval/proofloop-charts/chart-pack.html",
+        "docs/eval/proofloop-charts/model-performance.vl.json",
+        "docs/eval/proofloop-charts/cost-per-pass.vl.json",
+        "docs/eval/proofloop-charts/failure-categories.vl.json",
+        "docs/eval/proofloop-charts/harness-version-trend.vl.json",
+        "docs/eval/proofloop-charts/evidence-score.vl.json",
+        "docs/eval/proofloop-charts/latency-cost-frontier.vl.json",
+        "docs/eval/proofloop-charts/accounting-workpaper.vl.json",
+        "docs/eval/proofloop-charts/PROOFLOOP_CHART_PACK.md",
+        "docs/eval/proofloop-charts/svg/model-performance.svg",
+        "docs/eval/proofloop-charts/svg/cost-per-pass.svg",
+        "docs/eval/proofloop-charts/svg/failure-categories.svg",
+        "docs/eval/proofloop-charts/svg/harness-version-trend.svg",
+        "docs/eval/proofloop-charts/svg/latency-cost-frontier.svg",
+        "docs/eval/proofloop-charts/svg/workflow-completion.svg"
+      ],
+      "blockers": [],
+      "attempts": 0,
+      "likelyFiles": [
+        {
+          "nodeId": "file:scripts/proofloop-charts.ts",
+          "kind": "file",
+          "label": "proofloop-charts.ts",
+          "path": "scripts/proofloop-charts.ts",
+          "score": 36,
+          "reasons": [
+            "path:proofloop",
+            "label:proofloop",
+            "path:chart",
+            "label:chart",
+            "path:proof",
+            "label:proof",
+            "path:loop",
+            "label:loop",
+            "path:charts",
+            "label:charts",
+            "proofloop-file"
+          ]
+        },
+        {
+          "nodeId": "file:src/eval/proofloopChartPack.ts",
+          "kind": "file",
+          "label": "proofloopChartPack.ts",
+          "path": "src/eval/proofloopChartPack.ts",
+          "score": 36,
+          "reasons": [
+            "path:proofloop",
+            "label:proofloop",
+            "path:chart",
+            "label:chart",
+            "path:pack",
+            "label:pack",
+            "path:proof",
+            "label:proof",
+            "path:loop",
+            "label:loop",
+            "proofloop-file"
+          ]
+        },
+        {
+          "nodeId": "file:tests/proofloopChartPack.test.ts",
+          "kind": "file",
+          "label": "proofloopChartPack.test.ts",
+          "path": "tests/proofloopChartPack.test.ts",
+          "score": 36,
+          "reasons": [
+            "path:proofloop",
+            "label:proofloop",
+            "path:chart",
+            "label:chart",
+            "path:pack",
+            "label:pack",
+            "path:proof",
+            "label:proof",
+            "path:loop",
+            "label:loop",
+            "proofloop-file"
+          ]
+        },
+        {
+          "nodeId": "symbol:src/eval/proofloopChartPack.ts#ProofloopChartPack",
+          "kind": "symbol",
+          "label": "ProofloopChartPack",
+          "path": "src/eval/proofloopChartPack.ts",
+          "score": 35,
+          "reasons": [
+            "path:proofloop",
+            "label:proofloop",
+            "path:chart",
+            "label:chart",
+            "path:pack",
+            "label:pack",
+            "path:proof",
+            "label:proof",
+            "path:loop",
+            "label:loop"
+          ]
+        },
+        {
+          "nodeId": "symbol:src/eval/proofloopChartPack.ts#ProofloopChartPackBundle",
+          "kind": "symbol",
+          "label": "ProofloopChartPackBundle",
+          "path": "src/eval/proofloopChartPack.ts",
+          "score": 35,
+          "reasons": [
+            "path:proofloop",
+            "label:proofloop",
+            "path:chart",
+            "label:chart",
+            "path:pack",
+            "label:pack",
+            "path:proof",
+            "label:proof",
+            "path:loop",
+            "label:loop"
+          ]
+        },
+        {
+          "nodeId": "symbol:src/eval/proofloopChartPack.ts#ProofloopChartPackOutputs",
+          "kind": "symbol",
+          "label": "ProofloopChartPackOutputs",
+          "path": "src/eval/proofloopChartPack.ts",
+          "score": 35,
+          "reasons": [
+            "path:proofloop",
+            "label:proofloop",
+            "path:chart",
+            "label:chart",
+            "path:pack",
+            "label:pack",
+            "path:proof",
+            "label:proof",
+            "path:loop",
+            "label:loop"
+          ]
+        },
+        {
+          "nodeId": "symbol:src/eval/proofloopChartPack.ts#ProofloopChartSourceBinding",
+          "kind": "symbol",
+          "label": "ProofloopChartSourceBinding",
+          "path": "src/eval/proofloopChartPack.ts",
+          "score": 35,
+          "reasons": [
+            "path:proofloop",
+            "label:proofloop",
+            "path:chart",
+            "label:chart",
+            "path:pack",
+            "path:proof",
+            "label:proof",
+            "path:loop",
+            "label:loop",
+            "label:charts"
+          ]
+        },
+        {
+          "nodeId": "symbol:src/eval/proofloopChartPack.ts#buildProofloopChartPack",
+          "kind": "symbol",
+          "label": "buildProofloopChartPack",
+          "path": "src/eval/proofloopChartPack.ts",
+          "score": 35,
+          "reasons": [
+            "path:proofloop",
+            "label:proofloop",
+            "path:chart",
+            "label:chart",
+            "path:pack",
+            "label:pack",
+            "path:proof",
+            "label:proof",
+            "path:loop",
+            "label:loop"
+          ]
+        },
+        {
+          "nodeId": "symbol:src/eval/proofloopChartPack.ts#buildProofloopChartPackBundle",
+          "kind": "symbol",
+          "label": "buildProofloopChartPackBundle",
+          "path": "src/eval/proofloopChartPack.ts",
+          "score": 35,
+          "reasons": [
+            "path:proofloop",
+            "label:proofloop",
+            "path:chart",
+            "label:chart",
+            "path:pack",
+            "label:pack",
+            "path:proof",
+            "label:proof",
+            "path:loop",
+            "label:loop"
+          ]
+        },
+        {
+          "nodeId": "symbol:src/eval/proofloopChartPack.ts#renderProofloopChartPackMarkdown",
+          "kind": "symbol",
+          "label": "renderProofloopChartPackMarkdown",
+          "path": "src/eval/proofloopChartPack.ts",
+          "score": 35,
+          "reasons": [
+            "path:proofloop",
+            "label:proofloop",
+            "path:chart",
+            "label:chart",
+            "path:pack",
+            "label:pack",
+            "path:proof",
+            "label:proof",
+            "path:loop",
+            "label:loop"
+          ]
+        },
+        {
+          "nodeId": "symbol:src/eval/proofloopChartPack.ts#validateProofloopChartPackArtifacts",
+          "kind": "symbol",
+          "label": "validateProofloopChartPackArtifacts",
+          "path": "src/eval/proofloopChartPack.ts",
+          "score": 35,
+          "reasons": [
+            "path:proofloop",
+            "label:proofloop",
+            "path:chart",
+            "label:chart",
+            "path:pack",
+            "label:pack",
+            "path:proof",
+            "label:proof",
+            "path:loop",
+            "label:loop"
+          ]
+        },
+        {
+          "nodeId": "symbol:src/eval/proofloopChartPack.ts#writeProofloopChartPack",
+          "kind": "symbol",
+          "label": "writeProofloopChartPack",
+          "path": "src/eval/proofloopChartPack.ts",
+          "score": 35,
+          "reasons": [
+            "path:proofloop",
+            "label:proofloop",
+            "path:chart",
+            "label:chart",
+            "path:pack",
+            "label:pack",
+            "path:proof",
+            "label:proof",
+            "path:loop",
+            "label:loop"
+          ]
+        }
+      ],
+      "repairContextPath": ".proofloop/orchestrator/runs/codegraph-dogfood/repair-contexts/proofloop-chart-pack.md"
+    },
+    {
+      "id": "proofloop-benchmark-board",
+      "title": "9-lane Proof Loop benchmark board",
+      "sourceStatus": "pending",
+      "kind": "command",
+      "command": "npm run benchmark:proofloop:board",
+      "safety": "safe_local",
+      "status": "skipped",
+      "evidence": [
+        "docs/eval/proofloop-benchmark-board.json",
+        "docs/eval/PROOFLOOP_BENCHMARK_BOARD.md"
+      ],
+      "blockers": [],
+      "attempts": 0,
+      "likelyFiles": [
+        {
+          "nodeId": "file:scripts/proofloop-benchmark-board.ts",
+          "kind": "file",
+          "label": "proofloop-benchmark-board.ts",
+          "path": "scripts/proofloop-benchmark-board.ts",
+          "score": 36,
+          "reasons": [
+            "path:proofloop",
+            "label:proofloop",
+            "path:benchmark",
+            "label:benchmark",
+            "path:board",
+            "label:board",
+            "path:proof",
+            "label:proof",
+            "path:loop",
+            "label:loop",
+            "proofloop-file"
+          ]
+        },
+        {
+          "nodeId": "file:src/eval/proofloopBenchmarkBoard.ts",
+          "kind": "file",
+          "label": "proofloopBenchmarkBoard.ts",
+          "path": "src/eval/proofloopBenchmarkBoard.ts",
+          "score": 36,
+          "reasons": [
+            "path:proofloop",
+            "label:proofloop",
+            "path:benchmark",
+            "label:benchmark",
+            "path:board",
+            "label:board",
+            "path:proof",
+            "label:proof",
+            "path:loop",
+            "label:loop",
+            "proofloop-file"
+          ]
+        },
+        {
+          "nodeId": "file:tests/proofloopBenchmarkBoard.test.ts",
+          "kind": "file",
+          "label": "proofloopBenchmarkBoard.test.ts",
+          "path": "tests/proofloopBenchmarkBoard.test.ts",
+          "score": 36,
+          "reasons": [
+            "path:proofloop",
+            "label:proofloop",
+            "path:benchmark",
+            "label:benchmark",
+            "path:board",
+            "label:board",
+            "path:proof",
+            "label:proof",
+            "path:loop",
+            "label:loop",
+            "proofloop-file"
+          ]
+        },
+        {
+          "nodeId": "symbol:src/eval/proofloopBenchmarkBoard.ts#ProofloopBenchmarkBoard",
+          "kind": "symbol",
+          "label": "ProofloopBenchmarkBoard",
+          "path": "src/eval/proofloopBenchmarkBoard.ts",
+          "score": 35,
+          "reasons": [
+            "path:proofloop",
+            "label:proofloop",
+            "path:benchmark",
+            "label:benchmark",
+            "path:board",
+            "label:board",
+            "path:proof",
+            "label:proof",
+            "path:loop",
+            "label:loop"
+          ]
+        },
+        {
+          "nodeId": "symbol:src/eval/proofloopBenchmarkBoard.ts#ProofloopBenchmarkBoardEntry",
+          "kind": "symbol",
+          "label": "ProofloopBenchmarkBoardEntry",
+          "path": "src/eval/proofloopBenchmarkBoard.ts",
+          "score": 35,
+          "reasons": [
+            "path:proofloop",
+            "label:proofloop",
+            "path:benchmark",
+            "label:benchmark",
+            "path:board",
+            "label:board",
+            "path:proof",
+            "label:proof",
+            "path:loop",
+            "label:loop"
+          ]
+        },
+        {
+          "nodeId": "symbol:src/eval/proofloopBenchmarkBoard.ts#ProofloopBenchmarkBoardScore",
+          "kind": "symbol",
+          "label": "ProofloopBenchmarkBoardScore",
+          "path": "src/eval/proofloopBenchmarkBoard.ts",
+          "score": 35,
+          "reasons": [
+            "path:proofloop",
+            "label:proofloop",
+            "path:benchmark",
+            "label:benchmark",
+            "path:board",
+            "label:board",
+            "path:proof",
+            "label:proof",
+            "path:loop",
+            "label:loop"
+          ]
+        },
+        {
+          "nodeId": "symbol:src/eval/proofloopBenchmarkBoard.ts#ProofloopBenchmarkBoardStatus",
+          "kind": "symbol",
+          "label": "ProofloopBenchmarkBoardStatus",
+          "path": "src/eval/proofloopBenchmarkBoard.ts",
+          "score": 35,
+          "reasons": [
+            "path:proofloop",
+            "label:proofloop",
+            "path:benchmark",
+            "label:benchmark",
+            "path:board",
+            "label:board",
+            "path:proof",
+            "label:proof",
+            "path:loop",
+            "label:loop"
+          ]
+        },
+        {
+          "nodeId": "symbol:src/eval/proofloopBenchmarkBoard.ts#buildProofloopBenchmarkBoard",
+          "kind": "symbol",
+          "label": "buildProofloopBenchmarkBoard",
+          "path": "src/eval/proofloopBenchmarkBoard.ts",
+          "score": 35,
+          "reasons": [
+            "path:proofloop",
+            "label:proofloop",
+            "path:benchmark",
+            "label:benchmark",
+            "path:board",
+            "label:board",
+            "path:proof",
+            "label:proof",
+            "path:loop",
+            "label:loop"
+          ]
+        },
+        {
+          "nodeId": "symbol:src/eval/proofloopBenchmarkBoard.ts#renderProofloopBenchmarkBoardMarkdown",
+          "kind": "symbol",
+          "label": "renderProofloopBenchmarkBoardMarkdown",
+          "path": "src/eval/proofloopBenchmarkBoard.ts",
+          "score": 35,
+          "reasons": [
+            "path:proofloop",
+            "label:proofloop",
+            "path:benchmark",
+            "label:benchmark",
+            "path:board",
+            "label:board",
+            "path:proof",
+            "label:proof",
+            "path:loop",
+            "label:loop"
+          ]
+        },
+        {
+          "nodeId": "file:scripts/live-proofloop-runner.ts",
+          "kind": "file",
+          "label": "live-proofloop-runner.ts",
+          "path": "scripts/live-proofloop-runner.ts",
+          "score": 29,
+          "reasons": [
+            "path:proofloop",
+            "label:proofloop",
+            "path:proof",
+            "label:proof",
+            "path:loop",
+            "label:loop",
+            "path:run",
+            "label:run",
+            "proofloop-file"
+          ]
+        },
+        {
+          "nodeId": "file:scripts/proofloop-external-adapter-run.ts",
+          "kind": "file",
+          "label": "proofloop-external-adapter-run.ts",
+          "path": "scripts/proofloop-external-adapter-run.ts",
+          "score": 29,
+          "reasons": [
+            "path:proofloop",
+            "label:proofloop",
+            "path:proof",
+            "label:proof",
+            "path:loop",
+            "label:loop",
+            "path:run",
+            "label:run",
+            "proofloop-file"
+          ]
+        },
+        {
+          "nodeId": "file:scripts/proofloop-normalized-benchmarks.ts",
+          "kind": "file",
+          "label": "proofloop-normalized-benchmarks.ts",
+          "path": "scripts/proofloop-normalized-benchmarks.ts",
+          "score": 29,
+          "reasons": [
+            "path:proofloop",
+            "label:proofloop",
+            "path:benchmark",
+            "label:benchmark",
+            "path:proof",
+            "label:proof",
+            "path:loop",
+            "label:loop",
+            "proofloop-file"
+          ]
+        }
+      ],
+      "repairContextPath": ".proofloop/orchestrator/runs/codegraph-dogfood/repair-contexts/proofloop-benchmark-board.md"
+    },
+    {
+      "id": "spreadsheetbench-v1-full-official-score",
+      "title": "SpreadsheetBench V1 full 912-task official score",
+      "sourceStatus": "pending",
+      "kind": "external_blocker",
+      "safety": "requires_worker",
+      "status": "needs_scaffold_or_run",
+      "evidence": [
+        "docs/eval/official-benchmark-task-coverage.json",
+        "docs/eval/spreadsheetbench-v1-912-stage.json",
+        "docs/eval/spreadsheetbench-v1-912-copy-input-baseline.json"
+      ],
+      "blockers": [
+        "Full public 912-task SpreadsheetBench V1 bundle is staged and deterministically scored: 912/912 tasks, 2,729 agent-visible workbooks, 2,729 evaluator answer workbooks, 95/912 copy-input baseline pass.",
+        "All 912 tasks need model-run evidence before strict official-score promotion; cheaper OpenRouter proxy judges can triage product quality but cannot replace the SpreadsheetBench workbook scorer for the official claim."
+      ],
+      "resumeCommand": "run all 912 SpreadsheetBench V1 tasks through the model runner, use npm run benchmark:proofloop:harness-economics to select cheap proxy routes for product iteration, then npm run benchmark:official:task-coverage -- --strict",
+      "attempts": 0,
+      "likelyFiles": [
+        {
+          "nodeId": "file:scripts/official-benchmark-task-coverage.ts",
+          "kind": "file",
+          "label": "official-benchmark-task-coverage.ts",
+          "path": "scripts/official-benchmark-task-coverage.ts",
+          "score": 29,
+          "reasons": [
+            "path:official",
+            "label:official",
+            "path:task",
+            "label:task",
+            "path:benchmark",
+            "label:benchmark",
+            "path:coverage",
+            "label:coverage",
+            "proofloop-file"
+          ]
+        },
+        {
+          "nodeId": "file:src/eval/officialBenchmarkTaskCoverage.ts",
+          "kind": "file",
+          "label": "officialBenchmarkTaskCoverage.ts",
+          "path": "src/eval/officialBenchmarkTaskCoverage.ts",
+          "score": 29,
+          "reasons": [
+            "path:official",
+            "label:official",
+            "path:task",
+            "label:task",
+            "path:benchmark",
+            "label:benchmark",
+            "path:coverage",
+            "label:coverage",
+            "proofloop-file"
+          ]
+        },
+        {
+          "nodeId": "file:tests/officialBenchmarkTaskCoverage.test.ts",
+          "kind": "file",
+          "label": "officialBenchmarkTaskCoverage.test.ts",
+          "path": "tests/officialBenchmarkTaskCoverage.test.ts",
+          "score": 29,
+          "reasons": [
+            "path:official",
+            "label:official",
+            "path:task",
+            "label:task",
+            "path:benchmark",
+            "label:benchmark",
+            "path:coverage",
+            "label:coverage",
+            "proofloop-file"
+          ]
+        },
+        {
+          "nodeId": "symbol:src/eval/officialBenchmarkTaskCoverage.ts#OfficialBenchmarkTaskCoverageReport",
+          "kind": "symbol",
+          "label": "OfficialBenchmarkTaskCoverageReport",
+          "path": "src/eval/officialBenchmarkTaskCoverage.ts",
+          "score": 28,
+          "reasons": [
+            "path:official",
+            "label:official",
+            "path:task",
+            "label:task",
+            "path:benchmark",
+            "label:benchmark",
+            "path:coverage",
+            "label:coverage"
+          ]
+        },
+        {
+          "nodeId": "symbol:src/eval/officialBenchmarkTaskCoverage.ts#buildOfficialBenchmarkTaskCoverageReport",
+          "kind": "symbol",
+          "label": "buildOfficialBenchmarkTaskCoverageReport",
+          "path": "src/eval/officialBenchmarkTaskCoverage.ts",
+          "score": 28,
+          "reasons": [
+            "path:official",
+            "label:official",
+            "path:task",
+            "label:task",
+            "path:benchmark",
+            "label:benchmark",
+            "path:coverage",
+            "label:coverage"
+          ]
+        },
+        {
+          "nodeId": "symbol:src/eval/officialBenchmarkTaskCoverage.ts#BenchmarkTaskCoverageStatus",
+          "kind": "symbol",
+          "label": "BenchmarkTaskCoverageStatus",
+          "path": "src/eval/officialBenchmarkTaskCoverage.ts",
+          "score": 25,
+          "reasons": [
+            "path:official",
+            "path:task",
+            "label:task",
+            "path:benchmark",
+            "label:benchmark",
+            "path:coverage",
+            "label:coverage"
+          ]
+        },
+        {
+          "nodeId": "symbol:src/eval/officialBenchmarkTaskCoverage.ts#BenchmarkTaskCoverageTrack",
+          "kind": "symbol",
+          "label": "BenchmarkTaskCoverageTrack",
+          "path": "src/eval/officialBenchmarkTaskCoverage.ts",
+          "score": 25,
+          "reasons": [
+            "path:official",
+            "path:task",
+            "label:task",
+            "path:benchmark",
+            "label:benchmark",
+            "path:coverage",
+            "label:coverage"
+          ]
+        },
+        {
+          "nodeId": "symbol:src/eval/spreadsheetBenchRunner.ts#SpreadsheetBenchRunnerTaskResult",
+          "kind": "symbol",
+          "label": "SpreadsheetBenchRunnerTaskResult",
+          "path": "src/eval/spreadsheetBenchRunner.ts",
+          "score": 24,
+          "reasons": [
+            "path:spreadsheetbench",
+            "label:spreadsheetbench",
+            "label:task",
+            "path:run",
+            "label:run",
+            "path:runner",
+            "label:runner"
+          ]
+        },
+        {
+          "nodeId": "symbol:src/eval/spreadsheetBenchScorer.ts#SpreadsheetBenchWorkbookScore",
+          "kind": "symbol",
+          "label": "SpreadsheetBenchWorkbookScore",
+          "path": "src/eval/spreadsheetBenchScorer.ts",
+          "score": 24,
+          "reasons": [
+            "path:spreadsheetbench",
+            "label:spreadsheetbench",
+            "path:score",
+            "label:score",
+            "label:workbooks",
+            "label:workbook",
+            "path:scorer"
+          ]
+        },
+        {
+          "nodeId": "file:proofloop/benchmarks/common/local-tasks.ts",
+          "kind": "file",
+          "label": "local-tasks.ts",
+          "path": "proofloop/benchmarks/common/local-tasks.ts",
+          "score": 23,
+          "reasons": [
+            "path:task",
+            "label:task",
+            "path:tasks",
+            "label:tasks",
+            "path:benchmark",
+            "path:proofloop",
+            "proofloop-file"
+          ]
+        },
+        {
+          "nodeId": "file:scripts/live-proofloop-runner.ts",
+          "kind": "file",
+          "label": "live-proofloop-runner.ts",
+          "path": "scripts/live-proofloop-runner.ts",
+          "score": 22,
+          "reasons": [
+            "path:run",
+            "label:run",
+            "path:runner",
+            "label:runner",
+            "path:proofloop",
+            "label:proofloop",
+            "proofloop-file"
+          ]
+        },
+        {
+          "nodeId": "file:scripts/official-benchmark-ui-coverage.ts",
+          "kind": "file",
+          "label": "official-benchmark-ui-coverage.ts",
+          "path": "scripts/official-benchmark-ui-coverage.ts",
+          "score": 22,
+          "reasons": [
+            "path:official",
+            "label:official",
+            "path:benchmark",
+            "label:benchmark",
+            "path:coverage",
+            "label:coverage",
+            "proofloop-file"
+          ]
+        }
+      ],
+      "repairContextPath": ".proofloop/orchestrator/runs/codegraph-dogfood/repair-contexts/spreadsheetbench-v1-full-official-score.md"
+    },
+    {
+      "id": "spreadsheetbench-v2-full-official-score",
+      "title": "SpreadsheetBench V2 full 321-task official score",
+      "sourceStatus": "pending",
+      "kind": "external_blocker",
+      "safety": "requires_worker",
+      "status": "needs_scaffold_or_run",
+      "evidence": [
+        "docs/eval/official-benchmark-task-coverage.json"
+      ],
+      "blockers": [
+        "Only the public/example SpreadsheetBench V2 slice is staged locally.",
+        "All 321 V2 tasks need official bundle, model-run, workbook scorer, and rendered chart-grader evidence; proxy judges can improve candidates but cannot stand in for the V2 scorer path."
+      ],
+      "resumeCommand": "stage the full SpreadsheetBench V2 321-task bundle, run all tasks and scorer/chart grader, use npm run benchmark:proofloop:harness-economics for proxy-model routing, then npm run benchmark:official:task-coverage -- --strict",
+      "attempts": 0,
+      "likelyFiles": [
+        {
+          "nodeId": "file:scripts/official-benchmark-task-coverage.ts",
+          "kind": "file",
+          "label": "official-benchmark-task-coverage.ts",
+          "path": "scripts/official-benchmark-task-coverage.ts",
+          "score": 29,
+          "reasons": [
+            "path:official",
+            "label:official",
+            "path:task",
+            "label:task",
+            "path:benchmark",
+            "label:benchmark",
+            "path:coverage",
+            "label:coverage",
+            "proofloop-file"
+          ]
+        },
+        {
+          "nodeId": "file:src/eval/officialBenchmarkTaskCoverage.ts",
+          "kind": "file",
+          "label": "officialBenchmarkTaskCoverage.ts",
+          "path": "src/eval/officialBenchmarkTaskCoverage.ts",
+          "score": 29,
+          "reasons": [
+            "path:official",
+            "label:official",
+            "path:task",
+            "label:task",
+            "path:benchmark",
+            "label:benchmark",
+            "path:coverage",
+            "label:coverage",
+            "proofloop-file"
+          ]
+        },
+        {
+          "nodeId": "file:src/eval/spreadsheetBenchChartScorer.ts",
+          "kind": "file",
+          "label": "spreadsheetBenchChartScorer.ts",
+          "path": "src/eval/spreadsheetBenchChartScorer.ts",
+          "score": 29,
+          "reasons": [
+            "path:spreadsheetbench",
+            "label:spreadsheetbench",
+            "path:score",
+            "label:score",
+            "path:scorer",
+            "label:scorer",
+            "path:chart",
+            "label:chart",
+            "proofloop-file"
+          ]
+        },
+        {
+          "nodeId": "file:tests/officialBenchmarkTaskCoverage.test.ts",
+          "kind": "file",
+          "label": "officialBenchmarkTaskCoverage.test.ts",
+          "path": "tests/officialBenchmarkTaskCoverage.test.ts",
+          "score": 29,
+          "reasons": [
+            "path:official",
+            "label:official",
+            "path:task",
+            "label:task",
+            "path:benchmark",
+            "label:benchmark",
+            "path:coverage",
+            "label:coverage",
+            "proofloop-file"
+          ]
+        },
+        {
+          "nodeId": "file:tests/spreadsheetBenchChartScorer.test.ts",
+          "kind": "file",
+          "label": "spreadsheetBenchChartScorer.test.ts",
+          "path": "tests/spreadsheetBenchChartScorer.test.ts",
+          "score": 29,
+          "reasons": [
+            "path:spreadsheetbench",
+            "label:spreadsheetbench",
+            "path:score",
+            "label:score",
+            "path:scorer",
+            "label:scorer",
+            "path:chart",
+            "label:chart",
+            "proofloop-file"
+          ]
+        },
+        {
+          "nodeId": "symbol:src/eval/officialBenchmarkTaskCoverage.ts#OfficialBenchmarkTaskCoverageReport",
+          "kind": "symbol",
+          "label": "OfficialBenchmarkTaskCoverageReport",
+          "path": "src/eval/officialBenchmarkTaskCoverage.ts",
+          "score": 28,
+          "reasons": [
+            "path:official",
+            "label:official",
+            "path:task",
+            "label:task",
+            "path:benchmark",
+            "label:benchmark",
+            "path:coverage",
+            "label:coverage"
+          ]
+        },
+        {
+          "nodeId": "symbol:src/eval/officialBenchmarkTaskCoverage.ts#buildOfficialBenchmarkTaskCoverageReport",
+          "kind": "symbol",
+          "label": "buildOfficialBenchmarkTaskCoverageReport",
+          "path": "src/eval/officialBenchmarkTaskCoverage.ts",
+          "score": 28,
+          "reasons": [
+            "path:official",
+            "label:official",
+            "path:task",
+            "label:task",
+            "path:benchmark",
+            "label:benchmark",
+            "path:coverage",
+            "label:coverage"
+          ]
+        },
+        {
+          "nodeId": "symbol:src/eval/officialBenchmarkTaskCoverage.ts#BenchmarkTaskCoverageStatus",
+          "kind": "symbol",
+          "label": "BenchmarkTaskCoverageStatus",
+          "path": "src/eval/officialBenchmarkTaskCoverage.ts",
+          "score": 25,
+          "reasons": [
+            "path:official",
+            "path:task",
+            "label:task",
+            "path:benchmark",
+            "label:benchmark",
+            "path:coverage",
+            "label:coverage"
+          ]
+        },
+        {
+          "nodeId": "symbol:src/eval/officialBenchmarkTaskCoverage.ts#BenchmarkTaskCoverageTrack",
+          "kind": "symbol",
+          "label": "BenchmarkTaskCoverageTrack",
+          "path": "src/eval/officialBenchmarkTaskCoverage.ts",
+          "score": 25,
+          "reasons": [
+            "path:official",
+            "path:task",
+            "label:task",
+            "path:benchmark",
+            "label:benchmark",
+            "path:coverage",
+            "label:coverage"
+          ]
+        },
+        {
+          "nodeId": "symbol:src/eval/spreadsheetBenchChartScorer.ts#SpreadsheetBenchChartScore",
+          "kind": "symbol",
+          "label": "SpreadsheetBenchChartScore",
+          "path": "src/eval/spreadsheetBenchChartScorer.ts",
+          "score": 25,
+          "reasons": [
+            "path:spreadsheetbench",
+            "label:spreadsheetbench",
+            "path:score",
+            "label:score",
+            "path:scorer",
+            "path:chart",
+            "label:chart"
+          ]
+        },
+        {
+          "nodeId": "symbol:src/eval/spreadsheetBenchChartScorer.ts#SpreadsheetBenchChartScoreOptions",
+          "kind": "symbol",
+          "label": "SpreadsheetBenchChartScoreOptions",
+          "path": "src/eval/spreadsheetBenchChartScorer.ts",
+          "score": 25,
+          "reasons": [
+            "path:spreadsheetbench",
+            "label:spreadsheetbench",
+            "path:score",
+            "label:score",
+            "path:scorer",
+            "path:chart",
+            "label:chart"
+          ]
+        },
+        {
+          "nodeId": "symbol:src/eval/spreadsheetBenchChartScorer.ts#scoreSpreadsheetBenchCharts",
+          "kind": "symbol",
+          "label": "scoreSpreadsheetBenchCharts",
+          "path": "src/eval/spreadsheetBenchChartScorer.ts",
+          "score": 25,
+          "reasons": [
+            "path:spreadsheetbench",
+            "label:spreadsheetbench",
+            "path:score",
+            "label:score",
+            "path:scorer",
+            "path:chart",
+            "label:chart"
+          ]
+        }
+      ],
+      "repairContextPath": ".proofloop/orchestrator/runs/codegraph-dogfood/repair-contexts/spreadsheetbench-v2-full-official-score.md"
+    },
+    {
+      "id": "finch-official-score",
+      "title": "Finch / FinWorkBench official score",
+      "sourceStatus": "pending",
+      "kind": "external_blocker",
+      "safety": "requires_worker",
+      "status": "needs_scaffold_or_run",
+      "evidence": [
+        ".proofloop/setup/finch-local-setup.json",
+        "proofloop/benchmarks/finch/adapter.json",
+        "docs/eval/proofloop-external-adapter-runs/finch.json",
+        "docs/eval/proofloop-adapter-blockers/finch.json",
+        "docs/eval/proofloop-official-task-bundles/finch.json",
+        "docs/eval/proofloop-official-scores/finch.json"
+      ],
+      "blockers": [
+        "finch: official scorer receipt docs/eval/proofloop-official-scores/finch.json is blocked_external; scored receipt is still required before claiming score.",
+        "finch: official task bundle lock docs/eval/proofloop-official-task-bundles/finch.json is staged, but NodeRoom still needs one official-output artifact per Finch task id and an accepted upstream judge/scorer path; Azure OpenAI credentials are one path, while cheaper OpenRouter proxy judges are product-gate evidence only unless accepted upstream."
+      ],
+      "resumeCommand": "emit NodeRoom outputs for every official Finch task id, run/import the accepted upstream Finch scorer or judge output, use npm run benchmark:proofloop:harness-economics for proxy triage, then npm run benchmark:proofloop:adapter-blockers -- --id finch --strict",
+      "attempts": 0,
+      "likelyFiles": [
+        {
+          "nodeId": "file:src/eval/proofloopAdapterBlockers.ts",
+          "kind": "file",
+          "label": "proofloopAdapterBlockers.ts",
+          "path": "src/eval/proofloopAdapterBlockers.ts",
+          "score": 33,
+          "reasons": [
+            "path:eval",
+            "path:proofloop",
+            "label:proofloop",
+            "path:lock",
+            "label:lock",
+            "path:adapter",
+            "label:adapter",
+            "path:blockers",
+            "label:blockers",
+            "proofloop-file"
+          ]
+        },
+        {
+          "nodeId": "symbol:src/eval/proofloopAdapterBlockers.ts#ExternalAdapterBlockerReceipt",
+          "kind": "symbol",
+          "label": "ExternalAdapterBlockerReceipt",
+          "path": "src/eval/proofloopAdapterBlockers.ts",
+          "score": 32,
+          "reasons": [
+            "label:receipt",
+            "path:eval",
+            "path:proofloop",
+            "label:external",
+            "path:lock",
+            "label:lock",
+            "path:adapter",
+            "label:adapter",
+            "path:blockers"
+          ]
+        },
+        {
+          "nodeId": "symbol:src/eval/proofloopAdapterBlockers.ts#ExternalAdapterBlockerStatus",
+          "kind": "symbol",
+          "label": "ExternalAdapterBlockerStatus",
+          "path": "src/eval/proofloopAdapterBlockers.ts",
+          "score": 32,
+          "reasons": [
+            "path:eval",
+            "path:proofloop",
+            "label:external",
+            "path:lock",
+            "label:lock",
+            "path:adapter",
+            "label:adapter",
+            "path:blockers",
+            "label:blockers"
+          ]
+        },
+        {
+          "nodeId": "symbol:src/eval/proofloopAdapterBlockers.ts#buildExternalAdapterBlockerReceipt",
+          "kind": "symbol",
+          "label": "buildExternalAdapterBlockerReceipt",
+          "path": "src/eval/proofloopAdapterBlockers.ts",
+          "score": 32,
+          "reasons": [
+            "label:receipt",
+            "path:eval",
+            "path:proofloop",
+            "label:external",
+            "path:lock",
+            "label:lock",
+            "path:adapter",
+            "label:adapter",
+            "path:blockers"
+          ]
+        },
+        {
+          "nodeId": "file:scripts/proofloop-adapter-blockers.ts",
+          "kind": "file",
+          "label": "proofloop-adapter-blockers.ts",
+          "path": "scripts/proofloop-adapter-blockers.ts",
+          "score": 29,
+          "reasons": [
+            "path:proofloop",
+            "label:proofloop",
+            "path:lock",
+            "label:lock",
+            "path:adapter",
+            "label:adapter",
+            "path:blockers",
+            "label:blockers",
+            "proofloop-file"
+          ]
+        },
+        {
+          "nodeId": "file:scripts/proofloop-external-adapter-run.ts",
+          "kind": "file",
+          "label": "proofloop-external-adapter-run.ts",
+          "path": "scripts/proofloop-external-adapter-run.ts",
+          "score": 29,
+          "reasons": [
+            "path:proofloop",
+            "label:proofloop",
+            "path:external",
+            "label:external",
+            "path:run",
+            "label:run",
+            "path:adapter",
+            "label:adapter",
+            "proofloop-file"
+          ]
+        },
+        {
+          "nodeId": "file:tests/proofloopAdapterBlockers.test.ts",
+          "kind": "file",
+          "label": "proofloopAdapterBlockers.test.ts",
+          "path": "tests/proofloopAdapterBlockers.test.ts",
+          "score": 29,
+          "reasons": [
+            "path:proofloop",
+            "label:proofloop",
+            "path:lock",
+            "label:lock",
+            "path:adapter",
+            "label:adapter",
+            "path:blockers",
+            "label:blockers",
+            "proofloop-file"
+          ]
+        },
+        {
+          "nodeId": "file:tests/proofloopExternalAdapterTasks.test.ts",
+          "kind": "file",
+          "label": "proofloopExternalAdapterTasks.test.ts",
+          "path": "tests/proofloopExternalAdapterTasks.test.ts",
+          "score": 29,
+          "reasons": [
+            "path:proofloop",
+            "label:proofloop",
+            "path:external",
+            "label:external",
+            "path:task",
+            "label:task",
+            "path:adapter",
+            "label:adapter",
+            "proofloop-file"
+          ]
+        },
+        {
+          "nodeId": "symbol:src/eval/proofloopBlockerSolver.ts#ProofloopBlockerSolveReceipt",
+          "kind": "symbol",
+          "label": "ProofloopBlockerSolveReceipt",
+          "path": "src/eval/proofloopBlockerSolver.ts",
+          "score": 28,
+          "reasons": [
+            "label:receipt",
+            "path:eval",
+            "path:proofloop",
+            "label:proofloop",
+            "path:lock",
+            "label:lock",
+            "path:blockers",
+            "label:blockers"
+          ]
+        },
+        {
+          "nodeId": "file:src/eval/officialBenchmarkTaskCoverage.ts",
+          "kind": "file",
+          "label": "officialBenchmarkTaskCoverage.ts",
+          "path": "src/eval/officialBenchmarkTaskCoverage.ts",
+          "score": 26,
+          "reasons": [
+            "path:official",
+            "label:official",
+            "path:eval",
+            "path:task",
+            "label:task",
+            "path:benchmark",
+            "label:benchmark",
+            "proofloop-file"
+          ]
+        },
+        {
+          "nodeId": "symbol:src/eval/proofloopAdapterBlockers.ts#externalAdapterIds",
+          "kind": "symbol",
+          "label": "externalAdapterIds",
+          "path": "src/eval/proofloopAdapterBlockers.ts",
+          "score": 26,
+          "reasons": [
+            "path:eval",
+            "path:proofloop",
+            "label:external",
+            "path:lock",
+            "path:adapter",
+            "label:adapter",
+            "path:blockers"
+          ]
+        },
+        {
+          "nodeId": "file:src/eval/proofloopBenchmarkAdapters.ts",
+          "kind": "file",
+          "label": "proofloopBenchmarkAdapters.ts",
+          "path": "src/eval/proofloopBenchmarkAdapters.ts",
+          "score": 26,
+          "reasons": [
+            "path:eval",
+            "path:proofloop",
+            "label:proofloop",
+            "path:benchmark",
+            "label:benchmark",
+            "path:adapter",
+            "label:adapter",
+            "proofloop-file"
+          ]
+        }
+      ],
+      "repairContextPath": ".proofloop/orchestrator/runs/codegraph-dogfood/repair-contexts/finch-official-score.md"
+    },
+    {
+      "id": "finauditing-official-score",
+      "title": "FinAuditing official score",
+      "sourceStatus": "pending",
+      "kind": "external_blocker",
+      "safety": "requires_worker",
+      "status": "needs_scaffold_or_run",
+      "evidence": [
+        ".proofloop/setup/finauditing-local-setup.json",
+        "proofloop/benchmarks/finauditing/adapter.json",
+        "docs/eval/proofloop-external-adapter-runs/finauditing.json",
+        "docs/eval/proofloop-adapter-blockers/finauditing.json",
+        "docs/eval/proofloop-official-task-bundles/finauditing.json",
+        "docs/eval/proofloop-official-scores/finauditing.json"
+      ],
+      "blockers": [
+        "finauditing: official scorer receipt docs/eval/proofloop-official-scores/finauditing.json is blocked_external; scored receipt is still required before claiming score.",
+        "finauditing: official task bundle lock docs/eval/proofloop-official-task-bundles/finauditing.json is staged, but NodeRoom still needs official-format FinSM/FinRE/FinMR prediction JSONL and an accepted FinMR judge path; OpenAI credentials are one path, while cheaper OpenRouter proxy judges are product-gate evidence only unless accepted upstream."
+      ],
+      "resumeCommand": "emit official-format FinSM/FinRE/FinMR predictions, run/import FinAuditing scorer output with an accepted FinMR judge path, use npm run benchmark:proofloop:harness-economics for proxy triage, then npm run benchmark:proofloop:adapter-blockers -- --id finauditing --strict",
+      "attempts": 0,
+      "likelyFiles": [
+        {
+          "nodeId": "file:src/eval/proofloopAdapterBlockers.ts",
+          "kind": "file",
+          "label": "proofloopAdapterBlockers.ts",
+          "path": "src/eval/proofloopAdapterBlockers.ts",
+          "score": 33,
+          "reasons": [
+            "path:eval",
+            "path:proofloop",
+            "label:proofloop",
+            "path:lock",
+            "label:lock",
+            "path:adapter",
+            "label:adapter",
+            "path:blockers",
+            "label:blockers",
+            "proofloop-file"
+          ]
+        },
+        {
+          "nodeId": "symbol:src/eval/proofloopAdapterBlockers.ts#ExternalAdapterBlockerReceipt",
+          "kind": "symbol",
+          "label": "ExternalAdapterBlockerReceipt",
+          "path": "src/eval/proofloopAdapterBlockers.ts",
+          "score": 32,
+          "reasons": [
+            "label:receipt",
+            "path:eval",
+            "path:proofloop",
+            "label:external",
+            "path:lock",
+            "label:lock",
+            "path:adapter",
+            "label:adapter",
+            "path:blockers"
+          ]
+        },
+        {
+          "nodeId": "symbol:src/eval/proofloopAdapterBlockers.ts#ExternalAdapterBlockerStatus",
+          "kind": "symbol",
+          "label": "ExternalAdapterBlockerStatus",
+          "path": "src/eval/proofloopAdapterBlockers.ts",
+          "score": 32,
+          "reasons": [
+            "path:eval",
+            "path:proofloop",
+            "label:external",
+            "path:lock",
+            "label:lock",
+            "path:adapter",
+            "label:adapter",
+            "path:blockers",
+            "label:blockers"
+          ]
+        },
+        {
+          "nodeId": "symbol:src/eval/proofloopAdapterBlockers.ts#buildExternalAdapterBlockerReceipt",
+          "kind": "symbol",
+          "label": "buildExternalAdapterBlockerReceipt",
+          "path": "src/eval/proofloopAdapterBlockers.ts",
+          "score": 32,
+          "reasons": [
+            "label:receipt",
+            "path:eval",
+            "path:proofloop",
+            "label:external",
+            "path:lock",
+            "label:lock",
+            "path:adapter",
+            "label:adapter",
+            "path:blockers"
+          ]
+        },
+        {
+          "nodeId": "file:scripts/proofloop-adapter-blockers.ts",
+          "kind": "file",
+          "label": "proofloop-adapter-blockers.ts",
+          "path": "scripts/proofloop-adapter-blockers.ts",
+          "score": 29,
+          "reasons": [
+            "path:proofloop",
+            "label:proofloop",
+            "path:lock",
+            "label:lock",
+            "path:adapter",
+            "label:adapter",
+            "path:blockers",
+            "label:blockers",
+            "proofloop-file"
+          ]
+        },
+        {
+          "nodeId": "file:scripts/proofloop-external-adapter-run.ts",
+          "kind": "file",
+          "label": "proofloop-external-adapter-run.ts",
+          "path": "scripts/proofloop-external-adapter-run.ts",
+          "score": 29,
+          "reasons": [
+            "path:proofloop",
+            "label:proofloop",
+            "path:external",
+            "label:external",
+            "path:run",
+            "label:run",
+            "path:adapter",
+            "label:adapter",
+            "proofloop-file"
+          ]
+        },
+        {
+          "nodeId": "file:tests/proofloopAdapterBlockers.test.ts",
+          "kind": "file",
+          "label": "proofloopAdapterBlockers.test.ts",
+          "path": "tests/proofloopAdapterBlockers.test.ts",
+          "score": 29,
+          "reasons": [
+            "path:proofloop",
+            "label:proofloop",
+            "path:lock",
+            "label:lock",
+            "path:adapter",
+            "label:adapter",
+            "path:blockers",
+            "label:blockers",
+            "proofloop-file"
+          ]
+        },
+        {
+          "nodeId": "file:tests/proofloopExternalAdapterTasks.test.ts",
+          "kind": "file",
+          "label": "proofloopExternalAdapterTasks.test.ts",
+          "path": "tests/proofloopExternalAdapterTasks.test.ts",
+          "score": 29,
+          "reasons": [
+            "path:proofloop",
+            "label:proofloop",
+            "path:external",
+            "label:external",
+            "path:task",
+            "label:task",
+            "path:adapter",
+            "label:adapter",
+            "proofloop-file"
+          ]
+        },
+        {
+          "nodeId": "symbol:src/eval/proofloopBlockerSolver.ts#ProofloopBlockerSolveReceipt",
+          "kind": "symbol",
+          "label": "ProofloopBlockerSolveReceipt",
+          "path": "src/eval/proofloopBlockerSolver.ts",
+          "score": 28,
+          "reasons": [
+            "label:receipt",
+            "path:eval",
+            "path:proofloop",
+            "label:proofloop",
+            "path:lock",
+            "label:lock",
+            "path:blockers",
+            "label:blockers"
+          ]
+        },
+        {
+          "nodeId": "file:src/eval/officialBenchmarkTaskCoverage.ts",
+          "kind": "file",
+          "label": "officialBenchmarkTaskCoverage.ts",
+          "path": "src/eval/officialBenchmarkTaskCoverage.ts",
+          "score": 26,
+          "reasons": [
+            "path:official",
+            "label:official",
+            "path:eval",
+            "path:task",
+            "label:task",
+            "path:benchmark",
+            "label:benchmark",
+            "proofloop-file"
+          ]
+        },
+        {
+          "nodeId": "symbol:src/eval/proofloopAdapterBlockers.ts#externalAdapterIds",
+          "kind": "symbol",
+          "label": "externalAdapterIds",
+          "path": "src/eval/proofloopAdapterBlockers.ts",
+          "score": 26,
+          "reasons": [
+            "path:eval",
+            "path:proofloop",
+            "label:external",
+            "path:lock",
+            "path:adapter",
+            "label:adapter",
+            "path:blockers"
+          ]
+        },
+        {
+          "nodeId": "file:src/eval/proofloopBenchmarkAdapters.ts",
+          "kind": "file",
+          "label": "proofloopBenchmarkAdapters.ts",
+          "path": "src/eval/proofloopBenchmarkAdapters.ts",
+          "score": 26,
+          "reasons": [
+            "path:eval",
+            "path:proofloop",
+            "label:proofloop",
+            "path:benchmark",
+            "label:benchmark",
+            "path:adapter",
+            "label:adapter",
+            "proofloop-file"
+          ]
+        }
+      ],
+      "repairContextPath": ".proofloop/orchestrator/runs/codegraph-dogfood/repair-contexts/finauditing-official-score.md"
+    },
+    {
+      "id": "workstreambench-official-score",
+      "title": "WorkstreamBench official score",
+      "sourceStatus": "pending",
+      "kind": "external_blocker",
+      "safety": "requires_worker",
+      "status": "needs_scaffold_or_run",
+      "evidence": [
+        ".proofloop/setup/workstreambench-local-setup.json",
+        "proofloop/benchmarks/workstreambench/adapter.json",
+        "docs/eval/proofloop-external-adapter-runs/workstreambench.json",
+        "docs/eval/proofloop-adapter-blockers/workstreambench.json",
+        "docs/eval/proofloop-official-scores/workstreambench.json"
+      ],
+      "blockers": [
+        "workstreambench: official scorer receipt docs/eval/proofloop-official-scores/workstreambench.json is blocked_external; scored receipt is still required before claiming score.",
+        "workstreambench: no public official task bundle lock docs/eval/proofloop-official-task-bundles/workstreambench.json is staged because no public official bundle/scorer/rubric URL was found."
+      ],
+      "resumeCommand": "obtain the official WorkstreamBench task bundle and scorer/rubric from an upstream release or authors, lock it in docs/eval/proofloop-official-task-bundles/workstreambench.json, use npm run benchmark:proofloop:harness-economics for proxy triage, import a scored receipt, then npm run benchmark:proofloop:adapter-blockers -- --id workstreambench --strict",
+      "attempts": 0,
+      "likelyFiles": [
+        {
+          "nodeId": "file:src/eval/proofloopAdapterBlockers.ts",
+          "kind": "file",
+          "label": "proofloopAdapterBlockers.ts",
+          "path": "src/eval/proofloopAdapterBlockers.ts",
+          "score": 33,
+          "reasons": [
+            "path:eval",
+            "path:proofloop",
+            "label:proofloop",
+            "path:lock",
+            "label:lock",
+            "path:adapter",
+            "label:adapter",
+            "path:blockers",
+            "label:blockers",
+            "proofloop-file"
+          ]
+        },
+        {
+          "nodeId": "symbol:src/eval/proofloopAdapterBlockers.ts#ExternalAdapterBlockerReceipt",
+          "kind": "symbol",
+          "label": "ExternalAdapterBlockerReceipt",
+          "path": "src/eval/proofloopAdapterBlockers.ts",
+          "score": 32,
+          "reasons": [
+            "label:receipt",
+            "path:eval",
+            "path:proofloop",
+            "label:external",
+            "path:lock",
+            "label:lock",
+            "path:adapter",
+            "label:adapter",
+            "path:blockers"
+          ]
+        },
+        {
+          "nodeId": "symbol:src/eval/proofloopAdapterBlockers.ts#ExternalAdapterBlockerStatus",
+          "kind": "symbol",
+          "label": "ExternalAdapterBlockerStatus",
+          "path": "src/eval/proofloopAdapterBlockers.ts",
+          "score": 32,
+          "reasons": [
+            "path:eval",
+            "path:proofloop",
+            "label:external",
+            "path:lock",
+            "label:lock",
+            "path:adapter",
+            "label:adapter",
+            "path:blockers",
+            "label:blockers"
+          ]
+        },
+        {
+          "nodeId": "symbol:src/eval/proofloopAdapterBlockers.ts#buildExternalAdapterBlockerReceipt",
+          "kind": "symbol",
+          "label": "buildExternalAdapterBlockerReceipt",
+          "path": "src/eval/proofloopAdapterBlockers.ts",
+          "score": 32,
+          "reasons": [
+            "label:receipt",
+            "path:eval",
+            "path:proofloop",
+            "label:external",
+            "path:lock",
+            "label:lock",
+            "path:adapter",
+            "label:adapter",
+            "path:blockers"
+          ]
+        },
+        {
+          "nodeId": "file:scripts/proofloop-adapter-blockers.ts",
+          "kind": "file",
+          "label": "proofloop-adapter-blockers.ts",
+          "path": "scripts/proofloop-adapter-blockers.ts",
+          "score": 29,
+          "reasons": [
+            "path:proofloop",
+            "label:proofloop",
+            "path:lock",
+            "label:lock",
+            "path:adapter",
+            "label:adapter",
+            "path:blockers",
+            "label:blockers",
+            "proofloop-file"
+          ]
+        },
+        {
+          "nodeId": "file:scripts/proofloop-external-adapter-run.ts",
+          "kind": "file",
+          "label": "proofloop-external-adapter-run.ts",
+          "path": "scripts/proofloop-external-adapter-run.ts",
+          "score": 29,
+          "reasons": [
+            "path:proofloop",
+            "label:proofloop",
+            "path:external",
+            "label:external",
+            "path:run",
+            "label:run",
+            "path:adapter",
+            "label:adapter",
+            "proofloop-file"
+          ]
+        },
+        {
+          "nodeId": "file:tests/proofloopAdapterBlockers.test.ts",
+          "kind": "file",
+          "label": "proofloopAdapterBlockers.test.ts",
+          "path": "tests/proofloopAdapterBlockers.test.ts",
+          "score": 29,
+          "reasons": [
+            "path:proofloop",
+            "label:proofloop",
+            "path:lock",
+            "label:lock",
+            "path:adapter",
+            "label:adapter",
+            "path:blockers",
+            "label:blockers",
+            "proofloop-file"
+          ]
+        },
+        {
+          "nodeId": "file:tests/proofloopExternalAdapterTasks.test.ts",
+          "kind": "file",
+          "label": "proofloopExternalAdapterTasks.test.ts",
+          "path": "tests/proofloopExternalAdapterTasks.test.ts",
+          "score": 29,
+          "reasons": [
+            "path:proofloop",
+            "label:proofloop",
+            "path:external",
+            "label:external",
+            "path:task",
+            "label:task",
+            "path:adapter",
+            "label:adapter",
+            "proofloop-file"
+          ]
+        },
+        {
+          "nodeId": "symbol:src/eval/proofloopBlockerSolver.ts#ProofloopBlockerSolveReceipt",
+          "kind": "symbol",
+          "label": "ProofloopBlockerSolveReceipt",
+          "path": "src/eval/proofloopBlockerSolver.ts",
+          "score": 28,
+          "reasons": [
+            "label:receipt",
+            "path:eval",
+            "path:proofloop",
+            "label:proofloop",
+            "path:lock",
+            "label:lock",
+            "path:blockers",
+            "label:blockers"
+          ]
+        },
+        {
+          "nodeId": "file:src/eval/officialBenchmarkTaskCoverage.ts",
+          "kind": "file",
+          "label": "officialBenchmarkTaskCoverage.ts",
+          "path": "src/eval/officialBenchmarkTaskCoverage.ts",
+          "score": 26,
+          "reasons": [
+            "path:official",
+            "label:official",
+            "path:eval",
+            "path:task",
+            "label:task",
+            "path:benchmark",
+            "label:benchmark",
+            "proofloop-file"
+          ]
+        },
+        {
+          "nodeId": "symbol:src/eval/proofloopAdapterBlockers.ts#externalAdapterIds",
+          "kind": "symbol",
+          "label": "externalAdapterIds",
+          "path": "src/eval/proofloopAdapterBlockers.ts",
+          "score": 26,
+          "reasons": [
+            "path:eval",
+            "path:proofloop",
+            "label:external",
+            "path:lock",
+            "path:adapter",
+            "label:adapter",
+            "path:blockers"
+          ]
+        },
+        {
+          "nodeId": "file:src/eval/proofloopBenchmarkAdapters.ts",
+          "kind": "file",
+          "label": "proofloopBenchmarkAdapters.ts",
+          "path": "src/eval/proofloopBenchmarkAdapters.ts",
+          "score": 26,
+          "reasons": [
+            "path:eval",
+            "path:proofloop",
+            "label:proofloop",
+            "path:benchmark",
+            "label:benchmark",
+            "path:adapter",
+            "label:adapter",
+            "proofloop-file"
+          ]
+        }
+      ],
+      "repairContextPath": ".proofloop/orchestrator/runs/codegraph-dogfood/repair-contexts/workstreambench-official-score.md"
+    }
+  ],
+  "dispatches": [
+    {
+      "taskId": "btb-fullsuite-official-score",
+      "workerKind": "codex",
+      "status": "written",
+      "reason": "Worker launch was not allowed for this orchestrator run; dispatch packet was written for resume.",
+      "promptPath": ".proofloop/orchestrator/runs/codegraph-dogfood/repair-contexts/btb-fullsuite-official-score.md",
+      "command": "npm run benchmark:bankertoolbench:fullsuite-gate -- --summary docs/eval/btb-clean-capability-full100-parallel-v3-gpt41mini.json --receipt-out docs/eval/fresh-room/FR-020/fullsuite-gate-receipt.json --assert"
+    },
+    {
+      "taskId": "official-task-coverage-ledger",
+      "workerKind": "codex",
+      "status": "written",
+      "reason": "Worker launch was not allowed for this orchestrator run; dispatch packet was written for resume.",
+      "promptPath": ".proofloop/orchestrator/runs/codegraph-dogfood/repair-contexts/official-task-coverage-ledger.md",
+      "command": "npm run benchmark:official:task-coverage"
+    },
+    {
+      "taskId": "benchmark-normalization-ledger",
+      "workerKind": "codex",
+      "status": "written",
+      "reason": "Worker launch was not allowed for this orchestrator run; dispatch packet was written for resume.",
+      "promptPath": ".proofloop/orchestrator/runs/codegraph-dogfood/repair-contexts/benchmark-normalization-ledger.md",
+      "command": "npm run benchmark:proofloop:normalized"
+    },
+    {
+      "taskId": "company-task-coverage-ledger",
+      "workerKind": "codex",
+      "status": "written",
+      "reason": "Worker launch was not allowed for this orchestrator run; dispatch packet was written for resume.",
+      "promptPath": ".proofloop/orchestrator/runs/codegraph-dogfood/repair-contexts/company-task-coverage-ledger.md",
+      "command": "npm run benchmark:proofloop:company-tasks"
+    },
+    {
+      "taskId": "harness-economics-ledger",
+      "workerKind": "codex",
+      "status": "written",
+      "reason": "Worker launch was not allowed for this orchestrator run; dispatch packet was written for resume.",
+      "promptPath": ".proofloop/orchestrator/runs/codegraph-dogfood/repair-contexts/harness-economics-ledger.md",
+      "command": "npm run benchmark:proofloop:harness-economics"
+    },
+    {
+      "taskId": "external-adapter-setup-doctor",
+      "workerKind": "codex",
+      "status": "written",
+      "reason": "Worker launch was not allowed for this orchestrator run; dispatch packet was written for resume.",
+      "promptPath": ".proofloop/orchestrator/runs/codegraph-dogfood/repair-contexts/external-adapter-setup-doctor.md",
+      "command": "npm run proofloop -- setup bankertoolbench --doctor && npm run proofloop -- setup finch --doctor && npm run proofloop -- setup finauditing --doctor && npm run proofloop -- setup workstreambench --doctor"
+    },
+    {
+      "taskId": "external-adapter-local-product-proofs",
+      "workerKind": "codex",
+      "status": "written",
+      "reason": "Worker launch was not allowed for this orchestrator run; dispatch packet was written for resume.",
+      "promptPath": ".proofloop/orchestrator/runs/codegraph-dogfood/repair-contexts/external-adapter-local-product-proofs.md",
+      "command": "npm run benchmark:proofloop:external-adapter -- --prod --user-emulation strict"
+    },
+    {
+      "taskId": "external-adapter-blocker-receipts",
+      "workerKind": "codex",
+      "status": "written",
+      "reason": "Worker launch was not allowed for this orchestrator run; dispatch packet was written for resume.",
+      "promptPath": ".proofloop/orchestrator/runs/codegraph-dogfood/repair-contexts/external-adapter-blocker-receipts.md",
+      "command": "npm run benchmark:proofloop:adapter-blockers"
+    },
+    {
+      "taskId": "blocked-lane-solver",
+      "workerKind": "codex",
+      "status": "written",
+      "reason": "Worker launch was not allowed for this orchestrator run; dispatch packet was written for resume.",
+      "promptPath": ".proofloop/orchestrator/runs/codegraph-dogfood/repair-contexts/blocked-lane-solver.md",
+      "command": "npm run proofloop -- solve-blockers --goal official-scores"
+    },
+    {
+      "taskId": "proofloop-chart-pack",
+      "workerKind": "codex",
+      "status": "written",
+      "reason": "Worker launch was not allowed for this orchestrator run; dispatch packet was written for resume.",
+      "promptPath": ".proofloop/orchestrator/runs/codegraph-dogfood/repair-contexts/proofloop-chart-pack.md",
+      "command": "npm run proofloop -- charts latest"
+    },
+    {
+      "taskId": "proofloop-benchmark-board",
+      "workerKind": "codex",
+      "status": "written",
+      "reason": "Worker launch was not allowed for this orchestrator run; dispatch packet was written for resume.",
+      "promptPath": ".proofloop/orchestrator/runs/codegraph-dogfood/repair-contexts/proofloop-benchmark-board.md",
+      "command": "npm run benchmark:proofloop:board"
+    },
+    {
+      "taskId": "spreadsheetbench-v1-full-official-score",
+      "workerKind": "codex",
+      "status": "written",
+      "reason": "Worker launch was not allowed for this orchestrator run; dispatch packet was written for resume.",
+      "promptPath": ".proofloop/orchestrator/runs/codegraph-dogfood/repair-contexts/spreadsheetbench-v1-full-official-score.md"
+    },
+    {
+      "taskId": "spreadsheetbench-v2-full-official-score",
+      "workerKind": "codex",
+      "status": "written",
+      "reason": "Worker launch was not allowed for this orchestrator run; dispatch packet was written for resume.",
+      "promptPath": ".proofloop/orchestrator/runs/codegraph-dogfood/repair-contexts/spreadsheetbench-v2-full-official-score.md"
+    },
+    {
+      "taskId": "finch-official-score",
+      "workerKind": "codex",
+      "status": "written",
+      "reason": "Worker launch was not allowed for this orchestrator run; dispatch packet was written for resume.",
+      "promptPath": ".proofloop/orchestrator/runs/codegraph-dogfood/repair-contexts/finch-official-score.md"
+    },
+    {
+      "taskId": "finauditing-official-score",
+      "workerKind": "codex",
+      "status": "written",
+      "reason": "Worker launch was not allowed for this orchestrator run; dispatch packet was written for resume.",
+      "promptPath": ".proofloop/orchestrator/runs/codegraph-dogfood/repair-contexts/finauditing-official-score.md"
+    },
+    {
+      "taskId": "workstreambench-official-score",
+      "workerKind": "codex",
+      "status": "written",
+      "reason": "Worker launch was not allowed for this orchestrator run; dispatch packet was written for resume.",
+      "promptPath": ".proofloop/orchestrator/runs/codegraph-dogfood/repair-contexts/workstreambench-official-score.md"
+    }
+  ],
+  "summary": {
+    "passed": 0,
+    "failed": 0,
+    "blockedExternal": 0,
+    "needsScaffoldOrRun": 5,
+    "needsWorker": 2,
+    "skipped": 9,
+    "notDone": 16
+  }
+}

@@ -431,6 +431,7 @@ function renderSummaryMarkdown(state: ProofloopOrchestratorState): string {
     `- Needs scaffold/model run: ${state.summary.needsScaffoldOrRun}`,
     `- Needs worker/approval: ${state.summary.needsWorker}`,
     `- External-blocked: ${state.summary.blockedExternal}`,
+    `- Skipped/queued: ${state.summary.skipped}`,
     `- Not done: ${state.summary.notDone}`,
     "",
     "## Not Done",

@@ -74,6 +74,12 @@ import {
 } from "../src/eval/proofloopBlockerSolver";
 import { writeProofloopChartPack } from "../src/eval/proofloopChartPack";
 import {
+  runGraphBlastRadius,
+  runGraphExportCypher,
+  runGraphIndex,
+  runGraphSearch,
+} from "../src/eval/proofloopCodeGraph";
+import {
   assertProofloopModelTracked,
   proofloopHarnessVersionForSuite,
   proofloopModelRouteForRun,
@@ -207,6 +213,8 @@ function main(): void {
       return cmdOrchestrator(args);
     case "this-repo":
       return cmdThisRepo(args);
+    case "graph":
+      return cmdGraph(args);
     case "storybook":
       return cmdStorybook(args[0]);
     case "repair":
@@ -277,6 +285,7 @@ function usage(error?: string): void {
       "  charts [latest|runId] write chart-pack.json, chart-pack.html, Vega-Lite specs, data, Markdown, and SVG",
       "  orchestrator dogfood run the durable repo-level ProofLoop Orchestrator",
       "  this-repo --goal <text> dogfood this repo with ProofLoop Orchestrator",
+      "  graph index|blast-radius|search|export-cypher  code-graph substrate (repair blast radius)",
       "  promote <runId>      turn a failure into a tracked regression",
       "  export rl [runId]    export a run as agentic-RL trace data",
       "  goal init <goal-id> [--template official-scores] create a long-running proof ledger",
@@ -672,6 +681,21 @@ function cmdCharts(args: string[]): void {
       for (const error of result.validation.errors) console.error(`proofloop: chart validation ${error}`);
       process.exitCode = 1;
     }
+  } catch (error) {
+    console.error(`proofloop: ${error instanceof Error ? error.message : String(error)}`);
+    process.exitCode = 1;
+  }
+}
+
+function cmdGraph(args: string[]): void {
+  const [subcommand, ...rest] = args;
+  if (!subcommand) return usage("proofloop graph requires index|blast-radius|search|export-cypher");
+  try {
+    if (subcommand === "index") return runGraphIndex(ROOT, rest);
+    if (subcommand === "blast-radius") return runGraphBlastRadius(ROOT, rest);
+    if (subcommand === "search") return runGraphSearch(ROOT, rest);
+    if (subcommand === "export-cypher") return runGraphExportCypher(ROOT, rest);
+    return usage(`unknown graph command: ${subcommand}`);
   } catch (error) {
     console.error(`proofloop: ${error instanceof Error ? error.message : String(error)}`);
     process.exitCode = 1;
