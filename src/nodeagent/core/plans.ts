@@ -214,6 +214,51 @@ export function companyResearchPlan(companies: CompanyResearchTarget[]): Planner
   };
 }
 
+/** Scripted notebook parse: read the notebook's blocks, then persist a
+ *  structured report through the governed outline lane. Includes one
+ *  UNEVIDENCED claim on purpose so the demo shows the honesty gate (the
+ *  bullet lands flagged needs_review, never silently complete). */
+export function notebookOutlinePlan(artifactId: string): Planner {
+  return ({ step }) => {
+    if (step === 0) {
+      return {
+        say: "Reading the notebook blocks first, so the report anchors to what members actually wrote.",
+        toolCalls: [{ tool: "read_notebook", args: { artifactId } }],
+      };
+    }
+    if (step === 1) {
+      return {
+        say: "Structuring the notes into a report under the agent section — evidence-tagged where I have a source, flagged needs_review where I don't.",
+        toolCalls: [{
+          tool: "append_notebook_outline",
+          args: {
+            artifactId,
+            title: "Report: Notebook summary",
+            mode: "merge",
+            sections: [
+              {
+                title: "Decisions",
+                bullets: [
+                  { text: "Proceed to partner review once runway is verified", claim: true, evidence: [{ kind: "manual", label: "stated in captured notes" }] },
+                ],
+              },
+              {
+                title: "Risks",
+                bullets: [
+                  // Deliberately unevidenced: demonstrates the needs_review downgrade.
+                  { text: "Founder-quoted runway of 14 months is unverified", claim: true },
+                ],
+              },
+              { title: "Follow-ups", bullets: ["Request the bank statement backing the cash position", "Confirm the Series B lead before the partner meeting"] },
+            ],
+          },
+        }],
+      };
+    }
+    return { say: "Report written under “Agent notes” — evidence-tagged bullets are clean, the unverified runway claim is flagged needs_review for a human check.", done: true };
+  };
+}
+
 export function recomputeVariancePlan(targets: Record<string, string>, opts: { reason?: string; lock?: boolean } = {}): Planner {
   const useLock = opts.lock !== false;
   const ids = Object.keys(targets);

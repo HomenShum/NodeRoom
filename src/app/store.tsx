@@ -19,8 +19,8 @@ import { engine, demo, useEngineRev, runDemo } from "./roomStore";
 import { runAgent as runHarness } from "../nodeagent/core/runtime";
 import type { AgentModel } from "../nodeagent/core/types";
 import { buildUnifiedAgentStreamParts, type PersistedAgentStreamEvent, type UnifiedAgentStreamPart } from "../nodeagent/core/stream";
-import { recomputeVariancePlan, companyResearchPlan } from "../nodeagent/core/plans";
-import { buildResearchContext } from "../nodeagent/core/worldModel";
+import { recomputeVariancePlan, companyResearchPlan, notebookOutlinePlan } from "../nodeagent/core/plans";
+import { buildResearchContext, buildNoteContext } from "../nodeagent/core/worldModel";
 import { scriptedModel } from "../nodeagent/models/scripted";
 import { InMemoryRoomTools } from "../nodeagent/skills/integration/noderoomAdapter";
 import { ROOM_TOOLS } from "../nodeagent/skills/spreadsheet/cellMutator";
@@ -433,9 +433,13 @@ function isVarianceSheet(art: Artifact): boolean {
  * the "ENRICH/CLASSIFY staged next" message. Order matters: runway is checked before research
  * because the runway prompt also mentions the company watchlist.
  */
-function classifyDemoIntent(goal: string): "research" | "runway" | "variance" | null {
+function classifyDemoIntent(goal: string): "research" | "runway" | "variance" | "notes" | null {
   const g = goal.toLowerCase();
   if (/\b(runway|milestone|milestones|burn)\b/.test(g)) return "runway";
+  // Notebook parse/summarize requests route to the governed outline lane —
+  // checked before research so "summarize my meeting notes" never falls into
+  // the sheet-research plan.
+  if (/\bnotebook\b|\b(meeting|call)\s+notes\b|\b(parse|summari[sz]e|structure)\b[^.]*\bnotes?\b/.test(g)) return "notes";
   if (/(diligence|research|enrich|profile|source-?backed|funding|hiring|hipaa|security|buyer|watchlist|compan)/.test(g)) return "research";
   if (/\b(variance|recompute)\b/.test(g)) return "variance";
   return null;
@@ -894,6 +898,17 @@ export function EngineStoreProvider({ roomId, children }: { roomId: string; me: 
           }
           const rt = new InMemoryRoomTools(engine, roomId, research.id, actor, pub.id);
           const result = await runHarness({ rt, goal, model: paced(scriptedModel(companyResearchPlan(pending)), 140), tools: ROOM_TOOLS, contextBuilder: buildResearchContext, maxSteps: 14 * pending.length + 4 });
+          if (result.finalText) engine.postMessage({ roomId, channel: "public", author: actor, text: result.finalText, clientMsgId: crypto.randomUUID(), kind: "agent" });
+          return;
+        }
+      }
+      if (pub && demoIntent === "notes") {
+        const notebook = artifacts.find((a) => a.kind === "note" && a.title === "Capture Notebook")
+          ?? artifacts.find((a) => a.kind === "note" && a.title !== "Agent wiki" && a.title !== "Today's Brief");
+        if (notebook) {
+          const actor: Actor = { kind: "agent", id: pub.agentId, name: pub.agentName, scope: "public" };
+          const rt = new InMemoryRoomTools(engine, roomId, notebook.id, actor, pub.id);
+          const result = await runHarness({ rt, goal, model: paced(scriptedModel(notebookOutlinePlan(notebook.id)), 140), tools: ROOM_TOOLS, contextBuilder: buildNoteContext, maxSteps: 8 });
           if (result.finalText) engine.postMessage({ roomId, channel: "public", author: actor, text: result.finalText, clientMsgId: crypto.randomUUID(), kind: "agent" });
           return;
         }

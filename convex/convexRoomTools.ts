@@ -13,7 +13,7 @@
 import { makeFunctionReference } from "convex/server";
 import type { ActionCtx } from "./_generated/server";
 import type { Id } from "./_generated/dataModel";
-import type { RoomTools, RoomSnapshot, AwarenessView, CellView, EditOutcome, MergeView, SourceResult, ArtifactRef, SpreadsheetContextHit, SetColumnsOutcome, ReadNotebookOutcome, ApplyNotebookOutlineOutcome, NotebookOutlineSection } from "../src/nodeagent/core/types";
+import type { RoomTools, RoomSnapshot, AwarenessView, CellView, EditOutcome, MergeView, SourceResult, ArtifactRef, SpreadsheetContextHit, SetColumnsOutcome, ReadNotebookOutcome, ApplyNotebookOutlineOutcome, ApplyNotebookBlockEditOutcome, NotebookEnrichmentPlan, NotebookOutlineSection } from "../src/nodeagent/core/types";
 import type { Actor } from "../src/engine/types";
 import type { ClaimSupportResult, EvidenceRef, LiteralSourceResult, OkfConceptFilter, OkfRetrievalPort, RetrievalHit } from "../src/nodeagent/retrieval/types";
 import type { OkfConcept } from "../src/nodeagent/okf/types";
@@ -51,6 +51,8 @@ const capturesRecordRef = makeFunctionReference<"mutation">("captures:record") a
 const notebookReadForAgentRef = makeFunctionReference<"query">("notebookAgent:readNotebookForAgent") as any;
 const notebookEnsureForAgentRef = makeFunctionReference<"mutation">("notebookAgent:ensureNotebookDocForAgent") as any;
 const notebookApplyOutlineRef = makeFunctionReference<"mutation">("notebookAgent:applyOutlineByAgent") as any;
+const notebookApplyBlockEditRef = makeFunctionReference<"mutation">("notebookAgent:applyBlockEditByAgent") as any;
+const notebookPlanEnrichmentRef = makeFunctionReference<"query">("notebookAgent:planNotebookEnrichmentForAgent") as any;
 const citePdfCiteRef = makeFunctionReference<"action">("citePdf:cite") as any;
 const evidenceRecordSourceCaptureRef = makeFunctionReference<"mutation">("evidence:recordSourceCapture") as any;
 const evidenceRecordEvidenceFactRef = makeFunctionReference<"mutation">("evidence:recordEvidenceFact") as any;
@@ -198,6 +200,62 @@ export class ConvexRoomTools implements RoomTools {
       return { ok: false, error: String(r.reason ?? "apply_notebook_outline_failed") };
     } catch (e) {
       return { ok: false, error: e instanceof Error ? e.message : "apply_notebook_outline_failed" };
+    }
+  }
+
+  /** Governed single-block edit — same presence-intent pattern as cell writes. */
+  async applyNotebookBlockEdit(args: {
+    artifactId?: string;
+    blockId: string;
+    baseTextHash?: string;
+    action: "replace" | "append_children" | "annotate";
+    content: string;
+    reason?: string;
+  }): Promise<ApplyNotebookBlockEditOutcome> {
+    const artifactId = (args.artifactId ?? this.artifactId) as Id<"artifacts">;
+    if (this.actor.kind === "agent") {
+      await this.ctx.runMutation(presenceHeartbeatForAgentRef, {
+        roomId: this.roomId,
+        artifactId,
+        targetKind: "notebook_block",
+        targetId: args.blockId,
+        mode: "agent_intent",
+        actor: this.actor,
+        label: `${this.actor.name} ${args.action === "annotate" ? "annotating" : "editing"} a block`,
+        ttlMs: 45_000,
+      }).catch(() => null);
+    }
+    try {
+      const r = await this.ctx.runMutation(notebookApplyBlockEditRef, {
+        roomId: this.roomId,
+        artifactId,
+        actor: this.actor,
+        jobId: this.jobId,
+        runLabel: this.sessionId,
+        blockId: args.blockId,
+        baseTextHash: args.baseTextHash,
+        action: args.action,
+        content: args.content,
+        reason: args.reason,
+      });
+      if (r.ok) return { ok: true, lane: r.lane ?? "synced_doc", action: args.action, blockIds: r.blockIds ?? [] };
+      if (r.reason === "pending_approval") return { ok: false, pendingApproval: true, proposalId: r.proposalId };
+      if (r.reason === "no_such_block") return { ok: false, noSuchBlock: true, blockId: r.blockId, currentBlocks: r.currentBlocks };
+      if (r.reason === "block_conflict") return { ok: false, blockConflict: true, currentText: r.currentText, currentTextHash: r.currentTextHash };
+      if (r.reason === "human_block_protected") return { ok: false, humanBlockProtected: true, hint: r.hint };
+      return { ok: false, error: String(r.reason ?? "update_notebook_block_failed") };
+    } catch (e) {
+      return { ok: false, error: e instanceof Error ? e.message : "update_notebook_block_failed" };
+    }
+  }
+
+  async planNotebookEnrichment(args: { artifactId?: string; maxTargets?: number }): Promise<NotebookEnrichmentPlan> {
+    const artifactId = (args.artifactId ?? this.artifactId) as Id<"artifacts">;
+    try {
+      await this.ctx.runMutation(notebookEnsureForAgentRef, { roomId: this.roomId, artifactId, actor: this.actor });
+      return await this.ctx.runQuery(notebookPlanEnrichmentRef, { roomId: this.roomId, artifactId, actor: this.actor, maxTargets: args.maxTargets });
+    } catch (e) {
+      return { ok: false, reason: e instanceof Error ? e.message : "plan_notebook_enrichment_failed" };
     }
   }
 

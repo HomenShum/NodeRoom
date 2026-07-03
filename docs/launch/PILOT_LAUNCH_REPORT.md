@@ -75,7 +75,7 @@ or ~20 quick lookups, so a user can "come back and revisit every day." Deep is r
 | `finance-friend` | 1 / 3 | 78 | $20.14 | $0.22 | $0.26 | — |
 | `gtm-sales` | 1 / 1 | 120 | $18.92 | $0.63 | $0.16 | — |
 | `conference-room` (burst) | 10 / 1 | 480 | $163.03 | **$5.43** | $0.34 | ⚠ daily cap |
-| `ideaflow` (passive) | 1 / 2 | 39 | $7.47 | $0.12 | $0.19 | — |
+| `notebook-passive` | 1 / 2 | 39 | $7.47 | $0.12 | $0.19 | — |
 | `parselyfi-bulk` | 1 / 1 | 1500 | $106.14 | $3.54 | $0.07 | cache 45% |
 | `ta-studio` | 1 / 2 | 99 | $42.56 | $0.71 | $0.43 | — |
 

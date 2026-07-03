@@ -872,7 +872,13 @@ input { font-family: inherit; }
 .r-wiki-timeline-row { display: grid; grid-template-columns: 56px minmax(0, 1fr); gap: 10px; align-items: baseline; font-size: 12px; color: var(--text-secondary); }
 .r-wiki-timeline-row time { font-family: var(--font-mono); color: var(--text-tertiary); font-size: 10.5px; }
 
-.r-note { padding: 22px 26px; max-width: 680px; }
+.r-note { padding: 22px 26px; max-width: 680px; position: relative; }
+/* Agent intent boxes over notebook blocks (presenceClaims targetKind
+   notebook_block) — the notebook analog of the cell intent box. */
+.r-nb-presence-layer { position: absolute; inset: 0; pointer-events: none; z-index: 3; }
+.r-nb-presence { position: absolute; border: 1.5px dashed var(--presence-color, var(--accent-primary)); border-radius: 6px; }
+.r-nb-presence .presencebadge { position: absolute; top: -9px; right: 6px; font-size: 9px; font-weight: 700; letter-spacing: .03em; color: var(--accent-ink); background: var(--bg-primary, #111); border: 1px solid var(--accent-border); border-radius: 4px; padding: 0 5px; white-space: nowrap; }
+.r-nb-presence.presence-commit_lease { border-style: solid; }
 .r-note .ProseMirror { max-width: 68ch; }
 .r-note .nb-heading { font-size: 19px; font-weight: 700; letter-spacing: -.02em; margin: 0 0 14px; }
 .r-note .nb-block { margin: 0 0 16px; }

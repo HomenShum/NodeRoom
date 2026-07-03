@@ -34,10 +34,18 @@ type ApplyOutlineResult =
 type ReadNotebookResult =
   | { ok: true; docSource: string; docVersion: number; agentSection: { exists: boolean; blockId?: string }; blocks: Array<{ blockId: string; hasStableId: boolean; blockType: string; text: string; textHash: string; authorKind?: string; status?: string }> }
   | { ok: false; reason: string };
+type BlockEditResult =
+  | { ok: true; lane: string; action: string; blockIds: string[] }
+  | { ok: false; reason: string; hint?: string; currentText?: string; currentTextHash?: string; currentBlocks?: Array<{ blockId: string; text: string }> };
+type EnrichmentPlanResult =
+  | { ok: true; targets: Array<{ entityKey: string; displayName: string; entityType: string; blockId: string; hasExistingEnrichment: boolean }>; skipped: number }
+  | { ok: false; reason: string };
 const notebookAgentInternal = (internal as unknown as {
   notebookAgent: {
     applyOutlineByAgent: import("convex/server").FunctionReference<"mutation", "internal", Record<string, unknown>, ApplyOutlineResult>;
     readNotebookForAgent: import("convex/server").FunctionReference<"query", "internal", Record<string, unknown>, ReadNotebookResult>;
+    applyBlockEditByAgent: import("convex/server").FunctionReference<"mutation", "internal", Record<string, unknown>, BlockEditResult>;
+    planNotebookEnrichmentForAgent: import("convex/server").FunctionReference<"query", "internal", Record<string, unknown>, EnrichmentPlanResult>;
   };
 }).notebookAgent;
 
@@ -247,6 +255,100 @@ describe("notebookAgent.applyOutlineByAgent — synced lane", () => {
     const agentBlock = read.blocks.find((b) => b.authorKind === "agent" && b.text.includes("Raised $32M"));
     expect(agentBlock?.hasStableId).toBe(true);
     expect(agentBlock?.textHash).toMatch(/^[0-9a-f]{64}$/);
+    await t.finishInProgressScheduledFunctions();
+  });
+});
+
+describe("notebookAgent.applyBlockEditByAgent — governed single-block edits", () => {
+  it("replaces an agent block by hash CAS, refuses human prose, annotates instead, and conflicts on stale hash", async () => {
+    // The human paragraph carries a stable id (as if typed in the editor, where
+    // UniqueID mints ids) but NO agent attribution — the protection target.
+    const { t, roomId, artifactId, actor } = await seedRoom({ legacyHtml: '<p data-blockid="blk-human-1">Human context: verify runway.</p>' });
+    // Seed an agent block via the outline lane, then read ids + hashes.
+    const applied = await t.mutation(notebookAgentInternal.applyOutlineByAgent, {
+      roomId, artifactId: artifactId as never, actor, sections: [{ title: "Funding", bullets: ["Raised $30M (initial figure)"] }],
+    });
+    expect(applied.ok).toBe(true);
+    const read = await t.query(notebookAgentInternal.readNotebookForAgent, { roomId, artifactId: artifactId as never, actor });
+    if (!read.ok) throw new Error("read failed");
+    const agentBlock = read.blocks.find((b) => b.authorKind === "agent" && b.text.includes("Raised $30M"));
+    const humanBlock = read.blocks.find((b) => b.text.includes("Human context"));
+    if (!agentBlock || !humanBlock) throw new Error("seed blocks missing");
+
+    // HAPPY PATH: replace with the correct hash — text changes, needs_review cleared.
+    const replaced = await t.mutation(notebookAgentInternal.applyBlockEditByAgent, {
+      roomId, artifactId: artifactId as never, actor,
+      blockId: agentBlock.blockId, baseTextHash: agentBlock.textHash, action: "replace",
+      content: "Raised $32M Series B (corrected from press release)",
+    });
+    expect(replaced.ok).toBe(true);
+
+    // STALE HASH: the same (now outdated) hash conflicts as DATA with the fresh text.
+    const stale = await t.mutation(notebookAgentInternal.applyBlockEditByAgent, {
+      roomId, artifactId: artifactId as never, actor,
+      blockId: agentBlock.blockId, baseTextHash: agentBlock.textHash, action: "replace",
+      content: "should not land",
+    });
+    expect(stale.ok).toBe(false);
+    if (stale.ok) throw new Error("expected conflict");
+    expect(stale.reason).toBe("block_conflict");
+    expect(stale.currentText).toContain("corrected from press release");
+    expect(stale.currentTextHash).toMatch(/^[0-9a-f]{64}$/);
+
+    // HUMAN PROSE: replace is refused with the annotate hint...
+    const protectedRes = await t.mutation(notebookAgentInternal.applyBlockEditByAgent, {
+      roomId, artifactId: artifactId as never, actor,
+      blockId: humanBlock.blockId, baseTextHash: humanBlock.textHash, action: "replace",
+      content: "agent tries to rewrite human text",
+    });
+    expect(protectedRes.ok).toBe(false);
+    if (protectedRes.ok) throw new Error("expected protection");
+    expect(protectedRes.reason).toBe("human_block_protected");
+    // ...and annotate adds an attributed aside without touching it.
+    const annotated = await t.mutation(notebookAgentInternal.applyBlockEditByAgent, {
+      roomId, artifactId: artifactId as never, actor,
+      blockId: humanBlock.blockId, action: "annotate",
+      content: "Agent note: runway verification is tracked in the Funding section below.",
+    });
+    expect(annotated.ok).toBe(true);
+    if (!annotated.ok) throw new Error("annotate failed");
+    expect(annotated.blockIds.length).toBe(1);
+
+    const after = await t.query(notebookAgentInternal.readNotebookForAgent, { roomId, artifactId: artifactId as never, actor });
+    if (!after.ok) throw new Error("re-read failed");
+    expect(after.blocks.some((b) => b.text.includes("corrected from press release"))).toBe(true);
+    expect(after.blocks.some((b) => b.text.includes("Human context: verify runway."))).toBe(true); // untouched
+    expect(after.blocks.some((b) => b.authorKind === "agent" && b.text.includes("Agent note: runway verification"))).toBe(true);
+    // MISSING ANCHOR: returns DATA with recovery candidates.
+    const missing = await t.mutation(notebookAgentInternal.applyBlockEditByAgent, {
+      roomId, artifactId: artifactId as never, actor,
+      blockId: "blk-vanished", action: "annotate", content: "x",
+    });
+    expect(missing.ok).toBe(false);
+    if (missing.ok) throw new Error("expected no_such_block");
+    expect(missing.reason).toBe("no_such_block");
+    expect(missing.currentBlocks?.length).toBeGreaterThan(0);
+    await t.finishInProgressScheduledFunctions();
+  });
+
+  it("plan_notebook_enrichment returns deduped, capped mention targets (read-only)", async () => {
+    const { t, roomId, artifactId, actor } = await seedRoom({
+      legacyHtml: "<p>Met CardioNova Health founders; VectorShield Labs came up twice. VectorShield Labs again.</p>",
+    });
+    // Populate the read model: apply (ensures + seeds), then run the processor.
+    await t.mutation(notebookAgentInternal.applyOutlineByAgent, {
+      roomId, artifactId: artifactId as never, actor, sections: [{ title: "Context", bullets: ["Notes captured"] }],
+    });
+    const dirty = await t.run(async (ctx) => await ctx.db.query("notebookDirtyEvents").collect());
+    await t.action(internal.notebookProcessing.processNotebookDirtyEvent, { dirtyEventId: (dirty[0] as { _id: unknown })._id as never });
+    const plan = await t.query(notebookAgentInternal.planNotebookEnrichmentForAgent, { roomId, artifactId: artifactId as never, actor, maxTargets: 8 });
+    expect(plan.ok).toBe(true);
+    if (!plan.ok) throw new Error("plan failed");
+    expect(plan.targets.length).toBeGreaterThan(0);
+    // Dedupe: repeated mentions collapse to one target per entityKey.
+    const keys = plan.targets.map((tgt) => tgt.entityKey);
+    expect(new Set(keys).size).toBe(keys.length);
+    expect(plan.targets.every((tgt) => typeof tgt.blockId === "string" && tgt.blockId.length > 0)).toBe(true);
     await t.finishInProgressScheduledFunctions();
   });
 });

@@ -36,7 +36,7 @@ import { Step, Transform } from "@tiptap/pm/transform";
 import { components, internal } from "./_generated/api";
 import { internalMutation, internalQuery } from "./_generated/server";
 import type { MutationCtx, QueryCtx } from "./_generated/server";
-import type { Id } from "./_generated/dataModel";
+import type { Doc, Id } from "./_generated/dataModel";
 import { actorV, requireActorInRoom, requireArtifactInRoom, sha256Hex, type ActorValue } from "./lib";
 import { prosemirrorSync, ensureNotebookDocCore } from "./prosemirror";
 import { NOTEBOOK_EXTENSIONS } from "../src/notebook/extensions";
@@ -314,109 +314,34 @@ export const applyOutlineByAgent = internalMutation({
 
     // COMMIT EFFECTS — one artifact-version bump per call (the cross-kind
     // governance clock, same as define_columns), never per keystroke.
-    await ctx.db.patch(a.artifactId, { version: art.version + 1, updatedAt: now });
-    await ctx.db.insert("traces", {
+    await notebookWriteEffects(ctx, {
       roomId: a.roomId,
-      ts: now,
+      artifactId: a.artifactId,
       actor: a.actor,
-      type: "notebook_outline_appended",
-      summary: `${a.actor.name} appended ${built.sectionTitles.length} section${built.sectionTitles.length === 1 ? "" : "s"} to the notebook`,
-      detail: `append_notebook_outline · blocks=${built.mintedBlockIds.length} · deduped=${built.dedupedSections} · needs_review=${built.needsReviewCount}${a.parentBlockId ? ` · anchor=${a.parentBlockId}` : " · agent section"}${alreadyApplied ? " · idempotent-replay" : ""}`,
+      jobId: a.jobId,
+      art,
+      row,
+      finalDocJson: finalDoc.toJSON() as PmNodeJson,
+      now,
+      trace: {
+        type: "notebook_outline_appended",
+        summary: `${a.actor.name} appended ${built.sectionTitles.length} section${built.sectionTitles.length === 1 ? "" : "s"} to the notebook`,
+        detail: `append_notebook_outline · blocks=${built.mintedBlockIds.length} · deduped=${built.dedupedSections} · needs_review=${built.needsReviewCount}${a.parentBlockId ? ` · anchor=${a.parentBlockId}` : " · agent section"}${alreadyApplied ? " · idempotent-replay" : ""}`,
+      },
+      receipt: {
+        mutationName: "notebookAgent.applyOutlineByAgent",
+        input: {
+          roomId: String(a.roomId),
+          artifactId: String(a.artifactId),
+          title: a.title,
+          parentBlockId: a.parentBlockId,
+          mode,
+          sections: a.sections,
+        },
+        output: { ok: true, blockCount: built.mintedBlockIds.length, dedupedSections: built.dedupedSections },
+        affectedBlockIds: built.mintedBlockIds,
+      },
     });
-
-    // Checkpoint mirror: legacy viewers (flag-off builds, memory exports) read
-    // elements["doc"]. Best-effort plain patch — no roomActivityOutbox, no
-    // per-step version churn; the synced doc stays the source of truth.
-    const mirrorHtml = pmJsonToHtml(finalDoc.toJSON());
-    if (mirrorHtml !== null) {
-      const docElement = await ctx.db
-        .query("elements")
-        .withIndex("by_artifact", (q) => q.eq("artifactId", a.artifactId).eq("elementId", NOTEBOOK_ELEMENT_ID))
-        .unique();
-      if (docElement) {
-        await ctx.db.patch(docElement._id, { value: mirrorHtml, version: docElement.version + 1, updatedAt: now, updatedBy: a.actor });
-      } else {
-        await ctx.db.insert("elements", { artifactId: a.artifactId, elementId: NOTEBOOK_ELEMENT_ID, value: mirrorHtml, version: 1, updatedAt: now, updatedBy: a.actor });
-      }
-    }
-
-    // Read-model refresh through the SAME dirty-event pipeline as human edits
-    // (single passive source — never a direct roomActivityOutbox write here).
-    const visibility = (art.visibility ?? row.visibility ?? "room") as "private" | "room" | "public";
-    const ownerId = visibility === "private"
-      ? (art.createdBy?.kind === "user" ? art.createdBy.id : (a.actor as { ownerId?: string }).ownerId)
-      : undefined;
-    // Coalesce per doc+actor+lane like markNotebookDirty — an agent loop of N
-    // appends produces ONE pending event (and one processor run), not N.
-    const pendingDirty = await ctx.db
-      .query("notebookDirtyEvents")
-      .withIndex("by_doc_actor_lane_state", (q) =>
-        q.eq("prosemirrorDocId", row.prosemirrorDocId).eq("actorId", a.actor.id).eq("processingLane", "index").eq("state", "pending"))
-      .order("desc")
-      .first();
-    const dirtyPatch = {
-      observedSnapshotVersion: row.latestIndexedVersion,
-      observedSnapshotHash: row.latestSnapshotHash,
-      changedRangeHint: "doc:agent-outline",
-      visibility,
-      ownerId,
-      quietUntil: now,
-      maxWaitAt: pendingDirty?.maxWaitAt ?? now,
-      updatedAt: now,
-    };
-    const dirtyEventId = pendingDirty
-      ? (await ctx.db.patch(pendingDirty._id, dirtyPatch), pendingDirty._id)
-      : await ctx.db.insert("notebookDirtyEvents", {
-        roomId: a.roomId,
-        artifactId: a.artifactId,
-        notebookDocumentId: row._id,
-        prosemirrorDocId: row.prosemirrorDocId,
-        actor: a.actor,
-        actorId: a.actor.id,
-        visibility,
-        ownerId,
-        observedSnapshotVersion: row.latestIndexedVersion,
-        observedSnapshotHash: row.latestSnapshotHash,
-        changedRangeHint: "doc:agent-outline",
-        processingLane: "index",
-        state: "pending",
-        dirtyAt: now,
-        quietUntil: now,
-        maxWaitAt: now,
-        createdAt: now,
-        updatedAt: now,
-      });
-    await ctx.scheduler.runAfter(0, internal.notebookProcessing.processNotebookDirtyEvent, { dirtyEventId });
-
-    // Mutation receipt — deterministic sorted-key input hash, like every agent write.
-    if (a.jobId) {
-      const job = await ctx.db.get(a.jobId);
-      if (job) {
-        await ctx.db.insert("agentMutationReceipts", {
-          jobId: a.jobId,
-          mutationName: "notebookAgent.applyOutlineByAgent",
-          permission: "agent_session",
-          inputHash: await sha256Hex(stableStringify({
-            roomId: String(a.roomId),
-            artifactId: String(a.artifactId),
-            title: a.title,
-            parentBlockId: a.parentBlockId,
-            mode,
-            sections: a.sections,
-          })),
-          output: { ok: true, blockCount: built.mintedBlockIds.length, dedupedSections: built.dedupedSections },
-          affectedIds: [String(a.artifactId), ...built.mintedBlockIds.map((id) => `${String(a.artifactId)}:blk:${id}`)],
-          beforeVersions: { artifact: art.version },
-          afterVersions: { artifact: art.version + 1 },
-          createdAt: now,
-        });
-        await ctx.db.patch(a.jobId, {
-          mutationCount: (job.mutationCount ?? 0) + 1,
-          receiptCount: (job.receiptCount ?? 0) + 1,
-          updatedAt: now,
-        });
-      }
-    }
 
     return {
       ok: true as const,
@@ -427,5 +352,367 @@ export const applyOutlineByAgent = internalMutation({
       needsReviewCount: built.needsReviewCount,
       artifactVersion: art.version + 1,
     };
+  },
+});
+
+/** Shared post-commit effects for every agent notebook write: ONE artifact
+ *  version bump (the governance clock), a human-readable trace, the
+ *  elements["doc"] checkpoint mirror (best-effort plain patch — never a
+ *  passive-intelligence trigger), the coalesced dirty event that refreshes the
+ *  read model through the ACL-gated processor, and the mutation receipt. */
+async function notebookWriteEffects(ctx: MutationCtx, e: {
+  roomId: Id<"rooms">;
+  artifactId: Id<"artifacts">;
+  actor: ActorValue;
+  jobId?: Id<"agentJobs">;
+  art: { version: number; visibility?: "private" | "room" | "public"; createdBy?: ActorValue };
+  row: Doc<"notebookDocuments">;
+  finalDocJson: PmNodeJson;
+  now: number;
+  trace: { type: string; summary: string; detail: string };
+  receipt: { mutationName: string; input: unknown; output: unknown; affectedBlockIds: string[] };
+}): Promise<void> {
+  const { now } = e;
+  await ctx.db.patch(e.artifactId, { version: e.art.version + 1, updatedAt: now });
+  await ctx.db.insert("traces", { roomId: e.roomId, ts: now, actor: e.actor, type: e.trace.type, summary: e.trace.summary, detail: e.trace.detail });
+
+  // Checkpoint mirror: legacy viewers (flag-off builds, memory exports) read
+  // elements["doc"]. The synced doc stays the source of truth.
+  const mirrorHtml = pmJsonToHtml(e.finalDocJson);
+  if (mirrorHtml !== null) {
+    const docElement = await ctx.db
+      .query("elements")
+      .withIndex("by_artifact", (q) => q.eq("artifactId", e.artifactId).eq("elementId", NOTEBOOK_ELEMENT_ID))
+      .unique();
+    if (docElement) {
+      await ctx.db.patch(docElement._id, { value: mirrorHtml, version: docElement.version + 1, updatedAt: now, updatedBy: e.actor });
+    } else {
+      await ctx.db.insert("elements", { artifactId: e.artifactId, elementId: NOTEBOOK_ELEMENT_ID, value: mirrorHtml, version: 1, updatedAt: now, updatedBy: e.actor });
+    }
+  }
+
+  // Read-model refresh through the SAME dirty-event pipeline as human edits
+  // (single passive source). Coalesced per doc+actor+lane — an agent loop of N
+  // writes produces ONE pending event (and one processor run), not N.
+  const visibility = (e.art.visibility ?? e.row.visibility ?? "room") as "private" | "room" | "public";
+  const ownerId = visibility === "private"
+    ? (e.art.createdBy?.kind === "user" ? e.art.createdBy.id : (e.actor as { ownerId?: string }).ownerId)
+    : undefined;
+  const pendingDirty = await ctx.db
+    .query("notebookDirtyEvents")
+    .withIndex("by_doc_actor_lane_state", (q) =>
+      q.eq("prosemirrorDocId", e.row.prosemirrorDocId).eq("actorId", e.actor.id).eq("processingLane", "index").eq("state", "pending"))
+    .order("desc")
+    .first();
+  const dirtyPatch = {
+    observedSnapshotVersion: e.row.latestIndexedVersion,
+    observedSnapshotHash: e.row.latestSnapshotHash,
+    changedRangeHint: "doc:agent-write",
+    visibility,
+    ownerId,
+    quietUntil: now,
+    maxWaitAt: pendingDirty?.maxWaitAt ?? now,
+    updatedAt: now,
+  };
+  const dirtyEventId = pendingDirty
+    ? (await ctx.db.patch(pendingDirty._id, dirtyPatch), pendingDirty._id)
+    : await ctx.db.insert("notebookDirtyEvents", {
+      roomId: e.roomId,
+      artifactId: e.artifactId,
+      notebookDocumentId: e.row._id,
+      prosemirrorDocId: e.row.prosemirrorDocId,
+      actor: e.actor,
+      actorId: e.actor.id,
+      visibility,
+      ownerId,
+      observedSnapshotVersion: e.row.latestIndexedVersion,
+      observedSnapshotHash: e.row.latestSnapshotHash,
+      changedRangeHint: "doc:agent-write",
+      processingLane: "index",
+      state: "pending",
+      dirtyAt: now,
+      quietUntil: now,
+      maxWaitAt: now,
+      createdAt: now,
+      updatedAt: now,
+    });
+  await ctx.scheduler.runAfter(0, internal.notebookProcessing.processNotebookDirtyEvent, { dirtyEventId });
+
+  // Mutation receipt — deterministic sorted-key input hash, like every agent write.
+  if (e.jobId) {
+    const job = await ctx.db.get(e.jobId);
+    if (job) {
+      await ctx.db.insert("agentMutationReceipts", {
+        jobId: e.jobId,
+        mutationName: e.receipt.mutationName,
+        permission: "agent_session",
+        inputHash: await sha256Hex(stableStringify(e.receipt.input)),
+        output: e.receipt.output,
+        affectedIds: [String(e.artifactId), ...e.receipt.affectedBlockIds.map((id) => `${String(e.artifactId)}:blk:${id}`)],
+        beforeVersions: { artifact: e.art.version },
+        afterVersions: { artifact: e.art.version + 1 },
+        createdAt: now,
+      });
+      await ctx.db.patch(e.jobId, {
+        mutationCount: (job.mutationCount ?? 0) + 1,
+        receiptCount: (job.receiptCount ?? 0) + 1,
+        updatedAt: now,
+      });
+    }
+  }
+}
+
+const blockEditActionV = v.union(v.literal("replace"), v.literal("append_children"), v.literal("annotate"));
+
+/** Governed single-block edit — hash-anchored CAS on ONE block. `replace` and
+ *  `append_children` require the target to be agent-authored (human prose is
+ *  protected — use `annotate`, which inserts an attributed aside AFTER the
+ *  target without touching it). Conflicts, missing anchors, and protection all
+ *  return as DATA the model recovers from. */
+export const applyBlockEditByAgent = internalMutation({
+  args: {
+    roomId: v.id("rooms"),
+    artifactId: v.id("artifacts"),
+    actor: actorV,
+    jobId: v.optional(v.id("agentJobs")),
+    runLabel: v.optional(v.string()),
+    blockId: v.string(),
+    baseTextHash: v.optional(v.string()),
+    action: blockEditActionV,
+    content: v.string(),
+    reason: v.optional(v.string()),
+  },
+  handler: async (ctx, a) => {
+    await requireActorInRoom(ctx, a.roomId, a.actor);
+    const art = await requireArtifactInRoom(ctx, a.roomId, a.artifactId);
+    if (art.kind !== "note") return { ok: false as const, reason: "not_a_note" as const };
+    if (!agentCanAccessArtifact(art, a.actor)) return { ok: false as const, reason: "artifact_not_visible" as const };
+    const room = await ctx.db.get(a.roomId);
+    if (!room) return { ok: false as const, reason: "room_missing" as const };
+    const clean = a.content.replace(/\s+/g, " ").trim().slice(0, 1_200);
+    if (!clean) return { ok: false as const, reason: "empty_content" as const };
+    if (a.action !== "annotate" && !a.baseTextHash) {
+      return { ok: false as const, reason: "base_text_hash_required" as const };
+    }
+    const now = Date.now();
+
+    // REVIEW MODE — agent block edits become proposals on the badged doc:agent
+    // element, like outline appends. pending_approval is SUCCESS-shaped.
+    if (a.actor.kind === "agent" && !room.autoAllow) {
+      const existing = await ctx.db
+        .query("elements")
+        .withIndex("by_artifact", (q) => q.eq("artifactId", a.artifactId).eq("elementId", AGENT_NOTES_ELEMENT_ID))
+        .unique();
+      const currentHtml = typeof existing?.value === "string" ? existing.value : "";
+      const suggestion = `<p data-author-kind="agent">Suggested ${a.action} on block ${escapeForHtml(a.blockId)}: ${escapeForHtml(clean)}</p>`;
+      const result = await ctx.runMutation(internal.artifacts.applyAgentCellEdit, {
+        roomId: a.roomId,
+        artifactId: a.artifactId,
+        elementId: AGENT_NOTES_ELEMENT_ID,
+        kind: existing ? ("set" as const) : ("create" as const),
+        value: currentHtml ? `${currentHtml}\n${suggestion}` : suggestion,
+        baseVersion: existing?.version ?? 0,
+        actor: a.actor,
+        jobId: a.jobId,
+      });
+      if (result.ok) return { ok: true as const, lane: "agent_notes_element" as const, action: a.action, blockIds: [] };
+      if (result.reason === "pending_approval") {
+        return { ok: false as const, reason: "pending_approval" as const, proposalId: result.proposalId ? String(result.proposalId) : undefined };
+      }
+      return { ok: false as const, reason: String(result.reason ?? "review_route_failed") };
+    }
+
+    await ensureNotebookDocCore(ctx, a.roomId, a.artifactId, a.actor);
+    const row = await notebookDocRow(ctx, a.roomId, a.artifactId);
+    if (!row) return { ok: false as const, reason: "notebook_doc_missing" as const };
+    const schema = notebookSchema();
+    const pre = await readLatestDocJson(ctx, row.prosemirrorDocId);
+    if (!pre) return { ok: false as const, reason: "notebook_doc_missing" as const };
+    if (countLeafBlocks(pre.docJson, OUTLINE_CAPS.maxDocBlocksForAgentWrite) >= OUTLINE_CAPS.maxDocBlocksForAgentWrite) {
+      return { ok: false as const, reason: "notebook_too_large" as const, maxBlocks: OUTLINE_CAPS.maxDocBlocksForAgentWrite };
+    }
+
+    // Minted ids for the inserted nodes (append_children/annotate) — the
+    // exactly-once sentinel across transform's rebase-retry loop.
+    const insertedParagraph: PmNodeJson | null = a.action === "replace" ? null : {
+      type: "paragraph",
+      attrs: {
+        blockId: crypto.randomUUID(),
+        authorKind: "agent",
+        ...(a.runLabel ? { runId: a.runLabel } : {}),
+      },
+      content: [{ type: "text", text: clean }],
+    };
+    const mintedSet = new Set(insertedParagraph ? [String(insertedParagraph.attrs?.blockId)] : []);
+
+    let notFound = false;
+    let humanProtected = false;
+    let conflict: { currentText: string; currentTextHash: string } | null = null;
+    const finalDoc = await prosemirrorSync.transform(ctx, row.prosemirrorDocId, schema, async (doc: PmNode) => {
+      notFound = false;
+      humanProtected = false;
+      conflict = null;
+      const json = doc.toJSON() as PmNodeJson;
+      if (mintedSet.size && docContainsBlockId(json, mintedSet)) return null; // retry replay — already applied
+      // Locate the target node by stable id (authoritative, fresh doc).
+      let targetPos = -1;
+      let targetNode: PmNode | null = null;
+      doc.descendants((child, pos) => {
+        if (targetPos >= 0) return false;
+        if ((child.attrs as { blockId?: string } | undefined)?.blockId === a.blockId) {
+          targetPos = pos;
+          targetNode = child;
+          return false;
+        }
+        return true;
+      });
+      if (targetPos < 0 || !targetNode) {
+        notFound = true;
+        return null;
+      }
+      const node = targetNode as PmNode;
+      const currentText = node.textContent.replace(/\s+/g, " ").trim();
+      if (a.action !== "annotate") {
+        // Human prose is protected: replace/append require agent authorship.
+        if ((node.attrs as { authorKind?: string }).authorKind !== "agent") {
+          humanProtected = true;
+          return null;
+        }
+        const currentHash = await sha256Hex(currentText);
+        if (currentHash !== a.baseTextHash) {
+          conflict = { currentText: currentText.slice(0, 400), currentTextHash: currentHash };
+          return null;
+        }
+      }
+      const tr = new Transform(doc);
+      if (a.action === "replace") {
+        if (!node.isTextblock) {
+          humanProtected = true; // container blocks are never text-replaced
+          return null;
+        }
+        // Replace inline content; clear a stale needs_review flag (content changed).
+        tr.setNodeMarkup(targetPos, undefined, { ...node.attrs, status: null, ...(a.runLabel ? { runId: a.runLabel } : {}) });
+        tr.replaceWith(targetPos + 1, targetPos + node.nodeSize - 1, schema.text(clean));
+        return tr;
+      }
+      // append_children / annotate: insert an attributed paragraph AFTER the
+      // top-level node containing the target (nested insert points would put
+      // paragraphs inside invalid parents).
+      let insertPos = doc.content.size;
+      doc.forEach((child, offset) => {
+        if (insertPos !== doc.content.size) return;
+        const childJson = child.toJSON() as PmNodeJson;
+        if (docContainsBlockId({ type: "doc", content: [childJson] }, new Set([a.blockId]))) {
+          insertPos = offset + child.nodeSize;
+        }
+      });
+      tr.insert(insertPos, schema.nodeFromJSON(insertedParagraph as PmNodeJson));
+      return tr;
+    });
+
+    if (notFound) {
+      const views = await readNotebookBlocks(finalDoc.toJSON());
+      return {
+        ok: false as const,
+        reason: "no_such_block" as const,
+        blockId: a.blockId,
+        currentBlocks: views.slice(0, 12).map((b) => ({ blockId: b.blockId ?? b.derivedId, text: b.text.slice(0, 80) })),
+      };
+    }
+    if (humanProtected) {
+      return {
+        ok: false as const,
+        reason: "human_block_protected" as const,
+        hint: "replace/append_children only apply to agent-authored text blocks — use action 'annotate' to add an attributed aside after human prose instead",
+      };
+    }
+    if (conflict) {
+      const c = conflict as { currentText: string; currentTextHash: string };
+      return { ok: false as const, reason: "block_conflict" as const, currentText: c.currentText, currentTextHash: c.currentTextHash };
+    }
+
+    await notebookWriteEffects(ctx, {
+      roomId: a.roomId,
+      artifactId: a.artifactId,
+      actor: a.actor,
+      jobId: a.jobId,
+      art,
+      row,
+      finalDocJson: finalDoc.toJSON() as PmNodeJson,
+      now,
+      trace: {
+        type: "notebook_block_edited",
+        summary: `${a.actor.name} ${a.action === "replace" ? "updated" : a.action === "annotate" ? "annotated" : "extended"} a notebook block`,
+        detail: `update_notebook_block · ${a.action} · block=${a.blockId}${a.reason ? ` · ${a.reason.slice(0, 120)}` : ""}`,
+      },
+      receipt: {
+        mutationName: "notebookAgent.applyBlockEditByAgent",
+        input: { roomId: String(a.roomId), artifactId: String(a.artifactId), blockId: a.blockId, action: a.action, content: clean, baseTextHash: a.baseTextHash },
+        output: { ok: true, action: a.action },
+        affectedBlockIds: [a.blockId, ...mintedSet],
+      },
+    });
+
+    return {
+      ok: true as const,
+      lane: "synced_doc" as const,
+      action: a.action,
+      blockIds: [...mintedSet],
+      artifactVersion: art.version + 1,
+    };
+  },
+});
+
+function escapeForHtml(text: string): string {
+  return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+}
+
+/** Deterministic enrichment planner (read-only): the deduped, capped list of
+ *  notebook entity mentions worth researching — read-model-backed selection so
+ *  cheap models never reason about dedupe. Enrichment itself runs through the
+ *  normal research tools + append_notebook_outline (inheriting every gate). */
+export const planNotebookEnrichmentForAgent = internalQuery({
+  args: {
+    roomId: v.id("rooms"),
+    artifactId: v.id("artifacts"),
+    actor: actorV,
+    maxTargets: v.optional(v.number()),
+  },
+  handler: async (ctx, a) => {
+    await requireActorInRoom(ctx, a.roomId, a.actor);
+    const art = await requireArtifactInRoom(ctx, a.roomId, a.artifactId);
+    if (art.kind !== "note") return { ok: false as const, reason: "not_a_note" as const };
+    if (!agentCanAccessArtifact(art, a.actor)) return { ok: false as const, reason: "artifact_not_visible" as const };
+    const row = await notebookDocRow(ctx, a.roomId, a.artifactId);
+    if (!row) return { ok: false as const, reason: "notebook_not_synced" as const };
+    const cap = Math.max(1, Math.min(Math.floor(a.maxTargets ?? 8), 8));
+    const mentions = await ctx.db
+      .query("notebookMentions")
+      .withIndex("by_artifact", (q) => q.eq("artifactId", a.artifactId))
+      .take(200);
+    // Existing enrichment sections (normalized heading titles) — a re-plan
+    // reports them instead of re-queueing.
+    const latest = await readLatestDocJson(ctx, row.prosemirrorDocId);
+    const headings = latest ? headingTitlesFrom(latest.docJson, 0) : new Set<string>();
+    const seen = new Set<string>();
+    const targets: Array<{ entityKey: string; displayName: string; entityType: string; blockId: string; hasExistingEnrichment: boolean }> = [];
+    let skipped = 0;
+    for (const mention of mentions) {
+      if (mention.visibility === "private" && mention.ownerId !== a.actor.id && mention.ownerId !== (a.actor as { ownerId?: string }).ownerId) continue;
+      if (seen.has(mention.entityKey)) continue;
+      seen.add(mention.entityKey);
+      if (targets.length >= cap) {
+        skipped += 1;
+        continue;
+      }
+      targets.push({
+        entityKey: mention.entityKey,
+        displayName: mention.displayName,
+        entityType: mention.entityType,
+        blockId: mention.blockId,
+        hasExistingEnrichment: headings.has(`enrichment — ${mention.displayName.toLowerCase()}`) || headings.has(`enrichment: ${mention.displayName.toLowerCase()}`),
+      });
+    }
+    return { ok: true as const, targets, skipped };
   },
 });

@@ -141,6 +141,29 @@ export function BankerCoachPanel({
         <span data-ready={String(packet.readiness.readyForClientUse)}>
           {packet.readiness.readyForClientUse ? "verified" : `${needsReview} review`}
         </span>
+        {(() => {
+          // Reveal-on-relevance: only when the room has a notebook to draft into.
+          const notebook = artifacts.find((a) => a.kind === "note" && a.title !== "Agent wiki" && a.title !== "Today's Brief");
+          if (!notebook) return null;
+          return (
+            <button
+              type="button"
+              className="r-mini-btn"
+              data-testid="coach-draft-into-notebook"
+              title="Ask the agent to draft the coach findings into the notebook as attributed, evidence-tagged notes"
+              onClick={() => {
+                void store.askAgent({
+                  goal: `Draft the current coach findings into the notebook: summarize readiness (${packet.readiness.readyForClientUse ? "ready" : `${needsReview} items need review`}) and the open evidence gaps as a structured outline. Mark factual claims with evidence; leave anything unverified flagged needs_review.`,
+                  contextArtifactId: notebook.id,
+                });
+                const opened = onOpenArtifact(notebook.id);
+                if (opened !== false) focusStage({ artifactId: notebook.id });
+              }}
+            >
+              <Sparkles size={12} /> Draft into notebook
+            </button>
+          );
+        })()}
       </div>
       <div className="r-coach-tabs" role="tablist" aria-label="Banker coach artifact tabs">
         <CoachTabButton tab="evidence" active={tab} onClick={setTab} icon={<FileCheck2 size={12} />} label="Evidence" />

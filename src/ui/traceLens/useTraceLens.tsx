@@ -16,14 +16,18 @@ function resolveHit(target: EventTarget | null): SurfaceHit | null {
   if (!node) return null;
   const surfaceId = node.getAttribute("data-noderoom-surface");
   if (!surfaceId) return null;
-  // Capture the most specific in-scope refs the user actually clicked (a cell/row), not the surface root.
-  const refNode = target.closest("[data-element-id],[data-artifact-id],[data-target-ref]");
+  // Capture the most specific in-scope refs the user actually clicked (a cell/row/
+  // notebook block), not the surface root.
+  const refNode = target.closest("[data-element-id],[data-artifact-id],[data-target-ref],[data-blockid]");
   const scope = refNode && node.contains(refNode) ? refNode : node;
+  const blockId = scope.getAttribute("data-blockid");
   return {
     surfaceId,
     artifactId: scope.getAttribute("data-artifact-id") ?? node.getAttribute("data-artifact-id") ?? undefined,
     elementId: scope.getAttribute("data-element-id") ?? undefined,
-    targetRef: scope.getAttribute("data-target-ref") ?? undefined,
+    // Notebook blocks resolve by their stable block identity (provenance anchors
+    // and mutation receipts key on `blk:{blockId}`).
+    targetRef: scope.getAttribute("data-target-ref") ?? (blockId ? `notebook_block:${blockId}` : undefined),
   };
 }
 

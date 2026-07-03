@@ -254,6 +254,7 @@ export async function buildNoteContext(rt: RoomTools, goal: string): Promise<Age
       `Agent section ("Agent notes"): ${notebook.agentSection.exists ? "exists" : "will be created on your first append"}.`,
       ``,
       `TO WRITE: call append_notebook_outline with sections [{title, bullets}]. Your output lands under the agent section as attributed agent blocks — do NOT rewrite human blocks. Anchor after a specific block by passing its blockId as parentBlockId. mode "merge" (default) skips section titles that already exist, so a re-run merges instead of duplicating. Mark factual bullets claim:true with an evidence entry ({kind,label,url}); an unevidenced claim is written flagged needs_review. Re-read with read_notebook after any noSuchBlock result and re-anchor.`,
+      `TO EDIT ONE BLOCK: update_notebook_block with its blockId + baseTextHash (action "replace"/"append_children" — agent-authored blocks only; use action "annotate" to add an aside after human prose). TO PLAN ENRICHMENT: plan_notebook_enrichment returns the deduped entity targets; research each, then land findings via append_notebook_outline anchored at the target's blockId.`,
       policyLine(aware),
       // Lock reasons/holder names are member-authored — fenced, never trusted.
       locks ? `\nACTIVE LOCKS:\n${fenceUntrusted(locks)}` : "",
