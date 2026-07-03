@@ -31,6 +31,8 @@
  *   proofloop lagging [runId]       classify lagging layers from NodeEval
  *   proofloop router suggest [runId] write a route-plan suggestion
  *   proofloop charts [latest|runId] write chart-pack.json, chart-pack.html, Vega-Lite specs, data, Markdown, and SVG
+ *   proofloop orchestrator dogfood   run the durable repo-level ProofLoop Orchestrator
+ *   proofloop this-repo --goal "..." dogfood the current repo against a natural-language goal
  *   proofloop promote <runId>       turn a failure into a tracked regression
  *   proofloop export rl [runId]     export a run as agentic-RL trace data
  *
@@ -201,6 +203,10 @@ function main(): void {
       return cmdPromoteHarness(args);
     case "charts":
       return cmdCharts(args);
+    case "orchestrator":
+      return cmdOrchestrator(args);
+    case "this-repo":
+      return cmdThisRepo(args);
     case "storybook":
       return cmdStorybook(args[0]);
     case "repair":
@@ -269,6 +275,8 @@ function usage(error?: string): void {
       "  lagging [runId]      classify lagging layers",
       "  router suggest [runId] write route-plan suggestion",
       "  charts [latest|runId] write chart-pack.json, chart-pack.html, Vega-Lite specs, data, Markdown, and SVG",
+      "  orchestrator dogfood run the durable repo-level ProofLoop Orchestrator",
+      "  this-repo --goal <text> dogfood this repo with ProofLoop Orchestrator",
       "  promote <runId>      turn a failure into a tracked regression",
       "  export rl [runId]    export a run as agentic-RL trace data",
       "  goal init <goal-id> [--template official-scores] create a long-running proof ledger",
@@ -881,6 +889,41 @@ function cmdGoalResume(args: string[]): void {
     console.error(`proofloop: ${error instanceof Error ? error.message : String(error)}`);
     process.exitCode = 1;
   }
+}
+
+function cmdOrchestrator(args: string[]): void {
+  const forwarded = args.length ? args : ["run"];
+  const result = spawnSync("npx", ["tsx", "scripts/proofloop-orchestrator.ts", ...forwarded], {
+    cwd: ROOT,
+    stdio: "inherit",
+    env: process.env,
+    shell: process.platform === "win32",
+  });
+  process.exitCode = result.status ?? 1;
+}
+
+function cmdThisRepo(args: string[]): void {
+  const goalText = optionValueFromArgs(args, "--goal") ?? optionValueFromArgs(args, "--objective") ?? args.join(" ").trim();
+  const maxSteps = optionValueFromArgs(args, "--max-steps");
+  const forwarded = [
+    "dogfood",
+    "--goal",
+    "official-scores",
+    "--objective",
+    goalText || "Make this repo real, tested, shipped, and externally blocked only with proof.",
+    "--execute-safe",
+    "--fresh-template",
+    ...(maxSteps ? ["--max-steps", maxSteps] : []),
+  ];
+  if (args.includes("--dry-run")) forwarded.push("--dry-run");
+  if (args.includes("--allow-worker-launch")) forwarded.push("--allow-worker-launch");
+  const result = spawnSync("npx", ["tsx", "scripts/proofloop-orchestrator.ts", ...forwarded], {
+    cwd: ROOT,
+    stdio: "inherit",
+    env: process.env,
+    shell: process.platform === "win32",
+  });
+  process.exitCode = result.status ?? 1;
 }
 
 // ---------------------------------------------------------------------------

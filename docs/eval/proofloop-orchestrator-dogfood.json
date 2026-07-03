@@ -1,0 +1,4100 @@
+{
+  "schema": "proofloop-orchestrator-v1",
+  "runId": "dogfood-official-scores-2026-07-03T09-09-00-226Z",
+  "mode": "dogfood",
+  "goalId": "official-scores",
+  "objective": "Make official benchmark scores real, tested, shipped, and externally blocked only with durable proof.",
+  "generatedAt": "2026-07-03T09:09:00.226Z",
+  "updatedAt": "2026-07-03T09:09:17.226Z",
+  "terminalStatus": "NEEDS_HUMAN_APPROVAL",
+  "dryRun": false,
+  "executeSafe": true,
+  "maxSteps": 100,
+  "stepsUsed": 16,
+  "paths": {
+    "runDir": ".proofloop/orchestrator/runs/dogfood-official-scores-2026-07-03T09-09-00-226Z",
+    "state": ".proofloop/orchestrator/runs/dogfood-official-scores-2026-07-03T09-09-00-226Z/orchestrator-state.json",
+    "queue": ".proofloop/orchestrator/runs/dogfood-official-scores-2026-07-03T09-09-00-226Z/task-queue.json",
+    "events": ".proofloop/orchestrator/runs/dogfood-official-scores-2026-07-03T09-09-00-226Z/events.jsonl",
+    "workerDispatch": ".proofloop/orchestrator/runs/dogfood-official-scores-2026-07-03T09-09-00-226Z/worker-dispatch.json",
+    "summary": ".proofloop/orchestrator/runs/dogfood-official-scores-2026-07-03T09-09-00-226Z/summary.md",
+    "codeGraphManifest": ".proofloop/codegraph/graph-manifest.json"
+  },
+  "workerInventory": {
+    "schema": "proofloop-worker-inventory-v1",
+    "generatedAt": "2026-07-03T09:09:00.226Z",
+    "workers": [
+      {
+        "kind": "codex",
+        "command": "codex",
+        "launchMode": "interactive_agent",
+        "available": true,
+        "resolvedPath": "[local-path-redacted]"
+      },
+      {
+        "kind": "claude",
+        "command": "claude",
+        "launchMode": "interactive_agent",
+        "available": true,
+        "resolvedPath": "[local-path-redacted]"
+      },
+      {
+        "kind": "cursor",
+        "command": "cursor",
+        "launchMode": "ide",
+        "available": false
+      },
+      {
+        "kind": "windsurf",
+        "command": "windsurf",
+        "launchMode": "ide",
+        "available": false
+      },
+      {
+        "kind": "node",
+        "command": "node",
+        "launchMode": "tooling",
+        "available": true,
+        "resolvedPath": "[local-path-redacted]"
+      },
+      {
+        "kind": "npm",
+        "command": "npm",
+        "launchMode": "tooling",
+        "available": true,
+        "resolvedPath": "[local-path-redacted]"
+      },
+      {
+        "kind": "git",
+        "command": "git",
+        "launchMode": "tooling",
+        "available": true,
+        "resolvedPath": "[local-path-redacted]"
+      }
+    ]
+  },
+  "tasks": [
+    {
+      "id": "btb-fullsuite-official-score",
+      "title": "BankerToolBench official full-suite score receipt",
+      "sourceStatus": "pending",
+      "kind": "command",
+      "command": "npm run benchmark:bankertoolbench:fullsuite-gate -- --summary docs/eval/btb-clean-capability-full100-parallel-v3-gpt41mini.json --receipt-out docs/eval/fresh-room/FR-020/fullsuite-gate-receipt.json --assert",
+      "safety": "expensive_or_live",
+      "status": "needs_worker",
+      "evidence": [
+        "docs/eval/fresh-room/FR-020/fullsuite-gate-receipt.json",
+        "docs/eval/btb-clean-capability-full100-parallel-v3-gpt41mini.json"
+      ],
+      "blockers": [],
+      "attempts": 0,
+      "likelyFiles": [
+        {
+          "nodeId": "file:docs/eval/fresh-room/FR-020/fullsuite-gate-receipt.json",
+          "kind": "proof_artifact",
+          "label": "docs/eval/fresh-room/FR-020/fullsuite-gate-receipt.json",
+          "path": "docs/eval/fresh-room/FR-020/fullsuite-gate-receipt.json",
+          "score": 94,
+          "reasons": [
+            "path:fullsuite",
+            "label:fullsuite",
+            "path:full",
+            "label:full",
+            "path:suite",
+            "label:suite",
+            "path:receipt",
+            "label:receipt",
+            "path:gate",
+            "label:gate",
+            "path:docs",
+            "label:docs",
+            "path:eval",
+            "label:eval",
+            "path:json",
+            "label:json",
+            "path:fresh",
+            "label:fresh",
+            "path:room",
+            "label:room",
+            "path:020",
+            "label:020",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/btb-clean-capability-full100-parallel-v3-gpt41mini.json",
+          "kind": "proof_artifact",
+          "label": "docs/eval/btb-clean-capability-full100-parallel-v3-gpt41mini.json",
+          "path": "docs/eval/btb-clean-capability-full100-parallel-v3-gpt41mini.json",
+          "score": 90,
+          "reasons": [
+            "path:btb",
+            "label:btb",
+            "path:full",
+            "label:full",
+            "path:docs",
+            "label:docs",
+            "path:eval",
+            "label:eval",
+            "path:clean",
+            "label:clean",
+            "path:capability",
+            "label:capability",
+            "path:full100",
+            "label:full100",
+            "path:parallel",
+            "label:parallel",
+            "path:gpt41mini",
+            "label:gpt41mini",
+            "path:json",
+            "label:json",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/fresh-room/FR-020/livesuite-gate-receipt.json",
+          "kind": "proof_artifact",
+          "label": "docs/eval/fresh-room/FR-020/livesuite-gate-receipt.json",
+          "path": "docs/eval/fresh-room/FR-020/livesuite-gate-receipt.json",
+          "score": 75,
+          "reasons": [
+            "path:suite",
+            "label:suite",
+            "path:receipt",
+            "label:receipt",
+            "path:gate",
+            "label:gate",
+            "path:docs",
+            "label:docs",
+            "path:eval",
+            "label:eval",
+            "path:json",
+            "label:json",
+            "path:fresh",
+            "label:fresh",
+            "path:room",
+            "label:room",
+            "path:020",
+            "label:020",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/bankertoolbench/btb-a31173e3-forced-run-20260625-020111.json",
+          "kind": "proof_artifact",
+          "label": "docs/eval/bankertoolbench/btb-a31173e3-forced-run-20260625-020111.json",
+          "path": "docs/eval/bankertoolbench/btb-a31173e3-forced-run-20260625-020111.json",
+          "score": 65,
+          "reasons": [
+            "path:btb",
+            "label:btb",
+            "path:bankertoolbench",
+            "label:bankertoolbench",
+            "path:run",
+            "label:run",
+            "path:docs",
+            "label:docs",
+            "path:eval",
+            "label:eval",
+            "path:json",
+            "label:json",
+            "path:020",
+            "label:020",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/bankertoolbench/btb-a31173e3-forced-run-20260625-020457.json",
+          "kind": "proof_artifact",
+          "label": "docs/eval/bankertoolbench/btb-a31173e3-forced-run-20260625-020457.json",
+          "path": "docs/eval/bankertoolbench/btb-a31173e3-forced-run-20260625-020457.json",
+          "score": 65,
+          "reasons": [
+            "path:btb",
+            "label:btb",
+            "path:bankertoolbench",
+            "label:bankertoolbench",
+            "path:run",
+            "label:run",
+            "path:docs",
+            "label:docs",
+            "path:eval",
+            "label:eval",
+            "path:json",
+            "label:json",
+            "path:020",
+            "label:020",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/fresh-room/FR-020/finance-domain-receipt.json",
+          "kind": "proof_artifact",
+          "label": "docs/eval/fresh-room/FR-020/finance-domain-receipt.json",
+          "path": "docs/eval/fresh-room/FR-020/finance-domain-receipt.json",
+          "score": 65,
+          "reasons": [
+            "path:receipt",
+            "label:receipt",
+            "path:docs",
+            "label:docs",
+            "path:eval",
+            "label:eval",
+            "path:json",
+            "label:json",
+            "path:fresh",
+            "label:fresh",
+            "path:room",
+            "label:room",
+            "path:020",
+            "label:020",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/fresh-room/FR-020/tasks/1b181d77-ad4c-498a-b76e-c8503c05b7b7/latest.json",
+          "kind": "proof_artifact",
+          "label": "docs/eval/fresh-room/FR-020/tasks/1b181d77-ad4c-498a-b76e-c8503c05b7b7/latest.json",
+          "path": "docs/eval/fresh-room/FR-020/tasks/1b181d77-ad4c-498a-b76e-c8503c05b7b7/latest.json",
+          "score": 61,
+          "reasons": [
+            "path:docs",
+            "label:docs",
+            "path:eval",
+            "label:eval",
+            "path:json",
+            "label:json",
+            "path:fresh",
+            "label:fresh",
+            "path:room",
+            "label:room",
+            "path:020",
+            "label:020",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/fresh-room/FR-020/tasks/4194bf8e-eede-480c-b012-b68ab71837c1/latest.json",
+          "kind": "proof_artifact",
+          "label": "docs/eval/fresh-room/FR-020/tasks/4194bf8e-eede-480c-b012-b68ab71837c1/latest.json",
+          "path": "docs/eval/fresh-room/FR-020/tasks/4194bf8e-eede-480c-b012-b68ab71837c1/latest.json",
+          "score": 61,
+          "reasons": [
+            "path:docs",
+            "label:docs",
+            "path:eval",
+            "label:eval",
+            "path:json",
+            "label:json",
+            "path:fresh",
+            "label:fresh",
+            "path:room",
+            "label:room",
+            "path:020",
+            "label:020",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/fresh-room/FR-020/tasks/41e130fe-89f0-4b2b-97ee-d727e1fa0afd/latest.json",
+          "kind": "proof_artifact",
+          "label": "docs/eval/fresh-room/FR-020/tasks/41e130fe-89f0-4b2b-97ee-d727e1fa0afd/latest.json",
+          "path": "docs/eval/fresh-room/FR-020/tasks/41e130fe-89f0-4b2b-97ee-d727e1fa0afd/latest.json",
+          "score": 61,
+          "reasons": [
+            "path:docs",
+            "label:docs",
+            "path:eval",
+            "label:eval",
+            "path:json",
+            "label:json",
+            "path:fresh",
+            "label:fresh",
+            "path:room",
+            "label:room",
+            "path:020",
+            "label:020",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/fresh-room/FR-020/tasks/f0bd3730-d826-46f2-8422-b48480fa6250/latest.json",
+          "kind": "proof_artifact",
+          "label": "docs/eval/fresh-room/FR-020/tasks/f0bd3730-d826-46f2-8422-b48480fa6250/latest.json",
+          "path": "docs/eval/fresh-room/FR-020/tasks/f0bd3730-d826-46f2-8422-b48480fa6250/latest.json",
+          "score": 61,
+          "reasons": [
+            "path:docs",
+            "label:docs",
+            "path:eval",
+            "label:eval",
+            "path:json",
+            "label:json",
+            "path:fresh",
+            "label:fresh",
+            "path:room",
+            "label:room",
+            "path:020",
+            "label:020",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/fresh-room/FR-020/tasks/fe996540-6e06-4a84-82d9-06d0f32f6cd9/latest.json",
+          "kind": "proof_artifact",
+          "label": "docs/eval/fresh-room/FR-020/tasks/fe996540-6e06-4a84-82d9-06d0f32f6cd9/latest.json",
+          "path": "docs/eval/fresh-room/FR-020/tasks/fe996540-6e06-4a84-82d9-06d0f32f6cd9/latest.json",
+          "score": 61,
+          "reasons": [
+            "path:docs",
+            "label:docs",
+            "path:eval",
+            "label:eval",
+            "path:json",
+            "label:json",
+            "path:fresh",
+            "label:fresh",
+            "path:room",
+            "label:room",
+            "path:020",
+            "label:020",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/fresh-room/FR-020/tasks/067cb834-ad43-448b-a523-d0c9898656e0/latest.json",
+          "kind": "proof_artifact",
+          "label": "docs/eval/fresh-room/FR-020/tasks/067cb834-ad43-448b-a523-d0c9898656e0/latest.json",
+          "path": "docs/eval/fresh-room/FR-020/tasks/067cb834-ad43-448b-a523-d0c9898656e0/latest.json",
+          "score": 60,
+          "reasons": [
+            "path:docs",
+            "label:docs",
+            "path:eval",
+            "label:eval",
+            "path:json",
+            "label:json",
+            "path:fresh",
+            "label:fresh",
+            "path:room",
+            "label:room",
+            "path:020",
+            "label:020",
+            "proof-artifact"
+          ]
+        }
+      ],
+      "repairContextPath": ".proofloop/orchestrator/runs/dogfood-official-scores-2026-07-03T09-09-00-226Z/repair-contexts/btb-fullsuite-official-score.md"
+    },
+    {
+      "id": "official-task-coverage-ledger",
+      "title": "Official benchmark task coverage ledger",
+      "sourceStatus": "pending",
+      "kind": "command",
+      "command": "npm run benchmark:official:task-coverage",
+      "safety": "safe_local",
+      "status": "passed",
+      "evidence": [
+        "docs/eval/official-benchmark-task-coverage.json",
+        "docs/eval/OFFICIAL_BENCHMARK_TASK_COVERAGE.md"
+      ],
+      "blockers": [],
+      "attempts": 0,
+      "likelyFiles": [
+        {
+          "nodeId": "file:docs/eval/OFFICIAL_BENCHMARK_TASK_COVERAGE.md",
+          "kind": "proof_artifact",
+          "label": "docs/eval/OFFICIAL_BENCHMARK_TASK_COVERAGE.md",
+          "path": "docs/eval/OFFICIAL_BENCHMARK_TASK_COVERAGE.md",
+          "score": 35,
+          "reasons": [
+            "path:official",
+            "label:official",
+            "path:task",
+            "label:task",
+            "path:coverage",
+            "label:coverage",
+            "path:benchmark",
+            "label:benchmark",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/official-benchmark-task-coverage.json",
+          "kind": "proof_artifact",
+          "label": "docs/eval/official-benchmark-task-coverage.json",
+          "path": "docs/eval/official-benchmark-task-coverage.json",
+          "score": 34,
+          "reasons": [
+            "path:official",
+            "label:official",
+            "path:task",
+            "label:task",
+            "path:coverage",
+            "label:coverage",
+            "path:benchmark",
+            "label:benchmark",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:scripts/official-benchmark-task-coverage.ts",
+          "kind": "file",
+          "label": "scripts/official-benchmark-task-coverage.ts",
+          "path": "scripts/official-benchmark-task-coverage.ts",
+          "score": 34,
+          "reasons": [
+            "path:official",
+            "label:official",
+            "path:task",
+            "label:task",
+            "path:coverage",
+            "label:coverage",
+            "path:benchmark",
+            "label:benchmark"
+          ]
+        },
+        {
+          "nodeId": "file:src/eval/officialBenchmarkTaskCoverage.ts",
+          "kind": "file",
+          "label": "src/eval/officialBenchmarkTaskCoverage.ts",
+          "path": "src/eval/officialBenchmarkTaskCoverage.ts",
+          "score": 34,
+          "reasons": [
+            "path:official",
+            "label:official",
+            "path:task",
+            "label:task",
+            "path:coverage",
+            "label:coverage",
+            "path:benchmark",
+            "label:benchmark"
+          ]
+        },
+        {
+          "nodeId": "file:tests/officialBenchmarkTaskCoverage.test.ts",
+          "kind": "file",
+          "label": "tests/officialBenchmarkTaskCoverage.test.ts",
+          "path": "tests/officialBenchmarkTaskCoverage.test.ts",
+          "score": 34,
+          "reasons": [
+            "path:official",
+            "label:official",
+            "path:task",
+            "label:task",
+            "path:coverage",
+            "label:coverage",
+            "path:benchmark",
+            "label:benchmark"
+          ]
+        },
+        {
+          "nodeId": "symbol:src/eval/officialBenchmarkTaskCoverage.ts#OfficialBenchmarkTaskCoverageReport",
+          "kind": "symbol",
+          "label": "OfficialBenchmarkTaskCoverageReport",
+          "path": "src/eval/officialBenchmarkTaskCoverage.ts",
+          "score": 32,
+          "reasons": [
+            "path:official",
+            "label:official",
+            "path:task",
+            "label:task",
+            "path:coverage",
+            "label:coverage",
+            "path:benchmark",
+            "label:benchmark"
+          ]
+        },
+        {
+          "nodeId": "symbol:src/eval/officialBenchmarkTaskCoverage.ts#buildOfficialBenchmarkTaskCoverageReport",
+          "kind": "symbol",
+          "label": "buildOfficialBenchmarkTaskCoverageReport",
+          "path": "src/eval/officialBenchmarkTaskCoverage.ts",
+          "score": 32,
+          "reasons": [
+            "path:official",
+            "label:official",
+            "path:task",
+            "label:task",
+            "path:coverage",
+            "label:coverage",
+            "path:benchmark",
+            "label:benchmark"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/OFFICIAL_BENCHMARK_UI_COVERAGE.md",
+          "kind": "proof_artifact",
+          "label": "docs/eval/OFFICIAL_BENCHMARK_UI_COVERAGE.md",
+          "path": "docs/eval/OFFICIAL_BENCHMARK_UI_COVERAGE.md",
+          "score": 29,
+          "reasons": [
+            "path:official",
+            "label:official",
+            "path:coverage",
+            "label:coverage",
+            "path:benchmark",
+            "label:benchmark",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "symbol:src/eval/officialBenchmarkTaskCoverage.ts#BenchmarkTaskCoverageStatus",
+          "kind": "symbol",
+          "label": "BenchmarkTaskCoverageStatus",
+          "path": "src/eval/officialBenchmarkTaskCoverage.ts",
+          "score": 29,
+          "reasons": [
+            "path:official",
+            "path:task",
+            "label:task",
+            "path:coverage",
+            "label:coverage",
+            "path:benchmark",
+            "label:benchmark"
+          ]
+        },
+        {
+          "nodeId": "symbol:src/eval/officialBenchmarkTaskCoverage.ts#BenchmarkTaskCoverageTrack",
+          "kind": "symbol",
+          "label": "BenchmarkTaskCoverageTrack",
+          "path": "src/eval/officialBenchmarkTaskCoverage.ts",
+          "score": 29,
+          "reasons": [
+            "path:official",
+            "path:task",
+            "label:task",
+            "path:coverage",
+            "label:coverage",
+            "path:benchmark",
+            "label:benchmark"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/official-benchmark-ui-coverage.json",
+          "kind": "proof_artifact",
+          "label": "docs/eval/official-benchmark-ui-coverage.json",
+          "path": "docs/eval/official-benchmark-ui-coverage.json",
+          "score": 28,
+          "reasons": [
+            "path:official",
+            "label:official",
+            "path:coverage",
+            "label:coverage",
+            "path:benchmark",
+            "label:benchmark",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:tests/officialBenchmarkUiCoverage.test.ts",
+          "kind": "file",
+          "label": "tests/officialBenchmarkUiCoverage.test.ts",
+          "path": "tests/officialBenchmarkUiCoverage.test.ts",
+          "score": 28,
+          "reasons": [
+            "path:official",
+            "label:official",
+            "path:coverage",
+            "label:coverage",
+            "path:benchmark",
+            "label:benchmark"
+          ]
+        }
+      ],
+      "exitCode": 0,
+      "stdoutTail": "> noderoom@0.1.1 benchmark:official:task-coverage\n> tsx scripts/official-benchmark-task-coverage.ts\nwrote docs/eval/official-benchmark-task-coverage.json\nwrote docs/eval/OFFICIAL_BENCHMARK_TASK_COVERAGE.md\nofficial benchmark task coverage: complete=2/5 staged=1421/1739 modelCases=106",
+      "stderrTail": ""
+    },
+    {
+      "id": "benchmark-normalization-ledger",
+      "title": "Proof Loop benchmark normalization ledger",
+      "sourceStatus": "pending",
+      "kind": "command",
+      "command": "npm run benchmark:proofloop:normalized",
+      "safety": "safe_local",
+      "status": "passed",
+      "evidence": [
+        "docs/eval/proofloop-normalized-benchmarks.json",
+        "docs/eval/PROOFLOOP_NORMALIZED_BENCHMARKS.md"
+      ],
+      "blockers": [],
+      "attempts": 0,
+      "likelyFiles": [
+        {
+          "nodeId": "file:docs/eval/PROOFLOOP_NORMALIZED_BENCHMARKS.md",
+          "kind": "proof_artifact",
+          "label": "docs/eval/PROOFLOOP_NORMALIZED_BENCHMARKS.md",
+          "path": "docs/eval/PROOFLOOP_NORMALIZED_BENCHMARKS.md",
+          "score": 45,
+          "reasons": [
+            "path:benchmark",
+            "label:benchmark",
+            "path:proof",
+            "label:proof",
+            "path:loop",
+            "label:loop",
+            "path:proofloop",
+            "label:proofloop",
+            "path:normalized",
+            "label:normalized",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/proofloop-normalized-benchmarks.json",
+          "kind": "proof_artifact",
+          "label": "docs/eval/proofloop-normalized-benchmarks.json",
+          "path": "docs/eval/proofloop-normalized-benchmarks.json",
+          "score": 45,
+          "reasons": [
+            "path:benchmark",
+            "label:benchmark",
+            "path:proof",
+            "label:proof",
+            "path:loop",
+            "label:loop",
+            "path:proofloop",
+            "label:proofloop",
+            "path:normalized",
+            "label:normalized",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:src/eval/proofloopBenchmarkNormalization.ts",
+          "kind": "file",
+          "label": "src/eval/proofloopBenchmarkNormalization.ts",
+          "path": "src/eval/proofloopBenchmarkNormalization.ts",
+          "score": 44,
+          "reasons": [
+            "path:benchmark",
+            "label:benchmark",
+            "path:normalization",
+            "label:normalization",
+            "path:proof",
+            "label:proof",
+            "path:loop",
+            "label:loop",
+            "path:proofloop",
+            "label:proofloop"
+          ]
+        },
+        {
+          "nodeId": "file:proofloop/accounting/run-benchmarks.ts",
+          "kind": "proof_artifact",
+          "label": "proofloop/accounting/run-benchmarks.ts",
+          "path": "proofloop/accounting/run-benchmarks.ts",
+          "score": 42,
+          "reasons": [
+            "path:benchmark",
+            "label:benchmark",
+            "path:proof",
+            "label:proof",
+            "path:loop",
+            "label:loop",
+            "path:run",
+            "label:run",
+            "path:proofloop",
+            "label:proofloop",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:tests/proofloopBenchmarkNormalization.test.ts",
+          "kind": "file",
+          "label": "tests/proofloopBenchmarkNormalization.test.ts",
+          "path": "tests/proofloopBenchmarkNormalization.test.ts",
+          "score": 42,
+          "reasons": [
+            "path:benchmark",
+            "label:benchmark",
+            "path:normalization",
+            "label:normalization",
+            "path:proof",
+            "label:proof",
+            "path:loop",
+            "label:loop",
+            "path:proofloop",
+            "label:proofloop"
+          ]
+        },
+        {
+          "nodeId": "file:scripts/proofloop-normalized-benchmarks.ts",
+          "kind": "file",
+          "label": "scripts/proofloop-normalized-benchmarks.ts",
+          "path": "scripts/proofloop-normalized-benchmarks.ts",
+          "score": 41,
+          "reasons": [
+            "path:benchmark",
+            "label:benchmark",
+            "path:proof",
+            "label:proof",
+            "path:loop",
+            "label:loop",
+            "path:proofloop",
+            "label:proofloop",
+            "path:normalized",
+            "label:normalized"
+          ]
+        },
+        {
+          "nodeId": "symbol:src/eval/proofloopBenchmarkNormalization.ts#ProofloopBenchmarkNormalizationReport",
+          "kind": "symbol",
+          "label": "ProofloopBenchmarkNormalizationReport",
+          "path": "src/eval/proofloopBenchmarkNormalization.ts",
+          "score": 40,
+          "reasons": [
+            "path:benchmark",
+            "label:benchmark",
+            "path:normalization",
+            "label:normalization",
+            "path:proof",
+            "label:proof",
+            "path:loop",
+            "label:loop",
+            "path:proofloop",
+            "label:proofloop"
+          ]
+        },
+        {
+          "nodeId": "symbol:src/eval/proofloopBenchmarkNormalization.ts#buildProofloopBenchmarkNormalizationReport",
+          "kind": "symbol",
+          "label": "buildProofloopBenchmarkNormalizationReport",
+          "path": "src/eval/proofloopBenchmarkNormalization.ts",
+          "score": 40,
+          "reasons": [
+            "path:benchmark",
+            "label:benchmark",
+            "path:normalization",
+            "label:normalization",
+            "path:proof",
+            "label:proof",
+            "path:loop",
+            "label:loop",
+            "path:proofloop",
+            "label:proofloop"
+          ]
+        },
+        {
+          "nodeId": "symbol:src/eval/proofloopBenchmarkNormalization.ts#renderProofloopBenchmarkNormalizationMarkdown",
+          "kind": "symbol",
+          "label": "renderProofloopBenchmarkNormalizationMarkdown",
+          "path": "src/eval/proofloopBenchmarkNormalization.ts",
+          "score": 40,
+          "reasons": [
+            "path:benchmark",
+            "label:benchmark",
+            "path:normalization",
+            "label:normalization",
+            "path:proof",
+            "label:proof",
+            "path:loop",
+            "label:loop",
+            "path:proofloop",
+            "label:proofloop"
+          ]
+        },
+        {
+          "nodeId": "file:proofloop/benchmarks/bankertoolbench/adapter.json",
+          "kind": "proof_artifact",
+          "label": "proofloop/benchmarks/bankertoolbench/adapter.json",
+          "path": "proofloop/benchmarks/bankertoolbench/adapter.json",
+          "score": 36,
+          "reasons": [
+            "path:benchmark",
+            "label:benchmark",
+            "path:proof",
+            "label:proof",
+            "path:loop",
+            "label:loop",
+            "path:proofloop",
+            "label:proofloop",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:proofloop/benchmarks/finauditing/adapter.json",
+          "kind": "proof_artifact",
+          "label": "proofloop/benchmarks/finauditing/adapter.json",
+          "path": "proofloop/benchmarks/finauditing/adapter.json",
+          "score": 36,
+          "reasons": [
+            "path:benchmark",
+            "label:benchmark",
+            "path:proof",
+            "label:proof",
+            "path:loop",
+            "label:loop",
+            "path:proofloop",
+            "label:proofloop",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:proofloop/benchmarks/finch/adapter.json",
+          "kind": "proof_artifact",
+          "label": "proofloop/benchmarks/finch/adapter.json",
+          "path": "proofloop/benchmarks/finch/adapter.json",
+          "score": 36,
+          "reasons": [
+            "path:benchmark",
+            "label:benchmark",
+            "path:proof",
+            "label:proof",
+            "path:loop",
+            "label:loop",
+            "path:proofloop",
+            "label:proofloop",
+            "proof-artifact"
+          ]
+        }
+      ],
+      "exitCode": 0,
+      "stdoutTail": "> noderoom@0.1.1 benchmark:proofloop:normalized\n> tsx scripts/proofloop-normalized-benchmarks.ts\nwrote docs/eval/proofloop-normalized-benchmarks.json\nwrote docs/eval/PROOFLOOP_NORMALIZED_BENCHMARKS.md\nproofloop normalized benchmarks: product proven=3, ready=2, partial=4, official claimed=1, blocked=4",
+      "stderrTail": ""
+    },
+    {
+      "id": "company-task-coverage-ledger",
+      "title": "Company/task archetype coverage ledger",
+      "sourceStatus": "pending",
+      "kind": "command",
+      "command": "npm run benchmark:proofloop:company-tasks",
+      "safety": "safe_local",
+      "status": "passed",
+      "evidence": [
+        "docs/eval/proofloop-company-task-coverage.json",
+        "docs/eval/PROOFLOOP_COMPANY_TASK_COVERAGE.md"
+      ],
+      "blockers": [],
+      "attempts": 0,
+      "likelyFiles": [
+        {
+          "nodeId": "file:docs/eval/PROOFLOOP_COMPANY_TASK_COVERAGE.md",
+          "kind": "proof_artifact",
+          "label": "docs/eval/PROOFLOOP_COMPANY_TASK_COVERAGE.md",
+          "path": "docs/eval/PROOFLOOP_COMPANY_TASK_COVERAGE.md",
+          "score": 39,
+          "reasons": [
+            "path:company",
+            "label:company",
+            "path:task",
+            "label:task",
+            "path:coverage",
+            "label:coverage",
+            "path:proofloop",
+            "label:proofloop",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/proofloop-company-task-coverage.json",
+          "kind": "proof_artifact",
+          "label": "docs/eval/proofloop-company-task-coverage.json",
+          "path": "docs/eval/proofloop-company-task-coverage.json",
+          "score": 39,
+          "reasons": [
+            "path:company",
+            "label:company",
+            "path:task",
+            "label:task",
+            "path:coverage",
+            "label:coverage",
+            "path:proofloop",
+            "label:proofloop",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:src/eval/proofloopCompanyTaskCoverage.ts",
+          "kind": "file",
+          "label": "src/eval/proofloopCompanyTaskCoverage.ts",
+          "path": "src/eval/proofloopCompanyTaskCoverage.ts",
+          "score": 38,
+          "reasons": [
+            "path:company",
+            "label:company",
+            "path:task",
+            "label:task",
+            "path:coverage",
+            "label:coverage",
+            "path:proofloop",
+            "label:proofloop"
+          ]
+        },
+        {
+          "nodeId": "file:tests/proofloopCompanyTaskCoverage.test.ts",
+          "kind": "file",
+          "label": "tests/proofloopCompanyTaskCoverage.test.ts",
+          "path": "tests/proofloopCompanyTaskCoverage.test.ts",
+          "score": 35,
+          "reasons": [
+            "path:company",
+            "label:company",
+            "path:task",
+            "label:task",
+            "path:coverage",
+            "label:coverage",
+            "path:proofloop",
+            "label:proofloop"
+          ]
+        },
+        {
+          "nodeId": "file:proofloop/benchmarks/common/local-tasks.ts",
+          "kind": "proof_artifact",
+          "label": "proofloop/benchmarks/common/local-tasks.ts",
+          "path": "proofloop/benchmarks/common/local-tasks.ts",
+          "score": 34,
+          "reasons": [
+            "path:task",
+            "label:task",
+            "path:benchmark",
+            "label:benchmark",
+            "path:proofloop",
+            "label:proofloop",
+            "path:tasks",
+            "label:tasks",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:scripts/proofloop-company-task-coverage.ts",
+          "kind": "file",
+          "label": "scripts/proofloop-company-task-coverage.ts",
+          "path": "scripts/proofloop-company-task-coverage.ts",
+          "score": 34,
+          "reasons": [
+            "path:company",
+            "label:company",
+            "path:task",
+            "label:task",
+            "path:coverage",
+            "label:coverage",
+            "path:proofloop",
+            "label:proofloop"
+          ]
+        },
+        {
+          "nodeId": "file:proofloop/benchmarks/finauditing/load-tasks.ts",
+          "kind": "proof_artifact",
+          "label": "proofloop/benchmarks/finauditing/load-tasks.ts",
+          "path": "proofloop/benchmarks/finauditing/load-tasks.ts",
+          "score": 33,
+          "reasons": [
+            "path:task",
+            "label:task",
+            "path:benchmark",
+            "label:benchmark",
+            "path:proofloop",
+            "label:proofloop",
+            "path:tasks",
+            "label:tasks",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:proofloop/benchmarks/finch/load-tasks.ts",
+          "kind": "proof_artifact",
+          "label": "proofloop/benchmarks/finch/load-tasks.ts",
+          "path": "proofloop/benchmarks/finch/load-tasks.ts",
+          "score": 33,
+          "reasons": [
+            "path:task",
+            "label:task",
+            "path:benchmark",
+            "label:benchmark",
+            "path:proofloop",
+            "label:proofloop",
+            "path:tasks",
+            "label:tasks",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:proofloop/benchmarks/workstreambench/load-tasks.ts",
+          "kind": "proof_artifact",
+          "label": "proofloop/benchmarks/workstreambench/load-tasks.ts",
+          "path": "proofloop/benchmarks/workstreambench/load-tasks.ts",
+          "score": 33,
+          "reasons": [
+            "path:task",
+            "label:task",
+            "path:benchmark",
+            "label:benchmark",
+            "path:proofloop",
+            "label:proofloop",
+            "path:tasks",
+            "label:tasks",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "symbol:src/eval/proofloopCompanyTaskCoverage.ts#ProofloopCompanyTaskCoverageReport",
+          "kind": "symbol",
+          "label": "ProofloopCompanyTaskCoverageReport",
+          "path": "src/eval/proofloopCompanyTaskCoverage.ts",
+          "score": 32,
+          "reasons": [
+            "path:company",
+            "label:company",
+            "path:task",
+            "label:task",
+            "path:coverage",
+            "label:coverage",
+            "path:proofloop",
+            "label:proofloop"
+          ]
+        },
+        {
+          "nodeId": "symbol:src/eval/proofloopCompanyTaskCoverage.ts#buildProofloopCompanyTaskCoverageReport",
+          "kind": "symbol",
+          "label": "buildProofloopCompanyTaskCoverageReport",
+          "path": "src/eval/proofloopCompanyTaskCoverage.ts",
+          "score": 32,
+          "reasons": [
+            "path:company",
+            "label:company",
+            "path:task",
+            "label:task",
+            "path:coverage",
+            "label:coverage",
+            "path:proofloop",
+            "label:proofloop"
+          ]
+        },
+        {
+          "nodeId": "symbol:src/eval/proofloopCompanyTaskCoverage.ts#renderProofloopCompanyTaskCoverageMarkdown",
+          "kind": "symbol",
+          "label": "renderProofloopCompanyTaskCoverageMarkdown",
+          "path": "src/eval/proofloopCompanyTaskCoverage.ts",
+          "score": 32,
+          "reasons": [
+            "path:company",
+            "label:company",
+            "path:task",
+            "label:task",
+            "path:coverage",
+            "label:coverage",
+            "path:proofloop",
+            "label:proofloop"
+          ]
+        }
+      ],
+      "exitCode": 0,
+      "stdoutTail": "> noderoom@0.1.1 benchmark:proofloop:company-tasks\n> tsx scripts/proofloop-company-task-coverage.ts\nwrote docs/eval/proofloop-company-task-coverage.json\nwrote docs/eval/PROOFLOOP_COMPANY_TASK_COVERAGE.md\nproofloop company tasks: entries=7, prodBrowser=1, prodRuntime=3, ready=5, externalClosed=1",
+      "stderrTail": ""
+    },
+    {
+      "id": "harness-economics-ledger",
+      "title": "Harness version and OpenRouter proxy economics ledger",
+      "sourceStatus": "pending",
+      "kind": "command",
+      "command": "npm run benchmark:proofloop:harness-economics",
+      "safety": "safe_local",
+      "status": "passed",
+      "evidence": [
+        "docs/eval/proofloop-harness-economics.json",
+        "docs/eval/PROOFLOOP_HARNESS_ECONOMICS.md",
+        "docs/eval/openrouter-top-paid-tools-snapshot.json"
+      ],
+      "blockers": [],
+      "attempts": 0,
+      "likelyFiles": [
+        {
+          "nodeId": "file:docs/eval/PROOFLOOP_HARNESS_ECONOMICS.md",
+          "kind": "proof_artifact",
+          "label": "docs/eval/PROOFLOOP_HARNESS_ECONOMICS.md",
+          "path": "docs/eval/PROOFLOOP_HARNESS_ECONOMICS.md",
+          "score": 32,
+          "reasons": [
+            "path:harness",
+            "label:harness",
+            "path:economics",
+            "label:economics",
+            "path:proofloop",
+            "label:proofloop",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/proofloop-harness-economics.json",
+          "kind": "proof_artifact",
+          "label": "docs/eval/proofloop-harness-economics.json",
+          "path": "docs/eval/proofloop-harness-economics.json",
+          "score": 31,
+          "reasons": [
+            "path:harness",
+            "label:harness",
+            "path:economics",
+            "label:economics",
+            "path:proofloop",
+            "label:proofloop",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:src/eval/proofloopHarnessEconomics.ts",
+          "kind": "file",
+          "label": "src/eval/proofloopHarnessEconomics.ts",
+          "path": "src/eval/proofloopHarnessEconomics.ts",
+          "score": 31,
+          "reasons": [
+            "path:harness",
+            "label:harness",
+            "path:economics",
+            "label:economics",
+            "path:proofloop",
+            "label:proofloop"
+          ]
+        },
+        {
+          "nodeId": "file:tests/proofloopHarnessEconomics.test.ts",
+          "kind": "file",
+          "label": "tests/proofloopHarnessEconomics.test.ts",
+          "path": "tests/proofloopHarnessEconomics.test.ts",
+          "score": 29,
+          "reasons": [
+            "path:harness",
+            "label:harness",
+            "path:economics",
+            "label:economics",
+            "path:proofloop",
+            "label:proofloop"
+          ]
+        },
+        {
+          "nodeId": "file:scripts/proofloop-harness-economics.ts",
+          "kind": "file",
+          "label": "scripts/proofloop-harness-economics.ts",
+          "path": "scripts/proofloop-harness-economics.ts",
+          "score": 28,
+          "reasons": [
+            "path:harness",
+            "label:harness",
+            "path:economics",
+            "label:economics",
+            "path:proofloop",
+            "label:proofloop"
+          ]
+        },
+        {
+          "nodeId": "symbol:src/eval/proofloopHarnessEconomics.ts#buildProofloopHarnessEconomicsLedger",
+          "kind": "symbol",
+          "label": "buildProofloopHarnessEconomicsLedger",
+          "path": "src/eval/proofloopHarnessEconomics.ts",
+          "score": 28,
+          "reasons": [
+            "path:harness",
+            "label:harness",
+            "path:economics",
+            "label:economics",
+            "label:ledger",
+            "path:proofloop",
+            "label:proofloop"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/proofloop-charts/harness-version-trend.vl.json",
+          "kind": "proof_artifact",
+          "label": "docs/eval/proofloop-charts/harness-version-trend.vl.json",
+          "path": "docs/eval/proofloop-charts/harness-version-trend.vl.json",
+          "score": 26,
+          "reasons": [
+            "path:harness",
+            "label:harness",
+            "path:version",
+            "label:version",
+            "path:proofloop",
+            "label:proofloop",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:proofloop/accounting/run-benchmarks.ts",
+          "kind": "proof_artifact",
+          "label": "proofloop/accounting/run-benchmarks.ts",
+          "path": "proofloop/accounting/run-benchmarks.ts",
+          "score": 26,
+          "reasons": [
+            "path:run",
+            "label:run",
+            "path:benchmark",
+            "label:benchmark",
+            "path:proofloop",
+            "label:proofloop",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/PROOFLOOP_NORMALIZED_BENCHMARKS.md",
+          "kind": "proof_artifact",
+          "label": "docs/eval/PROOFLOOP_NORMALIZED_BENCHMARKS.md",
+          "path": "docs/eval/PROOFLOOP_NORMALIZED_BENCHMARKS.md",
+          "score": 25,
+          "reasons": [
+            "path:benchmark",
+            "label:benchmark",
+            "path:proofloop",
+            "label:proofloop",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/proofloop-charts/data/harness-version-trend.data.json",
+          "kind": "proof_artifact",
+          "label": "docs/eval/proofloop-charts/data/harness-version-trend.data.json",
+          "path": "docs/eval/proofloop-charts/data/harness-version-trend.data.json",
+          "score": 25,
+          "reasons": [
+            "path:harness",
+            "label:harness",
+            "path:version",
+            "label:version",
+            "path:proofloop",
+            "label:proofloop",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/proofloop-normalized-benchmarks.json",
+          "kind": "proof_artifact",
+          "label": "docs/eval/proofloop-normalized-benchmarks.json",
+          "path": "docs/eval/proofloop-normalized-benchmarks.json",
+          "score": 25,
+          "reasons": [
+            "path:benchmark",
+            "label:benchmark",
+            "path:proofloop",
+            "label:proofloop",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "symbol:src/eval/proofloopHarnessEconomics.ts#HarnessEconomicsLedger",
+          "kind": "symbol",
+          "label": "HarnessEconomicsLedger",
+          "path": "src/eval/proofloopHarnessEconomics.ts",
+          "score": 25,
+          "reasons": [
+            "path:harness",
+            "label:harness",
+            "path:economics",
+            "label:economics",
+            "label:ledger",
+            "path:proofloop"
+          ]
+        }
+      ],
+      "exitCode": 0,
+      "stdoutTail": "> noderoom@0.1.1 benchmark:proofloop:harness-economics\n> tsx scripts/proofloop-harness-economics.ts\nwrote docs/eval/proofloop-harness-economics.json\nwrote docs/eval/PROOFLOOP_HARNESS_ECONOMICS.md\nproofloop harness economics: files=23, missing=0, openrouterCandidates=25, proxyJudgeCandidates=8, cheaperProxyRoutes=true",
+      "stderrTail": ""
+    },
+    {
+      "id": "external-adapter-setup-doctor",
+      "title": "External adapter setup/doctor receipts before blocked status",
+      "sourceStatus": "pending",
+      "kind": "command",
+      "command": "npm run proofloop -- setup bankertoolbench --doctor && npm run proofloop -- setup finch --doctor && npm run proofloop -- setup finauditing --doctor && npm run proofloop -- setup workstreambench --doctor",
+      "safety": "safe_local",
+      "status": "passed",
+      "evidence": [
+        ".proofloop/setup/bankertoolbench-local-setup.json",
+        ".proofloop/setup/finch-local-setup.json",
+        ".proofloop/setup/finauditing-local-setup.json",
+        ".proofloop/setup/workstreambench-local-setup.json"
+      ],
+      "blockers": [],
+      "attempts": 0,
+      "likelyFiles": [
+        {
+          "nodeId": "file:docs/eval/proofloop-external-adapter-runs/finauditing.json",
+          "kind": "proof_artifact",
+          "label": "docs/eval/proofloop-external-adapter-runs/finauditing.json",
+          "path": "docs/eval/proofloop-external-adapter-runs/finauditing.json",
+          "score": 45,
+          "reasons": [
+            "path:external",
+            "label:external",
+            "path:adapter",
+            "label:adapter",
+            "path:run",
+            "label:run",
+            "path:proofloop",
+            "label:proofloop",
+            "path:finauditing",
+            "label:finauditing",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/proofloop-external-adapter-runs/finch.json",
+          "kind": "proof_artifact",
+          "label": "docs/eval/proofloop-external-adapter-runs/finch.json",
+          "path": "docs/eval/proofloop-external-adapter-runs/finch.json",
+          "score": 45,
+          "reasons": [
+            "path:external",
+            "label:external",
+            "path:adapter",
+            "label:adapter",
+            "path:run",
+            "label:run",
+            "path:proofloop",
+            "label:proofloop",
+            "path:finch",
+            "label:finch",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/proofloop-external-adapter-runs/workstreambench.json",
+          "kind": "proof_artifact",
+          "label": "docs/eval/proofloop-external-adapter-runs/workstreambench.json",
+          "path": "docs/eval/proofloop-external-adapter-runs/workstreambench.json",
+          "score": 45,
+          "reasons": [
+            "path:external",
+            "label:external",
+            "path:adapter",
+            "label:adapter",
+            "path:run",
+            "label:run",
+            "path:proofloop",
+            "label:proofloop",
+            "path:workstreambench",
+            "label:workstreambench",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:scripts/proofloop-external-adapter-run.ts",
+          "kind": "file",
+          "label": "scripts/proofloop-external-adapter-run.ts",
+          "path": "scripts/proofloop-external-adapter-run.ts",
+          "score": 35,
+          "reasons": [
+            "path:external",
+            "label:external",
+            "path:adapter",
+            "label:adapter",
+            "path:run",
+            "label:run",
+            "path:proofloop",
+            "label:proofloop"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/proofloop-adapter-blockers/finauditing.json",
+          "kind": "proof_artifact",
+          "label": "docs/eval/proofloop-adapter-blockers/finauditing.json",
+          "path": "docs/eval/proofloop-adapter-blockers/finauditing.json",
+          "score": 31,
+          "reasons": [
+            "path:adapter",
+            "label:adapter",
+            "path:proofloop",
+            "label:proofloop",
+            "path:finauditing",
+            "label:finauditing",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/proofloop-adapter-blockers/finch.json",
+          "kind": "proof_artifact",
+          "label": "docs/eval/proofloop-adapter-blockers/finch.json",
+          "path": "docs/eval/proofloop-adapter-blockers/finch.json",
+          "score": 31,
+          "reasons": [
+            "path:adapter",
+            "label:adapter",
+            "path:proofloop",
+            "label:proofloop",
+            "path:finch",
+            "label:finch",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/proofloop-adapter-blockers/workstreambench.json",
+          "kind": "proof_artifact",
+          "label": "docs/eval/proofloop-adapter-blockers/workstreambench.json",
+          "path": "docs/eval/proofloop-adapter-blockers/workstreambench.json",
+          "score": 31,
+          "reasons": [
+            "path:adapter",
+            "label:adapter",
+            "path:proofloop",
+            "label:proofloop",
+            "path:workstreambench",
+            "label:workstreambench",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:proofloop/benchmarks/bankertoolbench/adapter.json",
+          "kind": "proof_artifact",
+          "label": "proofloop/benchmarks/bankertoolbench/adapter.json",
+          "path": "proofloop/benchmarks/bankertoolbench/adapter.json",
+          "score": 27,
+          "reasons": [
+            "path:adapter",
+            "label:adapter",
+            "path:proofloop",
+            "label:proofloop",
+            "path:bankertoolbench",
+            "label:bankertoolbench",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:proofloop/benchmarks/finauditing/adapter.json",
+          "kind": "proof_artifact",
+          "label": "proofloop/benchmarks/finauditing/adapter.json",
+          "path": "proofloop/benchmarks/finauditing/adapter.json",
+          "score": 27,
+          "reasons": [
+            "path:adapter",
+            "label:adapter",
+            "path:proofloop",
+            "label:proofloop",
+            "path:finauditing",
+            "label:finauditing",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:proofloop/benchmarks/finch/adapter.json",
+          "kind": "proof_artifact",
+          "label": "proofloop/benchmarks/finch/adapter.json",
+          "path": "proofloop/benchmarks/finch/adapter.json",
+          "score": 27,
+          "reasons": [
+            "path:adapter",
+            "label:adapter",
+            "path:proofloop",
+            "label:proofloop",
+            "path:finch",
+            "label:finch",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:proofloop/benchmarks/workstreambench/adapter.json",
+          "kind": "proof_artifact",
+          "label": "proofloop/benchmarks/workstreambench/adapter.json",
+          "path": "proofloop/benchmarks/workstreambench/adapter.json",
+          "score": 27,
+          "reasons": [
+            "path:adapter",
+            "label:adapter",
+            "path:proofloop",
+            "label:proofloop",
+            "path:workstreambench",
+            "label:workstreambench",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "symbol:scripts/proofloop-external-adapter-run.ts#runStatus",
+          "kind": "symbol",
+          "label": "runStatus",
+          "path": "scripts/proofloop-external-adapter-run.ts",
+          "score": 27,
+          "reasons": [
+            "path:external",
+            "path:adapter",
+            "label:status",
+            "path:run",
+            "label:run",
+            "path:proofloop"
+          ]
+        }
+      ],
+      "exitCode": 0,
+      "stdoutTail": "> noderoom@0.1.1 proofloop\n> node scripts/proofloop.mjs setup bankertoolbench --doctor\nproofloop setup: bankertoolbench ready\nproofloop setup: receipt .proofloop/setup/bankertoolbench-local-setup.json\nproofloop setup: next npm run proofloop -- setup bankertoolbench --allow-download --limit 1\n> noderoom@0.1.1 proofloop\n> node scripts/proofloop.mjs setup finch --doctor\nproofloop setup: finch needs_local_adapter_implementation\nproofloop setup: receipt .proofloop/setup/finch-local-setup.json\nproofloop setup: next Complete proofloop/benchmarks/finch/adapter.json and local setup recipe.\n> noderoom@0.1.1 proofloop\n> node scripts/proofloop.mjs setup finauditing --doctor\nproofloop setup: finauditing needs_local_adapter_implementation\nproofloop setup: receipt .proofloop/setup/finauditing-local-setup.json\nproofloop setup: next Complete proofloop/benchmarks/finauditing/adapter.json and local setup recipe.\n> noderoom@0.1.1 proofloop\n> node scripts/proofloop.mjs setup workstreambench --doctor\nproofloop setup: workstreambench needs_local_adapter_implementation\nproofloop setup: receipt .proofloop/setup/workstreambench-local-setup.json\nproofloop setup: next Complete proofloop/benchmarks/workstreambench/adapter.json and local setup recipe.",
+      "stderrTail": ""
+    },
+    {
+      "id": "external-adapter-local-product-proofs",
+      "title": "External adapter local product-path browser proofs",
+      "sourceStatus": "pending",
+      "kind": "command",
+      "command": "npm run benchmark:proofloop:external-adapter -- --prod --user-emulation strict",
+      "safety": "expensive_or_live",
+      "status": "needs_worker",
+      "evidence": [
+        "docs/eval/proofloop-external-adapter-runs/finch.json",
+        "docs/eval/proofloop-external-adapter-runs/finauditing.json",
+        "docs/eval/proofloop-external-adapter-runs/workstreambench.json"
+      ],
+      "blockers": [],
+      "attempts": 0,
+      "likelyFiles": [
+        {
+          "nodeId": "file:docs/eval/proofloop-external-adapter-runs/finauditing.json",
+          "kind": "proof_artifact",
+          "label": "docs/eval/proofloop-external-adapter-runs/finauditing.json",
+          "path": "docs/eval/proofloop-external-adapter-runs/finauditing.json",
+          "score": 41,
+          "reasons": [
+            "path:external",
+            "label:external",
+            "path:adapter",
+            "label:adapter",
+            "path:run",
+            "label:run",
+            "path:proofloop",
+            "label:proofloop",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:scripts/proofloop-external-adapter-run.ts",
+          "kind": "file",
+          "label": "scripts/proofloop-external-adapter-run.ts",
+          "path": "scripts/proofloop-external-adapter-run.ts",
+          "score": 41,
+          "reasons": [
+            "path:external",
+            "label:external",
+            "path:adapter",
+            "label:adapter",
+            "path:run",
+            "label:run",
+            "path:proofloop",
+            "label:proofloop"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/proofloop-external-adapter-runs/finch.json",
+          "kind": "proof_artifact",
+          "label": "docs/eval/proofloop-external-adapter-runs/finch.json",
+          "path": "docs/eval/proofloop-external-adapter-runs/finch.json",
+          "score": 40,
+          "reasons": [
+            "path:external",
+            "label:external",
+            "path:adapter",
+            "label:adapter",
+            "path:run",
+            "label:run",
+            "path:proofloop",
+            "label:proofloop",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/proofloop-external-adapter-runs/workstreambench.json",
+          "kind": "proof_artifact",
+          "label": "docs/eval/proofloop-external-adapter-runs/workstreambench.json",
+          "path": "docs/eval/proofloop-external-adapter-runs/workstreambench.json",
+          "score": 40,
+          "reasons": [
+            "path:external",
+            "label:external",
+            "path:adapter",
+            "label:adapter",
+            "path:run",
+            "label:run",
+            "path:proofloop",
+            "label:proofloop",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:proofloop/benchmarks/bankertoolbench/adapter.json",
+          "kind": "proof_artifact",
+          "label": "proofloop/benchmarks/bankertoolbench/adapter.json",
+          "path": "proofloop/benchmarks/bankertoolbench/adapter.json",
+          "score": 35,
+          "reasons": [
+            "path:adapter",
+            "label:adapter",
+            "path:benchmark",
+            "label:benchmark",
+            "path:proofloop",
+            "label:proofloop",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:proofloop/benchmarks/finauditing/adapter.json",
+          "kind": "proof_artifact",
+          "label": "proofloop/benchmarks/finauditing/adapter.json",
+          "path": "proofloop/benchmarks/finauditing/adapter.json",
+          "score": 34,
+          "reasons": [
+            "path:adapter",
+            "label:adapter",
+            "path:benchmark",
+            "label:benchmark",
+            "path:proofloop",
+            "label:proofloop",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:proofloop/benchmarks/finch/adapter.json",
+          "kind": "proof_artifact",
+          "label": "proofloop/benchmarks/finch/adapter.json",
+          "path": "proofloop/benchmarks/finch/adapter.json",
+          "score": 34,
+          "reasons": [
+            "path:adapter",
+            "label:adapter",
+            "path:benchmark",
+            "label:benchmark",
+            "path:proofloop",
+            "label:proofloop",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:proofloop/benchmarks/workstreambench/adapter.json",
+          "kind": "proof_artifact",
+          "label": "proofloop/benchmarks/workstreambench/adapter.json",
+          "path": "proofloop/benchmarks/workstreambench/adapter.json",
+          "score": 34,
+          "reasons": [
+            "path:adapter",
+            "label:adapter",
+            "path:benchmark",
+            "label:benchmark",
+            "path:proofloop",
+            "label:proofloop",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "symbol:scripts/proofloop-external-adapter-run.ts#ExternalAdapterProductProofReceipt",
+          "kind": "symbol",
+          "label": "ExternalAdapterProductProofReceipt",
+          "path": "scripts/proofloop-external-adapter-run.ts",
+          "score": 34,
+          "reasons": [
+            "path:external",
+            "label:external",
+            "path:adapter",
+            "label:adapter",
+            "label:product",
+            "path:run",
+            "path:proofloop",
+            "label:prod"
+          ]
+        },
+        {
+          "nodeId": "file:proofloop/benchmarks/common/browser-scenario.ts",
+          "kind": "proof_artifact",
+          "label": "proofloop/benchmarks/common/browser-scenario.ts",
+          "path": "proofloop/benchmarks/common/browser-scenario.ts",
+          "score": 33,
+          "reasons": [
+            "path:browser",
+            "label:browser",
+            "path:benchmark",
+            "label:benchmark",
+            "path:proofloop",
+            "label:proofloop",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:proofloop/benchmarks/common/local-tasks.ts",
+          "kind": "proof_artifact",
+          "label": "proofloop/benchmarks/common/local-tasks.ts",
+          "path": "proofloop/benchmarks/common/local-tasks.ts",
+          "score": 31,
+          "reasons": [
+            "path:local",
+            "label:local",
+            "path:benchmark",
+            "label:benchmark",
+            "path:proofloop",
+            "label:proofloop",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:src/eval/proofloopBenchmarkAdapters.ts",
+          "kind": "file",
+          "label": "src/eval/proofloopBenchmarkAdapters.ts",
+          "path": "src/eval/proofloopBenchmarkAdapters.ts",
+          "score": 31,
+          "reasons": [
+            "path:adapter",
+            "label:adapter",
+            "path:benchmark",
+            "label:benchmark",
+            "path:proofloop",
+            "label:proofloop"
+          ]
+        }
+      ],
+      "repairContextPath": ".proofloop/orchestrator/runs/dogfood-official-scores-2026-07-03T09-09-00-226Z/repair-contexts/external-adapter-local-product-proofs.md"
+    },
+    {
+      "id": "external-adapter-blocker-receipts",
+      "title": "External adapter typed blocker receipts",
+      "sourceStatus": "pending",
+      "kind": "command",
+      "command": "npm run benchmark:proofloop:adapter-blockers",
+      "safety": "safe_local",
+      "status": "passed",
+      "evidence": [
+        "docs/eval/proofloop-adapter-blockers/finch.json",
+        "docs/eval/proofloop-adapter-blockers/finauditing.json",
+        "docs/eval/proofloop-adapter-blockers/workstreambench.json"
+      ],
+      "blockers": [],
+      "attempts": 0,
+      "likelyFiles": [
+        {
+          "nodeId": "file:tests/proofloopAdapterBlockers.test.ts",
+          "kind": "file",
+          "label": "tests/proofloopAdapterBlockers.test.ts",
+          "path": "tests/proofloopAdapterBlockers.test.ts",
+          "score": 38,
+          "reasons": [
+            "path:adapter",
+            "label:adapter",
+            "path:blocker",
+            "label:blocker",
+            "path:proofloop",
+            "label:proofloop",
+            "path:blockers",
+            "label:blockers"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/proofloop-adapter-blockers/finauditing.json",
+          "kind": "proof_artifact",
+          "label": "docs/eval/proofloop-adapter-blockers/finauditing.json",
+          "path": "docs/eval/proofloop-adapter-blockers/finauditing.json",
+          "score": 37,
+          "reasons": [
+            "path:adapter",
+            "label:adapter",
+            "path:blocker",
+            "label:blocker",
+            "path:proofloop",
+            "label:proofloop",
+            "path:blockers",
+            "label:blockers",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/proofloop-adapter-blockers/finch.json",
+          "kind": "proof_artifact",
+          "label": "docs/eval/proofloop-adapter-blockers/finch.json",
+          "path": "docs/eval/proofloop-adapter-blockers/finch.json",
+          "score": 37,
+          "reasons": [
+            "path:adapter",
+            "label:adapter",
+            "path:blocker",
+            "label:blocker",
+            "path:proofloop",
+            "label:proofloop",
+            "path:blockers",
+            "label:blockers",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/proofloop-adapter-blockers/workstreambench.json",
+          "kind": "proof_artifact",
+          "label": "docs/eval/proofloop-adapter-blockers/workstreambench.json",
+          "path": "docs/eval/proofloop-adapter-blockers/workstreambench.json",
+          "score": 37,
+          "reasons": [
+            "path:adapter",
+            "label:adapter",
+            "path:blocker",
+            "label:blocker",
+            "path:proofloop",
+            "label:proofloop",
+            "path:blockers",
+            "label:blockers",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/proofloop-external-adapter-runs/finauditing.json",
+          "kind": "proof_artifact",
+          "label": "docs/eval/proofloop-external-adapter-runs/finauditing.json",
+          "path": "docs/eval/proofloop-external-adapter-runs/finauditing.json",
+          "score": 37,
+          "reasons": [
+            "path:external",
+            "label:external",
+            "path:adapter",
+            "label:adapter",
+            "path:run",
+            "label:run",
+            "path:proofloop",
+            "label:proofloop",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/proofloop-external-adapter-runs/finch.json",
+          "kind": "proof_artifact",
+          "label": "docs/eval/proofloop-external-adapter-runs/finch.json",
+          "path": "docs/eval/proofloop-external-adapter-runs/finch.json",
+          "score": 37,
+          "reasons": [
+            "path:external",
+            "label:external",
+            "path:adapter",
+            "label:adapter",
+            "path:run",
+            "label:run",
+            "path:proofloop",
+            "label:proofloop",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/proofloop-external-adapter-runs/workstreambench.json",
+          "kind": "proof_artifact",
+          "label": "docs/eval/proofloop-external-adapter-runs/workstreambench.json",
+          "path": "docs/eval/proofloop-external-adapter-runs/workstreambench.json",
+          "score": 37,
+          "reasons": [
+            "path:external",
+            "label:external",
+            "path:adapter",
+            "label:adapter",
+            "path:run",
+            "label:run",
+            "path:proofloop",
+            "label:proofloop",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:src/eval/proofloopAdapterBlockers.ts",
+          "kind": "file",
+          "label": "src/eval/proofloopAdapterBlockers.ts",
+          "path": "src/eval/proofloopAdapterBlockers.ts",
+          "score": 36,
+          "reasons": [
+            "path:adapter",
+            "label:adapter",
+            "path:blocker",
+            "label:blocker",
+            "path:proofloop",
+            "label:proofloop",
+            "path:blockers",
+            "label:blockers"
+          ]
+        },
+        {
+          "nodeId": "file:scripts/proofloop-adapter-blockers.ts",
+          "kind": "file",
+          "label": "scripts/proofloop-adapter-blockers.ts",
+          "path": "scripts/proofloop-adapter-blockers.ts",
+          "score": 35,
+          "reasons": [
+            "path:adapter",
+            "label:adapter",
+            "path:blocker",
+            "label:blocker",
+            "path:proofloop",
+            "label:proofloop",
+            "path:blockers",
+            "label:blockers"
+          ]
+        },
+        {
+          "nodeId": "file:scripts/proofloop-external-adapter-run.ts",
+          "kind": "file",
+          "label": "scripts/proofloop-external-adapter-run.ts",
+          "path": "scripts/proofloop-external-adapter-run.ts",
+          "score": 35,
+          "reasons": [
+            "path:external",
+            "label:external",
+            "path:adapter",
+            "label:adapter",
+            "path:run",
+            "label:run",
+            "path:proofloop",
+            "label:proofloop"
+          ]
+        },
+        {
+          "nodeId": "symbol:src/eval/proofloopAdapterBlockers.ts#ExternalAdapterBlockerStatus",
+          "kind": "symbol",
+          "label": "ExternalAdapterBlockerStatus",
+          "path": "src/eval/proofloopAdapterBlockers.ts",
+          "score": 33,
+          "reasons": [
+            "label:external",
+            "path:adapter",
+            "label:adapter",
+            "path:blocker",
+            "label:blocker",
+            "path:proofloop",
+            "path:blockers",
+            "label:blockers"
+          ]
+        },
+        {
+          "nodeId": "symbol:src/eval/proofloopAdapterBlockers.ts#ExternalAdapterBlockerReceipt",
+          "kind": "symbol",
+          "label": "ExternalAdapterBlockerReceipt",
+          "path": "src/eval/proofloopAdapterBlockers.ts",
+          "score": 30,
+          "reasons": [
+            "label:external",
+            "path:adapter",
+            "label:adapter",
+            "path:blocker",
+            "label:blocker",
+            "path:proofloop",
+            "path:blockers"
+          ]
+        }
+      ],
+      "exitCode": 0,
+      "stdoutTail": "> noderoom@0.1.1 benchmark:proofloop:adapter-blockers\n> tsx scripts/proofloop-adapter-blockers.ts\nfinch: blocked_external (1 blocker(s)) -> docs\\eval\\proofloop-adapter-blockers\\finch.json\nfinauditing: blocked_external (1 blocker(s)) -> docs\\eval\\proofloop-adapter-blockers\\finauditing.json\nworkstreambench: blocked_external (2 blocker(s)) -> docs\\eval\\proofloop-adapter-blockers\\workstreambench.json",
+      "stderrTail": ""
+    },
+    {
+      "id": "blocked-lane-solver",
+      "title": "Blocked official-lane research/scaffold/model-sweep solver",
+      "sourceStatus": "pending",
+      "kind": "command",
+      "command": "npm run proofloop -- solve-blockers --goal official-scores",
+      "safety": "safe_local",
+      "status": "passed",
+      "evidence": [
+        ".proofloop/lanes/spreadsheetbench-v1/blocker-analysis.json",
+        ".proofloop/lanes/spreadsheetbench-v2/blocker-analysis.json",
+        ".proofloop/lanes/finch/blocker-analysis.json",
+        ".proofloop/lanes/finauditing/blocker-analysis.json",
+        ".proofloop/lanes/workstreambench/blocker-analysis.json"
+      ],
+      "blockers": [],
+      "attempts": 0,
+      "likelyFiles": [
+        {
+          "nodeId": "file:src/eval/proofloopBlockerSolver.ts",
+          "kind": "file",
+          "label": "src/eval/proofloopBlockerSolver.ts",
+          "path": "src/eval/proofloopBlockerSolver.ts",
+          "score": 42,
+          "reasons": [
+            "path:solver",
+            "label:solver",
+            "path:proofloop",
+            "label:proofloop",
+            "path:solve",
+            "label:solve",
+            "path:blockers",
+            "label:blockers"
+          ]
+        },
+        {
+          "nodeId": "file:tests/proofloopBlockerSolver.test.ts",
+          "kind": "file",
+          "label": "tests/proofloopBlockerSolver.test.ts",
+          "path": "tests/proofloopBlockerSolver.test.ts",
+          "score": 39,
+          "reasons": [
+            "path:solver",
+            "label:solver",
+            "path:proofloop",
+            "label:proofloop",
+            "path:solve",
+            "label:solve",
+            "path:blockers",
+            "label:blockers"
+          ]
+        },
+        {
+          "nodeId": "symbol:src/eval/proofloopBlockerSolver.ts#ProofloopBlockerSolveReceipt",
+          "kind": "symbol",
+          "label": "ProofloopBlockerSolveReceipt",
+          "path": "src/eval/proofloopBlockerSolver.ts",
+          "score": 32,
+          "reasons": [
+            "path:solver",
+            "label:solver",
+            "path:proofloop",
+            "label:proofloop",
+            "path:solve",
+            "label:solve",
+            "path:blockers",
+            "label:blockers"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/proofloop-official-scores/finch.json",
+          "kind": "proof_artifact",
+          "label": "docs/eval/proofloop-official-scores/finch.json",
+          "path": "docs/eval/proofloop-official-scores/finch.json",
+          "score": 29,
+          "reasons": [
+            "path:official",
+            "label:official",
+            "path:proofloop",
+            "label:proofloop",
+            "path:scores",
+            "label:scores",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "symbol:src/eval/proofloopBlockerSolver.ts#ProofloopBlockerSolvePhase",
+          "kind": "symbol",
+          "label": "ProofloopBlockerSolvePhase",
+          "path": "src/eval/proofloopBlockerSolver.ts",
+          "score": 29,
+          "reasons": [
+            "path:solver",
+            "path:proofloop",
+            "label:proofloop",
+            "path:solve",
+            "label:solve",
+            "path:blockers",
+            "label:blockers"
+          ]
+        },
+        {
+          "nodeId": "symbol:src/eval/proofloopBlockerSolver.ts#solveProofloopBlockers",
+          "kind": "symbol",
+          "label": "solveProofloopBlockers",
+          "path": "src/eval/proofloopBlockerSolver.ts",
+          "score": 29,
+          "reasons": [
+            "path:solver",
+            "path:proofloop",
+            "label:proofloop",
+            "path:solve",
+            "label:solve",
+            "path:blockers",
+            "label:blockers"
+          ]
+        },
+        {
+          "nodeId": "file:src/eval/proofloopGoalSupervisor.ts",
+          "kind": "file",
+          "label": "src/eval/proofloopGoalSupervisor.ts",
+          "path": "src/eval/proofloopGoalSupervisor.ts",
+          "score": 29,
+          "reasons": [
+            "path:proofloop",
+            "label:proofloop",
+            "path:goal",
+            "label:goal"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/proofloop-official-scores/finauditing.json",
+          "kind": "proof_artifact",
+          "label": "docs/eval/proofloop-official-scores/finauditing.json",
+          "path": "docs/eval/proofloop-official-scores/finauditing.json",
+          "score": 28,
+          "reasons": [
+            "path:official",
+            "label:official",
+            "path:proofloop",
+            "label:proofloop",
+            "path:scores",
+            "label:scores",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/proofloop-official-scores/workstreambench.json",
+          "kind": "proof_artifact",
+          "label": "docs/eval/proofloop-official-scores/workstreambench.json",
+          "path": "docs/eval/proofloop-official-scores/workstreambench.json",
+          "score": 28,
+          "reasons": [
+            "path:official",
+            "label:official",
+            "path:proofloop",
+            "label:proofloop",
+            "path:scores",
+            "label:scores",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "symbol:src/eval/proofloopBlockerSolver.ts#modelRoutesForLane",
+          "kind": "symbol",
+          "label": "modelRoutesForLane",
+          "path": "src/eval/proofloopBlockerSolver.ts",
+          "score": 28,
+          "reasons": [
+            "label:lane",
+            "path:solver",
+            "label:model",
+            "path:proofloop",
+            "path:solve",
+            "path:blockers"
+          ]
+        },
+        {
+          "nodeId": "symbol:src/eval/proofloopBlockerSolver.ts#compareProofloopModelsForSuite",
+          "kind": "symbol",
+          "label": "compareProofloopModelsForSuite",
+          "path": "src/eval/proofloopBlockerSolver.ts",
+          "score": 27,
+          "reasons": [
+            "path:solver",
+            "label:model",
+            "path:proofloop",
+            "label:proofloop",
+            "path:solve",
+            "path:blockers"
+          ]
+        },
+        {
+          "nodeId": "file:tests/proofloopGoalSupervisor.test.ts",
+          "kind": "file",
+          "label": "tests/proofloopGoalSupervisor.test.ts",
+          "path": "tests/proofloopGoalSupervisor.test.ts",
+          "score": 27,
+          "reasons": [
+            "path:proofloop",
+            "label:proofloop",
+            "path:goal",
+            "label:goal"
+          ]
+        }
+      ],
+      "exitCode": 0,
+      "stdoutTail": "> noderoom@0.1.1 proofloop\n> node scripts/proofloop.mjs solve-blockers --goal official-scores\nproofloop: solved 5 blocker lane(s) for goal official-scores\n  - spreadsheetbench-v1-full-official-score: needs_scaffold_or_run (missing_model_run, missing_official_scorer, missing_task_bundle)\n    analysis: .proofloop/lanes/spreadsheetbench-v1/blocker-analysis.json\n    next: run all 912 SpreadsheetBench V1 tasks through the model runner, use npm run benchmark:proofloop:harness-economics to select cheap proxy routes for product iteration, then npm run benchmark:official:task-coverage -- --strict\n  - spreadsheetbench-v2-full-official-score: needs_scaffold_or_run (missing_model_run, missing_official_scorer, missing_task_bundle)\n    analysis: .proofloop/lanes/spreadsheetbench-v2/blocker-analysis.json\n    next: stage the full SpreadsheetBench V2 321-task bundle, run all tasks and scorer/chart grader, use npm run benchmark:proofloop:harness-economics for proxy-model routing, then npm run benchmark:official:task-coverage -- --strict\n  - finch-official-score: needs_scaffold_or_run (missing_judge_credentials, missing_official_scorer, missing_output_exporter, missing_task_bundle)\n    analysis: .proofloop/lanes/finch/blocker-analysis.json\n    next: emit NodeRoom outputs for every official Finch task id, run/import the accepted upstream Finch scorer or judge output, use npm run benchmark:proofloop:harness-economics for proxy triage, then npm run benchmark:proofloop:adapter-blockers -- --id finch --strict\n  - finauditing-official-score: needs_scaffold_or_run (missing_judge_credentials, missing_official_scorer, missing_output_exporter, missing_task_bundle)\n    analysis: .proofloop/lanes/finauditing/blocker-analysis.json\n    next: emit official-format FinSM/FinRE/FinMR predictions, run/import FinAuditing scorer output with an accepted FinMR judge path, use npm run benchmark:proofloop:harness-economics for proxy triage, then npm run benchmark:proofloop:adapter-blockers -- --id finauditing --strict\n  - workstreambench-official-score: blocked_external (missing_official_scorer, missing_task_bundle, no_public_upstream_release)\n    analysis: .proofloop/lanes/workstreambench/blocker-analysis.json\n    next: obtain the official WorkstreamBench task bundle and scorer/rubric from an upstream release or authors, lock it in docs/eval/proofloop-official-task-bundles/workstreambench.json, use npm run benchmark:proofloop:harness-economics for proxy triage, import a scored receipt, then npm run benchmark:proofloop:adapter-blockers -- --id workstreambench --strict",
+      "stderrTail": ""
+    },
+    {
+      "id": "proofloop-chart-pack",
+      "title": "Proof Loop chart pack from model/task/harness ledgers",
+      "sourceStatus": "pending",
+      "kind": "command",
+      "command": "npm run proofloop -- charts latest",
+      "safety": "safe_local",
+      "status": "passed",
+      "evidence": [
+        ".proofloop/runs/latest/charts/chart-pack.json",
+        ".proofloop/runs/latest/charts/chart-pack.html",
+        ".proofloop/runs/latest/charts/model-performance.vl.json",
+        ".proofloop/runs/latest/charts/cost-per-pass.vl.json",
+        ".proofloop/runs/latest/charts/failure-categories.vl.json",
+        ".proofloop/runs/latest/charts/harness-version-trend.vl.json",
+        ".proofloop/runs/latest/charts/evidence-score.vl.json",
+        ".proofloop/runs/latest/charts/latency-cost-frontier.vl.json",
+        ".proofloop/runs/latest/charts/accounting-workpaper.vl.json",
+        "docs/eval/proofloop-charts/chart-pack.json",
+        "docs/eval/proofloop-charts/proofloop-chart-pack.json",
+        "docs/eval/proofloop-charts/chart-pack.html",
+        "docs/eval/proofloop-charts/model-performance.vl.json",
+        "docs/eval/proofloop-charts/cost-per-pass.vl.json",
+        "docs/eval/proofloop-charts/failure-categories.vl.json",
+        "docs/eval/proofloop-charts/harness-version-trend.vl.json",
+        "docs/eval/proofloop-charts/evidence-score.vl.json",
+        "docs/eval/proofloop-charts/latency-cost-frontier.vl.json",
+        "docs/eval/proofloop-charts/accounting-workpaper.vl.json",
+        "docs/eval/proofloop-charts/PROOFLOOP_CHART_PACK.md",
+        "docs/eval/proofloop-charts/svg/model-performance.svg",
+        "docs/eval/proofloop-charts/svg/cost-per-pass.svg",
+        "docs/eval/proofloop-charts/svg/failure-categories.svg",
+        "docs/eval/proofloop-charts/svg/harness-version-trend.svg",
+        "docs/eval/proofloop-charts/svg/latency-cost-frontier.svg",
+        "docs/eval/proofloop-charts/svg/workflow-completion.svg"
+      ],
+      "blockers": [],
+      "attempts": 0,
+      "likelyFiles": [
+        {
+          "nodeId": "file:docs/eval/proofloop-charts/PROOFLOOP_CHART_PACK.md",
+          "kind": "proof_artifact",
+          "label": "docs/eval/proofloop-charts/PROOFLOOP_CHART_PACK.md",
+          "path": "docs/eval/proofloop-charts/PROOFLOOP_CHART_PACK.md",
+          "score": 56,
+          "reasons": [
+            "path:proofloop",
+            "label:proofloop",
+            "path:chart",
+            "label:chart",
+            "path:pack",
+            "label:pack",
+            "path:proof",
+            "label:proof",
+            "path:loop",
+            "label:loop",
+            "path:charts",
+            "label:charts",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/proofloop-charts/chart-pack.json",
+          "kind": "proof_artifact",
+          "label": "docs/eval/proofloop-charts/chart-pack.json",
+          "path": "docs/eval/proofloop-charts/chart-pack.json",
+          "score": 55,
+          "reasons": [
+            "path:proofloop",
+            "label:proofloop",
+            "path:chart",
+            "label:chart",
+            "path:pack",
+            "label:pack",
+            "path:proof",
+            "label:proof",
+            "path:loop",
+            "label:loop",
+            "path:charts",
+            "label:charts",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/proofloop-charts/proofloop-chart-pack.json",
+          "kind": "proof_artifact",
+          "label": "docs/eval/proofloop-charts/proofloop-chart-pack.json",
+          "path": "docs/eval/proofloop-charts/proofloop-chart-pack.json",
+          "score": 55,
+          "reasons": [
+            "path:proofloop",
+            "label:proofloop",
+            "path:chart",
+            "label:chart",
+            "path:pack",
+            "label:pack",
+            "path:proof",
+            "label:proof",
+            "path:loop",
+            "label:loop",
+            "path:charts",
+            "label:charts",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/proofloop-charts/data/model-performance.data.json",
+          "kind": "proof_artifact",
+          "label": "docs/eval/proofloop-charts/data/model-performance.data.json",
+          "path": "docs/eval/proofloop-charts/data/model-performance.data.json",
+          "score": 52,
+          "reasons": [
+            "path:proofloop",
+            "label:proofloop",
+            "path:chart",
+            "label:chart",
+            "path:proof",
+            "label:proof",
+            "path:loop",
+            "label:loop",
+            "path:model",
+            "label:model",
+            "path:charts",
+            "label:charts",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/proofloop-charts/model-performance.vl.json",
+          "kind": "proof_artifact",
+          "label": "docs/eval/proofloop-charts/model-performance.vl.json",
+          "path": "docs/eval/proofloop-charts/model-performance.vl.json",
+          "score": 50,
+          "reasons": [
+            "path:proofloop",
+            "label:proofloop",
+            "path:chart",
+            "label:chart",
+            "path:proof",
+            "label:proof",
+            "path:loop",
+            "label:loop",
+            "path:model",
+            "label:model",
+            "path:charts",
+            "label:charts",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/proofloop-charts/data/harness-version-trend.data.json",
+          "kind": "proof_artifact",
+          "label": "docs/eval/proofloop-charts/data/harness-version-trend.data.json",
+          "path": "docs/eval/proofloop-charts/data/harness-version-trend.data.json",
+          "score": 49,
+          "reasons": [
+            "path:proofloop",
+            "label:proofloop",
+            "path:chart",
+            "label:chart",
+            "path:proof",
+            "label:proof",
+            "path:loop",
+            "label:loop",
+            "path:harness",
+            "label:harness",
+            "path:charts",
+            "label:charts",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/proofloop-charts/harness-version-trend.vl.json",
+          "kind": "proof_artifact",
+          "label": "docs/eval/proofloop-charts/harness-version-trend.vl.json",
+          "path": "docs/eval/proofloop-charts/harness-version-trend.vl.json",
+          "score": 49,
+          "reasons": [
+            "path:proofloop",
+            "label:proofloop",
+            "path:chart",
+            "label:chart",
+            "path:proof",
+            "label:proof",
+            "path:loop",
+            "label:loop",
+            "path:harness",
+            "label:harness",
+            "path:charts",
+            "label:charts",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:src/eval/proofloopChartPack.ts",
+          "kind": "file",
+          "label": "src/eval/proofloopChartPack.ts",
+          "path": "src/eval/proofloopChartPack.ts",
+          "score": 49,
+          "reasons": [
+            "path:proofloop",
+            "label:proofloop",
+            "path:chart",
+            "label:chart",
+            "path:pack",
+            "label:pack",
+            "path:proof",
+            "label:proof",
+            "path:loop",
+            "label:loop"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/proofloop-charts/data/failure-categories.data.json",
+          "kind": "proof_artifact",
+          "label": "docs/eval/proofloop-charts/data/failure-categories.data.json",
+          "path": "docs/eval/proofloop-charts/data/failure-categories.data.json",
+          "score": 47,
+          "reasons": [
+            "path:proofloop",
+            "label:proofloop",
+            "path:chart",
+            "label:chart",
+            "path:proof",
+            "label:proof",
+            "path:loop",
+            "label:loop",
+            "path:charts",
+            "label:charts",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:tests/proofloopChartPack.test.ts",
+          "kind": "file",
+          "label": "tests/proofloopChartPack.test.ts",
+          "path": "tests/proofloopChartPack.test.ts",
+          "score": 47,
+          "reasons": [
+            "path:proofloop",
+            "label:proofloop",
+            "path:chart",
+            "label:chart",
+            "path:pack",
+            "label:pack",
+            "path:proof",
+            "label:proof",
+            "path:loop",
+            "label:loop"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/proofloop-charts/data/cost-per-pass.data.json",
+          "kind": "proof_artifact",
+          "label": "docs/eval/proofloop-charts/data/cost-per-pass.data.json",
+          "path": "docs/eval/proofloop-charts/data/cost-per-pass.data.json",
+          "score": 44,
+          "reasons": [
+            "path:proofloop",
+            "label:proofloop",
+            "path:chart",
+            "label:chart",
+            "path:proof",
+            "label:proof",
+            "path:loop",
+            "label:loop",
+            "path:charts",
+            "label:charts",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/proofloop-charts/data/evidence-score.data.json",
+          "kind": "proof_artifact",
+          "label": "docs/eval/proofloop-charts/data/evidence-score.data.json",
+          "path": "docs/eval/proofloop-charts/data/evidence-score.data.json",
+          "score": 44,
+          "reasons": [
+            "path:proofloop",
+            "label:proofloop",
+            "path:chart",
+            "label:chart",
+            "path:proof",
+            "label:proof",
+            "path:loop",
+            "label:loop",
+            "path:charts",
+            "label:charts",
+            "proof-artifact"
+          ]
+        }
+      ],
+      "exitCode": 0,
+      "stdoutTail": "> noderoom@0.1.1 proofloop\n> node scripts/proofloop.mjs charts latest\nproofloop: chart pack docs/eval/proofloop-charts/chart-pack.json\nproofloop: chart report docs/eval/proofloop-charts/PROOFLOOP_CHART_PACK.md\nproofloop: chart html docs/eval/proofloop-charts/chart-pack.html\nproofloop: chart spec model-performance docs/eval/proofloop-charts/model-performance.vl.json\nproofloop: chart spec cost-per-pass docs/eval/proofloop-charts/cost-per-pass.vl.json\nproofloop: chart spec failure-categories docs/eval/proofloop-charts/failure-categories.vl.json\nproofloop: chart spec harness-version-trend docs/eval/proofloop-charts/harness-version-trend.vl.json\nproofloop: chart spec evidence-score docs/eval/proofloop-charts/evidence-score.vl.json\nproofloop: chart spec latency-cost-frontier docs/eval/proofloop-charts/latency-cost-frontier.vl.json\nproofloop: chart spec accounting-workpaper docs/eval/proofloop-charts/accounting-workpaper.vl.json\nproofloop: chart spec workflow-completion docs/eval/proofloop-charts/workflow-completion.vl.json\nproofloop: chart model-performance docs/eval/proofloop-charts/svg/model-performance.svg\nproofloop: chart cost-per-pass docs/eval/proofloop-charts/svg/cost-per-pass.svg\nproofloop: chart failure-categories docs/eval/proofloop-charts/svg/failure-categories.svg\nproofloop: chart harness-version-trend docs/eval/proofloop-charts/svg/harness-version-trend.svg\nproofloop: chart evidence-score docs/eval/proofloop-charts/svg/evidence-score.svg\nproofloop: chart latency-cost-frontier docs/eval/proofloop-charts/svg/latency-cost-frontier.svg\nproofloop: chart accounting-workpaper docs/eval/proofloop-charts/svg/accounting-workpaper.svg\nproofloop: chart workflow-completion docs/eval/proofloop-charts/svg/workflow-completion.svg\nproofloop: run chart pack .proofloop/runs/latest/charts/chart-pack.json\nproofloop: run chart html .proofloop/runs/latest/charts/chart-pack.html\nproofloop: run chart pack .proofloop/runs/2026-07-02T20-31-20/charts/chart-pack.json\nproofloop: run chart html .proofloop/runs/2026-07-02T20-31-20/charts/chart-pack.html",
+      "stderrTail": ""
+    },
+    {
+      "id": "proofloop-benchmark-board",
+      "title": "9-lane Proof Loop benchmark board",
+      "sourceStatus": "pending",
+      "kind": "command",
+      "command": "npm run benchmark:proofloop:board",
+      "safety": "safe_local",
+      "status": "passed",
+      "evidence": [
+        "docs/eval/proofloop-benchmark-board.json",
+        "docs/eval/PROOFLOOP_BENCHMARK_BOARD.md"
+      ],
+      "blockers": [],
+      "attempts": 0,
+      "likelyFiles": [
+        {
+          "nodeId": "file:docs/eval/PROOFLOOP_BENCHMARK_BOARD.md",
+          "kind": "proof_artifact",
+          "label": "docs/eval/PROOFLOOP_BENCHMARK_BOARD.md",
+          "path": "docs/eval/PROOFLOOP_BENCHMARK_BOARD.md",
+          "score": 44,
+          "reasons": [
+            "path:proofloop",
+            "label:proofloop",
+            "path:benchmark",
+            "label:benchmark",
+            "path:board",
+            "label:board",
+            "path:proof",
+            "label:proof",
+            "path:loop",
+            "label:loop",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/proofloop-benchmark-board.json",
+          "kind": "proof_artifact",
+          "label": "docs/eval/proofloop-benchmark-board.json",
+          "path": "docs/eval/proofloop-benchmark-board.json",
+          "score": 44,
+          "reasons": [
+            "path:proofloop",
+            "label:proofloop",
+            "path:benchmark",
+            "label:benchmark",
+            "path:board",
+            "label:board",
+            "path:proof",
+            "label:proof",
+            "path:loop",
+            "label:loop",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:src/eval/proofloopBenchmarkBoard.ts",
+          "kind": "file",
+          "label": "src/eval/proofloopBenchmarkBoard.ts",
+          "path": "src/eval/proofloopBenchmarkBoard.ts",
+          "score": 43,
+          "reasons": [
+            "path:proofloop",
+            "label:proofloop",
+            "path:benchmark",
+            "label:benchmark",
+            "path:board",
+            "label:board",
+            "path:proof",
+            "label:proof",
+            "path:loop",
+            "label:loop"
+          ]
+        },
+        {
+          "nodeId": "file:proofloop/accounting/run-benchmarks.ts",
+          "kind": "proof_artifact",
+          "label": "proofloop/accounting/run-benchmarks.ts",
+          "path": "proofloop/accounting/run-benchmarks.ts",
+          "score": 41,
+          "reasons": [
+            "path:proofloop",
+            "label:proofloop",
+            "path:benchmark",
+            "label:benchmark",
+            "path:proof",
+            "label:proof",
+            "path:loop",
+            "label:loop",
+            "path:run",
+            "label:run",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:scripts/proofloop-benchmark-board.ts",
+          "kind": "file",
+          "label": "scripts/proofloop-benchmark-board.ts",
+          "path": "scripts/proofloop-benchmark-board.ts",
+          "score": 41,
+          "reasons": [
+            "path:proofloop",
+            "label:proofloop",
+            "path:benchmark",
+            "label:benchmark",
+            "path:board",
+            "label:board",
+            "path:proof",
+            "label:proof",
+            "path:loop",
+            "label:loop"
+          ]
+        },
+        {
+          "nodeId": "file:tests/proofloopBenchmarkBoard.test.ts",
+          "kind": "file",
+          "label": "tests/proofloopBenchmarkBoard.test.ts",
+          "path": "tests/proofloopBenchmarkBoard.test.ts",
+          "score": 41,
+          "reasons": [
+            "path:proofloop",
+            "label:proofloop",
+            "path:benchmark",
+            "label:benchmark",
+            "path:board",
+            "label:board",
+            "path:proof",
+            "label:proof",
+            "path:loop",
+            "label:loop"
+          ]
+        },
+        {
+          "nodeId": "symbol:src/eval/proofloopBenchmarkBoard.ts#ProofloopBenchmarkBoard",
+          "kind": "symbol",
+          "label": "ProofloopBenchmarkBoard",
+          "path": "src/eval/proofloopBenchmarkBoard.ts",
+          "score": 40,
+          "reasons": [
+            "path:proofloop",
+            "label:proofloop",
+            "path:benchmark",
+            "label:benchmark",
+            "path:board",
+            "label:board",
+            "path:proof",
+            "label:proof",
+            "path:loop",
+            "label:loop"
+          ]
+        },
+        {
+          "nodeId": "symbol:src/eval/proofloopBenchmarkBoard.ts#ProofloopBenchmarkBoardEntry",
+          "kind": "symbol",
+          "label": "ProofloopBenchmarkBoardEntry",
+          "path": "src/eval/proofloopBenchmarkBoard.ts",
+          "score": 40,
+          "reasons": [
+            "path:proofloop",
+            "label:proofloop",
+            "path:benchmark",
+            "label:benchmark",
+            "path:board",
+            "label:board",
+            "path:proof",
+            "label:proof",
+            "path:loop",
+            "label:loop"
+          ]
+        },
+        {
+          "nodeId": "symbol:src/eval/proofloopBenchmarkBoard.ts#ProofloopBenchmarkBoardScore",
+          "kind": "symbol",
+          "label": "ProofloopBenchmarkBoardScore",
+          "path": "src/eval/proofloopBenchmarkBoard.ts",
+          "score": 40,
+          "reasons": [
+            "path:proofloop",
+            "label:proofloop",
+            "path:benchmark",
+            "label:benchmark",
+            "path:board",
+            "label:board",
+            "path:proof",
+            "label:proof",
+            "path:loop",
+            "label:loop"
+          ]
+        },
+        {
+          "nodeId": "symbol:src/eval/proofloopBenchmarkBoard.ts#ProofloopBenchmarkBoardStatus",
+          "kind": "symbol",
+          "label": "ProofloopBenchmarkBoardStatus",
+          "path": "src/eval/proofloopBenchmarkBoard.ts",
+          "score": 40,
+          "reasons": [
+            "path:proofloop",
+            "label:proofloop",
+            "path:benchmark",
+            "label:benchmark",
+            "path:board",
+            "label:board",
+            "path:proof",
+            "label:proof",
+            "path:loop",
+            "label:loop"
+          ]
+        },
+        {
+          "nodeId": "symbol:src/eval/proofloopBenchmarkBoard.ts#buildProofloopBenchmarkBoard",
+          "kind": "symbol",
+          "label": "buildProofloopBenchmarkBoard",
+          "path": "src/eval/proofloopBenchmarkBoard.ts",
+          "score": 40,
+          "reasons": [
+            "path:proofloop",
+            "label:proofloop",
+            "path:benchmark",
+            "label:benchmark",
+            "path:board",
+            "label:board",
+            "path:proof",
+            "label:proof",
+            "path:loop",
+            "label:loop"
+          ]
+        },
+        {
+          "nodeId": "symbol:src/eval/proofloopBenchmarkBoard.ts#renderProofloopBenchmarkBoardMarkdown",
+          "kind": "symbol",
+          "label": "renderProofloopBenchmarkBoardMarkdown",
+          "path": "src/eval/proofloopBenchmarkBoard.ts",
+          "score": 40,
+          "reasons": [
+            "path:proofloop",
+            "label:proofloop",
+            "path:benchmark",
+            "label:benchmark",
+            "path:board",
+            "label:board",
+            "path:proof",
+            "label:proof",
+            "path:loop",
+            "label:loop"
+          ]
+        }
+      ],
+      "exitCode": 0,
+      "stdoutTail": "> noderoom@0.1.1 benchmark:proofloop:board\n> tsx scripts/proofloop-benchmark-board.ts\nwrote docs/eval/proofloop-benchmark-board.json\nwrote docs/eval/PROOFLOOP_BENCHMARK_BOARD.md\nproofloop benchmark board: product=7 proven, 2 ready, official=1 claimed",
+      "stderrTail": ""
+    },
+    {
+      "id": "spreadsheetbench-v1-full-official-score",
+      "title": "SpreadsheetBench V1 full 912-task official score",
+      "sourceStatus": "pending",
+      "kind": "external_blocker",
+      "safety": "requires_worker",
+      "status": "needs_scaffold_or_run",
+      "evidence": [
+        "docs/eval/official-benchmark-task-coverage.json",
+        "docs/eval/spreadsheetbench-v1-912-stage.json",
+        "docs/eval/spreadsheetbench-v1-912-copy-input-baseline.json",
+        ".proofloop/lanes/spreadsheetbench-v1/blocker-analysis.json",
+        ".proofloop/lanes/spreadsheetbench-v1/upstream-research.md",
+        ".proofloop/lanes/spreadsheetbench-v1/scaffold-plan.md",
+        ".proofloop/lanes/spreadsheetbench-v1/harness-version.json",
+        ".proofloop/lanes/spreadsheetbench-v1/model-matrix.json",
+        ".proofloop/lanes/spreadsheetbench-v1/cost-ledger.json",
+        ".proofloop/lanes/spreadsheetbench-v1/official-output-manifest.json",
+        ".proofloop/lanes/spreadsheetbench-v1/official-score-receipt.json",
+        ".proofloop/lanes/spreadsheetbench-v1/proxy-score-receipt.json",
+        ".proofloop/lanes/spreadsheetbench-v1/memory-write.json"
+      ],
+      "blockers": [
+        "Full public 912-task SpreadsheetBench V1 bundle is staged and deterministically scored: 912/912 tasks, 2,729 agent-visible workbooks, 2,729 evaluator answer workbooks, 95/912 copy-input baseline pass.",
+        "All 912 tasks need model-run evidence before strict official-score promotion; cheaper OpenRouter proxy judges can triage product quality but cannot replace the SpreadsheetBench workbook scorer for the official claim."
+      ],
+      "resumeCommand": "run all 912 SpreadsheetBench V1 tasks through the model runner, use npm run benchmark:proofloop:harness-economics to select cheap proxy routes for product iteration, then npm run benchmark:official:task-coverage -- --strict",
+      "attempts": 0,
+      "likelyFiles": [
+        {
+          "nodeId": "file:docs/eval/PROOFLOOP_BENCHMARK_BOARD.md",
+          "kind": "proof_artifact",
+          "label": "docs/eval/PROOFLOOP_BENCHMARK_BOARD.md",
+          "path": "docs/eval/PROOFLOOP_BENCHMARK_BOARD.md",
+          "score": 76,
+          "reasons": [
+            "path:benchmark",
+            "label:benchmark",
+            "path:proofloop",
+            "label:proofloop",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/proofloop-benchmark-board.json",
+          "kind": "proof_artifact",
+          "label": "docs/eval/proofloop-benchmark-board.json",
+          "path": "docs/eval/proofloop-benchmark-board.json",
+          "score": 76,
+          "reasons": [
+            "path:benchmark",
+            "label:benchmark",
+            "path:proofloop",
+            "label:proofloop",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/OFFICIAL_BENCHMARK_TASK_COVERAGE.md",
+          "kind": "proof_artifact",
+          "label": "docs/eval/OFFICIAL_BENCHMARK_TASK_COVERAGE.md",
+          "path": "docs/eval/OFFICIAL_BENCHMARK_TASK_COVERAGE.md",
+          "score": 69,
+          "reasons": [
+            "path:official",
+            "label:official",
+            "path:task",
+            "label:task",
+            "path:benchmark",
+            "label:benchmark",
+            "path:coverage",
+            "label:coverage",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/official-benchmark-task-coverage.json",
+          "kind": "proof_artifact",
+          "label": "docs/eval/official-benchmark-task-coverage.json",
+          "path": "docs/eval/official-benchmark-task-coverage.json",
+          "score": 69,
+          "reasons": [
+            "path:official",
+            "label:official",
+            "path:task",
+            "label:task",
+            "path:benchmark",
+            "label:benchmark",
+            "path:coverage",
+            "label:coverage",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/PROOFLOOP_ORCHESTRATOR_DOGFOOD.md",
+          "kind": "proof_artifact",
+          "label": "docs/eval/PROOFLOOP_ORCHESTRATOR_DOGFOOD.md",
+          "path": "docs/eval/PROOFLOOP_ORCHESTRATOR_DOGFOOD.md",
+          "score": 69,
+          "reasons": [
+            "path:proofloop",
+            "label:proofloop",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/proofloop-orchestrator-dogfood.json",
+          "kind": "proof_artifact",
+          "label": "docs/eval/proofloop-orchestrator-dogfood.json",
+          "path": "docs/eval/proofloop-orchestrator-dogfood.json",
+          "score": 69,
+          "reasons": [
+            "path:proofloop",
+            "label:proofloop",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:src/eval/officialBenchmarkTaskCoverage.ts",
+          "kind": "file",
+          "label": "src/eval/officialBenchmarkTaskCoverage.ts",
+          "path": "src/eval/officialBenchmarkTaskCoverage.ts",
+          "score": 69,
+          "reasons": [
+            "path:official",
+            "label:official",
+            "path:task",
+            "label:task",
+            "path:benchmark",
+            "label:benchmark",
+            "path:coverage",
+            "label:coverage"
+          ]
+        },
+        {
+          "nodeId": "file:src/eval/proofloopGoalSupervisor.ts",
+          "kind": "file",
+          "label": "src/eval/proofloopGoalSupervisor.ts",
+          "path": "src/eval/proofloopGoalSupervisor.ts",
+          "score": 68,
+          "reasons": [
+            "path:proofloop",
+            "label:proofloop"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/PROOFLOOP_NORMALIZED_BENCHMARKS.md",
+          "kind": "proof_artifact",
+          "label": "docs/eval/PROOFLOOP_NORMALIZED_BENCHMARKS.md",
+          "path": "docs/eval/PROOFLOOP_NORMALIZED_BENCHMARKS.md",
+          "score": 67,
+          "reasons": [
+            "path:benchmark",
+            "label:benchmark",
+            "path:proofloop",
+            "label:proofloop",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/proofloop-normalized-benchmarks.json",
+          "kind": "proof_artifact",
+          "label": "docs/eval/proofloop-normalized-benchmarks.json",
+          "path": "docs/eval/proofloop-normalized-benchmarks.json",
+          "score": 67,
+          "reasons": [
+            "path:benchmark",
+            "label:benchmark",
+            "path:proofloop",
+            "label:proofloop",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/PROOFLOOP_HARNESS_ECONOMICS.md",
+          "kind": "proof_artifact",
+          "label": "docs/eval/PROOFLOOP_HARNESS_ECONOMICS.md",
+          "path": "docs/eval/PROOFLOOP_HARNESS_ECONOMICS.md",
+          "score": 65,
+          "reasons": [
+            "path:proofloop",
+            "label:proofloop",
+            "path:harness",
+            "label:harness",
+            "path:economics",
+            "label:economics",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/proofloop-harness-economics.json",
+          "kind": "proof_artifact",
+          "label": "docs/eval/proofloop-harness-economics.json",
+          "path": "docs/eval/proofloop-harness-economics.json",
+          "score": 65,
+          "reasons": [
+            "path:proofloop",
+            "label:proofloop",
+            "path:harness",
+            "label:harness",
+            "path:economics",
+            "label:economics",
+            "proof-artifact"
+          ]
+        }
+      ],
+      "repairContextPath": ".proofloop/orchestrator/runs/dogfood-official-scores-2026-07-03T09-09-00-226Z/repair-contexts/spreadsheetbench-v1-full-official-score.md"
+    },
+    {
+      "id": "spreadsheetbench-v2-full-official-score",
+      "title": "SpreadsheetBench V2 full 321-task official score",
+      "sourceStatus": "pending",
+      "kind": "external_blocker",
+      "safety": "requires_worker",
+      "status": "needs_scaffold_or_run",
+      "evidence": [
+        "docs/eval/official-benchmark-task-coverage.json",
+        ".proofloop/lanes/spreadsheetbench-v2/blocker-analysis.json",
+        ".proofloop/lanes/spreadsheetbench-v2/upstream-research.md",
+        ".proofloop/lanes/spreadsheetbench-v2/scaffold-plan.md",
+        ".proofloop/lanes/spreadsheetbench-v2/harness-version.json",
+        ".proofloop/lanes/spreadsheetbench-v2/model-matrix.json",
+        ".proofloop/lanes/spreadsheetbench-v2/cost-ledger.json",
+        ".proofloop/lanes/spreadsheetbench-v2/official-output-manifest.json",
+        ".proofloop/lanes/spreadsheetbench-v2/official-score-receipt.json",
+        ".proofloop/lanes/spreadsheetbench-v2/proxy-score-receipt.json",
+        ".proofloop/lanes/spreadsheetbench-v2/memory-write.json"
+      ],
+      "blockers": [
+        "Only the public/example SpreadsheetBench V2 slice is staged locally.",
+        "All 321 V2 tasks need official bundle, model-run, workbook scorer, and rendered chart-grader evidence; proxy judges can improve candidates but cannot stand in for the V2 scorer path."
+      ],
+      "resumeCommand": "stage the full SpreadsheetBench V2 321-task bundle, run all tasks and scorer/chart grader, use npm run benchmark:proofloop:harness-economics for proxy-model routing, then npm run benchmark:official:task-coverage -- --strict",
+      "attempts": 0,
+      "likelyFiles": [
+        {
+          "nodeId": "file:docs/eval/PROOFLOOP_BENCHMARK_BOARD.md",
+          "kind": "proof_artifact",
+          "label": "docs/eval/PROOFLOOP_BENCHMARK_BOARD.md",
+          "path": "docs/eval/PROOFLOOP_BENCHMARK_BOARD.md",
+          "score": 62,
+          "reasons": [
+            "path:benchmark",
+            "label:benchmark",
+            "path:proofloop",
+            "label:proofloop",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/proofloop-benchmark-board.json",
+          "kind": "proof_artifact",
+          "label": "docs/eval/proofloop-benchmark-board.json",
+          "path": "docs/eval/proofloop-benchmark-board.json",
+          "score": 62,
+          "reasons": [
+            "path:benchmark",
+            "label:benchmark",
+            "path:proofloop",
+            "label:proofloop",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:src/eval/officialBenchmarkTaskCoverage.ts",
+          "kind": "file",
+          "label": "src/eval/officialBenchmarkTaskCoverage.ts",
+          "path": "src/eval/officialBenchmarkTaskCoverage.ts",
+          "score": 62,
+          "reasons": [
+            "path:official",
+            "label:official",
+            "path:task",
+            "label:task",
+            "path:benchmark",
+            "label:benchmark",
+            "path:coverage",
+            "label:coverage"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/OFFICIAL_BENCHMARK_TASK_COVERAGE.md",
+          "kind": "proof_artifact",
+          "label": "docs/eval/OFFICIAL_BENCHMARK_TASK_COVERAGE.md",
+          "path": "docs/eval/OFFICIAL_BENCHMARK_TASK_COVERAGE.md",
+          "score": 61,
+          "reasons": [
+            "path:official",
+            "label:official",
+            "path:task",
+            "label:task",
+            "path:benchmark",
+            "label:benchmark",
+            "path:coverage",
+            "label:coverage",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/official-benchmark-task-coverage.json",
+          "kind": "proof_artifact",
+          "label": "docs/eval/official-benchmark-task-coverage.json",
+          "path": "docs/eval/official-benchmark-task-coverage.json",
+          "score": 61,
+          "reasons": [
+            "path:official",
+            "label:official",
+            "path:task",
+            "label:task",
+            "path:benchmark",
+            "label:benchmark",
+            "path:coverage",
+            "label:coverage",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/PROOFLOOP_HARNESS_ECONOMICS.md",
+          "kind": "proof_artifact",
+          "label": "docs/eval/PROOFLOOP_HARNESS_ECONOMICS.md",
+          "path": "docs/eval/PROOFLOOP_HARNESS_ECONOMICS.md",
+          "score": 57,
+          "reasons": [
+            "path:proofloop",
+            "label:proofloop",
+            "path:harness",
+            "label:harness",
+            "path:economics",
+            "label:economics",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/proofloop-harness-economics.json",
+          "kind": "proof_artifact",
+          "label": "docs/eval/proofloop-harness-economics.json",
+          "path": "docs/eval/proofloop-harness-economics.json",
+          "score": 57,
+          "reasons": [
+            "path:proofloop",
+            "label:proofloop",
+            "path:harness",
+            "label:harness",
+            "path:economics",
+            "label:economics",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:src/eval/proofloopHarnessEconomics.ts",
+          "kind": "file",
+          "label": "src/eval/proofloopHarnessEconomics.ts",
+          "path": "src/eval/proofloopHarnessEconomics.ts",
+          "score": 57,
+          "reasons": [
+            "path:proofloop",
+            "label:proofloop",
+            "path:harness",
+            "label:harness",
+            "path:economics",
+            "label:economics"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/PROOFLOOP_NORMALIZED_BENCHMARKS.md",
+          "kind": "proof_artifact",
+          "label": "docs/eval/PROOFLOOP_NORMALIZED_BENCHMARKS.md",
+          "path": "docs/eval/PROOFLOOP_NORMALIZED_BENCHMARKS.md",
+          "score": 55,
+          "reasons": [
+            "path:benchmark",
+            "label:benchmark",
+            "path:proofloop",
+            "label:proofloop",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/PROOFLOOP_ORCHESTRATOR_DOGFOOD.md",
+          "kind": "proof_artifact",
+          "label": "docs/eval/PROOFLOOP_ORCHESTRATOR_DOGFOOD.md",
+          "path": "docs/eval/PROOFLOOP_ORCHESTRATOR_DOGFOOD.md",
+          "score": 55,
+          "reasons": [
+            "path:proofloop",
+            "label:proofloop",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/proofloop-normalized-benchmarks.json",
+          "kind": "proof_artifact",
+          "label": "docs/eval/proofloop-normalized-benchmarks.json",
+          "path": "docs/eval/proofloop-normalized-benchmarks.json",
+          "score": 55,
+          "reasons": [
+            "path:benchmark",
+            "label:benchmark",
+            "path:proofloop",
+            "label:proofloop",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/proofloop-orchestrator-dogfood.json",
+          "kind": "proof_artifact",
+          "label": "docs/eval/proofloop-orchestrator-dogfood.json",
+          "path": "docs/eval/proofloop-orchestrator-dogfood.json",
+          "score": 55,
+          "reasons": [
+            "path:proofloop",
+            "label:proofloop",
+            "proof-artifact"
+          ]
+        }
+      ],
+      "repairContextPath": ".proofloop/orchestrator/runs/dogfood-official-scores-2026-07-03T09-09-00-226Z/repair-contexts/spreadsheetbench-v2-full-official-score.md"
+    },
+    {
+      "id": "finch-official-score",
+      "title": "Finch / FinWorkBench official score",
+      "sourceStatus": "pending",
+      "kind": "external_blocker",
+      "safety": "requires_worker",
+      "status": "needs_scaffold_or_run",
+      "evidence": [
+        ".proofloop/setup/finch-local-setup.json",
+        "proofloop/benchmarks/finch/adapter.json",
+        "docs/eval/proofloop-external-adapter-runs/finch.json",
+        "docs/eval/proofloop-adapter-blockers/finch.json",
+        "docs/eval/proofloop-official-task-bundles/finch.json",
+        "docs/eval/proofloop-official-scores/finch.json",
+        ".proofloop/lanes/finch/blocker-analysis.json",
+        ".proofloop/lanes/finch/upstream-research.md",
+        ".proofloop/lanes/finch/scaffold-plan.md",
+        ".proofloop/lanes/finch/harness-version.json",
+        ".proofloop/lanes/finch/model-matrix.json",
+        ".proofloop/lanes/finch/cost-ledger.json",
+        ".proofloop/lanes/finch/official-output-manifest.json",
+        ".proofloop/lanes/finch/official-score-receipt.json",
+        ".proofloop/lanes/finch/proxy-score-receipt.json",
+        ".proofloop/lanes/finch/memory-write.json"
+      ],
+      "blockers": [
+        "finch: official scorer receipt docs/eval/proofloop-official-scores/finch.json is blocked_external; scored receipt is still required before claiming score.",
+        "finch: official task bundle lock docs/eval/proofloop-official-task-bundles/finch.json is staged, but NodeRoom still needs one official-output artifact per Finch task id and an accepted upstream judge/scorer path; Azure OpenAI credentials are one path, while cheaper OpenRouter proxy judges are product-gate evidence only unless accepted upstream."
+      ],
+      "resumeCommand": "emit NodeRoom outputs for every official Finch task id, run/import the accepted upstream Finch scorer or judge output, use npm run benchmark:proofloop:harness-economics for proxy triage, then npm run benchmark:proofloop:adapter-blockers -- --id finch --strict",
+      "attempts": 0,
+      "likelyFiles": [
+        {
+          "nodeId": "file:docs/eval/proofloop-adapter-blockers/finch.json",
+          "kind": "proof_artifact",
+          "label": "docs/eval/proofloop-adapter-blockers/finch.json",
+          "path": "docs/eval/proofloop-adapter-blockers/finch.json",
+          "score": 103,
+          "reasons": [
+            "path:finch",
+            "label:finch",
+            "path:docs",
+            "label:docs",
+            "path:eval",
+            "label:eval",
+            "path:proofloop",
+            "label:proofloop",
+            "path:json",
+            "label:json",
+            "path:lock",
+            "label:lock",
+            "path:adapter",
+            "label:adapter",
+            "path:blockers",
+            "label:blockers",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/proofloop-benchmark-board.json",
+          "kind": "proof_artifact",
+          "label": "docs/eval/proofloop-benchmark-board.json",
+          "path": "docs/eval/proofloop-benchmark-board.json",
+          "score": 102,
+          "reasons": [
+            "path:docs",
+            "label:docs",
+            "path:eval",
+            "label:eval",
+            "path:proofloop",
+            "label:proofloop",
+            "path:json",
+            "label:json",
+            "path:benchmark",
+            "label:benchmark",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/proofloop-normalized-benchmarks.json",
+          "kind": "proof_artifact",
+          "label": "docs/eval/proofloop-normalized-benchmarks.json",
+          "path": "docs/eval/proofloop-normalized-benchmarks.json",
+          "score": 102,
+          "reasons": [
+            "path:docs",
+            "label:docs",
+            "path:eval",
+            "label:eval",
+            "path:proofloop",
+            "label:proofloop",
+            "path:json",
+            "label:json",
+            "path:benchmark",
+            "label:benchmark",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/proofloop-external-adapter-runs/finch.json",
+          "kind": "proof_artifact",
+          "label": "docs/eval/proofloop-external-adapter-runs/finch.json",
+          "path": "docs/eval/proofloop-external-adapter-runs/finch.json",
+          "score": 100,
+          "reasons": [
+            "path:finch",
+            "label:finch",
+            "path:docs",
+            "label:docs",
+            "path:eval",
+            "label:eval",
+            "path:proofloop",
+            "label:proofloop",
+            "path:json",
+            "label:json",
+            "path:external",
+            "label:external",
+            "path:run",
+            "label:run",
+            "path:adapter",
+            "label:adapter",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/PROOFLOOP_NORMALIZED_BENCHMARKS.md",
+          "kind": "proof_artifact",
+          "label": "docs/eval/PROOFLOOP_NORMALIZED_BENCHMARKS.md",
+          "path": "docs/eval/PROOFLOOP_NORMALIZED_BENCHMARKS.md",
+          "score": 95,
+          "reasons": [
+            "path:docs",
+            "label:docs",
+            "path:eval",
+            "label:eval",
+            "path:proofloop",
+            "label:proofloop",
+            "path:benchmark",
+            "label:benchmark",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/proofloop-orchestrator-dogfood.json",
+          "kind": "proof_artifact",
+          "label": "docs/eval/proofloop-orchestrator-dogfood.json",
+          "path": "docs/eval/proofloop-orchestrator-dogfood.json",
+          "score": 95,
+          "reasons": [
+            "path:docs",
+            "label:docs",
+            "path:eval",
+            "label:eval",
+            "path:proofloop",
+            "label:proofloop",
+            "path:json",
+            "label:json",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/PROOFLOOP_BENCHMARK_BOARD.md",
+          "kind": "proof_artifact",
+          "label": "docs/eval/PROOFLOOP_BENCHMARK_BOARD.md",
+          "path": "docs/eval/PROOFLOOP_BENCHMARK_BOARD.md",
+          "score": 94,
+          "reasons": [
+            "path:docs",
+            "label:docs",
+            "path:eval",
+            "label:eval",
+            "path:proofloop",
+            "label:proofloop",
+            "path:benchmark",
+            "label:benchmark",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/proofloop-harness-economics.json",
+          "kind": "proof_artifact",
+          "label": "docs/eval/proofloop-harness-economics.json",
+          "path": "docs/eval/proofloop-harness-economics.json",
+          "score": 94,
+          "reasons": [
+            "path:docs",
+            "label:docs",
+            "path:eval",
+            "label:eval",
+            "path:proofloop",
+            "label:proofloop",
+            "path:json",
+            "label:json",
+            "path:harness",
+            "label:harness",
+            "path:economics",
+            "label:economics",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/proofloop-official-scores/finch.json",
+          "kind": "proof_artifact",
+          "label": "docs/eval/proofloop-official-scores/finch.json",
+          "path": "docs/eval/proofloop-official-scores/finch.json",
+          "score": 94,
+          "reasons": [
+            "path:finch",
+            "label:finch",
+            "path:official",
+            "label:official",
+            "path:score",
+            "label:score",
+            "path:docs",
+            "label:docs",
+            "path:eval",
+            "label:eval",
+            "path:proofloop",
+            "label:proofloop",
+            "path:scores",
+            "label:scores",
+            "path:json",
+            "label:json",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/proofloop-adapter-blockers/finauditing.json",
+          "kind": "proof_artifact",
+          "label": "docs/eval/proofloop-adapter-blockers/finauditing.json",
+          "path": "docs/eval/proofloop-adapter-blockers/finauditing.json",
+          "score": 91,
+          "reasons": [
+            "path:docs",
+            "label:docs",
+            "path:eval",
+            "label:eval",
+            "path:proofloop",
+            "label:proofloop",
+            "path:json",
+            "label:json",
+            "path:lock",
+            "label:lock",
+            "path:adapter",
+            "label:adapter",
+            "path:blockers",
+            "label:blockers",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/proofloop-adapter-blockers/workstreambench.json",
+          "kind": "proof_artifact",
+          "label": "docs/eval/proofloop-adapter-blockers/workstreambench.json",
+          "path": "docs/eval/proofloop-adapter-blockers/workstreambench.json",
+          "score": 91,
+          "reasons": [
+            "path:docs",
+            "label:docs",
+            "path:eval",
+            "label:eval",
+            "path:proofloop",
+            "label:proofloop",
+            "path:json",
+            "label:json",
+            "path:lock",
+            "label:lock",
+            "path:adapter",
+            "label:adapter",
+            "path:blockers",
+            "label:blockers",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/PROOFLOOP_HARNESS_ECONOMICS.md",
+          "kind": "proof_artifact",
+          "label": "docs/eval/PROOFLOOP_HARNESS_ECONOMICS.md",
+          "path": "docs/eval/PROOFLOOP_HARNESS_ECONOMICS.md",
+          "score": 88,
+          "reasons": [
+            "path:docs",
+            "label:docs",
+            "path:eval",
+            "label:eval",
+            "path:proofloop",
+            "label:proofloop",
+            "path:harness",
+            "label:harness",
+            "path:economics",
+            "label:economics",
+            "proof-artifact"
+          ]
+        }
+      ],
+      "repairContextPath": ".proofloop/orchestrator/runs/dogfood-official-scores-2026-07-03T09-09-00-226Z/repair-contexts/finch-official-score.md"
+    },
+    {
+      "id": "finauditing-official-score",
+      "title": "FinAuditing official score",
+      "sourceStatus": "pending",
+      "kind": "external_blocker",
+      "safety": "requires_worker",
+      "status": "needs_scaffold_or_run",
+      "evidence": [
+        ".proofloop/setup/finauditing-local-setup.json",
+        "proofloop/benchmarks/finauditing/adapter.json",
+        "docs/eval/proofloop-external-adapter-runs/finauditing.json",
+        "docs/eval/proofloop-adapter-blockers/finauditing.json",
+        "docs/eval/proofloop-official-task-bundles/finauditing.json",
+        "docs/eval/proofloop-official-scores/finauditing.json",
+        ".proofloop/lanes/finauditing/blocker-analysis.json",
+        ".proofloop/lanes/finauditing/upstream-research.md",
+        ".proofloop/lanes/finauditing/scaffold-plan.md",
+        ".proofloop/lanes/finauditing/harness-version.json",
+        ".proofloop/lanes/finauditing/model-matrix.json",
+        ".proofloop/lanes/finauditing/cost-ledger.json",
+        ".proofloop/lanes/finauditing/official-output-manifest.json",
+        ".proofloop/lanes/finauditing/official-score-receipt.json",
+        ".proofloop/lanes/finauditing/proxy-score-receipt.json",
+        ".proofloop/lanes/finauditing/memory-write.json"
+      ],
+      "blockers": [
+        "finauditing: official scorer receipt docs/eval/proofloop-official-scores/finauditing.json is blocked_external; scored receipt is still required before claiming score.",
+        "finauditing: official task bundle lock docs/eval/proofloop-official-task-bundles/finauditing.json is staged, but NodeRoom still needs official-format FinSM/FinRE/FinMR prediction JSONL and an accepted FinMR judge path; OpenAI credentials are one path, while cheaper OpenRouter proxy judges are product-gate evidence only unless accepted upstream."
+      ],
+      "resumeCommand": "emit official-format FinSM/FinRE/FinMR predictions, run/import FinAuditing scorer output with an accepted FinMR judge path, use npm run benchmark:proofloop:harness-economics for proxy triage, then npm run benchmark:proofloop:adapter-blockers -- --id finauditing --strict",
+      "attempts": 0,
+      "likelyFiles": [
+        {
+          "nodeId": "file:docs/eval/proofloop-benchmark-board.json",
+          "kind": "proof_artifact",
+          "label": "docs/eval/proofloop-benchmark-board.json",
+          "path": "docs/eval/proofloop-benchmark-board.json",
+          "score": 103,
+          "reasons": [
+            "path:docs",
+            "label:docs",
+            "path:eval",
+            "label:eval",
+            "path:proofloop",
+            "label:proofloop",
+            "path:json",
+            "label:json",
+            "path:benchmark",
+            "label:benchmark",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/proofloop-normalized-benchmarks.json",
+          "kind": "proof_artifact",
+          "label": "docs/eval/proofloop-normalized-benchmarks.json",
+          "path": "docs/eval/proofloop-normalized-benchmarks.json",
+          "score": 103,
+          "reasons": [
+            "path:docs",
+            "label:docs",
+            "path:eval",
+            "label:eval",
+            "path:proofloop",
+            "label:proofloop",
+            "path:json",
+            "label:json",
+            "path:benchmark",
+            "label:benchmark",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/proofloop-adapter-blockers/finauditing.json",
+          "kind": "proof_artifact",
+          "label": "docs/eval/proofloop-adapter-blockers/finauditing.json",
+          "path": "docs/eval/proofloop-adapter-blockers/finauditing.json",
+          "score": 102,
+          "reasons": [
+            "path:finauditing",
+            "label:finauditing",
+            "path:docs",
+            "label:docs",
+            "path:eval",
+            "label:eval",
+            "path:proofloop",
+            "label:proofloop",
+            "path:json",
+            "label:json",
+            "path:lock",
+            "label:lock",
+            "path:adapter",
+            "label:adapter",
+            "path:blockers",
+            "label:blockers",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/proofloop-external-adapter-runs/finauditing.json",
+          "kind": "proof_artifact",
+          "label": "docs/eval/proofloop-external-adapter-runs/finauditing.json",
+          "path": "docs/eval/proofloop-external-adapter-runs/finauditing.json",
+          "score": 101,
+          "reasons": [
+            "path:finauditing",
+            "label:finauditing",
+            "path:docs",
+            "label:docs",
+            "path:eval",
+            "label:eval",
+            "path:proofloop",
+            "label:proofloop",
+            "path:json",
+            "label:json",
+            "path:external",
+            "label:external",
+            "path:run",
+            "label:run",
+            "path:adapter",
+            "label:adapter",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/PROOFLOOP_BENCHMARK_BOARD.md",
+          "kind": "proof_artifact",
+          "label": "docs/eval/PROOFLOOP_BENCHMARK_BOARD.md",
+          "path": "docs/eval/PROOFLOOP_BENCHMARK_BOARD.md",
+          "score": 96,
+          "reasons": [
+            "path:docs",
+            "label:docs",
+            "path:eval",
+            "label:eval",
+            "path:proofloop",
+            "label:proofloop",
+            "path:benchmark",
+            "label:benchmark",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/PROOFLOOP_NORMALIZED_BENCHMARKS.md",
+          "kind": "proof_artifact",
+          "label": "docs/eval/PROOFLOOP_NORMALIZED_BENCHMARKS.md",
+          "path": "docs/eval/PROOFLOOP_NORMALIZED_BENCHMARKS.md",
+          "score": 96,
+          "reasons": [
+            "path:docs",
+            "label:docs",
+            "path:eval",
+            "label:eval",
+            "path:proofloop",
+            "label:proofloop",
+            "path:benchmark",
+            "label:benchmark",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/proofloop-orchestrator-dogfood.json",
+          "kind": "proof_artifact",
+          "label": "docs/eval/proofloop-orchestrator-dogfood.json",
+          "path": "docs/eval/proofloop-orchestrator-dogfood.json",
+          "score": 96,
+          "reasons": [
+            "path:docs",
+            "label:docs",
+            "path:eval",
+            "label:eval",
+            "path:proofloop",
+            "label:proofloop",
+            "path:json",
+            "label:json",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/proofloop-harness-economics.json",
+          "kind": "proof_artifact",
+          "label": "docs/eval/proofloop-harness-economics.json",
+          "path": "docs/eval/proofloop-harness-economics.json",
+          "score": 95,
+          "reasons": [
+            "path:docs",
+            "label:docs",
+            "path:eval",
+            "label:eval",
+            "path:proofloop",
+            "label:proofloop",
+            "path:json",
+            "label:json",
+            "path:harness",
+            "label:harness",
+            "path:economics",
+            "label:economics",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/proofloop-official-scores/finauditing.json",
+          "kind": "proof_artifact",
+          "label": "docs/eval/proofloop-official-scores/finauditing.json",
+          "path": "docs/eval/proofloop-official-scores/finauditing.json",
+          "score": 94,
+          "reasons": [
+            "path:finauditing",
+            "label:finauditing",
+            "path:official",
+            "label:official",
+            "path:score",
+            "label:score",
+            "path:docs",
+            "label:docs",
+            "path:eval",
+            "label:eval",
+            "path:proofloop",
+            "label:proofloop",
+            "path:scores",
+            "label:scores",
+            "path:json",
+            "label:json",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/proofloop-adapter-blockers/finch.json",
+          "kind": "proof_artifact",
+          "label": "docs/eval/proofloop-adapter-blockers/finch.json",
+          "path": "docs/eval/proofloop-adapter-blockers/finch.json",
+          "score": 92,
+          "reasons": [
+            "path:docs",
+            "label:docs",
+            "path:eval",
+            "label:eval",
+            "path:proofloop",
+            "label:proofloop",
+            "path:json",
+            "label:json",
+            "path:lock",
+            "label:lock",
+            "path:adapter",
+            "label:adapter",
+            "path:blockers",
+            "label:blockers",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/PROOFLOOP_HARNESS_ECONOMICS.md",
+          "kind": "proof_artifact",
+          "label": "docs/eval/PROOFLOOP_HARNESS_ECONOMICS.md",
+          "path": "docs/eval/PROOFLOOP_HARNESS_ECONOMICS.md",
+          "score": 90,
+          "reasons": [
+            "path:docs",
+            "label:docs",
+            "path:eval",
+            "label:eval",
+            "path:proofloop",
+            "label:proofloop",
+            "path:harness",
+            "label:harness",
+            "path:economics",
+            "label:economics",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/proofloop-external-adapter-runs/finch.json",
+          "kind": "proof_artifact",
+          "label": "docs/eval/proofloop-external-adapter-runs/finch.json",
+          "path": "docs/eval/proofloop-external-adapter-runs/finch.json",
+          "score": 90,
+          "reasons": [
+            "path:docs",
+            "label:docs",
+            "path:eval",
+            "label:eval",
+            "path:proofloop",
+            "label:proofloop",
+            "path:json",
+            "label:json",
+            "path:external",
+            "label:external",
+            "path:run",
+            "label:run",
+            "path:adapter",
+            "label:adapter",
+            "proof-artifact"
+          ]
+        }
+      ],
+      "repairContextPath": ".proofloop/orchestrator/runs/dogfood-official-scores-2026-07-03T09-09-00-226Z/repair-contexts/finauditing-official-score.md"
+    },
+    {
+      "id": "workstreambench-official-score",
+      "title": "WorkstreamBench official score",
+      "sourceStatus": "pending",
+      "kind": "external_blocker",
+      "safety": "requires_worker",
+      "status": "blocked_external",
+      "evidence": [
+        ".proofloop/setup/workstreambench-local-setup.json",
+        "proofloop/benchmarks/workstreambench/adapter.json",
+        "docs/eval/proofloop-external-adapter-runs/workstreambench.json",
+        "docs/eval/proofloop-adapter-blockers/workstreambench.json",
+        "docs/eval/proofloop-official-scores/workstreambench.json",
+        ".proofloop/lanes/workstreambench/blocker-analysis.json",
+        ".proofloop/lanes/workstreambench/upstream-research.md",
+        ".proofloop/lanes/workstreambench/scaffold-plan.md",
+        ".proofloop/lanes/workstreambench/harness-version.json",
+        ".proofloop/lanes/workstreambench/model-matrix.json",
+        ".proofloop/lanes/workstreambench/cost-ledger.json",
+        ".proofloop/lanes/workstreambench/official-output-manifest.json",
+        ".proofloop/lanes/workstreambench/official-score-receipt.json",
+        ".proofloop/lanes/workstreambench/proxy-score-receipt.json",
+        ".proofloop/lanes/workstreambench/memory-write.json"
+      ],
+      "blockers": [
+        "workstreambench: official scorer receipt docs/eval/proofloop-official-scores/workstreambench.json is blocked_external; scored receipt is still required before claiming score.",
+        "workstreambench: no public official task bundle lock docs/eval/proofloop-official-task-bundles/workstreambench.json is staged because no public official bundle/scorer/rubric URL was found."
+      ],
+      "resumeCommand": "obtain the official WorkstreamBench task bundle and scorer/rubric from an upstream release or authors, lock it in docs/eval/proofloop-official-task-bundles/workstreambench.json, use npm run benchmark:proofloop:harness-economics for proxy triage, import a scored receipt, then npm run benchmark:proofloop:adapter-blockers -- --id workstreambench --strict",
+      "attempts": 0,
+      "likelyFiles": [
+        {
+          "nodeId": "file:docs/eval/proofloop-adapter-blockers/workstreambench.json",
+          "kind": "proof_artifact",
+          "label": "docs/eval/proofloop-adapter-blockers/workstreambench.json",
+          "path": "docs/eval/proofloop-adapter-blockers/workstreambench.json",
+          "score": 98,
+          "reasons": [
+            "path:workstreambench",
+            "label:workstreambench",
+            "path:docs",
+            "label:docs",
+            "path:eval",
+            "label:eval",
+            "path:proofloop",
+            "label:proofloop",
+            "path:json",
+            "label:json",
+            "path:lock",
+            "label:lock",
+            "path:adapter",
+            "label:adapter",
+            "path:blockers",
+            "label:blockers",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/proofloop-external-adapter-runs/workstreambench.json",
+          "kind": "proof_artifact",
+          "label": "docs/eval/proofloop-external-adapter-runs/workstreambench.json",
+          "path": "docs/eval/proofloop-external-adapter-runs/workstreambench.json",
+          "score": 94,
+          "reasons": [
+            "path:workstreambench",
+            "label:workstreambench",
+            "path:docs",
+            "label:docs",
+            "path:eval",
+            "label:eval",
+            "path:proofloop",
+            "label:proofloop",
+            "path:json",
+            "label:json",
+            "path:external",
+            "label:external",
+            "path:run",
+            "label:run",
+            "path:adapter",
+            "label:adapter",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/proofloop-benchmark-board.json",
+          "kind": "proof_artifact",
+          "label": "docs/eval/proofloop-benchmark-board.json",
+          "path": "docs/eval/proofloop-benchmark-board.json",
+          "score": 85,
+          "reasons": [
+            "path:docs",
+            "label:docs",
+            "path:eval",
+            "label:eval",
+            "path:proofloop",
+            "label:proofloop",
+            "path:json",
+            "label:json",
+            "path:benchmark",
+            "label:benchmark",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/proofloop-normalized-benchmarks.json",
+          "kind": "proof_artifact",
+          "label": "docs/eval/proofloop-normalized-benchmarks.json",
+          "path": "docs/eval/proofloop-normalized-benchmarks.json",
+          "score": 85,
+          "reasons": [
+            "path:docs",
+            "label:docs",
+            "path:eval",
+            "label:eval",
+            "path:proofloop",
+            "label:proofloop",
+            "path:json",
+            "label:json",
+            "path:benchmark",
+            "label:benchmark",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/proofloop-official-scores/workstreambench.json",
+          "kind": "proof_artifact",
+          "label": "docs/eval/proofloop-official-scores/workstreambench.json",
+          "path": "docs/eval/proofloop-official-scores/workstreambench.json",
+          "score": 85,
+          "reasons": [
+            "path:workstreambench",
+            "label:workstreambench",
+            "path:official",
+            "label:official",
+            "path:score",
+            "label:score",
+            "path:docs",
+            "label:docs",
+            "path:eval",
+            "label:eval",
+            "path:proofloop",
+            "label:proofloop",
+            "path:scores",
+            "label:scores",
+            "path:json",
+            "label:json",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/proofloop-adapter-blockers/finauditing.json",
+          "kind": "proof_artifact",
+          "label": "docs/eval/proofloop-adapter-blockers/finauditing.json",
+          "path": "docs/eval/proofloop-adapter-blockers/finauditing.json",
+          "score": 84,
+          "reasons": [
+            "path:docs",
+            "label:docs",
+            "path:eval",
+            "label:eval",
+            "path:proofloop",
+            "label:proofloop",
+            "path:json",
+            "label:json",
+            "path:lock",
+            "label:lock",
+            "path:adapter",
+            "label:adapter",
+            "path:blockers",
+            "label:blockers",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/proofloop-adapter-blockers/finch.json",
+          "kind": "proof_artifact",
+          "label": "docs/eval/proofloop-adapter-blockers/finch.json",
+          "path": "docs/eval/proofloop-adapter-blockers/finch.json",
+          "score": 84,
+          "reasons": [
+            "path:docs",
+            "label:docs",
+            "path:eval",
+            "label:eval",
+            "path:proofloop",
+            "label:proofloop",
+            "path:json",
+            "label:json",
+            "path:lock",
+            "label:lock",
+            "path:adapter",
+            "label:adapter",
+            "path:blockers",
+            "label:blockers",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/proofloop-external-adapter-runs/finauditing.json",
+          "kind": "proof_artifact",
+          "label": "docs/eval/proofloop-external-adapter-runs/finauditing.json",
+          "path": "docs/eval/proofloop-external-adapter-runs/finauditing.json",
+          "score": 79,
+          "reasons": [
+            "path:docs",
+            "label:docs",
+            "path:eval",
+            "label:eval",
+            "path:proofloop",
+            "label:proofloop",
+            "path:json",
+            "label:json",
+            "path:external",
+            "label:external",
+            "path:run",
+            "label:run",
+            "path:adapter",
+            "label:adapter",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/proofloop-external-adapter-runs/finch.json",
+          "kind": "proof_artifact",
+          "label": "docs/eval/proofloop-external-adapter-runs/finch.json",
+          "path": "docs/eval/proofloop-external-adapter-runs/finch.json",
+          "score": 79,
+          "reasons": [
+            "path:docs",
+            "label:docs",
+            "path:eval",
+            "label:eval",
+            "path:proofloop",
+            "label:proofloop",
+            "path:json",
+            "label:json",
+            "path:external",
+            "label:external",
+            "path:run",
+            "label:run",
+            "path:adapter",
+            "label:adapter",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/PROOFLOOP_BENCHMARK_BOARD.md",
+          "kind": "proof_artifact",
+          "label": "docs/eval/PROOFLOOP_BENCHMARK_BOARD.md",
+          "path": "docs/eval/PROOFLOOP_BENCHMARK_BOARD.md",
+          "score": 78,
+          "reasons": [
+            "path:docs",
+            "label:docs",
+            "path:eval",
+            "label:eval",
+            "path:proofloop",
+            "label:proofloop",
+            "path:benchmark",
+            "label:benchmark",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/PROOFLOOP_NORMALIZED_BENCHMARKS.md",
+          "kind": "proof_artifact",
+          "label": "docs/eval/PROOFLOOP_NORMALIZED_BENCHMARKS.md",
+          "path": "docs/eval/PROOFLOOP_NORMALIZED_BENCHMARKS.md",
+          "score": 78,
+          "reasons": [
+            "path:docs",
+            "label:docs",
+            "path:eval",
+            "label:eval",
+            "path:proofloop",
+            "label:proofloop",
+            "path:benchmark",
+            "label:benchmark",
+            "proof-artifact"
+          ]
+        },
+        {
+          "nodeId": "file:docs/eval/proofloop-orchestrator-dogfood.json",
+          "kind": "proof_artifact",
+          "label": "docs/eval/proofloop-orchestrator-dogfood.json",
+          "path": "docs/eval/proofloop-orchestrator-dogfood.json",
+          "score": 78,
+          "reasons": [
+            "path:docs",
+            "label:docs",
+            "path:eval",
+            "label:eval",
+            "path:proofloop",
+            "label:proofloop",
+            "path:json",
+            "label:json",
+            "proof-artifact"
+          ]
+        }
+      ],
+      "repairContextPath": ".proofloop/orchestrator/runs/dogfood-official-scores-2026-07-03T09-09-00-226Z/repair-contexts/workstreambench-official-score.md"
+    }
+  ],
+  "dispatches": [
+    {
+      "taskId": "btb-fullsuite-official-score",
+      "workerKind": "codex",
+      "status": "written",
+      "reason": "Worker launch was not allowed for this orchestrator run; dispatch packet was written for resume.",
+      "promptPath": ".proofloop/orchestrator/runs/dogfood-official-scores-2026-07-03T09-09-00-226Z/repair-contexts/btb-fullsuite-official-score.md",
+      "command": "npm run benchmark:bankertoolbench:fullsuite-gate -- --summary docs/eval/btb-clean-capability-full100-parallel-v3-gpt41mini.json --receipt-out docs/eval/fresh-room/FR-020/fullsuite-gate-receipt.json --assert"
+    },
+    {
+      "taskId": "external-adapter-local-product-proofs",
+      "workerKind": "codex",
+      "status": "written",
+      "reason": "Worker launch was not allowed for this orchestrator run; dispatch packet was written for resume.",
+      "promptPath": ".proofloop/orchestrator/runs/dogfood-official-scores-2026-07-03T09-09-00-226Z/repair-contexts/external-adapter-local-product-proofs.md",
+      "command": "npm run benchmark:proofloop:external-adapter -- --prod --user-emulation strict"
+    },
+    {
+      "taskId": "spreadsheetbench-v1-full-official-score",
+      "workerKind": "codex",
+      "status": "written",
+      "reason": "Worker launch was not allowed for this orchestrator run; dispatch packet was written for resume.",
+      "promptPath": ".proofloop/orchestrator/runs/dogfood-official-scores-2026-07-03T09-09-00-226Z/repair-contexts/spreadsheetbench-v1-full-official-score.md"
+    },
+    {
+      "taskId": "spreadsheetbench-v2-full-official-score",
+      "workerKind": "codex",
+      "status": "written",
+      "reason": "Worker launch was not allowed for this orchestrator run; dispatch packet was written for resume.",
+      "promptPath": ".proofloop/orchestrator/runs/dogfood-official-scores-2026-07-03T09-09-00-226Z/repair-contexts/spreadsheetbench-v2-full-official-score.md"
+    },
+    {
+      "taskId": "finch-official-score",
+      "workerKind": "codex",
+      "status": "written",
+      "reason": "Worker launch was not allowed for this orchestrator run; dispatch packet was written for resume.",
+      "promptPath": ".proofloop/orchestrator/runs/dogfood-official-scores-2026-07-03T09-09-00-226Z/repair-contexts/finch-official-score.md"
+    },
+    {
+      "taskId": "finauditing-official-score",
+      "workerKind": "codex",
+      "status": "written",
+      "reason": "Worker launch was not allowed for this orchestrator run; dispatch packet was written for resume.",
+      "promptPath": ".proofloop/orchestrator/runs/dogfood-official-scores-2026-07-03T09-09-00-226Z/repair-contexts/finauditing-official-score.md"
+    },
+    {
+      "taskId": "workstreambench-official-score",
+      "workerKind": "codex",
+      "status": "written",
+      "reason": "Worker launch was not allowed for this orchestrator run; dispatch packet was written for resume.",
+      "promptPath": ".proofloop/orchestrator/runs/dogfood-official-scores-2026-07-03T09-09-00-226Z/repair-contexts/workstreambench-official-score.md"
+    }
+  ],
+  "summary": {
+    "passed": 9,
+    "failed": 0,
+    "blockedExternal": 1,
+    "needsScaffoldOrRun": 4,
+    "needsWorker": 2,
+    "skipped": 0,
+    "notDone": 7
+  }
+}
