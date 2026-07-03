@@ -75,9 +75,22 @@ import {
   proofloopCliManifest,
   proofloopDocsTopic,
   runProofloopDoctor,
-  writeProofloopAgentDocs,
-  type ProofloopAgentKind,
 } from "../src/eval/proofloopAgentFriendlyCli";
+import {
+  buildProofloopProjectManifest,
+  detectUiContracts,
+  formatProofloopProjectManifestDense,
+  formatProofloopTemplateList,
+  formatProofloopUiContract,
+  formatProofloopUiList,
+  listProofloopTemplates,
+  syncProofloopPackageScripts,
+  writeProofloopAgentDocsForTarget,
+  writeProofloopLiveScaffold,
+  writeProofloopProjectManifest,
+  writeProofloopTemplate,
+  type ProofloopAgentTarget,
+} from "../src/eval/proofloopAgentFriendlyProject";
 import {
   formatProofloopHooksStatus,
   installProofloopHooks,
@@ -202,6 +215,12 @@ function main(): void {
       return cmdDocs(args);
     case "init":
       return cmdInit(args);
+    case "template":
+      return cmdTemplate(args);
+    case "workflow":
+      return cmdWorkflow(args);
+    case "ui":
+      return cmdUi(args);
     case "status":
       return cmdStatus();
     case "run": {
@@ -210,6 +229,8 @@ function main(): void {
       return cmdRun(suiteArg, flagArgs);
     }
     case "show":
+      return cmdShow(args[0]);
+    case "report":
       return cmdShow(args[0]);
     case "log":
       return cmdLog();
@@ -293,10 +314,14 @@ function usage(error?: string): void {
       "  manifest [--json]    print the machine-readable command surface",
       "  doctor [--json|--dense] read-only setup check for agent adoption",
       "  docs [topic] [--json|--dense] print compact CLI docs",
-      "  init [--features agents] [--agent codex|claude|cursor] install .proofloop/ scaffold + optional agent docs",
+      "  init [--features agents,live,github] [--agent auto|all|codex|claude|cursor|windsurf] install scaffold, manifest, scripts, docs",
+      "  template --list|<id> --write write workflow/rubric/red-team starters",
+      "  workflow --list [--dense] list generated proof workflows",
+      "  ui list|contract|component <name> [--dense] print agent-readable UI contracts",
       "  status               is the repo currently proven or broken?",
       "  run [suite]          run a suite, record a proof run",
       "  show [runId|latest]  print a proof run's scorecard/receipt",
+      "  report [runId|latest] alias for show",
       "  log                  list past proof runs",
       "  diff <a> <b>         compare two proof runs",
       "  replay <runId>       re-run a past run's exact command",
@@ -344,8 +369,13 @@ function usage(error?: string): void {
 
 function cmdManifest(args: string[]): void {
   const manifest = proofloopCliManifest();
+  const project = buildProofloopProjectManifest(ROOT);
   if (hasFlag(args, "--json")) {
-    console.log(JSON.stringify(manifest, null, 2));
+    console.log(JSON.stringify({ ...manifest, project }, null, 2));
+    return;
+  }
+  if (hasFlag(args, "--dense")) {
+    console.log(formatProofloopProjectManifestDense(project));
     return;
   }
   console.log(formatProofloopCliManifest(manifest, { dense: hasFlag(args, "--dense") }));
@@ -390,17 +420,101 @@ function cmdInit(args: string[]): void {
     writeFileSync(MEMORY_PATH, "");
     console.log(`proofloop: wrote ${rel(MEMORY_PATH)}`);
   }
-  if (initFeatures(args).has("agents")) {
-    const agent = initAgent(args);
-    if (!agent) return;
-    const result = writeProofloopAgentDocs({
+  const scripts = syncProofloopPackageScripts(ROOT);
+  if (scripts.changed) {
+    if (scripts.added.length) console.log(`proofloop: added package script(s): ${scripts.added.join(", ")}`);
+    if (scripts.updated.length) console.log(`proofloop: updated package script(s): ${scripts.updated.join(", ")}`);
+  } else {
+    console.log("proofloop: package proofloop scripts already up to date");
+  }
+  const shouldWriteAgentDocs = initFeatures(args).has("agents") || args.includes("--live") || args.some((arg) => arg.startsWith("--agent"));
+  if (shouldWriteAgentDocs) {
+    const target = initAgentTarget(args);
+    if (!target) return;
+    const results = writeProofloopAgentDocsForTarget({
       root: ROOT,
-      agent,
+      target,
       agentDocsPath: optionValueFromArgs(args, "--agent-docs-path"),
     });
-    console.log(`proofloop: ${result.changed ? "wrote" : "kept"} ${rel(result.path)} (${result.agent} agent docs)`);
+    for (const result of results) {
+      console.log(`proofloop: ${result.changed ? "wrote" : "kept"} ${rel(result.path)} (${result.agent} agent docs)`);
+    }
   }
+  if (initFeatures(args).has("github")) {
+    const result = installProofloopGithubCi({ root: ROOT, sourceRoot: ROOT, goalId: "default" });
+    console.log(`proofloop: wrote ${rel(result.workflowPath)} (gate goal: ${result.goalId})`);
+  }
+  if (initFeatures(args).has("live") || args.includes("--live")) {
+    const scaffold = writeProofloopLiveScaffold(ROOT);
+    for (const path of scaffold.written) console.log(`proofloop: wrote ${path}`);
+    for (const path of scaffold.skipped) console.log(`proofloop: kept ${path}`);
+  }
+  const manifest = writeProofloopProjectManifest(ROOT);
+  console.log(`proofloop: ${manifest.changed ? "wrote" : "kept"} ${rel(manifest.path)}`);
   console.log("proofloop: initialized. Run `proofloop status` next.");
+}
+
+function cmdTemplate(args: string[]): void {
+  const id = args.find((arg) => !arg.startsWith("--"));
+  if (!id || id === "list" || args.includes("--list")) {
+    if (args.includes("--json")) console.log(JSON.stringify(listProofloopTemplates(), null, 2));
+    else console.log(formatProofloopTemplateList({ dense: args.includes("--dense") }));
+    return;
+  }
+  if (!args.includes("--write")) {
+    const template = listProofloopTemplates().find((candidate) => candidate.id === id);
+    if (!template) return usage(`unknown template: ${id}`);
+    console.log(args.includes("--json") ? JSON.stringify(template, null, 2) : `${template.id}: ${template.description}`);
+    return;
+  }
+  try {
+    const result = writeProofloopTemplate(ROOT, id, { force: args.includes("--force") });
+    for (const path of result.written) console.log(`proofloop: wrote ${path}`);
+    for (const path of result.skipped) console.log(`proofloop: kept ${path}`);
+  } catch (error) {
+    console.error(`proofloop: ${error instanceof Error ? error.message : String(error)}`);
+    process.exitCode = 1;
+  }
+}
+
+function cmdWorkflow(args: string[]): void {
+  const manifest = buildProofloopProjectManifest(ROOT);
+  if (args.includes("--json")) {
+    console.log(JSON.stringify(manifest.workflows, null, 2));
+    return;
+  }
+  if (args.includes("--dense")) {
+    console.log(manifest.workflows.join("\n") || "no-workflows");
+    return;
+  }
+  console.log(["ProofLoop workflows", "", ...manifest.workflows.map((path) => `- ${path}`)].join("\n"));
+}
+
+function cmdUi(args: string[]): void {
+  const [subcommand, maybeComponent] = args.filter((arg) => !arg.startsWith("--"));
+  const dense = args.includes("--dense");
+  if (args.includes("--json")) {
+    const contracts = detectUiContracts(ROOT);
+    const filtered = subcommand === "component" && maybeComponent
+      ? contracts.filter((contract) => contract.id.toLowerCase().includes(maybeComponent.toLowerCase()))
+      : contracts;
+    console.log(JSON.stringify(filtered, null, 2));
+    return;
+  }
+  if (!subcommand || subcommand === "list") {
+    console.log(formatProofloopUiList(ROOT, { dense }));
+    return;
+  }
+  if (subcommand === "contract") {
+    console.log(formatProofloopUiContract(ROOT, { dense }));
+    return;
+  }
+  if (subcommand === "component") {
+    if (!maybeComponent) return usage("proofloop ui component requires <name>");
+    console.log(formatProofloopUiContract(ROOT, { dense, component: maybeComponent }));
+    return;
+  }
+  return usage(`unknown ui command: ${subcommand}`);
 }
 
 function cmdStatus(): void {
@@ -986,10 +1100,24 @@ function cmdGoalSupervise(args: string[]): void {
 }
 
 function cmdGoalResume(args: string[]): void {
-  const goalId = optionValueFromArgs(args, "--goal") ?? args[0];
+  const goalId = optionValueFromArgs(args, "--goal") ?? args.find((arg) => !arg.startsWith("--")) ?? "default";
   if (!goalId) return usage("proofloop resume requires --goal <goal-id>");
   try {
-    console.log(formatProofloopGoalResume(loadProofloopGoal(goalId, { root: ROOT })));
+    const state = loadProofloopGoal(goalId, { root: ROOT });
+    if (args.includes("--dense")) {
+      const pending = state.tasks.find((task) => task.status === "pending");
+      const blocked = state.tasks.filter((task) => task.status === "blocked_external" || task.status === "needs_scaffold_or_run");
+      console.log([
+        `goal=${state.goalId}`,
+        `status=${state.status}`,
+        `ledger=${state.ledgerPath}`,
+        `next=${pending?.id ?? "none"}`,
+        `run=${pending?.command ?? pending?.resumeCommand ?? "none"}`,
+        `blocked=${blocked.map((task) => task.id).join(",") || "none"}`,
+      ].join("\n"));
+      return;
+    }
+    console.log(formatProofloopGoalResume(state));
   } catch (error) {
     console.error(`proofloop: ${error instanceof Error ? error.message : String(error)}`);
     process.exitCode = 1;
@@ -1008,7 +1136,8 @@ function cmdOrchestrator(args: string[]): void {
 }
 
 function cmdThisRepo(args: string[]): void {
-  const goalText = optionValueFromArgs(args, "--goal") ?? optionValueFromArgs(args, "--objective") ?? args.join(" ").trim();
+  const positionalGoal = args.filter((arg) => !arg.startsWith("--") && arg !== "live").join(" ").trim();
+  const goalText = optionValueFromArgs(args, "--goal") ?? optionValueFromArgs(args, "--objective") ?? positionalGoal;
   const maxSteps = optionValueFromArgs(args, "--max-steps");
   const forwarded = [
     "dogfood",
@@ -1466,10 +1595,10 @@ function initFeatures(args: string[]): Set<string> {
   return features;
 }
 
-function initAgent(args: string[]): ProofloopAgentKind | undefined {
+function initAgentTarget(args: string[]): ProofloopAgentTarget | undefined {
   const value = optionValueFromArgs(args, "--agent") ?? "codex";
-  if (value === "codex" || value === "claude" || value === "cursor") return value;
-  console.error(`proofloop: unsupported --agent ${value}. Expected codex, claude, or cursor.`);
+  if (value === "auto" || value === "all" || value === "codex" || value === "claude" || value === "cursor" || value === "windsurf") return value;
+  console.error(`proofloop: unsupported --agent ${value}. Expected auto, all, codex, claude, cursor, or windsurf.`);
   process.exitCode = 1;
   return undefined;
 }

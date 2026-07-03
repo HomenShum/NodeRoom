@@ -1,0 +1,1025 @@
+{
+  "schema": "proofloop-project-manifest-v1",
+  "repo": "noderoom",
+  "stack": [
+    "Vite",
+    "React",
+    "Convex",
+    "Playwright",
+    "Vercel",
+    "TipTap"
+  ],
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview --port 5260 --strictPort",
+    "test": "vitest run",
+    "test:e2e": "playwright test",
+    "qa:story:prod": "node scripts/story-route-dogfood.mjs --base-url https://noderoom.live",
+    "prod:gate": "npm audit --omit=dev --audit-level=moderate && npm run security:gate && npm run qa:matrix:check && npm run content:fluency:check && npm run proofs:staleness && npm run fresh-room:proofs && npm run slo:gate && npm run typecheck -- --pretty false && npx tsc --noEmit --project convex/tsconfig.json --pretty false && npm test -- --run && npm run test:product:memory && npm run build && npm run security:gate -- --dist",
+    "prod:gate:live": "npm run prod:gate && npm run test:product:live",
+    "typecheck": "tsc --noEmit",
+    "benchmark:official:readiness": "tsx scripts/official-benchmark-readiness.ts",
+    "benchmark:proofloop:board": "tsx scripts/proofloop-benchmark-board.ts",
+    "benchmark:proofloop:normalized": "tsx scripts/proofloop-normalized-benchmarks.ts",
+    "benchmark:proofloop:company-tasks": "tsx scripts/proofloop-company-task-coverage.ts",
+    "benchmark:proofloop:harness-economics": "tsx scripts/proofloop-harness-economics.ts",
+    "benchmark:proofloop:adapter-blockers": "tsx scripts/proofloop-adapter-blockers.ts",
+    "benchmark:proofloop:external-adapter": "tsx scripts/proofloop-external-adapter-run.ts",
+    "benchmark:proofloop:charts": "tsx scripts/proofloop-charts.ts",
+    "benchmark:official:task-coverage": "tsx scripts/official-benchmark-task-coverage.ts",
+    "benchmark:official:ui-coverage": "tsx scripts/official-benchmark-ui-coverage.ts",
+    "proofloop:accounting": "tsx scripts/proofloop-runner.ts --config=proofloop/accounting/proofloop.accounting.config.json",
+    "proofloop:notion": "tsx scripts/proofloop-runner.ts --config=proofloop/notion/proofloop.notion.config.json",
+    "proofloop:accounting:seed": "tsx proofloop/accounting/seed-datasets.ts",
+    "proofloop:notion:seed": "tsx proofloop/notion/seed-datasets.ts",
+    "proofloop:live:accounting": "tsx scripts/live-proofloop-runner.ts --config=proofloop/accounting/live.accounting.config.json",
+    "proofloop:live:notion": "tsx scripts/live-proofloop-runner.ts --config=proofloop/notion/live.notion.config.json",
+    "proofloop:live:browser": "tsx scripts/proofloop-live-playwright.ts browser",
+    "proofloop:live:adapter": "tsx scripts/proofloop-live-playwright.ts adapter",
+    "proofloop:live:btb": "tsx scripts/proofloop-live-playwright.ts bankertoolbench",
+    "proofloop": "node scripts/proofloop.mjs",
+    "proofloop:orchestrator": "tsx scripts/proofloop-orchestrator.ts",
+    "benchmark:proofloop:orchestrator-longrun": "tsx scripts/proofloop-orchestrator.ts dogfood --execute-safe --fresh-template --json-out docs/eval/proofloop-orchestrator-dogfood.json --md-out docs/eval/PROOFLOOP_ORCHESTRATOR_DOGFOOD.md",
+    "proofloop:proximitty": "node scripts/proofloop.mjs proximitty",
+    "proofloop:proximitty:models": "node proofloop/adapters/model-delta.mjs --suite=proximitty-underwriting-pr0 --run=latest",
+    "proofloop:proximitty:clips": "node proofloop/adapters/generate-clips.mjs --suite=proximitty-underwriting-pr0 --run=latest",
+    "proofloop:init": "npm run proofloop -- init --agent auto --live",
+    "proofloop:live": "npm run proofloop -- this-repo --live",
+    "proofloop:gate": "npm run proofloop -- gate --goal default",
+    "proofloop:resume": "npm run proofloop -- resume --goal default --dense",
+    "proofloop:doctor": "npm run proofloop -- doctor --json",
+    "proofloop:report": "npm run proofloop -- report latest",
+    "proofloop:charts": "npm run proofloop -- charts latest"
+  },
+  "proofCommands": {
+    "init": "npm run proofloop -- init --agent auto --live",
+    "live": "npm run proofloop -- this-repo --live",
+    "gate": "npm run proofloop -- gate --goal default",
+    "resume": "npm run proofloop -- resume --goal default --dense",
+    "doctor": "npm run proofloop -- doctor --json",
+    "manifest": "npm run proofloop -- manifest --dense",
+    "report": "npm run proofloop -- report latest",
+    "charts": "npm run proofloop -- charts latest"
+  },
+  "agentInstructions": [
+    "AGENTS.md",
+    "CLAUDE.md",
+    ".cursor/rules/proofloop.mdc",
+    ".windsurf/rules/proofloop.md"
+  ],
+  "workflows": [
+    "proofloop/workflows/primary.workflow.yaml"
+  ],
+  "proofGates": [
+    ".github/workflows/proofloop-suites.yml",
+    ".github/workflows/proofloop.yml"
+  ],
+  "benchmarkSuites": [
+    "accounting-live",
+    "bankertoolbench",
+    "browser-live",
+    "finauditing",
+    "finch",
+    "notion-live",
+    "proximitty-underwriting-pr0",
+    "workstreambench"
+  ],
+  "modelRoutes": [
+    "docs/eval/proofloop-harness-economics.json",
+    "docs/eval/openrouter-top-paid-tools-snapshot.json"
+  ],
+  "knownBlockers": [
+    "docs/eval/proofloop-adapter-blockers/finauditing.json",
+    "docs/eval/proofloop-adapter-blockers/finch.json",
+    "docs/eval/proofloop-adapter-blockers/workstreambench.json"
+  ],
+  "latestStatus": "official-scores:blocked_external",
+  "uiContracts": [
+    {
+      "id": "agent-error",
+      "selector": "[data-testid=\"agent-error\"]",
+      "source": "src/ui/Chat.tsx",
+      "actions": [
+        "observe"
+      ],
+      "assertions": [
+        "notVisible",
+        "noUnhandledError"
+      ]
+    },
+    {
+      "id": "agent-job-result",
+      "selector": "[data-testid=\"agent-job-result\"]",
+      "source": "src/ui/Chat.tsx",
+      "actions": [
+        "observe"
+      ],
+      "assertions": [
+        "visible",
+        "updates"
+      ]
+    },
+    {
+      "id": "agent-operation-stream",
+      "selector": "[data-testid=\"agent-operation-stream\"]",
+      "source": "src/ui/Chat.tsx",
+      "actions": [
+        "observe"
+      ],
+      "assertions": [
+        "visible",
+        "updates"
+      ]
+    },
+    {
+      "id": "agent-plan-card",
+      "selector": "[data-testid=\"agent-plan-card\"]",
+      "source": "src/ui/Chat.tsx",
+      "actions": [
+        "observe"
+      ],
+      "assertions": [
+        "visible"
+      ]
+    },
+    {
+      "id": "agent-progress-bar",
+      "selector": "[data-testid=\"agent-progress-bar\"]",
+      "source": "src/ui/Chat.tsx",
+      "actions": [
+        "observe"
+      ],
+      "assertions": [
+        "visible"
+      ]
+    },
+    {
+      "id": "agent-progress-card",
+      "selector": "[data-testid=\"agent-progress-card\"]",
+      "source": "src/ui/Chat.tsx",
+      "actions": [
+        "observe"
+      ],
+      "assertions": [
+        "visible"
+      ]
+    },
+    {
+      "id": "agent-progress-details",
+      "selector": "[data-testid=\"agent-progress-details\"]",
+      "source": "src/ui/Chat.tsx",
+      "actions": [
+        "observe"
+      ],
+      "assertions": [
+        "visible"
+      ]
+    },
+    {
+      "id": "agent-progress-details-toggle",
+      "selector": "[data-testid=\"agent-progress-details-toggle\"]",
+      "source": "src/ui/Chat.tsx",
+      "actions": [
+        "observe"
+      ],
+      "assertions": [
+        "visible"
+      ]
+    },
+    {
+      "id": "agent-reasoning-card",
+      "selector": "[data-testid=\"agent-reasoning-card\"]",
+      "source": "src/ui/Chat.tsx",
+      "actions": [
+        "observe"
+      ],
+      "assertions": [
+        "visible"
+      ]
+    },
+    {
+      "id": "agent-stream-text",
+      "selector": "[data-testid=\"agent-stream-text\"]",
+      "source": "src/ui/Chat.tsx",
+      "actions": [
+        "observe"
+      ],
+      "assertions": [
+        "visible",
+        "updates"
+      ]
+    },
+    {
+      "id": "agent-unified-stream",
+      "selector": "[data-testid=\"agent-unified-stream\"]",
+      "source": "src/ui/Chat.tsx",
+      "actions": [
+        "observe"
+      ],
+      "assertions": [
+        "visible",
+        "updates"
+      ]
+    },
+    {
+      "id": "agent-via",
+      "selector": "[data-testid=\"agent-via\"]",
+      "source": "src/ui/Chat.tsx",
+      "actions": [
+        "observe"
+      ],
+      "assertions": [
+        "visible"
+      ]
+    },
+    {
+      "id": "artifact-ref-open-error",
+      "selector": "[data-testid=\"artifact-ref-open-error\"]",
+      "source": "src/ui/Chat.tsx",
+      "actions": [
+        "observe"
+      ],
+      "assertions": [
+        "notVisible",
+        "noUnhandledError"
+      ]
+    },
+    {
+      "id": "banker-coach-panel",
+      "selector": "[data-testid=\"banker-coach-panel\"]",
+      "source": "src/ui/artifacts/BankerCoachPanel.tsx",
+      "actions": [
+        "observe"
+      ],
+      "assertions": [
+        "visible",
+        "containsExpectedOutput"
+      ]
+    },
+    {
+      "id": "chat-attach",
+      "selector": "[data-testid=\"chat-attach\"]",
+      "source": "src/ui/Chat.tsx",
+      "actions": [
+        "fillText",
+        "submit"
+      ],
+      "assertions": [
+        "visible"
+      ]
+    },
+    {
+      "id": "chat-composer",
+      "selector": "[data-testid=\"chat-composer\"]",
+      "source": "src/ui/Chat.tsx",
+      "actions": [
+        "fillText",
+        "submit"
+      ],
+      "assertions": [
+        "visible"
+      ]
+    },
+    {
+      "id": "chat-edit",
+      "selector": "[data-testid=\"chat-edit\"]",
+      "source": "src/ui/Chat.tsx",
+      "actions": [
+        "fillText",
+        "submit"
+      ],
+      "assertions": [
+        "visible"
+      ]
+    },
+    {
+      "id": "chat-edit-error",
+      "selector": "[data-testid=\"chat-edit-error\"]",
+      "source": "src/ui/Chat.tsx",
+      "actions": [
+        "fillText",
+        "submit"
+      ],
+      "assertions": [
+        "notVisible",
+        "noUnhandledError"
+      ]
+    },
+    {
+      "id": "chat-edit-save",
+      "selector": "[data-testid=\"chat-edit-save\"]",
+      "source": "src/ui/Chat.tsx",
+      "actions": [
+        "fillText",
+        "submit"
+      ],
+      "assertions": [
+        "visible"
+      ]
+    },
+    {
+      "id": "chat-empty-agent-cta",
+      "selector": "[data-testid=\"chat-empty-agent-cta\"]",
+      "source": "src/ui/Chat.tsx",
+      "actions": [
+        "click"
+      ],
+      "assertions": [
+        "visible"
+      ]
+    },
+    {
+      "id": "chat-failed",
+      "selector": "[data-testid=\"chat-failed\"]",
+      "source": "src/ui/Chat.tsx",
+      "actions": [
+        "fillText",
+        "submit"
+      ],
+      "assertions": [
+        "visible"
+      ]
+    },
+    {
+      "id": "chat-feed",
+      "selector": "[data-testid=\"chat-feed\"]",
+      "source": "src/ui/Chat.tsx",
+      "actions": [
+        "fillText",
+        "submit"
+      ],
+      "assertions": [
+        "visible"
+      ]
+    },
+    {
+      "id": "chat-file-input",
+      "selector": "[data-testid=\"chat-file-input\"]",
+      "source": "src/ui/Chat.tsx",
+      "actions": [
+        "fillText",
+        "submit"
+      ],
+      "assertions": [
+        "visible"
+      ]
+    },
+    {
+      "id": "chat-jump-latest",
+      "selector": "[data-testid=\"chat-jump-latest\"]",
+      "source": "src/ui/Chat.tsx",
+      "actions": [
+        "fillText",
+        "submit"
+      ],
+      "assertions": [
+        "visible"
+      ]
+    },
+    {
+      "id": "chat-message",
+      "selector": "[data-testid=\"chat-message\"]",
+      "source": "src/ui/Chat.tsx",
+      "actions": [
+        "fillText",
+        "submit"
+      ],
+      "assertions": [
+        "visible",
+        "containsExpectedOutput"
+      ]
+    },
+    {
+      "id": "chat-model-preset",
+      "selector": "[data-testid=\"chat-model-preset\"]",
+      "source": "src/ui/Chat.tsx",
+      "actions": [
+        "fillText",
+        "submit"
+      ],
+      "assertions": [
+        "visible"
+      ]
+    },
+    {
+      "id": "chat-model-specific",
+      "selector": "[data-testid=\"chat-model-specific\"]",
+      "source": "src/ui/Chat.tsx",
+      "actions": [
+        "fillText",
+        "submit"
+      ],
+      "assertions": [
+        "visible"
+      ]
+    },
+    {
+      "id": "chat-pending",
+      "selector": "[data-testid=\"chat-pending\"]",
+      "source": "src/ui/Chat.tsx",
+      "actions": [
+        "fillText",
+        "submit"
+      ],
+      "assertions": [
+        "visible"
+      ]
+    },
+    {
+      "id": "chat-ref-error",
+      "selector": "[data-testid=\"chat-ref-error\"]",
+      "source": "src/ui/Chat.tsx",
+      "actions": [
+        "fillText",
+        "submit"
+      ],
+      "assertions": [
+        "notVisible",
+        "noUnhandledError"
+      ]
+    },
+    {
+      "id": "chat-regenerate",
+      "selector": "[data-testid=\"chat-regenerate\"]",
+      "source": "src/ui/Chat.tsx",
+      "actions": [
+        "fillText",
+        "submit"
+      ],
+      "assertions": [
+        "visible"
+      ]
+    },
+    {
+      "id": "chat-retry",
+      "selector": "[data-testid=\"chat-retry\"]",
+      "source": "src/ui/Chat.tsx",
+      "actions": [
+        "fillText",
+        "submit"
+      ],
+      "assertions": [
+        "visible"
+      ]
+    },
+    {
+      "id": "chat-send",
+      "selector": "[data-testid=\"chat-send\"]",
+      "source": "src/ui/Chat.tsx",
+      "actions": [
+        "click"
+      ],
+      "assertions": [
+        "visible"
+      ]
+    },
+    {
+      "id": "chat-stop",
+      "selector": "[data-testid=\"chat-stop\"]",
+      "source": "src/ui/Chat.tsx",
+      "actions": [
+        "fillText",
+        "submit"
+      ],
+      "assertions": [
+        "visible"
+      ]
+    },
+    {
+      "id": "chat-upload-error",
+      "selector": "[data-testid=\"chat-upload-error\"]",
+      "source": "src/ui/Chat.tsx",
+      "actions": [
+        "fillText",
+        "submit"
+      ],
+      "assertions": [
+        "notVisible",
+        "noUnhandledError"
+      ]
+    },
+    {
+      "id": "chat-upload-status",
+      "selector": "[data-testid=\"chat-upload-status\"]",
+      "source": "src/ui/Chat.tsx",
+      "actions": [
+        "fillText",
+        "submit"
+      ],
+      "assertions": [
+        "visible",
+        "updates"
+      ]
+    },
+    {
+      "id": "coach-card",
+      "selector": "[data-testid=\"coach-card\"]",
+      "source": "src/ui/artifacts/BankerCoachPanel.tsx",
+      "actions": [
+        "observe"
+      ],
+      "assertions": [
+        "visible"
+      ]
+    },
+    {
+      "id": "coach-cards",
+      "selector": "[data-testid=\"coach-cards\"]",
+      "source": "src/ui/artifacts/BankerCoachPanel.tsx",
+      "actions": [
+        "observe"
+      ],
+      "assertions": [
+        "visible"
+      ]
+    },
+    {
+      "id": "coach-cue",
+      "selector": "[data-testid=\"coach-cue\"]",
+      "source": "src/ui/artifacts/BankerCoachCueArtifact.tsx",
+      "actions": [
+        "observe"
+      ],
+      "assertions": [
+        "visible"
+      ]
+    },
+    {
+      "id": "coach-cue-artifact",
+      "selector": "[data-testid=\"coach-cue-artifact\"]",
+      "source": "src/ui/artifacts/BankerCoachCueArtifact.tsx",
+      "actions": [
+        "observe"
+      ],
+      "assertions": [
+        "visible",
+        "containsExpectedOutput"
+      ]
+    },
+    {
+      "id": "coach-draft-into-notebook",
+      "selector": "[data-testid=\"coach-draft-into-notebook\"]",
+      "source": "src/ui/artifacts/BankerCoachPanel.tsx",
+      "actions": [
+        "observe"
+      ],
+      "assertions": [
+        "visible"
+      ]
+    },
+    {
+      "id": "coach-evidence-artifact",
+      "selector": "[data-testid=\"coach-evidence-artifact\"]",
+      "source": "src/ui/artifacts/EvidenceCarouselArtifact.tsx",
+      "actions": [
+        "observe"
+      ],
+      "assertions": [
+        "visible",
+        "containsExpectedOutput"
+      ]
+    },
+    {
+      "id": "coach-evidence-card",
+      "selector": "[data-testid=\"coach-evidence-card\"]",
+      "source": "src/ui/artifacts/EvidenceCarouselArtifact.tsx",
+      "actions": [
+        "observe"
+      ],
+      "assertions": [
+        "visible"
+      ]
+    },
+    {
+      "id": "coach-handoff-artifact",
+      "selector": "[data-testid=\"coach-handoff-artifact\"]",
+      "source": "src/ui/artifacts/BankerCoachPanel.tsx",
+      "actions": [
+        "observe"
+      ],
+      "assertions": [
+        "visible",
+        "containsExpectedOutput"
+      ]
+    },
+    {
+      "id": "coach-review-artifact",
+      "selector": "[data-testid=\"coach-review-artifact\"]",
+      "source": "src/ui/artifacts/ReviewRoundUpdateArtifact.tsx",
+      "actions": [
+        "observe"
+      ],
+      "assertions": [
+        "visible",
+        "containsExpectedOutput"
+      ]
+    },
+    {
+      "id": "coach-runway-artifact",
+      "selector": "[data-testid=\"coach-runway-artifact\"]",
+      "source": "src/ui/artifacts/RunwayMilestoneChartArtifact.tsx",
+      "actions": [
+        "observe"
+      ],
+      "assertions": [
+        "visible",
+        "containsExpectedOutput"
+      ]
+    },
+    {
+      "id": "frontier-observations-empty",
+      "selector": "[data-testid=\"frontier-observations-empty\"]",
+      "source": "src/ui/FrontierObservationsPanel.tsx",
+      "actions": [
+        "observe"
+      ],
+      "assertions": [
+        "visible"
+      ]
+    },
+    {
+      "id": "frontier-observations-panel",
+      "selector": "[data-testid=\"frontier-observations-panel\"]",
+      "source": "src/ui/FrontierObservationsPanel.tsx",
+      "actions": [
+        "observe"
+      ],
+      "assertions": [
+        "visible",
+        "containsExpectedOutput"
+      ]
+    },
+    {
+      "id": "frontier-observations-runs",
+      "selector": "[data-testid=\"frontier-observations-runs\"]",
+      "source": "src/ui/FrontierObservationsPanel.tsx",
+      "actions": [
+        "observe"
+      ],
+      "assertions": [
+        "visible"
+      ]
+    },
+    {
+      "id": "guided-tour",
+      "selector": "[data-testid=\"guided-tour\"]",
+      "source": "src/ui/GuidedTour.tsx",
+      "actions": [
+        "observe"
+      ],
+      "assertions": [
+        "visible"
+      ]
+    },
+    {
+      "id": "job-cancel",
+      "selector": "[data-testid=\"job-cancel\"]",
+      "source": "src/ui/Chat.tsx",
+      "actions": [
+        "observe"
+      ],
+      "assertions": [
+        "visible",
+        "updates"
+      ]
+    },
+    {
+      "id": "job-detail",
+      "selector": "[data-testid=\"job-detail\"]",
+      "source": "src/ui/Chat.tsx",
+      "actions": [
+        "observe"
+      ],
+      "assertions": [
+        "visible",
+        "updates"
+      ]
+    },
+    {
+      "id": "job-detail-toggle",
+      "selector": "[data-testid=\"job-detail-toggle\"]",
+      "source": "src/ui/Chat.tsx",
+      "actions": [
+        "observe"
+      ],
+      "assertions": [
+        "visible",
+        "updates"
+      ]
+    },
+    {
+      "id": "job-error",
+      "selector": "[data-testid=\"job-error\"]",
+      "source": "src/ui/Chat.tsx",
+      "actions": [
+        "observe"
+      ],
+      "assertions": [
+        "notVisible",
+        "noUnhandledError"
+      ]
+    },
+    {
+      "id": "job-retry",
+      "selector": "[data-testid=\"job-retry\"]",
+      "source": "src/ui/Chat.tsx",
+      "actions": [
+        "observe"
+      ],
+      "assertions": [
+        "visible",
+        "updates"
+      ]
+    },
+    {
+      "id": "job-status",
+      "selector": "[data-testid=\"job-status\"]",
+      "source": "src/ui/Chat.tsx",
+      "actions": [
+        "observe"
+      ],
+      "assertions": [
+        "visible",
+        "updates"
+      ]
+    },
+    {
+      "id": "lane-private",
+      "selector": "[data-testid=\"lane-private\"]",
+      "source": "src/ui/Chat.tsx",
+      "actions": [
+        "observe"
+      ],
+      "assertions": [
+        "visible"
+      ]
+    },
+    {
+      "id": "lane-room",
+      "selector": "[data-testid=\"lane-room\"]",
+      "source": "src/ui/Chat.tsx",
+      "actions": [
+        "observe"
+      ],
+      "assertions": [
+        "visible"
+      ]
+    },
+    {
+      "id": "mention-menu",
+      "selector": "[data-testid=\"mention-menu\"]",
+      "source": "src/ui/Chat.tsx",
+      "actions": [
+        "observe"
+      ],
+      "assertions": [
+        "visible"
+      ]
+    },
+    {
+      "id": "reasoning-frame-tree",
+      "selector": "[data-testid=\"reasoning-frame-tree\"]",
+      "source": "src/ui/Chat.tsx",
+      "actions": [
+        "observe"
+      ],
+      "assertions": [
+        "visible"
+      ]
+    },
+    {
+      "id": "story-agent-send",
+      "selector": "[data-testid=\"story-agent-send\"]",
+      "source": "src/landing/StoryQuickDemo.tsx",
+      "actions": [
+        "click"
+      ],
+      "assertions": [
+        "visible"
+      ]
+    },
+    {
+      "id": "story-lab",
+      "selector": "[data-testid=\"story-lab\"]",
+      "source": "src/landing/StoryLab.tsx",
+      "actions": [
+        "observe"
+      ],
+      "assertions": [
+        "visible"
+      ]
+    },
+    {
+      "id": "story-lab-l2l3",
+      "selector": "[data-testid=\"story-lab-l2l3\"]",
+      "source": "src/landing/StoryLab.tsx",
+      "actions": [
+        "observe"
+      ],
+      "assertions": [
+        "visible"
+      ]
+    },
+    {
+      "id": "story-lab-lease",
+      "selector": "[data-testid=\"story-lab-lease\"]",
+      "source": "src/landing/StoryLab.tsx",
+      "actions": [
+        "observe"
+      ],
+      "assertions": [
+        "visible"
+      ]
+    },
+    {
+      "id": "story-lab-lease-run",
+      "selector": "[data-testid=\"story-lab-lease-run\"]",
+      "source": "src/landing/StoryLab.tsx",
+      "actions": [
+        "observe"
+      ],
+      "assertions": [
+        "visible"
+      ]
+    },
+    {
+      "id": "story-lab-lease-steps",
+      "selector": "[data-testid=\"story-lab-lease-steps\"]",
+      "source": "src/landing/StoryLab.tsx",
+      "actions": [
+        "observe"
+      ],
+      "assertions": [
+        "visible"
+      ]
+    },
+    {
+      "id": "story-lab-lease-ttl",
+      "selector": "[data-testid=\"story-lab-lease-ttl\"]",
+      "source": "src/landing/StoryLab.tsx",
+      "actions": [
+        "observe"
+      ],
+      "assertions": [
+        "visible"
+      ]
+    },
+    {
+      "id": "story-lab-mobile-evidence",
+      "selector": "[data-testid=\"story-lab-mobile-evidence\"]",
+      "source": "src/landing/StoryLab.tsx",
+      "actions": [
+        "observe"
+      ],
+      "assertions": [
+        "visible"
+      ]
+    },
+    {
+      "id": "story-lab-notes",
+      "selector": "[data-testid=\"story-lab-notes\"]",
+      "source": "src/landing/StoryLab.tsx",
+      "actions": [
+        "observe"
+      ],
+      "assertions": [
+        "visible"
+      ]
+    },
+    {
+      "id": "story-lab-rebase",
+      "selector": "[data-testid=\"story-lab-rebase\"]",
+      "source": "src/landing/StoryLab.tsx",
+      "actions": [
+        "observe"
+      ],
+      "assertions": [
+        "visible"
+      ]
+    },
+    {
+      "id": "story-lab-rebase-approve",
+      "selector": "[data-testid=\"story-lab-rebase-approve\"]",
+      "source": "src/landing/StoryLab.tsx",
+      "actions": [
+        "observe"
+      ],
+      "assertions": [
+        "visible"
+      ]
+    },
+    {
+      "id": "story-lab-rebase-approved",
+      "selector": "[data-testid=\"story-lab-rebase-approved\"]",
+      "source": "src/landing/StoryLab.tsx",
+      "actions": [
+        "observe"
+      ],
+      "assertions": [
+        "visible"
+      ]
+    },
+    {
+      "id": "story-lab-rebase-proposal",
+      "selector": "[data-testid=\"story-lab-rebase-proposal\"]",
+      "source": "src/landing/StoryLab.tsx",
+      "actions": [
+        "observe"
+      ],
+      "assertions": [
+        "visible"
+      ]
+    },
+    {
+      "id": "story-lab-rebase-run",
+      "selector": "[data-testid=\"story-lab-rebase-run\"]",
+      "source": "src/landing/StoryLab.tsx",
+      "actions": [
+        "observe"
+      ],
+      "assertions": [
+        "visible"
+      ]
+    },
+    {
+      "id": "story-lab-rebase-steps",
+      "selector": "[data-testid=\"story-lab-rebase-steps\"]",
+      "source": "src/landing/StoryLab.tsx",
+      "actions": [
+        "observe"
+      ],
+      "assertions": [
+        "visible"
+      ]
+    },
+    {
+      "id": "story-variance-cell",
+      "selector": "[data-testid=\"story-variance-cell\"]",
+      "source": "src/landing/StoryQuickDemo.tsx",
+      "actions": [
+        "observe"
+      ],
+      "assertions": [
+        "visible"
+      ]
+    },
+    {
+      "id": "stream-body",
+      "selector": "[data-testid=\"stream-body\"]",
+      "source": "src/ui/Chat.tsx",
+      "actions": [
+        "observe"
+      ],
+      "assertions": [
+        "visible",
+        "updates"
+      ]
+    },
+    {
+      "id": "tour-back",
+      "selector": "[data-testid=\"tour-back\"]",
+      "source": "src/ui/GuidedTour.tsx",
+      "actions": [
+        "observe"
+      ],
+      "assertions": [
+        "visible"
+      ]
+    },
+    {
+      "id": "tour-next",
+      "selector": "[data-testid=\"tour-next\"]",
+      "source": "src/ui/GuidedTour.tsx",
+      "actions": [
+        "observe"
+      ],
+      "assertions": [
+        "visible"
+      ]
+    },
+    {
+      "id": "tour-skip",
+      "selector": "[data-testid=\"tour-skip\"]",
+      "source": "src/ui/GuidedTour.tsx",
+      "actions": [
+        "observe"
+      ],
+      "assertions": [
+        "visible"
+      ]
+    },
+    {
+      "id": "trace-lens",
+      "selector": "[data-testid=\"trace-lens\"]",
+      "source": "src/ui/artifacts/BankerCoachPanel.tsx",
+      "actions": [
+        "observe"
+      ],
+      "assertions": [
+        "visible",
+        "updates"
+      ]
+    }
+  ]
+}

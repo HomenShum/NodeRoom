@@ -84,13 +84,16 @@ These instructions are generated for Codex. Keep ProofLoop usage on-demand: ask 
 
 Discovery:
 - `npm run proofloop -- manifest --json` - machine-readable command surface.
+- `npm run proofloop -- manifest --dense` - compact repo status, commands, suites, and UI contracts.
 - `npm run proofloop -- docs agents --dense` - compact agent workflow.
 - `npm run proofloop -- doctor --json` - read-only setup proof before claiming installed.
+- `npm run proofloop -- ui contract --dense` - stable selectors/actions/assertions before browser work.
 
 Long-running loop:
-- `npm run proofloop -- this-repo --goal "<measurable outcome>"` starts repo dogfooding with a persisted goal ledger.
+- `npm run proofloop -- this-repo --live` starts repo dogfooding with a persisted goal ledger.
 - `npm run proofloop -- supervise --goal <goal-id>` continues the loop until pass/fail/blocker.
 - `npm run proofloop -- gate --goal <goal-id>` is the completion gate; do not replace it with a transcript summary.
+- `npm run proofloop -- resume --goal <goal-id> --dense` prints the next action when the loop stops.
 - `npm run proofloop -- repair latest` converts a failed run into the next focused repair prompt.
 - `npm run proofloop -- memory search "<failure or fixture>"` recalls compacted prior failures without dragging full logs into context.
 
@@ -100,5 +103,8 @@ Rules:
 - Keep certification-loop assets locked. Exploration can propose scenarios and scaffold changes, but it cannot grade or promote itself.
 - Track harness versions, model routes, costs, blocked lanes, and official-score artifacts in receipts.
 - Cheaper model routing is allowed for exploration and shadow runs; official scores require the official scorer or an explicitly recorded equivalent judge contract.
+- If a local dependency is missing, run `npm run proofloop -- doctor --json` and fix local safe failures before blocking.
+- If official scoring is blocked, keep proxy/product-path proof moving and label it honestly in receipts.
+- Use the code graph and UI contracts before guessing files, selectors, or routes.
 
 <!-- proofloop-agent-friendly:end -->

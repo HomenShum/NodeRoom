@@ -1,0 +1,6 @@
+id: behavioral-proof-rules
+rules:
+  - do not claim done from a transcript or worker assertion
+  - run doctor before marking local setup blocked
+  - keep proxy/product-path proof separate from official scorer claims
+  - do not weaken deterministic verifiers to pass
