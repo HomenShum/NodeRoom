@@ -31,6 +31,26 @@ export interface ProofLoopArtifactRun {
 
 export interface ProofLoopArtifactOptions {
   baseUrl?: string;
+  /**
+   * Optional code-graph blast-radius sections for repair-prompt.md (populated by
+   * writeLoopArtifactsForMeta when .proofloop/codegraph/index.db exists). Absent →
+   * output is byte-identical to a run without the code graph.
+   */
+  blastRadius?: RepairBlastRadiusSection[];
+}
+
+export interface RepairBlastRadiusFile {
+  file: string;
+  score: number;
+  why: string[];
+  recentlyChanged?: boolean;
+  symbols?: string[];
+}
+
+export interface RepairBlastRadiusSection {
+  seedKind: "selector" | "route";
+  seed: string;
+  files: RepairBlastRadiusFile[];
 }
 
 export interface ProofLoopArtifactPaths {
@@ -73,7 +93,7 @@ export function writeProofLoopArtifacts(
   const reward = buildReward(run, outputDir);
   const nodeTrace = buildNodeMergedTrajectory(run, outputDir, reward, options);
   const nodeEval = buildNodeEval(run, outputDir, reward);
-  const repairPrompt = renderRepairPrompt(run, outputDir, nodeTrace.trajectoryId, reward);
+  const repairPrompt = renderRepairPrompt(run, outputDir, nodeTrace.trajectoryId, reward, options.blastRadius);
   const storybook = renderTraceStorybook(nodeTrace, nodeEval);
 
   const nodeTracePath = join(outputDir, "node-trace-v2.json");
@@ -225,6 +245,7 @@ function renderRepairPrompt(
   outputDir: string,
   trajectoryId: string,
   reward: Reward,
+  blastRadius?: RepairBlastRadiusSection[],
 ): string {
   const failedSteps = run.steps.filter((step) => step.required && step.status !== "pass" && !step.softFail);
   const lines: string[] = [];
@@ -262,6 +283,22 @@ function renderRepairPrompt(
     lines.push(`- Duration: ${step.durationMs}ms`);
     lines.push(`- Observation: ${summarizeStep(step)}`);
     lines.push("");
+  }
+  if (blastRadius?.length) {
+    lines.push("## Blast radius (code graph)");
+    lines.push("");
+    lines.push("Ranked files likely responsible, from the local code-graph index (retrieval hint only — it never changes what is verified).");
+    lines.push("");
+    for (const section of blastRadius) {
+      lines.push(`### ${section.seedKind} "${section.seed}"`);
+      lines.push("");
+      section.files.forEach((entry, index) => {
+        const recent = entry.recentlyChanged ? ", recently changed" : "";
+        const symbols = entry.symbols?.length ? ` (symbols: ${entry.symbols.join(", ")})` : "";
+        lines.push(`${index + 1}. ${entry.file} (score ${entry.score}${recent}) — ${entry.why.join("; ")}${symbols}`);
+      });
+      lines.push("");
+    }
   }
   lines.push("## Suggested Smallest Fix");
   lines.push("");
