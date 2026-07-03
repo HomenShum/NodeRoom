@@ -147,7 +147,7 @@ export function countLeafBlocks(docJson: unknown, limit: number): number {
 }
 
 /** Find the agent landing section: a top-level heading with attrs.agentRoot —
- *  matched by ATTRIBUTE (mew's pinned-root pattern without its fragile title scan). */
+ *  matched by ATTRIBUTE, never by fragile title text. */
 export function findAgentRootHeading(docJson: unknown): { topLevelIndex: number; blockId: string | null } | null {
   const root = (docJson ?? {}) as PmNodeJson;
   for (const [index, node] of (root.content ?? []).entries()) {
@@ -159,7 +159,7 @@ export function findAgentRootHeading(docJson: unknown): { topLevelIndex: number;
 }
 
 /** Normalized heading titles at/after the given top-level index — the merge-mode
- *  dedupe set (mew's ensureChild title map, applied to the agent section). */
+ *  dedupe set: a re-run merges into the agent section instead of duplicating. */
 export function headingTitlesFrom(docJson: unknown, fromTopLevelIndex: number): Set<string> {
   const root = (docJson ?? {}) as PmNodeJson;
   const titles = new Set<string>();

@@ -215,6 +215,20 @@ export type ApplyNotebookOutlineOutcome =
   | { ok: false; pendingApproval: true; proposalId?: string }
   | { ok: false; noSuchBlock: true; parentBlockId?: string; currentBlocks?: Array<{ blockId: string; text: string }> }
   | { ok: false; error: string };
+/** Result of a governed single-block edit. Same conflict-as-data idiom:
+ *  blockConflict carries the fresh text+hash to retry against; human prose is
+ *  protected — humanBlockProtected steers the model to action "annotate". */
+export type ApplyNotebookBlockEditOutcome =
+  | { ok: true; lane: "synced_doc" | "agent_notes_element" | "legacy_doc"; action: "replace" | "append_children" | "annotate"; blockIds: string[] }
+  | { ok: false; pendingApproval: true; proposalId?: string }
+  | { ok: false; noSuchBlock: true; blockId?: string; currentBlocks?: Array<{ blockId: string; text: string }> }
+  | { ok: false; blockConflict: true; currentText: string; currentTextHash: string }
+  | { ok: false; humanBlockProtected: true; hint: string }
+  | { ok: false; error: string };
+/** Deterministic enrichment planning data — read-only, deduped, capped. */
+export type NotebookEnrichmentPlan =
+  | { ok: true; targets: Array<{ entityKey: string; displayName: string; entityType: string; blockId: string; hasExistingEnrichment: boolean }>; skipped: number }
+  | { ok: false; reason: string };
 
 export interface RoomTools {
   /** Optional portable knowledge layer. Present for OKF-aware rooms/evals; absent rooms keep working. */
@@ -250,6 +264,18 @@ export interface RoomTools {
     mode?: "append" | "merge";
     sections: NotebookOutlineSection[];
   }): Promise<ApplyNotebookOutlineOutcome>;
+  /** Governed single-block edit: replace/extend an agent-authored block by
+   *  stable id + textHash CAS, or annotate any block with an attributed aside. */
+  applyNotebookBlockEdit?(args: {
+    artifactId?: string;
+    blockId: string;
+    baseTextHash?: string;
+    action: "replace" | "append_children" | "annotate";
+    content: string;
+    reason?: string;
+  }): Promise<ApplyNotebookBlockEditOutcome>;
+  /** Read-only enrichment planner over the notebook's entity mentions. */
+  planNotebookEnrichment?(args: { artifactId?: string; maxTargets?: number }): Promise<NotebookEnrichmentPlan>;
   /** Read specific cells — WORKS on locked cells (locked != invisible). Defaults to the primary artifact; pass artifactId for another file. */
   readRange(elementIds: string[], artifactId?: string): Promise<CellView[]>;
   /** Search header-prepended cell summaries and structural sub-grid chunks for large sheets. */

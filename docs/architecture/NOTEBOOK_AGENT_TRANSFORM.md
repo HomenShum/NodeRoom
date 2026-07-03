@@ -1,8 +1,8 @@
 # Notebook × NodeAgent Transformation Spec
 
-Source research: 4-mapper + 2-designer workflow over this repo and
-`D:\VSCode Projects\Ideaflow\latest-main-mew\mew` (2026-07-03). This document is
-the merged, decision-complete spec.
+Source research: 4-mapper + 2-designer workflow over this repo plus a
+comparative study of a production graph-outliner notebook (2026-07-03). This
+document is the merged, decision-complete spec.
 
 ## Implementation status (2026-07-03, this branch)
 
@@ -30,22 +30,49 @@ Shipped in this change (Steps 0–6 of the migration plan, condensed):
   the block protocol when the port exists, legacy contract otherwise.
 - Provider schemas (convexModel.ts) + regenerated AGENT_READY_API docs.
 
-Deliberately NOT in this change (per plan): `update_notebook_block` /
-`annotate_note_block`, NotebookAnchorOverlay + Trace Lens resolver,
-`plan_notebook_enrichment`, coach cue, update_wiki retarget, scripted memory
-demo intent, flag flip + prod deploy (requires `npm run convex:deploy` and
-live-DOM proof — convex/_generated intentionally NOT regenerated here because
-codegen against a cloud deployment deploys).
+Second increment (this branch) — remaining pick-ups shipped:
+
+- **`update_notebook_block`** (tool + `applyBlockEditByAgent`): hash-anchored
+  CAS on ONE block; `replace`/`append_children` require agent authorship
+  (`human_block_protected` steers to `annotate`, which adds an attributed
+  aside after ANY block without touching it); stale hash → `block_conflict`
+  with the fresh text+hash as DATA. Effects go through the shared
+  `notebookWriteEffects` helper (version bump, trace, mirror, coalesced dirty
+  event, receipt).
+- **`plan_notebook_enrichment`** (tool + read-only internal query): deduped,
+  capped (≤8) entity-mention targets with `hasExistingEnrichment`; enrichment
+  itself runs through the research tools + anchored outline appends.
+- **Trace Lens**: `[data-blockid]` now resolves inside the notebook surface
+  (`targetRef: notebook_block:{id}`); the note editors carry
+  `data-noderoom-surface="workSurface.notebook"` + `data-artifact-id`.
+- **Presence overlay**: `NotebookPresenceLayer` draws the agent intent box
+  over the targeted block (presenceClaims `targetKind:"notebook_block"`) —
+  the notebook analog of the cell intent box.
+- **Coach cue**: "Draft into notebook" in the Banker Coach header (reveal-on-
+  relevance: only when the room has a notebook) dispatches a templated
+  `askAgent` goal with the notebook as context artifact.
+- **Memory demo intent**: `classifyDemoIntent` routes notebook/meeting-notes
+  goals to a scripted plan that calls the REAL `read_notebook` +
+  `append_notebook_outline` tools — including one deliberately unevidenced
+  claim so the demo shows the needs_review honesty gate.
+
+Deliberately NOT in this change: `update_wiki` retarget (it primarily serves
+wiki dashboards rendered from elements["doc"], not the synced notebook lane —
+retargeting would truncate long grounded bodies through outline caps; note
+writes are already steered to the block tools by the context builder), and the
+flag flip + prod Convex deploy (requires `npm run convex:deploy` and live-DOM
+proof — convex/_generated intentionally NOT regenerated here because codegen
+against a cloud deployment deploys).
 
 ## Decision
 
 Keep the shipped substrate — Tiptap + `@convex-dev/prosemirror-sync` + the
 `notebookDocuments` capability registry + the dirty→processor→read-model
-pipeline — and steal exactly ONE structural idea from Ideaflow's mew: **stable
-per-block identity stored in the document itself**, plus its agent-workflow
-patterns (pinned landing zone, structured-outline contract, title-dedupe
-idempotency, server-minted ids). Do NOT port the hypergraph storage model, the
-per-row editor instances, or the last-write-wins sync.
+pipeline — and adopt exactly ONE structural idea from the outliner study:
+**stable per-block identity stored in the document itself**, plus the proven
+agent-workflow patterns (pinned landing zone, structured-outline contract,
+title-dedupe idempotency, server-minted ids). Do NOT port graph-as-storage,
+per-row editor instances, or last-write-wins sync.
 
 The agent gets a small governed notebook tool surface whose write engine is
 `prosemirrorSync.transform(ctx, docId, schema, fn)` (server-side, verified
@@ -55,9 +82,9 @@ proposals, traces, `agentMutationReceipts`, presence intent boxes, evidence
 honesty gates. Mental model: `block : cell :: blockId : elementId ::
 baseTextHash : baseVersion`.
 
-## What Ideaflow proves (patterns ported, no code)
+## Patterns the outliner study proves (ported as patterns, no code)
 
-| mew pattern | port into NodeRoom |
+| studied pattern | port into NodeRoom |
 |---|---|
 | Every bullet is an addressable node with a durable id | `attrs.blockId` (uuid) on every block node via Tiptap UniqueID/GlobalAttributes; rendered as `data-block-id` |
 | Pinned find-or-create roots ("Parsed outline") as agent landing zones | find-or-create heading with `attrs.agentRoot=true` ("Agent notes") — attr-matched, not fragile title-scan |
@@ -67,7 +94,7 @@ baseTextHash : baseVersion`.
 | Streaming nodes appearing live in the outline | one transform per section, sequential; blocks stream into every client through the existing sync subscription |
 | 8-target capped enrichment with dedupe | `plan_notebook_enrichment` read-only planner query |
 
-## What mew gets wrong (anti-goals — do not import)
+## Anti-goals the study exposed (do not import)
 
 - **No AI attribution in data** (agent writes authored as the user; provenance
   only by location/title convention) → we set `attrs.authorKind='agent'` +
@@ -79,7 +106,7 @@ baseTextHash : baseVersion`.
   textHash CAS + prosemirror-sync step rebasing.
 - **Fake-success cleanup stubs** (reject/delete-unconfirmed are no-ops that
   return ok) → honest status everywhere (HONEST_STATUS).
-- **Hypergraph as storage + one Lexical editor per row** → graph stays a
+- **Graph-as-storage + one editor instance per row** → the graph stays a
   DERIVED read model (`notebookBlocks/Claims/Mentions`); one editor instance.
 
 ## Pre-existing bugs this work must fix on the way (found during mapping)
@@ -311,20 +338,15 @@ tools (~250), overlay (~100), plus tests.
 - **Review replay honesty**: approval after doc movement may fail CAS → the
   approval UI surfaces the failure; no 2xx-on-failure.
 
-## Ideaflow reference index (for future reading)
+## Study summary (architecture of the compared outliner, for context)
 
-Repo: `D:\VSCode Projects\Ideaflow\latest-main-mew\mew` (canonical checkout).
-Lexical 0.27 + MobX hypergraph (graph_nodes/graph_relations/relation_lists,
-fractional indexing, Pusher sync, last-write-wins).
-
-- `src/app/components/AiSearchSidebar/AiSearchSidebar.tsx` (7,941 lines) — all
-  command routing, `parseOutlineAndPersist:793`, pinned-root helpers
-  `ensureUserRootChildPinnedByTitle:711`, agent SSE consumer:5864.
-- `src/app/api/llm/openai/ask-json/handlers/sectionBullets.ts` — the
-  structured-outline contract. `relTypeDedupe.ts` — LLM relation-label
-  canonicalization pre-pass. `agentIntent.ts` — cheap no-op gate before agent
-  spend.
-- `src/app/api/llm/openai/agent/` — MewAgent SSE loop; tools emit
-  `client_action` events with server-minted UUIDs, applied client-side through
-  the same GraphStore transactions as user edits.
-- `doc/parse-workflow.md`, `DESIGN_SPECS.md` — canonical flow docs.
+The compared notebook stores every bullet as a graph node row (content = a
+flat typed-chip array), models nesting/order as first-class relation rows with
+fractional indexing, mounts one rich-text editor instance per visible row, and
+syncs via optimistic client transactions batched to a REST endpoint with
+last-write-wins overwrites. Its agent layer routes slash commands to a
+structured-outline LLM contract, persists results under pinned find-or-create
+landing sections, dedupes re-runs by normalized title, and applies agent tool
+calls through the same client transaction layer as human edits with
+server-minted node ids. Those workflow patterns ported here as patterns; the
+storage model, per-row editors, and LWW sync deliberately did not.

@@ -8,7 +8,7 @@
 
 import type { RoomEngine } from "../../../engine/roomEngine";
 import type { Actor, CellPayload, Channel, DataframeColumn } from "../../../engine/types";
-import type { RoomTools, RoomSnapshot, AwarenessView, CellView, CellMeta, EditOutcome, MergeView, SourceResult, ArtifactRef, SpreadsheetContextHit, SetColumnsOutcome, ReadNotebookOutcome, ApplyNotebookOutlineOutcome, NotebookBlockRef, NotebookOutlineSection } from "../../core/types";
+import type { RoomTools, RoomSnapshot, AwarenessView, CellView, CellMeta, EditOutcome, MergeView, SourceResult, ArtifactRef, SpreadsheetContextHit, SetColumnsOutcome, ReadNotebookOutcome, ApplyNotebookOutlineOutcome, ApplyNotebookBlockEditOutcome, NotebookEnrichmentPlan, NotebookBlockRef, NotebookOutlineSection } from "../../core/types";
 import { buildSpreadsheetSemanticIndex, columnLetters } from "../../../app/spreadsheetIndex";
 import type { ColumnInput } from "../../../engine/columns";
 import { OUTLINE_CAPS, buildOutlineNodes, normalizeTitle, outlineToHtml, sha256HexWeb } from "../../../notebook/blockOps";
@@ -178,6 +178,71 @@ export class InMemoryRoomTools implements RoomTools {
     if (res.reason === "conflict") return { ok: false, error: `conflict: doc changed (expected v${res.expected}, actual v${res.actual}) — re-read and retry` };
     if (res.reason === "locked") return { ok: false, error: `locked by ${res.by.name} — draft or wait` };
     return { ok: false, error: res.reason };
+  }
+
+  /** Memory-mode single-block edit over the legacy HTML doc — same contract,
+   *  honest "legacy_doc" lane. Human prose stays protected here too. */
+  async applyNotebookBlockEdit(args: {
+    artifactId?: string;
+    blockId: string;
+    baseTextHash?: string;
+    action: "replace" | "append_children" | "annotate";
+    content: string;
+    reason?: string;
+  }): Promise<ApplyNotebookBlockEditOutcome> {
+    const artifactId = this.targetArtifactId(args.artifactId);
+    const art = this.engine.getArtifact(artifactId);
+    if (!art || art.kind !== "note") return { ok: false, error: "not_a_note" };
+    const el = art.elements["doc"];
+    const html = typeof el?.value === "string" ? el.value : "";
+    const clean = args.content.replace(/\s+/g, " ").trim().slice(0, 1_200);
+    if (!clean) return { ok: false, error: "empty_content" };
+    const escaped = clean.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+    const blockRe = new RegExp(`<(h[1-6]|p|li|pre|blockquote)\\b([^>]*data-blockid="${args.blockId.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}"[^>]*)>([\\s\\S]*?)<\\/\\1>`, "i");
+    const match = html.match(blockRe);
+    if (!match || match.index === undefined) {
+      const parsed = parseHtmlBlocks(html);
+      return { ok: false, noSuchBlock: true, blockId: args.blockId, currentBlocks: parsed.slice(0, 12).map((b, i) => ({ blockId: b.blockId ?? `b${i}`, text: b.text.slice(0, 80) })) };
+    }
+    const [full, tag, attrs, inner] = match;
+    if (args.action !== "annotate") {
+      if (!args.baseTextHash) return { ok: false, error: "base_text_hash_required" };
+      if (!/data-author-kind="agent"/i.test(attrs)) {
+        return { ok: false, humanBlockProtected: true, hint: "replace/append_children only apply to agent-authored blocks — use action 'annotate' to add an attributed aside after human prose instead" };
+      }
+      const currentText = inner.replace(/<[^>]+>/g, " ").replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"').replace(/\s+/g, " ").trim();
+      const currentHash = await sha256HexWeb(currentText);
+      if (currentHash !== args.baseTextHash) {
+        return { ok: false, blockConflict: true, currentText: currentText.slice(0, 400), currentTextHash: currentHash };
+      }
+    }
+    const mintedId = crypto.randomUUID();
+    let nextHtml: string;
+    if (args.action === "replace") {
+      // Rebuild the element with fresh text; a stale needs_review flag clears.
+      const cleanedAttrs = attrs.replace(/\s*data-status="[^"]*"/i, "");
+      nextHtml = html.slice(0, match.index) + `<${tag}${cleanedAttrs}>${escaped}</${tag}>` + html.slice(match.index + full.length);
+    } else {
+      const aside = `<p data-author-kind="agent" data-blockid="${mintedId}">${escaped}</p>`;
+      const end = match.index + full.length;
+      nextHtml = `${html.slice(0, end)}\n${aside}${html.slice(end)}`;
+    }
+    const res = this.engine.applyEdit({
+      roomId: this.roomId,
+      op: { opId: crypto.randomUUID(), artifactId, elementId: "doc", kind: "set", value: nextHtml, baseVersion: el?.version ?? 0 },
+      actor: this.actor,
+    });
+    if (res.ok) return { ok: true, lane: "legacy_doc", action: args.action, blockIds: args.action === "replace" ? [args.blockId] : [mintedId] };
+    if (res.reason === "pending_approval") return { ok: false, pendingApproval: true, proposalId: res.proposalId };
+    if (res.reason === "conflict") return { ok: false, error: `conflict: doc changed (expected v${res.expected}, actual v${res.actual}) — re-read and retry` };
+    if (res.reason === "locked") return { ok: false, error: `locked by ${res.by.name} — draft or wait` };
+    return { ok: false, error: res.reason };
+  }
+
+  /** Enrichment planning needs the live read model (entity mentions); the
+   *  memory engine has none — honest unsupported instead of fake targets. */
+  async planNotebookEnrichment(_args: { artifactId?: string; maxTargets?: number }): Promise<NotebookEnrichmentPlan> {
+    return { ok: false, reason: "plan_notebook_enrichment requires the live notebook read model (unavailable in memory mode)" };
   }
 
   async awareness(): Promise<AwarenessView> {

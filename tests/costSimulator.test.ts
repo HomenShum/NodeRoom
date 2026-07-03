@@ -115,8 +115,8 @@ describe("costSimulator — workload profiles", () => {
     expect(d30.creditsBurned).toBeGreaterThan(d7.creditsBurned);
   });
 
-  it("ideaflow is passive-heavy: spend stays tiny (suggestions don't bill)", () => {
-    const r = simulateProfile(WORKLOAD_PROFILES["ideaflow"], { days: 30 });
+  it("notebook-passive is passive-heavy: spend stays tiny (suggestions don't bill)", () => {
+    const r = simulateProfile(WORKLOAD_PROFILES["notebook-passive"], { days: 30 });
     expect(r.runsByMode.deep).toBe(0);
     expect(r.totalCostUsd).toBeLessThan(DEFAULT_BUDGET_CAPS.perRoomDailyUsd * 30);
   });

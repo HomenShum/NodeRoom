@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "gate": "credit_simulation_v1",
-  "generatedAt": "2026-06-27T21:23:03.950Z",
+  "generatedAt": "2026-07-03T18:58:55.332Z",
   "calibration": {
     "capturedAt": "2026-06-27",
     "deployment": "zealous-goshawk-766",
@@ -308,8 +308,8 @@
       ]
     },
     {
-      "profileKey": "ideaflow",
-      "label": "IdeaFlow notebook (passive-heavy)",
+      "profileKey": "notebook-passive",
+      "label": "Notebook capture (passive-heavy)",
       "grounding": "assumption",
       "days": 30,
       "users": 1,

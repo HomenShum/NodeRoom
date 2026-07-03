@@ -9,7 +9,7 @@
  *
  * Workload profiles map the real professional workflows discussed for the pilot
  * (VC dealflow, GTM sales, bulk enrichment, people research, conference burst,
- * ideaflow notebook, finance friend). Two are repo-grounded (parselyfi-bulk,
+ * passive notebook capture, finance friend). Two are repo-grounded (parselyfi-bulk,
  * gtm-sales); the rest are tagged ASSUMPTION and should be calibrated as real
  * usage arrives.
  */
@@ -108,9 +108,9 @@ export const WORKLOAD_PROFILES: Record<string, WorkloadProfile> = {
     peakConcurrency: 5,
     notes: "Stress case for foreground concurrency + passive-suggestion debounce.",
   },
-  ideaflow: {
-    key: "ideaflow",
-    label: "IdeaFlow notebook (passive-heavy)",
+  "notebook-passive": {
+    key: "notebook-passive",
+    label: "Notebook capture (passive-heavy)",
     grounding: "assumption",
     description: "Messy-notes capture: mostly passive suggestions (no spend), low research-approval rate.",
     users: 1,

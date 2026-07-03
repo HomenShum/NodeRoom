@@ -1704,7 +1704,7 @@ function SyncedNote({ roomId, me, proof, art }: { roomId: string; me: Actor; pro
   return (
     <div className="r-art-body">
       {noteErr && <div className="r-wall-error" role="alert" data-testid="note-error">{noteErr}</div>}
-      <SyncedEditorInner docId={existing.prosemirrorDocId} me={me} art={art} store={store} setNoteErr={setNoteErr} onDirty={queueDirty} />
+      <SyncedEditorInner docId={existing.prosemirrorDocId} roomId={roomId} me={me} art={art} store={store} setNoteErr={setNoteErr} onDirty={queueDirty} />
       <NotebookReadModelPanel
         blocks={blocks as NotebookBlockRow[]}
         plans={scopedPlans}
@@ -1738,17 +1738,18 @@ function SyncedNote({ roomId, me, proof, art }: { roomId: string; me: Actor; pro
  *  the `useTiptapSync` hook subscribes to a valid (registered) doc and never a
  *  guessed/placeholder id. */
 function SyncedEditorInner({
-  docId, me, art, store, setNoteErr, onDirty,
+  docId, roomId, me, art, store, setNoteErr, onDirty,
 }: {
-  docId: string; me: Actor; art: Art; store: RoomStore; setNoteErr: (e: string | null) => void; onDirty: (changedRangeHint?: string) => void;
+  docId: string; roomId: string; me: Actor; art: Art; store: RoomStore; setNoteErr: (e: string | null) => void; onDirty: (changedRangeHint?: string) => void;
 }) {
   const locked = !!lockedByOther(store, art.id, "doc", me);
+  const containerRef = useRef<HTMLDivElement | null>(null);
   const sync = useTiptapSync(api.prosemirror, docId);
   if (sync === undefined || sync.isLoading || sync.initialContent === null) {
     return <div data-testid="note-editor-loading">Loading notebook…</div>;
   }
   return (
-    <div className="r-note" data-testid="note-editor">
+    <div className="r-note" data-testid="note-editor" data-noderoom-surface="workSurface.notebook" data-artifact-id={art.id} ref={containerRef}>
       <EditorProvider
         editable={!locked}
         immediatelyRender={false}
@@ -1762,6 +1763,55 @@ function SyncedEditorInner({
       >
         <EditorContent editor={null} />
       </EditorProvider>
+      <NotebookPresenceLayer roomId={roomId} artifactId={art.id} containerRef={containerRef} />
+    </div>
+  );
+}
+
+/** Agent intent boxes on notebook blocks — the notebook analog of the cell
+ *  intent box. Positions a dashed overlay over each `[data-blockid]` element
+ *  that has an active presenceClaim (targetKind "notebook_block"), so members
+ *  see WHERE the agent is about to write before content lands. Pointer-events
+ *  none: never intercepts editing. */
+function NotebookPresenceLayer({ roomId, artifactId, containerRef }: {
+  roomId: string;
+  artifactId: string;
+  containerRef: { current: HTMLDivElement | null };
+}) {
+  const store = useStore();
+  const all = store.listPresence(roomId, artifactId);
+  const now = Date.now();
+  const claims = all.filter((c) => c.targetKind === "notebook_block" && c.expiresAt > now);
+  const signature = claims.map((c) => `${c.id}:${c.updatedAt}:${c.targetId}`).join("|");
+  const [boxes, setBoxes] = useState<Array<{ key: string; top: number; left: number; width: number; height: number; mode: string; label: string; color?: string }>>([]);
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el || claims.length === 0) { setBoxes([]); return; }
+    const parent = el.getBoundingClientRect();
+    setBoxes(claims.flatMap((c) => {
+      const target = c.targetId === "agent-section"
+        ? el.querySelector("[data-agent-root]") ?? el.querySelector(".ProseMirror")
+        : el.querySelector(`[data-blockid="${CSS.escape(c.targetId)}"]`);
+      if (!target) return [];
+      const r = target.getBoundingClientRect();
+      return [{ key: c.id, top: r.top - parent.top, left: r.left - parent.left, width: r.width, height: r.height, mode: c.mode, label: presenceLabel(c), color: c.color }];
+    }));
+    // Re-measures when claims change; block geometry drift within a claim's
+    // short TTL is acceptable (the box marks intent, not selection).
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [signature, containerRef]);
+  if (!boxes.length) return null;
+  return (
+    <div className="r-nb-presence-layer" data-testid="notebook-presence-layer" aria-hidden>
+      {boxes.map((b) => (
+        <div
+          key={b.key}
+          className={`r-nb-presence presence-${b.mode}`}
+          style={{ top: b.top, left: b.left, width: b.width, height: b.height, ...(b.color ? ({ "--presence-color": b.color } as CSSProperties) : {}) }}
+        >
+          <span className="presencebadge">{b.label}</span>
+        </div>
+      ))}
     </div>
   );
 }
@@ -1958,6 +2008,7 @@ function Note({ roomId, me, proof, art }: { roomId: string; me: Actor; proof?: A
   if (isUploadedFileDoc(docValue)) return <FileViewer roomId={roomId} me={me} proof={proof} art={art} doc={docValue} />;
   const locked = !!lockedByOther(store, art.id, "doc", me);
   const docStr = String(art.elements["doc"]?.value ?? "");
+  const containerRef = useRef<HTMLDivElement | null>(null);
   const [noteErr, setNoteErr] = useState<string | null>(null);
   const editor = useEditor({
     // Shared schema so legacy HTML round-trips block ids (data-blockid) — the
@@ -1980,7 +2031,10 @@ function Note({ roomId, me, proof, art }: { roomId: string; me: Actor; proof?: A
   return (
     <div className="r-art-body">
       {noteErr && <div className="r-wall-error" role="alert" data-testid="note-error">{noteErr}</div>}
-      <div className="r-note" data-testid="note-editor"><EditorContent editor={editor} /></div>
+      <div className="r-note" data-testid="note-editor" data-noderoom-surface="workSurface.notebook" data-artifact-id={art.id} ref={containerRef}>
+        <EditorContent editor={editor} />
+        <NotebookPresenceLayer roomId={roomId} artifactId={art.id} containerRef={containerRef} />
+      </div>
       <AgentNotesBlock art={art} />
     </div>
   );

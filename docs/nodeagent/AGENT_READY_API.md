@@ -18,6 +18,8 @@ This file is the model-facing contract: every production tool must expose a non-
 | `fetch_source` | read | `url` | `url` |
 | `read_notebook` | read | none | none |
 | `append_notebook_outline` | mixed | `sections` | `sections` |
+| `update_notebook_block` | write | `action`, `blockId`, `content` | `action`, `blockId`, `content` |
+| `plan_notebook_enrichment` | mixed | none | none |
 | `write_locked_cell` | write | none | none |
 | `write_locked_cells` | write | none | none |
 | `write_locked_cell_result` | write | `evidence` | `evidence` |
@@ -286,6 +288,55 @@ This file is the model-facing contract: every production tool must expose a non-
   "tool": "append_notebook_outline",
   "args": {
     "sections": "example"
+  }
+}
+```
+
+### update_notebook_block
+
+- Purpose: Edit ONE notebook block by its stable blockId — the governed single-block write.
+- When to use: Edit ONE notebook block by its stable blockId — the governed single-block write.
+- When not to use: Do not use when the target artifact, base version, permission, or evidence requirement is unknown; read or search first.
+- Mutability: write.
+- Canonical Zod properties: `action`, `artifactId`, `baseTextHash`, `blockId`, `content`, `reason`.
+- Canonical required fields: `action`, `blockId`, `content`.
+- Provider required fields: `action`, `blockId`, `content`.
+- Expected errors: missing_required_arg; invalid_arg_type.
+- Recovery path: Treat tool failures as inputs: inspect `failureKind` or result reason, add the missing argument or re-read state, and stop rather than inventing data.
+- Example call:
+
+```json
+{
+  "tool": "update_notebook_block",
+  "args": {
+    "action": "example",
+    "blockId": [
+      "example"
+    ],
+    "content": "example"
+  }
+}
+```
+
+### plan_notebook_enrichment
+
+- Purpose: Plan notebook enrichment deterministically: returns the DEDUPED, capped (max 8) list of entity mentions found in the notebook — {entityKey, displayName, entityType, blockId, hasExistingEnrichment}.
+- When to use: Plan notebook enrichment deterministically: returns the DEDUPED, capped (max 8) list of entity mentions found in the notebook — {entityKey, displayName, entityType, blockId, hasExistingEnrichment}.
+- When not to use: Do not use as a hidden shortcut around room permissions, privacy boundaries, or artifact freshness.
+- Mutability: mixed.
+- Canonical Zod properties: `artifactId`, `maxTargets`.
+- Canonical required fields: none.
+- Provider required fields: none.
+- Expected errors: missing_required_arg; invalid_arg_type.
+- Recovery path: Treat tool failures as inputs: inspect `failureKind` or result reason, add the missing argument or re-read state, and stop rather than inventing data.
+- Example call:
+
+```json
+{
+  "tool": "plan_notebook_enrichment",
+  "args": {
+    "artifactId": "artifact_example",
+    "maxTargets": "example"
   }
 }
 ```

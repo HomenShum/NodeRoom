@@ -979,6 +979,23 @@ export function toolParameters(toolName: string): JsonObject {
       required: ["baseVersion", "columns"],
     },
     read_notebook: { type: "object", properties: { artifactId: string }, required: [] },
+    update_notebook_block: {
+      type: "object",
+      properties: {
+        artifactId: string,
+        blockId: string,
+        baseTextHash: string,
+        action: { type: "string", enum: ["replace", "append_children", "annotate"] },
+        content: string,
+        reason: string,
+      },
+      required: ["blockId", "action", "content"],
+    },
+    plan_notebook_enrichment: {
+      type: "object",
+      properties: { artifactId: string, maxTargets: integer },
+      required: [],
+    },
     append_notebook_outline: {
       type: "object",
       properties: {
