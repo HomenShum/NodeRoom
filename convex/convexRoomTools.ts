@@ -13,7 +13,7 @@
 import { makeFunctionReference } from "convex/server";
 import type { ActionCtx } from "./_generated/server";
 import type { Id } from "./_generated/dataModel";
-import type { RoomTools, RoomSnapshot, AwarenessView, CellView, EditOutcome, MergeView, SourceResult, ArtifactRef, SpreadsheetContextHit, SetColumnsOutcome } from "../src/nodeagent/core/types";
+import type { RoomTools, RoomSnapshot, AwarenessView, CellView, EditOutcome, MergeView, SourceResult, ArtifactRef, SpreadsheetContextHit, SetColumnsOutcome, ReadNotebookOutcome, ApplyNotebookOutlineOutcome, NotebookOutlineSection } from "../src/nodeagent/core/types";
 import type { Actor } from "../src/engine/types";
 import type { ClaimSupportResult, EvidenceRef, LiteralSourceResult, OkfConceptFilter, OkfRetrievalPort, RetrievalHit } from "../src/nodeagent/retrieval/types";
 import type { OkfConcept } from "../src/nodeagent/okf/types";
@@ -48,6 +48,9 @@ const okfOpenLiteralRef = makeFunctionReference<"query">("okf:openLiteralForAgen
 const okfCompareClaimRef = makeFunctionReference<"query">("okf:compareClaimForAgent") as any;
 const okfRecordRetrievalEventRef = makeFunctionReference<"mutation">("okf:recordRetrievalEvent") as any;
 const capturesRecordRef = makeFunctionReference<"mutation">("captures:record") as any;
+const notebookReadForAgentRef = makeFunctionReference<"query">("notebookAgent:readNotebookForAgent") as any;
+const notebookEnsureForAgentRef = makeFunctionReference<"mutation">("notebookAgent:ensureNotebookDocForAgent") as any;
+const notebookApplyOutlineRef = makeFunctionReference<"mutation">("notebookAgent:applyOutlineByAgent") as any;
 const citePdfCiteRef = makeFunctionReference<"action">("citePdf:cite") as any;
 const evidenceRecordSourceCaptureRef = makeFunctionReference<"mutation">("evidence:recordSourceCapture") as any;
 const evidenceRecordEvidenceFactRef = makeFunctionReference<"mutation">("evidence:recordEvidenceFact") as any;
@@ -139,6 +142,63 @@ export class ConvexRoomTools implements RoomTools {
     if (r.ok) return { ok: true, version: r.version, columns: r.columns };
     if (r.reason === "conflict") return { ok: false, conflict: true, expected: r.expected, actual: r.actual };
     return { ok: false, error: r.reason ?? "set_columns_failed" };
+  }
+
+  /** Structured block view of a note artifact. Ensures the synced doc first
+   *  (idempotent; seeds from legacy HTML), so reads always serve the synced
+   *  lane — the agent never sees a doc its writes can't target. */
+  async readNotebook(args: { artifactId?: string }): Promise<ReadNotebookOutcome> {
+    const artifactId = (args.artifactId ?? this.artifactId) as Id<"artifacts">;
+    try {
+      await this.ctx.runMutation(notebookEnsureForAgentRef, { roomId: this.roomId, artifactId, actor: this.actor });
+      return await this.ctx.runQuery(notebookReadForAgentRef, { roomId: this.roomId, artifactId, actor: this.actor });
+    } catch (e) {
+      return { ok: false, reason: e instanceof Error ? e.message : "read_notebook_failed" };
+    }
+  }
+
+  /** Governed outline append. Heartbeats an agent-intent presence claim on the
+   *  notebook (targetKind "notebook_block") BEFORE the write, so the UI draws
+   *  the intent indicator before content lands — the cell intent-box pattern. */
+  async applyNotebookOutline(args: {
+    artifactId?: string;
+    title?: string;
+    parentBlockId?: string;
+    mode?: "append" | "merge";
+    sections: NotebookOutlineSection[];
+  }): Promise<ApplyNotebookOutlineOutcome> {
+    const artifactId = (args.artifactId ?? this.artifactId) as Id<"artifacts">;
+    if (this.actor.kind === "agent") {
+      await this.ctx.runMutation(presenceHeartbeatForAgentRef, {
+        roomId: this.roomId,
+        artifactId,
+        targetKind: "notebook_block",
+        targetId: args.parentBlockId ?? "agent-section",
+        mode: "agent_intent",
+        actor: this.actor,
+        label: `${this.actor.name} drafting notes`,
+        ttlMs: 45_000,
+      }).catch(() => null);
+    }
+    try {
+      const r = await this.ctx.runMutation(notebookApplyOutlineRef, {
+        roomId: this.roomId,
+        artifactId,
+        actor: this.actor,
+        jobId: this.jobId,
+        runLabel: this.sessionId,
+        title: args.title,
+        parentBlockId: args.parentBlockId,
+        mode: args.mode,
+        sections: args.sections,
+      });
+      if (r.ok) return { ok: true, lane: r.lane ?? "synced_doc", blockIds: r.blockIds ?? [], dedupedSections: r.dedupedSections ?? 0, needsReviewCount: r.needsReviewCount ?? 0, noop: r.noop };
+      if (r.reason === "pending_approval") return { ok: false, pendingApproval: true, proposalId: r.proposalId };
+      if (r.reason === "no_such_block") return { ok: false, noSuchBlock: true, parentBlockId: r.parentBlockId, currentBlocks: r.currentBlocks };
+      return { ok: false, error: String(r.reason ?? "apply_notebook_outline_failed") };
+    } catch (e) {
+      return { ok: false, error: e instanceof Error ? e.message : "apply_notebook_outline_failed" };
+    }
   }
 
   awareness(): Promise<AwarenessView> {

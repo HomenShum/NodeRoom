@@ -28,18 +28,23 @@ import { v } from "convex/values";
 import { components } from "./_generated/api";
 import { mutation, query } from "./_generated/server";
 import type { MutationCtx, QueryCtx } from "./_generated/server";
-import type { DataModel } from "./_generated/dataModel";
+import type { DataModel, Id } from "./_generated/dataModel";
 import { ProsemirrorSync } from "@convex-dev/prosemirror-sync";
 import { actorProofV, productionIdentityRequired, requireActorProof, requireArtifactInRoom, sha256Hex, type ActorValue } from "./lib";
+import { emptyNotebookDoc, legacyDocValueToPmJson } from "../src/notebook/seed";
 
 const NOTEBOOK_ELEMENT_ID = "doc";
-const EMPTY_DOC: object = { type: "doc", content: [{ type: "paragraph" }] };
 type DbCtx = QueryCtx | MutationCtx;
 
 export const prosemirrorSync = new ProsemirrorSync<string>(components.prosemirrorSync);
 
 function actorOwnsArtifact(a: { createdBy?: ActorValue }, actor: ActorValue): boolean {
-  return !!a.createdBy && a.createdBy.kind === actor.kind && a.createdBy.id === actor.id;
+  if (!a.createdBy) return false;
+  if (a.createdBy.kind === actor.kind && a.createdBy.id === actor.id) return true;
+  // The owner's private-scoped agent acts for its owner (ownerId is validated
+  // against a real agentSessions row by requireActorInRoom) — aligned with
+  // artifacts.ts so read/ensure/write agree on private-notebook access.
+  return actor.kind === "agent" && !!actor.ownerId && a.createdBy.kind === "user" && a.createdBy.id === actor.ownerId;
 }
 
 function canReadArtifact(a: { visibility?: "private" | "room" | "public"; createdBy?: ActorValue }, actor: ActorValue): boolean {
@@ -161,54 +166,83 @@ export const getNotebookDoc = query({
  *  artifact's "doc" element and create the synced doc, if no row exists yet.
  *  Returns the random capability `prosemirrorDocId` (a secret only learnable via
  *  this requester-gated mutation or getNotebookDoc). */
+/** Shared ensure/seed core. Called by the requester-gated public mutation below
+ *  and by the agent lane (convex/notebookAgent.ts) with a server-trusted actor.
+ *  Seeds the synced doc from the legacy elements["doc"] HTML so flipping
+ *  VITE_NOTEBOOK_SYNC on (or the first agent write) never orphans existing
+ *  note content. Empty/uploaded-file docs seed the standard empty baseline. */
+export async function ensureNotebookDocCore(
+  ctx: MutationCtx,
+  roomId: Id<"rooms">,
+  artifactId: Id<"artifacts">,
+  actor: ActorValue,
+): Promise<{ prosemirrorDocId: string; created: boolean }> {
+  const art = await requireArtifactInRoom(ctx, roomId, artifactId);
+  if (art.kind !== "note") throw new Error("artifact_not_notebook");
+  if (!canReadArtifact(art, actor)) throw new Error("artifact_not_visible");
+  // Look up by room/artifact/element (the doc id is now a random secret, so we
+  // can't derive it). If a row already exists, return its stored doc id.
+  const existing = await ctx.db
+    .query("notebookDocuments")
+    .withIndex("by_room_artifact_element", (q) =>
+      q.eq("roomId", roomId).eq("artifactId", artifactId).eq("elementId", NOTEBOOK_ELEMENT_ID))
+    .unique();
+  if (existing) return { prosemirrorDocId: existing.prosemirrorDocId, created: false };
+  const docId = newNotebookDocId();
+  const visibility = (art.visibility ?? "room") as "private" | "room" | "public";
+  const ownerId = art.createdBy && art.createdBy.kind === "user" ? art.createdBy.id : undefined;
+  const now = Date.now();
+  await ctx.db.insert("notebookDocuments", {
+    roomId,
+    artifactId,
+    elementId: NOTEBOOK_ELEMENT_ID,
+    prosemirrorDocId: docId,
+    visibility,
+    ownerId,
+    createdAt: now,
+    updatedAt: now,
+  });
+  // Seed the synced doc. Legacy elements["doc"] HTML converts through the shared
+  // NOTEBOOK_EXTENSIONS schema (lossy nodes drop — recorded as a trace); empty
+  // or uploaded-file docs seed the minimal empty baseline.
+  const legacyValue = (await ctx.db
+    .query("elements")
+    .withIndex("by_artifact", (q) => q.eq("artifactId", artifactId).eq("elementId", NOTEBOOK_ELEMENT_ID))
+    .unique())?.value;
+  const seeded = legacyDocValueToPmJson(legacyValue);
+  try {
+    await prosemirrorSync.create(ctx, docId, seeded ?? emptyNotebookDoc());
+    if (seeded) {
+      await ctx.db.insert("traces", {
+        roomId,
+        ts: now,
+        actor,
+        type: "notebook_seeded_from_legacy",
+        summary: `Notebook synced doc seeded from existing note content`,
+        detail: `artifact=${String(artifactId)} — legacy elements["doc"] HTML converted to the collaborative baseline`,
+      });
+    }
+  } catch (err) {
+    // Race: another client created the doc concurrently. Safe to ignore —
+    // both seeds derive from the same legacy content, so no conflict.
+    if (!String(err).includes("already")) {
+      await ctx.db.insert("traces", {
+        roomId,
+        ts: now,
+        actor,
+        type: "notebook_seed_failed",
+        summary: `Notebook seed failed for ${docId}`,
+        detail: String(err).slice(0, 480),
+      });
+    }
+  }
+  return { prosemirrorDocId: docId, created: true };
+}
+
 export const ensureNotebookDoc = mutation({
   args: { roomId: v.id("rooms"), artifactId: v.id("artifacts"), requester: actorProofV },
   handler: async (ctx, { roomId, artifactId, requester }) => {
     const actor = await requireActorProof(ctx, roomId, requester);
-    const art = await requireArtifactInRoom(ctx, roomId, artifactId);
-    if (art.kind !== "note") throw new Error("artifact_not_notebook");
-    if (!canReadArtifact(art, actor)) throw new Error("artifact_not_visible");
-    // Look up by room/artifact/element (the doc id is now a random secret, so we
-    // can't derive it). If a row already exists, return its stored doc id.
-    const existing = await ctx.db
-      .query("notebookDocuments")
-      .withIndex("by_room_artifact_element", (q) =>
-        q.eq("roomId", roomId).eq("artifactId", artifactId).eq("elementId", NOTEBOOK_ELEMENT_ID))
-      .unique();
-    if (existing) return { prosemirrorDocId: existing.prosemirrorDocId, created: false as const };
-    const docId = newNotebookDocId();
-    const visibility = (art.visibility ?? "room") as "private" | "room" | "public";
-    const ownerId = art.createdBy && art.createdBy.kind === "user" ? art.createdBy.id : undefined;
-    const now = Date.now();
-    await ctx.db.insert("notebookDocuments", {
-      roomId,
-      artifactId,
-      elementId: NOTEBOOK_ELEMENT_ID,
-      prosemirrorDocId: docId,
-      visibility,
-      ownerId,
-      createdAt: now,
-      updatedAt: now,
-    });
-    // Seed the synced doc. The ProseMirror Sync component stores JSON; we use a
-    // minimal empty doc as the collaborative baseline — legacy HTML content stays
-    // in elements["doc"] and the SyncedNote client seeds initialContent from it.
-    try {
-      await prosemirrorSync.create(ctx, docId, EMPTY_DOC);
-    } catch (err) {
-      // Race: another client created the doc concurrently. Safe to ignore —
-      // both used the same EMPTY_DOC baseline, so no conflict.
-      if (!String(err).includes("already")) {
-        await ctx.db.insert("traces", {
-          roomId,
-          ts: now,
-          actor,
-          type: "notebook_seed_failed",
-          summary: `Notebook seed failed for ${docId}`,
-          detail: String(err).slice(0, 480),
-        });
-      }
-    }
-    return { prosemirrorDocId: docId, created: true as const };
+    return await ensureNotebookDocCore(ctx, roomId, artifactId, actor);
   },
 });

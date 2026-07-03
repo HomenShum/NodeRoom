@@ -17,6 +17,7 @@ import { runAlgorithmArtifactFromRoomTools, type AlgorithmArtifact } from "./alg
 import { BANKER_COACH_TOOLS } from "../bankerCoach/tools";
 import { OKF_RETRIEVAL_TOOLS } from "../../retrieval/tools";
 import { retrieveUntilSufficient } from "../../retrieval/retrievalLoop";
+import { NOTEBOOK_TOOLS } from "../notebook/notebookTools";
 
 /**
  * Tolerant array for cheap/quantized models that emit a single object instead of a one-element
@@ -919,6 +920,9 @@ export const ROOM_TOOLS: AgentTool[] = [
     schema: z.object({ url: z.string().describe("an https URL to fetch as evidence") }),
     execute: (a: { url: string }, rt) => rt.fetchSource(a.url),
   },
+  // Notebook lane: structured block reads + governed outline appends (both
+  // capability-guarded — rooms whose RoomTools lack the port return unsupported).
+  ...NOTEBOOK_TOOLS,
 ];
 
 export const TOOL_NAMES = ROOM_TOOLS.map((t) => t.name);

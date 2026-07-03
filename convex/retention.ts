@@ -14,7 +14,12 @@
 import { internalMutation, internalQuery } from "./_generated/server";
 import { v } from "convex/values";
 
-const PRUNABLE = ["traces", "agentSteps", "agentOperationEvents"] as const;
+// notebookDirtyEvents/notebookProcessingJobs: high-volume processing telemetry —
+// every notebook edit (human idle/blur AND agent outline writes) appends rows
+// that only ever get state-patched, never deleted. 30-day-old events are
+// terminal (processed/failed) or dead-pending; the read model they produced
+// lives in notebookBlocks/Claims/Mentions, which are replace-per-doc, not pruned.
+const PRUNABLE = ["traces", "agentSteps", "agentOperationEvents", "notebookDirtyEvents", "notebookProcessingJobs"] as const;
 const DEFAULT_RETENTION_DAYS = 30;
 const BATCH_PER_TABLE = 500;
 const PRODUCT_DATA_NOT_PRUNED = [

@@ -978,6 +978,46 @@ export function toolParameters(toolName: string): JsonObject {
       },
       required: ["baseVersion", "columns"],
     },
+    read_notebook: { type: "object", properties: { artifactId: string }, required: [] },
+    append_notebook_outline: {
+      type: "object",
+      properties: {
+        artifactId: string,
+        title: string,
+        parentBlockId: string,
+        mode: { type: "string", enum: ["append", "merge"] },
+        sections: {
+          type: "array",
+          minItems: 1,
+          items: {
+            type: "object",
+            properties: {
+              title: string,
+              bullets: {
+                type: "array",
+                minItems: 1,
+                items: {
+                  anyOf: [
+                    { type: "string" },
+                    {
+                      type: "object",
+                      properties: {
+                        text: string,
+                        claim: boolean,
+                        evidence: { type: "array", items: { type: "object", additionalProperties: any } },
+                      },
+                      required: ["text"],
+                    },
+                  ],
+                },
+              },
+            },
+            required: ["title", "bullets"],
+          },
+        },
+      },
+      required: ["sections"],
+    },
     capture_source: { type: "object", properties: { url: string, goal: string }, required: ["url", "goal"] },
     sec_facts: { type: "object", properties: { company: string, concept: string }, required: ["company", "concept"] },
     cite_in_file: { type: "object", properties: { target: string, label: string, fileName: string }, required: ["target"] },

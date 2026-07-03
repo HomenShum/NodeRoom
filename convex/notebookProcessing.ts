@@ -9,7 +9,7 @@ import { activityDedupeKey, classifyNoteworthy } from "./roomActivity";
 const NOTEBOOK_ELEMENT_ID = "doc";
 const DEFAULT_DIRTY_QUIET_MS = 12_000;
 const MAX_DIRTY_WAIT_MS = 60_000;
-const PROCESSOR_VERSION = "notebook-read-model-v1";
+const PROCESSOR_VERSION = "notebook-read-model-v2";
 const READ_MODEL_SCHEMA_VERSION = "notebook-read-model-schema-v1";
 
 const laneV = v.union(v.literal("passive"), v.literal("coach"), v.literal("index"));
@@ -495,7 +495,7 @@ async function extractReadModel(snapshotContent: string): Promise<{
   } catch {
     root = { type: "doc", content: [{ type: "paragraph", text: snapshotContent }] };
   }
-  const rawBlocks: Array<{ blockType: string; text: string }> = [];
+  const rawBlocks: Array<{ blockType: string; text: string; stableId: string | null }> = [];
   collectBlocks(root, rawBlocks);
   const blocks: NotebookBlockInput[] = [];
   const claims: NotebookClaimInput[] = [];
@@ -505,7 +505,10 @@ async function extractReadModel(snapshotContent: string): Promise<{
     if (!text) continue;
     const blockIndex = blocks.length;
     const textHash = await sha256Hex(text);
-    const blockId = `b${blockIndex}-${textHash.slice(0, 12)}`;
+    // v2: prefer the stable attrs.blockId (shared NOTEBOOK_EXTENSIONS identity)
+    // so claims/mentions/work-plan anchors survive edits; position-derived ids
+    // remain the fallback for docs that predate block identity.
+    const blockId = raw.stableId ?? `b${blockIndex}-${textHash.slice(0, 12)}`;
     blocks.push({ blockId, blockIndex, blockType: raw.blockType, text, textHash });
     if (/\b(need|verify|confirm|ask|follow up|source|todo|runway|burn|revenue|funding|series)\b/i.test(text)) {
       claims.push({
@@ -526,18 +529,19 @@ async function extractReadModel(snapshotContent: string): Promise<{
   return { blocks, claims, mentions };
 }
 
-function collectBlocks(node: unknown, blocks: Array<{ blockType: string; text: string }>) {
+function collectBlocks(node: unknown, blocks: Array<{ blockType: string; text: string; stableId: string | null }>) {
   if (!node || typeof node !== "object") return;
-  const n = node as { type?: string; text?: unknown; content?: unknown[] };
+  const n = node as { type?: string; text?: unknown; attrs?: Record<string, unknown>; content?: unknown[] };
+  const stableId = typeof n.attrs?.blockId === "string" && n.attrs.blockId ? n.attrs.blockId : null;
   if (typeof n.text === "string") {
-    blocks.push({ blockType: n.type ?? "text", text: n.text });
+    blocks.push({ blockType: n.type ?? "text", text: n.text, stableId });
     return;
   }
   if (!Array.isArray(n.content)) return;
   if (n.type && n.type !== "doc") {
     const text = collectInlineText(n).trim();
     if (text) {
-      blocks.push({ blockType: n.type, text });
+      blocks.push({ blockType: n.type, text, stableId });
       return;
     }
   }

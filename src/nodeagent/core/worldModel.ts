@@ -122,7 +122,9 @@ export async function buildResearchContext(rt: RoomTools, goal: string): Promise
     `Process rows whose status is "pending" or whose last_researched is stale for the user's request. For each row: read the editable cells for base versions, set status to "running", fetch_source the website plus one corroborating source when available, then prefer one write_locked_cell_results batch for summary/funding/headcount/recent_signal/source/source2/last_researched/status so every agent-filled cell stores value, evidence, confidence, and status. Set last_researched to today's ISO date and status to "complete" in that managed batch. Cite only sources you actually fetched. Preserve tier, intent, owner, and crm_status unless explicitly asked to change them.`,
     ``,
     `ACTIVE LOCKS (read-only held by others):`,
-    locks,
+    // Lock reasons + holder names are member-authored — fence them like every
+    // other member channel (a lock reason is a prompt-injection primitive).
+    fenceUntrusted(locks),
   ].filter((l) => l !== "").join("\n");
   return [{ role: "user", content }];
 }
@@ -213,7 +215,9 @@ export async function buildCompanyDeepDiveContext(rt: RoomTools, goal: string): 
     `10. Do NOT modify base columns (summary, funding, etc.) — those were filled by the parent frame.`,
     ``,
     `ACTIVE LOCKS (read-only held by others):`,
-    locks,
+    // Lock reasons + holder names are member-authored — fence them like every
+    // other member channel (a lock reason is a prompt-injection primitive).
+    fenceUntrusted(locks),
   ].filter((l) => l !== "").join("\n");
   return [{ role: "user", content }];
 }
@@ -225,10 +229,37 @@ function elementText(value: unknown): string {
   return typeof raw === "string" ? raw : JSON.stringify(raw);
 }
 
-/** JIT context for a NOTE artifact: one editable `doc` element (HTML body). The agent reads the
- *  current body + version, then rewrites it with CAS (write_locked_cell on `doc`, or update_wiki). */
+/** JIT context for a NOTE artifact. When the room's tools expose the notebook
+ *  block lane (readNotebook/applyNotebookOutline), the agent gets an ORDERED
+ *  BLOCK view with stable ids and the governed outline protocol — never a
+ *  whole-doc rewrite. Rooms without the lane keep the legacy contract: one
+ *  `doc` HTML element rewritten with CAS (write_locked_cell or update_wiki). */
 export async function buildNoteContext(rt: RoomTools, goal: string): Promise<AgentMessage[]> {
   const [snap, aware] = await Promise.all([rt.snapshot(), rt.awareness()]);
+  const notebook = rt.readNotebook && rt.applyNotebookOutline
+    ? await rt.readNotebook({}).catch(() => null)
+    : null;
+  if (notebook?.ok) {
+    const rows = notebook.blocks.map((b) =>
+      `  ${b.blockId.padEnd(38)} ${String(b.blockType).padEnd(10)} d${b.depth}${b.authorKind === "agent" ? " [agent]" : ""}${b.status ? ` <${b.status}>` : ""}  "${b.text.slice(0, 90)}"`,
+    ).join("\n");
+    const locks = aware.activeLocks.length ? aware.activeLocks.map((l) => `  - ${l.holder} holds [${l.elementIds.join(", ")}] — ${l.reason}`).join("\n") : "";
+    const content = [
+      `YOUR TASK: ${goal}`,
+      ``,
+      `This artifact (id "${snap.artifactId}", v${snap.version}) is a NOTEBOOK (${notebook.docSource} lane, doc v${notebook.docVersion}). It is made of addressable BLOCKS:`,
+      notebook.blocks.length
+        ? `CURRENT BLOCKS (blockId · type · depth · text — member-authored):\n${fenceUntrusted(rows)}${notebook.truncated ? "\n  …(truncated — more blocks exist)" : ""}`
+        : `The notebook is empty.`,
+      `Agent section ("Agent notes"): ${notebook.agentSection.exists ? "exists" : "will be created on your first append"}.`,
+      ``,
+      `TO WRITE: call append_notebook_outline with sections [{title, bullets}]. Your output lands under the agent section as attributed agent blocks — do NOT rewrite human blocks. Anchor after a specific block by passing its blockId as parentBlockId. mode "merge" (default) skips section titles that already exist, so a re-run merges instead of duplicating. Mark factual bullets claim:true with an evidence entry ({kind,label,url}); an unevidenced claim is written flagged needs_review. Re-read with read_notebook after any noSuchBlock result and re-anchor.`,
+      policyLine(aware),
+      // Lock reasons/holder names are member-authored — fenced, never trusted.
+      locks ? `\nACTIVE LOCKS:\n${fenceUntrusted(locks)}` : "",
+    ].filter((l) => l !== "").join("\n");
+    return [{ role: "user", content }];
+  }
   const els = snap.elements ?? [];
   const doc = els.find((e) => e.id === "doc") ?? els[0];
   const docId = doc?.id ?? "doc";
@@ -246,7 +277,8 @@ export async function buildNoteContext(rt: RoomTools, goal: string): Promise<Age
     ``,
     `To update the note: use write_locked_cell on \`${docId}\` with kind "set" and the new full HTML, using version ${doc?.version ?? 0} for CAS — or use update_wiki (it appends a Sources footer for grounding and uses the same managed lock path). Preserve existing structure unless asked to rewrite.`,
     policyLine(aware),
-    locks ? `\nACTIVE LOCKS:\n${locks}` : "",
+    // Lock reasons/holder names are member-authored — fenced, never trusted.
+    locks ? `\nACTIVE LOCKS:\n${fenceUntrusted(locks)}` : "",
   ].filter((l) => l !== "").join("\n");
   return [{ role: "user", content }];
 }
