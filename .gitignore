@@ -44,6 +44,9 @@ playwright/.cache/
 .proofloop/goals/
 .proofloop/setup/
 .proofloop/live/
+.proofloop/codegraph/
+.proofloop/orchestrator/
+.proofloop/workers/
 .proofloop/memory/
 .proofloop/memory.jsonl
 .proofloop/live-memory.jsonl
