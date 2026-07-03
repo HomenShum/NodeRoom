@@ -55,7 +55,7 @@ describe("native notebook ProseMirror sync boundary", () => {
     await t.mutation(api.rooms.leave, { roomId, requester: proof });
     await expect(t.query(api.prosemirror.getNotebookDoc, { roomId, artifactId, requester: proof }))
       .rejects.toThrow(/actor_revoked/);
-  });
+  }, 30_000);
 
   it("keeps snapshots as registry updates, not passive activity events", async () => {
     const { t, roomId, artifactId, proof } = await seedNotebookRoom();

@@ -1,0 +1,24 @@
+# Proof Loop gate -- fails the job unless the persisted proof ledger says "passed".
+#
+# Installed into a target repo by `proofloop ci install github`, which fills in
+# the goal id below. `proofloop gate --goal <id>` exits non-zero unless
+# .proofloop/goals/<id>/state.json finalizes to status "passed", so a red gate
+# is a red check -- no separate scoring glue needed.
+name: proofloop-gate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  proofloop-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm ci
+      - name: Run the Proof Loop gate
+        run: npx tsx scripts/proofloop-cli.ts gate --goal __PROOFLOOP_GOAL__

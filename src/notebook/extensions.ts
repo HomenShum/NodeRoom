@@ -33,6 +33,12 @@ export const NOTEBOOK_BLOCK_TYPES = [
   "codeBlock",
 ] as const;
 
+declare global {
+  interface HTMLElement {
+    getAttribute(name: string): string | null;
+  }
+}
+
 function dataAttr(name: string) {
   return {
     default: null as string | null,

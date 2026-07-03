@@ -75,8 +75,12 @@ export const IMMUTABLE_FILES: readonly string[] = [
   "evals/evalStore.ts",
 ];
 
-/** Patterns that indicate a scaffold change weakens the verifier. */
-const VERIFIER_WEAKENING_PATTERNS: readonly RegExp[] = [
+/**
+ * Patterns that indicate a scaffold change weakens the verifier.
+ * Exported so `proofloop hooks install` can snapshot the real list into its
+ * PreToolUse guard config instead of maintaining a drifting duplicate.
+ */
+export const VERIFIER_WEAKENING_PATTERNS: readonly RegExp[] = [
   /minScore\s*[:=]\s*\d+/i, // lowering minScore
   /lower\s+minScore/i, // "lower minScore"
   /remove.*required.*check/i,

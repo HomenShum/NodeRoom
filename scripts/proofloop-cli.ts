@@ -33,6 +33,9 @@
  *   proofloop charts [latest|runId] write chart-pack.json, chart-pack.html, Vega-Lite specs, data, Markdown, and SVG
  *   proofloop orchestrator dogfood   run the durable repo-level ProofLoop Orchestrator
  *   proofloop this-repo --goal "..." dogfood the current repo against a natural-language goal
+ *   proofloop hooks install         wire Claude Code Stop/PreToolUse proof-gate hooks
+ *   proofloop ci install github     write the proofloop-gate workflow into a target repo
+ *   proofloop prompt                print the canonical one-prompt kickoff text
  *   proofloop promote <runId>       turn a failure into a tracked regression
  *   proofloop export rl [runId]     export a run as agentic-RL trace data
  *
@@ -61,6 +64,14 @@ import {
   officialScoresGoalTasks,
   type ProofloopGoalTask,
 } from "../src/eval/proofloopGoalSupervisor";
+import { installProofloopGithubCi } from "../src/eval/proofloopCi";
+import {
+  formatProofloopHooksStatus,
+  installProofloopHooks,
+  proofloopHooksStatus,
+  proofloopKickoffPrompt,
+  uninstallProofloopHooks,
+} from "../src/eval/proofloopHooks";
 import { writeLoopArtifactsForMeta } from "../src/eval/proofloopLoopArtifacts";
 import { promoteProofloopRegression } from "../src/eval/proofloopRegressions";
 import { setupProofloopAdapter, setupReceiptPath } from "../src/eval/proofloopSetup";
@@ -235,6 +246,12 @@ function main(): void {
     case "export":
       if (args[0] === "rl") return cmdExportRl(args[1]);
       return usage(`unknown export target: ${args[0] ?? ""}`);
+    case "hooks":
+      return cmdHooks(args);
+    case "ci":
+      return cmdCi(args);
+    case "prompt":
+      return cmdPrompt();
     case "goal":
       return cmdGoal(args);
     case "gate":
@@ -288,6 +305,9 @@ function usage(error?: string): void {
       "  graph index|blast-radius|search|export-cypher  code-graph substrate (repair blast radius)",
       "  promote <runId>      turn a failure into a tracked regression",
       "  export rl [runId]    export a run as agentic-RL trace data",
+      "  hooks install|uninstall|status [--worker claude-code] [--local] [--dir <path>] wire Claude Code Stop + PreToolUse proof-gate hooks",
+      "  ci install github [--dir <path>] [--goal <goal-id>] write .github/workflows/proofloop-gate.yml into a target repo",
+      "  prompt               print the canonical one-prompt Proof Loop kickoff text",
       "  goal init <goal-id> [--template official-scores] create a long-running proof ledger",
       "  goal status <goal-id> show persisted goal state",
       "  goal next <goal-id>   run or classify the next unfinished goal task",
@@ -948,6 +968,68 @@ function cmdThisRepo(args: string[]): void {
     shell: process.platform === "win32",
   });
   process.exitCode = result.status ?? 1;
+}
+
+function cmdHooks(args: string[]): void {
+  const [subcommand, ...rest] = args;
+  const root = optionValueFromArgs(rest, "--dir") ?? ROOT;
+  try {
+    if (subcommand === "install") {
+      const maxStopBlocksRaw = optionValueFromArgs(rest, "--max-stop-blocks");
+      const result = installProofloopHooks({
+        root,
+        local: rest.includes("--local"),
+        worker: optionValueFromArgs(rest, "--worker") ?? "claude-code",
+        goalId: optionValueFromArgs(rest, "--goal"),
+        gateCommand: optionValueFromArgs(rest, "--gate-command"),
+        maxStopBlocks: maxStopBlocksRaw ? Number(maxStopBlocksRaw) : undefined,
+      });
+      console.log(`proofloop: wrote ${result.stopGatePath}`);
+      console.log(`proofloop: wrote ${result.preToolUseGuardPath}`);
+      console.log(`proofloop: wrote ${result.configPath}`);
+      console.log(
+        `proofloop: ${result.addedStopHook || result.addedPreToolUseHook ? "merged hook entries into" : "hook entries already present in"} ${result.settingsPath}`,
+      );
+      console.log("proofloop: Claude Code will now refuse to stop while the proof gate is failing.");
+      return;
+    }
+    if (subcommand === "uninstall") {
+      const result = uninstallProofloopHooks({ root, purge: rest.includes("--purge") });
+      console.log(`proofloop: removed ${result.removedEntries} hook entr${result.removedEntries === 1 ? "y" : "ies"}${result.cleanedSettingsPaths.length ? ` from ${result.cleanedSettingsPaths.join(", ")}` : ""}`);
+      if (result.purgedHooksDir) console.log("proofloop: purged .proofloop/hooks/");
+      return;
+    }
+    if (subcommand === "status") {
+      console.log(formatProofloopHooksStatus(proofloopHooksStatus({ root })));
+      return;
+    }
+    return usage(`unknown hooks command: ${subcommand ?? ""}`);
+  } catch (error) {
+    console.error(`proofloop: ${error instanceof Error ? error.message : String(error)}`);
+    process.exitCode = 1;
+  }
+}
+
+function cmdCi(args: string[]): void {
+  const [subcommand, provider, ...rest] = args;
+  if (subcommand !== "install" || provider !== "github") {
+    return usage(`unknown ci command: ${args.join(" ")} (expected: ci install github)`);
+  }
+  try {
+    const result = installProofloopGithubCi({
+      root: optionValueFromArgs(rest, "--dir") ?? ROOT,
+      sourceRoot: ROOT,
+      goalId: optionValueFromArgs(rest, "--goal"),
+    });
+    console.log(`proofloop: wrote ${result.workflowPath} (gate goal: ${result.goalId})`);
+  } catch (error) {
+    console.error(`proofloop: ${error instanceof Error ? error.message : String(error)}`);
+    process.exitCode = 1;
+  }
+}
+
+function cmdPrompt(): void {
+  console.log(proofloopKickoffPrompt());
 }
 
 // ---------------------------------------------------------------------------
