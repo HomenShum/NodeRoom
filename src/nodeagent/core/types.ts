@@ -178,6 +178,44 @@ export type SetColumnsOutcome =
 /** A file the agent can reach within the room (the polymorphic node: sheet/note/wiki/wall). */
 export type ArtifactRef = { id: string; title: string; kind: string; readHint?: string; exampleElementIds?: string[] };
 
+/** One notebook block in the agent's structured read view. `blockId` is the
+ *  addressing/CAS anchor (stable attrs uuid when hasStableId, else the
+ *  position-derived read-model id); `textHash` is the per-block CAS token —
+ *  block : cell :: blockId : elementId :: textHash : baseVersion. */
+export type NotebookBlockRef = {
+  blockId: string;
+  hasStableId: boolean;
+  blockIndex: number;
+  blockType: string;
+  depth: number;
+  text: string;
+  textHash: string;
+  authorKind?: string;
+  status?: string;
+};
+export type ReadNotebookOutcome =
+  | {
+    ok: true;
+    /** "synced" = live ProseMirror doc; "legacy" = HTML elements["doc"] (memory mode / unsynced). */
+    docSource: "synced" | "legacy";
+    docVersion: number;
+    artifactVersion?: number;
+    agentSection: { exists: boolean; blockId?: string };
+    truncated?: boolean;
+    blocks: NotebookBlockRef[];
+  }
+  | { ok: false; reason: string };
+export type NotebookOutlineBullet = string | { text: string; claim?: boolean; evidence?: Array<Record<string, unknown>> };
+export type NotebookOutlineSection = { title: string; bullets: NotebookOutlineBullet[] };
+/** Result of a governed notebook outline append. Same conflict-as-data idiom as
+ *  EditOutcome: pending_approval is review-mode SUCCESS; noSuchBlock means the
+ *  anchor vanished (re-read and re-anchor, never retry blind). */
+export type ApplyNotebookOutlineOutcome =
+  | { ok: true; lane: "synced_doc" | "agent_notes_element" | "legacy_doc"; blockIds: string[]; dedupedSections: number; needsReviewCount: number; noop?: boolean }
+  | { ok: false; pendingApproval: true; proposalId?: string }
+  | { ok: false; noSuchBlock: true; parentBlockId?: string; currentBlocks?: Array<{ blockId: string; text: string }> }
+  | { ok: false; error: string };
+
 export interface RoomTools {
   /** Optional portable knowledge layer. Present for OKF-aware rooms/evals; absent rooms keep working. */
   okf?: OkfRetrievalPort;
@@ -199,6 +237,19 @@ export interface RoomTools {
   /** Agent-governed SCHEMA edit: declare/replace a sheet's COLUMNS before filling rows. CAS-guarded on the
    *  artifact version — a stale baseVersion returns { conflict } as DATA so the runtime re-reads and retries. */
   setColumns?(args: { artifactId?: string; baseVersion: number; mode: "replace" | "merge"; columns: Array<{ label: string; type?: string; agentWritable?: boolean }> }): Promise<SetColumnsOutcome>;
+  /** Structured block view of a note artifact (stable blockIds + textHash CAS tokens).
+   *  Optional capability — rooms without a notebook lane keep working. */
+  readNotebook?(args: { artifactId?: string }): Promise<ReadNotebookOutcome>;
+  /** Governed outline append (the /parse port): sections/bullets land under the
+   *  attr-matched agent section or an explicit block anchor. Conflicts, missing
+   *  anchors, and review-mode proposals all return as DATA, never throw. */
+  applyNotebookOutline?(args: {
+    artifactId?: string;
+    title?: string;
+    parentBlockId?: string;
+    mode?: "append" | "merge";
+    sections: NotebookOutlineSection[];
+  }): Promise<ApplyNotebookOutlineOutcome>;
   /** Read specific cells — WORKS on locked cells (locked != invisible). Defaults to the primary artifact; pass artifactId for another file. */
   readRange(elementIds: string[], artifactId?: string): Promise<CellView[]>;
   /** Search header-prepended cell summaries and structural sub-grid chunks for large sheets. */

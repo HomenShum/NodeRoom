@@ -880,6 +880,18 @@ input { font-family: inherit; }
 .r-note .nb-block[contenteditable] { outline: none; border-radius: 8px; }
 .r-note .nb-block[contenteditable]:hover { background: var(--bg-secondary); }
 .r-note .nb-block.locked { background: var(--accent-tint); padding: 8px 10px; margin-left: -10px; }
+/* Agent-attributed notebook blocks — provenance visible in place, quietly.
+   attrs.authorKind="agent" renders as data-author-kind; the agent landing
+   section heading carries data-agent-root. Nested li>p double-borders are
+   suppressed so a bullet reads as ONE attributed row. */
+.r-note .ProseMirror h2[data-agent-root] { display: flex; align-items: center; gap: 8px; font-size: 15px; }
+.r-note .ProseMirror h2[data-agent-root]::after { content: "NodeRoom"; font-size: 10px; font-weight: 800; letter-spacing: .04em; color: var(--accent-ink); background: var(--accent-tint); border: 1px solid var(--accent-border); border-radius: 5px; padding: 1px 6px; text-transform: uppercase; }
+.r-note .ProseMirror h3[data-author-kind="agent"],
+.r-note .ProseMirror h4[data-author-kind="agent"],
+.r-note .ProseMirror p[data-author-kind="agent"],
+.r-note .ProseMirror li[data-author-kind="agent"] { border-left: 2px solid var(--accent-border); padding-left: 10px; }
+.r-note .ProseMirror li[data-author-kind="agent"] > p { border-left: none; padding-left: 0; }
+.r-note .ProseMirror [data-status="needs_review"]::after { content: "needs review"; display: inline-block; margin-left: 8px; vertical-align: 1px; font-size: 10px; font-weight: 700; letter-spacing: .03em; color: var(--warning-ink); background: var(--warning-tint); border: 1px solid var(--warning-border); border-radius: 5px; padding: 0 5px; }
 /* TipTap (ProseMirror) — styled to match the design's note blocks */
 .r-note .ProseMirror { outline: none; }
 .r-note .ProseMirror h1 { font-size: 19px; font-weight: 700; letter-spacing: -.02em; margin: 0 0 14px; color: var(--text-primary); }

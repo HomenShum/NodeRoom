@@ -16,6 +16,8 @@ This file is the model-facing contract: every production tool must expose a non-
 | `run_algorithm_artifact` | mixed | `artifact` | `artifact` |
 | `say` | mixed | `text` | `text` |
 | `fetch_source` | read | `url` | `url` |
+| `read_notebook` | read | none | none |
+| `append_notebook_outline` | mixed | `sections` | `sections` |
 | `write_locked_cell` | write | none | none |
 | `write_locked_cells` | write | none | none |
 | `write_locked_cell_result` | write | `evidence` | `evidence` |
@@ -44,7 +46,7 @@ This file is the model-facing contract: every production tool must expose a non-
 | `define_columns` | write | `baseVersion`, `columns` | `baseVersion`, `columns` |
 | `capture_source` | write | `goal`, `url` | `goal`, `url` |
 | `sec_facts` | read | `company`, `concept` | `company`, `concept` |
-| `cite_in_file` | write | `target` | `target` |
+| `cite_in_file` | write | none | `target` |
 | `create_btb_deliverable_package` | write | `narrative`, `title` | `narrative`, `title` |
 | `founder_profile` | mixed | none | none |
 | `github_profile` | mixed | `username` | `username` |
@@ -240,6 +242,50 @@ This file is the model-facing contract: every production tool must expose a non-
   "tool": "fetch_source",
   "args": {
     "url": "https://example.com"
+  }
+}
+```
+
+### read_notebook
+
+- Purpose: Read a note artifact as ORDERED BLOCKS with stable ids — the structured notebook view.
+- When to use: Read a note artifact as ORDERED BLOCKS with stable ids — the structured notebook view.
+- When not to use: Do not use as a hidden shortcut around room permissions, privacy boundaries, or artifact freshness.
+- Mutability: read.
+- Canonical Zod properties: `artifactId`.
+- Canonical required fields: none.
+- Provider required fields: none.
+- Expected errors: missing_required_arg; invalid_arg_type.
+- Recovery path: Treat tool failures as inputs: inspect `failureKind` or result reason, add the missing argument or re-read state, and stop rather than inventing data.
+- Example call:
+
+```json
+{
+  "tool": "read_notebook",
+  "args": {
+    "artifactId": "artifact_example"
+  }
+}
+```
+
+### append_notebook_outline
+
+- Purpose: Persist a STRUCTURED report (sections of bullets) into a note artifact — the governed way to write notebook content.
+- When to use: Persist a STRUCTURED report (sections of bullets) into a note artifact — the governed way to write notebook content.
+- When not to use: Do not use as a hidden shortcut around room permissions, privacy boundaries, or artifact freshness.
+- Mutability: mixed.
+- Canonical Zod properties: `artifactId`, `mode`, `parentBlockId`, `sections`, `title`.
+- Canonical required fields: `sections`.
+- Provider required fields: `sections`.
+- Expected errors: missing_required_arg; invalid_arg_type.
+- Recovery path: Treat tool failures as inputs: inspect `failureKind` or result reason, add the missing argument or re-read state, and stop rather than inventing data.
+- Example call:
+
+```json
+{
+  "tool": "append_notebook_outline",
+  "args": {
+    "sections": "example"
   }
 }
 ```
@@ -926,8 +972,8 @@ This file is the model-facing contract: every production tool must expose a non-
 - When to use: Ground a figure in an uploaded PDF: find the exact value/phrase on the page and pin a citation box on that source line (renders in the Trace tab).
 - When not to use: Do not use when the target artifact, base version, permission, or evidence requirement is unknown; read or search first.
 - Mutability: write.
-- Canonical Zod properties: `fileName`, `label`, `target`.
-- Canonical required fields: `target`.
+- Canonical Zod properties: none.
+- Canonical required fields: none.
 - Provider required fields: `target`.
 - Expected errors: missing_required_arg; invalid_arg_type.
 - Recovery path: Treat tool failures as inputs: inspect `failureKind` or result reason, add the missing argument or re-read state, and stop rather than inventing data.

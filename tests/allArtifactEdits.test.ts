@@ -84,9 +84,27 @@ describe("all-artifact edits — a NodeAgent works the post-it WALL (create / mo
 });
 
 describe("all-artifact edits — kind-agnostic context builders", () => {
-  it("buildNoteContext shows the current body + how to edit the doc element", async () => {
+  it("buildNoteContext serves the BLOCK protocol when the notebook lane exists", async () => {
     const { noteTools } = setup();
     const [msg] = await buildNoteContext(noteTools, "Tighten the intro");
+    expect(msg.content).toContain("NOTEBOOK");
+    // Current body is visible as addressable blocks, fenced as untrusted.
+    expect(msg.content).toContain("Original body");
+    expect(msg.content).toContain("UNTRUSTED ROOM DATA");
+    // The governed write protocol replaces whole-doc rewrites.
+    expect(msg.content).toContain("append_notebook_outline");
+    expect(msg.content).toContain("read_notebook");
+    expect(msg.content).not.toMatch(/write_locked_cell on/);
+  });
+
+  it("buildNoteContext keeps the legacy doc-element protocol when the notebook lane is absent", async () => {
+    const { noteTools } = setup();
+    // A RoomTools port without the notebook capability (rooms predating the lane).
+    const legacyTools = Object.create(noteTools, {
+      readNotebook: { value: undefined },
+      applyNotebookOutline: { value: undefined },
+    }) as typeof noteTools;
+    const [msg] = await buildNoteContext(legacyTools, "Tighten the intro");
     expect(msg.content).toContain("NOTE");
     expect(msg.content).toContain("Original body");
     expect(msg.content).toContain("doc");

@@ -9,6 +9,7 @@ import { useEditor, EditorContent, EditorProvider } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { useQuery, useMutation } from "convex/react";
 import { useTiptapSync } from "@convex-dev/prosemirror-sync/tiptap";
+import { NOTEBOOK_EXTENSIONS } from "../../notebook/extensions";
 import { api } from "../../../convex/_generated/api";
 import {
   Table2, FileText, StickyNote, Users, GitMerge, RotateCcw, History, Search, BookOpen, Home, ListChecks,
@@ -1752,7 +1753,10 @@ function SyncedEditorInner({
         editable={!locked}
         immediatelyRender={false}
         content={sync.initialContent}
-        extensions={[StarterKit, sync.extension]}
+        // Shared schema (blockId identity + agent attribution attrs) + the live
+        // sync extension. UniqueID mints ids for legacy blocks on first open;
+        // those steps sync like any edit.
+        extensions={[...NOTEBOOK_EXTENSIONS, sync.extension]}
         onUpdate={() => { onDirty("doc:idle"); }}
         onBlur={() => { onDirty("doc:blur"); setNoteErr(null); }}
       >
@@ -1956,7 +1960,9 @@ function Note({ roomId, me, proof, art }: { roomId: string; me: Actor; proof?: A
   const docStr = String(art.elements["doc"]?.value ?? "");
   const [noteErr, setNoteErr] = useState<string | null>(null);
   const editor = useEditor({
-    extensions: [StarterKit],
+    // Shared schema so legacy HTML round-trips block ids (data-blockid) — the
+    // memory-mode/blur lane carries the same identity attrs as the synced lane.
+    extensions: NOTEBOOK_EXTENSIONS,
     content: docStr,
     editable: !locked,
     immediatelyRender: false,

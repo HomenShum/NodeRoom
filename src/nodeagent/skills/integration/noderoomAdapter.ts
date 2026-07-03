@@ -8,9 +8,10 @@
 
 import type { RoomEngine } from "../../../engine/roomEngine";
 import type { Actor, CellPayload, Channel, DataframeColumn } from "../../../engine/types";
-import type { RoomTools, RoomSnapshot, AwarenessView, CellView, CellMeta, EditOutcome, MergeView, SourceResult, ArtifactRef, SpreadsheetContextHit, SetColumnsOutcome } from "../../core/types";
+import type { RoomTools, RoomSnapshot, AwarenessView, CellView, CellMeta, EditOutcome, MergeView, SourceResult, ArtifactRef, SpreadsheetContextHit, SetColumnsOutcome, ReadNotebookOutcome, ApplyNotebookOutlineOutcome, NotebookBlockRef, NotebookOutlineSection } from "../../core/types";
 import { buildSpreadsheetSemanticIndex, columnLetters } from "../../../app/spreadsheetIndex";
 import type { ColumnInput } from "../../../engine/columns";
+import { OUTLINE_CAPS, buildOutlineNodes, normalizeTitle, outlineToHtml, sha256HexWeb } from "../../../notebook/blockOps";
 
 export class InMemoryRoomTools implements RoomTools {
   constructor(
@@ -82,6 +83,101 @@ export class InMemoryRoomTools implements RoomTools {
     if (res.ok) return { ok: true, version: res.version, columns: res.columns };
     if (res.conflict) return { ok: false, conflict: true, expected: res.expected!, actual: res.actual! };
     return { ok: false, error: res.error ?? "set_columns_failed" };
+  }
+
+  /** Memory-mode notebook read: the doc is legacy HTML in elements["doc"], so
+   *  blocks come from a bounded HTML parse. Honest degradation — docSource is
+   *  "legacy" and stable ids exist only where the HTML carries data-blockid
+   *  (agent-written blocks do; hand-seeded demo HTML gets derived ids). */
+  async readNotebook(args: { artifactId?: string }): Promise<ReadNotebookOutcome> {
+    const artifactId = this.targetArtifactId(args.artifactId);
+    const art = this.engine.getArtifact(artifactId);
+    if (!art || art.kind !== "note") return { ok: false, reason: "not_a_note" };
+    const el = art.elements["doc"];
+    if (el?.value != null && typeof el.value !== "string") return { ok: false, reason: "not_a_text_note" };
+    const html = typeof el?.value === "string" ? el.value : "";
+    const parsed = parseHtmlBlocks(html);
+    const blocks: NotebookBlockRef[] = [];
+    for (const [blockIndex, b] of parsed.slice(0, OUTLINE_CAPS.maxBlocksPerRead).entries()) {
+      const textHash = await sha256HexWeb(b.text);
+      blocks.push({
+        blockId: b.blockId ?? `b${blockIndex}-${textHash.slice(0, 12)}`,
+        hasStableId: b.blockId !== null,
+        blockIndex,
+        blockType: b.blockType,
+        depth: 0,
+        text: b.text.length > OUTLINE_CAPS.maxTextChars ? `${b.text.slice(0, OUTLINE_CAPS.maxTextChars - 1)}…` : b.text,
+        textHash,
+        authorKind: b.authorKind ?? undefined,
+        status: b.status ?? undefined,
+      });
+    }
+    return {
+      ok: true,
+      docSource: "legacy",
+      docVersion: el?.version ?? 0,
+      artifactVersion: art.version,
+      agentSection: { exists: /data-agent-root=/.test(html) },
+      truncated: parsed.length > OUTLINE_CAPS.maxBlocksPerRead,
+      blocks,
+    };
+  }
+
+  /** Memory-mode outline append: renders the outline to attributed HTML and
+   *  commits it onto elements["doc"] through the engine's CAS spine — the
+   *  identical tool contract, honest "legacy_doc" lane. */
+  async applyNotebookOutline(args: {
+    artifactId?: string;
+    title?: string;
+    parentBlockId?: string;
+    mode?: "append" | "merge";
+    sections: NotebookOutlineSection[];
+  }): Promise<ApplyNotebookOutlineOutcome> {
+    const artifactId = this.targetArtifactId(args.artifactId);
+    const art = this.engine.getArtifact(artifactId);
+    if (!art || art.kind !== "note") return { ok: false, error: "not_a_note" };
+    const el = art.elements["doc"];
+    const html = typeof el?.value === "string" ? el.value : "";
+    if (args.parentBlockId && !html.includes(`data-blockid="${args.parentBlockId}"`)) {
+      const parsed = parseHtmlBlocks(html);
+      return {
+        ok: false,
+        noSuchBlock: true,
+        parentBlockId: args.parentBlockId,
+        currentBlocks: parsed.slice(0, 12).map((b, i) => ({ blockId: b.blockId ?? `b${i}`, text: b.text.slice(0, 80) })),
+      };
+    }
+    const hasAgentRoot = /data-agent-root=/.test(html);
+    const existingTitles = new Set<string>();
+    if ((args.mode ?? "merge") === "merge" && hasAgentRoot) {
+      for (const b of parseHtmlBlocks(html)) {
+        if (/^h[1-6]$/.test(b.blockType)) existingTitles.add(normalizeTitle(b.text));
+      }
+    }
+    const outline = { title: args.title, sections: args.sections, runId: this.sessionId };
+    const built = buildOutlineNodes({ outline, mintId: () => crypto.randomUUID(), mode: args.mode ?? "merge", existingTitles });
+    if (built.nodes.length === 0) {
+      return { ok: true, lane: "legacy_doc", blockIds: [], dedupedSections: built.dedupedSections, needsReviewCount: 0, noop: true };
+    }
+    const fragment = outlineToHtml({ built, outline, includeAgentRoot: !hasAgentRoot && !args.parentBlockId });
+    let nextHtml: string;
+    if (args.parentBlockId) {
+      const anchored = insertAfterBlock(html, args.parentBlockId, fragment);
+      if (anchored === null) return { ok: false, noSuchBlock: true, parentBlockId: args.parentBlockId };
+      nextHtml = anchored;
+    } else {
+      nextHtml = html ? `${html}\n${fragment}` : fragment;
+    }
+    const res = this.engine.applyEdit({
+      roomId: this.roomId,
+      op: { opId: crypto.randomUUID(), artifactId, elementId: "doc", kind: el ? "set" : "create", value: nextHtml, baseVersion: el?.version ?? 0 },
+      actor: this.actor,
+    });
+    if (res.ok) return { ok: true, lane: "legacy_doc", blockIds: built.mintedBlockIds, dedupedSections: built.dedupedSections, needsReviewCount: built.needsReviewCount };
+    if (res.reason === "pending_approval") return { ok: false, pendingApproval: true, proposalId: res.proposalId };
+    if (res.reason === "conflict") return { ok: false, error: `conflict: doc changed (expected v${res.expected}, actual v${res.actual}) — re-read and retry` };
+    if (res.reason === "locked") return { ok: false, error: `locked by ${res.by.name} — draft or wait` };
+    return { ok: false, error: res.reason };
   }
 
   async awareness(): Promise<AwarenessView> {
@@ -208,6 +304,38 @@ export class InMemoryRoomTools implements RoomTools {
       return { ok: false, error: "invalid url" };
     }
   }
+}
+
+type ParsedHtmlBlock = { blockType: string; text: string; blockId: string | null; authorKind: string | null; status: string | null };
+
+/** Bounded regex parse of legacy note HTML into block rows (memory mode only —
+ *  the synced lane reads real ProseMirror JSON). Nested tags reduce to text. */
+function parseHtmlBlocks(html: string): ParsedHtmlBlock[] {
+  const out: ParsedHtmlBlock[] = [];
+  if (!html.trim()) return out;
+  const re = /<(h[1-6]|p|li|pre|blockquote)\b([^>]*)>([\s\S]*?)<\/\1>/gi;
+  for (const match of html.matchAll(re)) {
+    const [, tag, attrs, inner] = match;
+    const text = inner.replace(/<[^>]+>/g, " ").replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"').replace(/\s+/g, " ").trim();
+    if (!text) continue;
+    const attr = (name: string): string | null => {
+      const m = attrs.match(new RegExp(`data-${name}="([^"]*)"`, "i"));
+      return m?.[1] ?? null;
+    };
+    out.push({ blockType: tag.toLowerCase(), text, blockId: attr("blockid"), authorKind: attr("author-kind"), status: attr("status") });
+    if (out.length >= 500) break;
+  }
+  return out;
+}
+
+/** Insert an HTML fragment immediately after the block element carrying the
+ *  given data-blockid. Returns null when the anchor is missing (noSuchBlock). */
+function insertAfterBlock(html: string, blockId: string, fragment: string): string | null {
+  const re = new RegExp(`(<(h[1-6]|p|li|pre|blockquote)\\b[^>]*data-blockid="${blockId.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}"[^>]*>[\\s\\S]*?<\\/\\2>)`, "i");
+  const match = html.match(re);
+  if (!match || match.index === undefined) return null;
+  const end = match.index + match[0].length;
+  return `${html.slice(0, end)}\n${fragment}${html.slice(end)}`;
 }
 
 function excelGridMeta(meta: unknown): { rows: number; columns: number; sheetName?: string } | null {

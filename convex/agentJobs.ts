@@ -380,13 +380,15 @@ async function findEntityFacetCacheRows(ctx: any, args: {
   return rows.sort((a: { updatedAt: number }, b: { updatedAt: number }) => b.updatedAt - a.updatedAt);
 }
 
+/** READ-ONLY cache lookup — shared by the public lookupEntityResearchCache
+ *  QUERY and mutation flows, so it must never write. Usage-recency touches
+ *  (lastUsedAt) are mutation-owned: see markEntityFacetCacheUsed. */
 async function lookupEntityFacetCache(ctx: any, args: {
   roomId: unknown;
   actor: ActorValue;
   entity: NormalizedRoomWorkEntity;
   facet: string;
   now: number;
-  markUsed?: boolean;
 }): Promise<EntityFacetCacheHit | null> {
   const [row] = await findEntityFacetCacheRows(ctx, {
     roomId: args.roomId,
@@ -396,7 +398,6 @@ async function lookupEntityFacetCache(ctx: any, args: {
     facet: args.facet,
   });
   if (!row) return null;
-  if (args.markUsed) await ctx.db.patch(row._id, { lastUsedAt: args.now, updatedAt: row.updatedAt });
   return {
     cacheId: row._id,
     entityType: row.entityType,
@@ -1235,8 +1236,14 @@ export const startOrReuseRoomWork = mutation({
     const cacheHits: EntityFacetCacheHit[] = [];
     for (const entity of entities) {
       for (const facet of facets) {
-        const hit = await lookupEntityFacetCache(ctx, { roomId: a.roomId, actor, entity, facet, now, markUsed: true });
-        if (hit) cacheHits.push(hit);
+        const hit = await lookupEntityFacetCache(ctx, { roomId: a.roomId, actor, entity, facet, now });
+        if (hit) {
+          // Touch usage recency here (mutation-owned write; lastUsedAt only —
+          // updatedAt is preserved). The lookup helper stays pure because the
+          // read-only lookupEntityResearchCache query shares it.
+          await ctx.db.patch(hit.cacheId, { lastUsedAt: now, updatedAt: hit.updatedAt });
+          cacheHits.push(hit);
+        }
       }
     }
     const hitByKey = new Map(cacheHits.map((hit) => [`${hit.entityType}:${hit.entityKey}:${hit.facet}`, hit]));
