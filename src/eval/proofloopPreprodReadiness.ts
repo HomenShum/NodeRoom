@@ -345,6 +345,22 @@ function buildChecks(root: string, packageJson: { scripts?: Record<string, strin
       finding: "prod:gate is missing one or more release-safety sub-gates.",
       fix: "Restore security, typecheck, full tests, product-memory browser checks, build, and dist security in prod:gate.",
     }),
+    passIf("npx-proofloop-package-proof", {
+      category: "release safety",
+      sourceCategory: "release safety & operability",
+      severity: "high",
+      title: "Published npx proofloop package is registry-verified end to end",
+      description: "The portable ProofLoop claim must be proven through the npm registry, not a local checkout or GitHub shortcut.",
+      ok: npxPackageProofOk(root),
+      evidence: [
+        "docs/eval/proofloop-npx-package-proof.json",
+        "docs/eval/PROOFLOOP_NPX_PACKAGE_PROOF.md",
+        "https://www.npmjs.com/package/proofloop",
+      ],
+      verifier: "npm run benchmark:proofloop:npx-package -- --strict",
+      finding: "Published npx proofloop package proof is missing or failed.",
+      fix: "Run npm run benchmark:proofloop:npx-package -- --strict and commit the refreshed receipt.",
+    }),
     passIf("static-security-headers", {
       category: "perimeter",
       sourceCategory: "security headers & cookies",
@@ -670,6 +686,32 @@ function staticHeadersOk(root: string): boolean {
   const map: Record<string, string> = {};
   for (const header of headers) map[header.key.toLowerCase()] = header.value;
   return evaluateSecurityHeaders(map).every((check) => check.ok);
+}
+
+function npxPackageProofOk(root: string): boolean {
+  const receipt = readJson<{
+    schema?: string;
+    packageSpec?: string;
+    npmView?: { metadata?: { name?: string; version?: string; license?: string }; zeroDependencies?: boolean };
+    claims?: Record<string, boolean>;
+    summary?: { passed?: boolean };
+  }>(root, "docs/eval/proofloop-npx-package-proof.json");
+  const claims = receipt?.claims ?? {};
+  return receipt?.schema === "proofloop-npx-package-proof-v1" &&
+    receipt.packageSpec === "proofloop@0.1.0" &&
+    receipt.npmView?.metadata?.name === "proofloop" &&
+    receipt.npmView.metadata.version === "0.1.0" &&
+    receipt.npmView.metadata.license === "MIT" &&
+    receipt.npmView.zeroDependencies === true &&
+    receipt.summary?.passed === true &&
+    claims.registryLive === true &&
+    claims.zeroDependencies === true &&
+    claims.viteInitWorks === true &&
+    claims.gateNpmTestFallbackPasses === true &&
+    claims.stopHookBlocksFailingGate === true &&
+    claims.forgeryGuardBlocksProofState === true &&
+    claims.tooluseEmptyLogFailsClosed === true &&
+    claims.tooluseDenyListFails === true;
 }
 
 function hasScriptTokens(scripts: Record<string, string>, scriptName: string, tokens: string[]): boolean {

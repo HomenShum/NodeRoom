@@ -6,6 +6,7 @@ This runbook is the tracked release-safety receipt for the ProofLoop preprod lan
 
 - Static release gate: `npm run benchmark:proofloop:preprod -- --strict`
 - Live release gate: `npm run benchmark:proofloop:preprod:live -- --strict`
+- Published package proof: `npm run benchmark:proofloop:npx-package -- --strict`
 - Full production gate: `npm run prod:gate`
 - Live story smoke only: `npm run qa:story:prod`
 

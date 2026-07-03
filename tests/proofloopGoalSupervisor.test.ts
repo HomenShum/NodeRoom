@@ -77,12 +77,19 @@ describe("Proof Loop goal supervisor", () => {
     expect(tasks.find((task) => task.id === "company-task-coverage-ledger")?.command).toBe("npm run benchmark:proofloop:company-tasks");
     expect(tasks.find((task) => task.id === "harness-economics-ledger")?.command).toBe("npm run benchmark:proofloop:harness-economics");
     expect(tasks.find((task) => task.id === "harness-economics-ledger")?.evidence.join(" ")).toContain("openrouter-top-paid-tools-snapshot");
+    const npxPackage = tasks.find((task) => task.id === "proofloop-npx-package-proof");
+    expect(npxPackage?.command).toBe("npm run benchmark:proofloop:npx-package");
+    expect(npxPackage?.evidence.join(" ")).toContain("docs/eval/proofloop-npx-package-proof.json");
+    expect(npxPackage?.evidence.join(" ")).toContain("docs/eval/PROOFLOOP_NPX_PACKAGE_PROOF.md");
     const preprod = tasks.find((task) => task.id === "preprod-readiness-ledger");
     expect(preprod?.command).toBe("npm run benchmark:proofloop:preprod");
     expect(preprod?.evidence.join(" ")).toContain("docs/eval/proofloop-preprod-readiness.json");
     expect(preprod?.evidence.join(" ")).toContain("docs/eval/PROOFLOOP_PREPROD_READINESS.md");
     expect(preprod?.evidence.join(" ")).toContain("docs/runbooks/PROOFLOOP_PREPROD_RUNBOOK.md");
     expect(tasks.findIndex((task) => task.id === "harness-economics-ledger")).toBeLessThan(
+      tasks.findIndex((task) => task.id === "proofloop-npx-package-proof"),
+    );
+    expect(tasks.findIndex((task) => task.id === "proofloop-npx-package-proof")).toBeLessThan(
       tasks.findIndex((task) => task.id === "preprod-readiness-ledger"),
     );
     expect(tasks.findIndex((task) => task.id === "preprod-readiness-ledger")).toBeLessThan(

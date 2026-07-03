@@ -159,6 +159,15 @@ export function officialScoresGoalTasks(): ProofloopGoalTask[] {
       ],
     }),
     commandTask({
+      id: "proofloop-npx-package-proof",
+      title: "Published npx proofloop package proof",
+      command: "npm run benchmark:proofloop:npx-package",
+      evidence: [
+        "docs/eval/proofloop-npx-package-proof.json",
+        "docs/eval/PROOFLOOP_NPX_PACKAGE_PROOF.md",
+      ],
+    }),
+    commandTask({
       id: "preprod-readiness-ledger",
       title: "ProofLoop preprod readiness release gate",
       command: "npm run benchmark:proofloop:preprod",

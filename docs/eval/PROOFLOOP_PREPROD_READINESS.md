@@ -1,6 +1,6 @@
 # ProofLoop Preprod Readiness
 
-Generated: 2026-07-03T21:42:30.187Z
+Generated: 2026-07-03T21:58:25.309Z
 
 Source rubric: [kevincui1034/preprod-check](https://github.com/kevincui1034/preprod-check) 1.2.0, MIT.
 
@@ -9,10 +9,10 @@ This receipt ports the preprod-check categories into a deterministic ProofLoop r
 ## Summary
 
 - Package version: 0.1.1
-- Git commit: 20d96d3ffa4f2b836121a03e4f3c1ec9b0f19d53 (dirty)
+- Git commit: b7165691da1510822ac94c1755f58371b6bda283 (dirty)
 - Release gate: passed
-- Checks: 17 passed, 0 failed, 2 manual, 0 skipped
-- Critical/High: 15/16 verified passed
+- Checks: 18 passed, 0 failed, 2 manual, 0 skipped
+- Critical/High: 16/17 verified passed
 - Blocking findings: 0
 - Active waivers: 0
 - Live checks passed: yes
@@ -23,6 +23,7 @@ This receipt ports the preprod-check categories into a deterministic ProofLoop r
 |---|---|---|---|---|
 | pass | low | release safety | `preprod-source-attribution` - Preprod-check source attribution is recorded | https://github.com/kevincui1034/preprod-check |
 | pass | critical | release safety | `prod-gate-chain` - Production gate chains security, typecheck, tests, browser product memory, build, and dist security | package.json:scripts.prod:gate |
+| pass | high | release safety | `npx-proofloop-package-proof` - Published npx proofloop package is registry-verified end to end | docs/eval/proofloop-npx-package-proof.json<br>docs/eval/PROOFLOOP_NPX_PACKAGE_PROOF.md<br>https://www.npmjs.com/package/proofloop |
 | pass | critical | perimeter | `static-security-headers` - Static Vercel security headers are configured | vercel.json<br>scripts/security-gate.ts |
 | pass | critical | perimeter | `live-security-headers` - Production URL serves required security headers | https://noderoom.live<br>docs/eval/proofloop-preprod-readiness.json |
 | pass | high | release safety | `live-story-smoke` - Production story smoke has run against the live URL | node scripts/story-route-dogfood.mjs --base-url https://noderoom.live<br>https://noderoom.live |
@@ -68,6 +69,7 @@ This receipt ports the preprod-check categories into a deterministic ProofLoop r
 ## Verified Critical/High
 
 - `prod-gate-chain` (critical) via package script token check
+- `npx-proofloop-package-proof` (high) via npm run benchmark:proofloop:npx-package -- --strict
 - `static-security-headers` (critical) via vercel.json required header scan
 - `live-security-headers` (critical) via live URL header probe
 - `live-story-smoke` (high) via Playwright story-route dogfood

@@ -67,6 +67,7 @@
     "benchmark:proofloop:normalized": "tsx scripts/proofloop-normalized-benchmarks.ts",
     "benchmark:proofloop:company-tasks": "tsx scripts/proofloop-company-task-coverage.ts",
     "benchmark:proofloop:harness-economics": "tsx scripts/proofloop-harness-economics.ts",
+    "benchmark:proofloop:npx-package": "tsx scripts/proofloop-npx-package-proof.ts",
     "benchmark:proofloop:preprod": "tsx scripts/proofloop-preprod-readiness.ts",
     "benchmark:proofloop:preprod:live": "tsx scripts/proofloop-preprod-readiness.ts --live-url https://noderoom.live --live-story",
     "benchmark:proofloop:adapter-blockers": "tsx scripts/proofloop-adapter-blockers.ts",

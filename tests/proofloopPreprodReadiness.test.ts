@@ -49,6 +49,7 @@ describe("ProofLoop preprod readiness receipt", () => {
     const ids = receipt.checks.map((check) => check.id);
     expect(ids).toEqual(expect.arrayContaining([
       "prod-gate-chain",
+      "npx-proofloop-package-proof",
       "static-security-headers",
       "browser-provider-egress",
       "ssrf-upload-boundary",
@@ -56,6 +57,7 @@ describe("ProofLoop preprod readiness receipt", () => {
       "release-runbook",
       "backup-restore-rehearsal",
     ]));
+    expect(receipt.checks.find((check) => check.id === "npx-proofloop-package-proof")?.status).toBe("pass");
 
     const criticalHigh = receipt.checks.filter((check) => check.severity === "critical" || check.severity === "high");
     expect(receipt.verifiedCriticalHigh.length).toBeGreaterThan(criticalHigh.length - receipt.summary.manual - 1);

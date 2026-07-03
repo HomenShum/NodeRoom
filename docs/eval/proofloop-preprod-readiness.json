@@ -1,6 +1,6 @@
 {
   "schema": "proofloop-preprod-readiness-v1",
-  "generatedAt": "2026-07-03T21:42:30.187Z",
+  "generatedAt": "2026-07-03T21:58:25.309Z",
   "sourceAttribution": {
     "name": "kevincui1034/preprod-check",
     "url": "https://github.com/kevincui1034/preprod-check",
@@ -9,7 +9,7 @@
     "importedAs": "ProofLoop deterministic preprod readiness receipt, not a runtime Claude plugin dependency."
   },
   "git": {
-    "commit": "20d96d3ffa4f2b836121a03e4f3c1ec9b0f19d53",
+    "commit": "b7165691da1510822ac94c1755f58371b6bda283",
     "dirty": true
   },
   "packageVersion": "0.1.1",
@@ -43,6 +43,24 @@
       "verifier": "package script token check",
       "finding": "prod:gate is missing one or more release-safety sub-gates.",
       "fix": "Restore security, typecheck, full tests, product-memory browser checks, build, and dist security in prod:gate.",
+      "waived": false
+    },
+    {
+      "id": "npx-proofloop-package-proof",
+      "status": "pass",
+      "category": "release safety",
+      "sourceCategory": "release safety & operability",
+      "severity": "high",
+      "title": "Published npx proofloop package is registry-verified end to end",
+      "description": "The portable ProofLoop claim must be proven through the npm registry, not a local checkout or GitHub shortcut.",
+      "evidence": [
+        "docs/eval/proofloop-npx-package-proof.json",
+        "docs/eval/PROOFLOOP_NPX_PACKAGE_PROOF.md",
+        "https://www.npmjs.com/package/proofloop"
+      ],
+      "verifier": "npm run benchmark:proofloop:npx-package -- --strict",
+      "finding": "Published npx proofloop package proof is missing or failed.",
+      "fix": "Run npm run benchmark:proofloop:npx-package -- --strict and commit the refreshed receipt.",
       "waived": false
     },
     {
@@ -356,6 +374,16 @@
       "verifier": "package script token check"
     },
     {
+      "checkId": "npx-proofloop-package-proof",
+      "severity": "high",
+      "evidence": [
+        "docs/eval/proofloop-npx-package-proof.json",
+        "docs/eval/PROOFLOOP_NPX_PACKAGE_PROOF.md",
+        "https://www.npmjs.com/package/proofloop"
+      ],
+      "verifier": "npm run benchmark:proofloop:npx-package -- --strict"
+    },
+    {
       "checkId": "static-security-headers",
       "severity": "critical",
       "evidence": [
@@ -496,19 +524,19 @@
   "waivers": [],
   "liveProbe": {
     "url": "https://noderoom.live",
-    "checkedAt": "2026-07-03T21:42:30.187Z",
+    "checkedAt": "2026-07-03T21:58:25.309Z",
     "ok": true,
     "rootStatus": 200,
     "headers": {
       "access-control-allow-origin": "*",
-      "age": "7434",
+      "age": "8389",
       "cache-control": "public, max-age=0, must-revalidate",
       "content-disposition": "inline",
       "content-encoding": "br",
       "content-security-policy": "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self' https://*.convex.cloud https://*.convex.site wss://*.convex.cloud wss://*.convex.site https://openrouter.ai; media-src 'self' blob: data:; worker-src 'self' blob:; manifest-src 'self'; upgrade-insecure-requests",
       "content-type": "text/html; charset=utf-8",
       "cross-origin-opener-policy": "same-origin",
-      "date": "Fri, 03 Jul 2026 21:42:31 GMT",
+      "date": "Fri, 03 Jul 2026 21:58:26 GMT",
       "etag": "W/\"986b6af572efa7687e158705d2c38edc\"",
       "last-modified": "Fri, 03 Jul 2026 19:38:36 GMT",
       "permissions-policy": "camera=(), microphone=(), geolocation=(), payment=(), usb=(), serial=(), bluetooth=(), interest-cohort=()",
@@ -521,7 +549,7 @@
       "x-frame-options": "DENY",
       "x-permitted-cross-domain-policies": "none",
       "x-vercel-cache": "HIT",
-      "x-vercel-id": "sfo1::xk6qg-1783114951125-d399792e4b9b"
+      "x-vercel-id": "sfo1::qzw5h-1783115906157-c0a93b93f6e2"
     },
     "headerChecks": [
       {
@@ -610,13 +638,13 @@
     "liveVerifierCommand": "npm run benchmark:proofloop:preprod:live -- --strict"
   },
   "summary": {
-    "total": 19,
-    "passed": 17,
+    "total": 20,
+    "passed": 18,
     "failed": 0,
     "manual": 2,
     "skipped": 0,
-    "criticalHighTotal": 16,
-    "criticalHighPassed": 15,
+    "criticalHighTotal": 17,
+    "criticalHighPassed": 16,
     "criticalHighFailed": 0,
     "blockingFindings": 0,
     "waiversActive": 0,
