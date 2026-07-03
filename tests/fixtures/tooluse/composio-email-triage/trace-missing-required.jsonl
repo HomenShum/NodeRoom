@@ -1,0 +1,2 @@
+{"ts":"2026-07-03T12:00:00.000Z","sessionId":"sess-missing","tool":"mcp__composio__GMAIL_FETCH_EMAILS","params":{"query":"is:unread"},"source":"synthetic_edge_case"}
+{"ts":"2026-07-03T12:00:09.000Z","sessionId":"sess-missing","tool":"Read","params":{"file_path":"notes/triage-rules.md"},"source":"synthetic_edge_case"}

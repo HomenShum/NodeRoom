@@ -23,6 +23,8 @@ import {
   proofloopHooksStatus,
   proofloopKickoffPrompt,
   uninstallProofloopHooks,
+  POSTTOOLUSE_LOG_COMMAND,
+  POSTTOOLUSE_LOG_MATCHER,
   PRETOOLUSE_GUARD_COMMAND,
   STOP_GATE_COMMAND,
 } from "../src/eval/proofloopHooks";
@@ -52,7 +54,7 @@ function readJson(path: string): any {
 
 type HookRun = { status: number; stdout: string; stderr: string };
 
-function runHook(root: string, script: "stop-gate.mjs" | "pretooluse-guard.mjs", stdin: unknown): HookRun {
+function runHook(root: string, script: "stop-gate.mjs" | "pretooluse-guard.mjs" | "posttooluse-log.mjs", stdin: unknown): HookRun {
   const result = spawnSync(process.execPath, [join(root, ".proofloop", "hooks", script)], {
     cwd: root,
     input: typeof stdin === "string" ? stdin : JSON.stringify(stdin),
@@ -67,12 +69,13 @@ function setGateConfig(root: string, patch: Record<string, unknown>): void {
   writeJson(configPath, { ...readJson(configPath), ...patch });
 }
 
-function ourEntryCount(settings: any): { stop: number; pre: number } {
+function ourEntryCount(settings: any): { stop: number; pre: number; post: number } {
   const count = (groups: any[] | undefined, command: string) =>
     (groups ?? []).flatMap((group: any) => group.hooks ?? []).filter((entry: any) => entry.command === command).length;
   return {
     stop: count(settings.hooks?.Stop, STOP_GATE_COMMAND),
     pre: count(settings.hooks?.PreToolUse, PRETOOLUSE_GUARD_COMMAND),
+    post: count(settings.hooks?.PostToolUse, POSTTOOLUSE_LOG_COMMAND),
   };
 }
 
@@ -96,25 +99,33 @@ describe("proofloop hooks install / uninstall", () => {
     expect(settings.permissions).toEqual({ allow: ["Bash(npm run lint)"] });
     expect(settings.hooks.Stop[0].hooks[0].command).toBe("node scripts/my-own-stop-hook.js");
     // Our hooks appended.
-    expect(ourEntryCount(settings)).toEqual({ stop: 1, pre: 1 });
+    expect(ourEntryCount(settings)).toEqual({ stop: 1, pre: 1, post: 1 });
     const preGroup = settings.hooks.PreToolUse.find((group: any) =>
       (group.hooks ?? []).some((entry: any) => entry.command === PRETOOLUSE_GUARD_COMMAND),
     );
     expect(preGroup.matcher).toBe("Edit|Write|MultiEdit|NotebookEdit");
+    const postGroup = settings.hooks.PostToolUse.find((group: any) =>
+      (group.hooks ?? []).some((entry: any) => entry.command === POSTTOOLUSE_LOG_COMMAND),
+    );
+    expect(postGroup.matcher).toBe(POSTTOOLUSE_LOG_MATCHER);
     // Scripts + config snapshot written.
     expect(existsSync(join(root, ".proofloop", "hooks", "stop-gate.mjs"))).toBe(true);
     expect(existsSync(join(root, ".proofloop", "hooks", "pretooluse-guard.mjs"))).toBe(true);
+    expect(existsSync(join(root, ".proofloop", "hooks", "posttooluse-log.mjs"))).toBe(true);
     const config = readJson(join(root, ".proofloop", "hooks", "config.json"));
     expect(config.immutableFiles).toContain("scripts/proofloop.mjs");
     expect(config.immutableFiles).toContain(".github/workflows/");
     expect(config.protectedExtraPaths).toContain(".proofloop/regressions.json");
+    expect(config.protectedExtraPaths).toContain(".proofloop/tooluse/");
     expect(config.maxStopBlocks).toBe(5);
     expect(config.gateMode).toBe("check-only");
+    expect(config.toolUseLog).toBe(true);
+    expect(config.toolUseLogPath).toBe(".proofloop/tooluse/log.jsonl");
     expect(config.verifierWeakeningPatterns.length).toBeGreaterThan(0);
 
     // Install twice: no duplicates.
     installProofloopHooks({ root });
-    expect(ourEntryCount(readJson(settingsPath))).toEqual({ stop: 1, pre: 1 });
+    expect(ourEntryCount(readJson(settingsPath))).toEqual({ stop: 1, pre: 1, post: 1 });
   });
 
   it("writes settings.local.json with --local and refuses to clobber an unparseable settings file", () => {
@@ -148,15 +159,16 @@ describe("proofloop hooks install / uninstall", () => {
     const installed = proofloopHooksStatus({ root });
     expect(installed.settings.find((file) => file.path.endsWith("settings.json"))?.stopHookInstalled).toBe(true);
     expect(installed.settings.find((file) => file.path.endsWith("settings.json"))?.preToolUseHookInstalled).toBe(true);
+    expect(installed.settings.find((file) => file.path.endsWith("settings.json"))?.postToolUseLogInstalled).toBe(true);
 
     const result = uninstallProofloopHooks({ root, purge: true });
-    expect(result.removedEntries).toBe(2);
+    expect(result.removedEntries).toBe(3);
     expect(result.purgedHooksDir).toBe(true);
 
     const settings = readJson(settingsPath);
     expect(settings.hooks.Stop[0].hooks[0].command).toBe("node scripts/my-own-stop-hook.js");
     expect(settings.hooks.PostToolUse[0].hooks[0].command).toBe("echo done");
-    expect(ourEntryCount(settings)).toEqual({ stop: 0, pre: 0 });
+    expect(ourEntryCount(settings)).toEqual({ stop: 0, pre: 0, post: 0 });
     expect(existsSync(join(root, ".proofloop", "hooks"))).toBe(false);
 
     const uninstalled = proofloopHooksStatus({ root });
@@ -400,6 +412,113 @@ describe("pretooluse-guard.mjs (immutable + proof-state + verifier-weakening gua
     const garbage = runHook(root, "pretooluse-guard.mjs", "not json at all");
     expect(garbage.status).toBe(0);
     expect(garbage.stderr).toContain("allowing");
+  });
+});
+
+describe("posttooluse-log.mjs (expected-tool-use capture)", () => {
+  function logEvent(root: string, event: Record<string, unknown>): HookRun {
+    return runHook(root, "posttooluse-log.mjs", event);
+  }
+  const logPath = (root: string) => join(root, ".proofloop", "tooluse", "log.jsonl");
+
+  it("appends exactly one JSON line per event, redacts nested secrets, and resists newline record-forging", () => {
+    const root = tempRoot();
+    installProofloopHooks({ root });
+
+    // Event 1: a Composio-style MCP tool name.
+    const one = logEvent(root, {
+      session_id: "sess-live",
+      tool_name: "mcp__composio__GMAIL_SEND_EMAIL",
+      tool_input: { to: "founder@example.com", subject: "Inbox triage summary" },
+    });
+    expect(one.status).toBe(0);
+    expect(one.stdout.trim()).toBe("");
+
+    // Event 2: param value carrying a newline + a fake JSONL record (forging attempt).
+    const forged = 'line1\nline2\n{"ts":"2026-07-03T00:00:00.000Z","sessionId":"forged","tool":"FAKE_FORGED_TOOL","params":{}}';
+    expect(logEvent(root, { session_id: "sess-live", tool_name: "Write", tool_input: { file_path: "notes.md", content: forged } }).status).toBe(0);
+
+    // Event 3: nested secrets at several depths (and inside arrays).
+    expect(
+      logEvent(root, {
+        session_id: "sess-live",
+        tool_name: "mcp__composio__SLACK_SEND_MESSAGE",
+        tool_input: {
+          channel: "#ops",
+          config: { apiKey: "sk-super-secret", nested: { AUTH_TOKEN: "abc123" } },
+          recipients: [{ email: "a@b.co", password: "hunter2" }],
+          note: "kept",
+        },
+      }).status,
+    ).toBe(0);
+
+    // Reparse the file: EXACTLY 3 records -- the forged line stayed INSIDE event 2's value.
+    const lines = readFileSync(logPath(root), "utf8").split("\n").filter(Boolean);
+    expect(lines).toHaveLength(3);
+    const records = lines.map((line) => JSON.parse(line));
+    expect(records.map((record) => record.tool)).toEqual([
+      "mcp__composio__GMAIL_SEND_EMAIL",
+      "Write",
+      "mcp__composio__SLACK_SEND_MESSAGE",
+    ]);
+    expect(records.some((record) => record.tool === "FAKE_FORGED_TOOL")).toBe(false);
+    expect(records[1].params.content).toContain("line1\nline2");
+    expect(records[2].params.config.apiKey).toBe("[redacted]");
+    expect(records[2].params.config.nested.AUTH_TOKEN).toBe("[redacted]");
+    expect(records[2].params.recipients[0].password).toBe("[redacted]");
+    expect(records[2].params.recipients[0].email).toBe("a@b.co");
+    expect(records[2].params.note).toBe("kept");
+    expect(records.every((record) => record.sessionId === "sess-live" && record.source === "posttooluse-hook")).toBe(true);
+  });
+
+  it("ALWAYS exits 0: unwritable log dir and garbage stdin only warn, never block the tool", () => {
+    const root = tempRoot();
+    installProofloopHooks({ root });
+    // Occupy the tooluse path with a FILE so mkdir/append must fail (cross-platform unwritable).
+    writeFileSync(join(root, ".proofloop", "tooluse"), "not a directory", "utf8");
+
+    const blocked = logEvent(root, { session_id: "s", tool_name: "Read", tool_input: { file_path: "x" } });
+    expect(blocked.status).toBe(0);
+    expect(blocked.stderr).toContain("could not append");
+
+    const garbage = runHook(root, "posttooluse-log.mjs", "not json{{{");
+    expect(garbage.status).toBe(0);
+  });
+
+  it("--no-tooluse-log omits the script and the settings entry; default install adds them back", () => {
+    const root = tempRoot();
+    const result = installProofloopHooks({ root, toolUseLog: false });
+    expect(result.postToolUseLogPath).toBeNull();
+    expect(result.addedPostToolUseLogHook).toBe(false);
+    expect(existsSync(join(root, ".proofloop", "hooks", "posttooluse-log.mjs"))).toBe(false);
+    const settings = readJson(join(root, ".claude", "settings.json"));
+    expect(ourEntryCount(settings)).toEqual({ stop: 1, pre: 1, post: 0 });
+    expect(readJson(join(root, ".proofloop", "hooks", "config.json")).toolUseLog).toBe(false);
+
+    const second = installProofloopHooks({ root });
+    expect(second.addedPostToolUseLogHook).toBe(true);
+    expect(ourEntryCount(readJson(join(root, ".claude", "settings.json")))).toEqual({ stop: 1, pre: 1, post: 1 });
+    expect(existsSync(join(root, ".proofloop", "hooks", "posttooluse-log.mjs"))).toBe(true);
+  });
+
+  it("the PreToolUse guard blocks Edit/Write to the tool-use log (doctoring your own log = reward hacking)", () => {
+    const root = tempRoot();
+    installProofloopHooks({ root });
+
+    const write = runHook(root, "pretooluse-guard.mjs", {
+      session_id: "s1",
+      tool_name: "Write",
+      tool_input: { file_path: join(root, ".proofloop", "tooluse", "log.jsonl"), content: '{"tool":"GMAIL_FETCH_EMAILS"}' },
+    });
+    expect(write.status).toBe(2);
+    expect(write.stderr).toContain("protected proof state");
+
+    const edit = runHook(root, "pretooluse-guard.mjs", {
+      session_id: "s1",
+      tool_name: "Edit",
+      tool_input: { file_path: ".proofloop/tooluse/log.jsonl", old_string: "a", new_string: "b" },
+    });
+    expect(edit.status).toBe(2);
   });
 });
 

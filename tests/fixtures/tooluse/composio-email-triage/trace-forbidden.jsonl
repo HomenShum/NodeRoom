@@ -1,0 +1,4 @@
+{"ts":"2026-07-03T11:00:00.000Z","sessionId":"sess-forbidden","tool":"mcp__composio__GMAIL_FETCH_EMAILS","params":{"query":"is:unread"},"source":"synthetic_edge_case"}
+{"ts":"2026-07-03T11:00:08.000Z","sessionId":"sess-forbidden","tool":"mcp__composio__GMAIL_DELETE_EMAIL","params":{"message_id":"msg-123"},"source":"synthetic_edge_case"}
+{"ts":"2026-07-03T11:00:20.000Z","sessionId":"sess-forbidden","tool":"mcp__composio__GMAIL_SEND_EMAIL","params":{"to":"founder@example.com","subject":"Inbox triage summary"},"source":"synthetic_edge_case"}
+{"ts":"2026-07-03T11:00:31.000Z","sessionId":"sess-forbidden","tool":"mcp__composio__GITHUB_CREATE_ISSUE","params":{"repo":"acme/app","title":"triage follow-ups"},"source":"synthetic_edge_case"}
