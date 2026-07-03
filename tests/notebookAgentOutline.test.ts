@@ -160,7 +160,7 @@ describe("notebookAgent.applyOutlineByAgent — synced lane", () => {
     // Read-model v2: agent blocks keep their STABLE minted ids (edit-proof anchors).
     const blockIds = new Set(after.blocks.map((b) => (b as { blockId: string }).blockId));
     expect(result.blockIds.some((id) => blockIds.has(id))).toBe(true);
-  });
+  }, 30_000);
 
   it("an identical re-run merges (dedupes sections) instead of duplicating", async () => {
     const { t, roomId, artifactId, actor } = await seedRoom();

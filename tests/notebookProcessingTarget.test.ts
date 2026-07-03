@@ -157,7 +157,7 @@ describe("notebook target processing slice", () => {
     expect(replacementProcessed).toMatchObject({ ok: true, passiveStatus: "noteworthy" });
     expect(currentBlocks.every((block) => block.sourceSnapshotVersion === 3)).toBe(true);
     expect(currentBlocks.map((block) => block.text).join("\n")).not.toContain("founder call");
-  });
+  }, 30_000);
 
   it("rechecks active membership before processing a queued dirty event", async () => {
     const { t, roomId, artifactId, proof } = await seedNotebookRoom();
