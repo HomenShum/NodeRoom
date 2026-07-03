@@ -76,3 +76,29 @@ The command must create `.proofloop/runs/<run-id>/scorecard.md`,
 the legacy `.proofloop/memory.jsonl` receipt, and local-first recall memory in
 `.proofloop/memory/` with SQLite/FTS indexing. Do not weaken proof gates to make
 this suite pass, and do not commit generated local memory stores.
+
+<!-- proofloop-agent-friendly:start -->
+## ProofLoop Agent-Friendly CLI
+
+These instructions are generated for Codex. Keep ProofLoop usage on-demand: ask the CLI for the slice you need instead of loading broad MCP state or stale transcripts.
+
+Discovery:
+- `npm run proofloop -- manifest --json` - machine-readable command surface.
+- `npm run proofloop -- docs agents --dense` - compact agent workflow.
+- `npm run proofloop -- doctor --json` - read-only setup proof before claiming installed.
+
+Long-running loop:
+- `npm run proofloop -- this-repo --goal "<measurable outcome>"` starts repo dogfooding with a persisted goal ledger.
+- `npm run proofloop -- supervise --goal <goal-id>` continues the loop until pass/fail/blocker.
+- `npm run proofloop -- gate --goal <goal-id>` is the completion gate; do not replace it with a transcript summary.
+- `npm run proofloop -- repair latest` converts a failed run into the next focused repair prompt.
+- `npm run proofloop -- memory search "<failure or fixture>"` recalls compacted prior failures without dragging full logs into context.
+
+Rules:
+- Treat the user goal as the contract. Keep referencing what is not done until the gate passes.
+- Do not claim done from chat, screenshots, or worker assertions. Claim done only from a deterministic gate, official scorer, or proof receipt.
+- Keep certification-loop assets locked. Exploration can propose scenarios and scaffold changes, but it cannot grade or promote itself.
+- Track harness versions, model routes, costs, blocked lanes, and official-score artifacts in receipts.
+- Cheaper model routing is allowed for exploration and shadow runs; official scores require the official scorer or an explicitly recorded equivalent judge contract.
+
+<!-- proofloop-agent-friendly:end -->

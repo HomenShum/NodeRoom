@@ -30,6 +30,21 @@
       "minScore": 85,
       "kind": "browser",
       "receiptGlob": "none"
+    },
+    "finch": {
+      "cmd": "npm run benchmark:proofloop:external-adapter -- --id finch --prod --user-emulation strict",
+      "kind": "browser",
+      "receiptGlob": "external-adapter-run"
+    },
+    "finauditing": {
+      "cmd": "npm run benchmark:proofloop:external-adapter -- --id finauditing --prod --user-emulation strict",
+      "kind": "browser",
+      "receiptGlob": "external-adapter-run"
+    },
+    "workstreambench": {
+      "cmd": "npm run benchmark:proofloop:external-adapter -- --id workstreambench --prod --user-emulation strict",
+      "kind": "browser",
+      "receiptGlob": "external-adapter-run"
     }
   }
 }

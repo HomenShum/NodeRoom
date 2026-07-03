@@ -9,6 +9,9 @@
  *   .proofloop/   history of proof runs
  *
  * Commands (mirrors git on purpose -- an agent should only need these five):
+ *   proofloop manifest --json      print the machine-readable command surface
+ *   proofloop doctor --json        verify setup without writing
+ *   proofloop docs agents --dense  print compact on-demand docs
  *   proofloop init                 install .proofloop/ scaffold + config
  *   proofloop setup <adapter>      prepare local fixtures/adapters before proof runs
  *   proofloop status                is the repo currently proven or broken?
@@ -65,6 +68,16 @@ import {
   type ProofloopGoalTask,
 } from "../src/eval/proofloopGoalSupervisor";
 import { installProofloopGithubCi } from "../src/eval/proofloopCi";
+import {
+  formatProofloopCliManifest,
+  formatProofloopDoctor,
+  formatProofloopDocsTopic,
+  proofloopCliManifest,
+  proofloopDocsTopic,
+  runProofloopDoctor,
+  writeProofloopAgentDocs,
+  type ProofloopAgentKind,
+} from "../src/eval/proofloopAgentFriendlyCli";
 import {
   formatProofloopHooksStatus,
   installProofloopHooks,
@@ -181,8 +194,14 @@ const DEFAULT_CONFIG: ProofloopConfig = {
 function main(): void {
   const [command, ...args] = process.argv.slice(2);
   switch (command) {
+    case "manifest":
+      return cmdManifest(args);
+    case "doctor":
+      return cmdDoctor(args);
+    case "docs":
+      return cmdDocs(args);
     case "init":
-      return cmdInit();
+      return cmdInit(args);
     case "status":
       return cmdStatus();
     case "run": {
@@ -271,7 +290,10 @@ function usage(error?: string): void {
     [
       "Usage: proofloop <command> [args]",
       "",
-      "  init                 install .proofloop/ scaffold + config",
+      "  manifest [--json]    print the machine-readable command surface",
+      "  doctor [--json|--dense] read-only setup check for agent adoption",
+      "  docs [topic] [--json|--dense] print compact CLI docs",
+      "  init [--features agents] [--agent codex|claude|cursor] install .proofloop/ scaffold + optional agent docs",
       "  status               is the repo currently proven or broken?",
       "  run [suite]          run a suite, record a proof run",
       "  show [runId|latest]  print a proof run's scorecard/receipt",
@@ -320,7 +342,36 @@ function usage(error?: string): void {
   process.exitCode = error ? 1 : 0;
 }
 
-function cmdInit(): void {
+function cmdManifest(args: string[]): void {
+  const manifest = proofloopCliManifest();
+  if (hasFlag(args, "--json")) {
+    console.log(JSON.stringify(manifest, null, 2));
+    return;
+  }
+  console.log(formatProofloopCliManifest(manifest, { dense: hasFlag(args, "--dense") }));
+}
+
+function cmdDoctor(args: string[]): void {
+  const report = runProofloopDoctor(ROOT);
+  if (hasFlag(args, "--json")) {
+    console.log(JSON.stringify(report, null, 2));
+  } else {
+    console.log(formatProofloopDoctor(report, { dense: hasFlag(args, "--dense") }));
+  }
+  if (report.status === "fail") process.exitCode = 1;
+}
+
+function cmdDocs(args: string[]): void {
+  const topic = args.find((arg) => !arg.startsWith("--")) ?? "getting-started";
+  const doc = proofloopDocsTopic(topic);
+  if (hasFlag(args, "--json")) {
+    console.log(JSON.stringify(doc, null, 2));
+    return;
+  }
+  console.log(formatProofloopDocsTopic(doc, { dense: hasFlag(args, "--dense") }));
+}
+
+function cmdInit(args: string[]): void {
   mkdirSync(RUNS_DIR, { recursive: true });
   if (!existsSync(CONFIG_PATH)) {
     writeJson(CONFIG_PATH, DEFAULT_CONFIG);
@@ -338,6 +389,16 @@ function cmdInit(): void {
   if (!existsSync(MEMORY_PATH)) {
     writeFileSync(MEMORY_PATH, "");
     console.log(`proofloop: wrote ${rel(MEMORY_PATH)}`);
+  }
+  if (initFeatures(args).has("agents")) {
+    const agent = initAgent(args);
+    if (!agent) return;
+    const result = writeProofloopAgentDocs({
+      root: ROOT,
+      agent,
+      agentDocsPath: optionValueFromArgs(args, "--agent-docs-path"),
+    });
+    console.log(`proofloop: ${result.changed ? "wrote" : "kept"} ${rel(result.path)} (${result.agent} agent docs)`);
   }
   console.log("proofloop: initialized. Run `proofloop status` next.");
 }
@@ -1393,6 +1454,24 @@ function optionValuesFromArgs(args: string[], name: string): string[] {
 
 function hasFlag(args: string[], name: string): boolean {
   return args.includes(name);
+}
+
+function initFeatures(args: string[]): Set<string> {
+  const values = optionValuesFromArgs(args, "--features")
+    .flatMap((value) => value.split(","))
+    .map((value) => value.trim().toLowerCase())
+    .filter(Boolean);
+  const features = new Set(values);
+  if (features.has("all")) features.add("agents");
+  return features;
+}
+
+function initAgent(args: string[]): ProofloopAgentKind | undefined {
+  const value = optionValueFromArgs(args, "--agent") ?? "codex";
+  if (value === "codex" || value === "claude" || value === "cursor") return value;
+  console.error(`proofloop: unsupported --agent ${value}. Expected codex, claude, or cursor.`);
+  process.exitCode = 1;
+  return undefined;
 }
 
 function numberOption(args: string[], name: string): number | undefined {
