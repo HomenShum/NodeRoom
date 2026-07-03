@@ -13,6 +13,7 @@ import {
   type ProofloopGoalTask,
 } from "../../eval/proofloopGoalSupervisor";
 import { solveProofloopBlocker } from "../../eval/proofloopBlockerSolver";
+import { proofloopModelRouteForRun } from "../../eval/proofloopModelTracking";
 import {
   proofloopCodeGraphPaths,
   queryProofloopCodeGraph,
@@ -27,6 +28,7 @@ import type {
   ProofloopOrchestratorTaskSafety,
   ProofloopOrchestratorTerminalStatus,
   ProofloopWorkerDispatch,
+  ProofloopLongRunControlPlane,
 } from "./types";
 
 const DEFAULT_OBJECTIVE =
@@ -96,14 +98,27 @@ export function runProofloopOrchestrator(options: ProofloopOrchestratorOptions):
       state: relativePath(root, paths.state),
       queue: relativePath(root, paths.queue),
       events: relativePath(root, paths.events),
+      heartbeats: relativePath(root, paths.heartbeats),
       workerDispatch: relativePath(root, paths.workerDispatch),
       summary: relativePath(root, paths.summary),
+      dashboard: relativePath(root, paths.dashboard),
+      evaluatorReceipt: relativePath(root, paths.evaluatorReceipt),
+      sessionMemory: relativePath(root, paths.sessionMemory),
       codeGraphManifest: relativePath(root, proofloopCodeGraphPaths(root).manifestPath),
     },
     workerInventory,
     tasks,
     dispatches: [],
     summary: summarizeTasks(tasks),
+    longRun: placeholderLongRunControlPlane({
+      objective,
+      generatedAt,
+      maxSteps,
+      paths,
+      root,
+      tasks,
+      workerInventory,
+    }),
   };
 
   for (const task of tasks) {
@@ -123,12 +138,15 @@ export function runProofloopOrchestrator(options: ProofloopOrchestratorOptions):
     });
     state.updatedAt = stepTs;
     state.summary = summarizeTasks(tasks);
+    refreshLongRunState(paths, state);
     writeState(paths, state);
   }
 
   state.terminalStatus = terminalStatusFor(state, maxSteps);
   state.updatedAt = timestampAfter(generatedAt, state.stepsUsed + 1);
   state.summary = summarizeTasks(tasks);
+  refreshLongRunState(paths, state);
+  writeLongRunArtifacts(paths, state);
   writeState(paths, state);
   writeSummary(paths.summary, state);
   const publicState = redactStateForPublication(state);
@@ -411,6 +429,12 @@ function renderRepairContext(
   lines.push("- Safe local proof/scaffold commands may run automatically; official model spend, private products, and judge credentials need explicit approval or an external managed worker.");
   lines.push("- Record every change back to the Proof Loop goal ledger, blocker lane artifacts, or orchestrator dispatch state.");
   lines.push("- Rerun the relevant proof command and update this task until it is passed or externally blocked with evidence.");
+  lines.push("- The detached evaluator, verifier stack, dashboard, and session-mined rules decide completion; do not stop on a transcript summary.");
+  const minedRules = state.longRun.memory.minedRules.filter((rule) => rule.evidenceTaskIds.includes(task.id));
+  if (minedRules.length) {
+    lines.push("", "## Session-Mined Rules");
+    for (const rule of minedRules) lines.push(`- ${rule.rule}`);
+  }
   return `${lines.join("\n")}\n`;
 }
 
@@ -434,6 +458,16 @@ function renderSummaryMarkdown(state: ProofloopOrchestratorState): string {
     `- Skipped/queued: ${state.summary.skipped}`,
     `- Not done: ${state.summary.notDone}`,
     "",
+    "## Long-Running Control Plane",
+    "",
+    `- Goal contract criteria: ${state.longRun.goalContract.measurableExitCriteria.length}`,
+    `- Detached evaluator: ${state.longRun.evaluator.verdict} (${state.longRun.evaluator.kind}, shared executor context: ${state.longRun.evaluator.sharesExecutorContext})`,
+    `- Deterministic verifiers: ${state.longRun.verifierStack.deterministic.length}`,
+    `- Expensive/live verifiers: ${state.longRun.verifierStack.expensiveOrLive.length}`,
+    `- Outer loop: ${state.longRun.outerLoop.stepsUsed}/${state.longRun.outerLoop.maxSteps} steps, ${state.longRun.outerLoop.notDoneTaskIds.length} not done`,
+    `- Dashboard: ${state.longRun.observability.dashboardPath}`,
+    `- Session memory: ${state.longRun.memory.memoryPath}`,
+    "",
     "## Not Done",
     "",
   ];
@@ -452,6 +486,399 @@ function renderSummaryMarkdown(state: ProofloopOrchestratorState): string {
     lines.push(`- ${worker.kind}: ${worker.available ? worker.resolvedPath ?? "available" : "missing"}`);
   }
   return `${lines.join("\n")}\n`;
+}
+
+function refreshLongRunState(paths: ReturnType<typeof orchestratorPaths>, state: ProofloopOrchestratorState): void {
+  state.longRun = buildLongRunControlPlane(paths, state);
+}
+
+function placeholderLongRunControlPlane(args: {
+  objective: string;
+  generatedAt: string;
+  maxSteps: number;
+  paths: ReturnType<typeof orchestratorPaths>;
+  root: string;
+  tasks: ProofloopOrchestratorTask[];
+  workerInventory: ProofloopOrchestratorState["workerInventory"];
+}): ProofloopLongRunControlPlane {
+  const summary = summarizeTasks(args.tasks);
+  const notDoneTaskIds = args.tasks.filter((task) => task.status !== "passed").map((task) => task.id);
+  return {
+    schema: "proofloop-long-running-agent-v1",
+    goalContract: goalContract(args.objective),
+    evaluator: {
+      schema: "proofloop-detached-evaluator-v1",
+      kind: "deterministic_state_judge",
+      sharesExecutorContext: false,
+      verdict: summary.notDone === 0 ? "pass" : "not_done",
+      checkedAt: args.generatedAt,
+      reasons: summary.notDone === 0
+        ? ["All queued tasks are already passed in the durable state."]
+        : [`${summary.notDone} task(s) still need proof, worker execution, or accepted external receipts.`],
+    },
+    verifierStack: verifierStackFor(args.tasks, {
+      state: relativePath(args.root, args.paths.state),
+      queue: relativePath(args.root, args.paths.queue),
+      dashboard: relativePath(args.root, args.paths.dashboard),
+      evaluatorReceipt: relativePath(args.root, args.paths.evaluatorReceipt),
+      sessionMemory: relativePath(args.root, args.paths.sessionMemory),
+    }),
+    outerLoop: {
+      enabled: true,
+      maxSteps: args.maxSteps,
+      stepsUsed: 0,
+      earlyStopPolicy: "terminal_status_only_after_evaluator_and_verifiers",
+      retryPolicy: "resume unfinished tasks from durable queue; failed commands get repair context before retry",
+      notDoneTaskIds,
+    },
+    orchestration: orchestrationFor(args.workerInventory, 0, args.objective),
+    observability: observabilityFor(args.root, args.paths),
+    memory: memoryFor(args.root, args.paths, args.tasks),
+  };
+}
+
+function buildLongRunControlPlane(
+  paths: ReturnType<typeof orchestratorPaths>,
+  state: ProofloopOrchestratorState,
+): ProofloopLongRunControlPlane {
+  return {
+    schema: "proofloop-long-running-agent-v1",
+    goalContract: goalContract(state.objective),
+    evaluator: evaluateLongRunState(state),
+    verifierStack: verifierStackFor(state.tasks, state.paths),
+    outerLoop: {
+      enabled: true,
+      maxSteps: state.maxSteps,
+      stepsUsed: state.stepsUsed,
+      earlyStopPolicy: "terminal_status_only_after_evaluator_and_verifiers",
+      retryPolicy: "resume unfinished tasks from durable queue; failed commands get repair context before retry",
+      notDoneTaskIds: state.tasks.filter((task) => task.status !== "passed").map((task) => task.id),
+    },
+    orchestration: orchestrationFor(state.workerInventory, state.dispatches.length, state.objective),
+    observability: observabilityFor(paths.root, paths),
+    memory: memoryFor(paths.root, paths, state.tasks),
+  };
+}
+
+function goalContract(objective: string): ProofloopLongRunControlPlane["goalContract"] {
+  return {
+    objective,
+    measurableExitCriteria: [
+      "Every required queue task is passed, or the remaining task is blocked only by a named accepted external scorer, credential, production approval, or managed worker.",
+      "Every unfinished task has a repair context or dispatch packet that names command, blockers, likely files, and resume evidence.",
+      "Safe local verifier commands must be executed and recorded before terminal PASS.",
+      "Official benchmark scores cannot be promoted from proxy-model or transcript-only evidence.",
+      "Dashboard, detached evaluator receipt, and session-memory artifacts must be written for the run.",
+    ],
+    acceptedTerminalStatuses: ["PASS", "BLOCKED_EXTERNAL_AFTER_ALL_LOCAL_WORK_DONE"],
+    nonGoals: [
+      "Do not treat a chat transcript, model assertion, or cost-only proxy judge as an official score.",
+      "Do not spend on live/prod/model-judge work without an explicit approved worker or credential path.",
+      "Do not weaken locked verifier fixtures or certification-loop gates to make a run pass.",
+    ],
+  };
+}
+
+function evaluateLongRunState(
+  state: ProofloopOrchestratorState,
+): ProofloopLongRunControlPlane["evaluator"] {
+  const reasons: string[] = [];
+  let verdict: ProofloopLongRunControlPlane["evaluator"]["verdict"] = "not_done";
+  if (state.summary.failed > 0) {
+    verdict = "failed";
+    reasons.push(`${state.summary.failed} deterministic command(s) failed and need repair before continuation.`);
+  } else if (state.summary.notDone === 0) {
+    verdict = "pass";
+    reasons.push("All queued tasks are passed in the durable orchestrator state.");
+  } else if (state.stepsUsed >= state.maxSteps) {
+    verdict = "budget_exhausted";
+    reasons.push(`The outer loop used ${state.stepsUsed}/${state.maxSteps} steps with ${state.summary.notDone} task(s) still not done.`);
+  } else {
+    reasons.push(`${state.summary.notDone} task(s) still need proof, worker execution, approval, or accepted external receipts.`);
+  }
+
+  const missingRepair = state.tasks
+    .filter((task) => task.status !== "passed" && task.status !== "blocked_external" && !task.repairContextPath)
+    .map((task) => task.id);
+  if (missingRepair.length) {
+    reasons.push(`Unfinished non-external task(s) without repair context: ${missingRepair.join(", ")}.`);
+  }
+  const officialPromotionBlockers = state.tasks
+    .filter((task) => task.id.includes("official-score") && task.status !== "passed")
+    .map((task) => task.id);
+  if (officialPromotionBlockers.length) {
+    reasons.push(`Official score promotion remains blocked for: ${officialPromotionBlockers.join(", ")}.`);
+  }
+
+  return {
+    schema: "proofloop-detached-evaluator-v1",
+    kind: "deterministic_state_judge",
+    sharesExecutorContext: false,
+    verdict,
+    checkedAt: state.updatedAt,
+    reasons,
+  };
+}
+
+function verifierStackFor(
+  tasks: ProofloopOrchestratorTask[],
+  paths: Pick<ProofloopOrchestratorState["paths"], "state" | "queue" | "dashboard" | "evaluatorReceipt" | "sessionMemory">,
+): ProofloopLongRunControlPlane["verifierStack"] {
+  const deterministic = new Set<string>([
+    "tests/proofloopOrchestrator.test.ts",
+    "npm run typecheck -- --pretty false",
+  ]);
+  const expensiveOrLive = new Set<string>();
+  const officialPromotionBlockedBy = new Set<string>();
+  const receiptPaths = new Set<string>([
+    paths.state,
+    paths.queue,
+    paths.dashboard,
+    paths.evaluatorReceipt,
+    paths.sessionMemory,
+  ]);
+
+  for (const task of tasks) {
+    for (const evidence of task.evidence) receiptPaths.add(evidence);
+    if (task.safety === "safe_local" && task.command) deterministic.add(task.command);
+    if (task.safety === "expensive_or_live" && task.command) expensiveOrLive.add(task.command);
+    if (task.id.includes("official-score") && task.status !== "passed") officialPromotionBlockedBy.add(task.id);
+  }
+
+  return {
+    deterministic: [...deterministic],
+    expensiveOrLive: [...expensiveOrLive],
+    officialPromotionBlockedBy: [...officialPromotionBlockedBy],
+    receiptPaths: [...receiptPaths],
+  };
+}
+
+function orchestrationFor(
+  workerInventory: ProofloopOrchestratorState["workerInventory"],
+  workerDispatches: number,
+  objective: string,
+): ProofloopLongRunControlPlane["orchestration"] {
+  const availableWorkers = workerInventory.workers
+    .filter((worker) => worker.available)
+    .map((worker) => worker.kind);
+  return {
+    workerDispatches,
+    availableWorkers,
+    roles: [
+      {
+        role: "planner",
+        route: proofloopModelRouteForRun({
+          suite: "proofloop-orchestrator-planner",
+          cmd: objective,
+          role: "planner",
+          env: roleEnv("PROOFLOOP_PLANNER_MODEL_ID", "deepseek/deepseek-v4-pro", "cheap long-run planning/proxy triage route; official score promotion still requires accepted scorers"),
+        }),
+        costPolicy: "Use cheap OpenRouter planner/proxy routes for scaffold research and capability comparison before any official scorer spend.",
+        launchSurface: "worker-dispatch",
+      },
+      {
+        role: "executor",
+        route: proofloopModelRouteForRun({
+          suite: "proofloop-orchestrator-executor",
+          cmd: objective,
+          role: "worker",
+          env: roleEnv("PROOFLOOP_EXECUTOR_MODEL_ID", "local/deterministic", "safe local commands run deterministically; coding workers receive repair packets"),
+        }),
+        costPolicy: "Run safe local commands automatically; defer code-agent launches unless explicitly allowed.",
+        launchSurface: "local-shell",
+      },
+      {
+        role: "evaluator",
+        route: proofloopModelRouteForRun({
+          suite: "proofloop-orchestrator-evaluator",
+          cmd: objective,
+          role: "judge",
+          env: roleEnv("PROOFLOOP_EVALUATOR_MODEL_ID", "local/deterministic", "detached deterministic state judge reads receipts rather than executor transcript"),
+        }),
+        costPolicy: "Use deterministic state judgment first; model judges are expensive verifier add-ons, not default completion authority.",
+        launchSurface: "deterministic-receipt",
+      },
+      {
+        role: "verifier",
+        route: proofloopModelRouteForRun({
+          suite: "proofloop-orchestrator-verifier",
+          cmd: objective,
+          role: "verifier",
+          env: roleEnv("PROOFLOOP_VERIFIER_MODEL_ID", "local/deterministic", "strict verifier stack starts with tests, receipts, and official scorers"),
+        }),
+        costPolicy: "Deterministic verifiers run first; live/prod and official scorers stay explicit.",
+        launchSurface: "deterministic-receipt",
+      },
+      {
+        role: "memory_miner",
+        route: proofloopModelRouteForRun({
+          suite: "proofloop-orchestrator-memory",
+          cmd: objective,
+          role: "worker",
+          env: roleEnv("PROOFLOOP_MEMORY_MODEL_ID", "local/deterministic", "session mining turns unfinished task patterns into durable rules"),
+        }),
+        costPolicy: "Mine rules locally from failure receipts before asking for a stronger model.",
+        launchSurface: "deterministic-receipt",
+      },
+    ],
+  };
+}
+
+function observabilityFor(
+  root: string,
+  paths: ReturnType<typeof orchestratorPaths>,
+): ProofloopLongRunControlPlane["observability"] {
+  return {
+    rawEventLog: relativePath(root, paths.events),
+    heartbeatLog: relativePath(root, paths.heartbeats),
+    dashboardPath: relativePath(root, paths.dashboard),
+    workerDispatchPath: relativePath(root, paths.workerDispatch),
+    repairContextDir: relativePath(root, paths.repairContextsDir),
+    summaryPath: relativePath(root, paths.summary),
+    feedbackSurfaces: [
+      "worker-dispatch.json for agent handoff",
+      "repair-contexts/*.md for task-level continuation",
+      "dashboard.json for live monitoring",
+      "session-memory.json for recurring failure rules",
+    ],
+  };
+}
+
+function memoryFor(
+  root: string,
+  paths: ReturnType<typeof orchestratorPaths>,
+  tasks: ProofloopOrchestratorTask[],
+): ProofloopLongRunControlPlane["memory"] {
+  return {
+    sessionMiningPolicy: "mine_unfinished_tasks_into_rules",
+    memoryPath: relativePath(root, paths.sessionMemory),
+    minedRules: mineSessionRules(tasks),
+    priorFailurePatterns: [...new Set(tasks
+      .filter((task) => task.status !== "passed")
+      .flatMap((task) => [
+        task.safety,
+        task.status,
+        task.kind,
+      ]))],
+  };
+}
+
+function mineSessionRules(tasks: ProofloopOrchestratorTask[]): ProofloopLongRunControlPlane["memory"]["minedRules"] {
+  const rules: ProofloopLongRunControlPlane["memory"]["minedRules"] = [];
+  const byPredicate = (predicate: (task: ProofloopOrchestratorTask) => boolean) => tasks.filter(predicate).map((task) => task.id);
+  const notDone = byPredicate((task) => task.status !== "passed");
+  const needsScaffold = byPredicate((task) => task.status === "needs_scaffold_or_run");
+  const needsWorker = byPredicate((task) => task.status === "needs_worker" || task.safety === "expensive_or_live");
+  const officialBlocked = byPredicate((task) => task.id.includes("official-score") && task.status !== "passed");
+  const failed = byPredicate((task) => task.status === "failed");
+
+  if (notDone.length) {
+    rules.push({
+      id: "do-not-stop-while-not-done",
+      rule: "A ProofLoop run is not complete while any durable queue task is not passed or accepted as externally blocked.",
+      evidenceTaskIds: notDone,
+    });
+  }
+  if (needsScaffold.length) {
+    rules.push({
+      id: "scaffold-blockers-into-runnable-receipts",
+      rule: "Convert each blocker into a concrete scaffold, command, receipt path, and repair context before asking for completion.",
+      evidenceTaskIds: needsScaffold,
+    });
+  }
+  if (needsWorker.length) {
+    rules.push({
+      id: "approval-for-live-expensive-work",
+      rule: "Live/prod, expensive model, and coding-worker launches require an explicit approved dispatch path.",
+      evidenceTaskIds: needsWorker,
+    });
+  }
+  if (officialBlocked.length) {
+    rules.push({
+      id: "proxy-judges-do-not-promote-official-scores",
+      rule: "Cheap proxy judges can triage product quality, but official-score claims require accepted upstream scorer or judge receipts.",
+      evidenceTaskIds: officialBlocked,
+    });
+  }
+  if (failed.length) {
+    rules.push({
+      id: "repair-failed-local-command-first",
+      rule: "A failed deterministic command must be repaired and rerun before spending on downstream live or model-judge work.",
+      evidenceTaskIds: failed,
+    });
+  }
+  if (!rules.length) {
+    rules.push({
+      id: "persist-receipts-before-pass",
+      rule: "Terminal PASS requires durable state, dashboard, evaluator, verifier, and memory receipts.",
+      evidenceTaskIds: tasks.map((task) => task.id),
+    });
+  }
+  return rules;
+}
+
+function writeLongRunArtifacts(paths: ReturnType<typeof orchestratorPaths>, state: ProofloopOrchestratorState): void {
+  writeJson(paths.dashboard, {
+    schema: "proofloop-orchestrator-dashboard-v1",
+    runId: state.runId,
+    goalId: state.goalId,
+    objective: state.objective,
+    terminalStatus: state.terminalStatus,
+    updatedAt: state.updatedAt,
+    metrics: state.summary,
+    notDone: state.tasks
+      .filter((task) => task.status !== "passed")
+      .map((task) => ({
+        id: task.id,
+        status: task.status,
+        safety: task.safety,
+        repairContextPath: task.repairContextPath,
+        resumeCommand: task.resumeCommand,
+      })),
+    controlPlane: state.longRun,
+  });
+  writeJson(paths.evaluatorReceipt, {
+    schema: "proofloop-orchestrator-evaluator-v1",
+    runId: state.runId,
+    goalId: state.goalId,
+    checkedAt: state.longRun.evaluator.checkedAt,
+    executorContextIncluded: false,
+    detachedInputs: {
+      state: state.paths.state,
+      queue: state.paths.queue,
+      events: state.paths.events,
+      workerDispatch: state.paths.workerDispatch,
+    },
+    evaluator: state.longRun.evaluator,
+    terminalStatus: state.terminalStatus,
+  });
+  writeJson(paths.sessionMemory, {
+    schema: "proofloop-orchestrator-session-memory-v1",
+    runId: state.runId,
+    goalId: state.goalId,
+    minedAt: state.updatedAt,
+    policy: state.longRun.memory.sessionMiningPolicy,
+    rules: state.longRun.memory.minedRules,
+    priorFailurePatterns: state.longRun.memory.priorFailurePatterns,
+  });
+  appendEvent(paths.events, {
+    ts: state.updatedAt,
+    type: "long_run_control_plane_written",
+    artifacts: {
+      dashboard: state.paths.dashboard,
+      evaluatorReceipt: state.paths.evaluatorReceipt,
+      sessionMemory: state.paths.sessionMemory,
+    },
+  });
+}
+
+function roleEnv(modelEnvName: string, defaultModel: string, reason: string): NodeJS.ProcessEnv {
+  const selectedModel = process.env[modelEnvName]?.trim() || process.env.PROOFLOOP_MODEL_ID?.trim() || defaultModel;
+  return {
+    ...process.env,
+    PROOFLOOP_MODEL_ID: selectedModel,
+    PROOFLOOP_MODEL_SELECTION_REASON: process.env.PROOFLOOP_MODEL_SELECTION_REASON ?? reason,
+  };
 }
 
 function redactStateForPublication(state: ProofloopOrchestratorState): ProofloopOrchestratorState {
@@ -486,6 +913,9 @@ function orchestratorPaths(root: string, runDir: string) {
     heartbeats: join(runDir, "heartbeats.jsonl"),
     workerDispatch: join(runDir, "worker-dispatch.json"),
     summary: join(runDir, "summary.md"),
+    dashboard: join(runDir, "dashboard.json"),
+    evaluatorReceipt: join(runDir, "evaluator-receipt.json"),
+    sessionMemory: join(runDir, "session-memory.json"),
     repairContextsDir: join(runDir, "repair-contexts"),
     leasesDir: join(runDir, "leases"),
     root,

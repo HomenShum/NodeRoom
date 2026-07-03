@@ -2,7 +2,7 @@
   "schema": 1,
   "suite": "finch",
   "blockerId": "finch-official-score",
-  "generatedAt": "2026-07-02T20:46:40.277Z",
+  "generatedAt": "2026-07-03T22:15:26.870Z",
   "status": "needs_scaffold_or_run",
   "officialScoreClaimable": false,
   "officialSemanticScore": null,

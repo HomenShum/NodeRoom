@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "suite": "finch",
-  "generatedAt": "2026-07-02T20:46:40.277Z",
+  "generatedAt": "2026-07-03T22:15:26.870Z",
   "status": "needs_generation",
   "expectedOutputs": [
     "one NodeRoom output artifact per official Finch task id",

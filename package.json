@@ -96,6 +96,7 @@
     "proofloop:live:btb": "tsx scripts/proofloop-live-playwright.ts bankertoolbench",
     "proofloop": "node scripts/proofloop.mjs",
     "proofloop:orchestrator": "tsx scripts/proofloop-orchestrator.ts",
+    "benchmark:proofloop:orchestrator-longrun": "tsx scripts/proofloop-orchestrator.ts dogfood --execute-safe --fresh-template --json-out docs/eval/proofloop-orchestrator-dogfood.json --md-out docs/eval/PROOFLOOP_ORCHESTRATOR_DOGFOOD.md",
     "proofloop:proximitty": "node scripts/proofloop.mjs proximitty",
     "proofloop:proximitty:models": "node proofloop/adapters/model-delta.mjs --suite=proximitty-underwriting-pr0 --run=latest",
     "proofloop:proximitty:clips": "node proofloop/adapters/generate-clips.mjs --suite=proximitty-underwriting-pr0 --run=latest",

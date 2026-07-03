@@ -1,6 +1,6 @@
 # Proof Loop Company Task Coverage
 
-Generated: 2026-07-02T15:46:01.895Z
+Generated: 2026-07-03T22:15:25.080Z
 
 This ledger answers whether NodeRoom covers the task types named in company comparisons, without pretending we tested closed third-party apps.
 

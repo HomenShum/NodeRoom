@@ -1,8 +1,8 @@
 {
   "schema": "proofloop-harness-economics-v1",
-  "generatedAt": "2026-07-02T20:46:55.504Z",
+  "generatedAt": "2026-07-03T22:15:26.303Z",
   "git": {
-    "commit": "772ed699616c7b084392087e75a6aaaa4b6a32ec",
+    "commit": "589cb13478dc9bae26436efa77d67fb6241a87af",
     "dirty": true
   },
   "packageVersion": "0.1.1",
@@ -93,7 +93,7 @@
     {
       "path": "src/eval/proofloopGoalSupervisor.ts",
       "exists": true,
-      "sha256": "4c073a490290e8507753264cdd6507698b6f9ae08eb501eeb7969c1255a9648c"
+      "sha256": "394db83b3cb3192ff67ce854096a76a9427ce5af49f9c69765f8ea020885b06b"
     },
     {
       "path": "src/eval/proofloopBlockerSolver.ts",
@@ -103,7 +103,7 @@
     {
       "path": "src/eval/proofloopModelTracking.ts",
       "exists": true,
-      "sha256": "2c7e76cf762e0195e69fbcb37afd38e7a554e5dfdd4eb7aca5815d20a7bc2adc"
+      "sha256": "7ea29d78b38dc9234f7c6e0994ef359b65b72e229185598a3f49e9f2941580e7"
     },
     {
       "path": "src/eval/proofloopBenchmarkNormalization.ts",

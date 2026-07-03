@@ -31,6 +31,7 @@ export function proofloopModelRouteForRun(args: {
   suite: string;
   cmd: string;
   env?: NodeJS.ProcessEnv;
+  role?: ProofloopModelRole;
 }): ProofloopModelRoute {
   const env = args.env ?? process.env;
   const explicit =
@@ -42,8 +43,8 @@ export function proofloopModelRouteForRun(args: {
   const inferred = explicit ?? defaultModelForSuite(args.suite, args.cmd);
   const id = inferred.trim();
   const source: ProofloopModelRoute["source"] = explicit ? "env" : id === "local/deterministic" ? "deterministic-default" : "suite-default";
-  const routePolicy = explicit ? "specific" : id === "local/deterministic" ? "deterministic" : "default";
-  const role = roleForSuite(args.suite);
+  const routePolicy = id === "local/deterministic" ? "deterministic" : explicit ? "specific" : "default";
+  const role = args.role ?? roleForSuite(args.suite);
   return {
     provider: providerForModel(id),
     id,

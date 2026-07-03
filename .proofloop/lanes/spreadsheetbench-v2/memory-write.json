@@ -3,7 +3,7 @@
   "kind": "blocker_solver_memory",
   "suite": "spreadsheetbench-v2",
   "blockerId": "spreadsheetbench-v2-full-official-score",
-  "generatedAt": "2026-07-02T20:46:40.273Z",
+  "generatedAt": "2026-07-03T22:15:25.870Z",
   "classes": [
     "missing_model_run",
     "missing_official_scorer",
