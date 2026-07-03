@@ -53,6 +53,41 @@ describe("all-artifact edits — a NodeAgent edits a NOTE", () => {
     expect(stale.ok).toBe(false);
     if (!stale.ok) expect("conflict" in stale && stale.conflict).toBe(true);
   });
+
+  it("accepts a read_notebook legacy blockId as an append_notebook_outline anchor", async () => {
+    const { eng, note, noteTools } = setup();
+    const read = await noteTools.readNotebook!({});
+    expect(read.ok).toBe(true);
+    if (!read.ok) throw new Error("read_notebook failed");
+    const original = read.blocks.find((b) => b.text.includes("Original body"));
+    expect(original).toBeTruthy();
+    expect(original?.hasStableId).toBe(false);
+
+    const anchored = await noteTools.applyNotebookOutline!({
+      parentBlockId: original!.blockId,
+      sections: [{ title: "Agent follow-up", bullets: [{ text: "Check runway with CFO", claim: true }] }],
+    });
+    expect(anchored.ok).toBe(true);
+    if (!anchored.ok) throw new Error("anchored append failed");
+    expect(anchored.needsReviewCount).toBe(1);
+    expect(anchored.blockIds.length).toBeGreaterThan(0);
+
+    const html = String(eng.getArtifact(note.id)!.elements.doc.value);
+    expect(html).toContain("Original body.");
+    expect(html).toContain("Agent follow-up");
+    expect(html).toContain('data-blockid="');
+    expect(html).toContain('data-status="needs_review"');
+
+    const missing = await noteTools.applyNotebookOutline!({
+      parentBlockId: "missing-anchor",
+      sections: [{ title: "Should not write", bullets: ["x"] }],
+    });
+    expect(missing.ok).toBe(false);
+    if (missing.ok) throw new Error("expected no_such_block");
+    if (!("noSuchBlock" in missing)) throw new Error("expected no_such_block");
+    expect(missing.noSuchBlock).toBe(true);
+    expect(missing.currentBlocks?.[0]?.blockId).toBe(read.blocks[0].blockId);
+  });
 });
 
 describe("all-artifact edits — a NodeAgent works the post-it WALL (create / move / delete)", () => {

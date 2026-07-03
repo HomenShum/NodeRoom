@@ -211,7 +211,7 @@ export type NotebookOutlineSection = { title: string; bullets: NotebookOutlineBu
  *  EditOutcome: pending_approval is review-mode SUCCESS; noSuchBlock means the
  *  anchor vanished (re-read and re-anchor, never retry blind). */
 export type ApplyNotebookOutlineOutcome =
-  | { ok: true; lane: "synced_doc" | "agent_notes_element" | "legacy_doc"; blockIds: string[]; dedupedSections: number; needsReviewCount: number; noop?: boolean }
+  | { ok: true; lane: "synced_doc" | "agent_notes_element" | "legacy_doc"; blockIds: string[]; dedupedSections: number; needsReviewCount: number; noop?: boolean; artifactVersion?: number; mutationReceiptId?: string }
   | { ok: false; pendingApproval: true; proposalId?: string }
   | { ok: false; noSuchBlock: true; parentBlockId?: string; currentBlocks?: Array<{ blockId: string; text: string }> }
   | { ok: false; error: string };

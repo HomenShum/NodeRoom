@@ -23,6 +23,8 @@
 const LEAF_TYPES = new Set(["paragraph", "heading", "codeBlock"]);
 /** Container types that carry identity an orphaned leaf can inherit. */
 const CONTAINER_TYPES = new Set(["listItem", "blockquote", "bulletList", "orderedList"]);
+/** Block-level nodes that persist stable ids in the shared TipTap schema. */
+const IDENTITY_TYPES = new Set(["paragraph", "heading", "listItem", "blockquote", "codeBlock"]);
 
 export type PmNodeJson = {
   type?: string;
@@ -207,6 +209,101 @@ export type BuiltOutline = {
   needsReviewCount: number;
 };
 
+export function collectBlockIdsFromNodes(nodes: PmNodeJson[]): string[] {
+  const ids: string[] = [];
+  const walk = (node: PmNodeJson) => {
+    const id = attrString(node, "blockId");
+    if (id) ids.push(id);
+    for (const child of node.content ?? []) walk(child);
+  };
+  for (const node of nodes) walk(node);
+  return ids;
+}
+
+function countNeedsReview(nodes: PmNodeJson[]): number {
+  let count = 0;
+  const walk = (node: PmNodeJson) => {
+    if (attrString(node, "status") === "needs_review") count += 1;
+    for (const child of node.content ?? []) walk(child);
+  };
+  for (const node of nodes) walk(node);
+  return count;
+}
+
+function hasUsableEvidence(evidence: Array<Record<string, unknown>>): boolean {
+  return evidence.some((item) => {
+    const url = typeof item.url === "string" ? item.url.trim() : "";
+    const id = typeof item.id === "string" ? item.id.trim() : "";
+    const sourceId = typeof item.sourceId === "string" ? item.sourceId.trim() : "";
+    const source = typeof item.source === "string" ? item.source.trim() : "";
+    return !!(url || id || sourceId || source);
+  });
+}
+
+export function filterBuiltOutlineNodesForExistingTitles(args: {
+  nodes: PmNodeJson[];
+  existingTitles: Set<string>;
+  mode: "append" | "merge";
+}): { nodes: PmNodeJson[]; dedupedSections: number; skippedTitle: boolean; blockIds: string[]; needsReviewCount: number } {
+  if (args.mode !== "merge") {
+    return {
+      nodes: args.nodes,
+      dedupedSections: 0,
+      skippedTitle: false,
+      blockIds: collectBlockIdsFromNodes(args.nodes),
+      needsReviewCount: countNeedsReview(args.nodes),
+    };
+  }
+  const titles = new Set(args.existingTitles);
+  const out: PmNodeJson[] = [];
+  let dedupedSections = 0;
+  let skippedTitle = false;
+  for (let i = 0; i < args.nodes.length; i++) {
+    const node = args.nodes[i];
+    const isHeading = node.type === "heading";
+    const level = typeof node.attrs?.level === "number" ? node.attrs.level : undefined;
+    if (isHeading && (level === 3 || level === 4)) {
+      const title = normalizeTitle(inlineText(node));
+      const duplicate = !!title && titles.has(title);
+      if (duplicate) {
+        if (level === 4) {
+          dedupedSections += 1;
+          if (args.nodes[i + 1]?.type === "bulletList") i += 1;
+        } else {
+          skippedTitle = true;
+        }
+        continue;
+      }
+      if (title) titles.add(title);
+    }
+    out.push(node);
+  }
+  return {
+    nodes: out,
+    dedupedSections,
+    skippedTitle,
+    blockIds: collectBlockIdsFromNodes(out),
+    needsReviewCount: countNeedsReview(out),
+  };
+}
+
+export function ensureStableBlockIds(docJson: unknown, mintId: () => string): { docJson: PmNodeJson; changed: boolean } {
+  let changed = false;
+  const visit = (node: PmNodeJson): PmNodeJson => {
+    const next: PmNodeJson = { ...node };
+    if (IDENTITY_TYPES.has(next.type ?? "") && !attrString(next, "blockId")) {
+      next.attrs = { ...(next.attrs ?? {}), blockId: mintId() };
+      changed = true;
+    } else if (next.attrs) {
+      next.attrs = { ...next.attrs };
+    }
+    if (Array.isArray(next.content)) next.content = next.content.map(visit);
+    return next;
+  };
+  const root = visit((docJson ?? { type: "doc", content: [] }) as PmNodeJson);
+  return { docJson: root, changed };
+}
+
 /** Build the PM JSON for an outline append. Pure; the caller supplies minted ids
  *  via `mintId` so tests stay deterministic and the mutation controls identity.
  *  `existingTitles` (normalized) triggers merge-mode dedupe: an already-present
@@ -235,11 +332,15 @@ export function buildOutlineNodes(args: {
   let needsReviewCount = 0;
 
   if (args.outline.title) {
-    nodes.push({
-      type: "heading",
-      attrs: { level: 3, ...attribution() },
-      content: [{ type: "text", text: clampText(args.outline.title, OUTLINE_CAPS.maxTitleChars) }],
-    });
+    const title = clampText(args.outline.title, OUTLINE_CAPS.maxTitleChars);
+    const duplicate = args.mode === "merge" && !!title && args.existingTitles?.has(normalizeTitle(title));
+    if (title && !duplicate) {
+      nodes.push({
+        type: "heading",
+        attrs: { level: 3, ...attribution() },
+        content: [{ type: "text", text: title }],
+      });
+    }
   }
   for (const section of args.outline.sections.slice(0, OUTLINE_CAPS.maxSections)) {
     const title = clampText(section.title, OUTLINE_CAPS.maxTitleChars);
@@ -262,7 +363,7 @@ export function buildOutlineNodes(args: {
       if (!clean) continue;
       // Honesty gate: a factual claim without evidence is DOWNGRADED to
       // needs_review — never silently "complete", never invented, never rejected.
-      const needsReview = claim && evidence.length === 0;
+      const needsReview = claim && !hasUsableEvidence(evidence);
       if (needsReview) needsReviewCount += 1;
       items.push({
         type: "listItem",
@@ -296,27 +397,52 @@ function escapeHtml(text: string): string {
     .replace(/"/g, "&quot;");
 }
 
+function htmlAttrs(attrs: Record<string, unknown> | undefined, extra?: Record<string, unknown>): string {
+  const source = { ...(attrs ?? {}), ...(extra ?? {}) };
+  const out: string[] = [];
+  const add = (name: string, value: unknown) => {
+    if (value === undefined || value === null || value === "") return;
+    out.push(`${name}="${escapeHtml(String(value))}"`);
+  };
+  add("data-blockid", source.blockId);
+  add("data-author-kind", source.authorKind);
+  add("data-run-id", source.runId);
+  add("data-status", source.status);
+  add("data-agent-root", source.agentRoot);
+  return out.length ? ` ${out.join(" ")}` : "";
+}
+
+function headingTag(node: PmNodeJson): string {
+  const level = typeof node.attrs?.level === "number" ? Math.max(1, Math.min(6, node.attrs.level)) : 3;
+  return `h${level}`;
+}
+
+function nodeToHtml(node: PmNodeJson): string {
+  if (node.type === "heading") {
+    const tag = headingTag(node);
+    return `<${tag}${htmlAttrs(node.attrs)}>${escapeHtml(inlineText(node))}</${tag}>`;
+  }
+  if (node.type === "paragraph") {
+    return `<p${htmlAttrs(node.attrs)}>${escapeHtml(inlineText(node))}</p>`;
+  }
+  if (node.type === "bulletList") {
+    const items = (node.content ?? []).map((item) => {
+      const paragraph = item.content?.find((child) => child.type === "paragraph");
+      const status = paragraph?.attrs?.status;
+      const text = paragraph ? inlineText(paragraph) : inlineText(item);
+      return `<li${htmlAttrs(item.attrs, status ? { status } : undefined)}>${escapeHtml(text)}</li>`;
+    });
+    return `<ul>${items.join("")}</ul>`;
+  }
+  return escapeHtml(inlineText(node));
+}
+
 /** HTML rendering of an outline — the memory-mode lane and the review-mode
  *  `doc:agent` proposal payload share it. Attribution attrs are preserved as
  *  data-* so provenance survives the HTML round-trip. */
 export function outlineToHtml(args: { title?: string; built: BuiltOutline; outline: OutlineInput; includeAgentRoot: boolean }): string {
   const parts: string[] = [];
   if (args.includeAgentRoot) parts.push(`<h2 data-agent-root="true" data-author-kind="agent">${escapeHtml(AGENT_SECTION_TITLE)}</h2>`);
-  if (args.outline.title) parts.push(`<h3 data-author-kind="agent">${escapeHtml(clampText(args.outline.title, OUTLINE_CAPS.maxTitleChars))}</h3>`);
-  const included = new Set(args.built.sectionTitles);
-  for (const section of args.outline.sections.slice(0, OUTLINE_CAPS.maxSections)) {
-    const title = clampText(section.title, OUTLINE_CAPS.maxTitleChars);
-    if (!title || !included.has(normalizeTitle(title))) continue;
-    parts.push(`<h4 data-author-kind="agent">${escapeHtml(title)}</h4>`);
-    const items: string[] = [];
-    for (const bullet of section.bullets.slice(0, OUTLINE_CAPS.maxBulletsPerSection)) {
-      const { text, claim, evidence } = bulletFields(bullet);
-      const clean = clampText(text, OUTLINE_CAPS.maxTextChars);
-      if (!clean) continue;
-      const status = claim && evidence.length === 0 ? ` data-status="needs_review"` : "";
-      items.push(`<li data-author-kind="agent"${status}>${escapeHtml(clean)}</li>`);
-    }
-    if (items.length) parts.push(`<ul>${items.join("")}</ul>`);
-  }
+  parts.push(...args.built.nodes.map(nodeToHtml).filter(Boolean));
   return parts.join("\n");
 }

@@ -128,8 +128,8 @@ type PublicAgentJobStream = {
 
 type LiveOperationKind = "action" | "query" | "mutation" | "model_call" | "tool_call" | "scheduler" | "lease" | "checkpoint";
 
-const QUERY_TOOLS = new Set(["snapshot", "list_artifacts", "awareness", "read_range", "search_sheet_context", "fetch_source"]);
-const MUTATION_TOOLS = new Set(["propose_lock", "release_lock", "edit_cell", "create_draft", "say", "update_wiki", "write_cell_result", "write_locked_cell", "write_locked_cell_result", "write_locked_cells", "write_locked_cell_results"]);
+const QUERY_TOOLS = new Set(["snapshot", "list_artifacts", "awareness", "read_range", "search_sheet_context", "fetch_source", "read_notebook"]);
+const MUTATION_TOOLS = new Set(["propose_lock", "release_lock", "edit_cell", "create_draft", "say", "update_wiki", "append_notebook_outline", "write_cell_result", "write_locked_cell", "write_locked_cell_result", "write_locked_cells", "write_locked_cell_results"]);
 
 function envNumber(name: string, fallback: number, min: number, max: number): number {
   const raw = Number(process.env[name] ?? fallback);
@@ -182,9 +182,10 @@ function errorText(error: unknown): string {
 }
 
 function stepStatus(e: { tool: string; result: unknown }): "ok" | "conflict" | "locked" | "error" {
-  const r = (e.result ?? {}) as { ok?: boolean; conflict?: boolean; locked?: boolean; error?: unknown; drafted?: boolean };
+  const r = (e.result ?? {}) as { ok?: boolean; conflict?: boolean; locked?: boolean; error?: unknown; drafted?: boolean; pendingApproval?: boolean };
   if (e.tool === "edit_cell") { if (r.conflict) return "conflict"; if (r.locked) return "locked"; }
   if (e.tool.startsWith("write_locked_cell") && r.drafted) return "ok";
+  if (r.pendingApproval) return "ok";
   if (toolResultFailed(r)) return "error";
   return "ok";
 }
@@ -192,6 +193,7 @@ function stepStatus(e: { tool: string; result: unknown }): "ok" | "conflict" | "
 function toolResultFailed(result: unknown): boolean {
   if (!result || typeof result !== "object") return false;
   const object = result as Record<string, unknown>;
+  if (object.pendingApproval === true) return false;
   return object.ok === false || typeof object.error === "string";
 }
 
@@ -218,6 +220,7 @@ function liveOperationAffectedIds(event: AgentTraceEvent): string[] | undefined 
   visit(args?.artifactId);
   visit(args?.elementId);
   visit(args?.elementIds);
+  if (event.tool === "append_notebook_outline") for (const id of notebookAffectedIds(event.args, event.result)) out.add(id);
   return out.size ? [...out].slice(0, 20) : undefined;
 }
 
@@ -225,6 +228,17 @@ function batchElementIds(args: unknown) {
   const ops = (args as { ops?: unknown } | null)?.ops;
   if (!Array.isArray(ops)) return [];
   return ops.map((op) => String((op as { elementId?: unknown } | null)?.elementId ?? "")).filter(Boolean);
+}
+
+function notebookAffectedIds(args: unknown, result: unknown): string[] {
+  const artifactId = String((args as { artifactId?: unknown } | null)?.artifactId ?? "");
+  const blockIds = Array.isArray((result as { blockIds?: unknown[] } | null)?.blockIds)
+    ? (result as { blockIds: unknown[] }).blockIds.map((id) => String(id || "")).filter(Boolean)
+    : [];
+  const out = new Set<string>();
+  if (artifactId) out.add(artifactId);
+  for (const blockId of blockIds) out.add(artifactId ? `${artifactId}:blk:${blockId}` : blockId);
+  return [...out].slice(0, 20);
 }
 
 function traceStep(e: AgentTraceEvent, i: number) {
@@ -235,7 +249,9 @@ function traceStep(e: AgentTraceEvent, i: number) {
     ? [elementId]
     : e.tool === "write_locked_cells" || e.tool === "write_locked_cell_results"
       ? batchElementIds(e.args)
-      : undefined;
+      : e.tool === "append_notebook_outline"
+        ? notebookAffectedIds(e.args, e.result)
+        : undefined;
   const mutationReceiptId = typeof (e.result as { mutationReceiptId?: unknown } | null)?.mutationReceiptId === "string"
     ? (e.result as { mutationReceiptId: Id<"agentMutationReceipts"> }).mutationReceiptId
     : undefined;

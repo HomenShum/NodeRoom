@@ -12,6 +12,7 @@ export const DEFAULT_WRITE_TOOLS = [
   "write_locked_cell_result",
   "write_locked_cells",
   "write_locked_cell_results",
+  "append_notebook_outline",
   "create_btb_deliverable_package",
 ] as const;
 

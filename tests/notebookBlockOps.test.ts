@@ -16,6 +16,8 @@ import {
   buildAgentRootNode,
   buildOutlineNodes,
   docContainsBlockId,
+  ensureStableBlockIds,
+  filterBuiltOutlineNodesForExistingTitles,
   findAgentRootHeading,
   headingTitlesFrom,
   normalizeTitle,
@@ -102,18 +104,62 @@ describe("buildOutlineNodes — the /parse port", () => {
   it("merge mode dedupes by normalized section title — a re-run merges instead of duplicating", () => {
     const first = buildOutlineNodes({ outline, mintId: mintSequence("a"), mode: "merge", existingTitles: new Set() });
     expect(first.dedupedSections).toBe(0);
+    const existingTitles = new Set([normalizeTitle(outline.title!), ...first.sectionTitles]);
     const rerun = buildOutlineNodes({
       outline,
       mintId: mintSequence("b"),
       mode: "merge",
-      existingTitles: new Set(first.sectionTitles),
+      existingTitles,
     });
     expect(rerun.dedupedSections).toBe(2);
-    // Only the report-title heading remains (sections all deduped).
     expect(rerun.sectionTitles).toEqual([]);
+    expect(rerun.nodes).toEqual([]);
+    expect(rerun.mintedBlockIds).toEqual([]);
     // append mode ignores the dedupe set on purpose.
-    const appended = buildOutlineNodes({ outline, mintId: mintSequence("c"), mode: "append", existingTitles: new Set(first.sectionTitles) });
+    const appended = buildOutlineNodes({ outline, mintId: mintSequence("c"), mode: "append", existingTitles });
     expect(appended.dedupedSections).toBe(0);
+    expect(appended.nodes.length).toBeGreaterThan(0);
+  });
+
+  it("requires usable evidence, not just a placeholder object", () => {
+    const built = buildOutlineNodes({
+      outline: {
+        sections: [{
+          title: "Evidence",
+          bullets: [
+            { text: "This claim has an empty evidence shell", claim: true, evidence: [{}] },
+            { text: "This claim points to a source id", claim: true, evidence: [{ sourceId: "src-1" }] },
+          ],
+        }],
+      },
+      mintId: mintSequence("e"),
+      mode: "append",
+    });
+    expect(built.needsReviewCount).toBe(1);
+    const flat = JSON.stringify(built.nodes);
+    expect(flat).toContain("This claim has an empty evidence shell");
+    expect(flat).toContain('"status":"needs_review"');
+    const paragraphs: PmNodeJson[] = [];
+    const walk = (node: PmNodeJson) => {
+      if (node.type === "paragraph") paragraphs.push(node);
+      for (const child of node.content ?? []) walk(child);
+    };
+    for (const node of built.nodes) walk(node);
+    const sourceBacked = paragraphs.find((n) => JSON.stringify(n).includes("This claim points to a source id"));
+    expect(JSON.stringify(sourceBacked)).not.toContain("needs_review");
+  });
+
+  it("post-build filtering removes duplicate report title and sections after a transform retry", () => {
+    const built = buildOutlineNodes({ outline, mintId: mintSequence("r"), mode: "merge", existingTitles: new Set() });
+    const filtered = filterBuiltOutlineNodesForExistingTitles({
+      nodes: built.nodes,
+      existingTitles: new Set([normalizeTitle(outline.title!), ...outline.sections.map((section) => normalizeTitle(section.title))]),
+      mode: "merge",
+    });
+    expect(filtered.nodes).toEqual([]);
+    expect(filtered.blockIds).toEqual([]);
+    expect(filtered.dedupedSections).toBe(2);
+    expect(filtered.skippedTitle).toBe(true);
   });
 
   it("enforces caps: oversized outlines are bounded, not unbounded splats", () => {
@@ -135,6 +181,23 @@ describe("buildOutlineNodes — the /parse port", () => {
 });
 
 describe("agent section + transform-retry idempotency", () => {
+  it("mints stable ids into legacy docs exactly once", () => {
+    const doc: PmNodeJson = {
+      type: "doc",
+      content: [
+        { type: "paragraph", content: [{ type: "text", text: "legacy paragraph" }] },
+        { type: "heading", attrs: { level: 2, blockId: "keep-me" }, content: [{ type: "text", text: "Existing" }] },
+      ],
+    };
+    const migrated = ensureStableBlockIds(doc, mintSequence("legacy"));
+    expect(migrated.changed).toBe(true);
+    expect(migrated.docJson.content?.[0].attrs?.blockId).toBe("legacy-1");
+    expect(migrated.docJson.content?.[1].attrs?.blockId).toBe("keep-me");
+    const again = ensureStableBlockIds(migrated.docJson, mintSequence("again"));
+    expect(again.changed).toBe(false);
+    expect(again.docJson.content?.[0].attrs?.blockId).toBe("legacy-1");
+  });
+
   it("finds the agent root by ATTRIBUTE, never by title text", () => {
     const doc: PmNodeJson = {
       type: "doc",
@@ -186,6 +249,7 @@ describe("outlineToHtml — the memory/review HTML lane", () => {
     const built = buildOutlineNodes({ outline, mintId: mintSequence(), mode: "append" });
     const html = outlineToHtml({ built, outline, includeAgentRoot: true });
     expect(html).toContain('data-agent-root="true"');
+    expect(html).toContain('data-blockid="id-');
     expect(html).toContain('data-author-kind="agent"');
     expect(html).toContain('data-status="needs_review"');
     expect(html).toContain("Risks &lt;script&gt;");

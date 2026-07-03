@@ -44,8 +44,10 @@ import {
   OUTLINE_CAPS,
   buildAgentRootNode,
   buildOutlineNodes,
+  collectBlockIdsFromNodes,
   countLeafBlocks,
   docContainsBlockId,
+  filterBuiltOutlineNodesForExistingTitles,
   findAgentRootHeading,
   headingTitlesFrom,
   outlineToHtml,
@@ -78,7 +80,12 @@ function agentCanAccessArtifact(
   if ((a.visibility ?? "room") !== "private") return true;
   if (actorOwnsArtifact(a, actor)) return true;
   const ownerId = (actor as { ownerId?: string }).ownerId;
-  return !!ownerId && !!a.createdBy && a.createdBy.kind === "user" && a.createdBy.id === ownerId;
+  return actor.kind === "agent"
+    && actor.scope === "private"
+    && !!ownerId
+    && !!a.createdBy
+    && a.createdBy.kind === "user"
+    && a.createdBy.id === ownerId;
 }
 
 async function notebookDocRow(ctx: DbCtx, roomId: Id<"rooms">, artifactId: Id<"artifacts">) {
@@ -265,6 +272,10 @@ export const applyOutlineByAgent = internalMutation({
 
     let anchorMissing = false;
     let alreadyApplied = false;
+    let wroteContent = false;
+    let appliedBlockIds = collectBlockIdsFromNodes(built.nodes);
+    let finalDedupedSections = built.dedupedSections;
+    let finalNeedsReviewCount = built.needsReviewCount;
     const finalDoc = await prosemirrorSync.transform(ctx, row.prosemirrorDocId, schema, (doc: PmNode) => {
       const json = doc.toJSON() as PmNodeJson;
       // Exactly-once across transform's rebase-retry loop.
@@ -295,10 +306,23 @@ export const applyOutlineByAgent = internalMutation({
       } else if (!findAgentRootHeading(json)) {
         // No agent section yet — create it (attr-matched, idempotent) at doc end.
         nodesJson = [agentRootJson, ...built.nodes];
+        appliedBlockIds = collectBlockIdsFromNodes(built.nodes);
+        finalDedupedSections = built.dedupedSections;
+        finalNeedsReviewCount = built.needsReviewCount;
+      } else if (!a.parentBlockId) {
+        const freshRoot = findAgentRootHeading(json);
+        const freshTitles = headingTitlesFrom(json, freshRoot ? freshRoot.topLevelIndex : (json.content?.length ?? 0));
+        const filtered = filterBuiltOutlineNodesForExistingTitles({ nodes: built.nodes, existingTitles: freshTitles, mode });
+        nodesJson = filtered.nodes;
+        appliedBlockIds = filtered.blockIds;
+        finalDedupedSections = built.dedupedSections + filtered.dedupedSections;
+        finalNeedsReviewCount = filtered.needsReviewCount;
+        if (nodesJson.length === 0) return null;
       }
       const nodes = nodesJson.map((n) => schema.nodeFromJSON(n));
       const tr = new Transform(doc);
       tr.insert(insertPos, nodes);
+      wroteContent = true;
       return tr;
     });
 
@@ -314,7 +338,17 @@ export const applyOutlineByAgent = internalMutation({
 
     // COMMIT EFFECTS — one artifact-version bump per call (the cross-kind
     // governance clock, same as define_columns), never per keystroke.
-    await notebookWriteEffects(ctx, {
+    if (!wroteContent) {
+      return {
+        ok: true as const,
+        noop: true as const,
+        blockIds: [],
+        dedupedSections: finalDedupedSections,
+        needsReviewCount: 0,
+      };
+    }
+
+    const mutationReceiptId = await notebookWriteEffects(ctx, {
       roomId: a.roomId,
       artifactId: a.artifactId,
       actor: a.actor,
@@ -325,8 +359,8 @@ export const applyOutlineByAgent = internalMutation({
       now,
       trace: {
         type: "notebook_outline_appended",
-        summary: `${a.actor.name} appended ${built.sectionTitles.length} section${built.sectionTitles.length === 1 ? "" : "s"} to the notebook`,
-        detail: `append_notebook_outline · blocks=${built.mintedBlockIds.length} · deduped=${built.dedupedSections} · needs_review=${built.needsReviewCount}${a.parentBlockId ? ` · anchor=${a.parentBlockId}` : " · agent section"}${alreadyApplied ? " · idempotent-replay" : ""}`,
+        summary: `${a.actor.name} appended ${appliedBlockIds.length} block${appliedBlockIds.length === 1 ? "" : "s"} to the notebook`,
+        detail: `append_notebook_outline · blocks=${appliedBlockIds.length} · deduped=${finalDedupedSections} · needs_review=${finalNeedsReviewCount}${a.parentBlockId ? ` · anchor=${a.parentBlockId}` : " · agent section"}${alreadyApplied ? " · idempotent-replay" : ""}`,
       },
       receipt: {
         mutationName: "notebookAgent.applyOutlineByAgent",
@@ -338,8 +372,8 @@ export const applyOutlineByAgent = internalMutation({
           mode,
           sections: a.sections,
         },
-        output: { ok: true, blockCount: built.mintedBlockIds.length, dedupedSections: built.dedupedSections },
-        affectedBlockIds: built.mintedBlockIds,
+        output: { ok: true, blockCount: appliedBlockIds.length, dedupedSections: finalDedupedSections },
+        affectedBlockIds: appliedBlockIds,
       },
     });
 
@@ -347,10 +381,11 @@ export const applyOutlineByAgent = internalMutation({
       ok: true as const,
       lane: "synced_doc" as const,
       created: ensured.created,
-      blockIds: built.mintedBlockIds,
-      dedupedSections: built.dedupedSections,
-      needsReviewCount: built.needsReviewCount,
+      blockIds: appliedBlockIds,
+      dedupedSections: finalDedupedSections,
+      needsReviewCount: finalNeedsReviewCount,
       artifactVersion: art.version + 1,
+      mutationReceiptId,
     };
   },
 });
@@ -371,7 +406,7 @@ async function notebookWriteEffects(ctx: MutationCtx, e: {
   now: number;
   trace: { type: string; summary: string; detail: string };
   receipt: { mutationName: string; input: unknown; output: unknown; affectedBlockIds: string[] };
-}): Promise<void> {
+}): Promise<Id<"agentMutationReceipts"> | undefined> {
   const { now } = e;
   await ctx.db.patch(e.artifactId, { version: e.art.version + 1, updatedAt: now });
   await ctx.db.insert("traces", { roomId: e.roomId, ts: now, actor: e.actor, type: e.trace.type, summary: e.trace.summary, detail: e.trace.detail });
@@ -439,10 +474,11 @@ async function notebookWriteEffects(ctx: MutationCtx, e: {
   await ctx.scheduler.runAfter(0, internal.notebookProcessing.processNotebookDirtyEvent, { dirtyEventId });
 
   // Mutation receipt — deterministic sorted-key input hash, like every agent write.
+  let mutationReceiptId: Id<"agentMutationReceipts"> | undefined;
   if (e.jobId) {
     const job = await ctx.db.get(e.jobId);
     if (job) {
-      await ctx.db.insert("agentMutationReceipts", {
+      mutationReceiptId = await ctx.db.insert("agentMutationReceipts", {
         jobId: e.jobId,
         mutationName: e.receipt.mutationName,
         permission: "agent_session",
@@ -460,6 +496,7 @@ async function notebookWriteEffects(ctx: MutationCtx, e: {
       });
     }
   }
+  return mutationReceiptId;
 }
 
 /** Explicit shape for internal.artifacts.applyAgentCellEdit results used by the

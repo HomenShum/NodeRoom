@@ -1,6 +1,6 @@
 /** Room Binder (`.r-panel.left`): source files, room artifacts, people, and public agents. */
-import { useEffect, useRef, useState, type CSSProperties, type DragEvent } from "react";
-import { FolderOpen, Table2, FileText, StickyNote, BookOpen, Upload, Loader2, ShieldCheck, Activity, MessageCircle, ArrowRight, type LucideIcon } from "lucide-react";
+import { useEffect, useMemo, useRef, useState, type CSSProperties, type DragEvent } from "react";
+import { FolderOpen, Table2, FileText, StickyNote, BookOpen, Upload, Loader2, ShieldCheck, Activity, MessageCircle, ArrowRight, Search, type LucideIcon } from "lucide-react";
 import { useStore } from "../app/store";
 import type { Actor } from "../engine/types";
 import { ARTIFACT_REF_MIME, encodeArtifactRef } from "./artifactRefs";
@@ -35,6 +35,7 @@ export function LeftRail({ roomId, me, artId, onPick, onOpenChat, style }: { roo
   const inputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
+  const [binderQuery, setBinderQuery] = useState("");
   const aliveRef = useRef(true); // A4: don't setState after unmount when an upload resolves late
   useEffect(() => {
     aliveRef.current = true;
@@ -47,6 +48,14 @@ export function LeftRail({ roomId, me, artId, onPick, onOpenChat, style }: { roo
   const traces = store.listTraces(roomId);
   const locks = store.awareness(roomId).activeLocks;
   const allPublicMessages = store.listMessages(roomId, "public");
+  const largeBinder = arts.length >= 80;
+  const binderCounts = useMemo(() => scaleBinderCounts(arts), [arts]);
+  const normalizedQuery = binderQuery.trim().toLowerCase();
+  const visibleArts = normalizedQuery
+    ? arts.filter((a) => `${a.title} ${a.kind} ${a.meta?.tags?.join(" ") ?? ""} ${a.meta?.upload?.fileName ?? ""}`.toLowerCase().includes(normalizedQuery))
+    : arts;
+  const pinnedArts = arts.slice(0, 3);
+  const recentArts = arts.slice(0, 5);
   const firstProposal = proposals[0] as { artifactId: string; op?: { elementId?: string } } | undefined;
   const openProposal = () => {
     if (!firstProposal) return;
@@ -93,10 +102,46 @@ export function LeftRail({ roomId, me, artId, onPick, onOpenChat, style }: { roo
     }
   };
 
+  const renderArtifactButton = (a: (typeof arts)[number]) => {
+    const FI = fileIcon(a);
+    const display = binderArtifactDisplay(a);
+    return (
+      <button
+        key={a.id}
+        className="r-file"
+        data-active={String(a.id === artId)}
+        data-testid="binder-artifact"
+        data-artifact-id={a.id}
+        data-artifact-kind={a.kind}
+        data-artifact-title={a.title}
+        draggable
+        title={`${a.title}\nDrag into chat to reference this file`}
+        onClick={() => onPick(a.id)}
+        onDragStart={(e) => dragArtifactRef(e, a)}
+      >
+        <span className="fi"><FI size={14} /></span>
+        <span style={{ minWidth: 0 }}>
+          <div className="fn"><span className="r-file-name">{display.title}</span>{display.badge && <span className="r-file-ext">{display.badge}</span>}</div>
+          <div className="fm">{display.meta}</div>
+        </span>
+      </button>
+    );
+  };
+
   return (
     <div className="r-panel left" style={style} data-testid="left-rail">
-      <div className="r-panel-head"><FolderOpen size={15} /><span className="h-title">Room Binder</span></div>
+      <div className="r-panel-head">
+        <FolderOpen size={15} />
+        <span className="h-title">Room Binder</span>
+        {largeBinder && <span className="r-binder-count" data-testid="binder-scale-count">{arts.length}</span>}
+      </div>
       <div className="r-rail">
+        {largeBinder && (
+          <label className="r-binder-search" data-testid="binder-search">
+            <Search size={13} />
+            <input value={binderQuery} onChange={(e) => setBinderQuery(e.currentTarget.value)} placeholder={`Search ${arts.length} workbooks`} aria-label="Search room binder" />
+          </label>
+        )}
         <div className="r-rail-section">
           <div className="kicker r-rail-kicker">Live room chat</div>
           <button
@@ -118,31 +163,26 @@ export function LeftRail({ roomId, me, artId, onPick, onOpenChat, style }: { roo
 
         <div className="r-rail-section">
           <div className="kicker r-rail-kicker">Workbooks & work products</div>
-          {arts.map((a) => {
-            const FI = fileIcon(a);
-            const display = binderArtifactDisplay(a);
-            return (
-              <button
-                key={a.id}
-                className="r-file"
-                data-active={String(a.id === artId)}
-                data-testid="binder-artifact"
-                data-artifact-id={a.id}
-                data-artifact-kind={a.kind}
-                data-artifact-title={a.title}
-                draggable
-                title={`${a.title}\nDrag into chat to reference this file`}
-                onClick={() => onPick(a.id)}
-                onDragStart={(e) => dragArtifactRef(e, a)}
-              >
-                <span className="fi"><FI size={14} /></span>
-                <span style={{ minWidth: 0 }}>
-                  <div className="fn"><span className="r-file-name">{display.title}</span>{display.badge && <span className="r-file-ext">{display.badge}</span>}</div>
-                  <div className="fm">{display.meta}</div>
-                </span>
-              </button>
-            );
-          })}
+          {largeBinder && !normalizedQuery ? (
+            <>
+              <div className="r-binder-groups" data-testid="binder-scale-groups">
+                <ScaleBinderGroup label="Pinned" count={pinnedArts.length} onOpen={() => pinnedArts[0] && onPick(pinnedArts[0].id)} />
+                <ScaleBinderGroup label="Recent" count={recentArts.length} onOpen={() => recentArts[0] && onPick(recentArts[0].id)} />
+                <ScaleBinderGroup label="Sheets" count={binderCounts.sheets} onOpen={() => arts.find((a) => a.kind === "sheet") && onPick(arts.find((a) => a.kind === "sheet")!.id)} />
+                <ScaleBinderGroup label="Docs" count={binderCounts.docs} onOpen={() => arts.find((a) => a.kind === "note" && !a.meta?.upload) && onPick(arts.find((a) => a.kind === "note" && !a.meta?.upload)!.id)} />
+                <ScaleBinderGroup label="Notebooks" count={binderCounts.notebooks} onOpen={() => arts.find((a) => /notebook/i.test(a.title)) && onPick(arts.find((a) => /notebook/i.test(a.title))!.id)} />
+                <ScaleBinderGroup label="Uploads" count={binderCounts.uploads} onOpen={() => arts.find((a) => a.meta?.upload) && onPick(arts.find((a) => a.meta?.upload)!.id)} />
+              </div>
+              <div className="kicker r-rail-kicker r-rail-subkicker">Pinned + recent</div>
+              {[...new Map([...pinnedArts, ...recentArts].map((a) => [a.id, a])).values()].map(renderArtifactButton)}
+            </>
+          ) : (
+            <>
+              {visibleArts.slice(0, largeBinder ? 24 : visibleArts.length).map(renderArtifactButton)}
+              {largeBinder && visibleArts.length > 24 && <div className="r-binder-more">{visibleArts.length - 24} more results - refine search</div>}
+              {largeBinder && !visibleArts.length && <div className="r-binder-more">No matching workbooks.</div>}
+            </>
+          )}
           <input ref={inputRef} className="r-file-input" type="file" multiple onChange={(e) => void onUpload(e.currentTarget.files)} />
           {/* Busy = an inline spinner + aria-busy (not text-only) per the skeleton-vs-spinner rule. */}
           <button className="r-file r-upload" disabled={uploading} aria-busy={uploading} onClick={() => inputRef.current?.click()}>
@@ -179,7 +219,7 @@ export function LeftRail({ roomId, me, artId, onPick, onOpenChat, style }: { roo
 
         <div className="r-rail-section">
           <div className="kicker r-rail-kicker">People & agents · {members.length} live</div>
-          {members.map((m) => {
+          {(largeBinder ? members.slice(0, 8) : members).map((m) => {
             const lock = locks.find((l) => l.holder.id === m.id);
             const range = lock ? rangeLabel(lock.elementIds) : "";
             const body = (
@@ -196,6 +236,13 @@ export function LeftRail({ roomId, me, artId, onPick, onOpenChat, style }: { roo
               <div key={m.id} className="r-person">{body}</div>
             );
           })}
+          {largeBinder && members.length > 8 && (
+            <div className="r-person r-person-more" data-testid="binder-people-collapsed">
+              <span className="r-avatar sm" style={{ background: "var(--bg-tertiary)", color: "var(--text-muted)" }}>+</span>
+              <span className="grow"><div className="pn">{members.length - 8} more live</div><div className="pr">visible in presence and chat</div></span>
+              <span className="r-dot-live" />
+            </div>
+          )}
           {sessions.filter((s) => s.scope === "public").map((s) => {
             const lock = locks.find((l) => l.sessionId === s.id);
             const range = lock ? rangeLabel(lock.elementIds) : "";
@@ -218,6 +265,23 @@ export function LeftRail({ roomId, me, artId, onPick, onOpenChat, style }: { roo
       </div>
     </div>
   );
+}
+
+function ScaleBinderGroup({ label, count, onOpen }: { label: string; count: number; onOpen: () => void }) {
+  return (
+    <button type="button" className="r-binder-group" onClick={onOpen} title={`Open ${label.toLowerCase()}`}>
+      <span>{label}</span>
+      <b>{count}</b>
+    </button>
+  );
+}
+
+function scaleBinderCounts(arts: Array<{ kind: string; title: string; meta?: { upload?: unknown; tags?: string[] } }>) {
+  const notebooks = arts.filter((a) => /notebook/i.test(a.title)).length;
+  const uploads = arts.filter((a) => !!a.meta?.upload).length;
+  const sheets = arts.filter((a) => a.kind === "sheet").length;
+  const docs = arts.filter((a) => a.kind === "note" && !a.meta?.upload && !/notebook|pinned proof/i.test(a.title)).length;
+  return { sheets, docs, notebooks, uploads };
 }
 
 function dragArtifactRef(e: DragEvent<HTMLButtonElement>, artifact: { id: string; title: string; kind: string }) {

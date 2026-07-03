@@ -41,10 +41,9 @@ export const prosemirrorSync = new ProsemirrorSync<string>(components.prosemirro
 function actorOwnsArtifact(a: { createdBy?: ActorValue }, actor: ActorValue): boolean {
   if (!a.createdBy) return false;
   if (a.createdBy.kind === actor.kind && a.createdBy.id === actor.id) return true;
-  // The owner's private-scoped agent acts for its owner (ownerId is validated
-  // against a real agentSessions row by requireActorInRoom) — aligned with
-  // artifacts.ts so read/ensure/write agree on private-notebook access.
-  return actor.kind === "agent" && !!actor.ownerId && a.createdBy.kind === "user" && a.createdBy.id === actor.ownerId;
+  // Only the owner's private-scoped agent acts for its owner on private docs.
+  // Public personal agents carry ownerId for attribution, but stay public.
+  return actor.kind === "agent" && actor.scope === "private" && !!actor.ownerId && a.createdBy.kind === "user" && a.createdBy.id === actor.ownerId;
 }
 
 function canReadArtifact(a: { visibility?: "private" | "room" | "public"; createdBy?: ActorValue }, actor: ActorValue): boolean {

@@ -141,7 +141,7 @@ const DEFAULT_CHILD_FRAME_SAMPLE_LIMIT = 50;
 export const FRAME_TOOL_ALLOWLIST: Record<ReasoningFramePhase, string[]> = {
   intake: ["normalize_room_intake", "compute_idempotency_key"],
   plan: ["entityResearchCache.lookup", "okf_full_text_search", "okf_semantic_search", "search_sheet_context", "skill_search", "okf_search_skills"],
-  execute: ["fetch_source", "capture_source", "linkup_search", "you_search", "you_research", "you_finance_research", "github_profile", "source_compare_claim", "write_locked_cell_results", "update_wiki", "skill_search", "load_skill"],
+  execute: ["fetch_source", "capture_source", "linkup_search", "you_search", "you_research", "you_finance_research", "github_profile", "source_compare_claim", "read_notebook", "append_notebook_outline", "write_locked_cell_results", "update_wiki", "skill_search", "load_skill"],
   verify: ["source_compare_claim", "okf_read_concept", "read_range", "reconcile_cell"],
   synthesize: ["say", "export_downstream_draft", "generate_banker_coach_cues"],
 };
@@ -149,7 +149,7 @@ export const FRAME_TOOL_ALLOWLIST: Record<ReasoningFramePhase, string[]> = {
 /** Tool allowlist for deep-dive child frames: per-company research with expanded dimensions. */
 export const DEEP_DIVE_TOOL_ALLOWLIST: string[] = [
   "fetch_source", "capture_source", "read_range", "search_sheet_context",
-  "write_locked_cell_results", "define_columns", "say", "update_wiki",
+  "write_locked_cell_results", "define_columns", "say", "read_notebook", "append_notebook_outline", "update_wiki",
   "founder_profile", "github_profile", "you_search", "you_research",
 ];
 

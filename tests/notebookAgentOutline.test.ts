@@ -18,10 +18,12 @@
  *     exactly ONE outbox item exists after the scheduled processor runs
  */
 import { convexTest } from "convex-test";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import schema from "../convex/schema";
 import { api, internal } from "../convex/_generated/api";
 import prosemirrorSchema from "../node_modules/@convex-dev/prosemirror-sync/src/component/schema";
+
+vi.setConfig({ testTimeout: 30_000 });
 
 // convex/_generated lags until the next codegen — which must NOT be run
 // casually here: `npx convex codegen` against a configured cloud deployment
@@ -29,7 +31,7 @@ import prosemirrorSchema from "../node_modules/@convex-dev/prosemirror-sync/src/
 // Artifact.tsx's createAgentWorkPlanFromNotebook; convex-test resolves the
 // functions by name at runtime.
 type ApplyOutlineResult =
-  | { ok: true; lane: string; blockIds: string[]; dedupedSections: number; needsReviewCount: number; noop?: boolean }
+  | { ok: true; lane?: string; blockIds: string[]; dedupedSections: number; needsReviewCount: number; noop?: boolean; artifactVersion?: number; mutationReceiptId?: string }
   | { ok: false; reason: string; proposalId?: string; parentBlockId?: string; currentBlocks?: Array<{ blockId: string; text: string }> };
 type ReadNotebookResult =
   | { ok: true; docSource: string; docVersion: number; agentSection: { exists: boolean; blockId?: string }; blocks: Array<{ blockId: string; hasStableId: boolean; blockType: string; text: string; textHash: string; authorKind?: string; status?: string }> }
@@ -175,16 +177,21 @@ describe("notebookAgent.applyOutlineByAgent — synced lane", () => {
     const args = { roomId, artifactId: artifactId as never, actor, title: "Report: CardioNova call", sections: SECTIONS };
     const first = await t.mutation(notebookAgentInternal.applyOutlineByAgent, args);
     expect(first.ok).toBe(true);
+    const afterFirstVersion = await t.run(async (ctx) => ((await ctx.db.get(artifactId as never)) as { version: number }).version);
     const second = await t.mutation(notebookAgentInternal.applyOutlineByAgent, args);
     expect(second.ok).toBe(true);
     if (!second.ok) throw new Error("re-run failed");
+    expect(second.noop).toBe(true);
     expect(second.dedupedSections).toBe(2);
+    const afterSecondVersion = await t.run(async (ctx) => ((await ctx.db.get(artifactId as never)) as { version: number }).version);
+    expect(afterSecondVersion).toBe(afterFirstVersion);
 
     const row = await t.run(async (ctx) =>
       await ctx.db.query("notebookDocuments").withIndex("by_room_artifact_element", (q) => q.eq("roomId", roomId).eq("artifactId", artifactId as never).eq("elementId", "doc")).unique());
     const { json } = await syncedDocText(t, row!.prosemirrorDocId);
     // "Funding" heading appears exactly once despite two runs.
     expect(json.split("Funding").length - 1).toBe(1);
+    expect(json.split("Report: CardioNova call").length - 1).toBe(1);
     await t.finishInProgressScheduledFunctions();
   });
 
@@ -252,10 +259,83 @@ describe("notebookAgent.applyOutlineByAgent — synced lane", () => {
     expect(read.agentSection.exists).toBe(true);
     const human = read.blocks.find((b) => b.text.includes("human context line"));
     expect(human).toBeTruthy();
+    expect(human?.hasStableId).toBe(true);
     const agentBlock = read.blocks.find((b) => b.authorKind === "agent" && b.text.includes("Raised $32M"));
     expect(agentBlock?.hasStableId).toBe(true);
     expect(agentBlock?.textHash).toMatch(/^[0-9a-f]{64}$/);
+    if (!human) throw new Error("human anchor missing");
+    const anchored = await t.mutation(notebookAgentInternal.applyOutlineByAgent, {
+      roomId,
+      artifactId: artifactId as never,
+      actor,
+      parentBlockId: human.blockId,
+      sections: [{ title: "Anchored follow-up", bullets: ["Inserted after human context"] }],
+    });
+    expect(anchored.ok).toBe(true);
+    if (!anchored.ok) throw new Error("anchored append failed");
+    expect(anchored.blockIds.length).toBeGreaterThan(0);
     await t.finishInProgressScheduledFunctions();
+  });
+
+  it("private notes reject public personal agents but process for the owner's private agent", async () => {
+    const { t, roomId, artifactId, actor } = await seedRoom({ legacyHtml: "<p>private host note</p>" });
+    const publicPersonal = { kind: "agent" as const, id: "agent_priv", name: "Your NodeAgent", scope: "public" as const, ownerId: actor.id };
+    const privatePersonal = { ...publicPersonal, scope: "private" as const };
+    await t.run(async (ctx) => {
+      await ctx.db.patch(roomId, { autoAllow: true });
+      await ctx.db.patch(artifactId as never, { visibility: "private", createdBy: actor });
+      await ctx.db.insert("agentSessions", {
+        roomId,
+        agentId: publicPersonal.id,
+        agentName: publicPersonal.name,
+        scope: "public",
+        ownerId: actor.id,
+        status: "working",
+        lastAction: "public personal notebook attempt",
+        updatedAt: Date.now(),
+      });
+      await ctx.db.insert("agentSessions", {
+        roomId,
+        agentId: privatePersonal.id,
+        agentName: privatePersonal.name,
+        scope: "private",
+        ownerId: actor.id,
+        status: "working",
+        lastAction: "private notebook write",
+        updatedAt: Date.now(),
+      });
+    });
+
+    const publicRead = await t.query(notebookAgentInternal.readNotebookForAgent, {
+      roomId,
+      artifactId: artifactId as never,
+      actor: publicPersonal,
+    });
+    expect(publicRead.ok).toBe(false);
+    if (publicRead.ok) throw new Error("public personal agent leaked private notebook");
+    expect(publicRead.reason).toBe("artifact_not_visible");
+
+    const privateWrite = await t.mutation(notebookAgentInternal.applyOutlineByAgent, {
+      roomId,
+      artifactId: artifactId as never,
+      actor: privatePersonal,
+      sections: [{ title: "Private synthesis", bullets: ["Only the host private lane can see this"] }],
+    });
+    expect(privateWrite.ok).toBe(true);
+    if (!privateWrite.ok) throw new Error("private write failed");
+
+    const dirty = await t.run(async (ctx) => (await ctx.db.query("notebookDirtyEvents").collect()).at(-1) as { _id: unknown; ownerId?: string; actorId?: string; visibility?: string } | undefined);
+    expect(dirty).toMatchObject({ ownerId: actor.id, actorId: privatePersonal.id, visibility: "private" });
+    await t.action(internal.notebookProcessing.processNotebookDirtyEvent, {
+      dirtyEventId: dirty!._id as never,
+    });
+    await t.finishInProgressScheduledFunctions();
+    const readModel = await t.run(async (ctx) => ({
+      blocks: await ctx.db.query("notebookBlocks").collect(),
+      outbox: await ctx.db.query("roomActivityOutbox").collect(),
+    }));
+    expect(readModel.blocks.some((block) => (block as { visibility?: string; ownerId?: string }).visibility === "private" && (block as { ownerId?: string }).ownerId === actor.id)).toBe(true);
+    expect(readModel.outbox.some((item) => (item as { visibility?: string; ownerId?: string }).visibility === "private" && (item as { ownerId?: string }).ownerId === actor.id)).toBe(true);
   });
 });
 

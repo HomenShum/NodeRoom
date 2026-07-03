@@ -34,6 +34,167 @@ function initials(name: string): string {
 }
 const clock = (ts: number) => { const d = new Date(ts); return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`; };
 
+type ContextualPrompt = { label: string; insert: string };
+type DecisionMetric = { label: string; value: string; tone?: "good" | "warn" | "muted" };
+type DecisionAssistantState = {
+  artifactId: string;
+  eyebrow: string;
+  title: string;
+  body: string;
+  progressLabel: string;
+  progressPct: number;
+  metrics: DecisionMetric[];
+  reviewSignals: string[];
+  prompts: ContextualPrompt[];
+};
+type AgentResearchReceipt = {
+  artifactId: string;
+  cellId: string;
+  company: string;
+  sourceCount: number;
+  sourceLabel: string;
+  sourceDetail: string;
+  sourceUrl?: string;
+  fromVersion: number;
+  toVersion: number;
+};
+
+const REVIEW_SIGNAL_RE = /\b(verify|requires?|claimed|unknown|gap|missing|unverified|needs?\s+review|before\s+ic)\b/i;
+
+function artifactRowIds(artifact: Artifact): string[] {
+  const rows: string[] = [];
+  for (const elementId of artifact.order ?? []) {
+    const rowId = elementId.split("__")[0];
+    if (rowId && !rows.includes(rowId)) rows.push(rowId);
+  }
+  return rows;
+}
+
+function artifactCellValue(artifact: Artifact, rowId: string, col: string): string {
+  return valuePreview(artifact.elements[`${rowId}__${col}`]?.value);
+}
+
+function artifactCellPayload(artifact: Artifact, rowId: string, col: string): CellPayload | null {
+  const value = artifact.elements[`${rowId}__${col}`]?.value;
+  return isCellPayload(value) ? value : null;
+}
+
+function artifactCellVersion(artifact: Artifact, rowId: string, col: string): number {
+  return artifact.elements[`${rowId}__${col}`]?.version ?? 1;
+}
+
+function artifactCellEvidence(artifact: Artifact, rowId: string, col: string): NonNullable<CellPayload["evidence"]> {
+  return artifactCellPayload(artifact, rowId, col)?.evidence ?? [];
+}
+
+function artifactCellEvidenceCount(artifact: Artifact, rowId: string, col: string): number {
+  return artifactCellEvidence(artifact, rowId, col).length;
+}
+
+function buildAgentResearchReceipt(artifact: Artifact | undefined): AgentResearchReceipt | null {
+  if (!artifact || artifact.kind !== "sheet" || !/company|research/i.test(artifact.title ?? "")) return null;
+  const rows = artifactRowIds(artifact);
+  const completedRows = rows.filter((id) => (artifactCellValue(artifact, id, "status") || "").toLowerCase() === "complete");
+  const rowId = completedRows[0];
+  if (!rowId) return null;
+  const company = artifactCellValue(artifact, rowId, "company") || rowId;
+  const evidenceCols = ["status", "summary", "funding", "headcount", "recent_signal", "source", "source2"];
+  const evidenceRows = rows.length >= 100 ? completedRows : [rowId];
+  const allEvidence = evidenceRows.flatMap((id) => evidenceCols.flatMap((col) => artifactCellEvidence(artifact, id, col)));
+  const seenEvidence = new Set<string>();
+  const uniqueEvidence = allEvidence.filter((item) => {
+    const key = item.url ?? item.source ?? item.id ?? item.label;
+    if (seenEvidence.has(key)) return false;
+    seenEvidence.add(key);
+    return true;
+  });
+  if (!uniqueEvidence.length) return null;
+  const first = uniqueEvidence[0];
+  const toVersion = Math.max(
+    artifactCellVersion(artifact, rowId, "status"),
+    artifactCellVersion(artifact, rowId, "summary"),
+    artifactCellVersion(artifact, rowId, "funding"),
+    artifact.version,
+  );
+  return {
+    artifactId: artifact.id,
+    cellId: `${rowId}__status`,
+    company,
+    sourceCount: uniqueEvidence.length,
+    sourceLabel: first.label || "Source receipt",
+    sourceDetail: first.snippet || first.url || first.source || "Evidence attached to the committed row.",
+    sourceUrl: first.url ?? first.source,
+    fromVersion: Math.max(1, toVersion - 1),
+    toVersion,
+  };
+}
+
+function buildResearchDecisionState(artifact: Artifact | undefined): DecisionAssistantState | null {
+  if (!artifact || artifact.kind !== "sheet" || !/company|research/i.test(artifact.title ?? "")) return null;
+  const rows = artifactRowIds(artifact);
+  if (!rows.length) return null;
+  const statusFor = (rowId: string) => (artifactCellValue(artifact, rowId, "status") || "pending").toLowerCase();
+  const completedRows = rows.filter((rowId) => statusFor(rowId) === "complete");
+  const pendingRows = rows.filter((rowId) => statusFor(rowId) === "pending");
+  const activeRowId = completedRows[0] ?? rows[0];
+  const company = artifactCellValue(artifact, activeRowId, "company") || activeRowId;
+  const evidenceFields = ["status", "summary", "funding", "headcount", "recent_signal", "source", "source2", "last_researched"];
+  const rowSources = Math.max(
+    artifactCellEvidenceCount(artifact, activeRowId, "status"),
+    artifactCellEvidenceCount(artifact, activeRowId, "summary"),
+    artifactCellEvidenceCount(artifact, activeRowId, "funding"),
+    artifactCellEvidenceCount(artifact, activeRowId, "source"),
+    artifactCellEvidenceCount(artifact, activeRowId, "source2"),
+  );
+  const evidenceCellCount = rows.reduce((sum, rowId) =>
+    sum + evidenceFields.filter((col) => artifactCellEvidenceCount(artifact, rowId, col) > 0).length, 0);
+  const updatedFieldLabels = [
+    ["summary", "Summary"],
+    ["funding", "Funding"],
+    ["headcount", "Headcount"],
+    ["recent_signal", "Signal"],
+  ] as const;
+  const updatedFields = updatedFieldLabels.filter(([col]) => artifactCellValue(artifact, activeRowId, col));
+  const reviewSignals = updatedFieldLabels
+    .filter(([col]) => REVIEW_SIGNAL_RE.test(artifactCellValue(artifact, activeRowId, col)))
+    .map(([, label]) => label);
+  const progressPct = Math.max(8, Math.round((completedRows.length / rows.length) * 100));
+  const title = completedRows.length
+    ? `${company} is ready for review`
+    : `${rows.length} companies ready to enrich`;
+  const body = completedRows.length
+    ? reviewSignals.length
+      ? `${reviewSignals.join(", ")} still need human judgment before this moves forward.`
+      : `${updatedFields.length || evidenceCellCount} fields are backed by visible source metadata.`
+    : `${pendingRows.length} pending companies can be enriched from the active research sheet.`;
+  const prompts: ContextualPrompt[] = completedRows.length
+    ? [
+      { label: "Review sources", insert: `@nodeagent verify ${company} sources and flag any unsupported claims as needs review` },
+      { label: "Find evidence gaps", insert: `@nodeagent identify remaining evidence gaps for ${company} and the company research sheet` },
+      ...(pendingRows.length ? [{ label: "Enrich pending", insert: "@nodeagent enrich remaining pending companies with source-backed product, buyer, funding, and hiring facts" }] : []),
+    ]
+    : [
+      { label: "Enrich companies", insert: "@nodeagent enrich selected companies with source-backed product, buyer, and funding facts" },
+      { label: "Find evidence gaps", insert: "@nodeagent identify missing source evidence in the company research sheet" },
+    ];
+  return {
+    artifactId: artifact.id,
+    eyebrow: completedRows.length ? "Ready for review" : "Research queue",
+    title,
+    body,
+    progressLabel: `${completedRows.length}/${rows.length} complete`,
+    progressPct,
+    metrics: [
+      { label: "Complete", value: `${completedRows.length}/${rows.length}`, tone: completedRows.length ? "good" : "muted" },
+      { label: "Sources", value: rowSources ? `${rowSources}` : "0", tone: rowSources ? "good" : "warn" },
+      { label: "Updated", value: `${updatedFields.length}`, tone: updatedFields.length ? "good" : "muted" },
+      { label: "Pending", value: `${pendingRows.length}`, tone: pendingRows.length ? "warn" : "good" },
+    ],
+    reviewSignals,
+    prompts,
+  };
+}
+
 type StreamStatus = "pending" | "streaming" | "done" | "error" | "timeout";
 type StreamBody = { text: string; status: StreamStatus };
 type PrivateStreamDriver = StreamBody & { started: boolean; listeners: Set<() => void> };
@@ -685,7 +846,10 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
     if (!activeArtifactId || isPrivate) return undefined;
     return store.listArtifacts(roomId).find((a) => a.id === activeArtifactId);
   }, [activeArtifactId, isPrivate, roomId, store]);
+  const decisionState = isPrivate ? null : buildResearchDecisionState(activeArtifact);
+  const pinnedAgentResearchReceipt = isPrivate ? null : buildAgentResearchReceipt(activeArtifact);
   const contextualPrompts = useMemo(() => {
+    if (decisionState) return decisionState.prompts;
     if (!activeArtifact) return NODEAGENT_PROMPTS;
     const title = activeArtifact.title ?? "";
     const kind = activeArtifact.kind;
@@ -714,7 +878,7 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
       ];
     }
     return NODEAGENT_PROMPTS;
-  }, [activeArtifact]);
+  }, [activeArtifact, decisionState]);
   const emptyStateHint = useMemo(() => {
     if (!activeArtifact) return "Ask the room agent to work on the seeded model.";
     const title = activeArtifact.title ?? "";
@@ -1152,6 +1316,15 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
         </div>
       )}
 
+      {decisionState && (
+        <DecisionAssistantPanel state={decisionState} onPrompt={applySlash} />
+      )}
+      {pinnedAgentResearchReceipt && (
+        <div className="r-pinned-agent-receipt" data-testid="pinned-agent-research-receipt">
+          <AgentResearchReceiptStrip receipt={pinnedAgentResearchReceipt} onOpenArtifact={onOpenArtifact} />
+        </div>
+      )}
+
       <div className="r-chat" ref={feedRef} onScroll={onScroll} aria-live="polite" data-testid="chat-feed">
         {showEmptyState && (
           <div className="r-chat-empty" data-testid={isPrivate ? "private-chat-empty" : "public-chat-empty"}>
@@ -1371,6 +1544,46 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
   );
 }
 
+function DecisionAssistantPanel({ state, onPrompt }: { state: DecisionAssistantState; onPrompt: (prompt: string) => void }) {
+  return (
+    <section className="r-decision-card" data-testid="decision-assistant" aria-label="Decision summary">
+      <div className="r-decision-head">
+        <span className="r-decision-icon" aria-hidden><ListChecks size={14} /></span>
+        <div>
+          <span className="r-decision-eyebrow">{state.eyebrow}</span>
+          <strong>{state.title}</strong>
+        </div>
+      </div>
+      <div className="r-decision-progress" aria-label={state.progressLabel}>
+        <span style={{ width: `${state.progressPct}%` }} />
+        <b>{state.progressLabel}</b>
+      </div>
+      <div className="r-decision-metrics">
+        {state.metrics.map((metric) => (
+          <span key={metric.label} data-tone={metric.tone ?? "muted"}>
+            <b>{metric.value}</b>
+            <em>{metric.label}</em>
+          </span>
+        ))}
+      </div>
+      <p>{state.body}</p>
+      {state.reviewSignals.length > 0 && (
+        <div className="r-decision-review" data-testid="decision-review-signals">
+          <ShieldCheck size={12} />
+          <span>{state.reviewSignals.join(", ")}</span>
+        </div>
+      )}
+      <div className="r-decision-actions">
+        {state.prompts.slice(0, 3).map((prompt) => (
+          <button key={prompt.insert} type="button" onClick={() => onPrompt(prompt.insert)}>
+            {prompt.label}
+          </button>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 type ArtifactEmbedPreview = {
   title: string;
   kind: string;
@@ -1454,6 +1667,36 @@ function ArtifactEmbed({ roomId, ref, store, onOpen }: { roomId: string; ref: Ar
   );
 }
 
+function AgentResearchReceiptStrip({
+  receipt,
+  onOpenArtifact,
+}: {
+  receipt: AgentResearchReceipt;
+  onOpenArtifact?: (id: string, options?: { split?: boolean; elementId?: string }) => boolean | void;
+}) {
+  return (
+    <div className="r-agent-receipt" data-testid="agent-research-receipt">
+      <span className="r-agent-receipt-chip" data-testid="agent-source-receipt"><ShieldCheck size={12} /> {receipt.sourceCount} src</span>
+      <span className="r-agent-receipt-version" data-testid="agent-version-receipt">
+        <GitBranch size={12} /> v{receipt.fromVersion} -&gt; v{receipt.toVersion}
+      </span>
+      <span className="r-agent-receipt-chip" data-testid="agent-lock-released-receipt"><Lock size={12} /> lock released</span>
+      <span className="r-agent-receipt-quote" style={{ gridColumn: "1 / -1" }}>
+        <b>{receipt.company}</b>
+        <span>{receipt.sourceLabel}: {receipt.sourceDetail}</span>
+      </span>
+      <button
+        type="button"
+        className="r-msg-act promote"
+        data-testid="agent-view-row"
+        onClick={() => onOpenArtifact?.(receipt.artifactId, { split: true, elementId: receipt.cellId })}
+      >
+        <Target size={12} /> View row
+      </button>
+    </div>
+  );
+}
+
 function Bubble({
   m,
   roomId,
@@ -1489,6 +1732,11 @@ function Bubble({
   const mine = !agent && m.author.id === me.id;
   const canPromote = agent && variant === "private";
   const pending = String(m.id).startsWith("opt-"); // optimistic, not yet confirmed by the server
+  const agentResearchReceipt = useMemo(() => {
+    if (!agent || !/Researched\s+\d+\s+compan/i.test(parsed.body)) return null;
+    const research = store.listArtifacts(roomId).find((a) => a.kind === "sheet" && /company|research/i.test(a.title ?? ""));
+    return buildAgentResearchReceipt(research);
+  }, [agent, parsed.body, roomId, store]);
   // QA P2 perf: the avatar style depends only on the author's color — don't rebuild per feed render.
   const avatarStyle = useMemo(() => ({ background: colorFor(store, roomId, m.author) }), [store, roomId, m.author]);
   useEffect(() => {
@@ -1542,6 +1790,7 @@ function Bubble({
             ) : (
               parsed.body && (ask ? <span className="r-bubble-ask">{parsed.body}</span> : <MarkdownBody text={parsed.body} />)
             )}
+            {agentResearchReceipt && <AgentResearchReceiptStrip receipt={agentResearchReceipt} onOpenArtifact={onOpenArtifact} />}
           </>
         )}
 

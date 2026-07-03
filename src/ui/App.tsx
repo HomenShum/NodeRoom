@@ -12,7 +12,7 @@ import { MobileRoot } from "./mobile/MobileRoot";
 // route's first paint.
 const RoomTour = lazy(() => import("../landing/roomTour/RoomTour").then((m) => ({ default: m.RoomTour })));
 import { EngineStoreProvider, ConvexStoreProvider, HAS_CONVEX } from "../app/store";
-import { createFreshRoom, enterBankerToolBenchRoomAsHost, enterDemoRoomAsHost, enterUpScaleXRoomAsHost } from "../app/roomStore";
+import { createFreshRoom, enterBankerToolBenchRoomAsHost, enterDemoRoomAsHost, enterScaleDemoRoomAsHost, enterUpScaleXRoomAsHost } from "../app/roomStore";
 import type { Actor } from "../engine/types";
 
 const liveSessionKey = (code: string) => `noderoom:live:${code.toUpperCase()}`;
@@ -115,6 +115,7 @@ export function App() {
 function initialMemorySession(): Session | null {
   if (typeof window === "undefined" || HAS_CONVEX) return null;
   const params = new URLSearchParams(window.location.search);
+  if (params.get("demo") === "scale") return enterScaleDemoRoomAsHost(cleanLiveName(params.get("name") ?? "", "Host"));
   if (params.get("demo") !== null) return enterDemoRoomAsHost(cleanLiveName(params.get("name") ?? "", "Host"));
   if (params.get("create") !== null) return createFreshRoom("Blank NodeRoom", cleanLiveName(params.get("name") ?? "", "Host"));
   return null;

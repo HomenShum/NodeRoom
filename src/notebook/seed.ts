@@ -11,6 +11,7 @@
 
 import { generateHTML, generateJSON } from "@tiptap/html";
 import { NOTEBOOK_EXTENSIONS } from "./extensions";
+import { ensureStableBlockIds } from "./blockOps";
 
 const EMPTY_DOC: object = { type: "doc", content: [{ type: "paragraph" }] };
 
@@ -30,7 +31,7 @@ export function legacyDocValueToPmJson(value: unknown): object | null {
   try {
     const json = generateJSON(html, NOTEBOOK_EXTENSIONS) as { content?: unknown[] };
     if (!Array.isArray(json.content) || json.content.length === 0) return null;
-    return json;
+    return ensureStableBlockIds(json, () => crypto.randomUUID()).docJson;
   } catch {
     return null;
   }

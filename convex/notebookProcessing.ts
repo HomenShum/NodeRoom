@@ -11,6 +11,8 @@ const DEFAULT_DIRTY_QUIET_MS = 12_000;
 const MAX_DIRTY_WAIT_MS = 60_000;
 const PROCESSOR_VERSION = "notebook-read-model-v2";
 const READ_MODEL_SCHEMA_VERSION = "notebook-read-model-schema-v1";
+const LEAF_TYPES = new Set(["paragraph", "heading", "codeBlock"]);
+const CONTAINER_TYPES = new Set(["listItem", "blockquote", "bulletList", "orderedList"]);
 
 const laneV = v.union(v.literal("passive"), v.literal("coach"), v.literal("index"));
 const blockArgV = v.object({
@@ -73,7 +75,9 @@ type ProcessNotebookDirtyEventResult =
   | { ok: false; reason: string };
 
 function actorOwnsArtifact(a: { createdBy?: ActorValue }, actor: ActorValue): boolean {
-  return !!a.createdBy && a.createdBy.kind === actor.kind && a.createdBy.id === actor.id;
+  if (!a.createdBy) return false;
+  if (a.createdBy.kind === actor.kind && a.createdBy.id === actor.id) return true;
+  return actor.kind === "agent" && actor.scope === "private" && !!actor.ownerId && a.createdBy.kind === "user" && a.createdBy.id === actor.ownerId;
 }
 
 function canReadArtifact(a: { visibility?: Visibility; createdBy?: ActorValue }, actor: ActorValue): boolean {
@@ -83,6 +87,10 @@ function canReadArtifact(a: { visibility?: Visibility; createdBy?: ActorValue },
 function ownerIdForArtifact(artifact: { visibility?: Visibility; createdBy?: ActorValue }, actor: ActorValue): string | undefined {
   if ((artifact.visibility ?? "room") !== "private") return undefined;
   return artifact.createdBy?.kind === "user" ? artifact.createdBy.id : actor.id;
+}
+
+function actorOwnerId(actor: ActorValue): string {
+  return actor.kind === "agent" && actor.scope === "private" && actor.ownerId ? actor.ownerId : actor.id;
 }
 
 function clampQuietMs(value: number | undefined): number {
@@ -242,7 +250,7 @@ export const claimNotebookDirtyEvent = internalMutation({
       await ctx.db.patch(dirtyEventId, { state: "failed", error: "artifact_not_visible", updatedAt: Date.now() });
       return null;
     }
-    if (event.visibility === "private" && event.ownerId !== event.actorId) {
+    if (event.visibility === "private" && event.ownerId !== actorOwnerId(event.actor)) {
       await ctx.db.patch(dirtyEventId, { state: "failed", error: "private_owner_mismatch", updatedAt: Date.now() });
       return null;
     }
@@ -529,23 +537,22 @@ async function extractReadModel(snapshotContent: string): Promise<{
   return { blocks, claims, mentions };
 }
 
-function collectBlocks(node: unknown, blocks: Array<{ blockType: string; text: string; stableId: string | null }>) {
+function collectBlocks(
+  node: unknown,
+  blocks: Array<{ blockType: string; text: string; stableId: string | null }>,
+  inherited: { stableId: string | null } = { stableId: null },
+) {
   if (!node || typeof node !== "object") return;
   const n = node as { type?: string; text?: unknown; attrs?: Record<string, unknown>; content?: unknown[] };
-  const stableId = typeof n.attrs?.blockId === "string" && n.attrs.blockId ? n.attrs.blockId : null;
-  if (typeof n.text === "string") {
-    blocks.push({ blockType: n.type ?? "text", text: n.text, stableId });
+  const type = n.type ?? "";
+  const stableId = typeof n.attrs?.blockId === "string" && n.attrs.blockId ? n.attrs.blockId : inherited.stableId;
+  if (LEAF_TYPES.has(type)) {
+    blocks.push({ blockType: type, text: collectInlineText(n).trim(), stableId });
     return;
   }
   if (!Array.isArray(n.content)) return;
-  if (n.type && n.type !== "doc") {
-    const text = collectInlineText(n).trim();
-    if (text) {
-      blocks.push({ blockType: n.type, text, stableId });
-      return;
-    }
-  }
-  for (const child of n.content) collectBlocks(child, blocks);
+  const nextInherited = CONTAINER_TYPES.has(type) ? { stableId } : inherited;
+  for (const child of n.content) collectBlocks(child, blocks, nextInherited);
 }
 
 function collectInlineText(node: unknown): string {

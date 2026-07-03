@@ -9,6 +9,7 @@ const WRITE_TOOL_NAMES = new Set([
   "write_locked_cell_result",
   "write_locked_cell_results",
   "update_wiki",
+  "append_notebook_outline",
   "create_draft",
 ]);
 

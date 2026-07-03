@@ -52,7 +52,7 @@ function artifactVisibility(a: ArtifactAcl): Visibility {
 function actorOwnsArtifact(a: ArtifactAcl, actor: ActorValue): boolean {
   if (!a.createdBy) return false;
   if (a.createdBy.kind === actor.kind && a.createdBy.id === actor.id) return true;
-  return actor.kind === "agent" && !!actor.ownerId && a.createdBy.kind === "user" && a.createdBy.id === actor.ownerId;
+  return actor.kind === "agent" && actor.scope === "private" && !!actor.ownerId && a.createdBy.kind === "user" && a.createdBy.id === actor.ownerId;
 }
 
 function actorOwnerId(actor: ActorValue): string {

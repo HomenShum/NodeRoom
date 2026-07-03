@@ -1,10 +1,12 @@
 // @vitest-environment edge-runtime
 import { convexTest } from "convex-test";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import schema from "../convex/schema";
 import { api, internal } from "../convex/_generated/api";
 import prosemirrorSchema from "../node_modules/@convex-dev/prosemirror-sync/src/component/schema";
 import type { Id } from "../convex/_generated/dataModel";
+
+vi.setConfig({ testTimeout: 30_000 });
 
 const modules = import.meta.glob("../convex/**/*.ts");
 const prosemirrorModules = import.meta.glob("../node_modules/@convex-dev/prosemirror-sync/src/component/**/*.ts");

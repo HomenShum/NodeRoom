@@ -96,13 +96,13 @@ export class InMemoryRoomTools implements RoomTools {
     const el = art.elements["doc"];
     if (el?.value != null && typeof el.value !== "string") return { ok: false, reason: "not_a_text_note" };
     const html = typeof el?.value === "string" ? el.value : "";
-    const parsed = parseHtmlBlocks(html);
+    const parsed = await htmlBlockRefs(html);
     const blocks: NotebookBlockRef[] = [];
     for (const [blockIndex, b] of parsed.slice(0, OUTLINE_CAPS.maxBlocksPerRead).entries()) {
-      const textHash = await sha256HexWeb(b.text);
+      const textHash = b.textHash;
       blocks.push({
-        blockId: b.blockId ?? `b${blockIndex}-${textHash.slice(0, 12)}`,
-        hasStableId: b.blockId !== null,
+        blockId: b.readBlockId,
+        hasStableId: b.hasStableId,
         blockIndex,
         blockType: b.blockType,
         depth: 0,
@@ -138,13 +138,16 @@ export class InMemoryRoomTools implements RoomTools {
     if (!art || art.kind !== "note") return { ok: false, error: "not_a_note" };
     const el = art.elements["doc"];
     const html = typeof el?.value === "string" ? el.value : "";
-    if (args.parentBlockId && !html.includes(`data-blockid="${args.parentBlockId}"`)) {
-      const parsed = parseHtmlBlocks(html);
+    const parsed = await htmlBlockRefs(html);
+    const anchor = args.parentBlockId
+      ? parsed.find((b) => b.readBlockId === args.parentBlockId || b.blockId === args.parentBlockId)
+      : null;
+    if (args.parentBlockId && !anchor) {
       return {
         ok: false,
         noSuchBlock: true,
         parentBlockId: args.parentBlockId,
-        currentBlocks: parsed.slice(0, 12).map((b, i) => ({ blockId: b.blockId ?? `b${i}`, text: b.text.slice(0, 80) })),
+        currentBlocks: parsed.slice(0, 12).map((b) => ({ blockId: b.readBlockId, text: b.text.slice(0, 80) })),
       };
     }
     const hasAgentRoot = /data-agent-root=/.test(html);
@@ -162,9 +165,8 @@ export class InMemoryRoomTools implements RoomTools {
     const fragment = outlineToHtml({ built, outline, includeAgentRoot: !hasAgentRoot && !args.parentBlockId });
     let nextHtml: string;
     if (args.parentBlockId) {
-      const anchored = insertAfterBlock(html, args.parentBlockId, fragment);
-      if (anchored === null) return { ok: false, noSuchBlock: true, parentBlockId: args.parentBlockId };
-      nextHtml = anchored;
+      if (!anchor) return { ok: false, noSuchBlock: true, parentBlockId: args.parentBlockId };
+      nextHtml = insertAfterParsedBlock(html, anchor, fragment);
     } else {
       nextHtml = html ? `${html}\n${fragment}` : fragment;
     }
@@ -371,7 +373,8 @@ export class InMemoryRoomTools implements RoomTools {
   }
 }
 
-type ParsedHtmlBlock = { blockType: string; text: string; blockId: string | null; authorKind: string | null; status: string | null };
+type ParsedHtmlBlock = { blockType: string; text: string; blockId: string | null; authorKind: string | null; status: string | null; start: number; end: number };
+type HtmlBlockRef = ParsedHtmlBlock & { readBlockId: string; hasStableId: boolean; textHash: string };
 
 /** Bounded regex parse of legacy note HTML into block rows (memory mode only —
  *  the synced lane reads real ProseMirror JSON). Nested tags reduce to text. */
@@ -383,24 +386,33 @@ function parseHtmlBlocks(html: string): ParsedHtmlBlock[] {
     const [, tag, attrs, inner] = match;
     const text = inner.replace(/<[^>]+>/g, " ").replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"').replace(/\s+/g, " ").trim();
     if (!text) continue;
+    const start = match.index ?? 0;
     const attr = (name: string): string | null => {
       const m = attrs.match(new RegExp(`data-${name}="([^"]*)"`, "i"));
       return m?.[1] ?? null;
     };
-    out.push({ blockType: tag.toLowerCase(), text, blockId: attr("blockid"), authorKind: attr("author-kind"), status: attr("status") });
+    out.push({ blockType: tag.toLowerCase(), text, blockId: attr("blockid"), authorKind: attr("author-kind"), status: attr("status"), start, end: start + match[0].length });
     if (out.length >= 500) break;
   }
   return out;
 }
 
-/** Insert an HTML fragment immediately after the block element carrying the
- *  given data-blockid. Returns null when the anchor is missing (noSuchBlock). */
-function insertAfterBlock(html: string, blockId: string, fragment: string): string | null {
-  const re = new RegExp(`(<(h[1-6]|p|li|pre|blockquote)\\b[^>]*data-blockid="${blockId.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}"[^>]*>[\\s\\S]*?<\\/\\2>)`, "i");
-  const match = html.match(re);
-  if (!match || match.index === undefined) return null;
-  const end = match.index + match[0].length;
-  return `${html.slice(0, end)}\n${fragment}${html.slice(end)}`;
+async function htmlBlockRefs(html: string): Promise<HtmlBlockRef[]> {
+  const refs: HtmlBlockRef[] = [];
+  for (const [index, block] of parseHtmlBlocks(html).entries()) {
+    const textHash = await sha256HexWeb(block.text);
+    refs.push({
+      ...block,
+      textHash,
+      hasStableId: block.blockId !== null,
+      readBlockId: block.blockId ?? `b${index}-${textHash.slice(0, 12)}`,
+    });
+  }
+  return refs;
+}
+
+function insertAfterParsedBlock(html: string, block: ParsedHtmlBlock, fragment: string): string {
+  return `${html.slice(0, block.end)}\n${fragment}${html.slice(block.end)}`;
 }
 
 function excelGridMeta(meta: unknown): { rows: number; columns: number; sheetName?: string } | null {

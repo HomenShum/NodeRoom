@@ -194,7 +194,16 @@ export class ConvexRoomTools implements RoomTools {
         mode: args.mode,
         sections: args.sections,
       });
-      if (r.ok) return { ok: true, lane: r.lane ?? "synced_doc", blockIds: r.blockIds ?? [], dedupedSections: r.dedupedSections ?? 0, needsReviewCount: r.needsReviewCount ?? 0, noop: r.noop };
+      if (r.ok) return {
+        ok: true,
+        lane: r.lane ?? "synced_doc",
+        blockIds: r.blockIds ?? [],
+        dedupedSections: r.dedupedSections ?? 0,
+        needsReviewCount: r.needsReviewCount ?? 0,
+        noop: r.noop,
+        artifactVersion: r.artifactVersion,
+        mutationReceiptId: r.mutationReceiptId ? String(r.mutationReceiptId) : undefined,
+      };
       if (r.reason === "pending_approval") return { ok: false, pendingApproval: true, proposalId: r.proposalId };
       if (r.reason === "no_such_block") return { ok: false, noSuchBlock: true, parentBlockId: r.parentBlockId, currentBlocks: r.currentBlocks };
       return { ok: false, error: String(r.reason ?? "apply_notebook_outline_failed") };

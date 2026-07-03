@@ -447,4 +447,24 @@ describe("long-running agent job source invariants", () => {
     expect(jobs).toContain("requireActorProof");
     expect(jobs).toContain("requireArtifactInRoom");
   });
+
+  it("classifies notebook tools and treats review-mode proposals as successful operations", () => {
+    const agent = readFileSync("convex/agent.ts", "utf8");
+    const runner = readFileSync("convex/agentJobRunner.ts", "utf8");
+    const runtime = readFileSync("src/nodeagent/core/runtime.ts", "utf8");
+    const reducer = readFileSync("src/nodeagent/core/frameReducer.ts", "utf8");
+    const freshJudge = readFileSync("src/nodeagent/core/freshJudge.ts", "utf8");
+
+    for (const source of [agent, runner]) {
+      expect(source).toContain('"read_notebook"');
+      expect(source).toContain('"append_notebook_outline"');
+      expect(source).toContain("object.pendingApproval === true");
+      expect(source).toContain("notebookAffectedIds");
+      expect(source).toContain(': e.tool === "append_notebook_outline"');
+    }
+    expect(runtime).toContain("object.pendingApproval === true");
+    expect(runtime).toContain('"append_notebook_outline"');
+    expect(reducer).toContain('"append_notebook_outline"');
+    expect(freshJudge).toContain('"append_notebook_outline"');
+  });
 });

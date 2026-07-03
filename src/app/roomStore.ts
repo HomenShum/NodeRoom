@@ -9,8 +9,8 @@
 
 import { useSyncExternalStore } from "react";
 import { RoomEngine } from "../engine/roomEngine";
-import { buildDemoRoom, playCollab, type DemoRoom } from "../engine/demoRoom";
-import type { Actor, DataframeColumn } from "../engine/types";
+import { buildDemoRoom, playCollab, RESEARCH_COLS, type DemoRoom } from "../engine/demoRoom";
+import type { Actor, CellEvidence, CellPayload, DataframeColumn } from "../engine/types";
 import {
   BTB_ARTIFACT_ROWS,
   BTB_BOUNDARY_ROWS,
@@ -46,6 +46,319 @@ export function createFreshRoom(title: string, hostName: string): { roomId: stri
 
 export function enterDemoRoomAsHost(_hostName?: string): { roomId: string; me: Actor } {
   return { roomId: demo.roomId, me: demo.members.homen };
+}
+
+export const SCALE_DEMO_ROWS = 1_000;
+export const SCALE_DEMO_ARTIFACTS = 183;
+export const SCALE_DEMO_MEMBERS = 62;
+
+let scaleRoom: { roomId: string; me: Actor; researchId: string } | null = null;
+
+export function enterScaleDemoRoomAsHost(_hostName?: string): { roomId: string; me: Actor } {
+  if (scaleRoom) return { roomId: scaleRoom.roomId, me: scaleRoom.me };
+
+  const { room, host } = engine.createRoom({ title: "NodeRoom at scale", hostName: "Homen", autoAllow: true });
+  const me: Actor = { kind: "user", id: host.id, name: host.name };
+  const agent: Actor = { kind: "agent", id: "agent_scale_room", name: "Room NodeAgent", scope: "public" };
+
+  for (let i = 0; i < SCALE_DEMO_MEMBERS - 1; i += 1) {
+    const name = SCALE_MEMBER_NAMES[i] ?? `Analyst ${String(i + 1).padStart(2, "0")}`;
+    engine.joinRoom({ code: room.code, name, anon: name.startsWith("anon") });
+  }
+
+  const research = engine.createArtifact({
+    roomId: room.id,
+    kind: "sheet",
+    title: "Company research",
+    by: me,
+    seed: scaleResearchSeed(),
+    meta: scaleResearchMeta(),
+  });
+
+  createScaleCompanionArtifacts(room.id, me);
+
+  const session = engine.startSession({ roomId: room.id, agentId: agent.id, agentName: agent.name, scope: "public" });
+  const lockRange = ["sr_0004", "sr_0005", "sr_0006"].flatMap((rowId) => (
+    ["status", "summary", "funding", "recent_signal"].map((col) => `${rowId}__${col}`)
+  ));
+  const lock = engine.proposeLock({
+    roomId: room.id,
+    artifactId: research.id,
+    elementIds: lockRange,
+    holder: agent,
+    sessionId: session.id,
+    reason: "enriching the next scale batch with source-backed facts",
+  });
+  engine.updateSession(session.id, {
+    status: "working",
+    heldLockId: lock.ok ? lock.lock.id : undefined,
+    lastAction: "rechecking rows 4-6 with source-backed receipts",
+  });
+
+  const firstStatusId = "sr_0001__status";
+  const firstStatus = research.elements[firstStatusId];
+  if (firstStatus) {
+    engine.applyEdit({
+      roomId: room.id,
+      actor: agent,
+      op: {
+        opId: "scale-research-status-commit-1",
+        artifactId: research.id,
+        elementId: firstStatusId,
+        kind: "set",
+        value: firstStatus.value,
+        baseVersion: firstStatus.version,
+      },
+    });
+  }
+
+  seedScaleMessages(room.id, me, agent);
+  engine.trace(room.id, agent, "agent_status", "Committed 40 sourced company rows, queued 3 visible locked rows, and left receipts visible in the grid.", { artifactId: research.id }, "Scale parity seed: 1,000 rows, 183 artifacts, 62 members, 312 public messages.");
+
+  scaleRoom = { roomId: room.id, me, researchId: research.id };
+  return { roomId: scaleRoom.roomId, me: scaleRoom.me };
+}
+
+const SCALE_MEMBER_NAMES = [
+  "Priya",
+  "Maya",
+  "Sam",
+  "anon · quokka",
+  "Jordan",
+  "Rina",
+  "Noah",
+  "Leah",
+  "Ari",
+  "Dev",
+  "Tara",
+  "Ivy",
+  "Niko",
+  "Mina",
+  "Owen",
+  "Zara",
+  "Ken",
+  "Lena",
+  "Sofia",
+  "Max",
+  "Anika",
+  "Theo",
+  "Uma",
+  "Jules",
+  "Ravi",
+  "Elle",
+  "Nia",
+  "Luis",
+  "Mei",
+  "Cole",
+  "Aya",
+  "Ben",
+  "June",
+  "Kira",
+  "Omar",
+  "Pia",
+  "Rey",
+  "Sol",
+  "Vale",
+  "Wes",
+  "Yara",
+  "Zed",
+  "Alex",
+  "Blair",
+  "Casey",
+  "Drew",
+  "Emery",
+  "Finley",
+  "Gray",
+  "Harper",
+  "Indigo",
+  "Kai",
+  "Logan",
+  "Morgan",
+  "Quinn",
+  "Rowan",
+  "Sage",
+  "Taylor",
+  "Vesper",
+  "Winter",
+  "Zen",
+];
+
+function scaleResearchMeta() {
+  const evidenceCols = new Set(["summary", "funding", "headcount", "recent_signal", "source", "source2", "last_researched"]);
+  const readonlyCols = new Set(["company", "website", "tier", "intent", "owner", "crm_status"]);
+  return {
+    dataframe: {
+      columns: RESEARCH_COLS.map((col, order) => ({
+        id: col,
+        label: col.replace(/_/g, " "),
+        order,
+        mode: evidenceCols.has(col) ? "enrich" as const : "manual" as const,
+        type: "text" as const,
+        agentWritable: !readonlyCols.has(col),
+      })),
+      rowCount: SCALE_DEMO_ROWS,
+      sourceFile: "node-room-states-scale",
+      sheetName: "Company research",
+      sheetNames: ["Company research"],
+      parser: "scale_parity_seed",
+      truncated: false,
+      warnings: ["Only the first rendered window mounts in the DOM; the full 1,000-row sheet remains addressable."],
+    },
+    summary: "Scale parity room: 1,000 company rows with visible source, version, lock, and presence receipts.",
+    tags: ["scale", "parity", "receipts"],
+  };
+}
+
+function scaleResearchSeed(): Array<{ id: string; value: unknown }> {
+  const seed: Array<{ id: string; value: unknown }> = [];
+  for (let index = 0; index < SCALE_DEMO_ROWS; index += 1) {
+    const rowId = scaleRowId(index);
+    const row = scaleResearchRow(index);
+    for (const col of RESEARCH_COLS) seed.push({ id: `${rowId}__${col}`, value: row[col] });
+  }
+  return seed;
+}
+
+function scaleResearchRow(index: number): Record<(typeof RESEARCH_COLS)[number], unknown> {
+  const completed = index < 40;
+  const enriching = index >= 40 && index < 58;
+  const needsReview = !completed && !enriching && index % 37 === 0;
+  const failed = !completed && !enriching && !needsReview && index % 89 === 0;
+  const company = scaleCompanyName(index);
+  const slug = company.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+  const primary = `https://research.noderoom.example/${slug}`;
+  const secondary = `https://security.noderoom.example/${slug}`;
+  const status = completed ? "complete" : enriching ? "enriching" : needsReview ? "needs_review" : failed ? "failed" : "pending";
+  const evidence = completed ? [scaleEvidence(index, "Primary source", primary)] : [];
+  const secondaryEvidence = completed && index < 7 ? [scaleEvidence(index, "Security source", secondary)] : [];
+  const owner = SCALE_OWNERS[index % SCALE_OWNERS.length];
+  const tier = index % 11 === 0 ? "B" : index % 19 === 0 ? "C" : "A";
+  const intent = SCALE_INTENTS[index % SCALE_INTENTS.length];
+  return {
+    company,
+    website: `https://${slug}.example`,
+    status: completed ? scaleCell("complete", "complete", evidence.concat(secondaryEvidence), 0.91) : status,
+    tier,
+    intent,
+    owner,
+    crm_status: completed ? "Ready" : enriching ? "Researching" : needsReview ? "Review" : "Queued",
+    summary: completed ? scaleCell(`${company} has sourced product, buyer, and deployment notes ready for partner review.`, "complete", evidence, 0.86) : "",
+    funding: completed ? scaleCell(index % 3 === 0 ? "Venture-backed; current round needs partner confirmation." : "Funding profile sourced from primary/company materials.", "complete", evidence, 0.82) : "",
+    headcount: completed ? scaleCell(`${70 + ((index * 17) % 420)} employees (source-backed range).`, "complete", evidence, 0.8) : "",
+    recent_signal: completed ? scaleCell(SCALE_SIGNALS[index % SCALE_SIGNALS.length], "complete", evidence, 0.84) : "",
+    source: completed ? scaleCell(primary, "complete", evidence, 0.9) : "",
+    source2: secondaryEvidence.length ? scaleCell(secondary, "complete", secondaryEvidence, 0.88) : "",
+    last_researched: completed ? scaleCell("2026-07-03", "complete", evidence, 0.9) : "",
+  };
+}
+
+function scaleCell(value: string, status: CellPayload["status"], evidence: CellEvidence[], confidence: number): CellPayload {
+  return { value, status, evidence, confidence, updatedByRunId: "scale-parity-run-01" };
+}
+
+function scaleEvidence(index: number, label: string, url: string): CellEvidence {
+  const company = scaleCompanyName(index);
+  return {
+    id: `scale-src-${index + 1}-${label.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`,
+    kind: "source",
+    label,
+    url,
+    snippet: `${company}: source-backed diligence receipt captured for the scale parity run.`,
+    confidence: 0.86,
+  };
+}
+
+function scaleRowId(index: number): string {
+  return `sr_${String(index + 1).padStart(4, "0")}`;
+}
+
+const SCALE_COMPANIES = [
+  "CardioNova", "Mercury", "Ramp", "Brex", "Pulley", "Northstar AI", "HarborGrid", "Aster Health",
+  "RunwayOps", "LedgerLoop", "SignalForge", "Mosaic Bank", "Atlas Bio", "Keystone Robotics", "FoundryFlow",
+];
+const SCALE_SUFFIXES = ["Labs", "Systems", "Health", "Capital", "Works", "Cloud", "Grid", "Ops", "AI", "Data"];
+const SCALE_OWNERS = ["Maya", "Sam", "Priya", "Homen", "Jordan", "Rina"];
+const SCALE_INTENTS = [
+  "AI triage for hospitals",
+  "Startup banking diligence",
+  "Middle market card + spend controls",
+  "Cap table and equity ops",
+  "Runway planning and milestone review",
+  "Security posture refresh",
+];
+const SCALE_SIGNALS = [
+  "New security page published; verify claims before IC.",
+  "Hiring signal moved from engineering to GTM.",
+  "Pricing page changed; check buyer segment fit.",
+  "Partner note requested deployment references.",
+  "Customer-story update is source-backed but needs quote review.",
+];
+
+function scaleCompanyName(index: number): string {
+  if (index < SCALE_COMPANIES.length) return SCALE_COMPANIES[index];
+  return `${SCALE_COMPANIES[index % SCALE_COMPANIES.length]} ${SCALE_SUFFIXES[index % SCALE_SUFFIXES.length]} ${Math.floor(index / SCALE_COMPANIES.length) + 1}`;
+}
+
+function createScaleCompanionArtifacts(roomId: string, me: Actor) {
+  for (let i = 1; i <= 57; i += 1) {
+    engine.createArtifact({
+      roomId,
+      kind: "sheet",
+      title: `Scale workbook ${String(i).padStart(2, "0")}`,
+      by: me,
+      seed: [{ id: `r${i}__status`, value: i % 4 === 0 ? "complete" : "pending" }],
+      meta: { dataframe: { columns: [{ id: "status", label: "status", order: 0, type: "text" }], rowCount: 1, sourceFile: "scale-companion", parser: "scale_parity_seed", truncated: false, warnings: [] }, tags: ["scale", "sheet"] },
+    });
+  }
+  createScaleNotes(roomId, me, "Diligence doc", 71, "doc");
+  createScaleNotes(roomId, me, "Capture Notebook", 28, "notebook");
+  for (let i = 1; i <= 20; i += 1) {
+    engine.createArtifact({
+      roomId,
+      kind: "note",
+      title: `Source upload ${String(i).padStart(2, "0")}`,
+      by: me,
+      seed: [{ id: "doc", value: `<h1>Source upload ${i}</h1><p>Parsed source packet for the scale parity room.</p>` }],
+      meta: {
+        upload: { fileName: `source-packet-${String(i).padStart(2, "0")}.pdf`, mimeType: "application/pdf", size: 180_000 + i * 417, parsedAt: Date.now() },
+        tags: ["scale", "upload"],
+      },
+    });
+  }
+  createScaleNotes(roomId, me, "Pinned proof", 6, "proof");
+}
+
+function createScaleNotes(roomId: string, me: Actor, prefix: string, count: number, tag: string) {
+  for (let i = 1; i <= count; i += 1) {
+    engine.createArtifact({
+      roomId,
+      kind: "note",
+      title: `${prefix} ${String(i).padStart(2, "0")}`,
+      by: me,
+      seed: [{ id: "doc", value: `<h1>${prefix} ${i}</h1><p>Scale-room ${tag} artifact used to prove Binder grouping and search under load.</p>` }],
+      meta: { tags: ["scale", tag] },
+    });
+  }
+}
+
+function seedScaleMessages(roomId: string, me: Actor, agent: Actor) {
+  const priya = engine.listMembers(roomId).find((m) => m.name === "Priya");
+  const priyaActor: Actor = priya ? { kind: "user", id: priya.id, name: priya.name } : me;
+  engine.postMessage({ roomId, channel: "public", author: priyaActor, text: "Scale room is open: 1,000 companies, bulk receipts, and next-batch locks should stay readable.", clientMsgId: "scale-seed-priya", kind: "chat" });
+  engine.postMessage({ roomId, channel: "public", author: me, text: "@nodeagent enrich the first batch, keep source receipts visible, and lock only the rows you are actively writing.", clientMsgId: "scale-seed-host", kind: "chat" });
+  for (let i = 0; i < 309; i += 1) {
+    const author = i % 2 === 0 ? priyaActor : me;
+    engine.postMessage({ roomId, channel: "public", author, text: `Scale note ${String(i + 1).padStart(3, "0")}: batch ${Math.floor(i / 12) + 1} reviewed.`, clientMsgId: `scale-thread-${i + 1}`, kind: "chat" });
+  }
+  engine.postMessage({
+    roomId,
+    channel: "public",
+    author: agent,
+    text: "Researched 40 companies with 47 sources, committed the first sourced batch, and locked rows 4-6 for the next write window.",
+    clientMsgId: "scale-agent-research-summary",
+    kind: "agent",
+    toolParts: [{ tool: "nodeagent.apply_outline_by_agent", status: "done", detail: "40 rows - 47 source receipts - active lock rows 4-6" }],
+  });
 }
 
 let btbRoom: { roomId: string; me: Actor } | null = null;

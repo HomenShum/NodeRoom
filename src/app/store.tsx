@@ -616,6 +616,7 @@ export function EngineStoreProvider({ roomId, children }: { roomId: string; me: 
   // this Map + rev counter makes presence real without a backend so the Attention Overlay — and its
   // tests — can show human/agent focus boxes. Keyed by `${roomId}|${artifactId}`.
   const memPresenceRef = useRef<Map<string, PresenceClaim[]>>(new Map());
+  const memScalePresenceHydratedRef = useRef(false);
   const [memPresenceRev, setMemPresenceRev] = useState(0);
   const memLongJobRunRef = useRef(0);
   const memLongJobCurrentRef = useRef<AgentJobTelemetry | null>(null);
@@ -750,6 +751,43 @@ export function EngineStoreProvider({ roomId, children }: { roomId: string; me: 
     memPassiveHydratedRef.current = true;
     memPassiveRef.current = DEMO_PASSIVE_SEED.map((item) => ({ ...item, createdAt: Date.now(), updatedAt: Date.now() }));
     setMemPassiveRev((v) => v + 1);
+  }, [rev, roomId]);
+  useEffect(() => {
+    if (memScalePresenceHydratedRef.current) return;
+    const research = engine.listArtifacts(roomId).find((a) => a.kind === "sheet" && a.title === "Company research" && (a.meta?.dataframe?.rowCount ?? 0) >= 1_000);
+    if (!research) return;
+    const members = engine.listMembers(roomId);
+    const session = engine.listSessions(roomId).find((s) => s.scope === "public");
+    const now = Date.now();
+    const k = `${roomId}|${research.id}`;
+    const cur = memPresenceRef.current.get(k) ?? [];
+    const add = (targetId: string, mode: PresenceClaim["mode"], actor: Actor, label: string, color?: string) => {
+      cur.push({
+        id: `${actor.id}:${targetId}:${mode}`,
+        roomId,
+        artifactId: research.id,
+        targetKind: "cell",
+        targetId,
+        mode,
+        actor,
+        label,
+        color,
+        updatedAt: now,
+        expiresAt: now + 600_000,
+      } as PresenceClaim);
+    };
+    const priya = members.find((m) => m.name === "Priya");
+    const maya = members.find((m) => m.name === "Maya");
+    if (priya) add("sr_0004__owner", "focus", { kind: "user", id: priya.id, name: priya.name }, "Priya reviewing", priya.color);
+    if (maya) add("sr_0012__funding", "focus", { kind: "user", id: maya.id, name: maya.name }, "Maya checking", maya.color);
+    if (session) {
+      const agent: Actor = { kind: "agent", id: session.agentId, name: session.agentName, scope: session.scope, ownerId: session.ownerId };
+      add("sr_0005__summary", "agent_intent", agent, "NodeAgent writing");
+      add("sr_0005__status", "commit_lease", agent, "NodeAgent publishing");
+    }
+    memPresenceRef.current.set(k, cur);
+    memScalePresenceHydratedRef.current = true;
+    setMemPresenceRev((v) => v + 1);
   }, [rev, roomId]);
   const store = useMemo<RoomStore>(() => ({
     mode: "memory",
@@ -1092,14 +1130,43 @@ export function EngineStoreProvider({ roomId, children }: { roomId: string; me: 
   // E2E test seam: expose runCollab/runSemanticConflictDrill via window so tests can trigger
   // collaboration and conflict drills without the removed CollabBar buttons.
   useEffect(() => {
-    const w = window as unknown as { __runCollab?: () => Promise<void>; __runConflictDrill?: () => Promise<void> };
+    const w = window as unknown as {
+      __runCollab?: () => Promise<void>;
+      __runConflictDrill?: () => Promise<void>;
+      __seedAgentNotes?: (html?: string) => string | null;
+    };
     w.__runCollab = () => store.runCollab();
     w.__runConflictDrill = () => store.runSemanticConflictDrill?.() ?? Promise.resolve();
+    w.__seedAgentNotes = (html) => {
+      const note = engine.listArtifacts(roomId).find((a) => a.kind === "note" && a.title !== "Agent wiki" && a.title !== "Today's Brief");
+      if (!note) return null;
+      const existing = note.elements["doc:agent"];
+      const actor: Actor = { kind: "agent", id: "e2e_nodeagent", name: "NodeAgent", scope: "public" };
+      const value = html ?? [
+        '<h2 data-agent-root="true" data-author-kind="agent">Agent notes</h2>',
+        '<h3 data-blockid="e2e-heading" data-author-kind="agent" data-run-id="e2e">Browser proof</h3>',
+        '<ul><li data-blockid="e2e-claim" data-author-kind="agent" data-run-id="e2e" data-status="needs_review">Unsupported claim needs review</li></ul>',
+      ].join("\n");
+      const result = engine.applyEdit({
+        roomId,
+        actor,
+        op: {
+          opId: crypto.randomUUID(),
+          artifactId: note.id,
+          elementId: "doc:agent",
+          kind: existing ? "set" : "create",
+          value,
+          baseVersion: existing?.version ?? 0,
+        },
+      });
+      return result.ok ? note.id : null;
+    };
     return () => {
       delete (window as unknown as { __runCollab?: unknown }).__runCollab;
       delete (window as unknown as { __runConflictDrill?: unknown }).__runConflictDrill;
+      delete (window as unknown as { __seedAgentNotes?: unknown }).__seedAgentNotes;
     };
-  }, [store]);
+  }, [store, roomId]);
   // Dev/demo seam (memory mode only): seed the Attention Overlay's headline scenario — a human focused on
   // C2 (blue) and an agent reading A1:C5 (amber) — so the overlay is verifiable in ?mode=memory. Writes the
   // presence Map directly (any mode) and bumps the rev. No-op in production (window is only poked here).

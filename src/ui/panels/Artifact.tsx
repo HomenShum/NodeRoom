@@ -6,7 +6,6 @@
 
 import { Fragment, useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { useEditor, EditorContent, EditorProvider } from "@tiptap/react";
-import StarterKit from "@tiptap/starter-kit";
 import { useQuery, useMutation } from "convex/react";
 import { useTiptapSync } from "@convex-dev/prosemirror-sync/tiptap";
 import { NOTEBOOK_EXTENSIONS } from "../../notebook/extensions";
@@ -23,7 +22,7 @@ import { TraceSurface } from "./TraceSurface";
 import { KnowledgeGraph } from "./KnowledgeGraph";
 import { TodaysBrief } from "./TodaysBrief";
 import { classifyEvidence } from "../traceLens/evidence";
-import type { Actor, Artifact as Art, CellPayload, DataframeColumn, DocumentParseMeta, Proposal, TraceEvent, ResearchRowInput } from "../../engine/types";
+import type { Actor, Artifact as Art, CellEvidence, CellPayload, DataframeColumn, DocumentParseMeta, Proposal, TraceEvent, ResearchRowInput } from "../../engine/types";
 import { AttentionOverlay } from "../overlay/AttentionOverlay";
 import { createSpreadsheetResolver } from "../overlay/spreadsheetResolver";
 import { focusBoxesForSheet, type SheetCellState } from "../overlay/focusBoxesForSheet";
@@ -42,9 +41,12 @@ const RESEARCH_TITLE = "Company research";
 const BRIEF_TITLE = "Today's Brief";
 const MAX_OPEN_TABS = 12; // BOUND: cap open work-surface tabs (agent loops can churn artifacts); evict oldest.
 const GENERIC_SHEET_CELL_WINDOW = 5_000;
+const SCALE_SHEET_RENDER_WINDOW = 23;
 const BLANK_SHEET_ROWS = 12;
 const BLANK_SHEET_COLUMNS = ["A", "B", "C", "D", "E", "F", "G", "H"] as const;
 type TabId = "wiki" | "brief" | "sheet" | "research" | "note" | "wall";
+type SheetStatusFilter = "any" | "complete" | "enriching" | "pending" | "needs_review" | "failed";
+const SHEET_STATUS_FILTERS: SheetStatusFilter[] = ["any", "complete", "enriching", "pending", "needs_review", "failed"];
 const TABS: { id: TabId; label: string; Icon: LucideIcon }[] = [
   { id: "wiki", label: "Wiki", Icon: BookOpen },
   { id: "brief", label: "Brief", Icon: ListChecks },
@@ -1023,6 +1025,18 @@ function dataframeColumnWidth(col: DataframeColumn, index: number): number {
   return Math.max(112, Math.min(220, 48 + (col.label?.length ?? 0) * 8));
 }
 
+function scaleColumnWidth(col: DataframeColumn, index: number): number {
+  const id = col.id.toLowerCase();
+  if (id === "tier") return 72;
+  if (id === "status" || id === "crm_status") return 128;
+  if (id === "company" || id === "website") return 164;
+  if (id === "owner") return 136;
+  if (id === "headcount" || id === "last_researched") return 152;
+  if (id === "source" || id === "source2") return 148;
+  if (id === "intent" || id === "summary" || id === "funding" || id === "recent_signal") return 232;
+  return Math.max(128, Math.min(240, dataframeColumnWidth(col, index)));
+}
+
 function sheetColumnWidth(art: Art, col: DataframeColumn, index: number): number {
   const excelWidth = art.meta?.excelGrid?.colWidths?.[index];
   if (excelWidth) return Math.max(88, Math.min(260, Math.round(excelWidth * 7 + 18)));
@@ -1085,30 +1099,182 @@ function expandSheetMerges(merges: string[] | undefined): { mergeAnchor: Map<str
   return { mergeAnchor, mergeCovered };
 }
 
+function normalizeDataframeColumn(col: string): string {
+  return col.trim().toLowerCase();
+}
+
+function isGenericStatusColumn(col: string): boolean {
+  const normalized = normalizeDataframeColumn(col);
+  return normalized === "status" || normalized.endsWith("_status");
+}
+
+function isGenericOwnerColumn(col: string): boolean {
+  const normalized = normalizeDataframeColumn(col);
+  return normalized === "owner" || normalized === "assignee" || normalized === "lead" || normalized.endsWith("_owner");
+}
+
+function isGenericSourceColumn(col: string): boolean {
+  const normalized = normalizeDataframeColumn(col);
+  return /^source\d*$/.test(normalized) || normalized === "citation" || normalized === "cite";
+}
+
+function extractUrl(value: string): string | null {
+  const match = value.match(/https?:\/\/[^\s),;]+/i);
+  return match ? match[0].replace(/[.)]+$/, "") : null;
+}
+
+function sourceHost(value: string): string {
+  const url = extractUrl(value) ?? value;
+  try {
+    return new URL(url).hostname.replace(/^www\./, "");
+  } catch {
+    return url.replace(/^https?:\/\//i, "").split(/[/?#\s]/)[0] || value;
+  }
+}
+
+function statusTone(value: string): string {
+  const normalized = value.trim().toLowerCase().replace(/[\s-]+/g, "_");
+  if (/^(complete|completed|done|approved)$/.test(normalized)) return "complete";
+  if (/^(needs_review|review|gap|failed|blocked)$/.test(normalized)) return normalized === "failed" ? "failed" : "needs-review";
+  if (/^(enriching|running|in_progress|working)$/.test(normalized)) return "enriching";
+  if (/^(pending|queued|todo|open|running|in_progress)$/.test(normalized)) return "pending";
+  return "neutral";
+}
+
+function statusText(value: string): string {
+  const tone = statusTone(value);
+  if (tone === "needs-review") return "needs review";
+  if (tone === "complete" || tone === "enriching" || tone === "pending" || tone === "failed") return tone;
+  return value.trim().toLowerCase().replace(/[_-]+/g, " ");
+}
+
+function sheetStatusFilterForValue(value: string): SheetStatusFilter {
+  const tone = statusTone(value);
+  if (tone === "complete" || tone === "enriching" || tone === "pending" || tone === "failed") return tone;
+  if (tone === "needs-review") return "needs_review";
+  return "pending";
+}
+
+function sheetStatusFilterLabel(filter: SheetStatusFilter): string {
+  return filter === "needs_review" ? "needs review" : filter;
+}
+
+function evidenceTitle(payload: CellPayload | null): string {
+  const evidence = payload?.evidence ?? [];
+  return evidence.map((item) => [item.label, item.url ?? item.source].filter(Boolean).join(" - ")).filter(Boolean).join(" | ");
+}
+
+function evidenceReceiptLine(item: CellEvidence): string {
+  return item.snippet || item.url || item.source || item.label;
+}
+
+function evidenceReceiptLink(item: CellEvidence): string | undefined {
+  return item.url ?? item.source;
+}
+
+function renderEvidenceReceipt(payload: CellPayload | null, compact = false): ReactNode {
+  const evidence = payload?.evidence ?? [];
+  if (!evidence.length) return null;
+  const first = evidence[0];
+  const href = evidenceReceiptLink(first);
+  return (
+    <span className="r-cite-wrap" data-compact={compact ? "true" : undefined}>
+      <span className="r-cite-chip" data-testid="grid-cite-chip" title={evidenceTitle(payload)}>{evidence.length} src</span>
+      <span className="r-cite-popover" data-testid="grid-cite-popover" role="note">
+        <b>{first.label}</b>
+        <span>{evidenceReceiptLine(first)}</span>
+        <em>{href ? sourceHost(href) : "source checked"} · {payload?.confidence ? `${Math.round(payload.confidence * 100)}% confidence` : "visible receipt"}</em>
+      </span>
+    </span>
+  );
+}
+
+function renderGenericCellContent(col: string, value: string): ReactNode {
+  const trimmed = value.trim();
+  if (!trimmed) return <span className="nullcell">-</span>;
+  if (isGenericStatusColumn(col)) {
+    const tone = statusTone(trimmed);
+    return <span className={`r-grid-status r-grid-status-${tone}`} data-testid="grid-status-chip" title={trimmed}>{statusText(trimmed)}</span>;
+  }
+  if (isGenericOwnerColumn(col)) {
+    return (
+      <span className="r-owner-chip" data-testid="grid-owner-chip" title={trimmed}>
+        <span className="r-owner-avatar" aria-hidden="true" style={{ background: coColor(trimmed) }}>{coInitials(trimmed)}</span>
+        <span className="r-owner-name">{trimmed}</span>
+      </span>
+    );
+  }
+  if (isGenericSourceColumn(col)) {
+    const href = extractUrl(trimmed);
+    const host = sourceHost(trimmed);
+    const label = host.length > 32 ? `${host.slice(0, 29)}...` : host;
+    return href ? (
+      <a className="r-source-chip" data-testid="grid-source-chip" href={href} target="_blank" rel="noreferrer" title={trimmed} onClick={(e) => e.stopPropagation()}>
+        <span className="r-source-dot" aria-hidden="true" style={{ background: coColor(host) }} />
+        <span>{label}</span>
+      </a>
+    ) : (
+      <span className="r-source-chip" data-testid="grid-source-chip" title={trimmed}>
+        <span className="r-source-dot" aria-hidden="true" style={{ background: coColor(host) }} />
+        <span>{label}</span>
+      </span>
+    );
+  }
+  const urlLike = !!extractUrl(trimmed);
+  return <span className={"r-cell-value" + (urlLike ? " r-cell-url" : "")} title={trimmed}>{trimmed}</span>;
+}
+
 function GenericSheet({ roomId, me, art, onError }: { roomId: string; me: Actor; art: Art; onError?: (f: EditFeedback) => void }) {
   const store = useStore();
   const [pages, setPages] = useState(1);
   const [sel, setSel] = useState<string | null>(null);
+  const [statusFilter, setStatusFilter] = useState<SheetStatusFilter>("any");
   // QA P2 perf: derive rows/columns/pageSize once per artifact snapshot, not on every render
   // (paging state changes alone shouldn't re-walk the full element order).
-  const { rows, columns, pageSize } = useMemo(() => {
+  const { rows, columns, pageSize, totalRows, isScaleSheet } = useMemo(() => {
     const rows = rowIdsOf(art);
     const columns = columnsOf(art);
-    const pageSize = Math.max(25, Math.min(250, Math.floor(GENERIC_SHEET_CELL_WINDOW / Math.max(columns.length, 1))));
-    return { rows, columns, pageSize };
+    const totalRows = art.meta?.dataframe?.rowCount ?? art.meta?.excelGrid?.rows ?? rows.length;
+    const isScaleSheet = totalRows >= 1_000 || rows.length >= 1_000;
+    const pageSize = isScaleSheet ? SCALE_SHEET_RENDER_WINDOW : Math.max(25, Math.min(250, Math.floor(GENERIC_SHEET_CELL_WINDOW / Math.max(columns.length, 1))));
+    return { rows, columns, pageSize, totalRows, isScaleSheet };
   }, [art]);
   const cols = columns.map((col) => col.id);
+  const statusColId = columns.find((col) => /status/i.test(col.id) || /status/i.test(col.label ?? ""))?.id ?? "";
+  const sourceRowIndexById = useMemo(() => new Map(rows.map((rid, index) => [rid, index + 1])), [rows]);
+  const statusCounts = useMemo(() => {
+    const counts: Record<SheetStatusFilter, number> = { any: rows.length, complete: 0, enriching: 0, pending: 0, needs_review: 0, failed: 0 };
+    if (!statusColId) return counts;
+    for (const rid of rows) {
+      const raw = art.elements[sheetElementId(art, rid, statusColId)]?.value;
+      counts[sheetStatusFilterForValue(displayCellValue(raw))] += 1;
+    }
+    return counts;
+  }, [art, rows, statusColId]);
+  const filteredRows = useMemo(() => {
+    if (statusFilter === "any" || !statusColId) return rows;
+    return rows.filter((rid) => {
+      const raw = art.elements[sheetElementId(art, rid, statusColId)]?.value;
+      return sheetStatusFilterForValue(displayCellValue(raw)) === statusFilter;
+    });
+  }, [art, rows, statusColId, statusFilter]);
   const colWidths = useMemo(
-    () => columns.map((col, i) => sheetColumnWidth(art, col, i)),
-    [art.meta?.excelGrid?.colWidths, columns],
+    () => columns.map((col, i) => isScaleSheet ? scaleColumnWidth(col, i) : sheetColumnWidth(art, col, i)),
+    [art.meta?.excelGrid?.colWidths, columns, isScaleSheet],
   );
-  const visibleRows = rows.slice(0, pageSize * pages);
+  const visibleRows = filteredRows.slice(0, pageSize * pages);
+  const renderedWindowLabel = statusFilter === "any"
+    ? `rows 1-${visibleRows.length} rendered`
+    : `${visibleRows.length}/${filteredRows.length} ${sheetStatusFilterLabel(statusFilter)} rendered`;
   const { mergeAnchor, mergeCovered } = useMemo(() => expandSheetMerges(art.meta?.excelGrid?.merges), [art.meta?.excelGrid?.merges]);
   const selected = parseSheetElementId(art, sel);
   const selectedRowId = selected.rowId;
   const selectedColId = selected.colId;
   const dataframeMeta = art.meta?.dataframe;
   const sheetKicker = dataframeMeta?.sourceFile === "blank-room" || dataframeMeta?.sourceFile === "blank-room-agent" ? "versionedSpreadsheetSync" : art.meta?.upload ? "uploadedSpreadsheet" : "dataframe";
+  const visibleColumnCount = Math.min(cols.length, 6);
+  const columnCountLabel = cols.length > visibleColumnCount ? `${visibleColumnCount} of ${cols.length} cols` : `${cols.length} cols`;
+  const columnCountTitle = cols.length > visibleColumnCount ? `${cols.length - visibleColumnCount} more columns off-screen` : "All columns visible";
 
   // Attention Overlay — SAME wiring as the variance Sheet, on the dynamic `${rid}__${col}` key space, so
   // agent_write / proposal / evidence boxes land on whatever columns the agent governed via define_columns.
@@ -1124,7 +1290,7 @@ function GenericSheet({ roomId, me, art, onError }: { roomId: string; me: Actor;
       const raw = art.elements[id]?.value;
       const locked = !!lockedByOther(store, art.id, id, me);
       const proposed = !!proposalFor(proposals, art.id, id) || draftedFor(store, roomId, art.id, id);
-      const hasEvidence = !art.meta?.excelGrid && cellHasVisibleValue(raw) && !!asCellPayload(raw)?.evidence?.length;
+      const hasEvidence = !isScaleSheet && !art.meta?.excelGrid && cellHasVisibleValue(raw) && !!asCellPayload(raw)?.evidence?.length;
       if (locked || proposed || hasEvidence) out.push({ id, lockedByOther: locked, proposed, hasEvidence });
     }
     return out;
@@ -1133,6 +1299,19 @@ function GenericSheet({ roomId, me, art, onError }: { roomId: string; me: Actor;
     () => focusBoxesForSheet({ artifactId: art.id, now: Date.now(), meId: me.id, presence: presenceRows, cellStates: overlayCellStates }),
     [art.id, me.id, presenceRows, overlayCellStates],
   );
+  const lockedRowIds = useMemo(() => {
+    const lockedRows = new Set<string>();
+    for (const rid of visibleRows) {
+      for (const col of cols) {
+        const id = sheetElementId(art, rid, col);
+        if (!mergeCovered.has(id) && lockedByOther(store, art.id, id, me)) {
+          lockedRows.add(rid);
+          break;
+        }
+      }
+    }
+    return lockedRows;
+  }, [visibleRows, cols, store, art, me, mergeCovered]);
   const doCommit = (id: string, s: string) => { void commit(store, roomId, me, art.id, id, s).then((f) => { if (f && !f.ok) onError?.(f); }); };
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editDraft, setEditDraft] = useState("");
@@ -1146,7 +1325,7 @@ function GenericSheet({ roomId, me, art, onError }: { roomId: string; me: Actor;
     const onUp = () => { window.removeEventListener("pointermove", onMove); window.removeEventListener("pointerup", onUp); };
     window.addEventListener("pointermove", onMove); window.addEventListener("pointerup", onUp);
   };
-  // Row-density preset (Compact re-enables clip; Default/Comfortable wrap), persisted per artifact.
+  // Row-density preset, persisted per artifact.
   const [density, setDensity] = useState<"compact" | "default" | "comfortable">(() => {
     try { const v = localStorage.getItem(`noderoom:grid-density:${art.id}`); return v === "compact" || v === "comfortable" ? v : "default"; } catch { return "default"; }
   });
@@ -1173,15 +1352,38 @@ function GenericSheet({ roomId, me, art, onError }: { roomId: string; me: Actor;
           <span className="r-sheet-namebox" data-testid="sheet-namebox">{sel ? dataframeCellAddress(art, cols, visibleRows, sel) : "—"}</span>
           <span className="r-sheet-valuebar" title={sel ? displayCellValue(art.elements[sel]?.value) : ""}>{sel ? displayCellValue(art.elements[sel]?.value) : ""}</span>
           <span className="grow" />
+          <span className="r-cols-pill" data-testid="grid-column-count" title={columnCountTitle}>{columnCountLabel}</span>
           <div className="r-sheet-density" role="group" aria-label="Row density">
             {([["compact", "S"], ["default", "M"], ["comfortable", "L"]] as const).map(([d, label]) => (
               <button key={d} type="button" className="r-sheet-density-btn" data-on={String(density === d)} data-testid={`grid-density-${d}`} aria-label={`${d} row density`} title={`${d} rows`} onClick={() => setDensity(d)}>{label}</button>
             ))}
           </div>
         </div>
-        <div className="r-sheet-wrap" ref={sheetWrapRef} data-testid="sheet-grid">
+        {isScaleSheet && (
+          <div className="r-sheet-filterbar" data-testid="grid-filterbar">
+            <span className="r-scale-chip" data-testid="grid-scale-count">{totalRows.toLocaleString()} rows</span>
+            <span className="r-scale-chip">{cols.length} columns</span>
+            <span className="r-scale-chip" data-testid="grid-render-window">{renderedWindowLabel}</span>
+            <span className="grow" />
+            <div className="r-filter-chipset" role="group" aria-label="Filter sheet status">
+              {SHEET_STATUS_FILTERS.map((filter) => (
+                <button
+                  key={filter}
+                  type="button"
+                  className="r-filter-chip"
+                  data-on={String(statusFilter === filter)}
+                  data-testid="grid-filter-chip"
+                  onClick={() => { setStatusFilter(filter); setPages(1); }}
+                >
+                  {sheetStatusFilterLabel(filter)} <b>{statusCounts[filter]}</b>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+        <div className="r-sheet-wrap" ref={sheetWrapRef} data-testid="sheet-grid" data-scale-sheet={isScaleSheet ? "true" : undefined}>
           <AttentionOverlay boxes={overlayBoxes} resolver={overlayResolver} mode="live" />
-          <table className="r-sheet" data-noderoom-surface="workSurface.sheet" data-sheet-kind="generic" data-density={density} data-artifact-id={art.id}
+          <table className="r-sheet" data-noderoom-surface="workSurface.sheet" data-sheet-kind="generic" data-density={density} data-scale-sheet={isScaleSheet ? "true" : undefined} data-artifact-id={art.id}
             tabIndex={0}
             onKeyDown={(e) => {
               if (editingId) return;
@@ -1199,8 +1401,8 @@ function GenericSheet({ roomId, me, art, onError }: { roomId: string; me: Actor;
             <thead><tr><th className="r-corner" aria-label="row number" />{columns.map((c, i) => <th key={c.id} className={selectedColId === c.id ? "hl" : undefined}>{c.label}<span className="r-col-resize" role="separator" aria-orientation="vertical" aria-label={`Resize ${c.label}`} onPointerDown={(e) => { e.preventDefault(); e.stopPropagation(); startColResize(c.id, colOverrides[c.id] ?? colWidths[i], e.clientX); }} /></th>)}</tr></thead>
             <tbody>
               {visibleRows.map((rid, i) => (
-                <tr key={rid}>
-                  <td className={"r-rownum" + (selectedRowId === rid ? " hl" : "")} title={rid}>{i + 1}</td>
+                <tr key={rid} className={lockedRowIds.has(rid) ? "r-row-locked" : undefined} data-locked-row={lockedRowIds.has(rid) ? "true" : undefined}>
+                  <td className={"r-rownum" + (selectedRowId === rid ? " hl" : "")} title={rid}>{sourceRowIndexById.get(rid) ?? i + 1}</td>
                   {cols.map((col) => {
                     const id = sheetElementId(art, rid, col);
                     if (mergeCovered.has(id)) return null;
@@ -1210,12 +1412,16 @@ function GenericSheet({ roomId, me, art, onError }: { roomId: string; me: Actor;
                     const value = displayCellValue(raw);
                     const locked = !!lockedByOther(store, art.id, id, me);
                     const proposed = !!proposalFor(proposals, art.id, id) || draftedFor(store, roomId, art.id, id);
+                    const el = art.elements[id];
+                    const committed = !locked && el && el.version > 1 && el.updatedBy?.kind === "agent" && Date.now() - el.updatedAt < 1500;
                     const hasVisibleEvidence = !art.meta?.excelGrid && !!value && !!payload?.evidence?.length;
                     const showFormulaMarker = !art.meta?.excelGrid && !!payload?.formula;
                     const showMeta = !art.meta?.excelGrid && payload;
-                    const cls = "r-cell" + (isNumberLikeCell(raw) ? " num" : "") + (locked ? " locked" : "") + (proposed ? " proposed" : "") + (hasVisibleEvidence ? " evidence" : "") + (showFormulaMarker ? " formula" : "") + (sel === id ? " sel" : "");
+                    const showReceipt = !!showMeta && (!isScaleSheet || locked || sel === id || isGenericStatusColumn(col)) && !isGenericSourceColumn(col);
+                    const metaTitle = evidenceTitle(payload);
+                    const cls = "r-cell" + (isNumberLikeCell(raw) ? " num" : "") + (locked ? " locked" : "") + (proposed ? " proposed" : "") + (committed ? " committed" : "") + (hasVisibleEvidence ? " evidence" : "") + (showFormulaMarker ? " formula" : "") + (sel === id ? " sel" : "");
                     return (
-                      <td key={col} className={cls} title={[value || undefined, dataframeCellAddress(art, cols, visibleRows, id), payload?.evidence?.[0]?.label].filter(Boolean).join(" | ")} data-evidence-class={classifyEvidence(payload)} data-cell-key={id} data-element-id={id} data-testid="sheet-cell" data-has-evidence={hasVisibleEvidence ? "true" : undefined} data-has-formula={payload?.formula ? "true" : undefined} colSpan={span?.colSpan} rowSpan={span?.rowSpan} aria-selected={sel === id || undefined} onClick={(e) => { setSel(id); (e.currentTarget.closest("table") as HTMLElement | null)?.focus(); }} onDoubleClick={() => { setEditingId(id); setEditDraft(value); }}>
+                      <td key={col} className={cls} title={[value || undefined, dataframeCellAddress(art, cols, visibleRows, id), metaTitle || undefined].filter(Boolean).join(" | ")} data-evidence-class={classifyEvidence(payload)} data-cell-key={id} data-element-id={id} data-testid="sheet-cell" data-has-evidence={hasVisibleEvidence ? "true" : undefined} data-has-formula={payload?.formula ? "true" : undefined} colSpan={span?.colSpan} rowSpan={span?.rowSpan} aria-selected={sel === id || undefined} onClick={(e) => { setSel(id); (e.currentTarget.closest("table") as HTMLElement | null)?.focus(); }} onDoubleClick={() => { setEditingId(id); setEditDraft(value); }}>
                         {editingId === id ? (
                           <textarea className="r-cell-editor" autoFocus value={editDraft} data-testid="cell-editor"
                             style={{ width: "100%", minHeight: "28px", resize: "none", overflow: "hidden" }}
@@ -1230,8 +1436,9 @@ function GenericSheet({ roomId, me, art, onError }: { roomId: string; me: Actor;
                             onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); (e.target as HTMLTextAreaElement).blur(); } if (e.key === "Escape") { setEditDraft(value); setEditingId(null); } }} />
                         ) : (
                           <>
-                            {value ? <span className="r-cell-value">{value}</span> : <span className="nullcell">-</span>}
-                            {showMeta && <span className={"r-cell-meta " + (payload.status ?? "complete")}>{payload.evidence?.length ? `${payload.evidence.length} src` : payload.status}</span>}
+                            {renderGenericCellContent(col, value)}
+                            {showReceipt && renderEvidenceReceipt(payload, isScaleSheet && !locked && sel !== id)}
+                            {locked && <span className="lockbadge" data-testid="grid-lock-badge" title="Locked by NodeAgent"><Lock size={9} />NA</span>}
                           </>
                         )}
                       </td>
@@ -1239,12 +1446,10 @@ function GenericSheet({ roomId, me, art, onError }: { roomId: string; me: Actor;
                   })}
                 </tr>
               ))}
-              {Array.from({ length: Math.max(0, 24 - visibleRows.length) }, (_, k) => (
-                <tr key={`fill${k}`} className="r-row-empty" aria-hidden="true">
-                  <td className="r-rownum">{visibleRows.length + k + 1}</td>
-                  {cols.map((c) => <td key={c} className="r-cell"><span className="nullcell">-</span></td>)}
-                </tr>
-              ))}
+              <tr className="r-row-add">
+                <td className="r-rownum">{visibleRows.length + 1}</td>
+                <td className="r-add-row-cell" colSpan={Math.max(cols.length, 1)}><span data-testid="grid-add-row">+ add row</span></td>
+              </tr>
             </tbody>
           </table>
         </div>
@@ -1252,9 +1457,9 @@ function GenericSheet({ roomId, me, art, onError }: { roomId: string; me: Actor;
       <div className="r-sheet-foot">
         <span className="kicker">{sheetKicker}</span>
         <span className="r-vpill next">v{art.version}</span>
-        {visibleRows.length < rows.length && <button className="r-mini-btn" onClick={() => setPages((n) => n + 1)}>Show next {pageSize}</button>}
+        {visibleRows.length < filteredRows.length && <button className="r-mini-btn" onClick={() => setPages((n) => n + 1)}>Show next {pageSize}</button>}
         <span className="grow" />
-        <span className="mono tiny faint">{rows.length} rows | {cols.length} columns</span>
+        <span className="mono tiny faint">{totalRows.toLocaleString()} rows | {cols.length} columns</span>
       </div>
     </>
   );
@@ -1959,7 +2164,7 @@ function NotebookReadModelPanel({
  *  the live "doc" element. Never editable inline; provenance is immutable.
  *
  *  Security: agent HTML is untrusted (LLM-authored, prompt-injection-reachable), so
- *  it is rendered through a read-only Tiptap editor whose ProseMirror StarterKit
+ *  it is rendered through a read-only Tiptap editor whose shared notebook schema
  *  schema strips everything not in the allowed set — no <script>, no event-handler
  *  attributes, no <img onerror>. This is the same sanitizer the legacy note editor
  *  uses, with zero new dependencies. */
@@ -1981,12 +2186,12 @@ function AgentNotesBlock({ art }: { art: Art }) {
 }
 
 /** Renders untrusted HTML safely by parsing it through a read-only Tiptap editor.
- *  ProseMirror's StarterKit schema discards any node/attribute/mark not in the
+ *  The shared notebook schema preserves provenance attrs and discards nodes/attrs/marks outside the
  *  allowed set (so <script>, <img onerror=…>, onclick=, javascript: URIs are
  *  dropped). Reuses the existing dependency; no DOMPurify needed. */
 function SanitizedHtml({ html, className }: { html: string; className?: string }) {
   const editor = useEditor({
-    extensions: [StarterKit],
+    extensions: NOTEBOOK_EXTENSIONS,
     content: html,
     editable: false,
     immediatelyRender: false,

@@ -53,6 +53,7 @@ function isAbortLike(error: unknown): boolean {
 function toolResultFailed(result: unknown): boolean {
   if (!result || typeof result !== "object") return false;
   const object = result as Record<string, unknown>;
+  if (object.pendingApproval === true) return false;
   return object.ok === false || typeof object.error === "string";
 }
 
@@ -552,7 +553,7 @@ export async function runAgent(opts: {
 
   // Goal-progress accounting for the two harness guards (read-loop breaker + done-without-writes
   // bounce). Counts WRITE-intent tool calls across the whole run; each guard fires at most once.
-  const WRITE_TOOLS = new Set(["edit_cell", "create_draft", "update_wiki", "write_cell_result", "write_locked_cell", "write_locked_cell_result", "write_locked_cells", "write_locked_cell_results", "create_btb_deliverable_package"]);
+  const WRITE_TOOLS = new Set(["edit_cell", "create_draft", "update_wiki", "append_notebook_outline", "write_cell_result", "write_locked_cell", "write_locked_cell_result", "write_locked_cells", "write_locked_cell_results", "create_btb_deliverable_package"]);
   let writeCalls = 0;
   let lockCalls = 0;
   let readNudged = false;
