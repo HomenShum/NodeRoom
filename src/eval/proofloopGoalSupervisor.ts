@@ -159,6 +159,16 @@ export function officialScoresGoalTasks(): ProofloopGoalTask[] {
       ],
     }),
     commandTask({
+      id: "preprod-readiness-ledger",
+      title: "ProofLoop preprod readiness release gate",
+      command: "npm run benchmark:proofloop:preprod",
+      evidence: [
+        "docs/eval/proofloop-preprod-readiness.json",
+        "docs/eval/PROOFLOOP_PREPROD_READINESS.md",
+        "docs/runbooks/PROOFLOOP_PREPROD_RUNBOOK.md",
+      ],
+    }),
+    commandTask({
       id: "external-adapter-setup-doctor",
       title: "External adapter setup/doctor receipts before blocked status",
       command: [

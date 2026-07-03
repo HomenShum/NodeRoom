@@ -12,12 +12,27 @@ export default defineConfig({
     },
   },
   test: {
-    // Node by default (keeps the ~85 logic/contract tests fast); component-render tests
-    // (*.test.tsx) opt into jsdom so we can drive React state and catch the effect-loop /
-    // latch / bound classes that pure-node tests structurally cannot. See docs/COMPONENT_STATE_AUDIT.md.
-    environment: "node",
-    include: ["tests/**/*.test.ts", "tests/**/*.test.tsx", "src/**/*.test.ts", "src/**/*.test.tsx"],
-    environmentMatchGlobs: [["**/*.test.tsx", "jsdom"]],
-    setupFiles: ["tests/setup/dom.ts"],
+    // Node keeps logic/contract tests fast; TSX component-render tests run in jsdom
+    // so React state/effect regressions keep their DOM coverage.
+    projects: [
+      {
+        extends: true,
+        test: {
+          name: "node",
+          environment: "node",
+          include: ["tests/**/*.test.ts", "src/**/*.test.ts"],
+          setupFiles: ["tests/setup/dom.ts"],
+        },
+      },
+      {
+        extends: true,
+        test: {
+          name: "jsdom",
+          environment: "jsdom",
+          include: ["tests/**/*.test.tsx", "src/**/*.test.tsx"],
+          setupFiles: ["tests/setup/dom.ts"],
+        },
+      },
+    ],
   },
 });

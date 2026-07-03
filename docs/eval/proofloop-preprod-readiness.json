@@ -1,0 +1,631 @@
+{
+  "schema": "proofloop-preprod-readiness-v1",
+  "generatedAt": "2026-07-03T21:42:30.187Z",
+  "sourceAttribution": {
+    "name": "kevincui1034/preprod-check",
+    "url": "https://github.com/kevincui1034/preprod-check",
+    "version": "1.2.0",
+    "license": "MIT",
+    "importedAs": "ProofLoop deterministic preprod readiness receipt, not a runtime Claude plugin dependency."
+  },
+  "git": {
+    "commit": "20d96d3ffa4f2b836121a03e4f3c1ec9b0f19d53",
+    "dirty": true
+  },
+  "packageVersion": "0.1.1",
+  "liveUrl": "https://noderoom.live",
+  "checks": [
+    {
+      "id": "preprod-source-attribution",
+      "status": "pass",
+      "category": "release safety",
+      "sourceCategory": "release safety & operability",
+      "severity": "low",
+      "title": "Preprod-check source attribution is recorded",
+      "description": "ProofLoop tracks the imported rubric source instead of silently copying checklist claims.",
+      "evidence": [
+        "https://github.com/kevincui1034/preprod-check"
+      ],
+      "verifier": "constant sourceAttribution block",
+      "waived": false
+    },
+    {
+      "id": "prod-gate-chain",
+      "status": "pass",
+      "category": "release safety",
+      "sourceCategory": "release safety & operability",
+      "severity": "critical",
+      "title": "Production gate chains security, typecheck, tests, browser product memory, build, and dist security",
+      "description": "A release claim must be backed by a single reproducible gate.",
+      "evidence": [
+        "package.json:scripts.prod:gate"
+      ],
+      "verifier": "package script token check",
+      "finding": "prod:gate is missing one or more release-safety sub-gates.",
+      "fix": "Restore security, typecheck, full tests, product-memory browser checks, build, and dist security in prod:gate.",
+      "waived": false
+    },
+    {
+      "id": "static-security-headers",
+      "status": "pass",
+      "category": "perimeter",
+      "sourceCategory": "security headers & cookies",
+      "severity": "critical",
+      "title": "Static Vercel security headers are configured",
+      "description": "CSP, HSTS, frame, referrer, permissions, and nosniff headers are required before prod claims.",
+      "evidence": [
+        "vercel.json",
+        "scripts/security-gate.ts"
+      ],
+      "verifier": "vercel.json required header scan",
+      "finding": "Required production security headers are absent from vercel.json.",
+      "fix": "Restore CSP, HSTS, X-Frame-Options, Referrer-Policy, X-Content-Type-Options, Permissions-Policy, and COOP.",
+      "waived": false
+    },
+    {
+      "id": "live-security-headers",
+      "status": "pass",
+      "category": "perimeter",
+      "sourceCategory": "security headers & cookies",
+      "severity": "critical",
+      "title": "Production URL serves required security headers",
+      "description": "Static config is not enough; prod must actually serve the headers.",
+      "evidence": [
+        "https://noderoom.live",
+        "docs/eval/proofloop-preprod-readiness.json"
+      ],
+      "verifier": "live URL header probe",
+      "finding": "Production URL is missing one or more required security headers.",
+      "fix": "Fix Vercel headers and redeploy before production claims.",
+      "waived": false
+    },
+    {
+      "id": "live-story-smoke",
+      "status": "pass",
+      "category": "release safety",
+      "sourceCategory": "release safety & operability",
+      "severity": "high",
+      "title": "Production story smoke has run against the live URL",
+      "description": "A prod claim should include a browser-visible route proof, not only build logs.",
+      "evidence": [
+        "node scripts/story-route-dogfood.mjs --base-url https://noderoom.live",
+        "https://noderoom.live"
+      ],
+      "verifier": "Playwright story-route dogfood",
+      "finding": "Live story smoke failed.",
+      "fix": "Fix the live story route or deployment before production claims.",
+      "waived": false
+    },
+    {
+      "id": "browser-provider-egress",
+      "status": "pass",
+      "category": "perimeter",
+      "sourceCategory": "secrets / env, external-request safety, AI / LLM safety",
+      "severity": "critical",
+      "title": "Browser bundle is guarded from direct model-provider egress",
+      "description": "OpenRouter and direct provider keys must stay behind server-side actions and model adapters.",
+      "evidence": [
+        "scripts/security-gate.ts",
+        "tests/providerEgressPolicy.test.ts",
+        "src/nodeagent/guardrails/egressPolicy.ts"
+      ],
+      "verifier": "security-gate provider host scan",
+      "finding": "Provider egress guard evidence is missing.",
+      "fix": "Restore browser provider-host scans and provider egress policy tests.",
+      "waived": false
+    },
+    {
+      "id": "ssrf-upload-boundary",
+      "status": "pass",
+      "category": "perimeter",
+      "sourceCategory": "external-request safety (SSRF, uploads)",
+      "severity": "critical",
+      "title": "SSRF and upload-storage boundaries have executable tests",
+      "description": "Server-side URL fetches and uploaded files must reject private network and unsafe storage paths.",
+      "evidence": [
+        "tests/fetchSourceSsrf.test.ts",
+        "tests/fetchSourceNetworkGuard.test.ts",
+        "tests/convexFetchSourcePolicy.test.ts",
+        "tests/uploadedFileStorageContract.test.ts"
+      ],
+      "verifier": "required security test file presence",
+      "finding": "SSRF/upload boundary test evidence is missing.",
+      "fix": "Restore fetch-source network guard and uploaded file storage contract tests.",
+      "waived": false
+    },
+    {
+      "id": "secret-env-boundary",
+      "status": "pass",
+      "category": "perimeter",
+      "sourceCategory": "secrets / env",
+      "severity": "critical",
+      "title": ".env.local is gitignored and tracked files are scanned for secret-shaped values",
+      "description": "Production readiness requires no provider secrets in tracked files or client env.",
+      "evidence": [
+        ".gitignore",
+        "scripts/security-gate.ts"
+      ],
+      "verifier": "git check-ignore plus security-gate secret-pattern scan",
+      "finding": ".env.local is not ignored or secret-pattern scanning is missing.",
+      "fix": "Ensure .env.local is ignored and restore likely-secret scanning in security-gate.",
+      "waived": false
+    },
+    {
+      "id": "auth-tenancy-boundary",
+      "status": "pass",
+      "category": "access",
+      "sourceCategory": "auth & multi-tenancy",
+      "severity": "critical",
+      "title": "Room auth and private artifact tenancy boundaries have tests",
+      "description": "Room tokens, active membership, and private artifacts must be re-checked server-side.",
+      "evidence": [
+        "convex/lib.ts",
+        "tests/authSessionPolicy.test.ts",
+        "tests/privateArtifactVisibility.test.ts",
+        "tests/convexBoundaryPolicy.test.ts"
+      ],
+      "verifier": "auth helper and test file presence",
+      "finding": "Auth/tenancy boundary evidence is missing.",
+      "fix": "Restore room token validation and private artifact visibility tests.",
+      "waived": false
+    },
+    {
+      "id": "billing-credit-integrity",
+      "status": "pass",
+      "category": "money & abuse",
+      "sourceCategory": "billing & credit integrity",
+      "severity": "high",
+      "title": "Credit ledger and charge settlement paths have tests",
+      "description": "Agent spend and credit settlement must not silently overdraw or double-charge.",
+      "evidence": [
+        "convex/credits.ts",
+        "tests/creditLedger.test.ts",
+        "tests/convexCredits.test.ts"
+      ],
+      "verifier": "credit ledger implementation and tests",
+      "finding": "Credit ledger integrity proof is missing.",
+      "fix": "Restore credit ledger and Convex credit settlement tests.",
+      "waived": false
+    },
+    {
+      "id": "agent-cost-step-caps",
+      "status": "pass",
+      "category": "money & abuse",
+      "sourceCategory": "rate limiting, cost containment, AI / LLM safety",
+      "severity": "high",
+      "title": "Agent runs have step, deadline, and cost accounting caps",
+      "description": "Runaway agent loops and prompt-injection cost attacks need hard caps before external calls.",
+      "evidence": [
+        "convex/agent.ts",
+        "tests/openAiTokenLimit.test.ts",
+        "tests/costSimulator.test.ts"
+      ],
+      "verifier": "agent run cap token scan plus tests",
+      "finding": "Agent cost/step cap proof is missing.",
+      "fix": "Restore maxSteps/deadline/cost accounting and token-limit tests.",
+      "waived": false
+    },
+    {
+      "id": "rate-limit-abuse",
+      "status": "pass",
+      "category": "money & abuse",
+      "sourceCategory": "rate limiting & abuse",
+      "severity": "high",
+      "title": "Room join abuse is rate-limited and capped",
+      "description": "Anonymous room joins need cheap rejection before work is created.",
+      "evidence": [
+        "convex/rooms.ts",
+        "scripts/security-gate.ts"
+      ],
+      "verifier": "rooms.ts rate-limit token scan",
+      "finding": "Room join rate-limit evidence is missing.",
+      "fix": "Restore room member caps and join-rate limiting.",
+      "waived": false
+    },
+    {
+      "id": "ai-llm-safety",
+      "status": "pass",
+      "category": "AI safety",
+      "sourceCategory": "AI / LLM safety",
+      "severity": "high",
+      "title": "Prompt-injection, provider egress, and benchmark contamination defenses are tested",
+      "description": "Model output must not cross trust boundaries or contaminate evaluator-only artifacts.",
+      "evidence": [
+        "tests/promptInjection.test.ts",
+        "tests/providerEgressPolicy.test.ts",
+        "tests/benchmarkContamination.test.ts",
+        "src/nodeagent/guardrails/egressPolicy.ts"
+      ],
+      "verifier": "AI safety test file presence",
+      "finding": "AI/LLM safety test evidence is missing.",
+      "fix": "Restore prompt-injection, provider egress, and contamination tests.",
+      "waived": false
+    },
+    {
+      "id": "performance-scalability",
+      "status": "pass",
+      "category": "reliability",
+      "sourceCategory": "performance & scalability",
+      "severity": "high",
+      "title": "SLO and architecture budget gates are present",
+      "description": "Production readiness needs a cheap deterministic SLO and architecture budget guard.",
+      "evidence": [
+        "scripts/slo-gate.ts",
+        "scripts/architecture-budget-check.ts",
+        "tests/roomsMetaPhase2.test.ts"
+      ],
+      "verifier": "SLO and architecture gate file presence",
+      "finding": "SLO or architecture budget gate is missing.",
+      "fix": "Restore slo:gate and architecture:budget proof scripts.",
+      "waived": false
+    },
+    {
+      "id": "logging-trace-workpapers",
+      "status": "pass",
+      "category": "reliability",
+      "sourceCategory": "logging & monitoring",
+      "severity": "medium",
+      "title": "Trace workpapers and ProofLoop artifacts are tested",
+      "description": "Incidents and regressions need trace IDs, receipts, and replayable evidence.",
+      "evidence": [
+        "tests/nodeagentTraceSpine.test.ts",
+        "tests/proofloopArtifacts.test.ts",
+        "src/nodeagent/traces/",
+        "src/eval/proofloopArtifacts.ts"
+      ],
+      "verifier": "trace test and artifact file presence",
+      "finding": "Trace/workpaper proof evidence is missing.",
+      "fix": "Restore NodeAgent trace spine and ProofLoop artifact tests.",
+      "waived": false
+    },
+    {
+      "id": "feature-kill-switch",
+      "status": "pass",
+      "category": "operations",
+      "sourceCategory": "release safety & operability",
+      "severity": "high",
+      "title": "Known risky lanes have explicit feature gates or kill switches",
+      "description": "A release must have a way to disable risky agent behavior without changing benchmark receipts.",
+      "evidence": [
+        "convex/agent.ts",
+        "convex/roomActivity.ts",
+        "src/nodeagent/guardrails/egressPolicy.ts",
+        "docs/runbooks/PROOFLOOP_PREPROD_RUNBOOK.md"
+      ],
+      "verifier": "feature gate token scan plus runbook",
+      "finding": "Feature gate evidence is missing.",
+      "fix": "Document and preserve kill switches for agent spend enforcement, passive job execution, and provider egress.",
+      "waived": false
+    },
+    {
+      "id": "release-runbook",
+      "status": "pass",
+      "category": "operations",
+      "sourceCategory": "release safety & operability",
+      "severity": "high",
+      "title": "ProofLoop preprod release runbook is tracked",
+      "description": "A human must be able to rerun gates, inspect live proof, and roll back.",
+      "evidence": [
+        "docs/runbooks/PROOFLOOP_PREPROD_RUNBOOK.md"
+      ],
+      "verifier": "tracked runbook file presence",
+      "finding": "Preprod release runbook is missing.",
+      "fix": "Add a runbook with gate commands, rollback path, kill switches, and restore evidence expectations.",
+      "waived": false
+    },
+    {
+      "id": "backup-restore-rehearsal",
+      "status": "manual",
+      "category": "operations",
+      "sourceCategory": "database, operations, release safety & operability",
+      "severity": "high",
+      "title": "External backup restore rehearsal evidence is attached",
+      "description": "Convex/Vercel backup restore state is external to this repository and needs a dated receipt.",
+      "evidence": [
+        "docs/runbooks/PROOFLOOP_PREPROD_RUNBOOK.md"
+      ],
+      "verifier": "manual external evidence required",
+      "finding": "Attach a dated restore rehearsal receipt before treating restore-readiness as proven.",
+      "fix": "Record the latest restore rehearsal ID/date/link in docs/eval/proofloop-preprod-readiness.json or a waiver.",
+      "waived": false
+    },
+    {
+      "id": "legal-compliance-surface",
+      "status": "manual",
+      "category": "legal",
+      "sourceCategory": "legal / compliance",
+      "severity": "low",
+      "title": "Privacy, ToS, and data-deletion posture are a product/legal decision",
+      "description": "This repo can track evidence, but legal readiness is not inferable from code alone.",
+      "evidence": [
+        "docs/runbooks/PROOFLOOP_PREPROD_RUNBOOK.md"
+      ],
+      "verifier": "manual legal review required",
+      "finding": "Attach privacy/ToS/data deletion review before broad public launch claims.",
+      "fix": "Add legal evidence links or mark the deployment as internal/demo only.",
+      "waived": false
+    }
+  ],
+  "verifiedCriticalHigh": [
+    {
+      "checkId": "prod-gate-chain",
+      "severity": "critical",
+      "evidence": [
+        "package.json:scripts.prod:gate"
+      ],
+      "verifier": "package script token check"
+    },
+    {
+      "checkId": "static-security-headers",
+      "severity": "critical",
+      "evidence": [
+        "vercel.json",
+        "scripts/security-gate.ts"
+      ],
+      "verifier": "vercel.json required header scan"
+    },
+    {
+      "checkId": "live-security-headers",
+      "severity": "critical",
+      "evidence": [
+        "https://noderoom.live",
+        "docs/eval/proofloop-preprod-readiness.json"
+      ],
+      "verifier": "live URL header probe"
+    },
+    {
+      "checkId": "live-story-smoke",
+      "severity": "high",
+      "evidence": [
+        "node scripts/story-route-dogfood.mjs --base-url https://noderoom.live",
+        "https://noderoom.live"
+      ],
+      "verifier": "Playwright story-route dogfood"
+    },
+    {
+      "checkId": "browser-provider-egress",
+      "severity": "critical",
+      "evidence": [
+        "scripts/security-gate.ts",
+        "tests/providerEgressPolicy.test.ts",
+        "src/nodeagent/guardrails/egressPolicy.ts"
+      ],
+      "verifier": "security-gate provider host scan"
+    },
+    {
+      "checkId": "ssrf-upload-boundary",
+      "severity": "critical",
+      "evidence": [
+        "tests/fetchSourceSsrf.test.ts",
+        "tests/fetchSourceNetworkGuard.test.ts",
+        "tests/convexFetchSourcePolicy.test.ts",
+        "tests/uploadedFileStorageContract.test.ts"
+      ],
+      "verifier": "required security test file presence"
+    },
+    {
+      "checkId": "secret-env-boundary",
+      "severity": "critical",
+      "evidence": [
+        ".gitignore",
+        "scripts/security-gate.ts"
+      ],
+      "verifier": "git check-ignore plus security-gate secret-pattern scan"
+    },
+    {
+      "checkId": "auth-tenancy-boundary",
+      "severity": "critical",
+      "evidence": [
+        "convex/lib.ts",
+        "tests/authSessionPolicy.test.ts",
+        "tests/privateArtifactVisibility.test.ts",
+        "tests/convexBoundaryPolicy.test.ts"
+      ],
+      "verifier": "auth helper and test file presence"
+    },
+    {
+      "checkId": "billing-credit-integrity",
+      "severity": "high",
+      "evidence": [
+        "convex/credits.ts",
+        "tests/creditLedger.test.ts",
+        "tests/convexCredits.test.ts"
+      ],
+      "verifier": "credit ledger implementation and tests"
+    },
+    {
+      "checkId": "agent-cost-step-caps",
+      "severity": "high",
+      "evidence": [
+        "convex/agent.ts",
+        "tests/openAiTokenLimit.test.ts",
+        "tests/costSimulator.test.ts"
+      ],
+      "verifier": "agent run cap token scan plus tests"
+    },
+    {
+      "checkId": "rate-limit-abuse",
+      "severity": "high",
+      "evidence": [
+        "convex/rooms.ts",
+        "scripts/security-gate.ts"
+      ],
+      "verifier": "rooms.ts rate-limit token scan"
+    },
+    {
+      "checkId": "ai-llm-safety",
+      "severity": "high",
+      "evidence": [
+        "tests/promptInjection.test.ts",
+        "tests/providerEgressPolicy.test.ts",
+        "tests/benchmarkContamination.test.ts",
+        "src/nodeagent/guardrails/egressPolicy.ts"
+      ],
+      "verifier": "AI safety test file presence"
+    },
+    {
+      "checkId": "performance-scalability",
+      "severity": "high",
+      "evidence": [
+        "scripts/slo-gate.ts",
+        "scripts/architecture-budget-check.ts",
+        "tests/roomsMetaPhase2.test.ts"
+      ],
+      "verifier": "SLO and architecture gate file presence"
+    },
+    {
+      "checkId": "feature-kill-switch",
+      "severity": "high",
+      "evidence": [
+        "convex/agent.ts",
+        "convex/roomActivity.ts",
+        "src/nodeagent/guardrails/egressPolicy.ts",
+        "docs/runbooks/PROOFLOOP_PREPROD_RUNBOOK.md"
+      ],
+      "verifier": "feature gate token scan plus runbook"
+    },
+    {
+      "checkId": "release-runbook",
+      "severity": "high",
+      "evidence": [
+        "docs/runbooks/PROOFLOOP_PREPROD_RUNBOOK.md"
+      ],
+      "verifier": "tracked runbook file presence"
+    }
+  ],
+  "waivers": [],
+  "liveProbe": {
+    "url": "https://noderoom.live",
+    "checkedAt": "2026-07-03T21:42:30.187Z",
+    "ok": true,
+    "rootStatus": 200,
+    "headers": {
+      "access-control-allow-origin": "*",
+      "age": "7434",
+      "cache-control": "public, max-age=0, must-revalidate",
+      "content-disposition": "inline",
+      "content-encoding": "br",
+      "content-security-policy": "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self' https://*.convex.cloud https://*.convex.site wss://*.convex.cloud wss://*.convex.site https://openrouter.ai; media-src 'self' blob: data:; worker-src 'self' blob:; manifest-src 'self'; upgrade-insecure-requests",
+      "content-type": "text/html; charset=utf-8",
+      "cross-origin-opener-policy": "same-origin",
+      "date": "Fri, 03 Jul 2026 21:42:31 GMT",
+      "etag": "W/\"986b6af572efa7687e158705d2c38edc\"",
+      "last-modified": "Fri, 03 Jul 2026 19:38:36 GMT",
+      "permissions-policy": "camera=(), microphone=(), geolocation=(), payment=(), usb=(), serial=(), bluetooth=(), interest-cohort=()",
+      "referrer-policy": "strict-origin-when-cross-origin",
+      "server": "Vercel",
+      "strict-transport-security": "max-age=63072000; includeSubDomains; preload",
+      "transfer-encoding": "chunked",
+      "x-content-type-options": "nosniff",
+      "x-dns-prefetch-control": "off",
+      "x-frame-options": "DENY",
+      "x-permitted-cross-domain-policies": "none",
+      "x-vercel-cache": "HIT",
+      "x-vercel-id": "sfo1::xk6qg-1783114951125-d399792e4b9b"
+    },
+    "headerChecks": [
+      {
+        "header": "content-security-policy",
+        "expected": "default-src 'self'",
+        "actual": "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self' https://*.convex.cloud https://*.convex.site wss://*.convex.cloud wss://*.convex.site https://openrouter.ai; media-src 'self' blob: data:; worker-src 'self' blob:; manifest-src 'self'; upgrade-insecure-requests",
+        "ok": true
+      },
+      {
+        "header": "content-security-policy",
+        "expected": "object-src 'none'",
+        "actual": "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self' https://*.convex.cloud https://*.convex.site wss://*.convex.cloud wss://*.convex.site https://openrouter.ai; media-src 'self' blob: data:; worker-src 'self' blob:; manifest-src 'self'; upgrade-insecure-requests",
+        "ok": true
+      },
+      {
+        "header": "content-security-policy",
+        "expected": "frame-ancestors 'none'",
+        "actual": "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self' https://*.convex.cloud https://*.convex.site wss://*.convex.cloud wss://*.convex.site https://openrouter.ai; media-src 'self' blob: data:; worker-src 'self' blob:; manifest-src 'self'; upgrade-insecure-requests",
+        "ok": true
+      },
+      {
+        "header": "strict-transport-security",
+        "expected": "max-age=63072000",
+        "actual": "max-age=63072000; includeSubDomains; preload",
+        "ok": true
+      },
+      {
+        "header": "strict-transport-security",
+        "expected": "includeSubDomains",
+        "actual": "max-age=63072000; includeSubDomains; preload",
+        "ok": true
+      },
+      {
+        "header": "x-content-type-options",
+        "expected": "nosniff",
+        "actual": "nosniff",
+        "ok": true
+      },
+      {
+        "header": "x-frame-options",
+        "expected": "DENY",
+        "actual": "DENY",
+        "ok": true
+      },
+      {
+        "header": "referrer-policy",
+        "expected": "strict-origin-when-cross-origin",
+        "actual": "strict-origin-when-cross-origin",
+        "ok": true
+      },
+      {
+        "header": "permissions-policy",
+        "expected": "camera=()",
+        "actual": "camera=(), microphone=(), geolocation=(), payment=(), usb=(), serial=(), bluetooth=(), interest-cohort=()",
+        "ok": true
+      },
+      {
+        "header": "cross-origin-opener-policy",
+        "expected": "same-origin",
+        "actual": "same-origin",
+        "ok": true
+      }
+    ],
+    "storySmoke": {
+      "command": "node scripts/story-route-dogfood.mjs --base-url https://noderoom.live",
+      "ok": true,
+      "stdoutTail": "{\"ok\":true,\"baseUrl\":\"https://noderoom.live\",\"demoVisible\":true,\"variance\":\"3,250\",\"computedVisible\":true,\"finalVisible\":true}\n",
+      "stderrTail": "",
+      "parsed": {
+        "ok": true,
+        "baseUrl": "https://noderoom.live",
+        "demoVisible": true,
+        "variance": "3,250",
+        "computedVisible": true,
+        "finalVisible": true
+      }
+    }
+  },
+  "releaseGate": {
+    "status": "passed",
+    "blockingFindings": [],
+    "manualEvidenceRequired": [
+      "backup-restore-rehearsal: Attach a dated restore rehearsal receipt before treating restore-readiness as proven."
+    ],
+    "verifierCommand": "npm run benchmark:proofloop:preprod -- --strict",
+    "liveVerifierCommand": "npm run benchmark:proofloop:preprod:live -- --strict"
+  },
+  "summary": {
+    "total": 19,
+    "passed": 17,
+    "failed": 0,
+    "manual": 2,
+    "skipped": 0,
+    "criticalHighTotal": 16,
+    "criticalHighPassed": 15,
+    "criticalHighFailed": 0,
+    "blockingFindings": 0,
+    "waiversActive": 0,
+    "liveChecksPassed": true
+  },
+  "recommendations": [
+    "Run the static preprod receipt before every ProofLoop release claim.",
+    "Run the live preprod receipt against noderoom.live before claiming production is healthy.",
+    "Treat unwaived Critical/High failures as ship blockers; keep manual ops checks visible until external evidence exists.",
+    "Keep preprod findings as ProofLoop work items with owner, expiry, evidence, and waiver history."
+  ]
+}

@@ -67,6 +67,8 @@
     "benchmark:proofloop:normalized": "tsx scripts/proofloop-normalized-benchmarks.ts",
     "benchmark:proofloop:company-tasks": "tsx scripts/proofloop-company-task-coverage.ts",
     "benchmark:proofloop:harness-economics": "tsx scripts/proofloop-harness-economics.ts",
+    "benchmark:proofloop:preprod": "tsx scripts/proofloop-preprod-readiness.ts",
+    "benchmark:proofloop:preprod:live": "tsx scripts/proofloop-preprod-readiness.ts --live-url https://noderoom.live --live-story",
     "benchmark:proofloop:adapter-blockers": "tsx scripts/proofloop-adapter-blockers.ts",
     "benchmark:proofloop:external-adapter": "tsx scripts/proofloop-external-adapter-run.ts",
     "benchmark:proofloop:charts": "tsx scripts/proofloop-charts.ts",
@@ -228,7 +230,7 @@
     "tsx": "^4.19.2",
     "typescript": "^5.7.2",
     "vite": "^6.0.7",
-    "vitest": "^2.1.8",
+    "vitest": "^4.1.9",
     "ws": "8.21.0"
   },
   "overrides": {
