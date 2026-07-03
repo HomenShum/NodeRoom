@@ -1,0 +1,12 @@
+id: primary
+title: Primary live product workflow
+entrypoint: this-repo --live
+goal: prove the primary user workflow through the real product UI
+commands:
+  live: npm run proofloop -- this-repo --live
+  gate: npm run proofloop -- gate --goal default
+  resume: npm run proofloop -- resume --goal default --dense
+evidence:
+  - .proofloop/manifest.json
+  - .proofloop/runs/latest/scorecard.md
+  - .proofloop/runs/latest/verifier-receipt.json

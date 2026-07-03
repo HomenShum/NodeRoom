@@ -175,7 +175,14 @@
     "qa:gif": "tsx scripts/judge-demo-gif.ts",
     "previews:render": "tsx scripts/render-workflow-preview.ts",
     "qa:states": "playwright test e2e/state-captures.spec.ts",
-    "qa:judge-states": "tsx scripts/judge-state-captures.ts"
+    "qa:judge-states": "tsx scripts/judge-state-captures.ts",
+    "proofloop:init": "npm run proofloop -- init --agent auto --live",
+    "proofloop:live": "npm run proofloop -- this-repo --live",
+    "proofloop:gate": "npm run proofloop -- gate --goal default",
+    "proofloop:resume": "npm run proofloop -- resume --goal default --dense",
+    "proofloop:doctor": "npm run proofloop -- doctor --json",
+    "proofloop:report": "npm run proofloop -- report latest",
+    "proofloop:charts": "npm run proofloop -- charts latest"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^3.0.84",

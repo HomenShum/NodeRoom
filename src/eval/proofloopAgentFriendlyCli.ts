@@ -1,7 +1,7 @@
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { dirname, isAbsolute, join, resolve } from "node:path";
+import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
+import { dirname, extname, isAbsolute, join, relative, resolve } from "node:path";
 
-export type ProofloopAgentKind = "codex" | "claude" | "cursor";
+export type ProofloopAgentKind = "codex" | "claude" | "cursor" | "windsurf";
 export type ProofloopDoctorStatus = "pass" | "warn" | "fail";
 
 export const PROOFLOOP_AGENT_DOC_START = "<!-- proofloop-agent-friendly:start -->";
@@ -24,6 +24,7 @@ export type ProofloopCliManifest = {
   principles: string[];
   commands: ProofloopCliCommandManifest[];
   stableErrorCodes: string[];
+  projectManifestPath: string;
 };
 
 export type ProofloopDoctorCheck = {
@@ -82,7 +83,11 @@ export function proofloopCliManifest(): ProofloopCliManifest {
       "PROOFLOOP_AGENT_DOCS_MISSING",
       "PROOFLOOP_PACKAGE_SCRIPT_MISSING",
       "PROOFLOOP_GITIGNORE_INCOMPLETE",
+      "PROOFLOOP_MANIFEST_MISSING",
+      "PROOFLOOP_UI_CONTRACTS_MISSING",
+      "PROOFLOOP_PLAYWRIGHT_MISSING",
     ],
+    projectManifestPath: ".proofloop/manifest.json",
     commands: [
       {
         id: "manifest",
@@ -90,7 +95,7 @@ export function proofloopCliManifest(): ProofloopCliManifest {
         purpose: "Return the machine-readable command surface for agents.",
         writes: "none",
         json: true,
-        options: ["--json"],
+        options: ["--json", "--dense"],
         responseShape: "ProofloopCliManifest",
       },
       {
@@ -113,20 +118,47 @@ export function proofloopCliManifest(): ProofloopCliManifest {
       },
       {
         id: "init",
-        usage: "proofloop init --features agents --agent codex",
+        usage: "proofloop init --features agents,live --agent auto",
         purpose: "Install .proofloop config and optional agent-facing instructions.",
         writes: "repo-docs",
         json: false,
-        options: ["--features agents", "--agent codex|claude|cursor", "--agent-docs-path <path>"],
+        options: ["--features agents,live,github", "--agent auto|all|codex|claude|cursor|windsurf", "--agent-docs-path <path>", "--live"],
         responseShape: "console log",
       },
       {
+        id: "template",
+        usage: "proofloop template --list",
+        purpose: "List or write workflow/rubric/red-team starter templates.",
+        writes: "repo-config",
+        json: true,
+        options: ["--list", "--json", "--dense", "--write", "--force"],
+        responseShape: "ProofloopTemplate[]",
+      },
+      {
+        id: "workflow",
+        usage: "proofloop workflow --list",
+        purpose: "List generated proof workflows in this repo.",
+        writes: "none",
+        json: true,
+        options: ["--list", "--json", "--dense"],
+        responseShape: "workflow path list",
+      },
+      {
+        id: "ui",
+        usage: "proofloop ui contract --dense",
+        purpose: "Expose agent-readable UI selectors and assertions so workers do not guess selectors.",
+        writes: "none",
+        json: true,
+        options: ["list", "contract", "component <name>", "--json", "--dense"],
+        responseShape: "ProofloopUiContract[]",
+      },
+      {
         id: "this-repo",
-        usage: "proofloop this-repo --goal \"<measurable outcome>\"",
+        usage: "proofloop this-repo --live",
         purpose: "Start the long-running repo-level orchestrator on a natural-language goal.",
         writes: "local-proof-state",
         json: false,
-        options: ["--goal <text>", "--max-steps <n>"],
+        options: ["--live", "--goal <text>", "--max-steps <n>"],
         responseShape: "orchestrator receipt paths",
       },
       {
@@ -175,6 +207,15 @@ export function proofloopCliManifest(): ProofloopCliManifest {
         responseShape: "repair prompt path plus text",
       },
       {
+        id: "report",
+        usage: "proofloop report latest",
+        purpose: "Alias for showing the latest proof receipt/scorecard.",
+        writes: "none",
+        json: false,
+        options: ["<runId|latest>"],
+        responseShape: "scorecard text",
+      },
+      {
         id: "memory",
         usage: "proofloop memory search \"<query>\"",
         purpose: "Search compact local proof memory instead of replaying stale transcripts.",
@@ -192,7 +233,12 @@ export function runProofloopDoctor(root = process.cwd()): ProofloopDoctorReport 
   checks.push(checkPackageScript(root));
   checks.push(checkLocalCliWrapper(root));
   checks.push(checkConfig(root));
+  checks.push(checkManifest(root));
   checks.push(checkAgentDocs(root));
+  checks.push(checkPackageScriptAliases(root));
+  checks.push(checkPlaywright(root));
+  checks.push(checkUiContracts(root));
+  checks.push(checkProofloopGithubWorkflow(root));
   checks.push(checkGitignore(root));
   checks.push(checkNodeVersion());
   const summary = countStatuses(checks);
@@ -239,7 +285,7 @@ export function formatProofloopCliManifest(manifest: ProofloopCliManifest, optio
 
 export function renderProofloopAgentDocs(options: { agent?: ProofloopAgentKind } = {}): string {
   const agent = options.agent ?? "codex";
-  const agentName = agent === "claude" ? "Claude Code" : agent === "cursor" ? "Cursor" : "Codex";
+  const agentName = agent === "claude" ? "Claude Code" : agent === "cursor" ? "Cursor" : agent === "windsurf" ? "Windsurf" : "Codex";
   return [
     PROOFLOOP_AGENT_DOC_START,
     "## ProofLoop Agent-Friendly CLI",
@@ -248,13 +294,16 @@ export function renderProofloopAgentDocs(options: { agent?: ProofloopAgentKind }
     "",
     "Discovery:",
     "- `npm run proofloop -- manifest --json` - machine-readable command surface.",
+    "- `npm run proofloop -- manifest --dense` - compact repo status, commands, suites, and UI contracts.",
     "- `npm run proofloop -- docs agents --dense` - compact agent workflow.",
     "- `npm run proofloop -- doctor --json` - read-only setup proof before claiming installed.",
+    "- `npm run proofloop -- ui contract --dense` - stable selectors/actions/assertions before browser work.",
     "",
     "Long-running loop:",
-    "- `npm run proofloop -- this-repo --goal \"<measurable outcome>\"` starts repo dogfooding with a persisted goal ledger.",
+    "- `npm run proofloop -- this-repo --live` starts repo dogfooding with a persisted goal ledger.",
     "- `npm run proofloop -- supervise --goal <goal-id>` continues the loop until pass/fail/blocker.",
     "- `npm run proofloop -- gate --goal <goal-id>` is the completion gate; do not replace it with a transcript summary.",
+    "- `npm run proofloop -- resume --goal <goal-id> --dense` prints the next action when the loop stops.",
     "- `npm run proofloop -- repair latest` converts a failed run into the next focused repair prompt.",
     "- `npm run proofloop -- memory search \"<failure or fixture>\"` recalls compacted prior failures without dragging full logs into context.",
     "",
@@ -264,6 +313,9 @@ export function renderProofloopAgentDocs(options: { agent?: ProofloopAgentKind }
     "- Keep certification-loop assets locked. Exploration can propose scenarios and scaffold changes, but it cannot grade or promote itself.",
     "- Track harness versions, model routes, costs, blocked lanes, and official-score artifacts in receipts.",
     "- Cheaper model routing is allowed for exploration and shadow runs; official scores require the official scorer or an explicitly recorded equivalent judge contract.",
+    "- If a local dependency is missing, run `npm run proofloop -- doctor --json` and fix local safe failures before blocking.",
+    "- If official scoring is blocked, keep proxy/product-path proof moving and label it honestly in receipts.",
+    "- Use the code graph and UI contracts before guessing files, selectors, or routes.",
     "",
     PROOFLOOP_AGENT_DOC_END,
   ].join("\n");
@@ -295,7 +347,8 @@ export function writeProofloopAgentDocs(options: {
 export function resolveAgentDocsPath(root: string, agent: ProofloopAgentKind, explicitPath?: string): string {
   if (explicitPath) return isAbsolute(explicitPath) ? explicitPath : resolve(root, explicitPath);
   if (agent === "claude") return join(root, "CLAUDE.md");
-  if (agent === "cursor") return join(root, ".cursorrules");
+  if (agent === "cursor") return join(root, ".cursor", "rules", "proofloop.mdc");
+  if (agent === "windsurf") return join(root, ".windsurf", "rules", "proofloop.md");
   return join(root, "AGENTS.md");
 }
 
@@ -315,7 +368,8 @@ export function proofloopDocsTopic(topicArg = "getting-started"): ProofloopDocsT
           commands: [
             "npm run proofloop -- manifest --json",
             "npm run proofloop -- doctor --json",
-            "npm run proofloop -- this-repo --goal \"<measurable outcome>\"",
+            "npm run proofloop -- ui contract --dense",
+            "npm run proofloop -- this-repo --live",
             "npm run proofloop -- gate --goal <goal-id>",
           ],
         },
@@ -354,7 +408,7 @@ export function proofloopDocsTopic(topicArg = "getting-started"): ProofloopDocsT
       schema: "proofloop-doc-topic-v1",
       topic,
       title: "CLI Surface",
-      dense: "Read-only discovery commands first; write commands only when the goal calls for setup, execution, hooks, or CI.",
+      dense: "Read-only discovery commands first; write commands only when the goal calls for setup, execution, templates, hooks, or CI.",
       sections: [
         {
           heading: "Discovery",
@@ -363,6 +417,8 @@ export function proofloopDocsTopic(topicArg = "getting-started"): ProofloopDocsT
             "npm run proofloop -- manifest --json",
             "npm run proofloop -- docs getting-started --dense",
             "npm run proofloop -- doctor --json",
+            "npm run proofloop -- template --list",
+            "npm run proofloop -- ui list --dense",
           ],
         },
       ],
@@ -373,7 +429,7 @@ export function proofloopDocsTopic(topicArg = "getting-started"): ProofloopDocsT
     topic: "getting-started",
     title: "Getting Started",
     dense:
-      "Install deps, initialize ProofLoop, generate agent docs, run doctor, then start the long-running goal through this-repo or supervise.",
+      "Install deps, initialize ProofLoop, generate agent docs/manifest/scripts, run doctor, then start the long-running goal through this-repo or supervise.",
     sections: [
       {
         heading: "Setup",
@@ -383,17 +439,18 @@ export function proofloopDocsTopic(topicArg = "getting-started"): ProofloopDocsT
         ],
         commands: [
           "npm install",
-          "npm run proofloop -- init --features agents --agent codex",
+          "npm run proofloop -- init --features agents,live --agent auto",
           "npm run proofloop -- doctor --json",
-          "npm run proofloop -- manifest --json",
+          "npm run proofloop -- manifest --dense",
         ],
       },
       {
         heading: "Run",
         body: ["Start with a measurable goal and let the gate decide completion."],
         commands: [
-          "npm run proofloop -- this-repo --goal \"make the target task real, tested, shipped, and browser verified\"",
-          "npm run proofloop -- gate --goal official-scores",
+          "npm run proofloop -- this-repo --live",
+          "npm run proofloop -- resume --goal default --dense",
+          "npm run proofloop -- gate --goal default",
         ],
       },
     ],
@@ -507,8 +564,38 @@ function checkConfig(root: string): ProofloopDoctorCheck {
   }
 }
 
+function checkManifest(root: string): ProofloopDoctorCheck {
+  const manifestPath = join(root, ".proofloop", "manifest.json");
+  if (!existsSync(manifestPath)) {
+    return {
+      id: "PROOFLOOP_MANIFEST_MISSING",
+      title: "ProofLoop manifest",
+      status: "warn",
+      detail: ".proofloop/manifest.json is missing.",
+      fix: "Run `npm run proofloop -- init --features agents,live --agent auto`.",
+    };
+  }
+  try {
+    JSON.parse(readFileSync(manifestPath, "utf8"));
+    return {
+      id: "proofloop-manifest",
+      title: "ProofLoop manifest",
+      status: "pass",
+      detail: ".proofloop/manifest.json exists and parses.",
+    };
+  } catch (error) {
+    return {
+      id: "PROOFLOOP_MANIFEST_MISSING",
+      title: "ProofLoop manifest",
+      status: "fail",
+      detail: `.proofloop/manifest.json is not valid JSON: ${error instanceof Error ? error.message : String(error)}`,
+      fix: "Run `npm run proofloop -- init --features agents,live --agent auto` to regenerate it.",
+    };
+  }
+}
+
 function checkAgentDocs(root: string): ProofloopDoctorCheck {
-  const docPaths = ["AGENTS.md", "CLAUDE.md", ".cursorrules"].map((path) => join(root, path));
+  const docPaths = ["AGENTS.md", "CLAUDE.md", ".cursor/rules/proofloop.mdc", ".windsurf/rules/proofloop.md", ".cursorrules"].map((path) => join(root, path));
   const path = docPaths.find((candidate) => existsSync(candidate) && readFileSync(candidate, "utf8").includes(PROOFLOOP_AGENT_DOC_START));
   if (!path) {
     return {
@@ -524,6 +611,129 @@ function checkAgentDocs(root: string): ProofloopDoctorCheck {
     title: "agent docs",
     status: "pass",
     detail: `${path} contains the ProofLoop agent-friendly marker.`,
+  };
+}
+
+function checkPackageScriptAliases(root: string): ProofloopDoctorCheck {
+  const packagePath = join(root, "package.json");
+  if (!existsSync(packagePath)) {
+    return {
+      id: "proofloop-package-script-aliases",
+      title: "proofloop script aliases",
+      status: "warn",
+      detail: "package.json is missing, so convenience script aliases cannot be checked.",
+      fix: "Run from a package root or use `npx proofloop` directly.",
+    };
+  }
+  try {
+    const pkg = JSON.parse(readFileSync(packagePath, "utf8")) as { scripts?: Record<string, string> };
+    const scripts = pkg.scripts ?? {};
+    const required = ["proofloop:init", "proofloop:live", "proofloop:gate", "proofloop:resume", "proofloop:doctor", "proofloop:report", "proofloop:charts"];
+    const missing = required.filter((name) => !scripts[name]);
+    if (missing.length) {
+      return {
+        id: "proofloop-package-script-aliases",
+        title: "proofloop script aliases",
+        status: "warn",
+        detail: `Missing script aliases: ${missing.join(", ")}.`,
+        fix: "Run `npm run proofloop -- init --features agents,live --agent auto`.",
+      };
+    }
+    return {
+      id: "proofloop-package-script-aliases",
+      title: "proofloop script aliases",
+      status: "pass",
+      detail: "package.json includes proofloop init/live/gate/resume/doctor/report/charts aliases.",
+    };
+  } catch (error) {
+    return {
+      id: "proofloop-package-script-aliases",
+      title: "proofloop script aliases",
+      status: "warn",
+      detail: `package.json could not be parsed for aliases: ${error instanceof Error ? error.message : String(error)}`,
+      fix: "Fix package.json, then rerun proofloop doctor.",
+    };
+  }
+}
+
+function checkPlaywright(root: string): ProofloopDoctorCheck {
+  const packagePath = join(root, "package.json");
+  const nodeModulePath = join(root, "node_modules", "@playwright", "test");
+  const packageHasPlaywright = existsSync(packagePath) && readFileSync(packagePath, "utf8").includes('"@playwright/test"');
+  if (!packageHasPlaywright) {
+    return {
+      id: "PROOFLOOP_PLAYWRIGHT_MISSING",
+      title: "Playwright",
+      status: "warn",
+      detail: "package.json does not list @playwright/test.",
+      fix: "Install Playwright or use a non-browser proof adapter.",
+    };
+  }
+  if (!existsSync(nodeModulePath)) {
+    return {
+      id: "PROOFLOOP_PLAYWRIGHT_MISSING",
+      title: "Playwright",
+      status: "warn",
+      detail: "@playwright/test is declared but not installed locally.",
+      fix: "Run `npm install` before live browser proof.",
+    };
+  }
+  return {
+    id: "proofloop-playwright",
+    title: "Playwright",
+    status: "pass",
+    detail: "@playwright/test is declared and installed.",
+  };
+}
+
+function checkUiContracts(root: string): ProofloopDoctorCheck {
+  const count = countStableUiSelectors(root);
+  if (count === 0) {
+    return {
+      id: "PROOFLOOP_UI_CONTRACTS_MISSING",
+      title: "UI contracts",
+      status: "warn",
+      detail: "No data-proofloop or data-testid selectors were found in source/test surfaces.",
+      fix: "Add stable data-proofloop or data-testid attributes, then run `npm run proofloop -- ui contract --dense`.",
+    };
+  }
+  return {
+    id: "proofloop-ui-contracts",
+    title: "UI contracts",
+    status: "pass",
+    detail: `${count} stable UI selector(s) found.`,
+  };
+}
+
+function checkProofloopGithubWorkflow(root: string): ProofloopDoctorCheck {
+  const workflowDir = join(root, ".github", "workflows");
+  if (!existsSync(workflowDir)) {
+    return {
+      id: "proofloop-github-workflow",
+      title: "GitHub proof workflow",
+      status: "warn",
+      detail: ".github/workflows is missing.",
+      fix: "Run `npm run proofloop -- ci install github --goal default` if GitHub Actions should gate this repo.",
+    };
+  }
+  const workflows = readdirSync(workflowDir)
+    .filter((name) => name.endsWith(".yml") || name.endsWith(".yaml"))
+    .map((name) => join(workflowDir, name));
+  const proofWorkflow = workflows.find((path) => /proofloop|proof-loop/i.test(path) || /proofloop|proof-loop|gate --goal/i.test(readFileSync(path, "utf8")));
+  if (!proofWorkflow) {
+    return {
+      id: "proofloop-github-workflow",
+      title: "GitHub proof workflow",
+      status: "warn",
+      detail: "No ProofLoop-related GitHub workflow was found.",
+      fix: "Run `npm run proofloop -- ci install github --goal default`.",
+    };
+  }
+  return {
+    id: "proofloop-github-workflow",
+    title: "GitHub proof workflow",
+    status: "pass",
+    detail: `${proofWorkflow} exists.`,
   };
 }
 
@@ -577,6 +787,38 @@ function countStatuses(checks: ProofloopDoctorCheck[]): ProofloopDoctorReport["s
     },
     { pass: 0, warn: 0, fail: 0 },
   );
+}
+
+function countStableUiSelectors(root: string): number {
+  let count = 0;
+  for (const file of listSmallSourceFiles(root, ["src", "e2e", "proofloop"], [".ts", ".tsx"], 1000)) {
+    const text = readFileSync(join(root, file), "utf8");
+    count += (text.match(/data-(?:proofloop|testid)=["'][^"']+["']/g) ?? []).length;
+    if (count > 0) return count;
+  }
+  return count;
+}
+
+function listSmallSourceFiles(root: string, dirs: string[], extensions: string[], cap: number): string[] {
+  const out: string[] = [];
+  for (const dir of dirs) walkSmallFiles(join(root, dir), root, extensions, out, cap);
+  return out;
+}
+
+function walkSmallFiles(dir: string, root: string, extensions: string[], out: string[], cap: number): void {
+  if (out.length >= cap || !existsSync(dir)) return;
+  for (const entry of readdirSync(dir, { withFileTypes: true }).sort((a, b) => a.name.localeCompare(b.name))) {
+    if (out.length >= cap) return;
+    const full = join(dir, entry.name);
+    if (entry.isDirectory()) {
+      if (["node_modules", "dist", ".git", ".proofloop"].includes(entry.name)) continue;
+      walkSmallFiles(full, root, extensions, out, cap);
+      continue;
+    }
+    if (!entry.isFile() || !extensions.includes(extname(entry.name))) continue;
+    if (statSync(full).size > 250_000) continue;
+    out.push(relative(root, full).replace(/\\/g, "/"));
+  }
 }
 
 function upsertMarkedSection(existing: string, section: string): string {
