@@ -1652,7 +1652,7 @@ function SyncedNote({ roomId, me, proof, art }: { roomId: string; me: Actor; pro
   const plans = useQuery(api.agentArtifacts.listAgentArtifacts, existing ? { roomId: roomId as never, requester: proof, kind: "agent_work_plan", limit: 12 } : "skip") ?? [];
   const ensureDoc = useMutation(api.prosemirror.ensureNotebookDoc);
   const markDirty = useMutation(api.notebookProcessing.markNotebookDirty);
-  const createPlan = useMutation((api.agentArtifacts as any).createAgentWorkPlanFromNotebook); // FIXME: pre-session uncommitted convex fn, cast to unblock prod build
+  const createPlan = useMutation(api.agentArtifacts.createAgentWorkPlanFromNotebook);
   const approvePlan = useMutation(api.agentArtifacts.approveAgentWorkPlan);
   const ensuredRef = useRef(false);
   const scopedPlans = (plans as AgentWorkPlanRow[]).filter((plan) => String(plan.artifactId ?? "") === art.id);

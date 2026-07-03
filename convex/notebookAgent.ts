@@ -216,7 +216,7 @@ export const applyOutlineByAgent = internalMutation({
         .withIndex("by_artifact", (q) => q.eq("artifactId", a.artifactId).eq("elementId", AGENT_NOTES_ELEMENT_ID))
         .unique();
       const currentHtml = typeof existing?.value === "string" ? existing.value : "";
-      const result = await ctx.runMutation(internal.artifacts.applyAgentCellEdit, {
+      const result: AgentCellEditRouteResult = await ctx.runMutation(internal.artifacts.applyAgentCellEdit, {
         roomId: a.roomId,
         artifactId: a.artifactId,
         elementId: AGENT_NOTES_ELEMENT_ID,
@@ -462,6 +462,11 @@ async function notebookWriteEffects(ctx: MutationCtx, e: {
   }
 }
 
+/** Explicit shape for internal.artifacts.applyAgentCellEdit results used by the
+ *  review lanes. Annotated (not inferred) to break the self-referential type
+ *  cycle the generated API creates once notebookAgent itself is in it (TS7022). */
+type AgentCellEditRouteResult = { ok: boolean; reason?: string; proposalId?: unknown; version?: number };
+
 const blockEditActionV = v.union(v.literal("replace"), v.literal("append_children"), v.literal("annotate"));
 
 /** Governed single-block edit — hash-anchored CAS on ONE block. `replace` and
@@ -505,7 +510,7 @@ export const applyBlockEditByAgent = internalMutation({
         .unique();
       const currentHtml = typeof existing?.value === "string" ? existing.value : "";
       const suggestion = `<p data-author-kind="agent">Suggested ${a.action} on block ${escapeForHtml(a.blockId)}: ${escapeForHtml(clean)}</p>`;
-      const result = await ctx.runMutation(internal.artifacts.applyAgentCellEdit, {
+      const result: AgentCellEditRouteResult = await ctx.runMutation(internal.artifacts.applyAgentCellEdit, {
         roomId: a.roomId,
         artifactId: a.artifactId,
         elementId: AGENT_NOTES_ELEMENT_ID,
