@@ -49,6 +49,7 @@ import type * as messages from "../messages.js";
 import type * as modelFrontier from "../modelFrontier.js";
 import type * as nodemem from "../nodemem.js";
 import type * as nodememCompile from "../nodememCompile.js";
+import type * as notebookAgent from "../notebookAgent.js";
 import type * as notebookGraph from "../notebookGraph.js";
 import type * as notebookProcessing from "../notebookProcessing.js";
 import type * as noteworthy from "../noteworthy.js";
@@ -117,6 +118,7 @@ declare const fullApi: ApiFromModules<{
   modelFrontier: typeof modelFrontier;
   nodemem: typeof nodemem;
   nodememCompile: typeof nodememCompile;
+  notebookAgent: typeof notebookAgent;
   notebookGraph: typeof notebookGraph;
   notebookProcessing: typeof notebookProcessing;
   noteworthy: typeof noteworthy;
