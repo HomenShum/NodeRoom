@@ -37,6 +37,12 @@ const ACCENTS: Record<AccentKey, { label: string; primary: string; hover: string
   green: { label: "Green", primary: "#24945F", hover: "#1F8354", ink: "#6BD49D", tint: "rgba(36,148,95,.16)", border: "rgba(36,148,95,.30)" },
 };
 
+export function roomIntroSafetyCopy(mode: "memory" | "convex"): string {
+  return mode === "memory"
+    ? "This memory demo is safe: nothing is sent anywhere."
+    : "This live room uses the production backend: room state, edits, traces, and approvals persist for collaborators.";
+}
+
 export function preferredRoomArtifact<T extends { id: string; kind?: string; title?: string; order?: string[]; meta?: { dataframe?: { rowCount?: number }; excelGrid?: { rows?: number } } }>(arts: T[]): T | undefined {
   const scaleResearch = arts.find((a) => a.kind === "sheet" && a.title === "Company research" && artifactRowCount(a) >= 1_000);
   if (scaleResearch) return scaleResearch;
@@ -271,10 +277,11 @@ export function RoomShell({ roomId, me, onLeave, proof }: { roomId: string; me: 
     setDockStep(0);
     setTourOpen(true);
   };
+  const introSafetyCopy = roomIntroSafetyCopy(store.mode);
   const tourSteps: TourStep[] = [
     {
       title: "Welcome to NodeRoom",
-      body: "A live diligence room where bankers, guests, and NodeAgents gather company facts, enrich shared grids, and prepare runway, milestone, and handoff artifacts without clobbering each other. This memory demo is safe: nothing is sent anywhere.",
+      body: `A live diligence room where bankers, guests, and NodeAgents gather company facts, enrich shared grids, and prepare runway, milestone, and handoff artifacts without clobbering each other. ${introSafetyCopy}`,
       placement: "center",
     },
     {
