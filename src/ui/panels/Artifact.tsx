@@ -1896,9 +1896,19 @@ function asCellPayload(value: unknown): CellPayload | null {
   return value as CellPayload;
 }
 
-function displayCellValue(value: unknown): string {
-  const payload = asCellPayload(value);
-  const raw = payload ? payload.value : value;
+function unwrapDisplayCellValue(value: unknown, depth = 0): unknown {
+  if (!value || typeof value !== "object" || depth > 4) return value;
+  const record = value as Record<string, unknown>;
+  if ("value" in record) {
+    const next = record.value;
+    if (next === null || next === undefined) return "formula" in record ? record.formula : next;
+    return unwrapDisplayCellValue(next, depth + 1);
+  }
+  return value;
+}
+
+export function displayCellValue(value: unknown): string {
+  const raw = unwrapDisplayCellValue(value);
   if (raw === null || raw === undefined) return "";
   if (typeof raw === "string") return raw;
   if (typeof raw === "number" || typeof raw === "boolean") return String(raw);
@@ -2172,7 +2182,7 @@ function Sheet({ roomId, me, art, proof, onError }: { roomId: string; me: Actor;
                     <td className="num"><span className="r-val-num">{cellVal(art, rid, "q2")}</span></td>
                     <td className="num"><span className="r-val-num">{cellVal(art, rid, "q3")}</span></td>
                     <td className={vCls} style={presenceStyle(vPresence)} data-cell-key={vId} data-element-id={vId} data-evidence-class={classifyEvidence(vPayload)} data-testid="sheet-cell" data-presence-mode={vPresence?.mode} onClick={() => touchPresence(store, roomId, art.id, me, vId, "focus", selfPresenceColor)}>
-                      <EditableCell key={vId + ":" + (vEl?.version ?? 0)} value={String(vEl?.value ?? "")} disabled={!!lk || drafting || !!vProposal} align="right" onEditStart={() => touchPresence(store, roomId, art.id, me, vId, "edit", selfPresenceColor)} onEditEnd={() => store.clearPresence({ roomId, artifactId: art.id, targetKind: "cell", targetId: vId, mode: "edit", actor: me })} onCommit={(s) => doCommit(vId, s)} />
+                      <EditableCell key={vId + ":" + (vEl?.version ?? 0)} value={displayCellValue(vEl?.value)} disabled={!!lk || drafting || !!vProposal} align="right" onEditStart={() => touchPresence(store, roomId, art.id, me, vId, "edit", selfPresenceColor)} onEditEnd={() => store.clearPresence({ roomId, artifactId: art.id, targetKind: "cell", targetId: vId, mode: "edit", actor: me })} onCommit={(s) => doCommit(vId, s)} />
                       <StaleChip label={cellStaleness(vPayload, vEl?.updatedAt)} />
                       {!lk && <EvidenceReceipt payload={vPayload} checkedAt={vEl?.updatedAt} />}
                       {lk && <span className="lockbadge"><Lock size={9} /> NA</span>}
@@ -2185,7 +2195,7 @@ function Sheet({ roomId, me, art, proof, onError }: { roomId: string; me: Actor;
                       {vPresence && <span className="presencebadge" data-testid="presence-flag">{presenceLabel(vPresence)}</span>}
                     </td>
                     <td className={"r-cell" + (nPresence ? ` presence presence-${nPresence.mode}` : "") + (nProposal ? " proposed" : "")} style={presenceStyle(nPresence)} data-cell-key={nId} data-element-id={nId} data-evidence-class={classifyEvidence(nPayload)} data-testid="sheet-cell" data-presence-mode={nPresence?.mode} onClick={() => touchPresence(store, roomId, art.id, me, nId, "focus", selfPresenceColor)}>
-                      <EditableCell key={nId + ":" + (nEl?.version ?? 0)} value={String(nEl?.value ?? "")} disabled={!!lk || !!nProposal} addLabel="note" onEditStart={() => touchPresence(store, roomId, art.id, me, nId, "edit", selfPresenceColor)} onEditEnd={() => store.clearPresence({ roomId, artifactId: art.id, targetKind: "cell", targetId: nId, mode: "edit", actor: me })} onCommit={(s) => doCommit(nId, s)} />
+                      <EditableCell key={nId + ":" + (nEl?.version ?? 0)} value={displayCellValue(nEl?.value)} disabled={!!lk || !!nProposal} addLabel="note" onEditStart={() => touchPresence(store, roomId, art.id, me, nId, "edit", selfPresenceColor)} onEditEnd={() => store.clearPresence({ roomId, artifactId: art.id, targetKind: "cell", targetId: nId, mode: "edit", actor: me })} onCommit={(s) => doCommit(nId, s)} />
                       <StaleChip label={cellStaleness(nPayload, nEl?.updatedAt)} />
                       <EvidenceReceipt payload={nPayload} checkedAt={nEl?.updatedAt} />
                       {historyOn && proof && (

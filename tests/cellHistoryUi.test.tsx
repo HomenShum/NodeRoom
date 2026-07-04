@@ -50,6 +50,7 @@ import {
   TraceStrip,
   cellHistoryEnabled,
   historyValuePreview,
+  displayCellValue,
   historyTimeAgo,
   wordDiffSegments,
   staleLabelFor,
@@ -262,6 +263,12 @@ describe("history pure helpers — bounded previews and diffs", () => {
     const huge = historyValuePreview("A".repeat(10_000));
     expect(huge.length).toBeLessThanOrEqual(60);
     expect(huge.endsWith("…")).toBe(true);
+  });
+
+  it("displayCellValue unwraps nested CellPayload/formula objects for visible sheet cells", () => {
+    expect(displayCellValue({ value: { formula: "=E2-D2", value: 3250 }, status: "complete" })).toBe("3250");
+    expect(displayCellValue({ formula: "=E2-D2", value: "+22.4%" })).toBe("+22.4%");
+    expect(displayCellValue({ formula: "=E2-D2", value: null })).toBe("=E2-D2");
   });
 
   it("historyTimeAgo degrades from just-now to minutes/hours/days and rejects junk timestamps", () => {

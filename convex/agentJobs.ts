@@ -2774,6 +2774,19 @@ async function extractCompletedCompaniesFromSheet(ctx: any, artifactId: unknown)
   return companies;
 }
 
+function normalizedCompanyMentionText(value: string): string {
+  return value.toLowerCase().replace(/[^a-z0-9]+/g, "");
+}
+
+function filterCompaniesByGoalMention(goal: string, companies: Array<{ rowId: string; company: string; website: string }>): Array<{ rowId: string; company: string; website: string }> {
+  const normalizedGoal = normalizedCompanyMentionText(goal);
+  const explicitlyMentioned = companies.filter((company) => {
+    const normalizedCompany = normalizedCompanyMentionText(company.company);
+    return normalizedCompany.length >= 3 && normalizedGoal.includes(normalizedCompany);
+  });
+  return explicitlyMentioned.length ? explicitlyMentioned : companies;
+}
+
 /** After the parent (execute) frame completes, spawn one deep-dive child frame per
  *  completed company. Returns the number of child frames spawned. */
 async function spawnDeepDiveFramesIfNeeded(ctx: any, args: {
@@ -2793,7 +2806,8 @@ async function spawnDeepDiveFramesIfNeeded(ctx: any, args: {
   if (!completedFrame || completedFrame.phase !== "execute") return 0;
 
   // Extract completed companies from the sheet
-  const companies = await extractCompletedCompaniesFromSheet(ctx, args.artifactId);
+  const completedCompanies = await extractCompletedCompaniesFromSheet(ctx, args.artifactId);
+  const companies = filterCompaniesByGoalMention(completedFrame.goal, completedCompanies);
   if (companies.length === 0) return 0;
 
   const maxChildren = Math.min(companies.length, MAX_DEEP_DIVE_CHILD_FRAMES);
