@@ -267,6 +267,19 @@ describe("Deep-dive fan-out architecture", () => {
       return companies;
     }
 
+    function normalizedCompanyMentionText(value: string): string {
+      return value.toLowerCase().replace(/[^a-z0-9]+/g, "");
+    }
+
+    function filterCompaniesByGoalMention(goal: string, companies: Array<{ rowId: string; company: string; website: string }>): Array<{ rowId: string; company: string; website: string }> {
+      const normalizedGoal = normalizedCompanyMentionText(goal);
+      const explicitlyMentioned = companies.filter((company) => {
+        const normalizedCompany = normalizedCompanyMentionText(company.company);
+        return normalizedCompany.length >= 3 && normalizedGoal.includes(normalizedCompany);
+      });
+      return explicitlyMentioned.length ? explicitlyMentioned : companies;
+    }
+
     it("extracts only companies with status 'complete'", () => {
       const elements = [
         { elementId: "c1__company", value: "Acme AI" },
@@ -314,6 +327,15 @@ describe("Deep-dive fan-out architecture", () => {
       ];
       const companies = extractCompletedCompanies(elements);
       expect(companies).toHaveLength(0);
+    });
+
+    it("narrows deep-dive fan-out to the company explicitly named in the parent goal", () => {
+      const companies = [
+        { rowId: "rc_cardionova", company: "CardioNova", website: "https://cardionova.example" },
+        { rowId: "rc_mercury", company: "Mercury", website: "https://mercury.com" },
+      ];
+      expect(filterCompaniesByGoalMention("Research CardioNova funding and headcount", companies).map((c) => c.rowId)).toEqual(["rc_cardionova"]);
+      expect(filterCompaniesByGoalMention("Research every complete company", companies).map((c) => c.rowId)).toEqual(["rc_cardionova", "rc_mercury"]);
     });
   });
 

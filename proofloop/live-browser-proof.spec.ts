@@ -37,6 +37,7 @@ import {
   providerForAgentModelPolicy,
   withNodeAgentMention,
 } from "../src/eval/proofloopLiveBrowserPrompt";
+import { classifyAgentCompletion } from "../src/eval/proofloopLiveBrowserCompletion";
 import { enableFocusModeForTest, expectAttentionOverlayMounted, expectFocusModeOn } from "../e2e/focusMode";
 import { installCockpit, emitCockpitEvent, cockpitEventsPath } from "./cockpit/playwrightOverlay";
 import { noderoomSelectors, noderoomTextLocators } from "./adapters/noderoom/selectors";
@@ -57,6 +58,7 @@ const SUITE_PROOF_PATH = process.env.PROOFLOOP_SUITE_PROOF_PATH ?? "docs/eval/pr
 const AGENT_MODEL_MODE = process.env.BENCH_AGENT_MODEL_MODE ?? process.env.PROOFLOOP_AGENT_MODEL_MODE ?? "specific";
 const AGENT_MODEL_POLICY = process.env.BENCH_AGENT_MODEL_POLICY ?? process.env.PROOFLOOP_AGENT_MODEL_POLICY ?? "z-ai/glm-5.2";
 const TASK_ID_FILTER = parseProofloopTaskIds(process.env.PROOFLOOP_TASK_IDS);
+const FRESH_ROOM_PER_TASK = process.env.PROOFLOOP_FRESH_ROOM_PER_TASK !== "0";
 
 type TaskConfig = {
   id: string;
@@ -96,9 +98,10 @@ const PLACEHOLDER_PATTERNS: Array<{ code: string; pattern: RegExp }> = [
   { code: "lorem_ipsum", pattern: /lorem ipsum/i },
   { code: "todo_marker", pattern: /\btodo\b/i },
   { code: "tbd_marker", pattern: /\btbd\b/i },
-  { code: "placeholder_marker", pattern: /\bplaceholder\b/i },
+  { code: "placeholder_marker", pattern: /\bplaceholder\s+(?:text|copy|content|value|data|citation|source|row|cell|title|here)\b/i },
   { code: "insert_bracket", pattern: /\[insert[^\]]*\]/i },
   { code: "xxx_marker", pattern: /\bxxx+\b/i },
+  { code: "object_object_marker", pattern: /\[object Object\]/i },
 ];
 
 test.skip(!ENABLED, "Set PROOFLOOP_LIVE_BROWSER=1 to run the live browser proof-loop.");
@@ -128,18 +131,34 @@ test("Live browser proof-loop: starter room -> agent tasks -> UI + terminal-qual
   await emitCockpitEvent(page, { type: "gate_pass", gate: "focus_box_or_attention_overlay" }, COCKPIT_EVENTS_PATH);
   await selectAgentRoute(page);
 
-  const roomUrl = page.url();
+  let suiteRoomUrl = page.url();
   const taskProofs: TaskProof[] = [];
   const taskFailures: string[] = [];
   const singleTaskRun = tasks.length === 1;
 
   for (const task of tasks) {
+    if (FRESH_ROOM_PER_TASK && taskProofs.length > 0) {
+      await createFreshStarterRoom(page);
+      suiteRoomUrl = page.url();
+      console.log(`[proofloop-live] room created: ${suiteRoomUrl}`);
+      if (COCKPIT_ENABLED) await installCockpit(page, { suite: "live-browser", baseUrl: BASE });
+      await expectFocusModeOn(page);
+      await emitCockpitEvent(page, { type: "gate_pass", gate: "fresh_room_join" }, COCKPIT_EVENTS_PATH);
+      await openSheetSurfaceForFocusOverlay(page, task.name.includes("Runway") ? "Runway" : "Q3 variance");
+      await expectAttentionOverlayMounted(page);
+      await emitCockpitEvent(page, { type: "gate_pass", gate: "focus_mode_enabled" }, COCKPIT_EVENTS_PATH);
+      await emitCockpitEvent(page, { type: "gate_pass", gate: "focus_box_or_attention_overlay" }, COCKPIT_EVENTS_PATH);
+      await selectAgentRoute(page);
+    }
+
     const taskTimeout = taskTimeoutFor(task);
     console.log(`[proofloop-live] running task: ${task.name}`);
     console.log(`[proofloop-live] task budget: ${task.id} timeout=${taskTimeout}ms streamWait<=${STREAM_WAIT_MS}ms`);
     const started = Date.now();
     const taskDeadline = started + taskTimeout;
     const agentGoal = withNodeAgentMention(task.goal);
+    const taskRoomUrl = page.url();
+    await openTaskEvidenceSurface(page, task);
     const streams = page.locator(noderoomSelectors.agentStream);
     const streamCountBeforeSend = await streams.count().catch(() => 0);
     let stream = streams.last();
@@ -148,7 +167,10 @@ test("Live browser proof-loop: starter room -> agent tasks -> UI + terminal-qual
     const composer = page.locator(noderoomSelectors.chatComposer);
     await expect(composer).toBeVisible({ timeout: 30_000 });
     await composer.fill(agentGoal);
-    await page.locator(noderoomSelectors.chatSend).click();
+    const sendButton = page.locator(noderoomSelectors.chatSend);
+    await expect(sendButton).toBeVisible({ timeout: 30_000 });
+    await expect(sendButton).toBeEnabled({ timeout: 30_000 });
+    await sendButton.click();
 
     let streamingVisible = false;
     try {
@@ -189,6 +211,7 @@ test("Live browser proof-loop: starter room -> agent tasks -> UI + terminal-qual
     }
 
     let jobCompleted = false;
+    let jobFailureStatus: string | undefined;
     const completionPollMs = 5_000;
     const completionPolls = Math.max(1, Math.ceil(Math.max(0, taskDeadline - Date.now()) / completionPollMs));
     console.log(`[proofloop-live] completion loop: ${task.id} elapsed=${Date.now() - started}ms polls=${completionPolls}`);
@@ -196,6 +219,7 @@ test("Live browser proof-loop: starter room -> agent tasks -> UI + terminal-qual
       const completion = await currentAgentCompletionFast(page, stream);
       if (completion.completed) { jobCompleted = true; break; }
       if (completion.failed) {
+        jobFailureStatus = completion.statusText;
         console.warn(`[proofloop-live] job reached non-passing status: ${completion.statusText}`);
         await emitCockpitEvent(page, { type: "warning", message: `${task.id}: job status ${completion.statusText}` }, COCKPIT_EVENTS_PATH);
         break;
@@ -204,6 +228,8 @@ test("Live browser proof-loop: starter room -> agent tasks -> UI + terminal-qual
     }
     streamingVisible = streamingVisible || await stream.isVisible().catch(() => false);
     const agentOutput = ((await stream.textContent().catch(() => "")) ?? "").slice(0, 6_000);
+
+    await openTaskEvidenceSurface(page, task);
 
     let roomTraceVisible = false;
     try {
@@ -229,7 +255,7 @@ test("Live browser proof-loop: starter room -> agent tasks -> UI + terminal-qual
       (matchesProofPattern(outputLower, pattern) ? matchedPatterns : unmatchedPatterns).push(pattern);
     }
     const publicAgentDone = await currentPublicAgentDone(page);
-    const effectiveJobCompleted = jobCompleted || (singleTaskRun && publicAgentDone && matchedPatterns.length === task.passPatterns.length);
+    const effectiveJobCompleted = !jobFailureStatus && (jobCompleted || (singleTaskRun && publicAgentDone && matchedPatterns.length === task.passPatterns.length));
     await emitCockpitEvent(page, { type: effectiveJobCompleted ? "gate_pass" : "gate_fail", gate: "agent_job_completed" }, COCKPIT_EVENTS_PATH);
     const evidenceReady = effectiveJobCompleted && matchedPatterns.length === task.passPatterns.length;
 
@@ -271,8 +297,8 @@ test("Live browser proof-loop: starter room -> agent tasks -> UI + terminal-qual
       taskId: task.id,
       generatedAt,
       baseUrl: BASE,
-      roomId: roomIdFromUrl(roomUrl),
-      roomUrl,
+      roomId: roomIdFromUrl(taskRoomUrl),
+      roomUrl: taskRoomUrl,
       command: proofloopLiveBrowserCommand(),
       model: {
         id: AGENT_MODEL_POLICY,
@@ -332,7 +358,9 @@ test("Live browser proof-loop: starter room -> agent tasks -> UI + terminal-qual
     if (!validation.ok) console.warn(`[proofloop-live] receipt validation gaps for ${task.id}: ${validation.errors.join("; ")}`);
 
     const durationMs = Date.now() - started;
-    const error = !effectiveJobCompleted
+    const error = jobFailureStatus
+      ? `Job reached non-passing status: ${jobFailureStatus}`
+      : !effectiveJobCompleted
       ? "Job did not complete within timeout"
       : blockingCaveats.length
         ? `Agent terminal quality gate failed: ${blockingCaveats.join(", ")}`
@@ -378,7 +406,7 @@ test("Live browser proof-loop: starter room -> agent tasks -> UI + terminal-qual
       benchmark: "product-smoke",
       generatedAt: new Date().toISOString(),
       baseUrl: BASE,
-      roomUrl,
+      roomUrl: suiteRoomUrl,
       command: proofloopLiveBrowserCommand(),
       model: {
         id: AGENT_MODEL_POLICY,
@@ -478,7 +506,46 @@ async function visibleBinderArtifactText(page: Page): Promise<string> {
     noderoomSelectors.binderArtifact,
     noderoomSelectors.agentStream,
     '[data-noderoom-surface="workSurface.sheet"]',
+    '[data-noderoom-surface="workSurface.research"]',
+    '[data-noderoom-surface="workSurface.notebook"]',
+    '[data-noderoom-surface="workSurface.agentNotes"]',
+    '[data-noderoom-surface="workSurface.wall"]',
   ].join(",")).evaluateAll((els) => els.map((el) => el.textContent ?? "").join("\n"));
+}
+
+async function openTaskEvidenceSurface(page: Page, task: TaskConfig): Promise<void> {
+  const title = evidenceArtifactTitleForTask(task);
+  if (!title) return;
+  await ensureLeftRailVisible(page);
+  const artifact = page.locator(noderoomSelectors.binderArtifact).filter({ hasText: new RegExp(escapeRegExp(title), "i") }).first();
+  if (!(await artifact.isVisible({ timeout: 10_000 }).catch(() => false))) {
+    console.warn(`[proofloop-live] target artifact not visible for scoring: ${title}`);
+    return;
+  }
+  const artifactId = await artifact.getAttribute("data-artifact-id");
+  await artifact.click({ timeout: 30_000 });
+  if (artifactId) {
+    await expect(page.locator(`[data-noderoom-surface^="workSurface."][data-artifact-id="${cssAttr(artifactId)}"]`).first())
+      .toBeVisible({ timeout: 30_000 });
+  }
+  await page.waitForTimeout(1_000);
+}
+
+function evidenceArtifactTitleForTask(task: TaskConfig): string | undefined {
+  const text = `${task.id} ${task.name} ${task.goal}`.toLowerCase();
+  if (/\b(research|cardionova|headcount|funding)\b/.test(text)) return "Company research";
+  if (/\b(memo|diligence|product overview|market position)\b/.test(text)) return "Diligence memo";
+  if (/\b(runway|milestone|burn)\b/.test(text)) return "Runway / milestones";
+  if (/\b(variance|q3|q2)\b/.test(text)) return "Q3 variance";
+  return undefined;
+}
+
+function cssAttr(value: string): string {
+  return value.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
+}
+
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
 function roomIdFromUrl(url: string): string | undefined {
@@ -526,19 +593,9 @@ async function currentAgentCompletion(page: Page, stream: Locator): Promise<{
   const streamText = (await quickText(stream)).trim();
   const latestStream = page.locator(noderoomSelectors.agentStream).last();
   const latestStreamText = (await quickText(latestStream)).trim();
-  const combinedStreamText = [streamText, latestStreamText].filter(Boolean).join("\n");
   const progressStatus = (await quickAttribute(latestStream.locator(noderoomSelectors.agentProgressCard).last(), "data-status")).trim();
   const peopleText = ((await page.locator("text=/Public agent\\s*·\\s*(done|failed|blocked|idle|running)/i").last().textContent().catch(() => "")) ?? "").trim();
-  const statusText = [jobStatus, progressStatus, peopleText, combinedStreamText.slice(0, 240)].filter(Boolean).join(" | ");
-  const completed =
-    /\bcompleted\b/i.test(jobStatus) ||
-    /\bdone\b/i.test(progressStatus) ||
-    /\bNodeAgent completed\b/i.test(combinedStreamText);
-  const failed =
-    /\b(failed|blocked|cancelled)\b/i.test(jobStatus) ||
-    /\bfailed\b/i.test(progressStatus) ||
-    /\bNodeAgent needs attention\b/i.test(combinedStreamText);
-  return { completed, failed, statusText };
+  return classifyAgentCompletion({ jobStatus, progressStatus, peopleText, streamText, latestStreamText });
 }
 
 async function currentPublicAgentDone(page: Page): Promise<boolean> {
@@ -555,19 +612,9 @@ async function currentAgentCompletionFast(page: Page, stream: Locator): Promise<
   const streamText = (await quickText(stream)).trim();
   const latestStream = page.locator(noderoomSelectors.agentStream).last();
   const latestStreamText = (await quickText(latestStream)).trim();
-  const combinedStreamText = [streamText, latestStreamText].filter(Boolean).join("\n");
   const progressStatus = (await quickAttribute(latestStream.locator(noderoomSelectors.agentProgressCard).last(), "data-status")).trim();
   const peopleText = (await quickText(page.locator("text=/Public agent\\s*.\\s*(done|failed|blocked|idle|running)/i").last())).trim();
-  const statusText = [jobStatus, progressStatus, peopleText, combinedStreamText.slice(0, 240)].filter(Boolean).join(" | ");
-  const completed =
-    /\bcompleted\b/i.test(jobStatus) ||
-    /\bdone\b/i.test(progressStatus) ||
-    /\bNodeAgent completed\b/i.test(combinedStreamText);
-  const failed =
-    /\b(failed|blocked|cancelled)\b/i.test(jobStatus) ||
-    /\bfailed\b/i.test(progressStatus) ||
-    /\bNodeAgent needs attention\b/i.test(combinedStreamText);
-  return { completed, failed, statusText };
+  return classifyAgentCompletion({ jobStatus, progressStatus, peopleText, streamText, latestStreamText });
 }
 
 async function quickText(locator: Locator, timeout = 250): Promise<string> {

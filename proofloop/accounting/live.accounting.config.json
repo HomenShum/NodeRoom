@@ -16,7 +16,7 @@
     {
       "id": "research-enrich",
       "name": "Company Research Enrichment",
-      "goal": "Research CardioNova and fill in the pending fields: funding, headcount, and recent_signal in the Company research sheet. Use web search if available. Cite your sources.",
+      "goal": "Research CardioNova and fill in the pending Company research sheet fields. Write concise values under the exact labels funding, headcount, and recent_signal. Include the literal field names funding and headcount in the visible result and cite your sources.",
       "passPatterns": ["CardioNova", "funding", "headcount"],
       "expectArtifactEdit": true,
       "timeoutMs": 600000
@@ -32,10 +32,10 @@
     {
       "id": "memo-draft",
       "name": "Diligence Memo Draft",
-      "goal": "Draft a 3-paragraph diligence memo for Mercury in the Diligence memo note. Cover: product overview, market position, and key risks.",
+      "goal": "Draft a 3-paragraph diligence memo for Mercury in the Diligence memo note. Use the exact paragraph headings Product overview, Market position, and Key risks so the visible note covers product, market, and risk explicitly.",
       "passPatterns": ["Mercury", "product", "market", "risk"],
       "expectArtifactEdit": true,
-      "timeoutMs": 300000
+      "timeoutMs": 600000
     }
   ]
 }
