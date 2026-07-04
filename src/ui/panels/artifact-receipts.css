@@ -87,3 +87,39 @@ td.r-cell:focus-within .r-hist-btn,
 /* grouped run bursts (actor + minute) */
 .r-trace-group { display: flex; flex-direction: column; }
 .r-trace-group-rows { margin-left: 18px; border-left: 2px solid var(--line); padding-left: 6px; }
+
+/* ── cursor ladder (sheet presence) — States & Scale "Presence at scale" ──────
+   1 claim  → named flag        (.sc-flag ← design-reference/fixes .fx-flag)
+   2–3      → offset stacked flags (.sc-flagstack)
+   4+       → cluster count pill  (.sc-cluster ← design-reference/scale .sc-cluster)
+   The ladder is a PASSIVE presence read: pointer-events none so the cell keeps
+   its click/select/edit behavior. Color per-actor via --presence-color (member
+   color); falls back to the terracotta accent = agent/selection provenance. */
+.r-presence-ladder {
+  position: absolute; top: 50%; right: 6px; z-index: 4; transform: translateY(-50%);
+  display: inline-flex; align-items: center; pointer-events: none; max-width: 60%;
+}
+.r-presence-ladder .sc-flag {
+  display: inline-flex; align-items: center; max-width: 84px; overflow: hidden;
+  text-overflow: ellipsis; white-space: nowrap; padding: 1px 7px;
+  border-radius: 5px 5px 5px 0; background: var(--presence-color, var(--accent-primary));
+  color: #fff; font-size: 9px; font-weight: 800; letter-spacing: .02em; line-height: 1.5;
+  box-shadow: 0 1px 3px color-mix(in srgb, var(--shadow-color, #000) 22%, transparent);
+}
+/* stacked flags overlap left-to-right so 2–3 read as a small pile, freshest on top. */
+.r-presence-ladder.sc-flagstack .sc-flag { margin-left: -9px; border: 1px solid var(--bg-primary); }
+.r-presence-ladder.sc-flagstack .sc-flag:first-child { margin-left: 0; }
+/* cluster pill (4+) — verbatim treatment from scale.css .sc-cluster, re-tokenized. */
+.r-presence-ladder.sc-cluster {
+  padding: 1px 7px; border-radius: 999px; vertical-align: 1px;
+  background: color-mix(in srgb, var(--accent-primary) 18%, transparent);
+  color: var(--accent-ink); font-size: 9.5px; font-weight: 800;
+}
+/* cells that carry a ladder reserve room on the right so the value never sits under it. */
+.r-sheet td.r-cell:has(.r-presence-ladder) { padding-right: 64px; }
+/* pinned focus row (kept mounted outside the virtualization window) reads normal — the pin is
+   structural, never a visual highlight beyond the existing selection ring. */
+.r-sheet tr.r-row-pinned > td { /* no extra chrome; selection ring already conveys focus */ }
+/* virtualization spacer rows are pure scroll-height stand-ins — no borders, no hover. */
+.r-sheet tr.r-vrow-spacer > td { border: 0; background: transparent; }
+.r-sheet tr.r-vrow-spacer:hover > td { background: transparent; }

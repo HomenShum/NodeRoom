@@ -61,14 +61,18 @@ input { font-family: inherit; }
 .kicker { font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .16em; color: var(--text-muted); }
 
 /* top bar */
+/* Calm (default): flat surface — the hairline carries the structure, not a tinted band
+   (fixes.css .fx-calm .fx-top { background: transparent }). */
 .r-top { height: 52px; flex: none; display: flex; align-items: center; gap: 12px; padding: 0 14px; border-bottom: 1px solid var(--line);
-  background: color-mix(in srgb, var(--bg-primary) 78%, transparent); backdrop-filter: blur(16px); position: relative; z-index: 40; }
+  background: transparent; position: relative; z-index: 40; }
 .r-mark { width: 28px; height: 28px; border-radius: 7px; flex: none; background: linear-gradient(180deg, var(--accent-primary), #C6684A); color: #fff; font-weight: 800; font-size: 15px; display: grid; place-items: center; box-shadow: 0 4px 12px rgba(217,119,87,.32); }
 .r-brand { font-weight: 700; letter-spacing: -.01em; font-size: 14px; }
 .r-brand span { color: var(--text-muted); font-weight: 500; }
 /* The room code wears a button-like chip, so it must BE a button: sharing the code is the core
    multiplayer flow (Meet/Figma mental model: click the code -> copy invite). */
-.r-roomcode { display: inline-flex; align-items: center; gap: var(--space-2); padding: 5px 10px; border-radius: 8px; background: var(--accent-tint); border: 1px solid var(--accent-border); font-family: var(--font-mono); font-size: 12px; font-weight: 800; letter-spacing: .04em; color: var(--accent-ink); white-space: nowrap; flex-shrink: 0; cursor: pointer; box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent-primary) 9%, transparent); transition: background var(--motion-fast), border-color var(--motion-fast), color var(--motion-fast), box-shadow var(--motion-fast); }
+/* Calm invite (fixes.css .fx-calm .fx-invite): quiet hairline at rest; the accent treatment —
+   the "growth object" moment — arrives on hover/focus, which the rule below already provides. */
+.r-roomcode { display: inline-flex; align-items: center; gap: var(--space-2); padding: 5px 10px; border-radius: 8px; background: transparent; border: 1px solid var(--line); font-family: var(--font-mono); font-size: 12px; font-weight: 800; letter-spacing: .04em; color: var(--accent-ink); white-space: nowrap; flex-shrink: 0; cursor: pointer; transition: background var(--motion-fast), border-color var(--motion-fast), color var(--motion-fast), box-shadow var(--motion-fast); }
 /* Hover must be PERCEPTIBLE — the old one-shade bg shift (rgb 23->32) was invisible to eye AND
    vision judge. Accent-tinted border + brighter ink is the two-cue, on-palette signal. */
 .r-roomcode:hover { background: color-mix(in srgb, var(--accent-primary) 16%, var(--bg-primary)); border-color: var(--accent-primary); color: var(--accent-ink); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent-primary) 18%, transparent); }
@@ -78,7 +82,14 @@ input { font-family: inherit; }
 .r-av { width: 26px; height: 26px; border-radius: 50%; flex: none; display: grid; place-items: center; font-size: 10px; font-weight: 700; color: #fff; border: 2px solid var(--bg-primary); margin-left: -7px; position: relative; }
 .r-av:first-child { margin-left: 0; } .r-av.agent { border-radius: 8px; }
 .r-av .pulse { position: absolute; right: -1px; bottom: -1px; width: 7px; height: 7px; border-radius: 50%; background: var(--success); opacity: .8; border: 2px solid var(--bg-primary); }
-.r-live-count { flex: none; display: inline-flex; align-items: center; min-height: 24px; padding: 0 8px; border: 1px solid var(--line); border-radius: 999px; background: var(--bg-secondary); color: var(--text-muted); font-size: 11px; font-weight: 800; white-space: nowrap; }
+/* Calm: chip chrome flattens to a hairline (fixes.css .fx-calm .fx-live). */
+.r-live-count { flex: none; display: inline-flex; align-items: center; min-height: 24px; padding: 0 8px; border: 1px solid var(--line); border-radius: 999px; background: transparent; color: var(--text-muted); font-size: 11px; font-weight: 800; white-space: nowrap; }
+/* Offline edit-hold pill (Latency: "offline edits held, visible, never lost") — amber = needs
+   review, never green: held edits are unconfirmed work. Renders next to the sync tag. */
+.r-offline-pill { display: inline-flex; align-items: center; gap: 6px; min-height: 24px; padding: 2px 9px; border-radius: 999px; border: 1px solid var(--warning-border); background: var(--warning-tint); color: var(--warning-ink); font-size: 11px; font-weight: 700; white-space: nowrap; flex: none; }
+.r-offline-pill b { font-weight: 800; color: var(--warning-ink); }
+button.r-offline-pill { cursor: pointer; font-family: inherit; }
+button.r-offline-pill:hover, button.r-offline-pill:focus-visible { border-color: var(--warning-ink); }
 .r-iconbtn { display: inline-grid; place-items: center; width: 32px; height: 32px; border-radius: 8px; background: transparent; border: 1px solid transparent; color: var(--text-muted); transition: background .15s, color .15s, border-color .15s; font-size: 14px; }
 /* Compact sibling that still participates in the coarse-pointer 44px escalation (an inline
    width/height style would silently defeat that media query). */
@@ -87,7 +98,7 @@ input { font-family: inherit; }
 .r-iconbtn[data-on="true"] { background: var(--accent-tint); color: var(--accent-ink); border-color: var(--accent-border); }
 .r-iconbtn.primary { background: var(--accent-solid); color: #fff; border-color: var(--accent-solid); }
 .r-iconbtn.primary:hover { filter: brightness(1.04); }
-.r-toggle-group { display: flex; gap: 2px; padding: 3px; border-radius: 9px; background: var(--bg-secondary); border: 1px solid var(--line); }
+.r-toggle-group { display: flex; gap: 2px; padding: 3px; border-radius: 9px; background: transparent; border: 1px solid var(--line); } /* calm: hairline, not a tinted well */
 .r-btn { display: inline-flex; align-items: center; gap: var(--space-2); padding: var(--space-2) var(--space-3); border-radius: 9px; font-size: 13px; font-weight: 600; border: 1px solid var(--line); background: var(--bg-secondary); color: var(--text-primary); transition: background .15s, border-color .15s, transform .08s; }
 .r-btn:hover { background: var(--bg-hover); } .r-btn:active { transform: translateY(1px); }
 /* Flat fill, no glow: a form submit is attached, not floating (Linear/Vercel primary spec —
@@ -100,7 +111,7 @@ input { font-family: inherit; }
 .r-btn.ghost { background: transparent; border-color: transparent; color: var(--text-muted); }
 .r-btn.ghost:hover { background: var(--bg-hover); color: var(--text-primary); }
 .r-btn:disabled { opacity: .5; cursor: default; }
-.r-pill-auto { display: inline-flex; align-items: center; gap: 8px; padding: 5px 6px 5px var(--space-3); border-radius: 9px; border: 1px solid var(--line); background: var(--bg-secondary); font-size: 12px; font-weight: 600; color: var(--text-secondary); white-space: nowrap; flex-shrink: 0; }
+.r-pill-auto { display: inline-flex; align-items: center; gap: 8px; padding: 5px 6px 5px var(--space-3); border-radius: 9px; border: 1px solid var(--line); background: transparent; font-size: 12px; font-weight: 600; color: var(--text-secondary); white-space: nowrap; flex-shrink: 0; } /* calm: hairline carries it */
 .r-pill-auto b { color: var(--accent-ink); font-size: 11px; font-weight: 800; letter-spacing: .01em; }
 .r-pill-auto-label { color: var(--text-muted); font-size: 11px; font-weight: 750; }
 .r-focus-mode-control[data-on="true"] { color: var(--accent-ink); border-color: var(--accent-border); background: var(--accent-tint); }
@@ -142,7 +153,9 @@ input { font-family: inherit; }
 /* shell-level Signal Tape + Status Strip */
 /* One calm status bar (was three stacked cards: a stepper pill + a counts tape + a status line).
    Single border, single surface; spine left · live status (grows) · actionable signals right. */
-.r-shell-bottom { position: relative; z-index: 45; flex: none; display: flex; align-items: center; gap: 12px; margin: 0 10px 10px; padding: 5px 12px; min-height: 34px; border: 1px solid var(--line); border-radius: 10px; background: color-mix(in srgb, var(--bg-primary) 86%, transparent); backdrop-filter: blur(14px); overflow: visible; }
+/* Calm (default): the ONE status bar goes flat — hairline border only, no tinted band
+   (fixes.css .fx-calm .fx-status { background: transparent }). */
+.r-shell-bottom { position: relative; z-index: 45; flex: none; display: flex; align-items: center; gap: 12px; margin: 0 10px 10px; padding: 5px 12px; min-height: 34px; border: 1px solid var(--line); border-radius: 10px; background: transparent; overflow: visible; }
 .r-spine { display: flex; align-items: center; gap: 4px; flex: none; min-height: 22px; font-size: 10.5px; color: var(--text-tertiary); }
 .r-spine-step { display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; }
 .r-spine-step:not(:last-child)::after { content: ""; width: 14px; height: 1px; background: var(--line); margin: 0 4px; }
@@ -265,8 +278,13 @@ input { font-family: inherit; }
 .r-file[draggable="true"] { cursor: grab; }
 .r-file[draggable="true"]:active { cursor: grabbing; }
 .r-file[data-active="true"] { background: var(--accent-tint); border-color: var(--accent-border); }
-.r-file .fi { width: 26px; height: 26px; border-radius: 7px; display: grid; place-items: center; flex: none; background: var(--bg-secondary); color: var(--text-muted); }
+/* Calm binder rows (fixes.css .fx-calm .fx-item): names lead; icon boxes lose their chrome and
+   the meta line rests at a floor, lifting on hover, keyboard focus, or the active row. Floor is
+   opacity (not display:none) so nothing reflows and the row's data stays technically visible. */
+.r-file .fi { width: 26px; height: 26px; border-radius: 7px; display: grid; place-items: center; flex: none; background: transparent; color: var(--text-muted); }
 .r-file[data-active="true"] .fi { background: rgba(217,119,87,.18); color: var(--accent-ink); }
+.r-file .fm { opacity: .45; transition: opacity var(--motion-fast) var(--ease-out-expo); }
+.r-file:hover .fm, .r-file:focus-visible .fm, .r-file:focus-within .fm, .r-file[data-active="true"] .fm { opacity: 1; }
 .r-file .fn { display: flex; align-items: center; gap: 6px; min-width: 0; font-size: 13px; font-weight: 650; color: var(--text-primary); line-height: 1.22; white-space: normal; }
 .r-file-name { min-width: 0; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; white-space: normal; }
 .r-file-ext { flex: none; display: inline-flex; align-items: center; min-height: 16px; padding: 1px 5px; border-radius: 5px; border: 1px solid var(--line); background: var(--bg-primary); color: var(--text-tertiary); font-family: var(--font-mono); font-size: 9px; line-height: 1; font-weight: 800; }
@@ -354,7 +372,9 @@ input { font-family: inherit; }
 .r-avatar.agent { border-radius: 8px; } .r-avatar.sm { width: 24px; height: 24px; font-size: 10px; }
 
 /* chat + Copilot */
-.r-copilot { background: color-mix(in srgb, var(--bg-primary) 96%, var(--bg-secondary)); }
+/* Calm (default): the Copilot panel drops its tint and sits on the same flat panel surface as
+   the rest of the shell (fixes.css .fx-calm .fx-chat { background: transparent }). */
+.r-copilot { background: var(--bg-primary); }
 .r-copilot-head { min-height: 42px; }
 .r-copilot-tabs { display: inline-flex; gap: 2px; padding: 3px; border-radius: 9px; border: 1px solid var(--line); background: var(--bg-secondary); }
 .r-copilot-tabs button { display: inline-flex; align-items: center; gap: 5px; min-height: 26px; padding: 0 8px; border: 0; border-radius: 7px; background: transparent; color: var(--text-muted); font-size: 11px; font-weight: 700; }
@@ -758,7 +778,8 @@ input { font-family: inherit; }
 .r-panel.artifact .r-tag { flex: 0 0 auto; }
 .r-tab { display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; border-radius: 8px; font-size: 12px; font-weight: 600; border: 1px solid transparent; background: transparent; color: var(--text-muted); }
 .r-tab:hover { background: var(--bg-hover); color: var(--text-primary); }
-.r-tab[data-active="true"] { background: var(--bg-secondary); border-color: transparent; color: var(--text-primary); box-shadow: inset 0 -2px 0 var(--accent-primary); }
+/* Calm tabs (fixes.css .fx-calm .fx-tab.on): the active tab is an underline, not a box. */
+.r-tab[data-active="true"] { background: transparent; border-color: transparent; border-radius: 0; color: var(--text-primary); box-shadow: inset 0 -2px 0 var(--accent-primary); }
 /* browser-style open-file tabs: each open artifact is a closeable tab */
 .r-filetab { max-width: 184px; padding-right: 6px; }
 .r-filetab-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -787,13 +808,15 @@ input { font-family: inherit; }
 
 /* Quadratic-grounded grid: sticky gray column headers + thin gridlines + a row-number gutter,
    so the dark sheet reads as a real spreadsheet instead of a borderless data table. */
-.r-sheet th { position: sticky; top: 0; z-index: 2; text-align: left; font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--text-tertiary); padding: 6px 10px; background: var(--bg-secondary); border-bottom: 1px solid var(--line-strong); border-right: 1px solid var(--line); }
+/* Calm grid chrome (fixes.css .fx-calm .fx-sheet): the header band flattens onto the panel
+   surface (still opaque — it is sticky) and body gridlines soften to 55% so the DATA leads. */
+.r-sheet th { position: sticky; top: 0; z-index: 2; text-align: left; font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--text-tertiary); padding: 6px 10px; background: var(--bg-primary); border-bottom: 1px solid var(--line); border-right: 1px solid color-mix(in srgb, var(--line) 55%, transparent); }
 .r-sheet th.num, .r-sheet td.num { text-align: right; font-variant-numeric: tabular-nums; }
-.r-sheet td { padding: 6px 10px; border-bottom: 1px solid var(--line); border-right: 1px solid var(--line); color: var(--text-secondary); }
+.r-sheet td { padding: 6px 10px; border-bottom: 1px solid color-mix(in srgb, var(--line) 55%, transparent); border-right: 1px solid color-mix(in srgb, var(--line) 55%, transparent); color: var(--text-secondary); }
 .r-sheet th:last-child, .r-sheet td:last-child { border-right: none; }
 /* row-number gutter (replaces the leaked internal id column): narrow, centered, sticky-left */
 .r-sheet th.r-corner { padding: 6px; position: sticky; left: 0; z-index: 5; }
-.r-sheet td.r-rownum { position: sticky; left: 0; z-index: 4; padding: 6px; text-align: center; font-variant-numeric: tabular-nums; font-size: 11px; color: var(--text-tertiary); background: var(--bg-secondary); border-right: 1px solid var(--line-strong); user-select: none; cursor: default; }
+.r-sheet td.r-rownum { position: sticky; left: 0; z-index: 4; padding: 6px; text-align: center; font-variant-numeric: tabular-nums; font-size: 11px; color: var(--text-tertiary); background: var(--bg-primary); border-right: 1px solid var(--line); user-select: none; cursor: default; } /* calm: gutter sits on the panel surface (opaque for sticky) */
 .r-sheet tbody tr:hover td { background: var(--bg-hover); }
 .r-sheet tbody tr:hover td.r-rownum { background: var(--bg-secondary); color: var(--text-secondary); }
 /* generic data grid: fixed rhythm; cells expose full text through title/value bar */
@@ -812,10 +835,10 @@ input { font-family: inherit; }
 .r-sheet[data-sheet-kind="generic"][data-density="comfortable"] tbody tr { height: 50px; }
 .r-sheet[data-sheet-kind="generic"][data-density="comfortable"] td.r-cell { height: 50px; max-height: 50px; padding-top: var(--space-2); padding-bottom: var(--space-2); }
 /* Name-box + value bar (Excel-like A1 + full value of the selected cell). */
-.r-sheet-bar { display: flex; align-items: center; gap: 10px; padding: 5px 10px; border-bottom: 1px solid var(--line); background: var(--bg-secondary); font-size: 11.5px; min-height: 30px; flex: none; }
+.r-sheet-bar { display: flex; align-items: center; gap: 10px; padding: 5px 10px; border-bottom: 1px solid var(--line); background: transparent; font-size: 11.5px; min-height: 30px; flex: none; } /* calm: flat toolbar, hairline below */
 .r-sheet-namebox { flex: none; min-width: 44px; font-family: var(--font-mono); font-weight: 700; color: var(--accent-ink); }
 .r-sheet-valuebar { min-width: 0; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text-secondary); }
-.r-sheet-filterbar { display: flex; align-items: center; gap: 8px; min-height: 34px; padding: 5px 10px; border-bottom: 1px solid var(--line); background: color-mix(in srgb, var(--bg-secondary) 84%, var(--bg-primary)); overflow-x: auto; scrollbar-width: thin; }
+.r-sheet-filterbar { display: flex; align-items: center; gap: 8px; min-height: 34px; padding: 5px 10px; border-bottom: 1px solid var(--line); background: transparent; overflow-x: auto; scrollbar-width: thin; } /* calm: flat */
 .r-scale-chip, .r-filter-chip { flex: none; display: inline-flex; align-items: center; gap: 5px; min-height: 22px; padding: 0 8px; border: 1px solid var(--line); border-radius: 999px; background: var(--bg-primary); color: var(--text-muted); font-family: var(--font-mono); font-size: 10.5px; font-weight: 800; white-space: nowrap; }
 .r-filter-chipset { display: inline-flex; align-items: center; gap: 5px; flex: none; }
 .r-filter-chip { cursor: pointer; background: var(--bg-secondary); transition: background var(--motion-fast), border-color var(--motion-fast), color var(--motion-fast); }
@@ -844,13 +867,18 @@ input { font-family: inherit; }
 .r-cell-meta.failed, .r-cell-meta.gap { color: var(--danger-ink); border-color: var(--danger-border); background: var(--danger-tint); }
 .r-cell-meta.complete { color: var(--success-ink); border-color: rgba(46,158,107,.25); background: rgba(46,158,107,.10); }
 .r-grid-status, .r-owner-chip, .r-source-chip, .r-cite-chip { display: inline-flex; align-items: center; min-width: 0; max-width: 100%; white-space: nowrap; vertical-align: middle; }
-.r-grid-status { height: 22px; max-width: 100%; padding: 0 8px; border-radius: 6px; border: 1px solid var(--line); font-size: 12px; font-weight: 700; line-height: 1; text-transform: none; overflow: hidden; text-overflow: ellipsis; }
-.r-grid-status-complete { color: var(--success-ink); background: rgba(46,158,107,.10); border-color: rgba(46,158,107,.26); }
-.r-grid-status-enriching { color: var(--accent-ink); background: var(--accent-tint); border-color: var(--accent-border); }
-.r-grid-status-pending { color: var(--warning-ink); background: var(--warning-tint); border-color: var(--warning-border); }
-.r-grid-status-needs-review, .r-grid-status-failed { color: var(--danger-ink); background: var(--danger-tint); border-color: var(--danger-border); }
-.r-grid-status-neutral { color: var(--text-muted); background: var(--bg-secondary); border-color: var(--line); }
-.r-owner-chip { gap: 6px; height: 24px; padding: 0 7px 0 3px; border-radius: 999px; border: 1px solid var(--line); background: var(--bg-secondary); color: var(--text-primary); font-size: 12px; font-weight: 700; }
+/* Calm status = dot + word, no pill chrome (fixes.css .fx-calm .fx-st). The semantic inks are
+   unchanged: green stays success-only, terracotta = agent work, amber = needs review. */
+.r-grid-status { height: 22px; max-width: 100%; gap: 7px; padding: 0; border: 0; border-radius: 0; background: transparent; font-size: 12px; font-weight: 600; line-height: 1; text-transform: none; overflow: hidden; text-overflow: ellipsis; }
+.r-grid-status::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: currentColor; flex: none; }
+.r-grid-status-complete { color: var(--success-ink); }
+.r-grid-status-enriching { color: var(--accent-ink); }
+.r-grid-status-pending { color: var(--warning-ink); }
+.r-grid-status-needs-review, .r-grid-status-failed { color: var(--danger-ink); }
+.r-grid-status-neutral { color: var(--text-muted); }
+/* Calm owner chip (fixes.css .fx-calm .fx-owner): the avatar IS the identity at rest; the pill
+   chrome goes, the name is hover/focus detail (revealed via the apparatus block below). */
+.r-owner-chip { gap: 6px; height: 24px; padding: 0 7px 0 3px; border-radius: 999px; border: 1px solid transparent; background: transparent; color: var(--text-primary); font-size: 12px; font-weight: 700; }
 .r-owner-avatar { flex: none; width: 18px; height: 18px; display: grid; place-items: center; border-radius: 50%; color: #fff; font-size: 8.5px; font-weight: 800; line-height: 1; }
 .r-owner-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 .r-source-chip { gap: 6px; height: 22px; max-width: 100%; padding: 0 7px 0 6px; border-radius: 6px; border: 1px solid var(--line); background: color-mix(in srgb, var(--bg-secondary) 82%, transparent); color: var(--text-secondary); font-size: 11px; font-weight: 750; text-decoration: none; }
@@ -869,6 +897,36 @@ input { font-family: inherit; }
 .r-sheet[data-sheet-kind="generic"] td.r-cell:has(.r-cite-wrap:focus-within) { overflow: visible; z-index: 20; }
 .r-row-add td { height: 38px; border-bottom: 0; color: var(--text-tertiary); background: var(--bg-primary); }
 .r-row-add:hover td { background: var(--bg-hover); }
+/* ── Calm apparatus (fixes.css .fx-calm .fx-src / .fx-owner .n / .fx-addrow): default state shows
+   DATA; the apparatus — source receipts, cite chips, owner names, add-row — rests at an opacity
+   floor and lifts on row hover. Every hover reveal has a :focus twin (keyboard parity), and the
+   floor is .45 rather than 0: e2e asserts these chips visible without hover, and a readable floor
+   is the honest compromise over display:none (nothing is ever removed from the page). */
+.r-sheet tbody tr .r-source-chip,
+.r-sheet tbody tr .r-cite-wrap,
+.r-sheet tbody tr .r-owner-chip .r-owner-name,
+.r-research tbody tr .r-srcchip,
+.r-row-add { opacity: .45; transition: opacity var(--motion-fast) var(--ease-out-expo); }
+.r-sheet tbody tr:hover .r-source-chip, .r-sheet tbody tr:focus-within .r-source-chip,
+.r-sheet tbody tr:hover .r-cite-wrap, .r-sheet tbody tr:focus-within .r-cite-wrap,
+.r-sheet tbody tr:hover .r-owner-chip .r-owner-name, .r-sheet tbody tr:focus-within .r-owner-chip .r-owner-name,
+.r-research tbody tr:hover .r-srcchip, .r-research tbody tr:focus-within .r-srcchip,
+.r-sheet td.r-cell.sel .r-source-chip, .r-sheet td.r-cell.sel .r-cite-wrap,
+.r-source-chip:hover, .r-source-chip:focus-visible,
+.r-cite-wrap:hover, .r-cite-wrap:focus-within,
+.r-srcchip:hover, .r-srcchip:focus-visible,
+.r-sheet-wrap:hover .r-row-add, .r-sheet-wrap:focus-within .r-row-add,
+.r-row-add:hover, .r-row-add:focus-within { opacity: 1; }
+/* Hover on row hover; on rest the owner name still reads at the floor. Touch has no hover: the
+   apparatus stays fully visible there (what desktop reveals on hover, mobile shows by default). */
+@media (hover: none) {
+  .r-sheet tbody tr .r-source-chip,
+  .r-sheet tbody tr .r-cite-wrap,
+  .r-sheet tbody tr .r-owner-chip .r-owner-name,
+  .r-research tbody tr .r-srcchip,
+  .r-row-add,
+  .r-file .fm { opacity: 1; }
+}
 .r-add-row-cell span { display: inline-flex; align-items: center; height: 22px; padding: 0 8px; border-radius: 6px; border: 1px dashed var(--line-strong); color: var(--text-muted); font-size: 11px; font-weight: 700; }
 .r-cell { position: relative; cursor: default; }
 .r-sheet[data-sheet-kind="generic"] tbody tr.r-row-locked > td { background: color-mix(in srgb, var(--accent-primary) 8%, var(--bg-primary)); }
@@ -927,10 +985,13 @@ input { font-family: inherit; }
 .r-icon-btn.accept:hover:not(:disabled) { background: rgba(46,158,107,.15); border-color: rgba(46,158,107,.3); color: var(--success-ink); }
 .r-icon-btn.reject:hover:not(:disabled) { background: var(--danger-tint); border-color: var(--danger-border); color: var(--danger-ink); }
 .r-icon-btn:disabled { opacity: .55; cursor: default; }
-.r-sheet-foot { padding: 10px 14px; border-top: 1px solid var(--line); display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-.r-vpill { font-family: var(--font-mono); font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 6px; background: var(--bg-secondary); border: 1px solid var(--line); color: var(--text-muted); }
+/* Calm sheet footer (fixes.css .fx-calm .fx-shfoot/.fx-vpill/.fx-colchip): softened rule, quiet
+   version pill, chromeless column count. .r-vpill.next keeps its accent — it is a pending-commit
+   semantic, not decoration. */
+.r-sheet-foot { padding: 10px 14px; border-top: 1px solid color-mix(in srgb, var(--line) 55%, transparent); display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.r-vpill { font-family: var(--font-mono); font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 6px; background: transparent; border: 1px solid var(--line); color: var(--text-muted); }
 .r-vpill.next { background: var(--accent-tint); border-color: var(--accent-border); color: var(--accent-ink); }
-.r-cols-pill { display: inline-flex; align-items: center; min-height: 22px; padding: 0 7px; border: 1px solid var(--line); border-radius: 6px; background: var(--bg-secondary); color: var(--text-muted); font-family: var(--font-mono); font-size: 10.5px; font-weight: 800; white-space: nowrap; }
+.r-cols-pill { display: inline-flex; align-items: center; min-height: 22px; padding: 0 7px; border: 1px solid transparent; border-radius: 6px; background: transparent; color: var(--text-muted); font-family: var(--font-mono); font-size: 10.5px; font-weight: 800; white-space: nowrap; }
 
 .r-wiki-body { display: grid; grid-template-columns: 168px minmax(0, 1fr); overflow: hidden; }
 .r-wiki-toc { min-width: 0; border-right: 1px solid var(--line); background: var(--bg-secondary); padding: 16px 14px; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; }
@@ -1103,9 +1164,9 @@ input { font-family: inherit; }
 .r-research-import { flex: none; }
 .r-research-scroll { flex: 1; min-height: 0; overflow: auto; }
 .r-research { width: 100%; min-width: 800px; border-collapse: separate; border-spacing: 0; table-layout: fixed; font-size: 13px; }
-.r-research thead th { position: sticky; top: 0; z-index: 3; text-align: left; font-size: 10px; text-transform: uppercase; letter-spacing: .12em; color: var(--text-tertiary); padding: 8px var(--space-3); border-bottom: 1px solid var(--line); font-weight: 600; background: var(--bg-secondary); }
+.r-research thead th { position: sticky; top: 0; z-index: 3; text-align: left; font-size: 10px; text-transform: uppercase; letter-spacing: .12em; color: var(--text-tertiary); padding: 8px var(--space-3); border-bottom: 1px solid var(--line); font-weight: 600; background: var(--bg-primary); } /* calm: flat header band (opaque for sticky) */
 .r-research thead th.frozen { left: 0; z-index: 4; }
-.r-research td { padding: 8px var(--space-3); vertical-align: middle; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.38; border-bottom: 1px solid var(--line); color: var(--text-secondary); font-variant-numeric: tabular-nums; }
+.r-research td { padding: 8px var(--space-3); vertical-align: middle; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.38; border-bottom: 1px solid color-mix(in srgb, var(--line) 55%, transparent); color: var(--text-secondary); font-variant-numeric: tabular-nums; } /* calm: softened gridlines */
 .r-research td:has(> .r-status) { overflow: visible; text-overflow: clip; }
 .r-research td.frozen { position: sticky; left: 0; z-index: 2; background: var(--bg-primary); }
 .r-research-row { height: 42px; cursor: pointer; }
@@ -1428,10 +1489,12 @@ button.r-tracevu-step:hover, button.r-tracevu-step:focus-visible { border-color:
 .r-detail-k { font-size: 9.5px; text-transform: uppercase; letter-spacing: .1em; color: var(--text-tertiary); font-weight: 700; }
 .r-detail-v { font-size: 12px; color: var(--text-primary); word-break: break-word; line-height: 1.4; }
 .r-detail-v a { color: var(--accent-ink); word-break: break-all; }
-.r-status { display: inline-flex; align-items: center; font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; padding: 2px 8px; border-radius: 999px; white-space: nowrap; }
-.r-status-pending { color: var(--text-muted); background: var(--bg-secondary); border: 1px solid var(--line); }
-.r-status-running { color: #5b9bf5; background: rgba(91,155,245,.12); border: 1px solid rgba(91,155,245,.3); }
-.r-status-complete { color: var(--success-ink); background: rgba(46,158,107,.12); border: 1px solid rgba(46,158,107,.28); }
+/* Calm status = dot + word on the research grid too (fixes.css .fx-calm .fx-st). Inks unchanged. */
+.r-status { display: inline-flex; align-items: center; gap: 6px; font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; padding: 2px 0; border-radius: 0; white-space: nowrap; }
+.r-status::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; flex: none; }
+.r-status-pending { color: var(--text-muted); }
+.r-status-running { color: #5b9bf5; }
+.r-status-complete { color: var(--success-ink); }
 .r-fresh { display: inline-flex; align-items: center; white-space: nowrap; font-size: 10px; font-weight: 700; padding: 2px var(--space-2); border-radius: 999px; border: 1px solid var(--line); }
 .r-fresh.fresh { color: var(--success-ink); background: rgba(46,158,107,.1); border-color: rgba(46,158,107,.25); }
 /* QA P1 contrast: #a15b2d on the orange tint failed WCAG AA in dark mode; theme-aware ink clears 4.5:1. */
@@ -2394,8 +2457,9 @@ body.nr-honesty-on [data-evidence-class="unsourced"]     { background-color: col
 .r-room-inv-vis { flex: none; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; padding: 2px 6px; border-radius: 999px; border: 1px solid var(--line); color: var(--text-tertiary); }
 .r-room-inv-vis[data-vis="private"] { color: var(--accent-ink); border-color: var(--accent-border); }
 
-/* Quiet bottom strip — less visual noise */
-.r-shell-bottom { background: var(--bg-primary); border-top: 1px solid var(--line); }
+/* Quiet bottom strip — less visual noise. Calm (default): fully flat — the hairline border is
+   the structure (fixes.css .fx-calm .fx-status { background: transparent }). */
+.r-shell-bottom { background: transparent; border-top: 1px solid var(--line); }
 .r-status-strip { font-size: 11.5px; color: var(--text-muted); }
 .r-status-dot { width: 7px; height: 7px; border-radius: 50%; flex: none; }
 .r-signal-chip { font-size: 11px; }

@@ -198,7 +198,7 @@ function MobileLiveRoot() {
   return (
     <ErrorBoundary onError={() => leave()} fallback={() => null}>
       <ConvexStoreProvider roomId={session.roomId} me={me} proof={proof}>
-        <MobileAppLive roomId={session.roomId} me={me} onLeave={leave} />
+        <MobileAppLive roomId={session.roomId} me={me} proof={proof} onLeave={leave} />
       </ConvexStoreProvider>
     </ErrorBoundary>
   );

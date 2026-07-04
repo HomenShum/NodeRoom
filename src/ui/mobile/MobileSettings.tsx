@@ -130,6 +130,42 @@ export function SettingsSheet({ ctx }: { ctx: MobileCtx }) {
           onChange: (v) => set("passive", v as PassiveMode),
         }),
       ),
+
+      // ── gap pack: Agent auto-allow + notification tiers ──
+      // (design-reference/mobile-scale/gaps-app.jsx PSettings)
+      React.createElement("div", { className: "na-kicker" }, "Agent"),
+      React.createElement("div", { className: "gp-set" },
+        React.createElement("div", { className: "cn-nrow", "data-testid": "gap-autoallow-row" },
+          "Agent commits: auto-allow",
+          React.createElement("span", { className: "grow" }),
+          React.createElement("button", {
+            type: "button",
+            className: "fx-toggle",
+            role: "switch",
+            "aria-checked": ctx.autoAllow ? "true" : "false",
+            "aria-label": "Auto-allow agent commits",
+            "data-testid": "gap-autoallow-toggle",
+            "data-on": ctx.autoAllow ? "true" : "false",
+            onClick: () => ctx.setAutoAllow(!ctx.autoAllow),
+          }, React.createElement("span", { className: "sw" + (ctx.autoAllow ? "" : " off") })),
+        ),
+        React.createElement("div", { className: "gp-cap" }, "Off = every commit waits in Review. Locks and receipts apply either way."),
+      ),
+
+      React.createElement("div", { className: "na-kicker" }, "Notifications"),
+      React.createElement("div", { className: "gp-set", "data-testid": "gap-notif-rows" },
+        ctx.notifRows.map((n) =>
+          React.createElement("div", { key: n.label, className: "cn-nrow", "data-testid": "gap-notif-row" },
+            n.label,
+            React.createElement("span", { className: "grow" }),
+            React.createElement("span", { className: "mode" + (n.mode === "instant" ? " instant" : "") }, n.mode),
+            React.createElement("span", { className: "fx-toggle", "aria-hidden": "true", "data-on": n.on ? "true" : "false" },
+              React.createElement("span", { className: "sw" + (n.on ? "" : " off") })),
+          ),
+        ),
+        !ctx.notifBacked && React.createElement("div", { className: "gp-cap", "data-testid": "gap-notif-caption" },
+          "Notification tiers are preview-only here — coming with the notifications backend."),
+      ),
     ),
   );
 }

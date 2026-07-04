@@ -53,6 +53,7 @@ import { ArtifactSheet } from "./MobileDeck";
 import { SheetArtifact } from "./MobileGrid";
 import { TraceOverlay, SourceOverlay } from "./MobileOverlay";
 import { SettingsSheet } from "./MobileSettings";
+import { ReviewSheet, TraceSheet, ShareSheet, ManageSheet, FirstJoinOverlay, OfflineBanner } from "./MobileGapSheets";
 import { loadTweaks, saveTweaks } from "./mobileTweaks";
 import { IOSDevice, MobileStage } from "./MobileFrame";
 import { haptic } from "./mobileUtil";
@@ -357,6 +358,34 @@ export function MobileApp({ live }: { live?: MobileLive } = {}): React.ReactElem
   const [flashSheet, setFlashSheet] = React.useState<SheetId | null>(null);
   const [pulseView, setPulseView] = React.useState<"people" | "agents" | "cost">("people");
   const [openRev, setOpenRev] = React.useState<string | null>(null);
+
+  // ── gap pack: memory-mode-local state (live values override via `live`) ──
+  // In a live room, auto-allow is the room's flag and toggling it hits the store;
+  // offline these are device-local so the Settings screen is still interactive.
+  const [memAutoAllow, setMemAutoAllow] = React.useState(true);
+  // Notification tiers have no local backend to write, so memory mode shows them
+  // static + honest (backed:false surfaces the "coming with backend" caption).
+  const memNotifRows = D.NOTIF_ROWS;
+  // Rows the user swiped-right in memory mode (live mode uses ctx.isRowWatched).
+  const [memWatched, setMemWatched] = React.useState<Set<string>>(() => new Set());
+  // First-join welcome: shown once per session for live rooms (never in memory).
+  const [firstJoinSeen, setFirstJoinSeen] = React.useState(false);
+  React.useEffect(() => {
+    if (!live) { setFirstJoinSeen(true); return; }
+    if (live.loading) return; // wait for hydration so the counts are real
+    try {
+      const key = "noderoom:mobileFirstJoin:" + (live.inviteCode || live.roomName || "room");
+      if (typeof window !== "undefined" && window.sessionStorage.getItem(key) === "1") setFirstJoinSeen(true);
+    } catch { /* sessionStorage unavailable — overlay shows once in memory */ }
+  }, [live, live?.loading, live?.inviteCode, live?.roomName]);
+  const dismissFirstJoin = React.useCallback(() => {
+    setFirstJoinSeen(true);
+    try {
+      if (live && typeof window !== "undefined") {
+        window.sessionStorage.setItem("noderoom:mobileFirstJoin:" + (live.inviteCode || live.roomName || "room"), "1");
+      }
+    } catch { /* ignore */ }
+  }, [live]);
 
   const firstRun = React.useRef(true);
   const timers = React.useRef<ReturnType<typeof setTimeout>[]>([]);
@@ -826,6 +855,28 @@ export function MobileApp({ live }: { live?: MobileLive } = {}): React.ReactElem
     livePlan: live?.plan,
     liveEvidence: live?.evidence,
     liveCoach: live?.coach,
+
+    // ── gap pack: live projections override the memory-mode samples ──
+    pipeline: live ? live.pipeline : D.PIPELINE,
+    traceRows: live ? live.traceRows : D.TRACE_ROWS,
+    peopleGroups: live ? live.peopleGroups : D.PEOPLE_GROUPS,
+    inviteCode: live ? live.inviteCode : D.ROOM.code,
+    offline: live?.offline,
+    acknowledgeOfflineConflicts: live?.acknowledgeOfflineConflicts,
+    autoAllow: live ? live.autoAllow : memAutoAllow,
+    setAutoAllow: (on: boolean) => {
+      if (live) { live.setAutoAllow(on); }
+      else { setMemAutoAllow(on); toast(on ? "Agent commits auto-allow on" : "Agent commits now wait in Review"); }
+    },
+    notifRows: live ? live.notifRows : memNotifRows,
+    notifBacked: live ? live.notifBacked : false,
+    watchRow: async (rowId: string, on: boolean) => {
+      if (live) return live.watchRow(rowId, on);
+      setMemWatched((prev) => { const next = new Set(prev); if (on) next.add(rowId); else next.delete(rowId); return next; });
+      return { ok: true };
+    },
+    isRowWatched: (rowId: string) => (live ? live.isRowWatched(rowId) : memWatched.has(rowId)),
+    flagRowNeedsReview: (rowId: string) => (live ? live.flagRowNeedsReview(rowId) : Promise.resolve({ ok: false, reason: "offline" })),
   };
 
   const SCREENS: Record<TabId, React.FC<{ ctx: MobileCtx }>> = {
@@ -850,6 +901,11 @@ export function MobileApp({ live }: { live?: MobileLive } = {}): React.ReactElem
   const navFan: FabAction[] = [
     { icon: "chevL", label: "Actions", muted: true, keepOpen: true, run: () => setFabMode("act") },
     ...TAB_IDS.map((id): FabAction => ({ icon: TABS[id].icon, label: TABS[id].label, active: tab === id, badge: id === "inbox" ? openCount : 0, run: () => setTab(id) })),
+    // gap pack entry points (design-reference/mobile-scale/gaps-app.jsx)
+    { icon: "shield", label: "Review", badge: openCount, run: () => openSheet("review") },
+    { icon: "history", label: "Trace", run: () => openSheet("trace") },
+    { icon: "users", label: "People", run: () => openSheet("manage") },
+    { icon: "link", label: "Share", run: () => openSheet("share") },
     { icon: "settings", label: "Settings", run: () => openSheet("settings") },
   ];
   const fanActions: FabAction[] = fabMode === "nav" ? navFan : fab.actions;
@@ -888,7 +944,7 @@ export function MobileApp({ live }: { live?: MobileLive } = {}): React.ReactElem
             {(tab === "home" || tab === "room") && (
               <div className="na-pulse" role="status">
                 <span className="seg"><i className="na-live-dot" />Live</span>
-                <button className="seg btn" onClick={() => openPulse("people")}><b>{room.people}</b>people</button>
+                <button className="seg btn" onClick={() => openSheet("manage")}><b>{room.people}</b>people</button>
                 <button className={"seg btn" + (openCount ? " has-warn" : "")} onClick={() => openPulse("agents")}>
                   <b>{room.agents}</b>agents
                   {openCount ? <span className="seg-warn">{openCount}</span> : null}
@@ -902,10 +958,18 @@ export function MobileApp({ live }: { live?: MobileLive } = {}): React.ReactElem
             )}
           </div>
 
+          {/* ── offline hold banner: held edits are visible, never lost ── */}
+          <OfflineBanner ctx={ctx} />
+
           {/* active screen */}
           <div className="na-body" key={tab}>
             <Screen ctx={ctx} />
           </div>
+
+          {/* ── first-join welcome (live rooms only; once per session) ── */}
+          {live && !firstJoinSeen && !live.loading && (
+            <FirstJoinOverlay people={liveHumans.length} agents={liveAgents.length} onDismiss={dismissFirstJoin} />
+          )}
 
           {/* ── command dock: contextual expandable FAB + direct text bar ── */}
           <div className="na-dock">
@@ -1184,6 +1248,12 @@ export function MobileApp({ live }: { live?: MobileLive } = {}): React.ReactElem
           <div className="na-sheet tall" data-open={sheet === "artifact"}><div className="na-handle" />{sheet === "artifact" && <ArtifactSheet ctx={ctx} />}</div>
           <div className="na-sheet tall" data-open={sheet === "sheetart"} data-flash={flashSheet === "sheetart"}><div className="na-handle" />{sheet === "sheetart" && <SheetArtifact ctx={ctx} />}</div>
           <div className="na-sheet" data-open={sheet === "settings"}><div className="na-handle" />{sheet === "settings" && <SettingsSheet ctx={ctx} />}</div>
+
+          {/* ── gap pack sheets (design-reference/mobile-scale/gaps-app.jsx) ── */}
+          <div className="na-sheet tall" data-open={sheet === "review"}><div className="na-handle" />{sheet === "review" && <ReviewSheet ctx={ctx} />}</div>
+          <div className="na-sheet tall" data-open={sheet === "trace"}><div className="na-handle" />{sheet === "trace" && <TraceSheet ctx={ctx} />}</div>
+          <div className="na-sheet tall" data-open={sheet === "share"}><div className="na-handle" />{sheet === "share" && <ShareSheet ctx={ctx} />}</div>
+          <div className="na-sheet tall" data-open={sheet === "manage"}><div className="na-handle" />{sheet === "manage" && <ManageSheet ctx={ctx} />}</div>
 
           {/* ── stacking overlay (trace receipt / source reader) — above any sheet ── */}
           <div className="na-scrim na-scrim-top" data-open={!!overlay} onClick={closeOverlay} />

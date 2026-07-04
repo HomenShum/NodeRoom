@@ -1975,3 +1975,121 @@ button.na-row:hover .chevR { transform: translateX(3px); color: var(--na-accent)
   .na-app * { animation: none !important; }
   .na-sheet, .na-toast, .na-scrim { transition: none !important; }
 }
+
+/* ============================================================================
+   GAP PACK — the 9 mobile gap screens (Review pipeline, Trace, Share, Manage
+   people, Settings additions, First-join, Offline).
+   Design source: design-reference/mobile-scale/gaps.css + mscale.css + the
+   scale/fixes specimens. Scoped under .na-app; only tokens that resolve in the
+   app (src/app/styles.css). No new hex/radius/shadow beyond the design refs.
+   ============================================================================ */
+
+/* pipeline checklist (gaps.css .gp-pipe / .gp-prow) */
+.na-app .gp-lbl { font-size: 9.5px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--text-tertiary); margin: 4px 0 2px; }
+.na-app .gp-pipe { margin: 6px 0 0; }
+.na-app .gp-prow { display: flex; align-items: center; gap: 10px; padding: 8px 2px; border-bottom: 1px solid var(--border-color); font-size: 12px; font-weight: 600; color: var(--text-secondary); }
+.na-app .gp-prow .d { width: 20px; height: 20px; border-radius: 50%; flex: none; display: grid; place-items: center; border: 1.5px solid var(--border-strong); color: var(--text-tertiary); font-size: 9px; font-weight: 800; }
+.na-app .gp-prow.done .d { background: color-mix(in srgb, var(--ok) 14%, transparent); border-color: var(--ok); color: var(--ok); }
+.na-app .gp-prow.on { color: var(--text-primary); }
+.na-app .gp-prow.on .d { background: var(--accent-primary); border-color: var(--accent-primary); color: #fff; }
+.na-app .gp-prow .mt { margin-left: auto; font-family: var(--font-mono); font-size: 9px; color: var(--text-tertiary); }
+.na-app .gp-review-actions { margin-top: 12px; }
+
+/* caption (gaps.css .gp-cap) */
+.na-app .gp-cap { font-size: 10px; color: var(--text-tertiary); line-height: 1.5; padding: 6px 2px 0; }
+
+/* decorative code pattern (gaps.css .gp-qr) — NOT a scannable QR */
+.na-app .gp-qr { width: 124px; height: 124px; margin: 4px auto; border-radius: 12px; background: var(--bg-secondary); border: 1px solid var(--border-color);
+  display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; padding: 10px; }
+.na-app .gp-qr i { border-radius: 2px; background: var(--text-primary); opacity: .85; }
+.na-app .gp-qr i.o { background: transparent; }
+
+/* invite code (gaps.css .gp-code) — a copy button here */
+.na-app .gp-code { display: flex; align-items: center; justify-content: center; gap: 9px; margin: 6px auto; padding: 6px 14px;
+  border: 0; background: transparent; font-family: var(--font-mono); font-size: 18px; font-weight: 800; letter-spacing: .12em; color: var(--accent-ink); cursor: pointer; }
+
+/* role segmented + expiry chips (gaps.css .gp-seg / mscale .ms-chips) */
+.na-app .gp-seg { display: flex; padding: 3px; border-radius: 10px; background: var(--bg-secondary); border: 1px solid var(--border-color); gap: 2px; margin: 4px 0; }
+.na-app .gp-seg > span { flex: 1; text-align: center; padding: 6px 0; border-radius: 8px; font-size: 11px; font-weight: 700; color: var(--text-muted); }
+.na-app .gp-seg > span.on { background: var(--bg-primary); color: var(--text-primary); box-shadow: var(--shadow-md); }
+.na-app .ms-chips { display: flex; gap: 5px; padding: 4px 0 2px; overflow-x: auto; }
+.na-app .ms-chips > span { flex: none; padding: 4px 10px; border-radius: 999px; font-size: 10.5px; font-weight: 700; color: var(--text-muted); border: 1px solid transparent; white-space: nowrap; }
+.na-app .ms-chips > span.on { background: var(--bg-primary); border-color: var(--border-strong); color: var(--text-primary); }
+
+/* row list + status pill (mscale .ms-row / fixes .fx-st) */
+.na-app .ms-row { display: flex; align-items: center; gap: 9px; padding: 9px 2px; border-bottom: 1px solid var(--border-color); }
+.na-app .ms-row .tx { flex: 1; min-width: 0; }
+.na-app .ms-row .nm { display: flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 700; color: var(--text-primary); }
+.na-app .ms-row .it { font-size: 10.5px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 1px; }
+.na-app .fx-st { display: inline-flex; align-items: center; gap: 6px; padding: 3px 9px; border-radius: 999px; font-size: 11px; font-weight: 700; }
+.na-app .fx-st.complete { background: color-mix(in srgb, var(--success-ink) 13%, transparent); color: var(--success-ink); }
+.na-app .fx-st.needs_review { background: color-mix(in srgb, var(--warning-ink) 13%, transparent); color: var(--warning-ink); }
+.na-app .fx-st.running { background: var(--accent-tint); color: var(--accent-ink); border: 1px solid var(--accent-border); }
+
+/* actions row (mscale .ms-actions) */
+.na-app .ms-actions { display: flex; gap: 7px; margin-top: 10px; }
+.na-app .ms-actions button { flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 9px 0; border-radius: 10px; border: 1px solid var(--border-strong); background: var(--bg-primary); font-size: 12px; font-weight: 700; color: var(--text-secondary); }
+.na-app .ms-actions button.pri { background: var(--accent-primary); border-color: transparent; color: #fff; }
+
+/* avatars (fixes .fx-av) */
+.na-app .fx-av { width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; font-size: 10px; font-weight: 800; color: #fff; flex: none; }
+.na-app .fx-av.agent { border-radius: 8px; }
+
+/* trace rows (scale .sc-trrow / .sc-trk / .sc-count) */
+.na-app .sc-count { font-family: var(--font-mono); font-size: 10px; font-weight: 700; color: var(--text-tertiary); margin-left: 7px; }
+.na-app .sc-trrow { display: flex; align-items: center; gap: 10px; width: 100%; padding: 8px 2px; border: 0; border-bottom: 1px solid var(--border-color); background: transparent; text-align: left; font-size: 11.5px; color: var(--text-secondary); cursor: pointer; }
+.na-app .sc-trk { flex: none; width: 60px; font-family: var(--font-mono); font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--text-tertiary); }
+.na-app .sc-trk.commit { color: var(--success-ink); }
+.na-app .sc-trk.lock { color: var(--accent-ink); }
+.na-app .sc-trk.cite { color: #5E6AD2; }
+.na-app .sc-trk.proposal, .na-app .sc-trk.agent { color: var(--accent-ink); }
+.na-app .sc-trk.blocked { color: var(--warning-ink); }
+.na-app .sc-trrow .txt { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.na-app .sc-trrow .t { font-family: var(--font-mono); font-size: 10px; color: var(--text-tertiary); flex: none; }
+
+/* manage-people groups (scale .cn-aclrow) */
+.na-app .gp-pgroup { margin-bottom: 6px; }
+.na-app .cn-aclrow { display: flex; align-items: center; gap: 10px; width: 100%; padding: 6px 2px; }
+.na-app .cn-aclrow .tx { flex: 1; min-width: 0; }
+.na-app .cn-aclrow .nm { font-size: 12px; font-weight: 600; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.na-app .cn-aclrow .it { font-size: 10px; color: var(--text-muted); margin-top: 1px; }
+
+/* settings additions (gaps.css .gp-set + scale .cn-nrow + fixes .fx-toggle) */
+.na-app .gp-set { padding: 4px 0; }
+.na-app .cn-nrow { display: flex; align-items: center; gap: 10px; width: 100%; padding: 9px 2px; border-bottom: 1px solid var(--border-color); font-size: 12px; color: var(--text-secondary); }
+.na-app .cn-nrow .grow { flex: 1; }
+.na-app .cn-nrow .mode { font-family: var(--font-mono); font-size: 9.5px; font-weight: 700; color: var(--text-tertiary); }
+.na-app .cn-nrow .mode.instant { color: var(--accent-ink); }
+.na-app .fx-toggle { display: inline-flex; align-items: center; padding: 0; border: 0; background: transparent; cursor: pointer; }
+.na-app .fx-toggle .sw { width: 30px; height: 17px; border-radius: 999px; background: var(--accent-primary); position: relative; flex: none; }
+.na-app .fx-toggle .sw::after { content: ''; position: absolute; top: 2px; right: 2px; width: 13px; height: 13px; border-radius: 50%; background: #fff; }
+.na-app .fx-toggle .sw.off { background: var(--bg-hover); }
+.na-app .fx-toggle .sw.off::after { right: auto; left: 2px; }
+
+/* first-join overlay (gaps.css .gp-onb) */
+.na-app .gp-onb-wrap { position: absolute; inset: 0; z-index: 40; display: grid; place-items: center; }
+.na-app .gp-onb-dim { position: absolute; inset: 0; background: rgba(43,29,20,.45); }
+.na-app .gp-onb { position: relative; width: min(320px, 82%); background: var(--bg-primary); border-radius: 18px; box-shadow: 0 24px 60px rgba(43,29,20,.4); padding: 20px 18px 16px; text-align: center; }
+.na-app .gp-onb .faces { display: flex; justify-content: center; margin-bottom: 10px; }
+.na-app .gp-onb .faces .fx-av { width: 34px; height: 34px; background: var(--accent-primary); border-radius: 12px; }
+.na-app .gp-onb h4 { font-family: var(--font-serif); font-weight: 400; font-size: 19px; line-height: 1.15; margin: 0 0 6px; color: var(--text-primary); }
+.na-app .gp-onb p { font-size: 11.5px; line-height: 1.55; color: var(--text-muted); margin: 0 0 14px; }
+.na-app .gp-onb .acts { display: flex; gap: 8px; }
+.na-app .gp-onb .acts button { flex: 1; padding: 10px 0; border-radius: 11px; border: 1px solid var(--border-strong); background: var(--bg-primary); font-size: 12px; font-weight: 700; color: var(--text-secondary); }
+.na-app .gp-onb .acts button.pri { background: var(--accent-primary); border-color: transparent; color: #fff; }
+
+/* offline banner (gaps.css .gp-banner) */
+.na-app .gp-banner { margin: 8px 12px 0; display: flex; align-items: center; gap: 8px; padding: 8px 11px; border-radius: 10px;
+  background: color-mix(in srgb, var(--warning-ink) 11%, transparent); border: 1px solid color-mix(in srgb, var(--warning-ink) 30%, transparent);
+  font-size: 10.5px; font-weight: 700; color: var(--warning-ink); }
+.na-app .gp-banner .gp-banner-tx { flex: 1; min-width: 0; }
+.na-app .gp-banner .gp-banner-act { flex: none; font-weight: 800; background: transparent; border: 0; color: inherit; cursor: pointer; }
+
+/* record-card gesture affordance (swipe reveal + watch state) */
+.na-app .na-srow { transition: transform .12s ease; }
+.na-app .na-srow[data-swipe="right"] { box-shadow: inset 4px 0 0 var(--accent-primary); }
+.na-app .na-srow[data-swipe="left"] { box-shadow: inset -4px 0 0 var(--warning-ink); }
+.na-app .na-srow[data-watched="true"] { box-shadow: inset 3px 0 0 var(--ok); }
+
+/* calm / reduced motion: gap-pack rows do not slide */
+.na-app[data-motion="reduced"] .gp-prow, .na-app[data-motion="reduced"] .na-srow { transition: none; }

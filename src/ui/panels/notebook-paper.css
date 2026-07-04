@@ -1,0 +1,157 @@
+/* ============================================================================
+   NodeRoom Notebook — THE NOTEBOOK IS PAPER.
+   Lifted from design-reference/notebook/notebook.css (values verbatim; the
+   specimen is the source of truth). Core thesis from the specimen: the
+   notebook stays ink-on-parchment (#FFFCF6 frame) even in the dark shell.
+   The app's dark theme flips the text, bg, and line tokens near-white, so the
+   frame RE-PINS the light values for everything inside it. Every rule is
+   scoped under .nbk-frame: the dark .r-note chrome cannot leak in, and paper
+   tokens cannot leak out.
+   ============================================================================ */
+
+.nbk-frame {
+  /* Specimen token re-pin block (notebook.css L16-24), mapped onto this app's
+     token names (src/app/styles.css :root) plus the specimen's own names used
+     by the lifted rules below. */
+  --bg-surface: #FFFFFF; --bg-muted: #F5F4F1; --bg-notebook: #FFFCF6; --bg-inspector: #FAFAF7;
+  --text-primary: #111827; --text-secondary: #374151; --text-muted: #6B7280; --text-tertiary: #9CA3AF; --text-faint: #9CA3AF;
+  --border-subtle: rgba(15,23,42,.06); --border-default: rgba(15,23,42,.10); --border-strong: rgba(15,23,42,.16);
+  --border-color: rgba(15,23,42,.10); --line: rgba(15,23,42,.10); --line-strong: rgba(15,23,42,.16);
+  --accent: #D97757; --accent-primary: #D97757; --accent-hover: #C76648; --accent-ink: #AD5F45;
+  --accent-tint: rgba(217,119,87,.08); --accent-border: rgba(217,119,87,.25);
+  --success: #047857; --success-ink: #047857; --success-tint: rgba(4,120,87,.08);
+  --warning: #B45309; --warning-ink: #B45309; --warning-tint: rgba(180,83,9,.08); --warning-border: rgba(180,83,9,.28);
+  --bg-primary: #FFFFFF; --bg-secondary: #F5F4F1; --bg-hover: #EEEBE6;
+  /* light shadow re-pin (styles.css :root value; dark theme swaps it for a white ring) */
+  --shadow-md: 0 0 0 1px rgba(0,0,0,.03), 0 4px 14px rgba(0,0,0,.08);
+  --font-sans: var(--font-ui);
+  /* serif for the quote ink — design-reference/terra/na.css L11, verbatim */
+  --font-serif: 'DM Serif Display', Georgia, 'Times New Roman', serif;
+}
+
+/* the sheet frame (specimen L25-26) + panel-filling layout so the paper
+   scrolls inside its own frame on the dark shell */
+.nbk-frame {
+  margin: 14px 18px;
+  border: 1px solid var(--border-default, rgba(15,23,42,.1));
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: var(--shadow-md, 0 4px 8px rgba(0,0,0,.05));
+  background: var(--bg-notebook);
+  color: var(--text-primary);
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+.nbk-body { flex: 1; min-height: 0; overflow: auto; }
+.nbk-foot { flex: none; border-top: 1px solid var(--border-subtle); background: var(--bg-inspector); }
+
+/* top chrome above the sheet (specimen L29-33) */
+.nbk-bar { display: flex; align-items: center; gap: 10px; padding: 10px 16px; flex: none;
+  background: var(--bg-surface); border-bottom: 1px solid var(--border-subtle); font-family: var(--font-sans); }
+.nbk-mark { width: 24px; height: 24px; border-radius: 6px; display: grid; place-items: center; flex: none;
+  background: var(--accent, #D97757); color: #fff; font-weight: 700; font-size: 12px; }
+.nbk-bar .grow { flex: 1; }
+.nbk-bar-title { font-size: 12.5px; font-weight: 600; color: var(--text-secondary);
+  min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* block status chips (specimen L36-41; NotebookBlock.status: draft | accepted | needs_review) */
+.nbk-st { display: inline-flex; align-items: center; gap: 5px; padding: 2px 9px; border-radius: 999px;
+  font-family: var(--font-mono); font-size: 10px; font-weight: 700; letter-spacing: .02em; }
+.nbk-st::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+.nbk-st.draft { color: var(--text-muted); background: var(--bg-muted); }
+.nbk-st.accepted { color: var(--success, #047857); background: rgba(4,120,87,.08); }
+.nbk-st.needs_review { color: var(--warning, #B45309); background: rgba(180,83,9,.08); }
+
+/* citation superscript (specimen L44-46) — rendered ONLY as a PM widget
+   decoration where an agent evidence url actually exists; never fabricated */
+.nbk-sup { font-family: var(--font-sans); font-size: 11px; font-weight: 700; color: var(--accent);
+  cursor: pointer; padding: 0 1px; vertical-align: super; line-height: 0; }
+.nbk-sup:hover { text-decoration: underline; }
+
+/* quote ink (specimen L49-52) mapped onto the schema's blockquote */
+.nbk-frame .ProseMirror blockquote { margin: 16px 0; padding: 4px 0 4px 16px; border-left: 3px solid var(--accent);
+  font-family: var(--font-serif); font-size: 16px; font-style: italic; line-height: 1.65; color: var(--text-secondary); }
+
+/* agent-authored ink: lighter + left-margin dot (specimen L55-57).
+   .nbk-agent is a PM node decoration on attrs.authorKind="agent" blocks. */
+.nbk-frame .nbk-agent { position: relative; color: var(--text-secondary); }
+.nbk-frame .nbk-agent::before { content: ''; position: absolute; left: -18px; top: .62em; width: 6px; height: 6px;
+  border-radius: 50%; background: var(--accent); opacity: .55; }
+/* one margin dot per block — nested li > p both carry attribution */
+.nbk-frame .nbk-agent .nbk-agent::before { content: none; }
+/* the dot REPLACES the dark shell's left-border agent accent inside the frame */
+.nbk-frame .r-note .ProseMirror h3[data-author-kind="agent"],
+.nbk-frame .r-note .ProseMirror h4[data-author-kind="agent"],
+.nbk-frame .r-note .ProseMirror p[data-author-kind="agent"],
+.nbk-frame .r-note .ProseMirror li[data-author-kind="agent"],
+.nbk-frame .r-agent-notes-body .ProseMirror h3[data-author-kind="agent"],
+.nbk-frame .r-agent-notes-body .ProseMirror h4[data-author-kind="agent"],
+.nbk-frame .r-agent-notes-body .ProseMirror p[data-author-kind="agent"],
+.nbk-frame .r-agent-notes-body .ProseMirror li[data-author-kind="agent"] { border-left: none; padding-left: 0; }
+
+/* needs_review blocks: the shell's rectangular tag becomes the paper .nbk-st
+   chip language (amber = needs review). .nbk-review is the PM decoration class. */
+.nbk-frame .r-note .ProseMirror [data-status="needs_review"]::after,
+.nbk-frame .r-agent-notes-body .ProseMirror [data-status="needs_review"]::after,
+.nbk-frame .nbk-review::after {
+  content: "needs_review"; display: inline-flex; align-items: center; margin-left: 8px; padding: 2px 9px;
+  border-radius: 999px; border: none; vertical-align: 1px;
+  font-family: var(--font-mono); font-size: 10px; font-weight: 700; letter-spacing: .02em;
+  color: var(--warning, #B45309); background: rgba(180,83,9,.08);
+}
+/* one chip per review item — legacy seeds flag both li and its nested p */
+.nbk-frame [data-status="needs_review"] [data-status="needs_review"]::after { content: none; }
+
+/* the agent-section "NodeRoom" chip restyles to the .nbk-bar mark language */
+.nbk-frame .r-note .ProseMirror h2[data-agent-root]::after,
+.nbk-frame .r-agent-notes-body .ProseMirror h2[data-agent-root]::after {
+  content: "NodeRoom"; font-size: 10px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase;
+  color: #fff; background: var(--accent); border: none; border-radius: 6px; padding: 2px 7px;
+}
+.nbk-frame .r-agent-notes-body .ProseMirror h2[data-agent-root] { display: flex; align-items: center; gap: 8px; }
+.nbk-frame .r-agent-notes-badge { color: #fff; background: var(--accent); border: none; border-radius: 6px; }
+
+/* wet ink — a block a remote/agent write just changed (specimen L60-63) */
+@media (prefers-reduced-motion: no-preference) {
+  .nbk-frame .nbk-wet { animation: nbk-ink 900ms var(--ease-out-expo, cubic-bezier(0.16,1,0.3,1)); }
+}
+@keyframes nbk-ink { 0% { background: rgba(217,119,87,.16); } 100% { background: transparent; } }
+
+/* doc-head meta chips (specimen L86-89) */
+.nbk-chip { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: 999px;
+  font-family: var(--font-mono); font-size: 10.5px; font-weight: 600; color: var(--text-muted);
+  background: var(--bg-muted); border: 1px solid var(--border-subtle); }
+.nbk-chip b { color: var(--accent); font-weight: 700; }
+
+/* footnotes at doc end (specimen L80-83 for .n/.t/.m; container layout ours) */
+.nbk-frame .nb-footnotes { margin: 4px 26px 20px; padding-top: 12px; border-top: 1px solid var(--border-subtle);
+  display: grid; gap: 6px; max-width: 680px; }
+.nbk-frame .nb-footnote { display: flex; align-items: baseline; gap: 8px; min-width: 0;
+  font-family: var(--font-sans); font-size: 12px; color: var(--text-secondary); }
+.nbk-frame .nb-footnote .n { font-family: var(--font-mono); font-size: 10px; font-weight: 700; color: var(--accent);
+  width: 18px; flex: none; }
+.nbk-frame .nb-footnote .t { font-weight: 600; color: var(--text-primary); text-decoration: none;
+  min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.nbk-frame .nb-footnote a.t:hover { color: var(--accent-ink); text-decoration: underline; }
+.nbk-frame .nb-footnote .m { margin-left: auto; flex: none; font-family: var(--font-mono); font-size: 10.5px; color: var(--text-muted); }
+
+/* ── paper overrides: keep the dark shell's notebook chrome out of the frame ── */
+
+/* the sheet itself is the paper — no panel background, ink from re-pinned tokens */
+.nbk-frame .r-note { background: transparent; }
+
+/* agent notes block: quiet paper section, not a dark panel */
+.nbk-frame .r-agent-notes { margin: 4px 26px 12px; max-width: 680px;
+  border: 1px solid var(--border-subtle); background: var(--bg-surface); border-radius: 10px; }
+
+/* read model + work-plan card: quiet paper chips in the frame footer,
+   not the dark r-notebook-proof panel */
+.nbk-frame .r-notebook-proof { margin: 0; padding: 12px 16px; border: none; border-radius: 0; background: transparent; }
+.nbk-frame .r-notebook-proof .r-tag,
+.nbk-frame .r-agent-plan-card .r-tag { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px;
+  border-radius: 999px; font-family: var(--font-mono); font-size: 10.5px; font-weight: 600;
+  color: var(--text-muted); background: var(--bg-muted); border: 1px solid var(--border-subtle); }
+.nbk-frame .r-notebook-block { background: var(--bg-surface); border: 1px solid var(--border-subtle); }
+.nbk-frame .r-agent-plan-card { background: var(--bg-surface); border: 1px solid var(--border-subtle); }

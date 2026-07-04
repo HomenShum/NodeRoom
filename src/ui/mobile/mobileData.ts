@@ -62,7 +62,12 @@ export type SheetId =
   | "jobs"
   | "artifact"
   | "sheetart"
-  | "settings";
+  | "settings"
+  // ── gap pack (design-reference/mobile-scale/gaps-app.jsx) ──
+  | "review"
+  | "trace"
+  | "share"
+  | "manage";
 // Universal composer modes (source = capture-for-evidence).
 export type ComposerMode = "note" | "room" | "agent" | "source";
 
@@ -596,6 +601,65 @@ export interface Person {
   agent?: boolean;
 }
 
+// ── Gap pack (design-reference/mobile-scale/gaps-app.jsx) ────────────────────
+// Small, screen-scoped shapes for the 9 gap screens. Kept minimal on purpose:
+// each maps to data the desktop already reads (pipeline bar / trace / people /
+// invite code / offline queue) so the mobile screen is a re-projection, not a
+// second source of truth.
+
+/** One stage of the Intake → Evidence → Draft → Review → Export pipeline. */
+export type PipelineStageState = "done" | "on" | "todo";
+export interface PipelineStage {
+  key: string;
+  label: string;
+  state: PipelineStageState;
+  /** Mono caption ("1,000 rows", "agent enriching 81–120") — "" when nothing to show. */
+  meta: string;
+}
+
+/** One recent trace row for the mobile Trace sheet (kind chip + text + time). */
+export interface TraceRow {
+  id: string;
+  /** Short kind chip label ("commit", "lock", "cite", "edit"…). */
+  kind: string;
+  text: string;
+  /** Compact time ("12:33", "5m"). */
+  time: string;
+}
+
+/** A person row for Manage people, grouped by role, carrying a live-location line. */
+export interface ManagedPerson {
+  id: string;
+  name: string;
+  short: string;
+  color?: string;
+  role: "host" | "member" | "guest" | "agent";
+  /** Live-location line ("Company research · owner") or "" when idle. */
+  location: string;
+}
+export interface ManageGroup {
+  key: ManagedPerson["role"];
+  label: string;
+  rows: ManagedPerson[];
+}
+
+/** Offline hold snapshot the mobile shell surfaces (mirror of OfflineQueueSnapshot). */
+export interface OfflineHold {
+  held: number;
+  dropped: number;
+  conflicts: number;
+  replaying: boolean;
+}
+
+/** A notification-tier row for Settings (wired to wave-2 watches when reachable). */
+export interface NotifRow {
+  label: string;
+  mode: string;
+  on: boolean;
+  /** True when this row reflects a real backend value; false = honest static preview. */
+  backed: boolean;
+}
+
 // ── Data ────────────────────────────────────────────────────────────────────
 
 export const ROOM: Room = {
@@ -610,6 +674,44 @@ export const ROOM: Room = {
   date: "Jun 18, 2026",
   place: "San Francisco",
 };
+
+// ── Gap-pack sample data (memory mode) ──────────────────────────────────────
+// These mirror the live projections MobileAppLive builds, so the offline demo
+// surface renders the same 9 gap screens as a live room.
+
+/** Bound on trace rows surfaced to the mobile Trace sheet (agentic-reliability BOUND). */
+export const MOBILE_TRACE_MAX = 40;
+
+export const PIPELINE: PipelineStage[] = [
+  { key: "intake", label: "Intake", state: "done", meta: "5 companies" },
+  { key: "evidence", label: "Evidence", state: "done", meta: "11 sources" },
+  { key: "draft", label: "Draft", state: "on", meta: "agent enriching" },
+  { key: "review", label: "Review", state: "todo", meta: "2 waiting" },
+  { key: "export", label: "Export", state: "todo", meta: "" },
+];
+
+export const TRACE_ROWS: TraceRow[] = [
+  { id: "tr_1", kind: "commit", text: "committed CardioNova · v42", time: "12:33" },
+  { id: "tr_2", kind: "lock", text: "locked rows 81–120", time: "12:33" },
+  { id: "tr_3", kind: "cite", text: "cited crunchbase.com · funding", time: "12:32" },
+  { id: "tr_4", kind: "commit", text: "committed NeuroPay · v41", time: "12:31" },
+  { id: "tr_5", kind: "edit", text: "edited CardioNova · Revenue", time: "12:30" },
+];
+
+export const PEOPLE_GROUPS: ManageGroup[] = [
+  { key: "host", label: "Host", rows: [{ id: "homen", name: "Homen", short: "HS", color: "#D97757", role: "host", location: "Company research · owner" }] },
+  { key: "member", label: "Members", rows: [{ id: "priya", name: "Priya", short: "PR", color: "#5E6AD2", role: "member", location: "Q3 variance · editing" }] },
+  { key: "guest", label: "Guests", rows: [{ id: "quokka", name: "anon · quokka", short: "qk", color: "#5B8F71", role: "guest", location: "" }] },
+  { key: "agent", label: "Agents", rows: [{ id: "room_na", name: "Room NodeAgent", short: "NA", color: "#C08A5E", role: "agent", location: "enriching rows 81–120" }] },
+];
+
+/** Notification tiers — honest static in memory mode (no watches backend to read). */
+export const NOTIF_ROWS: NotifRow[] = [
+  { label: "@mentions of you", mode: "instant", on: true, backed: false },
+  { label: "Rows you watch", mode: "instant", on: true, backed: false },
+  { label: "Agent run summaries", mode: "hourly", on: true, backed: false },
+  { label: "Everything else", mode: "daily digest", on: false, backed: false },
+];
 
 // The note the operator dumps. Detection runs against this after a pause.
 export const SEED_NOTE: string =
