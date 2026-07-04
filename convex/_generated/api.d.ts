@@ -18,6 +18,7 @@ import type * as agentStepJournalClient from "../agentStepJournalClient.js";
 import type * as agentSteps from "../agentSteps.js";
 import type * as agentWorkflows from "../agentWorkflows.js";
 import type * as artifacts from "../artifacts.js";
+import type * as auditBundle from "../auditBundle.js";
 import type * as auditLog from "../auditLog.js";
 import type * as benchmarkGrade from "../benchmarkGrade.js";
 import type * as captures from "../captures.js";
@@ -29,6 +30,7 @@ import type * as convexRoomTools from "../convexRoomTools.js";
 import type * as credits from "../credits.js";
 import type * as crons from "../crons.js";
 import type * as drafts from "../drafts.js";
+import type * as elementHistory from "../elementHistory.js";
 import type * as embeddingRunner from "../embeddingRunner.js";
 import type * as embeddings from "../embeddings.js";
 import type * as evalLedgerIngest from "../evalLedgerIngest.js";
@@ -70,6 +72,8 @@ import type * as spreadsheetIndexLib from "../spreadsheetIndexLib.js";
 import type * as streaming from "../streaming.js";
 import type * as streamingModel from "../streamingModel.js";
 import type * as usageLimits from "../usageLimits.js";
+import type * as watches from "../watches.js";
+import type * as watchesTables from "../watchesTables.js";
 
 import type {
   ApiFromModules,
@@ -88,6 +92,7 @@ declare const fullApi: ApiFromModules<{
   agentSteps: typeof agentSteps;
   agentWorkflows: typeof agentWorkflows;
   artifacts: typeof artifacts;
+  auditBundle: typeof auditBundle;
   auditLog: typeof auditLog;
   benchmarkGrade: typeof benchmarkGrade;
   captures: typeof captures;
@@ -99,6 +104,7 @@ declare const fullApi: ApiFromModules<{
   credits: typeof credits;
   crons: typeof crons;
   drafts: typeof drafts;
+  elementHistory: typeof elementHistory;
   embeddingRunner: typeof embeddingRunner;
   embeddings: typeof embeddings;
   evalLedgerIngest: typeof evalLedgerIngest;
@@ -140,6 +146,8 @@ declare const fullApi: ApiFromModules<{
   streaming: typeof streaming;
   streamingModel: typeof streamingModel;
   usageLimits: typeof usageLimits;
+  watches: typeof watches;
+  watchesTables: typeof watchesTables;
 }>;
 
 /**
