@@ -1,0 +1,64 @@
+/* ===========================================================================
+   Notifications bell + compact inbox — design contract "instant (mentions,
+   watched rows) / hourly (run digests) / daily (rest) · watch = W".
+   Anatomy follows the top-bar dropdown precedent (people-panel.css
+   .r-people-panel: 58px offset, --line-strong border, --shadow-lg). Tokens
+   only. Semantics: amber (--warning-*) = unread/needs attention ONLY; read
+   state is quiet chrome; green stays success-only; terracotta stays
+   provenance/selection. Namespace: .r-notif-*.
+   =========================================================================== */
+
+.r-notif { position: relative; display: inline-flex; }
+
+/* Bell chip — a normal top-bar icon button; the unread badge is the ONLY
+   amber element, and only while unread > 0 (data by default, calm when read). */
+.r-notif-bell { position: relative; }
+.r-notif-badge { position: absolute; top: -4px; right: -5px; min-width: 15px; height: 15px; padding: 0 4px;
+  display: grid; place-items: center; border-radius: 999px; font-family: var(--font-mono); font-size: 9px; font-weight: 800;
+  color: var(--warning-ink); background: var(--warning-tint); border: 1px solid var(--warning-border); }
+
+/* Right-anchored compact inbox under the 52px top bar (specimen offset shared
+   with .r-people-panel). */
+.r-notif-panel { position: absolute; top: 44px; right: 0; z-index: 70; width: 316px; max-width: calc(100vw - 24px);
+  max-height: 440px; overflow-y: auto; padding: 8px; background: var(--bg-primary);
+  border: 1px solid var(--line-strong); border-radius: 13px; box-shadow: var(--shadow-lg); }
+
+.r-notif-head { display: flex; align-items: center; gap: 6px; padding: 2px 4px 8px; color: var(--text-secondary); }
+.r-notif-title { font-size: 12px; font-weight: 700; color: var(--text-primary); }
+.r-notif-policy { font-family: var(--font-mono); font-size: 9px; color: var(--text-tertiary); margin-right: auto; }
+.r-notif-markread { display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; border-radius: 7px;
+  border: 1px solid var(--line); background: transparent; font-size: 10px; font-weight: 700; color: var(--text-muted); cursor: pointer; }
+.r-notif-markread:hover:not(:disabled) { border-color: var(--accent-border); color: var(--accent-ink); }
+.r-notif-markread:disabled { opacity: .45; cursor: default; }
+
+.r-notif-empty { padding: 10px 8px 12px; font-size: 11px; line-height: 1.5; color: var(--text-tertiary); }
+.r-notif-empty kbd { font-family: var(--font-mono); font-size: 9px; padding: 1px 4px; border: 1px solid var(--line);
+  border-bottom-width: 2px; border-radius: 4px; background: var(--bg-secondary); color: var(--text-secondary); }
+
+/* Tier group header — the design's three delivery lanes, labeled. */
+.r-notif-group { padding-bottom: 4px; }
+.r-notif-tier { padding: 8px 6px 4px; font-size: 10px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--text-tertiary); }
+
+/* Row: kind glyph · one-line body + meta. Unread carries the amber edge
+   (needs attention); read rows are quiet. */
+.r-notif-row { display: flex; align-items: flex-start; gap: 8px; padding: 6px 8px; border-radius: 8px;
+  border-left: 2px solid transparent; }
+.r-notif-row:hover { background: var(--bg-hover); }
+.r-notif-row[data-unread="true"] { border-left-color: var(--warning-ink); background: var(--warning-tint); }
+.r-notif-kind { flex: none; margin-top: 1px; display: grid; place-items: center; width: 18px; height: 18px;
+  border-radius: 6px; background: var(--bg-secondary); border: 1px solid var(--line); color: var(--text-tertiary); }
+.r-notif-row[data-unread="true"] .r-notif-kind { color: var(--warning-ink); border-color: var(--warning-border); }
+.r-notif-body { flex: 1; min-width: 0; }
+.r-notif-line { display: block; font-size: 11.5px; line-height: 1.4; color: var(--text-primary);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.r-notif-meta { display: block; font-size: 10px; color: var(--text-tertiary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* W-key confirmation toast — quiet, self-dismissing, near the bell. */
+.r-notif-toast { position: absolute; top: 44px; right: 0; z-index: 71; max-width: 280px; padding: 6px 10px;
+  border-radius: 9px; background: var(--bg-primary); border: 1px solid var(--line-strong); box-shadow: var(--shadow-lg);
+  font-size: 11px; line-height: 1.4; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* Phones hide the top-bar presence cluster (styles.css @640px) — hide the bell
+   with it; mobile gets notifications through its own sheet in a later wave. */
+@media (max-width: 640px) { .r-notif { display: none; } }

@@ -13,6 +13,8 @@ import { Artifact } from "./panels/Artifact";
 import { LeftRail } from "./LeftRail";
 import { GuidedTour, type TourStep } from "./GuidedTour";
 import { CommandPalette, type PaletteAction } from "./CommandPalette";
+import { PeoplePanel } from "./PeoplePanel";
+import { NotificationsInbox, requestWatchToggle } from "./NotificationsInbox";
 import { selectPublicSignalTraces, statusText as publicStatusText } from "./signalStatus";
 import { focusStage } from "./stageFocus";
 import { BankerCoachPanel } from "./artifacts/BankerCoachPanel";
@@ -109,6 +111,9 @@ export function RoomShell({ roomId, me, onLeave, proof }: { roomId: string; me: 
   const [backgroundGlow, setBackgroundGlow] = useState(true);
   const [replayPace, setReplayPace] = useState<ReplayPace>("standard");
   const [focusMode, setFocusMode] = useState<FocusModeClientState>(() => readFocusModeClientState());
+  // Room-level rung of the presence ladder: facepile/live chip → PeoplePanel (role groups,
+  // live location, Follow). Declared before the !room early return (stable hook count).
+  const [peopleOpen, setPeopleOpen] = useState(false);
   const tourAutoStarted = useRef(false);
   const accentTheme = ACCENTS[accent];
   const shellStyle = {
@@ -383,6 +388,11 @@ export function RoomShell({ roomId, me, onLeave, proof }: { roomId: string; me: 
     { id: "open-trace", label: "Open Trace", hint: "tab", run: () => openWorkSurfaceTab("trace-tab") },
     { id: "open-graph", label: "Open Graph", hint: "tab", run: () => openWorkSurfaceTab("graph-tab") },
     { id: "jump-chat", label: "Jump to chat composer", hint: "/", run: focusChatComposer },
+    // Watches live on the Convex notification log only — memory mode doesn't list
+    // a dead command (same honest-absence rule as the host-gated auto-allow entry).
+    ...(store.mode === "convex" && proof
+      ? [{ id: "toggle-watch-row", label: "Toggle watch on focused row", hint: "W", run: requestWatchToggle } satisfies PaletteAction]
+      : []),
   ];
   const startResize = (target: "left" | "right", startX: number) => {
     const start = layout;
@@ -446,11 +456,30 @@ export function RoomShell({ roomId, me, onLeave, proof }: { roomId: string; me: 
           Focus
           <button className="r-switch" role="switch" aria-checked={focusMode.enabled} aria-label="Focus Mode follows the selected agent job" data-testid="focus-mode-switch" data-on={String(focusMode.enabled)} title="Follow the current agent job on the work surface" onClick={toggleFocusMode} />
         </div>
-        <div className="r-avatars">
-          {members.slice(0, 4).map((m) => (<span key={m.id} className="r-av" style={{ background: m.color }}>{initials(m.name)}<span className="pulse" /></span>))}
-          <span className="r-av agent" style={{ background: "#8F3F27" }}>◆</span>
-        </div>
-        <span className="r-live-count" title={`${members.length} live room member${members.length === 1 ? "" : "s"}`}>{members.length} live</span>
+        {/* Facepile + live chip are ONE trigger: the room-level presence ladder opens the
+            people panel (role groups · live location · Follow). Overflow avatar (+N) is the
+            specimen's "facepile + overflow" state. */}
+        <button
+          type="button"
+          className="r-people-trigger"
+          data-testid="people-trigger"
+          aria-haspopup="dialog"
+          aria-expanded={peopleOpen}
+          title={`${members.length} live room member${members.length === 1 ? "" : "s"} — open people panel`}
+          aria-label={`Open people panel — ${members.length} live`}
+          onClick={() => setPeopleOpen((v) => !v)}
+        >
+          <span className="r-avatars">
+            {members.slice(0, 4).map((m) => (<span key={m.id} className="r-av" style={{ background: m.color }}>{initials(m.name)}<span className="pulse" /></span>))}
+            {members.length > 4 && <span className="r-av r-people-more-av">+{members.length - 4}</span>}
+            <span className="r-av agent" style={{ background: "#8F3F27" }}>◆</span>
+          </span>
+          <span className="r-live-count">{members.length} live</span>
+        </button>
+        {/* Notifications bell — live (Convex) rooms only: the in-memory engine keeps no
+            notification log, so memory mode renders NOTHING here (honest absence, the
+            cell-history rule). Owns the W-key watch layer + the palette toggle event. */}
+        {store.mode === "convex" && proof && <NotificationsInbox roomId={roomId} requester={proof} />}
         <button className="r-iconbtn" title="Tweaks" aria-label="Open room tweaks" data-on={String(tweaksOpen)} onClick={() => setTweaksOpen((v) => !v)}><SlidersHorizontal size={16} /></button>
         <button className="r-iconbtn" title="Take the guided tour" aria-label="Take the guided tour" data-testid="tour-button" onClick={startTour}><HelpCircle size={16} /></button>
         <ThemeToggle />
@@ -519,6 +548,9 @@ export function RoomShell({ roomId, me, onLeave, proof }: { roomId: string; me: 
       )}
       <GuidedTour steps={tourSteps} open={tourOpen} onClose={() => setTourOpen(false)} storageKey={TOUR_KEY} />
       <CommandPalette roomId={roomId} actions={paletteActions} onOpenArtifact={(id) => void openArtifact(id)} />
+      {/* Always mounted (open only gates the panel chrome) so an active Follow — its pill and
+          single poll interval — survives dismissing the panel. */}
+      <PeoplePanel roomId={roomId} me={me} open={peopleOpen} onClose={() => setPeopleOpen(false)} onOpenArtifact={openArtifact} />
       <TraceLensPanel roomId={roomId} onOpenArtifact={openArtifact} />
     </div>
     </TraceLensProvider>
