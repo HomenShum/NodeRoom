@@ -4,3 +4,4 @@ export * from "./traceReceipts";
 export * from "./traceContextPack";
 export * from "./traceRecorder";
 export * from "./traceReplay";
+export * from "./traceObservability";

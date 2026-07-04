@@ -56,7 +56,7 @@ export function TraceLensPanel({
   const relevantTraces = useMemo(() => {
     if (!hit) return [] as typeof traces;
     const scoped = hit.artifactId ? traces.filter((t) => t.refs && Object.values(t.refs).includes(hit.artifactId!)) : [];
-    return (scoped.length ? scoped : traces).slice(-6).reverse();
+    return (scoped.length ? scoped : traces).slice().reverse();
   }, [traces, hit]);
 
   if (!open || !hit || !meta) return null;

@@ -13,8 +13,9 @@ import type { RefutationVerdict, RefutationOutcome } from "../traceLens/types";
 import { QA_TRACE_RECORD, QA_BUNDLES, buildAgentTraceRecords, type TraceRecord, type TraceStep, type TraceAttachment } from "./traceData";
 import { StepRow } from "./TraceStepRow";
 import { TraceFlow } from "./TraceFlow";
+import { TraceObservability } from "./TraceObservability";
 
-type DetailTab = "overview" | "steps" | "flow" | "evidence" | "refutations" | "raw";
+type DetailTab = "overview" | "steps" | "flow" | "observability" | "evidence" | "refutations" | "raw";
 
 /** Capture a source into the Trace tab. Two lanes: Web (Firecrawl screenshot + extract) and SEC
  *  (EDGAR data API — authoritative facts by ticker/concept). The persisted record joins the list. */
@@ -152,7 +153,7 @@ export function TraceSurface({ roomId, onOpenSource }: {
   const record = records.find((r) => r.id === selectedId) ?? records[0];
   if (!record) return <div className="r-art-body r-tracevu" data-testid="trace-surface" />;
 
-  const detailTabs = (["overview", "steps", "flow", "evidence", "refutations", "raw"] as DetailTab[])
+  const detailTabs = (["overview", "steps", "flow", "observability", "evidence", "refutations", "raw"] as DetailTab[])
     .filter((t) => t !== "evidence" || (record.evidenceCards?.length ?? 0) > 0)
     .filter((t) => t !== "refutations" || (record.refutations?.length ?? 0) > 0);
 
@@ -182,7 +183,7 @@ export function TraceSurface({ roomId, onOpenSource }: {
           <div className="r-tracevu-tabs" role="tablist" aria-label="Trace detail">
             {detailTabs.map((t) => (
               <button key={t} type="button" role="tab" aria-selected={tab === t} data-on={String(tab === t)} data-testid={`trace-tab-${t}`} onClick={() => setTab(t)}>
-                {t === "overview" ? "Overview" : t === "steps" ? "Steps" : t === "flow" ? "Flow" : t === "evidence" ? "Evidence" : t === "refutations" ? "Refutations" : "Raw JSON"}
+                {t === "overview" ? "Overview" : t === "steps" ? "Steps" : t === "flow" ? "Flow" : t === "observability" ? "Observability" : t === "evidence" ? "Evidence" : t === "refutations" ? "Refutations" : "Raw JSON"}
               </button>
             ))}
           </div>
@@ -192,6 +193,7 @@ export function TraceSurface({ roomId, onOpenSource }: {
           {tab === "overview" && <TraceOverview record={record} />}
           {tab === "steps" && <TraceSteps record={record} onOpenSource={onOpenSource} />}
           {tab === "flow" && <TraceFlow record={record} onOpenSource={onOpenSource} />}
+          {tab === "observability" && <TraceObservability record={record} />}
           {tab === "evidence" && <EvidenceCarouselArtifact cards={record.evidenceCards ?? []} onOpenArtifact={onOpenSource} />}
           {tab === "refutations" && <TraceRefutations record={record} />}
           {tab === "raw" && <TraceRaw record={record} />}
