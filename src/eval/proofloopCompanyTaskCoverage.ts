@@ -95,6 +95,7 @@ type ExternalAdapterProof = {
   baseUrl?: string;
   browserProof?: {
     url?: string;
+    roomUrl?: string;
     problemCounts?: Record<string, number>;
   };
   evidence?: string[];
@@ -505,11 +506,16 @@ function notionSdrBdrEntry(root: string): CompanyTaskCoverageEntry {
 
 function externalFinanceBenchmarkEntry(root: string): CompanyTaskCoverageEntry {
   const adapterIds = ["finch", "finauditing", "workstreambench"] as const;
-  const receipts = adapterIds.map((id) => readJson<ExternalAdapterProof>(root, `docs/eval/proofloop-external-adapter-runs/${id}.json`));
+  const liveReceiptPaths = adapterIds.map((id) => `docs/eval/proofloop-external-adapter-live-room-runs/${id}.json`);
+  const storyReceiptPaths = adapterIds.map((id) => `docs/eval/proofloop-external-adapter-runs/${id}.json`);
+  const receipts = adapterIds.map((id) =>
+    readJson<ExternalAdapterProof>(root, `docs/eval/proofloop-external-adapter-live-room-runs/${id}.json`)
+  );
   const prodPassed = receipts.every((receipt) => receipt?.status === "passed" && receipt.baseUrl === "https://noderoom.live");
   const problemFree = receipts.every((receipt) =>
     Object.values(receipt?.browserProof?.problemCounts ?? {}).every((count) => count === 0)
   );
+  const evidencePaths = [...liveReceiptPaths, ...storyReceiptPaths].filter((path) => existsSync(join(root, path)));
 
   return {
     id: "external-finance-benchmark-adapters",
@@ -525,15 +531,15 @@ function externalFinanceBenchmarkEntry(root: string): CompanyTaskCoverageEntry {
     nodeRoomCoverage: {
       status: prodPassed && problemFree ? "prod_browser_proven" : "ready_for_prod_browser",
       productSurface: "NodeRoom external finance benchmark adapters",
-      command: "npm run benchmark:proofloop:external-adapter -- --prod --user-emulation strict",
-      evidence: adapterIds.map((id) => `docs/eval/proofloop-external-adapter-runs/${id}.json`).filter((path) => existsSync(join(root, path))),
-      blockers: prodPassed && problemFree ? [] : ["Run external adapter product proofs against noderoom.live."],
+      command: "npm run benchmark:proofloop:external-adapter-live-room -- --prod --user-emulation strict",
+      evidence: evidencePaths,
+      blockers: prodPassed && problemFree ? [] : ["Run external adapter fresh-room product proofs against noderoom.live."],
     },
     prodBrowserProof: {
       status: prodPassed && problemFree ? "prod_browser_proven" : "ready_for_prod_browser",
-      command: "npm run benchmark:proofloop:external-adapter -- --prod --user-emulation strict",
-      evidence: adapterIds.map((id) => `docs/eval/proofloop-external-adapter-runs/${id}.json`).filter((path) => existsSync(join(root, path))),
-      blockers: prodPassed && problemFree ? [] : ["External adapter product proof must pass against noderoom.live with zero browser problem counts."],
+      command: "npm run benchmark:proofloop:external-adapter-live-room -- --prod --user-emulation strict",
+      evidence: evidencePaths,
+      blockers: prodPassed && problemFree ? [] : ["External adapter fresh-room product proof must pass against noderoom.live with zero browser problem counts."],
     },
     officialOrExternalClaim: {
       status: "blocked_external",

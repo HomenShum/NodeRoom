@@ -1,0 +1,74 @@
+{
+  "schema": "proofloop-external-adapter-live-room-proof-v1",
+  "adapterId": "finch",
+  "status": "passed",
+  "runId": "finch-live-room-2026-07-04T08-17-44-753Z",
+  "generatedAt": "2026-07-04T08:23:39.402Z",
+  "localAdapterOnly": true,
+  "officialScoreClaim": false,
+  "taskCount": 1,
+  "baseUrl": "https://noderoom.live",
+  "scenario": "proofloop/benchmarks/common/live-room-scenario.spec.ts",
+  "outputDir": ".proofloop/runs/finch-live-room-2026-07-04T08-17-44-753Z/external-adapter-live-room/finch",
+  "exitCode": 0,
+  "evidence": [
+    "proofloop/benchmarks/finch/load-tasks.ts",
+    "proofloop/benchmarks/common/live-room-scenario.spec.ts",
+    ".proofloop/runs/finch-live-room-2026-07-04T08-17-44-753Z/external-adapter-live-room/finch/live-user-contract.json",
+    ".proofloop/runs/finch-live-room-2026-07-04T08-17-44-753Z/external-adapter-live-room/finch/node-trace-v2.json",
+    ".proofloop/runs/finch-live-room-2026-07-04T08-17-44-753Z/external-adapter-live-room/finch/node-eval.json",
+    ".proofloop/runs/finch-live-room-2026-07-04T08-17-44-753Z/external-adapter-live-room/finch/scorecard.md",
+    ".proofloop/runs/finch-live-room-2026-07-04T08-17-44-753Z/external-adapter-live-room/finch/cost-ledger.json",
+    ".proofloop/runs/finch-live-room-2026-07-04T08-17-44-753Z/external-adapter-live-room/finch/verifier-receipt.json",
+    ".proofloop/runs/finch-live-room-2026-07-04T08-17-44-753Z/external-adapter-live-room/finch/official-scorer-receipt.json",
+    ".proofloop/runs/finch-live-room-2026-07-04T08-17-44-753Z/external-adapter-live-room/finch/browser-proof.json",
+    ".proofloop/runs/finch-live-room-2026-07-04T08-17-44-753Z/external-adapter-live-room/finch/local-task-manifest.json",
+    ".proofloop/runs/finch-live-room-2026-07-04T08-17-44-753Z/external-adapter-live-room/finch/visual-proof.png"
+  ],
+  "failedGates": [],
+  "browserProof": {
+    "roomUrl": "https://noderoom.live/?room=NRG8F1AAQ5M&name=Proof+Loop",
+    "roomId": "NRG8F1AAQ5M",
+    "problemCounts": {
+      "pageErrors": 0,
+      "consoleProblems": 0,
+      "requestFailures": 0,
+      "badResponses": 0
+    },
+    "taskProofs": [
+      {
+        "userMessageVisible": true,
+        "streamingVisible": true,
+        "jobStatusVisible": true,
+        "jobDetailVisible": true,
+        "roomTraceVisible": true,
+        "completionVisible": true,
+        "finalTextSample": "v**: 2023 rev = $4.2M, 2024 rev = $5.8M, 2025 rev = $7.6M\nFrom **variance.json**: Revenue budget = $300K, actual = $320K → monthly/quarterly variance = +$20K\n\n**Computed Revenue Variances:**\n- CSV YoY 2023→2024: $5.8M - $4.2M = **$1,600,000** (38.10%)\n- CSV YoY 2024→2025: $7.6M - $5.8M = **$1,800,000** (31.03%)\n- variance.json Budget→Actual: $320K - $300K = **$20,000** (6.67 Thoughts (step 15)All 30 cells written successfully with CAS confirmation. Here's what's now in the live sheet:\n\n**Revenue Variance Table (rows 1–4)** — sourced from `synthetic-financials.csv`:\n| Year | Revenue (USD) | YoY Variance (USD) | YoY Growth % |\n|------|--------------|-------------------|--------------|\n| 2023 | $4,200,000 | — | — |\n| 2024 | $5,800,000 | +$1,600,000 | 38.10% |\n| 2025 | $7,600,000 | +$1,800,000 | 31.03% |\n\n**Budget vs Actual Table (rows 6–7)** — sourced from `variance.json`:\n| Category | Budget | Actual | Variance |\n|----------|--------|--------|----------|\n| Revenue | $300,000 | $320,000 | +$20,000 |Now I have all the data. Let me compute the revenue variance and write to the live sheet.Source evidence gathered:From synthetic-financials.csv: 2023 rev = $4.2M, 2024 rev = $5.8M, 2025 rev = $7.6MFrom variance.json: Revenue budget = $300K, actual = $320K → monthly/quarterly variance = +$20KComputed Revenue Variances:CSV YoY 2023→2024: $5.8M - $4.2M = $1,600,000 (38.10%)CSV YoY 2024→2025: $7.6M - $5.8M = $1,800,000 (31.03%)variance.json Budget→Actual: $320K - $300K = $20,000 (6.67All 30 cells written successfully with CAS confirmation. Here's what's now in the live sheet:Revenue Variance Table (rows 1–4) — sourced from synthetic-financials.csv:YearRevenue (USD)YoY Variance (USD)YoY Growth %2023$4,200,000——2024$5,800,000+$1,600,00038.10%2025$7,600,000+$1,800,00031.03%Budget vs Actual Table (rows 6–7) — sourced from variance.json:CategoryBudgetActualVarianceRevenue$300,000$320,000+$20,000|\nNRoom NodeAgentagent01:23finch-local-financial-evidence-qa live-room proxy complete Copy",
+        "durationMs": 347201,
+        "gatesProven": [
+          "public_nodeagent_invocation",
+          "visible_streaming_progress",
+          "agent_live_loop",
+          "job_detail_visible",
+          "agent_terminal_quality_gate",
+          "room_trace_visible"
+        ],
+        "gatesNotProven": {},
+        "taskId": "finch-local-financial-evidence-qa",
+        "title": "Financial evidence QA through NodeRoom story workflow",
+        "prompt": "@nodeagent Proof Loop external-adapter live-room proxy for finch. Use the uploaded input artifacts and the current live room sheet. Recompute the revenue variance and ground the answer in the visible spreadsheet evidence. Ground the answer in visible room evidence and uploaded files. Make the smallest necessary sheet edits; avoid bulk updates unless the task truly requires them. When finished, include this exact completion phrase: \"finch-local-financial-evidence-qa live-room proxy complete\".",
+        "uploadedFiles": [
+          "synthetic-financials.csv",
+          "variance.json"
+        ]
+      }
+    ]
+  },
+  "officialSemanticScore": {
+    "status": "blocked_external",
+    "blockers": [
+      "finch: official scorer receipt docs/eval/proofloop-official-scores/finch.json is blocked_external; scored receipt is still required before claiming score. No Azure OpenAI judge credentials are present in this shell: AZURE endpoint, API key, API version, and deployment name are all required by src/call_gpt_judge.py. Upstream Finch content_parts rendering is 0/172; official Azure judge input remains incomplete even though model-output artifacts are complete."
+    ],
+    "verifierCommand": "npm run benchmark:proofloop:adapter-blockers -- --id finch --strict"
+  }
+}

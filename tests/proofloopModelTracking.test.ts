@@ -9,7 +9,7 @@ describe("Proof Loop model tracking", () => {
   it("serializes strict model identity, routing, cost, token, latency, and selection fields", () => {
     const route = proofloopModelRouteForRun({
       suite: "finch",
-      cmd: "npm run benchmark:proofloop:external-adapter -- --id finch",
+      cmd: "npm run benchmark:proofloop:external-adapter-live-room -- --id finch",
       env: {
         PROOFLOOP_MODEL_ID: "deepseek/deepseek-v4-pro",
         PROOFLOOP_MODEL_COST_USD: "0.0123",

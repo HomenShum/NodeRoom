@@ -33,5 +33,5 @@
     "productPathCompletion",
     "officialSemanticScore"
   ],
-  "liveUserCommand": "npm run proofloop -- run finauditing --prod --user-emulation strict --cockpit"
+  "liveUserCommand": "npm run benchmark:proofloop:external-adapter-live-room -- --id finauditing --prod --user-emulation strict --cockpit"
 }

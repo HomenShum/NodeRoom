@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "generatedAt": "2026-07-04T02:33:28.848Z",
+  "generatedAt": "2026-07-04T08:23:49.379Z",
   "policy": [
     "Product-path completion is useful proof: real UI, visible progress, artifacts, verifier receipts, trace, memory, and browser evidence.",
     "Official semantic score is only claimed when the benchmark's official scorer/verifier result is imported.",
@@ -218,10 +218,11 @@
         "scoreType": "product_path_completion",
         "evidence": [
           "proofloop/benchmarks/finch/adapter.json",
+          "docs/eval/proofloop-external-adapter-live-room-runs/finch.json",
           "docs/eval/proofloop-external-adapter-runs/finch.json",
           "docs/eval/proofloop-adapter-blockers/finch.json"
         ],
-        "command": "npm run proofloop -- run finch --prod --user-emulation strict --cockpit",
+        "command": "npm run benchmark:proofloop:external-adapter-live-room -- --id finch --prod --user-emulation strict --cockpit",
         "blockers": []
       },
       "officialSemanticScore": {
@@ -249,15 +250,18 @@
         "metrics": {
           "missingImplementationFiles": 0,
           "localAdapterTasks": 1,
+          "liveRoomProductProof": true,
+          "storyRouteProductProof": true,
+          "liveRoomBaseUrl": "https://noderoom.live",
           "localAdapterOnly": true,
           "officialScoreClaim": false,
           "officialSourceUrls": 3,
-          "resumeCommands": 6,
+          "resumeCommands": 7,
           "officialOutputManifestComplete": true
         }
       },
       "notes": [
-        "Local app-agnostic Proof Loop adapter has browser proof; official score is still blocked on upstream scorer import."
+        "Fresh live-room Proof Loop adapter proof passed; official score is still blocked on upstream scorer import."
       ]
     },
     {
@@ -270,10 +274,11 @@
         "scoreType": "product_path_completion",
         "evidence": [
           "proofloop/benchmarks/finauditing/adapter.json",
+          "docs/eval/proofloop-external-adapter-live-room-runs/finauditing.json",
           "docs/eval/proofloop-external-adapter-runs/finauditing.json",
           "docs/eval/proofloop-adapter-blockers/finauditing.json"
         ],
-        "command": "npm run proofloop -- run finauditing --prod --user-emulation strict --cockpit",
+        "command": "npm run benchmark:proofloop:external-adapter-live-room -- --id finauditing --prod --user-emulation strict --cockpit",
         "blockers": []
       },
       "officialSemanticScore": {
@@ -303,15 +308,18 @@
         "metrics": {
           "missingImplementationFiles": 0,
           "localAdapterTasks": 1,
+          "liveRoomProductProof": true,
+          "storyRouteProductProof": true,
+          "liveRoomBaseUrl": "https://noderoom.live",
           "localAdapterOnly": true,
           "officialScoreClaim": false,
           "officialSourceUrls": 4,
-          "resumeCommands": 6,
+          "resumeCommands": 7,
           "officialOutputManifestComplete": true
         }
       },
       "notes": [
-        "Local app-agnostic Proof Loop adapter has browser proof; official score is still blocked on upstream scorer import."
+        "Fresh live-room Proof Loop adapter proof passed; official score is still blocked on upstream scorer import."
       ]
     },
     {
@@ -324,10 +332,11 @@
         "scoreType": "product_path_completion",
         "evidence": [
           "proofloop/benchmarks/workstreambench/adapter.json",
+          "docs/eval/proofloop-external-adapter-live-room-runs/workstreambench.json",
           "docs/eval/proofloop-external-adapter-runs/workstreambench.json",
           "docs/eval/proofloop-adapter-blockers/workstreambench.json"
         ],
-        "command": "npm run proofloop -- run workstreambench --prod --user-emulation strict --cockpit",
+        "command": "npm run benchmark:proofloop:external-adapter-live-room -- --id workstreambench --prod --user-emulation strict --cockpit",
         "blockers": []
       },
       "officialSemanticScore": {
@@ -351,15 +360,18 @@
         "metrics": {
           "missingImplementationFiles": 0,
           "localAdapterTasks": 1,
+          "liveRoomProductProof": true,
+          "storyRouteProductProof": true,
+          "liveRoomBaseUrl": "https://noderoom.live",
           "localAdapterOnly": true,
           "officialScoreClaim": false,
           "officialSourceUrls": 1,
-          "resumeCommands": 6,
+          "resumeCommands": 7,
           "officialOutputManifestComplete": false
         }
       },
       "notes": [
-        "Local app-agnostic Proof Loop adapter has browser proof; official score is still blocked on upstream scorer import."
+        "Fresh live-room Proof Loop adapter proof passed; official score is still blocked on upstream scorer import."
       ]
     }
   ]

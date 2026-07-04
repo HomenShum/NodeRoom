@@ -11,7 +11,7 @@
     "https://huggingface.co/datasets/FinWorkBench/Finch"
   ],
   "verifierCommand": "npm run benchmark:proofloop:adapter-blockers -- --id finch --strict",
-  "liveUserCommand": "npm run proofloop -- run finch --prod --user-emulation strict --cockpit",
+  "liveUserCommand": "npm run benchmark:proofloop:external-adapter-live-room -- --id finch --prod --user-emulation strict --cockpit",
   "missingImplementationFiles": [],
   "officialScoreReceiptPath": "docs/eval/proofloop-official-scores/finch.json",
   "officialTaskBundleManifestPath": "docs/eval/proofloop-official-task-bundles/finch.json",
@@ -26,11 +26,12 @@
     "Import the official judge JSON into docs/eval/proofloop-adapter-blockers/finch.json before claiming score."
   ],
   "resumeCommands": [
+    "npm run benchmark:proofloop:external-adapter-live-room -- --id finch --prod --user-emulation strict",
     "npm run benchmark:proofloop:external-adapter -- --id finch --prod --user-emulation strict",
     "npm run benchmark:proofloop:adapter-blockers -- --id finch",
     "import docs/eval/proofloop-official-scores/finch.json from the upstream official scorer",
     "stage docs/eval/proofloop-official-task-bundles/finch.json from the locked official task bundle",
-    "npm run proofloop -- run finch --prod --user-emulation strict --cockpit",
+    "npm run benchmark:proofloop:external-adapter-live-room -- --id finch --prod --user-emulation strict --cockpit",
     "npm run benchmark:proofloop:adapter-blockers -- --id finch --strict"
   ],
   "evidence": [

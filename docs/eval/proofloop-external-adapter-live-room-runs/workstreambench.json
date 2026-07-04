@@ -1,0 +1,75 @@
+{
+  "schema": "proofloop-external-adapter-live-room-proof-v1",
+  "adapterId": "workstreambench",
+  "status": "passed",
+  "runId": "workstreambench-live-room-2026-07-04T08-09-16-475Z",
+  "generatedAt": "2026-07-04T08:16:11.120Z",
+  "localAdapterOnly": true,
+  "officialScoreClaim": false,
+  "taskCount": 1,
+  "baseUrl": "https://noderoom.live",
+  "scenario": "proofloop/benchmarks/common/live-room-scenario.spec.ts",
+  "outputDir": ".proofloop/runs/workstreambench-live-room-2026-07-04T08-09-16-475Z/external-adapter-live-room/workstreambench",
+  "exitCode": 0,
+  "evidence": [
+    "proofloop/benchmarks/workstreambench/load-tasks.ts",
+    "proofloop/benchmarks/common/live-room-scenario.spec.ts",
+    ".proofloop/runs/workstreambench-live-room-2026-07-04T08-09-16-475Z/external-adapter-live-room/workstreambench/live-user-contract.json",
+    ".proofloop/runs/workstreambench-live-room-2026-07-04T08-09-16-475Z/external-adapter-live-room/workstreambench/node-trace-v2.json",
+    ".proofloop/runs/workstreambench-live-room-2026-07-04T08-09-16-475Z/external-adapter-live-room/workstreambench/node-eval.json",
+    ".proofloop/runs/workstreambench-live-room-2026-07-04T08-09-16-475Z/external-adapter-live-room/workstreambench/scorecard.md",
+    ".proofloop/runs/workstreambench-live-room-2026-07-04T08-09-16-475Z/external-adapter-live-room/workstreambench/cost-ledger.json",
+    ".proofloop/runs/workstreambench-live-room-2026-07-04T08-09-16-475Z/external-adapter-live-room/workstreambench/verifier-receipt.json",
+    ".proofloop/runs/workstreambench-live-room-2026-07-04T08-09-16-475Z/external-adapter-live-room/workstreambench/official-scorer-receipt.json",
+    ".proofloop/runs/workstreambench-live-room-2026-07-04T08-09-16-475Z/external-adapter-live-room/workstreambench/browser-proof.json",
+    ".proofloop/runs/workstreambench-live-room-2026-07-04T08-09-16-475Z/external-adapter-live-room/workstreambench/local-task-manifest.json",
+    ".proofloop/runs/workstreambench-live-room-2026-07-04T08-09-16-475Z/external-adapter-live-room/workstreambench/visual-proof.png"
+  ],
+  "failedGates": [],
+  "browserProof": {
+    "roomUrl": "https://noderoom.live/?room=NRQEJC5ZTLS&name=Proof+Loop",
+    "roomId": "NRQEJC5ZTLS",
+    "problemCounts": {
+      "pageErrors": 0,
+      "consoleProblems": 0,
+      "requestFailures": 0,
+      "badResponses": 0
+    },
+    "taskProofs": [
+      {
+        "userMessageVisible": true,
+        "streamingVisible": true,
+        "jobStatusVisible": true,
+        "jobDetailVisible": true,
+        "roomTraceVisible": true,
+        "completionVisible": true,
+        "finalTextSample": "iation input at r2__D with value 5000) is intact by re-reading it: Thoughts (step 10)Cells are at v2 — confirmation that writes succeeded. All cells were written successfully with no conflicts. The sheet now has:\n\n- **Reconciliation table** (rows 1-5): headers + 3 ledger entries (l-001 Client payment $5,000 ✓, l-002 Office rent -$2,000 ✓, l-003 Software subscription -$99 ✗ with date mismatch) + TOTAL row.\n- **Variance table** (rows 6-11): headers + 4 categories (Revenue $20K favorable, COGS $15K unfavorable, Marketing $12K favorable, Engineering $12K unfavorable) + TOTAL.\n- **The edited input (r2__D = 5000)** remains intact at v2.\n- **D2** (r7__D, row 7 col D) = 20,000 (Revenue variance: 320,000 − 300,000).Reconciliation table written. Now filling the variance analysis starting at row 6:Variance table written. Now setting the \"edited input\" at r5 and computing r12 totals + D2:Now the key verification: verify the sheet state and confirm the \"edited input\" (the reconciliation input at r2__D with value 5000) is intact by re-reading it:Cells are at v2 — confirmation that writes succeeded. All cells were written successfully with no conflicts. The sheet now has:Reconciliation table (rows 1-5): headers + 3 ledger entries (l-001 Client payment $5,000 ✓, l-002 Office rent -$2,000 ✓, l-003 Software subscription -$99 ✗ with date mismatch) + TOTAL row.Variance table (rows 6-11): headers + 4 categories (Revenue $20K favorable, COGS $15K unfavorable, Marketing $12K favorable, Engineering $12K unfavorable) + TOTAL.The edited input (r2__D = 5000) remains intact at v2.D2 (r7__D, row 7 col D) = 20,000 (Revenue variance: 320,000 − 300,000).workstreambench-local-spreadsheet-workstream live-room proxy complete|\nNRoom NodeAgentagent01:16Proof Loop complete: reconciliation (3 line items + TOTAL) and variance analysis (4 categories + TOTAL) written to Sheet 1. Edited input r2__D (5000) confirmed intact. D2 = 20000. workstreambench-local-spreadsheet-workstream live-room proxy complete Copy",
+        "durationMs": 407877,
+        "gatesProven": [
+          "public_nodeagent_invocation",
+          "visible_streaming_progress",
+          "agent_live_loop",
+          "job_detail_visible",
+          "agent_terminal_quality_gate",
+          "room_trace_visible"
+        ],
+        "gatesNotProven": {},
+        "taskId": "workstreambench-local-spreadsheet-workstream",
+        "title": "Spreadsheet workstream execution through NodeRoom story workflow",
+        "prompt": "@nodeagent Proof Loop external-adapter live-room proxy for workstreambench. Use the uploaded input artifacts and the current live room sheet. Run the visible spreadsheet workstream, recompute D2, and confirm the edited input remains intact. Ground the answer in visible room evidence and uploaded files. When finished, include this exact completion phrase: \"workstreambench-local-spreadsheet-workstream live-room proxy complete\".",
+        "uploadedFiles": [
+          "reconciliation.json",
+          "variance.json"
+        ]
+      }
+    ]
+  },
+  "officialSemanticScore": {
+    "status": "blocked_external",
+    "blockers": [
+      "workstreambench: official scorer receipt docs/eval/proofloop-official-scores/workstreambench.json is blocked_external; scored receipt is still required before claiming score. No public official WorkstreamBench task bundle URL was found. No public official WorkstreamBench scorer repository or CLI was found. The paper describes LLM-as-judge evaluation over structured representations, so a claimable score requires the official rubric/task bundle/scorer release or author-provided supplementary package.",
+      "workstreambench: official task bundle lock docs/eval/proofloop-official-task-bundles/workstreambench.json is not staged yet."
+    ],
+    "verifierCommand": "npm run benchmark:proofloop:adapter-blockers -- --id workstreambench --strict"
+  }
+}

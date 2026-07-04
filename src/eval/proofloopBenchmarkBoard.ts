@@ -71,10 +71,15 @@ type ExternalAdapterBlockerReceipt = {
 type ExternalAdapterProductProofReceipt = {
   status?: "passed" | "failed";
   taskCount?: number;
+  baseUrl?: string;
   localAdapterOnly?: boolean;
   officialScoreClaim?: boolean;
   evidence?: string[];
   failedGates?: string[];
+  browserProof?: {
+    problemCounts?: Record<string, number | undefined>;
+    roomUrl?: string;
+  };
 };
 
 type BlockerAnalysisReceipt = {
@@ -365,12 +370,16 @@ function adapterEntry(adapter: ProofloopBenchmarkAdapter, root: string): Prooflo
   const adapterProductProof = !isBtb
     ? readJson<ExternalAdapterProductProofReceipt>(root, `docs/eval/proofloop-external-adapter-runs/${adapter.id}.json`)
     : undefined;
+  const adapterLiveRoomProof = !isBtb
+    ? readJson<ExternalAdapterProductProofReceipt>(root, `docs/eval/proofloop-external-adapter-live-room-runs/${adapter.id}.json`)
+    : undefined;
   const blockerAnalysis = !isBtb ? readLaneAnalysis(root, adapter.id) : undefined;
   const outputManifest = !isBtb ? readOfficialOutputManifest(root, adapter.id) : undefined;
   const outputManifestComplete = officialOutputManifestComplete(outputManifest);
   const livePassed = live?.passed === true;
   const readyToRun = validationErrors.length === 0 && implementationMissing.length === 0;
   const adapterProductProofPassed = adapterProductProof?.status === "passed";
+  const adapterLiveRoomProofPassed = adapterLiveRoomProof?.status === "passed";
   const btbOfficialProven = btbFullSuite?.flipEligible === true;
   const adapterBlockerEvidence = !isBtb && adapterBlocker ? [`docs/eval/proofloop-adapter-blockers/${adapter.id}.json`] : [];
   const adapterOfficialEvidence = !isBtb && adapterBlocker
@@ -380,6 +389,7 @@ function adapterEntry(adapter: ProofloopBenchmarkAdapter, root: string): Prooflo
     ].filter((item): item is string => typeof item === "string" && existsSync(join(root, item)))
     : [];
   const adapterProductProofEvidence = !isBtb && adapterProductProof ? [`docs/eval/proofloop-external-adapter-runs/${adapter.id}.json`] : [];
+  const adapterLiveRoomProofEvidence = !isBtb && adapterLiveRoomProof ? [`docs/eval/proofloop-external-adapter-live-room-runs/${adapter.id}.json`] : [];
   const rawAdapterOfficialBlockers = adapterBlocker?.blockers?.length
     ? adapterBlocker.blockers
     : ["Run npm run benchmark:proofloop:adapter-blockers to produce a typed external-adapter blocker receipt."];
@@ -397,11 +407,12 @@ function adapterEntry(adapter: ProofloopBenchmarkAdapter, root: string): Prooflo
     family: "external_adapter",
     liveUserContract: "required",
     productPathCompletion: {
-      status: livePassed || adapterProductProofPassed ? "proven" : readyToRun ? "ready_to_run" : "registered",
+      status: livePassed || adapterLiveRoomProofPassed || adapterProductProofPassed ? "proven" : readyToRun ? "ready_to_run" : "registered",
       scoreType: "product_path_completion",
       evidence: [
         `proofloop/benchmarks/${adapter.id}/adapter.json`,
         ...(livePassed ? ["docs/eval/bankertoolbench-live-room-proof.json"] : []),
+        ...adapterLiveRoomProofEvidence,
         ...adapterProductProofEvidence,
         ...adapterBlockerEvidence,
       ],
@@ -409,6 +420,7 @@ function adapterEntry(adapter: ProofloopBenchmarkAdapter, root: string): Prooflo
       blockers: [
         ...validationErrors,
         ...implementationMissing.map((file) => `${adapter.id}: missing implementation file ${file}`),
+        ...(adapterLiveRoomProof?.status === "failed" ? adapterLiveRoomProof.failedGates ?? [`${adapter.id}: external adapter live-room proof failed`] : []),
         ...(adapterProductProof?.status === "failed" ? adapterProductProof.failedGates ?? [`${adapter.id}: external adapter product proof failed`] : []),
       ],
     },
@@ -454,9 +466,12 @@ function adapterEntry(adapter: ProofloopBenchmarkAdapter, root: string): Prooflo
         : !isBtb && adapterBlocker
           ? {
             missingImplementationFiles: adapterBlocker.missingImplementationFiles?.length ?? null,
-            localAdapterTasks: adapterProductProof?.taskCount ?? null,
-            localAdapterOnly: adapterProductProof?.localAdapterOnly ?? null,
-            officialScoreClaim: adapterProductProof?.officialScoreClaim ?? null,
+            localAdapterTasks: adapterLiveRoomProof?.taskCount ?? adapterProductProof?.taskCount ?? null,
+            liveRoomProductProof: adapterLiveRoomProofPassed,
+            storyRouteProductProof: adapterProductProofPassed,
+            liveRoomBaseUrl: adapterLiveRoomProof?.baseUrl ?? null,
+            localAdapterOnly: adapterLiveRoomProof?.localAdapterOnly ?? adapterProductProof?.localAdapterOnly ?? null,
+            officialScoreClaim: adapterLiveRoomProof?.officialScoreClaim ?? adapterProductProof?.officialScoreClaim ?? null,
             officialSourceUrls: adapterBlocker.officialSourceUrls?.length ?? null,
             resumeCommands: adapterBlocker.resumeCommands?.length ?? null,
             officialOutputManifestComplete: outputManifestComplete,
@@ -468,9 +483,11 @@ function adapterEntry(adapter: ProofloopBenchmarkAdapter, root: string): Prooflo
         ? ["BankerToolBench full-suite official scoring is imported: completion/scoring is proven separately from pass rate."]
         : ["BankerToolBench product-path proof can pass while Harbor/Gandalf official score import remains blocked."]
       : [
-        adapterProductProofPassed
-          ? "Local app-agnostic Proof Loop adapter has browser proof; official score is still blocked on upstream scorer import."
-          : "Adapter registration is useful backlog inventory until its local browser proof has run.",
+        adapterLiveRoomProofPassed
+          ? "Fresh live-room Proof Loop adapter proof passed; official score is still blocked on upstream scorer import."
+          : adapterProductProofPassed
+            ? "Story-route adapter proof passed, but the stronger fresh live-room proxy proof has not passed yet."
+            : "Adapter registration is useful backlog inventory until its local browser proof has run.",
       ],
   };
 }

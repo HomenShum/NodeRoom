@@ -12,7 +12,7 @@
     "https://open-finance-lab.github.io/SecureFinAI_Contest_2026/"
   ],
   "verifierCommand": "npm run benchmark:proofloop:adapter-blockers -- --id finauditing --strict",
-  "liveUserCommand": "npm run proofloop -- run finauditing --prod --user-emulation strict --cockpit",
+  "liveUserCommand": "npm run benchmark:proofloop:external-adapter-live-room -- --id finauditing --prod --user-emulation strict --cockpit",
   "missingImplementationFiles": [],
   "officialScoreReceiptPath": "docs/eval/proofloop-official-scores/finauditing.json",
   "officialTaskBundleManifestPath": "docs/eval/proofloop-official-task-bundles/finauditing.json",
@@ -26,11 +26,12 @@
     "Import the official scorer output into docs/eval/proofloop-adapter-blockers/finauditing.json before claiming score."
   ],
   "resumeCommands": [
+    "npm run benchmark:proofloop:external-adapter-live-room -- --id finauditing --prod --user-emulation strict",
     "npm run benchmark:proofloop:external-adapter -- --id finauditing --prod --user-emulation strict",
     "npm run benchmark:proofloop:adapter-blockers -- --id finauditing",
     "import docs/eval/proofloop-official-scores/finauditing.json from the upstream official scorer",
     "stage docs/eval/proofloop-official-task-bundles/finauditing.json from the locked official task bundle",
-    "npm run proofloop -- run finauditing --prod --user-emulation strict --cockpit",
+    "npm run benchmark:proofloop:external-adapter-live-room -- --id finauditing --prod --user-emulation strict --cockpit",
     "npm run benchmark:proofloop:adapter-blockers -- --id finauditing --strict"
   ],
   "evidence": [

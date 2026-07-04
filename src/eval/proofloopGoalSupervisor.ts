@@ -176,9 +176,12 @@ export function officialScoresGoalTasks(): ProofloopGoalTask[] {
     }),
     commandTask({
       id: "external-adapter-local-product-proofs",
-      title: "External adapter local product-path browser proofs",
-      command: "npm run benchmark:proofloop:external-adapter -- --prod --user-emulation strict",
+      title: "External adapter fresh-room product-path browser proofs",
+      command: "npm run benchmark:proofloop:external-adapter-live-room -- --prod --user-emulation strict",
       evidence: [
+        "docs/eval/proofloop-external-adapter-live-room-runs/finch.json",
+        "docs/eval/proofloop-external-adapter-live-room-runs/finauditing.json",
+        "docs/eval/proofloop-external-adapter-live-room-runs/workstreambench.json",
         "docs/eval/proofloop-external-adapter-runs/finch.json",
         "docs/eval/proofloop-external-adapter-runs/finauditing.json",
         "docs/eval/proofloop-external-adapter-runs/workstreambench.json",
@@ -288,6 +291,7 @@ export function officialScoresGoalTasks(): ProofloopGoalTask[] {
       evidence: [
         ".proofloop/setup/finch-local-setup.json",
         "proofloop/benchmarks/finch/adapter.json",
+        "docs/eval/proofloop-external-adapter-live-room-runs/finch.json",
         "docs/eval/proofloop-external-adapter-runs/finch.json",
         "docs/eval/proofloop-adapter-blockers/finch.json",
         "docs/eval/proofloop-official-task-bundles/finch.json",
@@ -306,6 +310,7 @@ export function officialScoresGoalTasks(): ProofloopGoalTask[] {
       evidence: [
         ".proofloop/setup/finauditing-local-setup.json",
         "proofloop/benchmarks/finauditing/adapter.json",
+        "docs/eval/proofloop-external-adapter-live-room-runs/finauditing.json",
         "docs/eval/proofloop-external-adapter-runs/finauditing.json",
         "docs/eval/proofloop-adapter-blockers/finauditing.json",
         "docs/eval/proofloop-official-task-bundles/finauditing.json",
@@ -324,6 +329,7 @@ export function officialScoresGoalTasks(): ProofloopGoalTask[] {
       evidence: [
         ".proofloop/setup/workstreambench-local-setup.json",
         "proofloop/benchmarks/workstreambench/adapter.json",
+        "docs/eval/proofloop-external-adapter-live-room-runs/workstreambench.json",
         "docs/eval/proofloop-external-adapter-runs/workstreambench.json",
         "docs/eval/proofloop-adapter-blockers/workstreambench.json",
         "docs/eval/proofloop-official-scores/workstreambench.json",

@@ -1,6 +1,6 @@
 # Proof Loop Benchmark Normalization
 
-Generated: 2026-07-04T02:33:22.439Z
+Generated: 2026-07-04T08:23:49.404Z
 
 This ledger answers whether each benchmark is shaped for the current NodeRoom codebase while preserving its official scorer boundary.
 
@@ -184,12 +184,12 @@ This ledger answers whether each benchmark is shaped for the current NodeRoom co
 - officialTaskBundle: ready - Official task bundle must be locked by repository/dataset revision before product expansion.
   Evidence: `docs/eval/proofloop-official-task-bundles/finch.json`
 - productTaskManifest: partial - Current codebase has a local compatibility ProductTaskManifest; full official task-id expansion is still required.
-  Evidence: `proofloop/benchmarks/finch/adapter.json`, `docs/eval/proofloop-external-adapter-runs/finch.json`, `docs/eval/proofloop-adapter-blockers/finch.json`
+  Evidence: `proofloop/benchmarks/finch/adapter.json`, `docs/eval/proofloop-external-adapter-live-room-runs/finch.json`, `docs/eval/proofloop-external-adapter-runs/finch.json`, `docs/eval/proofloop-adapter-blockers/finch.json`
   Blockers: Expand all 172 official Finch task ids into ProductTaskManifest rows.
 - nodeRoomRunSpec: proven - Strict prod browser run spec exists for the local compatibility task through NodeRoom.
-  Evidence: `proofloop/benchmarks/finch/adapter.json`, `docs/eval/proofloop-external-adapter-runs/finch.json`, `docs/eval/proofloop-adapter-blockers/finch.json`
+  Evidence: `proofloop/benchmarks/finch/adapter.json`, `docs/eval/proofloop-external-adapter-live-room-runs/finch.json`, `docs/eval/proofloop-external-adapter-runs/finch.json`, `docs/eval/proofloop-adapter-blockers/finch.json`
 - artifactExport: proven - Export one NodeRoom model-output artifact per official Finch task id.
-  Evidence: `proofloop/benchmarks/finch/adapter.json`, `docs/eval/proofloop-external-adapter-runs/finch.json`, `docs/eval/proofloop-adapter-blockers/finch.json`, `docs/eval/proofloop-official-outputs/finch.json`, `docs/eval/proofloop-official-task-bundles/finch.json`, `.tmp/official-benchmarks/proofloop-official-outputs/finch/model-output-manifest.json`, `.tmp/official-benchmarks/proofloop-official-outputs/finch`
+  Evidence: `proofloop/benchmarks/finch/adapter.json`, `docs/eval/proofloop-external-adapter-live-room-runs/finch.json`, `docs/eval/proofloop-external-adapter-runs/finch.json`, `docs/eval/proofloop-adapter-blockers/finch.json`, `docs/eval/proofloop-official-outputs/finch.json`, `docs/eval/proofloop-official-task-bundles/finch.json`, `.tmp/official-benchmarks/proofloop-official-outputs/finch/model-output-manifest.json`, `.tmp/official-benchmarks/proofloop-official-outputs/finch`
 - officialSubmission: blocked - Submit content_parts.jsonl built by upstream prompt_build_pipeline.py to call_gpt_judge.py.
   Evidence: `docs/eval/proofloop-official-scores/finch.json`
   Blockers: missing official scorer remains before external-blocked can be claimed; missing judge credentials remains before official score can be claimed; finch: official scorer receipt docs/eval/proofloop-official-scores/finch.json is blocked_external; scored receipt is still required before claiming score.; finch: official task bundle lock docs/eval/proofloop-official-task-bundles/finch.json is staged and NodeRoom model-output artifacts are complete in docs/eval/proofloop-official-outputs/finch.json; upstream content_parts rendering and an accepted Azure judge/scorer receipt are still required before claiming an official score. Cheaper OpenRouter proxy judges are product-gate evidence only unless accepted upstream.; next: complete upstream Finch content_parts rendering, run/import the accepted Finch Azure scorer or judge output, use npm run benchmark:proofloop:harness-economics for proxy triage, then npm run benchmark:proofloop:adapter-blockers -- --id finch --strict
@@ -207,12 +207,12 @@ This ledger answers whether each benchmark is shaped for the current NodeRoom co
 - officialTaskBundle: ready - Official task bundle must be locked by repository/dataset revision before product expansion.
   Evidence: `docs/eval/proofloop-official-task-bundles/finauditing.json`
 - productTaskManifest: partial - Current codebase has a local compatibility ProductTaskManifest; full official task-id expansion is still required.
-  Evidence: `proofloop/benchmarks/finauditing/adapter.json`, `docs/eval/proofloop-external-adapter-runs/finauditing.json`, `docs/eval/proofloop-adapter-blockers/finauditing.json`
+  Evidence: `proofloop/benchmarks/finauditing/adapter.json`, `docs/eval/proofloop-external-adapter-live-room-runs/finauditing.json`, `docs/eval/proofloop-external-adapter-runs/finauditing.json`, `docs/eval/proofloop-adapter-blockers/finauditing.json`
   Blockers: Expand FinSM, FinRE, and FinMR test rows into ProductTaskManifest rows.
 - nodeRoomRunSpec: proven - Strict prod browser run spec exists for the local compatibility task through NodeRoom.
-  Evidence: `proofloop/benchmarks/finauditing/adapter.json`, `docs/eval/proofloop-external-adapter-runs/finauditing.json`, `docs/eval/proofloop-adapter-blockers/finauditing.json`
+  Evidence: `proofloop/benchmarks/finauditing/adapter.json`, `docs/eval/proofloop-external-adapter-live-room-runs/finauditing.json`, `docs/eval/proofloop-external-adapter-runs/finauditing.json`, `docs/eval/proofloop-adapter-blockers/finauditing.json`
 - artifactExport: proven - Export official-format prediction JSONL for FinSM, FinRE, and FinMR.
-  Evidence: `proofloop/benchmarks/finauditing/adapter.json`, `docs/eval/proofloop-external-adapter-runs/finauditing.json`, `docs/eval/proofloop-adapter-blockers/finauditing.json`, `docs/eval/proofloop-official-outputs/finauditing.json`, `docs/eval/proofloop-official-task-bundles/finauditing.json`, `.tmp/official-benchmarks/proofloop-official-outputs/finauditing/FinSM.predictions.jsonl`, `.tmp/official-benchmarks/proofloop-official-outputs/finauditing/FinRE.predictions.jsonl`, `.tmp/official-benchmarks/proofloop-official-outputs/finauditing/FinMR.predictions.jsonl`, `.tmp/official-benchmarks/proofloop-official-outputs/finauditing/manifest.json`, `.tmp/official-benchmarks/proofloop-official-outputs/finauditing`
+  Evidence: `proofloop/benchmarks/finauditing/adapter.json`, `docs/eval/proofloop-external-adapter-live-room-runs/finauditing.json`, `docs/eval/proofloop-external-adapter-runs/finauditing.json`, `docs/eval/proofloop-adapter-blockers/finauditing.json`, `docs/eval/proofloop-official-outputs/finauditing.json`, `docs/eval/proofloop-official-task-bundles/finauditing.json`, `.tmp/official-benchmarks/proofloop-official-outputs/finauditing/FinSM.predictions.jsonl`, `.tmp/official-benchmarks/proofloop-official-outputs/finauditing/FinRE.predictions.jsonl`, `.tmp/official-benchmarks/proofloop-official-outputs/finauditing/FinMR.predictions.jsonl`, `.tmp/official-benchmarks/proofloop-official-outputs/finauditing/manifest.json`, `.tmp/official-benchmarks/proofloop-official-outputs/finauditing`
 - officialSubmission: blocked - Submit official prediction JSONL rows with prediction and ground_truth fields to the evaluator notebooks.
   Evidence: `docs/eval/proofloop-official-scores/finauditing.json`
   Blockers: missing official scorer remains before external-blocked can be claimed; missing judge credentials remains before official score can be claimed; finauditing: official scorer receipt docs/eval/proofloop-official-scores/finauditing.json is blocked_external; scored receipt is still required before claiming score.; next: run/import FinAuditing scorer output with an accepted FinMR judge path, use npm run benchmark:proofloop:harness-economics for proxy triage, then npm run benchmark:proofloop:adapter-blockers -- --id finauditing --strict
@@ -230,12 +230,12 @@ This ledger answers whether each benchmark is shaped for the current NodeRoom co
 - officialTaskBundle: blocked - Official task bundle must be locked by repository/dataset revision before product expansion.
   Blockers: workstreambench: official task bundle lock is missing.
 - productTaskManifest: partial - Current codebase has a local compatibility ProductTaskManifest; full official task-id expansion is still required.
-  Evidence: `proofloop/benchmarks/workstreambench/adapter.json`, `docs/eval/proofloop-external-adapter-runs/workstreambench.json`, `docs/eval/proofloop-adapter-blockers/workstreambench.json`
+  Evidence: `proofloop/benchmarks/workstreambench/adapter.json`, `docs/eval/proofloop-external-adapter-live-room-runs/workstreambench.json`, `docs/eval/proofloop-external-adapter-runs/workstreambench.json`, `docs/eval/proofloop-adapter-blockers/workstreambench.json`
   Blockers: Obtain the public official WorkstreamBench task bundle before expanding ProductTaskManifest rows.
 - nodeRoomRunSpec: proven - Strict prod browser run spec exists for the local compatibility task through NodeRoom.
-  Evidence: `proofloop/benchmarks/workstreambench/adapter.json`, `docs/eval/proofloop-external-adapter-runs/workstreambench.json`, `docs/eval/proofloop-adapter-blockers/workstreambench.json`
+  Evidence: `proofloop/benchmarks/workstreambench/adapter.json`, `docs/eval/proofloop-external-adapter-live-room-runs/workstreambench.json`, `docs/eval/proofloop-external-adapter-runs/workstreambench.json`, `docs/eval/proofloop-adapter-blockers/workstreambench.json`
 - artifactExport: blocked - Export the official structured workstream representation expected by WorkstreamBench.
-  Evidence: `proofloop/benchmarks/workstreambench/adapter.json`, `docs/eval/proofloop-external-adapter-runs/workstreambench.json`, `docs/eval/proofloop-adapter-blockers/workstreambench.json`
+  Evidence: `proofloop/benchmarks/workstreambench/adapter.json`, `docs/eval/proofloop-external-adapter-live-room-runs/workstreambench.json`, `docs/eval/proofloop-external-adapter-runs/workstreambench.json`, `docs/eval/proofloop-adapter-blockers/workstreambench.json`
   Blockers: No official WorkstreamBench output schema is available to export against.
 - officialSubmission: blocked - Submit official structured representations to the released WorkstreamBench scorer/rubric.
   Evidence: `docs/eval/proofloop-official-scores/workstreambench.json`

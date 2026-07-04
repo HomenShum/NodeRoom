@@ -9,7 +9,7 @@
     "https://arxiv.org/html/2605.22664v1"
   ],
   "verifierCommand": "npm run benchmark:proofloop:adapter-blockers -- --id workstreambench --strict",
-  "liveUserCommand": "npm run proofloop -- run workstreambench --prod --user-emulation strict --cockpit",
+  "liveUserCommand": "npm run benchmark:proofloop:external-adapter-live-room -- --id workstreambench --prod --user-emulation strict --cockpit",
   "missingImplementationFiles": [],
   "officialScoreReceiptPath": "docs/eval/proofloop-official-scores/workstreambench.json",
   "officialTaskBundleManifestPath": "docs/eval/proofloop-official-task-bundles/workstreambench.json",
@@ -24,11 +24,12 @@
     "Run the official WorkstreamBench scorer and import the result into docs/eval/proofloop-adapter-blockers/workstreambench.json before claiming score."
   ],
   "resumeCommands": [
+    "npm run benchmark:proofloop:external-adapter-live-room -- --id workstreambench --prod --user-emulation strict",
     "npm run benchmark:proofloop:external-adapter -- --id workstreambench --prod --user-emulation strict",
     "npm run benchmark:proofloop:adapter-blockers -- --id workstreambench",
     "import docs/eval/proofloop-official-scores/workstreambench.json from the upstream official scorer",
     "stage docs/eval/proofloop-official-task-bundles/workstreambench.json from the locked official task bundle",
-    "npm run proofloop -- run workstreambench --prod --user-emulation strict --cockpit",
+    "npm run benchmark:proofloop:external-adapter-live-room -- --id workstreambench --prod --user-emulation strict --cockpit",
     "npm run benchmark:proofloop:adapter-blockers -- --id workstreambench --strict"
   ],
   "evidence": [

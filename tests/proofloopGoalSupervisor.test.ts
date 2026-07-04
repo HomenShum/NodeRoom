@@ -94,7 +94,8 @@ describe("Proof Loop goal supervisor", () => {
     const spreadsheetV2 = tasks.find((task) => task.id === "spreadsheetbench-v2-full-official-score");
     expect(spreadsheetV2?.blockers.join(" ")).toContain("321 V2 tasks");
     expect(spreadsheetV2?.blockers.join(" ")).toContain("proxy judges");
-    expect(tasks.find((task) => task.id === "external-adapter-local-product-proofs")?.command).toContain("benchmark:proofloop:external-adapter");
+    expect(tasks.find((task) => task.id === "external-adapter-local-product-proofs")?.command).toContain("benchmark:proofloop:external-adapter-live-room");
+    expect(tasks.find((task) => task.id === "external-adapter-local-product-proofs")?.evidence.join(" ")).toContain("docs/eval/proofloop-external-adapter-live-room-runs");
     expect(tasks.find((task) => task.id === "external-adapter-blocker-receipts")?.command).toBe("npm run benchmark:proofloop:adapter-blockers");
     const solver = tasks.find((task) => task.id === "blocked-lane-solver");
     expect(solver?.command).toBe("npm run proofloop -- solve-blockers --goal official-scores");

@@ -134,7 +134,7 @@ type SuiteConfig = {
   cmd: string;
   minScore?: number;
   kind?: "cli" | "browser";
-  receiptGlob?: "live-cli" | "live-browser" | "adapter-blocker" | "external-adapter-run" | "none";
+  receiptGlob?: "live-cli" | "live-browser" | "adapter-blocker" | "external-adapter-run" | "external-adapter-live-room-run" | "none";
 };
 
 type ProofloopConfig = {
@@ -187,19 +187,19 @@ const DEFAULT_CONFIG: ProofloopConfig = {
       receiptGlob: "live-browser",
     },
     finch: {
-      cmd: "npm run benchmark:proofloop:external-adapter -- --id finch --prod --user-emulation strict",
+      cmd: "npm run benchmark:proofloop:external-adapter-live-room -- --id finch --prod --user-emulation strict",
       kind: "browser",
-      receiptGlob: "external-adapter-run",
+      receiptGlob: "external-adapter-live-room-run",
     },
     finauditing: {
-      cmd: "npm run benchmark:proofloop:external-adapter -- --id finauditing --prod --user-emulation strict",
+      cmd: "npm run benchmark:proofloop:external-adapter-live-room -- --id finauditing --prod --user-emulation strict",
       kind: "browser",
-      receiptGlob: "external-adapter-run",
+      receiptGlob: "external-adapter-live-room-run",
     },
     workstreambench: {
-      cmd: "npm run benchmark:proofloop:external-adapter -- --id workstreambench --prod --user-emulation strict",
+      cmd: "npm run benchmark:proofloop:external-adapter-live-room -- --id workstreambench --prod --user-emulation strict",
       kind: "browser",
-      receiptGlob: "external-adapter-run",
+      receiptGlob: "external-adapter-live-room-run",
     },
   },
 };
@@ -1503,6 +1503,17 @@ function locateReceipt(
     return {
       passed: receipt.status === "passed",
       failedGates: receipt.status === "passed" ? [] : receipt.failedGates ?? [`${suite}: external adapter product proof failed`],
+      receiptPaths: [rel(receiptPath)],
+    };
+  }
+  if (suiteConfig.receiptGlob === "external-adapter-live-room-run") {
+    const receiptPath = resolve(ROOT, "docs", "eval", "proofloop-external-adapter-live-room-runs", `${suite}.json`);
+    if (!existsSync(receiptPath)) return { receiptPaths: [] };
+    if (!fileIsFresh(receiptPath, startedMs)) return { passed: false, failedGates: ["stale_receipt"], receiptPaths: [] };
+    const receipt = JSON.parse(readFileSync(receiptPath, "utf8")) as { status?: string; failedGates?: string[] };
+    return {
+      passed: receipt.status === "passed",
+      failedGates: receipt.status === "passed" ? [] : receipt.failedGates ?? [`${suite}: external adapter live-room proof failed`],
       receiptPaths: [rel(receiptPath)],
     };
   }
