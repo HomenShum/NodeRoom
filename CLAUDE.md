@@ -85,3 +85,31 @@ Rules:
 - Use the code graph and UI contracts before guessing files, selectors, or routes.
 
 <!-- proofloop-agent-friendly:end -->
+
+## Design System — ground before you style
+
+Any change that touches UI (src/ui/**, src/app/styles.css) must ground itself
+in the design system BEFORE editing — never guess tokens, class names, or
+chrome:
+
+- `npm run design:manifest` — the component roles, token rules, and UI
+  invariants (read this first, like a component library index).
+- `npm run design:audit` — the regression gate (row stretch, mid-word wrap,
+  wrong-semantics colors, missing receipt chips, undismissable chrome). Run it
+  after every UI edit; it is part of `prod:gate`.
+- Canonical tokens live in the design reference bundle at
+  `design-reference/assets/colors_and_type.css` (exported from the Claude
+  Design project; refresh via the Design connector). NEVER introduce a hex
+  value, radius, shadow, or type size that is not in that file or
+  src/app/styles.css tokens.
+- Design source-of-truth specimens: `design-reference/<dir>/` (room, fixes,
+  scale, mobile-scale, feature-map, directions, terra). When implementing a
+  design item, lift the exact CSS from the corresponding specimen instead of
+  approximating. The parity queue lives in
+  `docs/design/DESIGN_PARITY_PLAN.md`.
+- Rules of the visual language: default state shows data, hover shows
+  apparatus (desktop); what desktop reveals on hover, mobile reveals in a
+  bottom sheet. Terracotta = agent provenance + selection; green = success
+  semantics ONLY; amber = needs review.
+- Visual claims require rendered proof (screenshot or DOM assertions against
+  the built preview), never build-success alone.
