@@ -1,5 +1,35 @@
 # NodeRoom Astryx Adoption Notes
 
+## Update (2026-07-03): design bundle + design-vs-product parity loop
+
+The missing half of the Astryx pattern is now in place:
+
+- **Design reference bundle** at `design-reference/` (gitignored): the full
+  source of the Claude Design project — `assets/colors_and_type.css` (canonical
+  tokens), `room/`, `fixes/`, `scale/`, `mobile-scale/`, `feature-map/`,
+  `directions/`, `terra/`, plus the top-level specimen shells (`NodeRoom
+  States & Scale.html` etc.). Exported through the Claude Design connector;
+  re-export after design edits. This is what earlier parity sessions were
+  missing when they reported "the downloaded HTML files are wrappers that
+  reference missing folders".
+- **Designed-version screenshots are now possible**: serve `design-reference/`
+  with any static server and open a specimen shell — it renders the real
+  design (React/Babel via CDN). Pair each specimen screenshot with the
+  matching product route (`?mode=memory&demo=scale` for States & Scale) and
+  diff visually or with the VLM rubric from docs/design/DESIGN_QA_LADDER.md.
+  That closes the loop the Astryx Max skill demonstrates: manifest-grounded
+  edits + headless-browser screenshot iteration against the actual design.
+- **Agent grounding** (`astryx init` equivalent): CLAUDE.md now has a
+  "Design System" section pointing every agent at `design:manifest`,
+  `design:audit`, the token file, the specimen directories, and the visual-
+  language rules before any UI edit.
+
+Next deepening (queued): grow `design:audit` toward a slop detector by
+deriving rules from `design-reference/assets/colors_and_type.css` — flag any
+hex/radius/shadow/type-size not in the token set, spacing off the 4px grid,
+and hover-apparatus violations — and add a `design:parity` command that
+serves bundle + product and emits paired screenshots.
+
 Astryx is useful to NodeRoom as a workflow model: a design system should be
 discoverable through a small CLI surface, not through a giant prompt dump. The
 repo now has the same local pattern:
