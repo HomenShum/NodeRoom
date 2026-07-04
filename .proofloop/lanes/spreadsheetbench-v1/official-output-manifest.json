@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "suite": "spreadsheetbench-v1",
-  "generatedAt": "2026-07-03T22:15:24.870Z",
+  "generatedAt": "2026-07-04T02:24:04.971Z",
   "status": "needs_generation",
   "expectedOutputs": [
     "912 model-generated candidate workbook outputs",
@@ -15,7 +15,6 @@
   ],
   "missingClasses": [
     "missing_model_run",
-    "missing_official_scorer",
-    "missing_task_bundle"
+    "missing_official_scorer"
   ]
 }

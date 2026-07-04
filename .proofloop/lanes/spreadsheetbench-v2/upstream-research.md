@@ -1,24 +1,25 @@
 # SpreadsheetBench V2 full 321-task official score Research
 
-Generated: 2026-07-03T22:15:25.870Z
+Generated: 2026-07-04T02:24:04.978Z
 Blocker: spreadsheetbench-v2-full-official-score
 
 ## Classes
 
 - missing_model_run
 - missing_official_scorer
-- missing_task_bundle
 
 ## Official Sources Checked
 
 - https://spreadsheetbench.github.io/
+- https://github.com/RUCKBReasoning/SpreadsheetBench-2
 - https://huggingface.co/datasets/KAKA22/SpreadsheetBench-v2
+- docs/eval/spreadsheetbench-v2-full-stage.json
 
 ## Conclusion
 
-Full V2 staging and model/scorer execution remain local scaffold/run work.
+Full V2 staging is available; model/scorer execution remains local scaffold/run work before official score promotion.
 
 ## Original Blockers
 
-- Only the public/example SpreadsheetBench V2 slice is staged locally.
-- All 321 V2 tasks need official bundle, model-run, workbook scorer, and rendered chart-grader evidence; proxy judges can improve candidates but cannot stand in for the V2 scorer path.
+- Full public SpreadsheetBench V2 bundle is staged locally: 321/321 tasks, 321 agent-visible workbooks, 321 evaluator answer workbooks, zero gold/scorer leaks.
+- All 321 V2 tasks need model-run, workbook scorer, and rendered chart-grader evidence; proxy judges can improve candidates but cannot stand in for the V2 scorer path.

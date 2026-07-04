@@ -1,13 +1,13 @@
 {
   "schema": 1,
-  "generatedAt": "2026-07-03T22:15:22.121Z",
+  "generatedAt": "2026-07-04T02:33:14.606Z",
   "summary": {
     "tracks": 5,
     "completeTracks": 2,
     "partialTracks": 3,
     "missingTracks": 0,
     "totalOfficialExpectedTasks": 1739,
-    "totalStagedTasks": 1421,
+    "totalStagedTasks": 1739,
     "totalDeterministicRunTasks": 1321,
     "totalModelRunCases": 106,
     "totalModelRunAttempts": 118,
@@ -89,24 +89,25 @@
         "https://spreadsheetbench.github.io/",
         "https://huggingface.co/datasets/KAKA22/SpreadsheetBench-v2"
       ],
-      "localScope": "public example bundle only",
-      "scannedTasks": 26,
-      "stagedTasks": 3,
-      "skippedTasks": 23,
+      "localScope": "full public 321-task bundle staged with evaluator isolation",
+      "scannedTasks": 321,
+      "stagedTasks": 321,
+      "skippedTasks": 0,
       "deterministicRunTasks": 3,
       "modelRunCases": 3,
       "modelRunAttempts": 3,
       "passRate": 0,
-      "allOfficialTasksStaged": false,
+      "allOfficialTasksStaged": true,
       "allOfficialTasksRunWithModel": false,
       "status": "partial",
       "evidence": [
+        "docs/eval/spreadsheetbench-v2-full-ingest.json",
+        "docs/eval/spreadsheetbench-v2-full-stage.json",
         "docs/eval/spreadsheetbench-v2-stage-smoke.json",
         "docs/eval/spreadsheetbench-v2-run-smoke.json",
         "docs/eval/spreadsheetbench-chart-visual-probe.json"
       ],
       "blockers": [
-        "318 SpreadsheetBench 2 task(s) still need staging from the full official bundle.",
         "Run every staged V2 task through the model runner, static workbook scorer, and rendered/VLM chart grader where applicable."
       ]
     },

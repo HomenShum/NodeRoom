@@ -207,7 +207,7 @@ test.describe("full modern UX release bar", () => {
 
     await page.goto("/?mode=memory", { waitUntil: "domcontentloaded" });
     await expect(page.getByRole("button", { name: "NodeAgent home" })).toBeVisible();
-    await expect(page.getByText("Bring people and agents into the same room.")).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Diligence that shows its work." })).toBeVisible();
     await expect(page.getByTestId("join-room-code")).toHaveAttribute("placeholder", "ENTER CODE");
     await page.getByTestId("start-demo-room").focus();
     await expect(page.getByTestId("start-demo-room")).toBeFocused();

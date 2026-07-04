@@ -3,7 +3,7 @@
   "blockerId": "workstreambench-official-score",
   "suite": "workstreambench",
   "title": "WorkstreamBench official score",
-  "generatedAt": "2026-07-03T22:15:28.870Z",
+  "generatedAt": "2026-07-04T02:24:04.996Z",
   "phase": "solve",
   "classes": [
     "missing_official_scorer",

@@ -17,7 +17,7 @@
   "officialTaskBundleManifestPath": "docs/eval/proofloop-official-task-bundles/finch.json",
   "validationErrors": [],
   "blockers": [
-    "finch: official scorer receipt docs/eval/proofloop-official-scores/finch.json is blocked_external; scored receipt is still required before claiming score. No Azure OpenAI judge credentials are present in this shell: AZURE endpoint, API key, API version, and deployment name are all required by src/call_gpt_judge.py. No NodeRoom model-output directory exists with one output artifact per official Finch task id, so the upstream prompt_build_pipeline.py cannot build claimable content_parts.jsonl for scoring."
+    "finch: official scorer receipt docs/eval/proofloop-official-scores/finch.json is blocked_external; scored receipt is still required before claiming score. No Azure OpenAI judge credentials are present in this shell: AZURE endpoint, API key, API version, and deployment name are all required by src/call_gpt_judge.py. Upstream Finch content_parts rendering is 0/172; official Azure judge input remains incomplete even though model-output artifacts are complete."
   ],
   "officialCommandPlan": [
     "Clone/lock https://github.com/FinWorkBench/Finch and https://huggingface.co/datasets/FinWorkBench/Finch.",
@@ -37,6 +37,10 @@
     "proofloop/benchmarks/finch/adapter.json",
     "https://arxiv.org/abs/2512.13168",
     "https://github.com/FinWorkBench/Finch",
-    "https://huggingface.co/datasets/FinWorkBench/Finch"
+    "https://huggingface.co/datasets/FinWorkBench/Finch",
+    "docs/eval/proofloop-official-outputs/finch.json",
+    "docs/eval/proofloop-official-task-bundles/finch.json",
+    ".tmp/official-benchmarks/proofloop-official-outputs/finch/model-output-manifest.json",
+    ".tmp/official-benchmarks/proofloop-official-outputs/finch"
   ]
 }

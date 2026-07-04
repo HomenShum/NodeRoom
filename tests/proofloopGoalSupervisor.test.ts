@@ -123,7 +123,10 @@ describe("Proof Loop goal supervisor", () => {
       expect(task?.resumeCommand).toContain("benchmark:proofloop:harness-economics");
       expect(task?.blockers.join(" ")).not.toContain(".tmp/official-benchmarks");
     }
-    expect(tasks.find((task) => task.id === "finch-official-score")?.blockers.join(" ")).toContain("accepted upstream judge/scorer path");
+    const finchBlockers = tasks.find((task) => task.id === "finch-official-score")?.blockers.join(" ") ?? "";
+    expect(finchBlockers).toContain("model-output artifacts are complete");
+    expect(finchBlockers).toContain("upstream content_parts rendering");
+    expect(finchBlockers).toContain("accepted Azure judge/scorer receipt");
     expect(tasks.find((task) => task.id === "finauditing-official-score")?.blockers.join(" ")).toContain("accepted FinMR judge path");
     expect(tasks.find((task) => task.id === "workstreambench-official-score")?.blockers.join(" ")).toContain("scorer/rubric");
     expect(tasks.find((task) => task.id === "finch-official-score")?.evidence.join(" ")).toContain("docs/eval/proofloop-official-task-bundles/finch.json");

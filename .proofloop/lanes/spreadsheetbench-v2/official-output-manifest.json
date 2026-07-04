@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "suite": "spreadsheetbench-v2",
-  "generatedAt": "2026-07-03T22:15:25.870Z",
+  "generatedAt": "2026-07-04T02:24:04.978Z",
   "status": "needs_generation",
   "expectedOutputs": [
     "321 official V2 task manifests",
@@ -10,11 +10,12 @@
     "rendered chart/visual grader receipt"
   ],
   "currentEvidence": [
-    "docs/eval/official-benchmark-task-coverage.json"
+    "docs/eval/official-benchmark-task-coverage.json",
+    "docs/eval/spreadsheetbench-v2-full-ingest.json",
+    "docs/eval/spreadsheetbench-v2-full-stage.json"
   ],
   "missingClasses": [
     "missing_model_run",
-    "missing_official_scorer",
-    "missing_task_bundle"
+    "missing_official_scorer"
   ]
 }

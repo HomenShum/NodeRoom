@@ -2,7 +2,7 @@
   "schema": "proofloop-official-score-receipt-v1",
   "adapterId": "finauditing",
   "status": "blocked_external",
-  "generatedAt": "2026-07-02T09:50:00.000Z",
+  "generatedAt": "2026-07-04T02:22:42.482Z",
   "officialScorer": {
     "repository": "https://github.com/The-FinAI/FinAuditing",
     "commit": "cee2b4e563d8d6cadb94cd0138163bb72e8ee0e7",
@@ -16,10 +16,10 @@
   "attempted": [
     "Cloned the official FinAuditing GitHub repository.",
     "Cloned the official FinSM, FinRE, and FinMR Hugging Face datasets.",
-    "Extracted the official evaluator notebook code paths and counted test split rows."
+    "Extracted the official evaluator notebook code paths and counted test split rows.",
+    "Generated finauditing official-format output manifest with 1102 expected task rows and 1102 exported rows."
   ],
   "blockers": [
-    "No NodeRoom prediction JSONL exists for FinSM, FinRE, or FinMR in the official evaluator format.",
     "FinMR evaluation uses an OpenAI LLM judge and this shell has no OPENAI_API_KEY.",
     "The full benchmark path also points to the separate FinBen framework, which is not yet wired to NodeRoom output artifacts."
   ],
@@ -27,6 +27,19 @@
   "evidence": [
     "docs/eval/proofloop-official-task-bundles/finauditing.json",
     "proofloop/benchmarks/finauditing/adapter.json",
-    "docs/eval/proofloop-external-adapter-runs/finauditing.json"
-  ]
+    "docs/eval/proofloop-external-adapter-runs/finauditing.json",
+    "docs/eval/proofloop-official-outputs/finauditing.json",
+    ".tmp/official-benchmarks/proofloop-official-outputs/finauditing/FinSM.predictions.jsonl",
+    ".tmp/official-benchmarks/proofloop-official-outputs/finauditing/FinRE.predictions.jsonl",
+    ".tmp/official-benchmarks/proofloop-official-outputs/finauditing/FinMR.predictions.jsonl",
+    ".tmp/official-benchmarks/proofloop-official-outputs/finauditing/manifest.json"
+  ],
+  "officialOutputManifest": {
+    "path": "docs/eval/proofloop-official-outputs/finauditing.json",
+    "status": "complete",
+    "officialTaskCount": 1102,
+    "outputTaskCount": null,
+    "predictionRowCount": 1102,
+    "contentPartsCount": null
+  }
 }

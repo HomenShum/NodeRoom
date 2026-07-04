@@ -195,11 +195,14 @@ function spreadsheetBenchV1Verified(): BenchmarkTaskCoverageTrack {
 }
 
 function spreadsheetBenchV2Full(): BenchmarkTaskCoverageTrack {
-  const stage = readJson<StageReport>("docs/eval/spreadsheetbench-v2-stage-smoke.json");
+  const stage = readJson<StageReport>("docs/eval/spreadsheetbench-v2-full-stage.json")
+    ?? readJson<StageReport>("docs/eval/spreadsheetbench-v2-stage-smoke.json");
+  const fullStageExists = existsSync("docs/eval/spreadsheetbench-v2-full-stage.json");
   const run = readJson<RunReport>("docs/eval/spreadsheetbench-v2-run-smoke.json");
   const stagedTasks = stage?.stagedTaskCount ?? 0;
   const modelRunCases = run?.caseCount ?? run?.taskCount ?? 0;
   const complete = stagedTasks >= 321 && modelRunCases >= 321;
+  const fullBundleStaged = stagedTasks >= 321;
 
   return {
     id: "spreadsheetbench-v2-full-321",
@@ -210,7 +213,7 @@ function spreadsheetBenchV2Full(): BenchmarkTaskCoverageTrack {
       "https://spreadsheetbench.github.io/",
       "https://huggingface.co/datasets/KAKA22/SpreadsheetBench-v2",
     ],
-    localScope: "public example bundle only",
+    localScope: fullBundleStaged ? "full public 321-task bundle staged with evaluator isolation" : "public example bundle only",
     scannedTasks: stage?.scannedTaskCount ?? 0,
     stagedTasks,
     skippedTasks: stage?.skippedTaskCount ?? 321,
@@ -222,12 +225,18 @@ function spreadsheetBenchV2Full(): BenchmarkTaskCoverageTrack {
     allOfficialTasksRunWithModel: modelRunCases >= 321,
     status: complete ? "complete" : stagedTasks > 0 ? "partial" : "missing",
     evidence: [
+      ...(fullStageExists ? [
+        "docs/eval/spreadsheetbench-v2-full-ingest.json",
+        "docs/eval/spreadsheetbench-v2-full-stage.json",
+      ] : []),
       "docs/eval/spreadsheetbench-v2-stage-smoke.json",
       "docs/eval/spreadsheetbench-v2-run-smoke.json",
       "docs/eval/spreadsheetbench-chart-visual-probe.json",
     ],
     blockers: complete ? [] : [
-      `${Math.max(0, 321 - stagedTasks)} SpreadsheetBench 2 task(s) still need staging from the full official bundle.`,
+      ...(fullBundleStaged ? [] : [
+        `${Math.max(0, 321 - stagedTasks)} SpreadsheetBench 2 task(s) still need staging from the full official bundle.`,
+      ]),
       "Run every staged V2 task through the model runner, static workbook scorer, and rendered/VLM chart grader where applicable.",
     ],
   };

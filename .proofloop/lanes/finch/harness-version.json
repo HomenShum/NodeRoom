@@ -1,12 +1,11 @@
 {
   "schema": 1,
   "suite": "finch",
-  "harnessVersion": "finch-harness-9718e2f457c4",
-  "generatedAt": "2026-07-03T22:15:26.870Z",
+  "harnessVersion": "finch-harness-e1fc4f3c0d4c",
+  "generatedAt": "2026-07-04T02:24:04.983Z",
   "previousVersion": null,
   "changes": [
-    "add Finch content_parts exporter",
-    "add NodeRoom output manifest per official task id",
+    "retry upstream Finch content_parts rendering against the complete model-output manifest",
     "wire accepted Finch judge command adapter when credentials exist"
   ],
   "modelsTested": [
@@ -18,12 +17,12 @@
     "ibm-granite/granite-4.1-8b"
   ],
   "bestRoute": "deepseek/deepseek-v4-pro",
-  "reason": "Official judge credentials are external, but output generation/exporter work still has to complete first.",
+  "reason": "Official model-output artifacts are complete; upstream content_parts rendering and accepted judge import remain before official score promotion.",
   "files": [
     {
       "path": "scripts/proofloop-cli.ts",
       "exists": true,
-      "sha256": "b54e78397ce83f295afd55eb2c308721ef5794fd49a3a4fe7a20f3444b5e6d58"
+      "sha256": "6bb51201f090bda3a6f5e7a4c55a8a7f84fffd825e081898a50a5ce535b986ef"
     },
     {
       "path": "scripts/proofloop.mjs",
@@ -33,12 +32,12 @@
     {
       "path": "src/eval/proofloopGoalSupervisor.ts",
       "exists": true,
-      "sha256": "394db83b3cb3192ff67ce854096a76a9427ce5af49f9c69765f8ea020885b06b"
+      "sha256": "02b7d804b71038ffb0f33d13e8e832a8cc2ad416c77795f53afa305212651df0"
     },
     {
       "path": "src/eval/proofloopLoopArtifacts.ts",
       "exists": true,
-      "sha256": "67c6fc3b3a2c42ec710c1d18c8f0c2a6e8d81363c130da32d7e63e991554ba1d"
+      "sha256": "b74cdf72de4fe5f4f7de096fdd274c4a3e7ff845fde5737f6e2d691f8ec9d882"
     },
     {
       "path": "src/eval/proofloopModelTracking.ts",
@@ -48,7 +47,7 @@
     {
       "path": "src/eval/proofloopBlockerSolver.ts",
       "exists": true,
-      "sha256": "919b26821754bc6d88d49e98c028b1dd10cd64ec3b1ffebec11f46fb8a2cec5f"
+      "sha256": "0e787203927832e15fd72db090ebcefcb8b4c7b321085b12a24f2a54da324348"
     },
     {
       "path": "proofloop/benchmarks/finch/adapter.json",
@@ -63,7 +62,7 @@
     {
       "path": "docs/eval/official-benchmark-task-coverage.json",
       "exists": true,
-      "sha256": "62e66650064dfd7517012ea01806a47b2009886056b24f78d619bac745d80687"
+      "sha256": "6751aa99645e7130b4a39159f88a5e2da05ce4e4a52830e83db29f87deb9e96d"
     }
   ]
 }

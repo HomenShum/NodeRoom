@@ -3,18 +3,17 @@
   "kind": "blocker_solver_memory",
   "suite": "finch",
   "blockerId": "finch-official-score",
-  "generatedAt": "2026-07-03T22:15:26.870Z",
+  "generatedAt": "2026-07-04T02:24:04.983Z",
   "classes": [
     "missing_judge_credentials",
     "missing_official_scorer",
-    "missing_output_exporter",
-    "missing_task_bundle"
+    "missing_output_exporter"
   ],
   "nextCommands": [
-    "emit NodeRoom outputs for every official Finch task id, run/import the accepted upstream Finch scorer or judge output, use npm run benchmark:proofloop:harness-economics for proxy triage, then npm run benchmark:proofloop:adapter-blockers -- --id finch --strict",
+    "complete upstream Finch content_parts rendering, run/import the accepted Finch Azure scorer or judge output, use npm run benchmark:proofloop:harness-economics for proxy triage, then npm run benchmark:proofloop:adapter-blockers -- --id finch --strict",
     "npm run proofloop -- setup finch --doctor",
     "npm run benchmark:proofloop:adapter-blockers -- --id finch",
-    "npm run proofloop -- blocker scaffold finch-official-score",
+    "npm run benchmark:proofloop:official-outputs -- --id finch",
     "npm run benchmark:proofloop:adapter-blockers -- --id finch --strict"
   ],
   "lesson": "Do not declare external-blocked until setup, research, scaffold, doctor, model tracking, and resume evidence are written."

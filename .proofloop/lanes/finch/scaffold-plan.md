@@ -2,22 +2,20 @@
 
 ## Required Changes
 
-- add Finch content_parts exporter
-- add NodeRoom output manifest per official task id
+- retry upstream Finch content_parts rendering against the complete model-output manifest
 - wire accepted Finch judge command adapter when credentials exist
 
 ## Remaining Local Classes
 
 - missing_official_scorer
 - missing_output_exporter
-- missing_task_bundle
 
 ## Commands
 
-- `emit NodeRoom outputs for every official Finch task id, run/import the accepted upstream Finch scorer or judge output, use npm run benchmark:proofloop:harness-economics for proxy triage, then npm run benchmark:proofloop:adapter-blockers -- --id finch --strict`
+- `complete upstream Finch content_parts rendering, run/import the accepted Finch Azure scorer or judge output, use npm run benchmark:proofloop:harness-economics for proxy triage, then npm run benchmark:proofloop:adapter-blockers -- --id finch --strict`
 - `npm run proofloop -- setup finch --doctor`
 - `npm run benchmark:proofloop:adapter-blockers -- --id finch`
-- `npm run proofloop -- blocker scaffold finch-official-score`
+- `npm run benchmark:proofloop:official-outputs -- --id finch`
 - `npm run benchmark:proofloop:adapter-blockers -- --id finch --strict`
 
 ## Stop Rule

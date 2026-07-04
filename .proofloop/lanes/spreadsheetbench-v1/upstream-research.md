@@ -1,13 +1,12 @@
 # SpreadsheetBench V1 full 912-task official score Research
 
-Generated: 2026-07-03T22:15:24.870Z
+Generated: 2026-07-04T02:24:04.971Z
 Blocker: spreadsheetbench-v1-full-official-score
 
 ## Classes
 
 - missing_model_run
 - missing_official_scorer
-- missing_task_bundle
 
 ## Official Sources Checked
 

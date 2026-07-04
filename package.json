@@ -68,6 +68,7 @@
     "benchmark:proofloop:company-tasks": "tsx scripts/proofloop-company-task-coverage.ts",
     "benchmark:proofloop:harness-economics": "tsx scripts/proofloop-harness-economics.ts",
     "benchmark:proofloop:adapter-blockers": "tsx scripts/proofloop-adapter-blockers.ts",
+    "benchmark:proofloop:official-outputs": "tsx scripts/proofloop-official-outputs.ts",
     "benchmark:proofloop:external-adapter": "tsx scripts/proofloop-external-adapter-run.ts",
     "benchmark:proofloop:charts": "tsx scripts/proofloop-charts.ts",
     "benchmark:official:task-coverage": "tsx scripts/official-benchmark-task-coverage.ts",

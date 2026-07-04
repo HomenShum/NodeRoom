@@ -1,6 +1,12 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { listBenchmarkAdapters, validateBenchmarkAdapter, type ProofloopBenchmarkAdapter } from "./proofloopBenchmarkAdapters";
+import {
+  isOfficialOutputExporterBlocker,
+  officialOutputManifestComplete,
+  officialOutputManifestEvidence,
+  readOfficialOutputManifest,
+} from "./proofloopOfficialOutputManifests";
 
 export type ProofloopBenchmarkBoardStatus =
   | "proven"
@@ -78,6 +84,17 @@ type BlockerAnalysisReceipt = {
   remainingExternalClasses?: string[];
   blockers?: string[];
   nextCommands?: string[];
+};
+
+type TaskCoverageReceipt = {
+  summary?: { strictFullCoverageReady?: boolean };
+  tracks?: Array<{
+    id?: string;
+    officialExpectedTasks?: number;
+    stagedTasks?: number;
+    modelRunCases?: number;
+    blockers?: string[];
+  }>;
 };
 
 export function buildProofloopBenchmarkBoard(args: {
@@ -180,7 +197,7 @@ function renderTableBlockers(blockers: string[]): string {
 
 function spreadsheetBenchEntry(root: string): ProofloopBenchmarkBoardEntry {
   const live = readJson<JsonObject>(root, "docs/eval/spreadsheetbench-live-room-proof.json");
-  const taskCoverage = readJson<{ summary?: { strictFullCoverageReady?: boolean } }>(root, "docs/eval/official-benchmark-task-coverage.json");
+  const taskCoverage = readJson<TaskCoverageReceipt>(root, "docs/eval/official-benchmark-task-coverage.json");
   const v1Solver = readLaneAnalysis(root, "spreadsheetbench-v1");
   const v2Solver = readLaneAnalysis(root, "spreadsheetbench-v2");
   const livePassed = live?.passed === true;
@@ -209,7 +226,7 @@ function spreadsheetBenchEntry(root: string): ProofloopBenchmarkBoardEntry {
         ...(v2Solver ? [".proofloop/lanes/spreadsheetbench-v2/blocker-analysis.json"] : []),
       ],
       command: solverStatus ? "npm run proofloop -- solve-blockers --goal official-scores" : "npm run benchmark:official:task-coverage",
-      blockers: officialReady ? [] : solverBlockers([v1Solver, v2Solver], ["Full official SpreadsheetBench task coverage and scorer import are not ready."]),
+      blockers: officialReady ? [] : spreadsheetBenchCoverageBlockers(taskCoverage, [v1Solver, v2Solver]),
     },
     notes: ["Workbook product proof is separate from full official task coverage."],
   };
@@ -349,6 +366,8 @@ function adapterEntry(adapter: ProofloopBenchmarkAdapter, root: string): Prooflo
     ? readJson<ExternalAdapterProductProofReceipt>(root, `docs/eval/proofloop-external-adapter-runs/${adapter.id}.json`)
     : undefined;
   const blockerAnalysis = !isBtb ? readLaneAnalysis(root, adapter.id) : undefined;
+  const outputManifest = !isBtb ? readOfficialOutputManifest(root, adapter.id) : undefined;
+  const outputManifestComplete = officialOutputManifestComplete(outputManifest);
   const livePassed = live?.passed === true;
   const readyToRun = validationErrors.length === 0 && implementationMissing.length === 0;
   const adapterProductProofPassed = adapterProductProof?.status === "passed";
@@ -361,9 +380,16 @@ function adapterEntry(adapter: ProofloopBenchmarkAdapter, root: string): Prooflo
     ].filter((item): item is string => typeof item === "string" && existsSync(join(root, item)))
     : [];
   const adapterProductProofEvidence = !isBtb && adapterProductProof ? [`docs/eval/proofloop-external-adapter-runs/${adapter.id}.json`] : [];
-  const adapterOfficialBlockers = adapterBlocker?.blockers?.length
+  const rawAdapterOfficialBlockers = adapterBlocker?.blockers?.length
     ? adapterBlocker.blockers
     : ["Run npm run benchmark:proofloop:adapter-blockers to produce a typed external-adapter blocker receipt."];
+  const adapterOfficialBlockers = outputManifestComplete
+    ? rawAdapterOfficialBlockers.filter((blocker) => !isOfficialOutputExporterBlocker(adapter.id, blocker))
+    : rawAdapterOfficialBlockers;
+  const rawSolverBlockers = !isBtb ? solverBlockers([blockerAnalysis], adapterOfficialBlockers) : [];
+  const adapterScoreBlockers = outputManifestComplete
+    ? rawSolverBlockers.filter((blocker) => !isOfficialOutputExporterBlocker(adapter.id, blocker))
+    : rawSolverBlockers;
 
   return {
     id: adapter.id,
@@ -405,6 +431,7 @@ function adapterEntry(adapter: ProofloopBenchmarkAdapter, root: string): Prooflo
           `proofloop/benchmarks/${adapter.id}/adapter.json`,
           ...adapterBlockerEvidence,
           ...adapterOfficialEvidence,
+          ...officialOutputManifestEvidence(adapter.id, outputManifest),
           ...(blockerAnalysis ? [`.proofloop/lanes/${adapter.id}/blocker-analysis.json`] : []),
         ],
       command: adapter.verifierCommand,
@@ -412,7 +439,7 @@ function adapterEntry(adapter: ProofloopBenchmarkAdapter, root: string): Prooflo
         ? btbOfficialProven
           ? []
           : btbOfficial?.blockers ?? ["BankerToolBench official contract artifact is missing."]
-        : solverBlockers([blockerAnalysis], adapterOfficialBlockers),
+        : adapterScoreBlockers,
       metrics: btbOfficialProven
         ? {
           expectedCount: btbFullSuite?.expectedCount ?? null,
@@ -432,6 +459,7 @@ function adapterEntry(adapter: ProofloopBenchmarkAdapter, root: string): Prooflo
             officialScoreClaim: adapterProductProof?.officialScoreClaim ?? null,
             officialSourceUrls: adapterBlocker.officialSourceUrls?.length ?? null,
             resumeCommands: adapterBlocker.resumeCommands?.length ?? null,
+            officialOutputManifestComplete: outputManifestComplete,
           }
           : undefined,
     },
@@ -484,6 +512,34 @@ function solverBlockers(receipts: Array<BlockerAnalysisReceipt | undefined>, fal
     return parts.length ? parts : [`solver status: ${receipt.status ?? "unknown"}`];
   });
   return blockers.length ? [...new Set(blockers)] : fallback;
+}
+
+function spreadsheetBenchCoverageBlockers(
+  coverage: TaskCoverageReceipt | undefined,
+  solverReceipts: Array<BlockerAnalysisReceipt | undefined>,
+): string[] {
+  const tracks = coverage?.tracks ?? [];
+  if (tracks.length === 0) {
+    return solverBlockers(solverReceipts, ["Full official SpreadsheetBench task coverage and scorer import are not ready."]);
+  }
+
+  const blockers = tracks
+    .filter((track) => /^spreadsheetbench-/i.test(String(track.id ?? "")))
+    .flatMap((track) => {
+      const fullyStaged =
+        typeof track.stagedTasks === "number" &&
+        typeof track.officialExpectedTasks === "number" &&
+        track.stagedTasks >= track.officialExpectedTasks;
+      return (track.blockers ?? []).filter((blocker) => {
+        const text = blocker.toLowerCase();
+        const stagingOnly =
+          /need staging|needs staging|need staging from|still need staging|download\/lock and stage|stage the full|bundle evidence is incomplete/.test(text);
+        return !fullyStaged || !stagingOnly;
+      });
+    });
+
+  if (blockers.length) return [...new Set(blockers)];
+  return ["Full official SpreadsheetBench model outputs and scorer import are not ready."];
 }
 
 function blockerClassLabel(value: string): string {
