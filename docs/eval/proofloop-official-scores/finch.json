@@ -2,7 +2,7 @@
   "schema": "proofloop-official-score-receipt-v1",
   "adapterId": "finch",
   "status": "blocked_external",
-  "generatedAt": "2026-07-04T02:22:42.482Z",
+  "generatedAt": "2026-07-04T14:38:21.457Z",
   "officialScorer": {
     "repository": "https://github.com/FinWorkBench/Finch",
     "commit": "95a8b8d135a528b325be003e54c55f886a22602d",

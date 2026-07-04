@@ -2,7 +2,7 @@
   "schema": "proofloop-official-score-receipt-v1",
   "adapterId": "finauditing",
   "status": "blocked_external",
-  "generatedAt": "2026-07-04T02:22:42.482Z",
+  "generatedAt": "2026-07-04T14:38:21.457Z",
   "officialScorer": {
     "repository": "https://github.com/The-FinAI/FinAuditing",
     "commit": "cee2b4e563d8d6cadb94cd0138163bb72e8ee0e7",

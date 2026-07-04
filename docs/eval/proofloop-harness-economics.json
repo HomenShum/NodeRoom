@@ -1,8 +1,8 @@
 {
   "schema": "proofloop-harness-economics-v1",
-  "generatedAt": "2026-07-04T02:33:22.391Z",
+  "generatedAt": "2026-07-04T14:38:18.801Z",
   "git": {
-    "commit": "47a0e575c2d10d275764c4c023f12f9924cb0c70",
+    "commit": "80f8ee7a6f8deab1099192b6739a5820ddcf72b9",
     "dirty": true
   },
   "packageVersion": "0.1.1",
@@ -33,7 +33,7 @@
     {
       "path": "proofloop/live-browser-proof.spec.ts",
       "exists": true,
-      "sha256": "c5848a8e704e7b4d955257d3b6eb0496ed99aaad72be2568a3dc1883f7fad203"
+      "sha256": "3f068a7eb60e83829a71e63cfd41aa419e064be596c54706fb70f7ca5c8e93c1"
     },
     {
       "path": "proofloop/cockpit/playwrightOverlay.ts",
@@ -53,7 +53,7 @@
     {
       "path": "proofloop/accounting/live.accounting.config.json",
       "exists": true,
-      "sha256": "94a2ea9b6a797340d766dbf7b0a9ccbf3446f61bc18e5222a00714f6660c2e55"
+      "sha256": "02f7c6c4447948e6f8baaaddafe78d16580c79113ed1409a006e24780341472f"
     },
     {
       "path": "proofloop/notion/proofloop.notion.config.json",
@@ -68,17 +68,17 @@
     {
       "path": "proofloop/benchmarks/finch/adapter.json",
       "exists": true,
-      "sha256": "d878402cf74c5bbf9548978e12b2a4bb7ebd753ad05b93f5ca120bc82116c387"
+      "sha256": "9cb926196b3ee226476bdf06297f6aa612476f392ea39894846fba1c4b0c0055"
     },
     {
       "path": "proofloop/benchmarks/finauditing/adapter.json",
       "exists": true,
-      "sha256": "a36a06fadf1d9e3bcb5e2c60d0b71cd7f6053d89fb13d1fb4f603d822192dca6"
+      "sha256": "1dcd4fbeb7a8186bf58c58c9fac976d73a406aa62087a6dda3502de978c6f7b4"
     },
     {
       "path": "proofloop/benchmarks/workstreambench/adapter.json",
       "exists": true,
-      "sha256": "e3655f8b4b04c2c670d645b4d70901cee2cf3b02e69f3d2bd2aa3dc8276eab1f"
+      "sha256": "3b09da01743a7a1db85e2c415a9e07ca474c9b725c9aec5f42580a3aad9059be"
     },
     {
       "path": "scripts/proofloop-company-task-coverage.ts",
@@ -93,7 +93,7 @@
     {
       "path": "src/eval/proofloopGoalSupervisor.ts",
       "exists": true,
-      "sha256": "02b7d804b71038ffb0f33d13e8e832a8cc2ad416c77795f53afa305212651df0"
+      "sha256": "670bb2971cc3506e0ecf393036a7310a0b900327554debf6501b50b2556f50fc"
     },
     {
       "path": "src/eval/proofloopBlockerSolver.ts",
@@ -113,12 +113,12 @@
     {
       "path": "src/eval/proofloopBenchmarkBoard.ts",
       "exists": true,
-      "sha256": "70a6b35365330444a8019cbe7671f63a2151b6b3c3789926f78d9b52285be1fd"
+      "sha256": "7e591c8fb0cc2902b093ba5d2c578458e809153f0508855c9ac3f5e075ac20ca"
     },
     {
       "path": "src/eval/proofloopCompanyTaskCoverage.ts",
       "exists": true,
-      "sha256": "50268bb77d08101f83b844dc7a8a34e4a867d35fce3d7cbf32f8f662338b5d6f"
+      "sha256": "5ba36a4bf91555d4144c5ee709e0dc1d8c37fa7f8f95be63516987b93652e800"
     },
     {
       "path": "src/eval/proofloopHarnessEconomics.ts",

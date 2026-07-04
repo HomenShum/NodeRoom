@@ -1,6 +1,6 @@
 # Official Benchmark Task Coverage
 
-Generated: 2026-07-04T02:33:14.606Z
+Generated: 2026-07-04T14:38:15.833Z
 
 This is the no-shorthand ledger for the external benchmark question: have we staged and run every published task, or only a subset/fixture? It deliberately separates full official tracks, verified subsets, and NodeRoom's internal multi-user conflict suite.
 

@@ -246,8 +246,9 @@ test("Live browser proof-loop: starter room -> agent tasks -> UI + terminal-qual
       await emitCockpitEvent(page, { type: "gate_fail", gate: "room_trace_visible" }, COCKPIT_EVENTS_PATH);
     }
 
-    const binderText = await visibleBinderArtifactText(page);
-    const scoringText = `${agentOutput}\n${binderText}`;
+    const artifactEvidenceText = await visibleTaskEvidenceText(page, task);
+    const scoringText = task.expectArtifactEdit ? artifactEvidenceText : `${agentOutput}\n${artifactEvidenceText}`;
+    const fullVisibleText = `${agentOutput}\n${artifactEvidenceText}`;
     const outputLower = scoringText.toLowerCase();
     const matchedPatterns: string[] = [];
     const unmatchedPatterns: string[] = [];
@@ -262,7 +263,7 @@ test("Live browser proof-loop: starter room -> agent tasks -> UI + terminal-qual
     const caveatFindings = [...new Set(CAVEAT_PATTERNS.filter(({ pattern }) => pattern.test(agentOutput)).map(({ code }) => code))];
     const blockingCaveats = evidenceReady ? caveatFindings.filter((code) => !NON_BLOCKING_CAVEAT_CODES.has(code)) : caveatFindings;
 
-    const placeholderFindings = [...new Set(PLACEHOLDER_PATTERNS.filter(({ pattern }) => pattern.test(scoringText)).map(({ code }) => code))];
+    const placeholderFindings = [...new Set(PLACEHOLDER_PATTERNS.filter(({ pattern }) => pattern.test(fullVisibleText)).map(({ code }) => code))];
 
     const passed = evidenceReady && blockingCaveats.length === 0 && placeholderFindings.length === 0;
     await emitCockpitEvent(page, { type: blockingCaveats.length === 0 ? "gate_pass" : "gate_fail", gate: "agent_terminal_quality_gate" }, COCKPIT_EVENTS_PATH);
@@ -511,6 +512,29 @@ async function visibleBinderArtifactText(page: Page): Promise<string> {
     '[data-noderoom-surface="workSurface.agentNotes"]',
     '[data-noderoom-surface="workSurface.wall"]',
   ].join(",")).evaluateAll((els) => els.map((el) => el.textContent ?? "").join("\n"));
+}
+
+async function visibleTaskEvidenceText(page: Page, task: TaskConfig): Promise<string> {
+  const title = evidenceArtifactTitleForTask(task);
+  if (!title) return visibleBinderArtifactText(page);
+  await ensureLeftRailVisible(page);
+  const artifact = page.locator(noderoomSelectors.binderArtifact).filter({ hasText: new RegExp(escapeRegExp(title), "i") }).first();
+  if (!(await artifact.isVisible({ timeout: 10_000 }).catch(() => false))) {
+    console.warn(`[proofloop-live] target artifact not visible for evidence text: ${title}`);
+    return "";
+  }
+  const artifactId = await artifact.getAttribute("data-artifact-id");
+  await artifact.click({ timeout: 30_000 });
+  await page.waitForTimeout(1_000);
+  if (!artifactId) return "";
+  const surface = page.locator(`[data-noderoom-surface^="workSurface."][data-artifact-id="${cssAttr(artifactId)}"]`);
+  await expect(surface.first()).toBeVisible({ timeout: 30_000 });
+  return surface.evaluateAll((els) => els.map((el) => {
+    const fields = Array.from(el.querySelectorAll("input, textarea"))
+      .map((field) => (field as HTMLInputElement | HTMLTextAreaElement).value ?? "")
+      .join("\n");
+    return [el.textContent ?? "", fields].filter(Boolean).join("\n");
+  }).join("\n"));
 }
 
 async function openTaskEvidenceSurface(page: Page, task: TaskConfig): Promise<void> {

@@ -1,15 +1,20 @@
 {
   "schema": 1,
-  "caseId": "PL-LIVE-MEMO",
+  "caseId": "PL-LIVE-MEMO-FIX",
   "benchmark": "product-smoke",
-  "generatedAt": "2026-07-02T15:15:53.506Z",
+  "generatedAt": "2026-07-04T14:29:34.498Z",
   "baseUrl": "https://noderoom.live",
-  "roomUrl": "https://noderoom.live/?room=PLMR3N8XYM&name=Proof+Loop",
-  "command": "PROOFLOOP_LIVE_BROWSER=1 PROOFLOOP_TASKS_JSON=proofloop/accounting/live.accounting.config.json PROOFLOOP_TASK_IDS=memo-draft PROOFLOOP_TEST_TIMEOUT_MS=420000 PROOFLOOP_MAX_TASK_TIMEOUT_MS=300000 BENCH_AGENT_MODEL_MODE=specific BENCH_AGENT_MODEL_POLICY=z-ai/glm-5.2 npx playwright test --config playwright.proofloop.config.ts proofloop/live-browser-proof.spec.ts --headed",
+  "roomUrl": "https://noderoom.live/?room=PLMR6GJH1R&name=Proof+Loop",
+  "command": "PROOFLOOP_LIVE_BROWSER=1 PROOFLOOP_TASKS_JSON=proofloop/accounting/live.accounting.config.json PROOFLOOP_TASK_IDS=memo-draft PROOFLOOP_TEST_TIMEOUT_MS=900000 PROOFLOOP_MAX_TASK_TIMEOUT_MS=600000 BENCH_AGENT_MODEL_MODE=specific BENCH_AGENT_MODEL_POLICY=z-ai/glm-5.2 npx playwright test --config playwright.proofloop.config.ts proofloop/live-browser-proof.spec.ts --headed",
   "model": {
+    "id": "z-ai/glm-5.2",
     "requested": "z-ai/glm-5.2",
     "resolved": "z-ai/glm-5.2",
     "routePolicy": "specific",
+    "role": "planner",
+    "costUsd": 0,
+    "tokensIn": 0,
+    "tokensOut": 0,
     "runtimeProfile": "benchmark_completion",
     "provider": "openrouter"
   },
@@ -27,7 +32,7 @@
     "streamingVisible": true,
     "roomTraceVisible": true,
     "screenshotPaths": [],
-    "tracePath": "docs\\eval\\fresh-room\\PL-LIVE-MEMO\\tasks\\memo-draft\\latest.json"
+    "tracePath": "docs\\eval\\fresh-room\\PL-LIVE-MEMO-FIX\\tasks\\memo-draft\\latest.json"
   },
   "artifacts": {
     "created": [
@@ -36,33 +41,31 @@
   },
   "scorer": {
     "name": "Proof-loop suite aggregate",
-    "verdict": "fail",
-    "score": 0,
+    "verdict": "pass",
+    "score": 1,
     "details": {
       "taskProofs": [
         {
           "taskId": "memo-draft",
           "taskName": "Diligence Memo Draft",
-          "passed": false,
+          "passed": true,
           "matchedPatterns": [
             "Mercury",
+            "product",
+            "market",
             "risk"
           ],
-          "unmatchedPatterns": [
-            "product",
-            "market"
-          ],
+          "unmatchedPatterns": [],
           "streamingVisible": true,
           "jobStatusVisible": true,
           "jobDetailVisible": true,
           "roomTraceVisible": true,
-          "jobCompleted": false,
+          "jobCompleted": true,
           "caveatFindings": [],
           "blockingCaveats": [],
           "placeholderFindings": [],
-          "durationMs": 167989,
-          "receiptPath": "docs\\eval\\fresh-room\\PL-LIVE-MEMO\\tasks\\memo-draft\\latest.json",
-          "error": "Job did not complete within timeout"
+          "durationMs": 56093,
+          "receiptPath": "docs\\eval\\fresh-room\\PL-LIVE-MEMO-FIX\\tasks\\memo-draft\\latest.json"
         }
       ]
     }
@@ -74,7 +77,8 @@
     "agent_live_loop",
     "focus_mode_enabled",
     "focus_box_or_attention_overlay",
-    "trace_video_artifacts"
+    "trace_video_artifacts",
+    "official_scorer_handoff"
   ],
-  "passed": false
+  "passed": true
 }

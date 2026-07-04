@@ -397,6 +397,69 @@ describe("agentJobs runtime contract", () => {
     expect(detail?.job.mode).toBe("research");
   });
 
+  it("routes explicit Diligence memo note drafting asks to the note before research heuristics", async () => {
+    const { t, proof, roomId, actor } = await setupRoom({ seedElement: true });
+    const now = Date.now();
+    const noteId = await t.run((ctx) =>
+      ctx.db.insert("artifacts", {
+        roomId,
+        kind: "note" as const,
+        title: "Diligence memo",
+        version: 1,
+        order: ["doc"],
+        updatedAt: now,
+      }),
+    );
+    await t.run((ctx) => ctx.db.insert("elements", {
+      artifactId: noteId,
+      elementId: "doc",
+      value: "<p>Memo draft</p>",
+      version: 1,
+      updatedAt: now,
+      updatedBy: actor,
+    }));
+    const researchId = await t.run((ctx) =>
+      ctx.db.insert("artifacts", {
+        roomId,
+        kind: "sheet" as const,
+        title: "Company research",
+        version: 1,
+        order: ["rc_mercury__company", "rc_mercury__status"],
+        updatedAt: now,
+      }),
+    );
+    await t.run((ctx) => Promise.all([
+      ctx.db.insert("elements", {
+        artifactId: researchId,
+        elementId: "rc_mercury__company",
+        value: "Mercury",
+        version: 1,
+        updatedAt: now,
+        updatedBy: actor,
+      }),
+      ctx.db.insert("elements", {
+        artifactId: researchId,
+        elementId: "rc_mercury__status",
+        value: "complete",
+        version: 1,
+        updatedAt: now,
+        updatedBy: actor,
+      }),
+    ]));
+
+    const started = await t.mutation(api.agentJobs.startPublicAsk, {
+      roomId,
+      requester: proof,
+      goal: "Draft a 3-paragraph diligence memo in the Diligence memo note with Product overview, Market position, and Key risks headings.",
+      contextArtifactId: String(noteId),
+      routePolicy: "fast_default" as const,
+    });
+
+    const detail = await t.query(api.agentJobs.detail, { jobId: started.jobId, requester: proof });
+    expect(String(detail?.job.artifactId)).toBe(String(noteId));
+    expect(detail?.job.mode).toBeUndefined();
+  });
+
   it("does not reuse terminal public ask jobs for later reruns with the same idempotency key", async () => {
     const { t, proof, roomId, artifactId } = await setupRoom();
     const args = jobArgs({ roomId, artifactId, proof, idempotencyKey: "job-runtime-terminal-rerun" });

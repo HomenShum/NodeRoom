@@ -2,11 +2,11 @@
   "schema": 1,
   "caseId": "PL-LIVE",
   "benchmark": "product-smoke",
-  "taskId": "variance-calc",
-  "generatedAt": "2026-07-04T14:30:55.266Z",
+  "taskId": "memo-draft",
+  "generatedAt": "2026-07-04T14:38:03.222Z",
   "baseUrl": "https://noderoom.live",
-  "roomId": "PLMR6GLDN3",
-  "roomUrl": "https://noderoom.live/?room=PLMR6GLDN3&name=Proof+Loop",
+  "roomId": "PLMR6GUHMS",
+  "roomUrl": "https://noderoom.live/?room=PLMR6GUHMS&name=Proof+Loop",
   "command": "PROOFLOOP_LIVE_BROWSER=1 PROOFLOOP_TASKS_JSON=proofloop/accounting/live.accounting.config.json PROOFLOOP_TEST_TIMEOUT_MS=1800000 PROOFLOOP_MAX_TASK_TIMEOUT_MS=600000 BENCH_AGENT_MODEL_MODE=specific BENCH_AGENT_MODEL_POLICY=z-ai/glm-5.2 npx playwright test --config playwright.proofloop.config.ts proofloop/live-browser-proof.spec.ts --headed",
   "model": {
     "id": "z-ai/glm-5.2",
@@ -20,13 +20,13 @@
     "runtimeProfile": "benchmark_completion",
     "provider": "openrouter"
   },
-  "prompt": "@nodeagent Compute the Q3 variance for each row in the Q3 variance sheet. For each row, variance = Q3 minus Q2. Write the result in the variance column. Show your work.",
+  "prompt": "@nodeagent Open and target the Diligence memo note. Use the notebook tool append_notebook_outline to draft the memo into the visible note body itself for Mercury. Use exactly these section titles in the note: Product overview, Market position, and Key risks.",
   "memoryMode": false,
   "freshness": {
     "roomCreatedAfterRunStart": true,
     "forbiddenPreloadedArtifactsAbsent": true,
     "artifactsCreatedFresh": [
-      "variance-calc"
+      "memo-draft"
     ]
   },
   "ui": {
@@ -36,13 +36,13 @@
     "jobDetailVisible": true,
     "roomTraceVisible": true,
     "screenshotPaths": [
-      "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\test-results\\live-browser-proof-Live-br-dcd4e-rminal-quality-verification-chromium\\proofloop-variance-calc.png"
+      "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\test-results\\live-browser-proof-Live-br-dcd4e-rminal-quality-verification-chromium\\proofloop-memo-draft.png"
     ],
-    "tracePath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\test-results\\live-browser-proof-Live-br-dcd4e-rminal-quality-verification-chromium\\proofloop-variance-calc.png"
+    "tracePath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\test-results\\live-browser-proof-Live-br-dcd4e-rminal-quality-verification-chromium\\proofloop-memo-draft.png"
   },
   "artifacts": {
     "created": [
-      "variance-calc"
+      "memo-draft"
     ]
   },
   "scorer": {
@@ -52,11 +52,10 @@
     "score": 1,
     "details": {
       "matchedPatterns": [
-        "variance",
-        "revenue",
-        "cogs",
-        "2,400",
-        "1,100"
+        "Mercury",
+        "product",
+        "market",
+        "risk"
       ],
       "unmatchedPatterns": [],
       "caveatFindings": [],
