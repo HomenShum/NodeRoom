@@ -57,7 +57,10 @@ let scaleRoom: { roomId: string; me: Actor; researchId: string } | null = null;
 export function enterScaleDemoRoomAsHost(_hostName?: string): { roomId: string; me: Actor } {
   if (scaleRoom) return { roomId: scaleRoom.roomId, me: scaleRoom.me };
 
-  const { room, host } = engine.createRoom({ title: "NodeRoom at scale", hostName: "Homen", autoAllow: true });
+  // Design parity: the wordmark renders "NodeRoom · <title>", so the room title
+  // must be the workspace name ("Startup diligence"), never the product name —
+  // "NodeRoom · NodeRoom at scale" read as a duplication bug.
+  const { room, host } = engine.createRoom({ title: "Startup diligence", hostName: "Homen", autoAllow: true });
   const me: Actor = { kind: "user", id: host.id, name: host.name };
   const agent: Actor = { kind: "agent", id: "agent_scale_room", name: "Room NodeAgent", scope: "public" };
 
@@ -219,18 +222,51 @@ function scaleResearchSeed(): Array<{ id: string; value: unknown }> {
   return seed;
 }
 
+/** First-viewport status mix (design: States & Scale shows every status within
+ *  the opening rows, never a uniform wall of "complete"). Totals are preserved:
+ *  6 complete + 4 enriching here, 34 + 14 in the remainder block below = the
+ *  same 40/18 the filter chips recount from data. */
+const VIEWPORT_STATUS_MIX = [
+  "complete", "enriching", "enriching", "pending", "complete", "pending",
+  "failed", "pending", "complete", "pending", "needs_review", "pending",
+  "complete", "enriching", "pending", "pending", "complete", "pending",
+  "needs_review", "pending", "complete", "pending", "enriching", "pending",
+] as const;
+
+function isScaleComplete(index: number): boolean {
+  const mixed = index < VIEWPORT_STATUS_MIX.length ? VIEWPORT_STATUS_MIX[index] : null;
+  return mixed ? mixed === "complete" : index < 58;
+}
+
+/** 0-based ordinal of a completed row among all completed rows (cached). */
+let scaleCompleteOrdinals: Map<number, number> | null = null;
+function scaleCompleteOrdinal(index: number): number {
+  if (!scaleCompleteOrdinals) {
+    scaleCompleteOrdinals = new Map();
+    let ordinal = 0;
+    for (let i = 0; i < 1_000; i += 1) {
+      if (isScaleComplete(i)) scaleCompleteOrdinals.set(i, ordinal++);
+    }
+  }
+  return scaleCompleteOrdinals.get(index) ?? Number.MAX_SAFE_INTEGER;
+}
+
 function scaleResearchRow(index: number): Record<(typeof RESEARCH_COLS)[number], unknown> {
-  const completed = index < 40;
-  const enriching = index >= 40 && index < 58;
-  const needsReview = !completed && !enriching && index % 37 === 0;
-  const failed = !completed && !enriching && !needsReview && index % 89 === 0;
+  const mixed = index < VIEWPORT_STATUS_MIX.length ? VIEWPORT_STATUS_MIX[index] : null;
+  const completed = mixed ? mixed === "complete" : index < 58;
+  const enriching = mixed ? mixed === "enriching" : index >= 58 && index < 72;
+  const needsReview = mixed ? mixed === "needs_review" : !completed && !enriching && index % 37 === 0;
+  const failed = mixed ? mixed === "failed" : !completed && !enriching && !needsReview && index % 89 === 0;
   const company = scaleCompanyName(index);
   const slug = company.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
   const primary = `https://research.noderoom.example/${slug}`;
   const secondary = `https://security.noderoom.example/${slug}`;
   const status = completed ? "complete" : enriching ? "enriching" : needsReview ? "needs_review" : failed ? "failed" : "pending";
   const evidence = completed ? [scaleEvidence(index, "Primary source", primary)] : [];
-  const secondaryEvidence = completed && index < 7 ? [scaleEvidence(index, "Security source", secondary)] : [];
+  // The first 7 COMPLETED rows carry a second (security) source — keyed on the
+  // complete-row ordinal, not the raw index, so the 40 + 7 = 47 unique-source
+  // receipt stays true regardless of how statuses are interleaved for display.
+  const secondaryEvidence = completed && scaleCompleteOrdinal(index) < 7 ? [scaleEvidence(index, "Security source", secondary)] : [];
   const owner = SCALE_OWNERS[index % SCALE_OWNERS.length];
   const tier = index % 11 === 0 ? "B" : index % 19 === 0 ? "C" : "A";
   const intent = SCALE_INTENTS[index % SCALE_INTENTS.length];
@@ -346,9 +382,27 @@ function seedScaleMessages(roomId: string, me: Actor, agent: Actor) {
   const priyaActor: Actor = priya ? { kind: "user", id: priya.id, name: priya.name } : me;
   engine.postMessage({ roomId, channel: "public", author: priyaActor, text: "Scale room is open: 1,000 companies, bulk receipts, and next-batch locks should stay readable.", clientMsgId: "scale-seed-priya", kind: "chat" });
   engine.postMessage({ roomId, channel: "public", author: me, text: "@nodeagent enrich the first batch, keep source receipts visible, and lock only the rows you are actively writing.", clientMsgId: "scale-seed-host", kind: "chat" });
+  // Design parity: the chat exercises the message-type system (varied human
+  // workflow lines), never a uniform filler wall of identical notes.
+  const maya = engine.listMembers(roomId).find((m) => m.name === "Maya");
+  const mayaActor: Actor = maya ? { kind: "user", id: maya.id, name: maya.name } : me;
+  const guest = engine.listMembers(roomId).find((m) => m.name?.startsWith("anon"));
+  const guestActor: Actor = guest ? { kind: "user", id: guest.id, name: guest.name } : priyaActor;
+  const chatCast: Actor[] = [priyaActor, me, mayaActor, guestActor];
+  const chatLines = (batch: number): string[] => [
+    `Tier batch ${batch} A/B/C by wedge fit before we enrich — saves credits.`,
+    `Funding column on batch ${batch} looks strong; flagging the two gap rows for review.`,
+    `Pushing the memo draft after batch ${batch} finishes.`,
+    `can we watch the artifacts and handoff drafts live?`,
+    `Security posture rows in batch ${batch} need a second source before partner review.`,
+    `Locking my edits to the CRM column while the agent writes batch ${batch}.`,
+    `Recent-signal column is gold — partner notes updated for batch ${batch}.`,
+    `@nodeagent recheck the needs_review rows in batch ${batch} when the lock clears.`,
+  ];
   for (let i = 0; i < 309; i += 1) {
-    const author = i % 2 === 0 ? priyaActor : me;
-    engine.postMessage({ roomId, channel: "public", author, text: `Scale note ${String(i + 1).padStart(3, "0")}: batch ${Math.floor(i / 12) + 1} reviewed.`, clientMsgId: `scale-thread-${i + 1}`, kind: "chat" });
+    const batch = Math.floor(i / 12) + 1;
+    const lines = chatLines(batch);
+    engine.postMessage({ roomId, channel: "public", author: chatCast[i % chatCast.length], text: lines[i % lines.length], clientMsgId: `scale-thread-${i + 1}`, kind: "chat" });
   }
   engine.postMessage({
     roomId,

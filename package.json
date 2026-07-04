@@ -135,6 +135,7 @@
     "qa:ui:scorecard": "tsx scripts/design-quality.ts scorecard",
     "design:manifest": "tsx scripts/design-system.ts manifest --json",
     "design:audit": "tsx scripts/design-system.ts audit",
+    "design:parity": "tsx scripts/design-parity.ts",
     "workflow:trace-previews": "tsx scripts/render-workflow-preview.ts",
     "workflow:app-previews": "playwright test capture-previews",
     "workflow:previews": "npm run workflow:trace-previews",

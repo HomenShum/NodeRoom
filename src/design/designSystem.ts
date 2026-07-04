@@ -46,6 +46,33 @@ export type DesignManifest = {
   };
 };
 
+export type DesignDriftInput = {
+  /** Content of design-reference/assets/colors_and_type.css (empty string when the gitignored bundle is absent). */
+  canonicalCss: string;
+  /** Content of src/app/styles.css — its :root/[data-theme] token blocks extend the allowed hex set. */
+  appCss: string;
+  /** path -> content for every file to scan (styles.css + src/ui TSX surfaces). */
+  files: Record<string, string>;
+};
+
+export type DesignDriftResult = {
+  ok: boolean;
+  summary: {
+    warnings: number;
+    hexDrift: number;
+    typeScaleDrift: number;
+    radiusScaleDrift: number;
+    allowedHexes: number;
+  };
+  findings: DesignAuditFinding[];
+};
+
+/** Canonical type scale from design-reference/assets/colors_and_type.css (--text-xs .. --text-4xl). */
+export const designTypeScalePx = [11, 12, 13, 14, 15, 17, 20, 26, 31, 40] as const;
+/** Canonical radius scale (--radius-xs .. --radius-pill). */
+export const designRadiusScalePx = [4, 6, 8, 10, 12, 16, 9999] as const;
+export const canonicalTokenFile = "design-reference/assets/colors_and_type.css";
+
 const STYLE_FILE = "src/app/styles.css";
 const CHAT_FILE = "src/ui/Chat.tsx";
 const ARTIFACT_FILE = "src/ui/panels/Artifact.tsx";
@@ -163,6 +190,7 @@ export function getNodeRoomDesignManifest(): DesignManifest {
         "large binders expose count, search, grouped navigation, and collapsed people",
         "walkthrough dock is dismissible",
         "phone top bar hides secondary utilities instead of clipping them",
+        "token drift (off-palette hex, off-scale font-size, off-scale border-radius) is reported as warnings",
       ],
     },
   };
@@ -251,6 +279,180 @@ export function auditNodeRoomDesignSystem(files: Record<string, string>, checked
     summary: { errors, warnings },
     findings,
   };
+}
+
+/**
+ * Astryx-style "slop detector": scan the shipped CSS + UI surfaces for values
+ * that drift off the canonical token/scale set. Everything here is a WARNING —
+ * guidance over enforcement — so the result is ok unless an error sneaks in.
+ */
+export function auditDesignTokenDrift(input: DesignDriftInput): DesignDriftResult {
+  const findings: DesignAuditFinding[] = [];
+  const allowed = buildAllowedHexSet(input.canonicalCss, input.appCss);
+  if (!input.canonicalCss.trim()) {
+    findings.push(
+      finding(
+        "token-canonical-missing",
+        "warn",
+        canonicalTokenFile,
+        "Canonical token file was not available; the allowed hex set only covers styles.css :root/[data-theme] tokens.",
+        "Re-export the Claude Design bundle so design-reference/assets/colors_and_type.css exists locally."
+      )
+    );
+  }
+  const typeScale = new Set<number>(designTypeScalePx);
+  const radiusScale = new Set<number>(designRadiusScalePx);
+  let hexDrift = 0;
+  let typeScaleDrift = 0;
+  let radiusScaleDrift = 0;
+
+  for (const [file, content] of Object.entries(input.files)) {
+    const lines = content.split(/\r?\n/);
+    lines.forEach((text, index) => {
+      const line = index + 1;
+      const seenHex = new Set<string>();
+      const seenType = new Set<number>();
+      const seenRadius = new Set<number>();
+      for (const segment of text.split(";")) {
+        if (isCustomPropertyDeclaration(segment)) continue;
+        for (const raw of segment.match(HEX_LITERAL) ?? []) {
+          const hex = normalizeHex(raw);
+          if (allowed.has(hex) || seenHex.has(hex)) continue;
+          seenHex.add(hex);
+          hexDrift += 1;
+          findings.push(
+            finding(
+              "token-hex-drift",
+              "warn",
+              file,
+              `${raw} is not in the canonical token set.`,
+              "Use a token from design-reference/assets/colors_and_type.css or a styles.css :root token instead of a literal hex.",
+              line
+            )
+          );
+        }
+      }
+      for (const value of fontSizePxValues(text)) {
+        if (typeScale.has(value) || seenType.has(value)) continue;
+        seenType.add(value);
+        typeScaleDrift += 1;
+        findings.push(
+          finding(
+            "type-scale-drift",
+            "warn",
+            file,
+            `font-size ${value}px is off the design type scale (${designTypeScalePx.join("/")}px).`,
+            "Snap to the nearest type-scale step, or record the exception in the design manifest.",
+            line
+          )
+        );
+      }
+      for (const value of borderRadiusPxValues(text)) {
+        if (value === 0 || radiusScale.has(value) || seenRadius.has(value)) continue;
+        seenRadius.add(value);
+        radiusScaleDrift += 1;
+        findings.push(
+          finding(
+            "radius-scale-drift",
+            "warn",
+            file,
+            `border-radius ${value}px is off the radius scale (${designRadiusScalePx.join("/")}px).`,
+            "Snap to the nearest radius-scale step (9999px for pills), or record the exception in the design manifest.",
+            line
+          )
+        );
+      }
+    });
+  }
+
+  const errors = findings.filter((item) => item.severity === "error").length;
+  return {
+    ok: errors === 0,
+    summary: {
+      warnings: findings.filter((item) => item.severity === "warn").length,
+      hexDrift,
+      typeScaleDrift,
+      radiusScaleDrift,
+      allowedHexes: allowed.size,
+    },
+    findings,
+  };
+}
+
+/**
+ * Allowed hex set = every hex in the canonical token file plus every hex used
+ * in a custom-property declaration inside styles.css :root/[data-theme] blocks.
+ * Comparison is case-insensitive; #abc is normalized to #aabbcc.
+ */
+export function buildAllowedHexSet(canonicalCss: string, appCss: string): Set<string> {
+  const allowed = new Set<string>();
+  for (const match of canonicalCss.match(HEX_LITERAL) ?? []) allowed.add(normalizeHex(match));
+  for (const block of tokenBlocks(appCss)) {
+    for (const segment of block.split(";")) {
+      if (!isCustomPropertyDeclaration(segment)) continue;
+      for (const match of segment.match(HEX_LITERAL) ?? []) allowed.add(normalizeHex(match));
+    }
+  }
+  return allowed;
+}
+
+const HEX_LITERAL = /#(?:[0-9a-f]{8}|[0-9a-f]{6}|[0-9a-f]{3})\b/gi;
+
+function normalizeHex(raw: string): string {
+  const hex = raw.toLowerCase();
+  if (hex.length === 4) return `#${hex[1]}${hex[1]}${hex[2]}${hex[2]}${hex[3]}${hex[3]}`;
+  return hex;
+}
+
+/** Token blocks are the flat `:root {…}` / `[data-theme…] {…}` rule bodies. */
+function tokenBlocks(css: string): string[] {
+  const blocks: string[] = [];
+  const selector = /(?::root|\[data-theme[^\]]*\])[^{}]*\{/g;
+  let match: RegExpExecArray | null;
+  while ((match = selector.exec(css))) {
+    const open = match.index + match[0].length;
+    const close = css.indexOf("}", open);
+    if (close < 0) break;
+    blocks.push(css.slice(open, close));
+    selector.lastIndex = close;
+  }
+  return blocks;
+}
+
+/** A `;`-split segment counts as a variable definition when its declaration starts with `--name:`. */
+function isCustomPropertyDeclaration(segment: string): boolean {
+  const afterBrace = segment.slice(segment.lastIndexOf("{") + 1);
+  return /^\s*--[\w-]+\s*:/.test(afterBrace);
+}
+
+/** Extract px font sizes from CSS (`font-size: 12.5px`) and TSX (`fontSize: 9` / `fontSize: "10.5px"`). */
+function fontSizePxValues(line: string): number[] {
+  const values: number[] = [];
+  for (const match of line.matchAll(/font-size\s*:\s*(\d+(?:\.\d+)?)px/gi)) values.push(Number.parseFloat(match[1]));
+  for (const match of line.matchAll(/fontSize\s*:\s*(?:["'`]([^"'`]*)["'`]|(\d+(?:\.\d+)?))/g)) {
+    if (match[2] !== undefined) {
+      values.push(Number.parseFloat(match[2]));
+      continue;
+    }
+    const quoted = /^(\d+(?:\.\d+)?)px$/.exec((match[1] ?? "").trim());
+    if (quoted) values.push(Number.parseFloat(quoted[1]));
+  }
+  return values;
+}
+
+/** Extract px radii from CSS (`border-radius: 7px 7px 0 0`) and TSX (`borderRadius: 999` / `"999px"`). */
+function borderRadiusPxValues(line: string): number[] {
+  const values: number[] = [];
+  for (const match of line.matchAll(/border-radius\s*:\s*([^;{}]+)/gi)) pushPxValues(values, match[1]);
+  for (const match of line.matchAll(/borderRadius\s*:\s*(?:["'`]([^"'`]*)["'`]|(\d+(?:\.\d+)?))/g)) {
+    if (match[2] !== undefined) values.push(Number.parseFloat(match[2]));
+    else pushPxValues(values, match[1] ?? "");
+  }
+  return values;
+}
+
+function pushPxValues(values: number[], cssValue: string) {
+  for (const match of cssValue.matchAll(/(\d+(?:\.\d+)?)px\b/gi)) values.push(Number.parseFloat(match[1]));
 }
 
 function requireText(

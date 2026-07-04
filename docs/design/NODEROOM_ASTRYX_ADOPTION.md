@@ -72,3 +72,60 @@ them directly, such as standalone settings pages, empty states, simple forms, or
 documentation pages. Do not use it for the live diligence grid, receipts, locks,
 or trace surfaces unless the component can preserve NodeRoom's provenance-first
 interaction model.
+
+## Update (2026-07-03, later): slop detector + design:parity shipped
+
+The "next deepening" queued above is now implemented.
+
+### Token-drift slop detector (inside `npm run design:audit`)
+
+`design:audit` still runs the hard regression gate first (unchanged pass/fail
+semantics), then prints a **warning-only** token-drift section:
+
+- **token-hex-drift** — literal hex colors (3/6/8-digit, case-insensitive,
+  `#abc` normalized to `#aabbcc`) used outside variable definitions that are
+  not in the allowed set. The allowed set = every hex in
+  `design-reference/assets/colors_and_type.css` plus every custom-property hex
+  declared in the `:root` / `[data-theme]` blocks of `src/app/styles.css`.
+- **type-scale-drift** — `font-size` / `fontSize` px values off the canonical
+  type scale (11/12/13/14/15/17/20/26/31/40px, exact match only).
+- **radius-scale-drift** — `border-radius` / `borderRadius` px values off the
+  radius scale (4/6/8/10/12/16/9999px; `0` and `50%` are ignored).
+
+Scanned surfaces: `src/app/styles.css` + every `src/ui/**/*.tsx` (both CSS
+syntax and TSX inline-style forms, including bare numbers like `fontSize: 9`).
+Findings print as `WARN <code> file:line - message`, capped at 40 lines; the
+full list is in `npm run design:audit -- --json` under the `drift` key.
+Guidance over enforcement: drift never fails the audit — only the existing
+hard-gate rules set a non-zero exit. If `design-reference/` is missing
+(it is gitignored), the detector says so via a `token-canonical-missing`
+warning instead of silently shrinking the allowed set.
+
+Library entry points (pure, unit-tested in `tests/designSystemManifest.test.ts`):
+`auditDesignTokenDrift`, `buildAllowedHexSet`, `designTypeScalePx`,
+`designRadiusScalePx` in `src/design/designSystem.ts`.
+
+### design:parity — paired specimen/product screenshots
+
+```bash
+npm run build          # precondition: design:parity never builds
+npm run design:parity  # or: npm run design:parity -- --help
+```
+
+What it does:
+
+1. Serves `design-reference/` on a free port with a plain node http server
+   (no new deps; URL-decoded paths, traversal-guarded).
+2. Starts `vite preview` over the existing `dist/` (if `dist/` is missing it
+   prints the exact commands and exits 1 — it does not build for you; a stale
+   `dist/` yields stale product screenshots).
+3. Screenshots each `[design specimen, product route]` pair at 1512x812 and
+   375x812 with Playwright and saves them to `.proofloop/parity-screenshots/`
+   as `design-<id>-<WxH>.png` / `product-<id>-<WxH>.png`, then prints paths.
+
+The pair list is a data structure (`PARITY_PAIRS` in
+`scripts/design-parity.ts`); today it holds the States & Scale pair
+(`/NodeRoom%20States%20%26%20Scale.html` vs
+`/?mode=memory&demo=scale&name=Host`) — add new specimens as one entry each.
+Diff the pairs visually or with the VLM rubric from
+docs/design/DESIGN_QA_LADDER.md.

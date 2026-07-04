@@ -1,0 +1,119 @@
+/* ============================================================================
+   Landing v2 parity — "Diligence that shows its work."
+   Namespace: .r-land2-*  (imported by src/ui/Landing.tsx only).
+   Measurements/hierarchy lifted from design-reference/room/landing-v2.css and
+   re-expressed with the app's own tokens (src/app/styles.css: --accent-*,
+   --line, --bg-*, --text-*, --success*, shadows, easings). No new hexes are
+   invented — literal colors below come from the design specimen (avatar set
+   #5E6AD2/#5B8F71/#C08A5E, cite page #C2502E, rec dot #E0635A/#E0857F).
+   ============================================================================ */
+
+/* ── hero grid ────────────────────────────────────────────────────────────── */
+.r-land2-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.02fr); gap: 40px; align-items: center; }
+@media (max-width: 900px) { .r-land2-grid { grid-template-columns: 1fr; gap: 28px; } }
+.r-land2-grid .r-h1 { margin-top: 16px; font-size: clamp(30px, 4vw, 44px); max-width: 20ch; }
+.r-land2-grid .r-lede { margin-bottom: 24px; }
+.r-land2-trust { display: inline-flex; align-items: center; gap: 7px; margin-top: 22px; font-size: 12.5px; font-weight: 600; color: var(--success-ink); }
+
+/* ── live-proof pill ──────────────────────────────────────────────────────── */
+.r-land2-proof { display: inline-flex; align-items: center; margin-top: 20px; border: 1px solid var(--line);
+  border-radius: 11px; background: color-mix(in srgb, var(--bg-secondary) 80%, transparent); overflow: hidden; }
+.r-land2-proof-seg { display: flex; align-items: center; gap: 8px; padding: 8px 13px; }
+.r-land2-proof-seg + .r-land2-proof-seg { border-left: 1px solid var(--line); }
+.r-land2-proof-live { width: 7px; height: 7px; border-radius: 50%; background: var(--success); flex: none; box-shadow: 0 0 0 3px rgba(46,158,107,.18); }
+@media (prefers-reduced-motion: no-preference) { .r-land2-proof-live { animation: rland2pulse 2.4s ease-in-out infinite; } }
+@keyframes rland2pulse { 0%,100% { box-shadow: 0 0 0 3px rgba(46,158,107,.18); } 50% { box-shadow: 0 0 0 5px rgba(46,158,107,.05); } }
+.r-land2-proof-num { font-family: var(--font-mono); font-size: 13px; font-weight: 700; color: var(--text-primary); font-variant-numeric: tabular-nums; }
+.r-land2-proof-lbl { font-size: 11.5px; color: var(--text-muted); }
+/* Honest labeling: in memory mode the pill carries the demo tag, never fake-live numbers. */
+.r-land2-proof-demo { font-family: var(--font-mono); font-size: 9.5px; font-weight: 800; text-transform: uppercase; letter-spacing: .05em;
+  padding: 2px 7px; border-radius: 6px; background: var(--accent-tint); border: 1px solid var(--accent-border); color: var(--accent-ink); }
+
+/* ── key visual: the room mid-collaboration (looping demo) ────────────────── */
+.r-land2-shot { position: relative; border: 1px solid var(--line-strong); border-radius: 16px; overflow: hidden;
+  background: var(--bg-primary); box-shadow: var(--shadow-lg); }
+.r-land2-shot-glow { position: absolute; inset: 0; pointer-events: none; background: radial-gradient(420px 200px at 80% -10%, rgba(217,119,87,.12), transparent 60%); }
+.r-land2-shot-top { position: relative; display: flex; align-items: center; gap: 10px; padding: 11px 13px; border-bottom: 1px solid var(--line);
+  background: color-mix(in srgb, var(--bg-secondary) 60%, transparent); }
+.r-land2-shot-mark { width: 22px; height: 22px; border-radius: 6px; display: grid; place-items: center; color: #fff; font-weight: 800; font-size: 12px;
+  background: linear-gradient(180deg, var(--accent-primary), #C6684A); box-shadow: 0 3px 10px rgba(217,119,87,.3); }
+.r-land2-shot-code { display: inline-flex; align-items: center; gap: 6px; padding: 3px 8px; border-radius: 7px; background: var(--bg-secondary);
+  border: 1px solid var(--line); font-family: var(--font-mono); font-size: 11px; font-weight: 600; color: var(--text-secondary); }
+.r-land2-shot-code b { color: var(--accent-ink); }
+.r-land2-demo-chip { display: inline-flex; align-items: center; gap: 6px; padding: 3px 9px; border-radius: 7px;
+  background: rgba(214,90,90,.14); color: #E0857F; font-size: 9.5px; font-weight: 800; letter-spacing: .05em; text-transform: uppercase; }
+.r-land2-demo-chip .rec { width: 7px; height: 7px; border-radius: 50%; background: #E0635A; flex: none; }
+@media (prefers-reduced-motion: no-preference) { .r-land2-demo-chip .rec { animation: rland2rec 1.4s ease-in-out infinite; } }
+@keyframes rland2rec { 0%,100% { opacity: 1; } 50% { opacity: .25; } }
+.r-land2-shot-avs { display: flex; margin-left: auto; }
+.r-land2-shot-av { width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; font-size: 9px; font-weight: 800; color: #fff;
+  border: 2px solid var(--bg-primary); margin-left: -7px; }
+.r-land2-shot-av:first-child { margin-left: 0; }
+.r-land2-shot-av.agent { border-radius: 6px; }
+.r-land2-shot-body { position: relative; padding: 14px; display: flex; flex-direction: column; gap: 12px; }
+
+.r-land2-agentline { display: flex; gap: 9px; align-items: flex-start; }
+.r-land2-agentline .av { width: 24px; height: 24px; border-radius: 6px; flex: none; display: grid; place-items: center; font-size: 9px; font-weight: 800; color: #fff; background: #C08A5E; }
+.r-land2-agentline .who { font-size: 12px; font-weight: 700; color: var(--text-primary); }
+.r-land2-agentline .txt { font-size: 12px; line-height: 1.45; color: var(--text-secondary); margin: 1px 0 0; min-height: 2.6em; }
+@media (prefers-reduced-motion: no-preference) { .r-land2-agentline .txt { animation: rland2fade .4s var(--ease-out-expo); } }
+@keyframes rland2fade { from { transform: translateY(3px); } to { transform: none; } }
+.r-land2-cite { display: inline-flex; align-items: center; gap: 7px; margin-top: 8px; padding: 7px 10px; border-radius: 9px;
+  background: var(--bg-secondary); border: 1px solid var(--line); }
+.r-land2-cite .pg { font-family: var(--font-mono); font-size: 9.5px; font-weight: 700; color: #C2502E; background: rgba(194,80,46,.14); padding: 1px 6px; border-radius: 5px; flex: none; }
+.r-land2-cite .q { font-size: 11px; font-style: italic; color: var(--text-secondary); }
+.r-land2-cite .st { margin-left: auto; flex: none; display: inline-flex; align-items: center; gap: 4px; font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; color: var(--success-ink); }
+.r-land2-cite .st i { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+@media (prefers-reduced-motion: no-preference) { .r-land2-cite { animation: rland2reveal .42s var(--ease-out-expo); } }
+@keyframes rland2reveal { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: none; } }
+
+.r-land2-sheet { border: 1px solid var(--line); border-radius: 11px; overflow: hidden; background: var(--bg-primary); }
+.r-land2-sheet table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 12px; }
+.r-land2-sheet th { text-align: left; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--text-tertiary);
+  padding: 6px 11px; background: var(--bg-secondary); border-bottom: 1px solid var(--line); }
+.r-land2-sheet th.num { text-align: right; }
+.r-land2-sheet td { padding: 7px 11px; border-bottom: 1px solid var(--line); color: var(--text-secondary); }
+.r-land2-sheet tr:last-child td { border-bottom: 0; }
+.r-land2-sheet td.label { font-weight: 600; color: var(--text-primary); }
+.r-land2-sheet td.num { text-align: right; font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+.r-land2-sheet td.var { text-align: right; font-family: var(--font-mono); font-weight: 700; color: var(--success-ink); }
+.r-land2-sheet td.var.empty { color: var(--text-tertiary); }
+.r-land2-sheet tr.locked td { background: rgba(217,119,87,.08); }
+.r-land2-sheet tr.drafting td { background: rgba(31,138,91,.08); }
+.r-land2-lockbadge { display: inline-flex; align-items: center; gap: 3px; margin-left: 7px; font-size: 8.5px; font-weight: 800; padding: 1px 5px; border-radius: 5px;
+  background: rgba(217,119,87,.2); color: var(--accent-ink); vertical-align: 1px; }
+.r-land2-lockbadge.draft { background: rgba(31,138,91,.2); color: var(--success-ink); }
+.r-land2-ink { display: inline-block; border-radius: 4px; padding: 0 4px; margin: 0 -4px; }
+@media (prefers-reduced-motion: no-preference) { .r-land2-ink { animation: rland2ink 1.4s var(--ease-out-expo); } }
+@keyframes rland2ink { 0% { background: rgba(217,119,87,.5); } 100% { background: transparent; } }
+.r-land2-sheet-foot { display: flex; align-items: center; gap: 9px; padding: 8px 11px; border-top: 1px solid var(--line); }
+.r-land2-vpill { font-family: var(--font-mono); font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 6px;
+  background: var(--bg-secondary); border: 1px solid var(--line); color: var(--text-muted); }
+.r-land2-vpill.next { background: var(--accent-tint); border-color: var(--accent-border); color: var(--accent-ink); }
+@media (prefers-reduced-motion: no-preference) { .r-land2-vpill.next { animation: rland2vpop .5s var(--ease-out-expo); } }
+@keyframes rland2vpop { 0% { transform: scale(1); } 32% { transform: scale(1.14); } 100% { transform: scale(1); } }
+.r-land2-sheet-foot .grow { flex: 1; }
+.r-land2-sheet-foot .src { font-family: var(--font-mono); font-size: 9.5px; color: var(--text-tertiary); }
+.r-land2-scrub { margin-top: 4px; height: 3px; border-radius: 999px; background: var(--line); overflow: hidden; }
+.r-land2-scrub-fill { display: block; height: 100%; border-radius: 999px; transform: scaleX(0); transform-origin: left;
+  background: linear-gradient(90deg, var(--accent-primary), #C6684A); animation-name: rland2scrub; animation-timing-function: linear; animation-iteration-count: infinite; }
+@keyframes rland2scrub { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@media (prefers-reduced-motion: reduce) { .r-land2-scrub { display: none; } }
+
+/* ── feature strip with UI micro-shots ────────────────────────────────────── */
+.r-land2-featstrip { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 38px; }
+@media (max-width: 780px) { .r-land2-featstrip { grid-template-columns: 1fr; } }
+.r-land2-feat { padding: 15px 16px; border-radius: 13px; border: 1px solid var(--line); background: color-mix(in srgb, var(--bg-primary) 70%, transparent); }
+.r-land2-feat-shot { height: 78px; border-radius: 9px; border: 1px solid var(--line); background: var(--bg-app); overflow: hidden; margin-bottom: 12px; position: relative; }
+.r-land2-feat h3 { font-size: 13.5px; font-weight: 700; margin: 0 0 4px; letter-spacing: -.01em; }
+.r-land2-feat p { font-size: 12px; line-height: 1.5; color: var(--text-muted); margin: 0; }
+.r-land2-ms { position: absolute; inset: 0; padding: 10px 11px; display: flex; flex-direction: column; gap: 5px; justify-content: center; }
+.r-land2-ms.center { align-items: center; }
+.r-land2-ms.panels { flex-direction: row; gap: 5px; padding: 12px; }
+.r-land2-ms-row { display: flex; align-items: center; gap: 6px; font-size: 9px; font-family: var(--font-mono); color: var(--text-tertiary); }
+.r-land2-ms-row.center { justify-content: center; }
+.r-land2-ms-pill { display: inline-flex; align-items: center; gap: 4px; padding: 2px 6px; border-radius: 5px; font-size: 8.5px; font-weight: 700; }
+.r-land2-ms-pill.lock { background: rgba(217,119,87,.2); color: var(--accent-ink); }
+.r-land2-ms-pill.draft { background: rgba(31,138,91,.18); color: var(--success-ink); }
+.r-land2-ms-panel { height: 100%; border-radius: 5px; flex: 1; }
+.r-land2-ms-panel.wide { flex: 1.4; }

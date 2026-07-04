@@ -1,7 +1,10 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import {
+  auditDesignTokenDrift,
   auditNodeRoomDesignSystem,
+  buildAllowedHexSet,
+  canonicalTokenFile,
   designSystemFiles,
   getNodeRoomDesignManifest,
 } from "../src/design/designSystem";
@@ -68,5 +71,91 @@ describe("NodeRoom design-system manifest", () => {
     expect(codes).toContain("scale-column-widths");
     expect(codes).toContain("scale-evidence-overlay-css");
     expect(codes).toContain("scale-evidence-calm-css");
+  });
+});
+
+describe("design token drift (slop detector)", () => {
+  const canonicalCss = ":root { --accent-primary: #D97757; --bg-primary: #FFFFFF; }";
+  const appCss = [
+    ":root { --success: #2E9E6B; --custom-panel: #123456; }",
+    '[data-theme="dark"] { --bg-app: #09090b; }',
+    ".ok { color: #d97757; background: #fff; border-radius: 8px; font-size: 13px; }",
+    ".drift { color: #ABCDEF; border-radius: 7px 7px 0 0; font-size: 12.5px; }",
+    ".scoped-def { --scoped-only: #FEDCBA; }",
+    ".pill { border-radius: 9999px; border-radius: 50%; }",
+  ].join("\n");
+
+  it("builds the allowed set from the canonical file plus styles.css root-block tokens, case-insensitively", () => {
+    const allowed = buildAllowedHexSet(canonicalCss, appCss);
+
+    expect(allowed.has("#d97757")).toBe(true); // canonical
+    expect(allowed.has("#ffffff")).toBe(true); // canonical, uppercase source
+    expect(allowed.has("#123456")).toBe(true); // :root token in styles.css
+    expect(allowed.has("#09090b")).toBe(true); // [data-theme] token in styles.css
+    expect(allowed.has("#fedcba")).toBe(false); // component-scoped var def is not a root token
+    expect(allowed.has("#abcdef")).toBe(false); // literal usage never joins the allowed set
+  });
+
+  it("flags off-token hex, off-scale font-size, and off-scale radius as warnings with file:line", () => {
+    const result = auditDesignTokenDrift({ canonicalCss, appCss, files: { "src/app/styles.css": appCss } });
+    const byCode = (code: string) => result.findings.filter((item) => item.code === code);
+
+    // #fff normalizes to canonical #FFFFFF; root tokens and scale values stay quiet.
+    const hex = byCode("token-hex-drift");
+    expect(hex.map((item) => item.message)).toEqual(["#ABCDEF is not in the canonical token set."]);
+    expect(hex[0]).toMatchObject({ severity: "warn", file: "src/app/styles.css", line: 4 });
+
+    expect(byCode("type-scale-drift")).toHaveLength(1);
+    expect(byCode("type-scale-drift")[0].message).toContain("12.5px");
+    expect(byCode("radius-scale-drift")).toHaveLength(1); // 7px (0 and 9999 and 50% pass)
+    expect(byCode("radius-scale-drift")[0].message).toContain("7px");
+    // A hex inside a variable DEFINITION is never flagged, even off-root.
+    expect(result.findings.some((item) => item.message.includes("#FEDCBA"))).toBe(false);
+  });
+
+  it("catches TSX inline-style slop (bare numbers and quoted px) without failing the audit", () => {
+    const tsx = [
+      "export function Chip() {",
+      '  return <span style={{ background: "#8f3f27", fontSize: 9, borderRadius: 999 }}>x</span>;',
+      "}",
+      'export const label = <i style={{ fontSize: "10.5px", borderRadius: "999px", color: "#d97757" }} />;',
+      'export const safe = <b style={{ fontSize: "0.9em" }} />;',
+    ].join("\n");
+
+    const result = auditDesignTokenDrift({ canonicalCss, appCss, files: { "src/ui/Fake.tsx": tsx } });
+    const codes = result.findings.map((item) => `${item.code}:${item.line}`);
+
+    expect(result.ok).toBe(true); // drift is guidance — warnings only, never a hard fail
+    expect(result.findings.every((item) => item.severity === "warn")).toBe(true);
+    expect(codes).toContain("token-hex-drift:2"); // #8f3f27
+    expect(codes).toContain("type-scale-drift:2"); // fontSize: 9
+    expect(codes).toContain("radius-scale-drift:2"); // borderRadius: 999
+    expect(codes).toContain("type-scale-drift:4"); // "10.5px"
+    expect(codes).toContain("radius-scale-drift:4"); // "999px"
+    expect(codes.filter((code) => code.startsWith("type-scale-drift"))).toHaveLength(2); // em value ignored
+    expect(result.findings.some((item) => item.message.includes("#d97757"))).toBe(false); // canonical accent ok
+    expect(result.summary).toMatchObject({ hexDrift: 1, typeScaleDrift: 2, radiusScaleDrift: 2 });
+  });
+
+  it("reports a missing canonical bundle honestly instead of silently shrinking the allowed set", () => {
+    const result = auditDesignTokenDrift({ canonicalCss: "", appCss, files: {} });
+
+    expect(result.ok).toBe(true);
+    expect(result.findings.map((item) => item.code)).toEqual(["token-canonical-missing"]);
+    expect(result.findings[0].file).toBe(canonicalTokenFile);
+  });
+
+  it("stays warning-only against the real production stylesheet", () => {
+    const realAppCss = readFileSync("src/app/styles.css", "utf8");
+    const realCanonical = existsSync(canonicalTokenFile) ? readFileSync(canonicalTokenFile, "utf8") : "";
+    const result = auditDesignTokenDrift({
+      canonicalCss: realCanonical,
+      appCss: realAppCss,
+      files: { "src/app/styles.css": realAppCss },
+    });
+
+    expect(result.ok).toBe(true);
+    expect(result.findings.every((item) => item.severity === "warn")).toBe(true);
+    expect(result.summary.allowedHexes).toBeGreaterThan(10);
   });
 });

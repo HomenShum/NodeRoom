@@ -2386,3 +2386,55 @@ body.nr-honesty-on [data-evidence-class="unsourced"]     { background-color: col
 .r-brief-draft-title { font-weight: 700; color: var(--text-primary); margin: 14px 0 6px !important; }
 .r-brief-draft { font-family: var(--font-mono); font-size: 12px; line-height: 1.55; color: var(--text-secondary); background: var(--bg-secondary); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; white-space: pre-wrap; word-break: break-word; max-height: 320px; overflow: auto; }
 .r-brief-doc .faint { color: var(--text-tertiary); font-size: 11.5px; }
+
+/* ===========================================================================
+   In-cell evidence hover POPOVER — the receipts payoff (appended block)
+   Extends the base .r-cite-chip/.r-cite-popover receipt (see the sheet-grid
+   section above) into a multi-item evidence popover: up to 4 receipts with
+   label, quoted snippet, source host link, per-item confidence, and a
+   checked/updated footer line. Specimen: design-reference/fixes (.fx-src /
+   .fx-srcpop) + "Cell states" board in design-reference/scale.
+   All colors/radii/shadows come from existing tokens — nothing invented.
+   =========================================================================== */
+
+/* Chip is keyboard-reachable (tabIndex=0); focus uses the system ring token. */
+.r-cite-chip:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+
+/* Pointer-events safety: on hover-reveal the popover is read-only glass — it
+   never intercepts the pointer, so cells underneath stay clickable/editable.
+   Pinning the chip (click or keyboard focus) makes the source links live. */
+.r-cite-popover.r-evidence-popover {
+  pointer-events: none;
+  width: min(288px, calc(100vw - 34px));
+  max-height: 280px;
+  overflow: hidden;
+  padding: 10px 12px;
+  background: var(--bg-secondary);
+  border-color: var(--line);
+  font-size: 12px;
+}
+.r-cite-wrap:focus-within .r-cite-popover.r-evidence-popover { pointer-events: auto; }
+
+/* Viewport-aware placement (data-* set by EvidenceReceipt): flip above when
+   near the bottom edge; anchor left when the chip hugs the left edge. */
+.r-cite-popover.r-evidence-popover[data-flip="up"] { top: auto; bottom: 22px; }
+.r-cite-popover.r-evidence-popover[data-align="left"] { right: auto; left: 0; }
+
+/* Receipt items: label + quoted snippet + host/confidence, hairline-separated. */
+.r-cite-popover .r-evidence-items { margin: 0; }
+.r-cite-popover .r-evidence-item { margin: 0; padding: 6px 0; border-bottom: 1px solid color-mix(in srgb, var(--line) 60%, transparent); }
+.r-cite-popover .r-evidence-item:first-child { padding-top: 0; }
+.r-cite-popover .r-evidence-item:last-child { border-bottom: 0; padding-bottom: 0; }
+.r-cite-popover .r-evidence-item b { font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.r-cite-popover .r-evidence-quote { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; margin-top: 2px; font-size: 12px; font-style: italic; line-height: 1.45; color: var(--text-secondary); }
+.r-cite-popover .r-evidence-from { display: block; margin-top: 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text-tertiary); font-style: normal; font-family: var(--font-mono); font-size: 9.5px; }
+.r-cite-popover .r-evidence-from span, .r-cite-popover .r-evidence-from a { display: inline; margin: 0; font: inherit; }
+.r-cite-popover .r-evidence-from a { color: var(--accent-ink); font-weight: 700; text-decoration: none; }
+.r-cite-popover .r-evidence-from a:hover { text-decoration: underline; text-underline-offset: 2px; }
+.r-cite-popover .r-evidence-more { display: block; margin-top: 5px; color: var(--text-muted); font-size: 11px; font-weight: 700; }
+.r-cite-popover .r-evidence-checked { display: block; margin-top: 6px; padding-top: 6px; border-top: 1px solid color-mix(in srgb, var(--line) 60%, transparent); color: var(--text-tertiary); font-style: normal; font-family: var(--font-mono); font-size: 9.5px; }
+
+/* The receipt chip now also renders in the variance sheet path — let any cell
+   hosting an open popover overflow (generalizes the generic-sheet :has rule). */
+.r-sheet td.r-cell:has(.r-cite-wrap:hover),
+.r-sheet td.r-cell:has(.r-cite-wrap:focus-within) { overflow: visible; z-index: 20; }

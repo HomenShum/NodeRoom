@@ -1164,26 +1164,136 @@ function evidenceTitle(payload: CellPayload | null): string {
   return evidence.map((item) => [item.label, item.url ?? item.source].filter(Boolean).join(" - ")).filter(Boolean).join(" | ");
 }
 
-function evidenceReceiptLine(item: CellEvidence): string {
-  return item.snippet || item.url || item.source || item.label;
-}
-
 function evidenceReceiptLink(item: CellEvidence): string | undefined {
   return item.url ?? item.source;
 }
 
-function renderEvidenceReceipt(payload: CellPayload | null, compact = false): ReactNode {
+// --- In-cell evidence hover popover (the receipts payoff) --------------------
+// The "N src" cite chip reveals a popover listing the cell's
+// CellPayload.evidence[] receipts: label, quoted snippet, source host link,
+// per-item confidence, and a checked/updated line. Pure helpers are exported
+// for unit tests (tests/evidencePopover.test.tsx).
+export const EVIDENCE_POPOVER_MAX_ITEMS = 4; // BOUND: agent loops can stack receipts; render 4 + "+N more".
+export const EVIDENCE_POPOVER_SNIPPET_MAX = 180;
+const EVIDENCE_POPOVER_EST_WIDTH = 288; // keep in sync with .r-evidence-popover width in styles.css
+const EVIDENCE_POPOVER_EST_HEIGHT = 280; // keep in sync with .r-evidence-popover max-height in styles.css
+
+const EVIDENCE_KIND_LABELS: Record<CellEvidence["kind"], string> = {
+  upload: "uploaded file",
+  source: "web source",
+  computed: "computed",
+  manual: "manual entry",
+};
+
+export interface EvidencePopoverItem {
+  id: string;
+  label: string;
+  snippet?: string;
+  /** http(s) link only — non-http schemes are dropped so hostile URLs render as text. */
+  href?: string;
+  host?: string;
+  kindLabel: string;
+  confidencePct?: number;
+}
+
+export interface EvidencePopoverModel {
+  count: number;
+  items: EvidencePopoverItem[];
+  moreCount: number;
+  confidencePct?: number;
+}
+
+function clampEvidenceText(text: string, max: number): string {
+  const trimmed = text.trim();
+  return trimmed.length > max ? `${trimmed.slice(0, Math.max(0, max - 1)).trimEnd()}…` : trimmed;
+}
+
+function confidencePctOf(confidence: unknown): number | undefined {
+  return typeof confidence === "number" && Number.isFinite(confidence)
+    ? Math.round(Math.max(0, Math.min(1, confidence)) * 100)
+    : undefined;
+}
+
+export function evidencePopoverModel(payload: CellPayload | null): EvidencePopoverModel {
   const evidence = payload?.evidence ?? [];
-  if (!evidence.length) return null;
-  const first = evidence[0];
-  const href = evidenceReceiptLink(first);
+  const items = evidence.slice(0, EVIDENCE_POPOVER_MAX_ITEMS).map((item, i) => {
+    const raw = evidenceReceiptLink(item);
+    const href = raw ? extractUrl(raw) ?? undefined : undefined;
+    return {
+      id: item.id || `ev-${i}`,
+      label: clampEvidenceText(item.label || item.source || "source", 80),
+      snippet: item.snippet ? clampEvidenceText(item.snippet, EVIDENCE_POPOVER_SNIPPET_MAX) : undefined,
+      href,
+      host: raw ? sourceHost(raw) : undefined,
+      kindLabel: EVIDENCE_KIND_LABELS[item.kind] ?? "source",
+      confidencePct: confidencePctOf(item.confidence),
+    };
+  });
+  return {
+    count: evidence.length,
+    items,
+    moreCount: Math.max(0, evidence.length - items.length),
+    confidencePct: confidencePctOf(payload?.confidence),
+  };
+}
+
+export function evidenceCheckedLabel(ts: number | undefined, now: number = Date.now()): string | undefined {
+  if (typeof ts !== "number" || !Number.isFinite(ts) || ts <= 0) return undefined;
+  const d = new Date(ts);
+  const ref = new Date(now);
+  const sameDay = d.getFullYear() === ref.getFullYear() && d.getMonth() === ref.getMonth() && d.getDate() === ref.getDate();
+  const hhmm = `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+  return sameDay ? `checked ${hhmm}` : `checked ${d.toLocaleDateString(undefined, { month: "short", day: "numeric" })} ${hhmm}`;
+}
+
+/** Viewport-aware placement: flip above when near the bottom edge (only if there is room above); anchor left when there is no room to spill left. */
+export function evidencePopoverPlacement(
+  rect: { top: number; bottom: number; left: number; right: number },
+  viewport: { width: number; height: number },
+): { flip: "down" | "up"; align: "right" | "left" } {
+  const flip = viewport.height > 0 && rect.bottom + EVIDENCE_POPOVER_EST_HEIGHT > viewport.height && rect.top > EVIDENCE_POPOVER_EST_HEIGHT
+    ? "up"
+    : "down";
+  // Default anchors the popover's right edge to the chip (it spills left).
+  const align = rect.right - EVIDENCE_POPOVER_EST_WIDTH < 8 && rect.left + EVIDENCE_POPOVER_EST_WIDTH < viewport.width - 8
+    ? "left"
+    : "right";
+  return { flip, align };
+}
+
+export function EvidenceReceipt({ payload, compact = false, checkedAt }: { payload: CellPayload | null; compact?: boolean; checkedAt?: number }) {
+  const wrapRef = useRef<HTMLSpanElement>(null);
+  const [placement, setPlacement] = useState<{ flip: "down" | "up"; align: "right" | "left" }>({ flip: "down", align: "right" });
+  const model = evidencePopoverModel(payload);
+  if (!model.count) return null;
+  const reposition = () => {
+    const el = wrapRef.current;
+    if (!el || typeof window === "undefined") return;
+    const next = evidencePopoverPlacement(el.getBoundingClientRect(), { width: window.innerWidth, height: window.innerHeight });
+    setPlacement((prev) => (prev.flip === next.flip && prev.align === next.align ? prev : next));
+  };
+  const checked = evidenceCheckedLabel(checkedAt);
   return (
-    <span className="r-cite-wrap" data-compact={compact ? "true" : undefined}>
-      <span className="r-cite-chip" data-testid="grid-cite-chip" title={evidenceTitle(payload)}>{evidence.length} src</span>
-      <span className="r-cite-popover" data-testid="grid-cite-popover" role="note">
-        <b>{first.label}</b>
-        <span>{evidenceReceiptLine(first)}</span>
-        <em>{href ? sourceHost(href) : "source checked"} · {payload?.confidence ? `${Math.round(payload.confidence * 100)}% confidence` : "visible receipt"}</em>
+    <span ref={wrapRef} className="r-cite-wrap" data-compact={compact ? "true" : undefined} onMouseEnter={reposition} onFocus={reposition}>
+      {/* stopPropagation: clicking the chip pins the popover via focus; letting the click reach the cell would steal focus back to the grid and close it. */}
+      <span className="r-cite-chip" data-testid="grid-cite-chip" tabIndex={0} title={evidenceTitle(payload)} onClick={(e) => e.stopPropagation()}>{model.count} src</span>
+      <span className="r-cite-popover r-evidence-popover" data-testid="evidence-popover" role="note" data-flip={placement.flip} data-align={placement.align}>
+        <span className="r-evidence-items" data-testid="grid-cite-popover">
+          {model.items.map((item) => (
+            <span key={item.id} className="r-evidence-item">
+              <b>{item.label}</b>
+              {item.snippet && <span className="r-evidence-quote">&ldquo;{item.snippet}&rdquo;</span>}
+              <em className="r-evidence-from">
+                {item.href
+                  ? <a href={item.href} target="_blank" rel="noreferrer" onClick={(e) => e.stopPropagation()}>{item.host ?? item.href}</a>
+                  : <span>{item.host ?? item.kindLabel}</span>}
+                {typeof item.confidencePct === "number" && <span className="r-evidence-conf"> · {item.confidencePct}%</span>}
+              </em>
+            </span>
+          ))}
+        </span>
+        {model.moreCount > 0 && <span className="r-evidence-more" data-testid="evidence-popover-more">+{model.moreCount} more</span>}
+        <em className="r-evidence-checked">{checked ?? "source checked"} · {typeof model.confidencePct === "number" ? `${model.confidencePct}% confidence` : "visible receipt"}</em>
       </span>
     </span>
   );
@@ -1437,7 +1547,7 @@ function GenericSheet({ roomId, me, art, onError }: { roomId: string; me: Actor;
                         ) : (
                           <>
                             {renderGenericCellContent(col, value)}
-                            {showReceipt && renderEvidenceReceipt(payload, isScaleSheet && !locked && sel !== id)}
+                            {showReceipt && <EvidenceReceipt payload={payload} compact={isScaleSheet && !locked && sel !== id} checkedAt={el?.updatedAt} />}
                             {locked && <span className="lockbadge" data-testid="grid-lock-badge" title="Locked by NodeAgent"><Lock size={9} />NA</span>}
                           </>
                         )}
@@ -1739,6 +1849,7 @@ function Sheet({ roomId, me, art, onError }: { roomId: string; me: Actor; art: A
               {rows.map((rid, i) => {
                 const vId = `${rid}__variance`, nId = `${rid}__note`;
                 const vEl = art.elements[vId], nEl = art.elements[nId];
+                const vPayload = asCellPayload(vEl?.value), nPayload = asCellPayload(nEl?.value);
                 const lk = lockedByOther(store, art.id, vId, me);
                 const vPresence = presenceForCell(presenceRows, vId, me);
                 const nPresence = presenceForCell(presenceRows, nId, me);
@@ -1754,16 +1865,18 @@ function Sheet({ roomId, me, art, onError }: { roomId: string; me: Actor; art: A
                     <td className="label">{cellVal(art, rid, "label")}</td>
                     <td className="num"><span className="r-val-num">{cellVal(art, rid, "q2")}</span></td>
                     <td className="num"><span className="r-val-num">{cellVal(art, rid, "q3")}</span></td>
-                    <td className={vCls} style={presenceStyle(vPresence)} data-cell-key={vId} data-element-id={vId} data-evidence-class={classifyEvidence(asCellPayload(vEl?.value))} data-testid="sheet-cell" data-presence-mode={vPresence?.mode} onClick={() => touchPresence(store, roomId, art.id, me, vId, "focus", selfPresenceColor)}>
+                    <td className={vCls} style={presenceStyle(vPresence)} data-cell-key={vId} data-element-id={vId} data-evidence-class={classifyEvidence(vPayload)} data-testid="sheet-cell" data-presence-mode={vPresence?.mode} onClick={() => touchPresence(store, roomId, art.id, me, vId, "focus", selfPresenceColor)}>
                       <EditableCell key={vId + ":" + (vEl?.version ?? 0)} value={String(vEl?.value ?? "")} disabled={!!lk || drafting || !!vProposal} align="right" onEditStart={() => touchPresence(store, roomId, art.id, me, vId, "edit", selfPresenceColor)} onEditEnd={() => store.clearPresence({ roomId, artifactId: art.id, targetKind: "cell", targetId: vId, mode: "edit", actor: me })} onCommit={(s) => doCommit(vId, s)} />
+                      {!lk && <EvidenceReceipt payload={vPayload} checkedAt={vEl?.updatedAt} />}
                       {lk && <span className="lockbadge"><Lock size={9} /> NA</span>}
                       {drafting && <span className="lockbadge"><Pencil size={9} /> draft</span>}
                       {vProposal && <InlineProposal roomId={roomId} me={me} proposal={vProposal} onResolved={(f) => { if (!f.ok) onError(f); }} />}
                       {personalEditor && <span className="r-prov-dot" style={{ background: personalEditor.color }} title={`edited by ${personalEditor.name}'s agent`} />}
                       {vPresence && <span className="presencebadge" data-testid="presence-flag">{presenceLabel(vPresence)}</span>}
                     </td>
-                    <td className={"r-cell" + (nPresence ? ` presence presence-${nPresence.mode}` : "") + (nProposal ? " proposed" : "")} style={presenceStyle(nPresence)} data-cell-key={nId} data-element-id={nId} data-evidence-class={classifyEvidence(asCellPayload(nEl?.value))} data-testid="sheet-cell" data-presence-mode={nPresence?.mode} onClick={() => touchPresence(store, roomId, art.id, me, nId, "focus", selfPresenceColor)}>
+                    <td className={"r-cell" + (nPresence ? ` presence presence-${nPresence.mode}` : "") + (nProposal ? " proposed" : "")} style={presenceStyle(nPresence)} data-cell-key={nId} data-element-id={nId} data-evidence-class={classifyEvidence(nPayload)} data-testid="sheet-cell" data-presence-mode={nPresence?.mode} onClick={() => touchPresence(store, roomId, art.id, me, nId, "focus", selfPresenceColor)}>
                       <EditableCell key={nId + ":" + (nEl?.version ?? 0)} value={String(nEl?.value ?? "")} disabled={!!lk || !!nProposal} addLabel="note" onEditStart={() => touchPresence(store, roomId, art.id, me, nId, "edit", selfPresenceColor)} onEditEnd={() => store.clearPresence({ roomId, artifactId: art.id, targetKind: "cell", targetId: nId, mode: "edit", actor: me })} onCommit={(s) => doCommit(nId, s)} />
+                      <EvidenceReceipt payload={nPayload} checkedAt={nEl?.updatedAt} />
                       {nProposal && <InlineProposal roomId={roomId} me={me} proposal={nProposal} onResolved={(f) => { if (!f.ok) onError(f); }} />}
                       {nPresence && <span className="presencebadge" data-testid="presence-flag">{presenceLabel(nPresence)}</span>}
                     </td>
