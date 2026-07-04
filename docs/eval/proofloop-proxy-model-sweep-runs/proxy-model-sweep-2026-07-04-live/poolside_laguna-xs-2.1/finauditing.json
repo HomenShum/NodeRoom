@@ -1,0 +1,112 @@
+{
+  "schema": "proofloop-external-adapter-live-room-proof-v1",
+  "adapterId": "finauditing",
+  "status": "passed",
+  "runId": "proxy-model-sweep-2026-07-04-live-poolside_laguna-xs-2.1-finauditing",
+  "generatedAt": "2026-07-04T23:20:20.471Z",
+  "localAdapterOnly": true,
+  "officialScoreClaim": false,
+  "taskCount": 1,
+  "baseUrl": "https://noderoom.live",
+  "scenario": "proofloop/benchmarks/common/live-room-scenario.spec.ts",
+  "outputDir": ".proofloop/runs/proxy-model-sweep-2026-07-04-live-poolside_laguna-xs-2.1-finauditing/external-adapter-live-room/finauditing",
+  "exitCode": 0,
+  "evidence": [
+    "proofloop/benchmarks/finauditing/load-tasks.ts",
+    "proofloop/benchmarks/common/live-room-scenario.spec.ts",
+    ".proofloop/runs/proxy-model-sweep-2026-07-04-live-poolside_laguna-xs-2.1-finauditing/external-adapter-live-room/finauditing/live-user-contract.json",
+    ".proofloop/runs/proxy-model-sweep-2026-07-04-live-poolside_laguna-xs-2.1-finauditing/external-adapter-live-room/finauditing/node-trace-v2.json",
+    ".proofloop/runs/proxy-model-sweep-2026-07-04-live-poolside_laguna-xs-2.1-finauditing/external-adapter-live-room/finauditing/node-eval.json",
+    ".proofloop/runs/proxy-model-sweep-2026-07-04-live-poolside_laguna-xs-2.1-finauditing/external-adapter-live-room/finauditing/scorecard.md",
+    ".proofloop/runs/proxy-model-sweep-2026-07-04-live-poolside_laguna-xs-2.1-finauditing/external-adapter-live-room/finauditing/cost-ledger.json",
+    ".proofloop/runs/proxy-model-sweep-2026-07-04-live-poolside_laguna-xs-2.1-finauditing/external-adapter-live-room/finauditing/verifier-receipt.json",
+    ".proofloop/runs/proxy-model-sweep-2026-07-04-live-poolside_laguna-xs-2.1-finauditing/external-adapter-live-room/finauditing/official-scorer-receipt.json",
+    ".proofloop/runs/proxy-model-sweep-2026-07-04-live-poolside_laguna-xs-2.1-finauditing/external-adapter-live-room/finauditing/browser-proof.json",
+    ".proofloop/runs/proxy-model-sweep-2026-07-04-live-poolside_laguna-xs-2.1-finauditing/external-adapter-live-room/finauditing/local-task-manifest.json",
+    ".proofloop/runs/proxy-model-sweep-2026-07-04-live-poolside_laguna-xs-2.1-finauditing/external-adapter-live-room/finauditing/visual-proof.png"
+  ],
+  "failedGates": [],
+  "browserProof": {
+    "roomUrl": "https://noderoom.live/?room=NR7WGCGIHRK&name=Proof+Loop",
+    "roomId": "NR7WGCGIHRK",
+    "model": {
+      "provider": "openrouter",
+      "mode": "specific",
+      "policy": "poolside/laguna-xs-2.1",
+      "runtimeProfile": "standard",
+      "realUserMode": true,
+      "measuredCostUsd": 0.009,
+      "measuredTokensIn": 139411,
+      "measuredTokensOut": 3135,
+      "telemetry": [
+        {
+          "taskId": "finauditing-local-risk-and-misstatement-review",
+          "telemetry": {
+            "model": "poolside/laguna-xs-2.1",
+            "toolCalls": 9,
+            "steps": 9,
+            "inputTokens": 139411,
+            "outputTokens": 3135,
+            "latencyMs": 30116,
+            "costUsd": 0.009,
+            "rawText": "poolside/laguna-xs-2.1 · 9 tools · $0.009",
+            "rawTitle": "9 steps · 139,411 in + 3,135 out tokens · 30116ms"
+          }
+        }
+      ]
+    },
+    "problemCounts": {
+      "pageErrors": 0,
+      "consoleProblems": 0,
+      "requestFailures": 0,
+      "badResponses": 0
+    },
+    "taskProofs": [
+      {
+        "userMessageVisible": true,
+        "streamingVisible": true,
+        "jobStatusVisible": true,
+        "jobDetailVisible": true,
+        "roomTraceVisible": true,
+        "completionVisible": true,
+        "finalTextSample": "NodeAgent completed with recovered steps9 model turns - 9 tool actions - 3 earlierTrace details Step 9/128Updated Sheet 1completedRead source data2 room artifacts returnedWrite Locked Cell Resulttool_argument_errorWrite Locked Cell ResultcompletedReported answercompleted Thoughts (step 4)Let me read the current sheet to get the exact cell values and versions:Let me read the current sheet to get the exact cell values and versions:Revenue change of $7.6M (7,600,000) written to C2, backed by source-pack.md evidence showing \"synthetic-financials.csv:2025 shows revenue of 7.6M USD\".\nNodeAgent completed with recovered steps9 model turns - 9 tool actions - 3 earlierTrace details Step 9/128Updated Sheet 1completedRead source data2 room artifacts returnedWrite Locked Cell Resulttool_argument_errorWrite Locked Cell ResultcompletedReported answercompleted Thoughts (step 4)Let me read the current sheet to get the exact cell values and versions:Let me read the current sheet to get the exact cell values and versions:Revenue change of $7.6M (7,600,000) written to C2, backed by source-pack.md evidence showing \"synthetic-financials.csv:2025 shows revenue of 7.6M USD\".\nNRoom NodeAgentagent16:20Revenue change of $7.6M (7,600,000) written to C2, backed by source-pack.md evidence showing \"synthetic-financials.csv:2025 shows revenue of 7.6M USD\". Copy",
+        "durationMs": 38626,
+        "telemetry": {
+          "model": "poolside/laguna-xs-2.1",
+          "toolCalls": 9,
+          "steps": 9,
+          "inputTokens": 139411,
+          "outputTokens": 3135,
+          "latencyMs": 30116,
+          "costUsd": 0.009,
+          "rawText": "poolside/laguna-xs-2.1 · 9 tools · $0.009",
+          "rawTitle": "9 steps · 139,411 in + 3,135 out tokens · 30116ms"
+        },
+        "gatesProven": [
+          "public_nodeagent_invocation",
+          "visible_streaming_progress",
+          "agent_live_loop",
+          "job_detail_visible",
+          "agent_terminal_quality_gate",
+          "room_trace_visible"
+        ],
+        "gatesNotProven": {},
+        "taskId": "finauditing-local-risk-and-misstatement-review",
+        "title": "Audit-style evidence review through NodeRoom story workflow",
+        "prompt": "@nodeagent  Use the uploaded input artifacts and the current live room sheet. Check the revenue change, identify evidence that supports it, and preserve the human-entered C2 value. Ground the answer in visible room evidence and uploaded files. Make the smallest necessary sheet edits; avoid bulk updates unless the task truly requires them. ",
+        "uploadedFiles": [
+          "source-pack.md",
+          "risk-notes.md",
+          "financial-statements.json"
+        ]
+      }
+    ]
+  },
+  "officialSemanticScore": {
+    "status": "blocked_external",
+    "blockers": [
+      "finauditing: official scorer receipt docs/eval/proofloop-official-scores/finauditing.json is blocked_external; scored receipt is still required before claiming score. FinMR evaluation uses an OpenAI LLM judge and this shell has no OPENAI_API_KEY. The full benchmark path also points to the separate FinBen framework, which is not yet wired to NodeRoom output artifacts."
+    ],
+    "verifierCommand": "npm run benchmark:proofloop:adapter-blockers -- --id finauditing --strict"
+  }
+}

@@ -1,0 +1,111 @@
+{
+  "schema": "proofloop-external-adapter-live-room-proof-v1",
+  "adapterId": "finch",
+  "status": "passed",
+  "runId": "proxy-model-sweep-2026-07-04-live-poolside_laguna-xs-2.1-finch",
+  "generatedAt": "2026-07-04T23:19:34.020Z",
+  "localAdapterOnly": true,
+  "officialScoreClaim": false,
+  "taskCount": 1,
+  "baseUrl": "https://noderoom.live",
+  "scenario": "proofloop/benchmarks/common/live-room-scenario.spec.ts",
+  "outputDir": ".proofloop/runs/proxy-model-sweep-2026-07-04-live-poolside_laguna-xs-2.1-finch/external-adapter-live-room/finch",
+  "exitCode": 0,
+  "evidence": [
+    "proofloop/benchmarks/finch/load-tasks.ts",
+    "proofloop/benchmarks/common/live-room-scenario.spec.ts",
+    ".proofloop/runs/proxy-model-sweep-2026-07-04-live-poolside_laguna-xs-2.1-finch/external-adapter-live-room/finch/live-user-contract.json",
+    ".proofloop/runs/proxy-model-sweep-2026-07-04-live-poolside_laguna-xs-2.1-finch/external-adapter-live-room/finch/node-trace-v2.json",
+    ".proofloop/runs/proxy-model-sweep-2026-07-04-live-poolside_laguna-xs-2.1-finch/external-adapter-live-room/finch/node-eval.json",
+    ".proofloop/runs/proxy-model-sweep-2026-07-04-live-poolside_laguna-xs-2.1-finch/external-adapter-live-room/finch/scorecard.md",
+    ".proofloop/runs/proxy-model-sweep-2026-07-04-live-poolside_laguna-xs-2.1-finch/external-adapter-live-room/finch/cost-ledger.json",
+    ".proofloop/runs/proxy-model-sweep-2026-07-04-live-poolside_laguna-xs-2.1-finch/external-adapter-live-room/finch/verifier-receipt.json",
+    ".proofloop/runs/proxy-model-sweep-2026-07-04-live-poolside_laguna-xs-2.1-finch/external-adapter-live-room/finch/official-scorer-receipt.json",
+    ".proofloop/runs/proxy-model-sweep-2026-07-04-live-poolside_laguna-xs-2.1-finch/external-adapter-live-room/finch/browser-proof.json",
+    ".proofloop/runs/proxy-model-sweep-2026-07-04-live-poolside_laguna-xs-2.1-finch/external-adapter-live-room/finch/local-task-manifest.json",
+    ".proofloop/runs/proxy-model-sweep-2026-07-04-live-poolside_laguna-xs-2.1-finch/external-adapter-live-room/finch/visual-proof.png"
+  ],
+  "failedGates": [],
+  "browserProof": {
+    "roomUrl": "https://noderoom.live/?room=NRTSTABCXSW&name=Proof+Loop",
+    "roomId": "NRTSTABCXSW",
+    "model": {
+      "provider": "openrouter",
+      "mode": "specific",
+      "policy": "poolside/laguna-xs-2.1",
+      "runtimeProfile": "standard",
+      "realUserMode": true,
+      "measuredCostUsd": 0.012,
+      "measuredTokensIn": 194651,
+      "measuredTokensOut": 4022,
+      "telemetry": [
+        {
+          "taskId": "finch-local-financial-evidence-qa",
+          "telemetry": {
+            "model": "poolside/laguna-xs-2.1",
+            "toolCalls": 13,
+            "steps": 7,
+            "inputTokens": 194651,
+            "outputTokens": 4022,
+            "latencyMs": 30426,
+            "costUsd": 0.012,
+            "rawText": "poolside/laguna-xs-2.1 · 13 tools · $0.012",
+            "rawTitle": "7 steps · 194,651 in + 4,022 out tokens · 30426ms"
+          }
+        }
+      ]
+    },
+    "problemCounts": {
+      "pageErrors": 0,
+      "consoleProblems": 0,
+      "requestFailures": 0,
+      "badResponses": 0
+    },
+    "taskProofs": [
+      {
+        "userMessageVisible": true,
+        "streamingVisible": true,
+        "jobStatusVisible": true,
+        "jobDetailVisible": true,
+        "roomTraceVisible": true,
+        "completionVisible": true,
+        "finalTextSample": " me compute the additional variance columns and write them with evidence:Revenue variance calculations completed:r2__D = 0% (baseline)r3__D = -18.63% (variance from 38.1 to 31)All target cells updated with values grounded in Sheet 1 columns B and C.Revenue variance calculations completed:r2__D = 0% (baseline)r3__D = -18.63% (variance from 38.1 to 31)All target cells updated with values grounded in Sheet 1 columns B and C.\nNRoom NodeAgentagent16:15NodeAgent completed the run13 model turns - 13 tool actions - 4 earlierTrace details Step 7/128Read source datax5text result returnedGathered room files3 room artifacts returnedRead source data2 room artifacts returnedUpdated Sheet 1completedWrite Locked Cell Resultscompleted Thoughts (step 4)Let me read the current versions of the cells I need to update: Thoughts (step 5)Based on my analysis of the sheet data from source_open_literal:\n- Row 2: B=38.1, C=1600000\n- Row 3: B=31, C=1800000\n\nThe revenue variance should be the percentage change in column B from the previous period:\n- Row 2 (first data row): 0% variance (baseline)\n- Row 3: (31 - 38.1) / 38.1 = -18.63% Thoughts (step 6)Now let me compute the additional variance columns and write them with evidence:Let me read the current versions of the cells I need to update:Based on my analysis of the sheet data from source_open_literal:Row 2: B=38.1, C=1600000Row 3: B=31, C=1800000The revenue variance should be the percentage change in column B from the previous period:Row 2 (first data row): 0% variance (baseline)Row 3: (31 - 38.1) / 38.1 = -18.63%Now let me compute the additional variance columns and write them with evidence:Revenue variance calculations completed:r2__D = 0% (baseline)r3__D = -18.63% (variance from 38.1 to 31)All target cells updated with values grounded in Sheet 1 columns B and C.Revenue variance calculations completed:r2__D = 0% (baseline)r3__D = -18.63% (variance from 38.1 to 31)All target cells updated with values grounded in Sheet 1 columns B and C. Copy",
+        "durationMs": 251340,
+        "telemetry": {
+          "model": "poolside/laguna-xs-2.1",
+          "toolCalls": 13,
+          "steps": 7,
+          "inputTokens": 194651,
+          "outputTokens": 4022,
+          "latencyMs": 30426,
+          "costUsd": 0.012,
+          "rawText": "poolside/laguna-xs-2.1 · 13 tools · $0.012",
+          "rawTitle": "7 steps · 194,651 in + 4,022 out tokens · 30426ms"
+        },
+        "gatesProven": [
+          "public_nodeagent_invocation",
+          "visible_streaming_progress",
+          "agent_live_loop",
+          "job_detail_visible",
+          "agent_terminal_quality_gate",
+          "room_trace_visible"
+        ],
+        "gatesNotProven": {},
+        "taskId": "finch-local-financial-evidence-qa",
+        "title": "Financial evidence QA through NodeRoom story workflow",
+        "prompt": "@nodeagent  Use the uploaded input artifacts and the current live room sheet. Recompute the revenue variance and ground the answer in the visible spreadsheet evidence. Ground the answer in visible room evidence and uploaded files. Make the smallest necessary sheet edits; avoid bulk updates unless the task truly requires them. ",
+        "uploadedFiles": [
+          "synthetic-financials.csv",
+          "variance.json"
+        ]
+      }
+    ]
+  },
+  "officialSemanticScore": {
+    "status": "blocked_external",
+    "blockers": [
+      "finch: official scorer receipt docs/eval/proofloop-official-scores/finch.json is blocked_external; scored receipt is still required before claiming score. No Azure OpenAI judge credentials are present in this shell: AZURE endpoint, API key, API version, and deployment name are all required by src/call_gpt_judge.py. Upstream Finch content_parts rendering is 0/172; official Azure judge input remains incomplete even though model-output artifacts are complete."
+    ],
+    "verifierCommand": "npm run benchmark:proofloop:adapter-blockers -- --id finch --strict"
+  }
+}

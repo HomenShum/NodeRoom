@@ -35,12 +35,13 @@ describe("creditLedger — reserve/settle happy path", () => {
 
 describe("creditLedger — fail-closed", () => {
   it("HONEST_STATUS: reserve over balance returns ok:false, does NOT debit, does NOT start", () => {
-    const l = ledger(2); // less than a standard hold
+    const underStandardHold = estimateCostFor("standard").creditsRequired - 0.01;
+    const l = ledger(underStandardHold);
     const r = l.reserve({ mode: "standard" });
     expect(r.ok).toBe(false);
     expect(r.reason).toBe("insufficient_credits");
     // Balance untouched on a rejected reserve.
-    expect(l.balance().availableCredits).toBe(2);
+    expect(l.balance().availableCredits).toBe(underStandardHold);
     expect(l.balance().reservedCredits).toBe(0);
     // The rejection is recorded honestly.
     expect(l.events().some((e) => e.kind === "reject")).toBe(true);

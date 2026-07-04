@@ -1,0 +1,111 @@
+{
+  "schema": "proofloop-external-adapter-live-room-proof-v1",
+  "adapterId": "finch",
+  "status": "passed",
+  "runId": "proxy-model-sweep-2026-07-04-live-z-ai_glm-5.2-finch",
+  "generatedAt": "2026-07-04T22:45:35.084Z",
+  "localAdapterOnly": true,
+  "officialScoreClaim": false,
+  "taskCount": 1,
+  "baseUrl": "https://noderoom.live",
+  "scenario": "proofloop/benchmarks/common/live-room-scenario.spec.ts",
+  "outputDir": ".proofloop/runs/proxy-model-sweep-2026-07-04-live-z-ai_glm-5.2-finch/external-adapter-live-room/finch",
+  "exitCode": 0,
+  "evidence": [
+    "proofloop/benchmarks/finch/load-tasks.ts",
+    "proofloop/benchmarks/common/live-room-scenario.spec.ts",
+    ".proofloop/runs/proxy-model-sweep-2026-07-04-live-z-ai_glm-5.2-finch/external-adapter-live-room/finch/live-user-contract.json",
+    ".proofloop/runs/proxy-model-sweep-2026-07-04-live-z-ai_glm-5.2-finch/external-adapter-live-room/finch/node-trace-v2.json",
+    ".proofloop/runs/proxy-model-sweep-2026-07-04-live-z-ai_glm-5.2-finch/external-adapter-live-room/finch/node-eval.json",
+    ".proofloop/runs/proxy-model-sweep-2026-07-04-live-z-ai_glm-5.2-finch/external-adapter-live-room/finch/scorecard.md",
+    ".proofloop/runs/proxy-model-sweep-2026-07-04-live-z-ai_glm-5.2-finch/external-adapter-live-room/finch/cost-ledger.json",
+    ".proofloop/runs/proxy-model-sweep-2026-07-04-live-z-ai_glm-5.2-finch/external-adapter-live-room/finch/verifier-receipt.json",
+    ".proofloop/runs/proxy-model-sweep-2026-07-04-live-z-ai_glm-5.2-finch/external-adapter-live-room/finch/official-scorer-receipt.json",
+    ".proofloop/runs/proxy-model-sweep-2026-07-04-live-z-ai_glm-5.2-finch/external-adapter-live-room/finch/browser-proof.json",
+    ".proofloop/runs/proxy-model-sweep-2026-07-04-live-z-ai_glm-5.2-finch/external-adapter-live-room/finch/local-task-manifest.json",
+    ".proofloop/runs/proxy-model-sweep-2026-07-04-live-z-ai_glm-5.2-finch/external-adapter-live-room/finch/visual-proof.png"
+  ],
+  "failedGates": [],
+  "browserProof": {
+    "roomUrl": "https://noderoom.live/?room=NR1RHOT8YL9&name=Proof+Loop",
+    "roomId": "NR1RHOT8YL9",
+    "model": {
+      "provider": "openrouter",
+      "mode": "specific",
+      "policy": "z-ai/glm-5.2",
+      "runtimeProfile": "standard",
+      "realUserMode": true,
+      "measuredCostUsd": 0.021,
+      "measuredTokensIn": 27092,
+      "measuredTokensOut": 175,
+      "telemetry": [
+        {
+          "taskId": "finch-local-financial-evidence-qa",
+          "telemetry": {
+            "model": "z-ai/glm-5.2",
+            "toolCalls": 1,
+            "steps": 1,
+            "inputTokens": 27092,
+            "outputTokens": 175,
+            "latencyMs": 6051,
+            "costUsd": 0.021,
+            "rawText": "z-ai/glm-5.2 · 1 tools · $0.021",
+            "rawTitle": "1 steps · 27,092 in + 175 out tokens · 6051ms"
+          }
+        }
+      ]
+    },
+    "problemCounts": {
+      "pageErrors": 0,
+      "consoleProblems": 0,
+      "requestFailures": 0,
+      "badResponses": 0
+    },
+    "taskProofs": [
+      {
+        "userMessageVisible": true,
+        "streamingVisible": true,
+        "jobStatusVisible": true,
+        "jobDetailVisible": true,
+        "roomTraceVisible": true,
+        "completionVisible": true,
+        "finalTextSample": "NodeAgent completed with recovered steps12 model turns - 20 tool actions - 7 earlierTrace details Step 1/128Read Notebookok:false,reason:Uncaught Error: artifact_not_notebook\\n at async handler (../convex/notebookAgen...Reported answerx2completedWrite Locked Cell Resultscoordination:acquired:true,lockId:jn700k1fwrezhm0hyc0qv72pax89xrjd,mergedDrafts:0,mode:managed_l...Updated Sheet 1completedAgent pausedx2Paused at the spend ceiling (per-run token/cost cap).The task is already complete. All 8 target cells were successfully written to the live sheet (version 2):r1 (headers): Category | Budget | Actual | Variancer2 (Revenue row): Revenue | 300000 | 320000 | 20000The revenue variance = Actual (320000) − Budget (300000) = +20000 (favorable), grounded in the uploaded variance.json (artifact j9731rey8134qkzwbdfxapa9sx89wpbk). No further edits are needed.\nNodeAgent completed with recovered steps12 model turns - 20 tool actions - 7 earlierTrace details Step 1/128Read Notebookok:false,reason:Uncaught Error: artifact_not_notebook\\n at async handler (../convex/notebookAgen...Reported answerx2completedWrite Locked Cell Resultscoordination:acquired:true,lockId:jn700k1fwrezhm0hyc0qv72pax89xrjd,mergedDrafts:0,mode:managed_l...Updated Sheet 1completedAgent pausedx2Paused at the spend ceiling (per-run token/cost cap).The task is already complete. All 8 target cells were successfully written to the live sheet (version 2):r1 (headers): Category | Budget | Actual | Variancer2 (Revenue row): Revenue | 300000 | 320000 | 20000The revenue variance = Actual (320000) − Budget (300000) = +20000 (favorable), grounded in the uploaded variance.json (artifact j9731rey8134qkzwbdfxapa9sx89wpbk). No further edits are needed.\nNRoom NodeAgentagent15:45Revenue variance recomputed and written to the live sheet: Budget 300000, Actual 320000 → Variance +20000 (favorable). Grounded in variance.json (artifact j9731rey8134qkzwbdfxapa9sx89wpbk). Copy",
+        "durationMs": 77449,
+        "telemetry": {
+          "model": "z-ai/glm-5.2",
+          "toolCalls": 1,
+          "steps": 1,
+          "inputTokens": 27092,
+          "outputTokens": 175,
+          "latencyMs": 6051,
+          "costUsd": 0.021,
+          "rawText": "z-ai/glm-5.2 · 1 tools · $0.021",
+          "rawTitle": "1 steps · 27,092 in + 175 out tokens · 6051ms"
+        },
+        "gatesProven": [
+          "public_nodeagent_invocation",
+          "visible_streaming_progress",
+          "agent_live_loop",
+          "job_detail_visible",
+          "agent_terminal_quality_gate",
+          "room_trace_visible"
+        ],
+        "gatesNotProven": {},
+        "taskId": "finch-local-financial-evidence-qa",
+        "title": "Financial evidence QA through NodeRoom story workflow",
+        "prompt": "@nodeagent  Use the uploaded input artifacts and the current live room sheet. Recompute the revenue variance and ground the answer in the visible spreadsheet evidence. Ground the answer in visible room evidence and uploaded files. Make the smallest necessary sheet edits; avoid bulk updates unless the task truly requires them. ",
+        "uploadedFiles": [
+          "synthetic-financials.csv",
+          "variance.json"
+        ]
+      }
+    ]
+  },
+  "officialSemanticScore": {
+    "status": "blocked_external",
+    "blockers": [
+      "finch: official scorer receipt docs/eval/proofloop-official-scores/finch.json is blocked_external; scored receipt is still required before claiming score. No Azure OpenAI judge credentials are present in this shell: AZURE endpoint, API key, API version, and deployment name are all required by src/call_gpt_judge.py. Upstream Finch content_parts rendering is 0/172; official Azure judge input remains incomplete even though model-output artifacts are complete."
+    ],
+    "verifierCommand": "npm run benchmark:proofloop:adapter-blockers -- --id finch --strict"
+  }
+}

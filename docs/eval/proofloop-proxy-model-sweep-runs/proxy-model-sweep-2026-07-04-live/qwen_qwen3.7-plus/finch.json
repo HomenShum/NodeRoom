@@ -1,0 +1,111 @@
+{
+  "schema": "proofloop-external-adapter-live-room-proof-v1",
+  "adapterId": "finch",
+  "status": "passed",
+  "runId": "proxy-model-sweep-2026-07-04-live-qwen_qwen3.7-plus-finch",
+  "generatedAt": "2026-07-04T23:23:57.328Z",
+  "localAdapterOnly": true,
+  "officialScoreClaim": false,
+  "taskCount": 1,
+  "baseUrl": "https://noderoom.live",
+  "scenario": "proofloop/benchmarks/common/live-room-scenario.spec.ts",
+  "outputDir": ".proofloop/runs/proxy-model-sweep-2026-07-04-live-qwen_qwen3.7-plus-finch/external-adapter-live-room/finch",
+  "exitCode": 0,
+  "evidence": [
+    "proofloop/benchmarks/finch/load-tasks.ts",
+    "proofloop/benchmarks/common/live-room-scenario.spec.ts",
+    ".proofloop/runs/proxy-model-sweep-2026-07-04-live-qwen_qwen3.7-plus-finch/external-adapter-live-room/finch/live-user-contract.json",
+    ".proofloop/runs/proxy-model-sweep-2026-07-04-live-qwen_qwen3.7-plus-finch/external-adapter-live-room/finch/node-trace-v2.json",
+    ".proofloop/runs/proxy-model-sweep-2026-07-04-live-qwen_qwen3.7-plus-finch/external-adapter-live-room/finch/node-eval.json",
+    ".proofloop/runs/proxy-model-sweep-2026-07-04-live-qwen_qwen3.7-plus-finch/external-adapter-live-room/finch/scorecard.md",
+    ".proofloop/runs/proxy-model-sweep-2026-07-04-live-qwen_qwen3.7-plus-finch/external-adapter-live-room/finch/cost-ledger.json",
+    ".proofloop/runs/proxy-model-sweep-2026-07-04-live-qwen_qwen3.7-plus-finch/external-adapter-live-room/finch/verifier-receipt.json",
+    ".proofloop/runs/proxy-model-sweep-2026-07-04-live-qwen_qwen3.7-plus-finch/external-adapter-live-room/finch/official-scorer-receipt.json",
+    ".proofloop/runs/proxy-model-sweep-2026-07-04-live-qwen_qwen3.7-plus-finch/external-adapter-live-room/finch/browser-proof.json",
+    ".proofloop/runs/proxy-model-sweep-2026-07-04-live-qwen_qwen3.7-plus-finch/external-adapter-live-room/finch/local-task-manifest.json",
+    ".proofloop/runs/proxy-model-sweep-2026-07-04-live-qwen_qwen3.7-plus-finch/external-adapter-live-room/finch/visual-proof.png"
+  ],
+  "failedGates": [],
+  "browserProof": {
+    "roomUrl": "https://noderoom.live/?room=NR55Z4WL4JC&name=Proof+Loop",
+    "roomId": "NR55Z4WL4JC",
+    "model": {
+      "provider": "openrouter",
+      "mode": "specific",
+      "policy": "qwen/qwen3.7-plus",
+      "runtimeProfile": "standard",
+      "realUserMode": true,
+      "measuredCostUsd": 0.076,
+      "measuredTokensIn": 214926,
+      "measuredTokensOut": 5548,
+      "telemetry": [
+        {
+          "taskId": "finch-local-financial-evidence-qa",
+          "telemetry": {
+            "model": "qwen/qwen3.7-plus",
+            "toolCalls": 21,
+            "steps": 11,
+            "inputTokens": 214926,
+            "outputTokens": 5548,
+            "latencyMs": 125534,
+            "costUsd": 0.076,
+            "rawText": "qwen/qwen3.7-plus · 21 tools · $0.076",
+            "rawTitle": "11 steps · 214,926 in + 5,548 out tokens · 125534ms"
+          }
+        }
+      ]
+    },
+    "problemCounts": {
+      "pageErrors": 0,
+      "consoleProblems": 0,
+      "requestFailures": 0,
+      "badResponses": 0
+    },
+    "taskProofs": [
+      {
+        "userMessageVisible": true,
+        "streamingVisible": true,
+        "jobStatusVisible": true,
+        "jobDetailVisible": true,
+        "roomTraceVisible": true,
+        "completionVisible": true,
+        "finalTextSample": "**: revenues are 4.2M/5.8M/7.6M across 2023-2025. Let me populate Sheet 1 with the recomputed variances.Now I have all the data. From variance.json: Revenue budget=300,000, actual=320,000 → variance = +$20,000 (+6.67%). I also have COGS, Marketing, Engineering. From synthetic-financials.csv: revenues are 4.2M/5.8M/7.6M across 2023-2025. Let me populate Sheet 1 with the recomputed variances.Revenue variance recomputed and written to Sheet 1: +$20,000 (+6.67%) favorable variance. All four category variances (Revenue, COGS, Marketing, Engineering) now populated with budget, actual, variance amount, and variance percentage, grounded in variance.json and synthetic-financials.csv.\nNodeAgent completed the run11 model turns - 12 tool actions - 6 earlierTrace details Step 11/128Searched workbook contextx2Read NotebookcompletedOKF Full Text Searchtext result returnedUpdated Sheet 1completedReported answercompleted Thoughts (step 9)Now I have all the data. From **variance.json**: Revenue budget=300,000, actual=320,000 → variance = +$20,000 (+6.67%). I also have COGS, Marketing, Engineering. From **synthetic-financials.csv**: revenues are 4.2M/5.8M/7.6M across 2023-2025. Let me populate Sheet 1 with the recomputed variances.Now I have all the data. From variance.json: Revenue budget=300,000, actual=320,000 → variance = +$20,000 (+6.67%). I also have COGS, Marketing, Engineering. From synthetic-financials.csv: revenues are 4.2M/5.8M/7.6M across 2023-2025. Let me populate Sheet 1 with the recomputed variances.Revenue variance recomputed and written to Sheet 1: +$20,000 (+6.67%) favorable variance. All four category variances (Revenue, COGS, Marketing, Engineering) now populated with budget, actual, variance amount, and variance percentage, grounded in variance.json and synthetic-financials.csv.\nNRoom NodeAgentagent16:23Revenue variance recomputed: +$20,000 (+6.67%) favorable. All 4 category variances written to Sheet 1, grounded in variance.json and synthetic-financials.csv. Copy",
+        "durationMs": 132654,
+        "telemetry": {
+          "model": "qwen/qwen3.7-plus",
+          "toolCalls": 21,
+          "steps": 11,
+          "inputTokens": 214926,
+          "outputTokens": 5548,
+          "latencyMs": 125534,
+          "costUsd": 0.076,
+          "rawText": "qwen/qwen3.7-plus · 21 tools · $0.076",
+          "rawTitle": "11 steps · 214,926 in + 5,548 out tokens · 125534ms"
+        },
+        "gatesProven": [
+          "public_nodeagent_invocation",
+          "visible_streaming_progress",
+          "agent_live_loop",
+          "job_detail_visible",
+          "agent_terminal_quality_gate",
+          "room_trace_visible"
+        ],
+        "gatesNotProven": {},
+        "taskId": "finch-local-financial-evidence-qa",
+        "title": "Financial evidence QA through NodeRoom story workflow",
+        "prompt": "@nodeagent  Use the uploaded input artifacts and the current live room sheet. Recompute the revenue variance and ground the answer in the visible spreadsheet evidence. Ground the answer in visible room evidence and uploaded files. Make the smallest necessary sheet edits; avoid bulk updates unless the task truly requires them. ",
+        "uploadedFiles": [
+          "synthetic-financials.csv",
+          "variance.json"
+        ]
+      }
+    ]
+  },
+  "officialSemanticScore": {
+    "status": "blocked_external",
+    "blockers": [
+      "finch: official scorer receipt docs/eval/proofloop-official-scores/finch.json is blocked_external; scored receipt is still required before claiming score. No Azure OpenAI judge credentials are present in this shell: AZURE endpoint, API key, API version, and deployment name are all required by src/call_gpt_judge.py. Upstream Finch content_parts rendering is 0/172; official Azure judge input remains incomplete even though model-output artifacts are complete."
+    ],
+    "verifierCommand": "npm run benchmark:proofloop:adapter-blockers -- --id finch --strict"
+  }
+}
