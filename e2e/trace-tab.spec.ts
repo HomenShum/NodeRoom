@@ -112,4 +112,21 @@ test.describe("trace work-surface tab", () => {
     await detail.getByRole("button", { name: "Close step detail" }).click();
     await expect(detail).toHaveCount(0);
   });
+
+  test("Observability tab renders every selected trace as adapter-ready spans", async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await enterDemoRoom(page);
+
+    await page.getByTestId("trace-tab").click();
+    await page.getByTestId("trace-record").filter({ hasText: "QA" }).first().click();
+    await page.getByTestId("trace-tab-observability").click();
+
+    await expect(page.getByTestId("trace-observability")).toBeVisible();
+    await expect(page.getByText("AgentPrism OTLP")).toBeVisible();
+    await expect(page.getByText("react-o11y", { exact: true })).toBeVisible();
+    await expect(page.getByText("Langfuse JSON")).toBeVisible();
+    await expect(page.getByText("assistant-ui events")).toBeVisible();
+    await expect(page.getByTestId("trace-observability-count")).toHaveText(/4 spans/);
+    await expect(page.getByTestId("trace-observability-span")).toHaveCount(4);
+  });
 });
