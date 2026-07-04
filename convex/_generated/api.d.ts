@@ -64,6 +64,7 @@ import type * as prosemirror from "../prosemirror.js";
 import type * as retention from "../retention.js";
 import type * as roomActivity from "../roomActivity.js";
 import type * as rooms from "../rooms.js";
+import type * as runTrace from "../runTrace.js";
 import type * as sec from "../sec.js";
 import type * as securityEvents from "../securityEvents.js";
 import type * as seed from "../seed.js";
@@ -138,6 +139,7 @@ declare const fullApi: ApiFromModules<{
   retention: typeof retention;
   roomActivity: typeof roomActivity;
   rooms: typeof rooms;
+  runTrace: typeof runTrace;
   sec: typeof sec;
   securityEvents: typeof securityEvents;
   seed: typeof seed;

@@ -361,12 +361,13 @@ async function captureStartupJoinRoom(
   });
 }
 
-/** Deterministic in-browser demo engine at the SAME prod URL — same UI, scripted agent. */
-async function memoryDemo(ctx: BrowserContext): Promise<Page> {
+/** Deterministic in-browser demo engine at the SAME prod URL — same UI, scripted agent.
+ *  A spec's demoQuery appends params (e.g. the scale room), which auto-enters the room. */
+async function memoryDemo(ctx: BrowserContext, demoQuery?: string): Promise<Page> {
   const page = await ctx.newPage();
-  await page.goto(`${BASE}/?mode=memory`, { waitUntil: "domcontentloaded", timeout: 60_000 });
+  await page.goto(`${BASE}/?mode=memory${demoQuery ? `&${demoQuery}` : ""}`, { waitUntil: "domcontentloaded", timeout: 60_000 });
   await page.evaluate(() => { try { localStorage.setItem("noderoom:tour:v1", "done"); } catch { /* ignore */ } });
-  await page.getByTestId("start-demo-room").click({ timeout: 30_000 });
+  if (!demoQuery) await page.getByTestId("start-demo-room").click({ timeout: 30_000 });
   await page.locator('[data-testid="public-chat-panel"] [data-testid="chat-composer"]').waitFor({ timeout: 30_000 });
   await page.getByTestId("tour-skip").click({ timeout: 5000 }).catch(() => {});
   await page.addStyleTag({ content: DEMO_CHROME });
@@ -409,7 +410,7 @@ async function runFeature(spec: FeatureSpec, attempt: number): Promise<FeatureOu
       return { id: spec.id, title: spec.title, skipped: false, segments };
     }
     const page =
-      spec.setup === "memoryDemo" ? await memoryDemo(ctx)
+      spec.setup === "memoryDemo" ? await memoryDemo(ctx, spec.demoQuery)
         : spec.setup === "story" ? await storyPage(ctx)
         : spec.setup === "roomTour" ? await roomTourPage(ctx)
         : await createRoom(ctx, code);
