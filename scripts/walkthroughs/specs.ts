@@ -38,6 +38,10 @@ export type FeatureSpec = {
   /** seedResearchRoom only: override the seeded accounts (episodes for high-trust audiences use
    *  FICTIONAL companies — that restraint is itself the trust signal). */
   seedCompanies?: Array<{ company: string; website?: string; tier?: string; owner?: string }>;
+  /** memoryDemo only: extra query params appended to `?mode=memory` (e.g.
+   *  "demo=scale&name=Host" for the 1,000-row scale room, which auto-enters —
+   *  no start-demo-room click). */
+  demoQuery?: string;
   /** Close panels the story doesn't use — fewer panels = the feature renders larger (the judge's
    *  systemic "text too small at phone size" finding). Legacy keys map to current toggles:
    *  left = Room Binder, artifact = Work Surface, priv = Copilot. */
@@ -171,6 +175,47 @@ export const FEATURES: FeatureSpec[] = [
         after: { sel: '[data-testid="brief-draft"]', state: "visible" },
       },
       { kind: "state", caption: "Messy context in, a sourced next action out", settleMs: 1000, holdMs: 2400 },
+    ],
+  },
+  {
+    id: "parity-tour",
+    title: "Design parity tour — receipts, palette, paper notebook, run trace",
+    // The 1,000-row scale room: deterministic, auto-enters, every parity
+    // surface seeded (mixed status chips, lock rows, receipts in chat).
+    setup: "memoryDemo",
+    demoQuery: "demo=scale&name=Host",
+    steps: [
+      { kind: "state", caption: "1,000 rows under calm mode — dot statuses, lock rows, honest filter counts", holdMs: 2400 },
+      {
+        kind: "click", sel: '[data-testid="grid-cite-chip"]', caption: "Every sourced cell carries its receipts",
+        afterCaption: "Hover a cite chip — the quoted source, checked time, and confidence",
+        after: { sel: '[data-testid="evidence-popover"]', state: "visible" }, afterHoldMs: 2200,
+      },
+      {
+        kind: "key", key: "Control+k", caption: "One keystroke to anywhere — the command palette",
+        after: { sel: '[data-testid="command-palette"]', state: "visible" },
+      },
+      {
+        kind: "type", sel: '[data-testid="command-palette-input"]', text: "Capture", pressEnter: true,
+        caption: "Jump to the Capture Notebook",
+        afterCaption: "The notebook is paper — ink on parchment inside the dark room",
+        after: { sel: '[data-testid="notebook-paper-frame"]', state: "visible" }, afterHoldMs: 2600,
+      },
+      {
+        kind: "click", sel: '[data-testid="trace-tab"]', caption: "Every agent action leaves a trace",
+        after: { sel: '[data-testid="trace-view-runs"]', state: "visible" },
+      },
+      {
+        kind: "click", sel: '[data-testid="trace-view-runs"]', caption: "Runs view — one agent run as a span tree",
+        afterCaption: "Context, retrieval, writes — durations honest, failures kept as evidence",
+        after: { sel: '[data-testid="trace-runs"]', state: "visible" }, afterHoldMs: 2400,
+      },
+      {
+        kind: "click", sel: '[data-testid="people-trigger"]', caption: "62 people and agents, live",
+        afterCaption: "Role groups, live location, and Follow — see the room through anyone's eyes",
+        after: { sel: '[data-testid="people-panel"]', state: "visible" }, afterHoldMs: 2400,
+      },
+      { kind: "state", caption: "Diligence that shows its work", settleMs: 800, holdMs: 2000 },
     ],
   },
 ];
