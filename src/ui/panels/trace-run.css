@@ -1,0 +1,112 @@
+/* ============================================================================
+   Trace · Runs — one agent run as an OTel-style span tree. trc- namespace.
+   Lifted verbatim from design-reference/trace/trace.css (the AgentPrism-style
+   span waterfall specimen), with every color mapped onto existing tokens:
+     - kind hues: mission/synthesis → --accent-primary (terracotta = agent
+       provenance), context → --info (#5E6AD2 = specimen), privacy →
+       --text-muted, notebook → --success (#2E9E6B = specimen), retrieval /
+       spreadsheet keep the specimen values (#3E8FA8 / #1F8A5B — defined ONLY
+       here as local --trc-k custom props, straight from trace-ui.jsx KC map),
+       mcp → --warning-ink.
+     - status: error → --danger-*, retry → --warning-* (amber = needs review),
+       selection → --accent-tint/--accent-primary (terracotta = selection).
+   Honest-timing addition (not in the specimen): a span whose duration was not
+   recorded renders a dashed sequence tick (data-timing="sequence"), never an
+   invented bar width.
+   ============================================================================ */
+
+/* ── view toggle (Records ⇄ Runs) — same pill language as .trc-filter ─────── */
+.trc-views { display: flex; align-items: center; gap: 4px; padding: 2px 0 4px; }
+.trc-views button { padding: 4px 11px; border-radius: 999px; border: 1px solid transparent; background: transparent;
+  font-size: 11px; font-weight: 600; color: var(--text-tertiary); cursor: pointer; font-family: var(--font-mono); }
+.trc-views button:hover { color: var(--text-secondary); }
+.trc-views button[data-on="true"] { border-color: var(--line-strong); color: var(--text-primary); background: var(--bg-secondary); }
+
+/* ── panel + toolbar ───────────────────────────────────────────────────────── */
+.trc-panel { border: 1px solid var(--line-strong); border-radius: 14px; overflow: hidden;
+  background: var(--bg-primary); box-shadow: var(--shadow-lg); margin: 10px 12px; }
+.trc-toolbar { display: flex; align-items: center; gap: 10px; padding: 10px 14px;
+  border-bottom: 1px solid var(--line); background: color-mix(in srgb, var(--bg-secondary) 60%, transparent); flex-wrap: wrap; }
+.trc-run { display: inline-flex; align-items: center; gap: 7px; padding: 4px 10px; border-radius: 8px;
+  background: var(--bg-secondary); border: 1px solid var(--line); font-family: var(--font-mono);
+  font-size: 11px; font-weight: 600; color: var(--text-secondary); min-width: 0; }
+.trc-run b { color: var(--accent-ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 220px; }
+.trc-toolbar .grow { flex: 1; }
+.trc-filter { display: flex; align-items: center; gap: 4px; }
+.trc-filter button { padding: 4px 11px; border-radius: 999px; border: 1px solid transparent; background: transparent;
+  font-size: 11px; font-weight: 600; color: var(--text-tertiary); cursor: pointer; font-family: var(--font-mono); }
+.trc-filter button:hover { color: var(--text-secondary); }
+.trc-filter button.on { border-color: var(--line-strong); color: var(--text-primary); background: var(--bg-secondary); }
+.trc-filter button.errs.on { border-color: var(--danger-border); color: var(--danger-ink); }
+
+.trc-scroll { max-height: 480px; overflow-y: auto; padding: 8px 0 12px; }
+
+/* ── kind hues (specimen trace-ui.jsx KC map → tokens; see header note) ───── */
+.trc-kind[data-kind="mission"], .trc-bar[data-kind="mission"] { --trc-k: var(--accent-primary); }
+.trc-kind[data-kind="synthesis"], .trc-bar[data-kind="synthesis"] { --trc-k: var(--accent-primary); }
+.trc-kind[data-kind="context"], .trc-bar[data-kind="context"] { --trc-k: var(--info); }
+.trc-kind[data-kind="privacy"], .trc-bar[data-kind="privacy"] { --trc-k: var(--text-muted); }
+.trc-kind[data-kind="retrieval"], .trc-bar[data-kind="retrieval"] { --trc-k: #3E8FA8; }
+.trc-kind[data-kind="notebook"], .trc-bar[data-kind="notebook"] { --trc-k: var(--success); }
+.trc-kind[data-kind="spreadsheet"], .trc-bar[data-kind="spreadsheet"] { --trc-k: #1F8A5B; }
+.trc-kind[data-kind="mcp"], .trc-bar[data-kind="mcp"] { --trc-k: var(--warning-ink); }
+
+/* ── tree rows ─────────────────────────────────────────────────────────────── */
+.trc-tree { display: flex; flex-direction: column; }
+.trc-row { display: grid; grid-template-columns: minmax(220px, 320px) 1fr 64px; align-items: center; gap: 12px;
+  padding: 5px 14px; cursor: pointer; border-left: 2px solid transparent; background: transparent; border-top: 0;
+  border-right: 0; border-bottom: 0; text-align: left; width: 100%; }
+.trc-row:hover { background: var(--bg-hover); }
+.trc-row[data-sel="true"] { background: var(--accent-tint); border-left-color: var(--accent-primary); }
+.trc-row[data-status="error"] .trc-lbl { color: var(--danger-ink); }
+.trc-row:focus-visible { outline: 2px solid color-mix(in srgb, var(--accent-primary) 55%, transparent); outline-offset: -2px; }
+
+.trc-name { display: flex; align-items: center; gap: 7px; min-width: 0; }
+.trc-chev { flex: none; width: 18px; height: 18px; display: grid; place-items: center; border: 0; border-radius: 5px;
+  background: transparent; color: var(--text-tertiary); cursor: pointer; padding: 0; font-size: 9px; line-height: 1; }
+.trc-chev:hover { background: var(--bg-hover); color: var(--text-secondary); }
+.trc-chev.ghost { visibility: hidden; }
+.trc-kind { flex: none; font-family: var(--font-mono); font-size: 8.5px; font-weight: 800; letter-spacing: .05em;
+  text-transform: uppercase; padding: 1px 6px; border-radius: 5px; border: 1px solid;
+  color: var(--trc-k, var(--text-muted)); border-color: color-mix(in srgb, var(--trc-k, var(--text-muted)) 40%, transparent); }
+.trc-lbl { font-size: 12.5px; font-weight: 600; color: var(--text-secondary); white-space: nowrap; overflow: hidden;
+  text-overflow: ellipsis; min-width: 0; font-family: var(--font-mono); }
+.trc-row[data-sel="true"] .trc-lbl { color: var(--text-primary); }
+.trc-roll { margin-left: 6px; font-family: var(--font-mono); font-size: 10px; color: var(--text-tertiary); }
+.trc-st { flex: none; font-family: var(--font-mono); font-size: 9px; font-weight: 800; padding: 1px 6px; border-radius: 5px; }
+.trc-st.err { background: var(--danger-tint); color: var(--danger-ink); }
+.trc-st.retry { background: var(--warning-tint); color: var(--warning-ink); }
+
+.trc-track { position: relative; height: 14px; border-radius: 4px;
+  background: color-mix(in srgb, var(--line) 40%, transparent); overflow: hidden; }
+.trc-bar { position: absolute; top: 2px; bottom: 2px; border-radius: 3px;
+  background: color-mix(in srgb, var(--trc-k, var(--text-muted)) 55%, transparent); }
+.trc-bar[data-status="error"] { background: color-mix(in srgb, var(--danger-ink) 60%, transparent); }
+.trc-bar[data-status="retry"], .trc-bar[data-status="retryok"] {
+  background: repeating-linear-gradient(45deg,
+    color-mix(in srgb, var(--warning-ink) 55%, transparent) 0 4px,
+    color-mix(in srgb, var(--warning-ink) 25%, transparent) 4px 8px); }
+/* honest unknown-duration: a dashed sequence tick, never an invented width */
+.trc-bar[data-timing="sequence"] { width: 10px; background: transparent;
+  border: 1px dashed color-mix(in srgb, var(--trc-k, var(--text-muted)) 70%, transparent); }
+.trc-dur { font-family: var(--font-mono); font-size: 10.5px; color: var(--text-tertiary); text-align: right;
+  font-variant-numeric: tabular-nums; }
+
+/* ── expandable attr rows (inline span inspector) ──────────────────────────── */
+.trc-rowdetail { padding: 6px 14px 10px 44px; border-left: 2px solid var(--accent-primary);
+  background: color-mix(in srgb, var(--bg-secondary) 55%, transparent); }
+.trc-derr { padding: 8px 11px; border-radius: 9px; font-size: 11.5px; font-weight: 600; margin-bottom: 8px;
+  background: var(--danger-tint); border: 1px solid var(--danger-border); color: var(--danger-ink); }
+.trc-attrs { display: flex; flex-direction: column; }
+.trc-attr { display: flex; align-items: baseline; gap: 10px; padding: 5px 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--line) 55%, transparent); }
+.trc-attr:last-child { border-bottom: 0; }
+.trc-attr .k { flex: none; width: 110px; font-family: var(--font-mono); font-size: 10px; color: var(--text-tertiary); }
+.trc-attr .v { font-size: 12px; color: var(--text-secondary); min-width: 0; overflow-wrap: anywhere; font-family: var(--font-mono); }
+
+/* ── footer + empty state ──────────────────────────────────────────────────── */
+.trc-foot { display: flex; align-items: center; gap: 12px; padding: 9px 14px; border-top: 1px solid var(--line);
+  font-family: var(--font-mono); font-size: 10.5px; color: var(--text-tertiary); flex-wrap: wrap; }
+.trc-foot b { color: var(--text-secondary); }
+.trc-foot .grow { flex: 1; }
+.trc-empty { padding: 28px 20px; font-size: 12px; color: var(--text-muted); line-height: 1.5; }

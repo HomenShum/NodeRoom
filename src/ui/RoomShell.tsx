@@ -6,8 +6,9 @@
  */
 
 import { useEffect, useRef, useState, type CSSProperties } from "react";
-import { PanelLeft, Table2, PanelRight, Moon, Sun, LogOut, Link2, ShieldCheck, X, HelpCircle, Copy, Check, MessageCircle, Sparkles, SlidersHorizontal, Palette, Gauge, Play, ChevronLeft, ChevronRight, Crosshair } from "lucide-react";
+import { PanelLeft, Table2, PanelRight, Moon, Sun, LogOut, Link2, ShieldCheck, X, HelpCircle, Copy, Check, MessageCircle, Sparkles, SlidersHorizontal, Palette, Gauge, Play, ChevronLeft, ChevronRight, Crosshair, WifiOff } from "lucide-react";
 import { useStore, type ActorProof } from "../app/store";
+import { OFFLINE_QUEUE_MAX } from "../notifications/offlineQueue";
 import { Chat } from "./Chat";
 import { Artifact } from "./panels/Artifact";
 import { LeftRail } from "./LeftRail";
@@ -223,6 +224,11 @@ export function RoomShell({ roomId, me, onLeave, proof }: { roomId: string; me: 
   }
 
   const members = store.listMembers(roomId);
+  // Offline edit-hold state (Latency: "offline edits held, visible, never lost") — read from the
+  // store; memory mode omits the method, so the pill never renders there (honest absence).
+  const offline = store.offlineEditQueue?.();
+  const offlineHeld = offline?.held ?? 0;
+  const offlineConflicts = offline?.conflicts ?? 0;
   const inviteHref = inviteHrefForRoom(room.code);
   // Shared by the top-bar invite chip and the ⌘K palette ("Copy invite code").
   // Robust copy feedback: confirm regardless of whether the async clipboard write
@@ -438,6 +444,37 @@ export function RoomShell({ roomId, me, onLeave, proof }: { roomId: string; me: 
           <Link2 size={12} /> invite <b>{room.code}</b> {codeCopied ? <Check size={11} /> : <Copy size={11} />}
         </button>
         {store.mode === "convex" && <span className="r-tag" style={{ background: "var(--bg-secondary)", color: "var(--text-muted)" }}>● live convex</span>}
+        {/* Offline edit-hold pill — quiet amber (needs review) next to the sync tag. Held state
+            shows the bound honestly (dropped count included); after replay, conflicts that lost
+            their CAS race stay visible until dismissed — never a silent clobber. */}
+        {offline && (offlineHeld > 0 || offline.replaying) && (
+          <span
+            className="r-offline-pill"
+            data-testid="offline-pill"
+            role="status"
+            aria-live="polite"
+            title={`${offlineHeld} edit${offlineHeld === 1 ? "" : "s"} held locally while the connection is down; they replay automatically on reconnect through the same conflict-safe path.${offline.dropped > 0 ? ` ${offline.dropped} oldest edit${offline.dropped === 1 ? "" : "s"} dropped at the ${OFFLINE_QUEUE_MAX}-op bound.` : ""}`}
+          >
+            <WifiOff size={11} />
+            {offline.replaying
+              ? `replaying ${offlineHeld} held edit${offlineHeld === 1 ? "" : "s"}…`
+              : `${offlineHeld} edit${offlineHeld === 1 ? "" : "s"} held — offline`}
+            {offline.dropped > 0 && <b>· {offline.dropped} dropped</b>}
+          </span>
+        )}
+        {offline && offlineHeld === 0 && !offline.replaying && offlineConflicts > 0 && (
+          <button
+            type="button"
+            className="r-offline-pill"
+            data-testid="offline-pill"
+            title="Replayed offline edits lost their compare-and-swap race — the current values won; nothing was clobbered. Click to dismiss."
+            onClick={() => store.acknowledgeOfflineConflicts?.()}
+          >
+            <WifiOff size={11} />
+            {offlineConflicts} replayed edit{offlineConflicts === 1 ? "" : "s"} hit conflicts
+            <X size={11} />
+          </button>
+        )}
         <span className="r-spacer" />
         <div className="r-toggle-group">
           <button className="r-iconbtn" data-mobile-label="Room" data-on={String(show.left)} title="Room Binder" aria-label="Toggle Room Binder panel" aria-pressed={show.left} onClick={toggleBinder}><PanelLeft size={16} /></button>

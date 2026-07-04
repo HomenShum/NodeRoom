@@ -38,6 +38,9 @@ import { CAPTURE_NOTEBOOK_DOC } from "../engine/demoRoom";
 import type { Actor, Artifact, ArtifactMeta, ArtifactVisibility, Channel, Lock, Member, Message, Room, TraceEvent, AgentSession, Draft, ChangeOp, Proposal, ResearchRowInput } from "../engine/types";
 import type { UploadedArtifactInput, UploadedSourceFile } from "./uploadedArtifact";
 import type { ArtifactRef } from "../ui/artifactRefs";
+import { OfflineEditQueue, isNetworkError, type OfflineQueueSnapshot } from "../notifications/offlineQueue";
+
+export type { OfflineQueueSnapshot } from "../notifications/offlineQueue";
 
 /** The canonical Q3 variance the Room Agent computes (used by the no-keys /ask + collab). */
 const VARIANCE: Record<string, string> = { r_rev: "+24%", r_cogs: "+27.5%", r_gp: "+21.7%", r_ni: "+22.4%" };
@@ -282,6 +285,12 @@ export interface RoomStore {
   awareness(roomId: string, agentId?: string): { activeLocks: Lock[] };
   /** Apply a hand edit (CAS). Returns feedback so the UI can surface a conflict honestly. */
   applyEdit(args: { roomId: string; op: ChangeOp; actor: Actor }): Promise<EditFeedback>;
+  /** Offline edit-hold: live-mode CAS edits that failed on a TRANSPORT error (not a server answer)
+   *  are held (bounded, oldest-dropped-with-count) and replayed on reconnect through the same
+   *  applyEdit path. Optional — memory mode has no transport to lose, so it omits it. */
+  offlineEditQueue?(): OfflineQueueSnapshot;
+  /** Clear the replay-conflict tally after the shell has surfaced it to the user. */
+  acknowledgeOfflineConflicts?(): void;
   canUndo(roomId: string): boolean;
   undoLastEdit(roomId: string, actor: Actor): Promise<EditFeedback>;
   /** Send a chat message. Returns feedback so the UI can surface a failed send (and offer retry) instead of letting the optimistic bubble silently vanish. */
@@ -1460,6 +1469,57 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
       local.setQuery(api.artifacts.versions, versionsQ, curVersions.map((a) => String(a.id) === String(args.artifactId) ? { ...a, order, version: a.version + 1, updatedAt: Date.now() } : a) as typeof curVersions);
     }
   });
+  // ── Offline edit-hold (Latency: "offline edits held, visible, never lost") ──
+  // TRANSPORT failures (fetch/WebSocket down) hold the CAS op in a bounded in-memory +
+  // localStorage queue and replay it on reconnect through the SAME applyEdit path, so a
+  // replayed op that lost its CAS race surfaces as an honest conflict. Server ANSWERS
+  // (conflict/locked) return as { ok:false } results and are never queued. Note the Convex
+  // client also buffers mutations across short disconnects — when it does, our promise never
+  // rejects and this queue simply never engages (belt over its braces, not a second truth).
+  const offlineQueue = useMemo(
+    () => new OfflineEditQueue({ storageKey: `noderoom:offlineEdits:v1:${roomId}`, storage: typeof window === "undefined" ? null : window.localStorage }),
+    [roomId],
+  );
+  const [offlineSnap, setOfflineSnap] = useState<OfflineQueueSnapshot>(() => offlineQueue.snapshot());
+  useEffect(() => { setOfflineSnap(offlineQueue.snapshot()); }, [offlineQueue]);
+  /** The one CAS wire path — user edits AND offline replays go through here. */
+  const applyEditCore = useCallback(async (op: ChangeOp): Promise<EditFeedback> => {
+    const r = await applyCellEdit({ roomId: rid, artifactId: op.artifactId as never, elementId: op.elementId, kind: op.kind, value: op.value, baseVersion: op.baseVersion, proof });
+    return r.ok ? { ok: true, version: r.version } : { ok: false, reason: r.reason };
+  }, [applyCellEdit, rid, proof]);
+  const replayBackoffRef = useRef(0);
+  const replayTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const runOfflineReplay = useCallback(async () => {
+    if (offlineQueue.size() === 0 || offlineQueue.isReplaying()) return;
+    setOfflineSnap({ ...offlineQueue.snapshot(), replaying: true });
+    const result = await offlineQueue.replay((entry) => applyEditCore(entry.op));
+    setOfflineSnap(offlineQueue.snapshot());
+    if (result.stoppedByNetwork) {
+      // Still offline: retry with capped exponential backoff (2s → 30s) until the transport heals
+      // — the navigator "online" event is a hint, not a guarantee the socket is back.
+      replayBackoffRef.current = replayBackoffRef.current ? Math.min(replayBackoffRef.current * 2, 30_000) : 2_000;
+      if (replayTimerRef.current) clearTimeout(replayTimerRef.current);
+      replayTimerRef.current = setTimeout(() => { void runOfflineReplay(); }, replayBackoffRef.current);
+    } else {
+      replayBackoffRef.current = 0;
+    }
+  }, [offlineQueue, applyEditCore]);
+  const scheduleOfflineReplay = useCallback(() => {
+    if (replayTimerRef.current) clearTimeout(replayTimerRef.current);
+    if (!replayBackoffRef.current) replayBackoffRef.current = 2_000;
+    replayTimerRef.current = setTimeout(() => { void runOfflineReplay(); }, replayBackoffRef.current);
+  }, [runOfflineReplay]);
+  useEffect(() => {
+    const onOnline = () => { replayBackoffRef.current = 0; void runOfflineReplay(); };
+    window.addEventListener("online", onOnline);
+    // Holds hydrated from a previous session replay as soon as the room is live again.
+    if (typeof navigator === "undefined" || navigator.onLine !== false) void runOfflineReplay();
+    return () => {
+      window.removeEventListener("online", onOnline);
+      if (replayTimerRef.current) clearTimeout(replayTimerRef.current);
+    };
+  }, [runOfflineReplay]);
+
   const sendMsg = useMutation(api.messages.send).withOptimisticUpdate((local, args) => {
     const q = { roomId: args.roomId, channel: args.channel, requester: args.proof };
     const cur = local.getQuery(api.messages.list, q) ?? [];
@@ -1787,9 +1847,27 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
       awareness: (_id, aid) => ({ activeLocks: locks.filter((l) => l.holder.id !== aid) }),
       applyEdit: async ({ op }) => {
         const undo = makeUndoEntry(roomId, artifacts.find((a) => a.id === op.artifactId), op);
-        const r = await applyCellEdit({ roomId: rid, artifactId: op.artifactId as never, elementId: op.elementId, kind: op.kind, value: op.value, baseVersion: op.baseVersion, proof });
-        if (r.ok) pushUndo(undoStack.current, withAppliedVersion(undo, r.version));
-        return r.ok ? { ok: true, version: r.version } : { ok: false, reason: r.reason };
+        try {
+          const r = await applyEditCore(op);
+          if (r.ok) pushUndo(undoStack.current, withAppliedVersion(undo, r.version));
+          return r;
+        } catch (e) {
+          // TRANSPORT failure (or the browser says we're offline): hold the op for replay.
+          // Server answers (conflict/locked) came back as { ok:false } above — never queued.
+          const browserOffline = typeof navigator !== "undefined" && navigator.onLine === false;
+          if (browserOffline || isNetworkError(e)) {
+            offlineQueue.enqueue(roomId, op);
+            setOfflineSnap(offlineQueue.snapshot());
+            scheduleOfflineReplay();
+            return { ok: false, reason: "offline_held" };
+          }
+          return { ok: false, reason: e instanceof Error ? e.message : "edit_failed" };
+        }
+      },
+      offlineEditQueue: () => offlineSnap,
+      acknowledgeOfflineConflicts: () => {
+        offlineQueue.resetConflicts();
+        setOfflineSnap(offlineQueue.snapshot());
       },
       canUndo: (id) => (undoStack.current.get(id)?.length ?? 0) > 0,
       undoLastEdit: async (id) => {
@@ -2167,7 +2245,7 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
         return result.rowId ? { artifactId: targetArt.id as string, rowId: result.rowId as string, created: result.created } : undefined;
       },
     };
-  }, [data, metaArtifacts, elementsByArtifact, presenceByArtifact, pub, priv, traces, okfLens, runs, jobs, jobAttempts, jobDetail, proposals, passiveActivity, mergedCaptures, applyCellEdit, sendMsg, toggle, editMsg, resolveProposalMutation, addResearchRowsMutation, ensurePassiveResearchRowMutation, createArtifactMutation, uploadSourceFile, runSemanticConflictDrillMutation, runAgent, runPrivateAgent, createPrivateReplyStream, startAgentJob, startPublicAskJob, updatePresenceMutation, clearPresenceMutation, cancelFreeAutoJob, retryFreeAutoJob, dismissActivityMutation, researchActivityMutation, practiceActivityMutation, creditMode, creditBalanceQ, creditUsageQ, rid, roomId, proof, me.id, me.name]);
+  }, [data, metaArtifacts, elementsByArtifact, presenceByArtifact, pub, priv, traces, okfLens, runs, jobs, jobAttempts, jobDetail, proposals, passiveActivity, mergedCaptures, applyCellEdit, applyEditCore, offlineQueue, offlineSnap, scheduleOfflineReplay, sendMsg, toggle, editMsg, resolveProposalMutation, addResearchRowsMutation, ensurePassiveResearchRowMutation, createArtifactMutation, uploadSourceFile, runSemanticConflictDrillMutation, runAgent, runPrivateAgent, createPrivateReplyStream, startAgentJob, startPublicAskJob, updatePresenceMutation, clearPresenceMutation, cancelFreeAutoJob, retryFreeAutoJob, dismissActivityMutation, researchActivityMutation, practiceActivityMutation, creditMode, creditBalanceQ, creditUsageQ, rid, roomId, proof, me.id, me.name]);
 
   // E2E test seam: expose runCollab/runSemanticConflictDrill via window so tests can trigger
   // collaboration and conflict drills without the removed CollabBar buttons.
