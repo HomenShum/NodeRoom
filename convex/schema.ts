@@ -17,6 +17,7 @@
 import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
 import { refutationVerdictV } from "./lib";
+import { notificationEventsTable, watchesTable } from "./watchesTables";
 
 const actor = v.object({
   kind: v.union(v.literal("user"), v.literal("agent")),
@@ -1698,4 +1699,8 @@ export default defineSchema({
     .index("by_job", ["jobId"])
     .index("by_pack_id", ["packId"])
     .index("by_mode", ["mode", "createdAt"]),
+
+  // Watches + notifications (design: instant = mentions/watched rows; hourly = run digests; daily = rest).
+  watches: watchesTable,
+  notificationEvents: notificationEventsTable,
 });

@@ -1,0 +1,89 @@
+/* ============================================================================
+   artifact-receipts.css — receipts-layer apparatus for the work surface:
+   per-cell version history popover (+ inline word diff), stale freshness
+   chips, and Room-trace filter chips / run grouping.
+
+   Imported by src/ui/panels/Artifact.tsx ONLY (never styles.css). Token
+   discipline: every color comes from src/app/styles.css tokens (which mirror
+   design-reference/assets/colors_and_type.css). Treatments lifted from the
+   design source-of-truth specimens:
+   - .r-stale-chip     ← design-reference/scale/scale.css .sc-stale
+   - .r-trace-fchip    ← design-reference/scale/scale.css .sc-trhead button
+   - .r-hist-* popover ← the existing .r-cite-popover receipt family
+   Visual-language rules honored: data by default, apparatus on hover;
+   terracotta = provenance/selection, green = success ONLY, amber = review.
+   ========================================================================== */
+
+/* ── stale chip — "Cell states" board: error and stale are ALWAYS visible ── */
+.r-stale-chip {
+  display: inline-flex; align-items: center; gap: 3px; margin-left: 7px; padding: 2px 6px;
+  border-radius: 6px; background: color-mix(in srgb, var(--warning-ink) 13%, transparent);
+  color: var(--warning-ink); font-family: var(--font-mono); font-size: 9.5px; font-weight: 700;
+  white-space: nowrap; vertical-align: middle; flex: none;
+}
+
+/* ── per-cell history — hover-revealed apparatus beside the cite chip ── */
+.r-hist-wrap { position: absolute; top: 50%; right: 6px; z-index: 3; display: inline-flex; transform: translateY(-50%); }
+.r-hist-wrap.with-cite { right: 52px; }
+.r-hist-btn {
+  display: inline-flex; align-items: center; justify-content: center; width: 18px; height: 18px;
+  padding: 0; border-radius: 5px; border: 1px solid var(--line); background: var(--bg-primary);
+  color: var(--text-tertiary); cursor: pointer; opacity: 0;
+  transition: opacity .12s ease, color .12s ease, border-color .12s ease;
+}
+td.r-cell:hover .r-hist-btn,
+td.r-cell:focus-within .r-hist-btn,
+.r-hist-btn:focus-visible,
+.r-hist-wrap[data-open="true"] .r-hist-btn { opacity: 1; }
+.r-hist-btn:hover { color: var(--accent-ink); border-color: var(--accent-border); }
+.r-hist-btn:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+/* let the popover escape the cell clip (same trick as the cite popover) */
+.r-sheet td.r-cell:has(.r-hist-wrap[data-open="true"]) { overflow: visible; z-index: 22; }
+
+.r-hist-popover {
+  position: absolute; right: 0; top: 22px; z-index: 40; width: min(320px, calc(100vw - 34px));
+  padding: 8px; border: 1px solid var(--line-strong); border-radius: 10px; background: var(--bg-primary);
+  color: var(--text-secondary); box-shadow: var(--shadow-lg); white-space: normal; text-align: left;
+  display: flex; flex-direction: column; font-size: 11.5px; line-height: 1.35; cursor: default;
+  font-weight: 400;
+}
+.r-hist-head { display: flex; align-items: center; gap: 6px; padding: 2px 4px 6px; border-bottom: 1px solid var(--line); color: var(--text-primary); font-size: 11px; font-weight: 700; }
+.r-hist-head .r-hist-count { margin-left: auto; font-family: var(--font-mono); font-weight: 700; font-size: 9.5px; color: var(--text-tertiary); }
+.r-hist-empty, .r-hist-loading { padding: 8px 4px 4px; color: var(--text-tertiary); font-size: 11px; }
+.r-hist-row { display: flex; flex-direction: column; gap: 3px; padding: 6px 4px; border-bottom: 1px solid var(--line); }
+.r-hist-row:last-child { border-bottom: 0; padding-bottom: 2px; }
+.r-hist-line { display: flex; align-items: center; gap: 7px; min-width: 0; }
+.r-hist-vpill { flex: none; padding: 1px 6px; border-radius: 999px; border: 1px solid var(--line); font-family: var(--font-mono); font-size: 9.5px; font-weight: 700; color: var(--text-muted); background: var(--bg-secondary); }
+.r-hist-value { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: var(--font-mono); font-size: 11px; color: var(--text-primary); }
+.r-hist-meta { display: flex; align-items: center; gap: 7px; min-width: 0; font-family: var(--font-mono); font-size: 9.5px; color: var(--text-tertiary); }
+.r-hist-meta .r-hist-who { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.r-hist-meta .grow { flex: 1; }
+.r-hist-act { flex: none; padding: 2px 8px; border-radius: 6px; border: 1px solid var(--line); background: transparent; font-size: 10px; font-weight: 700; color: var(--text-muted); cursor: pointer; }
+.r-hist-act:hover:not(:disabled) { color: var(--text-primary); border-color: var(--line-strong); background: var(--bg-secondary); }
+.r-hist-act[data-on="true"] { color: var(--text-primary); border-color: var(--line-strong); background: var(--bg-secondary); }
+.r-hist-act.primary { color: var(--accent-ink); border-color: var(--accent-border); }
+.r-hist-act.primary:hover:not(:disabled) { background: var(--accent-tint); color: var(--accent-ink); }
+.r-hist-act:disabled { opacity: .55; cursor: not-allowed; }
+.r-hist-trunc { font-family: var(--font-mono); font-size: 9px; color: var(--warning-ink); }
+
+/* diff = two labeled rows; word-level highlights. No red/green diff colors:
+   amber = the words that were replaced (review), terracotta = current words
+   (provenance of what stands now). Green stays success-only. */
+.r-hist-diff { display: flex; flex-direction: column; gap: 2px; margin-top: 2px; padding: 6px; border-radius: 8px; background: var(--bg-secondary); }
+.r-hist-diff-row { display: flex; gap: 7px; align-items: baseline; min-width: 0; }
+.r-hist-diff-tag { flex: none; width: 30px; font-family: var(--font-mono); font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--text-tertiary); }
+.r-hist-diff-text { flex: 1; min-width: 0; font-family: var(--font-mono); font-size: 10.5px; color: var(--text-secondary); overflow-wrap: anywhere; }
+.r-hist-diff-row.old .chg { background: color-mix(in srgb, var(--warning-ink) 14%, transparent); color: var(--warning-ink); text-decoration: line-through; border-radius: 3px; }
+.r-hist-diff-row.next .chg { background: var(--accent-tint); color: var(--accent-ink); border-radius: 3px; }
+
+/* ── trace filters — specimen: design-reference/scale .sc-trhead ── */
+.r-trace-filters { display: flex; align-items: center; gap: 4px; padding: 4px 8px 6px; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+.r-trace-fchip { padding: 3px 10px; border-radius: 999px; border: 1px solid transparent; background: transparent; font-family: var(--font-mono); font-size: 10.5px; font-weight: 700; color: var(--text-tertiary); cursor: pointer; }
+.r-trace-fchip:hover { color: var(--text-secondary); }
+.r-trace-fchip[data-on="true"] { border-color: var(--line-strong); color: var(--text-primary); background: var(--bg-secondary); }
+.r-trace-fsep { width: 1px; height: 14px; background: var(--line); margin: 0 3px; flex: none; }
+.r-trace-fmeta { font-family: var(--font-mono); font-size: 10px; color: var(--text-tertiary); }
+
+/* grouped run bursts (actor + minute) */
+.r-trace-group { display: flex; flex-direction: column; }
+.r-trace-group-rows { margin-left: 18px; border-left: 2px solid var(--line); padding-left: 6px; }

@@ -11,8 +11,56 @@ import { nodeMemRecordingEnabled, nodeMemRoomConfigEnabled } from "./nodemem";
 // (once it scrolls past the awareness window). Scheduled, not inline, so it can never roll back a send.
 const nodememRecordEpisodeRef = makeFunctionReference<"mutation">("nodemem:recordEpisode") as unknown as Parameters<MutationCtx["scheduler"]["runAfter"]>[1];
 const NODEMEM_MAX_EPISODE_CHARS = 2000;
+// Mention notifications (design: "instant (mentions, watched rows)"): "@<memberName>" in a
+// room-visible message records a notifiable for that member. Scheduled + try/caught, same
+// contract as recordEpisode — a notification failure can never block or roll back the send.
+// convex/_generated lags until codegen (which DEPLOYS — documented landmine), hence the
+// same makeFunctionReference cast precedent as nodememRecordEpisodeRef above.
+const watchesRecordNotifiableRef = makeFunctionReference<"mutation">("watches:recordNotifiable") as unknown as Parameters<MutationCtx["scheduler"]["runAfter"]>[1];
+/** BOUND: members scanned for @name matches (rooms are small; a hostile 10k-member seed can't stall sends). */
+const MENTION_SCAN_MAX_MEMBERS = 200;
+/** BOUND: mention notifiables scheduled per message (an "@everyone-by-hand" wall stops fanning out here). */
+const MENTION_MAX_PER_MESSAGE = 20;
+/** BOUND: payload preview chars carried into the inbox row. */
+const MENTION_PREVIEW_CHARS = 140;
 import type { Id } from "./_generated/dataModel";
 import { actorProofV, actorV, requireActorCanUseChannel, requireActorInRoom, requireActorProof, type ActorValue } from "./lib";
+import { dedupeKeyFor } from "../src/notifications/tiers";
+
+/**
+ * Members whose "@name" appears in the text (case-insensitive, word-boundary
+ * after the name so "@May" never claims "@Maya"'s mention). Deterministic,
+ * pure, bounded: skips revoked members and the author (no self-mention spam),
+ * caps at MENTION_MAX_PER_MESSAGE. Exported for scenario tests.
+ */
+export function findMentionedMembers<T extends { _id: unknown; name: string; revokedAt?: number | null }>(
+  text: string,
+  members: readonly T[],
+  authorId: string,
+): T[] {
+  const lower = text.toLowerCase();
+  if (!lower.includes("@")) return [];
+  const hits: T[] = [];
+  for (const m of members) {
+    if (m.revokedAt != null) continue;
+    if (String(m._id) === authorId) continue;
+    const name = m.name.trim().toLowerCase();
+    if (!name) continue;
+    const needle = `@${name}`;
+    let idx = lower.indexOf(needle);
+    let matched = false;
+    while (idx !== -1) {
+      const after = lower[idx + needle.length];
+      if (after === undefined || !/[a-z0-9_]/.test(after)) { matched = true; break; }
+      idx = lower.indexOf(needle, idx + 1);
+    }
+    if (matched) {
+      hits.push(m);
+      if (hits.length >= MENTION_MAX_PER_MESSAGE) break;
+    }
+  }
+  return hits;
+}
 
 type SendArgs = {
   roomId: Id<"rooms">;
@@ -44,6 +92,32 @@ async function sendCore(ctx: MutationCtx, a: SendArgs) {
           rawText,
         });
       }
+    }
+    // Mention notifications — PUBLIC channel only (a private-lane "@name" must not leak
+    // activity to someone who cannot read the message) and never for system messages.
+    // Dedupe keys on (room, from, to), NOT per message: a 50-message spam burst from the
+    // same author collapses into ONE inbox row whose count grows (recordNotifiable clears
+    // readAt on repeats so genuine new mentions still re-surface as unread). Idempotent
+    // resends never reach this block (the clientMsgId early-return above).
+    if (a.channel === "public" && a.kind !== "system") {
+      try {
+        const members = await ctx.db
+          .query("members")
+          .withIndex("by_room", (q) => q.eq("roomId", a.roomId))
+          .take(MENTION_SCAN_MAX_MEMBERS);
+        const mentioned = findMentionedMembers(a.text, members, a.author.id);
+        const preview = a.text.trim().slice(0, MENTION_PREVIEW_CHARS);
+        for (const m of mentioned) {
+          await ctx.scheduler.runAfter(0, watchesRecordNotifiableRef, {
+            roomId: a.roomId,
+            kind: "mention",
+            actorId: a.author.id,
+            recipientId: String(m._id),
+            dedupeKey: dedupeKeyFor({ roomId: String(a.roomId), kind: "mention", from: a.author.id, to: String(m._id) }),
+            payload: { preview, from: a.author.name },
+          });
+        }
+      } catch { /* fire-and-forget: notifications must never block a send */ }
     }
     return messageId;
 }

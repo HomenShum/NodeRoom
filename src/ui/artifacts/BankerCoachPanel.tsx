@@ -1,6 +1,9 @@
 import { useMemo, useState, type ReactNode } from "react";
-import { FileCheck2, MessageSquareWarning, Send, TrendingUp, Sparkles, ArrowUpRight, ChevronRight } from "lucide-react";
-import { useStore, type OkfTraceLensTelemetry } from "../../app/store";
+import { FileCheck2, FileDown, MessageSquareWarning, Send, TrendingUp, Sparkles, ArrowUpRight, ChevronRight } from "lucide-react";
+import { useAction } from "convex/react";
+import type { FunctionReference } from "convex/server";
+import { api } from "../../../convex/_generated/api";
+import { useStore, type ActorProof, type OkfTraceLensTelemetry } from "../../app/store";
 import { buildBankerCoachPacket } from "../bankerCoachPacket";
 import { focusStage } from "../stageFocus";
 import { BankerCoachCueArtifact } from "./BankerCoachCueArtifact";
@@ -9,6 +12,67 @@ import { ReviewRoundUpdateArtifact } from "./ReviewRoundUpdateArtifact";
 import { RunwayMilestoneChartArtifact } from "./RunwayMilestoneChartArtifact";
 
 type CoachTab = "evidence" | "coach" | "review" | "handoff";
+
+type EvidenceBundleResult =
+  | { ok: true; artifactIds: string[]; manifestHash: string }
+  | { ok: false; reason: string };
+
+// convex/_generated lags until the next codegen — which must NOT be run
+// casually: `npx convex codegen` against a configured cloud deployment
+// DEPLOYS schema+functions (documented gotcha). Same cast precedent as
+// Landing.tsx's landingMetricsQuery.
+const buildEvidenceBundleRef = (api as unknown as {
+  auditBundle: {
+    buildEvidenceBundle: FunctionReference<
+      "action",
+      "public",
+      { roomId: string; artifactId: string; requester: ActorProof },
+      EvidenceBundleResult
+    >;
+  };
+}).auditBundle.buildEvidenceBundle;
+
+/**
+ * "Export evidence bundle" — the audit deliverable (CSV + sources + trace +
+ * signed manifest) as downloadable room files. Mounted ONLY in live (convex)
+ * mode: memory mode has no ConvexProvider, so useAction would throw
+ * (Landing.tsx's live-only-mount precedent).
+ */
+function ExportEvidenceBundleButton({ roomId, artifactId, requester, onOpenArtifact }: {
+  roomId: string;
+  artifactId: string;
+  requester: ActorProof;
+  onOpenArtifact: (artifactId: string, options?: { split?: boolean; elementId?: string }) => boolean | void;
+}) {
+  const [state, setState] = useState<"idle" | "busy" | "error">("idle");
+  const build = useAction(buildEvidenceBundleRef);
+  return (
+    <button
+      type="button"
+      className="r-mini-btn"
+      data-testid="export-evidence-bundle"
+      disabled={state === "busy"}
+      title="Export a signed evidence bundle — sheet CSV, evidence sources, trace excerpt, and a hashed manifest — as downloadable room files"
+      onClick={() => {
+        setState("busy");
+        void build({ roomId, artifactId, requester })
+          .then((res) => {
+            if (!res.ok) {
+              setState("error");
+              return;
+            }
+            setState("idle");
+            // The manifest (last part) is the receipt that names every other part.
+            const manifestId = res.artifactIds[res.artifactIds.length - 1];
+            if (manifestId) onOpenArtifact(manifestId, { split: true });
+          })
+          .catch(() => setState("error"));
+      }}
+    >
+      <FileDown size={12} /> {state === "busy" ? "Exporting…" : state === "error" ? "Export failed — retry" : "Export evidence bundle"}
+    </button>
+  );
+}
 
 /**
  * CoachCards — the banker coach surfaced as quiet, clickable TRACE CARDS inside the chat stream
@@ -162,6 +226,25 @@ export function BankerCoachPanel({
             >
               <Sparkles size={12} /> Draft into notebook
             </button>
+          );
+        })()}
+        {(() => {
+          // Reveal-on-relevance: audit export only when the room has a sheet to
+          // bundle, and only live — memory mode has no auditBundle action. The
+          // requester proof rides the store's only proof-bearing surface
+          // (privateStreamAccess returns the session ActorProof in convex mode,
+          // null in memory mode); RoomShell does not thread proof into the coach.
+          if (store.mode !== "convex") return null;
+          const sheet = artifacts.find((a) => a.kind === "sheet");
+          const requester = store.privateStreamAccess("evidence-bundle-export")?.requester;
+          if (!sheet || !requester) return null;
+          return (
+            <ExportEvidenceBundleButton
+              roomId={roomId}
+              artifactId={sheet.id}
+              requester={requester}
+              onOpenArtifact={onOpenArtifact}
+            />
           );
         })()}
       </div>

@@ -7,12 +7,14 @@
 import { Fragment, useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { useEditor, EditorContent, EditorProvider } from "@tiptap/react";
 import { useQuery, useMutation } from "convex/react";
+import type { FunctionReference } from "convex/server";
+import "./artifact-receipts.css";
 import { useTiptapSync } from "@convex-dev/prosemirror-sync/tiptap";
 import { NOTEBOOK_EXTENSIONS } from "../../notebook/extensions";
 import { api } from "../../../convex/_generated/api";
 import {
   Table2, FileText, StickyNote, Users, GitMerge, RotateCcw, History, Search, BookOpen, Home, ListChecks,
-  Lock, Unlock, Ban, Pencil, Plus, Check, AlertTriangle, Eye, Circle, ChevronRight, Download, Trash2, Undo2, X, Columns2, MoreHorizontal, Mail, Hash, Layers, Linkedin, Activity, Share2, type LucideIcon,
+  Lock, Unlock, Ban, Pencil, Plus, Check, AlertTriangle, Eye, Circle, ChevronRight, Download, Trash2, Undo2, X, Columns2, MoreHorizontal, Mail, Hash, Layers, Linkedin, Activity, Share2, Clock3, type LucideIcon,
   Sparkles, Folder, Briefcase, Package, File as FileIcon,
 } from "lucide-react";
 import { useStore, type ActorProof, type RoomStore, type EditFeedback, type PresenceClaim } from "../../app/store";
@@ -287,11 +289,11 @@ function ArtifactSurface({ roomId, me, proof, artId, onArt, style, surfaceKey = 
           {activeTab === "wiki" && wiki && <Wiki roomId={roomId} art={wiki} onOpenArtifact={openArtifact} />}
           {activeTab === "brief" && brief && <TodaysBrief roomId={roomId} onOpenArtifact={openArtifact} />}
           {activeTab === "sheet" && sheet && (sheet.title === "Q3 variance"
-            ? <Sheet roomId={roomId} me={me} art={sheet} onError={(f) => setEditErr(editErrorMsg(f))} />
-            : <GenericSheet roomId={roomId} me={me} art={sheet} onError={(f) => setEditErr(editErrorMsg(f))} />)}
+            ? <Sheet roomId={roomId} me={me} art={sheet} proof={proof} onError={(f) => setEditErr(editErrorMsg(f))} />
+            : <GenericSheet roomId={roomId} me={me} art={sheet} proof={proof} onError={(f) => setEditErr(editErrorMsg(f))} />)}
           {/* Research = an empty NAMED-COLUMN grid the agent populates (matches the prototype's structured
               grid, not a raw A1 sheet). Rendered by GenericSheet — no separate <Research> renderer. */}
-          {activeTab === "research" && research && <GenericSheet roomId={roomId} me={me} art={research} onError={(f) => setEditErr(editErrorMsg(f))} />}
+          {activeTab === "research" && research && <GenericSheet roomId={roomId} me={me} art={research} proof={proof} onError={(f) => setEditErr(editErrorMsg(f))} />}
           {activeTab === "note" && note && (NOTEBOOK_SYNC_ENABLED && proof ? <SyncedNote roomId={roomId} me={me} proof={proof} art={note} /> : <Note roomId={roomId} me={me} proof={proof} art={note} />)}
           {activeTab === "wall" && wall && <Wall roomId={roomId} me={me} art={wall} onOpenArtifact={onArt} />}
         </>
@@ -915,6 +917,9 @@ const editErrorMsg = (f: EditFeedback) =>
     : f.reason === "conflict" ? "That cell changed since you opened it — your edit was reverted. Re-open it to see the new value."
     : f.reason === "locked" ? "That cell is locked by an agent right now."
       : f.reason === "pending_approval" ? "That agent edit is waiting for host approval."
+      // Restore-specific honest failures (convex/elementHistory.ts restoreElementVersion):
+      : f.reason === "version_not_found" ? "That version is no longer in history — retention pruned it."
+      : f.reason === "snapshot_truncated" ? "That snapshot was truncated for display and cannot be restored."
       : "Edit could not be applied.";
 function lockedByOther(store: RoomStore, artId: string, elementId: string, me: Actor) {
   const lk = store.lockFor(artId, elementId);
@@ -1299,6 +1304,290 @@ export function EvidenceReceipt({ payload, compact = false, checkedAt }: { paylo
   );
 }
 
+// --- Per-cell version history + restore (the receipts layer's recovery path) --
+// Reads the `elementVersions` VERSION LOG through convex/elementHistory.ts:
+// listElementVersions (proof-gated, bounded) + restoreElementVersion (a NORMAL
+// CAS write through applyCellEditCore — conflicts surface honestly via the
+// existing EditFeedback path). Live (convex) mode only: the in-memory engine
+// keeps no history, so memory mode hides the affordance entirely — honest
+// absence, never fake rows. Pure helpers exported for tests/cellHistoryUi.test.tsx.
+
+// convex/_generated lags until the next codegen — which must NOT be run
+// casually: `npx convex codegen` against a configured cloud deployment DEPLOYS
+// schema+functions (documented gotcha). Same cast precedent as
+// src/ui/Landing.tsx landingMetricsQuery / tests/elementVersions.test.ts.
+type ElementVersionRow = {
+  _id: string;
+  version: number;
+  value: unknown;
+  truncated: boolean;
+  /** The actor whose applied write superseded this version (who changed it away). */
+  updatedBy: Actor;
+  kind: "set" | "create" | "delete";
+  ts: number;
+};
+type RestoreOutcome = { ok: true; version?: number } | { ok: false; reason: string; truncated?: boolean };
+type ElementHistoryListArgs = { roomId: string; artifactId: string; elementId: string; requester: ActorProof; limit?: number };
+type ElementHistoryRestoreArgs = { roomId: string; artifactId: string; elementId: string; requester: ActorProof; version: number };
+const elementHistoryApi = (api as unknown as {
+  elementHistory: {
+    listElementVersions: FunctionReference<"query", "public", ElementHistoryListArgs, ElementVersionRow[]>;
+    restoreElementVersion: FunctionReference<"mutation", "public", ElementHistoryRestoreArgs, RestoreOutcome>;
+  };
+}).elementHistory;
+
+export const CELL_HISTORY_LIMIT = 8; // BOUND: popover shows the newest 8 (server caps reads at 50)
+const CELL_HISTORY_PREVIEW_MAX = 60;
+export const CELL_DIFF_MAX_WORDS = 160; // BOUND: word-level LCS is O(n*m); clamp both sides
+
+/** Live-only gate: history exists only where the elementVersions log does (Convex). */
+export function cellHistoryEnabled(mode: "memory" | "convex", proof: ActorProof | undefined): boolean {
+  return mode === "convex" && !!proof;
+}
+
+/** Bounded one-line preview of a logged value (objects render via displayCellValue). */
+export function historyValuePreview(value: unknown): string {
+  const text = displayCellValue(value).replace(/\s+/g, " ").trim();
+  if (!text) return "—";
+  return text.length > CELL_HISTORY_PREVIEW_MAX ? `${text.slice(0, CELL_HISTORY_PREVIEW_MAX - 1).trimEnd()}…` : text;
+}
+
+/** Compact relative time for history rows ("just now" / "5m" / "3h" / "4d"). */
+export function historyTimeAgo(ts: number, now: number = Date.now()): string {
+  if (!Number.isFinite(ts) || ts <= 0) return "";
+  const delta = Math.max(0, now - ts);
+  if (delta < 60_000) return "just now";
+  const mins = Math.floor(delta / 60_000);
+  if (mins < 60) return `${mins}m ago`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `${hours}h ago`;
+  return `${Math.floor(hours / 24)}d ago`;
+}
+
+export type DiffSegment = { text: string; changed: boolean };
+
+/**
+ * Word-level two-row diff (no deps): LCS over whitespace-split tokens, both
+ * sides clamped to CELL_DIFF_MAX_WORDS so hostile megacell values stay O(bounded).
+ * `old.changed` = word was replaced/removed; `next.changed` = word is new.
+ */
+export function wordDiffSegments(oldText: string, nextText: string): { old: DiffSegment[]; next: DiffSegment[] } {
+  const a = oldText.split(/\s+/).filter(Boolean).slice(0, CELL_DIFF_MAX_WORDS);
+  const b = nextText.split(/\s+/).filter(Boolean).slice(0, CELL_DIFF_MAX_WORDS);
+  const dp: number[][] = Array.from({ length: a.length + 1 }, () => new Array<number>(b.length + 1).fill(0));
+  for (let i = a.length - 1; i >= 0; i--) {
+    for (let j = b.length - 1; j >= 0; j--) {
+      dp[i][j] = a[i] === b[j] ? dp[i + 1][j + 1] + 1 : Math.max(dp[i + 1][j], dp[i][j + 1]);
+    }
+  }
+  const oldChanged = new Array<boolean>(a.length).fill(true);
+  const nextChanged = new Array<boolean>(b.length).fill(true);
+  let i = 0, j = 0;
+  while (i < a.length && j < b.length) {
+    if (a[i] === b[j]) { oldChanged[i] = false; nextChanged[j] = false; i++; j++; }
+    else if (dp[i + 1][j] >= dp[i][j + 1]) i++;
+    else j++;
+  }
+  return {
+    old: a.map((text, k) => ({ text, changed: oldChanged[k] })),
+    next: b.map((text, k) => ({ text, changed: nextChanged[k] })),
+  };
+}
+
+/** Inline two-row compare: the logged version's value vs the current value. */
+export function CellDiff({ version, oldValue, currentValue }: { version: number; oldValue: string; currentValue: string }) {
+  const d = wordDiffSegments(oldValue, currentValue);
+  const row = (segments: DiffSegment[]) =>
+    segments.length === 0
+      ? <span className="nullcell">—</span>
+      : segments.map((s, k) => <Fragment key={k}>{k > 0 ? " " : ""}<span className={s.changed ? "chg" : undefined}>{s.text}</span></Fragment>);
+  return (
+    <span className="r-hist-diff" data-testid="cell-diff">
+      <span className="r-hist-diff-row old"><span className="r-hist-diff-tag">v{version}</span><span className="r-hist-diff-text">{row(d.old)}</span></span>
+      <span className="r-hist-diff-row next"><span className="r-hist-diff-tag">now</span><span className="r-hist-diff-text">{row(d.next)}</span></span>
+    </span>
+  );
+}
+
+/**
+ * CellHistory — hover-revealed clock glyph in the cell corner (design "Cell
+ * states" board: apparatus appears on hover) opening a popover of recent
+ * versions with per-row Restore + diff. Any room member may restore (the
+ * mutation itself is proof-gated); a restore is a NEW CAS write, so conflicts
+ * come back as honest EditFeedback — never a silent history rewrite.
+ * Mounted in LIVE mode only (see cellHistoryEnabled).
+ */
+export function CellHistory({ roomId, artifactId, elementId, requester, currentValue, shifted, onFeedback }: {
+  roomId: string;
+  artifactId: string;
+  elementId: string;
+  requester: ActorProof;
+  currentValue: string;
+  /** True when the cite chip occupies the cell corner — shift left of it. */
+  shifted?: boolean;
+  onFeedback?: (f: EditFeedback) => void;
+}) {
+  // Perf: a sheet page can render thousands of cells. The closed state costs
+  // one useState + a button; the Convex hooks live in CellHistoryPopover and
+  // mount only while a popover is open.
+  const [open, setOpen] = useState(false);
+  const wrapRef = useRef<HTMLSpanElement>(null);
+  return (
+    <span ref={wrapRef} className={"r-hist-wrap" + (shifted ? " with-cite" : "")} data-open={String(open)}>
+      {/* stopPropagation: the glyph must not select/edit the cell underneath. */}
+      <button
+        type="button"
+        className="r-hist-btn"
+        data-testid="cell-history-btn"
+        aria-label="Cell version history"
+        aria-expanded={open}
+        title="Version history — every applied write is logged; restore re-applies as a new version"
+        onClick={(e) => { e.stopPropagation(); setOpen((o) => !o); }}
+        onDoubleClick={(e) => e.stopPropagation()}
+      >
+        <Clock3 size={10} />
+      </button>
+      {open && (
+        <CellHistoryPopover
+          roomId={roomId}
+          artifactId={artifactId}
+          elementId={elementId}
+          requester={requester}
+          currentValue={currentValue}
+          wrapRef={wrapRef}
+          onClose={() => setOpen(false)}
+          onFeedback={onFeedback}
+        />
+      )}
+    </span>
+  );
+}
+
+function CellHistoryPopover({ roomId, artifactId, elementId, requester, currentValue, wrapRef, onClose, onFeedback }: {
+  roomId: string;
+  artifactId: string;
+  elementId: string;
+  requester: ActorProof;
+  currentValue: string;
+  wrapRef: React.RefObject<HTMLSpanElement | null>;
+  onClose: () => void;
+  onFeedback?: (f: EditFeedback) => void;
+}) {
+  const [diffFor, setDiffFor] = useState<number | null>(null);
+  const [busyVersion, setBusyVersion] = useState<number | null>(null);
+  const rows = useQuery(elementHistoryApi.listElementVersions, { roomId, artifactId, elementId, requester, limit: CELL_HISTORY_LIMIT });
+  const restore = useMutation(elementHistoryApi.restoreElementVersion);
+  useEffect(() => {
+    const onDown = (e: MouseEvent) => {
+      if (wrapRef.current && !wrapRef.current.contains(e.target as Node)) onClose();
+    };
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    document.addEventListener("mousedown", onDown);
+    document.addEventListener("keydown", onKey);
+    return () => { document.removeEventListener("mousedown", onDown); document.removeEventListener("keydown", onKey); };
+  }, [wrapRef, onClose]);
+  const doRestore = async (version: number) => {
+    setBusyVersion(version);
+    try {
+      const res = await restore({ roomId, artifactId, elementId, requester, version });
+      if (res.ok) onClose();
+      else onFeedback?.({ ok: false, reason: res.reason });
+    } catch {
+      onFeedback?.({ ok: false, reason: "restore_failed" });
+    } finally {
+      setBusyVersion(null);
+    }
+  };
+  return (
+    <span className="r-hist-popover" data-testid="cell-history-popover" role="dialog" aria-label={`Version history for ${elementId}`} onClick={(e) => e.stopPropagation()} onDoubleClick={(e) => e.stopPropagation()}>
+      <span className="r-hist-head"><History size={11} /> Cell history<span className="r-hist-count">{rows ? `${rows.length} version${rows.length === 1 ? "" : "s"}` : ""}</span></span>
+      {rows === undefined && <span className="r-hist-loading">Loading history…</span>}
+      {rows && rows.length === 0 && <span className="r-hist-empty" data-testid="cell-history-empty">No prior versions — this cell hasn't been overwritten yet.</span>}
+      {rows?.map((row) => (
+        <span key={row._id} className="r-hist-row" data-testid="cell-history-row">
+          <span className="r-hist-line">
+            <span className="r-hist-vpill">v{row.version}</span>
+            <span className="r-hist-value" title={historyValuePreview(row.value)}>{historyValuePreview(row.value)}</span>
+          </span>
+          <span className="r-hist-meta">
+            <span className="r-hist-who" title={`replaced by ${row.updatedBy.name}`}>→ {row.updatedBy.name}</span>
+            <span>{historyTimeAgo(row.ts)}</span>
+            {row.truncated && <span className="r-hist-trunc" title="Snapshot was cut at the size cap — display only, never restorable.">truncated</span>}
+            <span className="grow" />
+            <button
+              type="button"
+              className="r-hist-act"
+              data-testid="cell-history-diff-toggle"
+              data-on={String(diffFor === row.version)}
+              onClick={() => setDiffFor((v) => (v === row.version ? null : row.version))}
+            >
+              diff
+            </button>
+            <button
+              type="button"
+              className="r-hist-act primary"
+              data-testid="cell-history-restore"
+              disabled={row.truncated || busyVersion !== null}
+              title={row.truncated ? "Truncated snapshot — display only, cannot be restored." : `Restore v${row.version} as a new version`}
+              onClick={() => void doRestore(row.version)}
+            >
+              {busyVersion === row.version ? "Restoring…" : "Restore"}
+            </button>
+          </span>
+          {diffFor === row.version && <CellDiff version={row.version} oldValue={displayCellValue(row.value)} currentValue={currentValue} />}
+        </span>
+      ))}
+    </span>
+  );
+}
+
+// --- Stale freshness chip (design "Cell states": always-visible amber "3d") --
+export const STALE_AFTER_MS = 72 * 3_600_000; // recheck due after 72h
+
+/** "3d"/"12d" label once a checked source is older than 72h; undefined = fresh/invalid. */
+export function staleLabelFor(checkedAt: number | undefined, now: number = Date.now()): string | undefined {
+  if (typeof checkedAt !== "number" || !Number.isFinite(checkedAt) || checkedAt <= 0) return undefined;
+  const age = now - checkedAt;
+  if (age <= STALE_AFTER_MS) return undefined;
+  return `${Math.floor(age / 86_400_000)}d`;
+}
+
+/**
+ * Staleness applies ONLY to cells with checked-source semantics: an explicit
+ * checkedAt/retrievedAt carried by the payload/evidence wins; otherwise a cell
+ * WITH evidence falls back to the element's updatedAt (the same timestamp the
+ * receipt popover already labels "checked HH:MM"). Cells without evidence have
+ * no freshness contract → undefined (render nothing; never fake staleness).
+ */
+export function cellStaleness(payload: CellPayload | null, updatedAt: number | undefined, now: number = Date.now()): string | undefined {
+  if (!payload?.evidence?.length) return undefined;
+  const explicit: number[] = [];
+  const readTs = (o: unknown) => {
+    if (!o || typeof o !== "object") return;
+    const rec = o as Record<string, unknown>;
+    for (const key of ["checkedAt", "retrievedAt"]) {
+      const v = rec[key];
+      if (typeof v === "number" && Number.isFinite(v) && v > 0) explicit.push(v);
+    }
+  };
+  readTs(payload);
+  for (const item of payload.evidence) readTs(item);
+  // Most recent explicit check wins; otherwise the commit timestamp stands in.
+  const checkedAt = explicit.length ? Math.max(...explicit) : updatedAt;
+  return staleLabelFor(checkedAt, now);
+}
+
+/** Amber mono chip lifted from design-reference/scale .sc-stale ("stale (recheck due)"). */
+export function StaleChip({ label }: { label: string | undefined }) {
+  if (!label) return null;
+  return (
+    <span className="r-stale-chip" data-testid="stale-chip" title={`Source checked ${label} ago — recheck due (older than 72h)`}>
+      <History size={9} />
+      {label}
+    </span>
+  );
+}
+
 function renderGenericCellContent(col: string, value: string): ReactNode {
   const trimmed = value.trim();
   if (!trimmed) return <span className="nullcell">-</span>;
@@ -1334,8 +1623,11 @@ function renderGenericCellContent(col: string, value: string): ReactNode {
   return <span className={"r-cell-value" + (urlLike ? " r-cell-url" : "")} title={trimmed}>{trimmed}</span>;
 }
 
-function GenericSheet({ roomId, me, art, onError }: { roomId: string; me: Actor; art: Art; onError?: (f: EditFeedback) => void }) {
+function GenericSheet({ roomId, me, art, proof, onError }: { roomId: string; me: Actor; art: Art; proof?: ActorProof; onError?: (f: EditFeedback) => void }) {
   const store = useStore();
+  // Per-cell version history is LIVE-mode-only: the in-memory engine keeps no
+  // elementVersions log, so memory mode hides the affordance (honest absence).
+  const historyOn = cellHistoryEnabled(store.mode, proof);
   const [pages, setPages] = useState(1);
   const [sel, setSel] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState<SheetStatusFilter>("any");
@@ -1547,8 +1839,21 @@ function GenericSheet({ roomId, me, art, onError }: { roomId: string; me: Actor;
                         ) : (
                           <>
                             {renderGenericCellContent(col, value)}
+                            {/* Stale chip: always visible (never hover-gated) when a checked source is >72h old; cells without evidence render nothing. */}
+                            {!art.meta?.excelGrid && <StaleChip label={cellStaleness(payload, el?.updatedAt)} />}
                             {showReceipt && <EvidenceReceipt payload={payload} compact={isScaleSheet && !locked && sel !== id} checkedAt={el?.updatedAt} />}
                             {locked && <span className="lockbadge" data-testid="grid-lock-badge" title="Locked by NodeAgent"><Lock size={9} />NA</span>}
+                            {historyOn && proof && (
+                              <CellHistory
+                                roomId={roomId}
+                                artifactId={art.id}
+                                elementId={id}
+                                requester={proof}
+                                currentValue={value}
+                                shifted={!!(showReceipt && payload?.evidence?.length)}
+                                onFeedback={onError}
+                              />
+                            )}
                           </>
                         )}
                       </td>
@@ -1813,8 +2118,9 @@ function prettyCol(col: string) {
   return col.replace(/_/g, " ");
 }
 
-function Sheet({ roomId, me, art, onError }: { roomId: string; me: Actor; art: Art; onError: (f: EditFeedback) => void }) {
+function Sheet({ roomId, me, art, proof, onError }: { roomId: string; me: Actor; art: Art; proof?: ActorProof; onError: (f: EditFeedback) => void }) {
   const store = useStore();
+  const historyOn = cellHistoryEnabled(store.mode, proof);
   const rows = rowIdsOf(art);
   const now = Date.now();
   const proposals = store.listProposals(roomId).filter((p) => p.artifactId === art.id);
@@ -1867,16 +2173,24 @@ function Sheet({ roomId, me, art, onError }: { roomId: string; me: Actor; art: A
                     <td className="num"><span className="r-val-num">{cellVal(art, rid, "q3")}</span></td>
                     <td className={vCls} style={presenceStyle(vPresence)} data-cell-key={vId} data-element-id={vId} data-evidence-class={classifyEvidence(vPayload)} data-testid="sheet-cell" data-presence-mode={vPresence?.mode} onClick={() => touchPresence(store, roomId, art.id, me, vId, "focus", selfPresenceColor)}>
                       <EditableCell key={vId + ":" + (vEl?.version ?? 0)} value={String(vEl?.value ?? "")} disabled={!!lk || drafting || !!vProposal} align="right" onEditStart={() => touchPresence(store, roomId, art.id, me, vId, "edit", selfPresenceColor)} onEditEnd={() => store.clearPresence({ roomId, artifactId: art.id, targetKind: "cell", targetId: vId, mode: "edit", actor: me })} onCommit={(s) => doCommit(vId, s)} />
+                      <StaleChip label={cellStaleness(vPayload, vEl?.updatedAt)} />
                       {!lk && <EvidenceReceipt payload={vPayload} checkedAt={vEl?.updatedAt} />}
                       {lk && <span className="lockbadge"><Lock size={9} /> NA</span>}
                       {drafting && <span className="lockbadge"><Pencil size={9} /> draft</span>}
+                      {historyOn && proof && !lk && (
+                        <CellHistory roomId={roomId} artifactId={art.id} elementId={vId} requester={proof} currentValue={displayCellValue(vEl?.value)} shifted={!!vPayload?.evidence?.length} onFeedback={onError} />
+                      )}
                       {vProposal && <InlineProposal roomId={roomId} me={me} proposal={vProposal} onResolved={(f) => { if (!f.ok) onError(f); }} />}
                       {personalEditor && <span className="r-prov-dot" style={{ background: personalEditor.color }} title={`edited by ${personalEditor.name}'s agent`} />}
                       {vPresence && <span className="presencebadge" data-testid="presence-flag">{presenceLabel(vPresence)}</span>}
                     </td>
                     <td className={"r-cell" + (nPresence ? ` presence presence-${nPresence.mode}` : "") + (nProposal ? " proposed" : "")} style={presenceStyle(nPresence)} data-cell-key={nId} data-element-id={nId} data-evidence-class={classifyEvidence(nPayload)} data-testid="sheet-cell" data-presence-mode={nPresence?.mode} onClick={() => touchPresence(store, roomId, art.id, me, nId, "focus", selfPresenceColor)}>
                       <EditableCell key={nId + ":" + (nEl?.version ?? 0)} value={String(nEl?.value ?? "")} disabled={!!lk || !!nProposal} addLabel="note" onEditStart={() => touchPresence(store, roomId, art.id, me, nId, "edit", selfPresenceColor)} onEditEnd={() => store.clearPresence({ roomId, artifactId: art.id, targetKind: "cell", targetId: nId, mode: "edit", actor: me })} onCommit={(s) => doCommit(nId, s)} />
+                      <StaleChip label={cellStaleness(nPayload, nEl?.updatedAt)} />
                       <EvidenceReceipt payload={nPayload} checkedAt={nEl?.updatedAt} />
+                      {historyOn && proof && (
+                        <CellHistory roomId={roomId} artifactId={art.id} elementId={nId} requester={proof} currentValue={displayCellValue(nEl?.value)} shifted={!!nPayload?.evidence?.length} onFeedback={onError} />
+                      )}
                       {nProposal && <InlineProposal roomId={roomId} me={me} proposal={nProposal} onResolved={(f) => { if (!f.ok) onError(f); }} />}
                       {nPresence && <span className="presencebadge" data-testid="presence-flag">{presenceLabel(nPresence)}</span>}
                     </td>
@@ -2770,13 +3084,71 @@ function Sticky({ roomId, me, artId, id, v, locked, author, onDelete, onError }:
   );
 }
 
-function TraceStrip({ roomId, me }: { roomId: string; me: Actor }) {
+// --- Trace filters + run grouping (Scale systems: the 400-event room) --------
+// Pure helpers exported for tests/cellHistoryUi.test.tsx — filtering happens
+// BEFORE the 40-row render bound, so a filter surfaces the latest 40 MATCHING
+// events instead of filtering an already-truncated window.
+
+/** Collapse a trace.type into its filterable kind (derived from the type prefix). */
+export function traceKindOf(type: string): string {
+  if (type.startsWith("edit_") || type.startsWith("proposal_")) return "edit";
+  if (type.startsWith("lock_")) return "lock";
+  if (type.startsWith("draft_") || type === "semantic_conflict") return "merge";
+  if (type.startsWith("schema_")) return "schema";
+  if (type.startsWith("notebook_")) return "notebook";
+  if (type.startsWith("capture")) return "capture";
+  if (type.startsWith("agent_")) return "agent";
+  return "room";
+}
+
+const TRACE_KIND_ORDER = ["edit", "lock", "merge", "schema", "notebook", "capture", "agent", "room"] as const;
+export const TRACE_PEOPLE_MAX = 8; // BOUND: chip row stays one calm line even in a 40-member room
+
+/** Kind chips = only kinds PRESENT in the log (canonical order); people = top actors by event count. */
+export function traceFilterModel(log: TraceEvent[]): { kinds: string[]; people: string[] } {
+  const kindSet = new Set(log.map((t) => traceKindOf(t.type)));
+  const byPerson = new Map<string, number>();
+  for (const t of log) byPerson.set(t.actor.name, (byPerson.get(t.actor.name) ?? 0) + 1);
+  const people = [...byPerson.entries()].sort((a, b) => b[1] - a[1]).slice(0, TRACE_PEOPLE_MAX).map(([name]) => name);
+  return { kinds: TRACE_KIND_ORDER.filter((k) => kindSet.has(k)), people };
+}
+
+export function filterTraces(log: TraceEvent[], kind: string | null, person: string | null): TraceEvent[] {
+  if (!kind && !person) return log;
+  return log.filter((t) => (!kind || traceKindOf(t.type) === kind) && (!person || t.actor.name === person));
+}
+
+export type TraceBurstGroup = { key: string; actor: Actor; minuteLabel: string; kinds: string[]; rows: TraceEvent[] };
+
+/** Group CONSECUTIVE rows by actor + minute burst (an agent run's write storm folds into one line). */
+export function groupTraceBursts(rows: TraceEvent[]): TraceBurstGroup[] {
+  const raw: Array<{ actorId: string; minute: number; actor: Actor; rows: TraceEvent[] }> = [];
+  for (const t of rows) {
+    const minute = Math.floor(t.ts / 60_000);
+    const last = raw[raw.length - 1];
+    if (last && last.actorId === t.actor.id && last.minute === minute) last.rows.push(t);
+    else raw.push({ actorId: t.actor.id, minute, actor: t.actor, rows: [t] });
+  }
+  return raw.map((g, i) => ({
+    key: `${g.actorId}:${g.minute}:${i}`,
+    actor: g.actor,
+    minuteLabel: new Date(g.minute * 60_000).toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" }),
+    kinds: [...new Set(g.rows.map((r) => traceKindOf(r.type)))],
+    rows: g.rows,
+  }));
+}
+
+export function TraceStrip({ roomId, me }: { roomId: string; me: Actor }) {
   const store = useStore();
   const ref = useRef<HTMLDivElement>(null);
   const nearBottom = useRef(true);
   const [acceptingAll, setAcceptingAll] = useState(false);
   const [resolveMsg, setResolveMsg] = useState<string | null>(null);
   const [openOverride, setOpenOverride] = useState<boolean | null>(null);
+  const [kindFilter, setKindFilter] = useState<string | null>(null);
+  const [personFilter, setPersonFilter] = useState<string | null>(null);
+  const [groupRuns, setGroupRuns] = useState(false);
+  const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({});
   const log = store.listTraces(roomId);
   const run = store.lastRun();
   const proposals = store.listProposals(roomId);
@@ -2799,7 +3171,11 @@ function TraceStrip({ roomId, me }: { roomId: string; me: Actor }) {
   // Only auto-scroll if the user hasn't scrolled up to read an earlier step.
   useEffect(() => { const el = ref.current; if (el && nearBottom.current) el.scrollTop = el.scrollHeight; }, [log.length]);
   const onScroll = () => { const el = ref.current; if (el) nearBottom.current = el.scrollHeight - el.scrollTop - el.clientHeight < 60; };
-  const shown = log.slice(-40);
+  const filterModel = useMemo(() => traceFilterModel(log), [log]);
+  const filtered = useMemo(() => filterTraces(log, kindFilter, personFilter), [log, kindFilter, personFilter]);
+  // BOUND preserved: filter first, then render the newest 40 matching rows.
+  const shown = useMemo(() => filtered.slice(-40), [filtered]);
+  const groups = useMemo(() => (groupRuns ? groupTraceBursts(shown) : null), [groupRuns, shown]);
   // The trace is a LOG, not the work surface. Collapse it by default so the artifact (the spreadsheet)
   // reclaims the ~300px this strip otherwise holds -- the contract says the work surface carries focus.
   // Auto-expand only when proposals are pending, since that is actionable review the host must not miss.
@@ -2824,12 +3200,64 @@ function TraceStrip({ roomId, me }: { roomId: string; me: Actor }) {
         {run && <span className="r-trace-tele" title={`${run.steps} steps · ${run.inputTokens.toLocaleString()} in + ${run.outputTokens.toLocaleString()} out tokens · ${run.ms}ms`}>{run.model} · {run.toolCalls} tools · ${run.costUsd.toFixed(3)}</span>}
         {host && proposals.length > 1 && <button className="r-mini-btn primary" disabled={acceptingAll} onClick={() => void acceptAll()}><Check size={12} /> Accept all</button>}
       </div>
+      {open && log.length > 0 && (
+        <div className="r-trace-filters" data-testid="trace-filters">
+          <button
+            type="button"
+            className="r-trace-fchip"
+            data-on={String(kindFilter === null && personFilter === null)}
+            onClick={() => { setKindFilter(null); setPersonFilter(null); }}
+          >
+            all
+          </button>
+          {filterModel.kinds.map((k) => (
+            <button key={k} type="button" className="r-trace-fchip" data-testid="trace-filter-kind" data-kind={k} data-on={String(kindFilter === k)} onClick={() => setKindFilter((cur) => (cur === k ? null : k))}>{k}</button>
+          ))}
+          {filterModel.people.length > 1 && <span className="r-trace-fsep" aria-hidden="true" />}
+          {filterModel.people.length > 1 && filterModel.people.map((p) => (
+            <button key={p} type="button" className="r-trace-fchip" data-testid="trace-filter-person" data-person={p} data-on={String(personFilter === p)} onClick={() => setPersonFilter((cur) => (cur === p ? null : p))}>{p}</button>
+          ))}
+          <span className="grow" />
+          <button
+            type="button"
+            className="r-trace-fchip"
+            data-testid="trace-group-runs"
+            data-on={String(groupRuns)}
+            title="Group consecutive events by the same actor within a minute"
+            onClick={() => setGroupRuns((v) => !v)}
+          >
+            group by run
+          </button>
+          <span className="r-trace-fmeta">{shown.length} of {log.length}</span>
+        </div>
+      )}
       {open && <div className="r-trace-list" ref={ref} onScroll={onScroll} aria-live="polite" aria-label="Room activity log">
         {resolveMsg && <div className="r-wall-error" role="alert" data-testid="proposal-resolve-msg" style={{ margin: "2px 4px" }}>{resolveMsg} <button className="r-msg-act" onClick={() => setResolveMsg(null)}>Dismiss</button></div>}
         {proposals.slice(0, 20).map((p) => <ProposalRow key={p.id} roomId={roomId} me={me} proposal={p} onResolved={(fb) => setResolveMsg(fb.ok ? null : proposalErrMsg(fb.reason))} />)}
         {proposals.length > 20 && <div className="tiny faint" style={{ padding: "2px 4px" }}>+{proposals.length - 20} more pending — resolve these first (mirrors the 40-row trace cap)</div>}
-        {shown.length === 0 && <div className="tiny faint" style={{ padding: "2px 4px" }}>Edit a cell, move a sticky, or run the collaboration — every change is recorded here.</div>}
-        {shown.map((t) => <TraceRow key={t.id} t={t} />)}
+        {shown.length === 0 && log.length === 0 && <div className="tiny faint" style={{ padding: "2px 4px" }}>Edit a cell, move a sticky, or run the collaboration — every change is recorded here.</div>}
+        {shown.length === 0 && log.length > 0 && <div className="tiny faint" style={{ padding: "2px 4px" }}>No events match this filter.</div>}
+        {groups
+          ? groups.map((g) => g.rows.length === 1
+            ? <TraceRow key={g.rows[0].id} t={g.rows[0]} />
+            : (
+              <div className="r-trace-group" key={g.key} data-testid="trace-run-group">
+                <button
+                  type="button"
+                  className="r-trace-row"
+                  data-open={String(!!openGroups[g.key])}
+                  aria-expanded={!!openGroups[g.key]}
+                  onClick={() => setOpenGroups((prev) => ({ ...prev, [g.key]: !prev[g.key] }))}
+                >
+                  <span className="r-trace-ico other"><Layers size={12} /></span>
+                  <span className="tt grow">{g.actor.name} · {g.rows.length} events · {g.kinds.join(" + ")}</span>
+                  <span className="mono tiny faint">{g.minuteLabel}</span>
+                  <ChevronRight size={12} className="r-trace-chev" style={{ transform: openGroups[g.key] ? "rotate(90deg)" : "none" }} />
+                </button>
+                {openGroups[g.key] && <div className="r-trace-group-rows">{g.rows.map((t) => <TraceRow key={t.id} t={t} />)}</div>}
+              </div>
+            ))
+          : shown.map((t) => <TraceRow key={t.id} t={t} />)}
       </div>}
     </div>
   );
