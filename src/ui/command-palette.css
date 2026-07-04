@@ -1,0 +1,100 @@
+/* ===========================================================================
+   Command palette (⌘K) — namespaced .r-cmdk-*. Tokens only (styles.css /
+   colors_and_type.css): no new hexes, radii on the 4/6/8/10/12/16 scale, type
+   on the 11/12/13/14 scale. Terracotta = selection; --focus-ring is the
+   keyboard halo and must stay visible in calm mode.
+   =========================================================================== */
+
+.r-cmdk-backdrop {
+  position: fixed; inset: 0; z-index: 95;
+  display: flex; justify-content: center; align-items: flex-start;
+  padding: 12vh var(--space-5) var(--space-5);
+  background: rgba(0, 0, 0, .46);
+  backdrop-filter: blur(8px);
+}
+
+.r-cmdk {
+  width: min(560px, 100%);
+  display: flex; flex-direction: column; overflow: hidden;
+  border-radius: 12px; border: 1px solid var(--line-strong);
+  background: var(--bg-primary);
+  box-shadow: var(--shadow-lg);
+}
+/* Keyboard halo on the whole card while focus lives inside it — survives calm
+   mode / data-bg-glow=false because it rides --focus-ring, not the app glow. */
+.r-cmdk:focus-within { box-shadow: var(--shadow-lg), var(--focus-ring); }
+
+@media (prefers-reduced-motion: no-preference) {
+  .r-cmdk { animation: r-cmdk-in var(--motion-fast) var(--ease-out-expo); }
+  @keyframes r-cmdk-in {
+    from { opacity: 0; transform: translateY(-6px) scale(.98); }
+    to { opacity: 1; transform: none; }
+  }
+}
+
+.r-cmdk-inputwrap {
+  display: flex; align-items: center; gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--line);
+  color: var(--text-muted);
+}
+.r-cmdk-input {
+  flex: 1; min-width: 0;
+  border: none; background: transparent;
+  color: var(--text-primary);
+  font-family: var(--font-ui); font-size: 14px;
+}
+.r-cmdk-input::placeholder { color: var(--text-tertiary); }
+/* The card carries the focus ring; the bare input must not double-ring. */
+.r-cmdk-input:focus-visible { outline: none; }
+
+.r-cmdk-kbd {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 18px; padding: 1px 5px;
+  border-radius: 4px; border: 1px solid var(--line-strong);
+  background: var(--bg-secondary);
+  color: var(--text-tertiary);
+  font-family: var(--font-mono); font-size: 11px; line-height: 1.4;
+}
+
+.r-cmdk-list {
+  display: flex; flex-direction: column; gap: 2px;
+  max-height: 336px; overflow-y: auto; overflow-x: hidden;
+  padding: var(--space-2);
+}
+
+.r-cmdk-item {
+  display: flex; align-items: center; gap: var(--space-2);
+  width: 100%; text-align: left;
+  padding: var(--space-2) var(--space-3);
+  border-radius: 8px; border: 1px solid transparent;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 13px; font-weight: 500;
+  transition: background var(--motion-fast), border-color var(--motion-fast), color var(--motion-fast);
+}
+.r-cmdk-item-label { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.r-cmdk-item-hint { margin-left: auto; flex: none; font-size: 11px; color: var(--text-tertiary); }
+/* Terracotta = the selected row (design rule: terracotta is provenance +
+   SELECTION; green stays success-only, amber stays needs-review). */
+.r-cmdk-item[data-selected="true"] {
+  background: var(--accent-tint);
+  border-color: var(--accent-border);
+  color: var(--text-primary);
+}
+.r-cmdk-item[data-selected="true"] .r-cmdk-item-hint { color: var(--accent-ink); }
+.r-cmdk-item:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+
+.r-cmdk-more,
+.r-cmdk-empty {
+  padding: var(--space-2) var(--space-3);
+  font-size: 11px; color: var(--text-tertiary);
+}
+
+.r-cmdk-foot {
+  display: flex; gap: var(--space-4);
+  padding: var(--space-2) var(--space-4);
+  border-top: 1px solid var(--line);
+  color: var(--text-tertiary); font-size: 11px;
+}
+.r-cmdk-foot span { display: inline-flex; align-items: center; gap: var(--space-1); }

@@ -10,11 +10,13 @@ test.describe("guided tour (memory mode)", () => {
     await page.evaluate(() => { try { localStorage.removeItem("noderoom:tour:v1"); } catch { /* ignore */ } });
     await page.getByTestId("start-demo-room").click();
 
-    // Auto-starts on the centered welcome step.
+    // Auto-starts on the centered welcome step. Scope text queries to the tour
+    // card — the walkthrough dock (PR #52) also renders "01 - Welcome to
+    // NodeRoom", which made an unscoped getByText a strict-mode collision.
     const tour = page.getByTestId("guided-tour");
     await expect(tour).toBeVisible();
-    await expect(page.getByText("Welcome to NodeRoom")).toBeVisible();
-    await expect(page.getByText("1 / 8")).toBeVisible();
+    await expect(tour.getByText("Welcome to NodeRoom")).toBeVisible();
+    await expect(tour.getByText("1 / 7")).toBeVisible();
 
     // Step 2 spotlights the left rail — assert the spotlight box overlaps the rail.
     await page.getByTestId("tour-next").click();
@@ -40,7 +42,7 @@ test.describe("guided tour (memory mode)", () => {
     // The "?" button replays it on demand.
     await page.getByTestId("tour-button").click();
     await expect(page.getByTestId("guided-tour")).toBeVisible();
-    await expect(page.getByText("1 / 8")).toBeVisible();
+    await expect(page.getByTestId("guided-tour").getByText("1 / 7")).toBeVisible();
   });
 
   test("does NOT auto-start once the seen-flag is set", async ({ page }) => {

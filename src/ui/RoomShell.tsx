@@ -12,6 +12,7 @@ import { Chat } from "./Chat";
 import { Artifact } from "./panels/Artifact";
 import { LeftRail } from "./LeftRail";
 import { GuidedTour, type TourStep } from "./GuidedTour";
+import { CommandPalette, type PaletteAction } from "./CommandPalette";
 import { selectPublicSignalTraces, statusText as publicStatusText } from "./signalStatus";
 import { focusStage } from "./stageFocus";
 import { BankerCoachPanel } from "./artifacts/BankerCoachPanel";
@@ -147,6 +148,38 @@ export function RoomShell({ roomId, me, onLeave, proof }: { roomId: string; me: 
     const t = setTimeout(() => setSlowLoad(true), 8000);
     return () => clearTimeout(t);
   }, [room]);
+  const openSidebarChat = () => {
+    setCopilotTab("public");
+    setShow((s) => {
+      if (isCompact) return { left: false, stage: false, copilot: true };
+      return { ...s, stage: true, copilot: true };
+    });
+  };
+  // Keyboard layer: "/" (and the ⌘K palette's "Jump to chat composer") summons the
+  // public Copilot lane, then DOM-focuses the composer once it has rendered —
+  // the double-rAF quick-command pattern from RoomHome. Chat.tsx stays untouched;
+  // its `data-testid="chat-composer"` textarea is the stable contract.
+  const focusChatComposer = () => {
+    openSidebarChat();
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      document.querySelector<HTMLTextAreaElement>('textarea[data-testid="chat-composer"]')?.focus();
+    }));
+  };
+  const focusChatComposerRef = useRef(focusChatComposer);
+  focusChatComposerRef.current = focusChatComposer;
+  // "/" jumps to chat from anywhere. Ignored mid-typing (a "/" in a sentence or a
+  // cell must stay a "/"), and never with modifiers (browser shortcuts stay intact).
+  // Declared before the !room early return so the hook count stays stable.
+  useEffect(() => {
+    const onSlash = (e: KeyboardEvent) => {
+      if (e.key !== "/" || e.metaKey || e.ctrlKey || e.altKey) return;
+      if (textEntryIsActive()) return;
+      e.preventDefault();
+      focusChatComposerRef.current();
+    };
+    window.addEventListener("keydown", onSlash);
+    return () => window.removeEventListener("keydown", onSlash);
+  }, []);
   if (!room) {
     // Honest status: a resolved-null meta means the room is gone, not "still loading".
     const notFound = store.roomState() === "notFound";
@@ -186,6 +219,13 @@ export function RoomShell({ roomId, me, onLeave, proof }: { roomId: string; me: 
 
   const members = store.listMembers(roomId);
   const inviteHref = inviteHrefForRoom(room.code);
+  // Shared by the top-bar invite chip and the ⌘K palette ("Copy invite code").
+  // Robust copy feedback: confirm regardless of whether the async clipboard write
+  // resolves (it is unavailable in some contexts) so the user always sees acknowledgement.
+  const copyInvite = () => {
+    try { void navigator.clipboard?.writeText(inviteHref); } catch { /* clipboard unavailable */ }
+    setCodeCopied(true); setTimeout(() => setCodeCopied(false), 1200);
+  };
   const isHost = members.some((m) => m.id === me.id && m.role === "host");
   const privChannel: Channel = { private: me.id };
   const curArt = arts.find((a) => a.id === artId) ?? preferredRoomArtifact(arts);
@@ -326,13 +366,24 @@ export function RoomShell({ roomId, me, onLeave, proof }: { roomId: string; me: 
       return { left: false, stage: !nextCopilot, copilot: nextCopilot };
     });
   };
-  const openSidebarChat = () => {
-    setCopilotTab("public");
-    setShow((s) => {
-      if (isCompact) return { left: false, stage: false, copilot: true };
-      return { ...s, stage: true, copilot: true };
-    });
+  // Trace and Graph are pinned work-surface tabs owned by panels/Artifact.tsx
+  // (their open state lives there). The palette reaches them through their stable
+  // testids — the same DOM-level contract the e2e suite drives — after making
+  // sure the stage is on screen, instead of duplicating that state up here.
+  const openWorkSurfaceTab = (testid: "trace-tab" | "graph-tab") => {
+    showWorkSurface();
+    requestAnimationFrame(() => document.querySelector<HTMLElement>(`[data-testid="${testid}"]`)?.click());
   };
+  const paletteActions: PaletteAction[] = [
+    { id: "toggle-focus-mode", label: "Toggle focus mode", hint: focusMode.enabled ? "on" : "off", run: toggleFocusMode },
+    // Auto-allow is host-gated (the switch is disabled for guests); the palette
+    // simply doesn't list it for non-hosts instead of offering a dead command.
+    ...(isHost ? [{ id: "toggle-auto-allow", label: "Toggle auto-allow", hint: room.autoAllow ? "auto-allow" : "review", run: toggleAutoAccept } satisfies PaletteAction] : []),
+    { id: "copy-invite", label: "Copy invite code", hint: room.code, run: copyInvite },
+    { id: "open-trace", label: "Open Trace", hint: "tab", run: () => openWorkSurfaceTab("trace-tab") },
+    { id: "open-graph", label: "Open Graph", hint: "tab", run: () => openWorkSurfaceTab("graph-tab") },
+    { id: "jump-chat", label: "Jump to chat composer", hint: "/", run: focusChatComposer },
+  ];
   const startResize = (target: "left" | "right", startX: number) => {
     const start = layout;
     // Stage floor: cap panel drag so the center Work Surface can't be squeezed below ~760px on desktop.
@@ -373,12 +424,7 @@ export function RoomShell({ roomId, me, onLeave, proof }: { roomId: string; me: 
         {/* The code chip LOOKS like a button, so it must be one — sharing the code is the core
             multiplayer flow (Meet/Figma mental model: click the code -> copy invite). */}
         <button className="r-roomcode" type="button" title="Copy invite link" aria-label={codeCopied ? "Invite link copied" : `Copy invite link for room ${room.code}`} aria-live="polite"
-          onClick={() => {
-            // Robust copy feedback: confirm regardless of whether the async clipboard write
-            // resolves (it is unavailable in some contexts) so the user always sees acknowledgement.
-            try { void navigator.clipboard?.writeText(inviteHref); } catch { /* clipboard unavailable */ }
-            setCodeCopied(true); setTimeout(() => setCodeCopied(false), 1200);
-          }}>
+          onClick={copyInvite}>
           <Link2 size={12} /> invite <b>{room.code}</b> {codeCopied ? <Check size={11} /> : <Copy size={11} />}
         </button>
         {store.mode === "convex" && <span className="r-tag" style={{ background: "var(--bg-secondary)", color: "var(--text-muted)" }}>● live convex</span>}
@@ -472,6 +518,7 @@ export function RoomShell({ roomId, me, onLeave, proof }: { roomId: string; me: 
         </div>
       )}
       <GuidedTour steps={tourSteps} open={tourOpen} onClose={() => setTourOpen(false)} storageKey={TOUR_KEY} />
+      <CommandPalette roomId={roomId} actions={paletteActions} onOpenArtifact={(id) => void openArtifact(id)} />
       <TraceLensPanel roomId={roomId} onOpenArtifact={openArtifact} />
     </div>
     </TraceLensProvider>

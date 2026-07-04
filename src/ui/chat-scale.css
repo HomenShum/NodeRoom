@@ -1,0 +1,35 @@
+/* Chat-at-scale chrome (src/ui/Chat.tsx): day dividers, collapsed agent runs, optimistic sync
+   chips, jump-to-latest unread. Namespaced .r-chat-*; tokens only — every color/radius/size comes
+   from src/app/styles.css variables (canonical set: design-reference/assets/colors_and_type.css).
+   Visual language: default state shows data — this file is quiet apparatus around it.
+   Terracotta (--accent-*) = agent provenance; green (--success-ink) = success semantics only. */
+
+/* ── Day divider: a quiet hairline with a centered whisper label ── */
+.r-chat-day { display: flex; align-items: center; gap: var(--space-2); margin: var(--space-1) 0; }
+.r-chat-day::before,
+.r-chat-day::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+.r-chat-day span { font-size: 11px; font-weight: 650; color: var(--text-tertiary); letter-spacing: .04em; text-transform: uppercase; white-space: nowrap; }
+
+/* ── Agent run group: expanded shows the original message rows untouched ── */
+.r-chat-run { display: flex; flex-direction: column; gap: var(--space-3); min-width: 0; }
+
+/* Collapsed run = one line. Terracotta chip: this is agent provenance, not success. */
+.r-chat-run-summary { display: inline-flex; align-items: center; gap: 6px; align-self: flex-start; padding: 3px 10px; border-radius: 9999px; border: 1px solid var(--accent-border); background: var(--accent-tint); color: var(--accent-ink); font-size: 11px; font-weight: 600; cursor: pointer; transition: border-color var(--motion-fast) var(--ease-smooth); }
+.r-chat-run-summary:hover { border-color: var(--accent-ink); }
+.r-chat-run-summary em { font-style: normal; text-decoration: underline; text-underline-offset: 2px; opacity: .85; }
+
+/* Collapse-again affordance under an expanded (finished, long) run — hover-quiet chrome. */
+.r-chat-run-collapse { display: inline-flex; align-items: center; gap: 4px; align-self: flex-start; margin-left: 28px; padding: 2px 8px; border: none; border-radius: 6px; background: none; color: var(--text-tertiary); font-size: 11px; cursor: pointer; }
+.r-chat-run-collapse:hover { color: var(--text-secondary); background: var(--bg-hover); }
+
+/* ── Optimistic sync chip: saving… (muted) → synced (success, fades out) ── */
+.r-tag.r-chat-sync { padding: 1px 5px; font-size: 9px; }
+.r-tag.r-chat-sync[data-sync="saving"] { color: var(--text-muted); }
+.r-tag.r-chat-sync[data-sync="synced"] { color: var(--success-ink); animation: rChatSyncFade 1.8s var(--ease-smooth) both; }
+@keyframes rChatSyncFade { 0%, 55% { opacity: 1; } 100% { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) {
+  .r-tag.r-chat-sync[data-sync="synced"] { animation: none; }
+}
+
+/* ── Jump-to-latest unread count (inside the existing .r-chat-jump pill) ── */
+.r-chat-jump-count { font-weight: 750; color: var(--accent-ink); margin-right: 2px; }

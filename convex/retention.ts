@@ -19,7 +19,11 @@ import { v } from "convex/values";
 // that only ever get state-patched, never deleted. 30-day-old events are
 // terminal (processed/failed) or dead-pending; the read model they produced
 // lives in notebookBlocks/Claims/Mentions, which are replace-per-doc, not pruned.
-const PRUNABLE = ["traces", "agentSteps", "agentOperationEvents", "notebookDirtyEvents", "notebookProcessingJobs"] as const;
+// elementVersions: per-cell version-log before-images (history / Restore / diff) —
+// one row per applied cell write, so it grows like traces. Bounded history by
+// design: 30d matches the telemetry policy; the CURRENT value lives on `elements`
+// (product data, never pruned), so pruning old log rows only shortens deep history.
+const PRUNABLE = ["traces", "agentSteps", "agentOperationEvents", "notebookDirtyEvents", "notebookProcessingJobs", "elementVersions"] as const;
 const DEFAULT_RETENTION_DAYS = 30;
 const BATCH_PER_TABLE = 500;
 const PRODUCT_DATA_NOT_PRUNED = [

@@ -204,6 +204,29 @@ export default defineSchema({
     updatedBy: actor,
   }).index("by_artifact", ["artifactId", "elementId"]),
 
+  /** Per-element VERSION LOG — the append-only history behind per-cell history,
+   *  Restore, and diff (Receipts layer). One row per APPLIED write through
+   *  `applyCellEditCore`: the BEFORE-image of the value that write superseded,
+   *  keyed by the version that held it (restoring version N = read the row at
+   *  version N, re-apply as a normal CAS write). Conflict/locked/pending paths
+   *  never log. BOUND: `value` is a truncated snapshot (non-scalars stringified,
+   *  capped at 4,000 chars, `truncated` flagged — restore refuses truncated
+   *  rows) and the table is in retention's PRUNABLE set (30d), so history stays
+   *  bounded instead of becoming a second unbounded copy of every sheet. */
+  elementVersions: defineTable({
+    artifactId: v.id("artifacts"),
+    elementId: v.string(),
+    /** The element version whose value this row preserves (the before-image). */
+    version: v.number(),
+    value: v.any(),
+    /** True when the snapshot was cut at the cap — display-only, never restorable. */
+    truncated: v.boolean(),
+    /** The actor whose applied write superseded this version (who changed it away). */
+    updatedBy: actor,
+    kind: v.union(v.literal("set"), v.literal("create"), v.literal("delete")),
+    ts: v.number(),
+  }).index("by_artifact_element", ["artifactId", "elementId", "version"]),
+
   /** The lock tool — an affected range made read-only for non-holders. */
   locks: defineTable({
     roomId: v.id("rooms"),

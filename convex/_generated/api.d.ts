@@ -46,6 +46,7 @@ import type * as loopPolicies from "../loopPolicies.js";
 import type * as loopRewards from "../loopRewards.js";
 import type * as memory from "../memory.js";
 import type * as messages from "../messages.js";
+import type * as metrics from "../metrics.js";
 import type * as modelFrontier from "../modelFrontier.js";
 import type * as nodemem from "../nodemem.js";
 import type * as nodememCompile from "../nodememCompile.js";
@@ -115,6 +116,7 @@ declare const fullApi: ApiFromModules<{
   loopRewards: typeof loopRewards;
   memory: typeof memory;
   messages: typeof messages;
+  metrics: typeof metrics;
   modelFrontier: typeof modelFrontier;
   nodemem: typeof nodemem;
   nodememCompile: typeof nodememCompile;
