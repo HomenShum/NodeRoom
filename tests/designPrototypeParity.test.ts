@@ -6,17 +6,27 @@ function source(path: string): string {
 }
 
 describe("design prototype parity", () => {
-  test("desktop landing keeps the NodeAgent room prototype framing", () => {
+  // Landing framing moved from the room prototype to landing-v2
+  // (design-reference/room/landing-v2.jsx, Prod Parity Handoff §1):
+  // "Diligence that shows its work." + looping demo + live-proof pill.
+  test("desktop landing keeps the landing-v2 design framing", () => {
     const landing = source("src/ui/Landing.tsx");
 
-    expect(landing).toContain("NodeAgent · live collaborative rooms");
-    expect(landing).toContain("Bring people and");
-    expect(landing).toContain("agents");
-    expect(landing).toContain("Chat, a shared workspace, and NodeAgents");
-    expect(landing).toContain("Public by default");
-    expect(landing).toContain("Up to four panels");
-    expect(landing).toContain("Locks, not collisions");
-    expect(landing).toContain("The public surface");
+    expect(landing).toContain("Diligence that shows its work");
+    expect(landing).toContain("NodeAgent · live diligence rooms");
+    // The key visual is the scripted product-demo loop, every frame present.
+    for (const frame of ["lock", "cite", "commit", "draft", "smart-merge", "v43"]) {
+      expect(landing).toContain(`"${frame}"`);
+    }
+    // Live-proof pill: real counts in live mode, honest demo tag otherwise.
+    expect(landing).toContain("rooms live");
+    expect(landing).toContain("cells committed today");
+    // Entry flows survive the redesign — e2e depends on these testids.
+    expect(landing).toContain("start-demo-room");
+    expect(landing).toContain("create-room-submit");
+    // The old prototype copy is fully retired, not half-migrated.
+    expect(landing).not.toContain("NodeAgent · live collaborative rooms");
+    expect(landing).not.toContain("Chat, a shared workspace, and NodeAgents");
     expect(landing).not.toContain("A live room for banker-led diligence");
     expect(landing).not.toContain("Run startup diligence demo");
   });
