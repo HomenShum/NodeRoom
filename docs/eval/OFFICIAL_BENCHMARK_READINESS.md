@@ -1,6 +1,6 @@
 # Official Benchmark Readiness
 
-Generated: 2026-07-02T09:51:42.367Z
+Generated: 2026-07-04T14:38:25.011Z
 
 This is the benchmark-faithful gate for the public targets we care about most: BankerToolBench and SpreadsheetBench. It is deliberately stricter than NodeRoom's internal professional evals. Internal green runs do not imply an official benchmark claim.
 

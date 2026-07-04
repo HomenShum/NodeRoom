@@ -32,7 +32,7 @@
     {
       "id": "memo-draft",
       "name": "Diligence Memo Draft",
-      "goal": "Draft a 3-paragraph diligence memo for Mercury in the Diligence memo note. Use the exact paragraph headings Product overview, Market position, and Key risks so the visible note covers product, market, and risk explicitly.",
+      "goal": "Open and target the Diligence memo note. Use the notebook tool append_notebook_outline to draft the memo into the visible note body itself for Mercury. Use exactly these section titles in the note: Product overview, Market position, and Key risks.",
       "passPatterns": ["Mercury", "product", "market", "risk"],
       "expectArtifactEdit": true,
       "timeoutMs": 600000

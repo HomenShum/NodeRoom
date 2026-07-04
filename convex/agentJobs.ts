@@ -1650,6 +1650,10 @@ function goalPrefersCompanyResearch(goal: string): boolean {
   return /(diligence|research|enrich|profile|source-?backed|funding|hiring|hipaa|security|buyer|watchlist|compan)/i.test(goal);
 }
 
+function goalPrefersDiligenceMemoNote(goal: string): boolean {
+  return /\b(?:diligence\s+memo|memo)\b/i.test(goal) && /\b(?:note|notebook|draft|write|append|paragraph|heading|section)\b/i.test(goal);
+}
+
 function goalPrefersPersonResearch(goal: string): boolean {
   return /(deep[ -]?dive|person|founder|background|career|bio(?:graphy)?|education|publication|talk|award|patent|project|code (?:review|profile)|github profile|linkedin)/i.test(goal);
 }
@@ -1762,11 +1766,16 @@ async function resolvePublicAskArtifact(ctx: any, args: {
   }
 
   const title = (name: string) => visible.find((artifact: { title?: string }) => artifact.title === name);
+  const active = byId(args.contextArtifactId);
+  if (goalPrefersDiligenceMemoNote(args.goal)) {
+    const memo = title("Diligence memo");
+    if (memo) return memo;
+    if (active?.kind === "note") return active;
+  }
   if (goalPrefersRunway(args.goal)) return title("Runway / milestones") ?? title("Q3 variance") ?? visible.find((artifact: { kind?: string }) => artifact.kind === "sheet") ?? visible[0];
   if (goalPrefersCompanyResearch(args.goal)) return title("Company research") ?? visible.find((artifact: { kind?: string }) => artifact.kind === "sheet") ?? visible[0];
   if (goalPrefersVariance(args.goal)) return title("Q3 variance") ?? visible.find((artifact: { kind?: string }) => artifact.kind === "sheet") ?? visible[0];
 
-  const active = byId(args.contextArtifactId);
   if (active) return active;
   return title("Q3 variance") ?? visible.find((artifact: { kind?: string }) => artifact.kind === "sheet") ?? visible[0];
 }
@@ -2111,7 +2120,7 @@ export const startPublicAsk = mutation({
       modelPolicy: a.modelPolicy,
       runtimeProfile: a.runtimeProfile,
       maxAttempts: a.maxAttempts,
-      mode: modeForArtifact(artifact) ?? (goalPrefersPersonResearch(a.goal) || goalPrefersCompanyResearch(a.goal) ? "research" : undefined),
+      mode: modeForArtifact(artifact) ?? (artifact.kind === "note" ? undefined : goalPrefersPersonResearch(a.goal) || goalPrefersCompanyResearch(a.goal) ? "research" : undefined),
     });
     return startDurableAgentJob(ctx, {
       ...policy,

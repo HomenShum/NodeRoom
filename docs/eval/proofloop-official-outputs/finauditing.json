@@ -2,7 +2,7 @@
   "schema": "proofloop-official-output-manifest-v1",
   "adapterId": "finauditing",
   "status": "complete",
-  "generatedAt": "2026-07-04T02:22:42.482Z",
+  "generatedAt": "2026-07-04T14:38:21.457Z",
   "officialTaskCount": 1102,
   "predictionRowCount": 1102,
   "outputRoot": ".tmp/official-benchmarks/proofloop-official-outputs/finauditing",

@@ -1,6 +1,6 @@
 # Proof Loop Company Task Coverage
 
-Generated: 2026-07-04T08:23:49.371Z
+Generated: 2026-07-04T14:38:15.099Z
 
 This ledger answers whether NodeRoom covers the task types named in company comparisons, without pretending we tested closed third-party apps.
 
@@ -8,10 +8,10 @@ This ledger answers whether NodeRoom covers the task types named in company comp
 
 - Company/task entries tracked: 7
 - Own product or same-archetype entries: 6
-- Prod browser proven entries: 1
+- Prod browser proven entries: 2
 - Prod runtime proven entries: 3
 - Ready for prod browser proof: 5
-- Partial entries: 1
+- Partial entries: 0
 - Permission/closed external targets: 1
 - Distinct task types tracked: 38
 
@@ -29,7 +29,7 @@ This ledger answers whether NodeRoom covers the task types named in company comp
 |---|---|---:|---:|---:|---|
 | `proximitty-commercial-lending` | own_product | local_browser_proven | ready_for_prod_browser | not_applicable | Latest Proximitty live-user contract is not a noderoom.live prod-browser run. |
 | `generic-ai-underwriting` | same_task_archetype | local_browser_proven | ready_for_prod_browser | not_applicable | Latest Proximitty live-user contract is not a noderoom.live prod-browser run. |
-| `liveflow-accounting-fpa` | same_task_archetype | prod_runtime_proven | partial | not_applicable | Individual prod UI receipts are 2/4 passed; failing tasks: memo-draft: Job did not complete within timeout; research-enrich: Job did not complete within timeout |
+| `liveflow-accounting-fpa` | same_task_archetype | prod_runtime_proven | prod_browser_proven | not_applicable | Proof Loop covers the same task type; it does not test LiveFlow's production app without permission. |
 | `rogo-finance-research-copilot` | same_task_archetype | prod_runtime_proven | ready_for_prod_browser | not_applicable | Rogo-style company research has production runtime proof, but no checked-in prod UI live-browser receipt for this exact task archetype. |
 | `jpm-ask-david-research-agent` | closed_external | prod_runtime_proven | ready_for_prod_browser | blocked_external | Rogo-style company research has production runtime proof, but no checked-in prod UI live-browser receipt for this exact task archetype. |
 | `notion-sdr-bdr-workflow` | own_product | ready_for_prod_browser | ready_for_prod_browser | not_applicable | No checked-in prod UI live-browser receipt is dedicated to the Notion SDR/BDR task set. |
@@ -69,10 +69,10 @@ This ledger answers whether NodeRoom covers the task types named in company comp
 - NodeRoom command: `npm run proofloop:live:accounting`
 - Prod browser command: `PROOFLOOP_LIVE_BROWSER=1 PROOFLOOP_TASKS_JSON=proofloop/accounting/live.accounting.config.json BENCH_BASE_URL=https://noderoom.live BENCH_AGENT_MODEL_MODE=specific BENCH_AGENT_MODEL_POLICY=z-ai/glm-5.2 npx playwright test --config playwright.proofloop.config.ts proofloop/live-browser-proof.spec.ts`
 - Evidence: `.proofloop/live/latest/run-result.json`, `proofloop/accounting/live.accounting.config.json`
-- Browser evidence: `docs/eval/proofloop-live-room-smoke-proof.json`, `docs/eval/proofloop-live-room-runway-proof.json`, `docs/eval/proofloop-live-room-memo-proof.json`, `docs/eval/proofloop-live-room-research-proof.json`
-- Blockers: Individual prod UI receipts are 2/4 passed; failing tasks: memo-draft: Job did not complete within timeout; research-enrich: Job did not complete within timeout; Proof Loop covers the same task type; it does not test LiveFlow's production app without permission.
+- Browser evidence: `docs/eval/proofloop-live-room-proof.json`
+- Blockers: Proof Loop covers the same task type; it does not test LiveFlow's production app without permission.
 - Sources: https://liveflow.com/, https://liveflow.com/blog/modern-financial-planning-tools-streamlining-your-finance-workflow
-- Notes: The production runtime proof records real Convex jobs, resolved models, durations, and pass patterns. Individual prod UI task receipts currently pass: variance-calc, runway-calc.
+- Notes: The production runtime proof records real Convex jobs, resolved models, durations, and pass patterns. The full serial prod UI suite has a passing receipt.
 
 ### Rogo-style finance research copilot
 
