@@ -14,6 +14,7 @@ describe("Proof Loop external benchmark local adapters", () => {
       const adapter = readBenchmarkAdapter(id);
       expect(existsSync(adapter.taskLoader), `${id} task loader exists`).toBe(true);
       expect(existsSync(adapter.browserScenario), `${id} browser scenario exists`).toBe(true);
+      expect(adapter.liveUserCommand, `${id} live command uses fresh-room proxy proof`).toContain("benchmark:proofloop:external-adapter-live-room");
 
       const tasks = loadExternalBenchmarkLocalTasks(id);
       expect(tasks.length).toBeGreaterThan(0);

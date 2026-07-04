@@ -27,5 +27,5 @@
     "productPathCompletion",
     "officialSemanticScore"
   ],
-  "liveUserCommand": "npm run proofloop -- run finch --prod --user-emulation strict --cockpit"
+  "liveUserCommand": "npm run benchmark:proofloop:external-adapter-live-room -- --id finch --prod --user-emulation strict --cockpit"
 }

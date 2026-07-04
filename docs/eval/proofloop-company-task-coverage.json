@@ -1,6 +1,6 @@
 {
   "schema": "proofloop-company-task-coverage-v1",
-  "generatedAt": "2026-07-03T22:15:25.080Z",
+  "generatedAt": "2026-07-04T08:23:49.371Z",
   "policy": [
     "Track company-named requests as task archetypes unless the third-party app is explicitly consented and reachable.",
     "Prod browser proof is a separate gate from local browser proof and production API/runtime proof.",
@@ -302,8 +302,11 @@
       "nodeRoomCoverage": {
         "status": "prod_browser_proven",
         "productSurface": "NodeRoom external finance benchmark adapters",
-        "command": "npm run benchmark:proofloop:external-adapter -- --prod --user-emulation strict",
+        "command": "npm run benchmark:proofloop:external-adapter-live-room -- --prod --user-emulation strict",
         "evidence": [
+          "docs/eval/proofloop-external-adapter-live-room-runs/finch.json",
+          "docs/eval/proofloop-external-adapter-live-room-runs/finauditing.json",
+          "docs/eval/proofloop-external-adapter-live-room-runs/workstreambench.json",
           "docs/eval/proofloop-external-adapter-runs/finch.json",
           "docs/eval/proofloop-external-adapter-runs/finauditing.json",
           "docs/eval/proofloop-external-adapter-runs/workstreambench.json"
@@ -312,8 +315,11 @@
       },
       "prodBrowserProof": {
         "status": "prod_browser_proven",
-        "command": "npm run benchmark:proofloop:external-adapter -- --prod --user-emulation strict",
+        "command": "npm run benchmark:proofloop:external-adapter-live-room -- --prod --user-emulation strict",
         "evidence": [
+          "docs/eval/proofloop-external-adapter-live-room-runs/finch.json",
+          "docs/eval/proofloop-external-adapter-live-room-runs/finauditing.json",
+          "docs/eval/proofloop-external-adapter-live-room-runs/workstreambench.json",
           "docs/eval/proofloop-external-adapter-runs/finch.json",
           "docs/eval/proofloop-external-adapter-runs/finauditing.json",
           "docs/eval/proofloop-external-adapter-runs/workstreambench.json"

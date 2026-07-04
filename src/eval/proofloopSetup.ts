@@ -188,7 +188,7 @@ function setupUnsupportedAdapter(projectRoot: string, adapterId: string, generat
     nextCommands: [
       `Complete proofloop/benchmarks/${adapterId}/adapter.json and local setup recipe.`,
       `Run npm run proofloop -- setup ${adapterId} --doctor.`,
-      `Run npm run benchmark:proofloop:external-adapter -- --id ${adapterId} --prod --user-emulation strict.`,
+      `Run npm run benchmark:proofloop:external-adapter-live-room -- --id ${adapterId} --prod --user-emulation strict.`,
       `Run npm run benchmark:proofloop:adapter-blockers -- --id ${adapterId} --strict.`,
     ],
   });

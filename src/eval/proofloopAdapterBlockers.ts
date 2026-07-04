@@ -165,6 +165,7 @@ function officialScoreBlockersFor(
 function resumeCommandsFor(adapter: ProofloopBenchmarkAdapter): string[] {
   const refreshReceipt = `npm run benchmark:proofloop:adapter-blockers -- --id ${adapter.id}`;
   return [
+    `npm run benchmark:proofloop:external-adapter-live-room -- --id ${adapter.id} --prod --user-emulation strict`,
     `npm run benchmark:proofloop:external-adapter -- --id ${adapter.id} --prod --user-emulation strict`,
     refreshReceipt,
     `import docs/eval/proofloop-official-scores/${adapter.id}.json from the upstream official scorer`,

@@ -1,6 +1,6 @@
 # Proof Loop Company Task Coverage
 
-Generated: 2026-07-03T22:15:25.080Z
+Generated: 2026-07-04T08:23:49.371Z
 
 This ledger answers whether NodeRoom covers the task types named in company comparisons, without pretending we tested closed third-party apps.
 
@@ -115,10 +115,10 @@ This ledger answers whether NodeRoom covers the task types named in company comp
 - Entry id: `external-finance-benchmark-adapters`
 - Product surface: NodeRoom external finance benchmark adapters
 - Task types: financial workflow execution; financial audit prediction; spreadsheet workstream representation; official-output artifact export; proxy judge or official scorer handoff
-- NodeRoom command: `npm run benchmark:proofloop:external-adapter -- --prod --user-emulation strict`
-- Prod browser command: `npm run benchmark:proofloop:external-adapter -- --prod --user-emulation strict`
-- Evidence: `docs/eval/proofloop-external-adapter-runs/finch.json`, `docs/eval/proofloop-external-adapter-runs/finauditing.json`, `docs/eval/proofloop-external-adapter-runs/workstreambench.json`
-- Browser evidence: `docs/eval/proofloop-external-adapter-runs/finch.json`, `docs/eval/proofloop-external-adapter-runs/finauditing.json`, `docs/eval/proofloop-external-adapter-runs/workstreambench.json`
+- NodeRoom command: `npm run benchmark:proofloop:external-adapter-live-room -- --prod --user-emulation strict`
+- Prod browser command: `npm run benchmark:proofloop:external-adapter-live-room -- --prod --user-emulation strict`
+- Evidence: `docs/eval/proofloop-external-adapter-live-room-runs/finch.json`, `docs/eval/proofloop-external-adapter-live-room-runs/finauditing.json`, `docs/eval/proofloop-external-adapter-live-room-runs/workstreambench.json`, `docs/eval/proofloop-external-adapter-runs/finch.json`, `docs/eval/proofloop-external-adapter-runs/finauditing.json`, `docs/eval/proofloop-external-adapter-runs/workstreambench.json`
+- Browser evidence: `docs/eval/proofloop-external-adapter-live-room-runs/finch.json`, `docs/eval/proofloop-external-adapter-live-room-runs/finauditing.json`, `docs/eval/proofloop-external-adapter-live-room-runs/workstreambench.json`, `docs/eval/proofloop-external-adapter-runs/finch.json`, `docs/eval/proofloop-external-adapter-runs/finauditing.json`, `docs/eval/proofloop-external-adapter-runs/workstreambench.json`
 - Blockers: Official score receipts still need official-output artifacts and/or upstream scorer material; proxy judges can be used for Proof Loop product gates but not official leaderboard claims.
 - Sources: proofloop/benchmarks/finch/adapter.json, proofloop/benchmarks/finauditing/adapter.json, proofloop/benchmarks/workstreambench/adapter.json
 - Notes: This row is where cheaper proxy judges can keep product Proof Loop moving while official scorer imports remain separate.

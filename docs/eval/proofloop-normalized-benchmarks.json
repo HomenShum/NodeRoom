@@ -1,6 +1,6 @@
 {
   "schema": "proofloop-benchmark-normalization-v1",
-  "generatedAt": "2026-07-04T02:33:22.439Z",
+  "generatedAt": "2026-07-04T08:23:49.404Z",
   "policy": [
     "Normalize benchmark tasks into NodeRoom product-facing manifests and run specs before routing work through the current codebase.",
     "Do not normalize away official scorer semantics: official rubrics, judges, output schemas, and credentials stay benchmark-specific.",
@@ -501,10 +501,11 @@
           "contract": "Current codebase has a local compatibility ProductTaskManifest; full official task-id expansion is still required.",
           "evidence": [
             "proofloop/benchmarks/finch/adapter.json",
+            "docs/eval/proofloop-external-adapter-live-room-runs/finch.json",
             "docs/eval/proofloop-external-adapter-runs/finch.json",
             "docs/eval/proofloop-adapter-blockers/finch.json"
           ],
-          "command": "npm run proofloop -- run finch --prod --user-emulation strict --cockpit",
+          "command": "npm run benchmark:proofloop:external-adapter-live-room -- --id finch --prod --user-emulation strict --cockpit",
           "blockers": [
             "Expand all 172 official Finch task ids into ProductTaskManifest rows."
           ]
@@ -514,10 +515,11 @@
           "contract": "Strict prod browser run spec exists for the local compatibility task through NodeRoom.",
           "evidence": [
             "proofloop/benchmarks/finch/adapter.json",
+            "docs/eval/proofloop-external-adapter-live-room-runs/finch.json",
             "docs/eval/proofloop-external-adapter-runs/finch.json",
             "docs/eval/proofloop-adapter-blockers/finch.json"
           ],
-          "command": "npm run proofloop -- run finch --prod --user-emulation strict --cockpit",
+          "command": "npm run benchmark:proofloop:external-adapter-live-room -- --id finch --prod --user-emulation strict --cockpit",
           "blockers": []
         },
         "artifactExport": {
@@ -525,6 +527,7 @@
           "contract": "Export one NodeRoom model-output artifact per official Finch task id.",
           "evidence": [
             "proofloop/benchmarks/finch/adapter.json",
+            "docs/eval/proofloop-external-adapter-live-room-runs/finch.json",
             "docs/eval/proofloop-external-adapter-runs/finch.json",
             "docs/eval/proofloop-adapter-blockers/finch.json",
             "docs/eval/proofloop-official-outputs/finch.json",
@@ -604,10 +607,11 @@
           "contract": "Current codebase has a local compatibility ProductTaskManifest; full official task-id expansion is still required.",
           "evidence": [
             "proofloop/benchmarks/finauditing/adapter.json",
+            "docs/eval/proofloop-external-adapter-live-room-runs/finauditing.json",
             "docs/eval/proofloop-external-adapter-runs/finauditing.json",
             "docs/eval/proofloop-adapter-blockers/finauditing.json"
           ],
-          "command": "npm run proofloop -- run finauditing --prod --user-emulation strict --cockpit",
+          "command": "npm run benchmark:proofloop:external-adapter-live-room -- --id finauditing --prod --user-emulation strict --cockpit",
           "blockers": [
             "Expand FinSM, FinRE, and FinMR test rows into ProductTaskManifest rows."
           ]
@@ -617,10 +621,11 @@
           "contract": "Strict prod browser run spec exists for the local compatibility task through NodeRoom.",
           "evidence": [
             "proofloop/benchmarks/finauditing/adapter.json",
+            "docs/eval/proofloop-external-adapter-live-room-runs/finauditing.json",
             "docs/eval/proofloop-external-adapter-runs/finauditing.json",
             "docs/eval/proofloop-adapter-blockers/finauditing.json"
           ],
-          "command": "npm run proofloop -- run finauditing --prod --user-emulation strict --cockpit",
+          "command": "npm run benchmark:proofloop:external-adapter-live-room -- --id finauditing --prod --user-emulation strict --cockpit",
           "blockers": []
         },
         "artifactExport": {
@@ -628,6 +633,7 @@
           "contract": "Export official-format prediction JSONL for FinSM, FinRE, and FinMR.",
           "evidence": [
             "proofloop/benchmarks/finauditing/adapter.json",
+            "docs/eval/proofloop-external-adapter-live-room-runs/finauditing.json",
             "docs/eval/proofloop-external-adapter-runs/finauditing.json",
             "docs/eval/proofloop-adapter-blockers/finauditing.json",
             "docs/eval/proofloop-official-outputs/finauditing.json",
@@ -710,10 +716,11 @@
           "contract": "Current codebase has a local compatibility ProductTaskManifest; full official task-id expansion is still required.",
           "evidence": [
             "proofloop/benchmarks/workstreambench/adapter.json",
+            "docs/eval/proofloop-external-adapter-live-room-runs/workstreambench.json",
             "docs/eval/proofloop-external-adapter-runs/workstreambench.json",
             "docs/eval/proofloop-adapter-blockers/workstreambench.json"
           ],
-          "command": "npm run proofloop -- run workstreambench --prod --user-emulation strict --cockpit",
+          "command": "npm run benchmark:proofloop:external-adapter-live-room -- --id workstreambench --prod --user-emulation strict --cockpit",
           "blockers": [
             "Obtain the public official WorkstreamBench task bundle before expanding ProductTaskManifest rows."
           ]
@@ -723,10 +730,11 @@
           "contract": "Strict prod browser run spec exists for the local compatibility task through NodeRoom.",
           "evidence": [
             "proofloop/benchmarks/workstreambench/adapter.json",
+            "docs/eval/proofloop-external-adapter-live-room-runs/workstreambench.json",
             "docs/eval/proofloop-external-adapter-runs/workstreambench.json",
             "docs/eval/proofloop-adapter-blockers/workstreambench.json"
           ],
-          "command": "npm run proofloop -- run workstreambench --prod --user-emulation strict --cockpit",
+          "command": "npm run benchmark:proofloop:external-adapter-live-room -- --id workstreambench --prod --user-emulation strict --cockpit",
           "blockers": []
         },
         "artifactExport": {
@@ -734,6 +742,7 @@
           "contract": "Export the official structured workstream representation expected by WorkstreamBench.",
           "evidence": [
             "proofloop/benchmarks/workstreambench/adapter.json",
+            "docs/eval/proofloop-external-adapter-live-room-runs/workstreambench.json",
             "docs/eval/proofloop-external-adapter-runs/workstreambench.json",
             "docs/eval/proofloop-adapter-blockers/workstreambench.json"
           ],

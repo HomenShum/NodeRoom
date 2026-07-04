@@ -26,5 +26,5 @@
     "productPathCompletion",
     "officialSemanticScore"
   ],
-  "liveUserCommand": "npm run proofloop -- run workstreambench --prod --user-emulation strict --cockpit"
+  "liveUserCommand": "npm run benchmark:proofloop:external-adapter-live-room -- --id workstreambench --prod --user-emulation strict --cockpit"
 }
