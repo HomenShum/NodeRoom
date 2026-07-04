@@ -1,0 +1,39 @@
+{
+  "schema": "proofloop-official-output-manifest-v1",
+  "adapterId": "finauditing",
+  "status": "complete",
+  "generatedAt": "2026-07-04T02:22:42.482Z",
+  "officialTaskCount": 1102,
+  "predictionRowCount": 1102,
+  "outputRoot": ".tmp/official-benchmarks/proofloop-official-outputs/finauditing",
+  "officialFormat": "FinAuditing predictions.jsonl rows with prediction and ground_truth fields for FinSM, FinRE, and FinMR evaluator notebooks.",
+  "generationPolicy": "Deterministic low-information baseline predictions; sufficient to prove JSONL exporter shape, not an official model score claim.",
+  "datasets": [
+    {
+      "id": "FinSM",
+      "taskCount": 330,
+      "predictionRows": 330,
+      "path": ".tmp/official-benchmarks/proofloop-official-outputs/finauditing/FinSM.predictions.jsonl"
+    },
+    {
+      "id": "FinRE",
+      "taskCount": 440,
+      "predictionRows": 440,
+      "path": ".tmp/official-benchmarks/proofloop-official-outputs/finauditing/FinRE.predictions.jsonl"
+    },
+    {
+      "id": "FinMR",
+      "taskCount": 332,
+      "predictionRows": 332,
+      "path": ".tmp/official-benchmarks/proofloop-official-outputs/finauditing/FinMR.predictions.jsonl"
+    }
+  ],
+  "blockers": [],
+  "evidence": [
+    "docs/eval/proofloop-official-task-bundles/finauditing.json",
+    ".tmp/official-benchmarks/proofloop-official-outputs/finauditing/FinSM.predictions.jsonl",
+    ".tmp/official-benchmarks/proofloop-official-outputs/finauditing/FinRE.predictions.jsonl",
+    ".tmp/official-benchmarks/proofloop-official-outputs/finauditing/FinMR.predictions.jsonl",
+    ".tmp/official-benchmarks/proofloop-official-outputs/finauditing/manifest.json"
+  ]
+}

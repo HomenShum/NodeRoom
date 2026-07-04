@@ -1,10 +1,10 @@
 {
   "schema": 1,
   "suite": "finch",
-  "generatedAt": "2026-07-03T22:15:26.870Z",
+  "generatedAt": "2026-07-04T02:24:04.983Z",
   "status": "needs_generation",
   "expectedOutputs": [
-    "one NodeRoom output artifact per official Finch task id",
+    "complete NodeRoom model-output artifact manifest for all 172 official Finch task ids",
     "content_parts.jsonl",
     "accepted upstream Finch judge/scorer receipt"
   ],
@@ -14,11 +14,11 @@
     "docs/eval/proofloop-external-adapter-runs/finch.json",
     "docs/eval/proofloop-adapter-blockers/finch.json",
     "docs/eval/proofloop-official-task-bundles/finch.json",
-    "docs/eval/proofloop-official-scores/finch.json"
+    "docs/eval/proofloop-official-scores/finch.json",
+    "docs/eval/proofloop-official-outputs/finch.json"
   ],
   "missingClasses": [
     "missing_official_scorer",
-    "missing_output_exporter",
-    "missing_task_bundle"
+    "missing_output_exporter"
   ]
 }

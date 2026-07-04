@@ -1,13 +1,13 @@
 # Proof Loop Harness Economics
 
-Generated: 2026-07-03T22:15:26.303Z
+Generated: 2026-07-04T02:33:22.391Z
 
 This ledger records harness/config versions and cheaper model routes for Proof Loop product gates while preserving official scorer boundaries.
 
 ## Summary
 
 - Package version: 0.1.1
-- Git commit: 589cb13478dc9bae26436efa77d67fb6241a87af (dirty)
+- Git commit: 47a0e575c2d10d275764c4c023f12f9924cb0c70 (dirty)
 - Harness files tracked: 23
 - Missing harness files: 0
 - OpenRouter candidates: 25
@@ -86,11 +86,11 @@ This ledger records harness/config versions and cheaper model routes for Proof L
 - `proofloop/benchmarks/workstreambench/adapter.json`: e3655f8b4b04c2c670d645b4d70901cee2cf3b02e69f3d2bd2aa3dc8276eab1f
 - `scripts/proofloop-company-task-coverage.ts`: 66eb7e8dd23b3a3eca2d363cfde287260af8604859be047ece606ef101342a5a
 - `scripts/proofloop-harness-economics.ts`: 88af3482e8bc8d8ed15a8df44756e2498159b3682d350a404c86be063b1fb53c
-- `src/eval/proofloopGoalSupervisor.ts`: 394db83b3cb3192ff67ce854096a76a9427ce5af49f9c69765f8ea020885b06b
-- `src/eval/proofloopBlockerSolver.ts`: 919b26821754bc6d88d49e98c028b1dd10cd64ec3b1ffebec11f46fb8a2cec5f
+- `src/eval/proofloopGoalSupervisor.ts`: 02b7d804b71038ffb0f33d13e8e832a8cc2ad416c77795f53afa305212651df0
+- `src/eval/proofloopBlockerSolver.ts`: 0e787203927832e15fd72db090ebcefcb8b4c7b321085b12a24f2a54da324348
 - `src/eval/proofloopModelTracking.ts`: 7ea29d78b38dc9234f7c6e0994ef359b65b72e229185598a3f49e9f2941580e7
-- `src/eval/proofloopBenchmarkNormalization.ts`: a32eb66ea33976a98b6fadcf741f1f2bf6e783d70b10e1b02ee5ed9f7d58823f
-- `src/eval/proofloopBenchmarkBoard.ts`: 4f9ad6a04a2b2aea077d6a0e1096f83a24148cf3b4f14e04c64007d460ba1a15
+- `src/eval/proofloopBenchmarkNormalization.ts`: 6b50358571a4b978e7b72e4c969f1399e446b3f87aa714c1e2dd5ee51fb46aec
+- `src/eval/proofloopBenchmarkBoard.ts`: 70a6b35365330444a8019cbe7671f63a2151b6b3c3789926f78d9b52285be1fd
 - `src/eval/proofloopCompanyTaskCoverage.ts`: 50268bb77d08101f83b844dc7a8a34e4a867d35fce3d7cbf32f8f662338b5d6f
 - `src/eval/proofloopHarnessEconomics.ts`: fde021345bf656bcd7c4c6a328bafeae1918e0bd2cc9ec34a024d3029d0cca55
 - `src/eval/proofloopLiveBrowserPrompt.ts`: 930b20ce976736bf2b8be2a6bb2b308d1756015c1cde5f83f1fed950e67f2ac7

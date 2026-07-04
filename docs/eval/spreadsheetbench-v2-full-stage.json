@@ -1,0 +1,4836 @@
+{
+  "schema": 1,
+  "generatedAt": "2026-07-04T00:44:40.494Z",
+  "sourceRoot": "spreadsheetbench-v2",
+  "outputRoot": "staged-v2-full",
+  "track": "spreadsheetbench-v2",
+  "scannedTaskCount": 321,
+  "stagedTaskCount": 321,
+  "skippedTaskCount": 0,
+  "agentFileCount": 321,
+  "evaluatorGoldFileCount": 321,
+  "isolation": {
+    "agentDirectoryGoldFileCount": 0,
+    "agentManifestGoldPathLeaks": 0,
+    "agentManifestScorerMetadataLeaks": 0,
+    "agentEvaluatorPathOverlap": false
+  },
+  "warnings": [],
+  "tasks": [
+    {
+      "id": "Debugging/01_01",
+      "category": "Debugging",
+      "taskDir": "tasks/Debugging_01_01",
+      "agentManifest": "tasks/Debugging_01_01/agent/task.json",
+      "evaluatorManifest": "tasks/Debugging_01_01/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Debugging_01_01/agent/inputs/01-Double Counting_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Debugging_01_01/evaluator/gold/01-01_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Debugging/01_02",
+      "category": "Debugging",
+      "taskDir": "tasks/Debugging_01_02",
+      "agentManifest": "tasks/Debugging_01_02/agent/task.json",
+      "evaluatorManifest": "tasks/Debugging_01_02/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Debugging_01_02/agent/inputs/01-Embedded Hardcode_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Debugging_01_02/evaluator/gold/01-01_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Debugging/01_03",
+      "category": "Debugging",
+      "taskDir": "tasks/Debugging_01_03",
+      "agentManifest": "tasks/Debugging_01_03/agent/task.json",
+      "evaluatorManifest": "tasks/Debugging_01_03/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Debugging_01_03/agent/inputs/01-Errors_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Debugging_01_03/evaluator/gold/01-01_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Debugging/01_04",
+      "category": "Debugging",
+      "taskDir": "tasks/Debugging_01_04",
+      "agentManifest": "tasks/Debugging_01_04/agent/task.json",
+      "evaluatorManifest": "tasks/Debugging_01_04/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Debugging_01_04/agent/inputs/01-Inconsistent Color Coding_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Debugging_01_04/evaluator/gold/01-01_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Debugging/01_05",
+      "category": "Debugging",
+      "taskDir": "tasks/Debugging_01_05",
+      "agentManifest": "tasks/Debugging_01_05/agent/task.json",
+      "evaluatorManifest": "tasks/Debugging_01_05/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Debugging_01_05/agent/inputs/01-Incorrect Average_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Debugging_01_05/evaluator/gold/01-01_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Debugging/01_06",
+      "category": "Debugging",
+      "taskDir": "tasks/Debugging_01_06",
+      "agentManifest": "tasks/Debugging_01_06/agent/task.json",
+      "evaluatorManifest": "tasks/Debugging_01_06/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Debugging_01_06/agent/inputs/01-Incorrect Cross Sheet References_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Debugging_01_06/evaluator/gold/01-01_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Debugging/01_07",
+      "category": "Debugging",
+      "taskDir": "tasks/Debugging_01_07",
+      "agentManifest": "tasks/Debugging_01_07/agent/task.json",
+      "evaluatorManifest": "tasks/Debugging_01_07/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Debugging_01_07/agent/inputs/01-Incorrect Index Match_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Debugging_01_07/evaluator/gold/01-01_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Debugging/01_08",
+      "category": "Debugging",
+      "taskDir": "tasks/Debugging_01_08",
+      "agentManifest": "tasks/Debugging_01_08/agent/task.json",
+      "evaluatorManifest": "tasks/Debugging_01_08/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Debugging_01_08/agent/inputs/01-Incorrect Sign Conventions_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Debugging_01_08/evaluator/gold/01-01_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Debugging/01_09",
+      "category": "Debugging",
+      "taskDir": "tasks/Debugging_01_09",
+      "agentManifest": "tasks/Debugging_01_09/agent/task.json",
+      "evaluatorManifest": "tasks/Debugging_01_09/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Debugging_01_09/agent/inputs/01-Relative vs Absolute References_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Debugging_01_09/evaluator/gold/01-01_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Debugging/01_10",
+      "category": "Debugging",
+      "taskDir": "tasks/Debugging_01_10",
+      "agentManifest": "tasks/Debugging_01_10/agent/task.json",
+      "evaluatorManifest": "tasks/Debugging_01_10/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Debugging_01_10/agent/inputs/01-Unit Mismatch_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Debugging_01_10/evaluator/gold/01-01_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Debugging/02_01",
+      "category": "Debugging",
+      "taskDir": "tasks/Debugging_02_01",
+      "agentManifest": "tasks/Debugging_02_01/agent/task.json",
+      "evaluatorManifest": "tasks/Debugging_02_01/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Debugging_02_01/agent/inputs/01-Double Counting_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Debugging_02_01/evaluator/gold/01-02_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Debugging/02_02",
+      "category": "Debugging",
+      "taskDir": "tasks/Debugging_02_02",
+      "agentManifest": "tasks/Debugging_02_02/agent/task.json",
+      "evaluatorManifest": "tasks/Debugging_02_02/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Debugging_02_02/agent/inputs/01-Embedded Hardcode_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Debugging_02_02/evaluator/gold/01-02_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Debugging/02_03",
+      "category": "Debugging",
+      "taskDir": "tasks/Debugging_02_03",
+      "agentManifest": "tasks/Debugging_02_03/agent/task.json",
+      "evaluatorManifest": "tasks/Debugging_02_03/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Debugging_02_03/agent/inputs/01-Errors_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Debugging_02_03/evaluator/gold/01-02_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Debugging/02_04",
+      "category": "Debugging",
+      "taskDir": "tasks/Debugging_02_04",
+      "agentManifest": "tasks/Debugging_02_04/agent/task.json",
+      "evaluatorManifest": "tasks/Debugging_02_04/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Debugging_02_04/agent/inputs/01-Inconsistent Color Coding_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Debugging_02_04/evaluator/gold/01-02_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Debugging/02_05",
+      "category": "Debugging",
+      "taskDir": "tasks/Debugging_02_05",
+      "agentManifest": "tasks/Debugging_02_05/agent/task.json",
+      "evaluatorManifest": "tasks/Debugging_02_05/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Debugging_02_05/agent/inputs/01-Incorrect Average_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Debugging_02_05/evaluator/gold/01-02_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Debugging/02_06",
+      "category": "Debugging",
+      "taskDir": "tasks/Debugging_02_06",
+      "agentManifest": "tasks/Debugging_02_06/agent/task.json",
+      "evaluatorManifest": "tasks/Debugging_02_06/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Debugging_02_06/agent/inputs/01-Incorrect Cross Sheet References_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Debugging_02_06/evaluator/gold/01-02_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Debugging/02_07",
+      "category": "Debugging",
+      "taskDir": "tasks/Debugging_02_07",
+      "agentManifest": "tasks/Debugging_02_07/agent/task.json",
+      "evaluatorManifest": "tasks/Debugging_02_07/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Debugging_02_07/agent/inputs/01-Incorrect Index Match_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Debugging_02_07/evaluator/gold/01-02_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Debugging/02_08",
+      "category": "Debugging",
+      "taskDir": "tasks/Debugging_02_08",
+      "agentManifest": "tasks/Debugging_02_08/agent/task.json",
+      "evaluatorManifest": "tasks/Debugging_02_08/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Debugging_02_08/agent/inputs/01-Incorrect SIgn Conventions_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Debugging_02_08/evaluator/gold/01-02_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Debugging/02_09",
+      "category": "Debugging",
+      "taskDir": "tasks/Debugging_02_09",
+      "agentManifest": "tasks/Debugging_02_09/agent/task.json",
+      "evaluatorManifest": "tasks/Debugging_02_09/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Debugging_02_09/agent/inputs/01-Relative vs Absolute DIfference_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Debugging_02_09/evaluator/gold/01-02_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Debugging/02_10",
+      "category": "Debugging",
+      "taskDir": "tasks/Debugging_02_10",
+      "agentManifest": "tasks/Debugging_02_10/agent/task.json",
+      "evaluatorManifest": "tasks/Debugging_02_10/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Debugging_02_10/agent/inputs/01-Unit Mismatch_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Debugging_02_10/evaluator/gold/01-02_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Debugging/03_01",
+      "category": "Debugging",
+      "taskDir": "tasks/Debugging_03_01",
+      "agentManifest": "tasks/Debugging_03_01/agent/task.json",
+      "evaluatorManifest": "tasks/Debugging_03_01/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Debugging_03_01/agent/inputs/01-Double Counting_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Debugging_03_01/evaluator/gold/01-03_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Debugging/03_02",
+      "category": "Debugging",
+      "taskDir": "tasks/Debugging_03_02",
+      "agentManifest": "tasks/Debugging_03_02/agent/task.json",
+      "evaluatorManifest": "tasks/Debugging_03_02/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Debugging_03_02/agent/inputs/01-Embedded Hardcodes_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Debugging_03_02/evaluator/gold/01-03_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Debugging/03_03",
+      "category": "Debugging",
+      "taskDir": "tasks/Debugging_03_03",
+      "agentManifest": "tasks/Debugging_03_03/agent/task.json",
+      "evaluatorManifest": "tasks/Debugging_03_03/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Debugging_03_03/agent/inputs/01-Errors_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Debugging_03_03/evaluator/gold/01-03_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Debugging/03_04",
+      "category": "Debugging",
+      "taskDir": "tasks/Debugging_03_04",
+      "agentManifest": "tasks/Debugging_03_04/agent/task.json",
+      "evaluatorManifest": "tasks/Debugging_03_04/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Debugging_03_04/agent/inputs/01-Inconsistent Color Coding_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Debugging_03_04/evaluator/gold/01-03_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Debugging/03_05",
+      "category": "Debugging",
+      "taskDir": "tasks/Debugging_03_05",
+      "agentManifest": "tasks/Debugging_03_05/agent/task.json",
+      "evaluatorManifest": "tasks/Debugging_03_05/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Debugging_03_05/agent/inputs/01-Incorrect AVERAGE Formulas_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Debugging_03_05/evaluator/gold/01-03_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Debugging/03_06",
+      "category": "Debugging",
+      "taskDir": "tasks/Debugging_03_06",
+      "agentManifest": "tasks/Debugging_03_06/agent/task.json",
+      "evaluatorManifest": "tasks/Debugging_03_06/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Debugging_03_06/agent/inputs/01-Incorrect Cross Sheet References_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Debugging_03_06/evaluator/gold/01-03_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Debugging/03_07",
+      "category": "Debugging",
+      "taskDir": "tasks/Debugging_03_07",
+      "agentManifest": "tasks/Debugging_03_07/agent/task.json",
+      "evaluatorManifest": "tasks/Debugging_03_07/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Debugging_03_07/agent/inputs/01-Incorrect Index Match_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Debugging_03_07/evaluator/gold/01-03_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Debugging/03_08",
+      "category": "Debugging",
+      "taskDir": "tasks/Debugging_03_08",
+      "agentManifest": "tasks/Debugging_03_08/agent/task.json",
+      "evaluatorManifest": "tasks/Debugging_03_08/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Debugging_03_08/agent/inputs/01-Incorrect Sign Conventions_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Debugging_03_08/evaluator/gold/01-03_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Debugging/03_09",
+      "category": "Debugging",
+      "taskDir": "tasks/Debugging_03_09",
+      "agentManifest": "tasks/Debugging_03_09/agent/task.json",
+      "evaluatorManifest": "tasks/Debugging_03_09/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Debugging_03_09/agent/inputs/01-Relative vs Absolute References_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Debugging_03_09/evaluator/gold/01-03_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Debugging/03_10",
+      "category": "Debugging",
+      "taskDir": "tasks/Debugging_03_10",
+      "agentManifest": "tasks/Debugging_03_10/agent/task.json",
+      "evaluatorManifest": "tasks/Debugging_03_10/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Debugging_03_10/agent/inputs/01-Unit Mismatch_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Debugging_03_10/evaluator/gold/01-03_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Debugging/04_01",
+      "category": "Debugging",
+      "taskDir": "tasks/Debugging_04_01",
+      "agentManifest": "tasks/Debugging_04_01/agent/task.json",
+      "evaluatorManifest": "tasks/Debugging_04_01/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Debugging_04_01/agent/inputs/01-Double Counting_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Debugging_04_01/evaluator/gold/01-04_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Debugging/04_02",
+      "category": "Debugging",
+      "taskDir": "tasks/Debugging_04_02",
+      "agentManifest": "tasks/Debugging_04_02/agent/task.json",
+      "evaluatorManifest": "tasks/Debugging_04_02/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Debugging_04_02/agent/inputs/01-Embedded Hardcodes_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Debugging_04_02/evaluator/gold/01-04_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Debugging/04_03",
+      "category": "Debugging",
+      "taskDir": "tasks/Debugging_04_03",
+      "agentManifest": "tasks/Debugging_04_03/agent/task.json",
+      "evaluatorManifest": "tasks/Debugging_04_03/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Debugging_04_03/agent/inputs/01-Errors_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Debugging_04_03/evaluator/gold/01-04_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Debugging/04_04",
+      "category": "Debugging",
+      "taskDir": "tasks/Debugging_04_04",
+      "agentManifest": "tasks/Debugging_04_04/agent/task.json",
+      "evaluatorManifest": "tasks/Debugging_04_04/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Debugging_04_04/agent/inputs/01-Inconsistent Color Coding_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Debugging_04_04/evaluator/gold/01-04_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Debugging/04_05",
+      "category": "Debugging",
+      "taskDir": "tasks/Debugging_04_05",
+      "agentManifest": "tasks/Debugging_04_05/agent/task.json",
+      "evaluatorManifest": "tasks/Debugging_04_05/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Debugging_04_05/agent/inputs/01-Incorrect Average_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Debugging_04_05/evaluator/gold/01-04_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Debugging/04_06",
+      "category": "Debugging",
+      "taskDir": "tasks/Debugging_04_06",
+      "agentManifest": "tasks/Debugging_04_06/agent/task.json",
+      "evaluatorManifest": "tasks/Debugging_04_06/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Debugging_04_06/agent/inputs/01-Incorrect Cross Sheet References_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Debugging_04_06/evaluator/gold/01-04_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Debugging/04_07",
+      "category": "Debugging",
+      "taskDir": "tasks/Debugging_04_07",
+      "agentManifest": "tasks/Debugging_04_07/agent/task.json",
+      "evaluatorManifest": "tasks/Debugging_04_07/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Debugging_04_07/agent/inputs/01-Incorrect Sign Conventions_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Debugging_04_07/evaluator/gold/01-04_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Debugging/04_08",
+      "category": "Debugging",
+      "taskDir": "tasks/Debugging_04_08",
+      "agentManifest": "tasks/Debugging_04_08/agent/task.json",
+      "evaluatorManifest": "tasks/Debugging_04_08/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Debugging_04_08/agent/inputs/01-Index Match_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Debugging_04_08/evaluator/gold/01-04_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Debugging/04_09",
+      "category": "Debugging",
+      "taskDir": "tasks/Debugging_04_09",
+      "agentManifest": "tasks/Debugging_04_09/agent/task.json",
+      "evaluatorManifest": "tasks/Debugging_04_09/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Debugging_04_09/agent/inputs/01-Relative vs Absolute References_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Debugging_04_09/evaluator/gold/01-04_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Debugging/04_10",
+      "category": "Debugging",
+      "taskDir": "tasks/Debugging_04_10",
+      "agentManifest": "tasks/Debugging_04_10/agent/task.json",
+      "evaluatorManifest": "tasks/Debugging_04_10/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Debugging_04_10/agent/inputs/01-Unit Mismatch_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Debugging_04_10/evaluator/gold/01-04_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Debugging/05_01",
+      "category": "Debugging",
+      "taskDir": "tasks/Debugging_05_01",
+      "agentManifest": "tasks/Debugging_05_01/agent/task.json",
+      "evaluatorManifest": "tasks/Debugging_05_01/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Debugging_05_01/agent/inputs/01-Double Counting_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Debugging_05_01/evaluator/gold/01-05_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Debugging/05_02",
+      "category": "Debugging",
+      "taskDir": "tasks/Debugging_05_02",
+      "agentManifest": "tasks/Debugging_05_02/agent/task.json",
+      "evaluatorManifest": "tasks/Debugging_05_02/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Debugging_05_02/agent/inputs/01-Embedded Hardcodes_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Debugging_05_02/evaluator/gold/01-05_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Debugging/05_03",
+      "category": "Debugging",
+      "taskDir": "tasks/Debugging_05_03",
+      "agentManifest": "tasks/Debugging_05_03/agent/task.json",
+      "evaluatorManifest": "tasks/Debugging_05_03/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Debugging_05_03/agent/inputs/01-Errors_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Debugging_05_03/evaluator/gold/01-05_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Debugging/05_04",
+      "category": "Debugging",
+      "taskDir": "tasks/Debugging_05_04",
+      "agentManifest": "tasks/Debugging_05_04/agent/task.json",
+      "evaluatorManifest": "tasks/Debugging_05_04/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Debugging_05_04/agent/inputs/01-Inconsistent Color Coding_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Debugging_05_04/evaluator/gold/01-05_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Debugging/05_05",
+      "category": "Debugging",
+      "taskDir": "tasks/Debugging_05_05",
+      "agentManifest": "tasks/Debugging_05_05/agent/task.json",
+      "evaluatorManifest": "tasks/Debugging_05_05/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Debugging_05_05/agent/inputs/01-Incorrect Average_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Debugging_05_05/evaluator/gold/01-05_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Debugging/05_06",
+      "category": "Debugging",
+      "taskDir": "tasks/Debugging_05_06",
+      "agentManifest": "tasks/Debugging_05_06/agent/task.json",
+      "evaluatorManifest": "tasks/Debugging_05_06/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Debugging_05_06/agent/inputs/01-Incorrect Cross Sheet References_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Debugging_05_06/evaluator/gold/01-05_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Debugging/05_07",
+      "category": "Debugging",
+      "taskDir": "tasks/Debugging_05_07",
+      "agentManifest": "tasks/Debugging_05_07/agent/task.json",
+      "evaluatorManifest": "tasks/Debugging_05_07/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Debugging_05_07/agent/inputs/01-Incorrect Sign Conventions_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Debugging_05_07/evaluator/gold/01-05_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Debugging/05_08",
+      "category": "Debugging",
+      "taskDir": "tasks/Debugging_05_08",
+      "agentManifest": "tasks/Debugging_05_08/agent/task.json",
+      "evaluatorManifest": "tasks/Debugging_05_08/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Debugging_05_08/agent/inputs/01-Index Match_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Debugging_05_08/evaluator/gold/01-05_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Debugging/05_09",
+      "category": "Debugging",
+      "taskDir": "tasks/Debugging_05_09",
+      "agentManifest": "tasks/Debugging_05_09/agent/task.json",
+      "evaluatorManifest": "tasks/Debugging_05_09/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Debugging_05_09/agent/inputs/01-Relative vs Absolute References_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Debugging_05_09/evaluator/gold/01-05_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Debugging/05_10",
+      "category": "Debugging",
+      "taskDir": "tasks/Debugging_05_10",
+      "agentManifest": "tasks/Debugging_05_10/agent/task.json",
+      "evaluatorManifest": "tasks/Debugging_05_10/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Debugging_05_10/agent/inputs/01-Unit Mismatch_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Debugging_05_10/evaluator/gold/01-05_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Debugging/06_01",
+      "category": "Debugging",
+      "taskDir": "tasks/Debugging_06_01",
+      "agentManifest": "tasks/Debugging_06_01/agent/task.json",
+      "evaluatorManifest": "tasks/Debugging_06_01/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Debugging_06_01/agent/inputs/01-Double Counting_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Debugging_06_01/evaluator/gold/01-06_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Debugging/06_02",
+      "category": "Debugging",
+      "taskDir": "tasks/Debugging_06_02",
+      "agentManifest": "tasks/Debugging_06_02/agent/task.json",
+      "evaluatorManifest": "tasks/Debugging_06_02/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Debugging_06_02/agent/inputs/01-Embedded Hardcodes_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Debugging_06_02/evaluator/gold/01-06_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Debugging/06_03",
+      "category": "Debugging",
+      "taskDir": "tasks/Debugging_06_03",
+      "agentManifest": "tasks/Debugging_06_03/agent/task.json",
+      "evaluatorManifest": "tasks/Debugging_06_03/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Debugging_06_03/agent/inputs/01-Errors_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Debugging_06_03/evaluator/gold/01-06_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Debugging/06_04",
+      "category": "Debugging",
+      "taskDir": "tasks/Debugging_06_04",
+      "agentManifest": "tasks/Debugging_06_04/agent/task.json",
+      "evaluatorManifest": "tasks/Debugging_06_04/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Debugging_06_04/agent/inputs/01-Inconsistent Color Coding_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Debugging_06_04/evaluator/gold/01-06_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Debugging/06_05",
+      "category": "Debugging",
+      "taskDir": "tasks/Debugging_06_05",
+      "agentManifest": "tasks/Debugging_06_05/agent/task.json",
+      "evaluatorManifest": "tasks/Debugging_06_05/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Debugging_06_05/agent/inputs/01-Incorrect Average_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Debugging_06_05/evaluator/gold/01-06_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Debugging/06_06",
+      "category": "Debugging",
+      "taskDir": "tasks/Debugging_06_06",
+      "agentManifest": "tasks/Debugging_06_06/agent/task.json",
+      "evaluatorManifest": "tasks/Debugging_06_06/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Debugging_06_06/agent/inputs/01-Incorrect Cross Sheet References_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Debugging_06_06/evaluator/gold/01-06_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Debugging/06_07",
+      "category": "Debugging",
+      "taskDir": "tasks/Debugging_06_07",
+      "agentManifest": "tasks/Debugging_06_07/agent/task.json",
+      "evaluatorManifest": "tasks/Debugging_06_07/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Debugging_06_07/agent/inputs/01-Incorrect Index Match_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Debugging_06_07/evaluator/gold/01-06_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Debugging/06_08",
+      "category": "Debugging",
+      "taskDir": "tasks/Debugging_06_08",
+      "agentManifest": "tasks/Debugging_06_08/agent/task.json",
+      "evaluatorManifest": "tasks/Debugging_06_08/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Debugging_06_08/agent/inputs/01-Incorrect Sign Conventions_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Debugging_06_08/evaluator/gold/01-06_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Debugging/06_09",
+      "category": "Debugging",
+      "taskDir": "tasks/Debugging_06_09",
+      "agentManifest": "tasks/Debugging_06_09/agent/task.json",
+      "evaluatorManifest": "tasks/Debugging_06_09/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Debugging_06_09/agent/inputs/01-Relative vs Absolute References_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Debugging_06_09/evaluator/gold/01-06_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Debugging/06_10",
+      "category": "Debugging",
+      "taskDir": "tasks/Debugging_06_10",
+      "agentManifest": "tasks/Debugging_06_10/agent/task.json",
+      "evaluatorManifest": "tasks/Debugging_06_10/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Debugging_06_10/agent/inputs/01-Unit Mismatch_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Debugging_06_10/evaluator/gold/01-06_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Debugging/07_01",
+      "category": "Debugging",
+      "taskDir": "tasks/Debugging_07_01",
+      "agentManifest": "tasks/Debugging_07_01/agent/task.json",
+      "evaluatorManifest": "tasks/Debugging_07_01/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Debugging_07_01/agent/inputs/01-Double Counting_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Debugging_07_01/evaluator/gold/01-07_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Debugging/07_02",
+      "category": "Debugging",
+      "taskDir": "tasks/Debugging_07_02",
+      "agentManifest": "tasks/Debugging_07_02/agent/task.json",
+      "evaluatorManifest": "tasks/Debugging_07_02/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Debugging_07_02/agent/inputs/01-Embedded Hardcodes_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Debugging_07_02/evaluator/gold/01-07_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Debugging/07_03",
+      "category": "Debugging",
+      "taskDir": "tasks/Debugging_07_03",
+      "agentManifest": "tasks/Debugging_07_03/agent/task.json",
+      "evaluatorManifest": "tasks/Debugging_07_03/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Debugging_07_03/agent/inputs/01-Errors_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Debugging_07_03/evaluator/gold/01-07_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Debugging/07_04",
+      "category": "Debugging",
+      "taskDir": "tasks/Debugging_07_04",
+      "agentManifest": "tasks/Debugging_07_04/agent/task.json",
+      "evaluatorManifest": "tasks/Debugging_07_04/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Debugging_07_04/agent/inputs/01-Inconsistent Color Coding_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Debugging_07_04/evaluator/gold/01-07_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Debugging/07_05",
+      "category": "Debugging",
+      "taskDir": "tasks/Debugging_07_05",
+      "agentManifest": "tasks/Debugging_07_05/agent/task.json",
+      "evaluatorManifest": "tasks/Debugging_07_05/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Debugging_07_05/agent/inputs/01-Incorrect Average_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Debugging_07_05/evaluator/gold/01-07_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Debugging/07_06",
+      "category": "Debugging",
+      "taskDir": "tasks/Debugging_07_06",
+      "agentManifest": "tasks/Debugging_07_06/agent/task.json",
+      "evaluatorManifest": "tasks/Debugging_07_06/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Debugging_07_06/agent/inputs/01-Incorrect Cross Sheet References_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Debugging_07_06/evaluator/gold/01-07_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Debugging/07_07",
+      "category": "Debugging",
+      "taskDir": "tasks/Debugging_07_07",
+      "agentManifest": "tasks/Debugging_07_07/agent/task.json",
+      "evaluatorManifest": "tasks/Debugging_07_07/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Debugging_07_07/agent/inputs/01-Incorrect Index Match_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Debugging_07_07/evaluator/gold/01-07_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Debugging/07_08",
+      "category": "Debugging",
+      "taskDir": "tasks/Debugging_07_08",
+      "agentManifest": "tasks/Debugging_07_08/agent/task.json",
+      "evaluatorManifest": "tasks/Debugging_07_08/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Debugging_07_08/agent/inputs/01-Incorrect Sign Conventions_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Debugging_07_08/evaluator/gold/01-07_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Debugging/07_09",
+      "category": "Debugging",
+      "taskDir": "tasks/Debugging_07_09",
+      "agentManifest": "tasks/Debugging_07_09/agent/task.json",
+      "evaluatorManifest": "tasks/Debugging_07_09/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Debugging_07_09/agent/inputs/01-Relative vs Absolute References_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Debugging_07_09/evaluator/gold/01-07_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Debugging/07_10",
+      "category": "Debugging",
+      "taskDir": "tasks/Debugging_07_10",
+      "agentManifest": "tasks/Debugging_07_10/agent/task.json",
+      "evaluatorManifest": "tasks/Debugging_07_10/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Debugging_07_10/agent/inputs/01-Unit Mismatch_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Debugging_07_10/evaluator/gold/01-07_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Debugging/08_01",
+      "category": "Debugging",
+      "taskDir": "tasks/Debugging_08_01",
+      "agentManifest": "tasks/Debugging_08_01/agent/task.json",
+      "evaluatorManifest": "tasks/Debugging_08_01/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Debugging_08_01/agent/inputs/01-Double Counting_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Debugging_08_01/evaluator/gold/01-08_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Debugging/08_02",
+      "category": "Debugging",
+      "taskDir": "tasks/Debugging_08_02",
+      "agentManifest": "tasks/Debugging_08_02/agent/task.json",
+      "evaluatorManifest": "tasks/Debugging_08_02/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Debugging_08_02/agent/inputs/01-Embedded Hardcodes_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Debugging_08_02/evaluator/gold/01-08_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Debugging/08_03",
+      "category": "Debugging",
+      "taskDir": "tasks/Debugging_08_03",
+      "agentManifest": "tasks/Debugging_08_03/agent/task.json",
+      "evaluatorManifest": "tasks/Debugging_08_03/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Debugging_08_03/agent/inputs/01-Errors_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Debugging_08_03/evaluator/gold/01-08_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Debugging/08_04",
+      "category": "Debugging",
+      "taskDir": "tasks/Debugging_08_04",
+      "agentManifest": "tasks/Debugging_08_04/agent/task.json",
+      "evaluatorManifest": "tasks/Debugging_08_04/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Debugging_08_04/agent/inputs/01-Inconsistent Color Coding_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Debugging_08_04/evaluator/gold/01-08_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Debugging/08_05",
+      "category": "Debugging",
+      "taskDir": "tasks/Debugging_08_05",
+      "agentManifest": "tasks/Debugging_08_05/agent/task.json",
+      "evaluatorManifest": "tasks/Debugging_08_05/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Debugging_08_05/agent/inputs/01-Incorrect Average_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Debugging_08_05/evaluator/gold/01-08_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Debugging/08_06",
+      "category": "Debugging",
+      "taskDir": "tasks/Debugging_08_06",
+      "agentManifest": "tasks/Debugging_08_06/agent/task.json",
+      "evaluatorManifest": "tasks/Debugging_08_06/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Debugging_08_06/agent/inputs/01-Incorrect Cross Sheet References_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Debugging_08_06/evaluator/gold/01-08_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Debugging/08_07",
+      "category": "Debugging",
+      "taskDir": "tasks/Debugging_08_07",
+      "agentManifest": "tasks/Debugging_08_07/agent/task.json",
+      "evaluatorManifest": "tasks/Debugging_08_07/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Debugging_08_07/agent/inputs/01-Incorrect Index Match_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Debugging_08_07/evaluator/gold/01-08_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Debugging/08_08",
+      "category": "Debugging",
+      "taskDir": "tasks/Debugging_08_08",
+      "agentManifest": "tasks/Debugging_08_08/agent/task.json",
+      "evaluatorManifest": "tasks/Debugging_08_08/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Debugging_08_08/agent/inputs/01-Incorrect Sign Conventions_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Debugging_08_08/evaluator/gold/01-08_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Debugging/08_09",
+      "category": "Debugging",
+      "taskDir": "tasks/Debugging_08_09",
+      "agentManifest": "tasks/Debugging_08_09/agent/task.json",
+      "evaluatorManifest": "tasks/Debugging_08_09/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Debugging_08_09/agent/inputs/01-Relative vs Absolute References_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Debugging_08_09/evaluator/gold/01-08_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Debugging/08_10",
+      "category": "Debugging",
+      "taskDir": "tasks/Debugging_08_10",
+      "agentManifest": "tasks/Debugging_08_10/agent/task.json",
+      "evaluatorManifest": "tasks/Debugging_08_10/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Debugging_08_10/agent/inputs/01-Unit Mismatch_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Debugging_08_10/evaluator/gold/01-08_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Debugging/09_01",
+      "category": "Debugging",
+      "taskDir": "tasks/Debugging_09_01",
+      "agentManifest": "tasks/Debugging_09_01/agent/task.json",
+      "evaluatorManifest": "tasks/Debugging_09_01/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Debugging_09_01/agent/inputs/01-Double Counting_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Debugging_09_01/evaluator/gold/01-09_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Debugging/09_02",
+      "category": "Debugging",
+      "taskDir": "tasks/Debugging_09_02",
+      "agentManifest": "tasks/Debugging_09_02/agent/task.json",
+      "evaluatorManifest": "tasks/Debugging_09_02/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Debugging_09_02/agent/inputs/01-Embedded Hardcodes_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Debugging_09_02/evaluator/gold/01-09_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Debugging/09_03",
+      "category": "Debugging",
+      "taskDir": "tasks/Debugging_09_03",
+      "agentManifest": "tasks/Debugging_09_03/agent/task.json",
+      "evaluatorManifest": "tasks/Debugging_09_03/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Debugging_09_03/agent/inputs/01-Errors_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Debugging_09_03/evaluator/gold/01-09_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Debugging/09_04",
+      "category": "Debugging",
+      "taskDir": "tasks/Debugging_09_04",
+      "agentManifest": "tasks/Debugging_09_04/agent/task.json",
+      "evaluatorManifest": "tasks/Debugging_09_04/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Debugging_09_04/agent/inputs/01-Inconsistent Color Coding_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Debugging_09_04/evaluator/gold/01-09_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Debugging/09_05",
+      "category": "Debugging",
+      "taskDir": "tasks/Debugging_09_05",
+      "agentManifest": "tasks/Debugging_09_05/agent/task.json",
+      "evaluatorManifest": "tasks/Debugging_09_05/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Debugging_09_05/agent/inputs/01-Incorrect Average_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Debugging_09_05/evaluator/gold/01-09_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Debugging/09_06",
+      "category": "Debugging",
+      "taskDir": "tasks/Debugging_09_06",
+      "agentManifest": "tasks/Debugging_09_06/agent/task.json",
+      "evaluatorManifest": "tasks/Debugging_09_06/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Debugging_09_06/agent/inputs/01-Incorrect Cross Sheet References_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Debugging_09_06/evaluator/gold/01-09_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Debugging/09_07",
+      "category": "Debugging",
+      "taskDir": "tasks/Debugging_09_07",
+      "agentManifest": "tasks/Debugging_09_07/agent/task.json",
+      "evaluatorManifest": "tasks/Debugging_09_07/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Debugging_09_07/agent/inputs/01-Incorrect Index Match_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Debugging_09_07/evaluator/gold/01-09_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Debugging/09_08",
+      "category": "Debugging",
+      "taskDir": "tasks/Debugging_09_08",
+      "agentManifest": "tasks/Debugging_09_08/agent/task.json",
+      "evaluatorManifest": "tasks/Debugging_09_08/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Debugging_09_08/agent/inputs/01-Incorrect Sign Conventions_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Debugging_09_08/evaluator/gold/01-09_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Debugging/09_09",
+      "category": "Debugging",
+      "taskDir": "tasks/Debugging_09_09",
+      "agentManifest": "tasks/Debugging_09_09/agent/task.json",
+      "evaluatorManifest": "tasks/Debugging_09_09/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Debugging_09_09/agent/inputs/01-Relative vs Absolute References_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Debugging_09_09/evaluator/gold/01-09_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Debugging/09_10",
+      "category": "Debugging",
+      "taskDir": "tasks/Debugging_09_10",
+      "agentManifest": "tasks/Debugging_09_10/agent/task.json",
+      "evaluatorManifest": "tasks/Debugging_09_10/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Debugging_09_10/agent/inputs/01-Unit Mismatch_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Debugging_09_10/evaluator/gold/01-09_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Debugging/10_01",
+      "category": "Debugging",
+      "taskDir": "tasks/Debugging_10_01",
+      "agentManifest": "tasks/Debugging_10_01/agent/task.json",
+      "evaluatorManifest": "tasks/Debugging_10_01/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Debugging_10_01/agent/inputs/01-Double Counting_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Debugging_10_01/evaluator/gold/01-10_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Debugging/10_02",
+      "category": "Debugging",
+      "taskDir": "tasks/Debugging_10_02",
+      "agentManifest": "tasks/Debugging_10_02/agent/task.json",
+      "evaluatorManifest": "tasks/Debugging_10_02/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Debugging_10_02/agent/inputs/01-Embedded Hardcodes_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Debugging_10_02/evaluator/gold/01-10_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Debugging/10_03",
+      "category": "Debugging",
+      "taskDir": "tasks/Debugging_10_03",
+      "agentManifest": "tasks/Debugging_10_03/agent/task.json",
+      "evaluatorManifest": "tasks/Debugging_10_03/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Debugging_10_03/agent/inputs/01-Errors_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Debugging_10_03/evaluator/gold/01-10_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Debugging/10_04",
+      "category": "Debugging",
+      "taskDir": "tasks/Debugging_10_04",
+      "agentManifest": "tasks/Debugging_10_04/agent/task.json",
+      "evaluatorManifest": "tasks/Debugging_10_04/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Debugging_10_04/agent/inputs/01-Inconsistent Color Coding_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Debugging_10_04/evaluator/gold/01-10_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Debugging/10_05",
+      "category": "Debugging",
+      "taskDir": "tasks/Debugging_10_05",
+      "agentManifest": "tasks/Debugging_10_05/agent/task.json",
+      "evaluatorManifest": "tasks/Debugging_10_05/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Debugging_10_05/agent/inputs/01-Incorrect Average_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Debugging_10_05/evaluator/gold/01-10_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Debugging/10_06",
+      "category": "Debugging",
+      "taskDir": "tasks/Debugging_10_06",
+      "agentManifest": "tasks/Debugging_10_06/agent/task.json",
+      "evaluatorManifest": "tasks/Debugging_10_06/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Debugging_10_06/agent/inputs/01-Incorrect Cross Sheet References_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Debugging_10_06/evaluator/gold/01-10_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Debugging/10_07",
+      "category": "Debugging",
+      "taskDir": "tasks/Debugging_10_07",
+      "agentManifest": "tasks/Debugging_10_07/agent/task.json",
+      "evaluatorManifest": "tasks/Debugging_10_07/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Debugging_10_07/agent/inputs/01-Incorrect Index Match_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Debugging_10_07/evaluator/gold/01-10_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Debugging/10_08",
+      "category": "Debugging",
+      "taskDir": "tasks/Debugging_10_08",
+      "agentManifest": "tasks/Debugging_10_08/agent/task.json",
+      "evaluatorManifest": "tasks/Debugging_10_08/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Debugging_10_08/agent/inputs/01-Incorrect Sign Conventions_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Debugging_10_08/evaluator/gold/01-10_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Debugging/10_09",
+      "category": "Debugging",
+      "taskDir": "tasks/Debugging_10_09",
+      "agentManifest": "tasks/Debugging_10_09/agent/task.json",
+      "evaluatorManifest": "tasks/Debugging_10_09/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Debugging_10_09/agent/inputs/01-Relative vs Absolute References_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Debugging_10_09/evaluator/gold/01-10_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Debugging/10_10",
+      "category": "Debugging",
+      "taskDir": "tasks/Debugging_10_10",
+      "agentManifest": "tasks/Debugging_10_10/agent/task.json",
+      "evaluatorManifest": "tasks/Debugging_10_10/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Debugging_10_10/agent/inputs/01-Unit Mismatch_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Debugging_10_10/evaluator/gold/01-10_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Financial_Model/01_01",
+      "category": "Financial_Model",
+      "taskDir": "tasks/Financial_Model_01_01",
+      "agentManifest": "tasks/Financial_Model_01_01/agent/task.json",
+      "evaluatorManifest": "tasks/Financial_Model_01_01/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Financial_Model_01_01/agent/inputs/01-01_01_Education_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Financial_Model_01_01/evaluator/gold/01-01_Education_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Financial_Model/01_02",
+      "category": "Financial_Model",
+      "taskDir": "tasks/Financial_Model_01_02",
+      "agentManifest": "tasks/Financial_Model_01_02/agent/task.json",
+      "evaluatorManifest": "tasks/Financial_Model_01_02/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Financial_Model_01_02/agent/inputs/01-01_02_Education_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Financial_Model_01_02/evaluator/gold/01-01_Education_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Financial_Model/01_03",
+      "category": "Financial_Model",
+      "taskDir": "tasks/Financial_Model_01_03",
+      "agentManifest": "tasks/Financial_Model_01_03/agent/task.json",
+      "evaluatorManifest": "tasks/Financial_Model_01_03/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Financial_Model_01_03/agent/inputs/01-01_03_Education_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Financial_Model_01_03/evaluator/gold/01-01_Education_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Financial_Model/01_04",
+      "category": "Financial_Model",
+      "taskDir": "tasks/Financial_Model_01_04",
+      "agentManifest": "tasks/Financial_Model_01_04/agent/task.json",
+      "evaluatorManifest": "tasks/Financial_Model_01_04/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Financial_Model_01_04/agent/inputs/01-01_04_Education_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Financial_Model_01_04/evaluator/gold/01-01_Education_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Financial_Model/01_05",
+      "category": "Financial_Model",
+      "taskDir": "tasks/Financial_Model_01_05",
+      "agentManifest": "tasks/Financial_Model_01_05/agent/task.json",
+      "evaluatorManifest": "tasks/Financial_Model_01_05/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Financial_Model_01_05/agent/inputs/01-01_05_Education_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Financial_Model_01_05/evaluator/gold/01-01_Education_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Financial_Model/02_01",
+      "category": "Financial_Model",
+      "taskDir": "tasks/Financial_Model_02_01",
+      "agentManifest": "tasks/Financial_Model_02_01/agent/task.json",
+      "evaluatorManifest": "tasks/Financial_Model_02_01/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Financial_Model_02_01/agent/inputs/01-02_01_PP_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Financial_Model_02_01/evaluator/gold/01-02_PP_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Financial_Model/02_02",
+      "category": "Financial_Model",
+      "taskDir": "tasks/Financial_Model_02_02",
+      "agentManifest": "tasks/Financial_Model_02_02/agent/task.json",
+      "evaluatorManifest": "tasks/Financial_Model_02_02/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Financial_Model_02_02/agent/inputs/01-02_02_PP_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Financial_Model_02_02/evaluator/gold/01-02_PP_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Financial_Model/02_03",
+      "category": "Financial_Model",
+      "taskDir": "tasks/Financial_Model_02_03",
+      "agentManifest": "tasks/Financial_Model_02_03/agent/task.json",
+      "evaluatorManifest": "tasks/Financial_Model_02_03/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Financial_Model_02_03/agent/inputs/01-02_03_PP_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Financial_Model_02_03/evaluator/gold/01-02_PP_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Financial_Model/02_04",
+      "category": "Financial_Model",
+      "taskDir": "tasks/Financial_Model_02_04",
+      "agentManifest": "tasks/Financial_Model_02_04/agent/task.json",
+      "evaluatorManifest": "tasks/Financial_Model_02_04/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Financial_Model_02_04/agent/inputs/01-02_04_PP_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Financial_Model_02_04/evaluator/gold/01-02_PP_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Financial_Model/02_05",
+      "category": "Financial_Model",
+      "taskDir": "tasks/Financial_Model_02_05",
+      "agentManifest": "tasks/Financial_Model_02_05/agent/task.json",
+      "evaluatorManifest": "tasks/Financial_Model_02_05/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Financial_Model_02_05/agent/inputs/01-02_05_PP_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Financial_Model_02_05/evaluator/gold/01-02_PP_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Financial_Model/03_01",
+      "category": "Financial_Model",
+      "taskDir": "tasks/Financial_Model_03_01",
+      "agentManifest": "tasks/Financial_Model_03_01/agent/task.json",
+      "evaluatorManifest": "tasks/Financial_Model_03_01/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Financial_Model_03_01/agent/inputs/01-03_01_Banking_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Financial_Model_03_01/evaluator/gold/01-03_Banking_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Financial_Model/03_02",
+      "category": "Financial_Model",
+      "taskDir": "tasks/Financial_Model_03_02",
+      "agentManifest": "tasks/Financial_Model_03_02/agent/task.json",
+      "evaluatorManifest": "tasks/Financial_Model_03_02/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Financial_Model_03_02/agent/inputs/01-03_02_Banking_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Financial_Model_03_02/evaluator/gold/01-03_Banking_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Financial_Model/03_03",
+      "category": "Financial_Model",
+      "taskDir": "tasks/Financial_Model_03_03",
+      "agentManifest": "tasks/Financial_Model_03_03/agent/task.json",
+      "evaluatorManifest": "tasks/Financial_Model_03_03/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Financial_Model_03_03/agent/inputs/01-03_03_Banking_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Financial_Model_03_03/evaluator/gold/01-03_Banking_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Financial_Model/03_04",
+      "category": "Financial_Model",
+      "taskDir": "tasks/Financial_Model_03_04",
+      "agentManifest": "tasks/Financial_Model_03_04/agent/task.json",
+      "evaluatorManifest": "tasks/Financial_Model_03_04/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Financial_Model_03_04/agent/inputs/01-03_04_Banking_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Financial_Model_03_04/evaluator/gold/01-03_Banking_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Financial_Model/03_05",
+      "category": "Financial_Model",
+      "taskDir": "tasks/Financial_Model_03_05",
+      "agentManifest": "tasks/Financial_Model_03_05/agent/task.json",
+      "evaluatorManifest": "tasks/Financial_Model_03_05/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Financial_Model_03_05/agent/inputs/01-03_05_Banking_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Financial_Model_03_05/evaluator/gold/01-03_Banking_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Financial_Model/04_01",
+      "category": "Financial_Model",
+      "taskDir": "tasks/Financial_Model_04_01",
+      "agentManifest": "tasks/Financial_Model_04_01/agent/task.json",
+      "evaluatorManifest": "tasks/Financial_Model_04_01/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Financial_Model_04_01/agent/inputs/01-04_01_Consumer_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Financial_Model_04_01/evaluator/gold/01-04_Consumer_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Financial_Model/04_02",
+      "category": "Financial_Model",
+      "taskDir": "tasks/Financial_Model_04_02",
+      "agentManifest": "tasks/Financial_Model_04_02/agent/task.json",
+      "evaluatorManifest": "tasks/Financial_Model_04_02/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Financial_Model_04_02/agent/inputs/01-04_02_Consumer_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Financial_Model_04_02/evaluator/gold/01-04_Consumer_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Financial_Model/04_03",
+      "category": "Financial_Model",
+      "taskDir": "tasks/Financial_Model_04_03",
+      "agentManifest": "tasks/Financial_Model_04_03/agent/task.json",
+      "evaluatorManifest": "tasks/Financial_Model_04_03/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Financial_Model_04_03/agent/inputs/01-04_03_Consumer_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Financial_Model_04_03/evaluator/gold/01-04_Consumer_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Financial_Model/04_04",
+      "category": "Financial_Model",
+      "taskDir": "tasks/Financial_Model_04_04",
+      "agentManifest": "tasks/Financial_Model_04_04/agent/task.json",
+      "evaluatorManifest": "tasks/Financial_Model_04_04/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Financial_Model_04_04/agent/inputs/01-04_04_Consumer_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Financial_Model_04_04/evaluator/gold/01-04_Consumer_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Financial_Model/04_05",
+      "category": "Financial_Model",
+      "taskDir": "tasks/Financial_Model_04_05",
+      "agentManifest": "tasks/Financial_Model_04_05/agent/task.json",
+      "evaluatorManifest": "tasks/Financial_Model_04_05/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Financial_Model_04_05/agent/inputs/01-04_05_Consumer_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Financial_Model_04_05/evaluator/gold/01-04_Consumer_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Financial_Model/05_01",
+      "category": "Financial_Model",
+      "taskDir": "tasks/Financial_Model_05_01",
+      "agentManifest": "tasks/Financial_Model_05_01/agent/task.json",
+      "evaluatorManifest": "tasks/Financial_Model_05_01/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Financial_Model_05_01/agent/inputs/01-05_01_AIF_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Financial_Model_05_01/evaluator/gold/01-05_AIF_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Financial_Model/05_02",
+      "category": "Financial_Model",
+      "taskDir": "tasks/Financial_Model_05_02",
+      "agentManifest": "tasks/Financial_Model_05_02/agent/task.json",
+      "evaluatorManifest": "tasks/Financial_Model_05_02/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Financial_Model_05_02/agent/inputs/01-05_02_AIF_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Financial_Model_05_02/evaluator/gold/01-05_AIF_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Financial_Model/05_03",
+      "category": "Financial_Model",
+      "taskDir": "tasks/Financial_Model_05_03",
+      "agentManifest": "tasks/Financial_Model_05_03/agent/task.json",
+      "evaluatorManifest": "tasks/Financial_Model_05_03/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Financial_Model_05_03/agent/inputs/01-05_03_AIF_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Financial_Model_05_03/evaluator/gold/01-05_AIF_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Financial_Model/05_04",
+      "category": "Financial_Model",
+      "taskDir": "tasks/Financial_Model_05_04",
+      "agentManifest": "tasks/Financial_Model_05_04/agent/task.json",
+      "evaluatorManifest": "tasks/Financial_Model_05_04/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Financial_Model_05_04/agent/inputs/01-05_04_AIF_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Financial_Model_05_04/evaluator/gold/01-05_AIF_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Financial_Model/05_05",
+      "category": "Financial_Model",
+      "taskDir": "tasks/Financial_Model_05_05",
+      "agentManifest": "tasks/Financial_Model_05_05/agent/task.json",
+      "evaluatorManifest": "tasks/Financial_Model_05_05/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Financial_Model_05_05/agent/inputs/01-05_05_AIF_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Financial_Model_05_05/evaluator/gold/01-05_AIF_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Financial_Model/06_01",
+      "category": "Financial_Model",
+      "taskDir": "tasks/Financial_Model_06_01",
+      "agentManifest": "tasks/Financial_Model_06_01/agent/task.json",
+      "evaluatorManifest": "tasks/Financial_Model_06_01/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Financial_Model_06_01/agent/inputs/01-06_01_DigiMark_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Financial_Model_06_01/evaluator/gold/01-06_DigiMark_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Financial_Model/06_02",
+      "category": "Financial_Model",
+      "taskDir": "tasks/Financial_Model_06_02",
+      "agentManifest": "tasks/Financial_Model_06_02/agent/task.json",
+      "evaluatorManifest": "tasks/Financial_Model_06_02/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Financial_Model_06_02/agent/inputs/01-06_02_DigiMark_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Financial_Model_06_02/evaluator/gold/01-06_DigiMark_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Financial_Model/06_03",
+      "category": "Financial_Model",
+      "taskDir": "tasks/Financial_Model_06_03",
+      "agentManifest": "tasks/Financial_Model_06_03/agent/task.json",
+      "evaluatorManifest": "tasks/Financial_Model_06_03/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Financial_Model_06_03/agent/inputs/01-06_03_DigiMark_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Financial_Model_06_03/evaluator/gold/01-06_DigiMark_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Financial_Model/06_04",
+      "category": "Financial_Model",
+      "taskDir": "tasks/Financial_Model_06_04",
+      "agentManifest": "tasks/Financial_Model_06_04/agent/task.json",
+      "evaluatorManifest": "tasks/Financial_Model_06_04/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Financial_Model_06_04/agent/inputs/01-06_04_DigiMark_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Financial_Model_06_04/evaluator/gold/01-06_DigiMark_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Financial_Model/06_05",
+      "category": "Financial_Model",
+      "taskDir": "tasks/Financial_Model_06_05",
+      "agentManifest": "tasks/Financial_Model_06_05/agent/task.json",
+      "evaluatorManifest": "tasks/Financial_Model_06_05/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Financial_Model_06_05/agent/inputs/01-06_05_DigiMark_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Financial_Model_06_05/evaluator/gold/01-06_DigiMark_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Financial_Model/07_01",
+      "category": "Financial_Model",
+      "taskDir": "tasks/Financial_Model_07_01",
+      "agentManifest": "tasks/Financial_Model_07_01/agent/task.json",
+      "evaluatorManifest": "tasks/Financial_Model_07_01/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Financial_Model_07_01/agent/inputs/01-07_01_RealEstate_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Financial_Model_07_01/evaluator/gold/01-07_RealEstate_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Financial_Model/07_02",
+      "category": "Financial_Model",
+      "taskDir": "tasks/Financial_Model_07_02",
+      "agentManifest": "tasks/Financial_Model_07_02/agent/task.json",
+      "evaluatorManifest": "tasks/Financial_Model_07_02/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Financial_Model_07_02/agent/inputs/01-07_02_RealEstate_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Financial_Model_07_02/evaluator/gold/01-07_RealEstate_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Financial_Model/07_03",
+      "category": "Financial_Model",
+      "taskDir": "tasks/Financial_Model_07_03",
+      "agentManifest": "tasks/Financial_Model_07_03/agent/task.json",
+      "evaluatorManifest": "tasks/Financial_Model_07_03/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Financial_Model_07_03/agent/inputs/01-07_03_RealEstate_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Financial_Model_07_03/evaluator/gold/01-07_RealEstate_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Financial_Model/07_04",
+      "category": "Financial_Model",
+      "taskDir": "tasks/Financial_Model_07_04",
+      "agentManifest": "tasks/Financial_Model_07_04/agent/task.json",
+      "evaluatorManifest": "tasks/Financial_Model_07_04/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Financial_Model_07_04/agent/inputs/01-07_04_RealEstate_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Financial_Model_07_04/evaluator/gold/01-07_RealEstate_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Financial_Model/07_05",
+      "category": "Financial_Model",
+      "taskDir": "tasks/Financial_Model_07_05",
+      "agentManifest": "tasks/Financial_Model_07_05/agent/task.json",
+      "evaluatorManifest": "tasks/Financial_Model_07_05/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Financial_Model_07_05/agent/inputs/01-07_05_RealEstate_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Financial_Model_07_05/evaluator/gold/01-07_RealEstate_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Financial_Model/08_01",
+      "category": "Financial_Model",
+      "taskDir": "tasks/Financial_Model_08_01",
+      "agentManifest": "tasks/Financial_Model_08_01/agent/task.json",
+      "evaluatorManifest": "tasks/Financial_Model_08_01/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Financial_Model_08_01/agent/inputs/01-08_01_Seafood_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Financial_Model_08_01/evaluator/gold/01-08_Seafood_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Financial_Model/08_02",
+      "category": "Financial_Model",
+      "taskDir": "tasks/Financial_Model_08_02",
+      "agentManifest": "tasks/Financial_Model_08_02/agent/task.json",
+      "evaluatorManifest": "tasks/Financial_Model_08_02/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Financial_Model_08_02/agent/inputs/01-08_02_Seafood_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Financial_Model_08_02/evaluator/gold/01-08_Seafood_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Financial_Model/08_03",
+      "category": "Financial_Model",
+      "taskDir": "tasks/Financial_Model_08_03",
+      "agentManifest": "tasks/Financial_Model_08_03/agent/task.json",
+      "evaluatorManifest": "tasks/Financial_Model_08_03/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Financial_Model_08_03/agent/inputs/01-08_03_Seafood_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Financial_Model_08_03/evaluator/gold/01-08_Seafood_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Financial_Model/08_04",
+      "category": "Financial_Model",
+      "taskDir": "tasks/Financial_Model_08_04",
+      "agentManifest": "tasks/Financial_Model_08_04/agent/task.json",
+      "evaluatorManifest": "tasks/Financial_Model_08_04/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Financial_Model_08_04/agent/inputs/01-08_04_Seafood_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Financial_Model_08_04/evaluator/gold/01-08_Seafood_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Financial_Model/08_05",
+      "category": "Financial_Model",
+      "taskDir": "tasks/Financial_Model_08_05",
+      "agentManifest": "tasks/Financial_Model_08_05/agent/task.json",
+      "evaluatorManifest": "tasks/Financial_Model_08_05/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Financial_Model_08_05/agent/inputs/01-08_05_Seafood_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Financial_Model_08_05/evaluator/gold/01-08_Seafood_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Financial_Model/09_01",
+      "category": "Financial_Model",
+      "taskDir": "tasks/Financial_Model_09_01",
+      "agentManifest": "tasks/Financial_Model_09_01/agent/task.json",
+      "evaluatorManifest": "tasks/Financial_Model_09_01/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Financial_Model_09_01/agent/inputs/01-09_01_PepsiCo_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Financial_Model_09_01/evaluator/gold/01-09_PepsiCo_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Financial_Model/09_02",
+      "category": "Financial_Model",
+      "taskDir": "tasks/Financial_Model_09_02",
+      "agentManifest": "tasks/Financial_Model_09_02/agent/task.json",
+      "evaluatorManifest": "tasks/Financial_Model_09_02/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Financial_Model_09_02/agent/inputs/01-09_02_PepsiCo_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Financial_Model_09_02/evaluator/gold/01-09_PepsiCo_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Financial_Model/09_03",
+      "category": "Financial_Model",
+      "taskDir": "tasks/Financial_Model_09_03",
+      "agentManifest": "tasks/Financial_Model_09_03/agent/task.json",
+      "evaluatorManifest": "tasks/Financial_Model_09_03/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Financial_Model_09_03/agent/inputs/01-09_03_PepsiCo_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Financial_Model_09_03/evaluator/gold/01-09_PepsiCo_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Financial_Model/09_04",
+      "category": "Financial_Model",
+      "taskDir": "tasks/Financial_Model_09_04",
+      "agentManifest": "tasks/Financial_Model_09_04/agent/task.json",
+      "evaluatorManifest": "tasks/Financial_Model_09_04/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Financial_Model_09_04/agent/inputs/01-09_04_PepsiCo_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Financial_Model_09_04/evaluator/gold/01-09_PepsiCo_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Financial_Model/09_05",
+      "category": "Financial_Model",
+      "taskDir": "tasks/Financial_Model_09_05",
+      "agentManifest": "tasks/Financial_Model_09_05/agent/task.json",
+      "evaluatorManifest": "tasks/Financial_Model_09_05/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Financial_Model_09_05/agent/inputs/01-09_05_PepsiCo_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Financial_Model_09_05/evaluator/gold/01-09_PepsiCo_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Financial_Model/10_01",
+      "category": "Financial_Model",
+      "taskDir": "tasks/Financial_Model_10_01",
+      "agentManifest": "tasks/Financial_Model_10_01/agent/task.json",
+      "evaluatorManifest": "tasks/Financial_Model_10_01/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Financial_Model_10_01/agent/inputs/01-10_01_McDonalds_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Financial_Model_10_01/evaluator/gold/01-10_McDonalds_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Financial_Model/10_02",
+      "category": "Financial_Model",
+      "taskDir": "tasks/Financial_Model_10_02",
+      "agentManifest": "tasks/Financial_Model_10_02/agent/task.json",
+      "evaluatorManifest": "tasks/Financial_Model_10_02/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Financial_Model_10_02/agent/inputs/01-10_02_McDonalds_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Financial_Model_10_02/evaluator/gold/01-10_McDonalds_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Financial_Model/10_03",
+      "category": "Financial_Model",
+      "taskDir": "tasks/Financial_Model_10_03",
+      "agentManifest": "tasks/Financial_Model_10_03/agent/task.json",
+      "evaluatorManifest": "tasks/Financial_Model_10_03/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Financial_Model_10_03/agent/inputs/01-10_03_McDonalds_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Financial_Model_10_03/evaluator/gold/01-10_McDonalds_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Financial_Model/10_04",
+      "category": "Financial_Model",
+      "taskDir": "tasks/Financial_Model_10_04",
+      "agentManifest": "tasks/Financial_Model_10_04/agent/task.json",
+      "evaluatorManifest": "tasks/Financial_Model_10_04/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Financial_Model_10_04/agent/inputs/01-10_04_McDonalds_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Financial_Model_10_04/evaluator/gold/01-10_McDonalds_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Financial_Model/10_05",
+      "category": "Financial_Model",
+      "taskDir": "tasks/Financial_Model_10_05",
+      "agentManifest": "tasks/Financial_Model_10_05/agent/task.json",
+      "evaluatorManifest": "tasks/Financial_Model_10_05/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Financial_Model_10_05/agent/inputs/01-10_05_McDonalds_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Financial_Model_10_05/evaluator/gold/01-10_McDonalds_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Financial_Model/11_01",
+      "category": "Financial_Model",
+      "taskDir": "tasks/Financial_Model_11_01",
+      "agentManifest": "tasks/Financial_Model_11_01/agent/task.json",
+      "evaluatorManifest": "tasks/Financial_Model_11_01/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Financial_Model_11_01/agent/inputs/01-11_01_Switchgear_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Financial_Model_11_01/evaluator/gold/01-11_Switchgear_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Financial_Model/11_02",
+      "category": "Financial_Model",
+      "taskDir": "tasks/Financial_Model_11_02",
+      "agentManifest": "tasks/Financial_Model_11_02/agent/task.json",
+      "evaluatorManifest": "tasks/Financial_Model_11_02/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Financial_Model_11_02/agent/inputs/01-11_02_Switchgear_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Financial_Model_11_02/evaluator/gold/01-11_Switchgear_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Financial_Model/11_03",
+      "category": "Financial_Model",
+      "taskDir": "tasks/Financial_Model_11_03",
+      "agentManifest": "tasks/Financial_Model_11_03/agent/task.json",
+      "evaluatorManifest": "tasks/Financial_Model_11_03/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Financial_Model_11_03/agent/inputs/01-11_03_Switchgear_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Financial_Model_11_03/evaluator/gold/01-11_Switchgear_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Financial_Model/11_04",
+      "category": "Financial_Model",
+      "taskDir": "tasks/Financial_Model_11_04",
+      "agentManifest": "tasks/Financial_Model_11_04/agent/task.json",
+      "evaluatorManifest": "tasks/Financial_Model_11_04/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Financial_Model_11_04/agent/inputs/01-11_04_Switchgear_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Financial_Model_11_04/evaluator/gold/01-11_Switchgear_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Financial_Model/11_05",
+      "category": "Financial_Model",
+      "taskDir": "tasks/Financial_Model_11_05",
+      "agentManifest": "tasks/Financial_Model_11_05/agent/task.json",
+      "evaluatorManifest": "tasks/Financial_Model_11_05/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Financial_Model_11_05/agent/inputs/01-11_05_Switchgear_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Financial_Model_11_05/evaluator/gold/01-11_Switchgear_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Financial_Model/12_01",
+      "category": "Financial_Model",
+      "taskDir": "tasks/Financial_Model_12_01",
+      "agentManifest": "tasks/Financial_Model_12_01/agent/task.json",
+      "evaluatorManifest": "tasks/Financial_Model_12_01/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Financial_Model_12_01/agent/inputs/01-12_01_Infra_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Financial_Model_12_01/evaluator/gold/01-12_Infra_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Financial_Model/12_02",
+      "category": "Financial_Model",
+      "taskDir": "tasks/Financial_Model_12_02",
+      "agentManifest": "tasks/Financial_Model_12_02/agent/task.json",
+      "evaluatorManifest": "tasks/Financial_Model_12_02/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Financial_Model_12_02/agent/inputs/01-12_02_Infra_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Financial_Model_12_02/evaluator/gold/01-12_Infra_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Financial_Model/12_03",
+      "category": "Financial_Model",
+      "taskDir": "tasks/Financial_Model_12_03",
+      "agentManifest": "tasks/Financial_Model_12_03/agent/task.json",
+      "evaluatorManifest": "tasks/Financial_Model_12_03/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Financial_Model_12_03/agent/inputs/01-12_03_Infra_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Financial_Model_12_03/evaluator/gold/01-12_Infra_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Financial_Model/12_04",
+      "category": "Financial_Model",
+      "taskDir": "tasks/Financial_Model_12_04",
+      "agentManifest": "tasks/Financial_Model_12_04/agent/task.json",
+      "evaluatorManifest": "tasks/Financial_Model_12_04/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Financial_Model_12_04/agent/inputs/01-12_04_Infra_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Financial_Model_12_04/evaluator/gold/01-12_Infra_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Financial_Model/12_05",
+      "category": "Financial_Model",
+      "taskDir": "tasks/Financial_Model_12_05",
+      "agentManifest": "tasks/Financial_Model_12_05/agent/task.json",
+      "evaluatorManifest": "tasks/Financial_Model_12_05/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Financial_Model_12_05/agent/inputs/01-12_05_Infra_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Financial_Model_12_05/evaluator/gold/01-12_Infra_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Financial_Model/13_01",
+      "category": "Financial_Model",
+      "taskDir": "tasks/Financial_Model_13_01",
+      "agentManifest": "tasks/Financial_Model_13_01/agent/task.json",
+      "evaluatorManifest": "tasks/Financial_Model_13_01/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Financial_Model_13_01/agent/inputs/01-13_01_Logistic_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Financial_Model_13_01/evaluator/gold/01-13_Logistic_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Financial_Model/13_02",
+      "category": "Financial_Model",
+      "taskDir": "tasks/Financial_Model_13_02",
+      "agentManifest": "tasks/Financial_Model_13_02/agent/task.json",
+      "evaluatorManifest": "tasks/Financial_Model_13_02/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Financial_Model_13_02/agent/inputs/01-13_02_Logistic_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Financial_Model_13_02/evaluator/gold/01-13_Logistic_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Financial_Model/13_03",
+      "category": "Financial_Model",
+      "taskDir": "tasks/Financial_Model_13_03",
+      "agentManifest": "tasks/Financial_Model_13_03/agent/task.json",
+      "evaluatorManifest": "tasks/Financial_Model_13_03/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Financial_Model_13_03/agent/inputs/01-13_03_Logistic_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Financial_Model_13_03/evaluator/gold/01-13_Logistic_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Financial_Model/13_04",
+      "category": "Financial_Model",
+      "taskDir": "tasks/Financial_Model_13_04",
+      "agentManifest": "tasks/Financial_Model_13_04/agent/task.json",
+      "evaluatorManifest": "tasks/Financial_Model_13_04/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Financial_Model_13_04/agent/inputs/01-13_04_Logistic_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Financial_Model_13_04/evaluator/gold/01-13_Logistic_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Financial_Model/13_05",
+      "category": "Financial_Model",
+      "taskDir": "tasks/Financial_Model_13_05",
+      "agentManifest": "tasks/Financial_Model_13_05/agent/task.json",
+      "evaluatorManifest": "tasks/Financial_Model_13_05/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Financial_Model_13_05/agent/inputs/01-13_05_Logistic_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Financial_Model_13_05/evaluator/gold/01-13_Logistic_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Financial_Model/14_01",
+      "category": "Financial_Model",
+      "taskDir": "tasks/Financial_Model_14_01",
+      "agentManifest": "tasks/Financial_Model_14_01/agent/task.json",
+      "evaluatorManifest": "tasks/Financial_Model_14_01/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Financial_Model_14_01/agent/inputs/01-14_01_Refinery_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Financial_Model_14_01/evaluator/gold/01-14_Refinery_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Financial_Model/14_02",
+      "category": "Financial_Model",
+      "taskDir": "tasks/Financial_Model_14_02",
+      "agentManifest": "tasks/Financial_Model_14_02/agent/task.json",
+      "evaluatorManifest": "tasks/Financial_Model_14_02/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Financial_Model_14_02/agent/inputs/01-14_02_Refinery_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Financial_Model_14_02/evaluator/gold/01-14_Refinery_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Financial_Model/14_03",
+      "category": "Financial_Model",
+      "taskDir": "tasks/Financial_Model_14_03",
+      "agentManifest": "tasks/Financial_Model_14_03/agent/task.json",
+      "evaluatorManifest": "tasks/Financial_Model_14_03/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Financial_Model_14_03/agent/inputs/01-14_03_Refinery_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Financial_Model_14_03/evaluator/gold/01-14_Refinery_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Financial_Model/14_04",
+      "category": "Financial_Model",
+      "taskDir": "tasks/Financial_Model_14_04",
+      "agentManifest": "tasks/Financial_Model_14_04/agent/task.json",
+      "evaluatorManifest": "tasks/Financial_Model_14_04/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Financial_Model_14_04/agent/inputs/01-14_04_Refinery_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Financial_Model_14_04/evaluator/gold/01-14_Refinery_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Financial_Model/14_05",
+      "category": "Financial_Model",
+      "taskDir": "tasks/Financial_Model_14_05",
+      "agentManifest": "tasks/Financial_Model_14_05/agent/task.json",
+      "evaluatorManifest": "tasks/Financial_Model_14_05/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Financial_Model_14_05/agent/inputs/01-14_05_Refinery_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Financial_Model_14_05/evaluator/gold/01-14_Refinery_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Financial_Model/15_01",
+      "category": "Financial_Model",
+      "taskDir": "tasks/Financial_Model_15_01",
+      "agentManifest": "tasks/Financial_Model_15_01/agent/task.json",
+      "evaluatorManifest": "tasks/Financial_Model_15_01/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Financial_Model_15_01/agent/inputs/01-15_01_KIMS_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Financial_Model_15_01/evaluator/gold/01-15_KIMS_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Financial_Model/15_02",
+      "category": "Financial_Model",
+      "taskDir": "tasks/Financial_Model_15_02",
+      "agentManifest": "tasks/Financial_Model_15_02/agent/task.json",
+      "evaluatorManifest": "tasks/Financial_Model_15_02/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Financial_Model_15_02/agent/inputs/01-15_02_KIMS_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Financial_Model_15_02/evaluator/gold/01-15_KIMS_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Financial_Model/15_03",
+      "category": "Financial_Model",
+      "taskDir": "tasks/Financial_Model_15_03",
+      "agentManifest": "tasks/Financial_Model_15_03/agent/task.json",
+      "evaluatorManifest": "tasks/Financial_Model_15_03/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Financial_Model_15_03/agent/inputs/01-15_03_KIMS_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Financial_Model_15_03/evaluator/gold/01-15_KIMS_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Financial_Model/15_04",
+      "category": "Financial_Model",
+      "taskDir": "tasks/Financial_Model_15_04",
+      "agentManifest": "tasks/Financial_Model_15_04/agent/task.json",
+      "evaluatorManifest": "tasks/Financial_Model_15_04/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Financial_Model_15_04/agent/inputs/01-15_04_KIMS_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Financial_Model_15_04/evaluator/gold/01-15_KIMS_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Financial_Model/15_05",
+      "category": "Financial_Model",
+      "taskDir": "tasks/Financial_Model_15_05",
+      "agentManifest": "tasks/Financial_Model_15_05/agent/task.json",
+      "evaluatorManifest": "tasks/Financial_Model_15_05/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Financial_Model_15_05/agent/inputs/01-15_05_KIMS_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Financial_Model_15_05/evaluator/gold/01-15_KIMS_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Financial_Model/16_01",
+      "category": "Financial_Model",
+      "taskDir": "tasks/Financial_Model_16_01",
+      "agentManifest": "tasks/Financial_Model_16_01/agent/task.json",
+      "evaluatorManifest": "tasks/Financial_Model_16_01/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Financial_Model_16_01/agent/inputs/01-16_01_Ramjet_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Financial_Model_16_01/evaluator/gold/01-16_Ramjet_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Financial_Model/16_02",
+      "category": "Financial_Model",
+      "taskDir": "tasks/Financial_Model_16_02",
+      "agentManifest": "tasks/Financial_Model_16_02/agent/task.json",
+      "evaluatorManifest": "tasks/Financial_Model_16_02/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Financial_Model_16_02/agent/inputs/01-16_02_Ramjet_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Financial_Model_16_02/evaluator/gold/01-16_Ramjet_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Financial_Model/16_03",
+      "category": "Financial_Model",
+      "taskDir": "tasks/Financial_Model_16_03",
+      "agentManifest": "tasks/Financial_Model_16_03/agent/task.json",
+      "evaluatorManifest": "tasks/Financial_Model_16_03/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Financial_Model_16_03/agent/inputs/01-16_03_Ramjet_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Financial_Model_16_03/evaluator/gold/01-16_Ramjet_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Financial_Model/16_04",
+      "category": "Financial_Model",
+      "taskDir": "tasks/Financial_Model_16_04",
+      "agentManifest": "tasks/Financial_Model_16_04/agent/task.json",
+      "evaluatorManifest": "tasks/Financial_Model_16_04/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Financial_Model_16_04/agent/inputs/01-16_04_Ramjet_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Financial_Model_16_04/evaluator/gold/01-16_Ramjet_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Financial_Model/16_05",
+      "category": "Financial_Model",
+      "taskDir": "tasks/Financial_Model_16_05",
+      "agentManifest": "tasks/Financial_Model_16_05/agent/task.json",
+      "evaluatorManifest": "tasks/Financial_Model_16_05/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Financial_Model_16_05/agent/inputs/01-16_05_Ramjet_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Financial_Model_16_05/evaluator/gold/01-16_Ramjet_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Financial_Model/17_01",
+      "category": "Financial_Model",
+      "taskDir": "tasks/Financial_Model_17_01",
+      "agentManifest": "tasks/Financial_Model_17_01/agent/task.json",
+      "evaluatorManifest": "tasks/Financial_Model_17_01/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Financial_Model_17_01/agent/inputs/01-17_01_FMCG_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Financial_Model_17_01/evaluator/gold/01-17_FMCG_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Financial_Model/17_02",
+      "category": "Financial_Model",
+      "taskDir": "tasks/Financial_Model_17_02",
+      "agentManifest": "tasks/Financial_Model_17_02/agent/task.json",
+      "evaluatorManifest": "tasks/Financial_Model_17_02/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Financial_Model_17_02/agent/inputs/01-17_02_FMCG_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Financial_Model_17_02/evaluator/gold/01-17_FMCG_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Financial_Model/17_03",
+      "category": "Financial_Model",
+      "taskDir": "tasks/Financial_Model_17_03",
+      "agentManifest": "tasks/Financial_Model_17_03/agent/task.json",
+      "evaluatorManifest": "tasks/Financial_Model_17_03/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Financial_Model_17_03/agent/inputs/01-17_03_FMCG_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Financial_Model_17_03/evaluator/gold/01-17_FMCG_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Financial_Model/17_04",
+      "category": "Financial_Model",
+      "taskDir": "tasks/Financial_Model_17_04",
+      "agentManifest": "tasks/Financial_Model_17_04/agent/task.json",
+      "evaluatorManifest": "tasks/Financial_Model_17_04/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Financial_Model_17_04/agent/inputs/01-17_04_FMCG_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Financial_Model_17_04/evaluator/gold/01-17_FMCG_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Financial_Model/17_05",
+      "category": "Financial_Model",
+      "taskDir": "tasks/Financial_Model_17_05",
+      "agentManifest": "tasks/Financial_Model_17_05/agent/task.json",
+      "evaluatorManifest": "tasks/Financial_Model_17_05/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Financial_Model_17_05/agent/inputs/01-17_05_FMCG_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Financial_Model_17_05/evaluator/gold/01-17_FMCG_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Financial_Model/18_01",
+      "category": "Financial_Model",
+      "taskDir": "tasks/Financial_Model_18_01",
+      "agentManifest": "tasks/Financial_Model_18_01/agent/task.json",
+      "evaluatorManifest": "tasks/Financial_Model_18_01/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Financial_Model_18_01/agent/inputs/01-18_01_RoadAssets_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Financial_Model_18_01/evaluator/gold/01-18_RoadAssets_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Financial_Model/18_02",
+      "category": "Financial_Model",
+      "taskDir": "tasks/Financial_Model_18_02",
+      "agentManifest": "tasks/Financial_Model_18_02/agent/task.json",
+      "evaluatorManifest": "tasks/Financial_Model_18_02/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Financial_Model_18_02/agent/inputs/01-18_02_RoadAssets_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Financial_Model_18_02/evaluator/gold/01-18_RoadAssets_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Financial_Model/18_03",
+      "category": "Financial_Model",
+      "taskDir": "tasks/Financial_Model_18_03",
+      "agentManifest": "tasks/Financial_Model_18_03/agent/task.json",
+      "evaluatorManifest": "tasks/Financial_Model_18_03/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Financial_Model_18_03/agent/inputs/01-18_03_RoadAssets_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Financial_Model_18_03/evaluator/gold/01-18_RoadAssets_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Financial_Model/18_04",
+      "category": "Financial_Model",
+      "taskDir": "tasks/Financial_Model_18_04",
+      "agentManifest": "tasks/Financial_Model_18_04/agent/task.json",
+      "evaluatorManifest": "tasks/Financial_Model_18_04/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Financial_Model_18_04/agent/inputs/01-18_04_RoadAssets_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Financial_Model_18_04/evaluator/gold/01-18_RoadAssets_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Financial_Model/18_05",
+      "category": "Financial_Model",
+      "taskDir": "tasks/Financial_Model_18_05",
+      "agentManifest": "tasks/Financial_Model_18_05/agent/task.json",
+      "evaluatorManifest": "tasks/Financial_Model_18_05/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Financial_Model_18_05/agent/inputs/01-18_05_RoadAssets_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Financial_Model_18_05/evaluator/gold/01-18_RoadAssets_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Financial_Model/19_01",
+      "category": "Financial_Model",
+      "taskDir": "tasks/Financial_Model_19_01",
+      "agentManifest": "tasks/Financial_Model_19_01/agent/task.json",
+      "evaluatorManifest": "tasks/Financial_Model_19_01/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Financial_Model_19_01/agent/inputs/01-19_01_Transformer_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Financial_Model_19_01/evaluator/gold/01-19_Transformer_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Financial_Model/19_02",
+      "category": "Financial_Model",
+      "taskDir": "tasks/Financial_Model_19_02",
+      "agentManifest": "tasks/Financial_Model_19_02/agent/task.json",
+      "evaluatorManifest": "tasks/Financial_Model_19_02/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Financial_Model_19_02/agent/inputs/01-19_02_Transformer_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Financial_Model_19_02/evaluator/gold/01-19_Transformer_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Financial_Model/19_03",
+      "category": "Financial_Model",
+      "taskDir": "tasks/Financial_Model_19_03",
+      "agentManifest": "tasks/Financial_Model_19_03/agent/task.json",
+      "evaluatorManifest": "tasks/Financial_Model_19_03/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Financial_Model_19_03/agent/inputs/01-19_03_Transformer_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Financial_Model_19_03/evaluator/gold/01-19_Transformer_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Financial_Model/19_04",
+      "category": "Financial_Model",
+      "taskDir": "tasks/Financial_Model_19_04",
+      "agentManifest": "tasks/Financial_Model_19_04/agent/task.json",
+      "evaluatorManifest": "tasks/Financial_Model_19_04/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Financial_Model_19_04/agent/inputs/01-19_04_Transformer_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Financial_Model_19_04/evaluator/gold/01-19_Transformer_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Financial_Model/19_05",
+      "category": "Financial_Model",
+      "taskDir": "tasks/Financial_Model_19_05",
+      "agentManifest": "tasks/Financial_Model_19_05/agent/task.json",
+      "evaluatorManifest": "tasks/Financial_Model_19_05/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Financial_Model_19_05/agent/inputs/01-19_05_Transformer_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Financial_Model_19_05/evaluator/gold/01-19_Transformer_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Financial_Model/20_01",
+      "category": "Financial_Model",
+      "taskDir": "tasks/Financial_Model_20_01",
+      "agentManifest": "tasks/Financial_Model_20_01/agent/task.json",
+      "evaluatorManifest": "tasks/Financial_Model_20_01/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Financial_Model_20_01/agent/inputs/01-20_01_Fintech_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Financial_Model_20_01/evaluator/gold/01-20_Fintech_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Financial_Model/20_02",
+      "category": "Financial_Model",
+      "taskDir": "tasks/Financial_Model_20_02",
+      "agentManifest": "tasks/Financial_Model_20_02/agent/task.json",
+      "evaluatorManifest": "tasks/Financial_Model_20_02/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Financial_Model_20_02/agent/inputs/01-20_02_Fintech_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Financial_Model_20_02/evaluator/gold/01-20_Fintech_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Financial_Model/20_03",
+      "category": "Financial_Model",
+      "taskDir": "tasks/Financial_Model_20_03",
+      "agentManifest": "tasks/Financial_Model_20_03/agent/task.json",
+      "evaluatorManifest": "tasks/Financial_Model_20_03/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Financial_Model_20_03/agent/inputs/01-20_03_Fintech_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Financial_Model_20_03/evaluator/gold/01-20_Fintech_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Financial_Model/20_04",
+      "category": "Financial_Model",
+      "taskDir": "tasks/Financial_Model_20_04",
+      "agentManifest": "tasks/Financial_Model_20_04/agent/task.json",
+      "evaluatorManifest": "tasks/Financial_Model_20_04/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Financial_Model_20_04/agent/inputs/01-20_04_Fintech_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Financial_Model_20_04/evaluator/gold/01-20_Fintech_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Financial_Model/20_05",
+      "category": "Financial_Model",
+      "taskDir": "tasks/Financial_Model_20_05",
+      "agentManifest": "tasks/Financial_Model_20_05/agent/task.json",
+      "evaluatorManifest": "tasks/Financial_Model_20_05/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Financial_Model_20_05/agent/inputs/01-20_05_Fintech_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Financial_Model_20_05/evaluator/gold/01-20_Fintech_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Template/01_01",
+      "category": "Template",
+      "taskDir": "tasks/Template_01_01",
+      "agentManifest": "tasks/Template_01_01/agent/task.json",
+      "evaluatorManifest": "tasks/Template_01_01/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Template_01_01/agent/inputs/01-01_01_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Template_01_01/evaluator/gold/01-01_01_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Template/01_02",
+      "category": "Template",
+      "taskDir": "tasks/Template_01_02",
+      "agentManifest": "tasks/Template_01_02/agent/task.json",
+      "evaluatorManifest": "tasks/Template_01_02/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Template_01_02/agent/inputs/01-01_02_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Template_01_02/evaluator/gold/01-01_02_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Template/01_03",
+      "category": "Template",
+      "taskDir": "tasks/Template_01_03",
+      "agentManifest": "tasks/Template_01_03/agent/task.json",
+      "evaluatorManifest": "tasks/Template_01_03/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Template_01_03/agent/inputs/01-01_03_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Template_01_03/evaluator/gold/01-01_03_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Template/01_04",
+      "category": "Template",
+      "taskDir": "tasks/Template_01_04",
+      "agentManifest": "tasks/Template_01_04/agent/task.json",
+      "evaluatorManifest": "tasks/Template_01_04/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Template_01_04/agent/inputs/01-01_04_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Template_01_04/evaluator/gold/01-01_04_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Template/01_05",
+      "category": "Template",
+      "taskDir": "tasks/Template_01_05",
+      "agentManifest": "tasks/Template_01_05/agent/task.json",
+      "evaluatorManifest": "tasks/Template_01_05/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Template_01_05/agent/inputs/01-01_05_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Template_01_05/evaluator/gold/01-01_05_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Template/01_06",
+      "category": "Template",
+      "taskDir": "tasks/Template_01_06",
+      "agentManifest": "tasks/Template_01_06/agent/task.json",
+      "evaluatorManifest": "tasks/Template_01_06/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Template_01_06/agent/inputs/01-01_06_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Template_01_06/evaluator/gold/01-01_06_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Template/01_07",
+      "category": "Template",
+      "taskDir": "tasks/Template_01_07",
+      "agentManifest": "tasks/Template_01_07/agent/task.json",
+      "evaluatorManifest": "tasks/Template_01_07/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Template_01_07/agent/inputs/01-01_07_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Template_01_07/evaluator/gold/01-01_07_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Template/01_08",
+      "category": "Template",
+      "taskDir": "tasks/Template_01_08",
+      "agentManifest": "tasks/Template_01_08/agent/task.json",
+      "evaluatorManifest": "tasks/Template_01_08/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Template_01_08/agent/inputs/01-01_08_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Template_01_08/evaluator/gold/01-01_08_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Template/01_09",
+      "category": "Template",
+      "taskDir": "tasks/Template_01_09",
+      "agentManifest": "tasks/Template_01_09/agent/task.json",
+      "evaluatorManifest": "tasks/Template_01_09/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Template_01_09/agent/inputs/01-01_09_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Template_01_09/evaluator/gold/01-01_09_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Template/02_01",
+      "category": "Template",
+      "taskDir": "tasks/Template_02_01",
+      "agentManifest": "tasks/Template_02_01/agent/task.json",
+      "evaluatorManifest": "tasks/Template_02_01/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Template_02_01/agent/inputs/01-02_01_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Template_02_01/evaluator/gold/01-02_01_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Template/02_02",
+      "category": "Template",
+      "taskDir": "tasks/Template_02_02",
+      "agentManifest": "tasks/Template_02_02/agent/task.json",
+      "evaluatorManifest": "tasks/Template_02_02/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Template_02_02/agent/inputs/01-02_02_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Template_02_02/evaluator/gold/01-02_02_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Template/02_03",
+      "category": "Template",
+      "taskDir": "tasks/Template_02_03",
+      "agentManifest": "tasks/Template_02_03/agent/task.json",
+      "evaluatorManifest": "tasks/Template_02_03/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Template_02_03/agent/inputs/01-02_03_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Template_02_03/evaluator/gold/01-02_03_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Template/02_04",
+      "category": "Template",
+      "taskDir": "tasks/Template_02_04",
+      "agentManifest": "tasks/Template_02_04/agent/task.json",
+      "evaluatorManifest": "tasks/Template_02_04/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Template_02_04/agent/inputs/01-02_04_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Template_02_04/evaluator/gold/01-02_04_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Template/02_05",
+      "category": "Template",
+      "taskDir": "tasks/Template_02_05",
+      "agentManifest": "tasks/Template_02_05/agent/task.json",
+      "evaluatorManifest": "tasks/Template_02_05/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Template_02_05/agent/inputs/01-02_05_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Template_02_05/evaluator/gold/01-02_05_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Template/02_06",
+      "category": "Template",
+      "taskDir": "tasks/Template_02_06",
+      "agentManifest": "tasks/Template_02_06/agent/task.json",
+      "evaluatorManifest": "tasks/Template_02_06/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Template_02_06/agent/inputs/01-02_06_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Template_02_06/evaluator/gold/01-02_06_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Template/03_01",
+      "category": "Template",
+      "taskDir": "tasks/Template_03_01",
+      "agentManifest": "tasks/Template_03_01/agent/task.json",
+      "evaluatorManifest": "tasks/Template_03_01/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Template_03_01/agent/inputs/01-03_01_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Template_03_01/evaluator/gold/01-03_01_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Template/03_02",
+      "category": "Template",
+      "taskDir": "tasks/Template_03_02",
+      "agentManifest": "tasks/Template_03_02/agent/task.json",
+      "evaluatorManifest": "tasks/Template_03_02/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Template_03_02/agent/inputs/01-03_02_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Template_03_02/evaluator/gold/01-03_02_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Template/03_03",
+      "category": "Template",
+      "taskDir": "tasks/Template_03_03",
+      "agentManifest": "tasks/Template_03_03/agent/task.json",
+      "evaluatorManifest": "tasks/Template_03_03/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Template_03_03/agent/inputs/01-03_03_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Template_03_03/evaluator/gold/01-03_03_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Template/03_04",
+      "category": "Template",
+      "taskDir": "tasks/Template_03_04",
+      "agentManifest": "tasks/Template_03_04/agent/task.json",
+      "evaluatorManifest": "tasks/Template_03_04/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Template_03_04/agent/inputs/01-03_04_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Template_03_04/evaluator/gold/01-03_04_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Template/04_03",
+      "category": "Template",
+      "taskDir": "tasks/Template_04_03",
+      "agentManifest": "tasks/Template_04_03/agent/task.json",
+      "evaluatorManifest": "tasks/Template_04_03/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Template_04_03/agent/inputs/01-04_03_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Template_04_03/evaluator/gold/01-04_03_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Template/04_04",
+      "category": "Template",
+      "taskDir": "tasks/Template_04_04",
+      "agentManifest": "tasks/Template_04_04/agent/task.json",
+      "evaluatorManifest": "tasks/Template_04_04/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Template_04_04/agent/inputs/01-04_04_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Template_04_04/evaluator/gold/01-04_04_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Template/05_01",
+      "category": "Template",
+      "taskDir": "tasks/Template_05_01",
+      "agentManifest": "tasks/Template_05_01/agent/task.json",
+      "evaluatorManifest": "tasks/Template_05_01/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Template_05_01/agent/inputs/01-05_01_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Template_05_01/evaluator/gold/01-05_01_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Template/05_02",
+      "category": "Template",
+      "taskDir": "tasks/Template_05_02",
+      "agentManifest": "tasks/Template_05_02/agent/task.json",
+      "evaluatorManifest": "tasks/Template_05_02/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Template_05_02/agent/inputs/01-05_02_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Template_05_02/evaluator/gold/01-05_02_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Template/06_01",
+      "category": "Template",
+      "taskDir": "tasks/Template_06_01",
+      "agentManifest": "tasks/Template_06_01/agent/task.json",
+      "evaluatorManifest": "tasks/Template_06_01/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Template_06_01/agent/inputs/01-06_01_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Template_06_01/evaluator/gold/01-06_01_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Template/06_02",
+      "category": "Template",
+      "taskDir": "tasks/Template_06_02",
+      "agentManifest": "tasks/Template_06_02/agent/task.json",
+      "evaluatorManifest": "tasks/Template_06_02/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Template_06_02/agent/inputs/01-06_02_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Template_06_02/evaluator/gold/01-06_02_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Template/06_03",
+      "category": "Template",
+      "taskDir": "tasks/Template_06_03",
+      "agentManifest": "tasks/Template_06_03/agent/task.json",
+      "evaluatorManifest": "tasks/Template_06_03/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Template_06_03/agent/inputs/01-06_03_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Template_06_03/evaluator/gold/01-06_03_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Template/06_04",
+      "category": "Template",
+      "taskDir": "tasks/Template_06_04",
+      "agentManifest": "tasks/Template_06_04/agent/task.json",
+      "evaluatorManifest": "tasks/Template_06_04/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Template_06_04/agent/inputs/01-06_04_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Template_06_04/evaluator/gold/01-06_04_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Template/06_05",
+      "category": "Template",
+      "taskDir": "tasks/Template_06_05",
+      "agentManifest": "tasks/Template_06_05/agent/task.json",
+      "evaluatorManifest": "tasks/Template_06_05/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Template_06_05/agent/inputs/01-06_05_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Template_06_05/evaluator/gold/01-06_05_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Template/06_06",
+      "category": "Template",
+      "taskDir": "tasks/Template_06_06",
+      "agentManifest": "tasks/Template_06_06/agent/task.json",
+      "evaluatorManifest": "tasks/Template_06_06/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Template_06_06/agent/inputs/01-06_06_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Template_06_06/evaluator/gold/01-06_06_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Template/06_07",
+      "category": "Template",
+      "taskDir": "tasks/Template_06_07",
+      "agentManifest": "tasks/Template_06_07/agent/task.json",
+      "evaluatorManifest": "tasks/Template_06_07/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Template_06_07/agent/inputs/01-06_07_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Template_06_07/evaluator/gold/01-06_07_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Template/06_08",
+      "category": "Template",
+      "taskDir": "tasks/Template_06_08",
+      "agentManifest": "tasks/Template_06_08/agent/task.json",
+      "evaluatorManifest": "tasks/Template_06_08/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Template_06_08/agent/inputs/01-06_08_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Template_06_08/evaluator/gold/01-06_08_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Template/06_09",
+      "category": "Template",
+      "taskDir": "tasks/Template_06_09",
+      "agentManifest": "tasks/Template_06_09/agent/task.json",
+      "evaluatorManifest": "tasks/Template_06_09/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Template_06_09/agent/inputs/01-06_09_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Template_06_09/evaluator/gold/01-06_09_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Template/06_11",
+      "category": "Template",
+      "taskDir": "tasks/Template_06_11",
+      "agentManifest": "tasks/Template_06_11/agent/task.json",
+      "evaluatorManifest": "tasks/Template_06_11/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Template_06_11/agent/inputs/01-06_11_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Template_06_11/evaluator/gold/01-06_11_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Template/06_12",
+      "category": "Template",
+      "taskDir": "tasks/Template_06_12",
+      "agentManifest": "tasks/Template_06_12/agent/task.json",
+      "evaluatorManifest": "tasks/Template_06_12/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Template_06_12/agent/inputs/01-06_12_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Template_06_12/evaluator/gold/01-06_12_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Template/06_13",
+      "category": "Template",
+      "taskDir": "tasks/Template_06_13",
+      "agentManifest": "tasks/Template_06_13/agent/task.json",
+      "evaluatorManifest": "tasks/Template_06_13/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Template_06_13/agent/inputs/01-06_13_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Template_06_13/evaluator/gold/01-06_13_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Template/06_14",
+      "category": "Template",
+      "taskDir": "tasks/Template_06_14",
+      "agentManifest": "tasks/Template_06_14/agent/task.json",
+      "evaluatorManifest": "tasks/Template_06_14/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Template_06_14/agent/inputs/01-06_14_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Template_06_14/evaluator/gold/01-06_14_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Template/06_15",
+      "category": "Template",
+      "taskDir": "tasks/Template_06_15",
+      "agentManifest": "tasks/Template_06_15/agent/task.json",
+      "evaluatorManifest": "tasks/Template_06_15/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Template_06_15/agent/inputs/01-06_15_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Template_06_15/evaluator/gold/01-06_15_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Template/06_16",
+      "category": "Template",
+      "taskDir": "tasks/Template_06_16",
+      "agentManifest": "tasks/Template_06_16/agent/task.json",
+      "evaluatorManifest": "tasks/Template_06_16/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Template_06_16/agent/inputs/01-06_16_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Template_06_16/evaluator/gold/01-06_16_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Template/06_17",
+      "category": "Template",
+      "taskDir": "tasks/Template_06_17",
+      "agentManifest": "tasks/Template_06_17/agent/task.json",
+      "evaluatorManifest": "tasks/Template_06_17/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Template_06_17/agent/inputs/01-06_17_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Template_06_17/evaluator/gold/01-06_17_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Template/06_18",
+      "category": "Template",
+      "taskDir": "tasks/Template_06_18",
+      "agentManifest": "tasks/Template_06_18/agent/task.json",
+      "evaluatorManifest": "tasks/Template_06_18/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Template_06_18/agent/inputs/01-06_18_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Template_06_18/evaluator/gold/01-06_18_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Template/06_19",
+      "category": "Template",
+      "taskDir": "tasks/Template_06_19",
+      "agentManifest": "tasks/Template_06_19/agent/task.json",
+      "evaluatorManifest": "tasks/Template_06_19/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Template_06_19/agent/inputs/01-06_19_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Template_06_19/evaluator/gold/01-06_19_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Template/06_20",
+      "category": "Template",
+      "taskDir": "tasks/Template_06_20",
+      "agentManifest": "tasks/Template_06_20/agent/task.json",
+      "evaluatorManifest": "tasks/Template_06_20/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Template_06_20/agent/inputs/01-06_20_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Template_06_20/evaluator/gold/01-06_20_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Template/06_21",
+      "category": "Template",
+      "taskDir": "tasks/Template_06_21",
+      "agentManifest": "tasks/Template_06_21/agent/task.json",
+      "evaluatorManifest": "tasks/Template_06_21/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Template_06_21/agent/inputs/01-06_21_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Template_06_21/evaluator/gold/01-06_21_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Template/06_22",
+      "category": "Template",
+      "taskDir": "tasks/Template_06_22",
+      "agentManifest": "tasks/Template_06_22/agent/task.json",
+      "evaluatorManifest": "tasks/Template_06_22/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Template_06_22/agent/inputs/01-06_22_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Template_06_22/evaluator/gold/01-06_22_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Template/06_23",
+      "category": "Template",
+      "taskDir": "tasks/Template_06_23",
+      "agentManifest": "tasks/Template_06_23/agent/task.json",
+      "evaluatorManifest": "tasks/Template_06_23/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Template_06_23/agent/inputs/01-06_23_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Template_06_23/evaluator/gold/01-06_23_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Template/06_24",
+      "category": "Template",
+      "taskDir": "tasks/Template_06_24",
+      "agentManifest": "tasks/Template_06_24/agent/task.json",
+      "evaluatorManifest": "tasks/Template_06_24/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Template_06_24/agent/inputs/01-06_24_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Template_06_24/evaluator/gold/01-06_24_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Template/06_25",
+      "category": "Template",
+      "taskDir": "tasks/Template_06_25",
+      "agentManifest": "tasks/Template_06_25/agent/task.json",
+      "evaluatorManifest": "tasks/Template_06_25/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Template_06_25/agent/inputs/01-06_25_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Template_06_25/evaluator/gold/01-06_25_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Template/07_01",
+      "category": "Template",
+      "taskDir": "tasks/Template_07_01",
+      "agentManifest": "tasks/Template_07_01/agent/task.json",
+      "evaluatorManifest": "tasks/Template_07_01/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Template_07_01/agent/inputs/01-07_01_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Template_07_01/evaluator/gold/01-07_01_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Template/07_02",
+      "category": "Template",
+      "taskDir": "tasks/Template_07_02",
+      "agentManifest": "tasks/Template_07_02/agent/task.json",
+      "evaluatorManifest": "tasks/Template_07_02/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Template_07_02/agent/inputs/01-07_02_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Template_07_02/evaluator/gold/01-07_02_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Template/07_03",
+      "category": "Template",
+      "taskDir": "tasks/Template_07_03",
+      "agentManifest": "tasks/Template_07_03/agent/task.json",
+      "evaluatorManifest": "tasks/Template_07_03/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Template_07_03/agent/inputs/01-07_03_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Template_07_03/evaluator/gold/01-07_03_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Template/08_01",
+      "category": "Template",
+      "taskDir": "tasks/Template_08_01",
+      "agentManifest": "tasks/Template_08_01/agent/task.json",
+      "evaluatorManifest": "tasks/Template_08_01/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Template_08_01/agent/inputs/01-08_01_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Template_08_01/evaluator/gold/01-08_01_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Template/08_02",
+      "category": "Template",
+      "taskDir": "tasks/Template_08_02",
+      "agentManifest": "tasks/Template_08_02/agent/task.json",
+      "evaluatorManifest": "tasks/Template_08_02/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Template_08_02/agent/inputs/01-08_02_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Template_08_02/evaluator/gold/01-08_02_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Template/08_03",
+      "category": "Template",
+      "taskDir": "tasks/Template_08_03",
+      "agentManifest": "tasks/Template_08_03/agent/task.json",
+      "evaluatorManifest": "tasks/Template_08_03/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Template_08_03/agent/inputs/01-08_03_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Template_08_03/evaluator/gold/01-08_03_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Template/09_01",
+      "category": "Template",
+      "taskDir": "tasks/Template_09_01",
+      "agentManifest": "tasks/Template_09_01/agent/task.json",
+      "evaluatorManifest": "tasks/Template_09_01/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Template_09_01/agent/inputs/01-09_01_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Template_09_01/evaluator/gold/01-09_01_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Template/09_02",
+      "category": "Template",
+      "taskDir": "tasks/Template_09_02",
+      "agentManifest": "tasks/Template_09_02/agent/task.json",
+      "evaluatorManifest": "tasks/Template_09_02/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Template_09_02/agent/inputs/01-09_02_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Template_09_02/evaluator/gold/01-09_02_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Template/09_03",
+      "category": "Template",
+      "taskDir": "tasks/Template_09_03",
+      "agentManifest": "tasks/Template_09_03/agent/task.json",
+      "evaluatorManifest": "tasks/Template_09_03/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Template_09_03/agent/inputs/01-09_03_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Template_09_03/evaluator/gold/01-09_03_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Template/09_04",
+      "category": "Template",
+      "taskDir": "tasks/Template_09_04",
+      "agentManifest": "tasks/Template_09_04/agent/task.json",
+      "evaluatorManifest": "tasks/Template_09_04/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Template_09_04/agent/inputs/01-09_04_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Template_09_04/evaluator/gold/01-09_04_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Template/10_01",
+      "category": "Template",
+      "taskDir": "tasks/Template_10_01",
+      "agentManifest": "tasks/Template_10_01/agent/task.json",
+      "evaluatorManifest": "tasks/Template_10_01/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Template_10_01/agent/inputs/01-10_01_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Template_10_01/evaluator/gold/01-10_01_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Template/10_02",
+      "category": "Template",
+      "taskDir": "tasks/Template_10_02",
+      "agentManifest": "tasks/Template_10_02/agent/task.json",
+      "evaluatorManifest": "tasks/Template_10_02/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Template_10_02/agent/inputs/01-10_02_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Template_10_02/evaluator/gold/01-10_02_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Template/11_01",
+      "category": "Template",
+      "taskDir": "tasks/Template_11_01",
+      "agentManifest": "tasks/Template_11_01/agent/task.json",
+      "evaluatorManifest": "tasks/Template_11_01/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Template_11_01/agent/inputs/01-11_01_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Template_11_01/evaluator/gold/01-11_01_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Template/11_02",
+      "category": "Template",
+      "taskDir": "tasks/Template_11_02",
+      "agentManifest": "tasks/Template_11_02/agent/task.json",
+      "evaluatorManifest": "tasks/Template_11_02/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Template_11_02/agent/inputs/01-11_02_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Template_11_02/evaluator/gold/01-11_02_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Template/11_03",
+      "category": "Template",
+      "taskDir": "tasks/Template_11_03",
+      "agentManifest": "tasks/Template_11_03/agent/task.json",
+      "evaluatorManifest": "tasks/Template_11_03/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Template_11_03/agent/inputs/01-11_03_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Template_11_03/evaluator/gold/01-11_03_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Template/11_04",
+      "category": "Template",
+      "taskDir": "tasks/Template_11_04",
+      "agentManifest": "tasks/Template_11_04/agent/task.json",
+      "evaluatorManifest": "tasks/Template_11_04/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Template_11_04/agent/inputs/01-11_04_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Template_11_04/evaluator/gold/01-11_04_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Template/12_01",
+      "category": "Template",
+      "taskDir": "tasks/Template_12_01",
+      "agentManifest": "tasks/Template_12_01/agent/task.json",
+      "evaluatorManifest": "tasks/Template_12_01/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Template_12_01/agent/inputs/01-12_01_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Template_12_01/evaluator/gold/01-12_01_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Template/13_01",
+      "category": "Template",
+      "taskDir": "tasks/Template_13_01",
+      "agentManifest": "tasks/Template_13_01/agent/task.json",
+      "evaluatorManifest": "tasks/Template_13_01/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Template_13_01/agent/inputs/01-13_01_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Template_13_01/evaluator/gold/01-13_01_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Template/13_02",
+      "category": "Template",
+      "taskDir": "tasks/Template_13_02",
+      "agentManifest": "tasks/Template_13_02/agent/task.json",
+      "evaluatorManifest": "tasks/Template_13_02/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Template_13_02/agent/inputs/01-13_02_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Template_13_02/evaluator/gold/01-13_02_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Template/13_03",
+      "category": "Template",
+      "taskDir": "tasks/Template_13_03",
+      "agentManifest": "tasks/Template_13_03/agent/task.json",
+      "evaluatorManifest": "tasks/Template_13_03/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Template_13_03/agent/inputs/01-13_03_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Template_13_03/evaluator/gold/01-13_03_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Template/13_04",
+      "category": "Template",
+      "taskDir": "tasks/Template_13_04",
+      "agentManifest": "tasks/Template_13_04/agent/task.json",
+      "evaluatorManifest": "tasks/Template_13_04/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Template_13_04/agent/inputs/01-13_04_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Template_13_04/evaluator/gold/01-13_04_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Template/13_05",
+      "category": "Template",
+      "taskDir": "tasks/Template_13_05",
+      "agentManifest": "tasks/Template_13_05/agent/task.json",
+      "evaluatorManifest": "tasks/Template_13_05/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Template_13_05/agent/inputs/01-13_05_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Template_13_05/evaluator/gold/01-13_05_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Template/13_06",
+      "category": "Template",
+      "taskDir": "tasks/Template_13_06",
+      "agentManifest": "tasks/Template_13_06/agent/task.json",
+      "evaluatorManifest": "tasks/Template_13_06/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Template_13_06/agent/inputs/01-13_06_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Template_13_06/evaluator/gold/01-13_06_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Template/13_07",
+      "category": "Template",
+      "taskDir": "tasks/Template_13_07",
+      "agentManifest": "tasks/Template_13_07/agent/task.json",
+      "evaluatorManifest": "tasks/Template_13_07/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Template_13_07/agent/inputs/01-13_07_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Template_13_07/evaluator/gold/01-13_07_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Template/13_08",
+      "category": "Template",
+      "taskDir": "tasks/Template_13_08",
+      "agentManifest": "tasks/Template_13_08/agent/task.json",
+      "evaluatorManifest": "tasks/Template_13_08/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Template_13_08/agent/inputs/01-13_08_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Template_13_08/evaluator/gold/01-13_08_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Template/14_01",
+      "category": "Template",
+      "taskDir": "tasks/Template_14_01",
+      "agentManifest": "tasks/Template_14_01/agent/task.json",
+      "evaluatorManifest": "tasks/Template_14_01/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Template_14_01/agent/inputs/01-14_01_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Template_14_01/evaluator/gold/01-14_01_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Template/14_02",
+      "category": "Template",
+      "taskDir": "tasks/Template_14_02",
+      "agentManifest": "tasks/Template_14_02/agent/task.json",
+      "evaluatorManifest": "tasks/Template_14_02/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Template_14_02/agent/inputs/01-14_02_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Template_14_02/evaluator/gold/01-14_02_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Template/14_03",
+      "category": "Template",
+      "taskDir": "tasks/Template_14_03",
+      "agentManifest": "tasks/Template_14_03/agent/task.json",
+      "evaluatorManifest": "tasks/Template_14_03/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Template_14_03/agent/inputs/01-14_03_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Template_14_03/evaluator/gold/01-14_03_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Template/14_04",
+      "category": "Template",
+      "taskDir": "tasks/Template_14_04",
+      "agentManifest": "tasks/Template_14_04/agent/task.json",
+      "evaluatorManifest": "tasks/Template_14_04/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Template_14_04/agent/inputs/01-14_04_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Template_14_04/evaluator/gold/01-14_04_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Template/14_05",
+      "category": "Template",
+      "taskDir": "tasks/Template_14_05",
+      "agentManifest": "tasks/Template_14_05/agent/task.json",
+      "evaluatorManifest": "tasks/Template_14_05/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Template_14_05/agent/inputs/01-14_05_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Template_14_05/evaluator/gold/01-14_05_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Template/14_06",
+      "category": "Template",
+      "taskDir": "tasks/Template_14_06",
+      "agentManifest": "tasks/Template_14_06/agent/task.json",
+      "evaluatorManifest": "tasks/Template_14_06/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Template_14_06/agent/inputs/01-14_06_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Template_14_06/evaluator/gold/01-14_06_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Template/14_07",
+      "category": "Template",
+      "taskDir": "tasks/Template_14_07",
+      "agentManifest": "tasks/Template_14_07/agent/task.json",
+      "evaluatorManifest": "tasks/Template_14_07/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Template_14_07/agent/inputs/01-14_07_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Template_14_07/evaluator/gold/01-14_07_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Template/14_08",
+      "category": "Template",
+      "taskDir": "tasks/Template_14_08",
+      "agentManifest": "tasks/Template_14_08/agent/task.json",
+      "evaluatorManifest": "tasks/Template_14_08/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Template_14_08/agent/inputs/01-14_08_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Template_14_08/evaluator/gold/01-14_08_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Template/14_09",
+      "category": "Template",
+      "taskDir": "tasks/Template_14_09",
+      "agentManifest": "tasks/Template_14_09/agent/task.json",
+      "evaluatorManifest": "tasks/Template_14_09/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Template_14_09/agent/inputs/01-14_09_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Template_14_09/evaluator/gold/01-14_09_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Template/15_01",
+      "category": "Template",
+      "taskDir": "tasks/Template_15_01",
+      "agentManifest": "tasks/Template_15_01/agent/task.json",
+      "evaluatorManifest": "tasks/Template_15_01/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Template_15_01/agent/inputs/01-15_01_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Template_15_01/evaluator/gold/01-15_01_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Template/15_02",
+      "category": "Template",
+      "taskDir": "tasks/Template_15_02",
+      "agentManifest": "tasks/Template_15_02/agent/task.json",
+      "evaluatorManifest": "tasks/Template_15_02/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Template_15_02/agent/inputs/01-15_02_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Template_15_02/evaluator/gold/01-15_02_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Template/15_03",
+      "category": "Template",
+      "taskDir": "tasks/Template_15_03",
+      "agentManifest": "tasks/Template_15_03/agent/task.json",
+      "evaluatorManifest": "tasks/Template_15_03/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Template_15_03/agent/inputs/01-15_03_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Template_15_03/evaluator/gold/01-15_03_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Template/15_04",
+      "category": "Template",
+      "taskDir": "tasks/Template_15_04",
+      "agentManifest": "tasks/Template_15_04/agent/task.json",
+      "evaluatorManifest": "tasks/Template_15_04/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Template_15_04/agent/inputs/01-15_04_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Template_15_04/evaluator/gold/01-15_04_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Template/16_01",
+      "category": "Template",
+      "taskDir": "tasks/Template_16_01",
+      "agentManifest": "tasks/Template_16_01/agent/task.json",
+      "evaluatorManifest": "tasks/Template_16_01/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Template_16_01/agent/inputs/01-16_01_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Template_16_01/evaluator/gold/01-16_01_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Template/16_02",
+      "category": "Template",
+      "taskDir": "tasks/Template_16_02",
+      "agentManifest": "tasks/Template_16_02/agent/task.json",
+      "evaluatorManifest": "tasks/Template_16_02/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Template_16_02/agent/inputs/01-16_02_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Template_16_02/evaluator/gold/01-16_02_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Template/16_03",
+      "category": "Template",
+      "taskDir": "tasks/Template_16_03",
+      "agentManifest": "tasks/Template_16_03/agent/task.json",
+      "evaluatorManifest": "tasks/Template_16_03/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Template_16_03/agent/inputs/01-16_03_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Template_16_03/evaluator/gold/01-16_03_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Template/16_04",
+      "category": "Template",
+      "taskDir": "tasks/Template_16_04",
+      "agentManifest": "tasks/Template_16_04/agent/task.json",
+      "evaluatorManifest": "tasks/Template_16_04/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Template_16_04/agent/inputs/01-16_04_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Template_16_04/evaluator/gold/01-16_04_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Template/16_05",
+      "category": "Template",
+      "taskDir": "tasks/Template_16_05",
+      "agentManifest": "tasks/Template_16_05/agent/task.json",
+      "evaluatorManifest": "tasks/Template_16_05/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Template_16_05/agent/inputs/01-16_05_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Template_16_05/evaluator/gold/01-16_05_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Template/16_06",
+      "category": "Template",
+      "taskDir": "tasks/Template_16_06",
+      "agentManifest": "tasks/Template_16_06/agent/task.json",
+      "evaluatorManifest": "tasks/Template_16_06/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Template_16_06/agent/inputs/01-16_06_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Template_16_06/evaluator/gold/01-16_06_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Template/16_07",
+      "category": "Template",
+      "taskDir": "tasks/Template_16_07",
+      "agentManifest": "tasks/Template_16_07/agent/task.json",
+      "evaluatorManifest": "tasks/Template_16_07/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Template_16_07/agent/inputs/01-16_07_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Template_16_07/evaluator/gold/01-16_07_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Template/16_08",
+      "category": "Template",
+      "taskDir": "tasks/Template_16_08",
+      "agentManifest": "tasks/Template_16_08/agent/task.json",
+      "evaluatorManifest": "tasks/Template_16_08/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Template_16_08/agent/inputs/01-16_08_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Template_16_08/evaluator/gold/01-16_08_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Template/16_09",
+      "category": "Template",
+      "taskDir": "tasks/Template_16_09",
+      "agentManifest": "tasks/Template_16_09/agent/task.json",
+      "evaluatorManifest": "tasks/Template_16_09/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Template_16_09/agent/inputs/01-16_09_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Template_16_09/evaluator/gold/01-16_09_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Template/16_10",
+      "category": "Template",
+      "taskDir": "tasks/Template_16_10",
+      "agentManifest": "tasks/Template_16_10/agent/task.json",
+      "evaluatorManifest": "tasks/Template_16_10/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Template_16_10/agent/inputs/01-16_10_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Template_16_10/evaluator/gold/01-16_10_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Template/16_11",
+      "category": "Template",
+      "taskDir": "tasks/Template_16_11",
+      "agentManifest": "tasks/Template_16_11/agent/task.json",
+      "evaluatorManifest": "tasks/Template_16_11/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Template_16_11/agent/inputs/01-16_11_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Template_16_11/evaluator/gold/01-16_11_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Template/16_12",
+      "category": "Template",
+      "taskDir": "tasks/Template_16_12",
+      "agentManifest": "tasks/Template_16_12/agent/task.json",
+      "evaluatorManifest": "tasks/Template_16_12/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Template_16_12/agent/inputs/01-16_12_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Template_16_12/evaluator/gold/01-16_12_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Visualization/Task 96",
+      "category": "Visualization",
+      "taskDir": "tasks/Visualization_Task_96",
+      "agentManifest": "tasks/Visualization_Task_96/agent/task.json",
+      "evaluatorManifest": "tasks/Visualization_Task_96/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Visualization_Task_96/agent/inputs/01-Task 96_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Visualization_Task_96/evaluator/gold/01-Task 96_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Visualization/Task 95",
+      "category": "Visualization",
+      "taskDir": "tasks/Visualization_Task_95",
+      "agentManifest": "tasks/Visualization_Task_95/agent/task.json",
+      "evaluatorManifest": "tasks/Visualization_Task_95/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Visualization_Task_95/agent/inputs/01-Task 95_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Visualization_Task_95/evaluator/gold/01-Task 95_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Visualization/Task 1411527",
+      "category": "Visualization",
+      "taskDir": "tasks/Visualization_Task_1411527",
+      "agentManifest": "tasks/Visualization_Task_1411527/agent/task.json",
+      "evaluatorManifest": "tasks/Visualization_Task_1411527/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Visualization_Task_1411527/agent/inputs/01-Task 1411527_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Visualization_Task_1411527/evaluator/gold/01-Task 1411527_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Visualization/Task 1437004",
+      "category": "Visualization",
+      "taskDir": "tasks/Visualization_Task_1437004",
+      "agentManifest": "tasks/Visualization_Task_1437004/agent/task.json",
+      "evaluatorManifest": "tasks/Visualization_Task_1437004/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Visualization_Task_1437004/agent/inputs/01-Task 1437004_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Visualization_Task_1437004/evaluator/gold/01-Task 1437004_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Visualization/Task 1423401",
+      "category": "Visualization",
+      "taskDir": "tasks/Visualization_Task_1423401",
+      "agentManifest": "tasks/Visualization_Task_1423401/agent/task.json",
+      "evaluatorManifest": "tasks/Visualization_Task_1423401/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Visualization_Task_1423401/agent/inputs/01-Task 1423401_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Visualization_Task_1423401/evaluator/gold/01-Task 1423401_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Visualization/Task 1426290",
+      "category": "Visualization",
+      "taskDir": "tasks/Visualization_Task_1426290",
+      "agentManifest": "tasks/Visualization_Task_1426290/agent/task.json",
+      "evaluatorManifest": "tasks/Visualization_Task_1426290/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Visualization_Task_1426290/agent/inputs/01-Task 1426290_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Visualization_Task_1426290/evaluator/gold/01-Task 1426290_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Visualization/Task 1420776",
+      "category": "Visualization",
+      "taskDir": "tasks/Visualization_Task_1420776",
+      "agentManifest": "tasks/Visualization_Task_1420776/agent/task.json",
+      "evaluatorManifest": "tasks/Visualization_Task_1420776/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Visualization_Task_1420776/agent/inputs/01-Task 1420776_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Visualization_Task_1420776/evaluator/gold/01-Task 1420776_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Visualization/Task 1433875",
+      "category": "Visualization",
+      "taskDir": "tasks/Visualization_Task_1433875",
+      "agentManifest": "tasks/Visualization_Task_1433875/agent/task.json",
+      "evaluatorManifest": "tasks/Visualization_Task_1433875/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Visualization_Task_1433875/agent/inputs/01-Task 1433875_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Visualization_Task_1433875/evaluator/gold/01-Task 1433875_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Visualization/Task 1428419",
+      "category": "Visualization",
+      "taskDir": "tasks/Visualization_Task_1428419",
+      "agentManifest": "tasks/Visualization_Task_1428419/agent/task.json",
+      "evaluatorManifest": "tasks/Visualization_Task_1428419/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Visualization_Task_1428419/agent/inputs/01-Task 1428419_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Visualization_Task_1428419/evaluator/gold/01-Task 1428419_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Visualization/Task 1434951",
+      "category": "Visualization",
+      "taskDir": "tasks/Visualization_Task_1434951",
+      "agentManifest": "tasks/Visualization_Task_1434951/agent/task.json",
+      "evaluatorManifest": "tasks/Visualization_Task_1434951/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Visualization_Task_1434951/agent/inputs/01-Task 1434951_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Visualization_Task_1434951/evaluator/gold/01-Task 1434951_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Visualization/Task 1417365",
+      "category": "Visualization",
+      "taskDir": "tasks/Visualization_Task_1417365",
+      "agentManifest": "tasks/Visualization_Task_1417365/agent/task.json",
+      "evaluatorManifest": "tasks/Visualization_Task_1417365/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Visualization_Task_1417365/agent/inputs/01-Task 1417365_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Visualization_Task_1417365/evaluator/gold/01-Task 1417365_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Visualization/Task 90",
+      "category": "Visualization",
+      "taskDir": "tasks/Visualization_Task_90",
+      "agentManifest": "tasks/Visualization_Task_90/agent/task.json",
+      "evaluatorManifest": "tasks/Visualization_Task_90/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Visualization_Task_90/agent/inputs/01-Task 90_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Visualization_Task_90/evaluator/gold/01-Task 90_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Visualization/Task 1430721",
+      "category": "Visualization",
+      "taskDir": "tasks/Visualization_Task_1430721",
+      "agentManifest": "tasks/Visualization_Task_1430721/agent/task.json",
+      "evaluatorManifest": "tasks/Visualization_Task_1430721/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Visualization_Task_1430721/agent/inputs/01-Task 1430721_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Visualization_Task_1430721/evaluator/gold/01-Task 1430721_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Visualization/Task 127",
+      "category": "Visualization",
+      "taskDir": "tasks/Visualization_Task_127",
+      "agentManifest": "tasks/Visualization_Task_127/agent/task.json",
+      "evaluatorManifest": "tasks/Visualization_Task_127/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Visualization_Task_127/agent/inputs/01-Task 127_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Visualization_Task_127/evaluator/gold/01-Task 127_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Visualization/Task 133",
+      "category": "Visualization",
+      "taskDir": "tasks/Visualization_Task_133",
+      "agentManifest": "tasks/Visualization_Task_133/agent/task.json",
+      "evaluatorManifest": "tasks/Visualization_Task_133/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Visualization_Task_133/agent/inputs/01-Task 133_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Visualization_Task_133/evaluator/gold/01-Task 133_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Visualization/Task 1431124",
+      "category": "Visualization",
+      "taskDir": "tasks/Visualization_Task_1431124",
+      "agentManifest": "tasks/Visualization_Task_1431124/agent/task.json",
+      "evaluatorManifest": "tasks/Visualization_Task_1431124/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Visualization_Task_1431124/agent/inputs/01-Task 1431124_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Visualization_Task_1431124/evaluator/gold/01-Task 1431124_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Visualization/Task 1421372",
+      "category": "Visualization",
+      "taskDir": "tasks/Visualization_Task_1421372",
+      "agentManifest": "tasks/Visualization_Task_1421372/agent/task.json",
+      "evaluatorManifest": "tasks/Visualization_Task_1421372/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Visualization_Task_1421372/agent/inputs/01-Task 1421372_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Visualization_Task_1421372/evaluator/gold/01-Task 1421372_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Visualization/Task 1419935",
+      "category": "Visualization",
+      "taskDir": "tasks/Visualization_Task_1419935",
+      "agentManifest": "tasks/Visualization_Task_1419935/agent/task.json",
+      "evaluatorManifest": "tasks/Visualization_Task_1419935/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Visualization_Task_1419935/agent/inputs/01-Task 1419935_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Visualization_Task_1419935/evaluator/gold/01-Task 1419935_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Visualization/Task 1422635",
+      "category": "Visualization",
+      "taskDir": "tasks/Visualization_Task_1422635",
+      "agentManifest": "tasks/Visualization_Task_1422635/agent/task.json",
+      "evaluatorManifest": "tasks/Visualization_Task_1422635/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Visualization_Task_1422635/agent/inputs/01-Task 1422635_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Visualization_Task_1422635/evaluator/gold/01-Task 1422635_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Visualization/Task 131",
+      "category": "Visualization",
+      "taskDir": "tasks/Visualization_Task_131",
+      "agentManifest": "tasks/Visualization_Task_131/agent/task.json",
+      "evaluatorManifest": "tasks/Visualization_Task_131/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Visualization_Task_131/agent/inputs/01-Task 131_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Visualization_Task_131/evaluator/gold/01-Task 131_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Visualization/Task 134",
+      "category": "Visualization",
+      "taskDir": "tasks/Visualization_Task_134",
+      "agentManifest": "tasks/Visualization_Task_134/agent/task.json",
+      "evaluatorManifest": "tasks/Visualization_Task_134/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Visualization_Task_134/agent/inputs/01-Task 134_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Visualization_Task_134/evaluator/gold/01-Task 134_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Visualization/Task 126",
+      "category": "Visualization",
+      "taskDir": "tasks/Visualization_Task_126",
+      "agentManifest": "tasks/Visualization_Task_126/agent/task.json",
+      "evaluatorManifest": "tasks/Visualization_Task_126/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Visualization_Task_126/agent/inputs/01-Task 126_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Visualization_Task_126/evaluator/gold/01-Task 126_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Visualization/Task 132",
+      "category": "Visualization",
+      "taskDir": "tasks/Visualization_Task_132",
+      "agentManifest": "tasks/Visualization_Task_132/agent/task.json",
+      "evaluatorManifest": "tasks/Visualization_Task_132/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Visualization_Task_132/agent/inputs/01-Task 132_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Visualization_Task_132/evaluator/gold/01-Task 132_golden.xlsx"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "Visualization/Task 129",
+      "category": "Visualization",
+      "taskDir": "tasks/Visualization_Task_129",
+      "agentManifest": "tasks/Visualization_Task_129/agent/task.json",
+      "evaluatorManifest": "tasks/Visualization_Task_129/evaluator/evaluator.json",
+      "agentInputFiles": [
+        "tasks/Visualization_Task_129/agent/inputs/01-Task 129_input.xlsx"
+      ],
+      "agentPromptFiles": [],
+      "evaluatorGoldFiles": [
+        "tasks/Visualization_Task_129/evaluator/gold/01-Task 129_golden.xlsx"
+      ],
+      "warnings": []
+    }
+  ]
+}

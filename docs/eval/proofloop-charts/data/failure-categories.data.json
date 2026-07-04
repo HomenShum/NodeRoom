@@ -13,19 +13,6 @@
     "sourceField": "classes[1]"
   },
   {
-    "failureCategory": "missing_task_bundle",
-    "count": 5,
-    "suites": [
-      "finauditing",
-      "finch",
-      "spreadsheetbench-v1",
-      "spreadsheetbench-v2",
-      "workstreambench"
-    ],
-    "sourceFile": ".proofloop/lanes/finauditing/blocker-analysis.json",
-    "sourceField": "classes[3]"
-  },
-  {
     "failureCategory": "context_pack",
     "count": 3,
     "suites": [
@@ -55,16 +42,6 @@
     "sourceField": "classes[0]"
   },
   {
-    "failureCategory": "missing_output_exporter",
-    "count": 2,
-    "suites": [
-      "finauditing",
-      "finch"
-    ],
-    "sourceFile": ".proofloop/lanes/finauditing/blocker-analysis.json",
-    "sourceField": "classes[2]"
-  },
-  {
     "failureCategory": "harness_quality_failure",
     "count": 1,
     "suites": [
@@ -72,6 +49,24 @@
     ],
     "sourceFile": ".proofloop/lanes/bankertoolbench/blocker-analysis.json",
     "sourceField": "classes[0]"
+  },
+  {
+    "failureCategory": "missing_output_exporter",
+    "count": 1,
+    "suites": [
+      "finch"
+    ],
+    "sourceFile": ".proofloop/lanes/finch/blocker-analysis.json",
+    "sourceField": "classes[2]"
+  },
+  {
+    "failureCategory": "missing_task_bundle",
+    "count": 1,
+    "suites": [
+      "workstreambench"
+    ],
+    "sourceFile": ".proofloop/lanes/workstreambench/blocker-analysis.json",
+    "sourceField": "classes[1]"
   },
   {
     "failureCategory": "no_public_upstream_release",

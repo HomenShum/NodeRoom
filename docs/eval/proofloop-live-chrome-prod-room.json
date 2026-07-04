@@ -1,0 +1,17 @@
+{
+  "schema": "proofloop-live-chrome-prod-room-v1",
+  "generatedAt": "2026-07-04T02:28:03.929Z",
+  "browser": "Chrome extension/CDP",
+  "url": "https://noderoom.live/?room=NRNY17KS6V2&name=Host",
+  "title": "NodeRoom — live collaborative room with NodeAgents",
+  "roomCode": "NRNY17KS6V2",
+  "checks": {
+    "landingLoaded": true,
+    "createRoomFormOpened": true,
+    "roomCreated": true,
+    "liveConvexVisible": true,
+    "nodeAgentControlsVisible": true,
+    "consoleErrors": 0
+  },
+  "screenshot": "docs/eval/proofloop-live-chrome-prod-room.png"
+}

@@ -40,7 +40,8 @@ describe("Proof Loop benchmark board", () => {
     expect(entries.finch.officialSemanticScore.status).toBe("needs_scaffold_or_run");
     expect(entries.finauditing.officialSemanticScore.status).toBe("needs_scaffold_or_run");
     expect(entries.workstreambench.officialSemanticScore.status).toBe("blocked");
-    expect(entries.finch.officialSemanticScore.blockers.join(" ")).toContain("missing output exporter");
+    expect(entries.finch.officialSemanticScore.blockers.join(" ")).toContain("content_parts rendering");
+    expect(entries.finch.officialSemanticScore.blockers.join(" ")).toContain("missing official scorer");
     expect(entries.workstreambench.officialSemanticScore.blockers.join(" ")).toContain("no public official bundle/scorer/rubric URL");
   });
 
@@ -50,8 +51,8 @@ describe("Proof Loop benchmark board", () => {
     expect(markdown).toContain("# Proof Loop Benchmark Board");
     expect(markdown).toContain("| `bankertoolbench` | external_adapter | proven | proven |");
     expect(markdown).toContain("| `finch` | external_adapter | proven | needs_scaffold_or_run |");
-    expect(markdown).toContain("missing output exporter remains before external-blocked can be claimed");
-    expect(markdown).toContain("NodeRoom still needs one official-output artifact per Finch task id");
+    expect(markdown).toContain("content_parts rendering");
+    expect(markdown).toContain("NodeRoom model-output artifacts are complete");
     expect(markdown).toContain("Product-path completion is useful proof");
   });
 });

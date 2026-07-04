@@ -2,7 +2,7 @@
 
 ## Required Changes
 
-- stage full 321-task official bundle
+- keep the full 321-task official bundle staged under agent/evaluator isolation
 - add rendered chart/visual scorer hook
 - run model matrix across staged V2 tasks
 
@@ -10,14 +10,13 @@
 
 - missing_model_run
 - missing_official_scorer
-- missing_task_bundle
 
 ## Commands
 
-- `stage the full SpreadsheetBench V2 321-task bundle, run all tasks and scorer/chart grader, use npm run benchmark:proofloop:harness-economics for proxy-model routing, then npm run benchmark:official:task-coverage -- --strict`
+- `run all 321 SpreadsheetBench V2 tasks and scorer/chart grader, use npm run benchmark:proofloop:harness-economics for proxy-model routing, then npm run benchmark:official:task-coverage -- --strict`
 - `npm run benchmark:proofloop:harness-economics`
-- `npm run benchmark:spreadsheetbench:v2:stage -- --all`
-- `npm run benchmark:spreadsheetbench:run-chunked -- --suite v2 --all --model deepseek/deepseek-v4-pro`
+- `npm run benchmark:spreadsheetbench:stage -- --track spreadsheetbench-v2 --root .tmp/official-benchmarks/spreadsheetbench-v2-full/spreadsheetbench-v2 --output-root .tmp/official-benchmarks/staged-v2-full --json-out docs/eval/spreadsheetbench-v2-full-stage.json`
+- `npm run benchmark:spreadsheetbench:run-chunked -- --stage-root .tmp/official-benchmarks/staged-v2-full --output-root .tmp/official-benchmarks/run-v2-full-model --json-out docs/eval/spreadsheetbench-v2-full-model-run.json --mode model-edit-plan --model deepseek/deepseek-v4-pro --chunk-size 25`
 
 ## Stop Rule
 

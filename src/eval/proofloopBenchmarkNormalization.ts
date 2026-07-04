@@ -10,6 +10,12 @@ import {
   type ProofloopBenchmarkBoardStatus,
 } from "./proofloopBenchmarkBoard";
 import { listBenchmarkAdapters, type BenchmarkAdapterId } from "./proofloopBenchmarkAdapters";
+import {
+  isOfficialOutputExporterBlocker,
+  officialOutputManifestComplete,
+  officialOutputManifestEvidence,
+  readOfficialOutputManifest,
+} from "./proofloopOfficialOutputManifests";
 
 export type BenchmarkNormalizationStageStatus =
   | "proven"
@@ -232,7 +238,7 @@ function spreadsheetBenchNormalization(
     officialFit: "blocked",
     stages: {
       officialTaskBundle: stage({
-        status: v1?.stagedTasks === 912 ? "partial" : "blocked",
+        status: productManifestBlockers.length === 0 ? "proven" : v1?.stagedTasks === 912 ? "partial" : "blocked",
         contract: "Official bundles must be staged with agent-visible inputs separated from evaluator answer workbooks and scorer metadata.",
         evidence: [
           ...(v1?.evidence ?? []),
@@ -246,6 +252,7 @@ function spreadsheetBenchNormalization(
         contract: `Product manifest covers ${stagedTargets}/${expectedTargets} staged task targets with agent/evaluator isolation.`,
         evidence: [
           "docs/eval/spreadsheetbench-v1-912-stage.json",
+          "docs/eval/spreadsheetbench-v2-full-stage.json",
           "docs/eval/spreadsheetbench-v2-stage-smoke.json",
           "docs/eval/spreadsheetbench-v1-full-stage-smoke.json",
         ],
@@ -417,12 +424,17 @@ function externalAdapterNormalization(
   const taskBundlePath = `docs/eval/proofloop-official-task-bundles/${adapterId}.json`;
   const scoreReceipt = readJson<OfficialScoreReceipt>(root, scoreReceiptPath);
   const taskBundle = readJson<OfficialTaskBundleLock>(root, taskBundlePath);
+  const outputManifest = readOfficialOutputManifest(root, adapterId);
+  const outputComplete = officialOutputManifestComplete(outputManifest);
   const taskBundleLocked = taskBundle?.status === "locked";
   const productProofPassed = product?.status === "proven";
   const officialScored = scoreReceipt?.status === "scored" && scoreReceipt.scoreClaim === true;
   const officialBlockers = official?.blockers?.length
     ? official.blockers
     : scoreReceipt?.blockers ?? [`${adapterId}: official scorer receipt is not scored.`];
+  const filteredOfficialBlockers = outputComplete
+    ? officialBlockers.filter((blocker) => !isOfficialOutputExporterBlocker(adapterId, blocker))
+    : officialBlockers;
   const officialTaskExpansionBlocker = officialTaskExpansionBlockerFor(adapterId);
 
   return entry({
@@ -458,16 +470,19 @@ function externalAdapterNormalization(
         command: product?.command,
       }),
       artifactExport: stage({
-        status: "blocked",
+        status: outputComplete ? "proven" : "blocked",
         contract: externalArtifactExportContract(adapterId),
-        evidence: product?.evidence ?? [],
-        blockers: [externalArtifactExportBlocker(adapterId)],
+        evidence: [
+          ...(product?.evidence ?? []),
+          ...officialOutputManifestEvidence(adapterId, outputManifest),
+        ],
+        blockers: outputComplete ? [] : [externalArtifactExportBlocker(adapterId)],
       }),
       officialSubmission: stage({
         status: officialScored ? "proven" : "blocked",
         contract: externalOfficialSubmissionContract(adapterId),
         evidence: [scoreReceiptPath].filter((path) => existsSync(join(root, path))),
-        blockers: officialScored ? [] : officialBlockers,
+        blockers: officialScored ? [] : filteredOfficialBlockers,
       }),
       officialScorer: stage({
         status: officialScored ? "proven" : "blocked",
@@ -476,7 +491,7 @@ function externalAdapterNormalization(
           ...(official?.evidence ?? []),
           scoreReceiptPath,
         ].filter((path) => existsSync(join(root, path))),
-        blockers: officialScored ? [] : officialBlockers,
+        blockers: officialScored ? [] : filteredOfficialBlockers,
         command: official?.command,
       }),
     },

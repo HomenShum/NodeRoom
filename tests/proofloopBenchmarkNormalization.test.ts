@@ -43,11 +43,13 @@ describe("Proof Loop benchmark normalization", () => {
     expect(entries.finch.stages.officialTaskBundle.status).toBe("ready");
     expect(entries.finch.stages.nodeRoomRunSpec.status).toBe("proven");
     expect(entries.finch.stages.productTaskManifest.blockers.join(" ")).toContain("172 official Finch task ids");
-    expect(entries.finch.stages.artifactExport.blockers.join(" ")).toContain("one output artifact per official Finch task id");
+    expect(entries.finch.stages.artifactExport.status).toBe("proven");
+    expect(entries.finch.stages.artifactExport.evidence).toContain("docs/eval/proofloop-official-outputs/finch.json");
     expect(entries.finch.officialFit).toBe("blocked");
 
     expect(entries.finauditing.stages.officialTaskBundle.status).toBe("ready");
-    expect(entries.finauditing.stages.artifactExport.blockers.join(" ")).toContain("FinSM, FinRE, or FinMR");
+    expect(entries.finauditing.stages.artifactExport.status).toBe("proven");
+    expect(entries.finauditing.stages.artifactExport.evidence).toContain("docs/eval/proofloop-official-outputs/finauditing.json");
 
     expect(entries.workstreambench.stages.officialTaskBundle.status).toBe("blocked");
     expect(entries.workstreambench.stages.productTaskManifest.blockers.join(" ")).toContain("official WorkstreamBench task bundle");

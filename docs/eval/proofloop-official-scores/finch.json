@@ -2,7 +2,7 @@
   "schema": "proofloop-official-score-receipt-v1",
   "adapterId": "finch",
   "status": "blocked_external",
-  "generatedAt": "2026-07-02T09:50:00.000Z",
+  "generatedAt": "2026-07-04T02:22:42.482Z",
   "officialScorer": {
     "repository": "https://github.com/FinWorkBench/Finch",
     "commit": "95a8b8d135a528b325be003e54c55f886a22602d",
@@ -12,16 +12,27 @@
   "attempted": [
     "Cloned the official Finch GitHub repository.",
     "Cloned the official Finch Hugging Face task dataset.",
-    "Verified the official scorer entrypoint and official task JSONL count."
+    "Verified the official scorer entrypoint and official task JSONL count.",
+    "Generated finch official-format output manifest with 172 expected task rows and 172 exported rows."
   ],
   "blockers": [
     "No Azure OpenAI judge credentials are present in this shell: AZURE endpoint, API key, API version, and deployment name are all required by src/call_gpt_judge.py.",
-    "No NodeRoom model-output directory exists with one output artifact per official Finch task id, so the upstream prompt_build_pipeline.py cannot build claimable content_parts.jsonl for scoring."
+    "Upstream Finch content_parts rendering is 0/172; official Azure judge input remains incomplete even though model-output artifacts are complete."
   ],
   "scoreClaim": false,
   "evidence": [
     "docs/eval/proofloop-official-task-bundles/finch.json",
     "proofloop/benchmarks/finch/adapter.json",
-    "docs/eval/proofloop-external-adapter-runs/finch.json"
-  ]
+    "docs/eval/proofloop-external-adapter-runs/finch.json",
+    "docs/eval/proofloop-official-outputs/finch.json",
+    ".tmp/official-benchmarks/proofloop-official-outputs/finch/model-output-manifest.json"
+  ],
+  "officialOutputManifest": {
+    "path": "docs/eval/proofloop-official-outputs/finch.json",
+    "status": "complete",
+    "officialTaskCount": 172,
+    "outputTaskCount": 172,
+    "predictionRowCount": null,
+    "contentPartsCount": 0
+  }
 }

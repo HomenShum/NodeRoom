@@ -1,12 +1,10 @@
 {
   "schema": 1,
   "suite": "finauditing",
-  "generatedAt": "2026-07-03T22:15:27.870Z",
+  "generatedAt": "2026-07-04T02:24:04.988Z",
   "status": "needs_generation",
   "expectedOutputs": [
-    "FinSM prediction JSONL",
-    "FinRE prediction JSONL",
-    "FinMR prediction JSONL",
+    "complete FinSM/FinRE/FinMR prediction JSONL manifest",
     "accepted FinMR judge receipt"
   ],
   "currentEvidence": [
@@ -15,11 +13,10 @@
     "docs/eval/proofloop-external-adapter-runs/finauditing.json",
     "docs/eval/proofloop-adapter-blockers/finauditing.json",
     "docs/eval/proofloop-official-task-bundles/finauditing.json",
-    "docs/eval/proofloop-official-scores/finauditing.json"
+    "docs/eval/proofloop-official-scores/finauditing.json",
+    "docs/eval/proofloop-official-outputs/finauditing.json"
   ],
   "missingClasses": [
-    "missing_official_scorer",
-    "missing_output_exporter",
-    "missing_task_bundle"
+    "missing_official_scorer"
   ]
 }

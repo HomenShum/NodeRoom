@@ -1,6 +1,6 @@
 # Finch / FinWorkBench official score Research
 
-Generated: 2026-07-03T22:15:26.870Z
+Generated: 2026-07-04T02:24:04.983Z
 Blocker: finch-official-score
 
 ## Classes
@@ -8,7 +8,6 @@ Blocker: finch-official-score
 - missing_judge_credentials
 - missing_official_scorer
 - missing_output_exporter
-- missing_task_bundle
 
 ## Official Sources Checked
 
@@ -17,9 +16,9 @@ Blocker: finch-official-score
 
 ## Conclusion
 
-Official judge credentials are external, but output generation/exporter work still has to complete first.
+Official model-output artifacts are complete; upstream content_parts rendering and accepted judge import remain before official score promotion.
 
 ## Original Blockers
 
 - finch: official scorer receipt docs/eval/proofloop-official-scores/finch.json is blocked_external; scored receipt is still required before claiming score.
-- finch: official task bundle lock docs/eval/proofloop-official-task-bundles/finch.json is staged, but NodeRoom still needs one official-output artifact per Finch task id and an accepted upstream judge/scorer path; Azure OpenAI credentials are one path, while cheaper OpenRouter proxy judges are product-gate evidence only unless accepted upstream.
+- finch: official task bundle lock docs/eval/proofloop-official-task-bundles/finch.json is staged and NodeRoom model-output artifacts are complete in docs/eval/proofloop-official-outputs/finch.json; upstream content_parts rendering and an accepted Azure judge/scorer receipt are still required before claiming an official score. Cheaper OpenRouter proxy judges are product-gate evidence only unless accepted upstream.

@@ -2,21 +2,21 @@
   "schema": "proofloop-external-adapter-product-proof-v1",
   "adapterId": "finch",
   "status": "passed",
-  "runId": "finch-2026-07-02T15-46-07-955Z",
-  "generatedAt": "2026-07-02T15:46:14.724Z",
+  "runId": "finch-2026-07-04T00-37-26-529Z",
+  "generatedAt": "2026-07-04T00:37:35.041Z",
   "localAdapterOnly": true,
   "officialScoreClaim": false,
   "taskCount": 1,
   "baseUrl": "https://noderoom.live",
   "scenario": "proofloop/benchmarks/finch/browser-scenario.spec.ts",
-  "outputDir": ".proofloop/runs/finch-2026-07-02T15-46-07-955Z/external-adapter/finch",
+  "outputDir": ".proofloop/runs/finch-2026-07-04T00-37-26-529Z/external-adapter/finch",
   "exitCode": 0,
   "evidence": [
     "proofloop/benchmarks/finch/load-tasks.ts",
     "proofloop/benchmarks/finch/browser-scenario.spec.ts",
-    ".proofloop/runs/finch-2026-07-02T15-46-07-955Z/external-adapter/finch/browser-proof.json",
-    ".proofloop/runs/finch-2026-07-02T15-46-07-955Z/external-adapter/finch/local-task-manifest.json",
-    ".proofloop/runs/finch-2026-07-02T15-46-07-955Z/external-adapter/finch/visual-proof.png"
+    ".proofloop/runs/finch-2026-07-04T00-37-26-529Z/external-adapter/finch/browser-proof.json",
+    ".proofloop/runs/finch-2026-07-04T00-37-26-529Z/external-adapter/finch/local-task-manifest.json",
+    ".proofloop/runs/finch-2026-07-04T00-37-26-529Z/external-adapter/finch/visual-proof.png"
   ],
   "failedGates": [],
   "browserProof": {

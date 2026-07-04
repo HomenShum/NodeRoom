@@ -1,6 +1,6 @@
 # Official Benchmark Task Coverage
 
-Generated: 2026-07-03T22:15:22.121Z
+Generated: 2026-07-04T02:33:14.606Z
 
 This is the no-shorthand ledger for the external benchmark question: have we staged and run every published task, or only a subset/fixture? It deliberately separates full official tracks, verified subsets, and NodeRoom's internal multi-user conflict suite.
 
@@ -8,7 +8,7 @@ This is the no-shorthand ledger for the external benchmark question: have we sta
 
 - Tracks complete: 2/5
 - Declared task targets represented in this ledger: 1739
-- Staged tasks: 1421
+- Staged tasks: 1739
 - Deterministic runner tasks: 1321
 - Model-run cases: 106
 - Model-run attempts: 118
@@ -28,7 +28,7 @@ This is the no-shorthand ledger for the external benchmark question: have we sta
 |---|---:|---:|---:|---:|---:|---:|---|
 | `spreadsheetbench-v1-full-912` | partial | 912 | 912 | 912 | 0 / 0 | 0.104 | Run all 912 tasks through the model runner or an approved chunked official-policy runner before claiming a model score. |
 | `spreadsheetbench-v1-verified-400` | partial | 400 | 400 | 400 | 3 / 15 | 1.000 | 397 verified task(s) still need model-run evidence; current N=5 smoke covers 3/400 cases.; Full verified-score promotion still needs official scoring parity, not only local workbook scoring. |
-| `spreadsheetbench-v2-full-321` | partial | 321 | 3 | 3 | 3 / 3 | 0.000 | 318 SpreadsheetBench 2 task(s) still need staging from the full official bundle.; Run every staged V2 task through the model runner, static workbook scorer, and rendered/VLM chart grader where applicable. |
+| `spreadsheetbench-v2-full-321` | partial | 321 | 321 | 3 | 3 / 3 | 0.000 | Run every staged V2 task through the model runner, static workbook scorer, and rendered/VLM chart grader where applicable. |
 | `bankertoolbench-full-100` | complete | 100 | 100 | 0 | 100 / 100 | 0.000 | none |
 | `noderoom-multi-user-conflict` | complete | 6 | 6 | 6 | 0 / 0 | 1.000 | none |
 
@@ -48,9 +48,9 @@ This is the no-shorthand ledger for the external benchmark question: have we sta
 
 ### SpreadsheetBench 2 full workflow benchmark
 
-- Local scope: public example bundle only
+- Local scope: full public 321-task bundle staged with evaluator isolation
 - Sources: [https://spreadsheetbench.github.io/](https://spreadsheetbench.github.io/), [https://huggingface.co/datasets/KAKA22/SpreadsheetBench-v2](https://huggingface.co/datasets/KAKA22/SpreadsheetBench-v2)
-- Evidence: `docs/eval/spreadsheetbench-v2-stage-smoke.json`, `docs/eval/spreadsheetbench-v2-run-smoke.json`, `docs/eval/spreadsheetbench-chart-visual-probe.json`
+- Evidence: `docs/eval/spreadsheetbench-v2-full-ingest.json`, `docs/eval/spreadsheetbench-v2-full-stage.json`, `docs/eval/spreadsheetbench-v2-stage-smoke.json`, `docs/eval/spreadsheetbench-v2-run-smoke.json`, `docs/eval/spreadsheetbench-chart-visual-probe.json`
 
 ### BankerToolBench full investment-banking benchmark
 

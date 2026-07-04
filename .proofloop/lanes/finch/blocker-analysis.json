@@ -3,13 +3,12 @@
   "blockerId": "finch-official-score",
   "suite": "finch",
   "title": "Finch / FinWorkBench official score",
-  "generatedAt": "2026-07-03T22:15:26.870Z",
+  "generatedAt": "2026-07-04T02:24:04.983Z",
   "phase": "solve",
   "classes": [
     "missing_judge_credentials",
     "missing_official_scorer",
-    "missing_output_exporter",
-    "missing_task_bundle"
+    "missing_output_exporter"
   ],
   "status": "needs_scaffold_or_run",
   "externalBlockClaimAllowed": false,
@@ -26,12 +25,11 @@
   ],
   "remainingLocalClasses": [
     "missing_official_scorer",
-    "missing_output_exporter",
-    "missing_task_bundle"
+    "missing_output_exporter"
   ],
   "blockers": [
     "finch: official scorer receipt docs/eval/proofloop-official-scores/finch.json is blocked_external; scored receipt is still required before claiming score.",
-    "finch: official task bundle lock docs/eval/proofloop-official-task-bundles/finch.json is staged, but NodeRoom still needs one official-output artifact per Finch task id and an accepted upstream judge/scorer path; Azure OpenAI credentials are one path, while cheaper OpenRouter proxy judges are product-gate evidence only unless accepted upstream."
+    "finch: official task bundle lock docs/eval/proofloop-official-task-bundles/finch.json is staged and NodeRoom model-output artifacts are complete in docs/eval/proofloop-official-outputs/finch.json; upstream content_parts rendering and an accepted Azure judge/scorer receipt are still required before claiming an official score. Cheaper OpenRouter proxy judges are product-gate evidence only unless accepted upstream."
   ],
   "artifacts": {
     "blocker-analysis.json": ".proofloop/lanes/finch/blocker-analysis.json",
@@ -46,10 +44,10 @@
     "memory-write.json": ".proofloop/lanes/finch/memory-write.json"
   },
   "nextCommands": [
-    "emit NodeRoom outputs for every official Finch task id, run/import the accepted upstream Finch scorer or judge output, use npm run benchmark:proofloop:harness-economics for proxy triage, then npm run benchmark:proofloop:adapter-blockers -- --id finch --strict",
+    "complete upstream Finch content_parts rendering, run/import the accepted Finch Azure scorer or judge output, use npm run benchmark:proofloop:harness-economics for proxy triage, then npm run benchmark:proofloop:adapter-blockers -- --id finch --strict",
     "npm run proofloop -- setup finch --doctor",
     "npm run benchmark:proofloop:adapter-blockers -- --id finch",
-    "npm run proofloop -- blocker scaffold finch-official-score",
+    "npm run benchmark:proofloop:official-outputs -- --id finch",
     "npm run benchmark:proofloop:adapter-blockers -- --id finch --strict"
   ],
   "models": [

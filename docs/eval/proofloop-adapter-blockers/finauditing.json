@@ -18,7 +18,7 @@
   "officialTaskBundleManifestPath": "docs/eval/proofloop-official-task-bundles/finauditing.json",
   "validationErrors": [],
   "blockers": [
-    "finauditing: official scorer receipt docs/eval/proofloop-official-scores/finauditing.json is blocked_external; scored receipt is still required before claiming score. No NodeRoom prediction JSONL exists for FinSM, FinRE, or FinMR in the official evaluator format. FinMR evaluation uses an OpenAI LLM judge and this shell has no OPENAI_API_KEY. The full benchmark path also points to the separate FinBen framework, which is not yet wired to NodeRoom output artifacts."
+    "finauditing: official scorer receipt docs/eval/proofloop-official-scores/finauditing.json is blocked_external; scored receipt is still required before claiming score. FinMR evaluation uses an OpenAI LLM judge and this shell has no OPENAI_API_KEY. The full benchmark path also points to the separate FinBen framework, which is not yet wired to NodeRoom output artifacts."
   ],
   "officialCommandPlan": [
     "Lock the official FinAuditing task source for FinSM, FinRE, and FinMR.",
@@ -38,6 +38,13 @@
     "https://arxiv.org/abs/2510.08886",
     "https://github.com/The-FinAI/FinAuditing",
     "https://huggingface.co/collections/TheFinAI/finauditing",
-    "https://open-finance-lab.github.io/SecureFinAI_Contest_2026/"
+    "https://open-finance-lab.github.io/SecureFinAI_Contest_2026/",
+    "docs/eval/proofloop-official-outputs/finauditing.json",
+    "docs/eval/proofloop-official-task-bundles/finauditing.json",
+    ".tmp/official-benchmarks/proofloop-official-outputs/finauditing/FinSM.predictions.jsonl",
+    ".tmp/official-benchmarks/proofloop-official-outputs/finauditing/FinRE.predictions.jsonl",
+    ".tmp/official-benchmarks/proofloop-official-outputs/finauditing/FinMR.predictions.jsonl",
+    ".tmp/official-benchmarks/proofloop-official-outputs/finauditing/manifest.json",
+    ".tmp/official-benchmarks/proofloop-official-outputs/finauditing"
   ]
 }

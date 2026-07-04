@@ -23,7 +23,7 @@ describe("official benchmark task coverage ledger", () => {
     });
     expect(tracks["spreadsheetbench-v2-full-321"]).toMatchObject({
       officialExpectedTasks: 321,
-      stagedTasks: 3,
+      stagedTasks: 321,
       status: "partial",
     });
     expect(tracks["bankertoolbench-full-100"]).toMatchObject({

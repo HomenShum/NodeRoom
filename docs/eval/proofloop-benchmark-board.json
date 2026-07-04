@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "generatedAt": "2026-07-03T22:15:43.378Z",
+  "generatedAt": "2026-07-04T02:33:28.848Z",
   "policy": [
     "Product-path completion is useful proof: real UI, visible progress, artifacts, verifier receipts, trace, memory, and browser evidence.",
     "Official semantic score is only claimed when the benchmark's official scorer/verifier result is imported.",
@@ -43,15 +43,10 @@
         ],
         "command": "npm run proofloop -- solve-blockers --goal official-scores",
         "blockers": [
-          "missing model run remains before external-blocked can be claimed",
-          "missing official scorer remains before external-blocked can be claimed",
-          "missing task bundle remains before external-blocked can be claimed",
-          "Full public 912-task SpreadsheetBench V1 bundle is staged and deterministically scored: 912/912 tasks, 2,729 agent-visible workbooks, 2,729 evaluator answer workbooks, 95/912 copy-input baseline pass.",
-          "All 912 tasks need model-run evidence before strict official-score promotion; cheaper OpenRouter proxy judges can triage product quality but cannot replace the SpreadsheetBench workbook scorer for the official claim.",
-          "next: run all 912 SpreadsheetBench V1 tasks through the model runner, use npm run benchmark:proofloop:harness-economics to select cheap proxy routes for product iteration, then npm run benchmark:official:task-coverage -- --strict",
-          "Only the public/example SpreadsheetBench V2 slice is staged locally.",
-          "All 321 V2 tasks need official bundle, model-run, workbook scorer, and rendered chart-grader evidence; proxy judges can improve candidates but cannot stand in for the V2 scorer path.",
-          "next: stage the full SpreadsheetBench V2 321-task bundle, run all tasks and scorer/chart grader, use npm run benchmark:proofloop:harness-economics for proxy-model routing, then npm run benchmark:official:task-coverage -- --strict"
+          "Run all 912 tasks through the model runner or an approved chunked official-policy runner before claiming a model score.",
+          "397 verified task(s) still need model-run evidence; current N=5 smoke covers 3/400 cases.",
+          "Full verified-score promotion still needs official scoring parity, not only local workbook scoring.",
+          "Run every staged V2 task through the model runner, static workbook scorer, and rendered/VLM chart grader where applicable."
         ]
       },
       "notes": [
@@ -237,17 +232,19 @@
           "docs/eval/proofloop-adapter-blockers/finch.json",
           "docs/eval/proofloop-official-scores/finch.json",
           "docs/eval/proofloop-official-task-bundles/finch.json",
+          "docs/eval/proofloop-official-outputs/finch.json",
+          "docs/eval/proofloop-official-task-bundles/finch.json",
+          ".tmp/official-benchmarks/proofloop-official-outputs/finch/model-output-manifest.json",
+          ".tmp/official-benchmarks/proofloop-official-outputs/finch",
           ".proofloop/lanes/finch/blocker-analysis.json"
         ],
         "command": "npm run benchmark:proofloop:adapter-blockers -- --id finch --strict",
         "blockers": [
           "missing official scorer remains before external-blocked can be claimed",
-          "missing output exporter remains before external-blocked can be claimed",
-          "missing task bundle remains before external-blocked can be claimed",
           "missing judge credentials remains before official score can be claimed",
           "finch: official scorer receipt docs/eval/proofloop-official-scores/finch.json is blocked_external; scored receipt is still required before claiming score.",
-          "finch: official task bundle lock docs/eval/proofloop-official-task-bundles/finch.json is staged, but NodeRoom still needs one official-output artifact per Finch task id and an accepted upstream judge/scorer path; Azure OpenAI credentials are one path, while cheaper OpenRouter proxy judges are product-gate evidence only unless accepted upstream.",
-          "next: emit NodeRoom outputs for every official Finch task id, run/import the accepted upstream Finch scorer or judge output, use npm run benchmark:proofloop:harness-economics for proxy triage, then npm run benchmark:proofloop:adapter-blockers -- --id finch --strict"
+          "finch: official task bundle lock docs/eval/proofloop-official-task-bundles/finch.json is staged and NodeRoom model-output artifacts are complete in docs/eval/proofloop-official-outputs/finch.json; upstream content_parts rendering and an accepted Azure judge/scorer receipt are still required before claiming an official score. Cheaper OpenRouter proxy judges are product-gate evidence only unless accepted upstream.",
+          "next: complete upstream Finch content_parts rendering, run/import the accepted Finch Azure scorer or judge output, use npm run benchmark:proofloop:harness-economics for proxy triage, then npm run benchmark:proofloop:adapter-blockers -- --id finch --strict"
         ],
         "metrics": {
           "missingImplementationFiles": 0,
@@ -255,7 +252,8 @@
           "localAdapterOnly": true,
           "officialScoreClaim": false,
           "officialSourceUrls": 3,
-          "resumeCommands": 6
+          "resumeCommands": 6,
+          "officialOutputManifestComplete": true
         }
       },
       "notes": [
@@ -286,17 +284,21 @@
           "docs/eval/proofloop-adapter-blockers/finauditing.json",
           "docs/eval/proofloop-official-scores/finauditing.json",
           "docs/eval/proofloop-official-task-bundles/finauditing.json",
+          "docs/eval/proofloop-official-outputs/finauditing.json",
+          "docs/eval/proofloop-official-task-bundles/finauditing.json",
+          ".tmp/official-benchmarks/proofloop-official-outputs/finauditing/FinSM.predictions.jsonl",
+          ".tmp/official-benchmarks/proofloop-official-outputs/finauditing/FinRE.predictions.jsonl",
+          ".tmp/official-benchmarks/proofloop-official-outputs/finauditing/FinMR.predictions.jsonl",
+          ".tmp/official-benchmarks/proofloop-official-outputs/finauditing/manifest.json",
+          ".tmp/official-benchmarks/proofloop-official-outputs/finauditing",
           ".proofloop/lanes/finauditing/blocker-analysis.json"
         ],
         "command": "npm run benchmark:proofloop:adapter-blockers -- --id finauditing --strict",
         "blockers": [
           "missing official scorer remains before external-blocked can be claimed",
-          "missing output exporter remains before external-blocked can be claimed",
-          "missing task bundle remains before external-blocked can be claimed",
           "missing judge credentials remains before official score can be claimed",
           "finauditing: official scorer receipt docs/eval/proofloop-official-scores/finauditing.json is blocked_external; scored receipt is still required before claiming score.",
-          "finauditing: official task bundle lock docs/eval/proofloop-official-task-bundles/finauditing.json is staged, but NodeRoom still needs official-format FinSM/FinRE/FinMR prediction JSONL and an accepted FinMR judge path; OpenAI credentials are one path, while cheaper OpenRouter proxy judges are product-gate evidence only unless accepted upstream.",
-          "next: emit official-format FinSM/FinRE/FinMR predictions, run/import FinAuditing scorer output with an accepted FinMR judge path, use npm run benchmark:proofloop:harness-economics for proxy triage, then npm run benchmark:proofloop:adapter-blockers -- --id finauditing --strict"
+          "next: run/import FinAuditing scorer output with an accepted FinMR judge path, use npm run benchmark:proofloop:harness-economics for proxy triage, then npm run benchmark:proofloop:adapter-blockers -- --id finauditing --strict"
         ],
         "metrics": {
           "missingImplementationFiles": 0,
@@ -304,7 +306,8 @@
           "localAdapterOnly": true,
           "officialScoreClaim": false,
           "officialSourceUrls": 4,
-          "resumeCommands": 6
+          "resumeCommands": 6,
+          "officialOutputManifestComplete": true
         }
       },
       "notes": [
@@ -351,7 +354,8 @@
           "localAdapterOnly": true,
           "officialScoreClaim": false,
           "officialSourceUrls": 1,
-          "resumeCommands": 6
+          "resumeCommands": 6,
+          "officialOutputManifestComplete": false
         }
       },
       "notes": [

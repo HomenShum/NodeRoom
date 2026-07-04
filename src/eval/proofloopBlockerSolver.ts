@@ -306,9 +306,18 @@ export function classifyBlockers(task: ProofloopBlockerTaskLike): BlockerClass[]
   const text = `${task.id} ${task.title} ${task.blockers.join(" ")}`.toLowerCase();
   const classes = new Set<BlockerClass>();
   if (/local setup recipe|adapter|wire|not yet wired|missing implementation|local code/.test(text)) classes.add("local_missing_code");
-  if (/bundle|staged|stage all|task ids|no public official task bundle/.test(text)) classes.add("missing_task_bundle");
+  if (
+    /missing task bundle|not fully staged|only the public\/example|no public official task bundle|obtain the public official .* task bundle|stage all|full official bundle.*missing/.test(text)
+  ) {
+    classes.add("missing_task_bundle");
+  }
   if (/scorer|verifier|judge|rubric/.test(text)) classes.add("missing_official_scorer");
-  if (/output artifact|prediction jsonl|content_parts|official-format|candidate workbook|exporter/.test(text)) classes.add("missing_output_exporter");
+  if (
+    /(missing|needs|need|no |incomplete|partial|required|must|still need|not complete|not produced|cannot build)[^.;]*(output artifact|prediction jsonl|content_parts|official-format|candidate workbook|exporter)/.test(text) ||
+    /(output artifact|prediction jsonl|content_parts|official-format|candidate workbook|exporter)[^.;]*(missing|incomplete|partial|required|not complete|not produced|cannot build)/.test(text)
+  ) {
+    classes.add("missing_output_exporter");
+  }
   if (/model-run|model run|run all|full 912|all 321|model matrix|outputs for every/.test(text)) classes.add("missing_model_run");
   if (/credential|api key|azure|openai/.test(text)) classes.add("missing_judge_credentials");
   if (/no public|not found|author-provided|upstream release/.test(text)) classes.add("no_public_upstream_release");
@@ -353,7 +362,7 @@ function laneSpecForSuite(suite: string): LaneSpec {
         "write official score receipt only after scorer import",
       ],
       runCommands: [
-        "npm run benchmark:spreadsheetbench:run-chunked -- --suite v1 --all --model deepseek/deepseek-v4-pro",
+        "npm run benchmark:spreadsheetbench:run-chunked -- --stage-root .tmp/official-benchmarks/staged-v1-912 --output-root .tmp/official-benchmarks/run-v1-912-model --json-out docs/eval/spreadsheetbench-v1-912-model-run.json --mode model-edit-plan --model deepseek/deepseek-v4-pro --chunk-size 25",
         "npm run benchmark:official:task-coverage -- --strict",
       ],
       doctorCommands: commonDoctor,
@@ -367,7 +376,9 @@ function laneSpecForSuite(suite: string): LaneSpec {
       title: "SpreadsheetBench V2 full 321-task official score",
       officialSources: [
         "https://spreadsheetbench.github.io/",
+        "https://github.com/RUCKBReasoning/SpreadsheetBench-2",
         "https://huggingface.co/datasets/KAKA22/SpreadsheetBench-v2",
+        "docs/eval/spreadsheetbench-v2-full-stage.json",
       ],
       expectedOfficialOutputs: [
         "321 official V2 task manifests",
@@ -376,19 +387,19 @@ function laneSpecForSuite(suite: string): LaneSpec {
         "rendered chart/visual grader receipt",
       ],
       scaffoldChanges: [
-        "stage full 321-task official bundle",
+        "keep the full 321-task official bundle staged under agent/evaluator isolation",
         "add rendered chart/visual scorer hook",
         "run model matrix across staged V2 tasks",
       ],
       runCommands: [
-        "npm run benchmark:spreadsheetbench:v2:stage -- --all",
-        "npm run benchmark:spreadsheetbench:run-chunked -- --suite v2 --all --model deepseek/deepseek-v4-pro",
+        "npm run benchmark:spreadsheetbench:stage -- --track spreadsheetbench-v2 --root .tmp/official-benchmarks/spreadsheetbench-v2-full/spreadsheetbench-v2 --output-root .tmp/official-benchmarks/staged-v2-full --json-out docs/eval/spreadsheetbench-v2-full-stage.json",
+        "npm run benchmark:spreadsheetbench:run-chunked -- --stage-root .tmp/official-benchmarks/staged-v2-full --output-root .tmp/official-benchmarks/run-v2-full-model --json-out docs/eval/spreadsheetbench-v2-full-model-run.json --mode model-edit-plan --model deepseek/deepseek-v4-pro --chunk-size 25",
       ],
       doctorCommands: commonDoctor,
       proxyOnly: false,
       nonExternalPartsComplete: false,
       externalClasses: [],
-      reason: "Full V2 staging and model/scorer execution remain local scaffold/run work.",
+      reason: "Full V2 staging is available; model/scorer execution remains local scaffold/run work before official score promotion.",
     },
     finch: {
       suite: "finch",
@@ -398,17 +409,16 @@ function laneSpecForSuite(suite: string): LaneSpec {
         "docs/eval/proofloop-official-task-bundles/finch.json",
       ],
       expectedOfficialOutputs: [
-        "one NodeRoom output artifact per official Finch task id",
+        "complete NodeRoom model-output artifact manifest for all 172 official Finch task ids",
         "content_parts.jsonl",
         "accepted upstream Finch judge/scorer receipt",
       ],
       scaffoldChanges: [
-        "add Finch content_parts exporter",
-        "add NodeRoom output manifest per official task id",
+        "retry upstream Finch content_parts rendering against the complete model-output manifest",
         "wire accepted Finch judge command adapter when credentials exist",
       ],
       runCommands: [
-        "npm run proofloop -- blocker scaffold finch-official-score",
+        "npm run benchmark:proofloop:official-outputs -- --id finch",
         "npm run benchmark:proofloop:adapter-blockers -- --id finch --strict",
       ],
       doctorCommands: [
@@ -418,7 +428,7 @@ function laneSpecForSuite(suite: string): LaneSpec {
       proxyOnly: false,
       nonExternalPartsComplete: false,
       externalClasses: ["missing_judge_credentials"],
-      reason: "Official judge credentials are external, but output generation/exporter work still has to complete first.",
+      reason: "Official model-output artifacts are complete; upstream content_parts rendering and accepted judge import remain before official score promotion.",
     },
     finauditing: {
       suite: "finauditing",
@@ -428,18 +438,16 @@ function laneSpecForSuite(suite: string): LaneSpec {
         "docs/eval/proofloop-official-task-bundles/finauditing.json",
       ],
       expectedOfficialOutputs: [
-        "FinSM prediction JSONL",
-        "FinRE prediction JSONL",
-        "FinMR prediction JSONL",
+        "complete FinSM/FinRE/FinMR prediction JSONL manifest",
         "accepted FinMR judge receipt",
       ],
       scaffoldChanges: [
-        "add FinSM/FinRE/FinMR prediction exporters",
+        "keep official-format FinSM/FinRE/FinMR prediction exporters reproducible",
         "wire FinBen/FinAuditing evaluator command",
         "block only at judge credential layer after predictions exist",
       ],
       runCommands: [
-        "npm run proofloop -- blocker scaffold finauditing-official-score",
+        "npm run benchmark:proofloop:official-outputs -- --id finauditing",
         "npm run benchmark:proofloop:adapter-blockers -- --id finauditing --strict",
       ],
       doctorCommands: [
@@ -449,7 +457,7 @@ function laneSpecForSuite(suite: string): LaneSpec {
       proxyOnly: false,
       nonExternalPartsComplete: false,
       externalClasses: ["missing_judge_credentials"],
-      reason: "Accepted judge credentials are external, but official-format prediction export is local scaffold/run work.",
+      reason: "Official-format predictions are complete; accepted FinMR judge/scorer import remains before official score promotion.",
     },
     workstreambench: {
       suite: "workstreambench",

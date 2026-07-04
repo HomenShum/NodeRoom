@@ -3,18 +3,16 @@
   "kind": "blocker_solver_memory",
   "suite": "finauditing",
   "blockerId": "finauditing-official-score",
-  "generatedAt": "2026-07-03T22:15:27.870Z",
+  "generatedAt": "2026-07-04T02:24:04.988Z",
   "classes": [
     "missing_judge_credentials",
-    "missing_official_scorer",
-    "missing_output_exporter",
-    "missing_task_bundle"
+    "missing_official_scorer"
   ],
   "nextCommands": [
-    "emit official-format FinSM/FinRE/FinMR predictions, run/import FinAuditing scorer output with an accepted FinMR judge path, use npm run benchmark:proofloop:harness-economics for proxy triage, then npm run benchmark:proofloop:adapter-blockers -- --id finauditing --strict",
+    "run/import FinAuditing scorer output with an accepted FinMR judge path, use npm run benchmark:proofloop:harness-economics for proxy triage, then npm run benchmark:proofloop:adapter-blockers -- --id finauditing --strict",
     "npm run proofloop -- setup finauditing --doctor",
     "npm run benchmark:proofloop:adapter-blockers -- --id finauditing",
-    "npm run proofloop -- blocker scaffold finauditing-official-score",
+    "npm run benchmark:proofloop:official-outputs -- --id finauditing",
     "npm run benchmark:proofloop:adapter-blockers -- --id finauditing --strict"
   ],
   "lesson": "Do not declare external-blocked until setup, research, scaffold, doctor, model tracking, and resume evidence are written."

@@ -7,6 +7,12 @@ import {
   type BenchmarkAdapterId,
   type ProofloopBenchmarkAdapter,
 } from "./proofloopBenchmarkAdapters";
+import {
+  isOfficialOutputExporterBlocker,
+  officialOutputManifestComplete,
+  officialOutputManifestEvidence,
+  readOfficialOutputManifest,
+} from "./proofloopOfficialOutputManifests";
 
 export type ExternalAdapterBlockerStatus = "ready" | "blocked_external";
 
@@ -52,10 +58,12 @@ export function buildExternalAdapterBlockerReceipt(args: {
   const officialCommandPlan = officialCommandsFor(adapter);
   const officialScoreReceiptPath = `docs/eval/proofloop-official-scores/${adapter.id}.json`;
   const officialTaskBundleManifestPath = `docs/eval/proofloop-official-task-bundles/${adapter.id}.json`;
+  const outputManifest = readOfficialOutputManifest(root, adapter.id);
+  const outputComplete = officialOutputManifestComplete(outputManifest);
   const officialScoreBlockers = officialScoreBlockersFor(adapter, root, {
     officialScoreReceiptPath,
     officialTaskBundleManifestPath,
-  });
+  }).filter((blocker) => !outputComplete || !isOfficialOutputExporterBlocker(adapter.id, blocker));
   const blockers = [
     ...validationErrors,
     ...missingImplementationFiles.map((file) => `${adapter.id}: missing implementation file ${file}`),
@@ -83,6 +91,7 @@ export function buildExternalAdapterBlockerReceipt(args: {
     evidence: [
       `proofloop/benchmarks/${adapter.id}/adapter.json`,
       ...officialSourceUrls,
+      ...officialOutputManifestEvidence(adapter.id, outputManifest),
     ],
   };
 }
