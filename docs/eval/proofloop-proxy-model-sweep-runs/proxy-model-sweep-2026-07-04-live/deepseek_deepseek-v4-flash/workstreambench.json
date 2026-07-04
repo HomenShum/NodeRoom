@@ -1,0 +1,115 @@
+{
+  "schema": "proofloop-external-adapter-live-room-proof-v1",
+  "adapterId": "workstreambench",
+  "status": "failed",
+  "runId": "proxy-model-sweep-2026-07-04-live-deepseek_deepseek-v4-flash-workstreambench",
+  "generatedAt": "2026-07-04T23:15:15.280Z",
+  "localAdapterOnly": true,
+  "officialScoreClaim": false,
+  "taskCount": 1,
+  "baseUrl": "https://noderoom.live",
+  "scenario": "proofloop/benchmarks/common/live-room-scenario.spec.ts",
+  "outputDir": ".proofloop/runs/proxy-model-sweep-2026-07-04-live-deepseek_deepseek-v4-flash-workstreambench/external-adapter-live-room/workstreambench",
+  "exitCode": 1,
+  "evidence": [
+    "proofloop/benchmarks/workstreambench/load-tasks.ts",
+    "proofloop/benchmarks/common/live-room-scenario.spec.ts",
+    ".proofloop/runs/proxy-model-sweep-2026-07-04-live-deepseek_deepseek-v4-flash-workstreambench/external-adapter-live-room/workstreambench/live-user-contract.json",
+    ".proofloop/runs/proxy-model-sweep-2026-07-04-live-deepseek_deepseek-v4-flash-workstreambench/external-adapter-live-room/workstreambench/node-trace-v2.json",
+    ".proofloop/runs/proxy-model-sweep-2026-07-04-live-deepseek_deepseek-v4-flash-workstreambench/external-adapter-live-room/workstreambench/node-eval.json",
+    ".proofloop/runs/proxy-model-sweep-2026-07-04-live-deepseek_deepseek-v4-flash-workstreambench/external-adapter-live-room/workstreambench/scorecard.md",
+    ".proofloop/runs/proxy-model-sweep-2026-07-04-live-deepseek_deepseek-v4-flash-workstreambench/external-adapter-live-room/workstreambench/cost-ledger.json",
+    ".proofloop/runs/proxy-model-sweep-2026-07-04-live-deepseek_deepseek-v4-flash-workstreambench/external-adapter-live-room/workstreambench/verifier-receipt.json",
+    ".proofloop/runs/proxy-model-sweep-2026-07-04-live-deepseek_deepseek-v4-flash-workstreambench/external-adapter-live-room/workstreambench/official-scorer-receipt.json",
+    ".proofloop/runs/proxy-model-sweep-2026-07-04-live-deepseek_deepseek-v4-flash-workstreambench/external-adapter-live-room/workstreambench/browser-proof.json",
+    ".proofloop/runs/proxy-model-sweep-2026-07-04-live-deepseek_deepseek-v4-flash-workstreambench/external-adapter-live-room/workstreambench/local-task-manifest.json",
+    ".proofloop/runs/proxy-model-sweep-2026-07-04-live-deepseek_deepseek-v4-flash-workstreambench/external-adapter-live-room/workstreambench/visual-proof.png"
+  ],
+  "failedGates": [
+    "workstreambench: live-room browser scenario failed"
+  ],
+  "browserProof": {
+    "roomUrl": "https://noderoom.live/?room=NRHLPZ9ZOP0&name=Proof+Loop",
+    "roomId": "NRHLPZ9ZOP0",
+    "model": {
+      "provider": "openrouter",
+      "mode": "specific",
+      "policy": "deepseek/deepseek-v4-flash",
+      "runtimeProfile": "standard",
+      "realUserMode": true,
+      "measuredCostUsd": 0.02,
+      "measuredTokensIn": 209738,
+      "measuredTokensOut": 3563,
+      "telemetry": [
+        {
+          "taskId": "workstreambench-local-spreadsheet-workstream",
+          "telemetry": {
+            "model": "deepseek/deepseek-v4-flash",
+            "toolCalls": 10,
+            "steps": 5,
+            "inputTokens": 209738,
+            "outputTokens": 3563,
+            "latencyMs": 43270,
+            "costUsd": 0.02,
+            "rawText": "deepseek/deepseek-v4-flash · 10 tools · $0.020",
+            "rawTitle": "5 steps · 209,738 in + 3,563 out tokens · 43270ms"
+          }
+        }
+      ]
+    },
+    "problemCounts": {
+      "pageErrors": 0,
+      "consoleProblems": 0,
+      "requestFailures": 0,
+      "badResponses": 0
+    },
+    "taskProofs": [
+      {
+        "userMessageVisible": true,
+        "streamingVisible": true,
+        "jobStatusVisible": true,
+        "jobDetailVisible": true,
+        "roomTraceVisible": true,
+        "completionVisible": false,
+        "finalTextSample": "ing.\n\nLet me verify all the values are intact by reconciling the key computed cells Thoughts (step 3)All cells verified intact. Let me log the completed workstream summary. Thoughts (step 4)The sheet is fully populated and verified.Let me populate the sheet with data from the uploaded JSON files.Now let me load the variance data into rows 5-8.Now let me verify the data was written correctly and confirm D2.Great — the data is verified from the OKF concept reflection. Let me confirm D2 is computed correctlyr2__D (D2) already correct at 0 — ledger -2000 minus bank -2000 = 0 difference, skipped as matching.Let me verify all the values are intact by reconciling the key computed cellsAll cells verified intact. Let me log the completed workstream summary.The sheet is fully populated and verified.The spreadsheet workstream is complete. Here's a summary of what was done:Sheet 1 (j97c98czdm3sbd8v8zhnd00zg589wjta, v2) now contains:Reconciliation (Rows 1-3) — from reconciliation.json:RowDescriptionLedgerBankΔStatusr1Client payment+5000+50000Matchr2Office rent-2000-20000Matchr3Software subscription-99-990Discrepancy (date: ledger 06-10 vs bank 06-12)Variance (Rows 5-8) — from variance.json:RowCategoryActualBudgetΔStatusr5Revenue320,000300,000+20,000Favorabler6COGS135,000120,000-15,000Unfavorabler7Marketing38,00050,000+12,000Favorabler8Engineering92,00080,000-12,000Unfavorable✅ D2 (r2__D) recomputed = 0 — ledger -2000 minus bank -2000 = 0 difference; already correct so skipped during reconcile. All 43 cell writes confirmed at v2 with CAS.\nNRoom NodeAgentagent16:09✅ Completed reconciliation & variance workstream. Sheet 1 populated from reconciliation.json (3 ledger/bank entries — 1 date discrepancy flagged) and variance.json (4 budget categories — Revenue +20K favorable, COGS -15K unfavorable, Marketing +12K favorable, Engineering -12K unfavorable). D2 (r2__D) = 0 — ledger -2000 minus bank -2000, already correct, skipped as matching. All edits confirmed intact at v2 with CAS. Copy",
+        "durationMs": 610646,
+        "telemetry": {
+          "model": "deepseek/deepseek-v4-flash",
+          "toolCalls": 10,
+          "steps": 5,
+          "inputTokens": 209738,
+          "outputTokens": 3563,
+          "latencyMs": 43270,
+          "costUsd": 0.02,
+          "rawText": "deepseek/deepseek-v4-flash · 10 tools · $0.020",
+          "rawTitle": "5 steps · 209,738 in + 3,563 out tokens · 43270ms"
+        },
+        "gatesProven": [
+          "public_nodeagent_invocation",
+          "visible_streaming_progress",
+          "agent_live_loop",
+          "job_detail_visible",
+          "room_trace_visible"
+        ],
+        "gatesNotProven": {
+          "agent_terminal_quality_gate": "Timed out after 600000ms."
+        },
+        "taskId": "workstreambench-local-spreadsheet-workstream",
+        "title": "Spreadsheet workstream execution through NodeRoom story workflow",
+        "prompt": "@nodeagent  Use the uploaded input artifacts and the current live room sheet. Run the visible spreadsheet workstream, recompute D2, and confirm the edited input remains intact. Ground the answer in visible room evidence and uploaded files. Make the smallest necessary sheet edits; avoid bulk updates unless the task truly requires them. ",
+        "uploadedFiles": [
+          "reconciliation.json",
+          "variance.json"
+        ]
+      }
+    ]
+  },
+  "officialSemanticScore": {
+    "status": "blocked_external",
+    "blockers": [
+      "workstreambench: official scorer receipt docs/eval/proofloop-official-scores/workstreambench.json is blocked_external; scored receipt is still required before claiming score. No public official WorkstreamBench task bundle URL was found. No public official WorkstreamBench scorer repository or CLI was found. The paper describes LLM-as-judge evaluation over structured representations, so a claimable score requires the official rubric/task bundle/scorer release or author-provided supplementary package.",
+      "workstreambench: official task bundle lock docs/eval/proofloop-official-task-bundles/workstreambench.json is missing: no public official bundle/scorer/rubric URL was found; obtain the upstream release or author-provided bundle before claiming an official score."
+    ],
+    "verifierCommand": "npm run benchmark:proofloop:adapter-blockers -- --id workstreambench --strict"
+  }
+}

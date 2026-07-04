@@ -1,0 +1,36 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>ProofLoop Proxy Model Sweep</title>
+<style>
+body { font-family: Inter, system-ui, sans-serif; margin: 32px; color: #17201a; }
+table { border-collapse: collapse; width: 100%; margin: 18px 0 28px; }
+th, td { border-bottom: 1px solid #dde5dd; padding: 8px 10px; text-align: left; vertical-align: top; }
+th { color: #526154; font-size: 12px; text-transform: uppercase; letter-spacing: .04em; }
+code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+.bar { width: 100%; min-width: 180px; height: 12px; border-radius: 3px; background: #eef3ef; overflow: hidden; }
+.bar span { display: block; height: 100%; }
+.bar .pass { background: #2e9e6b; }
+.bar .fail { background: #bd6257; }
+.meta { color: #526154; }
+</style>
+<h1>ProofLoop Proxy Model Sweep</h1>
+<p class="meta">Generated 2026-07-04T22:44:07.928Z against https://noderoom.live. Real user mode: true. Runtime profile: standard.</p>
+<p>Cheapest fully passing model: <strong>poolside/laguna-xs-2.1</strong></p>
+<h2>Estimated Cost by Model</h2>
+<table><thead><tr><th>Model</th><th>Passes</th><th>Est. OpenRouter list cost</th><th>Relative cost</th></tr></thead><tbody><tr><td><code>z-ai/glm-5.2</code></td><td>3/3</td><td>$0.2454</td><td><div class="bar"><span class="pass" style="width:100%"></span></div></td></tr>
+<tr><td><code>deepseek/deepseek-v4-flash</code></td><td>1/3</td><td>$0.0683</td><td><div class="bar"><span class="fail" style="width:28%"></span></div></td></tr>
+<tr><td><code>poolside/laguna-xs-2.1</code></td><td>3/3</td><td>$0.0326</td><td><div class="bar"><span class="pass" style="width:13%"></span></div></td></tr>
+<tr><td><code>qwen/qwen3.7-plus</code></td><td>3/3</td><td>$0.1994</td><td><div class="bar"><span class="pass" style="width:81%"></span></div></td></tr></tbody></table>
+<h2>Runs</h2>
+<table><thead><tr><th>Model</th><th>Adapter</th><th>Status</th><th>Room</th><th>Est. cost</th><th>Tokens in/out</th></tr></thead><tbody><tr><td><code>z-ai/glm-5.2</code></td><td>finch</td><td>passed</td><td><a href="https://noderoom.live/?room=NR1RHOT8YL9&amp;name=Proof+Loop">NR1RHOT8YL9</a></td><td>$0.0213</td><td>27092 / 175</td></tr>
+<tr><td><code>z-ai/glm-5.2</code></td><td>finauditing</td><td>passed</td><td><a href="https://noderoom.live/?room=NRLVLO8AUAH&amp;name=Proof+Loop">NRLVLO8AUAH</a></td><td>$0.0710</td><td>74593 / 5611</td></tr>
+<tr><td><code>z-ai/glm-5.2</code></td><td>workstreambench</td><td>passed</td><td><a href="https://noderoom.live/?room=NRZ0HG6EWN2&amp;name=Proof+Loop">NRZ0HG6EWN2</a></td><td>$0.1531</td><td>173527 / 8059</td></tr>
+<tr><td><code>deepseek/deepseek-v4-flash</code></td><td>finch</td><td>failed</td><td><a href="https://noderoom.live/?room=NRVOIY1HS9X&amp;name=Proof+Loop">NRVOIY1HS9X</a></td><td>$0.0236</td><td>260890 / 447</td></tr>
+<tr><td><code>deepseek/deepseek-v4-flash</code></td><td>finauditing</td><td>passed</td><td><a href="https://noderoom.live/?room=NR114IGV15E&amp;name=Proof+Loop">NR114IGV15E</a></td><td>$0.0252</td><td>269583 / 5063</td></tr>
+<tr><td><code>deepseek/deepseek-v4-flash</code></td><td>workstreambench</td><td>failed</td><td><a href="https://noderoom.live/?room=NRHLPZ9ZOP0&amp;name=Proof+Loop">NRHLPZ9ZOP0</a></td><td>$0.0195</td><td>209738 / 3563</td></tr>
+<tr><td><code>poolside/laguna-xs-2.1</code></td><td>finch</td><td>passed</td><td><a href="https://noderoom.live/?room=NRTSTABCXSW&amp;name=Proof+Loop">NRTSTABCXSW</a></td><td>$0.0122</td><td>194651 / 4022</td></tr>
+<tr><td><code>poolside/laguna-xs-2.1</code></td><td>finauditing</td><td>passed</td><td><a href="https://noderoom.live/?room=NR7WGCGIHRK&amp;name=Proof+Loop">NR7WGCGIHRK</a></td><td>$0.008741</td><td>139411 / 3135</td></tr>
+<tr><td><code>poolside/laguna-xs-2.1</code></td><td>workstreambench</td><td>passed</td><td><a href="https://noderoom.live/?room=NRNTVRWKBCZ&amp;name=Proof+Loop">NRNTVRWKBCZ</a></td><td>$0.0117</td><td>191044 / 2189</td></tr>
+<tr><td><code>qwen/qwen3.7-plus</code></td><td>finch</td><td>passed</td><td><a href="https://noderoom.live/?room=NR55Z4WL4JC&amp;name=Proof+Loop">NR55Z4WL4JC</a></td><td>$0.0759</td><td>214926 / 5548</td></tr>
+<tr><td><code>qwen/qwen3.7-plus</code></td><td>finauditing</td><td>passed</td><td><a href="https://noderoom.live/?room=NR8PPHSO44V&amp;name=Proof+Loop">NR8PPHSO44V</a></td><td>$0.0182</td><td>44653 / 3031</td></tr>
+<tr><td><code>qwen/qwen3.7-plus</code></td><td>workstreambench</td><td>passed</td><td><a href="https://noderoom.live/?room=NRBKA2NPOM2&amp;name=Proof+Loop">NRBKA2NPOM2</a></td><td>$0.1054</td><td>256758 / 18143</td></tr></tbody></table>

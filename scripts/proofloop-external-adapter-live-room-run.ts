@@ -23,6 +23,16 @@ type ExternalAdapterLiveRoomProofReceipt = {
   browserProof?: {
     roomUrl?: string;
     roomId?: string;
+    model?: {
+      provider?: string;
+      mode?: string;
+      policy?: string;
+      runtimeProfile?: string;
+      realUserMode?: boolean;
+      measuredCostUsd?: number | null;
+      measuredTokensIn?: number | null;
+      measuredTokensOut?: number | null;
+    };
     problemCounts: {
       pageErrors: number;
       consoleProblems: number;
@@ -50,11 +60,12 @@ const selectedIds = optionValues("--id") as BenchmarkAdapterId[];
 const ids = selectedIds.length ? selectedIds : externalBenchmarkLocalTaskIds();
 const prod = args.includes("--prod");
 const userEmulation = optionValue("--user-emulation") ?? (args.includes("--user-emulation=strict") ? "strict" : "standard");
+const realUserMode = args.includes("--real-user") || userEmulation === "real";
 const cockpit = args.includes("--cockpit");
 const jsonOutDir = optionValue("--json-out-dir") ?? "docs/eval/proofloop-external-adapter-live-room-runs";
 const modelMode = optionValue("--model-mode") ?? process.env.BENCH_AGENT_MODEL_MODE ?? "specific";
 const modelPolicy = optionValue("--model") ?? optionValue("--model-policy") ?? process.env.BENCH_AGENT_MODEL_POLICY ?? "deepseek/deepseek-v4-pro";
-const requireFinalPhrase = args.includes("--allow-terminal-without-phrase") ? "0" : process.env.PROOFLOOP_EXTERNAL_REQUIRE_FINAL_PHRASE ?? "1";
+const requireFinalPhrase = realUserMode || args.includes("--allow-terminal-without-phrase") ? "0" : process.env.PROOFLOOP_EXTERNAL_REQUIRE_FINAL_PHRASE ?? "1";
 let exitCode = 0;
 
 for (const id of ids) {
@@ -89,6 +100,9 @@ function runAdapter(id: BenchmarkAdapterId): number {
     PROOFLOOP_USER_EMULATION: userEmulation,
     PROOFLOOP_COCKPIT: cockpit ? "1" : process.env.PROOFLOOP_COCKPIT ?? "",
     PROOFLOOP_EXTERNAL_REQUIRE_FINAL_PHRASE: requireFinalPhrase,
+    PROOFLOOP_REAL_USER_MODE: realUserMode ? "1" : process.env.PROOFLOOP_REAL_USER_MODE ?? "",
+    PROOFLOOP_NODEAGENT_RUNTIME_PROFILE: realUserMode ? "" : process.env.PROOFLOOP_NODEAGENT_RUNTIME_PROFILE ?? "benchmark_completion",
+    PROOFLOOP_FOCUS_MODE: realUserMode ? "0" : process.env.PROOFLOOP_FOCUS_MODE ?? "",
     BENCH_AGENT_MODEL_MODE: modelMode,
     BENCH_AGENT_MODEL_POLICY: modelPolicy,
   };
@@ -117,6 +131,7 @@ function runAdapter(id: BenchmarkAdapterId): number {
   const browserProof = readJsonIfExists<{
     roomUrl?: string;
     roomId?: string;
+    model?: ExternalAdapterLiveRoomProofReceipt["browserProof"] extends infer T ? T extends { model?: infer M } ? M : never : never;
     problemCounts?: {
       pageErrors?: number;
       consoleProblems?: number;
@@ -172,6 +187,7 @@ function runAdapter(id: BenchmarkAdapterId): number {
       ? {
         roomUrl: browserProof.roomUrl,
         roomId: browserProof.roomId,
+        model: browserProof.model,
         problemCounts,
         taskProofs: browserProof.taskProofs,
       }

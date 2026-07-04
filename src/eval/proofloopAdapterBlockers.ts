@@ -157,7 +157,10 @@ function officialScoreBlockersFor(
     blockers.push(`${adapter.id}: official scorer receipt ${paths.officialScoreReceiptPath} is ${scoreReceipt.status ?? "invalid"}; scored receipt is still required before claiming score.${detail}`);
   }
   if (!existsSync(join(root, paths.officialTaskBundleManifestPath))) {
-    blockers.push(`${adapter.id}: official task bundle lock ${paths.officialTaskBundleManifestPath} is not staged yet.`);
+    const reason = adapter.id === "workstreambench"
+      ? "no public official bundle/scorer/rubric URL was found; obtain the upstream release or author-provided bundle before claiming an official score"
+      : "the locked official task bundle must be imported before claiming an official score";
+    blockers.push(`${adapter.id}: official task bundle lock ${paths.officialTaskBundleManifestPath} is missing: ${reason}.`);
   }
   return blockers;
 }

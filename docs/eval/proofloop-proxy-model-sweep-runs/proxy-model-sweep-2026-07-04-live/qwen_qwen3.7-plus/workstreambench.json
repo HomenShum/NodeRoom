@@ -1,0 +1,112 @@
+{
+  "schema": "proofloop-external-adapter-live-room-proof-v1",
+  "adapterId": "workstreambench",
+  "status": "passed",
+  "runId": "proxy-model-sweep-2026-07-04-live-qwen_qwen3.7-plus-workstreambench",
+  "generatedAt": "2026-07-04T23:31:31.046Z",
+  "localAdapterOnly": true,
+  "officialScoreClaim": false,
+  "taskCount": 1,
+  "baseUrl": "https://noderoom.live",
+  "scenario": "proofloop/benchmarks/common/live-room-scenario.spec.ts",
+  "outputDir": ".proofloop/runs/proxy-model-sweep-2026-07-04-live-qwen_qwen3.7-plus-workstreambench/external-adapter-live-room/workstreambench",
+  "exitCode": 0,
+  "evidence": [
+    "proofloop/benchmarks/workstreambench/load-tasks.ts",
+    "proofloop/benchmarks/common/live-room-scenario.spec.ts",
+    ".proofloop/runs/proxy-model-sweep-2026-07-04-live-qwen_qwen3.7-plus-workstreambench/external-adapter-live-room/workstreambench/live-user-contract.json",
+    ".proofloop/runs/proxy-model-sweep-2026-07-04-live-qwen_qwen3.7-plus-workstreambench/external-adapter-live-room/workstreambench/node-trace-v2.json",
+    ".proofloop/runs/proxy-model-sweep-2026-07-04-live-qwen_qwen3.7-plus-workstreambench/external-adapter-live-room/workstreambench/node-eval.json",
+    ".proofloop/runs/proxy-model-sweep-2026-07-04-live-qwen_qwen3.7-plus-workstreambench/external-adapter-live-room/workstreambench/scorecard.md",
+    ".proofloop/runs/proxy-model-sweep-2026-07-04-live-qwen_qwen3.7-plus-workstreambench/external-adapter-live-room/workstreambench/cost-ledger.json",
+    ".proofloop/runs/proxy-model-sweep-2026-07-04-live-qwen_qwen3.7-plus-workstreambench/external-adapter-live-room/workstreambench/verifier-receipt.json",
+    ".proofloop/runs/proxy-model-sweep-2026-07-04-live-qwen_qwen3.7-plus-workstreambench/external-adapter-live-room/workstreambench/official-scorer-receipt.json",
+    ".proofloop/runs/proxy-model-sweep-2026-07-04-live-qwen_qwen3.7-plus-workstreambench/external-adapter-live-room/workstreambench/browser-proof.json",
+    ".proofloop/runs/proxy-model-sweep-2026-07-04-live-qwen_qwen3.7-plus-workstreambench/external-adapter-live-room/workstreambench/local-task-manifest.json",
+    ".proofloop/runs/proxy-model-sweep-2026-07-04-live-qwen_qwen3.7-plus-workstreambench/external-adapter-live-room/workstreambench/visual-proof.png"
+  ],
+  "failedGates": [],
+  "browserProof": {
+    "roomUrl": "https://noderoom.live/?room=NRBKA2NPOM2&name=Proof+Loop",
+    "roomId": "NRBKA2NPOM2",
+    "model": {
+      "provider": "openrouter",
+      "mode": "specific",
+      "policy": "qwen/qwen3.7-plus",
+      "runtimeProfile": "standard",
+      "realUserMode": true,
+      "measuredCostUsd": 0.105,
+      "measuredTokensIn": 256758,
+      "measuredTokensOut": 18143,
+      "telemetry": [
+        {
+          "taskId": "workstreambench-local-spreadsheet-workstream",
+          "telemetry": {
+            "model": "qwen/qwen3.7-plus",
+            "toolCalls": 18,
+            "steps": 12,
+            "inputTokens": 256758,
+            "outputTokens": 18143,
+            "latencyMs": 366578,
+            "costUsd": 0.105,
+            "rawText": "qwen/qwen3.7-plus · 18 tools · $0.105",
+            "rawTitle": "12 steps · 256,758 in + 18,143 out tokens · 366578ms"
+          }
+        }
+      ]
+    },
+    "problemCounts": {
+      "pageErrors": 0,
+      "consoleProblems": 0,
+      "requestFailures": 0,
+      "badResponses": 0
+    },
+    "taskProofs": [
+      {
+        "userMessageVisible": true,
+        "streamingVisible": true,
+        "jobStatusVisible": true,
+        "jobDetailVisible": true,
+        "roomTraceVisible": true,
+        "completionVisible": true,
+        "finalTextSample": "l ($320,000) minus Revenue Budget ($300,000), sourced from `variance.json` (artifact `j97bnbxfg618y6rdbnaq07wka189xh12`).\n\n**Summary:**\n- **Variance workstream** (rows 1–6): Populated 4 categories from `variance.json` with Budget, Actual, Variance ($), Variance (%), and Status. D2 = **20,000** ✓\n- **Reconciliation workstream** (rows 8–11): Matched 3 entries from `reconciliation.json` between ledger and bank statement; identified 1 timing discrepancy (software subscription, 2-day date difference), matching the `expectedDiscrepancies: 1` in the source.\n- **Uploaded input files remain intact** — neither `reconciliation.json` nor `variance.json` was modified.All writes succeeded. Let me confirm the key result:D2 (r2__D) = 20,000 — computed as Revenue Actual ($320,000) minus Revenue Budget ($300,000), sourced from variance.json (artifact j97bnbxfg618y6rdbnaq07wka189xh12).Summary:Variance workstream (rows 1–6): Populated 4 categories from variance.json with Budget, Actual, Variance ($), Variance (%), and Status. D2 = 20,000 ✓Reconciliation workstream (rows 8–11): Matched 3 entries from reconciliation.json between ledger and bank statement; identified 1 timing discrepancy (software subscription, 2-day date difference), matching the expectedDiscrepancies: 1 in the source.Uploaded input files remain intact — neither reconciliation.json nor variance.json was modified.<invoke name=\"read_range\"><parameter name=\"artifactId\">j971bmc7kz28mxydryybnhtnmd89wt45</parameter><parameter name=\"elementIds\">[\"r6__A\",\"r6__F\",\"r6__G\",\"r6__H\",\"r8__A\",\"r8__B\",\"r8__C\",\"r8__D\",\"r8__E\",\"r8__F\",\"r8__G\",\"r8__H\",\"r9__A\",\"r9__B\",\"r9__C\",\"r9__E\",\"r9__F\",\"r9__G\",\"r9__H\",\"r10__A\",\"r10__B\",\"r10__C\",\"r10__E\",\"r10__F\",\"r10__G\",\"r10__H\",\"r11__A\",\"r11__B\",\"r11__C\",\"r11__E\",\"r11__F\",\"r11__G\",\"r11__H\",\"r12__A\",\"r12__B\",\"r12__C\"]</parameter></invoke>\nNRoom NodeAgentagent16:28Done. D2 = 20,000 (Revenue variance). Full variance + reconciliation workstream populated from uploaded JSONs; source files unchanged. Copy",
+        "durationMs": 373762,
+        "telemetry": {
+          "model": "qwen/qwen3.7-plus",
+          "toolCalls": 18,
+          "steps": 12,
+          "inputTokens": 256758,
+          "outputTokens": 18143,
+          "latencyMs": 366578,
+          "costUsd": 0.105,
+          "rawText": "qwen/qwen3.7-plus · 18 tools · $0.105",
+          "rawTitle": "12 steps · 256,758 in + 18,143 out tokens · 366578ms"
+        },
+        "gatesProven": [
+          "public_nodeagent_invocation",
+          "visible_streaming_progress",
+          "agent_live_loop",
+          "job_detail_visible",
+          "agent_terminal_quality_gate",
+          "room_trace_visible"
+        ],
+        "gatesNotProven": {},
+        "taskId": "workstreambench-local-spreadsheet-workstream",
+        "title": "Spreadsheet workstream execution through NodeRoom story workflow",
+        "prompt": "@nodeagent  Use the uploaded input artifacts and the current live room sheet. Run the visible spreadsheet workstream, recompute D2, and confirm the edited input remains intact. Ground the answer in visible room evidence and uploaded files. Make the smallest necessary sheet edits; avoid bulk updates unless the task truly requires them. ",
+        "uploadedFiles": [
+          "reconciliation.json",
+          "variance.json"
+        ]
+      }
+    ]
+  },
+  "officialSemanticScore": {
+    "status": "blocked_external",
+    "blockers": [
+      "workstreambench: official scorer receipt docs/eval/proofloop-official-scores/workstreambench.json is blocked_external; scored receipt is still required before claiming score. No public official WorkstreamBench task bundle URL was found. No public official WorkstreamBench scorer repository or CLI was found. The paper describes LLM-as-judge evaluation over structured representations, so a claimable score requires the official rubric/task bundle/scorer release or author-provided supplementary package.",
+      "workstreambench: official task bundle lock docs/eval/proofloop-official-task-bundles/workstreambench.json is missing: no public official bundle/scorer/rubric URL was found; obtain the upstream release or author-provided bundle before claiming an official score."
+    ],
+    "verifierCommand": "npm run benchmark:proofloop:adapter-blockers -- --id workstreambench --strict"
+  }
+}

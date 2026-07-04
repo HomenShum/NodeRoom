@@ -123,8 +123,11 @@ export const modelPricing: Record<string, ModelPricing> = {
   // resolved.includes("/") branch in getProviderForModel (line 393); these entries
   // make it first-class (pricing + bare-name alias) without touching routing logic.
   // Pricing reflects OpenRouter's listed rates for deepseek/deepseek-v4-pro as of 2026-06.
-  "deepseek-v4-pro": { inputPer1M: 0.55, outputPer1M: 2.19, contextWindow: 163840 },
-  "deepseek/deepseek-v4-pro": { inputPer1M: 0.55, outputPer1M: 2.19, contextWindow: 163840 },
+  "deepseek-v4-pro": { inputPer1M: 0.435, outputPer1M: 0.87, contextWindow: 1048576 },
+  "deepseek/deepseek-v4-pro": { inputPer1M: 0.435, outputPer1M: 0.87, contextWindow: 1048576 },
+  "deepseek-v4-flash": { inputPer1M: 0.09, outputPer1M: 0.18, contextWindow: 1048576 },
+  "deepseek/deepseek-v4-flash": { inputPer1M: 0.09, outputPer1M: 0.18, contextWindow: 1048576 },
+  "poolside/laguna-xs-2.1": { inputPer1M: 0.06, outputPer1M: 0.12, cachedInputPer1M: 0.03, contextWindow: 262144 },
   // Nebius Token Factory (direct inference, OpenAI-compatible at api.tokenfactory.nebius.com)
   "nebius/zai-org/GLM-5.2": { inputPer1M: 1.00, outputPer1M: 3.00, contextWindow: 200000 },
   "nebius/MiniMaxAI/MiniMax-M2.5": { inputPer1M: 0.30, outputPer1M: 1.00, contextWindow: 197000 },
@@ -140,8 +143,8 @@ export const modelPricing: Record<string, ModelPricing> = {
   "z-ai/glm-4.7-flash": { inputPer1M: 0.07, outputPer1M: 0.40, cachedInputPer1M: 0.01, contextWindow: 200000 },
   "glm-4.7": { inputPer1M: 0.40, outputPer1M: 1.50, contextWindow: 202752 },
   "z-ai/glm-4.7": { inputPer1M: 0.40, outputPer1M: 1.50, contextWindow: 202752 },
-  "glm-5.2": { inputPer1M: 1.20, outputPer1M: 4.10, cachedInputPer1M: 0.18, contextWindow: 1048576 },
-  "z-ai/glm-5.2": { inputPer1M: 1.20, outputPer1M: 4.10, cachedInputPer1M: 0.18, contextWindow: 1048576 },
+  "glm-5.2": { inputPer1M: 0.77, outputPer1M: 2.42, cachedInputPer1M: 0.18, contextWindow: 1048576 },
+  "z-ai/glm-5.2": { inputPer1M: 0.77, outputPer1M: 2.42, cachedInputPer1M: 0.18, contextWindow: 1048576 },
   "kimi-k2.6": { inputPer1M: 0.75, outputPer1M: 3.50, contextWindow: 262144 },
   "moonshotai/kimi-k2.6": { inputPer1M: 0.75, outputPer1M: 3.50, contextWindow: 262144 },
   "kimi-k2.7-code": { inputPer1M: 0.74, outputPer1M: 3.50, cachedInputPer1M: 0.15, contextWindow: 262144 },
@@ -667,6 +670,10 @@ export const modelAliases: Record<string, string> = {
   // to the slash form that already hits the OpenRouter branch at line 393.
   "deepseek-v4-pro": "deepseek/deepseek-v4-pro",
   "deepseek/deepseek-v4-pro": "deepseek/deepseek-v4-pro",
+  "deepseek-v4-flash": "deepseek/deepseek-v4-flash",
+  "deepseek/deepseek-v4-flash": "deepseek/deepseek-v4-flash",
+  "laguna-xs-2.1": "poolside/laguna-xs-2.1",
+  "poolside/laguna-xs-2.1": "poolside/laguna-xs-2.1",
   // Nebius Token Factory aliases (prefix with nebius/ for routing)
   "nebius/glm-5": "nebius/zai-org/GLM-5.2",
   "nebius/minimax-m2.5": "nebius/MiniMaxAI/MiniMax-M2.5",

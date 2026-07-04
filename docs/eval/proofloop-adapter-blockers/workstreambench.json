@@ -16,7 +16,7 @@
   "validationErrors": [],
   "blockers": [
     "workstreambench: official scorer receipt docs/eval/proofloop-official-scores/workstreambench.json is blocked_external; scored receipt is still required before claiming score. No public official WorkstreamBench task bundle URL was found. No public official WorkstreamBench scorer repository or CLI was found. The paper describes LLM-as-judge evaluation over structured representations, so a claimable score requires the official rubric/task bundle/scorer release or author-provided supplementary package.",
-    "workstreambench: official task bundle lock docs/eval/proofloop-official-task-bundles/workstreambench.json is not staged yet."
+    "workstreambench: official task bundle lock docs/eval/proofloop-official-task-bundles/workstreambench.json is missing: no public official bundle/scorer/rubric URL was found; obtain the upstream release or author-provided bundle before claiming an official score."
   ],
   "officialCommandPlan": [
     "Lock the official WorkstreamBench task bundle and scorer from the paper/supplementary source.",

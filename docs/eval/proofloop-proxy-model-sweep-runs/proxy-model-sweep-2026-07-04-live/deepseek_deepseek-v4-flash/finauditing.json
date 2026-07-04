@@ -1,0 +1,112 @@
+{
+  "schema": "proofloop-external-adapter-live-room-proof-v1",
+  "adapterId": "finauditing",
+  "status": "passed",
+  "runId": "proxy-model-sweep-2026-07-04-live-deepseek_deepseek-v4-flash-finauditing",
+  "generatedAt": "2026-07-04T23:04:57.054Z",
+  "localAdapterOnly": true,
+  "officialScoreClaim": false,
+  "taskCount": 1,
+  "baseUrl": "https://noderoom.live",
+  "scenario": "proofloop/benchmarks/common/live-room-scenario.spec.ts",
+  "outputDir": ".proofloop/runs/proxy-model-sweep-2026-07-04-live-deepseek_deepseek-v4-flash-finauditing/external-adapter-live-room/finauditing",
+  "exitCode": 0,
+  "evidence": [
+    "proofloop/benchmarks/finauditing/load-tasks.ts",
+    "proofloop/benchmarks/common/live-room-scenario.spec.ts",
+    ".proofloop/runs/proxy-model-sweep-2026-07-04-live-deepseek_deepseek-v4-flash-finauditing/external-adapter-live-room/finauditing/live-user-contract.json",
+    ".proofloop/runs/proxy-model-sweep-2026-07-04-live-deepseek_deepseek-v4-flash-finauditing/external-adapter-live-room/finauditing/node-trace-v2.json",
+    ".proofloop/runs/proxy-model-sweep-2026-07-04-live-deepseek_deepseek-v4-flash-finauditing/external-adapter-live-room/finauditing/node-eval.json",
+    ".proofloop/runs/proxy-model-sweep-2026-07-04-live-deepseek_deepseek-v4-flash-finauditing/external-adapter-live-room/finauditing/scorecard.md",
+    ".proofloop/runs/proxy-model-sweep-2026-07-04-live-deepseek_deepseek-v4-flash-finauditing/external-adapter-live-room/finauditing/cost-ledger.json",
+    ".proofloop/runs/proxy-model-sweep-2026-07-04-live-deepseek_deepseek-v4-flash-finauditing/external-adapter-live-room/finauditing/verifier-receipt.json",
+    ".proofloop/runs/proxy-model-sweep-2026-07-04-live-deepseek_deepseek-v4-flash-finauditing/external-adapter-live-room/finauditing/official-scorer-receipt.json",
+    ".proofloop/runs/proxy-model-sweep-2026-07-04-live-deepseek_deepseek-v4-flash-finauditing/external-adapter-live-room/finauditing/browser-proof.json",
+    ".proofloop/runs/proxy-model-sweep-2026-07-04-live-deepseek_deepseek-v4-flash-finauditing/external-adapter-live-room/finauditing/local-task-manifest.json",
+    ".proofloop/runs/proxy-model-sweep-2026-07-04-live-deepseek_deepseek-v4-flash-finauditing/external-adapter-live-room/finauditing/visual-proof.png"
+  ],
+  "failedGates": [],
+  "browserProof": {
+    "roomUrl": "https://noderoom.live/?room=NR114IGV15E&name=Proof+Loop",
+    "roomId": "NR114IGV15E",
+    "model": {
+      "provider": "openrouter",
+      "mode": "specific",
+      "policy": "deepseek/deepseek-v4-flash",
+      "runtimeProfile": "standard",
+      "realUserMode": true,
+      "measuredCostUsd": 0.025,
+      "measuredTokensIn": 269583,
+      "measuredTokensOut": 5063,
+      "telemetry": [
+        {
+          "taskId": "finauditing-local-risk-and-misstatement-review",
+          "telemetry": {
+            "model": "deepseek/deepseek-v4-flash",
+            "toolCalls": 18,
+            "steps": 9,
+            "inputTokens": 269583,
+            "outputTokens": 5063,
+            "latencyMs": 108111,
+            "costUsd": 0.025,
+            "rawText": "deepseek/deepseek-v4-flash · 18 tools · $0.025",
+            "rawTitle": "9 steps · 269,583 in + 5,063 out tokens · 108111ms"
+          }
+        }
+      ]
+    },
+    "problemCounts": {
+      "pageErrors": 0,
+      "consoleProblems": 0,
+      "requestFailures": 0,
+      "badResponses": 0
+    },
+    "taskProofs": [
+      {
+        "userMessageVisible": true,
+        "streamingVisible": true,
+        "jobStatusVisible": true,
+        "jobDetailVisible": true,
+        "roomTraceVisible": true,
+        "completionVisible": true,
+        "finalTextSample": "an-entered C2 value. Let me check for any existing values in the original r1-r3 area with columns A-H. Thoughts (step 7)Good - the original A-H cells (including r2__C / \"C2\") remain at version 1, untouched. Now let me also populate the revenue change comparison more clearly, and add the evidence from the files about the revenue change Thoughts (step 8)Now let me set the sheet metadata to make it findable.Excellent! Now I have the full picture from the uploaded files. Let me populate the sheet with the revenue data and evidence.Now I have the data. Let me write the revenue evidence to the sheet using the new column IDs from the column definition.The cells for the new columns don't exist yet (version 0). Let me check the current state and use the correct base versionsThe new column cells are at version 0 (not yet created). Let me retry with baseVersion 0 for these new cells:All 24 cells written successfully. Now let me also preserve the human-entered C2 value. The original table (pre-column-definition) showed columns A-H, and the task mentioned preserving a human-entered C2 value. Let me check for any existing values in the original r1-r3 area with columns A-H.Good - the original A-H cells (including r2__C / \"C2\") remain at version 1, untouched. Now let me also populate the revenue change comparison more clearly, and add the evidence from the files about the revenue changeNow let me set the sheet metadata to make it findable.Revenue evidence captured: $7.6M (source-pack.md 2025) vs $320K (financial-statements.json) — $7.28M delta noted. All original A-H cells (incl. human-entered C2) preserved at v1. Evidence grounded in source-pack.md, financial-statements.json, and risk-notes.md.\nNRoom NodeAgentagent16:04Revenue evidence captured: $7.6M (source-pack.md 2025) vs $320K (financial-statements.json) — $7.28M delta noted. All original A-H cells (incl. human-entered C2) preserved at v1. Evidence grounded in source-pack.md, financial-statements.json, and risk-notes.md. Copy",
+        "durationMs": 209782,
+        "telemetry": {
+          "model": "deepseek/deepseek-v4-flash",
+          "toolCalls": 18,
+          "steps": 9,
+          "inputTokens": 269583,
+          "outputTokens": 5063,
+          "latencyMs": 108111,
+          "costUsd": 0.025,
+          "rawText": "deepseek/deepseek-v4-flash · 18 tools · $0.025",
+          "rawTitle": "9 steps · 269,583 in + 5,063 out tokens · 108111ms"
+        },
+        "gatesProven": [
+          "public_nodeagent_invocation",
+          "visible_streaming_progress",
+          "agent_live_loop",
+          "job_detail_visible",
+          "agent_terminal_quality_gate",
+          "room_trace_visible"
+        ],
+        "gatesNotProven": {},
+        "taskId": "finauditing-local-risk-and-misstatement-review",
+        "title": "Audit-style evidence review through NodeRoom story workflow",
+        "prompt": "@nodeagent  Use the uploaded input artifacts and the current live room sheet. Check the revenue change, identify evidence that supports it, and preserve the human-entered C2 value. Ground the answer in visible room evidence and uploaded files. Make the smallest necessary sheet edits; avoid bulk updates unless the task truly requires them. ",
+        "uploadedFiles": [
+          "source-pack.md",
+          "risk-notes.md",
+          "financial-statements.json"
+        ]
+      }
+    ]
+  },
+  "officialSemanticScore": {
+    "status": "blocked_external",
+    "blockers": [
+      "finauditing: official scorer receipt docs/eval/proofloop-official-scores/finauditing.json is blocked_external; scored receipt is still required before claiming score. FinMR evaluation uses an OpenAI LLM judge and this shell has no OPENAI_API_KEY. The full benchmark path also points to the separate FinBen framework, which is not yet wired to NodeRoom output artifacts."
+    ],
+    "verifierCommand": "npm run benchmark:proofloop:adapter-blockers -- --id finauditing --strict"
+  }
+}

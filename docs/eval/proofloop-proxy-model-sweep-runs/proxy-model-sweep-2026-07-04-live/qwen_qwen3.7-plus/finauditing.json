@@ -1,0 +1,112 @@
+{
+  "schema": "proofloop-external-adapter-live-room-proof-v1",
+  "adapterId": "finauditing",
+  "status": "passed",
+  "runId": "proxy-model-sweep-2026-07-04-live-qwen_qwen3.7-plus-finauditing",
+  "generatedAt": "2026-07-04T23:25:10.881Z",
+  "localAdapterOnly": true,
+  "officialScoreClaim": false,
+  "taskCount": 1,
+  "baseUrl": "https://noderoom.live",
+  "scenario": "proofloop/benchmarks/common/live-room-scenario.spec.ts",
+  "outputDir": ".proofloop/runs/proxy-model-sweep-2026-07-04-live-qwen_qwen3.7-plus-finauditing/external-adapter-live-room/finauditing",
+  "exitCode": 0,
+  "evidence": [
+    "proofloop/benchmarks/finauditing/load-tasks.ts",
+    "proofloop/benchmarks/common/live-room-scenario.spec.ts",
+    ".proofloop/runs/proxy-model-sweep-2026-07-04-live-qwen_qwen3.7-plus-finauditing/external-adapter-live-room/finauditing/live-user-contract.json",
+    ".proofloop/runs/proxy-model-sweep-2026-07-04-live-qwen_qwen3.7-plus-finauditing/external-adapter-live-room/finauditing/node-trace-v2.json",
+    ".proofloop/runs/proxy-model-sweep-2026-07-04-live-qwen_qwen3.7-plus-finauditing/external-adapter-live-room/finauditing/node-eval.json",
+    ".proofloop/runs/proxy-model-sweep-2026-07-04-live-qwen_qwen3.7-plus-finauditing/external-adapter-live-room/finauditing/scorecard.md",
+    ".proofloop/runs/proxy-model-sweep-2026-07-04-live-qwen_qwen3.7-plus-finauditing/external-adapter-live-room/finauditing/cost-ledger.json",
+    ".proofloop/runs/proxy-model-sweep-2026-07-04-live-qwen_qwen3.7-plus-finauditing/external-adapter-live-room/finauditing/verifier-receipt.json",
+    ".proofloop/runs/proxy-model-sweep-2026-07-04-live-qwen_qwen3.7-plus-finauditing/external-adapter-live-room/finauditing/official-scorer-receipt.json",
+    ".proofloop/runs/proxy-model-sweep-2026-07-04-live-qwen_qwen3.7-plus-finauditing/external-adapter-live-room/finauditing/browser-proof.json",
+    ".proofloop/runs/proxy-model-sweep-2026-07-04-live-qwen_qwen3.7-plus-finauditing/external-adapter-live-room/finauditing/local-task-manifest.json",
+    ".proofloop/runs/proxy-model-sweep-2026-07-04-live-qwen_qwen3.7-plus-finauditing/external-adapter-live-room/finauditing/visual-proof.png"
+  ],
+  "failedGates": [],
+  "browserProof": {
+    "roomUrl": "https://noderoom.live/?room=NR8PPHSO44V&name=Proof+Loop",
+    "roomId": "NR8PPHSO44V",
+    "model": {
+      "provider": "openrouter",
+      "mode": "specific",
+      "policy": "qwen/qwen3.7-plus",
+      "runtimeProfile": "standard",
+      "realUserMode": true,
+      "measuredCostUsd": 0.018,
+      "measuredTokensIn": 44653,
+      "measuredTokensOut": 3031,
+      "telemetry": [
+        {
+          "taskId": "finauditing-local-risk-and-misstatement-review",
+          "telemetry": {
+            "model": "qwen/qwen3.7-plus",
+            "toolCalls": 5,
+            "steps": 3,
+            "inputTokens": 44653,
+            "outputTokens": 3031,
+            "latencyMs": 59990,
+            "costUsd": 0.018,
+            "rawText": "qwen/qwen3.7-plus · 5 tools · $0.018",
+            "rawTitle": "3 steps · 44,653 in + 3,031 out tokens · 59990ms"
+          }
+        }
+      ]
+    },
+    "problemCounts": {
+      "pageErrors": 0,
+      "consoleProblems": 0,
+      "requestFailures": 0,
+      "badResponses": 0
+    },
+    "taskProofs": [
+      {
+        "userMessageVisible": true,
+        "streamingVisible": true,
+        "jobStatusVisible": true,
+        "jobDetailVisible": true,
+        "roomTraceVisible": true,
+        "completionVisible": true,
+        "finalTextSample": "NodeAgent completed the run3 model turns - 5 tool actionsTrace details Step 3/128Gathered room files4 room artifacts returnedRead source datax31 room artifact returnedReported answercompletedReading uploaded artifacts and analyzing revenue change across documents. Will preserve C2 for human entry.\nNodeAgent completed the run3 model turns - 5 tool actionsTrace details Step 3/128Gathered room files4 room artifacts returnedRead source datax31 room artifact returnedReported answercompletedReading uploaded artifacts and analyzing revenue change across documents. Will preserve C2 for human entry.\nNRoom NodeAgentagent16:25Reading uploaded artifacts and analyzing revenue change across documents. Will preserve C2 for human entry. Copy",
+        "durationMs": 67030,
+        "telemetry": {
+          "model": "qwen/qwen3.7-plus",
+          "toolCalls": 5,
+          "steps": 3,
+          "inputTokens": 44653,
+          "outputTokens": 3031,
+          "latencyMs": 59990,
+          "costUsd": 0.018,
+          "rawText": "qwen/qwen3.7-plus · 5 tools · $0.018",
+          "rawTitle": "3 steps · 44,653 in + 3,031 out tokens · 59990ms"
+        },
+        "gatesProven": [
+          "public_nodeagent_invocation",
+          "visible_streaming_progress",
+          "agent_live_loop",
+          "job_detail_visible",
+          "agent_terminal_quality_gate",
+          "room_trace_visible"
+        ],
+        "gatesNotProven": {},
+        "taskId": "finauditing-local-risk-and-misstatement-review",
+        "title": "Audit-style evidence review through NodeRoom story workflow",
+        "prompt": "@nodeagent  Use the uploaded input artifacts and the current live room sheet. Check the revenue change, identify evidence that supports it, and preserve the human-entered C2 value. Ground the answer in visible room evidence and uploaded files. Make the smallest necessary sheet edits; avoid bulk updates unless the task truly requires them. ",
+        "uploadedFiles": [
+          "source-pack.md",
+          "risk-notes.md",
+          "financial-statements.json"
+        ]
+      }
+    ]
+  },
+  "officialSemanticScore": {
+    "status": "blocked_external",
+    "blockers": [
+      "finauditing: official scorer receipt docs/eval/proofloop-official-scores/finauditing.json is blocked_external; scored receipt is still required before claiming score. FinMR evaluation uses an OpenAI LLM judge and this shell has no OPENAI_API_KEY. The full benchmark path also points to the separate FinBen framework, which is not yet wired to NodeRoom output artifacts."
+    ],
+    "verifierCommand": "npm run benchmark:proofloop:adapter-blockers -- --id finauditing --strict"
+  }
+}

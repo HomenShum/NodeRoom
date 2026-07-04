@@ -83,12 +83,13 @@ describe("convex credits — fail-closed", () => {
   it("reserve over balance returns insufficient_credits, does not debit, logs a reject", async () => {
     const t = convexTest(schema, modules);
     const roomId = await seedRoom(t);
-    await t.mutation(internal.credits.grantCredits, { roomId, credits: 2, source: "pilot" }); // < standard hold
+    const underStandardHold = STD_HOLD - 0.01;
+    await t.mutation(internal.credits.grantCredits, { roomId, credits: underStandardHold, source: "pilot" });
     const r = await t.mutation(internal.credits.reserve, { roomId, mode: "standard", reservationKey: "job_x" });
     expect(r.ok).toBe(false);
     expect((r as any).reason).toBe("insufficient_credits");
     const rc = await readRoomCredits(t, roomId);
-    expect(rc?.availableCredits).toBe(2); // untouched
+    expect(rc?.availableCredits).toBe(underStandardHold); // untouched
     expect(rc?.reservedCredits).toBe(0);
     const rejects = await t.run(async (ctx) => ctx.db.query("creditLedger").withIndex("by_reservation", (q) => q.eq("reservationKey", "job_x")).collect());
     expect(rejects.some((x) => x.kind === "reject")).toBe(true);

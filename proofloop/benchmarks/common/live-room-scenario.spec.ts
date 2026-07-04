@@ -31,8 +31,21 @@ type LiveRoomTaskProof = {
   completionVisible: boolean;
   finalTextSample: string;
   durationMs: number;
+  telemetry: LiveRunTelemetry | null;
   gatesProven: string[];
   gatesNotProven: Record<string, string>;
+};
+
+type LiveRunTelemetry = {
+  model: string;
+  toolCalls: number | null;
+  steps: number | null;
+  inputTokens: number | null;
+  outputTokens: number | null;
+  costUsd: number | null;
+  latencyMs: number | null;
+  rawText: string;
+  rawTitle: string;
 };
 
 const adapterId = parseAdapterId(process.env.PROOFLOOP_EXTERNAL_ADAPTER_ID);
@@ -43,7 +56,10 @@ const AGENT_TIMEOUT_MS = Number(process.env.PROOFLOOP_EXTERNAL_AGENT_TIMEOUT_MS 
 const STREAM_TIMEOUT_MS = Number(process.env.PROOFLOOP_EXTERNAL_STREAM_TIMEOUT_MS ?? 120_000);
 const AGENT_MODEL_MODE = process.env.BENCH_AGENT_MODEL_MODE ?? process.env.PROOFLOOP_AGENT_MODEL_MODE ?? "specific";
 const AGENT_MODEL_POLICY = process.env.BENCH_AGENT_MODEL_POLICY ?? process.env.PROOFLOOP_AGENT_MODEL_POLICY ?? "deepseek/deepseek-v4-pro";
-const REQUIRE_FINAL_PHRASE = process.env.PROOFLOOP_EXTERNAL_REQUIRE_FINAL_PHRASE !== "0";
+const REAL_USER_MODE = process.env.PROOFLOOP_REAL_USER_MODE === "1" || process.env.PROOFLOOP_USER_EMULATION === "real";
+const NODEAGENT_RUNTIME_PROFILE = process.env.PROOFLOOP_NODEAGENT_RUNTIME_PROFILE ?? (REAL_USER_MODE ? "" : "benchmark_completion");
+const REQUIRE_FINAL_PHRASE = REAL_USER_MODE ? false : process.env.PROOFLOOP_EXTERNAL_REQUIRE_FINAL_PHRASE !== "0";
+const FOCUS_MODE_ENABLED = !REAL_USER_MODE && process.env.PROOFLOOP_FOCUS_MODE !== "0";
 
 test.describe(`${adapterId} Proof Loop live-room adapter`, () => {
   test("runs a fresh live room proxy task through public @nodeagent without claiming official score", async ({ page }, testInfo) => {
@@ -79,21 +95,23 @@ test.describe(`${adapterId} Proof Loop live-room adapter`, () => {
       }
     });
 
-    await enableFocusModeForTest(page);
-    await page.addInitScript(() => {
-      try {
-        window.localStorage?.setItem("noderoom.nodeagentRuntimeProfile", "benchmark_completion");
-      } catch {
-        // Browser storage is unavailable in a few sandboxed preview frames.
-      }
-    });
+    if (FOCUS_MODE_ENABLED) await enableFocusModeForTest(page);
+    if (NODEAGENT_RUNTIME_PROFILE) {
+      await page.addInitScript((runtimeProfile) => {
+        try {
+          window.localStorage?.setItem("noderoom.nodeagentRuntimeProfile", runtimeProfile);
+        } catch {
+          // Browser storage is unavailable in a few sandboxed preview frames.
+        }
+      }, NODEAGENT_RUNTIME_PROFILE);
+    }
 
     const roomStartedAt = new Date().toISOString();
     await createFreshLiveRoom(page);
-    await expectFocusModeOn(page);
+    if (FOCUS_MODE_ENABLED) await expectFocusModeOn(page);
     await ensureBinderOpen(page);
     await openBlankSheet(page);
-    await expectAttentionOverlayMounted(page);
+    if (FOCUS_MODE_ENABLED) await expectAttentionOverlayMounted(page);
     await selectAgentRoute(page);
 
     const taskProofs: LiveRoomTaskProof[] = [];
@@ -103,14 +121,14 @@ test.describe(`${adapterId} Proof Loop live-room adapter`, () => {
       await openBlankSheet(page);
       const expectedPhrase = `${task.taskId} live-room proxy complete`;
       const prompt = withNodeAgentMention([
-        `Proof Loop external-adapter live-room proxy for ${adapterId}.`,
+        REAL_USER_MODE ? "" : `Proof Loop external-adapter live-room proxy for ${adapterId}.`,
         `Use the uploaded input artifacts and the current live room sheet.`,
         task.userPrompt,
         `Ground the answer in visible room evidence and uploaded files.`,
         `Make the smallest necessary sheet edits; avoid bulk updates unless the task truly requires them.`,
-        `When finished, include this exact completion phrase: "${expectedPhrase}".`,
+        REQUIRE_FINAL_PHRASE ? `When finished, include this exact completion phrase: "${expectedPhrase}".` : "",
       ].join(" "));
-      const proof = await invokePublicNodeAgent(page, prompt, expectedPhrase, taskStarted);
+      const proof = await invokePublicNodeAgent(page, prompt, { completionPhrase: expectedPhrase, userMessageNeedle: task.userPrompt }, taskStarted);
       taskProofs.push({ ...proof, taskId: task.taskId, title: task.title, prompt, uploadedFiles });
     }
 
@@ -147,9 +165,12 @@ test.describe(`${adapterId} Proof Loop live-room adapter`, () => {
       provider: providerForAgentModelPolicy(AGENT_MODEL_POLICY),
       mode: AGENT_MODEL_MODE,
       policy: AGENT_MODEL_POLICY,
-      measuredCostUsd: null,
-      measuredTokensIn: null,
-      measuredTokensOut: null,
+      runtimeProfile: NODEAGENT_RUNTIME_PROFILE || "standard",
+      realUserMode: REAL_USER_MODE,
+      measuredCostUsd: sumNullable(taskProofs.map((task) => task.telemetry?.costUsd ?? null)),
+      measuredTokensIn: sumNullable(taskProofs.map((task) => task.telemetry?.inputTokens ?? null)),
+      measuredTokensOut: sumNullable(taskProofs.map((task) => task.telemetry?.outputTokens ?? null)),
+      telemetry: taskProofs.map((task) => ({ taskId: task.taskId, telemetry: task.telemetry })),
     };
     const common = {
       adapterId,
@@ -181,6 +202,7 @@ test.describe(`${adapterId} Proof Loop live-room adapter`, () => {
         "fresh live room created from the production entry path",
         "benchmark proxy inputs uploaded through the browser UI",
         "public @nodeagent message sent by the emulated user",
+        REAL_USER_MODE ? "normal user runtime: no benchmark_completion profile and no forced final phrase" : "benchmark completion runtime profile enabled",
         "visible stream/status evidence captured",
         "official score remains blocked unless upstream scorer accepts the artifacts",
       ],
@@ -213,7 +235,9 @@ test.describe(`${adapterId} Proof Loop live-room adapter`, () => {
       schema: "proofloop-cost-ledger-v1",
       adapterId,
       model,
-      note: "The browser proof records the requested route; production provider token/cost telemetry is not exposed to this local Playwright runner.",
+      note: model.measuredCostUsd === null
+        ? "No visible run telemetry was available to this local Playwright runner."
+        : "Measured from production-visible NodeRoom run telemetry scraped from the live browser UI.",
     });
     writeJson(verifierReceiptPath, {
       schema: "proofloop-external-live-room-verifier-v1",
@@ -324,7 +348,7 @@ async function selectAgentRoute(page: Page): Promise<void> {
 async function invokePublicNodeAgent(
   page: Page,
   prompt: string,
-  expectedPhrase: string,
+  expected: { completionPhrase: string; userMessageNeedle: string },
   startedAt: number,
 ): Promise<Omit<LiveRoomTaskProof, "taskId" | "title" | "prompt" | "uploadedFiles">> {
   const gatesProven: string[] = [];
@@ -336,7 +360,7 @@ async function invokePublicNodeAgent(
   await composer.fill(prompt);
   await page.locator(noderoomSelectors.chatSend).first().click();
 
-  const userMessageVisible = await expect(page.getByTestId("chat-message").filter({ hasText: expectedPhrase }).first())
+  const userMessageVisible = await expect(page.getByTestId("chat-message").filter({ hasText: expected.userMessageNeedle }).first())
     .toBeVisible({ timeout: 20_000 })
     .then(() => true, () => false);
   if (userMessageVisible) gatesProven.push("public_nodeagent_invocation");
@@ -360,12 +384,13 @@ async function invokePublicNodeAgent(
   const jobDetailVisible = await openJobDetail(page);
   if (jobDetailVisible) gatesProven.push("job_detail_visible");
 
-  const completion = await waitForCompletion(page, stream, expectedPhrase, AGENT_TIMEOUT_MS);
+  const completion = await waitForCompletion(page, stream, expected.completionPhrase, AGENT_TIMEOUT_MS);
   if (completion.completionVisible) gatesProven.push("agent_terminal_quality_gate");
   else gatesNotProven.agent_terminal_quality_gate = completion.reason ?? "Agent did not reach the completion phrase before timeout.";
 
   const roomTraceVisible = await page.locator(noderoomSelectors.roomTrace).first().isVisible().catch(() => false);
   if (roomTraceVisible) gatesProven.push("room_trace_visible");
+  const telemetry = await latestRunTelemetry(page);
 
   return {
     userMessageVisible,
@@ -376,6 +401,7 @@ async function invokePublicNodeAgent(
     completionVisible: completion.completionVisible,
     finalTextSample: completion.finalTextSample,
     durationMs: Date.now() - startedAt,
+    telemetry,
     gatesProven,
     gatesNotProven,
   };
@@ -436,6 +462,29 @@ async function openJobDetail(page: Page): Promise<boolean> {
     await toggle.click({ timeout: 10_000 }).catch(() => undefined);
   }
   return detail.isVisible().catch(() => false);
+}
+
+async function latestRunTelemetry(page: Page): Promise<LiveRunTelemetry | null> {
+  const locator = page.locator(".r-trace-tele").last();
+  if (!(await locator.isVisible({ timeout: 10_000 }).catch(() => false))) return null;
+  const rawText = ((await locator.textContent().catch(() => "")) ?? "").replace(/\s+/g, " ").trim();
+  const rawTitle = ((await locator.getAttribute("title").catch(() => "")) ?? "").replace(/\s+/g, " ").trim();
+  const costMatch = rawText.match(/\$\s*([0-9]+(?:\.[0-9]+)?)/);
+  const toolMatch = rawText.match(/(?:^|[^0-9A-Za-z])\s*([0-9,]+)\s+tools?\b/i);
+  const modelMatch = rawText.match(/^(.+?)\s+[^0-9A-Za-z\s]\s+/);
+  const model = modelMatch?.[1]?.trim() || rawText.replace(/\b[0-9,]+\s+tools?\b.*$/i, "").trim();
+  const titleMatch = rawTitle.match(/([0-9,]+)\s+steps\s+[^0-9]+([0-9,]+)\s+in\s+\+\s+([0-9,]+)\s+out\s+tokens\s+[^0-9]+([0-9,]+)ms/i);
+  return {
+    model,
+    toolCalls: toolMatch ? parseCount(toolMatch[1]) : null,
+    steps: titleMatch ? parseCount(titleMatch[1]) : null,
+    inputTokens: titleMatch ? parseCount(titleMatch[2]) : null,
+    outputTokens: titleMatch ? parseCount(titleMatch[3]) : null,
+    latencyMs: titleMatch ? parseCount(titleMatch[4]) : null,
+    costUsd: costMatch ? Number(costMatch[1]) : null,
+    rawText,
+    rawTitle,
+  };
 }
 
 async function waitForUploadedLabels(page: Page, names: string[], timeoutMs: number): Promise<string[]> {
@@ -522,15 +571,33 @@ function renderScorecard(
     `Status: ${status}`,
     `Room: ${roomUrl}`,
     `Official score claim: false`,
+    `Runtime profile: ${NODEAGENT_RUNTIME_PROFILE || "standard"}`,
+    `Real user mode: ${REAL_USER_MODE}`,
+    `Model: ${AGENT_MODEL_POLICY}`,
     "",
     "## Tasks",
-    ...taskProofs.map((task) => `- ${task.taskId}: ${task.completionVisible ? "pass" : "fail"} (${task.durationMs}ms)`),
+    ...taskProofs.map((task) => `- ${task.taskId}: ${task.completionVisible ? "pass" : "fail"} (${task.durationMs}ms, cost=${task.telemetry?.costUsd ?? "unknown"})`),
     "",
     "## Browser Problems",
     ...Object.entries(problemCounts).map(([name, count]) => `- ${name}: ${count}`),
     "",
   ];
   return `${lines.join("\n")}\n`;
+}
+
+function parseCount(value: string): number {
+  return Number(value.replace(/,/g, ""));
+}
+
+function sumNullable(values: Array<number | null>): number | null {
+  let sawValue = false;
+  let sum = 0;
+  for (const value of values) {
+    if (typeof value !== "number" || !Number.isFinite(value)) continue;
+    sawValue = true;
+    sum += value;
+  }
+  return sawValue ? Number(sum.toFixed(6)) : null;
 }
 
 function roomIdFromUrl(url: string): string | undefined {

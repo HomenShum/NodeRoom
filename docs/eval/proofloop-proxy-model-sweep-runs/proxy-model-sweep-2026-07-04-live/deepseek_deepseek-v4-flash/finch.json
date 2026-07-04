@@ -1,0 +1,114 @@
+{
+  "schema": "proofloop-external-adapter-live-room-proof-v1",
+  "adapterId": "finch",
+  "status": "failed",
+  "runId": "proxy-model-sweep-2026-07-04-live-deepseek_deepseek-v4-flash-finch",
+  "generatedAt": "2026-07-04T23:01:16.555Z",
+  "localAdapterOnly": true,
+  "officialScoreClaim": false,
+  "taskCount": 1,
+  "baseUrl": "https://noderoom.live",
+  "scenario": "proofloop/benchmarks/common/live-room-scenario.spec.ts",
+  "outputDir": ".proofloop/runs/proxy-model-sweep-2026-07-04-live-deepseek_deepseek-v4-flash-finch/external-adapter-live-room/finch",
+  "exitCode": 1,
+  "evidence": [
+    "proofloop/benchmarks/finch/load-tasks.ts",
+    "proofloop/benchmarks/common/live-room-scenario.spec.ts",
+    ".proofloop/runs/proxy-model-sweep-2026-07-04-live-deepseek_deepseek-v4-flash-finch/external-adapter-live-room/finch/live-user-contract.json",
+    ".proofloop/runs/proxy-model-sweep-2026-07-04-live-deepseek_deepseek-v4-flash-finch/external-adapter-live-room/finch/node-trace-v2.json",
+    ".proofloop/runs/proxy-model-sweep-2026-07-04-live-deepseek_deepseek-v4-flash-finch/external-adapter-live-room/finch/node-eval.json",
+    ".proofloop/runs/proxy-model-sweep-2026-07-04-live-deepseek_deepseek-v4-flash-finch/external-adapter-live-room/finch/scorecard.md",
+    ".proofloop/runs/proxy-model-sweep-2026-07-04-live-deepseek_deepseek-v4-flash-finch/external-adapter-live-room/finch/cost-ledger.json",
+    ".proofloop/runs/proxy-model-sweep-2026-07-04-live-deepseek_deepseek-v4-flash-finch/external-adapter-live-room/finch/verifier-receipt.json",
+    ".proofloop/runs/proxy-model-sweep-2026-07-04-live-deepseek_deepseek-v4-flash-finch/external-adapter-live-room/finch/official-scorer-receipt.json",
+    ".proofloop/runs/proxy-model-sweep-2026-07-04-live-deepseek_deepseek-v4-flash-finch/external-adapter-live-room/finch/browser-proof.json",
+    ".proofloop/runs/proxy-model-sweep-2026-07-04-live-deepseek_deepseek-v4-flash-finch/external-adapter-live-room/finch/local-task-manifest.json",
+    ".proofloop/runs/proxy-model-sweep-2026-07-04-live-deepseek_deepseek-v4-flash-finch/external-adapter-live-room/finch/visual-proof.png"
+  ],
+  "failedGates": [
+    "finch: live-room browser scenario failed"
+  ],
+  "browserProof": {
+    "roomUrl": "https://noderoom.live/?room=NRVOIY1HS9X&name=Proof+Loop",
+    "roomId": "NRVOIY1HS9X",
+    "model": {
+      "provider": "openrouter",
+      "mode": "specific",
+      "policy": "deepseek/deepseek-v4-flash",
+      "runtimeProfile": "standard",
+      "realUserMode": true,
+      "measuredCostUsd": 0.024,
+      "measuredTokensIn": 260890,
+      "measuredTokensOut": 447,
+      "telemetry": [
+        {
+          "taskId": "finch-local-financial-evidence-qa",
+          "telemetry": {
+            "model": "deepseek/deepseek-v4-flash",
+            "toolCalls": 14,
+            "steps": 7,
+            "inputTokens": 260890,
+            "outputTokens": 447,
+            "latencyMs": 42875,
+            "costUsd": 0.024,
+            "rawText": "deepseek/deepseek-v4-flash · 14 tools · $0.024",
+            "rawTitle": "7 steps · 260,890 in + 447 out tokens · 42875ms"
+          }
+        }
+      ]
+    },
+    "problemCounts": {
+      "pageErrors": 0,
+      "consoleProblems": 0,
+      "requestFailures": 0,
+      "badResponses": 0
+    },
+    "taskProofs": [
+      {
+        "userMessageVisible": true,
+        "streamingVisible": true,
+        "jobStatusVisible": true,
+        "jobDetailVisible": true,
+        "roomTraceVisible": true,
+        "completionVisible": false,
+        "finalTextSample": " paused 16/20\nNodeAgent is working13 model turns - 14 tool actions - 1 earlierTrace details Step 6/128Context compactedx15Read source datax7text result returnedRead source data8 room artifacts returnedRead source data3 room artifacts returnedRead source valuesx5completed|\nNodeAgent is working13 model turns - 14 tool actions - 1 earlierTrace details Step 6/128Context compactedx15Read source datax7text result returnedRead source data8 room artifacts returnedRead source data3 room artifacts returnedRead source valuesx5completed|\nNRoom NodeAgentagent15:51NodeAgent is working13 model turns - 14 tool actions - 1 earlierTrace details Step 6/128Context compactedx15Read source datax7text result returnedRead source data8 room artifacts returnedRead source data3 room artifacts returnedRead source valuesx5completed| Copy",
+        "durationMs": 607052,
+        "telemetry": {
+          "model": "deepseek/deepseek-v4-flash",
+          "toolCalls": 14,
+          "steps": 7,
+          "inputTokens": 260890,
+          "outputTokens": 447,
+          "latencyMs": 42875,
+          "costUsd": 0.024,
+          "rawText": "deepseek/deepseek-v4-flash · 14 tools · $0.024",
+          "rawTitle": "7 steps · 260,890 in + 447 out tokens · 42875ms"
+        },
+        "gatesProven": [
+          "public_nodeagent_invocation",
+          "visible_streaming_progress",
+          "agent_live_loop",
+          "job_detail_visible",
+          "room_trace_visible"
+        ],
+        "gatesNotProven": {
+          "agent_terminal_quality_gate": "Timed out after 600000ms."
+        },
+        "taskId": "finch-local-financial-evidence-qa",
+        "title": "Financial evidence QA through NodeRoom story workflow",
+        "prompt": "@nodeagent  Use the uploaded input artifacts and the current live room sheet. Recompute the revenue variance and ground the answer in the visible spreadsheet evidence. Ground the answer in visible room evidence and uploaded files. Make the smallest necessary sheet edits; avoid bulk updates unless the task truly requires them. ",
+        "uploadedFiles": [
+          "synthetic-financials.csv",
+          "variance.json"
+        ]
+      }
+    ]
+  },
+  "officialSemanticScore": {
+    "status": "blocked_external",
+    "blockers": [
+      "finch: official scorer receipt docs/eval/proofloop-official-scores/finch.json is blocked_external; scored receipt is still required before claiming score. No Azure OpenAI judge credentials are present in this shell: AZURE endpoint, API key, API version, and deployment name are all required by src/call_gpt_judge.py. Upstream Finch content_parts rendering is 0/172; official Azure judge input remains incomplete even though model-output artifacts are complete."
+    ],
+    "verifierCommand": "npm run benchmark:proofloop:adapter-blockers -- --id finch --strict"
+  }
+}

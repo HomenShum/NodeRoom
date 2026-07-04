@@ -1,0 +1,112 @@
+{
+  "schema": "proofloop-external-adapter-live-room-proof-v1",
+  "adapterId": "workstreambench",
+  "status": "passed",
+  "runId": "proxy-model-sweep-2026-07-04-live-z-ai_glm-5.2-workstreambench",
+  "generatedAt": "2026-07-04T22:51:02.442Z",
+  "localAdapterOnly": true,
+  "officialScoreClaim": false,
+  "taskCount": 1,
+  "baseUrl": "https://noderoom.live",
+  "scenario": "proofloop/benchmarks/common/live-room-scenario.spec.ts",
+  "outputDir": ".proofloop/runs/proxy-model-sweep-2026-07-04-live-z-ai_glm-5.2-workstreambench/external-adapter-live-room/workstreambench",
+  "exitCode": 0,
+  "evidence": [
+    "proofloop/benchmarks/workstreambench/load-tasks.ts",
+    "proofloop/benchmarks/common/live-room-scenario.spec.ts",
+    ".proofloop/runs/proxy-model-sweep-2026-07-04-live-z-ai_glm-5.2-workstreambench/external-adapter-live-room/workstreambench/live-user-contract.json",
+    ".proofloop/runs/proxy-model-sweep-2026-07-04-live-z-ai_glm-5.2-workstreambench/external-adapter-live-room/workstreambench/node-trace-v2.json",
+    ".proofloop/runs/proxy-model-sweep-2026-07-04-live-z-ai_glm-5.2-workstreambench/external-adapter-live-room/workstreambench/node-eval.json",
+    ".proofloop/runs/proxy-model-sweep-2026-07-04-live-z-ai_glm-5.2-workstreambench/external-adapter-live-room/workstreambench/scorecard.md",
+    ".proofloop/runs/proxy-model-sweep-2026-07-04-live-z-ai_glm-5.2-workstreambench/external-adapter-live-room/workstreambench/cost-ledger.json",
+    ".proofloop/runs/proxy-model-sweep-2026-07-04-live-z-ai_glm-5.2-workstreambench/external-adapter-live-room/workstreambench/verifier-receipt.json",
+    ".proofloop/runs/proxy-model-sweep-2026-07-04-live-z-ai_glm-5.2-workstreambench/external-adapter-live-room/workstreambench/official-scorer-receipt.json",
+    ".proofloop/runs/proxy-model-sweep-2026-07-04-live-z-ai_glm-5.2-workstreambench/external-adapter-live-room/workstreambench/browser-proof.json",
+    ".proofloop/runs/proxy-model-sweep-2026-07-04-live-z-ai_glm-5.2-workstreambench/external-adapter-live-room/workstreambench/local-task-manifest.json",
+    ".proofloop/runs/proxy-model-sweep-2026-07-04-live-z-ai_glm-5.2-workstreambench/external-adapter-live-room/workstreambench/visual-proof.png"
+  ],
+  "failedGates": [],
+  "browserProof": {
+    "roomUrl": "https://noderoom.live/?room=NRZ0HG6EWN2&name=Proof+Loop",
+    "roomId": "NRZ0HG6EWN2",
+    "model": {
+      "provider": "openrouter",
+      "mode": "specific",
+      "policy": "z-ai/glm-5.2",
+      "runtimeProfile": "standard",
+      "realUserMode": true,
+      "measuredCostUsd": 0.153,
+      "measuredTokensIn": 173527,
+      "measuredTokensOut": 8059,
+      "telemetry": [
+        {
+          "taskId": "workstreambench-local-spreadsheet-workstream",
+          "telemetry": {
+            "model": "z-ai/glm-5.2",
+            "toolCalls": 15,
+            "steps": 10,
+            "inputTokens": 173527,
+            "outputTokens": 8059,
+            "latencyMs": 120808,
+            "costUsd": 0.153,
+            "rawText": "z-ai/glm-5.2 · 15 tools · $0.153",
+            "rawTitle": "10 steps · 173,527 in + 8,059 out tokens · 120808ms"
+          }
+        }
+      ]
+    },
+    "problemCounts": {
+      "pageErrors": 0,
+      "consoleProblems": 0,
+      "requestFailures": 0,
+      "badResponses": 0
+    },
+    "taskProofs": [
+      {
+        "userMessageVisible": true,
+        "streamingVisible": true,
+        "jobStatusVisible": true,
+        "jobDetailVisible": true,
+        "roomTraceVisible": true,
+        "completionVisible": true,
+        "finalTextSample": "− Budget for each category:r2 D = 20000 (Revenue)r3 D = 15000 (COGS)r4 D = -12000 (Marketing)r5 D = 12000 (Engineering)All 20 cells committed successfully at v2 via a single managed batch lock; no conflicts, no skipped cells. The uploaded source files are read-only artifacts and remain unmodified.\nNodeAgent completed with recovered steps10 model turns - 15 tool actions - 4 earlierTrace details Step 10/128Read source datatext result returnedRead source datax21 room artifact returnedReported answerx2completedRan algorithmartifactHash:fnv1a32:8a395071,errors:input variance_json (upload:variance.json) is not numeric,o...Updated Sheet 1completedDone. Summary of the workstream:Grounding — Two uploaded files were read in full:variance.json (artifact j97729bt3vwt9hgmebx98m0jwn89xena): budget vs actual for Revenue, COGS, Marketing, Engineering.reconciliation.json (artifact j97czrptw274xkep7rq0r6bxkn89wrvp): ledger vs bank statement with 1 expected discrepancy.Sheet state before edit — Sheet 1 (j970qfrdas687n98ftdkr63p0d89xbby) was entirely empty: every cell r1–r12 / A–H was (empty) at v1, no locks held. The \"edited input\" the task references is the uploaded source data, which remains intact and unchanged in its own artifacts.Recompute D2 — D2 is the Revenue variance = Actual − Budget = 320000 − 300000 = 20000. This is sourced directly from variance.json row 1.Edits made (smallest necessary, 20 cells) — Wrote the variance table header + 4 data rows to columns A–D (r1–r5). Column D holds Variance = Actual − Budget for each category:r2 D = 20000 (Revenue)r3 D = 15000 (COGS)r4 D = -12000 (Marketing)r5 D = 12000 (Engineering)All 20 cells committed successfully at v2 via a single managed batch lock; no conflicts, no skipped cells. The uploaded source files are read-only artifacts and remain unmodified.\nNRoom NodeAgentagent15:50D2 = 20000 (Revenue Actual − Budget = 320000 − 300000), grounded in variance.json. Variance table written to r1–r5 (A–D); all 20 cells committed at v2. Copy",
+        "durationMs": 127699,
+        "telemetry": {
+          "model": "z-ai/glm-5.2",
+          "toolCalls": 15,
+          "steps": 10,
+          "inputTokens": 173527,
+          "outputTokens": 8059,
+          "latencyMs": 120808,
+          "costUsd": 0.153,
+          "rawText": "z-ai/glm-5.2 · 15 tools · $0.153",
+          "rawTitle": "10 steps · 173,527 in + 8,059 out tokens · 120808ms"
+        },
+        "gatesProven": [
+          "public_nodeagent_invocation",
+          "visible_streaming_progress",
+          "agent_live_loop",
+          "job_detail_visible",
+          "agent_terminal_quality_gate",
+          "room_trace_visible"
+        ],
+        "gatesNotProven": {},
+        "taskId": "workstreambench-local-spreadsheet-workstream",
+        "title": "Spreadsheet workstream execution through NodeRoom story workflow",
+        "prompt": "@nodeagent  Use the uploaded input artifacts and the current live room sheet. Run the visible spreadsheet workstream, recompute D2, and confirm the edited input remains intact. Ground the answer in visible room evidence and uploaded files. Make the smallest necessary sheet edits; avoid bulk updates unless the task truly requires them. ",
+        "uploadedFiles": [
+          "reconciliation.json",
+          "variance.json"
+        ]
+      }
+    ]
+  },
+  "officialSemanticScore": {
+    "status": "blocked_external",
+    "blockers": [
+      "workstreambench: official scorer receipt docs/eval/proofloop-official-scores/workstreambench.json is blocked_external; scored receipt is still required before claiming score. No public official WorkstreamBench task bundle URL was found. No public official WorkstreamBench scorer repository or CLI was found. The paper describes LLM-as-judge evaluation over structured representations, so a claimable score requires the official rubric/task bundle/scorer release or author-provided supplementary package.",
+      "workstreambench: official task bundle lock docs/eval/proofloop-official-task-bundles/workstreambench.json is missing: no public official bundle/scorer/rubric URL was found; obtain the upstream release or author-provided bundle before claiming an official score."
+    ],
+    "verifierCommand": "npm run benchmark:proofloop:adapter-blockers -- --id workstreambench --strict"
+  }
+}

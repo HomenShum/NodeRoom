@@ -628,8 +628,8 @@ describe("BankerToolBench NodeAgent general runner", () => {
     expect(getProviderForModel("glm-5.2")).toBe("openrouter");
     expect(isValidModel("glm-5.2", "openrouter")).toBe(true);
     expect(getModelPricing("z-ai/glm-5.2")).toMatchObject({
-      inputPer1M: 1.2,
-      outputPer1M: 4.1,
+      inputPer1M: 0.77,
+      outputPer1M: 2.42,
       contextWindow: 1048576,
     });
   });

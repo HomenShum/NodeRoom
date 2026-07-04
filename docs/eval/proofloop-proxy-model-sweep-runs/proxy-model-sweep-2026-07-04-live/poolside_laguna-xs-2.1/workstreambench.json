@@ -1,0 +1,112 @@
+{
+  "schema": "proofloop-external-adapter-live-room-proof-v1",
+  "adapterId": "workstreambench",
+  "status": "passed",
+  "runId": "proxy-model-sweep-2026-07-04-live-poolside_laguna-xs-2.1-workstreambench",
+  "generatedAt": "2026-07-04T23:21:38.092Z",
+  "localAdapterOnly": true,
+  "officialScoreClaim": false,
+  "taskCount": 1,
+  "baseUrl": "https://noderoom.live",
+  "scenario": "proofloop/benchmarks/common/live-room-scenario.spec.ts",
+  "outputDir": ".proofloop/runs/proxy-model-sweep-2026-07-04-live-poolside_laguna-xs-2.1-workstreambench/external-adapter-live-room/workstreambench",
+  "exitCode": 0,
+  "evidence": [
+    "proofloop/benchmarks/workstreambench/load-tasks.ts",
+    "proofloop/benchmarks/common/live-room-scenario.spec.ts",
+    ".proofloop/runs/proxy-model-sweep-2026-07-04-live-poolside_laguna-xs-2.1-workstreambench/external-adapter-live-room/workstreambench/live-user-contract.json",
+    ".proofloop/runs/proxy-model-sweep-2026-07-04-live-poolside_laguna-xs-2.1-workstreambench/external-adapter-live-room/workstreambench/node-trace-v2.json",
+    ".proofloop/runs/proxy-model-sweep-2026-07-04-live-poolside_laguna-xs-2.1-workstreambench/external-adapter-live-room/workstreambench/node-eval.json",
+    ".proofloop/runs/proxy-model-sweep-2026-07-04-live-poolside_laguna-xs-2.1-workstreambench/external-adapter-live-room/workstreambench/scorecard.md",
+    ".proofloop/runs/proxy-model-sweep-2026-07-04-live-poolside_laguna-xs-2.1-workstreambench/external-adapter-live-room/workstreambench/cost-ledger.json",
+    ".proofloop/runs/proxy-model-sweep-2026-07-04-live-poolside_laguna-xs-2.1-workstreambench/external-adapter-live-room/workstreambench/verifier-receipt.json",
+    ".proofloop/runs/proxy-model-sweep-2026-07-04-live-poolside_laguna-xs-2.1-workstreambench/external-adapter-live-room/workstreambench/official-scorer-receipt.json",
+    ".proofloop/runs/proxy-model-sweep-2026-07-04-live-poolside_laguna-xs-2.1-workstreambench/external-adapter-live-room/workstreambench/browser-proof.json",
+    ".proofloop/runs/proxy-model-sweep-2026-07-04-live-poolside_laguna-xs-2.1-workstreambench/external-adapter-live-room/workstreambench/local-task-manifest.json",
+    ".proofloop/runs/proxy-model-sweep-2026-07-04-live-poolside_laguna-xs-2.1-workstreambench/external-adapter-live-room/workstreambench/visual-proof.png"
+  ],
+  "failedGates": [],
+  "browserProof": {
+    "roomUrl": "https://noderoom.live/?room=NRNTVRWKBCZ&name=Proof+Loop",
+    "roomId": "NRNTVRWKBCZ",
+    "model": {
+      "provider": "openrouter",
+      "mode": "specific",
+      "policy": "poolside/laguna-xs-2.1",
+      "runtimeProfile": "standard",
+      "realUserMode": true,
+      "measuredCostUsd": 0.012,
+      "measuredTokensIn": 191044,
+      "measuredTokensOut": 2189,
+      "telemetry": [
+        {
+          "taskId": "workstreambench-local-spreadsheet-workstream",
+          "telemetry": {
+            "model": "poolside/laguna-xs-2.1",
+            "toolCalls": 11,
+            "steps": 12,
+            "inputTokens": 191044,
+            "outputTokens": 2189,
+            "latencyMs": 24046,
+            "costUsd": 0.012,
+            "rawText": "poolside/laguna-xs-2.1 · 11 tools · $0.012",
+            "rawTitle": "12 steps · 191,044 in + 2,189 out tokens · 24046ms"
+          }
+        }
+      ]
+    },
+    "problemCounts": {
+      "pageErrors": 0,
+      "consoleProblems": 0,
+      "requestFailures": 0,
+      "badResponses": 0
+    },
+    "taskProofs": [
+      {
+        "userMessageVisible": true,
+        "streamingVisible": true,
+        "jobStatusVisible": true,
+        "jobDetailVisible": true,
+        "roomTraceVisible": true,
+        "completionVisible": true,
+        "finalTextSample": "he spreadsheet is in its expected empty state with no data to recompute. Since all cells are empty (v1), there are no edits needed - the \"edited input remains intact\" is confirmed. Let me write a confirmation note.The spreadsheet is in its expected empty state - all cells are empty with no data to recompute. Since there's no D2 value to update and no input to modify, the task is complete. The edited input remains intact (all cells empty).Task complete: Sheet is in empty state with no data to recompute; D2 confirmed empty; edited input intact.\nNodeAgent completed with recovered steps12 model turns - 11 tool actions - 4 earlierTrace details Step 12/128Read source data7 room artifacts returnedRead source datatext result returnedWrite Locked Cell Resulttool_argument_errorWrite Locked Cell ResultcompletedReported answercompleted Thoughts (step 4)The spreadsheet is in its expected empty state with no data to recompute. Since all cells are empty (v1), there are no edits needed - the \"edited input remains intact\" is confirmed. Let me write a confirmation note. Thoughts (step 9)The spreadsheet is in its expected empty state - all cells are empty with no data to recompute. Since there's no D2 value to update and no input to modify, the task is complete. The edited input remains intact (all cells empty).The spreadsheet is in its expected empty state with no data to recompute. Since all cells are empty (v1), there are no edits needed - the \"edited input remains intact\" is confirmed. Let me write a confirmation note.The spreadsheet is in its expected empty state - all cells are empty with no data to recompute. Since there's no D2 value to update and no input to modify, the task is complete. The edited input remains intact (all cells empty).Task complete: Sheet is in empty state with no data to recompute; D2 confirmed empty; edited input intact.\nNRoom NodeAgentagent16:21Task complete: Sheet is in empty state with no data to recompute; D2 confirmed empty; edited input intact. Copy",
+        "durationMs": 31527,
+        "telemetry": {
+          "model": "poolside/laguna-xs-2.1",
+          "toolCalls": 11,
+          "steps": 12,
+          "inputTokens": 191044,
+          "outputTokens": 2189,
+          "latencyMs": 24046,
+          "costUsd": 0.012,
+          "rawText": "poolside/laguna-xs-2.1 · 11 tools · $0.012",
+          "rawTitle": "12 steps · 191,044 in + 2,189 out tokens · 24046ms"
+        },
+        "gatesProven": [
+          "public_nodeagent_invocation",
+          "visible_streaming_progress",
+          "agent_live_loop",
+          "job_detail_visible",
+          "agent_terminal_quality_gate",
+          "room_trace_visible"
+        ],
+        "gatesNotProven": {},
+        "taskId": "workstreambench-local-spreadsheet-workstream",
+        "title": "Spreadsheet workstream execution through NodeRoom story workflow",
+        "prompt": "@nodeagent  Use the uploaded input artifacts and the current live room sheet. Run the visible spreadsheet workstream, recompute D2, and confirm the edited input remains intact. Ground the answer in visible room evidence and uploaded files. Make the smallest necessary sheet edits; avoid bulk updates unless the task truly requires them. ",
+        "uploadedFiles": [
+          "reconciliation.json",
+          "variance.json"
+        ]
+      }
+    ]
+  },
+  "officialSemanticScore": {
+    "status": "blocked_external",
+    "blockers": [
+      "workstreambench: official scorer receipt docs/eval/proofloop-official-scores/workstreambench.json is blocked_external; scored receipt is still required before claiming score. No public official WorkstreamBench task bundle URL was found. No public official WorkstreamBench scorer repository or CLI was found. The paper describes LLM-as-judge evaluation over structured representations, so a claimable score requires the official rubric/task bundle/scorer release or author-provided supplementary package.",
+      "workstreambench: official task bundle lock docs/eval/proofloop-official-task-bundles/workstreambench.json is missing: no public official bundle/scorer/rubric URL was found; obtain the upstream release or author-provided bundle before claiming an official score."
+    ],
+    "verifierCommand": "npm run benchmark:proofloop:adapter-blockers -- --id workstreambench --strict"
+  }
+}
