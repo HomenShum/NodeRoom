@@ -18,6 +18,7 @@ import {
 } from "./artifactRefs";
 import { IntakePlanPreview } from "./IntakePlanPreview";
 import { MarkdownBody } from "./MarkdownBody";
+import "./chat-scale.css";
 
 const AGENT_AVATAR_COLOR = "#8F3F27";
 const COLORS = ["#8F3F27", "#315DA8", "#2F6B44", "#6D3FB2", "#80631F", "#A34B2E"];
@@ -783,6 +784,158 @@ function isPublicNodeAgentDirective(text: string): boolean {
   return parsePublicNodeAgentRequest(text) !== null;
 }
 
+/* ─────────────── Chat-at-scale pure helpers (exported for tests/chatScale.test.ts) ───────────────
+ * Day dividers, agent-run collapse, and the jump-to-latest threshold are pure O(n) functions so the
+ * 312-message scale seed (roomStore.seedScaleMessages) renders without re-sorting or quadratic work. */
+
+const DAY_MS = 86_400_000;
+const MONTH_LABELS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+/** Local midnight for a timestamp — two messages share a divider iff they share a local calendar day. */
+function startOfLocalDay(ts: number): number {
+  const d = new Date(ts);
+  return new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+}
+
+/** 'Today' | 'Yesterday' | 'Jun 30' (adds ', <year>' once the year differs from now's). Future
+ *  timestamps (clock skew between optimistic rows and the server) read as 'Today', never a phantom date. */
+export function chatDayLabel(ts: number, now: number = Date.now()): string {
+  // Math.round absorbs DST days that are 23h/25h long — the diff is always within ±1h of a multiple of 24h.
+  const dayDiff = Math.round((startOfLocalDay(now) - startOfLocalDay(ts)) / DAY_MS);
+  if (dayDiff <= 0) return "Today";
+  if (dayDiff === 1) return "Yesterday";
+  const d = new Date(ts);
+  const label = `${MONTH_LABELS[d.getMonth()]} ${d.getDate()}`;
+  return d.getFullYear() === new Date(now).getFullYear() ? label : `${label}, ${d.getFullYear()}`;
+}
+
+export type ChatDayRow<T> =
+  | { kind: "day"; key: string; label: string }
+  | { kind: "row"; key: string; row: T };
+
+/** Single pass over an already-sorted feed: a hairline divider row precedes the first entry of
+ *  each local day. O(n) — no sorting, no date re-parsing beyond one Date per row. */
+export function groupMessagesByDay<T extends { createdAt: number; key: string }>(rows: T[], now: number = Date.now()): ChatDayRow<T>[] {
+  const out: ChatDayRow<T>[] = [];
+  let lastDay = Number.NaN;
+  for (const row of rows) {
+    const day = startOfLocalDay(row.createdAt);
+    if (day !== lastDay) {
+      lastDay = day;
+      out.push({ kind: "day", key: `day-${day}`, label: chatDayLabel(row.createdAt, now) });
+    }
+    out.push({ kind: "row", key: row.key, row });
+  }
+  return out;
+}
+
+/** The run id lives in the message's clientMsgId — the job runner and streaming lane mint
+ *  run-scoped ids (`pubstream-<jobId>` convex/streaming.ts, `final-<runId>` + `plan-blocked-<jobId>`
+ *  convex/agent.ts, `privstream-<streamId>`). Human sends use crypto.randomUUID() so they can never
+ *  match, and a spoofed prefix on a non-agent author is ignored. */
+const AGENT_RUN_CLIENT_MSG_ID_RE = /^(?:pubstream|privstream|final|plan-blocked)-(.+)$/;
+
+export function agentRunIdFor(message: { author: { kind: string }; clientMsgId?: string }): string | null {
+  if (message.author.kind !== "agent") return null;
+  const match = AGENT_RUN_CLIENT_MSG_ID_RE.exec(message.clientMsgId ?? "");
+  return match ? match[1] : null;
+}
+
+export type ChatRunRow<T> =
+  | { kind: "run"; key: string; runId: string; createdAt: number; rows: T[] }
+  | { kind: "loose"; key: string; createdAt: number; row: T };
+
+/** Collapse CONSECUTIVE same-run rows into one run row (O(n), one runIdFor call per row).
+ *  A human message or a different run always closes the group — a person is never swallowed
+ *  into an agent run and order is never re-sorted. When `isAgentRow` is provided, agent rows
+ *  WITHOUT a run id (the runner's `say` posts use crypto.randomUUID()) are absorbed into the
+ *  open run only when the SAME run id resumes right after them (provably sandwiched inside the
+ *  run's span); otherwise they stay loose. */
+export function groupAgentRuns<T extends { createdAt: number; key: string }>(
+  rows: T[],
+  runIdFor: (row: T) => string | null,
+  isAgentRow?: (row: T) => boolean,
+): ChatRunRow<T>[] {
+  const out: ChatRunRow<T>[] = [];
+  let buffer: T[] = []; // agent rows with no run id, provisionally inside the open run
+  const flushLoose = () => {
+    for (const buffered of buffer) out.push({ kind: "loose", key: buffered.key, createdAt: buffered.createdAt, row: buffered });
+    buffer = [];
+  };
+  for (const row of rows) {
+    const runId = runIdFor(row);
+    const prev = out[out.length - 1];
+    if (runId) {
+      if (prev?.kind === "run" && prev.runId === runId) {
+        prev.rows.push(...buffer, row); // the sandwich closed on the same run — the chatter was its own
+        buffer = [];
+      } else {
+        flushLoose(); // buffered rows belonged to neither run — keep them loose, in order
+        out.push({ kind: "run", key: `run-${runId}-${row.key}`, runId, createdAt: row.createdAt, rows: [row] });
+      }
+      continue;
+    }
+    if (prev?.kind === "run" && isAgentRow?.(row)) {
+      buffer.push(row);
+      continue;
+    }
+    flushLoose();
+    out.push({ kind: "loose", key: row.key, createdAt: row.createdAt, row });
+  }
+  flushLoose();
+  return out;
+}
+
+/** Default-collapse decision: only a FINISHED run long enough to be noise (>3 messages) starts
+ *  collapsed. Live runs always render expanded so receipts/stream testids stay reachable. */
+export function runCollapsedByDefault(messageCount: number, finished: boolean): boolean {
+  return finished && messageCount > 3;
+}
+
+/** Jump-to-latest shows only when the reader is ≥2 viewports above the newest message. */
+export function shouldShowJumpToLatest(distanceFromBottom: number, viewportHeight: number): boolean {
+  return viewportHeight > 0 && distanceFromBottom >= viewportHeight * 2;
+}
+
+/** One agent run in the feed. Collapsed = one quiet line ("Run · N steps · view"); expanding
+ *  restores every original row (and every pinned testid inside) untouched. A group that mounts
+ *  while its run is live starts expanded and STAYS expanded after the run finishes — collapse
+ *  defaults only apply to runs that were already finished when first rendered. */
+function ChatRunGroup({ runId, live, count, children }: { runId: string; live: boolean; count: number; children: ReactNode }) {
+  const [expanded, setExpanded] = useState(() => !runCollapsedByDefault(count, !live));
+  const open = live || expanded;
+  if (!open) {
+    return (
+      <button
+        type="button"
+        className="r-chat-run-summary"
+        data-testid="chat-run-summary"
+        data-run-id={runId}
+        onClick={() => setExpanded(true)}
+        title="Expand this agent run"
+      >
+        <Sparkles size={11} aria-hidden />
+        <span>Run · {count} step{count === 1 ? "" : "s"}</span>
+        <em>view</em>
+      </button>
+    );
+  }
+  return (
+    <section className="r-chat-run" data-testid="chat-run-group" data-run-id={runId} data-live={String(live)}>
+      {children}
+      {!live && runCollapsedByDefault(count, true) && (
+        <button type="button" className="r-chat-run-collapse" data-testid="chat-run-collapse" onClick={() => setExpanded(false)}>
+          <ChevronUp size={11} /> Collapse run
+        </button>
+      )}
+    </section>
+  );
+}
+
+type ChatFeedItem =
+  | { kind: "message"; key: string; createdAt: number; message: Message }
+  | { kind: "jobResult"; key: string; createdAt: number; status: string; text: string; streamParts: AgentStreamPart[] };
+
 type ChatProps = {
   roomId: string;
   me: Actor;
@@ -825,7 +978,10 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
   const uploadBusyRef = useRef(false);
   const lastAgentInputRef = useRef<string | null>(null); // last public-agent request, for Regenerate
   const nearBottom = useRef(true);
-  const [showJump, setShowJump] = useState(false); // "Jump to latest" pill when scrolled up
+  const [showJump, setShowJump] = useState(false); // "Jump to latest" pill when scrolled up ≥2 viewports
+  const showJumpRef = useRef(false); // mirrors showJump for the scroll handler + unread effect
+  const jumpBaselineRef = useRef(0); // messages already seen when the reader scrolled away
+  const [jumpUnread, setJumpUnread] = useState(0); // new messages since scroll-away
   const thinkingStartCount = useRef(0);
   // Room-switch safety: a public @nodeagent or private-agent call is fire-and-forget. If the user leaves this room
   // before it resolves, the server action still finishes on its OWN room (every mutation is roomId-scoped,
@@ -939,10 +1095,7 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
   const showLongJobChrome = !!longJob && (!longJobTerminal || longJobNeedsAttention || jobDetailsOpen);
   const showAgentWorkingBubble = agentWorking && (!hasActiveJobStreamMessage || unifiedStreamParts.length === 0);
   const feedItems = useMemo(() => {
-    const items: Array<
-      | { kind: "message"; key: string; createdAt: number; message: Message }
-      | { kind: "jobResult"; key: string; createdAt: number; status: string; text: string; streamParts: AgentStreamPart[] }
-    > = messages.map((message) => ({
+    const items: ChatFeedItem[] = messages.map((message) => ({
       kind: "message" as const,
       key: `msg-${message.clientMsgId || message.id}`,
       createdAt: message.createdAt,
@@ -960,6 +1113,18 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
     }
     return items.sort((a, b) => a.createdAt - b.createdAt || a.key.localeCompare(b.key));
   }, [longJob, longJobResultText, messages, showLongJobResult, unifiedStreamParts]);
+  // Chat at scale: collapse consecutive same-run agent messages, then slice the feed into local
+  // days. Both passes are pure O(n) helpers (tested in tests/chatScale.test.ts) over the already
+  // sorted feedItems, so the 312-message scale seed costs one linear walk per render.
+  const feedRows = useMemo(
+    () => groupMessagesByDay(groupAgentRuns(
+      feedItems,
+      (item) => item.kind === "message" ? agentRunIdFor(item.message) : null,
+      (item) => item.kind === "message" && item.message.author.kind === "agent",
+    )),
+    [feedItems],
+  );
+  const activeRunId = !isPrivate && longJob ? String(longJob.id) : null;
   const showEmptyState = messages.length === 0 && failedSends.length === 0 && !showLongJobResult && !showAgentWorkingBubble;
   const beginThinking = () => { thinkingStartCount.current = messages.length; setAgentErr(null); setThinking(true); };
 
@@ -984,7 +1149,22 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
   useEffect(() => {
     if (!specificModelPolicy && defaultSpecificModel) setSpecificModelPolicy(defaultSpecificModel);
   }, [defaultSpecificModel, specificModelPolicy]);
-  const onScroll = () => { const el = feedRef.current; if (!el) return; const near = el.scrollHeight - el.scrollTop - el.clientHeight < 80; nearBottom.current = near; setShowJump(!near); };
+  const onScroll = () => {
+    const el = feedRef.current;
+    if (!el) return;
+    const fromBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
+    nearBottom.current = fromBottom < 80; // autoscroll keeps following until the reader really leaves
+    const far = shouldShowJumpToLatest(fromBottom, el.clientHeight); // chip only past 2 viewports
+    if (far === showJumpRef.current) return;
+    showJumpRef.current = far;
+    if (far) jumpBaselineRef.current = messages.length; // start counting unread from scroll-away
+    setJumpUnread(0);
+    setShowJump(far);
+  };
+  // Unread badge: while the reader is scrolled away, count messages that landed after scroll-away.
+  useEffect(() => {
+    if (showJumpRef.current) setJumpUnread(Math.max(0, messages.length - jumpBaselineRef.current));
+  }, [messages.length]);
 
   const grow = () => { const el = taRef.current; if (el) { el.style.height = "auto"; el.style.height = Math.min(el.scrollHeight, 120) + "px"; } };
 
@@ -1212,6 +1392,35 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
   const canSend = !uploadingFiles && (text.trim().length > 0 || refs.length > 0);
   const rootClass = embedded ? `r-chat-embedded ${isPrivate ? "private" : "public"}` : `r-panel ${isPrivate ? "right" : "center"}`;
 
+  // One feed item — a chat/agent Bubble or the long-job result card. Shared by loose rows and
+  // expanded run groups so every existing testid (receipts, unified stream) renders identically.
+  const renderFeedItem = (item: ChatFeedItem) => item.kind === "message" ? (
+    <Bubble
+      key={item.key}
+      m={item.message}
+      roomId={roomId}
+      variant={variant}
+      me={me}
+      onPromote={promote}
+      onOpenArtifact={onOpenArtifact}
+      agentStreamParts={item.message.clientMsgId === activeJobClientMsgId ? unifiedStreamParts : undefined}
+      agentStreamLive={!longJobTerminal}
+      agentStreamTerminalSuccessful={longJobTerminal && longJob?.status === "completed"}
+    />
+  ) : (
+    <div className="r-msg agent" key={item.key} data-testid="agent-job-result" data-state={item.status}>
+      <span className="r-avatar agent sm" style={{ background: AGENT_AVATAR_COLOR }}>N</span>
+      <div className="body">
+        <div className="meta">
+          <span className="who">Room NodeAgent</span>
+          <span className={"r-tag agent" + (["failed", "blocked"].includes(item.status) ? " danger" : "")} style={{ padding: "1px 5px", fontSize: 9 }}>{item.status}</span>
+          <span className="time">{clock(item.createdAt)}</span>
+        </div>
+        {item.streamParts.length ? <AgentUnifiedStream parts={item.streamParts} live={false} fallbackText={item.text} terminalSuccessful={!["failed", "blocked"].includes(item.status)} /> : <MarkdownBody text={item.text} />}
+      </div>
+    </div>
+  );
+
   return (
     <div
       className={rootClass}
@@ -1337,32 +1546,27 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
           </div>
         )}
         {agentErr && <div className="r-msg" role="alert" data-testid="agent-error" data-state="failed"><div className="body tiny" style={{ color: "var(--danger-ink)" }}>{agentErr}</div></div>}
-        {feedItems.map((item) => item.kind === "message" ? (
-          <Bubble
-            key={item.key}
-            m={item.message}
-            roomId={roomId}
-            variant={variant}
-            me={me}
-            onPromote={promote}
-            onOpenArtifact={onOpenArtifact}
-            agentStreamParts={item.message.clientMsgId === activeJobClientMsgId ? unifiedStreamParts : undefined}
-            agentStreamLive={!longJobTerminal}
-            agentStreamTerminalSuccessful={longJobTerminal && longJob?.status === "completed"}
-          />
-        ) : (
-          <div className="r-msg agent" key={item.key} data-testid="agent-job-result" data-state={item.status}>
-            <span className="r-avatar agent sm" style={{ background: AGENT_AVATAR_COLOR }}>N</span>
-            <div className="body">
-              <div className="meta">
-                <span className="who">Room NodeAgent</span>
-                <span className={"r-tag agent" + (["failed", "blocked"].includes(item.status) ? " danger" : "")} style={{ padding: "1px 5px", fontSize: 9 }}>{item.status}</span>
-                <span className="time">{clock(item.createdAt)}</span>
+        {feedRows.map((dayRow) => {
+          if (dayRow.kind === "day") {
+            return (
+              <div className="r-chat-day" key={dayRow.key} data-testid="chat-day-divider" role="separator" aria-label={dayRow.label}>
+                <span>{dayRow.label}</span>
               </div>
-              {item.streamParts.length ? <AgentUnifiedStream parts={item.streamParts} live={false} fallbackText={item.text} terminalSuccessful={!["failed", "blocked"].includes(item.status)} /> : <MarkdownBody text={item.text} />}
-            </div>
-          </div>
-        ))}
+            );
+          }
+          const runRow = dayRow.row;
+          if (runRow.kind === "run") {
+            // Live = this run's job is still executing, or one of its rows is still streaming its body.
+            const live = (!!activeRunId && runRow.runId === activeRunId && !longJobTerminal)
+              || runRow.rows.some((item) => item.kind === "message" && !!item.message.streamId && !item.message.text);
+            return (
+              <ChatRunGroup key={runRow.key} runId={runRow.runId} live={live} count={runRow.rows.length}>
+                {runRow.rows.map(renderFeedItem)}
+              </ChatRunGroup>
+            );
+          }
+          return renderFeedItem(runRow.row);
+        })}
         {failedSends.map((f) => (
           <div className="r-msg" key={"fail-" + f.cid} data-testid="chat-failed" data-state="failed">
             <span className="r-avatar sm" style={{ background: colorFor(store, roomId, me) }}>{initials(me.name)}</span>
@@ -1399,8 +1603,16 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
         )}
         {!isPrivate && coach}
         {showJump && (
-          <button type="button" className="r-chat-jump" data-testid="chat-jump-latest" onClick={() => { const el = feedRef.current; if (el) { el.scrollTop = el.scrollHeight; nearBottom.current = true; setShowJump(false); } }}>
-            <ChevronDown size={13} /> Jump to latest
+          <button
+            type="button"
+            className="r-chat-jump"
+            data-testid="chat-jump-latest"
+            data-unread={jumpUnread}
+            onClick={() => { const el = feedRef.current; if (el) { el.scrollTop = el.scrollHeight; nearBottom.current = true; showJumpRef.current = false; setJumpUnread(0); setShowJump(false); } }}
+          >
+            <ChevronDown size={13} />
+            {jumpUnread > 0 && <b className="r-chat-jump-count" data-testid="chat-jump-unread">{jumpUnread} new</b>}
+            Jump to latest
           </button>
         )}
       </div>
@@ -1732,6 +1944,19 @@ function Bubble({
   const mine = !agent && m.author.id === me.id;
   const canPromote = agent && variant === "private";
   const pending = String(m.id).startsWith("opt-"); // optimistic, not yet confirmed by the server
+  // Sync receipt: the optimistic row wears "saving…"; when the server row replaces it, the Bubble
+  // survives the swap (its feed key is the shared clientMsgId), so the same instance observes
+  // pending→confirmed and flips to a "synced" chip that fades out.
+  const wasPendingRef = useRef(pending);
+  const [justSynced, setJustSynced] = useState(false);
+  useEffect(() => {
+    const wasPending = wasPendingRef.current;
+    wasPendingRef.current = pending;
+    if (!wasPending || pending) return;
+    setJustSynced(true);
+    const timer = setTimeout(() => setJustSynced(false), 1800);
+    return () => clearTimeout(timer);
+  }, [pending]);
   const agentResearchReceipt = useMemo(() => {
     if (!agent || !/Researched\s+\d+\s+compan/i.test(parsed.body)) return null;
     const research = store.listArtifacts(roomId).find((a) => a.kind === "sheet" && /company|research/i.test(a.title ?? ""));
@@ -1765,7 +1990,8 @@ function Bubble({
           <span className="who">{m.author.name}</span>
           {agent && <span className="r-tag agent" style={{ padding: "1px 5px", fontSize: 9 }}>agent</span>}
           {viaOwner && <span className="r-tag" data-testid="agent-via" style={{ padding: "1px 5px", fontSize: 9 }}>via {viaOwner}</span>}
-          {pending && <span className="r-tag" data-testid="chat-pending" style={{ padding: "1px 5px", fontSize: 9 }}>sending…</span>}
+          {pending && <span className="r-tag r-chat-sync" data-testid="chat-pending" data-sync="saving">saving…</span>}
+          {!pending && justSynced && <span className="r-tag r-chat-sync" data-testid="chat-synced" data-sync="synced">synced</span>}
           <span className="time">{clock(m.createdAt)}</span>
         </div>
         {editing ? (

@@ -684,6 +684,31 @@ function canonical(value: unknown): unknown {
   }, {});
 }
 
+/** BOUND: version-log snapshots are capped so the elementVersions history can never
+ *  become a second unbounded copy of the sheet. Scalars store as-is (long strings are
+ *  cut at the cap); non-scalars are stringified to MEASURE the cap — small ones store
+ *  the ORIGINAL value (restore round-trips exactly), oversized ones store a cut JSON
+ *  prefix with truncated:true, which restore refuses (display-only, never corrupt data). */
+const MAX_VERSION_SNAPSHOT_CHARS = 4_000;
+function versionLogSnapshot(value: unknown): { value: unknown; truncated: boolean } {
+  if (value === undefined || value === null) return { value: null, truncated: false };
+  if (typeof value === "string") {
+    return value.length > MAX_VERSION_SNAPSHOT_CHARS
+      ? { value: value.slice(0, MAX_VERSION_SNAPSHOT_CHARS), truncated: true }
+      : { value, truncated: false };
+  }
+  if (typeof value !== "object") return { value, truncated: false }; // number/boolean/bigint — always small
+  let json: string;
+  try {
+    json = JSON.stringify(value) ?? "null";
+  } catch {
+    return { value: "[unserializable value]", truncated: true };
+  }
+  return json.length > MAX_VERSION_SNAPSHOT_CHARS
+    ? { value: json.slice(0, MAX_VERSION_SNAPSHOT_CHARS), truncated: true }
+    : { value, truncated: false };
+}
+
 async function applyApprovedProposal(ctx: MutationCtx, roomId: Id<"rooms">, artifactId: Id<"artifacts">, op: ProposalOp, author: ActorValue) {
   if (String(op.artifactId) !== String(artifactId)) throw new Error("proposal_artifact_mismatch");
   const art = await requireArtifactInRoom(ctx, roomId, artifactId);
@@ -714,7 +739,9 @@ async function applyApprovedProposal(ctx: MutationCtx, roomId: Id<"rooms">, arti
   return { ok: true as const, version: nextVersion };
 }
 
-async function applyCellEditCore(ctx: MutationCtx, a: ApplyCellEditArgs) {
+// Exported for elementHistory.restoreElementVersion — restore IS this same CAS write
+// (a logged before-image re-applied through the human path), never a history rewrite.
+export async function applyCellEditCore(ctx: MutationCtx, a: ApplyCellEditArgs) {
     const art = await requireArtifactInRoom(ctx, a.roomId, a.artifactId);
     await requireActorInRoom(ctx, a.roomId, a.actor);
     if (!canReadArtifact(art, a.actor)) throw new Error("artifact_not_visible");
@@ -804,6 +831,8 @@ async function applyCellEditCore(ctx: MutationCtx, a: ApplyCellEditArgs) {
     }
     // 3. APPLY — bump the per-element version + the artifact clock.
     const now = Date.now();
+    // Before-image for the VERSION LOG, captured before the write below replaces it.
+    const previousValue = el?.value;
     const nextOrder = kind === "create" && !el ? [...art.order, a.elementId] : kind === "delete" ? art.order.filter((id) => id !== a.elementId) : art.order;
     if (kind === "delete") {
       if (el) await ctx.db.delete(el._id);
@@ -845,6 +874,22 @@ async function applyCellEditCore(ctx: MutationCtx, a: ApplyCellEditArgs) {
     const nextVersion = kind === "delete" ? actual : actual + 1;
     // 4. TRACE — every applied edit is auditable.
     await ctx.db.insert("traces", { roomId: art.roomId, ts: now, actor: a.actor, type: "edit_applied", summary: `${a.actor.name} set ${a.elementId} = ${formatCellForTrace(a.value)}`, detail: `edit_cell · ${a.elementId} = ${formatCellForTrace(a.value)} · v${actual} → v${actual + 1}` });
+    // 5. VERSION LOG — append the BEFORE-image this write superseded (the row keyed
+    //    version N holds the value the element had AT version N, so restoring N is a
+    //    lookup + this same CAS write). APPLIED writes only — the conflict/locked/
+    //    lease_expired/pending_approval paths all returned above and never log.
+    //    Kept cheap: one bounded insert (versionLogSnapshot caps it), no hashing.
+    const beforeImage = versionLogSnapshot(previousValue);
+    await ctx.db.insert("elementVersions", {
+      artifactId: a.artifactId,
+      elementId: a.elementId,
+      version: actual,
+      value: beforeImage.value,
+      truncated: beforeImage.truncated,
+      updatedBy: a.actor,
+      kind,
+      ts: now,
+    });
     let mutationReceiptId: Id<"agentMutationReceipts"> | undefined;
     if (a.jobId && job) {
       mutationReceiptId = await ctx.db.insert("agentMutationReceipts", clean({
