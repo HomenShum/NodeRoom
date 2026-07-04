@@ -26,6 +26,11 @@ import type {
   Plan,
   Evidence,
   Coach,
+  PipelineStage,
+  TraceRow,
+  ManageGroup,
+  OfflineHold,
+  NotifRow,
 } from "./mobileData";
 
 // Re-export the UI-state unions so leaf modules can import them from here too.
@@ -171,6 +176,34 @@ export interface MobileCtx {
   loading: boolean;
   /** Retry a failed optimistic message by its clientId/id (no-op offline). */
   retryMessage: (id: string) => void;
+
+  // ── gap pack (design-reference/mobile-scale/gaps-app.jsx) ──
+  /** Intake → Evidence → Draft → Review → Export, derived from the same live
+   *  data the desktop pipeline bar reads (artifacts + proposals + jobs). */
+  pipeline: PipelineStage[];
+  /** Recent room trace rows for the Trace sheet — bounded (see MOBILE_TRACE_MAX). */
+  traceRows: TraceRow[];
+  /** Role-grouped people with a live-location line — same source as desktop PeoplePanel. */
+  peopleGroups: ManageGroup[];
+  /** The real invite/join code for the Share sheet ("" offline / before hydrate). */
+  inviteCode: string;
+  /** Offline edit-hold snapshot (undefined = no transport to lose, i.e. memory mode). */
+  offline?: OfflineHold;
+  /** Clear the replay-conflict tally after the banner surfaced it (no-op offline). */
+  acknowledgeOfflineConflicts?: () => void;
+  /** Room auto-allow flag (agent commits auto-approve). Reflects the live room; toggles it. */
+  autoAllow: boolean;
+  setAutoAllow: (on: boolean) => void;
+  /** Notification-tier rows for Settings. `backed` marks real vs honest-static rows. */
+  notifRows: NotifRow[];
+  /** True when notif rows/watch state are wired to the live wave-2 backend. */
+  notifBacked: boolean;
+  /** Swipe-right on a grid row → watch it (wave-2 setWatch). Resolves the honest result. */
+  watchRow: (rowId: string, on: boolean) => Promise<RowEditResult>;
+  /** True when `rowId` is currently watched (drives the swipe affordance state). */
+  isRowWatched: (rowId: string) => boolean;
+  /** Swipe-left on a grid row → flag a cell needs_review via the existing edit path. */
+  flagRowNeedsReview: (rowId: string) => Promise<RowEditResult>;
 }
 
 /** Live room data injected into MobileApp by MobileAppLive (see MobileRoot). */
@@ -200,4 +233,20 @@ export interface MobileLive {
   onLeave?: () => void;
   /** True while the live room is still hydrating (drives loading skeletons). */
   loading: boolean;
+
+  // ── gap pack: live projections for the 9 mobile gap screens ──
+  pipeline: PipelineStage[];
+  traceRows: TraceRow[];
+  peopleGroups: ManageGroup[];
+  inviteCode: string;
+  offline?: OfflineHold;
+  acknowledgeOfflineConflicts?: () => void;
+  autoAllow: boolean;
+  setAutoAllow: (on: boolean) => void;
+  notifRows: NotifRow[];
+  /** True when notif rows come from the live wave-2 watches backend (else honest static). */
+  notifBacked: boolean;
+  watchRow: (rowId: string, on: boolean) => Promise<RowEditResult>;
+  isRowWatched: (rowId: string) => boolean;
+  flagRowNeedsReview: (rowId: string) => Promise<RowEditResult>;
 }

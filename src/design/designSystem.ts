@@ -234,10 +234,13 @@ export function auditNodeRoomDesignSystem(files: Record<string, string>, checked
     findings.push(finding("sheet-break-all", "error", STYLE_FILE, "Sheet CSS uses word-break: break-all, which causes mid-word wrapping.", "Use nowrap plus text-overflow: ellipsis for grid values.", sheetBreakAllLine.line));
   }
 
-  const selectedBlock = cssBlock(styles, ".r-cell.sel");
-  if (!selectedBlock) {
+  // Scan EVERY rule whose selector mentions .r-cell.sel — a single-first-match
+  // extraction went stale the moment calm mode added a hover-reveal rule whose
+  // selector list also names .r-cell.sel ahead of the real selection rule.
+  const selectedBlocks = allCssBlocks(styles, ".r-cell.sel");
+  if (selectedBlocks.length === 0) {
     findings.push(finding("sheet-selection-missing", "error", STYLE_FILE, "The selected-cell rule is missing.", "Keep an explicit .r-cell.sel rule with a terracotta outline."));
-  } else if (/31,\s*138,\s*91|46,\s*158,\s*107|--success|#1F8A5B|#2E9E6B/i.test(selectedBlock)) {
+  } else if (selectedBlocks.some((block) => /31,\s*138,\s*91|46,\s*158,\s*107|--success|#1F8A5B|#2E9E6B/i.test(block))) {
     findings.push(finding("sheet-selection-success", "error", STYLE_FILE, "Selected cells use success-green styling.", "Selection/focus must use terracotta or neutral styling; green is semantic success only.", findLine(styles, ".r-cell.sel")));
   }
 
@@ -495,6 +498,28 @@ function cssBlock(css: string, selector: string): string | null {
   const close = css.indexOf("}", open);
   if (close < 0) return null;
   return css.slice(open + 1, close);
+}
+
+/** Every rule body whose SELECTOR list mentions `selector` — audits that key on
+ *  a semantic selector must inspect all of them, not the first occurrence. */
+function allCssBlocks(css: string, selector: string): string[] {
+  const blocks: string[] = [];
+  let from = 0;
+  for (;;) {
+    const hit = css.indexOf(selector, from);
+    if (hit < 0) break;
+    const open = css.indexOf("{", hit);
+    if (open < 0) break;
+    const close = css.indexOf("}", open);
+    if (close < 0) break;
+    // Only count occurrences in a selector position (before the block opens),
+    // not matches inside a previous rule body.
+    const prevClose = css.lastIndexOf("}", hit);
+    const between = css.slice(prevClose + 1, hit);
+    if (!between.includes("{")) blocks.push(css.slice(open + 1, close));
+    from = close + 1;
+  }
+  return blocks;
 }
 
 function findLine(content: string, needle: string): number | undefined {

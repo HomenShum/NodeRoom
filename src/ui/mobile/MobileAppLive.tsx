@@ -6,14 +6,44 @@
    Wired surfaces (this pass): room metadata + the public room chat (the wedge).
    Other panels remain sample data until their live wiring lands.
    ============================================================================ */
-import { useMemo, useRef } from "react";
-import { useStore } from "../../app/store";
-import type { Actor, Message, Member, CellStatus, Artifact, CellEvidence, CellPayload } from "../../engine/types";
-import type { RoomMsg, Person, AgentMsg, Row, Tone, InboxItem, Job, RecentItem, RecentSig, Plan, Evidence, EvidenceSupport, Coach } from "./mobileData";
+import { useCallback, useMemo, useRef } from "react";
+import { useMutation, useQuery } from "convex/react";
+import { api } from "../../../convex/_generated/api";
+import type { FunctionReference } from "convex/server";
+import { useStore, type ActorProof } from "../../app/store";
+import type { Actor, Message, Member, CellStatus, Artifact, CellEvidence, CellPayload, TraceEvent } from "../../engine/types";
+import type { RoomMsg, Person, AgentMsg, Row, Tone, InboxItem, Job, RecentItem, RecentSig, Plan, Evidence, EvidenceSupport, Coach, PipelineStage, TraceRow, ManageGroup, ManagedPerson, OfflineHold, NotifRow } from "./mobileData";
+import { MOBILE_TRACE_MAX } from "./mobileData";
 import type { MobileLive } from "./mobileTypes";
+import { groupPeople, liveLocationFor } from "../PeoplePanel";
 import { MobileApp } from "./MobileApp";
 
 const AGENT_KEY = "room_na";
+
+// convex/_generated lags until the next codegen — which must NOT be run casually
+// (`npx convex codegen` against a cloud deployment DEPLOYS schema+functions).
+// Same cast precedent as src/ui/NotificationsInbox.tsx watchesApi.
+type WatchRowLive = { targetKind: "row" | "artifact"; targetId: string; updatedAt: number };
+type RoomScopedArgs = { roomId: string; requester: ActorProof };
+type SetWatchArgs = RoomScopedArgs & { targetKind: "row" | "artifact"; targetId: string; on: boolean };
+const watchesApi = (api as unknown as {
+  watches: {
+    listWatches: FunctionReference<"query", "public", RoomScopedArgs, WatchRowLive[]>;
+    setWatch: FunctionReference<"mutation", "public", SetWatchArgs, { on: boolean; changed: boolean }>;
+  };
+}).watches;
+
+/** Map a room TraceEvent.type to the short chip vocabulary the mobile Trace sheet uses. */
+function traceKind(type: TraceEvent["type"]): string {
+  if (type === "edit_applied") return "commit";
+  if (type === "edit_proposed" || type === "proposal_resolved" || type === "proposal_resolve_failed") return "proposal";
+  if (type === "edit_blocked") return "blocked";
+  if (type.startsWith("lock_")) return "lock";
+  if (type.startsWith("agent_")) return "agent";
+  if (type === "member_joined" || type === "room_created") return "room";
+  if (type === "notebook_read_model") return "cite";
+  return type.split("_")[0] || "event";
+}
 
 function initials(name: string): string {
   const parts = name.trim().split(/\s+/).filter(Boolean);
@@ -223,7 +253,7 @@ function buildLiveCoach(evidence: Evidence, artifacts: Artifact[], proposals: In
   };
 }
 
-export function MobileAppLive({ roomId, me, onLeave }: { roomId: string; me: Actor; onLeave?: () => void }) {
+export function MobileAppLive({ roomId, me, proof, onLeave }: { roomId: string; me: Actor; proof?: ActorProof; onLeave?: () => void }) {
   const store = useStore();
   const room = store.getRoom(roomId);
   // First-load signal: in the Convex store getRoom() is the ONLY accessor that
@@ -291,6 +321,94 @@ export function MobileAppLive({ roomId, me, onLeave }: { roomId: string; me: Act
   const livePlan = useMemo(() => buildLivePlan(artifacts, inboxItems, job), [artifacts, inboxItems, job]);
   const liveCoach = useMemo(() => buildLiveCoach(liveEvidence, artifacts, inboxItems), [liveEvidence, artifacts, inboxItems]);
 
+  // ── gap pack: pipeline (same live data the desktop pipeline bar reads) ──
+  // Intake = any artifact rows exist; Evidence = any source-backed cell; Draft =
+  // an agent job is running; Review = pending proposals; Export = nothing left
+  // to review and something to export. Honest states, no faked completion.
+  const sessions = store.listSessions(roomId);
+  const pipeline: PipelineStage[] = useMemo(() => {
+    const sheet = artifacts.find((a) => a.kind === "sheet");
+    const rowCount = sheet ? (sheet.order.length ? sheet.order.length : Object.keys(sheet.elements).length) : 0;
+    let cited = 0, review = 0;
+    for (const a of artifacts) {
+      for (const id of a.order.length ? a.order : Object.keys(a.elements)) {
+        const p = fullCellPayload(a.elements[id]?.value);
+        if ((p.evidence?.length ?? 0) > 0) cited += 1;
+        if (p.status === "needs_review" || p.status === "gap" || p.status === "failed") review += 1;
+      }
+    }
+    const running = job && !["completed", "failed", "cancelled", "blocked", "paused"].includes(job.status ?? "");
+    const pending = inboxItems.length;
+    const intakeDone = rowCount > 0;
+    const evidenceDone = cited > 0;
+    return [
+      { key: "intake", label: "Intake", state: intakeDone ? "done" : "on", meta: rowCount ? `${rowCount} rows` : "waiting" },
+      { key: "evidence", label: "Evidence", state: evidenceDone ? "done" : intakeDone ? "on" : "todo", meta: cited ? `${cited} sourced` : "" },
+      { key: "draft", label: "Draft", state: running ? "on" : evidenceDone ? "done" : "todo", meta: running ? "agent working" : "" },
+      { key: "review", label: "Review", state: pending ? "on" : "todo", meta: pending ? `${pending} waiting` : review ? `${review} flagged` : "0 waiting" },
+      { key: "export", label: "Export", state: intakeDone && pending === 0 ? "on" : "todo", meta: "" },
+    ];
+  }, [artifacts, job, inboxItems.length]);
+
+  // ── gap pack: recent trace rows (bounded — agentic-reliability BOUND) ──
+  const traceRows: TraceRow[] = useMemo(() => {
+    const events = store.listTraces(roomId);
+    return events
+      .slice()
+      .sort((a, b) => b.ts - a.ts)
+      .slice(0, MOBILE_TRACE_MAX)
+      .map((e): TraceRow => ({ id: e.id, kind: traceKind(e.type), text: e.summary, time: relTime(e.ts) }));
+  }, [store, roomId]);
+
+  // ── gap pack: role-grouped people + live location (same as desktop PeoplePanel) ──
+  const peopleGroups: ManageGroup[] = useMemo(() => {
+    const groups = groupPeople(members, sessions);
+    return groups.map((g): ManageGroup => ({
+      key: g.key,
+      label: g.label,
+      rows: g.rows.map((r): ManagedPerson => {
+        const loc = r.kind === "user" ? liveLocationFor(r.id, roomId, store) : null;
+        return {
+          id: r.id,
+          name: r.name,
+          short: initials(r.name),
+          color: r.color,
+          role: g.key,
+          location: loc?.text ?? "",
+        };
+      }),
+    }));
+  }, [members, sessions, roomId, store]);
+
+  // ── gap pack: offline hold snapshot (store owns the real queue) ──
+  const offline: OfflineHold | undefined = store.offlineEditQueue ? store.offlineEditQueue() : undefined;
+
+  // ── gap pack: auto-allow (real room flag; toggle hits the store) ──
+  const autoAllow = room?.autoAllow ?? false;
+  const setAutoAllow = useCallback((next: boolean) => {
+    // toggleAutoAllow flips; only fire when the desired state differs from current.
+    if (next !== (room?.autoAllow ?? false)) store.toggleAutoAllow(roomId, me);
+  }, [store, roomId, me, room?.autoAllow]);
+
+  // ── gap pack: watches (wave-2 backend via typed-cast) ──
+  const watchArgs = proof ? { roomId: roomId as never, requester: proof } : "skip";
+  const watchRowsQ = useQuery(watchesApi.listWatches, watchArgs) ?? [];
+  const setWatchMut = useMutation(watchesApi.setWatch);
+  const watchedRowIds = useMemo(
+    () => new Set(watchRowsQ.filter((w) => w.targetKind === "row").map((w) => w.targetId)),
+    [watchRowsQ],
+  );
+  const notifBacked = !!proof;
+  const notifRows: NotifRow[] = useMemo(() => {
+    const watching = watchedRowIds.size;
+    return [
+      { label: "@mentions of you", mode: "instant", on: true, backed: false },
+      { label: "Rows you watch", mode: "instant", on: watching > 0, backed: notifBacked },
+      { label: "Agent run summaries", mode: "hourly", on: true, backed: false },
+      { label: "Everything else", mode: "daily digest", on: false, backed: false },
+    ];
+  }, [watchedRowIds, notifBacked]);
+
   // Per-render reshapes memoized so re-renders that don't change the underlying
   // store data (e.g. a sibling state toggle) don't recompute identical arrays.
   // Results are byte-identical to the inline calls; deps are the exact inputs.
@@ -355,6 +473,41 @@ export function MobileAppLive({ roomId, me, onLeave }: { roomId: string; me: Act
     },
     onLeave,
     loading,
+
+    // ── gap pack ──
+    pipeline,
+    traceRows,
+    peopleGroups,
+    inviteCode: room?.code ?? "",
+    offline,
+    acknowledgeOfflineConflicts: store.acknowledgeOfflineConflicts,
+    autoAllow,
+    setAutoAllow,
+    notifRows,
+    notifBacked,
+    watchRow: async (rowId: string, on: boolean) => {
+      if (!proof) return { ok: false, reason: "no_proof" };
+      try {
+        await setWatchMut({ roomId: roomId as never, requester: proof, targetKind: "row", targetId: rowId, on });
+        return { ok: true };
+      } catch (e) {
+        return { ok: false, reason: e instanceof Error ? e.message : "watch_failed" };
+      }
+    },
+    isRowWatched: (rowId: string) => watchedRowIds.has(rowId),
+    flagRowNeedsReview: async (rowId: string) => {
+      // Route through the existing CAS edit path: set the row's status column to
+      // needs_review. Uses the research sheet the row belongs to when present.
+      if (!researchSheet) return { ok: false, reason: "no_sheet" };
+      const elementId = `${rowId}__status`;
+      const el = researchArt?.elements[elementId];
+      const baseVersion = el?.version ?? 0;
+      return store.applyEdit({
+        roomId,
+        op: { opId: crypto.randomUUID(), artifactId: researchSheet.id, elementId, kind: "set", value: "needs_review", baseVersion },
+        actor: me,
+      });
+    },
   };
 
   return <MobileApp live={live} />;

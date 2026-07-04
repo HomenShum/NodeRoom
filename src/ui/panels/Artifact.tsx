@@ -34,6 +34,7 @@ import { AttentionOverlay } from "../overlay/AttentionOverlay";
 import { createSpreadsheetResolver } from "../overlay/spreadsheetResolver";
 import { focusBoxesForSheet, type SheetCellState } from "../overlay/focusBoxesForSheet";
 import { OPT_ARTIFACT_PREFIX, optimisticArtifactIdentity } from "../openRoomReference";
+import { ladderFor, LADDER_MEMBER_CAP, type LadderResult } from "../presenceLadder";
 import { prepareDownstreamDrafts, type PreparedDownstreamDraft } from "../../nodeagent/skills/integration/downstreamPublish";
 import { isWorkbookPreviewDoc, workbookPreviewArtifactFromDataUrl } from "./workbookFilePreview";
 import { isOfficePreviewDoc, officePreviewFromDataUrl, type OfficePreview } from "./officeFilePreview";
@@ -49,6 +50,63 @@ const BRIEF_TITLE = "Today's Brief";
 const MAX_OPEN_TABS = 12; // BOUND: cap open work-surface tabs (agent loops can churn artifacts); evict oldest.
 const GENERIC_SHEET_CELL_WINDOW = 5_000;
 const SCALE_SHEET_RENDER_WINDOW = 23;
+/** Fixed row height (px) the generic/scale sheet renders at default density — the single
+ *  source of truth for scroll-driven windowing. Kept in lockstep with
+ *  `.r-sheet[data-sheet-kind="generic"] td.r-cell { height: 44px }` in styles.css. */
+export const SCALE_SHEET_ROW_PX = 44;
+/** Rows rendered above/below the visible band so a fast scroll never flashes blank rows. */
+export const SCALE_SHEET_OVERSCAN = 8;
+
+export type RowWindow = {
+  /** First row index rendered (inclusive, 0-based) — after overscan + clamping. */
+  start: number;
+  /** One past the last row index rendered (exclusive, 0-based). */
+  end: number;
+  /** Spacer height (px) standing in for the [0, start) rows that are NOT mounted. */
+  topPad: number;
+  /** Spacer height (px) standing in for the [end, totalRows) rows that are NOT mounted. */
+  bottomPad: number;
+  /** True when `focusedIndex` falls OUTSIDE [start, end) and must be pinned (mounted separately). */
+  focusedPinned: boolean;
+};
+
+/**
+ * computeRowWindow — pure scroll-driven windowing math for the generic/scale sheet.
+ *
+ * Given the scroll offset + viewport height (px), the total row count, and an optional
+ * focused row index, returns the half-open render window [start, end) plus the top/bottom
+ * spacer heights that keep the scrollbar honest for the un-mounted rows. The visible band is
+ * [floor(scrollTop / ROW), ceil((scrollTop + viewport) / ROW)); we pad it by OVERSCAN rows on
+ * each side and clamp to [0, totalRows]. A focused row outside the window is reported via
+ * `focusedPinned` so the caller can keep it mounted (agent/QA focus must never scroll away).
+ *
+ * O(1): the result depends only on the four scalars, never on totalRows magnitude — 100k or
+ * 100M rows cost the same. Pure + deterministic: same inputs → same window.
+ */
+export function computeRowWindow(
+  scrollTop: number,
+  viewportPx: number,
+  totalRows: number,
+  focusedIndex: number | null = null,
+  rowPx: number = SCALE_SHEET_ROW_PX,
+  overscan: number = SCALE_SHEET_OVERSCAN,
+): RowWindow {
+  const total = Math.max(0, Math.floor(totalRows));
+  const row = rowPx > 0 ? rowPx : SCALE_SHEET_ROW_PX;
+  // Guard against negative/NaN scroll (elastic overscroll, jsdom 0-height layout).
+  const top = Number.isFinite(scrollTop) && scrollTop > 0 ? scrollTop : 0;
+  const view = Number.isFinite(viewportPx) && viewportPx > 0 ? viewportPx : 0;
+  const firstVisible = Math.floor(top / row);
+  const lastVisible = Math.ceil((top + view) / row);
+  const start = Math.max(0, Math.min(total, firstVisible - overscan));
+  const end = Math.max(start, Math.min(total, lastVisible + overscan));
+  const topPad = start * row;
+  const bottomPad = Math.max(0, (total - end) * row);
+  const focusedPinned =
+    focusedIndex !== null && focusedIndex >= 0 && focusedIndex < total && (focusedIndex < start || focusedIndex >= end);
+  return { start, end, topPad, bottomPad, focusedPinned };
+}
+
 const BLANK_SHEET_ROWS = 12;
 const BLANK_SHEET_COLUMNS = ["A", "B", "C", "D", "E", "F", "G", "H"] as const;
 type TabId = "wiki" | "brief" | "sheet" | "research" | "note" | "wall";
@@ -966,6 +1024,52 @@ function presenceLabel(row: PresenceClaim): string {
   return row.label ?? row.actor.name;
 }
 
+/**
+ * PresenceLadder — the cursor-ladder rung for ONE sheet cell (the States & Scale
+ * "Presence at scale" primitive). Given the room's presence claims + this cell's element
+ * id, `ladderFor` collapses distinct actors into a rung and this renders it:
+ *
+ *   1 claim   → one named flag (`.sc-flag`, lifted from design-reference/fixes .fx-flag)
+ *   2–3       → offset stacked flags (`.sc-flagstack`)
+ *   4+        → cluster count pill `+N` (`.sc-cluster`, from design-reference/scale/scale.css)
+ *
+ * Pointer-events: none — the ladder is a passive presence read, never a click target (the
+ * cell underneath keeps its selection/edit/history behavior). Excludes `me` via `selfId`.
+ */
+export function presenceLadderModel(rows: readonly PresenceClaim[], elementId: string, selfId: string, now: number = Date.now()): LadderResult {
+  // ladderFor is actor-deduped + bounded; drop self first so my own flag never shows on my cell.
+  return ladderFor(rows.filter((r) => r.targetKind === "cell" && r.actor?.id !== selfId), elementId, now);
+}
+
+export function PresenceLadder({ rows, elementId, selfId }: { rows: readonly PresenceClaim[]; elementId: string; selfId: string }) {
+  const ladder = presenceLadderModel(rows, elementId, selfId);
+  if (ladder.mode === "none") return null;
+  if (ladder.mode === "cluster") {
+    const title = ladder.members.map((m) => m.name).join(", ") + (ladder.count > ladder.members.length ? ` +${ladder.count - ladder.members.length} more` : "");
+    return (
+      <span className="sc-cluster r-presence-ladder" data-testid="presence-cluster" data-count={ladder.count} title={`${ladder.count} people here — ${title}`} aria-label={`${ladder.count} people here`}>
+        +{ladder.count}
+      </span>
+    );
+  }
+  // flag (1) or stack (2–3): render each member as an offset named flag, freshest on top.
+  return (
+    <span className={"r-presence-ladder " + (ladder.mode === "stack" ? "sc-flagstack" : "sc-flagone")} data-testid={ladder.mode === "stack" ? "presence-stack" : "presence-flag"} data-count={ladder.count} aria-label={`${ladder.count} ${ladder.count === 1 ? "person" : "people"} here`}>
+      {ladder.members.map((m, i) => (
+        <span
+          key={m.id}
+          className="sc-flag"
+          data-testid="presence-flag-member"
+          style={{ zIndex: LADDER_MEMBER_CAP - i, ...(m.color ? ({ "--presence-color": m.color } as CSSProperties) : {}) }}
+          title={m.name}
+        >
+          {m.name}
+        </span>
+      ))}
+    </span>
+  );
+}
+
 /** Finance mental model: green means POSITIVE, red means negative — not "cell has content".
  *  Unsigned values (notes, labels) render neutral so status colors keep their meaning. */
 function valueClass(value: string): string {
@@ -1628,7 +1732,7 @@ function renderGenericCellContent(col: string, value: string): ReactNode {
   return <span className={"r-cell-value" + (urlLike ? " r-cell-url" : "")} title={trimmed}>{trimmed}</span>;
 }
 
-function GenericSheet({ roomId, me, art, proof, onError }: { roomId: string; me: Actor; art: Art; proof?: ActorProof; onError?: (f: EditFeedback) => void }) {
+export function GenericSheet({ roomId, me, art, proof, onError }: { roomId: string; me: Actor; art: Art; proof?: ActorProof; onError?: (f: EditFeedback) => void }) {
   const store = useStore();
   // Per-cell version history is LIVE-mode-only: the in-memory engine keeps no
   // elementVersions log, so memory mode hides the affordance (honest absence).
@@ -1669,10 +1773,39 @@ function GenericSheet({ roomId, me, art, proof, onError }: { roomId: string; me:
     () => columns.map((col, i) => isScaleSheet ? scaleColumnWidth(col, i) : sheetColumnWidth(art, col, i)),
     [art.meta?.excelGrid?.colWidths, columns, isScaleSheet],
   );
-  const visibleRows = filteredRows.slice(0, pageSize * pages);
-  const renderedWindowLabel = statusFilter === "any"
-    ? `rows 1-${visibleRows.length} rendered`
-    : `${visibleRows.length}/${filteredRows.length} ${sheetStatusFilterLabel(statusFilter)} rendered`;
+  // TRUE ROW VIRTUALIZATION (scale sheets only): the scroll container reports its scrollTop +
+  // client height, and `computeRowWindow` turns that into the half-open [start, end) render band
+  // between top/bottom spacer rows sized from the fixed 44px row height. Non-scale generic sheets
+  // keep the cheap "Show next page" path (their row count is already bounded < 1,000).
+  const [scrollTop, setScrollTop] = useState(0);
+  const [viewportPx, setViewportPx] = useState(0);
+  // The FOCUSED (selected) row stays mounted even when scrolled out of the window, so an agent/QA
+  // stage-focus or an in-progress selection never unmounts mid-interaction. Indexed within filteredRows.
+  const selectedRowIdForWindow = parseSheetElementId(art, sel).rowId;
+  const focusedIndex = isScaleSheet && selectedRowIdForWindow
+    ? filteredRows.indexOf(selectedRowIdForWindow)
+    : -1;
+  const rowWindow = useMemo(
+    () => computeRowWindow(scrollTop, viewportPx || 640, filteredRows.length, focusedIndex >= 0 ? focusedIndex : null),
+    [scrollTop, viewportPx, filteredRows.length, focusedIndex],
+  );
+  // The rows that actually mount: for scale sheets, the window slice PLUS the pinned focused row if
+  // it fell outside; for non-scale sheets, the paged prefix.
+  const windowRows = isScaleSheet ? filteredRows.slice(rowWindow.start, rowWindow.end) : [];
+  const pinnedFocusRow = isScaleSheet && rowWindow.focusedPinned && focusedIndex >= 0 ? filteredRows[focusedIndex] : null;
+  const visibleRows = isScaleSheet
+    ? (pinnedFocusRow ? [...windowRows, pinnedFocusRow] : windowRows)
+    : filteredRows.slice(0, pageSize * pages);
+  // Honest render-window meta chip. Scale sheets report the true 1-based [start+1, end] band (the
+  // pinned focus row, if any, is extra and not part of the contiguous band). Filtered views report
+  // rendered/total. Non-scale sheets keep the "rows 1-N rendered" shape.
+  const renderedWindowLabel = isScaleSheet
+    ? (statusFilter === "any"
+        ? `rows ${filteredRows.length === 0 ? 0 : rowWindow.start + 1}-${rowWindow.end} rendered`
+        : `rows ${filteredRows.length === 0 ? 0 : rowWindow.start + 1}-${rowWindow.end} of ${filteredRows.length} ${sheetStatusFilterLabel(statusFilter)}`)
+    : (statusFilter === "any"
+        ? `rows 1-${visibleRows.length} rendered`
+        : `${visibleRows.length}/${filteredRows.length} ${sheetStatusFilterLabel(statusFilter)} rendered`);
   const { mergeAnchor, mergeCovered } = useMemo(() => expandSheetMerges(art.meta?.excelGrid?.merges), [art.meta?.excelGrid?.merges]);
   const selected = parseSheetElementId(art, sel);
   const selectedRowId = selected.rowId;
@@ -1689,6 +1822,24 @@ function GenericSheet({ roomId, me, art, proof, onError }: { roomId: string; me:
   const presenceRows = store.listPresence(roomId, art.id);
   const sheetWrapRef = useRef<HTMLDivElement>(null);
   const overlayResolver = useMemo(() => createSpreadsheetResolver(() => sheetWrapRef.current), []);
+  // Scroll-driven windowing (scale sheets only): the .r-sheet-wrap viewport reports scrollTop +
+  // clientHeight; `computeRowWindow` (above) turns those into the mounted band. rAF-coalesced so a
+  // fling recomputes the window at most once per frame (BOUND). A ResizeObserver keeps the viewport
+  // height honest when the panel is split/resized.
+  useEffect(() => {
+    if (!isScaleSheet) return;
+    const el = sheetWrapRef.current;
+    if (!el) return;
+    let raf = 0;
+    const sync = () => { raf = 0; setScrollTop(el.scrollTop); setViewportPx(el.clientHeight); };
+    const onScroll = () => { if (!raf) raf = requestAnimationFrame(sync); };
+    setScrollTop(el.scrollTop);
+    setViewportPx(el.clientHeight || 640);
+    el.addEventListener("scroll", onScroll, { passive: true });
+    const ro = typeof ResizeObserver !== "undefined" ? new ResizeObserver(() => setViewportPx(el.clientHeight || 640)) : null;
+    ro?.observe(el);
+    return () => { el.removeEventListener("scroll", onScroll); ro?.disconnect(); if (raf) cancelAnimationFrame(raf); };
+  }, [isScaleSheet, filteredRows.length]);
   const overlayCellStates = useMemo<SheetCellState[]>(() => {
     const out: SheetCellState[] = [];
     for (const rid of visibleRows) for (const col of cols) {
@@ -1742,21 +1893,99 @@ function GenericSheet({ roomId, me, art, proof, onError }: { roomId: string; me:
   const isEditable = (id: string | null): boolean =>
     !!id && !lockedByOther(store, art.id, id, me) && !proposalFor(proposals, art.id, id) && !draftedFor(store, roomId, art.id, id) && !mergeCovered.has(id);
   const moveSel = (dr: number, dc: number) => {
-    const base = sel ? parseSheetElementId(art, sel) : { rowId: visibleRows[0], colId: cols[0] };
-    let ri = visibleRows.indexOf(base.rowId); if (ri < 0) ri = 0;
+    // Scale sheets navigate over the FULL filtered list (not just the mounted window) and scroll the
+    // target row into the render band; non-scale sheets navigate the paged prefix as before.
+    const navRows = isScaleSheet ? filteredRows : visibleRows;
+    const base = sel ? parseSheetElementId(art, sel) : { rowId: navRows[0], colId: cols[0] };
+    let ri = navRows.indexOf(base.rowId); if (ri < 0) ri = 0;
     let ci = cols.indexOf(base.colId); if (ci < 0) ci = 0;
-    ri = Math.min(visibleRows.length - 1, Math.max(0, ri + dr));
+    ri = Math.min(navRows.length - 1, Math.max(0, ri + dr));
     ci = Math.min(cols.length - 1, Math.max(0, ci + dc));
-    if (visibleRows[ri] && cols[ci]) setSel(sheetElementId(art, visibleRows[ri], cols[ci]));
+    if (navRows[ri] && cols[ci]) {
+      setSel(sheetElementId(art, navRows[ri], cols[ci]));
+      if (isScaleSheet && sheetWrapRef.current) {
+        // Keep the target within the visible band: scroll so its top/bottom edge is on-screen.
+        const el = sheetWrapRef.current;
+        const rowTop = ri * SCALE_SHEET_ROW_PX;
+        const rowBottom = rowTop + SCALE_SHEET_ROW_PX;
+        if (rowTop < el.scrollTop) el.scrollTop = rowTop;
+        else if (rowBottom > el.scrollTop + el.clientHeight) el.scrollTop = rowBottom - el.clientHeight;
+      }
+    }
   };
   const beginEdit = (id: string) => { setEditingId(id); setEditDraft(displayCellValue(art.elements[id]?.value)); };
+  // The rows that map to real <tr>s inside the window: scale sheets render the windowed slice; other
+  // generic sheets render the paged prefix. The pinned focus row is rendered separately (below).
+  const windowRowsToRender = isScaleSheet ? windowRows : visibleRows;
+  const renderSheetRow = (rid: string, pinned = false) => (
+    <tr key={pinned ? `pin-${rid}` : rid} className={(lockedRowIds.has(rid) ? "r-row-locked" : "") + (pinned ? " r-row-pinned" : "")} data-locked-row={lockedRowIds.has(rid) ? "true" : undefined} data-pinned-row={pinned ? "true" : undefined}>
+      <td className={"r-rownum" + (selectedRowId === rid ? " hl" : "")} title={rid}>{sourceRowIndexById.get(rid) ?? rid}</td>
+      {cols.map((col) => {
+        const id = sheetElementId(art, rid, col);
+        if (mergeCovered.has(id)) return null;
+        const span = mergeAnchor.get(id);
+        const raw = art.elements[id]?.value;
+        const payload = asCellPayload(raw);
+        const value = displayCellValue(raw);
+        const locked = !!lockedByOther(store, art.id, id, me);
+        const proposed = !!proposalFor(proposals, art.id, id) || draftedFor(store, roomId, art.id, id);
+        const el = art.elements[id];
+        const committed = !locked && el && el.version > 1 && el.updatedBy?.kind === "agent" && Date.now() - el.updatedAt < 1500;
+        const hasVisibleEvidence = !art.meta?.excelGrid && !!value && !!payload?.evidence?.length;
+        const showFormulaMarker = !art.meta?.excelGrid && !!payload?.formula;
+        const showMeta = !art.meta?.excelGrid && payload;
+        const showReceipt = !!showMeta && (!isScaleSheet || locked || sel === id || isGenericStatusColumn(col)) && !isGenericSourceColumn(col);
+        const metaTitle = evidenceTitle(payload);
+        const cls = "r-cell" + (isNumberLikeCell(raw) ? " num" : "") + (locked ? " locked" : "") + (proposed ? " proposed" : "") + (committed ? " committed" : "") + (hasVisibleEvidence ? " evidence" : "") + (showFormulaMarker ? " formula" : "") + (sel === id ? " sel" : "");
+        return (
+          <td key={col} className={cls} title={[value || undefined, dataframeCellAddress(art, cols, filteredRows, id), metaTitle || undefined].filter(Boolean).join(" | ")} data-evidence-class={classifyEvidence(payload)} data-cell-key={id} data-element-id={id} data-testid="sheet-cell" data-has-evidence={hasVisibleEvidence ? "true" : undefined} data-has-formula={payload?.formula ? "true" : undefined} colSpan={span?.colSpan} rowSpan={span?.rowSpan} aria-selected={sel === id || undefined} onClick={(e) => { setSel(id); (e.currentTarget.closest("table") as HTMLElement | null)?.focus(); }} onDoubleClick={() => { setEditingId(id); setEditDraft(value); }}>
+            {editingId === id ? (
+              <textarea className="r-cell-editor" autoFocus value={editDraft} data-testid="cell-editor"
+                style={{ width: "100%", minHeight: "28px", resize: "none", overflow: "hidden" }}
+                ref={(node) => { if (node) { node.style.height = "auto"; node.style.height = `${node.scrollHeight}px`; } }}
+                onChange={(e) => {
+                  const node = e.target;
+                  node.style.height = "auto";
+                  node.style.height = `${node.scrollHeight}px`;
+                  setEditDraft(node.value);
+                }}
+                onBlur={() => { setEditingId(null); if (editDraft.trim() !== value) doCommit(id, editDraft.trim()); }}
+                onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); (e.target as HTMLTextAreaElement).blur(); } if (e.key === "Escape") { setEditDraft(value); setEditingId(null); } }} />
+            ) : (
+              <>
+                {renderGenericCellContent(col, value)}
+                {/* Stale chip: always visible (never hover-gated) when a checked source is >72h old; cells without evidence render nothing. */}
+                {!art.meta?.excelGrid && <StaleChip label={cellStaleness(payload, el?.updatedAt)} />}
+                {showReceipt && <EvidenceReceipt payload={payload} compact={isScaleSheet && !locked && sel !== id} checkedAt={el?.updatedAt} />}
+                {locked && <span className="lockbadge" data-testid="grid-lock-badge" title="Locked by NodeAgent"><Lock size={9} />NA</span>}
+                {/* Cursor ladder — flag / stacked flags / cluster count of OTHER people on this cell
+                    (design-reference/scale "Presence at scale"). Passive read, pointer-events none. */}
+                <PresenceLadder rows={presenceRows} elementId={id} selfId={me.id} />
+                {historyOn && proof && (
+                  <CellHistory
+                    roomId={roomId}
+                    artifactId={art.id}
+                    elementId={id}
+                    requester={proof}
+                    currentValue={value}
+                    shifted={!!(showReceipt && payload?.evidence?.length)}
+                    onFeedback={onError}
+                  />
+                )}
+              </>
+            )}
+          </td>
+        );
+      })}
+    </tr>
+  );
   return (
     <>
       <div className="r-art-body">
         {/* Name-box + value bar: the A1 address + FULL value of the selected cell (recovery path for any
             clipped cell) + a row-density switcher (Excel/Sheets convention). */}
         <div className="r-sheet-bar">
-          <span className="r-sheet-namebox" data-testid="sheet-namebox">{sel ? dataframeCellAddress(art, cols, visibleRows, sel) : "—"}</span>
+          <span className="r-sheet-namebox" data-testid="sheet-namebox">{sel ? dataframeCellAddress(art, cols, isScaleSheet ? filteredRows : visibleRows, sel) : "—"}</span>
           <span className="r-sheet-valuebar" title={sel ? displayCellValue(art.elements[sel]?.value) : ""}>{sel ? displayCellValue(art.elements[sel]?.value) : ""}</span>
           <span className="grow" />
           <span className="r-cols-pill" data-testid="grid-column-count" title={columnCountTitle}>{columnCountLabel}</span>
@@ -1807,67 +2036,27 @@ function GenericSheet({ roomId, me, art, proof, onError }: { roomId: string; me:
             </colgroup>
             <thead><tr><th className="r-corner" aria-label="row number" />{columns.map((c, i) => <th key={c.id} className={selectedColId === c.id ? "hl" : undefined}>{c.label}<span className="r-col-resize" role="separator" aria-orientation="vertical" aria-label={`Resize ${c.label}`} onPointerDown={(e) => { e.preventDefault(); e.stopPropagation(); startColResize(c.id, colOverrides[c.id] ?? colWidths[i], e.clientX); }} /></th>)}</tr></thead>
             <tbody>
-              {visibleRows.map((rid, i) => (
-                <tr key={rid} className={lockedRowIds.has(rid) ? "r-row-locked" : undefined} data-locked-row={lockedRowIds.has(rid) ? "true" : undefined}>
-                  <td className={"r-rownum" + (selectedRowId === rid ? " hl" : "")} title={rid}>{sourceRowIndexById.get(rid) ?? i + 1}</td>
-                  {cols.map((col) => {
-                    const id = sheetElementId(art, rid, col);
-                    if (mergeCovered.has(id)) return null;
-                    const span = mergeAnchor.get(id);
-                    const raw = art.elements[id]?.value;
-                    const payload = asCellPayload(raw);
-                    const value = displayCellValue(raw);
-                    const locked = !!lockedByOther(store, art.id, id, me);
-                    const proposed = !!proposalFor(proposals, art.id, id) || draftedFor(store, roomId, art.id, id);
-                    const el = art.elements[id];
-                    const committed = !locked && el && el.version > 1 && el.updatedBy?.kind === "agent" && Date.now() - el.updatedAt < 1500;
-                    const hasVisibleEvidence = !art.meta?.excelGrid && !!value && !!payload?.evidence?.length;
-                    const showFormulaMarker = !art.meta?.excelGrid && !!payload?.formula;
-                    const showMeta = !art.meta?.excelGrid && payload;
-                    const showReceipt = !!showMeta && (!isScaleSheet || locked || sel === id || isGenericStatusColumn(col)) && !isGenericSourceColumn(col);
-                    const metaTitle = evidenceTitle(payload);
-                    const cls = "r-cell" + (isNumberLikeCell(raw) ? " num" : "") + (locked ? " locked" : "") + (proposed ? " proposed" : "") + (committed ? " committed" : "") + (hasVisibleEvidence ? " evidence" : "") + (showFormulaMarker ? " formula" : "") + (sel === id ? " sel" : "");
-                    return (
-                      <td key={col} className={cls} title={[value || undefined, dataframeCellAddress(art, cols, visibleRows, id), metaTitle || undefined].filter(Boolean).join(" | ")} data-evidence-class={classifyEvidence(payload)} data-cell-key={id} data-element-id={id} data-testid="sheet-cell" data-has-evidence={hasVisibleEvidence ? "true" : undefined} data-has-formula={payload?.formula ? "true" : undefined} colSpan={span?.colSpan} rowSpan={span?.rowSpan} aria-selected={sel === id || undefined} onClick={(e) => { setSel(id); (e.currentTarget.closest("table") as HTMLElement | null)?.focus(); }} onDoubleClick={() => { setEditingId(id); setEditDraft(value); }}>
-                        {editingId === id ? (
-                          <textarea className="r-cell-editor" autoFocus value={editDraft} data-testid="cell-editor"
-                            style={{ width: "100%", minHeight: "28px", resize: "none", overflow: "hidden" }}
-                            ref={(el) => { if (el) { el.style.height = "auto"; el.style.height = `${el.scrollHeight}px`; } }}
-                            onChange={(e) => {
-                              const el = e.target;
-                              el.style.height = "auto";
-                              el.style.height = `${el.scrollHeight}px`;
-                              setEditDraft(el.value);
-                            }}
-                            onBlur={() => { setEditingId(null); if (editDraft.trim() !== value) doCommit(id, editDraft.trim()); }}
-                            onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); (e.target as HTMLTextAreaElement).blur(); } if (e.key === "Escape") { setEditDraft(value); setEditingId(null); } }} />
-                        ) : (
-                          <>
-                            {renderGenericCellContent(col, value)}
-                            {/* Stale chip: always visible (never hover-gated) when a checked source is >72h old; cells without evidence render nothing. */}
-                            {!art.meta?.excelGrid && <StaleChip label={cellStaleness(payload, el?.updatedAt)} />}
-                            {showReceipt && <EvidenceReceipt payload={payload} compact={isScaleSheet && !locked && sel !== id} checkedAt={el?.updatedAt} />}
-                            {locked && <span className="lockbadge" data-testid="grid-lock-badge" title="Locked by NodeAgent"><Lock size={9} />NA</span>}
-                            {historyOn && proof && (
-                              <CellHistory
-                                roomId={roomId}
-                                artifactId={art.id}
-                                elementId={id}
-                                requester={proof}
-                                currentValue={value}
-                                shifted={!!(showReceipt && payload?.evidence?.length)}
-                                onFeedback={onError}
-                              />
-                            )}
-                          </>
-                        )}
-                      </td>
-                    );
-                  })}
+              {/* Top spacer: stands in for the [0, start) rows NOT mounted, sized from the fixed 44px
+                  row height so the scrollbar length + thumb position stay honest. Scale sheets only. */}
+              {isScaleSheet && rowWindow.topPad > 0 && (
+                <tr className="r-vrow-spacer" aria-hidden="true" data-testid="grid-spacer-top" style={{ height: rowWindow.topPad }}>
+                  <td className="r-rownum" style={{ height: rowWindow.topPad, padding: 0 }} />
+                  <td colSpan={Math.max(cols.length, 1)} style={{ height: rowWindow.topPad, padding: 0 }} />
                 </tr>
-              ))}
+              )}
+              {windowRowsToRender.map((rid) => renderSheetRow(rid))}
+              {/* Pinned focus row: the selected row stays mounted even when scrolled outside the
+                  window (agent/QA focus must never unmount mid-interaction). */}
+              {pinnedFocusRow && renderSheetRow(pinnedFocusRow, true)}
+              {/* Bottom spacer: stands in for the [end, totalRows) rows NOT mounted. */}
+              {isScaleSheet && rowWindow.bottomPad > 0 && (
+                <tr className="r-vrow-spacer" aria-hidden="true" data-testid="grid-spacer-bottom" style={{ height: rowWindow.bottomPad }}>
+                  <td className="r-rownum" style={{ height: rowWindow.bottomPad, padding: 0 }} />
+                  <td colSpan={Math.max(cols.length, 1)} style={{ height: rowWindow.bottomPad, padding: 0 }} />
+                </tr>
+              )}
               <tr className="r-row-add">
-                <td className="r-rownum">{visibleRows.length + 1}</td>
+                <td className="r-rownum">{isScaleSheet ? totalRows + 1 : visibleRows.length + 1}</td>
                 <td className="r-add-row-cell" colSpan={Math.max(cols.length, 1)}><span data-testid="grid-add-row">+ add row</span></td>
               </tr>
             </tbody>
@@ -1877,7 +2066,8 @@ function GenericSheet({ roomId, me, art, proof, onError }: { roomId: string; me:
       <div className="r-sheet-foot">
         <span className="kicker">{sheetKicker}</span>
         <span className="r-vpill next">v{art.version}</span>
-        {visibleRows.length < filteredRows.length && <button className="r-mini-btn" onClick={() => setPages((n) => n + 1)}>Show next {pageSize}</button>}
+        {/* Scale sheets scroll-virtualize (no paging button); other generic sheets keep the page button. */}
+        {!isScaleSheet && visibleRows.length < filteredRows.length && <button className="r-mini-btn" onClick={() => setPages((n) => n + 1)}>Show next {pageSize}</button>}
         <span className="grow" />
         <span className="mono tiny faint">{totalRows.toLocaleString()} rows | {cols.length} columns</span>
       </div>

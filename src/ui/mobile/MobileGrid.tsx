@@ -27,8 +27,94 @@ import type {
   PatchEvidence,
 } from "./mobileData";
 import type { MobileCtx } from "./mobileTypes";
+import { haptic } from "./mobileUtil";
+import {
+  GESTURE_THRESHOLDS,
+  classifyRelease,
+  dragOffset,
+  longPressEligible,
+  type Gesture,
+} from "./mobileGestures";
 
-const { useState, useRef, useEffect } = React;
+const { useState, useRef, useEffect, useCallback } = React;
+
+/** Gesture verbs a record card can fire. */
+export interface RowGestureHandlers {
+  onLongPress: () => void;
+  onSwipeRight: () => void;
+  onSwipeLeft: () => void;
+}
+
+/**
+ * useRowGesture — binds the PURE threshold math (mobileGestures.ts) to real
+ * pointer events on a record card. Returns pointer handlers + the live drag
+ * offset (px) for the card transform. A committed swipe/long-press fires exactly
+ * one handler; a plain tap does nothing here (the inner buttons keep their
+ * onClick). The long-press timer is armed on down and re-validated against the
+ * pure `longPressEligible` predicate so a drift cancels it.
+ */
+export function useRowGesture(handlers: RowGestureHandlers) {
+  const start = useRef<{ x: number; y: number; t: number } | null>(null);
+  const firedRef = useRef(false);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const [drag, setDrag] = useState(0);
+  const handlersRef = useRef(handlers);
+  handlersRef.current = handlers;
+
+  const clearTimer = () => { if (timerRef.current) { clearTimeout(timerRef.current); timerRef.current = undefined; } };
+  useEffect(() => clearTimer, []);
+
+  const fire = (g: Gesture) => {
+    if (firedRef.current) return;
+    if (g === "long-press") { firedRef.current = true; handlersRef.current.onLongPress(); }
+    else if (g === "swipe-right") { firedRef.current = true; handlersRef.current.onSwipeRight(); }
+    else if (g === "swipe-left") { firedRef.current = true; handlersRef.current.onSwipeLeft(); }
+  };
+
+  const onPointerDown = useCallback((e: React.PointerEvent) => {
+    // Only track primary pointer; ignore right-click / multi-touch.
+    if (e.button !== 0 && e.pointerType === "mouse") return;
+    start.current = { x: e.clientX, y: e.clientY, t: Date.now() };
+    firedRef.current = false;
+    setDrag(0);
+    clearTimer();
+    timerRef.current = setTimeout(() => {
+      // Re-validate at fire time: still down, barely moved → long-press.
+      if (!start.current || firedRef.current) return;
+      if (longPressEligible({ dx: drag, dy: 0, dt: GESTURE_THRESHOLDS.longPressMs })) fire("long-press");
+    }, GESTURE_THRESHOLDS.longPressMs);
+  }, [drag]);
+
+  const onPointerMove = useCallback((e: React.PointerEvent) => {
+    if (!start.current || firedRef.current) return;
+    const dx = e.clientX - start.current.x;
+    const dy = e.clientY - start.current.y;
+    setDrag(dragOffset(dx, dy));
+    // If the finger clearly left the long-press tolerance, cancel the timer so a
+    // drag never resolves as a long-press.
+    if (Math.hypot(dx, dy) > GESTURE_THRESHOLDS.longPressMoveTolerance) clearTimer();
+  }, []);
+
+  const end = useCallback((e: React.PointerEvent) => {
+    clearTimer();
+    const s = start.current;
+    start.current = null;
+    setDrag(0);
+    if (!s || firedRef.current) return;
+    const g = classifyRelease({ dx: e.clientX - s.x, dy: e.clientY - s.y, dt: Date.now() - s.t });
+    fire(g);
+  }, []);
+
+  return {
+    drag,
+    handlers: {
+      onPointerDown,
+      onPointerMove,
+      onPointerUp: end,
+      onPointerCancel: (e: React.PointerEvent) => { clearTimer(); start.current = null; setDrag(0); void e; },
+    },
+  };
+}
 
 interface Patch {
   target: string;
@@ -146,6 +232,35 @@ export function SheetArtifact({ ctx }: { ctx: MobileCtx }): React.ReactElement {
   };
   const cancelEdit = () => setEditing(null);
 
+  // ── gap pack: record-card gestures (design gaps-app.jsx PEdit + swipe caps) ──
+  //   long-press  → raise the first editable cell into edit
+  //   swipe-right → watch the row (wave-2 setWatch; honest toast in memory)
+  //   swipe-left  → flag needs_review (existing cell edit path; honest offline)
+  const rowGesture = useCallback((r: SheetRow): RowGestureHandlers => {
+    const firstEditable = S.columns.find((c: SheetColumn) => !c.head) ?? S.columns[0];
+    return {
+      onLongPress: () => {
+        haptic();
+        startEdit(r.id, firstEditable, r.cells[firstEditable.id]);
+      },
+      onSwipeRight: () => {
+        haptic();
+        const on = !ctx.isRowWatched(r.id);
+        void ctx.watchRow(r.id, on).then((res) => {
+          if (res.ok) ctx.toast(on ? "Watching " + r.cells.company.v + " — writes notify you" : "Stopped watching " + r.cells.company.v);
+          else ctx.toast(ctx.isLive ? "Could not update watch — " + (res.reason ?? "try again") : "Watch is live-only — join a room to watch rows");
+        });
+      },
+      onSwipeLeft: () => {
+        haptic();
+        void ctx.flagRowNeedsReview(r.id).then((res) => {
+          if (res.ok) ctx.toast("Flagged " + r.cells.company.v + " · needs review");
+          else ctx.toast(ctx.isLive ? "Could not flag — " + (res.reason ?? "try again") : "Flagging is live-only — join a room to flag rows");
+        });
+      },
+    };
+  }, [S.columns, ctx, startEdit]);
+
   // ── tap a flagged status → drop a sourcing prompt into the composer ──────
   const promptFix = (rowId: string, col: SheetColumn, cell: SheetCell) => {
     const company = rows.find((r: SheetRow) => r.id === rowId)!.cells.company.v;
@@ -254,6 +369,7 @@ export function SheetArtifact({ ctx }: { ctx: MobileCtx }): React.ReactElement {
         onFix: promptFix, onExport: () => setTab("export"), onPresent: () => setPresent(true),
         chat,
         onAccept: acceptPatch, onReject: rejectPatch,
+        rowGesture, isWatched: ctx.isRowWatched,
       }),
       tab === "evidence" && React.createElement(SheetEvidence, { S, ctx }),
       tab === "export" && React.createElement(SheetExport, { S, rows, exported, onExport: (fmt: string, ver?: string) => { setExported(true); ctx.toast((ver ? ver + " · " : "") + (fmt === "pptx" ? "CardioNova_update.pptx generated" : "Q3_diligence_tracker.xlsx downloaded")); } })),
@@ -297,8 +413,12 @@ interface GridViewProps {
   chat: GridChatMsg[];
   onAccept: () => void;
   onReject: () => void;
+  /** Per-row gesture handlers (long-press edit / swipe watch / swipe flag). */
+  rowGesture: (r: SheetRow) => RowGestureHandlers;
+  /** True when a row is currently watched (drives the card's watch affordance). */
+  isWatched: (rowId: string) => boolean;
 }
-function GridView({ S, rows, editing, editVal, setEditVal, editRef, startEdit, commitEdit, cancelEdit, onFix, onExport, onPresent, chat }: GridViewProps): React.ReactElement {
+function GridView({ S, rows, editing, editVal, setEditVal, editRef, startEdit, commitEdit, cancelEdit, onFix, onExport, onPresent, chat, rowGesture, isWatched }: GridViewProps): React.ReactElement {
   return React.createElement(React.Fragment, null,
     React.createElement("div", { className: "na-sheet-actions" },
       React.createElement("span", { className: "na-sheet-count" }, rows.length + " records · " + S.columns.length + " fields"),
@@ -308,6 +428,7 @@ function GridView({ S, rows, editing, editVal, setEditVal, editRef, startEdit, c
     React.createElement("div", { className: "na-srows" },
       rows.map((r: SheetRow) => React.createElement(SheetRowCard, {
         key: r.id, S, r, editing, editVal, setEditVal, editRef, startEdit, commitEdit, cancelEdit, onFix,
+        gesture: rowGesture(r), watched: isWatched(r.id),
       }))),
     React.createElement("div", { className: "na-grid-legend" },
       legend("ok", "source-backed"), legend("warn", "needs review"), legend("bad", "source gap"), legend("mute", "manual")),
@@ -339,14 +460,27 @@ interface SheetRowCardProps {
   commitEdit: () => void;
   cancelEdit: () => void;
   onFix: (rowId: string, col: SheetColumn, cell: SheetCell) => void;
+  gesture: RowGestureHandlers;
+  watched: boolean;
 }
-function SheetRowCard({ S, r, editing, editVal, setEditVal, editRef, startEdit, commitEdit, cancelEdit, onFix }: SheetRowCardProps): React.ReactElement {
+function SheetRowCard({ S, r, editing, editVal, setEditVal, editRef, startEdit, commitEdit, cancelEdit, onFix, gesture, watched }: SheetRowCardProps): React.ReactElement {
   const headCol = S.columns.find((c: SheetColumn) => c.head)!;
   const fields = S.columns.filter((c: SheetColumn) => !c.head);
   const flaggedCount = fields.reduce((n: number, c: SheetColumn) => { const cell = r.cells[c.id]; return n + (cell.tone && cell.tone !== "ok" ? 1 : 0); }, 0);
-  return React.createElement("div", { className: "na-srow", "data-flagged": flaggedCount > 0 ? "true" : undefined },
+  const { drag, handlers: pointer } = useRowGesture(gesture);
+  const dir = drag > 8 ? "right" : drag < -8 ? "left" : undefined;
+  return React.createElement("div", {
+    className: "na-srow",
+    "data-flagged": flaggedCount > 0 ? "true" : undefined,
+    "data-watched": watched ? "true" : undefined,
+    "data-swipe": dir,
+    "data-testid": "grid-record-card",
+    style: drag ? { transform: `translateX(${drag}px)`, touchAction: "pan-y" } : { touchAction: "pan-y" },
+    ...pointer,
+  },
     React.createElement("div", { className: "na-srow-head" },
       React.createElement("strong", null, r.cells[headCol.id].v),
+      watched ? React.createElement("span", { className: "na-pill ok", title: "Watching this row" }, Ico("eye"), "watching") : null,
       flaggedCount
         ? React.createElement("span", { className: "na-pill warn" }, flaggedCount + " to fix")
         : React.createElement("span", { className: "na-pill ok" }, Ico("check"), "all sourced")),
