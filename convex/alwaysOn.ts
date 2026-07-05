@@ -792,9 +792,17 @@ export const seedPublicRoom = internalMutation({
       .query("publicRoomSources")
       .withIndex("by_room", (q) => q.eq("publicRoomId", room._id))
       .take(MAX_SOURCES_PER_ROOM);
-    const sourceUrl = "https://expositio.org/papers";
+    // Trailing slash is load-bearing: expositio.org 301s /papers -> /papers/,
+    // and the scanner's SSRF-contained fetch (redirect:"error") refuses to
+    // follow — the canonical URL must be the post-redirect form.
+    const sourceUrl = "https://expositio.org/papers/";
     let createdSource = false;
-    if (!sources.some((s) => s.url === sourceUrl)) {
+    const canonical = sources.find((s) => s.url === sourceUrl);
+    const staleSeed = sources.find((s) => s.url === sourceUrl.replace(/\/$/, ""));
+    if (!canonical && staleSeed) {
+      // Migrate a row seeded before the slash fix instead of inserting a twin.
+      await ctx.db.patch(staleSeed._id, { url: sourceUrl, status: "active" });
+    } else if (!canonical) {
       await ctx.db.insert("publicRoomSources", {
         publicRoomId: room._id,
         url: sourceUrl,
