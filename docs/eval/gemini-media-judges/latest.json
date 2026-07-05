@@ -1,8 +1,8 @@
 {
-  "runId": "btb-707cba99-live-canary-20260625",
-  "generatedAt": "2026-06-25T23:34:28.164Z",
+  "runId": "20260705T010130Z",
+  "generatedAt": "2026-07-05T01:02:42.065Z",
   "model": "gemini-3.5-flash",
-  "command": "npm run media:gemini-judge -- --run-id btb-707cba99-live-canary-20260625 --input \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\b349\\\\noderoom\\\\test-results\\\\bankertoolbench\\\\matrix\\\\707cba99-59a7-47bd-bc4d-7f36212e99f3\\\\playwright-output\\\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\\\video.webm\" --out \"docs\\\\eval\\\\gemini-media-judges\"",
+  "command": "npm run media:gemini-judge -- --only notebook-agent-lane --include-ignored --run-id 20260705T010130Z --model gemini-3.5-flash",
   "notes": [
     "GIF assets are converted to temporary MP4 with ffmpeg before upload.",
     "This media judge is evidence-quality QA; it does not replace backend/browser production gates."
@@ -15,71 +15,80 @@
     "verdicts": {
       "publish": 1
     },
-    "defects": {}
+    "defects": {
+      "P2": 1
+    }
   },
   "results": [
     {
       "asset": {
-        "id": "test-results-bankertoolbench-matrix-707cba99-59a7-47bd-bc4d-7f36212e99f3-playwright-output-e2e-benchmark-ui-bankertoo-d0047-odeagent-package-verifier-video",
-        "class": "live_browser_proof",
-        "title": "Video",
-        "path": "C:\\Users\\hshum\\.codex\\worktrees\\b349\\noderoom\\test-results\\bankertoolbench\\matrix\\707cba99-59a7-47bd-bc4d-7f36212e99f3\\playwright-output\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\video.webm",
-        "relPath": "test-results/bankertoolbench/matrix/707cba99-59a7-47bd-bc4d-7f36212e99f3/playwright-output/e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier/video.webm",
-        "purpose": "Live Playwright browser proof clip. Judge only visible product evidence: multi-client sync, advisory presence, no-clobber behavior, proposals, job/privacy/wall surfaces, and production honesty."
+        "id": "docs-walkthroughs-notebook-agent-lane",
+        "class": "readme_walkthrough",
+        "title": "Notebook Agent Lane",
+        "path": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom-notebook-pickups\\docs\\walkthroughs\\notebook-agent-lane.mp4",
+        "relPath": "docs/walkthroughs/notebook-agent-lane.mp4",
+        "purpose": "README live walkthrough clip. Judge whether the feature is obvious, visually consistent, and credible as evidence.",
+        "duplicateGroup": "walkthrough:notebook-agent-lane"
       },
       "model": "gemini-3.5-flash",
       "status": "judged",
-      "mediaPath": "test-results/bankertoolbench/matrix/707cba99-59a7-47bd-bc4d-7f36212e99f3/playwright-output/e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier/video.webm",
-      "mediaType": "video/webm",
-      "bytes": 5943043,
+      "mediaPath": "docs/walkthroughs/notebook-agent-lane.mp4",
+      "mediaType": "video/mp4",
+      "bytes": 7324754,
       "judge": {
         "verdict": "publish",
-        "summary": "The video demonstrates a complete end-to-end workflow of NodeAgent, from room creation and spreadsheet data upload to invoking an AI agent for financial analysis and viewing the generated PDF report.",
+        "summary": "The walkthrough clearly demonstrates the Notebook Agent Lane feature, showing a user prompting an agent to summarize meeting notes, which then populates the Capture Notebook with structured decisions and risks.",
         "scores": {
           "featureClarity": {
-            "score": 1.5,
-            "evidence": "Clearly shows the collaborative workspace, spreadsheet viewer, and AI agent interaction panel."
+            "score": 1.4,
+            "evidence": "The video clearly shows the transition from an empty notebook to an agent-populated structured note via a chat command."
           },
           "workflowCompleteness": {
-            "score": 1.6,
-            "evidence": "Captures the entire sequence: landing page, file upload, agent execution with real-time logs, and final PDF deliverable."
+            "score": 1.5,
+            "evidence": "Captures the entire flow: opening the notebook, entering the prompt, and seeing the real-time generation of structured content."
           },
           "visualDesign": {
-            "score": 1.4,
-            "evidence": "High-density dark UI with a clean layout, though some log panels are text-heavy."
+            "score": 1.3,
+            "evidence": "Clean dark-mode interface with distinct panels, though the high density of information can feel slightly crowded."
           },
           "consistency": {
-            "score": 1.5,
-            "evidence": "Perfectly aligns with the product concept of collaborative rooms, spreadsheets, and agent traces."
+            "score": 1.4,
+            "evidence": "Perfectly aligns with the NodeRoom paradigm of combining chat, notebooks, and agent traces."
           },
           "evidenceQuality": {
-            "score": 1.5,
-            "evidence": "Authentic screen recording of a live browser session showing actual execution steps."
+            "score": 1.4,
+            "evidence": "Shows authentic UI interactions, typing states, and live document updates without artificial edits."
           },
           "legibility": {
-            "score": 1.4,
-            "evidence": "Most UI text and spreadsheet cells are readable, though log text is small."
+            "score": 1.3,
+            "evidence": "Most text is highly legible, though some smaller metadata chips and sidebar labels require close attention."
           },
           "professionalRelevance": {
-            "score": 1.5,
-            "evidence": "Highly relevant to financial analysts, demonstrating automated valuation and report generation."
+            "score": 1.4,
+            "evidence": "Highly relevant for knowledge workers and teams looking to automate meeting synthesis and risk tracking."
           },
           "productionHonesty": {
-            "score": 1.6,
-            "evidence": "Shows real-time agent execution, including transient tool failures and retries."
+            "score": 1.4,
+            "evidence": "The generation speed and UI response times reflect realistic system performance."
           }
         },
         "observedEvidence": [
-          "Landing page with room creation",
-          "Multi-file spreadsheet upload and rendering",
-          "Agent task brief execution with live trace logs",
-          "Generation and rendering of PDF export deliverable"
+          "Capture Notebook interface",
+          "Chat input with @nodeagent command",
+          "Agent-generated structured notes (Decisions, Risks)"
         ],
         "missingEvidence": [],
-        "defects": [],
-        "suggestedReadmeCaption": "Watch NodeAgent process financial spreadsheets, execute a valuation task, and compile a final PDF report in real-time."
+        "defects": [
+          {
+            "ts": "00:05",
+            "severity": "P2",
+            "observed": "The contrast of the placeholder text in the chat input box is slightly low against the dark background.",
+            "fix": "Increase the contrast of the input placeholder text for better accessibility."
+          }
+        ],
+        "suggestedReadmeCaption": "Watch how the NodeRoom Agent automatically synthesizes meeting notes into structured decisions and risks directly inside your shared Capture Notebook."
       },
-      "score": 12,
+      "score": 11.1,
       "maxScore": 16
     }
   ]

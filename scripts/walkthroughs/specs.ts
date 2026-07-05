@@ -178,6 +178,41 @@ export const FEATURES: FeatureSpec[] = [
     ],
   },
   {
+    id: "notebook-agent-lane",
+    title: "The notebook agent lane — governed notes, attributed output",
+    // Deterministic memory demo: the scripted "notes" intent drives the REAL
+    // read_notebook + append_notebook_outline tools — no LLM, no backend.
+    setup: "memoryDemo",
+    closePanels: ["left"],
+    steps: [
+      { kind: "state", caption: "A live room — notes, sheets, and a room agent", holdMs: 2000 },
+      {
+        kind: "click", sel: '[data-testid="artifact-filetab"]:has-text("Capture Notebook")',
+        caption: "Open the Capture Notebook",
+        afterCaption: "The notebook is paper — ink on parchment",
+        after: { sel: '[data-testid="notebook-paper-frame"]', state: "visible" }, afterHoldMs: 2200,
+      },
+      {
+        kind: "type", sel: COMPOSER, text: "@nodeagent summarize my meeting notes", pressEnter: true,
+        caption: "Ask the agent to structure the notes",
+      },
+      {
+        // The scripted plan's intermediate says are harness-internal; the
+        // OBSERVABLE beats are the agent's completion message in chat and the
+        // report heading landing in the notebook — wait on those, never on
+        // text the UI doesn't render.
+        kind: "waitResult", predicate: "textVisible", arg: "Report written under",
+        caption: "The agent reads, then writes — one governed pass", timeoutMs: 60_000,
+      },
+      {
+        kind: "waitResult", predicate: "textVisible", arg: "Report: Notebook summary",
+        caption: "A structured report lands under Agent notes", timeoutMs: 60_000,
+      },
+      { kind: "state", caption: "Agent blocks carry the NodeRoom mark — attributed ink", settleMs: 1000, holdMs: 2400 },
+      { kind: "state", caption: "The unverified claim is flagged, never asserted", settleMs: 400, holdMs: 2400 },
+    ],
+  },
+  {
     id: "parity-tour",
     title: "Design parity tour — receipts, palette, paper notebook, run trace",
     // The 1,000-row scale room: deterministic, auto-enters, every parity
