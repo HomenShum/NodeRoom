@@ -1,0 +1,20 @@
+{
+  "ok": true,
+  "generatedAt": "2026-07-05T01:01:30.978Z",
+  "runId": "20260705T010130Z",
+  "model": "gemini-3.5-flash",
+  "base": "https://noderoom.live",
+  "features": [
+    "notebook-agent-lane"
+  ],
+  "media": "docs/walkthroughs/notebook-agent-lane.mp4",
+  "outDir": "docs/eval/walkthrough-review/20260705T010130Z",
+  "manifestPath": "docs/eval/walkthrough-review/20260705T010130Z/manifest.json",
+  "readmePath": "docs/eval/walkthrough-review/20260705T010130Z/README.md",
+  "commands": [
+    "npx.cmd tsx scripts/walkthroughs/capture.ts notebook-agent-lane",
+    "npm.cmd run walkthroughs:render -- notebook-agent-lane",
+    "npm.cmd run media:gemini-judge -- --only notebook-agent-lane --include-ignored --run-id 20260705T010130Z --model gemini-3.5-flash"
+  ],
+  "mediaJudge": "docs/eval/gemini-media-judges/20260705T010130Z/summary.md"
+}

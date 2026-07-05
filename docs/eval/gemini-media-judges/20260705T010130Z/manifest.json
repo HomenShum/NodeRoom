@@ -1,0 +1,20 @@
+{
+  "runId": "20260705T010130Z",
+  "generatedAt": "2026-07-05T01:02:17.808Z",
+  "model": "gemini-3.5-flash",
+  "primaryOnly": true,
+  "all": false,
+  "includeIgnored": true,
+  "only": "notebook-agent-lane",
+  "assets": [
+    {
+      "id": "docs-walkthroughs-notebook-agent-lane",
+      "class": "readme_walkthrough",
+      "title": "Notebook Agent Lane",
+      "path": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom-notebook-pickups\\docs\\walkthroughs\\notebook-agent-lane.mp4",
+      "relPath": "docs/walkthroughs/notebook-agent-lane.mp4",
+      "purpose": "README live walkthrough clip. Judge whether the feature is obvious, visually consistent, and credible as evidence.",
+      "duplicateGroup": "walkthrough:notebook-agent-lane"
+    }
+  ]
+}
