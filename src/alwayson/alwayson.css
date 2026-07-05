@@ -162,6 +162,109 @@
 .ao-run .cost { font-family: var(--font-mono); font-size: 10.5px; font-weight: 700; color: var(--text-muted); }
 .ao-run.skipped .ev .e, .ao-run.skipped .cost { color: var(--text-tertiary); font-weight: 500; }
 
+@media (max-width: 640px) {
+  .ao-wrap { padding: 20px 12px 56px; }
+  .ao-frame { border-radius: 14px; }
+  .ao-rtop {
+    height: auto;
+    min-height: 52px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 12px;
+  }
+  .ao-rtop .crumb {
+    flex: 1 1 190px;
+    min-width: 0;
+    white-space: normal;
+    line-height: 1.35;
+  }
+  .ao-rtop .grow { display: none; }
+  .ao-rtop .ao-chip {
+    max-width: 100%;
+    white-space: normal;
+  }
+  .ao-rtop .ao-btn {
+    flex: 1 1 100%;
+    justify-content: center;
+  }
+  .ao-tabs {
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 8px 10px;
+  }
+  .ao-tab {
+    flex: 1 1 calc(50% - 6px);
+    justify-content: center;
+    min-height: 36px;
+    border-radius: 9px;
+    border: 1px solid var(--line);
+    background: color-mix(in srgb, var(--bg-secondary) 72%, transparent);
+  }
+  .ao-tab.on {
+    top: 0;
+    background: var(--bg-primary);
+  }
+  .ao-rmain { padding: 14px 12px 16px; }
+  .ao-rside {
+    border-left: 0;
+    border-top: 1px solid var(--line);
+    padding: 14px 12px 16px;
+  }
+  .ao-brief { padding: 16px; }
+  .ao-brief .stamp,
+  .ao-brief .agent-line,
+  .ao-graph-head,
+  .ao-glegend,
+  .ao-ro {
+    flex-wrap: wrap;
+  }
+  .ao-proof .pr {
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .ao-proof .pr .v {
+    max-width: 62%;
+    text-align: right;
+    overflow-wrap: anywhere;
+  }
+  .ao-sheet {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .ao-sheet table { min-width: 720px; }
+  .ao-run {
+    grid-template-columns: 56px 22px minmax(0, 1fr);
+    grid-template-areas:
+      "time icon event"
+      "time icon status"
+      "time icon cost";
+    align-items: start;
+    gap: 6px 8px;
+    padding: 10px 0;
+  }
+  .ao-run .t { grid-area: time; padding-top: 3px; }
+  .ao-run .ic { grid-area: icon; }
+  .ao-run .ev { grid-area: event; }
+  .ao-run > .ao-chip {
+    grid-area: status;
+    justify-self: start;
+    max-width: 100%;
+    white-space: normal;
+  }
+  .ao-run .cost {
+    grid-area: cost;
+    justify-self: start;
+  }
+  .ao-run .ev .e,
+  .ao-run .ev .m {
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+    overflow-wrap: anywhere;
+  }
+}
+
 /* read-only composer */
 .ao-ro { display: flex; align-items: center; gap: 12px; padding: 11px 16px; border-top: 1px solid var(--line);
   background: color-mix(in srgb, var(--bg-secondary) 60%, transparent); }
