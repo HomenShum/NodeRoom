@@ -95,10 +95,13 @@ export type ExtractedPaper = {
   topic?: string;
 };
 
+export const PAPER_EXTRACTOR_CACHE_VERSION = "expositio-paper-links-v2";
+
 /** BOUND: never return more than this many items regardless of input size. */
 const MAX_EXTRACTED_ITEMS = 500;
 /** BOUND_READ backstop: never regex-walk more than this many chars (fetch already caps at 1MB). */
 const MAX_HTML_CHARS = 1_500_000;
+const RESERVED_PAPER_PATH_SEGMENTS = new Set(["submit", "by-date", "archive", "rss", "feed"]);
 
 /**
  * Parse anchor/list items into paper records. Robust to markup noise:
@@ -121,10 +124,12 @@ export function extractPapersFromHtml(html: string): ExtractedPaper[] {
     const href = rawHref.trim();
     if (href === "" || href.startsWith("#")) continue;
     if (/^(javascript|data|mailto|vbscript|file):/i.test(href)) continue;
+    if (!isPaperDetailHref(href)) continue;
     const title = decodeEntities(stripTags(match[2] ?? ""))
       .replace(/\s+/g, " ")
       .trim();
     if (title.length < 3) continue;
+    if (isGenericPaperActionTitle(title)) continue;
     const key = `${href}\u0000${title}`;
     if (seen.has(key)) continue;
     seen.add(key);
@@ -136,6 +141,32 @@ export function extractPapersFromHtml(html: string): ExtractedPaper[] {
     out.push(item);
   }
   return out;
+}
+
+export function isPaperDetailHref(href: string): boolean {
+  const trimmed = String(href ?? "").trim();
+  if (matchesPaperDetailPath(trimmed)) return true;
+  try {
+    const parsed = new URL(trimmed);
+    if (parsed.protocol !== "https:") return false;
+    if (parsed.username !== "" || parsed.password !== "") return false;
+    if (parsed.port !== "" && parsed.port !== "443") return false;
+    if (normalizeHost(parsed.hostname) !== "expositio.org") return false;
+    if (parsed.search !== "" || parsed.hash !== "") return false;
+    return matchesPaperDetailPath(parsed.pathname);
+  } catch {
+    return false;
+  }
+}
+
+export function isGenericPaperActionTitle(title: string): boolean {
+  return /^(read|view|open)\s+paper$/i.test(String(title ?? "").trim());
+}
+
+function matchesPaperDetailPath(path: string): boolean {
+  const match = /^\/(?:papers|p)\/([^/?#]+)\/?$/.exec(path);
+  if (!match) return false;
+  return !RESERVED_PAPER_PATH_SEGMENTS.has(match[1].toLowerCase());
 }
 
 /** Attribute names are internal constants ("href", "data-discipline", "data-topic") — never user input. */

@@ -29,9 +29,12 @@ import type { Doc, Id } from "./_generated/dataModel";
 import { sha256Hex } from "./lib";
 import {
   ALLOWED_SOURCE_HOSTS,
+  PAPER_EXTRACTOR_CACHE_VERSION,
   canTransition,
   contentHash,
   extractPapersFromHtml,
+  isGenericPaperActionTitle,
+  isPaperDetailHref,
   renderDailyBriefMarkdown,
   validateSourceUrl,
 } from "./alwaysOnCore";
@@ -492,6 +495,14 @@ type RoomForScan = {
   sources: Doc<"publicRoomSources">[];
 };
 
+function scrubSourceExtractedPapers(papers: PaperRecord[]): PaperRecord[] {
+  return papers.filter((paper) => {
+    // Seed/demo papers have no source href and are still valid room context.
+    if (!paper.href) return true;
+    return isPaperDetailHref(paper.href) && !isGenericPaperActionTitle(paper.title);
+  });
+}
+
 /**
  * Cron entry point. For each ACTIVE room due per its cadence:
  * monthly-cap check FIRST (honest "capped" run when exhausted), then for each
@@ -604,7 +615,7 @@ export const scanDuePublicRooms = internalAction({
               });
               continue;
             }
-            const hash = await contentHash(fetched.text);
+            const hash = await contentHash(`${PAPER_EXTRACTOR_CACHE_VERSION}\n${fetched.text}`);
             if (hash === source.lastContentHash) {
               sourceUpdates.push({ sourceId: source._id, lastCheckedAt: Date.now(), status: "active" });
               runlogAppend.unshift({
@@ -620,7 +631,8 @@ export const scanDuePublicRooms = internalAction({
             changedSources += 1;
             const extracted = extractPapersFromHtml(fetched.text);
             itemsExtracted += extracted.length;
-            const diff = applyScanDiff(statePatch?.papers ?? scanCtx.papers, extracted, utcDateKey(now));
+            const priorPapers = scrubSourceExtractedPapers(statePatch?.papers ?? scanCtx.papers);
+            const diff = applyScanDiff(priorPapers, extracted, utcDateKey(now));
             itemsCreated += diff.newCount;
             itemsUpdated += diff.updatedCount;
             const runNumber = (statePatch?.briefMeta.runNumber ?? scanCtx.briefMeta?.runNumber ?? 0) + (statePatch ? 0 : 1);
