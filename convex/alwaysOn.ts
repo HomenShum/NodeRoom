@@ -500,13 +500,16 @@ type RoomForScan = {
  * deterministic extract + diff + template brief. ZERO model calls.
  */
 export const scanDuePublicRooms = internalAction({
-  args: {},
-  handler: async (ctx) => {
+  // force: operator affordance ("run one scan now" — e.g. after fixing a
+  // source URL whose failed run consumed the day's slot). The cron always
+  // passes {}; force never bypasses the credit caps, only the due window.
+  args: { force: v.optional(v.boolean()) },
+  handler: async (ctx, a) => {
     const now = Date.now();
     const roomsWithSources = (await ctx.runQuery(listRoomsForScanRef, {})) as RoomForScan[];
     const summary = { scanned: 0, completed: 0, skipped: 0, capped: 0, failed: 0, notDue: 0 };
     for (const { room, sources } of roomsWithSources) {
-      if (!isRoomDue(room.lastRunAt, room.scanCadence, now)) {
+      if (!a.force && !isRoomDue(room.lastRunAt, room.scanCadence, now)) {
         summary.notDue += 1;
         continue;
       }
