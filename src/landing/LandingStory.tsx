@@ -14,6 +14,7 @@ import { StoryStage } from "./StoryStage";
 import { StoryLab } from "./StoryLab";
 import { StoryQuickDemo } from "./StoryQuickDemo";
 import { ProofBoard } from "./ProofBoard";
+import { AlwaysOnCards } from "./AlwaysOnCards";
 import "./landingStory.css";
 
 export function LandingStory({ onEnter, onBack }: { onEnter: (s: Session) => void; onBack: () => void }) {
@@ -115,6 +116,9 @@ export function LandingStory({ onEnter, onBack }: { onEnter: (s: Session) => voi
           <p className="rs-section-sub">Formula. Digits. Source. Human edit. Trace. All visible before approval.</p>
           <ProofBoard />
         </section>
+
+        {/* ── Live public rooms (Always-On Rooms gallery) ──────────────── */}
+        <AlwaysOnCards />
 
         {/* ── Closing CTA ──────────────────────────────────────────────── */}
         <section className="rs-cta-final">

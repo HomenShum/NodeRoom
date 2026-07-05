@@ -11,6 +11,10 @@ import { MobileRoot } from "./mobile/MobileRoot";
 // note, wall, post-its) only needed at #room-tour — don't ship it on every
 // route's first paint.
 const RoomTour = lazy(() => import("../landing/roomTour/RoomTour").then((m) => ({ default: m.RoomTour })));
+// Lazy: Always-On public rooms (#rooms/<slug>) — read-only agent-maintained
+// surface with its own css/svg bundle; keep it off every other route's first
+// paint (same precedent as RoomTour above).
+const PublicRoomPage = lazy(() => import("../alwayson/PublicRoomPage").then((m) => ({ default: m.PublicRoomPage })));
 import { EngineStoreProvider, ConvexStoreProvider, HAS_CONVEX } from "../app/store";
 import { createFreshRoom, enterBankerToolBenchRoomAsHost, enterDemoRoomAsHost, enterScaleDemoRoomAsHost, enterUpScaleXRoomAsHost } from "../app/roomStore";
 import type { Actor } from "../engine/types";
@@ -58,6 +62,17 @@ export function App() {
     return (
       <Suspense fallback={<div style={{ padding: 24, fontFamily: "system-ui", color: "#888" }}>Loading room tour…</div>}>
         <RoomTour />
+      </Suspense>
+    );
+  }
+
+  // Always-On public rooms — "#rooms/<slug>" and "#/rooms/<slug>" (an optional
+  // ?ops=1 query may trail the slug inside the hash; the page reads it itself).
+  if (hash.startsWith("#rooms/") || hash.startsWith("#/rooms/")) {
+    const slug = hash.replace(/^#\/?rooms\//, "").split("?")[0];
+    return (
+      <Suspense fallback={<div style={{ padding: 24, fontFamily: "system-ui", color: "#888" }}>Loading public room…</div>}>
+        <PublicRoomPage key={slug} slug={slug} />
       </Suspense>
     );
   }

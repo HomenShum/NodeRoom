@@ -82,3 +82,7 @@ skills/solo-founder-nodes/
 .vercel
 .env*
 design-reference/
+
+# Always-On Rooms digest bootstrap outputs (local outbox journal + .eml drafts;
+# reviewed by a human in Gmail — never committed, never sent from this repo)
+data/digest/

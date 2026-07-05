@@ -1700,6 +1700,135 @@ export default defineSchema({
     .index("by_pack_id", ["packId"])
     .index("by_mode", ["mode", "createdAt"]),
 
+  // ─── Always-On Rooms — public, read-only, agent-maintained rooms ─────────
+  // Flagship: "Expositio Pulse" (expositio.org/papers). v1 scan is DETERMINISTIC
+  // (zero model calls); LLM enrichment is a later approval-gated mode. PII rule:
+  // subscriber emails + token hashes live ONLY in publicRoomSubscriptions /
+  // publicRoomOutbox and are never returned by public functions.
+  publicRooms: defineTable({
+    slug: v.string(),
+    title: v.string(),
+    description: v.string(),
+    status: v.union(v.literal("active"), v.literal("paused")),
+    mode: v.union(v.literal("monitor"), v.literal("digest")),
+    timezone: v.string(),
+    scanCadence: v.union(v.literal("daily"), v.literal("weekly")),
+    monthlyCreditCap: v.number(),
+    perRunCreditCap: v.number(),
+    lastRunAt: v.optional(v.number()),
+    lastRunStatus: v.optional(
+      v.union(v.literal("ok"), v.literal("failed"), v.literal("capped"), v.literal("skipped")),
+    ),
+    lastMetric: v.optional(v.string()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  }).index("by_slug", ["slug"]),
+
+  publicRoomSources: defineTable({
+    publicRoomId: v.id("publicRooms"),
+    url: v.string(),
+    allowedHost: v.string(), // must be in alwaysOnCore.ALLOWED_SOURCE_HOSTS; validated again before every fetch
+    label: v.optional(v.string()),
+    lastContentHash: v.optional(v.string()), // internal change detection — never exposed by public queries
+    lastCheckedAt: v.optional(v.number()),
+    status: v.union(v.literal("active"), v.literal("paused"), v.literal("failed")),
+  }).index("by_room", ["publicRoomId"]),
+
+  // One row per room: the rendered public state. papers BOUNDED to 500 and
+  // runlog BOUNDED to 60 newest on every write (alwaysOnShape bounds).
+  publicRoomStates: defineTable({
+    publicRoomId: v.id("publicRooms"),
+    papers: v.array(
+      v.object({
+        title: v.string(),
+        discipline: v.string(),
+        topic: v.string(),
+        difficulty: v.string(),
+        status: v.union(v.literal("new"), v.literal("updated"), v.literal("tracked")),
+        firstSeen: v.string(),
+        evidenceRef: v.string(),
+        href: v.optional(v.string()),
+      }),
+    ),
+    briefMarkdown: v.string(),
+    briefMeta: v.object({ title: v.string(), dateLine: v.string(), runNumber: v.number() }),
+    runlog: v.array(
+      v.object({
+        at: v.string(),
+        event: v.string(),
+        meta: v.string(),
+        status: v.union(v.literal("changed"), v.literal("ok"), v.literal("skipped"), v.literal("failed")),
+        cost: v.string(),
+      }),
+    ),
+    updatedAt: v.number(),
+  }).index("by_room", ["publicRoomId"]),
+
+  // Append-only run receipts — the proof footer's ground truth. HONEST_STATUS:
+  // capped/failed/skipped are recorded as such, never dressed up as completed.
+  publicRoomRuns: defineTable({
+    publicRoomId: v.id("publicRooms"),
+    status: v.union(
+      v.literal("running"),
+      v.literal("completed"),
+      v.literal("failed"),
+      v.literal("capped"),
+      v.literal("skipped"),
+    ),
+    startedAt: v.number(),
+    completedAt: v.optional(v.number()),
+    sourcesChecked: v.number(),
+    changedSources: v.number(),
+    itemsCreated: v.number(),
+    itemsUpdated: v.number(),
+    creditsUsed: v.number(),
+    error: v.optional(v.string()),
+  }).index("by_room_started", ["publicRoomId", "startedAt"]),
+
+  // Double opt-in subscriptions. Raw tokens are NEVER stored — only sha256
+  // hashes; the raw confirm token travels in the confirmation email (draft-first
+  // Gmail outbox). Caps enforced in mutations: 5000/room, 3 pending per (room,email).
+  publicRoomSubscriptions: defineTable({
+    publicRoomId: v.id("publicRooms"),
+    email: v.string(),
+    cadence: v.union(v.literal("daily"), v.literal("weekly"), v.literal("act_now")),
+    status: v.union(v.literal("pending"), v.literal("active"), v.literal("unsubscribed")),
+    confirmTokenHash: v.string(),
+    unsubTokenHash: v.string(),
+    createdAt: v.number(),
+    confirmedAt: v.optional(v.number()),
+  })
+    .index("by_room", ["publicRoomId"])
+    .index("by_room_email", ["publicRoomId", "email"])
+    .index("by_confirm_token_hash", ["confirmTokenHash"])
+    .index("by_unsub_token_hash", ["unsubTokenHash"]),
+
+  // Draft-first email outbox. state machine = alwaysOnCore.OUTBOX_STATES via
+  // canTransition; idempotencyKey (roomSlug:briefKey:subscriptionId:cadence)
+  // dedupes enqueues so a re-run never double-sends.
+  publicRoomOutbox: defineTable({
+    publicRoomId: v.id("publicRooms"),
+    subscriptionId: v.id("publicRoomSubscriptions"),
+    briefKey: v.string(),
+    subject: v.string(),
+    markdownBody: v.string(),
+    idempotencyKey: v.string(),
+    state: v.union(
+      v.literal("pending_draft"),
+      v.literal("draft_created"),
+      v.literal("approved"),
+      v.literal("sent"),
+      v.literal("failed"),
+      v.literal("skipped"),
+    ),
+    providerRef: v.optional(v.string()),
+    error: v.optional(v.string()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_idempotency_key", ["idempotencyKey"])
+    .index("by_room_state", ["publicRoomId", "state"]),
+
   // Watches + notifications (design: instant = mentions/watched rows; hourly = run digests; daily = rest).
   watches: watchesTable,
   notificationEvents: notificationEventsTable,

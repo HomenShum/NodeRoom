@@ -1,8 +1,25 @@
 /**
  * Always-On Rooms — subscribe modal (double opt-in email capture).
- * Ports design-reference/alwayson/ao-ops.jsx §4 left column. Opened from the
- * public room page header and the landing cards. Implemented by the room lane.
+ * Ports design-reference/alwayson/ao-ops.jsx §4 left column (email field,
+ * cadence radios with the specimen sublabels, primary Subscribe button, the
+ * double-opt-in note) into a dismissable overlay: Escape, scrim click, and
+ * the X all close it — the design audit forbids undismissable chrome.
+ *
+ * Data honesty (HONEST_STATUS):
+ *   - Live (HAS_CONVEX): calls convex alwaysOn.subscribeToRoom via the
+ *     typed-cast api seam in ./usePublicRoomData. `{ ok:false, reason }` maps
+ *     to an inline error — never a success state. A transport/missing-function
+ *     throw falls back to the demo success, which is honest because nothing
+ *     WAS stored, and it says so.
+ *   - Memory mode: never fakes a subscription — the success state is locked
+ *     to a "demo — nothing was stored" hint.
  */
+import { useEffect, useRef, useState, type FormEvent, type ReactElement, type ReactNode } from "react";
+import { useMutation } from "convex/react";
+import { HAS_CONVEX } from "../app/store";
+import { AoIcon as Ic } from "./AoIcon";
+import { alwaysOnApi } from "./usePublicRoomData";
+import "./alwayson.css";
 
 export type SubscribeModalProps = {
   roomSlug: string;
@@ -10,6 +27,239 @@ export type SubscribeModalProps = {
   onClose: () => void;
 };
 
-export function SubscribeModal(_props: SubscribeModalProps): JSX.Element | null {
-  return null;
+type Cadence = "daily" | "weekly" | "act_now";
+
+/** Specimen cadence rows — label + sublabel verbatim from ao-ops.jsx §4. */
+const CADENCES: Array<{ key: Cadence; label: string; sub: string }> = [
+  { key: "daily", label: "Daily brief", sub: "weekday 9:15, after the scan" },
+  { key: "weekly", label: "Weekly digest", sub: "Monday 8:00" },
+  { key: "act_now", label: "Act-now only", sub: "only when something material changes" },
+];
+
+type SubmitOutcome =
+  | { kind: "live" }
+  | { kind: "demo" }
+  | { kind: "error"; message: string };
+
+/**
+ * Mirrors evaluateSubscriptionRequest reasons in convex/alwaysOn.ts.
+ * Anti-enumeration: already-subscribed / pending-capped addresses come back as
+ * plain { ok:true } (no reason), so those branches cannot arrive here — the
+ * server never confirms whether a specific email is subscribed.
+ */
+function reasonMessage(reason: string): string {
+  switch (reason) {
+    case "invalid_email":
+      return "That doesn't look like a valid email address.";
+    case "room_not_found":
+    case "room_not_active":
+      return "This room isn't accepting subscriptions right now.";
+    case "rate_limited":
+      return "Too many subscriptions right now — try again in a minute.";
+    case "room_subscription_limit":
+      return "This room has reached its subscriber limit.";
+    default:
+      return "Could not subscribe. Please try again.";
+  }
+}
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+function ModalShell({ onClose, children }: { onClose: () => void; children: ReactNode }) {
+  // Escape closes (no undismissable chrome — design audit checks this).
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [onClose]);
+
+  return (
+    <div
+      className="ao-modal-scrim"
+      data-testid="ao-subscribe-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Subscribe to this room"
+      onMouseDown={(e) => {
+        // Scrim click closes; clicks inside the card don't bubble here.
+        if (e.target === e.currentTarget) onClose();
+      }}
+    >
+      <div className="ao-panel ao-modal ao-modal-card">
+        <button className="ao-btn ghost ao-modal-x" aria-label="Close" onClick={onClose}>
+          <Ic name="x" size={14} />
+        </button>
+        {children}
+      </div>
+    </div>
+  );
+}
+
+function SubscribeForm({
+  roomTitle,
+  onSubmit,
+}: {
+  roomTitle: string;
+  onSubmit: (email: string, cadence: Cadence) => Promise<SubmitOutcome>;
+}) {
+  const [email, setEmail] = useState("");
+  const [cadence, setCadence] = useState<Cadence>("daily");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [done, setDone] = useState<null | "live" | "demo">(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    inputRef.current?.focus();
+  }, []);
+
+  const submit = async (e: FormEvent) => {
+    e.preventDefault();
+    if (busy) return;
+    const trimmed = email.trim();
+    if (!EMAIL_RE.test(trimmed)) {
+      setError("Enter a valid email address.");
+      return;
+    }
+    setError(null);
+    setBusy(true);
+    try {
+      const outcome = await onSubmit(trimmed, cadence);
+      if (outcome.kind === "error") setError(outcome.message);
+      else setDone(outcome.kind);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  if (done) {
+    return (
+      <>
+        <div className="h">Check your email to confirm</div>
+        <div className="s" data-testid="ao-subscribe-success">
+          Nothing is sent until you confirm. The confirmation link activates your{" "}
+          {CADENCES.find((c) => c.key === cadence)?.label.toLowerCase()} for {roomTitle}.
+        </div>
+        {done === "demo" && (
+          <div className="ao-optin" data-testid="ao-subscribe-demo-hint">
+            <Ic name="alert" size={13} style={{ flex: "none" }} />
+            demo — nothing was stored. Subscriptions go live with the hosted room.
+          </div>
+        )}
+        <div className="ao-optin">
+          <Ic name="shield" size={13} style={{ flex: "none" }} />
+          One-click unsubscribe in every digest.
+        </div>
+      </>
+    );
+  }
+
+  return (
+    // noValidate: the app's own inline error handles bad emails (HONEST_STATUS,
+    // consistent copy) instead of the browser's native bubble.
+    <form onSubmit={(e) => void submit(e)} noValidate style={{ display: "contents" }}>
+      <div className="h">Subscribe to {roomTitle}</div>
+      <div className="s">Get an email when this room changes. No account required.</div>
+      <div className="ao-field">
+        <label htmlFor="ao-subscribe-email">Email</label>
+        <input
+          id="ao-subscribe-email"
+          ref={inputRef}
+          className="ao-input"
+          type="email"
+          placeholder="you@university.edu"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          data-testid="ao-subscribe-email"
+        />
+      </div>
+      <div className="ao-field">
+        <label>Cadence</label>
+        <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
+          {CADENCES.map((c) => (
+            <div
+              className={"ao-radio" + (cadence === c.key ? " on" : "")}
+              key={c.key}
+              role="radio"
+              aria-checked={cadence === c.key}
+              tabIndex={0}
+              onClick={() => setCadence(c.key)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  setCadence(c.key);
+                }
+              }}
+            >
+              <span className="r"></span>
+              {c.label}
+              <span className="sub">{c.sub}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+      {error && (
+        <div className="err" role="alert" data-testid="ao-subscribe-error">
+          {error}
+        </div>
+      )}
+      <button className="ao-btn pri" type="submit" style={{ justifyContent: "center" }} disabled={busy}>
+        <Ic name="mail" size={13} />
+        {busy ? "Subscribing…" : "Subscribe"}
+      </button>
+      <div className="ao-optin">
+        <Ic name="shield" size={13} style={{ flex: "none" }} />
+        Check your email to confirm — nothing is sent until you do. One-click unsubscribe in every
+        digest.
+      </div>
+    </form>
+  );
+}
+
+/** Live lane — MUST only mount when HAS_CONVEX (useMutation needs the provider). */
+function LiveSubscribeForm({ roomSlug, roomTitle }: { roomSlug: string; roomTitle: string }) {
+  const subscribe = useMutation(alwaysOnApi.subscribeToRoom);
+  return (
+    <SubscribeForm
+      roomTitle={roomTitle}
+      onSubmit={async (email, cadence) => {
+        try {
+          const result = (await subscribe({ slug: roomSlug, email, cadence })) as
+            | { ok: true }
+            | { ok: false; reason?: string }
+            | null
+            | undefined;
+          if (result && result.ok === true) return { kind: "live" };
+          // HONEST_STATUS: a rejected request never renders success.
+          return {
+            kind: "error",
+            message: reasonMessage(result && result.ok === false ? result.reason ?? "" : ""),
+          };
+        } catch (error) {
+          // Function missing / transport down: nothing was stored — say so.
+          console.warn("[alwayson] subscribeToRoom unavailable — demo acknowledgement", error);
+          return { kind: "demo" };
+        }
+      }}
+    />
+  );
+}
+
+/** Memory-mode lane — never pretends a subscription was stored. */
+function DemoSubscribeForm({ roomTitle }: { roomTitle: string }) {
+  return <SubscribeForm roomTitle={roomTitle} onSubmit={() => Promise.resolve({ kind: "demo" })} />;
+}
+
+export function SubscribeModal({ roomSlug, roomTitle, onClose }: SubscribeModalProps): ReactElement | null {
+  return (
+    <ModalShell onClose={onClose}>
+      {HAS_CONVEX ? (
+        <LiveSubscribeForm roomSlug={roomSlug} roomTitle={roomTitle} />
+      ) : (
+        <DemoSubscribeForm roomTitle={roomTitle} />
+      )}
+    </ModalShell>
+  );
 }
