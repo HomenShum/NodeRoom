@@ -4,7 +4,7 @@ Proof Loop is developed in NodeRoom today, but it should ship as more than one
 GitHub repository:
 
 - `HomenShum/proofloop` - public local Proof Loop Core.
-- `HomenShum/proofloop-hosted` - private hosted certification service lane.
+- `HomenShum/proofloop-hosted` - private hosted verification service lane.
 - `HomenShum/noderoom` - reference app and integration proving ground.
 
 The split must be generated from manifests, not manual copy/paste.
@@ -57,7 +57,7 @@ Purpose:
 - Managed browser workers and judge fleet.
 - Tenant-isolated storage, object storage, billing, RBAC, audit logs, and
   customer-owned storage adapters.
-- Customer adapters and confidential certification reports.
+- Customer adapters and confidential verification reports.
 
 Command:
 

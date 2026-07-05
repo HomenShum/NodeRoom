@@ -1,4 +1,4 @@
-import { existsSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { afterEach, describe, expect, it } from "vitest";
@@ -49,6 +49,8 @@ describe("Proof Loop multi-repo packaging", () => {
 
     expect(manifest.repoName).toBe("proofloop-hosted");
     expect(manifest.visibility).toBe("private");
+    expect(manifest.purpose.toLowerCase()).toContain("verification");
+    expect(manifest.purpose.toLowerCase()).not.toContain("certification");
     expect(manifest.requiredMissingComponents).toContain("managed judge fleet API");
     expect(manifest.requiredMissingComponents).toContain("tenant-isolated Postgres schema");
     expect(manifest.files).toContain("docs/eval/bankertoolbench-official-contract.json");
@@ -71,6 +73,23 @@ describe("Proof Loop multi-repo packaging", () => {
     const packageJson = JSON.parse(readFileSync(join(process.cwd(), "package.json"), "utf8"));
     expect(packageJson.scripts["proofloop:package"]).toBe("tsx scripts/proofloop-package.ts");
     expect(packageJson.scripts["proofloop:buyer-validation"]).toBe("tsx scripts/proofloop-buyer-validation.ts");
+  });
+
+  it("clears stale copied files before rewriting a package repo", () => {
+    const outDir = tempRoot();
+    const manifest = buildProofloopPackageManifest("public-core", {
+      root: process.cwd(),
+      now: () => new Date("2026-07-02T00:00:00.000Z"),
+    });
+
+    writeProofloopPackage(manifest, { root: process.cwd(), outDir, copyFiles: true });
+    const stalePath = join(outDir, "repo", "stale-from-old-manifest.txt");
+    writeFileSync(stalePath, "old package file\n", "utf8");
+    expect(existsSync(stalePath)).toBe(true);
+
+    writeProofloopPackage(manifest, { root: process.cwd(), outDir, copyFiles: true });
+
+    expect(existsSync(stalePath)).toBe(false);
   });
 });
 

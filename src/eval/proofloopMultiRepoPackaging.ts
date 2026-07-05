@@ -4,6 +4,7 @@ import {
   mkdirSync,
   readdirSync,
   readFileSync,
+  rmSync,
   statSync,
   writeFileSync,
 } from "node:fs";
@@ -151,7 +152,7 @@ export const PROOFLOOP_PACKAGE_TARGETS: Record<ProofloopPackageTargetId, Prooflo
     id: "private-hosted",
     repoName: "proofloop-hosted",
     visibility: "private",
-    purpose: "Hosted certification service lane: private benchmark packs, managed judges, storage, workers, tenant isolation, billing, and customer adapters.",
+    purpose: "Hosted verification service lane: private benchmark packs, managed judges, storage, workers, tenant isolation, billing, and customer adapters.",
     includeFiles: [
       "docs/eval/official-benchmark-readiness.json",
       "docs/eval/OFFICIAL_BENCHMARK_READINESS.md",
@@ -231,6 +232,7 @@ export function writeProofloopPackage(
   const copiedFiles: string[] = [];
   if (options.copyFiles) {
     const repoRoot = join(packageRoot, "repo");
+    rmSync(repoRoot, { recursive: true, force: true });
     for (const file of manifest.files) {
       const source = join(root, file);
       const destination = join(repoRoot, file);
