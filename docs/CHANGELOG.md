@@ -1,5 +1,41 @@
 # Changelog
 
+## 2026-07-05 - ProofLoop prod-browser adapter versioning and free-model gauge
+
+### What changed
+
+- Added the versioned prod-browser adapter ledger:
+  `docs/eval/proofloop-prod-browser-adapters.json` and
+  `docs/eval/PROOFLOOP_PROD_BROWSER_ADAPTERS.md`.
+- Introduced harness version `prod-browser-adapters-2026-07-05.1` for the six
+  not-done prod-browser families: SpreadsheetBench V1 full 912,
+  SpreadsheetBench V2 full 321, accounting, Notion, Proximitty underwriting,
+  and NodeRoom multi-user conflict.
+- Updated the long-running prod proxy queue so adapter gaps point back to the
+  adapter ledger/version instead of being unversioned prose blockers.
+- Added `--free-openrouter` support to the long-run planner, producing a
+  zero-budget plan from current free OpenRouter tool-capable models.
+- Added the free OpenRouter NodeAgent gauge:
+  `docs/eval/proofloop-free-openrouter-nodeagent-gauge.json` and
+  `docs/eval/PROOFLOOP_FREE_OPENROUTER_NODEAGENT_GAUGE.md`.
+
+### Verification
+
+- The adapter ledger tracks 6 contracts covering 1,251 task targets and 5,004
+  model-task attempts. All six browser scenarios remain explicitly missing.
+- The zero-budget free OpenRouter long-run plan keeps the full 5,416-attempt
+  denominator visible, with 412 currently runnable attempts and 5,004
+  adapter-blocked attempts.
+- The free NodeAgent tool-loop gauge ran against 4 live OpenRouter free models:
+  3 passed, 1 failed, 0 skipped, estimated cost `$0.000000`.
+
+### Why it matters in plain language
+
+The next cheap path is no longer to spend through the full paid matrix. ProofLoop
+now records exactly which prod-browser adapters must be implemented first, keeps
+those adapter contracts versioned, and can probe current free OpenRouter models
+through the same NodeAgent tool loop before paying for broader live UI runs.
+
 ## 2026-06-21 - Native notebook live work-plan bridge
 
 ### What changed

@@ -1,0 +1,200 @@
+{
+  "schema": "proofloop-prod-browser-adapter-ledger-v1",
+  "generatedAt": "2026-07-05T04:26:26.316Z",
+  "harnessVersion": "prod-browser-adapters-2026-07-05.1",
+  "matrixModelCount": 4,
+  "summary": {
+    "adaptersTracked": 6,
+    "contractScaffolded": 6,
+    "browserScenarioMissing": 6,
+    "taskTargetsCoveredByContracts": 1251,
+    "modelTaskAttemptsCoveredByContracts": 5004
+  },
+  "adapters": [
+    {
+      "id": "spreadsheetbench-v1-official-workbook-prod-browser",
+      "familyId": "spreadsheetbench-v1-full-912",
+      "version": "0.1.0",
+      "status": "contract_scaffolded",
+      "browserScenarioStatus": "missing",
+      "taskCount": 912,
+      "attemptCountAtCurrentMatrix": 3648,
+      "sourceBenchmark": "SpreadsheetBench V1 full 912",
+      "taskLoader": ".tmp/official-benchmarks/staged-v1-912/tasks/<taskId>/agent/task.json",
+      "browserScenario": "proofloop/benchmarks/spreadsheetbench-v1/live-room-scenario.spec.ts",
+      "commandShape": "npm run proofloop:live:spreadsheetbench-v1 -- --prod --task-id <taskId> --model <modelId> --real-user",
+      "existingSmoke": "e2e/benchmark-ui-spreadsheetbench.spec.ts proves one fixed nb-01 style browser path, not the generic 912-task adapter.",
+      "requiredArtifacts": [
+        "live-user-contract.json",
+        "node-trace-v2.json",
+        "node-eval.json",
+        "scorecard.md",
+        "cost-ledger.json",
+        "verifier-receipt.json",
+        "visual-proof.png",
+        "spreadsheetbench-v1-official-score.json",
+        "exported-workbook.xlsx"
+      ],
+      "scorerBoundary": "Official workbook scorer/golden metadata must remain evaluator-only until after NodeRoom exports candidate output.",
+      "blockers": [
+        "Implement generic task selection, official workbook upload, agent edit, workbook export/download, and official scorer handoff for every staged V1 task."
+      ],
+      "changelog": [
+        "2026-07-05.1: contract created; existing one-task smoke is explicitly not promoted to the full 912-task adapter."
+      ]
+    },
+    {
+      "id": "spreadsheetbench-v2-workflow-chart-prod-browser",
+      "familyId": "spreadsheetbench-v2-full-321",
+      "version": "0.1.0",
+      "status": "contract_scaffolded",
+      "browserScenarioStatus": "missing",
+      "taskCount": 321,
+      "attemptCountAtCurrentMatrix": 1284,
+      "sourceBenchmark": "SpreadsheetBench V2 full 321",
+      "taskLoader": ".tmp/official-benchmarks/staged-v2-full/tasks/<taskId>/agent/task.json",
+      "browserScenario": "proofloop/benchmarks/spreadsheetbench-v2/live-room-scenario.spec.ts",
+      "commandShape": "npm run proofloop:live:spreadsheetbench-v2 -- --prod --task-id <taskId> --model <modelId> --real-user",
+      "existingSmoke": "e2e/benchmark-ui-spreadsheetbench-v2.spec.ts proves one synthetic debugging path, not the generic 321-task official bundle adapter.",
+      "requiredArtifacts": [
+        "live-user-contract.json",
+        "node-trace-v2.json",
+        "node-eval.json",
+        "scorecard.md",
+        "cost-ledger.json",
+        "verifier-receipt.json",
+        "visual-proof.png",
+        "spreadsheetbench-v2-official-score.json",
+        "exported-workbook.xlsx",
+        "chart-visual-grade.json"
+      ],
+      "scorerBoundary": "Workbook/static scorer and rendered/VLM chart grading must run after candidate export; chart rubrics stay evaluator-only.",
+      "blockers": [
+        "Implement generic V2 task selection, workbook/chart import, agent repair, workbook export, chart render capture, and official/static scorer handoff."
+      ],
+      "changelog": [
+        "2026-07-05.1: contract created; existing synthetic V2 smoke remains only an adapter seed."
+      ]
+    },
+    {
+      "id": "accounting-live-config-to-prod-browser-room",
+      "familyId": "accounting-live-proofloop",
+      "version": "0.1.0",
+      "status": "contract_scaffolded",
+      "browserScenarioStatus": "missing",
+      "taskCount": 4,
+      "attemptCountAtCurrentMatrix": 16,
+      "sourceBenchmark": "Accounting ProofLoop product suite",
+      "taskLoader": "proofloop/accounting/live.accounting.config.json",
+      "browserScenario": "proofloop/benchmarks/accounting/live-room-scenario.spec.ts",
+      "commandShape": "npm run proofloop:live:accounting:browser -- --prod --task-id <taskId> --model <modelId> --real-user",
+      "requiredArtifacts": [
+        "live-user-contract.json",
+        "node-trace-v2.json",
+        "node-eval.json",
+        "scorecard.md",
+        "cost-ledger.json",
+        "verifier-receipt.json",
+        "visual-proof.png",
+        "accounting-live-config-to-prod-browser-room-scorecard.json"
+      ],
+      "scorerBoundary": "Product proof-loop suite; no official accounting benchmark score is claimed unless an upstream scorer is imported.",
+      "blockers": [
+        "Convert the current Convex HTTP live runner into a fresh-room browser scenario with model selection, trace receipts, and memory mode off."
+      ],
+      "changelog": [
+        "2026-07-05.1: contract created; current non-browser runner remains evidence but not prod real-user proof."
+      ]
+    },
+    {
+      "id": "notion-live-config-to-prod-browser-room",
+      "familyId": "notion-live-proofloop",
+      "version": "0.1.0",
+      "status": "contract_scaffolded",
+      "browserScenarioStatus": "missing",
+      "taskCount": 4,
+      "attemptCountAtCurrentMatrix": 16,
+      "sourceBenchmark": "Notion SDR/BDR ProofLoop product suite",
+      "taskLoader": "proofloop/notion/live.notion.config.json",
+      "browserScenario": "proofloop/benchmarks/notion/live-room-scenario.spec.ts",
+      "commandShape": "npm run proofloop:live:notion:browser -- --prod --task-id <taskId> --model <modelId> --real-user",
+      "requiredArtifacts": [
+        "live-user-contract.json",
+        "node-trace-v2.json",
+        "node-eval.json",
+        "scorecard.md",
+        "cost-ledger.json",
+        "verifier-receipt.json",
+        "visual-proof.png",
+        "notion-live-config-to-prod-browser-room-scorecard.json"
+      ],
+      "scorerBoundary": "Product workflow suite; no official public benchmark score is claimed.",
+      "blockers": [
+        "Convert the current Convex HTTP live runner into a fresh-room browser scenario with model selection, trace receipts, and memory mode off."
+      ],
+      "changelog": [
+        "2026-07-05.1: contract created; current non-browser runner remains evidence but not prod real-user proof."
+      ]
+    },
+    {
+      "id": "proximitty-underwriting-prod-browser-room",
+      "familyId": "proximitty-underwriting-pr0",
+      "version": "0.1.0",
+      "status": "contract_scaffolded",
+      "browserScenarioStatus": "missing",
+      "taskCount": 4,
+      "attemptCountAtCurrentMatrix": 16,
+      "sourceBenchmark": "Synthetic Proximitty underwriting ProofLoop suite",
+      "taskLoader": "proofloop/scenarios/proximitty-*.spec.ts",
+      "browserScenario": "proofloop/benchmarks/proximitty/live-room-scenario.spec.ts",
+      "commandShape": "npm run proofloop:proximitty:browser -- --prod --scenario <taskId> --model <modelId> --real-user",
+      "requiredArtifacts": [
+        "live-user-contract.json",
+        "node-trace-v2.json",
+        "node-eval.json",
+        "scorecard.md",
+        "cost-ledger.json",
+        "verifier-receipt.json",
+        "visual-proof.png",
+        "proximitty-underwriting-prod-browser-room-scorecard.json"
+      ],
+      "scorerBoundary": "Synthetic underwriting evaluation only; not a real lending, insurance, legal, or financial decision score.",
+      "blockers": [
+        "Promote deterministic underwriting scenarios into documents-in, decision-memo-out fresh-room browser tasks with verifier receipts."
+      ],
+      "changelog": [
+        "2026-07-05.1: contract created; current non-browser runner remains evidence but not prod real-user proof."
+      ]
+    },
+    {
+      "id": "noderoom-multi-user-conflict-prod-browser-room",
+      "familyId": "noderoom-multi-user-conflict",
+      "version": "0.1.0",
+      "status": "contract_scaffolded",
+      "browserScenarioStatus": "missing",
+      "taskCount": 6,
+      "attemptCountAtCurrentMatrix": 24,
+      "sourceBenchmark": "NodeRoom internal multi-user coordination suite",
+      "taskLoader": "tests/multiUserCoordinationProof.test.ts",
+      "browserScenario": "proofloop/benchmarks/noderoom-multi-user/live-room-scenario.spec.ts",
+      "commandShape": "npm run proofloop:live:multi-user-conflict -- --prod --task-id <taskId> --model <modelId> --real-user",
+      "requiredArtifacts": [
+        "live-user-contract.json",
+        "node-trace-v2.json",
+        "node-eval.json",
+        "scorecard.md",
+        "cost-ledger.json",
+        "verifier-receipt.json",
+        "visual-proof.png",
+        "noderoom-multi-user-conflict-prod-browser-room-scorecard.json"
+      ],
+      "scorerBoundary": "Internal product coordination benchmark; no external official score is claimed.",
+      "blockers": [
+        "Promote deterministic multi-user conflict fixtures into two-browser prod room scenarios with trace and mutation receipts."
+      ],
+      "changelog": [
+        "2026-07-05.1: contract created; current non-browser runner remains evidence but not prod real-user proof."
+      ]
+    }
+  ]
+}
