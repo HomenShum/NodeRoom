@@ -78,8 +78,22 @@ const CHAT_FILE = "src/ui/Chat.tsx";
 const ARTIFACT_FILE = "src/ui/panels/Artifact.tsx";
 const SHELL_FILE = "src/ui/RoomShell.tsx";
 const LEFT_RAIL_FILE = "src/ui/LeftRail.tsx";
+const FOCUS_TRAP_FILE = "src/ui/primitives/FocusTrapDialog.tsx";
+const ALWAYS_ON_CSS_FILE = "src/alwayson/alwayson.css";
+const ALWAYS_ON_PUBLIC_FILE = "src/alwayson/PublicRoomPage.tsx";
+const ALWAYS_ON_SUBSCRIBE_FILE = "src/alwayson/SubscribeModal.tsx";
 
-export const designSystemFiles = [STYLE_FILE, CHAT_FILE, ARTIFACT_FILE, SHELL_FILE, LEFT_RAIL_FILE] as const;
+export const designSystemFiles = [
+  STYLE_FILE,
+  CHAT_FILE,
+  ARTIFACT_FILE,
+  SHELL_FILE,
+  LEFT_RAIL_FILE,
+  FOCUS_TRAP_FILE,
+  ALWAYS_ON_CSS_FILE,
+  ALWAYS_ON_PUBLIC_FILE,
+  ALWAYS_ON_SUBSCRIBE_FILE,
+] as const;
 
 export function getNodeRoomDesignManifest(): DesignManifest {
   return {
@@ -177,6 +191,50 @@ export function getNodeRoomDesignManifest(): DesignManifest {
           ],
           avoid: ["Rendering every artifact or participant row in the default scale viewport."],
         },
+        {
+          name: "SharedDialog",
+          selectors: ["FocusTrapDialog", "[role=\"dialog\"][aria-modal=\"true\"]"],
+          role: "Shared modal behavior for regular rooms and public room overlays.",
+          must: [
+            "Trap focus inside the dialog.",
+            "Close on Escape and scrim click.",
+            "Restore focus to the opener when the caller provides a trigger path.",
+          ],
+          avoid: ["One-off modal traps in feature bundles."],
+        },
+        {
+          name: "PublicRoomFrame",
+          selectors: [".ao-public", ".ao-frame", ".ao-proof"],
+          role: "Always-On public room variant of the NodeRoom work surface.",
+          must: [
+            "Expose data-ao-source so demo and live states are distinguishable.",
+            "Use the shared token system for surfaces, focus, ink, and semantic states.",
+            "Keep proof receipts visible as product objects.",
+          ],
+          avoid: ["Demo-only metrics in live bundles.", "Fake proof copy without a stored receipt."],
+        },
+        {
+          name: "PublicRoomControls",
+          selectors: [".ao-btn", ".ao-chip", ".ao-tab", ".ao-filter"],
+          role: "Public-room button, chip, tab, and filter variants.",
+          must: [
+            "Use the same focus-ring and accent semantics as .r-* controls.",
+            "Support keyboard tab roving on tablists and radio groups.",
+            "Keep mobile controls clickable without horizontal page overflow.",
+          ],
+          avoid: ["Invisible focus state.", "Duplicated dialog behavior."],
+        },
+        {
+          name: "PublicRoomDataSurfaces",
+          selectors: [".ao-sheet", ".ao-paper-cards", ".ao-runlog"],
+          role: "Read-only public data surfaces for papers, mobile cards, and proof traces.",
+          must: [
+            "Keep desktop tables dense and ellipsized.",
+            "Use mobile cards for small screens instead of clipped tables.",
+            "Keep trace rows bounded so costs, retries, and skipped work remain inspectable.",
+          ],
+          avoid: ["Unbounded table overflow on phones.", "Trace rows whose child content escapes the row."],
+        },
       ],
       auditChecks: [
         "required token aliases exist",
@@ -190,6 +248,9 @@ export function getNodeRoomDesignManifest(): DesignManifest {
         "large binders expose count, search, grouped navigation, and collapsed people",
         "walkthrough dock is dismissible",
         "phone top bar hides secondary utilities instead of clipping them",
+        "shared dialog primitive backs both regular-room and public-room modals",
+        "public Always-On room exposes live/demo source, keyboard tabs, mobile cards, and proof receipts",
+        "public subscription copy does not claim a confirmation email was sent before a sender exists",
         "token drift (off-palette hex, off-scale font-size, off-scale border-radius) is reported as warnings",
       ],
     },
@@ -203,6 +264,10 @@ export function auditNodeRoomDesignSystem(files: Record<string, string>, checked
   const artifact = files[ARTIFACT_FILE] ?? "";
   const shell = files[SHELL_FILE] ?? "";
   const leftRail = files[LEFT_RAIL_FILE] ?? "";
+  const focusTrap = files[FOCUS_TRAP_FILE] ?? "";
+  const alwaysOnCss = files[ALWAYS_ON_CSS_FILE] ?? "";
+  const alwaysOnPublic = files[ALWAYS_ON_PUBLIC_FILE] ?? "";
+  const alwaysOnSubscribe = files[ALWAYS_ON_SUBSCRIBE_FILE] ?? "";
 
   for (const file of designSystemFiles) {
     if (!files[file]) {
@@ -273,6 +338,20 @@ export function auditNodeRoomDesignSystem(files: Record<string, string>, checked
   requireText(findings, leftRail, LEFT_RAIL_FILE, "data-testid=\"binder-scale-groups\"", "binder-scale-groups", "Large Binder grouped navigation is missing.", "Group pinned, recent, sheets, docs, notebooks, and uploads at scale.");
   requireText(findings, leftRail, LEFT_RAIL_FILE, "data-testid=\"binder-people-collapsed\"", "binder-people-collapsed", "Large-room people list does not collapse.", "Show a bounded people list plus a more-live summary.");
   requireText(findings, styles, STYLE_FILE, ".r-top > .r-iconbtn[title=\"Tweaks\"]", "phone-topbar-secondary-hidden", "Phone top bar does not explicitly hide secondary utilities.", "Hide or move secondary utilities on narrow phones so they do not clip offscreen.");
+  requireText(findings, focusTrap, FOCUS_TRAP_FILE, "role=\"dialog\"", "shared-dialog-role", "Shared dialog primitive does not expose role=dialog.", "Keep modal semantics centralized in FocusTrapDialog.");
+  requireText(findings, focusTrap, FOCUS_TRAP_FILE, "aria-modal=\"true\"", "shared-dialog-modal", "Shared dialog primitive does not expose aria-modal.", "Keep modal semantics centralized in FocusTrapDialog.");
+  requireText(findings, shell, SHELL_FILE, "FocusTrapDialog", "room-shell-shared-dialog", "Regular room shell modal is not using the shared dialog primitive.", "Use FocusTrapDialog for dismissible modal overlays.");
+  requireText(findings, alwaysOnSubscribe, ALWAYS_ON_SUBSCRIBE_FILE, "FocusTrapDialog", "public-subscribe-shared-dialog", "Always-On subscription modal is not using the shared dialog primitive.", "Use FocusTrapDialog for public-room modal behavior parity.");
+  requireText(findings, alwaysOnSubscribe, ALWAYS_ON_SUBSCRIBE_FILE, "Automatic confirmation email delivery is not wired yet", "public-subscribe-no-fake-email", "Always-On subscription success copy can imply an email was sent before delivery exists.", "Only claim pending storage until the confirmation sender is wired and tested.");
+  requireText(findings, alwaysOnCss, ALWAYS_ON_CSS_FILE, ".ao-btn:focus-visible", "public-controls-focus", "Always-On controls are missing explicit focus-visible styling.", "Use the shared accent/focus token semantics for public controls.");
+  requireText(findings, alwaysOnCss, ALWAYS_ON_CSS_FILE, "var(--accent-primary)", "public-controls-accent-token", "Always-On controls do not reference the shared accent token.", "Use the NodeRoom accent token for public-room control focus and primary actions.");
+  requireText(findings, alwaysOnCss, ALWAYS_ON_CSS_FILE, ".ao-paper-cards { display: none;", "public-mobile-card-surface", "Always-On public papers surface is missing the mobile card variant.", "Use responsive cards on phones instead of clipped tables.");
+  requireText(findings, alwaysOnCss, ALWAYS_ON_CSS_FILE, ".ao-paper-cards { display: flex;", "public-mobile-card-breakpoint", "Always-On public papers surface is missing the phone card breakpoint.", "Switch the paper card surface on at the phone breakpoint.");
+  requireText(findings, alwaysOnPublic, ALWAYS_ON_PUBLIC_FILE, "data-ao-source={bundle.source}", "public-source-stamp", "Always-On public room does not stamp live vs demo source in the DOM.", "Expose data-ao-source so tests and users can distinguish live from demo paths.");
+  requireText(findings, alwaysOnPublic, ALWAYS_ON_PUBLIC_FILE, "data-testid=\"ao-proof-footer\"", "public-proof-footer", "Always-On public room proof footer is missing.", "Keep proof receipts visible in the public room frame.");
+  requireText(findings, alwaysOnPublic, ALWAYS_ON_PUBLIC_FILE, "data-testid=\"ao-change-postit\"", "public-change-postit", "Always-On public room does not expose the right-rail change post-it.", "Keep the reference design's change post-it, populated from real proof/run data in live mode.");
+  requireText(findings, alwaysOnPublic, ALWAYS_ON_PUBLIC_FILE, "role=\"tablist\"", "public-tabs-keyboard", "Always-On public tabs are missing tablist semantics.", "Keep public-room tabs keyboard-addressable.");
+  requireText(findings, alwaysOnPublic, ALWAYS_ON_PUBLIC_FILE, "data-testid=\"ao-paper-cards\"", "public-paper-cards", "Always-On papers do not expose the responsive card surface.", "Keep the mobile paper card surface wired and testable.");
 
   const errors = findings.filter((item) => item.severity === "error").length;
   const warnings = findings.filter((item) => item.severity === "warn").length;

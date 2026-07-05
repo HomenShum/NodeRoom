@@ -192,6 +192,42 @@ function ProofFooter({ bundle, onOpenTrace }: { bundle: PublicRoomBundle; onOpen
   );
 }
 
+function proofValue(bundle: PublicRoomBundle, key: string): string | null {
+  return bundle.proof.find((row) => row.k === key)?.v ?? null;
+}
+
+function ChangePostit({ bundle }: { bundle: PublicRoomBundle }) {
+  if (bundle.source === "demo") {
+    return (
+      <div className="ao-postit" data-testid="ao-change-postit">
+        <div className="t"><Ic name="alert" size={12} />What changed - post-its</div>
+        <ul>
+          <li>4 new papers today - 3 topics touched</li>
+          <li>1 source page changed its list markup; parser adjusted, trace attached</li>
+          <li>2 rows carry a quality flag: no version marker on source</li>
+        </ul>
+      </div>
+    );
+  }
+
+  const status = proofValue(bundle, "Status") ?? "no runs yet";
+  const newItems = proofValue(bundle, "New items") ?? "0";
+  const rowsUpdated = proofValue(bundle, "Rows updated") ?? "0";
+  const updated = proofValue(bundle, "Updated");
+  const latestRun = bundle.runlog[0];
+
+  return (
+    <div className="ao-postit" data-testid="ao-change-postit">
+      <div className="t"><Ic name="alert" size={12} />What changed - post-its</div>
+      <ul>
+        <li>{newItems} new - {rowsUpdated} updated - {bundle.papers.length} tracked</li>
+        <li>Latest run: {status}{updated ? ` - updated ${updated}` : ""}</li>
+        <li>{latestRun ? `${latestRun.event} - ${latestRun.meta}` : "Trace tab is ready for the next scan receipt."}</li>
+      </ul>
+    </div>
+  );
+}
+
 function PapersSheet({
   bundle,
   query,
@@ -622,18 +658,7 @@ function PublicRoomView({ bundle }: { bundle: PublicRoomBundle }) {
             </div>
             <div className="ao-rside">
               <ProofFooter bundle={bundle} onOpenTrace={() => setTab("Trace")} />
-              {/* Specimen post-it numbers are demo-only — a live room's changes
-                  live in the proof footer + run log, never invented here. */}
-              {bundle.source === "demo" && (
-                <div className="ao-postit">
-                  <div className="t"><Ic name="alert" size={12} />What changed · post-its</div>
-                  <ul>
-                    <li>4 new papers today — 3 topics touched</li>
-                    <li>1 source page changed its list markup; parser adjusted, trace attached</li>
-                    <li>2 rows carry a quality flag: no version marker on source</li>
-                  </ul>
-                </div>
-              )}
+              <ChangePostit bundle={bundle} />
               <div className="ao-postit">
                 <div className="t"><Ic name="rss" size={12} />Sources · allowlist</div>
                 <ul>
