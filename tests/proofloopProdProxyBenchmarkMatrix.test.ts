@@ -10,7 +10,7 @@ describe("ProofLoop prod proxy benchmark matrix", () => {
 
     expect(report.summary.uniqueTaskTargets).toBe(1354);
     expect(report.summary.matrixAttemptTargets).toBe(5416);
-    expect(report.summary.prodLiveBrowserVerifiedTaskTargets).toBe(3);
+    expect(report.summary.prodLiveBrowserVerifiedTaskTargets).toBe(4);
     expect(report.summary.runnableProdBrowserTaskTargets).toBe(1354);
     expect(report.summary.blockedTaskTargets).toBe(0);
   });
@@ -55,22 +55,31 @@ describe("ProofLoop prod proxy benchmark matrix", () => {
     expect(notion?.tasks[0]?.prodLiveBrowserPassed).toBe(false);
   });
 
-  it("promotes Proximitty and multi-user conflict suites to real-user prod browser commands without claiming passes", () => {
+  it("ingests committed prod receipts while rejecting mismatched model routes", () => {
     const report = buildProofloopProdProxyBenchmarkMatrix();
     const proximitty = report.families.find((family) => family.id === "proximitty-underwriting-pr0");
     const multiUser = report.families.find((family) => family.id === "noderoom-multi-user-conflict");
+    const proximittyIntake = proximitty?.tasks.find((task) => task.taskId === "proximitty-intake");
+    const multiUserFirst = multiUser?.tasks.find((task) => task.taskId === "multi-user-conflict-1");
 
     expect(proximitty?.taskCount).toBe(4);
     expect(proximitty?.runnableProdBrowserTasks).toBe(4);
     expect(proximitty?.blockedTasks).toBe(0);
-    expect(proximitty?.tasks[0]?.runner.command).toBe("npm run proofloop:proximitty:browser");
-    expect(proximitty?.tasks[0]?.runner.env?.PROOFLOOP_NODEAGENT_RUNTIME_PROFILE).toBe("");
-    expect(proximitty?.tasks[0]?.prodLiveBrowserPassed).toBe(false);
+    expect(proximittyIntake?.runner.command).toBe("npm run proofloop:proximitty:browser");
+    expect(proximittyIntake?.runner.env?.PROOFLOOP_NODEAGENT_RUNTIME_PROFILE).toBe("");
+    expect(proximittyIntake?.prodLiveBrowserPassed).toBe(false);
+    expect(proximittyIntake?.evidence).toContain("docs/eval/proofloop-live-proximitty-free-smoke.json");
+    expect(proximittyIntake?.blockers.join("\n")).toContain("model_route_mismatch");
+    expect(proximittyIntake?.blockers.join("\n")).toContain("qwen/qwen3-coder:free");
+    expect(proximittyIntake?.blockers.join("\n")).toContain("z-ai/glm-4.7-flash");
     expect(multiUser?.taskCount).toBe(6);
     expect(multiUser?.runnableProdBrowserTasks).toBe(6);
     expect(multiUser?.blockedTasks).toBe(0);
-    expect(multiUser?.tasks[0]?.runner.command).toBe("npm run proofloop:live:multi-user-conflict");
-    expect(multiUser?.tasks[0]?.runner.env?.PROOFLOOP_TASK_IDS).toBe("multi-user-conflict-1");
+    expect(multiUserFirst?.runner.command).toBe("npm run proofloop:live:multi-user-conflict");
+    expect(multiUserFirst?.runner.env?.PROOFLOOP_TASK_IDS).toBe("multi-user-conflict-1");
+    expect(multiUserFirst?.prodLiveBrowserPassed).toBe(true);
+    expect(multiUserFirst?.evidence).toContain("docs/eval/proofloop-live-multi-user-free-smoke.json");
+    expect(multiUserFirst?.blockers).toEqual([]);
   });
 
   it("renders the not-done section and runnable command examples", () => {

@@ -10,6 +10,7 @@ import {
   problemCounts,
   recordBrowserProblems,
   renderInternalScorecard,
+  routeIntegrityFailedGates,
   selectAgentRoute,
   uploadFiles,
   writeJson,
@@ -161,12 +162,13 @@ test("Proximitty prod browser adapter: fresh room -> uploaded docs -> public Nod
   const browserProblems = [
     ...Object.entries(counts).filter(([, count]) => count > 0).map(([gate, count]) => `${gate}: ${count}`),
   ];
+  const model = modelReceipt(OPTIONS, taskProofs.map((task) => task.agent));
   const failedGates = [
     ...taskProofs.flatMap((task) => task.failedGates.map((gate) => `${task.taskId}: ${gate}`)),
     ...browserProblems,
+    ...routeIntegrityFailedGates(model),
   ];
   const status = failedGates.length === 0 ? "passed" : "failed";
-  const model = modelReceipt(OPTIONS, taskProofs.map((task) => task.agent));
   const common = {
     schema: "proofloop-proximitty-prod-browser-v1",
     suite: SUITE,

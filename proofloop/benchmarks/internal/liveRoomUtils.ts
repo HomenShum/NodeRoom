@@ -2,6 +2,11 @@ import { expect, type Locator, type Page } from "@playwright/test";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { basename, dirname, join, resolve } from "node:path";
 import { providerForAgentModelPolicy, withNodeAgentMention } from "../../../src/eval/proofloopLiveBrowserPrompt";
+import {
+  evaluateProofloopRouteIntegrity,
+  routeIntegrityFailureSummary,
+  type ProofloopRouteIntegrity,
+} from "../../../src/eval/proofloopRouteIntegrity";
 import { noderoomSelectors } from "../../adapters/noderoom/selectors";
 
 export type BrowserProblem = {
@@ -248,17 +253,29 @@ export async function invokePublicNodeAgent(
 }
 
 export function modelReceipt(options: Pick<InternalLiveRoomOptions, "agentModelMode" | "agentModelPolicy" | "runtimeProfile">, proofs: InternalNodeAgentProof[]) {
+  const telemetry = proofs.map((proof) => proof.telemetry);
+  const routeIntegrity = evaluateProofloopRouteIntegrity({
+    requestedModel: options.agentModelPolicy,
+    telemetry,
+  });
   return {
     provider: providerForAgentModelPolicy(options.agentModelPolicy),
     mode: options.agentModelMode,
     policy: options.agentModelPolicy,
     runtimeProfile: options.runtimeProfile || "standard",
     realUserMode: options.runtimeProfile === "",
-    measuredCostUsd: sumNullable(proofs.map((proof) => proof.telemetry?.costUsd ?? null)),
-    measuredTokensIn: sumNullable(proofs.map((proof) => proof.telemetry?.inputTokens ?? null)),
-    measuredTokensOut: sumNullable(proofs.map((proof) => proof.telemetry?.outputTokens ?? null)),
-    telemetry: proofs.map((proof) => proof.telemetry),
+    routeIntegrity,
+    measuredCostUsd: sumNullable(telemetry.map((row) => row?.costUsd ?? null)),
+    measuredTokensIn: sumNullable(telemetry.map((row) => row?.inputTokens ?? null)),
+    measuredTokensOut: sumNullable(telemetry.map((row) => row?.outputTokens ?? null)),
+    telemetry,
   };
+}
+
+export function routeIntegrityFailedGates(model: { routeIntegrity?: ProofloopRouteIntegrity }): string[] {
+  const integrity = model.routeIntegrity;
+  if (!integrity || integrity.status === "matched") return [];
+  return [`model_route_mismatch: ${routeIntegrityFailureSummary(integrity) ?? "model route integrity could not be proven"}`];
 }
 
 export function outputDir(kind: string, runId: string): string {

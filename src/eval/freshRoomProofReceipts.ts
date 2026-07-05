@@ -77,6 +77,13 @@ export type FreshRoomProofReceipt = {
     costAccounting?: ProofloopCostAccounting;
     runtimeProfile?: string;
     provider?: string;
+    routeIntegrity?: {
+      status: "matched" | "unverified" | "model_route_mismatch";
+      requestedModel: string | null;
+      telemetryModels: string[];
+      measuredCostUsd: number | null;
+      failures: string[];
+    };
   };
   prompt?: string;
   memoryMode: boolean;

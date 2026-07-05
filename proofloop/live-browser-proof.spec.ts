@@ -39,6 +39,10 @@ import {
   withNodeAgentMention,
 } from "../src/eval/proofloopLiveBrowserPrompt";
 import { classifyAgentCompletion } from "../src/eval/proofloopLiveBrowserCompletion";
+import {
+  evaluateProofloopRouteIntegrity,
+  routeIntegrityFailureSummary,
+} from "../src/eval/proofloopRouteIntegrity";
 import { enableFocusModeForTest, expectAttentionOverlayMounted, expectFocusModeOn } from "../e2e/focusMode";
 import { installCockpit, emitCockpitEvent, cockpitEventsPath } from "./cockpit/playwrightOverlay";
 import { noderoomSelectors, noderoomTextLocators } from "./adapters/noderoom/selectors";
@@ -421,6 +425,8 @@ test("Live browser proof-loop: starter room -> agent tasks -> UI + terminal-qual
 
   const suiteReceiptPath = resolve(SUITE_PROOF_PATH);
   const suiteModelReceipt = buildFreshRoomModelReceipt(taskProofs.map((t) => t.telemetry));
+  const suiteRouteFailures = routeIntegrityFailedGates(suiteModelReceipt);
+  const suitePassed = passCount === taskProofs.length && suiteRouteFailures.length === 0;
   writeFreshRoomProofReceipt(
     {
       schema: 1,
@@ -448,9 +454,9 @@ test("Live browser proof-loop: starter room -> agent tasks -> UI + terminal-qual
       artifacts: { created: taskProofs.map((t) => t.taskId) },
       scorer: {
         name: "Proof-loop suite aggregate",
-        verdict: passCount === taskProofs.length ? "pass" : "fail",
+        verdict: suitePassed ? "pass" : "fail",
         score: taskProofs.length > 0 ? passCount / taskProofs.length : 0,
-        details: { taskProofs },
+        details: { taskProofs, suiteRouteFailures },
       },
       telemetry: freshRoomTelemetryFor(taskProofs.map((t) => t.telemetry), suiteModelReceipt),
       gatesProven: [
@@ -460,9 +466,9 @@ test("Live browser proof-loop: starter room -> agent tasks -> UI + terminal-qual
         "agent_live_loop",
         ...(REQUIRE_FOCUS_MODE ? (["focus_mode_enabled", "focus_box_or_attention_overlay"] as const) : []),
         "trace_video_artifacts",
-        ...(passCount === taskProofs.length ? (["official_scorer_handoff"] as const) : []),
+        ...(suitePassed ? (["official_scorer_handoff"] as const) : []),
       ],
-      passed: passCount === taskProofs.length,
+      passed: suitePassed,
     },
     suiteReceiptPath,
   );
@@ -471,7 +477,7 @@ test("Live browser proof-loop: starter room -> agent tasks -> UI + terminal-qual
   const unexpectedErrors = pageErrors.filter((msg) => !isBenignError(msg));
   expect(unexpectedErrors, `unexpected page errors: ${unexpectedErrors.join("; ")}`).toEqual([]);
   expect(taskProofs.some((t) => t.streamingVisible), "at least one task must show visible streaming").toBe(true);
-  expect(taskFailures, `task failures: ${taskFailures.join(" | ")}`).toEqual([]);
+  expect([...taskFailures, ...suiteRouteFailures], `task failures: ${[...taskFailures, ...suiteRouteFailures].join(" | ")}`).toEqual([]);
 });
 
 async function createFreshStarterRoom(page: Page): Promise<void> {
@@ -683,6 +689,10 @@ function proofloopLiveBrowserCommand(): string {
 function buildFreshRoomModelReceipt(telemetry: Array<LiveRunTelemetry | null | undefined>): NonNullable<FreshRoomProofReceipt["model"]> {
   const provider = providerForAgentModelPolicy(AGENT_MODEL_POLICY);
   const measured = aggregateTelemetry(telemetry);
+  const routeIntegrity = evaluateProofloopRouteIntegrity({
+    requestedModel: AGENT_MODEL_POLICY,
+    telemetry,
+  });
   const costFields = proofloopModelCostFieldsForRun({
     modelId: AGENT_MODEL_POLICY,
     provider,
@@ -704,7 +714,13 @@ function buildFreshRoomModelReceipt(telemetry: Array<LiveRunTelemetry | null | u
     costAccounting: costFields.costAccounting,
     runtimeProfile: NODEAGENT_RUNTIME_PROFILE || "standard",
     provider,
+    routeIntegrity,
   };
+}
+
+function routeIntegrityFailedGates(model: NonNullable<FreshRoomProofReceipt["model"]>): string[] {
+  if (!model.routeIntegrity || model.routeIntegrity.status === "matched") return [];
+  return [`model_route_mismatch: ${routeIntegrityFailureSummary(model.routeIntegrity) ?? "model route integrity could not be proven"}`];
 }
 
 function freshRoomTelemetryFor(
