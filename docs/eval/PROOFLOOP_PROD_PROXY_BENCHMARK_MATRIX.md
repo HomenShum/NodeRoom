@@ -1,7 +1,9 @@
 # ProofLoop Prod Proxy Benchmark Matrix
 
-Generated: 2026-07-05T02:00:46.783Z
+Generated: 2026-07-05T02:16:00.577Z
 Base URL: https://noderoom.live
+Production HTML: https://noderoom.live/eval/proofloop-prod-proxy-benchmark-matrix.html
+Production JSON: https://noderoom.live/eval/proofloop-prod-proxy-benchmark-matrix.json
 
 This is the execution matrix for the real prod-browser goal. It keeps the full task denominator visible and refuses to collapse the run into the existing 3-task external-adapter smoke.
 

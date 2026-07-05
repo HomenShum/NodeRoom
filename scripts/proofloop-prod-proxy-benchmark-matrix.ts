@@ -17,6 +17,8 @@ const models = optionValues("--model")
 const jsonOut = optionValue("--json-out") ?? "docs/eval/proofloop-prod-proxy-benchmark-matrix.json";
 const mdOut = optionValue("--md-out") ?? "docs/eval/PROOFLOOP_PROD_PROXY_BENCHMARK_MATRIX.md";
 const htmlOut = optionValue("--html-out") ?? "docs/eval/proofloop-prod-proxy-benchmark-matrix.html";
+const publicJsonOut = optionValue("--public-json-out") ?? "public/eval/proofloop-prod-proxy-benchmark-matrix.json";
+const publicHtmlOut = optionValue("--public-html-out") ?? "public/eval/proofloop-prod-proxy-benchmark-matrix.html";
 
 const report = buildProofloopProdProxyBenchmarkMatrix({
   generatedAt,
@@ -26,7 +28,10 @@ const report = buildProofloopProdProxyBenchmarkMatrix({
 
 writeJson(jsonOut, report);
 writeText(mdOut, renderProofloopProdProxyBenchmarkMatrixMarkdown(report));
-writeText(htmlOut, renderProofloopProdProxyBenchmarkMatrixHtml(report));
+const html = renderProofloopProdProxyBenchmarkMatrixHtml(report);
+writeText(htmlOut, html);
+writeJson(publicJsonOut, report);
+writeText(publicHtmlOut, html);
 
 console.log([
   `prod proxy benchmark matrix: ${report.summary.prodLiveBrowserVerifiedTaskTargets}/${report.summary.uniqueTaskTargets} prod-verified task targets`,
@@ -36,6 +41,7 @@ console.log([
   `all-task winner: ${report.recommendation.allTaskWinner ?? "none"}`,
   `current adapter-smoke winner: ${report.recommendation.currentProdAdapterSmokeWinner ?? "none"}`,
   `wrote ${jsonOut}, ${mdOut}, ${htmlOut}`,
+  `published static copies ${publicJsonOut}, ${publicHtmlOut}`,
 ].join("\n"));
 
 function optionValue(name: string): string | undefined {

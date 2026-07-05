@@ -386,8 +386,12 @@ as full benchmark coverage.
 
 The execution matrix is
 [`docs/eval/PROOFLOOP_PROD_PROXY_BENCHMARK_MATRIX.md`](docs/eval/PROOFLOOP_PROD_PROXY_BENCHMARK_MATRIX.md)
-with JSON and a browser chart at
+with source JSON and a browser chart at
 [`docs/eval/proofloop-prod-proxy-benchmark-matrix.html`](docs/eval/proofloop-prod-proxy-benchmark-matrix.html).
+The same chart is published with the app at
+[`https://noderoom.live/eval/proofloop-prod-proxy-benchmark-matrix.html`](https://noderoom.live/eval/proofloop-prod-proxy-benchmark-matrix.html)
+with JSON at
+[`https://noderoom.live/eval/proofloop-prod-proxy-benchmark-matrix.json`](https://noderoom.live/eval/proofloop-prod-proxy-benchmark-matrix.json).
 It expands the goal into 1,354 task targets x 4 models = 5,416 model-task
 attempts, tracks which tasks can be run through prod browser today, and refuses
 to name an all-task winner until the matrix is complete.
