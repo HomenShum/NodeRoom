@@ -11,8 +11,8 @@ describe("ProofLoop prod proxy benchmark matrix", () => {
     expect(report.summary.uniqueTaskTargets).toBe(1354);
     expect(report.summary.matrixAttemptTargets).toBe(5416);
     expect(report.summary.prodLiveBrowserVerifiedTaskTargets).toBe(3);
-    expect(report.summary.runnableProdBrowserTaskTargets).toBe(1344);
-    expect(report.summary.blockedTaskTargets).toBe(10);
+    expect(report.summary.runnableProdBrowserTaskTargets).toBe(1354);
+    expect(report.summary.blockedTaskTargets).toBe(0);
   });
 
   it("does not name a full all-task winner from the adapter-only model sweep", () => {
@@ -53,6 +53,24 @@ describe("ProofLoop prod proxy benchmark matrix", () => {
     expect(notion?.runnableProdBrowserTasks).toBe(4);
     expect(notion?.tasks[0]?.runner.command).toBe("npm run proofloop:live:notion:browser");
     expect(notion?.tasks[0]?.prodLiveBrowserPassed).toBe(false);
+  });
+
+  it("promotes Proximitty and multi-user conflict suites to real-user prod browser commands without claiming passes", () => {
+    const report = buildProofloopProdProxyBenchmarkMatrix();
+    const proximitty = report.families.find((family) => family.id === "proximitty-underwriting-pr0");
+    const multiUser = report.families.find((family) => family.id === "noderoom-multi-user-conflict");
+
+    expect(proximitty?.taskCount).toBe(4);
+    expect(proximitty?.runnableProdBrowserTasks).toBe(4);
+    expect(proximitty?.blockedTasks).toBe(0);
+    expect(proximitty?.tasks[0]?.runner.command).toBe("npm run proofloop:proximitty:browser");
+    expect(proximitty?.tasks[0]?.runner.env?.PROOFLOOP_NODEAGENT_RUNTIME_PROFILE).toBe("");
+    expect(proximitty?.tasks[0]?.prodLiveBrowserPassed).toBe(false);
+    expect(multiUser?.taskCount).toBe(6);
+    expect(multiUser?.runnableProdBrowserTasks).toBe(6);
+    expect(multiUser?.blockedTasks).toBe(0);
+    expect(multiUser?.tasks[0]?.runner.command).toBe("npm run proofloop:live:multi-user-conflict");
+    expect(multiUser?.tasks[0]?.runner.env?.PROOFLOOP_TASK_IDS).toBe("multi-user-conflict-1");
   });
 
   it("renders the not-done section and runnable command examples", () => {

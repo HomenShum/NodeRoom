@@ -68,6 +68,33 @@ if (suite === "bankertoolbench") {
     "proofloop/live-browser-proof.spec.ts",
     "--headed",
   ];
+} else if (suite === "proximitty-browser" || suite === "multi-user-conflict") {
+  const isProximitty = suite === "proximitty-browser";
+  env.PROOFLOOP_LIVE_BROWSER = "1";
+  env.PROOFLOOP_REAL_USER_MODE = "1";
+  env.PROOFLOOP_NODEAGENT_RUNTIME_PROFILE = env.PROOFLOOP_NODEAGENT_RUNTIME_PROFILE ?? "";
+  env.PLAYWRIGHT_REUSE_SERVER = env.PLAYWRIGHT_REUSE_SERVER ?? "1";
+  if (passthrough.includes("--prod")) {
+    env.BENCH_BASE_URL = env.BENCH_BASE_URL ?? "https://noderoom.live";
+    env.PLAYWRIGHT_BASE_URL = env.PLAYWRIGHT_BASE_URL ?? "https://noderoom.live";
+  }
+  const taskId = flagValue("--task-id") ?? flagValue("--scenario");
+  if (taskId) env.PROOFLOOP_TASK_IDS = taskId;
+  const model = flagValue("--model");
+  if (model) {
+    env.BENCH_AGENT_MODEL_MODE = "specific";
+    env.BENCH_AGENT_MODEL_POLICY = model;
+  }
+  args = [
+    "playwright",
+    "test",
+    "--config",
+    "playwright.proofloop.config.ts",
+    isProximitty
+      ? "proofloop/benchmarks/proximitty/live-room-scenario.spec.ts"
+      : "proofloop/benchmarks/noderoom-multi-user/live-room-scenario.spec.ts",
+    "--headed",
+  ];
 } else if (suite === "adapter") {
   const adapterId = process.argv[3];
   if (!adapterId) {

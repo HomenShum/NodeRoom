@@ -110,6 +110,8 @@
     "proofloop:live:btb": "tsx scripts/proofloop-live-playwright.ts bankertoolbench",
     "proofloop:live:spreadsheetbench-v1": "tsx scripts/proofloop-live-playwright.ts spreadsheetbench-v1",
     "proofloop:live:spreadsheetbench-v2": "tsx scripts/proofloop-live-playwright.ts spreadsheetbench-v2",
+    "proofloop:proximitty:browser": "tsx scripts/proofloop-live-playwright.ts proximitty-browser",
+    "proofloop:live:multi-user-conflict": "tsx scripts/proofloop-live-playwright.ts multi-user-conflict",
     "proofloop": "node scripts/proofloop.mjs",
     "proofloop:orchestrator": "tsx scripts/proofloop-orchestrator.ts",
     "benchmark:proofloop:orchestrator-longrun": "tsx scripts/proofloop-orchestrator.ts dogfood --execute-safe --fresh-template --json-out docs/eval/proofloop-orchestrator-dogfood.json --md-out docs/eval/PROOFLOOP_ORCHESTRATOR_DOGFOOD.md",

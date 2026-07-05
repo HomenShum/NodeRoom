@@ -1,6 +1,6 @@
 {
   "schema": "proofloop-prod-proxy-benchmark-matrix-v1",
-  "generatedAt": "2026-07-05T07:41:37.110Z",
+  "generatedAt": "2026-07-05T08:11:53.004Z",
   "baseUrl": "https://noderoom.live",
   "models": [
     "z-ai/glm-5.2",
@@ -13,9 +13,9 @@
     "modelCount": 4,
     "matrixAttemptTargets": 5416,
     "prodLiveBrowserVerifiedTaskTargets": 3,
-    "localLiveBrowserOnlyTaskTargets": 105,
-    "runnableProdBrowserTaskTargets": 1344,
-    "blockedTaskTargets": 10,
+    "localLiveBrowserOnlyTaskTargets": 101,
+    "runnableProdBrowserTaskTargets": 1354,
+    "blockedTaskTargets": 0,
     "prodLiveBrowserAttemptPasses": 10,
     "allTasksProdVerified": false
   },
@@ -48498,88 +48498,128 @@
       "title": "Proximitty underwriting PR0",
       "taskCount": 4,
       "prodLiveBrowserPassed": 0,
-      "localLiveBrowserOnly": 4,
-      "runnableProdBrowserTasks": 0,
-      "blockedTasks": 4,
+      "localLiveBrowserOnly": 0,
+      "runnableProdBrowserTasks": 4,
+      "blockedTasks": 0,
       "tasks": [
         {
           "familyId": "proximitty-underwriting-pr0",
           "taskId": "proximitty-intake",
           "title": "proximitty-intake.spec.ts",
-          "status": "local_live_browser_only",
+          "status": "ready_for_prod_browser_run",
           "prodLiveBrowserPassed": false,
-          "localLiveBrowserOnly": true,
+          "localLiveBrowserOnly": false,
           "runner": {
-            "available": false,
-            "kind": "http_or_deterministic_only",
-            "command": "npm run proofloop:proximitty"
+            "available": true,
+            "kind": "playwright_prod_browser",
+            "command": "npm run proofloop:proximitty:browser",
+            "env": {
+              "BENCH_BASE_URL": "https://noderoom.live",
+              "PLAYWRIGHT_BASE_URL": "https://noderoom.live",
+              "PLAYWRIGHT_REUSE_SERVER": "1",
+              "PROOFLOOP_TASK_IDS": "proximitty-intake",
+              "PROOFLOOP_REAL_USER_MODE": "1",
+              "PROOFLOOP_FOCUS_MODE": "0",
+              "PROOFLOOP_NODEAGENT_RUNTIME_PROFILE": ""
+            }
           },
           "evidence": [
             "proofloop/scenarios/proximitty-intake.spec.ts",
-            ".proofloop/runs/latest/run-result.json"
+            "proofloop/benchmarks/proximitty/live-room-scenario.spec.ts",
+            "scripts/proofloop-live-playwright.ts"
           ],
           "blockers": [
-            "Proximitty suite is deterministic/local; no prod browser room model matrix exists for these scenarios."
+            "Proximitty has a prod browser adapter, but no passing prod live-browser receipt is recorded for this task/model yet."
           ]
         },
         {
           "familyId": "proximitty-underwriting-pr0",
           "taskId": "proximitty-model-comparison",
           "title": "proximitty-model-comparison.spec.ts",
-          "status": "local_live_browser_only",
+          "status": "ready_for_prod_browser_run",
           "prodLiveBrowserPassed": false,
-          "localLiveBrowserOnly": true,
+          "localLiveBrowserOnly": false,
           "runner": {
-            "available": false,
-            "kind": "http_or_deterministic_only",
-            "command": "npm run proofloop:proximitty"
+            "available": true,
+            "kind": "playwright_prod_browser",
+            "command": "npm run proofloop:proximitty:browser",
+            "env": {
+              "BENCH_BASE_URL": "https://noderoom.live",
+              "PLAYWRIGHT_BASE_URL": "https://noderoom.live",
+              "PLAYWRIGHT_REUSE_SERVER": "1",
+              "PROOFLOOP_TASK_IDS": "proximitty-model-comparison",
+              "PROOFLOOP_REAL_USER_MODE": "1",
+              "PROOFLOOP_FOCUS_MODE": "0",
+              "PROOFLOOP_NODEAGENT_RUNTIME_PROFILE": ""
+            }
           },
           "evidence": [
             "proofloop/scenarios/proximitty-model-comparison.spec.ts",
-            ".proofloop/runs/latest/run-result.json"
+            "proofloop/benchmarks/proximitty/live-room-scenario.spec.ts",
+            "scripts/proofloop-live-playwright.ts"
           ],
           "blockers": [
-            "Proximitty suite is deterministic/local; no prod browser room model matrix exists for these scenarios."
+            "Proximitty has a prod browser adapter, but no passing prod live-browser receipt is recorded for this task/model yet."
           ]
         },
         {
           "familyId": "proximitty-underwriting-pr0",
           "taskId": "proximitty-risk-research",
           "title": "proximitty-risk-research.spec.ts",
-          "status": "local_live_browser_only",
+          "status": "ready_for_prod_browser_run",
           "prodLiveBrowserPassed": false,
-          "localLiveBrowserOnly": true,
+          "localLiveBrowserOnly": false,
           "runner": {
-            "available": false,
-            "kind": "http_or_deterministic_only",
-            "command": "npm run proofloop:proximitty"
+            "available": true,
+            "kind": "playwright_prod_browser",
+            "command": "npm run proofloop:proximitty:browser",
+            "env": {
+              "BENCH_BASE_URL": "https://noderoom.live",
+              "PLAYWRIGHT_BASE_URL": "https://noderoom.live",
+              "PLAYWRIGHT_REUSE_SERVER": "1",
+              "PROOFLOOP_TASK_IDS": "proximitty-risk-research",
+              "PROOFLOOP_REAL_USER_MODE": "1",
+              "PROOFLOOP_FOCUS_MODE": "0",
+              "PROOFLOOP_NODEAGENT_RUNTIME_PROFILE": ""
+            }
           },
           "evidence": [
             "proofloop/scenarios/proximitty-risk-research.spec.ts",
-            ".proofloop/runs/latest/run-result.json"
+            "proofloop/benchmarks/proximitty/live-room-scenario.spec.ts",
+            "scripts/proofloop-live-playwright.ts"
           ],
           "blockers": [
-            "Proximitty suite is deterministic/local; no prod browser room model matrix exists for these scenarios."
+            "Proximitty has a prod browser adapter, but no passing prod live-browser receipt is recorded for this task/model yet."
           ]
         },
         {
           "familyId": "proximitty-underwriting-pr0",
           "taskId": "proximitty-underwriting-packet",
           "title": "proximitty-underwriting-packet.spec.ts",
-          "status": "local_live_browser_only",
+          "status": "ready_for_prod_browser_run",
           "prodLiveBrowserPassed": false,
-          "localLiveBrowserOnly": true,
+          "localLiveBrowserOnly": false,
           "runner": {
-            "available": false,
-            "kind": "http_or_deterministic_only",
-            "command": "npm run proofloop:proximitty"
+            "available": true,
+            "kind": "playwright_prod_browser",
+            "command": "npm run proofloop:proximitty:browser",
+            "env": {
+              "BENCH_BASE_URL": "https://noderoom.live",
+              "PLAYWRIGHT_BASE_URL": "https://noderoom.live",
+              "PLAYWRIGHT_REUSE_SERVER": "1",
+              "PROOFLOOP_TASK_IDS": "proximitty-underwriting-packet",
+              "PROOFLOOP_REAL_USER_MODE": "1",
+              "PROOFLOOP_FOCUS_MODE": "0",
+              "PROOFLOOP_NODEAGENT_RUNTIME_PROFILE": ""
+            }
           },
           "evidence": [
             "proofloop/scenarios/proximitty-underwriting-packet.spec.ts",
-            ".proofloop/runs/latest/run-result.json"
+            "proofloop/benchmarks/proximitty/live-room-scenario.spec.ts",
+            "scripts/proofloop-live-playwright.ts"
           ],
           "blockers": [
-            "Proximitty suite is deterministic/local; no prod browser room model matrix exists for these scenarios."
+            "Proximitty has a prod browser adapter, but no passing prod live-browser receipt is recorded for this task/model yet."
           ]
         }
       ]
@@ -48692,121 +48732,193 @@
       "taskCount": 6,
       "prodLiveBrowserPassed": 0,
       "localLiveBrowserOnly": 0,
-      "runnableProdBrowserTasks": 0,
-      "blockedTasks": 6,
+      "runnableProdBrowserTasks": 6,
+      "blockedTasks": 0,
       "tasks": [
         {
           "familyId": "noderoom-multi-user-conflict",
           "taskId": "multi-user-conflict-1",
           "title": "NodeRoom multi-user conflict scenario",
-          "status": "blocked_missing_prod_browser_adapter",
+          "status": "ready_for_prod_browser_run",
           "prodLiveBrowserPassed": false,
           "localLiveBrowserOnly": false,
           "runner": {
-            "available": false,
-            "kind": "missing",
-            "command": "npm run eval:multiuser-coordination -- --strict"
+            "available": true,
+            "kind": "playwright_prod_browser",
+            "command": "npm run proofloop:live:multi-user-conflict",
+            "env": {
+              "BENCH_BASE_URL": "https://noderoom.live",
+              "PLAYWRIGHT_BASE_URL": "https://noderoom.live",
+              "PLAYWRIGHT_REUSE_SERVER": "1",
+              "PROOFLOOP_TASK_IDS": "multi-user-conflict-1",
+              "PROOFLOOP_REAL_USER_MODE": "1",
+              "PROOFLOOP_FOCUS_MODE": "0",
+              "PROOFLOOP_NODEAGENT_RUNTIME_PROFILE": ""
+            }
           },
           "evidence": [
-            "docs/eval/official-benchmark-task-coverage.json"
+            "docs/eval/official-benchmark-task-coverage.json",
+            "evals/multiUserCoordinationProof.ts",
+            "proofloop/benchmarks/noderoom-multi-user/live-room-scenario.spec.ts",
+            "scripts/proofloop-live-playwright.ts"
           ],
           "blockers": [
-            "Internal deterministic conflict suite has not been promoted to prod browser model matrix tasks."
+            "Multi-user conflict has a prod browser adapter, but no passing prod live-browser receipt is recorded for this task/model yet."
           ]
         },
         {
           "familyId": "noderoom-multi-user-conflict",
           "taskId": "multi-user-conflict-2",
           "title": "NodeRoom multi-user conflict scenario",
-          "status": "blocked_missing_prod_browser_adapter",
+          "status": "ready_for_prod_browser_run",
           "prodLiveBrowserPassed": false,
           "localLiveBrowserOnly": false,
           "runner": {
-            "available": false,
-            "kind": "missing",
-            "command": "npm run eval:multiuser-coordination -- --strict"
+            "available": true,
+            "kind": "playwright_prod_browser",
+            "command": "npm run proofloop:live:multi-user-conflict",
+            "env": {
+              "BENCH_BASE_URL": "https://noderoom.live",
+              "PLAYWRIGHT_BASE_URL": "https://noderoom.live",
+              "PLAYWRIGHT_REUSE_SERVER": "1",
+              "PROOFLOOP_TASK_IDS": "multi-user-conflict-2",
+              "PROOFLOOP_REAL_USER_MODE": "1",
+              "PROOFLOOP_FOCUS_MODE": "0",
+              "PROOFLOOP_NODEAGENT_RUNTIME_PROFILE": ""
+            }
           },
           "evidence": [
-            "docs/eval/official-benchmark-task-coverage.json"
+            "docs/eval/official-benchmark-task-coverage.json",
+            "evals/multiUserCoordinationProof.ts",
+            "proofloop/benchmarks/noderoom-multi-user/live-room-scenario.spec.ts",
+            "scripts/proofloop-live-playwright.ts"
           ],
           "blockers": [
-            "Internal deterministic conflict suite has not been promoted to prod browser model matrix tasks."
+            "Multi-user conflict has a prod browser adapter, but no passing prod live-browser receipt is recorded for this task/model yet."
           ]
         },
         {
           "familyId": "noderoom-multi-user-conflict",
           "taskId": "multi-user-conflict-3",
           "title": "NodeRoom multi-user conflict scenario",
-          "status": "blocked_missing_prod_browser_adapter",
+          "status": "ready_for_prod_browser_run",
           "prodLiveBrowserPassed": false,
           "localLiveBrowserOnly": false,
           "runner": {
-            "available": false,
-            "kind": "missing",
-            "command": "npm run eval:multiuser-coordination -- --strict"
+            "available": true,
+            "kind": "playwright_prod_browser",
+            "command": "npm run proofloop:live:multi-user-conflict",
+            "env": {
+              "BENCH_BASE_URL": "https://noderoom.live",
+              "PLAYWRIGHT_BASE_URL": "https://noderoom.live",
+              "PLAYWRIGHT_REUSE_SERVER": "1",
+              "PROOFLOOP_TASK_IDS": "multi-user-conflict-3",
+              "PROOFLOOP_REAL_USER_MODE": "1",
+              "PROOFLOOP_FOCUS_MODE": "0",
+              "PROOFLOOP_NODEAGENT_RUNTIME_PROFILE": ""
+            }
           },
           "evidence": [
-            "docs/eval/official-benchmark-task-coverage.json"
+            "docs/eval/official-benchmark-task-coverage.json",
+            "evals/multiUserCoordinationProof.ts",
+            "proofloop/benchmarks/noderoom-multi-user/live-room-scenario.spec.ts",
+            "scripts/proofloop-live-playwright.ts"
           ],
           "blockers": [
-            "Internal deterministic conflict suite has not been promoted to prod browser model matrix tasks."
+            "Multi-user conflict has a prod browser adapter, but no passing prod live-browser receipt is recorded for this task/model yet."
           ]
         },
         {
           "familyId": "noderoom-multi-user-conflict",
           "taskId": "multi-user-conflict-4",
           "title": "NodeRoom multi-user conflict scenario",
-          "status": "blocked_missing_prod_browser_adapter",
+          "status": "ready_for_prod_browser_run",
           "prodLiveBrowserPassed": false,
           "localLiveBrowserOnly": false,
           "runner": {
-            "available": false,
-            "kind": "missing",
-            "command": "npm run eval:multiuser-coordination -- --strict"
+            "available": true,
+            "kind": "playwright_prod_browser",
+            "command": "npm run proofloop:live:multi-user-conflict",
+            "env": {
+              "BENCH_BASE_URL": "https://noderoom.live",
+              "PLAYWRIGHT_BASE_URL": "https://noderoom.live",
+              "PLAYWRIGHT_REUSE_SERVER": "1",
+              "PROOFLOOP_TASK_IDS": "multi-user-conflict-4",
+              "PROOFLOOP_REAL_USER_MODE": "1",
+              "PROOFLOOP_FOCUS_MODE": "0",
+              "PROOFLOOP_NODEAGENT_RUNTIME_PROFILE": ""
+            }
           },
           "evidence": [
-            "docs/eval/official-benchmark-task-coverage.json"
+            "docs/eval/official-benchmark-task-coverage.json",
+            "evals/multiUserCoordinationProof.ts",
+            "proofloop/benchmarks/noderoom-multi-user/live-room-scenario.spec.ts",
+            "scripts/proofloop-live-playwright.ts"
           ],
           "blockers": [
-            "Internal deterministic conflict suite has not been promoted to prod browser model matrix tasks."
+            "Multi-user conflict has a prod browser adapter, but no passing prod live-browser receipt is recorded for this task/model yet."
           ]
         },
         {
           "familyId": "noderoom-multi-user-conflict",
           "taskId": "multi-user-conflict-5",
           "title": "NodeRoom multi-user conflict scenario",
-          "status": "blocked_missing_prod_browser_adapter",
+          "status": "ready_for_prod_browser_run",
           "prodLiveBrowserPassed": false,
           "localLiveBrowserOnly": false,
           "runner": {
-            "available": false,
-            "kind": "missing",
-            "command": "npm run eval:multiuser-coordination -- --strict"
+            "available": true,
+            "kind": "playwright_prod_browser",
+            "command": "npm run proofloop:live:multi-user-conflict",
+            "env": {
+              "BENCH_BASE_URL": "https://noderoom.live",
+              "PLAYWRIGHT_BASE_URL": "https://noderoom.live",
+              "PLAYWRIGHT_REUSE_SERVER": "1",
+              "PROOFLOOP_TASK_IDS": "multi-user-conflict-5",
+              "PROOFLOOP_REAL_USER_MODE": "1",
+              "PROOFLOOP_FOCUS_MODE": "0",
+              "PROOFLOOP_NODEAGENT_RUNTIME_PROFILE": ""
+            }
           },
           "evidence": [
-            "docs/eval/official-benchmark-task-coverage.json"
+            "docs/eval/official-benchmark-task-coverage.json",
+            "evals/multiUserCoordinationProof.ts",
+            "proofloop/benchmarks/noderoom-multi-user/live-room-scenario.spec.ts",
+            "scripts/proofloop-live-playwright.ts"
           ],
           "blockers": [
-            "Internal deterministic conflict suite has not been promoted to prod browser model matrix tasks."
+            "Multi-user conflict has a prod browser adapter, but no passing prod live-browser receipt is recorded for this task/model yet."
           ]
         },
         {
           "familyId": "noderoom-multi-user-conflict",
           "taskId": "multi-user-conflict-6",
           "title": "NodeRoom multi-user conflict scenario",
-          "status": "blocked_missing_prod_browser_adapter",
+          "status": "ready_for_prod_browser_run",
           "prodLiveBrowserPassed": false,
           "localLiveBrowserOnly": false,
           "runner": {
-            "available": false,
-            "kind": "missing",
-            "command": "npm run eval:multiuser-coordination -- --strict"
+            "available": true,
+            "kind": "playwright_prod_browser",
+            "command": "npm run proofloop:live:multi-user-conflict",
+            "env": {
+              "BENCH_BASE_URL": "https://noderoom.live",
+              "PLAYWRIGHT_BASE_URL": "https://noderoom.live",
+              "PLAYWRIGHT_REUSE_SERVER": "1",
+              "PROOFLOOP_TASK_IDS": "multi-user-conflict-6",
+              "PROOFLOOP_REAL_USER_MODE": "1",
+              "PROOFLOOP_FOCUS_MODE": "0",
+              "PROOFLOOP_NODEAGENT_RUNTIME_PROFILE": ""
+            }
           },
           "evidence": [
-            "docs/eval/official-benchmark-task-coverage.json"
+            "docs/eval/official-benchmark-task-coverage.json",
+            "evals/multiUserCoordinationProof.ts",
+            "proofloop/benchmarks/noderoom-multi-user/live-room-scenario.spec.ts",
+            "scripts/proofloop-live-playwright.ts"
           ],
           "blockers": [
-            "Internal deterministic conflict suite has not been promoted to prod browser model matrix tasks."
+            "Multi-user conflict has a prod browser adapter, but no passing prod live-browser receipt is recorded for this task/model yet."
           ]
         }
       ]

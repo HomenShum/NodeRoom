@@ -1,7 +1,7 @@
 # ProofLoop Prod Proxy Long-Run Plan
 
-Generated: 2026-07-05T07:41:37.108Z
-Run ID: `prod-proxy-longrun-2026-07-05T07-41-37-108Z`
+Generated: 2026-07-05T08:12:15.277Z
+Run ID: `prod-proxy-longrun-2026-07-05T08-12-15-277Z`
 Base URL: https://noderoom.live
 
 This is the durable attempt queue for the full prod-browser proxy benchmark matrix. It tracks model-task attempts, not only task families, and it keeps blocked adapters in the denominator.
@@ -12,8 +12,8 @@ This is the durable attempt queue for the full prod-browser proxy benchmark matr
 - Models: 4
 - Model-task attempts: 5416
 - Existing prod browser attempt passes: 0
-- Queued runnable attempts: 5376
-- Blocked by missing browser adapters: 40
+- Queued runnable attempts: 5416
+- Blocked by missing browser adapters: 0
 - Blocked by budget: 0
 - Failed attempts: 0
 - All-task winner: none
@@ -41,8 +41,6 @@ This is the durable attempt queue for the full prod-browser proxy benchmark matr
 
 | Family | Tasks | Attempts | Adapter status | Adapter version | Required adapter | First blocker |
 |---|---:|---:|---|---:|---|---|
-| `proximitty-underwriting-pr0` | 4 | 16 | local_only | 0.1.0 | proximitty-underwriting-prod-browser-room | Proximitty suite is deterministic/local; no prod browser room model matrix exists for these scenarios. |
-| `noderoom-multi-user-conflict` | 6 | 24 | missing_generic_browser_adapter | 0.1.0 | noderoom-multi-user-conflict-prod-browser-room | Internal deterministic conflict suite has not been promoted to prod browser model matrix tasks. |
 
 ## Commands
 

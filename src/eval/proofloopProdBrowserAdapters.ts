@@ -43,7 +43,7 @@ export type ProofloopProdBrowserAdapterLedger = {
   adapters: ProofloopProdBrowserAdapterSpec[];
 };
 
-const HARNESS_VERSION = "prod-browser-adapters-2026-07-05.3";
+const HARNESS_VERSION = "prod-browser-adapters-2026-07-05.4";
 
 export function buildProofloopProdBrowserAdapterLedger(args: {
   root?: string;
@@ -86,7 +86,8 @@ export function buildProofloopProdBrowserAdapterLedger(args: {
       browserScenario: "proofloop/benchmarks/proximitty/live-room-scenario.spec.ts",
       commandShape: "npm run proofloop:proximitty:browser -- --prod --scenario <taskId> --model <modelId> --real-user",
       scorerBoundary: "Synthetic underwriting evaluation only; not a real lending, insurance, legal, or financial decision score.",
-      blocker: "Promote deterministic underwriting scenarios into documents-in, decision-memo-out fresh-room browser tasks with verifier receipts.",
+      ready: true,
+      blocker: "No passing prod receipts are recorded for every Proximitty task/model yet; run the long-run queue to replace this with score evidence.",
     }),
     configBackedBrowserAdapter(families.get("noderoom-multi-user-conflict"), matrix.summary.modelCount, {
       id: "noderoom-multi-user-conflict-prod-browser-room",
@@ -95,7 +96,8 @@ export function buildProofloopProdBrowserAdapterLedger(args: {
       browserScenario: "proofloop/benchmarks/noderoom-multi-user/live-room-scenario.spec.ts",
       commandShape: "npm run proofloop:live:multi-user-conflict -- --prod --task-id <taskId> --model <modelId> --real-user",
       scorerBoundary: "Internal product coordination benchmark; no external official score is claimed.",
-      blocker: "Promote deterministic multi-user conflict fixtures into two-browser prod room scenarios with trace and mutation receipts.",
+      ready: true,
+      blocker: "No passing prod receipts are recorded for every multi-user conflict task/model yet; run the long-run queue to replace this with score evidence.",
     }),
   ];
 
@@ -122,7 +124,7 @@ export function renderProofloopProdBrowserAdapterLedgerMarkdown(ledger: Proofloo
     `Generated: ${ledger.generatedAt ?? "unknown"}`,
     `Harness version: \`${ledger.harnessVersion}\``,
     "",
-    "This ledger turns the missing prod-browser families into versioned adapter contracts. A contract is not a pass: families remain blocked until the named browser scenario exists and produces receipts.",
+    "This ledger tracks prod-browser adapter contracts and readiness. A contract is not a pass: every task/model remains unverified until the named browser scenario produces receipts.",
     "",
     "## Summary",
     "",
@@ -242,7 +244,7 @@ function configBackedBrowserAdapter(
     changelog: ready
       ? [
         "2026-07-05.1: contract created; current non-browser runner remains evidence but not prod real-user proof.",
-        "2026-07-05.3: live-browser-proof spec promoted as the real-user browser scenario with benchmark runtime profile disabled.",
+        `2026-07-05.4: ${args.browserScenario} promoted as the real-user browser scenario with benchmark runtime profile disabled.`,
       ]
       : [
         "2026-07-05.1: contract created; current non-browser runner remains evidence but not prod real-user proof.",

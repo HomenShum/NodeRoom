@@ -1,0 +1,402 @@
+{
+  "schema": "proofloop-multi-user-prod-browser-v1",
+  "suite": "noderoom-multi-user-conflict",
+  "runId": "multi-user-live-1783239978751",
+  "generatedAt": "2026-07-05T08:26:41.501Z",
+  "baseUrl": "https://noderoom.live",
+  "roomStartedAt": "2026-07-05T08:26:20.560Z",
+  "roomUrl": "https://noderoom.live/?room=PLMUMR7J1J4G&name=Host",
+  "peerUrl": "https://noderoom.live/?room=PLMUMR7J1J4G&name=Peer",
+  "roomCode": "PLMUMR7J1J4G",
+  "model": {
+    "provider": "openrouter",
+    "mode": "specific",
+    "policy": "cohere/north-mini-code:free",
+    "runtimeProfile": "standard",
+    "realUserMode": true,
+    "measuredCostUsd": 0,
+    "measuredTokensIn": 10050,
+    "measuredTokensOut": 691,
+    "telemetry": [
+      {
+        "model": "cohere/north-mini-code:free",
+        "toolCalls": 0,
+        "steps": 1,
+        "inputTokens": 10050,
+        "outputTokens": 691,
+        "latencyMs": 10269,
+        "costUsd": 0,
+        "rawText": "cohere/north-mini-code:free · 0 tools · $0.000",
+        "rawTitle": "1 steps · 10,050 in + 691 out tokens · 10269ms"
+      }
+    ]
+  },
+  "tasks": [
+    {
+      "id": "multi-user-conflict-1",
+      "scenarioId": "managed_batch_blocks_target_not_room",
+      "title": "Managed range lock blocks target cells only",
+      "userMessageNeedle": "managed range lock",
+      "prompt": "In this shared Q3 variance room, explain how a managed range lock should block target cells while allowing non-target user edits. Ground the answer in the visible room and say what evidence would prove no lock leak.",
+      "passPatterns": [
+        {},
+        {},
+        {},
+        {},
+        {}
+      ]
+    }
+  ],
+  "taskProofs": [
+    {
+      "taskId": "multi-user-conflict-1",
+      "scenarioId": "managed_batch_blocks_target_not_room",
+      "title": "Managed range lock blocks target cells only",
+      "prompt": "In this shared Q3 variance room, explain how a managed range lock should block target cells while allowing non-target user edits. Ground the answer in the visible room and say what evidence would prove no lock leak.",
+      "passed": true,
+      "matchedPatterns": [
+        "managed",
+        "lock",
+        "target",
+        "non[- ]target|outside",
+        "no lock leak|lock leak"
+      ],
+      "unmatchedPatterns": [],
+      "failedGates": [],
+      "deterministicScenarioPassed": true,
+      "agent": {
+        "userMessageVisible": true,
+        "streamingVisible": true,
+        "jobStatusVisible": true,
+        "jobDetailVisible": true,
+        "roomTraceVisible": true,
+        "completionVisible": true,
+        "finalTextSample": "NodeAgent completed the run1 model turnTrace details Step 1/128A managed range lock in this Q3 variance room would work like this:Blocking Target Cells: When you initiate a managed write on variance cells (e.g., r_rev__variance or r_cogs__variance), the runtime acquires an exclusive lock specifically on those target cells for the duration of your write operation. During this time, other users' attempts to edit those same variance cells would be blocked and routed to proposals instead.Allowing Non-Target Edits: The range lock is surgical — it only covers the specific variance and note columns across all rows (*__variance and *__note), allowing simultaneous edits to other areas like the Q2/Q3 value cells or unrelated sections. A user could edit r_rev__revenue or add a new row without interference.Evidence of No Lock Leak: To prove no lock leak in this room, you would see:Mixed edit permissions: Attempts to edit variance cells should generate proposals or be blocked, while edits to revenue/expense cells proceed normally without blockingPreserved current state: The variance cells should remain empty (no unauthorized modifications)Concurrent access signs: Multiple users editing different cell types simultaneously demonstrates fine-grained lockingIn Your Current Room: Since you see the sheet fully editable with no active locks, the system would be ready to demonstrate this: start a managed variance edit to see target cells lock, while other Q2/Q3 edits continue unimpeded. The runtime's coordination evidence in the room trace would show exactly which cells were locked during your operation.\nNodeAgent completed the run1 model turnTrace details Step 1/128A managed range lock in this Q3 variance room would work like this:Blocking Target Cells: When you initiate a managed write on variance cells (e.g., r_rev__variance or r_cogs__variance), the runtime acquires an exclusive lock specifically on those target cells for the duration of your write operation. During this time, other users' attempts to edit those same variance cells would be blocked and routed to proposals instead.Allowing Non-Target Edits: The range lock is surgical — it only covers the specific variance and note columns across all rows (*__variance and *__note), allowing simultaneous edits to other areas like the Q2/Q3 value cells or unrelated sections. A user could edit r_rev__revenue or add a new row without interference.Evidence of No Lock Leak: To prove no lock leak in this room, you would see:Mixed edit permissions: Attempts to edit variance cells should generate proposals or be blocked, while edits to revenue/expense cells proceed normally without blockingPreserved current state: The variance cells should remain empty (no unauthorized modifications)Concurrent access signs: Multiple users editing different cell types simultaneously demonstrates fine-grained lockingIn Your Current Room: Since you see the sheet fully editable with no active locks, the system would be ready to demonstrate this: start a managed variance edit to see target cells lock, while other Q2/Q3 edits continue unimpeded. The runtime's coordination evidence in the room trace would show exactly which cells were locked during your operation.\nNRoom NodeAgentagent01:26NodeAgent completed the run1 model turnTrace details Step 1/128A managed range lock in this Q3 variance room would work like this:Blocking Target Cells: When you initiate a managed write on variance cells (e.g., r_rev__variance or r_cogs__variance), the runtime acquires an exclusive lock specifically on those target cells for the duration of your write operation. During this time, other users' attempts to edit those same variance cells would be blocked and routed to proposals instead.Allowing Non-Target Edits: The range lock is surgical — it only covers the specific variance and note columns across all rows (*__variance and *__note), allowing simultaneous edits to other areas like the Q2/Q3 value cells or unrelated sections. A user could edit r_rev__revenue or add a new row without interference.Evidence of No Lock Leak: To prove no lock leak in this room, you would see:Mixed edit permissions: Attempts to edit variance cells should generate proposals or be blocked, while edits to revenue/expense cells proceed normally without blockingPreserved current state: The variance cells should remain empty (no unauthorized modifications)Concurrent access signs: Multiple users editing different cell types simultaneously demonstrates fine-grained lockingIn Your Current Room: Since you see the sheet fully editable with no active locks, the system would be ready to demonstrate this: start a managed variance edit to see target cells lock, while other Q2/Q3 edits continue unimpeded. The runtime's coordination evidence in the room trace would show exactly which cells were locked during your operation. Copy",
+        "durationMs": 13030,
+        "telemetry": {
+          "model": "cohere/north-mini-code:free",
+          "toolCalls": 0,
+          "steps": 1,
+          "inputTokens": 10050,
+          "outputTokens": 691,
+          "latencyMs": 10269,
+          "costUsd": 0,
+          "rawText": "cohere/north-mini-code:free · 0 tools · $0.000",
+          "rawTitle": "1 steps · 10,050 in + 691 out tokens · 10269ms"
+        },
+        "gatesProven": [
+          "public_nodeagent_invocation",
+          "visible_streaming_progress",
+          "agent_live_loop",
+          "job_detail_visible",
+          "agent_terminal_quality_gate",
+          "room_trace_visible"
+        ],
+        "gatesNotProven": {}
+      }
+    }
+  ],
+  "deterministicProof": {
+    "generatedAt": "2026-07-05T08:26:28.267Z",
+    "target": "deterministic multi-user coordination contract used by production Convex mutations",
+    "summary": {
+      "passed": true,
+      "scenarios": 6,
+      "passedScenarios": 6,
+      "failedScenarios": []
+    },
+    "invariants": [
+      "A runtime-managed range lock blocks peer writes to target cells while allowing non-target writes.",
+      "A stale base version returns conflict data and preserves the canonical value.",
+      "A second agent blocked by an active lock drafts instead of forcing a write, then smart-merges on release.",
+      "Managed writes release their lock in finally even when the CAS write conflicts.",
+      "A stale agent range write over A1:C5 cannot clobber a human's newer C2 edit.",
+      "Every scenario ends with zero active locks."
+    ],
+    "scenarios": [
+      {
+        "id": "managed_batch_blocks_target_not_room",
+        "checks": {
+          "managedWriteSucceeded": true,
+          "peerTargetBlocked": true,
+          "peerOutsideWriteOk": true,
+          "releaseRecorded": true,
+          "noLockLeak": true,
+          "finalTargetPreserved": true,
+          "outsideWritePreserved": true
+        },
+        "evidence": {
+          "traceTypes": [
+            "room_created",
+            "member_joined",
+            "member_joined",
+            "agent_session_started",
+            "agent_session_started",
+            "lock_acquired",
+            "agent_status",
+            "edit_blocked",
+            "edit_applied",
+            "edit_applied",
+            "edit_applied",
+            "lock_released",
+            "agent_status"
+          ],
+          "finalValues": {
+            "r_rev__variance": "+24%",
+            "r_cogs__variance": "+27.5%",
+            "r_opex__note": "peer can still update a non-target cell"
+          }
+        },
+        "passed": true
+      },
+      {
+        "id": "stale_base_returns_conflict_data",
+        "checks": {
+          "firstWriteSucceeded": true,
+          "staleWriteRejected": true,
+          "canonicalValuePreserved": true,
+          "noLockLeak": true
+        },
+        "evidence": {
+          "staleResult": {
+            "ok": false,
+            "reason": "conflict",
+            "expected": 1,
+            "actual": 2
+          },
+          "finalValue": "+10%"
+        },
+        "passed": true
+      },
+      {
+        "id": "human_vs_human_same_cell_no_clobber",
+        "checks": {
+          "oneWinnerPerOrder": true,
+          "loserGetsConflictData": true,
+          "canonicalWinnerPreserved": true,
+          "versionBumpedOncePerOrder": true,
+          "noLockLeak": true
+        },
+        "evidence": {
+          "orders": [
+            {
+              "firstActor": "homen",
+              "firstWrite": {
+                "ok": true,
+                "element": {
+                  "id": "r_rev__variance",
+                  "version": 2,
+                  "value": "+24pct-Homen",
+                  "updatedAt": 1750000025000,
+                  "updatedBy": {
+                    "kind": "user",
+                    "id": "mem_2",
+                    "name": "Homen"
+                  }
+                },
+                "fromVersion": 1,
+                "toVersion": 2
+              },
+              "secondWrite": {
+                "ok": false,
+                "reason": "conflict",
+                "expected": 1,
+                "actual": 2
+              },
+              "finalValue": "+24pct-Homen",
+              "finalVersion": 2,
+              "noLockLeak": true
+            },
+            {
+              "firstActor": "priya",
+              "firstWrite": {
+                "ok": true,
+                "element": {
+                  "id": "r_rev__variance",
+                  "version": 2,
+                  "value": "+19pct-Priya",
+                  "updatedAt": 1750000025000,
+                  "updatedBy": {
+                    "kind": "user",
+                    "id": "mem_4",
+                    "name": "Priya"
+                  }
+                },
+                "fromVersion": 1,
+                "toVersion": 2
+              },
+              "secondWrite": {
+                "ok": false,
+                "reason": "conflict",
+                "expected": 1,
+                "actual": 2
+              },
+              "finalValue": "+19pct-Priya",
+              "finalVersion": 2,
+              "noLockLeak": true
+            }
+          ]
+        },
+        "passed": true
+      },
+      {
+        "id": "blocked_agent_drafts_and_smart_merges",
+        "checks": {
+          "privateAgentDrafted": true,
+          "blockingLockRecorded": true,
+          "lockedValueUnchangedBeforeRelease": true,
+          "releaseMergedDraft": true,
+          "finalDraftValueApplied": true,
+          "noLockLeak": true
+        },
+        "evidence": {
+          "draftId": "draft_28",
+          "release": [
+            {
+              "draftId": "draft_28",
+              "applied": [
+                "ced5627b-df42-4f39-a68c-4070087bb4d1"
+              ],
+              "conflicts": 0,
+              "verdict": "clean"
+            }
+          ],
+          "finalValue": "+21.7%"
+        },
+        "passed": true
+      },
+      {
+        "id": "managed_write_releases_after_conflict",
+        "checks": {
+          "humanWriteSucceeded": true,
+          "staleManagedWriteConflicted": true,
+          "releaseStillRan": true,
+          "canonicalValuePreserved": true,
+          "noLockLeak": true
+        },
+        "evidence": {
+          "staleManaged": {
+            "ok": false,
+            "conflict": true,
+            "expected": 1,
+            "actual": 2,
+            "coordination": {
+              "mode": "managed_lock",
+              "targetIds": [
+                "r_ni__variance"
+              ],
+              "acquired": true,
+              "lockId": "lock_26",
+              "released": true,
+              "mergedDrafts": 0
+            }
+          },
+          "finalValue": "+5%"
+        },
+        "passed": true
+      },
+      {
+        "id": "human_c2_vs_agent_a1_c5_stale_range_no_clobber",
+        "checks": {
+          "humanC2WriteSucceeded": true,
+          "agentRangeWriteRejected": true,
+          "conflictReturnedForC2": true,
+          "canonicalHumanC2Preserved": true,
+          "staleRangeDidNotPartiallyApplyAfterC2Conflict": true,
+          "releaseRecorded": true,
+          "noLockLeak": true
+        },
+        "evidence": {
+          "coordinateMap": {
+            "c2": "r_rev__variance",
+            "a1c5": [
+              "r_rev__variance",
+              "r_cogs__variance",
+              "r_gp__variance",
+              "r_opex__variance",
+              "r_ni__variance"
+            ],
+            "visibleGridContract": "C2 is the human-edited overlap cell inside the agent's A1:C5 work range."
+          },
+          "humanResult": {
+            "ok": true,
+            "element": {
+              "id": "r_rev__variance",
+              "version": 2,
+              "value": "+11% human C2 adjustment",
+              "updatedAt": 1750000030000,
+              "updatedBy": {
+                "kind": "user",
+                "id": "mem_2",
+                "name": "Homen"
+              }
+            },
+            "fromVersion": 1,
+            "toVersion": 2
+          },
+          "agentResult": {
+            "ok": false,
+            "results": [
+              {
+                "ok": false,
+                "conflict": true,
+                "expected": 1,
+                "actual": 2,
+                "elementId": "r_rev__variance"
+              }
+            ],
+            "coordination": {
+              "mode": "managed_lock_batch",
+              "targetIds": [
+                "r_rev__variance",
+                "r_cogs__variance",
+                "r_gp__variance",
+                "r_opex__variance",
+                "r_ni__variance"
+              ],
+              "acquired": true,
+              "lockId": "lock_26",
+              "released": true,
+              "mergedDrafts": 0,
+              "skippedCount": 0
+            }
+          },
+          "finalValues": {
+            "r_rev__variance": "+11% human C2 adjustment",
+            "r_cogs__variance": "",
+            "r_gp__variance": "",
+            "r_opex__variance": "",
+            "r_ni__variance": ""
+          }
+        },
+        "passed": true
+      }
+    ]
+  },
+  "problemCounts": {
+    "pageErrors": 0,
+    "consoleProblems": 0,
+    "requestFailures": 0,
+    "badResponses": 0
+  },
+  "pageErrors": [],
+  "consoleProblems": [],
+  "requestFailures": [],
+  "badResponses": [],
+  "screenshotPaths": [
+    "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.proofloop\\runs\\multi-user-live-1783239978751\\noderoom-multi-user-prod-browser\\host-visual-proof.png",
+    "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.proofloop\\runs\\multi-user-live-1783239978751\\noderoom-multi-user-prod-browser\\peer-visual-proof.png"
+  ],
+  "officialScoreClaim": false,
+  "status": "passed",
+  "evidence": {
+    "browserProofPath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.proofloop\\runs\\multi-user-live-1783239978751\\noderoom-multi-user-prod-browser\\browser-proof.json",
+    "liveUserContractPath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.proofloop\\runs\\multi-user-live-1783239978751\\noderoom-multi-user-prod-browser\\live-user-contract.json",
+    "nodeTracePath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.proofloop\\runs\\multi-user-live-1783239978751\\noderoom-multi-user-prod-browser\\node-trace-v2.json",
+    "nodeEvalPath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.proofloop\\runs\\multi-user-live-1783239978751\\noderoom-multi-user-prod-browser\\node-eval.json",
+    "costLedgerPath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.proofloop\\runs\\multi-user-live-1783239978751\\noderoom-multi-user-prod-browser\\cost-ledger.json",
+    "verifierReceiptPath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.proofloop\\runs\\multi-user-live-1783239978751\\noderoom-multi-user-prod-browser\\verifier-receipt.json",
+    "deterministicReceiptPath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.proofloop\\runs\\multi-user-live-1783239978751\\noderoom-multi-user-prod-browser\\deterministic-conflict-proof.json",
+    "scorecardPath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.proofloop\\runs\\multi-user-live-1783239978751\\noderoom-multi-user-prod-browser\\scorecard.md"
+  }
+}

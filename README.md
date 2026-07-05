@@ -402,7 +402,7 @@ with full JSON at
 [`docs/eval/proofloop-prod-proxy-longrun-plan.json`](docs/eval/proofloop-prod-proxy-longrun-plan.json).
 It is the runnable control surface for that matrix: every model-task attempt has
 a status, a budget estimate, a real-user prod-browser command when an adapter
-exists, and an explicit adapter blocker when one does not. Local run state,
+exists, and an explicit non-pass blocker until a receipt exists. Local run state,
 leases, receipts, and resume data live under `.proofloop/prod-proxy-longrun/`
 and are intentionally ignored.
 
@@ -410,12 +410,10 @@ The missing-family adapter contracts are versioned in
 [`docs/eval/PROOFLOOP_PROD_BROWSER_ADAPTERS.md`](docs/eval/PROOFLOOP_PROD_BROWSER_ADAPTERS.md)
 with JSON at
 [`docs/eval/proofloop-prod-browser-adapters.json`](docs/eval/proofloop-prod-browser-adapters.json).
-Current harness version: `prod-browser-adapters-2026-07-05.3`. SpreadsheetBench
-V1/V2, accounting, and Notion now have prod-browser scenarios. The remaining
-missing browser-scenario adapters are Proximitty and internal multi-user
-conflict: 10 task targets / 40 model-task attempts. Ready does not mean passed;
-each queued task/model still needs a receipt before an all-task winner can be
-claimed.
+Current harness version: `prod-browser-adapters-2026-07-05.4`. SpreadsheetBench
+V1/V2, accounting, Notion, Proximitty, and internal multi-user conflict now
+have prod-browser scenarios. Adapter-ready does not mean passed; each queued
+task/model still needs a receipt before an all-task winner can be claimed.
 
 For zero-dollar model scouting, the free OpenRouter gauge is
 [`docs/eval/PROOFLOOP_FREE_OPENROUTER_NODEAGENT_GAUGE.md`](docs/eval/PROOFLOOP_FREE_OPENROUTER_NODEAGENT_GAUGE.md)
@@ -433,18 +431,18 @@ Current generated status:
 | Official coverage ledger declared targets, including overlapping subsets/internal tracks | 1,739 |
 | Staged task targets | 1,354 |
 | Prod live-browser verified task targets | 3 |
-| Local live-browser verified task targets | 105 |
+| Local live-browser verified task targets | 101 |
 | Official scored task targets | 100 |
-| Prod-browser runnable task targets today | 1,344 |
-| Blocked task targets needing browser adapters | 10 |
+| Prod-browser runnable task targets today | 1,354 |
+| Blocked task targets needing browser adapters | 0 |
 | Required model-task attempts for current 4-model matrix | 5,416 |
 | Existing prod-browser model-task attempt passes | 10 |
-| Queued runnable model-task attempts under $100 default plan | 3,501 |
-| Model-task attempts blocked by missing adapters | 40 |
-| Estimated new spend for currently runnable default queue | $99.9525 |
+| Queued runnable model-task attempts under $100 default plan | 3,516 |
+| Model-task attempts blocked by missing adapters | 0 |
+| Estimated new spend for currently runnable default queue | $99.9601 |
 | Estimated full current-model matrix spend after adapters exist | $246.8125 |
 | Free OpenRouter model-task attempts in zero-budget plan | 5,416 |
-| Free OpenRouter currently runnable attempts | 5,376 |
+| Free OpenRouter currently runnable attempts | 5,416 |
 | Free OpenRouter live SpreadsheetBench V1 102-20 probe | 0/4 passed, $0.000000 |
 | Free OpenRouter NodeAgent tool-loop gauge | 3/4 passed, $0.000000 |
 
@@ -454,21 +452,31 @@ That is only the current prod adapter-smoke winner; it is not yet a full
 SpreadsheetBench/BankerToolBench/accounting/Notion/Proximitty all-task winner.
 Full prod coverage still requires browser-driving the staged SpreadsheetBench
 V1 912 tasks, SpreadsheetBench V2 321 tasks, the 100 BankerToolBench tasks on
-`https://noderoom.live`, and the configured product-suite tasks through the
-same model matrix.
+`https://noderoom.live`, and the configured product-suite/multi-user tasks
+through the same model matrix.
 
 Latest live free-router probe:
 [`docs/eval/PROOFLOOP_PROD_PROXY_LONGRUN_FREE_RUN.md`](docs/eval/PROOFLOOP_PROD_PROXY_LONGRUN_FREE_RUN.md)
 records run `prod-proxy-free-spreadsheetbench-102-20-20260705`, a real prod UI
 SpreadsheetBench V1 `102-20` one-case sweep across four current free OpenRouter
-models. All four failed; the harness kept the failures instead of naming a
-winner. Observed failure modes were agent timeout on compacted workbook reads,
-unchanged or mostly unchanged XLSX exports, and one canceled XLSX download.
+models. That run predates the Proximitty/multi-user adapter promotion, but its
+SpreadsheetBench evidence remains valid. All four failed; the harness kept the
+failures instead of naming a winner. Observed failure modes were agent timeout
+on compacted workbook reads, unchanged or mostly unchanged XLSX exports, and one
+canceled XLSX download.
 The accounting browser adapter was also live-smoked on prod in
 [`docs/eval/proofloop-live-accounting-free-smoke.json`](docs/eval/proofloop-live-accounting-free-smoke.json):
 `qwen/qwen3-coder:free` reached the real room and trace path for `variance-calc`
 but failed the proof gate after matching 4/5 expected patterns and timing out
 before job completion.
+The newly promoted Proximitty and multi-user adapters have prod-browser smoke
+receipts too:
+[`docs/eval/proofloop-live-proximitty-free-smoke.json`](docs/eval/proofloop-live-proximitty-free-smoke.json)
+passed `proximitty-intake` with `qwen/qwen3-coder:free`, and
+[`docs/eval/proofloop-live-multi-user-free-smoke.json`](docs/eval/proofloop-live-multi-user-free-smoke.json)
+passed `multi-user-conflict-1` with `cohere/north-mini-code:free` after
+`qwen/qwen3-coder:free` hit a real OpenRouter 429 rate-limit during a prior
+attempt.
 
 Refresh the ledger with:
 

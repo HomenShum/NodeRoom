@@ -1,15 +1,15 @@
 {
   "schema": "proofloop-runner-plan-v1",
-  "generatedAt": "2026-07-05T05:31:18.498Z",
-  "planId": "proofloop-standalone-runner-dogfood-2026-07-05T05-31-18-498Z",
+  "generatedAt": "2026-07-05T08:11:53.101Z",
+  "planId": "proofloop-standalone-runner-dogfood-2026-07-05T08-11-53-101Z",
   "title": "NodeRoom standalone ProofLoop runner dogfood plan",
   "cwd": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom",
   "source": {
     "sourcePlanSchema": "proofloop-prod-proxy-longrun-v1",
-    "sourceRunId": "proofloop-standalone-runner-dogfood-2026-07-05T05-31-18-498Z",
-    "sourceMatrixDigest": "b8e8bddd47412bba66f18d154e6dc009515c18707fc3be00b922016bfa10e274",
-    "longRunStatePath": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T05-31-18-498Z/state.json",
-    "longRunQueuePath": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T05-31-18-498Z/queue.jsonl",
+    "sourceRunId": "proofloop-standalone-runner-dogfood-2026-07-05T08-11-53-101Z",
+    "sourceMatrixDigest": "6482bf37c01f3be286b1c8703f372c85e2175cc976c55825760bd3a9523b1c6b",
+    "longRunStatePath": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T08-11-53-101Z/state.json",
+    "longRunQueuePath": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T08-11-53-101Z/queue.jsonl",
     "liveModelSweepsExecuted": false,
     "localProofloopVendored": false
   },
@@ -23,20 +23,20 @@
   "budget": {
     "capUsd": 100,
     "historicalMeasuredSpendUsd": 0.502,
-    "queuedEstimatedProductSpendUsd": 18.2744,
+    "queuedEstimatedProductSpendUsd": 99.960136,
     "fullCurrentModelMatrixEstimatedUsd": 246.812536,
     "runnableQueueFitsBudget": true,
     "generationCostUsd": 0
   },
   "summary": {
     "tasks": 12,
-    "adapterGapTasks": 6,
-    "guardedLiveRunBatchTasks": 3,
+    "adapterGapTasks": 0,
+    "guardedLiveRunBatchTasks": 9,
     "officialScoreGapTasks": 3,
     "uniqueTaskTargets": 1354,
     "modelTaskAttempts": 5416,
-    "queuedAttempts": 402,
-    "blockedAdapterAttempts": 5004,
+    "queuedAttempts": 3516,
+    "blockedAdapterAttempts": 0,
     "currentAllTaskWinner": null,
     "currentAdapterSmokeWinner": "poolside/laguna-xs-2.1"
   },
@@ -55,382 +55,23 @@
   ],
   "tasks": [
     {
-      "id": "adapter-gap.accounting-live-proofloop",
-      "command": "npm run benchmark:proofloop:prod-browser-adapters",
-      "estimatedCostUsd": 0,
-      "timeoutMs": 120000,
-      "kind": "adapter-gap",
-      "status": "ready",
-      "title": "Implement prod browser adapter for accounting-live-proofloop",
-      "familyId": "accounting-live-proofloop",
-      "priority": 100,
-      "objective": "Close the accounting-live-config-to-prod-browser-room gap without changing locked certification fixtures or weakening proof gates.",
-      "prompt": "Implement the missing prod browser adapter for accounting-live-proofloop.\nRequired adapter: accounting-live-config-to-prod-browser-room.\nFirst blocker: Current accounting live runner is Convex HTTP, not a prod browser room model matrix.\nUse real NodeRoom prod-browser flows with model selection, memory mode off, exported evidence, and verifier receipts.\nDo not edit immutable proof-loop assets or promote failures without an external approval path.",
-      "estimatedProductSpendUsd": 0,
-      "paidModelRequired": false,
-      "counts": {
-        "taskTargets": 4,
-        "blockedAttempts": 16,
-        "attempts": 16
-      },
-      "commands": [
-        {
-          "name": "refresh-prod-browser-adapter-ledger",
-          "command": "npm run benchmark:proofloop:prod-browser-adapters",
-          "requiresSpend": false,
-          "writes": [
-            "docs/eval/proofloop-prod-browser-adapters.json"
-          ]
-        },
-        {
-          "name": "refresh-prod-proxy-longrun-plan",
-          "command": "npm run benchmark:proofloop:prod-proxy-longrun -- plan --budget-usd 100",
-          "requiresSpend": false,
-          "writes": [
-            "docs/eval/proofloop-prod-proxy-longrun-plan.json"
-          ]
-        }
-      ],
-      "acceptance": [
-        "A real prod browser adapter exists for the family and is reflected in docs/eval/proofloop-prod-browser-adapters.json.",
-        "The prod proxy long-run plan moves the family out of blocked_adapter without dropping it from the denominator.",
-        "Relevant deterministic proofloop tests pass."
-      ],
-      "evidence": [
-        "docs/eval/proofloop-prod-browser-adapters.json",
-        "proofloop/accounting/live.accounting.config.json"
-      ],
-      "blockers": [
-        "Current accounting live runner is Convex HTTP, not a prod browser room model matrix."
-      ],
-      "metadata": {
-        "adapterStatus": "http_only",
-        "adapterVersion": "0.1.0",
-        "adapterPlanPath": "docs/eval/proofloop-prod-browser-adapters.json",
-        "requiredAdapter": "accounting-live-config-to-prod-browser-room",
-        "sourceMatrixDigest": "b8e8bddd47412bba66f18d154e6dc009515c18707fc3be00b922016bfa10e274"
-      }
-    },
-    {
-      "id": "adapter-gap.noderoom-multi-user-conflict",
-      "command": "npm run benchmark:proofloop:prod-browser-adapters",
-      "estimatedCostUsd": 0,
-      "timeoutMs": 120000,
-      "kind": "adapter-gap",
-      "status": "ready",
-      "title": "Implement prod browser adapter for noderoom-multi-user-conflict",
-      "familyId": "noderoom-multi-user-conflict",
-      "priority": 101,
-      "objective": "Close the noderoom-multi-user-conflict-prod-browser-room gap without changing locked certification fixtures or weakening proof gates.",
-      "prompt": "Implement the missing prod browser adapter for noderoom-multi-user-conflict.\nRequired adapter: noderoom-multi-user-conflict-prod-browser-room.\nFirst blocker: Internal deterministic conflict suite has not been promoted to prod browser model matrix tasks.\nUse real NodeRoom prod-browser flows with model selection, memory mode off, exported evidence, and verifier receipts.\nDo not edit immutable proof-loop assets or promote failures without an external approval path.",
-      "estimatedProductSpendUsd": 0,
-      "paidModelRequired": false,
-      "counts": {
-        "taskTargets": 6,
-        "blockedAttempts": 24,
-        "attempts": 24
-      },
-      "commands": [
-        {
-          "name": "refresh-prod-browser-adapter-ledger",
-          "command": "npm run benchmark:proofloop:prod-browser-adapters",
-          "requiresSpend": false,
-          "writes": [
-            "docs/eval/proofloop-prod-browser-adapters.json"
-          ]
-        },
-        {
-          "name": "refresh-prod-proxy-longrun-plan",
-          "command": "npm run benchmark:proofloop:prod-proxy-longrun -- plan --budget-usd 100",
-          "requiresSpend": false,
-          "writes": [
-            "docs/eval/proofloop-prod-proxy-longrun-plan.json"
-          ]
-        }
-      ],
-      "acceptance": [
-        "A real prod browser adapter exists for the family and is reflected in docs/eval/proofloop-prod-browser-adapters.json.",
-        "The prod proxy long-run plan moves the family out of blocked_adapter without dropping it from the denominator.",
-        "Relevant deterministic proofloop tests pass."
-      ],
-      "evidence": [
-        "docs/eval/proofloop-prod-browser-adapters.json",
-        "docs/eval/official-benchmark-task-coverage.json"
-      ],
-      "blockers": [
-        "Internal deterministic conflict suite has not been promoted to prod browser model matrix tasks."
-      ],
-      "metadata": {
-        "adapterStatus": "missing_generic_browser_adapter",
-        "adapterVersion": "0.1.0",
-        "adapterPlanPath": "docs/eval/proofloop-prod-browser-adapters.json",
-        "requiredAdapter": "noderoom-multi-user-conflict-prod-browser-room",
-        "sourceMatrixDigest": "b8e8bddd47412bba66f18d154e6dc009515c18707fc3be00b922016bfa10e274"
-      }
-    },
-    {
-      "id": "adapter-gap.notion-live-proofloop",
-      "command": "npm run benchmark:proofloop:prod-browser-adapters",
-      "estimatedCostUsd": 0,
-      "timeoutMs": 120000,
-      "kind": "adapter-gap",
-      "status": "ready",
-      "title": "Implement prod browser adapter for notion-live-proofloop",
-      "familyId": "notion-live-proofloop",
-      "priority": 102,
-      "objective": "Close the notion-live-config-to-prod-browser-room gap without changing locked certification fixtures or weakening proof gates.",
-      "prompt": "Implement the missing prod browser adapter for notion-live-proofloop.\nRequired adapter: notion-live-config-to-prod-browser-room.\nFirst blocker: Current Notion live runner is Convex HTTP, not a prod browser room model matrix.\nUse real NodeRoom prod-browser flows with model selection, memory mode off, exported evidence, and verifier receipts.\nDo not edit immutable proof-loop assets or promote failures without an external approval path.",
-      "estimatedProductSpendUsd": 0,
-      "paidModelRequired": false,
-      "counts": {
-        "taskTargets": 4,
-        "blockedAttempts": 16,
-        "attempts": 16
-      },
-      "commands": [
-        {
-          "name": "refresh-prod-browser-adapter-ledger",
-          "command": "npm run benchmark:proofloop:prod-browser-adapters",
-          "requiresSpend": false,
-          "writes": [
-            "docs/eval/proofloop-prod-browser-adapters.json"
-          ]
-        },
-        {
-          "name": "refresh-prod-proxy-longrun-plan",
-          "command": "npm run benchmark:proofloop:prod-proxy-longrun -- plan --budget-usd 100",
-          "requiresSpend": false,
-          "writes": [
-            "docs/eval/proofloop-prod-proxy-longrun-plan.json"
-          ]
-        }
-      ],
-      "acceptance": [
-        "A real prod browser adapter exists for the family and is reflected in docs/eval/proofloop-prod-browser-adapters.json.",
-        "The prod proxy long-run plan moves the family out of blocked_adapter without dropping it from the denominator.",
-        "Relevant deterministic proofloop tests pass."
-      ],
-      "evidence": [
-        "docs/eval/proofloop-prod-browser-adapters.json",
-        "proofloop/notion/live.notion.config.json"
-      ],
-      "blockers": [
-        "Current Notion live runner is Convex HTTP, not a prod browser room model matrix."
-      ],
-      "metadata": {
-        "adapterStatus": "http_only",
-        "adapterVersion": "0.1.0",
-        "adapterPlanPath": "docs/eval/proofloop-prod-browser-adapters.json",
-        "requiredAdapter": "notion-live-config-to-prod-browser-room",
-        "sourceMatrixDigest": "b8e8bddd47412bba66f18d154e6dc009515c18707fc3be00b922016bfa10e274"
-      }
-    },
-    {
-      "id": "adapter-gap.proximitty-underwriting-pr0",
-      "command": "npm run benchmark:proofloop:prod-browser-adapters",
-      "estimatedCostUsd": 0,
-      "timeoutMs": 120000,
-      "kind": "adapter-gap",
-      "status": "ready",
-      "title": "Implement prod browser adapter for proximitty-underwriting-pr0",
-      "familyId": "proximitty-underwriting-pr0",
-      "priority": 103,
-      "objective": "Close the proximitty-underwriting-prod-browser-room gap without changing locked certification fixtures or weakening proof gates.",
-      "prompt": "Implement the missing prod browser adapter for proximitty-underwriting-pr0.\nRequired adapter: proximitty-underwriting-prod-browser-room.\nFirst blocker: Proximitty suite is deterministic/local; no prod browser room model matrix exists for these scenarios.\nUse real NodeRoom prod-browser flows with model selection, memory mode off, exported evidence, and verifier receipts.\nDo not edit immutable proof-loop assets or promote failures without an external approval path.",
-      "estimatedProductSpendUsd": 0,
-      "paidModelRequired": false,
-      "counts": {
-        "taskTargets": 4,
-        "blockedAttempts": 16,
-        "attempts": 16
-      },
-      "commands": [
-        {
-          "name": "refresh-prod-browser-adapter-ledger",
-          "command": "npm run benchmark:proofloop:prod-browser-adapters",
-          "requiresSpend": false,
-          "writes": [
-            "docs/eval/proofloop-prod-browser-adapters.json"
-          ]
-        },
-        {
-          "name": "refresh-prod-proxy-longrun-plan",
-          "command": "npm run benchmark:proofloop:prod-proxy-longrun -- plan --budget-usd 100",
-          "requiresSpend": false,
-          "writes": [
-            "docs/eval/proofloop-prod-proxy-longrun-plan.json"
-          ]
-        }
-      ],
-      "acceptance": [
-        "A real prod browser adapter exists for the family and is reflected in docs/eval/proofloop-prod-browser-adapters.json.",
-        "The prod proxy long-run plan moves the family out of blocked_adapter without dropping it from the denominator.",
-        "Relevant deterministic proofloop tests pass."
-      ],
-      "evidence": [
-        "docs/eval/proofloop-prod-browser-adapters.json",
-        "proofloop/scenarios/proximitty-intake.spec.ts",
-        ".proofloop/runs/latest/run-result.json",
-        "proofloop/scenarios/proximitty-model-comparison.spec.ts",
-        "proofloop/scenarios/proximitty-risk-research.spec.ts",
-        "proofloop/scenarios/proximitty-underwriting-packet.spec.ts"
-      ],
-      "blockers": [
-        "Proximitty suite is deterministic/local; no prod browser room model matrix exists for these scenarios."
-      ],
-      "metadata": {
-        "adapterStatus": "local_only",
-        "adapterVersion": "0.1.0",
-        "adapterPlanPath": "docs/eval/proofloop-prod-browser-adapters.json",
-        "requiredAdapter": "proximitty-underwriting-prod-browser-room",
-        "sourceMatrixDigest": "b8e8bddd47412bba66f18d154e6dc009515c18707fc3be00b922016bfa10e274"
-      }
-    },
-    {
-      "id": "adapter-gap.spreadsheetbench-v1-full-912",
-      "command": "npm run benchmark:proofloop:prod-browser-adapters",
-      "estimatedCostUsd": 0,
-      "timeoutMs": 120000,
-      "kind": "adapter-gap",
-      "status": "ready",
-      "title": "Implement prod browser adapter for spreadsheetbench-v1-full-912",
-      "familyId": "spreadsheetbench-v1-full-912",
-      "priority": 104,
-      "objective": "Close the spreadsheetbench-v1-official-workbook-prod-browser gap without changing locked certification fixtures or weakening proof gates.",
-      "prompt": "Implement the missing prod browser adapter for spreadsheetbench-v1-full-912.\nRequired adapter: spreadsheetbench-v1-official-workbook-prod-browser.\nFirst blocker: Generic SpreadsheetBench official workbook upload -> agent edit -> export -> scorer browser adapter is not implemented for staged tasks.\nUse real NodeRoom prod-browser flows with model selection, memory mode off, exported evidence, and verifier receipts.\nDo not edit immutable proof-loop assets or promote failures without an external approval path.",
-      "estimatedProductSpendUsd": 0,
-      "paidModelRequired": false,
-      "counts": {
-        "taskTargets": 912,
-        "blockedAttempts": 3648,
-        "attempts": 3648
-      },
-      "commands": [
-        {
-          "name": "refresh-prod-browser-adapter-ledger",
-          "command": "npm run benchmark:proofloop:prod-browser-adapters",
-          "requiresSpend": false,
-          "writes": [
-            "docs/eval/proofloop-prod-browser-adapters.json"
-          ]
-        },
-        {
-          "name": "refresh-prod-proxy-longrun-plan",
-          "command": "npm run benchmark:proofloop:prod-proxy-longrun -- plan --budget-usd 100",
-          "requiresSpend": false,
-          "writes": [
-            "docs/eval/proofloop-prod-proxy-longrun-plan.json"
-          ]
-        }
-      ],
-      "acceptance": [
-        "A real prod browser adapter exists for the family and is reflected in docs/eval/proofloop-prod-browser-adapters.json.",
-        "The prod proxy long-run plan moves the family out of blocked_adapter without dropping it from the denominator.",
-        "Relevant deterministic proofloop tests pass."
-      ],
-      "evidence": [
-        "docs/eval/proofloop-prod-browser-adapters.json",
-        "docs/eval/official-benchmark-task-coverage.json",
-        "docs/eval/spreadsheetbench-v1-912-stage.json",
-        "docs/eval/spreadsheetbench-v1-912-copy-input-baseline.json",
-        "docs/eval/official-benchmark-readiness.json",
-        ".tmp/official-benchmarks/staged-v1-912/tasks/102-20/agent/task.json",
-        ".tmp/official-benchmarks/staged-v1-912/tasks/102-20/evaluator/evaluator.json",
-        "docs/eval/spreadsheetbench-live-room-proof.json"
-      ],
-      "blockers": [
-        "Generic SpreadsheetBench official workbook upload -> agent edit -> export -> scorer browser adapter is not implemented for staged tasks."
-      ],
-      "metadata": {
-        "adapterStatus": "local_only",
-        "adapterVersion": "0.1.0",
-        "adapterPlanPath": "docs/eval/proofloop-prod-browser-adapters.json",
-        "requiredAdapter": "spreadsheetbench-v1-official-workbook-prod-browser",
-        "sourceMatrixDigest": "b8e8bddd47412bba66f18d154e6dc009515c18707fc3be00b922016bfa10e274"
-      }
-    },
-    {
-      "id": "adapter-gap.spreadsheetbench-v2-full-321",
-      "command": "npm run benchmark:proofloop:prod-browser-adapters",
-      "estimatedCostUsd": 0,
-      "timeoutMs": 120000,
-      "kind": "adapter-gap",
-      "status": "ready",
-      "title": "Implement prod browser adapter for spreadsheetbench-v2-full-321",
-      "familyId": "spreadsheetbench-v2-full-321",
-      "priority": 105,
-      "objective": "Close the spreadsheetbench-v2-workflow-chart-prod-browser gap without changing locked certification fixtures or weakening proof gates.",
-      "prompt": "Implement the missing prod browser adapter for spreadsheetbench-v2-full-321.\nRequired adapter: spreadsheetbench-v2-workflow-chart-prod-browser.\nFirst blocker: Generic SpreadsheetBench official workbook upload -> agent edit -> export -> scorer browser adapter is not implemented for staged tasks.\nUse real NodeRoom prod-browser flows with model selection, memory mode off, exported evidence, and verifier receipts.\nDo not edit immutable proof-loop assets or promote failures without an external approval path.",
-      "estimatedProductSpendUsd": 0,
-      "paidModelRequired": false,
-      "counts": {
-        "taskTargets": 321,
-        "blockedAttempts": 1284,
-        "attempts": 1284
-      },
-      "commands": [
-        {
-          "name": "refresh-prod-browser-adapter-ledger",
-          "command": "npm run benchmark:proofloop:prod-browser-adapters",
-          "requiresSpend": false,
-          "writes": [
-            "docs/eval/proofloop-prod-browser-adapters.json"
-          ]
-        },
-        {
-          "name": "refresh-prod-proxy-longrun-plan",
-          "command": "npm run benchmark:proofloop:prod-proxy-longrun -- plan --budget-usd 100",
-          "requiresSpend": false,
-          "writes": [
-            "docs/eval/proofloop-prod-proxy-longrun-plan.json"
-          ]
-        }
-      ],
-      "acceptance": [
-        "A real prod browser adapter exists for the family and is reflected in docs/eval/proofloop-prod-browser-adapters.json.",
-        "The prod proxy long-run plan moves the family out of blocked_adapter without dropping it from the denominator.",
-        "Relevant deterministic proofloop tests pass."
-      ],
-      "evidence": [
-        "docs/eval/proofloop-prod-browser-adapters.json",
-        "docs/eval/official-benchmark-task-coverage.json",
-        "docs/eval/spreadsheetbench-v2-full-ingest.json",
-        "docs/eval/spreadsheetbench-v2-full-stage.json",
-        "docs/eval/spreadsheetbench-v2-stage-smoke.json",
-        "docs/eval/spreadsheetbench-v2-run-smoke.json",
-        "docs/eval/spreadsheetbench-chart-visual-probe.json",
-        ".tmp/official-benchmarks/staged-v2-full/tasks/Debugging_01_01/agent/task.json",
-        ".tmp/official-benchmarks/staged-v2-full/tasks/Debugging_01_01/evaluator/evaluator.json"
-      ],
-      "blockers": [
-        "Generic SpreadsheetBench official workbook upload -> agent edit -> export -> scorer browser adapter is not implemented for staged tasks."
-      ],
-      "metadata": {
-        "adapterStatus": "missing_generic_browser_adapter",
-        "adapterVersion": "0.1.0",
-        "adapterPlanPath": "docs/eval/proofloop-prod-browser-adapters.json",
-        "requiredAdapter": "spreadsheetbench-v2-workflow-chart-prod-browser",
-        "sourceMatrixDigest": "b8e8bddd47412bba66f18d154e6dc009515c18707fc3be00b922016bfa10e274"
-      }
-    },
-    {
-      "id": "live-run.bankertoolbench-full-100",
+      "id": "live-run.accounting-live-proofloop",
       "command": "npm run benchmark:proofloop:prod-proxy-longrun -- status",
       "estimatedCostUsd": 0,
       "timeoutMs": 120000,
       "kind": "guarded-live-run-batch",
       "status": "guarded-spend",
-      "title": "Run guarded prod proxy attempts for bankertoolbench-full-100",
-      "familyId": "bankertoolbench-full-100",
+      "title": "Run guarded prod proxy attempts for accounting-live-proofloop",
+      "familyId": "accounting-live-proofloop",
       "priority": 300,
-      "objective": "Execute the queued real-user prod browser attempts for bankertoolbench-full-100 under the standalone runner budget guard.",
-      "prompt": "Run the queued prod proxy attempts for bankertoolbench-full-100 through https://noderoom.live with memory mode off.\nStart with max-attempts 1, refresh the long-run plan after every attempt, and stop if receipts or budget accounting are missing.\nDo not run broad paid model sweeps; only execute the queued attempts covered by this plan and the runner budget.\nModels in this batch: deepseek/deepseek-v4-flash, poolside/laguna-xs-2.1, qwen/qwen3.7-plus, z-ai/glm-5.2.",
-      "estimatedProductSpendUsd": 18.2284,
+      "objective": "Execute the queued real-user prod browser attempts for accounting-live-proofloop under the standalone runner budget guard.",
+      "prompt": "Run the queued prod proxy attempts for accounting-live-proofloop through https://noderoom.live with memory mode off.\nStart with max-attempts 1, refresh the long-run plan after every attempt, and stop if receipts or budget accounting are missing.\nDo not run broad paid model sweeps; only execute the queued attempts covered by this plan and the runner budget.\nModels in this batch: deepseek/deepseek-v4-flash, poolside/laguna-xs-2.1, qwen/qwen3.7-plus.",
+      "estimatedProductSpendUsd": 0.401912,
       "paidModelRequired": true,
       "counts": {
-        "taskTargets": 100,
-        "queuedAttempts": 400,
-        "attempts": 400
+        "taskTargets": 4,
+        "queuedAttempts": 12,
+        "attempts": 12
       },
       "commands": [
         {
@@ -443,9 +84,88 @@
           "command": "npm run benchmark:proofloop:prod-proxy-longrun -- run --execute --allow-spend --budget-usd 100 --max-attempts 1",
           "requiresSpend": true,
           "writes": [
-            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T05-31-18-498Z/state.json",
-            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T05-31-18-498Z/events.jsonl",
-            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T05-31-18-498Z/receipts/"
+            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T08-11-53-101Z/state.json",
+            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T08-11-53-101Z/events.jsonl",
+            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T08-11-53-101Z/receipts/"
+          ]
+        }
+      ],
+      "acceptance": [
+        "Every attempted row writes a verifier receipt, cost evidence, and updated state before it can be marked passed.",
+        "Memory mode remains disabled for the prod UI run.",
+        "The all-task winner remains null until every tracked task target has prod browser proof."
+      ],
+      "evidence": [
+        "proofloop/accounting/live.accounting.config.json",
+        "proofloop/live-browser-proof.spec.ts",
+        "scripts/proofloop-live-playwright.ts"
+      ],
+      "blockers": [
+        "Accounting live proof-loop has no passing prod live-browser receipt for this task/model yet."
+      ],
+      "metadata": {
+        "modelIds": [
+          "deepseek/deepseek-v4-flash",
+          "poolside/laguna-xs-2.1",
+          "qwen/qwen3.7-plus"
+        ],
+        "sampleAttemptId": "accounting-live-proofloop--memo-draft--poolside_laguna-xs-2.1--ad6734b421",
+        "sampleTaskId": "memo-draft",
+        "sampleCommand": "npm run proofloop:live:accounting:browser",
+        "sampleEnv": {
+          "BENCH_BASE_URL": "https://noderoom.live",
+          "PLAYWRIGHT_BASE_URL": "https://noderoom.live",
+          "PLAYWRIGHT_REUSE_SERVER": "1",
+          "PLAYWRIGHT_RETRIES": "0",
+          "PLAYWRIGHT_OUTPUT_DIR": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T08-11-53-101Z/receipts/playwright/accounting-live-proofloop--memo-draft--poolside_laguna-xs-2.1--ad6734b421",
+          "BENCH_AGENT_MODEL_MODE": "specific",
+          "BENCH_AGENT_MODEL_POLICY": "poolside/laguna-xs-2.1",
+          "PROOFLOOP_REAL_USER_MODE": "1",
+          "PROOFLOOP_FOCUS_MODE": "0",
+          "PROOFLOOP_NODEAGENT_RUNTIME_PROFILE": "",
+          "PROOFLOOP_RUN_ID": "proofloop-standalone-runner-dogfood-2026-07-05T08-11-53-101Z-accounting-live-proofloop--memo-draft--poolside_laguna-xs-2.1--ad6734b421",
+          "PROOFLOOP_CASE_ID": "accounting-live-proofloop--memo-draft--poolside_laguna-xs-2.1--ad6734b421",
+          "PROOFLOOP_FRESH_ROOM_ROOT": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T08-11-53-101Z/receipts/fresh-room",
+          "PROOFLOOP_SUITE_PROOF_PATH": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T08-11-53-101Z/receipts/accounting-live-proofloop--memo-draft--poolside_laguna-xs-2.1--ad6734b421.json",
+          "PROOFLOOP_TASKS_JSON": "proofloop/accounting/live.accounting.config.json",
+          "PROOFLOOP_TASK_IDS": "memo-draft"
+        },
+        "sourceMatrixDigest": "6482bf37c01f3be286b1c8703f372c85e2175cc976c55825760bd3a9523b1c6b"
+      }
+    },
+    {
+      "id": "live-run.bankertoolbench-full-100",
+      "command": "npm run benchmark:proofloop:prod-proxy-longrun -- status",
+      "estimatedCostUsd": 0,
+      "timeoutMs": 120000,
+      "kind": "guarded-live-run-batch",
+      "status": "guarded-spend",
+      "title": "Run guarded prod proxy attempts for bankertoolbench-full-100",
+      "familyId": "bankertoolbench-full-100",
+      "priority": 301,
+      "objective": "Execute the queued real-user prod browser attempts for bankertoolbench-full-100 under the standalone runner budget guard.",
+      "prompt": "Run the queued prod proxy attempts for bankertoolbench-full-100 through https://noderoom.live with memory mode off.\nStart with max-attempts 1, refresh the long-run plan after every attempt, and stop if receipts or budget accounting are missing.\nDo not run broad paid model sweeps; only execute the queued attempts covered by this plan and the runner budget.\nModels in this batch: deepseek/deepseek-v4-flash, poolside/laguna-xs-2.1, qwen/qwen3.7-plus.",
+      "estimatedProductSpendUsd": 10.0478,
+      "paidModelRequired": true,
+      "counts": {
+        "taskTargets": 100,
+        "queuedAttempts": 300,
+        "attempts": 300
+      },
+      "commands": [
+        {
+          "name": "status",
+          "command": "npm run benchmark:proofloop:prod-proxy-longrun -- status",
+          "requiresSpend": false
+        },
+        {
+          "name": "single-guarded-attempt",
+          "command": "npm run benchmark:proofloop:prod-proxy-longrun -- run --execute --allow-spend --budget-usd 100 --max-attempts 1",
+          "requiresSpend": true,
+          "writes": [
+            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T08-11-53-101Z/state.json",
+            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T08-11-53-101Z/events.jsonl",
+            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T08-11-53-101Z/receipts/"
           ]
         }
       ],
@@ -472,8 +192,7 @@
         "modelIds": [
           "deepseek/deepseek-v4-flash",
           "poolside/laguna-xs-2.1",
-          "qwen/qwen3.7-plus",
-          "z-ai/glm-5.2"
+          "qwen/qwen3.7-plus"
         ],
         "sampleAttemptId": "bankertoolbench-full-100--067cb834-ad43-448b-a523-d0c9898656e0--poolside_laguna-xs-2.1--85d7d2a492",
         "sampleTaskId": "067cb834-ad43-448b-a523-d0c9898656e0",
@@ -482,19 +201,24 @@
           "BENCH_BASE_URL": "https://noderoom.live",
           "PLAYWRIGHT_BASE_URL": "https://noderoom.live",
           "PLAYWRIGHT_REUSE_SERVER": "1",
+          "PLAYWRIGHT_RETRIES": "0",
+          "PLAYWRIGHT_OUTPUT_DIR": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T08-11-53-101Z/receipts/playwright/bankertoolbench-full-100--067cb834-ad43-448b-a523-d0c9898656e0--poolside_laguna-xs-2.1--85d7d2a492",
           "BENCH_AGENT_MODEL_MODE": "specific",
           "BENCH_AGENT_MODEL_POLICY": "poolside/laguna-xs-2.1",
           "PROOFLOOP_REAL_USER_MODE": "1",
           "PROOFLOOP_FOCUS_MODE": "0",
           "PROOFLOOP_NODEAGENT_RUNTIME_PROFILE": "",
-          "PROOFLOOP_RUN_ID": "proofloop-standalone-runner-dogfood-2026-07-05T05-31-18-498Z-bankertoolbench-full-100--067cb834-ad43-448b-a523-d0c9898656e0--poolside_laguna-xs-2.1--85d7d2a492",
+          "PROOFLOOP_RUN_ID": "proofloop-standalone-runner-dogfood-2026-07-05T08-11-53-101Z-bankertoolbench-full-100--067cb834-ad43-448b-a523-d0c9898656e0--poolside_laguna-xs-2.1--85d7d2a492",
+          "PROOFLOOP_CASE_ID": "bankertoolbench-full-100--067cb834-ad43-448b-a523-d0c9898656e0--poolside_laguna-xs-2.1--85d7d2a492",
+          "PROOFLOOP_FRESH_ROOM_ROOT": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T08-11-53-101Z/receipts/fresh-room",
+          "PROOFLOOP_SUITE_PROOF_PATH": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T08-11-53-101Z/receipts/bankertoolbench-full-100--067cb834-ad43-448b-a523-d0c9898656e0--poolside_laguna-xs-2.1--85d7d2a492.json",
           "BTB_LIVE_ROOM_E2E": "1",
           "BTB_UI_BUNDLE_ROOT": ".tmp/official-benchmarks/bankertoolbench-repo/btb-data",
           "BTB_UI_TASK_ID": "067cb834-ad43-448b-a523-d0c9898656e0",
           "BTB_UI_VERIFIER_COMMAND": "npm run benchmark:bankertoolbench:proof",
-          "BTB_LIVE_ROOM_PROOF_PATH": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T05-31-18-498Z/receipts/bankertoolbench-full-100--067cb834-ad43-448b-a523-d0c9898656e0--poolside_laguna-xs-2.1--85d7d2a492.json"
+          "BTB_LIVE_ROOM_PROOF_PATH": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T08-11-53-101Z/receipts/bankertoolbench-full-100--067cb834-ad43-448b-a523-d0c9898656e0--poolside_laguna-xs-2.1--85d7d2a492.json"
         },
-        "sourceMatrixDigest": "b8e8bddd47412bba66f18d154e6dc009515c18707fc3be00b922016bfa10e274"
+        "sourceMatrixDigest": "6482bf37c01f3be286b1c8703f372c85e2175cc976c55825760bd3a9523b1c6b"
       }
     },
     {
@@ -506,7 +230,7 @@
       "status": "guarded-spend",
       "title": "Run guarded prod proxy attempts for finch-prod-proxy-task",
       "familyId": "finch-prod-proxy-task",
-      "priority": 301,
+      "priority": 302,
       "objective": "Execute the queued real-user prod browser attempts for finch-prod-proxy-task under the standalone runner budget guard.",
       "prompt": "Run the queued prod proxy attempts for finch-prod-proxy-task through https://noderoom.live with memory mode off.\nStart with max-attempts 1, refresh the long-run plan after every attempt, and stop if receipts or budget accounting are missing.\nDo not run broad paid model sweeps; only execute the queued attempts covered by this plan and the runner budget.\nModels in this batch: deepseek/deepseek-v4-flash.",
       "estimatedProductSpendUsd": 0.023,
@@ -527,9 +251,9 @@
           "command": "npm run benchmark:proofloop:prod-proxy-longrun -- run --execute --allow-spend --budget-usd 100 --max-attempts 1",
           "requiresSpend": true,
           "writes": [
-            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T05-31-18-498Z/state.json",
-            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T05-31-18-498Z/events.jsonl",
-            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T05-31-18-498Z/receipts/"
+            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T08-11-53-101Z/state.json",
+            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T08-11-53-101Z/events.jsonl",
+            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T08-11-53-101Z/receipts/"
           ]
         }
       ],
@@ -550,19 +274,435 @@
         ],
         "sampleAttemptId": "finch-prod-proxy-task--finch-local-financial-evidence-qa--deepseek_deepseek-v4-flash--a8de090c31",
         "sampleTaskId": "finch-local-financial-evidence-qa",
-        "sampleCommand": "npm run benchmark:proofloop:external-adapter-live-room -- --prod --id finch --real-user --model deepseek/deepseek-v4-flash --model-mode specific --json-out-dir .proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T05-31-18-498Z/receipts",
+        "sampleCommand": "npm run benchmark:proofloop:external-adapter-live-room -- --prod --id finch --real-user --model deepseek/deepseek-v4-flash --model-mode specific --json-out-dir .proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T08-11-53-101Z/receipts",
         "sampleEnv": {
           "BENCH_BASE_URL": "https://noderoom.live",
           "PLAYWRIGHT_BASE_URL": "https://noderoom.live",
           "PLAYWRIGHT_REUSE_SERVER": "1",
+          "PLAYWRIGHT_RETRIES": "0",
+          "PLAYWRIGHT_OUTPUT_DIR": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T08-11-53-101Z/receipts/playwright/finch-prod-proxy-task--finch-local-financial-evidence-qa--deepseek_deepseek-v4-flash--a8de090c31",
           "BENCH_AGENT_MODEL_MODE": "specific",
           "BENCH_AGENT_MODEL_POLICY": "deepseek/deepseek-v4-flash",
           "PROOFLOOP_REAL_USER_MODE": "1",
           "PROOFLOOP_FOCUS_MODE": "0",
           "PROOFLOOP_NODEAGENT_RUNTIME_PROFILE": "",
-          "PROOFLOOP_RUN_ID": "proofloop-standalone-runner-dogfood-2026-07-05T05-31-18-498Z-finch-prod-proxy-task--finch-local-financial-evidence-qa--deepseek_deepseek-v4-flash--a8de090c31"
+          "PROOFLOOP_RUN_ID": "proofloop-standalone-runner-dogfood-2026-07-05T08-11-53-101Z-finch-prod-proxy-task--finch-local-financial-evidence-qa--deepseek_deepseek-v4-flash--a8de090c31",
+          "PROOFLOOP_CASE_ID": "finch-prod-proxy-task--finch-local-financial-evidence-qa--deepseek_deepseek-v4-flash--a8de090c31",
+          "PROOFLOOP_FRESH_ROOM_ROOT": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T08-11-53-101Z/receipts/fresh-room",
+          "PROOFLOOP_SUITE_PROOF_PATH": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T08-11-53-101Z/receipts/finch-prod-proxy-task--finch-local-financial-evidence-qa--deepseek_deepseek-v4-flash--a8de090c31.json"
         },
-        "sourceMatrixDigest": "b8e8bddd47412bba66f18d154e6dc009515c18707fc3be00b922016bfa10e274"
+        "sourceMatrixDigest": "6482bf37c01f3be286b1c8703f372c85e2175cc976c55825760bd3a9523b1c6b"
+      }
+    },
+    {
+      "id": "live-run.noderoom-multi-user-conflict",
+      "command": "npm run benchmark:proofloop:prod-proxy-longrun -- status",
+      "estimatedCostUsd": 0,
+      "timeoutMs": 120000,
+      "kind": "guarded-live-run-batch",
+      "status": "guarded-spend",
+      "title": "Run guarded prod proxy attempts for noderoom-multi-user-conflict",
+      "familyId": "noderoom-multi-user-conflict",
+      "priority": 303,
+      "objective": "Execute the queued real-user prod browser attempts for noderoom-multi-user-conflict under the standalone runner budget guard.",
+      "prompt": "Run the queued prod proxy attempts for noderoom-multi-user-conflict through https://noderoom.live with memory mode off.\nStart with max-attempts 1, refresh the long-run plan after every attempt, and stop if receipts or budget accounting are missing.\nDo not run broad paid model sweeps; only execute the queued attempts covered by this plan and the runner budget.\nModels in this batch: deepseek/deepseek-v4-flash, poolside/laguna-xs-2.1, qwen/qwen3.7-plus.",
+      "estimatedProductSpendUsd": 0.602868,
+      "paidModelRequired": true,
+      "counts": {
+        "taskTargets": 6,
+        "queuedAttempts": 18,
+        "attempts": 18
+      },
+      "commands": [
+        {
+          "name": "status",
+          "command": "npm run benchmark:proofloop:prod-proxy-longrun -- status",
+          "requiresSpend": false
+        },
+        {
+          "name": "single-guarded-attempt",
+          "command": "npm run benchmark:proofloop:prod-proxy-longrun -- run --execute --allow-spend --budget-usd 100 --max-attempts 1",
+          "requiresSpend": true,
+          "writes": [
+            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T08-11-53-101Z/state.json",
+            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T08-11-53-101Z/events.jsonl",
+            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T08-11-53-101Z/receipts/"
+          ]
+        }
+      ],
+      "acceptance": [
+        "Every attempted row writes a verifier receipt, cost evidence, and updated state before it can be marked passed.",
+        "Memory mode remains disabled for the prod UI run.",
+        "The all-task winner remains null until every tracked task target has prod browser proof."
+      ],
+      "evidence": [
+        "docs/eval/official-benchmark-task-coverage.json",
+        "evals/multiUserCoordinationProof.ts",
+        "proofloop/benchmarks/noderoom-multi-user/live-room-scenario.spec.ts",
+        "scripts/proofloop-live-playwright.ts"
+      ],
+      "blockers": [
+        "Multi-user conflict has a prod browser adapter, but no passing prod live-browser receipt is recorded for this task/model yet."
+      ],
+      "metadata": {
+        "modelIds": [
+          "deepseek/deepseek-v4-flash",
+          "poolside/laguna-xs-2.1",
+          "qwen/qwen3.7-plus"
+        ],
+        "sampleAttemptId": "noderoom-multi-user-conflict--multi-user-conflict-1--poolside_laguna-xs-2.1--2742b0e3fd",
+        "sampleTaskId": "multi-user-conflict-1",
+        "sampleCommand": "npm run proofloop:live:multi-user-conflict",
+        "sampleEnv": {
+          "BENCH_BASE_URL": "https://noderoom.live",
+          "PLAYWRIGHT_BASE_URL": "https://noderoom.live",
+          "PLAYWRIGHT_REUSE_SERVER": "1",
+          "PLAYWRIGHT_RETRIES": "0",
+          "PLAYWRIGHT_OUTPUT_DIR": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T08-11-53-101Z/receipts/playwright/noderoom-multi-user-conflict--multi-user-conflict-1--poolside_laguna-xs-2.1--2742b0e3fd",
+          "BENCH_AGENT_MODEL_MODE": "specific",
+          "BENCH_AGENT_MODEL_POLICY": "poolside/laguna-xs-2.1",
+          "PROOFLOOP_REAL_USER_MODE": "1",
+          "PROOFLOOP_FOCUS_MODE": "0",
+          "PROOFLOOP_NODEAGENT_RUNTIME_PROFILE": "",
+          "PROOFLOOP_RUN_ID": "proofloop-standalone-runner-dogfood-2026-07-05T08-11-53-101Z-noderoom-multi-user-conflict--multi-user-conflict-1--poolside_laguna-xs-2.1--2742b0e3fd",
+          "PROOFLOOP_CASE_ID": "noderoom-multi-user-conflict--multi-user-conflict-1--poolside_laguna-xs-2.1--2742b0e3fd",
+          "PROOFLOOP_FRESH_ROOM_ROOT": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T08-11-53-101Z/receipts/fresh-room",
+          "PROOFLOOP_SUITE_PROOF_PATH": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T08-11-53-101Z/receipts/noderoom-multi-user-conflict--multi-user-conflict-1--poolside_laguna-xs-2.1--2742b0e3fd.json",
+          "PROOFLOOP_TASK_IDS": "multi-user-conflict-1"
+        },
+        "sourceMatrixDigest": "6482bf37c01f3be286b1c8703f372c85e2175cc976c55825760bd3a9523b1c6b"
+      }
+    },
+    {
+      "id": "live-run.notion-live-proofloop",
+      "command": "npm run benchmark:proofloop:prod-proxy-longrun -- status",
+      "estimatedCostUsd": 0,
+      "timeoutMs": 120000,
+      "kind": "guarded-live-run-batch",
+      "status": "guarded-spend",
+      "title": "Run guarded prod proxy attempts for notion-live-proofloop",
+      "familyId": "notion-live-proofloop",
+      "priority": 304,
+      "objective": "Execute the queued real-user prod browser attempts for notion-live-proofloop under the standalone runner budget guard.",
+      "prompt": "Run the queued prod proxy attempts for notion-live-proofloop through https://noderoom.live with memory mode off.\nStart with max-attempts 1, refresh the long-run plan after every attempt, and stop if receipts or budget accounting are missing.\nDo not run broad paid model sweeps; only execute the queued attempts covered by this plan and the runner budget.\nModels in this batch: deepseek/deepseek-v4-flash, poolside/laguna-xs-2.1, qwen/qwen3.7-plus.",
+      "estimatedProductSpendUsd": 0.401912,
+      "paidModelRequired": true,
+      "counts": {
+        "taskTargets": 4,
+        "queuedAttempts": 12,
+        "attempts": 12
+      },
+      "commands": [
+        {
+          "name": "status",
+          "command": "npm run benchmark:proofloop:prod-proxy-longrun -- status",
+          "requiresSpend": false
+        },
+        {
+          "name": "single-guarded-attempt",
+          "command": "npm run benchmark:proofloop:prod-proxy-longrun -- run --execute --allow-spend --budget-usd 100 --max-attempts 1",
+          "requiresSpend": true,
+          "writes": [
+            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T08-11-53-101Z/state.json",
+            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T08-11-53-101Z/events.jsonl",
+            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T08-11-53-101Z/receipts/"
+          ]
+        }
+      ],
+      "acceptance": [
+        "Every attempted row writes a verifier receipt, cost evidence, and updated state before it can be marked passed.",
+        "Memory mode remains disabled for the prod UI run.",
+        "The all-task winner remains null until every tracked task target has prod browser proof."
+      ],
+      "evidence": [
+        "proofloop/live-browser-proof.spec.ts",
+        "proofloop/notion/live.notion.config.json",
+        "scripts/proofloop-live-playwright.ts"
+      ],
+      "blockers": [
+        "Notion live proof-loop has no passing prod live-browser receipt for this task/model yet."
+      ],
+      "metadata": {
+        "modelIds": [
+          "deepseek/deepseek-v4-flash",
+          "poolside/laguna-xs-2.1",
+          "qwen/qwen3.7-plus"
+        ],
+        "sampleAttemptId": "notion-live-proofloop--company-research--poolside_laguna-xs-2.1--5336dfb719",
+        "sampleTaskId": "company-research",
+        "sampleCommand": "npm run proofloop:live:notion:browser",
+        "sampleEnv": {
+          "BENCH_BASE_URL": "https://noderoom.live",
+          "PLAYWRIGHT_BASE_URL": "https://noderoom.live",
+          "PLAYWRIGHT_REUSE_SERVER": "1",
+          "PLAYWRIGHT_RETRIES": "0",
+          "PLAYWRIGHT_OUTPUT_DIR": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T08-11-53-101Z/receipts/playwright/notion-live-proofloop--company-research--poolside_laguna-xs-2.1--5336dfb719",
+          "BENCH_AGENT_MODEL_MODE": "specific",
+          "BENCH_AGENT_MODEL_POLICY": "poolside/laguna-xs-2.1",
+          "PROOFLOOP_REAL_USER_MODE": "1",
+          "PROOFLOOP_FOCUS_MODE": "0",
+          "PROOFLOOP_NODEAGENT_RUNTIME_PROFILE": "",
+          "PROOFLOOP_RUN_ID": "proofloop-standalone-runner-dogfood-2026-07-05T08-11-53-101Z-notion-live-proofloop--company-research--poolside_laguna-xs-2.1--5336dfb719",
+          "PROOFLOOP_CASE_ID": "notion-live-proofloop--company-research--poolside_laguna-xs-2.1--5336dfb719",
+          "PROOFLOOP_FRESH_ROOM_ROOT": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T08-11-53-101Z/receipts/fresh-room",
+          "PROOFLOOP_SUITE_PROOF_PATH": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T08-11-53-101Z/receipts/notion-live-proofloop--company-research--poolside_laguna-xs-2.1--5336dfb719.json",
+          "PROOFLOOP_TASKS_JSON": "proofloop/notion/live.notion.config.json",
+          "PROOFLOOP_TASK_IDS": "company-research"
+        },
+        "sourceMatrixDigest": "6482bf37c01f3be286b1c8703f372c85e2175cc976c55825760bd3a9523b1c6b"
+      }
+    },
+    {
+      "id": "live-run.proximitty-underwriting-pr0",
+      "command": "npm run benchmark:proofloop:prod-proxy-longrun -- status",
+      "estimatedCostUsd": 0,
+      "timeoutMs": 120000,
+      "kind": "guarded-live-run-batch",
+      "status": "guarded-spend",
+      "title": "Run guarded prod proxy attempts for proximitty-underwriting-pr0",
+      "familyId": "proximitty-underwriting-pr0",
+      "priority": 305,
+      "objective": "Execute the queued real-user prod browser attempts for proximitty-underwriting-pr0 under the standalone runner budget guard.",
+      "prompt": "Run the queued prod proxy attempts for proximitty-underwriting-pr0 through https://noderoom.live with memory mode off.\nStart with max-attempts 1, refresh the long-run plan after every attempt, and stop if receipts or budget accounting are missing.\nDo not run broad paid model sweeps; only execute the queued attempts covered by this plan and the runner budget.\nModels in this batch: deepseek/deepseek-v4-flash, poolside/laguna-xs-2.1, qwen/qwen3.7-plus.",
+      "estimatedProductSpendUsd": 0.401912,
+      "paidModelRequired": true,
+      "counts": {
+        "taskTargets": 4,
+        "queuedAttempts": 12,
+        "attempts": 12
+      },
+      "commands": [
+        {
+          "name": "status",
+          "command": "npm run benchmark:proofloop:prod-proxy-longrun -- status",
+          "requiresSpend": false
+        },
+        {
+          "name": "single-guarded-attempt",
+          "command": "npm run benchmark:proofloop:prod-proxy-longrun -- run --execute --allow-spend --budget-usd 100 --max-attempts 1",
+          "requiresSpend": true,
+          "writes": [
+            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T08-11-53-101Z/state.json",
+            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T08-11-53-101Z/events.jsonl",
+            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T08-11-53-101Z/receipts/"
+          ]
+        }
+      ],
+      "acceptance": [
+        "Every attempted row writes a verifier receipt, cost evidence, and updated state before it can be marked passed.",
+        "Memory mode remains disabled for the prod UI run.",
+        "The all-task winner remains null until every tracked task target has prod browser proof."
+      ],
+      "evidence": [
+        "proofloop/benchmarks/proximitty/live-room-scenario.spec.ts",
+        "proofloop/scenarios/proximitty-intake.spec.ts",
+        "proofloop/scenarios/proximitty-model-comparison.spec.ts",
+        "proofloop/scenarios/proximitty-risk-research.spec.ts",
+        "proofloop/scenarios/proximitty-underwriting-packet.spec.ts",
+        "scripts/proofloop-live-playwright.ts"
+      ],
+      "blockers": [
+        "Proximitty has a prod browser adapter, but no passing prod live-browser receipt is recorded for this task/model yet."
+      ],
+      "metadata": {
+        "modelIds": [
+          "deepseek/deepseek-v4-flash",
+          "poolside/laguna-xs-2.1",
+          "qwen/qwen3.7-plus"
+        ],
+        "sampleAttemptId": "proximitty-underwriting-pr0--proximitty-intake--poolside_laguna-xs-2.1--21cdc751a8",
+        "sampleTaskId": "proximitty-intake",
+        "sampleCommand": "npm run proofloop:proximitty:browser",
+        "sampleEnv": {
+          "BENCH_BASE_URL": "https://noderoom.live",
+          "PLAYWRIGHT_BASE_URL": "https://noderoom.live",
+          "PLAYWRIGHT_REUSE_SERVER": "1",
+          "PLAYWRIGHT_RETRIES": "0",
+          "PLAYWRIGHT_OUTPUT_DIR": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T08-11-53-101Z/receipts/playwright/proximitty-underwriting-pr0--proximitty-intake--poolside_laguna-xs-2.1--21cdc751a8",
+          "BENCH_AGENT_MODEL_MODE": "specific",
+          "BENCH_AGENT_MODEL_POLICY": "poolside/laguna-xs-2.1",
+          "PROOFLOOP_REAL_USER_MODE": "1",
+          "PROOFLOOP_FOCUS_MODE": "0",
+          "PROOFLOOP_NODEAGENT_RUNTIME_PROFILE": "",
+          "PROOFLOOP_RUN_ID": "proofloop-standalone-runner-dogfood-2026-07-05T08-11-53-101Z-proximitty-underwriting-pr0--proximitty-intake--poolside_laguna-xs-2.1--21cdc751a8",
+          "PROOFLOOP_CASE_ID": "proximitty-underwriting-pr0--proximitty-intake--poolside_laguna-xs-2.1--21cdc751a8",
+          "PROOFLOOP_FRESH_ROOM_ROOT": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T08-11-53-101Z/receipts/fresh-room",
+          "PROOFLOOP_SUITE_PROOF_PATH": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T08-11-53-101Z/receipts/proximitty-underwriting-pr0--proximitty-intake--poolside_laguna-xs-2.1--21cdc751a8.json",
+          "PROOFLOOP_TASK_IDS": "proximitty-intake"
+        },
+        "sourceMatrixDigest": "6482bf37c01f3be286b1c8703f372c85e2175cc976c55825760bd3a9523b1c6b"
+      }
+    },
+    {
+      "id": "live-run.spreadsheetbench-v1-full-912",
+      "command": "npm run benchmark:proofloop:prod-proxy-longrun -- status",
+      "estimatedCostUsd": 0,
+      "timeoutMs": 120000,
+      "kind": "guarded-live-run-batch",
+      "status": "guarded-spend",
+      "title": "Run guarded prod proxy attempts for spreadsheetbench-v1-full-912",
+      "familyId": "spreadsheetbench-v1-full-912",
+      "priority": 306,
+      "objective": "Execute the queued real-user prod browser attempts for spreadsheetbench-v1-full-912 under the standalone runner budget guard.",
+      "prompt": "Run the queued prod proxy attempts for spreadsheetbench-v1-full-912 through https://noderoom.live with memory mode off.\nStart with max-attempts 1, refresh the long-run plan after every attempt, and stop if receipts or budget accounting are missing.\nDo not run broad paid model sweeps; only execute the queued attempts covered by this plan and the runner budget.\nModels in this batch: deepseek/deepseek-v4-flash, poolside/laguna-xs-2.1, qwen/qwen3.7-plus.",
+      "estimatedProductSpendUsd": 77.143732,
+      "paidModelRequired": true,
+      "counts": {
+        "taskTargets": 912,
+        "queuedAttempts": 2518,
+        "attempts": 2518
+      },
+      "commands": [
+        {
+          "name": "status",
+          "command": "npm run benchmark:proofloop:prod-proxy-longrun -- status",
+          "requiresSpend": false
+        },
+        {
+          "name": "single-guarded-attempt",
+          "command": "npm run benchmark:proofloop:prod-proxy-longrun -- run --execute --allow-spend --budget-usd 100 --max-attempts 1",
+          "requiresSpend": true,
+          "writes": [
+            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T08-11-53-101Z/state.json",
+            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T08-11-53-101Z/events.jsonl",
+            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T08-11-53-101Z/receipts/"
+          ]
+        }
+      ],
+      "acceptance": [
+        "Every attempted row writes a verifier receipt, cost evidence, and updated state before it can be marked passed.",
+        "Memory mode remains disabled for the prod UI run.",
+        "The all-task winner remains null until every tracked task target has prod browser proof."
+      ],
+      "evidence": [
+        ".tmp/official-benchmarks/staged-v1-912/tasks/102-20/agent/task.json",
+        ".tmp/official-benchmarks/staged-v1-912/tasks/102-20/evaluator/evaluator.json",
+        ".tmp/official-benchmarks/staged-v1-912/tasks/10281/agent/task.json",
+        "docs/eval/official-benchmark-readiness.json",
+        "docs/eval/official-benchmark-task-coverage.json",
+        "docs/eval/spreadsheetbench-live-room-proof.json",
+        "docs/eval/spreadsheetbench-v1-912-copy-input-baseline.json",
+        "docs/eval/spreadsheetbench-v1-912-stage.json"
+      ],
+      "blockers": [
+        "Existing SpreadsheetBench receipt is local live-browser only; rerun against https://noderoom.live.",
+        "SpreadsheetBench task is ready for the generic prod browser workbook adapter but lacks a passing prod receipt."
+      ],
+      "metadata": {
+        "modelIds": [
+          "deepseek/deepseek-v4-flash",
+          "poolside/laguna-xs-2.1",
+          "qwen/qwen3.7-plus"
+        ],
+        "sampleAttemptId": "spreadsheetbench-v1-full-912--102-20--poolside_laguna-xs-2.1--33b65c6844",
+        "sampleTaskId": "102-20",
+        "sampleCommand": "npm run proofloop:live:spreadsheetbench-v1",
+        "sampleEnv": {
+          "BENCH_BASE_URL": "https://noderoom.live",
+          "PLAYWRIGHT_BASE_URL": "https://noderoom.live",
+          "PLAYWRIGHT_REUSE_SERVER": "1",
+          "PLAYWRIGHT_RETRIES": "0",
+          "PLAYWRIGHT_OUTPUT_DIR": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T08-11-53-101Z/receipts/playwright/spreadsheetbench-v1-full-912--102-20--poolside_laguna-xs-2.1--33b65c6844",
+          "BENCH_AGENT_MODEL_MODE": "specific",
+          "BENCH_AGENT_MODEL_POLICY": "poolside/laguna-xs-2.1",
+          "PROOFLOOP_REAL_USER_MODE": "1",
+          "PROOFLOOP_FOCUS_MODE": "0",
+          "PROOFLOOP_NODEAGENT_RUNTIME_PROFILE": "",
+          "PROOFLOOP_RUN_ID": "proofloop-standalone-runner-dogfood-2026-07-05T08-11-53-101Z-spreadsheetbench-v1-full-912--102-20--poolside_laguna-xs-2.1--33b65c6844",
+          "PROOFLOOP_CASE_ID": "spreadsheetbench-v1-full-912--102-20--poolside_laguna-xs-2.1--33b65c6844",
+          "PROOFLOOP_FRESH_ROOM_ROOT": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T08-11-53-101Z/receipts/fresh-room",
+          "PROOFLOOP_SUITE_PROOF_PATH": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T08-11-53-101Z/receipts/spreadsheetbench-v1-full-912--102-20--poolside_laguna-xs-2.1--33b65c6844.json",
+          "SPREADSHEETBENCH_TRACK": "spreadsheetbench-v1",
+          "SPREADSHEETBENCH_STAGE_ROOT": ".tmp/official-benchmarks/staged-v1-912",
+          "SPREADSHEETBENCH_TASK_ID": "102-20",
+          "SPREADSHEETBENCH_LIVE_PROOF_PATH": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T08-11-53-101Z/receipts/spreadsheetbench-v1-full-912--102-20--poolside_laguna-xs-2.1--33b65c6844.json"
+        },
+        "sourceMatrixDigest": "6482bf37c01f3be286b1c8703f372c85e2175cc976c55825760bd3a9523b1c6b"
+      }
+    },
+    {
+      "id": "live-run.spreadsheetbench-v2-full-321",
+      "command": "npm run benchmark:proofloop:prod-proxy-longrun -- status",
+      "estimatedCostUsd": 0,
+      "timeoutMs": 120000,
+      "kind": "guarded-live-run-batch",
+      "status": "guarded-spend",
+      "title": "Run guarded prod proxy attempts for spreadsheetbench-v2-full-321",
+      "familyId": "spreadsheetbench-v2-full-321",
+      "priority": 307,
+      "objective": "Execute the queued real-user prod browser attempts for spreadsheetbench-v2-full-321 under the standalone runner budget guard.",
+      "prompt": "Run the queued prod proxy attempts for spreadsheetbench-v2-full-321 through https://noderoom.live with memory mode off.\nStart with max-attempts 1, refresh the long-run plan after every attempt, and stop if receipts or budget accounting are missing.\nDo not run broad paid model sweeps; only execute the queued attempts covered by this plan and the runner budget.\nModels in this batch: deepseek/deepseek-v4-flash, poolside/laguna-xs-2.1.",
+      "estimatedProductSpendUsd": 10.914,
+      "paidModelRequired": true,
+      "counts": {
+        "taskTargets": 321,
+        "queuedAttempts": 642,
+        "attempts": 642
+      },
+      "commands": [
+        {
+          "name": "status",
+          "command": "npm run benchmark:proofloop:prod-proxy-longrun -- status",
+          "requiresSpend": false
+        },
+        {
+          "name": "single-guarded-attempt",
+          "command": "npm run benchmark:proofloop:prod-proxy-longrun -- run --execute --allow-spend --budget-usd 100 --max-attempts 1",
+          "requiresSpend": true,
+          "writes": [
+            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T08-11-53-101Z/state.json",
+            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T08-11-53-101Z/events.jsonl",
+            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T08-11-53-101Z/receipts/"
+          ]
+        }
+      ],
+      "acceptance": [
+        "Every attempted row writes a verifier receipt, cost evidence, and updated state before it can be marked passed.",
+        "Memory mode remains disabled for the prod UI run.",
+        "The all-task winner remains null until every tracked task target has prod browser proof."
+      ],
+      "evidence": [
+        ".tmp/official-benchmarks/staged-v2-full/tasks/Debugging_01_01/agent/task.json",
+        ".tmp/official-benchmarks/staged-v2-full/tasks/Debugging_01_01/evaluator/evaluator.json",
+        "docs/eval/official-benchmark-task-coverage.json",
+        "docs/eval/spreadsheetbench-chart-visual-probe.json",
+        "docs/eval/spreadsheetbench-v2-full-ingest.json",
+        "docs/eval/spreadsheetbench-v2-full-stage.json",
+        "docs/eval/spreadsheetbench-v2-run-smoke.json",
+        "docs/eval/spreadsheetbench-v2-stage-smoke.json"
+      ],
+      "blockers": [
+        "SpreadsheetBench task is ready for the generic prod browser workbook adapter but lacks a passing prod receipt."
+      ],
+      "metadata": {
+        "modelIds": [
+          "deepseek/deepseek-v4-flash",
+          "poolside/laguna-xs-2.1"
+        ],
+        "sampleAttemptId": "spreadsheetbench-v2-full-321--Debugging_01_01--poolside_laguna-xs-2.1--1581c4f608",
+        "sampleTaskId": "Debugging/01_01",
+        "sampleCommand": "npm run proofloop:live:spreadsheetbench-v2",
+        "sampleEnv": {
+          "BENCH_BASE_URL": "https://noderoom.live",
+          "PLAYWRIGHT_BASE_URL": "https://noderoom.live",
+          "PLAYWRIGHT_REUSE_SERVER": "1",
+          "PLAYWRIGHT_RETRIES": "0",
+          "PLAYWRIGHT_OUTPUT_DIR": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T08-11-53-101Z/receipts/playwright/spreadsheetbench-v2-full-321--Debugging_01_01--poolside_laguna-xs-2.1--1581c4f608",
+          "BENCH_AGENT_MODEL_MODE": "specific",
+          "BENCH_AGENT_MODEL_POLICY": "poolside/laguna-xs-2.1",
+          "PROOFLOOP_REAL_USER_MODE": "1",
+          "PROOFLOOP_FOCUS_MODE": "0",
+          "PROOFLOOP_NODEAGENT_RUNTIME_PROFILE": "",
+          "PROOFLOOP_RUN_ID": "proofloop-standalone-runner-dogfood-2026-07-05T08-11-53-101Z-spreadsheetbench-v2-full-321--Debugging_01_01--poolside_laguna-xs-2.1--1581c4f608",
+          "PROOFLOOP_CASE_ID": "spreadsheetbench-v2-full-321--Debugging_01_01--poolside_laguna-xs-2.1--1581c4f608",
+          "PROOFLOOP_FRESH_ROOM_ROOT": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T08-11-53-101Z/receipts/fresh-room",
+          "PROOFLOOP_SUITE_PROOF_PATH": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T08-11-53-101Z/receipts/spreadsheetbench-v2-full-321--Debugging_01_01--poolside_laguna-xs-2.1--1581c4f608.json",
+          "SPREADSHEETBENCH_TRACK": "spreadsheetbench-v2",
+          "SPREADSHEETBENCH_STAGE_ROOT": ".tmp/official-benchmarks/staged-v2-full",
+          "SPREADSHEETBENCH_TASK_ID": "Debugging/01_01",
+          "SPREADSHEETBENCH_LIVE_PROOF_PATH": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T08-11-53-101Z/receipts/spreadsheetbench-v2-full-321--Debugging_01_01--poolside_laguna-xs-2.1--1581c4f608.json"
+        },
+        "sourceMatrixDigest": "6482bf37c01f3be286b1c8703f372c85e2175cc976c55825760bd3a9523b1c6b"
       }
     },
     {
@@ -574,7 +714,7 @@
       "status": "guarded-spend",
       "title": "Run guarded prod proxy attempts for workstreambench-prod-proxy-task",
       "familyId": "workstreambench-prod-proxy-task",
-      "priority": 302,
+      "priority": 308,
       "objective": "Execute the queued real-user prod browser attempts for workstreambench-prod-proxy-task under the standalone runner budget guard.",
       "prompt": "Run the queued prod proxy attempts for workstreambench-prod-proxy-task through https://noderoom.live with memory mode off.\nStart with max-attempts 1, refresh the long-run plan after every attempt, and stop if receipts or budget accounting are missing.\nDo not run broad paid model sweeps; only execute the queued attempts covered by this plan and the runner budget.\nModels in this batch: deepseek/deepseek-v4-flash.",
       "estimatedProductSpendUsd": 0.023,
@@ -595,9 +735,9 @@
           "command": "npm run benchmark:proofloop:prod-proxy-longrun -- run --execute --allow-spend --budget-usd 100 --max-attempts 1",
           "requiresSpend": true,
           "writes": [
-            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T05-31-18-498Z/state.json",
-            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T05-31-18-498Z/events.jsonl",
-            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T05-31-18-498Z/receipts/"
+            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T08-11-53-101Z/state.json",
+            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T08-11-53-101Z/events.jsonl",
+            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T08-11-53-101Z/receipts/"
           ]
         }
       ],
@@ -618,19 +758,24 @@
         ],
         "sampleAttemptId": "workstreambench-prod-proxy-task--workstreambench-local-spreadsheet-workstream--deepseek_deepseek-v4-flash--17f44bb005",
         "sampleTaskId": "workstreambench-local-spreadsheet-workstream",
-        "sampleCommand": "npm run benchmark:proofloop:external-adapter-live-room -- --prod --id workstreambench --real-user --model deepseek/deepseek-v4-flash --model-mode specific --json-out-dir .proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T05-31-18-498Z/receipts",
+        "sampleCommand": "npm run benchmark:proofloop:external-adapter-live-room -- --prod --id workstreambench --real-user --model deepseek/deepseek-v4-flash --model-mode specific --json-out-dir .proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T08-11-53-101Z/receipts",
         "sampleEnv": {
           "BENCH_BASE_URL": "https://noderoom.live",
           "PLAYWRIGHT_BASE_URL": "https://noderoom.live",
           "PLAYWRIGHT_REUSE_SERVER": "1",
+          "PLAYWRIGHT_RETRIES": "0",
+          "PLAYWRIGHT_OUTPUT_DIR": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T08-11-53-101Z/receipts/playwright/workstreambench-prod-proxy-task--workstreambench-local-spreadsheet-workstream--deepseek_deepseek-v4-flash--17f44bb005",
           "BENCH_AGENT_MODEL_MODE": "specific",
           "BENCH_AGENT_MODEL_POLICY": "deepseek/deepseek-v4-flash",
           "PROOFLOOP_REAL_USER_MODE": "1",
           "PROOFLOOP_FOCUS_MODE": "0",
           "PROOFLOOP_NODEAGENT_RUNTIME_PROFILE": "",
-          "PROOFLOOP_RUN_ID": "proofloop-standalone-runner-dogfood-2026-07-05T05-31-18-498Z-workstreambench-prod-proxy-task--workstreambench-local-spreadsheet-workstream--deepseek_deepseek-v4-flash--17f44bb005"
+          "PROOFLOOP_RUN_ID": "proofloop-standalone-runner-dogfood-2026-07-05T08-11-53-101Z-workstreambench-prod-proxy-task--workstreambench-local-spreadsheet-workstream--deepseek_deepseek-v4-flash--17f44bb005",
+          "PROOFLOOP_CASE_ID": "workstreambench-prod-proxy-task--workstreambench-local-spreadsheet-workstream--deepseek_deepseek-v4-flash--17f44bb005",
+          "PROOFLOOP_FRESH_ROOM_ROOT": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T08-11-53-101Z/receipts/fresh-room",
+          "PROOFLOOP_SUITE_PROOF_PATH": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T08-11-53-101Z/receipts/workstreambench-prod-proxy-task--workstreambench-local-spreadsheet-workstream--deepseek_deepseek-v4-flash--17f44bb005.json"
         },
-        "sourceMatrixDigest": "b8e8bddd47412bba66f18d154e6dc009515c18707fc3be00b922016bfa10e274"
+        "sourceMatrixDigest": "6482bf37c01f3be286b1c8703f372c85e2175cc976c55825760bd3a9523b1c6b"
       }
     },
     {

@@ -21,9 +21,9 @@ describe("ProofLoop prod proxy long-run queue", () => {
     expect(plan.summary.modelCount).toBe(4);
     expect(plan.summary.totalAttempts).toBe(5416);
     expect(plan.summary.passedExistingAttempts).toBeGreaterThanOrEqual(10);
-    expect(plan.summary.queuedAttempts).toBe(3501);
-    expect(plan.summary.blockedAdapterAttempts).toBe(40);
-    expect(plan.summary.blockedBudgetAttempts).toBe(1865);
+    expect(plan.summary.queuedAttempts).toBe(3516);
+    expect(plan.summary.blockedAdapterAttempts).toBe(0);
+    expect(plan.summary.blockedBudgetAttempts).toBe(1890);
     expect(plan.budget.runnableQueueFitsBudget).toBe(true);
     expect(plan.budget.fullCurrentModelMatrixFitsBudget).toBe(false);
   });
@@ -49,8 +49,8 @@ describe("ProofLoop prod proxy long-run queue", () => {
 
     expect(plan.summary.modelCount).toBe(2);
     expect(plan.summary.totalAttempts).toBe(2708);
-    expect(plan.summary.queuedAttempts).toBe(2688);
-    expect(plan.summary.blockedAdapterAttempts).toBe(20);
+    expect(plan.summary.queuedAttempts).toBe(2708);
+    expect(plan.summary.blockedAdapterAttempts).toBe(0);
     expect(plan.budget.queuedEstimatedNewSpendUsd).toBe(0);
     expect(plan.budget.fullMatrixEstimatedUsd).toBe(0);
     expect(plan.modelCosts.every((row) => row.estimatedCostPerAttemptUsd === 0)).toBe(true);
@@ -85,6 +85,21 @@ describe("ProofLoop prod proxy long-run queue", () => {
     expect(notion?.memoryModeAllowed).toBe(false);
   });
 
+  it("queues Proximitty and multi-user conflict through real-user prod browser adapters", () => {
+    const plan = buildProofloopProdProxyLongRunPlan({ runId: "test-longrun" });
+    const proximitty = plan.attempts.find((attempt) => attempt.familyId === "proximitty-underwriting-pr0" && attempt.status === "queued");
+    const multiUser = plan.attempts.find((attempt) => attempt.familyId === "noderoom-multi-user-conflict" && attempt.status === "queued");
+
+    expect(proximitty?.command?.shell).toBe("npm run proofloop:proximitty:browser");
+    expect(proximitty?.command?.env.PROOFLOOP_TASK_IDS).toMatch(/^proximitty-/);
+    expect(proximitty?.command?.env.PROOFLOOP_NODEAGENT_RUNTIME_PROFILE).toBe("");
+    expect(proximitty?.memoryModeAllowed).toBe(false);
+    expect(multiUser?.command?.shell).toBe("npm run proofloop:live:multi-user-conflict");
+    expect(multiUser?.command?.env.PROOFLOOP_TASK_IDS).toMatch(/^multi-user-conflict-/);
+    expect(multiUser?.command?.env.PROOFLOOP_REAL_USER_MODE).toBe("1");
+    expect(multiUser?.memoryModeAllowed).toBe(false);
+  });
+
   it("writes resumable state, queue, dashboard, budget, and gap artifacts", () => {
     const dir = mkdtempSync(join(tmpdir(), "proofloop-longrun-"));
     const plan = buildProofloopProdProxyLongRunPlan({
@@ -108,8 +123,8 @@ describe("ProofLoop prod proxy long-run queue", () => {
     expect(state.schema).toBe("proofloop-prod-proxy-longrun-v1");
     expect(queue).toHaveLength(5416);
     expect(dashboard.schema).toBe("proofloop-prod-proxy-longrun-dashboard-v1");
-    expect(markdown).toContain("Blocked by missing browser adapters: 40");
-    expect(markdown).toContain("Blocked by budget: 1865");
+    expect(markdown).toContain("Blocked by missing browser adapters: 0");
+    expect(markdown).toContain("Blocked by budget: 1890");
   });
 
   it("loads a specific long-run state by run id for deterministic resume", () => {

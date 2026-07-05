@@ -1,10 +1,10 @@
 {
   "schema": "proofloop-prod-proxy-longrun-v1",
-  "generatedAt": "2026-07-05T07:41:37.108Z",
-  "runId": "prod-proxy-longrun-2026-07-05T07-41-37-108Z",
+  "generatedAt": "2026-07-05T08:12:15.277Z",
+  "runId": "prod-proxy-longrun-2026-07-05T08-12-15-277Z",
   "baseUrl": "https://noderoom.live",
   "root": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom",
-  "matrixDigest": "de202a6b0124cda19cc2ba001c282d68d8ab72109a8b4b1ce3cd0b1bb16ac519",
+  "matrixDigest": "a670996cb39cf1d8113b94fb93070dc179bb0e47fed8a9b200f0ce5e3c0ff8d6",
   "budget": {
     "capUsd": 0,
     "unknownAttemptCostUsd": 0.02,
@@ -45,17 +45,17 @@
   "summary": {
     "totalAttempts": 5416,
     "passedExistingAttempts": 0,
-    "queuedAttempts": 5376,
+    "queuedAttempts": 5416,
     "runningAttempts": 0,
     "passedAttempts": 0,
     "failedAttempts": 0,
-    "blockedAdapterAttempts": 40,
+    "blockedAdapterAttempts": 0,
     "blockedBudgetAttempts": 0,
     "uniqueTaskTargets": 1354,
     "modelCount": 4,
     "families": 10,
-    "familiesWithQueuedAttempts": 8,
-    "familiesBlockedByAdapter": 2,
+    "familiesWithQueuedAttempts": 10,
+    "familiesBlockedByAdapter": 0,
     "currentAllTaskWinner": null,
     "currentAdapterSmokeWinner": null
   },
@@ -101,44 +101,11 @@
       "historicalMeasuredSpendUsd": 0
     }
   ],
-  "adapterGaps": [
-    {
-      "familyId": "proximitty-underwriting-pr0",
-      "taskCount": 4,
-      "attemptCount": 16,
-      "adapterStatus": "local_only",
-      "adapterVersion": "0.1.0",
-      "adapterPlanPath": "docs/eval/proofloop-prod-browser-adapters.json",
-      "firstBlocker": "Proximitty suite is deterministic/local; no prod browser room model matrix exists for these scenarios.",
-      "requiredAdapter": "proximitty-underwriting-prod-browser-room",
-      "evidence": [
-        "docs/eval/proofloop-prod-browser-adapters.json",
-        "proofloop/scenarios/proximitty-intake.spec.ts",
-        ".proofloop/runs/latest/run-result.json",
-        "proofloop/scenarios/proximitty-model-comparison.spec.ts",
-        "proofloop/scenarios/proximitty-risk-research.spec.ts",
-        "proofloop/scenarios/proximitty-underwriting-packet.spec.ts"
-      ]
-    },
-    {
-      "familyId": "noderoom-multi-user-conflict",
-      "taskCount": 6,
-      "attemptCount": 24,
-      "adapterStatus": "missing_generic_browser_adapter",
-      "adapterVersion": "0.1.0",
-      "adapterPlanPath": "docs/eval/proofloop-prod-browser-adapters.json",
-      "firstBlocker": "Internal deterministic conflict suite has not been promoted to prod browser model matrix tasks.",
-      "requiredAdapter": "noderoom-multi-user-conflict-prod-browser-room",
-      "evidence": [
-        "docs/eval/proofloop-prod-browser-adapters.json",
-        "docs/eval/official-benchmark-task-coverage.json"
-      ]
-    }
-  ],
+  "adapterGaps": [],
   "attemptsOmitted": {
     "reason": "Tracked docs/eval JSON omits the full attempt queue; durable resumable state is written under .proofloop/prod-proxy-longrun/.",
-    "localStatePath": ".proofloop/prod-proxy-longrun/prod-proxy-longrun-2026-07-05T07-41-37-108Z/state.json",
-    "queuePath": ".proofloop/prod-proxy-longrun/prod-proxy-longrun-2026-07-05T07-41-37-108Z/queue.jsonl",
+    "localStatePath": ".proofloop/prod-proxy-longrun/prod-proxy-longrun-2026-07-05T08-12-15-277Z/state.json",
+    "queuePath": ".proofloop/prod-proxy-longrun/prod-proxy-longrun-2026-07-05T08-12-15-277Z/queue.jsonl",
     "totalAttempts": 5416,
     "sample": [
       {
@@ -161,20 +128,20 @@
             "PLAYWRIGHT_BASE_URL": "https://noderoom.live",
             "PLAYWRIGHT_REUSE_SERVER": "1",
             "PLAYWRIGHT_RETRIES": "0",
-            "PLAYWRIGHT_OUTPUT_DIR": ".proofloop/prod-proxy-longrun/prod-proxy-longrun-2026-07-05T07-41-37-108Z/receipts/playwright/spreadsheetbench-v1-full-912--102-20--cohere_north-mini-code_free--0a13d22f5d",
+            "PLAYWRIGHT_OUTPUT_DIR": ".proofloop/prod-proxy-longrun/prod-proxy-longrun-2026-07-05T08-12-15-277Z/receipts/playwright/spreadsheetbench-v1-full-912--102-20--cohere_north-mini-code_free--0a13d22f5d",
             "BENCH_AGENT_MODEL_MODE": "specific",
             "BENCH_AGENT_MODEL_POLICY": "cohere/north-mini-code:free",
             "PROOFLOOP_REAL_USER_MODE": "1",
             "PROOFLOOP_FOCUS_MODE": "0",
             "PROOFLOOP_NODEAGENT_RUNTIME_PROFILE": "",
-            "PROOFLOOP_RUN_ID": "prod-proxy-longrun-2026-07-05T07-41-37-108Z-spreadsheetbench-v1-full-912--102-20--cohere_north-mini-code_free--0a13d22f5d",
+            "PROOFLOOP_RUN_ID": "prod-proxy-longrun-2026-07-05T08-12-15-277Z-spreadsheetbench-v1-full-912--102-20--cohere_north-mini-code_free--0a13d22f5d",
             "PROOFLOOP_CASE_ID": "spreadsheetbench-v1-full-912--102-20--cohere_north-mini-code_free--0a13d22f5d",
-            "PROOFLOOP_FRESH_ROOM_ROOT": ".proofloop/prod-proxy-longrun/prod-proxy-longrun-2026-07-05T07-41-37-108Z/receipts/fresh-room",
-            "PROOFLOOP_SUITE_PROOF_PATH": ".proofloop/prod-proxy-longrun/prod-proxy-longrun-2026-07-05T07-41-37-108Z/receipts/spreadsheetbench-v1-full-912--102-20--cohere_north-mini-code_free--0a13d22f5d.json",
+            "PROOFLOOP_FRESH_ROOM_ROOT": ".proofloop/prod-proxy-longrun/prod-proxy-longrun-2026-07-05T08-12-15-277Z/receipts/fresh-room",
+            "PROOFLOOP_SUITE_PROOF_PATH": ".proofloop/prod-proxy-longrun/prod-proxy-longrun-2026-07-05T08-12-15-277Z/receipts/spreadsheetbench-v1-full-912--102-20--cohere_north-mini-code_free--0a13d22f5d.json",
             "SPREADSHEETBENCH_TRACK": "spreadsheetbench-v1",
             "SPREADSHEETBENCH_STAGE_ROOT": ".tmp/official-benchmarks/staged-v1-912",
             "SPREADSHEETBENCH_TASK_ID": "102-20",
-            "SPREADSHEETBENCH_LIVE_PROOF_PATH": ".proofloop/prod-proxy-longrun/prod-proxy-longrun-2026-07-05T07-41-37-108Z/receipts/spreadsheetbench-v1-full-912--102-20--cohere_north-mini-code_free--0a13d22f5d.json"
+            "SPREADSHEETBENCH_LIVE_PROOF_PATH": ".proofloop/prod-proxy-longrun/prod-proxy-longrun-2026-07-05T08-12-15-277Z/receipts/spreadsheetbench-v1-full-912--102-20--cohere_north-mini-code_free--0a13d22f5d.json"
           }
         },
         "evidence": [
@@ -211,20 +178,20 @@
             "PLAYWRIGHT_BASE_URL": "https://noderoom.live",
             "PLAYWRIGHT_REUSE_SERVER": "1",
             "PLAYWRIGHT_RETRIES": "0",
-            "PLAYWRIGHT_OUTPUT_DIR": ".proofloop/prod-proxy-longrun/prod-proxy-longrun-2026-07-05T07-41-37-108Z/receipts/playwright/spreadsheetbench-v1-full-912--102-20--nvidia_nemotron-3-ultra-550b-a55b_free--610ec95133",
+            "PLAYWRIGHT_OUTPUT_DIR": ".proofloop/prod-proxy-longrun/prod-proxy-longrun-2026-07-05T08-12-15-277Z/receipts/playwright/spreadsheetbench-v1-full-912--102-20--nvidia_nemotron-3-ultra-550b-a55b_free--610ec95133",
             "BENCH_AGENT_MODEL_MODE": "specific",
             "BENCH_AGENT_MODEL_POLICY": "nvidia/nemotron-3-ultra-550b-a55b:free",
             "PROOFLOOP_REAL_USER_MODE": "1",
             "PROOFLOOP_FOCUS_MODE": "0",
             "PROOFLOOP_NODEAGENT_RUNTIME_PROFILE": "",
-            "PROOFLOOP_RUN_ID": "prod-proxy-longrun-2026-07-05T07-41-37-108Z-spreadsheetbench-v1-full-912--102-20--nvidia_nemotron-3-ultra-550b-a55b_free--610ec95133",
+            "PROOFLOOP_RUN_ID": "prod-proxy-longrun-2026-07-05T08-12-15-277Z-spreadsheetbench-v1-full-912--102-20--nvidia_nemotron-3-ultra-550b-a55b_free--610ec95133",
             "PROOFLOOP_CASE_ID": "spreadsheetbench-v1-full-912--102-20--nvidia_nemotron-3-ultra-550b-a55b_free--610ec95133",
-            "PROOFLOOP_FRESH_ROOM_ROOT": ".proofloop/prod-proxy-longrun/prod-proxy-longrun-2026-07-05T07-41-37-108Z/receipts/fresh-room",
-            "PROOFLOOP_SUITE_PROOF_PATH": ".proofloop/prod-proxy-longrun/prod-proxy-longrun-2026-07-05T07-41-37-108Z/receipts/spreadsheetbench-v1-full-912--102-20--nvidia_nemotron-3-ultra-550b-a55b_free--610ec95133.json",
+            "PROOFLOOP_FRESH_ROOM_ROOT": ".proofloop/prod-proxy-longrun/prod-proxy-longrun-2026-07-05T08-12-15-277Z/receipts/fresh-room",
+            "PROOFLOOP_SUITE_PROOF_PATH": ".proofloop/prod-proxy-longrun/prod-proxy-longrun-2026-07-05T08-12-15-277Z/receipts/spreadsheetbench-v1-full-912--102-20--nvidia_nemotron-3-ultra-550b-a55b_free--610ec95133.json",
             "SPREADSHEETBENCH_TRACK": "spreadsheetbench-v1",
             "SPREADSHEETBENCH_STAGE_ROOT": ".tmp/official-benchmarks/staged-v1-912",
             "SPREADSHEETBENCH_TASK_ID": "102-20",
-            "SPREADSHEETBENCH_LIVE_PROOF_PATH": ".proofloop/prod-proxy-longrun/prod-proxy-longrun-2026-07-05T07-41-37-108Z/receipts/spreadsheetbench-v1-full-912--102-20--nvidia_nemotron-3-ultra-550b-a55b_free--610ec95133.json"
+            "SPREADSHEETBENCH_LIVE_PROOF_PATH": ".proofloop/prod-proxy-longrun/prod-proxy-longrun-2026-07-05T08-12-15-277Z/receipts/spreadsheetbench-v1-full-912--102-20--nvidia_nemotron-3-ultra-550b-a55b_free--610ec95133.json"
           }
         },
         "evidence": [
@@ -238,52 +205,6 @@
         ],
         "blockers": [
           "Existing SpreadsheetBench receipt is local live-browser only; rerun against https://noderoom.live."
-        ],
-        "attempts": 0
-      },
-      {
-        "schema": "proofloop-prod-proxy-longrun-attempt-v1",
-        "attemptId": "proximitty-underwriting-pr0--proximitty-intake--cohere_north-mini-code_free--22905d0536",
-        "familyId": "proximitty-underwriting-pr0",
-        "taskId": "proximitty-intake",
-        "modelId": "cohere/north-mini-code:free",
-        "title": "proximitty-intake.spec.ts",
-        "status": "blocked_adapter",
-        "adapterStatus": "local_only",
-        "realUserProdUiRequired": true,
-        "memoryModeAllowed": false,
-        "officialScoreClaim": false,
-        "estimatedCostUsd": 0,
-        "evidence": [
-          "proofloop/scenarios/proximitty-intake.spec.ts",
-          ".proofloop/runs/latest/run-result.json"
-        ],
-        "blockers": [
-          "Proximitty suite is deterministic/local; no prod browser room model matrix exists for these scenarios.",
-          "Promote Proximitty deterministic scenarios into a prod browser underwriting memo workflow with model selection and receipts."
-        ],
-        "attempts": 0
-      },
-      {
-        "schema": "proofloop-prod-proxy-longrun-attempt-v1",
-        "attemptId": "proximitty-underwriting-pr0--proximitty-intake--nvidia_nemotron-3-ultra-550b-a55b_free--bc9c929b55",
-        "familyId": "proximitty-underwriting-pr0",
-        "taskId": "proximitty-intake",
-        "modelId": "nvidia/nemotron-3-ultra-550b-a55b:free",
-        "title": "proximitty-intake.spec.ts",
-        "status": "blocked_adapter",
-        "adapterStatus": "local_only",
-        "realUserProdUiRequired": true,
-        "memoryModeAllowed": false,
-        "officialScoreClaim": false,
-        "estimatedCostUsd": 0,
-        "evidence": [
-          "proofloop/scenarios/proximitty-intake.spec.ts",
-          ".proofloop/runs/latest/run-result.json"
-        ],
-        "blockers": [
-          "Proximitty suite is deterministic/local; no prod browser room model matrix exists for these scenarios.",
-          "Promote Proximitty deterministic scenarios into a prod browser underwriting memo workflow with model selection and receipts."
         ],
         "attempts": 0
       }

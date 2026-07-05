@@ -1,15 +1,15 @@
 {
   "schema": "proofloop-prod-proxy-longrun-v1",
-  "generatedAt": "2026-07-05T07:49:36.562Z",
-  "runId": "prod-proxy-longrun-2026-07-05T07-49-36-562Z",
+  "generatedAt": "2026-07-05T08:11:53.015Z",
+  "runId": "prod-proxy-longrun-2026-07-05T08-11-53-015Z",
   "baseUrl": "https://noderoom.live",
   "root": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom",
-  "matrixDigest": "d5cac438c4b849c2b53046ab52e453b9e4aee3e71e46d62a6a1137530ed52f21",
+  "matrixDigest": "07831f7607550f00795461f19b54efc663eb0a5535ccb859dd819b51d1b499a6",
   "budget": {
     "capUsd": 100,
     "unknownAttemptCostUsd": 0.02,
     "historicalMeasuredSpendUsd": 0.502,
-    "queuedEstimatedNewSpendUsd": 99.952526,
+    "queuedEstimatedNewSpendUsd": 99.960136,
     "fullMatrixEstimatedUsd": 246.812536,
     "fullCurrentModelMatrixFitsBudget": false,
     "runnableQueueFitsBudget": true
@@ -45,17 +45,17 @@
   "summary": {
     "totalAttempts": 5416,
     "passedExistingAttempts": 10,
-    "queuedAttempts": 3501,
+    "queuedAttempts": 3516,
     "runningAttempts": 0,
     "passedAttempts": 0,
     "failedAttempts": 0,
-    "blockedAdapterAttempts": 40,
-    "blockedBudgetAttempts": 1865,
+    "blockedAdapterAttempts": 0,
+    "blockedBudgetAttempts": 1890,
     "uniqueTaskTargets": 1354,
     "modelCount": 4,
     "families": 10,
-    "familiesWithQueuedAttempts": 7,
-    "familiesBlockedByAdapter": 2,
+    "familiesWithQueuedAttempts": 9,
+    "familiesBlockedByAdapter": 0,
     "currentAllTaskWinner": null,
     "currentAdapterSmokeWinner": "poolside/laguna-xs-2.1"
   },
@@ -77,7 +77,7 @@
       "costBasis": "measured_and_estimated_smoke",
       "estimatedCostPerAttemptUsd": 0.023,
       "fullMatrixEstimatedUsd": 31.142,
-      "runnableQueueEstimatedUsd": 30.889,
+      "runnableQueueEstimatedUsd": 31.119,
       "historicalMeasuredSpendUsd": 0.025
     },
     {
@@ -87,7 +87,7 @@
       "costBasis": "measured_and_estimated_smoke",
       "estimatedCostPerAttemptUsd": 0.011,
       "fullMatrixEstimatedUsd": 14.894,
-      "runnableQueueEstimatedUsd": 14.751,
+      "runnableQueueEstimatedUsd": 14.861,
       "historicalMeasuredSpendUsd": 0.033
     },
     {
@@ -97,48 +97,15 @@
       "costBasis": "measured_and_estimated_smoke",
       "estimatedCostPerAttemptUsd": 0.066478,
       "fullMatrixEstimatedUsd": 90.011212,
-      "runnableQueueEstimatedUsd": 54.312526,
+      "runnableQueueEstimatedUsd": 53.980136,
       "historicalMeasuredSpendUsd": 0.199
     }
   ],
-  "adapterGaps": [
-    {
-      "familyId": "proximitty-underwriting-pr0",
-      "taskCount": 4,
-      "attemptCount": 16,
-      "adapterStatus": "local_only",
-      "adapterVersion": "0.1.0",
-      "adapterPlanPath": "docs/eval/proofloop-prod-browser-adapters.json",
-      "firstBlocker": "Proximitty suite is deterministic/local; no prod browser room model matrix exists for these scenarios.",
-      "requiredAdapter": "proximitty-underwriting-prod-browser-room",
-      "evidence": [
-        "docs/eval/proofloop-prod-browser-adapters.json",
-        "proofloop/scenarios/proximitty-intake.spec.ts",
-        ".proofloop/runs/latest/run-result.json",
-        "proofloop/scenarios/proximitty-model-comparison.spec.ts",
-        "proofloop/scenarios/proximitty-risk-research.spec.ts",
-        "proofloop/scenarios/proximitty-underwriting-packet.spec.ts"
-      ]
-    },
-    {
-      "familyId": "noderoom-multi-user-conflict",
-      "taskCount": 6,
-      "attemptCount": 24,
-      "adapterStatus": "missing_generic_browser_adapter",
-      "adapterVersion": "0.1.0",
-      "adapterPlanPath": "docs/eval/proofloop-prod-browser-adapters.json",
-      "firstBlocker": "Internal deterministic conflict suite has not been promoted to prod browser model matrix tasks.",
-      "requiredAdapter": "noderoom-multi-user-conflict-prod-browser-room",
-      "evidence": [
-        "docs/eval/proofloop-prod-browser-adapters.json",
-        "docs/eval/official-benchmark-task-coverage.json"
-      ]
-    }
-  ],
+  "adapterGaps": [],
   "attemptsOmitted": {
     "reason": "Tracked docs/eval JSON omits the full attempt queue; durable resumable state is written under .proofloop/prod-proxy-longrun/.",
-    "localStatePath": ".proofloop/prod-proxy-longrun/prod-proxy-longrun-2026-07-05T07-49-36-562Z/state.json",
-    "queuePath": ".proofloop/prod-proxy-longrun/prod-proxy-longrun-2026-07-05T07-49-36-562Z/queue.jsonl",
+    "localStatePath": ".proofloop/prod-proxy-longrun/prod-proxy-longrun-2026-07-05T08-11-53-015Z/state.json",
+    "queuePath": ".proofloop/prod-proxy-longrun/prod-proxy-longrun-2026-07-05T08-11-53-015Z/queue.jsonl",
     "totalAttempts": 5416,
     "sample": [
       {
@@ -161,20 +128,20 @@
             "PLAYWRIGHT_BASE_URL": "https://noderoom.live",
             "PLAYWRIGHT_REUSE_SERVER": "1",
             "PLAYWRIGHT_RETRIES": "0",
-            "PLAYWRIGHT_OUTPUT_DIR": ".proofloop/prod-proxy-longrun/prod-proxy-longrun-2026-07-05T07-49-36-562Z/receipts/playwright/spreadsheetbench-v1-full-912--102-20--deepseek_deepseek-v4-flash--b48daaac0e",
+            "PLAYWRIGHT_OUTPUT_DIR": ".proofloop/prod-proxy-longrun/prod-proxy-longrun-2026-07-05T08-11-53-015Z/receipts/playwright/spreadsheetbench-v1-full-912--102-20--deepseek_deepseek-v4-flash--b48daaac0e",
             "BENCH_AGENT_MODEL_MODE": "specific",
             "BENCH_AGENT_MODEL_POLICY": "deepseek/deepseek-v4-flash",
             "PROOFLOOP_REAL_USER_MODE": "1",
             "PROOFLOOP_FOCUS_MODE": "0",
             "PROOFLOOP_NODEAGENT_RUNTIME_PROFILE": "",
-            "PROOFLOOP_RUN_ID": "prod-proxy-longrun-2026-07-05T07-49-36-562Z-spreadsheetbench-v1-full-912--102-20--deepseek_deepseek-v4-flash--b48daaac0e",
+            "PROOFLOOP_RUN_ID": "prod-proxy-longrun-2026-07-05T08-11-53-015Z-spreadsheetbench-v1-full-912--102-20--deepseek_deepseek-v4-flash--b48daaac0e",
             "PROOFLOOP_CASE_ID": "spreadsheetbench-v1-full-912--102-20--deepseek_deepseek-v4-flash--b48daaac0e",
-            "PROOFLOOP_FRESH_ROOM_ROOT": ".proofloop/prod-proxy-longrun/prod-proxy-longrun-2026-07-05T07-49-36-562Z/receipts/fresh-room",
-            "PROOFLOOP_SUITE_PROOF_PATH": ".proofloop/prod-proxy-longrun/prod-proxy-longrun-2026-07-05T07-49-36-562Z/receipts/spreadsheetbench-v1-full-912--102-20--deepseek_deepseek-v4-flash--b48daaac0e.json",
+            "PROOFLOOP_FRESH_ROOM_ROOT": ".proofloop/prod-proxy-longrun/prod-proxy-longrun-2026-07-05T08-11-53-015Z/receipts/fresh-room",
+            "PROOFLOOP_SUITE_PROOF_PATH": ".proofloop/prod-proxy-longrun/prod-proxy-longrun-2026-07-05T08-11-53-015Z/receipts/spreadsheetbench-v1-full-912--102-20--deepseek_deepseek-v4-flash--b48daaac0e.json",
             "SPREADSHEETBENCH_TRACK": "spreadsheetbench-v1",
             "SPREADSHEETBENCH_STAGE_ROOT": ".tmp/official-benchmarks/staged-v1-912",
             "SPREADSHEETBENCH_TASK_ID": "102-20",
-            "SPREADSHEETBENCH_LIVE_PROOF_PATH": ".proofloop/prod-proxy-longrun/prod-proxy-longrun-2026-07-05T07-49-36-562Z/receipts/spreadsheetbench-v1-full-912--102-20--deepseek_deepseek-v4-flash--b48daaac0e.json"
+            "SPREADSHEETBENCH_LIVE_PROOF_PATH": ".proofloop/prod-proxy-longrun/prod-proxy-longrun-2026-07-05T08-11-53-015Z/receipts/spreadsheetbench-v1-full-912--102-20--deepseek_deepseek-v4-flash--b48daaac0e.json"
           }
         },
         "evidence": [
@@ -211,20 +178,20 @@
             "PLAYWRIGHT_BASE_URL": "https://noderoom.live",
             "PLAYWRIGHT_REUSE_SERVER": "1",
             "PLAYWRIGHT_RETRIES": "0",
-            "PLAYWRIGHT_OUTPUT_DIR": ".proofloop/prod-proxy-longrun/prod-proxy-longrun-2026-07-05T07-49-36-562Z/receipts/playwright/spreadsheetbench-v1-full-912--102-20--poolside_laguna-xs-2.1--33b65c6844",
+            "PLAYWRIGHT_OUTPUT_DIR": ".proofloop/prod-proxy-longrun/prod-proxy-longrun-2026-07-05T08-11-53-015Z/receipts/playwright/spreadsheetbench-v1-full-912--102-20--poolside_laguna-xs-2.1--33b65c6844",
             "BENCH_AGENT_MODEL_MODE": "specific",
             "BENCH_AGENT_MODEL_POLICY": "poolside/laguna-xs-2.1",
             "PROOFLOOP_REAL_USER_MODE": "1",
             "PROOFLOOP_FOCUS_MODE": "0",
             "PROOFLOOP_NODEAGENT_RUNTIME_PROFILE": "",
-            "PROOFLOOP_RUN_ID": "prod-proxy-longrun-2026-07-05T07-49-36-562Z-spreadsheetbench-v1-full-912--102-20--poolside_laguna-xs-2.1--33b65c6844",
+            "PROOFLOOP_RUN_ID": "prod-proxy-longrun-2026-07-05T08-11-53-015Z-spreadsheetbench-v1-full-912--102-20--poolside_laguna-xs-2.1--33b65c6844",
             "PROOFLOOP_CASE_ID": "spreadsheetbench-v1-full-912--102-20--poolside_laguna-xs-2.1--33b65c6844",
-            "PROOFLOOP_FRESH_ROOM_ROOT": ".proofloop/prod-proxy-longrun/prod-proxy-longrun-2026-07-05T07-49-36-562Z/receipts/fresh-room",
-            "PROOFLOOP_SUITE_PROOF_PATH": ".proofloop/prod-proxy-longrun/prod-proxy-longrun-2026-07-05T07-49-36-562Z/receipts/spreadsheetbench-v1-full-912--102-20--poolside_laguna-xs-2.1--33b65c6844.json",
+            "PROOFLOOP_FRESH_ROOM_ROOT": ".proofloop/prod-proxy-longrun/prod-proxy-longrun-2026-07-05T08-11-53-015Z/receipts/fresh-room",
+            "PROOFLOOP_SUITE_PROOF_PATH": ".proofloop/prod-proxy-longrun/prod-proxy-longrun-2026-07-05T08-11-53-015Z/receipts/spreadsheetbench-v1-full-912--102-20--poolside_laguna-xs-2.1--33b65c6844.json",
             "SPREADSHEETBENCH_TRACK": "spreadsheetbench-v1",
             "SPREADSHEETBENCH_STAGE_ROOT": ".tmp/official-benchmarks/staged-v1-912",
             "SPREADSHEETBENCH_TASK_ID": "102-20",
-            "SPREADSHEETBENCH_LIVE_PROOF_PATH": ".proofloop/prod-proxy-longrun/prod-proxy-longrun-2026-07-05T07-49-36-562Z/receipts/spreadsheetbench-v1-full-912--102-20--poolside_laguna-xs-2.1--33b65c6844.json"
+            "SPREADSHEETBENCH_LIVE_PROOF_PATH": ".proofloop/prod-proxy-longrun/prod-proxy-longrun-2026-07-05T08-11-53-015Z/receipts/spreadsheetbench-v1-full-912--102-20--poolside_laguna-xs-2.1--33b65c6844.json"
           }
         },
         "evidence": [
@@ -238,52 +205,6 @@
         ],
         "blockers": [
           "Existing SpreadsheetBench receipt is local live-browser only; rerun against https://noderoom.live."
-        ],
-        "attempts": 0
-      },
-      {
-        "schema": "proofloop-prod-proxy-longrun-attempt-v1",
-        "attemptId": "proximitty-underwriting-pr0--proximitty-intake--z-ai_glm-5.2--c74d9dcb4b",
-        "familyId": "proximitty-underwriting-pr0",
-        "taskId": "proximitty-intake",
-        "modelId": "z-ai/glm-5.2",
-        "title": "proximitty-intake.spec.ts",
-        "status": "blocked_adapter",
-        "adapterStatus": "local_only",
-        "realUserProdUiRequired": true,
-        "memoryModeAllowed": false,
-        "officialScoreClaim": false,
-        "estimatedCostUsd": 0.081806,
-        "evidence": [
-          "proofloop/scenarios/proximitty-intake.spec.ts",
-          ".proofloop/runs/latest/run-result.json"
-        ],
-        "blockers": [
-          "Proximitty suite is deterministic/local; no prod browser room model matrix exists for these scenarios.",
-          "Promote Proximitty deterministic scenarios into a prod browser underwriting memo workflow with model selection and receipts."
-        ],
-        "attempts": 0
-      },
-      {
-        "schema": "proofloop-prod-proxy-longrun-attempt-v1",
-        "attemptId": "proximitty-underwriting-pr0--proximitty-intake--deepseek_deepseek-v4-flash--1fc285d1ba",
-        "familyId": "proximitty-underwriting-pr0",
-        "taskId": "proximitty-intake",
-        "modelId": "deepseek/deepseek-v4-flash",
-        "title": "proximitty-intake.spec.ts",
-        "status": "blocked_adapter",
-        "adapterStatus": "local_only",
-        "realUserProdUiRequired": true,
-        "memoryModeAllowed": false,
-        "officialScoreClaim": false,
-        "estimatedCostUsd": 0.023,
-        "evidence": [
-          "proofloop/scenarios/proximitty-intake.spec.ts",
-          ".proofloop/runs/latest/run-result.json"
-        ],
-        "blockers": [
-          "Proximitty suite is deterministic/local; no prod browser room model matrix exists for these scenarios.",
-          "Promote Proximitty deterministic scenarios into a prod browser underwriting memo workflow with model selection and receipts."
         ],
         "attempts": 0
       },

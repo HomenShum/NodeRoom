@@ -168,9 +168,9 @@ export function buildProofloopProdProxyBenchmarkMatrix(args: {
     bankerToolBenchFamily(root, official, baseUrl, models),
     accountingFamily(root, baseUrl),
     notionFamily(root, baseUrl),
-    proximittyFamily(root),
+    proximittyFamily(root, baseUrl),
     ...externalAdapterFamilies(baseUrl, models, proxySweep),
-    internalFamily(official),
+    internalFamily(official, baseUrl),
   ];
   const tasks = families.flatMap((family) => family.tasks);
   const prodLiveBrowserVerifiedTaskTargets = tasks.filter((task) => task.prodLiveBrowserPassed).length;
@@ -455,27 +455,38 @@ function notionFamily(root: string, baseUrl: string): ProdProxyFamily {
   });
 }
 
-function proximittyFamily(root: string): ProdProxyFamily {
+function proximittyFamily(root: string, baseUrl: string): ProdProxyFamily {
   const scenarioRoot = join(root, "proofloop", "scenarios");
   const scenarioFiles = existsSync(scenarioRoot)
     ? readdirSync(scenarioRoot).filter((name) => name.startsWith("proximitty-") && name.endsWith(".spec.ts")).sort()
     : [];
-  const latest = readJson<{ suite?: string; passed?: boolean }>(root, ".proofloop/runs/latest/run-result.json");
-  const localPassed = latest?.suite === "proximitty-underwriting-pr0" && latest.passed === true;
   const tasks = scenarioFiles.map((file) => ({
     familyId: "proximitty-underwriting-pr0",
     taskId: file.replace(/\.spec\.ts$/, ""),
     title: file,
-    status: localPassed ? "local_live_browser_only" as const : "blocked_non_browser_runner" as const,
+    status: "ready_for_prod_browser_run" as const,
     prodLiveBrowserPassed: false,
-    localLiveBrowserOnly: localPassed,
+    localLiveBrowserOnly: false,
     runner: {
-      available: false,
-      kind: "http_or_deterministic_only" as const,
-      command: "npm run proofloop:proximitty",
+      available: true,
+      kind: "playwright_prod_browser" as const,
+      command: "npm run proofloop:proximitty:browser",
+      env: {
+        BENCH_BASE_URL: baseUrl,
+        PLAYWRIGHT_BASE_URL: baseUrl,
+        PLAYWRIGHT_REUSE_SERVER: "1",
+        PROOFLOOP_TASK_IDS: file.replace(/\.spec\.ts$/, ""),
+        PROOFLOOP_REAL_USER_MODE: "1",
+        PROOFLOOP_FOCUS_MODE: "0",
+        PROOFLOOP_NODEAGENT_RUNTIME_PROFILE: "",
+      },
     },
-    evidence: [`proofloop/scenarios/${file}`, ".proofloop/runs/latest/run-result.json"],
-    blockers: ["Proximitty suite is deterministic/local; no prod browser room model matrix exists for these scenarios."],
+    evidence: [
+      `proofloop/scenarios/${file}`,
+      "proofloop/benchmarks/proximitty/live-room-scenario.spec.ts",
+      "scripts/proofloop-live-playwright.ts",
+    ],
+    blockers: ["Proximitty has a prod browser adapter, but no passing prod live-browser receipt is recorded for this task/model yet."],
   }));
   return familyFromTasks("proximitty-underwriting-pr0", "Proximitty underwriting PR0", tasks);
 }
@@ -519,23 +530,37 @@ function externalAdapterFamilies(
   });
 }
 
-function internalFamily(official: OfficialCoverageReport | undefined): ProdProxyFamily {
+function internalFamily(official: OfficialCoverageReport | undefined, baseUrl: string): ProdProxyFamily {
   const track = officialTrack(official, "noderoom-multi-user-conflict");
   const count = track?.officialExpectedTasks ?? 6;
   const tasks = Array.from({ length: count }, (_, index) => ({
     familyId: "noderoom-multi-user-conflict",
     taskId: `multi-user-conflict-${index + 1}`,
     title: "NodeRoom multi-user conflict scenario",
-    status: "blocked_missing_prod_browser_adapter" as const,
+    status: "ready_for_prod_browser_run" as const,
     prodLiveBrowserPassed: false,
     localLiveBrowserOnly: false,
     runner: {
-      available: false,
-      kind: "missing" as const,
-      command: "npm run eval:multiuser-coordination -- --strict",
+      available: true,
+      kind: "playwright_prod_browser" as const,
+      command: "npm run proofloop:live:multi-user-conflict",
+      env: {
+        BENCH_BASE_URL: baseUrl,
+        PLAYWRIGHT_BASE_URL: baseUrl,
+        PLAYWRIGHT_REUSE_SERVER: "1",
+        PROOFLOOP_TASK_IDS: `multi-user-conflict-${index + 1}`,
+        PROOFLOOP_REAL_USER_MODE: "1",
+        PROOFLOOP_FOCUS_MODE: "0",
+        PROOFLOOP_NODEAGENT_RUNTIME_PROFILE: "",
+      },
     },
-    evidence: ["docs/eval/official-benchmark-task-coverage.json"],
-    blockers: ["Internal deterministic conflict suite has not been promoted to prod browser model matrix tasks."],
+    evidence: [
+      "docs/eval/official-benchmark-task-coverage.json",
+      "evals/multiUserCoordinationProof.ts",
+      "proofloop/benchmarks/noderoom-multi-user/live-room-scenario.spec.ts",
+      "scripts/proofloop-live-playwright.ts",
+    ],
+    blockers: ["Multi-user conflict has a prod browser adapter, but no passing prod live-browser receipt is recorded for this task/model yet."],
   }));
   return familyFromTasks("noderoom-multi-user-conflict", track?.title ?? "NodeRoom multi-user conflict suite", tasks);
 }
