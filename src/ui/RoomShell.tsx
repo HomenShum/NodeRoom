@@ -24,6 +24,7 @@ import { TraceLensPanel } from "./traceLens/TraceLensPanel";
 import { PassiveAgentChip } from "./insights/PassiveAgentChip";
 import { OPT_ARTIFACT_PREFIX, optimisticArtifactIdentity, resolveRoomOpenTarget } from "./openRoomReference";
 import { readFocusModeClientState, persistFocusModeClientState, textEntryIsActive, type FocusModeClientState } from "./focusMode";
+import { FocusTrapDialog } from "./primitives/FocusTrapDialog";
 import type { Actor, Channel } from "../engine/types";
 
 const AUTO_ACCEPT_PREF_KEY = "noderoom:autoAcceptConsent:v1";
@@ -573,22 +574,25 @@ export function RoomShell({ roomId, me, onLeave, proof }: { roomId: string; me: 
         onClose={() => setTweaksOpen(false)}
       />
       {autoAcceptModal && (
-        <div className="r-modal-backdrop" role="presentation">
-          <div className="r-modal" role="dialog" aria-modal="true" aria-labelledby="auto-accept-title">
-            <button className="r-iconbtn r-modal-x" aria-label="Close" onClick={() => setAutoAcceptModal(false)}><X size={15} /></button>
-            <div className="r-modal-icon"><ShieldCheck size={20} /></div>
-            <h2 id="auto-accept-title">Turn on auto-accept?</h2>
-            <p>Agent edits will apply directly after the tool layer validates locks, versions, permissions, and schema. You can turn this off any time to route agent edits into host-reviewed proposals.</p>
-            <label className="r-checkline">
-              <input type="checkbox" checked={rememberAutoAccept} onChange={(e) => setRememberAutoAccept(e.currentTarget.checked)} />
-              Remember my preference on this device
-            </label>
-            <div className="r-modal-actions">
-              <button className="r-btn ghost" onClick={() => setAutoAcceptModal(false)}>Keep review on</button>
-              <button className="r-btn primary" onClick={confirmAutoAccept}><ShieldCheck size={14} /> Turn on auto-accept</button>
-            </div>
+        <FocusTrapDialog
+          className="r-modal-backdrop"
+          panelClassName="r-modal"
+          ariaLabelledby="auto-accept-title"
+          onClose={() => setAutoAcceptModal(false)}
+        >
+          <button className="r-iconbtn r-modal-x" aria-label="Close" onClick={() => setAutoAcceptModal(false)}><X size={15} /></button>
+          <div className="r-modal-icon"><ShieldCheck size={20} /></div>
+          <h2 id="auto-accept-title">Turn on auto-accept?</h2>
+          <p>Agent edits will apply directly after the tool layer validates locks, versions, permissions, and schema. You can turn this off any time to route agent edits into host-reviewed proposals.</p>
+          <label className="r-checkline">
+            <input type="checkbox" checked={rememberAutoAccept} onChange={(e) => setRememberAutoAccept(e.currentTarget.checked)} />
+            Remember my preference on this device
+          </label>
+          <div className="r-modal-actions">
+            <button className="r-btn ghost" onClick={() => setAutoAcceptModal(false)}>Keep review on</button>
+            <button className="r-btn primary" onClick={confirmAutoAccept}><ShieldCheck size={14} /> Turn on auto-accept</button>
           </div>
-        </div>
+        </FocusTrapDialog>
       )}
       <GuidedTour steps={tourSteps} open={tourOpen} onClose={() => setTourOpen(false)} storageKey={TOUR_KEY} />
       <CommandPalette roomId={roomId} actions={paletteActions} onOpenArtifact={(id) => void openArtifact(id)} />
