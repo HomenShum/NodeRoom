@@ -1,6 +1,6 @@
 {
   "schema": "proofloop-prod-proxy-benchmark-matrix-v1",
-  "generatedAt": "2026-07-05T08:11:53.004Z",
+  "generatedAt": "2026-07-05T20:36:56.832Z",
   "baseUrl": "https://noderoom.live",
   "models": [
     "z-ai/glm-5.2",
@@ -12,7 +12,7 @@
     "uniqueTaskTargets": 1354,
     "modelCount": 4,
     "matrixAttemptTargets": 5416,
-    "prodLiveBrowserVerifiedTaskTargets": 3,
+    "prodLiveBrowserVerifiedTaskTargets": 4,
     "localLiveBrowserOnlyTaskTargets": 101,
     "runnableProdBrowserTaskTargets": 1354,
     "blockedTaskTargets": 0,
@@ -48257,10 +48257,19 @@
           "evidence": [
             "proofloop/accounting/live.accounting.config.json",
             "proofloop/live-browser-proof.spec.ts",
-            "scripts/proofloop-live-playwright.ts"
+            "scripts/proofloop-live-playwright.ts",
+            "docs/eval/proofloop-live-accounting-free-smoke.json",
+            "https://noderoom.live/?room=PLMR7HIVFE&name=Proof+Loop",
+            "receipt_family=accounting-live-proofloop",
+            "receipt_task=variance-calc",
+            "requested_model=qwen/qwen3-coder:free",
+            "actual_model=qwen/qwen3-coder:free",
+            "measured_cost_usd=0"
           ],
           "blockers": [
-            "Accounting live proof-loop has no passing prod live-browser receipt for this task/model yet."
+            "Committed receipt docs/eval/proofloop-live-accounting-free-smoke.json must set officialScoreClaim:false before it can count as proxy proof.",
+            "Committed receipt docs/eval/proofloop-live-accounting-free-smoke.json did not pass overall.",
+            "Committed receipt docs/eval/proofloop-live-accounting-free-smoke.json did not pass task variance-calc."
           ]
         },
         {
@@ -48526,10 +48535,17 @@
           "evidence": [
             "proofloop/scenarios/proximitty-intake.spec.ts",
             "proofloop/benchmarks/proximitty/live-room-scenario.spec.ts",
-            "scripts/proofloop-live-playwright.ts"
+            "scripts/proofloop-live-playwright.ts",
+            "docs/eval/proofloop-live-proximitty-free-smoke.json",
+            "https://noderoom.live/?room=NRLQ2M1OG0P&name=Proof+Loop",
+            "receipt_family=proximitty-underwriting-pr0",
+            "receipt_task=proximitty-intake",
+            "requested_model=qwen/qwen3-coder:free",
+            "actual_model=z-ai/glm-4.7-flash",
+            "measured_cost_usd=0.012"
           ],
           "blockers": [
-            "Proximitty has a prod browser adapter, but no passing prod live-browser receipt is recorded for this task/model yet."
+            "model_route_mismatch: route_integrity=model_route_mismatch; requested=qwen/qwen3-coder:free; actual=z-ai/glm-4.7-flash; cost=$0.0120; failures=model_route_mismatch,free_route_used_paid_model,free_route_billed_nonzero_cost."
           ]
         },
         {
@@ -48730,7 +48746,7 @@
       "id": "noderoom-multi-user-conflict",
       "title": "NodeRoom multi-user conflict suite",
       "taskCount": 6,
-      "prodLiveBrowserPassed": 0,
+      "prodLiveBrowserPassed": 1,
       "localLiveBrowserOnly": 0,
       "runnableProdBrowserTasks": 6,
       "blockedTasks": 0,
@@ -48739,8 +48755,8 @@
           "familyId": "noderoom-multi-user-conflict",
           "taskId": "multi-user-conflict-1",
           "title": "NodeRoom multi-user conflict scenario",
-          "status": "ready_for_prod_browser_run",
-          "prodLiveBrowserPassed": false,
+          "status": "prod_live_browser_passed",
+          "prodLiveBrowserPassed": true,
           "localLiveBrowserOnly": false,
           "runner": {
             "available": true,
@@ -48760,11 +48776,16 @@
             "docs/eval/official-benchmark-task-coverage.json",
             "evals/multiUserCoordinationProof.ts",
             "proofloop/benchmarks/noderoom-multi-user/live-room-scenario.spec.ts",
-            "scripts/proofloop-live-playwright.ts"
+            "scripts/proofloop-live-playwright.ts",
+            "docs/eval/proofloop-live-multi-user-free-smoke.json",
+            "https://noderoom.live/?room=PLMUMR7J1J4G&name=Host",
+            "receipt_family=noderoom-multi-user-conflict",
+            "receipt_task=multi-user-conflict-1",
+            "requested_model=cohere/north-mini-code:free",
+            "actual_model=cohere/north-mini-code:free",
+            "measured_cost_usd=0"
           ],
-          "blockers": [
-            "Multi-user conflict has a prod browser adapter, but no passing prod live-browser receipt is recorded for this task/model yet."
-          ]
+          "blockers": []
         },
         {
           "familyId": "noderoom-multi-user-conflict",

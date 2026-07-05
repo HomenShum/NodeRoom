@@ -6,6 +6,11 @@ import {
   loadExternalBenchmarkLocalTasks,
   type ExternalBenchmarkAdapterId,
 } from "../../proofloop/benchmarks/common/local-tasks";
+import {
+  evaluateProofloopRouteIntegrity,
+  routeIntegrityFailureSummary,
+  type ProofloopTelemetryLike,
+} from "./proofloopRouteIntegrity";
 
 export type ProdProxyTaskStatus =
   | "prod_live_browser_passed"
@@ -100,20 +105,55 @@ type ProxyModelSweep = {
 };
 
 type LiveReceipt = {
+  schema?: string | number;
+  suite?: string;
+  benchmark?: string;
+  caseId?: string;
   taskId?: string;
   baseUrl?: string;
   roomUrl?: string;
+  status?: string;
   passed?: boolean;
   memoryMode?: boolean;
+  officialScoreClaim?: boolean;
   model?: {
     id?: string;
+    requested?: string;
     resolved?: string;
     policy?: string;
+    runtimeProfile?: string;
+    measuredCostUsd?: number | null;
+    costUsd?: number | null;
+    telemetry?: Array<ProofloopTelemetryLike | { taskId?: string; telemetry?: ProofloopTelemetryLike | null } | null>;
+  };
+  tasks?: Array<{ id?: string; taskId?: string; passed?: boolean }>;
+  taskProofs?: LiveReceiptTaskProof[];
+  scorer?: {
+    verdict?: string;
+    details?: {
+      taskProofs?: LiveReceiptTaskProof[];
+    };
   };
 };
 
 type LiveConfig = {
   tasks?: Array<{ id?: string; title?: string; name?: string }>;
+};
+
+type LiveReceiptTaskProof = {
+  taskId?: string;
+  passed?: boolean;
+  telemetry?: ProofloopTelemetryLike | null;
+  agent?: {
+    telemetry?: ProofloopTelemetryLike | null;
+  };
+};
+
+type ProdLiveReceiptResult = {
+  prodPassed: boolean;
+  path: string;
+  evidence: string[];
+  blockers: string[];
 };
 
 type OfficialCoverageTrack = {
@@ -170,7 +210,7 @@ export function buildProofloopProdProxyBenchmarkMatrix(args: {
     notionFamily(root, baseUrl),
     proximittyFamily(root, baseUrl),
     ...externalAdapterFamilies(baseUrl, models, proxySweep),
-    internalFamily(official, baseUrl),
+    internalFamily(official, baseUrl, root),
   ];
   const tasks = families.flatMap((family) => family.tasks);
   const prodLiveBrowserVerifiedTaskTargets = tasks.filter((task) => task.prodLiveBrowserPassed).length;
@@ -456,38 +496,47 @@ function notionFamily(root: string, baseUrl: string): ProdProxyFamily {
 }
 
 function proximittyFamily(root: string, baseUrl: string): ProdProxyFamily {
+  const receiptMap = committedProdLiveReceiptMap(root);
   const scenarioRoot = join(root, "proofloop", "scenarios");
   const scenarioFiles = existsSync(scenarioRoot)
     ? readdirSync(scenarioRoot).filter((name) => name.startsWith("proximitty-") && name.endsWith(".spec.ts")).sort()
     : [];
-  const tasks = scenarioFiles.map((file) => ({
-    familyId: "proximitty-underwriting-pr0",
-    taskId: file.replace(/\.spec\.ts$/, ""),
-    title: file,
-    status: "ready_for_prod_browser_run" as const,
-    prodLiveBrowserPassed: false,
-    localLiveBrowserOnly: false,
-    runner: {
-      available: true,
-      kind: "playwright_prod_browser" as const,
-      command: "npm run proofloop:proximitty:browser",
-      env: {
-        BENCH_BASE_URL: baseUrl,
-        PLAYWRIGHT_BASE_URL: baseUrl,
-        PLAYWRIGHT_REUSE_SERVER: "1",
-        PROOFLOOP_TASK_IDS: file.replace(/\.spec\.ts$/, ""),
-        PROOFLOOP_REAL_USER_MODE: "1",
-        PROOFLOOP_FOCUS_MODE: "0",
-        PROOFLOOP_NODEAGENT_RUNTIME_PROFILE: "",
+  const tasks = scenarioFiles.map((file) => {
+    const taskId = file.replace(/\.spec\.ts$/, "");
+    const receipt = receiptMap.get(receiptKey("proximitty-underwriting-pr0", taskId));
+    const prodPassed = receipt?.prodPassed === true;
+    return {
+      familyId: "proximitty-underwriting-pr0",
+      taskId,
+      title: file,
+      status: prodPassed ? "prod_live_browser_passed" as const : "ready_for_prod_browser_run" as const,
+      prodLiveBrowserPassed: prodPassed,
+      localLiveBrowserOnly: false,
+      runner: {
+        available: true,
+        kind: "playwright_prod_browser" as const,
+        command: "npm run proofloop:proximitty:browser",
+        env: {
+          BENCH_BASE_URL: baseUrl,
+          PLAYWRIGHT_BASE_URL: baseUrl,
+          PLAYWRIGHT_REUSE_SERVER: "1",
+          PROOFLOOP_TASK_IDS: taskId,
+          PROOFLOOP_REAL_USER_MODE: "1",
+          PROOFLOOP_FOCUS_MODE: "0",
+          PROOFLOOP_NODEAGENT_RUNTIME_PROFILE: "",
+        },
       },
-    },
-    evidence: [
-      `proofloop/scenarios/${file}`,
-      "proofloop/benchmarks/proximitty/live-room-scenario.spec.ts",
-      "scripts/proofloop-live-playwright.ts",
-    ],
-    blockers: ["Proximitty has a prod browser adapter, but no passing prod live-browser receipt is recorded for this task/model yet."],
-  }));
+      evidence: uniqueStrings([
+        `proofloop/scenarios/${file}`,
+        "proofloop/benchmarks/proximitty/live-room-scenario.spec.ts",
+        "scripts/proofloop-live-playwright.ts",
+        ...(receipt?.evidence ?? []),
+      ]),
+      blockers: prodPassed ? [] : receipt?.blockers.length
+        ? receipt.blockers
+        : ["Proximitty has a prod browser adapter, but no passing prod live-browser receipt is recorded for this task/model yet."],
+    };
+  });
   return familyFromTasks("proximitty-underwriting-pr0", "Proximitty underwriting PR0", tasks);
 }
 
@@ -530,38 +579,47 @@ function externalAdapterFamilies(
   });
 }
 
-function internalFamily(official: OfficialCoverageReport | undefined, baseUrl: string): ProdProxyFamily {
+function internalFamily(official: OfficialCoverageReport | undefined, baseUrl: string, root = process.cwd()): ProdProxyFamily {
+  const receiptMap = committedProdLiveReceiptMap(root);
   const track = officialTrack(official, "noderoom-multi-user-conflict");
   const count = track?.officialExpectedTasks ?? 6;
-  const tasks = Array.from({ length: count }, (_, index) => ({
-    familyId: "noderoom-multi-user-conflict",
-    taskId: `multi-user-conflict-${index + 1}`,
-    title: "NodeRoom multi-user conflict scenario",
-    status: "ready_for_prod_browser_run" as const,
-    prodLiveBrowserPassed: false,
-    localLiveBrowserOnly: false,
-    runner: {
-      available: true,
-      kind: "playwright_prod_browser" as const,
-      command: "npm run proofloop:live:multi-user-conflict",
-      env: {
-        BENCH_BASE_URL: baseUrl,
-        PLAYWRIGHT_BASE_URL: baseUrl,
-        PLAYWRIGHT_REUSE_SERVER: "1",
-        PROOFLOOP_TASK_IDS: `multi-user-conflict-${index + 1}`,
-        PROOFLOOP_REAL_USER_MODE: "1",
-        PROOFLOOP_FOCUS_MODE: "0",
-        PROOFLOOP_NODEAGENT_RUNTIME_PROFILE: "",
+  const tasks = Array.from({ length: count }, (_, index) => {
+    const taskId = `multi-user-conflict-${index + 1}`;
+    const receipt = receiptMap.get(receiptKey("noderoom-multi-user-conflict", taskId));
+    const prodPassed = receipt?.prodPassed === true;
+    return {
+      familyId: "noderoom-multi-user-conflict",
+      taskId,
+      title: "NodeRoom multi-user conflict scenario",
+      status: prodPassed ? "prod_live_browser_passed" as const : "ready_for_prod_browser_run" as const,
+      prodLiveBrowserPassed: prodPassed,
+      localLiveBrowserOnly: false,
+      runner: {
+        available: true,
+        kind: "playwright_prod_browser" as const,
+        command: "npm run proofloop:live:multi-user-conflict",
+        env: {
+          BENCH_BASE_URL: baseUrl,
+          PLAYWRIGHT_BASE_URL: baseUrl,
+          PLAYWRIGHT_REUSE_SERVER: "1",
+          PROOFLOOP_TASK_IDS: taskId,
+          PROOFLOOP_REAL_USER_MODE: "1",
+          PROOFLOOP_FOCUS_MODE: "0",
+          PROOFLOOP_NODEAGENT_RUNTIME_PROFILE: "",
+        },
       },
-    },
-    evidence: [
-      "docs/eval/official-benchmark-task-coverage.json",
-      "evals/multiUserCoordinationProof.ts",
-      "proofloop/benchmarks/noderoom-multi-user/live-room-scenario.spec.ts",
-      "scripts/proofloop-live-playwright.ts",
-    ],
-    blockers: ["Multi-user conflict has a prod browser adapter, but no passing prod live-browser receipt is recorded for this task/model yet."],
-  }));
+      evidence: uniqueStrings([
+        "docs/eval/official-benchmark-task-coverage.json",
+        "evals/multiUserCoordinationProof.ts",
+        "proofloop/benchmarks/noderoom-multi-user/live-room-scenario.spec.ts",
+        "scripts/proofloop-live-playwright.ts",
+        ...(receipt?.evidence ?? []),
+      ]),
+      blockers: prodPassed ? [] : receipt?.blockers.length
+        ? receipt.blockers
+        : ["Multi-user conflict has a prod browser adapter, but no passing prod live-browser receipt is recorded for this task/model yet."],
+    };
+  });
   return familyFromTasks("noderoom-multi-user-conflict", track?.title ?? "NodeRoom multi-user conflict suite", tasks);
 }
 
@@ -573,16 +631,19 @@ function configBackedFamily(root: string, args: {
   command?: string;
   baseUrl?: string;
 }): ProdProxyFamily {
+  const receiptMap = committedProdLiveReceiptMap(root);
   const config = readJson<LiveConfig>(root, args.configPath);
   const runnable = !!args.command;
   const tasks = (config?.tasks ?? []).map((task, index) => {
     const taskId = task.id ?? `${args.id}-${index + 1}`;
+    const receipt = receiptMap.get(receiptKey(args.id, taskId));
+    const prodPassed = receipt?.prodPassed === true;
     return {
       familyId: args.id,
       taskId,
       title: task.title ?? task.name ?? task.id ?? args.title,
-      status: runnable ? "ready_for_prod_browser_run" as const : "blocked_non_browser_runner" as const,
-      prodLiveBrowserPassed: false,
+      status: prodPassed ? "prod_live_browser_passed" as const : runnable ? "ready_for_prod_browser_run" as const : "blocked_non_browser_runner" as const,
+      prodLiveBrowserPassed: prodPassed,
       localLiveBrowserOnly: false,
       runner: {
         available: runnable,
@@ -601,10 +662,13 @@ function configBackedFamily(root: string, args: {
           },
         } : {}),
       },
-      evidence: args.command
-        ? [args.configPath, "proofloop/live-browser-proof.spec.ts", "scripts/proofloop-live-playwright.ts"]
-        : [args.configPath],
-      blockers: [args.blocker],
+      evidence: uniqueStrings([
+        ...(args.command
+          ? [args.configPath, "proofloop/live-browser-proof.spec.ts", "scripts/proofloop-live-playwright.ts"]
+          : [args.configPath]),
+        ...(receipt?.evidence ?? []),
+      ]),
+      blockers: prodPassed ? [] : receipt?.blockers.length ? receipt.blockers : [args.blocker],
     };
   });
   return familyFromTasks(args.id, args.title, tasks);
@@ -625,6 +689,153 @@ function familyFromTasks(id: string, title: string, tasks: ProdProxyTask[]): Pro
 
 function officialTrack(official: OfficialCoverageReport | undefined, id: string): OfficialCoverageTrack | undefined {
   return official?.tracks?.find((item) => item.id === id);
+}
+
+function committedProdLiveReceiptMap(root: string): Map<string, ProdLiveReceiptResult> {
+  const map = new Map<string, ProdLiveReceiptResult>();
+  for (const path of jsonFiles(root, "docs/eval").filter((file) => basename(file).startsWith("proofloop-live-"))) {
+    const receipt = readJson<LiveReceipt>(root, path);
+    if (!receipt) continue;
+    const familyId = receiptFamilyId(path, receipt);
+    if (!familyId) continue;
+    for (const taskId of receiptTaskIds(receipt)) {
+      const result = validateCommittedProdLiveReceipt(path, familyId, taskId, receipt);
+      mergeReceiptResult(map, receiptKey(familyId, taskId), result);
+    }
+  }
+  return map;
+}
+
+function validateCommittedProdLiveReceipt(path: string, familyId: string, taskId: string, receipt: LiveReceipt): ProdLiveReceiptResult {
+  const prod = isProdUrl(receipt.baseUrl) || isProdUrl(receipt.roomUrl);
+  const taskPassed = receiptTaskPassed(receipt, taskId);
+  const runtimeProfile = receipt.model?.runtimeProfile?.trim() ?? "";
+  const telemetry = receiptTelemetryRows(receipt);
+  const routeIntegrity = evaluateProofloopRouteIntegrity({
+    requestedModel: requestedModelFromReceipt(receipt),
+    telemetry,
+  });
+  const blockers: string[] = [];
+
+  if (!prod) blockers.push(`Committed receipt ${path} is not a https://noderoom.live prod browser receipt.`);
+  if (receipt.officialScoreClaim !== false) blockers.push(`Committed receipt ${path} must set officialScoreClaim:false before it can count as proxy proof.`);
+  if (receipt.memoryMode === true) blockers.push(`Committed receipt ${path} used memory mode; current proxy proof requires normal user mode.`);
+  if (runtimeProfile && runtimeProfile !== "standard") blockers.push(`Committed receipt ${path} used runtimeProfile=${runtimeProfile}; current proxy proof requires the normal user runtime.`);
+  if (!receiptOverallPassed(receipt)) blockers.push(`Committed receipt ${path} did not pass overall.`);
+  if (!taskPassed) blockers.push(`Committed receipt ${path} did not pass task ${taskId}.`);
+  if (routeIntegrity.status !== "matched") {
+    blockers.push(`${routeIntegrity.status}: ${routeIntegrityFailureSummary(routeIntegrity) ?? "model route integrity could not be proven"}.`);
+  }
+
+  return {
+    prodPassed: blockers.length === 0,
+    path,
+    evidence: uniqueStrings([
+      path,
+      ...(receipt.roomUrl ? [receipt.roomUrl] : []),
+      `receipt_family=${familyId}`,
+      `receipt_task=${taskId}`,
+      `requested_model=${routeIntegrity.requestedModel ?? "unknown"}`,
+      `actual_model=${routeIntegrity.telemetryModels.join(",") || "unknown"}`,
+      ...(routeIntegrity.measuredCostUsd == null ? [] : [`measured_cost_usd=${routeIntegrity.measuredCostUsd}`]),
+    ]),
+    blockers,
+  };
+}
+
+function mergeReceiptResult(map: Map<string, ProdLiveReceiptResult>, key: string, result: ProdLiveReceiptResult): void {
+  const existing = map.get(key);
+  if (!existing) {
+    map.set(key, result);
+    return;
+  }
+  if (result.prodPassed && !existing.prodPassed) {
+    map.set(key, {
+      ...result,
+      evidence: uniqueStrings([...existing.evidence, ...result.evidence]),
+    });
+    return;
+  }
+  if (!existing.prodPassed && !result.prodPassed) {
+    map.set(key, {
+      ...existing,
+      evidence: uniqueStrings([...existing.evidence, ...result.evidence]),
+      blockers: uniqueStrings([...existing.blockers, ...result.blockers]),
+    });
+  }
+}
+
+function receiptFamilyId(path: string, receipt: LiveReceipt): string | undefined {
+  if (receipt.suite === "proximitty-underwriting-pr0") return "proximitty-underwriting-pr0";
+  if (receipt.suite === "noderoom-multi-user-conflict") return "noderoom-multi-user-conflict";
+  if (receipt.suite === "live-accounting") return "accounting-live-proofloop";
+  if (receipt.suite === "live-notion-sdr-bdr") return "notion-live-proofloop";
+  const normalized = `${path} ${receipt.caseId ?? ""} ${receipt.benchmark ?? ""}`.toLowerCase();
+  if (normalized.includes("proximitty")) return "proximitty-underwriting-pr0";
+  if (normalized.includes("multi-user")) return "noderoom-multi-user-conflict";
+  if (normalized.includes("accounting")) return "accounting-live-proofloop";
+  if (normalized.includes("notion")) return "notion-live-proofloop";
+  return undefined;
+}
+
+function receiptTaskIds(receipt: LiveReceipt): string[] {
+  return uniqueStrings([
+    receipt.taskId ?? "",
+    ...(receipt.tasks ?? []).map((task) => task.taskId ?? task.id ?? ""),
+    ...receiptTaskProofs(receipt).map((task) => task.taskId ?? ""),
+  ]);
+}
+
+function receiptTaskPassed(receipt: LiveReceipt, taskId: string): boolean {
+  const proofs = receiptTaskProofs(receipt).filter((task) => task.taskId === taskId);
+  if (!proofs.length) {
+    const tasks = (receipt.tasks ?? []).filter((task) => (task.taskId ?? task.id) === taskId);
+    if (tasks.some((task) => task.passed === false)) return false;
+    if (tasks.some((task) => task.passed === true)) return true;
+    return receiptOverallPassed(receipt);
+  }
+  return proofs.some((proof) => proof.passed === true) && proofs.every((proof) => proof.passed !== false);
+}
+
+function receiptTaskProofs(receipt: LiveReceipt): LiveReceiptTaskProof[] {
+  return [
+    ...(receipt.taskProofs ?? []),
+    ...(receipt.scorer?.details?.taskProofs ?? []),
+  ];
+}
+
+function receiptOverallPassed(receipt: LiveReceipt): boolean {
+  return receipt.status === "passed" || receipt.passed === true || receipt.scorer?.verdict === "pass";
+}
+
+function requestedModelFromReceipt(receipt: LiveReceipt): string | undefined {
+  return receipt.model?.policy ?? receipt.model?.requested ?? receipt.model?.resolved ?? receipt.model?.id;
+}
+
+function receiptTelemetryRows(receipt: LiveReceipt): ProofloopTelemetryLike[] {
+  const fromModel: ProofloopTelemetryLike[] = [];
+  for (const row of receipt.model?.telemetry ?? []) {
+    if (!row) continue;
+    if (isNestedTelemetryRow(row)) {
+      if (row.telemetry) fromModel.push(row.telemetry);
+    } else {
+      fromModel.push(row);
+    }
+  }
+  if (fromModel.length > 0) return fromModel;
+  const fromTasks = receiptTaskProofs(receipt).flatMap((task) => [
+    task.telemetry,
+    task.agent?.telemetry,
+  ]).filter((row): row is ProofloopTelemetryLike => !!row);
+  return fromTasks;
+}
+
+function isNestedTelemetryRow(row: ProofloopTelemetryLike | { taskId?: string; telemetry?: ProofloopTelemetryLike | null }): row is { taskId?: string; telemetry?: ProofloopTelemetryLike | null } {
+  return "telemetry" in row;
+}
+
+function receiptKey(familyId: string, taskId: string): string {
+  return `${familyId}:${taskId}`;
 }
 
 function findStagedTaskDirs(root: string, stageRoot: string): string[] {

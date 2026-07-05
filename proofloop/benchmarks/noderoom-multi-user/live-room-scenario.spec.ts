@@ -12,6 +12,7 @@ import {
   problemCounts,
   recordBrowserProblems,
   renderInternalScorecard,
+  routeIntegrityFailedGates,
   selectAgentRoute,
   writeJson,
   writeText,
@@ -201,13 +202,14 @@ test("NodeRoom multi-user conflict adapter: two browser users -> public NodeAgen
   await testInfo.attach("multi-user-peer-visual-proof", { path: peerScreenshotPath, contentType: "image/png" });
 
   const counts = mergeProblemCounts(problemCounts(hostRecorder), problemCounts(peerRecorder));
+  const model = modelReceipt(OPTIONS, taskProofs.map((task) => task.agent));
   const failedGates = [
     ...taskProofs.flatMap((task) => task.failedGates.map((gate) => `${task.taskId}: ${gate}`)),
     ...Object.entries(counts).filter(([, count]) => count > 0).map(([gate, count]) => `${gate}: ${count}`),
+    ...routeIntegrityFailedGates(model),
   ];
   const status = failedGates.length === 0 ? "passed" : "failed";
   const roomUrl = host.url();
-  const model = modelReceipt(OPTIONS, taskProofs.map((task) => task.agent));
   const browserProofPath = process.env.PROOFLOOP_SUITE_PROOF_PATH ?? join(dir, "browser-proof.json");
   const nodeEvalPath = join(dir, "node-eval.json");
   const liveUserContractPath = join(dir, "live-user-contract.json");

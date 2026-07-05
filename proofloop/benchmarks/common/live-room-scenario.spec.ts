@@ -3,6 +3,10 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { basename, dirname, join, resolve } from "node:path";
 import { enableFocusModeForTest, expectAttentionOverlayMounted, expectFocusModeOn } from "../../../e2e/focusMode";
 import { providerForAgentModelPolicy, withNodeAgentMention } from "../../../src/eval/proofloopLiveBrowserPrompt";
+import {
+  evaluateProofloopRouteIntegrity,
+  routeIntegrityFailureSummary,
+} from "../../../src/eval/proofloopRouteIntegrity";
 import { noderoomSelectors } from "../../adapters/noderoom/selectors";
 import {
   externalBenchmarkLocalTaskIds,
@@ -145,9 +149,25 @@ test.describe(`${adapterId} Proof Loop live-room adapter`, () => {
       requestFailures: requestFailures.length,
       badResponses: badResponses.length,
     };
+    const model = {
+      provider: providerForAgentModelPolicy(AGENT_MODEL_POLICY),
+      mode: AGENT_MODEL_MODE,
+      policy: AGENT_MODEL_POLICY,
+      runtimeProfile: NODEAGENT_RUNTIME_PROFILE || "standard",
+      realUserMode: REAL_USER_MODE,
+      routeIntegrity: evaluateProofloopRouteIntegrity({
+        requestedModel: AGENT_MODEL_POLICY,
+        telemetry: taskProofs.map((task) => task.telemetry),
+      }),
+      measuredCostUsd: sumNullable(taskProofs.map((task) => task.telemetry?.costUsd ?? null)),
+      measuredTokensIn: sumNullable(taskProofs.map((task) => task.telemetry?.inputTokens ?? null)),
+      measuredTokensOut: sumNullable(taskProofs.map((task) => task.telemetry?.outputTokens ?? null)),
+      telemetry: taskProofs.map((task) => ({ taskId: task.taskId, telemetry: task.telemetry })),
+    };
     const failedGates = [
       ...taskProofs.flatMap((task) => Object.entries(task.gatesNotProven).map(([gate, reason]) => `${task.taskId}: ${gate}: ${reason}`)),
       ...Object.entries(problemCounts).filter(([, count]) => count > 0).map(([gate, count]) => `${gate}: ${count}`),
+      ...routeIntegrityFailedGates(model),
     ];
     const status = failedGates.length === 0 ? "passed" : "failed";
 
@@ -161,17 +181,6 @@ test.describe(`${adapterId} Proof Loop live-room adapter`, () => {
     const officialScorerReceiptPath = join(outputDir, "official-scorer-receipt.json");
     const scorecardPath = join(outputDir, "scorecard.md");
 
-    const model = {
-      provider: providerForAgentModelPolicy(AGENT_MODEL_POLICY),
-      mode: AGENT_MODEL_MODE,
-      policy: AGENT_MODEL_POLICY,
-      runtimeProfile: NODEAGENT_RUNTIME_PROFILE || "standard",
-      realUserMode: REAL_USER_MODE,
-      measuredCostUsd: sumNullable(taskProofs.map((task) => task.telemetry?.costUsd ?? null)),
-      measuredTokensIn: sumNullable(taskProofs.map((task) => task.telemetry?.inputTokens ?? null)),
-      measuredTokensOut: sumNullable(taskProofs.map((task) => task.telemetry?.outputTokens ?? null)),
-      telemetry: taskProofs.map((task) => ({ taskId: task.taskId, telemetry: task.telemetry })),
-    };
     const common = {
       adapterId,
       runId: RUN_ID,
@@ -598,6 +607,11 @@ function sumNullable(values: Array<number | null>): number | null {
     sum += value;
   }
   return sawValue ? Number(sum.toFixed(6)) : null;
+}
+
+function routeIntegrityFailedGates(model: { routeIntegrity?: ReturnType<typeof evaluateProofloopRouteIntegrity> }): string[] {
+  if (!model.routeIntegrity || model.routeIntegrity.status === "matched") return [];
+  return [`model_route_mismatch: ${routeIntegrityFailureSummary(model.routeIntegrity) ?? "model route integrity could not be proven"}`];
 }
 
 function roomIdFromUrl(url: string): string | undefined {

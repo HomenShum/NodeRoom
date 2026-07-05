@@ -1,6 +1,6 @@
 # ProofLoop Prod Proxy Benchmark Matrix
 
-Generated: 2026-07-05T08:11:53.004Z
+Generated: 2026-07-05T20:36:56.832Z
 Base URL: https://noderoom.live
 Production HTML: https://noderoom.live/eval/proofloop-prod-proxy-benchmark-matrix.html
 Production JSON: https://noderoom.live/eval/proofloop-prod-proxy-benchmark-matrix.json
@@ -12,7 +12,7 @@ This is the execution matrix for the real prod-browser goal. It keeps the full t
 - Unique task targets: 1354
 - Models in matrix: 4
 - Model-task attempt targets: 5416
-- Prod live-browser verified task targets: 3
+- Prod live-browser verified task targets: 4
 - Local live-browser only task targets: 101
 - Runnable prod-browser task targets today: 1354
 - Blocked task targets needing a browser adapter: 0
@@ -47,17 +47,17 @@ This is the execution matrix for the real prod-browser goal. It keeps the full t
 | `finch-prod-proxy-task` | 1 | 1 | 0 | 1 | 0 |
 | `finauditing-prod-proxy-task` | 1 | 1 | 0 | 1 | 0 |
 | `workstreambench-prod-proxy-task` | 1 | 1 | 0 | 1 | 0 |
-| `noderoom-multi-user-conflict` | 6 | 0 | 0 | 6 | 0 |
+| `noderoom-multi-user-conflict` | 6 | 1 | 0 | 6 | 0 |
 
 ## Not Done
 
 - spreadsheetbench-v1-full-912: 912 task target(s) still lack prod live-browser proof. First blocker: Existing SpreadsheetBench receipt is local live-browser only; rerun against https://noderoom.live.
 - spreadsheetbench-v2-full-321: 321 task target(s) still lack prod live-browser proof. First blocker: SpreadsheetBench task is ready for the generic prod browser workbook adapter but lacks a passing prod receipt.
 - bankertoolbench-full-100: 100 task target(s) still lack prod live-browser proof. First blocker: Existing BTB receipt is local live-browser only; rerun against https://noderoom.live.
-- accounting-live-proofloop: 4 task target(s) still lack prod live-browser proof. First blocker: Accounting live proof-loop has no passing prod live-browser receipt for this task/model yet.
+- accounting-live-proofloop: 4 task target(s) still lack prod live-browser proof. First blocker: Committed receipt docs/eval/proofloop-live-accounting-free-smoke.json must set officialScoreClaim:false before it can count as proxy proof.
 - notion-live-proofloop: 4 task target(s) still lack prod live-browser proof. First blocker: Notion live proof-loop has no passing prod live-browser receipt for this task/model yet.
-- proximitty-underwriting-pr0: 4 task target(s) still lack prod live-browser proof. First blocker: Proximitty has a prod browser adapter, but no passing prod live-browser receipt is recorded for this task/model yet.
-- noderoom-multi-user-conflict: 6 task target(s) still lack prod live-browser proof. First blocker: Multi-user conflict has a prod browser adapter, but no passing prod live-browser receipt is recorded for this task/model yet.
+- proximitty-underwriting-pr0: 4 task target(s) still lack prod live-browser proof. First blocker: model_route_mismatch: route_integrity=model_route_mismatch; requested=qwen/qwen3-coder:free; actual=z-ai/glm-4.7-flash; cost=$0.0120; failures=model_route_mismatch,free_route_used_paid_model,free_route_billed_nonzero_cost.
+- noderoom-multi-user-conflict: 5 task target(s) still lack prod live-browser proof. First blocker: Multi-user conflict has a prod browser adapter, but no passing prod live-browser receipt is recorded for this task/model yet.
 
 ## Runnable Command Shapes
 

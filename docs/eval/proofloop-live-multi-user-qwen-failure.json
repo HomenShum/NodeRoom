@@ -1,0 +1,105 @@
+{
+  "schema": "proofloop-multi-user-prod-browser-failure-v1",
+  "suite": "noderoom-multi-user-conflict",
+  "runId": "multi-user-live-1783239582487",
+  "generatedAt": "2026-07-05T08:25:54.599Z",
+  "baseUrl": "https://noderoom.live",
+  "roomUrl": "https://noderoom.live/?room=PLMUMR7IT0UO&name=Host",
+  "peerUrl": "https://noderoom.live/?room=PLMUMR7IT0UO&name=Peer",
+  "roomCode": "PLMUMR7IT0UO",
+  "model": {
+    "provider": "openrouter",
+    "mode": "specific",
+    "policy": "qwen/qwen3-coder:free",
+    "runtimeProfile": "standard",
+    "realUserMode": true,
+    "measuredCostUsd": 0,
+    "measuredTokensIn": 0,
+    "measuredTokensOut": 0,
+    "telemetry": [
+      {
+        "model": "qwen/qwen3-coder:free",
+        "toolCalls": 1,
+        "steps": 1,
+        "inputTokens": 0,
+        "outputTokens": 0,
+        "latencyMs": 31067,
+        "costUsd": 0,
+        "rawText": "qwen/qwen3-coder:free · 1 tools · $0.000",
+        "rawTitle": "1 steps · 0 in + 0 out tokens · 31067ms"
+      }
+    ],
+    "routeIntegrity": {
+      "status": "matched",
+      "requestedModel": "qwen/qwen3-coder:free",
+      "telemetryModels": [
+        "qwen/qwen3-coder:free"
+      ],
+      "measuredCostUsd": 0,
+      "failures": []
+    }
+  },
+  "tasks": [
+    {
+      "id": "multi-user-conflict-1",
+      "scenarioId": "managed_batch_blocks_target_not_room",
+      "title": "Managed range lock blocks target cells only"
+    }
+  ],
+  "taskProofs": [
+    {
+      "taskId": "multi-user-conflict-1",
+      "scenarioId": "managed_batch_blocks_target_not_room",
+      "title": "Managed range lock blocks target cells only",
+      "passed": false,
+      "failedGates": [
+        "agent_terminal_quality_gate: Timed out after 360000ms.",
+        "pass_pattern_missing: managed",
+        "pass_pattern_missing: lock",
+        "pass_pattern_missing: target",
+        "pass_pattern_missing: non[- ]target|outside",
+        "pass_pattern_missing: no lock leak|lock leak"
+      ],
+      "agent": {
+        "userMessageVisible": true,
+        "streamingVisible": true,
+        "jobStatusVisible": true,
+        "jobDetailVisible": true,
+        "roomTraceVisible": true,
+        "completionVisible": false,
+        "durationMs": 362883,
+        "telemetry": {
+          "model": "qwen/qwen3-coder:free",
+          "toolCalls": 1,
+          "steps": 1,
+          "inputTokens": 0,
+          "outputTokens": 0,
+          "latencyMs": 31067,
+          "costUsd": 0,
+          "rawText": "qwen/qwen3-coder:free · 1 tools · $0.000",
+          "rawTitle": "1 steps · 0 in + 0 out tokens · 31067ms"
+        }
+      }
+    }
+  ],
+  "deterministicProof": {
+    "summary": {
+      "passed": true,
+      "scenarios": 6,
+      "passedScenarios": 6,
+      "failedScenarios": []
+    }
+  },
+  "problemCounts": {
+    "pageErrors": 0,
+    "consoleProblems": 0,
+    "requestFailures": 0,
+    "badResponses": 0
+  },
+  "failureCategory": "agent_runtime_retry_timeout",
+  "failureSource": "browser-visible NodeAgent runtime retries; local run did not expose a literal provider 429 string in the committed proof fields",
+  "sourceRunPath": ".proofloop/runs/multi-user-live-1783239582487/noderoom-multi-user-prod-browser/browser-proof.json",
+  "officialScoreClaim": false,
+  "status": "failed",
+  "passed": false
+}
