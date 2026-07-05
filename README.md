@@ -410,6 +410,10 @@ The non-technical external-runner kickoff is the two-layer ProofLoop plan:
 [`docs/eval/PROOFLOOP_TWO_LAYER_CERTIFICATION.md`](docs/eval/PROOFLOOP_TWO_LAYER_CERTIFICATION.md)
 with runner JSON at
 [`docs/eval/proofloop-two-layer-certification-runner-plan.json`](docs/eval/proofloop-two-layer-certification-runner-plan.json).
+Live production copies are published at
+[`https://noderoom.live/eval/PROOFLOOP_TWO_LAYER_CERTIFICATION.md`](https://noderoom.live/eval/PROOFLOOP_TWO_LAYER_CERTIFICATION.md)
+and
+[`https://noderoom.live/eval/proofloop-two-layer-certification-runner-plan.json`](https://noderoom.live/eval/proofloop-two-layer-certification-runner-plan.json).
 It is generated from the same denominator and long-run queue, but splits the
 work the way we want users to experience it: headless capability proofs first,
 prod browser/UI certification second, official scorer blockers third. Browser

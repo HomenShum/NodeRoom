@@ -1,0 +1,1291 @@
+{
+  "schema": "proofloop-runner-plan-v1",
+  "mode": "two-layer-certification-v1",
+  "generatedAt": "2026-07-05T19:48:29.628Z",
+  "planId": "proofloop-standalone-runner-dogfood-2026-07-05T19-48-29-628Z",
+  "title": "NodeRoom standalone ProofLoop runner dogfood plan",
+  "cwd": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom",
+  "source": {
+    "sourcePlanSchema": "proofloop-prod-proxy-longrun-v1",
+    "sourceRunId": "proofloop-standalone-runner-dogfood-2026-07-05T19-48-29-628Z",
+    "sourceMatrixDigest": "ad3154eed1c15f5ed9c75eeb734059528a67e7004b99c25a89b2dc3c6586cf1e",
+    "longRunStatePath": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-48-29-628Z/state.json",
+    "longRunQueuePath": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-48-29-628Z/queue.jsonl",
+    "liveModelSweepsExecuted": false,
+    "localProofloopVendored": false
+  },
+  "standaloneRunner": {
+    "package": "proofloop",
+    "command": "npx --yes github:HomenShum/proofloop runner run --plan docs/eval/proofloop-two-layer-certification-runner-plan.json --budget-usd 100",
+    "resumeCommand": "npx --yes github:HomenShum/proofloop runner resume --run-id latest",
+    "budgetUsd": 100,
+    "planPath": "docs/eval/proofloop-two-layer-certification-runner-plan.json"
+  },
+  "budget": {
+    "capUsd": 100,
+    "historicalMeasuredSpendUsd": 0.502,
+    "queuedEstimatedProductSpendUsd": 99.960136,
+    "fullCurrentModelMatrixEstimatedUsd": 246.812536,
+    "runnableQueueFitsBudget": true,
+    "generationCostUsd": 0
+  },
+  "summary": {
+    "tasks": 19,
+    "capabilityHeadlessTasks": 7,
+    "browserCertificationTasks": 9,
+    "adapterGapTasks": 0,
+    "guardedLiveRunBatchTasks": 9,
+    "officialScoreGapTasks": 3,
+    "browserRequiredForAllCapabilityTasks": false,
+    "uniqueTaskTargets": 1354,
+    "modelTaskAttempts": 5416,
+    "queuedAttempts": 3516,
+    "blockedAdapterAttempts": 0,
+    "currentAllTaskWinner": null,
+    "currentAdapterSmokeWinner": "poolside/laguna-xs-2.1"
+  },
+  "resume": {
+    "regeneratePlanCommand": "npm run benchmark:proofloop:standalone-runner-plan -- --budget-usd 100",
+    "runnerCommand": "npx --yes github:HomenShum/proofloop runner run --plan docs/eval/proofloop-two-layer-certification-runner-plan.json --budget-usd 100",
+    "runnerResumeCommand": "npx --yes github:HomenShum/proofloop runner resume --run-id latest",
+    "localLongRunStatusCommand": "npm run benchmark:proofloop:prod-proxy-longrun -- status",
+    "localLongRunResumeCommand": "npm run benchmark:proofloop:prod-proxy-longrun -- resume --allow-spend --budget-usd 100 --max-attempts 1",
+    "docsPath": "docs/eval/PROOFLOOP_TWO_LAYER_CERTIFICATION.md"
+  },
+  "verificationCommands": [
+    "npm test -- --run tests/proofloopStandaloneRunnerDogfood.test.ts",
+    "npm test -- --run tests/proofloopProdProxyLongRun.test.ts tests/proofloopProdProxyBenchmarkMatrix.test.ts tests/proofloopAdapterBlockers.test.ts",
+    "npm run benchmark:proofloop:standalone-runner-plan -- --budget-usd 100 --json-out docs/eval/proofloop-two-layer-certification-runner-plan.json --md-out docs/eval/PROOFLOOP_TWO_LAYER_CERTIFICATION.md"
+  ],
+  "tasks": [
+    {
+      "id": "capability.official-readiness-ledger",
+      "command": "npm run benchmark:official:readiness",
+      "estimatedCostUsd": 0,
+      "timeoutMs": 120000,
+      "kind": "capability-headless",
+      "layer": "capability-headless",
+      "status": "ready",
+      "title": "Refresh official benchmark readiness ledger",
+      "priority": 10,
+      "objective": "Keep official-score blockers explicit without relabeling proxy proof as official benchmark scores.",
+      "prompt": "Keep official-score blockers explicit without relabeling proxy proof as official benchmark scores.\nRun this as a headless capability check; do not substitute a screenshot or transcript for the command receipt.\nIf it fails, use ProofLoop repair/resume outputs to narrow the fix before spending browser/model budget.",
+      "estimatedProductSpendUsd": 0,
+      "paidModelRequired": false,
+      "counts": {},
+      "commands": [
+        {
+          "name": "run",
+          "command": "npm run benchmark:official:readiness",
+          "requiresSpend": false,
+          "writes": [
+            "docs/eval/official-benchmark-readiness.json"
+          ]
+        }
+      ],
+      "acceptance": [
+        "The command exits 0 under the durable runner.",
+        "The evidence paths are refreshed or an explicit blocker is recorded.",
+        "No prod browser or paid model sweep is required for this capability proof."
+      ],
+      "evidence": [
+        "docs/eval/official-benchmark-readiness.json"
+      ],
+      "blockers": []
+    },
+    {
+      "id": "capability.prod-proxy-denominator",
+      "command": "npm run benchmark:proofloop:prod-proxy-matrix",
+      "estimatedCostUsd": 0,
+      "timeoutMs": 180000,
+      "kind": "capability-headless",
+      "layer": "capability-headless",
+      "status": "ready",
+      "title": "Refresh full prod proxy task denominator",
+      "priority": 11,
+      "objective": "Regenerate the full proxy benchmark matrix so 1354 task targets and all model-task attempts stay in the denominator.",
+      "prompt": "Regenerate the full proxy benchmark matrix so 1354 task targets and all model-task attempts stay in the denominator.\nRun this as a headless capability check; do not substitute a screenshot or transcript for the command receipt.\nIf it fails, use ProofLoop repair/resume outputs to narrow the fix before spending browser/model budget.",
+      "estimatedProductSpendUsd": 0,
+      "paidModelRequired": false,
+      "counts": {},
+      "commands": [
+        {
+          "name": "run",
+          "command": "npm run benchmark:proofloop:prod-proxy-matrix",
+          "requiresSpend": false,
+          "writes": [
+            "docs/eval/proofloop-prod-proxy-benchmark-matrix.json"
+          ]
+        }
+      ],
+      "acceptance": [
+        "The command exits 0 under the durable runner.",
+        "The evidence paths are refreshed or an explicit blocker is recorded.",
+        "No prod browser or paid model sweep is required for this capability proof."
+      ],
+      "evidence": [
+        "docs/eval/proofloop-prod-proxy-benchmark-matrix.json"
+      ],
+      "blockers": []
+    },
+    {
+      "id": "capability.prod-browser-adapters",
+      "command": "npm run benchmark:proofloop:prod-browser-adapters",
+      "estimatedCostUsd": 0,
+      "timeoutMs": 180000,
+      "kind": "capability-headless",
+      "layer": "capability-headless",
+      "status": "ready",
+      "title": "Refresh prod browser adapter ledger",
+      "priority": 12,
+      "objective": "Verify which benchmark families have runnable prod browser adapters before any live UI certification run.",
+      "prompt": "Verify which benchmark families have runnable prod browser adapters before any live UI certification run.\nRun this as a headless capability check; do not substitute a screenshot or transcript for the command receipt.\nIf it fails, use ProofLoop repair/resume outputs to narrow the fix before spending browser/model budget.",
+      "estimatedProductSpendUsd": 0,
+      "paidModelRequired": false,
+      "counts": {},
+      "commands": [
+        {
+          "name": "run",
+          "command": "npm run benchmark:proofloop:prod-browser-adapters",
+          "requiresSpend": false,
+          "writes": [
+            "docs/eval/proofloop-prod-browser-adapters.json"
+          ]
+        }
+      ],
+      "acceptance": [
+        "The command exits 0 under the durable runner.",
+        "The evidence paths are refreshed or an explicit blocker is recorded.",
+        "No prod browser or paid model sweep is required for this capability proof."
+      ],
+      "evidence": [
+        "docs/eval/proofloop-prod-browser-adapters.json"
+      ],
+      "blockers": []
+    },
+    {
+      "id": "capability.free-openrouter-longrun-plan",
+      "command": "npm run benchmark:proofloop:prod-proxy-longrun -- plan --free-openrouter --free-model-limit 4 --budget-usd 0 --json-out docs/eval/proofloop-prod-proxy-longrun-free-plan.json --md-out docs/eval/PROOFLOOP_PROD_PROXY_LONGRUN_FREE.md",
+      "estimatedCostUsd": 0,
+      "timeoutMs": 240000,
+      "kind": "capability-headless",
+      "layer": "capability-headless",
+      "status": "ready",
+      "title": "Refresh free-model long-run plan",
+      "priority": 13,
+      "objective": "Discover current free OpenRouter routes and queue zero-budget capability probes without running broad paid sweeps.",
+      "prompt": "Discover current free OpenRouter routes and queue zero-budget capability probes without running broad paid sweeps.\nRun this as a headless capability check; do not substitute a screenshot or transcript for the command receipt.\nIf it fails, use ProofLoop repair/resume outputs to narrow the fix before spending browser/model budget.",
+      "estimatedProductSpendUsd": 0,
+      "paidModelRequired": false,
+      "counts": {},
+      "commands": [
+        {
+          "name": "run",
+          "command": "npm run benchmark:proofloop:prod-proxy-longrun -- plan --free-openrouter --free-model-limit 4 --budget-usd 0 --json-out docs/eval/proofloop-prod-proxy-longrun-free-plan.json --md-out docs/eval/PROOFLOOP_PROD_PROXY_LONGRUN_FREE.md",
+          "requiresSpend": false,
+          "writes": [
+            "docs/eval/proofloop-prod-proxy-longrun-free-plan.json",
+            "docs/eval/PROOFLOOP_PROD_PROXY_LONGRUN_FREE.md"
+          ]
+        }
+      ],
+      "acceptance": [
+        "The command exits 0 under the durable runner.",
+        "The evidence paths are refreshed or an explicit blocker is recorded.",
+        "No prod browser or paid model sweep is required for this capability proof."
+      ],
+      "evidence": [
+        "docs/eval/proofloop-prod-proxy-longrun-free-plan.json",
+        "docs/eval/PROOFLOOP_PROD_PROXY_LONGRUN_FREE.md"
+      ],
+      "blockers": []
+    },
+    {
+      "id": "capability.accounting-proofloop",
+      "command": "npm run proofloop:accounting",
+      "estimatedCostUsd": 0,
+      "timeoutMs": 600000,
+      "kind": "capability-headless",
+      "layer": "capability-headless",
+      "status": "ready",
+      "title": "Run accounting proofloop harness",
+      "priority": 14,
+      "objective": "Verify accounting task capability through the harness without spending live browser resources on every case.",
+      "prompt": "Verify accounting task capability through the harness without spending live browser resources on every case.\nRun this as a headless capability check; do not substitute a screenshot or transcript for the command receipt.\nIf it fails, use ProofLoop repair/resume outputs to narrow the fix before spending browser/model budget.",
+      "estimatedProductSpendUsd": 0,
+      "paidModelRequired": false,
+      "counts": {},
+      "commands": [
+        {
+          "name": "run",
+          "command": "npm run proofloop:accounting",
+          "requiresSpend": false,
+          "writes": [
+            ".proofloop/accounting"
+          ]
+        }
+      ],
+      "acceptance": [
+        "The command exits 0 under the durable runner.",
+        "The evidence paths are refreshed or an explicit blocker is recorded.",
+        "No prod browser or paid model sweep is required for this capability proof."
+      ],
+      "evidence": [
+        ".proofloop/accounting"
+      ],
+      "blockers": []
+    },
+    {
+      "id": "capability.notion-proofloop",
+      "command": "npm run proofloop:notion",
+      "estimatedCostUsd": 0,
+      "timeoutMs": 600000,
+      "kind": "capability-headless",
+      "layer": "capability-headless",
+      "status": "ready",
+      "title": "Run Notion SDR/BDR proofloop harness",
+      "priority": 15,
+      "objective": "Verify Notion-style task capability through the harness before browser certification.",
+      "prompt": "Verify Notion-style task capability through the harness before browser certification.\nRun this as a headless capability check; do not substitute a screenshot or transcript for the command receipt.\nIf it fails, use ProofLoop repair/resume outputs to narrow the fix before spending browser/model budget.",
+      "estimatedProductSpendUsd": 0,
+      "paidModelRequired": false,
+      "counts": {},
+      "commands": [
+        {
+          "name": "run",
+          "command": "npm run proofloop:notion",
+          "requiresSpend": false,
+          "writes": [
+            ".proofloop/notion"
+          ]
+        }
+      ],
+      "acceptance": [
+        "The command exits 0 under the durable runner.",
+        "The evidence paths are refreshed or an explicit blocker is recorded.",
+        "No prod browser or paid model sweep is required for this capability proof."
+      ],
+      "evidence": [
+        ".proofloop/notion"
+      ],
+      "blockers": []
+    },
+    {
+      "id": "capability.multi-user-coordination",
+      "command": "npm run eval:multiuser-coordination",
+      "estimatedCostUsd": 0,
+      "timeoutMs": 240000,
+      "kind": "capability-headless",
+      "layer": "capability-headless",
+      "status": "ready",
+      "title": "Run deterministic multi-user coordination proof",
+      "priority": 16,
+      "objective": "Verify lock, CAS, no-clobber, and conflict-resolution behavior independently of browser responsiveness checks.",
+      "prompt": "Verify lock, CAS, no-clobber, and conflict-resolution behavior independently of browser responsiveness checks.\nRun this as a headless capability check; do not substitute a screenshot or transcript for the command receipt.\nIf it fails, use ProofLoop repair/resume outputs to narrow the fix before spending browser/model budget.",
+      "estimatedProductSpendUsd": 0,
+      "paidModelRequired": false,
+      "counts": {},
+      "commands": [
+        {
+          "name": "run",
+          "command": "npm run eval:multiuser-coordination",
+          "requiresSpend": false,
+          "writes": [
+            "docs/eval/multi-user-coordination-proof.json"
+          ]
+        }
+      ],
+      "acceptance": [
+        "The command exits 0 under the durable runner.",
+        "The evidence paths are refreshed or an explicit blocker is recorded.",
+        "No prod browser or paid model sweep is required for this capability proof."
+      ],
+      "evidence": [
+        "docs/eval/multi-user-coordination-proof.json"
+      ],
+      "blockers": []
+    },
+    {
+      "id": "live-run.accounting-live-proofloop",
+      "command": "npm run benchmark:proofloop:prod-proxy-longrun -- status",
+      "estimatedCostUsd": 0,
+      "timeoutMs": 120000,
+      "kind": "guarded-live-run-batch",
+      "layer": "browser-certification",
+      "status": "guarded-spend",
+      "title": "Run guarded prod proxy attempts for accounting-live-proofloop",
+      "familyId": "accounting-live-proofloop",
+      "priority": 300,
+      "objective": "Execute the queued real-user prod browser attempts for accounting-live-proofloop under the standalone runner budget guard.",
+      "prompt": "Run the queued prod proxy attempts for accounting-live-proofloop through https://noderoom.live with memory mode off.\nStart with max-attempts 1, refresh the long-run plan after every attempt, and stop if receipts or budget accounting are missing.\nDo not run broad paid model sweeps; only execute the queued attempts covered by this plan and the runner budget.\nModels in this batch: deepseek/deepseek-v4-flash, poolside/laguna-xs-2.1, qwen/qwen3.7-plus.",
+      "estimatedProductSpendUsd": 0.401912,
+      "paidModelRequired": true,
+      "counts": {
+        "taskTargets": 4,
+        "queuedAttempts": 12,
+        "attempts": 12
+      },
+      "commands": [
+        {
+          "name": "status",
+          "command": "npm run benchmark:proofloop:prod-proxy-longrun -- status",
+          "requiresSpend": false
+        },
+        {
+          "name": "single-guarded-attempt",
+          "command": "npm run benchmark:proofloop:prod-proxy-longrun -- run --execute --allow-spend --budget-usd 100 --max-attempts 1",
+          "requiresSpend": true,
+          "writes": [
+            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-48-29-628Z/state.json",
+            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-48-29-628Z/events.jsonl",
+            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-48-29-628Z/receipts/"
+          ]
+        }
+      ],
+      "acceptance": [
+        "Every attempted row writes a verifier receipt, cost evidence, and updated state before it can be marked passed.",
+        "Memory mode remains disabled for the prod UI run.",
+        "The all-task winner remains null until every tracked task target has prod browser proof."
+      ],
+      "evidence": [
+        "proofloop/accounting/live.accounting.config.json",
+        "proofloop/live-browser-proof.spec.ts",
+        "scripts/proofloop-live-playwright.ts"
+      ],
+      "blockers": [
+        "Accounting live proof-loop has no passing prod live-browser receipt for this task/model yet."
+      ],
+      "metadata": {
+        "modelIds": [
+          "deepseek/deepseek-v4-flash",
+          "poolside/laguna-xs-2.1",
+          "qwen/qwen3.7-plus"
+        ],
+        "sampleAttemptId": "accounting-live-proofloop--memo-draft--poolside_laguna-xs-2.1--ad6734b421",
+        "sampleTaskId": "memo-draft",
+        "sampleCommand": "npm run proofloop:live:accounting:browser",
+        "sampleEnv": {
+          "BENCH_BASE_URL": "https://noderoom.live",
+          "PLAYWRIGHT_BASE_URL": "https://noderoom.live",
+          "PLAYWRIGHT_REUSE_SERVER": "1",
+          "PLAYWRIGHT_RETRIES": "0",
+          "PLAYWRIGHT_OUTPUT_DIR": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-48-29-628Z/receipts/playwright/accounting-live-proofloop--memo-draft--poolside_laguna-xs-2.1--ad6734b421",
+          "BENCH_AGENT_MODEL_MODE": "specific",
+          "BENCH_AGENT_MODEL_POLICY": "poolside/laguna-xs-2.1",
+          "PROOFLOOP_REAL_USER_MODE": "1",
+          "PROOFLOOP_FOCUS_MODE": "0",
+          "PROOFLOOP_NODEAGENT_RUNTIME_PROFILE": "",
+          "PROOFLOOP_RUN_ID": "proofloop-standalone-runner-dogfood-2026-07-05T19-48-29-628Z-accounting-live-proofloop--memo-draft--poolside_laguna-xs-2.1--ad6734b421",
+          "PROOFLOOP_CASE_ID": "accounting-live-proofloop--memo-draft--poolside_laguna-xs-2.1--ad6734b421",
+          "PROOFLOOP_FRESH_ROOM_ROOT": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-48-29-628Z/receipts/fresh-room",
+          "PROOFLOOP_SUITE_PROOF_PATH": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-48-29-628Z/receipts/accounting-live-proofloop--memo-draft--poolside_laguna-xs-2.1--ad6734b421.json",
+          "PROOFLOOP_TASKS_JSON": "proofloop/accounting/live.accounting.config.json",
+          "PROOFLOOP_TASK_IDS": "memo-draft"
+        },
+        "sourceMatrixDigest": "ad3154eed1c15f5ed9c75eeb734059528a67e7004b99c25a89b2dc3c6586cf1e"
+      }
+    },
+    {
+      "id": "live-run.bankertoolbench-full-100",
+      "command": "npm run benchmark:proofloop:prod-proxy-longrun -- status",
+      "estimatedCostUsd": 0,
+      "timeoutMs": 120000,
+      "kind": "guarded-live-run-batch",
+      "layer": "browser-certification",
+      "status": "guarded-spend",
+      "title": "Run guarded prod proxy attempts for bankertoolbench-full-100",
+      "familyId": "bankertoolbench-full-100",
+      "priority": 301,
+      "objective": "Execute the queued real-user prod browser attempts for bankertoolbench-full-100 under the standalone runner budget guard.",
+      "prompt": "Run the queued prod proxy attempts for bankertoolbench-full-100 through https://noderoom.live with memory mode off.\nStart with max-attempts 1, refresh the long-run plan after every attempt, and stop if receipts or budget accounting are missing.\nDo not run broad paid model sweeps; only execute the queued attempts covered by this plan and the runner budget.\nModels in this batch: deepseek/deepseek-v4-flash, poolside/laguna-xs-2.1, qwen/qwen3.7-plus.",
+      "estimatedProductSpendUsd": 10.0478,
+      "paidModelRequired": true,
+      "counts": {
+        "taskTargets": 100,
+        "queuedAttempts": 300,
+        "attempts": 300
+      },
+      "commands": [
+        {
+          "name": "status",
+          "command": "npm run benchmark:proofloop:prod-proxy-longrun -- status",
+          "requiresSpend": false
+        },
+        {
+          "name": "single-guarded-attempt",
+          "command": "npm run benchmark:proofloop:prod-proxy-longrun -- run --execute --allow-spend --budget-usd 100 --max-attempts 1",
+          "requiresSpend": true,
+          "writes": [
+            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-48-29-628Z/state.json",
+            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-48-29-628Z/events.jsonl",
+            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-48-29-628Z/receipts/"
+          ]
+        }
+      ],
+      "acceptance": [
+        "Every attempted row writes a verifier receipt, cost evidence, and updated state before it can be marked passed.",
+        "Memory mode remains disabled for the prod UI run.",
+        "The all-task winner remains null until every tracked task target has prod browser proof."
+      ],
+      "evidence": [
+        ".tmp/official-benchmarks/bankertoolbench-repo/btb-data/tasks.jsonl",
+        "docs/eval/bankertoolbench/live-room/067cb834-ad43-448b-a523-d0c9898656e0.json",
+        "docs/eval/bankertoolbench/live-room/06c284ef-6282-4d82-b9f5-6b9587f7d805.json",
+        "docs/eval/bankertoolbench/live-room/07727295-e199-4039-a0ee-582af96749cf.json",
+        "docs/eval/bankertoolbench/live-room/096a6840-718c-4ab4-8dff-10601ffe003c.json",
+        "docs/eval/fresh-room/FR-020/tasks/067cb834-ad43-448b-a523-d0c9898656e0/latest.json",
+        "docs/eval/fresh-room/FR-020/tasks/06c284ef-6282-4d82-b9f5-6b9587f7d805/latest.json",
+        "docs/eval/fresh-room/FR-020/tasks/07727295-e199-4039-a0ee-582af96749cf/latest.json",
+        "docs/eval/fresh-room/FR-020/tasks/096a6840-718c-4ab4-8dff-10601ffe003c/latest.json"
+      ],
+      "blockers": [
+        "Existing BTB receipt is local live-browser only; rerun against https://noderoom.live."
+      ],
+      "metadata": {
+        "modelIds": [
+          "deepseek/deepseek-v4-flash",
+          "poolside/laguna-xs-2.1",
+          "qwen/qwen3.7-plus"
+        ],
+        "sampleAttemptId": "bankertoolbench-full-100--067cb834-ad43-448b-a523-d0c9898656e0--poolside_laguna-xs-2.1--85d7d2a492",
+        "sampleTaskId": "067cb834-ad43-448b-a523-d0c9898656e0",
+        "sampleCommand": "npm run proofloop:live:btb",
+        "sampleEnv": {
+          "BENCH_BASE_URL": "https://noderoom.live",
+          "PLAYWRIGHT_BASE_URL": "https://noderoom.live",
+          "PLAYWRIGHT_REUSE_SERVER": "1",
+          "PLAYWRIGHT_RETRIES": "0",
+          "PLAYWRIGHT_OUTPUT_DIR": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-48-29-628Z/receipts/playwright/bankertoolbench-full-100--067cb834-ad43-448b-a523-d0c9898656e0--poolside_laguna-xs-2.1--85d7d2a492",
+          "BENCH_AGENT_MODEL_MODE": "specific",
+          "BENCH_AGENT_MODEL_POLICY": "poolside/laguna-xs-2.1",
+          "PROOFLOOP_REAL_USER_MODE": "1",
+          "PROOFLOOP_FOCUS_MODE": "0",
+          "PROOFLOOP_NODEAGENT_RUNTIME_PROFILE": "",
+          "PROOFLOOP_RUN_ID": "proofloop-standalone-runner-dogfood-2026-07-05T19-48-29-628Z-bankertoolbench-full-100--067cb834-ad43-448b-a523-d0c9898656e0--poolside_laguna-xs-2.1--85d7d2a492",
+          "PROOFLOOP_CASE_ID": "bankertoolbench-full-100--067cb834-ad43-448b-a523-d0c9898656e0--poolside_laguna-xs-2.1--85d7d2a492",
+          "PROOFLOOP_FRESH_ROOM_ROOT": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-48-29-628Z/receipts/fresh-room",
+          "PROOFLOOP_SUITE_PROOF_PATH": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-48-29-628Z/receipts/bankertoolbench-full-100--067cb834-ad43-448b-a523-d0c9898656e0--poolside_laguna-xs-2.1--85d7d2a492.json",
+          "BTB_LIVE_ROOM_E2E": "1",
+          "BTB_UI_BUNDLE_ROOT": ".tmp/official-benchmarks/bankertoolbench-repo/btb-data",
+          "BTB_UI_TASK_ID": "067cb834-ad43-448b-a523-d0c9898656e0",
+          "BTB_UI_VERIFIER_COMMAND": "npm run benchmark:bankertoolbench:proof",
+          "BTB_LIVE_ROOM_PROOF_PATH": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-48-29-628Z/receipts/bankertoolbench-full-100--067cb834-ad43-448b-a523-d0c9898656e0--poolside_laguna-xs-2.1--85d7d2a492.json"
+        },
+        "sourceMatrixDigest": "ad3154eed1c15f5ed9c75eeb734059528a67e7004b99c25a89b2dc3c6586cf1e"
+      }
+    },
+    {
+      "id": "live-run.finch-prod-proxy-task",
+      "command": "npm run benchmark:proofloop:prod-proxy-longrun -- status",
+      "estimatedCostUsd": 0,
+      "timeoutMs": 120000,
+      "kind": "guarded-live-run-batch",
+      "layer": "browser-certification",
+      "status": "guarded-spend",
+      "title": "Run guarded prod proxy attempts for finch-prod-proxy-task",
+      "familyId": "finch-prod-proxy-task",
+      "priority": 302,
+      "objective": "Execute the queued real-user prod browser attempts for finch-prod-proxy-task under the standalone runner budget guard.",
+      "prompt": "Run the queued prod proxy attempts for finch-prod-proxy-task through https://noderoom.live with memory mode off.\nStart with max-attempts 1, refresh the long-run plan after every attempt, and stop if receipts or budget accounting are missing.\nDo not run broad paid model sweeps; only execute the queued attempts covered by this plan and the runner budget.\nModels in this batch: deepseek/deepseek-v4-flash.",
+      "estimatedProductSpendUsd": 0.023,
+      "paidModelRequired": true,
+      "counts": {
+        "taskTargets": 1,
+        "queuedAttempts": 1,
+        "attempts": 1
+      },
+      "commands": [
+        {
+          "name": "status",
+          "command": "npm run benchmark:proofloop:prod-proxy-longrun -- status",
+          "requiresSpend": false
+        },
+        {
+          "name": "single-guarded-attempt",
+          "command": "npm run benchmark:proofloop:prod-proxy-longrun -- run --execute --allow-spend --budget-usd 100 --max-attempts 1",
+          "requiresSpend": true,
+          "writes": [
+            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-48-29-628Z/state.json",
+            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-48-29-628Z/events.jsonl",
+            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-48-29-628Z/receipts/"
+          ]
+        }
+      ],
+      "acceptance": [
+        "Every attempted row writes a verifier receipt, cost evidence, and updated state before it can be marked passed.",
+        "Memory mode remains disabled for the prod UI run.",
+        "The all-task winner remains null until every tracked task target has prod browser proof."
+      ],
+      "evidence": [
+        "docs/eval/proofloop-external-adapter-live-room-runs/finch.json",
+        "docs/eval/proofloop-proxy-model-sweep.json",
+        "proofloop/benchmarks/finch/adapter.json"
+      ],
+      "blockers": [],
+      "metadata": {
+        "modelIds": [
+          "deepseek/deepseek-v4-flash"
+        ],
+        "sampleAttemptId": "finch-prod-proxy-task--finch-local-financial-evidence-qa--deepseek_deepseek-v4-flash--a8de090c31",
+        "sampleTaskId": "finch-local-financial-evidence-qa",
+        "sampleCommand": "npm run benchmark:proofloop:external-adapter-live-room -- --prod --id finch --real-user --model deepseek/deepseek-v4-flash --model-mode specific --json-out-dir .proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-48-29-628Z/receipts",
+        "sampleEnv": {
+          "BENCH_BASE_URL": "https://noderoom.live",
+          "PLAYWRIGHT_BASE_URL": "https://noderoom.live",
+          "PLAYWRIGHT_REUSE_SERVER": "1",
+          "PLAYWRIGHT_RETRIES": "0",
+          "PLAYWRIGHT_OUTPUT_DIR": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-48-29-628Z/receipts/playwright/finch-prod-proxy-task--finch-local-financial-evidence-qa--deepseek_deepseek-v4-flash--a8de090c31",
+          "BENCH_AGENT_MODEL_MODE": "specific",
+          "BENCH_AGENT_MODEL_POLICY": "deepseek/deepseek-v4-flash",
+          "PROOFLOOP_REAL_USER_MODE": "1",
+          "PROOFLOOP_FOCUS_MODE": "0",
+          "PROOFLOOP_NODEAGENT_RUNTIME_PROFILE": "",
+          "PROOFLOOP_RUN_ID": "proofloop-standalone-runner-dogfood-2026-07-05T19-48-29-628Z-finch-prod-proxy-task--finch-local-financial-evidence-qa--deepseek_deepseek-v4-flash--a8de090c31",
+          "PROOFLOOP_CASE_ID": "finch-prod-proxy-task--finch-local-financial-evidence-qa--deepseek_deepseek-v4-flash--a8de090c31",
+          "PROOFLOOP_FRESH_ROOM_ROOT": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-48-29-628Z/receipts/fresh-room",
+          "PROOFLOOP_SUITE_PROOF_PATH": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-48-29-628Z/receipts/finch-prod-proxy-task--finch-local-financial-evidence-qa--deepseek_deepseek-v4-flash--a8de090c31.json"
+        },
+        "sourceMatrixDigest": "ad3154eed1c15f5ed9c75eeb734059528a67e7004b99c25a89b2dc3c6586cf1e"
+      }
+    },
+    {
+      "id": "live-run.noderoom-multi-user-conflict",
+      "command": "npm run benchmark:proofloop:prod-proxy-longrun -- status",
+      "estimatedCostUsd": 0,
+      "timeoutMs": 120000,
+      "kind": "guarded-live-run-batch",
+      "layer": "browser-certification",
+      "status": "guarded-spend",
+      "title": "Run guarded prod proxy attempts for noderoom-multi-user-conflict",
+      "familyId": "noderoom-multi-user-conflict",
+      "priority": 303,
+      "objective": "Execute the queued real-user prod browser attempts for noderoom-multi-user-conflict under the standalone runner budget guard.",
+      "prompt": "Run the queued prod proxy attempts for noderoom-multi-user-conflict through https://noderoom.live with memory mode off.\nStart with max-attempts 1, refresh the long-run plan after every attempt, and stop if receipts or budget accounting are missing.\nDo not run broad paid model sweeps; only execute the queued attempts covered by this plan and the runner budget.\nModels in this batch: deepseek/deepseek-v4-flash, poolside/laguna-xs-2.1, qwen/qwen3.7-plus.",
+      "estimatedProductSpendUsd": 0.602868,
+      "paidModelRequired": true,
+      "counts": {
+        "taskTargets": 6,
+        "queuedAttempts": 18,
+        "attempts": 18
+      },
+      "commands": [
+        {
+          "name": "status",
+          "command": "npm run benchmark:proofloop:prod-proxy-longrun -- status",
+          "requiresSpend": false
+        },
+        {
+          "name": "single-guarded-attempt",
+          "command": "npm run benchmark:proofloop:prod-proxy-longrun -- run --execute --allow-spend --budget-usd 100 --max-attempts 1",
+          "requiresSpend": true,
+          "writes": [
+            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-48-29-628Z/state.json",
+            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-48-29-628Z/events.jsonl",
+            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-48-29-628Z/receipts/"
+          ]
+        }
+      ],
+      "acceptance": [
+        "Every attempted row writes a verifier receipt, cost evidence, and updated state before it can be marked passed.",
+        "Memory mode remains disabled for the prod UI run.",
+        "The all-task winner remains null until every tracked task target has prod browser proof."
+      ],
+      "evidence": [
+        "docs/eval/official-benchmark-task-coverage.json",
+        "evals/multiUserCoordinationProof.ts",
+        "proofloop/benchmarks/noderoom-multi-user/live-room-scenario.spec.ts",
+        "scripts/proofloop-live-playwright.ts"
+      ],
+      "blockers": [
+        "Multi-user conflict has a prod browser adapter, but no passing prod live-browser receipt is recorded for this task/model yet."
+      ],
+      "metadata": {
+        "modelIds": [
+          "deepseek/deepseek-v4-flash",
+          "poolside/laguna-xs-2.1",
+          "qwen/qwen3.7-plus"
+        ],
+        "sampleAttemptId": "noderoom-multi-user-conflict--multi-user-conflict-1--poolside_laguna-xs-2.1--2742b0e3fd",
+        "sampleTaskId": "multi-user-conflict-1",
+        "sampleCommand": "npm run proofloop:live:multi-user-conflict",
+        "sampleEnv": {
+          "BENCH_BASE_URL": "https://noderoom.live",
+          "PLAYWRIGHT_BASE_URL": "https://noderoom.live",
+          "PLAYWRIGHT_REUSE_SERVER": "1",
+          "PLAYWRIGHT_RETRIES": "0",
+          "PLAYWRIGHT_OUTPUT_DIR": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-48-29-628Z/receipts/playwright/noderoom-multi-user-conflict--multi-user-conflict-1--poolside_laguna-xs-2.1--2742b0e3fd",
+          "BENCH_AGENT_MODEL_MODE": "specific",
+          "BENCH_AGENT_MODEL_POLICY": "poolside/laguna-xs-2.1",
+          "PROOFLOOP_REAL_USER_MODE": "1",
+          "PROOFLOOP_FOCUS_MODE": "0",
+          "PROOFLOOP_NODEAGENT_RUNTIME_PROFILE": "",
+          "PROOFLOOP_RUN_ID": "proofloop-standalone-runner-dogfood-2026-07-05T19-48-29-628Z-noderoom-multi-user-conflict--multi-user-conflict-1--poolside_laguna-xs-2.1--2742b0e3fd",
+          "PROOFLOOP_CASE_ID": "noderoom-multi-user-conflict--multi-user-conflict-1--poolside_laguna-xs-2.1--2742b0e3fd",
+          "PROOFLOOP_FRESH_ROOM_ROOT": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-48-29-628Z/receipts/fresh-room",
+          "PROOFLOOP_SUITE_PROOF_PATH": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-48-29-628Z/receipts/noderoom-multi-user-conflict--multi-user-conflict-1--poolside_laguna-xs-2.1--2742b0e3fd.json",
+          "PROOFLOOP_TASK_IDS": "multi-user-conflict-1"
+        },
+        "sourceMatrixDigest": "ad3154eed1c15f5ed9c75eeb734059528a67e7004b99c25a89b2dc3c6586cf1e"
+      }
+    },
+    {
+      "id": "live-run.notion-live-proofloop",
+      "command": "npm run benchmark:proofloop:prod-proxy-longrun -- status",
+      "estimatedCostUsd": 0,
+      "timeoutMs": 120000,
+      "kind": "guarded-live-run-batch",
+      "layer": "browser-certification",
+      "status": "guarded-spend",
+      "title": "Run guarded prod proxy attempts for notion-live-proofloop",
+      "familyId": "notion-live-proofloop",
+      "priority": 304,
+      "objective": "Execute the queued real-user prod browser attempts for notion-live-proofloop under the standalone runner budget guard.",
+      "prompt": "Run the queued prod proxy attempts for notion-live-proofloop through https://noderoom.live with memory mode off.\nStart with max-attempts 1, refresh the long-run plan after every attempt, and stop if receipts or budget accounting are missing.\nDo not run broad paid model sweeps; only execute the queued attempts covered by this plan and the runner budget.\nModels in this batch: deepseek/deepseek-v4-flash, poolside/laguna-xs-2.1, qwen/qwen3.7-plus.",
+      "estimatedProductSpendUsd": 0.401912,
+      "paidModelRequired": true,
+      "counts": {
+        "taskTargets": 4,
+        "queuedAttempts": 12,
+        "attempts": 12
+      },
+      "commands": [
+        {
+          "name": "status",
+          "command": "npm run benchmark:proofloop:prod-proxy-longrun -- status",
+          "requiresSpend": false
+        },
+        {
+          "name": "single-guarded-attempt",
+          "command": "npm run benchmark:proofloop:prod-proxy-longrun -- run --execute --allow-spend --budget-usd 100 --max-attempts 1",
+          "requiresSpend": true,
+          "writes": [
+            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-48-29-628Z/state.json",
+            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-48-29-628Z/events.jsonl",
+            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-48-29-628Z/receipts/"
+          ]
+        }
+      ],
+      "acceptance": [
+        "Every attempted row writes a verifier receipt, cost evidence, and updated state before it can be marked passed.",
+        "Memory mode remains disabled for the prod UI run.",
+        "The all-task winner remains null until every tracked task target has prod browser proof."
+      ],
+      "evidence": [
+        "proofloop/live-browser-proof.spec.ts",
+        "proofloop/notion/live.notion.config.json",
+        "scripts/proofloop-live-playwright.ts"
+      ],
+      "blockers": [
+        "Notion live proof-loop has no passing prod live-browser receipt for this task/model yet."
+      ],
+      "metadata": {
+        "modelIds": [
+          "deepseek/deepseek-v4-flash",
+          "poolside/laguna-xs-2.1",
+          "qwen/qwen3.7-plus"
+        ],
+        "sampleAttemptId": "notion-live-proofloop--company-research--poolside_laguna-xs-2.1--5336dfb719",
+        "sampleTaskId": "company-research",
+        "sampleCommand": "npm run proofloop:live:notion:browser",
+        "sampleEnv": {
+          "BENCH_BASE_URL": "https://noderoom.live",
+          "PLAYWRIGHT_BASE_URL": "https://noderoom.live",
+          "PLAYWRIGHT_REUSE_SERVER": "1",
+          "PLAYWRIGHT_RETRIES": "0",
+          "PLAYWRIGHT_OUTPUT_DIR": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-48-29-628Z/receipts/playwright/notion-live-proofloop--company-research--poolside_laguna-xs-2.1--5336dfb719",
+          "BENCH_AGENT_MODEL_MODE": "specific",
+          "BENCH_AGENT_MODEL_POLICY": "poolside/laguna-xs-2.1",
+          "PROOFLOOP_REAL_USER_MODE": "1",
+          "PROOFLOOP_FOCUS_MODE": "0",
+          "PROOFLOOP_NODEAGENT_RUNTIME_PROFILE": "",
+          "PROOFLOOP_RUN_ID": "proofloop-standalone-runner-dogfood-2026-07-05T19-48-29-628Z-notion-live-proofloop--company-research--poolside_laguna-xs-2.1--5336dfb719",
+          "PROOFLOOP_CASE_ID": "notion-live-proofloop--company-research--poolside_laguna-xs-2.1--5336dfb719",
+          "PROOFLOOP_FRESH_ROOM_ROOT": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-48-29-628Z/receipts/fresh-room",
+          "PROOFLOOP_SUITE_PROOF_PATH": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-48-29-628Z/receipts/notion-live-proofloop--company-research--poolside_laguna-xs-2.1--5336dfb719.json",
+          "PROOFLOOP_TASKS_JSON": "proofloop/notion/live.notion.config.json",
+          "PROOFLOOP_TASK_IDS": "company-research"
+        },
+        "sourceMatrixDigest": "ad3154eed1c15f5ed9c75eeb734059528a67e7004b99c25a89b2dc3c6586cf1e"
+      }
+    },
+    {
+      "id": "live-run.proximitty-underwriting-pr0",
+      "command": "npm run benchmark:proofloop:prod-proxy-longrun -- status",
+      "estimatedCostUsd": 0,
+      "timeoutMs": 120000,
+      "kind": "guarded-live-run-batch",
+      "layer": "browser-certification",
+      "status": "guarded-spend",
+      "title": "Run guarded prod proxy attempts for proximitty-underwriting-pr0",
+      "familyId": "proximitty-underwriting-pr0",
+      "priority": 305,
+      "objective": "Execute the queued real-user prod browser attempts for proximitty-underwriting-pr0 under the standalone runner budget guard.",
+      "prompt": "Run the queued prod proxy attempts for proximitty-underwriting-pr0 through https://noderoom.live with memory mode off.\nStart with max-attempts 1, refresh the long-run plan after every attempt, and stop if receipts or budget accounting are missing.\nDo not run broad paid model sweeps; only execute the queued attempts covered by this plan and the runner budget.\nModels in this batch: deepseek/deepseek-v4-flash, poolside/laguna-xs-2.1, qwen/qwen3.7-plus.",
+      "estimatedProductSpendUsd": 0.401912,
+      "paidModelRequired": true,
+      "counts": {
+        "taskTargets": 4,
+        "queuedAttempts": 12,
+        "attempts": 12
+      },
+      "commands": [
+        {
+          "name": "status",
+          "command": "npm run benchmark:proofloop:prod-proxy-longrun -- status",
+          "requiresSpend": false
+        },
+        {
+          "name": "single-guarded-attempt",
+          "command": "npm run benchmark:proofloop:prod-proxy-longrun -- run --execute --allow-spend --budget-usd 100 --max-attempts 1",
+          "requiresSpend": true,
+          "writes": [
+            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-48-29-628Z/state.json",
+            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-48-29-628Z/events.jsonl",
+            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-48-29-628Z/receipts/"
+          ]
+        }
+      ],
+      "acceptance": [
+        "Every attempted row writes a verifier receipt, cost evidence, and updated state before it can be marked passed.",
+        "Memory mode remains disabled for the prod UI run.",
+        "The all-task winner remains null until every tracked task target has prod browser proof."
+      ],
+      "evidence": [
+        "proofloop/benchmarks/proximitty/live-room-scenario.spec.ts",
+        "proofloop/scenarios/proximitty-intake.spec.ts",
+        "proofloop/scenarios/proximitty-model-comparison.spec.ts",
+        "proofloop/scenarios/proximitty-risk-research.spec.ts",
+        "proofloop/scenarios/proximitty-underwriting-packet.spec.ts",
+        "scripts/proofloop-live-playwright.ts"
+      ],
+      "blockers": [
+        "Proximitty has a prod browser adapter, but no passing prod live-browser receipt is recorded for this task/model yet."
+      ],
+      "metadata": {
+        "modelIds": [
+          "deepseek/deepseek-v4-flash",
+          "poolside/laguna-xs-2.1",
+          "qwen/qwen3.7-plus"
+        ],
+        "sampleAttemptId": "proximitty-underwriting-pr0--proximitty-intake--poolside_laguna-xs-2.1--21cdc751a8",
+        "sampleTaskId": "proximitty-intake",
+        "sampleCommand": "npm run proofloop:proximitty:browser",
+        "sampleEnv": {
+          "BENCH_BASE_URL": "https://noderoom.live",
+          "PLAYWRIGHT_BASE_URL": "https://noderoom.live",
+          "PLAYWRIGHT_REUSE_SERVER": "1",
+          "PLAYWRIGHT_RETRIES": "0",
+          "PLAYWRIGHT_OUTPUT_DIR": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-48-29-628Z/receipts/playwright/proximitty-underwriting-pr0--proximitty-intake--poolside_laguna-xs-2.1--21cdc751a8",
+          "BENCH_AGENT_MODEL_MODE": "specific",
+          "BENCH_AGENT_MODEL_POLICY": "poolside/laguna-xs-2.1",
+          "PROOFLOOP_REAL_USER_MODE": "1",
+          "PROOFLOOP_FOCUS_MODE": "0",
+          "PROOFLOOP_NODEAGENT_RUNTIME_PROFILE": "",
+          "PROOFLOOP_RUN_ID": "proofloop-standalone-runner-dogfood-2026-07-05T19-48-29-628Z-proximitty-underwriting-pr0--proximitty-intake--poolside_laguna-xs-2.1--21cdc751a8",
+          "PROOFLOOP_CASE_ID": "proximitty-underwriting-pr0--proximitty-intake--poolside_laguna-xs-2.1--21cdc751a8",
+          "PROOFLOOP_FRESH_ROOM_ROOT": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-48-29-628Z/receipts/fresh-room",
+          "PROOFLOOP_SUITE_PROOF_PATH": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-48-29-628Z/receipts/proximitty-underwriting-pr0--proximitty-intake--poolside_laguna-xs-2.1--21cdc751a8.json",
+          "PROOFLOOP_TASK_IDS": "proximitty-intake"
+        },
+        "sourceMatrixDigest": "ad3154eed1c15f5ed9c75eeb734059528a67e7004b99c25a89b2dc3c6586cf1e"
+      }
+    },
+    {
+      "id": "live-run.spreadsheetbench-v1-full-912",
+      "command": "npm run benchmark:proofloop:prod-proxy-longrun -- status",
+      "estimatedCostUsd": 0,
+      "timeoutMs": 120000,
+      "kind": "guarded-live-run-batch",
+      "layer": "browser-certification",
+      "status": "guarded-spend",
+      "title": "Run guarded prod proxy attempts for spreadsheetbench-v1-full-912",
+      "familyId": "spreadsheetbench-v1-full-912",
+      "priority": 306,
+      "objective": "Execute the queued real-user prod browser attempts for spreadsheetbench-v1-full-912 under the standalone runner budget guard.",
+      "prompt": "Run the queued prod proxy attempts for spreadsheetbench-v1-full-912 through https://noderoom.live with memory mode off.\nStart with max-attempts 1, refresh the long-run plan after every attempt, and stop if receipts or budget accounting are missing.\nDo not run broad paid model sweeps; only execute the queued attempts covered by this plan and the runner budget.\nModels in this batch: deepseek/deepseek-v4-flash, poolside/laguna-xs-2.1, qwen/qwen3.7-plus.",
+      "estimatedProductSpendUsd": 77.143732,
+      "paidModelRequired": true,
+      "counts": {
+        "taskTargets": 912,
+        "queuedAttempts": 2518,
+        "attempts": 2518
+      },
+      "commands": [
+        {
+          "name": "status",
+          "command": "npm run benchmark:proofloop:prod-proxy-longrun -- status",
+          "requiresSpend": false
+        },
+        {
+          "name": "single-guarded-attempt",
+          "command": "npm run benchmark:proofloop:prod-proxy-longrun -- run --execute --allow-spend --budget-usd 100 --max-attempts 1",
+          "requiresSpend": true,
+          "writes": [
+            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-48-29-628Z/state.json",
+            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-48-29-628Z/events.jsonl",
+            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-48-29-628Z/receipts/"
+          ]
+        }
+      ],
+      "acceptance": [
+        "Every attempted row writes a verifier receipt, cost evidence, and updated state before it can be marked passed.",
+        "Memory mode remains disabled for the prod UI run.",
+        "The all-task winner remains null until every tracked task target has prod browser proof."
+      ],
+      "evidence": [
+        ".tmp/official-benchmarks/staged-v1-912/tasks/102-20/agent/task.json",
+        ".tmp/official-benchmarks/staged-v1-912/tasks/102-20/evaluator/evaluator.json",
+        ".tmp/official-benchmarks/staged-v1-912/tasks/10281/agent/task.json",
+        "docs/eval/official-benchmark-readiness.json",
+        "docs/eval/official-benchmark-task-coverage.json",
+        "docs/eval/spreadsheetbench-live-room-proof.json",
+        "docs/eval/spreadsheetbench-v1-912-copy-input-baseline.json",
+        "docs/eval/spreadsheetbench-v1-912-stage.json"
+      ],
+      "blockers": [
+        "Existing SpreadsheetBench receipt is local live-browser only; rerun against https://noderoom.live.",
+        "SpreadsheetBench task is ready for the generic prod browser workbook adapter but lacks a passing prod receipt."
+      ],
+      "metadata": {
+        "modelIds": [
+          "deepseek/deepseek-v4-flash",
+          "poolside/laguna-xs-2.1",
+          "qwen/qwen3.7-plus"
+        ],
+        "sampleAttemptId": "spreadsheetbench-v1-full-912--102-20--poolside_laguna-xs-2.1--33b65c6844",
+        "sampleTaskId": "102-20",
+        "sampleCommand": "npm run proofloop:live:spreadsheetbench-v1",
+        "sampleEnv": {
+          "BENCH_BASE_URL": "https://noderoom.live",
+          "PLAYWRIGHT_BASE_URL": "https://noderoom.live",
+          "PLAYWRIGHT_REUSE_SERVER": "1",
+          "PLAYWRIGHT_RETRIES": "0",
+          "PLAYWRIGHT_OUTPUT_DIR": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-48-29-628Z/receipts/playwright/spreadsheetbench-v1-full-912--102-20--poolside_laguna-xs-2.1--33b65c6844",
+          "BENCH_AGENT_MODEL_MODE": "specific",
+          "BENCH_AGENT_MODEL_POLICY": "poolside/laguna-xs-2.1",
+          "PROOFLOOP_REAL_USER_MODE": "1",
+          "PROOFLOOP_FOCUS_MODE": "0",
+          "PROOFLOOP_NODEAGENT_RUNTIME_PROFILE": "",
+          "PROOFLOOP_RUN_ID": "proofloop-standalone-runner-dogfood-2026-07-05T19-48-29-628Z-spreadsheetbench-v1-full-912--102-20--poolside_laguna-xs-2.1--33b65c6844",
+          "PROOFLOOP_CASE_ID": "spreadsheetbench-v1-full-912--102-20--poolside_laguna-xs-2.1--33b65c6844",
+          "PROOFLOOP_FRESH_ROOM_ROOT": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-48-29-628Z/receipts/fresh-room",
+          "PROOFLOOP_SUITE_PROOF_PATH": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-48-29-628Z/receipts/spreadsheetbench-v1-full-912--102-20--poolside_laguna-xs-2.1--33b65c6844.json",
+          "SPREADSHEETBENCH_TRACK": "spreadsheetbench-v1",
+          "SPREADSHEETBENCH_STAGE_ROOT": ".tmp/official-benchmarks/staged-v1-912",
+          "SPREADSHEETBENCH_TASK_ID": "102-20",
+          "SPREADSHEETBENCH_LIVE_PROOF_PATH": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-48-29-628Z/receipts/spreadsheetbench-v1-full-912--102-20--poolside_laguna-xs-2.1--33b65c6844.json"
+        },
+        "sourceMatrixDigest": "ad3154eed1c15f5ed9c75eeb734059528a67e7004b99c25a89b2dc3c6586cf1e"
+      }
+    },
+    {
+      "id": "live-run.spreadsheetbench-v2-full-321",
+      "command": "npm run benchmark:proofloop:prod-proxy-longrun -- status",
+      "estimatedCostUsd": 0,
+      "timeoutMs": 120000,
+      "kind": "guarded-live-run-batch",
+      "layer": "browser-certification",
+      "status": "guarded-spend",
+      "title": "Run guarded prod proxy attempts for spreadsheetbench-v2-full-321",
+      "familyId": "spreadsheetbench-v2-full-321",
+      "priority": 307,
+      "objective": "Execute the queued real-user prod browser attempts for spreadsheetbench-v2-full-321 under the standalone runner budget guard.",
+      "prompt": "Run the queued prod proxy attempts for spreadsheetbench-v2-full-321 through https://noderoom.live with memory mode off.\nStart with max-attempts 1, refresh the long-run plan after every attempt, and stop if receipts or budget accounting are missing.\nDo not run broad paid model sweeps; only execute the queued attempts covered by this plan and the runner budget.\nModels in this batch: deepseek/deepseek-v4-flash, poolside/laguna-xs-2.1.",
+      "estimatedProductSpendUsd": 10.914,
+      "paidModelRequired": true,
+      "counts": {
+        "taskTargets": 321,
+        "queuedAttempts": 642,
+        "attempts": 642
+      },
+      "commands": [
+        {
+          "name": "status",
+          "command": "npm run benchmark:proofloop:prod-proxy-longrun -- status",
+          "requiresSpend": false
+        },
+        {
+          "name": "single-guarded-attempt",
+          "command": "npm run benchmark:proofloop:prod-proxy-longrun -- run --execute --allow-spend --budget-usd 100 --max-attempts 1",
+          "requiresSpend": true,
+          "writes": [
+            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-48-29-628Z/state.json",
+            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-48-29-628Z/events.jsonl",
+            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-48-29-628Z/receipts/"
+          ]
+        }
+      ],
+      "acceptance": [
+        "Every attempted row writes a verifier receipt, cost evidence, and updated state before it can be marked passed.",
+        "Memory mode remains disabled for the prod UI run.",
+        "The all-task winner remains null until every tracked task target has prod browser proof."
+      ],
+      "evidence": [
+        ".tmp/official-benchmarks/staged-v2-full/tasks/Debugging_01_01/agent/task.json",
+        ".tmp/official-benchmarks/staged-v2-full/tasks/Debugging_01_01/evaluator/evaluator.json",
+        "docs/eval/official-benchmark-task-coverage.json",
+        "docs/eval/spreadsheetbench-chart-visual-probe.json",
+        "docs/eval/spreadsheetbench-v2-full-ingest.json",
+        "docs/eval/spreadsheetbench-v2-full-stage.json",
+        "docs/eval/spreadsheetbench-v2-run-smoke.json",
+        "docs/eval/spreadsheetbench-v2-stage-smoke.json"
+      ],
+      "blockers": [
+        "SpreadsheetBench task is ready for the generic prod browser workbook adapter but lacks a passing prod receipt."
+      ],
+      "metadata": {
+        "modelIds": [
+          "deepseek/deepseek-v4-flash",
+          "poolside/laguna-xs-2.1"
+        ],
+        "sampleAttemptId": "spreadsheetbench-v2-full-321--Debugging_01_01--poolside_laguna-xs-2.1--1581c4f608",
+        "sampleTaskId": "Debugging/01_01",
+        "sampleCommand": "npm run proofloop:live:spreadsheetbench-v2",
+        "sampleEnv": {
+          "BENCH_BASE_URL": "https://noderoom.live",
+          "PLAYWRIGHT_BASE_URL": "https://noderoom.live",
+          "PLAYWRIGHT_REUSE_SERVER": "1",
+          "PLAYWRIGHT_RETRIES": "0",
+          "PLAYWRIGHT_OUTPUT_DIR": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-48-29-628Z/receipts/playwright/spreadsheetbench-v2-full-321--Debugging_01_01--poolside_laguna-xs-2.1--1581c4f608",
+          "BENCH_AGENT_MODEL_MODE": "specific",
+          "BENCH_AGENT_MODEL_POLICY": "poolside/laguna-xs-2.1",
+          "PROOFLOOP_REAL_USER_MODE": "1",
+          "PROOFLOOP_FOCUS_MODE": "0",
+          "PROOFLOOP_NODEAGENT_RUNTIME_PROFILE": "",
+          "PROOFLOOP_RUN_ID": "proofloop-standalone-runner-dogfood-2026-07-05T19-48-29-628Z-spreadsheetbench-v2-full-321--Debugging_01_01--poolside_laguna-xs-2.1--1581c4f608",
+          "PROOFLOOP_CASE_ID": "spreadsheetbench-v2-full-321--Debugging_01_01--poolside_laguna-xs-2.1--1581c4f608",
+          "PROOFLOOP_FRESH_ROOM_ROOT": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-48-29-628Z/receipts/fresh-room",
+          "PROOFLOOP_SUITE_PROOF_PATH": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-48-29-628Z/receipts/spreadsheetbench-v2-full-321--Debugging_01_01--poolside_laguna-xs-2.1--1581c4f608.json",
+          "SPREADSHEETBENCH_TRACK": "spreadsheetbench-v2",
+          "SPREADSHEETBENCH_STAGE_ROOT": ".tmp/official-benchmarks/staged-v2-full",
+          "SPREADSHEETBENCH_TASK_ID": "Debugging/01_01",
+          "SPREADSHEETBENCH_LIVE_PROOF_PATH": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-48-29-628Z/receipts/spreadsheetbench-v2-full-321--Debugging_01_01--poolside_laguna-xs-2.1--1581c4f608.json"
+        },
+        "sourceMatrixDigest": "ad3154eed1c15f5ed9c75eeb734059528a67e7004b99c25a89b2dc3c6586cf1e"
+      }
+    },
+    {
+      "id": "live-run.workstreambench-prod-proxy-task",
+      "command": "npm run benchmark:proofloop:prod-proxy-longrun -- status",
+      "estimatedCostUsd": 0,
+      "timeoutMs": 120000,
+      "kind": "guarded-live-run-batch",
+      "layer": "browser-certification",
+      "status": "guarded-spend",
+      "title": "Run guarded prod proxy attempts for workstreambench-prod-proxy-task",
+      "familyId": "workstreambench-prod-proxy-task",
+      "priority": 308,
+      "objective": "Execute the queued real-user prod browser attempts for workstreambench-prod-proxy-task under the standalone runner budget guard.",
+      "prompt": "Run the queued prod proxy attempts for workstreambench-prod-proxy-task through https://noderoom.live with memory mode off.\nStart with max-attempts 1, refresh the long-run plan after every attempt, and stop if receipts or budget accounting are missing.\nDo not run broad paid model sweeps; only execute the queued attempts covered by this plan and the runner budget.\nModels in this batch: deepseek/deepseek-v4-flash.",
+      "estimatedProductSpendUsd": 0.023,
+      "paidModelRequired": true,
+      "counts": {
+        "taskTargets": 1,
+        "queuedAttempts": 1,
+        "attempts": 1
+      },
+      "commands": [
+        {
+          "name": "status",
+          "command": "npm run benchmark:proofloop:prod-proxy-longrun -- status",
+          "requiresSpend": false
+        },
+        {
+          "name": "single-guarded-attempt",
+          "command": "npm run benchmark:proofloop:prod-proxy-longrun -- run --execute --allow-spend --budget-usd 100 --max-attempts 1",
+          "requiresSpend": true,
+          "writes": [
+            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-48-29-628Z/state.json",
+            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-48-29-628Z/events.jsonl",
+            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-48-29-628Z/receipts/"
+          ]
+        }
+      ],
+      "acceptance": [
+        "Every attempted row writes a verifier receipt, cost evidence, and updated state before it can be marked passed.",
+        "Memory mode remains disabled for the prod UI run.",
+        "The all-task winner remains null until every tracked task target has prod browser proof."
+      ],
+      "evidence": [
+        "docs/eval/proofloop-external-adapter-live-room-runs/workstreambench.json",
+        "docs/eval/proofloop-proxy-model-sweep.json",
+        "proofloop/benchmarks/workstreambench/adapter.json"
+      ],
+      "blockers": [],
+      "metadata": {
+        "modelIds": [
+          "deepseek/deepseek-v4-flash"
+        ],
+        "sampleAttemptId": "workstreambench-prod-proxy-task--workstreambench-local-spreadsheet-workstream--deepseek_deepseek-v4-flash--17f44bb005",
+        "sampleTaskId": "workstreambench-local-spreadsheet-workstream",
+        "sampleCommand": "npm run benchmark:proofloop:external-adapter-live-room -- --prod --id workstreambench --real-user --model deepseek/deepseek-v4-flash --model-mode specific --json-out-dir .proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-48-29-628Z/receipts",
+        "sampleEnv": {
+          "BENCH_BASE_URL": "https://noderoom.live",
+          "PLAYWRIGHT_BASE_URL": "https://noderoom.live",
+          "PLAYWRIGHT_REUSE_SERVER": "1",
+          "PLAYWRIGHT_RETRIES": "0",
+          "PLAYWRIGHT_OUTPUT_DIR": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-48-29-628Z/receipts/playwright/workstreambench-prod-proxy-task--workstreambench-local-spreadsheet-workstream--deepseek_deepseek-v4-flash--17f44bb005",
+          "BENCH_AGENT_MODEL_MODE": "specific",
+          "BENCH_AGENT_MODEL_POLICY": "deepseek/deepseek-v4-flash",
+          "PROOFLOOP_REAL_USER_MODE": "1",
+          "PROOFLOOP_FOCUS_MODE": "0",
+          "PROOFLOOP_NODEAGENT_RUNTIME_PROFILE": "",
+          "PROOFLOOP_RUN_ID": "proofloop-standalone-runner-dogfood-2026-07-05T19-48-29-628Z-workstreambench-prod-proxy-task--workstreambench-local-spreadsheet-workstream--deepseek_deepseek-v4-flash--17f44bb005",
+          "PROOFLOOP_CASE_ID": "workstreambench-prod-proxy-task--workstreambench-local-spreadsheet-workstream--deepseek_deepseek-v4-flash--17f44bb005",
+          "PROOFLOOP_FRESH_ROOM_ROOT": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-48-29-628Z/receipts/fresh-room",
+          "PROOFLOOP_SUITE_PROOF_PATH": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-48-29-628Z/receipts/workstreambench-prod-proxy-task--workstreambench-local-spreadsheet-workstream--deepseek_deepseek-v4-flash--17f44bb005.json"
+        },
+        "sourceMatrixDigest": "ad3154eed1c15f5ed9c75eeb734059528a67e7004b99c25a89b2dc3c6586cf1e"
+      }
+    },
+    {
+      "id": "official-score.finauditing",
+      "command": "npm run benchmark:proofloop:adapter-blockers",
+      "estimatedCostUsd": 0,
+      "timeoutMs": 120000,
+      "kind": "official-score-gap",
+      "layer": "official-scoring",
+      "status": "blocked-external",
+      "title": "Import official score receipt for finauditing",
+      "adapterId": "finauditing",
+      "priority": 500,
+      "objective": "Resolve the external official-score blocker for FinAuditing without relabeling proxy proof as an official score.",
+      "prompt": "Resolve the official scorer blocker for finauditing.\nUse the upstream scorer or judge contract named in the adapter receipt.\nIf credentials or upstream bundles are unavailable, keep the blocker explicit and refresh the receipt; do not self-grade or accept a proxy score as official.",
+      "estimatedProductSpendUsd": 0,
+      "paidModelRequired": false,
+      "counts": {},
+      "commands": [
+        {
+          "name": "resume-1",
+          "command": "npm run benchmark:proofloop:external-adapter-live-room -- --id finauditing --prod --user-emulation strict",
+          "requiresSpend": true
+        },
+        {
+          "name": "resume-2",
+          "command": "npm run benchmark:proofloop:external-adapter -- --id finauditing --prod --user-emulation strict",
+          "requiresSpend": false
+        },
+        {
+          "name": "resume-3",
+          "command": "npm run benchmark:proofloop:adapter-blockers -- --id finauditing",
+          "requiresSpend": false
+        },
+        {
+          "name": "resume-4",
+          "command": "npm run benchmark:proofloop:external-adapter-live-room -- --id finauditing --prod --user-emulation strict --cockpit",
+          "requiresSpend": true
+        },
+        {
+          "name": "resume-5",
+          "command": "npm run benchmark:proofloop:adapter-blockers -- --id finauditing --strict",
+          "requiresSpend": false
+        }
+      ],
+      "acceptance": [
+        "docs/eval/proofloop-official-scores/finauditing.json has a scored receipt from the upstream official scorer, or the blocker remains explicitly external.",
+        "docs/eval/proofloop-official-task-bundles/finauditing.json records the locked official task bundle when available.",
+        "The adapter blocker receipt is refreshed after any import or blocker change."
+      ],
+      "evidence": [
+        "proofloop/benchmarks/finauditing/adapter.json",
+        "https://arxiv.org/abs/2510.08886",
+        "https://github.com/The-FinAI/FinAuditing",
+        "https://huggingface.co/collections/TheFinAI/finauditing",
+        "https://open-finance-lab.github.io/SecureFinAI_Contest_2026/",
+        "docs/eval/proofloop-official-outputs/finauditing.json",
+        "docs/eval/proofloop-official-task-bundles/finauditing.json",
+        ".tmp/official-benchmarks/proofloop-official-outputs/finauditing/FinSM.predictions.jsonl",
+        ".tmp/official-benchmarks/proofloop-official-outputs/finauditing/FinRE.predictions.jsonl",
+        ".tmp/official-benchmarks/proofloop-official-outputs/finauditing/FinMR.predictions.jsonl",
+        ".tmp/official-benchmarks/proofloop-official-outputs/finauditing/manifest.json",
+        ".tmp/official-benchmarks/proofloop-official-outputs/finauditing"
+      ],
+      "blockers": [
+        "finauditing: official scorer receipt docs/eval/proofloop-official-scores/finauditing.json is blocked_external; scored receipt is still required before claiming score. FinMR evaluation uses an OpenAI LLM judge and this shell has no OPENAI_API_KEY. The full benchmark path also points to the separate FinBen framework, which is not yet wired to NodeRoom output artifacts."
+      ],
+      "metadata": {
+        "name": "FinAuditing",
+        "officialScoreStatus": "blocked_external",
+        "localImplementationStatus": "ready",
+        "officialCommandPlan": [
+          "Lock the official FinAuditing task source for FinSM, FinRE, and FinMR.",
+          "Run NodeRoom generated answers through the upstream FinAuditing metric/scorer for every official split.",
+          "Import the official scorer output into docs/eval/proofloop-adapter-blockers/finauditing.json before claiming score."
+        ],
+        "resumeSteps": [
+          "npm run benchmark:proofloop:external-adapter-live-room -- --id finauditing --prod --user-emulation strict",
+          "npm run benchmark:proofloop:external-adapter -- --id finauditing --prod --user-emulation strict",
+          "npm run benchmark:proofloop:adapter-blockers -- --id finauditing",
+          "import docs/eval/proofloop-official-scores/finauditing.json from the upstream official scorer",
+          "stage docs/eval/proofloop-official-task-bundles/finauditing.json from the locked official task bundle",
+          "npm run benchmark:proofloop:external-adapter-live-room -- --id finauditing --prod --user-emulation strict --cockpit",
+          "npm run benchmark:proofloop:adapter-blockers -- --id finauditing --strict"
+        ],
+        "officialScoreReceiptPath": "docs/eval/proofloop-official-scores/finauditing.json",
+        "officialTaskBundleManifestPath": "docs/eval/proofloop-official-task-bundles/finauditing.json"
+      }
+    },
+    {
+      "id": "official-score.finch",
+      "command": "npm run benchmark:proofloop:adapter-blockers",
+      "estimatedCostUsd": 0,
+      "timeoutMs": 120000,
+      "kind": "official-score-gap",
+      "layer": "official-scoring",
+      "status": "blocked-external",
+      "title": "Import official score receipt for finch",
+      "adapterId": "finch",
+      "priority": 501,
+      "objective": "Resolve the external official-score blocker for Finch / FinWorkBench without relabeling proxy proof as an official score.",
+      "prompt": "Resolve the official scorer blocker for finch.\nUse the upstream scorer or judge contract named in the adapter receipt.\nIf credentials or upstream bundles are unavailable, keep the blocker explicit and refresh the receipt; do not self-grade or accept a proxy score as official.",
+      "estimatedProductSpendUsd": 0,
+      "paidModelRequired": false,
+      "counts": {},
+      "commands": [
+        {
+          "name": "resume-1",
+          "command": "npm run benchmark:proofloop:external-adapter-live-room -- --id finch --prod --user-emulation strict",
+          "requiresSpend": true
+        },
+        {
+          "name": "resume-2",
+          "command": "npm run benchmark:proofloop:external-adapter -- --id finch --prod --user-emulation strict",
+          "requiresSpend": false
+        },
+        {
+          "name": "resume-3",
+          "command": "npm run benchmark:proofloop:adapter-blockers -- --id finch",
+          "requiresSpend": false
+        },
+        {
+          "name": "resume-4",
+          "command": "npm run benchmark:proofloop:external-adapter-live-room -- --id finch --prod --user-emulation strict --cockpit",
+          "requiresSpend": true
+        },
+        {
+          "name": "resume-5",
+          "command": "npm run benchmark:proofloop:adapter-blockers -- --id finch --strict",
+          "requiresSpend": false
+        }
+      ],
+      "acceptance": [
+        "docs/eval/proofloop-official-scores/finch.json has a scored receipt from the upstream official scorer, or the blocker remains explicitly external.",
+        "docs/eval/proofloop-official-task-bundles/finch.json records the locked official task bundle when available.",
+        "The adapter blocker receipt is refreshed after any import or blocker change."
+      ],
+      "evidence": [
+        "proofloop/benchmarks/finch/adapter.json",
+        "https://arxiv.org/abs/2512.13168",
+        "https://github.com/FinWorkBench/Finch",
+        "https://huggingface.co/datasets/FinWorkBench/Finch",
+        "docs/eval/proofloop-official-outputs/finch.json",
+        "docs/eval/proofloop-official-task-bundles/finch.json",
+        ".tmp/official-benchmarks/proofloop-official-outputs/finch/model-output-manifest.json",
+        ".tmp/official-benchmarks/proofloop-official-outputs/finch"
+      ],
+      "blockers": [
+        "finch: official scorer receipt docs/eval/proofloop-official-scores/finch.json is blocked_external; scored receipt is still required before claiming score. No Azure OpenAI judge credentials are present in this shell: AZURE endpoint, API key, API version, and deployment name are all required by src/call_gpt_judge.py. Upstream Finch content_parts rendering is 0/172; official Azure judge input remains incomplete even though model-output artifacts are complete."
+      ],
+      "metadata": {
+        "name": "Finch / FinWorkBench",
+        "officialScoreStatus": "blocked_external",
+        "localImplementationStatus": "ready",
+        "officialCommandPlan": [
+          "Clone/lock https://github.com/FinWorkBench/Finch and https://huggingface.co/datasets/FinWorkBench/Finch.",
+          "Run the upstream Finch prompt_build_pipeline against the locked official task split.",
+          "Run the upstream Finch call_gpt_judge scorer on NodeRoom output artifacts.",
+          "Import the official judge JSON into docs/eval/proofloop-adapter-blockers/finch.json before claiming score."
+        ],
+        "resumeSteps": [
+          "npm run benchmark:proofloop:external-adapter-live-room -- --id finch --prod --user-emulation strict",
+          "npm run benchmark:proofloop:external-adapter -- --id finch --prod --user-emulation strict",
+          "npm run benchmark:proofloop:adapter-blockers -- --id finch",
+          "import docs/eval/proofloop-official-scores/finch.json from the upstream official scorer",
+          "stage docs/eval/proofloop-official-task-bundles/finch.json from the locked official task bundle",
+          "npm run benchmark:proofloop:external-adapter-live-room -- --id finch --prod --user-emulation strict --cockpit",
+          "npm run benchmark:proofloop:adapter-blockers -- --id finch --strict"
+        ],
+        "officialScoreReceiptPath": "docs/eval/proofloop-official-scores/finch.json",
+        "officialTaskBundleManifestPath": "docs/eval/proofloop-official-task-bundles/finch.json"
+      }
+    },
+    {
+      "id": "official-score.workstreambench",
+      "command": "npm run benchmark:proofloop:adapter-blockers",
+      "estimatedCostUsd": 0,
+      "timeoutMs": 120000,
+      "kind": "official-score-gap",
+      "layer": "official-scoring",
+      "status": "blocked-external",
+      "title": "Import official score receipt for workstreambench",
+      "adapterId": "workstreambench",
+      "priority": 502,
+      "objective": "Resolve the external official-score blocker for WorkstreamBench without relabeling proxy proof as an official score.",
+      "prompt": "Resolve the official scorer blocker for workstreambench.\nUse the upstream scorer or judge contract named in the adapter receipt.\nIf credentials or upstream bundles are unavailable, keep the blocker explicit and refresh the receipt; do not self-grade or accept a proxy score as official.",
+      "estimatedProductSpendUsd": 0,
+      "paidModelRequired": false,
+      "counts": {},
+      "commands": [
+        {
+          "name": "resume-1",
+          "command": "npm run benchmark:proofloop:external-adapter-live-room -- --id workstreambench --prod --user-emulation strict",
+          "requiresSpend": true
+        },
+        {
+          "name": "resume-2",
+          "command": "npm run benchmark:proofloop:external-adapter -- --id workstreambench --prod --user-emulation strict",
+          "requiresSpend": false
+        },
+        {
+          "name": "resume-3",
+          "command": "npm run benchmark:proofloop:adapter-blockers -- --id workstreambench",
+          "requiresSpend": false
+        },
+        {
+          "name": "resume-4",
+          "command": "npm run benchmark:proofloop:external-adapter-live-room -- --id workstreambench --prod --user-emulation strict --cockpit",
+          "requiresSpend": true
+        },
+        {
+          "name": "resume-5",
+          "command": "npm run benchmark:proofloop:adapter-blockers -- --id workstreambench --strict",
+          "requiresSpend": false
+        }
+      ],
+      "acceptance": [
+        "docs/eval/proofloop-official-scores/workstreambench.json has a scored receipt from the upstream official scorer, or the blocker remains explicitly external.",
+        "docs/eval/proofloop-official-task-bundles/workstreambench.json records the locked official task bundle when available.",
+        "The adapter blocker receipt is refreshed after any import or blocker change."
+      ],
+      "evidence": [
+        "proofloop/benchmarks/workstreambench/adapter.json",
+        "https://arxiv.org/html/2605.22664v1"
+      ],
+      "blockers": [
+        "workstreambench: official scorer receipt docs/eval/proofloop-official-scores/workstreambench.json is blocked_external; scored receipt is still required before claiming score. No public official WorkstreamBench task bundle URL was found. No public official WorkstreamBench scorer repository or CLI was found. The paper describes LLM-as-judge evaluation over structured representations, so a claimable score requires the official rubric/task bundle/scorer release or author-provided supplementary package.",
+        "workstreambench: official task bundle lock docs/eval/proofloop-official-task-bundles/workstreambench.json is missing: no public official bundle/scorer/rubric URL was found; obtain the upstream release or author-provided bundle before claiming an official score."
+      ],
+      "metadata": {
+        "name": "WorkstreamBench",
+        "officialScoreStatus": "blocked_external",
+        "localImplementationStatus": "ready",
+        "officialCommandPlan": [
+          "Lock the official WorkstreamBench task bundle and scorer from the paper/supplementary source.",
+          "Run every official workstream through NodeRoom live-user seeding and artifact export.",
+          "Run the official WorkstreamBench scorer and import the result into docs/eval/proofloop-adapter-blockers/workstreambench.json before claiming score."
+        ],
+        "resumeSteps": [
+          "npm run benchmark:proofloop:external-adapter-live-room -- --id workstreambench --prod --user-emulation strict",
+          "npm run benchmark:proofloop:external-adapter -- --id workstreambench --prod --user-emulation strict",
+          "npm run benchmark:proofloop:adapter-blockers -- --id workstreambench",
+          "import docs/eval/proofloop-official-scores/workstreambench.json from the upstream official scorer",
+          "stage docs/eval/proofloop-official-task-bundles/workstreambench.json from the locked official task bundle",
+          "npm run benchmark:proofloop:external-adapter-live-room -- --id workstreambench --prod --user-emulation strict --cockpit",
+          "npm run benchmark:proofloop:adapter-blockers -- --id workstreambench --strict"
+        ],
+        "officialScoreReceiptPath": "docs/eval/proofloop-official-scores/workstreambench.json",
+        "officialTaskBundleManifestPath": "docs/eval/proofloop-official-task-bundles/workstreambench.json"
+      }
+    }
+  ]
+}
