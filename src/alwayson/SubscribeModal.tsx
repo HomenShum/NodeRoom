@@ -66,13 +66,38 @@ function reasonMessage(reason: string): string {
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function ModalShell({ onClose, children }: { onClose: () => void; children: ReactNode }) {
+  const cardRef = useRef<HTMLDivElement>(null);
+
   // Escape closes (no undismissable chrome — design audit checks this).
   useEffect(() => {
+    const previouslyFocused = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
+      if (e.key === "Escape") {
+        onClose();
+        return;
+      }
+      if (e.key !== "Tab") return;
+      const focusable = Array.from(
+        cardRef.current?.querySelectorAll<HTMLElement>(
+          'a[href], button:not([disabled]), input:not([disabled]), textarea:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])',
+        ) ?? [],
+      ).filter((el) => el.offsetParent !== null);
+      if (focusable.length === 0) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
     };
     document.addEventListener("keydown", onKey);
-    return () => document.removeEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      previouslyFocused?.focus({ preventScroll: true });
+    };
   }, [onClose]);
 
   return (
@@ -87,8 +112,8 @@ function ModalShell({ onClose, children }: { onClose: () => void; children: Reac
         if (e.target === e.currentTarget) onClose();
       }}
     >
-      <div className="ao-panel ao-modal ao-modal-card">
-        <button className="ao-btn ghost ao-modal-x" aria-label="Close" onClick={onClose}>
+      <div className="ao-panel ao-modal ao-modal-card" ref={cardRef}>
+        <button className="ao-btn ghost ao-modal-x" type="button" aria-label="Close" onClick={onClose}>
           <Ic name="x" size={14} />
         </button>
         {children}
@@ -110,6 +135,11 @@ function SubscribeForm({
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState<null | "live" | "demo">(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const radioRefs = useRef<Record<Cadence, HTMLDivElement | null>>({
+    daily: null,
+    weekly: null,
+    act_now: null,
+  });
 
   useEffect(() => {
     inputRef.current?.focus();
@@ -134,7 +164,30 @@ function SubscribeForm({
     }
   };
 
+  const selectCadence = (next: Cadence, focus = false) => {
+    setCadence(next);
+    if (focus) window.requestAnimationFrame(() => radioRefs.current[next]?.focus());
+  };
+
   if (done) {
+    if (done === "demo") {
+      return (
+        <>
+          <div className="h">Demo subscription not stored</div>
+          <div className="s" data-testid="ao-subscribe-success">
+            This preview accepted the form, but no email was sent and no subscription was stored for {roomTitle}.
+          </div>
+          <div className="ao-optin" data-testid="ao-subscribe-demo-hint">
+            <Ic name="alert" size={13} style={{ flex: "none" }} />
+            demo - nothing was stored. Subscriptions go live with the hosted room.
+          </div>
+          <div className="ao-optin">
+            <Ic name="shield" size={13} style={{ flex: "none" }} />
+            One-click unsubscribe in every digest.
+          </div>
+        </>
+      );
+    }
     return (
       <>
         <div className="h">Check your email to confirm</div>
@@ -142,12 +195,6 @@ function SubscribeForm({
           Nothing is sent until you confirm. The confirmation link activates your{" "}
           {CADENCES.find((c) => c.key === cadence)?.label.toLowerCase()} for {roomTitle}.
         </div>
-        {done === "demo" && (
-          <div className="ao-optin" data-testid="ao-subscribe-demo-hint">
-            <Ic name="alert" size={13} style={{ flex: "none" }} />
-            demo — nothing was stored. Subscriptions go live with the hosted room.
-          </div>
-        )}
         <div className="ao-optin">
           <Ic name="shield" size={13} style={{ flex: "none" }} />
           One-click unsubscribe in every digest.
@@ -176,21 +223,34 @@ function SubscribeForm({
         />
       </div>
       <div className="ao-field">
-        <label>Cadence</label>
-        <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
-          {CADENCES.map((c) => (
+        <label id="ao-cadence-label">Cadence</label>
+        <div className="ao-radio-group" role="radiogroup" aria-labelledby="ao-cadence-label">
+          {CADENCES.map((c, index) => (
             <div
               className={"ao-radio" + (cadence === c.key ? " on" : "")}
               key={c.key}
               role="radio"
               aria-checked={cadence === c.key}
-              tabIndex={0}
-              onClick={() => setCadence(c.key)}
+              tabIndex={cadence === c.key ? 0 : -1}
+              ref={(el) => {
+                radioRefs.current[c.key] = el;
+              }}
+              onClick={() => selectCadence(c.key)}
               onKeyDown={(e) => {
                 if (e.key === "Enter" || e.key === " ") {
                   e.preventDefault();
-                  setCadence(c.key);
+                  selectCadence(c.key);
+                  return;
                 }
+                const nextIndex =
+                  e.key === "ArrowRight" || e.key === "ArrowDown"
+                    ? (index + 1) % CADENCES.length
+                    : e.key === "ArrowLeft" || e.key === "ArrowUp"
+                      ? (index - 1 + CADENCES.length) % CADENCES.length
+                      : null;
+                if (nextIndex === null) return;
+                e.preventDefault();
+                selectCadence(CADENCES[nextIndex].key, true);
               }}
             >
               <span className="r"></span>

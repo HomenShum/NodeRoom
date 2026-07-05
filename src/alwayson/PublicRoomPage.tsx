@@ -11,7 +11,17 @@
  * Ops tab renders ONLY when the location search or hash carries ops=1, and
  * lazily imports AlwaysOnOpsPanel (owned by the ops lane).
  */
-import { Component, lazy, Suspense, useState, type ReactNode } from "react";
+import {
+  Component,
+  lazy,
+  Suspense,
+  useDeferredValue,
+  useMemo,
+  useRef,
+  useState,
+  type KeyboardEvent,
+  type ReactNode,
+} from "react";
 import { HAS_CONVEX } from "../app/store";
 import { MarkdownBody } from "../ui/MarkdownBody";
 import { AoIcon } from "./AoIcon";
@@ -35,7 +45,31 @@ const Ic = AoIcon;
 const TABS = ["Home", "Papers", "Topics", "Weekly digest", "Trace"] as const;
 type TabName = (typeof TABS)[number] | "Ops";
 
-const tabTestId = (name: string) => `ao-tab-${name.toLowerCase().replace(/\s+/g, "-")}`;
+const slugifyUi = (value: string) => value.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+const tabSlug = (name: string) => slugifyUi(name);
+const tabTestId = (name: string) => `ao-tab-${tabSlug(name)}`;
+const tabButtonId = (name: string) => `ao-tab-button-${tabSlug(name)}`;
+const tabPanelId = (name: string) => `ao-tab-panel-${tabSlug(name)}`;
+
+type PublicPaper = PublicRoomBundle["papers"][number];
+const PAPER_STATUS_FILTERS = ["all", "new", "updated", "tracked"] as const;
+type PaperStatusFilter = (typeof PAPER_STATUS_FILTERS)[number];
+
+function matchesPaper(paper: PublicPaper, query: string, status: PaperStatusFilter, topic: string | null): boolean {
+  if (status !== "all" && paper.status !== status) return false;
+  if (topic && paper.topic !== topic) return false;
+  if (!query) return true;
+  const haystack = [
+    paper.title,
+    paper.discipline,
+    paper.topic,
+    paper.difficulty,
+    paper.status,
+    paper.firstSeen,
+    paper.evidenceRef,
+  ].join(" ").toLowerCase();
+  return haystack.includes(query);
+}
 
 function tabIcon(t: string): string {
   if (t === "Home") return "doc";
@@ -143,7 +177,11 @@ function ProofFooter({ bundle, onOpenTrace }: { bundle: PublicRoomBundle; onOpen
           <div className="pr" key={row.k}>
             <span className="k">{row.k}</span>
             {row.link ? (
-              <span className="v"><a role="button" tabIndex={0} onClick={onOpenTrace} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") onOpenTrace(); }}>{row.v}</a></span>
+              <span className="v">
+                <button className="ao-proof-link" type="button" data-testid="ao-proof-trace" onClick={onOpenTrace}>
+                  {row.v}
+                </button>
+              </span>
             ) : (
               <span className={"v" + (row.ok ? " ok" : "")}>{row.v}</span>
             )}
@@ -154,25 +192,128 @@ function ProofFooter({ bundle, onOpenTrace }: { bundle: PublicRoomBundle; onOpen
   );
 }
 
-function PapersSheet({ bundle }: { bundle: PublicRoomBundle }) {
+function PapersSheet({
+  bundle,
+  query,
+  status,
+  topic,
+  onQueryChange,
+  onStatusChange,
+  onTopicChange,
+}: {
+  bundle: PublicRoomBundle;
+  query: string;
+  status: PaperStatusFilter;
+  topic: string | null;
+  onQueryChange: (query: string) => void;
+  onStatusChange: (status: PaperStatusFilter) => void;
+  onTopicChange: (topic: string | null) => void;
+}) {
+  const deferredQuery = useDeferredValue(query);
+  const normalizedQuery = deferredQuery.trim().toLowerCase();
+  const filteredPapers = useMemo(
+    () => bundle.papers.filter((paper) => matchesPaper(paper, normalizedQuery, status, topic)),
+    [bundle.papers, normalizedQuery, status, topic],
+  );
+  const countLabel = `${filteredPapers.length} of ${bundle.papers.length} papers`;
+  const clearFilters = () => {
+    onQueryChange("");
+    onStatusChange("all");
+    onTopicChange(null);
+  };
+
   return (
-    <div className="ao-sheet">
-      <table>
-        <colgroup><col style={{ width: "34%" }} /><col style={{ width: "15%" }} /><col style={{ width: "13%" }} /><col style={{ width: "11%" }} /><col style={{ width: "12%" }} /><col style={{ width: "15%" }} /></colgroup>
-        <thead><tr><th>Title</th><th>Discipline</th><th>Difficulty</th><th>Status</th><th>First seen</th><th>Evidence</th></tr></thead>
-        <tbody>
-          {bundle.papers.map((p) => (
-            <tr key={p.title}>
-              <td className="tt">{p.title}<div className="tag">{p.topic}</div></td>
-              <td>{p.discipline}</td>
-              <td>{p.difficulty}</td>
-              <td><span className={"ao-st " + p.status}>{p.status}</span></td>
-              <td className="ao-mono" style={{ fontSize: 11 }}>{p.firstSeen}</td>
-              <td><span className="ao-src"><Ic name="link" size={10} />{p.evidenceRef}</span></td>
-            </tr>
+    <div className="ao-paper-panel" data-testid="ao-papers-panel">
+      <div className="ao-paper-tools" data-testid="ao-paper-tools">
+        <div className="ao-paper-search">
+          <label htmlFor="ao-paper-search">Search papers</label>
+          <input
+            id="ao-paper-search"
+            className="ao-input ao-paper-input"
+            type="search"
+            value={query}
+            onChange={(e) => onQueryChange(e.target.value)}
+            placeholder="Title, topic, source"
+            data-testid="ao-paper-search"
+          />
+        </div>
+        <div className="ao-paper-status" role="group" aria-label="Paper status">
+          <span className="ao-filter-label">Status</span>
+          {PAPER_STATUS_FILTERS.map((option) => (
+            <button
+              key={option}
+              type="button"
+              className={"ao-filter" + (status === option ? " on" : "")}
+              aria-pressed={status === option}
+              data-testid={`ao-paper-status-${option}`}
+              onClick={() => onStatusChange(option)}
+            >
+              {option}
+            </button>
           ))}
-        </tbody>
-      </table>
+        </div>
+        <div className="ao-paper-meter">
+          <span className="ao-chip ao-chip-xs" data-testid="ao-paper-count">{countLabel}</span>
+          {(query || status !== "all" || topic) && (
+            <button className="ao-btn ghost ao-btn-sm" type="button" data-testid="ao-paper-clear" onClick={clearFilters}>
+              Clear
+            </button>
+          )}
+        </div>
+        {topic && (
+          <div className="ao-paper-topic" data-testid="ao-paper-topic">
+            <span className="ao-filter-label">Topic</span>
+            <button className="ao-chip ao-topic-chip on" type="button" onClick={() => onTopicChange(null)}>
+              {topic}
+              <span aria-hidden="true">x</span>
+            </button>
+          </div>
+        )}
+      </div>
+      {filteredPapers.length === 0 ? (
+        <div className="ao-empty ao-paper-empty" data-testid="ao-paper-empty">
+          <div className="h">No matching papers</div>
+          <div className="b">Adjust the search or status filter.</div>
+        </div>
+      ) : (
+        <>
+          <div className="ao-sheet">
+            <table>
+              <colgroup><col style={{ width: "34%" }} /><col style={{ width: "15%" }} /><col style={{ width: "13%" }} /><col style={{ width: "11%" }} /><col style={{ width: "12%" }} /><col style={{ width: "15%" }} /></colgroup>
+              <thead><tr><th>Title</th><th>Discipline</th><th>Difficulty</th><th>Status</th><th>First seen</th><th>Evidence</th></tr></thead>
+              <tbody>
+                {filteredPapers.map((p) => (
+                  <tr key={p.title} data-testid="ao-paper-row">
+                    <td className="tt">{p.title}<div className="tag">{p.topic}</div></td>
+                    <td>{p.discipline}</td>
+                    <td>{p.difficulty}</td>
+                    <td><span className={"ao-st " + p.status}>{p.status}</span></td>
+                    <td className="ao-mono" style={{ fontSize: 11 }}>{p.firstSeen}</td>
+                    <td><span className="ao-src"><Ic name="link" size={10} />{p.evidenceRef}</span></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <div className="ao-paper-cards" data-testid="ao-paper-cards">
+            {filteredPapers.map((p) => (
+              <article className="ao-paper-card" key={p.title} data-testid="ao-paper-card">
+                <div className="ao-paper-card-top">
+                  <span className={"ao-st " + p.status}>{p.status}</span>
+                  <span className="ao-mono">{p.firstSeen}</span>
+                </div>
+                <h3>{p.title}</h3>
+                <div className="tag">{p.topic}</div>
+                <div className="ao-paper-card-meta">
+                  <span>{p.discipline}</span>
+                  <span>{p.difficulty}</span>
+                </div>
+                <span className="ao-src"><Ic name="link" size={10} />{p.evidenceRef}</span>
+              </article>
+            ))}
+          </div>
+        </>
+      )}
     </div>
   );
 }
@@ -227,10 +368,10 @@ const gfind = (id: string) => G.disc.find((n) => n.id === id) ?? G.topics.find((
    demo-only. Live mode renders honest counts + the actual topic/discipline
    sets derived from the live papers — no specimen numbers, no fake layout —
    until a real graph index ships with the hosted room. */
-function TopicsGraph({ bundle }: { bundle: PublicRoomBundle }) {
-  if (bundle.source === "demo") return <TopicsGraphSpecimen />;
-  const topics = [...new Set(bundle.papers.map((p) => p.topic).filter(Boolean))];
-  const disciplines = [...new Set(bundle.papers.map((p) => p.discipline).filter(Boolean))];
+function TopicsGraph({ bundle, onTopicSelect }: { bundle: PublicRoomBundle; onTopicSelect: (topic: string) => void }) {
+  const topics = useMemo(() => [...new Set(bundle.papers.map((p) => p.topic).filter(Boolean))], [bundle.papers]);
+  const disciplines = useMemo(() => [...new Set(bundle.papers.map((p) => p.discipline).filter(Boolean))], [bundle.papers]);
+  if (bundle.source === "demo") return <TopicsGraphSpecimen onTopicSelect={onTopicSelect} />;
   return (
     <div className="ao-graph" data-testid="ao-topics-live">
       <div className="ao-graph-head">
@@ -245,27 +386,36 @@ function TopicsGraph({ bundle }: { bundle: PublicRoomBundle }) {
           <div className="b">Topics appear once the scan classifies papers from the source index.</div>
         </div>
       ) : (
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 8, padding: "14px 16px", alignContent: "flex-start" }}>
+        <div className="ao-live-topic-tags">
           {disciplines.map((d) => (
             <span className="ao-chip" key={d} style={{ fontWeight: 800 }}>{d}</span>
           ))}
           {topics.map((t) => (
-            <span className="ao-chip" key={t}>{t}</span>
+            <button
+              className="ao-chip ao-topic-chip"
+              type="button"
+              key={t}
+              data-testid={`ao-topic-${slugifyUi(t)}`}
+              onClick={() => onTopicSelect(t)}
+            >
+              {t}
+            </button>
           ))}
         </div>
       )}
       <div className="ao-glegend">
         <span>counts derived from the live papers index</span>
-        <span style={{ marginLeft: "auto" }}>interactive graph ships with the hosted room</span>
+        <span style={{ marginLeft: "auto" }}>topic chips filter the papers sheet</span>
       </div>
     </div>
   );
 }
 
-function TopicsGraphSpecimen() {
+function TopicsGraphSpecimen({ onTopicSelect }: { onTopicSelect: (topic: string) => void }) {
   const [sel, setSel] = useState("p1");
   const sp = G.papers.find((p) => p.id === sel);
   const spTopic = sp ? gfind(sp.t) : undefined;
+  const choosePaper = (paperId: string) => setSel(paperId);
   return (
     <div className="ao-graph">
       <div className="ao-graph-head">
@@ -313,12 +463,38 @@ function TopicsGraphSpecimen() {
           </g>
         ))}
         {G.papers.map((n) => (
-          <g className={"ao-gnode paper" + (n.nw ? " new" : "")} key={n.id} onClick={() => setSel(n.id)}>
+          <g
+            className={"ao-gnode paper" + (n.nw ? " new" : "")}
+            key={n.id}
+            role="button"
+            tabIndex={0}
+            aria-label={`Select ${n.l.replace("â€¦", "")}`}
+            onClick={() => choosePaper(n.id)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                choosePaper(n.id);
+              }
+            }}
+          >
             <circle cx={n.x} cy={n.y} r="5" stroke={sel === n.id ? "var(--text-primary)" : "none"} strokeWidth="1.5"></circle>
             <text x={n.x} y={n.y + 16} textAnchor="middle">{n.l}</text>
           </g>
         ))}
       </svg>
+      <div className="ao-topic-strip" aria-label="Filter papers by topic">
+        {G.topics.map((topic) => (
+          <button
+            className="ao-chip ao-topic-chip"
+            type="button"
+            key={topic.id}
+            data-testid={`ao-topic-${slugifyUi(topic.l)}`}
+            onClick={() => onTopicSelect(topic.l)}
+          >
+            {topic.l}
+          </button>
+        ))}
+      </div>
       <div className="ao-glegend">
         <span><span className="d" style={{ background: "var(--accent-primary)" }}></span>paper · new today</span>
         <span><span className="d" style={{ background: "var(--text-tertiary)" }}></span>paper · tracked</span>
@@ -338,9 +514,37 @@ function Empty({ h, b }: { h: string; b: string }) {
 function PublicRoomView({ bundle }: { bundle: PublicRoomBundle }) {
   const [tab, setTab] = useState<TabName>("Home");
   const [subscribeOpen, setSubscribeOpen] = useState(false);
+  const [paperQuery, setPaperQuery] = useState("");
+  const [paperStatus, setPaperStatus] = useState<PaperStatusFilter>("all");
+  const [paperTopic, setPaperTopic] = useState<string | null>(null);
+  const tabRefs = useRef<Record<string, HTMLButtonElement | null>>({});
+  const subscribeTriggerRef = useRef<HTMLButtonElement | null>(null);
   const showOps = opsEnabled();
   const tabs: readonly TabName[] = showOps ? [...TABS, "Ops"] : TABS;
   const { meta } = bundle;
+  const closeSubscribe = () => {
+    setSubscribeOpen(false);
+    window.requestAnimationFrame(() => subscribeTriggerRef.current?.focus({ preventScroll: true }));
+  };
+  const selectTopic = (topic: string) => {
+    setPaperTopic(topic);
+    setPaperQuery("");
+    setPaperStatus("all");
+    setTab("Papers");
+  };
+  const handleTabKeyDown = (e: KeyboardEvent<HTMLButtonElement>, current: TabName) => {
+    const currentIndex = tabs.indexOf(current);
+    let nextIndex = currentIndex;
+    if (e.key === "ArrowRight" || e.key === "ArrowDown") nextIndex = (currentIndex + 1) % tabs.length;
+    else if (e.key === "ArrowLeft" || e.key === "ArrowUp") nextIndex = (currentIndex - 1 + tabs.length) % tabs.length;
+    else if (e.key === "Home") nextIndex = 0;
+    else if (e.key === "End") nextIndex = tabs.length - 1;
+    else return;
+    e.preventDefault();
+    const next = tabs[nextIndex];
+    setTab(next);
+    window.requestAnimationFrame(() => tabRefs.current[next]?.focus());
+  };
 
   return (
     <div className="ao-public" data-ao-source={bundle.source}>
@@ -357,23 +561,58 @@ function PublicRoomView({ bundle }: { bundle: PublicRoomBundle }) {
             {meta.viewersWeek !== null && (
               <span className="ao-chip"><Ic name="eye" size={11} />{meta.viewersWeek} viewers this week</span>
             )}
-            <button className="ao-btn pri" style={{ padding: "6px 13px" }} data-testid="ao-subscribe-btn" onClick={() => setSubscribeOpen(true)}><Ic name="mail" size={13} />Subscribe</button>
+            <button
+              className="ao-btn pri ao-btn-sm"
+              type="button"
+              data-testid="ao-subscribe-btn"
+              onClick={(e) => {
+                subscribeTriggerRef.current = e.currentTarget;
+                setSubscribeOpen(true);
+              }}
+            >
+              <Ic name="mail" size={13} />Subscribe
+            </button>
           </div>
-          <div className="ao-tabs">
+          <div className="ao-tabs" role="tablist" aria-label="Room sections">
             {tabs.map((t) => (
-              <button className={"ao-tab" + (t === tab ? " on" : "")} key={t} data-testid={tabTestId(t)} onClick={() => setTab(t)}>
+              <button
+                className={"ao-tab" + (t === tab ? " on" : "")}
+                key={t}
+                type="button"
+                role="tab"
+                id={tabButtonId(t)}
+                aria-selected={t === tab}
+                aria-controls={tabPanelId(t)}
+                tabIndex={t === tab ? 0 : -1}
+                data-testid={tabTestId(t)}
+                ref={(el) => {
+                  tabRefs.current[t] = el;
+                }}
+                onClick={() => setTab(t)}
+                onKeyDown={(e) => handleTabKeyDown(e, t)}
+              >
                 <Ic name={tabIcon(t)} size={13} />{t}
-                {t === "Papers" && <span className="ao-mono" style={{ fontSize: 9.5, color: "var(--text-tertiary)" }}>{meta.papersCount}</span>}
+                {t === "Papers" && <span className="ao-mono ao-tab-count">{meta.papersCount}</span>}
               </button>
             ))}
           </div>
 
           <div className="ao-rbody">
-            <div className="ao-rmain">
+            <div className="ao-rmain" role="tabpanel" id={tabPanelId(tab)} aria-labelledby={tabButtonId(tab)} tabIndex={0}>
               {tab === "Home" && <Brief bundle={bundle} />}
-              {tab === "Papers" && <PapersSheet bundle={bundle} />}
+              {tab === "Papers" && (
+                <PapersSheet
+                  bundle={bundle}
+                  query={paperQuery}
+                  status={paperStatus}
+                  topic={paperTopic}
+                  onQueryChange={setPaperQuery}
+                  onStatusChange={setPaperStatus}
+                  onTopicChange={setPaperTopic}
+                />
+              )}
               {tab === "Trace" && <RunLog bundle={bundle} />}
-              {tab === "Topics" && <TopicsGraph bundle={bundle} />}
+              {tab === "Topics" && <TopicsGraph bundle={bundle} onTopicSelect={selectTopic} />}
               {tab === "Weekly digest" && <Empty h="No weekly digest yet" b="The first one lands Monday 8:00. Weekly digests summarize the week's briefs — top reads by level, most active topics, new authors." />}
               {tab === "Ops" && showOps && (
                 <Suspense fallback={<div className="ao-empty"><div className="b">Loading ops panel…</div></div>}>
@@ -409,12 +648,21 @@ function PublicRoomView({ bundle }: { bundle: PublicRoomBundle }) {
             <Ic name="lock" size={13} style={{ color: "var(--text-tertiary)" }} />
             <span className="hint">You're viewing a public room. Only the owner and the room agent can write.</span>
             <span className="grow"></span>
-            <button className="ao-btn" style={{ padding: "5px 12px", fontSize: 11.5 }} onClick={() => setSubscribeOpen(true)}><Ic name="mail" size={12} />Get the daily brief by email</button>
+            <button
+              className="ao-btn ao-btn-sm"
+              type="button"
+              onClick={(e) => {
+                subscribeTriggerRef.current = e.currentTarget;
+                setSubscribeOpen(true);
+              }}
+            >
+              <Ic name="mail" size={12} />Get the daily brief by email
+            </button>
           </div>
         </div>
       </div>
       {subscribeOpen && (
-        <SubscribeModal roomSlug={meta.slug} roomTitle={meta.title} onClose={() => setSubscribeOpen(false)} />
+        <SubscribeModal roomSlug={meta.slug} roomTitle={meta.title} onClose={closeSubscribe} />
       )}
     </div>
   );
