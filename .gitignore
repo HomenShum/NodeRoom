@@ -42,6 +42,11 @@ playwright/.cache/
 # Proofloop run history/output (like .git objects) -- keep .proofloop/config.json tracked
 .proofloop/runs/
 .proofloop/goals/
+.proofloop/intake/
+.proofloop/packages/
+.proofloop/workflows/
+.proofloop/screenshots/
+.proofloop/ui-map.json
 .proofloop/setup/
 .proofloop/live/
 .proofloop/codegraph/
